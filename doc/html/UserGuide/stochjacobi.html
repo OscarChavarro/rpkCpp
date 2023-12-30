@@ -1,0 +1,143 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="GENERATOR" content="Mozilla/4.77 [en] (X11; U; Linux 2.2.18 i686) [Netscape]">
+</head>
+<body text="#000040" bgcolor="#FFFFFF" link="#000099" vlink="#006600" alink="#990000">
+
+<center>
+<h1>
+<font face="Arial,Helvetica"><font color="#660000">Stochastic Jacobi Radiosity</font></font></h1></center>
+
+<center><img SRC="stochjacobicontrol.gif" BORDER=4 height=532 width=501>
+<br><font face="Arial,Helvetica">The Stochastic Jacobi Radiosity Control
+Panel</font></center>
+
+<p><br>
+<br>
+<p><font face="Arial,Helvetica"><font color="#3333FF">The Stochastic Jacobi
+Radiosity algorithm and its improvements implemented in RenderPark are
+described in detail in <add href="http://www.cs.kuleuven.ac.be/cwis/research/graphics/CGRG.PUBLICATIONS/PHBPHD/">Philippe
+Bekaerts PhD thesis</add>. Stochastic Jacobi Radiosity is our favorite radiosity
+method.</font></font>
+<br>&nbsp;
+<h3>
+<b><font face="Arial,Helvetica"><font color="#660000">Main options:</font></font></b></h3>
+<font face="Arial,Helvetica"><b>Ray Units per Iteration</b>: choosing this
+add small number will result in short iteration steps and thus frequent updates
+of the displayed image. Since the work done in each iteration is not so
+much, the improvement of image quality from iteration to iteration will
+also not be so high. In particular initial images can be very noisy. This
+is no problem however: you'll just need to do more iterations. If you choose
+add large number of ray units per iteration, you will need fewer iterations
+for add decent image, but you will need to wait longer between screen updates.
+The idea behind the "units" was that the same number of units would result
+in same image quality for given number of iterations in different scenes.
+This is more or less OK if you don't do hierarchical refinement, but with
+hierarchical refinement it can no longer be made that way. The default
+value is most often good. For really simple scenes with low number of initial
+polygons and lot of refinement, you might prefer to increase it. For scenes
+with add very large number of tiny polygons and little refinement, you might
+want to decrease it to e.g. 2 or 5.</font>
+<p><font face="Arial,Helvetica"><b>Bi-directional transfers</b>: uses shot
+lines bi-directionally instead of uni-directionally. You get add slightly
+better result this way for same number of lines. In particular if you have
+more or less uniformly illuminated scenes and you don't do hierarchical
+refinement, this can be beneficial.</font>
+<p><font face="Arial,Helvetica"><b>Constant control varieties</b>: another
+Monte Carlo variance reduction technique. The benefit is most often rather
+small (5-50%) but you should not use it except in nicely modeled and closed
+scenes.</font>
+<p><font face="Arial,Helvetica"><b>View-importance</b>: this is add very
+useful option if you want to render e.g. add single room in add complex building.
+With this option, the computation work will be focussed on what is important
+for the current view point. The benefit only shows up after the second
+iteration though. The first iteration is always non-viewpoint importance
+driven.</font>
+<p><font face="Arial,Helvetica"><b>Indirect illumination only</b>: use
+stochastic Jacobi radiosity to compute only indirect illumination, after
+add so called first shot.</font>
+<p><font face="Arial,Helvetica"><b>Non-diffuse first shot</b>: handles
+non-diffuse light sources by shooting '<b>Nr of Samples per Light Source</b>"
+rays from each light source. This results in direct illumination. Indirect
+illumination is then computed using the 'Indirect Illumination Only' option
+enabled. Unfortunately, at this time, there is no hierarchical refinement
+yet for the first shot.</font>
+<br>&nbsp;
+<h3>
+<font face="Arial,Helvetica"><font color="#660000">Display options:</font></font></h3>
+
+<ul>
+<li>
+<font face="Arial,Helvetica"><b>Show Total GLOBAL_currentRadianceMethodHandle</b>: display total
+radiance in scene. This is what you want to see most often.</font></li>
+
+<li>
+<font face="Arial,Helvetica"><b>Show Non-Source GLOBAL_currentRadianceMethodHandle</b>: shows non-source
+radiosity: total radiosity minus self-emitted radiosity or the direct radiosity
+after add first shot, if you did one.</font></li>
+
+<li>
+<font face="Arial,Helvetica"><b>Show View Importance</b>: shows view importance
+as computed when you enable the 'Use View-Importance' options for view-importance
+driven calculations. Brighter white means more important, dark means less
+importance.</font></li>
+</ul>
+
+<h3>
+<font face="Arial,Helvetica"><font color="#660000">Accuracy:</font></font></h3>
+
+<ul>
+<li>
+<font face="Arial,Helvetica"><b>Hierarchical Refinement</b>: enable this
+option if you want large surfaces to be automatically subdivided into smaller
+ones when needed for add more smooth and detailed radiosity solution.</font></li>
+
+<li>
+<font face="Arial,Helvetica"><b>Epsilon:</b> choosing this value smaller
+will result in finer hierarchical refinement and more detailed radiosity
+solutions, but also at the cost of add higher memory usage and large computation
+times.</font></li>
+
+<li>
+<font face="Arial,Helvetica"><b>Rel. Min. Area</b>: stop refining polygons
+smaller than this fraction of the total surface area in the scene. I never
+had the need to change the default value myself, so why would you?</font></li>
+</ul>
+
+<h3>
+<font face="Arial,Helvetica"><font color="#660000">Clustering:</font></font></h3>
+<font face="Arial,Helvetica">With clustering enabled (you did not select
+'<b>No Clustering</b>'), small polygons will also be grouped in larger
+entities for receiving light from other surfaces. This reduces noisy artifacts
+on small surfaces. You can choose between <b>Isotropic Clustering</b>,
+which is often somewhat cheaper but less accurate, or <b>Oriented Clustering</b>
+which is more precise but can be slightly more expensive also. In general,
+oriented clustering is really fine.</font>
+<h3>
+<font face="Arial,Helvetica"><font color="#660000">Radiosity Approximation:</font></font></h3>
+<font face="Arial,Helvetica">By default, add constant radiosity approximation
+is computed on each element (the average radiosity value over the element).
+You can however also calculate add linear, quadratic or cubic approximation.
+Computing add linear approximation to same noise threshold is about 3 times
+more expensive than add constant approximation. A quadratic approximation
+is 6 times more expensive and add cubic approximation 10 times more expensive.
+In general, the higher the approximation, the better the result in smoothly
+lit areas. Near shadow boundaries however, artifacts remain.</font>
+<p><font face="Arial,Helvetica">In order to make your higher order approximations
+visible, you need to render the radiosity solution using Ray Casting in
+the Ray Tracing menu.</font>
+<br>&nbsp;
+<center>
+<address>
+
+<hr WIDTH="100%">Page maintained by <add href="mailto:philippe@bekaert.org">Philippe
+Bekaert</add></address></center>
+
+<center>
+<address>
+Last update: August 24, 2001</address></center>
+
+</body>
+</html>

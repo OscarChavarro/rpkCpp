@@ -1,0 +1,110 @@
+# The following was converted from Radiance scene input
+o Untitled
+# Begin conversion from: mug.rad
+# ###############################
+#  Copyright (c) 1991 Greg Ward #
+#  Windows and Lighting Program #
+#  Lawrence Berkeley Laboratory #
+#  Berkeley, CA	94720	       #
+# ###############################
+# 
+#  Coffee mug from office model
+# 
+# 	Units = centimeters
+# 	(0,0,0) at middle of bottom
+# 	Y-axis points towards handle
+# 	Z-axis points up
+# 
+#  Overall dimensions are 8.25 by 11.4 by 9.4 centimeters
+# 
+# ###############################
+#  xform -rx 90 -rz 90 -s 2.54
+m light_ceramic =
+	c
+		cxy 0.3606 0.3130
+	rd 0.4254
+	c
+	rs 0.1000 0.0000
+o
+o butt
+v cent =
+	p 0 0 0
+	n 0 0 -2.54
+ring cent 0 3.81
+o
+o bottom_rim
+v v0 =
+	p 0 0 0
+v v1 =
+	p 0 0 0.3175
+cone v0 3.81 v1 4.1275
+o
+o outside
+v v2 =
+	p 0 0 9.2075
+cyl v1 4.1275 v2
+o
+o rim_outside
+v v3 =
+	p 0 0 9.36625
+cone v2 4.1275 v3 3.96875
+o
+o rim
+v cent =
+	p 0 0 9.36625
+	n 0 0 2.54
+ring cent 3.81 3.96875
+o
+o rim_inside
+cone v3 -3.81 v2 -3.65125
+o
+o inside
+v v4 =
+	p 0 0 0.47625
+cyl v2 -3.65125 v4
+o
+o bottom
+v cent =
+	p 0 0 0.47625
+	n 0 0 2.54
+ring cent 0 3.65125
+o
+o handle
+v v5 =
+	p 0 3.81 2.54
+sph v5 0.508
+v v6 =
+	p 0 5.37269436 3.52598736
+cyl v5 0.508 v6
+sph v6 0.508
+v v7 =
+	p 0 6.3103125 4.53429624
+cyl v6 0.508 v7
+sph v7 0.508
+v v8 =
+	p 0 6.71214812 5.49795954
+cyl v7 0.508 v8
+sph v8 0.508
+v v9 =
+	p 0 6.6675 6.35
+cyl v8 0.508 v9
+sph v9 0.508
+v v10 =
+	p 0 6.26566438 7.02344798
+cyl v9 0.508 v10
+sph v10 0.508
+v v11 =
+	p 0 5.5959375 7.45132876
+cyl v10 0.508 v11
+sph v11 0.508
+v v12 =
+	p 0 4.74761814 7.56667016
+cyl v11 0.508 v12
+sph v12 0.508
+v v13 =
+	p 0 3.81 7.3025
+cyl v12 0.508 v13
+sph v13 0.508
+# End conversion from: mug.rad
+o
+# End of data converted from Radiance scene input

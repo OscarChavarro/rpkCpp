@@ -1,0 +1,14 @@
+# Just a rect light
+
+v l_1 =
+	0 0 0
+v l_2 =
+	p 1 0 0
+v l_3 =
+	p 1 0.1 0
+v l_4 =
+	p 0 0.1 0
+
+o light
+f l_4 l_3 l_2 l_1
+o

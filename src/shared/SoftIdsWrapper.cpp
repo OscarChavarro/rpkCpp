@@ -1,0 +1,21 @@
+// C++ wrapper for soft id rendering utilities in softids.c
+
+#include "shared/SoftIdsWrapper.h"
+
+static SGL_PIXEL
+PatchPointer(PATCH *P) {
+    return (SGL_PIXEL) P;
+}
+
+Soft_ID_Renderer::~Soft_ID_Renderer() {
+    sglClose(sgl);
+}
+
+void
+Soft_ID_Renderer::init() {
+    SGL_CONTEXT *oldsgl = sglGetCurrent();
+    sgl = SetupSoftFrameBuffer();
+    SoftRenderPatches(PatchPointer);
+    sglMakeCurrent(oldsgl); // make the old one current again
+}
+

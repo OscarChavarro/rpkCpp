@@ -1,0 +1,1 @@
+./build/rpk -eyepoint 0 1 -3 -center 0 0 0 -updir 0 1 0 -display-lists -iterations 9 -radiance-model-savefile output/soda.wrl ./etc/soda.mgf -radiance-method Galerkin -raytracing-method none -batch -batch-quit-at-end -offscreen

@@ -1,0 +1,255 @@
+# ------ Named colors -------
+
+c wittiggroen =
+	cxy 0.333330 0.333330
+
+c geelwit =
+	cxy 0.337000 0.337000
+
+c wittigrood =
+	cxy 0.333330 0.333330
+
+c wittigblauw =
+	cxy 0.333330 0.333330
+
+c blauw =
+	cxy 0.260000 0.260000
+
+c groen =
+	cxy 0.000000 0.380000
+
+c geel =
+	cxy 0.376563 0.395833
+
+c rood =
+	cxy 0.750000 0.100000
+
+c wit =
+	cxy 0.333333 0.333333
+
+# ------ Named Materials ------ 
+
+m strafferlicht =
+	c
+		cxy 0.333333 0.333333
+	rd 0.000000
+	c geelwit
+	ed 120000.000000
+
+m bovenlicht =
+	c
+		cxy 0.333333 0.333333
+	rd 0.000000
+	c geelwit
+	ed 250000.000000
+
+m blauw =
+	c blauw
+	rd 0.160000
+	c wittigblauw
+	rs 0.240000 0.4000
+
+m groen =
+	c groen
+	rd 0.120000
+	c wittiggroen
+	rs 0.80000 0.139000
+
+m geel =
+	c geel
+	rd 0.700000
+	rs 0.200000 0.10000
+
+m blad =
+	c geel
+	rd 0.3
+	rs 0.5 0.02
+
+m bal =
+	c blauw
+	rd 0.16
+	c wittigblauw
+	rs 0.7 0.05
+
+m rood =
+	c rood
+	rd 0.290000
+	c wittigrood
+	rs 0.290000 0.05000
+
+m deur =
+	c rood
+	rd 0.290000
+	c wittigrood
+	rs 0.290000 0.05000
+
+m plafond =
+	c wit
+	rd 0.600000
+	rs 0.200000 0.019000
+
+m achterwit =
+	rd 0.500000
+	rs 0.200000 0.142000
+
+m vloer =
+	c groen
+	rd 0.300000
+	rs 0.200000 0.12000
+
+
+# --- Corridor ---
+
+
+v v_0 = 
+	p -5 0 0
+v v_1 = 
+	p 5 0 0
+v v_2 = 
+	p 5 10 0
+v v_3 = 
+	p 15 10 0
+v v_4 = 
+	p 15 20 0
+v v_5 = 
+	p -5 20 0
+
+v p_0 = 
+	p -5 0 10
+v p_1 = 
+	p 5 0 10
+v p_2 = 
+	p 5 10 10
+v p_3 = 
+	p 15 10 10
+v p_4 = 
+	p 15 20 10
+v p_5 = 
+	p -5 20 10
+
+o vloer
+m vloer
+f v_0 v_1 v_2 v_3 v_4 v_5
+o
+
+o plafond
+m plafond
+f p_5 p_4 p_3 p_2 p_1 p_0
+o
+
+o deur
+m deur
+f p_3 p_4 v_4 v_3
+o
+
+o murenlinks
+m achterwit
+f v_5 p_5 p_0 v_0
+f v_4 p_4 p_5 v_5
+o
+
+o murenrechts
+m achterwit
+f v_1 p_1 p_2 v_2
+f v_2 p_2 p_3 v_3
+o
+
+
+v sl_1 =
+	p -0.2 -0.2 9.98
+v sl_2 =
+	p -0.2 0.2 9.98
+v sl_3 =
+	p 0.2 0.2 9.98
+v sl_4 =
+	p 0.2 -0.2 9.98
+
+
+o lights
+m bovenlicht
+xf -t -4 1 0
+xf -a 19 -t 0 1 0
+f sl_1 sl_2 sl_3 sl_4
+xf
+xf
+
+xf -t 4 1 0
+xf -a 10 -t 0 1 0
+f sl_1 sl_2 sl_3 sl_4
+xf
+xf
+
+xf -t -3 19 0
+xf -a 18 -t 1 0 0
+f sl_1 sl_2 sl_3 sl_4
+xf
+xf
+
+xf -t 5 11 0
+xf -a 10 -t 1 0 0
+f sl_1 sl_2 sl_3 sl_4
+xf
+xf
+o
+
+v v_vpil1 =
+	p 4 11 0
+v v_vpil2 =
+	p 4 11 10
+
+o pilaar
+m rood
+cyl v_vpil1 0.3 v_vpil2
+o
+
+
+v v_pin1 =
+	p 5 5 8
+v v_pin2 =
+	p 4 5 8
+
+o pin
+m vloer
+cyl v_pin1 0.1 v_pin2
+o
+
+v v_ringc = 
+	p 4.5 5 7
+	n 1 0 0
+
+o ring
+m geel
+torus v_ringc 1.1 1.4
+o
+
+
+v v_mv1 =
+	p -5 16 4
+v v_mv2 =
+	p -5 20 4
+v v_mv3 =
+	p -1 20 4
+
+v v_mvo1 =
+	p -5 16 3.7
+v v_mvo2 =
+	p -5 20 3.7
+v v_mvo3 =
+	p -1 20 3.7
+
+
+o achterblad
+m blad
+f v_mv3 v_mv2 v_mv1
+f v_mvo1 v_mvo2 v_mvo3
+f v_mv1 v_mvo1 v_mvo3 v_mv3
+o
+
+v v_vers =
+	p -3.5 18.5 4.8
+
+o versiering1
+m bal
+sph v_vers 0.8
+o
+

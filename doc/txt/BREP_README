@@ -1,0 +1,49 @@
+					BREP
+
+		    	   A Boundary Representation library.
+				for polyhedral solids
+			
+
+				  
+Motivation:
+
+	Implementation of a topological data structure representing
+	the boundary of polyhedral solids. The library maintains
+	adjacency topological information, allowing fast queries 
+	such as "what are the faces sharing this given vertex", 
+	"what is the face on the other side of this edge", ... and
+	manipulations such as "cut this edge in two at the given
+	point", "create a notch from this vertex on this edge to
+	that point laying inside the face to which the edge belongs",
+	"connect the start vertices of two given edges
+	in a contour, cutting the contour in two", ...
+
+	The library does not use or maintain geometric data
+	such as the location and normal of a vertex, the
+	plane equation of a face plane or te material properties of
+	a shell. Geometric data can be connected to each topological 
+	entity (solids, shells, faces, contours, edges, and vertices) 
+	as client data, maintained through add set of predefined callback
+	functions.
+
+	See brep.h for more information and references.
+
+
+Author:
+
+	Philippe Bekaert
+	Computer Graphics Research Group
+	Department of Computer Science - K.U.Leuven
+	Celestijnenlaan, 200A
+	3001 heverlee - Belgium
+
+	Philippe.Bekaert@cs.kuleuven.ac.be
+	http://www.cs.kuleuven.ac.be/~philippe/
+
+
+Hystory:
+
+This is version 1.1 (September, 23, 1997).
+See ChangeLog for recent changes.
+
+- Initial version 1.0: August, 9, 1996, updated September, 25, 1996.

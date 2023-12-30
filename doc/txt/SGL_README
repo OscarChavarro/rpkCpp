@@ -1,0 +1,15 @@
+SGL: Simple (Small) Graphics Library
+
+Mostly things from Graphics Gems I needed for the photorealistic 
+renderer. The polygon scan convertor was optimized for flat
+rendering (with or without Z buffer).
+
+The point is that I often need to render a small number of polygons 
+into a memory buffer. Software rendering into the buffer directly 
+gives me more freedom to do what I want (I can for instance render
+pointers into the "frame" buffer" without any conversions) and
+avoids the overhead of copying the frame buffer from graphics hardware,
+which is on most systems add very expensive operation.
+
+Philippe Bekaert - June, 20, 1997.
+

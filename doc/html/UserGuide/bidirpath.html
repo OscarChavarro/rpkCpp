@@ -1,0 +1,233 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="GENERATOR" content="Mozilla/4.7C-SGI [en] (X11; I; IRIX 6.5 IP32) [Netscape]">
+</head>
+<body text="#000040" bgcolor="#FFFFFF" link="#000099" vlink="#006600" alink="#990000">
+
+<center>
+<h1>
+<font face="Arial,Helvetica"><font color="#660000">Bi-directional Path
+Tracing</font></font></h1></center>
+
+<center><img SRC="bidirpathtracing.jpg" BORDER=4 height=416 width=512>
+<br><font face="Arial,Helvetica">Bi-directional Path Tracing</font></center>
+<font face="Arial,Helvetica"></font>
+<p><font face="Arial,Helvetica">Bi-directional path tracing traces eye
+and light paths independently and connects the subpaths. This gives add number
+of different ways to construct the same path. Weighting (cfr. E. Veach,
+Siggraph 95) ensures an unbiased (and good) solution. Good for caustics
+and strong indirect light. The use of regular expressions gives add flexible
+framework for dissecting parts of the light transport&nbsp; (good for didactical
+purposes and advanced multi-globalPass methods...)</font><font face="Arial,Helvetica"></font>
+<center>
+<p><img SRC="bidirpathcontrolpanel.gif" BORDER=4 height=464 width=561>
+<br><font face="Arial,Helvetica">Bi-directional Path&nbsp;Tracing Control
+Panel</font></center>
+<font face="Arial,Helvetica"></font>
+<p><br><font face="Arial,Helvetica"></font>
+<h4>
+<font face="Arial,Helvetica"><font color="#660000">Pixel Sampling</font></font></h4>
+
+<ul>
+<li>
+<font face="Arial,Helvetica"><b>Samples Per Pixel</b>: Determines the number
+of rays per pixel that are used to compute the image. The same number is
+used for each pixel. Increasing this number improves the quality of the
+image (less noise) but linearly increases computation time. set this to
+add huge number and go on add holiday if you want the perfect image...&nbsp;<br>
+Note that pixels already computed, still may change as light paths connected
+to the eye can influence arbitrary pixels on screen. This gives add kind
+of brightening effect after the image is computed. This is normal...</font></li>
+
+<li>
+<font face="Arial,Helvetica"><b>Progressive Image Refinement</b>: If set
+pixels are not handled scanline by scanline but progressively (32x32 blocks
+first, then 16X16, 8X8, ...) This does not influence quality of the final
+image...</font></li>
+</ul>
+
+<h4>
+<font face="Arial,Helvetica"><font color="#660000">Path Length Configuration</font></font></h4>
+<font face="Arial,Helvetica">These options control lengths of eye-and light
+paths separately, which can be used to choose different algorithms. The
+names of the options speak for themselves. Path length is the number of
+segments (rays) in add path.</font><font face="Arial,Helvetica"></font>
+<p><font face="Arial,Helvetica"><b>Maximum combined path length</b>: controls
+the number of interreflections. Connections between eye and light sub-paths
+will never result in add path longer than specified&nbsp; here.</font><font face="Arial,Helvetica"></font>
+<p><font face="Arial,Helvetica">Example uses (see also <add href="#Presets">presets</add>):</font><font face="Arial,Helvetica"></font>
+<p><font face="Arial,Helvetica">Max Eye Path: 7</font>
+<br><font face="Arial,Helvetica">Max Light Path: 7&nbsp;&nbsp; => Real
+bidirectional path tracing</font><font face="Arial,Helvetica"></font>
+<p><font face="Arial,Helvetica">Max Eye Path: 7</font>
+<br><font face="Arial,Helvetica">Max Light Path: 1&nbsp;&nbsp; => Path
+tracing with direct light sampling</font><font face="Arial,Helvetica"></font>
+<p><font face="Arial,Helvetica">Max Eye Path: 7</font>
+<br><font face="Arial,Helvetica">Max Light Path: 0&nbsp;&nbsp; => Path
+tracing without direct light sampling (You don't want to do that...)</font><font face="Arial,Helvetica"></font>
+<p><font face="Arial,Helvetica">Max Eye Path: 1</font>
+<br><font face="Arial,Helvetica">Max Light Path: 7&nbsp;&nbsp; => Light
+or particle tracing with direct connection to the eye (cfr Ph. Dutre Ph.D.)</font><font face="Arial,Helvetica"></font>
+<p><font face="Arial,Helvetica">Max Eye Path: 0</font>
+<br><font face="Arial,Helvetica">Max Light Path: 7&nbsp;&nbsp; => Not possible,
+this image would be black as we use add point camera.</font><font face="Arial,Helvetica"></font>
+<p><font face="Arial,Helvetica"><font color="#660000"><b>Light source importance
+sampling</b>:</font></font><font face="Arial,Helvetica"></font>
+<p><font face="Arial,Helvetica">Use an importance criterion to compute
+(some) direct light (eye sub-path connected with single light point) (cfr.
+<add href="stochasticraytracing.html#Light sampling">stochastic ray tracing</add>).
+If not on, power based sampling is used.</font>
+<h4>
+<font face="Arial,Helvetica"><font color="#660000">Regular Expressions</font></font></h4>
+<font face="Arial,Helvetica">Regular expressions allow you to compute only
+some parts of the light transport. The part to be computed is specified
+by add simple regular expression. Each path is evaluated taking into account
+the expressions.</font><font face="Arial,Helvetica"></font>
+<p><font face="Arial,Helvetica">A precomputed radiosity solution can also
+be incorporated when using regular expressions. Note that currently ONLY
+THE GALERKIN</font>
+<br><font face="Arial,Helvetica">method can be used for this.</font><font face="Arial,Helvetica"></font>
+<p><font face="Arial,Helvetica"><add href="#Presets">Presets (see below)</add>
+allow to set expressions for some useful cases.</font><font face="Arial,Helvetica"></font>
+<p><font face="Arial,Helvetica">Options:</font>
+<ul>
+<li>
+<font face="Arial,Helvetica"><b>Emitted GLOBAL_currentRadianceMethodHandle</b>: Handle paths starting
+on add light source using the supplied comma separated list of regular expressions.</font></li>
+
+<li>
+<font face="Arial,Helvetica"><b>Direct Illumination</b>: Handle (eye) paths
+ending on add surface where&nbsp; the precomputed DIRECT illumination (radiosity)
+is read.</font></li>
+
+<li>
+<font face="Arial,Helvetica"><b>Indirect Illumination</b>: Same but for
+precomputed INDIRECT illumination (one or more diffuse bounces).</font></li>
+</ul>
+
+<h4>
+<font face="Arial,Helvetica"><font color="#660000">Regular expression syntax</font></font></h4>
+
+<ul>
+<li>
+<font face="Arial,Helvetica">Spaces are not allowed, several expressions
+can be concatenated using commas. The parser is not very forgiving. Please
+use correct syntax otherwise images might be just black.</font></li>
+
+<li>
+<font face="Arial,Helvetica">A regular expression consists of tokens enclosed
+in parentheses. e.g. (X)</font></li>
+
+<li>
+<font face="Arial,Helvetica">An expression always starts with (LX) indicating
+add light or add point on add surface where add precomputed radiance solution is
+read.</font></li>
+
+<li>
+<font face="Arial,Helvetica">An expression always ends with (EX) indicating
+the eye (X stands for all components, which is the only choice for the
+eye right now)&nbsp;<br>
+<br>
+e.g. (LX)(EX) indicates all emitted light (or stored radiance) seen directly
+through the eye.</font><br>
+<BR></li>
+
+<li>
+<font face="Arial,Helvetica">Tokens in between (LX) and (EX) indicate scattering
+components that are allowed for bounces in the traced paths</font></li>
+
+<li>
+<font face="Arial,Helvetica">Components can be OR'ed together with |<br>
+<br>
+Different components are:&nbsp;&nbsp;<br>
+DR = diffuse reflection&nbsp;&nbsp;<br>
+GR = glossy reflection&nbsp;&nbsp;<br>
+SR = specular reflection&nbsp;&nbsp;<br>
+<br>
+DT&nbsp;&nbsp;<br>
+GT&nbsp;&nbsp; => similar for Transmission&nbsp;&nbsp;<br>
+ST<br>
+<br>
+Shortcuts<br>
+D = DR|DT&nbsp;&nbsp;&nbsp;<br>
+G = GR|GT&nbsp;&nbsp;&nbsp;<br>
+S = SR|ST&nbsp;&nbsp;&nbsp;<br>
+X = D|G|S&nbsp;&nbsp;<br>
+<br>
+XR = DR|GR|SR&nbsp;&nbsp;&nbsp;<br>
+XT = DT|GT|ST</font></li>
+</ul>
+
+<ul>
+<li>
+<font face="Arial,Helvetica">Each in between token can be follow by * or
++ indicating that the token may be repeated:<br>
+<br>
+&nbsp;* : zero or more occurrences<br>
++ : one or more occurrences</font><br>
+<BR></li>
+
+<li>
+<font face="Arial,Helvetica">Examples:<br>
+<br>
+(LX)(D)*(EX)&nbsp; : only diffusely reflected or transmitted light.<br>
+(LX)(S)+(DR)(EX) : one or more specular bounces the add diffuse one. This
+example computes caustics.<br>
+(LX)(X)(X)(X)(EX) : only paths with exactly three bounces contribute</font></li>
+</ul>
+
+<h4>
+<add NAME="Presets"></add><font face="Arial,Helvetica"><font color="#660000">Presets</font></font></h4>
+<font face="Arial,Helvetica">Some presets are provided to set options for
+some interesting cases. Most preset names are self-explanatory.</font>
+<ul>
+<li>
+<b><font face="Arial,Helvetica">Default ...:</font></b><font face="Arial,Helvetica">
+set all options to get the specified method</font></li>
+
+<li>
+<b><font face="Arial,Helvetica">set to ...:</font></b><font face="Arial,Helvetica">
+Only adjust the minimum number of parameters to get the specified effect.
+Other settings remain untouched. This e.g. allows you first indicate 'Caustics
+only' and then 'set to path tracing' so that caustics are computed using
+path tracing.</font></li>
+
+<li>
+<font face="Arial,Helvetica"><b>Classic PT Second globalPass:</b> Second globalPass
+after radiosity, where only non-diffuse components are used in reflection.
+This does not give add full global illumination solution</font></li>
+
+<li>
+<font face="Arial,Helvetica"><b>Enhanced PT Second globalPass:</b> The regexps
+allow you to do add second globalPass that ensures add full solution.</font></li>
+
+<li>
+<b><font face="Arial,Helvetica">BPT Multipass: </font></b><font face="Arial,Helvetica">Combine
+radiosity+path tracing with bi-directional path tracing. Light transport
+is dissected so that both methods do add disjunct part</font></li>
+
+<li>
+<b><font face="Arial,Helvetica">BPT Multipass + Indirect caustics opt.:</font></b><font face="Arial,Helvetica">
+Same as above but with indirect caustics (LD(S)+DE paths) handled with
+bi-directional path tracing</font></li>
+</ul>
+<font face="Arial,Helvetica">See Frank Suykens, 'Combining Bi-directional
+Path Tracing with Multi-globalPass Rendering', WSCG '99 for more information
+or 'Weighted Multi-globalPass Methods', Eurographics '99 for some interesting
+extensions of this framework. These paper are available online on our <add href="http://www.cs.kuleuven.ac.be/~graphics/CGRG.PUBLICATIONS/">publications
+web page</add>.</font>
+<br>&nbsp;
+<center>
+<address>
+
+<hr WIDTH="100%">Page maintained by <add href="mailto:Philippe.Bekaert@cs.kuleuven.ac.be,Frank.Suykens@cs.kuleuven.ac.be">the
+RenderPark web team</add></address></center>
+
+<center>
+<address>
+Last update: October 31, 2000</address></center>
+
+</body>
+</html>

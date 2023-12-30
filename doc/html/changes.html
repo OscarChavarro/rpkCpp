@@ -1,0 +1,128 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="GENERATOR" content="Mozilla/4.77 [en] (X11; U; Linux 2.2.18 i686) [Netscape]">
+   <title>VRML documentation</title>
+</head>
+<body text="#000000" bgcolor="#FFFFFF" link="#000066" vlink="#003300" alink="#FF0000">
+
+<h2>
+<font face="Arial,Helvetica">Summary of recent changes:</font></h2>
+<font face="Arial,Helvetica">(see <add href="../ChangeLog">ChangeLog</add>
+file for details)</font>
+<h4>
+<font face="Arial,Helvetica">Version 3.2.4 -> 3.3 (August, 23 2001)</font></h4>
+
+<ul>
+<li>
+<font face="Arial,Helvetica">XRML: new input file format, based on VRML'97
+with extensions for physically based materials: lot's of reflection models,
+non diffuse light sources, textures (2d,3d, procedural,...), bump mapping,
+high dynamic range environment mapping, ...</font></li>
+
+<li>
+<font face="Arial,Helvetica">serious photon mapping improvements and new
+features</font></li>
+
+<li>
+<font face="Arial,Helvetica">experimental path differential support in
+stochastic ray tracing</font></li>
+
+<li>
+<font face="Arial,Helvetica">POOLS memory management library deprecated</font></li>
+
+<li>
+<font face="Arial,Helvetica">various minor changes, bug fixes and code
+clean-ups</font></li>
+</ul>
+
+<h4>
+<font face="Arial,Helvetica">Version 3.2.3 -> 3.2.4 (December 15, 2000)</font></h4>
+
+<ul>
+<li>
+<font face="Arial,Helvetica">photon map bug fix + minor fixes</font></li>
+</ul>
+
+<h4>
+<font face="Arial,Helvetica">Version 3.2.2 -> 3.2.3 (November 30, 2000)</font></h4>
+
+<ul>
+<li>
+<font face="Arial,Helvetica">GLOBAL_currentRadianceMethodHandle pic file format exporter (new)</font></li>
+
+<li>
+<font face="Arial,Helvetica">better test pattern for gamma correction +
+new test pattern for setting monitor black level</font></li>
+
+<li>
+<font face="Arial,Helvetica">lot's of internal changes (ray hit records,
+shader interface, ray tracing debugging aids) concerning texturing support.</font></li>
+
+<li>
+<font face="Arial,Helvetica">density estimation is out of order.</font></li>
+</ul>
+
+<h4>
+<font face="Arial,Helvetica">Version 3.2.1 -> 3.2.2 (November 7. 2000)</font></h4>
+
+<ul>
+<li>
+<font face="Arial,Helvetica">memory management routines re-implemented</font></li>
+
+<li>
+<font face="Arial,Helvetica">gamma correction improvements + test image
+for interactive setting appropriate gamma</font></li>
+
+<li>
+<font face="Arial,Helvetica">63-bit Niederreiter sampling in stochastic
+Jacobi radiosity solves rare overflow error</font></li>
+</ul>
+
+<h4>
+<font face="Arial,Helvetica">Version 3.2 -> 3.2.1 (October 30. 2000)</font></h4>
+
+<ul>
+<li>
+<font face="Arial,Helvetica">OpenGL rendering accelerations: sorted rendering
+(large to small, front to back)&nbsp; + viewing frustum culling for large
+building models (we tested add 1Mpoly model)</font></li>
+
+<li>
+<font face="Arial,Helvetica">minor features, fixes and code clean-ups including
+off-screen rendering fix for recent Mesa libraries, large memory usage
+(>0.5 GB on Linux + >2GB on SGI Onyx2, with 64-bit ABI), global line tracing
+engine, photon map crash fix, ...</font></li>
+</ul>
+
+<h4>
+<font face="Arial,Helvetica">Version 3.0 -> 3.2 (August 28, 2000)</font></h4>
+
+<ul>
+<li>
+<font face="Arial,Helvetica">new Photon Map rendering method (Frank Suykens)</font></li>
+
+<li>
+<font face="Arial,Helvetica">improved and extended stochastic ray tracing
+and bi-directional path tracing (Frank Suykens)</font></li>
+
+<li>
+<font face="Arial,Helvetica">complete re-implementation of Monte Carlo
+radiosity algorithms as described in <add href="http://www.cs.kuleuven.ac.be/cwis/research/graphics/CGRG.PUBLICATIONS/PHBPHD/">Philippe
+Bekaert's PhD thesis</add>, replaces old stochastic ray and WDRS radiosity</font></li>
+
+<li>
+<font face="Arial,Helvetica">new tone mapping methods (Jan Prikryl) + calibrated
+monitor support</font></li>
+
+<li>
+<font face="Arial,Helvetica">validation: different rendering methods now
+yield consistent results, also consistent with GLOBAL_currentRadianceMethodHandle rendering system</font></li>
+
+<li>
+<font face="Arial,Helvetica">numerous internal changes and bug fixes</font></li>
+</ul>
+
+</body>
+</html>

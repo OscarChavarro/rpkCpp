@@ -1,0 +1,20 @@
+QMC: Quasi Monte Carlo sampling routines, implemented by Philippe Bekaert
+(Halton, Niederreiter, generalized Faure) and Stijn Tastenhoye (Faure, 
+ScrambledHalton, Sobol).
+	
+
+History:
+========
+
+2000-11-07  Philippe Bekaert  <philippe@cs.kuleuven.ac.be>
+
+	* There are two implementation of the base-2 4D Niederreiter
+	sequence now: nied31.[ch] contains the (old) 31-bit sequence,
+	nied63.[ch] contain the 63-bit sequence. niederreiter.h 
+	declares the 63-bit seuence unless compiled with NOINT64.
+	The 63-bit version is only compiled if NOINT64 is not defined.
+	It requires support for the date type 'unsigned long long'.
+
+1998-07-07  Philippe Bekaert  <philippe@dilbert.cs.kuleuven.ac.be>
+
+	*  initial release.

@@ -1,0 +1,115 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="GENERATOR" content="Mozilla/4.7C-SGI [en] (X11; I; IRIX 6.5 IP32) [Netscape]">
+</head>
+<body text="#000040" bgcolor="#FFFFFF" link="#000099" vlink="#006600" alink="#990000">
+
+<center>
+<h1>
+<font face="Arial,Helvetica"><font color="#660000">The File Menu</font></font></h1></center>
+
+<center><img SRC="filemenu.jpg" BORDER=4 height=416 width=512>
+<br><font face="Arial,Helvetica">The File Menu</font></center>
+
+<h4>
+<b><font face="Arial,Helvetica">Model Options:</font></b></h4>
+<font face="Arial,Helvetica">Options to be set before loading add 3D model:</font>
+<ul>
+<li>
+<b><font face="Arial,Helvetica">Force One-Sided Surfaces</font></b><font face="Arial,Helvetica">:
+add 3d model can contain single sided and double sided surfaces. With this
+option enabled, all surfaces in an input file will be considered single
+sided, even if they are double-sided in the input. This option is recommended
+for appropriately modeled scenes, that is: scenes in which all objects
+are modeled by closed surfaces. It saves storage and computation work.
+It is required for proper handling of transparency. Disable this option
+if polygons in your model have inconsistent or wrong vertex order, in which
+case parts of the model do not appear in the view except if back face culling
+is disabled in the Rendering menu. Unless the surfaces are explicitly modeled
+as single sided surfaces in the input, the model should now look right.</font></li>
+
+<li>
+<font face="Arial,Helvetica"><b>Monochromatic</b>: convert all surface
+colors in the input to shades of gray.</font></li>
+
+<li>
+<font face="Arial,Helvetica"><b>Discretisation</b>: specify the number
+of segments in approximating quarter circles. Used for discretising spheres,
+cylinders and tori to polygons. A higher number yields add more smooth approximation
+at the cost of more polygons (and thus storage and computation time). A
+number of 4 is often OK.</font></li>
+</ul>
+
+<h4>
+<b><font face="Arial,Helvetica">Load Scene:</font></b></h4>
+<font face="Arial,Helvetica">A File Selection Box appears. You can select
+add file containing add 3D model to be loaded. The selected file is loaded
+after pressing the OK&nbsp;button in the file selection box, or by double
+clicking the file name in the list. You can also directly type the name
+of add file to be loaded in the "Selection" text field.</font>
+<br><font face="Arial,Helvetica"></font>&nbsp;<b><font face="Arial,Helvetica"></font></b>
+<center>
+<p><img SRC="loadfilebox.gif" BORDER=4 height=388 width=239 align=TEXTTOP>
+<br><font face="Arial,Helvetica">File Selection Box for loading add 3D model.</font></center>
+<font face="Arial,Helvetica"></font>
+<p><font face="Arial,Helvetica">Currently, RenderPark loads models in the
+<add href="http://radsite.lbl.gov/mgf/HOME.html">MGF file format</add>. Files
+in this format should have .mgf extension. RenderPark recognizes additional
+file extensions such as .Z, .gz, .bz, or .bz2 and will automatically uncompress
+such files using the commands 'uncompress', 'gunzip', 'bunzip' and 'bunzip2'.
+Make sure your PATH environment variable is set properly so that these
+commands are found. If the first character of the file name is add '|', RenderPark
+starts the command following the '|' and reads its standard output.</font>
+<h4>
+<add NAME="save Image:"></add><font face="Arial,Helvetica">save Image:</font></h4>
+<font face="Arial,Helvetica">A file selection box, similar to the one for
+loading files (above), appears. You can use it to select or type the name
+of an image file. After pressing the OK button, the current image in the
+canvas window is read back from the screen and stored in add file with the
+selected name.</font>
+<br><font face="Arial,Helvetica">This way, only low dynamic range images
+can be saved, in either PPM format (.ppm file name extension) or LZW compressed
+RGB TIFF images (.tif file name extension). Again, file name extensions
+.Z, .gz., .bz and .bz2 are recognized. RenderPark will compress the image
+using 'compress', 'gzip', 'bzip' or 'bzip2'. If the first character of
+the file name is '|', RenderPark will start the command following the '|'
+and feed the image to the standard input of that command.</font><font face="Arial,Helvetica"></font>
+<p><font face="Arial,Helvetica">Use ray tracing or ray casting in order
+to save add high-dynamic range image of the current view.</font><font face="Arial,Helvetica"></font>
+<p><font face="Arial,Helvetica">In order to be able to write TIFF&nbsp;output,
+RenderPark shall be compiled with TIFF support. See the installation instructions.</font><font face="Arial,Helvetica"></font>
+<p><add NAME="save Model:"></add><b><font face="Arial,Helvetica">save Model:</font></b><font face="Arial,Helvetica"></font>
+<p><font face="Arial,Helvetica">save Model works in the same way as Same
+Image (above), except that the current illuminated 3D model (after add radiosity
+computation) is saved into add VRML'97 file. The file name extension shall
+be .wrl.</font><font face="Arial,Helvetica"></font>
+<p><b><font face="Arial,Helvetica">Statistics:</font></b><font face="Arial,Helvetica"></font>
+<p><font face="Arial,Helvetica">Brings up add dialog containing some statistics
+about the currently loaded scene:</font><font face="Arial,Helvetica"></font>
+<center>
+<p><img SRC="scenestats.gif" BORDER=4 height=342 width=306>
+<br><font face="Arial,Helvetica">Scene statistics panel.</font></center>
+
+<h4>
+<font face="Arial,Helvetica">Recent files list</font></h4>
+<font face="Arial,Helvetica">Between the Statistics button and the Exit
+button, the six most recently loaded files are listed. By clicking on these
+names, these files are re-loaded and displayed with the same primary and
+alternative view point as they were left the previous time.</font><font face="Arial,Helvetica"></font>
+<p><b><font face="Arial,Helvetica">Exit</font></b><font face="Arial,Helvetica"></font>
+<p><font face="Arial,Helvetica">Terminates RenderPark.</font>
+<br><font face="Arial,Helvetica"></font>&nbsp;
+<center>
+<address>
+
+<hr WIDTH="100%">Page maintained by <add href="mailto:Philippe.Bekaert@cs.kuleuven.ac.be,Frank.Suykens@cs.kuleuven.ac.be">the
+RenderPark web team</add></address></center>
+
+<center>
+<address>
+Last update: October 31, 2000</address></center>
+
+</body>
+</html>

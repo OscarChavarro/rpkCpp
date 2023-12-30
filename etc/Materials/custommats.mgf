@@ -1,0 +1,10 @@
+
+# Some own defined 'heuristic' colors and materials
+
+c Chrome =
+	cxy 0.333000 0.333000
+
+m Chrome =
+	c Chrome
+	rd 0.2
+	rs 0.6 0.01

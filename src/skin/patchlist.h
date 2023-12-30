@@ -1,0 +1,59 @@
+#ifndef _PATCHLIST_H_
+#define _PATCHLIST_H_
+
+#include "common/dataStructures/List.h"
+#include "material/hit.h"
+#include "skin/patch.h"
+#include "common/Ray.h"
+
+class PATCHLIST {
+  public:
+    PATCH *patch;
+    PATCHLIST *next;
+};
+
+class HITLIST;
+
+#define PatchListCreate    (PATCHLIST *)ListCreate
+
+#define PatchListAdd(patchlist, patch)    \
+        (PATCHLIST *)ListAdd((LIST *)patchlist, (void *)patch)
+
+#define PatchListCount(patchlist) \
+        ListCount((LIST *)patchlist)
+
+#define PatchListDuplicate(patchlist) \
+        (PATCHLIST *)ListDuplicate((LIST *)patchlist)
+
+#define PatchListMerge(patchlist1, patchlist2) \
+        (PATCHLIST *)ListMerge((LIST *)patchlist1, (LIST *)patchlist2);
+
+#define PatchListIterate(patchlist, proc) \
+        ListIterate((LIST *)patchlist, (void (*)(void *))proc)
+
+#define PatchListIterate1A(patchlist, proc, data) \
+        ListIterate1A((LIST *)patchlist, (void (*)(void *, void *))proc, (void *)data)
+
+#define PatchListIterate1B(patchlist, proc, data) \
+        ListIterate1B((LIST *)patchlist, (void (*)(void *, void *))proc, (void *)data)
+
+#define PatchListDestroy(patchlist) \
+        ListDestroy((LIST *)patchlist)
+
+#define ForAllPatches(P, patches) ForAllInList(PATCH, P, patches)
+
+/* Computes a bounding box for the given list of PATCHes. The bounding box is
+ * filled in in 'boundingbox' and a pointer to it returned. */
+extern float *PatchListBounds(PATCHLIST *pl, float *boundingbox);
+
+/* Tests whether the Ray intersect the PATCHes in the list. See geom.h
+ * (GeomDiscretisationIntersect()) for more explanation. */
+extern HITREC *
+PatchListIntersect(PATCHLIST *pl, Ray *ray, float mindist, float *maxdist, int hitflags, HITREC *hitstore);
+
+/* similar, but adds all found intersections to the hitlist */
+extern HITLIST *
+PatchListAllIntersections(HITLIST *hits, PATCHLIST *patches, Ray *ray, float mindist, float maxdist,
+                          int hitflags);
+
+#endif

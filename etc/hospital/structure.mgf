@@ -1,0 +1,1044 @@
+
+i ./../Materials/dupont.mgf
+i ./../Materials/illums.mgf
+i ./../Materials/realobj.mgf
+
+
+# ------- Named colors ------
+c wittiggroen =
+	cxy 0.333330 0.333330
+
+c geelwit =
+	cxy 0.337000 0.337000
+
+c wittigrood =
+	cxy 0.333330 0.333330
+
+c wittigblauw =
+	cxy 0.333330 0.333330
+
+c blauw =
+	cxy 0.260000 0.260000
+
+c groen =
+	cxy 0.000000 0.380000
+
+c geel =
+	cxy 0.376563 0.395833
+
+c rood =
+	cxy 0.750000 0.100000
+
+c wit =
+	cxy 0.333333 0.333333
+
+c muurcol =
+	cxy 0.338333 0.339333
+
+# ------ Named Materials ------ 
+
+m strafferlicht =
+	c
+		cxy 0.333333 0.333333
+	rd 0.000000
+	c geelwit
+	ed 4500.000000
+
+m bovenlicht =
+	c
+		cxy 0.333333 0.333333
+	rd 0.000000
+	c geelwit
+	ed 40000.000000
+
+m blauw =
+	c blauw
+	rd 0.160000
+	c wittigblauw
+	rs 0.240000 0.4000
+
+m groen =
+	c groen
+	rd 0.120000
+	c wittiggroen
+	rs 0.80000 0.139000
+
+m geel =
+	c geel
+	rd 0.700000
+	rs 0.200000 0.10000
+
+m blad =
+	c geel
+	rd 0.3
+	rs 0.5 0.02
+
+m bal =
+	c blauw
+	rd 0.16
+	c wittigblauw
+	rs 0.7 0.05
+
+m muur =
+	c Dupont_Chip90
+	rd 0.69
+
+m rood =
+	c rood
+	rd 0.290000
+	c wittigrood
+	rs 0.290000 0.05000
+
+m deur =
+	c Dupont_Chip53
+	rd 0.290000
+
+m plafond =
+	c Dupont_Chip105
+	rd 0.600000
+	rs 0.200000 0.019000
+
+m achterwit =
+        c wit
+	rd 0.500000
+	rs 0.200000 0.142000
+
+
+m vloer = 
+ 	c Sand
+ 	rd 0.48
+
+m liftmat = Dupont_Chip73
+
+# -- Contour walls --
+
+v cvo_1f = 
+	p 0 0 0
+v cvo_1c = 
+	p 0 0 2.5
+v cvo_2f = 
+	p 0 2 0
+v cvo_2c = 
+	p 0 2 2.5
+v cvo_3f = 
+	p -5 2 0
+v cvo_3c = 
+	p -5 2 2.5
+v cvo_4f = 
+	p -5 13 0
+v cvo_4c = 
+	p -5 13 2.5
+v cvo_5f = 
+	p 0.5 13 0
+v cvo_5c = 
+	p 0.5 13 2.5
+v cvo_5d = 
+	p 0.5 13 2
+v cvo_6f = 
+	p 2.5 13 0
+v cvo_6c = 
+	p 2.5 13 2.5
+v cvo_6d = 
+	p 2.5 13 2
+v cvo_7f = 
+	p 8.5 13 0
+v cvo_7c = 
+	p 8.5 13 2.5
+v cvo_8f = 
+	p 8.5 10 0
+v cvo_8c = 
+	p 8.5 10 2.5
+v cvo_9f = 
+	p 6 10 0
+v cvo_9c = 
+	p 6 10 2.5
+v cvo_10f = 
+	p 6 9.5 0
+v cvo_10c = 
+	p 6 9.5 2.5
+v cvo_10d = 
+	p 6 9.5 2
+v cvo_11f = 
+	p 6 8.5 0
+v cvo_11c = 
+	p 6 8.5 2.5
+v cvo_11d = 
+	p 6 8.5 2
+v cvo_12f = 
+	p 6 5 0
+v cvo_12c = 
+	p 6 5 2.5
+v cvo_12d = 
+	p 6 5 2.05
+v cvo_12w = 
+	p 6 5 0.05
+v cvo_13f = 
+	p 6 3 0
+v cvo_13c = 
+	p 6 3 2.5
+v cvo_13d = 
+	p 6 3 2.05
+v cvo_13w = 
+	p 6 3 0.05
+v cvo_14f = 
+	p 6 2 0
+v cvo_14c = 
+	p 6 2 2.5
+v cvo_15f = 
+	p 3 2 0
+v cvo_15c = 
+	p 3 2 2.5
+v cvo_16f = 
+	p 3 0 0
+v cvo_16c = 
+	p 3 0 2.5
+v cvo_17f = 
+	p 2.5 0 0
+v cvo_17c = 
+	p 2.5 0 2.5
+v cvo_17d = 
+	p 2.5 0 2
+v cvo_18f = 
+	p 0.5 0 0
+v cvo_18c = 
+	p 0.5 0 2.5
+v cvo_18d = 
+	p 0.5 0 2
+
+v cvo_20f =
+	p -5 3 0
+v cvo_20c =
+	p -5 3 2.5
+v cvo_20d =
+	p -5 3 2.05
+v cvo_20w =
+	p -5 3 0.05
+v cvo_21f =
+	p -5 5 0
+v cvo_21c =
+	p -5 5 2.5
+v cvo_21d =
+	p -5 5 2.05
+v cvo_21w =
+	p -5 5 0.05
+v cvo_22f =
+	p -5 6 0
+v cvo_22c =
+	p -5 6 2.5
+
+
+v cvo_51f =
+	p 6 13 0
+v cvo_51c =
+	p 6 13 2.5
+
+
+v cvi_1f = 
+	p 0.1 0.1 0
+v cvi_1c =
+	p 0.1 0.1 2.5
+v cvi_2f = 
+	p 0.1 2.1 0
+v cvi_2c =
+	p 0.1 2.1 2.5
+v cvi_3f = 
+	p -4.9 2.1 0
+v cvi_3c =
+	p -4.9 2.1 2.5
+v cvi_4f = 
+	p -4.9 3 0
+v cvi_4c =
+	p -4.9 3 2.5
+v cvi_4d =
+	p -4.9 3 2.05
+v cvi_4w =
+	p -4.9 3 0.05
+v cvi_5f = 
+	p -4.9 5 0
+v cvi_5c =
+	p -4.9 5 2.5
+v cvi_5d =
+	p -4.9 5 2.05
+v cvi_5w =
+	p -4.9 5 0.05
+v cvi_6f = 
+	p -4.9 5.9 0
+v cvi_6c =
+	p -4.9 5.9 2.5
+v cvi_7f = 
+	p -4.9 6 0
+v cvi_7c =
+	p -4.9 6 2.5
+v cvi_8f = 
+	p -4.9 9.4 0
+v cvi_8c =
+	p -4.9 9.4 2.5
+v cvi_9f = 
+	p -4.9 9.5 0
+v cvi_9c =
+	p -4.9 9.5 2.5
+v cvi_10f = 
+	p -4.9 12.9 0
+v cvi_10c =
+	p -4.9 12.9 2.5
+v cvi_11f = 
+	p 0 12.9 0
+v cvi_11c =
+	p 0 12.9 2.5
+v cvi_12f = 
+	p 0.1 12.9 0
+v cvi_12c = 
+	p 0.1 12.9 2.5
+v cvi_13f = 
+	p 0.5 12.9 0
+v cvi_13c = 
+	p 0.5 12.9 2.5
+v cvi_13d = 
+	p 0.5 12.9 2
+v cvi_14f = 
+	p 2.5 12.9 0
+v cvi_14c = 
+	p 2.5 12.9 2.5
+v cvi_14d = 
+	p 2.5 12.9 2
+v cvi_15f = 
+	p 6 12.9 0
+v cvi_15c = 
+	p 6 12.9 2.5
+v cvi_16f = 
+	p 8.4 12.9 0
+v cvi_16c = 
+	p 8.4 12.9 2.5
+v cvi_17f = 
+	p 8.4 10.1 0
+v cvi_17c = 
+	p 8.4 10.1 2.5
+
+
+
+v cvi_23f =
+	p 5.9 3 0
+v cvi_23c =
+	p 5.9 3 2.5
+v cvi_23d =
+	p 5.9 3 2.05
+v cvi_23w =
+	p 5.9 3 0.05
+v cvi_24f =
+	p 5.9 2.1 0
+v cvi_24c =
+	p 5.9 2.1 2.5
+v cvi_25f =
+	p 3 2.1 0
+v cvi_25c =
+	p 3 2.1 2.5
+v cvi_26f =
+	p 3 2.3 0
+v cvi_26c =
+	p 3 2.3 2.5
+v cvi_26d =
+	p 3 2.3 2
+v cvi_27f =
+	p 2.9 2.3 0
+v cvi_27c =
+	p 2.9 2.3 2.5
+v cvi_27d =
+	p 2.9 2.3 2
+v cvi_28f =
+	p 2.9 0.1 0
+v cvi_28c =
+	p 2.9 0.1 2.5
+v cvi_29f =
+	p 2.5 0.1 0
+v cvi_29c =
+	p 2.5 0.1 2.5
+v cvi_29d =
+	p 2.5 0.1 2
+
+
+
+v cvi_50f = 
+	p 0.5 0.1 0
+v cvi_50c = 
+	p 0.5 0.1 2.5
+v cvi_50d = 
+	p 0.5 0.1 2
+
+v cvi_30f =
+	p 0.1 5.9 0
+v cvi_30c =
+	p 0.1 5.9 2.5
+v cvi_31f =
+	p 0.1 8.5 0
+v cvi_31c =
+	p 0.1 8.5 2.5
+v cvi_31d =
+	p 0.1 8.5 2
+v cvi_32f =
+	p 0 8.5 0
+v cvi_32c =
+	p 0 8.5 2.5
+v cvi_32d =
+	p 0 8.5 2
+v cvi_33f =
+	p 0 6 0
+v cvi_33c =
+	p 0 6 2.5
+v cvi_34f =
+	p -1.6 9.4 0
+v cvi_34c =
+	p -1.6 9.4 2.5
+v cvi_35f =
+	p -1.6 7.4 0
+v cvi_35c =
+	p -1.6 7.4 2.5
+v cvi_36f =
+	p -1.5 7.4 0
+v cvi_36c =
+	p -1.5 7.4 2.5
+v cvi_37f =
+	p -1.5 11.4 0
+v cvi_37c =
+	p -1.5 11.4 2.5
+v cvi_38f =
+	p -1.6 11.4 0
+v cvi_38c =
+	p -1.6 11.4 2.5
+v cvi_39f =
+	p -1.6 9.5 0
+v cvi_39c =
+	p -1.6 9.5 2.5
+
+v cvi_40f =
+	p 0 10.5 0
+v cvi_40c =
+	p 0 10.5 2.5
+v cvi_40d =
+	p 0 10.5 2
+v cvi_41f =
+	p 0.1 10.5 0
+v cvi_41c =
+	p 0.1 10.5 2.5
+v cvi_41d =
+	p 0.1 10.5 2
+
+
+v cvi_60f =
+	p 5.9 8.5 0
+v cvi_60c =
+	p 5.9 8.5 2.5
+v cvi_60d =
+	p 5.9 8.5 2
+v cvi_61f =
+	p 5.9 7.1 0
+v cvi_61c =
+	p 5.9 7.1 2.5
+v cvi_62f =
+	p 5.7 7.1 0
+v cvi_62c =
+	p 5.7 7.1 2.5
+v cvi_62d =
+	p 5.7 7.1 2
+v cvi_63f =
+	p 5.7 7 0
+v cvi_63c =
+	p 5.7 7 2.5
+v cvi_63d =
+	p 5.7 7 2
+v cvi_64f =
+	p 5.9 7 0
+v cvi_64c =
+	p 5.9 7 2.5
+v cvi_65f =
+	p 5.9 5 0
+v cvi_65c =
+	p 5.9 5 2.5
+v cvi_65d =
+	p 5.9 5 2.05
+v cvi_65w =
+	p 5.9 5 0.05
+
+v cvi_70f =
+	p 6 10.1 0
+v cvi_70c =
+	p 6 10.1 2.5
+v cvi_71f =
+	p 2.9 10.1 0
+v cvi_71c =
+	p 2.9 10.1 2.5
+v cvi_72f =
+	p 2.9 3.3 0
+v cvi_72c =
+	p 2.9 3.3 2.5
+v cvi_72d =
+	p 2.9 3.3 2
+v cvi_73f =
+	p 3 3.3 0
+v cvi_73c =
+	p 3 3.3 2.5
+v cvi_73d =
+	p 3 3.3 2
+v cvi_74f =
+	p 3 7 0
+v cvi_74c =
+	p 3 7 2.5
+v cvi_75f =
+	p 4.8 7 0
+v cvi_75c =
+	p 4.8 7 2.5
+v cvi_75d =
+	p 4.8 7 2
+v cvi_76f =
+	p 4.8 7.1 0
+v cvi_76c =
+	p 4.8 7.1 2.5
+v cvi_76d =
+	p 4.8 7.1 2
+v cvi_77f =
+	p 3 7.1 0
+v cvi_77c =
+	p 3 7.1 2.5
+v cvi_78f =
+	p 3 10 0
+v cvi_78c =
+	p 3 10 2.5
+v cvi_79f =
+	p 5.9 10 0
+v cvi_79c =
+	p 5.9 10 2.5
+v cvi_80f =
+	p 5.9 9.5 0
+v cvi_80c =
+	p 5.9 9.5 2.5
+v cvi_80d =
+	p 5.9 9.5 2
+
+
+
+o w1
+m muur
+f cvo_1f cvo_2f cvi_2f cvi_1f cvi_50f cvo_18f
+f cvo_18c cvi_50c cvi_1c cvi_2c cvo_2c cvo_1c 
+f cvo_18f cvo_18c cvo_1c cvo_1f
+f cvi_50f cvi_50c cvo_18c cvo_18f
+f cvi_1f cvi_1c cvi_50c cvi_50f
+f cvi_2f cvi_2c cvi_1c cvi_1f
+f cvo_2f cvo_2c cvi_2c cvi_2f
+f cvo_1f cvo_1c cvo_2c cvo_2f
+
+f cvi_5c cvi_6c cvi_30c cvi_31c cvi_32c cvi_33c cvi_7c cvo_22c cvo_21c
+f cvo_21f cvo_22f cvi_7f cvi_33f cvi_32f cvi_31f cvi_30f cvi_6f cvi_5f 
+o
+
+o w2
+m muur
+f cvo_2c cvi_2c cvi_3c cvi_4c cvo_20c cvo_3c
+f cvo_3f cvo_20f cvi_4f cvi_3f cvi_2f cvo_2f 
+f cvi_2f cvi_2c cvo_2c cvo_2f
+f cvi_3f cvi_3c cvi_2c cvi_2f
+f cvi_4f cvi_4c cvi_3c cvi_3f
+f cvo_20f cvo_20c cvi_4c cvi_4f
+f cvo_3f cvo_3c cvo_20c cvo_20f
+f cvo_2f cvo_2c cvo_3c cvo_3f
+o
+
+o w3
+m muur
+f cvi_5f cvi_5c cvo_21c cvo_21f
+f cvi_6f cvi_6c cvi_5c cvi_5f
+f cvi_30f cvi_30c cvi_6c cvi_6f
+f cvi_31f cvi_31c cvi_30c cvi_30f
+f cvi_32f cvi_32c cvi_31c cvi_31f
+f cvi_33f cvi_33c cvi_32c cvi_32f
+f cvi_7f cvi_7c cvi_33c cvi_33f
+f cvo_22f cvo_22c cvi_7c cvi_7f
+f cvo_21f cvo_21c cvo_22c cvo_22f
+o
+
+
+o w4
+m muur
+f cvi_7f cvi_7c cvo_22c cvo_22f
+f cvi_8f cvi_8c cvi_7c cvi_7f
+f cvi_34f cvi_34c cvi_8c cvi_8f
+f cvi_35f cvi_35c cvi_34c cvi_34f
+f cvi_36f cvi_36c cvi_35c cvi_35f
+f cvi_37f cvi_37c cvi_36c cvi_36f
+f cvi_38f cvi_38c cvi_37c cvi_37f
+f cvi_39f cvi_39c cvi_38c cvi_38f
+f cvi_9f cvi_9c cvi_39c cvi_39f
+f cvi_10f cvi_10c cvi_9c cvi_9f
+f cvi_11f cvi_11c cvi_10c cvi_10f
+f cvi_40f cvi_40c cvi_11c cvi_11f
+f cvi_41f cvi_41c cvi_40c cvi_40f
+f cvi_12f cvi_12c cvi_41c cvi_41f
+f cvi_13f cvi_13c cvi_12c cvi_12f
+f cvo_5f cvo_5c cvi_13c cvi_13f
+f cvo_4f cvo_4c cvo_5c cvo_5f
+f cvo_22f cvo_22c cvo_4c cvo_4f
+
+f cvo_22c cvi_7c cvi_8c cvi_34c cvi_35c cvi_36c cvi_37c cvi_38c cvi_39c \
+  cvi_9c cvi_10c cvi_11c cvi_40c cvi_41c cvi_12c cvi_13c cvo_5c cvo_4c
+
+f cvo_4f cvo_5f cvi_13f cvi_12f cvi_41f cvi_40f cvi_11f cvi_10f cvi_9f \
+  cvi_39f cvi_38f cvi_37f cvi_36f cvi_35f cvi_34f cvi_8f cvi_7f cvo_22f 
+o
+
+
+o w5
+m muur
+f cvo_6f cvo_6c cvo_51c cvo_51f
+f cvo_51f cvo_51c cvi_15c cvi_15f
+f cvi_15f cvi_15c cvi_14c cvi_14f
+f cvi_14f cvi_14c cvo_6c cvo_6f
+
+f cvi_14c cvi_15c cvo_51c cvo_6c
+f cvo_6f cvo_51f cvi_15f cvi_14f
+o
+
+o w6
+m liftmat
+f cvo_51f cvo_51c cvo_7c cvo_7f
+f cvo_7f cvo_7c cvo_8c cvo_8f
+f cvo_8f cvo_8c cvo_9c cvo_9f
+f cvo_9f cvo_9c cvi_70c cvi_70f
+f cvi_70f cvi_70c cvi_17c cvi_17f
+f cvi_17f cvi_17c cvi_16c cvi_16f
+f cvi_16f cvi_16c cvi_15c cvi_15f
+f cvi_15f cvi_15c cvo_51c cvo_51f
+
+f cvo_51c cvi_15c cvi_16c cvi_17c cvi_70c cvo_9c cvo_8c cvo_7c
+f cvo_7c cvo_8c cvo_9c cvi_70c cvi_17c cvi_16c cvi_15c cvo_51c 
+o
+
+
+o w9
+m muur
+f cvo_17f cvo_17c cvi_29c cvi_29f
+f cvi_29f cvi_29c cvi_28c cvi_28f
+f cvi_28f cvi_28c cvi_27c cvi_27f
+f cvi_27f cvi_27c cvi_26c cvi_26f
+f cvi_26f cvi_26c cvi_25c cvi_25f
+f cvi_25f cvi_25c cvi_24c cvi_24f
+f cvi_24f cvi_24c cvi_23c cvi_23f
+f cvi_23f cvi_23c cvo_13c cvo_13f
+f cvo_13f cvo_13c cvo_14c cvo_14f
+f cvo_14f cvo_14c cvo_15c cvo_15f
+f cvo_15f cvo_15c cvo_16c cvo_16f
+f cvo_16f cvo_16c cvo_17c cvo_17f
+
+f cvo_17c cvo_16c cvo_15c cvo_14c cvo_13c cvi_23c cvi_24c cvi_25c \
+  cvi_26c cvi_27c cvi_28c cvi_29c
+f cvi_29c cvi_28c cvi_27c cvi_26c cvi_25c cvi_24c cvi_23c cvo_13c \
+  cvo_14c cvo_15c cvo_16c cvo_17c
+o
+
+
+o w7
+f cvi_71f cvi_71c cvi_70c cvi_70f
+f cvi_72f cvi_72c cvi_71c cvi_71f
+f cvi_73f cvi_73c cvi_72c cvi_72f
+f cvi_74f cvi_74c cvi_73c cvi_73f
+f cvi_75f cvi_75c cvi_74c cvi_74f
+f cvi_76f cvi_76c cvi_75c cvi_75f
+f cvi_77f cvi_77c cvi_76c cvi_76f
+f cvi_78f cvi_78c cvi_77c cvi_77f
+f cvi_79f cvi_79c cvi_78c cvi_78f
+f cvi_80f cvi_80c cvi_79c cvi_79f
+f cvo_10f cvo_10c cvi_80c cvi_80f
+f cvo_9f cvo_9c cvo_10c cvo_10f
+f cvi_70f cvi_70c cvo_10c cvo_10f
+
+f cvi_70c cvi_71c cvi_72c cvi_73c cvi_74c cvi_75c cvi_76c cvi_77c \
+  cvi_78c cvi_79c cvi_80c cvo_10c cvo_9c
+f cvo_9f cvo_10f cvi_80f cvi_79f cvi_78f cvi_77f cvi_76f cvi_75f \
+  cvi_74f cvi_73f cvi_72f cvi_71f cvi_70f
+o
+
+o w8
+m muur
+f cvo_12f cvo_12c cvi_65c cvi_65f
+f cvi_65f cvi_65c cvi_64c cvi_64f
+f cvi_64f cvi_64c cvi_63c cvi_63f
+f cvi_63f cvi_63c cvi_62c cvi_62f
+f cvi_62f cvi_62c cvi_61c cvi_61f
+f cvi_61f cvi_61c cvi_60c cvi_60f
+f cvi_60f cvi_60c cvo_11c cvo_11f
+f cvo_11f cvo_11c cvo_12c cvo_12f
+f cvi_60c cvi_61c cvi_62c cvi_63c cvi_64c cvi_65c cvo_12c cvo_11c
+f cvo_11f cvo_12f cvi_65f cvi_64f cvi_63f cvi_62f cvi_61f cvi_60f 
+o
+
+
+# Door and window - walls
+
+o frontdoor_wall
+m muur
+f cvi_50d cvi_29d cvo_17d cvo_18d
+f cvo_18c cvo_17c cvi_29c cvi_50c
+f cvo_18d cvo_18c cvi_50c cvi_50d
+
+f cvi_50d cvi_50c cvi_29c cvi_29d
+f cvi_29d cvi_29c cvo_17c cvo_17d
+
+f cvo_17d cvo_17c cvo_18c cvo_18d
+
+o
+
+
+o waitroomdoor_wall
+m muur
+f cvi_76c cvi_75c cvi_63c cvi_62c
+f cvi_62d cvi_63d cvi_75d cvi_76d
+f cvi_76d cvi_76c cvi_62c cvi_62d
+f cvi_63d cvi_63c cvi_75c cvi_75d
+
+f cvi_76d cvi_76c cvi_75c cvi_75d
+f cvi_63d cvi_63c cvi_62c cvi_62d
+o
+
+o doctordoor_wall
+m muur
+f cvo_11c cvo_10c cvi_80c cvi_60c
+f cvi_60d cvi_80d cvo_10d cvo_11d
+
+f cvi_60d cvi_60c cvi_80c cvi_80d
+f cvo_10d cvo_10c cvo_11c cvo_11d
+
+# f cvi_80d cvi_80c cvo_10c cvo_10d
+# f cvo_11d cvo_11c cvi_60c cvi_60d
+o
+
+o backdoor_wall
+m muur
+
+f cvo_6c cvo_5c cvi_13c cvi_14c
+f cvi_14d cvi_13d cvo_5d cvo_6d
+
+f cvo_5d cvo_5c cvo_6c cvo_6d
+f cvi_14d cvi_14c cvi_13c cvi_13d
+
+# f cv_d cv_c cv_c cv_d
+# f cv_d cv_c cv_c cv_d
+
+o
+  
+
+o waitroomentrance_wall
+m muur
+f cvi_73c cvi_72c cvi_27c cvi_26c
+f cvi_26d cvi_27d cvi_72d cvi_73d
+
+f cvi_27d cvi_27c cvi_72c cvi_72d 
+f cvi_73d cvi_73c cvi_26c cvi_26d 
+
+#
+#
+o
+
+
+o waitroomwindow_wall
+m muur
+
+# upper wall
+f cvo_12c cvi_65c cvi_23c cvo_13c
+f cvo_13d cvi_23d cvi_65d cvo_12d 
+
+f cvi_23d cvi_23c cvi_65c cvi_65d
+f cvo_12d cvo_12c cvo_13c cvo_13d
+
+# lower wall
+f cvo_12w cvi_65w cvi_23w cvo_13w
+f cvo_13f cvi_23f cvi_65f cvo_12f
+
+f cvi_23f cvi_23w cvi_65w cvi_65f
+f cvo_12f cvo_12w cvo_13w cvo_13f
+
+o
+
+
+o receptionwindow_wall
+m muur
+
+# upper wall
+f cvi_5c cvo_21c cvo_20c cvi_4c
+f cvi_4d cvo_20d cvo_21d cvi_5d 
+
+f cvo_20d cvo_20c cvo_21c cvo_21d
+f cvi_5d cvi_5c cvi_4c cvi_4d
+
+# lower wall
+f cvi_5w cvo_21w cvo_20w cvi_4w
+f cvi_4f cvo_20f cvo_21f cvi_5f
+
+f cvo_20f cvo_20w cvo_21w cvo_21f
+f cvi_5f cvi_5w cvi_4w cvi_4f
+
+o
+
+
+o toiletentrance_wall
+m muur
+f cvi_41c cvi_40c cvi_32c cvi_31c
+f cvi_31d cvi_32d cvi_40d cvi_41d
+
+f cvi_32d cvi_32c cvi_40c cvi_40d 
+f cvi_41d cvi_41c cvi_31c cvi_31d 
+
+#
+#
+o
+
+
+# Floors 'n Ceilings
+
+o floor_corridor
+m vloer
+f cvi_28f cvi_71f cvi_70f cvi_15f cvi_12f cvi_1f
+o
+
+o ceiling_corridor
+m plafond
+f cvi_1c cvi_12c cvi_15c cvi_70c cvi_71c cvi_28c 
+o
+
+o floor_waitingroom
+m vloer
+f cvi_65f cvi_64f cvi_74f cvi_25f cvi_24f
+o
+
+o ceiling_waitingroom
+m plafond
+f cvi_24c cvi_25c cvi_74c cvi_64c cvi_65c 
+o
+
+o floor_dressroom
+m vloer
+f cvi_77f cvi_61f cvi_79f cvi_78f
+o
+
+o ceiling_dressroom
+m plafond
+f cvi_78c cvi_79c cvi_61c cvi_77c 
+o
+
+
+v cvi_52f =
+	p -1.5 12.9 0
+v cvi_52c =
+	p -1.5 12.9 2.5
+v cvi_53f =
+	p -1.5 6 0
+v cvi_53c =
+	p -1.5 6 2.5
+
+
+o floor_toiletmen
+m vloer
+f cvi_10f cvi_9f cvi_39f cvi_38f cvi_37f cvi_52f
+o
+
+o ceiling_toiletmen
+m plafond
+f cvi_52c cvi_37c cvi_38c cvi_39c cvi_9c cvi_10c 
+o
+
+o floor_toiletwomen
+m vloer
+f cvi_8f cvi_7f cvi_53f cvi_36f cvi_35f cvi_34f
+o
+
+o ceiling_toiletwomen
+m plafond
+f cvi_34c cvi_35c cvi_36c cvi_53c cvi_7c cvi_8c 
+o
+
+o floor_toilet_entrance
+m vloer 
+f cvi_52f cvi_53f cvi_33f cvi_11f
+o
+
+o ceiling_toilet_entrance
+m plafond 
+f cvi_11c cvi_33c cvi_53c cvi_52c 
+o
+
+o floor_lift
+m liftmat
+f cvi_15f cvi_70f cvi_17f cvi_16f
+o
+
+o ceiling_lift
+m liftmat
+f cvi_16c cvi_17c cvi_70c cvi_15c 
+o
+
+
+o floor_reception
+m vloer
+f cvi_30f cvi_6f cvi_3f cvi_2f
+o
+
+o ceiling_reception
+m plafond
+f cvi_2c cvi_3c cvi_6c cvi_30c 
+o
+
+o drempel_dressroom
+m vloer
+f cvi_75f cvi_63f cvi_62f cvi_76f
+o
+
+o drempel_waitingroom
+m vloer
+f cvi_73f cvi_72f cvi_27f cvi_26f
+o
+
+o drempel_toilets
+m vloer
+f cvi_32f cvi_31f cvi_41f cvi_40f
+o
+
+
+
+v tl_1 = 
+	p 0 6 2
+v tl_2 = 
+	p 3 6 2
+v tl_3 = 
+	p 3 6.5 2
+v tl_4 = 
+	p 0 6.5 2 
+
+# o tmplight
+# m bovenlicht
+# f tl_4 tl_3 tl_2 tl_1
+# o
+
+
+# Front door
+
+o front_door
+m rood
+
+f cvi_50f cvi_29f cvo_17f cvo_18f
+f cvo_18d cvo_17d cvi_29d cvi_50d
+f cvo_18f cvo_18d cvi_50d cvi_50f
+
+f cvi_50f cvi_50d cvi_29d cvi_29f
+f cvi_29f cvi_29d cvo_17d cvo_17f
+
+f cvo_17f cvo_17d cvo_18d cvo_18f
+
+o
+
+# Backdoor
+
+o back_door
+m rood
+
+f cvo_5f cvo_6f cvi_14f cvi_13f
+f cvi_13d cvi_14d cvo_6d cvo_5d
+f cvi_13f cvi_13d cvo_5d cvo_5f
+
+f cvo_5f cvo_5d cvo_6d cvo_6f
+f cvo_6f cvo_6d cvi_14d cvi_14f
+
+f cvi_14f cvi_14d cvi_13d cvi_13f
+
+o
+
+
+
+# Lights
+
+# -- Corridor
+
+m strafferlicht
+
+i ./squarelight.mgf -t 0 0 2.499 -t 1.3 0.8 0
+i ./squarelight.mgf -t 0 0 2.499 -t 1.3 6.5 0
+i ./squarelight.mgf -t 0 0 2.499 -t 1.3 11.2 0
+i ./squarelight.mgf -t 0 0 2.499 -t 4.25 11.2 0
+i ./squarelight.mgf -s 0.5 -t 0 0 2.499 -t 7 11.2 0
+
+
+# -- Dress room
+
+i ./squarelight.mgf -s 1.25 -t 0 0 2.499 -t 4.25 8 0
+
+
+#reception
+
+i ./rectlight.mgf -rz 90 -t 0 0 2.499 -t -4 3.9 0
+i ./rectlight.mgf -rz 90 -t 0 0 2.499 -t -2.5 3.9 0
+
+
+# toilets
+
+i ./rectlight.mgf -t 0 0 2.499 -t -4 9 0
+i ./rectlight.mgf -t 0 0 2.499 -t -4 6.5 0
+
+i ./rectlight.mgf -t 0 0 2.499 -t -4 10 0
+i ./rectlight.mgf -t 0 0 2.499 -t -4 12.5 0
+
+
+m muur
+
+
+
+# --------- Included objects ----------- #
+
+# Waitroom
+
+i ./window.mgf -rz -90 -t 5.95 5 0.05
+i ./shades_box.mgf -rx 180 -t -0.15 0 0 -s 1.05 -t 5.9 5.1 2.1
+i ./shade.mgf -rx 180 -rz 20 -t 5.78 5 1.98 -a 18 -t 0 -0.11 0
+i ./stoeltje.mgf -s 0.8 -rz -90 -t 5.3 3.5 0.0001
+i ./stoeltje.mgf -s 0.8 -rz 99 -t 5.6 2.3 0.0001
+i ./chair.mgf -rz 180 -t 0 0 -0.4499 -t 4.5 2.3 0 -a 2 -t -0.75 0 0
+i ./chair.mgf -rz 5 -t 0 0 -0.4499 -t 4.2 6.7 0
+i ./chair.mgf -t 0 0 -0.4499 -rz 90 -t 3.3 4 0 -a 3 -t 0 0.8 0
+i ./deur.mgf -t -0.04 -0.99 0 -rz 3 -t 5.7 7 0
+i ./deur.mgf -t -0.10 -0.99 0 -t 6 9.5 0
+i ./lampi4.mgf -s 0.25 -t 0 -0.002 0 -t 4 7 1.5
+i ./lampi4.mgf -s 0.25 -t 0 -0.002 0 -rz 90 -t 3 4.5 1.5 -a 2 -t 0 1.5 0
+i ./lampi4.mgf -s 0.25 -t 0 -0.002 0 -rz 180 -t 4.5 2.1 1.5
+i ./tafeltje.mgf -s 0.8 -t 0 0 0.0001 -t 5.4 3 0
+i ./blokken2.mgf -s 0.05 -rz 55 -t 0 0 0.419 -t 5.4 3 0
+
+# Lift
+
+i ./liftdeur.mgf -t 5.96 10 0.005
+
+# Reception
+
+i ./window.mgf -rz -90 -t -4.95 5 0.05
+
+# Front door
+
+i ./deurbar.mgf -t 0.55 0.1001 1
+i ./deurbar.mgf -t 1.55 0.1001 1
+
+# Back door
+
+i ./deurbar.mgf -rz 180 -t 0.9 0 0 -t 0.55 12.8999 1
+i ./deurbar.mgf -rz 180 -t 0.9 0 0 -t 1.55 12.8999 1
+
+# Reception counter
+
+i ./counter.mgf -rz -90 -t 0.0005 0 0 -t 0.1 5.899 0 
+
+i ./orgchair.mgf -s 1.3 -rz -90 -t -1.7 5 0.001
+
+
+# Dressroom
+
+i ./desk.mgf -s 1.1 -t 3.2 8.4 0.001
+i ./redchair.mgf -t 3.6 7.5 0.001
+i ./orgchair.mgf -s 1.3 -rz 180 -t 4.25 9.55 0.001
+i ./coatrack.mgf -t 5.6 7.8 0.001
+
+# Toilets
+
+# i ./toiletframe.mgf -t 0 0 0.001 -t -4.89 8.495 0

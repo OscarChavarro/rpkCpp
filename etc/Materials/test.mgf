@@ -1,0 +1,40 @@
+i ./dupont.mgf
+i ./munsell.mgf
+i ./objects.mgf
+i ./realobj.mgf
+i ./illums.mgf
+
+c white =
+	cxy 0.333333 0.333333
+
+
+m white =
+c white
+rd 0.6
+
+m light =
+c white
+ed 50000.0
+
+
+v v_1 =
+	p -1 -1 0
+v v_2 =
+	p -1 1 0
+v v_3 =
+	p 1 1 0
+v v_4 =
+	p 1 -1 0
+
+o testface
+m OakWood
+f v_4 v_3 v_2 v_1
+o
+
+o testlight
+m light
+xf -s 0.1 -t 0 0 0.6
+f v_1 v_2 v_3 v_4
+xf
+o
+

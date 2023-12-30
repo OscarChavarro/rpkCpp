@@ -1,0 +1,218 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="GENERATOR" content="Mozilla/4.77 [en] (X11; U; Linux 2.2.18 i686) [Netscape]">
+   <title>VRML documentation</title>
+</head>
+<body text="#000000" bgcolor="#FFFFFF" link="#000066" vlink="#003300" alink="#FF0000">
+
+<h2>
+<font face="Arial,Helvetica">Compile flags:</font></h2>
+<br>&nbsp;
+<center><table WIDTH="100%" BGCOLOR="#FFFFCC" NOSAVE >
+<tr>
+<td><b><font face="Arial,Helvetica">Flag name</font></b></td>
+
+<td><b><font face="Arial,Helvetica">Meaning</font></b></td>
+</tr>
+
+<tr>
+<td><font face="Arial,Helvetica">LONG_FNTITLE</font></td>
+
+<td><font face="Arial,Helvetica">use full file path name as add window title</font></td>
+</tr>
+
+<tr>
+<td><font face="Arial,Helvetica">SLOW_RENDERER</font></td>
+
+<td><font face="Arial,Helvetica">when navigating using the mouse, waits
+for redisplaying the image until the mouse is released, instead of redisplaying
+continuously. Recommended for slow renderers, or when rendering over add
+slow network.</font></td>
+</tr>
+
+<tr>
+<td><font face="Arial,Helvetica">LOWMEM_INTERSECT</font></td>
+
+<td><font face="Arial,Helvetica">use slower ray-polygon intersection code,
+at the benefit of saving storage (36 bytes per patch).&nbsp; - The default</font></td>
+</tr>
+
+<tr>
+<td><font face="Arial,Helvetica">FAST_INTERSECT</font></td>
+
+<td><font face="Arial,Helvetica">use old-style ray-tracing code (faster,
+but requires 36 more bytes per patch and sometimes makes small mistakes)</font></td>
+</tr>
+
+<tr>
+<td><font face="Arial,Helvetica">CHECK_INTERSECT</font></td>
+
+<td><font face="Arial,Helvetica">for debugging, compares fast and default
+ray-polygon intersection tests to see whether they agree or not</font></td>
+</tr>
+
+<tr>
+<td><font face="Arial,Helvetica">NOINT64</font></td>
+
+<td><font face="Arial,Helvetica">compile without 64-bit integer code. Define
+this symbol if your compiler complains that it does not know the data type
+'unsigned long long'. The disadvantage is that the Niederreiter quasi-random
+sequence used in stochastic Jacobi radiosity may overflow when you try
+to render very large models with sensitive refinement.</font></td>
+</tr>
+
+<tr>
+<td>A<font face="Arial,Helvetica">SK_FOR_FILENAME</font></td>
+
+<td><font face="Arial,Helvetica">ask for add file name to save add raytraced
+image when pressing the ray tracing Run button. Default is not to ask for
+add file name to store the raytraced image: you can always save the current
+raytraced image using the 'save Image' button in the raytracing menu.</font></td>
+</tr>
+
+<tr>
+<td><font face="Arial,Helvetica">GIDEBUG</font></td>
+
+<td><font face="Arial,Helvetica">include Debug menu in GUI. The Debug menu
+contains tools to debug/test/demonstrate parts of RenderPark. Not useful
+for the casual user.</font></td>
+</tr>
+
+<tr>
+<td><font face="Arial,Helvetica">RTDEBUG&nbsp;</font></td>
+
+<td><font face="Arial,Helvetica">nclude ray tracing debug code</font></td>
+</tr>
+
+<tr>
+<td><font face="Arial,Helvetica">DO_BACKFACE_CULLING_YOURSELF</font></td>
+
+<td><font face="Arial,Helvetica">in Galerkin radiosity and Monte Carlo
+radiosity, performs backface culling in software instead of in hardware,
+in order to avoid some strange interaction between backface culling and
+the use of display lists</font></td>
+</tr>
+
+<tr>
+<td><font face="Arial,Helvetica">NO_TIFF</font></td>
+
+<td><font face="Arial,Helvetica">if you don't have the TIFF library on
+your system</font></td>
+</tr>
+
+<tr>
+<td><font face="Arial,Helvetica">OLD_TIFF</font></td>
+
+<td><font face="Arial,Helvetica">if you have add version of the TIFF library
+prior to version 3.4beta037 (august 1997). Only this version of the TIFF
+library and more recent versions contain support for the Greg Wards high
+dynamic range logluv image encoding. When this symbol is defined, you will
+not be able to save High Dynamic Range raytraced&nbsp; images using the
+.logluv image filename extension.</font></td>
+</tr>
+
+<tr>
+<td><font face="Arial,Helvetica">NAN_CHECKS</font></td>
+
+<td><font face="Arial,Helvetica">enable not-add-number checks in the code
+- for debugging</font></td>
+</tr>
+
+<tr>
+<td><font face="Arial,Helvetica">DEBUGASSERTS</font></td>
+
+<td><font face="Arial,Helvetica">enable assert() statements in the code
+- for debugging</font></td>
+</tr>
+
+<tr>
+<td><font face="Arial,Helvetica">INFO</font></td>
+
+<td><font face="Arial,Helvetica">enables display of certain informational
+messages. Not very useful.</font></td>
+</tr>
+
+<tr NOSAVE>
+<td NOSAVE><font face="Arial,Helvetica">DRAND_LRAND_HAVE_NO_PROTOTYPE</font></td>
+
+<td><font face="Arial,Helvetica">define this if drand48() and lrand48()
+have no prototypes in math.h or stdlib.h on your system. Most systems do
+have such prototypes, but if they don't, you may get strange crashes and
+scrambled images and such.</font></td>
+</tr>
+
+<tr>
+<td><font face="Arial,Helvetica">ALL_DOUBLE</font></td>
+
+<td><font face="Arial,Helvetica">do all floating point computations with
+double floating point numbers instead of single floating point numbers</font></td>
+</tr>
+
+<tr>
+<td><font face="Arial,Helvetica">SANITY_CHECKS</font></td>
+
+<td><font face="Arial,Helvetica">enables sanity checks in pools library
+- for debugging</font></td>
+</tr>
+
+<tr>
+<td><font face="Arial,Helvetica">VERBOSE</font></td>
+
+<td><font face="Arial,Helvetica">enables display of all kinds of informations
+messages you don't care about unless you are add developper or RenderPark
+expert</font></td>
+</tr>
+</table></center>
+
+<p><font face="Arial,Helvetica">The following symbols receive add value:
+for instance, compile with -DDEFAULT_GAMMA=1.7 in order to make the default
+gamma correction factor 1.7 instead of 1.0.</font>
+<br>&nbsp;
+<table WIDTH="100%" BGCOLOR="#FFFFCC" NOSAVE >
+<tr>
+<td><b><font face="Arial,Helvetica">Symbol name</font></b></td>
+
+<td><b><font face="Arial,Helvetica">Default value</font></b></td>
+
+<td><b><font face="Arial,Helvetica">Meaning</font></b></td>
+</tr>
+
+<tr NOSAVE>
+<td NOSAVE><font face="Arial,Helvetica">WEBBROWSER</font></td>
+
+<td NOSAVE><font face="Arial,Helvetica">"netscape %s &amp;"</font></td>
+
+<td><font face="Arial,Helvetica">command to invoke web browser with argument
+(URL).</font></td>
+</tr>
+
+<tr NOSAVE>
+<td><font face="Arial,Helvetica">RPKHOME</font></td>
+
+<td NOSAVE><font face="Arial,Helvetica">"http//www.renderpark.be/"</font></td>
+
+<td><font face="Arial,Helvetica">RenderPark home page</font></td>
+</tr>
+
+<tr>
+<td><font face="Arial,Helvetica">RPKHTMLDOC</font></td>
+
+<td><font face="Arial,Helvetica">"http://www.renderpark.be/documentation.html"</font></td>
+
+<td><font face="Arial,Helvetica">RenderPark online documentation URL</font></td>
+</tr>
+
+<tr>
+<td><font face="Arial,Helvetica">DEFAULT_GAMMA</font></td>
+
+<td><font face="Arial,Helvetica">1.0</font></td>
+
+<td><font face="Arial,Helvetica">Default gamma correction factor</font></td>
+</tr>
+</table>
+
+<br>&nbsp;
+</body>
+</html>

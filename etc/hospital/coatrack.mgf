@@ -1,0 +1,303 @@
+# The following was converted from Radiance scene input
+o Untitled
+# Begin conversion from: coatrack.rad
+# ##################################
+#  Copyright (c) 1991 Cindy Larson #
+# ##################################
+# 
+#  The brass coatrack from the cabin model
+# 
+#  Depends on:
+# 	rev.cal
+# 
+# 	Units = meters
+# 	(0,0,0) at center of base, floor level
+# 	Z-axis is up
+# 
+#  Overall dimensions are .356 by .356 by 1.67 meters
+# 
+# ###############################
+#  MATERIAL:
+m brass =
+	c
+		cxy 0.5145 0.4252
+	rd 0.0181
+	rs 0.3431 0.0000
+# ###############################
+#  xform -e -s .0254
+# 
+#  The Coatrack.
+#  Height is 65 inches, base radius is 7 inches, and the 
+#  hooks at the top protrude six inches on top and four inches
+#  on the bottom.
+# 
+#  Coatrack Base
+#  genrev brass base if(t-.7, z2((t-.7)/.3), z1(t/.7)) if(t-.7, r2((t-.7)/.3), r1(t/.7)) 11 -s -e z1(t)=hermite(0,3,5,3,t); r1(t)=hermite(7,2,0,-1,t) -e z2(t)=hermite(3,5,3,0,t); r2(t)=hermite(2,0.4,-1,-5,t)
+m Phong = brass
+o
+o base
+v v0 =
+	p 0 0 0
+v v1 =
+	p 0 0 0.0148911688714
+cone v0 0.1778 v1 0.172303091766
+v v2 =
+	p 0 0 0.027022756216
+cone v1 0.172303091766 v2 0.157815289144
+v v3 =
+	p 0 0 0.037062402888
+cone v2 0.157815289144 v3 0.137340975254
+v v4 =
+	p 0 0 0.045677749386
+cone v3 0.137340975254 v4 0.113884532708
+v v5 =
+	p 0 0 0.053536436488
+cone v4 0.113884532708 v5 0.090450345134
+v v6 =
+	p 0 0 0.061306104972
+cone v5 0.090450345134 v6 0.070042795144
+v v7 =
+	p 0 0 0.069654395108
+cone v6 0.070042795144 v7 0.055666265858
+v v8 =
+	p 0 0 0.083108189384
+cone v7 0.055666265858 v8 0.04889929387
+v v9 =
+	p 0 0 0.104665358868
+cone v8 0.04889929387 v9 0.045117954214
+v v10 =
+	p 0 0 0.120709547252
+cone v9 0.045117954214 v10 0.036162893892
+v v11 =
+	p 0 0 0.127
+cone v10 0.036162893892 v11 0.01016
+m brass
+o
+o base_bottom
+v cent =
+	p 0 0 0
+	n 0 0 -0.0254
+ring cent 0 0.1778
+#  Coatrack Stem
+o
+o coat_stem
+v v12 =
+	p 0 0 0.0254
+v v13 =
+	p 0 0 1.651
+cyl v12 0.0127 v13
+o
+o top_ball
+sph v13 0.01905
+#  Coatrack Hooks
+#  xform -n hook.0 -i 0 -rz 90
+#  xform -e -n hook.0 -i 0 -rz 90
+#  genworm brass hook hermite(3.25,4.25,-12,12,t) 0 hermite(58,62.5,-9,6,t) .25 10
+o
+o hook.0.hook
+v v14 =
+	p 0.08255 0 1.4732
+sph v14 0.00635
+v v15 =
+	p 0.0558292 0 1.4565122
+cyl v14 0.00635 v15
+sph v15 0.00635
+v v16 =
+	p 0.0364236 0 1.4509496
+cyl v15 0.00635 v16
+sph v16 0.00635
+v v17 =
+	p 0.0240284 0 1.4546834
+cyl v16 0.00635 v17
+sph v17 0.00635
+v v18 =
+	p 0.0183388 0 1.4658848
+cyl v17 0.00635 v18
+sph v18 0.00635
+v v19 =
+	p 0.01905 0 1.482725
+cyl v18 0.00635 v19
+sph v19 0.00635
+v v20 =
+	p 0.0258572 0 1.5033752
+cyl v19 0.00635 v20
+sph v20 0.00635
+v v21 =
+	p 0.0384556 0 1.5260066
+cyl v20 0.00635 v21
+sph v21 0.00635
+v v22 =
+	p 0.0565404 0 1.5487904
+cyl v21 0.00635 v22
+sph v22 0.00635
+v v23 =
+	p 0.0798068 0 1.5698978
+cyl v22 0.00635 v23
+sph v23 0.00635
+v v24 =
+	p 0.10795 0 1.5875
+cyl v23 0.00635 v24
+sph v24 0.00635
+o
+o hook.0
+sph v14 0.0127
+sph v24 0.0127
+#  xform -n hook.1 -i 1 -rz 90
+#  xform -e -n hook.1 -i 1 -rz 90
+#  genworm brass hook hermite(3.25,4.25,-12,12,t) 0 hermite(58,62.5,-9,6,t) .25 10
+o
+o hook.1.hook
+v v25 =
+	p 0 0.08255 1.4732
+sph v25 0.00635
+v v26 =
+	p 0 0.0558292 1.4565122
+cyl v25 0.00635 v26
+sph v26 0.00635
+v v27 =
+	p 0 0.0364236 1.4509496
+cyl v26 0.00635 v27
+sph v27 0.00635
+v v28 =
+	p 0 0.0240284 1.4546834
+cyl v27 0.00635 v28
+sph v28 0.00635
+v v29 =
+	p 0 0.0183388 1.4658848
+cyl v28 0.00635 v29
+sph v29 0.00635
+v v30 =
+	p 0 0.01905 1.482725
+cyl v29 0.00635 v30
+sph v30 0.00635
+v v31 =
+	p 0 0.0258572 1.5033752
+cyl v30 0.00635 v31
+sph v31 0.00635
+v v32 =
+	p 0 0.0384556 1.5260066
+cyl v31 0.00635 v32
+sph v32 0.00635
+v v33 =
+	p 0 0.0565404 1.5487904
+cyl v32 0.00635 v33
+sph v33 0.00635
+v v34 =
+	p 0 0.0798068 1.5698978
+cyl v33 0.00635 v34
+sph v34 0.00635
+v v35 =
+	p 0 0.10795 1.5875
+cyl v34 0.00635 v35
+sph v35 0.00635
+o
+o hook.1
+sph v25 0.0127
+sph v35 0.0127
+#  xform -n hook.2 -i 2 -rz 90
+#  xform -e -n hook.2 -i 2 -rz 90
+#  genworm brass hook hermite(3.25,4.25,-12,12,t) 0 hermite(58,62.5,-9,6,t) .25 10
+o
+o hook.2.hook
+v v36 =
+	p -0.08255 0 1.4732
+sph v36 0.00635
+v v37 =
+	p -0.0558292 0 1.4565122
+cyl v36 0.00635 v37
+sph v37 0.00635
+v v38 =
+	p -0.0364236 0 1.4509496
+cyl v37 0.00635 v38
+sph v38 0.00635
+v v39 =
+	p -0.0240284 0 1.4546834
+cyl v38 0.00635 v39
+sph v39 0.00635
+v v40 =
+	p -0.0183388 0 1.4658848
+cyl v39 0.00635 v40
+sph v40 0.00635
+v v41 =
+	p -0.01905 0 1.482725
+cyl v40 0.00635 v41
+sph v41 0.00635
+v v42 =
+	p -0.0258572 0 1.5033752
+cyl v41 0.00635 v42
+sph v42 0.00635
+v v43 =
+	p -0.0384556 0 1.5260066
+cyl v42 0.00635 v43
+sph v43 0.00635
+v v44 =
+	p -0.0565404 0 1.5487904
+cyl v43 0.00635 v44
+sph v44 0.00635
+v v45 =
+	p -0.0798068 0 1.5698978
+cyl v44 0.00635 v45
+sph v45 0.00635
+v v46 =
+	p -0.10795 0 1.5875
+cyl v45 0.00635 v46
+sph v46 0.00635
+o
+o hook.2
+sph v36 0.0127
+sph v46 0.0127
+#  xform -n hook.3 -i 3 -rz 90
+#  xform -e -n hook.3 -i 3 -rz 90
+#  genworm brass hook hermite(3.25,4.25,-12,12,t) 0 hermite(58,62.5,-9,6,t) .25 10
+o
+o hook.3.hook
+v v47 =
+	p 0 -0.08255 1.4732
+sph v47 0.00635
+v v48 =
+	p 0 -0.0558292 1.4565122
+cyl v47 0.00635 v48
+sph v48 0.00635
+v v49 =
+	p 0 -0.0364236 1.4509496
+cyl v48 0.00635 v49
+sph v49 0.00635
+v v50 =
+	p 0 -0.0240284 1.4546834
+cyl v49 0.00635 v50
+sph v50 0.00635
+v v51 =
+	p 0 -0.0183388 1.4658848
+cyl v50 0.00635 v51
+sph v51 0.00635
+v v52 =
+	p 0 -0.01905 1.482725
+cyl v51 0.00635 v52
+sph v52 0.00635
+v v53 =
+	p 0 -0.0258572 1.5033752
+cyl v52 0.00635 v53
+sph v53 0.00635
+v v54 =
+	p 0 -0.0384556 1.5260066
+cyl v53 0.00635 v54
+sph v54 0.00635
+v v55 =
+	p 0 -0.0565404 1.5487904
+cyl v54 0.00635 v55
+sph v55 0.00635
+v v56 =
+	p 0 -0.0798068 1.5698978
+cyl v55 0.00635 v56
+sph v56 0.00635
+v v57 =
+	p 0 -0.10795 1.5875
+cyl v56 0.00635 v57
+sph v57 0.00635
+o
+o hook.3
+sph v47 0.0127
+sph v57 0.0127
+# End conversion from: coatrack.rad
+o
+# End of data converted from Radiance scene input

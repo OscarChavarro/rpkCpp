@@ -1,0 +1,264 @@
+i ../Materials/realobj.mgf
+
+# # Reception Counter
+
+# ------- Named colors ------
+c wittiggroen =
+	cxy 0.333330 0.333330
+
+c geelwit =
+	cxy 0.337000 0.337000
+
+c wittigrood =
+	cxy 0.333330 0.333330
+
+c wittigblauw =
+	cxy 0.333330 0.333330
+
+c blauw =
+	cxy 0.260000 0.260000
+
+c groen =
+	cxy 0.000000 0.380000
+
+c geel =
+	cxy 0.376563 0.395833
+
+c rood =
+	cxy 0.750000 0.100000
+
+c wit =
+	cxy 0.333333 0.333333
+
+c muurcol =
+	cxy 0.338333 0.339333
+
+m DarkOak =
+	c OakWood
+	rd 0.24
+
+# ------ Named Materials ------ 
+
+m strafferlicht =
+	c
+		cxy 0.333333 0.333333
+	rd 0.000000
+	c geelwit
+	ed 120000.000000
+
+m bovenlicht =
+	c
+		cxy 0.333333 0.333333
+	rd 0.000000
+	c geelwit
+	ed 250000.000000
+
+m blauw =
+	c blauw
+	rd 0.160000
+	c wittigblauw
+	rs 0.240000 0.4000
+
+m groen =
+	c groen
+	rd 0.120000
+	c wittiggroen
+	rs 0.80000 0.139000
+
+m geel =
+	c geel
+	rd 0.700000
+	rs 0.200000 0.10000
+
+m blad =
+	c geel
+	rd 0.3
+	rs 0.5 0.02
+
+m bal =
+	c blauw
+	rd 0.16
+	c wittigblauw
+	rs 0.7 0.05
+
+m muur =
+	c muurcol
+	rd 0.65 
+
+m rood =
+	c rood
+	rd 0.290000
+	c wittigrood
+	rs 0.290000 0.05000
+
+m deur =
+	c rood
+	rd 0.290000
+	c wittigrood
+	rs 0.290000 0.05000
+
+m plafond =
+	c wit
+	rd 0.600000
+	rs 0.200000 0.019000
+
+m achterwit =
+	rd 0.500000
+	rs 0.200000 0.142000
+
+m plafond =
+	rd 0.700000
+	rs 0.100000 0.142000
+
+m vloer =
+	c groen
+	rd 0.300000
+	rs 0.200000 0.12000
+
+
+# Vertices
+
+v ri_1b =
+	p 0 0.15 0
+v ri_1t =
+	p 0 0.15 1.15
+v ri_2b =
+	p 2.85 0.15 0
+v ri_2t =
+	p 2.85 0.15 1.15
+v ri_3b = 
+	p 2.85 1.85 0
+v ri_3t = 
+	p 2.85 1.85 1.15
+v ri_4b = 
+	p 2.5 1.85 0
+v ri_4t = 
+	p 2.5 1.85 1.15
+v ri_4m = 
+	p 2.5 1.85 1.18
+v ri_4u = 
+	p 2.5 1.85 1.5
+v ri_5b = 
+	p 2.5 0.5 0
+v ri_5t = 
+	p 2.5 0.5 1.15
+v ri_5m = 
+	p 2.5 0.5 1.18
+v ri_5u = 
+	p 2.5 0.5 1.5
+v ri_6b = 
+	p 0 0.5 0
+v ri_6t = 
+	p 0 0.5 1.15
+v ri_6m = 
+	p 0 0.5 1.18
+v ri_6u = 
+	p 0 0.5 1.5
+
+v ri_7t = 
+	p 0 0 1.15
+v ri_7u = 
+	p 0 0 1.5
+v ri_8t = 
+	p 3 0 1.15
+v ri_8u = 
+	p 3 0 1.5
+v ri_9t = 
+	p 3 2 1.15
+v ri_9u = 
+	p 3 2 1.5
+v ri_10t = 
+	p 2.5 2 1.15
+v ri_10u = 
+	p 2.5 2 1.5
+
+v ri_11t = 
+	p 2 1.85 1.15
+v ri_11m = 
+	p 2 1.85 1.18
+v ri_12t = 
+	p 2 1 1.15
+v ri_12m = 
+	p 2 1 1.18
+v ri_13t = 
+	p 0 1 1.15
+v ri_13m = 
+	p 0 1 1.18
+
+
+v rp_1u =
+	p 2.85 0.15 1.5 
+v rp_1p =
+	p 2.85 0.15 2.499
+v rp_2u =
+	p 2.5 0.15 1.5 
+v rp_2p =
+	p 2.5 0.15 2.499
+v rp_3u =
+	p 2.5 0.5 1.5 
+v rp_3p =
+	p 2.5 0.5 2.499
+v rp_4u =
+	p 2.85 0.5 1.5 
+v rp_4p =
+	p 2.85 0.5 2.499
+
+
+
+o counter
+m OakWood
+
+xf -my
+
+# Lower part
+
+f ri_6b ri_5b ri_4b ri_3b ri_2b ri_1b
+
+f ri_1t ri_1b ri_2b ri_2t
+f ri_2t ri_2b ri_3b ri_3t
+f ri_3t ri_3b ri_4b ri_4t
+f ri_4t ri_4b ri_5b ri_5t
+f ri_5t ri_5b ri_6b ri_6t
+f ri_6t ri_6b ri_1b ri_1t
+
+# Upper part
+
+m DarkOak
+
+f ri_2t ri_3t ri_4t ri_10t ri_9t ri_8t ri_7t ri_1t 
+
+f ri_7u ri_8u ri_9u ri_10u rp_3u rp_4u rp_1u rp_2u rp_3u ri_6u
+
+f ri_7u ri_7t ri_8t ri_8u
+f ri_6u ri_6t ri_7t ri_7u
+f ri_5u ri_5m ri_6m ri_6u
+f ri_4u ri_4m ri_5m ri_5u
+f ri_10u ri_10t ri_4t ri_4u
+f ri_9u ri_9t ri_10t ri_10u
+f ri_8u ri_8t ri_9t ri_9u
+
+# Desk part
+
+m OakWood
+
+f ri_4t ri_5t ri_6t ri_13t ri_12t ri_11t
+f ri_11m ri_12m ri_13m ri_6m ri_5m ri_4m 
+
+f ri_13m ri_13t ri_6t ri_6m
+f ri_12m ri_12t ri_13t ri_13m
+f ri_11m ri_11t ri_12t ri_12m
+f ri_4m ri_4t ri_11t ri_11m
+
+
+m OakWood
+
+f rp_2p rp_2u rp_1u rp_1p
+f rp_3p rp_3u rp_2u rp_2p
+f rp_4p rp_4u rp_3u rp_3p
+f rp_1p rp_1u rp_4u rp_4p
+f rp_4p rp_3p rp_2p rp_1p 
+xf
+
+o
+
+

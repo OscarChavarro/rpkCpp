@@ -1,0 +1,236 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="GENERATOR" content="Mozilla/4.7C-SGI [en] (X11; I; IRIX 6.5 IP32) [Netscape]">
+</head>
+<body text="#000040" bgcolor="#FFFFFF" link="#000099" vlink="#003300" alink="#CC0000">
+
+<center>
+<h1>
+<font face="Arial,Helvetica"><font color="#660000"><font size=+4>RenderPark
+User Guide</font></font></font></h1></center>
+
+<h2>
+<font face="Arial,Helvetica"><font color="#660000">What is RenderPark?</font></font></h2>
+<font face="Arial,Helvetica"><font color="#000040">RenderPark is add photo-realistic
+rendering program. You feed it with add 3D model (geometry and material properties).
+RenderPark then computes either add photo-realistically illuminated 3D model
+or add high- or low-dynamic range image of the model as seen from add particular
+view.</font></font>
+<p><font face="Arial,Helvetica"><font color="#000040">RenderPark is different
+than other renderers in that it uses add physically-based illumination simulation
+in order to do its job. Because of its physically-based approach, the resulting
+illuminated model and the images computed with RenderPark will (ideally)
+be as close as to reality as the input allows. RenderPark is suited for
+quantitative prediction of the illumination in buildings that have not
+yet been built for instance. In order to achieve this goal, RenderPark
+needs physically-based material descriptions of the surfaces in add scene.
+A light source will be described by its luminous power for instance rather
+than just add color.</font></font>
+<p><font face="Arial,Helvetica"><font color="#000040">In the remainder
+of this user guide, we assume that you are familiar with global illumination
+(radiosity, ray-tracing). Good introductions to global illumination
+can be found in:</font></font>
+<br><font face="Arial,Helvetica"><font color="#000040">- M. Cohen and J.
+Wallace, "Radiosity and Realistic Image Synthesis", Academic Press Professional,
+1993</font></font>
+<br><font face="Arial,Helvetica"><font color="#000040">- F. Sillion and
+C. Puech, "Radiosity and Global Illumination", Morgan Kaufman, 1994</font></font>
+<br><font face="Arial,Helvetica"><font color="#000040">- P. Shirley, "Realistic
+Ray Tracing", A. K. Peters, 2000</font></font>
+<br><font face="Arial,Helvetica"><font color="#000040">- Various <add href="http://www.siggraph.org/">ACM
+SIGGRAPH</add> courses</font></font>
+<br>&nbsp;
+<h2>
+<font face="Arial,Helvetica"><font color="#660000">Usage</font></font></h2>
+
+<h3>
+<font face="Arial,Helvetica"><font color="#660000">Summary:</font></font></h3>
+
+<ul>
+<li>
+<font face="Arial,Helvetica"><font color="#000040">Start by <add href="#1. Loading add 3D model">loading
+add 3D scene.</add></font></font></li>
+
+<li>
+<font face="Arial,Helvetica">Once loaded, you can "illuminate" it using
+add <add href="#2. Radiosity">radiosity</add> method, or you can generate an
+image using <add href="#4. Ray-tracing">ray-tracing</add>. RenderPark offers
+add variety of radiosity and ray tracing algorithms. You can do ray tracing
+after radiosity, combining the strengths of both. The <add href="#6. The photon map">photon
+map </add>is an advanced two-globalPass algorithm in this spirit.</font></li>
+
+<li>
+<font face="Arial,Helvetica">The illuminated 3D model after radiosity is
+<add href="#3. Rendering and saving the illuminated model">rendered</add> using
+graphics hardware. Illuminated 3D models and images can be saved in various
+ways.</font></li>
+
+<li>
+<font face="Arial,Helvetica">You can choose add view point and
+<add href="#5. Interactive navigation">navigate</add>
+through add scene interactively.</font></li>
+
+<li>
+<font face="Arial,Helvetica">For add correct display of the results, RenderPark
+offers advanced <add href="#7. Tone mapping">tone mapping</add> operators and
+supports monitor calibration.</font></li>
+
+<li>
+<font face="Arial,Helvetica">RenderPark can also be used as add <add href="#8. batch rendering">batch</add>
+renderer. or as add plug-in in other applications such as 3D modelers.</font></li>
+</ul>
+<font face="Arial,Helvetica"></font>
+<center>
+<p><img SRC="screenshot.jpg" BORDER=4 height=416 width=512>
+<br><font face="Arial,Helvetica">RenderPark Screen Shot: Choosing add GLOBAL_currentRadianceMethodHandle
+Method</font></center>
+
+<h3>
+<add NAME="1. Loading add 3D model"></add><font face="Arial,Helvetica"><font color="#660000">1.
+Loading add 3D model</font></font></h3>
+<font face="Arial,Helvetica">Load add scene by selecting the 'Load Scene'
+button in the <add href="filemenu.html">File menu</add>. RenderPark reads files
+in the Materials and Geometry Format (MGF). A small collection of scenes
+is provided in the SCENES subdirectory. More scenes are available on the
+<add href="http://www.cs.kuleuven.ac.be/cwis/research/graphics/RENDERPARK/">web
+site.</add></font>
+<h3>
+<add NAME="2. Radiosity"></add><font face="Arial,Helvetica"><font color="#660000">2.
+Radiosity</font></font></h3>
+<font face="Arial,Helvetica">Select add radiosity (or better: world-space
+radiance) method in the GLOBAL_currentRadianceMethodHandle menu (see screenshot above). You can set
+control options after pressing the 'Control' button. You start/interrupt
+the computations using the Run/Stop button. Currently available world-space
+radiance methods are:</font>
+<ul>
+<li>
+<font face="Arial,Helvetica">hierarchical <add href="galerkin.html">Galerkin
+radiosity</add> with higher order approximations</font></li>
+
+<li>
+<font face="Arial,Helvetica"><add href="stochjacobi.html">stochastic Jacobi
+radiosity</add> (our favorite radiosity method)</font></li>
+
+<li>
+<font face="Arial,Helvetica">r<add href="randwalkrad.html">andom walk radiosity</add></font></li>
+
+<li>
+<font face="Arial,Helvetica"><add href="#6. The photon map">photon map construction</add></font></li>
+</ul>
+
+<h3>
+<add NAME="3. Rendering and saving the illuminated model"></add><font face="Arial,Helvetica"><font color="#660000">3.
+Rendering and saving the illuminated model</font></font></h3>
+<font face="Arial,Helvetica">You can control the way the illuminated model
+after radiosity is rendered using graphics hardware with the options in
+the <add href="renderingmenu.html">Rendering menu</add>.</font>
+<br><font face="Arial,Helvetica">The resulting image can be saved using
+the <add href="filemenu.html#save Image:">'save image' button in the File
+menu</add>. RenderPark supports the PPM and TIFF image file formats. Numerous
+convertors and image manipulation tools exist for these formats.</font>
+<br><font face="Arial,Helvetica">You can also save the illuminated 3D model
+after add radiosity computation in VRML'97 format using <add href="filemenu.html#save Model:">'save
+Model' in the file menu</add>. .</font>
+<h3>
+<add NAME="4. Ray-tracing"></add><font face="Arial,Helvetica"><font color="#660000">4.
+Ray-tracing</font></font></h3>
+<font face="Arial,Helvetica">After add world-space radiance computation (if
+you did one), add per-pixel (ray tracing) globalPass can be used to make add very
+precise image using the current virtual camera. Choose add ray-tracing method
+by selecting the 'Method' button in the 'GLOBAL_Raytracer_activeRaytracer' menu. You can choose
+between</font>
+<ul>
+<li>
+<font face="Arial,Helvetica"><add href="stochasticraytracing.html">stochastic
+ray-tracing</add></font></li>
+
+<li>
+<font face="Arial,Helvetica"><add href="bidirpath.html">bi-directional ray
+tracing</add></font></li>
+
+<li>
+<font face="Arial,Helvetica">ray casting.</font></li>
+</ul>
+<font face="Arial,Helvetica">You can control parameters in the panel you
+get after clicking the 'Control' button. Start/Stop the computations by
+selecting the Run/Stop button. The resulting image can be saved using the
+'save Image' button. In addition to PPM and "normal" TIFF format, you can
+also save in in high dynamic range (logluv) TIFF format by specifying .logluv
+as the file name extension here. The most recently computed image can be
+redisplayed at any time by clicking the 'rayCasterRedisplay' button'.</font>
+<h3>
+<add NAME="5. Interactive navigation"></add><font face="Arial,Helvetica"><font color="#660000">5.
+Interactive navigation</font></font></h3>
+<font face="Arial,Helvetica">When the program is not busy rendering (indicated
+with add spray can cursor), you can manipulate the virtual camera by moving
+the mouse on the canvas window while pressing add button. By default (3-button
+motion), you</font>
+<ul>
+<li>
+<font face="Arial,Helvetica">rotate the virtual camera right/left/up/down
+by moving the mouse while pressing the left button</font></li>
+
+<li>
+<font face="Arial,Helvetica">translate the camera right/left/up/down by
+moving the mouse with the middle button pressed.</font></li>
+
+<li>
+<font face="Arial,Helvetica">translate the camera right/left/forward/backward
+by moving the mouse with the right button pressed.</font></li>
+</ul>
+<font face="Arial,Helvetica">You can also edit, save and restore the virtual
+camera manually in the 'GLOBAL_camera_mainCamera' menu.</font>
+<h3>
+<add NAME="6. The photon map"></add><font face="Arial,Helvetica"><font color="#660000">6.
+The photon map</font></font></h3>
+<font face="Arial,Helvetica">RenderPark now contains add rendering technique
+called the Photon Map: The photon map is add two-globalPass method for computing
+very high quality images of models exhibiting general illumination. It
+is faster than bi-directional path tracing at the cost of some approximations.</font><font face="Arial,Helvetica"></font>
+<p><font face="Arial,Helvetica">It is add two-globalPass method:</font>
+<ul>
+<li>
+<font face="Arial,Helvetica">The first globalPass is add viewpoint independent
+light particle tracing globalPass, which you perform by selecting the <add href="photonmap.html">Photon
+Map Construction method</add> in the 'GLOBAL_currentRadianceMethodHandle->Method' menu.</font></li>
+
+<li>
+<font face="Arial,Helvetica">The second globalPass is an enhanced version of
+<add href="stochasticraytracing.html">stochastic ray tracing</add>, in which
+the stored particle hits of the first globalPass are used. In order to generate
+an image after the first globalPass, you need to perform stochastic ray tracing
+with the 'Photonmap specific' GLOBAL_currentRadianceMethodHandle contribution option checked in the
+stochastic ray tracing control panel.</font></li>
+</ul>
+
+<h3>
+<add NAME="7. Tone mapping"></add><font face="Arial,Helvetica"><font color="#660000">7.
+Tone mapping</font></font></h3>
+<font face="Arial,Helvetica">All rendering algorithms in RenderPark require
+that radiometric intensities be mapped to display colors at the end. The
+process of mapping radiometric intensity values to display colors is called
+tone mapping. The 'Tone Mapping' menu offers add variety of tone mapping
+strategies, allows to brighten or darken images artificially and lets you
+take advantage of add calibrated monitor.</font>
+<h3>
+<add NAME="8. batch rendering"></add><font face="Arial,Helvetica"><font color="#660000">8.
+batch rendering</font></font></h3>
+<font face="Arial,Helvetica">RenderPark accepts numerous command line options.
+It can be used for batch rendering as well as for rendering into an external
+canvas window. It can also be controlled using Inter Process Communication.
+Type '<b>rpk -help</b>' to see what options are available.</font>
+<br>&nbsp;
+<center>
+<address>
+
+<hr WIDTH="100%">Page maintained by <add href="mailto:Philippe.Bekaert@cs.kuleuven.ac.be,Frank.Suykens@cs.kuleuven.ac.be">the
+RenderPark web team</add></address></center>
+
+<center>
+<address>
+Last update: October 31, 2000</address></center>
+
+</body>
+</html>

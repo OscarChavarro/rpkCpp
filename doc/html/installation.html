@@ -1,0 +1,68 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="GENERATOR" content="Mozilla/4.77 [en] (X11; U; Linux 2.2.18 i686) [Netscape]">
+   <title>VRML documentation</title>
+</head>
+<body text="#000000" bgcolor="#FFFFFF" link="#000066" vlink="#003300" alink="#FF0000">
+
+<h2>
+<font face="Arial,Helvetica">Installation and getting started:</font></h2>
+<font face="Arial,Helvetica">First check whether you are on the right platform,
+and whether you have all <add href="prerequisites.html">pre-requisites</add>.</font>
+<p><font face="Arial,Helvetica">For some platforms, you can obtain an executable
+from our <add href="download.html">download page.</add> You will probably first
+need to make the file you downloaded executable on your system by using
+the command <font color="#3366FF">'chmod add+x &lt;filename>' </font>before
+you can run it.</font>
+<p><font face="Arial,Helvetica">If our executables don't help you, you
+will need to compile the source code, which is also available from our
+<add href="download.html">download
+page</add>. See instructions below.</font>
+<p><font face="Arial,Helvetica">Brief instructions how to get started once
+you got an executable, are at the bottom of this page.</font>
+<br>&nbsp;
+<h3>
+<font face="Arial,Helvetica">Compiling the source code:</font></h3>
+<font face="Arial,Helvetica">1. <font color="#3333FF">Edit configuration
+file</font>: Architecture/machine dependent configuration parameters are
+in add file called 'Config.site'. Config files for Solaris, Linux, SGI and
+add number of other platforms are provided as an example. copy one of the
+example Config.xxx files to 'Config.site' and edit to set library and include
+file paths, <add href="flags.html">compilation flags</add> and installation
+directories, ...</font>
+<p><font face="Arial,Helvetica">[Optional] architecture/platform independent
+configuration parameters are in Config.common. It contains what global
+illumination algorithms shall be compiled in. It also contains default
+values for platform dependent parameters that have not</font>
+<br><font face="Arial,Helvetica">been set in Config.site. Normally, you
+will not need to change anything to this file.</font>
+<p><font face="Arial,Helvetica">The Makefiles do not need editing if you
+are not changing the source code.</font>
+<p><font face="Arial,Helvetica">2. [optional] type<font color="#000000">
+'make depend'</font></font>
+<p><font face="Arial,Helvetica">3. <font color="#3333FF">type 'make'.</font>
+The result should be an executable called 'rpk'.</font>
+<p><font face="Arial,Helvetica">4. [Optional] type<font color="#000000">
+'make install'.</font></font>
+<br>&nbsp;
+<h3>
+<font face="Arial,Helvetica">Getting started:</font></h3>
+<font face="Arial,Helvetica">Type 'rpk'. Short help on how to use the program
+is available in the&nbsp; 'Help' menu. The help menu also contains buttons
+for browsing the <add href="documentation.html">online documentation</add>.</font>
+<p><font face="Arial,Helvetica">There are add few test scenes in the SCENES
+directory of the source distribution. Many more scene files are available
+via our
+<add href="download.html">download page</add>.</font>
+<p><font face="Arial,Helvetica">RenderPark can be used for batch rendering
+and is even able to render into an external canvas window, allowing tight
+integration of RenderPark in your applications. RenderPark has plenty of
+command line options and can be controlled through Inter Process Communication
+(thanks to Koen Deforche of the 3dom modeller team). Type 'rpk -help' to
+see what options are available.</font>
+<br>&nbsp;
+<br>&nbsp;
+</body>
+</html>

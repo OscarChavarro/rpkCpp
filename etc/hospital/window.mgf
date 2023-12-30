@@ -1,0 +1,155 @@
+i ../Materials/realobj.mgf
+
+# Window object (no glass)
+
+# Sizes : Width (X) 2, Height (Z) 2, Depth (Y) 0.05
+# window is a fraction smaller, so it fits into this
+# bbox
+# Origin : Left, front, bottom corner of window
+
+# material
+
+m window_mat = Redwood
+
+# Vertices
+
+v win_1b =
+	p 0 0 0
+v win_1t = 
+	p 0 0 2
+v win_2b =
+	p 0 0.05 0
+v win_2t =
+	p 0 0.05 2
+v win_3b =
+	p 0.999 0.05 0
+v win_3t =
+	p 0.999 0.05 2
+v win_4b =
+	p 0.999 0 0
+v win_4t =
+	p 0.999 0 2
+
+v win_5b =
+	p 1 0 0
+v win_5t = 
+	p 1 0 2
+v win_6b =
+	p 1 0.05 0
+v win_6t =
+	p 1 0.05 2
+v win_7b =
+	p 2 0.05 0
+v win_7t =
+	p 2 0.05 2
+v win_8b =
+	p 2 0 0
+v win_8t =
+	p 2 0 2
+
+v win_9b =
+	p 0.1 0.005 0.1
+v win_9t = 
+	p 0.1 0.005 1.9
+v win_10b =
+	p 0.1 0.045 0.1
+v win_10t =
+	p 0.1 0.045 1.9
+v win_11b =
+	p 0.9 0.045 0.1
+v win_11t =
+	p 0.9 0.045 1.9
+v win_12b =
+	p 0.9 0.005 0.1
+v win_12t =
+	p 0.9 0.005 1.9
+
+v win_13b =
+	p 1.1 0.005 0.1
+v win_13t = 
+	p 1.1 0.005 1.9
+v win_14b =
+	p 1.1 0.045 0.1
+v win_14t =
+	p 1.1 0.045 1.9
+v win_15b =
+	p 1.9 0.045 0.1
+v win_15t =
+	p 1.9 0.045 1.9
+v win_16b =
+	p 1.9 0.005 0.1
+v win_16t =
+	p 1.9 0.005 1.9
+
+# (yet) unused
+v win_17b =
+	p 0.95 0 0.1
+v win_17t =
+	p 0.95 0 1.9
+v win_18b =
+	p 0.98 -0.02 0.1
+v win_18t =
+	p 0.98 -0.02 1.9
+v win_19b =
+	p 1.02 -0.02 0.1
+v win_19t =
+	p 1.02 -0.02 1.9
+v win_20b =
+	p 1.05 0.001 0.1
+v win_20t =
+	p 1.05 0.001 1.9
+
+
+o window
+
+m window_mat
+
+xf -t 1 1 0.025 -s 0.999999 -t -1 -1 -0.025
+
+f win_1b win_2b win_3b win_4b
+f win_4t win_3t win_2t win_1t
+
+f win_1b win_1t win_2t win_2b
+f win_3b win_3t win_4t win_4b
+
+f win_2b win_2t win_10t win_10b
+f win_11b win_11t win_3t win_3b
+f win_9b win_9t win_1t win_1b
+f win_4b win_4t win_12t win_12b
+
+f win_10b win_10t win_9t win_9b
+f win_12b win_12t win_11t win_11b
+
+f win_9b win_1b win_4b win_12b
+f win_2b win_10b win_11b win_3b
+f win_10b win_9b win_12b win_11b
+
+f win_12t win_4t win_1t win_9t 
+f win_3t win_11t win_10t win_2t 
+f win_11t win_12t win_9t win_10t 
+
+# --
+
+f win_5b win_6b win_7b win_8b
+f win_8t win_7t win_6t win_5t
+
+f win_5b win_5t win_6t win_6b
+f win_7b win_7t win_8t win_8b
+
+f win_6b win_6t win_14t win_14b
+f win_15b win_15t win_7t win_7b
+f win_13b win_13t win_5t win_5b
+f win_8b win_8t win_16t win_16b
+
+f win_14b win_14t win_13t win_13b
+f win_16b win_16t win_15t win_15b
+
+f win_13b win_5b win_8b win_16b
+f win_6b win_14b win_15b win_7b
+f win_14b win_13b win_16b win_15b
+
+f win_16t win_8t win_5t win_13t 
+f win_7t win_15t win_14t win_6t 
+f win_15t win_16t win_13t win_14t 
+xf
+o

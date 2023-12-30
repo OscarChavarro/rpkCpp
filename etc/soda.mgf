@@ -1,0 +1,7702 @@
+# The following was converted from Radiance scene input
+xf -s 2.5400e-02
+o Untitled
+# Begin conversion from: store.new
+#               -200               -200               -200                600
+# 
+#   An ice cream store
+# 
+m normal_glass =
+	c
+	ts .94 0
+	rs .04 0
+m grey70 =
+        c
+                cxy 0.3330 0.3330
+        rd 0.7000
+m orange_plastic =
+        c
+                cxy 0.4379 0.4182
+        rd 0.4161
+        c
+        rs 0.0400 0.0800
+m floor_tile =
+        c
+                cxy 0.4051 0.3621
+        rd 0.2811
+        c
+        rs 0.0300 0.0700
+m x_wallpaint =
+        c
+                cxy 0.3330 0.3330
+        rd 0.6000
+m z_wallpaint =
+        c
+                cxy 0.3330 0.3330
+        rd 0.6000
+m dark_wood =
+        c
+                cxy 0.3330 0.3330
+        rd 0.1000
+m floor_tile
+o
+o room
+v v0 =
+        p -80 0 250
+v v1 =
+        p 120 0 250
+v v2 =
+        p 120 0 -100
+v v3 =
+        p -80 0 -100
+f v0 v1 v2 v3
+m z_wallpaint
+v v4 =
+        p -80 96 -100
+v v5 =
+        p -80 96 250
+f v4 v5 v0 v3
+m dark_wood
+o
+o baseboard1
+v v6 =
+        p -79.625 2 -100
+v v7 =
+        p -80 2 -100
+v v8 =
+        p -80 2 250
+v v9 =
+        p -79.625 2 250
+f v6 v7 v8 v9
+v v10 =
+        p -79.625 0 250
+v v11 =
+        p -79.625 0 -100
+f v10 v11 v6 v9
+m x_wallpaint
+o
+o room
+v v12 =
+        p 0 0 -100
+v v13 =
+        p 0 84 -100
+v v14 =
+        p 30 84 -100
+v v15 =
+        p 30 0 -100
+v v16 =
+        p 120 96 -100
+f v12 v13 v14 v15 v2 v16 v4 v3
+m dark_wood
+o
+o baseboard2a
+v v17 =
+        p 0 2 -100
+v v18 =
+        p -80 2 -99.625
+v v19 =
+        p 0 2 -99.625
+f v17 v7 v18 v19
+v v20 =
+        p 0 0 -99.625
+f v20 v12 v17 v19
+v v21 =
+        p -80 0 -99.625
+f v18 v21 v20 v19
+o
+o baseboard2b
+v v22 =
+        p 30 0 -99.625
+v v23 =
+        p 30 2 -99.625
+v v24 =
+        p 30 2 -100
+f v22 v23 v24 v15
+v v25 =
+        p 120 2 -100
+v v26 =
+        p 120 2 -99.625
+f v25 v24 v23 v26
+v v27 =
+        p 120 0 -99.625
+f v23 v22 v27 v26
+m floor_tile
+o
+o hallway
+v v28 =
+        p 120 0 -150
+v v29 =
+        p -80 0 -150
+f v28 v2 v3 v29
+m grey70
+v v30 =
+        p -80 96 -150
+f v3 v4 v30 v29
+v v31 =
+        p 120 96 -150
+f v30 v31 v28 v29
+f v31 v30 v4 v16
+f v2 v28 v31 v16
+o
+o room
+v v32 =
+        p 120 96 250
+f v5 v4 v16 v32
+m z_wallpaint
+f v16 v2 v1 v32
+m dark_wood
+o
+o baseboard3
+v v33 =
+        p 119.625 0 250
+v v34 =
+        p 119.625 2 250
+v v35 =
+        p 119.625 2 -100
+v v36 =
+        p 119.625 0 -100
+f v33 v34 v35 v36
+v v37 =
+        p 120 2 250
+f v25 v35 v34 v37
+m x_wallpaint
+o
+o room
+f v1 v0 v5 v32
+m dark_wood
+o
+o baseboard4
+v v38 =
+        p -80 2 249.625
+v v39 =
+        p 120 2 249.625
+v v40 =
+        p 120 0 249.625
+v v41 =
+        p -80 0 249.625
+f v38 v39 v40 v41
+f v39 v38 v8 v37
+# 
+#   A supporting column:
+# 
+m orange_plastic
+o
+o column1
+v v42 =
+        p 25 0 25
+v v43 =
+        p 25 96 25
+cyl v42 5 v43
+# 
+#   The ice cream counter:
+# 
+# Begin conversion from: !xform -e -n counter -t 40 0 40 counter.norm
+#  xform -e -n counter -t 40 0 40
+#                -10                -10                -10                240
+# 
+#   An ice cream counter
+# 
+m white_formica =
+        c
+                cxy 0.3330 0.3330
+        rd 0.7440
+        c
+        rs 0.0700 0.0500
+m pink_enamel =
+        c
+                cxy 0.3647 0.2752
+        rd 0.4700
+        c
+        rs 0.0300 0.0500
+m polished_brass =
+        c
+                cxy 0.3999 0.4034
+        rd 0.0254
+        rs 0.4816 0.0000
+#  xform -t -5 39 0
+#  genbox white_formica upper_top 20 1 170
+m white_formica
+o
+o counter.upper_top
+v v44 =
+        p 55 39 40
+v v45 =
+        p 55 39 210
+v v46 =
+        p 35 39 210
+v v47 =
+        p 35 39 40
+f v44 v45 v46 v47
+v v48 =
+        p 35 40 210
+v v49 =
+        p 35 40 40
+f v46 v48 v49 v47
+v v50 =
+        p 55 40 40
+f v49 v50 v44 v47
+v v51 =
+        p 55 40 210
+f v50 v49 v48 v51
+f v45 v44 v50 v51
+f v48 v46 v45 v51
+#  xform -t 14 29 68
+#  genbox white_formica lower_top 17 1 102
+o
+o counter.lower_top
+v v52 =
+        p 71 29 108
+v v53 =
+        p 71 29 210
+v v54 =
+        p 54 29 210
+v v55 =
+        p 54 29 108
+f v52 v53 v54 v55
+v v56 =
+        p 54 30 210
+v v57 =
+        p 54 30 108
+f v54 v56 v57 v55
+v v58 =
+        p 71 30 108
+f v57 v58 v52 v55
+v v59 =
+        p 71 30 210
+f v58 v57 v56 v59
+f v53 v52 v58 v59
+f v56 v54 v53 v59
+#  xform -t 14 29 -1
+#  genbox white_formica left_top 66 1 22
+o
+o counter.left_top
+v v60 =
+        p 120 29 39
+v v61 =
+        p 120 29 61
+v v62 =
+        p 54 29 61
+v v63 =
+        p 54 29 39
+f v60 v61 v62 v63
+v v64 =
+        p 54 30 61
+v v65 =
+        p 54 30 39
+f v62 v64 v65 v63
+v v66 =
+        p 120 30 39
+f v65 v66 v60 v63
+v v67 =
+        p 120 30 61
+f v66 v65 v64 v67
+f v61 v60 v66 v67
+f v64 v62 v61 v67
+#  xform -t 10 0 0
+#  genbox pink_enamel support_wall 4 39 170
+m pink_enamel
+o
+o counter.support_wall
+v v68 =
+        p 54 0 40
+v v69 =
+        p 54 0 210
+v v70 =
+        p 50 0 210
+v v71 =
+        p 50 0 40
+f v68 v69 v70 v71
+v v72 =
+        p 50 39 210
+v v73 =
+        p 50 39 40
+f v70 v72 v73 v71
+v v74 =
+        p 54 39 40
+f v73 v74 v68 v71
+v v75 =
+        p 54 39 210
+f v74 v73 v72 v75
+f v69 v68 v74 v75
+f v72 v70 v69 v75
+#  xform -t 14 0 68
+#  genbox pink_enamel right_cabinet 16 29 102
+o
+o counter.right_cabinet
+v v76 =
+        p 70 0 108
+v v77 =
+        p 70 0 210
+v v78 =
+        p 54 0 108
+f v76 v77 v69 v78
+f v69 v54 v55 v78
+v v79 =
+        p 70 29 108
+f v55 v79 v76 v78
+v v80 =
+        p 70 29 210
+f v79 v55 v54 v80
+f v77 v76 v79 v80
+f v54 v69 v77 v80
+#  xform -t 14 0 0
+#  genbox pink_enamel left_cabinet 66 29 20
+o
+o counter.left_cabinet
+v v81 =
+        p 120 0 40
+v v82 =
+        p 120 0 60
+v v83 =
+        p 54 0 60
+f v81 v82 v83 v68
+v v84 =
+        p 54 29 60
+v v85 =
+        p 54 29 40
+f v83 v84 v85 v68
+v v86 =
+        p 120 29 40
+f v85 v86 v81 v68
+v v87 =
+        p 120 29 60
+f v86 v85 v84 v87
+f v82 v81 v86 v87
+f v84 v83 v82 v87
+m polished_brass
+o
+o counter
+v v88 =
+        p 44 4 40
+v v89 =
+        p 44 4 210
+cyl v88 1 v89
+o
+o counter.foot_bar_end
+v cent =
+        p 44 4 40
+        n 0 0 -1
+ring cent 0 1
+v cent =
+        p 44 4 210
+        n 0 0 1
+ring cent 0 1
+o
+o counter.foot_bar_support_lower
+v v90 =
+        p 51 0 45
+v v91 =
+        p 44 4 45
+cyl v90 0.375 v91
+o
+o counter.foot_bar_support_upper
+v v92 =
+        p 50 4 45
+cyl v91 0.5 v92
+o
+o counter.foot_bar_support_lower
+v v93 =
+        p 51 0 85
+v v94 =
+        p 44 4 85
+cyl v93 0.375 v94
+o
+o counter.foot_bar_support_upper
+v v95 =
+        p 50 4 85
+cyl v94 0.5 v95
+o
+o counter.foot_bar_support_lower
+v v96 =
+        p 51 0 125
+v v97 =
+        p 44 4 125
+cyl v96 0.375 v97
+o
+o counter.foot_bar_support_upper
+v v98 =
+        p 50 4 125
+cyl v97 0.5 v98
+o
+o counter.foot_bar_support_lower
+v v99 =
+        p 51 0 165
+v v100 =
+        p 44 4 165
+cyl v99 0.375 v100
+o
+o counter.foot_bar_support_upper
+v v101 =
+        p 50 4 165
+cyl v100 0.5 v101
+o
+o counter.foot_bar_support_lower
+v v102 =
+        p 51 0 205
+v v103 =
+        p 44 4 205
+cyl v102 0.375 v103
+o
+o counter.foot_bar_support_upper
+v v104 =
+        p 50 4 205
+cyl v103 0.5 v104
+#  xform -n support1 -t 10 39 10
+# 
+#   A support for the counter
+# 
+m pink_enamel
+o
+o counter.support1
+v v105 =
+        p 50 31 49.5
+v v106 =
+        p 42 39 49.5
+v v107 =
+        p 50 39 49.5
+f v105 v106 v107
+v v108 =
+        p 42 39 50.5
+v v109 =
+        p 50 31 50.5
+v v110 =
+        p 50 39 50.5
+f v108 v109 v110
+f v105 v109 v108 v106
+#  xform -n support2 -t 10 39 40
+# 
+#   A support for the counter
+# 
+o
+o counter.support2
+v v111 =
+        p 50 31 79.5
+v v112 =
+        p 42 39 79.5
+v v113 =
+        p 50 39 79.5
+f v111 v112 v113
+v v114 =
+        p 42 39 80.5
+v v115 =
+        p 50 31 80.5
+v v116 =
+        p 50 39 80.5
+f v114 v115 v116
+f v111 v115 v114 v112
+#  xform -n support3 -t 10 39 70
+# 
+#   A support for the counter
+# 
+o
+o counter.support3
+v v117 =
+        p 50 31 109.5
+v v118 =
+        p 42 39 109.5
+v v119 =
+        p 50 39 109.5
+f v117 v118 v119
+v v120 =
+        p 42 39 110.5
+v v121 =
+        p 50 31 110.5
+v v122 =
+        p 50 39 110.5
+f v120 v121 v122
+f v117 v121 v120 v118
+#  xform -n support4 -t 10 39 100
+# 
+#   A support for the counter
+# 
+o
+o counter.support4
+v v123 =
+        p 50 31 139.5
+v v124 =
+        p 42 39 139.5
+v v125 =
+        p 50 39 139.5
+f v123 v124 v125
+v v126 =
+        p 42 39 140.5
+v v127 =
+        p 50 31 140.5
+v v128 =
+        p 50 39 140.5
+f v126 v127 v128
+f v123 v127 v126 v124
+#  xform -n support5 -t 10 39 130
+# 
+#   A support for the counter
+# 
+o
+o counter.support5
+v v129 =
+        p 50 31 169.5
+v v130 =
+        p 42 39 169.5
+v v131 =
+        p 50 39 169.5
+f v129 v130 v131
+v v132 =
+        p 42 39 170.5
+v v133 =
+        p 50 31 170.5
+v v134 =
+        p 50 39 170.5
+f v132 v133 v134
+f v129 v133 v132 v130
+#  xform -n support6 -t 10 39 160
+# 
+#   A support for the counter
+# 
+o
+o counter.support6
+v v135 =
+        p 50 31 199.5
+v v136 =
+        p 42 39 199.5
+v v137 =
+        p 50 39 199.5
+f v135 v136 v137
+v v138 =
+        p 42 39 200.5
+v v139 =
+        p 50 31 200.5
+v v140 =
+        p 50 39 200.5
+f v138 v139 v140
+f v135 v139 v138 v136
+# End conversion from: !xform -e -n counter -t 40 0 40 counter.norm
+# Begin conversion from: !xform -e -n register -t 58 30 46 register.norm
+#  xform -e -n register -t 58 30 46
+#                 -1                 -1                 -1                 15
+# 
+#   A cash register
+# 
+m black_plastic =
+        c
+                cxy 0.3330 0.3330
+        rd 0.1000
+m khaki =
+        c
+                cxy 0.3263 0.3749
+        rd 0.2670
+o
+o register
+v v141 =
+        p 68 30 46
+v v142 =
+        p 68 30 58
+v v143 =
+        p 58 30 58
+v v144 =
+        p 58 30 46
+f v141 v142 v143 v144
+v v145 =
+        p 58 42 46
+v v146 =
+        p 68 42 46
+f v145 v146 v141 v144
+v v147 =
+        p 58 42 48
+v v148 =
+        p 68 42 48
+f v147 v148 v146 v145
+v v149 =
+        p 58 40 48
+v v150 =
+        p 68 40 48
+f v149 v150 v148 v147
+v v151 =
+        p 58 33 58
+v v152 =
+        p 68 33 58
+f v151 v152 v150 v149
+f v143 v142 v152 v151
+f v143 v151 v149 v147 v145 v144
+f v141 v146 v148 v150 v152 v142
+m black_plastic
+v v153 =
+        p 59 33.5 57.5
+v v154 =
+        p 67 33.5 57.5
+v v155 =
+        p 67 39.5 49
+v v156 =
+        p 59 39.5 49
+f v153 v154 v155 v156
+v v157 =
+        p 59 30 58.1
+v v158 =
+        p 67 30 58.1
+v v159 =
+        p 67 32.5 58.1
+v v160 =
+        p 59 32.5 58.1
+f v157 v158 v159 v160
+v v161 =
+        p 58.5 41.75 45.9
+v v162 =
+        p 67.5 41.75 45.9
+v v163 =
+        p 67.5 40 45.9
+v v164 =
+        p 58.5 40 45.9
+f v161 v162 v163 v164
+v v165 =
+        p 58.5 40 48.1
+v v166 =
+        p 67.5 40 48.1
+v v167 =
+        p 67.5 41.75 48.1
+v v168 =
+        p 58.5 41.75 48.1
+f v165 v166 v167 v168
+# End conversion from: !xform -e -n register -t 58 30 46 register.norm
+# Begin conversion from: !xform -e -n stool1 -t 30 0 65 stool.norm
+#  xform -e -n stool1 -t 30 0 65
+#                -14                  0                -14                 28
+# 
+#   A bar stool
+# 
+m polished_brass =
+        c
+                cxy 0.4379 0.4182
+        rd 0.0217
+        rs 0.4118 0.0000
+m orange_vinyl =
+        c
+                cxy 0.4215 0.3321
+        rd 0.4531
+        c
+        rs 0.0200 0.0500
+m polished_brass
+o
+o stool1
+v v169 =
+        p 30 0 65
+v v170 =
+        p 30 0.5 65
+cone v169 6 v170 1.5
+v v171 =
+        p 30 24 65
+cyl v170 1.5 v171
+m orange_vinyl
+o
+o stool1.seat
+v cent =
+        p 30 24 65
+        n 0 -1 0
+ring cent 0 6.5
+o
+o stool1
+v v172 =
+        p 30 24.5 65
+cone v171 6.5 v172 7
+o
+o stool1.seat
+v v173 =
+        p 30 27.5 65
+cyl v171 7 v173
+o
+o stool1
+v v174 =
+        p 30 28 65
+cone v173 7 v174 6.5
+o
+o stool1.seat
+v cent =
+        p 30 28 65
+        n 0 1 0
+ring cent 0 6.5
+# End conversion from: !xform -e -n stool1 -t 30 0 65 stool.norm
+# Begin conversion from: !xform -e -n stool2 -t 30 0 95 stool.norm
+#  xform -e -n stool2 -t 30 0 95
+#                -14                  0                -14                 28
+# 
+#   A bar stool
+# 
+m polished_brass =
+        c
+                cxy 0.4379 0.4182
+        rd 0.0217
+        rs 0.4118 0.0000
+m orange_vinyl =
+        c
+                cxy 0.4215 0.3321
+        rd 0.4531
+        c
+        rs 0.0200 0.0500
+m polished_brass
+o
+o stool2
+v v175 =
+        p 30 0 95
+v v176 =
+        p 30 0.5 95
+cone v175 6 v176 1.5
+v v177 =
+        p 30 24 95
+cyl v176 1.5 v177
+m orange_vinyl
+o
+o stool2.seat
+v cent =
+        p 30 24 95
+        n 0 -1 0
+ring cent 0 6.5
+o
+o stool2
+v v178 =
+        p 30 24.5 95
+cone v177 6.5 v178 7
+o
+o stool2.seat
+v v179 =
+        p 30 27.5 95
+cyl v177 7 v179
+o
+o stool2
+v v180 =
+        p 30 28 95
+cone v179 7 v180 6.5
+o
+o stool2.seat
+v cent =
+        p 30 28 95
+        n 0 1 0
+ring cent 0 6.5
+# End conversion from: !xform -e -n stool2 -t 30 0 95 stool.norm
+# Begin conversion from: !xform -e -n stool3 -t 30 0 125 stool.norm
+#  xform -e -n stool3 -t 30 0 125
+#                -14                  0                -14                 28
+# 
+#   A bar stool
+# 
+m polished_brass =
+        c
+                cxy 0.4379 0.4182
+        rd 0.0217
+        rs 0.4118 0.0000
+m orange_vinyl =
+        c
+                cxy 0.4215 0.3321
+        rd 0.4531
+        c
+        rs 0.0200 0.0500
+m polished_brass
+o
+o stool3
+v v181 =
+        p 30 0 125
+v v182 =
+        p 30 0.5 125
+cone v181 6 v182 1.5
+v v183 =
+        p 30 24 125
+cyl v182 1.5 v183
+m orange_vinyl
+o
+o stool3.seat
+v cent =
+        p 30 24 125
+        n 0 -1 0
+ring cent 0 6.5
+o
+o stool3
+v v184 =
+        p 30 24.5 125
+cone v183 6.5 v184 7
+o
+o stool3.seat
+v v185 =
+        p 30 27.5 125
+cyl v183 7 v185
+o
+o stool3
+v v186 =
+        p 30 28 125
+cone v185 7 v186 6.5
+o
+o stool3.seat
+v cent =
+        p 30 28 125
+        n 0 1 0
+ring cent 0 6.5
+# End conversion from: !xform -e -n stool3 -t 30 0 125 stool.norm
+# Begin conversion from: !xform -e -n stool4 -t 30 0 155 stool.norm
+#  xform -e -n stool4 -t 30 0 155
+#                -14                  0                -14                 28
+# 
+#   A bar stool
+# 
+m polished_brass =
+        c
+                cxy 0.4379 0.4182
+        rd 0.0217
+        rs 0.4118 0.0000
+m orange_vinyl =
+        c
+                cxy 0.4215 0.3321
+        rd 0.4531
+        c
+        rs 0.0200 0.0500
+m polished_brass
+o
+o stool4
+v v187 =
+        p 30 0 155
+v v188 =
+        p 30 0.5 155
+cone v187 6 v188 1.5
+v v189 =
+        p 30 24 155
+cyl v188 1.5 v189
+m orange_vinyl
+o
+o stool4.seat
+v cent =
+        p 30 24 155
+        n 0 -1 0
+ring cent 0 6.5
+o
+o stool4
+v v190 =
+        p 30 24.5 155
+cone v189 6.5 v190 7
+o
+o stool4.seat
+v v191 =
+        p 30 27.5 155
+cyl v189 7 v191
+o
+o stool4
+v v192 =
+        p 30 28 155
+cone v191 7 v192 6.5
+o
+o stool4.seat
+v cent =
+        p 30 28 155
+        n 0 1 0
+ring cent 0 6.5
+# End conversion from: !xform -e -n stool4 -t 30 0 155 stool.norm
+# Begin conversion from: !xform -e -n stool5 -t 30 0 185 stool.norm
+#  xform -e -n stool5 -t 30 0 185
+#                -14                  0                -14                 28
+# 
+#   A bar stool
+# 
+m polished_brass =
+        c
+                cxy 0.4379 0.4182
+        rd 0.0217
+        rs 0.4118 0.0000
+m orange_vinyl =
+        c
+                cxy 0.4215 0.3321
+        rd 0.4531
+        c
+        rs 0.0200 0.0500
+m polished_brass
+o
+o stool5
+v v193 =
+        p 30 0 185
+v v194 =
+        p 30 0.5 185
+cone v193 6 v194 1.5
+v v195 =
+        p 30 24 185
+cyl v194 1.5 v195
+m orange_vinyl
+o
+o stool5.seat
+v cent =
+        p 30 24 185
+        n 0 -1 0
+ring cent 0 6.5
+o
+o stool5
+v v196 =
+        p 30 24.5 185
+cone v195 6.5 v196 7
+o
+o stool5.seat
+v v197 =
+        p 30 27.5 185
+cyl v195 7 v197
+o
+o stool5
+v v198 =
+        p 30 28 185
+cone v197 7 v198 6.5
+o
+o stool5.seat
+v cent =
+        p 30 28 185
+        n 0 1 0
+ring cent 0 6.5
+# End conversion from: !xform -e -n stool5 -t 30 0 185 stool.norm
+# 
+#   The menu:
+# 
+# Begin conversion from: !xform -e -n menu -s 1.5 -t 119.9 60 80 menu.norm
+#  xform -e -n menu -s 1.5 -t 119.9 60 80
+#                  0                  0                  0                 36
+# 
+#   Rory's menu
+# 
+m pink_menu =
+        c
+                cxy 0.4033 0.2612
+        rd 0.2189
+m dark_wood =
+        c
+                cxy 0.3330 0.3330
+        rd 0.1000
+m pink_menu
+o
+o menu
+v v199 =
+        p 119.9 60 134
+v v200 =
+        p 119.9 87 134
+v v201 =
+        p 119.9 87 80
+v v202 =
+        p 119.9 60 80
+f v199 v200 v201 v202
+m dark_wood
+v v203 =
+        p 119.9 58.5 134
+v v204 =
+        p 119.9 58.5 135.5
+v v205 =
+        p 119.9 88.5 135.5
+v v206 =
+        p 119.9 88.5 78.5
+v v207 =
+        p 119.9 58.5 78.5
+f v201 v200 v203 v204 v205 v206 v207 v203 v199 v202
+# End conversion from: !xform -e -n menu -s 1.5 -t 119.9 60 80 menu.norm
+# 
+#   The ice cream dipping freezers:
+# 
+# Begin conversion from: !xform -e -n freezer1 -t 95.7 0 105.3 dipfreezer.norm
+#  xform -e -n freezer1 -t 95.7 0 105.3
+#                  0                  0                  0                 52
+# 
+#   Dipping Freezer
+# 
+#  void glow freezer_light
+#  0
+#  0
+#  4 700 700 700 30
+m freezer_light =
+        c
+                cxy 0.3330 0.3330
+        rd 0.6000
+m white_glaze =
+        c
+                cxy 0.3330 0.3330
+        rd 0.7200
+        c
+        rs 0.1000 0.0000
+m stainless_steel =
+        c
+                cxy 0.3330 0.3330
+        rd 0.1400
+        rs 0.5600 0.0000
+m clear_plastic =
+        c
+                cxy 0.3330 0.3330
+        rs 0.0817 0
+        c
+                cxy 0.3330 0.3330
+        ts 0.9183 0
+m freezer_light
+o
+o freezer1.lamp
+v v208 =
+        p 118.7 47.9 105.4
+v v209 =
+        p 118.7 47.9 129.2
+v v210 =
+        p 110.7 47.9 129.2
+v v211 =
+        p 110.7 47.9 105.4
+f v208 v209 v210 v211
+v v212 =
+        p 118.7 47.9 129.4
+v v213 =
+        p 118.7 47.9 153.2
+v v214 =
+        p 110.7 47.9 153.2
+v v215 =
+        p 110.7 47.9 129.4
+f v212 v213 v214 v215
+m white_glaze
+o
+o freezer1.inside
+v v216 =
+        p 119.7 20 105.3
+v v217 =
+        p 95.7 20 105.3
+v v218 =
+        p 95.7 20 153.3
+v v219 =
+        p 119.7 20 153.3
+f v216 v217 v218 v219
+o
+o freezer1.cabinet
+v v220 =
+        p 119.7 0 105.3
+v v221 =
+        p 119.7 0 153.3
+v v222 =
+        p 95.7 0 153.3
+v v223 =
+        p 95.7 0 105.3
+f v220 v221 v222 v223
+v v224 =
+        p 95.7 36 153.3
+v v225 =
+        p 95.7 36 105.3
+f v222 v224 v225 v223
+v v226 =
+        p 99.7 36 105.3
+v v227 =
+        p 109.2 48 105.3
+v v228 =
+        p 119.7 48 105.3
+f v225 v226 v227 v228 v220 v223
+v v229 =
+        p 119.7 48 153.3
+f v221 v220 v228 v229
+v v230 =
+        p 109.2 48 153.3
+v v231 =
+        p 99.7 36 153.3
+f v230 v231 v224 v222 v221 v229
+m stainless_steel
+o
+o freezer1
+v v232 =
+        p 107.7 48 153.3
+v v233 =
+        p 107.7 48 105.3
+f v232 v229 v228 v233
+v v234 =
+        p 107.7 47.25 105.3
+v v235 =
+        p 107.7 47.25 153.3
+cyl v234 0.75 v235
+o
+o freezer1.top_cap
+v cent =
+        p 107.7 47.25 105.3
+        n 0 0 -1
+ring cent 0 0.75
+v cent =
+        p 107.7 47.25 153.3
+        n 0 0 1
+ring cent 0 0.75
+o
+o freezer1
+f v224 v231 v226 v225
+v v236 =
+        p 95.7 35.25 105.3
+v v237 =
+        p 95.7 35.25 153.3
+cyl v236 0.75 v237
+o
+o freezer1.ledge_cap
+v cent =
+        p 95.7 35.25 105.3
+        n 0 0 -1
+ring cent 0 0.75
+v cent =
+        p 95.7 35.25 153.3
+        n 0 0 1
+ring cent 0 0.75
+#  xform -e -n left_lid -t 12 39 0
+#                  0                -12                  0                 24
+# 
+#   A dip freezer lid:
+#       Rotate by -90 degrees about z to open
+#       Translate by 12 39 0 when done
+# 
+m clear_plastic
+o
+o freezer1.left_lid
+v v238 =
+        p 99.7 36 128.3
+v v239 =
+        p 108.7 47 128.3
+v v240 =
+        p 108.7 47 106.3
+v v241 =
+        p 99.7 36 106.3
+f v238 v239 v240 v241
+m stainless_steel
+o
+o freezer1.left_lid.frame
+v v242 =
+        p 108.7 47 105.4
+v v243 =
+        p 99.7 36 105.4
+f v241 v240 v242 v243
+v v244 =
+        p 99.7 36 129.2
+v v245 =
+        p 108.7 47 129.2
+f v244 v245 v239 v238
+o
+o freezer1.left_lid
+v v246 =
+        p 99.7 37.5 115.3
+v v247 =
+        p 99.7 37.5 119.3
+cyl v246 0.375 v247
+o
+o freezer1.left_lid.handle_cap
+v cent =
+        p 99.7 37.5 115.3
+        n 0 0 -1
+ring cent 0 0.375
+v cent =
+        p 99.7 37.5 119.3
+        n 0 0 1
+ring cent 0 0.375
+o
+o freezer1.left_lid.handle_support
+v v248 =
+        p 99.7 37.5 115.8
+v v249 =
+        p 100.45 36.9 115.8
+cyl v248 0.25 v249
+v v250 =
+        p 99.7 37.5 118.8
+v v251 =
+        p 100.45 36.9 118.8
+cyl v250 0.25 v251
+#  xform -e -n right_lid -t 12 39 24
+#                  0                -12                  0                 24
+# 
+#   A dip freezer lid:
+#       Rotate by -90 degrees about z to open
+#       Translate by 12 39 0 when done
+# 
+m clear_plastic
+o
+o freezer1.right_lid
+v v252 =
+        p 99.7 36 152.3
+v v253 =
+        p 108.7 47 152.3
+v v254 =
+        p 108.7 47 130.3
+v v255 =
+        p 99.7 36 130.3
+f v252 v253 v254 v255
+m stainless_steel
+o
+o freezer1.right_lid.frame
+v v10 =
+        p 108.7 47 129.4
+v v11 =
+        p 99.7 36 129.4
+f v255 v254 v10 v11
+v v6 =
+        p 99.7 36 153.2
+v v9 =
+        p 108.7 47 153.2
+f v6 v9 v253 v252
+o
+o freezer1.right_lid
+v v13 =
+        p 99.7 37.5 139.3
+v v14 =
+        p 99.7 37.5 143.3
+cyl v13 0.375 v14
+o
+o freezer1.right_lid.handle_cap
+v cent =
+        p 99.7 37.5 139.3
+        n 0 0 -1
+ring cent 0 0.375
+v cent =
+        p 99.7 37.5 143.3
+        n 0 0 1
+ring cent 0 0.375
+o
+o freezer1.right_lid.handle_support
+v v7 =
+        p 99.7 37.5 139.8
+v v12 =
+        p 100.45 36.9 139.8
+cyl v7 0.25 v12
+v v17 =
+        p 99.7 37.5 142.8
+v v18 =
+        p 100.45 36.9 142.8
+cyl v17 0.25 v18
+# End conversion from: !xform -e -n freezer1 -t 95.7 0 105.3 dipfreezer.norm
+# Begin conversion from: !xform -e -n freezer2 -t 95.7 0 153.5 dipfreezer.norm
+#  xform -e -n freezer2 -t 95.7 0 153.5
+#                  0                  0                  0                 52
+# 
+#   Dipping Freezer
+# 
+#  void glow freezer_light
+#  0
+#  0
+#  4 700 700 700 30
+m freezer_light =
+        c
+                cxy 0.3330 0.3330
+        rd 0.6000
+m white_glaze =
+        c
+                cxy 0.3330 0.3330
+        rd 0.7200
+        c
+        rs 0.1000 0.0000
+m stainless_steel =
+        c
+                cxy 0.3330 0.3330
+        rd 0.1400
+        rs 0.5600 0.0000
+m clear_plastic =
+        c
+                cxy 0.3330 0.3330
+        rs 0.0817 0
+        c
+                cxy 0.3330 0.3330
+        ts 0.9183 0
+m freezer_light
+o
+o freezer2.lamp
+v v21 =
+        p 118.7 47.9 153.6
+v v20 =
+        p 118.7 47.9 177.4
+v v19 =
+        p 110.7 47.9 177.4
+v v15 =
+        p 110.7 47.9 153.6
+f v21 v20 v19 v15
+v v24 =
+        p 118.7 47.9 177.6
+v v23 =
+        p 118.7 47.9 201.4
+v v22 =
+        p 110.7 47.9 201.4
+v v27 =
+        p 110.7 47.9 177.6
+f v24 v23 v22 v27
+m white_glaze
+o
+o freezer2.inside
+v v26 =
+        p 119.7 20 153.5
+v v3 =
+        p 95.7 20 153.5
+v v29 =
+        p 95.7 20 201.5
+v v30 =
+        p 119.7 20 201.5
+f v26 v3 v29 v30
+o
+o freezer2.cabinet
+v v28 =
+        p 119.7 0 153.5
+v v31 =
+        p 119.7 0 201.5
+v v4 =
+        p 95.7 0 201.5
+v v16 =
+        p 95.7 0 153.5
+f v28 v31 v4 v16
+v v2 =
+        p 95.7 36 201.5
+v v33 =
+        p 95.7 36 153.5
+f v4 v2 v33 v16
+v v36 =
+        p 99.7 36 153.5
+v v25 =
+        p 109.2 48 153.5
+v v35 =
+        p 119.7 48 153.5
+f v33 v36 v25 v35 v28 v16
+v v34 =
+        p 119.7 48 201.5
+f v31 v28 v35 v34
+v v1 =
+        p 109.2 48 201.5
+v v0 =
+        p 99.7 36 201.5
+f v1 v0 v2 v4 v31 v34
+m stainless_steel
+o
+o freezer2
+v v5 =
+        p 107.7 48 201.5
+v v32 =
+        p 107.7 48 153.5
+f v5 v34 v35 v32
+v v40 =
+        p 107.7 47.25 153.5
+v v41 =
+        p 107.7 47.25 201.5
+cyl v40 0.75 v41
+o
+o freezer2.top_cap
+v cent =
+        p 107.7 47.25 153.5
+        n 0 0 -1
+ring cent 0 0.75
+v cent =
+        p 107.7 47.25 201.5
+        n 0 0 1
+ring cent 0 0.75
+o
+o freezer2
+f v2 v0 v36 v33
+v v39 =
+        p 95.7 35.25 153.5
+v v38 =
+        p 95.7 35.25 201.5
+cyl v39 0.75 v38
+o
+o freezer2.ledge_cap
+v cent =
+        p 95.7 35.25 153.5
+        n 0 0 -1
+ring cent 0 0.75
+v cent =
+        p 95.7 35.25 201.5
+        n 0 0 1
+ring cent 0 0.75
+#  xform -e -n left_lid -t 12 39 0
+#                  0                -12                  0                 24
+# 
+#   A dip freezer lid:
+#       Rotate by -90 degrees about z to open
+#       Translate by 12 39 0 when done
+# 
+m clear_plastic
+o
+o freezer2.left_lid
+v v8 =
+        p 99.7 36 176.5
+v v37 =
+        p 108.7 47 176.5
+v v42 =
+        p 108.7 47 154.5
+v v43 =
+        p 99.7 36 154.5
+f v8 v37 v42 v43
+m stainless_steel
+o
+o freezer2.left_lid.frame
+v v47 =
+        p 108.7 47 153.6
+v v49 =
+        p 99.7 36 153.6
+f v43 v42 v47 v49
+v v44 =
+        p 99.7 36 177.4
+v v50 =
+        p 108.7 47 177.4
+f v44 v50 v37 v8
+o
+o freezer2.left_lid
+v v48 =
+        p 99.7 37.5 163.5
+v v46 =
+        p 99.7 37.5 167.5
+cyl v48 0.375 v46
+o
+o freezer2.left_lid.handle_cap
+v cent =
+        p 99.7 37.5 163.5
+        n 0 0 -1
+ring cent 0 0.375
+v cent =
+        p 99.7 37.5 167.5
+        n 0 0 1
+ring cent 0 0.375
+o
+o freezer2.left_lid.handle_support
+v v45 =
+        p 99.7 37.5 164
+v v51 =
+        p 100.45 36.9 164
+cyl v45 0.25 v51
+v v57 =
+        p 99.7 37.5 167
+v v52 =
+        p 100.45 36.9 167
+cyl v57 0.25 v52
+#  xform -e -n right_lid -t 12 39 24
+#                  0                -12                  0                 24
+# 
+#   A dip freezer lid:
+#       Rotate by -90 degrees about z to open
+#       Translate by 12 39 0 when done
+# 
+m clear_plastic
+o
+o freezer2.right_lid
+v v58 =
+        p 99.7 36 200.5
+v v56 =
+        p 108.7 47 200.5
+v v53 =
+        p 108.7 47 178.5
+v v59 =
+        p 99.7 36 178.5
+f v58 v56 v53 v59
+m stainless_steel
+o
+o freezer2.right_lid.frame
+v v63 =
+        p 108.7 47 177.6
+v v65 =
+        p 99.7 36 177.6
+f v59 v53 v63 v65
+v v60 =
+        p 99.7 36 201.4
+v v66 =
+        p 108.7 47 201.4
+f v60 v66 v56 v58
+o
+o freezer2.right_lid
+v v64 =
+        p 99.7 37.5 187.5
+v v62 =
+        p 99.7 37.5 191.5
+cyl v64 0.375 v62
+o
+o freezer2.right_lid.handle_cap
+v cent =
+        p 99.7 37.5 187.5
+        n 0 0 -1
+ring cent 0 0.375
+v cent =
+        p 99.7 37.5 191.5
+        n 0 0 1
+ring cent 0 0.375
+o
+o freezer2.right_lid.handle_support
+v v61 =
+        p 99.7 37.5 188
+v v67 =
+        p 100.45 36.9 188
+cyl v61 0.25 v67
+v v71 =
+        p 99.7 37.5 191
+v v73 =
+        p 100.45 36.9 191
+cyl v71 0.25 v73
+# End conversion from: !xform -e -n freezer2 -t 95.7 0 153.5 dipfreezer.norm
+# Begin conversion from: !xform -e -n freezer3 -t 95.7 0 201.7 dipfreezer.norm
+#  xform -e -n freezer3 -t 95.7 0 201.7
+#                  0                  0                  0                 52
+# 
+#   Dipping Freezer
+# 
+#  void glow freezer_light
+#  0
+#  0
+#  4 700 700 700 30
+m freezer_light =
+        c
+                cxy 0.3330 0.3330
+        rd 0.6000
+m white_glaze =
+        c
+                cxy 0.3330 0.3330
+        rd 0.7200
+        c
+        rs 0.1000 0.0000
+m stainless_steel =
+        c
+                cxy 0.3330 0.3330
+        rd 0.1400
+        rs 0.5600 0.0000
+m clear_plastic =
+        c
+                cxy 0.3330 0.3330
+        rs 0.0817 0
+        c
+                cxy 0.3330 0.3330
+        ts 0.9183 0
+m freezer_light
+o
+o freezer3.lamp
+v v74 =
+        p 118.7 47.9 201.8
+v v72 =
+        p 118.7 47.9 225.6
+v v70 =
+        p 110.7 47.9 225.6
+v v75 =
+        p 110.7 47.9 201.8
+f v74 v72 v70 v75
+v v78 =
+        p 118.7 47.9 225.8
+v v55 =
+        p 118.7 47.9 249.6
+v v76 =
+        p 110.7 47.9 249.6
+v v79 =
+        p 110.7 47.9 225.8
+f v78 v55 v76 v79
+m white_glaze
+o
+o freezer3.inside
+v v54 =
+        p 119.7 20 201.7
+v v69 =
+        p 95.7 20 201.7
+v v77 =
+        p 95.7 20 249.7
+v v80 =
+        p 119.7 20 249.7
+f v54 v69 v77 v80
+o
+o freezer3.cabinet
+v v68 =
+        p 119.7 0 201.7
+v v85 =
+        p 119.7 0 249.7
+v v81 =
+        p 95.7 0 249.7
+v v86 =
+        p 95.7 0 201.7
+f v68 v85 v81 v86
+v v84 =
+        p 95.7 36 249.7
+v v83 =
+        p 95.7 36 201.7
+f v81 v84 v83 v86
+v v82 =
+        p 99.7 36 201.7
+v v87 =
+        p 109.2 48 201.7
+v v88 =
+        p 119.7 48 201.7
+f v83 v82 v87 v88 v68 v86
+v v89 =
+        p 119.7 48 249.7
+f v85 v68 v88 v89
+v v90 =
+        p 109.2 48 249.7
+v v91 =
+        p 99.7 36 249.7
+f v90 v91 v84 v81 v85 v89
+m stainless_steel
+o
+o freezer3
+v v92 =
+        p 107.7 48 249.7
+v v93 =
+        p 107.7 48 201.7
+f v92 v89 v88 v93
+v v94 =
+        p 107.7 47.25 201.7
+v v95 =
+        p 107.7 47.25 249.7
+cyl v94 0.75 v95
+o
+o freezer3.top_cap
+v cent =
+        p 107.7 47.25 201.7
+        n 0 0 -1
+ring cent 0 0.75
+v cent =
+        p 107.7 47.25 249.7
+        n 0 0 1
+ring cent 0 0.75
+o
+o freezer3
+f v84 v91 v82 v83
+v v96 =
+        p 95.7 35.25 201.7
+v v97 =
+        p 95.7 35.25 249.7
+cyl v96 0.75 v97
+o
+o freezer3.ledge_cap
+v cent =
+        p 95.7 35.25 201.7
+        n 0 0 -1
+ring cent 0 0.75
+v cent =
+        p 95.7 35.25 249.7
+        n 0 0 1
+ring cent 0 0.75
+#  xform -e -n left_lid -t 12 39 0
+#                  0                -12                  0                 24
+# 
+#   A dip freezer lid:
+#       Rotate by -90 degrees about z to open
+#       Translate by 12 39 0 when done
+# 
+m clear_plastic
+o
+o freezer3.left_lid
+v v98 =
+        p 99.7 36 224.7
+v v99 =
+        p 108.7 47 224.7
+v v100 =
+        p 108.7 47 202.7
+v v101 =
+        p 99.7 36 202.7
+f v98 v99 v100 v101
+m stainless_steel
+o
+o freezer3.left_lid.frame
+v v102 =
+        p 108.7 47 201.8
+v v103 =
+        p 99.7 36 201.8
+f v101 v100 v102 v103
+v v104 =
+        p 99.7 36 225.6
+v v107 =
+        p 108.7 47 225.6
+f v104 v107 v99 v98
+o
+o freezer3.left_lid
+v v110 =
+        p 99.7 37.5 211.7
+v v105 =
+        p 99.7 37.5 215.7
+cyl v110 0.375 v105
+o
+o freezer3.left_lid.handle_cap
+v cent =
+        p 99.7 37.5 211.7
+        n 0 0 -1
+ring cent 0 0.375
+v cent =
+        p 99.7 37.5 215.7
+        n 0 0 1
+ring cent 0 0.375
+o
+o freezer3.left_lid.handle_support
+v v109 =
+        p 99.7 37.5 212.2
+v v108 =
+        p 100.45 36.9 212.2
+cyl v109 0.25 v108
+v v106 =
+        p 99.7 37.5 215.2
+v v113 =
+        p 100.45 36.9 215.2
+cyl v106 0.25 v113
+#  xform -e -n right_lid -t 12 39 24
+#                  0                -12                  0                 24
+# 
+#   A dip freezer lid:
+#       Rotate by -90 degrees about z to open
+#       Translate by 12 39 0 when done
+# 
+m clear_plastic
+o
+o freezer3.right_lid
+v v116 =
+        p 99.7 36 248.7
+v v111 =
+        p 108.7 47 248.7
+v v115 =
+        p 108.7 47 226.7
+v v114 =
+        p 99.7 36 226.7
+f v116 v111 v115 v114
+m stainless_steel
+o
+o freezer3.right_lid.frame
+v v112 =
+        p 108.7 47 225.8
+v v119 =
+        p 99.7 36 225.8
+f v114 v115 v112 v119
+v v122 =
+        p 99.7 36 249.6
+v v117 =
+        p 108.7 47 249.6
+f v122 v117 v111 v116
+o
+o freezer3.right_lid
+v v121 =
+        p 99.7 37.5 235.7
+v v120 =
+        p 99.7 37.5 239.7
+cyl v121 0.375 v120
+o
+o freezer3.right_lid.handle_cap
+v cent =
+        p 99.7 37.5 235.7
+        n 0 0 -1
+ring cent 0 0.375
+v cent =
+        p 99.7 37.5 239.7
+        n 0 0 1
+ring cent 0 0.375
+o
+o freezer3.right_lid.handle_support
+v v118 =
+        p 99.7 37.5 236.2
+v v125 =
+        p 100.45 36.9 236.2
+cyl v118 0.25 v125
+v v128 =
+        p 99.7 37.5 239.2
+v v123 =
+        p 100.45 36.9 239.2
+cyl v128 0.25 v123
+# End conversion from: !xform -e -n freezer3 -t 95.7 0 201.7 dipfreezer.norm
+# 
+#   Parfait glasses resting (upside down) on freezers:
+# 
+# Begin conversion from: !xform -e -n glass1 -s .7 -rx 180 -t 115 52.9 115 parfait.norm
+#  xform -e -n glass1 -s .7 -rx 180 -t 115 52.9 115
+#                  0                  0                  0                  7
+# 
+#   A (large) Parfait glass
+# 
+m normal_glass
+o
+o glass1
+v v127 =
+        p 115 52.62 115
+v v126 =
+        p 115 52.9 115
+cone v127 0 v126 -1.82
+v v124 =
+        p 115 52.69 115
+cone v126 1.82 v124 1.75
+v v131 =
+        p 115 52.585 115
+cone v124 1.75 v131 1.505
+v v134 =
+        p 115 52.48 115
+cone v131 1.505 v134 1.05
+v v129 =
+        p 115 52.34 115
+cone v134 1.05 v129 0.63
+v v133 =
+        p 115 51.92 115
+cone v129 0.63 v133 0.315
+v v132 =
+        p 115 51.43 115
+cone v133 0.315 v132 0.28
+v v130 =
+        p 115 51.08 115
+cone v132 0.28 v130 0.735
+v v137 =
+        p 115 50.59 115
+cone v130 0.735 v137 1.19
+v v140 =
+        p 115 50.03 115
+cone v137 1.19 v140 1.54
+v v135 =
+        p 115 49.4 115
+cone v140 1.54 v135 1.785
+v v139 =
+        p 115 48.84 115
+cone v135 1.785 v139 1.96
+v v138 =
+        p 115 48.385 115
+cone v139 1.96 v138 2.17
+v v136 =
+        p 115 48.175 115
+cone v138 2.17 v136 2.345
+v v143 =
+        p 115 48 115
+cone v136 2.345 v143 2.24
+v cent =
+        p 115 48 115
+        n 0 -0.7 8.57224447676e-17
+ring cent 1.89 2.24
+v v151 =
+        p 115 50.45 115
+cone v143 -1.89 v151 -0.35
+cone v151 -0.35 v137 0
+# End conversion from: !xform -e -n glass1 -s .7 -rx 180 -t 115 52.9 115 parfait.norm
+# Begin conversion from: !xform -e -n glass2 -s .7 -rx 180 -t 115 52.9 120 parfait.norm
+#  xform -e -n glass2 -s .7 -rx 180 -t 115 52.9 120
+#                  0                  0                  0                  7
+# 
+#   A (large) Parfait glass
+# 
+o
+o glass2
+v v149 =
+        p 115 52.62 120
+v v147 =
+        p 115 52.9 120
+cone v149 0 v147 -1.82
+v v145 =
+        p 115 52.69 120
+cone v147 1.82 v145 1.75
+v v144 =
+        p 115 52.585 120
+cone v145 1.75 v144 1.505
+v v141 =
+        p 115 52.48 120
+cone v144 1.505 v141 1.05
+v v146 =
+        p 115 52.34 120
+cone v141 1.05 v146 0.63
+v v148 =
+        p 115 51.92 120
+cone v146 0.63 v148 0.315
+v v150 =
+        p 115 51.43 120
+cone v148 0.315 v150 0.28
+v v152 =
+        p 115 51.08 120
+cone v150 0.28 v152 0.735
+v v142 =
+        p 115 50.59 120
+cone v152 0.735 v142 1.19
+v v153 =
+        p 115 50.03 120
+cone v142 1.19 v153 1.54
+v v154 =
+        p 115 49.4 120
+cone v153 1.54 v154 1.785
+v v155 =
+        p 115 48.84 120
+cone v154 1.785 v155 1.96
+v v156 =
+        p 115 48.385 120
+cone v155 1.96 v156 2.17
+v v157 =
+        p 115 48.175 120
+cone v156 2.17 v157 2.345
+v v158 =
+        p 115 48 120
+cone v157 2.345 v158 2.24
+v cent =
+        p 115 48 120
+        n 0 -0.7 8.57224447676e-17
+ring cent 1.89 2.24
+v v159 =
+        p 115 50.45 120
+cone v158 -1.89 v159 -0.35
+cone v159 -0.35 v142 0
+# End conversion from: !xform -e -n glass2 -s .7 -rx 180 -t 115 52.9 120 parfait.norm
+# Begin conversion from: !xform -e -n glass3 -s .7 -rx 180 -t 115 52.9 125 parfait.norm
+#  xform -e -n glass3 -s .7 -rx 180 -t 115 52.9 125
+#                  0                  0                  0                  7
+# 
+#   A (large) Parfait glass
+# 
+o
+o glass3
+v v160 =
+        p 115 52.62 125
+v v161 =
+        p 115 52.9 125
+cone v160 0 v161 -1.82
+v v162 =
+        p 115 52.69 125
+cone v161 1.82 v162 1.75
+v v163 =
+        p 115 52.585 125
+cone v162 1.75 v163 1.505
+v v164 =
+        p 115 52.48 125
+cone v163 1.505 v164 1.05
+v v165 =
+        p 115 52.34 125
+cone v164 1.05 v165 0.63
+v v166 =
+        p 115 51.92 125
+cone v165 0.63 v166 0.315
+v v167 =
+        p 115 51.43 125
+cone v166 0.315 v167 0.28
+v v168 =
+        p 115 51.08 125
+cone v167 0.28 v168 0.735
+v v169 =
+        p 115 50.59 125
+cone v168 0.735 v169 1.19
+v v170 =
+        p 115 50.03 125
+cone v169 1.19 v170 1.54
+v v172 =
+        p 115 49.4 125
+cone v170 1.54 v172 1.785
+v v171 =
+        p 115 48.84 125
+cone v172 1.785 v171 1.96
+v v173 =
+        p 115 48.385 125
+cone v171 1.96 v173 2.17
+v v174 =
+        p 115 48.175 125
+cone v173 2.17 v174 2.345
+v v175 =
+        p 115 48 125
+cone v174 2.345 v175 2.24
+v cent =
+        p 115 48 125
+        n 0 -0.7 8.57224447676e-17
+ring cent 1.89 2.24
+v v176 =
+        p 115 50.45 125
+cone v175 -1.89 v176 -0.35
+cone v176 -0.35 v169 0
+# End conversion from: !xform -e -n glass3 -s .7 -rx 180 -t 115 52.9 125 parfait.norm
+# Begin conversion from: !xform -e -n glass4 -s .7 -rx 180 -t 115 52.9 130 parfait.norm
+#  xform -e -n glass4 -s .7 -rx 180 -t 115 52.9 130
+#                  0                  0                  0                  7
+# 
+#   A (large) Parfait glass
+# 
+o
+o glass4
+v v178 =
+        p 115 52.62 130
+v v177 =
+        p 115 52.9 130
+cone v178 0 v177 -1.82
+v v179 =
+        p 115 52.69 130
+cone v177 1.82 v179 1.75
+v v180 =
+        p 115 52.585 130
+cone v179 1.75 v180 1.505
+v v181 =
+        p 115 52.48 130
+cone v180 1.505 v181 1.05
+v v182 =
+        p 115 52.34 130
+cone v181 1.05 v182 0.63
+v v184 =
+        p 115 51.92 130
+cone v182 0.63 v184 0.315
+v v183 =
+        p 115 51.43 130
+cone v184 0.315 v183 0.28
+v v185 =
+        p 115 51.08 130
+cone v183 0.28 v185 0.735
+v v186 =
+        p 115 50.59 130
+cone v185 0.735 v186 1.19
+v v187 =
+        p 115 50.03 130
+cone v186 1.19 v187 1.54
+v v188 =
+        p 115 49.4 130
+cone v187 1.54 v188 1.785
+v v190 =
+        p 115 48.84 130
+cone v188 1.785 v190 1.96
+v v189 =
+        p 115 48.385 130
+cone v190 1.96 v189 2.17
+v v191 =
+        p 115 48.175 130
+cone v189 2.17 v191 2.345
+v v192 =
+        p 115 48 130
+cone v191 2.345 v192 2.24
+v cent =
+        p 115 48 130
+        n 0 -0.7 8.57224447676e-17
+ring cent 1.89 2.24
+v v193 =
+        p 115 50.45 130
+cone v192 -1.89 v193 -0.35
+cone v193 -0.35 v186 0
+# End conversion from: !xform -e -n glass4 -s .7 -rx 180 -t 115 52.9 130 parfait.norm
+# Begin conversion from: !xform -e -n glass5 -s .7 -rx 180 -t 115 52.9 135 parfait.norm
+#  xform -e -n glass5 -s .7 -rx 180 -t 115 52.9 135
+#                  0                  0                  0                  7
+# 
+#   A (large) Parfait glass
+# 
+o
+o glass5
+v v194 =
+        p 115 52.62 135
+v v196 =
+        p 115 52.9 135
+cone v194 0 v196 -1.82
+v v195 =
+        p 115 52.69 135
+cone v196 1.82 v195 1.75
+v v197 =
+        p 115 52.585 135
+cone v195 1.75 v197 1.505
+v v198 =
+        p 115 52.48 135
+cone v197 1.505 v198 1.05
+v v201 =
+        p 115 52.34 135
+cone v198 1.05 v201 0.63
+v v200 =
+        p 115 51.92 135
+cone v201 0.63 v200 0.315
+v v204 =
+        p 115 51.43 135
+cone v200 0.315 v204 0.28
+v v205 =
+        p 115 51.08 135
+cone v204 0.28 v205 0.735
+v v206 =
+        p 115 50.59 135
+cone v205 0.735 v206 1.19
+v v207 =
+        p 115 50.03 135
+cone v206 1.19 v207 1.54
+v v203 =
+        p 115 49.4 135
+cone v207 1.54 v203 1.785
+v v199 =
+        p 115 48.84 135
+cone v203 1.785 v199 1.96
+v v202 =
+        p 115 48.385 135
+cone v199 1.96 v202 2.17
+v v208 =
+        p 115 48.175 135
+cone v202 2.17 v208 2.345
+v v209 =
+        p 115 48 135
+cone v208 2.345 v209 2.24
+v cent =
+        p 115 48 135
+        n 0 -0.7 8.57224447676e-17
+ring cent 1.89 2.24
+v v210 =
+        p 115 50.45 135
+cone v209 -1.89 v210 -0.35
+cone v210 -0.35 v206 0
+# End conversion from: !xform -e -n glass5 -s .7 -rx 180 -t 115 52.9 135 parfait.norm
+# Begin conversion from: !xform -e -n glass6 -s .7 -rx 180 -t 115 52.9 140 parfait.norm
+#  xform -e -n glass6 -s .7 -rx 180 -t 115 52.9 140
+#                  0                  0                  0                  7
+# 
+#   A (large) Parfait glass
+# 
+o
+o glass6
+v v211 =
+        p 115 52.62 140
+v v212 =
+        p 115 52.9 140
+cone v211 0 v212 -1.82
+v v213 =
+        p 115 52.69 140
+cone v212 1.82 v213 1.75
+v v214 =
+        p 115 52.585 140
+cone v213 1.75 v214 1.505
+v v215 =
+        p 115 52.48 140
+cone v214 1.505 v215 1.05
+v v216 =
+        p 115 52.34 140
+cone v215 1.05 v216 0.63
+v v217 =
+        p 115 51.92 140
+cone v216 0.63 v217 0.315
+v v218 =
+        p 115 51.43 140
+cone v217 0.315 v218 0.28
+v v219 =
+        p 115 51.08 140
+cone v218 0.28 v219 0.735
+v v227 =
+        p 115 50.59 140
+cone v219 0.735 v227 1.19
+v v223 =
+        p 115 50.03 140
+cone v227 1.19 v223 1.54
+v v220 =
+        p 115 49.4 140
+cone v223 1.54 v220 1.785
+v v230 =
+        p 115 48.84 140
+cone v220 1.785 v230 1.96
+v v222 =
+        p 115 48.385 140
+cone v230 1.96 v222 2.17
+v v221 =
+        p 115 48.175 140
+cone v222 2.17 v221 2.345
+v v232 =
+        p 115 48 140
+cone v221 2.345 v232 2.24
+v cent =
+        p 115 48 140
+        n 0 -0.7 8.57224447676e-17
+ring cent 1.89 2.24
+v v229 =
+        p 115 50.45 140
+cone v232 -1.89 v229 -0.35
+cone v229 -0.35 v227 0
+# End conversion from: !xform -e -n glass6 -s .7 -rx 180 -t 115 52.9 140 parfait.norm
+# Begin conversion from: !xform -e -n glass7 -s .7 -rx 180 -t 115 52.9 145 parfait.norm
+#  xform -e -n glass7 -s .7 -rx 180 -t 115 52.9 145
+#                  0                  0                  0                  7
+# 
+#   A (large) Parfait glass
+# 
+o
+o glass7
+v v228 =
+        p 115 52.62 145
+v v233 =
+        p 115 52.9 145
+cone v228 0 v233 -1.82
+v v234 =
+        p 115 52.69 145
+cone v233 1.82 v234 1.75
+v v235 =
+        p 115 52.585 145
+cone v234 1.75 v235 1.505
+v v224 =
+        p 115 52.48 145
+cone v235 1.505 v224 1.05
+v v231 =
+        p 115 52.34 145
+cone v224 1.05 v231 0.63
+v v226 =
+        p 115 51.92 145
+cone v231 0.63 v226 0.315
+v v225 =
+        p 115 51.43 145
+cone v226 0.315 v225 0.28
+v v236 =
+        p 115 51.08 145
+cone v225 0.28 v236 0.735
+v v237 =
+        p 115 50.59 145
+cone v236 0.735 v237 1.19
+v v241 =
+        p 115 50.03 145
+cone v237 1.19 v241 1.54
+v v240 =
+        p 115 49.4 145
+cone v241 1.54 v240 1.785
+v v242 =
+        p 115 48.84 145
+cone v240 1.785 v242 1.96
+v v243 =
+        p 115 48.385 145
+cone v242 1.96 v243 2.17
+v v244 =
+        p 115 48.175 145
+cone v243 2.17 v244 2.345
+v v245 =
+        p 115 48 145
+cone v244 2.345 v245 2.24
+v cent =
+        p 115 48 145
+        n 0 -0.7 8.57224447676e-17
+ring cent 1.89 2.24
+v v239 =
+        p 115 50.45 145
+cone v245 -1.89 v239 -0.35
+cone v239 -0.35 v237 0
+# End conversion from: !xform -e -n glass7 -s .7 -rx 180 -t 115 52.9 145 parfait.norm
+# Begin conversion from: !xform -e -n glass8 -s .7 -rx 180 -t 115 52.9 150 parfait.norm
+#  xform -e -n glass8 -s .7 -rx 180 -t 115 52.9 150
+#                  0                  0                  0                  7
+# 
+#   A (large) Parfait glass
+# 
+o
+o glass8
+v v238 =
+        p 115 52.62 150
+v v246 =
+        p 115 52.9 150
+cone v238 0 v246 -1.82
+v v247 =
+        p 115 52.69 150
+cone v246 1.82 v247 1.75
+v v248 =
+        p 115 52.585 150
+cone v247 1.75 v248 1.505
+v v249 =
+        p 115 52.48 150
+cone v248 1.505 v249 1.05
+v v250 =
+        p 115 52.34 150
+cone v249 1.05 v250 0.63
+v v251 =
+        p 115 51.92 150
+cone v250 0.63 v251 0.315
+v v255 =
+        p 115 51.43 150
+cone v251 0.315 v255 0.28
+v v254 =
+        p 115 51.08 150
+cone v255 0.28 v254 0.735
+v v10 =
+        p 115 50.59 150
+cone v254 0.735 v10 1.19
+v v11 =
+        p 115 50.03 150
+cone v10 1.19 v11 1.54
+v v6 =
+        p 115 49.4 150
+cone v11 1.54 v6 1.785
+v v9 =
+        p 115 48.84 150
+cone v6 1.785 v9 1.96
+v v253 =
+        p 115 48.385 150
+cone v9 1.96 v253 2.17
+v v252 =
+        p 115 48.175 150
+cone v253 2.17 v252 2.345
+v v13 =
+        p 115 48 150
+cone v252 2.345 v13 2.24
+v cent =
+        p 115 48 150
+        n 0 -0.7 8.57224447676e-17
+ring cent 1.89 2.24
+v v14 =
+        p 115 50.45 150
+cone v13 -1.89 v14 -0.35
+cone v14 -0.35 v10 0
+# End conversion from: !xform -e -n glass8 -s .7 -rx 180 -t 115 52.9 150 parfait.norm
+# Begin conversion from: !xform -e -n glass9 -s .7 -rx 180 -t 115 52.9 155 parfait.norm
+#  xform -e -n glass9 -s .7 -rx 180 -t 115 52.9 155
+#                  0                  0                  0                  7
+# 
+#   A (large) Parfait glass
+# 
+o
+o glass9
+v v7 =
+        p 115 52.62 155
+v v12 =
+        p 115 52.9 155
+cone v7 0 v12 -1.82
+v v17 =
+        p 115 52.69 155
+cone v12 1.82 v17 1.75
+v v18 =
+        p 115 52.585 155
+cone v17 1.75 v18 1.505
+v v21 =
+        p 115 52.48 155
+cone v18 1.505 v21 1.05
+v v20 =
+        p 115 52.34 155
+cone v21 1.05 v20 0.63
+v v19 =
+        p 115 51.92 155
+cone v20 0.63 v19 0.315
+v v15 =
+        p 115 51.43 155
+cone v19 0.315 v15 0.28
+v v24 =
+        p 115 51.08 155
+cone v15 0.28 v24 0.735
+v v23 =
+        p 115 50.59 155
+cone v24 0.735 v23 1.19
+v v22 =
+        p 115 50.03 155
+cone v23 1.19 v22 1.54
+v v27 =
+        p 115 49.4 155
+cone v22 1.54 v27 1.785
+v v26 =
+        p 115 48.84 155
+cone v27 1.785 v26 1.96
+v v3 =
+        p 115 48.385 155
+cone v26 1.96 v3 2.17
+v v29 =
+        p 115 48.175 155
+cone v3 2.17 v29 2.345
+v v30 =
+        p 115 48 155
+cone v29 2.345 v30 2.24
+v cent =
+        p 115 48 155
+        n 0 -0.7 8.57224447676e-17
+ring cent 1.89 2.24
+v v25 =
+        p 115 50.45 155
+cone v30 -1.89 v25 -0.35
+cone v25 -0.35 v23 0
+# End conversion from: !xform -e -n glass9 -s .7 -rx 180 -t 115 52.9 155 parfait.norm
+# Begin conversion from: !xform -e -n glass10 -s .7 -rx 180 -t 115 52.9 160 parfait.norm
+#  xform -e -n glass10 -s .7 -rx 180 -t 115 52.9 160
+#                  0                  0                  0                  7
+# 
+#   A (large) Parfait glass
+# 
+o
+o glass10
+v v16 =
+        p 115 52.62 160
+v v28 =
+        p 115 52.9 160
+cone v16 0 v28 -1.82
+v v1 =
+        p 115 52.69 160
+cone v28 1.82 v1 1.75
+v v4 =
+        p 115 52.585 160
+cone v1 1.75 v4 1.505
+v v31 =
+        p 115 52.48 160
+cone v4 1.505 v31 1.05
+v v5 =
+        p 115 52.34 160
+cone v31 1.05 v5 0.63
+v v34 =
+        p 115 51.92 160
+cone v5 0.63 v34 0.315
+v v35 =
+        p 115 51.43 160
+cone v34 0.315 v35 0.28
+v v32 =
+        p 115 51.08 160
+cone v35 0.28 v32 0.735
+v v40 =
+        p 115 50.59 160
+cone v32 0.735 v40 1.19
+v v41 =
+        p 115 50.03 160
+cone v40 1.19 v41 1.54
+v v2 =
+        p 115 49.4 160
+cone v41 1.54 v2 1.785
+v v0 =
+        p 115 48.84 160
+cone v2 1.785 v0 1.96
+v v36 =
+        p 115 48.385 160
+cone v0 1.96 v36 2.17
+v v33 =
+        p 115 48.175 160
+cone v36 2.17 v33 2.345
+v v39 =
+        p 115 48 160
+cone v33 2.345 v39 2.24
+v cent =
+        p 115 48 160
+        n 0 -0.7 8.57224447676e-17
+ring cent 1.89 2.24
+v v38 =
+        p 115 50.45 160
+cone v39 -1.89 v38 -0.35
+cone v38 -0.35 v40 0
+# End conversion from: !xform -e -n glass10 -s .7 -rx 180 -t 115 52.9 160 parfait.norm
+# Begin conversion from: !xform -e -n glass11 -s .7 -rx 180 -t 115 52.9 165 parfait.norm
+#  xform -e -n glass11 -s .7 -rx 180 -t 115 52.9 165
+#                  0                  0                  0                  7
+# 
+#   A (large) Parfait glass
+# 
+o
+o glass11
+v v43 =
+        p 115 52.62 165
+v v42 =
+        p 115 52.9 165
+cone v43 0 v42 -1.82
+v v47 =
+        p 115 52.69 165
+cone v42 1.82 v47 1.75
+v v49 =
+        p 115 52.585 165
+cone v47 1.75 v49 1.505
+v v44 =
+        p 115 52.48 165
+cone v49 1.505 v44 1.05
+v v50 =
+        p 115 52.34 165
+cone v44 1.05 v50 0.63
+v v37 =
+        p 115 51.92 165
+cone v50 0.63 v37 0.315
+v v8 =
+        p 115 51.43 165
+cone v37 0.315 v8 0.28
+v v48 =
+        p 115 51.08 165
+cone v8 0.28 v48 0.735
+v v46 =
+        p 115 50.59 165
+cone v48 0.735 v46 1.19
+v v45 =
+        p 115 50.03 165
+cone v46 1.19 v45 1.54
+v v51 =
+        p 115 49.4 165
+cone v45 1.54 v51 1.785
+v v57 =
+        p 115 48.84 165
+cone v51 1.785 v57 1.96
+v v52 =
+        p 115 48.385 165
+cone v57 1.96 v52 2.17
+v v59 =
+        p 115 48.175 165
+cone v52 2.17 v59 2.345
+v v53 =
+        p 115 48 165
+cone v59 2.345 v53 2.24
+v cent =
+        p 115 48 165
+        n 0 -0.7 8.57224447676e-17
+ring cent 1.89 2.24
+v v63 =
+        p 115 50.45 165
+cone v53 -1.89 v63 -0.35
+cone v63 -0.35 v46 0
+# End conversion from: !xform -e -n glass11 -s .7 -rx 180 -t 115 52.9 165 parfait.norm
+# Begin conversion from: !xform -e -n glass12 -s .7 -rx 180 -t 115 52.9 170 parfait.norm
+#  xform -e -n glass12 -s .7 -rx 180 -t 115 52.9 170
+#                  0                  0                  0                  7
+# 
+#   A (large) Parfait glass
+# 
+o
+o glass12
+v v65 =
+        p 115 52.62 170
+v v60 =
+        p 115 52.9 170
+cone v65 0 v60 -1.82
+v v66 =
+        p 115 52.69 170
+cone v60 1.82 v66 1.75
+v v56 =
+        p 115 52.585 170
+cone v66 1.75 v56 1.505
+v v58 =
+        p 115 52.48 170
+cone v56 1.505 v58 1.05
+v v64 =
+        p 115 52.34 170
+cone v58 1.05 v64 0.63
+v v62 =
+        p 115 51.92 170
+cone v64 0.63 v62 0.315
+v v61 =
+        p 115 51.43 170
+cone v62 0.315 v61 0.28
+v v67 =
+        p 115 51.08 170
+cone v61 0.28 v67 0.735
+v v71 =
+        p 115 50.59 170
+cone v67 0.735 v71 1.19
+v v73 =
+        p 115 50.03 170
+cone v71 1.19 v73 1.54
+v v74 =
+        p 115 49.4 170
+cone v73 1.54 v74 1.785
+v v72 =
+        p 115 48.84 170
+cone v74 1.785 v72 1.96
+v v70 =
+        p 115 48.385 170
+cone v72 1.96 v70 2.17
+v v75 =
+        p 115 48.175 170
+cone v70 2.17 v75 2.345
+v v78 =
+        p 115 48 170
+cone v75 2.345 v78 2.24
+v cent =
+        p 115 48 170
+        n 0 -0.7 8.57224447676e-17
+ring cent 1.89 2.24
+v v55 =
+        p 115 50.45 170
+cone v78 -1.89 v55 -0.35
+cone v55 -0.35 v71 0
+# End conversion from: !xform -e -n glass12 -s .7 -rx 180 -t 115 52.9 170 parfait.norm
+# Begin conversion from: !xform -e -n glass13 -s .7 -rx 180 -t 115 52.9 175 parfait.norm
+#  xform -e -n glass13 -s .7 -rx 180 -t 115 52.9 175
+#                  0                  0                  0                  7
+# 
+#   A (large) Parfait glass
+# 
+o
+o glass13
+v v76 =
+        p 115 52.62 175
+v v79 =
+        p 115 52.9 175
+cone v76 0 v79 -1.82
+v v54 =
+        p 115 52.69 175
+cone v79 1.82 v54 1.75
+v v69 =
+        p 115 52.585 175
+cone v54 1.75 v69 1.505
+v v77 =
+        p 115 52.48 175
+cone v69 1.505 v77 1.05
+v v80 =
+        p 115 52.34 175
+cone v77 1.05 v80 0.63
+v v87 =
+        p 115 51.92 175
+cone v80 0.63 v87 0.315
+v v86 =
+        p 115 51.43 175
+cone v87 0.315 v86 0.28
+v v68 =
+        p 115 51.08 175
+cone v86 0.28 v68 0.735
+v v90 =
+        p 115 50.59 175
+cone v68 0.735 v90 1.19
+v v81 =
+        p 115 50.03 175
+cone v90 1.19 v81 1.54
+v v85 =
+        p 115 49.4 175
+cone v81 1.54 v85 1.785
+v v92 =
+        p 115 48.84 175
+cone v85 1.785 v92 1.96
+v v89 =
+        p 115 48.385 175
+cone v92 1.96 v89 2.17
+v v88 =
+        p 115 48.175 175
+cone v89 2.17 v88 2.345
+v v93 =
+        p 115 48 175
+cone v88 2.345 v93 2.24
+v cent =
+        p 115 48 175
+        n 0 -0.7 8.57224447676e-17
+ring cent 1.89 2.24
+v v94 =
+        p 115 50.45 175
+cone v93 -1.89 v94 -0.35
+cone v94 -0.35 v90 0
+# End conversion from: !xform -e -n glass13 -s .7 -rx 180 -t 115 52.9 175 parfait.norm
+# Begin conversion from: !xform -e -n glass14 -s .7 -rx 180 -t 115 52.9 180 parfait.norm
+#  xform -e -n glass14 -s .7 -rx 180 -t 115 52.9 180
+#                  0                  0                  0                  7
+# 
+#   A (large) Parfait glass
+# 
+o
+o glass14
+v v95 =
+        p 115 52.62 180
+v v84 =
+        p 115 52.9 180
+cone v95 0 v84 -1.82
+v v91 =
+        p 115 52.69 180
+cone v84 1.82 v91 1.75
+v v82 =
+        p 115 52.585 180
+cone v91 1.75 v82 1.505
+v v83 =
+        p 115 52.48 180
+cone v82 1.505 v83 1.05
+v v96 =
+        p 115 52.34 180
+cone v83 1.05 v96 0.63
+v v97 =
+        p 115 51.92 180
+cone v96 0.63 v97 0.315
+v v101 =
+        p 115 51.43 180
+cone v97 0.315 v101 0.28
+v v100 =
+        p 115 51.08 180
+cone v101 0.28 v100 0.735
+v v102 =
+        p 115 50.59 180
+cone v100 0.735 v102 1.19
+v v103 =
+        p 115 50.03 180
+cone v102 1.19 v103 1.54
+v v104 =
+        p 115 49.4 180
+cone v103 1.54 v104 1.785
+v v107 =
+        p 115 48.84 180
+cone v104 1.785 v107 1.96
+v v99 =
+        p 115 48.385 180
+cone v107 1.96 v99 2.17
+v v98 =
+        p 115 48.175 180
+cone v99 2.17 v98 2.345
+v v110 =
+        p 115 48 180
+cone v98 2.345 v110 2.24
+v cent =
+        p 115 48 180
+        n 0 -0.7 8.57224447676e-17
+ring cent 1.89 2.24
+v v105 =
+        p 115 50.45 180
+cone v110 -1.89 v105 -0.35
+cone v105 -0.35 v102 0
+# End conversion from: !xform -e -n glass14 -s .7 -rx 180 -t 115 52.9 180 parfait.norm
+# Begin conversion from: !xform -e -n glass15 -s .7 -rx 180 -t 115 52.9 185 parfait.norm
+#  xform -e -n glass15 -s .7 -rx 180 -t 115 52.9 185
+#                  0                  0                  0                  7
+# 
+#   A (large) Parfait glass
+# 
+o
+o glass15
+v v109 =
+        p 115 52.62 185
+v v108 =
+        p 115 52.9 185
+cone v109 0 v108 -1.82
+v v106 =
+        p 115 52.69 185
+cone v108 1.82 v106 1.75
+v v113 =
+        p 115 52.585 185
+cone v106 1.75 v113 1.505
+v v114 =
+        p 115 52.48 185
+cone v113 1.505 v114 1.05
+v v115 =
+        p 115 52.34 185
+cone v114 1.05 v115 0.63
+v v112 =
+        p 115 51.92 185
+cone v115 0.63 v112 0.315
+v v119 =
+        p 115 51.43 185
+cone v112 0.315 v119 0.28
+v v122 =
+        p 115 51.08 185
+cone v119 0.28 v122 0.735
+v v117 =
+        p 115 50.59 185
+cone v122 0.735 v117 1.19
+v v111 =
+        p 115 50.03 185
+cone v117 1.19 v111 1.54
+v v116 =
+        p 115 49.4 185
+cone v111 1.54 v116 1.785
+v v121 =
+        p 115 48.84 185
+cone v116 1.785 v121 1.96
+v v120 =
+        p 115 48.385 185
+cone v121 1.96 v120 2.17
+v v118 =
+        p 115 48.175 185
+cone v120 2.17 v118 2.345
+v v125 =
+        p 115 48 185
+cone v118 2.345 v125 2.24
+v cent =
+        p 115 48 185
+        n 0 -0.7 8.57224447676e-17
+ring cent 1.89 2.24
+v v128 =
+        p 115 50.45 185
+cone v125 -1.89 v128 -0.35
+cone v128 -0.35 v117 0
+# End conversion from: !xform -e -n glass15 -s .7 -rx 180 -t 115 52.9 185 parfait.norm
+# Begin conversion from: !xform -e -n glass16 -s .7 -rx 180 -t 115 52.9 190 parfait.norm
+#  xform -e -n glass16 -s .7 -rx 180 -t 115 52.9 190
+#                  0                  0                  0                  7
+# 
+#   A (large) Parfait glass
+# 
+o
+o glass16
+v v123 =
+        p 115 52.62 190
+v v127 =
+        p 115 52.9 190
+cone v123 0 v127 -1.82
+v v126 =
+        p 115 52.69 190
+cone v127 1.82 v126 1.75
+v v124 =
+        p 115 52.585 190
+cone v126 1.75 v124 1.505
+v v131 =
+        p 115 52.48 190
+cone v124 1.505 v131 1.05
+v v134 =
+        p 115 52.34 190
+cone v131 1.05 v134 0.63
+v v129 =
+        p 115 51.92 190
+cone v134 0.63 v129 0.315
+v v133 =
+        p 115 51.43 190
+cone v129 0.315 v133 0.28
+v v132 =
+        p 115 51.08 190
+cone v133 0.28 v132 0.735
+v v130 =
+        p 115 50.59 190
+cone v132 0.735 v130 1.19
+v v140 =
+        p 115 50.03 190
+cone v130 1.19 v140 1.54
+v v135 =
+        p 115 49.4 190
+cone v140 1.54 v135 1.785
+v v139 =
+        p 115 48.84 190
+cone v135 1.785 v139 1.96
+v v138 =
+        p 115 48.385 190
+cone v139 1.96 v138 2.17
+v v136 =
+        p 115 48.175 190
+cone v138 2.17 v136 2.345
+v v143 =
+        p 115 48 190
+cone v136 2.345 v143 2.24
+v cent =
+        p 115 48 190
+        n 0 -0.7 8.57224447676e-17
+ring cent 1.89 2.24
+v v151 =
+        p 115 50.45 190
+cone v143 -1.89 v151 -0.35
+cone v151 -0.35 v130 0
+# End conversion from: !xform -e -n glass16 -s .7 -rx 180 -t 115 52.9 190 parfait.norm
+# Begin conversion from: !xform -e -n glass17 -s .7 -rx 180 -t 115 52.9 195 parfait.norm
+#  xform -e -n glass17 -s .7 -rx 180 -t 115 52.9 195
+#                  0                  0                  0                  7
+# 
+#   A (large) Parfait glass
+# 
+o
+o glass17
+v v137 =
+        p 115 52.62 195
+v v149 =
+        p 115 52.9 195
+cone v137 0 v149 -1.82
+v v147 =
+        p 115 52.69 195
+cone v149 1.82 v147 1.75
+v v145 =
+        p 115 52.585 195
+cone v147 1.75 v145 1.505
+v v144 =
+        p 115 52.48 195
+cone v145 1.505 v144 1.05
+v v141 =
+        p 115 52.34 195
+cone v144 1.05 v141 0.63
+v v146 =
+        p 115 51.92 195
+cone v141 0.63 v146 0.315
+v v148 =
+        p 115 51.43 195
+cone v146 0.315 v148 0.28
+v v150 =
+        p 115 51.08 195
+cone v148 0.28 v150 0.735
+v v152 =
+        p 115 50.59 195
+cone v150 0.735 v152 1.19
+v v153 =
+        p 115 50.03 195
+cone v152 1.19 v153 1.54
+v v154 =
+        p 115 49.4 195
+cone v153 1.54 v154 1.785
+v v155 =
+        p 115 48.84 195
+cone v154 1.785 v155 1.96
+v v156 =
+        p 115 48.385 195
+cone v155 1.96 v156 2.17
+v v157 =
+        p 115 48.175 195
+cone v156 2.17 v157 2.345
+v v158 =
+        p 115 48 195
+cone v157 2.345 v158 2.24
+v cent =
+        p 115 48 195
+        n 0 -0.7 8.57224447676e-17
+ring cent 1.89 2.24
+v v159 =
+        p 115 50.45 195
+cone v158 -1.89 v159 -0.35
+cone v159 -0.35 v152 0
+# End conversion from: !xform -e -n glass17 -s .7 -rx 180 -t 115 52.9 195 parfait.norm
+# Begin conversion from: !xform -e -n glass18 -rx 180 -t 115 55 205 parfait.norm
+#  xform -e -n glass18 -rx 180 -t 115 55 205
+#                  0                  0                  0                  7
+# 
+#   A (large) Parfait glass
+# 
+o
+o glass18
+v v142 =
+        p 115 54.6 205
+v v160 =
+        p 115 55 205
+cone v142 0 v160 -2.6
+v v161 =
+        p 115 54.7 205
+cone v160 2.6 v161 2.5
+v v162 =
+        p 115 54.55 205
+cone v161 2.5 v162 2.15
+v v163 =
+        p 115 54.4 205
+cone v162 2.15 v163 1.5
+v v164 =
+        p 115 54.2 205
+cone v163 1.5 v164 0.9
+v v165 =
+        p 115 53.6 205
+cone v164 0.9 v165 0.45
+v v166 =
+        p 115 52.9 205
+cone v165 0.45 v166 0.4
+v v167 =
+        p 115 52.4 205
+cone v166 0.4 v167 1.05
+v v168 =
+        p 115 51.7 205
+cone v167 1.05 v168 1.7
+v v170 =
+        p 115 50.9 205
+cone v168 1.7 v170 2.2
+v v172 =
+        p 115 50 205
+cone v170 2.2 v172 2.55
+v v171 =
+        p 115 49.2 205
+cone v172 2.55 v171 2.8
+v v173 =
+        p 115 48.55 205
+cone v171 2.8 v173 3.1
+v v174 =
+        p 115 48.25 205
+cone v173 3.1 v174 3.35
+v v175 =
+        p 115 48 205
+cone v174 3.35 v175 3.2
+v cent =
+        p 115 48 205
+        n 0 -1 1.22460635382e-16
+ring cent 2.7 3.2
+v v176 =
+        p 115 51.5 205
+cone v175 -2.7 v176 -0.5
+cone v176 -0.5 v168 0
+# End conversion from: !xform -e -n glass18 -rx 180 -t 115 55 205 parfait.norm
+# Begin conversion from: !xform -e -n glass19 -rx 180 -t 115 55 212.5 parfait.norm
+#  xform -e -n glass19 -rx 180 -t 115 55 212.5
+#                  0                  0                  0                  7
+# 
+#   A (large) Parfait glass
+# 
+o
+o glass19
+v v169 =
+        p 115 54.6 212.5
+v v178 =
+        p 115 55 212.5
+cone v169 0 v178 -2.6
+v v177 =
+        p 115 54.7 212.5
+cone v178 2.6 v177 2.5
+v v179 =
+        p 115 54.55 212.5
+cone v177 2.5 v179 2.15
+v v180 =
+        p 115 54.4 212.5
+cone v179 2.15 v180 1.5
+v v181 =
+        p 115 54.2 212.5
+cone v180 1.5 v181 0.9
+v v182 =
+        p 115 53.6 212.5
+cone v181 0.9 v182 0.45
+v v184 =
+        p 115 52.9 212.5
+cone v182 0.45 v184 0.4
+v v183 =
+        p 115 52.4 212.5
+cone v184 0.4 v183 1.05
+v v185 =
+        p 115 51.7 212.5
+cone v183 1.05 v185 1.7
+v v187 =
+        p 115 50.9 212.5
+cone v185 1.7 v187 2.2
+v v188 =
+        p 115 50 212.5
+cone v187 2.2 v188 2.55
+v v190 =
+        p 115 49.2 212.5
+cone v188 2.55 v190 2.8
+v v189 =
+        p 115 48.55 212.5
+cone v190 2.8 v189 3.1
+v v191 =
+        p 115 48.25 212.5
+cone v189 3.1 v191 3.35
+v v192 =
+        p 115 48 212.5
+cone v191 3.35 v192 3.2
+v cent =
+        p 115 48 212.5
+        n 0 -1 1.22460635382e-16
+ring cent 2.7 3.2
+v v193 =
+        p 115 51.5 212.5
+cone v192 -2.7 v193 -0.5
+cone v193 -0.5 v185 0
+# End conversion from: !xform -e -n glass19 -rx 180 -t 115 55 212.5 parfait.norm
+# Begin conversion from: !xform -e -n glass20 -rx 180 -t 115 55 220 parfait.norm
+#  xform -e -n glass20 -rx 180 -t 115 55 220
+#                  0                  0                  0                  7
+# 
+#   A (large) Parfait glass
+# 
+o
+o glass20
+v v186 =
+        p 115 54.6 220
+v v194 =
+        p 115 55 220
+cone v186 0 v194 -2.6
+v v196 =
+        p 115 54.7 220
+cone v194 2.6 v196 2.5
+v v195 =
+        p 115 54.55 220
+cone v196 2.5 v195 2.15
+v v197 =
+        p 115 54.4 220
+cone v195 2.15 v197 1.5
+v v198 =
+        p 115 54.2 220
+cone v197 1.5 v198 0.9
+v v201 =
+        p 115 53.6 220
+cone v198 0.9 v201 0.45
+v v200 =
+        p 115 52.9 220
+cone v201 0.45 v200 0.4
+v v204 =
+        p 115 52.4 220
+cone v200 0.4 v204 1.05
+v v205 =
+        p 115 51.7 220
+cone v204 1.05 v205 1.7
+v v207 =
+        p 115 50.9 220
+cone v205 1.7 v207 2.2
+v v203 =
+        p 115 50 220
+cone v207 2.2 v203 2.55
+v v199 =
+        p 115 49.2 220
+cone v203 2.55 v199 2.8
+v v202 =
+        p 115 48.55 220
+cone v199 2.8 v202 3.1
+v v208 =
+        p 115 48.25 220
+cone v202 3.1 v208 3.35
+v v209 =
+        p 115 48 220
+cone v208 3.35 v209 3.2
+v cent =
+        p 115 48 220
+        n 0 -1 1.22460635382e-16
+ring cent 2.7 3.2
+v v210 =
+        p 115 51.5 220
+cone v209 -2.7 v210 -0.5
+cone v210 -0.5 v205 0
+# End conversion from: !xform -e -n glass20 -rx 180 -t 115 55 220 parfait.norm
+# Begin conversion from: !xform -e -n glass21 -rx 180 -t 115 55 227.5 parfait.norm
+#  xform -e -n glass21 -rx 180 -t 115 55 227.5
+#                  0                  0                  0                  7
+# 
+#   A (large) Parfait glass
+# 
+o
+o glass21
+v v206 =
+        p 115 54.6 227.5
+v v211 =
+        p 115 55 227.5
+cone v206 0 v211 -2.6
+v v212 =
+        p 115 54.7 227.5
+cone v211 2.6 v212 2.5
+v v213 =
+        p 115 54.55 227.5
+cone v212 2.5 v213 2.15
+v v214 =
+        p 115 54.4 227.5
+cone v213 2.15 v214 1.5
+v v215 =
+        p 115 54.2 227.5
+cone v214 1.5 v215 0.9
+v v216 =
+        p 115 53.6 227.5
+cone v215 0.9 v216 0.45
+v v217 =
+        p 115 52.9 227.5
+cone v216 0.45 v217 0.4
+v v218 =
+        p 115 52.4 227.5
+cone v217 0.4 v218 1.05
+v v219 =
+        p 115 51.7 227.5
+cone v218 1.05 v219 1.7
+v v223 =
+        p 115 50.9 227.5
+cone v219 1.7 v223 2.2
+v v220 =
+        p 115 50 227.5
+cone v223 2.2 v220 2.55
+v v230 =
+        p 115 49.2 227.5
+cone v220 2.55 v230 2.8
+v v222 =
+        p 115 48.55 227.5
+cone v230 2.8 v222 3.1
+v v221 =
+        p 115 48.25 227.5
+cone v222 3.1 v221 3.35
+v v232 =
+        p 115 48 227.5
+cone v221 3.35 v232 3.2
+v cent =
+        p 115 48 227.5
+        n 0 -1 1.22460635382e-16
+ring cent 2.7 3.2
+v v229 =
+        p 115 51.5 227.5
+cone v232 -2.7 v229 -0.5
+cone v229 -0.5 v219 0
+# End conversion from: !xform -e -n glass21 -rx 180 -t 115 55 227.5 parfait.norm
+# Begin conversion from: !xform -e -n glass22 -rx 180 -t 115 55 235 parfait.norm
+#  xform -e -n glass22 -rx 180 -t 115 55 235
+#                  0                  0                  0                  7
+# 
+#   A (large) Parfait glass
+# 
+o
+o glass22
+v v227 =
+        p 115 54.6 235
+v v228 =
+        p 115 55 235
+cone v227 0 v228 -2.6
+v v233 =
+        p 115 54.7 235
+cone v228 2.6 v233 2.5
+v v234 =
+        p 115 54.55 235
+cone v233 2.5 v234 2.15
+v v235 =
+        p 115 54.4 235
+cone v234 2.15 v235 1.5
+v v224 =
+        p 115 54.2 235
+cone v235 1.5 v224 0.9
+v v231 =
+        p 115 53.6 235
+cone v224 0.9 v231 0.45
+v v226 =
+        p 115 52.9 235
+cone v231 0.45 v226 0.4
+v v225 =
+        p 115 52.4 235
+cone v226 0.4 v225 1.05
+v v236 =
+        p 115 51.7 235
+cone v225 1.05 v236 1.7
+v v241 =
+        p 115 50.9 235
+cone v236 1.7 v241 2.2
+v v240 =
+        p 115 50 235
+cone v241 2.2 v240 2.55
+v v242 =
+        p 115 49.2 235
+cone v240 2.55 v242 2.8
+v v243 =
+        p 115 48.55 235
+cone v242 2.8 v243 3.1
+v v244 =
+        p 115 48.25 235
+cone v243 3.1 v244 3.35
+v v245 =
+        p 115 48 235
+cone v244 3.35 v245 3.2
+v cent =
+        p 115 48 235
+        n 0 -1 1.22460635382e-16
+ring cent 2.7 3.2
+v v239 =
+        p 115 51.5 235
+cone v245 -2.7 v239 -0.5
+cone v239 -0.5 v236 0
+# End conversion from: !xform -e -n glass22 -rx 180 -t 115 55 235 parfait.norm
+# Begin conversion from: !xform -e -n glass23 -rx 180 -t 115 55 242.5 parfait.norm
+#  xform -e -n glass23 -rx 180 -t 115 55 242.5
+#                  0                  0                  0                  7
+# 
+#   A (large) Parfait glass
+# 
+o
+o glass23
+v v237 =
+        p 115 54.6 242.5
+v v238 =
+        p 115 55 242.5
+cone v237 0 v238 -2.6
+v v246 =
+        p 115 54.7 242.5
+cone v238 2.6 v246 2.5
+v v247 =
+        p 115 54.55 242.5
+cone v246 2.5 v247 2.15
+v v248 =
+        p 115 54.4 242.5
+cone v247 2.15 v248 1.5
+v v249 =
+        p 115 54.2 242.5
+cone v248 1.5 v249 0.9
+v v250 =
+        p 115 53.6 242.5
+cone v249 0.9 v250 0.45
+v v251 =
+        p 115 52.9 242.5
+cone v250 0.45 v251 0.4
+v v255 =
+        p 115 52.4 242.5
+cone v251 0.4 v255 1.05
+v v254 =
+        p 115 51.7 242.5
+cone v255 1.05 v254 1.7
+v v11 =
+        p 115 50.9 242.5
+cone v254 1.7 v11 2.2
+v v6 =
+        p 115 50 242.5
+cone v11 2.2 v6 2.55
+v v9 =
+        p 115 49.2 242.5
+cone v6 2.55 v9 2.8
+v v253 =
+        p 115 48.55 242.5
+cone v9 2.8 v253 3.1
+v v252 =
+        p 115 48.25 242.5
+cone v253 3.1 v252 3.35
+v v13 =
+        p 115 48 242.5
+cone v252 3.35 v13 3.2
+v cent =
+        p 115 48 242.5
+        n 0 -1 1.22460635382e-16
+ring cent 2.7 3.2
+v v14 =
+        p 115 51.5 242.5
+cone v13 -2.7 v14 -0.5
+cone v14 -0.5 v254 0
+# End conversion from: !xform -e -n glass23 -rx 180 -t 115 55 242.5 parfait.norm
+# 
+#   The tables with chairs:
+# 
+# Begin conversion from: !xform -e -n table1 -t 75 0 -37.5 tableset.norm
+#  xform -e -n table1 -t 75 0 -37.5
+#                -60                  0                -60                120
+# 
+#   A table and four chairs
+# 
+m pale_yellow_formica =
+        c
+                cxy 0.3580 0.3703
+        rd 0.5811
+        c
+        rs 0.0100 0.0300
+m chrome =
+        c
+                cxy 0.3330 0.3330
+        rd 0.0000
+        rs 0.8000 0.0000
+m pale_yellow_formica
+o
+o table1
+v cent =
+        p 75 30 -37.5
+        n 0 1 0
+ring cent 0 17.5
+v v10 =
+        p 75 30 -37.5
+v v7 =
+        p 75 28.75 -37.5
+cyl v10 17.5 v7
+v cent =
+        p 75 28.75 -37.5
+        n 0 -1 0
+ring cent 0 17.5
+m chrome
+v v12 =
+        p 75 2 -37.5
+cyl v7 1 v12
+o
+o table1.base
+v v17 =
+        p 75 1 -37.5
+cone v12 1 v17 7.5
+v v18 =
+        p 75 0 -37.5
+cyl v17 7.5 v18
+#  xform -e -n chair1 -t -9 0 -20 -ry 45 -t -12 0 -12
+#                -10                  0                -10                 50
+# 
+#   A simple chair
+# 
+m chrome =
+        c
+                cxy 0.3330 0.3330
+        rd 0.0000
+        rs 0.8000 0.0000
+m blue_vinyl =
+        c
+                cxy 0.2851 0.3014
+        rd 0.2800
+#  xform -rx -4 -t 1.5 23.5 8.5
+#  genbox blue_vinyl back 15 6.5 1 -r .25
+o
+o table1.chair1.back
+v v21 =
+        p 60.1711422561 23.5174391184 -62.5819060711
+v v20 =
+        p 60.5238344084 23.5523173553 -62.2292139188
+v v19 =
+        p 50.2707860812 23.5523173553 -51.9761655916
+v v15 =
+        p 49.9180939289 23.5174391184 -52.3288577439
+f v21 v20 v19 v15
+v v24 =
+        p 50.081678067 23.8017083679 -51.8117202152
+v v22 =
+        p 49.7857264133 29.7870926694 -52.1076718689
+v v27 =
+        p 49.433034261 29.7522144326 -52.4603640212
+v v26 =
+        p 49.7289859147 23.766830131 -52.1644123675
+f v24 v22 v27 v26
+v v3 =
+        p 49.4334648802 29.7347753141 -52.8134867926
+v v29 =
+        p 59.6865132074 29.7347753141 -63.0665351198
+v v30 =
+        p 59.9824648611 23.7493910126 -62.7705834662
+v v25 =
+        p 49.7294165338 23.7493910126 -52.5175351389
+f v3 v29 v30 v25
+v v23 =
+        p 59.8505279646 30.0016054451 -62.9025203626
+v v16 =
+        p 49.5974796374 30.0016054451 -52.6494720354
+v v28 =
+        p 49.9501717897 30.036483682 -52.2967798831
+v v1 =
+        p 60.2032201169 30.036483682 -62.5498282103
+f v23 v16 v28 v1
+v v4 =
+        p 60.6882797848 23.8017083679 -62.418321933
+v v31 =
+        p 60.3355876325 23.766830131 -62.7710140853
+v v5 =
+        p 60.0396359788 29.7522144326 -63.066965739
+v v34 =
+        p 60.3923281311 29.7870926694 -62.7142735867
+f v4 v31 v5 v34
+v v35 =
+        p 50.1388491848 29.8045317879 -52.108102488
+v v32 =
+        p 50.4348008385 23.8191474863 -51.8121508343
+v v41 =
+        p 60.6878491657 23.8191474863 -62.0651991615
+v v2 =
+        p 60.391897512 29.8045317879 -62.3611508152
+f v35 v32 v41 v2
+v v0 =
+        p 49.90576261 23.766830131 -52.3411890628
+v v36 =
+        p 60.1588109372 23.766830131 -62.59423739
+cyl v0 0.25 v36
+v v33 =
+        p 50.2584547623 23.8017083679 -51.9884969105
+cyl v0 0.25 v33
+v v39 =
+        p 49.6098109563 29.7522144326 -52.6371407165
+cyl v0 0.25 v39
+v v38 =
+        p 59.8628592835 29.7522144326 -62.8901890437
+cyl v38 0.25 v36
+cyl v38 0.25 v39
+v v40 =
+        p 60.2155514358 29.7870926694 -62.5374968914
+cyl v38 0.25 v40
+v v43 =
+        p 60.5115030895 23.8017083679 -62.2415452377
+cyl v43 0.25 v36
+cyl v43 0.25 v33
+cyl v43 0.25 v40
+v v42 =
+        p 49.9625031086 29.7870926694 -52.2844485642
+cyl v42 0.25 v39
+cyl v42 0.25 v33
+cyl v42 0.25 v40
+sph v0 0.25
+sph v36 0.25
+sph v39 0.25
+sph v38 0.25
+sph v33 0.25
+sph v43 0.25
+sph v42 0.25
+sph v40 0.25
+#  xform -rx -4 -t 0 16 10
+#  genbox blue_vinyl seat 18 1 15 -r .25
+o
+o table1.chair1.seat
+v v47 =
+        p 62.2924625997 16.0174391184 -62.5819060711
+v v49 =
+        p 72.5205350164 17.0289079877 -52.3538336543
+v v44 =
+        p 60.1461663457 17.0289079877 -39.9794649836
+v v50 =
+        p 49.9180939289 16.0174391184 -50.2075374003
+f v47 v49 v44 v50
+v v37 =
+        p 59.9570583315 17.2782990003 -39.8150196071
+v v8 =
+        p 59.9323956937 17.7770810254 -39.839682245
+v v48 =
+        p 49.7043232769 16.7656121561 -50.0677546617
+v v45 =
+        p 49.7289859147 16.266830131 -50.043092024
+f v37 v8 v48 v45
+v v51 =
+        p 49.704753896 16.7481730377 -50.4208774332
+v v57 =
+        p 62.0791225668 16.7481730377 -62.795246104
+v v52 =
+        p 62.1037852046 16.2493910126 -62.7705834662
+v v59 =
+        p 49.7294165338 16.2493910126 -50.3962147954
+f v51 v57 v52 v59
+v v53 =
+        p 62.243137324 17.0150031687 -62.6312313467
+v v63 =
+        p 49.8687686533 17.0150031687 -50.256862676
+v v46 =
+        p 60.0968410701 18.026472038 -40.0287902591
+v v65 =
+        p 72.4712097409 18.026472038 -52.4031589299
+f v53 v63 v46 v65
+v v60 =
+        p 72.6849803929 17.2782990003 -52.5429416685
+v v66 =
+        p 62.456907976 16.266830131 -62.7710140853
+v v56 =
+        p 62.4322453383 16.7656121561 -62.7956767231
+v v58 =
+        p 72.660317755 17.7770810254 -52.5676043063
+f v60 v66 v56 v58
+v v64 =
+        p 60.2855184651 17.7945201439 -39.8401128641
+v v62 =
+        p 60.310181103 17.2957381187 -39.8154502263
+v v61 =
+        p 72.6845497737 17.2957381187 -52.189818897
+v v67 =
+        p 72.6598871359 17.7945201439 -52.2144815349
+f v64 v62 v61 v67
+v v73 =
+        p 49.90576261 16.266830131 -50.2198687193
+v v74 =
+        p 62.2801312807 16.266830131 -62.59423739
+cyl v73 0.25 v74
+v v72 =
+        p 60.1338350268 17.2782990003 -39.9917963024
+cyl v73 0.25 v72
+v v70 =
+        p 49.8810999722 16.7656121561 -50.244531357
+cyl v73 0.25 v70
+v v75 =
+        p 62.255468643 16.7656121561 -62.6189000278
+cyl v75 0.25 v74
+cyl v75 0.25 v70
+v v78 =
+        p 72.4835410597 17.7770810254 -52.390827611
+cyl v75 0.25 v78
+v v55 =
+        p 72.5082036976 17.2782990003 -52.3661649732
+cyl v55 0.25 v74
+cyl v55 0.25 v72
+cyl v55 0.25 v78
+v v71 =
+        p 60.109172389 17.7770810254 -40.0164589403
+cyl v71 0.25 v70
+cyl v71 0.25 v72
+cyl v71 0.25 v78
+sph v73 0.25
+sph v74 0.25
+sph v70 0.25
+sph v75 0.25
+sph v72 0.25
+sph v55 0.25
+sph v71 0.25
+sph v78 0.25
+m chrome
+o
+o table1.chair1.leg
+v v76 =
+        p 48.5043109857 0 -53.3890872965
+v v79 =
+        p 50.6256313292 16 -52.6819805153
+cyl v76 0.25 v79
+v v54 =
+        p 59.1109127035 0 -63.9956890143
+v v69 =
+        p 59.8180194847 16 -61.8743686708
+cyl v54 0.25 v69
+v v77 =
+        p 71.4852813742 0 -51.6213203436
+v v80 =
+        p 69.0104076401 17 -52.6819805153
+cyl v77 0.25 v80
+v v87 =
+        p 60.8786796564 0 -41.0147186258
+v v86 =
+        p 59.8180194847 17 -43.4895923599
+cyl v87 0.25 v86
+o
+o table1.chair1.seat_support
+v v68 =
+        p 50.6256313292 15.75 -52.6819805153
+v v81 =
+        p 61.232233047 17 -42.0753787975
+cyl v68 0.25 v81
+v v85 =
+        p 59.8180194847 15.75 -61.8743686708
+v v92 =
+        p 70.4246212025 17 -51.267766953
+cyl v85 0.25 v92
+o
+o table1.chair1.back_support
+v v89 =
+        p 49.7771031918 27.5 -53.5305086528
+cyl v68 0.25 v89
+v v88 =
+        p 58.9694913472 27.5 -62.7228968082
+cyl v85 0.25 v88
+#  xform -e -n chair2 -t -9 0 -20 -ry 135 -t -12 0 12
+#                -10                  0                -10                 50
+# 
+#   A simple chair
+# 
+m chrome =
+        c
+                cxy 0.3330 0.3330
+        rd 0.0000
+        rs 0.8000 0.0000
+m blue_vinyl =
+        c
+                cxy 0.2851 0.3014
+        rd 0.2800
+#  xform -rx -4 -t 1.5 23.5 8.5
+#  genbox blue_vinyl back 15 6.5 1 -r .25
+o
+o table1.chair2.back
+v v93 =
+        p 49.9180939289 23.5174391184 -22.6711422561
+v v94 =
+        p 50.2707860812 23.5523173553 -23.0238344084
+v v90 =
+        p 60.5238344084 23.5523173553 -12.7707860812
+v v95 =
+        p 60.1711422561 23.5174391184 -12.4180939289
+f v93 v94 v90 v95
+v v84 =
+        p 60.6882797848 23.8017083679 -12.581678067
+v v91 =
+        p 60.3923281311 29.7870926694 -12.2857264133
+v v82 =
+        p 60.0396359788 29.7522144326 -11.933034261
+v v83 =
+        p 60.3355876325 23.766830131 -12.2289859147
+f v84 v91 v82 v83
+v v96 =
+        p 59.6865132074 29.7347753141 -11.9334648802
+v v97 =
+        p 49.4334648802 29.7347753141 -22.1865132074
+v v101 =
+        p 49.7294165338 23.7493910126 -22.4824648611
+v v100 =
+        p 59.9824648611 23.7493910126 -12.2294165338
+f v96 v97 v101 v100
+v v103 =
+        p 49.5974796374 30.0016054451 -22.3505279646
+v v104 =
+        p 59.8505279646 30.0016054451 -12.0974796374
+v v107 =
+        p 60.2032201169 30.036483682 -12.4501717897
+v v99 =
+        p 49.9501717897 30.036483682 -22.7032201169
+f v103 v104 v107 v99
+v v98 =
+        p 50.081678067 23.8017083679 -23.1882797848
+v v110 =
+        p 49.7289859147 23.766830131 -22.8355876325
+v v105 =
+        p 49.433034261 29.7522144326 -22.5396359788
+v v102 =
+        p 49.7857264133 29.7870926694 -22.8923281311
+f v98 v110 v105 v102
+v v109 =
+        p 60.391897512 29.8045317879 -12.6388491848
+v v108 =
+        p 60.6878491657 23.8191474863 -12.9348008385
+v v106 =
+        p 50.4348008385 23.8191474863 -23.1878491657
+v v113 =
+        p 50.1388491848 29.8045317879 -22.891897512
+f v109 v108 v106 v113
+v v114 =
+        p 60.1588109372 23.766830131 -12.40576261
+v v115 =
+        p 49.90576261 23.766830131 -22.6588109372
+cyl v114 0.25 v115
+v v112 =
+        p 60.5115030895 23.8017083679 -12.7584547623
+cyl v114 0.25 v112
+v v119 =
+        p 59.8628592835 29.7522144326 -12.1098109563
+cyl v114 0.25 v119
+v v122 =
+        p 49.6098109563 29.7522144326 -22.3628592835
+cyl v122 0.25 v115
+cyl v122 0.25 v119
+v v111 =
+        p 49.9625031086 29.7870926694 -22.7155514358
+cyl v122 0.25 v111
+v v116 =
+        p 50.2584547623 23.8017083679 -23.0115030895
+cyl v116 0.25 v115
+cyl v116 0.25 v112
+cyl v116 0.25 v111
+v v121 =
+        p 60.2155514358 29.7870926694 -12.4625031086
+cyl v121 0.25 v119
+cyl v121 0.25 v112
+cyl v121 0.25 v111
+sph v114 0.25
+sph v115 0.25
+sph v119 0.25
+sph v122 0.25
+sph v112 0.25
+sph v116 0.25
+sph v121 0.25
+sph v111 0.25
+#  xform -rx -4 -t 0 16 10
+#  genbox blue_vinyl seat 18 1 15 -r .25
+o
+o table1.chair2.seat
+v v120 =
+        p 49.9180939289 16.0174391184 -24.7924625997
+v v118 =
+        p 60.1461663457 17.0289079877 -35.0205350164
+v v125 =
+        p 72.5205350164 17.0289079877 -22.6461663457
+v v128 =
+        p 62.2924625997 16.0174391184 -12.4180939289
+f v120 v118 v125 v128
+v v117 =
+        p 72.6849803929 17.2782990003 -22.4570583315
+v v123 =
+        p 72.660317755 17.7770810254 -22.4323956937
+v v127 =
+        p 62.4322453383 16.7656121561 -12.2043232769
+v v126 =
+        p 62.456907976 16.266830131 -12.2289859147
+f v117 v123 v127 v126
+v v124 =
+        p 62.0791225668 16.7481730377 -12.204753896
+v v131 =
+        p 49.704753896 16.7481730377 -24.5791225668
+v v134 =
+        p 49.7294165338 16.2493910126 -24.6037852046
+v v129 =
+        p 62.1037852046 16.2493910126 -12.2294165338
+f v124 v131 v134 v129
+v v133 =
+        p 49.8687686533 17.0150031687 -24.743137324
+v v132 =
+        p 62.243137324 17.0150031687 -12.3687686533
+v v140 =
+        p 72.4712097409 18.026472038 -22.5968410701
+v v135 =
+        p 60.0968410701 18.026472038 -34.9712097409
+f v133 v132 v140 v135
+v v139 =
+        p 59.9570583315 17.2782990003 -35.1849803929
+v v138 =
+        p 49.7289859147 16.266830131 -24.956907976
+v v136 =
+        p 49.7043232769 16.7656121561 -24.9322453383
+v v143 =
+        p 59.9323956937 17.7770810254 -35.160317755
+f v139 v138 v136 v143
+v v151 =
+        p 72.6598871359 17.7945201439 -22.7855184651
+v v130 =
+        p 72.6845497737 17.2957381187 -22.810181103
+v v137 =
+        p 60.310181103 17.2957381187 -35.1845497737
+v v149 =
+        p 60.2855184651 17.7945201439 -35.1598871359
+f v151 v130 v137 v149
+v v147 =
+        p 62.2801312807 16.266830131 -12.40576261
+v v145 =
+        p 49.90576261 16.266830131 -24.7801312807
+cyl v147 0.25 v145
+v v144 =
+        p 72.5082036976 17.2782990003 -22.6338350268
+cyl v147 0.25 v144
+v v141 =
+        p 62.255468643 16.7656121561 -12.3810999722
+cyl v147 0.25 v141
+v v146 =
+        p 49.8810999722 16.7656121561 -24.755468643
+cyl v146 0.25 v145
+cyl v146 0.25 v141
+v v148 =
+        p 60.109172389 17.7770810254 -34.9835410597
+cyl v146 0.25 v148
+v v150 =
+        p 60.1338350268 17.2782990003 -35.0082036976
+cyl v150 0.25 v145
+cyl v150 0.25 v144
+cyl v150 0.25 v148
+v v153 =
+        p 72.4835410597 17.7770810254 -22.609172389
+cyl v153 0.25 v141
+cyl v153 0.25 v144
+cyl v153 0.25 v148
+sph v147 0.25
+sph v145 0.25
+sph v141 0.25
+sph v146 0.25
+sph v144 0.25
+sph v150 0.25
+sph v153 0.25
+sph v148 0.25
+m chrome
+o
+o table1.chair2.leg
+v v154 =
+        p 59.1109127035 0 -11.0043109857
+v v155 =
+        p 59.8180194847 16 -13.1256313292
+cyl v154 0.25 v155
+v v156 =
+        p 48.5043109857 0 -21.6109127035
+v v157 =
+        p 50.6256313292 16 -22.3180194847
+cyl v156 0.25 v157
+v v158 =
+        p 60.8786796564 0 -33.9852813742
+v v159 =
+        p 59.8180194847 17 -31.5104076401
+cyl v158 0.25 v159
+v v152 =
+        p 71.4852813742 0 -23.3786796564
+v v142 =
+        p 69.0104076401 17 -22.3180194847
+cyl v152 0.25 v142
+o
+o table1.chair2.seat_support
+v v160 =
+        p 59.8180194847 15.75 -13.1256313292
+v v161 =
+        p 70.4246212025 17 -23.732233047
+cyl v160 0.25 v161
+v v162 =
+        p 50.6256313292 15.75 -22.3180194847
+v v163 =
+        p 61.232233047 17 -32.9246212025
+cyl v162 0.25 v163
+o
+o table1.chair2.back_support
+v v164 =
+        p 58.9694913472 27.5 -12.2771031918
+cyl v160 0.25 v164
+v v165 =
+        p 49.7771031918 27.5 -21.4694913472
+cyl v162 0.25 v165
+#  xform -e -n chair3 -t -9 0 -20 -ry 225 -t 12 0 12
+#                -10                  0                -10                 50
+# 
+#   A simple chair
+# 
+m chrome =
+        c
+                cxy 0.3330 0.3330
+        rd 0.0000
+        rs 0.8000 0.0000
+m blue_vinyl =
+        c
+                cxy 0.2851 0.3014
+        rd 0.2800
+#  xform -rx -4 -t 1.5 23.5 8.5
+#  genbox blue_vinyl back 15 6.5 1 -r .25
+o
+o table1.chair3.back
+v v166 =
+        p 89.8288577439 23.5174391184 -12.4180939289
+v v167 =
+        p 89.4761655916 23.5523173553 -12.7707860812
+v v170 =
+        p 99.7292139188 23.5523173553 -23.0238344084
+v v172 =
+        p 100.081906071 23.5174391184 -22.6711422561
+f v166 v167 v170 v172
+v v171 =
+        p 99.918321933 23.8017083679 -23.1882797848
+v v173 =
+        p 100.214273587 29.7870926694 -22.8923281311
+v v174 =
+        p 100.566965739 29.7522144326 -22.5396359788
+v v175 =
+        p 100.271014085 23.766830131 -22.8355876325
+f v171 v173 v174 v175
+v v176 =
+        p 100.56653512 29.7347753141 -22.1865132074
+v v168 =
+        p 90.3134867926 29.7347753141 -11.9334648802
+v v169 =
+        p 90.0175351389 23.7493910126 -12.2294165338
+v v178 =
+        p 100.270583466 23.7493910126 -22.4824648611
+f v176 v168 v169 v178
+v v177 =
+        p 90.1494720354 30.0016054451 -12.0974796374
+v v179 =
+        p 100.402520363 30.0016054451 -22.3505279646
+v v180 =
+        p 100.04982821 30.036483682 -22.7032201169
+v v181 =
+        p 89.7967798831 30.036483682 -12.4501717897
+f v177 v179 v180 v181
+v v182 =
+        p 89.3117202152 23.8017083679 -12.581678067
+v v184 =
+        p 89.6644123675 23.766830131 -12.2289859147
+v v183 =
+        p 89.9603640212 29.7522144326 -11.933034261
+v v187 =
+        p 89.6076718689 29.7870926694 -12.2857264133
+f v182 v184 v183 v187
+v v188 =
+        p 99.8611508152 29.8045317879 -22.891897512
+v v190 =
+        p 99.5651991615 23.8191474863 -23.1878491657
+v v189 =
+        p 89.3121508343 23.8191474863 -12.9348008385
+v v191 =
+        p 89.608102488 29.8045317879 -12.6388491848
+f v188 v190 v189 v191
+v v192 =
+        p 100.09423739 23.766830131 -22.6588109372
+v v193 =
+        p 89.8411890628 23.766830131 -12.40576261
+cyl v192 0.25 v193
+v v185 =
+        p 99.7415452377 23.8017083679 -23.0115030895
+cyl v192 0.25 v185
+v v186 =
+        p 100.390189044 29.7522144326 -22.3628592835
+cyl v192 0.25 v186
+v v194 =
+        p 90.1371407165 29.7522144326 -12.1098109563
+cyl v194 0.25 v193
+cyl v194 0.25 v186
+v v196 =
+        p 89.7844485642 29.7870926694 -12.4625031086
+cyl v194 0.25 v196
+v v195 =
+        p 89.4884969105 23.8017083679 -12.7584547623
+cyl v195 0.25 v193
+cyl v195 0.25 v185
+cyl v195 0.25 v196
+v v197 =
+        p 100.037496891 29.7870926694 -22.7155514358
+cyl v197 0.25 v186
+cyl v197 0.25 v185
+cyl v197 0.25 v196
+sph v192 0.25
+sph v193 0.25
+sph v186 0.25
+sph v194 0.25
+sph v185 0.25
+sph v195 0.25
+sph v197 0.25
+sph v196 0.25
+#  xform -rx -4 -t 0 16 10
+#  genbox blue_vinyl seat 18 1 15 -r .25
+o
+o table1.chair3.seat
+v v198 =
+        p 87.7075374003 16.0174391184 -12.4180939289
+v v201 =
+        p 77.4794649836 17.0289079877 -22.6461663457
+v v200 =
+        p 89.8538336543 17.0289079877 -35.0205350164
+v v204 =
+        p 100.081906071 16.0174391184 -24.7924625997
+f v198 v201 v200 v204
+v v207 =
+        p 90.0429416685 17.2782990003 -35.1849803929
+v v203 =
+        p 90.0676043063 17.7770810254 -35.160317755
+v v199 =
+        p 100.295676723 16.7656121561 -24.9322453383
+v v202 =
+        p 100.271014085 16.266830131 -24.956907976
+f v207 v203 v199 v202
+v v208 =
+        p 100.295246104 16.7481730377 -24.5791225668
+v v209 =
+        p 87.9208774332 16.7481730377 -12.204753896
+v v210 =
+        p 87.8962147954 16.2493910126 -12.2294165338
+v v205 =
+        p 100.270583466 16.2493910126 -24.6037852046
+f v208 v209 v210 v205
+v v206 =
+        p 87.756862676 17.0150031687 -12.3687686533
+v v211 =
+        p 100.131231347 17.0150031687 -24.743137324
+v v212 =
+        p 89.9031589299 18.026472038 -34.9712097409
+v v213 =
+        p 77.5287902591 18.026472038 -22.5968410701
+f v206 v211 v212 v213
+v v214 =
+        p 77.3150196071 17.2782990003 -22.4570583315
+v v215 =
+        p 87.543092024 16.266830131 -12.2289859147
+v v216 =
+        p 87.5677546617 16.7656121561 -12.2043232769
+v v217 =
+        p 77.339682245 17.7770810254 -22.4323956937
+f v214 v215 v216 v217
+v v218 =
+        p 89.7144815349 17.7945201439 -35.1598871359
+v v223 =
+        p 89.689818897 17.2957381187 -35.1845497737
+v v220 =
+        p 77.3154502263 17.2957381187 -22.810181103
+v v230 =
+        p 77.3401128641 17.7945201439 -22.7855184651
+f v218 v223 v220 v230
+v v222 =
+        p 100.09423739 16.266830131 -24.7801312807
+v v221 =
+        p 87.7198687193 16.266830131 -12.40576261
+cyl v222 0.25 v221
+v v232 =
+        p 89.8661649732 17.2782990003 -35.0082036976
+cyl v222 0.25 v232
+v v229 =
+        p 100.118900028 16.7656121561 -24.755468643
+cyl v222 0.25 v229
+v v219 =
+        p 87.744531357 16.7656121561 -12.3810999722
+cyl v219 0.25 v221
+cyl v219 0.25 v229
+v v227 =
+        p 77.5164589403 17.7770810254 -22.609172389
+cyl v219 0.25 v227
+v v228 =
+        p 77.4917963024 17.2782990003 -22.6338350268
+cyl v228 0.25 v221
+cyl v228 0.25 v232
+cyl v228 0.25 v227
+v v233 =
+        p 89.890827611 17.7770810254 -34.9835410597
+cyl v233 0.25 v229
+cyl v233 0.25 v232
+cyl v233 0.25 v227
+sph v222 0.25
+sph v221 0.25
+sph v229 0.25
+sph v219 0.25
+sph v232 0.25
+sph v228 0.25
+sph v233 0.25
+sph v227 0.25
+m chrome
+o
+o table1.chair3.leg
+v v234 =
+        p 101.495689014 0 -21.6109127035
+v v235 =
+        p 99.3743686708 16 -22.3180194847
+cyl v234 0.25 v235
+v v224 =
+        p 90.8890872965 0 -11.0043109857
+v v231 =
+        p 90.1819805153 16 -13.1256313292
+cyl v224 0.25 v231
+v v226 =
+        p 78.5147186258 0 -23.3786796564
+v v225 =
+        p 80.9895923599 17 -22.3180194847
+cyl v226 0.25 v225
+v v241 =
+        p 89.1213203436 0 -33.9852813742
+v v240 =
+        p 90.1819805153 17 -31.5104076401
+cyl v241 0.25 v240
+o
+o table1.chair3.seat_support
+v v242 =
+        p 99.3743686708 15.75 -22.3180194847
+v v243 =
+        p 88.767766953 17 -32.9246212025
+cyl v242 0.25 v243
+v v244 =
+        p 90.1819805153 15.75 -13.1256313292
+v v245 =
+        p 79.5753787975 17 -23.732233047
+cyl v244 0.25 v245
+o
+o table1.chair3.back_support
+v v239 =
+        p 100.222896808 27.5 -21.4694913472
+cyl v242 0.25 v239
+v v236 =
+        p 91.0305086528 27.5 -12.2771031918
+cyl v244 0.25 v236
+#  xform -e -n chair4 -t -9 0 -20 -ry 315 -t 12 0 -12
+#                -10                  0                -10                 50
+# 
+#   A simple chair
+# 
+m chrome =
+        c
+                cxy 0.3330 0.3330
+        rd 0.0000
+        rs 0.8000 0.0000
+m blue_vinyl =
+        c
+                cxy 0.2851 0.3014
+        rd 0.2800
+#  xform -rx -4 -t 1.5 23.5 8.5
+#  genbox blue_vinyl back 15 6.5 1 -r .25
+o
+o table1.chair4.back
+v v237 =
+        p 100.081906071 23.5174391184 -52.3288577439
+v v238 =
+        p 99.7292139188 23.5523173553 -51.9761655916
+v v246 =
+        p 89.4761655916 23.5523173553 -62.2292139188
+v v247 =
+        p 89.8288577439 23.5174391184 -62.5819060711
+f v237 v238 v246 v247
+v v248 =
+        p 89.3117202152 23.8017083679 -62.418321933
+v v249 =
+        p 89.6076718689 29.7870926694 -62.7142735867
+v v250 =
+        p 89.9603640212 29.7522144326 -63.066965739
+v v251 =
+        p 89.6644123675 23.766830131 -62.7710140853
+f v248 v249 v250 v251
+v v255 =
+        p 90.3134867926 29.7347753141 -63.0665351198
+v v11 =
+        p 100.56653512 29.7347753141 -52.8134867926
+v v6 =
+        p 100.270583466 23.7493910126 -52.5175351389
+v v9 =
+        p 90.0175351389 23.7493910126 -62.7705834662
+f v255 v11 v6 v9
+v v253 =
+        p 100.402520363 30.0016054451 -52.6494720354
+v v252 =
+        p 90.1494720354 30.0016054451 -62.9025203626
+v v13 =
+        p 89.7967798831 30.036483682 -62.5498282103
+v v14 =
+        p 100.04982821 30.036483682 -52.2967798831
+f v253 v252 v13 v14
+v v254 =
+        p 99.918321933 23.8017083679 -51.8117202152
+v v10 =
+        p 100.271014085 23.766830131 -52.1644123675
+v v7 =
+        p 100.566965739 29.7522144326 -52.4603640212
+v v12 =
+        p 100.214273587 29.7870926694 -52.1076718689
+f v254 v10 v7 v12
+v v17 =
+        p 89.608102488 29.8045317879 -62.3611508152
+v v18 =
+        p 89.3121508343 23.8191474863 -62.0651991615
+v v21 =
+        p 99.5651991615 23.8191474863 -51.8121508343
+v v20 =
+        p 99.8611508152 29.8045317879 -52.108102488
+f v17 v18 v21 v20
+v v19 =
+        p 89.8411890628 23.766830131 -62.59423739
+v v15 =
+        p 100.09423739 23.766830131 -52.3411890628
+cyl v19 0.25 v15
+v v24 =
+        p 89.4884969105 23.8017083679 -62.2415452377
+cyl v19 0.25 v24
+v v22 =
+        p 90.1371407165 29.7522144326 -62.8901890437
+cyl v19 0.25 v22
+v v27 =
+        p 100.390189044 29.7522144326 -52.6371407165
+cyl v27 0.25 v15
+cyl v27 0.25 v22
+v v26 =
+        p 100.037496891 29.7870926694 -52.2844485642
+cyl v27 0.25 v26
+v v3 =
+        p 99.7415452377 23.8017083679 -51.9884969105
+cyl v3 0.25 v15
+cyl v3 0.25 v24
+cyl v3 0.25 v26
+v v29 =
+        p 89.7844485642 29.7870926694 -62.5374968914
+cyl v29 0.25 v22
+cyl v29 0.25 v24
+cyl v29 0.25 v26
+sph v19 0.25
+sph v15 0.25
+sph v22 0.25
+sph v27 0.25
+sph v24 0.25
+sph v3 0.25
+sph v29 0.25
+sph v26 0.25
+#  xform -rx -4 -t 0 16 10
+#  genbox blue_vinyl seat 18 1 15 -r .25
+o
+o table1.chair4.seat
+v v30 =
+        p 100.081906071 16.0174391184 -50.2075374003
+v v25 =
+        p 89.8538336543 17.0289079877 -39.9794649836
+v v23 =
+        p 77.4794649836 17.0289079877 -52.3538336543
+v v16 =
+        p 87.7075374003 16.0174391184 -62.5819060711
+f v30 v25 v23 v16
+v v28 =
+        p 77.3150196071 17.2782990003 -52.5429416685
+v v1 =
+        p 77.339682245 17.7770810254 -52.5676043063
+v v4 =
+        p 87.5677546617 16.7656121561 -62.7956767231
+v v31 =
+        p 87.543092024 16.266830131 -62.7710140853
+f v28 v1 v4 v31
+v v5 =
+        p 87.9208774332 16.7481730377 -62.795246104
+v v34 =
+        p 100.295246104 16.7481730377 -50.4208774332
+v v35 =
+        p 100.270583466 16.2493910126 -50.3962147954
+v v32 =
+        p 87.8962147954 16.2493910126 -62.7705834662
+f v5 v34 v35 v32
+v v41 =
+        p 100.131231347 17.0150031687 -50.256862676
+v v2 =
+        p 87.756862676 17.0150031687 -62.6312313467
+v v0 =
+        p 77.5287902591 18.026472038 -52.4031589299
+v v36 =
+        p 89.9031589299 18.026472038 -40.0287902591
+f v41 v2 v0 v36
+v v39 =
+        p 90.0429416685 17.2782990003 -39.8150196071
+v v38 =
+        p 100.271014085 16.266830131 -50.043092024
+v v33 =
+        p 100.295676723 16.7656121561 -50.0677546617
+v v43 =
+        p 90.0676043063 17.7770810254 -39.839682245
+f v39 v38 v33 v43
+v v42 =
+        p 77.3401128641 17.7945201439 -52.2144815349
+v v40 =
+        p 77.3154502263 17.2957381187 -52.189818897
+v v47 =
+        p 89.689818897 17.2957381187 -39.8154502263
+v v49 =
+        p 89.7144815349 17.7945201439 -39.8401128641
+f v42 v40 v47 v49
+v v44 =
+        p 87.7198687193 16.266830131 -62.59423739
+v v50 =
+        p 100.09423739 16.266830131 -50.2198687193
+cyl v44 0.25 v50
+v v37 =
+        p 77.4917963024 17.2782990003 -52.3661649732
+cyl v44 0.25 v37
+v v8 =
+        p 87.744531357 16.7656121561 -62.6189000278
+cyl v44 0.25 v8
+v v48 =
+        p 100.118900028 16.7656121561 -50.244531357
+cyl v48 0.25 v50
+cyl v48 0.25 v8
+v v45 =
+        p 89.890827611 17.7770810254 -40.0164589403
+cyl v48 0.25 v45
+v v51 =
+        p 89.8661649732 17.2782990003 -39.9917963024
+cyl v51 0.25 v50
+cyl v51 0.25 v37
+cyl v51 0.25 v45
+v v57 =
+        p 77.5164589403 17.7770810254 -52.390827611
+cyl v57 0.25 v8
+cyl v57 0.25 v37
+cyl v57 0.25 v45
+sph v44 0.25
+sph v50 0.25
+sph v8 0.25
+sph v48 0.25
+sph v37 0.25
+sph v51 0.25
+sph v57 0.25
+sph v45 0.25
+m chrome
+o
+o table1.chair4.leg
+v v52 =
+        p 90.8890872965 0 -63.9956890143
+v v59 =
+        p 90.1819805153 16 -61.8743686708
+cyl v52 0.25 v59
+v v53 =
+        p 101.495689014 0 -53.3890872965
+v v63 =
+        p 99.3743686708 16 -52.6819805153
+cyl v53 0.25 v63
+v v46 =
+        p 89.1213203436 0 -41.0147186258
+v v65 =
+        p 90.1819805153 17 -43.4895923599
+cyl v46 0.25 v65
+v v60 =
+        p 78.5147186258 0 -51.6213203436
+v v66 =
+        p 80.9895923599 17 -52.6819805153
+cyl v60 0.25 v66
+o
+o table1.chair4.seat_support
+v v56 =
+        p 90.1819805153 15.75 -61.8743686708
+v v58 =
+        p 79.5753787975 17 -51.267766953
+cyl v56 0.25 v58
+v v64 =
+        p 99.3743686708 15.75 -52.6819805153
+v v62 =
+        p 88.767766953 17 -42.0753787975
+cyl v64 0.25 v62
+o
+o table1.chair4.back_support
+v v61 =
+        p 91.0305086528 27.5 -62.7228968082
+cyl v56 0.25 v61
+v v67 =
+        p 100.222896808 27.5 -53.5305086528
+cyl v64 0.25 v67
+# End conversion from: !xform -e -n table1 -t 75 0 -37.5 tableset.norm
+# Begin conversion from: !xform -e -n table2 -t -35 0 -37.5 tableset.norm
+#  xform -e -n table2 -t -35 0 -37.5
+#                -60                  0                -60                120
+# 
+#   A table and four chairs
+# 
+m pale_yellow_formica =
+        c
+                cxy 0.3580 0.3703
+        rd 0.5811
+        c
+        rs 0.0100 0.0300
+m chrome =
+        c
+                cxy 0.3330 0.3330
+        rd 0.0000
+        rs 0.8000 0.0000
+m pale_yellow_formica
+o
+o table2
+v cent =
+        p -35 30 -37.5
+        n 0 1 0
+ring cent 0 17.5
+v v73 =
+        p -35 30 -37.5
+v v74 =
+        p -35 28.75 -37.5
+cyl v73 17.5 v74
+v cent =
+        p -35 28.75 -37.5
+        n 0 -1 0
+ring cent 0 17.5
+m chrome
+v v70 =
+        p -35 2 -37.5
+cyl v74 1 v70
+o
+o table2.base
+v v75 =
+        p -35 1 -37.5
+cone v70 1 v75 7.5
+v v72 =
+        p -35 0 -37.5
+cyl v75 7.5 v72
+#  xform -e -n chair1 -t -9 0 -20 -ry 45 -t -12 0 -12
+#                -10                  0                -10                 50
+# 
+#   A simple chair
+# 
+m chrome =
+        c
+                cxy 0.3330 0.3330
+        rd 0.0000
+        rs 0.8000 0.0000
+m blue_vinyl =
+        c
+                cxy 0.2851 0.3014
+        rd 0.2800
+#  xform -rx -4 -t 1.5 23.5 8.5
+#  genbox blue_vinyl back 15 6.5 1 -r .25
+o
+o table2.chair1.back
+v v55 =
+        p -49.8288577439 23.5174391184 -62.5819060711
+v v71 =
+        p -49.4761655916 23.5523173553 -62.2292139188
+v v78 =
+        p -59.7292139188 23.5523173553 -51.9761655916
+v v76 =
+        p -60.0819060711 23.5174391184 -52.3288577439
+f v55 v71 v78 v76
+v v79 =
+        p -59.918321933 23.8017083679 -51.8117202152
+v v54 =
+        p -60.2142735867 29.7870926694 -52.1076718689
+v v69 =
+        p -60.566965739 29.7522144326 -52.4603640212
+v v77 =
+        p -60.2710140853 23.766830131 -52.1644123675
+f v79 v54 v69 v77
+v v80 =
+        p -60.5665351198 29.7347753141 -52.8134867926
+v v87 =
+        p -50.3134867926 29.7347753141 -63.0665351198
+v v86 =
+        p -50.0175351389 23.7493910126 -62.7705834662
+v v81 =
+        p -60.2705834662 23.7493910126 -52.5175351389
+f v80 v87 v86 v81
+v v92 =
+        p -50.1494720354 30.0016054451 -62.9025203626
+v v68 =
+        p -60.4025203626 30.0016054451 -52.6494720354
+v v89 =
+        p -60.0498282103 30.036483682 -52.2967798831
+v v85 =
+        p -49.7967798831 30.036483682 -62.5498282103
+f v92 v68 v89 v85
+v v88 =
+        p -49.3117202152 23.8017083679 -62.418321933
+v v93 =
+        p -49.6644123675 23.766830131 -62.7710140853
+v v94 =
+        p -49.9603640212 29.7522144326 -63.066965739
+v v90 =
+        p -49.6076718689 29.7870926694 -62.7142735867
+f v88 v93 v94 v90
+v v95 =
+        p -59.8611508152 29.8045317879 -52.108102488
+v v84 =
+        p -59.5651991615 23.8191474863 -51.8121508343
+v v91 =
+        p -49.3121508343 23.8191474863 -62.0651991615
+v v82 =
+        p -49.608102488 29.8045317879 -62.3611508152
+f v95 v84 v91 v82
+v v83 =
+        p -60.09423739 23.766830131 -52.3411890628
+v v96 =
+        p -49.8411890628 23.766830131 -62.59423739
+cyl v83 0.25 v96
+v v97 =
+        p -59.7415452377 23.8017083679 -51.9884969105
+cyl v83 0.25 v97
+v v101 =
+        p -60.3901890437 29.7522144326 -52.6371407165
+cyl v83 0.25 v101
+v v100 =
+        p -50.1371407165 29.7522144326 -62.8901890437
+cyl v100 0.25 v96
+cyl v100 0.25 v101
+v v103 =
+        p -49.7844485642 29.7870926694 -62.5374968914
+cyl v100 0.25 v103
+v v104 =
+        p -49.4884969105 23.8017083679 -62.2415452377
+cyl v104 0.25 v96
+cyl v104 0.25 v97
+cyl v104 0.25 v103
+v v107 =
+        p -60.0374968914 29.7870926694 -52.2844485642
+cyl v107 0.25 v101
+cyl v107 0.25 v97
+cyl v107 0.25 v103
+sph v83 0.25
+sph v96 0.25
+sph v101 0.25
+sph v100 0.25
+sph v97 0.25
+sph v104 0.25
+sph v107 0.25
+sph v103 0.25
+#  xform -rx -4 -t 0 16 10
+#  genbox blue_vinyl seat 18 1 15 -r .25
+o
+o table2.chair1.seat
+v v99 =
+        p -47.7075374003 16.0174391184 -62.5819060711
+v v98 =
+        p -37.4794649836 17.0289079877 -52.3538336543
+v v110 =
+        p -49.8538336543 17.0289079877 -39.9794649836
+v v105 =
+        p -60.0819060711 16.0174391184 -50.2075374003
+f v99 v98 v110 v105
+v v102 =
+        p -50.0429416685 17.2782990003 -39.8150196071
+v v109 =
+        p -50.0676043063 17.7770810254 -39.839682245
+v v108 =
+        p -60.2956767231 16.7656121561 -50.0677546617
+v v106 =
+        p -60.2710140853 16.266830131 -50.043092024
+f v102 v109 v108 v106
+v v113 =
+        p -60.295246104 16.7481730377 -50.4208774332
+v v114 =
+        p -47.9208774332 16.7481730377 -62.795246104
+v v115 =
+        p -47.8962147954 16.2493910126 -62.7705834662
+v v119 =
+        p -60.2705834662 16.2493910126 -50.3962147954
+f v113 v114 v115 v119
+v v122 =
+        p -47.756862676 17.0150031687 -62.6312313467
+v v112 =
+        p -60.1312313467 17.0150031687 -50.256862676
+v v116 =
+        p -49.9031589299 18.026472038 -40.0287902591
+v v121 =
+        p -37.5287902591 18.026472038 -52.4031589299
+f v122 v112 v116 v121
+v v111 =
+        p -37.3150196071 17.2782990003 -52.5429416685
+v v120 =
+        p -47.543092024 16.266830131 -62.7710140853
+v v118 =
+        p -47.5677546617 16.7656121561 -62.7956767231
+v v125 =
+        p -37.339682245 17.7770810254 -52.5676043063
+f v111 v120 v118 v125
+v v128 =
+        p -49.7144815349 17.7945201439 -39.8401128641
+v v117 =
+        p -49.689818897 17.2957381187 -39.8154502263
+v v123 =
+        p -37.3154502263 17.2957381187 -52.189818897
+v v127 =
+        p -37.3401128641 17.7945201439 -52.2144815349
+f v128 v117 v123 v127
+v v126 =
+        p -60.09423739 16.266830131 -50.2198687193
+v v124 =
+        p -47.7198687193 16.266830131 -62.59423739
+cyl v126 0.25 v124
+v v131 =
+        p -49.8661649732 17.2782990003 -39.9917963024
+cyl v126 0.25 v131
+v v134 =
+        p -60.1189000278 16.7656121561 -50.244531357
+cyl v126 0.25 v134
+v v129 =
+        p -47.744531357 16.7656121561 -62.6189000278
+cyl v129 0.25 v124
+cyl v129 0.25 v134
+v v133 =
+        p -37.5164589403 17.7770810254 -52.390827611
+cyl v129 0.25 v133
+v v132 =
+        p -37.4917963024 17.2782990003 -52.3661649732
+cyl v132 0.25 v124
+cyl v132 0.25 v131
+cyl v132 0.25 v133
+v v140 =
+        p -49.890827611 17.7770810254 -40.0164589403
+cyl v140 0.25 v134
+cyl v140 0.25 v131
+cyl v140 0.25 v133
+sph v126 0.25
+sph v124 0.25
+sph v134 0.25
+sph v129 0.25
+sph v131 0.25
+sph v132 0.25
+sph v140 0.25
+sph v133 0.25
+m chrome
+o
+o table2.chair1.leg
+v v135 =
+        p -61.4956890143 0 -53.3890872965
+v v139 =
+        p -59.3743686708 16 -52.6819805153
+cyl v135 0.25 v139
+v v138 =
+        p -50.8890872965 0 -63.9956890143
+v v136 =
+        p -50.1819805153 16 -61.8743686708
+cyl v138 0.25 v136
+v v143 =
+        p -38.5147186258 0 -51.6213203436
+v v151 =
+        p -40.9895923599 17 -52.6819805153
+cyl v143 0.25 v151
+v v130 =
+        p -49.1213203436 0 -41.0147186258
+v v137 =
+        p -50.1819805153 17 -43.4895923599
+cyl v130 0.25 v137
+o
+o table2.chair1.seat_support
+v v149 =
+        p -59.3743686708 15.75 -52.6819805153
+v v147 =
+        p -48.767766953 17 -42.0753787975
+cyl v149 0.25 v147
+v v145 =
+        p -50.1819805153 15.75 -61.8743686708
+v v141 =
+        p -39.5753787975 17 -51.267766953
+cyl v145 0.25 v141
+o
+o table2.chair1.back_support
+v v146 =
+        p -60.2228968082 27.5 -53.5305086528
+cyl v149 0.25 v146
+v v144 =
+        p -51.0305086528 27.5 -62.7228968082
+cyl v145 0.25 v144
+#  xform -e -n chair2 -t -9 0 -20 -ry 135 -t -12 0 12
+#                -10                  0                -10                 50
+# 
+#   A simple chair
+# 
+m chrome =
+        c
+                cxy 0.3330 0.3330
+        rd 0.0000
+        rs 0.8000 0.0000
+m blue_vinyl =
+        c
+                cxy 0.2851 0.3014
+        rd 0.2800
+#  xform -rx -4 -t 1.5 23.5 8.5
+#  genbox blue_vinyl back 15 6.5 1 -r .25
+o
+o table2.chair2.back
+v v150 =
+        p -60.0819060711 23.5174391184 -22.6711422561
+v v153 =
+        p -59.7292139188 23.5523173553 -23.0238344084
+v v148 =
+        p -49.4761655916 23.5523173553 -12.7707860812
+v v154 =
+        p -49.8288577439 23.5174391184 -12.4180939289
+f v150 v153 v148 v154
+v v155 =
+        p -49.3117202152 23.8017083679 -12.581678067
+v v156 =
+        p -49.6076718689 29.7870926694 -12.2857264133
+v v157 =
+        p -49.9603640212 29.7522144326 -11.933034261
+v v158 =
+        p -49.6644123675 23.766830131 -12.2289859147
+f v155 v156 v157 v158
+v v159 =
+        p -50.3134867926 29.7347753141 -11.9334648802
+v v152 =
+        p -60.5665351198 29.7347753141 -22.1865132074
+v v142 =
+        p -60.2705834662 23.7493910126 -22.4824648611
+v v161 =
+        p -50.0175351389 23.7493910126 -12.2294165338
+f v159 v152 v142 v161
+v v163 =
+        p -60.4025203626 30.0016054451 -22.3505279646
+v v160 =
+        p -50.1494720354 30.0016054451 -12.0974796374
+v v164 =
+        p -49.7967798831 30.036483682 -12.4501717897
+v v162 =
+        p -60.0498282103 30.036483682 -22.7032201169
+f v163 v160 v164 v162
+v v165 =
+        p -59.918321933 23.8017083679 -23.1882797848
+v v166 =
+        p -60.2710140853 23.766830131 -22.8355876325
+v v167 =
+        p -60.566965739 29.7522144326 -22.5396359788
+v v170 =
+        p -60.2142735867 29.7870926694 -22.8923281311
+f v165 v166 v167 v170
+v v172 =
+        p -49.608102488 29.8045317879 -12.6388491848
+v v171 =
+        p -49.3121508343 23.8191474863 -12.9348008385
+v v173 =
+        p -59.5651991615 23.8191474863 -23.1878491657
+v v174 =
+        p -59.8611508152 29.8045317879 -22.891897512
+f v172 v171 v173 v174
+v v175 =
+        p -49.8411890628 23.766830131 -12.40576261
+v v176 =
+        p -60.09423739 23.766830131 -22.6588109372
+cyl v175 0.25 v176
+v v168 =
+        p -49.4884969105 23.8017083679 -12.7584547623
+cyl v175 0.25 v168
+v v169 =
+        p -50.1371407165 29.7522144326 -12.1098109563
+cyl v175 0.25 v169
+v v178 =
+        p -60.3901890437 29.7522144326 -22.3628592835
+cyl v178 0.25 v176
+cyl v178 0.25 v169
+v v177 =
+        p -60.0374968914 29.7870926694 -22.7155514358
+cyl v178 0.25 v177
+v v179 =
+        p -59.7415452377 23.8017083679 -23.0115030895
+cyl v179 0.25 v176
+cyl v179 0.25 v168
+cyl v179 0.25 v177
+v v180 =
+        p -49.7844485642 29.7870926694 -12.4625031086
+cyl v180 0.25 v169
+cyl v180 0.25 v168
+cyl v180 0.25 v177
+sph v175 0.25
+sph v176 0.25
+sph v169 0.25
+sph v178 0.25
+sph v168 0.25
+sph v179 0.25
+sph v180 0.25
+sph v177 0.25
+#  xform -rx -4 -t 0 16 10
+#  genbox blue_vinyl seat 18 1 15 -r .25
+o
+o table2.chair2.seat
+v v181 =
+        p -60.0819060711 16.0174391184 -24.7924625997
+v v182 =
+        p -49.8538336543 17.0289079877 -35.0205350164
+v v184 =
+        p -37.4794649836 17.0289079877 -22.6461663457
+v v183 =
+        p -47.7075374003 16.0174391184 -12.4180939289
+f v181 v182 v184 v183
+v v187 =
+        p -37.3150196071 17.2782990003 -22.4570583315
+v v188 =
+        p -37.339682245 17.7770810254 -22.4323956937
+v v190 =
+        p -47.5677546617 16.7656121561 -12.2043232769
+v v189 =
+        p -47.543092024 16.266830131 -12.2289859147
+f v187 v188 v190 v189
+v v191 =
+        p -47.9208774332 16.7481730377 -12.204753896
+v v192 =
+        p -60.295246104 16.7481730377 -24.5791225668
+v v193 =
+        p -60.2705834662 16.2493910126 -24.6037852046
+v v186 =
+        p -47.8962147954 16.2493910126 -12.2294165338
+f v191 v192 v193 v186
+v v194 =
+        p -60.1312313467 17.0150031687 -24.743137324
+v v185 =
+        p -47.756862676 17.0150031687 -12.3687686533
+v v195 =
+        p -37.5287902591 18.026472038 -22.5968410701
+v v197 =
+        p -49.9031589299 18.026472038 -34.9712097409
+f v194 v185 v195 v197
+v v196 =
+        p -50.0429416685 17.2782990003 -35.1849803929
+v v198 =
+        p -60.2710140853 16.266830131 -24.956907976
+v v201 =
+        p -60.2956767231 16.7656121561 -24.9322453383
+v v200 =
+        p -50.0676043063 17.7770810254 -35.160317755
+f v196 v198 v201 v200
+v v204 =
+        p -37.3401128641 17.7945201439 -22.7855184651
+v v207 =
+        p -37.3154502263 17.2957381187 -22.810181103
+v v203 =
+        p -49.689818897 17.2957381187 -35.1845497737
+v v199 =
+        p -49.7144815349 17.7945201439 -35.1598871359
+f v204 v207 v203 v199
+v v202 =
+        p -47.7198687193 16.266830131 -12.40576261
+v v208 =
+        p -60.09423739 16.266830131 -24.7801312807
+cyl v202 0.25 v208
+v v209 =
+        p -37.4917963024 17.2782990003 -22.6338350268
+cyl v202 0.25 v209
+v v210 =
+        p -47.744531357 16.7656121561 -12.3810999722
+cyl v202 0.25 v210
+v v205 =
+        p -60.1189000278 16.7656121561 -24.755468643
+cyl v205 0.25 v208
+cyl v205 0.25 v210
+v v206 =
+        p -49.890827611 17.7770810254 -34.9835410597
+cyl v205 0.25 v206
+v v211 =
+        p -49.8661649732 17.2782990003 -35.0082036976
+cyl v211 0.25 v208
+cyl v211 0.25 v209
+cyl v211 0.25 v206
+v v212 =
+        p -37.5164589403 17.7770810254 -22.609172389
+cyl v212 0.25 v210
+cyl v212 0.25 v209
+cyl v212 0.25 v206
+sph v202 0.25
+sph v208 0.25
+sph v210 0.25
+sph v205 0.25
+sph v209 0.25
+sph v211 0.25
+sph v212 0.25
+sph v206 0.25
+m chrome
+o
+o table2.chair2.leg
+v v213 =
+        p -50.8890872965 0 -11.0043109857
+v v214 =
+        p -50.1819805153 16 -13.1256313292
+cyl v213 0.25 v214
+v v215 =
+        p -61.4956890143 0 -21.6109127035
+v v216 =
+        p -59.3743686708 16 -22.3180194847
+cyl v215 0.25 v216
+v v217 =
+        p -49.1213203436 0 -33.9852813742
+v v218 =
+        p -50.1819805153 17 -31.5104076401
+cyl v217 0.25 v218
+v v223 =
+        p -38.5147186258 0 -23.3786796564
+v v220 =
+        p -40.9895923599 17 -22.3180194847
+cyl v223 0.25 v220
+o
+o table2.chair2.seat_support
+v v230 =
+        p -50.1819805153 15.75 -13.1256313292
+v v222 =
+        p -39.5753787975 17 -23.732233047
+cyl v230 0.25 v222
+v v221 =
+        p -59.3743686708 15.75 -22.3180194847
+v v229 =
+        p -48.767766953 17 -32.9246212025
+cyl v221 0.25 v229
+o
+o table2.chair2.back_support
+v v219 =
+        p -51.0305086528 27.5 -12.2771031918
+cyl v230 0.25 v219
+v v232 =
+        p -60.2228968082 27.5 -21.4694913472
+cyl v221 0.25 v232
+#  xform -e -n chair3 -t -9 0 -20 -ry 225 -t 12 0 12
+#                -10                  0                -10                 50
+# 
+#   A simple chair
+# 
+m chrome =
+        c
+                cxy 0.3330 0.3330
+        rd 0.0000
+        rs 0.8000 0.0000
+m blue_vinyl =
+        c
+                cxy 0.2851 0.3014
+        rd 0.2800
+#  xform -rx -4 -t 1.5 23.5 8.5
+#  genbox blue_vinyl back 15 6.5 1 -r .25
+o
+o table2.chair3.back
+v v228 =
+        p -20.1711422561 23.5174391184 -12.4180939289
+v v233 =
+        p -20.5238344084 23.5523173553 -12.7707860812
+v v227 =
+        p -10.2707860812 23.5523173553 -23.0238344084
+v v234 =
+        p -9.9180939289 23.5174391184 -22.6711422561
+f v228 v233 v227 v234
+v v235 =
+        p -10.081678067 23.8017083679 -23.1882797848
+v v224 =
+        p -9.7857264133 29.7870926694 -22.8923281311
+v v231 =
+        p -9.433034261 29.7522144326 -22.5396359788
+v v226 =
+        p -9.7289859147 23.766830131 -22.8355876325
+f v235 v224 v231 v226
+v v225 =
+        p -9.4334648802 29.7347753141 -22.1865132074
+v v241 =
+        p -19.6865132074 29.7347753141 -11.9334648802
+v v240 =
+        p -19.9824648611 23.7493910126 -12.2294165338
+v v243 =
+        p -9.7294165338 23.7493910126 -22.4824648611
+f v225 v241 v240 v243
+v v245 =
+        p -19.8505279646 30.0016054451 -12.0974796374
+v v242 =
+        p -9.5974796374 30.0016054451 -22.3505279646
+v v239 =
+        p -9.9501717897 30.036483682 -22.7032201169
+v v244 =
+        p -20.2032201169 30.036483682 -12.4501717897
+f v245 v242 v239 v244
+v v236 =
+        p -20.6882797848 23.8017083679 -12.581678067
+v v237 =
+        p -20.3355876325 23.766830131 -12.2289859147
+v v238 =
+        p -20.0396359788 29.7522144326 -11.933034261
+v v246 =
+        p -20.3923281311 29.7870926694 -12.2857264133
+f v236 v237 v238 v246
+v v247 =
+        p -10.1388491848 29.8045317879 -22.891897512
+v v248 =
+        p -10.4348008385 23.8191474863 -23.1878491657
+v v249 =
+        p -20.6878491657 23.8191474863 -12.9348008385
+v v250 =
+        p -20.391897512 29.8045317879 -12.6388491848
+f v247 v248 v249 v250
+v v251 =
+        p -9.90576261 23.766830131 -22.6588109372
+v v255 =
+        p -20.1588109372 23.766830131 -12.40576261
+cyl v251 0.25 v255
+v v11 =
+        p -10.2584547623 23.8017083679 -23.0115030895
+cyl v251 0.25 v11
+v v6 =
+        p -9.6098109563 29.7522144326 -22.3628592835
+cyl v251 0.25 v6
+v v9 =
+        p -19.8628592835 29.7522144326 -12.1098109563
+cyl v9 0.25 v255
+cyl v9 0.25 v6
+v v253 =
+        p -20.2155514358 29.7870926694 -12.4625031086
+cyl v9 0.25 v253
+v v252 =
+        p -20.5115030895 23.8017083679 -12.7584547623
+cyl v252 0.25 v255
+cyl v252 0.25 v11
+cyl v252 0.25 v253
+v v13 =
+        p -9.9625031086 29.7870926694 -22.7155514358
+cyl v13 0.25 v6
+cyl v13 0.25 v11
+cyl v13 0.25 v253
+sph v251 0.25
+sph v255 0.25
+sph v6 0.25
+sph v9 0.25
+sph v11 0.25
+sph v252 0.25
+sph v13 0.25
+sph v253 0.25
+#  xform -rx -4 -t 0 16 10
+#  genbox blue_vinyl seat 18 1 15 -r .25
+o
+o table2.chair3.seat
+v v14 =
+        p -22.2924625997 16.0174391184 -12.4180939289
+v v254 =
+        p -32.5205350164 17.0289079877 -22.6461663457
+v v10 =
+        p -20.1461663457 17.0289079877 -35.0205350164
+v v7 =
+        p -9.9180939289 16.0174391184 -24.7924625997
+f v14 v254 v10 v7
+v v12 =
+        p -19.9570583315 17.2782990003 -35.1849803929
+v v17 =
+        p -19.9323956937 17.7770810254 -35.160317755
+v v18 =
+        p -9.7043232769 16.7656121561 -24.9322453383
+v v21 =
+        p -9.7289859147 16.266830131 -24.956907976
+f v12 v17 v18 v21
+v v20 =
+        p -9.704753896 16.7481730377 -24.5791225668
+v v19 =
+        p -22.0791225668 16.7481730377 -12.204753896
+v v15 =
+        p -22.1037852046 16.2493910126 -12.2294165338
+v v22 =
+        p -9.7294165338 16.2493910126 -24.6037852046
+f v20 v19 v15 v22
+v v27 =
+        p -22.243137324 17.0150031687 -12.3687686533
+v v24 =
+        p -9.8687686533 17.0150031687 -24.743137324
+v v3 =
+        p -20.0968410701 18.026472038 -34.9712097409
+v v29 =
+        p -32.4712097409 18.026472038 -22.5968410701
+f v27 v24 v3 v29
+v v26 =
+        p -32.6849803929 17.2782990003 -22.4570583315
+v v30 =
+        p -22.456907976 16.266830131 -12.2289859147
+v v25 =
+        p -22.4322453383 16.7656121561 -12.2043232769
+v v23 =
+        p -32.660317755 17.7770810254 -22.4323956937
+f v26 v30 v25 v23
+v v16 =
+        p -20.2855184651 17.7945201439 -35.1598871359
+v v28 =
+        p -20.310181103 17.2957381187 -35.1845497737
+v v1 =
+        p -32.6845497737 17.2957381187 -22.810181103
+v v4 =
+        p -32.6598871359 17.7945201439 -22.7855184651
+f v16 v28 v1 v4
+v v31 =
+        p -9.90576261 16.266830131 -24.7801312807
+v v5 =
+        p -22.2801312807 16.266830131 -12.40576261
+cyl v31 0.25 v5
+v v34 =
+        p -20.1338350268 17.2782990003 -35.0082036976
+cyl v31 0.25 v34
+v v35 =
+        p -9.8810999722 16.7656121561 -24.755468643
+cyl v31 0.25 v35
+v v32 =
+        p -22.255468643 16.7656121561 -12.3810999722
+cyl v32 0.25 v5
+cyl v32 0.25 v35
+v v41 =
+        p -32.4835410597 17.7770810254 -22.609172389
+cyl v32 0.25 v41
+v v2 =
+        p -32.5082036976 17.2782990003 -22.6338350268
+cyl v2 0.25 v5
+cyl v2 0.25 v34
+cyl v2 0.25 v41
+v v0 =
+        p -20.109172389 17.7770810254 -34.9835410597
+cyl v0 0.25 v35
+cyl v0 0.25 v34
+cyl v0 0.25 v41
+sph v31 0.25
+sph v5 0.25
+sph v35 0.25
+sph v32 0.25
+sph v34 0.25
+sph v2 0.25
+sph v0 0.25
+sph v41 0.25
+m chrome
+o
+o table2.chair3.leg
+v v36 =
+        p -8.5043109857 0 -21.6109127035
+v v39 =
+        p -10.6256313292 16 -22.3180194847
+cyl v36 0.25 v39
+v v38 =
+        p -19.1109127035 0 -11.0043109857
+v v33 =
+        p -19.8180194847 16 -13.1256313292
+cyl v38 0.25 v33
+v v43 =
+        p -31.4852813742 0 -23.3786796564
+v v42 =
+        p -29.0104076401 17 -22.3180194847
+cyl v43 0.25 v42
+v v40 =
+        p -20.8786796564 0 -33.9852813742
+v v47 =
+        p -19.8180194847 17 -31.5104076401
+cyl v40 0.25 v47
+o
+o table2.chair3.seat_support
+v v49 =
+        p -10.6256313292 15.75 -22.3180194847
+v v44 =
+        p -21.232233047 17 -32.9246212025
+cyl v49 0.25 v44
+v v50 =
+        p -19.8180194847 15.75 -13.1256313292
+v v8 =
+        p -30.4246212025 17 -23.732233047
+cyl v50 0.25 v8
+o
+o table2.chair3.back_support
+v v48 =
+        p -9.7771031918 27.5 -21.4694913472
+cyl v49 0.25 v48
+v v37 =
+        p -18.9694913472 27.5 -12.2771031918
+cyl v50 0.25 v37
+#  xform -e -n chair4 -t -9 0 -20 -ry 315 -t 12 0 -12
+#                -10                  0                -10                 50
+# 
+#   A simple chair
+# 
+m chrome =
+        c
+                cxy 0.3330 0.3330
+        rd 0.0000
+        rs 0.8000 0.0000
+m blue_vinyl =
+        c
+                cxy 0.2851 0.3014
+        rd 0.2800
+#  xform -rx -4 -t 1.5 23.5 8.5
+#  genbox blue_vinyl back 15 6.5 1 -r .25
+o
+o table2.chair4.back
+v v51 =
+        p -9.9180939289 23.5174391184 -52.3288577439
+v v57 =
+        p -10.2707860812 23.5523173553 -51.9761655916
+v v45 =
+        p -20.5238344084 23.5523173553 -62.2292139188
+v v52 =
+        p -20.1711422561 23.5174391184 -62.5819060711
+f v51 v57 v45 v52
+v v59 =
+        p -20.6882797848 23.8017083679 -62.418321933
+v v53 =
+        p -20.3923281311 29.7870926694 -62.7142735867
+v v63 =
+        p -20.0396359788 29.7522144326 -63.066965739
+v v46 =
+        p -20.3355876325 23.766830131 -62.7710140853
+f v59 v53 v63 v46
+v v65 =
+        p -19.6865132074 29.7347753141 -63.0665351198
+v v60 =
+        p -9.4334648802 29.7347753141 -52.8134867926
+v v66 =
+        p -9.7294165338 23.7493910126 -52.5175351389
+v v58 =
+        p -19.9824648611 23.7493910126 -62.7705834662
+f v65 v60 v66 v58
+v v62 =
+        p -9.5974796374 30.0016054451 -52.6494720354
+v v56 =
+        p -19.8505279646 30.0016054451 -62.9025203626
+v v61 =
+        p -20.2032201169 30.036483682 -62.5498282103
+v v64 =
+        p -9.9501717897 30.036483682 -52.2967798831
+f v62 v56 v61 v64
+v v67 =
+        p -10.081678067 23.8017083679 -51.8117202152
+v v73 =
+        p -9.7289859147 23.766830131 -52.1644123675
+v v74 =
+        p -9.433034261 29.7522144326 -52.4603640212
+v v70 =
+        p -9.7857264133 29.7870926694 -52.1076718689
+f v67 v73 v74 v70
+v v75 =
+        p -20.391897512 29.8045317879 -62.3611508152
+v v72 =
+        p -20.6878491657 23.8191474863 -62.0651991615
+v v55 =
+        p -10.4348008385 23.8191474863 -51.8121508343
+v v71 =
+        p -10.1388491848 29.8045317879 -52.108102488
+f v75 v72 v55 v71
+v v78 =
+        p -20.1588109372 23.766830131 -62.59423739
+v v76 =
+        p -9.90576261 23.766830131 -52.3411890628
+cyl v78 0.25 v76
+v v79 =
+        p -20.5115030895 23.8017083679 -62.2415452377
+cyl v78 0.25 v79
+v v54 =
+        p -19.8628592835 29.7522144326 -62.8901890437
+cyl v78 0.25 v54
+v v69 =
+        p -9.6098109563 29.7522144326 -52.6371407165
+cyl v69 0.25 v76
+cyl v69 0.25 v54
+v v77 =
+        p -9.9625031086 29.7870926694 -52.2844485642
+cyl v69 0.25 v77
+v v80 =
+        p -10.2584547623 23.8017083679 -51.9884969105
+cyl v80 0.25 v76
+cyl v80 0.25 v79
+cyl v80 0.25 v77
+v v87 =
+        p -20.2155514358 29.7870926694 -62.5374968914
+cyl v87 0.25 v54
+cyl v87 0.25 v79
+cyl v87 0.25 v77
+sph v78 0.25
+sph v76 0.25
+sph v54 0.25
+sph v69 0.25
+sph v79 0.25
+sph v80 0.25
+sph v87 0.25
+sph v77 0.25
+#  xform -rx -4 -t 0 16 10
+#  genbox blue_vinyl seat 18 1 15 -r .25
+o
+o table2.chair4.seat
+v v86 =
+        p -9.9180939289 16.0174391184 -50.2075374003
+v v81 =
+        p -20.1461663457 17.0289079877 -39.9794649836
+v v92 =
+        p -32.5205350164 17.0289079877 -52.3538336543
+v v68 =
+        p -22.2924625997 16.0174391184 -62.5819060711
+f v86 v81 v92 v68
+v v89 =
+        p -32.6849803929 17.2782990003 -52.5429416685
+v v85 =
+        p -32.660317755 17.7770810254 -52.5676043063
+v v88 =
+        p -22.4322453383 16.7656121561 -62.7956767231
+v v93 =
+        p -22.456907976 16.266830131 -62.7710140853
+f v89 v85 v88 v93
+v v94 =
+        p -22.0791225668 16.7481730377 -62.795246104
+v v90 =
+        p -9.704753896 16.7481730377 -50.4208774332
+v v95 =
+        p -9.7294165338 16.2493910126 -50.3962147954
+v v84 =
+        p -22.1037852046 16.2493910126 -62.7705834662
+f v94 v90 v95 v84
+v v91 =
+        p -9.8687686533 17.0150031687 -50.256862676
+v v82 =
+        p -22.243137324 17.0150031687 -62.6312313467
+v v83 =
+        p -32.4712097409 18.026472038 -52.4031589299
+v v96 =
+        p -20.0968410701 18.026472038 -40.0287902591
+f v91 v82 v83 v96
+v v101 =
+        p -19.9570583315 17.2782990003 -39.8150196071
+v v100 =
+        p -9.7289859147 16.266830131 -50.043092024
+v v97 =
+        p -9.7043232769 16.7656121561 -50.0677546617
+v v104 =
+        p -19.9323956937 17.7770810254 -39.839682245
+f v101 v100 v97 v104
+v v107 =
+        p -32.6598871359 17.7945201439 -52.2144815349
+v v103 =
+        p -32.6845497737 17.2957381187 -52.189818897
+v v99 =
+        p -20.310181103 17.2957381187 -39.8154502263
+v v98 =
+        p -20.2855184651 17.7945201439 -39.8401128641
+f v107 v103 v99 v98
+v v110 =
+        p -22.2801312807 16.266830131 -62.59423739
+v v105 =
+        p -9.90576261 16.266830131 -50.2198687193
+cyl v110 0.25 v105
+v v102 =
+        p -32.5082036976 17.2782990003 -52.3661649732
+cyl v110 0.25 v102
+v v109 =
+        p -22.255468643 16.7656121561 -62.6189000278
+cyl v110 0.25 v109
+v v108 =
+        p -9.8810999722 16.7656121561 -50.244531357
+cyl v108 0.25 v105
+cyl v108 0.25 v109
+v v106 =
+        p -20.109172389 17.7770810254 -40.0164589403
+cyl v108 0.25 v106
+v v113 =
+        p -20.1338350268 17.2782990003 -39.9917963024
+cyl v113 0.25 v105
+cyl v113 0.25 v102
+cyl v113 0.25 v106
+v v114 =
+        p -32.4835410597 17.7770810254 -52.390827611
+cyl v114 0.25 v109
+cyl v114 0.25 v102
+cyl v114 0.25 v106
+sph v110 0.25
+sph v105 0.25
+sph v109 0.25
+sph v108 0.25
+sph v102 0.25
+sph v113 0.25
+sph v114 0.25
+sph v106 0.25
+m chrome
+o
+o table2.chair4.leg
+v v115 =
+        p -19.1109127035 0 -63.9956890143
+v v119 =
+        p -19.8180194847 16 -61.8743686708
+cyl v115 0.25 v119
+v v122 =
+        p -8.5043109857 0 -53.3890872965
+v v112 =
+        p -10.6256313292 16 -52.6819805153
+cyl v122 0.25 v112
+v v116 =
+        p -20.8786796564 0 -41.0147186258
+v v121 =
+        p -19.8180194847 17 -43.4895923599
+cyl v116 0.25 v121
+v v111 =
+        p -31.4852813742 0 -51.6213203436
+v v120 =
+        p -29.0104076401 17 -52.6819805153
+cyl v111 0.25 v120
+o
+o table2.chair4.seat_support
+v v118 =
+        p -19.8180194847 15.75 -61.8743686708
+v v125 =
+        p -30.4246212025 17 -51.267766953
+cyl v118 0.25 v125
+v v128 =
+        p -10.6256313292 15.75 -52.6819805153
+v v117 =
+        p -21.232233047 17 -42.0753787975
+cyl v128 0.25 v117
+o
+o table2.chair4.back_support
+v v123 =
+        p -18.9694913472 27.5 -62.7228968082
+cyl v118 0.25 v123
+v v127 =
+        p -9.7771031918 27.5 -53.5305086528
+cyl v128 0.25 v127
+# End conversion from: !xform -e -n table2 -t -35 0 -37.5 tableset.norm
+# Begin conversion from: !xform -e -n table3 -t -35 0 75 tableset.norm
+#  xform -e -n table3 -t -35 0 75
+#                -60                  0                -60                120
+# 
+#   A table and four chairs
+# 
+m pale_yellow_formica =
+        c
+                cxy 0.3580 0.3703
+        rd 0.5811
+        c
+        rs 0.0100 0.0300
+m chrome =
+        c
+                cxy 0.3330 0.3330
+        rd 0.0000
+        rs 0.8000 0.0000
+m pale_yellow_formica
+o
+o table3
+v cent =
+        p -35 30 75
+        n 0 1 0
+ring cent 0 17.5
+v v126 =
+        p -35 30 75
+v v124 =
+        p -35 28.75 75
+cyl v126 17.5 v124
+v cent =
+        p -35 28.75 75
+        n 0 -1 0
+ring cent 0 17.5
+m chrome
+v v134 =
+        p -35 2 75
+cyl v124 1 v134
+o
+o table3.base
+v v129 =
+        p -35 1 75
+cone v134 1 v129 7.5
+v v131 =
+        p -35 0 75
+cyl v129 7.5 v131
+#  xform -e -n chair1 -t -9 0 -20 -ry 45 -t -12 0 -12
+#                -10                  0                -10                 50
+# 
+#   A simple chair
+# 
+m chrome =
+        c
+                cxy 0.3330 0.3330
+        rd 0.0000
+        rs 0.8000 0.0000
+m blue_vinyl =
+        c
+                cxy 0.2851 0.3014
+        rd 0.2800
+#  xform -rx -4 -t 1.5 23.5 8.5
+#  genbox blue_vinyl back 15 6.5 1 -r .25
+o
+o table3.chair1.back
+v v132 =
+        p -49.8288577439 23.5174391184 49.9180939289
+v v140 =
+        p -49.4761655916 23.5523173553 50.2707860812
+v v133 =
+        p -59.7292139188 23.5523173553 60.5238344084
+v v135 =
+        p -60.0819060711 23.5174391184 60.1711422561
+f v132 v140 v133 v135
+v v139 =
+        p -59.918321933 23.8017083679 60.6882797848
+v v138 =
+        p -60.2142735867 29.7870926694 60.3923281311
+v v136 =
+        p -60.566965739 29.7522144326 60.0396359788
+v v143 =
+        p -60.2710140853 23.766830131 60.3355876325
+f v139 v138 v136 v143
+v v151 =
+        p -60.5665351198 29.7347753141 59.6865132074
+v v130 =
+        p -50.3134867926 29.7347753141 49.4334648802
+v v137 =
+        p -50.0175351389 23.7493910126 49.7294165338
+v v147 =
+        p -60.2705834662 23.7493910126 59.9824648611
+f v151 v130 v137 v147
+v v141 =
+        p -50.1494720354 30.0016054451 49.5974796374
+v v149 =
+        p -60.4025203626 30.0016054451 59.8505279646
+v v146 =
+        p -60.0498282103 30.036483682 60.2032201169
+v v145 =
+        p -49.7967798831 30.036483682 49.9501717897
+f v141 v149 v146 v145
+v v144 =
+        p -49.3117202152 23.8017083679 50.081678067
+v v150 =
+        p -49.6644123675 23.766830131 49.7289859147
+v v153 =
+        p -49.9603640212 29.7522144326 49.433034261
+v v148 =
+        p -49.6076718689 29.7870926694 49.7857264133
+f v144 v150 v153 v148
+v v154 =
+        p -59.8611508152 29.8045317879 60.391897512
+v v155 =
+        p -59.5651991615 23.8191474863 60.6878491657
+v v156 =
+        p -49.3121508343 23.8191474863 50.4348008385
+v v157 =
+        p -49.608102488 29.8045317879 50.1388491848
+f v154 v155 v156 v157
+v v158 =
+        p -60.09423739 23.766830131 60.1588109372
+v v159 =
+        p -49.8411890628 23.766830131 49.90576261
+cyl v158 0.25 v159
+v v152 =
+        p -59.7415452377 23.8017083679 60.5115030895
+cyl v158 0.25 v152
+v v142 =
+        p -60.3901890437 29.7522144326 59.8628592835
+cyl v158 0.25 v142
+v v161 =
+        p -50.1371407165 29.7522144326 49.6098109563
+cyl v161 0.25 v159
+cyl v161 0.25 v142
+v v163 =
+        p -49.7844485642 29.7870926694 49.9625031086
+cyl v161 0.25 v163
+v v160 =
+        p -49.4884969105 23.8017083679 50.2584547623
+cyl v160 0.25 v159
+cyl v160 0.25 v152
+cyl v160 0.25 v163
+v v164 =
+        p -60.0374968914 29.7870926694 60.2155514358
+cyl v164 0.25 v142
+cyl v164 0.25 v152
+cyl v164 0.25 v163
+sph v158 0.25
+sph v159 0.25
+sph v142 0.25
+sph v161 0.25
+sph v152 0.25
+sph v160 0.25
+sph v164 0.25
+sph v163 0.25
+#  xform -rx -4 -t 0 16 10
+#  genbox blue_vinyl seat 18 1 15 -r .25
+o
+o table3.chair1.seat
+v v162 =
+        p -47.7075374003 16.0174391184 49.9180939289
+v v165 =
+        p -37.4794649836 17.0289079877 60.1461663457
+v v166 =
+        p -49.8538336543 17.0289079877 72.5205350164
+v v167 =
+        p -60.0819060711 16.0174391184 62.2924625997
+f v162 v165 v166 v167
+v v170 =
+        p -50.0429416685 17.2782990003 72.6849803929
+v v172 =
+        p -50.0676043063 17.7770810254 72.660317755
+v v171 =
+        p -60.2956767231 16.7656121561 62.4322453383
+v v173 =
+        p -60.2710140853 16.266830131 62.456907976
+f v170 v172 v171 v173
+v v174 =
+        p -60.295246104 16.7481730377 62.0791225668
+v v175 =
+        p -47.9208774332 16.7481730377 49.704753896
+v v176 =
+        p -47.8962147954 16.2493910126 49.7294165338
+v v169 =
+        p -60.2705834662 16.2493910126 62.1037852046
+f v174 v175 v176 v169
+v v178 =
+        p -47.756862676 17.0150031687 49.8687686533
+v v168 =
+        p -60.1312313467 17.0150031687 62.243137324
+v v179 =
+        p -49.9031589299 18.026472038 72.4712097409
+v v180 =
+        p -37.5287902591 18.026472038 60.0968410701
+f v178 v168 v179 v180
+v v177 =
+        p -37.3150196071 17.2782990003 59.9570583315
+v v181 =
+        p -47.543092024 16.266830131 49.7289859147
+v v182 =
+        p -47.5677546617 16.7656121561 49.7043232769
+v v184 =
+        p -37.339682245 17.7770810254 59.9323956937
+f v177 v181 v182 v184
+v v183 =
+        p -49.7144815349 17.7945201439 72.6598871359
+v v187 =
+        p -49.689818897 17.2957381187 72.6845497737
+v v188 =
+        p -37.3154502263 17.2957381187 60.310181103
+v v190 =
+        p -37.3401128641 17.7945201439 60.2855184651
+f v183 v187 v188 v190
+v v189 =
+        p -60.09423739 16.266830131 62.2801312807
+v v191 =
+        p -47.7198687193 16.266830131 49.90576261
+cyl v189 0.25 v191
+v v192 =
+        p -49.8661649732 17.2782990003 72.5082036976
+cyl v189 0.25 v192
+v v193 =
+        p -60.1189000278 16.7656121561 62.255468643
+cyl v189 0.25 v193
+v v186 =
+        p -47.744531357 16.7656121561 49.8810999722
+cyl v186 0.25 v191
+cyl v186 0.25 v193
+v v194 =
+        p -37.5164589403 17.7770810254 60.109172389
+cyl v186 0.25 v194
+v v185 =
+        p -37.4917963024 17.2782990003 60.1338350268
+cyl v185 0.25 v191
+cyl v185 0.25 v192
+cyl v185 0.25 v194
+v v195 =
+        p -49.890827611 17.7770810254 72.4835410597
+cyl v195 0.25 v193
+cyl v195 0.25 v192
+cyl v195 0.25 v194
+sph v189 0.25
+sph v191 0.25
+sph v193 0.25
+sph v186 0.25
+sph v192 0.25
+sph v185 0.25
+sph v195 0.25
+sph v194 0.25
+m chrome
+o
+o table3.chair1.leg
+v v197 =
+        p -61.4956890143 0 59.1109127035
+v v196 =
+        p -59.3743686708 16 59.8180194847
+cyl v197 0.25 v196
+v v198 =
+        p -50.8890872965 0 48.5043109857
+v v201 =
+        p -50.1819805153 16 50.6256313292
+cyl v198 0.25 v201
+v v200 =
+        p -38.5147186258 0 60.8786796564
+v v204 =
+        p -40.9895923599 17 59.8180194847
+cyl v200 0.25 v204
+v v207 =
+        p -49.1213203436 0 71.4852813742
+v v203 =
+        p -50.1819805153 17 69.0104076401
+cyl v207 0.25 v203
+o
+o table3.chair1.seat_support
+v v199 =
+        p -59.3743686708 15.75 59.8180194847
+v v202 =
+        p -48.767766953 17 70.4246212025
+cyl v199 0.25 v202
+v v208 =
+        p -50.1819805153 15.75 50.6256313292
+v v210 =
+        p -39.5753787975 17 61.232233047
+cyl v208 0.25 v210
+o
+o table3.chair1.back_support
+v v205 =
+        p -60.2228968082 27.5 58.9694913472
+cyl v199 0.25 v205
+v v209 =
+        p -51.0305086528 27.5 49.7771031918
+cyl v208 0.25 v209
+#  xform -e -n chair2 -t -9 0 -20 -ry 135 -t -12 0 12
+#                -10                  0                -10                 50
+# 
+#   A simple chair
+# 
+m chrome =
+        c
+                cxy 0.3330 0.3330
+        rd 0.0000
+        rs 0.8000 0.0000
+m blue_vinyl =
+        c
+                cxy 0.2851 0.3014
+        rd 0.2800
+#  xform -rx -4 -t 1.5 23.5 8.5
+#  genbox blue_vinyl back 15 6.5 1 -r .25
+o
+o table3.chair2.back
+v v211 =
+        p -60.0819060711 23.5174391184 89.8288577439
+v v212 =
+        p -59.7292139188 23.5523173553 89.4761655916
+v v206 =
+        p -49.4761655916 23.5523173553 99.7292139188
+v v213 =
+        p -49.8288577439 23.5174391184 100.081906071
+f v211 v212 v206 v213
+v v214 =
+        p -49.3117202152 23.8017083679 99.918321933
+v v215 =
+        p -49.6076718689 29.7870926694 100.214273587
+v v216 =
+        p -49.9603640212 29.7522144326 100.566965739
+v v217 =
+        p -49.6644123675 23.766830131 100.271014085
+f v214 v215 v216 v217
+v v218 =
+        p -50.3134867926 29.7347753141 100.56653512
+v v223 =
+        p -60.5665351198 29.7347753141 90.3134867926
+v v220 =
+        p -60.2705834662 23.7493910126 90.0175351389
+v v222 =
+        p -50.0175351389 23.7493910126 100.270583466
+f v218 v223 v220 v222
+v v229 =
+        p -60.4025203626 30.0016054451 90.1494720354
+v v230 =
+        p -50.1494720354 30.0016054451 100.402520363
+v v219 =
+        p -49.7967798831 30.036483682 100.04982821
+v v221 =
+        p -60.0498282103 30.036483682 89.7967798831
+f v229 v230 v219 v221
+v v232 =
+        p -59.918321933 23.8017083679 89.3117202152
+v v228 =
+        p -60.2710140853 23.766830131 89.6644123675
+v v233 =
+        p -60.566965739 29.7522144326 89.9603640212
+v v227 =
+        p -60.2142735867 29.7870926694 89.6076718689
+f v232 v228 v233 v227
+v v234 =
+        p -49.608102488 29.8045317879 99.8611508152
+v v235 =
+        p -49.3121508343 23.8191474863 99.5651991615
+v v224 =
+        p -59.5651991615 23.8191474863 89.3121508343
+v v231 =
+        p -59.8611508152 29.8045317879 89.608102488
+f v234 v235 v224 v231
+v v226 =
+        p -49.8411890628 23.766830131 100.09423739
+v v225 =
+        p -60.09423739 23.766830131 89.8411890628
+cyl v226 0.25 v225
+v v241 =
+        p -49.4884969105 23.8017083679 99.7415452377
+cyl v226 0.25 v241
+v v240 =
+        p -50.1371407165 29.7522144326 100.390189044
+cyl v226 0.25 v240
+v v243 =
+        p -60.3901890437 29.7522144326 90.1371407165
+cyl v243 0.25 v225
+cyl v243 0.25 v240
+v v245 =
+        p -60.0374968914 29.7870926694 89.7844485642
+cyl v243 0.25 v245
+v v242 =
+        p -59.7415452377 23.8017083679 89.4884969105
+cyl v242 0.25 v225
+cyl v242 0.25 v241
+cyl v242 0.25 v245
+v v239 =
+        p -49.7844485642 29.7870926694 100.037496891
+cyl v239 0.25 v240
+cyl v239 0.25 v241
+cyl v239 0.25 v245
+sph v226 0.25
+sph v225 0.25
+sph v240 0.25
+sph v243 0.25
+sph v241 0.25
+sph v242 0.25
+sph v239 0.25
+sph v245 0.25
+#  xform -rx -4 -t 0 16 10
+#  genbox blue_vinyl seat 18 1 15 -r .25
+o
+o table3.chair2.seat
+v v244 =
+        p -60.0819060711 16.0174391184 87.7075374003
+v v236 =
+        p -49.8538336543 17.0289079877 77.4794649836
+v v237 =
+        p -37.4794649836 17.0289079877 89.8538336543
+v v238 =
+        p -47.7075374003 16.0174391184 100.081906071
+f v244 v236 v237 v238
+v v246 =
+        p -37.3150196071 17.2782990003 90.0429416685
+v v247 =
+        p -37.339682245 17.7770810254 90.0676043063
+v v248 =
+        p -47.5677546617 16.7656121561 100.295676723
+v v249 =
+        p -47.543092024 16.266830131 100.271014085
+f v246 v247 v248 v249
+v v250 =
+        p -47.9208774332 16.7481730377 100.295246104
+v v251 =
+        p -60.295246104 16.7481730377 87.9208774332
+v v255 =
+        p -60.2705834662 16.2493910126 87.8962147954
+v v6 =
+        p -47.8962147954 16.2493910126 100.270583466
+f v250 v251 v255 v6
+v v9 =
+        p -60.1312313467 17.0150031687 87.756862676
+v v11 =
+        p -47.756862676 17.0150031687 100.131231347
+v v252 =
+        p -37.5287902591 18.026472038 89.9031589299
+v v13 =
+        p -49.9031589299 18.026472038 77.5287902591
+f v9 v11 v252 v13
+v v253 =
+        p -50.0429416685 17.2782990003 77.3150196071
+v v14 =
+        p -60.2710140853 16.266830131 87.543092024
+v v254 =
+        p -60.2956767231 16.7656121561 87.5677546617
+v v10 =
+        p -50.0676043063 17.7770810254 77.339682245
+f v253 v14 v254 v10
+v v7 =
+        p -37.3401128641 17.7945201439 89.7144815349
+v v12 =
+        p -37.3154502263 17.2957381187 89.689818897
+v v17 =
+        p -49.689818897 17.2957381187 77.3154502263
+v v18 =
+        p -49.7144815349 17.7945201439 77.3401128641
+f v7 v12 v17 v18
+v v21 =
+        p -47.7198687193 16.266830131 100.09423739
+v v20 =
+        p -60.09423739 16.266830131 87.7198687193
+cyl v21 0.25 v20
+v v19 =
+        p -37.4917963024 17.2782990003 89.8661649732
+cyl v21 0.25 v19
+v v15 =
+        p -47.744531357 16.7656121561 100.118900028
+cyl v21 0.25 v15
+v v22 =
+        p -60.1189000278 16.7656121561 87.744531357
+cyl v22 0.25 v20
+cyl v22 0.25 v15
+v v27 =
+        p -49.890827611 17.7770810254 77.5164589403
+cyl v22 0.25 v27
+v v24 =
+        p -49.8661649732 17.2782990003 77.4917963024
+cyl v24 0.25 v20
+cyl v24 0.25 v19
+cyl v24 0.25 v27
+v v3 =
+        p -37.5164589403 17.7770810254 89.890827611
+cyl v3 0.25 v15
+cyl v3 0.25 v19
+cyl v3 0.25 v27
+sph v21 0.25
+sph v20 0.25
+sph v15 0.25
+sph v22 0.25
+sph v19 0.25
+sph v24 0.25
+sph v3 0.25
+sph v27 0.25
+m chrome
+o
+o table3.chair2.leg
+v v29 =
+        p -50.8890872965 0 101.495689014
+v v26 =
+        p -50.1819805153 16 99.3743686708
+cyl v29 0.25 v26
+v v30 =
+        p -61.4956890143 0 90.8890872965
+v v25 =
+        p -59.3743686708 16 90.1819805153
+cyl v30 0.25 v25
+v v23 =
+        p -49.1213203436 0 78.5147186258
+v v16 =
+        p -50.1819805153 17 80.9895923599
+cyl v23 0.25 v16
+v v28 =
+        p -38.5147186258 0 89.1213203436
+v v1 =
+        p -40.9895923599 17 90.1819805153
+cyl v28 0.25 v1
+o
+o table3.chair2.seat_support
+v v4 =
+        p -50.1819805153 15.75 99.3743686708
+v v31 =
+        p -39.5753787975 17 88.767766953
+cyl v4 0.25 v31
+v v5 =
+        p -59.3743686708 15.75 90.1819805153
+v v35 =
+        p -48.767766953 17 79.5753787975
+cyl v5 0.25 v35
+o
+o table3.chair2.back_support
+v v32 =
+        p -51.0305086528 27.5 100.222896808
+cyl v4 0.25 v32
+v v34 =
+        p -60.2228968082 27.5 91.0305086528
+cyl v5 0.25 v34
+#  xform -e -n chair3 -t -9 0 -20 -ry 225 -t 12 0 12
+#                -10                  0                -10                 50
+# 
+#   A simple chair
+# 
+m chrome =
+        c
+                cxy 0.3330 0.3330
+        rd 0.0000
+        rs 0.8000 0.0000
+m blue_vinyl =
+        c
+                cxy 0.2851 0.3014
+        rd 0.2800
+#  xform -rx -4 -t 1.5 23.5 8.5
+#  genbox blue_vinyl back 15 6.5 1 -r .25
+o
+o table3.chair3.back
+v v2 =
+        p -20.1711422561 23.5174391184 100.081906071
+v v0 =
+        p -20.5238344084 23.5523173553 99.7292139188
+v v41 =
+        p -10.2707860812 23.5523173553 89.4761655916
+v v36 =
+        p -9.9180939289 23.5174391184 89.8288577439
+f v2 v0 v41 v36
+v v39 =
+        p -10.081678067 23.8017083679 89.3117202152
+v v38 =
+        p -9.7857264133 29.7870926694 89.6076718689
+v v33 =
+        p -9.433034261 29.7522144326 89.9603640212
+v v43 =
+        p -9.7289859147 23.766830131 89.6644123675
+f v39 v38 v33 v43
+v v42 =
+        p -9.4334648802 29.7347753141 90.3134867926
+v v40 =
+        p -19.6865132074 29.7347753141 100.56653512
+v v47 =
+        p -19.9824648611 23.7493910126 100.270583466
+v v44 =
+        p -9.7294165338 23.7493910126 90.0175351389
+f v42 v40 v47 v44
+v v8 =
+        p -19.8505279646 30.0016054451 100.402520363
+v v49 =
+        p -9.5974796374 30.0016054451 90.1494720354
+v v48 =
+        p -9.9501717897 30.036483682 89.7967798831
+v v50 =
+        p -20.2032201169 30.036483682 100.04982821
+f v8 v49 v48 v50
+v v37 =
+        p -20.6882797848 23.8017083679 99.918321933
+v v51 =
+        p -20.3355876325 23.766830131 100.271014085
+v v57 =
+        p -20.0396359788 29.7522144326 100.566965739
+v v45 =
+        p -20.3923281311 29.7870926694 100.214273587
+f v37 v51 v57 v45
+v v52 =
+        p -10.1388491848 29.8045317879 89.608102488
+v v59 =
+        p -10.4348008385 23.8191474863 89.3121508343
+v v53 =
+        p -20.6878491657 23.8191474863 99.5651991615
+v v63 =
+        p -20.391897512 29.8045317879 99.8611508152
+f v52 v59 v53 v63
+v v46 =
+        p -9.90576261 23.766830131 89.8411890628
+v v65 =
+        p -20.1588109372 23.766830131 100.09423739
+cyl v46 0.25 v65
+v v60 =
+        p -10.2584547623 23.8017083679 89.4884969105
+cyl v46 0.25 v60
+v v66 =
+        p -9.6098109563 29.7522144326 90.1371407165
+cyl v46 0.25 v66
+v v58 =
+        p -19.8628592835 29.7522144326 100.390189044
+cyl v58 0.25 v65
+cyl v58 0.25 v66
+v v62 =
+        p -20.2155514358 29.7870926694 100.037496891
+cyl v58 0.25 v62
+v v56 =
+        p -20.5115030895 23.8017083679 99.7415452377
+cyl v56 0.25 v65
+cyl v56 0.25 v60
+cyl v56 0.25 v62
+v v61 =
+        p -9.9625031086 29.7870926694 89.7844485642
+cyl v61 0.25 v66
+cyl v61 0.25 v60
+cyl v61 0.25 v62
+sph v46 0.25
+sph v65 0.25
+sph v66 0.25
+sph v58 0.25
+sph v60 0.25
+sph v56 0.25
+sph v61 0.25
+sph v62 0.25
+#  xform -rx -4 -t 0 16 10
+#  genbox blue_vinyl seat 18 1 15 -r .25
+o
+o table3.chair3.seat
+v v64 =
+        p -22.2924625997 16.0174391184 100.081906071
+v v67 =
+        p -32.5205350164 17.0289079877 89.8538336543
+v v73 =
+        p -20.1461663457 17.0289079877 77.4794649836
+v v74 =
+        p -9.9180939289 16.0174391184 87.7075374003
+f v64 v67 v73 v74
+v v70 =
+        p -19.9570583315 17.2782990003 77.3150196071
+v v75 =
+        p -19.9323956937 17.7770810254 77.339682245
+v v72 =
+        p -9.7043232769 16.7656121561 87.5677546617
+v v55 =
+        p -9.7289859147 16.266830131 87.543092024
+f v70 v75 v72 v55
+v v71 =
+        p -9.704753896 16.7481730377 87.9208774332
+v v78 =
+        p -22.0791225668 16.7481730377 100.295246104
+v v76 =
+        p -22.1037852046 16.2493910126 100.270583466
+v v54 =
+        p -9.7294165338 16.2493910126 87.8962147954
+f v71 v78 v76 v54
+v v69 =
+        p -22.243137324 17.0150031687 100.131231347
+v v79 =
+        p -9.8687686533 17.0150031687 87.756862676
+v v80 =
+        p -20.0968410701 18.026472038 77.5287902591
+v v87 =
+        p -32.4712097409 18.026472038 89.9031589299
+f v69 v79 v80 v87
+v v77 =
+        p -32.6849803929 17.2782990003 90.0429416685
+v v86 =
+        p -22.456907976 16.266830131 100.271014085
+v v81 =
+        p -22.4322453383 16.7656121561 100.295676723
+v v92 =
+        p -32.660317755 17.7770810254 90.0676043063
+f v77 v86 v81 v92
+v v68 =
+        p -20.2855184651 17.7945201439 77.3401128641
+v v89 =
+        p -20.310181103 17.2957381187 77.3154502263
+v v85 =
+        p -32.6845497737 17.2957381187 89.689818897
+v v88 =
+        p -32.6598871359 17.7945201439 89.7144815349
+f v68 v89 v85 v88
+v v93 =
+        p -9.90576261 16.266830131 87.7198687193
+v v94 =
+        p -22.2801312807 16.266830131 100.09423739
+cyl v93 0.25 v94
+v v90 =
+        p -20.1338350268 17.2782990003 77.4917963024
+cyl v93 0.25 v90
+v v95 =
+        p -9.8810999722 16.7656121561 87.744531357
+cyl v93 0.25 v95
+v v84 =
+        p -22.255468643 16.7656121561 100.118900028
+cyl v84 0.25 v94
+cyl v84 0.25 v95
+v v91 =
+        p -32.4835410597 17.7770810254 89.890827611
+cyl v84 0.25 v91
+v v82 =
+        p -32.5082036976 17.2782990003 89.8661649732
+cyl v82 0.25 v94
+cyl v82 0.25 v90
+cyl v82 0.25 v91
+v v83 =
+        p -20.109172389 17.7770810254 77.5164589403
+cyl v83 0.25 v95
+cyl v83 0.25 v90
+cyl v83 0.25 v91
+sph v93 0.25
+sph v94 0.25
+sph v95 0.25
+sph v84 0.25
+sph v90 0.25
+sph v82 0.25
+sph v83 0.25
+sph v91 0.25
+m chrome
+o
+o table3.chair3.leg
+v v96 =
+        p -8.5043109857 0 90.8890872965
+v v101 =
+        p -10.6256313292 16 90.1819805153
+cyl v96 0.25 v101
+v v100 =
+        p -19.1109127035 0 101.495689014
+v v97 =
+        p -19.8180194847 16 99.3743686708
+cyl v100 0.25 v97
+v v104 =
+        p -31.4852813742 0 89.1213203436
+v v107 =
+        p -29.0104076401 17 90.1819805153
+cyl v104 0.25 v107
+v v103 =
+        p -20.8786796564 0 78.5147186258
+v v99 =
+        p -19.8180194847 17 80.9895923599
+cyl v103 0.25 v99
+o
+o table3.chair3.seat_support
+v v98 =
+        p -10.6256313292 15.75 90.1819805153
+v v110 =
+        p -21.232233047 17 79.5753787975
+cyl v98 0.25 v110
+v v105 =
+        p -19.8180194847 15.75 99.3743686708
+v v109 =
+        p -30.4246212025 17 88.767766953
+cyl v105 0.25 v109
+o
+o table3.chair3.back_support
+v v108 =
+        p -9.7771031918 27.5 91.0305086528
+cyl v98 0.25 v108
+v v102 =
+        p -18.9694913472 27.5 100.222896808
+cyl v105 0.25 v102
+#  xform -e -n chair4 -t -9 0 -20 -ry 315 -t 12 0 -12
+#                -10                  0                -10                 50
+# 
+#   A simple chair
+# 
+m chrome =
+        c
+                cxy 0.3330 0.3330
+        rd 0.0000
+        rs 0.8000 0.0000
+m blue_vinyl =
+        c
+                cxy 0.2851 0.3014
+        rd 0.2800
+#  xform -rx -4 -t 1.5 23.5 8.5
+#  genbox blue_vinyl back 15 6.5 1 -r .25
+o
+o table3.chair4.back
+v v113 =
+        p -9.9180939289 23.5174391184 60.1711422561
+v v114 =
+        p -10.2707860812 23.5523173553 60.5238344084
+v v106 =
+        p -20.5238344084 23.5523173553 50.2707860812
+v v115 =
+        p -20.1711422561 23.5174391184 49.9180939289
+f v113 v114 v106 v115
+v v119 =
+        p -20.6882797848 23.8017083679 50.081678067
+v v122 =
+        p -20.3923281311 29.7870926694 49.7857264133
+v v112 =
+        p -20.0396359788 29.7522144326 49.433034261
+v v116 =
+        p -20.3355876325 23.766830131 49.7289859147
+f v119 v122 v112 v116
+v v121 =
+        p -19.6865132074 29.7347753141 49.4334648802
+v v111 =
+        p -9.4334648802 29.7347753141 59.6865132074
+v v120 =
+        p -9.7294165338 23.7493910126 59.9824648611
+v v125 =
+        p -19.9824648611 23.7493910126 49.7294165338
+f v121 v111 v120 v125
+v v117 =
+        p -9.5974796374 30.0016054451 59.8505279646
+v v118 =
+        p -19.8505279646 30.0016054451 49.5974796374
+v v123 =
+        p -20.2032201169 30.036483682 49.9501717897
+v v128 =
+        p -9.9501717897 30.036483682 60.2032201169
+f v117 v118 v123 v128
+v v127 =
+        p -10.081678067 23.8017083679 60.6882797848
+v v126 =
+        p -9.7289859147 23.766830131 60.3355876325
+v v124 =
+        p -9.433034261 29.7522144326 60.0396359788
+v v134 =
+        p -9.7857264133 29.7870926694 60.3923281311
+f v127 v126 v124 v134
+v v129 =
+        p -20.391897512 29.8045317879 50.1388491848
+v v131 =
+        p -20.6878491657 23.8191474863 50.4348008385
+v v132 =
+        p -10.4348008385 23.8191474863 60.6878491657
+v v140 =
+        p -10.1388491848 29.8045317879 60.391897512
+f v129 v131 v132 v140
+v v133 =
+        p -20.1588109372 23.766830131 49.90576261
+v v135 =
+        p -9.90576261 23.766830131 60.1588109372
+cyl v133 0.25 v135
+v v139 =
+        p -20.5115030895 23.8017083679 50.2584547623
+cyl v133 0.25 v139
+v v138 =
+        p -19.8628592835 29.7522144326 49.6098109563
+cyl v133 0.25 v138
+v v136 =
+        p -9.6098109563 29.7522144326 59.8628592835
+cyl v136 0.25 v135
+cyl v136 0.25 v138
+v v143 =
+        p -9.9625031086 29.7870926694 60.2155514358
+cyl v136 0.25 v143
+v v151 =
+        p -10.2584547623 23.8017083679 60.5115030895
+cyl v151 0.25 v135
+cyl v151 0.25 v139
+cyl v151 0.25 v143
+v v130 =
+        p -20.2155514358 29.7870926694 49.9625031086
+cyl v130 0.25 v138
+cyl v130 0.25 v139
+cyl v130 0.25 v143
+sph v133 0.25
+sph v135 0.25
+sph v138 0.25
+sph v136 0.25
+sph v139 0.25
+sph v151 0.25
+sph v130 0.25
+sph v143 0.25
+#  xform -rx -4 -t 0 16 10
+#  genbox blue_vinyl seat 18 1 15 -r .25
+o
+o table3.chair4.seat
+v v137 =
+        p -9.9180939289 16.0174391184 62.2924625997
+v v147 =
+        p -20.1461663457 17.0289079877 72.5205350164
+v v141 =
+        p -32.5205350164 17.0289079877 60.1461663457
+v v149 =
+        p -22.2924625997 16.0174391184 49.9180939289
+f v137 v147 v141 v149
+v v146 =
+        p -32.6849803929 17.2782990003 59.9570583315
+v v145 =
+        p -32.660317755 17.7770810254 59.9323956937
+v v144 =
+        p -22.4322453383 16.7656121561 49.7043232769
+v v150 =
+        p -22.456907976 16.266830131 49.7289859147
+f v146 v145 v144 v150
+v v153 =
+        p -22.0791225668 16.7481730377 49.704753896
+v v148 =
+        p -9.704753896 16.7481730377 62.0791225668
+v v154 =
+        p -9.7294165338 16.2493910126 62.1037852046
+v v155 =
+        p -22.1037852046 16.2493910126 49.7294165338
+f v153 v148 v154 v155
+v v156 =
+        p -9.8687686533 17.0150031687 62.243137324
+v v157 =
+        p -22.243137324 17.0150031687 49.8687686533
+v v158 =
+        p -32.4712097409 18.026472038 60.0968410701
+v v159 =
+        p -20.0968410701 18.026472038 72.4712097409
+f v156 v157 v158 v159
+v v142 =
+        p -19.9570583315 17.2782990003 72.6849803929
+v v161 =
+        p -9.7289859147 16.266830131 62.456907976
+v v152 =
+        p -9.7043232769 16.7656121561 62.4322453383
+v v160 =
+        p -19.9323956937 17.7770810254 72.660317755
+f v142 v161 v152 v160
+v v164 =
+        p -32.6598871359 17.7945201439 60.2855184651
+v v163 =
+        p -32.6845497737 17.2957381187 60.310181103
+v v162 =
+        p -20.310181103 17.2957381187 72.6845497737
+v v165 =
+        p -20.2855184651 17.7945201439 72.6598871359
+f v164 v163 v162 v165
+v v166 =
+        p -22.2801312807 16.266830131 49.90576261
+v v167 =
+        p -9.90576261 16.266830131 62.2801312807
+cyl v166 0.25 v167
+v v170 =
+        p -32.5082036976 17.2782990003 60.1338350268
+cyl v166 0.25 v170
+v v172 =
+        p -22.255468643 16.7656121561 49.8810999722
+cyl v166 0.25 v172
+v v171 =
+        p -9.8810999722 16.7656121561 62.255468643
+cyl v171 0.25 v167
+cyl v171 0.25 v172
+v v173 =
+        p -20.109172389 17.7770810254 72.4835410597
+cyl v171 0.25 v173
+v v174 =
+        p -20.1338350268 17.2782990003 72.5082036976
+cyl v174 0.25 v167
+cyl v174 0.25 v170
+cyl v174 0.25 v173
+v v175 =
+        p -32.4835410597 17.7770810254 60.109172389
+cyl v175 0.25 v172
+cyl v175 0.25 v170
+cyl v175 0.25 v173
+sph v166 0.25
+sph v167 0.25
+sph v172 0.25
+sph v171 0.25
+sph v170 0.25
+sph v174 0.25
+sph v175 0.25
+sph v173 0.25
+m chrome
+o
+o table3.chair4.leg
+v v176 =
+        p -19.1109127035 0 48.5043109857
+v v169 =
+        p -19.8180194847 16 50.6256313292
+cyl v176 0.25 v169
+v v178 =
+        p -8.5043109857 0 59.1109127035
+v v168 =
+        p -10.6256313292 16 59.8180194847
+cyl v178 0.25 v168
+v v179 =
+        p -20.8786796564 0 71.4852813742
+v v180 =
+        p -19.8180194847 17 69.0104076401
+cyl v179 0.25 v180
+v v177 =
+        p -31.4852813742 0 60.8786796564
+v v181 =
+        p -29.0104076401 17 59.8180194847
+cyl v177 0.25 v181
+o
+o table3.chair4.seat_support
+v v182 =
+        p -19.8180194847 15.75 50.6256313292
+v v184 =
+        p -30.4246212025 17 61.232233047
+cyl v182 0.25 v184
+v v183 =
+        p -10.6256313292 15.75 59.8180194847
+v v187 =
+        p -21.232233047 17 70.4246212025
+cyl v183 0.25 v187
+o
+o table3.chair4.back_support
+v v188 =
+        p -18.9694913472 27.5 49.7771031918
+cyl v182 0.25 v188
+v v190 =
+        p -9.7771031918 27.5 58.9694913472
+cyl v183 0.25 v190
+# End conversion from: !xform -e -n table3 -t -35 0 75 tableset.norm
+# Begin conversion from: !xform -e -n table4 -t -35 0 187.5 tableset.norm
+#  xform -e -n table4 -t -35 0 187.5
+#                -60                  0                -60                120
+# 
+#   A table and four chairs
+# 
+m pale_yellow_formica =
+        c
+                cxy 0.3580 0.3703
+        rd 0.5811
+        c
+        rs 0.0100 0.0300
+m chrome =
+        c
+                cxy 0.3330 0.3330
+        rd 0.0000
+        rs 0.8000 0.0000
+m pale_yellow_formica
+o
+o table4
+v cent =
+        p -35 30 187.5
+        n 0 1 0
+ring cent 0 17.5
+v v189 =
+        p -35 30 187.5
+v v191 =
+        p -35 28.75 187.5
+cyl v189 17.5 v191
+v cent =
+        p -35 28.75 187.5
+        n 0 -1 0
+ring cent 0 17.5
+m chrome
+v v193 =
+        p -35 2 187.5
+cyl v191 1 v193
+o
+o table4.base
+v v186 =
+        p -35 1 187.5
+cone v193 1 v186 7.5
+v v192 =
+        p -35 0 187.5
+cyl v186 7.5 v192
+#  xform -e -n chair1 -t -9 0 -20 -ry 45 -t -12 0 -12
+#                -10                  0                -10                 50
+# 
+#   A simple chair
+# 
+m chrome =
+        c
+                cxy 0.3330 0.3330
+        rd 0.0000
+        rs 0.8000 0.0000
+m blue_vinyl =
+        c
+                cxy 0.2851 0.3014
+        rd 0.2800
+#  xform -rx -4 -t 1.5 23.5 8.5
+#  genbox blue_vinyl back 15 6.5 1 -r .25
+o
+o table4.chair1.back
+v v185 =
+        p -49.8288577439 23.5174391184 162.418093929
+v v195 =
+        p -49.4761655916 23.5523173553 162.770786081
+v v194 =
+        p -59.7292139188 23.5523173553 173.023834408
+v v197 =
+        p -60.0819060711 23.5174391184 172.671142256
+f v185 v195 v194 v197
+v v196 =
+        p -59.918321933 23.8017083679 173.188279785
+v v198 =
+        p -60.2142735867 29.7870926694 172.892328131
+v v201 =
+        p -60.566965739 29.7522144326 172.539635979
+v v200 =
+        p -60.2710140853 23.766830131 172.835587632
+f v196 v198 v201 v200
+v v204 =
+        p -60.5665351198 29.7347753141 172.186513207
+v v207 =
+        p -50.3134867926 29.7347753141 161.93346488
+v v203 =
+        p -50.0175351389 23.7493910126 162.229416534
+v v202 =
+        p -60.2705834662 23.7493910126 172.482464861
+f v204 v207 v203 v202
+v v210 =
+        p -50.1494720354 30.0016054451 162.097479637
+v v199 =
+        p -60.4025203626 30.0016054451 172.350527965
+v v205 =
+        p -60.0498282103 30.036483682 172.703220117
+v v208 =
+        p -49.7967798831 30.036483682 162.45017179
+f v210 v199 v205 v208
+v v209 =
+        p -49.3117202152 23.8017083679 162.581678067
+v v211 =
+        p -49.6644123675 23.766830131 162.228985915
+v v212 =
+        p -49.9603640212 29.7522144326 161.933034261
+v v206 =
+        p -49.6076718689 29.7870926694 162.285726413
+f v209 v211 v212 v206
+v v213 =
+        p -59.8611508152 29.8045317879 172.891897512
+v v214 =
+        p -59.5651991615 23.8191474863 173.187849166
+v v215 =
+        p -49.3121508343 23.8191474863 162.934800838
+v v216 =
+        p -49.608102488 29.8045317879 162.638849185
+f v213 v214 v215 v216
+v v217 =
+        p -60.09423739 23.766830131 172.658810937
+v v218 =
+        p -49.8411890628 23.766830131 162.40576261
+cyl v217 0.25 v218
+v v223 =
+        p -59.7415452377 23.8017083679 173.011503089
+cyl v217 0.25 v223
+v v220 =
+        p -60.3901890437 29.7522144326 172.362859284
+cyl v217 0.25 v220
+v v222 =
+        p -50.1371407165 29.7522144326 162.109810956
+cyl v222 0.25 v218
+cyl v222 0.25 v220
+v v229 =
+        p -49.7844485642 29.7870926694 162.462503109
+cyl v222 0.25 v229
+v v230 =
+        p -49.4884969105 23.8017083679 162.758454762
+cyl v230 0.25 v218
+cyl v230 0.25 v223
+cyl v230 0.25 v229
+v v219 =
+        p -60.0374968914 29.7870926694 172.715551436
+cyl v219 0.25 v220
+cyl v219 0.25 v223
+cyl v219 0.25 v229
+sph v217 0.25
+sph v218 0.25
+sph v220 0.25
+sph v222 0.25
+sph v223 0.25
+sph v230 0.25
+sph v219 0.25
+sph v229 0.25
+#  xform -rx -4 -t 0 16 10
+#  genbox blue_vinyl seat 18 1 15 -r .25
+o
+o table4.chair1.seat
+v v221 =
+        p -47.7075374003 16.0174391184 162.418093929
+v v232 =
+        p -37.4794649836 17.0289079877 172.646166346
+v v228 =
+        p -49.8538336543 17.0289079877 185.020535016
+v v233 =
+        p -60.0819060711 16.0174391184 174.7924626
+f v221 v232 v228 v233
+v v227 =
+        p -50.0429416685 17.2782990003 185.184980393
+v v234 =
+        p -50.0676043063 17.7770810254 185.160317755
+v v235 =
+        p -60.2956767231 16.7656121561 174.932245338
+v v224 =
+        p -60.2710140853 16.266830131 174.956907976
+f v227 v234 v235 v224
+v v231 =
+        p -60.295246104 16.7481730377 174.579122567
+v v226 =
+        p -47.9208774332 16.7481730377 162.204753896
+v v225 =
+        p -47.8962147954 16.2493910126 162.229416534
+v v240 =
+        p -60.2705834662 16.2493910126 174.603785205
+f v231 v226 v225 v240
+v v243 =
+        p -47.756862676 17.0150031687 162.368768653
+v v241 =
+        p -60.1312313467 17.0150031687 174.743137324
+v v242 =
+        p -49.9031589299 18.026472038 184.971209741
+v v239 =
+        p -37.5287902591 18.026472038 172.59684107
+f v243 v241 v242 v239
+v v245 =
+        p -37.3150196071 17.2782990003 172.457058332
+v v244 =
+        p -47.543092024 16.266830131 162.228985915
+v v236 =
+        p -47.5677546617 16.7656121561 162.204323277
+v v237 =
+        p -37.339682245 17.7770810254 172.432395694
+f v245 v244 v236 v237
+v v238 =
+        p -49.7144815349 17.7945201439 185.159887136
+v v246 =
+        p -49.689818897 17.2957381187 185.184549774
+v v247 =
+        p -37.3154502263 17.2957381187 172.810181103
+v v248 =
+        p -37.3401128641 17.7945201439 172.785518465
+f v238 v246 v247 v248
+v v249 =
+        p -60.09423739 16.266830131 174.780131281
+v v250 =
+        p -47.7198687193 16.266830131 162.40576261
+cyl v249 0.25 v250
+v v251 =
+        p -49.8661649732 17.2782990003 185.008203698
+cyl v249 0.25 v251
+v v255 =
+        p -60.1189000278 16.7656121561 174.755468643
+cyl v249 0.25 v255
+v v6 =
+        p -47.744531357 16.7656121561 162.381099972
+cyl v6 0.25 v250
+cyl v6 0.25 v255
+v v9 =
+        p -37.5164589403 17.7770810254 172.609172389
+cyl v6 0.25 v9
+v v11 =
+        p -37.4917963024 17.2782990003 172.633835027
+cyl v11 0.25 v250
+cyl v11 0.25 v251
+cyl v11 0.25 v9
+v v252 =
+        p -49.890827611 17.7770810254 184.98354106
+cyl v252 0.25 v255
+cyl v252 0.25 v251
+cyl v252 0.25 v9
+sph v249 0.25
+sph v250 0.25
+sph v255 0.25
+sph v6 0.25
+sph v251 0.25
+sph v11 0.25
+sph v252 0.25
+sph v9 0.25
+m chrome
+o
+o table4.chair1.leg
+v v13 =
+        p -61.4956890143 0 171.610912703
+v v253 =
+        p -59.3743686708 16 172.318019485
+cyl v13 0.25 v253
+v v14 =
+        p -50.8890872965 0 161.004310986
+v v254 =
+        p -50.1819805153 16 163.125631329
+cyl v14 0.25 v254
+v v10 =
+        p -38.5147186258 0 173.378679656
+v v7 =
+        p -40.9895923599 17 172.318019485
+cyl v10 0.25 v7
+v v12 =
+        p -49.1213203436 0 183.985281374
+v v17 =
+        p -50.1819805153 17 181.51040764
+cyl v12 0.25 v17
+o
+o table4.chair1.seat_support
+v v18 =
+        p -59.3743686708 15.75 172.318019485
+v v21 =
+        p -48.767766953 17 182.924621202
+cyl v18 0.25 v21
+v v20 =
+        p -50.1819805153 15.75 163.125631329
+v v15 =
+        p -39.5753787975 17 173.732233047
+cyl v20 0.25 v15
+o
+o table4.chair1.back_support
+v v22 =
+        p -60.2228968082 27.5 171.469491347
+cyl v18 0.25 v22
+v v19 =
+        p -51.0305086528 27.5 162.277103192
+cyl v20 0.25 v19
+#  xform -e -n chair2 -t -9 0 -20 -ry 135 -t -12 0 12
+#                -10                  0                -10                 50
+# 
+#   A simple chair
+# 
+m chrome =
+        c
+                cxy 0.3330 0.3330
+        rd 0.0000
+        rs 0.8000 0.0000
+m blue_vinyl =
+        c
+                cxy 0.2851 0.3014
+        rd 0.2800
+#  xform -rx -4 -t 1.5 23.5 8.5
+#  genbox blue_vinyl back 15 6.5 1 -r .25
+o
+o table4.chair2.back
+v v24 =
+        p -60.0819060711 23.5174391184 202.328857744
+v v3 =
+        p -59.7292139188 23.5523173553 201.976165592
+v v27 =
+        p -49.4761655916 23.5523173553 212.229213919
+v v29 =
+        p -49.8288577439 23.5174391184 212.581906071
+f v24 v3 v27 v29
+v v26 =
+        p -49.3117202152 23.8017083679 212.418321933
+v v30 =
+        p -49.6076718689 29.7870926694 212.714273587
+v v25 =
+        p -49.9603640212 29.7522144326 213.066965739
+v v23 =
+        p -49.6644123675 23.766830131 212.771014085
+f v26 v30 v25 v23
+v v16 =
+        p -50.3134867926 29.7347753141 213.06653512
+v v28 =
+        p -60.5665351198 29.7347753141 202.813486793
+v v1 =
+        p -60.2705834662 23.7493910126 202.517535139
+v v31 =
+        p -50.0175351389 23.7493910126 212.770583466
+f v16 v28 v1 v31
+v v35 =
+        p -60.4025203626 30.0016054451 202.649472035
+v v4 =
+        p -50.1494720354 30.0016054451 212.902520363
+v v32 =
+        p -49.7967798831 30.036483682 212.54982821
+v v5 =
+        p -60.0498282103 30.036483682 202.296779883
+f v35 v4 v32 v5
+v v34 =
+        p -59.918321933 23.8017083679 201.811720215
+v v2 =
+        p -60.2710140853 23.766830131 202.164412368
+v v0 =
+        p -60.566965739 29.7522144326 202.460364021
+v v41 =
+        p -60.2142735867 29.7870926694 202.107671869
+f v34 v2 v0 v41
+v v36 =
+        p -49.608102488 29.8045317879 212.361150815
+v v39 =
+        p -49.3121508343 23.8191474863 212.065199162
+v v38 =
+        p -59.5651991615 23.8191474863 201.812150834
+v v33 =
+        p -59.8611508152 29.8045317879 202.108102488
+f v36 v39 v38 v33
+v v43 =
+        p -49.8411890628 23.766830131 212.59423739
+v v42 =
+        p -60.09423739 23.766830131 202.341189063
+cyl v43 0.25 v42
+v v40 =
+        p -49.4884969105 23.8017083679 212.241545238
+cyl v43 0.25 v40
+v v47 =
+        p -50.1371407165 29.7522144326 212.890189044
+cyl v43 0.25 v47
+v v44 =
+        p -60.3901890437 29.7522144326 202.637140716
+cyl v44 0.25 v42
+cyl v44 0.25 v47
+v v8 =
+        p -60.0374968914 29.7870926694 202.284448564
+cyl v44 0.25 v8
+v v49 =
+        p -59.7415452377 23.8017083679 201.988496911
+cyl v49 0.25 v42
+cyl v49 0.25 v40
+cyl v49 0.25 v8
+v v48 =
+        p -49.7844485642 29.7870926694 212.537496891
+cyl v48 0.25 v47
+cyl v48 0.25 v40
+cyl v48 0.25 v8
+sph v43 0.25
+sph v42 0.25
+sph v47 0.25
+sph v44 0.25
+sph v40 0.25
+sph v49 0.25
+sph v48 0.25
+sph v8 0.25
+#  xform -rx -4 -t 0 16 10
+#  genbox blue_vinyl seat 18 1 15 -r .25
+o
+o table4.chair2.seat
+v v50 =
+        p -60.0819060711 16.0174391184 200.2075374
+v v37 =
+        p -49.8538336543 17.0289079877 189.979464984
+v v51 =
+        p -37.4794649836 17.0289079877 202.353833654
+v v57 =
+        p -47.7075374003 16.0174391184 212.581906071
+f v50 v37 v51 v57
+v v45 =
+        p -37.3150196071 17.2782990003 202.542941668
+v v52 =
+        p -37.339682245 17.7770810254 202.567604306
+v v59 =
+        p -47.5677546617 16.7656121561 212.795676723
+v v53 =
+        p -47.543092024 16.266830131 212.771014085
+f v45 v52 v59 v53
+v v63 =
+        p -47.9208774332 16.7481730377 212.795246104
+v v46 =
+        p -60.295246104 16.7481730377 200.420877433
+v v65 =
+        p -60.2705834662 16.2493910126 200.396214795
+v v66 =
+        p -47.8962147954 16.2493910126 212.770583466
+f v63 v46 v65 v66
+v v58 =
+        p -60.1312313467 17.0150031687 200.256862676
+v v60 =
+        p -47.756862676 17.0150031687 212.631231347
+v v56 =
+        p -37.5287902591 18.026472038 202.40315893
+v v61 =
+        p -49.9031589299 18.026472038 190.028790259
+f v58 v60 v56 v61
+v v62 =
+        p -50.0429416685 17.2782990003 189.815019607
+v v64 =
+        p -60.2710140853 16.266830131 200.043092024
+v v67 =
+        p -60.2956767231 16.7656121561 200.067754662
+v v73 =
+        p -50.0676043063 17.7770810254 189.839682245
+f v62 v64 v67 v73
+v v74 =
+        p -37.3401128641 17.7945201439 202.214481535
+v v70 =
+        p -37.3154502263 17.2957381187 202.189818897
+v v75 =
+        p -49.689818897 17.2957381187 189.815450226
+v v72 =
+        p -49.7144815349 17.7945201439 189.840112864
+f v74 v70 v75 v72
+v v55 =
+        p -47.7198687193 16.266830131 212.59423739
+v v71 =
+        p -60.09423739 16.266830131 200.219868719
+cyl v55 0.25 v71
+v v78 =
+        p -37.4917963024 17.2782990003 202.366164973
+cyl v55 0.25 v78
+v v76 =
+        p -47.744531357 16.7656121561 212.618900028
+cyl v55 0.25 v76
+v v54 =
+        p -60.1189000278 16.7656121561 200.244531357
+cyl v54 0.25 v71
+cyl v54 0.25 v76
+v v69 =
+        p -49.890827611 17.7770810254 190.01645894
+cyl v54 0.25 v69
+v v79 =
+        p -49.8661649732 17.2782990003 189.991796302
+cyl v79 0.25 v71
+cyl v79 0.25 v78
+cyl v79 0.25 v69
+v v80 =
+        p -37.5164589403 17.7770810254 202.390827611
+cyl v80 0.25 v76
+cyl v80 0.25 v78
+cyl v80 0.25 v69
+sph v55 0.25
+sph v71 0.25
+sph v76 0.25
+sph v54 0.25
+sph v78 0.25
+sph v79 0.25
+sph v80 0.25
+sph v69 0.25
+m chrome
+o
+o table4.chair2.leg
+v v87 =
+        p -50.8890872965 0 213.995689014
+v v77 =
+        p -50.1819805153 16 211.874368671
+cyl v87 0.25 v77
+v v86 =
+        p -61.4956890143 0 203.389087297
+v v81 =
+        p -59.3743686708 16 202.681980515
+cyl v86 0.25 v81
+v v92 =
+        p -49.1213203436 0 191.014718626
+v v68 =
+        p -50.1819805153 17 193.48959236
+cyl v92 0.25 v68
+v v89 =
+        p -38.5147186258 0 201.621320344
+v v85 =
+        p -40.9895923599 17 202.681980515
+cyl v89 0.25 v85
+o
+o table4.chair2.seat_support
+v v88 =
+        p -50.1819805153 15.75 211.874368671
+v v93 =
+        p -39.5753787975 17 201.267766953
+cyl v88 0.25 v93
+v v94 =
+        p -59.3743686708 15.75 202.681980515
+v v95 =
+        p -48.767766953 17 192.075378798
+cyl v94 0.25 v95
+o
+o table4.chair2.back_support
+v v84 =
+        p -51.0305086528 27.5 212.722896808
+cyl v88 0.25 v84
+v v90 =
+        p -60.2228968082 27.5 203.530508653
+cyl v94 0.25 v90
+#  xform -e -n chair3 -t -9 0 -20 -ry 225 -t 12 0 12
+#                -10                  0                -10                 50
+# 
+#   A simple chair
+# 
+m chrome =
+        c
+                cxy 0.3330 0.3330
+        rd 0.0000
+        rs 0.8000 0.0000
+m blue_vinyl =
+        c
+                cxy 0.2851 0.3014
+        rd 0.2800
+#  xform -rx -4 -t 1.5 23.5 8.5
+#  genbox blue_vinyl back 15 6.5 1 -r .25
+o
+o table4.chair3.back
+v v82 =
+        p -20.1711422561 23.5174391184 212.581906071
+v v83 =
+        p -20.5238344084 23.5523173553 212.229213919
+v v91 =
+        p -10.2707860812 23.5523173553 201.976165592
+v v96 =
+        p -9.9180939289 23.5174391184 202.328857744
+f v82 v83 v91 v96
+v v101 =
+        p -10.081678067 23.8017083679 201.811720215
+v v100 =
+        p -9.7857264133 29.7870926694 202.107671869
+v v97 =
+        p -9.433034261 29.7522144326 202.460364021
+v v104 =
+        p -9.7289859147 23.766830131 202.164412368
+f v101 v100 v97 v104
+v v107 =
+        p -9.4334648802 29.7347753141 202.813486793
+v v103 =
+        p -19.6865132074 29.7347753141 213.06653512
+v v99 =
+        p -19.9824648611 23.7493910126 212.770583466
+v v110 =
+        p -9.7294165338 23.7493910126 202.517535139
+f v107 v103 v99 v110
+v v109 =
+        p -19.8505279646 30.0016054451 212.902520363
+v v98 =
+        p -9.5974796374 30.0016054451 202.649472035
+v v108 =
+        p -9.9501717897 30.036483682 202.296779883
+v v105 =
+        p -20.2032201169 30.036483682 212.54982821
+f v109 v98 v108 v105
+v v102 =
+        p -20.6882797848 23.8017083679 212.418321933
+v v113 =
+        p -20.3355876325 23.766830131 212.771014085
+v v114 =
+        p -20.0396359788 29.7522144326 213.066965739
+v v106 =
+        p -20.3923281311 29.7870926694 212.714273587
+f v102 v113 v114 v106
+v v115 =
+        p -10.1388491848 29.8045317879 202.108102488
+v v119 =
+        p -10.4348008385 23.8191474863 201.812150834
+v v122 =
+        p -20.6878491657 23.8191474863 212.065199162
+v v112 =
+        p -20.391897512 29.8045317879 212.361150815
+f v115 v119 v122 v112
+v v116 =
+        p -9.90576261 23.766830131 202.341189063
+v v121 =
+        p -20.1588109372 23.766830131 212.59423739
+cyl v116 0.25 v121
+v v111 =
+        p -10.2584547623 23.8017083679 201.988496911
+cyl v116 0.25 v111
+v v120 =
+        p -9.6098109563 29.7522144326 202.637140716
+cyl v116 0.25 v120
+v v125 =
+        p -19.8628592835 29.7522144326 212.890189044
+cyl v125 0.25 v121
+cyl v125 0.25 v120
+v v117 =
+        p -20.2155514358 29.7870926694 212.537496891
+cyl v125 0.25 v117
+v v118 =
+        p -20.5115030895 23.8017083679 212.241545238
+cyl v118 0.25 v121
+cyl v118 0.25 v111
+cyl v118 0.25 v117
+v v123 =
+        p -9.9625031086 29.7870926694 202.284448564
+cyl v123 0.25 v120
+cyl v123 0.25 v111
+cyl v123 0.25 v117
+sph v116 0.25
+sph v121 0.25
+sph v120 0.25
+sph v125 0.25
+sph v111 0.25
+sph v118 0.25
+sph v123 0.25
+sph v117 0.25
+#  xform -rx -4 -t 0 16 10
+#  genbox blue_vinyl seat 18 1 15 -r .25
+o
+o table4.chair3.seat
+v v128 =
+        p -22.2924625997 16.0174391184 212.581906071
+v v127 =
+        p -32.5205350164 17.0289079877 202.353833654
+v v126 =
+        p -20.1461663457 17.0289079877 189.979464984
+v v124 =
+        p -9.9180939289 16.0174391184 200.2075374
+f v128 v127 v126 v124
+v v134 =
+        p -19.9570583315 17.2782990003 189.815019607
+v v129 =
+        p -19.9323956937 17.7770810254 189.839682245
+v v131 =
+        p -9.7043232769 16.7656121561 200.067754662
+v v132 =
+        p -9.7289859147 16.266830131 200.043092024
+f v134 v129 v131 v132
+v v140 =
+        p -9.704753896 16.7481730377 200.420877433
+v v133 =
+        p -22.0791225668 16.7481730377 212.795246104
+v v135 =
+        p -22.1037852046 16.2493910126 212.770583466
+v v138 =
+        p -9.7294165338 16.2493910126 200.396214795
+f v140 v133 v135 v138
+v v136 =
+        p -22.243137324 17.0150031687 212.631231347
+v v139 =
+        p -9.8687686533 17.0150031687 200.256862676
+v v151 =
+        p -20.0968410701 18.026472038 190.028790259
+v v130 =
+        p -32.4712097409 18.026472038 202.40315893
+f v136 v139 v151 v130
+v v143 =
+        p -32.6849803929 17.2782990003 202.542941668
+v v137 =
+        p -22.456907976 16.266830131 212.771014085
+v v147 =
+        p -22.4322453383 16.7656121561 212.795676723
+v v141 =
+        p -32.660317755 17.7770810254 202.567604306
+f v143 v137 v147 v141
+v v149 =
+        p -20.2855184651 17.7945201439 189.840112864
+v v146 =
+        p -20.310181103 17.2957381187 189.815450226
+v v145 =
+        p -32.6845497737 17.2957381187 202.189818897
+v v144 =
+        p -32.6598871359 17.7945201439 202.214481535
+f v149 v146 v145 v144
+v v150 =
+        p -9.90576261 16.266830131 200.219868719
+v v153 =
+        p -22.2801312807 16.266830131 212.59423739
+cyl v150 0.25 v153
+v v148 =
+        p -20.1338350268 17.2782990003 189.991796302
+cyl v150 0.25 v148
+v v154 =
+        p -9.8810999722 16.7656121561 200.244531357
+cyl v150 0.25 v154
+v v155 =
+        p -22.255468643 16.7656121561 212.618900028
+cyl v155 0.25 v153
+cyl v155 0.25 v154
+v v156 =
+        p -32.4835410597 17.7770810254 202.390827611
+cyl v155 0.25 v156
+v v157 =
+        p -32.5082036976 17.2782990003 202.366164973
+cyl v157 0.25 v153
+cyl v157 0.25 v148
+cyl v157 0.25 v156
+v v158 =
+        p -20.109172389 17.7770810254 190.01645894
+cyl v158 0.25 v154
+cyl v158 0.25 v148
+cyl v158 0.25 v156
+sph v150 0.25
+sph v153 0.25
+sph v154 0.25
+sph v155 0.25
+sph v148 0.25
+sph v157 0.25
+sph v158 0.25
+sph v156 0.25
+m chrome
+o
+o table4.chair3.leg
+v v159 =
+        p -8.5043109857 0 203.389087297
+v v142 =
+        p -10.6256313292 16 202.681980515
+cyl v159 0.25 v142
+v v161 =
+        p -19.1109127035 0 213.995689014
+v v152 =
+        p -19.8180194847 16 211.874368671
+cyl v161 0.25 v152
+v v160 =
+        p -31.4852813742 0 201.621320344
+v v164 =
+        p -29.0104076401 17 202.681980515
+cyl v160 0.25 v164
+v v163 =
+        p -20.8786796564 0 191.014718626
+v v162 =
+        p -19.8180194847 17 193.48959236
+cyl v163 0.25 v162
+o
+o table4.chair3.seat_support
+v v165 =
+        p -10.6256313292 15.75 202.681980515
+v v166 =
+        p -21.232233047 17 192.075378798
+cyl v165 0.25 v166
+v v167 =
+        p -19.8180194847 15.75 211.874368671
+v v172 =
+        p -30.4246212025 17 201.267766953
+cyl v167 0.25 v172
+o
+o table4.chair3.back_support
+v v171 =
+        p -9.7771031918 27.5 203.530508653
+cyl v165 0.25 v171
+v v170 =
+        p -18.9694913472 27.5 212.722896808
+cyl v167 0.25 v170
+#  xform -e -n chair4 -t -9 0 -20 -ry 315 -t 12 0 -12
+#                -10                  0                -10                 50
+# 
+#   A simple chair
+# 
+m chrome =
+        c
+                cxy 0.3330 0.3330
+        rd 0.0000
+        rs 0.8000 0.0000
+m blue_vinyl =
+        c
+                cxy 0.2851 0.3014
+        rd 0.2800
+#  xform -rx -4 -t 1.5 23.5 8.5
+#  genbox blue_vinyl back 15 6.5 1 -r .25
+o
+o table4.chair4.back
+v v174 =
+        p -9.9180939289 23.5174391184 172.671142256
+v v175 =
+        p -10.2707860812 23.5523173553 173.023834408
+v v173 =
+        p -20.5238344084 23.5523173553 162.770786081
+v v176 =
+        p -20.1711422561 23.5174391184 162.418093929
+f v174 v175 v173 v176
+v v169 =
+        p -20.6882797848 23.8017083679 162.581678067
+v v178 =
+        p -20.3923281311 29.7870926694 162.285726413
+v v168 =
+        p -20.0396359788 29.7522144326 161.933034261
+v v179 =
+        p -20.3355876325 23.766830131 162.228985915
+f v169 v178 v168 v179
+v v180 =
+        p -19.6865132074 29.7347753141 161.93346488
+v v177 =
+        p -9.4334648802 29.7347753141 172.186513207
+v v181 =
+        p -9.7294165338 23.7493910126 172.482464861
+v v184 =
+        p -19.9824648611 23.7493910126 162.229416534
+f v180 v177 v181 v184
+v v187 =
+        p -9.5974796374 30.0016054451 172.350527965
+v v182 =
+        p -19.8505279646 30.0016054451 162.097479637
+v v188 =
+        p -20.2032201169 30.036483682 162.45017179
+v v183 =
+        p -9.9501717897 30.036483682 172.703220117
+f v187 v182 v188 v183
+v v190 =
+        p -10.081678067 23.8017083679 173.188279785
+v v189 =
+        p -9.7289859147 23.766830131 172.835587632
+v v191 =
+        p -9.433034261 29.7522144326 172.539635979
+v v193 =
+        p -9.7857264133 29.7870926694 172.892328131
+f v190 v189 v191 v193
+v v186 =
+        p -20.391897512 29.8045317879 162.638849185
+v v192 =
+        p -20.6878491657 23.8191474863 162.934800838
+v v185 =
+        p -10.4348008385 23.8191474863 173.187849166
+v v195 =
+        p -10.1388491848 29.8045317879 172.891897512
+f v186 v192 v185 v195
+v v194 =
+        p -20.1588109372 23.766830131 162.40576261
+v v197 =
+        p -9.90576261 23.766830131 172.658810937
+cyl v194 0.25 v197
+v v196 =
+        p -20.5115030895 23.8017083679 162.758454762
+cyl v194 0.25 v196
+v v198 =
+        p -19.8628592835 29.7522144326 162.109810956
+cyl v194 0.25 v198
+v v201 =
+        p -9.6098109563 29.7522144326 172.362859284
+cyl v201 0.25 v197
+cyl v201 0.25 v198
+v v200 =
+        p -9.9625031086 29.7870926694 172.715551436
+cyl v201 0.25 v200
+v v204 =
+        p -10.2584547623 23.8017083679 173.011503089
+cyl v204 0.25 v197
+cyl v204 0.25 v196
+cyl v204 0.25 v200
+v v207 =
+        p -20.2155514358 29.7870926694 162.462503109
+cyl v207 0.25 v198
+cyl v207 0.25 v196
+cyl v207 0.25 v200
+sph v194 0.25
+sph v197 0.25
+sph v198 0.25
+sph v201 0.25
+sph v196 0.25
+sph v204 0.25
+sph v207 0.25
+sph v200 0.25
+#  xform -rx -4 -t 0 16 10
+#  genbox blue_vinyl seat 18 1 15 -r .25
+o
+o table4.chair4.seat
+v v203 =
+        p -9.9180939289 16.0174391184 174.7924626
+v v202 =
+        p -20.1461663457 17.0289079877 185.020535016
+v v210 =
+        p -32.5205350164 17.0289079877 172.646166346
+v v199 =
+        p -22.2924625997 16.0174391184 162.418093929
+f v203 v202 v210 v199
+v v205 =
+        p -32.6849803929 17.2782990003 172.457058332
+v v208 =
+        p -32.660317755 17.7770810254 172.432395694
+v v209 =
+        p -22.4322453383 16.7656121561 162.204323277
+v v211 =
+        p -22.456907976 16.266830131 162.228985915
+f v205 v208 v209 v211
+v v212 =
+        p -22.0791225668 16.7481730377 162.204753896
+v v206 =
+        p -9.704753896 16.7481730377 174.579122567
+v v213 =
+        p -9.7294165338 16.2493910126 174.603785205
+v v214 =
+        p -22.1037852046 16.2493910126 162.229416534
+f v212 v206 v213 v214
+v v215 =
+        p -9.8687686533 17.0150031687 174.743137324
+v v216 =
+        p -22.243137324 17.0150031687 162.368768653
+v v217 =
+        p -32.4712097409 18.026472038 172.59684107
+v v218 =
+        p -20.0968410701 18.026472038 184.971209741
+f v215 v216 v217 v218
+v v220 =
+        p -19.9570583315 17.2782990003 185.184980393
+v v222 =
+        p -9.7289859147 16.266830131 174.956907976
+v v223 =
+        p -9.7043232769 16.7656121561 174.932245338
+v v230 =
+        p -19.9323956937 17.7770810254 185.160317755
+f v220 v222 v223 v230
+v v219 =
+        p -32.6598871359 17.7945201439 172.785518465
+v v229 =
+        p -32.6845497737 17.2957381187 172.810181103
+v v221 =
+        p -20.310181103 17.2957381187 185.184549774
+v v232 =
+        p -20.2855184651 17.7945201439 185.159887136
+f v219 v229 v221 v232
+v v228 =
+        p -22.2801312807 16.266830131 162.40576261
+v v233 =
+        p -9.90576261 16.266830131 174.780131281
+cyl v228 0.25 v233
+v v227 =
+        p -32.5082036976 17.2782990003 172.633835027
+cyl v228 0.25 v227
+v v234 =
+        p -22.255468643 16.7656121561 162.381099972
+cyl v228 0.25 v234
+v v235 =
+        p -9.8810999722 16.7656121561 174.755468643
+cyl v235 0.25 v233
+cyl v235 0.25 v234
+v v224 =
+        p -20.109172389 17.7770810254 184.98354106
+cyl v235 0.25 v224
+v v231 =
+        p -20.1338350268 17.2782990003 185.008203698
+cyl v231 0.25 v233
+cyl v231 0.25 v227
+cyl v231 0.25 v224
+v v226 =
+        p -32.4835410597 17.7770810254 172.609172389
+cyl v226 0.25 v234
+cyl v226 0.25 v227
+cyl v226 0.25 v224
+sph v228 0.25
+sph v233 0.25
+sph v234 0.25
+sph v235 0.25
+sph v227 0.25
+sph v231 0.25
+sph v226 0.25
+sph v224 0.25
+m chrome
+o
+o table4.chair4.leg
+v v225 =
+        p -19.1109127035 0 161.004310986
+v v240 =
+        p -19.8180194847 16 163.125631329
+cyl v225 0.25 v240
+v v243 =
+        p -8.5043109857 0 171.610912703
+v v241 =
+        p -10.6256313292 16 172.318019485
+cyl v243 0.25 v241
+v v242 =
+        p -20.8786796564 0 183.985281374
+v v239 =
+        p -19.8180194847 17 181.51040764
+cyl v242 0.25 v239
+v v245 =
+        p -31.4852813742 0 173.378679656
+v v244 =
+        p -29.0104076401 17 172.318019485
+cyl v245 0.25 v244
+o
+o table4.chair4.seat_support
+v v236 =
+        p -19.8180194847 15.75 163.125631329
+v v237 =
+        p -30.4246212025 17 173.732233047
+cyl v236 0.25 v237
+v v238 =
+        p -10.6256313292 15.75 172.318019485
+v v246 =
+        p -21.232233047 17 182.924621202
+cyl v238 0.25 v246
+o
+o table4.chair4.back_support
+v v247 =
+        p -18.9694913472 27.5 162.277103192
+cyl v236 0.25 v247
+v v248 =
+        p -9.7771031918 27.5 171.469491347
+cyl v238 0.25 v248
+# End conversion from: !xform -e -n table4 -t -35 0 187.5 tableset.norm
+# End conversion from: store.new
+# Begin conversion from: inc_lamps
+# -200 -200 -200 600
+# 
+#   Incandescent fixtures for store
+# 
+m big_200w_incandescent =
+        c
+                cxy 0.3330 0.3330
+        ed 626.5
+m dark_plastic =
+        c
+                cxy 0.3330 0.3330
+        rd 0.0980
+        c
+        rs 0.0200 0.0300
+m big_200w_incandescent
+o
+o lamp1
+v v249 =
+        p 60 83 75
+sph v249 8
+m dark_plastic
+o
+o lamp1_support
+v v250 =
+        p 60 96 75
+v v255 =
+        p 60 91 75
+cyl v250 0.25 v255
+m big_200w_incandescent
+o
+o lamp2
+v v6 =
+        p 60 83 175
+sph v6 8
+m dark_plastic
+o
+o lamp2_support
+v v251 =
+        p 60 96 175
+v v11 =
+        p 60 91 175
+cyl v251 0.25 v11
+m big_200w_incandescent
+o
+o lamp3
+v v252 =
+        p -25 83 125
+sph v252 8
+m dark_plastic
+o
+o lamp3_support
+v v9 =
+        p -25 96 125
+v v13 =
+        p -25 91 125
+cyl v9 0.25 v13
+m big_200w_incandescent
+o
+o lamp4
+v v253 =
+        p -25 83 25
+sph v253 8
+m dark_plastic
+o
+o lamp4_support
+v v14 =
+        p -25 96 25
+v v254 =
+        p -25 91 25
+cyl v14 0.25 v254
+m big_200w_incandescent
+o
+o lamp5
+v v10 =
+        p 60 83 -25
+sph v10 8
+m dark_plastic
+o
+o lamp5_support
+v v7 =
+        p 60 96 -25
+v v12 =
+        p 60 91 -25
+cyl v7 0.25 v12
+# End conversion from: inc_lamps
+# Begin conversion from: servings
+# -100 0 -80 350
+# 
+#   Ice cream servings on tables
+# 
+m strawberry_ice_cream =
+        c
+                cxy 0.3739 0.2912
+        rd 0.4189
+m vanilla_ice_cream =
+        c
+                cxy 0.3461 0.3329
+        rd 0.6265
+m chocolate_ice_cream =
+        c
+                cxy 0.3391 0.2952
+        rd 0.2330
+# 
+#  On table 3:
+# 
+# Begin conversion from: !xform -e -n serving1 -t -25 30 75 parfait.norm
+#  xform -e -n serving1 -t -25 30 75
+#                  0                  0                  0                  7
+# 
+#   A (large) Parfait glass
+# 
+m normal_glass
+o
+o serving1
+v v17 =
+        p -25 30.4 75
+v v21 =
+        p -25 30 75
+cone v17 0 v21 -2.6
+v v15 =
+        p -25 30.3 75
+cone v21 2.6 v15 2.5
+v v18 =
+        p -25 30.45 75
+cone v15 2.5 v18 2.15
+v v22 =
+        p -25 30.6 75
+cone v18 2.15 v22 1.5
+v v20 =
+        p -25 30.8 75
+cone v22 1.5 v20 0.9
+v v19 =
+        p -25 31.4 75
+cone v20 0.9 v19 0.45
+v v24 =
+        p -25 32.1 75
+cone v19 0.45 v24 0.4
+v v3 =
+        p -25 32.6 75
+cone v24 0.4 v3 1.05
+v v27 =
+        p -25 33.3 75
+cone v3 1.05 v27 1.7
+v v29 =
+        p -25 34.1 75
+cone v27 1.7 v29 2.2
+v v26 =
+        p -25 35 75
+cone v29 2.2 v26 2.55
+v v30 =
+        p -25 35.8 75
+cone v26 2.55 v30 2.8
+v v25 =
+        p -25 36.45 75
+cone v30 2.8 v25 3.1
+v v23 =
+        p -25 36.75 75
+cone v25 3.1 v23 3.35
+v v16 =
+        p -25 37 75
+cone v23 3.35 v16 3.2
+v cent =
+        p -25 37 75
+        n 0 1 0
+ring cent 2.7 3.2
+v v28 =
+        p -25 33.5 75
+cone v16 -2.7 v28 -0.5
+cone v28 -0.5 v27 0
+# End conversion from: !xform -e -n serving1 -t -25 30 75 parfait.norm
+m strawberry_ice_cream
+o
+o scoop1
+v v1 =
+        p -25 36 75
+sph v1 1.25
+sph v26 1
+v v31 =
+        p -25.52 36 74.4
+sph v31 1
+v v35 =
+        p -25.52 36 75.6
+sph v35 1
+v v4 =
+        p -24.32 36 75
+sph v4 1
+sph v16 1.25
+# 
+#  On table 1:
+# 
+# Begin conversion from: !xform -e -n serving3 -t 65 30 -30 parfait.norm
+#  xform -e -n serving3 -t 65 30 -30
+#                  0                  0                  0                  7
+# 
+#   A (large) Parfait glass
+# 
+m normal_glass
+o
+o serving3
+v v32 =
+        p 65 30.4 -30
+v v5 =
+        p 65 30 -30
+cone v32 0 v5 -2.6
+v v34 =
+        p 65 30.3 -30
+cone v5 2.6 v34 2.5
+v v2 =
+        p 65 30.45 -30
+cone v34 2.5 v2 2.15
+v v0 =
+        p 65 30.6 -30
+cone v2 2.15 v0 1.5
+v v41 =
+        p 65 30.8 -30
+cone v0 1.5 v41 0.9
+v v36 =
+        p 65 31.4 -30
+cone v41 0.9 v36 0.45
+v v39 =
+        p 65 32.1 -30
+cone v36 0.45 v39 0.4
+v v38 =
+        p 65 32.6 -30
+cone v39 0.4 v38 1.05
+v v33 =
+        p 65 33.3 -30
+cone v38 1.05 v33 1.7
+v v43 =
+        p 65 34.1 -30
+cone v33 1.7 v43 2.2
+v v42 =
+        p 65 35 -30
+cone v43 2.2 v42 2.55
+v v47 =
+        p 65 35.8 -30
+cone v42 2.55 v47 2.8
+v v44 =
+        p 65 36.45 -30
+cone v47 2.8 v44 3.1
+v v40 =
+        p 65 36.75 -30
+cone v44 3.1 v40 3.35
+v v49 =
+        p 65 37 -30
+cone v40 3.35 v49 3.2
+v cent =
+        p 65 37 -30
+        n 0 1 0
+ring cent 2.7 3.2
+v v48 =
+        p 65 33.5 -30
+cone v49 -2.7 v48 -0.5
+cone v48 -0.5 v33 0
+# End conversion from: !xform -e -n serving3 -t 65 30 -30 parfait.norm
+m chocolate_ice_cream
+o
+o scoop3
+v v8 =
+        p 65 36 -30
+sph v8 1.25
+sph v42 1
+v v50 =
+        p 64.48 36 -30.6
+sph v50 1
+v v37 =
+        p 64.48 36 -29.4
+sph v37 1
+v v51 =
+        p 65.68 36 -30
+sph v51 1
+sph v49 1.25
+# 
+#  At counter in front of stool 2
+# 
+# Begin conversion from: !xform -e -n serving2 -s .7 -t 45 40 95 parfait.norm
+#  xform -e -n serving2 -s .7 -t 45 40 95
+#                  0                  0                  0                  7
+# 
+#   A (large) Parfait glass
+# 
+m normal_glass
+o
+o serving2
+v v57 =
+        p 45 40.28 95
+v v45 =
+        p 45 40 95
+cone v57 0 v45 -1.82
+v v52 =
+        p 45 40.21 95
+cone v45 1.82 v52 1.75
+v v59 =
+        p 45 40.315 95
+cone v52 1.75 v59 1.505
+v v53 =
+        p 45 40.42 95
+cone v59 1.505 v53 1.05
+v v63 =
+        p 45 40.56 95
+cone v53 1.05 v63 0.63
+v v46 =
+        p 45 40.98 95
+cone v63 0.63 v46 0.315
+v v65 =
+        p 45 41.47 95
+cone v46 0.315 v65 0.28
+v v66 =
+        p 45 41.82 95
+cone v65 0.28 v66 0.735
+v v58 =
+        p 45 42.31 95
+cone v66 0.735 v58 1.19
+v v60 =
+        p 45 42.87 95
+cone v58 1.19 v60 1.54
+v v56 =
+        p 45 43.5 95
+cone v60 1.54 v56 1.785
+v v61 =
+        p 45 44.06 95
+cone v56 1.785 v61 1.96
+v v62 =
+        p 45 44.515 95
+cone v61 1.96 v62 2.17
+v v64 =
+        p 45 44.725 95
+cone v62 2.17 v64 2.345
+v v67 =
+        p 45 44.9 95
+cone v64 2.345 v67 2.24
+v cent =
+        p 45 44.9 95
+        n 0 0.7 0
+ring cent 1.89 2.24
+v v73 =
+        p 45 42.45 95
+cone v67 -1.89 v73 -0.35
+cone v73 -0.35 v58 0
+# End conversion from: !xform -e -n serving2 -s .7 -t 45 40 95 parfait.norm
+m vanilla_ice_cream
+o
+o scoop2
+v v74 =
+        p 45 45 95
+sph v74 1.25
+# End conversion from: servings
+o
+xf
+# End of data converted from Radiance scene input

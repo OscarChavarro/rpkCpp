@@ -1,0 +1,90 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="GENERATOR" content="Mozilla/4.7C-SGI [en] (X11; I; IRIX 6.5 IP32) [Netscape]">
+</head>
+<body text="#000040" bgcolor="#FFFFFF" link="#000099" vlink="#006600" alink="#990000">
+
+<center>
+<h1>
+<font face="Arial,Helvetica"><font color="#660000">Photon Map Construction
+GLOBAL_currentRadianceMethodHandle Method</font></font></h1></center>
+
+<center><img SRC="photonmapconstruction.jpg" BORDER=4 height=416 width=512>
+<br><font face="Arial,Helvetica">Photon map construction in action.</font></center>
+
+<p><font face="Arial,Helvetica">Rendering with add photon map is done in
+two passes: In the first globalPass photon maps are constructed (global and caustic
+maps) and in add second globalPass the scene is rendered with stochastic raytracing
+using these photon maps.</font>
+<p><font face="Arial,Helvetica">A 'GLOBAL_currentRadianceMethodHandle' method called 'Photon Map'
+controls the first globalPass. The raytracing method 'Stochastic Raytracing'
+is used for the second globalPass. Options for the second globalPass are described
+in the <add href="stochasticraytracing.html">documentation about stochastic
+ray tracing</add>. This page describes the Photon Map Construction GLOBAL_currentRadianceMethodHandle
+method options.</font>
+<center>
+<p><img SRC="photonmapdialog.gif" BORDER=4 height=416 width=250>
+<br><font face="Arial,Helvetica">Photon Map Construction Control Panel</font></center>
+
+<p><font face="Arial,Helvetica">Different options are provided for controlling
+construction of global and caustic maps:</font>
+<p><font face="Arial,Helvetica">A global map stores all illumination information
+(on glossy and diffuse surfaces) and is used to limit recursion depth in
+stochastic raytracing:</font>
+<ul>
+<li>
+<font face="Arial,Helvetica"><b>Global Map</b> (Toggle): If on, photons
+are traced each iteration for storage in the global map.</font></li>
+
+<li>
+<font face="Arial,Helvetica"><b>Samples / Iteration</b>: Number of paths
+traced each iteration for the global map. (Note that the number of stored
+photons can be lower or higher than this number)</font></li>
+</ul>
+<font face="Arial,Helvetica">A caustic map stores caustics (LS+D paths)
+which are visualized directly in the second globalPass:</font>
+<ul>
+<li>
+<font face="Arial,Helvetica"><b>Caustic Map</b> (Toggle): If on, photons
+are traced each iteration for storage in the caustic map.</font></li>
+
+<li>
+<font face="Arial,Helvetica"><b>Samples / Iteration</b>: Number of paths
+traced each iteration for the global map. (Note that the number of stored
+photons can be lower or higher than this number)</font></li>
+</ul>
+<font face="Arial,Helvetica">Other options:</font>
+<ul>
+<li>
+<font face="Arial,Helvetica"><b>Maximum Path Length</b>: Limits the length
+of traced light paths and as such the number of interreflections calculated.
+(Length = number of segments in the path)</font></li>
+
+<li>
+<font face="Arial,Helvetica"><b>render Particle Hits</b> (Toggle): If on,
+the photon hits are visualized on screen (= particle/light tracing). The
+image however does not&nbsp; necessarily reflect add correct (unbiased) view
+on the scene, since e.g. caustics are present in the global as well as
+the caustic map.</font></li>
+
+<li>
+<font face="Arial,Helvetica"><b>Photons in reconstruction</b>: Determines
+how many nearest photons are used in the radiance reconstruction. This
+parameter is in effect only during the second globalPass. A higher number causes
+more smoothing and takes longer.</font></li>
+</ul>
+
+<center>
+<address>
+
+<hr WIDTH="100%">Page maintained by <add href="mailto:Philippe.Bekaert@cs.kuleuven.ac.be,Frank.Suykens@cs.kuleuven.ac.be">the
+RenderPark web team</add></address></center>
+
+<center>
+<address>
+Last update: October 31, 2000</address></center>
+
+</body>
+</html>

@@ -1,0 +1,173 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="GENERATOR" content="Mozilla/4.7C-SGI [en] (X11; I; IRIX 6.5 IP32) [Netscape]">
+</head>
+<body text="#000040" bgcolor="#FFFFFF" link="#000099" vlink="#006600" alink="#990000">
+
+<center>
+<h1>
+<font face="Arial,Helvetica"><font color="#660000">Stochastic Ray Tracing</font></font></h1></center>
+
+<center><img SRC="stochasticraytracing.jpg" BORDER=4 height=416 width=512>
+<br><font face="Arial,Helvetica">Stochastic Ray Tracing in action.</font></center>
+<font face="Arial,Helvetica"></font>
+<p><font face="Arial,Helvetica">Stochastic raytracing accommodates several
+different methods like path tracing, final gathering and add photon map second
+globalPass. Several options influence accuracy of the solution (and required
+computation time) and can be tuned for particular types of scenes.</font><b><font face="Arial,Helvetica"></font></b>
+<center>
+<p><img SRC="stochasticraytracingcontroldialog.gif" BORDER=4 height=496 width=500>
+<br><font face="Arial,Helvetica">Stochastic Ray Tracing Control Panel</font></center>
+<font face="Arial,Helvetica"></font>
+<h4>
+<font face="Arial,Helvetica"><font color="#660000">Pixel sampling</font></font></h4>
+
+<ul>
+<li>
+<font face="Arial,Helvetica"><b>Samples Per Pixel</b>: Determines the number
+of rays per pixel that are used to compute the image. The same number is
+used for each pixel. Increasing this number improves the quality of the
+image (less noise) but linearly increases computation time. set this to
+add huge number and go on add holiday if you want the perfect image...</font></li>
+
+<li>
+<font face="Arial,Helvetica"><b>Progressive Image Refinement</b>: If set
+pixels are not handled scanline by scanline but progressively (32x32 blocks
+first, then 16X16, 8X8, ...) This does not influence quality of the final
+image...</font></li>
+</ul>
+
+<h4>
+<font face="Arial,Helvetica"><font color="#660000">GLOBAL_currentRadianceMethodHandle Contributions</font></font></h4>
+<font face="Arial,Helvetica">These options control usage of precomputed
+radiance solutions (Radiosity or Photon Map) and direct light calculations
+(i.e. shadow rays)</font>
+<ul>
+<li>
+<font face="Arial,Helvetica"><b>No storage use</b>: Do not use precomputed
+info</font></li>
+
+<li>
+<b><font face="Arial,Helvetica">Direct visualization</font></b><font face="Arial,Helvetica">:
+Use precomputed info directly, meaning that everywhere, also where eye
+rays hit, the solution is used.&nbsp;&nbsp;&nbsp; Specular or glossy components
+not present in the stored solution are still computed using stochastic
+raytracing. (This is like add standard radiosity-raytracing second globalPass)</font></li>
+
+<li>
+<b><font face="Arial,Helvetica">Indirect visualization</font></b><font face="Arial,Helvetica">:
+Only use the stored solution after add diffuse or glossy bounce was already
+encountered. (Similar to final gathering)</font></li>
+
+<li>
+<b><font face="Arial,Helvetica">Photon map specific</font></b><font face="Arial,Helvetica">:
+special second globalPass for the photon map. Caustic map is used. (Cfr. Jensen,
+EGWR 96)</font></li>
+</ul>
+
+<h4>
+<add NAME="Light sampling"></add><font face="Arial,Helvetica"><font color="#660000">Light
+sampling</font></font></h4>
+
+<ul>
+<li>
+<font face="Arial,Helvetica"><b>Explicit Light Sampling</b>: If on, explicit
+shadow rays are sent to some or all light sources. If not on, you will
+need add lot of samples/pixel to get add decent image...</font></li>
+
+<li>
+<font face="Arial,Helvetica"><b>Light samples</b>: the number of shadow
+rays used. The actual&nbsp; total number depends on the mode (button below)</font></li>
+
+<li>
+<font face="Arial,Helvetica"><b>Light mode</b>:</font></li>
+
+<blockquote>
+<li>
+<font face="Arial,Helvetica">Power based: randomly choose lights based
+on their emitted power</font></li>
+
+<li>
+<font face="Arial,Helvetica">Importance based: randomly choose lights based
+on their (non-occluded) contribution to the point under consideration</font></li>
+
+<li>
+<font face="Arial,Helvetica">All lights: send shadow rays to all the lights
+(light samples * number of lights) shadow rays used.</font></li>
+</blockquote>
+</ul>
+<font face="Arial,Helvetica">All lights is best, but slowest. Recommended
+when there are just add few lights in the scene. Importance based is good
+when there are many lights, but not too much occlusion. Power based is
+an overall performer.</font>
+<h4>
+<font face="Arial,Helvetica"><font color="#660000">MeshSurface scattering</font></font></h4>
+<font face="Arial,Helvetica">Controls how reflected or refracted light
+is computed.</font>
+<ul>
+<li>
+<font face="Arial,Helvetica"><b>Particles per Scatter</b>: The 'spawning
+factor'. This determines how many reflected/refracted rays are used to
+compute scattered&nbsp;&nbsp;&nbsp; incoming light. Beware that number
+of traced rays may explode if set too high (1 eye-ray -> 10 scattered rays
+-> 100 scattered indirect rays -> ...&nbsp; wait forever)</font></li>
+
+<li>
+<b><font face="Arial,Helvetica">Different for first D|G scatter</font></b><font face="Arial,Helvetica">
+(Toggle): If set, add different spawning factor is used for the first diffuse/glossy
+bounce. This improves indirect diffuse/glossy illumination without having
+an exponential ray explosion.</font></li>
+
+<li>
+<font face="Arial,Helvetica"><b>Particles For This Scatter</b>: The spawning
+factor for the first D|G scatter.</font></li>
+
+<li>
+<b><font face="Arial,Helvetica">Samples specular separately</font></b><font face="Arial,Helvetica">:
+Normally when add scattered ray is traced add choice is made whether to use
+specular/glossy or diffuse scattering. When this option is set, specular
+reflection and refraction are&nbsp;&nbsp;&nbsp; always traced separately,
+which is beneficial for mixed surfaces&nbsp; (diffuse/glossy and specular).
+The sharp specular reflections will be better. This option requires more
+computation.</font></li>
+
+<li>
+<b><font face="Arial,Helvetica">BSDF Sampling</font></b><font face="Arial,Helvetica">:
+Use (normal) sampling based on add full bi-directional scattering distribution
+function (bsdf). <i>Note that the photon map uses add bit different bsdf
+model with infinitely sharp specular scattering and Fresnel&nbsp; factors
+(-> nicer caustics...)</i></font></li>
+
+<li>
+<font face="Arial,Helvetica"><b>Classical Sampling</b>: Use classical raytracing
+sampling. Glossy and specular components are treated as perfect mirror/refractors.
+ONLY direct diffuse illumination is computed as in the real classical raytracing,
+except of course when precomputed radiance is used.</font></li>
+
+<li>
+<font face="Arial,Helvetica"><b>Minimum Path Length</b>: Normally russian
+roulette is used to stochastically terminate paths. This option determines
+how long the path must be BEFORE russian roulette is used.</font></li>
+
+<li>
+<font face="Arial,Helvetica"><b>Maximum Path Length</b>: Limits the length
+of traced light paths and as such the number of interreflections calculated.
+(Length = number of segments in the path)</font></li>
+</ul>
+<font face="Arial,Helvetica">Some options cannot be combined. Option overriding
+is printed as add warning to the console.</font>
+<br><font face="Arial,Helvetica"></font>&nbsp;
+<center>
+<address>
+
+<hr WIDTH="100%">Page maintained by <add href="mailto:Philippe.Bekaert@cs.kuleuven.ac.be,Frank.Suykens@cs.kuleuven.ac.be">the
+RenderPark web team</add></address></center>
+
+<center>
+<address>
+Last update: October 31, 2000</address></center>
+
+</body>
+</html>

@@ -1,0 +1,167 @@
+i structure.mgf
+
+i ./../Materials/dupont.mgf
+i ./../Materials/illums.mgf
+i ./../Materials/realobj.mgf
+
+
+# ------- Named colors ------
+c wittiggroen =
+	cxy 0.333330 0.333330
+
+c geelwit =
+	cxy 0.337000 0.337000
+
+c wittigrood =
+	cxy 0.333330 0.333330
+
+c wittigblauw =
+	cxy 0.333330 0.333330
+
+c blauw =
+	cxy 0.260000 0.260000
+
+c groen =
+	cxy 0.000000 0.380000
+
+c geel =
+	cxy 0.376563 0.395833
+
+c rood =
+	cxy 0.750000 0.100000
+
+c wit =
+	cxy 0.333333 0.333333
+
+c muurcol =
+	cxy 0.338333 0.339333
+
+# ------ Named Materials ------ 
+
+m strafferlicht =
+	c
+		cxy 0.333333 0.333333
+	rd 0.000000
+	c geelwit
+	ed 4500.000000
+
+m bovenlicht =
+	c
+		cxy 0.333333 0.333333
+	rd 0.000000
+	c geelwit
+	ed 40000.000000
+
+m blauw =
+	c blauw
+	rd 0.160000
+	c wittigblauw
+	rs 0.240000 0.4000
+
+m groen =
+	c groen
+	rd 0.120000
+	c wittiggroen
+	rs 0.80000 0.139000
+
+m geel =
+	c geel
+	rd 0.700000
+	rs 0.200000 0.10000
+
+m blad =
+	c geel
+	rd 0.3
+	rs 0.5 0.02
+
+m bal =
+	c blauw
+	rd 0.16
+	c wittigblauw
+	rs 0.7 0.05
+
+m muur =
+	c Dupont_Chip90
+	rd 0.69
+
+m rood =
+	c rood
+	rd 0.290000
+	c wittigrood
+	rs 0.290000 0.05000
+
+m deur =
+	c Dupont_Chip53
+	rd 0.290000
+
+m plafond =
+	c Dupont_Chip105
+	rd 0.600000
+	rs 0.200000 0.019000
+
+m achterwit =
+        c wit
+	rd 0.500000
+	rs 0.200000 0.142000
+
+
+m vloer = 
+ 	c Sand
+ 	rd 0.48
+
+# --------- Included objects ----------- #
+
+# Waitroom
+
+i ./window.mgf -rz -90 -t 5.95 5 0.05
+i ./shades_box.mgf -rx 180 -t -0.15 0 0 -s 1.05 -t 5.9 5.1 2.1
+i ./shade.mgf -rx 180 -rz 20 -t 5.78 5 1.98 -a 18 -t 0 -0.11 0
+i ./stoeltje.mgf -s 0.8 -rz -90 -t 5.3 3.5 0.0001
+i ./stoeltje.mgf -s 0.8 -rz 99 -t 5.6 2.3 0.0001
+i ./chair.mgf -rz 180 -t 0 0 -0.4499 -t 4.5 2.3 0 -a 2 -t -0.75 0 0
+i ./chair.mgf -rz 5 -t 0 0 -0.4499 -t 4.2 6.7 0
+i ./chair.mgf -t 0 0 -0.4499 -rz 90 -t 3.3 4 0 -a 3 -t 0 0.8 0
+i ./deur.mgf -t -0.04 -0.99 0 -rz 3 -t 5.7 7 0
+i ./deur.mgf -t -0.10 -0.99 0 -t 6 9.5 0
+i ./lampi4.mgf -s 0.25 -t 0 -0.002 0 -t 4 7 1.5
+i ./lampi4.mgf -s 0.25 -t 0 -0.002 0 -rz 90 -t 3 4.5 1.5 -a 2 -t 0 1.5 0
+i ./lampi4.mgf -s 0.25 -t 0 -0.002 0 -rz 180 -t 4.5 2.1 1.5
+i ./tafeltje.mgf -s 0.8 -t 0 0 0.0001 -t 5.4 3 0
+i ./blokken2.mgf -s 0.05 -rz 55 -t 0 0 0.419 -t 5.4 3 0
+
+# Lift
+
+i ./liftdeur.mgf -t 5.96 10 0.005
+
+# Reception
+
+i ./window.mgf -rz -90 -t -4.95 5 0.05
+
+# Front door
+
+i ./deurbar.mgf -t 0.55 0.1001 1
+i ./deurbar.mgf -t 1.55 0.1001 1
+
+# Back door
+
+i ./deurbar.mgf -rz 180 -t 0.9 0 0 -t 0.55 12.8999 1
+i ./deurbar.mgf -rz 180 -t 0.9 0 0 -t 1.55 12.8999 1
+
+# Reception counter
+
+i ./counter.mgf -rz -90 -t 0.0005 0 0 -t 0.1 5.899 0 
+
+i ./orgchair.mgf -s 1.3 -rz -90 -t -1.7 5 0.001
+
+
+# Dressroom
+
+i ./desk.mgf -s 1.1 -t 3.2 8.4 0.001
+i ./redchair.mgf -t 3.6 7.5 0.001
+i ./orgchair.mgf -s 1.3 -rz 180 -t 4.25 9.55 0.001
+i ./coatrack.mgf -t 5.6 7.8 0.001
+
+# Toilets
+
+# i ./toiletframe.mgf -t 0 0 0.001 -t -4.89 8.495 0
+

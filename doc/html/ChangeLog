@@ -1,0 +1,3223 @@
+2001-08-24  Philippe Bekaert  <philippe@mpi-sb.mpg.de>
+
+	* DOC/: documentation changes, uses frames now.
+
+	* DOC/Userguide: missing pages added + stochastic Jacobi radiosity
+	usage finally explained.
+
+2001-08-23  Philippe Bekaert  <philippe@mpi-sb.mpg.de>
+
+	* DOC/UserGuide/: new directory, contains user guide
+	TODO: user guide is not yet complete. For instance stochastic Jacobi
+	radiosity and Galerkin radiosity are not yet documented.
+
+	* DOC/*.html: extensive documentation in HTML format replaces
+	previous 0BUGS, 0COMPILEFLAGS and 0README file.
+
+	* lightlist.C: COLORAVERAGE(return value of some function returning 
+	COLOR struct) construct replaced by COLOR e = return value of ... ;
+	... colorAverage(e) ... The SGI compiler crashes on it.
+
+2001-08-09    <franks@cs.kuleuven.ac.be>
+	* opengl.c(RenderPixels): Linux specific code. Some
+	linux drivers did not update well.
+	* patch.c (patchInterpolatedFrameAtUv): Vector frame not used
+	anymore, restored to old method. Mismatch with differentials.C
+	possible...
+
+2001-08-08    <franks@cs.kuleuven.ac.be>
+
+	* All: Removed several warnings
+
+	* PHOTONMAP/pmap.C+RAYTRACING/rtstochastic.C: The use of the
+	special photonmap sampler that uses perfectly specular fresnel sampling
+	is now an option.
+
+	* RAYTRACING/bidirpath.C+spar.C+...: Changed regexp mode so that
+	any GLOBAL_currentRadianceMethodHandle method can be used. However no distinction is made
+	between direct and indirect illumination anymore. It would be 
+	insteresting to include such support for all radiance methods.
+	By defining WMP_WEIGHTS the direct/indirect readout using Galerkin
+	becomes active.
+	
+
+2001-08-07    <franks@cs.kuleuven.ac.be>
+
+	* Merge: merged my changes with philippe and pieter
+	
+	* RAYTRACING/rtstochastic.C: Support for Frame Coherent sampling and
+	Pixel Correlated sampling. Same random numbers are used per frame/pixel
+	to reduce noise over frames/pixels.
+	
+	* readvrml.C(viewpoint): Field of view is now copied into
+	the renderpark camera.
+	
+	* Path_differentials: Path differentials support added [experimental]. Many files
+	affected, grep on 'PATH_DIFFERENTIALS'. See 0PATHDIFFERENTIALS on how to
+	remove the code from the source for distribution
+
+	* {balanced}kdtree.C/H: Support for balanced kdtrees
+	
+	* Importance_driven_photonmaps: All photonmap files affected.
+	Also added is code to display various aspects of the photon maps and
+	irradiance precomputation for the global map.
+	Advanced footprint based importance [experimental] can be
+	activated by defining PMAP_ADVIMP. unifdef this for release...
+
+	* ui_pathdebug.c: Only active when GI_DEBUG is defined. Allows to
+	display some sampled paths for debugging purposes.
+
+	* RAYTRACING/raymatting.C+raycasting.C: Process events for every
+	10th line. TODO: time based processing
+
+	* RAYTRACING/raycasting.C: Made a single static instance of a raycaster.
+	This was useful for raycasting from the photon map control panel, so that
+	the raycaster could be interrupted.
+
+2001-07-05  Pieter Peers <pieterp@cs.kuleuven.ac.be>
+
+	* fixed bugs in Importance sampling and in weighting of 
+	   environment rays.
+
+	* LightList.[CH] changed avgEmittedRadiance to emittedFlux
+
+2001-07-04  Pieter Peers <pieterp@cs.kuleuven.ac.be>
+
+	* added extra field in Background: this field keeps a ptr
+	   to the virtual patch that represents the background
+	
+	* Lightlist.[CH] : split EvalPDF into a _real and into
+	   a _virtual part. The first takes care of normal patches
+	   while the second handles virtual patches. (idem as 2001-07-05)
+	
+	* LightSampler.C & LightList.C : moved Prob of choosing
+	   a point in EvalPDF up to evalPDF of the lightsampler
+	   (uniform and importance)
+
+2001-06-20  Pieter Peers <pieterp@cs.kuleuven.ac.be>
+
+	* prepared renderpark for position dependend backgrounds
+
+	* added in RENDEROPTIONS use_background,
+	   this controls if a background image has to be
+	   displayed behind the scene (only is preview mode!!!). The
+	   background is drawn by Renderbackground() function and init
+	   by InitBackground
+
+	* added RenderSetUseBackground() in rendercommon.c
+
+	* added use background stuff in ui_render.c
+
+	* added load background stuff in ui_file.c
+	
+2001-06-01  Pieter Peers <pieterp@cs.kuleuven.ac.be>
+
+	* merged and addapted Vincents' version (included GLOBAL_raycasting_RayMatting)
+
+2001-05-31  Pieter Peers <pieterp@cs.kuleuven.ac.be>
+
+	* lightlist.[CH] removed possible error in ComputeOneLightImportance
+	    (_real) : contribution formula previously was divided by distance^4
+	    It now is divided by distance^2
+
+	* rtsoption.C: DirectBackground sampling is now FALSE by default
+
+2001-05-21  Pieter Peers <pieterp@cs.kuleuven.ac.be>
+
+	* ui_debug.c added GetPixelRadiance, this funtion prints the
+	    radiance of a pixel (rts and bidir only).
+
+	* rtstochastic.[Ch] added RTStochastic_GetPixel (returns radiance from
+	   lastscreen)
+
+	* bidirpath.[Ch] added Bidir_GetPixel (returns radiance from
+	   lastscreen)
+
+2001-05-07  Pieter Peers <pieterp@cs.kuleuven.ac.be>
+
+	* lightlist.[CH] add LightList::computeOneLightImportanceVirtual
+	    and LightList::computeOneLightImportanceReal which are
+	    specialisations of LightList::computeOneLightImportance
+
+2001-05-03  Pieter Peers <pieterp@cs.kuleuven.ac.be>
+
+	* RAYTRACING/lightsampler.C (CImportanceSampler::Sample) : divided
+	    point sampling on a lightsource and on the background.
+
+	* RAYTRACING/rtstochastic.C : moved initialisation of GLOBAL_light_lightList from
+	    stochasticRayTracerInit to SRCONFIG::initDependentVars
+
+2001-05-02  Pieter Peers <pieterp@cs.kuleuven.ac.be>
+
+	* RAYTRACING/lightsampler.C (CUniformLightSampler::Sample) : created 
+	    fake hitpoint when patch is virual (at distance 1 of 
+	    thisnode.m_hit)
+	
+	* RAYTRACING/raytools.C (PathNodeVisible) : addapted to correctly
+	    calculate intersections when a virtual patch is used (node2)
+
+2001-04-06  Pieter Peers <pieterp@cs.kuleuven.ac.be>
+
+	* RAYTRACING/lightsampler.C (CUniformLightSampler::Sample) : divided 
+	    point sampling on a lightsource and on the background.
+
+2001-04-05  Pieter Peers <pieterp@cs.kuleuven.ac.be>
+
+	* adjusted LightList.[CH]. Added bool includeVirtualPatches in
+	    constructor (default = false).  When set, virtual patches
+	    are includes in iterations and calculations. Otherwise they
+	    are ignored.
+
+	* added IncludeVirtualPatches to change the above mentioned bool
+	
+2001-04-04  Pieter Peers <pieterp@cs.kuleuven.ac.be>
+
+	* added CreatePatchVirtual in patch.c that creates virtual patches
+	    (= 0 vertices)
+
+	* added isPatchVirtual in patch.c that returns true if a patch is
+	   virtual (= 0 vertices)
+	
+	* added AddbackgroundToLightList in main.c that adds a virtual patch
+	    to the light list if a background is present
+
+	* added background_edf.[hC] that includes an interface for making
+	    a edf of the background
+
+2001-03-31  Pieter Peers <pieterp@cs.kuleuven.ac.be>
+
+	* bug fixed (actually I forgot it ;) : background is now 'unloaded' when a new scene is loaded.
+
+2001-03-28  Pieter Peers <pieterp@cs.kuleuven.ac.be>
+
+	* Merged changes with philippes version.
+
+	* added 3 new vars in rtconfig: backgroundSampling, backgroundDirect,
+	backgroundIndirect. These control user defined options concerning
+	background rendering.  GUI also has been adjusted to accomodate
+	these three options.
+
+2001-05-31  Philippe Bekaert  <philippe@mpi-sb.mpg.de>
+
+	* MCRAD/nondiff.c and other files: non-diffuse first shot:
+	handles non-diffuse light sources. 
+	TODO: no hierarchical refinement yet in first shot.
+
+	* PhBRML.C: Warning and Error -> std::Warning and std::Error
+
+	* RAYTRACING/screenbuffer.[CH]: 
+	. GetPixelDirection renamed into getPixelVector (not normalised!!!)
+	. new Set() member function for setting radiance in particular pixel
+
+	* RAYTRACING/raycasting.C: GetPixelDirection call renamed cfr supra
+
+	* various other very minor changes.
+
+	* TODO: SERIOUS BUG: POOLS DOESN WORK ANYMORE. DISABLE IT!!!!!
+
+	====> 20010703 snapshot
+	
+2001-03-18  Philippe Bekaert  <philippe@mpi-sb.mpg.de>
+
+	* texture.[ch]: new files: RenderPark texture objects
+
+	* splitbsdf.[ch]: now also has a texture, modulating
+	diffuse relfection (can be changed easily to modulate other 
+	components)
+	
+	* readvrml.C: reads in standard VRML textures and creates
+	transparent materials
+
+	* MCRAD/mcrad.c|render.c: GetRadiance didn't return
+	self-emitted radiance anymore - fixed.
+	
+2001-03-14  Philippe Bekaert  <philippe@mpi-sb.mpg.de>
+
+	* readvrml.C, PhBRML.C, PhBRMLBackground.C: changes
+	to make it compile with newest xrml library (xrml
+	names are now all in an xrml namespace).
+
+2001-03-08  Pieter Peers  <pieterp@cs.kuleuven.ac.be>
+
+	* main.C: adjusted calculation of GLOBAL_statistics_totalEmittedPower.
+ 	It now includes the power radiated by the background.
+
+	* hit.c (hitInit) : added test if point/geometricNormal exists before filling
+	in.
+
+	* lightlist.H: LightListIterator::First returns NULL when no light
+	is in list.
+
+	* PHOTONMAP/pmap.C: not only has there has to be a hit,
+ 	but also the material of the patch hit must exist.
+
+	* RAYTRACING/bidirpath.C: endingEdf only exists if material exists
+
+	* RAYTRACING/lightsampler.C: ActivateFirstUnit now returns false
+	light exists.
+
+	* RAYTRACING/sampler.H: ActivateFirstUnit now returns a boolean.
+	Returns false when no objects exist.
+
+	* RAYTRACING/sampler.C: SampleTransfer adjusted. When no hit occurs
+	generate add Patch with raytype as environment.
+
+	* RAYTRACING/pathnode.H: replaced ends in PATHRAYTYPE enumeration
+	into stops and environment. A function Ends() has been added that
+	returns true when PATHRAYTYPE is stops or environment.  All test
+	in renderpark have been addapted for this.
+
+	* RAYTRACING/rtstochastic.C: stochasticRayTracerGetDirectRadiance fixed no lightsource
+	bug by adding boolean in activateFirstUnit.
+
+	* RAYTRACING/rtstochastic.C: SRGetRadiance added background support.
+
+2001-02-12  Frank Suykens  <franks@cs.kuleuven.ac.be>
+
+	* vectortype.h: Added C++ operations for Vector2D and Vector2Dd, removed
+	some typo's from the vector operations (important!!)
+
+	* vector.c (VectorFrame): constructs a coordinate frame given a vector
+	and a principal direction. The principal direction is used to
+	choose u-v directions so that poles are evaded.
+
+	* patch.c (PatchInterpolatedNormalAtPoint,...): Shading renamed to
+	'Interpolated'
+	(PatchInterpolatedFrameAt[UV/Point]): Computes an interpolated frame. The frame
+	is constructed using the dominant patch axis and 'VectorFrame'. A frame
+	will never be in the pole of a sphere, but u-v directions can change
+	discontinuously over discretised spheres.
+
+	* canvas.c (CanvasKey): disabled 'TestGlobalLine', so that defines in
+	ui_debug.c can be safely commented out.
+
+	* adaptation.c (EstimateViewAdaptation): Extra test added if no
+	raytracing image AND no radiance method is active. Otherwise
+	a wrong adaptation was computed.
+
+	* RAYTRACING/sampler.C (sampleTransfer): This function traces a ray
+	for a given direction and fills in a new path node. This was shared code
+	in many different samplers.
+
+	* *.h: #ifdef __cplusplus added to several .h files 
+
+2001-02-08  Philippe Bekaert  <philippe@graphics.cs.uni-sb.de>
+
+	* RAYTRACING/raycasting.C: viewing direction now normalized in 
+	get_radiance_at_pixel().
+
+	* MCRAD/vrml.c: 3 fixes:
+	- improved initalisation of vertex coordinate indices while writing
+	- material names are converted to legal VRML Id strings by replacing
+	illegal characters (e.g. '.' allowed in MGF) by '_'
+	- written IndexedFaceSets always contain less than 30000 coordinates,
+	colors and coordinate indices (not all VRML browsers can handle
+	larger arrays ...)
+
+2001-02-07  Philippe Bekaert  <philippe@graphics.cs.uni-sb.de>
+
+	* SoftIds.[CH], RAYTRACING/raycasting.C: C++ wrapper class 
+	for soft id rendering utilities in softids.[ch], split off from 
+	RAYTRACING/raycasting.C.
+
+2001-01-31  Philippe Bekaert  <philippe@mpi-sb.mpg.de>
+
+	* readvrml.C: shaded PointSet support
+
+2001-01-10  Philippe Bekaert  <philippe@mpi-sb.mpg.de>
+
+	* MCRAD/stochjacobi.c: crash due to very rare rounding type
+	of error fixed.
+
+2001-01-04  Philippe Bekaert  <philippe@mpi-sb.mpg.de>
+
+	* surface.h, compound.h: "casts" from Geometry to MeshSurface or Compound
+
+	* MCRAD/vrml.c, writevrml.h: MCRAD writes vrml files with
+	separate IndexedFaceSet for each surface in the scene.
+
+	* material.h: radianceData field added to Material struct
+
+	* MCRAD/stochjacobi.c, coefficients.h: received radiance is
+	now accumulated without multiplication with reflectivity of
+	the receiver element, next pushed to the leaf elements and
+	multiplied with the reflectivity only on the leaf elements.
+	This solves certain artefacts when textures are used.
+
+2001-01-03  Philippe Bekaert  <philippe@mpi-sb.mpg.de>
+
+	* surface.c: default color of a surface no longer includes 
+	the specular component.
+
+	* MCRAD/element.[ch],render.c,mcrad.c: bugfixes in 
+	. computation of average reflectance and emittance 
+	of subelements
+	. GetRadiance function in combination with texturing
+	
+2000-12-21  Philippe Bekaert  <philippe@cs.kuleuven.ac.be>
+
+	* Makefile, Config.common: install target moved back from
+	Config.common to Makefile
+
+	* MCRAD/: bugfix: reflectances and emittances were incorrect
+	during push-pull. (bug introduced when updating the code for
+	texturing).
+
+2000-12-18  Philippe Bekaert  <philippe@cs.kuleuven.ac.be>
+
+	* POOLS/: upgraded to newest 2.0.2 version (minor changes)
+
+	* Config.common: install target added: copies rpk executable to 
+	$(BINDIR)
+
+2000-12-15  Philippe Bekaert  <philippe@cs.kuleuven.ac.be>
+
+	* readvrml.C: minor fix to make it compatible with newest PhBRML
+	library
+
+	* camera.c: CameraPrint() should now correctly print field of view
+	(CameraPrint is nowhere being used)
+
+2000-12-11  Frank Suykens De Laet  <franks@cs.kuleuven.ac.be>
+
+	* kdtree.C (fixDown): Bug causing photon map crashes fixed.
+	If no crash occurred, a small error could be introduced in
+	the photon map reconstructions.
+
+	* vectortype.h: Added C++ operators for Vector3D.
+
+2000-12-01  Philippe  <philippe@cs.kuleuven.ac.be>
+
+	* ui_main, ui_file: top level window name was also set when there
+	was no top level window (e.g. batch mode): fixed.
+
+2000-12-01  Frank Suykens De Laet  <franks@cs.kuleuven.ac.be>
+
+	* Makefile (depend_here): Added so that only dependensies of
+	the current directory can be recomputed.
+
+	* RAYTRACING/eyesampler.C (Sample): The fake hit
+	record now has a shading frame, which is the camera frame.
+
+	* RenderPark: added window titles for dialog boxes,
+	the load scene pattern is set to: *.??? to include
+	wrl and mgf, but also anything with a three char suffix
+
+	* uit.c (SetDialogTitle): added. Sets dialog title
+
+2000-11-30  Frank Suykens De Laet  <franks@cs.kuleuven.ac.be>
+
+	* rendercommon.c (RenderArrow): Renders an <anti-aliased>
+	arrow given two positions, in one of the positions.
+	* ui_pathdebug.C/h: Code for visualising paths for debug
+ 	purposes.
+	* ui_debug.c (CreateDebugMenu): Added entry for path debugging.
+
+2000-11-30  Philippe Bekaert  <philippe@cs.kuleuven.ac.be>
+
+	* ui_tonemapping.c, gamma.c: proper black level and gamma
+	calibration test[patterns and procedure (avoids high-frequency 
+	patterns as suggested on Steve Westins web page 
+	http://www.graphics.cornell.edu/~westin/gamma/gamma.html)
+	
+2000-11-29  Philippe Bekaert  <philippe@cs.kuleuven.ac.be>
+
+	* PhBRML.C: better "brush" direction implemented yesterday was much
+	worse - change undone.
+
+2000-11-28  Philippe Bekaert  <philippe@cs.kuleuven.ac.be>
+
+	* Float.H: type 'Float' renamed 'rpk_float'. All references to it
+	have been removed (mainly GALERKIN code and transform.[ch])
+
+	* background.[ch], background_methods.h scene.[ch]: new "background" 
+	scene object can represent sky illumination or environment map
+
+	* readvrml.C, PhBRMLBackground.[CH]: VRML PhBBackground node handler.
+
+	* PhBRML.C: better "brush" directions.
+	
+2000-11-28  Frank Suykens De Laet  <franks@cs.kuleuven.ac.be>
+
+	* render.c (RenderAALine): Added anti aliased line drawing.
+	A valid implementation in opengl.c and a dummy in
+	gl.c and starbase.c
+
+2000-11-27  Frank Suykens De Laet  <franks@cs.kuleuven.ac.be>
+
+	* render.c (RenderPoint): Check near/far plane for correct
+	clipping. Changed in opengl.c and gl.c.
+
+	* RAYTRACING/pathnode.H (class CBiPath): ReleasePaths()
+	added.
+	(class PathNode): ReleaseAll(node) class method added.
+
+	* RAYTRACING/pixelsampler.C (SetPixel): Only the integer
+	nx, ny of the pixel must be given and an optional camera can be
+	supplied. Float coords are computed in setPixel.
+	
+2000-11-27  Philippe Bekaert  <philippe@cs.kuleuven.ac.be>
+
+	* bsdf.h, edf.h and everything that depends on it (and that's really 
+	a lot): Bsdf and Edf evaluation and sampling routines now accept a RayHit
+	parameter containing point, normal and texture coordinates instead of
+	a separate point and normal argument before.
+
+	* new BSF and EDF member functions ShadingFrame() and IsTextured() for
+	determining the shading normal/frame at a given point and for determining
+	whether or not a material is textured.
+
+	* patch.[ch]: new routines patchAverageEmittance() and patchAverageNormalAlbedo()
+	for computing average emittance and scattered power on a patch.
+
+	* RenderPark finally fully supports texturing (with VRML, MGF does not
+	know textures)
+
+	* rendercommon.c: new routine for rendering coordinate frame at a point.
+
+	* ui_debug: new debug button for showing shading frame at a point.
+
+	* Config.common: removed obsolete includeWDRS and includeStochRay.
+
+	* DEST/: out of order: needs to be updated for new BSDF/EDF interface
+
+2000-11-24  Philippe Bekaert  <philippe@cs.kuleuven.ac.be>
+
+	* vector.[ch]: vectorCompareByDimensions re-implemented, now also requires tolerance.
+
+	* vertex*: vertices now also have texture coordinates, vertex comparison 
+	re-implemented.
+
+	* surface.[ch]: also keeps a list of vertex texture coordinates +
+	proper computation of default color for textured patches.
+
+	* patch.[ch]: new function PatchAverageReflectance computes average
+	reflectance of each patch.
+
+	* readmgf.c, namedvertex.c, vertexlist.c, readvrml.C: updated for changes 
+	above: RenderPark now reads in texture coordinates.
+
+        * hit.[ch]: re-implemented: a hit record has some fields that are filled in
+	by ray intersection routines (HIT_FRONT|HIT_BACK, hit point, geometric normal,
+	material, distance of hit point along the ray, patch OR geometry
+	-currently always a patch but this will change once curved surfaces are
+	implemented). Other fields are only filled in if explicitly requested
+	(uv parameters, texture coordinates and shading frame, including the shading
+	normal).
+
+	* patch.[ch]: new routine patchTextureCoordAtUv() computes texture coordinates
+	for point on a patch given by its bililear or barycentric coordinates.
+
+	* material.[ch]: new function for computing the shading frame at a hit
+	point.
+
+	* PhBRML.C: new hit_projection object for smuggling RenderPark texture
+	coordinates at a hit point to a PhBRML shader.
+
+2000-11-22  Philippe Bekaert  <philippe@cs.kuleuven.ac.be>
+
+	* readvrml.C, PhBRML.[CH]: normals are now correctly transformed +
+	new VRML PhBAppearance node interface.
+
+2000-11-14  Frank Suykens De Laet  <franks@cs.kuleuven.ac.be>
+
+	* IMAGE (pic.C/H, dkcolor.c/h): Added support for the
+ 	radiance '.pic' radiance image format. Implemented by
+	Olaf Appeltants, using some 3rd party code [see 0README].
+
+	* select.c (SelectPatch): Also renders the normals on the
+	patch when selected and not only the boundary.
+
+	* rendercommon.c (RenderPatchNormals): New function that
+	renders the normals of one patch. Handles triangles and quads.
+	(RenderNormals): external visible function, uses the new
+	RenderPatchNormals.
+
+	* RAYTRACING/rtstochastic.C (class SRCONFIG): Added
+	debug info boolean, to trigger debug info.
+
+	* RAYTRACING/sampler.H (class Sampler): Added
+	'DoDebugInfo' method that outputs debug information to
+	a FILE* that can be specified in the constructor. Samplers
+	also provide an implementation for this method.
+
+	* canvas.c/h (CanvasSetMode, CanvasMouse): Added 
+	CANVASMODE_SELECT_PIXEL for selecting pixels on screen.
+
+	* select.c/h (SelectPixel, SelectPixelSetCallback): Routine added
+ 	similar to SelectPatcht to allow GUI functions easy selection of
+ 	pixels.
+
+	* ui_debug.c (TraceDebugPixelCallback): Added button and function
+	for debugging stochastic raytracing. A pixel to be traced can be 
+	selected.
+
+	* Config.common (includeBIRAD): Removed because obsolete
+
+	* Makefile (RADDIRS): Removed BIRAD directories
+
+2000-11-13  Philippe Bekaert  <philippe@cs.kuleuven.ac.be>
+
+	* Private code synchronised with cvs public code. That means: everything
+	private thrown away except:
+	- MCRAD: directory: merge
+	- TOOLS: copied from old private dir
+	- DOC: copied + directory reorganised
+
+2000-11-07  Philippe Bekaert  <philippe@cs.kuleuven.ac.be>
+
+	* QMC/niederreiter.[ch], nied63.[ch], nied31.[ch]: there are two
+	(incompatible) Niederreiter sequences now: one 31-bit and one 63-bit:
+	. Include nied31.h and use Nied31() and NextNiedInRange31()
+	if you explicitly want the 31-bit version (compatible with
+	the old Nied() and NExtNiedInRange()).
+	. Similarly, include nied63.h and use Nied63() and 
+	NextNiedInRange63() if you explicitly want the 63-bit sequence. 
+	. niederreiter.h declares Nied() and 
+	NextNiedInRange() as the 63-bit sequence unless compiled
+	with NOINT64. 
+	. Also the routines RadicalInverse() and 
+	FoldSample() are declared public in a similar fashion now.
+	The arguments and return values are declared as 'niedindex', which is
+	either 'unsigned long long' or 'unsigned'. niederreiter.c contains the
+	implementation of the Niederreiter routines and is included in both
+	nied31.c and nied63.c since the implementation is equal, except for the
+	data types and defined constants.
+
+	* MCRAD/elementtype.h, element.[ch], stochjacobi.c, sample4d.[ch]:
+	Updates as a conseuence of the above.
+
+	* PHOTONMAP/pmap.C, RAYTRACING/samplertools.C: references to Nied() 
+	replaced by references to Nied31(), the 31-bit sequence.
+
+	* MCRAD/render.c: vertex colors are now also correctly computed when
+	displaying importance.
+
+	* grid.c: all grid volumeListsOfItems are now grouped in one pool, kept for the
+	top level grid..Before, each grid had its own pool.
+	
+2000-11-06  Philippe Bekaert  <philippe@cs.kuleuven.ac.be>
+
+	* [ui_]tonemapping.[ch], opengl.c, gamma.c (new), ui_config.h, 
+	appdata.h, IMAGE/image.c, rgb.h, RAYTRACING/screenbuffer.C:
+	. separate gamma for red, green and blue
+	. gamma correction through table lookup (much faster than using
+	pow() every time!)
+	. test image for testing/determining appropriate gamma values
+	. gamma values are saved in .rpkrc file.
+
+2000-11-03  Philippe Bekaert  <philippe@cs.kuleuven.ac.be>
+
+	* POOLS/: new version 2.0, rewritten from scratch:
+	. (very slightly) faster and less memory overhead
+	. new feature: named pools collect information about memory 
+	consumption in all pools in the program.
+
+        * all files using POOLS: pool names introduced.
+	
+	* ui_debug.c: new debug button prints detailled overview of memory
+	consumption
+
+	* various fixes to make it compile without POOLS if desired.
+
+	* BUG: a 31-bit Niederreiter sequence is not enough for certain 
+	scenes (e.g. SODA hall).
+
+2000-10-27  Philippe Bekaert  <philippe@cs.kuleuven.ac.be>
+
+	* QMC/niederreiter.c: overflow check
+
+	* MCRAD/: stochastic Jacobi radiosity code except refinement stuff:
+	. 3 new command line options:
+	-srr-discard-incremental: for discarding the result of the first incremental
+	iteration steps (reuired to make more experimental stuff to work)
+	-srr-incremental-uses-importance: in order to use view-importance driven
+	sampling already in the first, incremental, iteration. Experimental: may
+	confuse the merging heuristic when changing views, or when switching
+	importance on and off.
+	-srr-naive-merging: in order to disable the intelligent merging 
+	heuristic and to merge the result of different iterations solely
+	based on the number of samples.
+	. code clean-up: many mostly esthetical changes
+	. minor fix: vertex colors are only re-computed when stricktly needed when
+	doing incremental radiance propagation steps + the image is updated only as
+	long as the unshot power is more than 30% instead of 10% of the original unshot
+	power. This saves a lot of time when rendering large scenes.
+
+2000-10-17  Philippe Bekaert  <philippe@cs.kuleuven.ac.be>
+
+	* POOLS/pools.c: some explicit casts introduced in order to make it
+	safe on 64-bit architectures (SGI Onyx 2 at VRC centre, Vienna,
+	Austria).
+
+2000-10-15  Philippe Bekaert  <philippe@cs.kuleuven.ac.be>
+
+	* render.[ch], rendercommon.c, MCRAD/stochrelax.c, GALERKIN/galerkin.c:
+        OpenGL rendering acceleration techniques: hierarchical view frustum 
+	culling, sorted rendering (large patches first, smaller later + 
+	front to back), projected-size absed culling (if projected size of
+	a collection of patches is smaller than a pixel, don't render it).
+
+2000-10-13  Philippe Bekaert  <philippe@cs.kuleuven.ac.be>
+
+	* hitlist.[ch], globallines.c: routines PrintHit() and PrintHits()
+	made "public".
+
+	* ui_debug: new item for printing all patches overlapping a pixel on
+	the screen.
+		
+2000-10-04  Frank Suykens De Laet  <franks@cs.kuleuven.ac.be>
+
+	* kdtree.C (addPoint): Bug fix, member initialisation added.
+
+2000-10-04  Philippe Bekaert  <philippe@cs.kuleuven.ac.be>
+
+	* patch.[ch], patch_type.h, geometry.c, ray.h: ray-tracing validation:
+ 	. Geometry bounding boxes are enlarged a tiny bit in geomCreateBase() for more
+	conservative bounding box culling
+	. ray-polygon intersection test of Badouel and Schlick
+	from Graphics Gems I and V implemented and compared with what we had
+	. new fields and flags in RayHit struct for computing (u,v) bilinear
+	or barycentric parameters of intersection point on hit patch
+	. patchUv (and internally also triangleUv and QuadUV) now returns TRUE
+	or FALSE whether a point lays inside the patch or not and does all
+	computations + stores results in double floating point instead of single 
+	floating point precision. 
+	WARNING: The computed (u,v) parameters are correct only if the point is 
+	inside the patch (check return value!)
+	. compile with LOWMEM_INTERSECT defined to use new, low-memory, but slower
+	ray-patch intersection code, or compile with CHECK_INTERSECT in order
+	to compare old and new strategies (for debugging).
+
+	* MCRAD/stochjacobi.c: takes advantage of (u,v) parameters computed during
+	ray-patch intersection testing if available.
+
+	* MCRAD/localline.c: minimum distance to intersection set to minimum of
+	EPSILON and source patch tolerance.
+
+	* MCRAD/stochrelax.c, element.c: small changes concerning printed messages
+
+	* render.c: if display list gets invalidated, don't keep showing raytracing image.
+
+2000-09-09  Philippe Bekaert  <philippe@cs.kuleuven.ac.be>
+
+	* POOLS/: is now pools library version 1.5 and can handle
+	storage allocation over 0.5 or 1GB on Linux unlike before
+	(thanks to Jan Prikryl)
+
+	* globallines.[ch]: new files: contain a generic global line
+	tracing engine.
+
+	* ui_debug.c: everything concerning global lines redone + new
+	method for removing overlapping patches in the model.	
+
+2000-09-04  Jan Prikryl  <prikryl@cg.tuwien.ac.at>
+
+	* Config.LinuxPPC: New file.
+
+2000-09-03  Jan Prikryl  <prikryl@cg.tuwien.ac.at>
+
+	* MCRAD/stochjacobi.c (Setup): topCluster has not been set up
+	correctly - calls ElementSetup(GLOBAL_stochasticRaytracing_hierarchy.topCluster) now
+
+2000-08-28  Philippe Bekaert  <philippe@cs.kuleuven.ac.be>
+
+	* DOC/SourceCode: source code structure document updated with a
+	description of the ray tracing methods by Frank. Moved to a 
+	separate directory now.
+
+	* RAYTRACING/ScreenBuffer: WriteBuffer method now uses OpenFIle() and
+	CloseFile() for opening/closing files with support for pipes and
+	for compression extensions .gz, .Z, etc...
+	
+	* a bit everywhere: small fixes to get RenderPark compiled and
+	running on our Solaris systems.
+
+	* 0COMPILEFLAGS: new file containing a list of compilation flags
+	
+2000-08-25  Philippe Bekaert  <philippe@cs.kuleuven.ac.be>
+
+	* MGF/Makefile: rule for compiling .c files to .o omitted (problem
+	reported by Lars Grohe)
+
+	* RenderPark, RAYTRACING/screenbuffer.C: small corrections
+
+	* ui_raytracing.c Reproject button is not compiled in by default (toy).
+	Compile with -DRT_REROJECT_BUTTON to get it back.
+
+2000-08-08  Frank Suykens De Laet  <franks@cs.kuleuven.ac.be>
+
+	* PHOTONMAP/pmapoptions.H/C: Simplified & synced command line options with
+	GUI.
+	* RAYTRACING/rtsoptions.H/C: Separate file for stoch. rt. options. Synced
+	command line options with GUI.
+	* RAYTRACING/bidiroptions.H/C: Separate file for bpt options. Synced
+	command line options with GUI.
+	
+	* batch.c (batch): Modified raytracing batch processing, so that computation
+	and image saving are separated [new function: batchSaveRaytracingImage).
+	Timings during batch processing is added together with a command line option,
+	* options.h/c (Tsettrue, Tsetfalse): New option parsing types that just set a variable
+	to true or false resp. when the option is present. Option doesn't take params.
+	* options.h/c (MakeNStringTypeStruct): New options parsing type for strings that are
+	copied to the destination variable [and not allocated]. A maximum length can be
+	specified when declaring a new n-string type.
+	
+
+2000-07-20  Frank Suykens De Laet  <franks@cs.kuleuven.ac.be>
+	Merge with CVS version
+       	
+	* CSList.H: Added some functionality: init of lists & iterators
+	* PHOTONMAP: Many changes. No density control in this version
+	* RAYTRACING/lightsampler.C/H: added support to sample all 
+	lights
+	* lightlist.C/H: added iterator support
+	* RAYTRACING/photonmapsampler.C: improved fresnel sampling
+	Note that the photonmap specific method requires separateSpecular.
+	* RAYTRACING/rtstochastic.C/H, ...: Major change so
+	that extra options were possible (all lights, separate specular)
+	and photonmap code merged with normal SR.
+	* ui_bidirpath.c: Disabled weighted multipass method & adaptive filtering
+	
+2000-07-05  Frank Suykens De Laet  <franks@cs.kuleuven.ac.be>
+
+	Partial merge with CVS version. Photonmap not completely merged.
+	* phong.c/h: Added fields for average diffuse and non-diffuse
+	albedo, check albedo > 0 for certain evaluations. This improves speed
+	and prevents some problems.
+	* kdtree.C/H: Faster implementation. Results are structured as
+	a vector representation of a max heap.
+	* radiance.h: Introduced a function type GETRADIANCE_FT for
+	GetRadiance like functions.
+	* raycasting.c/h: Added a C++ function 'RayCast' that raycasts into
+	a given screenbuffer. Raycasting still shown on screen.
+	* renderpatch.h: Added function prototype of renderPatch
+	* spherical.c/h (PrintCoordSys): Added a function to print a
+	coordinate system.
+	* spherical.c (VectorToSphericalCoord): Added limit checks 
+	to ensure -1.0 <= z <= 1.0. This was not always true.
+	* vector.h: Added 'VECTORDIST2' macro.
+	* xxdf.c/h: Added 'ComplexToGeometricRefractionIndex' for
+	using real Fresnel coefficients. Fresnel stuff not yet 
+	complete.
+	* IMAGE/image.C/H (writeDisplayRGB): Implemented
+	to write RGB images.
+	* RAYTRACING/sampling.c/h: Replaced by 'discretesampling.c/h'
+	in main directory.
+	* RAYTRACING/all_samplers: (sample): Added code to
+	handle possible differences between shading and geometric normals.
+	* RAYTRACING/all_samplers: Added code for component 
+	propagation, to see what type of bounces have taken place in a path.
+	* RAYTRACING/pathnode.C/H (PathNode): Added method
+	'EnsureNext' to facilitate extension of paths.
+	* RAYTRACING/raycasting.C/H: Added Raycast function that
+	allows to render in a supplied screen buffer using a supplied
+	GetRadiance function. Old syntax still valid.
+	* RAYTRACING/rtstochastic.C/H: Some photonmap changes.
+	Not complete yet.
+	* RAYTRACING/samplertools.C/H: Added a 'TraceNode'
+	function used by TracPath but also usable separately. Some
+	QMC sampling changes, still not optimal/finished.
+	* RAYTRACING/screenbuffer.C/H: Support for RGB images
+	that don't store radiance and don't need tonemapping before
+	display. Can be saved & rendered.
+
+2000-06-09  Philippe Bekaert  <philippe@cs.kuleuven.ac.be>
+
+	* IMAGE/image.C&tiff.C: now also works if stonits is zero. Setting
+	stonits to zero has the same effect as asetting it to 1: radiance values
+	are written without scaling.
+
+	* MCRAD/GLOBAL_stochasticRaytracing_hierarchy.h: default clustering mode is now oriented clustering
+	instead of no clustering.
+
+	* MCRAD/mcrad.c: new enumerated value options parsing
+
+	* MCRAD/render.c: GLOBAL_stochasticRaytracing_mcr.show options (total or indirect radiance only) now
+	(hopefully) correctly handled.
+
+	* MCRAD/stochjacobi.c: other sampling sequences besied Niederreiter
+	(including pseudo-random sampling) half implemented (not ready for
+	hierarchical refinement)
+
+	* ui_dump.c: reads/displays previously dumped radiance data. Useful for
+	redisplaying hig dynamic range radiosity values, making false color
+	plots, debugging etc...
+	Dump files consist of 1 line per patch including ID + radiance fields
+	and can be composed with the UNIX commands join and awk.
+
+	* options.[ch]: new enumerated value type options. Boolean options
+	now implemented as enumerated value type option.
+	
+2000-05-22  Frank Suykens De Laet  <franks@cs.kuleuven.ac.be>
+
+	* uit.h: There was a __cplusplus too much at the end of the file
+
+2000-05-11  Philippe Bekaert  <philippe@cs.kuleuven.ac.be>
+
+	* MCRAD/tests.c: basename changed into rpk_basename in order to avoid 
+	name conflict (thanks to Lars O. Grobe <grobe@gmx.net>).
+	
+2000-04-04  Philippe Bekaert  <philippe@cs.kuleuven.ac.be>
+
+	* MCRAD: weighted importance sampling + various minor fixes
+
+	* ui_debug.c: new debug volumeListsOfItems for locating/minotring patches, dumping
+	MCR leaf elements, assigned previously computed radiance values or 
+	"falsecolor" data to the patches in the scene ...
+
+2000-03-17  Philippe Bekaert  <philippe@cs.kuleuven.ac.be>
+
+	* ====> internal release 000317.
+	
+	* BUG: on Linux, RenderPark segfaults at exit().
+	
+	* TONEMAP/trwf.c: added factors WHITE_EFFICACY and M_PI until
+	results look more or less consistent with each other and with
+	GLOBAL_currentRadianceMethodHandle ximage. TODO: carefully check the factors with
+	literature.
+	
+	* RAYTRACING/screenbuffer.c: adaptation luminance functions now
+	scale radiance properly by a factor of PI.
+	
+	* MCRAD/render.c (mcrElementDisplayRadianceAtPoint): does Gouraud
+	shading for constant GLOBAL_stochasticRaytracing_basis functions (if smooth shading is on in
+	the render menu).
+
+	* RAYTRACING/screenbuffer.[CH]: new functions for calculating the
+	direction pointing from the eye through a pixel and vice versa: for
+	determining the pixel pierced by a direction from the eye.
+
+	* RAYTRACING/raycasting.C: new screenbuffer Reproject member function
+	reprojects screenbuffer after a viewing change. Very naive and slow
+	algorithm (10x10 oversampling, should do proper splatting).
+	Also ray casting render() member function re-implemented.
+
+	* raytracing.h and all derivatives: new Raytracing member function 
+	"Reproject" reprojects ray tracing solution after a viewing change.
+
+2000-03-10  Philippe Bekaert  <philippe@cs.kuleuven.ac.be>
+
+	* softids.[ch]: new file: software ID rendering and consorts.
+
+	* MGF/parser.c (mgfOpen): small fix so that included MGF
+	files are now hopefully again properly opened.
+
+	* adaptation.[ch]/ui_tonemapping.c: estimates adaptation
+	luminance in the current view.
+
+	* raytracing.h and derivates: new method "AdaptationLuminance"
+	determines adaptation luminance in current view.
+
+	* RAYTRACING/screenbuffer.[CH]: new member functions
+	for adaptation luminance estimation.
+
+2000-03-09  Philippe Bekaert  <philippe@cs.kuleuven.ac.be>
+
+	* =====> internal & alpha release 000309
+	
+	* file.c: new file, contains routines openFile() and
+	closeFile() for opening/closing files. Recognizes
+	file extensions .Z, .gz, .bz, .bz2. Opens the file
+	through a pipe as appropriate. Replaces code in
+	uit.c, batch.c, MGF/parser.c for consistent file name
+	handling.
+
+	* adaptation.c: new file: contains Jan's static adaptation
+	luminance estimation code.
+
+	* ui.c, ui_main.c: new submenu for tone mapping.
+
+	* tonemapping/render: monitor calibration stuff and gamma
+	correction moved from GLOBAL_render_renderOptions to GLOBAL_toneMap_options. Everything
+	concerning tone mapping is now separated from HW rendering.
+	User interface dialog is in ui_tonemapping.[ch] (new).
+
+	* config.h: "compatibility" config.h maps environment
+	variables defined in the (old-style) Config- and Make-files to
+	symbols defined by (new-style) configure scripts.
+	
+	* Again a big merge, this time really with Jan's code dated
+	11-jan-2000. Features:
+	  - IMAGE/: changes handling non-LogLUV libtiff
+	  - raytraced image after every n-th iteration in "batch.c"
+	  - alternate camera is saved to .rpkrc
+	  - support for ".bz" and ".bz2" extensions
+	  - CIE LUV colour conversions
+	  - tonemapping (TR, Ward, revised TR, Ferwerda)
+	  - adaptation level estimation (not working very well and probably
+	    duplicated in some parts of the code)
+	  - automatic regonition of RGB/high-dynamic tiff files by extension
+	    .logluv in "RenderScreen"
+	  - small changes in eye.*, cie.*, color.*, ui_debug.c, ui_main.c and
+	    in other files
+	
+	* remain TODO:	
+	- changes to GALERKIN (Gibson refinement crit.)
+	- changes to MCRAD (concerning importance driven refinement and
+	  perceptually driven termination)
+  	- possibility to save data in display luminances]
+	- possibility to render importance rather than radiosity
+	- automake/autoconf (!!!)
+	- another tonemaper adaptation (average luminance of visible
+          patches determined using id-rendering) [appears to be in MCRAD/ - PhB]
+	  
+	
+2000-03-08  Philippe Bekaert  <philippe@cs.kuleuven.ac.be>
+
+	* =====> internal & alpha release 000308
+	
+	* screensampler.[CH] moved from BIRAD/ to PHOTONMAP/
+	
+	* options.c: Boolean option type implemented.
+
+	* tonemapping.[ch], TONEMAP/: tone mapping methods (restructured work by
+	Jan Prikryl). replaces eye.[ch]. GLOBAL_statistics_referenceLuminance and
+	adaptation_luminance are now in statistics.h. SetAverageLuminance()
+	has been deprecated. ui_render.c now contains tone mapping
+	and monitor calibration menus on top.
+
+	* MCRAD/mcrad.c: command line options
+
+	* merge with code Jan dated 2000/01/11. Most important visible 
+	change concerns tone mapping. (TODO: list new features)
+	
+	* BUG: ray tracing crashes badly on alfven (SUN)
+
+	* rgb.h, RAYTRACING/bidirpath.C, Config.Solaris: minor changes in 
+	order to make it compile on Solaris with SUNs cc/CC.
+
+2000-03-07  Philippe Bekaert  <philippe@cs.kuleuven.ac.be>
+
+	* patch.c (QuadUV): now correctly clips the (u,v) parameters of 
+	positions that lay slightly outside the patch to the interval (0,1).
+	Solves more spike noise in Monte Carlo radiosity images with higher 
+	order approximations.
+
+2000-03-06  Philippe Bekaert  <philippe@cs.kuleuven.ac.be>
+
+	* MCRAD/vrml.c (mcrWriteVRML): saves a model, "illuminated"
+ 	by means of hierarchical Monte Carlo radiosity, in a VRML file.
+
+	* MCRAD/sample4d.c (FoldSample): positions to be folded are now
+	slightly displaced as described in PhB's thesis p.255. The two least
+	significant bits of the parameters (u,v) are lost, but the results
+	are now fully compatible with other routines. Solves a "spike noise"
+	problem with importance sampling and with higher order approximations.
+
+2000-03-03  Philippe Bekaert  <philippe@cs.kuleuven.ac.be>
+
+	* Merge with code Frank sinds 981113 =====> 20000303-intern release
+
+	* All ray-tracing routines now take additional RayHit *hitstore
+	argument which positions to a hit record in which information about
+	a new hit will be recorded if a hit is found. 'hitstore' will be 
+	used instead of a static RayHit struct in PatchIntersect() before.
+	This change now allows parallel execution using OpenMP e.g.
+
+	* MCRAD/: Complete re-implementation of Monte Carlo radiosity:
+
+	- New implementation of stochastic Jacobi radiosity contains:
+	. first a sequence of ("incremental") iterations in which unshot power is 
+	propagated until almost none remains. This leads to a first "complete"
+ 	radiosity solution. Variance is reduced next using ("regular") iterations 
+	in which total power is propagated as in Neumann's original stochastic ray
+	radiosity paper (Neumann et al., EGRW'95).
+	. new variance reduction techniques: bidirectional lines, constant control
+	variate
+	. hierarchical refinement (includes Jan Prikryl's "generic" element GLOBAL_stochasticRaytracing_hierarchy
+	code and UI panel except view importance/perceptually-driven refinement)
+ 	. view-importance: separate radiance/importance propagation, no refinement 
+	for importance, but importance-weighted radiance refinement as described in 
+	Jan Prikryl's WSCG2000 paper
+	. higher order approximations
+	All combinations are possible, e.g.: view-improtance drive hierarchical (*)
+	higher-order radiosity with bidirectional lines -- (*) with power-based oracle.
+	. (H)WDRS and old Stochastic Ray Radiosity are obsolete and omitted.
+	. to-do's: grep TODO MCRAD/*.[ch], in particular, the rejection sampling
+	technique for higher-order approximations needs to be merged back in
+	(avoids spikes in certain scenes), importance-refinement, ...
+
+	- New implementation of random walk radiosity:
+	. collision gathering and 5 different types of shooting estimators 
+	(collision, absorption, survival, score at last-N, score at last-but-N)
+	. discrete and continuous
+	. higher order approximations
+	. different sample number generators: pseudo-random, Halton, Niederreiter
+	. Gathering for Free: based on multiple iomportance sampling, heuristic
+	variance approximations or sample variance estimates
+	. no hierarchical refinement or view-importance yet
+	. global lines (Mateu Sbert) need to be re-incorporated again
+ 	
+	- detailled description of the algorithms can be found in Philippe's PhD
+	thesis available at
+	http://www.cs.kuleuven.ac.be/cwis/research/graphics/CGRG.PUBLICATIONS/PHBPHD/
+
+2000-02-28  Frank Suykens De Laet  <franks@cs.kuleuven.ac.be>
+
+	* BIRAD: bidirectionele radiositeit toegevoegd. Drie methodes
+	kunnen gekozen worden: Pattanaik, Birad en Birad met secundaire
+	contributies. Niet klaar voor distributie. Niet zo geliefd bij 
+	sommige reviewers...
+	
+	* PHOTONMAP: Oude photonmap code verwijderd en nieuwe 
+	toegevoegd. Code is nog helemaal niet geoptimaliseerd. 
+	Direction sampling is ook nog niet geimplementeerd, enkel
+	opbouwen en reconstructie van belichting. Niet klaar voor
+	distributie.
+	
+	* RAYTRACING/BPT: diverse fouten verbeterd, geeft nu
+	identieke resultaten als SR, behalve aan o.a. schaduwranden
+	hoogstwaarschijnlijk omdat de visibiliteitstesten in verschillende
+	richtingen gebeuren en dus met andere vlakjes [front/back faces
+	verschillen]. Misschien kan dit opgelost worden door altijd
+	front en back te testen en een straal 'geabsorbeerd' te beschouwen
+	als verkeerdelijk een back face geraakt wordt. Dit lost echter
+	nog niet alles op [vb. als backfaces effectief moeten meetellen].
+		Adaptive filtering toegevoegd (densitybuffer) (densitykernel).
+	Werkt met regexp's en plain BPT.
+	
+	* RAYTRACING/SR: photonmap tweede pas toegevoegd. Nog geen
+	direction sampling. Niet geschikt voor distributie.
+
+2000-02-28  Frank Suykens De Laet (Backlog) <franks@cs.kuleuven.ac.be>
+
+	* ui_raytracing.c: File dialog box bij start
+	raytracing afgezet.
+
+	* ui_debug.c: Photon map tests toegevoegd.
+
+	* splitbsdf.c (splitBSDFSample): Foutje verbeterd: bij
+	oproep BtdfTransmittance werden brdfflags meegegeven. Liep
+	enkel mis sinds photonmap...
+
+	* raytracing.c/h: ray_count en pix_count naar long veranderd,
+	GLOBAL_Raytracer_totalTime naar double veranderd om overflow te vermijden.
+
+	* radiance.h: interrupt_radiance globaal gemaakt. Wordt gebruikt
+	in BIRAD.
+
+	* radiance.c: Photonmap en Birad toegevoegd/aaangepast.
+
+2000-02-28  Frank Suykens De Laet (Backlog) <franks@cs.kuleuven.ac.be>
+
+	* phong.c 
+	(PhongB[r|s]dfSample): gebruik cos theta sampling voor het diffuse part
+	(PhongB[r|s]rdfEvalPdf): kies juiste richting voor de normaal, anders
+	kunnen verkeerde pdf evaluaties gebeuren.
+
+	* lightlist.C/H (LightEvalPDFImportant): functie toegevoegd,
+	kan opgeroepen worden vanuit C.
+
+	* color.h (colorClipPositive): Deze macro toegevoegd.
+
+	* camera.h: alternate_camera globaal gemaakt. Nuttig
+	voor statistics e.d.
+
+	* bsdf.h: Commentaar aangepast zodat nu juist aangegeven wordt
+	dat de in/out vectoren van de patch weg wijzen.
+
+	* bsdf.c (bsdfScatteredPower): Functie toegevoegd om de scattered
+	power op te vragen met bepaalde BSDFFLAGS als parameter. Transmittance
+	en Reflectance zijn behouden, maar zijn nu eigenlijk overbodig.
+	Bemerk dat dit {nog} geen bsdf method is.
+	
+
+1999-12-02  Frank Suykens De Laet  <franks@cs.kuleuven.ac.be>
+
+	* QMC/niederreiter.h: #ifdef __cplusplus'en toegevoegd
+
+1999-11-24  Frank Suykens De Laet  <franks@cs.kuleuven.ac.be>
+
+	* RAYTRACING/lightdirsampler.C (evalPDF): pdf vanaf de
+	achterkant van een lichtbron is nu nul zoals het hoort.
+
+	* phong.c (phongEdfEval): Adjusted evaluation of lightsources so
+	that the back of the light source does not radiate.
+
+1999-10-12  Frank Suykens De Laet  <franks@cs.kuleuven.ac.be>
+
+	* camera.c (cameraComplete): pixh en pixv variabelen werden
+	lichtjes fout berekend. Schermoppervlak moet gedeeld worden door
+	volledige schermresolutie en niet door 'resolutie - 1'.
+	Hierdoor was er een lichte discrepantie tussen particle tracing
+	en ray tracing.
+
+	* RAYTRACING/screenbuffer.H (class ScreenBuffer): Vanaf nu
+	wordt in de classe zelf een CAMERA object bijgehouden dat zou moeten
+	overeenkomen met de camera van waaruit het beeld berekend is. Dat dit
+	effectief zo is, daar moet de programmeur voor zorgen.
+
+	* vectortype.h: In 'Vector3D' en 'Vector2D' types is een C++
+	specifieke sectie toegevoegd. Momenteel bevinden zich daar
+	enkel een paar constructors gebruikt in ScreenBuffer...
+	* vector2d.h: Operaties op 2D vectors overgenomen van
+	Olivier Ceulemans (DEST).
+
+1999-10-11  Frank Suykens De Laet  <franks@cs.kuleuven.ac.be>
+
+	* uit.c (CreateFileAndBrowseEntry): Functie toegevoegd
+	om een filename formentry met bijhorende 'Browse' button
+	te maken.
+	* uit.c (CreateFileSelectionDialog): Als de null string
+	wordt meegegeven voor 'open_mode' wordt dit aanvaard en
+	wordt bij file selectie geen poging gedaan de file te openen
+
+1999-09-28  Frank Suykens De Laet  <franks@cs.kuleuven.ac.be>
+
+	* RAYTRACING/rttools.*, ui_rtdirectlight.c, sampling.*,
+	* rtcasting.*, rtdirectlight*, bdpathclass.*: Obsolete: removed
+	These files can still be found in my 'rpk270999.tgz'
+	* RAYTRACING/flagchain.C: Hardcoded reguliere expressie
+	parsing verwijderd. De generieke werkt ok.
+	* Makefile, *.sed, release.cmd: Basic Release management 
+	toegevoegd. Een 'make RELEASEPATH=/eenpad release' copieert
+	de sources, filtert code en voert dan enkele commando's uit
+	in de nieuwe source tree (zie release.cmd).
+
+1999-09-27  Frank Suykens De Laet  <franks@cs.kuleuven.ac.be>
+
+	* error.h: Verscheidene macro's toegevoegd ivm. floating
+	point problemen: NaN en Inf tests, prints en core dumps
+	(test een float en core dumped als hij fout is).
+
+1999-09-17  Frank Suykens De Laet  <franks@cs.kuleuven.ac.be>
+
+	* RAYTRACING/specularsampler.C, rtstochastic.C: een 
+	klassieke raytracing sampler toegevoegd. Sampled een glossy of
+	specular component alsof het perfect speculair was. Ingebouwd
+	in stochastische raytracing.
+	* RAYTRACING/screenbuffer.C: Memory leak uit destructor
+	gehaald.
+
+1999-08-10  Frank Suykens de Laet  <franks@cs.kuleuven.ac.be>
+
+	* RAYTRACING/flagchain.C: Generieke regexp parser toegevoegd.
+
+1998-12-30  Frank Suykens de Laet  <franks@cs.kuleuven.ac.be>
+
+	* RAYTRACING/spar.C, bidirpath.C: Toevoeging
+	weighted multipass method. Werkt alleen samen met GALERKIN
+	* GALERKIN/galerkin.c, element.c/h, interaction.c/h, ...:
+	Toevoeging weighted multipass method: Berekening partial weights
+	en aparte evaluatie van directe en indirecte radiantie. Het
+	symbool FSK_WEIGHTS zondert de betrokken code af.
+
+1998-11-30  Frank Suykens de Laet  <franks@cs.kuleuven.ac.be>
+
+	* bsdf.[ch] : bsdfEvalComponents toegevoegd. Deze routine
+	evalueert de bsdf voor elke bsdf vlag afzonderlijk en steekt
+	het resultaat in aan array. De complete bsdf eval (alle flags)
+	wordt teruggekeerd. De routine roept voor elke vlag apart
+	bsdfEval op. Voor materialen met veel verschillende 'flags' is
+	dus dus niet zo efficient...
+
+	* RAYTRACING/flagchain.C, spar.C, bidirpath.C: Invoering pad
+ 	evaluatie op GLOBAL_stochasticRaytracing_basis van reguliere expressies. (Datum klopt niet)
+	
+
+1998-11-24  Frank Suykens de Laet  <franks@cs.kuleuven.ac.be>
+	* camera.c (CameraCompare): Nieuwe functie om
+	camera's te vergelijken.
+
+	* ui_file.c (LoadRecentFile): als de file loader
+	zelf een nieuwe camera instelling opzet, wordt deze
+	eerst op de stack gepushed, voordat de recent file
+	camera wodrt gezet. Met restore in het camera menu
+	kan je dan de default cam in de file herstellen.
+
+1998-11-16  Frank Suykens de Laet  <franks@cs.kuleuven.ac.be>
+
+	* RAYTRACING/samplertools.C (PathNodeConnect): de
+	geometry factor kon soms negatief worden. Nu is hij altijd 
+	positief.
+
+2000-03-01  Philippe Bekaert  <philippe@cs.kuleuven.ac.be>
+
+	* main.c (ReadFile): before reading a new scene, the current raytracing
+	and radiance methods are now terminated by switching them off 
+	(setRadianceMethod(NULL)). GLOBAL_currentRadianceMethodHandle/raytracing initialisation of a new file
+	is now done by switching the radiance/raytracing method back on after
+	reading the file. Reason: now, GLOBAL_currentRadianceMethodHandle->CreatePatchData can assume that
+	the scene is fully read (e.g. patches do have a surface pointer: they
+	didn't have a surface pointer yet before while reading a new scene).
+
+2000-02-29  Philippe Bekaert  <philippe@cs.kuleuven.ac.be>
+
+	* MCRAD/GLOBAL_stochasticRaytracing_hierarchy.h: GLOBAL_stochasticRaytracing_hierarchy struct: index_offset field omitted,
+	new field tVertexElimination.
+
+	* patch.c (QuadUV): uv-boundary checking disabled with QUADUV_CHECKBOUNDS 
+	symbol
+
+2000-02-21  Philippe Bekaert  <philippe@cs.kuleuven.ac.be>
+
+	* patch.c: QuadUV() fixed. Solves a bug when rendering
+	PhBexample2.wrl (1998-09-22), a bug that was previously
+	attributed to ray-tracing (big thanks to Jan Prikryl!)
+
+2000-01-28  Philippe Bekaert  <philippe@cs.kuleuven.ac.be>
+
+	* MCRAD/: stochastic Jacobi routine updated to operate on ELEMENTs
+	instead of PATCHes (step towards incorporation of hierarchical
+	refinement). higher-order approximations and control variates 
+	temporarily disabled.
+
+1999-10-05  Philippe Bekaert  <philippe@cs.kuleuven.ac.be>
+
+	* GALERKIN/newformfactor.c: new QMC form factor computation methods: uniform
+	area sampling, uniform direction sampling and weighted area sampling. Works fine
+	with hierarchical refinement, but no higher order approximations nor clusters yet!
+
+1999-10-03  Philippe Bekaert  <philippe@cs.kuleuven.ac.be>
+
+	* ui_camera.c (ToggleAlternateCameraCallback): small fix: 
+	switching between primary and alternate camera now "invalidates"
+	ray-traced image.
+
+1999-10-02  Philippe Bekaert  <philippe@cs.kuleuven.ac.be>
+
+	* main.c (ReadFile): fclose not called if FILE *input = NULL: solves
+	a crash on certain Linuxes.
+
+	* MCRAD/stochjacobi.c: when using higher order approximations, ray
+	origin is chosen with probability proportional to the radiosity 
+	rather than uniformly: solves stability problem of stochastic 
+	relaxation with higher order approximations.
+
+1999-10-01  Philippe Bekaert  <philippe@cs.kuleuven.ac.be>
+
+	* MCRAD/randwalk.c: constant control variate for gathering random walk
+	radiosity implemented.
+
+1999-09-30  Philippe Bekaert  <philippe@cs.kuleuven.ac.be>
+
+	* MCRAD/: different types of shooting random walk estimators implemented: 
+	collision, absorption, survival, score at last but N, score at last N.
+
+	* radiance.h: 1) Create/Print/DestroyGeomData members as well as
+	UpdateDirectPotential removed: not useful or there are good alternatives
+	2) new UpdateControlPanel() member: updates control panel in order to
+	correctly reflect radiance method state variables before popping up.
+
+	* Config.common, Makefile(s): "make depend" now without optimisation,
+	profiling or debug flags. Per directory flags belong in THISLIBFLAGS,
+	linker flags in THISLIBLDFLAGS and libs in THISDIRLIBS. _CFLAGS, _LDFLAGS
+	and _LIBS makefile variables do not exist anymore.
+
+1999-09-29  Philippe Bekaert  <philippe@cs.kuleuven.ac.be>
+
+	* MCRAD/: random walk radiosity: shooting, gathering, first shot,
+	higher order approximations. Numerous changes to stochastic relaxation
+	radiosity code in order to allow optimal code sharing.
+
+1999-09-28  Philippe Bekaert  <philippe@cs.kuleuven.ac.be>
+
+	* MCRAD/: importance-driven stochastic relaxation radiosity.
+
+	* potential.[ch], patch*: new routine UpdateDirectVisibility() determines
+	(using ID-rendering) which PATCHes in the scene are visible in a view 
+	and which are not. The result is stored in a patch flag which can be checked
+	with the PATCH_IS_VISIBLE(patch) macro.
+	
+1999-09-23  Philippe Bekaert  <philippe@cs.kuleuven.ac.be>
+
+	* render.c: small corrections, e.g. RenderIds(0 restores
+	drawing in the draw buffer that was active when it was called instead
+	of always switching to front buffer drawing.
+
+	* MCRAD/: stochastic relaxation radiosity with higher order 
+	approximations implemented.
+
+1999-09-22  Philippe Bekaert  <philippe@cs.kuleuven.ac.be>
+
+	* MCRAD/: stochastic relaxation radiosity improvements: gathering for 
+	free, constant control variate, QMC sampling.
+
+	* CAVEAT: constant control variate does not work well in combination 
+	with two-sided surfaces, non-closed models and models containing
+	surfaces that do not receive any light. This is a fundamental
+	limitation of the control variate technique. Therefore, the use
+	of control varite sampling is off by default.
+
+1999-09-17  Philippe Bekaert  <philippe@cs.kuleuven.ac.be>
+
+	* render.c (RenderPixels): uses RGBA pixel format + 8-byte alginement
+	now. Un-aligned RGB caused crashes now and then on certain platforms +
+	8-byte aligned RGBA may "unpack" faster. Images are rendered as a 
+	block now, using one call to DrawPixels() instead of line by line.
+
+1999-09-16  Philippe Bekaert  <philippe@cs.kuleuven.ac.be>
+
+	* MCRAD/stochrelax.*: new implementation of stochastic relaxation
+	radiosity algorithms: no "warming up" problem as in WDRS, but
+	no need to ever unshoot energy or keep a ray count unlike WDRS. 
+	Also contains better heuristic for choosing the initial number of 
+	rays. Only basic, non-hierarchical algorithm as yet.
+
+	* RAYTRACING/raycasting.[Ch]: hardware-assisted "ray casting" (uses
+	Z-buffer and ID-rendering for visibility calculations).
+       	Significantly faster and easier to use than stochastic ray tracing +
+	no eye ray jitter. Contains a routine 'RayCast()' that can be called
+	from within a radiance method or whereever in order to ray-cast the
+	current result.
+
+	* radiance.c, raytracing.c: addition of the new radiance and
+	raytracing methods.
+	
+	* RAYTRACING/pixelsampler.[CH]: failed attempt at incorporating
+	ID-rendering: it works, but no speed-up (the ray-tracing code is simply
+	too good ;-).
+
+	* uit.c: small correction in handle_fet_type() due to Frank S.
+
+1999-07-20  Philippe Bekaert  <philippe@cs.kuleuven.ac.be>
+
+	* grid.c, gridP.h (RandomRayId): old definition of randomRayId()
+	could interfere with the use of srand48() in other places (problem
+	reported by Jan Prikryl).
+
+1999-01-26  Philippe Bekaert  <philippe@cs.kuleuven.ac.be>
+
+	* IMAGE/tiff.C: improved stonits value for high dyanmic range tiff.
+
+1999-01-18  Philippe Bekaert  <philippe@cs.kuleuven.ac.be>
+
+	* readmgf.c: check for invalid color specifications (due to
+	Jan.Prikryl@cg.tuwien.ac.at) and material specifications.
+
+	Lost probleem ivm renderen van hospitaal scene op.
+
+1998-12-23  Philippe Bekaert  <philippe@cs.kuleuven.ac.be>
+
+	* readmgf.c: 'GLOBAL_fileOptions_monochrome' variable deleted (is global file
+	loading option in fileopts.h)
+
+	* various other tiny changes in order to avoid some compiler
+	warnings.
+
+1998-11-13  Philippe Bekaert  <philippe@cs.kuleuven.ac.be>
+
+	* readvrml.C, PhBRML.[CH]: VRML importer revised for
+	VRML-981113 library version
+
+1998-10-14  Philippe Bekaert  <philippe@cs.kuleuven.ac.be>
+
+	* render.[ch], ui_render.c: nieuwe functie renderSetLineWidth()
+	+ button en dialoogvenster om line width voor outlines etc...
+	in te vullen.
+
+1998-09-30  Philippe Bekaert  <philippe@cs.kuleuven.ac.be>
+
+	* color.c, cie.h, readmgf.c, PhBRML.c, IMAGE/tiff.C:
+	input light source emittance wordt
+	gedeeld door WHTEFFICACY voor conversie lumen/m^2
+ 	naar Watt/m^2. Bij uitvoer (tone mapping, 
+	wegschrijven high dynamic range tiff) wordt radiance
+	vermenigvuldigd met WHTEFFICACY voor conversie van
+	W/M^2sr terug naar nits. WHTEFFICACY is gedefinieerd
+	in cie.h. M.a.w.: berekeningen gebeuren van nu voort
+	in radiometrische grootheden zoals het hoort, met
+	conversie van en naar fotometrische grootheden waar
+	gewenst.
+
+1998-09-25  Philippe Bekaert  <philippe@cs.kuleuven.ac.be>
+
+	* EDF en BSDF interface veranderingen:
+	- extra parameter namelijk het punt waar deze 
+	geevalueerd etc... moeten worden
+	- behalve indexOfRefraction routines: deze
+	verdwijnen in de toekomst als MEDIA worden
+	geintroduceerd
+	- inkomende richting voor BSDF omgekeerd
+
+	* RAYTRACING/bsdfsampler.C: inkomende en uitgaande
+	richting verwissed bij iedere bsdfEvalPdf call.
+
+	* BUG: Resultaat met niet reciproke BSDF is 
+	zinvoller dan tevoren, maar nog niet bevredigend. 
+	Vermoedelijk moet een van de gegeven richtingen nog 
+	omgekeerd worden.
+
+	* BUG: ui_material.c eruit gelaten. Is helemaal
+	kreupel.
+
+1998-09-22  Philippe Bekaert  <philippe@cs.kuleuven.ac.be>
+
+	* fileopts.h, main.c, readmgf.c, readvrml.c, 
+	ui_file.c: model input options zijn niet meer
+	MGF specifiek maar gelden ook voor VRML.
+
+	* grid.[ch]: grids hebben eigen kopie van bounding
+ 	box, die iets groter gemaakt is om problemen ivm 
+	roundoff error op te vangen.
+
+	* BUG: sommige scenes, vb PhBExample2.wrl vertonen
+	nog steeds foutieve raytracing.
+
+	* opengl.c: correctie ivm outline drawing in
+	display lists.
+
+	* MCRAD/rwrad.c: mutual information van de scene
+	wordt berekend bij multipath methode.
+	
+1998-09-20  Philippe Bekaert  <philippe@cs.kuleuven.ac.be>
+
+	* material.[ch]: brdf en btdf velden uit Material
+	struct weggelaten. Gebruik enkel de BSDF interface
+	in het vervolg!
+	
+	* readvrml.C: begin gemaakt met importeren van 
+	PhBRML surfaces.
+
+1998-09-11  Philippe Bekaert  <philippe@leim.cg.tuwien.ac.at>
+
+	* ====> interne en publieke snapshot 980911.
+	
+	* spectrum.h, rgb.h, color.[ch], readmgf.c, cie.c, 
+	RAYTRACING/screenbuffer.C: COLOR type geherdefinieerd
+	als struct waarin een array van floating point getallen.
+	Maakt het eenvoudiger met verschillende kleurvoorstellingen
+	te werken. Berekeningen gebeuren van nu voort per default
+	in CIE XYZ ruimte ipv monitor RGB.
+
+	* radiance.h, radiance methoden: nieuwe functie 
+	RecomputeDisplayColors in interface herberekent display
+	colors gegeven eventueel aangepaste gamma facotr, 
+	brightness adjustment, monitor primaire kleuren en wit
+	punt.
+
+	* render.[ch], rendercommon.c, ui_render.c: nieuwe 
+	parameters brightness_adjust en monitor primaries kleuren 
+	en wit punt voor conversie XYZ kleuren zoals berekende 
+	radiantie naar display RGB. Gamma correctie prompt
+	dialoog venster is vervangen door uitgebreid monitor 
+	calibratie dialoogvenster.
+
+1998-09-08  Philippe Bekaert  <philippe@leim.cg.tuwien.ac.at>
+
+	* readmgf.c, cie.c: color conversies opgekuist.
+
+	* raytracing.h, RAYTRACING/...: raytracing interface uitgebreid met
+	routines om laatste beeld terug te displayen, te saven, en op te
+	kuisen.
+
+	* ui_raytracing.c, render.h, rendercommon.c, opengl.c: aanpassingen om
+	geraytracete beeld op scherm te laten staan na expose events etc...
+
+	* BUG: irisgl.c en starbase.c ook aangepast maar ONGETEST!
+
+	* canvas.[ch]: nieuwe routines CanvasPostRedraw() en 
+	CanvasCancelRedraw() om overbodig rerenderen te vermijden.
+	
+	* ui_file.c: call naar renderNewDisplayList() vergeten na inladen
+	nieuwe scene - gefikst
+
+1998-09-04  Philippe Bekaert  <philippe@cs.kuleuven.ac.be>
+
+	* ====> interne snapshot 980904
+	
+	* readmgf.c, cie.c, eye.c, ... : interpretation of MGF colors is now
+	consistent with radiance. COLORS APPEAR DIFFERENT THAN BEFORE because of this!
+
+	* edf.h, phong.c, ... : selfemitted radiant exitance was taken for exitant
+	radiance: all illumination was a factor PI to intense. Corrected. Resulting
+	computed illumination values now are comparable with those of GLOBAL_currentRadianceMethodHandle. This
+	has no impact on the images shown by RenderPark, only in high dynamic
+	range image output.
+
+1998-09-03  Philippe Bekaert  <philippe@cs.kuleuven.ac.be>
+
+	* patch_type.h: patches bevatten nu ook pointer naar patch "aan de 
+	achterzijde" ingeval dubbelzijdig oppervlak
+
+	* patch.[ch]: patchDontIntersect(): neemt nu tot 4 patches aan
+	waarmee intersectie genegeerd moet worden.
+
+	* RAYTRACING/raytools.C: verbeterde vermijding van zelfintersecties
+	door expliciet patches uit te sluiten ipv met minimum intersectie-
+	afstand te werken.
+
+	* Merge met code Frank sinds 980828 
+
+1998-09-02  Philippe Bekaert  <philippe@cs.kuleuven.ac.be>
+
+	* opengl.c: probleem ivm canvas resize (hopelijk) opgelost
+	(zie 1998-08-28 BUG)
+
+1998-09-02  Frank Suykens de Laet  <franks@cs.kuleuven.ac.be>
+
+	* RAYTRACING/raytools.C (TraceWorld): Bij het
+	tracen van een straal is nu een minimum afstand EPSILON
+	ingesteld dat het hitpoint verwijderd moet zijn van het
+	begin punt. Nu werken double sided surfaces zonder problemen
+
+	* GENETIC/, PARTICLE/, PHOTONMAP/ terug ingevoegd
+	
+1998-08-28  Philippe Bekaert  <philippe@cs.kuleuven.ac.be>
+
+	* merge met code Frank ====> snapshot 980828
+	
+	* Config.common, Config.site, Makefiles: Config.common bevat nu defaults voor 
+	alle Makefile variabelen. Config hernoemd naar Config.site. Bijhorende
+	verandering in Makefiles + install en uninstall targets.
+	
+	* render.h: interface veranderd: saveScreen neemt nu filenaam, FILE * en
+	ispipe vlag. ImageOutputHandlers worden gebruikt voor het saven van een beeld
+	in meerdere formaten.
+	
+	* IMAGE: updates
+
+	* BUG report by phil@graphics.cornell.edu: raytracing window contents are
+	sometimes trash.
+
+1998-08-28  Frank Suykens de Laet  <franks@cs.kuleuven.ac.be>
+
+	* RAYTRACING/pathnode.C (GetMatchingNode): 
+
+	Klein foutje verbeterd dat kon optreden bij geneste transparante
+	materialen.
+
+	* RAYTRACING/screeniterate.C (ScreenIterateProgressive):
+
+	Progressief renderen aangepast zodat geen halve lijnen meer getekend
+	worden.
+
+	* RAYTRACING/bidirpath.C (HandlePath_X_X) Crashbug : 
+	Soms kan het zijn dat importance sampling van de lichtbronnen,
+ 	geen enkel gesampled licht oplevert. Nu wordt alles mooi hersteld.
+	
+1998-08-27  Philippe Bekaert  <philippe@cs.kuleuven.ac.be>
+	
+	* raytracing.c: new function RayTrace() initiates ImageOutputHandle + performs
+	raytracing. Common raytracing stuff for interactive and batch processing.
+
+	* raytracing.h, ui_raytracing.c, RAYTRACING/screenbuffer.[HC], rtstochastic.C,
+	bidirpath.C: rayTrace() method takes ImageOutputHandle * argument now instead
+	of FILE *. 
+
+	* IMAGE/: new library for writing image output in several formats. Currently
+	supported are PPM and TIFF (both LZW-compressed RGB and Greg W. Larsons' 
+	SGI LogLuv high dynamic range format).
+	
+	* TOOLS/, PNM/, ui_debug.c: moved back in. 
+
+	* NON_PUBLIC: lists files that are not suited for inclusion in public 
+	snapshots and releases.
+
+1998-08-21  Philippe Bekaert  <philippe@cs.kuleuven.ac.be>
+
+	* =====> PUBLIC RELEASE RenderPark "Leuven By Night" v980821
+	
+	* starbase.c: updated to be in sync with the other drivers
+
+	* several small changes in order to avoid compile warnings.
+	
+1998-08-18  Philippe Bekaert  <philippe@cs.kuleuven.ac.be>
+	
+	* unused source files deleted
+
+	* RAYTRACING/raytools.C: bugfix by Frank.
+
+1998-08-14  Philippe Bekaert  <philippe@cs.kuleuven.ac.be>
+
+	* Config.common, Makefiles: bevat platform onafhankelijke configuratie
+	parameters en defaults voor platform afhankelijke configuratie
+	parameters. Op dit ogenblik: welke radiantie en raytracing methoden
+	ingecompileerd moeten worden en welke niet, alsook default
+	bevel op web browser op te starten + default URL voor RenderPark
+	home pagina en online documentatie
+
+	* radiance.[ch], ui_radiance.c: instellen van defaults, command line
+	optie parsing, creatie control panel, methode namen etc... zijn nu
+	opgenomen in RADIANCEMETHOD struct. Om een radianteimethode toe te
+	voegen moet enkel nog 'e'en tabel aangepast worden in radiance.c 
+	+ Makefiles aanpassen natuurlijk.
+
+	* raytracing.[ch], ui_raytracing: analoog
+	RaytracingMethod pointer herdoopt tot Raytracing, zoals GLOBAL_currentRadianceMethodHandle.
+	alle Raytracing herdoopt tot GLOBAL_Raytracer_activeRaytracer.
+
+	* kleinere aanpassingen om compiler warnings te vermijden op
+	Linux met gcc-2.7.1 en egcs-1.0.3.
+
+1998-08-13  Philippe Bekaert  <philippe@cs.kuleuven.ac.be>
+
+	* bijna(?) klaar voor publieke release, alle soorten uitgelaten
+	prive onderzoeksstuff moet weer toegevoegd worden (uit 980707 versie)
+	na publieke release.
+	
+	* ui_help.c: nieuwe buttons om HTML documentatie en home page
+	te bekijken. Default webbrowser commando en URLs in Config files.
+
+	* MCRAD: qmcpt herdoopt tot rwrad (Random Walk RADiosity)
+
+	* RAYTRACING: command line opties
+
+	* HURA: HURA wordt ingecompileerd als HURA vlag gedefinieerd is.
+
+	* en nog overal cosmetische veranderingskes.
+
+	* Merge met code Frank sinds 980309
+
+1998-08-11  Frank Suykens de Laet  <franks@dilbert.cs.kuleuven.ac.be>
+
+	* RAYTRACING : Complete rewrite of stochastic raytracing and
+	bidirectional path tracing. Klassieke raytracing nog niet klaar,
+	final gathering is evenwel mogelijk !
+
+	* opengl.c, getBoundingBox.c, vector.h : Voorzieningen getroffen om alle
+ 	Vector3D en POINT variabelen met 1 define in double om te
+ 	zetten. Voor wanneer er twijfel bestaat over de nauwkeurigheid.
+	
+	* camera.c/h : velden pixh, pixv en tanhfov, tanvfov toegevoegd.
+	Deze velden worden automatisch ingevuld in cameraSet.
+
+	* appdata.h, ui_config.h, ui_file.h: aantal recente 
+	files verhoogd tot 6.
+	
+	* error.h : definitie van NULL wordt overgeslagen voor C++ files.
+	Dit gaf namelijk type errors.
+	
+	* main.c, raytracing.c : Een init method voor raytracing methodes
+	werd toegevoegd. Bv. voor initialisatie van lightlist's e.d.
+	
+	* lightlist.C/H : importance sampling toegevoegd. Hiermee wordt
+	een lichtbron gekozen, afhankelijk van een opgegeven punt en normaal.
+	
+	* splitbsdf.c/h : Implementatie van een bsdf die gebaseerd is
+	op het combineren van een btdf en brdf. Dit mogen algemene brdf's en
+	btdf's zijn.
+
+	* xxdf.h : bsdf component definities toegevoegd. BTDF indices 
+ 	verbeterd.
+	
+	* bsdf.c/h : Eens bsdf bepaalt de licht verstrooiing op een
+	oppervlak voor de hele bol rondom een punt op het oppervlak.
+	Deze files geven een GLOBAL_stochasticRaytracing_basis framework voor bsdf implementaties analoog aan
+	brdf's en btdf's.
+
+	* phong.c : sampling voor phong btdf en brdf toegevoegd
+	* brdf.c : brdf sampling en pdf evaluation toegevoegd
+	* btdf.c : btdf sampling en pdf evaluation toegevoegd
+
+1998-04-27  Frank Suykens  <franks@pixel.cs.kuleuven.ac.be>
+
+	* lightlist.C (sample): foutje uitgehaald wanneer door
+	afrondingsfouten voorbij de lijst gesampled werd.
+
+1998-03-11  Frank Suykens  <franks@pixel.cs.kuleuven.ac.be>
+
+	* lightlist.C (LightList): light list klasse toegevoegd
+	om gemakkelijk lichtbronnen te kunnen sampelen.
+
+1998-03-10  Frank Suykens  <franks@pixel.cs.kuleuven.ac.be>
+
+	* bidirpath.C : LightList samplen was fout als er meerdere
+	  		lichtbronnen waren. Fixed.
+
+1998-08-04  Philippe Bekaert  <philippe@cs.kuleuven.ac.be>
+
+	* pools-1.4: nieuwe versie van de pools bibliotheek in gebruik genomen.
+
+	* GALERKIN/: max.nr of elements parameter veranderd in relative minimum
+	element area (consistent met WDRS radiosity)
+
+1998-08-03  Philippe Bekaert  <philippe@cs.kuleuven.ac.be>
+
+	* patch.c, polygon.c, Makefile: oude gestolen rayshade code in polygon.c
+	geelimineerd. Andere routines in polygon.c naar patch.c verhuisd.
+	M.a.w. polygon.c bestaat niet meer.
+
+1998-07-10  Philippe Bekaert  <philippe@cs.kuleuven.ac.be>
+
+	* rendercommon.c: command line options
+
+	* GALERKIN/galerkin.c: command line options
+
+	* options.c: typeless opties kunnen nu een 'client-data' waarde
+	doorspelen naar action routines.
+
+	* radiance.c: 'GLOBAL_scene_world-space radiance' -> 'Object-space radiance'
+
+	* raytracing.c: 'Raytracing options' -> 'Pixel-driven radiance ...'
+
+1998-07-07  Philippe Bekaert  <philippe@dilbert.cs.kuleuven.ac.be>
+
+	* QMC: nieuwe directory met QMC sample generators uit MCRAD
+
+	* DEST/, SE/: Olivier Ceuelemans' density estimation implementatie.
+
+1998-06-18  Philippe Bekaert  <philippe@dilbert.cs.kuleuven.ac.be>
+
+	* MCRAD/faure.[ch], sobol.[ch], scramhalton.[ch]: nieuwe QMC
+	sequenties (Stijn Tastenhoye)
+	
+	* MCRAD/stochray.c, wdrs.c, qmcpt.c, qmcptP.h, ui_qmcpt.c: 
+	command lines opties + aanpassingen ivm uitgebreidde keuze QMC 
+	sequenties.
+
+1998-05-12  Philippe Bekaert  <philippe@dilbert.cs.kuleuven.ac.be>
+
+	* ipc.[ch], ui_main.c: Inter Process Communicatie om
+	RenderPark te besturen [Koen Deforche]
+	
+	* main.c, rendercommon.[ch], readmgf.[ch], readvrml.[CH], 
+	radiance.[ch], raytracing.[ch], radiantie- en raytracing methoden:
+	aparte routine voor instellen van default(), wordt opgeroepen
+	vanuit lightnessInit() in main.c.
+
+	* rendercommon, readmgf, readvrml: command line optie routines
+
+1998-05-07  Philippe Bekaert  <philippe@dilbert.cs.kuleuven.ac.be>
+
+	* canvas.c: external canvas Expose and ButtonMotion event compressing
+
+	* ui_radiance.c: continue radiance berekeningen worden nu zonder
+	Xt WorkProcedure gedaan (work procedures kunnen niet elegant behandeld
+	worden ingeval external canvas + interactieve mode omdat XtNextEvent()
+	niet gebruikt kan worden.)
+
+1998-05-06  Philippe Bekaert  <philippe@dilbert.cs.kuleuven.ac.be>
+
+	* ui_main.c, canvas.c: mouse button events op external canvas kunnen
+	nu ook opgevangen worden (als ButtonPress event op canvas window nog 
+	niet wordt behandeld) + optie '-create-test-canvas' met bijhorende
+	routine om test canvas te creeren.
+
+	* MCRAD?qmcpt.c: basename functie/variabele hernoemd naar unieke naam
+	(suggestie van Koen Deforche ivm egcs etc...).
+
+	* gl.c: external canvasses geimplementeerd voor Iris GL. 
+
+	* diverse kleine correcties om compilatiewaarschuwingen te vermijden.
+
+	* BUG: raytracing werkt niet naar behoren na external canvas resize.
+	Dit is een probleem met Mesa-2.5. Workaround: progressive tracing
+	afzetten. Niet-progressieve tracing werkt nl wel. Het probleem doet
+	zich niet voor met SGI OpenGL, noch met NPGL op Solaris.
+
+1998-05-05  Philippe Bekaert  <philippe@dilbert.cs.kuleuven.ac.be>
+
+	* ui_main.c, canvas.c, opengl.c: event handling voor extern canvas 
+	window + offscreen rendering (enkel met Mesa)
+
+1998-05-04  Philippe Bekaert  <philippe@dilbert.cs.kuleuven.ac.be>
+
+	* main.c, ui_main.[ch], radiance.c, raytracing.[ch], alle ui_%%%.c en
+	overeenkomstige %%%.[chcH] files: routines voor parsing van
+	command line opties ingevoerd + instellen defaulst gewijzigd 
+	(defaults worden ingesteld door de routine die command line argumenten
+	parst omdat bij batch rendering geen interface gecreerd wordt,
+	waarbij vroeger de defaults ingesteld werden). 
+
+	Command line parsing voor zogoed als geen enkele radiance of
+	raytracing method volledig geimplementeerd.
+
+	Aanpassingen ivm batch rendering en rendering in extern canvas
+	window.
+
+	* GALERKIN/galerkin.c: WriteVRML method geimplementeerd.
+	
+Fri May  1 00:12:57 1998  Philippe Bekaert  <philippe@strojka.cs.kuleuven.ac.be>
+
+	* main.c, radiance.c, camera.c, MCRAD/hwdrs.c: command line 
+	options
+	* options.[ch]; nieuwe command line option value types
+
+1998-04-30  Philippe Bekaert  <philippe@dilbert.cs.kuleuven.ac.be>
+
+	* options.[ch]: command line option processing routines
+	* main.c, ui_main.c: aanpassingen ivm command line option processing.
+
+1998-04-27  Philippe Bekaert  <philippe@dilbert.cs.kuleuven.ac.be>
+
+	* Merge met code Frank sinds 980309 ====> versie 980427
+
+1998-03-11  Frank Suykens  <franks@pixel.cs.kuleuven.ac.be>
+
+	* lightlist.C (LightList): light list klasse toegevoegd
+	om gemakkelijk lichtbronnen te kunnen sampelen.
+
+1998-03-10  Frank Suykens  <franks@pixel.cs.kuleuven.ac.be>
+
+	* bidirpath.C : LightList samplen was fout als er meerdere
+	  		lichtbronnen waren. Fixed.
+
+1998-04-21  Philippe Bekaert  <philippe@dilbert.cs.kuleuven.ac.be>
+
+	* patch.c: PatchInitRaytracing(): patches met middelpunt
+	op (ttz dichter dan patch->tolerance) een rand zullen
+	altijd beschouwd worden als "niet geintersecteerd" door
+	gelijk welke straal.
+
+	* MCRAD/qmcpt.c,ui_qmcpt.c,qmcptP.h: expliciete berekening
+	van vormfactormatrix m.b.v. global lines geimplementeerd.
+	Kan gebruikt worden om de vormfactormatrix expliciet te dumpen
+	voor analyse etc..., niet nuttig voor belichtingsberekeningen.
+	Wordt aangezet door te compileren met -DFORMFACTORS.
+
+1998-04-17  Philippe Bekaert  <philippe@dilbert.cs.kuleuven.ac.be>
+
+	* MCRAD/hwdrs.c,element.c,wdrs.h,ui_wdrs.c: ray caching geimplementeerd 
+	+ exactere delete ray operaties + uitvoer van hierarchische mesh in MGF 
+	formaat + whitetest en stat functies voor performantiemetingen +
+	hierarchische verfijning kan afgezet worden in controle paneel.
+
+1998-04-16  Philippe Bekaert  <philippe@dilbert.cs.kuleuven.ac.be>
+
+	* uit.c, ui_*.c: Boolean *valid parameter van CreateFormEntry() of 
+	CreatePromptDialog() moest in vele gevallen een static zijn (veroorzaakte
+	een crash bij het editeren van invulvelden). Functies zijn aangepast
+	zodat ook een NULL pointer doorgespeeld kan worden.
+
+1998-04-15  Philippe Bekaert  <philippe@flater.cs.kuleuven.ac.be>
+
+        * MCRAD/qmcpt.c: afrondingsfout gefikst in MakeLightSamplingTable() +
+        binair zoekalgoritme voor LightSource() in plaats van lineair.
+	
+1998-04-10  Philippe Bekaert  <philippe@dilbert.cs.kuleuven.ac.be>
+
+	* canvas.c, opengl.c, irisgl.c, starbase.c: crearen canvas window 
+	gewijzigd: roep CreateCanvasWindow() aan i.p.v. RenderCreateWindow().
+	
+	- canvas.[ch]: muis conventies voor navigatie gewijzigd (zijn nu 
+	identiek de WALK viewer conventies in CosmoWorlds):
+		button1: rechts/links draaien / vooruit/achteruit bewegen
+		button2: boven/onver/links/rechts bewegen
+		button1 en button2 terzelfdertijd: boven/onder/links/rechts draaien
+	- button3 dient om canvas popup menu te activeren (was tevoren niet
+	mogelijk wegens interferentie met sommige window managers).
+
+	* camera.c: CameraMoveForward(): beweging blijft in horizontaal vlak.	
+
+	* uit.c: niewe funcites CreateHelpSubMenu() en CreateScrolledWindow()
+
+	* ui_help.c uitgeklaard.
+
+	* RenderPark resource file: default times font ingesteld + patterns voor
+	saveImageBox, saveModelBox en loadBox file selection boxes.
+
+Tue Apr  7 21:52:46 1998  Philippe Bekaert  <philippe@strojka.cs.kuleuven.ac.be>
+
+	* transform.[ch]: opgekuist + nieuwe functie RecoverRotation() om
+	rotatie-as en hoek te bepalen uit rotatiematrix
+
+	* writevrml.c: saven van viewpoints (hopelijk) in order nu.
+
+1998-04-03  Philippe Bekaert  <philippe@flater.cs.kuleuven.ac.be>
+
+	* radiance.[ch] en rendering methodes: nieuwe methode "WriteVRML"
+	om berekende belichting te saven in VRML formaat voor specifieke
+	rendering algoritme. Indien de methode NULL is, wordt de default
+	methode genomen (zoals bij renderen met hardware). Enkel
+	GALERKIN en HWDRS hebben eigen VRML saving functie. GALERKIN
+	VRML save functie moet nog geimplementeerd worden.
+	
+	* writevrml.[ch]: default methode voor wegschrijven van model 
+	in VRML2 formaat rekening houdend met rendering opties backfaceculling
+	en smooth shading.
+	
+1998-04-02  Philippe Bekaert  <philippe@flater.cs.kuleuven.ac.be>
+
+	* grid.c: probleem vastgesteld met whitelab scene en global lines
+	op Linux (cfr. 1998-03-23). NOG NIET GEFIKST!!!!
+	
+	* vertex_type.h: extra veld 'tmp' ingevoerd. Nodig om ids bij te houden
+	voor saven VRML model.
+
+	* MCRAD/element.c: verschillende bugs gefixt ivm analytische
+	form factoren. Werkt nog altijd niet betrouwbaar op bvb cube.mgf.
+
+1998-03-27  Philippe Bekaert  <philippe@flater.cs.kuleuven.ac.be>
+
+	* ui_debug.c: More... button ingevoerd waarmee actief
+	(door polling) op user input gewacht kan worden . Om iets
+	stap voor stap te debuggen bijvoorbeeld. 
+	Werkt niet + geeft logWarning op SGI.
+
+	* shaftculling.[ch]: nieuwe functies GeomShaftFullVisibility() en 
+	PatchShaftFullVisibility() doen "shadow"-test voor shafts:
+	gegeven TRUE terug indien volledige zichtbaarheid en FALSE indien
+	er occluders zijn, zonder een candidaat occluder list op
+	te stellen.
+	Opm: shaftculling is niet volledig betrouwbaar!!!
+
+1998-03-23  Philippe Bekaert  <philippe@flater.cs.kuleuven.ac.be>
+
+	* MCRAD/*qmcpt*: Mateu Sbert's multipath code toegevoegd.
+	Quasi monte Carlo Radiosity herdoopt tot "Random Walk Radiosity".
+
+	* grid.c: bug ivm afrondingsfouten gecorrigeerd in putItemInsideVoxelGrid()
+	door bounding boxes wat te vergroten.
+
+1998-03-13  Philippe Bekaert  <philippe@flater.cs.kuleuven.ac.be>
+
+	* MCRAD/hwdrs.c,element.[ch],ui_wdrs.c,wdrsP.h: hopen aanpassingen 
+	ivm experimenteren met verschillende verfijningscriteria.
+
+	* GDT/List.h, DList.H: ForAllInList macros aangepast zodat
+	lijst argument slechts een maal geevalueerd wordt.
+
+	* Config.Linux: HWLIBS per default leeg gelaten ipv per default
+	glide lib aan te namen.
+
+	* hitlist.h: C++-safe gemaakt.
+	
+1998-03-09  Philippe Bekaert  <philippe@flater.cs.kuleuven.ac.be>
+
+	* merge met code Frank sinds 14 october 1997 ===> release 980309
+	
+	* MCRAD/element.c, ui_wdrs.c: aanpassing ivm WDRS methode waarin
+	links wel expliciet worden bijgehouden + smoothness based refinement.
+
+	* spherical.c: domme fout in SampleHemisphericalCosNTheta()
+	gecorrigeerd. (fout gerapporteerd door Mateu Sbert)
+
+Oct 97 - Feb 98  Frank Suykens  <franks@pixel.cs.kuleuven.ac.be>
+
+	* GDT/CSList.[CH] : small error corrected. Now compiles
+	with SGI cc and egcs.
+	
+	* GENETIC/* : start of genetic rendering. Do not distribute.
+	
+	* RAYTRACING/bdpathclass.[CH], bidirpath.[CH], ui_bidirpath.c :
+	Bidirectionele path tracing met multiple importance sampling.
+	Volledige implementatie (cfr. Ph.D Veach).
+
+	* RAYTRACING/rtstochastic.[CH] : Converted all calculations to
+	double precision. Restored N.E.E. for specular surfaces.
+	Works better. Still better is bidirectional path tracing
+	with maximum light length set to 1. (Uses multiple imp.s.)
+
+	* RAYTRACING/rttools.C : progressieve raytracing. Scherm
+	wordt in blokken gerenderd. Blokken worden kleiner gemaakt
+	tot ze 1 pixel beslaan. Finale oplossing duurt even lang
+	als tevoren. ID rendering werkt voorlopig niet meer !!!
+	
+	* PHOTONMAP/* : implementatie van de photonmap. Nu wordt
+	enkel de photonmap nog maar opgebouwd. Rendering met photonmap
+	nog niet volledig. De photonmap code kan ook gebruikt worden
+	voor particle tracing.
+	
+	* spherical.c : SamplehemisphereCosNTheta was fout, 
+	sin_theta werd fout berekend (mist een sqrt).
+	
+	* **df.[ch], phong.[ch], spherical.[ch], vector.h, 
+	Support voor functies met Vector3Dd's (double vectoren) zowel
+	voor sampling als b*df evaluaties.
+	
+1998-03-04  Philippe Bekaert  <philippe@flater.cs.kuleuven.ac.be>
+
+	* main.c (readFile): bugfix: GLOBAL_currentRadianceMethodHandle->lightnessTerminate() werd niet
+	opgeroepen bij inladen van een nieuwe scene.
+
+	* MCRAD/hwdrs.c en consoorten: begin gemaakt aan implementatie 
+	bijhouden links in HWDRS methode.
+	
+	* grid.c: recursieve grids geimplementeerd.
+
+1998-03-02  Philippe Bekaert  <philippe@flater.cs.kuleuven.ac.be>
+
+	* grid.c: GridIntersect() herschreven (5-10% meer efficient),
+	nieuwe functie AllgridIntersections() om alle intersecties volgens 
+	een lijn te vinden.
+
+	* geometry.[ch], geomlist.[ch], compound.c, surface.c, getPatchList.[ch]:
+	nieuwe functies ivm tracen van globale lijnen. 
+
+	* render.h, opengl.c, gl.c: nieuwe functie RenderPoint() om punt
+	om scherm aan te duiden.
+
+1998-02-27  Philippe Bekaert  <philippe@cs.kuleuven.ac.be>
+
+	* tussentijdse release =====> 980227
+
+	* ui_camera.c: bugske ivm canvas resize en toggle-alt-camera opgelost.
+
+	* opengl.c: RenderIDs() aangepast zodat die nu ook werkt op de
+	MXI 12+12+12bits en SI 5+5+5bits framebuffer (importance-driven
+	radiosity kan weer gedemonstreerd worden).
+
+	* render.h, opengl.c: nieuwe functie RenderFinish() om te
+	wachten tot alle gegeven graphics commandos zeker zijn uitgevoerd.
+
+	* select.c: patch boundary van geselecteerde patch verscheen niet 
+	tijdig op het scherm op SGI. Opgelost met RenderFinish() functie.
+
+Wed Jan 28 17:12:55 1998  Philippe Bekaert  <philippe@flater.cs.kuleuven.ac.be>
+
+	* uit.[ch]: nieuwe routines voor file selection box, prompt dialog,
+	installen/inlezen van label strings, ...
+
+	* ui_*.c: aanpassingen ivm nieuwe versie uit + opsmuk
+
+	* render.h, gl.c, opengl.c, rendercommon.c, ui_*.c, main.c: display 
+	lists om sneller te renderen. Nog geen display list ondersteuning
+	voor starbase.
+
+	* MCRAD/element.c: met MIPSPro C compiler op SGI zijn chars per 
+	default unsigned. childnr veld van ELEMENT struct type veranderd
+	naar signed char. Lost oneindige lus in hwdrs op.
+
+	* GDT/CSList.H: geprutst met "friend" declaraties en "public/private"
+	dingessen tot ie eindelijk wou compileren met egcs-1.0/gcc-2.8/MIPSPro
+	C compiler.
+
+Tue Jan  6 12:33:55 1998  Philippe Bekaert  <philippe@flater.cs.kuleuven.ac.be>
+
+	* lightmetering.c: belichtingsmeting voor correctere
+	radiantie->RGB omzetting.
+
+	* GALERKIN/raphier.c: enkele kleinere correcties
+
+Fri Nov 14 12:55:34 1997  Philippe Bekaert  <philippe@flater.cs.kuleuven.ac.be>
+
+	* MCRAD/qmcpt.c: aangepast voor oplossing van zowel
+	discreet als continu probleem, zowel met random sampling als met QMC 
+	sampling zoals in wdrs.
+
+	* MCRAD/element.c: clustering geimplementeerd.
+
+	* GALERKIN/raphier.c: Hierarchisch radiositeitsalgoritme zoals
+	in Hanrahan'91, met uitbreiding naar clustering zoals voorgesteld door
+	Sillion. Te gebruiken als alternatief voor hierefine.c.
+
+Fri Nov  7 19:15:32 1997  Philippe Bekaert  <philippe@flater.cs.kuleuven.ac.be>
+
+	* MCRAD/qmcpt.c: Pattanaik style particle tracing geimplementeerd.
+
+Thu Nov  6 14:41:41 1997  Philippe Bekaert  <philippe@flater.cs.kuleuven.ac.be>
+
+	* shadowcaching.c: als shadow caching gebruikt wordt om een itnersectie
+	met de volledige wereld te berekenen, wordt voxel grid acceleratie 
+	gebruikt i.p.v. de hierarchishe bounding boxes.
+
+Wed Nov  5 18:27:22 1997  Philippe Bekaert  <philippe@flater.cs.kuleuven.ac.be>
+
+	* MCRAD/hwdrs.c,element.c: HWDRS geimplementeerd voor zowel
+	drie- als vierhoeken + visualisatie met T-vertex eliminatie.
+	Mesh grading ontbreekt nog.
+
+Fri Oct 31 19:33:36 1997  Philippe Bekaert  <philippe@flater.cs.kuleuven.ac.be>
+
+	* polygon.c: quadUv() efficienter geimplementeerd voor parallellogrammen.
+
+Thu Oct 23 18:59:48 1997  Philippe Bekaert  <philippe@flater.cs.kuleuven.ac.be>
+
+	* MCRAD/niederreiter.[ch]: GLOBAL_stochasticRaytracing_basis-2, 4D, 31 bits Niederreiter QMC
+	sequentie.
+
+	* MCRAD/[h]wdrs.c: uitgebreid met Niederreiter sampling + enkele
+	kleinere correcties.
+
+Tue Oct 14 13:50:47 1997  Philippe Bekaert  <philippe@flater.cs.kuleuven.ac.be>
+
+ 	* reden genoeg voor een nieuwe release ====> versie 971014
+
+Mon Oct 13 19:20:11 1997  Philippe Bekaert  <philippe@strojka.cs.kuleuven.ac.be>
+
+	* grid.[ch], scene.[ch], main.c + diverse andere plaatsen: raytracing 
+	acceleratie d.m.v. voxel grid. Versnelt het raytracen enkele 
+	factoren meer dan de hierarchie van bounding boxes (waargenomen
+	factor 4). Bij het inlezen van de scene wordt een voxelstructuur 
+	GLOBAL_scene_worldVoxelGrid (scene.h) aangemaakt (in main.c). De oproep
+	gridIntersect(GLOBAL_scene_worldVoxelGrid, ...) (zie grid.h) is compatibel met
+	GeomlistDiscretisationIntersect(ClusterWorld, ...).
+
+	De grid intersectie routine is overgenomen uit rayshade en kan
+	nog geoptimaliseerd worden.
+
+	* geomlist.h: ForAllGeoms iterator toegevoegd
+
+	* patch.c, patch_type.h: patchIntersect 2x sneller gemaakt
+	hoofdzakelijk door andere inside/outside test te gebruiken. De 
+	gebruikte test test of het intersectiepunt aan de goede kant
+	van iedere zijlijn van de patch ligt. Dit werkt omdat patches
+	convex zijn. Nadeel: 20 bytes meer geheugen nodig per patch.
+
+Sat Oct 11 23:46:10 1997  Philippe Bekaert  <philippe@strojka.cs.kuleuven.ac.be>
+
+	* getBoundingBox.c: boundsIntersectingSegment(): aangepast i.v.m. foutief
+	gedrag voor dikte-0 bounding boxes op PC (vermoedelijk probleem
+	met extended precisie floating point getal in register dat naar 
+	beneden wordt afgerond wordt bij wegschrijven in geheugen, zodat 
+	het getal even later groter blijkt te zijn dan zichzelf).
+
+	* Config.Linux: compilatievlaggen -meee-fp -m486 -malign-double voor
+	ongeveer 5% snellere executable + hopelijk betrouwbaardere floating
+	point op PCs (-mieee-fp lostte bovenstaand probleem niet op!)
+
+	* CSList.H was foutief in hoofddirectory i.p.v. GDT/ gecopieerd.
+
+	* readmgf.c: vertex sharing was soms fout bij veranderde transformatie
+	context (fout geintroduceerd op 8/10/97)
+	
+Thu Oct  9 09:16:12 1997  Philippe Bekaert  <philippe@flater.cs.kuleuven.ac.be>
+
+	* merge met veranderingen Frank sinds 8 juli ====> versie 971009
+
+	* render.h, gl.c: renderPixels() heeft extra argument i.v.m.
+	renderen van beelden die uit meerdere lijnen bestaan (ook aangepast
+	waar dit problemen gaf). opengl.c en starbase.c zijn nog niet 
+	aangepast!
+	
+Wed Oct  8 13:26:25 1997  Philippe Bekaert  <philippe@flater.cs.kuleuven.ac.be>
+
+	* readmgf.c, vertex_type.h, MGF/: inlezen van MGF bestanden
+	aanzienlijk versneld door behandeling van vertices te vereenvoudigen
+	+ optimisaties in the MGF bibliotheek. Vereistte o.a. een nieuw
+	veld 'back' in de Vertex structuur waarin een pointer naar de
+	overeenkomstige vertex in een back face bijgehouden kan worden.
+
+Tue Oct  7 18:17:46 1997  Frank Suykens  <franks@pixel.cs.kuleuven.ac.be>
+
+	* ui_debug.c : Draw Virtual GLOBAL_camera_mainCamera toegevoegd. Nutteloze
+	functie om een camera grid op het scherm te tekenen. Zo kan
+	je de intersectie ervan met de scene zien.
+
+	* ui_config.[ch], ui_main.c, ui_file.c, appdata.h :
+	Mechanisme toegevoegd om user specifieke opties toe te 
+	laten. Twee functies : LoadUserOptions en SaveUserOptions
+	laden/saven deze opties. De file die gebruikt wordt om de
+	opties in te zetten, is in te stellen in de application
+	defaults. Momenteel is dit '%H/.rpkrc' waarbij %H vervangen
+	wordt door de home directory.
+	De huidige user opties zijn momenteel enkel de 4 laatst gebruikte
+	files. Bij deze files wordt ook de laatste camera positie
+	bijgehouden. De vier files zijn in het file menu terug te
+	vinden. Ze worden tijdens het runnen van het programma
+	ook aangepast. 
+	User options worden weggeschreven wanneer 'Quit' geselecteerd
+ 	wordt in het file menu. Alle opties worden altijd weggeschreven.
+	User opties zitten allemaal in de globale variabele appData.
+	Extra opties moeten hieraan worden toegevoegd.
+
+	
+	* RAYTRACING/[ui_]rtstochastic.[cCH] : herschreven.
+	-> Klassieke raytracing is nu hier ondergebracht. User interface
+	is aangepast.
+	-> Aangepast om te werken met brdf's gesplitst in componenten.
+	Voor speculaire componenten wordt geen next event berekend.
+	-> Transparantie ingebouwd. Werkt ook voor geneste transparante
+	objecten. Er wordt steeds BTDF sampling gebruikt, behalve
+	bij klasieke raytracing.
+	-> Recursion depth parameter toegevoegd : Voor klassieke
+	raytracing betekent dit de MAXIMALE recursie diepte. Voor
+	stochastische bepaalt dit wanneer Russian roulette ingeschakeld
+	wordt (na rec-depth recursies).
+	-> Enkele fouten die er nog in zaten, zitten er nu niet meer in.
+
+	* RAYTRACING/*rtclassic* : verdwenen (cfr rtstochastic).
+	
+	* RAYTRACING/directlight.[CH] : toegevoegd (uit rttools.[ch]).
+	Behandeld directe belichting voor raytracing (next event
+	estimation). Importance sampling van lichtbronnen is
+	toegevoegd, waarbij alle lichten op voorhand een gewicht
+	krijgen. Naargelang hun gewicht worden de lichten stochastisch
+	gekozen. Visibiliteit en brdf zijn niet opgenomen in het gewicht.
+
+	* GDT/CSList.H : C++ implementatie van een lineaire
+	enkel gelinkte lijst, gebaseerd op het voorbeeld in
+	het boek van Stroustrup. Twee soorten lijsten zijn
+	voorzien : een waar het 'next' veld in de node zit
+	en een waar dit niet zo is. Zie de file voor meer info.
+		
+	* RAYTRACING/path.[CH] : toegevoegd.
+	CPath is een klasse die een lichtpad in de scene beschrijft.
+	PathNode is de klasse die een node van het pad beschrijft.
+	Een node bestaat uit een richting en een hitrecord waar de
+	straal intersecteert. Meer info zie path.H
+	
+	* brdf.[ch], btdf.[ch], edf.[ch], phong.[ch], xxdf.h (nieuw)
+	Brdfs, btdfs en edfs zijn gesplitst in componenten. Deze
+	componenten zijn gedefinieerd in xxdf.h. Momenteel is de opsplitsing 
+	gebeurd in DIFFUSE, GLOSSY en SPECULAR componenten. De Eval,
+	Transmittance, Reflectance, Emittance functies hebben allemaal
+	een extra parameter meegekregen : XXDFFLAGS. Deze parameter
+	geeft aan welke componenten in de berekeningen opgenomen
+	moeten worden. Voor backwards compatibility redenen zijn
+	er macro's voorzien die het vroegere gedrag simuleren.
+	(vb. BrdfDiffuseReflectance -> brdfReflectance(..., DIFFUSE_COMPONENT))
+	Voor phong brdf's wordt het verschil tussen specular en glossy
+	arbitrair op een bepaalde exponent gezet.	
+
+Mon Sep 22 13:10:45 1997  Philippe Bekaert  <philippe@flater.cs.kuleuven.ac.be>
+
+	* MCRAD/stochray.c: warming up geimplementeerd voor semi-iteratieve
+	methode.
+
+Fri Sep 19 20:18:04 1997  Philippe Bekaert  <philippe@flater.cs.kuleuven.ac.be>
+
+	* ui_material.c (nieuwe file): material editor, kan worden opgeroepen
+	door dubbel te klikken op een oppervlak zichtbaar in het canvas window.
+
+	* brdf.[ch], btdf.[ch], edf.[ch]: nieuwe methodes Duplicate en
+	CreateEditor i.v.m. material editor.
+
+	* radiance.h + alle radiance methoden: nieuwe methode 'UpdateMaterial'
+	wordt opgeroepen als ergens een materiaal gewijzigd is in de scene.
+	De bedoeling is dat de radiantie methode zelf de nodig correcties aan
+	brengt aan tot dan toe berekende radiantie + andere gegevens, en
+	de scene herrendert.
+
+Thu Sep 18 19:37:01 1997  Philippe Bekaert  <philippe@flater.cs.kuleuven.ac.be>
+
+	* canvas.c, ui_main.c, ui_canvas.c (nieuwe file): dubbel klikken
+	op canvas window maakt dat er een popup menu verschijnt waarin je
+	momenteel een optie hebt: het materiaal van de aangeduide patch
+	editeren.
+
+Tue Sep 16 18:21:30 1997  Philippe Bekaert  <philippe@flater.cs.kuleuven.ac.be>
+
+	* getPatchList.h: macro ForAllPatches gedefinieerd om over een PatchSet
+	te itereren.
+
+	* GDT/List.h: (LIST *) cast toegevoegd in ForAllInList macro om
+	"incompatible pointer conversion" boodschappen te vermijden.
+
+Wed Aug 27 17:08:07 1997  Philippe Bekaert  <philippe@flater.cs.kuleuven.ac.be>
+
+	* MCRAD/qmcpt: Quasi Monte Carlo Particle Tracing (Keller EGRW 1996)
+	geimplementeerd.
+	
+	* STOCHRAY directory hernoemd naar MCRAD (Monte Carlo RADiosity)
+	
+	* STOCHRAY/hwdrs.c: WDRS radiosity met hierarchische, adaptieve
+	verfijning ... eerste poging. 
+
+	* STOCHRAY/stochray.c, wdrs.c: white labyrint tests.
+
+	* GDT/List.h: nieuwe iterator ForAllInList om lijsten mee te doorlopen
+	zonder functies te hoeven te definieren voor wat je met een element 
+	wil doen.
+
+	* vertex_type.h: nieuw veld "radianceData" voor per vertex gegevens
+	gebruikt door de courante radiantie methode. Wordt volledig zelf
+	beheerd door de radiantiemethode, ttz wordt niet automatische gefreed
+	etc... .
+
+Tue Aug 19 18:24:39 1997  Philippe Bekaert  <philippe@flater.cs.kuleuven.ac.be>
+
+	* STOCHRAY/wdrs.c: uitgebreid voor niet-monochromatische omgevingen.
+
+Mon Aug 18 16:56:28 1997  Philippe Bekaert  <philippe@flater.cs.kuleuven.ac.be>
+
+	* readvrml.[CH], VRML/: ondersteuning voor het inlezen van VRML97 
+	bestanden. Moet nog verder uitgewerkt worden: viewpoints, global
+	illumination nodes, dynamische omgevingen ...
+
+	* Makefile, Config files: aanpassingen i.v.m. C++ en VRML.
+
+Wed Jul 16 19:28:04 1997  Philippe Bekaert  <philippe@flater.cs.kuleuven.ac.be>
+
+	* GALERKIN/hierefine.c, cluster.[ch]: voor afschatting van
+	benaderingsfout wordt maximale radiantie in een bron cluster gebruikt
+	i.p.v. een schatting van de radiantie die de broncluster in de
+	richting van de ontvanger uitstraalt. Dit lost storende onderschatting
+	van de benaderingsfout op als de radiantie naar de ontvanger niet
+	goed wordt geschat. Nieuwe functie MaxClusterRadiance() in cluster.c.
+	maxClusterRadiance() zou net zo goed in de ELEMENT * structuur
+	bijgehouden kunnen worden + berekend tijdens push/pull.
+
+	* GALERKIN/formfactor.c: strenger verfijningscriterium bij isotrope
+	clustering (max. kernel waarde x max source radiance).
+ 	
+Tue Jul 15 20:21:40 1997  Philippe Bekaert  <philippe@flater.cs.kuleuven.ac.be>
+
+	* starbase.c, Config.HP: support voor HP machines toegevoegd. Moet
+	nog verbeterd worden.
+	
+Wed Jul  9 16:34:32 1997  Philippe Bekaert  <philippe@flater.cs.kuleuven.ac.be>
+
+	* GALERKIN/mrvisibility.[ch], formfactor.c: multi-resolution
+	visibility bepaling ala Sillion & Drettakis SIGGRAPH'95 
+	geimplementeerd. Omdat het exact bepalen van de equivalent blocker size
+	van een cluster zo lang duurt, gebruiken we momenteel de afmetingen
+	van de boundingbox ervan, wat een overschatting is.
+
+	* GALERKIN/cluster.c, feature.[ch], ui_galerkin.c: berekening van 
+	equivalente blokker (of blokker complement) grootte geimplementeerd.
+	Nodig voor multiresolutie visibiliteit ala Sillion, Drettakis, 
+	"Feature-based Control of Visibility logError ...", SIGGRAPH'95, p 145.
+
+	* GALERKIN/ui_galerkin.c: berekening herinitialiseren kan lang duren, 
+	dus klok cursor op canvas window + button voor multi resolutie 
+	visibiliteit gemaakt (staat af per default).
+	
+Tue Jul  8 15:15:02 1997  Philippe Bekaert  <philippe@flater.cs.kuleuven.ac.be>
+
+	* Merge met code Frank sind 070529 ===> RenderPark 970708.
+	
+	* patch.[ch], geometry.[ch], compound.c, surface.c, getPatchList.c, ray.h,
+	shadowcaching.c, select.c, GALERKIN/galerkin.c, RAYTRACING/...,
+	PARTICLE/..., STOCHRAY/...:
+	ray-discretised Geometry intersectie routines geherdefinieerd. Laatste
+	parameter van GeomDiscretizationIntersect() etc... is nu niet meer een
+	BOOLEAN (shadowtesting of niet), maar een combinatie van vlaggen.
+	Deze vlaggen, beschreven in ray.h, bepalen 
+	1) welk soort intersecties teruggegeven wordt: enkel met facetten 
+	die naar de oorsprong van de straal toegekeerd zijn (HIT_FRONT), 
+	enkel ervan weggekeerd (HIT_BACK), of beide (HIT_FRONT|HIT_BACK), 
+	en of de dichtstbijzijnde, dan wel eender welke (HIT_ANY), 
+	intersectie gezocht moet worden.
+	2) welke informatie teruggegeven moet worden over het intersectiepunt 
+	(als er een is): intersectiepunt (HIT_POINT), geinterpoleerde normaal
+	(HIT_NORMAL), materiaaleigenschappen (HIT_MATERIAL). Informatie waar 
+	niet naar gevraagd wordt, wordt niet berekend.
+	Met shadowtesting=TRUE voorheen, komt nu best overeen:
+	HIT_FRONT|HIT_ANY (men is niet geinteresseerd in welk itnersectiepunt etc...)
+	Met shadowtesting=FALSE voorheen:
+	HIT_FRONT|HIT_POINT|HIT_NORMAL|HIT_MATERIAL
+
+Tue Jul  8 17:13:42 1997  Frank Suykens  <franks@pixel.cs.kuleuven.ac.be>
+
+        * brdf.h/c, IdealReflectedDirection : Functie toegevoegd om 
+        perfect weerkaatste straal te berekenen
+
+        * btdf.h/c, BtdfIdealRefractedDirection : Functie om ideaal
+        gerefracteerde straal te berekenen. Houd rekening met
+        totale interne reflectie.
+
+        * btdf.h/c, BtdfEvalXXX : Evaluatie functies voor btdf's
+
+        * phong.h/c, PhondBtdfEvalXXX : Evaluatie functies voor Phong btdf's
+
+        * rtclassic.c : Gestart met behandeling doorzichte materialen.
+        Nog niet af !!
+	
+Tue Jun 24 11:46:21 1997  Philippe Bekaert  <philippe@flater.cs.kuleuven.ac.be>
+
+	* GALERKIN: formfactor.[ch] commentaar aangepast + terug onderscheid
+	gemaakt tussen receiver en source surface element bij keuze cubatuur-
+	formule.
+
+	* GALERKIN/gelaerkin.c, element.[ch], interaction.[ch]: statistieken 
+	vermelden nu ook hoeveel van iedere soort elementen (clusters, surface)
+	of interacties (cluster to cluster ...) er zijn.
+
+	* GALERKIN/shooting.c: berekening ambiente radiantie gecorrigeerd:
+	gebeurt nu na de shooting operatie i.p.v. voor (wat fout was ingeval
+	niet gesloten omgeving).
+
+Fri Jun 20 19:26:14 1997  Philippe Bekaert  <philippe@flater.cs.kuleuven.ac.be>
+
+	* Config, Makefile, diverse .c en .h files: code strikt ANSI-C 
+	compliant gemaakt. Compilatie met SUN's C compiler is nu ook mogelijk.
+
+Wed Jun 11 19:42:31 1997  Philippe Bekaert  <philippe@flater.cs.kuleuven.ac.be>
+
+	* readmgf.c (handleFaceWithHolesEntity): eliminatie van gaten in
+	facetten met gaten geimplementeerd.
+
+Fri Jun  6 14:21:11 1997  Philippe Bekaert  <philippe@flater.cs.kuleuven.ac.be>
+
+	* GALERKIN/scratch.c: voor iedere cluster wordt viewport ingesteld
+	die afhangt van relatieve grootte van kleinste surface element in
+	cluster t.o.v. virtueel scherm grootte. 
+
+	* GALERKIN/element.[ch], cluster.c: nieuw ELEMENT veld minimumArea =
+	grootte van kleinste surface element in een cluster.
+	
+	* SGL/sgl.c: viewports geimplementeerd + werken met 
+	current rendering context i.p.v. context bij iedere bewerking als 
+	parameter mee te geven. Gevolg van viewports: frame buffer bevat beeld
+	nu ondersteboven (vcoordinaat (0,0) in beeld is linker benedenhoek
+	komt overeen met eerste pixel in frame buffer).
+	
+	* GALERKIN/hierefine.c: EvaluateInteraction() herschreven. 
+	Source cluster radiance variation error wordt niet meer
+	geevalueerd indien de approximatino error reeds groter dan de error
+	threshold is.
+
+	* GALERKIN/scratch.[ch]: nieuw bestand met alles i.v.m. rendering in
+	scratch buffer.
+
+Thu Jun  5 19:44:40 1997  Philippe Bekaert  <philippe@flater.cs.kuleuven.ac.be>
+
+	* GALERKIN/cluster.c, element.h, galerkin.c, ui_galerkin.c, 
+	galerkinP.h: Clustering met behandeling van intra-cluster visibiliteit
+	m.b.v. Z-buffer zichtbaarheidsalgoritme geimplementeerd. Noopt
+	tot extra veld tmp (integer) in ELEMENT struct. Tevens veld
+	GLOBAL_statistics_numberOfPatches ingevoerd (aantal patches in cluster). Interface
+	aangepast zodat scratch renderer frame buffer size ingevuld kan
+	worden + clustering strategie (isotroop, met surface orientatie
+	alleen of met Z-buffer intra-cluster visibiliteit) gekozen
+	kan worden.
+
+	* getBoundingBox.[ch]: nieuwe functie boundsTransform() om boundingbox
+	voor getransformeerde van een boundingbox te berekenen.
+
+Wed Jun  4 14:27:57 1997  Philippe Bekaert  <philippe@flater.cs.kuleuven.ac.be>
+
+	* SGL/: nieuwe directory met eenvoudige, kleine grafische bibliotheek.
+	Doel is eenvoudige scenes (enkele tientallen patches bij clustering
+	bvb) snel in een geheugenbuffer te kunnen renderen. Wordt
+	gebruikt voor "slim" energietransport bij clustering (enkel van
+	zichtbare patches in een bron cluster naar zichtbare patches in
+	de ontvangende cluster). Scan conversie en clipping routines komen
+	uit Graphics Gems I.
+
+	* transform.[ch]: definitie van 2D affiene transformaties gewijzigd
+	+ 4x4 transformaties ingevoerd. Momenteel enkel nodig voor SGL.
+
+Mon Jun  2 12:58:51 1997  Philippe Bekaert  <philippe@flater.cs.kuleuven.ac.be>
+
+	* cluster.[ch], main.c: mcrCreateClusterHierarchy() geeft nu Geometry * terug
+	i.p.v. GeometryListNode *. Constructie GLOBAL_scene_clusteredWorld en CLusteredWorldGeom nu
+	iets eleganter.
+
+Fri May 30 17:10:11 1997  Philippe Bekaert  <philippe@flater.cs.kuleuven.ac.be>
+
+	* GALERKIN/hierefine.c (EvaluateInteraction): source cluster radiantie
+	varieert naargelang de richting waaruit ze waargenoemen wordt. Dit 
+	leidt tot een extra term in de foutafschatting van een gegeven kandidaat
+	interactie. Hier wordt nu rekening mee gehouden. Vooral belangrijk bij
+	combinatie clustering + hogere orde benaderingen. Werkt waarschijnlijk nog 
+	niet goed voor bidirectionele radiositeit.
+
+	* color.h: colorMinimum macro toegevoegd voor berekenen van minimum
+	van twee COLORs (componentsgewijs).
+
+Thu May 29 15:58:19 1997  Philippe Bekaert  <philippe@flater.cs.kuleuven.ac.be>
+
+	* Merge met code Frank en Philip sinds versie 970418 
+	====> versie 970529
+
+Thu May 29 15:26:42 1997  Frank Suykens  <franks@pixel.cs.kuleuven.ac.be>
+
+	* kdtree.C kdtree.H : C++ klassen voor kd-trees. Nog niet bruikbaar
+	vanuit RenderPark.
+
+	* bidirectional.c (Potential source selection) : Enkel zichtbare
+	elementen worden als potentiaal bron gebruikt.
+
+	* bidirectional.c (Shooting patch selection) : Code toegevoegd die
+	de patch met maximale flux bijdrage berekend. Dit kan als een
+	goed maar zeer traag shooting patch criterium gebruikt worden.
+	(Functie : 'ExactFluxContribution')
+
+	* bidirectional.c (PropagateRadianceAndPotential) : Bij hierarchische
+	radiositeit moeten bijdragen van 'received radiance' en 'received
+	potential' in verschillende niveau's gecombineerd worden. Hiertoe
+	werd 'PushPullReceivedPotential', 'PatchUpdatePushPulledPotential'
+	en 'CombineReceivedPotentialWithReceivedRadiance' toegevoegd.
+	
+Tue May 20 18:51:59 1997  Philippe Bekaert  <philippe@flater.cs.kuleuven.ac.be>
+
+	* GALERKIN/: Isotropie-aanname gerelaxeerd op receiver cluster: orientatie
+	van de facetten in de ontvangende cluster wordt in rekening gebracht.
+	Intra-cluster visibiliteit nog niet.
+
+Fri May 16 19:58:52 1997  Philippe Bekaert  <philippe@flater.cs.kuleuven.ac.be>
+
+	* GALERKIN/: Isotropie-aanname gerelaxeerd op source cluster: er wordt nu 
+	ook rekening gehouden met de orientatie van fe facetten in een source 
+	cluster.
+	
+	* GALERKIN/: clustering geimplementeerd voor shooting en in combiantie
+	met importance.
+
+	* cubature.[ch]: nieuwe cubatuurformule GLOBAL_crv1 voor integratie over
+	balken door evaluatie in de hoekpunten van de balk. Wordt gebruikt
+	voor vormfactoren met clusters.
+
+Thu May 15 16:45:51 1997  Philippe Bekaert  <philippe@flater.cs.kuleuven.ac.be>
+
+	* De naam van het ding is veranderd van 'Rad' tot 'RenderPark'. 
+	De executable heet niet langer meer 'rad', maar 'rpk'.
+
+	* STOCHRAY/: 'Minimal Ray set Radiosity' hernoemd naar
+	'WDRS radiosity'
+
+	* shaftculling.[ch]: nieuwe functie ShaftCullGeom() voor shaft 
+	culling van een enkele Geometry i.p.v. een GeometryListNode. Shaft culling
+	code geherstructureerd. 
+
+	* GALERKIN/: Probleem i.v.m. zelfocclusie van clusters tijdens 
+	vormfactorberekening opgelost.
+
+Wed May 14 19:40:53 1997  Philippe Bekaert  <philippe@flater.cs.kuleuven.ac.be>
+
+	* GALERKIN/: gathering met isotropische clustering geimplementeerd.
+	Ref: Sillion, "A Unified Approach ...", IEEE TVCG nr 1, sept 1995.
+
+	* geom_type.h: GEOMs hebben nu ook een uniek ID nummer om het debuggen
+	wat eenvoudiger te maken.
+	
+	* geometry.[ch]: nieuwe functie geomDontIntersect() ingevoerd waarmee tot
+	twee GEOMS gegeven kunnen worden waarmee geen straal-intersectietesten
+	mogen uitgevoerd worden.
+
+	* shaftculling.[ch]: nieuwe functie SetShaftCUllingStrategy() waarmee shaft 
+	culling strategy (KEEP_CLOSED, OVERLAP_OPEN of ALWAYS_OPEN) opgegeven
+	kan worden. Default is OVERLAP_OPEN wat meestal het meest efficient is.
+	Ook een functie shaftDontOpen() ingevoerd, waarmee tot 2 GEOMs opegegevn kunnen
+	worden niet niet geopend mogen worden tijdens shaft culling.
+
+Tue May 13 15:33:32 1997  Philippe Bekaert  <philippe@flater.cs.kuleuven.ac.be>
+
+	* GALERKIN/element.[ch]: nieuwe functies mcrElementVertices() en elementMidpoint()
+	die vertices en middelpunt van element berekenen. mcrElementBounds() en elementDraw()
+	sterk vereenvoudigd.
+
+	* ui_debug.c: nieuwe debug functies voor onderzoeken van element hierarchie
+	op een aan te duiden plaats geimplementeerd (voor Galerkin radiosity).
+	
+	* getBoundingBox.h: definitie van DisjunctBounds aangepast zodat minimum X, Y of Z
+	van de ene strikt groter i.p.v. groter of gelijk moet zijn aan maximum
+	X, Y, of Z van de andere. Op die manier worden gelijke bounding boxes
+	niet meer als disjunct beoordeeld.
+
+	* POOLS/: pools bibliotheek versie 1.3 beta 2 in gebruik genomen: 
+	een onregelmatig voorkomende logFatal error van de POOLS bibliotheek
+	zou hiermee eindelijk opgelost moeten zijn (cfr Thu Feb 27).
+
+Mon May 12 19:51:47 1997  Philippe Bekaert  <philippe@flater.cs.kuleuven.ac.be>
+
+	* cubature.[ch]: CUBARULE structuur uitgebreid voor integratie over
+	balken (3-de abscis coordinaat t ingevoerd, deze is nul voor 2D regels)
+
+Fri May  9 16:31:25 1997  Philippe Bekaert  <philippe@strojka.cs.kuleuven.ac.be>
+
+	* GALERKIN/galerkin.c, cluster.[ch]: opstellen cluster hierarchie
+	geimplementeerd.
+
+	* main.c, scene.[ch]: nieuwe globale variabele GLOBAL_scene_clusteredWorldGeom
+	geintroduceerd. Dit is een compound Geometry die GLOBAL_scene_clusteredWorld
+	bevat. Wordt niet gebruikt voor ray-tracing omdat dit telkens een 
+	extra ray-intersectie test zou kosten, maar is wel nodig om
+	als toplevel cluster te dienen in Galerkin methodes met clustering.
+
+	* opengl.c: SwitchBackfaceCulling() en doing_backface_culling 
+	verwijderd vermits niet langer relevant sinds alle facetten
+	enkelzijdig zijn.
+
+Wed May  7 15:27:29 1997  Philippe Bekaert  <philippe@flater.cs.kuleuven.ac.be>
+
+	* GALERKIN/element.[ch]: aanpassingen gemaakt i.v.m. clustering. 
+	Voornaamste incompatibele aanpassing is de invoering van een veld 
+	pog (PatchOrGeom) i.p.v. patch in struct ELEMENT. Eveneens een
+	nieuw veld irregular_subelements, van nieuw type ELEMENTLIST * voor
+	subelementen gecreerd door onregelmatige opslitsing (clusters!).
+ 	
+	* RAYTRACING/rttools.c: correctie in RT_IDTrace() (er werd een
+	pixel per scanlijn te weinig geproduceerd).
+
+Mon May  5 18:23:27 1997  Philippe Bekaert  <philippe@flater.cs.kuleuven.ac.be>
+
+	* ui_debug.c (PatchDumpFormFactors): routine (en button) toegevoegd waarmee
+	de radiosity vorm factor matrix gedumpt kan worden. Momenteel nog geen
+	voorzieningen voor hierarchische structuur van vormfactoren.
+
+	* GALERKIN/: probleem met dubbelzijdige oppervlakken opgelost.
+
+Fri Apr 18 13:02:12 1997  Philippe Bekaert  <philippe@flater.cs.kuleuven.ac.be>
+
+        * merge met code Frank ====> versie 970418.
+
+	* nieuwe SCENES: classroom.mgf (het alombekende klaslokaal uit de S)
+	en Franks Hospital.
+	
+	* readmgf.c: voor twee-zijdige oppervlakken worden nu dubbel patches gegenereerd:
+	een voor iedere zijde (zo ook dubbele vertices: een met de normaal naar 
+	weerszijden). Default is nog steeds enkelzijdigheid te forceren.
+	
+	* STOCHRAY/: stochray.c en minray.c aangepast voor correcte behandeling van
+	tweezijdige oppervlakken
+	
+	* GALERKIN/: aangepast voor correcte behandeling van tweezijdige oppervlakken:
+	alle patches zijn enkelzijdig en wat achter een patch ligt kan niet met de
+	patch interageren. Soms divergeren de berekeningen: wordt onderzocht 
+	(enkelzijdigheid forceren, zoals voorheen, resulteert in enkelzijdige
+	patches en daar zijn voor zover ik zie geen problemen mee ... of toch geen
+	nieuwe).
+
+	* patch.c: ray intersecties voor straal die langs achter een patch raakt worden
+	altijd genegeerd (voor dubbelzijdige oppervlakken heb je nu paren patches: een
+	aan iedere zijde).
+
+	* gl.c, opengl.c: alle patches zijn enkelzijdig, dus geen speciaal aan- en 
+	afzetten van backface culling meer nodig ivm tweezijdige oppervlakken.
+
+	* GALERKIN/: Bidirectionele radiositeit verder afgewerkt (tegen 3 april =
+	EGRW'97 deadline). Bidirectional radiosity vereist COLOR potentiaal, niet
+	zomaar een Float. Daarom type van potential, unshot_potential, received_potential
+	aangepast! Zo ook een nieuw veld flux.
+
+	* STOCHRAY/minray.c: correctie i.v.m. patch sample offset voor QMC sampling.
+	
+	* nieuwe versie van MGF bibliotheek (2.0) in gebruik genomen.
+
+Fri Apr 18 13:19:31 1997  Frank Suykens  <franks@pixel.cs.kuleuven.ac.be>
+
+	* GLOBAL_stochasticRaytracing_basis.c : RadianceAtPoint keert voor bidirectionele radiositeit
+ 	shooting patch selectie-criterium waarde terug als 'clustered'
+ 	aanstaat.
+
+	* bidirectional.c (EstimatedFluxContribution) : Het shooting
+	patch criterium kan via 'potential driven' selectie switchen
+	tussen 'simpel philip' en source patch coherence based criterium.
+	Dit veranderd de waarde van gemiddelde ongeschoten potentiaal
+	in de scene.
+
+       * bidirectional.c : Potentiaal op patches wordt gebruikt om het
+	shooting patch criterium in op te slaan.
+
+       * bidirectional.c : GLOBAL_camera_mainCamera wordt bevrozen na de eerste iteratie !
+
+       * element.c/h : Added 'DrawElementOutlineStrong' : tekent
+	een elementje zodat het kan onderscheden worden van normal
+	outline elementjes. Momenteel worden gewoon een aantal tussen
+	lijntjes getekend.
+		
+Tue Mar 25 19:38:35 1997  Philippe Bekaert  <philippe@flater.cs.kuleuven.ac.be>
+
+	* GALERKIN/GLOBAL_stochasticRaytracing_basis.c: mcrPushRadiance() en mcrPullRadiance() hernoemd naar
+	Push() en Pull(): deze routines kunnen ook voor potentiaal gebruikt
+	worden.
+
+Mon Mar 24 16:30:03 1997  Philippe Bekaert  <philippe@flater.cs.kuleuven.ac.be>
+
+	* GALERKIN/element.h: interactions_created veld vervangen door een
+	unsigned char voor meerdere vlaggen per element.
+
+Fri Mar 21 20:09:17 1997  Philippe Bekaert  <philippe@flater.cs.kuleuven.ac.be>
+
+	* GALERKIN/: Bidirectionele radiositeitsmethode geimplementeerd
+	(niet hierarchisch).
+
+	* GALERKIN/ gecopieerd naar GALERKIN-STABLE/
+	
+Fri Mar  7 14:40:29 1997  Philippe Bekaert  <philippe@flater.cs.kuleuven.ac.be>
+
+	* motif.h: nieuwe include file, lost incompatibiliteitsprobleempje
+	tussen Motif 1.2 en 2.0 op. Wordt ingesloten in uit.h.
+
+Thu Mar  6 14:20:12 1997  Philippe Bekaert  <philippe@flater.cs.kuleuven.ac.be>
+
+	* Rad, 0README, SCENES/: beknopte uitleg over gebruik van het programma 
+	in Help menu + README file bij source. Eerste publieke release via WWW 
+	en ftp (godfather:/ftp/pub/graphics/software/Rad-970306.tar.gz) na 
+	weglaten van experimentele code uit versie 970304. Bij deze gelegenheid ook
+	beperkte verzameling scenes in subdirectory SCENES geplaats + README file.
+
+Tue Mar  4 13:06:52 1997  Philippe Bekaert  <philippe@flater.cs.kuleuven.ac.be>
+
+	* fix.[ch], ui_file.c: routine voor het corrigeren van de vertex volgorde
+	van alle facetten die zichtbaar zijn (als backface culling wordt afgezet) 
+	in het huidige aanzicht.
+
+	* PARTICLE/, RAYTRACING/, Makefile: aparte subdirectories voor particle 
+	tracing and de raytracing algoritmes + aanpassingen in Makefile.
+	====> versie 970304.
+	
+	* merge met code Frank en Philipd sinds versie 970224
+
+Mon Feb 24 15:29:29 1997  Phil Dutre  <philipd@krasser.cs.kuleuven.ac.be>
+
+        * phong.c: (veel) commentaar toegevoegd
+
+        * rtstochastic.c (RT_GetRadiance_rec): sample routines aangepast
+        voor extra pdf parameter
+  
+        * particle.c (ShootParticlesFromPatches): sample routines aangepast
+        voor extra pdf parameter
+  
+        * minray.c (GenerateRay): sample routines aangepast voor
+        extra pdf parameter
+  
+        * stochray.c (PatchShootRays): sample routines aangepast voor
+        extra pdf parameter
+  
+        * spherical.c / .h (SampleSphericalTriangle): sample routines
+        aangepast zodat pdf waarde mee teruggegeven wordt.
+	
+Mon Mar  3 21:54:36 1997  Philippe Bekaert  <philippe@strojka.cs.kuleuven.ac.be>
+
+	* topology.[ch], patch_type.h, patch.c, vertex_type.h, vertex.c: 
+	Uitgebreide topologische informatie over de PATCHes en 
+	VERTEXes in de scene. Topologische informatie is voorhanden onder de 
+	vorm van een BREP_VERTEX voor een Vertex en BREP_FACE voor een Patch.
+	De informatie wordt ingevuld in een nieuw veld brep_data van VERTEXes 
+	en PATCHes. Bij het inlezen van de scene wordt geen dergelijke 
+	informatie ingevuld omdat deze redelijk wat geheugen in beslag neemt.
+	Een radiantie methode die van deze topologische informatie gebruik wil
+	maken moet zelf BrepCheckIn(GLOBAL_scene_patches) uitvoeren.
+
+Mon Mar  3 13:01:21 1997  Philippe Bekaert  <philippe@flater.cs.kuleuven.ac.be>
+
+	* monitor.[ch]: nieuwe bestanden: hulpje bij het debuggen: om een lijst
+	bij te houden van patches die in de gaten gehouden moeten worden.
+
+	* ui_debug.c: routines om patch toe te voegen/weg te laten uit lijst
+	van in de gaten te houden patches.
+	
+	* Makefile, radiance.[ch], HURA/*: nieuwe directory HURA met stubs
+	voor Het Ultieme Rendering Algoritme. 
+
+Sat Mar  1 12:31:08 1997  Philippe Bekaert  <philippe@strojka.cs.kuleuven.ac.be>
+
+	* Makefile, radiance.c, GALERKIN/, STOCHRAY/: aparte subdirectories 
+	voor Galerkin radiosity en stochstic ray/minimal ray set radiosity. 
+
+	* Makefile, BREP/: nieuwe subdirectory: Boundary REPresentation voor
+	solid objects. Implementatie van een topologische datastructuur,
+	een variant van de winged edge data structuur. Zal gebruikt
+	worden voor zichtbaarheidsclassificatie en discontinuity meshing
+	en mogelijks ook voor het oplappen van ingelezen scenes.
+	
+	* ui_camera.c, Rad: knopje "Print" ingevoerd in GLOBAL_camera_mainCamera menu met
+	bijhorende actie: oogpunt etc... afdrukken op scherm.
+	
+	* hierefine.c, formfactor.c: aanpassing i.v.m. exacte 
+	visibiliteitsclassificatie: volledige zichtbaarheid voor een
+	interactie (link->vis == 255) is betroubaar: indien deze situatie
+	zich voordoet (vaak tijdens verfijning), is geen shaft culling
+	en visibiliteitsbemonstering nodig.
+	
+	* initiallinking.c: aangepast voor exacte visibiliteitsclassificatie.
+	Op dit ogenblik wordt al uitgemaakt of er volledige zichtbaarheid
+	is, dan wel occlusie veroorzaakt door een enkele tussenliggende
+	patch. Andere gevallen worden voorlopig nog steeds met 
+	puntbemonstering (= inexact) behandeld.
+	
+	* shaftculling.[ch]: correcties in shaft cull test voor patches
+	+ shaft bevat nu een vlag 'cut', die op TRUE gezet wordt tijdens
+	culling van zodra gedetecteerd wordt dat een enkele patch de hele 
+	shaft omsluit, m.a.w. er is volledige occlusie veroorzaakt door een
+	enkele patch. In een dergelijke situatie wordt shaft culling 
+	stopgezet. De candidate-occluder list na shaft culling bevat niet meer
+	alle potentiele occluders, maar de patch die volledige occlusie
+	veroorzaakt is de eerst in de lijst. Dit mechanisme werkt wel enkel
+	voor polygon-tot-polygon shafts, niet voor balk-tot-balk shafts.
+
+Fri Feb 28 10:30:26 1997  Philippe Bekaert  <philippe@flater.cs.kuleuven.ac.be>
+
+	* geometry3d.[ch]: nieuwe bestanden met algemeen toepasbare
+	meetkundige operaties in 3D, zoals het opzoeken van de 
+	snijlijn tussen twee vlakken en het vinden van het snijpunt 
+	van een lijn en een vlak. 
+	
+	* formfactor.c: Facing() geherimplementeerd (deze keer zoals
+	het hoort?)
+
+	* inverse force matrices naar aparte directory DATA verhuisd, waar van nu 
+	voort al dat soort data thuis zal horen (i.p.v. tussen de source code te
+	staan). Overeenkomstige aanpassing in de Config files.
+	
+Thu Feb 27 13:02:33 1997  Philippe Bekaert  <philippe@flater.cs.kuleuven.ac.be>
+
+	* Float.h, vector.h: macro VECTORTOLERANCE ingevoerd die onzekerheid
+	op vector componenten bepaalt + macro's voor vergelijken getallen
+	en vectoren (FLAOTEQUAL en VECTOREQUAL) vereisen nu opgave van een
+	tolerantie. Ook aanpassingen overal deze macros gebruikt worden.
+	Filosofie: twee "features" vallen samen indien hun onzekerheidsgebied
+	overlapt. Onzekerheidsgebied voor een punt is een kubusje met halve
+	zijde VECTORTOLERANCE() rond het punt etc... (cfr. M. Segal, "Using 
+	tolerances ...", SIGGRAPH '90).
+
+	* patch_type.h, patch.c: tolerantie ingevoerd voor patch vlakken.
+	Nodig om betrouwbare punt-op-vlak e.d. testen te doen.
+	
+	* POOLS/pools.c: Een aantal "sanity checks" geimplementeerd. free block
+	pointer in pools gaat blijkbaar soms om zeep. De fout lijkt echter 
+	niet herhaalbaar en doet zich slechts zeer zelden voor. In 
+	observatie. Sanity checks worden niet ingecompileerd tenzij indien 
+	het preprocessor symbool SANITY_CHECKS gedefinieerd is.
+
+	* shaftculling.c: Shaft cull test voor patches geimplementeerd (vroeger
+	werd enkel de bounding box van de patch tegen de shaft getest).
+	Shaft culling met element-tot-element shafts levert nu de lijst van
+	alle zekere occluders op. Indien na culling de occluder lijst leeg is,
+	is er met zekerheid volledige zichtbaarheid.
+
+Tue Feb 25 19:58:41 1997  Philippe Bekaert  <philippe@flater.cs.kuleuven.ac.be>
+
+	* shaftculling.[ch]: constructie van een shaft op GLOBAL_stochasticRaytracing_basis van 2 patches
+	i.p.v. bounding boxes. Nodig voor exacte visibiliteitsclassificatie.
+
+	* galerkinP.h, galerkin.c, ui_galerkin.c: vlag exact_visibility
+	geintroduceerd in galstate. Zet aan voor exacte visibiliteits
+	classificatie i.p.v. classificatie d.m.v. punt-bemonstering.
+	
+	* patch.c, polygon.c, getBoundingBox.c: vlak vergelijking van patches
+	consistent gemaakt met vlakvergelijkingen voor shaft culling:
+	VECTORDOTPRODUCT(normal, point) + plane_constant = 0.
+
+	* polygon.h: type POLYGON ingevoerd. Momenteel enkel gebruikt voor 
+	element-tot-element shaft culling in galerkin radiosity.
+	
+Mon Feb 24 11:24:42 1997  Philippe Bekaert  <philippe@flater.cs.kuleuven.ac.be>
+
+	* merge met code Philip sinds versie 970217 en Frank sinds versie
+	970210 ====> versie 970224
+
+Mon Feb 24 11:23:43 1997  Frank Suykens  <franks@pixel.cs.kuleuven.ac.be>
+
+        * spherical.h/c: Added VectorCoordSys : maakt een coordsys met
+                       opgegeven vector als Z-vector.
+
+        * rtstochastic.c : Correct two globalPass methods, brdf sampling
+        * rttools.c : Light selection : kies een licht voor een shadowray.
+                    Pixel shaft culling voor oogstralen.
+	
+Fri Feb 21 15:59:17 1997  Phil Dutre  <philipd@krasser.cs.kuleuven.ac.be>
+
+        * particle.c: gevoelig uitgebreid met de behandeling van
+        particles ... maar particle tracing als geheel werkt nog
+        niet.
+
+Thu Feb 20 19:13:10 1997  Phil Dutre  <philipd@krasser.cs.kuleuven.ac.be>
+
+        * spherical.c / .h (SampleHemisphereUniform): routine toegevoegd
+        voor uniforme sampling over hemisfeer.
+
+Wed Feb 19 18:56:45 1997  Philippe Bekaert  <philippe@flater.cs.kuleuven.ac.be>
+
+	* hierefine.c: begin gemaakt met het implementeren van H-P refinement
+	(ontvanger benaderingsorde vangt aan met constant en wordt verhoogd
+	wanneer nodig).
+
+	* formfactor.c (PointKernelEval): stralen worden getrokken van bron naar 
+	ontvanger ipv omgekeerd: lichtlekken worden nu schaduwlekken zoals het 
+	hoort.
+
+Mon Feb 17 16:25:55 1997  Philippe Bekaert  <philippe@flater.cs.kuleuven.ac.be>
+
+	* ===> versie 970217 in /cw/graphics/projects/philippe.
+	
+	* main.c (initApp): default alarm signal handler geinstalleerd (soms
+	ontglippen alarm signals de rekenroutines, en als ze niet worden
+	opgevangen wordt het programma terstond zonder pardon afgeschoten).
+
+	* galerkin radiosity: importance-driven variant van de algoritmen 
+	geimplementeerd.
+
+Thu Feb 13 14:18:24 1997  Philippe Bekaert  <philippe@flater.cs.kuleuven.ac.be>
+
+	* ui_camera.c: "alternate" camera geimplementeerd met bijhorende buttons.
+	GLOBAL_camera_mainCamera omwisselen met "alternate" wordt niet beschouwd als van camera positie
+	veranderen. Handig i.v.m. view-potentiaal gedreven algoritmen (maken van 
+	"offset" views).
+
+	* eye.[ch]: SetAverageLuminance() geeft voormalig ingestelde gemiddelde
+	luminantie terug i.p.v. niets.
+
+	* radiance.h, minray.c, stochray.c, galerkin.c, particle.c: 
+	nieuwe methode "UpdatePatchPotential" in de interface voor
+	radiantie-algoritmen. Deze methode behandelt veranderingen van de
+	direct ontvangen potentiaal van een patch. Voor alle algoritmen behalve
+	Galerkin is deze methode NULL.
+
+	* potential.[ch]: nieuwe bestanden. voor het berekenen en renderen van de
+	direct ontvangen potentiaal van de patches in de scene.
+
+Wed Feb 12 16:20:40 1997  Philippe Bekaert  <philippe@flater.cs.kuleuven.ac.be>
+
+	* galerkin.c: ambiente lichtterm wordt nu ook in GetRadiance() in
+	rekening gebracht.
+
+	* galerkin.c: routine GalerkinRaycast() geimplementeerd die
+	het ray casten versnelt door eerst dmv het Zbuffer algoritme
+	in hardware het meest dichtbijzijnde facet te bepalen. De
+	techniek zal later opgenoemen worden in ray-tracing algoritmen
+	en daarna zal de routine terug verdwijnen.
+
+	* gl.c, opengl.c, render.h: functie renderIds() voor patch ID rendering
+	geimplementeerd + opsmuk. ID rendering in gl.c en opengl.c werkt voorlopig
+	enkel met een 24-bits frame buffer. 
+
+	* ui_galerkin.c: buttons voor herinitialiseren van radiantie
+	berekening en voor het tussentijds renderen van de oplossing (tijdens
+	de berekening) ingevoerd.
+
+	* POOLS/pools.c: bug verbeterd in GetMagic() + opsmuk ===> versie 1.2 van
+	de POOLS bibliotheek.
+	
+Tue Feb 11 19:37:04 1997  Philippe Bekaert  <philippe@flater.cs.kuleuven.ac.be>
+
+	* POOLS/pools.c, private.h: sneller + (veel) minder geheugen overhead. 
+
+Mon Feb 10 11:32:34 1997  Philippe Bekaert  <philippe@flater.cs.kuleuven.ac.be>
+
+	* element.[ch], hierefine.c: recursieve shaftculling gedurende
+	verfijning geimplementeerd, vereiste een routine mcrElementBounds().
+
+	* merge met de code van Frank sinds versie 970204 ===> versie 970210
+	(cfr. onder).
+	
+	* galerkin.c en consoorten: hogere orde benaderingen geimplementeerd.
+	Verfijningscriterium is nog altijd heel primitief en vatbaar voor
+	grote verbeteringen. Default orde van benadering is lineair.
+
+	* element.c: Galerkin-rendering kan nu ook m.b.v. Gouraud 
+	interpolatie, maar het is wel erg traag (positie en kleur
+	van element vertices wordt niet opgeslagen, maar telkenmale
+	herberekend). Heeft enkel zin voor hogere orde benaderingen.
+
+	* render.h, gl.c, opengl.c: functie renderPolygonGouraud() voor
+	renderen van een convex polygon met Gouraud shading toegevoegd.
+
+	* canvas.c: mate waarin camera rechts/links geroteerd wordt wanneer
+	op-richting bijna samenvalt met kijkrichting aangepast zodat het wat 
+	minder schokkerig gebeurt. Nog steeds probleem met naar boven/onder 
+	roteren van de camera onder deze condities.
+
+Mon Feb 10 15:38:40 1997  Frank Suykens  <franks@pixel.cs.kuleuven.ac.be>
+
+	* brdf.c/h : Toevoeging van methods om brdf's te evalueren, gegeven
+	             brdf, inkomende en uitgaande richting.
+	* phong.c/h : Toevoeging van routines om het phong model
+	              te evalueren.
+	* raytracing.c : Aangepast om stachastische raytracing toe te laten.
+	* rtstochastic.c/h : Nieuw : stochastische raytracing
+	* rttools.c/h (RT_NextEventEstimation) : Algemene routine
+	    voor next event estimation (direct lighting) voor raytracing
+	    algoritmes.
+	* ui_rttools.c : Nieuw. next event estimation options panel.
+	* ui_rtstochastic.c : Nieuw. Stochastische raytracing control panel.
+
+Wed Feb  5 10:01:49 1997  Philippe Bekaert  <philippe@flater.cs.kuleuven.ac.be>
+
+	* ui_galerkin.c: menu voor basissen + cosmetica
+
+	* uit.[ch]: functie CreateSeparator() voor creeren separator
+	widget toegevoegd.
+
+Tue Feb  4 14:07:45 1997  Philippe Bekaert  <philippe@flater.cs.kuleuven.ac.be>
+
+	* galerkin.c, stochray.c, minray.c: GetRadiance() routines zinniger
+	gemaakt.
+	
+	* color.h: macro's gedefinieerd voor barycentrische en bilineaire 
+	interpolatie van COLORs.
+	
+	* patch.h: bilinearToUniform() en uniformToBilinear() voor omzetting
+	uniforme <-> biineaire coordinaten globaal gemaakt.
+	
+	* element.[ch]: routines toegevoegd om punten op elementen naar
+	regelmatige subelementen te transformeren.
+
+	* phong.c, rtclassic.c: EdfDiffuseEmittance geeft radiantie terug, niet
+	de radiositeit. Er is dus geen deling door M_PI meer nodig om de diffuse
+	zelfuitgestraalde radiantie van een oppervlak te kennen.
+
+	* main.c: ReadScene() toleranter gemaakt voor fouten tijdens inlezen
+	nieuwe scene: als er zich fouten voordoen, maar de nieuwe scene
+	is niet leeg, werk dan toch verder met de nieuwe scene ipv de oude 
+	te herstellen.
+
+	* merge met code Philip van Frank sinds versie 970122 (zie onder).
+	====> Versie 970204 in /cw/graphics/projects/philippe geplaatst.
+
+Tue Feb  4 12:20:18 1997  Frank Suykens  <franks@pixel.cs.kuleuven.ac.be>
+
+      * raytracing.c,h : Aangepast zodat meerdere raytracing-achtige
+          algoritmes ingeplugd kunnen worden.
+      * rttools.c,h : Nieuwe file, bevat hulproutines voor raytracing
+          methodes. Bv. het aflopen van alle pixels op het scherm
+          waarbij voor elke pixel een callback wordt opgeroepen
+          die de radiantie berekent.
+      * rtcasting.c,h : Ray casting methode
+      * rtclassic.c,h : Klassieke recursieve raytracing.
+      * ui_raytracing.c : Menu gelijkaardig gemaakt aan het Radiosity
+          menu.
+
+Fri Jan 31 17:17:20 1997  Frank Suykens  <franks@pixel.cs.kuleuven.ac.be>
+
+      * brdf (BrdfSpecularReflectance): Nieuwe functie om 
+          speculaire reflectie coefficient op te vragen.
+      * phong : Method geimplementeerd die speculair reflectie teruggeeft.
+        
+Thu Jan 30 11:22:09 1997  Frank Suykens  <franks@pixel.cs.kuleuven.ac.be>
+
+      * defaults.h : Raytracing defaults toegevoegd.
+
+Mon Jan 27 09:46:40 1997  Frank Suykens  <franks@pixel.cs.kuleuven.ac.be>
+
+      * error.h (Assert): Assert macro toegevoegd. Handig om te debuggen.
+
+      * Float.h (FLOATEQUAL): Haakjes toegevoegd in macro
+
+      * kdtree.c: Nieuwe file - eerste versie. Twee verschillende 
+          implementaties van kd trees. Normale kd tree met een punt
+          per node en bucket kd trees met een punt per interne node
+          en N punten in de bladeren. Splitsing gebeurt volgens
+          de richting van maximale spreiding (bucket kd).
+
+Thu Jan 23 11:10:47 1997  Frank Suykens  <franks@pixel.cs.kuleuven.ac.be>
+
+      * Rad: Added photonmap menu
+	
+Fri Jan 31 18:17:04 1997  Phil Dutre  <philipd@krasser.cs.kuleuven.ac.be>
+ 
+        * particle.[ch], ui_particle.c, particleP.h, ui_radiance.c,
+        radiance.[ch]: particle tracing. Ook aanpassingen in Rad voor de namen van 
+	de buttons en zo.
+ 
+Fri Jan 24 18:05:54 1997  Phil Dutre  <philipd@krasser.cs.kuleuven.ac.be>
+ 
+       * spherical.c: toevoeging routine SampleHemisphereCosNTheta()
+       aanpassen commentaar routine SampleHemisphereCosTheta()
+ 
+       * spherical.h: toevoeging declaratie routine SampleHemisphereCosNTheta()	
+
+Mon Feb  3 14:58:35 1997  Philippe Bekaert  <philippe@strojka.cs.kuleuven.ac.be>
+
+	* main.c, ui_file.c, Config: nieuwe versie van de POOLS bibliotheek 
+	in gebruik genomen. Kleine aanpassingen aan statistiek paneel in
+	file menu. Config file bevat compilatievlaggen voor POOLS bibliotheek
+	(deze zijn architectuurafhankelijk). Dispose() is nu veel sneller
+	(als POOLS gecompileerd met -DPOOL_HEADERS, kost wel behoorlijk wat
+	storage overhead: 1 pointer per cel, die vaak slechts 8 
+	bytes groot is).
+
+	* radiosity.[ch] en alles wat er van af hangt: werd
+	hernoemd tot radiance.[ch], RADIOSITY_METHODS is nu RADIANCE_METHOD,
+	patch->radiosityData is nu patch->radianceData, ...
+
+	* cluster.[ch], geometry.[ch], scene.[ch], radiosity.[ch], ...:
+	de cluster hierarchie is van nu voort van dezelfde vorm als de 
+	gegeven model hierarchie. Dit maakt dat bvb het trekken van een 
+	straal 	door de cluster hierarchie, of shaft culling, geen cluster-
+	specifieke code (meer) vergt. ClusterIntersect(TopCluster, ...)
+	wordt nu bijvoorbeeld 
+	GeomListDiscretizationIntersect(GLOBAL_scene_clusteredWorld,...).
+	In de radiosity interface zijn CreateClusterData(), 
+	PrintClusterData(), DestroyClusterData() vervangen door
+	CreateGeomData(), ... voor bijhouden radiosity-specifieke data bij
+	GEOMS ipv CLUSTERs.
+
+	* shaftculling.c, geometry.[ch]: Voorheen waren "getPatchList-geoms"
+	alleen voor shaft culling nodig, nu ook voor clustering. 
+	Dit noopte tot invoeren van een vlag "shaftCullGeometry" in iedere
+	Geometry struct om aan te duiden of de Geometry tijdens shaft culling
+	gegenereerd is of niet (enkel tijdens shaft culling gegenereerde
+	GEOMs moeten na shaft culling terug vrijgegeven worden).
+
+	* compound.[ch]: De specifieke data voor een compound Geometry
+	is nu geen aparte Compound struct meer, maar rechtstreeks een
+	GeometryListNode *. Naar analogie met de getPatchList GEOMs (getPatchList.c,
+	patchlist_geom.h).
+
+	* compound.[ch], surface.[ch]: GLOBAL_compound_methods en GLOBAL_skin_surfaceGeometryMethods()
+	GEOM_METHODS structs globaal gemaakt. .h file bevat nu ook een
+	"routine" om te testen of een gegeven Geometry een compound, ... is.
+	Was reeds eerder zo voor patchlists.
+	
+	* patch.c, readmgf.c: omzetting uniforme naar bilineaire 
+	parametrisatie en berekening jacobiaan en normaal wat robuster
+	gemaakt.
+
+	* opengl.c: compilatieprobleem i.v.m. 'PatchListIterate();' voor 
+	'else' opgelost (tussen {} gezet, ';' mocht er niet staan anders
+	blijkbaar.)
+
+Fri Jan 31 19:34:02 1997  Philippe Bekaert  <philippe@flater.cs.kuleuven.ac.be>
+
+	* default MGF material sidedness veranderd: alle materialen
+	worden 1-zijdig verondersteld. De opgegeven zijdigheid wordt
+	genegeerd. Reden: de algoritmes werken niet voor tweezijdige 
+	oppervlakken.
+
+	* main.c, statistics.h: GLOBAL_statistics_maxSelfEmittedPower en
+	GLOBAL_statistics_maxSelfEmittedRadiance worden berekend bij inladen scene.
+	
+	* radiosity.h, render.h, gl.c, opengl.c, galerkin.c, stochray.c, 
+	minray.c: een radiantie-algorithme kan een eigen methode implementeren
+ 	om de scene te renderen met hardware assistentie. Deze vervangt
+	de default werkwijze (patches renderen met het hun toegewezen 
+	RGB kleurtriplet) indien gedefinieerd. Setup (camera, backbuffer...)
+	gebeurt nog steeds in render.c.
+	
+	* Galerkin radiosity: hierarchische verfijning geimplementeerd.
+	nieuwe bestanden: element.[ch], hierefine.c, constant.c.
+	Voor de nabije toekomst: hogere orde benaderingen, clustering, 
+	view-potentiaal, betere verfijningscriteria. 
+	
+	* patch.[ch]: uniforme sampling van patches (ook onregelmatige
+	vierhoeken) geimplementeerd. Alle parametrisatie van patches
+	is nu uniform. Nergens nog expliciete Jacobianen nodig. Nadeel
+	voor Galerkin spul i.v.m. T-vertex elminatie en rendering m.b.v.
+	Gouraud interpolatie: aangrenzende patches worden niet steeds 
+	op dezelfde plaats (midden gedeelde zijde) opgedeeld.
+
+	* stochray.c, minray.c: patchPoint() vervangen door
+	patchUniformPoint() voor uniforme sampling van patches.
+
+Wed Jan 29 11:02:28 1997  Philippe Bekaert  <philippe@flater.cs.kuleuven.ac.be>
+
+	* main.c, scene.[ch]: bij inlezen scene wordt nu ook een lijst aangelegd 
+	van patches op lichtbronnen (GLOBAL_scene_lightSourcePatches) + inlezen is meer verbose
+	gemaakt.
+	* readmgf.c: aanpassing in getCurrentMaterial() opdat edf van niet
+	lichtgevens materiaal (EDF *)NULL zou zijn en idem zo voor brdf en edf.
+
+Mon Jan 27 13:12:47 1997  Philippe Bekaert  <philippe@flater.cs.kuleuven.ac.be>
+
+	* uit.[ch]: option menus geimplementeerd.
+	
+	* Galerkin radiosity algorithme: shaftculling ingevoerd + 
+	cubatuurformules voor de vormfactoren. 
+
+	* galerkin.c, main.c: constant radisoity initialisatie verbetered.
+	esimtaed_average_radiance was vroeger alleen gebaseerd op zelfuitgestraald
+	vermogen. Nu wordt ook gedeeld door 1-gemiddelde reflectiviteit. Dit zou een
+	betere schatting moeten zijn waarin het effect van meervoudige reflecties
+	ook is in rekening gebracht. Visualisatie met radiantie herschaling
+	gebaseerd op deze schatting ziet er echter veel slechter uit. Daarom
+	wordt deze schatting nu terug vermenigvuldigd met (1-reflectiviteit)
+	in de oproep van SetAveragLuminance in de routine ReadScene() in main.c.
+
+Fri Jan 24 19:57:05 1997  Philippe Bekaert  <philippe@flater.cs.kuleuven.ac.be>
+
+	* Galerkin radiosity geimplementeerd met uitzondering van hierarchische
+	verfijning, hogere orde benaderingen, clustering en potentiaal. Ook
+	de vormfactorberekening is slechts uiterst simpel (een straal tussen 
+	middelpunten, net genoeg om de rest te testen). De constant radiosity
+	initialisatie in galerkin.c moet ook nog worden nagezien. 
+	Nieuwe bestanden: gathering.c, shooting.c, initiallinking.c, formfactor.[ch].
+	Aanpassingen in ui_galerkin.c, galerkin.c, galerkinP.h, shadowcaching.h.
+
+Thu Jan 23 18:30:02 1997  Philippe Bekaert  <philippe@flater.cs.kuleuven.ac.be>
+
+	* Makefile aangepast zodat make config niet meer bestaat en make depend
+	niet meer noodzakelijk is (maar wel nog aan te raden als je de source code
+	verandert natuurlijk). appdefaults.c bestaat niet meer (en wordt niet
+	meer included in ui_main.c). In de plaats daarvan is er nu een
+	bestand ui_defaults.c dat volledig automatisch wordt aangemaakt 
+	uitgaande van 'Rad' (make zorgt daarvoor). Inbakken van aangepaste
+	application defaults gaat nu veel sneller.
+	
+	* aanvang gemaakt met het implementeren van Galerkin radiosity, ttz
+	radiosty.c, ui_radiosity.c  aangepast + nieuwe files aangemaakt:
+	galerkin.[ch], ui_galerkin.c, gathering.c, shooting.c, interaction.[ch],
+	interactionlist.h.
+
+Wed Jan 22 19:00:25 1997  Philippe Bekaert  <philippe@flater.cs.kuleuven.ac.be>
+
+	* edf*, brdf*, btdf*, phong.[ch], material.[ch] en alles wat
+	van material.h afhangt:
+	EDFs, BRDFs en BTDFs geimplementeerd als afzonderlijke klassen.
+	Momenteel enkel het Phong type geimplementeerd en dan nog slechts
+	enkel met die methoden die nodig zijn voor de radiositeitsmethode.
+	Echter eenvoduig uit te breiden met andere methoden + andere types
+	EDFs, ... . 
+
+Tue Jan 21 18:18:55 1997  Philippe Bekaert  <philippe@flater.cs.kuleuven.ac.be>
+
+	* stochray: statistics panel aangemaakt, minray: control panel
+	aangemaakt. Header files zijn gesplits: "publiek" deel in stochray.h en minray.h.
+	Zaken die enkel in stochray.c en ui_stochray.c nodig zijn zitten in 
+	stochrayP.h, idemzo voor minray.
+	
+Mon Jan 20 19:50:03 1997  Philippe Bekaert  <philippe@flater.cs.kuleuven.ac.be>
+
+	* uit.c: User Interface Toolkit uitgebreid met CreateFormEntry() 
+	functie voor eenvoudig creeren van invulformulieren. Invulformulieren 
+	aangepast in ui_file.c, ui_render.c en ui_camera.c. xmenu.[ch] 
+	geelimineerd.
+
+	
+

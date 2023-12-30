@@ -1,0 +1,60 @@
+# ------- BEGIN of Named colors ------
+
+c lamplight_col =
+	cxy 0.333333 0.333333
+
+c lampinside_col =
+	cxy 0.333333 0.333333
+
+c lampoutside_col =
+	cxy 0.380000 0.333333
+
+# ------- END of Named Colors --------
+
+# ------ Named Materials ------ 
+
+m lamplight_mat =
+	c
+	rd 0.000000
+	c lamplight_col
+	ed 200000.000000
+
+m lampinside_mat =
+	c lampinside_col
+	rd 0.800000
+
+m lampoutside_mat =
+	c
+	rd 0.500000
+
+o lamplight
+v v_0 =
+	p 0.140000 -0.181983 0.847246
+	n 1.000000 0.000000 0.000000
+v v_1 =
+	p 0.000000 -0.041983 0.847246
+	n 0.000000 1.000000 0.000000
+v v_2 =
+	p 0.000000 -0.181983 0.983299
+	n 0.000000 0.000000 1.000000
+v v_3 =
+	p 0.000000 -0.181983 0.711193
+	n 0.000000 0.000000 -1.000000
+v v_4 =
+	p 0.000000 -0.321983 0.847246
+	n 0.000000 -1.000000 0.000000
+v v_5 =
+	p -0.140000 -0.181983 0.847246
+	n -1.000000 0.000000 0.000000
+m lamplight_mat
+f v_5 v_3 v_4
+f v_5 v_4 v_2
+f v_5 v_1 v_3
+f v_5 v_2 v_1
+f v_0 v_4 v_3
+f v_0 v_2 v_4
+f v_0 v_3 v_1
+f v_0 v_1 v_2
+o
+
+

@@ -1,0 +1,85 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="GENERATOR" content="Mozilla/4.77 [en] (X11; U; Linux 2.2.18 i686) [Netscape]">
+   <title>VRML documentation</title>
+</head>
+<body text="#000000" bgcolor="#FFFFFF" link="#000066" vlink="#003300" alink="#FF0000">
+
+<h2>
+<font face="Arial,Helvetica">Features:</font></h2>
+
+<ul>
+<li>
+<font face="Arial,Helvetica">reads models in <font color="#000000">MGF
+and</font> new XRML (extended VRML'97) file format.</font></li>
+
+<li>
+<font face="Arial,Helvetica">images can be saved in PPM, TIFF and GLOBAL_currentRadianceMethodHandle
+PIC format, for which numerous convertors exist.</font></li>
+
+<li>
+<font face="Arial,Helvetica">supports high dynamic range TIFF and PIC image
+output, suitable for lighting analysis purposes, e.g. using GLOBAL_currentRadianceMethodHandle tools,
+or experimentation with tone mapping techniques ...</font></li>
+
+<li>
+<font face="Arial,Helvetica">illuminated models after radiosity can be
+saved in VRML'97 format.</font></li>
+
+<li>
+<font face="Arial,Helvetica">X-Windows/Motif based user interface.</font></li>
+
+<li>
+<font face="Arial,Helvetica">interactive navigation using graphics hardware
+(OpenGL) with various optimizations that make it suited for large models.</font></li>
+
+<li>
+<font face="Arial,Helvetica">wide range of tone mapping operators + calibrated
+monitor support.</font></li>
+
+<li>
+<font face="Arial,Helvetica">batch rendering with control through command
+line arguments or Inter Process Communication.</font></li>
+
+<li>
+<font face="Arial,Helvetica">rendering into an external canvas window makes
+RenderPark behave as add "plug-in" in other applications.</font></li>
+</ul>
+
+<h2>
+<font face="Arial,Helvetica">Rendering algorithms implemented:</font></h2>
+<font face="Arial,Helvetica">Object-space radiance algorithms:</font>
+<ul>
+<li>
+<font face="Arial,Helvetica">Galerkin radiosity (both gathering and shooting)
+with (or without)&nbsp;&nbsp; hierarchical refinement, higher order approximations,
+clustering,&nbsp;&nbsp; view-importance, ...</font></li>
+
+<li>
+<font face="Arial,Helvetica">Stochastic Jacobi radiosity, also hierarchical
+with clustering,&nbsp;&nbsp; higher order approximations and view-importance
+as described in Philippe Bekaert's PhD thesis (recommended radiosity method)</font></li>
+
+<li>
+<font face="Arial,Helvetica">Various random walk radiosity algorithms</font></li>
+
+<li>
+<font face="Arial,Helvetica">Photon Mapping</font></li>
+</ul>
+<font face="Arial,Helvetica">Pixel-driven radiance algorithms:</font>
+<ul>
+<li>
+<font face="Arial,Helvetica">stochastic ray tracing (usable as add second
+globalPass after an object-space radiance algorithm, with special support for
+the photon map)</font></li>
+
+<li>
+<font face="Arial,Helvetica">bi-directional path tracing. Using regular
+expressions, you can tune exactly what part of the light transport shall
+be computed.</font></li>
+</ul>
+
+</body>
+</html>
