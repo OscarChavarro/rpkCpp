@@ -1,5 +1,6 @@
 #!/bin/bash
 
+mkdir -p output
 ./build/rpk etc/cube.mgf \
     -raytracing-method none -iterations 9 -radiance-method Galerkin \
     -radiance-model-savefile output/cube.wrl \

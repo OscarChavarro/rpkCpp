@@ -17,3 +17,5 @@ This is a full rewrite with the following features:
 - Lots of reworkings on moving #define macros to inline functions, functions to
   class methods, revisited in-code comments documentation, standarized naming style and
   much more.
+- References to papers and books on code has been downloaded to ./doc folder to ease the
+  algorithm study process.
