@@ -25,8 +25,8 @@ extern PATCHLIST *GLOBAL_scene_lightSourcePatches;
 // The top of the patch cluster hierarchy for the scene. Automatically derived from 'GLOBAL_scene_patches' when loading a new scene
 extern GEOMLIST *GLOBAL_scene_clusteredWorld;
 
-// Single GEOM containing the above
-extern GEOM *GLOBAL_scene_clusteredWorldGeom;
+// Single Geometry containing the above
+extern Geometry *GLOBAL_scene_clusteredWorldGeom;
 
 // Voxel grid containing the whole world
 extern GRID *GLOBAL_scene_worldGrid;

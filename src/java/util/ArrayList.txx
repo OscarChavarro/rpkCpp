@@ -6,7 +6,7 @@
 namespace java {
 
 template <class T> bool
-ArrayList<T>::add(T elem)
+ArrayList<T>::add(T voxelData)
 {
     if ( currentSize >= maxSize ) {
         Data = (T *)realloc(Data, sizeof(T) * (maxSize + increaseChunk));
@@ -15,20 +15,20 @@ ArrayList<T>::add(T elem)
         }
         maxSize += increaseChunk;
     }
-    Data[currentSize] = elem;
+    Data[currentSize] = voxelData;
     currentSize++;
     return true;
 }
 
 template <class T> void
-ArrayList<T>::add(long int pos, T elem)
+ArrayList<T>::add(long int pos, T voxelData)
 {
     T last = get(size()-1);
     add(last);
     int i;
     for ( i = size()-2; i > 0; i-- ) {
         if ( i == pos ) {
-            Data[i] = elem;
+            Data[i] = voxelData;
             break;
         }
         Data[i] = Data[i-1];

@@ -1,17 +1,20 @@
-/* surface.h: SURFACEs: surfaces are basically a list of PATCHes representing
- * a simple object with given MATERIAL. */
-
-#ifndef _SURFACE_H_
-#define _SURFACE_H_
+/**
+Surfaces are basically a list of PATCHes representing a simple object with given Material.
+*/
+#ifndef __SURFACE__
+#define __SURFACE__
 
 #include <cstdio>
 
+#include "java/util/ArrayList.h"
 #include "material/material.h"
 #include "skin/vectorlist.h"
 #include "skin/vertexlist.h"
 #include "skin/Vertex.h"
+#include "skin/geomlist.h"
 
 class GEOM_METHODS;
+class GEOM;
 class PATCHLIST;
 
 class SURFACE {
@@ -60,12 +63,12 @@ extern SURFACE *SurfaceCreate(MATERIAL *material,
 extern GEOM_METHODS surfaceMethods;
 #define SurfaceMethods()    (&surfaceMethods)
 
-/* tests whether a GEOM is a SURFACE. */
+/* tests whether a Geometry is a SURFACE. */
 #define GeomIsSurface(geom)    (geom->methods == &surfaceMethods)
 
 /* "cast" a geom to a surface */
 #define GeomGetSurface(geom)    (GeomIsSurface(geom) ? (SURFACE*)(geom->obj) : (SURFACE*)nullptr)
 
-#include "skin/patchlist.h"
+#include "skin/Geometry.h"
 
 #endif

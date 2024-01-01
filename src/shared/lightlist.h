@@ -37,7 +37,7 @@ public:
 
     // Discrete sampling of lightsources
 
-    // A patchlist must be supplied for building a light list.
+    // A getPatchList must be supplied for building a light list.
     // Non emitting patches (edf == nullptr) are NOT put in the list.
     CLightList(PATCHLIST *list, bool includeVirtualPatches = false);
 

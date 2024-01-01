@@ -302,8 +302,8 @@ RenderPatch(PATCH *patch) {
 }
 
 static void
-ReallyRenderOctreeLeaf(GEOM *geom, void (*render_patch)(PATCH *)) {
-    PATCHLIST *patchlist = GeomPatchList(geom);
+ReallyRenderOctreeLeaf(Geometry *geom, void (*render_patch)(PATCH *)) {
+    PATCHLIST *patchlist = geomPatchList(geom);
     ForAllPatches(P, patchlist)
                 {
                     render_patch(P);
@@ -312,7 +312,7 @@ ReallyRenderOctreeLeaf(GEOM *geom, void (*render_patch)(PATCH *)) {
 }
 
 static void
-RenderOctreeLeaf(GEOM *geom, void (*render_patch)(PATCH *)) {
+RenderOctreeLeaf(Geometry *geom, void (*render_patch)(PATCH *)) {
     if ( renderopts.use_display_lists ) {
         if ( geom->dlistid <= 0 ) {
             geom->dlistid = geom->id;
@@ -354,7 +354,7 @@ BoundsDistance2(Vector3D p, float *bounds) {
 
 class OctreeChild {
   public:
-    GEOM *geom;
+    Geometry *geom;
     float dist;
 };
 
@@ -363,15 +363,15 @@ geom is a surface or a compoint with 1 surface and up to 8 compound children geo
 CLusetredWorldGeom is such a geom e.g.
 */
 static void
-RenderOctreeNonLeaf(GEOM *geom, void (*render_patch)(PATCH *)) {
+RenderOctreeNonLeaf(Geometry *geom, void (*render_patch)(PATCH *)) {
     int i, n, remaining;
     OctreeChild octree_children[8];
-    GEOMLIST *children = GeomPrimList(geom);
+    GEOMLIST *children = geomPrimList(geom);
 
     i = 0;
     ForAllGeoms(child, children)
                 {
-                    if ( GeomIsAggregate(child)) {
+                    if ( geomIsAggregate(child)) {
                         if ( i >= 8 ) {
                             Error("RenderOctreeNonLeaf", "Invalid octree geom node (more than 8 compound children)");
                             return;
@@ -429,7 +429,7 @@ RenderWorldOctree(void (*render_patch)(PATCH *)) {
     if ( !render_patch ) {
         render_patch = RenderPatch;
     }
-    if ( GeomIsAggregate(GLOBAL_scene_clusteredWorldGeom)) {
+    if ( geomIsAggregate(GLOBAL_scene_clusteredWorldGeom)) {
         RenderOctreeNonLeaf(GLOBAL_scene_clusteredWorldGeom, render_patch);
     } else {
         RenderOctreeLeaf(GLOBAL_scene_clusteredWorldGeom, render_patch);
@@ -437,14 +437,14 @@ RenderWorldOctree(void (*render_patch)(PATCH *)) {
 }
 
 static void
-GeomDeleteDLists(GEOM *geom) {
+GeomDeleteDLists(Geometry *geom) {
     if ( geom->dlistid >= 0 ) {
         glDeleteLists(geom->dlistid, 1);
     }
     geom->dlistid = -1;
 
-    if ( GeomIsAggregate(GLOBAL_scene_clusteredWorldGeom)) {
-        GEOMLIST *children = GeomPrimList(geom);
+    if ( geomIsAggregate(GLOBAL_scene_clusteredWorldGeom)) {
+        GEOMLIST *children = geomPrimList(geom);
         ForAllGeoms(child, children)
                     {
                         GeomDeleteDLists(child);

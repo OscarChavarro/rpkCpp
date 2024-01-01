@@ -2,7 +2,7 @@
 
 #include "material/statistics.h"
 #include "common/error.h"
-#include "skin/geom.h"
+#include "skin/Geometry.h"
 #include "GALERKIN/basisgalerkin.h"
 #include "GALERKIN/galerkinP.h"
 #include "GALERKIN/formfactor.h"
@@ -45,13 +45,13 @@ static GEOMLIST *Cull(INTERACTION *link) {
         if ( IsCluster(link->rcv)) {
             ShaftDontOpen(&shaft, link->rcv->pog.geom);
         } else {
-            ShaftOmit(&shaft, (GEOM *) link->rcv->pog.patch);
+            ShaftOmit(&shaft, (Geometry *) link->rcv->pog.patch);
         }
 
         if ( IsCluster(link->src)) {
             ShaftDontOpen(&shaft, link->src->pog.geom);
         } else {
-            ShaftOmit(&shaft, (GEOM *) link->src->pog.patch);
+            ShaftOmit(&shaft, (Geometry *) link->src->pog.patch);
         }
 
         if ( ocandlist == GLOBAL_scene_clusteredWorld ) {
@@ -469,7 +469,7 @@ static int SubdivideSourceCluster(INTERACTION *link) {
         if ( !IsCluster(child)) {
             PATCH *the_patch = child->pog.patch;
             if ((IsCluster(rcv) &&
-                 BoundsBehindPlane(GeomBounds(rcv->pog.geom), &the_patch->normal, the_patch->plane_constant)) ||
+                 BoundsBehindPlane(geomBounds(rcv->pog.geom), &the_patch->normal, the_patch->plane_constant)) ||
                 (!IsCluster(rcv) && !Facing(rcv->pog.patch, the_patch))) {
                 continue;
             }
@@ -502,7 +502,7 @@ static int SubdivideReceiverCluster(INTERACTION *link) {
         if ( !IsCluster(child)) {
             PATCH *the_patch = child->pog.patch;
             if ((IsCluster(src) &&
-                 BoundsBehindPlane(GeomBounds(src->pog.geom), &the_patch->normal, the_patch->plane_constant)) ||
+                 BoundsBehindPlane(geomBounds(src->pog.geom), &the_patch->normal, the_patch->plane_constant)) ||
                 (!IsCluster(src) && !Facing(src->pog.patch, the_patch))) {
                 continue;
             }

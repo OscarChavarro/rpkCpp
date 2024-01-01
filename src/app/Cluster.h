@@ -2,7 +2,7 @@
 #define __CLUSTER__
 
 #include "java/util/ArrayList.h"
-#include "skin/geom.h"
+#include "skin/Geometry.h"
 
 class Cluster {
 private:
@@ -19,7 +19,7 @@ public:
     virtual ~Cluster();
     explicit Cluster(PATCHLIST *inPatches);
     void splitCluster();
-    GEOM * convertClusterToGeom();
+    Geometry * convertClusterToGeom();
 };
 
 #endif

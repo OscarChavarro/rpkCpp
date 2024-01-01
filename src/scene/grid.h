@@ -7,11 +7,11 @@ Global_Raytracer_activeRaytracer acceleration using a uniform grid
 
 #include "common/bounds.h"
 #include "skin/patch.h"
-#include "skin/geom.h"
+#include "skin/Geometry.h"
 
 class GRIDITEM {
   public:
-    void *ptr;        /* PATCH or GEOM pointer */
+    void *ptr;        /* PATCH or Geometry pointer */
     unsigned flags;    /* patch or geom? last ray id, ... */
 };
 
@@ -30,7 +30,7 @@ class GRID {
     void **gridItemPool;
 };
 
-extern GRID *CreateGrid(GEOM *geom);
+extern GRID *CreateGrid(Geometry *geom);
 
 extern void DestroyGrid(GRID *grid);
 

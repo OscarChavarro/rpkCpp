@@ -2,7 +2,7 @@
 #include "skin/patchlist.h"
 #include "skin/patch.h"
 #include "skin/hitlist.h"
-#include "skin/geom.h"
+#include "skin/Geometry.h"
 
 /* computes a bounding box for the given list of PATCHes. The bounding box is
  * filled in 'boundingbox' and a pointer to it returned. */
@@ -21,7 +21,7 @@ float *PatchListBounds(PATCHLIST *pl, float *boundingbox) {
 }
 
 /* Tests whether the Ray intersect the PATCHes in the list. See geom.h
- * (GeomDiscretisationIntersect()) for more explanation. */
+ * (geomDiscretizationIntersect()) for more explanation. */
 HITREC *PatchListIntersect(PATCHLIST *pl, Ray *ray, float mindist, float *maxdist, int hitflags, HITREC *hitstore) {
     HITREC *hit = (HITREC *) nullptr;
     ForAllPatches(P, pl)
@@ -67,9 +67,9 @@ static void PatchPrintId(FILE *out, PATCH *patch) {
 }
 
 static void PatchlistPrint(FILE *out, PATCHLIST *patchlist) {
-    fprintf(out, "patchlist:\n");
+    fprintf(out, "getPatchList:\n");
     PatchListIterate1B(patchlist, PatchPrintId, out);
-    fprintf(out, "\nend of patchlist.\n");
+    fprintf(out, "\nend of getPatchList.\n");
 }
 
 static PATCHLIST *PatchlistPatchlist(PATCHLIST *patchlist) {

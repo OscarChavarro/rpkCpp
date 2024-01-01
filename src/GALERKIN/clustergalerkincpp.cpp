@@ -1,17 +1,17 @@
 /* cluster-specific operations */
 
 #include "common/error.h"
-#include "skin/geom.h"
+#include "skin/Geometry.h"
 #include "GALERKIN/clustergalerkin.h"
 #include "GALERKIN/coefficientsgalerkin.h"
 #include "GALERKIN/scratch.h"
 #include "GALERKIN/mrvisibility.h"
 
-static ELEMENT *GalerkinDoCreateClusterHierarchy(GEOM *geom);
+static ELEMENT *GalerkinDoCreateClusterHierarchy(Geometry *geom);
 
-/* Creates a cluster hierarchy for the GEOM and adds it to the subcluster list of the
+/* Creates a cluster hierarchy for the Geometry and adds it to the subcluster list of the
  * given parent cluster */
-static void GeomAddClusterChild(GEOM *geom, ELEMENT *parent_cluster) {
+static void GeomAddClusterChild(Geometry *geom, ELEMENT *parent_cluster) {
     ELEMENT *clus;
 
     clus = GalerkinDoCreateClusterHierarchy(geom);
@@ -78,9 +78,9 @@ static void ClusterInit(ELEMENT *clus) {
     clus->bsize = 2.*sqrt((clus->area/4.)/M_PI); */
 }
 
-/* Creates a cluster for the GEOM, recurses for the children GEOMs, initializes and 
+/* Creates a cluster for the Geometry, recurses for the children GEOMs, initializes and
  * returns the created cluster. */
-static ELEMENT *GalerkinDoCreateClusterHierarchy(GEOM *geom) {
+static ELEMENT *GalerkinDoCreateClusterHierarchy(Geometry *geom) {
     ELEMENT *clus;
 
     /* geom will be nullptr if e.g. no scene is loaded when selecting
@@ -94,10 +94,10 @@ static ELEMENT *GalerkinDoCreateClusterHierarchy(GEOM *geom) {
     geom->radiance_data = (void *) clus;
 
     /* recursively creates list of subclusters */
-    if ( GeomIsAggregate(geom)) {
-        GeomListIterate1A(GeomPrimList(geom), (void (*)(GEOM *, void *)) GeomAddClusterChild, (void *) clus);
+    if ( geomIsAggregate(geom)) {
+        GeomListIterate1A(geomPrimList(geom), (void (*)(Geometry *, void *)) GeomAddClusterChild, (void *) clus);
     } else {
-        PatchListIterate1A(GeomPatchList(geom), (void (*)(PATCH *, void *)) PatchAddClusterChild, (void *) clus);
+        PatchListIterate1A(geomPatchList(geom), (void (*)(PATCH *, void *)) PatchAddClusterChild, (void *) clus);
     }
 
     ClusterInit(clus);
@@ -108,7 +108,7 @@ static ELEMENT *GalerkinDoCreateClusterHierarchy(GEOM *geom) {
 /* First initializes for equivalent blocker size determination, then calls
  * the above function, and finally terminates equivalent blocker size 
  * determination. */
-ELEMENT *GalerkinCreateClusterHierarchy(GEOM *geom) {
+ELEMENT *GalerkinCreateClusterHierarchy(Geometry *geom) {
     ELEMENT *clus;
 
     BlockerInit();

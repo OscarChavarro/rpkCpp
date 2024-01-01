@@ -1,8 +1,8 @@
 #include <cstdio>
 
 #include "material/statistics.h"
-#include "skin/geom.h"
-#include "app/compound.h"
+#include "skin/Geometry.h"
+#include "skin/Compound.h"
 
 /**
 Creates a Compound from a list of geometries
@@ -33,7 +33,7 @@ This method will destroy the geometry and it's children geometries if any
 */
 static void
 compoundDestroy(COMPOUND *obj) {
-    GeomListIterate(obj, GeomDestroy);
+    GeomListIterate(obj, geomDestroy);
     GeomListDestroy(obj);
     GLOBAL_statistics_numberOfCompounds--;
 }
@@ -44,7 +44,7 @@ This method will print the geometry to the file out
 static void
 compoundPrint(FILE *out, COMPOUND *obj) {
     fprintf(out, "compound\n");
-    GeomListIterate1B(obj, GeomPrint, out);
+    GeomListIterate1B(obj, geomPrint, out);
     fprintf(out, "end of compound\n");
 }
 

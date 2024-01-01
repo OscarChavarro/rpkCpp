@@ -33,9 +33,9 @@ class SHAFT {
 				 * items and the whole shaft. */
     SHAFTPLANE plane[SHAFTMAXPLANES];
     int planes;        /* nr of planes in plane-set */
-    GEOM *omit[2];    /* geometries to be ignored during shaftculling. max. 2! */
+    Geometry *omit[2];    /* geometries to be ignored during shaftculling. max. 2! */
     int nromit;        /* nr of geometries to be ignored */
-    GEOM *dontopen[2];    /* geometries not to be opened during shaftculling. max. 2! */
+    Geometry *dontopen[2];    /* geometries not to be opened during shaftculling. max. 2! */
     int nrdontopen;    /* nr of geometries not to be opened */
     Vector3D center1, center2;  /* the line segment from center1
 				 * to center2 is guaranteed to lay within 
@@ -70,10 +70,10 @@ extern SHAFT *ConstructPolygonToPolygonShaft(POLYGON *p1, POLYGON *p2, SHAFT *sh
 
 /* marks a geometry as to be omitted during shaftculling: it will not be added to the
  * candidatelist, even if the geometry overlaps or is inside the shaft */
-extern void ShaftOmit(SHAFT *shaft, GEOM *geom);
+extern void ShaftOmit(SHAFT *shaft, Geometry *geom);
 
 /* marks a geometry as one not to be opened during shaft culling. */
-extern void ShaftDontOpen(SHAFT *shaft, GEOM *geom);
+extern void ShaftDontOpen(SHAFT *shaft, Geometry *geom);
 
 /* adds all objects from world that overlap or lay inside the shaft to
  * candlist, returns the new candidate list */
@@ -82,7 +82,7 @@ extern GEOMLIST *DoShaftCulling(GEOMLIST *world, SHAFT *shaft, GEOMLIST *candlis
 /* Tests the geom w.r.t. the shaft: if the geom is inside or overlaps
  * the shaft, it is copied to the shaft or broken open depending on
  * the current shaft culling strategy. */
-extern GEOMLIST *ShaftCullGeom(GEOM *geom, SHAFT *shaft, GEOMLIST *candlist);
+extern GEOMLIST *ShaftCullGeom(Geometry *geom, SHAFT *shaft, GEOMLIST *candlist);
 
 /* shaftculling for patch lists */
 extern PATCHLIST *ShaftCullPatchlist(PATCHLIST *pl, SHAFT *shaft, PATCHLIST *culledpatchlist);

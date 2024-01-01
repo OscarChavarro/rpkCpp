@@ -1,6 +1,6 @@
 #include "skin/patchlist.h"
 #include "skin/geomlist.h"
-#include "skin/geom.h"
+#include "skin/Geometry.h"
 #include "skin/hitlist.h"
 
 /* this function computes a bounding box for a list of geometries. The bounding box is
@@ -9,7 +9,7 @@ float *GeomListBounds(GEOMLIST *geomlist, float *bounds) {
     BoundsInit(bounds);
     ForAllGeoms(geom, geomlist)
                 {
-                    BoundsEnlarge(bounds, GeomBounds(geom));
+                    BoundsEnlarge(bounds, geomBounds(geom));
                 }
     EndForAll;
     return bounds;
@@ -21,10 +21,10 @@ PATCHLIST *
 BuildPatchList(GEOMLIST *world, PATCHLIST *patchlist) {
     ForAllGeoms(geom, world)
                 {
-                    if ( GeomIsAggregate(geom)) {
-                        patchlist = BuildPatchList(GeomPrimList(geom), patchlist);
+                    if ( geomIsAggregate(geom)) {
+                        patchlist = BuildPatchList(geomPrimList(geom), patchlist);
                     } else {
-                        patchlist = PatchListMerge(patchlist, GeomPatchList(geom))
+                        patchlist = PatchListMerge(patchlist, geomPatchList(geom))
                     };
                 }
     EndForAll;
@@ -40,7 +40,7 @@ GeomListDiscretisationIntersect(GEOMLIST *geomlist, Ray *ray, float mindist, flo
     hit = (HITREC *) nullptr;
     ForAllGeoms(geom, geomlist)
                 {
-                    if ((h = GeomDiscretisationIntersect(geom, ray, mindist, maxdist, hitflags, hitstore))) {
+                    if ((h = geomDiscretizationIntersect(geom, ray, mindist, maxdist, hitflags, hitstore))) {
                         if ( hitflags & HIT_ANY ) {
                             return h;
                         } else {
@@ -57,7 +57,7 @@ GeomListAllDiscretisationIntersections(HITLIST *hits, GEOMLIST *geomlist, Ray *r
                                        int hitflags) {
     ForAllGeoms(geom, geomlist)
                 {
-                    hits = GeomAllDiscretisationIntersections(hits, geom, ray, mindist, maxdist, hitflags);
+                    hits = geomAllDiscretizationIntersections(hits, geom, ray, mindist, maxdist, hitflags);
                 }
     EndForAll;
     return hits;

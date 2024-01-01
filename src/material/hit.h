@@ -10,13 +10,13 @@
  * routines */
 
 // TODO SITHMASTER: This is coupling hit with scene level classes :(
-class GEOM;
+class Geometry;
 class PATCH;
 class MATERIAL;
 
 class HITREC {
   public:
-    GEOM *geom; // geometry that was hit
+    Geometry *geom; // geometry that was hit
     PATCH *patch; // patch that was hit
     Vector3D point; // intersection point
     Vector3D gnormal; // geometric normal
@@ -45,7 +45,7 @@ a ray itnersection routine is a front or back hit.
 /* The following flags indicate what fields are available in a hit record */
 
 /* These flags are set by ray intersection routines */
-#define HIT_GEOM     0x01 // intersected GEOM (currently never set)
+#define HIT_GEOM     0x01 // intersected Geometry (currently never set)
 #define HIT_PATCH    0x02 // intersected PATCH (returned by DiscretisationHit routines)
 #define HIT_POINT    0x04 // intersection point
 #define HIT_GNORMAL  0x08 // geometric normal
@@ -65,13 +65,13 @@ a ray itnersection routine is a front or back hit.
  * This routine can be used in order to construct BSDF queries at other points
  * than hit points returned by ray intersection routines. */
 extern int InitHit(
-    HITREC *hit,
-    PATCH *patch,
-    GEOM *geom,
-    Vector3D *point,
-    Vector3D *gnormal,
-    MATERIAL *material,
-    float dist);
+        HITREC *hit,
+        PATCH *patch,
+        Geometry *geom,
+        Vector3D *point,
+        Vector3D *gnormal,
+        MATERIAL *material,
+        float dist);
 
 /* Checks whether or not the hit record is properly initialised, that
  * means that at least 'patch' or 'geom' plus 'point', 'gnormal', 'material'

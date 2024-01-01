@@ -47,7 +47,7 @@ set(MAIN_SRC
     src/material/statistics.cpp
     src/material/texture.cpp
     src/material/xxdf.cpp
-    src/skin/geom.cpp
+        src/skin/Geometry.cpp
     src/skin/geomlist.cpp
     src/skin/hit.cpp
     src/skin/hitlist.cpp
@@ -172,7 +172,7 @@ set(MAIN_SRC
     src/raycasting/stochasticRaytracing/tracepath.cpp
     src/raycasting/stochasticRaytracing/vrml.cpp
     src/app/batch.cpp
-        src/app/compound.cpp
+        src/skin/Compound.cpp
     src/app/phong.cpp
     src/app/radiance.cpp
     src/app/readmgf.cpp

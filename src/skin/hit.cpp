@@ -15,7 +15,7 @@ int
 InitHit(
         HITREC *hit,
         PATCH *patch,
-        GEOM *geom,
+        Geometry *geom,
         Vector3D *point,
         Vector3D *gnormal,
         MATERIAL *material,

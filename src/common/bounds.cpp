@@ -27,7 +27,7 @@ BoundsInit(float *bounds) {
 }
 
 /**
-Enlarge bounds with extra
+Enlarge getBoundingBox with extra
 */
 float *
 BoundsEnlarge(float *bounds, float *extra) {

@@ -5,7 +5,7 @@
 
 #include <cstdio>
 
-#include "skin/geom.h"
+#include "skin/Geometry.h"
 
 typedef COLOR(*GETRADIANCE_FT)(PATCH *patch, double u, double v, Vector3D dir);
 

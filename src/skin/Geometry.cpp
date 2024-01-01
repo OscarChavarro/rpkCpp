@@ -1,16 +1,17 @@
 #include <cstdlib>
 
+#include "java/util/ArrayList.txx"
 #include "common/error.h"
 #include "material/statistics.h"
-#include "skin/geom.h"
+#include "skin/Geometry.h"
 
-GEOM *excludedGeom1 = (GEOM *) nullptr;
-GEOM *excludedGeom2 = (GEOM *) nullptr;
+Geometry *GLOBAL_geom_excludedGeom1 = (Geometry *) nullptr;
+Geometry *GLOBAL_geom_excludedGeom2 = (Geometry *) nullptr;
 
-static int currentMaxId = 0;
+static int globalCurrentMaxId = 0;
 
 static void
-BoundsEnlargeTinyBit(float *bounds) {
+boundsEnlargeTinyBit(float *bounds) {
     float Dx = (float)((bounds[MAX_X] - bounds[MIN_X]) * 1e-4);
     float Dy = (float)((bounds[MAX_Y] - bounds[MIN_Y]) * 1e-4);
     float Dz = (float)((bounds[MAX_Z] - bounds[MIN_Z]) * 1e-4);
@@ -32,42 +33,44 @@ BoundsEnlargeTinyBit(float *bounds) {
 }
 
 /**
-This function is used to create a new GEOMetry with given specific data and
-methods. A pointer to the new GEOMetry is returned
+This function is used to create a new geometry with given specific data and
+methods. A pointer to the new geometry is returned
+
+Note: currently containing the super() method.
 */
-GEOM *
-GeomCreate(void *obj, GEOM_METHODS *methods) {
-    if ( obj == nullptr) {
-        return (GEOM *) nullptr;
+Geometry *
+geomCreateBase(void *geometryData, GEOM_METHODS *methods) {
+    if ( geometryData == nullptr) {
+        return (Geometry *) nullptr;
     }
 
-    GEOM *p = (GEOM *)malloc(sizeof(GEOM));
+    Geometry *newGeometry = (Geometry *)malloc(sizeof(Geometry));
     GLOBAL_statistics_numberOfGeometries++;
-    p->id = currentMaxId++;
-    p->obj = obj;
-    p->methods = methods;
+    newGeometry->id = globalCurrentMaxId++;
+    newGeometry->obj = geometryData;
+    newGeometry->methods = methods;
 
-    if ( methods->bounds ) {
-        methods->bounds(obj, p->bounds);
+    if ( methods->getBoundingBox ) {
+        methods->getBoundingBox(geometryData, newGeometry->bounds);
         /* enlarge bounding box a tiny bit for more conservative bounding box culling */
-        BoundsEnlargeTinyBit(p->bounds);
-        p->bounded = true;
+        boundsEnlargeTinyBit(newGeometry->bounds);
+        newGeometry->bounded = true;
     } else {
-        BoundsInit(p->bounds);
-        p->bounded = false;
+        BoundsInit(newGeometry->bounds);
+        newGeometry->bounded = false;
     }
-    p->shaftcullgeom = false;
+    newGeometry->shaftCullGeometry = false;
 
-    p->radiance_data = (void *) nullptr;
-    p->tmp.i = 0;
-    p->omit = false;
+    newGeometry->radiance_data = (void *) nullptr;
+    newGeometry->tmp.i = 0;
+    newGeometry->omit = false;
 
-    p->dlistid = -1;
+    newGeometry->dlistid = -1;
 
-    return p;
+    return newGeometry;
 }
 
-GEOM *
+Geometry *
 geomCreatePatchSetNew(java::ArrayList<PATCH *> *geometryList, GEOM_METHODS *methods) {
     PATCHLIST *patchList = nullptr;
 
@@ -78,20 +81,20 @@ geomCreatePatchSetNew(java::ArrayList<PATCH *> *geometryList, GEOM_METHODS *meth
         patchList = newNode;
     }
 
-    GEOM *newGeometry = geomCreatePatchSet(patchList, methods);
+    Geometry *newGeometry = geomCreatePatchSet(patchList, methods);
     if ( newGeometry != nullptr ) {
         newGeometry->newPatchSetData = geometryList;
     }
     return newGeometry;
 }
 
-GEOM *
+Geometry *
 geomCreatePatchSet(PATCHLIST *patchSet, GEOM_METHODS *methods) {
     if ( patchSet == nullptr ) {
         return nullptr;
     }
 
-    GEOM *newGeometry = GeomCreate(patchSet, methods);
+    Geometry *newGeometry = geomCreateBase(patchSet, methods);
     newGeometry->obj = patchSet;
     return newGeometry;
 }
@@ -100,11 +103,11 @@ geomCreatePatchSet(PATCHLIST *patchSet, GEOM_METHODS *methods) {
 This function prints the GEOMetry data to the file out
 */
 void
-GeomPrint(FILE *out, GEOM *geom) {
-    fprintf(out, "Geom %d, bounded = %s, shaftcullgeom = %s:\n",
+geomPrint(FILE *out, Geometry *geom) {
+    fprintf(out, "Geom %d, bounded = %s, shaftCullGeometry = %s:\n",
             geom->id,
             geom->bounded ? "TRUE" : "FALSE",
-            geom->shaftcullgeom ? "TRUE" : "FALSE");
+            geom->shaftCullGeometry ? "TRUE" : "FALSE");
 
     geom->methods->print(out, geom->obj);
 }
@@ -113,7 +116,7 @@ GeomPrint(FILE *out, GEOM *geom) {
 This function returns a bounding box for the GEOMetry
 */
 float *
-GeomBounds(GEOM *geom) {
+geomBounds(Geometry *geom) {
     return geom->bounds;
 }
 
@@ -121,7 +124,7 @@ GeomBounds(GEOM *geom) {
 This function destroys the given GEOMetry
 */
 void
-GeomDestroy(GEOM *geom) {
+geomDestroy(Geometry *geom) {
     geom->methods->destroy(geom->obj);
     free(geom);
     GLOBAL_statistics_numberOfGeometries--;
@@ -137,8 +140,8 @@ returned. A primitive GEOMetry is a GEOMetry that does not consist of
 simpler GEOMetries
 */
 int
-GeomIsAggregate(GEOM *geom) {
-    return geom->methods->primlist != (GEOMLIST *(*)(void *)) nullptr;
+geomIsAggregate(Geometry *geom) {
+    return geom->methods->getPrimitiveGeometryChildrenList != (GEOMLIST *(*)(void *)) nullptr;
 }
 
 /**
@@ -146,9 +149,9 @@ Returns a linear list of the simpler GEOMEtries making up an aggregate GEOMetry.
 A nullptr pointer is returned if the GEOMetry is a primitive
 */
 GEOMLIST *
-GeomPrimList(GEOM *geom) {
-    if ( geom->methods->primlist ) {
-        return geom->methods->primlist(geom->obj);
+geomPrimList(Geometry *geom) {
+    if ( geom->methods->getPrimitiveGeometryChildrenList ) {
+        return geom->methods->getPrimitiveGeometryChildrenList(geom->obj);
     } else {
         return (GEOMLIST *) nullptr;
     }
@@ -159,9 +162,9 @@ Returns a linear list of patches making up a primitive GEOMetry. A nullptr
 pointer is returned if the given GEOMetry is an aggregate
 */
 PATCHLIST *
-GeomPatchList(GEOM *geom) {
-    if ( geom->methods->patchlist ) {
-        return geom->methods->patchlist(geom->obj);
+geomPatchList(Geometry *geom) {
+    if ( geom->methods->getPatchList ) {
+        return geom->methods->getPatchList(geom->obj);
     } else {
         return (PATCHLIST *) nullptr;
     }
@@ -171,14 +174,14 @@ GeomPatchList(GEOM *geom) {
 This routine creates and returns a duplicate of the given geometry. Needed for
 shaft culling.
 */
-GEOM *
-GeomDuplicate(GEOM *geom) {
+Geometry *
+geomDuplicate(Geometry *geom) {
     if ( !geom->methods->duplicate ) {
-        Error("GeomDuplicate", "geometry has no duplicate method");
-        return (GEOM *) nullptr;
+        Error("geomDuplicate", "geometry has no duplicate method");
+        return (Geometry *) nullptr;
     }
 
-    GEOM *p = (GEOM *)malloc(sizeof(GEOM));
+    Geometry *p = (Geometry *)malloc(sizeof(Geometry));
     GLOBAL_statistics_numberOfGeometries++;
     *p = *geom;
     p->obj = geom->methods->duplicate(geom->obj);
@@ -191,14 +194,14 @@ Will avoid intersection testing with geom1 and geom2 (possibly nullptr
 pointers). Can be used for avoiding immediate selfintersections
 */
 void
-GeomDontIntersect(GEOM *geom1, GEOM *geom2) {
-    excludedGeom1 = geom1;
-    excludedGeom2 = geom2;
+geomDontIntersect(Geometry *geom1, Geometry *geom2) {
+    GLOBAL_geom_excludedGeom1 = geom1;
+    GLOBAL_geom_excludedGeom2 = geom2;
 }
 
 /**
 This routine returns nullptr is the ray doesn't hit the discretisation of the
-GEOMetry. If the ray hits the discretisation of the GEOM, containing
+GEOMetry. If the ray hits the discretisation of the Geometry, containing
 (among other information) the hit patch is returned.
 The hitflags (defined in ray.h) determine whether the nearest intersection
 is returned, or rather just any intersection (e.g. for shadow rays in
@@ -208,18 +211,18 @@ besides the hit patch (interpolated normal, intersection point, material
 properties) to return.
 */
 HITREC *
-GeomDiscretisationIntersect(
-    GEOM *geom,
-    Ray *ray,
-    float mindist,
-    float *maxdist,
-    int hitflags,
-    HITREC *hitstore)
+geomDiscretizationIntersect(
+        Geometry *geom,
+        Ray *ray,
+        float mindist,
+        float *maxdist,
+        int hitflags,
+        HITREC *hitstore)
 {
     Vector3D vtmp;
     float nmaxdist;
 
-    if ( geom == excludedGeom1 || geom == excludedGeom2 ) {
+    if ( geom == GLOBAL_geom_excludedGeom1 || geom == GLOBAL_geom_excludedGeom2 ) {
         return (HITREC *) nullptr;
     }
 
@@ -233,22 +236,22 @@ GeomDiscretisationIntersect(
             }
         }
     }
-    return geom->methods->discretisation_intersect(geom->obj, ray, mindist, maxdist, hitflags, hitstore);
+    return geom->methods->discretizationIntersect(geom->obj, ray, mindist, maxdist, hitflags, hitstore);
 }
 
 HITLIST *
-GeomAllDiscretisationIntersections(
-    HITLIST *hits,
-    GEOM *geom,
-    Ray *ray,
-    float mindist,
-    float maxdist,
-    int hitflags)
+geomAllDiscretizationIntersections(
+        HITLIST *hits,
+        Geometry *geom,
+        Ray *ray,
+        float mindist,
+        float maxdist,
+        int hitflags)
 {
     Vector3D vtmp;
     float nmaxdist;
 
-    if ( geom == excludedGeom1 || geom == excludedGeom2 ) {
+    if ( geom == GLOBAL_geom_excludedGeom1 || geom == GLOBAL_geom_excludedGeom2 ) {
         return hits;
     }
 
@@ -262,5 +265,5 @@ GeomAllDiscretisationIntersections(
             }
         }
     }
-    return geom->methods->all_discretisation_intersections(hits, geom->obj, ray, mindist, maxdist, hitflags);
+    return geom->methods->allDiscretizationIntersections(hits, geom->obj, ray, mindist, maxdist, hitflags);
 }

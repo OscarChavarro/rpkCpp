@@ -13,7 +13,7 @@ Reference:
 */
 
 #include "java/util/ArrayList.txx"
-#include "app/compound.h"
+#include "skin/Compound.h"
 #include "app/Cluster.h"
 
 // No clusters are created with less than this number of patches
@@ -196,10 +196,10 @@ without extra code and such ... This routine is destructive:
 the Cluster GLOBAL_stochasticRaytracing_hierarchy is disposed of (the patch lists of the clusters
 are copied to the GEOMs)
 */
-GEOM *
+Geometry *
 Cluster::convertClusterToGeom() {
     GEOMLIST *geometryListNode;
-    GEOM *thePatches;
+    Geometry *thePatches;
     int i;
 
     thePatches = nullptr;
@@ -209,7 +209,7 @@ Cluster::convertClusterToGeom() {
 
     geometryListNode = nullptr /* empty list */;
     for ( i = 0; i < 8; i++ ) {
-        GEOM *child = nullptr;
+        Geometry *child = nullptr;
         if ( children[i] != nullptr ) {
             child = children[i]->convertClusterToGeom();
         }
@@ -226,5 +226,5 @@ Cluster::convertClusterToGeom() {
     // The patches in the cluster are the first to be tested for intersection with
     geometryListNode = GeomListAdd(geometryListNode, thePatches);
     //return geomCreateAggregateCompound(geometryListNode, &GLOBAL_skin_compoundGeometryMethods);
-    return GeomCreate(geometryListNode, &GLOBAL_skin_compoundGeometryMethods);
+    return geomCreateBase(geometryListNode, &GLOBAL_skin_compoundGeometryMethods);
 }

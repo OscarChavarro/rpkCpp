@@ -1,7 +1,7 @@
 #include <cstdlib>
 
 #include "common/error.h"
-#include "skin/geom.h"
+#include "skin/Geometry.h"
 #include "shared/render.h"
 #include "shared/camera.h"
 #include "IMAGE/tonemapping.h"
@@ -184,7 +184,7 @@ CreateElement() {
     element->potential.f = element->received_potential.f = element->unshot_potential.f = 0.;
     element->interactions = InteractionListCreate();
     element->pog.patch = (PATCH *) nullptr;
-    element->pog.geom = (GEOM *) nullptr;
+    element->pog.geom = (Geometry *) nullptr;
     element->parent = (ELEMENT *) nullptr;
     element->regular_subelements = (ELEMENT **) nullptr;
     element->irregular_subelements = ElementListCreate();
@@ -227,9 +227,9 @@ CreateToplevelElement(PATCH *patch) {
     return element;
 }
 
-/* creates a cluster element for the given GEOM */
+/* creates a cluster element for the given Geometry */
 ELEMENT *
-CreateClusterElement(GEOM *geom) {
+CreateClusterElement(Geometry *geom) {
     ELEMENT *element = CreateElement();
     element->pog.geom = geom;
     element->area = 0.;    /* needs to be computed after the whole cluster
@@ -606,7 +606,7 @@ ElementMidpoint(ELEMENT *elem) {
     Vector3D c;
 
     if ( IsCluster(elem)) {
-        float *bbox = GeomBounds(elem->pog.geom);
+        float *bbox = geomBounds(elem->pog.geom);
 
         VECTORSET(c,
                   (bbox[MIN_X] + bbox[MAX_X]) / 2.,
@@ -631,7 +631,7 @@ ElementMidpoint(ELEMENT *elem) {
 float *
 ElementBounds(ELEMENT *elem, float *bounds) {
     if ( IsCluster(elem)) {
-        BoundsCopy(GeomBounds(elem->pog.geom), bounds);
+        BoundsCopy(geomBounds(elem->pog.geom), bounds);
     } else {
         Vector3D p[4];
         int i, nrverts;
@@ -678,7 +678,7 @@ DrawElement(ELEMENT *element, int mode) {
 
     if ( IsCluster(element)) {
         if ( mode & OUTLINE || mode & STRONG ) {
-            RenderBounds(GeomBounds(element->pog.geom));
+            RenderBounds(geomBounds(element->pog.geom));
         }
         return;
     }

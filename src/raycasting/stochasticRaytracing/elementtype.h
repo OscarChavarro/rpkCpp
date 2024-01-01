@@ -11,7 +11,7 @@
 
 typedef union PatchOrGeomPtr {
     PATCH *patch;
-    GEOM *geom;
+    Geometry *geom;
 } PatchOrGeomPtr;
 
 class ELEMENT {

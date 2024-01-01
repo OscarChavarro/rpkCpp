@@ -1,7 +1,7 @@
 #include "common/error.h"
 #include "material/statistics.h"
 #include "skin/patch.h"
-#include "skin/geom.h"
+#include "skin/Geometry.h"
 #include "shared/shadowcaching.h"
 #include "GALERKIN/formfactor.h"
 #include "GALERKIN/galerkinP.h"
@@ -460,8 +460,8 @@ unsigned AreaToAreaFormFactor(INTERACTION *link, GEOMLIST *shadowlist) {
                            IsCluster(rcv) ? (PATCH *) nullptr : rcv->pog.patch->twin,
                            IsCluster(src) ? (PATCH *) nullptr : src->pog.patch,
                            IsCluster(src) ? (PATCH *) nullptr : src->pog.patch->twin);
-        GeomDontIntersect(IsCluster(rcv) ? rcv->pog.geom : (GEOM *) nullptr,
-                          IsCluster(src) ? src->pog.geom : (GEOM *) nullptr);
+        geomDontIntersect(IsCluster(rcv) ? rcv->pog.geom : (Geometry *) nullptr,
+                          IsCluster(src) ? src->pog.geom : (Geometry *) nullptr);
 
         maxkval = 0.;    /* compute maximum unoccluded kernel value */
         maxptff = 0.;    /* maximum unoccluded point-on-receiver to source form factor */
@@ -491,7 +491,7 @@ unsigned AreaToAreaFormFactor(INTERACTION *link, GEOMLIST *shadowlist) {
         /* Unmark the patches, so they are considered for ray-patch intersections again
          * in future. */
         PatchDontIntersect(0);
-        GeomDontIntersect((GEOM *) nullptr, (GEOM *) nullptr);
+        geomDontIntersect((Geometry *) nullptr, (Geometry *) nullptr);
     }
 
     if ( viscount != 0 ) {

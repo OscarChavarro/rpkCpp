@@ -28,7 +28,7 @@ extern ELEMENT *CreateToplevelSurfaceElement(PATCH *patch);
 
 extern void McrDestroyToplevelSurfaceElement(ELEMENT *elem);
 
-extern ELEMENT *McrCreateClusterHierarchy(GEOM *world);
+extern ELEMENT *McrCreateClusterHierarchy(Geometry *world);
 
 extern void McrDestroyClusterHierarchy(ELEMENT *top);
 

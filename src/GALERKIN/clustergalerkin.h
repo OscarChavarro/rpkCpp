@@ -5,9 +5,9 @@
 
 #include "GALERKIN/galerkinP.h"
 
-/* Creates a cluster for the GEOM, recurses for the children GEOMs, initializes and 
+/* Creates a cluster for the Geometry, recurses for the children GEOMs, initializes and
  * returns the created cluster. */
-extern ELEMENT *GalerkinCreateClusterHierarchy(GEOM *geom);
+extern ELEMENT *GalerkinCreateClusterHierarchy(Geometry *geom);
 
 /* Disposes of the cluster hierarchy */
 extern void GalerkinDestroyClusterHierarchy(ELEMENT *cluster);

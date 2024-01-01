@@ -5,14 +5,14 @@
 
 #include "material/hit.h"
 #include "common/dataStructures/List.h"
-#include "skin/geom.h"
+#include "skin/Geometry.h"
 #include "skin/hitlist.h"
 
 /* same layout as LIST in dataStructures/List.h, so the same generic functions for
  * operating on lists can be used for lists of geometries */
 class GEOMLIST {
   public:
-    GEOM *geom;
+    Geometry *geom;
     GEOMLIST *next;
 };
 
@@ -38,7 +38,7 @@ class PATCHLIST;
 #define GeomListDestroy(geomlist) \
         ListDestroy((LIST *)geomlist)
 
-#define ForAllGeoms(geom, geomlist)    ForAllInList(GEOM, geom, geomlist)
+#define ForAllGeoms(geom, geomlist)    ForAllInList(Geometry, geom, geomlist)
 
 /* this function computes a bounding box for a list of geometries. The bounding box is
  * filled in in 'boundingbox' and a pointer returned. */
@@ -49,7 +49,7 @@ extern float *GeomListBounds(GEOMLIST *geomlist, float *boundingbox);
 extern PATCHLIST *BuildPatchList(GEOMLIST *world, PATCHLIST *patchlist);
 
 /* Tests if the Ray intersects the discretisation of the GEOMetries in the list.
- * See geom.h (GeomDiscretisationIntersect()) */
+ * See geom.h (geomDiscretizationIntersect()) */
 extern HITREC *
 GeomListDiscretisationIntersect(GEOMLIST *geomlist, Ray *ray, float mindist, float *maxdist, int hitflags,
                                 HITREC *hitstore);

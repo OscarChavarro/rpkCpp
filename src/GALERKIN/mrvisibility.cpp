@@ -7,7 +7,7 @@ Control of Visibility Error", SIGGRAPH '95 p145
 
 #include "common/error.h"
 #include "common/mymath.h"
-#include "skin/geom.h"
+#include "skin/Geometry.h"
 #include "SGL/sgl.h"
 #include "shared/shadowcaching.h"
 #include "GALERKIN/mrvisibility.h"
@@ -24,18 +24,18 @@ the equivalent blocker size
 
 static double
 GeomMultiResolutionVisibility(
-    GEOM *geom,
-    Ray *ray,
-    float rcvdist,
-    float srcsize,
-    float minfeaturesize)
+        Geometry *geom,
+        Ray *ray,
+        float rcvdist,
+        float srcsize,
+        float minfeaturesize)
 {
     Vector3D vtmp;
     float tmin, tmax, t, fsize, *bbx;
     ELEMENT *clus = (ELEMENT *) (geom->radiance_data);
     HITREC hitstore;
 
-    if ( geom == excludedGeom1 || geom == excludedGeom2 ) {
+    if ( geom == GLOBAL_geom_excludedGeom1 || geom == GLOBAL_geom_excludedGeom2 ) {
         return 1.;
     }
 
@@ -54,7 +54,7 @@ GeomMultiResolutionVisibility(
     if ( OutOfBounds(&vtmp, bbx)) {
         if ( !BoundsIntersectingSegment(ray, bbx, &tmin, &tmax)) {
             return 1.;
-        }  /* ray doesn't intersect the bounding box of the GEOM within
+        }  /* ray doesn't intersect the bounding box of the Geometry within
 		   * distance interval tmin ... tmax. */
 
         if ( clus ) {
@@ -71,11 +71,11 @@ GeomMultiResolutionVisibility(
         kappa = clus->area / (4. * vol);
         return exp(-kappa * (tmax - tmin));
     } else {
-        if ( GeomIsAggregate(geom)) {
-            return GeomListMultiResolutionVisibility(GeomPrimList(geom), ray, rcvdist, srcsize, minfeaturesize);
+        if ( geomIsAggregate(geom)) {
+            return GeomListMultiResolutionVisibility(geomPrimList(geom), ray, rcvdist, srcsize, minfeaturesize);
         } else {
             HITREC *hit;
-            if ((hit = PatchListIntersect(GeomPatchList(geom), ray, rcvdist * ((float)EPSILON), &rcvdist, HIT_FRONT | HIT_ANY,
+            if ((hit = PatchListIntersect(geomPatchList(geom), ray, rcvdist * ((float)EPSILON), &rcvdist, HIT_FRONT | HIT_ANY,
                                           &hitstore))) {
                 AddToShadowCache(hit->patch);
                 return 0.;

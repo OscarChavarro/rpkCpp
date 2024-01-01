@@ -19,7 +19,7 @@
 #include "app/Cluster.h"
 #include "app/ui.h"
 #include "app/readmgf.h"
-#include "app/compound.h"
+#include "skin/Compound.h"
 #include "app/fileopts.h"
 
 static char *currentDirectory;
@@ -300,10 +300,10 @@ algorithm described in
 This hierarchy is often much more efficient for tracing rays and clustering radiosity algorithms
 than the given hierarchy of bounding boxes. A pointer to the toplevel "cluster" is returned
 */
-static GEOM *
+static Geometry *
 createClusterHierarchy(PATCHLIST *patches) {
     Cluster *rootCluster;
-    GEOM *rootGeometry;
+    Geometry *rootGeometry;
 
     // Create a toplevel cluster containing (references to) all the patches in the solid
     rootCluster = new Cluster(patches);
@@ -345,7 +345,7 @@ ReadFile(char *filename) {
     char *dot, *slash, *extension;
     FILE *input;
     GEOMLIST *oWorld, *oClusteredWorld;
-    GEOM *oClusteredWorldGeom;
+    Geometry *oClusteredWorldGeom;
     MATERIALLIST *oMaterialLib;
     PATCHLIST *oPatches, *oLightSourcePatches;
     GRID *oWorldGrid;
@@ -431,7 +431,7 @@ ReadFile(char *filename) {
         // Restore the old scene
         fprintf(stderr, "Restoring old scene ... ");
         fflush(stderr);
-        GeomListIterate(GLOBAL_scene_world, GeomDestroy);
+        GeomListIterate(GLOBAL_scene_world, geomDestroy);
         GeomListDestroy(GLOBAL_scene_world);
         GLOBAL_scene_world = oWorld;
 
@@ -478,11 +478,11 @@ ReadFile(char *filename) {
     PatchListDestroy(oPatches);
     PatchListDestroy(oLightSourcePatches);
 
-    GeomListIterate(oWorld, GeomDestroy);
+    GeomListIterate(oWorld, geomDestroy);
     GeomListDestroy(oWorld);
 
     if ( oClusteredWorldGeom ) {
-        GeomDestroy(oClusteredWorldGeom);
+        geomDestroy(oClusteredWorldGeom);
     }
     if ( oBackground ) {
         oBackground->methods->Destroy(oBackground->data);

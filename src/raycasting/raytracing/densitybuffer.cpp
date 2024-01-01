@@ -26,7 +26,7 @@ CDensityHitList::~CDensityHitList() {
 
 CDensityHit CDensityHitList::operator[](int i) {
     if ( i >= m_numHits ) {
-        Fatal(-1, __FILE__ ":CDensityHitList::operator[]", "Index 'i' out of bounds");
+        Fatal(-1, __FILE__ ":CDensityHitList::operator[]", "Index 'i' out of getBoundingBox");
     }
 
     if ( !m_cacheCurrent || (i < m_cacheLowerLimit)) {

@@ -4,13 +4,13 @@
 #include "material/statistics.h"
 #include "skin/Vertex.h"
 #include "skin/patch.h"
-#include "skin/geom.h"
+#include "skin/Geometry.h"
 #include "skin/vertexlist.h"
 #include "shared/render.h"
 #include "raycasting/stochasticRaytracing/mcradP.h"
 #include "raycasting/stochasticRaytracing/hierarchy.h"
 
-static ELEMENT *CreateClusterHierarchyRecursive(GEOM *world);
+static ELEMENT *CreateClusterHierarchyRecursive(Geometry *world);
 
 /* Orientation and position of regular subelements is fully determined by the
  * following transformations. A uniform mapping of parameter domain to the
@@ -155,7 +155,7 @@ CreateToplevelSurfaceElement(PATCH *patch) {
 }
 
 static ELEMENT *
-CreateCluster(GEOM *geom) {
+CreateCluster(Geometry *geom) {
     ELEMENT *elem = CreateElement();
     float *bounds = geom->bounds;
 
@@ -192,7 +192,7 @@ CreateSurfaceElementChild(PATCH *patch, ELEMENT *parent) {
 }
 
 static void
-CreateClusterChild(GEOM *geom, ELEMENT *parent) {
+CreateClusterChild(Geometry *geom, ELEMENT *parent) {
     ELEMENT *subcluster = CreateClusterHierarchyRecursive(geom);
     subcluster->parent = parent;
     parent->irregular_subelements = ElementListAdd(parent->irregular_subelements, subcluster);
@@ -216,16 +216,16 @@ InitClusterPull(ELEMENT *parent, ELEMENT *child) {
 
 static void
 CreateClusterChildren(ELEMENT *parent) {
-    GEOM *geom = parent->pog.geom;
+    Geometry *geom = parent->pog.geom;
 
-    if ( GeomIsAggregate(geom)) {
-        ForAllGeoms(childgeom, GeomPrimList(geom))
+    if ( geomIsAggregate(geom)) {
+        ForAllGeoms(childgeom, geomPrimList(geom))
                     {
                         CreateClusterChild(childgeom, parent);
                     }
         EndForAll;
     } else {
-        ForAllPatches(childpatch, GeomPatchList(geom))
+        ForAllPatches(childpatch, geomPatchList(geom))
                     {
                         CreateSurfaceElementChild(childpatch, parent);
                     }
@@ -241,7 +241,7 @@ CreateClusterChildren(ELEMENT *parent) {
 }
 
 static ELEMENT *
-CreateClusterHierarchyRecursive(GEOM *world) {
+CreateClusterHierarchyRecursive(Geometry *world) {
     ELEMENT *topcluster;
     world->radiance_data = topcluster = (ELEMENT *) CreateCluster(world);
     CreateClusterChildren(topcluster);
@@ -249,7 +249,7 @@ CreateClusterHierarchyRecursive(GEOM *world) {
 }
 
 ELEMENT *
-CreateClusterHierarchy(GEOM *world) {
+CreateClusterHierarchy(Geometry *world) {
     if ( !world ) {
         return (ELEMENT *) nullptr;
     } else {
@@ -938,7 +938,7 @@ ElementIsLeaf(ELEMENT *elem) {
 int
 ElementVertices(ELEMENT *elem, Vector3D *p) {
     if ( elem->iscluster ) {
-        float *vol = GeomBounds(elem->pog.geom);
+        float *vol = geomBounds(elem->pog.geom);
 
         VECTORSET(p[0], vol[MIN_X], vol[MIN_Y], vol[MIN_Z]);
         VECTORSET(p[1], vol[MIN_X], vol[MIN_Y], vol[MAX_Z]);

@@ -78,7 +78,7 @@ class GALERKIN_STATE {
 
     /* global variables concerning clustering */
     ELEMENT *top_cluster;    /* toplevel cluster containing the whole scene */
-    GEOM *top_geom;    /* a single COMPOUND GEOM containing the whole scene */
+    Geometry *top_geom;    /* a single COMPOUND Geometry containing the whole scene */
 
     /* parameters that control accuracy */
     ERROR_NORM error_norm;   /* control radiance or power error? */

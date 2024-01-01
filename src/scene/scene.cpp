@@ -6,5 +6,5 @@ Background *GLOBAL_scene_background = (Background *) nullptr;
 PATCHLIST *GLOBAL_scene_patches = (PATCHLIST *) nullptr;
 PATCHLIST *GLOBAL_scene_lightSourcePatches = (PATCHLIST *) nullptr;
 GEOMLIST *GLOBAL_scene_clusteredWorld = (GEOMLIST *) nullptr;
-GEOM *GLOBAL_scene_clusteredWorldGeom = (GEOM *) nullptr;
+Geometry *GLOBAL_scene_clusteredWorldGeom = (Geometry *) nullptr;
 GRID *GLOBAL_scene_worldGrid = (GRID *) nullptr;

@@ -28,7 +28,7 @@ static GRIDITEM *NewGridItem(void *ptr, unsigned flags, GRID *grid) {
 static void EngridItem(GRIDITEM *item, float *itembounds, GRID *grid) {
     short mina, minb, minc, maxa, maxb, maxc, a, b, c;
 
-    /* enlarge the bounds by a small amount in all directions */
+    /* enlarge the getBoundingBox by a small amount in all directions */
     BOUNDINGBOX bounds;
     float xext = (grid->bounds[MAX_X] - grid->bounds[MIN_X]) * 1e-4,
             yext = (grid->bounds[MAX_Y] - grid->bounds[MIN_Y]) * 1e-4,
@@ -101,7 +101,7 @@ static void EngridPatch(PATCH *patch, GRID *grid) {
     EngridItem(NewGridItem(patch, ISPATCH, grid), patch->bounds ? patch->bounds : PatchBounds(patch, bounds), grid);
 }
 
-static void EngridGeom(GEOM *geom, GRID *grid) {
+static void EngridGeom(Geometry *geom, GRID *grid) {
     if ( IsSmall(geom->bounds, grid)) {
         if ( geom->tmp.i /*item count*/ < 10 ) {
             EngridItem(NewGridItem(geom, ISGEOM, grid), geom->bounds, grid);
@@ -110,14 +110,14 @@ static void EngridGeom(GEOM *geom, GRID *grid) {
             EngridItem(NewGridItem(subgrid, ISGRID, grid), subgrid->bounds, grid);
         }
     } else {
-        if ( GeomIsAggregate(geom)) {
-            ForAllGeoms(child, GeomPrimList(geom))
+        if ( geomIsAggregate(geom)) {
+            ForAllGeoms(child, geomPrimList(geom))
                         {
                             EngridGeom(child, grid);
                         }
             EndForAll;
         } else {
-            ForAllPatches(patch, GeomPatchList(geom))
+            ForAllPatches(patch, geomPatchList(geom))
                         {
                             EngridPatch(patch, grid);
                         }
@@ -126,7 +126,7 @@ static void EngridGeom(GEOM *geom, GRID *grid) {
     }
 }
 
-static GRID *Engrid(GEOM *geom, short na, short nb, short nc, int istop) {
+static GRID *Engrid(Geometry *geom, short na, short nb, short nc, int istop) {
     GRID *grid;
     int i;
     float xext, yext, zext;
@@ -147,7 +147,7 @@ static GRID *Engrid(GEOM *geom, short na, short nb, short nc, int istop) {
 
     grid = (GRID *)malloc(sizeof(GRID));
 
-    /* enlarge the bounds by a small amount */
+    /* enlarge the getBoundingBox by a small amount */
     xext = (geom->bounds[MAX_X] - geom->bounds[MIN_X]) * 1e-4;
     yext = (geom->bounds[MAX_Y] - geom->bounds[MIN_Y]) * 1e-4;
     zext = (geom->bounds[MAX_Z] - geom->bounds[MIN_Z]) * 1e-4;
@@ -175,18 +175,18 @@ static GRID *Engrid(GEOM *geom, short na, short nb, short nc, int istop) {
     return grid;
 }
 
-static int GeomCountItems(GEOM *geom) {
+static int GeomCountItems(Geometry *geom) {
     int count = 0;
 
-    if ( GeomIsAggregate(geom)) {
-        GEOMLIST *primlist = GeomPrimList(geom);
+    if ( geomIsAggregate(geom)) {
+        GEOMLIST *primlist = geomPrimList(geom);
         ForAllGeoms(child, primlist)
                     {
                         count += GeomCountItems(child);
                     }
         EndForAll;
     } else {
-        PATCHLIST *patches = GeomPatchList(geom);
+        PATCHLIST *patches = geomPatchList(geom);
         count = PatchListCount(patches);
     }
 
@@ -194,7 +194,7 @@ static int GeomCountItems(GEOM *geom) {
 }
 
 /* Constructs a recursive grid structure containing the whole geom. */
-GRID *CreateGrid(GEOM *geom) {
+GRID *CreateGrid(Geometry *geom) {
     static int level = 0;
     int gridsize;
     GRID *grid;
@@ -255,7 +255,7 @@ static int RandomRayId() {
 }
 
 /* Compute t0, ray's minimal intersection with the whole grid and
- * position P of this intersection. Returns true if the grid bounds are 
+ * position P of this intersection. Returns true if the grid getBoundingBox are
  * intersected and false if the ray passes along the voxel grid. */
 static int GridBoundsIntersect(/*IN*/ GRID *grid, Ray *ray, float mindist, float maxdist,
         /*OUT*/ float *t0, Vector3D *P) {
@@ -374,7 +374,7 @@ static int NextVoxel(float *t0, int *g, Vector3D *tNext, Vector3D *tDelta, int *
     return ingrid;
 }
 
-/* finds the nearest intersection of the ray with an item (GEOM or PATCH) in
+/* finds the nearest intersection of the ray with an item (Geometry or PATCH) in
  * a voxel's item list. If there is an intersection, maxdist will contain
  * the distance to the intersection point measured from the ray origin
  * as usual. If there is no intersection, maxdist remains unmodified. */
@@ -392,7 +392,7 @@ static HITREC *VoxelIntersect(GRIDITEMLIST *items, Ray *ray, int counter,
                         if ( IsPatch(item)) {
                             h = PatchIntersect((PATCH *) item->ptr, ray, mindist, maxdist, hitflags, hitstore);
                         } else if ( IsGeom(item)) {
-                            h = GeomDiscretisationIntersect((GEOM *) item->ptr, ray, mindist, maxdist, hitflags,
+                            h = geomDiscretizationIntersect((Geometry *) item->ptr, ray, mindist, maxdist, hitflags,
                                                             hitstore);
                         } else if ( IsGrid(item)) {
                             h = GridIntersect((GRID *) item->ptr, ray, mindist, maxdist, hitflags, hitstore);
@@ -460,7 +460,7 @@ static HITLIST *AllVoxelIntersections(HITLIST *hitlist,
                                 hitlist = HitListAdd(hitlist, DuplicateHit(h));
                             }
                         } else if ( IsGeom(item)) {
-                            hitlist = GeomAllDiscretisationIntersections(hitlist, (GEOM *) item->ptr, ray, mindist,
+                            hitlist = geomAllDiscretizationIntersections(hitlist, (Geometry *) item->ptr, ray, mindist,
                                                                          maxdist, hitflags);
                         } else if ( IsGrid(item)) {
                             hitlist = AllGridIntersections(hitlist, (GRID *) item->ptr, ray, mindist, maxdist,

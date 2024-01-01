@@ -297,8 +297,8 @@ void PatchDestroy(PATCH *patch) {
     GLOBAL_statistics_numberOfElements--;
 }
 
-/* computes a bounding box for the patch. fills it in in 'bounds' and returns
- * a pointer to 'bounds'. */
+/* computes a bounding box for the patch. fills it in in 'getBoundingBox' and returns
+ * a pointer to 'getBoundingBox'. */
 float *PatchBounds(PATCH *patch, float *bounds) {
     int i;
 
@@ -864,7 +864,7 @@ PatchIntersect(
 
     // test whether it lays inside or outside the patch
     if ( HitInPatch(&hit, patch)) {
-        hit.geom = (GEOM *) nullptr; // we don't know it
+        hit.geom = (Geometry *) nullptr; // we don't know it
         hit.patch = patch;
         hit.material = patch->surface->material;
         hit.gnormal = patch->normal;

@@ -588,7 +588,7 @@ setspectrum(C_COLOR *clr, double wlmin, double wlmax, int ac, char **av)    /* c
     int wl;
     double wl0, wlstep;
     double boxpos, boxstep;
-    /* check bounds */
+    /* check getBoundingBox */
     if ( wlmax <= C_CMINWL || wlmax <= wlmin || wlmin >= C_CMAXWL ) {
         return MG_EILL;
     }

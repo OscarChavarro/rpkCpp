@@ -6,7 +6,7 @@
 #include "skin/surface.h"
 #include "skin/Vertex.h"
 #include "skin/vertexlist.h"
-#include "skin/geom.h"
+#include "skin/Geometry.h"
 
 /* a static counter that is increased each time a surface is created.
  * for making unique SURFACE ids. */

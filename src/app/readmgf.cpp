@@ -2,7 +2,7 @@
 
 #include "common/error.h"
 #include "material/cie.h"
-#include "skin/geom.h"
+#include "skin/Geometry.h"
 #include "skin/Vertex.h"
 #include "skin/patch.h"
 #include "skin/vertexlist.h"
@@ -11,7 +11,7 @@
 #include "MGF/parser.h"
 #include "shared/options.h"
 #include "app/readmgf.h"
-#include "app/compound.h"
+#include "skin/Compound.h"
 #include "app/vectoroctree.h"
 #include "app/phong.h"
 #include "app/fileopts.h"
@@ -32,7 +32,7 @@ static MATERIAL *currentMaterial;
     #define MAXGEOMSTACKDEPTH    100    /* objects ('o' contexts) can be nested this deep */
 #endif
 
-/* GEOM stack: used for building a hierarchical representation of the scene */
+/* Geometry stack: used for building a hierarchical representation of the scene */
 static GEOMLIST *geomStack[MAXGEOMSTACKDEPTH], **geomStackPtr;
 static VERTEXLIST *autoVertexListStack[MAXGEOMSTACKDEPTH], **autoVertexListStackPtr;
 
@@ -103,11 +103,12 @@ NewSurface() {
 
 static void
 SurfaceDone() {
-    GEOM *thegeom;
+    Geometry *thegeom;
 
     if ( currentFaceList ) {
-        thegeom = GeomCreate(
-                (void *) SurfaceCreate(currentMaterial, currentPointList, currentNormalList, (Vector3DListNode *) nullptr,
+        thegeom = geomCreateBase(
+                (void *) SurfaceCreate(currentMaterial, currentPointList, currentNormalList,
+                                       (Vector3DListNode *) nullptr,
                                        currentVertexList, currentFaceList, NO_COLORS), SurfaceMethods());
         currentGeomList = GeomListAdd(currentGeomList, thegeom);
     }
@@ -1006,14 +1007,14 @@ do_object(int argc, char **argv) {
         NewSurface();
     } else {
         /* end of object definition */
-        GEOM *thegeom = (GEOM *) nullptr;
+        Geometry *thegeom = (Geometry *) nullptr;
 
         if ( insurface ) {
             SurfaceDone();
         }
 
         if ( GeomListCount(currentGeomList) > 0 ) {
-            thegeom = GeomCreate((void *) compoundCreate(currentGeomList), CompoundMethods());
+            thegeom = geomCreateBase((void *) compoundCreate(currentGeomList), CompoundMethods());
         }
 
         PopCurrentGeomList();

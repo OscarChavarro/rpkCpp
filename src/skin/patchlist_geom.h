@@ -3,11 +3,11 @@
 #ifndef _PATCHLIST_GEOM_H_
 #define _PATCHLIST_GEOM_H_
 
-#include "skin/geom.h"
+#include "skin/Geometry.h"
 
 extern GEOM_METHODS GLOBAL_skin_patchListGeometryMethods;
 
-/* "returns" the GEOM methods for a patchlist */
+/* "returns" the Geometry methods for a getPatchList */
 #define PatchListMethods() (&GLOBAL_skin_patchListGeometryMethods)
 
 #endif

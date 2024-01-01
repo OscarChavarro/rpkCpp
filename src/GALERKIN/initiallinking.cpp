@@ -1,5 +1,5 @@
 #include "common/error.h"
-#include "skin/geom.h"
+#include "skin/Geometry.h"
 #include "scene/scene.h"
 #include "skin/patch.h"
 #include "GALERKIN/shaftculling.h"
@@ -52,8 +52,8 @@ void CreateInitialLink(PATCH *patch) {
         }
 
         if ( the_shaft ) {
-            ShaftOmit(&shaft, (GEOM *) the_patch);
-            ShaftOmit(&shaft, (GEOM *) patch);
+            ShaftOmit(&shaft, (Geometry *) the_patch);
+            ShaftOmit(&shaft, (Geometry *) patch);
             the_candlist = DoShaftCulling(oldcandlist, the_shaft, (GEOMLIST *) nullptr);
 
             if ( the_shaft->cut == true ) {    /* one patch causes full occlusion. */
@@ -92,13 +92,13 @@ void CreateInitialLink(PATCH *patch) {
 }
 
 /* yes ... we exploit the hierarchical structure of the scene during initial linking */
-static void GeomLink(GEOM *geom) {
+static void GeomLink(Geometry *geom) {
     SHAFT shaft;
     GEOMLIST *oldCandList = the_candlist;
 
-    /* immediately return if the GEOM is bounded and behind the plane of the patch
+    /* immediately return if the Geometry is bounded and behind the plane of the patch
      * for which itneractions are created ... */
-    if ( geom->bounded && BoundsBehindPlane(GeomBounds(geom), &the_patch->normal, the_patch->plane_constant)) {
+    if ( geom->bounded && BoundsBehindPlane(geomBounds(geom), &the_patch->normal, the_patch->plane_constant)) {
         return;
     }
 
@@ -106,18 +106,18 @@ static void GeomLink(GEOM *geom) {
      * which contains the possible occluders between a pair of patches for which
      * an initial link will need to be created. */
     if ( geom->bounded && oldCandList ) {
-        ConstructShaft(the_patch_bounds, GeomBounds(geom), &shaft);
-        ShaftOmit(&shaft, (GEOM *) the_patch);
+        ConstructShaft(the_patch_bounds, geomBounds(geom), &shaft);
+        ShaftOmit(&shaft, (Geometry *) the_patch);
         the_candlist = DoShaftCulling(oldCandList, &shaft, GeomListCreate());
     }
 
-    /* if the GEOM is an aggregate, test each of it's childer GEOMs, if it
+    /* if the Geometry is an aggregate, test each of it's childer GEOMs, if it
     * is a primitive, create an initial link with each patch it consists of. */
-    if ( GeomIsAggregate(geom)) {
-        GEOMLIST *geoml = GeomPrimList(geom);
+    if ( geomIsAggregate(geom)) {
+        GEOMLIST *geoml = geomPrimList(geom);
         GeomListIterate(geoml, GeomLink);
     } else {
-        PATCHLIST *patchl = GeomPatchList(geom);
+        PATCHLIST *patchl = geomPatchList(geom);
         PatchListIterate(patchl, CreateInitialLink);
     }
 

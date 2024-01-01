@@ -49,7 +49,7 @@ class HITLIST;
 extern float *PatchListBounds(PATCHLIST *pl, float *boundingbox);
 
 /* Tests whether the Ray intersect the PATCHes in the list. See geom.h
- * (GeomDiscretisationIntersect()) for more explanation. */
+ * (geomDiscretizationIntersect()) for more explanation. */
 extern HITREC *
 PatchListIntersect(PATCHLIST *pl, Ray *ray, float mindist, float *maxdist, int hitflags, HITREC *hitstore);
 
@@ -60,6 +60,6 @@ PatchListAllIntersections(HITLIST *hits, PATCHLIST *patches, Ray *ray, float min
 
 extern GEOM_METHODS GLOBAL_skin_patchListGeometryMethods;
 
-#include "skin/geom.h"
+#include "skin/Geometry.h"
 
 #endif

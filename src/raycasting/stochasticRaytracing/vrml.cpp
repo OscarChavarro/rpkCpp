@@ -3,7 +3,7 @@
 #include <cstring>
 
 #include "common/error.h"
-#include "skin/geom.h"
+#include "skin/Geometry.h"
 #include "scene/scene.h"
 #include "shared/writevrml.h"
 #include "shared/render.h"
@@ -31,8 +31,8 @@ static void count_and_call(ELEMENT *elem) {
     leaf_element_count++;
 }
 
-static void GeomIterateLeafElements(GEOM *geom, void (*func)(ELEMENT *)) {
-    PATCHLIST *patches = GeomPatchList(geom);
+static void GeomIterateLeafElements(Geometry *geom, void (*func)(ELEMENT *)) {
+    PATCHLIST *patches = geomPatchList(geom);
     elemfunc = func;
     leaf_element_count = 0;
     ForAllPatches(P, patches)
@@ -97,7 +97,7 @@ static void WriteVertexCoords(ELEMENT *elem) {
     ElementTVertexElimination(elem, TriangleWriteVertexCoords, QuadWriteVertexCoords);
 }
 
-static void WritePrimitiveCoords(GEOM *geom) {
+static void WritePrimitiveCoords(Geometry *geom) {
     GeomIterateLeafElements(geom, ResetVertexIds);
 
     vid = nwrit = 0;
@@ -142,7 +142,7 @@ static void ElementWriteVertexColors(ELEMENT *elem) {
     ElementTVertexElimination(elem, TriangleWriteVertexColors, QuadWriteVertexColors);
 }
 
-static void WritePrimitiveColors(GEOM *geom) {
+static void WritePrimitiveColors(Geometry *geom) {
     GeomIterateLeafElements(geom, ResetVertexIds);
 
     vid = nwrit = 0;
@@ -181,7 +181,7 @@ static void ElementWriteCoordIndices(ELEMENT *elem) {
     ElementTVertexElimination(elem, TriangleWriteVertexCoordIndices, QuadWriteVertexCoordIndices);
 }
 
-static void WritePrimitiveCoordIndices(GEOM *geom) {
+static void WritePrimitiveCoordIndices(Geometry *geom) {
     nwrit = 0;
     fprintf(vrmlfp, "\tcoordIndex [ ");
     GeomIterateLeafElements(geom, ElementWriteCoordIndices);
@@ -266,7 +266,7 @@ static const char *make_valid_vrml_id(const char *id) {
     return buf;
 }
 
-static void WriteMaterial(GEOM *geom) {
+static void WriteMaterial(Geometry *geom) {
     SURFACE *surf = GeomGetSurface(geom);
     MATERIAL *mat = surf->material;
     PATCH *first_patch = (surf->faces) ? surf->faces->patch : (PATCH *) nullptr;
@@ -287,7 +287,7 @@ static void WriteMaterial(GEOM *geom) {
         return;
     }
 
-    InitHit(&hit, first_patch, (GEOM *) nullptr, &first_patch->midpoint, &first_patch->normal, mat, 0.);
+    InitHit(&hit, first_patch, (Geometry *) nullptr, &first_patch->midpoint, &first_patch->normal, mat, 0.);
     Rd = BsdfScatteredPower(mat->bsdf, &hit, &first_patch->normal, BRDF_DIFFUSE_COMPONENT);
     ColorToRGB(Rd, &rd);
     Rs = BsdfScatteredPower(mat->bsdf, &hit, &first_patch->normal, BRDF_GLOSSY_COMPONENT | BRDF_SPECULAR_COMPONENT);
@@ -312,7 +312,7 @@ static void WriteMaterial(GEOM *geom) {
     mat->radiance_data = (void *)mat->name;
 }
 
-static void BeginWritePrimitive(GEOM *geom) {
+static void BeginWritePrimitive(Geometry *geom) {
     static int wgiv = false;
     fprintf(vrmlfp, "    Shape {\n");
     if ( GeomIsSurface(geom)) {
@@ -329,7 +329,7 @@ static void BeginWritePrimitive(GEOM *geom) {
     fprintf(vrmlfp, "\tcolorPerVertex %s\n", "TRUE");
 }
 
-static const char *PrimitiveMatName(GEOM *geom) {
+static const char *PrimitiveMatName(Geometry *geom) {
     SURFACE *surf = GeomGetSurface(geom);
     if ( !surf ) {
         return "unknown (not a surface)";
@@ -338,7 +338,7 @@ static const char *PrimitiveMatName(GEOM *geom) {
     }
 }
 
-static void EndWritePrimitive(GEOM *geom) {
+static void EndWritePrimitive(Geometry *geom) {
     fprintf(vrmlfp, "      }\n"); /* end IndexedFaceSet */
     fprintf(vrmlfp, "    },\n");  /* end Shape */
 
@@ -346,7 +346,7 @@ static void EndWritePrimitive(GEOM *geom) {
             PrimitiveMatName(geom), pass, nrcoords, nrcolors, nrcoordindices);
 }
 
-static void WritePrimitivePass(GEOM *geom) {
+static void WritePrimitivePass(Geometry *geom) {
     BeginWritePrimitive(geom);
     WritePrimitiveCoords(geom);
     WritePrimitiveColors(geom);
@@ -354,7 +354,7 @@ static void WritePrimitivePass(GEOM *geom) {
     EndWritePrimitive(geom);
 }
 
-static void WritePrimitive(GEOM *geom) {
+static void WritePrimitive(Geometry *geom) {
     pass = 0;
     WritePrimitivePass(geom);
     if ( leaf_element_count > FACES_PER_SET ) {
@@ -365,11 +365,11 @@ static void WritePrimitive(GEOM *geom) {
     }
 }
 
-void IteratePrimitiveGeoms(GEOMLIST *list, void (*func)(GEOM *)) {
+void IteratePrimitiveGeoms(GEOMLIST *list, void (*func)(Geometry *)) {
     ForAllGeoms(geom, list)
                 {
-                    if ( GeomIsAggregate(geom)) {
-                        IteratePrimitiveGeoms(GeomPrimList(geom), func);
+                    if ( geomIsAggregate(geom)) {
+                        IteratePrimitiveGeoms(geomPrimList(geom), func);
                     } else {
                         func(geom);
                     }

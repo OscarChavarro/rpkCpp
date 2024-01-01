@@ -18,20 +18,20 @@ typedef union FloatOrColorPtr {
 
 typedef union PatchOrGeomPtr {
     PATCH *patch;
-    GEOM *geom;
+    Geometry *geom;
 } PatchOrGeomPtr;
 
 /* the Galerkin radiosity specific data to be kept with every surface or 
  * cluster element. A flag indicates whether a given element is a cluster or
  * surface elements. There are only a few differences between surface and cluster 
  * elements: cluster elements always have a constant basis on them, they contain
- * a pointer to the GEOM to which they are associated, while a surface element has
+ * a pointer to the Geometry to which they are associated, while a surface element has
  * a pointer to the PATCH to which is belongs, they have only irregular subelements,
  * and no uptrans. */
 class ELEMENT {
   public:
     int id;        /* unique ID number for the element */
-    PatchOrGeomPtr pog;    /* The PATCH/GEOM to which the surface/cluster element
+    PatchOrGeomPtr pog;    /* The PATCH/Geometry to which the surface/cluster element
 			 * belongs. */
     COLOR Ed, Rd;        /* diffuse emittance and reflectance */
     COLOR *radiance,    /* total radiance on the element as computed so far */
@@ -120,9 +120,9 @@ extern int GetNumberOfSurfaceElements();
 /* creates the toplevel element for the patch */
 extern ELEMENT *CreateToplevelElement(PATCH *patch);
 
-/* creates a cluster element for the given GEOM. The average projected area still 
+/* creates a cluster element for the given Geometry. The average projected area still
  * needs to be determined. */
-extern ELEMENT *CreateClusterElement(GEOM *geom);
+extern ELEMENT *CreateClusterElement(Geometry *geom);
 
 /* Regularly subdivides the given element. A pointer to an array of
  * 4 pointers to subelements is returned. Only for surface elements. */

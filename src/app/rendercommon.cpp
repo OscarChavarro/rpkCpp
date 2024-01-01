@@ -5,7 +5,7 @@
 #include "common/linealAlgebra/vectorMacros.h"
 #include "scene/scene.h"
 #include "shared/camera.h"
-#include "skin/geom.h"
+#include "skin/Geometry.h"
 #include "shared/options.h"
 #include "shared/defaults.h"
 #include "raycasting/common/Raytracer.h"
@@ -206,15 +206,15 @@ void RenderBounds(BOUNDINGBOX bounds) {
     RenderLine(&p[3], &p[7]);
 }
 
-void RenderGeomBounds(GEOM *geom) {
-    float *geombounds = GeomBounds(geom);
+void RenderGeomBounds(Geometry *geom) {
+    float *geombounds = geomBounds(geom);
 
     if ( geom->bounded && geombounds ) {
         RenderBounds(geombounds);
     }
 
-    if ( GeomIsAggregate(geom)) {
-        GeomListIterate(GeomPrimList(geom), RenderGeomBounds);
+    if ( geomIsAggregate(geom)) {
+        GeomListIterate(geomPrimList(geom), RenderGeomBounds);
     }
 }
 
