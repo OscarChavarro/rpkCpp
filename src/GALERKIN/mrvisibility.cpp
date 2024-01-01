@@ -88,10 +88,10 @@ GeomMultiResolutionVisibility(
 
 double
 GeomListMultiResolutionVisibility(
-    GEOMLIST *occluderlist,
-    Ray *ray, float rcvdist,
-    float srcsize,
-    float minfeaturesize)
+        GeometryListNode *occluderlist,
+        Ray *ray, float rcvdist,
+        float srcsize,
+        float minfeaturesize)
 {
     double vis = 1.;
 

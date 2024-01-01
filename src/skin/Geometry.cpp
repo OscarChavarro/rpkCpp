@@ -72,10 +72,10 @@ geomCreateBase(void *geometryData, GEOM_METHODS *methods) {
 
 Geometry *
 geomCreatePatchSetNew(java::ArrayList<PATCH *> *geometryList, GEOM_METHODS *methods) {
-    PATCHLIST *patchList = nullptr;
+    PatchSet *patchList = nullptr;
 
     for ( int i = 0; geometryList != nullptr && i < geometryList->size(); i++ ) {
-        PATCHLIST *newNode = (PATCHLIST *)malloc(sizeof(PATCHLIST));
+        PatchSet *newNode = (PatchSet *)malloc(sizeof(PatchSet));
         newNode->next = patchList;
         newNode->patch = geometryList->get(i);
         patchList = newNode;
@@ -89,7 +89,7 @@ geomCreatePatchSetNew(java::ArrayList<PATCH *> *geometryList, GEOM_METHODS *meth
 }
 
 Geometry *
-geomCreatePatchSet(PATCHLIST *patchSet, GEOM_METHODS *methods) {
+geomCreatePatchSet(PatchSet *patchSet, GEOM_METHODS *methods) {
     if ( patchSet == nullptr ) {
         return nullptr;
     }
@@ -141,19 +141,19 @@ simpler GEOMetries
 */
 int
 geomIsAggregate(Geometry *geom) {
-    return geom->methods->getPrimitiveGeometryChildrenList != (GEOMLIST *(*)(void *)) nullptr;
+    return geom->methods->getPrimitiveGeometryChildrenList != (GeometryListNode *(*)(void *)) nullptr;
 }
 
 /**
 Returns a linear list of the simpler GEOMEtries making up an aggregate GEOMetry.
 A nullptr pointer is returned if the GEOMetry is a primitive
 */
-GEOMLIST *
+GeometryListNode *
 geomPrimList(Geometry *geom) {
     if ( geom->methods->getPrimitiveGeometryChildrenList ) {
         return geom->methods->getPrimitiveGeometryChildrenList(geom->obj);
     } else {
-        return (GEOMLIST *) nullptr;
+        return (GeometryListNode *) nullptr;
     }
 }
 
@@ -161,12 +161,12 @@ geomPrimList(Geometry *geom) {
 Returns a linear list of patches making up a primitive GEOMetry. A nullptr
 pointer is returned if the given GEOMetry is an aggregate
 */
-PATCHLIST *
+PatchSet *
 geomPatchList(Geometry *geom) {
     if ( geom->methods->getPatchList ) {
         return geom->methods->getPatchList(geom->obj);
     } else {
-        return (PATCHLIST *) nullptr;
+        return (PatchSet *) nullptr;
     }
 }
 

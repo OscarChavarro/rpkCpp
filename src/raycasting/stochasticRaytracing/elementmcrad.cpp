@@ -390,7 +390,7 @@ InstallTexCoord(Vector3D *texCoord) {
 
 static VERTEX *
 InstallVertex(Vector3D *coord, Vector3D *norm, Vector3D *texCoord) {
-    VERTEX *v = VertexCreate(coord, norm, texCoord, (PATCHLIST *) nullptr);
+    VERTEX *v = VertexCreate(coord, norm, texCoord, (PatchSet *) nullptr);
     hierarchy.vertices = VertexListAdd(hierarchy.vertices, v);
     return v;
 }

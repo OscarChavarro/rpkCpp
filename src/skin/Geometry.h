@@ -25,10 +25,10 @@ contains data that is independent of geometry type.
 
 class GEOM_METHODS;
 class HITLIST;
-class PATCHLIST;
+class PatchSet;
 class SURFACE;
 //class Compound;
-class GEOMLIST;
+class GeometryListNode;
 
 class Geometry {
   public:
@@ -52,9 +52,9 @@ class Geometry {
                   to set to false again after you changed it! */
 
     SURFACE *surfaceData;
-    PATCHLIST *patchSetData;
+    PatchSet *patchSetData;
     java::ArrayList<PATCH *> *newPatchSetData;
-    GEOMLIST *aggregateData;
+    GeometryListNode *aggregateData;
 
     void *obj; // @Deprecated
 };
@@ -62,14 +62,14 @@ class Geometry {
 extern Geometry *geomCreateBase(void *geometryData, GEOM_METHODS *methods);
 
 extern Geometry *geomCreatePatchSetNew(java::ArrayList<PATCH *> *geometryList, GEOM_METHODS *methods);
-extern Geometry *geomCreatePatchSet(PATCHLIST *patchSet, GEOM_METHODS *methods);
+extern Geometry *geomCreatePatchSet(PatchSet *patchSet, GEOM_METHODS *methods);
 
 extern void geomPrint(FILE *out, Geometry *geom);
 extern float *geomBounds(Geometry *geom);
 extern void geomDestroy(Geometry *geom);
 extern int geomIsAggregate(Geometry *geom);
-extern GEOMLIST *geomPrimList(Geometry *geom);
-extern PATCHLIST *geomPatchList(Geometry *geom);
+extern GeometryListNode *geomPrimList(Geometry *geom);
+extern PatchSet *geomPatchList(Geometry *geom);
 extern void geomDontIntersect(Geometry *geom1, Geometry *geom2);
 extern Geometry *geomDuplicate(Geometry *geom);
 
@@ -115,13 +115,13 @@ class GEOM_METHODS {
      * Returns the list of children geometries if the geometry is an aggregate.
      * This method is not implemented for primitive geometries
      */
-    GEOMLIST *(*getPrimitiveGeometryChildrenList)(void *obj);
+    GeometryListNode *(*getPrimitiveGeometryChildrenList)(void *obj);
 
     /**
      * Returns the list of patches making up a primitive geometry. This
      * method is not implemented for aggregate geometries
      */
-    PATCHLIST *(*getPatchList)(void *obj);
+    PatchSet *(*getPatchList)(void *obj);
 
     /**
      * DiscretizationIntersect returns nullptr is the ray doesn't hit the discretization
@@ -154,7 +154,7 @@ extern Geometry *GLOBAL_geom_excludedGeom1;
 extern Geometry *GLOBAL_geom_excludedGeom2;
 
 #include "skin/hitlist.h"
-#include "skin/patchlist.h"
+#include "skin/PatchSet.h"
 #include "skin/surface.h"
 #include "skin/Compound.h"
 #include "skin/geomlist.h"

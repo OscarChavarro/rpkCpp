@@ -51,7 +51,7 @@ extern int Facing(PATCH *P, PATCH *Q);
  *	with Scattering Volumes and Object Clusters", IEEE TVCG Vol 1 Nr 3,
  *	sept 1995.
  */
-extern unsigned AreaToAreaFormFactor(INTERACTION *link, GEOMLIST *shadowlist);
+extern unsigned AreaToAreaFormFactor(INTERACTION *link, GeometryListNode *shadowlist);
 
 /* Adjusts the form factors for the patch so that their sum won't be
  * larger than one */

@@ -95,7 +95,7 @@ static void DetermineNodes(ELEMENT *elem, CUBARULE **cr, Vector3D x[CUBAMAXNODES
  * point-to-point form factor is returned. Visibility is filled in vis. */
 /* to be used when integrating over the surface of the source element */
 static double PointKernelEval(Vector3D *x, Vector3D *y,
-                              ELEMENT *rcv, ELEMENT *src, GEOMLIST *ShadowList,
+                              ELEMENT *rcv, ELEMENT *src, GeometryListNode *ShadowList,
                               double *vis) {
     double dist, cosp, cosq, ff;
     float fdist;
@@ -378,7 +378,7 @@ static void DoConstantAreaToAreaFormFactor(INTERACTION *link,
  *	sept 1995.
  */
 
-unsigned AreaToAreaFormFactor(INTERACTION *link, GEOMLIST *shadowlist) {
+unsigned AreaToAreaFormFactor(INTERACTION *link, GeometryListNode *shadowlist) {
     /* Very often, the source or receievr element is the same as the one in
      * the previous call of the function. We cache cubature rules and nodes
      * in order to prevent recomputation. */
@@ -517,7 +517,7 @@ unsigned AreaToAreaFormFactor(INTERACTION *link, GEOMLIST *shadowlist) {
     link->vis = (unsigned) (255. * (double) viscount /
                             (double) (crrcv->nrnodes * crsrc->nrnodes));
 
-    if ( GLOBAL_galerkin_state.exact_visibility && shadowlist != (GEOMLIST *) nullptr && link->vis == 255 ) {
+    if ( GLOBAL_galerkin_state.exact_visibility && shadowlist != (GeometryListNode *) nullptr && link->vis == 255 ) {
         link->vis = 254;
     }    /* not full visibility, we missed the shadow! */
 

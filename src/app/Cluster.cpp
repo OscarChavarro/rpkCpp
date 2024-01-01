@@ -36,9 +36,9 @@ Cluster::Cluster() {
 /**
 Creates a toplevel cluster. The patch list of the cluster contains all inPatches.
 */
-Cluster::Cluster(PATCHLIST *inPatches) {
+Cluster::Cluster(PatchSet *inPatches) {
     patches = new java::ArrayList<PATCH *>();
-    for ( PATCHLIST *window = inPatches; window != nullptr; window = window->next ) {
+    for ( PatchSet *window = inPatches; window != nullptr; window = window->next ) {
         PATCH *patch = window->patch;
         clusterAddPatch(patch);
     }
@@ -198,7 +198,7 @@ are copied to the GEOMs)
 */
 Geometry *
 Cluster::convertClusterToGeom() {
-    GEOMLIST *geometryListNode;
+    GeometryListNode *geometryListNode;
     Geometry *thePatches;
     int i;
 

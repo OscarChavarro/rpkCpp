@@ -1,11 +1,11 @@
-#include "skin/patchlist.h"
+#include "skin/PatchSet.h"
 #include "skin/geomlist.h"
 #include "skin/Geometry.h"
 #include "skin/hitlist.h"
 
 /* this function computes a bounding box for a list of geometries. The bounding box is
  * filled in in 'boundingbox' and a pointer returned. */
-float *GeomListBounds(GEOMLIST *geomlist, float *bounds) {
+float *GeomListBounds(GeometryListNode *geomlist, float *bounds) {
     BoundsInit(bounds);
     ForAllGeoms(geom, geomlist)
                 {
@@ -17,8 +17,8 @@ float *GeomListBounds(GEOMLIST *geomlist, float *bounds) {
 
 /* Builds a linear list of PATCHES making up all the GEOMetries in the list, whether
  * they are primitive or not. */
-PATCHLIST *
-BuildPatchList(GEOMLIST *world, PATCHLIST *patchlist) {
+PatchSet *
+BuildPatchList(GeometryListNode *world, PatchSet *patchlist) {
     ForAllGeoms(geom, world)
                 {
                     if ( geomIsAggregate(geom)) {
@@ -33,15 +33,15 @@ BuildPatchList(GEOMLIST *world, PATCHLIST *patchlist) {
 }
 
 HITREC *
-GeomListDiscretisationIntersect(GEOMLIST *geomlist, Ray *ray, float mindist, float *maxdist, int hitflags,
-                                HITREC *hitstore) {
+GeomListDiscretizationIntersect(GeometryListNode *geomlist, Ray *ray, float minimumDistance, float *maximumDistance, int hitFlags,
+                                HITREC *hitStore) {
     HITREC *h, *hit;
 
     hit = (HITREC *) nullptr;
     ForAllGeoms(geom, geomlist)
                 {
-                    if ((h = geomDiscretizationIntersect(geom, ray, mindist, maxdist, hitflags, hitstore))) {
-                        if ( hitflags & HIT_ANY ) {
+                    if ((h = geomDiscretizationIntersect(geom, ray, minimumDistance, maximumDistance, hitFlags, hitStore))) {
+                        if ( hitFlags & HIT_ANY ) {
                             return h;
                         } else {
                             hit = h;
@@ -53,11 +53,11 @@ GeomListDiscretisationIntersect(GEOMLIST *geomlist, Ray *ray, float mindist, flo
 }
 
 HITLIST *
-GeomListAllDiscretisationIntersections(HITLIST *hits, GEOMLIST *geomlist, Ray *ray, float mindist, float maxdist,
-                                       int hitflags) {
-    ForAllGeoms(geom, geomlist)
+geomListAllDiscretizationIntersections(HITLIST *hits, GeometryListNode *geometryList, Ray *ray, float minimumDistance, float maximumDistance,
+                                       int hitFlags) {
+    ForAllGeoms(geom, geometryList)
                 {
-                    hits = geomAllDiscretizationIntersections(hits, geom, ray, mindist, maxdist, hitflags);
+                    hits = geomAllDiscretizationIntersections(hits, geom, ray, minimumDistance, maximumDistance, hitFlags);
                 }
     EndForAll;
     return hits;

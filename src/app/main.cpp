@@ -301,7 +301,7 @@ This hierarchy is often much more efficient for tracing rays and clustering radi
 than the given hierarchy of bounding boxes. A pointer to the toplevel "cluster" is returned
 */
 static Geometry *
-createClusterHierarchy(PATCHLIST *patches) {
+createClusterHierarchy(PatchSet *patches) {
     Cluster *rootCluster;
     Geometry *rootGeometry;
 
@@ -344,10 +344,10 @@ bool
 ReadFile(char *filename) {
     char *dot, *slash, *extension;
     FILE *input;
-    GEOMLIST *oWorld, *oClusteredWorld;
+    GeometryListNode *oWorld, *oClusteredWorld;
     Geometry *oClusteredWorldGeom;
     MATERIALLIST *oMaterialLib;
-    PATCHLIST *oPatches, *oLightSourcePatches;
+    PatchSet *oPatches, *oLightSourcePatches;
     GRID *oWorldGrid;
     RADIANCEMETHOD *oRadiance;
     Raytracer *oRayTracing;
@@ -525,7 +525,7 @@ ReadFile(char *filename) {
 
     GLOBAL_scene_clusteredWorldGeom = createClusterHierarchy(GLOBAL_scene_patches);
     if ( GeomIsCompound(GLOBAL_scene_clusteredWorldGeom)) {
-        GLOBAL_scene_clusteredWorld = (GEOMLIST *) (GLOBAL_scene_clusteredWorldGeom->obj);
+        GLOBAL_scene_clusteredWorld = (GeometryListNode *) (GLOBAL_scene_clusteredWorldGeom->obj);
     } else {
         // small memory leak here ... but exceptional situation!
         GLOBAL_scene_clusteredWorld = GeomListAdd(GeomListCreate(), GLOBAL_scene_clusteredWorldGeom);

@@ -20,7 +20,7 @@ enum COLORFLAGS colorFlags = NO_COLORS;
 
 static void NormalizeVertexColor(VERTEX *vertex) {
     int nrpatches = 0;
-    PATCHLIST *patches;
+    PatchSet *patches;
     for ( patches = vertex->patches; patches; patches = patches->next ) {
         nrpatches++;
     }
@@ -65,7 +65,7 @@ void SurfaceConnectFace(SURFACE *surf, PATCH *face) {
 /* This routine creates a SURFACE with given material, points, etc... */
 SURFACE *SurfaceCreate(MATERIAL *material,
                        Vector3DListNode *points, Vector3DListNode *normals, Vector3DListNode *texCoords,
-                       VERTEXLIST *vertices, PATCHLIST *faces,
+                       VERTEXLIST *vertices, PatchSet *faces,
                        enum COLORFLAGS flags) {
     SURFACE *surf;
 
@@ -143,7 +143,7 @@ float *SurfaceBounds(SURFACE *surf, float *boundingbox) {
 
 /* returns the list of PATCHes making up a primitive GEOMetry. This
  * method is not implemented for aggregate GEOMetries. */
-PATCHLIST *SurfacePatchlist(SURFACE *surf) {
+PatchSet *SurfacePatchlist(SURFACE *surf) {
     return surf->faces;
 }
 
@@ -161,8 +161,8 @@ GEOM_METHODS surfaceMethods = {
         (float *(*)(void *, float *)) SurfaceBounds,
         (void (*)(void *)) SurfaceDestroy,
         (void (*)(FILE *, void *)) SurfacePrint,
-        (GEOMLIST *(*)(void *)) nullptr,
-        (PATCHLIST *(*)(void *)) SurfacePatchlist,
+        (GeometryListNode *(*)(void *)) nullptr,
+        (PatchSet *(*)(void *)) SurfacePatchlist,
         (HITREC *(*)(void *, Ray *, float, float *, int, HITREC *)) SurfaceDiscretisationIntersect,
         (HITLIST *(*)(HITLIST *, void *, Ray *, float, float, int)) SurfaceAllDiscretisationIntersections,
         (void *(*)(void *)) nullptr

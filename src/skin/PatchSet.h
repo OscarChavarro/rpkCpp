@@ -8,27 +8,27 @@
 
 class GEOM_METHODS;
 
-class PATCHLIST {
+class PatchSet {
   public:
     PATCH *patch;
-    PATCHLIST *next;
+    PatchSet *next;
 };
 
 class HITLIST;
 
-#define PatchListCreate    (PATCHLIST *)ListCreate
+#define PatchListCreate    (PatchSet *)ListCreate
 
 #define PatchListAdd(patchlist, patch)    \
-        (PATCHLIST *)ListAdd((LIST *)patchlist, (void *)patch)
+        (PatchSet *)ListAdd((LIST *)patchlist, (void *)patch)
 
 #define PatchListCount(patchlist) \
         ListCount((LIST *)patchlist)
 
 #define PatchListDuplicate(patchlist) \
-        (PATCHLIST *)ListDuplicate((LIST *)patchlist)
+        (PatchSet *)ListDuplicate((LIST *)patchlist)
 
 #define PatchListMerge(patchlist1, patchlist2) \
-        (PATCHLIST *)ListMerge((LIST *)patchlist1, (LIST *)patchlist2);
+        (PatchSet *)ListMerge((LIST *)patchlist1, (LIST *)patchlist2);
 
 #define PatchListIterate(patchlist, proc) \
         ListIterate((LIST *)patchlist, (void (*)(void *))proc)
@@ -46,16 +46,16 @@ class HITLIST;
 
 /* Computes a bounding box for the given list of PATCHes. The bounding box is
  * filled in in 'boundingbox' and a pointer to it returned. */
-extern float *PatchListBounds(PATCHLIST *pl, float *boundingbox);
+extern float *PatchListBounds(PatchSet *pl, float *boundingbox);
 
 /* Tests whether the Ray intersect the PATCHes in the list. See geom.h
  * (geomDiscretizationIntersect()) for more explanation. */
 extern HITREC *
-PatchListIntersect(PATCHLIST *pl, Ray *ray, float mindist, float *maxdist, int hitflags, HITREC *hitstore);
+PatchListIntersect(PatchSet *pl, Ray *ray, float mindist, float *maxdist, int hitflags, HITREC *hitstore);
 
 /* similar, but adds all found intersections to the hitlist */
 extern HITLIST *
-PatchListAllIntersections(HITLIST *hits, PATCHLIST *patches, Ray *ray, float mindist, float maxdist,
+PatchListAllIntersections(HITLIST *hits, PatchSet *patches, Ray *ray, float mindist, float maxdist,
                           int hitflags);
 
 extern GEOM_METHODS GLOBAL_skin_patchListGeometryMethods;

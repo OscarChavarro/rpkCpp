@@ -15,7 +15,7 @@ Surfaces are basically a list of PATCHes representing a simple object with given
 
 class GEOM_METHODS;
 class GEOM;
-class PATCHLIST;
+class PatchSet;
 
 class SURFACE {
   public:
@@ -46,7 +46,7 @@ class SURFACE {
      * the PATCHes that share the VERTEX. This can be used for e.g. Gouraud shading
      * if a color is assigned to each VERTEX. Each PATCH also contains a backpointer to
      * to SURFACE to which it belongs. */
-    PATCHLIST *faces;
+    PatchSet *faces;
 };
 
 enum COLORFLAGS {
@@ -56,7 +56,7 @@ enum COLORFLAGS {
 /* This routine creates a SURFACE with given material, points, etc... */
 extern SURFACE *SurfaceCreate(MATERIAL *material,
                               Vector3DListNode *points, Vector3DListNode *normals, Vector3DListNode *texCoords,
-                              VERTEXLIST *vertices, PATCHLIST *faces,
+                              VERTEXLIST *vertices, PatchSet *faces,
                               enum COLORFLAGS flags);
 
 /* A set of pointers to functions to operate on a SURFACE, as declared in geom.h. */

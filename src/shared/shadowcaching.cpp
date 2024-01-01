@@ -46,7 +46,7 @@ void AddToShadowCache(PATCH *patch) {
  * patch if the ray does intersect one or more geometries. Intersections
  * further away than dist are ignored. GLOBAL_scene_patches in the shadow cache are
  * checked first. */
-HITREC *ShadowTestDiscretisation(Ray *ray, GEOMLIST *world, float dist, HITREC *hitstore) {
+HITREC *ShadowTestDiscretisation(Ray *ray, GeometryListNode *world, float dist, HITREC *hitstore) {
     HITREC *hit = nullptr;
 
     GLOBAL_statistics_numberOfShadowRays++;
@@ -54,7 +54,7 @@ HITREC *ShadowTestDiscretisation(Ray *ray, GEOMLIST *world, float dist, HITREC *
         GLOBAL_statistics_numberOfShadowCacheHits++;
     } else {
         if ( world != GLOBAL_scene_clusteredWorld && world != GLOBAL_scene_world ) {
-            hit = GeomListDiscretisationIntersect(world, ray, EPSILON * dist, &dist, HIT_FRONT | HIT_ANY, hitstore);
+            hit = GeomListDiscretizationIntersect(world, ray, EPSILON * dist, &dist, HIT_FRONT | HIT_ANY, hitstore);
         } else {
             hit = GridIntersect(GLOBAL_scene_worldGrid, ray, EPSILON * dist, &dist, HIT_FRONT | HIT_ANY, hitstore);
         }

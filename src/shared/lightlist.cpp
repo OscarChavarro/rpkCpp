@@ -24,7 +24,7 @@ void CLightList::IncludeVirtualPatches(bool newValue) {
     includeVirtual = newValue;
 }
 
-CLightList::CLightList(PATCHLIST *list, bool includeVirtualPatches) {
+CLightList::CLightList(PatchSet *list, bool includeVirtualPatches) {
     CLightInfo info;
     COLOR lightColor;
     {

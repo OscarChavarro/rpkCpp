@@ -17,7 +17,7 @@ private:
 
 public:
     virtual ~Cluster();
-    explicit Cluster(PATCHLIST *inPatches);
+    explicit Cluster(PatchSet *inPatches);
     void splitCluster();
     Geometry * convertClusterToGeom();
 };

@@ -3,7 +3,7 @@
 #ifndef _SHADOWCACHING_H_
 #define _SHADOWCACHING_H_
 
-#include "skin/patchlist.h"
+#include "skin/PatchSet.h"
 #include "skin/geomlist.h"
 #include "common/Ray.h"
 
@@ -23,6 +23,6 @@ extern void AddToShadowCache(PATCH *patch);
  * patch if the ray does intersect one or more geometries. Intersections
  * further away than dist are ignored. GLOBAL_scene_patches in the shadow cache are
  * checked first. */
-extern HITREC *ShadowTestDiscretisation(Ray *ray, GEOMLIST *world, float dist, HITREC *hitstore);
+extern HITREC *ShadowTestDiscretisation(Ray *ray, GeometryListNode *world, float dist, HITREC *hitstore);
 
 #endif

@@ -47,13 +47,14 @@ set(MAIN_SRC
     src/material/statistics.cpp
     src/material/texture.cpp
     src/material/xxdf.cpp
-        src/skin/Geometry.cpp
+    src/skin/Compound.cpp
+    src/skin/Geometry.cpp
     src/skin/geomlist.cpp
     src/skin/hit.cpp
     src/skin/hitlist.cpp
     src/skin/jacobian.cpp
     src/skin/patch.cpp
-    src/skin/patchlist.cpp
+        src/skin/PatchSet.cpp
     src/skin/surface.cpp
     src/skin/Vertex.cpp
     src/scene/Background.cpp
@@ -172,7 +173,6 @@ set(MAIN_SRC
     src/raycasting/stochasticRaytracing/tracepath.cpp
     src/raycasting/stochasticRaytracing/vrml.cpp
     src/app/batch.cpp
-        src/skin/Compound.cpp
     src/app/phong.cpp
     src/app/radiance.cpp
     src/app/readmgf.cpp
@@ -181,8 +181,8 @@ set(MAIN_SRC
     src/app/ui_main.cpp
     src/app/opengl.cpp
     src/app/main.cpp
-        src/app/Cluster.cpp
-        src/app/Cluster.h
+    src/app/Cluster.cpp
+    src/app/Cluster.h
 )
 add_executable(rpk ${MAIN_SRC})
 

@@ -21,7 +21,7 @@ Southwell Galerkin radiosity (progressive refinement radiosity)
 static PATCH *ChooseRadianceShootingPatch() {
     PATCH *shooting_patch, *pot_shooting_patch;
     float power, maxpower, powerimp, maxpowerimp;
-    PATCHLIST *pl;
+    PatchSet *pl;
 
     maxpower = maxpowerimp = 0.;
     shooting_patch = pot_shooting_patch = (PATCH *) nullptr;
@@ -259,7 +259,7 @@ static PATCH *
 ChoosePotentialShootingPatch() {
     float maximp = 0.;
     PATCH *shooting_patch = (PATCH *) nullptr;
-    PATCHLIST *pl;
+    PatchSet *pl;
 
     for ( pl = GLOBAL_scene_patches; pl; pl = pl->next ) {
         PATCH *patch = pl->patch;

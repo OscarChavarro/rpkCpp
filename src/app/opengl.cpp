@@ -303,7 +303,7 @@ RenderPatch(PATCH *patch) {
 
 static void
 ReallyRenderOctreeLeaf(Geometry *geom, void (*render_patch)(PATCH *)) {
-    PATCHLIST *patchlist = geomPatchList(geom);
+    PatchSet *patchlist = geomPatchList(geom);
     ForAllPatches(P, patchlist)
                 {
                     render_patch(P);
@@ -366,7 +366,7 @@ static void
 RenderOctreeNonLeaf(Geometry *geom, void (*render_patch)(PATCH *)) {
     int i, n, remaining;
     OctreeChild octree_children[8];
-    GEOMLIST *children = geomPrimList(geom);
+    GeometryListNode *children = geomPrimList(geom);
 
     i = 0;
     ForAllGeoms(child, children)
@@ -444,7 +444,7 @@ GeomDeleteDLists(Geometry *geom) {
     geom->dlistid = -1;
 
     if ( geomIsAggregate(GLOBAL_scene_clusteredWorldGeom)) {
-        GEOMLIST *children = geomPrimList(geom);
+        GeometryListNode *children = geomPrimList(geom);
         ForAllGeoms(child, children)
                     {
                         GeomDeleteDLists(child);

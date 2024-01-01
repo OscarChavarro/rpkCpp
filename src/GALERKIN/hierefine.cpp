@@ -11,16 +11,16 @@
 
 /* ************* Shaftculling stuff for hierarchical refinement *************** */
 
-static GEOMLIST *candlist;    /* candidate occluder list for a pair of patches. */
+static GeometryListNode *candlist;    /* candidate occluder list for a pair of patches. */
 
 /* Does shaftculling between elements in a link (if the user asked for it).
  * Updates the global candlist. Returns the old candlist, so it can be restored 
  * later (using UnCull()). */
-static GEOMLIST *Cull(INTERACTION *link) {
-    GEOMLIST *ocandlist = candlist;
+static GeometryListNode *Cull(INTERACTION *link) {
+    GeometryListNode *ocandlist = candlist;
 
-    if ( ocandlist == (GEOMLIST *) nullptr) {
-        return (GEOMLIST *) nullptr;
+    if ( ocandlist == (GeometryListNode *) nullptr) {
+        return (GeometryListNode *) nullptr;
     }
 
     if ( GLOBAL_galerkin_state.shaftcullmode == DO_SHAFTCULLING_FOR_REFINEMENT ||
@@ -55,9 +55,9 @@ static GEOMLIST *Cull(INTERACTION *link) {
         }
 
         if ( ocandlist == GLOBAL_scene_clusteredWorld ) {
-            candlist = ShaftCullGeom(GLOBAL_scene_clusteredWorldGeom, &shaft, (GEOMLIST *) nullptr);
+            candlist = ShaftCullGeom(GLOBAL_scene_clusteredWorldGeom, &shaft, (GeometryListNode *) nullptr);
         } else {
-            candlist = DoShaftCulling(ocandlist, &shaft, (GEOMLIST *) nullptr);
+            candlist = DoShaftCulling(ocandlist, &shaft, (GeometryListNode *) nullptr);
         }
     }
 
@@ -66,7 +66,7 @@ static GEOMLIST *Cull(INTERACTION *link) {
 
 /* Destroys the current candlist and restores the previous one (passed as
  * an argument). */
-static void UnCull(GEOMLIST *ocandlist) {
+static void UnCull(GeometryListNode *ocandlist) {
     if ( GLOBAL_galerkin_state.shaftcullmode == DO_SHAFTCULLING_FOR_REFINEMENT ||
          GLOBAL_galerkin_state.shaftcullmode == ALWAYS_DO_SHAFTCULLING ) {
         FreeCandidateList(candlist);
@@ -405,7 +405,7 @@ static int RefineRecursive(INTERACTION *link);    /* forward decl. */
  * iteration method being used. This routine always returns true indicating that
  * the passed interaction is always replaced by lower level interactions. */
 static int RegularSubdivideSource(INTERACTION *link) {
-    GEOMLIST *ocandlist = Cull(link);
+    GeometryListNode *ocandlist = Cull(link);
     ELEMENT *src = link->src, *rcv = link->rcv;
     int i;
 
@@ -430,7 +430,7 @@ static int RegularSubdivideSource(INTERACTION *link) {
 
 /* Same, but subdivides the receiver element. */
 static int RegularSubdivideReceiver(INTERACTION *link) {
-    GEOMLIST *ocandlist = Cull(link);
+    GeometryListNode *ocandlist = Cull(link);
     ELEMENT *src = link->src, *rcv = link->rcv;
     int i;
 
@@ -455,7 +455,7 @@ static int RegularSubdivideReceiver(INTERACTION *link) {
 /* Replace the interaction by interactions with the subclusters of the source,
  * which is a cluster. */
 static int SubdivideSourceCluster(INTERACTION *link) {
-    GEOMLIST *ocandlist = Cull(link);
+    GeometryListNode *ocandlist = Cull(link);
     ELEMENT *src = link->src, *rcv = link->rcv;
     ELEMENTLIST *subcluslist;
 
@@ -489,7 +489,7 @@ static int SubdivideSourceCluster(INTERACTION *link) {
 /* Replace the interaction by interactions with the subclusters of the receiver,
  * which is a cluster. */
 static int SubdivideReceiverCluster(INTERACTION *link) {
-    GEOMLIST *ocandlist = Cull(link);
+    GeometryListNode *ocandlist = Cull(link);
     ELEMENT *src = link->src, *rcv = link->rcv;
     ELEMENTLIST *subcluslist;
 
@@ -553,7 +553,7 @@ int RefineRecursive(INTERACTION *link) {
 void RefineInteraction(INTERACTION *link) {
     candlist = GLOBAL_scene_clusteredWorld;    /* candidate occluder list for a pair of patches. */
     if ( GLOBAL_galerkin_state.exact_visibility && link->vis == 255 ) {
-        candlist = (GEOMLIST *) nullptr;
+        candlist = (GeometryListNode *) nullptr;
     } /* we know for sure that there is full visibility */
 
     if ( RefineRecursive(link)) {

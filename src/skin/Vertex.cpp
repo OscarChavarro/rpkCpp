@@ -9,7 +9,7 @@ sharing the vertex. Several vertices can share the same coordinates
 and normal vector. Several patches can share the same vertex
 */
 VERTEX *
-VertexCreate(Vector3D *point, Vector3D *normal, Vector3D *texCoord, PATCHLIST *patches) {
+VertexCreate(Vector3D *point, Vector3D *normal, Vector3D *texCoord, PatchSet *patches) {
     VERTEX *v = (VERTEX *)malloc(sizeof(VERTEX));
 
     v->id = GLOBAL_statistics_numberOfVertices++;
@@ -77,7 +77,7 @@ resulting color to the vertex
 */
 void
 ComputeVertexColor(VERTEX *vertex) {
-    PATCHLIST *patches;
+    PatchSet *patches;
     int nrpatches;
 
     RGBSET(vertex->color, 0., 0., 0.);

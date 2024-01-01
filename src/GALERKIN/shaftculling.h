@@ -9,7 +9,7 @@
  */
 
 #include "skin/geomlist.h"
-#include "skin/patchlist.h"
+#include "skin/PatchSet.h"
 #include "scene/polygon.h"
 #include "scene/grid.h"
 
@@ -77,17 +77,17 @@ extern void ShaftDontOpen(SHAFT *shaft, Geometry *geom);
 
 /* adds all objects from world that overlap or lay inside the shaft to
  * candlist, returns the new candidate list */
-extern GEOMLIST *DoShaftCulling(GEOMLIST *world, SHAFT *shaft, GEOMLIST *candlist);
+extern GeometryListNode *DoShaftCulling(GeometryListNode *world, SHAFT *shaft, GeometryListNode *candlist);
 
 /* Tests the geom w.r.t. the shaft: if the geom is inside or overlaps
  * the shaft, it is copied to the shaft or broken open depending on
  * the current shaft culling strategy. */
-extern GEOMLIST *ShaftCullGeom(Geometry *geom, SHAFT *shaft, GEOMLIST *candlist);
+extern GeometryListNode *ShaftCullGeom(Geometry *geom, SHAFT *shaft, GeometryListNode *candlist);
 
 /* shaftculling for patch lists */
-extern PATCHLIST *ShaftCullPatchlist(PATCHLIST *pl, SHAFT *shaft, PATCHLIST *culledpatchlist);
+extern PatchSet *ShaftCullPatchlist(PatchSet *pl, SHAFT *shaft, PatchSet *culledpatchlist);
 
 /* frees the memory occupied by a candidatelist produced by DoShaftCulling */
-extern void FreeCandidateList(GEOMLIST *candlist);
+extern void FreeCandidateList(GeometryListNode *candlist);
 
 #endif

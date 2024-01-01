@@ -11,11 +11,11 @@ static ELEMENT *the_element;    /* the element for which initial links are to be
 static ROLE the_role;        /* the role of that element: SOURCE or RECEIVER */
 static PATCH *the_patch;    /* the patch for the element is the toplevel element */
 static BOUNDINGBOX the_patch_bounds; /* bounding box for that patch */
-static GEOMLIST *the_candlist;    /* candidate list for shaft culling */
+static GeometryListNode *the_candlist;    /* candidate list for shaft culling */
 
 void CreateInitialLink(PATCH *patch) {
     ELEMENT *rcv = (ELEMENT *) nullptr, *src = (ELEMENT *) nullptr;
-    GEOMLIST *oldcandlist = the_candlist;
+    GeometryListNode *oldcandlist = the_candlist;
     INTERACTION link;
     float ff[MAXBASISSIZE * MAXBASISSIZE];
     link.K.p = ff;
@@ -54,7 +54,7 @@ void CreateInitialLink(PATCH *patch) {
         if ( the_shaft ) {
             ShaftOmit(&shaft, (Geometry *) the_patch);
             ShaftOmit(&shaft, (Geometry *) patch);
-            the_candlist = DoShaftCulling(oldcandlist, the_shaft, (GEOMLIST *) nullptr);
+            the_candlist = DoShaftCulling(oldcandlist, the_shaft, (GeometryListNode *) nullptr);
 
             if ( the_shaft->cut == true ) {    /* one patch causes full occlusion. */
                 FreeCandidateList(the_candlist);
@@ -94,7 +94,7 @@ void CreateInitialLink(PATCH *patch) {
 /* yes ... we exploit the hierarchical structure of the scene during initial linking */
 static void GeomLink(Geometry *geom) {
     SHAFT shaft;
-    GEOMLIST *oldCandList = the_candlist;
+    GeometryListNode *oldCandList = the_candlist;
 
     /* immediately return if the Geometry is bounded and behind the plane of the patch
      * for which itneractions are created ... */
@@ -114,10 +114,10 @@ static void GeomLink(Geometry *geom) {
     /* if the Geometry is an aggregate, test each of it's childer GEOMs, if it
     * is a primitive, create an initial link with each patch it consists of. */
     if ( geomIsAggregate(geom)) {
-        GEOMLIST *geoml = geomPrimList(geom);
+        GeometryListNode *geoml = geomPrimList(geom);
         GeomListIterate(geoml, GeomLink);
     } else {
-        PATCHLIST *patchl = geomPatchList(geom);
+        PatchSet *patchl = geomPatchList(geom);
         PatchListIterate(patchl, CreateInitialLink);
     }
 

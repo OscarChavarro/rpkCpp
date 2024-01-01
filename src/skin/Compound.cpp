@@ -14,7 +14,7 @@ to geomCreateBase() for creating a Compound Geometry if you don't want
 it to be counted
 */
 COMPOUND *
-compoundCreate(GEOMLIST *geomlist) {
+compoundCreate(GeometryListNode *geomlist) {
     GLOBAL_statistics_numberOfCompounds++;
     return geomlist;
 }
@@ -51,7 +51,7 @@ compoundPrint(FILE *out, COMPOUND *obj) {
 /**
 Returns the list of children geometries if the geometry is an aggregate
 */
-static GEOMLIST *
+static GeometryListNode *
 compoundPrimitives(COMPOUND *obj) {
     return obj;
 }
@@ -65,7 +65,7 @@ compoundDiscretizationIntersect(
     int hitFlags,
     HITREC *hitStore)
 {
-    return GeomListDiscretisationIntersect(obj, ray, minimumDistance, maximumDistance, hitFlags, hitStore);
+    return GeomListDiscretizationIntersect(obj, ray, minimumDistance, maximumDistance, hitFlags, hitStore);
 }
 
 static HITLIST *
@@ -77,7 +77,7 @@ compoundAllDiscretizationIntersections(
     float maximumDistance,
     int hitFlags)
 {
-    return GeomListAllDiscretisationIntersections(hits, obj, ray, minimumDistance, maximumDistance, hitFlags);
+    return geomListAllDiscretizationIntersections(hits, obj, ray, minimumDistance, maximumDistance, hitFlags);
 }
 
 // A set of pointers to the functions (methods) to operate on compounds
@@ -85,8 +85,8 @@ GEOM_METHODS GLOBAL_skin_compoundGeometryMethods = {
         (float *(*)(void *, float *)) compoundBounds,
         (void (*)(void *)) compoundDestroy,
         (void (*)(FILE *, void *)) compoundPrint,
-        (GEOMLIST *(*)(void *)) compoundPrimitives,
-    (PATCHLIST *(*)(void *)) nullptr,
+        (GeometryListNode *(*)(void *)) compoundPrimitives,
+    (PatchSet *(*)(void *)) nullptr,
         (HITREC *(*)(void *, Ray *, float, float *, int, HITREC *)) compoundDiscretizationIntersect,
         (HITLIST *(*)(HITLIST *, void *, Ray *, float, float, int)) compoundAllDiscretizationIntersections,
     (void *(*)(void *)) nullptr

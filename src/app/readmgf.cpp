@@ -24,8 +24,8 @@ static Vector3DListNode *currentPointList;
 static Vector3DListNode *currentNormalList;
 static VERTEXLIST *currentVertexList;
 static VERTEXLIST *autoVertexList;
-static PATCHLIST *currentFaceList;
-static GEOMLIST *currentGeomList;
+static PatchSet *currentFaceList;
+static GeometryListNode *currentGeomList;
 static MATERIAL *currentMaterial;
 
 #ifndef MAXGEOMSTACKDEPTH
@@ -33,7 +33,7 @@ static MATERIAL *currentMaterial;
 #endif
 
 /* Geometry stack: used for building a hierarchical representation of the scene */
-static GEOMLIST *geomStack[MAXGEOMSTACKDEPTH], **geomStackPtr;
+static GeometryListNode *geomStack[MAXGEOMSTACKDEPTH], **geomStackPtr;
 static VERTEXLIST *autoVertexListStack[MAXGEOMSTACKDEPTH], **autoVertexListStackPtr;
 
 #ifndef MAXFACEVERTICES
@@ -102,7 +102,7 @@ NewSurface() {
 }
 
 static void
-SurfaceDone() {
+surfaceDone() {
     Geometry *thegeom;
 
     if ( currentFaceList ) {
@@ -702,7 +702,7 @@ do_face(int argc, char **argv) {
     if ( !incomplex ) {
         if ( MaterialChanged()) {
             if ( insurface ) {
-                SurfaceDone();
+                surfaceDone();
             }
             NewSurface();
             GetCurrentMaterial();
@@ -941,14 +941,14 @@ do_surface(int argc, char **argv) {
     } else {
         incomplex = true;
         if ( insurface ) {
-            SurfaceDone();
+            surfaceDone();
         }
         NewSurface();
         GetCurrentMaterial();
 
         errcode = do_discretize(argc, argv);
 
-        SurfaceDone();
+        surfaceDone();
         incomplex = false;
 
         return errcode;
@@ -973,7 +973,7 @@ PushCurrentGeomList() {
 }
 
 static void
-PopCurrentGeomList() {
+popCurrentGeomList() {
     if ( geomStackPtr <= geomStack ) {
         do_error("Object stack underflow ... unbalanced 'o' contexts?");
         currentGeomList = GeomListCreate();
@@ -999,28 +999,28 @@ do_object(int argc, char **argv) {
         fprintf(stderr, "%s ...\n", argv[1]);
 
         if ( insurface ) {
-            SurfaceDone();
+            surfaceDone();
         }
 
         PushCurrentGeomList();
 
         NewSurface();
     } else {
-        /* end of object definition */
-        Geometry *thegeom = (Geometry *) nullptr;
+        // End of object definition
+        Geometry *theGeometry = nullptr;
 
         if ( insurface ) {
-            SurfaceDone();
+            surfaceDone();
         }
 
         if ( GeomListCount(currentGeomList) > 0 ) {
-            thegeom = geomCreateBase((void *) compoundCreate(currentGeomList), CompoundMethods());
+            theGeometry = geomCreateBase((void *) compoundCreate(currentGeomList), CompoundMethods());
         }
 
-        PopCurrentGeomList();
+        popCurrentGeomList();
 
-        if ( thegeom ) {
-            currentGeomList = GeomListAdd(currentGeomList, thegeom);
+        if ( theGeometry ) {
+            currentGeomList = GeomListAdd(currentGeomList, theGeometry);
         }
 
         NewSurface();
@@ -1133,7 +1133,7 @@ ReadMgf(char *filename) {
     mg_clear();
 
     if ( insurface ) {
-        SurfaceDone();
+        surfaceDone();
     }
     GLOBAL_scene_world = currentGeomList;
 

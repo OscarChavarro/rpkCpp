@@ -32,7 +32,7 @@ static void count_and_call(ELEMENT *elem) {
 }
 
 static void GeomIterateLeafElements(Geometry *geom, void (*func)(ELEMENT *)) {
-    PATCHLIST *patches = geomPatchList(geom);
+    PatchSet *patches = geomPatchList(geom);
     elemfunc = func;
     leaf_element_count = 0;
     ForAllPatches(P, patches)
@@ -365,7 +365,7 @@ static void WritePrimitive(Geometry *geom) {
     }
 }
 
-void IteratePrimitiveGeoms(GEOMLIST *list, void (*func)(Geometry *)) {
+void IteratePrimitiveGeoms(GeometryListNode *list, void (*func)(Geometry *)) {
     ForAllGeoms(geom, list)
                 {
                     if ( geomIsAggregate(geom)) {

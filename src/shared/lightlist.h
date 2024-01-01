@@ -6,7 +6,7 @@
 #ifndef _LIGHTLIST_H_
 #define _LIGHTLIST_H_
 
-#include "skin/patchlist.h"
+#include "skin/PatchSet.h"
 #include "common/linealAlgebra/vectorMacros.h"
 
 #include "common/dataStructures/CSList.h"
@@ -39,7 +39,7 @@ public:
 
     // A getPatchList must be supplied for building a light list.
     // Non emitting patches (edf == nullptr) are NOT put in the list.
-    CLightList(PATCHLIST *list, bool includeVirtualPatches = false);
+    CLightList(PatchSet *list, bool includeVirtualPatches = false);
 
     ~CLightList();
 

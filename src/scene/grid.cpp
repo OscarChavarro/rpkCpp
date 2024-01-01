@@ -179,14 +179,14 @@ static int GeomCountItems(Geometry *geom) {
     int count = 0;
 
     if ( geomIsAggregate(geom)) {
-        GEOMLIST *primlist = geomPrimList(geom);
+        GeometryListNode *primlist = geomPrimList(geom);
         ForAllGeoms(child, primlist)
                     {
                         count += GeomCountItems(child);
                     }
         EndForAll;
     } else {
-        PATCHLIST *patches = geomPatchList(geom);
+        PatchSet *patches = geomPatchList(geom);
         count = PatchListCount(patches);
     }
 

@@ -1,27 +1,26 @@
-/* geomlist.h: linear lists of GEOMetries */
+#ifndef __GEOMETRY_LIST__
+#define __GEOMETRY_LIST__
 
-#ifndef _GEOMLIST_H_
-#define _GEOMLIST_H_
-
+#include "java/util/ArrayList.h"
+#include "common/Ray.h"
 #include "material/hit.h"
-#include "common/dataStructures/List.h"
-#include "skin/Geometry.h"
 #include "skin/hitlist.h"
 
-/* same layout as LIST in dataStructures/List.h, so the same generic functions for
- * operating on lists can be used for lists of geometries */
-class GEOMLIST {
+#include "common/dataStructures/List.h"
+
+class Geometry;
+class PatchSet;
+
+class GeometryListNode {
   public:
     Geometry *geom;
-    GEOMLIST *next;
+    GeometryListNode *next;
 };
 
-class PATCHLIST;
-
-#define GeomListCreate    (GEOMLIST *)ListCreate
+#define GeomListCreate (GeometryListNode *)ListCreate
 
 #define GeomListAdd(geomlist, geom)    \
-        (GEOMLIST *)ListAdd((LIST *)geomlist, (void *)geom)
+        (GeometryListNode *)ListAdd((LIST *)geomlist, (void *)geom)
 
 #define GeomListCount(geomlist) \
         ListCount((LIST *)geomlist)
@@ -40,23 +39,28 @@ class PATCHLIST;
 
 #define ForAllGeoms(geom, geomlist)    ForAllInList(Geometry, geom, geomlist)
 
-/* this function computes a bounding box for a list of geometries. The bounding box is
- * filled in in 'boundingbox' and a pointer returned. */
-extern float *GeomListBounds(GEOMLIST *geomlist, float *boundingbox);
+extern float *GeomListBounds(GeometryListNode *geomlist, float *boundingbox);
+extern PatchSet *BuildPatchList(GeometryListNode *world, PatchSet *patchlist);
 
-/* Builds a linear list of PATCHES making up all the GEOMetries in the list, whether
- * they are primitive or not. */
-extern PATCHLIST *BuildPatchList(GEOMLIST *world, PATCHLIST *patchlist);
-
-/* Tests if the Ray intersects the discretisation of the GEOMetries in the list.
- * See geom.h (geomDiscretizationIntersect()) */
 extern HITREC *
-GeomListDiscretisationIntersect(GEOMLIST *geomlist, Ray *ray, float mindist, float *maxdist, int hitflags,
-                                HITREC *hitstore);
-extern HITLIST *
-GeomListAllDiscretisationIntersections(HITLIST *hits, GEOMLIST *geomlist, Ray *ray, float mindist, float maxdist,
-                                       int hitflags);
+GeomListDiscretizationIntersect(
+    GeometryListNode *geomlist,
+    Ray *ray,
+    float minimumDistance,
+    float *maximumDistance,
+    int hitFlags,
+    HITREC *hitStore);
 
-#include "skin/patchlist.h"
+extern HITLIST *
+geomListAllDiscretizationIntersections(
+    HITLIST *hits,
+    GeometryListNode *geometryList,
+    Ray *ray,
+    float minimumDistance,
+    float maximumDistance,
+    int hitFlags);
+
+#include "skin/Geometry.h"
+#include "skin/PatchSet.h"
 
 #endif

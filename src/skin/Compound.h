@@ -5,11 +5,11 @@
 
 class GEOM_METHODS;
 
-#define COMPOUND GEOMLIST
+#define COMPOUND GeometryListNode
 
 extern GEOM_METHODS GLOBAL_skin_compoundGeometryMethods;
 
-extern COMPOUND *compoundCreate(GEOMLIST *geomlist);
+extern COMPOUND *compoundCreate(GeometryListNode *geomlist);
 
 #define CompoundMethods() (&GLOBAL_skin_compoundGeometryMethods)
 
