@@ -123,7 +123,7 @@ VertexCompareLocation(VERTEX *v1, VERTEX *v2) {
      * the distance between them is smaller than the sum of the two entity's
      * tolerances */
     float tolerance = VECTORTOLERANCE(*v1->point) + VECTORTOLERANCE(*v2->point);
-    return VectorCompare(v1->point, v2->point, tolerance);
+    return vectorCompareByDimensions(v1->point, v2->point, tolerance);
 }
 
 /**
@@ -131,7 +131,7 @@ This routine only compares the normal of the two vertices
 */
 int
 VertexCompareNormal(VERTEX *v1, VERTEX *v2) {
-    int code = VectorCompare(v1->normal, v2->normal, EPSILON);
+    int code = vectorCompareByDimensions(v1->normal, v2->normal, EPSILON);
 
     if ( code == XYZ_EQUAL && !(vertex_compare_flags & VCMP_NO_NORMAL_IS_EQUAL_NORMAL)) {
         if ( v1->normal->x == 0. && v1->normal->y == 0. && v1->normal->z == 0. ) {
@@ -156,7 +156,7 @@ VertexCompareTexCoord(VERTEX *v1, VERTEX *v2) {
         if ( !v2->texCoord ) {
             return X_GREATER + Y_GREATER + Z_GREATER;
         } else {
-            return VectorCompare(v1->texCoord, v2->texCoord, EPSILON);
+            return vectorCompareByDimensions(v1->texCoord, v2->texCoord, EPSILON);
         }
     }
 }

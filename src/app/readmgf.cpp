@@ -1013,7 +1013,7 @@ do_object(int argc, char **argv) {
         }
 
         if ( GeomListCount(currentGeomList) > 0 ) {
-            thegeom = GeomCreate((void *) CompoundCreate(currentGeomList), CompoundMethods());
+            thegeom = GeomCreate((void *) compoundCreate(currentGeomList), CompoundMethods());
         }
 
         PopCurrentGeomList();

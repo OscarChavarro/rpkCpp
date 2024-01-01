@@ -48,7 +48,7 @@ The vertex comparison routines return
 XYZ_EQUAL: is the vertices are equal
 a code from 0 to 7 if the vertices are not equal. This code can be used
 to sort vertices in an octree. The code is a combination of the flags
-X_GREATER, Y_GREATER and Z_GREATER and is the same as for VectorCompare in
+X_GREATER, Y_GREATER and Z_GREATER and is the same as for vectorCompareByDimensions in
 Vector3D.h
 */
 

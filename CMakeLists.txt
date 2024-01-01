@@ -8,7 +8,7 @@ project(rpk)
 #-Wstrict-aliasing
 #-Wuninitialized
 
-add_compile_options(-Wdelete-non-virtual-dtor -Wunused-variable -Wunused-but-set-variable -Wunused-function -pedantic -std=c++11 -ffast-math -mavx512f)
+add_compile_options(-fpermissive -Wdelete-non-virtual-dtor -Wunused-variable -Wunused-but-set-variable -Wunused-function -pedantic -std=c++11 -ffast-math -mavx512f)
 include_directories(src)
 
 set(MAIN_SRC
@@ -172,8 +172,7 @@ set(MAIN_SRC
     src/raycasting/stochasticRaytracing/tracepath.cpp
     src/raycasting/stochasticRaytracing/vrml.cpp
     src/app/batch.cpp
-    src/app/clustergalerkin.cpp
-    src/app/compound.cpp
+        src/app/compound.cpp
     src/app/phong.cpp
     src/app/radiance.cpp
     src/app/readmgf.cpp
@@ -182,6 +181,8 @@ set(MAIN_SRC
     src/app/ui_main.cpp
     src/app/opengl.cpp
     src/app/main.cpp
+        src/app/Cluster.cpp
+        src/app/Cluster.h
 )
 add_executable(rpk ${MAIN_SRC})
 

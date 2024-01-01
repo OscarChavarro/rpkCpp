@@ -5,9 +5,9 @@
 
 #include "skin/geom.h"
 
-extern GEOM_METHODS patchlistMethods;
+extern GEOM_METHODS GLOBAL_skin_patchListGeometryMethods;
 
 /* "returns" the GEOM methods for a patchlist */
-#define PatchListMethods() (&patchlistMethods)
+#define PatchListMethods() (&GLOBAL_skin_patchListGeometryMethods)
 
 #endif

@@ -16,15 +16,17 @@
 #include "raycasting/simple/RayMatter.h"
 #include "raycasting/raytracing/BidirectionalPathRaytracer.h"
 #include "raycasting/stochasticRaytracing/StochasticRaytracer.h"
+#include "app/Cluster.h"
 #include "app/ui.h"
 #include "app/readmgf.h"
 #include "app/compound.h"
-#include "app/cluster.h"
 #include "app/fileopts.h"
 
 static char *currentDirectory;
 static int yes = 1;
 static int no = 0;
+
+#define GeomIsCompound(geom) (geom->methods == &GLOBAL_skin_compoundGeometryMethods)
 
 static void
 PatchAccumulateStats(PATCH *patch) {
@@ -291,6 +293,33 @@ static CMDLINEOPTDESC globalOptions[] = {
 };
 
 /**
+Creates a hierarchical model of the discrete scene (the patches in the scene) using the simple
+algorithm described in
+- Per Christensen, "Hierarchical Techniques for Glossy Global Illumination",
+  PhD Thesis, University of Washington, 1995, p 116
+This hierarchy is often much more efficient for tracing rays and clustering radiosity algorithms
+than the given hierarchy of bounding boxes. A pointer to the toplevel "cluster" is returned
+*/
+static GEOM *
+createClusterHierarchy(PATCHLIST *patches) {
+    Cluster *rootCluster;
+    GEOM *rootGeometry;
+
+    // Create a toplevel cluster containing (references to) all the patches in the solid
+    rootCluster = new Cluster(patches);
+
+    // Split the toplevel cluster recursively into sub-clusters
+    rootCluster->splitCluster();
+
+    // Convert to a Geometry GLOBAL_stochasticRaytracing_hierarchy, disposing of the clusters
+    rootGeometry = rootCluster->convertClusterToGeom();
+
+    delete rootCluster;
+
+    return rootGeometry;
+}
+
+/**
 Processes command line arguments not recognized by the Xt GUI toolkit
 */
 static void
@@ -494,7 +523,7 @@ ReadFile(char *filename) {
     fprintf(stderr, "Building cluster hierarchy ... ");
     fflush(stderr);
 
-    GLOBAL_scene_clusteredWorldGeom = CreateClusterHierarchy(GLOBAL_scene_patches);
+    GLOBAL_scene_clusteredWorldGeom = createClusterHierarchy(GLOBAL_scene_patches);
     if ( GeomIsCompound(GLOBAL_scene_clusteredWorldGeom)) {
         GLOBAL_scene_clusteredWorld = (GEOMLIST *) (GLOBAL_scene_clusteredWorldGeom->obj);
     } else {

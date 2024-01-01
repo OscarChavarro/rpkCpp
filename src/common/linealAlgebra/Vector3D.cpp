@@ -26,15 +26,15 @@ VectorDominantCoord(Vector3D *v) {
 }
 
 int
-VectorCompare(Vector3D *v1, Vector3D *v2, float tolerance) {
+vectorCompareByDimensions(Vector3D *v1, Vector3D *v2, float epsilon) {
     int code = 0;
-    if ( v1->x > v2->x + tolerance ) {
+    if ( v1->x > v2->x + epsilon ) {
         code += X_GREATER;
     }
-    if ( v1->y > v2->y + tolerance ) {
+    if ( v1->y > v2->y + epsilon ) {
         code += Y_GREATER;
     }
-    if ( v1->z > v2->z + tolerance ) {
+    if ( v1->z > v2->z + epsilon ) {
         code += Z_GREATER;
     }
     if ( code != 0 ) {
@@ -42,9 +42,9 @@ VectorCompare(Vector3D *v1, Vector3D *v2, float tolerance) {
         return code;
     }
 
-    if ( v1->x < v2->x - tolerance ||
-         v1->y < v2->y - tolerance ||
-         v1->z < v2->z - tolerance ) {
+    if ( v1->x < v2->x - epsilon ||
+         v1->y < v2->y - epsilon ||
+         v1->z < v2->z - epsilon ) {
         // not the same coordinates
         return code;
     }

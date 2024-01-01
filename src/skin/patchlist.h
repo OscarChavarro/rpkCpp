@@ -6,6 +6,8 @@
 #include "skin/patch.h"
 #include "common/Ray.h"
 
+class GEOM_METHODS;
+
 class PATCHLIST {
   public:
     PATCH *patch;
@@ -55,5 +57,9 @@ PatchListIntersect(PATCHLIST *pl, Ray *ray, float mindist, float *maxdist, int h
 extern HITLIST *
 PatchListAllIntersections(HITLIST *hits, PATCHLIST *patches, Ray *ray, float mindist, float maxdist,
                           int hitflags);
+
+extern GEOM_METHODS GLOBAL_skin_patchListGeometryMethods;
+
+#include "skin/geom.h"
 
 #endif

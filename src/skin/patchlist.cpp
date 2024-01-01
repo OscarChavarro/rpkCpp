@@ -80,7 +80,7 @@ static PATCHLIST *PatchlistDuplicate(PATCHLIST *patchlist) {
     return PatchListDuplicate(patchlist);
 }
 
-GEOM_METHODS patchlistMethods = {
+GEOM_METHODS GLOBAL_skin_patchListGeometryMethods = {
         (float *(*)(void *, float *)) PatchListBounds,
         (void (*)(void *)) PatchlistDestroy,
         (void (*)(FILE *, void *)) PatchlistPrint,

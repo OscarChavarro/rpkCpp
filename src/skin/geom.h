@@ -1,6 +1,7 @@
 #ifndef _GEOM_H_
 #define _GEOM_H_
 
+#include "java/util/ArrayList.h"
 #include "common/bounds.h"
 #include "material/hit.h"
 
@@ -29,7 +30,6 @@ class PATCHLIST;
 class GEOM {
   public:
     int id; // Unique ID number
-    void *obj; // specific data for the geometry: varies according to the type of geometry
     GEOM_METHODS *methods;
     BOUNDINGBOX bounds;
     void *radiance_data; // data specific to the radiance algorithm being used
@@ -47,67 +47,34 @@ class GEOM {
     char omit; /* indicates that the GEOM should not be considered for a number of things, 
                   such as intersection testing. Set to false by default, don't forget
                   to set to false again after you changed it! */
-    char flag2; // to make a multiple of 4 bytes
+
+    java::ArrayList<PATCH *> *newPatchSetData;
+
+    void *obj; // specific data for the geometry: varies according to the type of geometry
 };
 
-/* This function is used to create a new GEOMetry with given specific data and
- * methods. A pointer to the new GEOMetry is returned. */
 extern GEOM *GeomCreate(void *obj, GEOM_METHODS *methods);
-
-/* This function prints the GEOMetry data to the file out */
+extern GEOM *geomCreatePatchSetNew(java::ArrayList<PATCH *> *geometryList, GEOM_METHODS *methods);
+GEOM *geomCreatePatchSet(PATCHLIST *patchSet, GEOM_METHODS *methods);
 extern void GeomPrint(FILE *out, GEOM *geom);
-
-/* This function returns a bounding box for the GEOMetry */
 extern float *GeomBounds(GEOM *geom);
-
-/* This function destroys the given GEOMetry */
 extern void GeomDestroy(GEOM *geom);
-
-/* This function returns nonzero if the given GEOMetry is an aggregate. An
- * aggregate is a geometry that consists of simpler geometries. Currently,
- * there is only one type of aggregate geometry: the compound, which is basically 
- * just a list of simpler geometries. Other aggregate geometries are also
- * possible, e.g. CSG objects. If the given GEOMetry is a primitive, zero is 
- * returned. A primitive GEOMetry is a GEOMetry that does not consist of
- * simpler GEOMetries. */
 extern int GeomIsAggregate(GEOM *geom);
-
-/* Returns a linear list of the simpler GEOMEtries making up an aggregate GEOMetry.
- * A nullptr pointer is returned if the GEOMetry is a primitive. */
 extern GEOMLIST *GeomPrimList(GEOM *geom);
-
-/* Returns a linear list of patches making up a primitive GEOMetry. A nullptr
- * pointer is returned if the given GEOMetry is an aggregate. */
 extern PATCHLIST *GeomPatchList(GEOM *geom);
 
-/* This routine returns nullptr is the ray doesn't hit the discretisation of the
- * GEOMetry. If the ray hits the discretisation of the GEOM, containing
- * (among other information) the hit patch is returned.
- * The hitflags (defined in ray.h) determine whether the nearest intersection
- * is returned, or rather just any intersection (e.g. for shadow rays in 
- * ray tracing or for form factor rays in radiosity), whether to consider
- * intersections with front/back facing patches and what other information
- * besides the hit patch (interpolated normal, intersection point, material 
- * properties) to return. 
- * The argument hitstore points to a HITREC in which the hit data can be
- * filled in. */
-extern HITREC *GeomDiscretisationIntersect(GEOM *geom, Ray *ray,
+extern HITREC *
+GeomDiscretisationIntersect(GEOM *geom, Ray *ray,
                                                   float mindist, float *maxdist,
                                                   int hitflags, HITREC *hitstore);
 
-/* similar, but returns a doubly linked list with all encountered intersections. */
 extern HITLIST *GeomAllDiscretisationIntersections(HITLIST *hits,
                                                    GEOM *geom, Ray *ray,
                                                    float mindist, float maxdist,
                                                    int hitflags);
 
 
-/* Will avoid intersection testing with geom1 and geom2 (possibly nullptr 
- * pointers). Can be used for avoiding immediate selfintersections. */
 extern void GeomDontIntersect(GEOM *geom1, GEOM *geom2);
-
-/* This routine creates and returns a duplicate of the given geometry. Needed for
- * shaft culling. */
 extern GEOM *GeomDuplicate(GEOM *geom);
 
 /**

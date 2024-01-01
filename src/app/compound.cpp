@@ -4,55 +4,90 @@
 #include "skin/geom.h"
 #include "app/compound.h"
 
-/* "creates" a COMPOUND from a list of GEOMetries */
-COMPOUND *CompoundCreate(GEOMLIST *geomlist) {
+/**
+Creates a Compound from a list of geometries
+
+This function creates a Compound from a linear list of geometries.
+Actually, it just counts the number of compounds in the scene and
+returns the geometryList. You can as well directly globalPass 'geometryList'
+to geomCreateBase() for creating a Compound Geometry if you don't want
+it to be counted
+*/
+COMPOUND *
+compoundCreate(GEOMLIST *geomlist) {
     GLOBAL_statistics_numberOfCompounds++;
     return geomlist;
 }
 
-/* This method will compute a bounding box for a GEOMetry. The bounding box
- * is filled in in boundingbox and a pointer to the filled in boundingbox returned. */
-static float *CompoundBounds(COMPOUND *obj, float *boundingbox) {
+/**
+This method will compute a bounding box for a geometry. The bounding box
+is filled in bounding box and a pointer to the filled in bounding box returned
+*/
+static float *
+compoundBounds(COMPOUND *obj, float *boundingbox) {
     return GeomListBounds(obj, boundingbox);
 }
 
-/* this method will destroy the GEOMetry and it's children GEOMetries if any */
-static void CompoundDestroy(COMPOUND *obj) {
+/**
+This method will destroy the geometry and it's children geometries if any
+*/
+static void
+compoundDestroy(COMPOUND *obj) {
     GeomListIterate(obj, GeomDestroy);
     GeomListDestroy(obj);
     GLOBAL_statistics_numberOfCompounds--;
 }
 
-/* this method will print the GEOMetry to the file out */
-void CompoundPrint(FILE *out, COMPOUND *obj) {
+/**
+This method will print the geometry to the file out
+*/
+static void
+compoundPrint(FILE *out, COMPOUND *obj) {
     fprintf(out, "compound\n");
     GeomListIterate1B(obj, GeomPrint, out);
     fprintf(out, "end of compound\n");
 }
 
-/* returns the list of children GEOMetries if the GEOM is an aggregate */
-GEOMLIST *CompoundPrimitives(COMPOUND *obj) {
+/**
+Returns the list of children geometries if the geometry is an aggregate
+*/
+static GEOMLIST *
+compoundPrimitives(COMPOUND *obj) {
     return obj;
 }
 
-HITREC *CompoundDiscretisationIntersect(COMPOUND *obj, Ray *ray, float mindist, float *maxdist, int hitflags,
-                                               HITREC *hitstore) {
-    return GeomListDiscretisationIntersect(obj, ray, mindist, maxdist, hitflags, hitstore);
+static HITREC *
+compoundDiscretizationIntersect(
+    COMPOUND *obj,
+    Ray *ray,
+    float minimumDistance,
+    float *maximumDistance,
+    int hitFlags,
+    HITREC *hitStore)
+{
+    return GeomListDiscretisationIntersect(obj, ray, minimumDistance, maximumDistance, hitFlags, hitStore);
 }
 
-HITLIST *
-CompoundAllDiscretisationIntersections(HITLIST *hits, COMPOUND *obj, Ray *ray, float mindist, float maxdist,
-                                       int hitflags) {
-    return GeomListAllDiscretisationIntersections(hits, obj, ray, mindist, maxdist, hitflags);
+static HITLIST *
+compoundAllDiscretizationIntersections(
+    HITLIST *hits,
+    COMPOUND *obj,
+    Ray *ray,
+    float minimumDistance,
+    float maximumDistance,
+    int hitFlags)
+{
+    return GeomListAllDiscretisationIntersections(hits, obj, ray, minimumDistance, maximumDistance, hitFlags);
 }
 
-GEOM_METHODS compoundMethods = {
-    (float *(*)(void *, float *)) CompoundBounds,
-    (void (*)(void *)) CompoundDestroy,
-    (void (*)(FILE *, void *)) CompoundPrint,
-    (GEOMLIST *(*)(void *)) CompoundPrimitives,
+// A set of pointers to the functions (methods) to operate on compounds
+GEOM_METHODS GLOBAL_skin_compoundGeometryMethods = {
+        (float *(*)(void *, float *)) compoundBounds,
+        (void (*)(void *)) compoundDestroy,
+        (void (*)(FILE *, void *)) compoundPrint,
+        (GEOMLIST *(*)(void *)) compoundPrimitives,
     (PATCHLIST *(*)(void *)) nullptr,
-    (HITREC *(*)(void *, Ray *, float, float *, int, HITREC *)) CompoundDiscretisationIntersect,
-    (HITLIST *(*)(HITLIST *, void *, Ray *, float, float, int)) CompoundAllDiscretisationIntersections,
+        (HITREC *(*)(void *, Ray *, float, float *, int, HITREC *)) compoundDiscretizationIntersect,
+        (HITLIST *(*)(HITLIST *, void *, Ray *, float, float, int)) compoundAllDiscretizationIntersections,
     (void *(*)(void *)) nullptr
 };

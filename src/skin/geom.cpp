@@ -67,6 +67,35 @@ GeomCreate(void *obj, GEOM_METHODS *methods) {
     return p;
 }
 
+GEOM *
+geomCreatePatchSetNew(java::ArrayList<PATCH *> *geometryList, GEOM_METHODS *methods) {
+    PATCHLIST *patchList = nullptr;
+
+    for ( int i = 0; geometryList != nullptr && i < geometryList->size(); i++ ) {
+        PATCHLIST *newNode = (PATCHLIST *)malloc(sizeof(PATCHLIST));
+        newNode->next = patchList;
+        newNode->patch = geometryList->get(i);
+        patchList = newNode;
+    }
+
+    GEOM *newGeometry = geomCreatePatchSet(patchList, methods);
+    if ( newGeometry != nullptr ) {
+        newGeometry->newPatchSetData = geometryList;
+    }
+    return newGeometry;
+}
+
+GEOM *
+geomCreatePatchSet(PATCHLIST *patchSet, GEOM_METHODS *methods) {
+    if ( patchSet == nullptr ) {
+        return nullptr;
+    }
+
+    GEOM *newGeometry = GeomCreate(patchSet, methods);
+    newGeometry->obj = patchSet;
+    return newGeometry;
+}
+
 /**
 This function prints the GEOMetry data to the file out
 */
