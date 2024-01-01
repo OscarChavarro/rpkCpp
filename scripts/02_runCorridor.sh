@@ -7,4 +7,4 @@ mkdir -p output
     -radiance-model-savefile output/corridor.wrl \
     -eyepoint 4.78 -10.7 8 -center 4.8 -1 5.62 \
     -batch -batch-quit-at-end -offscreen \
-    -raycast -radiance-image-savefile ./output/corridor.ppm
+    -raycast -radiance-image-savefile ./output/02_corridor.ppm

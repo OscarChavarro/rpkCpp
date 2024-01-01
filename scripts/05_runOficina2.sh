@@ -2,4 +2,8 @@
 
 mkdir -p output
 
-./build/rpk -display-lists -iterations 9 -radiance-model-savefile output/oficina2.wrl etc/oficina002/office2.mgf -radiance-method Galerkin -raytracing-method none -batch -batch-quit-at-end -offscreen
+./build/rpk etc/office2/office2.mgf \
+    -raytracing-method none -iterations 11 -radiance-method Galerkin \
+    -radiance-model-savefile output/office2.wrl \
+    -batch -batch-quit-at-end -offscreen \
+    -raycast -radiance-image-savefile ./output/05_office2.ppm
