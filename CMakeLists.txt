@@ -8,7 +8,7 @@ project(rpk)
 #-Wstrict-aliasing
 #-Wuninitialized
 
-add_compile_options(-fpermissive -Wdelete-non-virtual-dtor -Wunused-variable -Wunused-but-set-variable -Wunused-function -pedantic -std=c++11 -ffast-math -mavx512f)
+add_compile_options(-Wdelete-non-virtual-dtor -Wunused-variable -Wunused-but-set-variable -Wunused-function -pedantic -std=c++11 -ffast-math -mavx512f)
 include_directories(src)
 
 set(MAIN_SRC
