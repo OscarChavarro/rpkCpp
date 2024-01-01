@@ -7,4 +7,5 @@ mkdir -p output
     -radiance-model-savefile output/oficina1.wrl \
     -eyepoint 3.7311 -0.011 2.3034 -center 1.0023 8.9229 -1.113 \
     -batch -batch-quit-at-end -offscreen \
+    -dont-force-onesided \
     -raycast -radiance-image-savefile ./output/04_office1.ppm

@@ -1,0 +1,185 @@
+Usage: ./build/rpk [options] [filename]
+
+General options:
+-mgf           		: read MGF file from standard input 
+-nqcdivs <integer>	: number of quarter circle divisions (default = 4)
+-force-onesided		: force one-sided surfaces 
+-dont-force-onesided	: allow two-sided surfaces 
+-monochromatic 		: convert colors to shades of grey 
+-seed <integer>		: set seed for random number generator 
+-help          		: show program usage and command line options 
+
+Camera options:
+-eyepoint  <vector>	: viewing position (default = 10 0 0)
+-center    <vector>	: point looked at (default = 0 0 0)
+-updir     <vector>	: direction pointing up (default = 0 0 1)
+-fov       <float> 	: field of view angle (default = 22.5)
+-aeyepoint <vector>	: alternate viewing position (default = 10 0 0)
+-acenter   <vector>	: alternate point looked at (default = 0 0 0)
+-aupdir    <vector>	: alternate direction pointing up (default = 0 0 1)
+-afov      <float> 	: alternate field of view angle (default = 22.5)
+
+Rendering options:
+-display-lists		: use display lists for faster hardware-assisted rendering 
+-flat-shading		: render without Gouraud (color) interpolation 
+-raycast		: save raycasted scene view as a high dynamic range image 
+-no-culling		: don't use backface culling 
+-outlines		: draw polygon outlines 
+-outline-color <rgb> 	: color for polygon outlines (default = 0.5 0 0)
+
+Tone mapping options:
+-tonemapping <method>: Set tone mapping method
+	methods: Lightness            Lightness Mapping (default)
+	         TumblinRushmeier     Tumblin/Rushmeier's Mapping
+	         Ward                 Ward's Mapping
+	         RevisedTR            Revised Tumblin/Rushmeier's Mapping
+	         Ferwerda             Partial Ferwerda's Mapping 
+-brightness-adjust <float> : brightness adjustment factor (default = 0)
+-adapt <method>  	: adaptation estimation method
+	methods: "average", "median" 
+-lwa <float>		: real world adaptation luminance (default = 10)
+-ldmax <float>		: maximum diaply luminance (default = 100)
+-cmax <float>		: maximum displayable contrast (default = 50)
+-gamma <float>       	: gamma correction factor (same for red, green. blue) 
+-rgbgamma <r> <g> <b>	: gamma correction factor (separate for red, green, blue) (default = 1.7 1.7 1.7)
+-red <xy>            	: CIE xy chromaticity of monitor red (default = 0.64 0.33)
+-green <xy>          	: CIE xy chromaticity of monitor green (default = 0.29 0.6)
+-blue <xy>           	: CIE xy chromaticity of monitor blue (default = 0.15 0.06)
+-white <xy>          	: CIE xy chromaticity of monitor white (default = 0.333333 0.333333)
+
+Object-space radiance computation options:
+-radiance-method <method>: Set world-space radiance computation method
+	methods: none                 no world-space radiance computation (default)
+	         Galerkin             Galerkin Radiosity
+	         StochJacobi          Stochastic Jacobi Radiosity
+	         RandomWalk           Random Walk Radiosity
+	         PMAP                 PhotonMap 
+
+Galerkin radiosity options:
+-gr-iteration-method <methodname>: Jacobi, GaussSeidel, Southwell 
+-gr-hierarchical    	: do hierarchical refinement 
+-gr-not-hierarchical	: don't do hierarchical refinement 
+-gr-lazy-linking    	: do lazy linking 
+-gr-no-lazy-linking 	: don't do lazy linking 
+-gr-clustering      	: do clustering 
+-gr-no-clustering   	: don't do clustering 
+-gr-importance      	: do view-potential driven computations 
+-gr-no-importance   	: don't use view-potential 
+-gr-ambient         	: do visualisation with ambient term 
+-gr-no-ambient      	: do visualisation without ambient term 
+-gr-link-error-threshold <float>: Relative link error threshold (default = 1e-05)
+-gr-min-elem-area <float> 	: Relative element area threshold (default = 1e-06)
+
+Stochastic Jacobi Radiosity options:
+-srr-ray-units <n>          : To tune the amount of work in a single iteration (default = 10)
+-srr-bidirectional <yes|no> : Use lines bidirectionally (default = no)
+-srr-control-variate <y|n>  : Constant Control Variate variance reduction (default = no)
+-srr-indirect-only <y|n>    : Compute indirect illumination only (default = no)
+-srr-importance-driven <y|n>: Use view-importance (default = no)
+-srr-sampling-sequence <type>: "PseudoRandom", "Niederreiter" (default = Niederreiter)
+-srr-approximation <order>  : "constant", "linear", "quadratic", "cubic" (default = constant)
+-srr-hierarchical <y|n>     : hierarchical refinement (default = yes)
+-srr-clustering <mode>      : "none", "isotropic", "oriented" (default = oriented)
+-srr-epsilon <float>        : link power threshold (relative w.r.t. max. selfemitted power) (default = 0.0005)
+-srr-minarea <float>        : minimal element area (relative w.r.t. total area) (default = 1e-06)
+-srr-display <what>         : "total-radiance", "indirect-radiance", "weighting-gain", "importance" (default = total-radiance)
+-srr-discard-incremenal <y|n>: Discard result of first iteration (incremental steps) (default = no)
+-srr-incremental-uses-importance <y|n>: Use view-importance sampling already for the first iteration (incremental steps) (default = no)
+-srr-naive-merging <y|n>    : disable intelligent merging heuristic (default = no)
+-srr-nondiffuse-first-shot <y|n>: Do Non-diffuse first shot before real work (default = no)
+-srr-initial-ls-samples <int>        : nr of samples per light source for initial shot (default = 1000)
+
+Random Walk Radiosity options:
+-rwr-ray-units <n>          : To tune the amount of work in a single iteration (default = 10)
+-rwr-continuous <y|n>       : Continuous (yes) or Discrete (no) random walk (default = no)
+-rwr-control-variate <y|n>  : Constant Control Variate variance reduction (default = no)
+-rwr-indirect-only <y|n>    : Compute indirect illumination only (default = no)
+-rwr-sampling-sequence <type>: "PseudoRandom", "Halton", "Niederreiter" (default = Niederreiter)
+-rwr-approximation <order>  : "constant", "linear", "quadratic", "cubic" (default = constant)
+-rwr-estimator <type>       : "shooting", "gathering" (default = Shooting)
+-rwr-score <kind>           : "collision", "absorption", "survival", "last-N", "last-but-N" (default = Collision)
+-rwr-numlast <int>          : N to use in "last-N" and "last-but-N" scorers (default = 1)
+
+Photon Map options
+-pmap-do-global <true|false> : Trace photons for the global map (default = yes)
+-pmap-global-paths <number> : Number of paths per iteration for the global map (default = 10000)
+-pmap-g-preirradiance <true|false> : Use irradiance precomputation for global map (default = yes)
+-pmap-do-caustic <true|false> : Trace photons for the caustic map (default = yes)
+-pmap-caustic-paths <number> : Number of paths per iteration for the caustic map (default = 20000)
+-pmap-render-hits: Show photon hits on screen 
+-pmap-recon-cphotons <number> : Number of photons to use in reconstructions (global map) (default = 80)
+-pmap-recon-photons <number> : Number of photons to use in reconstructions (caustic map) (default = 80)
+-pmap-recon-photons <number> : Number of photons to use in reconstructions (importance) (default = 200)
+-pmap-balancing <true|false> : Balance KD Tree before raytracing (default = yes)
+
+Pixel-driven radiance computation options:
+-raytracing-method <method>: Set pixel-based radiance computation method
+	methods: none                 no pixel-based radiance computation
+	         StochasticRaytracing Stochastic Raytracing & Final Gathers (default)
+	         BidirectionalPathTra Bidirectional Path Tracing
+	         RayCasting           Ray Casting
+	         RayMatting           Ray Matting 
+
+Stochastic Ray-Tracing options:
+-rts-samples-per-pixel <number>	: eye-rays per pixel (default = 1)
+-rts-no-progressive	: don't do progressive image refinement 
+-rts-rad-mode <type>	: Stored radiance usage - "none", "direct", "indirect", "photonmap" (default = none)
+-rts-no-lightsampling	: don't do explicit light sampling 
+-rts-l-mode <type>	: Light sampling mode - "power", "important", "all" (default = all)
+-rts-l-samples <number>	: explicit light source samples at each hit (default = 1)
+-rts-scatter-samples <number>	: scattered rays at each bounce (default = 1)
+-rts-do-fdg	: use different nr. of scatter samples for first diffuse/glossy bounce 
+-rts-fdg-samples <number>	: scattered rays at first diffuse/glossy bounce (default = 36)
+-rts-separate-specular	: always shoot separate rays for specular scattering 
+-rts-s-mode <type>	: Sampling mode - "bsdf", "classical" (default = bsdf)
+-rts-min-path-length <number>	: minimum path length before Russian roulette (default = 5)
+-rts-max-path-length <number>	: maximum path length (ignoring higher orders) (default = 7)
+-rts-NOdirect-background-rad	: omit direct background radiance. 
+-rts-NOindirect-background-rad	: omit indirect background radiance. 
+
+Bidirectional Path Tracing options:
+-bidir-samples-per-pixel <number> : eye-rays per pixel (default = 1)
+-bidir-no-progressive          	: don't do progressive image refinement 
+-bidir-max-eye-path-length <number>: maximum eye path length (default = 7)
+-bidir-max-light-path-length <number>: maximum light path length (default = 7)
+-bidir-max-path-length <number>	: maximum combined path length (default = 7)
+-bidir-min-path-length <number>	: minimum path length before russian roulette (default = 2)
+-bidir-no-light-importance     	: sample lights based on power, ignoring their importance 
+-bidir-use-regexp	: use regular expressions for path evaluation 
+-bidir-use-emitted <yes|no>	: use reg exp for emitted radiance (default = yes)
+-bidir-rexp-emitted <string>	: reg exp for emitted radiance (default = '(LX)(X)*(EX)')
+-bidir-reg-direct <yes|no>	: use reg exp for stored direct illumination (galerkin!) (default = no)
+-bidir-rexp-direct <string>	: reg exp for stored direct illumination (default = '(LX)(G|S)(X)*(EX),(LX)(EX)')
+-bidir-reg-indirect <yes|no>	: use reg exp for stored indirect illumination (galerkin!) (default = no)
+-bidir-rexp-indirect <string>	: reg exp for stored indirect illumination (default = '(LX)(G|S)(X)*(EX),(LX)(EX)')
+
+Raymatting options:
+-rm-samples-per-pixel <number>	: eye-rays per pixel (default = 8)
+-rm-pixel-filter <type>	: Select filter - "box", "tent", "gaussian 1/sqrt2", "gaussian 1/2" (default = tent)
+
+Interface options:
+-batch         		: non-interactive processing 
+-batch-quit-at-end	: (batch mode) quit program at end 
+-offscreen     		: render into offscreen window 
+-canvas-window <window-id>	: render into external window with given id 
+-canvas-display <display-name>	: display name of external canvas window 
+-hres <integer>		: horizontal resolution (private canvas only) 
+-vres <integer>		: vertical resolution (private canvas only) 
+-2button-motion	: camera manipulation using 2 mouse buttons 
+-3button-motion	: camera manipulation using 3 mouse buttons 
+
+Batch processing options:
+-iterations <integer>	: world-space radiance iterations (default = 1)
+-radiance-image-savefile <filename>	: radiance PPM/LOGLUV savefile name,
+	first '%d' will be substituted by iteration number (default = '')
+-radiance-model-savefile <filename>	: radiance VRML model savefile name,
+	first '%d' will be substituted by iteration number (default = '')
+-save-modulo <integer>	: save every n-th iteration (default = 10)
+-raytracing-image-savefile <filename>	: raytracing PPM savefile name (default = '')
+-timings	: print timings for world-space radiance and raytracing methods 
+
+IPC options:
+-ipc-mtypeoffset  <int>	: mtypeoffsets, <ing>+1 is receiving mtype, +2 sending (default = 0)
+-ipc-qid  <int>	: the msg-queue id (default = 0)
+-ipc-quit	: quit. (only usefull through IPC) 
+-ipc-radiance-iterate	: iterate once more. (only usefull through IPC) 
