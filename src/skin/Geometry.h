@@ -4,7 +4,7 @@
 #include "java/util/ArrayList.h"
 #include "common/bounds.h"
 #include "material/hit.h"
-#include "surface.h"
+#include "MeshSurface.h"
 #include "geomlist.h"
 
 /**
@@ -26,8 +26,8 @@ contains data that is independent of geometry type.
 class GEOM_METHODS;
 class HITLIST;
 class PatchSet;
-class SURFACE;
-//class Compound;
+class MeshSurface;
+class Compound;
 class GeometryListNode;
 
 class Geometry {
@@ -51,7 +51,8 @@ class Geometry {
                   such as intersection testing. Set to false by default, don't forget
                   to set to false again after you changed it! */
 
-    SURFACE *surfaceData;
+    MeshSurface *surfaceData;
+    Compound *compoundData;
     PatchSet *patchSetData;
     java::ArrayList<PATCH *> *newPatchSetData;
     GeometryListNode *aggregateData;
@@ -59,10 +60,11 @@ class Geometry {
     void *obj; // @Deprecated
 };
 
-extern Geometry *geomCreateBase(void *geometryData, GEOM_METHODS *methods);
-
+extern Geometry *geomCreateSurface(MeshSurface *surfaceData, GEOM_METHODS *methods);
 extern Geometry *geomCreatePatchSetNew(java::ArrayList<PATCH *> *geometryList, GEOM_METHODS *methods);
 extern Geometry *geomCreatePatchSet(PatchSet *patchSet, GEOM_METHODS *methods);
+extern Geometry *geomCreateCompound(Compound *compoundData, GEOM_METHODS *methods);
+extern Geometry *geomCreateAggregateCompound(GeometryListNode *aggregateData, GEOM_METHODS *methods);
 
 extern void geomPrint(FILE *out, Geometry *geom);
 extern float *geomBounds(Geometry *geom);
@@ -155,7 +157,7 @@ extern Geometry *GLOBAL_geom_excludedGeom2;
 
 #include "skin/hitlist.h"
 #include "skin/PatchSet.h"
-#include "skin/surface.h"
+#include "skin/MeshSurface.h"
 #include "skin/Compound.h"
 #include "skin/geomlist.h"
 

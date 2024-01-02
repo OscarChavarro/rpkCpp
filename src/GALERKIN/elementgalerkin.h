@@ -151,7 +151,7 @@ extern void DestroyClusterElement(ELEMENT *element);
  * hierarchy by concatenaing the up-transforms of the element and all parent 	
  * alements. If the element is a toplevel element, (Matrix4x4 *)nullptr is
  * returned and nothing is filled in in xf (no trnasform is necessary
- * to transform points on the element to the corresponding point on the toplevel
+ * to transform positions on the element to the corresponding point on the toplevel
  * element). In the other case, the composed transform is filled in in xf and
  * xf (pointer to the transform) is returned. */
 extern Matrix2x2 *ElementToTopTransform(ELEMENT *element, Matrix2x2 *xf);

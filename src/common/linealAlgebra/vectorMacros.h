@@ -459,7 +459,7 @@ VECTORTRIPLECROSSPRODUCT(const Vector3D &v1, const Vector3D &v2, const Vector3D 
 #endif
 
 /**
-Distance between two points in 3D space: s = |p2-p1|
+Distance between two positions in 3D space: s = |p2-p1|
 */
 inline float
 VECTORDIST(const Vector3D &p1, const Vector3D &p2) {
@@ -469,7 +469,7 @@ VECTORDIST(const Vector3D &p1, const Vector3D &p2) {
 }
 
 /**
-Squared distance between two points in 3D space: s = |p2-p1|
+Squared distance between two positions in 3D space: s = |p2-p1|
 */
 inline float
 VECTORDIST2(const Vector3D &p1, const Vector3D &p2) {
@@ -564,7 +564,7 @@ VECTORPROJECT(Vector2D &r, Vector3D &p, int i) {
 #endif
 
 /**
-Centre of two points
+Centre of two positions
 */
 #ifdef USE_FUNCTIONS
 inline void

@@ -445,7 +445,7 @@ PrintElementId(FILE *out, ELEMENT *elem) {
  * and all parent alements. If the element is a toplevel element, 
  * (Matrix4x4 *)nullptr is
  * returned and nothing is filled in in xf (no trnasform is necessary
- * to transform points on the element to the corresponding point on the toplevel
+ * to transform positions on the element to the corresponding point on the toplevel
  * element). In the other case, the composed transform is filled in in xf and
  * xf (pointer to the transform) is returned. */
 Matrix2x2 *
@@ -731,7 +731,7 @@ DrawElement(ELEMENT *element, int mode) {
         RenderPolygonGouraud(nrverts, p, vertcol);
     }
 
-    /* modifies the points, that's why it comes last */
+    /* modifies the positions, that's why it comes last */
     if ( mode & OUTLINE ) {
         int i;
 

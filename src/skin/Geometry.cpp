@@ -38,7 +38,7 @@ methods. A pointer to the new geometry is returned
 
 Note: currently containing the super() method.
 */
-Geometry *
+static Geometry *
 geomCreateBase(void *geometryData, GEOM_METHODS *methods) {
     if ( geometryData == nullptr) {
         return (Geometry *) nullptr;
@@ -96,6 +96,40 @@ geomCreatePatchSet(PatchSet *patchSet, GEOM_METHODS *methods) {
 
     Geometry *newGeometry = geomCreateBase(patchSet, methods);
     newGeometry->obj = patchSet;
+    return newGeometry;
+}
+
+Geometry *
+geomCreateSurface(MeshSurface *surfaceData, GEOM_METHODS *methods) {
+    if ( surfaceData == nullptr ) {
+        return nullptr;
+    }
+
+    Geometry *newGeometry = geomCreateBase(surfaceData, methods);
+    newGeometry->surfaceData = surfaceData;
+    return newGeometry;
+}
+
+Geometry *
+geomCreateCompound(Compound *compoundData, GEOM_METHODS *methods) {
+    if ( compoundData == nullptr ) {
+        return nullptr;
+    }
+
+    Geometry *newGeometry = geomCreateBase(compoundData, methods);
+    newGeometry->compoundData = compoundData;
+    newGeometry->aggregateData = &compoundData->children;
+    return newGeometry;
+}
+
+Geometry *
+geomCreateAggregateCompound(GeometryListNode *aggregateData, GEOM_METHODS *methods) {
+    if ( aggregateData == nullptr ) {
+        return nullptr;
+    }
+
+    Geometry *newGeometry = geomCreateBase(aggregateData, methods);
+    newGeometry->aggregateData = aggregateData;
     return newGeometry;
 }
 

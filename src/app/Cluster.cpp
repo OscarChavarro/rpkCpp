@@ -225,6 +225,5 @@ Cluster::convertClusterToGeom() {
 
     // The patches in the cluster are the first to be tested for intersection with
     geometryListNode = GeomListAdd(geometryListNode, thePatches);
-    //return geomCreateAggregateCompound(geometryListNode, &GLOBAL_skin_compoundGeometryMethods);
-    return geomCreateBase(geometryListNode, &GLOBAL_skin_compoundGeometryMethods);
+    return geomCreateAggregateCompound(geometryListNode, &GLOBAL_skin_compoundGeometryMethods);
 }

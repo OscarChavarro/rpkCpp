@@ -211,7 +211,7 @@ PATCH *PatchCreate(int nrvertices,
     patch->id = patchid;
     patchid++;
 
-    patch->surface = (SURFACE *) nullptr;
+    patch->surface = (MeshSurface *) nullptr;
 
     patch->nrvertices = nrvertices;
     patch->vertex[0] = v1;
@@ -584,7 +584,7 @@ Vector3D PatchTextureCoordAtUV(PATCH *patch, double u, double v) {
  *
  * If the symbol QUADUV_CLIPBOUNDS is defined, the resulting coordinates will be
  * clipped to lay within the unit interval. In that case, this routine shall only 
- * be used for points that are known to lay inside the quadrilateral (you can use
+ * be used for positions that are known to lay inside the quadrilateral (you can use
  * PointInPatch() to test this.) */
 #define QUADUV_CLIPBOUNDS
 #define DISTANCE_TO_UNIT_INTERVAL(x)    ((x < 0.) ? -x : ((x > 1.) ? (x-1.) : 0.))
@@ -886,8 +886,8 @@ PatchIntersect(
 
 /* Converts bilinear coordinates into uniform (area preserving)
  * coordinates for a polygon with given jacobian. Uniform coordinates
- * are such that the area left of the line of points with u-coordinate 'u', 
- * will be u.A and the area under the line of points with v-coordinate 'v'
+ * are such that the area left of the line of positions with u-coordinate 'u',
+ * will be u.A and the area under the line of positions with v-coordinate 'v'
  * will be v.A. */
 void BilinearToUniform(PATCH *patch, double *u, double *v) {
     double a = patch->jacobian->A, b = patch->jacobian->B, c = patch->jacobian->C;
@@ -1037,9 +1037,9 @@ Vector3D *PatchPoint(PATCH *patch, double u, double v, Vector3D *point) {
 }
 
 /* Like above, except that always a uniform mapping is used (one that
- * preserves area, with this mapping you'll have more points in "stretched"
+ * preserves area, with this mapping you'll have more positions in "stretched"
  * regions of an irregular quadrilateral, irregular quadrilaterals are the
- * only onces for which this routine will yield other points than the above
+ * only onces for which this routine will yield other positions than the above
  * routine). */
 Vector3D *PatchUniformPoint(PATCH *patch, double u, double v, Vector3D *point) {
     if ( patch->jacobian ) {
@@ -1051,8 +1051,8 @@ Vector3D *PatchUniformPoint(PATCH *patch, double u, double v, Vector3D *point) {
 /* computes (u,v) parameters of the point on the patch (barycentric or bilinear
  * parametrisation). Returns true if the point is inside the patch and false if 
  * not. 
- * WARNING: The (u,v) coordinates are correctly computed only for points inside 
- * the patch. For points outside, they can be garbage!!! */
+ * WARNING: The (u,v) coordinates are correctly computed only for positions inside
+ * the patch. For positions outside, they can be garbage!!! */
 int PatchUV(PATCH *poly, Vector3D *point, double *u, double *v) {
     static PATCH *cached;
     PATCH *thepoly;

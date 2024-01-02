@@ -80,7 +80,7 @@ This routine was taken from rayshade [PhB].
 This routine computes the segment of intersection of the ray and the bounding box.
 On input, tmin and tmax contain minimum and maximum allowed distance to the ray 
 origin. On output, tmin and tmin contain the distance to the eye origin of
-the intersection points of the ray with the boundingbox.
+the intersection positions of the ray with the boundingbox.
 If there are no intersection in the given interval, false is returned. If there
 are intersections, true is returned.
 */

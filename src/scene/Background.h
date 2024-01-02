@@ -8,7 +8,7 @@
 class BACKGROUND_METHODS {
 public:
     /* evaluate background radiance coming in from direction (direction
-     * points towards the background). If 'pdf' is non-null, also fills
+     * positions towards the background). If 'pdf' is non-null, also fills
      * in the probability of sampling this direction with Sample() */
     COLOR (*Radiance)(void *data, Vector3D *position, Vector3D *direction, float *pdf);
 

@@ -181,7 +181,7 @@ static double ApproximationError(INTERACTION *link, COLOR srcrho, COLOR rcvrho, 
 }
 
 /* Estimates the error due to the variation of the source cluster radiance 
- * as seen from a number of sample points on the receiver element. Especially
+ * as seen from a number of sample positions on the receiver element. Especially
  * when intra source cluster visibility is handled with a Z-buffer algorithm,
  * this operation is quite expensive and should be avoided when not stricktly
  * necessary. */

@@ -130,20 +130,20 @@ TransCompose(Matrix4x4 xf2, Matrix4x4 xf1) {
 
 /* This transforms the eye point to the origin and rotates such
  * that the centre will be on the negative Z axis and the up direction 
- * on the positive Y axis (Y axis points up, X points right, Z points
+ * on the positive Y axis (Y axis positions up, X positions right, Z positions
  * towards the viewer) */
 Matrix4x4
 LookAt(Vector3D eye, Vector3D centre, Vector3D up) {
     Matrix4x4 xf = IdentityTransform4x4;
     Vector3D s, X, Y, Z;
 
-    VECTORSUBTRACT(eye, centre, Z);    /* Z points towards viewer */
+    VECTORSUBTRACT(eye, centre, Z);    /* Z positions towards viewer */
     VECTORNORMALIZE(Z);
 
-    VECTORCROSSPRODUCT(up, Z, X);        /* X points right */
+    VECTORCROSSPRODUCT(up, Z, X);        /* X positions right */
     VECTORNORMALIZE(X);
 
-    VECTORCROSSPRODUCT(Z, X, Y);        /* Y points up */
+    VECTORCROSSPRODUCT(Z, X, Y);        /* Y positions up */
     SET_3X3MATRIX(xf.m,            /* view orientation transform */
                   X.x, X.y, X.z,
                   Y.x, Y.y, Y.z,

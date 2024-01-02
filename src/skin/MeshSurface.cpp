@@ -3,20 +3,20 @@
 #include "common/Ray.h"
 #include "material/statistics.h"
 #include "skin/patch.h"
-#include "skin/surface.h"
+#include "skin/MeshSurface.h"
 #include "skin/Vertex.h"
 #include "skin/vertexlist.h"
 #include "skin/Geometry.h"
 
 /* a static counter that is increased each time a surface is created.
- * for making unique SURFACE ids. */
+ * for making unique MeshSurface ids. */
 static int surfID = 0;
 
 /**
 Indicates on whether or not, and if so, which, colors are given when creating
 a new surface
 */
-enum COLORFLAGS colorFlags = NO_COLORS;
+enum MaterialColorFlags colorFlags = NO_COLORS;
 
 static void NormalizeVertexColor(VERTEX *vertex) {
     int nrpatches = 0;
@@ -31,9 +31,9 @@ static void NormalizeVertexColor(VERTEX *vertex) {
     }
 }
 
-/* Fills in the SURFACE backpointer of the face belonging to the given
+/* Fills in the MeshSurface backpointer of the face belonging to the given
  * surface. */
-void SurfaceConnectFace(SURFACE *surf, PATCH *face) {
+void SurfaceConnectFace(MeshSurface *surf, PATCH *face) {
     int i;
     COLOR rho;
 
@@ -62,18 +62,18 @@ void SurfaceConnectFace(SURFACE *surf, PATCH *face) {
     }
 }
 
-/* This routine creates a SURFACE with given material, points, etc... */
-SURFACE *SurfaceCreate(MATERIAL *material,
-                       Vector3DListNode *points, Vector3DListNode *normals, Vector3DListNode *texCoords,
-                       VERTEXLIST *vertices, PatchSet *faces,
-                       enum COLORFLAGS flags) {
-    SURFACE *surf;
+/* This routine creates a MeshSurface with given material, positions, etc... */
+MeshSurface *surfaceCreate(MATERIAL *material,
+                           Vector3DListNode *points, Vector3DListNode *normals, Vector3DListNode *texCoords,
+                           VERTEXLIST *vertices, PatchSet *faces,
+                           enum MaterialColorFlags flags) {
+    MeshSurface *surf;
 
-    surf = (SURFACE *)malloc(sizeof(SURFACE));
+    surf = (MeshSurface *)malloc(sizeof(MeshSurface));
     GLOBAL_statistics_numberOfSurfaces++;
     surf->id = surfID++;
     surf->material = material;
-    surf->points = points;
+    surf->positions = points;
     surf->normals = normals;
     surf->vertices = vertices;
     surf->texCoords = texCoords;
@@ -85,7 +85,7 @@ SURFACE *SurfaceCreate(MATERIAL *material,
      * the sum of the colors as used in each patch sharing the vertex. */
     if ( colorFlags == VERTEX_COLORS ) VertexListIterate(surf->vertices, NormalizeVertexColor);
 
-    /* fill in the SURFACE backpointer of the FACEs in the SURFACE. */
+    /* fill in the MeshSurface backpointer of the FACEs in the MeshSurface. */
     ForAllPatches(face, surf->faces)
                 {
                     SurfaceConnectFace(surf, face);
@@ -101,7 +101,7 @@ SURFACE *SurfaceCreate(MATERIAL *material,
 
 /* This method will destroy the GEOMetry and it's children GEOMetries if 
  * any */
-void SurfaceDestroy(SURFACE *surf) {
+void SurfaceDestroy(MeshSurface *surf) {
     /* It is important that the patches be destroyed first and then the
      * vertices, because otherwise, the brep_data for the vertices would
      * still be used and thus not destroyed by the BREP library. */
@@ -111,8 +111,8 @@ void SurfaceDestroy(SURFACE *surf) {
     VertexListIterate(surf->vertices, VertexDestroy);
     VertexListDestroy(surf->vertices);
 
-    VectorListIterate(surf->points, VectorDestroy);
-    VectorListDestroy(surf->points);
+    VectorListIterate(surf->positions, VectorDestroy);
+    VectorListDestroy(surf->positions);
 
     VectorListIterate(surf->normals, VectorDestroy);
     VectorListDestroy(surf->normals);
@@ -125,7 +125,7 @@ void SurfaceDestroy(SURFACE *surf) {
 }
 
 /* this method will print the GEOMetry to the file out */
-void SurfacePrint(FILE *out, SURFACE *surface) {
+void SurfacePrint(FILE *out, MeshSurface *surface) {
     fprintf(out, "Surface id %d: material %s, patches ID: ",
             surface->id, surface->material->name);
     PatchListIterate1B(surface->faces, PatchPrintID, out);
@@ -137,27 +137,37 @@ void SurfacePrint(FILE *out, SURFACE *surface) {
 /* this method will compute a bounding box for a GEOMetry. The bounding box
  * is filled in in boundingbox and a pointer to the filled in boundingbox 
  * returned. */
-float *SurfaceBounds(SURFACE *surf, float *boundingbox) {
+float *SurfaceBounds(MeshSurface *surf, float *boundingbox) {
     return PatchListBounds(surf->faces, boundingbox);
 }
 
 /* returns the list of PATCHes making up a primitive GEOMetry. This
  * method is not implemented for aggregate GEOMetries. */
-PatchSet *SurfacePatchlist(SURFACE *surf) {
+PatchSet *SurfacePatchlist(MeshSurface *surf) {
     return surf->faces;
 }
 
 HITREC *
-SurfaceDiscretisationIntersect(SURFACE *surf, Ray *ray, float mindist, float *maxdist, int hitflags, HITREC *hitstore) {
+SurfaceDiscretisationIntersect(MeshSurface *surf, Ray *ray, float mindist, float *maxdist, int hitflags, HITREC *hitstore) {
     return PatchListIntersect(surf->faces, ray, mindist, maxdist, hitflags, hitstore);
 }
 
-HITLIST *SurfaceAllDiscretisationIntersections(HITLIST *hits, SURFACE *surf, Ray *ray, float mindist, float maxdist,
+HITLIST *SurfaceAllDiscretisationIntersections(HITLIST *hits, MeshSurface *surf, Ray *ray, float mindist, float maxdist,
                                                int hitflags) {
     return PatchListAllIntersections(hits, surf->faces, ray, mindist, maxdist, hitflags);
 }
 
-GEOM_METHODS surfaceMethods = {
+bool
+GeomIsSurface(Geometry *geom) {
+    return geom->methods == &GLOBAL_skin_surfaceGeometryMethods;
+}
+
+MeshSurface*
+GeomGetSurface(Geometry *geom) {
+    return GeomIsSurface(geom) ? geom->surfaceData : nullptr;
+}
+
+GEOM_METHODS GLOBAL_skin_surfaceGeometryMethods = {
         (float *(*)(void *, float *)) SurfaceBounds,
         (void (*)(void *)) SurfaceDestroy,
         (void (*)(FILE *, void *)) SurfacePrint,

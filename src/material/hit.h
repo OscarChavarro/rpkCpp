@@ -62,8 +62,8 @@ a ray itnersection routine is a front or back hit.
 
 /* Initialises a hit record. Either patch or geom shall be non-null. Returns
  * TRUE if the structure is properly initialised and FALSE if not. 
- * This routine can be used in order to construct BSDF queries at other points
- * than hit points returned by ray intersection routines. */
+ * This routine can be used in order to construct BSDF queries at other positions
+ * than hit positions returned by ray intersection routines. */
 extern int InitHit(
         HITREC *hit,
         PATCH *patch,

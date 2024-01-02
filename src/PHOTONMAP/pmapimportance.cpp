@@ -42,7 +42,7 @@ static bool DoImportanceStore(CImportanceMap *map, CPathNode *node, COLOR import
 }
 
 
-/** -- Handle one potential path : store at all end points in direct
+/** -- Handle one potential path : store at all end positions in direct
     readout importance map (TODO...) and at the end point in the
     indirect readout importance map.
 **/

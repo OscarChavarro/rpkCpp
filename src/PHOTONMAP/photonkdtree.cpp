@@ -64,7 +64,7 @@ void CPhotonkdtree::NormalBQuery_rec(const int index) {
 
         dist *= dist; // Square distance to the separator plane
         if ((farIndex < m_numBalanced) && (dist < qdat_s.maxdist)) {
-            // Discriminator line closer than maxdist : nearer points can lie
+            // Discriminator line closer than maxdist : nearer positions can lie
             // on the far side. Or there are still not enough nodes found
             NormalBQuery_rec(farIndex);
         }

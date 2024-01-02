@@ -140,7 +140,7 @@ extern void InitToneMapping();
   `ContrastSensitivity'
 
   Returns the normalised sensitivity to contrast changes along the line
-  from "p1" to "p2" in case that the points are viewed from the eye point
+  from "p1" to "p2" in case that the positions are viewed from the eye point
   for the current camera.
   ------------------------------------------------------------------------- */
 extern float ContrastSensitivity(Vector3D *p1, Vector3D *p2);

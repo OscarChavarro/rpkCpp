@@ -347,7 +347,7 @@ DoPhotonStore(CPathNode *node, COLOR power) {
 }
 
 /**
-Handle one path : store at all end points and for testing, connect to the eye
+Handle one path : store at all end positions and for testing, connect to the eye
 */
 void
 HandlePath(PMAPCONFIG *config) {

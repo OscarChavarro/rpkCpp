@@ -12,7 +12,7 @@ describe its cavities. The contours describing cavities are called
 rings. The orientation of the outer contour must be counterclockwise as
 seen from the direction of the normal to the containing plane. Rings
 must be oriented clockwise. The cross product of a contour edge direction
-and the plane normal is always a vector that points to the outside of
+and the plane normal is always a vector that positions to the outside of
 a face. Or in other words, the inside of a face is always on the left side
 of a contour. The geometric data supplied by the user must conform with
 this rule. The rings, if any, are pointed to by the outer contour.

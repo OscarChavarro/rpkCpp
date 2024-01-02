@@ -19,14 +19,14 @@ CUBARULE CRQ1 = {
         {4.0}
 };
 
-/* degree 2, 3 points 
+/* degree 2, 3 positions
  * Stroud '71 */
 #define w    (4./3.)
 #define u    0.81649658092772603272    /* sqrt(2./3.) */
 #define c    (-0.5)            /* cos(2.*M_PI/3.) */
 #define s    0.86602540378443864676    /* sin(2.*M_PI/3.) */
 CUBARULE CRQ2 = {
-        "quads degree 2, 3 points",
+        "quads degree 2, 3 positions",
         2, 3,
         {u, u * c, u * c},
         {0.0, u * s, -u * s},
@@ -38,12 +38,12 @@ CUBARULE CRQ2 = {
 #undef u
 #undef w
 
-/* degree 3, 4 points, 
+/* degree 3, 4 positions,
  * Davis & Rabinowitz, Methods of Numerical Integration, 2nd edition 1984, 
  * p 367 */
 #define u    0.81649658092772603272    /* sqrt(2./3.) */
 CUBARULE CRQ3 = {
-        "quads degree 3, 4 points",
+        "quads degree 3, 4 positions",
         3, 4,
         {u, 0., -u, 0.},
         {0., u, 0., -u},
@@ -52,11 +52,11 @@ CUBARULE CRQ3 = {
 };
 #undef u
 
-/* degree 3, 4 points, product Gauss-Legendre formula, */
+/* degree 3, 4 positions, product Gauss-Legendre formula, */
 #define    u 0.57735026918962576450    /* sqrt(1./3.) */
 CUBARULE CRQ3PG = {
-        "quads degree 3, 4 points, product Gauss formula",
-        3 /* degree */, 4 /* points */,
+        "quads degree 3, 4 positions, product Gauss formula",
+        3 /* degree */, 4 /* positions */,
         {u, u, -u, -u},  /* 1st coord. of abscissae */
         {u, -u, u, -u},  /* 2nd coord. of abscissae */
         {0., 0., 0., 0.},  /* 3rd coord. of abscissae */
@@ -64,7 +64,7 @@ CUBARULE CRQ3PG = {
 };
 #undef u
 
-/* degree 4, 6 points
+/* degree 4, 6 positions
  * see: Wissman, Becker, "Partially Symmetric Cubature Formulas for Even 
  * Degrees of Exactness", SIAM. J. Numer. Anal., Vol 23 nr 3 (1986), p 676 
  * You'll find also another similar rule in this paper, but I chose this one
@@ -72,8 +72,8 @@ CUBARULE CRQ3PG = {
  * You'll find the same rule in: Schmid, "On Cubature Formulae with a Minimal 
  * Number of Knots", Numer. Math. Vol 31 (1978) p281 */
 CUBARULE CRQ4 = {
-        "quads degree 4, 6 points",
-        4 /* degree */, 6 /* points */,
+        "quads degree 4, 6 positions",
+        4 /* degree */, 6 /* positions */,
         {0.0, 0.0, 0.774596669241483, -0.774596669241483, 0.774596669241483, -0.774596669241483},
         {-0.356822089773090, 0.934172358962716, 0.390885162530071, 0.390885162530071, -0.852765377881771,
          -0.852765377881771},
@@ -82,7 +82,7 @@ CUBARULE CRQ4 = {
          0.349227402025498}
 };
 
-/* degree 5, 7 points, Radon's rule
+/* degree 5, 7 positions, Radon's rule
  * see e.g. Stroud '71. */
 #define w1    (8./7.)
 #define w2    (5./9.)
@@ -91,8 +91,8 @@ CUBARULE CRQ4 = {
 #define s    /* sqrt(1./3.) */    0.57735026918962573106
 #define t    /* sqrt(3./5.) */    0.77459666924148340428
 CUBARULE CRQ5 = {
-        "quads degree 5, 7 points, Radon's rule",
-        5 /* degree */, 7 /* points */,
+        "quads degree 5, 7 positions, Radon's rule",
+        5 /* degree */, 7 /* positions */,
         {0.0, s, s, -s, -s, r, -r},
         {0.0, t, -t, t, -t, 0.0, 0.0},
         {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0},
@@ -105,14 +105,14 @@ CUBARULE CRQ5 = {
 #undef s
 #undef t
 
-/* degree 5, 9 points product Gauss-Legendre rule 
+/* degree 5, 9 positions product Gauss-Legendre rule
  * abscissae and weights computed using Stuff/gauleg.c */
 #define x0    0.0
 #define w0    (8.0/9.0)
 #define x1    0.7745966692414834
 #define w1    5./9.
 CUBARULE CRQ5PG = {
-        "quads degree 5, 9 points product Gauss rule",
+        "quads degree 5, 9 positions product Gauss rule",
         5, 9,
         {-x1, -x1, -x1, x0, x0, x0, x1, x1, x1},
         {-x1, x0, x1, -x1, x0, x1, -x1, x0, x1},
@@ -124,13 +124,13 @@ CUBARULE CRQ5PG = {
 #undef w0
 #undef x0
 
-/* degree 6, 10 points 
+/* degree 6, 10 positions
  * from: Wissmann & Becker (cfr supra) 
  * They again give two formulae of this type and you'll also find one 
  * in Schmid, but I chose this one because it has the nicest weights */
 CUBARULE CRQ6 = {
-        "quads degree 6, 10 points",
-        6 /* degree */, 10 /* points */,
+        "quads degree 6, 10 positions",
+        6 /* degree */, 10 /* positions */,
         {0.0, 0.0, 0.863742826346154, -0.863742826346154,
          0.518690521392592, -0.518690521392592, 0.933972544972849, -0.933972544972849,
          0.608977536016356, -0.608977536016356},
@@ -145,7 +145,7 @@ CUBARULE CRQ6 = {
          0.269567586086061, 0.269567586086061}
 };
 
-/* degree 7, 12 points
+/* degree 7, 12 positions
  * from: Stroud, "Approximate Calculation of Multiple Integrals", 1971 
  * This is just one of many similar rules (see Cools & Rabinowitz, "Monomial 
  * Cubature rules since "Stroud": A Compilation", J. Comp. Appl. Math. 48
@@ -165,8 +165,8 @@ CUBARULE CRQ6 = {
 #define w2    0.52059291666739448967    /* (178981.+2769.*sqrt(583.))/1888920.*4. */
 #define w3    0.23743177469063023177    /* (178981.-2769.*sqrt(583.))/1888920.*4. */
 CUBARULE CRQ7 = {
-        "quads degree 7, 12 points",
-        7 /* degree */, 12 /* points */,
+        "quads degree 7, 12 positions",
+        7 /* degree */, 12 /* positions */,
         {r, -r, 0.0, 0.0, s, s, -s, -s, t, t, -t, -t},
         {0.0, 0.0, r, -r, s, -s, s, -s, t, -t, t, -t},
         {0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.},
@@ -179,13 +179,13 @@ CUBARULE CRQ7 = {
 #undef w2
 #undef w3
 
-/* degree 7, 16 points product Gauss rule */
+/* degree 7, 16 positions product Gauss rule */
 #define x1    0.86113631159405257522
 #define x2    0.33998104358485626480
 #define w1    0.34785484513745385737
 #define w2    0.65214515486254614263
 CUBARULE CRQ7PG = {
-        "quads degree 7, 16 points product Gauss rule",
+        "quads degree 7, 16 positions product Gauss rule",
         7, 16,
         {-x1, -x1, -x1, -x1, -x2, -x2, -x2, -x2, x2, x2, x2, x2, x1, x1, x1, x1},
         {-x1, -x2, x2, x1, -x1, -x2, x2, x1, -x1, -x2, x2, x1, -x1, -x2, x2, x1},
@@ -198,7 +198,7 @@ CUBARULE CRQ7PG = {
 #undef x2
 #undef x1
 
-/* degree 8, 16 points
+/* degree 8, 16 positions
  * from Wissman & Becker (cfr supra)
  *
  * We chose formula 8-2 on p 684 since it seems to have nicest weights and 
@@ -209,7 +209,7 @@ CUBARULE CRQ7PG = {
  * desirable situation for us (see Cools & Rabinowitz ...).
  * Btw, the formula of degree 9 has only one point more than this one. */
 CUBARULE CRQ8 = {
-        "quads degree 8, 16 points",
+        "quads degree 8, 16 positions",
         8, 16,
         {0.0, 0.0, 0.952509466071562, -0.952509466071562,
          0.532327454074206, -0.532327454074206, 0.684736297951735, -0.684736297951735,
@@ -229,7 +229,7 @@ CUBARULE CRQ8 = {
          0.375101001147587, 0.375101001147587, 0.125618791640072, 0.125618791640072}
 };
 
-/* degree 9, 17 points,
+/* degree 9, 17 positions,
  * Moeller, "Kubaturformeln mit minimaler Knotenzahl, Numer. Math. 25, 185 (1976) 
  */
 #define b1    0.96884996636197772072
@@ -246,7 +246,7 @@ CUBARULE CRQ8 = {
 #define w3    0.39828243926207009528
 #define w4    0.26905133763978080301
 CUBARULE CRQ9 = {
-        "quads degree 9, 17 points",
+        "quads degree 9, 17 positions",
         9, 17,
         {0.0,
          b1, -b1, -c1, c1,
@@ -289,7 +289,7 @@ CUBARULE CRQ9 = {
 
 /* degree 1, 1 point */
 CUBARULE CRT1 = {
-        "triangles degree 1, 1 points",
+        "triangles degree 1, 1 positions",
         1, 1,
         {1. / 3.},
         {1. / 3.},
@@ -297,10 +297,10 @@ CUBARULE CRT1 = {
         {1.0}
 };
 
-/* degree 2, 3 points, 
+/* degree 2, 3 positions,
  * Stroud '71 p 307 */
 CUBARULE CRT2 = {
-        "triangles degree 2, 3 points",
+        "triangles degree 2, 3 positions",
         2, 3,
         {1. / 6., 1. / 6., 2. / 3.},
         {1. / 6., 2. / 3., 1. / 6.},
@@ -308,10 +308,10 @@ CUBARULE CRT2 = {
         {1. / 3., 1. / 3., 1. / 3.}
 };
 
-/* degree 3, 4 points, 
+/* degree 3, 4 positions,
  * Stroud '71 p 308 */
 CUBARULE CRT3 = {
-        "triangles degree 3, 4 points",
+        "triangles degree 3, 4 positions",
         3, 4,
         {1. / 3., 0.2, 0.2, 0.6},
         {1. / 3., 0.2, 0.6, 0.2},
@@ -319,14 +319,14 @@ CUBARULE CRT3 = {
         {-9. / 16., 25. / 48., 25. / 48., 25. / 48.}
 };
 
-/* degree 3, 4 points, conical product Gauss rule 
+/* degree 3, 4 positions, conical product Gauss rule
 CUBARULE CRT3PG = {
 	3, 4,
 
 };
 */
 
-/* degree 4, 6 points
+/* degree 4, 6 positions
  * Lyness, Jespersen, "Moderate Degree Symmertic Quadrature Rules for the 
  * Triangle", J. Inst. Maths. Applics (1975) 15, 19-32 */
 #define w1    3.298552309659655e-1/3.
@@ -338,7 +338,7 @@ CUBARULE CRT3PG = {
 #define b2    4.459484909159649e-1
 #define c2    b2
 CUBARULE CRT4 = {
-        "triangles degree 4, 6 points",
+        "triangles degree 4, 6 positions",
         4, 6,
         {a1, b1, c1, a2, b2, c2},
         {b1, c1, a1, b2, c2, a2},
@@ -354,7 +354,7 @@ CUBARULE CRT4 = {
 #undef a1
 #undef w1
 
-/* degree 5, 7 points,
+/* degree 5, 7 positions,
  * Stroud '71 p 314 */
 #define r    0.1012865073234563
 #define s    0.7974269853530873
@@ -365,7 +365,7 @@ CUBARULE CRT4 = {
 #define B    0.1259391805448271
 #define C    0.1323941527885062
 CUBARULE CRT5 = {
-        "triangles degree 5, 7 points",
+        "triangles degree 5, 7 positions",
         5, 7,
         {t, r, r, s, u, u, v},
         {t, r, s, r, u, v, u},
@@ -381,7 +381,7 @@ CUBARULE CRT5 = {
 #undef s
 #undef r
 
-/* degree 5, 9 points conical product Gauss rule 
+/* degree 5, 9 positions conical product Gauss rule
 CUBARULE CRT5PG = {
 	5, 9,
 
@@ -412,7 +412,7 @@ CUBARULE CRT5PG = {
 #define b4    0.2777161669764050
 #define c4    0.2064414986699949
 CUBARULE CRT7 = {
-        "triangles degree 7, 12 points",
+        "triangles degree 7, 12 positions",
         7, 12,
         {a1, b1, c1, a2, b2, c2,
          a3, b3, c3, a4, b4, c4},
@@ -440,14 +440,14 @@ CUBARULE CRT7 = {
 #undef a1
 #undef w1
 
-/* degree 7, 16 points conical product Gauss rule 
+/* degree 7, 16 positions conical product Gauss rule
 CUBARULE CRT7PG = {
 	7, 16, 
 
 };
 */
 
-/* degree 8, 16 points 
+/* degree 8, 16 positions
  * Lyness & Jespersen */
 #define w0    1.443156076777862e-1
 #define a0    3.333333333333333e-1
@@ -470,7 +470,7 @@ CUBARULE CRT7PG = {
 #define b4    7.284923929554041e-1
 #define c4    2.631128296346387e-1
 CUBARULE CRT8 = {
-        "triangles degree 8, 16 points",
+        "triangles degree 8, 16 positions",
         8, 16,
         {a0,
          a1, b1, c1,
@@ -514,7 +514,7 @@ CUBARULE CRT8 = {
 #undef a0
 #undef w0
 
-/* degree 9, 19 points - there is as yet no rule over the triangle known 
+/* degree 9, 19 positions - there is as yet no rule over the triangle known
  * which has only the minimal number of 17 nodes (see Cools & Rabinowitz). 
  * Lyness & Jespersen */
 #define w0    9.713579628279610e-2
@@ -542,7 +542,7 @@ CUBARULE CRT8 = {
 #define b5    7.411985987844980e-1
 #define c5    2.219629891607657e-1
 CUBARULE CRT9 = {
-        "triangles degree 9, 19 points",
+        "triangles degree 9, 19 positions",
         9, 19,
         {a0,
          a1, b1, c1,
@@ -596,12 +596,12 @@ CUBARULE CRT9 = {
 
 /* ********************* boxes: [-1,1]^3 ************************** */
 
-/* degree 1, 9 points */
+/* degree 1, 9 positions */
 #define    u 1.
 #define w 8./9.
 CUBARULE CRV1 = {
-        "boxes degree 1, 9 points (the corners + center)",
-        1 /* degree */, 9 /* points */,
+        "boxes degree 1, 9 positions (the corners + center)",
+        1 /* degree */, 9 /* positions */,
         {u, u, u, u, -u, -u, -u, -u, 0.},
         {u, u, -u, -u, u, u, -u, -u, 0.},
         {u, -u, u, -u, u, -u, u, -u, 0.},
@@ -610,11 +610,11 @@ CUBARULE CRV1 = {
 #undef u
 #undef w
 
-/* degree 3, 8 points, product Gauss-Legendre formula, */
+/* degree 3, 8 positions, product Gauss-Legendre formula, */
 #define    u 0.57735026918962576450    /* sqrt(1./3.) */
 CUBARULE CRV3PG = {
-        "boxes degree 3, 8 points, product Gauss formula",
-        3 /* degree */, 8 /* points */,
+        "boxes degree 3, 8 positions, product Gauss formula",
+        3 /* degree */, 8 /* positions */,
         {u, u, u, u, -u, -u, -u, -u},
         {u, u, -u, -u, u, u, -u, -u},
         {u, -u, u, -u, u, -u, u, -u},

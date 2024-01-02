@@ -5,12 +5,12 @@
 #include "BREP/BREP_FACE.h"
 #include "skin/jacobian.h"
 #include "skin/Vertex.h"
-#include "skin/surface.h"
+#include "skin/MeshSurface.h"
 
 #define PATCHMAXVERTICES 4 // max. 4 vertices per patch
 
 class VERTEX;
-class SURFACE;
+class MeshSurface;
 
 class PATCH {
   public:
@@ -22,7 +22,7 @@ class PATCH {
     VERTEX *vertex[PATCHMAXVERTICES]; // pointers to the vertices
     char nrvertices; // number of vertices: 3 or 4
 
-    SURFACE *surface; // pointer to surface data (contains vertexlist, material properties
+    MeshSurface *surface; // pointer to surface data (contains vertexlist, material properties
 
     float *bounds; // bounding box
 

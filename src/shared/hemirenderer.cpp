@@ -126,7 +126,7 @@ void CHemisphereRenderer::Render() {
             index2++;
         }
 
-        // Send first points again to close strip
+        // Send first positions again to close strip
 
         RenderNextTrianglePoint(&m_renderData[index1].point,
                                 &m_renderData[index1].rgb);
@@ -151,7 +151,7 @@ void CHemisphereRenderer::Render() {
         index1++;
     }
 
-    // Send first points again to close strip
+    // Send first positions again to close strip
 
     RenderNextTrianglePoint(&m_top.point,
                             &m_top.rgb);

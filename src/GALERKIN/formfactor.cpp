@@ -32,7 +32,7 @@ int Facing(PATCH *P, PATCH *Q) {
 }
 
 /* This routine determines the cubature rule to be used on the given element
- * and computes the points on the elements patch that correspond to the nodes
+ * and computes the positions on the elements patch that correspond to the nodes
  * of the cubature rule on the element. The role (RECEIVER or SOURCE) is only
  * relevant for surface elements. */
 static void DetermineNodes(ELEMENT *elem, CUBARULE **cr, Vector3D x[CUBAMAXNODES], ROLE role) {
@@ -68,13 +68,13 @@ static void DetermineNodes(ELEMENT *elem, CUBARULE **cr, Vector3D x[CUBAMAXNODES
                 Fatal(4, "DetermineNodes", "Can only handle triangular and quadrilateral patches");
         }
 
-        /* compute the transform relating points on the element to points on
+        /* compute the transform relating positions on the element to positions on
          * the patch to which it belongs. */
         if ( elem->uptrans ) {
             ElementToTopTransform(elem, &topxf);
         }
 
-        /* compute the points x[k] corresponding to the nodes of the cubature rule
+        /* compute the positions x[k] corresponding to the nodes of the cubature rule
          * in the unit square or triangle used to parametrise the element. */
         for ( k = 0; k < (*cr)->nrnodes; k++ ) {
             Vector2D node;
@@ -87,7 +87,7 @@ static void DetermineNodes(ELEMENT *elem, CUBARULE **cr, Vector3D x[CUBAMAXNODES
 }
 
 /* Evaluates the radiosity kernel (*not* taking into account the reflectivity of
- * the receiver) at points x on the receiver rcv and y on
+ * the receiver) at positions x on the receiver rcv and y on
  * source src. ShadowList is a list of potential occluders.
  * Shadowcaching is used to speed up the visibility detection
  * between x and y. The shadow cache is initialized before doing the first
@@ -196,7 +196,7 @@ static void DoHigherOrderAreaToAreaFormFactor(INTERACTION *link,
         srcbasis = (src->pog.patch->nrvertices == 3 ? &triBasis : &quadBasis);
     }
 
-    /* determine basis function values \phi_{i,\alpha}(x_k) at sample points on the
+    /* determine basis function values \phi_{i,\alpha}(x_k) at sample positions on the
      * receiver patch for all basis functions \alpha */
     for ( k = 0; k < crrcv->nrnodes; k++ ) {
         if ( IsCluster(rcv)) {
@@ -217,7 +217,7 @@ static void DoHigherOrderAreaToAreaFormFactor(INTERACTION *link,
     Gmin = HUGE;
     Gmax = -HUGE;
     for ( beta = 0; beta < link->nsrc; beta++ ) {
-        /* determine basis function values \phi_{j,\beta}(x_l) at sample points on the
+        /* determine basis function values \phi_{j,\beta}(x_l) at sample positions on the
          * source patch */
         if ( IsCluster(src)) {
             if ( beta > 0 ) {
@@ -234,7 +234,7 @@ static void DoHigherOrderAreaToAreaFormFactor(INTERACTION *link,
         }
 
         for ( k = 0; k < crrcv->nrnodes; k++ ) {
-            /* compute point-to-patch form factors for points x_k on receiver and
+            /* compute point-to-patch form factors for positions x_k on receiver and
              * basis function \beta on the source */
             G_beta[k] = 0.;
             for ( l = 0; l < crsrc->nrnodes; l++ ) {
@@ -438,7 +438,7 @@ unsigned AreaToAreaFormFactor(INTERACTION *link, GeometryListNode *shadowlist) {
     }
 
     /* If the receiver is an other one than before, determine the cubature
-     * rule to be used on it and the nodes (points on the patch). */
+     * rule to be used on it and the nodes (positions on the patch). */
     if ( rcv != GLOBAL_galerkin_state.fflastrcv ) {
         DetermineNodes(rcv, &crrcv, x, RECEIVER);
     }

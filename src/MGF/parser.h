@@ -333,7 +333,7 @@ extern char **xf_argend;            /* last transform argument */
 /*
  * The transformation handler should do most of the work that needs
  * doing.  Just pass it any xf entities, then use the associated
- * functions to transform and translate points, transform vectors
+ * functions to transform and translate positions, transform vectors
  * (without translation), rotate vectors (without scaling) and scale
  * values appropriately.
  *
@@ -354,7 +354,7 @@ int xf_aname(XfArray *);    /* name this instance */
 long comp_xfid(MAT4);        /* compute unique ID */
 extern void multmat4(MAT4, MAT4, MAT4);    /* m4a = m4b X m4c */
 extern void multv3(FVECT, FVECT, MAT4);    /* v3a = v3b X m4 (vectors) */
-extern void multp3(FVECT, FVECT, MAT4);    /* p3a = p3b X m4 (points) */
+extern void multp3(FVECT, FVECT, MAT4);    /* p3a = p3b X m4 (positions) */
 extern int xf(XF *, int, char **);        /* interpret transform spec. */
 
 /************************************************************************

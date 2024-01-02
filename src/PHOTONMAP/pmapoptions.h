@@ -123,7 +123,7 @@ class CPmapState
 
     float cpu_secs;    /* for counting computing times */
     clock_t lastclock;    /* " */
-    int wake_up;        /* check this value at safe points during the
+    int wake_up;        /* check this value at safe positions during the
 			 * computations in order to react on user input
 			 * if there is any (call CheckForEvents()) */
 

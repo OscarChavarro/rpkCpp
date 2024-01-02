@@ -2,7 +2,7 @@
 /* TODO: combined radiance/importance propagation */
 /* TODO: hierarchical refinement for importance propagation */
 /* TODO: re-incorporate the rejection sampling technique for
- * sampling points on shooters with higher order radiosity approximation
+ * sampling positions on shooters with higher order radiosity approximation
  * (lower variance) */
 /* TODO: global lines and global line bundles. */
 
@@ -298,7 +298,7 @@ static void RefineAndPropagateImportance(ELEMENT *src, double us, double vs,
     PropagateImportance(P, up, vp, Q, uq, vq, src_prob, rcv_prob, ray, dir);
 }
 
-/* ray is a ray connecting the points with given (u,v) parameters 
+/* ray is a ray connecting the positions with given (u,v) parameters
  * on the toplevel surface element P to Q. This routine refines the
  * imaginary interaction between these elements and performs
  * radiance or importance transfer along the ray, taking into account
@@ -344,7 +344,7 @@ static double *NextSample(ELEMENT *elem,
     xi = NextNiedInRange(ray_index, +1, nmsb, msb1, rmsb2);
 
     (*ray_index)++;
-    u = (xi[0] & ~3) | 1;        /* avoid points on subelement boundaries */
+    u = (xi[0] & ~3) | 1;        /* avoid positions on subelement boundaries */
     v = (xi[1] & ~3) | 1;
     if ( elem->nrvertices == 3 )
         FoldSample(&u, &v);

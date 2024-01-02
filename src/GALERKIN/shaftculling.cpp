@@ -129,8 +129,8 @@ SHAFT *ConstructShaft(float *ref1, float *ref2, SHAFT *shaft) {
  * if the polygon is cut by the plane and COPLANAR if the polygon lays on the 
  * plane within tolerance distance d*EPSILON. */
 static int TestPolygonWrtPlane(POLYGON *poly, Vector3Dd *normal, double d) {
-    int i, out, in;    /* out = there are points on the positive side of the plane */
-    /* in  = there are points on the negative side of the plane */
+    int i, out, in;    /* out = there are positions on the positive side of the plane */
+    /* in  = there are positions on the negative side of the plane */
 
     out = in = false;
     for ( i = 0; i < poly->nrvertices; i++ ) {
@@ -380,7 +380,7 @@ SHAFT *ConstructPolygonToPolygonShaft(POLYGON *p1, POLYGON *p2, SHAFT *shaft) {
     shaft->nromit = shaft->nrdontopen = 0;
     shaft->cut = false;
 
-    /* center points of polygons define a line that is guaranteed to lay
+    /* center positions of polygons define a line that is guaranteed to lay
      * inside the shaft. */
     shaft->center1 = p1->vertex[0];
     for ( i = 1; i < p1->nrvertices; i++ ) {
@@ -661,7 +661,7 @@ static GeometryListNode *Open(Geometry *geom, SHAFT *shaft, GeometryListNode *ca
         patchlist = ShaftCullPatchlist(patchlist, shaft, nullptr);
         if ( patchlist ) {
             Geometry *newgeom;
-            newgeom = geomCreateBase(patchlist, PatchListMethods());
+            newgeom = geomCreatePatchSet(patchlist, PatchListMethods());
             newgeom->shaftCullGeometry = true;
             candlist = GeomListAdd(candlist, newgeom);
         }

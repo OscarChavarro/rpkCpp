@@ -176,7 +176,7 @@ double CLightList::ComputeOneLightImportance_real(PATCH *light,
                                                   const Vector3D *normal,
                                                   float emittedFlux) {
     // ComputeOneLightImportance for real patches
-    int tried = 0;  // No points on the patch are tried yet
+    int tried = 0;  // No positions on the patch are tried yet
     int done = false;
     double contribution = 0.0;
     Vector3D lightPoint, light_normal;

@@ -386,8 +386,8 @@ KDTree::Query_rec(const KDTreeNode *node) {
         if ( dist < qdat_s.maxdist ) {
             if ( qdat_s.notfilled ) // Nfound < qdat_s.Nwanted)
             {
-                // Add this point anyway, because we haven't got enough points yet.
-                // We have to check for the radius only here, since if N points
+                // Add this point anyway, because we haven't got enough positions yet.
+                // We have to check for the radius only here, since if N positions
                 // are added, maxdist <= radius
 
                 //if(dist < qdat_s.sqrRadius)
@@ -440,7 +440,7 @@ KDTree::Query_rec(const KDTreeNode *node) {
     if ((farNode) && (((qdat_s.Nfound < qdat_s.Nwanted) &&
                        (dist < qdat_s.sqrRadius)) ||
                       (dist < qdat_s.maxdist))) {
-        // Discriminator line closer than maxdist : nearer points can lie
+        // Discriminator line closer than maxdist : nearer positions can lie
         // on the far side. Or there are still not enough nodes found
 
         Query_rec(farNode);
@@ -483,7 +483,7 @@ KDTree::BQuery_rec(int index) {
         if ((farIndex < m_numBalanced) && (((qdat_s.notfilled) && // qdat_s.Nfound < qdat_s.Nwanted
                                             (dist < qdat_s.sqrRadius)) ||
                                            (dist < qdat_s.maxdist))) {
-            // Discriminator line closer than maxdist : nearer points can lie
+            // Discriminator line closer than maxdist : nearer positions can lie
             // on the far side. Or there are still not enough nodes found
             BQuery_rec(farIndex);
         }
@@ -496,8 +496,8 @@ KDTree::BQuery_rec(int index) {
         if ( dist < qdat_s.maxdist ) {
             if ( qdat_s.notfilled ) // Nfound < qdat_s.Nwanted)
             {
-                // Add this point anyway, because we haven't got enough points yet.
-                // We have to check for the radius only here, since if N points
+                // Add this point anyway, because we haven't got enough positions yet.
+                // We have to check for the radius only here, since if N positions
                 // are added, maxdist <= radius
 
                 MHInsert((float *) node.m_data, dist);

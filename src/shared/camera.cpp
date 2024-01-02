@@ -117,7 +117,7 @@ void CameraComputeClippingPlanes(CAMERA *Camera) {
     Vector3D vscrn[4];
     int i;
 
-    VECTORCOMB3(Camera->lookp, x, Camera->X, -y, Camera->Y, vscrn[0]); /* upper right corner: Y axis points down! */
+    VECTORCOMB3(Camera->lookp, x, Camera->X, -y, Camera->Y, vscrn[0]); /* upper right corner: Y axis positions down! */
     VECTORCOMB3(Camera->lookp, x, Camera->X, y, Camera->Y, vscrn[1]); /* lower right */
     VECTORCOMB3(Camera->lookp, -x, Camera->X, y, Camera->Y, vscrn[2]); /* lower left */
     VECTORCOMB3(Camera->lookp, -x, Camera->X, -y, Camera->Y, vscrn[3]); /* upper left */

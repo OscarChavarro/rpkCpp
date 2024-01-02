@@ -10,7 +10,7 @@ Saves the result of a radiosity computation as a VRML file
 
 /**
 Compute a rotation that will rotate the current "up"-direction to the Y axis.
-Y-axis points up in VRML2.0
+Y-axis positions up in VRML2.0
 */
 Matrix4x4
 VRMLModelTransform(Vector3D *model_rotaxis, float *model_rotangle) {
@@ -40,9 +40,9 @@ WriteVRMLViewPoint(FILE *fp, Matrix4x4 model_xf, CAMERA *cam, const char *vpname
     Matrix4x4 view_xf;
     float view_rotangle;
 
-    VECTORSCALE(1., cam->X, X); /* cam->X points right in window */
-    VECTORSCALE(-1., cam->Y, Y); /* cam->Y points down in window, VRML wants y up */
-    VECTORSCALE(-1., cam->Z, Z); /* cam->Z points away, VRML wants Z to point towards viewer */
+    VECTORSCALE(1., cam->X, X); /* cam->X positions right in window */
+    VECTORSCALE(-1., cam->Y, Y); /* cam->Y positions down in window, VRML wants y up */
+    VECTORSCALE(-1., cam->Z, Z); /* cam->Z positions away, VRML wants Z to point towards viewer */
 
     /* apply model transform */
     TRANSFORM_VECTOR_3D(model_xf, X, X);

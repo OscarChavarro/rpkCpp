@@ -54,8 +54,8 @@ set(MAIN_SRC
     src/skin/hitlist.cpp
     src/skin/jacobian.cpp
     src/skin/patch.cpp
-        src/skin/PatchSet.cpp
-    src/skin/surface.cpp
+    src/skin/PatchSet.cpp
+    src/skin/MeshSurface.cpp
     src/skin/Vertex.cpp
     src/scene/Background.cpp
     src/scene/grid.cpp

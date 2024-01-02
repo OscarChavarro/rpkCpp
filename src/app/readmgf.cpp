@@ -103,14 +103,14 @@ NewSurface() {
 
 static void
 surfaceDone() {
-    Geometry *thegeom;
+    Geometry *newGeometry;
 
     if ( currentFaceList ) {
-        thegeom = geomCreateBase(
-                (void *) SurfaceCreate(currentMaterial, currentPointList, currentNormalList,
-                                       (Vector3DListNode *) nullptr,
-                                       currentVertexList, currentFaceList, NO_COLORS), SurfaceMethods());
-        currentGeomList = GeomListAdd(currentGeomList, thegeom);
+        newGeometry = geomCreateSurface(
+                surfaceCreate(currentMaterial, currentPointList, currentNormalList,
+                              (Vector3DListNode *) nullptr,
+                              currentVertexList, currentFaceList, NO_COLORS), &GLOBAL_skin_surfaceGeometryMethods);
+        currentGeomList = GeomListAdd(currentGeomList, newGeometry);
     }
     insurface = false;
 }
@@ -1014,7 +1014,7 @@ do_object(int argc, char **argv) {
         }
 
         if ( GeomListCount(currentGeomList) > 0 ) {
-            theGeometry = geomCreateBase((void *) compoundCreate(currentGeomList), CompoundMethods());
+            theGeometry = geomCreateCompound(compoundCreate(currentGeomList), CompoundMethods());
         }
 
         popCurrentGeomList();

@@ -23,7 +23,7 @@ class INTERACTION {
     FloatOrPointer deltaK; // used for approximation error estimation over the link */
     unsigned char nrcv; // nr of basis functions on receiver and source */
     unsigned char nsrc;
-    unsigned char crcv; // nr of cubature points on receiver */
+    unsigned char crcv; // nr of cubature positions on receiver */
     unsigned char vis; // 255 for full visibility, 0 for full occlusion
 };
 

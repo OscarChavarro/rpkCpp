@@ -17,7 +17,7 @@
 #include "SGL/sgl.h"
 
 /*
- * incrementalize_y: put intersection of line Y=y+.5 with edge between points
+ * incrementalize_y: put intersection of line Y=y+.5 with edge between positions
  * p1 and p2 in p, put change with respect to y in dp
  */
 
@@ -118,7 +118,7 @@ void poly_scan_z(Poly *p, Window *win)
 
     ymin = HUGE;
     top = -1;
-    for ( i = 0; i < p->n; i++ ) {        /* find top vertex (y points down) */
+    for ( i = 0; i < p->n; i++ ) {        /* find top vertex (y positions down) */
         if ( p->vert[i].sy < ymin ) {
             ymin = p->vert[i].sy;
             top = i;

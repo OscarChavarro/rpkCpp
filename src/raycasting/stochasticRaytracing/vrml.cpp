@@ -267,7 +267,7 @@ static const char *make_valid_vrml_id(const char *id) {
 }
 
 static void WriteMaterial(Geometry *geom) {
-    SURFACE *surf = GeomGetSurface(geom);
+    MeshSurface *surf = GeomGetSurface(geom);
     MATERIAL *mat = surf->material;
     PATCH *first_patch = (surf->faces) ? surf->faces->patch : (PATCH *) nullptr;
     HITREC hit;
@@ -330,7 +330,7 @@ static void BeginWritePrimitive(Geometry *geom) {
 }
 
 static const char *PrimitiveMatName(Geometry *geom) {
-    SURFACE *surf = GeomGetSurface(geom);
+    MeshSurface *surf = GeomGetSurface(geom);
     if ( !surf ) {
         return "unknown (not a surface)";
     } else {

@@ -27,12 +27,12 @@ Interrogation :
 virtual int Query(const float *point, int N, void *results, 
 	     float *distances = nullptr, float radius = HUGE)
 
- Gives a maximum of N points that are closest to the query point
+ Gives a maximum of N positions that are closest to the query point
  ('point'). An optional radius defines the maximum distance
-to the query points. The number of points found is returned.
+to the query positions. The number of positions found is returned.
 
 float *point : the query point (float point[k])
-int N : maximum number of points to return
+int N : maximum number of positions to return
 void *results : array of N pointers where the results of the query
                 will be stored. (DATATYPE *results[k])
 float *distances : array of N floats where the distances to the
