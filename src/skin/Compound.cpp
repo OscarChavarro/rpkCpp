@@ -13,10 +13,12 @@ returns the geometryList. You can as well directly globalPass 'geometryList'
 to geomCreateBase() for creating a Compound Geometry if you don't want
 it to be counted
 */
-COMPOUND *
-compoundCreate(GeometryListNode *geomlist) {
+Compound *
+compoundCreate(GeometryListNode *geometryList) {
     GLOBAL_statistics_numberOfCompounds++;
-    return geomlist;
+    Compound *group = new Compound();
+    group->children = *geometryList;
+    return group;
 }
 
 /**
@@ -24,17 +26,30 @@ This method will compute a bounding box for a geometry. The bounding box
 is filled in bounding box and a pointer to the filled in bounding box returned
 */
 static float *
-compoundBounds(COMPOUND *obj, float *boundingbox) {
-    return GeomListBounds(obj, boundingbox);
+compoundBounds(Compound *obj, float *boundingBox) {
+    return GeomListBounds(&obj->children, boundingBox);
 }
 
 /**
 This method will destroy the geometry and it's children geometries if any
 */
 static void
-compoundDestroy(COMPOUND *obj) {
-    GeomListIterate(obj, geomDestroy);
-    GeomListDestroy(obj);
+compoundDestroy(Compound *obj) {
+    GeometryListNode *window = &obj->children;
+    Geometry *geometry;
+    while (window) {
+        geometry = window->geom;
+        window = window->next;
+        geomDestroy(geometry);
+    }
+
+    window = &obj->children;
+    while ( window ) {
+        GeometryListNode *nextNode = window->next;
+        free(window);
+        window = nextNode;
+    }
+
     GLOBAL_statistics_numberOfCompounds--;
 }
 
@@ -42,9 +57,15 @@ compoundDestroy(COMPOUND *obj) {
 This method will print the geometry to the file out
 */
 static void
-compoundPrint(FILE *out, COMPOUND *obj) {
+compoundPrint(FILE *out, Compound *compound) {
     fprintf(out, "compound\n");
-    GeomListIterate1B(obj, geomPrint, out);
+    GeometryListNode *window = &compound->children;
+    Geometry *geometry;
+    while (window) {
+        geometry = window->geom;
+        window = window->next;
+        geomPrint(out, geometry);
+    }
     fprintf(out, "end of compound\n");
 }
 
@@ -52,32 +73,31 @@ compoundPrint(FILE *out, COMPOUND *obj) {
 Returns the list of children geometries if the geometry is an aggregate
 */
 static GeometryListNode *
-compoundPrimitives(COMPOUND *obj) {
-    return obj;
+compoundPrimitives(Compound *obj) {
+    return &obj->children;
 }
 
 static HITREC *
 compoundDiscretizationIntersect(
-    COMPOUND *obj,
-    Ray *ray,
-    float minimumDistance,
-    float *maximumDistance,
-    int hitFlags,
-    HITREC *hitStore)
+        Compound *obj,
+        Ray *ray,
+        float minimumDistance,
+        float *maximumDistance,
+        int hitFlags,
+        HITREC *hitStore)
 {
-    return GeomListDiscretizationIntersect(obj, ray, minimumDistance, maximumDistance, hitFlags, hitStore);
+    return GeomListDiscretizationIntersect(&obj->children, ray, minimumDistance, maximumDistance, hitFlags, hitStore);
 }
 
 static HITLIST *
 compoundAllDiscretizationIntersections(
-    HITLIST *hits,
-    COMPOUND *obj,
-    Ray *ray,
-    float minimumDistance,
-    float maximumDistance,
-    int hitFlags)
-{
-    return geomListAllDiscretizationIntersections(hits, obj, ray, minimumDistance, maximumDistance, hitFlags);
+        HITLIST *hits,
+        Compound *obj,
+        Ray *ray,
+        float minimumDistance,
+        float maximumDistance,
+        int hitFlags) {
+    return geomListAllDiscretizationIntersections(hits, &obj->children, ray, minimumDistance, maximumDistance, hitFlags);
 }
 
 // A set of pointers to the functions (methods) to operate on compounds
@@ -86,8 +106,8 @@ GEOM_METHODS GLOBAL_skin_compoundGeometryMethods = {
         (void (*)(void *)) compoundDestroy,
         (void (*)(FILE *, void *)) compoundPrint,
         (GeometryListNode *(*)(void *)) compoundPrimitives,
-    (PatchSet *(*)(void *)) nullptr,
+        (PatchSet *(*)(void *)) nullptr,
         (HITREC *(*)(void *, Ray *, float, float *, int, HITREC *)) compoundDiscretizationIntersect,
         (HITLIST *(*)(HITLIST *, void *, Ray *, float, float, int)) compoundAllDiscretizationIntersections,
-    (void *(*)(void *)) nullptr
+        (void *(*)(void *)) nullptr
 };

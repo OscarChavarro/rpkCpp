@@ -9,4 +9,5 @@ if [ "$N" -eq 12 ]; then
     echo "TEST PASS"
 else
     echo "*** TEST ERROR! ***"
+    echo "$N found, expected 12"
 fi
