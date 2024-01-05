@@ -631,7 +631,7 @@ quick_select(BalancedKDTreeNode broot[], int low, int high, int discr) {
             return median;
         }
 
-        /* Find median of low, middle and high items; swap into position low */
+        /* Find median of low, middle and high volumeListsOfItems; swap into position low */
         middle = (low + high + 1) / 2;
         if ( E_VAL(middle) > E_VAL(high))
             E_SWAP(middle, high);
@@ -643,7 +643,7 @@ quick_select(BalancedKDTreeNode broot[], int low, int high, int discr) {
         /* Swap low item (now in position middle) into position (low+1) */
         E_SWAP(middle, low + 1);
 
-        /* Nibble from each end towards middle, swapping items when stuck */
+        /* Nibble from each end towards middle, swapping volumeListsOfItems when stuck */
         ll = low + 1;
         hh = high;
         for ( ;; ) {

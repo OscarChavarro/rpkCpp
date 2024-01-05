@@ -3,7 +3,7 @@
 
 #include "common/linealAlgebra/Vector3D.h"
 #include "material/color.h"
-#include "skin/patch.h"
+#include "skin/Patch.h"
 
 class BACKGROUND_METHODS {
 public:

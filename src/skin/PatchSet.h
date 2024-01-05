@@ -3,7 +3,7 @@
 
 #include "common/dataStructures/List.h"
 #include "material/hit.h"
-#include "skin/patch.h"
+#include "skin/Patch.h"
 #include "common/Ray.h"
 
 class GEOM_METHODS;

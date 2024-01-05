@@ -33,22 +33,24 @@ class BREP_VERTEX_OCTREE {
  *	code&4 == 1 if z1 > z2 and 0 otherwise
  *	code&8 == 1 if x1 == x2 and y1 == y2 and z1 == z2
  *
- * BrepSetVertexCompareRoutine() returns the previously installed compare
+ * brepSetVertexCompareRoutine() returns the previously installed compare
  * routine so it can be restored when necessary. */
 typedef int (*BREP_COMPARE_FUNC)(void *, void *);
 
-extern BREP_COMPARE_FUNC BrepSetVertexCompareRoutine(BREP_COMPARE_FUNC routine);
+extern BREP_COMPARE_FUNC brepSetVertexCompareRoutine(BREP_COMPARE_FUNC routine);
 
-/* Set a routine to compare only the the location of two BREP_VERTEXes. There
- * may be multiple vertices at the same location, e.g. having a different
- * normal and/or name. These vertices are considered different vertices
- * by the vertex compare routine which is set with BrepSetVertexCompareRoutine(),
- * but they are considered the same vertices by the routine which is set with
- * BrepSetVertexCompareLocationRoutine(). The previously installed compare
- * routine is returned, so it can be restored when necessary. This compare
- * routine is used by BrepFindVertexAtLocation(), BrepIterateVerticesAtLocation(),
- * BrepIterateWingsBetweenLocations() ... */
-extern BREP_COMPARE_FUNC BrepSetVertexCompareLocationRoutine(BREP_COMPARE_FUNC routine);
+/**
+Set a routine to compare only the location of two BREP_VERTEXes. There
+may be multiple vertices at the same location, e.g. having a different
+normal and/or name. These vertices are considered different vertices
+by the vertex compare routine which is set with brepSetVertexCompareRoutine(),
+but they are considered the same vertices by the routine which is set with
+brepSetVertexCompareLocationRoutine(). The previously installed compare
+routine is returned, so it can be restored when necessary. This compare
+routine is used by BrepFindVertexAtLocation(), BrepIterateVerticesAtLocation(),
+BrepIterateWingsBetweenLocations()
+*/
+extern BREP_COMPARE_FUNC brepSetVertexCompareLocationRoutine(BREP_COMPARE_FUNC routine);
 
 #endif
 

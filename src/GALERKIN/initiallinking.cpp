@@ -1,7 +1,7 @@
 #include "common/error.h"
 #include "skin/Geometry.h"
 #include "scene/scene.h"
-#include "skin/patch.h"
+#include "skin/Patch.h"
 #include "GALERKIN/shaftculling.h"
 #include "GALERKIN/basisgalerkin.h"
 #include "GALERKIN/galerkinP.h"

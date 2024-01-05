@@ -3,7 +3,7 @@
 #include "material/color.h"
 #include "shared/camera.h"
 #include "shared/render.h"
-#include "IMAGE/tonemapping.h"
+#include "IMAGE/tonemap/tonemapping.h"
 #include "raycasting/common/raytools.h"
 #include "raycasting/common/Raytracer.h"
 #include "raycasting/raytracing/screeniterate.h"

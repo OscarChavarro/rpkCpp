@@ -1,5 +1,5 @@
 #include "common/error.h"
-#include "skin/patch.h"
+#include "skin/Patch.h"
 #include "raycasting/raytracing/lightsampler.h"
 
 CUniformLightSampler::CUniformLightSampler() {

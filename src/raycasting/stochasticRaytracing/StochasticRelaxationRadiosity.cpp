@@ -7,7 +7,7 @@
 #include "material/statistics.h"
 #include "scene/scene.h"
 #include "shared/render.h"
-#include "raycasting/stochasticRaytracing/vrml.h"
+#include "raycasting/stochasticRaytracing/vrml/vrml.h"
 #include "raycasting/stochasticRaytracing/mcrad.h"
 #include "raycasting/stochasticRaytracing/mcradP.h"
 #include "raycasting/stochasticRaytracing/hierarchy.h"

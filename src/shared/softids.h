@@ -7,7 +7,7 @@ due to frame buffer formats, etc.
 #define _RPK_SOFTIDS_H_
 
 #include "SGL/sgl.h"
-#include "skin/patch.h"
+#include "skin/Patch.h"
 
 /* sets up a software rendering context and initialises transforms and 
  * viewport for the current view. The new renderer is made current. */

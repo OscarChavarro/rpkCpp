@@ -114,4 +114,21 @@ inline float Vector2D::operator^(const Vector2D &r) const {
     return u * r.v - v * r.u;
 }
 
+/**
+Vector difference
+*/
+inline void
+VEC2DDIFF(const Vector2D &a, const Vector2D &b, Vector2D &o) {
+    o.u = a.u - b.u;
+    o.v = a.v - b.v;
+}
+
+/**
+Square of vector norm: scalar product with itself
+*/
+inline float
+VEC2DNORM2(const Vector2D &d) {
+    return (d).u * (d).u + (d).v * (d).v;
+}
+
 #endif

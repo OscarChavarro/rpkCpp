@@ -24,7 +24,7 @@ OCTREE *OctreeAddWithDuplicates(OCTREE *octree,
     while ( p ) {
         cmp = nodecmp(p->pelement, pelement);
         o = p;
-        p = p->child[cmp % 8];    /* allow duplicate items in the OCTREE */
+        p = p->child[cmp % 8];    /* allow duplicate volumeListsOfItems in the OCTREE */
     }
 
     /* p is nullptr, o is the octree node where we should add the new child */

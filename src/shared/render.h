@@ -3,11 +3,11 @@
 
 #include <cstdio>
 
-#include "common/bounds.h"
+#include "skin/bounds.h"
 #include "common/linealAlgebra/Vector4D.h"
 #include "material/color.h"
 #include "shared/camera.h"
-#include "skin/patch.h"
+#include "skin/Patch.h"
 
 /* creates an offscreen window for rendering */
 extern void RenderCreateOffscreenWindow(int hres, int vres);

@@ -29,7 +29,7 @@
 
 #include "material/color.h"
 #include "common/error.h"
-#include "IMAGE/tonemapping.h"
+#include "IMAGE/tonemap/tonemapping.h"
 #include "IMAGE/imagecpp.h"
 #include "IMAGE/imagec.h"
 #include "IMAGE/ppm.h"

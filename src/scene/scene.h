@@ -5,7 +5,7 @@
 #include "skin/geomlist.h"
 #include "skin/PatchSet.h"
 #include "scene/Background.h"
-#include "scene/grid.h"
+#include "scene/VoxelGrid.h"
 
 // The current scene
 extern GeometryListNode *GLOBAL_scene_world;
@@ -29,6 +29,6 @@ extern GeometryListNode *GLOBAL_scene_clusteredWorld;
 extern Geometry *GLOBAL_scene_clusteredWorldGeom;
 
 // Voxel grid containing the whole world
-extern GRID *GLOBAL_scene_worldGrid;
+extern VoxelGrid *GLOBAL_scene_worldGrid;
 
 #endif

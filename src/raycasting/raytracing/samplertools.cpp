@@ -1,7 +1,7 @@
 #include <cmath>
 
 #include "common/error.h"
-#include "skin/patch.h"
+#include "skin/Patch.h"
 #include "material/edf.h"
 #include "common/Ray.h"
 #include "QMC/nied31.h"

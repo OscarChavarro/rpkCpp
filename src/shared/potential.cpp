@@ -7,7 +7,7 @@ routines dealing with view potential
 
 #include "skin/patch_flags.h"
 #include "common/error.h"
-#include "skin/patch.h"
+#include "skin/Patch.h"
 #include "scene/scene.h"
 #include "material/statistics.h"
 #include "shared/potential.h"

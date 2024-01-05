@@ -8,7 +8,7 @@ Surfaces are basically a list of PATCHes representing a simple object with given
 #include <cstdio>
 
 #include "java/util/ArrayList.h"
-#include "material/material.h"
+#include "material/Material.h"
 #include "skin/vectorlist.h"
 #include "skin/geomlist.h"
 

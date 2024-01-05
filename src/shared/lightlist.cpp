@@ -1,7 +1,7 @@
 #include <cmath>
 
 #include "shared/lightlist.h"
-#include "skin/patch.h"
+#include "skin/Patch.h"
 #include "material/color.h"
 #include "common/error.h"
 

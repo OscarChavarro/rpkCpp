@@ -38,7 +38,7 @@
 #define DEFAULT_FOV 22.5
 #define DEFAULT_BACKGROUND_COLOR {0.0, 0.0, 0.0}
 
-/* MGF defaults */
+/* mgf defaults */
 #define DEFAULT_NQCDIVS 4
 #define DEFAULT_FORCE_ONESIDEDNESS true
 #define DEFAULT_MONOCHROME false

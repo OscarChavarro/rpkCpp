@@ -20,10 +20,10 @@ set(MAIN_SRC
     src/common/dataStructures/KDTree.cpp
     src/common/dataStructures/List.cpp
     src/common/dataStructures/Octree.cpp
-    src/common/bounds.cpp
+    src/skin/bounds.cpp
     src/common/errorshared.cpp
     src/common/mymath.cpp
-    src/common/FileUncompressWrapper.cpp
+    src/io/FileUncompressWrapper.cpp
     src/QMC/faure.cpp
     src/QMC/halton.cpp
     src/QMC/nied31.cpp
@@ -36,13 +36,14 @@ set(MAIN_SRC
     src/BREP/BREP_VERTEX.cpp
     src/BREP/BREP_WING.cpp
     src/BREP/brep_log.cpp
+    src/BREP/BREP_VERTEX_OCTREE.cpp
     src/material/brdf.cpp
     src/material/bsdf.cpp
     src/material/btdf.cpp
     src/material/cie.cpp
     src/material/color.cpp
     src/material/edf.cpp
-    src/material/material.cpp
+        src/material/Material.cpp
     src/material/materiallist.cpp
     src/material/statistics.cpp
     src/material/texture.cpp
@@ -52,17 +53,16 @@ set(MAIN_SRC
     src/skin/geomlist.cpp
     src/skin/hit.cpp
     src/skin/hitlist.cpp
-    src/skin/jacobian.cpp
-    src/skin/patch.cpp
+    src/skin/Jacobian.cpp
+    src/skin/Patch.cpp
     src/skin/PatchSet.cpp
     src/skin/MeshSurface.cpp
     src/skin/Vertex.cpp
     src/scene/Background.cpp
-    src/scene/grid.cpp
+    src/scene/VoxelGrid.cpp
     src/scene/scene.cpp
     src/scene/spherical.cpp
     src/scene/splitbsdf.cpp
-    src/scene/vertex_octree.cpp
     src/SGL/poly_clip.cpp
     src/SGL/poly_scan.cpp
     src/SGL/poly_scan_flat.cpp
@@ -85,13 +85,13 @@ set(MAIN_SRC
     src/shared/writevrml.cpp
     src/IMAGE/adaptation.cpp
     src/IMAGE/dkcolor.cpp
-    src/IMAGE/dummy.cpp
+        src/IMAGE/tonemap/dummy.cpp
     src/IMAGE/imagec.cpp
-    src/IMAGE/lightness.cpp
+        src/IMAGE/tonemap/lightness.cpp
     src/IMAGE/pic.cpp
     src/IMAGE/ppm.cpp
-    src/IMAGE/tonemapping.cpp
-    src/IMAGE/trwf.cpp
+        src/IMAGE/tonemap/tonemapping.cpp
+        src/IMAGE/tonemap/trwf.cpp
     src/GALERKIN/basisgalerkin.cpp
     src/GALERKIN/basisquadgalerkin.cpp
     src/GALERKIN/basistrigalerkin.cpp
@@ -107,14 +107,15 @@ set(MAIN_SRC
     src/GALERKIN/scratch.cpp
     src/GALERKIN/shaftculling.cpp
     src/GALERKIN/shooting.cpp
-    src/MGF/badarg.cpp
-    src/MGF/context.cpp
-    src/MGF/fvect.cpp
-    src/MGF/lookup.cpp
-    src/MGF/object.cpp
-    src/MGF/parser.cpp
-    src/MGF/words.cpp
-    src/MGF/xf.cpp
+    src/io/mgf/badarg.cpp
+    src/io/mgf/context.cpp
+    src/io/mgf/fvect.cpp
+    src/io/mgf/lookup.cpp
+    src/io/mgf/object.cpp
+    src/io/mgf/parser.cpp
+    src/io/mgf/words.cpp
+    src/io/mgf/xf.cpp
+    src/io/mgf/readmgf.cpp
     src/raycasting/common/bidiroptions.cpp
     src/raycasting/common/ScreenBuffer.cpp
     src/raycasting/common/pathnode.cpp
@@ -163,7 +164,7 @@ set(MAIN_SRC
     src/raycasting/stochasticRaytracing/nondiff.cpp
     src/raycasting/stochasticRaytracing/pushpull.cpp
     src/raycasting/stochasticRaytracing/RandomWalkRadiosity.cpp
-    src/raycasting/stochasticRaytracing/refine.cpp
+        src/raycasting/stochasticRaytracing/hierarchyRefine.cpp
     src/raycasting/stochasticRaytracing/render.cpp
     src/raycasting/stochasticRaytracing/StochasticRaytracer.cpp
     src/raycasting/stochasticRaytracing/rtstochasticphotonmap.cpp
@@ -171,11 +172,10 @@ set(MAIN_SRC
     src/raycasting/stochasticRaytracing/stochjacobi.cpp
     src/raycasting/stochasticRaytracing/StochasticRelaxationRadiosity.cpp
     src/raycasting/stochasticRaytracing/tracepath.cpp
-    src/raycasting/stochasticRaytracing/vrml.cpp
+        src/raycasting/stochasticRaytracing/vrml/vrml.cpp
     src/app/batch.cpp
-    src/app/phong.cpp
+    src/scene/phong.cpp
     src/app/radiance.cpp
-    src/app/readmgf.cpp
     src/app/rendercommon.cpp
     src/app/ui_file.cpp
     src/app/ui_main.cpp
@@ -183,6 +183,9 @@ set(MAIN_SRC
     src/app/main.cpp
     src/app/Cluster.cpp
     src/app/Cluster.h
+    src/BREP/BREP_VERTEX_OCTREE.cpp
+        src/scene/VoxelData.cpp
+        src/scene/VoxelData.h
 )
 add_executable(rpk ${MAIN_SRC})
 

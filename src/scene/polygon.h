@@ -1,8 +1,8 @@
 #ifndef _POLYGON_H_
 #define _POLYGON_H_
 
-#include "common/bounds.h"
-#include "skin/patch.h"
+#include "skin/bounds.h"
+#include "skin/Patch.h"
 
 /* A structure describing polygons. Only used for shaftculling for the moment. */
 class POLYGON {

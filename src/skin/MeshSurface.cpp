@@ -2,7 +2,7 @@
 
 #include "common/Ray.h"
 #include "material/statistics.h"
-#include "skin/patch.h"
+#include "skin/Patch.h"
 #include "skin/MeshSurface.h"
 #include "skin/Vertex.h"
 #include "skin/vertexlist.h"

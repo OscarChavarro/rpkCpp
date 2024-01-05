@@ -1,9 +1,9 @@
 #include <cmath>
 
 #include "scene/scene.h"
-#include "scene/grid.h"
+#include "scene/VoxelGrid.h"
 #include "shared/camera.h"
-#include "skin/patch.h"
+#include "skin/Patch.h"
 #include "raycasting/common/Raytracer.h"
 #include "raycasting/common/raytools.h"
 

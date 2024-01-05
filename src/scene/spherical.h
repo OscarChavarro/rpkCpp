@@ -7,7 +7,7 @@
 
 #include <cstdio>
 
-#include "skin/patch.h"
+#include "skin/Patch.h"
 
 class COORDSYS {
   public:

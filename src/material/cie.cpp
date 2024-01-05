@@ -1,7 +1,7 @@
 #include "material/cie.h"
 
 /* This code is a modified version of the CIE XYZ<->RGB code
- * in the MGF documentation */
+ * in the mgf documentation */
 
 static float CIE_x_r = 0.640;    /* nominal CRT primaries */
 static float CIE_y_r = 0.330;

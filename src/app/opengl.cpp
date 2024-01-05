@@ -10,7 +10,7 @@
 #include "shared/canvas.h"
 #include "shared/renderhook.h"
 #include "shared/softids.h"
-#include "IMAGE/tonemapping.h"
+#include "IMAGE/tonemap/tonemapping.h"
 #include "raycasting/simple/RayCaster.h"
 
 static int displayListId = -1;

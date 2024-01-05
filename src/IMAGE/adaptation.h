@@ -3,7 +3,7 @@
 #ifndef _RPK_ADAPTATION_H_
 #define _RPK_ADAPTATION_H_
 
-#include "skin/patch.h"
+#include "skin/Patch.h"
 
 /* Static adaptation estimation methods */
 enum TMA_METHOD {

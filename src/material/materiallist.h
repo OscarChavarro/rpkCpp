@@ -3,7 +3,7 @@
 #ifndef _MATERIALLIST_H_
 #define _MATERIALLIST_H_
 
-#include "material/material.h"
+#include "material/Material.h"
 #include "common/dataStructures/List.h"
 
 class MATERIALLIST {

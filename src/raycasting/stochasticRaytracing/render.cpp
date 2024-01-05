@@ -4,7 +4,7 @@
 #include "common/error.h"
 #include "shared/camera.h"
 #include "shared/render.h"
-#include "IMAGE/tonemapping.h"
+#include "IMAGE/tonemap/tonemapping.h"
 #include "raycasting/stochasticRaytracing/mcradP.h"
 #include "raycasting/stochasticRaytracing/hierarchy.h"
 

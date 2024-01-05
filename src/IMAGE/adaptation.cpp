@@ -6,7 +6,7 @@
 #include "material/statistics.h"
 #include "scene/scene.h"
 #include "IMAGE/adaptation.h"
-#include "IMAGE/tonemapping.h"
+#include "IMAGE/tonemap/tonemapping.h"
 
 /* ---------------------------------------------------------------------------
   `LUMAREA'

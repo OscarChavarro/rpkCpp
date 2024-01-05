@@ -11,14 +11,14 @@
 #include "shared/cubature.h"
 #include "shared/renderhook.h"
 #include "scene/scene.h"
-#include "IMAGE/tonemapping.h"
+#include "IMAGE/tonemap/tonemapping.h"
 #include "raycasting/simple/RayCaster.h"
 #include "raycasting/simple/RayMatter.h"
 #include "raycasting/raytracing/BidirectionalPathRaytracer.h"
 #include "raycasting/stochasticRaytracing/StochasticRaytracer.h"
 #include "app/Cluster.h"
 #include "app/ui.h"
-#include "app/readmgf.h"
+#include "io/mgf/readmgf.h"
 #include "skin/Compound.h"
 #include "app/fileopts.h"
 
@@ -266,8 +266,8 @@ Init() {
 
     /* Specify what routines to be used to compare vertices when using
      * BREP_VERTEX_OCTREEs */
-    BrepSetVertexCompareRoutine((BREP_COMPARE_FUNC) VertexCompare);
-    BrepSetVertexCompareLocationRoutine((BREP_COMPARE_FUNC) VertexCompareLocation);
+    brepSetVertexCompareRoutine((BREP_COMPARE_FUNC) VertexCompare);
+    brepSetVertexCompareLocationRoutine((BREP_COMPARE_FUNC) VertexCompareLocation);
 }
 
 static void
@@ -348,7 +348,7 @@ ReadFile(char *filename) {
     Geometry *oClusteredWorldGeom;
     MATERIALLIST *oMaterialLib;
     PatchSet *oPatches, *oLightSourcePatches;
-    GRID *oWorldGrid;
+    VoxelGrid *oWorldGrid;
     RADIANCEMETHOD *oRadiance;
     Raytracer *oRayTracing;
     Background *oBackground;
@@ -405,7 +405,7 @@ ReadFile(char *filename) {
     oBackground = GLOBAL_scene_background;
     GLOBAL_scene_background = (Background *) nullptr;
 
-    // Read the MGF file. The result is a new GLOBAL_scene_world and GLOBAL_scene_materials if everything goes well
+    // Read the mgf file. The result is a new GLOBAL_scene_world and GLOBAL_scene_materials if everything goes well
     fprintf(stderr, "Reading the scene from file '%s' ... \n", filename);
     last = clock();
 

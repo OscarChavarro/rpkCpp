@@ -6,7 +6,7 @@ Shaft culling ala Haines, E. A. and Wallace, J. R. "Shaft culling for
 
 #include "skin/patchlist_geom.h"
 #include "skin/Geometry.h"
-#include "skin/patch.h"
+#include "skin/Patch.h"
 #include "GALERKIN/shaftculling.h"
 
 /* default strategy is "overlap open", which was
@@ -46,7 +46,7 @@ SHAFT *ConstructShaft(float *ref1, float *ref2, SHAFT *shaft) {
         hasminmax1[i] = hasminmax2[i] = 0;
     }
 
-    /* create extent box of both items and keep track which coordinates of which
+    /* create extent box of both volumeListsOfItems and keep track which coordinates of which
      * box become the minimum or maximum */
     for ( i = MIN_X; i <= MIN_Z; i++ ) {
         if ( shaft->ref1[i] < shaft->ref2[i] ) {
@@ -424,7 +424,7 @@ int ShaftBoxTest(float *bounds, SHAFT *shaft) {
         }
     }
 
-    /* test against reference items */
+    /* test against reference volumeListsOfItems */
     if ((shaft->ref1 && !DisjunctBounds(bounds, shaft->ref1)) ||
         (shaft->ref2 && !DisjunctBounds(bounds, shaft->ref2))) {
         return OVERLAP;

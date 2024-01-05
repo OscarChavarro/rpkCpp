@@ -258,7 +258,7 @@ void RenderPatchNormals(PATCH *patch) {
     }
 
     if ( GLOBAL_scene_worldGrid ) {
-        bbx = GLOBAL_scene_worldGrid->bounds;
+        bbx = GLOBAL_scene_worldGrid->boundingBox;
         VECTORSET(diagonal,
                   bbx[MAX_X] - bbx[MIN_X],
                   bbx[MAX_Y] - bbx[MIN_Y],

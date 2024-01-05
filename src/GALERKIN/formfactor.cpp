@@ -1,6 +1,6 @@
 #include "common/error.h"
 #include "material/statistics.h"
-#include "skin/patch.h"
+#include "skin/Patch.h"
 #include "skin/Geometry.h"
 #include "shared/shadowcaching.h"
 #include "GALERKIN/formfactor.h"

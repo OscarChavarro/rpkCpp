@@ -4,7 +4,7 @@
 #include "common/linealAlgebra/Float.h"
 #include "scene/scene.h"
 #include "scene/Background.h"
-#include "skin/patch.h"
+#include "skin/Patch.h"
 #include "skin/radianceinterfaces.h"
 #include "material/bsdf.h"
 #include "shared/stratification.h"

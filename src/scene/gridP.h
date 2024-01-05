@@ -27,17 +27,17 @@
 #define GridItemListDestroy(griditemlist) \
         ListDestroy((LIST *)griditemlist)
 
-#define ForAllGridItems(item, griditemlist) ForAllInList(GRIDITEM, item, griditemlist)
+#define ForAllGridItems(item, griditemlist) ForAllInList(VoxelData, item, griditemlist)
 
-#define CELLADDR(grid, a, b, c) ((a * grid->ysize + b) * grid->zsize + c)
+#define CELLADDR(grid, a, b, c) ((a * grid->ySize + b) * grid->zSize + c)
 
-#define x2voxel(px, g)    ((g->voxsize.x<EPSILON) ? 0 : ((px) - g->bounds[MIN_X]) / g->voxsize.x)
-#define y2voxel(py, g)    ((g->voxsize.y<EPSILON) ? 0 : ((py) - g->bounds[MIN_Y]) / g->voxsize.y)
-#define z2voxel(pz, g)    ((g->voxsize.z<EPSILON) ? 0 : ((pz) - g->bounds[MIN_Z]) / g->voxsize.z)
+#define x2voxel(px, g)    ((g->voxelSize.x<EPSILON) ? 0 : ((px) - g->boundingBox[MIN_X]) / g->voxelSize.x)
+#define y2voxel(py, g)    ((g->voxelSize.y<EPSILON) ? 0 : ((py) - g->boundingBox[MIN_Y]) / g->voxelSize.y)
+#define z2voxel(pz, g)    ((g->voxelSize.z<EPSILON) ? 0 : ((pz) - g->boundingBox[MIN_Z]) / g->voxelSize.z)
 
-#define voxel2x(px, g)    ((px) * g->voxsize.x + g->bounds[MIN_X])
-#define voxel2y(py, g)    ((py) * g->voxsize.y + g->bounds[MIN_Y])
-#define voxel2z(pz, g)    ((pz) * g->voxsize.z + g->bounds[MIN_Z])
+#define voxel2x(px, g)    ((px) * g->voxelSize.x + g->boundingBox[MIN_X])
+#define voxel2y(py, g)    ((py) * g->voxelSize.y + g->boundingBox[MIN_Y])
+#define voxel2z(pz, g)    ((pz) * g->voxelSize.z + g->boundingBox[MIN_Z])
 
 #define X 0
 #define Y 1

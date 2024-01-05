@@ -11,7 +11,7 @@
 #include "skin/geomlist.h"
 #include "skin/PatchSet.h"
 #include "scene/polygon.h"
-#include "scene/grid.h"
+#include "scene/VoxelGrid.h"
 
 class SHAFTPLANE {
   public:
@@ -30,7 +30,7 @@ class SHAFTPLANE {
 class SHAFT {
   public:
     float *ref1, *ref2, extent[6]; /* bounding boxes of the reference
-				 * items and the whole shaft. */
+				 * volumeListsOfItems and the whole shaft. */
     SHAFTPLANE plane[SHAFTMAXPLANES];
     int planes;        /* nr of planes in plane-set */
     Geometry *omit[2];    /* geometries to be ignored during shaftculling. max. 2! */

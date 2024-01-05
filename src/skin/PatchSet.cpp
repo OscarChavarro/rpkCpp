@@ -1,6 +1,6 @@
-#include "common/bounds.h"
+#include "bounds.h"
 #include "skin/PatchSet.h"
-#include "skin/patch.h"
+#include "skin/Patch.h"
 #include "skin/hitlist.h"
 #include "skin/Geometry.h"
 

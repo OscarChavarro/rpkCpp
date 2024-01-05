@@ -3,7 +3,7 @@
 #ifndef _POTENTIAL_H_
 #define _POTENTIAL_H_
 
-#include "skin/patch.h"
+#include "skin/Patch.h"
 
 /* Determines the actual directly received potential of the patches in
  * the scene. */

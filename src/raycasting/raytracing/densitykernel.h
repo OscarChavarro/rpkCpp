@@ -7,7 +7,7 @@
 #ifndef _DENSITYKERNEL_H_
 #define _DENSITYKERNEL_H_
 
-#include "shared/vector2d.h"
+#include "common/linealAlgebra/Vector2D.h"
 #include "raycasting/common/ScreenBuffer.h"
 
 class CKernel2D {

@@ -1,6 +1,6 @@
 #include "material/statistics.h"
 #include "common/error.h"
-#include "skin/patch.h"
+#include "skin/Patch.h"
 #include "GALERKIN/GalerkinRadiosity.h"
 #include "raycasting/raytracing/spar.h"
 

@@ -14,7 +14,7 @@
 #include "shared/camera.h"
 #include "shared/options.h"
 #include "shared/writevrml.h"
-#include "IMAGE/tonemapping.h"
+#include "IMAGE/tonemap/tonemapping.h"
 #include "GALERKIN/GalerkinRadiosity.h"
 #include "GALERKIN/galerkinP.h"
 #include "GALERKIN/basisgalerkin.h"

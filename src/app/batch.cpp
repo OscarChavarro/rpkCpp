@@ -9,7 +9,7 @@
 #include "shared/options.h"
 #include "shared/canvas.h"
 #include "shared/render.h"
-#include "common/FileUncompressWrapper.h"
+#include "io/FileUncompressWrapper.h"
 #include "raycasting/common/Raytracer.h"
 #include "app/batch.h"
 

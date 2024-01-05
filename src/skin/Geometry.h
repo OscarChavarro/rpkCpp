@@ -2,7 +2,7 @@
 #define __GEOMETRY__
 
 #include "java/util/ArrayList.h"
-#include "common/bounds.h"
+#include "bounds.h"
 #include "material/hit.h"
 #include "MeshSurface.h"
 #include "geomlist.h"

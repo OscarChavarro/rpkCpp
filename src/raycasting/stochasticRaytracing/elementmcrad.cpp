@@ -3,7 +3,7 @@
 #include "common/error.h"
 #include "material/statistics.h"
 #include "skin/Vertex.h"
-#include "skin/patch.h"
+#include "skin/Patch.h"
 #include "skin/Geometry.h"
 #include "skin/vertexlist.h"
 #include "shared/render.h"

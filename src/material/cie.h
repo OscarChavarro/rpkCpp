@@ -1,5 +1,5 @@
 /*
-converts MGF color specification into our representation of colors.
+converts mgf color specification into our representation of colors.
 */
 
 #ifndef _CIE_H_

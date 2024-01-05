@@ -4,7 +4,7 @@
 #include "skin/Geometry.h"
 #include "shared/render.h"
 #include "shared/camera.h"
-#include "IMAGE/tonemapping.h"
+#include "IMAGE/tonemap/tonemapping.h"
 #include "GALERKIN/elementgalerkin.h"
 #include "GALERKIN/galerkinP.h"
 #include "GALERKIN/basisgalerkin.h"

@@ -5,7 +5,7 @@
 #include "common/error.h"
 #include "scene/scene.h"
 #include "skin/Vertex.h"
-#include "skin/patch.h"
+#include "skin/Patch.h"
 #include "shared/render.h"
 #include "raycasting/common/Raytracer.h"
 #include "raycasting/common/raytools.h"

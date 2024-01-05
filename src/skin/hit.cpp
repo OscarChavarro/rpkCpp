@@ -1,6 +1,6 @@
-#include "material/material.h"
+#include "material/Material.h"
 #include "material/hit.h"
-#include "skin/patch.h"
+#include "skin/Patch.h"
 
 int
 HitInitialised(HITREC *hit) {

@@ -4,7 +4,7 @@
 #ifndef _ELEMENT_H_
 #define _ELEMENT_H_
 
-#include "skin/patch.h"
+#include "skin/Patch.h"
 #include "GALERKIN/interactionlist.h"
 #include "common/linealAlgebra/Matrix2x2.h"
 #include "common/linealAlgebra/Matrix4x4.h"

@@ -7,7 +7,7 @@ Some utility routines for ray intersections and for statistics
 
 #include "common/Ray.h"
 #include "material/bsdf.h"
-#include "skin/patch.h"
+#include "skin/Patch.h"
 #include "raycasting/common/pathnode.h"
 
 extern HITREC *FindRayIntersection(Ray *ray, PATCH *patch, BSDF *currentBsdf, HITREC *hitstore);

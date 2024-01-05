@@ -28,7 +28,7 @@ bool CKernel2D::IsInside(const Vector2D &point, const Vector2D &center) {
     float f;
 
     // Use square norm, faster...
-    VEC2DSUBTRACT(point, center, d);
+    VEC2DDIFF(point, center, d);
     f = VEC2DNORM2(d);
 
     return (f < m_h2);
@@ -43,7 +43,7 @@ float CKernel2D::Evaluate(const Vector2D &point,
     // Epanechnikov kernel
 
     // Find distance
-    VEC2DSUBTRACT(point, center, aux);
+    VEC2DDIFF(point, center, aux);
     tp = VEC2DNORM2(aux);
 
     if ( tp < m_h2 ) {

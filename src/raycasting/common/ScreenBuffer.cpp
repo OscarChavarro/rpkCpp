@@ -4,8 +4,8 @@
 #include "common/error.h"
 #include "shared/render.h"
 #include "material/statistics.h"
-#include "common/FileUncompressWrapper.h"
-#include "IMAGE/tonemapping.h"
+#include "io/FileUncompressWrapper.h"
+#include "IMAGE/tonemap/tonemapping.h"
 #include "raycasting/common/ScreenBuffer.h"
 
 /* Constructor : make an screen buffer from a camera definition. */

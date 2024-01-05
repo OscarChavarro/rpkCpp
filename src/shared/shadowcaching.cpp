@@ -1,6 +1,6 @@
 #include "material/statistics.h"
-#include "skin/patch.h"
-#include "scene/grid.h"
+#include "skin/Patch.h"
+#include "scene/VoxelGrid.h"
 #include "scene/scene.h"
 #include "shared/shadowcaching.h"
 

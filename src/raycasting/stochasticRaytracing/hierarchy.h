@@ -27,14 +27,10 @@ typedef LINK *(*REFINE_ACTION)(LINK *link,
                                ELEMENT *rcvtop, double *ur, double *vr,
                                ELEMENT *srctop, double *us, double *vs);
 
-/* special refinement action used to indicate that a link is admissable */
-extern LINK *DontRefine(LINK *, ELEMENT *, double *, double *,
-                        ELEMENT *, double *, double *);
-
 /* A refinement oracle evaluates whether or not the given candidate
  * link is admissable for light transport. It returns a refinement action 
  * that will refine the link if necessary. If the link is admissable, it
- * returns the special action 'DontRefine' which does nothing. */
+ * returns the special action 'dontRefine' which does nothing. */
 typedef REFINE_ACTION (*ORACLE)(LINK *link);
 
 /* Wellknown power-based refinement oracle (Hanrahan'91, with importance
