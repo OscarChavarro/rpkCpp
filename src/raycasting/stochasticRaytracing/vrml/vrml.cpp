@@ -289,9 +289,9 @@ static void WriteMaterial(Geometry *geom) {
 
     InitHit(&hit, first_patch, (Geometry *) nullptr, &first_patch->midpoint, &first_patch->normal, mat, 0.);
     Rd = BsdfScatteredPower(mat->bsdf, &hit, &first_patch->normal, BRDF_DIFFUSE_COMPONENT);
-    ColorToRGB(Rd, &rd);
+    convertColorToRGB(Rd, &rd);
     Rs = BsdfScatteredPower(mat->bsdf, &hit, &first_patch->normal, BRDF_GLOSSY_COMPONENT | BRDF_SPECULAR_COMPONENT);
-    ColorToRGB(Rs, &rs);
+    convertColorToRGB(Rs, &rs);
     specularity = 128.;
 
     fprintf(vrmlfp, "      appearance Appearance {\n");

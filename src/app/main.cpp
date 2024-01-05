@@ -233,7 +233,7 @@ RenderingDefaults() {
     renderopts.draw_cameras = false;
     renderopts.camsize = 0.25;
     renderopts.linewidth = 1.0;
-    renderopts.camera_color = Yellow;
+    renderopts.camera_color = GLOBAL_material_yellow;
 
     renderopts.render_raytraced_image = false;
     renderopts.use_background = true;

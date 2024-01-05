@@ -24,7 +24,7 @@ PrintStats() {
     fprintf(stderr, "%g secs., total radiance rays = %ld",
             mcr.cpu_secs, mcr.traced_rays);
     fprintf(stderr, ", total flux = ");
-    ColorPrint(stderr, mcr.total_flux);
+    mcr.total_flux.print(stderr);
     if ( mcr.importance_driven ) {
         fprintf(stderr, "\ntotal importance rays = %ld, total importance = %g, GLOBAL_statistics_totalArea = %g",
                 mcr.imp_traced_rays, mcr.total_ymp, GLOBAL_statistics_totalArea);
@@ -232,7 +232,7 @@ DetermineGatheringControlRadiosity() {
 
     COLORDIV(c1, c2, cr);
     fprintf(stderr, "Control radiosity value = ");
-    ColorPrint(stderr, cr);
+    cr.print(stderr);
     fprintf(stderr, ", luminosity = %g\n", ColorLuminance(cr));
 
     return cr;

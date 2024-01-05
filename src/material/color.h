@@ -1,16 +1,21 @@
-#ifndef _RPK_COLOR_H_
-#define _RPK_COLOR_H_
+#ifndef __COLOR__
+#define __COLOR__
 
-#include "material/cie.h"
 #include "material/spectrum.h"
+#include "material/cie.h"
 #include "material/rgb.h"
 
 class COLOR {
   public:
     SPECTRUM spec;
+    COLOR() : spec() {}
+
+    inline void
+    print(FILE *fp) {
+        PrintSpectrum(fp, spec);
+    }
 };
 
-#define ColorPrint(fp, c)        PrintSpectrum(fp, (c).spec)
 #define COLORCLEAR(c)            ClearSpectrum((c).spec)
 #define COLORSET(c, v1, v2, v3)        SetSpectrum((c).spec, v1, v2, v3)
 #define COLORSETMONOCHROME(c, v)    SetSpectrumMonochrome((c).spec, v)
@@ -40,9 +45,16 @@ class COLOR {
 #define COLORINTERPOLATEBILINEAR(c0, c1, c2, c3, u, v, c) \
   SpectrumInterpolateBilinear(c0.spec, c1.spec, c2.spec, c3.spec, u, v, (c).spec)
 
-/* Converts from color representation used for radiance etc...
- * to display RGB colors */
-extern RGB *ColorToRGB(COLOR col, RGB *rgb);
-extern COLOR *RGBToColor(RGB rgb, COLOR *col);
+inline void
+printCoefficients(FILE *fileDescriptor, COLOR *c, char n) {
+    c[0].print(fileDescriptor);
+    for ( int i = 1; i < n; i++ ) {
+        fprintf(fileDescriptor, ", ");
+        (c)[i].print(fileDescriptor);
+    }
+}
+
+extern RGB *convertColorToRGB(COLOR col, RGB *rgb);
+extern COLOR *convertRGBToColor(RGB rgb, COLOR *col);
 
 #endif

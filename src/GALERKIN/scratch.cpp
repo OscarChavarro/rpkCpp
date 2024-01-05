@@ -5,7 +5,7 @@
 #include "skin/Geometry.h"
 #include "GALERKIN/galerkinP.h"
 #include "GALERKIN/scratch.h"
-#include "GALERKIN/clustergalerkin.h"
+#include "GALERKIN/clustergalerkincpp.h"
 
 /* create a scratch software renderer for various operations on clusters. */
 void ScratchInit() {
@@ -89,7 +89,7 @@ float *ScratchRenderElementPtrs(ELEMENT *clus, Vector3D eye) {
     /* Render element pointers in the scratch frame buffer. */
     eyep = eye;    /* needed for backface culling test */
     sglClear((SGL_PIXEL) nullptr, SGL_ZMAX);
-    IterateOverSurfaceElementsInCluster(clus, ScratchRenderElementPtr);
+    iterateOverSurfaceElementsInCluster(clus, ScratchRenderElementPtr);
 
     sglMakeCurrent(prev_sgl_context);
     return bbx;

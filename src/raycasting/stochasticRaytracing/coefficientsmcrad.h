@@ -1,9 +1,10 @@
 /* coefficients.h: macro's to manipulate radiance coefficients. */
 
-#ifndef _COEFFICIENTS_H_
-#define _COEFFICIENTS_H_
+#ifndef __COEFFICIENTS__
+#define __COEFFICIENTS__
 
 #include "material/color.h"
+#include "raycasting/stochasticRaytracing/basismcrad.h"
 
 #define CLEARCOEFFICIENTS(c, basis) {int _i, _n=basis->size; COLOR *_c;    \
   for (_i=0, _c=(c); _i<_n; _i++, _c++) COLORCLEAR(*_c);        \
@@ -28,12 +29,19 @@
     COLORPROD(_col, *_d, *_d); \
 }}
 
-#define PRINTCOEFFICIENTS(fp, c, basis) {int _i, _n=basis->size;        \
-  if (_n>0) ColorPrint(fp, (c)[0]);                    \
-  for (_i=1; _i<_n; _i++) {                        \
-    fprintf(fp, ", ");                            \
-    ColorPrint(fp, (c)[_i]);                        \
-  }}
+inline void
+stochasticRaytracingPrintCoefficients(FILE *fp, COLOR *c, GalerkinBasis *basis) {
+    int _i;
+    int _n = basis->size;
+
+    if ( _n > 0 ) {
+        c[0].print(fp);
+    }
+    for (_i=1; _i<_n; _i++) {
+        fprintf(fp, ", ");
+        (c)[_i].print(fp);
+    }
+}
 
 /* basically sets rad...  to nullptr */
 extern void InitCoefficients(ELEMENT *elem);

@@ -75,7 +75,7 @@ static bool SpikeCheck(COLOR col) {
 
     if ( ISNAN(colAvg)) {
         printf("COL ");
-        ColorPrint(stdout, col);
+        col.print(stdout);
         printf("\n");
         return true;
     }

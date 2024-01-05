@@ -166,7 +166,7 @@ COLOR DetermineControlRadiosity(COLOR *(*GetRadiance)(ELEMENT *),
 
     COLORADD(minRad, maxRad, beta);
     COLORSCALE(0.5, beta, beta);
-    ColorPrint(stderr, beta);
+    beta.print(stderr);
     fprintf(stderr, " (%g lux)", M_PI * ColorLuminance(beta));
     fprintf(stderr, "\n");
     return beta;

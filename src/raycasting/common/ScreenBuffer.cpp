@@ -70,7 +70,7 @@ ScreenBuffer::Init(CAMERA *cam) {
     // Clear
     for ( i = 0; i < m_cam.hres * m_cam.vres; i++ ) {
         COLORSETMONOCHROME(m_Radiance[i], 0.);
-        m_RGB[i] = Black;
+        m_RGB[i] = GLOBAL_material_black;
     }
 
     m_Factor = 1.0;
@@ -268,7 +268,7 @@ ScreenBuffer::Sync() {
         if ( !IsRGBImage()) {
             RadianceToRGB(tmpRad, &m_RGB[i]);
         } else {
-            ColorToRGB(tmpRad, &m_RGB[i]);
+            convertColorToRGB(tmpRad, &m_RGB[i]);
         }
     }
 
@@ -286,7 +286,7 @@ ScreenBuffer::SyncLine(int lineNumber) {
         if ( !IsRGBImage()) {
             RadianceToRGB(tmpRad, &m_RGB[lineNumber * m_cam.hres + i]);
         } else {
-            ColorToRGB(tmpRad, &m_RGB[lineNumber * m_cam.hres + i]);
+            convertColorToRGB(tmpRad, &m_RGB[lineNumber * m_cam.hres + i]);
         }
     }
 }

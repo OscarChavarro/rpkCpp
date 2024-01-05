@@ -9,6 +9,7 @@
 #include "shared/render.h"
 #include "raycasting/stochasticRaytracing/mcradP.h"
 #include "raycasting/stochasticRaytracing/hierarchy.h"
+#include "raycasting/stochasticRaytracing/coefficientsmcrad.h"
 
 static ELEMENT *CreateClusterHierarchyRecursive(Geometry *world);
 
@@ -847,17 +848,17 @@ PrintElement(FILE *out, ELEMENT *elem) {
         fprintf(out, "Element range: %d bits, msb1 = %016llx, rmsb2 = %016llx\n", nbits, msb1, rmsb2);
     }
     fprintf(out, "rad = ");
-    PRINTRAD(out, elem->rad, elem->basis);
+    stochasticRaytracingPrintCoefficients(out, elem->rad, elem->basis);
     fprintf(out, ", luminosity = %g\n", ColorLuminance(elem->rad[0]) * M_PI);
 
     fprintf(out, "unshot rad = ");
-    PRINTRAD(out, elem->unshot_rad, elem->basis);
+    stochasticRaytracingPrintCoefficients(out, elem->unshot_rad, elem->basis);
     fprintf(out, ", luminosity = %g\n", ColorLuminance(elem->unshot_rad[0]) * M_PI);
     fprintf(out, "received rad = ");
-    PRINTRAD(out, elem->received_rad, elem->basis);
+    stochasticRaytracingPrintCoefficients(out, elem->received_rad, elem->basis);
     fprintf(out, ", luminosity = %g\n", ColorLuminance(elem->received_rad[0]) * M_PI);
     fprintf(out, "source rad = ");
-    ColorPrint(out, elem->source_rad);
+    elem->source_rad.print(out);
     fprintf(out, ", luminosity = %g\n", ColorLuminance(elem->source_rad) * M_PI);
     fprintf(out, "ray index = %d\n", (unsigned) elem->ray_index);
     fprintf(out, "imp = %g, unshot_imp = %g, received_imp = %g, source_imp = %g\n",

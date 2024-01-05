@@ -107,7 +107,7 @@ ScreenIterateProgressive(SCREENITERATECALLBACK callback, void *data) {
     rgb = new RGB[width * height]; // We need a full screen !
 
     for ( i = 0; i < width * height; i++ ) {
-        rgb[i] = Black;
+        rgb[i] = GLOBAL_material_black;
     }
 
     stepsize = 64;

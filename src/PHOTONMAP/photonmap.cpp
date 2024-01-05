@@ -43,7 +43,7 @@ COLOR GetFalseColor(float val) {
     if ( pmapstate.falseColMono ) {
         tmp = GetFalseMonochrome(val);
         RGBSET(rgb, tmp, tmp, tmp);
-        RGBToColor(rgb, &col);
+        convertRGBToColor(rgb, &col);
         return col;
     }
 
@@ -73,7 +73,7 @@ COLOR GetFalseColor(float val) {
     }
 
     RGBSET(rgb, r, g, b);
-    RGBToColor(rgb, &col);
+    convertRGBToColor(rgb, &col);
 
     return col;
 }
@@ -553,16 +553,16 @@ static void CPhotonMapGetGrid(Vector3D *pos, COORDSYS *coord,
 
     COLOR colg, colr, colb;
 
-    RGBToColor(Green, &colg);
-    RGBToColor(Red, &colr);
-    RGBToColor(Blue, &colb);
+    convertRGBToColor(GLOBAL_material_green, &colg);
+    convertRGBToColor(GLOBAL_material_red, &colr);
+    convertRGBToColor(GLOBAL_material_blue, &colb);
 
     COLOR dest = colb;
 
     COLORADDSCALED(colb, phi / (2 * M_PI), colr, dest);
     COLORADDSCALED(dest, theta / (M_PI), colg, dest);
 
-    ColorToRGB(dest, color);
+    convertColorToRGB(dest, color);
     *distance = 0.1 * pm->GetGridValue(phi, theta);
 }
 

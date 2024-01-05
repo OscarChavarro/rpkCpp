@@ -456,8 +456,6 @@ double CLeSpar::ComputeWeightTerms(TPathGroupID,
 
     COLORCLEAR(col);
 
-    //ColorPrint(stdout, col);
-
     COLORCLIPPOSITIVE(col, col);
 
     Sl = sumAl * COLORAVERAGE(col);
@@ -468,15 +466,11 @@ double CLeSpar::ComputeWeightTerms(TPathGroupID,
 
     Se = COLORAVERAGE(col) * L2L1pdf;
 
-    //printf("Sl %g, Se %g\n", Sl, Se);
-
     // pdfAcc for the path
 
     pdfAcc = path->EvalPDFAcc();
 
     pdfAcc /= L1->m_pdfFromPrev; // this pdf can be dependent on L0 !
-
-    //  printf("pdfAcc %g\n", pdfAcc);
 
     // now compute the weight of the current path pdf
 
@@ -988,9 +982,6 @@ COLOR CIDSpar::HandlePath(CSparConfig *sconfig,
             double wp;
 
             result = EvalFunction(&m_contrib[DISJUNCTGROUP], path);
-
-            //     ColorPrint(stdout, result);
-            //     printf(", Size : %i\n", path->m_eyeSize);
 
             wp = EvalPDFAndWeight(sconfig, path);
 

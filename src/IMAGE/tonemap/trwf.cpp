@@ -315,7 +315,7 @@ static COLOR Ferwerda_ScaleForComputations(COLOR radiance) {
     COLORSCALE(eff, radiance, radiance);
 
     /* Compute the scotopic grayscale shift */
-    ColorToRGB(radiance, &p);
+    convertColorToRGB(radiance, &p);
     sl = f_sm_comp * f_msf * (p.r * f_sf.r + p.g * f_sf.g + p.b * f_sf.b);
 
     /* Scale the photopic luminance */
@@ -336,7 +336,7 @@ static COLOR Ferwerda_ScaleForDisplay(COLOR radiance) {
     COLORSCALE(eff, radiance, radiance);
 
     /* Compute the scotopic grayscale shift */
-    ColorToRGB(radiance, &p);
+    convertColorToRGB(radiance, &p);
     sl = f_sm_disp * f_msf * (p.r * f_sf.r + p.g * f_sf.g + p.b * f_sf.b);
 
     /* Scale the photopic luminance */

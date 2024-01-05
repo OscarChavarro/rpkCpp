@@ -89,25 +89,25 @@ PHONG_BTDF *PhongBtdfCreate(COLOR *Kd, COLOR *Ks, double Ns, double nr, double n
 /* prints data for Phong-type edf, ... to the file pointed to by 'out' */
 static void PhongEdfPrint(FILE *out, PHONG_EDF *edf) {
     fprintf(out, "Phong Edf: Kd = ");
-    ColorPrint(out, edf->Kd);
+    edf->Kd.print(out);
     fprintf(out, ", Ks = ");
-    ColorPrint(out, edf->Ks);
+    edf->Ks.print(out);
     fprintf(out, ", Ns = %g\n", edf->Ns);
 }
 
 static void PhongBrdfPrint(FILE *out, PHONG_BRDF *brdf) {
     fprintf(out, "Phong Brdf: Kd = ");
-    ColorPrint(out, brdf->Kd);
+    brdf->Kd.print(out);
     fprintf(out, ", Ks = ");
-    ColorPrint(out, brdf->Ks);
+    brdf->Ks.print(out);
     fprintf(out, ", Ns = %g\n", brdf->Ns);
 }
 
 static void PhongBtdfPrint(FILE *out, PHONG_BTDF *btdf) {
     fprintf(out, "Phong Btdf: Kd = ");
-    ColorPrint(out, btdf->Kd);
+    btdf->Kd.print(out);
     fprintf(out, ", Ks = ");
-    ColorPrint(out, btdf->Ks);
+    btdf->Ks.print(out);
     fprintf(out, ", Ns = %g, nr=%g, ni=%g\n", btdf->Ns, btdf->refrIndex.nr, btdf->refrIndex.ni);
 }
 

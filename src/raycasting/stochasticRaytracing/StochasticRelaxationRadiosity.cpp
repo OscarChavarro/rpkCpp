@@ -107,11 +107,11 @@ static void ElementIncrementRadiance(ELEMENT *elem, double w) {
 static void PrintIncrementalRadianceStats() {
     fprintf(stderr, "%g secs., radiance rays = %ld (%ld not to background), unshot flux = ",
             mcr.cpu_secs, mcr.traced_rays, mcr.traced_rays - mcr.nrmisses);
-    ColorPrint(stderr, mcr.unshot_flux);
+    mcr.unshot_flux.print(stderr);
     fprintf(stderr, ", total flux = ");
-    ColorPrint(stderr, mcr.total_flux);
+    mcr.total_flux.print(stderr);
     fprintf(stderr, ", indirect importance weighted unshot flux = ");
-    ColorPrint(stderr, mcr.imp_unshot_flux);
+    mcr.imp_unshot_flux.print(stderr);
     fprintf(stderr, "\n");
 }
 
@@ -264,7 +264,7 @@ static void PrintRegularStats() {
     fprintf(stderr, "%g secs., radiance rays = %ld (%ld not to background), unshot flux = ",
             mcr.cpu_secs, mcr.traced_rays, mcr.traced_rays - mcr.nrmisses);
     fprintf(stderr, ", total flux = ");
-    ColorPrint(stderr, mcr.total_flux);
+    mcr.total_flux.print(stderr);
     if ( mcr.importance_driven ) {
         fprintf(stderr, "\ntotal importance rays = %ld, total importance = %g, GLOBAL_statistics_totalArea = %g",
                 mcr.imp_traced_rays, mcr.total_ymp, GLOBAL_statistics_totalArea);

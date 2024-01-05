@@ -7,7 +7,7 @@
 #include "GALERKIN/galerkinP.h"
 #include "GALERKIN/formfactor.h"
 #include "GALERKIN/shaftculling.h"
-#include "GALERKIN/clustergalerkin.h"
+#include "GALERKIN/clustergalerkincpp.h"
 
 /* ************* Shaftculling stuff for hierarchical refinement *************** */
 
@@ -79,7 +79,7 @@ static void UnCull(GeometryListNode *ocandlist) {
 
 static double ColorToError(COLOR rad) {
     RGB rgb;
-    ColorToRGB(rad, &rgb);
+    convertColorToRGB(rad, &rgb);
     return RGBMAXCOMPONENT(rgb);
 }
 
@@ -129,7 +129,7 @@ static double ApproximationError(INTERACTION *link, COLOR srcrho, COLOR rcvrho, 
         case GAUSS_SEIDEL:
         case JACOBI:
             if ( IsCluster(link->src) && link->src != link->rcv ) {
-                srcrad = MaxClusterRadiance(link->src); /* SourceClusterRadiance(link); */
+                srcrad = maxClusterRadiance(link->src); /* sourceClusterRadiance(link); */
             } else {
                 srcrad = link->src->radiance[0];
             }
@@ -141,7 +141,7 @@ static double ApproximationError(INTERACTION *link, COLOR srcrho, COLOR rcvrho, 
 
         case SOUTHWELL:
             if ( IsCluster(link->src) && link->src != link->rcv ) {
-                srcrad = SourceClusterRadiance(link); /* returns unshot radiance for shooting */
+                srcrad = sourceClusterRadiance(link); /* returns unshot radiance for shooting */
             } else {
                 srcrad = link->src->unshot_radiance[0];
             }
@@ -204,7 +204,7 @@ static double SourceClusterRadianceVariationError(INTERACTION *link, COLOR rcvrh
     COLORSETMONOCHROME(maxsrcrad, -HUGE);
     for ( i = 0; i < nrcverts; i++ ) {
         COLOR rad;
-        rad = ClusterRadianceToSamplePoint(link->src, rcverts[i]);
+        rad = clusterRadianceToSamplePoint(link->src, rcverts[i]);
         COLORMIN(minsrcrad, rad, minsrcrad);
         COLORMAX(maxsrcrad, rad, maxsrcrad);
     }
@@ -243,7 +243,7 @@ static INTERACTION_EVALUATION_CODE EvaluateInteraction(INTERACTION *link) {
      * and reflectivity. */
     if ( IsCluster(link->rcv)) {
         COLORSETMONOCHROME(rcvrho, 1.);
-        rcv_area = ReceiverClusterArea(link);
+        rcv_area = receiverClusterArea(link);
     } else {
         rcvrho = REFLECTIVITY(link->rcv->pog.patch);
         rcv_area = link->rcv->area;
@@ -315,12 +315,12 @@ static void ComputeLightTransport(INTERACTION *link) {
     }
 
     if ( IsCluster(link->src) && link->src != link->rcv ) {
-        avsrclusrad = SourceClusterRadiance(link);
+        avsrclusrad = sourceClusterRadiance(link);
         srcrad = &avsrclusrad;
     }
 
     if ( IsCluster(link->rcv) && link->src != link->rcv ) {
-        ClusterGatherRadiance(link, srcrad);
+        clusterGatherRadiance(link, srcrad);
     } else {
         rcvrad = link->rcv->received_radiance;
         if ( link->nrcv == 1 && link->nsrc == 1 ) {

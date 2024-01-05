@@ -366,7 +366,7 @@ PrintElement(FILE *out, ELEMENT *element) {
 
     if ( element->radiance ) {
         fprintf(out, "radiance = ");
-        PRINTCOEFFICIENTS(out, element->radiance, element->basis_size);
+        printCoefficients(out, element->radiance, element->basis_size);
         fprintf(out, "\n");
     } else {
         fprintf(out, "No radiance coefficients.\n");
@@ -374,7 +374,7 @@ PrintElement(FILE *out, ELEMENT *element) {
 
     if ( element->received_radiance ) {
         fprintf(out, "received_radiance = ");
-        PRINTCOEFFICIENTS(out, element->received_radiance, element->basis_size);
+        printCoefficients(out, element->received_radiance, element->basis_size);
         fprintf(out, "\n");
     } else {
         fprintf(out, "No received_radiance coefficients.\n");
@@ -382,7 +382,7 @@ PrintElement(FILE *out, ELEMENT *element) {
 
     if ( element->unshot_radiance ) {
         fprintf(out, "unshot_radiance = ");
-        PRINTCOEFFICIENTS(out, element->unshot_radiance, element->basis_size);
+        printCoefficients(out, element->unshot_radiance, element->basis_size);
         fprintf(out, "\n");
     } else {
         fprintf(out, "No unshot_radiance coefficients.\n");

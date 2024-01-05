@@ -108,7 +108,6 @@ extern STATE mcr;
 #define RECEIVED_RAD(patch)    (TOPLEVEL_ELEMENT(patch)->received_rad)
 
 #define BAS(patch)    (TOPLEVEL_ELEMENT(patch)->basis)
-#define PRINTRAD(out, rad, patch)    PRINTCOEFFICIENTS(out, rad, patch)
 
 #define SOURCE_RAD(patch)    (TOPLEVEL_ELEMENT(patch)->source_rad)
 #define RAY_INDEX(patch)    (TOPLEVEL_ELEMENT(patch)->ray_index)

@@ -241,7 +241,7 @@ static void RenderNormal(PATCH *p, VERTEX *v, float len) {
 
     if ( v && v->normal ) {
 
-        RenderSetColor(&Yellow);
+        RenderSetColor(&GLOBAL_material_yellow);
         VECTORSUMSCALED(*v->point, len, *v->normal, x);
         RenderLine(v->point, &x);
     }
@@ -265,7 +265,7 @@ void RenderPatchNormals(PATCH *patch) {
                   bbx[MAX_Z] - bbx[MIN_Z]);
         length = VECTORNORM(diagonal) / 20.;
 
-        RenderSetColor(&Yellow);
+        RenderSetColor(&GLOBAL_material_yellow);
 
         RenderNormal(patch, patch->vertex[0], length);
         RenderNormal(patch, patch->vertex[1], length);

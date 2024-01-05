@@ -18,7 +18,7 @@
 #include "GALERKIN/GalerkinRadiosity.h"
 #include "GALERKIN/galerkinP.h"
 #include "GALERKIN/basisgalerkin.h"
-#include "GALERKIN/clustergalerkin.h"
+#include "GALERKIN/clustergalerkincpp.h"
 #include "GALERKIN/scratch.h"
 
 GALERKIN_STATE GLOBAL_galerkin_state;
@@ -291,7 +291,7 @@ InitGalerkin() {
     PatchListIterate(GLOBAL_scene_patches, PatchInit);
 
     GLOBAL_galerkin_state.top_geom = GLOBAL_scene_clusteredWorldGeom;
-    GLOBAL_galerkin_state.top_cluster = GalerkinCreateClusterHierarchy(GLOBAL_galerkin_state.top_geom);
+    GLOBAL_galerkin_state.top_cluster = galerkinCreateClusterHierarchy(GLOBAL_galerkin_state.top_geom);
 
     /* create a scratch software renderer for various operations on clusters */
     ScratchInit();
@@ -343,7 +343,7 @@ DoGalerkinOneStep() {
 static void
 TerminateGalerkin() {
     ScratchTerminate();
-    GalerkinDestroyClusterHierarchy(GLOBAL_galerkin_state.top_cluster);
+    galerkinDestroyClusterHierarchy(GLOBAL_galerkin_state.top_cluster);
 }
 
 static COLOR

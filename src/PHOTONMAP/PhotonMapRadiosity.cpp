@@ -69,7 +69,7 @@ DestroyPatchData(PATCH *patch) {
 static void
 PatchComputeNewColor(PATCH *patch) {
     COLOR Rd = PatchAverageNormalAlbedo(patch, BRDF_DIFFUSE_COMPONENT);
-    ColorToRGB(Rd, &patch->color);
+    convertColorToRGB(Rd, &patch->color);
     PatchComputeVertexColors(patch);
 }
 

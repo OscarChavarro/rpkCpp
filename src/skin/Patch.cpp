@@ -418,7 +418,7 @@ void PatchPrint(FILE *out, PATCH *patch) {
         Ed = PatchAverageEmittance(patch, DIFFUSE_COMPONENT);
     }
     fprintf(out, ", reflectance = ");
-    ColorPrint(out, Rd);
+    Rd.print(out);
     fprintf(out, ", self-emitted luminosity = %g\n", ColorLuminance(Ed));
 
     fprintf(out, "color: ");

@@ -69,6 +69,6 @@ COLOR EvalTextureColor(TEXTURE *texture, float u, float v) {
            0.25 * (u0 * v0 * rgb00.r + u1 * v0 * rgb10.r + u0 * v1 * rgb01.r + u1 * v1 * rgb11.r),
            0.25 * (u0 * v0 * rgb00.g + u1 * v0 * rgb10.g + u0 * v1 * rgb01.g + u1 * v1 * rgb11.g),
            0.25 * (u0 * v0 * rgb00.b + u1 * v0 * rgb10.b + u0 * v1 * rgb01.b + u1 * v1 * rgb11.b));
-    RGBToColor(rgb, &col);
+    convertRGBToColor(rgb, &col);
     return col;
 }

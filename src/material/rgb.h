@@ -15,7 +15,7 @@ class RGB {
 };
 
 /* some RGB colors for e.g. debugging purposes */
-extern RGB Black, White, Green, Yellow, Red, Magenta, Blue, Turquoise;
+extern RGB GLOBAL_material_black, GLOBAL_material_white, GLOBAL_material_green, GLOBAL_material_yellow, GLOBAL_material_red, Magenta, GLOBAL_material_blue, Turquoise;
 
 inline int operator==(RGB rgb1, RGB rgb2)
 {

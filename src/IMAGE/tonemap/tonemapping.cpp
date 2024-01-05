@@ -261,7 +261,7 @@ COLOR *RescaleRadiance(COLOR in, COLOR *out) {
 
 RGB *RadianceToRGB(COLOR color, RGB *rgb) {
     RescaleRadiance(color, &color);
-    ColorToRGB(color, rgb);
+    convertColorToRGB(color, rgb);
     RGBCLIP(*rgb);
     return rgb;
 }

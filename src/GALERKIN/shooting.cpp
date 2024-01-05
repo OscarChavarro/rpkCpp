@@ -211,7 +211,7 @@ PropagateRadiance() {
         return true;
     }
 
-    RenderSetColor(&Yellow);
+    RenderSetColor(&GLOBAL_material_yellow);
     RenderPatchOutline(shooting_patch);
 
     DoPropagate(shooting_patch);
@@ -280,7 +280,7 @@ PropagatePotential() {
 
     shooting_patch = ChoosePotentialShootingPatch();
     if ( shooting_patch ) {
-        RenderSetColor(&White);
+        RenderSetColor(&GLOBAL_material_white);
         RenderPatchOutline(shooting_patch);
         DoPropagate(shooting_patch);
     } else {
