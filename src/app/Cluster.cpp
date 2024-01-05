@@ -23,20 +23,15 @@ Reference:
 Creates an empty cluster with initialized bounding box
 */
 Cluster::Cluster() {
-    int i;
-    BoundsInit(boundingBox);
-    VECTORSET(boundingBoxCentroid, 0.0, 0.0, 0.0);
-    patches = new java::ArrayList<PATCH *>();
-
-    for ( i = 0; i < 8; i++ ) {
-        children[i] = (Cluster *) nullptr;
-    }
+    commonBuild();
 }
 
 /**
 Creates a toplevel cluster. The patch list of the cluster contains all inPatches.
 */
 Cluster::Cluster(PatchSet *inPatches) {
+    commonBuild();
+
     patches = new java::ArrayList<PATCH *>();
     for ( PatchSet *window = inPatches; window != nullptr; window = window->next ) {
         PATCH *patch = window->patch;
@@ -50,14 +45,26 @@ Cluster::Cluster(PatchSet *inPatches) {
 }
 
 Cluster::~Cluster() {
+    // Can not delete the list since it is being transferred to geometry...
     for ( int i = 0; i < 8; i++ ) {
         if ( children[i] != nullptr ) {
-            delete children[i];
+            //delete children[i];
         }
     }
 
-    // Can not delete the list since it is being transferred to geometry...
     //delete patches; // Containing just reference to patches owned by external objects
+}
+
+void
+Cluster::commonBuild() {
+    int i;
+    BoundsInit(boundingBox);
+    VECTORSET(boundingBoxCentroid, 0.0, 0.0, 0.0);
+    patches = new java::ArrayList<PATCH *>();
+
+    for ( i = 0; i < 8; i++ ) {
+        children[i] = nullptr;
+    }
 }
 
 /**
@@ -70,11 +77,10 @@ void
 Cluster::clusterAddPatch(PATCH *patch) {
     BOUNDINGBOX patchBoundingBox;
 
-    if ( patch != nullptr) {
-        patches->add(patch);
+    if ( patch != nullptr ) {
+        patches->add(0, patch);
+        BoundsEnlarge(boundingBox, patch->bounds ? patch->bounds : PatchBounds(patch, patchBoundingBox));
     }
-
-    BoundsEnlarge(boundingBox, patch->bounds ? patch->bounds : PatchBounds(patch, patchBoundingBox));
 }
 
 /**
@@ -92,7 +98,7 @@ Cluster::clusterAddPatch(PATCH *patch) {
   able to efficiently remove parentClusterNode from the patch list of cluster
 */
 bool
-Cluster::clusterNewCheckMovePatch(int parentIndex) {
+Cluster::clusterMovePatch(int parentIndex) {
     // All patches that were added to the top cluster, which is being split now,
     // have a bounding box computed for them
     PATCH *patch = patches->get(parentIndex);
@@ -166,7 +172,7 @@ Cluster::splitCluster() {
 
     // Check and possibly move each of the patches in the cluster to a sub-cluster
     for ( i = 0; patches != nullptr && i < patches->size(); i++ ) {
-        if ( clusterNewCheckMovePatch(i) ) {
+        if ( clusterMovePatch(i) ) {
             i--;
         }
     }
@@ -207,7 +213,7 @@ Cluster::convertClusterToGeom() {
         thePatches = geomCreatePatchSetNew(patches, &GLOBAL_skin_patchListGeometryMethods);
     }
 
-    geometryListNode = nullptr /* empty list */;
+    geometryListNode = nullptr; // Empty list
     for ( i = 0; i < 8; i++ ) {
         Geometry *child = nullptr;
         if ( children[i] != nullptr ) {

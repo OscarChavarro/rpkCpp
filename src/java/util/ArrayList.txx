@@ -21,17 +21,20 @@ ArrayList<T>::add(T voxelData)
 }
 
 template <class T> void
-ArrayList<T>::add(long int pos, T voxelData)
+ArrayList<T>::add(long int pos, T elem)
 {
-    T last = get(size()-1);
+    T last = get(size() - 1);
     add(last);
     int i;
-    for ( i = size()-2; i > 0; i-- ) {
+    for ( i = size() - 1; i >= 1; i-- ) {
         if ( i == pos ) {
-            Data[i] = voxelData;
+            Data[i] = elem;
             break;
         }
-        Data[i] = Data[i-1];
+        Data[i] = Data[i - 1];
+    }
+    if ( i <= 0 ) {
+        Data[0] = elem;
     }
 }
 

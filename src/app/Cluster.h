@@ -12,7 +12,8 @@ private:
     Vector3D boundingBoxCentroid; // Mid-point of the bounding box
 
     Cluster();
-    bool clusterNewCheckMovePatch(int parentIndex);
+    void commonBuild();
+    bool clusterMovePatch(int parentIndex);
     void clusterAddPatch(PATCH *patch);
 
 public:
