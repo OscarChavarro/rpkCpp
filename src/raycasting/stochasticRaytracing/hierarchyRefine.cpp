@@ -48,7 +48,7 @@ subdivideReceiver(
         if ( !rcv->regular_subelements ) {
             McrRegularSubdivideElement(rcv);
         }
-        rcv = McrRegularSubelementAtPoint(rcv, ur, vr);
+        rcv = monteCarloRadiosityRegularSubElementAtPoint(rcv, ur, vr);
     }
     link->rcv = rcv;
     return link;
@@ -74,7 +74,7 @@ subdivideSource(
         if ( !src->regular_subelements ) {
             McrRegularSubdivideElement(src);
         }
-        src = McrRegularSubelementAtPoint(src, us, vs);
+        src = monteCarloRadiosityRegularSubElementAtPoint(src, us, vs);
     }
     link->src = src;
     return link;
@@ -93,8 +93,8 @@ linkInvolvingClusters(LINK *link) {
 static int
 disjunctElements(ELEMENT *rcv, ELEMENT *src) {
     BOUNDINGBOX rcvbounds, srcbounds;
-    ElementBounds(rcv, rcvbounds);
-    ElementBounds(src, srcbounds);
+    McrElementBounds(rcv, rcvbounds);
+    McrElementBounds(src, srcbounds);
     return DisjunctBounds(rcvbounds, srcbounds);
 }
 

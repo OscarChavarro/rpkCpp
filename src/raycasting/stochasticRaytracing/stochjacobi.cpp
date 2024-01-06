@@ -126,7 +126,7 @@ static void ElementClearAccumulators(ELEMENT *elem) {
  * sampling probabilities at leaf elements. */
 static void ElementSetup(ELEMENT *elem) {
     elem->prob = 0.;
-    if ( !ForAllChildrenElements(elem, ElementSetup)) {
+    if ( !McrForAllChildrenElements(elem, ElementSetup)) {
         /* elem is a leaf element. We need to compute the sum of the unnormalized
          * sampling "probabilities" at the leaf elements */
         elem->prob = Probability(elem);
@@ -308,12 +308,12 @@ static void RefineAndPropagate(ELEMENT *P, double up, double vp,
                                Ray *ray) {
     double src_prob;
     double us = up, vs = vp;
-    ELEMENT *src = RegularLeafElementAtPoint(P, &us, &vs);
+    ELEMENT *src = McrRegularLeafElementAtPoint(P, &us, &vs);
     src_prob = (double) src->prob / (double) src->area;
     if ( mcr.bidirectional_transfers ) {
         double rcv_prob;
         double ur = uq, vr = vq;
-        ELEMENT *rcv = RegularLeafElementAtPoint(Q, &ur, &vr);
+        ELEMENT *rcv = McrRegularLeafElementAtPoint(Q, &ur, &vr);
         rcv_prob = (double) rcv->prob / (double) rcv->area;
 
         if ( get_radiance ) {
@@ -414,7 +414,7 @@ static void ElementShootRay(ELEMENT *src,
 static void InitPushRayIndex(ELEMENT *elem) {
     elem->ray_index = elem->parent->ray_index;
     elem->imp_ray_index = elem->parent->imp_ray_index;
-    ForAllChildrenElements(elem, InitPushRayIndex);
+    McrForAllChildrenElements(elem, InitPushRayIndex);
 }
 
 /* determines nr of rays to shoot from elem and shoots this number of rays. */
@@ -433,7 +433,7 @@ static void ElementShootRays(ELEMENT *elem, int rays_this_elem) {
 
     if ( !ElementIsLeaf(elem)) {
         /* source got subdivided while shooting the rays */
-        ForAllChildrenElements(elem, InitPushRayIndex);
+        McrForAllChildrenElements(elem, InitPushRayIndex);
     }
 }
 
@@ -543,7 +543,7 @@ static void PushUpdatePull(ELEMENT *elem) {
         UpdateElement(elem);
     } else {    /* not a leaf element */
         ClearElement(elem);
-        ForAllChildrenElements(elem, PushUpdatePullChild);
+        McrForAllChildrenElements(elem, PushUpdatePullChild);
     }
 }
 
@@ -567,7 +567,7 @@ static void PullRdEd(ELEMENT *elem) {
 
     colorClear(elem->Ed);
     colorClear(elem->Rd);
-    ForAllChildrenElements(elem, PullRdEdFromChild);
+    McrForAllChildrenElements(elem, PullRdEdFromChild);
 }
 
 static void PushUpdatePullSweep() {

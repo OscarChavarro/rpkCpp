@@ -131,7 +131,7 @@ void ElementAdjustTVertexColors(ELEMENT *elem) {
     VERTEX *m[4];
     int i, n;
     for ( i = 0, n = 0; i < elem->nrvertices; i++ ) {
-        m[i] = EdgeMidpointVertex(elem, i);
+        m[i] = McrEdgeMidpointVertex(elem, i);
         if ( m[i] ) {
             n++;
         }
@@ -335,7 +335,7 @@ void ElementTVertexElimination(ELEMENT *elem,
     VERTEX *m[4];
     int i, n;
     for ( i = 0, n = 0; i < elem->nrvertices; i++ ) {
-        m[i] = EdgeMidpointVertex(elem, i);
+        m[i] = McrEdgeMidpointVertex(elem, i);
         if ( m[i] ) {
             n++;
         }
@@ -375,14 +375,15 @@ void RenderElementOutline(ELEMENT *elem) {
     }
 }
 
-void RenderElement(ELEMENT *elem) {
+void
+McrRenderElement(ELEMENT *elem) {
     Vector3D verts[4];
 
     if ( renderopts.smooth_shading && hierarchy.tvertex_elimination ) {
         VERTEX *m[4];
         int i, n;
         for ( i = 0, n = 0; i < elem->nrvertices; i++ ) {
-            m[i] = EdgeMidpointVertex(elem, i);
+            m[i] = McrEdgeMidpointVertex(elem, i);
             if ( m[i] ) {
                 n++;
             }

@@ -5,7 +5,6 @@
 
 #include "common/linealAlgebra/Matrix2x2.h"
 #include "QMC/niederreiter.h"
-#include "raycasting/stochasticRaytracing/translatenames.h"
 #include "raycasting/stochasticRaytracing/elementlistmcrad.h"
 #include "raycasting/stochasticRaytracing/basismcrad.h"
 

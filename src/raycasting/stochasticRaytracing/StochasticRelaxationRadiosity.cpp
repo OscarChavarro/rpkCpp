@@ -53,8 +53,8 @@ static long RandomRound(float x) {
 
 static void SrrRecomputeDisplayColors() {
     if ( hierarchy.topcluster ) {
-        ForAllLeafElements(hierarchy.topcluster, ElementComputeNewVertexColors);
-        ForAllLeafElements(hierarchy.topcluster, ElementAdjustTVertexColors);
+        McrForAllLeafElements(hierarchy.topcluster, ElementComputeNewVertexColors);
+        McrForAllLeafElements(hierarchy.topcluster, ElementAdjustTVertexColors);
     } else {
         PatchListIterate(GLOBAL_scene_patches, monteCarloRadiosityPatchComputeNewColor);
     }
@@ -322,7 +322,7 @@ static void ElementDiscardIncremental(ELEMENT *elem) {
     elem->quality = 0.;
 
     /* recurse */
-    ForAllChildrenElements(elem, ElementDiscardIncremental);
+    McrForAllChildrenElements(elem, ElementDiscardIncremental);
 }
 
 static void DiscardIncremental() {
@@ -390,7 +390,7 @@ static int SrrDoStep() {
 
 static void McrRenderPatch(PATCH *patch) {
     if ( mcr.inited ) {
-        McrForAllSurfaceLeafs(TOPLEVEL_ELEMENT(patch), RenderElement);
+        McrForAllSurfaceLeafs(TOPLEVEL_ELEMENT(patch), McrRenderElement);
     } else {
         RenderPatch(patch);
     }    /* not yet initialised */

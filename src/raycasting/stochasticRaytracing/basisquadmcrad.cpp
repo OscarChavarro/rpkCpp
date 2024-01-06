@@ -51,7 +51,7 @@ static double (*f[MAX_BASIS_SIZE])(double, double) =
 
 static FILTERTABLE h;  /* push-pull filter: computed in basis.c */
 
-GalerkinBasis quadBasis = {
+GalerkinBasis mcr_quadBasis = {
         "orthonormal basis on the unit square",    /* description */
         MAX_BASIS_SIZE,                /* size */
         f, f,            /* primary and dual canonical basis functions are equal */

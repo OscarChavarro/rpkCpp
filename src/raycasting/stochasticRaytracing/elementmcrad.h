@@ -32,13 +32,11 @@ extern ELEMENT *McrCreateClusterHierarchy(Geometry *world);
 
 extern void McrDestroyClusterHierarchy(ELEMENT *top);
 
-extern void PrintElement(FILE *out, ELEMENT *elem);
+extern void McrPrintElement(FILE *out, ELEMENT *elem);
 
-extern void ForAllLeafElements(ELEMENT *top, void (*func)(ELEMENT *));
+extern void McrForAllLeafElements(ELEMENT *top, void (*func)(ELEMENT *));
 
 extern void McrForAllSurfaceLeafs(ELEMENT *top, void (*func)(ELEMENT *));
-
-extern void ForAllClusterSurfaces(ELEMENT *top, void (*func)(ELEMENT *));
 
 /* returns true if top has children and returns false if top is a leaf element */
 extern int McrForAllChildrenElements(ELEMENT *top, void (*func)(ELEMENT *));
@@ -48,21 +46,20 @@ extern int ElementIsLeaf(ELEMENT *elem);
 
 extern void ElementRange(ELEMENT *elem, int *nbits, niedindex *msb1, niedindex *rmsb2);
 
-extern float *ElementBounds(ELEMENT *elem, float *bounds);
-
-extern int ElementVertices(ELEMENT *elem, Vector3D *p);
+extern float *McrElementBounds(ELEMENT *elem, float *bounds);
 
 extern ELEMENT *ClusterChildContainingElement(ELEMENT *parent, ELEMENT *descendant);
 
 extern ELEMENT **McrRegularSubdivideElement(ELEMENT *element);
 
-extern ELEMENT *McrRegularSubelementAtPoint(ELEMENT *parent, double *u, double *v);
+extern ELEMENT *monteCarloRadiosityRegularSubElementAtPoint(ELEMENT *parent, double *u, double *v);
 
-extern ELEMENT *RegularLeafElementAtPoint(ELEMENT *top, double *u, double *v);
+extern ELEMENT *McrRegularLeafElementAtPoint(ELEMENT *top, double *u, double *v);
 
 extern VERTEX *McrEdgeMidpointVertex(ELEMENT *elem, int edgenr);
 
-extern Matrix2x2 quadupxfm[4], triupxfm[4];
+extern Matrix2x2 mcr_quadupxfm[4];
+extern Matrix2x2 mcr_triupxfm[4];
 
 /* only for surface elements!! */
 extern int ElementIsTextured(ELEMENT *elem);
@@ -84,7 +81,7 @@ extern COLOR ElementDisplayRadiance(ELEMENT *elem);
 
 extern COLOR ElementDisplayRadianceAtPoint(ELEMENT *elem, double u, double v);
 
-extern void RenderElement(ELEMENT *elem);
+extern void McrRenderElement(ELEMENT *elem);
 
 extern void RenderElementOutline(ELEMENT *elem);
 

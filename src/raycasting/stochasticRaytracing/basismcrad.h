@@ -5,7 +5,6 @@
 
 #include "material/color.h"
 #include "raycasting/stochasticRaytracing/mcrad.h"
-#include "raycasting/stochasticRaytracing/translatenames.h"
 
 /* no basis consists of more than this number of basis functions */
 #define MAX_BASIS_SIZE    10
@@ -35,7 +34,9 @@ class GalerkinBasis {
 };
 
 /* bases for quadrilaterals and triangles, implemented in basis[quad|tri].c */
-extern GalerkinBasis triBasis, quadBasis, clusterBasis;
+extern GalerkinBasis mcr_triBasis;
+extern GalerkinBasis mcr_quadBasis;
+extern GalerkinBasis clusterBasis;
 
 #define NR_APPROX_TYPES 5
 enum APPROX_TYPE {

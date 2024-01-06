@@ -39,7 +39,7 @@ static ELEMENT *CreateClusterHierarchyRecursive(Geometry *world);
  *    0 +---------+---------+
  *      0        0.5        1   (u)
  */
-Matrix2x2 quadupxfm[4] = {
+Matrix2x2 mcr_quadupxfm[4] = {
         /* south-west [0,0.5] x [0,0.5] */
         {{{0.5, 0.0}, {0.0, 0.5}}, {0.0, 0.0}},
 
@@ -70,7 +70,7 @@ Matrix2x2 quadupxfm[4] = {
  *   0 +---------+---------+
  *     0        0.5        1  (u)
  */
-Matrix2x2 triupxfm[4] = {
+Matrix2x2 mcr_triupxfm[4] = {
         /* left: (0,0),(0.5,0),(0,0.5) */
         {{{0.5,  0.0}, {0.0, 0.5}},  {0.0, 0.0}},
 
@@ -250,7 +250,7 @@ CreateClusterHierarchyRecursive(Geometry *world) {
 }
 
 ELEMENT *
-CreateClusterHierarchy(Geometry *world) {
+McrCreateClusterHierarchy(Geometry *world) {
     if ( !world ) {
         return (ELEMENT *) nullptr;
     } else {
@@ -295,7 +295,7 @@ element. Returns the parent element itself if there are no regular subelements.
 The point is transformed to the corresponding point on the subelement
 */
 ELEMENT *
-RegularSubelementAtPoint(ELEMENT *parent, double *u, double *v) {
+monteCarloRadiosityRegularSubElementAtPoint(ELEMENT *parent, double *u, double *v) {
     ELEMENT *child = (ELEMENT *) nullptr;
     double _u = *u, _v = *v;
 
@@ -356,13 +356,13 @@ RegularSubelementAtPoint(ELEMENT *parent, double *u, double *v) {
  * coordinates!). (u,v) is transformed to the coordinates of the corresponding
  * point on the leaf element. 'top' is a surface element, not a cluster. */
 ELEMENT *
-RegularLeafElementAtPoint(ELEMENT *top, double *u, double *v) {
+McrRegularLeafElementAtPoint(ELEMENT *top, double *u, double *v) {
     ELEMENT *leaf;
 
     /* find leaf element of 'top' at (u,v) */
     leaf = top;
     while ( leaf->regular_subelements ) {
-        leaf = RegularSubelementAtPoint(leaf, u, v);
+        leaf = monteCarloRadiosityRegularSubElementAtPoint(leaf, u, v);
     }
 
     return leaf;
@@ -449,7 +449,7 @@ ElementNeighbour(ELEMENT *elem, int edgenr) {
 }
 
 VERTEX *
-EdgeMidpointVertex(ELEMENT *elem, int edgenr) {
+McrEdgeMidpointVertex(ELEMENT *elem, int edgenr) {
     VERTEX *v = (VERTEX *) nullptr,
             *to = elem->vertex[(edgenr + 1) % elem->nrvertices];
     ELEMENT *neighbour = ElementNeighbour(elem, edgenr);
@@ -509,8 +509,9 @@ EdgeMidpointVertex(ELEMENT *elem, int edgenr) {
     return v;
 }
 
-static VERTEX *NewEdgeMidpointVertex(ELEMENT *elem, int edgenr) {
-    VERTEX *v = EdgeMidpointVertex(elem, edgenr);
+static VERTEX *
+NewEdgeMidpointVertex(ELEMENT *elem, int edgenr) {
+    VERTEX *v = McrEdgeMidpointVertex(elem, edgenr);
     if ( !v ) { /* first time we split the edge, create the midpoint vertex */
         VERTEX *from = elem->vertex[edgenr],
                 *to = elem->vertex[(edgenr + 1) % elem->nrvertices];
@@ -649,7 +650,7 @@ CreateSurfaceSubelement(
 
     elem->parent = parent;
     elem->child_nr = childnr;
-    elem->uptrans = elem->nrvertices == 3 ? &triupxfm[childnr] : &quadupxfm[childnr];
+    elem->uptrans = elem->nrvertices == 3 ? &mcr_triupxfm[childnr] : &mcr_quadupxfm[childnr];
 
     allocCoefficients(elem);
     stochasticRadiosityClearCoefficients(elem->rad, elem->basis);
@@ -728,7 +729,7 @@ RegularSubdivideQuad(ELEMENT *element) {
   done so before. Returns the list of created subelements.
   ------------------------------------------------------------------------- */
 ELEMENT **
-RegularSubdivideElement(ELEMENT *element) {
+McrRegularSubdivideElement(ELEMENT *element) {
     if ( element->regular_subelements ) {
         return element->regular_subelements;
     }
@@ -800,19 +801,19 @@ DestroySurfaceElement(ELEMENT *elem) {
 }
 
 void
-DestroyToplevelSurfaceElement(ELEMENT *elem) {
+McrDestroyToplevelSurfaceElement(ELEMENT *elem) {
     DestroySurfaceElement(elem);
 }
 
 void
-DestroyClusterHierarchy(ELEMENT *top) {
+McrDestroyClusterHierarchy(ELEMENT *top) {
     if ( !top || !top->iscluster ) {
         return;
     }
     ForAllIrregularSubelements(child, top)
                 {
                     if ( child->iscluster )
-                        DestroyClusterHierarchy(child);
+                        McrDestroyClusterHierarchy(child);
                 }
     EndForAll;
     DestroyElement(top);
@@ -828,7 +829,7 @@ TestPrintVertex(FILE *out, int i, VERTEX *v) {
 }
 
 void
-PrintElement(FILE *out, ELEMENT *elem) {
+McrPrintElement(FILE *out, ELEMENT *elem) {
     fprintf(out, "Element id %ld:\n", elem->id);
     fprintf(out, "Vertices: ");
     TestPrintVertex(out, 0, elem->vertex[0]);
@@ -870,7 +871,7 @@ PrintElement(FILE *out, ELEMENT *elem) {
 
 /* returns true if there are children elements and false if top is nullptr or a leaf element */
 int
-ForAllChildrenElements(ELEMENT *top, void (*func)(ELEMENT *)) {
+McrForAllChildrenElements(ELEMENT *top, void (*func)(ELEMENT *)) {
     if ( !top ) {
         return false;
     }
@@ -891,18 +892,18 @@ ForAllChildrenElements(ELEMENT *top, void (*func)(ELEMENT *)) {
 }
 
 void
-ForAllLeafElements(ELEMENT *top, void (*func)(ELEMENT *)) {
+McrForAllLeafElements(ELEMENT *top, void (*func)(ELEMENT *)) {
     if ( !top ) {
         return;
     }
 
     if ( top->iscluster ) {
         ForAllIrregularSubelements(p, top)
-                    ForAllLeafElements(p, func);
+                    McrForAllLeafElements(p, func);
         EndForAll;
     } else if ( top->regular_subelements ) {
         ForAllRegularSubelements(p, top)
-                    ForAllLeafElements(p, func);
+                    McrForAllLeafElements(p, func);
         EndForAll;
     } else {
         func(top);
@@ -910,17 +911,7 @@ ForAllLeafElements(ELEMENT *top, void (*func)(ELEMENT *)) {
 }
 
 void
-ForAllClusterSurfaces(ELEMENT *top,
-                           void (*func)(ELEMENT *)) {
-    REC_ForAllClusterSurfaces(surf, top)
-            {
-                func(surf);
-            }
-    REC_EndForAllClusterSurfaces;
-}
-
-void
-ForAllSurfaceLeafs(ELEMENT *top,
+McrForAllSurfaceLeafs(ELEMENT *top,
                         void (*func)(ELEMENT *)) {
     REC_ForAllSurfaceLeafs(leaf, top)
             {
@@ -934,36 +925,11 @@ ElementIsLeaf(ELEMENT *elem) {
     return (!elem->regular_subelements && !elem->irregular_subelements);
 }
 
-/* Computes the vertices of a surface element (3 or 4 vertices) or
- * cluster element (8 vertices). The number of vertices is returned. */
-int
-ElementVertices(ELEMENT *elem, Vector3D *p) {
-    if ( elem->iscluster ) {
-        float *vol = geomBounds(elem->pog.geom);
-
-        VECTORSET(p[0], vol[MIN_X], vol[MIN_Y], vol[MIN_Z]);
-        VECTORSET(p[1], vol[MIN_X], vol[MIN_Y], vol[MAX_Z]);
-        VECTORSET(p[2], vol[MIN_X], vol[MAX_Y], vol[MIN_Z]);
-        VECTORSET(p[3], vol[MIN_X], vol[MAX_Y], vol[MAX_Z]);
-        VECTORSET(p[4], vol[MAX_X], vol[MIN_Y], vol[MIN_Z]);
-        VECTORSET(p[5], vol[MAX_X], vol[MIN_Y], vol[MAX_Z]);
-        VECTORSET(p[6], vol[MAX_X], vol[MAX_Y], vol[MIN_Z]);
-        VECTORSET(p[7], vol[MAX_X], vol[MAX_Y], vol[MAX_Z]);
-
-        return 8;
-    } else {
-        ForAllVerticesOfElement(v, elem)
-                    {
-                        *p++ = *(v->point);
-                    }
-        EndForAll;
-        return elem->nrvertices;
-    }
-}
-
-/* Computes and fills in a bounding box for the element. */
+/**
+Computes and fills in a bounding box for the element
+*/
 float *
-ElementBounds(ELEMENT *elem, float *bounds) {
+McrElementBounds(ELEMENT *elem, float *bounds) {
     if ( elem->iscluster ) {
         BoundsCopy(elem->pog.geom->bounds, bounds);
     } else if ( !elem->uptrans ) {

@@ -10,7 +10,7 @@
 
 static void
 RwrPrintPatchData(FILE *out, PATCH *patch) {
-    PrintElement(out, TOPLEVEL_ELEMENT(patch));
+    McrPrintElement(out, TOPLEVEL_ELEMENT(patch));
 }
 
 static void

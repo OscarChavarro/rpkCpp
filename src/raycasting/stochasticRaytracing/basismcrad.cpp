@@ -34,17 +34,17 @@ APPROXDESC approxdesc[NR_APPROX_TYPES] = {
 };
 
 static GalerkinBasis MakeBasis(ELEMENT_TYPE et, APPROX_TYPE at) {
-    GalerkinBasis basis = quadBasis;
+    GalerkinBasis basis = mcr_quadBasis;
     char desc[100];
     const char *elem = nullptr;
 
     switch ( et ) {
         case ET_TRIANGLE:
-            basis = triBasis;
+            basis = mcr_triBasis;
             elem = "triangles";
             break;
         case ET_QUAD:
-            basis = quadBasis;
+            basis = mcr_quadBasis;
             elem = "quadrilaterals";
             break;
         default:
@@ -128,8 +128,8 @@ void InitBasis() {
         return;
     }
 
-    ComputeRegularFilterCoefficients(&triBasis, triupxfm, &CRT8);
-    ComputeRegularFilterCoefficients(&quadBasis, quadupxfm, &CRQ8);
+    ComputeRegularFilterCoefficients(&mcr_triBasis, mcr_triupxfm, &CRT8);
+    ComputeRegularFilterCoefficients(&mcr_quadBasis, mcr_quadupxfm, &CRQ8);
 
     for ( et = 0; et < NR_ELEMENT_TYPES; et++ ) {
         for ( at = 0; at < NR_APPROX_TYPES; at++ )

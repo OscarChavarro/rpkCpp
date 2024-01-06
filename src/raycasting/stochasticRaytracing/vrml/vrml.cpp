@@ -37,7 +37,7 @@ static void GeomIterateLeafElements(Geometry *geom, void (*func)(ELEMENT *)) {
     leaf_element_count = 0;
     ForAllPatches(P, patches)
                 {
-                    ForAllLeafElements(TOPLEVEL_ELEMENT(P), count_and_call);
+                    McrForAllLeafElements(TOPLEVEL_ELEMENT(P), count_and_call);
                 }
     EndForAll;
 }

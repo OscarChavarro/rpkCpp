@@ -205,7 +205,7 @@ void *monteCarloRadiosityCreatePatchData(PATCH *patch) {
 }
 
 void monteCarloRadiosityPrintPatchData(FILE *out, PATCH *patch) {
-    PrintElement(out, TOPLEVEL_ELEMENT(patch));
+    McrPrintElement(out, TOPLEVEL_ELEMENT(patch));
 }
 
 void monteCarloRadiosityDestroyPatchData(PATCH *patch) {
@@ -474,7 +474,7 @@ static COLOR McrInterpolatedReflectanceAtPoint(ELEMENT *leaf, double u, double v
  * (u,v) into the direction 'dir'. */
 COLOR monteCarloRadiosityGetRadiance(PATCH *patch, double u, double v, Vector3D dir) {
     COLOR TrueRdAtPoint = McrDiffuseReflectanceAtPoint(patch, u, v);
-    ELEMENT *leaf = RegularLeafElementAtPoint(TOPLEVEL_ELEMENT(patch), &u, &v);
+    ELEMENT *leaf = McrRegularLeafElementAtPoint(TOPLEVEL_ELEMENT(patch), &u, &v);
     COLOR UsedRdAtPoint = renderopts.smooth_shading ? McrInterpolatedReflectanceAtPoint(leaf, u, v) : leaf->Rd;
     COLOR rad = ElementDisplayRadianceAtPoint(leaf, u, v);
     COLOR source_rad;
