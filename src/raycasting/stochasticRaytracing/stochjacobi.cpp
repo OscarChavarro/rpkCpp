@@ -475,7 +475,7 @@ static void UpdateElement(ELEMENT *elem) {
             colorAdd(elem->received_rad[0], mcr.control_radiance, elem->received_rad[0]);
         }
         /* multiply with reflectivity on leaf elements only */
-        MULTCOEFFICIENTS(elem->Rd, elem->received_rad, elem->basis);
+        stochasticRadiosityMultiplyCoefficients(elem->Rd, elem->received_rad, elem->basis);
     }
 
     reflect(elem, (double) nr_rays / sum_probs);

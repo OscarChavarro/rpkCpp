@@ -93,9 +93,9 @@ CreateElement() {
     elem->id = id;
     id++;
     elem->area = 0.;
-    InitCoefficients(elem);    /* allocation of the coefficients is left
+    initCoefficients(elem);    /* allocation of the coefficients is left
 				 * until just before the first iteration
-				 * in McrReInit() */
+				 * in monteCarloRadiosityReInit() */
 
     colorClear(elem->Ed);
     colorClear(elem->Rd);
@@ -142,7 +142,7 @@ CreateToplevelSurfaceElement(PATCH *patch) {
         VertexAttachElement(elem->vertex[i], elem);
     }
 
-    AllocCoefficients(elem);    /* may need reallocation before the start
+    allocCoefficients(elem);    /* may need reallocation before the start
 				 * of the computations. */
     stochasticRadiosityClearCoefficients(elem->rad, elem->basis);
     stochasticRadiosityClearCoefficients(elem->unshot_rad, elem->basis);
@@ -172,7 +172,7 @@ CreateCluster(Geometry *geom) {
               (bounds[MIN_Y] + bounds[MAX_Y]) / 2.,
               (bounds[MIN_Z] + bounds[MAX_Z]) / 2.);
 
-    AllocCoefficients(elem);    /* always constant approx. so no need to
+    allocCoefficients(elem);    /* always constant approx. so no need to
 				 * delay allocating the coefficients. */
     stochasticRadiosityClearCoefficients(elem->rad, elem->basis);
     stochasticRadiosityClearCoefficients(elem->unshot_rad, elem->basis);
@@ -651,7 +651,7 @@ CreateSurfaceSubelement(
     elem->child_nr = childnr;
     elem->uptrans = elem->nrvertices == 3 ? &triupxfm[childnr] : &quadupxfm[childnr];
 
-    AllocCoefficients(elem);
+    allocCoefficients(elem);
     stochasticRadiosityClearCoefficients(elem->rad, elem->basis);
     stochasticRadiosityClearCoefficients(elem->unshot_rad, elem->basis);
     stochasticRadiosityClearCoefficients(elem->received_rad, elem->basis);
@@ -782,7 +782,7 @@ DestroyElement(ELEMENT *elem) {
         ElementListDestroy(elem->vertex[i]->radiance_data);
         elem->vertex[i]->radiance_data = nullptr;
     }
-    DisposeCoefficients(elem);
+    disposeCoefficients(elem);
     free(elem);
 }
 

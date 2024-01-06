@@ -112,7 +112,7 @@ void TracePaths(long nr_paths,
     ForAllPatches(P, GLOBAL_scene_patches)
                 {
                     sum_probs += BirthProbability(P);
-                    stochasticRadiosityClearCoefficients(RECEIVED_RAD(P), BAS(P));
+                    stochasticRadiosityClearCoefficients(getTopLevelPatchReceivedRad(P), getTopLevelPatchBasis(P));
                 }
     EndForAll;
     if ( sum_probs < EPSILON ) {
@@ -148,8 +148,8 @@ void TracePaths(long nr_paths,
     ForAllPatches(P, GLOBAL_scene_patches)
                 {
                     Update(P, (double) nr_paths / sum_probs);
-                    colorAddScaled(mcr.unshot_flux, M_PI * P->area, UNSHOT_RAD(P)[0], mcr.unshot_flux);
-                    colorAddScaled(mcr.total_flux, M_PI * P->area, RAD(P)[0], mcr.total_flux);
+                    colorAddScaled(mcr.unshot_flux, M_PI * P->area, getTopLevelPatchUnShotRad(P)[0], mcr.unshot_flux);
+                    colorAddScaled(mcr.total_flux, M_PI * P->area, getTopLevelPatchRad(P)[0], mcr.total_flux);
                 }
     EndForAll;
 }

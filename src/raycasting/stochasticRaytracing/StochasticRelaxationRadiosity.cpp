@@ -15,7 +15,7 @@
 
 static void SrrInit() {
     mcr.method = SRR;
-    McrInit();
+    monteCarloRadiosityInit();
 }
 
 static char *SrrGetStats() {
@@ -56,7 +56,7 @@ static void SrrRecomputeDisplayColors() {
         ForAllLeafElements(hierarchy.topcluster, ElementComputeNewVertexColors);
         ForAllLeafElements(hierarchy.topcluster, ElementAdjustTVertexColors);
     } else {
-        PatchListIterate(GLOBAL_scene_patches, McrPatchComputeNewColor);
+        PatchListIterate(GLOBAL_scene_patches, monteCarloRadiosityPatchComputeNewColor);
     }
 }
 
@@ -95,8 +95,8 @@ static void ElementIncrementRadiance(ELEMENT *elem, double w) {
         elem->quality = QualityFactor(elem, w);
     }
 
-    ADDCOEFFICIENTS(elem->rad, elem->received_rad, elem->basis);
-    COPYCOEFFICIENTS(elem->unshot_rad, elem->received_rad, elem->basis);
+    stochasticRadiosityAddCoefficients(elem->rad, elem->received_rad, elem->basis);
+    stochasticRadiosityCopyCoefficients(elem->unshot_rad, elem->received_rad, elem->basis);
     if ( mcr.set_source ) {
         /* copy direct illumination and forget selfemitted illumination */
         elem->rad[0] = elem->source_rad = elem->received_rad[0];
@@ -152,7 +152,7 @@ static void DoIncrementalRadianceIterations() {
         mcr.set_source = false;    /* direct illumination is copied to SOURCE_FLUX(P) only
 				 * the first time. */
 
-        McrUpdateCpuSecs();
+        monteCarloRadiosityUpdateCpuSecs();
         PrintIncrementalRadianceStats();
         if ( unshot_fraction > 0.3 ) {
             SrrRecomputeDisplayColors();
@@ -213,7 +213,7 @@ static void DoIncrementalImportanceIterations() {
 
         DoStochasticJacobiIteration(nr_rays, nullptr, ElementUnshotImportance, ElementIncrementImportance);
 
-        McrUpdateCpuSecs();
+        monteCarloRadiosityUpdateCpuSecs();
         PrintIncrementalImportanceStats();
     }
 
@@ -248,9 +248,9 @@ static void ElementUpdateRadiance(ELEMENT *elem, double w) {
     colorSubtract(elem->rad[0], elem->source_rad, elem->rad[0]);
 
     /* combine with previous results */
-    SCALECOEFFICIENTS(k, elem->rad, elem->basis);
-    SCALECOEFFICIENTS((1. - k), elem->received_rad, elem->basis);
-    ADDCOEFFICIENTS(elem->rad, elem->received_rad, elem->basis);
+    stochasticRadiosityScaleCoefficients(k, elem->rad, elem->basis);
+    stochasticRadiosityScaleCoefficients((1. - k), elem->received_rad, elem->basis);
+    stochasticRadiosityAddCoefficients(elem->rad, elem->received_rad, elem->basis);
 
     /* re-add source radiosity */
     colorAdd(elem->rad[0], elem->source_rad, elem->rad[0]);
@@ -276,7 +276,7 @@ static void DoRegularRadianceIteration() {
     fprintf(stderr, "Regular radiance iteration %d:\n", mcr.iteration_nr);
     DoStochasticJacobiIteration(mcr.rays_per_iteration, ElementRadiance, nullptr, ElementUpdateRadiance);
 
-    McrUpdateCpuSecs();
+    monteCarloRadiosityUpdateCpuSecs();
     PrintRegularStats();
 }
 
@@ -305,7 +305,7 @@ static void DoRegularImportanceIteration() {
     fprintf(stderr, "Regular importance iteration %d:\n", mcr.iteration_nr);
     DoStochasticJacobiIteration(nr_rays, nullptr, ElementImportance, ElementUpdateImportance);
 
-    McrUpdateCpuSecs();
+    monteCarloRadiosityUpdateCpuSecs();
     PrintRegularStats();
 
     hierarchy.do_h_meshing = do_h_meshing;
@@ -333,13 +333,13 @@ static void DiscardIncremental() {
 }
 
 static int SrrDoStep() {
-    McrPreStep();
+    monteCarloRadiosityPreStep();
 
     /* do some real work now */
     if ( mcr.iteration_nr == 1 ) {
         int initial_nr_of_rays = 0;
         if ( mcr.do_nondiffuse_first_shot )
-            DoNonDiffuseFirstShot();
+            doNonDiffuseFirstShot();
         initial_nr_of_rays = mcr.traced_rays;
 
         if ( mcr.importance_driven ) {
@@ -406,24 +406,24 @@ RADIANCEMETHOD StochasticRelaxationRadiosity = {
         "StochJacobi", 3,
         "Stochastic Jacobi Radiosity",
         "stochrelaxButton",
-        McrDefaults,
-        SrrParseOptions,
-        SrrPrintOptions,
+        monteCarloRadiosityDefaults,
+        stochasticRelaxationRadiosityParseOptions,
+        stochasticRelaxationRadiosityPrintOptions,
         SrrInit,
         SrrDoStep,
-        McrTerminate,
-        McrGetRadiance,
-        McrCreatePatchData,
-        McrPrintPatchData,
-        McrDestroyPatchData,
-        SrrCreateControlPanel,
-        SrrUpdateControlPanel,
-        SrrShowControlPanel,
-        SrrHideControlPanel,
+        monteCarloRadiosityTerminate,
+        monteCarloRadiosityGetRadiance,
+        monteCarloRadiosityCreatePatchData,
+        monteCarloRadiosityPrintPatchData,
+        monteCarloRadiosityDestroyPatchData,
+        stochasticRelaxationRadiosityCreateControlPanel,
+        stochasticRelaxationRadiosityUpdateControlPanel,
+        stochasticRelaxationRadiosityShowControlPanel,
+        stochasticRelaxationRadiosityHideControlPanel,
         SrrGetStats,
         SrrRender,
         SrrRecomputeDisplayColors,
-        McrUpdateMaterial,
+        monteCarloRadiosityUpdateMaterial,
         McrWriteVRML
 };
 

@@ -16,7 +16,7 @@ RwrPrintPatchData(FILE *out, PATCH *patch) {
 static void
 RwrInit() {
     mcr.method = RWR;
-    McrInit();
+    monteCarloRadiosityInit();
 }
 
 static void
@@ -49,7 +49,7 @@ ScalarSourcePower(PATCH *P) {
  * a survival probability function */
 static double
 ScalarReflectance(PATCH *P) {
-    return McrScalarReflectance(P);
+    return monteCarloRadiosityScalarReflectance(P);
 }
 
 static COLOR *
@@ -146,12 +146,12 @@ ShootingScore(PATH *path, long nr_paths, double (*birth_prob)(PATCH *)) {
 
         w = ScoreWeight(path, n);
 
-        for ( i = 0; i < BAS(P)->size; i++ ) {
-            double dual = BAS(P)->dualfunction[i](uin, vin) / P->area;
-            colorAddScaled(RECEIVED_RAD(P)[i], (w * dual / (double) nr_paths), accum_pow, RECEIVED_RAD(P)[i]);
+        for ( i = 0; i < getTopLevelPatchBasis(P)->size; i++ ) {
+            double dual = getTopLevelPatchBasis(P)->dualfunction[i](uin, vin) / P->area;
+            colorAddScaled(getTopLevelPatchReceivedRad(P)[i], (w * dual / (double) nr_paths), accum_pow, getTopLevelPatchReceivedRad(P)[i]);
 
             if ( !mcr.continuous_random_walk ) {
-                double basf = BAS(P)->function[i](uout, vout);
+                double basf = getTopLevelPatchBasis(P)->function[i](uout, vout);
                 r += dual * P->area * basf;
             }
         }
@@ -171,19 +171,19 @@ ShootingUpdate(PATCH *P, double w) {
     k = old_quality / QUALITY(P);
 
     /* subtract selfemitted rad */
-    colorSubtract(RAD(P)[0], SOURCE_RAD(P), RAD(P)[0]);
+    colorSubtract(getTopLevelPatchRad(P)[0], SOURCE_RAD(P), getTopLevelPatchRad(P)[0]);
 
     /* weight with previous results */
-    SCALECOEFFICIENTS(k, RAD(P), BAS(P));
-    SCALECOEFFICIENTS((1. - k), RECEIVED_RAD(P), BAS(P));
-    ADDCOEFFICIENTS(RAD(P), RECEIVED_RAD(P), BAS(P));
+    stochasticRadiosityScaleCoefficients(k, getTopLevelPatchRad(P), getTopLevelPatchBasis(P));
+    stochasticRadiosityScaleCoefficients((1. - k), getTopLevelPatchReceivedRad(P), getTopLevelPatchBasis(P));
+    stochasticRadiosityAddCoefficients(getTopLevelPatchRad(P), getTopLevelPatchReceivedRad(P), getTopLevelPatchBasis(P));
 
     /* re-add selfemitted rad */
-    colorAdd(RAD(P)[0], SOURCE_RAD(P), RAD(P)[0]);
+    colorAdd(getTopLevelPatchRad(P)[0], SOURCE_RAD(P), getTopLevelPatchRad(P)[0]);
 
     /* clear unshot and received radiance */
-    stochasticRadiosityClearCoefficients(UNSHOT_RAD(P), BAS(P));
-    stochasticRadiosityClearCoefficients(RECEIVED_RAD(P), BAS(P));
+    stochasticRadiosityClearCoefficients(getTopLevelPatchUnShotRad(P), getTopLevelPatchBasis(P));
+    stochasticRadiosityClearCoefficients(getTopLevelPatchReceivedRad(P), getTopLevelPatchBasis(P));
 }
 
 static void
@@ -262,12 +262,12 @@ CollisionGatheringScore(PATH *path, long nr_paths, double (*birth_prob)(PATCH *)
             }
         }
 
-        for ( i = 0; i < BAS(P)->size; i++ ) {
-            double dual = BAS(P)->dualfunction[i](uout, vout);    /* = dual basis f * area */
-            colorAddScaled(RECEIVED_RAD(P)[i], dual, accum_rad, RECEIVED_RAD(P)[i]);
+        for ( i = 0; i < getTopLevelPatchBasis(P)->size; i++ ) {
+            double dual = getTopLevelPatchBasis(P)->dualfunction[i](uout, vout);    /* = dual basis f * area */
+            colorAddScaled(getTopLevelPatchReceivedRad(P)[i], dual, accum_rad, getTopLevelPatchReceivedRad(P)[i]);
 
             if ( !mcr.continuous_random_walk ) {
-                double basf = BAS(P)->function[i](uin, vin);
+                double basf = getTopLevelPatchBasis(P)->function[i](uin, vin);
                 r += basf * dual;
             }
         }
@@ -281,14 +281,16 @@ CollisionGatheringScore(PATH *path, long nr_paths, double (*birth_prob)(PATCH *)
 static void
 GatheringUpdate(PATCH *P, double w) {
     /* use un-shot rad for accumulating sum of contributions */
-    ADDCOEFFICIENTS(UNSHOT_RAD(P), RECEIVED_RAD(P), BAS(P));
-    COPYCOEFFICIENTS(RAD(P), UNSHOT_RAD(P), BAS(P));
+    stochasticRadiosityAddCoefficients(getTopLevelPatchUnShotRad(P), getTopLevelPatchReceivedRad(P),
+                                       getTopLevelPatchBasis(P));
+    stochasticRadiosityCopyCoefficients(getTopLevelPatchRad(P), getTopLevelPatchUnShotRad(P), getTopLevelPatchBasis(P));
 
     /* divide by nr of samples */
-    if ( NG(P) > 0 ) SCALECOEFFICIENTS((1. / (double) NG(P)), RAD(P), BAS(P));
+    if ( NG(P) > 0 )
+        stochasticRadiosityScaleCoefficients((1. / (double) NG(P)), getTopLevelPatchRad(P), getTopLevelPatchBasis(P));
 
     /* add source radiance (source term estimation suppresion!) */
-    colorAdd(RAD(P)[0], SOURCE_RAD(P), RAD(P)[0]);
+    colorAdd(getTopLevelPatchRad(P)[0], SOURCE_RAD(P), getTopLevelPatchRad(P)[0]);
 
     if ( mcr.constant_control_variate ) {
         /* add constant control radiosity value */
@@ -297,10 +299,10 @@ GatheringUpdate(PATCH *P, double w) {
             COLOR Rd = REFLECTANCE(P);
             colorProduct(Rd, mcr.control_radiance, cr);
         }
-        colorAdd(RAD(P)[0], cr, RAD(P)[0]);
+        colorAdd(getTopLevelPatchRad(P)[0], cr, getTopLevelPatchRad(P)[0]);
     }
 
-    stochasticRadiosityClearCoefficients(RECEIVED_RAD(P), BAS(P));
+    stochasticRadiosityClearCoefficients(getTopLevelPatchReceivedRad(P), getTopLevelPatchBasis(P));
 }
 
 static void
@@ -332,7 +334,7 @@ DoGatheringIteration() {
 
 static void
 UpdateSourceIllum(ELEMENT *elem, double w) {
-    COPYCOEFFICIENTS(elem->rad, elem->received_rad, elem->basis);
+    stochasticRadiosityCopyCoefficients(elem->rad, elem->received_rad, elem->basis);
     elem->source_rad = elem->received_rad[0];
     stochasticRadiosityClearCoefficients(elem->unshot_rad, elem->basis);
     stochasticRadiosityClearCoefficients(elem->received_rad, elem->basis);
@@ -348,7 +350,7 @@ DoFirstShot() {
 
 static int
 RwrDoStep() {
-    McrPreStep();
+    monteCarloRadiosityPreStep();
 
     if ( mcr.iteration_nr == 1 ) {
         if ( mcr.indirect_only ) {
@@ -367,14 +369,14 @@ RwrDoStep() {
             Fatal(-1, "RwrDoStep", "Unknown random walk estimator type %d", mcr.rw_estimator_type);
     }
 
-    PatchListIterate(GLOBAL_scene_patches, McrPatchComputeNewColor);
+    PatchListIterate(GLOBAL_scene_patches, monteCarloRadiosityPatchComputeNewColor);
     return false; /* never converged */
 }
 
 static void
 RwrTerminate() {
     /*  TerminateLightSampling(); */
-    McrTerminate();
+    monteCarloRadiosityTerminate();
 }
 
 static char *
@@ -404,23 +406,23 @@ RADIANCEMETHOD RandomWalkRadiosity = {
         3,
         "Random Walk Radiosity",
         "randwalkButton",
-        McrDefaults,
-        RwrParseOptions,
-        RwrPrintOptions,
+        monteCarloRadiosityDefaults,
+        randomWalkRadiosityParseOptions,
+        randomWalkRadiosityPrintOptions,
         RwrInit,
         RwrDoStep,
         RwrTerminate,
-        McrGetRadiance,
-        McrCreatePatchData,
+        monteCarloRadiosityGetRadiance,
+        monteCarloRadiosityCreatePatchData,
         RwrPrintPatchData,
-        McrDestroyPatchData,
-        RwrCreateControlPanel,
-        RwrUpdateControlPanel,
-        RwrShowControlPanel,
-        RwrHideControlPanel,
+        monteCarloRadiosityDestroyPatchData,
+        randomWalkRadiosityCreateControlPanel,
+        randomWalkRadiosityUpdateControlPanel,
+        randomWalkRadiosityShowControlPanel,
+        randomWalkRadiosityHideControlPanel,
         RwrGetStats,
         (void (*)()) nullptr, // use default rendering method
-        McrRecomputeDisplayColors,
-        McrUpdateMaterial,
+        monteCarloRadiosityRecomputeDisplayColors,
+        monteCarloRadiosityUpdateMaterial,
         (void (*)(FILE *)) nullptr // use default VRML model saver
 };

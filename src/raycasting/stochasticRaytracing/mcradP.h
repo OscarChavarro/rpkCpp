@@ -1,39 +1,52 @@
-/* mcradP.h */
-
 #ifndef _MCRADP_H_
 #define _MCRADP_H_
 
 #include <ctime>
 
-#include "material/color.h"
-#include "raycasting/stochasticRaytracing/mcrad.h"
 #include "raycasting/stochasticRaytracing/sample4d.h"
-#include "raycasting/stochasticRaytracing/basismcrad.h"
 #include "raycasting/stochasticRaytracing/elementmcrad.h"
 #include "raycasting/stochasticRaytracing/coefficientsmcrad.h"
 
-/* global variables: same set for stochastic relaxation and for random walk 
- * radiosity */
+/**
+Global variables: same set for stochastic relaxation and for random walk
+radiosity
+*/
 
 enum METHOD {
-    SRR, RWR
+    SRR,
+    RWR
 };
 
 enum RW_ESTIMATOR_TYPE {
-    RW_SHOOTING, RW_GATHERING, RW_GFFMIS, RW_GFFVAR, RW_GFFHEUR
+    RW_SHOOTING,
+    RW_GATHERING,
+    RW_GFFMIS,
+    RW_GFFVAR,
+    RW_GFFHEUR
 };
 
 enum RW_ESTIMATOR_KIND {
-    RW_COLLISION, RW_ABSORPTION, RW_SURVIVAL, RW_LAST_BUT_NTH, RW_NLAST
+    RW_COLLISION,
+    RW_ABSORPTION,
+    RW_SURVIVAL,
+    RW_LAST_BUT_NTH,
+    RW_NLAST
 };
 
 enum SHOW_WHAT {
-    SHOW_TOTAL_RADIANCE, SHOW_INDIRECT_RADIANCE, SHOW_WEIGHTING_GAIN, SHOW_OLD_WEIGHTING_GAIN, SHOW_IMPORTANCE
+    SHOW_TOTAL_RADIANCE,
+    SHOW_INDIRECT_RADIANCE,
+    SHOW_WEIGHTING_GAIN,
+    SHOW_OLD_WEIGHTING_GAIN,
+    SHOW_IMPORTANCE
 };
 
 enum SHOW_WEIGHTING {
-    SHOW_NON_WEIGHTED, SHOW_WEIGHTED, SHOW_AUTO_WEIGHTED
+    SHOW_NON_WEIGHTED,
+    SHOW_WEIGHTED,
+    SHOW_AUTO_WEIGHTED
 };
+
 
 class STATE {
   public:
@@ -100,92 +113,79 @@ class STATE {
 
 extern STATE mcr;
 
-#define NR_VERTICES(elem)       (elem->pog.patch->nrvertices)
-#define TOPLEVEL_ELEMENT(patch)   ((ELEMENT *)(patch->radiance_data))
+inline int
+NR_VERTICES(ELEMENT *elem) {
+    return elem->pog.patch->nrvertices;
+}
 
-#define RAD(patch)        (TOPLEVEL_ELEMENT(patch)->rad)
-#define UNSHOT_RAD(patch)    (TOPLEVEL_ELEMENT(patch)->unshot_rad)
-#define RECEIVED_RAD(patch)    (TOPLEVEL_ELEMENT(patch)->received_rad)
+inline ELEMENT*
+TOPLEVEL_ELEMENT(PATCH *patch) {
+    return (ELEMENT *)patch->radiance_data;
+}
 
-#define BAS(patch)    (TOPLEVEL_ELEMENT(patch)->basis)
+inline COLOR *
+getTopLevelPatchRad(PATCH *patch) {
+    return TOPLEVEL_ELEMENT(patch)->rad;
+}
 
-#define SOURCE_RAD(patch)    (TOPLEVEL_ELEMENT(patch)->source_rad)
-#define RAY_INDEX(patch)    (TOPLEVEL_ELEMENT(patch)->ray_index)
-#define QUALITY(patch)        (TOPLEVEL_ELEMENT(patch)->quality)
-#define NG(patch)        (TOPLEVEL_ELEMENT(patch)->ng)
+inline COLOR *
+getTopLevelPatchUnShotRad(PATCH *patch) {
+    return TOPLEVEL_ELEMENT(patch)->unshot_rad;
+}
 
-#define IMP(patch)        (TOPLEVEL_ELEMENT(patch)->imp)
-#define UNSHOT_IMP(patch)    (TOPLEVEL_ELEMENT(patch)->unshot_imp)
-#define RECEIVED_IMP(patch)    (TOPLEVEL_ELEMENT(patch)->received_imp)
-#define SOURCE_IMP(patch)    (TOPLEVEL_ELEMENT(patch)->source_imp)
+inline COLOR*
+getTopLevelPatchReceivedRad(PATCH *patch) {
+    return TOPLEVEL_ELEMENT(patch)->received_rad;
+}
 
-#define REFLECTANCE(patch)    (TOPLEVEL_ELEMENT(patch)->Rd)
-#define EMITTANCE(patch)    (TOPLEVEL_ELEMENT(patch)->Ed)
+inline GalerkinBasis *
+getTopLevelPatchBasis(PATCH *patch) {
+    return TOPLEVEL_ELEMENT(patch)->basis;
+}
 
-/* returns scalar reflectance, for importance propagation */
-extern float McrScalarReflectance(PATCH *);
+#define SOURCE_RAD(patch) (TOPLEVEL_ELEMENT(patch)->source_rad)
+#define RAY_INDEX(patch) (TOPLEVEL_ELEMENT(patch)->ray_index)
+#define QUALITY(patch) (TOPLEVEL_ELEMENT(patch)->quality)
+#define NG(patch) (TOPLEVEL_ELEMENT(patch)->ng)
 
-/* common routines for stochastic relaxation and random walks */
-extern void McrDefaults();
+#define IMP(patch) (TOPLEVEL_ELEMENT(patch)->imp)
+#define UNSHOT_IMP(patch) (TOPLEVEL_ELEMENT(patch)->unshot_imp)
+#define RECEIVED_IMP(patch) (TOPLEVEL_ELEMENT(patch)->received_imp)
+#define SOURCE_IMP(patch) (TOPLEVEL_ELEMENT(patch)->source_imp)
 
-extern void SrrParseOptions(int *argc, char **argv);
+#define REFLECTANCE(patch) (TOPLEVEL_ELEMENT(patch)->Rd)
+#define EMITTANCE(patch) (TOPLEVEL_ELEMENT(patch)->Ed)
 
-extern void SrrPrintOptions(FILE *fp);
+extern float monteCarloRadiosityScalarReflectance(PATCH *P);
+extern void monteCarloRadiosityDefaults();
+extern void monteCarloRadiosityUpdateCpuSecs();
+extern void *monteCarloRadiosityCreatePatchData(PATCH *patch);
+extern void monteCarloRadiosityPrintPatchData(FILE *out, PATCH *patch);
+extern void monteCarloRadiosityDestroyPatchData(PATCH *patch);
+extern void monteCarloRadiosityPatchComputeNewColor(PATCH *patch);
+extern void monteCarloRadiosityInit();
+extern void monteCarloRadiosityUpdateViewImportance();
+extern void monteCarloRadiosityReInit();
+extern void monteCarloRadiosityPreStep();
+extern void monteCarloRadiosityTerminate();
+extern COLOR monteCarloRadiosityGetRadiance(PATCH *patch, double u, double v, Vector3D dir);
+extern void monteCarloRadiosityRecomputeDisplayColors();
+extern void monteCarloRadiosityUpdateMaterial(MATERIAL *oldMaterial, MATERIAL *newMaterial);
 
-extern void RwrParseOptions(int *argc, char **argv);
+extern void stochasticRelaxationRadiosityParseOptions(int *argc, char **argv);
+extern void stochasticRelaxationRadiosityPrintOptions(FILE *fp);
+extern void stochasticRelaxationRadiosityCreateControlPanel(void *parent_widget);
+extern void stochasticRelaxationRadiosityUpdateControlPanel(void *parent_widget);
+extern void stochasticRelaxationRadiosityShowControlPanel();
+extern void stochasticRelaxationRadiosityHideControlPanel();
 
-extern void RwrPrintOptions(FILE *fp);
+extern void randomWalkRadiosityParseOptions(int *argc, char **argv);
+extern void randomWalkRadiosityPrintOptions(FILE *fp);
+extern void randomWalkRadiosityCreateControlPanel(void *parent_widget);
+extern void randomWalkRadiosityUpdateControlPanel(void *parent_widget);
+extern void randomWalkRadiosityShowControlPanel();
+extern void randomWalkRadiosityHideControlPanel();
 
-extern void McrWakeUp(int sig);
-
-extern void McrUpdateCpuSecs();
-
-extern void *McrCreatePatchData(PATCH *patch);
-
-extern void McrPrintPatchData(FILE *out, PATCH *patch);
-
-extern void McrDestroyPatchData(PATCH *patch);
-
-extern void McrPatchComputeNewColor(PATCH *patch);
-
-extern void McrInit();
-
-extern void McrUpdateViewImportance();
-
-extern void McrReInit();
-
-extern void McrPreStep();
-
-extern void McrTerminate();
-
-extern COLOR McrGetRadiance(PATCH *patch, double u, double v, Vector3D dir);
-
-extern void McrRecomputeDisplayColors();
-
-extern void McrUpdateMaterial(MATERIAL *oldmaterial, MATERIAL *newmaterial);
-
-/* stochastic relaxation specific routines */
-extern void SrrCreateControlPanel(void *parent_widget);
-
-extern void SrrUpdateControlPanel(void *parent_widget);
-
-extern void SrrShowControlPanel();
-
-extern void SrrHideControlPanel();
-
-/* random walk rad. specific routines */
-extern void RwrCreateControlPanel(void *parent_widget);
-
-extern void RwrUpdateControlPanel(void *parent_widget);
-
-extern void RwrShowControlPanel();
-
-extern void RwrHideControlPanel();
-
-/* sample based variance estimate */
-extern double VarianceEstimate(double N, double sum_of_squares, double square_of_sum);
-
-/* initial shooting pass handling non-diffuse light sources */
-extern void DoNonDiffuseFirstShot();
+extern void doNonDiffuseFirstShot();
 
 #endif

@@ -36,8 +36,6 @@
 #define ElementColor McrElementColor
 #define quadupxfm mcr_quadupxfm
 #define triupxfm mcr_triupxfm
-#define VarianceEstimate McrVarianceEstimate
-#define DoNonDiffuseFirstShot McrDoNonDiffuseFirstShot
 
 #define triBasis mcr_triBasis
 #define quadBasis mcr_quadBasis

@@ -1,5 +1,3 @@
-/* coefficients.h: macro's to manipulate radiance coefficients. */
-
 #ifndef __COEFFICIENTS__
 #define __COEFFICIENTS__
 
@@ -14,68 +12,53 @@ stochasticRadiosityClearCoefficients(COLOR *c, GalerkinBasis *galerkinBasis) {
     }
 }
 
-#define COPYCOEFFICIENTS(dst, src, galerkinBasis) { \
-    int _i; \
-    int _n = galerkinBasis->size; \
-    COLOR *_d; \
-    COLOR *_s; \
-    for ( _i = 0, _d = (dst), _s = (src); _i < _n; _i++, _d++, _s++) { \
-        *_d=*_s; \
-    } \
-}
+inline void
+stochasticRadiosityCopyCoefficients(COLOR *dst, COLOR *src, GalerkinBasis *galerkinBasis) {
+    int i;
+    COLOR *d;
+    COLOR *s;
 
-#define ADDCOEFFICIENTS(dst, extra, galerkinBasis) { \
-    int _i; \
-    int _n = galerkinBasis->size; \
-    COLOR *_d; \
-    COLOR *_s; \
-    for ( _i = 0, _d = (dst), _s = (extra); _i < _n; _i++, _d++, _s++) { \
-        colorAdd(*_d, *_s, *_d); \
-    } \
+    for ( i = 0, d = dst, s = src; i < galerkinBasis->size; i++, d++, s++ ) {
+        *d = *s;
+    }
 }
-
-#define SCALECOEFFICIENTS(scale, color, galerkinBasis) { \
-    int _i; \
-    int _n = galerkinBasis->size; \
-    COLOR *_d; \
-    float _scale = (scale); \
-    for ( _i = 0, _d = (color); _i < _n; _i++, _d++) { \
-        colorScale(_scale, *_d, *_d); \
-    } \
-}
-
-#define MULTCOEFFICIENTS(color, coeff, galerkinBasis) {int _i, _n=galerkinBasis->size; COLOR *_d; COLOR _col = (color); \
-  for (_i=0, _d=(coeff); _i<_n; _i++, _d++) { \
-    colorProduct(_col, *_d, *_d); \
-}}
 
 inline void
-stochasticRaytracingPrintCoefficients(FILE *fp, COLOR *c, GalerkinBasis *galerkinBasis) {
-    int _i;
-    int _n = galerkinBasis->size;
+stochasticRadiosityAddCoefficients(COLOR *dst, COLOR *extra, GalerkinBasis *galerkinBasis) {
+    int i;
+    COLOR *d;
+    COLOR *s;
 
-    if ( _n > 0 ) {
-        c[0].print(fp);
-    }
-    for (_i=1; _i<_n; _i++) {
-        fprintf(fp, ", ");
-        (c)[_i].print(fp);
+    for ( i = 0, d = dst, s = extra; i < galerkinBasis->size; i++, d++, s++ ) {
+        colorAdd(*d, *s, *d);
     }
 }
 
-/* basically sets rad...  to nullptr */
-extern void InitCoefficients(ELEMENT *elem);
+inline void
+stochasticRadiosityScaleCoefficients(float scale, COLOR *color, GalerkinBasis *galerkinBasis) {
+    int i;
+    COLOR *d;
 
-/* disposes previously allocated coefficients */
-extern void DisposeCoefficients(ELEMENT *elem);
+    for ( i = 0, d = color; i < galerkinBasis->size; i++, d++ ) {
+        colorScale(scale, *d, *d);
+    }
+}
 
-/* allocates memory for radiance coefficients */
-extern void AllocCoefficients(ELEMENT *elem);
+inline void
+stochasticRadiosityMultiplyCoefficients(COLOR &color, COLOR *coefficients, GalerkinBasis *galerkinBasis) {
+    int i;
+    COLOR *d;
+    COLOR c = color;
 
-/* re-allocates memory for radiance coefficients if
- * the currently desired approximation order is not the same
- * as the approximation order for which the element has
- * been initialised before. */
-extern void ReAllocCoefficients(ELEMENT *elem);
+    for ( i = 0, d = coefficients; i < galerkinBasis->size; i++, d++) {
+        colorProduct(c, *d, *d);
+    }
+}
+
+extern void stochasticRaytracingPrintCoefficients(FILE *fp, COLOR *c, GalerkinBasis *galerkinBasis);
+extern void initCoefficients(ELEMENT *elem);
+extern void disposeCoefficients(ELEMENT *elem);
+extern void allocCoefficients(ELEMENT *elem);
+extern void reAllocCoefficients(ELEMENT *elem);
 
 #endif

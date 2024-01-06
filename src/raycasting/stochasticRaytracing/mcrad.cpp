@@ -136,7 +136,10 @@ static CMDLINEOPTDESC rwrOptions[] = {
          nullptr}
 };
 
-void McrDefaults() {
+/**
+Common routines for stochastic relaxation and random walks
+*/
+void monteCarloRadiosityDefaults() {
     mcr.hack = false;
     mcr.inited = false;
     mcr.no_smoothing = false;
@@ -173,22 +176,22 @@ void McrDefaults() {
     InitBasis();
 }
 
-void SrrParseOptions(int *argc, char **argv) {
+void stochasticRelaxationRadiosityParseOptions(int *argc, char **argv) {
     ParseOptions(srrOptions, argc, argv);
 }
 
-void SrrPrintOptions(FILE *fp) {
+void stochasticRelaxationRadiosityPrintOptions(FILE *fp) {
 }
 
-void RwrParseOptions(int *argc, char **argv) {
+void randomWalkRadiosityParseOptions(int *argc, char **argv) {
     ParseOptions(rwrOptions, argc, argv);
 }
 
-void RwrPrintOptions(FILE *fp) {
+void randomWalkRadiosityPrintOptions(FILE *fp) {
 }
 
 /* for counting how much CPU time was used for the computations */
-void McrUpdateCpuSecs() {
+void monteCarloRadiosityUpdateCpuSecs() {
     clock_t t;
 
     t = clock();
@@ -196,16 +199,16 @@ void McrUpdateCpuSecs() {
     mcr.lastclock = t;
 }
 
-void *McrCreatePatchData(PATCH *patch) {
+void *monteCarloRadiosityCreatePatchData(PATCH *patch) {
     patch->radiance_data = (void *) CreateToplevelSurfaceElement(patch);
     return patch->radiance_data;
 }
 
-void McrPrintPatchData(FILE *out, PATCH *patch) {
+void monteCarloRadiosityPrintPatchData(FILE *out, PATCH *patch) {
     PrintElement(out, TOPLEVEL_ELEMENT(patch));
 }
 
-void McrDestroyPatchData(PATCH *patch) {
+void monteCarloRadiosityDestroyPatchData(PATCH *patch) {
     if ( patch->radiance_data ) {
         McrDestroyToplevelSurfaceElement(TOPLEVEL_ELEMENT(patch));
     }
@@ -214,14 +217,14 @@ void McrDestroyPatchData(PATCH *patch) {
 
 /* compute new color for the patch: fine if no hierarchical refinement is used, e.g.
  * in the current random walk radiosity implementation */
-void McrPatchComputeNewColor(PATCH *patch) {
+void monteCarloRadiosityPatchComputeNewColor(PATCH *patch) {
     patch->color = ElementColor(TOPLEVEL_ELEMENT(patch));
     PatchComputeVertexColors(patch);
 }
 
 /* Initializes the computations for the current scene (if any): initialisations
  * are delayed to just before the first iteration step, see ReInit() below. */
-void McrInit() {
+void monteCarloRadiosityInit() {
     mcr.inited = false;
 }
 
@@ -229,13 +232,13 @@ void McrInit() {
 static void McrInitPatch(PATCH *P) {
     COLOR Ed = EMITTANCE(P);
 
-    ReAllocCoefficients(TOPLEVEL_ELEMENT(P));
-    stochasticRadiosityClearCoefficients(RAD(P), BAS(P));
-    stochasticRadiosityClearCoefficients(UNSHOT_RAD(P), BAS(P));
-    stochasticRadiosityClearCoefficients(RECEIVED_RAD(P), BAS(P));
+    reAllocCoefficients(TOPLEVEL_ELEMENT(P));
+    stochasticRadiosityClearCoefficients(getTopLevelPatchRad(P), getTopLevelPatchBasis(P));
+    stochasticRadiosityClearCoefficients(getTopLevelPatchUnShotRad(P), getTopLevelPatchBasis(P));
+    stochasticRadiosityClearCoefficients(getTopLevelPatchReceivedRad(P), getTopLevelPatchBasis(P));
 
-    RAD(P)[0] = UNSHOT_RAD(P)[0] = SOURCE_RAD(P) = Ed;
-    colorClear(RECEIVED_RAD(P)[0]);
+    getTopLevelPatchRad(P)[0] = getTopLevelPatchUnShotRad(P)[0] = SOURCE_RAD(P) = Ed;
+    colorClear(getTopLevelPatchReceivedRad(P)[0]);
 
     RAY_INDEX(P) = P->id * 11;
     QUALITY(P) = 0.;
@@ -288,7 +291,7 @@ static void ReInitImportance(ELEMENT *elem) {
     }
 }
 
-void McrUpdateViewImportance() {
+void monteCarloRadiosityUpdateViewImportance() {
     fprintf(stderr, "Updating direct visibility ... \n");
 
     UpdateDirectVisibility();
@@ -361,7 +364,7 @@ static void McrDetermineInitialNrRays() {
 }
 
 /* really initialises: before the first iteration step */
-void McrReInit() {
+void monteCarloRadiosityReInit() {
     if ( mcr.inited ) {
         return;
     }
@@ -389,14 +392,14 @@ void McrReInit() {
     ForAllPatches(P, GLOBAL_scene_patches)
                 {
                     McrInitPatch(P);
-                    colorAddScaled(mcr.unshot_flux, M_PI * P->area, UNSHOT_RAD(P)[0], mcr.unshot_flux);
-                    colorAddScaled(mcr.total_flux, M_PI * P->area, RAD(P)[0], mcr.total_flux);
-                    colorAddScaled(mcr.imp_unshot_flux, M_PI * P->area * (IMP(P) - SOURCE_IMP(P)), UNSHOT_RAD(P)[0],
+                    colorAddScaled(mcr.unshot_flux, M_PI * P->area, getTopLevelPatchUnShotRad(P)[0], mcr.unshot_flux);
+                    colorAddScaled(mcr.total_flux, M_PI * P->area, getTopLevelPatchRad(P)[0], mcr.total_flux);
+                    colorAddScaled(mcr.imp_unshot_flux, M_PI * P->area * (IMP(P) - SOURCE_IMP(P)), getTopLevelPatchUnShotRad(P)[0],
                                    mcr.imp_unshot_flux);
                     mcr.unshot_ymp += P->area * fabs(UNSHOT_IMP(P));
                     mcr.total_ymp += P->area * IMP(P);
                     mcr.source_ymp += P->area * SOURCE_IMP(P);
-                    McrPatchComputeNewColor(P);
+                    monteCarloRadiosityPatchComputeNewColor(P);
                 }
     EndForAll;
 
@@ -405,17 +408,17 @@ void McrReInit() {
     ElementHierarchyInit();
 
     if ( mcr.importance_driven ) {
-        McrUpdateViewImportance();
+        monteCarloRadiosityUpdateViewImportance();
         mcr.importance_updated_from_scratch = true;
     }
 }
 
-void McrPreStep() {
+void monteCarloRadiosityPreStep() {
     if ( !mcr.inited ) {
-        McrReInit();
+        monteCarloRadiosityReInit();
     }
     if ( mcr.importance_driven && GLOBAL_camera_mainCamera.changed ) {
-        McrUpdateViewImportance();
+        monteCarloRadiosityUpdateViewImportance();
     }
 
     mcr.wake_up = false;
@@ -425,7 +428,7 @@ void McrPreStep() {
 }
 
 /* undoes the effect of Init() and all side-effects of Step() */
-void McrTerminate() {
+void monteCarloRadiosityTerminate() {
     ElementHierarchyTerminate();
     mcr.inited = false;
 }
@@ -469,7 +472,7 @@ static COLOR McrInterpolatedReflectanceAtPoint(ELEMENT *leaf, double u, double v
 
 /* Returns the radiance emitted from the patch at the point with parameters
  * (u,v) into the direction 'dir'. */
-COLOR McrGetRadiance(PATCH *patch, double u, double v, Vector3D dir) {
+COLOR monteCarloRadiosityGetRadiance(PATCH *patch, double u, double v, Vector3D dir) {
     COLOR TrueRdAtPoint = McrDiffuseReflectanceAtPoint(patch, u, v);
     ELEMENT *leaf = RegularLeafElementAtPoint(TOPLEVEL_ELEMENT(patch), &u, &v);
     COLOR UsedRdAtPoint = renderopts.smooth_shading ? McrInterpolatedReflectanceAtPoint(leaf, u, v) : leaf->Rd;
@@ -500,7 +503,7 @@ COLOR McrGetRadiance(PATCH *patch, double u, double v, Vector3D dir) {
     return rad;
 }
 
-void McrRecomputeDisplayColors() {
+void monteCarloRadiosityRecomputeDisplayColors() {
     if ( !mcr.inited ) {
         return;
     }
@@ -508,37 +511,34 @@ void McrRecomputeDisplayColors() {
     fprintf(stderr, "Recomputing display colors ...\n");
     ForAllPatches(P, GLOBAL_scene_patches)
                 {
-                    McrPatchComputeNewColor(P);
+                    monteCarloRadiosityPatchComputeNewColor(P);
                 }
     EndForAll;
 }
 
-void McrUpdateMaterial(MATERIAL *oldmaterial, MATERIAL *newmaterial) {
-    Error("McrUpdateMaterial", "Not yet implemented");
+void monteCarloRadiosityUpdateMaterial(MATERIAL *oldMaterial, MATERIAL *newMaterial) {
+    Error("monteCarloRadiosityUpdateMaterial", "Not yet implemented");
 }
 
-/* for (scalar) importance propagation */
-float McrScalarReflectance(PATCH *P) {
+/**
+Returns scalar reflectance, for importance propagation
+*/
+float monteCarloRadiosityScalarReflectance(PATCH *P) {
     return ElementScalarReflectance(TOPLEVEL_ELEMENT(P));
 }
 
-/* sample based variance estimate */
-double VarianceEstimate(double N, double sum_of_squares, double square_of_sum) {
-    return 1. / (N - 1.) * (sum_of_squares / N - square_of_sum / (N * N));
-}
+void randomWalkRadiosityCreateControlPanel(void *parent_widget) {}
 
-void RwrCreateControlPanel(void *parent_widget) {}
+void randomWalkRadiosityUpdateControlPanel(void *parent_widget) {}
 
-void RwrUpdateControlPanel(void *parent_widget) {}
+void randomWalkRadiosityShowControlPanel() {}
 
-void RwrShowControlPanel() {}
+void randomWalkRadiosityHideControlPanel() {}
 
-void RwrHideControlPanel() {}
+void stochasticRelaxationRadiosityCreateControlPanel(void *parent_widget) {}
 
-void SrrCreateControlPanel(void *parent_widget) {}
+void stochasticRelaxationRadiosityUpdateControlPanel(void *parent_widget) {}
 
-void SrrUpdateControlPanel(void *parent_widget) {}
+void stochasticRelaxationRadiosityShowControlPanel() {}
 
-void SrrShowControlPanel() {}
-
-void SrrHideControlPanel() {}
+void stochasticRelaxationRadiosityHideControlPanel() {}

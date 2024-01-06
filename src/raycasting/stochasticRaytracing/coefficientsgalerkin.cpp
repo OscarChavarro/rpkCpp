@@ -1,33 +1,36 @@
-#include <cstdlib>
-
-#include "scene/scene.h"
 #include "raycasting/stochasticRaytracing/mcradP.h"
 
-static int coeffPoolsInited = false;
+static int globalCoefficientPoolsInitialized = false;
 
 static void
-InitCoeffPools() {
+initCoefficientPools() {
 }
 
+/**
+Basically sets rad to nullptr
+*/
 void
-InitCoefficients(ELEMENT *elem) {
-    if ( !coeffPoolsInited ) {
-        InitCoeffPools();
-        coeffPoolsInited = true;
+initCoefficients(ELEMENT *elem) {
+    if ( !globalCoefficientPoolsInitialized ) {
+        initCoefficientPools();
+        globalCoefficientPoolsInitialized = true;
     }
 
     elem->rad = elem->unshot_rad = elem->received_rad = (COLOR *) nullptr;
     elem->basis = &dummyBasis;
 }
 
+/**
+Disposes previously allocated coefficients
+*/
 void
-DisposeCoefficients(ELEMENT *elem) {
+disposeCoefficients(ELEMENT *elem) {
     if ( elem->basis && elem->basis != &dummyBasis && elem->rad ) {
         free(elem->rad);
         free(elem->unshot_rad);
         free(elem->received_rad);
     }
-    InitCoefficients(elem);
+    initCoefficients(elem);
 }
 
 /* determines basis based on element type and currently desired approximation */
@@ -40,18 +43,40 @@ ActualBasis(ELEMENT *elem) {
     }
 }
 
+/**
+Allocates memory for radiance coefficients
+*/
 void
-AllocCoefficients(ELEMENT *elem) {
-    DisposeCoefficients(elem);
+allocCoefficients(ELEMENT *elem) {
+    disposeCoefficients(elem);
     elem->basis = ActualBasis(elem);
     elem->rad = (COLOR *)malloc(elem->basis->size * sizeof(COLOR));
     elem->unshot_rad = (COLOR *)malloc(elem->basis->size * sizeof(COLOR));
     elem->received_rad = (COLOR *)malloc(elem->basis->size * sizeof(COLOR));
 }
 
+/**
+Re-allocates memory for radiance coefficients if
+the currently desired approximation order is not the same
+as the approximation order for which the element has
+been initialised before
+*/
 void
-ReAllocCoefficients(ELEMENT *elem) {
+reAllocCoefficients(ELEMENT *elem) {
     if ( elem->basis != ActualBasis(elem)) {
-        AllocCoefficients(elem);
+        allocCoefficients(elem);
+    }
+}
+
+void
+stochasticRaytracingPrintCoefficients(FILE *fp, COLOR *c, GalerkinBasis *galerkinBasis) {
+    int i;
+
+    if ( galerkinBasis->size > 0 ) {
+        c[0].print(fp);
+    }
+    for ( i = 1; i < galerkinBasis->size; i++) {
+        fprintf(fp, ", ");
+        (c)[i].print(fp);
     }
 }
