@@ -58,9 +58,9 @@ static void scanline(int y, Poly_vert *l, Poly_vert *r, Window *win) {
         return;
     }
 
-    pix = current_sgl_context->fbuf + y * current_sgl_context->width + lx;
+    pix = GLOBAL_sgl_currentContext->frameBuffer + y * GLOBAL_sgl_currentContext->width + lx;
     for ( x = lx; x <= rx; x++ ) {        /* scan in x, generating pixels */
-        *pix++ = current_sgl_context->curpixel;
+        *pix++ = GLOBAL_sgl_currentContext->currentPixel;
     }
 }
 

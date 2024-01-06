@@ -11,26 +11,26 @@
 
 Poly_vert *poly_dummy;        /* used superficially by POLY_MASK macro */
 
-SGL_CONTEXT *current_sgl_context = (SGL_CONTEXT *)nullptr;
+SGL_CONTEXT *GLOBAL_sgl_currentContext = (SGL_CONTEXT *)nullptr;
 
 SGL_CONTEXT *sglOpen(int width, int height) {
     SGL_CONTEXT *context = (SGL_CONTEXT *)malloc(sizeof(SGL_CONTEXT));
 
-    current_sgl_context = context;
+    GLOBAL_sgl_currentContext = context;
 
     /* frame buffer */
     context->width = width;
     context->height = height;
-    context->fbuf = (SGL_PIXEL *)malloc(width * height * sizeof(SGL_PIXEL));
+    context->frameBuffer = (SGL_PIXEL *)malloc(width * height * sizeof(SGL_PIXEL));
 
     /* no Z buffer */
-    context->zbuf = (SGL_ZVAL *) nullptr;
+    context->depthBuffer = (SGL_Z_VALUE *) nullptr;
 
     /* transform stack and current transform */
-    context->curtrans = context->transform_stack;
-    *context->curtrans = IdentityTransform4x4;
+    context->currentTransform = context->transformStack;
+    *context->currentTransform = IdentityTransform4x4;
 
-    context->curpixel = 0;
+    context->currentPixel = 0;
 
     context->clipping = true;
 
@@ -46,67 +46,74 @@ SGL_CONTEXT *sglOpen(int width, int height) {
 }
 
 void sglClose(SGL_CONTEXT *context) {
-    free((char *) context->fbuf);
-    if ( context->zbuf ) {
-        free((char *) context->zbuf);
+    free((char *) context->frameBuffer);
+    if ( context->depthBuffer ) {
+        free((char *) context->depthBuffer);
     }
 
     free((char *) context);
 
-    if ( context == current_sgl_context ) {
-        current_sgl_context = (SGL_CONTEXT *) nullptr;
+    if ( context == GLOBAL_sgl_currentContext ) {
+        GLOBAL_sgl_currentContext = (SGL_CONTEXT *) nullptr;
     }
 }
 
 SGL_CONTEXT *sglMakeCurrent(SGL_CONTEXT *context) {
-    SGL_CONTEXT *old_context = current_sgl_context;
-    current_sgl_context = context;
+    SGL_CONTEXT *old_context = GLOBAL_sgl_currentContext;
+    GLOBAL_sgl_currentContext = context;
     return old_context;
 }
 
-void sglClearFrameBuffer(SGL_PIXEL backgroundcol) {
-    SGL_PIXEL *pix, *lpix;
-    int i, j;
+/**
+All the following operate on the current SGL context and behave very similar as
+the corresponding functions in OpenGL
+*/
+static void
+sglClearFrameBuffer(SGL_PIXEL backgroundColor) {
+    SGL_PIXEL *pixel;
+    SGL_PIXEL *lPixel;
+    int i;
+    int j;
 
-    lpix = current_sgl_context->fbuf + current_sgl_context->vp_y * current_sgl_context->width +
-           current_sgl_context->vp_x;
-    for ( j = 0; j < current_sgl_context->vp_height; j++, lpix += current_sgl_context->width ) {
-        for ( pix = lpix, i = 0; i < current_sgl_context->vp_width; i++ ) {
-            *pix++ = backgroundcol;
+    lPixel = GLOBAL_sgl_currentContext->frameBuffer + GLOBAL_sgl_currentContext->vp_y * GLOBAL_sgl_currentContext->width +
+             GLOBAL_sgl_currentContext->vp_x;
+    for ( j = 0; j < GLOBAL_sgl_currentContext->vp_height; j++, lPixel += GLOBAL_sgl_currentContext->width ) {
+        for ( pixel = lPixel, i = 0; i < GLOBAL_sgl_currentContext->vp_width; i++ ) {
+            *pixel++ = backgroundColor;
         }
     }
 }
 
-void sglClearZBuffer(SGL_ZVAL defzval) {
-    SGL_ZVAL *zval, *lzval;
+void sglClearZBuffer(SGL_Z_VALUE defzval) {
+    SGL_Z_VALUE *zval, *lzval;
     int i, j;
 
-    lzval = current_sgl_context->zbuf + current_sgl_context->vp_y * current_sgl_context->width +
-            current_sgl_context->vp_x;
-    for ( j = 0; j < current_sgl_context->vp_height; j++, lzval += current_sgl_context->width ) {
-        for ( zval = lzval, i = 0; i < current_sgl_context->vp_width; i++ ) {
+    lzval = GLOBAL_sgl_currentContext->depthBuffer + GLOBAL_sgl_currentContext->vp_y * GLOBAL_sgl_currentContext->width +
+            GLOBAL_sgl_currentContext->vp_x;
+    for ( j = 0; j < GLOBAL_sgl_currentContext->vp_height; j++, lzval += GLOBAL_sgl_currentContext->width ) {
+        for ( zval = lzval, i = 0; i < GLOBAL_sgl_currentContext->vp_width; i++ ) {
             *zval++ = defzval;
         }
     }
 }
 
-void sglClear(SGL_PIXEL backgroundcol, SGL_ZVAL defzval) {
+void sglClear(SGL_PIXEL backgroundcol, SGL_Z_VALUE defzval) {
     sglClearFrameBuffer(backgroundcol);
     sglClearZBuffer(defzval);
 }
 
 void sglDepthTesting(SGL_BOOLEAN on) {
     if ( on ) {
-        if ( current_sgl_context->zbuf ) {
+        if ( GLOBAL_sgl_currentContext->depthBuffer ) {
             return;
         } else {
-            current_sgl_context->zbuf = (SGL_ZVAL *)malloc(
-                    current_sgl_context->width * current_sgl_context->height * sizeof(SGL_ZVAL));
+            GLOBAL_sgl_currentContext->depthBuffer = (SGL_Z_VALUE *)malloc(
+                    GLOBAL_sgl_currentContext->width * GLOBAL_sgl_currentContext->height * sizeof(SGL_Z_VALUE));
         }
     } else {
-        if ( current_sgl_context->zbuf ) {
-            free((char *) current_sgl_context->zbuf);
-            current_sgl_context->zbuf = (SGL_ZVAL *) nullptr;
+        if ( GLOBAL_sgl_currentContext->depthBuffer ) {
+            free((char *) GLOBAL_sgl_currentContext->depthBuffer);
+            GLOBAL_sgl_currentContext->depthBuffer = (SGL_Z_VALUE *) nullptr;
         } else {
             return;
         }
@@ -114,48 +121,48 @@ void sglDepthTesting(SGL_BOOLEAN on) {
 }
 
 void sglClipping(SGL_BOOLEAN on) {
-    current_sgl_context->clipping = on;
+    GLOBAL_sgl_currentContext->clipping = on;
 }
 
 void sglPushMatrix() {
     Matrix4x4 *oldtrans;
 
-    if ( current_sgl_context->curtrans - current_sgl_context->transform_stack >= SGL_TRANSFORM_STACK_SIZE - 1 ) {
+    if ( GLOBAL_sgl_currentContext->currentTransform - GLOBAL_sgl_currentContext->transformStack >= SGL_TRANSFORM_STACK_SIZE - 1 ) {
         logError("sglPushMatrix", "Matrix stack overflow");
         return;
     }
 
-    oldtrans = current_sgl_context->curtrans;
-    current_sgl_context->curtrans++;
-    *current_sgl_context->curtrans = *oldtrans;
+    oldtrans = GLOBAL_sgl_currentContext->currentTransform;
+    GLOBAL_sgl_currentContext->currentTransform++;
+    *GLOBAL_sgl_currentContext->currentTransform = *oldtrans;
 }
 
 void sglPopMatrix() {
-    if ( current_sgl_context->curtrans <= current_sgl_context->transform_stack ) {
+    if ( GLOBAL_sgl_currentContext->currentTransform <= GLOBAL_sgl_currentContext->transformStack ) {
         logError("sglPopMatrix", "Matrix stack underflow");
         return;
     }
 
-    current_sgl_context->curtrans--;
+    GLOBAL_sgl_currentContext->currentTransform--;
 }
 
 void sglLoadMatrix(Matrix4x4 xf) {
-    *current_sgl_context->curtrans = xf;
+    *GLOBAL_sgl_currentContext->currentTransform = xf;
 }
 
 void sglMultMatrix(Matrix4x4 xf) {
-    *current_sgl_context->curtrans = TransCompose(*current_sgl_context->curtrans, xf);
+    *GLOBAL_sgl_currentContext->currentTransform = TransCompose(*GLOBAL_sgl_currentContext->currentTransform, xf);
 }
 
 void sglSetColor(SGL_PIXEL col) {
-    current_sgl_context->curpixel = col;
+    GLOBAL_sgl_currentContext->currentPixel = col;
 }
 
 void sglViewport(int x, int y, int width, int height) {
-    current_sgl_context->vp_x = x;
-    current_sgl_context->vp_y = y;
-    current_sgl_context->vp_width = width;
-    current_sgl_context->vp_height = height;
+    GLOBAL_sgl_currentContext->vp_x = x;
+    GLOBAL_sgl_currentContext->vp_y = y;
+    GLOBAL_sgl_currentContext->vp_width = width;
+    GLOBAL_sgl_currentContext->vp_height = height;
 }
 
 void sglPolygon(int nrverts, Vector3D *verts) {
@@ -165,7 +172,7 @@ void sglPolygon(int nrverts, Vector3D *verts) {
     Poly_box clip_box = {-1., 1., -1., 1., -1., 1.};
     int i;
 
-    if ( nrverts > (current_sgl_context->clipping ? (POLY_NMAX - 6) : POLY_NMAX)) {
+    if ( nrverts > (GLOBAL_sgl_currentContext->clipping ? (POLY_NMAX - 6) : POLY_NMAX)) {
         logError("sglPolygon", "Too many vertices (max. %d)", POLY_NMAX);
         return;
     }
@@ -177,7 +184,7 @@ void sglPolygon(int nrverts, Vector3D *verts) {
         v.y = verts[i].y;
         v.z = verts[i].z;
         v.w = 1.;
-        TRANSFORM_POINT_4D(*current_sgl_context->curtrans, v, v);
+        TRANSFORM_POINT_4D(*GLOBAL_sgl_currentContext->currentTransform, v, v);
         if ( v.w > -EPSILON && v.w < EPSILON ) {
             return;
         }
@@ -189,7 +196,7 @@ void sglPolygon(int nrverts, Vector3D *verts) {
     pol.n = nrverts;
     pol.mask = 0;
 
-    if ( current_sgl_context->clipping ) {
+    if ( GLOBAL_sgl_currentContext->clipping ) {
         pol.mask = POLY_MASK(sx) | POLY_MASK(sy) | POLY_MASK(sz) | POLY_MASK(sw);
         if ( poly_clip_to_box(&pol, &clip_box) == POLY_CLIP_OUT ) {
             return;
@@ -198,23 +205,23 @@ void sglPolygon(int nrverts, Vector3D *verts) {
 
     /* perspective divide and transformation to viewport and depth range */
     for ( i = 0, pv = &pol.vert[0]; i < pol.n; i++, pv++ ) {
-        pv->sx = (double) current_sgl_context->vp_x +
-                 (pv->sx / pv->sw + 1.) * (double) current_sgl_context->vp_width * 0.5;
-        pv->sy = (double) current_sgl_context->vp_y +
-                 (pv->sy / pv->sw + 1.) * (double) current_sgl_context->vp_height * 0.5;
-        pv->sz = (current_sgl_context->near + (pv->sz / pv->sw + 1.) * current_sgl_context->far * 0.5) *
-                 (double) SGL_ZMAX;
+        pv->sx = (double) GLOBAL_sgl_currentContext->vp_x +
+                 (pv->sx / pv->sw + 1.) * (double) GLOBAL_sgl_currentContext->vp_width * 0.5;
+        pv->sy = (double) GLOBAL_sgl_currentContext->vp_y +
+                 (pv->sy / pv->sw + 1.) * (double) GLOBAL_sgl_currentContext->vp_height * 0.5;
+        pv->sz = (GLOBAL_sgl_currentContext->near + (pv->sz / pv->sw + 1.) * GLOBAL_sgl_currentContext->far * 0.5) *
+                 (double) SGL_MAXIMUM_Z;
     }
 
     /* window */
-    win.x0 = current_sgl_context->vp_x;
-    win.y0 = current_sgl_context->vp_y;
-    win.x1 = current_sgl_context->vp_x + current_sgl_context->vp_width - 1;
-    win.y1 = current_sgl_context->vp_y + current_sgl_context->vp_height - 1;
+    win.x0 = GLOBAL_sgl_currentContext->vp_x;
+    win.y0 = GLOBAL_sgl_currentContext->vp_y;
+    win.x1 = GLOBAL_sgl_currentContext->vp_x + GLOBAL_sgl_currentContext->vp_width - 1;
+    win.y1 = GLOBAL_sgl_currentContext->vp_y + GLOBAL_sgl_currentContext->vp_height - 1;
 
     /* scan convert the polygon: use optimized version for flat shading
      * with or without Z buffering. */
-    if ( !current_sgl_context->zbuf ) {
+    if ( !GLOBAL_sgl_currentContext->depthBuffer ) {
         poly_scan_flat(&pol, &win);
     } else {
         poly_scan_z(&pol, &win);

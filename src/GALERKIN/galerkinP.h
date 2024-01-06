@@ -8,8 +8,8 @@
 #include "common/mymath.h"
 #include "material/color.h"
 #include "shared/cubature.h"
+#include "SGL/sgl.h"
 #include "GALERKIN/elementgalerkin.h"
-#include "SGL/sgl_context.h"
 
 /* the Galerkin specifix data for a patch is its toplevel element. The
  * ELEMENT structure is defined in element.h. */

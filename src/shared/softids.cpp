@@ -19,7 +19,7 @@ SetupSoftFrameBuffer() {
     sgl = sglOpen(GLOBAL_camera_mainCamera.hres, GLOBAL_camera_mainCamera.vres);
     sglDepthTesting(true);
     sglClipping(true);
-    sglClear((SGL_PIXEL) 0, SGL_ZMAX);
+    sglClear((SGL_PIXEL) 0, SGL_MAXIMUM_Z);
 
     sglLoadMatrix(Perspective(GLOBAL_camera_mainCamera.fov * 2. * M_PI / 180., (float) GLOBAL_camera_mainCamera.hres / (float) GLOBAL_camera_mainCamera.vres, GLOBAL_camera_mainCamera.near,
                               GLOBAL_camera_mainCamera.far));
@@ -87,14 +87,14 @@ SoftRenderIds(long *x, long *y) {
         logFatal(-1, "SoftRenderIds", "sizeof(SGL_PIXEL)!=sizeof(long).");
     }
 
-    oldsgl = sglGetCurrent();
+    oldsgl = GLOBAL_sgl_currentContext;
     sgl = SetupSoftFrameBuffer();
     SoftRenderPatchIds();
 
     *x = sgl->width;
     *y = sgl->height;
     ids = (unsigned long *)malloc((int) (*x) * (int) (*y) * sizeof(unsigned long));
-    memcpy(ids, sgl->fbuf, sgl->width * sgl->height * sizeof(long));
+    memcpy(ids, sgl->frameBuffer, sgl->width * sgl->height * sizeof(long));
 
     sglClose(sgl);
     sglMakeCurrent(oldsgl);

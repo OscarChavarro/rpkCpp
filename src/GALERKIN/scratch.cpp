@@ -88,7 +88,7 @@ float *ScratchRenderElementPtrs(ELEMENT *clus, Vector3D eye) {
 
     /* Render element pointers in the scratch frame buffer. */
     eyep = eye;    /* needed for backface culling test */
-    sglClear((SGL_PIXEL) nullptr, SGL_ZMAX);
+    sglClear((SGL_PIXEL) nullptr, SGL_MAXIMUM_Z);
     iterateOverSurfaceElementsInCluster(clus, ScratchRenderElementPtr);
 
     sglMakeCurrent(prev_sgl_context);
@@ -106,7 +106,7 @@ COLOR ScratchRadiance() {
     colorClear(rad);
     nonbkgrnd = 0;
     for ( j = 0; j < GLOBAL_galerkin_state.scratch->vp_height; j++ ) {
-        pix = GLOBAL_galerkin_state.scratch->fbuf + j * GLOBAL_galerkin_state.scratch->width;
+        pix = GLOBAL_galerkin_state.scratch->frameBuffer + j * GLOBAL_galerkin_state.scratch->width;
         for ( i = 0; i < GLOBAL_galerkin_state.scratch->vp_width; i++, pix++ ) {
             ELEMENT *elem = (ELEMENT *) (*pix);
             if ( elem ) {
@@ -135,7 +135,7 @@ int ScratchNonBackgroundPixels() {
 
     nonbkgrnd = 0;
     for ( j = 0; j < GLOBAL_galerkin_state.scratch->vp_height; j++ ) {
-        pix = GLOBAL_galerkin_state.scratch->fbuf + j * GLOBAL_galerkin_state.scratch->width;
+        pix = GLOBAL_galerkin_state.scratch->frameBuffer + j * GLOBAL_galerkin_state.scratch->width;
         for ( i = 0; i < GLOBAL_galerkin_state.scratch->vp_width; i++, pix++ ) {
             ELEMENT *elem = (ELEMENT *) (*pix);
             if ( elem ) {
@@ -154,7 +154,7 @@ void ScratchPixelsPerElement() {
     int i, j;
 
     for ( j = 0; j < GLOBAL_galerkin_state.scratch->vp_height; j++ ) {
-        pix = GLOBAL_galerkin_state.scratch->fbuf + j * GLOBAL_galerkin_state.scratch->width;
+        pix = GLOBAL_galerkin_state.scratch->frameBuffer + j * GLOBAL_galerkin_state.scratch->width;
         for ( i = 0; i < GLOBAL_galerkin_state.scratch->vp_width; i++, pix++ ) {
             ELEMENT *elem = (ELEMENT *) (*pix);
             if ( elem ) {

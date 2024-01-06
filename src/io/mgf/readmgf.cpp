@@ -439,17 +439,19 @@ installVertex(Vector3D *coord, Vector3D *norm, char *name) {
 static VERTEX *
 getVertex(char *name) {
     MgfVertexContext *vp;
-    VERTEX *thevertex;
+    VERTEX *theVertex;
 
-    if ((vp = c_getvert(name)) == nullptr ) {
+    vp = c_getvert(name);
+    if ( vp == nullptr ) {
         return (VERTEX *) nullptr;
     }
 
-    thevertex = (VERTEX *) (vp->client_data);
-    if ( !thevertex || vp->clock >= 1 || vp->xid != xf_xid(xf_context) || is0vect(vp->n)) {
+    theVertex = (VERTEX *) (vp->client_data);
+    if ( !theVertex || vp->clock >= 1 || vp->xid != xf_xid(xf_context) || is0vect(vp->n)) {
         /* new vertex, or updated vertex or same vertex, but other transform, or
          * vertex without normal: create a new VERTEX. */
-        FVECT vert, norm;
+        FVECT vert;
+        FVECT norm;
         Vector3D *theNormal;
         Vector3D *thePoint;
 
@@ -461,13 +463,13 @@ getVertex(char *name) {
             xf_xfmvect(norm, vp->n);
             theNormal = installNormal(norm[0], norm[1], norm[2]);
         }
-        thevertex = installVertex(thePoint, theNormal, name);
-        vp->client_data = (void *) thevertex;
+        theVertex = installVertex(thePoint, theNormal, name);
+        vp->client_data = (void *) theVertex;
         vp->xid = xf_xid(xf_context);
     }
     vp->clock = 0;
 
-    return thevertex;
+    return theVertex;
 }
 
 /**

@@ -28,12 +28,12 @@ public:
 
     inline PATCH *
     get_patch_at_pixel(int x, int y) {
-        return (PATCH *) (sgl->fbuf[(sgl->height - 1 - y) * sgl->width + x]);
+        return (PATCH *) (sgl->frameBuffer[(sgl->height - 1 - y) * sgl->width + x]);
     }
 
     inline PATCH **
     get_patches_at_scanline(int y) {
-        return (PATCH **) &(sgl->fbuf[(sgl->height - 1 - y) * sgl->width]);
+        return (PATCH **) &(sgl->frameBuffer[(sgl->height - 1 - y) * sgl->width]);
     }
 };
 

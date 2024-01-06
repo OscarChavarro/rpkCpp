@@ -134,7 +134,7 @@ static void SoftGetPatchPointers(SGL_CONTEXT *sgl) {
                 }
     EndForAll;
 
-    for ( pix = sgl->fbuf, i = 0; i < sgl->width * sgl->height; pix++, i++ ) {
+    for ( pix = sgl->frameBuffer, i = 0; i < sgl->width * sgl->height; pix++, i++ ) {
         PATCH *P = (PATCH *) (*pix);
         if ( P ) PATCH_SET_VISIBLE(P);  /* visible */
     }
@@ -142,7 +142,7 @@ static void SoftGetPatchPointers(SGL_CONTEXT *sgl) {
 
 void SoftUpdateDirectVisibility() {
     clock_t t = clock();
-    SGL_CONTEXT *oldsgl = sglGetCurrent();
+    SGL_CONTEXT *oldsgl = GLOBAL_sgl_currentContext;
     SGL_CONTEXT *sgl = SetupSoftFrameBuffer();
     SoftRenderPatches(PatchPointer);
     SoftGetPatchPointers(sgl);

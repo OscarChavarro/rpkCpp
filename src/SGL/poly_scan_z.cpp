@@ -49,7 +49,7 @@ static void scanline(int y, Poly_vert *l, Poly_vert *r, Window *win) {
     int x, lx, rx, offset;
     int dz;
     SGL_PIXEL *pix;
-    SGL_ZVAL *zval, z;
+    SGL_Z_VALUE *zval, z;
     double dx, frac, dzf;
 
     lx = ceil(l->sx - .5);
@@ -70,15 +70,15 @@ static void scanline(int y, Poly_vert *l, Poly_vert *r, Window *win) {
     }
     frac = lx + .5 - l->sx;
     dzf = (r->sz - l->sz) / dx;
-    z = (SGL_ZVAL) (l->sz + dzf * frac);
+    z = (SGL_Z_VALUE) (l->sz + dzf * frac);
     dz = (int) dzf;
 
-    offset = y * current_sgl_context->width + lx;
-    pix = current_sgl_context->fbuf + offset;
-    zval = current_sgl_context->zbuf + offset;
+    offset = y * GLOBAL_sgl_currentContext->width + lx;
+    pix = GLOBAL_sgl_currentContext->frameBuffer + offset;
+    zval = GLOBAL_sgl_currentContext->depthBuffer + offset;
     for ( x = lx; x <= rx; x++ ) {        /* scan in x, generating pixels */
         if ( z <= *zval ) {
-            *pix = current_sgl_context->curpixel;
+            *pix = GLOBAL_sgl_currentContext->currentPixel;
             *zval = z;
         }
         pix++;

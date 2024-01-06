@@ -129,7 +129,6 @@ set(MAIN_SRC
     src/raycasting/simple/RayMatter.cpp
     src/raycasting/raytracing/BidirectionalPathRaytracer.cpp
     src/raycasting/raytracing/bipath.cpp
-    src/raycasting/raytracing/bsdfcompsampler.cpp
     src/raycasting/raytracing/bsdfsampler.cpp
     src/raycasting/raytracing/densitybuffer.cpp
     src/raycasting/raytracing/densitykernel.cpp
