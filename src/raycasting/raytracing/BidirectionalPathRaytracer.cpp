@@ -71,7 +71,7 @@ class BPCONFIG {
 static bool SpikeCheck(COLOR col) {
     //  return false;
 
-    double colAvg = COLORAVERAGE(col);
+    double colAvg = colorAverage(col);
 
     if ( ISNAN(colAvg)) {
         printf("COL ");
@@ -131,7 +131,7 @@ static void AddWithSpikeCheck(BPCONFIG *config, CBiPath *path, int nx, int ny,
             float factor = rs->GetPixXSize() * rs->GetPixYSize()
                            * (float) config->bcfg->totalSamples;
 
-            if ( COLORAVERAGE(f) > EPSILON ) {
+            if ( colorAverage(f) > EPSILON ) {
                 colorScale(factor, f, g); // Undo part of flux to rad factor
 
                 config->kernel.VarCover(center, g, rs, ds,

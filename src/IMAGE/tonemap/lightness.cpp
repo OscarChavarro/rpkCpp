@@ -39,7 +39,7 @@ static COLOR ScaleForComputations(COLOR radiance) {
 static COLOR ScaleForDisplay(COLOR radiance) {
     float max, scale_factor;
 
-    max = COLORMAXCOMPONENT(radiance);
+    max = colorMaximumComponent(radiance);
     if ( max < 1e-32 ) {
         return radiance;
     }

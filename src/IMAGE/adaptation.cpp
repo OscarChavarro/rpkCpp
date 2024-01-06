@@ -70,7 +70,7 @@ static COLOR (*PatchRadianceEstimate)(PATCH *P) = InitRadianceEstimate;
 
 static float PatchBrightnessEstimate(PATCH *patch) {
     COLOR radiance = PatchRadianceEstimate(patch);
-    float brightness = ColorLuminance(radiance);
+    float brightness = colorLuminance(radiance);
     if ( brightness < EPSILON ) {
         brightness = EPSILON;
     }

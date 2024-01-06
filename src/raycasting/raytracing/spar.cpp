@@ -281,7 +281,7 @@ COLOR CLeSpar::HandlePath(CSparConfig *sconfig,
     if ( sconfig->m_bcfg->doLe ) {
         col = EvalFunction(&m_contrib[DISJUNCTGROUP], path);
 
-        if ( COLORAVERAGE(col) > ZEROEPSILON ) {
+        if ( colorAverage(col) > ZEROEPSILON ) {
             wp = EvalPDFAndWeight(sconfig, path);
 
             colorAddScaled(result, wp * totalGeom, col, result);
@@ -297,7 +297,7 @@ COLOR CLeSpar::HandlePath(CSparConfig *sconfig,
 
             col = EvalFunction(&m_contrib[LDGROUP], path);
 
-            if ( COLORAVERAGE(col) > ZEROEPSILON ) {
+            if ( colorAverage(col) > ZEROEPSILON ) {
                 wp = EvalPDFAndMPWeight(sconfig, path);
 
                 colorAddScaled(result, wp * totalGeom, col, result);
@@ -441,7 +441,7 @@ double CLeSpar::ComputeWeightTerms(TPathGroupID,
 
     // precompute Sl and Se (S value for light path and eyepath/nee to light)
 
-    double sumAl = COLORAVERAGE(GLOBAL_statistics_totalEmittedPower);
+    double sumAl = colorAverage(GLOBAL_statistics_totalEmittedPower);
     double u, v;
     COLOR col;
 
@@ -451,15 +451,15 @@ double CLeSpar::ComputeWeightTerms(TPathGroupID,
 
     colorClear(col);
 
-    COLORCLIPPOSITIVE(col, col);
+    colorClipPositive(col, col);
 
-    Sl = sumAl * COLORAVERAGE(col);
+    Sl = sumAl * colorAverage(col);
 
     colorClear(col);
 
-    COLORCLIPPOSITIVE(col, col);
+    colorClipPositive(col, col);
 
-    Se = COLORAVERAGE(col) * L2L1pdf;
+    Se = colorAverage(col) * L2L1pdf;
 
     // pdfAcc for the path
 
@@ -786,7 +786,7 @@ COLOR CLDSpar::HandlePath(CSparConfig *sconfig,
         if ( sconfig->m_bcfg->doLD ) {
             col = EvalFunction(&m_contrib[DISJUNCTGROUP], path);
 
-            if ( COLORAVERAGE(col) > ZEROEPSILON ) {
+            if ( colorAverage(col) > ZEROEPSILON ) {
                 wp = EvalPDFAndWeight(sconfig, path);
                 colorAddScaled(result, wp * totalGeom, col, result);
             }
@@ -796,7 +796,7 @@ COLOR CLDSpar::HandlePath(CSparConfig *sconfig,
         if ( sconfig->m_bcfg->doWeighted && sconfig->m_bcfg->doWLD ) {
             col = EvalFunction(&m_contrib[LDGROUP], path);
 
-            if ( COLORAVERAGE(col) > ZEROEPSILON ) {
+            if ( colorAverage(col) > ZEROEPSILON ) {
                 wp = EvalPDFAndMPWeight(sconfig, path);
 
                 colorAddScaled(result, wp * totalGeom, col, result);
@@ -861,9 +861,9 @@ double CLDSpar::ComputeWeightTerms(TPathGroupID,
 
     colorClear(col);
 
-    COLORCLIPPOSITIVE(col, col);
+    colorClipPositive(col, col);
 
-    Sld = COLORAVERAGE(col);
+    Sld = colorAverage(col);
     Sld = Sld * Sld;
 
     //  COLOR accuracy;
@@ -930,7 +930,7 @@ void CLDSpar::GetStoredRadiance(CPathNode *node) {
     col = Radiance->GetRadiance(node->m_hit.patch, u, v,
                                 node->m_inDirF);
 
-    COLORCLIPPOSITIVE(col, col);
+    colorClipPositive(col, col);
 
     node->m_bsdfComp.Clear();
     node->m_bsdfComp.Fill(col, BRDF_DIFFUSE_COMPONENT);
@@ -996,7 +996,7 @@ void CIDSpar::GetStoredRadiance(CPathNode *node) {
 
     colorClear(col);
 
-    COLORCLIPPOSITIVE(col, col);
+    colorClipPositive(col, col);
 
     node->m_bsdfComp.Clear();
     node->m_bsdfComp.Fill(col, BRDF_DIFFUSE_COMPONENT);

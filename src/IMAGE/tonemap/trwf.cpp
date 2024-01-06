@@ -157,7 +157,7 @@ static void Terminate() {
 static COLOR TR_ScaleForComputations(COLOR radiance) {
     float rwl, scale;
 
-    rwl = ColorLuminance(radiance);
+    rwl = colorLuminance(radiance);
 
     if ( rwl > 0.0 ) {
         float m = TMO_LAMBERT_CANDELA(
@@ -174,7 +174,7 @@ static COLOR TR_ScaleForComputations(COLOR radiance) {
 static COLOR TR_ScaleForDisplay(COLOR radiance) {
     float rwl, scale, eff;
 
-    rwl = M_PI * ColorLuminance(radiance);
+    rwl = M_PI * colorLuminance(radiance);
 
     GetLuminousEfficacy(&eff);
     colorScale(eff * M_PI, radiance, radiance);
@@ -252,7 +252,7 @@ TONEMAP TM_Ward = {
 static COLOR RevisedTR_ScaleForComputations(COLOR radiance) {
     float rwl, scale;
 
-    rwl = ColorLuminance(radiance);
+    rwl = colorLuminance(radiance);
 
     if ( rwl > 0.0 ) {
         scale = r_comp * pow(rwl / _lwa, g) / rwl;
@@ -267,7 +267,7 @@ static COLOR RevisedTR_ScaleForComputations(COLOR radiance) {
 static COLOR RevisedTR_ScaleForDisplay(COLOR radiance) {
     float rwl, scale, eff;
 
-    rwl = M_PI * ColorLuminance(radiance);
+    rwl = M_PI * colorLuminance(radiance);
 
     GetLuminousEfficacy(&eff);
     colorScale(eff * M_PI, radiance, radiance);

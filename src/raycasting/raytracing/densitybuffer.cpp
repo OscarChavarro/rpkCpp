@@ -98,7 +98,7 @@ void CDensityBuffer::Add(float x, float y, COLOR col, float pdf, float w) {
 
     // printf("Hit %f %f Index %i %i\n",hit.m_x, hit.m_y, XIndex(x), XIndex(y));
 
-    if ( COLORAVERAGE(col) > EPSILON ) {
+    if ( colorAverage(col) > EPSILON ) {
         colorScale(factor, col, tmpCol); // Undo part of flux to rad factor
 
         CDensityHit hit(x, y, tmpCol, pdf, w);

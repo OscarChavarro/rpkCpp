@@ -20,8 +20,8 @@ bool CSpecularSampler::Sample(CPathNode *prevNode, CPathNode *thisNode,
                                             &thisNode->m_hit.normal,
                                             GETBTDFFLAGS(flags));
 
-    float avgReflectance = COLORAVERAGE(reflectance);
-    float avgTransmittance = COLORAVERAGE(transmittance);
+    float avgReflectance = colorAverage(reflectance);
+    float avgTransmittance = colorAverage(transmittance);
 
     float avgScattering = avgReflectance + avgTransmittance;
 

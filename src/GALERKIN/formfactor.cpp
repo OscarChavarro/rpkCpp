@@ -291,7 +291,7 @@ static void DoHigherOrderAreaToAreaFormFactor(INTERACTION *link,
             double delta;
 
             colorDivide(deltarad[k], srcrad[0], deltarad[k]);
-            if ((delta = fabs(COLORMAXCOMPONENT(deltarad[k]))) > link->deltaK.f ) {
+            if ((delta = fabs(colorMaximumComponent(deltarad[k]))) > link->deltaK.f ) {
                 link->deltaK.f = delta;
             }
         }

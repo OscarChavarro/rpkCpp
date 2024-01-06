@@ -185,7 +185,7 @@ SplitBsdfProbabilities(SPLIT_BSDF *bsdf, HITREC *hit, BSDFFLAGS flags,
         /* bsdf has a texture for diffuse reflection and diffuse reflection
          * needs to be sampled */
         textureColor = SplitBsdfEvalTexture(bsdf->texture, hit);
-        *Ptexture = COLORAVERAGE(textureColor);
+        *Ptexture = colorAverage(textureColor);
         flags &= ~TEXTURED_COMPONENT;
     }
 
@@ -193,10 +193,10 @@ SplitBsdfProbabilities(SPLIT_BSDF *bsdf, HITREC *hit, BSDFFLAGS flags,
     *btdfFlags = GETBTDFFLAGS(flags);
 
     reflectance = BrdfReflectance(bsdf->brdf, *brdfFlags);
-    *Preflection = COLORAVERAGE(reflectance);
+    *Preflection = colorAverage(reflectance);
 
     transmittance = BtdfTransmittance(bsdf->btdf, *btdfFlags);
-    *Ptransmission = COLORAVERAGE(transmittance);
+    *Ptransmission = colorAverage(transmittance);
 }
 
 static SAMPLING_MODE

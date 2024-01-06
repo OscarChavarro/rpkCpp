@@ -275,12 +275,12 @@ GetCurrentMaterial() {
     }
 
     if ( monochrome ) {
-        colorSetMonochrome(Ed, ColorGray(Ed));
-        colorSetMonochrome(Es, ColorGray(Es));
-        colorSetMonochrome(Rd, ColorGray(Rd));
-        colorSetMonochrome(Rs, ColorGray(Rs));
-        colorSetMonochrome(Td, ColorGray(Td));
-        colorSetMonochrome(Ts, ColorGray(Ts));
+        colorSetMonochrome(Ed, colorGray(Ed));
+        colorSetMonochrome(Es, colorGray(Es));
+        colorSetMonochrome(Rd, colorGray(Rd));
+        colorSetMonochrome(Rs, colorGray(Rs));
+        colorSetMonochrome(Td, colorGray(Td));
+        colorSetMonochrome(Ts, colorGray(Ts));
     }
 
     thematerial = MaterialCreate(matname,

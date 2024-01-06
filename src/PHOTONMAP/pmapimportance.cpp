@@ -26,7 +26,7 @@ static bool BounceDiffuseOrGlossy(CPathNode *node) {
 
 static bool DoImportanceStore(CImportanceMap *map, CPathNode *node, COLOR importance) {
     if ( HasDiffuseOrGlossy(node)) {
-        float importanceF = COLORAVERAGE(importance);
+        float importanceF = colorAverage(importance);
         float potentialF = 1.0; // COLORAVERAGE(potential)*Ax;
 
         // Compute footprint

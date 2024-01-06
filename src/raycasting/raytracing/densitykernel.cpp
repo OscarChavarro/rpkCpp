@@ -109,8 +109,8 @@ void CKernel2D::VarCover(const Vector2D &center, COLOR &col, ScreenBuffer *ref,
     // Reference estimated function
     COLOR fe = ref->GetBiLinear(center.u, center.v);
 
-    float avgFe = COLORAVERAGE(fe);
-    float avgG = COLORAVERAGE(col);
+    float avgFe = colorAverage(fe);
+    float avgG = colorAverage(col);
 
     if ( avgFe > EPSILON ) {
         h = Bn * sqrt(avgG / avgFe);

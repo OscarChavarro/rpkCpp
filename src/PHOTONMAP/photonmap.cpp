@@ -12,7 +12,7 @@ bool ZeroAlbedo(BSDF *bsdf, HITREC *hit, BSDFFLAGS flags) {
 
     col = BsdfScatteredPower(bsdf, hit, &hit->gnormal, flags);
 
-    return (COLORAVERAGE(col) < EPSILON);
+    return (colorAverage(col) < EPSILON);
 }
 
 
@@ -389,8 +389,8 @@ COLOR CPhotonMap::Reconstruct(HITREC *hit, Vector3D &outDir,
 
     CheckNBalance();
 
-    if ( COLORAVERAGE(glossyAlbedo) < EPSILON ) {
-        if ( COLORAVERAGE(diffuseAlbedo) < EPSILON ) {
+    if ( colorAverage(glossyAlbedo) < EPSILON ) {
+        if ( colorAverage(diffuseAlbedo) < EPSILON ) {
             return result; // No reflectance
         } else {
             if ( m_precomputeIrradiance ) {
@@ -518,7 +518,7 @@ double CPhotonMap::Sample(Vector3D &pos, double *r, double *s,
             //printf("Ph %i, pr %g, ps %g, pow %g\n", i, pr, ps,
             //	     COLORAVERAGE(col)/m_nrPhotons);
 
-            m_grid->Add(pr, ps, COLORAVERAGE(col) / m_nrPhotons);
+            m_grid->Add(pr, ps, colorAverage(col) / m_nrPhotons);
         }
 
         m_grid->EnsureNonZeroEntries();

@@ -455,9 +455,11 @@ static COLOR McrInterpolatedReflectanceAtPoint(ELEMENT *leaf, double u, double v
 
     colorClear(rd);
     switch ( leaf->nrvertices ) {
-        case 3: COLORINTERPOLATEBARYCENTRIC(vrd[0], vrd[1], vrd[2], u, v, rd);
+        case 3:
+            colorInterpolateBarycentric(vrd[0], vrd[1], vrd[2], u, v, rd);
             break;
-        case 4: COLORINTERPOLATEBILINEAR(vrd[0], vrd[1], vrd[2], vrd[3], u, v, rd);
+        case 4:
+            colorInterpolateBilinear(vrd[0], vrd[1], vrd[2], vrd[3], u, v, rd);
             break;
         default:
             Fatal(-1, "McrInterpolatedReflectanceAtPoint", "Invalid nr of vertices %d", leaf->nrvertices);

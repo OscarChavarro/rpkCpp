@@ -177,7 +177,7 @@ ScreenBuffer::GetBiLinear(float x, float y) {
     COLOR c2 = Get(nx1, ny1); // u = 1, v = 1
     COLOR c3 = Get(nx0, ny1); // v = 1
 
-    COLORINTERPOLATEBILINEAR(c0, c1, c2, c3, x, y, col);
+    colorInterpolateBilinear(c0, c1, c2, c3, x, y, col);
 
     return col;
 }

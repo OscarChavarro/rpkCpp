@@ -132,8 +132,8 @@ static int LowPowerLink(LINK *link) {
         colorProduct(Rd, rhosrcrad, rhosrcrad);
     }
 
-    threshold = hierarchy.epsilon * COLORMAXCOMPONENT(GLOBAL_statistics_maxSelfEmittedPower);
-    propagated_power = rcv->area * ff * COLORMAXCOMPONENT(rhosrcrad);
+    threshold = hierarchy.epsilon * colorMaximumComponent(GLOBAL_statistics_maxSelfEmittedPower);
+    propagated_power = rcv->area * ff * colorMaximumComponent(rhosrcrad);
     if ( mcr.importance_driven ) {
         propagated_power *= rcv->imp;
         if ( !rcv->iscluster ) {

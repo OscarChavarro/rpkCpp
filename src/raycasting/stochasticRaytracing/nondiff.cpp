@@ -33,7 +33,7 @@ static void MakeLightSourceTable() {
     ForAllPatches(l, GLOBAL_scene_lightSourcePatches)
                 {
                     COLOR emitted_rad = PatchAverageEmittance(l, ALL_COMPONENTS);
-                    double flux = M_PI * l->area * COLORSUMABSCOMPONENTS(emitted_rad);
+                    double flux = M_PI * l->area * colorSumAbsComponents(emitted_rad);
                     totalflux += flux;
                     InitLight(&lights[i], l, flux);
                     i++;

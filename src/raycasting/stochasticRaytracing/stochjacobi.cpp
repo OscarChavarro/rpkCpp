@@ -85,7 +85,7 @@ static double Probability(ELEMENT *elem) {
         if ( mcr.constant_control_variate ) {
             colorSubtract(radiance, mcr.control_radiance, radiance);
         }
-        prob = /* M_PI * */ elem->area * COLORSUMABSCOMPONENTS(radiance);
+        prob = /* M_PI * */ elem->area * colorSumAbsComponents(radiance);
         if ( mcr.importance_driven ) {
             /* weight with received importance */
             float w = (elem->imp - elem->source_imp);
@@ -100,7 +100,7 @@ static double Probability(ELEMENT *elem) {
             /* received-radiance weighted importance transport */
             COLOR received_radiance;
             colorSubtract(elem->rad[0], elem->source_rad, received_radiance);
-            prob2 *= COLORSUMABSCOMPONENTS(received_radiance);
+            prob2 *= colorSumAbsComponents(received_radiance);
         }
 
         /* equal weight to importance and radiance propagation for constant approximation,

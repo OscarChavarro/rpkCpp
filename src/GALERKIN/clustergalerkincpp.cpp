@@ -423,7 +423,7 @@ static void DetermineMaxRadiance(ELEMENT *elem) {
     } else {
         rad = elem->unshot_radiance[0];
     }
-    COLORMAX(srcrad, rad, srcrad);
+    colorMaximum(srcrad, rad, srcrad);
 }
 
 COLOR maxClusterRadiance(ELEMENT *clus) {

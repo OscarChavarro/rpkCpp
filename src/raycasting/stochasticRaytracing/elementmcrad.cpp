@@ -550,7 +550,7 @@ ElementScalarReflectance(ELEMENT *elem) {
         return 1.0;
     }
 
-    rd = COLORMAXCOMPONENT(elem->Rd);
+    rd = colorMaximumComponent(elem->Rd);
     if ( rd < EPSILON ) {
         rd = EPSILON;
     }    /* avoid divisions by zero */
@@ -842,24 +842,24 @@ PrintElement(FILE *out, ELEMENT *elem) {
         niedindex msb1, rmsb2;
         fprintf(out, "Surface element: material '%s', reflectosity = %g, self-emitted luminsoity = %g\n",
                 elem->pog.patch->surface->material->name,
-                ColorGray(elem->Rd),
-                ColorLuminance(elem->Ed));
+                colorGray(elem->Rd),
+                colorLuminance(elem->Ed));
         ElementRange(elem, &nbits, &msb1, &rmsb2);
         fprintf(out, "Element range: %d bits, msb1 = %016llx, rmsb2 = %016llx\n", nbits, msb1, rmsb2);
     }
     fprintf(out, "rad = ");
     stochasticRaytracingPrintCoefficients(out, elem->rad, elem->basis);
-    fprintf(out, ", luminosity = %g\n", ColorLuminance(elem->rad[0]) * M_PI);
+    fprintf(out, ", luminosity = %g\n", colorLuminance(elem->rad[0]) * M_PI);
 
     fprintf(out, "unshot rad = ");
     stochasticRaytracingPrintCoefficients(out, elem->unshot_rad, elem->basis);
-    fprintf(out, ", luminosity = %g\n", ColorLuminance(elem->unshot_rad[0]) * M_PI);
+    fprintf(out, ", luminosity = %g\n", colorLuminance(elem->unshot_rad[0]) * M_PI);
     fprintf(out, "received rad = ");
     stochasticRaytracingPrintCoefficients(out, elem->received_rad, elem->basis);
-    fprintf(out, ", luminosity = %g\n", ColorLuminance(elem->received_rad[0]) * M_PI);
+    fprintf(out, ", luminosity = %g\n", colorLuminance(elem->received_rad[0]) * M_PI);
     fprintf(out, "source rad = ");
     elem->source_rad.print(out);
-    fprintf(out, ", luminosity = %g\n", ColorLuminance(elem->source_rad) * M_PI);
+    fprintf(out, ", luminosity = %g\n", colorLuminance(elem->source_rad) * M_PI);
     fprintf(out, "ray index = %d\n", (unsigned) elem->ray_index);
     fprintf(out, "imp = %g, unshot_imp = %g, received_imp = %g, source_imp = %g\n",
             elem->imp, elem->unshot_imp, elem->received_imp, elem->source_imp);

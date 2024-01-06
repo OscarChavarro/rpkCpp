@@ -28,7 +28,7 @@ bool CBsdfSampler::Sample(CPathNode *prevNode, CPathNode *thisNode,
     if ( doRR ) {
         COLOR albedo = BsdfScatteredPower(thisNode->m_useBsdf, &thisNode->m_hit,
                                           &thisNode->m_inDirF, flags);
-        newNode->m_rracc *= COLORAVERAGE(albedo);
+        newNode->m_rracc *= colorAverage(albedo);
     }
 
 

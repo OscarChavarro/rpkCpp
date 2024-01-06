@@ -32,7 +32,7 @@ static void InitialControlRadiosity(COLOR *minRad, COLOR *maxRad, COLOR *fmin, C
                                 /* factor M_PI is omitted everywhere */
                                 colorAddScaled(totalflux, /* M_PI* */ warea, rad, totalflux);
                                 area += warea;
-                                COLORMAX(maxrad, rad, maxrad);
+                                colorMaximum(maxrad, rad, maxrad);
                             }
                     REC_EndForAllSurfaceLeafs;
                 }
@@ -115,7 +115,7 @@ static void RefineControlRadiosity(COLOR *minRad, COLOR *maxRad, COLOR *fmin, CO
                                     COLOR t;
                                     colorProduct(s, rad[i], t);
                                     colorSubtract(B, t, t);
-                                    COLORABS(t, t);
+                                    colorAbs(t, t);
                                     colorAddScaled(f[i], warea, t, f[i]);
                                 }
                             }
@@ -157,7 +157,7 @@ COLOR DetermineControlRadiosity(COLOR *(*GetRadiance)(ELEMENT *),
 
     colorSubtract(fmax, fmin, delta);
     colorAddScaled(delta, (-eps), fmin, delta);
-    while ((COLORMAXCOMPONENT(delta) > 0.) || sweep < 4 ) {
+    while ((colorMaximumComponent(delta) > 0.) || sweep < 4 ) {
         sweep++;
         RefineControlRadiosity(&minRad, &maxRad, &fmin, &fmax);
         colorSubtract(fmax, fmin, delta);
@@ -167,7 +167,7 @@ COLOR DetermineControlRadiosity(COLOR *(*GetRadiance)(ELEMENT *),
     colorAdd(minRad, maxRad, beta);
     colorScale(0.5, beta, beta);
     beta.print(stderr);
-    fprintf(stderr, " (%g lux)", M_PI * ColorLuminance(beta));
+    fprintf(stderr, " (%g lux)", M_PI * colorLuminance(beta));
     fprintf(stderr, "\n");
     return beta;
 }

@@ -30,7 +30,7 @@ void ElementHierarchyInit() {
      * will be multiplied by the importance value. (jp) */
 
     hierarchy.maxlinkpow = hierarchy.epsilon *
-                           COLORMAXCOMPONENT(GLOBAL_statistics_maxSelfEmittedPower);
+            colorMaximumComponent(GLOBAL_statistics_maxSelfEmittedPower);
 
     /* These lists hold vertices created during hierarchical refinement. */
 

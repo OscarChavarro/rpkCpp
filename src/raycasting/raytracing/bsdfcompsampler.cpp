@@ -18,7 +18,7 @@ bool CBsdfCompSampler::Sample(CPathNode *prevNode, CPathNode *thisNode,
         if ((m_compArray[i] & flags) != NO_COMPONENTS ) {
             col = BsdfScatteredPower(bsdf, &thisNode->m_hit, &thisNode->m_normal,
                                      m_compArray[i] & flags);
-            scatteredPower[i] = COLORAVERAGE(col);
+            scatteredPower[i] = colorAverage(col);
             totalPower += scatteredPower[i];
         } else {
             scatteredPower[i] = 0;

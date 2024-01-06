@@ -42,7 +42,7 @@ PatchArea(PATCH *P) {
 static double
 ScalarSourcePower(PATCH *P) {
     COLOR radiance = SOURCE_RAD(P);
-    return /* M_PI * */ P->area * COLORSUMABSCOMPONENTS(radiance);
+    return /* M_PI * */ P->area * colorSumAbsComponents(radiance);
 }
 
 /* returns a double instead of a float in order to make it useful as 
@@ -194,12 +194,14 @@ DoShootingIteration() {
     if ( mcr.continuous_random_walk ) {
         nr_walks *= approxdesc[mcr.approx_type].basis_size;
     } else {
-        nr_walks *= pow(approxdesc[mcr.approx_type].basis_size, 1. / (1. - COLORMAXCOMPONENT(GLOBAL_statistics_averageReflectivity)));
+        nr_walks *= pow(approxdesc[mcr.approx_type].basis_size, 1. / (1. -
+                colorMaximumComponent(GLOBAL_statistics_averageReflectivity)));
     }
 
     fprintf(stderr, "Shooting iteration %d (%ld paths, approximately %ld rays)\n",
             mcr.iteration_nr,
-            nr_walks, (long) floor((double) nr_walks / (1. - COLORMAXCOMPONENT(GLOBAL_statistics_averageReflectivity))));
+            nr_walks, (long) floor((double) nr_walks / (1. -
+                    colorMaximumComponent(GLOBAL_statistics_averageReflectivity))));
 
     TracePaths(nr_walks,
                ScalarSourcePower, ScalarReflectance,
@@ -233,7 +235,7 @@ DetermineGatheringControlRadiosity() {
     colorDivide(c1, c2, cr);
     fprintf(stderr, "Control radiosity value = ");
     cr.print(stderr);
-    fprintf(stderr, ", luminosity = %g\n", ColorLuminance(cr));
+    fprintf(stderr, ", luminosity = %g\n", colorLuminance(cr));
 
     return cr;
 }
@@ -307,7 +309,8 @@ DoGatheringIteration() {
     if ( mcr.continuous_random_walk ) {
         nr_walks *= approxdesc[mcr.approx_type].basis_size;
     } else {
-        nr_walks *= pow(approxdesc[mcr.approx_type].basis_size, 1. / (1. - COLORMAXCOMPONENT(GLOBAL_statistics_averageReflectivity)));
+        nr_walks *= pow(approxdesc[mcr.approx_type].basis_size, 1. / (1. -
+                colorMaximumComponent(GLOBAL_statistics_averageReflectivity)));
     }
 
     if ( mcr.constant_control_variate && mcr.iteration_nr == 1 ) {
@@ -318,7 +321,8 @@ DoGatheringIteration() {
 
     fprintf(stderr, "Collision gathering iteration %d (%ld paths, approximately %ld rays)\n",
             mcr.iteration_nr,
-            nr_walks, (long) floor((double) nr_walks / (1. - COLORMAXCOMPONENT(GLOBAL_statistics_averageReflectivity))));
+            nr_walks, (long) floor((double) nr_walks / (1. -
+                    colorMaximumComponent(GLOBAL_statistics_averageReflectivity))));
 
     TracePaths(nr_walks,
                PatchArea, ScalarReflectance,

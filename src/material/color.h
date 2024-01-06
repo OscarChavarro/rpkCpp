@@ -81,21 +81,60 @@ colorScaleInverse(float a, COLOR &s, COLOR &r) {
     InverseScaleSpectrum(a, s.spec, r.spec);
 }
 
-#define COLORMAXCOMPONENT(s)        MaxSpectrumComponent((s).spec)
-#define COLORSUMABSCOMPONENTS(s)    SumAbsSpectrumComponents((s).spec)
-#define COLORABS(s, r)            AbsSpectrum((s).spec, (r).spec)
-#define COLORMAX(s, t, r)        MaxSpectrum((s).spec, (t).spec, (r).spec)
-#define COLORMIN(s, t, r)        MinSpectrum((s).spec, (t).spec, (r).spec)
-#define COLORCLIPPOSITIVE(s, r)        ClipSpectrumPositive((s).spec, (r).spec)
-#define COLORAVERAGE(s)            SpectrumAverage((s).spec)
+inline float
+colorMaximumComponent(COLOR &s) {
+    return MaxSpectrumComponent(s.spec);
+}
 
-#define ColorGray(s)            SpectrumGray((s).spec)
-#define ColorLuminance(s)        SpectrumLuminance((s).spec)
+inline float
+colorSumAbsComponents(COLOR &s) {
+    return SumAbsSpectrumComponents(s.spec);
+}
 
-#define COLORINTERPOLATEBARYCENTRIC(c0, c1, c2, u, v, c) \
-  SpectrumInterpolateBarycentric(c0.spec, c1.spec, c2.spec, u, v, (c).spec)
-#define COLORINTERPOLATEBILINEAR(c0, c1, c2, c3, u, v, c) \
-  SpectrumInterpolateBilinear(c0.spec, c1.spec, c2.spec, c3.spec, u, v, (c).spec)
+inline void
+colorAbs(COLOR &s, COLOR &r) {
+    AbsSpectrum(s.spec, r.spec);
+}
+
+inline void
+colorMaximum(COLOR &s, COLOR &t, COLOR &r) {
+    MaxSpectrum(s.spec, t.spec, r.spec);
+}
+
+inline void
+colorMinimum(COLOR &s, COLOR &t, COLOR &r) {
+    MinSpectrum(s.spec, t.spec, r.spec);
+}
+
+inline void
+colorClipPositive(COLOR &s, COLOR &r) {
+    ClipSpectrumPositive(s.spec, r.spec);
+}
+
+inline float
+colorAverage(COLOR &s) {
+    return SpectrumAverage(s.spec);
+}
+
+inline float
+colorGray(COLOR &s) {
+    return SpectrumGray(s.spec);
+}
+
+inline float
+colorLuminance(COLOR &s) {
+    return SpectrumLuminance(s.spec);
+}
+
+inline void
+colorInterpolateBarycentric(COLOR &c0, COLOR &c1, COLOR &c2, float u, float v, COLOR &c) {
+    SpectrumInterpolateBarycentric(c0.spec, c1.spec, c2.spec, u, v, c.spec);
+}
+
+inline void
+colorInterpolateBilinear(COLOR &c0, COLOR &c1, COLOR &c2, COLOR &c3, float u, float v, COLOR &c) {
+    SpectrumInterpolateBilinear(c0.spec, c1.spec, c2.spec, c3.spec, u, v, c.spec);
+}
 
 inline void
 printCoefficients(FILE *fileDescriptor, COLOR *c, char n) {

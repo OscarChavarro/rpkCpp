@@ -451,9 +451,11 @@ COLOR ElementDisplayRadianceAtPoint(ELEMENT *elem, double u, double v) {
                 rad[i] = VertexRadiance(elem->vertex[i]);
             }
             switch ( elem->nrvertices ) {
-                case 3: COLORINTERPOLATEBARYCENTRIC(rad[0], rad[1], rad[2], u, v, radiance);
+                case 3:
+                    colorInterpolateBarycentric(rad[0], rad[1], rad[2], u, v, radiance);
                     break;
-                case 4: COLORINTERPOLATEBILINEAR(rad[0], rad[1], rad[2], rad[3], u, v, radiance);
+                case 4:
+                    colorInterpolateBilinear(rad[0], rad[1], rad[2], rad[3], u, v, radiance);
                     break;
                 default:
                     Fatal(-1, "ElementDisplayRadianceAtPoint", "can only handle triangular or quadrilateral elements");

@@ -28,10 +28,10 @@ bool CPhotonMapSampler::ChooseComponent(BSDFFLAGS flags1, BSDFFLAGS flags2,
     // Choose between flags1 or flags2 scattering
 
     col = BsdfScatteredPower(bsdf, hit, &hit->gnormal, flags1);
-    power1 = COLORAVERAGE(col);
+    power1 = colorAverage(col);
 
     col = BsdfScatteredPower(bsdf, hit, &hit->gnormal, flags2);
-    power2 = COLORAVERAGE(col);
+    power2 = colorAverage(col);
 
     totalPower = power1 + power2;
 
@@ -167,8 +167,8 @@ static bool ChooseFresnelDirection(CPathNode *thisNode, CPathNode *newNode,
     COLOR transmittance = BsdfSpecularTransmittance(bsdf, &thisNode->m_hit,
                                                     &thisNode->m_normal);
 
-    bool reflective = (COLORAVERAGE(reflectance) > EPSILON);
-    bool transmittive = (COLORAVERAGE(transmittance) > EPSILON);
+    bool reflective = (colorAverage(reflectance) > EPSILON);
+    bool transmittive = (colorAverage(transmittance) > EPSILON);
 
     if ( reflective && transmittive ) {
         Error("FresnelFactor",

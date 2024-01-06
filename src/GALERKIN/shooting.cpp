@@ -28,7 +28,7 @@ static PATCH *ChooseRadianceShootingPatch() {
     for ( pl = GLOBAL_scene_patches; pl; pl = pl->next ) {
         PATCH *patch = pl->patch;
 
-        power = M_PI * patch->area * COLORSUMABSCOMPONENTS(UNSHOT_RADIANCE(patch));
+        power = M_PI * patch->area * colorSumAbsComponents(UNSHOT_RADIANCE(patch));
         if ( power > maxpower ) {
             shooting_patch = patch;
             maxpower = power;
@@ -82,7 +82,7 @@ ShootUnshotRadianceAndPotentialOverLink(INTERACTION *link) {
         } else {
             srcrho = REFLECTIVITY(link->src->pog.patch);
         }
-        link->rcv->received_potential.f += K * COLORMAXCOMPONENT(srcrho) * link->src->unshot_potential.f;
+        link->rcv->received_potential.f += K * colorMaximumComponent(srcrho) * link->src->unshot_potential.f;
     }
 }
 

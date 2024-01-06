@@ -41,8 +41,8 @@ PatchAccumulateStats(PATCH *patch) {
     colorAddScaled(GLOBAL_statistics_averageReflectivity, patch->area, R, GLOBAL_statistics_averageReflectivity);
     /* convert radiant exitance to exitant radiance */
     colorScale((1.0 / (float)M_PI), E, E);
-    COLORMAX(E, GLOBAL_statistics_maxSelfEmittedRadiance, GLOBAL_statistics_maxSelfEmittedRadiance);
-    COLORMAX(power, GLOBAL_statistics_maxSelfEmittedPower, GLOBAL_statistics_maxSelfEmittedPower);
+    colorMaximum(E, GLOBAL_statistics_maxSelfEmittedRadiance, GLOBAL_statistics_maxSelfEmittedRadiance);
+    colorMaximum(power, GLOBAL_statistics_maxSelfEmittedPower, GLOBAL_statistics_maxSelfEmittedPower);
 }
 
 static void
@@ -550,8 +550,8 @@ ReadFile(char *filename) {
 
     GLOBAL_statistics_numberOfPatches = GLOBAL_statistics_numberOfElements;
     ComputeSomeSceneStats();
-    GLOBAL_statistics_referenceLuminance = 5.42 * ((1. - ColorGray(GLOBAL_statistics_averageReflectivity)) *
-                                                   ColorLuminance(GLOBAL_statistics_estimatedAverageRadiance));
+    GLOBAL_statistics_referenceLuminance = 5.42 * ((1. - colorGray(GLOBAL_statistics_averageReflectivity)) *
+            colorLuminance(GLOBAL_statistics_estimatedAverageRadiance));
 
     t = clock();
     fprintf(stderr, "%g secs.\n", (float) (t - last) / (float) CLOCKS_PER_SEC);
@@ -574,11 +574,11 @@ ReadFile(char *filename) {
            "       GLOBAL_statistics_maxSelfEmittedPower ...........: %f W\n"
            "       adaptation_luminance ............: %f cd/m2\n"
            "       GLOBAL_statistics_totalArea ......................: %f m2\n",
-           ColorGray(GLOBAL_statistics_totalEmittedPower),
-           ColorGray(GLOBAL_statistics_estimatedAverageRadiance),
-           ColorGray(GLOBAL_statistics_averageReflectivity),
-           ColorGray(GLOBAL_statistics_maxSelfEmittedRadiance),
-           ColorGray(GLOBAL_statistics_maxSelfEmittedPower),
+           colorGray(GLOBAL_statistics_totalEmittedPower),
+           colorGray(GLOBAL_statistics_estimatedAverageRadiance),
+           colorGray(GLOBAL_statistics_averageReflectivity),
+           colorGray(GLOBAL_statistics_maxSelfEmittedRadiance),
+           colorGray(GLOBAL_statistics_maxSelfEmittedPower),
            tmopts.lwa,
            GLOBAL_statistics_totalArea);
 

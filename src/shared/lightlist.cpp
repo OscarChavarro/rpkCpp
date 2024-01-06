@@ -49,10 +49,10 @@ CLightList::CLightList(PatchSet *list, bool includeVirtualPatches) {
                             if ( IsPatchVirtual(light)) {
                                 COLOR e = EdfEmittance(light->surface->material->edf, (HITREC *) nullptr,
                                                        DIFFUSE_COMPONENT);
-                                info.emittedFlux = COLORAVERAGE(e);
+                                info.emittedFlux = colorAverage(e);
                             } else {
                                 lightColor = PatchAverageEmittance(light, DIFFUSE_COMPONENT);
-                                info.emittedFlux = COLORAVERAGE(lightColor) * light->area;
+                                info.emittedFlux = colorAverage(lightColor) * light->area;
                             }
 
                             totalFlux += info.emittedFlux;
@@ -123,7 +123,7 @@ double CLightList::EvalPDF_virtual(PATCH *light, Vector3D */*point*/) {
     XXDFFLAGS all = DIFFUSE_COMPONENT || GLOSSY_COMPONENT || SPECULAR_COMPONENT;
 
     COLOR e = EdfEmittance(light->surface->material->edf, (HITREC *) nullptr, all);
-    pdf = COLORAVERAGE(e) / totalFlux;
+    pdf = colorAverage(e) / totalFlux;
 
     return pdf;
 }
@@ -136,7 +136,7 @@ double CLightList::EvalPDF_real(PATCH *light, Vector3D */*point*/) {
     col = PatchAverageEmittance(light, DIFFUSE_COMPONENT);
 
     // Prob for choosing this light
-    pdf = COLORAVERAGE(col) * light->area / totalFlux;
+    pdf = colorAverage(col) * light->area / totalFlux;
 
     return pdf;
 }
@@ -168,7 +168,7 @@ double CLightList::ComputeOneLightImportance_virtual(PATCH *light,
     XXDFFLAGS all = DIFFUSE_COMPONENT || GLOSSY_COMPONENT || SPECULAR_COMPONENT;
 
     COLOR e = EdfEmittance(light->surface->material->edf, (HITREC *) nullptr, all);
-    return COLORAVERAGE(e);
+    return colorAverage(e);
 }
 
 double CLightList::ComputeOneLightImportance_real(PATCH *light,

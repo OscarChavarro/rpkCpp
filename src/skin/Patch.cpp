@@ -419,7 +419,7 @@ void PatchPrint(FILE *out, PATCH *patch) {
     }
     fprintf(out, ", reflectance = ");
     Rd.print(out);
-    fprintf(out, ", self-emitted luminosity = %g\n", ColorLuminance(Ed));
+    fprintf(out, ", self-emitted luminosity = %g\n", colorLuminance(Ed));
 
     fprintf(out, "color: ");
     RGBPrint(out, patch->color);

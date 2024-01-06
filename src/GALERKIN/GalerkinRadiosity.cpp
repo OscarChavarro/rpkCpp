@@ -404,8 +404,10 @@ GetGalerkinStats() {
     p += n;
     sprintf(p, "Link error threshold: %g %s\n\n%n",
             (double) (GLOBAL_galerkin_state.error_norm == RADIANCE_ERROR ?
-                      M_PI * (GLOBAL_galerkin_state.rel_link_error_threshold * ColorLuminance(GLOBAL_statistics_maxSelfEmittedRadiance)) :
-                      GLOBAL_galerkin_state.rel_link_error_threshold * ColorLuminance(GLOBAL_statistics_maxSelfEmittedPower)),
+                      M_PI * (GLOBAL_galerkin_state.rel_link_error_threshold *
+                              colorLuminance(GLOBAL_statistics_maxSelfEmittedRadiance)) :
+                      GLOBAL_galerkin_state.rel_link_error_threshold *
+                              colorLuminance(GLOBAL_statistics_maxSelfEmittedPower)),
             (GLOBAL_galerkin_state.error_norm == RADIANCE_ERROR ? "lux" : "lumen"),
             &n);
     p += n;

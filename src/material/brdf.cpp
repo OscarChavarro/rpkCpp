@@ -25,7 +25,7 @@ BRDF *BrdfCreate(void *data, BRDF_METHODS *methods) {
 COLOR BrdfReflectance(BRDF *brdf, XXDFFLAGS flags) {
     if ( brdf && brdf->methods->Reflectance ) {
         COLOR test = brdf->methods->Reflectance(brdf->data, flags);
-        if ( !std::isfinite(COLORAVERAGE(test))) {
+        if ( !std::isfinite(colorAverage(test))) {
             Fatal(-1, "BrdfReflectance", "Oops - test Rd is not finite!");
         }
         return test;

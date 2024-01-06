@@ -67,9 +67,9 @@ PHONG_EDF *PhongEdfCreate(COLOR *Kd, COLOR *Ks, double Ns) {
 PHONG_BRDF *PhongBrdfCreate(COLOR *Kd, COLOR *Ks, double Ns) {
     PHONG_BRDF *brdf = NEWPHONGBRDF();
     brdf->Kd = *Kd;
-    brdf->avgKd = COLORAVERAGE(brdf->Kd);
+    brdf->avgKd = colorAverage(brdf->Kd);
     brdf->Ks = *Ks;
-    brdf->avgKs = COLORAVERAGE(brdf->Ks);
+    brdf->avgKs = colorAverage(brdf->Ks);
     brdf->Ns = Ns;
     return brdf;
 }
@@ -77,9 +77,9 @@ PHONG_BRDF *PhongBrdfCreate(COLOR *Kd, COLOR *Ks, double Ns) {
 PHONG_BTDF *PhongBtdfCreate(COLOR *Kd, COLOR *Ks, double Ns, double nr, double ni) {
     PHONG_BTDF *btdf = NEWPHONGBTDF();
     btdf->Kd = *Kd;
-    btdf->avgKd = COLORAVERAGE(btdf->Kd);
+    btdf->avgKd = colorAverage(btdf->Kd);
     btdf->Ks = *Ks;
-    btdf->avgKs = COLORAVERAGE(btdf->Ks);
+    btdf->avgKs = colorAverage(btdf->Ks);
     btdf->Ns = Ns;
     btdf->refrIndex.nr = nr;
     btdf->refrIndex.ni = ni;
@@ -175,7 +175,7 @@ static COLOR PhongTransmittance(PHONG_BTDF *btdf, XXDFFLAGS flags) {
         }
     }
 
-    if ( !std::isfinite(COLORAVERAGE(result))) {
+    if ( !std::isfinite(colorAverage(result))) {
         Fatal(-1, "PhongTransmittance", "Oops - result is not finite!");
     }
 

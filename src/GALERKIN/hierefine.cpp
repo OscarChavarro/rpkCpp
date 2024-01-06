@@ -135,7 +135,7 @@ static double ApproximationError(INTERACTION *link, COLOR srcrho, COLOR rcvrho, 
             }
 
             colorProductScaled(rcvrho, link->deltaK.f, srcrad, error);
-            COLORABS(error, error);
+            colorAbs(error, error);
             approx_error = ColorToError(error);
             break;
 
@@ -147,7 +147,7 @@ static double ApproximationError(INTERACTION *link, COLOR srcrho, COLOR rcvrho, 
             }
 
             colorProductScaled(rcvrho, link->deltaK.f, srcrad, error);
-            COLORABS(error, error);
+            colorAbs(error, error);
             approx_error = ColorToError(error);
 
             if ( GLOBAL_galerkin_state.importance_driven && IsCluster(link->rcv)) {
@@ -205,13 +205,13 @@ static double SourceClusterRadianceVariationError(INTERACTION *link, COLOR rcvrh
     for ( i = 0; i < nrcverts; i++ ) {
         COLOR rad;
         rad = clusterRadianceToSamplePoint(link->src, rcverts[i]);
-        COLORMIN(minsrcrad, rad, minsrcrad);
-        COLORMAX(maxsrcrad, rad, maxsrcrad);
+        colorMinimum(minsrcrad, rad, minsrcrad);
+        colorMaximum(maxsrcrad, rad, maxsrcrad);
     }
     colorSubtract(maxsrcrad, minsrcrad, error);
 
     colorProductScaled(rcvrho, K / rcv_area, error, error);
-    COLORABS(error, error);
+    colorAbs(error, error);
     return ColorToError(error);
 }
 

@@ -127,18 +127,18 @@ static void DoIncrementalRadianceIterations() {
     mcr.weighted_sampling = false;
 
     PrintIncrementalRadianceStats();
-    ref_unshot = COLORSUMABSCOMPONENTS(mcr.unshot_flux);
+    ref_unshot = colorSumAbsComponents(mcr.unshot_flux);
     if ( mcr.incremental_uses_importance ) {
-        ref_unshot = COLORSUMABSCOMPONENTS(mcr.imp_unshot_flux);
+        ref_unshot = colorSumAbsComponents(mcr.imp_unshot_flux);
     }
     while ( 1 ) {
         /* choose nr of rays so that power carried by each ray remains equal, and
          * proportional to the number of basis functions in the rad. approx. */
         double unshot_fraction;
         long nr_rays;
-        unshot_fraction = COLORSUMABSCOMPONENTS(mcr.unshot_flux) / ref_unshot;
+        unshot_fraction = colorSumAbsComponents(mcr.unshot_flux) / ref_unshot;
         if ( mcr.incremental_uses_importance ) {
-            unshot_fraction = COLORSUMABSCOMPONENTS(mcr.imp_unshot_flux) / ref_unshot;
+            unshot_fraction = colorSumAbsComponents(mcr.imp_unshot_flux) / ref_unshot;
         }
         if ( unshot_fraction < 0.01 )
             break;    /* only 1/100th of selfemitted power remains unshot */
