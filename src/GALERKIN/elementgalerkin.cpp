@@ -691,8 +691,8 @@ DrawElement(ELEMENT *element, int mode) {
 
         if ( GLOBAL_galerkin_state.use_ambient_radiance ) {
             COLOR rad_vis;
-            COLORPROD(rho, GLOBAL_galerkin_state.ambient_radiance, rad_vis);
-            COLORADD(rad_vis, element->radiance[0], rad_vis);
+            colorProduct(rho, GLOBAL_galerkin_state.ambient_radiance, rad_vis);
+            colorAdd(rad_vis, element->radiance[0], rad_vis);
             RadianceToRGB(rad_vis, &color);
         } else {
             RadianceToRGB(element->radiance[0], &color);
@@ -718,9 +718,9 @@ DrawElement(ELEMENT *element, int mode) {
         if ( GLOBAL_galerkin_state.use_ambient_radiance ) {
             COLOR rho = REFLECTIVITY(element->pog.patch), ambient;
 
-            COLORPROD(rho, GLOBAL_galerkin_state.ambient_radiance, ambient);
+            colorProduct(rho, GLOBAL_galerkin_state.ambient_radiance, ambient);
             for ( i = 0; i < nrverts; i++ ) {
-                COLORADD(vertrad[i], ambient, vertrad[i]);
+                colorAdd(vertrad[i], ambient, vertrad[i]);
             }
         }
 

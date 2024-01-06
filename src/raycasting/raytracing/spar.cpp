@@ -65,7 +65,7 @@ COLOR CSparList::HandlePath(CSparConfig *sconfig,
 
     while ((pspar = iter.Next())) {
         col = (*pspar)->HandlePath(sconfig, path);
-        COLORADD(col, total, total);
+        colorAdd(col, total, total);
     }
 
     return total;
@@ -84,9 +84,9 @@ void CSparList::HandlePath(CSparConfig *sconfig,
         col = (*pspar)->HandlePath(sconfig, path);
 
         if ( *pspar == sconfig->m_leSpar ) {
-            COLORADD(col, *fbpt, *fbpt);
+            colorAdd(col, *fbpt, *fbpt);
         } else {
-            COLORADD(col, *frad, *frad);
+            colorAdd(col, *frad, *frad);
         }
     }
 }

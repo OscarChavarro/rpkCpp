@@ -129,7 +129,7 @@ static int LowPowerLink(LINK *link) {
     colorScale(M_PI, src->rad[0], rhosrcrad);
     if ( !rcv->iscluster ) {
         COLOR Rd = REFLECTANCE(rcv->pog.patch);
-        COLORPROD(Rd, rhosrcrad, rhosrcrad);
+        colorProduct(Rd, rhosrcrad, rhosrcrad);
     }
 
     threshold = hierarchy.epsilon * COLORMAXCOMPONENT(GLOBAL_statistics_maxSelfEmittedPower);

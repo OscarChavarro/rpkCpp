@@ -61,7 +61,7 @@ static COLOR InitRadianceEstimate(PATCH *patch) {
             R = PatchAverageNormalAlbedo(patch, BSDF_ALL_COMPONENTS),
             radiance;
 
-    COLORPROD(R, GLOBAL_statistics_estimatedAverageRadiance, radiance);
+    colorProduct(R, GLOBAL_statistics_estimatedAverageRadiance, radiance);
     COLORADDSCALED(radiance, (1. / M_PI), E, radiance);
     return radiance;
 }

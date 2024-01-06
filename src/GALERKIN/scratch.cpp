@@ -112,9 +112,9 @@ COLOR ScratchRadiance() {
             if ( elem ) {
                 if ( GLOBAL_galerkin_state.iteration_method == GAUSS_SEIDEL ||
                      GLOBAL_galerkin_state.iteration_method == JACOBI ) {
-                    COLORADD(rad, elem->radiance[0], rad);
+                    colorAdd(rad, elem->radiance[0], rad);
                 } else {
-                    COLORADD(rad, elem->unshot_radiance[0], rad);
+                    colorAdd(rad, elem->unshot_radiance[0], rad);
                 }
                 nonbkgrnd++;
             }

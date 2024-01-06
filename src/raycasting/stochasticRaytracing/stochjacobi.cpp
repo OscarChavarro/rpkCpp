@@ -472,7 +472,7 @@ static void UpdateElement(ELEMENT *elem) {
     if ( get_radiance ) {
         if ( do_control_variate ) {
             /* add constant radiosity contribution to received flux */
-            COLORADD(elem->received_rad[0], mcr.control_radiance, elem->received_rad[0]);
+            colorAdd(elem->received_rad[0], mcr.control_radiance, elem->received_rad[0]);
         }
         /* multiply with reflectivity on leaf elements only */
         MULTCOEFFICIENTS(elem->Rd, elem->received_rad, elem->basis);
@@ -497,7 +497,7 @@ static void Push(ELEMENT *parent, ELEMENT *child) {
             /* multiply with reflectance (See PropagateRadianceToClusterIsotropic() above) */
             COLOR rad = parent->received_rad[0];
             Rd = child->Rd;
-            COLORPROD(Rd, rad, rad);
+            colorProduct(Rd, rad, rad);
             PushRadiance(parent, child, &rad, child->received_rad);
         } else
             PushRadiance(parent, child, parent->received_rad, child->received_rad);

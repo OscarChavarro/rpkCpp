@@ -118,16 +118,16 @@ static COLOR PhongEmittance(PHONG_EDF *edf, HITREC *hit, XXDFFLAGS flags) {
     colorClear(result);
 
     if ( flags & DIFFUSE_COMPONENT ) {
-        COLORADD(result, edf->Kd, result);
+        colorAdd(result, edf->Kd, result);
     }
 
     if ( PHONG_IS_SPECULAR(*edf)) {
         if ( flags & SPECULAR_COMPONENT ) {
-            COLORADD(result, edf->Ks, result);
+            colorAdd(result, edf->Ks, result);
         }
     } else {
         if ( flags & GLOSSY_COMPONENT ) {
-            COLORADD(result, edf->Ks, result);
+            colorAdd(result, edf->Ks, result);
         }
     }
 
@@ -140,16 +140,16 @@ static COLOR PhongReflectance(PHONG_BRDF *brdf, XXDFFLAGS flags) {
     colorClear(result);
 
     if ( flags & DIFFUSE_COMPONENT ) {
-        COLORADD(result, brdf->Kd, result);
+        colorAdd(result, brdf->Kd, result);
     }
 
     if ( PHONG_IS_SPECULAR(*brdf)) {
         if ( flags & SPECULAR_COMPONENT ) {
-            COLORADD(result, brdf->Ks, result);
+            colorAdd(result, brdf->Ks, result);
         }
     } else {
         if ( flags & GLOSSY_COMPONENT ) {
-            COLORADD(result, brdf->Ks, result);
+            colorAdd(result, brdf->Ks, result);
         }
     }
 
@@ -162,16 +162,16 @@ static COLOR PhongTransmittance(PHONG_BTDF *btdf, XXDFFLAGS flags) {
     colorClear(result);
 
     if ( flags & DIFFUSE_COMPONENT ) {
-        COLORADD(result, btdf->Kd, result);
+        colorAdd(result, btdf->Kd, result);
     }
 
     if ( PHONG_IS_SPECULAR(*btdf)) {
         if ( flags & SPECULAR_COMPONENT ) {
-            COLORADD(result, btdf->Ks, result);
+            colorAdd(result, btdf->Ks, result);
         }
     } else {
         if ( flags & GLOSSY_COMPONENT ) {
-            COLORADD(result, btdf->Ks, result);
+            colorAdd(result, btdf->Ks, result);
         }
     }
 
@@ -216,7 +216,7 @@ static COLOR PhongEdfEval(PHONG_EDF *edf, HITREC *hit, Vector3D *out, XXDFFLAGS 
 
     if ( flags & DIFFUSE_COMPONENT ) {
         /* divide by PI to turn radiant exitance [W/m^2] into exitant radiance [W/m^2 sr] */
-        COLORADD(result, edf->kd, result);
+        colorAdd(result, edf->kd, result);
         if ( pdf )
             *pdf = cosl / M_PI;
     }

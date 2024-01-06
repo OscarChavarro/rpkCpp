@@ -96,18 +96,18 @@ SplitBsdfScatteredPower(SPLIT_BSDF *bsdf, HITREC *hit, Vector3D *in, BSDFFLAGS f
 
     if ( bsdf->texture && (flags & TEXTURED_COMPONENT)) {
         COLOR textureColor = SplitBsdfEvalTexture(bsdf->texture, hit);
-        COLORADD(albedo, textureColor, albedo);
+        colorAdd(albedo, textureColor, albedo);
         flags &= ~TEXTURED_COMPONENT;  /* avoid taking it into account again */
     }
 
     if ( bsdf->brdf ) {
         COLOR refl = BrdfReflectance(bsdf->brdf, GETBRDFFLAGS(flags));
-        COLORADD(albedo, refl, albedo);
+        colorAdd(albedo, refl, albedo);
     }
 
     if ( bsdf->btdf ) {
         COLOR trans = BtdfTransmittance(bsdf->btdf, GETBTDFFLAGS(flags));
-        COLORADD(albedo, trans, albedo);
+        colorAdd(albedo, trans, albedo);
     }
 
     return albedo;
@@ -150,7 +150,7 @@ SplitBsdfEval(
     if ( bsdf->brdf ) {
         COLOR reflectionCol = BrdfEval(bsdf->brdf, in, out, &normal,
                                        GETBRDFFLAGS(flags));
-        COLORADD(result, reflectionCol, result);
+        colorAdd(result, reflectionCol, result);
     }
 
     if ( bsdf->btdf ) {
@@ -160,7 +160,7 @@ SplitBsdfEval(
         BsdfIndexOfRefraction(outBsdf, &outIndex);
         refractionCol = BtdfEval(bsdf->btdf, inIndex, outIndex,
                                  in, out, &normal, GETBTDFFLAGS(flags));
-        COLORADD(result, refractionCol, result);
+        colorAdd(result, refractionCol, result);
     }
 
     return result;

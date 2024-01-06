@@ -70,7 +70,7 @@ ReduceSource() {
                     colorSetMonochrome(newsrcrad, 1.);
                     rho = REFLECTANCE(P);
                     COLORSUBTRACT(newsrcrad, rho, newsrcrad);    /* 1-rho */
-                    COLORPROD(newsrcrad, mcr.control_radiance, newsrcrad);  /* (1-rho) * beta */
+                    colorProduct(newsrcrad, mcr.control_radiance, newsrcrad);  /* (1-rho) * beta */
                     COLORSUBTRACT(SOURCE_RAD(P), newsrcrad, newsrcrad);    /* E - (1-rho) beta */
                     SOURCE_RAD(P) = newsrcrad;
                 }
@@ -133,7 +133,7 @@ ShootingScore(PATH *path, long nr_paths, double (*birth_prob)(PATCH *)) {
         int i;
         PATCH *P = node->patch;
         COLOR Rd = REFLECTANCE(P);
-        COLORPROD(accum_pow, Rd, accum_pow);
+        colorProduct(accum_pow, Rd, accum_pow);
 
         PatchUniformUV(P, &node->inpoint, &uin, &vin);
         if ( !mcr.continuous_random_walk ) {
@@ -179,7 +179,7 @@ ShootingUpdate(PATCH *P, double w) {
     ADDCOEFFICIENTS(RAD(P), RECEIVED_RAD(P), BAS(P));
 
     /* re-add selfemitted rad */
-    COLORADD(RAD(P)[0], SOURCE_RAD(P), RAD(P)[0]);
+    colorAdd(RAD(P)[0], SOURCE_RAD(P), RAD(P)[0]);
 
     /* clear unshot and received radiance */
     CLEARCOEFFICIENTS(UNSHOT_RAD(P), BAS(P));
@@ -222,10 +222,10 @@ DetermineGatheringControlRadiosity() {
                     COLORSUBTRACT(absorb, rho, absorb);    /* 1-rho */
 
                     Ed = SOURCE_RAD(P);
-                    COLORPROD(absorb, Ed, num);
+                    colorProduct(absorb, Ed, num);
                     COLORADDSCALED(c1, P->area, num, c1);    /* A_P (1-rho_P) E_P */
 
-                    COLORPROD(absorb, absorb, denom);
+                    colorProduct(absorb, absorb, denom);
                     COLORADDSCALED(c2, P->area, denom, c2);    /* A_P (1-rho_P)^2 */
                 }
     EndForAll;
@@ -249,7 +249,7 @@ CollisionGatheringScore(PATH *path, long nr_paths, double (*birth_prob)(PATCH *)
         int i;
         PATCH *P = node->patch;
         COLOR Rd = REFLECTANCE(P);
-        COLORPROD(Rd, accum_rad, accum_rad);
+        colorProduct(Rd, accum_rad, accum_rad);
 
         PatchUniformUV(P, &node->outpoint, &uout, &vout);
         if ( !mcr.continuous_random_walk ) {
@@ -272,7 +272,7 @@ CollisionGatheringScore(PATH *path, long nr_paths, double (*birth_prob)(PATCH *)
         NG(P)++;
 
         colorScale((r / node->probability), accum_rad, accum_rad);
-        COLORADD(accum_rad, SOURCE_RAD(P), accum_rad);
+        colorAdd(accum_rad, SOURCE_RAD(P), accum_rad);
     }
 }
 
@@ -286,16 +286,16 @@ GatheringUpdate(PATCH *P, double w) {
     if ( NG(P) > 0 ) SCALECOEFFICIENTS((1. / (double) NG(P)), RAD(P), BAS(P));
 
     /* add source radiance (source term estimation suppresion!) */
-    COLORADD(RAD(P)[0], SOURCE_RAD(P), RAD(P)[0]);
+    colorAdd(RAD(P)[0], SOURCE_RAD(P), RAD(P)[0]);
 
     if ( mcr.constant_control_variate ) {
         /* add constant control radiosity value */
         COLOR cr = mcr.control_radiance;
         if ( mcr.indirect_only ) {
             COLOR Rd = REFLECTANCE(P);
-            COLORPROD(Rd, mcr.control_radiance, cr);
+            colorProduct(Rd, mcr.control_radiance, cr);
         }
-        COLORADD(RAD(P)[0], cr, RAD(P)[0]);
+        colorAdd(RAD(P)[0], cr, RAD(P)[0]);
     }
 
     CLEARCOEFFICIENTS(RECEIVED_RAD(P), BAS(P));

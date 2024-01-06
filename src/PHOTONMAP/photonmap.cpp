@@ -309,7 +309,7 @@ void CPhotonMap::PhotonPrecomputeIrradiance(CIrrPhoton *photon) {
         for ( int i = 0; i < m_nrpFound; i++ ) {
             if ((photon->Normal() & m_photons[i]->Dir()) > 0 ) {
                 power = m_photons[i]->Power();
-                COLORADD(irradiance, power, irradiance);
+                colorAdd(irradiance, power, irradiance);
             }
         }
 
@@ -354,13 +354,13 @@ bool CPhotonMap::IrradianceReconstruct(HITREC *hit, Vector3D &outDir,
 
     if ( photon ) {
         //float factor = 1.0 / (M_PI * m_totalPaths);
-        //COLORPRODSCALED(photon->m_irradiance, factor, diffuseAlbedo, *result);
+        //colorProductScaled(photon->m_irradiance, factor, diffuseAlbedo, *result);
 
-        COLORPROD(photon->m_irradiance, diffuseAlbedo, *result);
+        colorProduct(photon->m_irradiance, diffuseAlbedo, *result);
 
         // COLOR eval = BsdfEval(bsdf, hit, inBsdf, outBsdf, &outDir,
         // &hit->normal, BRDF_DIFFUSE_COMPONENT);
-        // COLORPROD(photon->m_irradiance, eval, *result);
+        // colorProduct(photon->m_irradiance, eval, *result);
         return true;
     } else {
         // No appropriate photon found
@@ -425,8 +425,8 @@ COLOR CPhotonMap::Reconstruct(HITREC *hit, Vector3D &outDir,
                         BSDF_DIFFUSE_COMPONENT | BSDF_GLOSSY_COMPONENT);
         power = m_photons[i]->Power();
 
-        COLORPROD(eval, power, col);
-        COLORADD(result, col, result);
+        colorProduct(eval, power, col);
+        colorAdd(result, col, result);
     }
 
     // Now we have a radiance integrated over area estimate,

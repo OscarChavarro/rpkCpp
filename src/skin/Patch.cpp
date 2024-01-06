@@ -347,7 +347,7 @@ COLOR PatchAverageNormalAlbedo(PATCH *patch, BSDFFLAGS components) {
         hit.flags |= HIT_UV;
         PatchPoint(patch, hit.uv.u, hit.uv.v, &hit.point);
         sample = BsdfScatteredPower(patch->surface->material->bsdf, &hit, &patch->normal, components);
-        COLORADD(albedo, sample, albedo);
+        colorAdd(albedo, sample, albedo);
     }
     COLORSCALEINVERSE((float) nrsamples, albedo, albedo);
 
@@ -370,7 +370,7 @@ COLOR PatchAverageEmittance(PATCH *patch, XXDFFLAGS components) {
         hit.flags |= HIT_UV;
         PatchPoint(patch, hit.uv.u, hit.uv.v, &hit.point);
         sample = EdfEmittance(patch->surface->material->edf, &hit, components);
-        COLORADD(emittance, sample, emittance);
+        colorAdd(emittance, sample, emittance);
     }
     COLORSCALEINVERSE((float) nrsamples, emittance, emittance);
 

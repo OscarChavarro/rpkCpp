@@ -253,7 +253,7 @@ static void ElementUpdateRadiance(ELEMENT *elem, double w) {
     ADDCOEFFICIENTS(elem->rad, elem->received_rad, elem->basis);
 
     /* re-add source radiosity */
-    COLORADD(elem->rad[0], elem->source_rad, elem->rad[0]);
+    colorAdd(elem->rad[0], elem->source_rad, elem->rad[0]);
 
     /* clear unshot and received radiance */
     CLEARCOEFFICIENTS(elem->unshot_rad, elem->basis);

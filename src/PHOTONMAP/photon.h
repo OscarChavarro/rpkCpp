@@ -40,7 +40,9 @@ public:
 
     inline COLOR Power() { return m_power; }
 
-    inline void AddPower(COLOR col) {COLORADD(m_power, col, m_power); }
+    inline void AddPower(COLOR col) {
+        colorAdd(m_power, col, m_power);
+    }
 
     inline Vector3D Dir() { return m_dir; }
 

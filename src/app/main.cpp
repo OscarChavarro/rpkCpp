@@ -37,7 +37,7 @@ PatchAccumulateStats(PATCH *patch) {
 
     GLOBAL_statistics_totalArea += patch->area;
     colorScale(patch->area, E, power);
-    COLORADD(GLOBAL_statistics_totalEmittedPower, power, GLOBAL_statistics_totalEmittedPower);
+    colorAdd(GLOBAL_statistics_totalEmittedPower, power, GLOBAL_statistics_totalEmittedPower);
     COLORADDSCALED(GLOBAL_statistics_averageReflectivity, patch->area, R, GLOBAL_statistics_averageReflectivity);
     /* convert radiant exitance to exitant radiance */
     colorScale((1.0 / (float)M_PI), E, E);
@@ -71,8 +71,8 @@ ComputeSomeSceneStats() {
     /* include background radiation */
     BP = BackgroundPower(GLOBAL_scene_background, &zero);
     colorScale(1.0 / (4.0 * (double)M_PI), BP, BP);
-    COLORADD(GLOBAL_statistics_totalEmittedPower, BP, GLOBAL_statistics_totalEmittedPower);
-    COLORADD(GLOBAL_statistics_estimatedAverageRadiance, BP, GLOBAL_statistics_estimatedAverageRadiance);
+    colorAdd(GLOBAL_statistics_totalEmittedPower, BP, GLOBAL_statistics_totalEmittedPower);
+    colorAdd(GLOBAL_statistics_estimatedAverageRadiance, BP, GLOBAL_statistics_estimatedAverageRadiance);
 
     COLORDIV(GLOBAL_statistics_estimatedAverageRadiance, average_absorption, GLOBAL_statistics_estimatedAverageRadiance);
 

@@ -9,7 +9,7 @@ push/pull operations
 
 void PushRadiance(ELEMENT *parent, ELEMENT *child, COLOR *parent_rad, COLOR *child_rad) {
     if ( parent->iscluster || child->basis->size == 1 ) {
-        COLORADD(child_rad[0], parent_rad[0], child_rad[0]);
+        colorAdd(child_rad[0], parent_rad[0], child_rad[0]);
     } else if ( RegularChild(child) && child->basis == parent->basis ) {
         FilterColorDown(parent_rad, &(*child->basis->regular_filter)[child->child_nr], child_rad, child->basis->size);
     } else {

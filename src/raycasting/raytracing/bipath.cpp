@@ -37,7 +37,7 @@ COLOR CBiPath::EvalRadiance() {
     node = m_eyePath;
 
     for ( i = 0; i < m_eyeSize; i++ ) {
-        COLORPROD(node->m_bsdfEval, col, col);
+        colorProduct(node->m_bsdfEval, col, col);
         factor *= node->m_G;
         node = node->Next();
     }
@@ -45,7 +45,7 @@ COLOR CBiPath::EvalRadiance() {
     node = m_lightPath;
 
     for ( i = 0; i < m_lightSize; i++ ) {
-        COLORPROD(node->m_bsdfEval, col, col);
+        colorProduct(node->m_bsdfEval, col, col);
         factor *= node->m_G;
         node = node->Next();
     }

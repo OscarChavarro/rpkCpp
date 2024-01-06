@@ -48,7 +48,7 @@ class CBsdfComp {
 
         for ( int i = 0; i < BSDFCOMPONENTS; i++ ) {
             if ( flags & (BSDF_INDEXTOCOMP(i))) {
-                COLORADD(result, comp[i], result);
+                colorAdd(result, comp[i], result);
             }
         }
 

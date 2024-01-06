@@ -134,7 +134,7 @@ static double ApproximationError(INTERACTION *link, COLOR srcrho, COLOR rcvrho, 
                 srcrad = link->src->radiance[0];
             }
 
-            COLORPRODSCALED(rcvrho, link->deltaK.f, srcrad, error);
+            colorProductScaled(rcvrho, link->deltaK.f, srcrad, error);
             COLORABS(error, error);
             approx_error = ColorToError(error);
             break;
@@ -146,7 +146,7 @@ static double ApproximationError(INTERACTION *link, COLOR srcrho, COLOR rcvrho, 
                 srcrad = link->src->unshot_radiance[0];
             }
 
-            COLORPRODSCALED(rcvrho, link->deltaK.f, srcrad, error);
+            colorProductScaled(rcvrho, link->deltaK.f, srcrad, error);
             COLORABS(error, error);
             approx_error = ColorToError(error);
 
@@ -210,7 +210,7 @@ static double SourceClusterRadianceVariationError(INTERACTION *link, COLOR rcvrh
     }
     COLORSUBTRACT(maxsrcrad, minsrcrad, error);
 
-    COLORPRODSCALED(rcvrho, K / rcv_area, error, error);
+    colorProductScaled(rcvrho, K / rcv_area, error, error);
     COLORABS(error, error);
     return ColorToError(error);
 }

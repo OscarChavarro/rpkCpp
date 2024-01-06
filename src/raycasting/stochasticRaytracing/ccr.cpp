@@ -113,7 +113,7 @@ static void RefineControlRadiosity(COLOR *minRad, COLOR *maxRad, COLOR *fmin, CO
                                 }
                                 for ( i = 0; i <= NRINTERVALS; i++ ) {
                                     COLOR t;
-                                    COLORPROD(s, rad[i], t);
+                                    colorProduct(s, rad[i], t);
                                     COLORSUBTRACT(B, t, t);
                                     COLORABS(t, t);
                                     COLORADDSCALED(f[i], warea, t, f[i]);
@@ -164,7 +164,7 @@ COLOR DetermineControlRadiosity(COLOR *(*GetRadiance)(ELEMENT *),
         COLORADDSCALED(delta, (-eps), fmin, delta);
     }
 
-    COLORADD(minRad, maxRad, beta);
+    colorAdd(minRad, maxRad, beta);
     colorScale(0.5, beta, beta);
     beta.print(stderr);
     fprintf(stderr, " (%g lux)", M_PI * ColorLuminance(beta));

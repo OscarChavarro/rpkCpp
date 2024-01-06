@@ -87,7 +87,7 @@ void HandlePotentialPath(PMAPCONFIG *config) {
         if ( currentNode->Ends()) {
             isLastNode = true;
         } else {
-            COLORPROD(currentNode->m_bsdfEval, accImportance, accImportance);
+            colorProduct(currentNode->m_bsdfEval, accImportance, accImportance);
 
             if ( currentNode->m_usedComponents & (BSDF_DIFFUSE_COMPONENT | BSDF_GLOSSY_COMPONENT)) {
                 DGBounces++;
@@ -157,7 +157,7 @@ static bool TracePotentialPath(PMAPCONFIG *config) {
         }
 
         // Adjust importance
-        COLORPROD(prev->m_bsdfEval, accImportance, accImportance);
+        colorProduct(prev->m_bsdfEval, accImportance, accImportance);
         factor = node->m_G / node->m_pdfFromPrev;
         colorScale(factor, accImportance, accImportance);
 

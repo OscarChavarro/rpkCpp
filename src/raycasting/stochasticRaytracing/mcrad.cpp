@@ -484,16 +484,16 @@ COLOR McrGetRadiance(PATCH *patch, double u, double v, Vector3D dir) {
         }
         if ( mcr.indirect_only || mcr.do_nondiffuse_first_shot ) {
             /* subtract self-emitted radiance */
-            COLORADD(source_rad, leaf->Ed, source_rad);
+            colorAdd(source_rad, leaf->Ed, source_rad);
         }
     }
     COLORSUBTRACT(rad, source_rad, rad);
 
-    COLORPROD(rad, TrueRdAtPoint, rad);
+    colorProduct(rad, TrueRdAtPoint, rad);
     COLORDIV(rad, UsedRdAtPoint, rad);
 
     /* re-add source radiance */
-    COLORADD(rad, source_rad, rad);
+    colorAdd(rad, source_rad, rad);
 
     return rad;
 }

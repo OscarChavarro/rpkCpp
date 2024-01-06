@@ -15,8 +15,8 @@
 }
 
 #define ADDCOEFFICIENTS(dst, extra, basis) {int _i, _n=basis->size; COLOR *_d, *_s; \
-  for (_i=0, _d=(dst), _s=(extra); _i<_n; _i++, _d++, _s++) {        \
-    COLORADD(*_d, *_s, *_d);                        \
+  for (_i=0, _d=(dst), _s=(extra); _i<_n; _i++, _d++, _s++) { \
+    colorAdd(*_d, *_s, *_d); \
 }}
 
 #define SCALECOEFFICIENTS(scale, color, basis) {int _i, _n=basis->size; COLOR *_d; float _scale=(scale); \
@@ -26,7 +26,7 @@
 
 #define MULTCOEFFICIENTS(color, coeff, basis) {int _i, _n=basis->size; COLOR *_d; COLOR _col = (color); \
   for (_i=0, _d=(coeff); _i<_n; _i++, _d++) { \
-    COLORPROD(_col, *_d, *_d); \
+    colorProduct(_col, *_d, *_d); \
 }}
 
 inline void

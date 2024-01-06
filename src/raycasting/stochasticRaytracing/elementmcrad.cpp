@@ -584,11 +584,11 @@ ElementComputeAverageReflectanceAndEmittance(ELEMENT *elem) {
         PatchUniformPoint(patch, hit.uv.u, hit.uv.v, &hit.point);
         if ( patch->surface->material->bsdf ) {
             sample = BsdfScatteredPower(patch->surface->material->bsdf, &hit, &patch->normal, BRDF_DIFFUSE_COMPONENT);
-            COLORADD(albedo, sample, albedo);
+            colorAdd(albedo, sample, albedo);
         }
         if ( patch->surface->material->edf ) {
             sample = EdfEmittance(patch->surface->material->edf, &hit, DIFFUSE_COMPONENT);
-            COLORADD(emittance, sample, emittance);
+            colorAdd(emittance, sample, emittance);
         }
     }
     COLORSCALEINVERSE((float) nrsamples, albedo, elem->Rd);

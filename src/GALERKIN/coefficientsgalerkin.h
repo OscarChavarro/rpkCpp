@@ -18,7 +18,7 @@ Macro's to manipulate radiance coefficients
 
 #define ADDCOEFFICIENTS(dst, extra, n) {int _i; COLOR *_d, *_s; \
   for (_i=0, _d=(dst), _s=(extra); _i<(n); _i++, _d++, _s++) { \
-    COLORADD(*_d, *_s, *_d); \
+    colorAdd(*_d, *_s, *_d); \
 }}
 
 #endif

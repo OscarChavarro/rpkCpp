@@ -146,14 +146,14 @@ static void PushPullRadianceRecursive(ELEMENT *elem, COLOR *Bdown, COLOR *Bup) {
         /* multiply with reflectivity at the lowest level */
         COLOR rho = REFLECTIVITY(elem->pog.patch);
         for ( i = 0; i < elem->basis_size; i++ ) {
-            COLORPROD(rho, Bdown[i], Bup[i]);
+            colorProduct(rho, Bdown[i], Bup[i]);
         }
 
         if ( GLOBAL_galerkin_state.iteration_method == JACOBI || GLOBAL_galerkin_state.iteration_method == GAUSS_SEIDEL ) {
             /* add selfemitted radiance. Bup is a new approximation of the total radiance
              * add this leaf element. */
             COLOR Ed = SELFEMITTED_RADIANCE(elem->pog.patch);
-            COLORADD(Bup[0], Ed, Bup[0]);
+            colorAdd(Bup[0], Ed, Bup[0]);
         }
     }
 

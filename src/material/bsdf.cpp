@@ -104,7 +104,7 @@ BsdfEvalComponents(BSDF *bsdf, HITREC *hit, BSDF *inBsdf,
 
         if ( flags & thisFlag ) {
             colArray[i] = BsdfEval(bsdf, hit, inBsdf, outBsdf, in, out, thisFlag);
-            COLORADD(result, colArray[i], result);
+            colorAdd(result, colArray[i], result);
         } else {
             colArray[i] = empty;  /* Set to 0 for safety */
         }

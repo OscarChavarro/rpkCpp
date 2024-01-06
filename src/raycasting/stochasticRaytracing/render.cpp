@@ -37,7 +37,7 @@ static COLOR VertexRadiance(VERTEX *v) {
                 {
                     if ( !elem->regular_subelements ) {
                         COLOR elemrad = ElementDisplayRadiance(elem);
-                        COLORADD(radiance, elemrad, radiance);
+                        colorAdd(radiance, elemrad, radiance);
                         count++;
                     }
                 }
@@ -58,7 +58,7 @@ COLOR VertexReflectance(VERTEX *v) {
     ForAllElementsSharingVertex(elem, v)
                 {
                     if ( !elem->regular_subelements ) {
-                        COLORADD(rd, elem->Rd, rd);
+                        colorAdd(rd, elem->Rd, rd);
                         count++;
                     }
                 }
@@ -427,10 +427,10 @@ COLOR ElementDisplayRadiance(ELEMENT *elem) {
     if ( mcr.show != SHOW_INDIRECT_RADIANCE ) {
         /* source_rad is self-emitted radiance if !mcr.indirect_only. It is direct
          * illumination if mcr.direct_only */
-        COLORADD(rad, elem->source_rad, rad);
+        colorAdd(rad, elem->source_rad, rad);
         if ( mcr.indirect_only || mcr.do_nondiffuse_first_shot ) {
             /* add self-emitted radiance */
-            COLORADD(rad, elem->Ed, rad);
+            colorAdd(rad, elem->Ed, rad);
         }
     }
     return rad;

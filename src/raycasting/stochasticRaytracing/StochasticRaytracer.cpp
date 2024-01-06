@@ -133,8 +133,8 @@ COLOR SR_GetScatteredRadiance(CPathNode *thisNode, SRCONFIG *config,
                     // Collect outgoing radiance
                     factor = newNode.m_G / (newNode.m_pdfFromPrev * nrSamples);
 
-                    COLORPRODSCALED(radiance, factor, thisNode->m_bsdfEval, radiance);
-                    COLORADD(radiance, result, result);
+                    colorProductScaled(radiance, factor, thisNode->m_bsdfEval, radiance);
+                    colorAdd(radiance, result, result);
                 }
             } // for each sample
         } // if nrSamples > 0
@@ -262,11 +262,11 @@ COLOR SR_GetDirectRadiance(CPathNode *prevNode, SRCONFIG *config,
 
                                 factor = weight * geom / (lightNode.m_pdfFromPrev *
                                                           config->nextEventSamples);
-                                COLORPRODSCALED(prevNode->m_bsdfEval, factor, lightNode.m_bsdfEval,
-                                                radiance);
+                                colorProductScaled(prevNode->m_bsdfEval, factor, lightNode.m_bsdfEval,
+                                                   radiance);
 
                                 // Collect outgoing radiance
-                                COLORADD(result, radiance, result);
+                                colorAdd(result, radiance, result);
                             } // if not photonmap or no caustic path
 
                             // Next scatter info block
@@ -395,7 +395,7 @@ COLOR SR_GetRadiance(CPathNode *thisNode, SRCONFIG *config, SRREADOUT readout,
                 COLORSUBTRACT(radiance, diffEmit, radiance);
             }
 
-            COLORADD(result, radiance, result);
+            colorAdd(result, radiance, result);
 
         } // Done: Stored radiance, no self emitted light included!
 
@@ -403,18 +403,18 @@ COLOR SR_GetRadiance(CPathNode *thisNode, SRCONFIG *config, SRREADOUT readout,
 
         if ((config->radMode == STORED_PHOTONMAP) && readout == SCATTER ) {
             radiance = GetPmapNodeCRadiance(thisNode);
-            COLORADD(result, radiance, result);
+            colorAdd(result, radiance, result);
         }
 
         radiance = SR_GetDirectRadiance(thisNode, config, readout);
 
-        COLORADD(result, radiance, result);
+        colorAdd(result, radiance, result);
 
         // Scattered light
 
         radiance = SR_GetScatteredRadiance(thisNode, config, readout);
 
-        COLORADD(result, radiance, result);
+        colorAdd(result, radiance, result);
 
         // Emitted Light
 
@@ -536,7 +536,7 @@ static COLOR CalcPixel(int nx, int ny, SRCONFIG *config) {
 
             // Account for pixel sampling
             colorScale(pixelNode.m_G / pixelNode.m_pdfFromPrev, col, col);
-            COLORADD(result, col, result);
+            colorAdd(result, col, result);
         }
     }
 

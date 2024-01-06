@@ -55,31 +55,34 @@
   *_r   = (a) * *_s;                    \
 }
 
-#define MultSpectrum(/*SPECTRUM*/ spec1, /*SPECTRUM*/ spec2, /*SPECTRUM*/ result) \
-{                            \
-  InitChannels3(spec1, _s1, spec2, _s2, result, _r);    \
-  *_r++ = *_s1++ * *_s2++;                    \
-  *_r++ = *_s1++ * *_s2++;                    \
-  *_r   = *_s1   * *_s2  ;                    \
+inline void
+MultiplySpectrum(SPECTRUM &spec1, SPECTRUM &spec2, SPECTRUM &result) {
+    const float *_s1 = spec1;
+    const float *_s2 = spec2;
+    float *_r = result;
+    *_r++ = *_s1++ * *_s2++;
+    *_r++ = *_s1++ * *_s2++;
+    *_r = *_s1 * *_s2  ;
 }
 
-#define MultScaledSpectrum(/*SPECTRUM*/ spec1, /*float*/ a, /*SPECTRUM*/ spec2, /*SPECTRUM*/ result) \
-{                            \
-  InitChannels3(spec1, _s1, spec2, _s2, result, _r);    \
-  *_r++ = *_s1++ * (a) * *_s2++;                \
-  *_r++ = *_s1++ * (a) * *_s2++;                \
-  *_r   = *_s1   * (a) * *_s2  ;                \
+inline void
+MultiplyScaledSpectrum(SPECTRUM &spec1, float a, SPECTRUM &spec2, SPECTRUM result) {
+    const float *_s1 = spec1;
+    const float *_s2 = spec2;
+    float *_r = result;
+    *_r++ = *_s1++ * a * *_s2++;
+    *_r++ = *_s1++ * a * *_s2++;
+    *_r = *_s1 * a * *_s2 ;
 }
 
-#define ScalarSpectrumProduct(/*SPECTRUM*/ s, /*SPECTRUM*/ t)    \
-  (s[0] * t[0] + s[1] * t[1] + s[2] * t[2])
-
-#define AddSpectrum(/*SPECTRUM*/ spec1, /*SPECTRUM*/ spec2, /*SPECTRUM*/ result) \
-{                            \
-  InitChannels3(spec1, _s1, spec2, _s2, result, _r);    \
-  *_r++ = *_s1++ + *_s2++;                    \
-  *_r++ = *_s1++ + *_s2++;                    \
-  *_r   = *_s1   + *_s2  ;                    \
+inline void
+AddSpectrum(SPECTRUM &spec1, SPECTRUM &spec2, SPECTRUM &result) {
+    const float *_s1 = spec1;
+    const float *_s2 = spec2;
+    float *_r = result;
+    *_r++ = *_s1++ + *_s2++;
+    *_r++ = *_s1++ + *_s2++;
+    *_r = *_s1 + *_s2;
 }
 
 #define AddScaledSpectrum(/*SPECTRUM*/ spec1, /*float*/ a, /*SPECTRUM*/ spec2, /*SPECTRUM*/ result) \

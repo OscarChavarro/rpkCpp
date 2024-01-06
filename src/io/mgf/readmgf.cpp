@@ -237,7 +237,7 @@ GetCurrentMaterial() {
     MgfGetColor(&c_cmaterial->ts_c, c_cmaterial->ts, &Ts);
 
     /* check/correct range of reflectances and transmittances */
-    COLORADD(Rd, Rs, A);
+    colorAdd(Rd, Rs, A);
     if ((a = ColorMax(A)) > 1.0 - EPSILON ) {
         do_warning("invalid material specification: total reflectance shall be < 1");
         a = (1.0 - EPSILON) / a;
@@ -245,7 +245,7 @@ GetCurrentMaterial() {
         colorScale(a, Rs, Rs);
     }
 
-    COLORADD(Td, Ts, A);
+    colorAdd(Td, Ts, A);
     if ( (a = ColorMax(A)) > 1. - EPSILON ) {
         do_warning("invalid material specification: total transmittance shall be < 1");
         a = (1.0 - EPSILON) / a;

@@ -42,9 +42,21 @@ colorScale(float a, COLOR &s, COLOR &r) {
     ScaleSpectrum(a, s.spec, r.spec);
 }
 
-#define COLORPROD(s, t, r)        MultSpectrum((s).spec, (t).spec, (r).spec)
-#define COLORPRODSCALED(s, a, t, r)    MultScaledSpectrum((s).spec, (a), (t).spec, (r).spec)
-#define COLORADD(s, t, r)        AddSpectrum((s).spec, (t).spec, (r).spec)
+inline void
+colorProduct(COLOR &s, COLOR &t, COLOR &r) {
+    MultiplySpectrum(s.spec, t.spec, r.spec);
+}
+
+inline void
+colorProductScaled(COLOR &s, float a, COLOR &t, COLOR &r) {
+    MultiplyScaledSpectrum(s.spec, a, t.spec, r.spec);
+}
+
+inline void
+colorAdd(COLOR &s, COLOR &t, COLOR &r) {
+    AddSpectrum(s.spec, t.spec, r.spec);
+}
+
 #define COLORADDSCALED(s, a, t, r)    AddScaledSpectrum((s).spec, (a), (t).spec, (r).spec)
 #define COLORADDCONSTANT(s, a, r)    AddConstantSpectrum((s).spec, (a), (r).spec)
 #define COLORSUBTRACT(s, t, r)        SubtractSpectrum((s).spec, (t).spec, (r).spec)

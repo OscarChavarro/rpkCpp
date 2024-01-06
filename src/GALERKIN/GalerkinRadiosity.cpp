@@ -231,8 +231,8 @@ PatchRecomputeColor(PATCH *patch) {
     /* compute the patches color based on its radiance + ambient radiance
      * if desired. */
     if ( GLOBAL_galerkin_state.use_ambient_radiance ) {
-        COLORPROD(rho, GLOBAL_galerkin_state.ambient_radiance, rad_vis);
-        COLORADD(rad_vis, RADIANCE(patch), rad_vis);
+        colorProduct(rho, GLOBAL_galerkin_state.ambient_radiance, rad_vis);
+        colorAdd(rad_vis, RADIANCE(patch), rad_vis);
         RadianceToRGB(rad_vis, &patch->color);
     } else {
         RadianceToRGB(RADIANCE(patch), &patch->color);
@@ -247,8 +247,8 @@ PatchInit(PATCH *patch) {
     if ( GLOBAL_galerkin_state.use_constant_radiance ) {
         /* see Neumann et al, "The Constant Radiosity Step", Eurographics Rendering Workshop
          * '95, Dublin, Ireland, June 1995, p 336-344. */
-        COLORPROD(rho, GLOBAL_galerkin_state.constant_radiance, RADIANCE(patch));
-        COLORADD(RADIANCE(patch), Ed, RADIANCE(patch));
+        colorProduct(rho, GLOBAL_galerkin_state.constant_radiance, RADIANCE(patch));
+        colorAdd(RADIANCE(patch), Ed, RADIANCE(patch));
         if ( GLOBAL_galerkin_state.iteration_method == SOUTHWELL ) COLORSUBTRACT(RADIANCE(patch), GLOBAL_galerkin_state.constant_radiance,
                                                                                  UNSHOT_RADIANCE(patch));
     } else {
@@ -363,8 +363,8 @@ GetRadiance(PATCH *patch, double u, double v, Vector3D dir) {
         /* add ambient radiance */
         COLOR rho = REFLECTIVITY(patch);
         COLOR ambirad;
-        COLORPROD(rho, GLOBAL_galerkin_state.ambient_radiance, ambirad);
-        COLORADD(rad, ambirad, rad);
+        colorProduct(rho, GLOBAL_galerkin_state.ambient_radiance, ambirad);
+        colorAdd(rad, ambirad, rad);
     }
 
     return rad;
@@ -514,9 +514,9 @@ ElementWriteVertexColors(ELEMENT *element) {
     if ( GLOBAL_galerkin_state.use_ambient_radiance ) {
         COLOR rho = REFLECTIVITY(element->pog.patch), ambient;
 
-        COLORPROD(rho, GLOBAL_galerkin_state.ambient_radiance, ambient);
+        colorProduct(rho, GLOBAL_galerkin_state.ambient_radiance, ambient);
         for ( i = 0; i < element->pog.patch->nrvertices; i++ ) {
-            COLORADD(vertrad[i], ambient, vertrad[i]);
+            colorAdd(vertrad[i], ambient, vertrad[i]);
         }
     }
 

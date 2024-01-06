@@ -405,7 +405,7 @@ HandlePath(PMAPCONFIG *config) {
         // Account for bsdf, node that for the first node, this accounts
         // for the emitted radiance.
         if ( !(currentNode->Ends())) {
-            COLORPROD(currentNode->m_bsdfEval, accPower, accPower);
+            colorProduct(currentNode->m_bsdfEval, accPower, accPower);
 
             currentNode = currentNode->Next();
             bp->m_lightSize++;

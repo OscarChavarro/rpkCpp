@@ -105,7 +105,7 @@ ScreenBuffer::Merge(ScreenBuffer *src1, ScreenBuffer *src2) {
     int N = GetVRes() * GetHRes();
 
     for ( int i = 0; i < N; i++ ) {
-        COLORADD(src1->m_Radiance[i], src2->m_Radiance[i], m_Radiance[i]);
+        colorAdd(src1->m_Radiance[i], src2->m_Radiance[i], m_Radiance[i]);
     }
 }
 
