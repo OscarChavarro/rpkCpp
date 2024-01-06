@@ -128,7 +128,7 @@ static int LowPowerLink(LINK *link) {
     /* compute receiver reflectance times source radiosity */
     colorScale(M_PI, src->rad[0], rhosrcrad);
     if ( !rcv->iscluster ) {
-        COLOR Rd = REFLECTANCE(rcv->pog.patch);
+        COLOR Rd = TOPLEVEL_ELEMENT(rcv->pog.patch)->Rd;
         colorProduct(Rd, rhosrcrad, rhosrcrad);
     }
 

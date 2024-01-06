@@ -15,7 +15,7 @@ RwrPrintPatchData(FILE *out, PATCH *patch) {
 
 static void
 RwrInit() {
-    mcr.method = RWR;
+    mcr.method = RANDOM_WALK_RADIOSITY_METHOD;
     monteCarloRadiosityInit();
 }
 
@@ -41,7 +41,7 @@ PatchArea(PATCH *P) {
 /* probability proportional to power to be propagated. */
 static double
 ScalarSourcePower(PATCH *P) {
-    COLOR radiance = SOURCE_RAD(P);
+    COLOR radiance = TOPLEVEL_ELEMENT(P)->source_rad;
     return /* M_PI * */ P->area * colorSumAbsComponents(radiance);
 }
 
@@ -56,7 +56,7 @@ static COLOR *
 GetSelfEmittedRadiance(ELEMENT *elem) {
     static COLOR Ed[MAX_BASIS_SIZE];
     stochasticRadiosityClearCoefficients(Ed, elem->basis);
-    Ed[0] = EMITTANCE(elem->pog.patch);
+    Ed[0] = TOPLEVEL_ELEMENT(elem->pog.patch)->Ed; // Emittance
     return Ed;
 }
 
@@ -68,11 +68,11 @@ ReduceSource() {
                     COLOR newsrcrad, rho;
 
                     colorSetMonochrome(newsrcrad, 1.);
-                    rho = REFLECTANCE(P);
+                    rho = TOPLEVEL_ELEMENT(P)->Rd; // Reflectance
                     colorSubtract(newsrcrad, rho, newsrcrad);    /* 1-rho */
                     colorProduct(newsrcrad, mcr.control_radiance, newsrcrad);  /* (1-rho) * beta */
-                    colorSubtract(SOURCE_RAD(P), newsrcrad, newsrcrad);    /* E - (1-rho) beta */
-                    SOURCE_RAD(P) = newsrcrad;
+                    colorSubtract(TOPLEVEL_ELEMENT(P)->source_rad, newsrcrad, newsrcrad);    /* E - (1-rho) beta */
+                    TOPLEVEL_ELEMENT(P)->source_rad = newsrcrad;
                 }
     EndForAll;
 }
@@ -127,12 +127,12 @@ ShootingScore(PATH *path, long nr_paths, double (*birth_prob)(PATCH *)) {
     PATHNODE *node = &path->nodes[0];
 
     /* path->nodes[0].probability is birth probability of the path */
-    colorScale((node->patch->area / node->probability), SOURCE_RAD(node->patch), accum_pow);
+    colorScale((node->patch->area / node->probability), TOPLEVEL_ELEMENT(node->patch)->source_rad, accum_pow);
     for ( n = 1, node++; n < path->nrnodes; n++, node++ ) {
         double uin = 0., vin = 0., uout = 0., vout = 0., r = 1., w;
         int i;
         PATCH *P = node->patch;
-        COLOR Rd = REFLECTANCE(P);
+        COLOR Rd = TOPLEVEL_ELEMENT(P)->Rd;
         colorProduct(accum_pow, Rd, accum_pow);
 
         PatchUniformUV(P, &node->inpoint, &uin, &vin);
@@ -163,25 +163,25 @@ ShootingScore(PATH *path, long nr_paths, double (*birth_prob)(PATCH *)) {
 static void
 ShootingUpdate(PATCH *P, double w) {
     double k, old_quality;
-    old_quality = QUALITY(P);
-    QUALITY(P) += w;
-    if ( QUALITY(P) < EPSILON ) {
+    old_quality = TOPLEVEL_ELEMENT(P)->quality;
+    TOPLEVEL_ELEMENT(P)->quality += w;
+    if ( TOPLEVEL_ELEMENT(P)->quality < EPSILON ) {
         return;
     }
-    k = old_quality / QUALITY(P);
+    k = old_quality / TOPLEVEL_ELEMENT(P)->quality;
 
-    /* subtract selfemitted rad */
-    colorSubtract(getTopLevelPatchRad(P)[0], SOURCE_RAD(P), getTopLevelPatchRad(P)[0]);
+    /* subtract self-emitted rad */
+    colorSubtract(getTopLevelPatchRad(P)[0], TOPLEVEL_ELEMENT(P)->source_rad, getTopLevelPatchRad(P)[0]);
 
     /* weight with previous results */
-    stochasticRadiosityScaleCoefficients(k, getTopLevelPatchRad(P), getTopLevelPatchBasis(P));
-    stochasticRadiosityScaleCoefficients((1. - k), getTopLevelPatchReceivedRad(P), getTopLevelPatchBasis(P));
+    stochasticRadiosityScaleCoefficients((float)k, getTopLevelPatchRad(P), getTopLevelPatchBasis(P));
+    stochasticRadiosityScaleCoefficients((1.0f - (float)k), getTopLevelPatchReceivedRad(P), getTopLevelPatchBasis(P));
     stochasticRadiosityAddCoefficients(getTopLevelPatchRad(P), getTopLevelPatchReceivedRad(P), getTopLevelPatchBasis(P));
 
-    /* re-add selfemitted rad */
-    colorAdd(getTopLevelPatchRad(P)[0], SOURCE_RAD(P), getTopLevelPatchRad(P)[0]);
+    /* re-add self-emitted rad */
+    colorAdd(getTopLevelPatchRad(P)[0], TOPLEVEL_ELEMENT(P)->source_rad, getTopLevelPatchRad(P)[0]);
 
-    /* clear unshot and received radiance */
+    /* clear un-shot and received radiance */
     stochasticRadiosityClearCoefficients(getTopLevelPatchUnShotRad(P), getTopLevelPatchBasis(P));
     stochasticRadiosityClearCoefficients(getTopLevelPatchReceivedRad(P), getTopLevelPatchBasis(P));
 }
@@ -220,10 +220,10 @@ DetermineGatheringControlRadiosity() {
                     COLOR absorb, rho, Ed, num, denom;
 
                     colorSetMonochrome(absorb, 1.);
-                    rho = REFLECTANCE(P);
+                    rho = TOPLEVEL_ELEMENT(P)->Rd;
                     colorSubtract(absorb, rho, absorb);    /* 1-rho */
 
-                    Ed = SOURCE_RAD(P);
+                    Ed = TOPLEVEL_ELEMENT(P)->source_rad;
                     colorProduct(absorb, Ed, num);
                     colorAddScaled(c1, P->area, num, c1);    /* A_P (1-rho_P) E_P */
 
@@ -245,12 +245,12 @@ CollisionGatheringScore(PATH *path, long nr_paths, double (*birth_prob)(PATCH *)
     COLOR accum_rad;
     int n;
     PATHNODE *node = &path->nodes[path->nrnodes - 1];
-    accum_rad = SOURCE_RAD(node->patch);
+    accum_rad = TOPLEVEL_ELEMENT(node->patch)->source_rad;
     for ( n = path->nrnodes - 2, node--; n >= 0; n--, node-- ) {
         double uin = 0., vin = 0., uout = 0., vout = 0., r = 1.;
         int i;
         PATCH *P = node->patch;
-        COLOR Rd = REFLECTANCE(P);
+        COLOR Rd = TOPLEVEL_ELEMENT(P)->Rd;
         colorProduct(Rd, accum_rad, accum_rad);
 
         PatchUniformUV(P, &node->outpoint, &uout, &vout);
@@ -271,10 +271,10 @@ CollisionGatheringScore(PATH *path, long nr_paths, double (*birth_prob)(PATCH *)
                 r += basf * dual;
             }
         }
-        NG(P)++;
+        TOPLEVEL_ELEMENT(P)->ng++;
 
         colorScale((r / node->probability), accum_rad, accum_rad);
-        colorAdd(accum_rad, SOURCE_RAD(P), accum_rad);
+        colorAdd(accum_rad, TOPLEVEL_ELEMENT(P)->source_rad, accum_rad);
     }
 }
 
@@ -286,17 +286,17 @@ GatheringUpdate(PATCH *P, double w) {
     stochasticRadiosityCopyCoefficients(getTopLevelPatchRad(P), getTopLevelPatchUnShotRad(P), getTopLevelPatchBasis(P));
 
     /* divide by nr of samples */
-    if ( NG(P) > 0 )
-        stochasticRadiosityScaleCoefficients((1. / (double) NG(P)), getTopLevelPatchRad(P), getTopLevelPatchBasis(P));
+    if ( TOPLEVEL_ELEMENT(P)->ng > 0 )
+        stochasticRadiosityScaleCoefficients((1.0f / (float)TOPLEVEL_ELEMENT(P)->ng), getTopLevelPatchRad(P), getTopLevelPatchBasis(P));
 
     /* add source radiance (source term estimation suppresion!) */
-    colorAdd(getTopLevelPatchRad(P)[0], SOURCE_RAD(P), getTopLevelPatchRad(P)[0]);
+    colorAdd(getTopLevelPatchRad(P)[0], TOPLEVEL_ELEMENT(P)->source_rad, getTopLevelPatchRad(P)[0]);
 
     if ( mcr.constant_control_variate ) {
         /* add constant control radiosity value */
         COLOR cr = mcr.control_radiance;
         if ( mcr.indirect_only ) {
-            COLOR Rd = REFLECTANCE(P);
+            COLOR Rd = TOPLEVEL_ELEMENT(P)->Rd;
             colorProduct(Rd, mcr.control_radiance, cr);
         }
         colorAdd(getTopLevelPatchRad(P)[0], cr, getTopLevelPatchRad(P)[0]);

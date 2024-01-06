@@ -13,16 +13,13 @@ radiosity
 */
 
 enum METHOD {
-    SRR,
-    RWR
+    STOCHASTIC_RELAXATION_RADIOSITY_METHOD,
+    RANDOM_WALK_RADIOSITY_METHOD
 };
 
 enum RW_ESTIMATOR_TYPE {
     RW_SHOOTING,
-    RW_GATHERING,
-    RW_GFFMIS,
-    RW_GFFVAR,
-    RW_GFFHEUR
+    RW_GATHERING
 };
 
 enum RW_ESTIMATOR_KIND {
@@ -36,31 +33,25 @@ enum RW_ESTIMATOR_KIND {
 enum SHOW_WHAT {
     SHOW_TOTAL_RADIANCE,
     SHOW_INDIRECT_RADIANCE,
-    SHOW_WEIGHTING_GAIN,
-    SHOW_OLD_WEIGHTING_GAIN,
     SHOW_IMPORTANCE
 };
 
 enum SHOW_WEIGHTING {
-    SHOW_NON_WEIGHTED,
-    SHOW_WEIGHTED,
-    SHOW_AUTO_WEIGHTED
+    SHOW_NON_WEIGHTED
 };
 
 
 class STATE {
   public:
-    int hack;        /* for testing, should be FALSE normally */
     METHOD method;    /* stochastic relaxation or random walks */
     SHOW_WHAT show;    /* what to show and how to display the result */
-    SHOW_WEIGHTING show_weighted;    /* with weighted sampling */
 
     int inited;        /* flag indicating whether initialised or not */
-    int no_smoothing;    /* inhibits Gouraud interpolation in GetRadiance() */
 
     int iteration_nr;    /* current iteration number */
-    COLOR unshot_flux, total_flux,
-            imp_unshot_flux;    /* indirect-importance weighted unshot flux */
+    COLOR unshot_flux;
+    COLOR total_flux;
+    COLOR imp_unshot_flux;    /* indirect-importance weighted unshot flux */
     float unshot_ymp, total_ymp, source_ymp;  /* sum over all patches of area * importance */
 
     int ray_units_per_it;    /* to increase or decrease initial nr of rays */
@@ -69,10 +60,8 @@ class STATE {
     COLOR control_radiance;    /* constant control radiance value */
     int indirect_only;        /* whether or not to compute indirect illum. only */
 
-    int fake_global_lines;    /* imitates global line sampling */
     int weighted_sampling;    /* whether or not to do weighted sampling ala
 				 * Powell and Swann/Spanier */
-    long nr_weighted_rays, old_nr_weighted_rays;
 
     int set_source;        /* for copying direct illum. to SOURCE_RAD(..)
 				 * if computing only indirect illum. */
@@ -142,19 +131,6 @@ inline GalerkinBasis *
 getTopLevelPatchBasis(PATCH *patch) {
     return TOPLEVEL_ELEMENT(patch)->basis;
 }
-
-#define SOURCE_RAD(patch) (TOPLEVEL_ELEMENT(patch)->source_rad)
-#define RAY_INDEX(patch) (TOPLEVEL_ELEMENT(patch)->ray_index)
-#define QUALITY(patch) (TOPLEVEL_ELEMENT(patch)->quality)
-#define NG(patch) (TOPLEVEL_ELEMENT(patch)->ng)
-
-#define IMP(patch) (TOPLEVEL_ELEMENT(patch)->imp)
-#define UNSHOT_IMP(patch) (TOPLEVEL_ELEMENT(patch)->unshot_imp)
-#define RECEIVED_IMP(patch) (TOPLEVEL_ELEMENT(patch)->received_imp)
-#define SOURCE_IMP(patch) (TOPLEVEL_ELEMENT(patch)->source_imp)
-
-#define REFLECTANCE(patch) (TOPLEVEL_ELEMENT(patch)->Rd)
-#define EMITTANCE(patch) (TOPLEVEL_ELEMENT(patch)->Ed)
 
 extern float monteCarloRadiosityScalarReflectance(PATCH *P);
 extern void monteCarloRadiosityDefaults();

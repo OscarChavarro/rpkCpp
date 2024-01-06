@@ -14,7 +14,7 @@
 #include "raycasting/stochasticRaytracing/stochjacobi.h"
 
 static void SrrInit() {
-    mcr.method = SRR;
+    mcr.method = STOCHASTIC_RELAXATION_RADIOSITY_METHOD;
     monteCarloRadiosityInit();
 }
 
@@ -326,7 +326,6 @@ static void ElementDiscardIncremental(ELEMENT *elem) {
 }
 
 static void DiscardIncremental() {
-    mcr.nr_weighted_rays = mcr.old_nr_weighted_rays = 0;
     mcr.traced_rays = mcr.prev_traced_rays = 0;
 
     ElementDiscardIncremental(hierarchy.topcluster);

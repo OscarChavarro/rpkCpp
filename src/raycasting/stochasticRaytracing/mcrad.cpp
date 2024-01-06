@@ -140,9 +140,7 @@ static CMDLINEOPTDESC rwrOptions[] = {
 Common routines for stochastic relaxation and random walks
 */
 void monteCarloRadiosityDefaults() {
-    mcr.hack = false;
     mcr.inited = false;
-    mcr.no_smoothing = false;
     mcr.ray_units_per_it = 10;
     mcr.bidirectional_transfers = false;
     mcr.constant_control_variate = false;
@@ -161,13 +159,11 @@ void monteCarloRadiosityDefaults() {
     mcr.k_factor = 1.;
     mcr.show_shooting_weights = false;
     mcr.weighted_sampling = false;
-    mcr.fake_global_lines = false;
     mcr.discard_incremental = false;
     mcr.incremental_uses_importance = false;
     mcr.naive_merging = false;
 
     mcr.show = SHOW_TOTAL_RADIANCE;
-    mcr.show_weighted = SHOW_NON_WEIGHTED;
 
     mcr.do_nondiffuse_first_shot = false;
     mcr.initial_ls_samples = 1000;
@@ -229,22 +225,23 @@ void monteCarloRadiosityInit() {
 }
 
 /* initialises patch data */
-static void McrInitPatch(PATCH *P) {
-    COLOR Ed = EMITTANCE(P);
+static void
+McrInitPatch(PATCH *P) {
+    COLOR Ed = TOPLEVEL_ELEMENT(P)->Ed;
 
     reAllocCoefficients(TOPLEVEL_ELEMENT(P));
     stochasticRadiosityClearCoefficients(getTopLevelPatchRad(P), getTopLevelPatchBasis(P));
     stochasticRadiosityClearCoefficients(getTopLevelPatchUnShotRad(P), getTopLevelPatchBasis(P));
     stochasticRadiosityClearCoefficients(getTopLevelPatchReceivedRad(P), getTopLevelPatchBasis(P));
 
-    getTopLevelPatchRad(P)[0] = getTopLevelPatchUnShotRad(P)[0] = SOURCE_RAD(P) = Ed;
+    getTopLevelPatchRad(P)[0] = getTopLevelPatchUnShotRad(P)[0] = TOPLEVEL_ELEMENT(P)->source_rad = Ed;
     colorClear(getTopLevelPatchReceivedRad(P)[0]);
 
-    RAY_INDEX(P) = P->id * 11;
-    QUALITY(P) = 0.;
-    NG(P) = 0;
+    TOPLEVEL_ELEMENT(P)->ray_index = P->id * 11;
+    TOPLEVEL_ELEMENT(P)->quality = 0.;
+    TOPLEVEL_ELEMENT(P)->ng = 0;
 
-    IMP(P) = UNSHOT_IMP(P) = RECEIVED_IMP(P) = SOURCE_IMP(P) = 0.;
+    TOPLEVEL_ELEMENT(P)->imp = TOPLEVEL_ELEMENT(P)->unshot_imp = TOPLEVEL_ELEMENT(P)->received_imp = TOPLEVEL_ELEMENT(P)->source_imp = 0.;
 }
 
 /* routines below update/re-initialise importance after a viewing change */
@@ -382,7 +379,6 @@ void monteCarloRadiosityReInit() {
     mcr.set_source = mcr.indirect_only;
     mcr.traced_paths = 0;
     colorClear(mcr.control_radiance);
-    mcr.nr_weighted_rays = mcr.old_nr_weighted_rays = 0;
 
     colorClear(mcr.unshot_flux);
     mcr.unshot_ymp = 0.;
@@ -394,11 +390,11 @@ void monteCarloRadiosityReInit() {
                     McrInitPatch(P);
                     colorAddScaled(mcr.unshot_flux, M_PI * P->area, getTopLevelPatchUnShotRad(P)[0], mcr.unshot_flux);
                     colorAddScaled(mcr.total_flux, M_PI * P->area, getTopLevelPatchRad(P)[0], mcr.total_flux);
-                    colorAddScaled(mcr.imp_unshot_flux, M_PI * P->area * (IMP(P) - SOURCE_IMP(P)), getTopLevelPatchUnShotRad(P)[0],
+                    colorAddScaled(mcr.imp_unshot_flux, M_PI * P->area * (TOPLEVEL_ELEMENT(P)->imp - TOPLEVEL_ELEMENT(P)->source_imp), getTopLevelPatchUnShotRad(P)[0],
                                    mcr.imp_unshot_flux);
-                    mcr.unshot_ymp += P->area * fabs(UNSHOT_IMP(P));
-                    mcr.total_ymp += P->area * IMP(P);
-                    mcr.source_ymp += P->area * SOURCE_IMP(P);
+                    mcr.unshot_ymp += P->area * fabs(TOPLEVEL_ELEMENT(P)->unshot_imp);
+                    mcr.total_ymp += P->area * TOPLEVEL_ELEMENT(P)->imp;
+                    mcr.source_ymp += P->area * TOPLEVEL_ELEMENT(P)->source_imp;
                     monteCarloRadiosityPatchComputeNewColor(P);
                 }
     EndForAll;

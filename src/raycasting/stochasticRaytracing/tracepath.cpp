@@ -68,7 +68,7 @@ PATH *TracePath(PATCH *origin,
     PathAddNode(path, origin, birth_prob, inpoint, outpoint);
     do {
         mcr.traced_rays++;
-        ray = McrGenerateLocalLine(P, Sample4D(RAY_INDEX(P)++));
+        ray = McrGenerateLocalLine(P, Sample4D(TOPLEVEL_ELEMENT(P)->ray_index++));
         if ( path->nrnodes > 1 && mcr.continuous_random_walk ) {
             /* scattered ray originates at point of incidence of previous ray */
             ray.pos = path->nodes[path->nrnodes - 1].inpoint;

@@ -44,13 +44,13 @@ static void MakeLightSourceTable() {
                     stochasticRadiosityClearCoefficients(getTopLevelPatchRad(P), getTopLevelPatchBasis(P));
                     stochasticRadiosityClearCoefficients(getTopLevelPatchUnShotRad(P), getTopLevelPatchBasis(P));
                     stochasticRadiosityClearCoefficients(getTopLevelPatchReceivedRad(P), getTopLevelPatchBasis(P));
-                    colorClear(SOURCE_RAD(P));
+                    colorClear(TOPLEVEL_ELEMENT(P)->source_rad);
                 }
     EndForAll;
 }
 
 static void NextLightSample(PATCH *patch, double *zeta) {
-    double *xi = Sample4D(RAY_INDEX(patch)++);
+    double *xi = Sample4D(TOPLEVEL_ELEMENT(patch)->ray_index++);
     if ( patch->nrvertices == 3 ) {
         double u = xi[0], v = xi[1];
         FoldSampleF(&u, &v);
@@ -96,12 +96,12 @@ static void SampleLight(LIGHTSOURCETABLE *light, double light_selection_pdf) {
     if ( hit ) {
         double pdf = light_selection_pdf * point_selection_pdf * dir_selection_pdf;
         double outcos = VECTORDOTPRODUCT(ray.dir, light->patch->normal);
-        COLOR rcvrad, Rd = REFLECTANCE(hit->patch);
+        COLOR rcvrad, Rd = TOPLEVEL_ELEMENT(hit->patch)->Rd;
         colorScale((outcos / (M_PI * hit->patch->area * pdf * nrsamples)), rad, rcvrad);
         colorProduct(Rd, rcvrad, rcvrad);
         colorAdd(getTopLevelPatchRad(hit->patch)[0], rcvrad, getTopLevelPatchRad(hit->patch)[0]);
         colorAdd(getTopLevelPatchUnShotRad(hit->patch)[0], rcvrad, getTopLevelPatchUnShotRad(hit->patch)[0]);
-        colorAdd(SOURCE_RAD(hit->patch), rcvrad, SOURCE_RAD(hit->patch));
+        colorAdd(TOPLEVEL_ELEMENT(hit->patch)->source_rad, rcvrad, TOPLEVEL_ELEMENT(hit->patch)->source_rad);
     }
 }
 
@@ -139,11 +139,11 @@ static void Summarize() {
                 {
                     colorAddScaled(mcr.unshot_flux, M_PI * P->area, getTopLevelPatchUnShotRad(P)[0], mcr.unshot_flux);
                     colorAddScaled(mcr.total_flux, M_PI * P->area, getTopLevelPatchRad(P)[0], mcr.total_flux);
-                    colorAddScaled(mcr.imp_unshot_flux, M_PI * P->area * (IMP(P) - SOURCE_IMP(P)), getTopLevelPatchUnShotRad(P)[0],
+                    colorAddScaled(mcr.imp_unshot_flux, M_PI * P->area * (TOPLEVEL_ELEMENT(P)->imp - TOPLEVEL_ELEMENT(P)->source_imp), getTopLevelPatchUnShotRad(P)[0],
                                    mcr.imp_unshot_flux);
-                    mcr.unshot_ymp += P->area * fabs(UNSHOT_IMP(P));
-                    mcr.total_ymp += P->area * IMP(P);
-                    mcr.source_ymp += P->area * SOURCE_IMP(P);
+                    mcr.unshot_ymp += P->area * fabs(TOPLEVEL_ELEMENT(P)->unshot_imp);
+                    mcr.total_ymp += P->area * TOPLEVEL_ELEMENT(P)->imp;
+                    mcr.source_ymp += P->area * TOPLEVEL_ELEMENT(P)->source_imp;
                     monteCarloRadiosityPatchComputeNewColor(P);
                 }
     EndForAll;
