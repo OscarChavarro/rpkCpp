@@ -9,7 +9,7 @@
 #include "scene/phong.h"
 #include "io/mgf/parser.h"
 #include "io/mgf/vectoroctree.h"
-#include "app/fileopts.h"
+#include "io/mgf/fileopts.h"
 #include "io/mgf/readmgf.h"
 
 // Objects 'o' contexts can be nested this deep
@@ -20,8 +20,8 @@
 
 #define NUMBER_OF_SAMPLES 3
 
-static VECTOROCTREE *globalPointsOctree; // global point octree
-static VECTOROCTREE *globalNormalsOctree; // global normal octree
+static VECTOROCTREE *globalPointsOctree;
+static VECTOROCTREE *globalNormalsOctree;
 
 // Elements for surface currently being created
 static Vector3DListNode *globalCurrentPointList;
@@ -29,13 +29,15 @@ static Vector3DListNode *globalCurrentNormalList;
 static VERTEXLIST *globalCurrentVertexList;
 static PatchSet *globalCurrentFaceList;
 static GeometryListNode *globalCurrentGeometryList;
-static MATERIAL *globalCurrentMaterial;
-
-static VERTEXLIST *globalAutoVertexList;
+static Material *globalCurrentMaterial;
 
 // Geometry stack: used for building a hierarchical representation of the scene
-static GeometryListNode *globalGeometryStack[MAXIMUM_GEOMETRY_STACK_DEPTH], **globalGeometryStackPtr;
-static VERTEXLIST *autoVertexListStack[MAXIMUM_GEOMETRY_STACK_DEPTH], **globalAutoVertexListStackPtr;
+static GeometryListNode *globalGeometryStack[MAXIMUM_GEOMETRY_STACK_DEPTH];
+static GeometryListNode **globalGeometryStackPtr;
+
+static VERTEXLIST *globalAutoVertexList;
+static VERTEXLIST *autoVertexListStack[MAXIMUM_GEOMETRY_STACK_DEPTH];
+static VERTEXLIST **globalAutoVertexListStackPtr;
 
 static int globalInComplex = false; // true if reading a sphere, torus or other unsupported
 static int globalInSurface = false; // true if busy creating a new surface
@@ -43,24 +45,24 @@ static int globalAllSurfacesSided = false; // when set to true, all surfaces wil
 
 static void
 doError(const char *errmsg) {
-    logError(nullptr, (char *) "%s line %d: %s", mg_file->fname, mg_file->lineno, errmsg);
+    logError(nullptr, (char *) "%s line %d: %s", GLOBAL_mgf_file->fileName, GLOBAL_mgf_file->lineNumber, errmsg);
 }
 
 static void
 doWarning(const char *errmsg) {
-    logWarning(nullptr, (char *) "%s line %d: %s", mg_file->fname, mg_file->lineno, errmsg);
+    logWarning(nullptr, (char *) "%s line %d: %s", GLOBAL_mgf_file->fileName, GLOBAL_mgf_file->lineNumber, errmsg);
 }
 
 static void
-pushCurrentGeomList() {
+pushCurrentGeometryList() {
     if ( globalGeometryStackPtr - globalGeometryStack >= MAXIMUM_GEOMETRY_STACK_DEPTH ) {
         doError(
-                "Objects are nested too deep for this program. Recompile with larger MAXIMUM_GEOMETRY_STACK_DEPTH constant in readmgf.c");
+                "Objects are nested too deep for this program. Recompile with larger MAXIMUM_GEOMETRY_STACK_DEPTH constant in readmgf.cpp");
         return;
     } else {
         *globalGeometryStackPtr = globalCurrentGeometryList;
         globalGeometryStackPtr++;
-        globalCurrentGeometryList = GeomListCreate();
+        globalCurrentGeometryList = nullptr;
 
         *globalAutoVertexListStackPtr = globalAutoVertexList;
         globalAutoVertexListStackPtr++;
@@ -69,10 +71,10 @@ pushCurrentGeomList() {
 }
 
 static void
-popCurrentGeomList() {
+popCurrentGeometryList() {
     if ( globalGeometryStackPtr <= globalGeometryStack ) {
         doError("Object stack underflow ... unbalanced 'o' contexts?");
-        globalCurrentGeometryList = GeomListCreate();
+        globalCurrentGeometryList = nullptr;
         return;
     } else {
         globalGeometryStackPtr--;
@@ -106,14 +108,14 @@ the code
 */
 static int
 doDiscretize(int argc, char **argv) {
-    int en = mg_entity(argv[0]);
+    int en = mgfEntity(argv[0]);
 
     switch ( en ) {
         case MGF_ERROR_SPHERE:
             return mgfEntitySphere(argc, argv);
         case MGF_ERROR_TORUS:
             return mgfEntityTorus(argc, argv);
-        case MGF_EROR_CYLINDER:
+        case MGF_ERROR_CYLINDER:
             return mgfEntityCylinder(argc, argv);
         case MGF_ERROR_RING:
             return mgfEntityRing(argc, argv);
@@ -145,7 +147,7 @@ mgfSetNrQuartCircDivs(int divs) {
         return;
     }
 
-    mg_nqcdivs = divs;
+    GLOBAL_mgf_divisionsPerQuarterCircle = divs;
 }
 
 /**
@@ -178,19 +180,25 @@ newSurface() {
     globalCurrentPointList = VectorListCreate();
     globalCurrentNormalList = VectorListCreate();
     globalCurrentVertexList = nullptr;
-    globalCurrentFaceList = PatchListCreate();
+    globalCurrentFaceList = nullptr;
     globalInSurface = true;
 }
 
 static void
 surfaceDone() {
-    Geometry *newGeometry;
+    Geometry *newGeometry{};
 
-    if ( globalCurrentFaceList ) {
+    if ( globalCurrentFaceList != nullptr ) {
         newGeometry = geomCreateSurface(
-                surfaceCreate(globalCurrentMaterial, globalCurrentPointList, globalCurrentNormalList,
-                              (Vector3DListNode *) nullptr,
-                              globalCurrentVertexList, globalCurrentFaceList, NO_COLORS), &GLOBAL_skin_surfaceGeometryMethods);
+            surfaceCreate(
+                globalCurrentMaterial,
+                globalCurrentPointList,
+                globalCurrentNormalList,
+                nullptr, // null texture coordinate list
+                globalCurrentVertexList,
+                globalCurrentFaceList,
+                NO_COLORS),
+            &GLOBAL_skin_surfaceGeometryMethods);
         globalCurrentGeometryList = GeomListAdd(globalCurrentGeometryList, newGeometry);
     }
     globalInSurface = false;
@@ -201,16 +209,16 @@ This routine returns true if the current material has changed
 */
 static int
 materialChanged() {
-    char *matname;
+    char *materialName;
 
-    matname = GLOBAL_mgf_currentMaterialName;
-    if ( !matname || *matname == '\0' ) {    /* this might cause strcmp to crash !! */
-        matname = (char *) "unnamed";
+    materialName = GLOBAL_mgf_currentMaterialName;
+    if ( !materialName || *materialName == '\0' ) {    /* this might cause strcmp to crash !! */
+        materialName = (char *) "unnamed";
     }
 
     /* is it another material than the one used for the previous face ?? If not, the
      * globalCurrentMaterial remains the same. */
-    if ( strcmp(matname, globalCurrentMaterial->name) == 0 && c_cmaterial->clock == 0 ) {
+    if ( strcmp(materialName, globalCurrentMaterial->name) == 0 && GLOBAL_mgf_currentMaterial->clock == 0 ) {
         return false;
     }
 
@@ -221,7 +229,7 @@ materialChanged() {
 Translates mgf color into out color representation
 */
 static void
-mgfGetColor(MgfColorContext *cin, float intensity, COLOR *cout) {
+mgfGetColor(MgfColorContext *cin, float intensity, COLOR *colorOut) {
     float xyz[3];
     float rgb[3];
 
@@ -236,7 +244,7 @@ mgfGetColor(MgfColorContext *cin, float intensity, COLOR *cout) {
     }
 
     if ( xyz[0] < 0. || xyz[1] < 0. || xyz[2] < 0. ) {
-        doWarning("invalid color specification (negative CIE XYZ componenets) ... clipping to zero");
+        doWarning("invalid color specification (negative CIE XYZ components) ... clipping to zero");
         if ( xyz[0] < 0.0 ) {
             xyz[0] = 0.0;
         }
@@ -248,11 +256,11 @@ mgfGetColor(MgfColorContext *cin, float intensity, COLOR *cout) {
         }
     }
 
-    xyzToRgb(xyz, rgb);
+    transformColorFromXYZ2RGB(xyz, rgb);
     if ( clipGamut(rgb)) {
         doWarning("color desaturated during gamut clipping");
     }
-    colorSet(*cout, rgb[0], rgb[1], rgb[2]);
+    colorSet(*colorOut, rgb[0], rgb[1], rgb[2]);
 }
 
 float
@@ -276,6 +284,23 @@ colorMax(COLOR col) {
 }
 
 /**
+Looks up a material with given name in the given material list. Returns
+a pointer to the material if found, or (Material *)nullptr if not found
+*/
+static Material *
+materialLookup(MATERIALLIST *MaterialLib, char *name) {
+    Material *m;
+
+    while ((m = MaterialListNext(&MaterialLib))) {
+        if ( strcmp(m->name, name) == 0 ) {
+            return m;
+        }
+    }
+
+    return (Material *)nullptr;
+}
+
+/**
 This routine checks whether the mgf material being used has changed. If it
 changed, this routine converts to our representation of materials and
 creates a new MATERIAL, which is added to the global material library.
@@ -285,7 +310,6 @@ static int
 getCurrentMaterial() {
     COLOR Ed, Es, Rd, Td, Rs, Ts, A;
     float Ne, Nr, Nt, a;
-    MATERIAL *thematerial;
     char *matname;
 
     matname = GLOBAL_mgf_currentMaterialName;
@@ -295,39 +319,39 @@ getCurrentMaterial() {
 
     /* is it another material than the one used for the previous face ?? If not, the
      * globalCurrentMaterial remains the same. */
-    if ( strcmp(matname, globalCurrentMaterial->name) == 0 && c_cmaterial->clock == 0 ) {
+    if ( strcmp(matname, globalCurrentMaterial->name) == 0 && GLOBAL_mgf_currentMaterial->clock == 0 ) {
         return false;
     }
 
-    thematerial = MaterialLookup(GLOBAL_scene_materials, matname);
-    if ( thematerial != nullptr ) {
-        if ( c_cmaterial->clock == 0 ) {
-            globalCurrentMaterial = thematerial;
+    Material *theMaterial = materialLookup(GLOBAL_scene_materials, matname);
+    if ( theMaterial != nullptr ) {
+        if ( GLOBAL_mgf_currentMaterial->clock == 0 ) {
+            globalCurrentMaterial = theMaterial;
             return true;
         }
     }
 
     /* new material, or a material that changed. Convert intensities and chromaticities
      * to our color model. */
-    mgfGetColor(&c_cmaterial->ed_c, c_cmaterial->ed, &Ed);
-    mgfGetColor(&c_cmaterial->rd_c, c_cmaterial->rd, &Rd);
-    mgfGetColor(&c_cmaterial->td_c, c_cmaterial->td, &Td);
-    mgfGetColor(&c_cmaterial->rs_c, c_cmaterial->rs, &Rs);
-    mgfGetColor(&c_cmaterial->ts_c, c_cmaterial->ts, &Ts);
+    mgfGetColor(&GLOBAL_mgf_currentMaterial->ed_c, GLOBAL_mgf_currentMaterial->ed, &Ed);
+    mgfGetColor(&GLOBAL_mgf_currentMaterial->rd_c, GLOBAL_mgf_currentMaterial->rd, &Rd);
+    mgfGetColor(&GLOBAL_mgf_currentMaterial->td_c, GLOBAL_mgf_currentMaterial->td, &Td);
+    mgfGetColor(&GLOBAL_mgf_currentMaterial->rs_c, GLOBAL_mgf_currentMaterial->rs, &Rs);
+    mgfGetColor(&GLOBAL_mgf_currentMaterial->ts_c, GLOBAL_mgf_currentMaterial->ts, &Ts);
 
     /* check/correct range of reflectances and transmittances */
     colorAdd(Rd, Rs, A);
-    if ((a = colorMax(A)) > 1.0 - EPSILON ) {
+    if ( (a = colorMax(A)) > 1.0f - (float)EPSILON ) {
         doWarning("invalid material specification: total reflectance shall be < 1");
-        a = (1.0 - EPSILON) / a;
+        a = (1.0f - (float)EPSILON) / a;
         colorScale(a, Rd, Rd);
         colorScale(a, Rs, Rs);
     }
 
     colorAdd(Td, Ts, A);
-    if ((a = colorMax(A)) > 1. - EPSILON ) {
+    if ((a = colorMax(A)) > 1.0f - (float)EPSILON ) {
         doWarning("invalid material specification: total transmittance shall be < 1");
-        a = (1.0 - EPSILON) / a;
+        a = (1.0f - (float)EPSILON) / a;
         colorScale(a, Td, Td);
         colorScale(a, Ts, Ts);
     }
@@ -339,15 +363,15 @@ getCurrentMaterial() {
     Ne = 0.0;
 
     /* specular power = (0.6/roughness)^2 (see mgf docs) */
-    if ( c_cmaterial->rs_a != 0.0 ) {
-        Nr = 0.6 / c_cmaterial->rs_a;
+    if ( GLOBAL_mgf_currentMaterial->rs_a != 0.0 ) {
+        Nr = 0.6 / GLOBAL_mgf_currentMaterial->rs_a;
         Nr *= Nr;
     } else {
         Nr = 0.0;
     }
 
-    if ( c_cmaterial->ts_a != 0.0 ) {
-        Nt = 0.6 / c_cmaterial->ts_a;
+    if ( GLOBAL_mgf_currentMaterial->ts_a != 0.0 ) {
+        Nt = 0.6 / GLOBAL_mgf_currentMaterial->ts_a;
         Nt *= Nt;
     } else {
         Nt = 0.0;
@@ -362,22 +386,22 @@ getCurrentMaterial() {
         colorSetMonochrome(Ts, colorGray(Ts));
     }
 
-    thematerial = MaterialCreate(matname,
+    theMaterial = MaterialCreate(matname,
                                  (colorNull(Ed) && colorNull(Es)) ? (EDF *) nullptr : EdfCreate(
                                          PhongEdfCreate(&Ed, &Es, Ne), &PhongEdfMethods),
                                  BsdfCreate(SplitBSDFCreate(
                                          (colorNull(Rd) && colorNull(Rs)) ? (BRDF *) nullptr : BrdfCreate(
                                                  PhongBrdfCreate(&Rd, &Rs, Nr), &PhongBrdfMethods),
                                          (colorNull(Td) && colorNull(Ts)) ? (BTDF *) nullptr : BtdfCreate(
-                                                 PhongBtdfCreate(&Td, &Ts, Nt, c_cmaterial->nr, c_cmaterial->ni),
+                                                 PhongBtdfCreate(&Td, &Ts, Nt, GLOBAL_mgf_currentMaterial->nr, GLOBAL_mgf_currentMaterial->ni),
                                                  &PhongBtdfMethods), (TEXTURE *) nullptr), &SplitBsdfMethods),
-                                 globalAllSurfacesSided ? 1 : c_cmaterial->sided);
+                                 globalAllSurfacesSided ? 1 : GLOBAL_mgf_currentMaterial->sided);
 
-    GLOBAL_scene_materials = MaterialListAdd(GLOBAL_scene_materials, thematerial);
-    globalCurrentMaterial = thematerial;
+    GLOBAL_scene_materials = MaterialListAdd(GLOBAL_scene_materials, theMaterial);
+    globalCurrentMaterial = theMaterial;
 
     /* reset the clock value so we will be aware of possible changes in future */
-    c_cmaterial->clock = 0;
+    GLOBAL_mgf_currentMaterial->clock = 0;
 
     return true;
 }
@@ -1024,7 +1048,7 @@ handleObjectEntity(int argc, char **argv) {
             surfaceDone();
         }
 
-        pushCurrentGeomList();
+        pushCurrentGeometryList();
 
         newSurface();
     } else {
@@ -1039,7 +1063,7 @@ handleObjectEntity(int argc, char **argv) {
             theGeometry = geomCreateCompound(compoundCreate(globalCurrentGeometryList), CompoundMethods());
         }
 
-        popCurrentGeomList();
+        popCurrentGeometryList();
 
         if ( theGeometry ) {
             globalCurrentGeometryList = GeomListAdd(globalCurrentGeometryList, theGeometry);
@@ -1081,7 +1105,7 @@ initMgf() {
     GLOBAL_mgf_handleCallbacks[MGF_ERROR_SPHERE] = handleSurfaceEntity;
     GLOBAL_mgf_handleCallbacks[MGF_ERROR_TORUS] = handleSurfaceEntity;
     GLOBAL_mgf_handleCallbacks[MGF_ERROR_RING] = handleSurfaceEntity;
-    GLOBAL_mgf_handleCallbacks[MGF_EROR_CYLINDER] = handleSurfaceEntity;
+    GLOBAL_mgf_handleCallbacks[MGF_ERROR_CYLINDER] = handleSurfaceEntity;
     GLOBAL_mgf_handleCallbacks[MGF_ERROR_CONE] = handleSurfaceEntity;
     GLOBAL_mgf_handleCallbacks[MGF_ERROR_PRISM] = handleSurfaceEntity;
     GLOBAL_mgf_unknownEntityHandleCallback = handleUnknownEntity;
@@ -1095,11 +1119,11 @@ GLOBAL_scene_world and GLOBAL_scene_materials are filled in.
 */
 void
 readMgf(char *filename) {
-    MG_FCTXT mgfReaderContext{};
+    MgfReaderContext mgfReaderContext{};
     int status{};
 
-    mgfSetNrQuartCircDivs(GLOBAL_fileOptions_nqcdivs);
-    mgfSetIgnoreSidedness(GLOBAL_fileOptions_force_onesided_surfaces);
+    mgfSetNrQuartCircDivs(GLOBAL_fileOptions_numberOfQuarterCircleDivisions);
+    mgfSetIgnoreSidedness(GLOBAL_fileOptions_forceOneSidedSurfaces);
     mgfSetMonochrome(GLOBAL_fileOptions_monochrome);
 
     initMgf();
@@ -1130,7 +1154,7 @@ readMgf(char *filename) {
         doError(GLOBAL_mgf_errors[status]);
     } else {
         while ( mgfReadNextLine() > 0 && !status ) {
-            status = mg_parse();
+            status = mgfParseCurrentLine();
             if ( status ) {
                 doError(GLOBAL_mgf_errors[status]);
             }

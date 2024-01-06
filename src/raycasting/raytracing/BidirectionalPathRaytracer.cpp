@@ -934,20 +934,20 @@ void DoBPTDensityEstimation(BPCONFIG *config) {
 
         config->dest->Render();
         sprintf(fname, "deScreen%i.ppm.gz", newTotalSPP);
-        //    config->dest->WriteFile(fname);
+        //    config->dest->WriteFile(fileName);
 
 
         if ( config->dest2 ) {
             config->dest2->Render();
             sprintf(fname, "de2Screen%i.ppm.gz", newTotalSPP);
-            //      config->dest2->WriteFile(fname);
+            //      config->dest2->WriteFile(fileName);
 
             // Merge two images (just add!) into screen
 
             config->screen->Merge(config->dest, config->dest2);
             config->screen->Render();
             sprintf(fname, "deMRGScreen%i.ppm.gz", newTotalSPP);
-            //      config->screen->WriteFile(fname);
+            //      config->screen->WriteFile(fileName);
         } else {
             config->screen->Copy(config->dest);
         }

@@ -509,7 +509,7 @@ void monteCarloRadiosityRecomputeDisplayColors() {
     EndForAll;
 }
 
-void monteCarloRadiosityUpdateMaterial(MATERIAL *oldMaterial, MATERIAL *newMaterial) {
+void monteCarloRadiosityUpdateMaterial(Material *oldMaterial, Material *newMaterial) {
     logError("monteCarloRadiosityUpdateMaterial", "Not yet implemented");
 }
 

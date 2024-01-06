@@ -63,7 +63,7 @@ void SurfaceConnectFace(MeshSurface *surf, PATCH *face) {
 }
 
 /* This routine creates a MeshSurface with given material, positions, etc... */
-MeshSurface *surfaceCreate(MATERIAL *material,
+MeshSurface *surfaceCreate(Material *material,
                            Vector3DListNode *points, Vector3DListNode *normals, Vector3DListNode *texCoords,
                            VERTEXLIST *vertices, PatchSet *faces,
                            enum MaterialColorFlags flags) {

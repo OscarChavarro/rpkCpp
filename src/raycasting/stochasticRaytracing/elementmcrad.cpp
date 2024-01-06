@@ -534,7 +534,7 @@ ElementMidpoint(ELEMENT *elem) {
 
 int
 ElementIsTextured(ELEMENT *elem) {
-    MATERIAL *mat;
+    Material *mat;
     if ( elem->iscluster ) {
         logFatal(-1, "ElementIsTextured", "this routine should not be called for cluster elements");
         return false;

@@ -49,7 +49,7 @@ class MeshSurface {
     */
     PatchSet *faces;
 
-    MATERIAL *material;
+    Material *material;
 };
 
 enum MaterialColorFlags {
@@ -60,7 +60,7 @@ enum MaterialColorFlags {
 
 extern MeshSurface *
 surfaceCreate(
-        MATERIAL *material,
+        Material *material,
         Vector3DListNode *points,
         Vector3DListNode *normals,
         Vector3DListNode *texCoords,

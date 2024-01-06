@@ -12,7 +12,7 @@
 // TODO SITHMASTER: This is coupling hit with scene level classes :(
 class Geometry;
 class PATCH;
-class MATERIAL;
+class Material;
 
 class HITREC {
   public:
@@ -20,7 +20,7 @@ class HITREC {
     PATCH *patch; // patch that was hit
     Vector3D point; // intersection point
     Vector3D gnormal; // geometric normal
-    MATERIAL *material; // material of hit surface
+    Material *material; // material of hit surface
     Vector3D normal; // shading normal
     Vector3D texCoord; // texture coordinate
     Vector3D X; // shading frame (Z = shading normal: hit->Z == hit->normal)
@@ -70,7 +70,7 @@ extern int InitHit(
         Geometry *geom,
         Vector3D *point,
         Vector3D *gnormal,
-        MATERIAL *material,
+        Material *material,
         float dist);
 
 /* Checks whether or not the hit record is properly initialised, that

@@ -44,7 +44,6 @@ set(MAIN_SRC
     src/material/color.cpp
     src/material/edf.cpp
     src/material/Material.cpp
-    src/material/materiallist.cpp
     src/material/statistics.cpp
     src/material/texture.cpp
     src/material/xxdf.cpp
@@ -118,6 +117,7 @@ set(MAIN_SRC
     src/io/mgf/words.cpp
     src/io/mgf/xf.cpp
     src/io/mgf/readmgf.cpp
+    src/io/mgf/fileopts.cpp
     src/raycasting/common/bidiroptions.cpp
     src/raycasting/common/ScreenBuffer.cpp
     src/raycasting/common/pathnode.cpp
@@ -178,7 +178,6 @@ set(MAIN_SRC
     src/app/batch.cpp
     src/app/radiance.cpp
     src/app/rendercommon.cpp
-    src/app/ui_file.cpp
     src/app/ui_main.cpp
     src/app/opengl.cpp
     src/app/Cluster.cpp

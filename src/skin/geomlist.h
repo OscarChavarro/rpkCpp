@@ -17,8 +17,6 @@ class GeometryListNode {
     GeometryListNode *next;
 };
 
-#define GeomListCreate (GeometryListNode *)ListCreate
-
 #define GeomListAdd(geomlist, geom)    \
         (GeometryListNode *)ListAdd((LIST *)geomlist, (void *)geom)
 
@@ -30,9 +28,6 @@ class GeometryListNode {
 
 #define GeomListIterate1A(geomlist, proc, data) \
         ListIterate1A((LIST *)geomlist, (void (*)(void *, void *))proc, (void *)data)
-
-#define GeomListIterate1B(geomlist, proc, data) \
-        ListIterate1B((LIST *)geomlist, (void (*)(void *, void *))proc, (void *)data)
 
 #define GeomListDestroy(geomlist) \
         ListDestroy((LIST *)geomlist)

@@ -20,7 +20,7 @@
 #include "app/ui.h"
 #include "io/mgf/readmgf.h"
 #include "skin/Compound.h"
-#include "app/fileopts.h"
+#include "io/mgf/fileopts.h"
 
 static char *currentDirectory;
 static int yes = 1;
@@ -251,8 +251,8 @@ Init() {
     FixCubatureRules();
 
     GLOBAL_fileOptions_monochrome = DEFAULT_MONOCHROME;
-    GLOBAL_fileOptions_force_onesided_surfaces = DEFAULT_FORCE_ONESIDEDNESS;
-    GLOBAL_fileOptions_nqcdivs = DEFAULT_NQCDIVS;
+    GLOBAL_fileOptions_forceOneSidedSurfaces = DEFAULT_FORCE_ONESIDEDNESS;
+    GLOBAL_fileOptions_numberOfQuarterCircleDivisions = DEFAULT_NQCDIVS;
 
     RenderingDefaults();
     ToneMapDefaults();
@@ -273,7 +273,7 @@ Init() {
 
 static void
 ForceOnesidedOption(void *value) {
-    GLOBAL_fileOptions_force_onesided_surfaces = *(int *) value;
+    GLOBAL_fileOptions_forceOneSidedSurfaces = *(int *) value;
 }
 
 static void
@@ -282,7 +282,7 @@ MonochromeOption(void *value) {
 }
 
 static CMDLINEOPTDESC globalOptions[] = {
-    {"-nqcdivs", 3, Tint, &GLOBAL_fileOptions_nqcdivs, DEFAULT_ACTION,
+    {"-nqcdivs", 3, Tint, &GLOBAL_fileOptions_numberOfQuarterCircleDivisions, DEFAULT_ACTION,
      "-nqcdivs <integer>\t: number of quarter circle divisions"},
     {"-force-onesided", 10, TYPELESS, &yes, ForceOnesidedOption,
      "-force-onesided\t\t: force one-sided surfaces"},
@@ -396,7 +396,7 @@ ReadFile(char *filename) {
     // save the current scene so it can be restored if errors occur when reading the new scene
     fprintf(stderr, "Saving current scene ... \n");
     oWorld = GLOBAL_scene_world;
-    GLOBAL_scene_world = GeomListCreate();
+    GLOBAL_scene_world = nullptr;
     oMaterialLib = GLOBAL_scene_materials;
     GLOBAL_scene_materials = MaterialListCreate();
     oPatches = GLOBAL_scene_patches;
@@ -405,7 +405,7 @@ ReadFile(char *filename) {
     PatchSetNextID(1);
     numberOfPatches = GLOBAL_statistics_numberOfPatches;
     oClusteredWorld = GLOBAL_scene_clusteredWorld;
-    GLOBAL_scene_clusteredWorld = GeomListCreate();
+    GLOBAL_scene_clusteredWorld = nullptr;
     oClusteredWorldGeom = GLOBAL_scene_clusteredWorldGeom;
     lightSourcePatches = GLOBAL_scene_lightSourcePatches;
     oWorldGrid = GLOBAL_scene_worldVoxelGrid;
@@ -537,7 +537,7 @@ ReadFile(char *filename) {
         GLOBAL_scene_clusteredWorld = (GeometryListNode *) (GLOBAL_scene_clusteredWorldGeom->obj);
     } else {
         // small memory leak here ... but exceptional situation!
-        GLOBAL_scene_clusteredWorld = GeomListAdd(GeomListCreate(), GLOBAL_scene_clusteredWorldGeom);
+        GLOBAL_scene_clusteredWorld = GeomListAdd(nullptr, GLOBAL_scene_clusteredWorldGeom);
         logWarning(nullptr, "Strange clusters for this world ...");
     }
 

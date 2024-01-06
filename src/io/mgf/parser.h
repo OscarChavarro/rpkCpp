@@ -18,7 +18,7 @@ Header file for mgf interpreter
 #define MG_E_CMIX    4        /* cmix		*/
 #define MG_E_CSPEC    5        /* cspec	*/
 #define MG_E_CXY    6        /* cxy		*/
-#define MGF_EROR_CYLINDER    7        /* cyl		*/
+#define MGF_ERROR_CYLINDER    7        /* cyl		*/
 #define MG_E_ED        8        /* ed		*/
 #define MG_E_FACE    9        /* f		*/
 #define MG_E_INCLUDE    10        /* i		*/
@@ -95,56 +95,57 @@ extern char *GLOBAL_mgf_errors[MG_NERRS];    /* list of error messages */
  * the mg_handle function rather than the GLOBAL_mgf_handleCallbacks routines directly.
  * (The first argument to mg_handle is the entity #, or -1.)
  * To free any data structures and clear the parser, use mgfClear.
- * If there is an error, mg_load, mg_open, mg_parse, mg_handle and
- * mg_fgoto will return an error from the list above.  In addition,
+ * If there is an error, mg_load, mg_open, mgfParseCurrentLine, mgfHandle and
+ * mgfGoToFilePosition will return an error from the list above.  In addition,
  * mg_load will report the error to stderr.  The mgfReadNextLine routine
  * returns 0 when the end of file has been reached.
  */
 
-#define MG_MAXLINE    4096        /* maximum input line length */
-#define MG_MAXARGC    (MG_MAXLINE/4)    /* maximum argument count */
+#define MGF_MAXIMUM_INPUT_LINE_LENGTH    4096        /* maximum input line length */
+#define MG_MAXARGC    (MGF_MAXIMUM_INPUT_LINE_LENGTH/4)    /* maximum argument count */
 
-class MG_FCTXT {
-  public:
-    char fname[96];            /* file name */
-    FILE *fp;                /* stream pointer */
-    int fid;                /* unique file context id */
-    char inpline[MG_MAXLINE];        /* input line */
-    int lineno;                /* line number */
-    char ispipe;                /* flag indicating whether input comes from a pipe or a real file */
-    MG_FCTXT *prev;            /* previous context */
+class MgfReaderContext {
+public:
+    char fileName[96];
+    FILE *fp; // stream pointer
+    int fileContextId;
+    char inputLine[MGF_MAXIMUM_INPUT_LINE_LENGTH];
+    int lineNumber;
+    char isPipe; // Flag indicating whether input comes from a pipe or a real file
+    MgfReaderContext *prev; // Previous context
 };
 
-class MG_FPOS {
-  public:
-    int fid;                /* file this position is for */
-    int lineno;                /* line number in file */
-    long offset;                /* offset from beginning */
+class MgdReaderFilePosition {
+public:
+    int fid; // file this position is for
+    int lineno; // line number in file
+    long offset; // offset from beginning
 };
 
-extern MG_FCTXT *mg_file;        /* current file context */
+#define MGF_DEFAULT_NUMBER_OF_DIVISIONS 5
 
-extern void mgfAlternativeInit(int (*handleCallbacks[MGF_TOTAL_NUMBER_OF_ENTITIES])(int, char **));        /* fill in GLOBAL_mgf_handleCallbacks array */
-extern int mgfOpen(MG_FCTXT *, char *);    /* open new input file */
-extern int mgfReadNextLine();        /* read next line */
-extern int mg_parse();        /* parse current line */
-extern void mg_fgetpos(MG_FPOS *);    /* get position on input file */
-extern int mg_fgoto(MG_FPOS *);    /* go to position on input file */
-extern void mgfClose();        /* close input file */
-extern void mgfClear();        /* clear parser */
-extern int mg_handle(int, int, char **);    /* handle an entity */
+extern MgfReaderContext *GLOBAL_mgf_file;
+extern int GLOBAL_mgf_divisionsPerQuarterCircle;
 
-#ifndef MG_NQCD
-#define MG_NQCD        5        /* default number of divisions */
-#endif
+extern void mgfAlternativeInit(int (*handleCallbacks[MGF_TOTAL_NUMBER_OF_ENTITIES])(int, char **));
+extern int mgfOpen(MgfReaderContext *, char *);
+extern int mgfReadNextLine();
+extern int mgfParseCurrentLine();
+extern void mgfGetFilePosition(MgdReaderFilePosition *pos);
+extern int mgfGoToFilePosition(MgdReaderFilePosition *pos);
+extern void mgfClose();
+extern void mgfClear();
+extern int mgfHandle(int en, int ac, char **av);
 
-extern int mg_nqcdivs;        /* divisions per quarter circle */
+extern int mgfEntity(char *name);
+extern int mgfEntitySphere(int ac, char **av);
+extern int mgfEntityTorus(int ac, char **av);
+extern int mgfEntityCylinder(int ac, char **av);
+extern int mgfEntityRing(int ac, char **av);
+extern int mgfEntityCone(int ac, char **av);
+extern int mgfEntityPrism(int ac, char **av);
+extern int mgfEntityFaceWithHoles(int ac, char **av);
 
-/*
- * The following library routines are included for your convenience:
- */
-
-extern int mg_entity(char *name);
 extern int isintWords(char *);
 extern int isintdWords(char *, char *);
 extern int isfltWords(char *);
@@ -152,13 +153,6 @@ extern int isfltdWords(char *, char *);
 extern int isnameWords(char *);
 extern int badarg(int, char **, char *);
 extern int e_include(int ac, char **av);
-extern int mgfEntitySphere(int ac, char **av);
-extern int mgfEntityTorus(int ac, char **av);
-extern int mgfEntityCylinder(int ac, char **av);
-extern int mgfEntityRing(int ac, char **av);
-extern int mgfEntityCone(int ac, char **av);
-extern int mgfEntityPrism(int ac, char **av);
-extern int e_faceh(int ac, char **av);
 
 /************************************************************************
  *	Definitions for 3-d vector manipulation functions
@@ -254,7 +248,7 @@ public:
 
 extern MgfColorContext *c_ccolor;    /* the current color */
 extern char *c_ccname;    /* current color name */
-extern MgfMaterialContext *c_cmaterial;    /* the current material */
+extern MgfMaterialContext *GLOBAL_mgf_currentMaterial;    /* the current material */
 extern char *GLOBAL_mgf_currentMaterialName;    /* current material name */
 extern MgfVertexContext *c_cvertex;    /* the current vertex */
 extern char *c_cvname;    /* current vertex name */
@@ -307,7 +301,7 @@ class XfArrayArg {
 
 class XfArray {
   public:
-    MG_FPOS spos;            /* starting position on input */
+    MgdReaderFilePosition spos;            /* starting position on input */
     int ndim;            /* number of array dimensions */
     XfArrayArg aarg[XF_MAXDIM];
 };

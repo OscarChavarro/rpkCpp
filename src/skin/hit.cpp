@@ -18,7 +18,7 @@ InitHit(
         Geometry *geom,
         Vector3D *point,
         Vector3D *gnormal,
-        MATERIAL *material,
+        Material *material,
         float dist)
 {
     hit->flags = 0;

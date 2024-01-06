@@ -27,7 +27,7 @@ converts mgf color specification into our representation of colors.
   ------------------------------------------------------------------------- */
 #define WHITE_EFFICACY 183.07 /* uniform white light */
 
-extern void xyzToRgb(float *xyz, float *rgb);
+extern void transformColorFromXYZ2RGB(float *xyz, float *rgb);
 
 /* returns TRUE if the color was desaturated during clipping against the
  * monitor gamut */

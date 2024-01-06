@@ -8,7 +8,7 @@
 
 class MATERIALLIST {
   public:
-    MATERIAL *material;
+    Material *material;
     MATERIALLIST *next;
 };
 
@@ -18,7 +18,7 @@ class MATERIALLIST {
         (MATERIALLIST *)ListAdd((LIST *)materiallist, (void *)material)
 
 #define MaterialListNext(pmateriallist) \
-        (MATERIAL *)ListNext((LIST **)pmateriallist)
+        (Material *)ListNext((LIST **)pmateriallist)
 
 #define MaterialListIterate(materiallist, proc) \
         ListIterate((LIST *)materiallist, (void (*)(void *))proc)
@@ -26,10 +26,6 @@ class MATERIALLIST {
 #define MaterialListDestroy(materiallist) \
         ListDestroy((LIST *)materiallist)
 
-#define ForAllMaterials(mat, matlist) ForAllInList(MATERIAL, mat, matlist)
-
-/* Looks up a material with given name in the given material list. Returns
- * a pointer to the material if found, or (MATERIAL *)nullptr if not found. */
-extern MATERIAL *MaterialLookup(MATERIALLIST *MaterialLib, char *name);
+#define ForAllMaterials(mat, matlist) ForAllInList(Material, mat, matlist)
 
 #endif

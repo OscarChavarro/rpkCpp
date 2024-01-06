@@ -7,7 +7,7 @@
 #include "material/bsdf.h"
 #include "material/hit.h"
 
-class MATERIAL {
+class Material {
   public:
     const char *name;        /* material name */
     EDF *edf;        /* emittance distribution function */
@@ -16,12 +16,12 @@ class MATERIAL {
     void *radiance_data;
 };
 
-extern MATERIAL GLOBAL_material_defaultMaterial;
+extern Material GLOBAL_material_defaultMaterial;
 
-extern MATERIAL *MaterialCreate(const char *name,
+extern Material *MaterialCreate(const char *name,
                                 EDF *edf, BSDF *bsdf,
                                 int sided);
 
-extern void MaterialDestroy(MATERIAL *material);
+extern void MaterialDestroy(Material *material);
 
 #endif

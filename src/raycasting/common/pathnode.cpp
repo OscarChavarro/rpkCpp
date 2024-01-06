@@ -141,7 +141,7 @@ BSDF *CPathNode::GetPreviousBsdf() {
 
 
 void CPathNode::AssignBsdfAndNormal() {
-    MATERIAL *thisMaterial;
+    Material *thisMaterial;
 
     if ( m_hit.patch == nullptr ) {
         // Invalid node

@@ -51,7 +51,7 @@ handleTransformationEntity(int ac, char **av) {
                 ap->aarg[n].i = 0;
             }
             if ( n >= 0 ) {
-                if ((rv = mg_fgoto(&ap->spos)) != MG_OK ) {
+                if ((rv = mgfGoToFilePosition(&ap->spos)) != MG_OK ) {
                     return rv;
                 }
                 sprintf(ap->aarg[n].arg, "%d", ap->aarg[n].i);
@@ -123,7 +123,7 @@ new_xf(int ac, char **av)            /* allocate new transform structure */
         if ( spec->xarr == nullptr) {
             return nullptr;
         }
-        mg_fgetpos(&spec->xarr->spos);
+        mgfGetFilePosition(&spec->xarr->spos);
         spec->xarr->ndim = 0;        /* incremented below */
     } else {
         spec->xarr = nullptr;
@@ -180,7 +180,7 @@ xf_aname(XfArray *ap)            /* put out name for this instance */
     char *cp1, *cp2;
 
     if ( ap == nullptr) {
-        return mg_handle(MG_E_OBJECT, 1, oav);
+        return mgfHandle(MG_E_OBJECT, 1, oav);
     }
     cp1 = oname;
     *cp1 = 'a';
@@ -191,7 +191,7 @@ xf_aname(XfArray *ap)            /* put out name for this instance */
         *++cp1 = '.';
     }
     *cp1 = '\0';
-    return mg_handle(MG_E_OBJECT, 2, oav);
+    return mgfHandle(MG_E_OBJECT, 2, oav);
 }
 
 

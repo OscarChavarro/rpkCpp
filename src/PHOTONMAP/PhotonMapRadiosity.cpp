@@ -735,8 +735,8 @@ PmapRecomputeDisplayColors() {
 }
 
 static void
-PmapUpdateMaterial(MATERIAL */*oldmaterial*/,
-                               MATERIAL */*newmaterial*/) {
+PmapUpdateMaterial(Material */*oldmaterial*/,
+                   Material */*newmaterial*/) {
     logError("PmapUpdateMaterial", "Not yet implemented");
 }
 

@@ -268,7 +268,7 @@ static const char *make_valid_vrml_id(const char *id) {
 
 static void WriteMaterial(Geometry *geom) {
     MeshSurface *surf = GeomGetSurface(geom);
-    MATERIAL *mat = surf->material;
+    Material *mat = surf->material;
     PATCH *first_patch = (surf->faces) ? surf->faces->patch : (PATCH *) nullptr;
     HITREC hit;
     COLOR Rd, Rs;

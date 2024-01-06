@@ -435,7 +435,7 @@ GalerkinRender() {
 }
 
 static void
-GalerkinUpdateMaterial(MATERIAL *oldmaterial, MATERIAL *newmaterial) {
+GalerkinUpdateMaterial(Material *oldmaterial, Material *newmaterial) {
     if ( GLOBAL_galerkin_state.iteration_method == SOUTHWELL ) {
         ShootingUpdateMaterial(oldmaterial, newmaterial);
     } else if ( GLOBAL_galerkin_state.iteration_method == JACOBI ||

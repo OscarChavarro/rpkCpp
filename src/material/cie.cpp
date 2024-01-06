@@ -162,7 +162,7 @@ computeColorConversionTransforms(float xr, float yr,
                                                                CIE XYZ <-> RGB
   ------------------------------------------------------------------------- */
 void
-xyzToRgb(float *xyz, float *rgb) {
+transformColorFromXYZ2RGB(float *xyz, float *rgb) {
     colorTransform(xyz, globalXyz2RgbMat, rgb);
 }
 

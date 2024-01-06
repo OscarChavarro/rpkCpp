@@ -23,7 +23,7 @@ static MgfVertexContext c_unvertex = C_DEFVERTEX;
 /* the current contexts */
 MgfColorContext *c_ccolor = &c_uncolor;
 char *c_ccname = nullptr;
-MgfMaterialContext *c_cmaterial = &c_unmaterial;
+MgfMaterialContext *GLOBAL_mgf_currentMaterial = &c_unmaterial;
 char *GLOBAL_mgf_currentMaterialName = nullptr;
 MgfVertexContext *c_cvertex = &c_unvertex;
 char *c_cvname = nullptr;
@@ -91,7 +91,7 @@ handleColorEntity(int ac, char **av)        /* handle color entity */
     int i;
     LUENT *lp;
 
-    switch ( mg_entity(av[0])) {
+    switch ( mgfEntity(av[0])) {
         case MG_E_COLOR:    /* get/set color context */
             if ( ac > 4 ) {
                 return MG_EARGC;
@@ -229,14 +229,14 @@ handleMaterialEntity(int ac, char **av)        /* handle material entity */
     int i;
     LUENT *lp;
 
-    switch ( mg_entity(av[0])) {
+    switch ( mgfEntity(av[0])) {
         case MG_E_MATERIAL:    /* get/set material context */
             if ( ac > 4 ) {
                 return MG_EARGC;
             }
             if ( ac == 1 ) {        /* set unnamed material context */
                 c_unmaterial = c_dfmaterial;
-                c_cmaterial = &c_unmaterial;
+                GLOBAL_mgf_currentMaterial = &c_unmaterial;
                 GLOBAL_mgf_currentMaterialName = nullptr;
                 return MG_OK;
             }
@@ -248,9 +248,9 @@ handleMaterialEntity(int ac, char **av)        /* handle material entity */
                 return MG_EMEM;
             }
             GLOBAL_mgf_currentMaterialName = lp->key;
-            c_cmaterial = (MgfMaterialContext *) lp->data;
+            GLOBAL_mgf_currentMaterial = (MgfMaterialContext *) lp->data;
             if ( ac == 2 ) {        /* reestablish previous context */
-                if ( c_cmaterial == nullptr) {
+                if ( GLOBAL_mgf_currentMaterial == nullptr) {
                     return MG_EUNDEF;
                 }
                 return MG_OK;
@@ -258,7 +258,7 @@ handleMaterialEntity(int ac, char **av)        /* handle material entity */
             if ( av[2][0] != '=' || av[2][1] ) {
                 return MG_ETYPE;
             }
-            if ( c_cmaterial == nullptr) {    /* create new material */
+            if ( GLOBAL_mgf_currentMaterial == nullptr) {    /* create new material */
                 lp->key = (char *) malloc(strlen(av[1]) + 1);
                 if ( lp->key == nullptr) {
                     return MG_EMEM;
@@ -269,13 +269,13 @@ handleMaterialEntity(int ac, char **av)        /* handle material entity */
                     return MG_EMEM;
                 }
                 GLOBAL_mgf_currentMaterialName = lp->key;
-                c_cmaterial = (MgfMaterialContext *) lp->data;
-                c_cmaterial->clock = 0;
+                GLOBAL_mgf_currentMaterial = (MgfMaterialContext *) lp->data;
+                GLOBAL_mgf_currentMaterial->clock = 0;
             }
-            i = c_cmaterial->clock;
+            i = GLOBAL_mgf_currentMaterial->clock;
             if ( ac == 3 ) {        /* use default template */
-                *c_cmaterial = c_dfmaterial;
-                c_cmaterial->clock = i + 1;
+                *GLOBAL_mgf_currentMaterial = c_dfmaterial;
+                GLOBAL_mgf_currentMaterial->clock = i + 1;
                 return MG_OK;
             }
             lp = lu_find(&mat_tab, av[3]);    /* lookup template */
@@ -285,8 +285,8 @@ handleMaterialEntity(int ac, char **av)        /* handle material entity */
             if ( lp->data == nullptr) {
                 return MG_EUNDEF;
             }
-            *c_cmaterial = *(MgfMaterialContext *) lp->data;
-            c_cmaterial->clock = i + 1;
+            *GLOBAL_mgf_currentMaterial = *(MgfMaterialContext *) lp->data;
+            GLOBAL_mgf_currentMaterial->clock = i + 1;
             return MG_OK;
         case MG_E_IR:        /* set index of refraction */
             if ( ac != 3 ) {
@@ -295,12 +295,12 @@ handleMaterialEntity(int ac, char **av)        /* handle material entity */
             if ( !isfltWords(av[1]) || !isfltWords(av[2])) {
                 return MG_ETYPE;
             }
-            c_cmaterial->nr = atof(av[1]);
-            c_cmaterial->ni = atof(av[2]);
-            if ( c_cmaterial->nr <= FTINY) {
+            GLOBAL_mgf_currentMaterial->nr = atof(av[1]);
+            GLOBAL_mgf_currentMaterial->ni = atof(av[2]);
+            if ( GLOBAL_mgf_currentMaterial->nr <= FTINY) {
                 return MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
             }
-            c_cmaterial->clock++;
+            GLOBAL_mgf_currentMaterial->clock++;
             return MG_OK;
         case MG_E_RD:        /* set diffuse reflectance */
             if ( ac != 2 ) {
@@ -309,12 +309,12 @@ handleMaterialEntity(int ac, char **av)        /* handle material entity */
             if ( !isfltWords(av[1])) {
                 return MG_ETYPE;
             }
-            c_cmaterial->rd = atof(av[1]);
-            if ( c_cmaterial->rd < 0. || c_cmaterial->rd > 1. ) {
+            GLOBAL_mgf_currentMaterial->rd = atof(av[1]);
+            if ( GLOBAL_mgf_currentMaterial->rd < 0. || GLOBAL_mgf_currentMaterial->rd > 1. ) {
                 return MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
             }
-            c_cmaterial->rd_c = *c_ccolor;
-            c_cmaterial->clock++;
+            GLOBAL_mgf_currentMaterial->rd_c = *c_ccolor;
+            GLOBAL_mgf_currentMaterial->clock++;
             return MG_OK;
         case MG_E_ED:        /* set diffuse emittance */
             if ( ac != 2 ) {
@@ -323,12 +323,12 @@ handleMaterialEntity(int ac, char **av)        /* handle material entity */
             if ( !isfltWords(av[1])) {
                 return MG_ETYPE;
             }
-            c_cmaterial->ed = atof(av[1]);
-            if ( c_cmaterial->ed < 0. ) {
+            GLOBAL_mgf_currentMaterial->ed = atof(av[1]);
+            if ( GLOBAL_mgf_currentMaterial->ed < 0. ) {
                 return MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
             }
-            c_cmaterial->ed_c = *c_ccolor;
-            c_cmaterial->clock++;
+            GLOBAL_mgf_currentMaterial->ed_c = *c_ccolor;
+            GLOBAL_mgf_currentMaterial->clock++;
             return MG_OK;
         case MG_E_TD:        /* set diffuse transmittance */
             if ( ac != 2 ) {
@@ -337,12 +337,12 @@ handleMaterialEntity(int ac, char **av)        /* handle material entity */
             if ( !isfltWords(av[1])) {
                 return MG_ETYPE;
             }
-            c_cmaterial->td = atof(av[1]);
-            if ( c_cmaterial->td < 0. || c_cmaterial->td > 1. ) {
+            GLOBAL_mgf_currentMaterial->td = atof(av[1]);
+            if ( GLOBAL_mgf_currentMaterial->td < 0. || GLOBAL_mgf_currentMaterial->td > 1. ) {
                 return MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
             }
-            c_cmaterial->td_c = *c_ccolor;
-            c_cmaterial->clock++;
+            GLOBAL_mgf_currentMaterial->td_c = *c_ccolor;
+            GLOBAL_mgf_currentMaterial->clock++;
             return MG_OK;
         case MG_E_RS:        /* set specular reflectance */
             if ( ac != 3 ) {
@@ -351,14 +351,14 @@ handleMaterialEntity(int ac, char **av)        /* handle material entity */
             if ( !isfltWords(av[1]) || !isfltWords(av[2])) {
                 return MG_ETYPE;
             }
-            c_cmaterial->rs = atof(av[1]);
-            c_cmaterial->rs_a = atof(av[2]);
-            if ( c_cmaterial->rs < 0. || c_cmaterial->rs > 1. ||
-                 c_cmaterial->rs_a < 0. ) {
+            GLOBAL_mgf_currentMaterial->rs = atof(av[1]);
+            GLOBAL_mgf_currentMaterial->rs_a = atof(av[2]);
+            if ( GLOBAL_mgf_currentMaterial->rs < 0. || GLOBAL_mgf_currentMaterial->rs > 1. ||
+                 GLOBAL_mgf_currentMaterial->rs_a < 0. ) {
                 return MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
             }
-            c_cmaterial->rs_c = *c_ccolor;
-            c_cmaterial->clock++;
+            GLOBAL_mgf_currentMaterial->rs_c = *c_ccolor;
+            GLOBAL_mgf_currentMaterial->clock++;
             return MG_OK;
         case MG_E_TS:        /* set specular transmittance */
             if ( ac != 3 ) {
@@ -367,14 +367,14 @@ handleMaterialEntity(int ac, char **av)        /* handle material entity */
             if ( !isfltWords(av[1]) || !isfltWords(av[2])) {
                 return MG_ETYPE;
             }
-            c_cmaterial->ts = atof(av[1]);
-            c_cmaterial->ts_a = atof(av[2]);
-            if ( c_cmaterial->ts < 0. || c_cmaterial->ts > 1. ||
-                 c_cmaterial->ts_a < 0. ) {
+            GLOBAL_mgf_currentMaterial->ts = atof(av[1]);
+            GLOBAL_mgf_currentMaterial->ts_a = atof(av[2]);
+            if ( GLOBAL_mgf_currentMaterial->ts < 0. || GLOBAL_mgf_currentMaterial->ts > 1. ||
+                 GLOBAL_mgf_currentMaterial->ts_a < 0. ) {
                 return MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
             }
-            c_cmaterial->ts_c = *c_ccolor;
-            c_cmaterial->clock++;
+            GLOBAL_mgf_currentMaterial->ts_c = *c_ccolor;
+            GLOBAL_mgf_currentMaterial->clock++;
             return MG_OK;
         case MG_E_SIDES:    /* set number of sides */
             if ( ac != 2 ) {
@@ -385,13 +385,13 @@ handleMaterialEntity(int ac, char **av)        /* handle material entity */
             }
             i = atoi(av[1]);
             if ( i == 1 ) {
-                c_cmaterial->sided = 1;
+                GLOBAL_mgf_currentMaterial->sided = 1;
             } else if ( i == 2 ) {
-                c_cmaterial->sided = 0;
+                GLOBAL_mgf_currentMaterial->sided = 0;
             } else {
                 return MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
             }
-            c_cmaterial->clock++;
+            GLOBAL_mgf_currentMaterial->clock++;
             return MG_OK;
     }
     return MG_EUNK;
@@ -403,7 +403,7 @@ handleVertexEntity(int ac, char **av)        /* handle a vertex entity */
     /*	int	i; */
     LUENT *lp;
 
-    switch ( mg_entity(av[0])) {
+    switch ( mgfEntity(av[0])) {
         case MG_E_VERTEX:    /* get/set vertex context */
             if ( ac > 4 ) {
                 return MG_EARGC;
@@ -500,7 +500,7 @@ c_clearall()            /* empty context tables */
     c_ccname = nullptr;
     lu_done(&clr_tab);
     c_unmaterial = c_dfmaterial;
-    c_cmaterial = &c_unmaterial;
+    GLOBAL_mgf_currentMaterial = &c_unmaterial;
     GLOBAL_mgf_currentMaterialName = nullptr;
     lu_done(&mat_tab);
     c_unvertex = c_dfvertex;

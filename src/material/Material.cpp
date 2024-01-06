@@ -4,17 +4,17 @@
 #include "material/Material.h"
 #include "material/bsdf.h"
 
-MATERIAL GLOBAL_material_defaultMaterial = {
+Material GLOBAL_material_defaultMaterial = {
         "(default)",
         (EDF *) nullptr, (BSDF *)nullptr,
         0    /* sided */
 };
 
-MATERIAL *
+Material *
 MaterialCreate(const char *name,
                          EDF *edf, BSDF *bsdf,
                          int sided) {
-    MATERIAL *m = (MATERIAL *)malloc(sizeof(MATERIAL));
+    Material *m = (Material *)malloc(sizeof(Material));
     m->name = (char *)malloc(strlen(name) + 1);
     sprintf((char *)m->name, "%s", name);
     m->sided = sided;
@@ -25,7 +25,7 @@ MaterialCreate(const char *name,
 }
 
 void
-MaterialDestroy(MATERIAL *material) {
+MaterialDestroy(Material *material) {
     if ( material->name ) {
         free((void *)material->name);
     }

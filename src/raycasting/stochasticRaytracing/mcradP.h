@@ -135,7 +135,7 @@ extern void monteCarloRadiosityPreStep();
 extern void monteCarloRadiosityTerminate();
 extern COLOR monteCarloRadiosityGetRadiance(PATCH *patch, double u, double v, Vector3D dir);
 extern void monteCarloRadiosityRecomputeDisplayColors();
-extern void monteCarloRadiosityUpdateMaterial(MATERIAL *oldMaterial, MATERIAL *newMaterial);
+extern void monteCarloRadiosityUpdateMaterial(Material *oldMaterial, Material *newMaterial);
 
 extern void stochasticRelaxationRadiosityParseOptions(int *argc, char **argv);
 extern void stochasticRelaxationRadiosityPrintOptions(FILE *fp);

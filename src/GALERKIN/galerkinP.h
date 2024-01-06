@@ -154,14 +154,14 @@ extern int DoClusteredGatheringIteration();
 
 extern void GatheringUpdateDirectPotential(ELEMENT *top, float potential_increment);
 
-extern void GatheringUpdateMaterial(MATERIAL *oldmaterial, MATERIAL *newmaterial);
+extern void GatheringUpdateMaterial(Material *oldmaterial, Material *newmaterial);
 
 /* in shooting.c. Returns true when converged and false if not. */
 extern int DoShootingStep();
 
 extern void ShootingUpdateDirectPotential(ELEMENT *top, float potential_increment);
 
-extern void ShootingUpdateMaterial(MATERIAL *oldmaterial, MATERIAL *newmaterial);
+extern void ShootingUpdateMaterial(Material *oldmaterial, Material *newmaterial);
 
 enum ROLE {
     SOURCE,

@@ -108,7 +108,7 @@ static void GeomLink(Geometry *geom) {
     if ( geom->bounded && oldCandList ) {
         ConstructShaft(the_patch_bounds, geomBounds(geom), &shaft);
         ShaftOmit(&shaft, (Geometry *) the_patch);
-        the_candlist = DoShaftCulling(oldCandList, &shaft, GeomListCreate());
+        the_candlist = DoShaftCulling(oldCandList, &shaft, nullptr);
     }
 
     /* if the Geometry is an aggregate, test each of it's childer GEOMs, if it

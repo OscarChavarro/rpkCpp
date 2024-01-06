@@ -99,7 +99,7 @@ class RADIANCEMETHOD {
     /* called when a material has been updated. The radiance method recomputes
      * the color of the affected surfaces and also of the other
      * surfaces, whose colors change because of interreflections. */
-    void (*UpdateMaterial)(MATERIAL *oldmaterial, MATERIAL *newmaterial);
+    void (*UpdateMaterial)(Material *oldmaterial, Material *newmaterial);
 
     /* If defined, this routine will save the current model in VRML format.
      * If not defined, the default method implemented in writevrml.[ch] will
