@@ -64,7 +64,7 @@ void Push(ELEMENT *parent, COLOR *parent_coefficients,
         child_coefficients[0] = parent_coefficients[0];
     } else {
         if ( sigma < 0 || sigma > 3 ) {
-            Error("Push", "Not yet implemented for non-regular subdivision");
+            logError("Push", "Not yet implemented for non-regular subdivision");
             CLEARCOEFFICIENTS_CG(child_coefficients, child->basis_size);
             child_coefficients[0] = parent_coefficients[0];
             return;
@@ -110,7 +110,7 @@ void Pull(ELEMENT *parent, COLOR *parent_coefficients,
         colorScale(child->area / parent->area, child_coefficients[0], parent_coefficients[0]);
     } else {
         if ( sigma < 0 || sigma > 3 ) {
-            Error("Pull", "Not yet implemented for non-regular subdivision");
+            logError("Pull", "Not yet implemented for non-regular subdivision");
             CLEARCOEFFICIENTS_CG(parent_coefficients, parent->basis_size);
             parent_coefficients[0] = child_coefficients[0];
             return;

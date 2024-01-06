@@ -7,7 +7,6 @@
 #include "shared/camera.h"
 #include "skin/Geometry.h"
 #include "shared/options.h"
-#include "shared/defaults.h"
 #include "raycasting/common/Raytracer.h"
 
 RENDEROPTIONS renderopts;
@@ -233,16 +232,5 @@ int RenderRayTraced() {
         return false;
     } else {
         return Global_Raytracer_activeRaytracer->Redisplay();
-    }
-}
-
-static void RenderNormal(PATCH *p, VERTEX *v, float len) {
-    Vector3D x;
-
-    if ( v && v->normal ) {
-
-        RenderSetColor(&GLOBAL_material_yellow);
-        VECTORSUMSCALED(*v->point, len, *v->normal, x);
-        RenderLine(v->point, &x);
     }
 }

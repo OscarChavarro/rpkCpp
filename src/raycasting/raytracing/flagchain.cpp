@@ -123,7 +123,7 @@ COLOR CFlagChain::Compute(CBiPath *path) {
     CPathNode *node;
 
     if ( lightSize + eyeSize != m_length ) {
-        Error("FlagChain::Compute", "Wrong path length");
+        logError("FlagChain::Compute", "Wrong path length");
         return result;
     }
 
@@ -257,7 +257,7 @@ void CChainList::Add(CChainList *list) {
 void CChainList::Add(const CFlagChain &chain) {
     if ( m_count > 0 ) {
         if ( chain.m_length != m_length ) {
-            Error("CChainList::Add", "Wrong length flagchain inserted!");
+            logError("CChainList::Add", "Wrong length flagchain inserted!");
             return;
         }
     } else {
@@ -272,7 +272,7 @@ void CChainList::Add(const CFlagChain &chain) {
 void CChainList::AddDisjunct(const CFlagChain &chain) {
     if ( m_count > 0 ) {
         if ( chain.m_length != m_length ) {
-            Error("CChainList::Add", "Wrong length flagchain inserted!");
+            logError("CChainList::Add", "Wrong length flagchain inserted!");
             return;
         }
     } else {
@@ -388,7 +388,7 @@ COLOR CContribHandler::Compute(CBiPath *path) {
     length = path->m_eyeSize + path->m_lightSize;
 
     if ( length > m_maxLength ) {
-        Error("CContribHandler::Compute", "Path too long !!");
+        logError("CContribHandler::Compute", "Path too long !!");
         return result;
     }
 
@@ -442,7 +442,7 @@ void CContribHandler::SubRegExp(char *regExp) {
 /*** General Reg Exp parser ***/
 
 void CContribHandler::DoSyntaxError(const char *errString) {
-    Error("Flagchain Syntax Error", errString);
+    logError("Flagchain Syntax Error", errString);
     Init(m_maxLength);
 }
 

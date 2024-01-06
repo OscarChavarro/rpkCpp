@@ -189,7 +189,7 @@ RayTracingOption(void *value) {
     if ( strncasecmp(name, "none", 4) == 0 ) {
         SetRayTracing((Raytracer *) nullptr);
     } else {
-        Error(nullptr, "Invalid raytracing method name '%s'", name);
+        logError(nullptr, "Invalid raytracing method name '%s'", name);
     }
 }
 
@@ -250,9 +250,9 @@ Init() {
      * instead of [-1,1]^2. See cubature.[ch] */
     FixCubatureRules();
 
-    monochrome = DEFAULT_MONOCHROME;
-    force_onesided_surfaces = DEFAULT_FORCE_ONESIDEDNESS;
-    nqcdivs = DEFAULT_NQCDIVS;
+    GLOBAL_fileOptions_monochrome = DEFAULT_MONOCHROME;
+    GLOBAL_fileOptions_force_onesided_surfaces = DEFAULT_FORCE_ONESIDEDNESS;
+    GLOBAL_fileOptions_nqcdivs = DEFAULT_NQCDIVS;
 
     RenderingDefaults();
     ToneMapDefaults();
@@ -273,16 +273,16 @@ Init() {
 
 static void
 ForceOnesidedOption(void *value) {
-    force_onesided_surfaces = *(int *) value;
+    GLOBAL_fileOptions_force_onesided_surfaces = *(int *) value;
 }
 
 static void
 MonochromeOption(void *value) {
-    monochrome = *(int *) value;
+    GLOBAL_fileOptions_monochrome = *(int *) value;
 }
 
 static CMDLINEOPTDESC globalOptions[] = {
-    {"-nqcdivs", 3, Tint, &nqcdivs, DEFAULT_ACTION,
+    {"-nqcdivs", 3, Tint, &GLOBAL_fileOptions_nqcdivs, DEFAULT_ACTION,
      "-nqcdivs <integer>\t: number of quarter circle divisions"},
     {"-force-onesided", 10, TYPELESS, &yes, ForceOnesidedOption,
      "-force-onesided\t\t: force one-sided surfaces"},
@@ -369,7 +369,7 @@ ReadFile(char *filename) {
             if ( input ) {
                 fclose(input);
             }
-            Error(nullptr, "Can't open file '%s' for reading", filename);
+            logError(nullptr, "Can't open file '%s' for reading", filename);
             return false;
         }
         fclose(input);
@@ -423,7 +423,7 @@ ReadFile(char *filename) {
     }
 
     if ( strncmp(extension, "mgf", 3) == 0 ) {
-        ReadMgf(filename);
+        readMgf(filename);
     }
 
     t = clock();
@@ -466,7 +466,7 @@ ReadFile(char *filename) {
         fprintf(stderr, "Done.\n");
 
         if ( !ErrorOccurred()) {
-            Error(nullptr, "Empty world");
+            logError(nullptr, "Empty world");
         }
 
         return false; // not succesful
@@ -538,7 +538,7 @@ ReadFile(char *filename) {
     } else {
         // small memory leak here ... but exceptional situation!
         GLOBAL_scene_clusteredWorld = GeomListAdd(GeomListCreate(), GLOBAL_scene_clusteredWorldGeom);
-        Warning(nullptr, "Strange clusters for this world ...");
+        logWarning(nullptr, "Strange clusters for this world ...");
     }
 
     t = clock();

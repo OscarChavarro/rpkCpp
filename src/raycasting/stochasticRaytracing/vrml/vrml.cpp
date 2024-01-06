@@ -254,8 +254,8 @@ static const char *make_valid_vrml_id(const char *id) {
     }
     idlen = strlen(id);
     if ( idlen > 100 ) {
-        Warning("make_valid_vrml_id", "id '%s' is being truncated to %d characters",
-                id, 100);
+        logWarning("make_valid_vrml_id", "id '%s' is being truncated to %d characters",
+                   id, 100);
     }
     n = idlen > 100 ? 100 : idlen;  /* minimum of both */
     buf[0] = IdFirstChar[(int) id[0]];
@@ -323,7 +323,7 @@ static void BeginWritePrimitive(Geometry *geom) {
         fprintf(vrmlfp, "\tsolid %s\n", GeomGetSurface(geom)->material->sided ? "TRUE" : "FALSE");
     }
     if ( !renderopts.smooth_shading && !wgiv ) {
-        Warning(nullptr, "I assume you want a smooth shaded model ...");
+        logWarning(nullptr, "I assume you want a smooth shaded model ...");
         wgiv = true;
     }
     fprintf(vrmlfp, "\tcolorPerVertex %s\n", "TRUE");

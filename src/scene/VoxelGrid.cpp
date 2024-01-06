@@ -176,7 +176,7 @@ VoxelGrid::putGeometryInsideVoxelGrid(Geometry *geometry, const short na, const 
     float zExtension;
 
     if ( na <= 0 || nb <= 0 || nc <= 0 ) {
-        Error("VoxelGrid::putGeometryInsideVoxelGrid", "Invalid grid dimensions");
+        logError("VoxelGrid::putGeometryInsideVoxelGrid", "Invalid grid dimensions");
         exit(1);
     }
 

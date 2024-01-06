@@ -14,11 +14,11 @@ Header file for mgf interpreter
 /* Entities (list is only appended, never modified) */
 #define MG_E_COLOR    1        /* c		*/
 #define MG_E_CCT    2        /* cct		*/
-#define MG_E_CONE    3        /* cone		*/
+#define MGF_ERROR_CONE    3        /* cone		*/
 #define MG_E_CMIX    4        /* cmix		*/
 #define MG_E_CSPEC    5        /* cspec	*/
 #define MG_E_CXY    6        /* cxy		*/
-#define MG_E_CYL    7        /* cyl		*/
+#define MGF_EROR_CYLINDER    7        /* cyl		*/
 #define MG_E_ED        8        /* ed		*/
 #define MG_E_FACE    9        /* f		*/
 #define MG_E_INCLUDE    10        /* i		*/
@@ -28,14 +28,14 @@ Header file for mgf interpreter
 #define MG_E_NORMAL    14        /* n		*/
 #define MG_E_OBJECT    15        /* o		*/
 #define MG_E_POINT    16        /* p		*/
-#define MG_E_PRISM    17        /* prism	*/
+#define MGF_ERROR_PRISM    17        /* prism	*/
 #define MG_E_RD        18        /* rd		*/
-#define MG_E_RING    19        /* ring		*/
+#define MGF_ERROR_RING    19        /* ring		*/
 #define MG_E_RS        20        /* rs		*/
 #define MG_E_SIDES    21        /* sides	*/
-#define MG_E_SPH    22        /* sph		*/
+#define MGF_ERROR_SPHERE    22        /* sph		*/
 #define MG_E_TD        23        /* td		*/
-#define MG_E_TORUS    24        /* torus	*/
+#define MGF_ERROR_TORUS    24        /* torus	*/
 #define MG_E_TS        25        /* ts		*/
 #define MG_E_VERTEX    26        /* v		*/
 #define MG_E_XF        27        /* xf		*/
@@ -43,7 +43,7 @@ Header file for mgf interpreter
 #define MG_E_FACEH    28        /* fh		*/
 /* end of Version 2 entities */
 
-#define MG_NENTITIES    29        /* total # entities */
+#define MGF_TOTAL_NUMBER_OF_ENTITIES    29        /* total # entities */
 
 #define MG_NAMELIST    {"#","c","cct","cone","cmix","cspec","cxy","cyl","ed",\
             "f","i","ies","ir","m","n","o","p","prism","rd",\
@@ -52,13 +52,13 @@ Header file for mgf interpreter
 
 #define MG_MAXELEN    6
 
-extern char mg_ename[MG_NENTITIES][MG_MAXELEN];
+extern char mg_ename[MGF_TOTAL_NUMBER_OF_ENTITIES][MG_MAXELEN];
 
 /* Handler routines for each entity and unknown ones */
 
-extern int (*mg_ehand[MG_NENTITIES])(int argc, char **argv);
+extern int (*GLOBAL_mgf_handleCallbacks[MGF_TOTAL_NUMBER_OF_ENTITIES])(int argc, char **argv);
 
-extern int (*mg_uhand)(int argc, char **argv);
+extern int (*GLOBAL_mgf_unknownEntityHandleCallback)(int argc, char **argv);
 
 extern int mg_defuhand(int, char **);
 
@@ -69,7 +69,7 @@ extern unsigned mg_nunknown;        /* count of unknown entities */
 #define MG_EUNK        1        /* unknown entity */
 #define MG_EARGC    2        /* wrong number of arguments */
 #define MG_ETYPE    3        /* argument type error */
-#define MG_EILL        4        /* illegal argument value */
+#define MGF_ERROR_ILLEGAL_ARGUMENT_VALUE        4        /* illegal argument value */
 #define MG_EUNDEF    5        /* undefined reference */
 #define MG_ENOFILE    6        /* cannot open input file */
 #define MG_EINCL    7        /* error in included file */
@@ -80,24 +80,24 @@ extern unsigned mg_nunknown;        /* count of unknown entities */
 
 #define MG_NERRS    13
 
-extern char *mg_err[MG_NERRS];    /* list of error messages */
+extern char *GLOBAL_mgf_errors[MG_NERRS];    /* list of error messages */
 
 /*
- * The general process for running the parser is to fill in the mg_ehand
+ * The general process for running the parser is to fill in the GLOBAL_mgf_handleCallbacks
  * array with handlers for each entity you know how to handle.
- * Then, call mg_init to fill in the rest.  This function will report
+ * Then, call mgfAlternativeInit to fill in the rest.  This function will report
  * an error and quit if you try to support an inconsistent set of entities.
  * For each file you want to parse, call mg_load with the file name.
  * To read from standard input, use nullptr as the file name.
  * For additional control over error reporting and file management,
- * use mg_open, mg_read, mg_parse and mg_close instead of mg_load.
+ * use mg_open, mg_read, mg_parse and mgfClose instead of mg_load.
  * To pass an entity of your own construction to the parser, use
- * the mg_handle function rather than the mg_ehand routines directly.
+ * the mg_handle function rather than the GLOBAL_mgf_handleCallbacks routines directly.
  * (The first argument to mg_handle is the entity #, or -1.)
- * To free any data structures and clear the parser, use mg_clear.
+ * To free any data structures and clear the parser, use mgfClear.
  * If there is an error, mg_load, mg_open, mg_parse, mg_handle and
  * mg_fgoto will return an error from the list above.  In addition,
- * mg_load will report the error to stderr.  The mg_read routine
+ * mg_load will report the error to stderr.  The mgfReadNextLine routine
  * returns 0 when the end of file has been reached.
  */
 
@@ -124,14 +124,14 @@ class MG_FPOS {
 
 extern MG_FCTXT *mg_file;        /* current file context */
 
-extern void mg_init();        /* fill in mg_ehand array */
-extern int mg_open(MG_FCTXT *, char *);    /* open new input file */
-extern int mg_read();        /* read next line */
+extern void mgfAlternativeInit(int (*handleCallbacks[MGF_TOTAL_NUMBER_OF_ENTITIES])(int, char **));        /* fill in GLOBAL_mgf_handleCallbacks array */
+extern int mgfOpen(MG_FCTXT *, char *);    /* open new input file */
+extern int mgfReadNextLine();        /* read next line */
 extern int mg_parse();        /* parse current line */
 extern void mg_fgetpos(MG_FPOS *);    /* get position on input file */
 extern int mg_fgoto(MG_FPOS *);    /* go to position on input file */
-extern void mg_close();        /* close input file */
-extern void mg_clear();        /* clear parser */
+extern void mgfClose();        /* close input file */
+extern void mgfClear();        /* clear parser */
 extern int mg_handle(int, int, char **);    /* handle an entity */
 
 #ifndef MG_NQCD
@@ -144,21 +144,21 @@ extern int mg_nqcdivs;        /* divisions per quarter circle */
  * The following library routines are included for your convenience:
  */
 
-extern int mg_entity(char *);        /* get entity number from its name */
-extern int isintWords(char *);        /* non-zero if integer format */
-extern int isintdWords(char *, char *);    /* same with delimiter set */
-extern int isfltWords(char *);        /* non-zero if floating point format */
-extern int isfltdWords(char *, char *);    /* same with delimiter set */
-extern int isnameWords(char *);        /* non-zero if legal identifier name */
-extern int badarg(int, char **, char *);/* check argument format */
-extern int e_include(int, char **);    /* expand include entity */
-extern int e_sph(int, char **);        /* expand sphere as other entities */
-extern int e_torus(int, char **);    /* expand torus as other entities */
-extern int e_cyl(int, char **);        /* expand cylinder as other entities */
-extern int e_ring(int, char **);    /* expand ring as other entities */
-extern int e_cone(int, char **);    /* expand cone as other entities */
-extern int e_prism(int, char **);    /* expand prism as other entities */
-extern int e_faceh(int, char **);    /* expand face w/ holes as face */
+extern int mg_entity(char *name);
+extern int isintWords(char *);
+extern int isintdWords(char *, char *);
+extern int isfltWords(char *);
+extern int isfltdWords(char *, char *);
+extern int isnameWords(char *);
+extern int badarg(int, char **, char *);
+extern int e_include(int ac, char **av);
+extern int mgfEntitySphere(int ac, char **av);
+extern int mgfEntityTorus(int ac, char **av);
+extern int mgfEntityCylinder(int ac, char **av);
+extern int mgfEntityRing(int ac, char **av);
+extern int mgfEntityCone(int ac, char **av);
+extern int mgfEntityPrism(int ac, char **av);
+extern int e_faceh(int ac, char **av);
 
 /************************************************************************
  *	Definitions for 3-d vector manipulation functions
@@ -198,14 +198,15 @@ extern void fcross(FVECT, FVECT, FVECT);/* cross product of two vectors */
 #define C_CDXY        010        /* flag if defined w/ xy */
 #define C_CSEFF        020        /* flag if efficacy set */
 
-class C_COLOR {
-  public:
-    int clock;            /* incremented each change */
-    short flags;            /* what's been set */
-    short ssamp[C_CNSS];        /* spectral samples, min wl to max */
-    long ssum;            /* straight sum of spectral values */
-    float cx, cy;            /* xy chromaticity value */
-    float eff;            /* efficacy (lumens/watt) */
+class MgfColorContext {
+public:
+    int clock; // Incremented each change
+    short flags; // What's been set
+    short ssamp[C_CNSS]; // Spectral samples, min wl to max
+    long ssum; // Straight sum of spectral values
+    float cx; // Chromaticity X value
+    float cy; // chromaticity Y value
+    float eff; // efficacy (lumens/watt)
 };
 
 #define C_DEFCOLOR    { 1, C_CDXY|C_CSXY|C_CSSPEC|C_CSEFF,\
@@ -218,51 +219,52 @@ class C_COLOR {
             C_CMAXV,C_CMAXV,C_CMAXV,C_CMAXV,C_CMAXV,C_CMAXV},\
             (long)C_CNSS*C_CMAXV, 1./3., 1./3., 178.006 }
 
-class C_MATERIAL {
-  public:
-    int clock;        /* incremented each change -- resettable */
-    int sided;        /* 1 if surface is 1-sided, 0 for 2-sided */
-    float nr, ni;        /* index of refraction, real and imaginary */
-    float rd;        /* diffuse reflectance */
-    C_COLOR rd_c;        /* diffuse reflectance color */
-    float td;        /* diffuse transmittance */
-    C_COLOR td_c;        /* diffuse transmittance color */
-    float ed;        /* diffuse emittance */
-    C_COLOR ed_c;        /* diffuse emittance color */
-    float rs;        /* specular reflectance */
-    C_COLOR rs_c;        /* specular reflectance color */
-    float rs_a;        /* specular reflectance roughness */
-    float ts;        /* specular transmittance */
-    C_COLOR ts_c;        /* specular transmittance color */
-    float ts_a;        /* specular transmittance roughness */
-};        /* material context */
+class MgfMaterialContext {
+public:
+    int clock; // Incremented each change -- resettable
+    int sided; // 1 if surface is 1-sided, 0 for 2-sided
+    float nr; // Index of refraction, real and imaginary
+    float ni;
+    float rd; // Diffuse reflectance
+    MgfColorContext rd_c; // Diffuse reflectance color
+    float td; // Diffuse transmittance
+    MgfColorContext td_c; // Diffuse transmittance color
+    float ed; // Diffuse emittance
+    MgfColorContext ed_c; // Diffuse emittance color
+    float rs; // Specular reflectance
+    MgfColorContext rs_c; // Specular reflectance color
+    float rs_a; // Specular reflectance roughness
+    float ts; // Specular transmittance
+    MgfColorContext ts_c; // Specular transmittance color
+    float ts_a; // Specular transmittance roughness
+};
 
-class C_VERTEX {
-  public:
-    FVECT p, n;        /* point and normal */
-    long xid;            /* transform id of transform last time the
-				 * vertex was modified (or created) */
-    int clock;        /* incremented each change -- resettable */
-    void *client_data;    /* client data -- initialized to nullptr by the parser */
-};        /* vertex context */
+class MgfVertexContext {
+public:
+    FVECT p; // Point
+    FVECT n; // Normal
+    long xid; // transform id of transform last time the vertex was modified (or created)
+    int clock; // incremented each change -- resettable
+    void *client_data; // client data -- initialized to nullptr by the parser
+};
 
 #define C_DEFMATERIAL    {1,0,1.,0.,0.,C_DEFCOLOR,0.,C_DEFCOLOR,0.,C_DEFCOLOR,\
                     0.,C_DEFCOLOR,0.,0.,C_DEFCOLOR,0.}
 #define C_DEFVERTEX    {{0.,0.,0.},{0.,0.,0.},0,1,(void *)0}
 
-extern C_COLOR *c_ccolor;    /* the current color */
+extern MgfColorContext *c_ccolor;    /* the current color */
 extern char *c_ccname;    /* current color name */
-extern C_MATERIAL *c_cmaterial;    /* the current material */
-extern char *c_cmname;    /* current material name */
-extern C_VERTEX *c_cvertex;    /* the current vertex */
+extern MgfMaterialContext *c_cmaterial;    /* the current material */
+extern char *GLOBAL_mgf_currentMaterialName;    /* current material name */
+extern MgfVertexContext *c_cvertex;    /* the current vertex */
 extern char *c_cvname;    /* current vertex name */
 
-extern int c_hcolor(int, char **);        /* handle color entity */
-extern int c_hmaterial(int, char **);    /* handle material entity */
-extern int c_hvertex(int, char **);    /* handle vertex entity */
+extern int handleColorEntity(int ac, char **av);        /* handle color entity */
+extern int handleMaterialEntity(int ac, char **av);    /* handle material entity */
+extern int handleVertexEntity(int ac, char **av);    /* handle vertex entity */
 extern void c_clearall();        /* clear context tables */
-extern C_VERTEX *c_getvert(char *);        /* get a named vertex */
-extern void c_ccvt(C_COLOR *, int);        /* fix color representation */
+extern MgfVertexContext *c_getvert(char *name);        /* get a named vertex */
+extern void mgfContextFixColorRepresentation(MgfColorContext *clr, int fl);        /* fix color representation */
 
 /*************************************************************************
  *	Definitions for hierarchical object name handler
@@ -342,7 +344,7 @@ extern char **xf_argend;            /* last transform argument */
  * puts the result into the first.
  */
 
-extern int xf_handler(int, char **);    /* handle xf entity */
+extern int handleTransformationEntity(int ac, char **av);    /* handle xf entity */
 extern void xf_xfmpoint(FVECT, FVECT);    /* transform point */
 extern void xf_xfmvect(FVECT, FVECT);    /* transform vector */
 

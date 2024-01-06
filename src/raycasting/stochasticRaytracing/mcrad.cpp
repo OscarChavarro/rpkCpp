@@ -458,7 +458,7 @@ static COLOR McrInterpolatedReflectanceAtPoint(ELEMENT *leaf, double u, double v
             colorInterpolateBilinear(vrd[0], vrd[1], vrd[2], vrd[3], u, v, rd);
             break;
         default:
-            Fatal(-1, "McrInterpolatedReflectanceAtPoint", "Invalid nr of vertices %d", leaf->nrvertices);
+            logFatal(-1, "McrInterpolatedReflectanceAtPoint", "Invalid nr of vertices %d", leaf->nrvertices);
     }
     return rd;
 }
@@ -510,7 +510,7 @@ void monteCarloRadiosityRecomputeDisplayColors() {
 }
 
 void monteCarloRadiosityUpdateMaterial(MATERIAL *oldMaterial, MATERIAL *newMaterial) {
-    Error("monteCarloRadiosityUpdateMaterial", "Not yet implemented");
+    logError("monteCarloRadiosityUpdateMaterial", "Not yet implemented");
 }
 
 /**

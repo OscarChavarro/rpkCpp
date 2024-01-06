@@ -94,7 +94,7 @@ float CImportanceMap::GetRequiredDensity(Vector3D &pos, Vector3D &normal) {
                     density *= *m_impScalePtr;
                     break;
                 default:
-                    Error("CImportanceMap::GetRequiredDensity", "Unsupported importance option");
+                    logError("CImportanceMap::GetRequiredDensity", "Unsupported importance option");
                     return 0;
                     break;
             }
@@ -115,7 +115,7 @@ float CImportanceMap::GetRequiredDensity(Vector3D &pos, Vector3D &normal) {
                 density *= *m_impScalePtr;
                 break;
             default:
-                Error("CImportanceMap::GetRequiredDensity", "Unsupported importance option");
+                logError("CImportanceMap::GetRequiredDensity", "Unsupported importance option");
                 return 0;
                 break;
         }

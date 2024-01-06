@@ -98,7 +98,7 @@ ScreenBuffer::Merge(ScreenBuffer *src1, ScreenBuffer *src2) {
     m_RGBImage = src1->IsRGBImage();
 
     if ((GetHRes() != src2->GetHRes()) || (GetVRes() != src2->GetVRes())) {
-        Error("ScreenBuffer::Merge", "Incompatible screen buffer sources");
+        logError("ScreenBuffer::Merge", "Incompatible screen buffer sources");
         return;
     }
 

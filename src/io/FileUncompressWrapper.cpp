@@ -18,8 +18,8 @@ OpenFile(const char *filename, const char *open_mode, int *ispipe) {
     FILE *fp = (FILE *) nullptr;
 
     if ( (*open_mode != 'r' && *open_mode != 'w' && *open_mode != 'a') ) {
-        Error("OpenFile", "Invalid fopen() mode '%s'\n",
-              open_mode ? open_mode : "(null)");
+        logError("OpenFile", "Invalid fopen() mode '%s'\n",
+                 open_mode ? open_mode : "(null)");
         return fp;
     }
 
@@ -70,8 +70,8 @@ OpenFile(const char *filename, const char *open_mode, int *ispipe) {
         free(cmd);
 
         if ( !fp ) {
-            Error(nullptr, "Can't open file '%s' for %s",
-                  filename, *open_mode == 'r' ? "reading" : "writing");
+            logError(nullptr, "Can't open file '%s' for %s",
+                     filename, *open_mode == 'r' ? "reading" : "writing");
         }
         return fp;
     }

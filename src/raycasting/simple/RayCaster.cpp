@@ -50,7 +50,7 @@ RayCaster::render(GETRADIANCE_FT getrad = nullptr) {
     if ( width != scrn->GetHRes() ||
          height != scrn->GetVRes()) {
 
-        Fatal(-1, "RayCaster::render", "ID buffer size doesn't match screen size");
+        logFatal(-1, "RayCaster::render", "ID buffer size doesn't match screen size");
     }
 
     // TODO SITHMASTER: This is the main paralelizable loop for raycasting

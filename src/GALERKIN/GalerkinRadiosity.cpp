@@ -79,7 +79,7 @@ SetCubatureRules(CUBARULE **trirule, CUBARULE **quadrule, CUBATURE_DEGREE degree
             *quadrule = &CRQ7PG;
             break;
         default:
-            Fatal(2, "SetCubatureRules", "Invalid degree %d", degree);
+            logFatal(2, "SetCubatureRules", "Invalid degree %d", degree);
     }
 }
 
@@ -122,7 +122,7 @@ IterationMethodOption(void *value) {
     } else if ( strncasecmp(name, "southwell", 2) == 0 ) {
         GLOBAL_galerkin_state.iteration_method = SOUTHWELL;
     } else {
-        Error(nullptr, "Invalid iteration method '%s'", name);
+        logError(nullptr, "Invalid iteration method '%s'", name);
     }
 }
 
@@ -268,7 +268,7 @@ PatchInit(PATCH *patch) {
                 POTENTIAL(patch).f = UNSHOT_POTENTIAL(patch).f = patch->direct_potential;
                 break;
             default:
-                Fatal(-1, "PatchInit", "Invalid iteration method");
+                logFatal(-1, "PatchInit", "Invalid iteration method");
         }
     }
 
@@ -310,7 +310,7 @@ DoGalerkinOneStep() {
     int done = false;
 
     if ( GLOBAL_galerkin_state.iteration_nr < 0 ) {
-        Error("DoGalerkinOneStep", "method not initialized");
+        logError("DoGalerkinOneStep", "method not initialized");
         return true;    /* done, don't continue! */
     }
 
@@ -333,7 +333,7 @@ DoGalerkinOneStep() {
             done = DoShootingStep();
             break;
         default:
-            Fatal(2, "DoGalerkinOneStep", "Invalid iteration method %d\n", GLOBAL_galerkin_state.iteration_method);
+            logFatal(2, "DoGalerkinOneStep", "Invalid iteration method %d\n", GLOBAL_galerkin_state.iteration_method);
     }
 
     UpdateCpuSecs();
@@ -542,7 +542,7 @@ WriteVertexColors() {
 static void
 WriteColors() {
     if ( !renderopts.smooth_shading ) {
-        Warning(nullptr, "I assume you want a smooth shaded model ...");
+        logWarning(nullptr, "I assume you want a smooth shaded model ...");
     }
     fprintf(vrmlfp, "\tcolorPerVertex %s\n", "TRUE");
     WriteVertexColors();

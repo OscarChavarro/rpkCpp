@@ -1,3 +1,3 @@
-int force_onesided_surfaces;
-int monochrome;
-int nqcdivs;
+int GLOBAL_fileOptions_force_onesided_surfaces;
+int GLOBAL_fileOptions_monochrome;
+int GLOBAL_fileOptions_nqcdivs;

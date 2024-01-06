@@ -32,7 +32,7 @@ static float Lightness(float luminance) {
 }
 
 static COLOR ScaleForComputations(COLOR radiance) {
-    Fatal(-1, "ScaleForComputations", "%s %d not yet implemented", __FILE__, __LINE__);
+    logFatal(-1, "ScaleForComputations", "%s %d not yet implemented", __FILE__, __LINE__);
     return radiance;
 }
 
@@ -56,7 +56,7 @@ static COLOR ScaleForDisplay(COLOR radiance) {
 }
 
 static float ReverseScaleForComputations(float dl) {
-    Fatal(-1, "ReverseScaleForComputations", "%s %d not yet implemented", __FILE__, __LINE__);
+    logFatal(-1, "ReverseScaleForComputations", "%s %d not yet implemented", __FILE__, __LINE__);
     return -1.0;
 }
 

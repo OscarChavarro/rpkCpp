@@ -40,7 +40,7 @@
   ------------------------------------------------------------------------- */
 
 #define PRE_TIFF_GENERAL_HANDLE(_func) \
-    Error(_func, "TIFF support has not been compiled in")
+    logError(_func, "TIFF support has not been compiled in")
 
 /* ---------------------------------------------------------------------------
                                                        DEFAULT IMPLEMENTATIONS
@@ -167,8 +167,8 @@ CreateRadianceImageOutputHandle(char *fname, FILE *fp,
         /* olaf: HDR PIC output */
         else if ( strncasecmp(ext, "pic", 3) == 0 ) {
             if ( ispipe ) {
-                Error("CreateRadianceImageOutputHandle",
-                      "Can't write PIC output to a pipe.\n");
+                logError("CreateRadianceImageOutputHandle",
+                         "Can't write PIC output to a pipe.\n");
                 return (ImageOutputHandle *) 0;
             }
 
@@ -180,8 +180,8 @@ CreateRadianceImageOutputHandle(char *fname, FILE *fp,
             return new PicOutputHandle(fname, width, height);
         } else {
             PRE_TIFF_GENERAL_HANDLE("CreateRadianceImageOutputHandle");
-            Error("CreateRadianceImageOutputHandle",
-                  "Can't save high dynamic range images to a '%s' file.", ext);
+            logError("CreateRadianceImageOutputHandle",
+                     "Can't save high dynamic range images to a '%s' file.", ext);
             return (ImageOutputHandle *) 0;
         }
     }
@@ -199,8 +199,8 @@ CreateImageOutputHandle(char *fname, FILE *fp,
             return new PPMOutputHandle(fp, width, height);
         } else {
             PRE_TIFF_GENERAL_HANDLE("CreateImageOutputHandle");
-            Error("CreateImageOutputHandle",
-                  "Can't save display-RGB images to a '%s' file.\n", ext);
+            logError("CreateImageOutputHandle",
+                     "Can't save display-RGB images to a '%s' file.\n", ext);
             return (ImageOutputHandle *) 0;
         }
     }

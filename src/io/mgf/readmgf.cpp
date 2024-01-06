@@ -1,56 +1,147 @@
 #include <cstring>
 
+#include "java/util/ArrayList.txx"
 #include "common/error.h"
-#include "material/cie.h"
-#include "skin/Geometry.h"
-#include "skin/Vertex.h"
 #include "skin/Patch.h"
-#include "skin/vertexlist.h"
+#include "skin/Compound.h"
 #include "scene/scene.h"
 #include "scene/splitbsdf.h"
-#include "io/mgf/parser.h"
-#include "shared/options.h"
-#include "readmgf.h"
-#include "skin/Compound.h"
-#include "vectoroctree.h"
 #include "scene/phong.h"
+#include "io/mgf/parser.h"
+#include "io/mgf/vectoroctree.h"
 #include "app/fileopts.h"
+#include "io/mgf/readmgf.h"
 
-static VECTOROCTREE *globalPoints; // global point octree
-static VECTOROCTREE *globalNormals; // global normal octree
+// Objects 'o' contexts can be nested this deep
+#define MAXIMUM_GEOMETRY_STACK_DEPTH 100
 
-/* pointlist, normal list, vertex list ... of surface currently being created */
-static Vector3DListNode *currentPointList;
-static Vector3DListNode *currentNormalList;
-static VERTEXLIST *currentVertexList;
-static VERTEXLIST *autoVertexList;
-static PatchSet *currentFaceList;
-static GeometryListNode *currentGeomList;
-static MATERIAL *currentMaterial;
+// No face can have more than this vertices
+#define MAXIMUM_FACE_VERTICES 100
 
-#ifndef MAXGEOMSTACKDEPTH
-    #define MAXGEOMSTACKDEPTH    100    /* objects ('o' contexts) can be nested this deep */
-#endif
+#define NUMBER_OF_SAMPLES 3
 
-/* Geometry stack: used for building a hierarchical representation of the scene */
-static GeometryListNode *geomStack[MAXGEOMSTACKDEPTH], **geomStackPtr;
-static VERTEXLIST *autoVertexListStack[MAXGEOMSTACKDEPTH], **autoVertexListStackPtr;
+static VECTOROCTREE *globalPointsOctree; // global point octree
+static VECTOROCTREE *globalNormalsOctree; // global normal octree
 
-#ifndef MAXFACEVERTICES
-    #define MAXFACEVERTICES           100    /* no face can have more than this vertices */
-#endif
+// Elements for surface currently being created
+static Vector3DListNode *globalCurrentPointList;
+static Vector3DListNode *globalCurrentNormalList;
+static VERTEXLIST *globalCurrentVertexList;
+static PatchSet *globalCurrentFaceList;
+static GeometryListNode *globalCurrentGeometryList;
+static MATERIAL *globalCurrentMaterial;
 
-static int incomplex = false; // true if reading a sphere, torus or other unsupported
-static int insurface = false; // true if busy creating a new surface
-static int all_surfaces_sided = false; // when set to true, all surfaces will be considered one-sided
+static VERTEXLIST *globalAutoVertexList;
+
+// Geometry stack: used for building a hierarchical representation of the scene
+static GeometryListNode *globalGeometryStack[MAXIMUM_GEOMETRY_STACK_DEPTH], **globalGeometryStackPtr;
+static VERTEXLIST *autoVertexListStack[MAXIMUM_GEOMETRY_STACK_DEPTH], **globalAutoVertexListStackPtr;
+
+static int globalInComplex = false; // true if reading a sphere, torus or other unsupported
+static int globalInSurface = false; // true if busy creating a new surface
+static int globalAllSurfacesSided = false; // when set to true, all surfaces will be considered one-sided
+
+static void
+doError(const char *errmsg) {
+    logError(nullptr, (char *) "%s line %d: %s", mg_file->fname, mg_file->lineno, errmsg);
+}
+
+static void
+doWarning(const char *errmsg) {
+    logWarning(nullptr, (char *) "%s line %d: %s", mg_file->fname, mg_file->lineno, errmsg);
+}
+
+static void
+pushCurrentGeomList() {
+    if ( globalGeometryStackPtr - globalGeometryStack >= MAXIMUM_GEOMETRY_STACK_DEPTH ) {
+        doError(
+                "Objects are nested too deep for this program. Recompile with larger MAXIMUM_GEOMETRY_STACK_DEPTH constant in readmgf.c");
+        return;
+    } else {
+        *globalGeometryStackPtr = globalCurrentGeometryList;
+        globalGeometryStackPtr++;
+        globalCurrentGeometryList = GeomListCreate();
+
+        *globalAutoVertexListStackPtr = globalAutoVertexList;
+        globalAutoVertexListStackPtr++;
+        globalAutoVertexList = nullptr;
+    }
+}
+
+static void
+popCurrentGeomList() {
+    if ( globalGeometryStackPtr <= globalGeometryStack ) {
+        doError("Object stack underflow ... unbalanced 'o' contexts?");
+        globalCurrentGeometryList = GeomListCreate();
+        return;
+    } else {
+        globalGeometryStackPtr--;
+        globalCurrentGeometryList = *globalGeometryStackPtr;
+
+        VertexListDestroy(globalAutoVertexList);
+        globalAutoVertexListStackPtr--;
+        globalAutoVertexList = *globalAutoVertexListStackPtr;
+    }
+}
+
+/**
+Returns squared distance between the two FVECTs
+*/
+static double
+distanceSquared(FVECT *v1, FVECT *v2) {
+    FVECT d;
+
+    d[0] = (*v2)[0] - (*v1)[0];
+    d[1] = (*v2)[1] - (*v1)[1];
+    d[2] = (*v2)[2] - (*v1)[2];
+    return d[0] * d[0] + d[1] * d[1] + d[2] * d[2];
+}
+
+/**
+The mgf parser already contains some good routines for discretizing spheres, ...
+into polygons. In the official release of the parser library, these routines
+are internal (declared static in parse.c and no reference to them in parser.h).
+The parser was changed so we can call them in order not to have to duplicate
+the code
+*/
+static int
+doDiscretize(int argc, char **argv) {
+    int en = mg_entity(argv[0]);
+
+    switch ( en ) {
+        case MGF_ERROR_SPHERE:
+            return mgfEntitySphere(argc, argv);
+        case MGF_ERROR_TORUS:
+            return mgfEntityTorus(argc, argv);
+        case MGF_EROR_CYLINDER:
+            return mgfEntityCylinder(argc, argv);
+        case MGF_ERROR_RING:
+            return mgfEntityRing(argc, argv);
+        case MGF_ERROR_CONE:
+            return mgfEntityCone(argc, argv);
+        case MGF_ERROR_PRISM:
+            return mgfEntityPrism(argc, argv);
+        default:
+            logFatal(4, "mgf.c: doDiscretize", "Unsupported geometry entity number %d", en);
+    }
+
+    return MGF_ERROR_ILLEGAL_ARGUMENT_VALUE; // Definitely illegal when this point is reached
+}
+
+static void
+specSamples(COLOR &col, float *rgb) {
+    rgb[0] = col.spec[0];
+    rgb[1] = col.spec[1];
+    rgb[2] = col.spec[2];
+}
 
 /**
 Sets the number of quarter circle divisions for discretizing cylinders, spheres, cones, etc.
 */
 static void
-MgfSetNrQuartCircDivs(int divs) {
+mgfSetNrQuartCircDivs(int divs) {
     if ( divs <= 0 ) {
-        Error(nullptr, "Number of quarter circle divisions (%d) should be positive", divs);
+        logError(nullptr, "Number of quarter circle divisions (%d) should be positive", divs);
         return;
     }
 
@@ -70,124 +161,112 @@ face normals and vertices in counter clockwise order as seen from the
 normal direction).
 */
 static void
-MgfSetIgnoreSidedness(int yesno) {
-    all_surfaces_sided = yesno;
+mgfSetIgnoreSidedness(int yesno) {
+    globalAllSurfacesSided = yesno;
 }
 
 /**
-If yesno is true, all materials will be converted to be monochrome.
+If yesno is true, all materials will be converted to be GLOBAL_fileOptions_monochrome.
 */
 static void
-MgfSetMonochrome(int yesno) {
-    monochrome = yesno;
+mgfSetMonochrome(int yesno) {
+    GLOBAL_fileOptions_monochrome = yesno;
 }
 
 static void
-do_error(const char *errmsg) {
-    Error(nullptr, (char *) "%s line %d: %s", mg_file->fname, mg_file->lineno, errmsg);
-}
-
-static void
-do_warning(const char *errmsg) {
-    Warning(nullptr, (char *) "%s line %d: %s", mg_file->fname, mg_file->lineno, errmsg);
-}
-
-static void
-NewSurface() {
-    currentPointList = VectorListCreate();
-    currentNormalList = VectorListCreate();
-    currentVertexList = VertexListCreate();
-    currentFaceList = PatchListCreate();
-    insurface = true;
+newSurface() {
+    globalCurrentPointList = VectorListCreate();
+    globalCurrentNormalList = VectorListCreate();
+    globalCurrentVertexList = nullptr;
+    globalCurrentFaceList = PatchListCreate();
+    globalInSurface = true;
 }
 
 static void
 surfaceDone() {
     Geometry *newGeometry;
 
-    if ( currentFaceList ) {
+    if ( globalCurrentFaceList ) {
         newGeometry = geomCreateSurface(
-                surfaceCreate(currentMaterial, currentPointList, currentNormalList,
+                surfaceCreate(globalCurrentMaterial, globalCurrentPointList, globalCurrentNormalList,
                               (Vector3DListNode *) nullptr,
-                              currentVertexList, currentFaceList, NO_COLORS), &GLOBAL_skin_surfaceGeometryMethods);
-        currentGeomList = GeomListAdd(currentGeomList, newGeometry);
+                              globalCurrentVertexList, globalCurrentFaceList, NO_COLORS), &GLOBAL_skin_surfaceGeometryMethods);
+        globalCurrentGeometryList = GeomListAdd(globalCurrentGeometryList, newGeometry);
     }
-    insurface = false;
+    globalInSurface = false;
 }
 
 /**
 This routine returns true if the current material has changed
 */
 static int
-MaterialChanged() {
+materialChanged() {
     char *matname;
 
-    matname = c_cmname;
+    matname = GLOBAL_mgf_currentMaterialName;
     if ( !matname || *matname == '\0' ) {    /* this might cause strcmp to crash !! */
         matname = (char *) "unnamed";
     }
 
     /* is it another material than the one used for the previous face ?? If not, the
-     * currentMaterial remains the same. */
-    if ( strcmp(matname, currentMaterial->name) == 0 && c_cmaterial->clock == 0 ) {
+     * globalCurrentMaterial remains the same. */
+    if ( strcmp(matname, globalCurrentMaterial->name) == 0 && c_cmaterial->clock == 0 ) {
         return false;
     }
 
     return true;
 }
 
-/* Translates mgf color into out color representation. */
+/**
+Translates mgf color into out color representation
+*/
 static void
-MgfGetColor(C_COLOR *cin, double intensity, COLOR *cout) {
-    float xyz[3], rgb[3];
+mgfGetColor(MgfColorContext *cin, float intensity, COLOR *cout) {
+    float xyz[3];
+    float rgb[3];
 
-    c_ccvt(cin, C_CSXY);
+    mgfContextFixColorRepresentation(cin, C_CSXY);
     if ( cin->cy > EPSILON ) {
         xyz[0] = cin->cx / cin->cy * intensity;
-        xyz[1] = 1. * intensity;
-        xyz[2] = (1. - cin->cx - cin->cy) / cin->cy * intensity;
+        xyz[1] = 1.0f * intensity;
+        xyz[2] = (1.0f - cin->cx - cin->cy) / cin->cy * intensity;
     } else {
-        do_warning("invalid color specification (Y<=0) ... setting to black");
+        doWarning("invalid color specification (Y<=0) ... setting to black");
         xyz[0] = xyz[1] = xyz[2] = 0.;
     }
 
     if ( xyz[0] < 0. || xyz[1] < 0. || xyz[2] < 0. ) {
-        do_warning("invalid color specification (negative CIE XYZ componenets) ... clipping to zero");
-        if ( xyz[0] < 0. ) {
-            xyz[0] = 0.;
+        doWarning("invalid color specification (negative CIE XYZ componenets) ... clipping to zero");
+        if ( xyz[0] < 0.0 ) {
+            xyz[0] = 0.0;
         }
-        if ( xyz[1] < 1. ) {
-            xyz[1] = 0.;
+        if ( xyz[1] < 1.0 ) {
+            xyz[1] = 0.0;
         }
-        if ( xyz[2] < 2. ) {
-            xyz[2] = 0.;
+        if ( xyz[2] < 2.0 ) {
+            xyz[2] = 0.0;
         }
     }
 
     xyzToRgb(xyz, rgb);
     if ( clipGamut(rgb)) {
-        do_warning("color desaturated during gamut clipping");
+        doWarning("color desaturated during gamut clipping");
     }
     colorSet(*cout, rgb[0], rgb[1], rgb[2]);
 }
 
-#define NUMSMPLS 3
-#define SPEC_SAMPLES(col, rgb) \
-  rgb[0] = col.spec[0]; rgb[1] = col.spec[1]; rgb[2] = col.spec[2];
-
-
 float
-ColorMax(COLOR col) {
+colorMax(COLOR col) {
     /* We should check every wavelength in the visible spectrum, but
      * as a first approximation, only the three RGB primary colors
      * are checked. */
-    float samples[NUMSMPLS], mx;
+    float samples[NUMBER_OF_SAMPLES], mx;
     int i;
 
-    SPEC_SAMPLES(col, samples);
+    specSamples(col, samples);
 
     mx = -HUGE;
-    for ( i = 0; i < NUMSMPLS; i++ ) {
+    for ( i = 0; i < NUMBER_OF_SAMPLES; i++ ) {
         if ( samples[i] > mx ) {
             mx = samples[i];
         }
@@ -196,58 +275,58 @@ ColorMax(COLOR col) {
     return mx;
 }
 
-#undef SPEC_SAMPLES
-#undef NUMSMPLS
-
-/* This routine checks whether the mgf material being used has changed. If it
- * changed, this routine converts to our representation of materials and
- * creates a new MATERIAL, which is added to the global material library.
- * The routine returns true if the material being used has changed. */
+/**
+This routine checks whether the mgf material being used has changed. If it
+changed, this routine converts to our representation of materials and
+creates a new MATERIAL, which is added to the global material library.
+The routine returns true if the material being used has changed
+*/
 static int
-GetCurrentMaterial() {
+getCurrentMaterial() {
     COLOR Ed, Es, Rd, Td, Rs, Ts, A;
     float Ne, Nr, Nt, a;
     MATERIAL *thematerial;
     char *matname;
 
-    matname = c_cmname;
+    matname = GLOBAL_mgf_currentMaterialName;
     if ( !matname || *matname == '\0' ) {    /* this might cause strcmp to crash !! */
         matname = (char *) "unnamed";
     }
 
     /* is it another material than the one used for the previous face ?? If not, the
-     * currentMaterial remains the same. */
-    if ( strcmp(matname, currentMaterial->name) == 0 && c_cmaterial->clock == 0 ) {
+     * globalCurrentMaterial remains the same. */
+    if ( strcmp(matname, globalCurrentMaterial->name) == 0 && c_cmaterial->clock == 0 ) {
         return false;
     }
 
-    if ((thematerial = MaterialLookup(GLOBAL_scene_materials, matname))) {
+    thematerial = MaterialLookup(GLOBAL_scene_materials, matname);
+    if ( thematerial != nullptr ) {
         if ( c_cmaterial->clock == 0 ) {
-            currentMaterial = thematerial;
+            globalCurrentMaterial = thematerial;
             return true;
         }
     }
 
     /* new material, or a material that changed. Convert intensities and chromaticities
      * to our color model. */
-    MgfGetColor(&c_cmaterial->ed_c, c_cmaterial->ed, &Ed);
-    MgfGetColor(&c_cmaterial->rd_c, c_cmaterial->rd, &Rd);
-    MgfGetColor(&c_cmaterial->td_c, c_cmaterial->td, &Td);
-    MgfGetColor(&c_cmaterial->rs_c, c_cmaterial->rs, &Rs);
-    MgfGetColor(&c_cmaterial->ts_c, c_cmaterial->ts, &Ts);
+    mgfGetColor(&c_cmaterial->ed_c, c_cmaterial->ed, &Ed);
+    mgfGetColor(&c_cmaterial->rd_c, c_cmaterial->rd, &Rd);
+    mgfGetColor(&c_cmaterial->td_c, c_cmaterial->td, &Td);
+    mgfGetColor(&c_cmaterial->rs_c, c_cmaterial->rs, &Rs);
+    mgfGetColor(&c_cmaterial->ts_c, c_cmaterial->ts, &Ts);
 
     /* check/correct range of reflectances and transmittances */
     colorAdd(Rd, Rs, A);
-    if ((a = ColorMax(A)) > 1.0 - EPSILON ) {
-        do_warning("invalid material specification: total reflectance shall be < 1");
+    if ((a = colorMax(A)) > 1.0 - EPSILON ) {
+        doWarning("invalid material specification: total reflectance shall be < 1");
         a = (1.0 - EPSILON) / a;
         colorScale(a, Rd, Rd);
         colorScale(a, Rs, Rs);
     }
 
     colorAdd(Td, Ts, A);
-    if ( (a = ColorMax(A)) > 1. - EPSILON ) {
-        do_warning("invalid material specification: total transmittance shall be < 1");
+    if ((a = colorMax(A)) > 1. - EPSILON ) {
+        doWarning("invalid material specification: total transmittance shall be < 1");
         a = (1.0 - EPSILON) / a;
         colorScale(a, Td, Td);
         colorScale(a, Ts, Ts);
@@ -274,7 +353,7 @@ GetCurrentMaterial() {
         Nt = 0.0;
     }
 
-    if ( monochrome ) {
+    if ( GLOBAL_fileOptions_monochrome ) {
         colorSetMonochrome(Ed, colorGray(Ed));
         colorSetMonochrome(Es, colorGray(Es));
         colorSetMonochrome(Rd, colorGray(Rd));
@@ -292,10 +371,10 @@ GetCurrentMaterial() {
                                          (colorNull(Td) && colorNull(Ts)) ? (BTDF *) nullptr : BtdfCreate(
                                                  PhongBtdfCreate(&Td, &Ts, Nt, c_cmaterial->nr, c_cmaterial->ni),
                                                  &PhongBtdfMethods), (TEXTURE *) nullptr), &SplitBsdfMethods),
-                                 all_surfaces_sided ? 1 : c_cmaterial->sided);
+                                 globalAllSurfacesSided ? 1 : c_cmaterial->sided);
 
     GLOBAL_scene_materials = MaterialListAdd(GLOBAL_scene_materials, thematerial);
-    currentMaterial = thematerial;
+    globalCurrentMaterial = thematerial;
 
     /* reset the clock value so we will be aware of possible changes in future */
     c_cmaterial->clock = 0;
@@ -304,29 +383,29 @@ GetCurrentMaterial() {
 }
 
 static Vector3D *
-InstallPoint(float x, float y, float z) {
+installPoint(float x, float y, float z) {
     Vector3D *coord = VectorCreate(x, y, z);
-    currentPointList = VectorListAdd(currentPointList, coord);
+    globalCurrentPointList = VectorListAdd(globalCurrentPointList, coord);
     return coord;
 }
 
 static Vector3D *
-InstallNormal(float x, float y, float z) {
+installNormal(float x, float y, float z) {
     Vector3D *norm = VectorCreate(x, y, z);
-    currentNormalList = VectorListAdd(currentNormalList, norm);
+    globalCurrentNormalList = VectorListAdd(globalCurrentNormalList, norm);
     return norm;
 }
 
 static VERTEX *
-InstallVertex(Vector3D *coord, Vector3D *norm, char *name) {
+installVertex(Vector3D *coord, Vector3D *norm, char *name) {
     VERTEX *v = VertexCreate(coord, norm, (Vector3D *) nullptr, PatchListCreate());
-    currentVertexList = VertexListAdd(currentVertexList, v);
+    globalCurrentVertexList = VertexListAdd(globalCurrentVertexList, v);
     return v;
 }
 
 static VERTEX *
-GetVertex(char *name) {
-    C_VERTEX *vp;
+getVertex(char *name) {
+    MgfVertexContext *vp;
     VERTEX *thevertex;
 
     if ((vp = c_getvert(name)) == nullptr ) {
@@ -342,14 +421,14 @@ GetVertex(char *name) {
         Vector3D *thepoint;
 
         xf_xfmpoint(vert, vp->p);
-        thepoint = InstallPoint(vert[0], vert[1], vert[2]);
+        thepoint = installPoint(vert[0], vert[1], vert[2]);
         if ( is0vect(vp->n)) {
             thenormal = (Vector3D *) nullptr;
         } else {
             xf_xfmvect(norm, vp->n);
-            thenormal = InstallNormal(norm[0], norm[1], norm[2]);
+            thenormal = installNormal(norm[0], norm[1], norm[2]);
         }
-        thevertex = InstallVertex(thepoint, thenormal, name);
+        thevertex = installVertex(thepoint, thenormal, name);
         vp->client_data = (void *) thevertex;
         vp->xid = xf_xid(xf_context);
     }
@@ -358,10 +437,12 @@ GetVertex(char *name) {
     return thevertex;
 }
 
-/* Create a vertex with given name, but with reversed normal as
- * the given vertex. For back-faces of two-sided surfaces. */
+/**
+Create a vertex with given name, but with reversed normal as
+the given vertex. For back-faces of two-sided surfaces
+*/
 static VERTEX *
-GetBackFaceVertex(VERTEX *v, char *name) {
+getBackFaceVertex(VERTEX *v, char *name) {
     VERTEX *back = v->back;
 
     if ( !back ) {
@@ -370,10 +451,10 @@ GetBackFaceVertex(VERTEX *v, char *name) {
         the_point = v->point;
         the_normal = v->normal;
         if ( the_normal ) {
-            the_normal = InstallNormal(-the_normal->x, -the_normal->y, -the_normal->z);
+            the_normal = installNormal(-the_normal->x, -the_normal->y, -the_normal->z);
         }
 
-        back = v->back = InstallVertex(the_point, the_normal, name);
+        back = v->back = installVertex(the_point, the_normal, name);
         back->back = v;
     }
 
@@ -381,33 +462,36 @@ GetBackFaceVertex(VERTEX *v, char *name) {
 }
 
 static PATCH *
-NewFace(VERTEX *v1, VERTEX *v2, VERTEX *v3, VERTEX *v4, Vector3D *normal) {
-    PATCH *theface;
+newFace(VERTEX *v1, VERTEX *v2, VERTEX *v3, VERTEX *v4, Vector3D *normal) {
+    PATCH *theFace;
 
     if ( xf_context && xf_context->rev ) {
-        theface = PatchCreate(v4 ? 4 : 3, v3, v2, v1, v4);
+        theFace = PatchCreate(v4 ? 4 : 3, v3, v2, v1, v4);
     } else {
-        theface = PatchCreate(v4 ? 4 : 3, v1, v2, v3, v4);
+        theFace = PatchCreate(v4 ? 4 : 3, v1, v2, v3, v4);
     }
 
-    if ( theface ) {
-        currentFaceList = PatchListAdd(currentFaceList, theface);
+    if ( theFace ) {
+        globalCurrentFaceList = PatchListAdd(globalCurrentFaceList, theFace);
     }
 
-    return theface;
+    return theFace;
 }
 
-/* computes the normal to the patch plane */
+/**
+Computes the normal to the patch plane
+*/
 static Vector3D *
-FaceNormal(int nrvertices, VERTEX **v, Vector3D *normal) {
+faceNormal(int numberOfVertices, VERTEX **v, Vector3D *normal) {
     double norm;
-    Vector3Dd prev, cur;
+    Vector3D prev;
+    Vector3D cur;
     Vector3D n;
     int i;
 
     VECTORSET(n, 0, 0, 0);
-    VECTORSUBTRACT(*(v[nrvertices - 1]->point), *(v[0]->point), cur);
-    for ( i = 0; i < nrvertices; i++ ) {
+    VECTORSUBTRACT(*(v[numberOfVertices - 1]->point), *(v[0]->point), cur);
+    for ( i = 0; i < numberOfVertices; i++ ) {
         prev = cur;
         VECTORSUBTRACT(*(v[i]->point), *(v[0]->point), cur);
         n.x += (prev.y - cur.y) * (prev.z + cur.z);
@@ -426,13 +510,14 @@ FaceNormal(int nrvertices, VERTEX **v, Vector3D *normal) {
     return normal;
 }
 
-/* Tests whether the polygon is convex or concave. This is accomplished by projecting
- * onto the coordinate plane "most parallel" to the polygon and checking the signs
- * the the cross produtc of succeeding edges: the signs are all equal for a
- * convex polygon. */
+/**
+Tests whether the polygon is convex or concave. This is accomplished by projecting
+onto the coordinate plane "most parallel" to the polygon and checking the signs
+the cross product of succeeding edges: the signs are all equal for a convex polygon
+*/
 static int
-FaceIsConvex(int nrvertices, VERTEX **v, Vector3D *normal) {
-    Vector2Dd v2d[MAXFACEVERTICES + 1], p, c;
+faceIsConvex(int nrvertices, VERTEX **v, Vector3D *normal) {
+    Vector2Dd v2d[MAXIMUM_FACE_VERTICES + 1], p, c;
     int i, index, sign;
 
     index = VectorDominantCoord(normal);
@@ -459,9 +544,11 @@ FaceIsConvex(int nrvertices, VERTEX **v, Vector3D *normal) {
     return true;
 }
 
-/* returns true if the 2D point p is inside the 2D triangle p1-p2-p3. */
+/**
+Returns true if the 2D point p is inside the 2D triangle p1-p2-p3
+*/
 static int
-PointInsideTriangle2D(Vector2D *p, Vector2D *p1, Vector2D *p2, Vector2D *p3) {
+pointInsideTriangle2D(Vector2D *p, Vector2D *p1, Vector2D *p2, Vector2D *p3) {
     double u0, v0, u1, v1, u2, v2, a, b;
 
     /* from Graphics Gems I, Didier Badouel, An Efficient Ray-Polygon Intersection, p390 */
@@ -498,9 +585,11 @@ PointInsideTriangle2D(Vector2D *p, Vector2D *p1, Vector2D *p2, Vector2D *p3) {
     return (a >= EPSILON && a <= 1. - EPSILON && (a + b) <= 1. - EPSILON);
 }
 
-/* returns true if the 2D segments p1-p2 and p3-p4 intersect */
+/**
+Returns true if the 2D segments p1-p2 and p3-p4 intersect
+*/
 static int
-SegmentsIntersect2D(Vector2D *p1, Vector2D *p2, Vector2D *p3, Vector2D *p4) {
+segmentsIntersect2D(Vector2D *p1, Vector2D *p2, Vector2D *p3, Vector2D *p4) {
     double a, b, c, du, dv, r1, r2, r3, r4;
     int colinear = false;
 
@@ -561,17 +650,19 @@ SegmentsIntersect2D(Vector2D *p1, Vector2D *p2, Vector2D *p3, Vector2D *p4) {
 		 * a little bit apart from each other */
 }
 
-/* handles concave faces and faces with >4 vertices. This routine started as an
- * ANSI-C version of mgflib/face2tri.C, but I changed it a lot to make it more robust. 
- * Inspiration comes from Burger and Gillis, Interactive Computer Graphics and
- * the (indispensable) Graphics Gems books. */
+/**
+Handles concave faces and faces with >4 vertices. This routine started as an
+ANSI-C version of mgflib/face2tri.C, but I changed it a lot to make it more robust.
+Inspiration comes from Burger and Gillis, Interactive Computer Graphics and
+the (indispensable) Graphics Gems books
+*/
 static int
-do_complex_face(int n, VERTEX **v, Vector3D *normal, VERTEX **backv, Vector3D *backnormal) {
+doComplexFace(int n, VERTEX **v, Vector3D *normal, VERTEX **backv, Vector3D *backnormal) {
     int i, j, max, p0, p1, p2, corners, start, good, index;
     double maxd, d, a;
     Vector3D center;
-    char out[MAXFACEVERTICES + 1];
-    Vector2D q[MAXFACEVERTICES + 1];
+    char out[MAXIMUM_FACE_VERTICES + 1];
+    Vector2D q[MAXIMUM_FACE_VERTICES + 1];
     Vector3D nn;
 
     VECTORSET(center, 0., 0., 0.);
@@ -645,7 +736,7 @@ do_complex_face(int n, VERTEX **v, Vector3D *normal, VERTEX **backv, Vector3D *b
                         continue;
                     }
 
-                    if ( PointInsideTriangle2D(&q[i], &q[p0], &q[p1], &q[p2])) {
+                    if ( pointInsideTriangle2D(&q[i], &q[p0], &q[p1], &q[p2])) {
                         good = false;
                     }
 
@@ -654,7 +745,7 @@ do_complex_face(int n, VERTEX **v, Vector3D *normal, VERTEX **backv, Vector3D *b
                         continue;
                     }
 
-                    if ( SegmentsIntersect2D(&q[p2], &q[p0], &q[i], &q[j])) {
+                    if ( segmentsIntersect2D(&q[p2], &q[p0], &q[i], &q[j])) {
                         good = false;
                     }
                 }
@@ -662,15 +753,15 @@ do_complex_face(int n, VERTEX **v, Vector3D *normal, VERTEX **backv, Vector3D *b
         } while ( d > 1.0 || !good );
 
         if ( p0 == start ) {
-            do_error("misbuilt polygonal face");
+            doError("misbuilt polygonal face");
             return MG_OK;    /* don't stop parsing the input however. */
         }
 
         if ( fabs(a) > EPSILON ) {    /* avoid degenerate faces */
             PATCH *face, *twin;
-            face = NewFace(v[p0], v[p1], v[p2], (VERTEX *) nullptr, normal);
-            if ( !currentMaterial->sided ) {
-                twin = NewFace(backv[p2], backv[p1], backv[p0], (VERTEX *) nullptr, backnormal);
+            face = newFace(v[p0], v[p1], v[p2], (VERTEX *) nullptr, normal);
+            if ( !globalCurrentMaterial->sided ) {
+                twin = newFace(backv[p2], backv[p1], backv[p0], (VERTEX *) nullptr, backnormal);
                 face->twin = twin;
                 twin->twin = face;
             }
@@ -684,105 +775,96 @@ do_complex_face(int n, VERTEX **v, Vector3D *normal, VERTEX **backv, Vector3D *b
 }
 
 static int
-do_face(int argc, char **argv) {
-    VERTEX *v[MAXFACEVERTICES + 1], *backv[MAXFACEVERTICES + 1];
+handleFaceEntity(int argc, char **argv) {
+    VERTEX *v[MAXIMUM_FACE_VERTICES + 1], *backv[MAXIMUM_FACE_VERTICES + 1];
     Vector3D normal, backnormal;
     PATCH *face, *twin;
     int i, errcode;
 
     if ( argc < 4 ) {
-        do_error("too few vertices in face");
+        doError("too few vertices in face");
         return MG_OK;    /* don't stop parsing the input */
     }
 
-    if ( argc - 1 > MAXFACEVERTICES ) {
-        do_warning(
-                "too many vertices in face. Recompile the program with larger MAXFACEVERTICES constant in readmgf.c");
+    if ( argc - 1 > MAXIMUM_FACE_VERTICES ) {
+        doWarning(
+                "too many vertices in face. Recompile the program with larger MAXIMUM_FACE_VERTICES constant in readmgf.c");
         return MG_OK;    /* no reason to stop parsing the input */
     }
 
-    if ( !incomplex ) {
-        if ( MaterialChanged()) {
-            if ( insurface ) {
+    if ( !globalInComplex ) {
+        if ( materialChanged()) {
+            if ( globalInSurface ) {
                 surfaceDone();
             }
-            NewSurface();
-            GetCurrentMaterial();
+            newSurface();
+            getCurrentMaterial();
         }
     }
 
     for ( i = 0; i < argc - 1; i++ ) {
-        if ((v[i] = GetVertex(argv[i + 1])) == (VERTEX *) nullptr ) {
+        if ((v[i] = getVertex(argv[i + 1])) == (VERTEX *) nullptr ) {
             return MG_EUNDEF;
         }    /* this is however a reason to stop parsing the input */
         backv[i] = (VERTEX *) nullptr;
-        if ( !currentMaterial->sided )
-            backv[i] = GetBackFaceVertex(v[i], argv[i + 1]);
+        if ( !globalCurrentMaterial->sided )
+            backv[i] = getBackFaceVertex(v[i], argv[i + 1]);
     }
 
-    if ( !FaceNormal(argc - 1, v, &normal)) {
-        do_warning("degenerate face");
+    if ( !faceNormal(argc - 1, v, &normal)) {
+        doWarning("degenerate face");
         return MG_OK;    /* just ignore the generate face */
     }
-    if ( !currentMaterial->sided ) VECTORSCALE(-1., normal, backnormal);
+    if ( !globalCurrentMaterial->sided ) VECTORSCALE(-1., normal, backnormal);
 
     errcode = MG_OK;
     if ( argc == 4 ) {        /* triangles */
-        face = NewFace(v[0], v[1], v[2], (VERTEX *) nullptr, &normal);
-        if ( !currentMaterial->sided ) {
-            twin = NewFace(backv[2], backv[1], backv[0], (VERTEX *) nullptr, &backnormal);
+        face = newFace(v[0], v[1], v[2], (VERTEX *) nullptr, &normal);
+        if ( !globalCurrentMaterial->sided ) {
+            twin = newFace(backv[2], backv[1], backv[0], (VERTEX *) nullptr, &backnormal);
             face->twin = twin;
             twin->twin = face;
         }
     } else if ( argc == 5 ) {    /* quadrilaterals */
-        if ( incomplex || FaceIsConvex(argc - 1, v, &normal)) {
-            face = NewFace(v[0], v[1], v[2], v[3], &normal);
-            if ( !currentMaterial->sided ) {
-                twin = NewFace(backv[3], backv[2], backv[1], backv[0], &backnormal);
+        if ( globalInComplex || faceIsConvex(argc - 1, v, &normal)) {
+            face = newFace(v[0], v[1], v[2], v[3], &normal);
+            if ( !globalCurrentMaterial->sided ) {
+                twin = newFace(backv[3], backv[2], backv[1], backv[0], &backnormal);
                 face->twin = twin;
                 twin->twin = face;
             }
         } else {
-            errcode = do_complex_face(argc - 1, v, &normal, backv, &backnormal);
+            errcode = doComplexFace(argc - 1, v, &normal, backv, &backnormal);
         }
     } else {            /* more than 4 vertices */
-        errcode = do_complex_face(argc - 1, v, &normal, backv, &backnormal);
+        errcode = doComplexFace(argc - 1, v, &normal, backv, &backnormal);
     }
 
     return errcode;
 }
 
-/* returns squared distance between the two FVECTs */
-static double
-FVECT_DistanceSquared(FVECT *v1, FVECT *v2) {
-    FVECT d;
-
-    d[0] = (*v2)[0] - (*v1)[0];
-    d[1] = (*v2)[1] - (*v1)[1];
-    d[2] = (*v2)[2] - (*v1)[2];
-    return (d[0] * d[0] + d[1] * d[1] + d[2] * d[2]);
-}
-
-/* Eliminates the holes by creating seems to the nearest vertex
- * on another contour. Creates an argument list for the face
- * without hole entity handling routine do_face() and calls it. */
+/**
+Eliminates the holes by creating seems to the nearest vertex
+on another contour. Creates an argument list for the face
+without hole entity handling routine handleFaceEntity() and calls it
+*/
 static int
-do_face_with_holes(int argc, char **argv) {
-    FVECT v[MAXFACEVERTICES + 1];      /* v[i] = location of vertex argv[i] */
-    char *nargv[MAXFACEVERTICES + 1], /* arguments to be passed to the face
+handleFaceWithHolesEntity(int argc, char **argv) {
+    FVECT v[MAXIMUM_FACE_VERTICES + 1];      /* v[i] = location of vertex argv[i] */
+    char *nargv[MAXIMUM_FACE_VERTICES + 1], /* arguments to be passed to the face
 				   * without hole entity handler */
-    copied[MAXFACEVERTICES + 1]; /* copied[i] is 1 or 0 indicating whether
+    copied[MAXIMUM_FACE_VERTICES + 1]; /* copied[i] is 1 or 0 indicating whether
 				   * or not the vertex argv[i] has been 
 				   * copied to newcontour */
-    int newcontour[MAXFACEVERTICES];/* newcontour[i] will contain the i-th
+    int newcontour[MAXIMUM_FACE_VERTICES];/* newcontour[i] will contain the i-th
 				   * vertex of the face with eliminated 
 				   * holes */
     int i, ncopied;          /* ncopied is the number of vertices in
 				   * newcontour */
 
-    if ( argc - 1 > MAXFACEVERTICES ) {
-        do_warning(
-                "too many vertices in face. Recompile the program with larger MAXFACEVERTICES constant in readmgf.c");
+    if ( argc - 1 > MAXIMUM_FACE_VERTICES ) {
+        doWarning(
+                "too many vertices in face. Recompile the program with larger MAXIMUM_FACE_VERTICES constant in readmgf.c");
         return MG_OK;    /* no reason to stop parsing the input */
     }
 
@@ -790,7 +872,7 @@ do_face_with_holes(int argc, char **argv) {
      * argv[i] is kept in v[i] (i=1 ... argc-1, and argv[i] not a contour
      * separator) */
     for ( i = 1; i < argc; i++ ) {
-        C_VERTEX *vp;
+        MgfVertexContext *vp;
 
         if ( *argv[i] == '-' ) {    /* skip contour separators */
             continue;
@@ -836,7 +918,7 @@ do_face_with_holes(int argc, char **argv) {
                 continue;
             }    /* contour separator or already copied vertex */
             for ( k = 0; k < ncopied; k++ ) {
-                double d = FVECT_DistanceSquared(&v[j], &v[newcontour[k]]);
+                double d = distanceSquared(&v[j], &v[newcontour[k]]);
                 if ( d < mindist ) {
                     mindist = d;
                     nearestcopied = k;
@@ -859,9 +941,9 @@ do_face_with_holes(int argc, char **argv) {
         num = last - first + 1;
 
         /* create num+2 extra vertices in newcontour. */
-        if ( ncopied + num + 2 > MAXFACEVERTICES ) {
-            do_warning(
-                    "too many vertices in face. Recompile the program with larger MAXFACEVERTICES constant in readmgf.c");
+        if ( ncopied + num + 2 > MAXIMUM_FACE_VERTICES ) {
+            doWarning(
+                    "too many vertices in face. Recompile the program with larger MAXIMUM_FACE_VERTICES constant in readmgf.c");
             return MG_OK;    /* no reason to stop parsing the input */
         }
 
@@ -902,187 +984,109 @@ do_face_with_holes(int argc, char **argv) {
     }
 
     /* and handle the face without holes */
-    return do_face(ncopied + 1, nargv);
-}
-
-/* the mgf parser already contains some good routines for discretizing spheres, ...
- * into polygons. In the official release of the parser library, these routines
- * are internal (declared static in parse.c and no reference to them in parser.h).
- * The parser was changed so we can call them in order not to have to duplicate
- * the code. */
-static int
-do_discretize(int argc, char **argv) {
-    int en = mg_entity(argv[0]);
-
-    switch ( en ) {
-        case MG_E_SPH:
-            return e_sph(argc, argv);
-        case MG_E_TORUS:
-            return e_torus(argc, argv);
-        case MG_E_CYL:
-            return e_cyl(argc, argv);
-        case MG_E_RING:
-            return e_ring(argc, argv);
-        case MG_E_CONE:
-            return e_cone(argc, argv);
-        case MG_E_PRISM:
-            return e_prism(argc, argv);
-        default:
-            Fatal(4, "mgf.c: do_discretize", "Unsupported geometry entity number %d", en);
-    }
-
-    return MG_EILL;    /* definitely illegal when this point is reached */
+    return handleFaceEntity(ncopied + 1, nargv);
 }
 
 static int
-do_surface(int argc, char **argv) {
+handleSurfaceEntity(int argc, char **argv) {
     int errcode;
 
-    if ( incomplex ) { /* e_sph calls e_cone ... */
-        return do_discretize(argc, argv);
+    if ( globalInComplex ) { /* mgfEntitySphere calls mgfEntityCone ... */
+        return doDiscretize(argc, argv);
     } else {
-        incomplex = true;
-        if ( insurface ) {
+        globalInComplex = true;
+        if ( globalInSurface ) {
             surfaceDone();
         }
-        NewSurface();
-        GetCurrentMaterial();
+        newSurface();
+        getCurrentMaterial();
 
-        errcode = do_discretize(argc, argv);
+        errcode = doDiscretize(argc, argv);
 
         surfaceDone();
-        incomplex = false;
+        globalInComplex = false;
 
         return errcode;
     }
 }
 
-static void
-PushCurrentGeomList() {
-    if ( geomStackPtr - geomStack >= MAXGEOMSTACKDEPTH ) {
-        do_error(
-                "Objects are nested too deep for this program. Recompile with larger MAXGEOMSTACKDEPTH constant in readmgf.c");
-        return;
-    } else {
-        *geomStackPtr = currentGeomList;
-        geomStackPtr++;
-        currentGeomList = GeomListCreate();
-
-        *autoVertexListStackPtr = autoVertexList;
-        autoVertexListStackPtr++;
-        autoVertexList = VertexListCreate();
-    }
-}
-
-static void
-popCurrentGeomList() {
-    if ( geomStackPtr <= geomStack ) {
-        do_error("Object stack underflow ... unbalanced 'o' contexts?");
-        currentGeomList = GeomListCreate();
-        return;
-    } else {
-        geomStackPtr--;
-        currentGeomList = *geomStackPtr;
-
-        VertexListDestroy(autoVertexList);
-        autoVertexListStackPtr--;
-        autoVertexList = *autoVertexListStackPtr;
-    }
-}
-
 static int
-do_object(int argc, char **argv) {
+handleObjectEntity(int argc, char **argv) {
     int i;
 
     if ( argc > 1 ) {    /* beginning of a new object */
-        for ( i = 0; i < geomStackPtr - geomStack; i++ ) {
+        for ( i = 0; i < globalGeometryStackPtr - globalGeometryStack; i++ ) {
             fprintf(stderr, "\t");
         }
         fprintf(stderr, "%s ...\n", argv[1]);
 
-        if ( insurface ) {
+        if ( globalInSurface ) {
             surfaceDone();
         }
 
-        PushCurrentGeomList();
+        pushCurrentGeomList();
 
-        NewSurface();
+        newSurface();
     } else {
         // End of object definition
         Geometry *theGeometry = nullptr;
 
-        if ( insurface ) {
+        if ( globalInSurface ) {
             surfaceDone();
         }
 
-        if ( GeomListCount(currentGeomList) > 0 ) {
-            theGeometry = geomCreateCompound(compoundCreate(currentGeomList), CompoundMethods());
+        if ( GeomListCount(globalCurrentGeometryList) > 0 ) {
+            theGeometry = geomCreateCompound(compoundCreate(globalCurrentGeometryList), CompoundMethods());
         }
 
         popCurrentGeomList();
 
         if ( theGeometry ) {
-            currentGeomList = GeomListAdd(currentGeomList, theGeometry);
+            globalCurrentGeometryList = GeomListAdd(globalCurrentGeometryList, theGeometry);
         }
 
-        NewSurface();
+        newSurface();
     }
 
     return obj_handler(argc, argv);
 }
 
-static int unknown_count;    /* unknown entity count */
-
 static int
-do_unknown(int argc, char **argv) {
-    do_warning("unknown entity");
-    unknown_count++;
+handleUnknownEntity(int argc, char **argv) {
+    doWarning("unknown entity");
 
     return MG_OK;
 }
 
 static void
-InitMgf() {
-    mg_ehand[MG_E_FACE] = do_face;
-    mg_ehand[MG_E_FACEH] = do_face_with_holes;
+initMgf() {
+    GLOBAL_mgf_handleCallbacks[MG_E_FACE] = handleFaceEntity;
+    GLOBAL_mgf_handleCallbacks[MG_E_FACEH] = handleFaceWithHolesEntity;
+    GLOBAL_mgf_handleCallbacks[MG_E_VERTEX] = handleVertexEntity;
+    GLOBAL_mgf_handleCallbacks[MG_E_POINT] = handleVertexEntity;
+    GLOBAL_mgf_handleCallbacks[MG_E_NORMAL] = handleVertexEntity;
+    GLOBAL_mgf_handleCallbacks[MG_E_COLOR] = handleColorEntity;
+    GLOBAL_mgf_handleCallbacks[MG_E_CXY] = handleColorEntity;
+    GLOBAL_mgf_handleCallbacks[MG_E_CMIX] = handleColorEntity;
+    GLOBAL_mgf_handleCallbacks[MG_E_MATERIAL] = handleMaterialEntity;
+    GLOBAL_mgf_handleCallbacks[MG_E_ED] = handleMaterialEntity;
+    GLOBAL_mgf_handleCallbacks[MG_E_IR] = handleMaterialEntity;
+    GLOBAL_mgf_handleCallbacks[MG_E_RD] = handleMaterialEntity;
+    GLOBAL_mgf_handleCallbacks[MG_E_RS] = handleMaterialEntity;
+    GLOBAL_mgf_handleCallbacks[MG_E_SIDES] = handleMaterialEntity;
+    GLOBAL_mgf_handleCallbacks[MG_E_TD] = handleMaterialEntity;
+    GLOBAL_mgf_handleCallbacks[MG_E_TS] = handleMaterialEntity;
+    GLOBAL_mgf_handleCallbacks[MG_E_OBJECT] = handleObjectEntity;
+    GLOBAL_mgf_handleCallbacks[MG_E_XF] = handleTransformationEntity;
+    GLOBAL_mgf_handleCallbacks[MGF_ERROR_SPHERE] = handleSurfaceEntity;
+    GLOBAL_mgf_handleCallbacks[MGF_ERROR_TORUS] = handleSurfaceEntity;
+    GLOBAL_mgf_handleCallbacks[MGF_ERROR_RING] = handleSurfaceEntity;
+    GLOBAL_mgf_handleCallbacks[MGF_EROR_CYLINDER] = handleSurfaceEntity;
+    GLOBAL_mgf_handleCallbacks[MGF_ERROR_CONE] = handleSurfaceEntity;
+    GLOBAL_mgf_handleCallbacks[MGF_ERROR_PRISM] = handleSurfaceEntity;
+    GLOBAL_mgf_unknownEntityHandleCallback = handleUnknownEntity;
 
-    mg_ehand[MG_E_VERTEX] = c_hvertex;
-    mg_ehand[MG_E_POINT] = c_hvertex;
-    mg_ehand[MG_E_NORMAL] = c_hvertex;
-
-    mg_ehand[MG_E_COLOR] = c_hcolor;
-    mg_ehand[MG_E_CXY] = c_hcolor;
-    mg_ehand[MG_E_CMIX] = c_hcolor;
-    /* we don't use spectra.... let the mgf parser library convert to tristimulus
-     * values itself
-        mg_ehand[MG_E_CSPEC] = c_hcolor;
-        mg_ehand[MG_E_CCT] = c_hcolor;
-    */
-
-    mg_ehand[MG_E_MATERIAL] = c_hmaterial;
-    mg_ehand[MG_E_ED] = c_hmaterial;
-    mg_ehand[MG_E_IR] = c_hmaterial;
-    mg_ehand[MG_E_RD] = c_hmaterial;
-    mg_ehand[MG_E_RS] = c_hmaterial;
-    mg_ehand[MG_E_SIDES] = c_hmaterial;
-    mg_ehand[MG_E_TD] = c_hmaterial;
-    mg_ehand[MG_E_TS] = c_hmaterial;
-
-    mg_ehand[MG_E_OBJECT] = do_object;
-
-    mg_ehand[MG_E_XF] = xf_handler;
-
-    mg_ehand[MG_E_SPH] = do_surface;
-    mg_ehand[MG_E_TORUS] = do_surface;
-    mg_ehand[MG_E_RING] = do_surface;
-    mg_ehand[MG_E_CYL] = do_surface;
-    mg_ehand[MG_E_CONE] = do_surface;
-    mg_ehand[MG_E_PRISM] = do_surface;
-
-    unknown_count = 0;
-    mg_uhand = do_unknown;
-
-    mg_init();
+    mgfAlternativeInit(GLOBAL_mgf_handleCallbacks);
 }
 
 /**
@@ -1090,61 +1094,62 @@ Reads in an mgf file. The result is that the global variables
 GLOBAL_scene_world and GLOBAL_scene_materials are filled in.
 */
 void
-ReadMgf(char *filename) {
-    MG_FCTXT fctxt;
-    int err;
+readMgf(char *filename) {
+    MG_FCTXT mgfReaderContext{};
+    int status{};
 
-    MgfSetNrQuartCircDivs(nqcdivs);
-    MgfSetIgnoreSidedness(force_onesided_surfaces);
-    MgfSetMonochrome(monochrome);
+    mgfSetNrQuartCircDivs(GLOBAL_fileOptions_nqcdivs);
+    mgfSetIgnoreSidedness(GLOBAL_fileOptions_force_onesided_surfaces);
+    mgfSetMonochrome(GLOBAL_fileOptions_monochrome);
 
-    InitMgf();
+    initMgf();
 
-    globalPoints = ((VECTOROCTREE *)OctreeCreate());
-    globalNormals = ((VECTOROCTREE *)OctreeCreate());
-    currentGeomList = GeomListCreate();
+    globalPointsOctree = nullptr;
+    globalNormalsOctree = nullptr;
+    globalCurrentGeometryList = nullptr;
 
-    GLOBAL_scene_materials = MaterialListCreate();
-    currentMaterial = &defaultMaterial;
+    GLOBAL_scene_materials = nullptr;
+    globalCurrentMaterial = &GLOBAL_material_defaultMaterial;
 
-    geomStackPtr = geomStack;
-    autoVertexListStackPtr = autoVertexListStack;
-    autoVertexList = VertexListCreate();
+    globalGeometryStackPtr = globalGeometryStack;
 
-    incomplex = false;
-    insurface = false;
+    globalAutoVertexListStackPtr = autoVertexListStack;
+    globalAutoVertexList = nullptr;
 
-    NewSurface();
+    globalInComplex = false;
+    globalInSurface = false;
+
+    newSurface();
 
     if ( filename[0] == '#' ) {
-        err = mg_open(&fctxt, nullptr);
+        status = mgfOpen(&mgfReaderContext, nullptr);
     } else {
-        err = mg_open(&fctxt, filename);
+        status = mgfOpen(&mgfReaderContext, filename);
     }
-    if ( err ) {
-        do_error(mg_err[err]);
+    if ( status ) {
+        doError(GLOBAL_mgf_errors[status]);
     } else {
-        while ( mg_read() > 0 && !err ) {
-            err = mg_parse();
-            if ( err ) {
-                do_error(mg_err[err]);
+        while ( mgfReadNextLine() > 0 && !status ) {
+            status = mg_parse();
+            if ( status ) {
+                doError(GLOBAL_mgf_errors[status]);
             }
         }
-        mg_close();
+        mgfClose();
     }
-    mg_clear();
+    mgfClear();
 
-    if ( insurface ) {
+    if ( globalInSurface ) {
         surfaceDone();
     }
-    GLOBAL_scene_world = currentGeomList;
+    GLOBAL_scene_world = globalCurrentGeometryList;
 
-    VertexListDestroy(autoVertexList);
-    if (globalPoints != nullptr) {
-        free(globalPoints);
+    VertexListDestroy(globalAutoVertexList);
+
+    if ( globalPointsOctree != nullptr) {
+        free(globalPointsOctree);
     }
-    if (globalNormals != nullptr) {
-        free(globalNormals);
+    if ( globalNormalsOctree != nullptr) {
+        free(globalNormalsOctree);
     }
 }
-

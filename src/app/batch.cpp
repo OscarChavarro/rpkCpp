@@ -131,9 +131,9 @@ BatchSaveRaytracingImage(const char *fname, FILE *fp, int ispipe) {
     }
 
     if ( !Global_Raytracer_activeRaytracer ) {
-        Warning(nullptr, "No ray tracing method active");
+        logWarning(nullptr, "No ray tracing method active");
     } else if ( !Global_Raytracer_activeRaytracer->SaveImage || !Global_Raytracer_activeRaytracer->SaveImage(img)) {
-        Warning(nullptr, "No previous %s image available", Global_Raytracer_activeRaytracer->fullName);
+        logWarning(nullptr, "No previous %s image available", Global_Raytracer_activeRaytracer->fullName);
     }
 
     if ( img ) {

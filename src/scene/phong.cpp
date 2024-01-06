@@ -58,7 +58,7 @@ PHONG_EDF *PhongEdfCreate(COLOR *Kd, COLOR *Ks, double Ns) {
     colorScale((1. / M_PI), edf->Kd, edf->kd);    /* because we use it often */
     edf->Ks = *Ks;
     if ( !colorNull(edf->Ks)) {
-        Warning("PhongEdfCreate", "Non-diffuse light sources not yet inplemented");
+        logWarning("PhongEdfCreate", "Non-diffuse light sources not yet inplemented");
     }
     edf->Ns = Ns;
     return edf;
@@ -176,7 +176,7 @@ static COLOR PhongTransmittance(PHONG_BTDF *btdf, XXDFFLAGS flags) {
     }
 
     if ( !std::isfinite(colorAverage(result))) {
-        Fatal(-1, "PhongTransmittance", "Oops - result is not finite!");
+        logFatal(-1, "PhongTransmittance", "Oops - result is not finite!");
     }
 
     return result;
@@ -202,7 +202,7 @@ static COLOR PhongEdfEval(PHONG_EDF *edf, HITREC *hit, Vector3D *out, XXDFFLAGS 
     }
 
     if ( !HitShadingNormal(hit, &normal)) {
-        Warning("PhongEdfEval", "Couldn't determine shading normal");
+        logWarning("PhongEdfEval", "Couldn't determine shading normal");
         return result;
     }
 
@@ -246,7 +246,7 @@ static Vector3D PhongEdfSample(PHONG_EDF *edf, HITREC *hit, XXDFFLAGS flags,
 
         Vector3D normal;
         if ( !HitShadingNormal(hit, &normal)) {
-            Warning("PhongEdfEval", "Couldn't determine shading normal");
+            logWarning("PhongEdfEval", "Couldn't determine shading normal");
             return dir;
         }
 

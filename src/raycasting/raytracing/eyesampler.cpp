@@ -7,7 +7,7 @@ bool CEyeSampler::Sample(CPathNode *prevNode, CPathNode *thisNode,
                          CPathNode *newNode, double /*x_1*/, double /*x_2*/,
                          bool /* doRR */, BSDFFLAGS /* flags */) {
     if ( prevNode != nullptr || thisNode != nullptr ) {
-        Warning("CEyeSampler::Sample", "Not first node in path ?!");
+        logWarning("CEyeSampler::Sample", "Not first node in path ?!");
     }
 
     // Just fill in newNode with camera data. Appropiate pdf fields are

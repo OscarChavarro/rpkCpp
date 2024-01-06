@@ -9,31 +9,30 @@ Parse an mgf file, converting or discarding unsupported entities.
 
 #include "common/mymath.h"
 #include "io/FileUncompressWrapper.h"
-#include "io/mgf/parser.h"
 #include "io/mgf/lookup.h"
 #include "io/mgf/messages.h"
-#include "io/mgf/words.h"
+#include "io/mgf/parser.h"
 
 /*
  * Global definitions of variables declared in parser.h
  */
 /* entity names */
 
-char mg_ename[MG_NENTITIES][MG_MAXELEN] = MG_NAMELIST;
+char mg_ename[MGF_TOTAL_NUMBER_OF_ENTITIES][MG_MAXELEN] = MG_NAMELIST;
 
 /* Handler routines for each entity */
 
-int (*mg_ehand[MG_NENTITIES])(int argc, char **argv);
+int (*GLOBAL_mgf_handleCallbacks[MGF_TOTAL_NUMBER_OF_ENTITIES])(int argc, char **argv);
 
 /* Handler routine for unknown entities */
 
-int (*mg_uhand)(int argc, char **argv) = mg_defuhand;
+int (*GLOBAL_mgf_unknownEntityHandleCallback)(int argc, char **argv) = mg_defuhand;
 
 unsigned mg_nunknown;    /* count of unknown entities */
 
 /* error messages */
 
-char *mg_err[MG_NERRS] = MG_ERRLIST;
+char *GLOBAL_mgf_errors[MG_NERRS] = MG_ERRLIST;
 
 MG_FCTXT *mg_file;    /* current file context pointer */
 
@@ -41,13 +40,13 @@ int mg_nqcdivs = MG_NQCD;    /* number of divisions per quarter circle */
 
 /*
  * The idea with this parser is to compensate for any missing entries in
- * mg_ehand with alternate handlers that express these entities in terms
+ * GLOBAL_mgf_handleCallbacks with alternate handlers that express these entities in terms
  * of others that the calling program can handle.
  * 
  * In some cases, no alternate handler is possible because the entity
  * has no approximate equivalent.  These entities are simply discarded.
  *
- * Certain entities are dependent on others, and mg_init() will fail
+ * Certain entities are dependent on others, and mgfAlternativeInit() will fail
  * if the supported entities are not consistent.
  *
  * Some alternate entity handlers require that earlier entities be
@@ -60,7 +59,7 @@ int mg_nqcdivs = MG_NQCD;    /* number of divisions per quarter circle */
 
 /* alternate handler support functions */
 
-static int (*e_supp[MG_NENTITIES])(int argc, char **argv);
+static int (*e_supp[MGF_TOTAL_NUMBER_OF_ENTITIES])(int argc, char **argv);
 static char FLTFMT[] = "%.12g";
 static int warpconends; // hack for generating good normals
 
@@ -117,7 +116,7 @@ put_cspec()
     double sf;
     int i;
 
-    if ( mg_ehand[MG_E_CSPEC] != c_hcolor ) {
+    if ( GLOBAL_mgf_handleCallbacks[MG_E_CSPEC] != handleColorEntity ) {
         sprintf(wl[0], "%d", C_CMINWL);
         sprintf(wl[1], "%d", C_CMAXWL);
         newav[0] = mg_ename[MG_E_CSPEC];
@@ -142,9 +141,9 @@ Handle spectral color
 static int
 e_cspec(int ac, char **av) {
     /* convert to xy chromaticity */
-    c_ccvt(c_ccolor, C_CSXY);
+    mgfContextFixColorRepresentation(c_ccolor, C_CSXY);
     /* if it's really their handler, use it */
-    if ( mg_ehand[MG_E_CXY] != c_hcolor ) {
+    if ( GLOBAL_mgf_handleCallbacks[MG_E_CXY] != handleColorEntity ) {
         return put_cxy();
     }
     return MG_OK;
@@ -159,16 +158,16 @@ e_cmix(int ac, char **av) {
      * Contorted logic works as follows:
      *	1. the colors are already mixed in c_hcolor() support function
      *	2. if we would handle a spectral result, make sure it's not
-     *	3. if c_hcolor() would handle a spectral result, don't bother
+     *	3. if handleColorEntity() would handle a spectral result, don't bother
      *	4. otherwise, make cspec entity and pass it to their handler
      *	5. if we have only xy results, handle it as c_spec() would
      */
-    if ( mg_ehand[MG_E_CSPEC] == e_cspec ) {
-        c_ccvt(c_ccolor, C_CSXY);
+    if ( GLOBAL_mgf_handleCallbacks[MG_E_CSPEC] == e_cspec ) {
+        mgfContextFixColorRepresentation(c_ccolor, C_CSXY);
     } else if ( c_ccolor->flags & C_CDSPEC ) {
         return put_cspec();
     }
-    if ( mg_ehand[MG_E_CXY] != c_hcolor ) {
+    if ( GLOBAL_mgf_handleCallbacks[MG_E_CXY] != handleColorEntity ) {
         return put_cxy();
     }
     return MG_OK;
@@ -186,11 +185,11 @@ e_cct(int ac, char **av)
      * if they support it, otherwise convert to xy chromaticity and
      * put it out if they handle it.
      */
-    if ( mg_ehand[MG_E_CSPEC] != e_cspec ) {
+    if ( GLOBAL_mgf_handleCallbacks[MG_E_CSPEC] != e_cspec ) {
         return put_cspec();
     }
-    c_ccvt(c_ccolor, C_CSXY);
-    if ( mg_ehand[MG_E_CXY] != c_hcolor ) {
+    mgfContextFixColorRepresentation(c_ccolor, C_CSXY);
+    if ( GLOBAL_mgf_handleCallbacks[MG_E_CXY] != handleColorEntity ) {
         return put_cxy();
     }
     return MG_OK;
@@ -200,92 +199,92 @@ e_cct(int ac, char **av)
 Initialize alternate entity handlers
 */
 void
-mg_init() {
+mgfAlternativeInit(int (*handleCallbacks[MGF_TOTAL_NUMBER_OF_ENTITIES])(int, char **)) {
     unsigned long ineed = 0;
     unsigned long uneed = 0;
     int i;
 
     // pick up slack
-    if ( mg_ehand[MG_E_IES] == nullptr) {
-        mg_ehand[MG_E_IES] = e_ies;
+    if ( handleCallbacks[MG_E_IES] == nullptr) {
+        handleCallbacks[MG_E_IES] = e_ies;
     }
-    if ( mg_ehand[MG_E_INCLUDE] == nullptr) {
-        mg_ehand[MG_E_INCLUDE] = e_include;
+    if ( handleCallbacks[MG_E_INCLUDE] == nullptr) {
+        handleCallbacks[MG_E_INCLUDE] = e_include;
     }
-    if ( mg_ehand[MG_E_SPH] == nullptr) {
-        mg_ehand[MG_E_SPH] = e_sph;
+    if ( handleCallbacks[MGF_ERROR_SPHERE] == nullptr) {
+        handleCallbacks[MGF_ERROR_SPHERE] = mgfEntitySphere;
         ineed |= 1L << MG_E_POINT | 1L << MG_E_VERTEX;
     } else {
         uneed |= 1L << MG_E_POINT | 1L << MG_E_VERTEX | 1L << MG_E_XF;
     }
-    if ( mg_ehand[MG_E_CYL] == nullptr) {
-        mg_ehand[MG_E_CYL] = e_cyl;
+    if ( handleCallbacks[MGF_EROR_CYLINDER] == nullptr) {
+        handleCallbacks[MGF_EROR_CYLINDER] = mgfEntityCylinder;
         ineed |= 1L << MG_E_POINT | 1L << MG_E_VERTEX;
     } else {
         uneed |= 1L << MG_E_POINT | 1L << MG_E_VERTEX | 1L << MG_E_XF;
     }
-    if ( mg_ehand[MG_E_CONE] == nullptr) {
-        mg_ehand[MG_E_CONE] = e_cone;
+    if ( handleCallbacks[MGF_ERROR_CONE] == nullptr) {
+        handleCallbacks[MGF_ERROR_CONE] = mgfEntityCone;
         ineed |= 1L << MG_E_POINT | 1L << MG_E_VERTEX;
     } else {
         uneed |= 1L << MG_E_POINT | 1L << MG_E_VERTEX | 1L << MG_E_XF;
     }
-    if ( mg_ehand[MG_E_RING] == nullptr) {
-        mg_ehand[MG_E_RING] = e_ring;
+    if ( handleCallbacks[MGF_ERROR_RING] == nullptr) {
+        handleCallbacks[MGF_ERROR_RING] = mgfEntityRing;
         ineed |= 1L << MG_E_POINT | 1L << MG_E_NORMAL | 1L << MG_E_VERTEX;
     } else {
         uneed |= 1L << MG_E_POINT | 1L << MG_E_NORMAL | 1L << MG_E_VERTEX | 1L << MG_E_XF;
     }
-    if ( mg_ehand[MG_E_PRISM] == nullptr) {
-        mg_ehand[MG_E_PRISM] = e_prism;
+    if ( handleCallbacks[MGF_ERROR_PRISM] == nullptr) {
+        handleCallbacks[MGF_ERROR_PRISM] = mgfEntityPrism;
         ineed |= 1L << MG_E_POINT | 1L << MG_E_VERTEX;
     } else {
         uneed |= 1L << MG_E_POINT | 1L << MG_E_VERTEX | 1L << MG_E_XF;
     }
-    if ( mg_ehand[MG_E_TORUS] == nullptr) {
-        mg_ehand[MG_E_TORUS] = e_torus;
+    if ( handleCallbacks[MGF_ERROR_TORUS] == nullptr) {
+        handleCallbacks[MGF_ERROR_TORUS] = mgfEntityTorus;
         ineed |= 1L << MG_E_POINT | 1L << MG_E_NORMAL | 1L << MG_E_VERTEX;
     } else {
         uneed |= 1L << MG_E_POINT | 1L << MG_E_NORMAL | 1L << MG_E_VERTEX | 1L << MG_E_XF;
     }
-    if ( mg_ehand[MG_E_FACE] == nullptr) {
-        mg_ehand[MG_E_FACE] = mg_ehand[MG_E_FACEH];
-    } else if ( mg_ehand[MG_E_FACEH] == nullptr) {
-        mg_ehand[MG_E_FACEH] = e_faceh;
+    if ( handleCallbacks[MG_E_FACE] == nullptr) {
+        handleCallbacks[MG_E_FACE] = handleCallbacks[MG_E_FACEH];
+    } else if ( handleCallbacks[MG_E_FACEH] == nullptr) {
+        handleCallbacks[MG_E_FACEH] = e_faceh;
     }
-    if ( mg_ehand[MG_E_COLOR] != nullptr) {
-        if ( mg_ehand[MG_E_CMIX] == nullptr) {
-            mg_ehand[MG_E_CMIX] = e_cmix;
+    if ( handleCallbacks[MG_E_COLOR] != nullptr) {
+        if ( handleCallbacks[MG_E_CMIX] == nullptr) {
+            handleCallbacks[MG_E_CMIX] = e_cmix;
             ineed |= 1L << MG_E_COLOR | 1L << MG_E_CXY | 1L << MG_E_CSPEC | 1L << MG_E_CMIX | 1L << MG_E_CCT;
         }
-        if ( mg_ehand[MG_E_CSPEC] == nullptr) {
-            mg_ehand[MG_E_CSPEC] = e_cspec;
+        if ( handleCallbacks[MG_E_CSPEC] == nullptr) {
+            handleCallbacks[MG_E_CSPEC] = e_cspec;
             ineed |= 1L << MG_E_COLOR | 1L << MG_E_CXY | 1L << MG_E_CSPEC | 1L << MG_E_CMIX | 1L << MG_E_CCT;
         }
-        if ( mg_ehand[MG_E_CCT] == nullptr) {
-            mg_ehand[MG_E_CCT] = e_cct;
+        if ( handleCallbacks[MG_E_CCT] == nullptr) {
+            handleCallbacks[MG_E_CCT] = e_cct;
             ineed |= 1L << MG_E_COLOR | 1L << MG_E_CXY | 1L << MG_E_CSPEC | 1L << MG_E_CMIX | 1L << MG_E_CCT;
         }
     }
 
     // check for consistency
-    if ( mg_ehand[MG_E_FACE] != nullptr) {
+    if ( handleCallbacks[MG_E_FACE] != nullptr) {
         uneed |= 1L << MG_E_POINT | 1L << MG_E_VERTEX | 1L << MG_E_XF;
     }
-    if ( mg_ehand[MG_E_CXY] != nullptr || mg_ehand[MG_E_CSPEC] != nullptr ||
-         mg_ehand[MG_E_CMIX] != nullptr) {
+    if ( handleCallbacks[MG_E_CXY] != nullptr || handleCallbacks[MG_E_CSPEC] != nullptr ||
+         handleCallbacks[MG_E_CMIX] != nullptr) {
         uneed |= 1L << MG_E_COLOR;
     }
-    if ( mg_ehand[MG_E_RD] != nullptr || mg_ehand[MG_E_TD] != nullptr ||
-         mg_ehand[MG_E_IR] != nullptr ||
-         mg_ehand[MG_E_ED] != nullptr ||
-         mg_ehand[MG_E_RS] != nullptr ||
-         mg_ehand[MG_E_TS] != nullptr ||
-         mg_ehand[MG_E_SIDES] != nullptr) {
+    if ( handleCallbacks[MG_E_RD] != nullptr || handleCallbacks[MG_E_TD] != nullptr ||
+         handleCallbacks[MG_E_IR] != nullptr ||
+         handleCallbacks[MG_E_ED] != nullptr ||
+         handleCallbacks[MG_E_RS] != nullptr ||
+         handleCallbacks[MG_E_TS] != nullptr ||
+         handleCallbacks[MG_E_SIDES] != nullptr) {
         uneed |= 1L << MG_E_MATERIAL;
     }
-    for ( i = 0; i < MG_NENTITIES; i++ ) {
-        if ( uneed & 1L << i && mg_ehand[i] == nullptr) {
+    for ( i = 0; i < MGF_TOTAL_NUMBER_OF_ENTITIES; i++ ) {
+        if ( uneed & 1L << i && handleCallbacks[i] == nullptr) {
             fprintf(stderr, "Missing support for \"%s\" entity\n",
                     mg_ename[i]);
             exit(1);
@@ -293,35 +292,35 @@ mg_init() {
     }
 
     // add support as needed
-    if ( ineed & 1L << MG_E_VERTEX && mg_ehand[MG_E_VERTEX] != c_hvertex ) {
-        e_supp[MG_E_VERTEX] = c_hvertex;
+    if ( ineed & 1L << MG_E_VERTEX && handleCallbacks[MG_E_VERTEX] != handleVertexEntity ) {
+        e_supp[MG_E_VERTEX] = handleVertexEntity;
     }
-    if ( ineed & 1L << MG_E_POINT && mg_ehand[MG_E_POINT] != c_hvertex ) {
-        e_supp[MG_E_POINT] = c_hvertex;
+    if ( ineed & 1L << MG_E_POINT && handleCallbacks[MG_E_POINT] != handleVertexEntity ) {
+        e_supp[MG_E_POINT] = handleVertexEntity;
     }
-    if ( ineed & 1L << MG_E_NORMAL && mg_ehand[MG_E_NORMAL] != c_hvertex ) {
-        e_supp[MG_E_NORMAL] = c_hvertex;
+    if ( ineed & 1L << MG_E_NORMAL && handleCallbacks[MG_E_NORMAL] != handleVertexEntity ) {
+        e_supp[MG_E_NORMAL] = handleVertexEntity;
     }
-    if ( ineed & 1L << MG_E_COLOR && mg_ehand[MG_E_COLOR] != c_hcolor ) {
-        e_supp[MG_E_COLOR] = c_hcolor;
+    if ( ineed & 1L << MG_E_COLOR && handleCallbacks[MG_E_COLOR] != handleColorEntity ) {
+        e_supp[MG_E_COLOR] = handleColorEntity;
     }
-    if ( ineed & 1L << MG_E_CXY && mg_ehand[MG_E_CXY] != c_hcolor ) {
-        e_supp[MG_E_CXY] = c_hcolor;
+    if ( ineed & 1L << MG_E_CXY && handleCallbacks[MG_E_CXY] != handleColorEntity ) {
+        e_supp[MG_E_CXY] = handleColorEntity;
     }
-    if ( ineed & 1L << MG_E_CSPEC && mg_ehand[MG_E_CSPEC] != c_hcolor ) {
-        e_supp[MG_E_CSPEC] = c_hcolor;
+    if ( ineed & 1L << MG_E_CSPEC && handleCallbacks[MG_E_CSPEC] != handleColorEntity ) {
+        e_supp[MG_E_CSPEC] = handleColorEntity;
     }
-    if ( ineed & 1L << MG_E_CMIX && mg_ehand[MG_E_CMIX] != c_hcolor ) {
-        e_supp[MG_E_CMIX] = c_hcolor;
+    if ( ineed & 1L << MG_E_CMIX && handleCallbacks[MG_E_CMIX] != handleColorEntity ) {
+        e_supp[MG_E_CMIX] = handleColorEntity;
     }
-    if ( ineed & 1L << MG_E_CCT && mg_ehand[MG_E_CCT] != c_hcolor ) {
-        e_supp[MG_E_CCT] = c_hcolor;
+    if ( ineed & 1L << MG_E_CCT && handleCallbacks[MG_E_CCT] != handleColorEntity ) {
+        e_supp[MG_E_CCT] = handleColorEntity;
     }
 
     // Discard remaining entities
-    for ( i = 0; i < MG_NENTITIES; i++ ) {
-        if ( mg_ehand[i] == nullptr) {
-            mg_ehand[i] = e_any_toss;
+    for ( i = 0; i < MGF_TOTAL_NUMBER_OF_ENTITIES; i++ ) {
+        if ( handleCallbacks[i] == nullptr) {
+            handleCallbacks[i] = e_any_toss;
         }
     }
 }
@@ -336,10 +335,10 @@ mg_entity(char *name)
     char *cp;
 
     if ( !ent_tab.tsiz ) {        /* initialize hash table */
-        if ( !lu_init(&ent_tab, MG_NENTITIES)) {
+        if ( !lu_init(&ent_tab, MGF_TOTAL_NUMBER_OF_ENTITIES)) {
             return -1;
         }        /* what to do? */
-        for ( cp = mg_ename[MG_NENTITIES - 1]; cp >= mg_ename[0];
+        for ( cp = mg_ename[MGF_TOTAL_NUMBER_OF_ENTITIES - 1]; cp >= mg_ename[0];
               cp -= sizeof(mg_ename[0])) {
             lu_find(&ent_tab, cp)->key = cp;
         }
@@ -357,8 +356,8 @@ mg_handle(int en, int ac, char **av)        /* pass entity to appropriate handle
     int rv;
 
     if ( en < 0 && (en = mg_entity(av[0])) < 0 ) {    /* unknown entity */
-        if ( mg_uhand != nullptr) {
-            return (*mg_uhand)(ac, av);
+        if ( GLOBAL_mgf_unknownEntityHandleCallback != nullptr) {
+            return (*GLOBAL_mgf_unknownEntityHandleCallback)(ac, av);
         }
         return MG_EUNK;
     }
@@ -368,11 +367,11 @@ mg_handle(int en, int ac, char **av)        /* pass entity to appropriate handle
             return rv;
         }
     }
-    return (*mg_ehand[en])(ac, av);        /* assigned handler */
+    return (*GLOBAL_mgf_handleCallbacks[en])(ac, av);        /* assigned handler */
 }
 
 int
-mg_open(MG_FCTXT *ctx, char *fn)            /* open new input file */
+mgfOpen(MG_FCTXT *ctx, char *fn)            /* open new input file */
 {
     static int nfids;
     char *cp;
@@ -410,7 +409,7 @@ mg_open(MG_FCTXT *ctx, char *fn)            /* open new input file */
 
 
 void
-mg_close()            /* close input file */
+mgfClose()            /* close input file */
 {
     MG_FCTXT *ctx = mg_file;
 
@@ -451,7 +450,7 @@ mg_fgoto(MG_FPOS *pos)            /* reposition input file pointer */
 }
 
 int
-mg_read()            /* read next line from file */
+mgfReadNextLine()            /* read next line from file */
 {
     int len = 0;
 
@@ -513,27 +512,27 @@ int
 mg_load(char *fn)            /* load an mgf file */
 {
     MG_FCTXT cntxt;
-    int rval;
     int nbr;
 
-    if ((rval = mg_open(&cntxt, fn)) != MG_OK ) {
-        fprintf(stderr, "%s: %s\n", fn, mg_err[rval]);
+    int rval = mgfOpen(&cntxt, fn);
+    if ( rval != MG_OK ) {
+        fprintf(stderr, "%s: %s\n", fn, GLOBAL_mgf_errors[rval]);
         return rval;
     }
-    while ((nbr = mg_read()) > 0 ) {    /* parse each line */
+    while ((nbr = mgfReadNextLine()) > 0 ) {    /* parse each line */
         if ( nbr >= MG_MAXLINE - 1 ) {
             fprintf(stderr, "%s: %d: %s\n", cntxt.fname,
-                    cntxt.lineno, mg_err[rval = MG_ELINE]);
+                    cntxt.lineno, GLOBAL_mgf_errors[rval = MG_ELINE]);
             break;
         }
         if ((rval = mg_parse()) != MG_OK ) {
             fprintf(stderr, "%s: %d: %s:\n%s", cntxt.fname,
-                    cntxt.lineno, mg_err[rval],
+                    cntxt.lineno, GLOBAL_mgf_errors[rval],
                     cntxt.inpline);
             break;
         }
     }
-    mg_close();
+    mgfClose();
     return rval;
 }
 
@@ -542,17 +541,17 @@ mg_defuhand(int ac, char **av)        /* default handler for unknown entities */
 {
     if ( mg_nunknown++ == 0 ) {        /* report first incident */
         fprintf(stderr, "%s: %d: %s: %s\n", mg_file->fname,
-                mg_file->lineno, mg_err[MG_EUNK], av[0]);
+                mg_file->lineno, GLOBAL_mgf_errors[MG_EUNK], av[0]);
     }
     return MG_OK;
 }
 
 void
-mg_clear()            /* clear parser history */
+mgfClear()            /* clear parser history */
 {
     c_clearall();            /* clear context tables */
     while ( mg_file != nullptr) {        /* reset our file context */
-        mg_close();
+        mgfClose();
     }
 }
 
@@ -566,12 +565,13 @@ e_include(int ac, char **av)        /* include file */
     char *xfarg[MG_MAXARGC];
     MG_FCTXT ictx;
     XfSpec *xf_orig = xf_context;
-    int rv;
 
     if ( ac < 2 ) {
         return MG_EARGC;
     }
-    if ((rv = mg_open(&ictx, av[1])) != MG_OK ) {
+
+    int rv = mgfOpen(&ictx, av[1]);
+    if ( rv != MG_OK ) {
         return rv;
     }
     if ( ac > 2 ) {
@@ -582,35 +582,36 @@ e_include(int ac, char **av)        /* include file */
             xfarg[i] = av[i + 1];
         }
         xfarg[ac - 1] = nullptr;
-        if ((rv = mg_handle(MG_E_XF, ac - 1, xfarg)) != MG_OK ) {
-            mg_close();
+        rv = mg_handle(MG_E_XF, ac - 1, xfarg);
+        if ( rv != MG_OK ) {
+            mgfClose();
             return rv;
         }
     }
     do {
-        while ((rv = mg_read()) > 0 ) {
+        while ((rv = mgfReadNextLine()) > 0 ) {
             if ( rv >= MG_MAXLINE - 1 ) {
                 fprintf(stderr, "%s: %d: %s\n", ictx.fname,
-                        ictx.lineno, mg_err[MG_ELINE]);
-                mg_close();
+                        ictx.lineno, GLOBAL_mgf_errors[MG_ELINE]);
+                mgfClose();
                 return MG_EINCL;
             }
             if ((rv = mg_parse()) != MG_OK ) {
                 fprintf(stderr, "%s: %d: %s:\n%s", ictx.fname,
-                        ictx.lineno, mg_err[rv],
+                        ictx.lineno, GLOBAL_mgf_errors[rv],
                         ictx.inpline);
-                mg_close();
+                mgfClose();
                 return MG_EINCL;
             }
         }
         if ( ac > 2 ) {
             if ((rv = mg_handle(MG_E_XF, 1, xfarg)) != MG_OK ) {
-                mg_close();
+                mgfClose();
                 return rv;
             }
         }
     } while ( xf_context != xf_orig );
-    mg_close();
+    mgfClose();
     return MG_OK;
 }
 
@@ -651,14 +652,14 @@ e_faceh(int ac, char **av)            /* replace face+holes with single contour 
 }
 
 int
-e_sph(int ac, char **av)            /* expand a sphere into cones */
+mgfEntitySphere(int ac, char **av)            /* expand a sphere into cones */
 {
     static char p2x[24], p2y[24], p2z[24], r1[24], r2[24];
     static char *v1ent[5] = {mg_ename[MG_E_VERTEX], (char *)"_sv1", (char *)"=", (char *)"_sv2"};
     static char *v2ent[4] = {mg_ename[MG_E_VERTEX], (char *)"_sv2", (char *)"="};
     static char *p2ent[5] = {mg_ename[MG_E_POINT], p2x, p2y, p2z};
-    static char *conent[6] = {mg_ename[MG_E_CONE], (char *)"_sv1", r1, (char *)"_sv2", r2};
-    C_VERTEX *cv;
+    static char *conent[6] = {mg_ename[MGF_ERROR_CONE], (char *)"_sv1", r1, (char *)"_sv2", r2};
+    MgfVertexContext *cv;
     int i;
     int rval;
     double rad;
@@ -701,7 +702,7 @@ e_sph(int ac, char **av)            /* expand a sphere into cones */
         }
         strcpy(r1, r2);
         sprintf(r2, FLTFMT, rad * sin(theta));
-        if ((rval = mg_handle(MG_E_CONE, 5, conent)) != MG_OK ) {
+        if ((rval = mg_handle(MGF_ERROR_CONE, 5, conent)) != MG_OK ) {
             return rval;
         }
     }
@@ -710,14 +711,14 @@ e_sph(int ac, char **av)            /* expand a sphere into cones */
 }
 
 int
-e_torus(int ac, char **av)            /* expand a torus into cones */
+mgfEntityTorus(int ac, char **av)            /* expand a torus into cones */
 {
     static char p2[3][24], r1[24], r2[24];
     static char *v1ent[5] = {mg_ename[MG_E_VERTEX], (char *)"_tv1", (char *)"=", (char *)"_tv2"};
     static char *v2ent[5] = {mg_ename[MG_E_VERTEX], (char *)"_tv2", (char *)"="};
     static char *p2ent[5] = {mg_ename[MG_E_POINT], p2[0], p2[1], p2[2]};
-    static char *conent[6] = {mg_ename[MG_E_CONE], (char *)"_tv1", r1, (char *)"_tv2", r2};
-    C_VERTEX *cv;
+    static char *conent[6] = {mg_ename[MGF_ERROR_CONE], (char *)"_tv1", r1, (char *)"_tv2", r2};
+    MgfVertexContext *cv;
     int i, j;
     int rval;
     int sgn;
@@ -731,7 +732,7 @@ e_torus(int ac, char **av)            /* expand a torus into cones */
         return MG_EUNDEF;
     }
     if ( is0vect(cv->n)) {
-        return MG_EILL;
+        return MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
     }
     if ( !isfltWords(av[2]) || !isfltWords(av[3])) {
         return MG_ETYPE;
@@ -749,10 +750,10 @@ e_torus(int ac, char **av)            /* expand a torus into cones */
     } else if ( maxrad < 0. ) {
         sgn = -1;
     } else {
-        return MG_EILL;
+        return MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
     }
     if ( sgn * (maxrad - minrad) <= 0. ) {
-        return MG_EILL;
+        return MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
     }
     /* initialize */
     warpconends = 1;
@@ -786,7 +787,7 @@ e_torus(int ac, char **av)            /* expand a torus into cones */
         }
         strcpy(r1, r2);
         sprintf(r2, FLTFMT, avgrad + .5 * (maxrad - minrad) * sin(theta));
-        if ((rval = mg_handle(MG_E_CONE, 5, conent)) != MG_OK ) {
+        if ((rval = mg_handle(MGF_ERROR_CONE, 5, conent)) != MG_OK ) {
             return rval;
         }
     }
@@ -809,7 +810,7 @@ e_torus(int ac, char **av)            /* expand a torus into cones */
         }
         strcpy(r1, r2);
         sprintf(r2, FLTFMT, -avgrad - .5 * (maxrad - minrad) * sin(theta));
-        if ((rval = mg_handle(MG_E_CONE, 5, conent)) != MG_OK ) {
+        if ((rval = mg_handle(MGF_ERROR_CONE, 5, conent)) != MG_OK ) {
             return rval;
         }
     }
@@ -818,9 +819,9 @@ e_torus(int ac, char **av)            /* expand a torus into cones */
 }
 
 int
-e_cyl(int ac, char **av)            /* replace a cylinder with equivalent cone */
+mgfEntityCylinder(int ac, char **av)            /* replace a cylinder with equivalent cone */
 {
-    static char *avnew[6] = {mg_ename[MG_E_CONE]};
+    static char *avnew[6] = {mg_ename[MGF_ERROR_CONE]};
 
     if ( ac != 4 ) {
         return MG_EARGC;
@@ -829,11 +830,11 @@ e_cyl(int ac, char **av)            /* replace a cylinder with equivalent cone *
     avnew[2] = av[2];
     avnew[3] = av[3];
     avnew[4] = av[2];
-    return mg_handle(MG_E_CONE, 5, avnew);
+    return mg_handle(MGF_ERROR_CONE, 5, avnew);
 }
 
 int
-e_ring(int ac, char **av)            /* turn a ring into polygons */
+mgfEntityRing(int ac, char **av)            /* turn a ring into polygons */
 {
     static char p3[3][24], p4[3][24];
     static char *nzent[5] = {mg_ename[MG_E_NORMAL], (char *)"0", (char *)"0", (char *)"0"};
@@ -844,7 +845,7 @@ e_ring(int ac, char **av)            /* turn a ring into polygons */
     static char *v4ent[4] = {mg_ename[MG_E_VERTEX], (char *)"_rv4", (char *)"="};
     static char *p4ent[5] = {mg_ename[MG_E_POINT], p4[0], p4[1], p4[2]};
     static char *fent[6] = {mg_ename[MG_E_FACE], (char *)"_rv1", (char *)"_rv2", (char *)"_rv3", (char *)"_rv4"};
-    C_VERTEX *cv;
+    MgfVertexContext *cv;
     int i, j;
     FVECT u, v;
     double minrad, maxrad;
@@ -858,7 +859,7 @@ e_ring(int ac, char **av)            /* turn a ring into polygons */
         return MG_EUNDEF;
     }
     if ( is0vect(cv->n)) {
-        return MG_EILL;
+        return MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
     }
     if ( !isfltWords(av[2]) || !isfltWords(av[3])) {
         return MG_ETYPE;
@@ -867,7 +868,7 @@ e_ring(int ac, char **av)            /* turn a ring into polygons */
     round0(minrad);
     maxrad = atof(av[3]);
     if ( minrad < 0. || maxrad <= minrad ) {
-        return MG_EILL;
+        return MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
     }
     /* initialize */
     make_axes(u, v, cv->n);
@@ -953,7 +954,7 @@ e_ring(int ac, char **av)            /* turn a ring into polygons */
 }
 
 int
-e_cone(int ac, char **av)            /* turn a cone into polygons */
+mgfEntityCone(int ac, char **av)            /* turn a cone into polygons */
 {
     static char p3[3][24], p4[3][24], n3[3][24], n4[3][24];
     static char *v1ent[5] = {mg_ename[MG_E_VERTEX], (char *)"_cv1", (char *)"="};
@@ -966,7 +967,7 @@ e_cone(int ac, char **av)            /* turn a cone into polygons */
     static char *n4ent[5] = {mg_ename[MG_E_NORMAL], n4[0], n4[1], n4[2]};
     static char *fent[6] = {mg_ename[MG_E_FACE], (char *)"_cv1", (char *)"_cv2", (char *)"_cv3", (char *)"_cv4"};
     char *v1n;
-    C_VERTEX *cv1, *cv2;
+    MgfVertexContext *cv1, *cv2;
     int i, j;
     FVECT u, v, w;
     double rad1, rad2;
@@ -993,14 +994,14 @@ e_cone(int ac, char **av)            /* turn a cone into polygons */
     round0(rad2);
     if ( rad1 == 0. ) {
         if ( rad2 == 0. ) {
-            return MG_EILL;
+            return MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
         }
     } else if ( rad2 != 0. ) {
         if ((rad1 < 0.) ^ (rad2 < 0.)) {
-            return MG_EILL;
+            return MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
         }
     } else {            /* swap */
-        C_VERTEX *cv;
+        MgfVertexContext *cv;
 
         cv = cv1;
         cv1 = cv2;
@@ -1016,10 +1017,10 @@ e_cone(int ac, char **av)            /* turn a cone into polygons */
         w[j] = cv1->p[j] - cv2->p[j];
     }
     if ((d = normalize(w)) == 0. ) {
-        return MG_EILL;
+        return MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
     }
     n1off = n2off = (rad2 - rad1) / d;
-    if ( warpconends ) {        /* hack for e_sph and e_torus */
+    if ( warpconends ) {        /* hack for mgfEntitySphere and mgfEntityTorus */
         d = atan(n2off) - (M_PI / 4) / mg_nqcdivs;
         if ( d <= -M_PI / 2 + FTINY) {
             n2off = -FHUGE;
@@ -1084,7 +1085,7 @@ e_cone(int ac, char **av)            /* turn a cone into polygons */
         }
     } else {            /* quads */
         v1ent[3] = (char *)"_cv4";
-        if ( warpconends ) {        /* hack for e_sph and e_torus */
+        if ( warpconends ) {        /* hack for mgfEntitySphere and mgfEntityTorus */
             d = atan(n1off) + (M_PI / 4) / mg_nqcdivs;
             if ( d >= M_PI / 2 - FTINY) {
                 n1off = FHUGE;
@@ -1157,7 +1158,7 @@ e_cone(int ac, char **av)            /* turn a cone into polygons */
 }
 
 int
-e_prism(int ac, char **av)            /* turn a prism into polygons */
+mgfEntityPrism(int ac, char **av)            /* turn a prism into polygons */
 {
     static char p[3][24];
     static char *vent[5] = {mg_ename[MG_E_VERTEX], nullptr, (char *)"="};
@@ -1167,8 +1168,8 @@ e_prism(int ac, char **av)            /* turn a prism into polygons */
     double length;
     int hasnorm;
     FVECT v1, v2, v3, norm;
-    C_VERTEX *cv;
-    C_VERTEX *cv0;
+    MgfVertexContext *cv;
+    MgfVertexContext *cv0;
     int rv;
     int i, j;
     /* check arguments */
@@ -1180,7 +1181,7 @@ e_prism(int ac, char **av)            /* turn a prism into polygons */
     }
     length = atof(av[ac - 1]);
     if ( length <= FTINY && length >= -FTINY) {
-        return MG_EILL;
+        return MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
     }
     /* compute face normal */
     if ((cv0 = c_getvert(av[1])) == nullptr) {
@@ -1204,7 +1205,7 @@ e_prism(int ac, char **av)            /* turn a prism into polygons */
         VCOPY(v1, v2);
     }
     if ( normalize(norm) == 0. ) {
-        return MG_EILL;
+        return MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
     }
     /* create moved vertices */
     for ( i = 1; i < ac - 1; i++ ) {

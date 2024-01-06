@@ -38,7 +38,7 @@ static GeometryListNode *Cull(INTERACTION *link) {
                                        ElementBounds(link->src, srcbounds), &shaft);
         }
         if ( !the_shaft ) {
-            Error("Cull", "Couldn't construct shaft");
+            logError("Cull", "Couldn't construct shaft");
             return ocandlist;
         }
 
@@ -100,7 +100,7 @@ static double LinkErrorThreshold(INTERACTION *link, double rcv_area) {
             threshold = ColorToError(GLOBAL_statistics_maxSelfEmittedPower) * GLOBAL_galerkin_state.rel_link_error_threshold / (M_PI * rcv_area);
             break;
         default:
-            Fatal(2, "EvaluateInteraction", "Invalid error norm");
+            logFatal(2, "EvaluateInteraction", "Invalid error norm");
     }
 
     /* Weight the error with the potential of the receiver in case of view-potential
@@ -174,7 +174,7 @@ static double ApproximationError(INTERACTION *link, COLOR srcrho, COLOR rcvrho, 
             break;
 
         default:
-            Fatal(-1, "ApproximationError", "Invalid iteration method");
+            logFatal(-1, "ApproximationError", "Invalid iteration method");
     }
 
     return approx_error;
@@ -355,7 +355,7 @@ static void ComputeLightTransport(INTERACTION *link) {
             }
             link->rcv->received_potential.f += K * ColorToError(srcrho) * link->src->unshot_potential.f;
         } else {
-            Fatal(-1, "ComputeLightTransport", "Hela hola did you introduce a new iteration method or so??");
+            logFatal(-1, "ComputeLightTransport", "Hela hola did you introduce a new iteration method or so??");
         }
     }
 }
@@ -546,7 +546,7 @@ int RefineRecursive(INTERACTION *link) {
             refined = SubdivideReceiverCluster(link);
             break;
         default:
-            Fatal(2, "RefineRecursive", "Invalid result from EvaluateInteraction()");
+            logFatal(2, "RefineRecursive", "Invalid result from EvaluateInteraction()");
     }
 
     return refined;

@@ -659,7 +659,7 @@ GetPmapRadiance(PATCH *patch,
                                                                   nullptr, bsdf);
             break;
         default: colorClear(col);
-            Error("GetPmapRadiance", "Unknown radiance return");
+            logError("GetPmapRadiance", "Unknown radiance return");
     }
 
     return col;
@@ -737,7 +737,7 @@ PmapRecomputeDisplayColors() {
 static void
 PmapUpdateMaterial(MATERIAL */*oldmaterial*/,
                                MATERIAL */*newmaterial*/) {
-    Error("PmapUpdateMaterial", "Not yet implemented");
+    logError("PmapUpdateMaterial", "Not yet implemented");
 }
 
 RADIANCEMETHOD Pmap = {

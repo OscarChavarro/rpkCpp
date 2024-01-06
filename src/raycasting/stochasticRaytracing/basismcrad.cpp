@@ -48,7 +48,7 @@ static GalerkinBasis MakeBasis(ELEMENT_TYPE et, APPROX_TYPE at) {
             elem = "quadrilaterals";
             break;
         default:
-            Fatal(-1, "MakeBasis", "Invalid element type %d", et);
+            logFatal(-1, "MakeBasis", "Invalid element type %d", et);
     }
 
     basis.size = approxdesc[at].basis_size;

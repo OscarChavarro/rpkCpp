@@ -66,7 +66,7 @@ static void ToneMappingMethodOption(void *value) {
                 }
     EndForAll;
 
-    Error(nullptr, "Invalid tone mapping method name '%s'", name);
+    logError(nullptr, "Invalid tone mapping method name '%s'", name);
 }
 
 /* tone mapping options */
@@ -91,7 +91,7 @@ static void ChromaOption(void *value) {
         tmopts.xw = chroma[0];
         tmopts.yw = chroma[1];
     } else {
-        Fatal(-1, "ChromaOption", "invalid value pointer");
+        logFatal(-1, "ChromaOption", "invalid value pointer");
     }
 
     computeColorConversionTransforms(tmopts.xr, tmopts.yr,
@@ -112,9 +112,9 @@ static void _tmAdaptMethodOption(void *value) {
           tmopts.statadapt = TMA_IDRENDER;
         */
     } else {
-        Error(nullptr,
-              "Invalid adaptation estimate method '%s'",
-              name);
+        logError(nullptr,
+                 "Invalid adaptation estimate method '%s'",
+                 name);
     }
 }
 

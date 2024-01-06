@@ -26,7 +26,7 @@ static int modestackidx;
 void CanvasPushMode() {
     modestackidx++;
     if ( modestackidx >= CANVASMODESTACKSIZE ) {
-        Fatal(4, "CanvasPushMode", "Mode stack size (%d) exceeded.", CANVASMODESTACKSIZE);
+        logFatal(4, "CanvasPushMode", "Mode stack size (%d) exceeded.", CANVASMODESTACKSIZE);
     }
 }
 
@@ -34,6 +34,6 @@ void CanvasPushMode() {
 void CanvasPullMode() {
     modestackidx--;
     if ( modestackidx < 0 ) {
-        Fatal(4, "CanvasPullMode", "Canvas mode stack underflow.\n");
+        logFatal(4, "CanvasPullMode", "Canvas mode stack underflow.\n");
     }
 }

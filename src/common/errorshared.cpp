@@ -20,7 +20,7 @@ int ErrorOccurred() {
 }
 
 /* drukt een foutenboodschap af */
-void Error(const char *routine, const char *text, ...) {
+void logError(const char *routine, const char *text, ...) {
     va_list pvar;
 
     fprintf(stderr, "Error: ");
@@ -40,10 +40,10 @@ void Error(const char *routine, const char *text, ...) {
 
 /* een fatale fout: druk boodschap of en verlaat het programma
  * met de opgegeven foutencode */
-void Fatal(int errcode, const char *routine, const char *text, ...) {
+void logFatal(int errcode, const char *routine, const char *text, ...) {
     va_list pvar;
 
-    fprintf(stderr, "Fatal error: ");
+    fprintf(stderr, "logFatal error: ");
     if ( routine ) {
         fprintf(stderr, "%s(): ", routine);
     }
@@ -61,7 +61,7 @@ void Fatal(int errcode, const char *routine, const char *text, ...) {
     errorOccurred = true;
 }
 
-void Warning(const char *routine, const char *text, ...) {
+void logWarning(const char *routine, const char *text, ...) {
     va_list pvar;
 
     fprintf(stderr, "Warning: ");

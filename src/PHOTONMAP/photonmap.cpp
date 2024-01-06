@@ -193,7 +193,7 @@ double ComputeAcceptProb(float currentD, float requiredD) {
 
         return (0.5 * (1.0 + cos(ratio * M_PI)));
     } else {
-        Error("ComputeAcceptProb", "Unknown accept pdf type");
+        logError("ComputeAcceptProb", "Unknown accept pdf type");
         return 0.0;
     }
 }

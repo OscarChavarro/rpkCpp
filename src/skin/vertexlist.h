@@ -12,8 +12,6 @@ class VERTEXLIST {
     VERTEXLIST *next;
 };
 
-#define VertexListCreate (VERTEXLIST *)ListCreate
-
 #define VertexListAdd(vertexlist, vertex) \
         (VERTEXLIST *)ListAdd((LIST *)vertexlist, (void *)vertex)
 

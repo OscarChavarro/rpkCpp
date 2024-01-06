@@ -4,7 +4,7 @@
 #include "material/Material.h"
 #include "material/bsdf.h"
 
-MATERIAL defaultMaterial = {
+MATERIAL GLOBAL_material_defaultMaterial = {
         "(default)",
         (EDF *) nullptr, (BSDF *)nullptr,
         0    /* sided */

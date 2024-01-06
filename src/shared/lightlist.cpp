@@ -30,7 +30,7 @@ CLightList::CLightList(PatchSet *list, bool includeVirtualPatches) {
     {
         static int wgiv = 0;
         if ( !wgiv ) {
-            Warning("CLightList::CLightList", "not yet ready for texturing");
+            logWarning("CLightList::CLightList", "not yet ready for texturing");
             wgiv = 1;
         }
     }
@@ -84,7 +84,7 @@ PATCH *CLightList::Sample(double *x_1, double *pdf) {
     }
 
     if ( info == nullptr ) {
-        Warning("CLightList::Sample", "No lights available");
+        logWarning("CLightList::Sample", "No lights available");
         return nullptr;
     }
 
@@ -315,7 +315,7 @@ PATCH *CLightList::SampleImportant(Vector3D *point, Vector3D *normal,
     }
 
     if ( info == nullptr ) {
-        Warning("CLightList::Sample", "No lights available");
+        logWarning("CLightList::Sample", "No lights available");
         return nullptr;
     }
 
@@ -362,7 +362,7 @@ double CLightList::EvalPDFImportant(PATCH *light, Vector3D */*lightPoint*/,
     }
 
     if ( info == nullptr ) {
-        Warning("CLightList::EvalPDFImportant", "Could not find light");
+        logWarning("CLightList::EvalPDFImportant", "Could not find light");
         return 0.0;
     }
 

@@ -32,7 +32,7 @@ EDF *EdfDuplicate(EDF *oedf) {
  * to a void * in order not to have to include all X window system files. */
 void *EdfCreateEditor(void *parent, EDF *edf) {
     if ( !edf ) {
-        Fatal(-1, "EdfCreateEditor", "NULL edf pointer passed.");
+        logFatal(-1, "EdfCreateEditor", "NULL edf pointer passed.");
     }
     return edf->methods->CreateEditor(parent, edf->data);
 }
@@ -92,7 +92,7 @@ Vector3D EdfSample(EDF *edf, HITREC *hit, XXDFFLAGS flags,
         return edf->methods->Sample(edf->data, hit, flags, xi1, xi2, emitted_radiance, pdf);
     } else {
         Vector3D v = {0., 0., 0.};
-        Fatal(-1, "EdfSample", "Can't sample EDF");
+        logFatal(-1, "EdfSample", "Can't sample EDF");
         return v;
     }
 }

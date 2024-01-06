@@ -77,7 +77,7 @@ double *Sample4D(unsigned seed) {
             xi[3] = (double) zeta[3] * RECIP;
             break;
         default:
-            Fatal(-1, "Sample4D", "QMC Sequence %s not yet implemented", SEQ4D_NAME(seq));
+            logFatal(-1, "Sample4D", "QMC Sequence %s not yet implemented", SEQ4D_NAME(seq));
     }
 
     return xi;

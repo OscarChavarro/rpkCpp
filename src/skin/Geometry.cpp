@@ -211,7 +211,7 @@ shaft culling.
 Geometry *
 geomDuplicate(Geometry *geom) {
     if ( !geom->methods->duplicate ) {
-        Error("geomDuplicate", "geometry has no duplicate method");
+        logError("geomDuplicate", "geometry has no duplicate method");
         return (Geometry *) nullptr;
     }
 

@@ -13,8 +13,8 @@ void PushRadiance(ELEMENT *parent, ELEMENT *child, COLOR *parent_rad, COLOR *chi
     } else if ( RegularChild(child) && child->basis == parent->basis ) {
         FilterColorDown(parent_rad, &(*child->basis->regular_filter)[child->child_nr], child_rad, child->basis->size);
     } else {
-        Fatal(-1, "PushRadiance",
-              "Not implemented for higher order approximations on irregular child elements or for different parent and child basis");
+        logFatal(-1, "PushRadiance",
+                 "Not implemented for higher order approximations on irregular child elements or for different parent and child basis");
     }
 }
 
@@ -30,8 +30,8 @@ void PullRadiance(ELEMENT *parent, ELEMENT *child, COLOR *parent_rad, COLOR *chi
         FilterColorUp(child_rad, &(*child->basis->regular_filter)[child->child_nr],
                       parent_rad, child->basis->size, areafactor);
     } else {
-        Fatal(-1, "PullRadiance",
-              "Not implemented for higher order approximations on irregular child elements or for different parent and child basis");
+        logFatal(-1, "PullRadiance",
+                 "Not implemented for higher order approximations on irregular child elements or for different parent and child basis");
     }
 }
 

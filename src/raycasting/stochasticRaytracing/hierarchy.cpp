@@ -37,7 +37,7 @@ void ElementHierarchyInit() {
     hierarchy.coords = VectorListCreate();
     hierarchy.normals = VectorListCreate();
     hierarchy.texCoords = VectorListCreate();
-    hierarchy.vertices = VertexListCreate();
+    hierarchy.vertices = nullptr;
 
     hierarchy.topcluster = McrCreateClusterHierarchy(GLOBAL_scene_clusteredWorldGeom);
 }
@@ -59,7 +59,7 @@ void ElementHierarchyTerminate() {
 
     VertexListIterate(hierarchy.vertices, VertexDestroy);
     VertexListDestroy(hierarchy.vertices);
-    hierarchy.vertices = VertexListCreate();
+    hierarchy.vertices = nullptr;
     VectorListIterate(hierarchy.coords, VectorDestroy);
     VectorListDestroy(hierarchy.coords);
     hierarchy.coords = VectorListCreate();

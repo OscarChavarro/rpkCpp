@@ -16,7 +16,7 @@ class MATERIAL {
     void *radiance_data;
 };
 
-extern MATERIAL defaultMaterial;
+extern MATERIAL GLOBAL_material_defaultMaterial;
 
 extern MATERIAL *MaterialCreate(const char *name,
                                 EDF *edf, BSDF *bsdf,

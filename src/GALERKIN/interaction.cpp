@@ -64,7 +64,7 @@ InteractionCreate(
     }
 
     if ( crcv > 1 ) {
-        Fatal(2, "InteractionCreate", "Not yet implemented for higher order approximations");
+        logFatal(2, "InteractionCreate", "Not yet implemented for higher order approximations");
     }
     interaction->deltaK.f = deltaK.f;
 

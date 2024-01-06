@@ -43,7 +43,7 @@ set(MAIN_SRC
     src/material/cie.cpp
     src/material/color.cpp
     src/material/edf.cpp
-        src/material/Material.cpp
+    src/material/Material.cpp
     src/material/materiallist.cpp
     src/material/statistics.cpp
     src/material/texture.cpp
@@ -58,11 +58,13 @@ set(MAIN_SRC
     src/skin/PatchSet.cpp
     src/skin/MeshSurface.cpp
     src/skin/Vertex.cpp
+    src/scene/VoxelData.cpp
     src/scene/Background.cpp
     src/scene/VoxelGrid.cpp
     src/scene/scene.cpp
     src/scene/spherical.cpp
     src/scene/splitbsdf.cpp
+    src/scene/phong.cpp
     src/SGL/poly_clip.cpp
     src/SGL/poly_scan.cpp
     src/SGL/poly_scan_flat.cpp
@@ -85,13 +87,13 @@ set(MAIN_SRC
     src/shared/writevrml.cpp
     src/IMAGE/adaptation.cpp
     src/IMAGE/dkcolor.cpp
-        src/IMAGE/tonemap/dummy.cpp
+    src/IMAGE/tonemap/dummy.cpp
     src/IMAGE/imagec.cpp
-        src/IMAGE/tonemap/lightness.cpp
+    src/IMAGE/tonemap/lightness.cpp
     src/IMAGE/pic.cpp
     src/IMAGE/ppm.cpp
-        src/IMAGE/tonemap/tonemapping.cpp
-        src/IMAGE/tonemap/trwf.cpp
+    src/IMAGE/tonemap/tonemapping.cpp
+    src/IMAGE/tonemap/trwf.cpp
     src/GALERKIN/basisgalerkin.cpp
     src/GALERKIN/basisquadgalerkin.cpp
     src/GALERKIN/basistrigalerkin.cpp
@@ -164,7 +166,7 @@ set(MAIN_SRC
     src/raycasting/stochasticRaytracing/nondiff.cpp
     src/raycasting/stochasticRaytracing/pushpull.cpp
     src/raycasting/stochasticRaytracing/RandomWalkRadiosity.cpp
-        src/raycasting/stochasticRaytracing/hierarchyRefine.cpp
+    src/raycasting/stochasticRaytracing/hierarchyRefine.cpp
     src/raycasting/stochasticRaytracing/render.cpp
     src/raycasting/stochasticRaytracing/StochasticRaytracer.cpp
     src/raycasting/stochasticRaytracing/rtstochasticphotonmap.cpp
@@ -172,20 +174,15 @@ set(MAIN_SRC
     src/raycasting/stochasticRaytracing/stochjacobi.cpp
     src/raycasting/stochasticRaytracing/StochasticRelaxationRadiosity.cpp
     src/raycasting/stochasticRaytracing/tracepath.cpp
-        src/raycasting/stochasticRaytracing/vrml/vrml.cpp
+    src/raycasting/stochasticRaytracing/vrml/vrml.cpp
     src/app/batch.cpp
-    src/scene/phong.cpp
     src/app/radiance.cpp
     src/app/rendercommon.cpp
     src/app/ui_file.cpp
     src/app/ui_main.cpp
     src/app/opengl.cpp
-    src/app/main.cpp
     src/app/Cluster.cpp
-    src/app/Cluster.h
-    src/BREP/BREP_VERTEX_OCTREE.cpp
-        src/scene/VoxelData.cpp
-        src/scene/VoxelData.h
+    src/app/main.cpp
 )
 add_executable(rpk ${MAIN_SRC})
 

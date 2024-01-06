@@ -43,7 +43,7 @@ void RemoveRenderHook(RENDERHOOKFUNCTION func, void *data) {
     } while ( hook != nullptr && (hook->func != func || hook->data != data));
 
     if ( hook == nullptr) {
-        Warning("RemoveRenderHook", "Hook to remove not found");
+        logWarning("RemoveRenderHook", "Hook to remove not found");
     } else {
         oRenderHookList = RenderHookListRemove(oRenderHookList, hook);
     }

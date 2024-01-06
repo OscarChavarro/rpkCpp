@@ -33,7 +33,7 @@ obj_handler(int ac, char **av)
         return MG_EARGC;
     }
     if ( !isnameWords(av[1])) {
-        return MG_EILL;
+        return MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
     }
     if ( obj_nnames >= obj_maxname - 1 ) {
         // enlarge array

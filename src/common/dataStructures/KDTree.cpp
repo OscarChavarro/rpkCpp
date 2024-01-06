@@ -71,7 +71,7 @@ KDTree::~KDTree() {
 void
 KDTree::IterateNodes(void (*cb)(void *, void *), void *data) {
     if ( m_numUnbalanced > 0 ) {
-        Error(" KDTree::IterateNodes", "Cannot iterate unbalanced trees");
+        logError(" KDTree::IterateNodes", "Cannot iterate unbalanced trees");
         return;
     }
 
@@ -188,7 +188,7 @@ KDTree::Query(const float *point, int N, void *results,
 
     if ( distances == nullptr ) {
         if ( N > 1000 ) {
-            Error("KDTree::Query", "Too many nodes requested");
+            logError("KDTree::Query", "Too many nodes requested");
             return 0;
         }
         used_distances = s_distances;

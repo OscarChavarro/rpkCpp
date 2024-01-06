@@ -77,7 +77,7 @@ CPathNode *CSamplerConfig::TraceNode(CPathNode *nextNode,
         // Fill in first node
 
         if ( !pointSampler->Sample(nullptr, nullptr, nextNode, x_1, x_2)) {
-            Warning("CSamplerConfig::TraceNode", "Point sampler failed");
+            logWarning("CSamplerConfig::TraceNode", "Point sampler failed");
             return nullptr;
         }
     } else if ( lastNode->m_depth == 0 ) {

@@ -64,7 +64,7 @@ SplitBsdfEvalTexture(TEXTURE *texture, HITREC *hit) {
     }
 
     if ( !hit || !HitTexCoord(hit, &texCoord)) {
-        Warning("SplitBsdfEvalTexture", "Couldn't get texture coordinates");
+        logWarning("SplitBsdfEvalTexture", "Couldn't get texture coordinates");
         return col;
     }
 
@@ -133,7 +133,7 @@ SplitBsdfEval(
 
     colorClear(result);
     if ( !HitShadingNormal(hit, &normal)) {
-        Warning("SplitBsdfEval", "Couldn't determine shading normal");
+        logWarning("SplitBsdfEval", "Couldn't determine shading normal");
         return result;
     }
 
@@ -238,7 +238,7 @@ SplitBsdfSample(SPLIT_BSDF *bsdf, HITREC *hit,
 
     *pdf = 0; /* so we can return safely */
     if ( !HitShadingNormal(hit, &normal)) {
-        Warning("SplitBsdfSample", "Couldn't determine shading normal");
+        logWarning("SplitBsdfSample", "Couldn't determine shading normal");
         VECTORSET(out, 0., 0., 1.);
         return out;
     }
@@ -293,7 +293,7 @@ SplitBsdfSample(SPLIT_BSDF *bsdf, HITREC *hit,
             return out;
             break;
         default:
-            Fatal(-1, "SplitBsdfSample", "Impossible sampling mode %d", mode);
+            logFatal(-1, "SplitBsdfSample", "Impossible sampling mode %d", mode);
     }
 
     /* add probability of sampling the same direction in other than the
@@ -332,7 +332,7 @@ SplitBsdfEvalPdf(SPLIT_BSDF *bsdf, HITREC *hit,
 
     *pdf = *pdfRR = 0.; /* so we can return safely */
     if ( !HitShadingNormal(hit, &normal)) {
-        Warning("SplitBsdfEvalPdf", "Couldn't determine shading normal");
+        logWarning("SplitBsdfEvalPdf", "Couldn't determine shading normal");
         return;
     }
 

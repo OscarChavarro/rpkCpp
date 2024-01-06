@@ -153,7 +153,7 @@ static int Setup() {
     ElementSetup(hierarchy.topcluster);
 
     if ( sum_probs < EPSILON * EPSILON ) {
-        Warning("Iteration", "No sources");
+        logWarning("Iteration", "No sources");
         return false;
     }
     return true;
@@ -243,7 +243,7 @@ static void PropagateRadiance(ELEMENT *src, double us, double vs,
     } else {
         switch ( hierarchy.clustering ) {
             case NO_CLUSTERING:
-                Fatal(-1, "Propagate", "Refine() returns cluster although clustering is disabled.\n");
+                logFatal(-1, "Propagate", "Refine() returns cluster although clustering is disabled.\n");
                 break;
             case ISOTROPIC_CLUSTERING:
                 PropagateRadianceToClusterIsotropic(rcv, raypow, src, fraction, weight);
@@ -255,7 +255,7 @@ static void PropagateRadiance(ELEMENT *src, double us, double vs,
                 }
                 break;
             default:
-                Fatal(-1, "Propagate", "Invalid clustering mode %d\n", (int) hierarchy.clustering);
+                logFatal(-1, "Propagate", "Invalid clustering mode %d\n", (int) hierarchy.clustering);
         }
     }
 }
@@ -269,7 +269,7 @@ static void PropagateImportance(ELEMENT *src, double us, double vs,
     rcv->received_imp += w * ElementScalarReflectance(src) * get_importance(src);
 
     if ( hierarchy.do_h_meshing || hierarchy.clustering != NO_CLUSTERING ) {
-        Fatal(-1, "Propagate", "Importance propagation not implemented in combination with hierarchical refinement");
+        logFatal(-1, "Propagate", "Importance propagation not implemented in combination with hierarchical refinement");
     }
 }
 

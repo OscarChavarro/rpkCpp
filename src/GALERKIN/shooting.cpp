@@ -320,5 +320,5 @@ DoShootingStep() {
 
 void
 ShootingUpdateMaterial(MATERIAL *oldmaterial, MATERIAL *newmaterial) {
-    Warning("ShootingUpdateMaterial", "Out of order");
+    logWarning("ShootingUpdateMaterial", "Out of order");
 }

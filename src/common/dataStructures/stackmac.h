@@ -10,7 +10,7 @@ TYPE stack[maxdepth+1]; TYPE *stackptr = &stack[0]
   if (stackptr-stack < maxdepth)            \
     *stackptr++ = obj;                    \
   else                            \
-    Fatal(-1, "STACK_SAVE", "Stack overflow in %s line %d", __FILE__, __LINE__); \
+    logFatal(-1, "STACK_SAVE", "Stack overflow in %s line %d", __FILE__, __LINE__); \
 }
 
 #define STACK_RESTORE_NOCHECK(obj, stack, stackptr) {    \

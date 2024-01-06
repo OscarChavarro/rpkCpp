@@ -236,5 +236,5 @@ DoClusteredGatheringIteration() {
 void
 GatheringUpdateMaterial(MATERIAL *oldmaterial, MATERIAL *newmaterial) {
     /*TODO*/
-    Warning("GatheringUpdateMaterial", "Out of order");
+    logWarning("GatheringUpdateMaterial", "Out of order");
 }

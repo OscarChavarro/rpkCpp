@@ -351,7 +351,7 @@ static COLOR Ferwerda_ScaleForDisplay(COLOR radiance) {
 }
 
 static float Ferwerda_ReverseScaleForComputations(float dl) {
-    Fatal(-1, "Ferwerda_ReverseScaleForComputations", "Not yet implemented");
+    logFatal(-1, "Ferwerda_ReverseScaleForComputations", "Not yet implemented");
     return -1.0;
 }
 

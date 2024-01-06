@@ -93,7 +93,7 @@ void UpdateDirectPotential() {
     }
 
     if ( lostpixels > 0 ) {
-        Warning(nullptr, "%d lost pixels", lostpixels);
+        logWarning(nullptr, "%d lost pixels", lostpixels);
     }
 
     GLOBAL_statistics_averageDirectPotential = GLOBAL_statistics_totalDirectPotential =

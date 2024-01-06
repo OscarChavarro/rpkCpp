@@ -121,7 +121,7 @@ void sglPushMatrix() {
     Matrix4x4 *oldtrans;
 
     if ( current_sgl_context->curtrans - current_sgl_context->transform_stack >= SGL_TRANSFORM_STACK_SIZE - 1 ) {
-        Error("sglPushMatrix", "Matrix stack overflow");
+        logError("sglPushMatrix", "Matrix stack overflow");
         return;
     }
 
@@ -132,7 +132,7 @@ void sglPushMatrix() {
 
 void sglPopMatrix() {
     if ( current_sgl_context->curtrans <= current_sgl_context->transform_stack ) {
-        Error("sglPopMatrix", "Matrix stack underflow");
+        logError("sglPopMatrix", "Matrix stack underflow");
         return;
     }
 
@@ -166,7 +166,7 @@ void sglPolygon(int nrverts, Vector3D *verts) {
     int i;
 
     if ( nrverts > (current_sgl_context->clipping ? (POLY_NMAX - 6) : POLY_NMAX)) {
-        Error("sglPolygon", "Too many vertices (max. %d)", POLY_NMAX);
+        logError("sglPolygon", "Too many vertices (max. %d)", POLY_NMAX);
         return;
     }
 

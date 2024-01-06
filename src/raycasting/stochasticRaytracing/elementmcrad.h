@@ -99,7 +99,7 @@ extern void ElementTVertexElimination(ELEMENT *elem,
 
 /* don't overuse the macros below. There are often elegant alternatives. */
 
-/* maximum element hierarchy depth: Fatal errors in the macros below if
+/* maximum element hierarchy depth: logFatal errors in the macros below if
  * the element hierarchy is deeper than this, but that is surely not a
  * normal situation anyways! */
 #define MAX_HIERARCHY_DEPTH 100

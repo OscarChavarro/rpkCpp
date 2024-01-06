@@ -79,11 +79,12 @@ RenderCreateOffscreenWindow(int hres, int vres) {
 
     OSMesaContext osctx = OSMesaCreateContext(OSMESA_RGBA, nullptr);
     if ( !osctx ) {
-        Fatal(1, nullptr, "Couldn't create Mesa offscreen rendering context");
+        logFatal(1, nullptr, "Couldn't create Mesa offscreen rendering context");
     }
 
     if ( !OSMesaMakeCurrent(osctx, image_buffer, GL_UNSIGNED_BYTE, hres, vres)) {
-        Fatal(1, nullptr, "Couldn't bind Mesa offscreen rendering context to image buffer of size %d x %d", hres, vres);
+        logFatal(1, nullptr, "Couldn't bind Mesa offscreen rendering context to image buffer of size %d x %d", hres,
+                 vres);
     }
 
     OpenGLInitState();
@@ -370,7 +371,7 @@ RenderOctreeNonLeaf(Geometry *geom, void (*render_patch)(PATCH *)) {
                 {
                     if ( geomIsAggregate(child)) {
                         if ( i >= 8 ) {
-                            Error("RenderOctreeNonLeaf", "Invalid octree geom node (more than 8 compound children)");
+                            logError("RenderOctreeNonLeaf", "Invalid octree geom node (more than 8 compound children)");
                             return;
                         }
                         octree_children[i++].geom = child;

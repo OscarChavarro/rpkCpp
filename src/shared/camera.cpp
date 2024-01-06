@@ -138,7 +138,7 @@ CAMERA *CameraComplete(CAMERA *Camera) {
     /* distance from virtual camera position to focus point */
     Camera->viewdist = VECTORNORM(Camera->Z);
     if ( Camera->viewdist < EPSILON ) {
-        Error("SetCamera", "eyepoint and look-point coincide");
+        logError("SetCamera", "eyepoint and look-point coincide");
         return nullptr;
     }
     VECTORSCALEINVERSE(Camera->viewdist, Camera->Z, Camera->Z);
@@ -147,7 +147,7 @@ CAMERA *CameraComplete(CAMERA *Camera) {
     VECTORCROSSPRODUCT(Camera->Z, Camera->updir, Camera->X);
     n = VECTORNORM(Camera->X);
     if ( n < EPSILON ) {
-        Error("SetCamera", "up-direction and viewing direction coincide");
+        logError("SetCamera", "up-direction and viewing direction coincide");
         return nullptr;
     }
     VECTORSCALEINVERSE(n, Camera->X, Camera->X);

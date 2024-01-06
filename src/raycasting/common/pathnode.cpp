@@ -99,7 +99,7 @@ CPathNode *CPathNode::GetMatchingNode() {
             case Reflects:
                 break;
             default:
-                Error("CPathNode::GetMatchingNode", "Wrong ray type in path");
+                logError("CPathNode::GetMatchingNode", "Wrong ray type in path");
         }
 
         matchedNode = tmpNode;
@@ -118,13 +118,13 @@ BSDF *CPathNode::GetPreviousBsdf() {
     CPathNode *matchedNode;
 
     if ( !(m_hit.flags & HIT_BACK)) {
-        Error("CPathNode::GetPreviousBsdf", "Last node not a back hit");
+        logError("CPathNode::GetPreviousBsdf", "Last node not a back hit");
         return (m_inBsdf);  // Should not happen
     }
 
     if ( m_hit.patch->surface->material->bsdf !=
          m_inBsdf ) {
-        Warning("CPathNode::GetPreviousBtdf", "Last back hit has wrong bsdf");
+        logWarning("CPathNode::GetPreviousBtdf", "Last back hit has wrong bsdf");
     }
 
     // Find the corresponding ray that enters the material
@@ -132,7 +132,7 @@ BSDF *CPathNode::GetPreviousBsdf() {
     matchedNode = GetMatchingNode();
 
     if ( matchedNode == nullptr ) {
-        Warning("CPathNode::GetPreviousBtdf", "No corresponding entering ray");
+        logWarning("CPathNode::GetPreviousBtdf", "No corresponding entering ray");
         return (m_inBsdf);  // Should not happen
     }
 

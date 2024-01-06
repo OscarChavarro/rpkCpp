@@ -58,7 +58,7 @@ ListRemove(LIST *list, void *pelement) {
     LIST *p, *q;
 
     if ( !list ) {
-        Error("ListRemove", "attempt to remove an element from an empty list");
+        logError("ListRemove", "attempt to remove an element from an empty list");
         return list;
     }
 
@@ -79,7 +79,7 @@ ListRemove(LIST *list, void *pelement) {
     /* als p de nullptr pointer is komt het te verwijderen element niet in de lijst
      * voor: fout */
     if ( !p ) {
-        Error("ListRemove", "attempt to remove a nonexisting element from a list");
+        logError("ListRemove", "attempt to remove a nonexisting element from a list");
         return list;
     }
 

@@ -26,7 +26,7 @@ static char **xf_argbeg; // beginning of transform argument list
 Handle xf entity
 */
 int
-xf_handler(int ac, char **av) {
+handleTransformationEntity(int ac, char **av) {
     XfSpec *spec;
     int n;
     int rv;

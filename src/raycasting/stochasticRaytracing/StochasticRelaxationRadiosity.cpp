@@ -87,7 +87,7 @@ static void ElementIncrementRadiance(ELEMENT *elem, double w) {
         {
             static int wgiv = false;
             if ( !wgiv ) {
-                Warning("ElementIncrementRadiance", "Solution of incremental Jacobi steps receives zero quality");
+                logWarning("ElementIncrementRadiance", "Solution of incremental Jacobi steps receives zero quality");
             }
             wgiv = true;
         }
@@ -343,7 +343,7 @@ static int SrrDoStep() {
 
         if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceDriven ) {
             if ( !GLOBAL_stochasticRaytracing_monteCarloRadiosityState.incrementalUsesImportance ) {
-                Warning(nullptr, "Importance is only used from the second iteration on ...");
+                logWarning(nullptr, "Importance is only used from the second iteration on ...");
             } else if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceUpdated ) {
                 GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceUpdated = false;
 

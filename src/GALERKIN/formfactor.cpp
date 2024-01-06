@@ -65,7 +65,7 @@ static void DetermineNodes(ELEMENT *elem, CUBARULE **cr, Vector3D x[CUBAMAXNODES
                 *cr = role == RECEIVER ? GLOBAL_galerkin_state.rcv4rule : GLOBAL_galerkin_state.src4rule;
                 break;
             default:
-                Fatal(4, "DetermineNodes", "Can only handle triangular and quadrilateral patches");
+                logFatal(4, "DetermineNodes", "Can only handle triangular and quadrilateral patches");
         }
 
         /* compute the transform relating positions on the element to positions on
@@ -111,7 +111,7 @@ static double PointKernelEval(Vector3D *x, Vector3D *y,
 
     /* don't allow too nearby nodes to interact */
     if ( dist < EPSILON ) {
-        Warning("PointKernelEval", "Nodes too close too each other (receiver id %d, source id %d)", rcv->id, src->id);
+        logWarning("PointKernelEval", "Nodes too close too each other (receiver id %d, source id %d)", rcv->id, src->id);
         return 0.;
     }
 
@@ -202,8 +202,8 @@ static void DoHigherOrderAreaToAreaFormFactor(INTERACTION *link,
         if ( IsCluster(rcv)) {
             /* constant approximation on clusters */
             if ( link->nrcv != 1 ) {
-                Fatal(-1, "DoHigherOrderAreaToAreaFormFactor",
-                      "non-constant approximation on receiver cluster is not possible");
+                logFatal(-1, "DoHigherOrderAreaToAreaFormFactor",
+                         "non-constant approximation on receiver cluster is not possible");
             }
             rcvphi[0][k] = 1.;
         } else {
@@ -221,8 +221,8 @@ static void DoHigherOrderAreaToAreaFormFactor(INTERACTION *link,
          * source patch */
         if ( IsCluster(src)) {
             if ( beta > 0 ) {
-                Fatal(-1, "DoHigherOrderAreaToAreaFormFactor",
-                      "non-constant approximation on source cluster is not possible");
+                logFatal(-1, "DoHigherOrderAreaToAreaFormFactor",
+                         "non-constant approximation on source cluster is not possible");
             }
             for ( l = 0; l < crsrc->nrnodes; l++ ) {
                 srcphi[l] = 1.;

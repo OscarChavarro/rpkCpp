@@ -115,7 +115,8 @@ ScoreWeight(PATH *path, int n) {
             }
             break;
         default:
-            Fatal(-1, "ScoreWeight", "Unknown random walk estimator kind %d", GLOBAL_stochasticRaytracing_monteCarloRadiosityState.randomWalkEstimatorKind);
+            logFatal(-1, "ScoreWeight", "Unknown random walk estimator kind %d",
+                     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.randomWalkEstimatorKind);
     }
     return w;
 }
@@ -366,7 +367,8 @@ RwrDoStep() {
             DoGatheringIteration();
             break;
         default:
-            Fatal(-1, "RwrDoStep", "Unknown random walk estimator type %d", GLOBAL_stochasticRaytracing_monteCarloRadiosityState.randomWalkEstimatorType);
+            logFatal(-1, "RwrDoStep", "Unknown random walk estimator type %d",
+                     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.randomWalkEstimatorType);
     }
 
     PatchListIterate(GLOBAL_scene_patches, monteCarloRadiosityPatchComputeNewColor);

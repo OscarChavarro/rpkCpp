@@ -40,7 +40,7 @@ GeomMultiResolutionVisibility(
     }
 
     if ( !geom->bounded ) {
-        Fatal(-1, "GeomMultiResolutionVisibility", "Don't know what to do with unbounded geoms");
+        logFatal(-1, "GeomMultiResolutionVisibility", "Don't know what to do with unbounded geoms");
     }
 
     fsize = HUGE;

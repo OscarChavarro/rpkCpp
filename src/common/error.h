@@ -9,15 +9,15 @@
 
 /* prints an error message. Behaves much like printf. The first argument is the
  * name of the routine in which the error occurs (optional - can be nullptr) */
-extern void Error(const char *routine, const char *text, ...);
+extern void logError(const char *routine, const char *text, ...);
 
 /* same, but for warning messages */
-extern void Warning(const char *routine, const char *text, ...);
+extern void logWarning(const char *routine, const char *text, ...);
 
 /* same, but for fatal error messages (also aborts the program).
  * First argument is a return code. We use negative return codes for
  * "internal" error messages. */
-extern void Fatal(int errcode, const char *routine, const char *text, ...);
+extern void logFatal(int errcode, const char *routine, const char *text, ...);
 
 /* returns false if no errors have been reported since the last call to this
  * routine. */

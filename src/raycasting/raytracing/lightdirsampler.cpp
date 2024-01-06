@@ -11,7 +11,7 @@ bool CLightDirSampler::Sample(CPathNode */*prevNode*/, CPathNode *thisNode,
     double pdfDir; //, cosPatch, cosLight, dist2;
 
     if ( !thisNode->m_hit.material->edf ) {
-        Error("CLightDirSampler::Sample", "No EDF");
+        logError("CLightDirSampler::Sample", "No EDF");
         return false;
     }
 
@@ -61,7 +61,7 @@ double CLightDirSampler::EvalPDF(CPathNode *thisNode, CPathNode *newNode,
     Vector3D outDir;
 
     if ( !thisNode->m_hit.material->edf ) {
-        Error("CLightDirSampler::EvalPDF", "No EDF");
+        logError("CLightDirSampler::EvalPDF", "No EDF");
         return false;
     }
     /* -- more efficient with extra params ?? -- */

@@ -218,7 +218,8 @@ COLOR clusterRadianceToSamplePoint(ELEMENT *src, Vector3D sample) {
             }
 
         default:
-            Fatal(-1, "clusterRadianceToSamplePoint", "Invalid clustering strategy %d\n", GLOBAL_galerkin_state.clustering_strategy);
+            logFatal(-1, "clusterRadianceToSamplePoint", "Invalid clustering strategy %d\n",
+                     GLOBAL_galerkin_state.clustering_strategy);
     }
 
     return srcrad;    /* this point is never reached */
@@ -231,7 +232,7 @@ COLOR sourceClusterRadiance(INTERACTION *link) {
     ELEMENT *src = link->src, *rcv = link->rcv;
 
     if ( !IsCluster(src) || src == rcv ) {
-        Fatal(-1, "sourceClusterRadiance", "Source and receiver are the same or receiver is not a cluster");
+        logFatal(-1, "sourceClusterRadiance", "Source and receiver are the same or receiver is not a cluster");
     }
 
     /* take a sample point on the receiver */
@@ -300,7 +301,8 @@ double receiverClusterArea(INTERACTION *link) {
             }
 
         default:
-            Fatal(-1, "receiverClusterArea", "Invalid clustering strategy %d", GLOBAL_galerkin_state.clustering_strategy);
+            logFatal(-1, "receiverClusterArea", "Invalid clustering strategy %d",
+                     GLOBAL_galerkin_state.clustering_strategy);
     }
 
     return 0.;    /* this point is never reached and if it is it's your fault. */
@@ -376,7 +378,7 @@ void clusterGatherRadiance(INTERACTION *link, COLOR *srcrad) {
     ELEMENT *src = link->src, *rcv = link->rcv;
 
     if ( !IsCluster(rcv) || src == rcv ) {
-        Fatal(-1, "clusterGatherRadiance", "Source and receiver are the same or receiver is not a cluster");
+        logFatal(-1, "clusterGatherRadiance", "Source and receiver are the same or receiver is not a cluster");
         return;
     }
 
@@ -411,7 +413,8 @@ void clusterGatherRadiance(INTERACTION *link, COLOR *srcrad) {
             }
             break;
         default:
-            Fatal(-1, "clusterGatherRadiance", "Invalid clustering strategy %d", GLOBAL_galerkin_state.clustering_strategy);
+            logFatal(-1, "clusterGatherRadiance", "Invalid clustering strategy %d",
+                     GLOBAL_galerkin_state.clustering_strategy);
     }
 }
 

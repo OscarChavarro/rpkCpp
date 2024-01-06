@@ -39,7 +39,7 @@ RadianceMethodOption(void *value) {
     if ( strncasecmp(name, "none", 4) == 0 ) {
         SetRadianceMethod(nullptr);
     } else {
-        Error(nullptr, "Invalid world-space radiance method name '%s'", name);
+        logError(nullptr, "Invalid world-space radiance method name '%s'", name);
     }
 }
 

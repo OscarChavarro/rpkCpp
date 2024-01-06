@@ -35,7 +35,7 @@ void CreateInitialLink(PATCH *patch) {
             src = TOPLEVEL_ELEMENT(patch);
             break;
         default:
-            Fatal(2, "CreateInitialLink", "Impossible element role");
+            logFatal(2, "CreateInitialLink", "Impossible element role");
     }
 
     if ((GLOBAL_galerkin_state.exact_visibility || GLOBAL_galerkin_state.shaftcullmode == ALWAYS_DO_SHAFTCULLING) && oldcandlist ) {
@@ -63,7 +63,7 @@ void CreateInitialLink(PATCH *patch) {
             }
         } else {
             /* should never happen though */
-            Warning("CreateInitialLinks", "Unable to construct a shaft for shaft culling");
+            logWarning("CreateInitialLinks", "Unable to construct a shaft for shaft culling");
         }
     }
 
@@ -133,7 +133,7 @@ static void GeomLink(Geometry *geom) {
  * source element when doing shooting. */
 void CreateInitialLinks(ELEMENT *top, ROLE role) {
     if ( IsCluster(top)) {
-        Fatal(-1, "CreateInitialLinks", "cannot use this routine for cluster elements");
+        logFatal(-1, "CreateInitialLinks", "cannot use this routine for cluster elements");
     }
 
     the_element = top;
@@ -162,7 +162,7 @@ void CreateInitialLinkWithTopCluster(ELEMENT *elem, ROLE role) {
             rcv = GLOBAL_galerkin_state.top_cluster;
             break;
         default:
-            Fatal(-1, "CreateInitialLinkWithTopCluster", "Invalid role");
+            logFatal(-1, "CreateInitialLinkWithTopCluster", "Invalid role");
     }
 
     /* assume no light transport (overlapping receiver and source) */

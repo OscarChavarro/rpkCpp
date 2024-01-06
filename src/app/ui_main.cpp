@@ -55,7 +55,7 @@ StartUserInterface(int *argc, char **argv) {
     // All options should have disappeared from argv now
     if ( *argc > 1 ) {
         if ( *argv[1] == '-' ) {
-            Error(nullptr, "Unrecognized option '%s'", argv[1]);
+            logError(nullptr, "Unrecognized option '%s'", argv[1]);
         } else {
             ReadFile(argv[1]);
         }

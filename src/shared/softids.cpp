@@ -84,7 +84,7 @@ SoftRenderIds(long *x, long *y) {
     unsigned long *ids;
 
     if ( sizeof(SGL_PIXEL) != sizeof(long)) {
-        Fatal(-1, "SoftRenderIds", "sizeof(SGL_PIXEL)!=sizeof(long).");
+        logFatal(-1, "SoftRenderIds", "sizeof(SGL_PIXEL)!=sizeof(long).");
     }
 
     oldsgl = sglGetCurrent();

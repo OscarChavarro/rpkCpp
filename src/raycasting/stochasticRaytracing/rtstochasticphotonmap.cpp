@@ -26,10 +26,10 @@ void SRCONFIG::Init(RTStochastic_State &state) {
 
     if ( radMode != STORED_NONE ) {
         if ( Radiance == nullptr ) {
-            Error("Stored Radiance", "No radiance method active, using no storage");
+            logError("Stored Radiance", "No radiance method active, using no storage");
             radMode = STORED_NONE;
         } else if ((radMode == STORED_PHOTONMAP) && (Radiance != &Pmap)) {
-            Error("Stored Radiance", "Photonmap method not active, using no storage");
+            logError("Stored Radiance", "Photonmap method not active, using no storage");
             radMode = STORED_NONE;
         }
     }
@@ -45,8 +45,8 @@ void SRCONFIG::Init(RTStochastic_State &state) {
 
     if ( reflectionSampling == CLASSICALSAMPLING ) {
         if ( radMode == STORED_INDIRECT || radMode == STORED_PHOTONMAP ) {
-            Error("Classical raytracing",
-                  "Incompatible with extended final gather, using storage directly");
+            logError("Classical raytracing",
+                     "Incompatible with extended final gather, using storage directly");
             radMode = STORED_DIRECT;
         }
     }
@@ -61,8 +61,8 @@ void SRCONFIG::Init(RTStochastic_State &state) {
     */
 
     if ( radMode == STORED_PHOTONMAP ) {
-        Warning("Photon map reflection Sampling",
-                "Make sure to use the same sampling (brdf,fresnel) as for photonmap construction");
+        logWarning("Photon map reflection Sampling",
+                   "Make sure to use the same sampling (brdf,fresnel) as for photonmap construction");
     }
 
     scatterSamples = state.scatterSamples;
@@ -76,8 +76,8 @@ void SRCONFIG::Init(RTStochastic_State &state) {
 
     if ( reflectionSampling == PHOTONMAPSAMPLING )  //radMode == STORED_PHOTONMAP)
     {
-        Warning("Fresnel Specular Sampling",
-                "always uses separate specular");
+        logWarning("Fresnel Specular Sampling",
+                   "always uses separate specular");
         separateSpecular = true;  // Always separate specular with photonmap
     }
 
@@ -106,7 +106,7 @@ void SRCONFIG::InitDependentVars() {
             samplerConfig.surfaceSampler = new CSpecularSampler;
             break;
         default:
-            Error("SRCONFIG::InitDependentVars", "Wrong sampling mode");
+            logError("SRCONFIG::InitDependentVars", "Wrong sampling mode");
     }
 
     if ( lightMode == IMPORTANT_LIGHTS ) {
@@ -153,7 +153,7 @@ void SRCONFIG::InitDependentVars() {
             siStorage.nrSamplesAfter = 0;
             break;
         default:
-            Error("SRCONFIG::InitDependentVars", "Wrong Rad Mode");
+            logError("SRCONFIG::InitDependentVars", "Wrong Rad Mode");
     }
 
     // Other blocks, this is non storage with optional

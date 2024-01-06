@@ -756,7 +756,7 @@ void CLDSpar::Init(CSparConfig *sconfig) {
     }
 
     if ( !Radiance ) {
-        Error("CLDSpar::Init", "Galerkin Radiance method not active !");
+        logError("CLDSpar::Init", "Galerkin Radiance method not active !");
     }
 
     // Overlap group
@@ -955,7 +955,7 @@ void CIDSpar::Init(CSparConfig *sconfig) {
     }
 
     if ( !Radiance ) {
-        Error("CIDSpar::Init", "Galerkin Radiance method not active !");
+        logError("CIDSpar::Init", "Galerkin Radiance method not active !");
     }
 
     if ( sconfig->m_bcfg->doLI ) {

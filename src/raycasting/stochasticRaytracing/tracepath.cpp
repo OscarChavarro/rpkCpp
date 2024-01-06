@@ -116,7 +116,7 @@ void TracePaths(long nr_paths,
                 }
     EndForAll;
     if ( sum_probs < EPSILON ) {
-        Warning("TracePaths", "No sources");
+        logWarning("TracePaths", "No sources");
         return;
     }
 

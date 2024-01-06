@@ -346,7 +346,7 @@ monteCarloRadiosityRegularSubElementAtPoint(ELEMENT *parent, double *u, double *
             }
             break;
         default:
-            Fatal(-1, "RegularSubelementAtPoint", "Can handle only triangular or quadrilateral elements");
+            logFatal(-1, "RegularSubelementAtPoint", "Can handle only triangular or quadrilateral elements");
     }
 
     return child;
@@ -480,7 +480,7 @@ McrEdgeMidpointVertex(ELEMENT *elem, int edgenr) {
                         v = neighbour->regular_subelements[2]->vertex[0];
                         break;
                     default:
-                        Error("EdgeMidpointVertex", "Invalid vertex index %d", index);
+                        logError("EdgeMidpointVertex", "Invalid vertex index %d", index);
                 }
                 break;
             case 4:
@@ -498,11 +498,11 @@ McrEdgeMidpointVertex(ELEMENT *elem, int edgenr) {
                         v = neighbour->regular_subelements[2]->vertex[0];
                         break;
                     default:
-                        Error("EdgeMidpointVertex", "Invalid vertex index %d", index);
+                        logError("EdgeMidpointVertex", "Invalid vertex index %d", index);
                 }
                 break;
             default:
-                Fatal(-1, "EdgeMidpointVertex", "only triangular and quadrilateral elements are supported");
+                logFatal(-1, "EdgeMidpointVertex", "only triangular and quadrilateral elements are supported");
         }
     }
 
@@ -536,7 +536,7 @@ int
 ElementIsTextured(ELEMENT *elem) {
     MATERIAL *mat;
     if ( elem->iscluster ) {
-        Fatal(-1, "ElementIsTextured", "this routine should not be called for cluster elements");
+        logFatal(-1, "ElementIsTextured", "this routine should not be called for cluster elements");
         return false;
     }
     mat = elem->pog.patch->surface->material;
@@ -735,15 +735,15 @@ McrRegularSubdivideElement(ELEMENT *element) {
     }
 
     if ( element->iscluster ) {
-        Fatal(-1, "RegularSubdivideElement", "Cannot regularly subdivide cluster elements");
+        logFatal(-1, "RegularSubdivideElement", "Cannot regularly subdivide cluster elements");
         return (ELEMENT **) nullptr;
     }
 
     if ( element->pog.patch->jacobian ) {
         static int wgiv = false;
         if ( !wgiv ) {
-            Warning("RegularSubdivideElement",
-                    "irregular quadrilateral patches are not correctly handled (but you probably won't notice it)");
+            logWarning("RegularSubdivideElement",
+                       "irregular quadrilateral patches are not correctly handled (but you probably won't notice it)");
         }
         wgiv = true;
     }
@@ -758,7 +758,7 @@ McrRegularSubdivideElement(ELEMENT *element) {
             RegularSubdivideQuad(element);
             break;
         default:
-            Fatal(-1, "RegularSubdivideElement", "invalid element: not 3 or 4 vertices");
+            logFatal(-1, "RegularSubdivideElement", "invalid element: not 3 or 4 vertices");
     }
     return element->regular_subelements;
 }
@@ -951,7 +951,7 @@ ClusterChildContainingElement(ELEMENT *parent, ELEMENT *descendant) {
         descendant = descendant->parent;
     }
     if ( !descendant ) {
-        Fatal(-1, "ClusterChildContainingElement", "descendant is not a descendant of parent");
+        logFatal(-1, "ClusterChildContainingElement", "descendant is not a descendant of parent");
     }
     return descendant;
 }

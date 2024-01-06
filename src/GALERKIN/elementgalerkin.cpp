@@ -127,7 +127,7 @@ ElementReallocCoefficients(ELEMENT *elem) {
                 basis_size = 10;
                 break;
             default:
-                Fatal(-1, "ElementReallocCoefficients", "Invalid basis type %d", GLOBAL_galerkin_state.basis_type);
+                logFatal(-1, "ElementReallocCoefficients", "Invalid basis type %d", GLOBAL_galerkin_state.basis_type);
         }
     }
 
@@ -253,7 +253,7 @@ RegularSubdivideElement(ELEMENT *element) {
     int i;
 
     if ( IsCluster(element)) {
-        Fatal(-1, "RegularSubdivideElement", "Cannot regularly subdivide cluster elements");
+        logFatal(-1, "RegularSubdivideElement", "Cannot regularly subdivide cluster elements");
         return (ELEMENT **) nullptr;
     }
 
@@ -518,7 +518,7 @@ RegularSubelementAtPoint(ELEMENT *parent, double *u, double *v) {
             }
             break;
         default:
-            Fatal(-1, "RegularSubelementAtPoint", "Can handle only triangular or quadrilateral elements");
+            logFatal(-1, "RegularSubelementAtPoint", "Can handle only triangular or quadrilateral elements");
     }
 
     return child;
@@ -654,7 +654,7 @@ ElementPolygon(ELEMENT *elem, POLYGON *poly) {
     int i;
 
     if ( IsCluster(elem)) {
-        Fatal(-1, "ElementPolygon", "Cannot use this function for cluster elements");
+        logFatal(-1, "ElementPolygon", "Cannot use this function for cluster elements");
         return (POLYGON *) nullptr;
     }
 

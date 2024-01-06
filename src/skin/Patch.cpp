@@ -58,7 +58,7 @@ Vector3D *PatchNormal(PATCH *patch, Vector3D *normal) {
     }
 
     if ((norm = VECTORNORM(*normal)) < EPSILON ) {
-        Warning("PatchNormal", "degenerate patch (id %d)", patch->id);
+        logWarning("PatchNormal", "degenerate patch (id %d)", patch->id);
         return (Vector3D *) nullptr;
     }
     VECTORSCALEINVERSE(norm, *normal, *normal);
@@ -132,7 +132,7 @@ float PatchArea(PATCH *patch) {
 
             break;
         default:
-            Fatal(2, "PatchArea", "Can only handle triangular and quadrilateral patches.\n");
+            logFatal(2, "PatchArea", "Can only handle triangular and quadrilateral patches.\n");
             patch->jacobian = (JACOBIAN *) nullptr;
             patch->area = 0.0;
     }
@@ -201,7 +201,7 @@ PATCH *PatchCreate(int nrvertices,
 
     /* it's sad but it's true */
     if ( nrvertices != 3 && nrvertices != 4 ) {
-        Error("PatchCreate", "Can only handle quadrilateral or triagular patches");
+        logError("PatchCreate", "Can only handle quadrilateral or triagular patches");
         return (PATCH *) nullptr;
     }
 
@@ -451,8 +451,8 @@ void PatchDontIntersect(int n, ...) {
     int i;
 
     if ( n > MAX_EXCLUDED_PATCHES ) {
-        Fatal(-1, "PatchDontIntersect", "Too many patches to exclude from intersection tests (maximum is %d)",
-              MAX_EXCLUDED_PATCHES);
+        logFatal(-1, "PatchDontIntersect", "Too many patches to exclude from intersection tests (maximum is %d)",
+                 MAX_EXCLUDED_PATCHES);
         return;
     }
 
@@ -500,7 +500,7 @@ static Vector3D GetInterpolatedNormalAtUV(PATCH *patch, double u, double v) {
             PINQ(*v1, *v2, *v3, *v4, u, v, normal);
             break;
         default:
-            Fatal(-1, "PatchNormalAtUV", "Invalid number of vertices %d", patch->nrvertices);
+            logFatal(-1, "PatchNormalAtUV", "Invalid number of vertices %d", patch->nrvertices);
     }
 
     VECTORNORMALIZE(normal);
@@ -573,7 +573,7 @@ Vector3D PatchTextureCoordAtUV(PATCH *patch, double u, double v) {
             }
             break;
         default:
-            Fatal(-1, "PatchTextureCoordAtUV", "Invalid nr of vertices %d", patch->nrvertices);
+            logFatal(-1, "PatchTextureCoordAtUV", "Invalid nr of vertices %d", patch->nrvertices);
     }
     return texCoord;
 }
@@ -912,9 +912,9 @@ static int SolveQuadraticUnitInterval(double A, double B, double C, double *x) {
     } else {
         if ( D < -TOLERANCE * TOLERANCE ) {
             *x = -B / (2. * A);
-            Error(nullptr,
-                  "Bilinear->Uniform mapping has negative discriminant D = %g.\nTaking 0 as discriminant and %g as solution.",
-                  D, *x);
+            logError(nullptr,
+                     "Bilinear->Uniform mapping has negative discriminant D = %g.\nTaking 0 as discriminant and %g as solution.",
+                     D, *x);
             return false;
         }
 
@@ -1030,7 +1030,7 @@ Vector3D *PatchPoint(PATCH *patch, double u, double v, Vector3D *point) {
         v4 = patch->vertex[3]->point;
         PINQ(*v1, *v2, *v3, *v4, u, v, *point);
     } else {
-        Fatal(4, "PatchPoint", "Can only handle triangular or quadrilateral patches");
+        logFatal(4, "PatchPoint", "Can only handle triangular or quadrilateral patches");
     }
 
     return point;
@@ -1070,7 +1070,7 @@ int PatchUV(PATCH *poly, Vector3D *point, double *u, double *v) {
             inside = QuadUV(thepoly, point, &uv);
             break;
         default:
-            Fatal(3, "PatchUV", "Can only handle triangular or quadrilateral patches");
+            logFatal(3, "PatchUV", "Can only handle triangular or quadrilateral patches");
     }
 
     *u = uv.u;
@@ -1092,7 +1092,7 @@ int MaterialShadingFrame(HITREC *hit, Vector3D *X, Vector3D *Y, Vector3D *Z) {
     int succes = false;
 
     if ( !HitInitialised(hit)) {
-        Warning("MaterialShadingFrame", "uninitialised hit structure");
+        logWarning("MaterialShadingFrame", "uninitialised hit structure");
         return false;
     }
 

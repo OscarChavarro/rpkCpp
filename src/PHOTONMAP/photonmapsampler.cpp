@@ -171,8 +171,8 @@ static bool ChooseFresnelDirection(CPathNode *thisNode, CPathNode *newNode,
     bool transmittive = (colorAverage(transmittance) > EPSILON);
 
     if ( reflective && transmittive ) {
-        Error("FresnelFactor",
-              "Cannot deal with simultaneous reflective & transittive materials");
+        logError("FresnelFactor",
+                 "Cannot deal with simultaneous reflective & transittive materials");
         return false;
     }
 
@@ -192,7 +192,7 @@ static bool ChooseFresnelDirection(CPathNode *thisNode, CPathNode *newNode,
                                                    &thisNode->m_normal);
             cosi = VECTORDOTPRODUCT(thisNode->m_normal, thisNode->m_inDirF);
             if ( cosi < 0 ) {
-                Error("FresnelSample", "cosi < 0");
+                logError("FresnelSample", "cosi < 0");
             }
         } else {
             F = 0;
@@ -212,14 +212,14 @@ static bool ChooseFresnelDirection(CPathNode *thisNode, CPathNode *newNode,
         cosi = VECTORDOTPRODUCT(thisNode->m_normal, thisNode->m_inDirF);
 
         if ( cosi < 0 ) {
-            Error("FresnelSample", "cosi < 0");
+            logError("FresnelSample", "cosi < 0");
         }
 
         if ( !tir ) {
             cost = -VECTORDOTPRODUCT(thisNode->m_normal, refractedDir);
 
             if ( cost < 0 ) {
-                Error("FresnelSample", "cost < 0");
+                logError("FresnelSample", "cost < 0");
             }
 
             float rpar, rper;
@@ -329,7 +329,7 @@ bool CPhotonMapSampler::FresnelSample(CPathNode *prevNode,
     // Fill in probability for previous node
 
     if ( m_computeFromNextPdf && prevNode ) {
-        Warning("FresnelSampler", "FromNextPdf not supported");
+        logWarning("FresnelSampler", "FromNextPdf not supported");
     }
 
     // Component propagation
@@ -387,7 +387,7 @@ bool CPhotonMapSampler::GDSample(CPathNode *prevNode, CPathNode *thisNode,
     } else {
         flags = BRDF_GLOSSY_COMPONENT;
 
-        Error("CPhotonMapSampler::GDSample", "Shit nog nie klaar");
+        logError("CPhotonMapSampler::GDSample", "Shit nog nie klaar");
         return false;
     }
 

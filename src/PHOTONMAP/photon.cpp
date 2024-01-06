@@ -23,6 +23,6 @@ void CPhoton::FindRS(double *r, double *s, COORDSYS *coord,
         *s = phi / (2 * M_PI);
         *r = pow(cos(theta), n + 1);
     } else {
-        Error("CPhoton::FindRS", "Component %i not implemented yet", flag);
+        logError("CPhoton::FindRS", "Component %i not implemented yet", flag);
     }
 }

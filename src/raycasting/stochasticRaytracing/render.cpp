@@ -22,7 +22,9 @@ RGB ElementColor(ELEMENT *element) {
             break;
         }
         default:
-            Fatal(-1, "ElementColor", "Don't know what to display (GLOBAL_stochasticRaytracing_monteCarloRadiosityState.show = %d)", GLOBAL_stochasticRaytracing_monteCarloRadiosityState.show);
+            logFatal(-1, "ElementColor",
+                     "Don't know what to display (GLOBAL_stochasticRaytracing_monteCarloRadiosityState.show = %d)",
+                     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.show);
     }
 
     return color;
@@ -111,7 +113,9 @@ RGB VertexColor(VERTEX *v) {
             break;
         }
         default:
-            Fatal(-1, "VertexColor", "Don't know what to display (GLOBAL_stochasticRaytracing_monteCarloRadiosityState.show = %d)", GLOBAL_stochasticRaytracing_monteCarloRadiosityState.show);
+            logFatal(-1, "VertexColor",
+                     "Don't know what to display (GLOBAL_stochasticRaytracing_monteCarloRadiosityState.show = %d)",
+                     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.show);
     }
 
     return v->color;
@@ -459,7 +463,8 @@ COLOR ElementDisplayRadianceAtPoint(ELEMENT *elem, double u, double v) {
                     colorInterpolateBilinear(rad[0], rad[1], rad[2], rad[3], u, v, radiance);
                     break;
                 default:
-                    Fatal(-1, "ElementDisplayRadianceAtPoint", "can only handle triangular or quadrilateral elements");
+                    logFatal(-1, "ElementDisplayRadianceAtPoint",
+                             "can only handle triangular or quadrilateral elements");
                     colorClear(radiance);
             }
         } else {    /* flat shading */

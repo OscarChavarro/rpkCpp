@@ -67,14 +67,14 @@ bool CUniformLightSampler::Sample(CPathNode */*prevNode*/,
             light = currentPatch;
             pdfLight = 1.0;
         } else {
-            Warning("Sample Unit Light Node", "No valid light selected");
+            logWarning("Sample Unit Light Node", "No valid light selected");
             return false;
         }
     } else {
         light = gLightList->Sample(&x_1, &pdfLight);
 
         if ( light == nullptr ) {
-            Warning("FillLightNode", "No light found");
+            logWarning("FillLightNode", "No light found");
             return false;
         }
     }
