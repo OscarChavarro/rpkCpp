@@ -5,7 +5,7 @@ Higher order approximations for Galerkin radiosity
 #include "common/error.h"
 #include "GALERKIN/galerkinP.h"
 #include "GALERKIN/basisgalerkin.h"
-#include "GALERKIN/coefficientsgalerkin.h"
+#include "GALERKIN/clustergalerkincpp.h"
 
 /* Given the radiance coefficients, this routine computes the radiance 
  * at the given point on the element. */

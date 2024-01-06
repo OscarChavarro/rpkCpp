@@ -3,7 +3,6 @@
 #include "common/error.h"
 #include "skin/Geometry.h"
 #include "GALERKIN/clustergalerkincpp.h"
-#include "GALERKIN/coefficientsgalerkin.h"
 #include "GALERKIN/scratch.h"
 #include "GALERKIN/mrvisibility.h"
 

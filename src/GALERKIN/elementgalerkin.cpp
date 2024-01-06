@@ -8,7 +8,7 @@
 #include "GALERKIN/elementgalerkin.h"
 #include "GALERKIN/galerkinP.h"
 #include "GALERKIN/basisgalerkin.h"
-#include "GALERKIN/coefficientsgalerkin.h"
+#include "GALERKIN/clustergalerkincpp.h"
 
 // element rendermodes, additive
 #define OUTLINE    1

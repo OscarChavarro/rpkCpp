@@ -7,8 +7,6 @@
 #include "shared/potential.h"
 #include "material/statistics.h"
 #include "common/error.h"
-#include "GALERKIN/coefficientsgalerkin.h"
-#include "GALERKIN/basisgalerkin.h"
 #include "GALERKIN/interactionlist.h"
 
 /* Lazy linking: delay creating the initial links for a patch until it has

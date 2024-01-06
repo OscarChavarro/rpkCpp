@@ -12,7 +12,7 @@ Southwell Galerkin radiosity (progressive refinement radiosity)
 #include "shared/potential.h"
 #include "shared/render.h"
 #include "GALERKIN/galerkinP.h"
-#include "GALERKIN/coefficientsgalerkin.h"
+#include "GALERKIN/clustergalerkincpp.h"
 #include "GALERKIN/basisgalerkin.h"
 
 /* Returns the patch with highest unshot power, weighted with indirect
