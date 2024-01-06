@@ -12,10 +12,10 @@ required.
 importance based on result received during the iteration.
 
 The operation of this routine is further controlled by global parameters
-- mcr.do_control_radiosity: perform constant control variate variance reduction
-- mcr.bidirectional_transfers: for using lines bidirectionally
-- mcr.importance_driven: importance-driven radiance propagation
-- mcr.radiance_driven: radiance-driven importance propagation
+- GLOBAL_stochasticRaytracing_monteCarloRadiosityState.do_control_radiosity: perform constant control variate variance reduction
+- GLOBAL_stochasticRaytracing_monteCarloRadiosityState.bidirectionalTransfers: for using lines bidirectionally
+- GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceDriven: importance-driven radiance propagation
+- GLOBAL_stochasticRaytracing_monteCarloRadiosityState.radianceDriven: radiance-driven importance propagation
 - hierarchy.do_h_meshing, hierarchy.clustering: hierarchical refinement/clustering
 
 This routine updates global ray counts and total/unshot power/importance statistics.

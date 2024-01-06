@@ -134,7 +134,7 @@ static int LowPowerLink(LINK *link) {
 
     threshold = hierarchy.epsilon * colorMaximumComponent(GLOBAL_statistics_maxSelfEmittedPower);
     propagated_power = rcv->area * ff * colorMaximumComponent(rhosrcrad);
-    if ( mcr.importance_driven ) {
+    if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceDriven ) {
         propagated_power *= rcv->imp;
         if ( !rcv->iscluster ) {
             propagated_power *= ElementScalarReflectance(rcv);

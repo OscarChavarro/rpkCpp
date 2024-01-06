@@ -117,7 +117,7 @@ class CPmapState
     long total_cpaths, total_gpaths, total_ipaths;
 
     int runstop_nr; /* Number of 'external iterations'. This is
-		     different from iteration_nr only when 
+		     different from currentIteration only when
 		     statistics are gathered. */
     long total_rays;
 

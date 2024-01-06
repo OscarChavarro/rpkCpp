@@ -31,7 +31,7 @@ Ray McrGenerateLocalLine(PATCH *patch, double *xi) {
 
 /* in order to let the user have the impression that the computations are proceeding. */
 static void SomeFeedback() {
-    if ((mcr.traced_rays + mcr.imp_traced_rays) % 1000 == 0 ) {
+    if ((GLOBAL_stochasticRaytracing_monteCarloRadiosityState.tracedRays + GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceTracedRays) % 1000 == 0 ) {
         fputc('.', stderr);
     }
 }

@@ -63,13 +63,13 @@ PATH *TracePath(PATCH *origin,
     Ray ray;
     HITREC *hit, hitstore;
 
-    mcr.traced_paths++;
+    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.tracedPaths++;
     ClearPath(path);
     PathAddNode(path, origin, birth_prob, inpoint, outpoint);
     do {
-        mcr.traced_rays++;
+        GLOBAL_stochasticRaytracing_monteCarloRadiosityState.tracedRays++;
         ray = McrGenerateLocalLine(P, Sample4D(TOPLEVEL_ELEMENT(P)->ray_index++));
-        if ( path->nrnodes > 1 && mcr.continuous_random_walk ) {
+        if ( path->nrnodes > 1 && GLOBAL_stochasticRaytracing_monteCarloRadiosityState.continuousRandomWalk ) {
             /* scattered ray originates at point of incidence of previous ray */
             ray.pos = path->nodes[path->nrnodes - 1].inpoint;
         }
@@ -104,7 +104,7 @@ void TracePaths(long nr_paths,
     long path_count;
     PATH path;
 
-    mcr.prev_traced_rays = mcr.traced_rays;
+    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.prevTracedRays = GLOBAL_stochasticRaytracing_monteCarloRadiosityState.tracedRays;
     birth_prob = BirthProbability;
 
     /* compute sampling probability normalisation factor */
@@ -141,15 +141,15 @@ void TracePaths(long nr_paths,
     FreePathNodes(&path);
 
     /* update radiance, compute new total and unshot flux. */
-    colorClear(mcr.unshot_flux);
-    mcr.unshot_ymp = 0.;
-    colorClear(mcr.total_flux);
-    mcr.total_ymp = 0.;
+    colorClear(GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotFlux);
+    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotYmp = 0.;
+    colorClear(GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalFlux);
+    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalYmp = 0.;
     ForAllPatches(P, GLOBAL_scene_patches)
                 {
                     Update(P, (double) nr_paths / sum_probs);
-                    colorAddScaled(mcr.unshot_flux, M_PI * P->area, getTopLevelPatchUnShotRad(P)[0], mcr.unshot_flux);
-                    colorAddScaled(mcr.total_flux, M_PI * P->area, getTopLevelPatchRad(P)[0], mcr.total_flux);
+                    colorAddScaled(GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotFlux, M_PI * P->area, getTopLevelPatchUnShotRad(P)[0], GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotFlux);
+                    colorAddScaled(GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalFlux, M_PI * P->area, getTopLevelPatchRad(P)[0], GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalFlux);
                 }
     EndForAll;
 }

@@ -1,5 +1,5 @@
-#ifndef _MCRADP_H_
-#define _MCRADP_H_
+#ifndef __MONTE_CARLO_RADIOSITY__
+#define __MONTE_CARLO_RADIOSITY__
 
 #include <ctime>
 
@@ -8,8 +8,7 @@
 #include "raycasting/stochasticRaytracing/coefficientsmcrad.h"
 
 /**
-Global variables: same set for stochastic relaxation and for random walk
-radiosity
+Global variables: same set for stochastic relaxation and for random walk radiosity
 */
 
 enum METHOD {
@@ -17,17 +16,17 @@ enum METHOD {
     RANDOM_WALK_RADIOSITY_METHOD
 };
 
-enum RW_ESTIMATOR_TYPE {
+enum RANDOM_WALK_ESTIMATOR_TYPE {
     RW_SHOOTING,
     RW_GATHERING
 };
 
-enum RW_ESTIMATOR_KIND {
+enum RANDOM_WALK_ESTIMATOR_KIND {
     RW_COLLISION,
     RW_ABSORPTION,
     RW_SURVIVAL,
     RW_LAST_BUT_NTH,
-    RW_NLAST
+    RW_N_LAST
 };
 
 enum SHOW_WHAT {
@@ -36,71 +35,61 @@ enum SHOW_WHAT {
     SHOW_IMPORTANCE
 };
 
-enum SHOW_WEIGHTING {
-    SHOW_NON_WEIGHTED
-};
-
-
 class STATE {
   public:
-    METHOD method;    /* stochastic relaxation or random walks */
-    SHOW_WHAT show;    /* what to show and how to display the result */
+    METHOD method; // stochastic relaxation or random walks
+    SHOW_WHAT show; // what to show and how to display the result
 
-    int inited;        /* flag indicating whether initialised or not */
+    int inited; // flag indicating whether initialised or not
 
-    int iteration_nr;    /* current iteration number */
-    COLOR unshot_flux;
-    COLOR total_flux;
-    COLOR imp_unshot_flux;    /* indirect-importance weighted unshot flux */
-    float unshot_ymp, total_ymp, source_ymp;  /* sum over all patches of area * importance */
+    int currentIteration;
+    COLOR unShotFlux;
+    COLOR totalFlux;
+    COLOR indirectImportanceWeightedUnShotFlux;
+    float unShotYmp;
+    float totalYmp; // Sum over all patches of area * importance
+    float sourceYmp;
 
-    int ray_units_per_it;    /* to increase or decrease initial nr of rays */
-    int bidirectional_transfers;  /* for bidirectional energy transfers */
-    int constant_control_variate;    /* for constant control variate variance reduction */
-    COLOR control_radiance;    /* constant control radiance value */
-    int indirect_only;        /* whether or not to compute indirect illum. only */
+    int rayUnitsPerIt; // to increase or decrease initial nr of rays
+    int bidirectionalTransfers; // for bidirectional energy transfers
+    int constantControlVariate; // for constant control variate variance reduction
+    COLOR controlRadiance; // constant control radiance value
+    int indirectOnly; // If to compute indirect illum. only
 
-    int weighted_sampling;    /* whether or not to do weighted sampling ala
-				 * Powell and Swann/Spanier */
+    int weightedSampling; // If to do weighted sampling ala Powell and Swann/Spanier
 
-    int set_source;        /* for copying direct illum. to SOURCE_RAD(..)
-				 * if computing only indirect illum. */
-    SEQ4D sequence;        /* random number sequence, see sample4d.h */
-    APPROX_TYPE approx_type;    /* radiosity approximation order */
-    int importance_driven;    /* whether or not to use view-importance */
-    int radiance_driven;        /* radiance-driven importance propagation */
-    int importance_updated;    /* direct importance got updated or not? */
-    int importance_updated_from_scratch;    /* can either incremental or from scratch */
-    int continuous_random_walk;    /* continuous or discrete random walk */
-    RW_ESTIMATOR_TYPE rw_estimator_type;    /* shooting, gathering, gathering for free */
-    RW_ESTIMATOR_KIND rw_estimator_kind;    /* collision, absorption, ... */
-    int rw_numlast;        /* for last-but-n and n-last RW estimators */
-    float k_factor;        /* Mateu's mysterious gathering for free k-factor */
-    int show_shooting_weights;    /* display shooting weights (gathering for free) */
-    int discard_incremental;    /* first iteration (incremental steps) results are
-				 * discarded in later computations */
-    int incremental_uses_importance; /* view-importance is used already for the first
-				 * iteration (incremental steps). This may confuse the
-				 * merging heuristic or other things .... */
-    int naive_merging;        /* results of different iterations are merged
-				 * solely based on the number of rays shot */
+    int setSource; // for copying direct illumination to SOURCE_RAD(..) if computing only indirect illumination
+    SEQ4D sequence; // random number sequence, see sample4d.h
+    APPROX_TYPE approximationOrderType; // radiosity approximation order
+    int importanceDriven; // If to use view-importance
+    int radianceDriven; // radiance-driven importance propagation
+    int importanceUpdated; // direct importance got updated or not?
+    int importanceUpdatedFromScratch; // can either incremental or from scratch
+    int continuousRandomWalk; // continuous or discrete random walk
+    RANDOM_WALK_ESTIMATOR_TYPE randomWalkEstimatorType; // shooting, gathering, gathering for free
+    RANDOM_WALK_ESTIMATOR_KIND randomWalkEstimatorKind; // collision, absorption, ...
+    int randomWalkNumLast; // for last-but-n and n-last RW estimators
+    int discardIncremental; // first iteration (incremental steps) results are discarded in later computations
+    int incrementalUsesImportance; // view-importance is used already for the first iteration (incremental steps). This may confuse the merging heuristic or other things
+    int naiveMerging; // results of different iterations are merged solely based on the number of rays shot
 
-    long initial_nr_rays;        /* for first iteration step */
-    long rays_per_iteration;    /* for later iterations */
-    long imp_rays_per_iteration;    /* for later iterations for importance */
-    long traced_rays, prev_traced_rays;    /* total nr of traced rays and previous total */
-    long imp_traced_rays, prev_imp_traced_rays;
-    long traced_paths;        /* nr of traced random walks in random walk rad. */
-    long nrmisses;        /* rays disappearing to background */
-    int do_nondiffuse_first_shot; /* initial shooting pass handles non-diffuse lights */
-    int initial_ls_samples;      /* initial shot samples per light source */
+    long initialNumberOfRays; // for first iteration step
+    long raysPerIteration; // for later iterations
+    long importanceRaysPerIteration; // for later iterations for importance
+    long tracedRays; // total nr of traced rays
+    long prevTracedRays; // previous total of traced rays
+    long importanceTracedRays;
+    long prevImportanceTracedRays;
+    long tracedPaths; // nr of traced random walks in random walk rad.
+    long numberOfMisses; // rays disappearing to background
+    int doNonDiffuseFirstShot; // initial shooting pass handles non-diffuse lights
+    int initialLightSourceSamples; // initial shot samples per light source
 
-    int wake_up;        /* to react on GUI input now and then. */
-    clock_t lastclock;    /* for computation timings */
-    float cpu_secs;    /* CPU time spent in calculations */
+    clock_t lastClock; // for computation timings
+    float cpuSeconds; // CPU time spent in calculations
 };
 
-extern STATE mcr;
+extern STATE GLOBAL_stochasticRaytracing_monteCarloRadiosityState;
 
 inline int
 NR_VERTICES(ELEMENT *elem) {

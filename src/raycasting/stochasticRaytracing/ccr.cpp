@@ -26,7 +26,7 @@ static void InitialControlRadiosity(COLOR *minRad, COLOR *maxRad, COLOR *fmin, C
                             {
                                 COLOR rad = get_radiance(elem)[0];
                                 float warea = elem->area;    /* weighted area */
-                                if ( mcr.importance_driven && mcr.method != RANDOM_WALK_RADIOSITY_METHOD ) {
+                                if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceDriven && GLOBAL_stochasticRaytracing_monteCarloRadiosityState.method != RANDOM_WALK_RADIOSITY_METHOD ) {
                                     warea *= (elem->imp - elem->source_imp); /* multiply with received importance */
                                 }
                                 /* factor M_PI is omitted everywhere */
@@ -108,7 +108,7 @@ static void RefineControlRadiosity(COLOR *minRad, COLOR *maxRad, COLOR *fmin, CO
                                 COLOR B = get_radiance(elem)[0];
                                 COLOR s = get_scaling ? get_scaling(elem) : color_one;
                                 float warea = elem->area;    /* weighted area */
-                                if ( mcr.importance_driven && mcr.method != RANDOM_WALK_RADIOSITY_METHOD ) {
+                                if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceDriven && GLOBAL_stochasticRaytracing_monteCarloRadiosityState.method != RANDOM_WALK_RADIOSITY_METHOD ) {
                                     warea *= (elem->imp - elem->source_imp); /* multiply with received importance */
                                 }
                                 for ( i = 0; i <= NRINTERVALS; i++ ) {

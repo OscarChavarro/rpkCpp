@@ -39,7 +39,7 @@ ActualBasis(ELEMENT *elem) {
     if ( elem->iscluster ) {
         return &clusterBasis;
     } else {
-        return &basis[NR_VERTICES(elem) == 3 ? ET_TRIANGLE : ET_QUAD][mcr.approx_type];
+        return &basis[NR_VERTICES(elem) == 3 ? ET_TRIANGLE : ET_QUAD][GLOBAL_stochasticRaytracing_monteCarloRadiosityState.approximationOrderType];
     }
 }
 

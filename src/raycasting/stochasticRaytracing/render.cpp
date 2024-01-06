@@ -11,7 +11,7 @@
 RGB ElementColor(ELEMENT *element) {
     RGB color;
 
-    switch ( mcr.show ) {
+    switch ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.show ) {
         case SHOW_TOTAL_RADIANCE:
         case SHOW_INDIRECT_RADIANCE:
             RadianceToRGB(ElementDisplayRadiance(element), &color);
@@ -22,7 +22,7 @@ RGB ElementColor(ELEMENT *element) {
             break;
         }
         default:
-            Fatal(-1, "ElementColor", "Don't know what to display (mcr.show = %d)", mcr.show);
+            Fatal(-1, "ElementColor", "Don't know what to display (GLOBAL_stochasticRaytracing_monteCarloRadiosityState.show = %d)", GLOBAL_stochasticRaytracing_monteCarloRadiosityState.show);
     }
 
     return color;
@@ -94,7 +94,7 @@ static float VertexImportance(VERTEX *v) {
 }
 
 RGB VertexColor(VERTEX *v) {
-    switch ( mcr.show ) {
+    switch ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.show ) {
         case SHOW_TOTAL_RADIANCE:
         case SHOW_INDIRECT_RADIANCE:
             RadianceToRGB(VertexRadiance(v), &v->color);
@@ -111,7 +111,7 @@ RGB VertexColor(VERTEX *v) {
             break;
         }
         default:
-            Fatal(-1, "VertexColor", "Don't know what to display (mcr.show = %d)", mcr.show);
+            Fatal(-1, "VertexColor", "Don't know what to display (GLOBAL_stochasticRaytracing_monteCarloRadiosityState.show = %d)", GLOBAL_stochasticRaytracing_monteCarloRadiosityState.show);
     }
 
     return v->color;
@@ -429,11 +429,11 @@ COLOR ElementDisplayRadiance(ELEMENT *elem) {
     COLOR rad;
     colorSubtract(elem->rad[0], elem->source_rad, rad);
 
-    if ( mcr.show != SHOW_INDIRECT_RADIANCE ) {
-        /* source_rad is self-emitted radiance if !mcr.indirect_only. It is direct
-         * illumination if mcr.direct_only */
+    if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.show != SHOW_INDIRECT_RADIANCE ) {
+        /* source_rad is self-emitted radiance if !GLOBAL_stochasticRaytracing_monteCarloRadiosityState.indirectOnly. It is direct
+         * illumination if GLOBAL_stochasticRaytracing_monteCarloRadiosityState.direct_only */
         colorAdd(rad, elem->source_rad, rad);
-        if ( mcr.indirect_only || mcr.do_nondiffuse_first_shot ) {
+        if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.indirectOnly || GLOBAL_stochasticRaytracing_monteCarloRadiosityState.doNonDiffuseFirstShot ) {
             /* add self-emitted radiance */
             colorAdd(rad, elem->Ed, rad);
         }
@@ -467,7 +467,7 @@ COLOR ElementDisplayRadianceAtPoint(ELEMENT *elem, double u, double v) {
         }
     } else {    /* higher order approximations */
         radiance = ColorAtUV(elem->basis, elem->rad, u, v);
-        if ( mcr.show == SHOW_INDIRECT_RADIANCE ) {
+        if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.show == SHOW_INDIRECT_RADIANCE ) {
             colorSubtract(radiance, elem->source_rad, radiance);
         }
     }

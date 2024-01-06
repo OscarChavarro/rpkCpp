@@ -41,32 +41,32 @@ static void InitGlobals(int nrrays,
     get_importance = GetImportance;
     reflect = Update;
     /* only use control variates for proagating radiance, not for importance */
-    do_control_variate = (mcr.constant_control_variate && (GetRadiance));
+    do_control_variate = (GLOBAL_stochasticRaytracing_monteCarloRadiosityState.constantControlVariate && (GetRadiance));
 
     if ( get_radiance ) {
-        mcr.prev_traced_rays = mcr.traced_rays;
+        GLOBAL_stochasticRaytracing_monteCarloRadiosityState.prevTracedRays = GLOBAL_stochasticRaytracing_monteCarloRadiosityState.tracedRays;
     }
     if ( get_importance ) {
-        mcr.prev_imp_traced_rays = mcr.imp_traced_rays;
+        GLOBAL_stochasticRaytracing_monteCarloRadiosityState.prevImportanceTracedRays = GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceTracedRays;
     }
 }
 
 static void PrintMessage(long nr_rays) {
     fprintf(stderr, "%s-directional ",
-            mcr.bidirectional_transfers ? "Bi" : "Uni");
+            GLOBAL_stochasticRaytracing_monteCarloRadiosityState.bidirectionalTransfers ? "Bi" : "Uni");
     if ( get_radiance && get_importance ) {
         fprintf(stderr, "combined ");
     }
     if ( get_radiance ) {
         fprintf(stderr, "%sradiance ",
-                mcr.importance_driven ? "importance-driven " : "");
+                GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceDriven ? "importance-driven " : "");
     }
     if ( get_radiance && get_importance ) {
         fprintf(stderr, "and ");
     }
     if ( get_importance ) {
         fprintf(stderr, "%simportance ",
-                mcr.radiance_driven ? "radiance-driven " : "");
+                GLOBAL_stochasticRaytracing_monteCarloRadiosityState.radianceDriven ? "radiance-driven " : "");
     }
     fprintf(stderr, "propagation");
     if ( do_control_variate ) {
@@ -82,21 +82,21 @@ static double Probability(ELEMENT *elem) {
     if ( get_radiance ) {
         /* probability proportional to power to be propagated. */
         COLOR radiance = get_radiance(elem)[0];
-        if ( mcr.constant_control_variate ) {
-            colorSubtract(radiance, mcr.control_radiance, radiance);
+        if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.constantControlVariate ) {
+            colorSubtract(radiance, GLOBAL_stochasticRaytracing_monteCarloRadiosityState.controlRadiance, radiance);
         }
         prob = /* M_PI * */ elem->area * colorSumAbsComponents(radiance);
-        if ( mcr.importance_driven ) {
+        if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceDriven ) {
             /* weight with received importance */
             float w = (elem->imp - elem->source_imp);
             prob *= ((w > 0.) ? w : 0.);
         }
     }
 
-    if ( get_importance && mcr.importance_driven ) {
+    if ( get_importance && GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceDriven ) {
         double prob2 = elem->area * fabs(get_importance(elem)) * ElementScalarReflectance(elem);
 
-        if ( mcr.radiance_driven ) {
+        if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.radianceDriven ) {
             /* received-radiance weighted importance transport */
             COLOR received_radiance;
             colorSubtract(elem->rad[0], elem->source_rad, received_radiance);
@@ -106,7 +106,7 @@ static double Probability(ELEMENT *elem) {
         /* equal weight to importance and radiance propagation for constant approximation,
          * but higher weight to radiance for higher order approximations. Still OK
          * if only propagating importance. */
-        prob = prob * approxdesc[mcr.approx_type].basis_size + prob2;
+        prob = prob * approxdesc[GLOBAL_stochasticRaytracing_monteCarloRadiosityState.approximationOrderType].basis_size + prob2;
     }
 
     return prob;
@@ -144,9 +144,9 @@ static void ElementSetup(ELEMENT *elem) {
 /* returns true if succes, that is: sum of sampling probabilities is nonzero */
 static int Setup() {
     /* determine constant control radiosity if required. */
-    colorClear(mcr.control_radiance);
+    colorClear(GLOBAL_stochasticRaytracing_monteCarloRadiosityState.controlRadiance);
     if ( do_control_variate ) {
-        mcr.control_radiance = DetermineControlRadiosity(get_radiance, nullptr);
+        GLOBAL_stochasticRaytracing_monteCarloRadiosityState.controlRadiance = DetermineControlRadiosity(get_radiance, nullptr);
     }
 
     sum_probs = 0.;
@@ -233,8 +233,8 @@ static void PropagateRadiance(ELEMENT *src, double us, double vs,
     }
 
     rad = GetSourceRadiance(src, us, vs);
-    if ( mcr.constant_control_variate ) {
-        colorSubtract(rad, mcr.control_radiance, rad);
+    if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.constantControlVariate ) {
+        colorSubtract(rad, GLOBAL_stochasticRaytracing_monteCarloRadiosityState.controlRadiance, rad);
     }
     colorScale(weight, rad, raypow);
 
@@ -310,7 +310,7 @@ static void RefineAndPropagate(ELEMENT *P, double up, double vp,
     double us = up, vs = vp;
     ELEMENT *src = McrRegularLeafElementAtPoint(P, &us, &vs);
     src_prob = (double) src->prob / (double) src->area;
-    if ( mcr.bidirectional_transfers ) {
+    if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.bidirectionalTransfers ) {
         double rcv_prob;
         double ur = uq, vr = vq;
         ELEMENT *rcv = McrRegularLeafElementAtPoint(Q, &ur, &vr);
@@ -392,10 +392,10 @@ static void ElementShootRay(ELEMENT *src,
     double zeta[4];
 
     if ( get_radiance ) {
-        mcr.traced_rays++;
+        GLOBAL_stochasticRaytracing_monteCarloRadiosityState.tracedRays++;
     }
     if ( get_importance ) {
-        mcr.imp_traced_rays++;
+        GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceTracedRays++;
     }
 
     ray = McrGenerateLocalLine(src->pog.patch,
@@ -407,7 +407,7 @@ static void ElementShootRay(ELEMENT *src,
         RefineAndPropagate(TOPLEVEL_ELEMENT(src->pog.patch), zeta[0], zeta[1],
                            TOPLEVEL_ELEMENT(hit->patch), uhit, vhit, &ray);
     } else {
-        mcr.nrmisses++;
+        GLOBAL_stochasticRaytracing_monteCarloRadiosityState.numberOfMisses++;
     }
 }
 
@@ -472,7 +472,7 @@ static void UpdateElement(ELEMENT *elem) {
     if ( get_radiance ) {
         if ( do_control_variate ) {
             /* add constant radiosity contribution to received flux */
-            colorAdd(elem->received_rad[0], mcr.control_radiance, elem->received_rad[0]);
+            colorAdd(elem->received_rad[0], GLOBAL_stochasticRaytracing_monteCarloRadiosityState.controlRadiance, elem->received_rad[0]);
         }
         /* multiply with reflectivity on leaf elements only */
         stochasticRadiosityMultiplyCoefficients(elem->Rd, elem->received_rad, elem->basis);
@@ -480,12 +480,12 @@ static void UpdateElement(ELEMENT *elem) {
 
     reflect(elem, (double) nr_rays / sum_probs);
 
-    colorAddScaled(mcr.unshot_flux, M_PI * elem->area, elem->unshot_rad[0], mcr.unshot_flux);
-    colorAddScaled(mcr.total_flux, M_PI * elem->area, elem->rad[0], mcr.total_flux);
-    colorAddScaled(mcr.imp_unshot_flux, M_PI * elem->area * (elem->imp - elem->source_imp), elem->unshot_rad[0],
-                   mcr.imp_unshot_flux);
-    mcr.unshot_ymp += elem->area * fabs(elem->unshot_imp);
-    mcr.total_ymp += elem->area * elem->imp;
+    colorAddScaled(GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotFlux, M_PI * elem->area, elem->unshot_rad[0], GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotFlux);
+    colorAddScaled(GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalFlux, M_PI * elem->area, elem->rad[0], GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalFlux);
+    colorAddScaled(GLOBAL_stochasticRaytracing_monteCarloRadiosityState.indirectImportanceWeightedUnShotFlux, M_PI * elem->area * (elem->imp - elem->source_imp), elem->unshot_rad[0],
+                   GLOBAL_stochasticRaytracing_monteCarloRadiosityState.indirectImportanceWeightedUnShotFlux);
+    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotYmp += elem->area * fabs(elem->unshot_imp);
+    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalYmp += elem->area * elem->imp;
 }
 
 static void Push(ELEMENT *parent, ELEMENT *child) {
@@ -572,11 +572,11 @@ static void PullRdEd(ELEMENT *elem) {
 
 static void PushUpdatePullSweep() {
     /* update radiance, compute new total and unshot flux. */
-    colorClear(mcr.unshot_flux);
-    mcr.unshot_ymp = 0.;
-    colorClear(mcr.total_flux);
-    mcr.total_ymp = 0.;
-    colorClear(mcr.imp_unshot_flux);
+    colorClear(GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotFlux);
+    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotYmp = 0.;
+    colorClear(GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalFlux);
+    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalYmp = 0.;
+    colorClear(GLOBAL_stochasticRaytracing_monteCarloRadiosityState.indirectImportanceWeightedUnShotFlux);
 
     /* update reflectances and emittances (refinement yields more accurate estimates
      * on textured surfaces) */
@@ -596,10 +596,10 @@ static void PushUpdatePullSweep() {
  * importance based on result received during the iteration. 
  *
  * The operation of this routine is further controlled by global parameters
- * - mcr.do_control_radiosity: perform constant control variate variance reduction
- * - mcr.bidirectional_transfers: for using lines bidirectionally
- * - mcr.importance_driven: importance-driven radiance propagation
- * - mcr.radiance_driven: radiance-driven importance propagation
+ * - GLOBAL_stochasticRaytracing_monteCarloRadiosityState.do_control_radiosity: perform constant control variate variance reduction
+ * - GLOBAL_stochasticRaytracing_monteCarloRadiosityState.bidirectionalTransfers: for using lines bidirectionally
+ * - GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceDriven: importance-driven radiance propagation
+ * - GLOBAL_stochasticRaytracing_monteCarloRadiosityState.radianceDriven: radiance-driven importance propagation
  * - hierarchy.do_h_meshing, hierarchy.clustering: hierarchical refinement/clustering
  *
  * This routine updates global ray counts and total/unshot power/importance statistics.

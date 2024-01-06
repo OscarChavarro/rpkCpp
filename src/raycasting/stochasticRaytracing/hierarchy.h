@@ -34,7 +34,7 @@ typedef LINK *(*REFINE_ACTION)(LINK *link,
 typedef REFINE_ACTION (*ORACLE)(LINK *link);
 
 /* Wellknown power-based refinement oracle (Hanrahan'91, with importance
- * a la Smits'92 if mcr.importance_driven is true) */
+ * a la Smits'92 if GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceDriven is true) */
 extern REFINE_ACTION PowerOracle(LINK *);
 
 /* constructs a toplevel link for given toplevel surface elements

@@ -15,7 +15,7 @@
 #include "raycasting/stochasticRaytracing/mcradP.h"
 #include "raycasting/stochasticRaytracing/elementmcrad.h"
 
-STATE mcr;
+STATE GLOBAL_stochasticRaytracing_monteCarloRadiosityState;
 
 static ENUMDESC approxVals[] = {
     {AT_CONSTANT, "constant", 2},
@@ -59,8 +59,8 @@ static ENUMDESC estKindVals[] = {
         {RW_ABSORPTION,   "Absorption", 2},
         {RW_SURVIVAL,     "Survival",   2},
         {RW_LAST_BUT_NTH, "Last-but-N", 2},
-        {RW_NLAST,        "Last-N",     2},
-        {0, nullptr,                       0}
+        {RW_N_LAST,       "Last-N",     2},
+        {0,               nullptr,      0}
 };
 MakeEnumOptTypeStruct(estKindTypeStruct, estKindVals);
 #define TestKind (&estKindTypeStruct)
@@ -75,19 +75,19 @@ MakeEnumOptTypeStruct(showWhatTypeStruct, showWhatVals);
 #define TshowWhat (&showWhatTypeStruct)
 
 static CMDLINEOPTDESC srrOptions[] = {
-        {"-srr-ray-units", 8, Tint, &mcr.ray_units_per_it, DEFAULT_ACTION,
+        {"-srr-ray-units", 8, Tint, &GLOBAL_stochasticRaytracing_monteCarloRadiosityState.rayUnitsPerIt,                                  DEFAULT_ACTION,
          "-srr-ray-units <n>          : To tune the amount of work in a single iteration"},
-        {"-srr-bidirectional", 7, Tbool, &mcr.bidirectional_transfers, DEFAULT_ACTION,
+        {"-srr-bidirectional", 7, Tbool, &GLOBAL_stochasticRaytracing_monteCarloRadiosityState.bidirectionalTransfers,                    DEFAULT_ACTION,
          "-srr-bidirectional <yes|no> : Use lines bidirectionally"},
-        {"-srr-control-variate", 7, Tbool, &mcr.constant_control_variate, DEFAULT_ACTION,
+        {"-srr-control-variate", 7, Tbool, &GLOBAL_stochasticRaytracing_monteCarloRadiosityState.constantControlVariate,                  DEFAULT_ACTION,
          "-srr-control-variate <y|n>  : Constant Control Variate variance reduction"},
-        {"-srr-indirect-only", 7, Tbool, &mcr.indirect_only, DEFAULT_ACTION,
+        {"-srr-indirect-only", 7, Tbool, &GLOBAL_stochasticRaytracing_monteCarloRadiosityState.indirectOnly,                              DEFAULT_ACTION,
          "-srr-indirect-only <y|n>    : Compute indirect illumination only"},
-        {"-srr-importance-driven", 7, Tbool, &mcr.importance_driven, DEFAULT_ACTION,
+        {"-srr-importance-driven", 7, Tbool, &GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceDriven, DEFAULT_ACTION,
          "-srr-importance-driven <y|n>: Use view-importance"},
-        {"-srr-sampling-sequence", 7, Tsequence, &mcr.sequence, DEFAULT_ACTION,
+        {"-srr-sampling-sequence", 7, Tsequence, &GLOBAL_stochasticRaytracing_monteCarloRadiosityState.sequence,                          DEFAULT_ACTION,
          "-srr-sampling-sequence <type>: \"PseudoRandom\", \"Niederreiter\""},
-        {"-srr-approximation", 7, Tapprox, &mcr.approx_type, DEFAULT_ACTION,
+        {"-srr-approximation", 7, Tapprox, &GLOBAL_stochasticRaytracing_monteCarloRadiosityState.approximationOrderType, DEFAULT_ACTION,
          "-srr-approximation <order>  : \"constant\", \"linear\", \"quadratic\", \"cubic\""},
         {"-srr-hierarchical", 7, Tbool, &hierarchy.do_h_meshing, DEFAULT_ACTION,
          "-srr-hierarchical <y|n>     : hierarchical refinement"},
@@ -97,40 +97,40 @@ static CMDLINEOPTDESC srrOptions[] = {
          "-srr-epsilon <float>        : link power threshold (relative w.r.t. max. selfemitted power)"},
         {"-srr-minarea", 7, Tfloat, &hierarchy.minarea, DEFAULT_ACTION,
          "-srr-minarea <float>        : minimal element area (relative w.r.t. total area)"},
-        {"-srr-display", 7, TshowWhat, &mcr.show, DEFAULT_ACTION,
+        {"-srr-display", 7, TshowWhat, &GLOBAL_stochasticRaytracing_monteCarloRadiosityState.show,                                        DEFAULT_ACTION,
          "-srr-display <what>         : \"total-radiance\", \"indirect-radiance\", \"weighting-gain\", \"importance\""},
-        {"-srr-discard-incremental", 7, Tbool, &mcr.discard_incremental, DEFAULT_ACTION,
+        {"-srr-discard-incremental", 7, Tbool, &GLOBAL_stochasticRaytracing_monteCarloRadiosityState.discardIncremental, DEFAULT_ACTION,
          "-srr-discard-incremenal <y|n>: Discard result of first iteration (incremental steps)"},
-        {"-srr-incremental-uses-importance", 7, Tbool, &mcr.incremental_uses_importance, DEFAULT_ACTION,
+        {"-srr-incremental-uses-importance", 7, Tbool, &GLOBAL_stochasticRaytracing_monteCarloRadiosityState.incrementalUsesImportance, DEFAULT_ACTION,
          "-srr-incremental-uses-importance <y|n>: Use view-importance sampling already for the first iteration (incremental steps)"},
-        {"-srr-naive-merging", 7, Tbool, &mcr.naive_merging, DEFAULT_ACTION,
+        {"-srr-naive-merging", 7, Tbool, &GLOBAL_stochasticRaytracing_monteCarloRadiosityState.naiveMerging, DEFAULT_ACTION,
          "-srr-naive-merging <y|n>    : disable intelligent merging heuristic"},
-        {"-srr-nondiffuse-first-shot", 7, Tbool, &mcr.do_nondiffuse_first_shot, DEFAULT_ACTION,
+        {"-srr-nondiffuse-first-shot", 7, Tbool, &GLOBAL_stochasticRaytracing_monteCarloRadiosityState.doNonDiffuseFirstShot,             DEFAULT_ACTION,
          "-srr-nondiffuse-first-shot <y|n>: Do Non-diffuse first shot before real work"},
-        {"-srr-initial-ls-samples", 7, Tint, &mcr.initial_ls_samples, DEFAULT_ACTION,
+        {"-srr-initial-ls-samples", 7, Tint, &GLOBAL_stochasticRaytracing_monteCarloRadiosityState.initialLightSourceSamples,             DEFAULT_ACTION,
          "-srr-initial-ls-samples <int>        : nr of samples per light source for initial shot"},
         {nullptr, 0, TYPELESS, nullptr, DEFAULT_ACTION,
          nullptr}
 };
 
 static CMDLINEOPTDESC rwrOptions[] = {
-        {"-rwr-ray-units", 8, Tint, &mcr.ray_units_per_it, DEFAULT_ACTION,
+        {"-rwr-ray-units", 8, Tint, &GLOBAL_stochasticRaytracing_monteCarloRadiosityState.rayUnitsPerIt,                 DEFAULT_ACTION,
          "-rwr-ray-units <n>          : To tune the amount of work in a single iteration"},
-        {"-rwr-continuous", 7, Tbool, &mcr.continuous_random_walk, DEFAULT_ACTION,
+        {"-rwr-continuous", 7, Tbool, &GLOBAL_stochasticRaytracing_monteCarloRadiosityState.continuousRandomWalk, DEFAULT_ACTION,
          "-rwr-continuous <y|n>       : Continuous (yes) or Discrete (no) random walk"},
-        {"-rwr-control-variate", 7, Tbool, &mcr.constant_control_variate, DEFAULT_ACTION,
+        {"-rwr-control-variate", 7, Tbool, &GLOBAL_stochasticRaytracing_monteCarloRadiosityState.constantControlVariate, DEFAULT_ACTION,
          "-rwr-control-variate <y|n>  : Constant Control Variate variance reduction"},
-        {"-rwr-indirect-only", 7, Tbool, &mcr.indirect_only, DEFAULT_ACTION,
+        {"-rwr-indirect-only", 7, Tbool, &GLOBAL_stochasticRaytracing_monteCarloRadiosityState.indirectOnly,             DEFAULT_ACTION,
          "-rwr-indirect-only <y|n>    : Compute indirect illumination only"},
-        {"-rwr-sampling-sequence", 7, Tsequence, &mcr.sequence, DEFAULT_ACTION,
+        {"-rwr-sampling-sequence", 7, Tsequence, &GLOBAL_stochasticRaytracing_monteCarloRadiosityState.sequence,         DEFAULT_ACTION,
          "-rwr-sampling-sequence <type>: \"PseudoRandom\", \"Halton\", \"Niederreiter\""},
-        {"-rwr-approximation", 7, Tapprox, &mcr.approx_type, DEFAULT_ACTION,
+        {"-rwr-approximation", 7, Tapprox, &GLOBAL_stochasticRaytracing_monteCarloRadiosityState.approximationOrderType, DEFAULT_ACTION,
          "-rwr-approximation <order>  : \"constant\", \"linear\", \"quadratic\", \"cubic\""},
-        {"-rwr-estimator", 7, TestType, &mcr.rw_estimator_type, DEFAULT_ACTION,
+        {"-rwr-estimator", 7, TestType, &GLOBAL_stochasticRaytracing_monteCarloRadiosityState.randomWalkEstimatorType, DEFAULT_ACTION,
          "-rwr-estimator <type>       : \"shooting\", \"gathering\""},
-        {"-rwr-score", 7, TestKind, &mcr.rw_estimator_kind, DEFAULT_ACTION,
+        {"-rwr-score", 7, TestKind, &GLOBAL_stochasticRaytracing_monteCarloRadiosityState.randomWalkEstimatorKind, DEFAULT_ACTION,
          "-rwr-score <kind>           : \"collision\", \"absorption\", \"survival\", \"last-N\", \"last-but-N\""},
-        {"-rwr-numlast", 12, Tint, &mcr.rw_numlast, DEFAULT_ACTION,
+        {"-rwr-numlast", 12, Tint, &GLOBAL_stochasticRaytracing_monteCarloRadiosityState.randomWalkNumLast,              DEFAULT_ACTION,
          "-rwr-numlast <int>          : N to use in \"last-N\" and \"last-but-N\" scorers"},
         {nullptr, 0, TYPELESS, nullptr, DEFAULT_ACTION,
          nullptr}
@@ -140,33 +140,31 @@ static CMDLINEOPTDESC rwrOptions[] = {
 Common routines for stochastic relaxation and random walks
 */
 void monteCarloRadiosityDefaults() {
-    mcr.inited = false;
-    mcr.ray_units_per_it = 10;
-    mcr.bidirectional_transfers = false;
-    mcr.constant_control_variate = false;
-    colorClear(mcr.control_radiance);
-    mcr.indirect_only = false;
-    mcr.sequence = S4D_NIEDERREITER;
-    mcr.approx_type = AT_CONSTANT;
-    mcr.importance_driven = false;
-    mcr.radiance_driven = true;
-    mcr.importance_updated = false;
-    mcr.importance_updated_from_scratch = false;
-    mcr.continuous_random_walk = false;
-    mcr.rw_estimator_type = RW_SHOOTING;
-    mcr.rw_estimator_kind = RW_COLLISION;
-    mcr.rw_numlast = 1;
-    mcr.k_factor = 1.;
-    mcr.show_shooting_weights = false;
-    mcr.weighted_sampling = false;
-    mcr.discard_incremental = false;
-    mcr.incremental_uses_importance = false;
-    mcr.naive_merging = false;
+    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.inited = false;
+    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.rayUnitsPerIt = 10;
+    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.bidirectionalTransfers = false;
+    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.constantControlVariate = false;
+    colorClear(GLOBAL_stochasticRaytracing_monteCarloRadiosityState.controlRadiance);
+    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.indirectOnly = false;
+    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.sequence = S4D_NIEDERREITER;
+    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.approximationOrderType = AT_CONSTANT;
+    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceDriven = false;
+    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.radianceDriven = true;
+    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceUpdated = false;
+    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceUpdatedFromScratch = false;
+    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.continuousRandomWalk = false;
+    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.randomWalkEstimatorType = RW_SHOOTING;
+    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.randomWalkEstimatorKind = RW_COLLISION;
+    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.randomWalkNumLast = 1;
+    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.weightedSampling = false;
+    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.discardIncremental = false;
+    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.incrementalUsesImportance = false;
+    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.naiveMerging = false;
 
-    mcr.show = SHOW_TOTAL_RADIANCE;
+    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.show = SHOW_TOTAL_RADIANCE;
 
-    mcr.do_nondiffuse_first_shot = false;
-    mcr.initial_ls_samples = 1000;
+    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.doNonDiffuseFirstShot = false;
+    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.initialLightSourceSamples = 1000;
 
     ElementHierarchyDefaults();
     InitBasis();
@@ -191,8 +189,8 @@ void monteCarloRadiosityUpdateCpuSecs() {
     clock_t t;
 
     t = clock();
-    mcr.cpu_secs += (float) (t - mcr.lastclock) / (float) CLOCKS_PER_SEC;
-    mcr.lastclock = t;
+    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.cpuSeconds += (float) (t - GLOBAL_stochasticRaytracing_monteCarloRadiosityState.lastClock) / (float) CLOCKS_PER_SEC;
+    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.lastClock = t;
 }
 
 void *monteCarloRadiosityCreatePatchData(PATCH *patch) {
@@ -221,7 +219,7 @@ void monteCarloRadiosityPatchComputeNewColor(PATCH *patch) {
 /* Initializes the computations for the current scene (if any): initialisations
  * are delayed to just before the first iteration step, see ReInit() below. */
 void monteCarloRadiosityInit() {
-    mcr.inited = false;
+    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.inited = false;
 }
 
 /* initialises patch data */
@@ -253,9 +251,9 @@ static void PullImportances(ELEMENT *child) {
 }
 
 static void AccumulateImportances(ELEMENT *elem) {
-    mcr.total_ymp += elem->area * elem->imp;
-    mcr.source_ymp += elem->area * elem->source_imp;
-    mcr.unshot_ymp += elem->area * fabs(elem->unshot_imp);
+    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalYmp += elem->area * elem->imp;
+    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.sourceYmp += elem->area * elem->source_imp;
+    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotYmp += elem->area * fabs(elem->unshot_imp);
 }
 
 /* update importance in the element hierarchy starting with the top cluster */
@@ -293,25 +291,25 @@ void monteCarloRadiosityUpdateViewImportance() {
 
     UpdateDirectVisibility();
 
-    mcr.source_ymp = mcr.unshot_ymp = mcr.total_ymp = 0.;
+    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.sourceYmp = GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotYmp = GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalYmp = 0.;
     UpdateImportance(hierarchy.topcluster);
 
-    if ( mcr.unshot_ymp < mcr.source_ymp ) {
+    if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotYmp < GLOBAL_stochasticRaytracing_monteCarloRadiosityState.sourceYmp ) {
         fprintf(stderr, "Importance will be recomputed incrementally.\n");
-        mcr.importance_updated_from_scratch = false;
+        GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceUpdatedFromScratch = false;
     } else {
         fprintf(stderr, "Importance will be recomputed from scratch.\n");
-        mcr.importance_updated_from_scratch = true;
+        GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceUpdatedFromScratch = true;
 
         /* re-compute from scratch */
-        mcr.source_ymp = mcr.unshot_ymp = mcr.total_ymp = 0.;
+        GLOBAL_stochasticRaytracing_monteCarloRadiosityState.sourceYmp = GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotYmp = GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalYmp = 0.;
         ReInitImportance(hierarchy.topcluster);
     }
 
     GLOBAL_camera_mainCamera.changed = false;    /* indicate that direct importance has been
 				 * computed for this view already. */
-    mcr.imp_traced_rays = 0;    /* start over */
-    mcr.importance_updated = true;
+    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceTracedRays = 0;    /* start over */
+    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceUpdated = true;
 }
 
 /* computes max_i (A_T/A_i): the ratio of the total area over the minimal patch 
@@ -357,44 +355,44 @@ static double DetermineAreaFraction() {
 /* determines elementary ray power for the initial incremental iterations. */
 static void McrDetermineInitialNrRays() {
     double areafrac = DetermineAreaFraction();
-    mcr.initial_nr_rays = (long) ((double) mcr.ray_units_per_it * areafrac);
+    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.initialNumberOfRays = (long) ((double) GLOBAL_stochasticRaytracing_monteCarloRadiosityState.rayUnitsPerIt * areafrac);
 }
 
 /* really initialises: before the first iteration step */
 void monteCarloRadiosityReInit() {
-    if ( mcr.inited ) {
+    if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.inited ) {
         return;
     }
 
     fprintf(stderr, "Initialising Monte Carlo radiosity ...\n");
 
-    SetSequence4D(mcr.sequence);
+    SetSequence4D(GLOBAL_stochasticRaytracing_monteCarloRadiosityState.sequence);
 
-    mcr.inited = true;
-    mcr.cpu_secs = 0.;
-    mcr.lastclock = clock();
-    mcr.iteration_nr = 0;
-    mcr.traced_rays = mcr.prev_traced_rays = mcr.nrmisses = 0;
-    mcr.imp_traced_rays = mcr.prev_imp_traced_rays = 0;
-    mcr.set_source = mcr.indirect_only;
-    mcr.traced_paths = 0;
-    colorClear(mcr.control_radiance);
+    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.inited = true;
+    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.cpuSeconds = 0.;
+    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.lastClock = clock();
+    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.currentIteration = 0;
+    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.tracedRays = GLOBAL_stochasticRaytracing_monteCarloRadiosityState.prevTracedRays = GLOBAL_stochasticRaytracing_monteCarloRadiosityState.numberOfMisses = 0;
+    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceTracedRays = GLOBAL_stochasticRaytracing_monteCarloRadiosityState.prevImportanceTracedRays = 0;
+    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.setSource = GLOBAL_stochasticRaytracing_monteCarloRadiosityState.indirectOnly;
+    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.tracedPaths = 0;
+    colorClear(GLOBAL_stochasticRaytracing_monteCarloRadiosityState.controlRadiance);
 
-    colorClear(mcr.unshot_flux);
-    mcr.unshot_ymp = 0.;
-    colorClear(mcr.total_flux);
-    mcr.total_ymp = 0.;
-    colorClear(mcr.imp_unshot_flux);
+    colorClear(GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotFlux);
+    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotYmp = 0.;
+    colorClear(GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalFlux);
+    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalYmp = 0.;
+    colorClear(GLOBAL_stochasticRaytracing_monteCarloRadiosityState.indirectImportanceWeightedUnShotFlux);
     ForAllPatches(P, GLOBAL_scene_patches)
                 {
                     McrInitPatch(P);
-                    colorAddScaled(mcr.unshot_flux, M_PI * P->area, getTopLevelPatchUnShotRad(P)[0], mcr.unshot_flux);
-                    colorAddScaled(mcr.total_flux, M_PI * P->area, getTopLevelPatchRad(P)[0], mcr.total_flux);
-                    colorAddScaled(mcr.imp_unshot_flux, M_PI * P->area * (TOPLEVEL_ELEMENT(P)->imp - TOPLEVEL_ELEMENT(P)->source_imp), getTopLevelPatchUnShotRad(P)[0],
-                                   mcr.imp_unshot_flux);
-                    mcr.unshot_ymp += P->area * fabs(TOPLEVEL_ELEMENT(P)->unshot_imp);
-                    mcr.total_ymp += P->area * TOPLEVEL_ELEMENT(P)->imp;
-                    mcr.source_ymp += P->area * TOPLEVEL_ELEMENT(P)->source_imp;
+                    colorAddScaled(GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotFlux, M_PI * P->area, getTopLevelPatchUnShotRad(P)[0], GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotFlux);
+                    colorAddScaled(GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalFlux, M_PI * P->area, getTopLevelPatchRad(P)[0], GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalFlux);
+                    colorAddScaled(GLOBAL_stochasticRaytracing_monteCarloRadiosityState.indirectImportanceWeightedUnShotFlux, M_PI * P->area * (TOPLEVEL_ELEMENT(P)->imp - TOPLEVEL_ELEMENT(P)->source_imp), getTopLevelPatchUnShotRad(P)[0],
+                                   GLOBAL_stochasticRaytracing_monteCarloRadiosityState.indirectImportanceWeightedUnShotFlux);
+                    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotYmp += P->area * fabs(TOPLEVEL_ELEMENT(P)->unshot_imp);
+                    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalYmp += P->area * TOPLEVEL_ELEMENT(P)->imp;
+                    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.sourceYmp += P->area * TOPLEVEL_ELEMENT(P)->source_imp;
                     monteCarloRadiosityPatchComputeNewColor(P);
                 }
     EndForAll;
@@ -403,30 +401,29 @@ void monteCarloRadiosityReInit() {
 
     ElementHierarchyInit();
 
-    if ( mcr.importance_driven ) {
+    if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceDriven ) {
         monteCarloRadiosityUpdateViewImportance();
-        mcr.importance_updated_from_scratch = true;
+        GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceUpdatedFromScratch = true;
     }
 }
 
-void monteCarloRadiosityPreStep() {
-    if ( !mcr.inited ) {
+void
+monteCarloRadiosityPreStep() {
+    if ( !GLOBAL_stochasticRaytracing_monteCarloRadiosityState.inited ) {
         monteCarloRadiosityReInit();
     }
-    if ( mcr.importance_driven && GLOBAL_camera_mainCamera.changed ) {
+    if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceDriven && GLOBAL_camera_mainCamera.changed ) {
         monteCarloRadiosityUpdateViewImportance();
     }
 
-    mcr.wake_up = false;
-    mcr.lastclock = clock();
-
-    mcr.iteration_nr++;
+    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.lastClock = clock();
+    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.currentIteration++;
 }
 
 /* undoes the effect of Init() and all side-effects of Step() */
 void monteCarloRadiosityTerminate() {
     ElementHierarchyTerminate();
-    mcr.inited = false;
+    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.inited = false;
 }
 
 static COLOR McrDiffuseReflectanceAtPoint(PATCH *patch, double u, double v) {
@@ -477,13 +474,13 @@ COLOR monteCarloRadiosityGetRadiance(PATCH *patch, double u, double v, Vector3D 
     colorClear(source_rad);
 
     /* subtract source radiance */
-    if ( mcr.show != SHOW_INDIRECT_RADIANCE ) {
-        /* source_rad is self-emitted radiance if !mcr.indirect_only. It is direct
-         * illumination if mcr.direct_only */
-        if ( !mcr.do_nondiffuse_first_shot ) {
+    if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.show != SHOW_INDIRECT_RADIANCE ) {
+        /* source_rad is self-emitted radiance if !GLOBAL_stochasticRaytracing_monteCarloRadiosityState.indirectOnly. It is direct
+         * illumination if GLOBAL_stochasticRaytracing_monteCarloRadiosityState.direct_only */
+        if ( !GLOBAL_stochasticRaytracing_monteCarloRadiosityState.doNonDiffuseFirstShot ) {
             source_rad = leaf->source_rad;
         }
-        if ( mcr.indirect_only || mcr.do_nondiffuse_first_shot ) {
+        if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.indirectOnly || GLOBAL_stochasticRaytracing_monteCarloRadiosityState.doNonDiffuseFirstShot ) {
             /* subtract self-emitted radiance */
             colorAdd(source_rad, leaf->Ed, source_rad);
         }
@@ -500,7 +497,7 @@ COLOR monteCarloRadiosityGetRadiance(PATCH *patch, double u, double v, Vector3D 
 }
 
 void monteCarloRadiosityRecomputeDisplayColors() {
-    if ( !mcr.inited ) {
+    if ( !GLOBAL_stochasticRaytracing_monteCarloRadiosityState.inited ) {
         return;
     }
 

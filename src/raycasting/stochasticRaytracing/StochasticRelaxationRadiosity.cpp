@@ -14,7 +14,7 @@
 #include "raycasting/stochasticRaytracing/stochjacobi.h"
 
 static void SrrInit() {
-    mcr.method = STOCHASTIC_RELAXATION_RADIOSITY_METHOD;
+    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.method = STOCHASTIC_RELAXATION_RADIOSITY_METHOD;
     monteCarloRadiosityInit();
 }
 
@@ -26,17 +26,17 @@ static char *SrrGetStats() {
     p = stats;
     sprintf(p, "Stochastic Relaxation Radiosity\nStatistics\n\n%n", &n);
     p += n;
-    sprintf(p, "Iteration nr: %d\n%n", mcr.iteration_nr, &n);
+    sprintf(p, "Iteration nr: %d\n%n", GLOBAL_stochasticRaytracing_monteCarloRadiosityState.currentIteration, &n);
     p += n;
-    sprintf(p, "CPU time: %g secs\n%n", mcr.cpu_secs, &n);
+    sprintf(p, "CPU time: %g secs\n%n", GLOBAL_stochasticRaytracing_monteCarloRadiosityState.cpuSeconds, &n);
     p += n;
     /*sprintf(p, "Memory usage: %ld KBytes.\n%n", GetMemoryUsage()/1024, &n); p += n;*/
     sprintf(p, "%ld elements (%ld clusters, %ld surfaces)\n%n",
             hierarchy.nr_elements, hierarchy.nr_clusters, hierarchy.nr_elements - hierarchy.nr_clusters, &n);
     p += n;
-    sprintf(p, "Radiance rays: %ld\n%n", mcr.traced_rays, &n);
+    sprintf(p, "Radiance rays: %ld\n%n", GLOBAL_stochasticRaytracing_monteCarloRadiosityState.tracedRays, &n);
     p += n;
-    sprintf(p, "Importance rays: %ld\n%n", mcr.imp_traced_rays, &n);
+    sprintf(p, "Importance rays: %ld\n%n", GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceTracedRays, &n);
     p += n;
 
     return stats;
@@ -69,7 +69,7 @@ static void SrrRecomputeDisplayColors() {
  * iterations properly taking into account the number of rays and importance 
  * distribution. */
 static double QualityFactor(ELEMENT *elem, double w) {
-    if ( mcr.importance_driven ) {
+    if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceDriven ) {
         return w * elem->imp;
     }
     return w / ElementScalarReflectance(elem);
@@ -82,7 +82,7 @@ static COLOR *ElementUnshotRadiance(ELEMENT *elem) {
 static void ElementIncrementRadiance(ELEMENT *elem, double w) {
     /* Each incremental iteration computes a different contribution to the
      * solution. The quality factor of the result remains constant. */
-    if ( mcr.discard_incremental ) {
+    if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.discardIncremental ) {
         elem->quality = 0.0;
         {
             static int wgiv = false;
@@ -97,7 +97,7 @@ static void ElementIncrementRadiance(ELEMENT *elem, double w) {
 
     stochasticRadiosityAddCoefficients(elem->rad, elem->received_rad, elem->basis);
     stochasticRadiosityCopyCoefficients(elem->unshot_rad, elem->received_rad, elem->basis);
-    if ( mcr.set_source ) {
+    if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.setSource ) {
         /* copy direct illumination and forget selfemitted illumination */
         elem->rad[0] = elem->source_rad = elem->received_rad[0];
     }
@@ -106,12 +106,12 @@ static void ElementIncrementRadiance(ELEMENT *elem, double w) {
 
 static void PrintIncrementalRadianceStats() {
     fprintf(stderr, "%g secs., radiance rays = %ld (%ld not to background), unshot flux = ",
-            mcr.cpu_secs, mcr.traced_rays, mcr.traced_rays - mcr.nrmisses);
-    mcr.unshot_flux.print(stderr);
+            GLOBAL_stochasticRaytracing_monteCarloRadiosityState.cpuSeconds, GLOBAL_stochasticRaytracing_monteCarloRadiosityState.tracedRays, GLOBAL_stochasticRaytracing_monteCarloRadiosityState.tracedRays - GLOBAL_stochasticRaytracing_monteCarloRadiosityState.numberOfMisses);
+    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotFlux.print(stderr);
     fprintf(stderr, ", total flux = ");
-    mcr.total_flux.print(stderr);
+    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalFlux.print(stderr);
     fprintf(stderr, ", indirect importance weighted unshot flux = ");
-    mcr.imp_unshot_flux.print(stderr);
+    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.indirectImportanceWeightedUnShotFlux.print(stderr);
     fprintf(stderr, "\n");
 }
 
@@ -119,37 +119,37 @@ static void DoIncrementalRadianceIterations() {
     double ref_unshot;
     long step_nr = 0;
 
-    int weighted_sampling = mcr.weighted_sampling;
-    int importance_driven = mcr.importance_driven;
-    if ( !mcr.incremental_uses_importance ) {
-        mcr.importance_driven = false;
+    int weighted_sampling = GLOBAL_stochasticRaytracing_monteCarloRadiosityState.weightedSampling;
+    int importance_driven = GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceDriven;
+    if ( !GLOBAL_stochasticRaytracing_monteCarloRadiosityState.incrementalUsesImportance ) {
+        GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceDriven = false;
     } /* temporarily switch it off */
-    mcr.weighted_sampling = false;
+    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.weightedSampling = false;
 
     PrintIncrementalRadianceStats();
-    ref_unshot = colorSumAbsComponents(mcr.unshot_flux);
-    if ( mcr.incremental_uses_importance ) {
-        ref_unshot = colorSumAbsComponents(mcr.imp_unshot_flux);
+    ref_unshot = colorSumAbsComponents(GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotFlux);
+    if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.incrementalUsesImportance ) {
+        ref_unshot = colorSumAbsComponents(GLOBAL_stochasticRaytracing_monteCarloRadiosityState.indirectImportanceWeightedUnShotFlux);
     }
     while ( 1 ) {
         /* choose nr of rays so that power carried by each ray remains equal, and
          * proportional to the number of basis functions in the rad. approx. */
         double unshot_fraction;
         long nr_rays;
-        unshot_fraction = colorSumAbsComponents(mcr.unshot_flux) / ref_unshot;
-        if ( mcr.incremental_uses_importance ) {
-            unshot_fraction = colorSumAbsComponents(mcr.imp_unshot_flux) / ref_unshot;
+        unshot_fraction = colorSumAbsComponents(GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotFlux) / ref_unshot;
+        if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.incrementalUsesImportance ) {
+            unshot_fraction = colorSumAbsComponents(GLOBAL_stochasticRaytracing_monteCarloRadiosityState.indirectImportanceWeightedUnShotFlux) / ref_unshot;
         }
         if ( unshot_fraction < 0.01 )
             break;    /* only 1/100th of selfemitted power remains unshot */
-        nr_rays = RandomRound(unshot_fraction * (double) mcr.initial_nr_rays * approxdesc[mcr.approx_type].basis_size);
+        nr_rays = RandomRound(unshot_fraction * (double) GLOBAL_stochasticRaytracing_monteCarloRadiosityState.initialNumberOfRays * approxdesc[GLOBAL_stochasticRaytracing_monteCarloRadiosityState.approximationOrderType].basis_size);
 
         step_nr++;
         fprintf(stderr, "Incremental radiance propagation step %ld: %.3f%% unshot power left.\n",
                 step_nr, 100. * unshot_fraction);
 
         DoStochasticJacobiIteration(nr_rays, ElementUnshotRadiance, nullptr, ElementIncrementRadiance);
-        mcr.set_source = false;    /* direct illumination is copied to SOURCE_FLUX(P) only
+        GLOBAL_stochasticRaytracing_monteCarloRadiosityState.setSource = false;    /* direct illumination is copied to SOURCE_FLUX(P) only
 				 * the first time. */
 
         monteCarloRadiosityUpdateCpuSecs();
@@ -161,8 +161,8 @@ static void DoIncrementalRadianceIterations() {
         }
     }
 
-    mcr.importance_driven = importance_driven;    /* switch it back on if it was on */
-    mcr.weighted_sampling = weighted_sampling;
+    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceDriven = importance_driven;    /* switch it back on if it was on */
+    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.weightedSampling = weighted_sampling;
 }
 
 static float ElementUnshotImportance(ELEMENT *elem) {
@@ -177,32 +177,32 @@ static void ElementIncrementImportance(ELEMENT *elem, double w) {
 
 static void PrintIncrementalImportanceStats() {
     fprintf(stderr, "%g secs., importance rays = %ld, unshot importance = %g, total importance = %g, total area = %g\n",
-            mcr.cpu_secs, mcr.imp_traced_rays, mcr.unshot_ymp, mcr.total_ymp, GLOBAL_statistics_totalArea);
+            GLOBAL_stochasticRaytracing_monteCarloRadiosityState.cpuSeconds, GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceTracedRays, GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotYmp, GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalYmp, GLOBAL_statistics_totalArea);
 }
 
 static void DoIncrementalImportanceIterations() {
     long step_nr = 0;
-    int radiance_driven = mcr.radiance_driven;
+    int radiance_driven = GLOBAL_stochasticRaytracing_monteCarloRadiosityState.radianceDriven;
     int do_h_meshing = hierarchy.do_h_meshing;
     CLUSTERING_MODE clustering = hierarchy.clustering;
-    int weighted_sampling = mcr.weighted_sampling;
+    int weighted_sampling = GLOBAL_stochasticRaytracing_monteCarloRadiosityState.weightedSampling;
 
-    if ( mcr.source_ymp < EPSILON ) {
+    if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.sourceYmp < EPSILON ) {
         fprintf(stderr, "No source importance!!\n");
         return;
     }
 
-    mcr.radiance_driven = false;    /* temporary switch it off */
+    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.radianceDriven = false;    /* temporary switch it off */
     hierarchy.do_h_meshing = false;
     hierarchy.clustering = NO_CLUSTERING;
-    mcr.weighted_sampling = false;
+    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.weightedSampling = false;
 
     PrintIncrementalRadianceStats();
     while ( 1 ) {
         /* choose nr of rays so that power carried by each ray is the same, and
          * proportional to the number of basis functions in the rad. approx. */
-        double unshot_fraction = mcr.unshot_ymp / mcr.source_ymp;
-        long nr_rays = RandomRound(unshot_fraction * (double) mcr.initial_nr_rays);
+        double unshot_fraction = GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotYmp / GLOBAL_stochasticRaytracing_monteCarloRadiosityState.sourceYmp;
+        long nr_rays = RandomRound(unshot_fraction * (double) GLOBAL_stochasticRaytracing_monteCarloRadiosityState.initialNumberOfRays);
         if ( unshot_fraction < 0.01 ) {
             break;
         }
@@ -217,10 +217,10 @@ static void DoIncrementalImportanceIterations() {
         PrintIncrementalImportanceStats();
     }
 
-    mcr.radiance_driven = radiance_driven;    /* switch on again */
+    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.radianceDriven = radiance_driven;    /* switch on again */
     hierarchy.do_h_meshing = do_h_meshing;
     hierarchy.clustering = clustering;
-    mcr.weighted_sampling = weighted_sampling;
+    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.weightedSampling = weighted_sampling;
 }
 
 static COLOR *ElementRadiance(ELEMENT *elem) {
@@ -228,9 +228,9 @@ static COLOR *ElementRadiance(ELEMENT *elem) {
 }
 
 static void ElementUpdateRadiance(ELEMENT *elem, double w) {
-    double k = (double) mcr.prev_traced_rays / (double) (mcr.traced_rays > 0 ? mcr.traced_rays : 1);
+    double k = (double) GLOBAL_stochasticRaytracing_monteCarloRadiosityState.prevTracedRays / (double) (GLOBAL_stochasticRaytracing_monteCarloRadiosityState.tracedRays > 0 ? GLOBAL_stochasticRaytracing_monteCarloRadiosityState.tracedRays : 1);
 
-    if ( !mcr.naive_merging ) {
+    if ( !GLOBAL_stochasticRaytracing_monteCarloRadiosityState.naiveMerging ) {
         double quality = QualityFactor(elem, w);
         if ( elem->quality < EPSILON ) {
             k = 0.;    /* solution of this iteration takes over */
@@ -262,19 +262,19 @@ static void ElementUpdateRadiance(ELEMENT *elem, double w) {
 
 static void PrintRegularStats() {
     fprintf(stderr, "%g secs., radiance rays = %ld (%ld not to background), unshot flux = ",
-            mcr.cpu_secs, mcr.traced_rays, mcr.traced_rays - mcr.nrmisses);
+            GLOBAL_stochasticRaytracing_monteCarloRadiosityState.cpuSeconds, GLOBAL_stochasticRaytracing_monteCarloRadiosityState.tracedRays, GLOBAL_stochasticRaytracing_monteCarloRadiosityState.tracedRays - GLOBAL_stochasticRaytracing_monteCarloRadiosityState.numberOfMisses);
     fprintf(stderr, ", total flux = ");
-    mcr.total_flux.print(stderr);
-    if ( mcr.importance_driven ) {
+    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalFlux.print(stderr);
+    if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceDriven ) {
         fprintf(stderr, "\ntotal importance rays = %ld, total importance = %g, GLOBAL_statistics_totalArea = %g",
-                mcr.imp_traced_rays, mcr.total_ymp, GLOBAL_statistics_totalArea);
+                GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceTracedRays, GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalYmp, GLOBAL_statistics_totalArea);
     }
     fprintf(stderr, "\n");
 }
 
 static void DoRegularRadianceIteration() {
-    fprintf(stderr, "Regular radiance iteration %d:\n", mcr.iteration_nr);
-    DoStochasticJacobiIteration(mcr.rays_per_iteration, ElementRadiance, nullptr, ElementUpdateRadiance);
+    fprintf(stderr, "Regular radiance iteration %d:\n", GLOBAL_stochasticRaytracing_monteCarloRadiosityState.currentIteration);
+    DoStochasticJacobiIteration(GLOBAL_stochasticRaytracing_monteCarloRadiosityState.raysPerIteration, ElementRadiance, nullptr, ElementUpdateRadiance);
 
     monteCarloRadiosityUpdateCpuSecs();
     PrintRegularStats();
@@ -285,7 +285,7 @@ static float ElementImportance(ELEMENT *elem) {
 }
 
 static void ElementUpdateImportance(ELEMENT *elem, double w) {
-    double k = (double) mcr.prev_imp_traced_rays / (double) mcr.imp_traced_rays;
+    double k = (double) GLOBAL_stochasticRaytracing_monteCarloRadiosityState.prevImportanceTracedRays / (double) GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceTracedRays;
 
     elem->imp = k * (elem->imp - elem->source_imp) +
                 (1. - k) * elem->received_imp + elem->source_imp;
@@ -296,13 +296,13 @@ static void DoRegularImportanceIteration() {
     long nr_rays;
     int do_h_meshing = hierarchy.do_h_meshing;
     CLUSTERING_MODE clustering = hierarchy.clustering;
-    int weighted_sampling = mcr.weighted_sampling;
+    int weighted_sampling = GLOBAL_stochasticRaytracing_monteCarloRadiosityState.weightedSampling;
     hierarchy.do_h_meshing = false;
     hierarchy.clustering = NO_CLUSTERING;
-    mcr.weighted_sampling = false;
+    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.weightedSampling = false;
 
-    nr_rays = mcr.imp_rays_per_iteration;
-    fprintf(stderr, "Regular importance iteration %d:\n", mcr.iteration_nr);
+    nr_rays = GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceRaysPerIteration;
+    fprintf(stderr, "Regular importance iteration %d:\n", GLOBAL_stochasticRaytracing_monteCarloRadiosityState.currentIteration);
     DoStochasticJacobiIteration(nr_rays, nullptr, ElementImportance, ElementUpdateImportance);
 
     monteCarloRadiosityUpdateCpuSecs();
@@ -310,7 +310,7 @@ static void DoRegularImportanceIteration() {
 
     hierarchy.do_h_meshing = do_h_meshing;
     hierarchy.clustering = clustering;
-    mcr.weighted_sampling = weighted_sampling;
+    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.weightedSampling = weighted_sampling;
 }
 
 /* Resets to zero all kind of things that should be reset to zero after a first
@@ -326,7 +326,7 @@ static void ElementDiscardIncremental(ELEMENT *elem) {
 }
 
 static void DiscardIncremental() {
-    mcr.traced_rays = mcr.prev_traced_rays = 0;
+    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.tracedRays = GLOBAL_stochasticRaytracing_monteCarloRadiosityState.prevTracedRays = 0;
 
     ElementDiscardIncremental(hierarchy.topcluster);
 }
@@ -335,22 +335,22 @@ static int SrrDoStep() {
     monteCarloRadiosityPreStep();
 
     /* do some real work now */
-    if ( mcr.iteration_nr == 1 ) {
+    if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.currentIteration == 1 ) {
         int initial_nr_of_rays = 0;
-        if ( mcr.do_nondiffuse_first_shot )
+        if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.doNonDiffuseFirstShot )
             doNonDiffuseFirstShot();
-        initial_nr_of_rays = mcr.traced_rays;
+        initial_nr_of_rays = GLOBAL_stochasticRaytracing_monteCarloRadiosityState.tracedRays;
 
-        if ( mcr.importance_driven ) {
-            if ( !mcr.incremental_uses_importance ) {
+        if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceDriven ) {
+            if ( !GLOBAL_stochasticRaytracing_monteCarloRadiosityState.incrementalUsesImportance ) {
                 Warning(nullptr, "Importance is only used from the second iteration on ...");
-            } else if ( mcr.importance_updated ) {
-                mcr.importance_updated = false;
+            } else if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceUpdated ) {
+                GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceUpdated = false;
 
                 /* propagate importance changes */
                 DoIncrementalImportanceIterations();
-                if ( mcr.importance_updated_from_scratch ) {
-                    mcr.imp_rays_per_iteration = mcr.imp_traced_rays;
+                if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceUpdatedFromScratch ) {
+                    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceRaysPerIteration = GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceTracedRays;
                 }
             }
         }
@@ -358,20 +358,20 @@ static int SrrDoStep() {
 
         /* subsequent regular iteratoins will take as many rays as in the whole
          * sequence of incremental iteration steps. */
-        mcr.rays_per_iteration = mcr.traced_rays - initial_nr_of_rays;
+        GLOBAL_stochasticRaytracing_monteCarloRadiosityState.raysPerIteration = GLOBAL_stochasticRaytracing_monteCarloRadiosityState.tracedRays - initial_nr_of_rays;
 
-        if ( mcr.discard_incremental ) {
+        if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.discardIncremental ) {
             DiscardIncremental();
         }
     } else {
-        if ( mcr.importance_driven ) {
-            if ( mcr.importance_updated ) {
-                mcr.importance_updated = false;
+        if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceDriven ) {
+            if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceUpdated ) {
+                GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceUpdated = false;
 
                 /* propagate importance changes */
                 DoIncrementalImportanceIterations();
-                if ( mcr.importance_updated_from_scratch ) {
-                    mcr.imp_rays_per_iteration = mcr.imp_traced_rays;
+                if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceUpdatedFromScratch ) {
+                    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceRaysPerIteration = GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceTracedRays;
                 }
             } else {
                 DoRegularImportanceIteration();
@@ -388,7 +388,7 @@ static int SrrDoStep() {
 }
 
 static void McrRenderPatch(PATCH *patch) {
-    if ( mcr.inited ) {
+    if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.inited ) {
         McrForAllSurfaceLeafs(TOPLEVEL_ELEMENT(patch), McrRenderElement);
     } else {
         RenderPatch(patch);

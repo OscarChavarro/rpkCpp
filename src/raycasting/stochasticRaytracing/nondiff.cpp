@@ -91,7 +91,7 @@ static void SampleLight(LIGHTSOURCETABLE *light, double light_selection_pdf) {
     Ray ray = SampleLightRay(light->patch, &rad, &point_selection_pdf, &dir_selection_pdf);
     HITREC hitstore, *hit;
 
-    mcr.traced_rays++;
+    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.tracedRays++;
     hit = McrShootRay(light->patch, &ray, &hitstore);
     if ( hit ) {
         double pdf = light_selection_pdf * point_selection_pdf * dir_selection_pdf;
@@ -130,20 +130,20 @@ static void SampleLightSources(int nr_samples) {
 }
 
 static void Summarize() {
-    colorClear(mcr.unshot_flux);
-    mcr.unshot_ymp = 0.;
-    colorClear(mcr.total_flux);
-    mcr.total_ymp = 0.;
-    colorClear(mcr.imp_unshot_flux);
+    colorClear(GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotFlux);
+    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotYmp = 0.;
+    colorClear(GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalFlux);
+    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalYmp = 0.;
+    colorClear(GLOBAL_stochasticRaytracing_monteCarloRadiosityState.indirectImportanceWeightedUnShotFlux);
     ForAllPatches(P, GLOBAL_scene_patches)
                 {
-                    colorAddScaled(mcr.unshot_flux, M_PI * P->area, getTopLevelPatchUnShotRad(P)[0], mcr.unshot_flux);
-                    colorAddScaled(mcr.total_flux, M_PI * P->area, getTopLevelPatchRad(P)[0], mcr.total_flux);
-                    colorAddScaled(mcr.imp_unshot_flux, M_PI * P->area * (TOPLEVEL_ELEMENT(P)->imp - TOPLEVEL_ELEMENT(P)->source_imp), getTopLevelPatchUnShotRad(P)[0],
-                                   mcr.imp_unshot_flux);
-                    mcr.unshot_ymp += P->area * fabs(TOPLEVEL_ELEMENT(P)->unshot_imp);
-                    mcr.total_ymp += P->area * TOPLEVEL_ELEMENT(P)->imp;
-                    mcr.source_ymp += P->area * TOPLEVEL_ELEMENT(P)->source_imp;
+                    colorAddScaled(GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotFlux, M_PI * P->area, getTopLevelPatchUnShotRad(P)[0], GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotFlux);
+                    colorAddScaled(GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalFlux, M_PI * P->area, getTopLevelPatchRad(P)[0], GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalFlux);
+                    colorAddScaled(GLOBAL_stochasticRaytracing_monteCarloRadiosityState.indirectImportanceWeightedUnShotFlux, M_PI * P->area * (TOPLEVEL_ELEMENT(P)->imp - TOPLEVEL_ELEMENT(P)->source_imp), getTopLevelPatchUnShotRad(P)[0],
+                                   GLOBAL_stochasticRaytracing_monteCarloRadiosityState.indirectImportanceWeightedUnShotFlux);
+                    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotYmp += P->area * fabs(TOPLEVEL_ELEMENT(P)->unshot_imp);
+                    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalYmp += P->area * TOPLEVEL_ELEMENT(P)->imp;
+                    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.sourceYmp += P->area * TOPLEVEL_ELEMENT(P)->source_imp;
                     monteCarloRadiosityPatchComputeNewColor(P);
                 }
     EndForAll;
@@ -155,7 +155,7 @@ Initial shooting pass handling non-diffuse light sources
 void
 doNonDiffuseFirstShot() {
     MakeLightSourceTable();
-    SampleLightSources(mcr.initial_ls_samples * nrlights);
+    SampleLightSources(GLOBAL_stochasticRaytracing_monteCarloRadiosityState.initialLightSourceSamples * nrlights);
     Summarize();
     RenderScene();
 }
