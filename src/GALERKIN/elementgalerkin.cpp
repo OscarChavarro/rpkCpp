@@ -177,8 +177,8 @@ static ELEMENT *
 CreateElement() {
     ELEMENT *element = (ELEMENT *)malloc(sizeof(ELEMENT));
 
-    COLORCLEAR(element->Ed);
-    COLORCLEAR(element->Rd);
+    colorClear(element->Ed);
+    colorClear(element->Rd);
     element->id = nr_elements + 1;    /* let the IDs start from 1, not 0 */
     element->radiance = element->received_radiance = element->unshot_radiance = (COLOR *) nullptr;
     element->potential.f = element->received_potential.f = element->unshot_potential.f = 0.;

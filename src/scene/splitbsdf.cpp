@@ -57,7 +57,7 @@ static COLOR
 SplitBsdfEvalTexture(TEXTURE *texture, HITREC *hit) {
     Vector3D texCoord;
     COLOR col;
-    COLORCLEAR(col);
+    colorClear(col);
 
     if ( !texture ) {
         return col;
@@ -92,7 +92,7 @@ TexturedScattererEvalPdf(Vector3D *in, Vector3D *out, Vector3D *normal, double *
 static COLOR
 SplitBsdfScatteredPower(SPLIT_BSDF *bsdf, HITREC *hit, Vector3D *in, BSDFFLAGS flags) {
     COLOR albedo;
-    COLORCLEAR(albedo);
+    colorClear(albedo);
 
     if ( bsdf->texture && (flags & TEXTURED_COMPONENT)) {
         COLOR textureColor = SplitBsdfEvalTexture(bsdf->texture, hit);
@@ -131,7 +131,7 @@ SplitBsdfEval(
     COLOR result;
     Vector3D normal;
 
-    COLORCLEAR(result);
+    colorClear(result);
     if ( !HitShadingNormal(hit, &normal)) {
         Warning("SplitBsdfEval", "Couldn't determine shading normal");
         return result;

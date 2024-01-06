@@ -97,8 +97,8 @@ CreateElement() {
 				 * until just before the first iteration
 				 * in McrReInit() */
 
-    COLORCLEAR(elem->Ed);
-    COLORCLEAR(elem->Rd);
+    colorClear(elem->Ed);
+    colorClear(elem->Rd);
 
     elem->ray_index = 0;
     elem->quality = 0;
@@ -164,7 +164,7 @@ CreateCluster(Geometry *geom) {
     elem->iscluster = true;
 
     COLORSETMONOCHROME(elem->Rd, 1.);
-    COLORCLEAR(elem->Ed);
+    colorClear(elem->Ed);
 
     /* elem->area will be computed from the subelements in the cluster later */
     VECTORSET(elem->midpoint,
@@ -570,8 +570,8 @@ ElementComputeAverageReflectanceAndEmittance(ELEMENT *elem) {
 
     istextured = ElementIsTextured(elem);
     nrsamples = istextured ? 100 : 1;
-    COLORCLEAR(albedo);
-    COLORCLEAR(emittance);
+    colorClear(albedo);
+    colorClear(emittance);
     ElementRange(elem, &nbits, &msb1, &rmsb2);
 
     n = 1;

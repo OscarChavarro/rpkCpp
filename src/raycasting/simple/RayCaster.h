@@ -20,7 +20,7 @@ class RayCaster {
     COLOR
     get_radiance_at_pixel(int x, int y, PATCH *P, GETRADIANCE_FT getrad) {
         COLOR rad;
-        COLORCLEAR(rad);
+        colorClear(rad);
         if ( P && getrad ) {
             // Ray pointing from the eye through the center of the pixel.
             Ray ray;

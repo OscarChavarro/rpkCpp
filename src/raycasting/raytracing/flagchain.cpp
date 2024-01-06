@@ -312,7 +312,7 @@ void CChainList::Print() {
 COLOR CChainList::Compute(CBiPath *path) {
     COLOR result, tmpCol;
 
-    COLORCLEAR(result);
+    colorClear(result);
 
     CFlagChainIter iter(*this);
     CFlagChain *chain;
@@ -383,7 +383,7 @@ COLOR CContribHandler::Compute(CBiPath *path) {
     COLOR result;
     int length;
 
-    COLORCLEAR(result);
+    colorClear(result);
 
     length = path->m_eyeSize + path->m_lightSize;
 

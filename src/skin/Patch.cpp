@@ -338,7 +338,7 @@ COLOR PatchAverageNormalAlbedo(PATCH *patch, BSDFFLAGS components) {
     InitHit(&hit, patch, nullptr, &patch->midpoint, &patch->normal, patch->surface->material, 0.);
 
     nrsamples = nrofsamples(patch);
-    COLORCLEAR(albedo);
+    colorClear(albedo);
     for ( i = 0; i < nrsamples; i++ ) {
         COLOR sample;
         unsigned *xi = Nied31(i);
@@ -361,7 +361,7 @@ COLOR PatchAverageEmittance(PATCH *patch, XXDFFLAGS components) {
     InitHit(&hit, patch, nullptr, &patch->midpoint, &patch->normal, patch->surface->material, 0.);
 
     nrsamples = nrofsamples(patch);
-    COLORCLEAR(emittance);
+    colorClear(emittance);
     for ( i = 0; i < nrsamples; i++ ) {
         COLOR sample;
         unsigned *xi = Nied31(i);
@@ -409,11 +409,11 @@ void PatchPrint(FILE *out, PATCH *patch) {
     fprintf(out, "sided = %d, material = '%s'\n",
             patch->surface->material->sided,
             patch->surface->material->name ? patch->surface->material->name : "(default)");
-    COLORCLEAR(Rd);
+    colorClear(Rd);
     if ( patch->surface->material->bsdf ) {
         Rd = PatchAverageNormalAlbedo(patch, BRDF_DIFFUSE_COMPONENT);
     }
-    COLORCLEAR(Ed);
+    colorClear(Ed);
     if ( patch->surface->material->edf ) {
         Ed = PatchAverageEmittance(patch, DIFFUSE_COMPONENT);
     }

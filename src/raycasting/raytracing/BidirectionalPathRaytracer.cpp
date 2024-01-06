@@ -365,7 +365,7 @@ COLOR ComputeNEFluxEstimate(BPCONFIG *config, CBiPath *path,
         //}
         //else
         //{
-        //  COLORCLEAR(f);
+        //  colorClear(f);
         //}
     }
 
@@ -632,7 +632,7 @@ static COLOR BPCalcPixel(int nx, int ny, BPCONFIG *config) {
     CStrat2D strat(config->bcfg->samplesPerPixel);
     CPathNode *pixNode, *nextNode;
 
-    COLORCLEAR(result);
+    colorClear(result);
 
     // We sample the eye here since it's always the same point
 

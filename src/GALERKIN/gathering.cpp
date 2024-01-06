@@ -156,7 +156,7 @@ DoGatheringIteration() {
          !GLOBAL_galerkin_state.importance_driven ) PatchListIterate(GLOBAL_scene_patches, PatchLazyCreateInteractions);
 
     /* no visualisation with ambient term for gathering radiosity algorithms */
-    COLORCLEAR(GLOBAL_galerkin_state.ambient_radiance);
+    colorClear(GLOBAL_galerkin_state.ambient_radiance);
 
     /* one iteration = gather to all patches */
     PatchListIterate(GLOBAL_scene_patches, PatchGather);
@@ -225,7 +225,7 @@ DoClusteredGatheringIteration() {
     }
 
     /* no visualisation with ambient term for gathering radiosity algorithms */
-    COLORCLEAR(GLOBAL_galerkin_state.ambient_radiance);
+    colorClear(GLOBAL_galerkin_state.ambient_radiance);
 
     /* update the display colors of the patches */
     PatchListIterate(GLOBAL_scene_patches, PatchRecomputeColor);

@@ -27,13 +27,15 @@ class CBsdfComp {
 
     void Clear(const BSDFFLAGS flags = BSDF_ALL_COMPONENTS) {
         for ( int i = 0; i < BSDFCOMPONENTS; i++ ) {
-            if ( flags & (BSDF_INDEXTOCOMP(i))) COLORCLEAR(comp[i])
-        };
+            if ( flags & (BSDF_INDEXTOCOMP(i)) ) {
+                colorClear(comp[i]);
+            }
+        }
     }
 
     void Fill(const COLOR col, const BSDFFLAGS flags = BSDF_ALL_COMPONENTS) {
         for ( int i = 0; i < BSDFCOMPONENTS; i++ ) {
-            if ( flags & (BSDF_INDEXTOCOMP(i))) {
+            if ( flags & (BSDF_INDEXTOCOMP(i)) ) {
                 comp[i] = col;
             }
         }
@@ -42,7 +44,7 @@ class CBsdfComp {
     COLOR Sum(const BSDFFLAGS flags = BSDF_ALL_COMPONENTS) {
         COLOR result;
 
-        COLORCLEAR(result);
+        colorClear(result);
 
         for ( int i = 0; i < BSDFCOMPONENTS; i++ ) {
             if ( flags & (BSDF_INDEXTOCOMP(i))) {

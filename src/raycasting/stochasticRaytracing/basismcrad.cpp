@@ -144,7 +144,7 @@ void InitBasis() {
 COLOR ColorAtUV(GalerkinBasis *basis, COLOR *rad, double u, double v) {
     int i;
     COLOR res;
-    COLORCLEAR(res);
+    colorClear(res);
     for ( i = 0; i < basis->size; i++ ) {
         double s = basis->function[i](u, v);
         COLORADDSCALED(res, s, rad[i], res);

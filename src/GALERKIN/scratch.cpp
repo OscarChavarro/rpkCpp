@@ -103,7 +103,7 @@ COLOR ScratchRadiance() {
     COLOR rad;
     int i, j;
 
-    COLORCLEAR(rad);
+    colorClear(rad);
     nonbkgrnd = 0;
     for ( j = 0; j < GLOBAL_galerkin_state.scratch->vp_height; j++ ) {
         pix = GLOBAL_galerkin_state.scratch->fbuf + j * GLOBAL_galerkin_state.scratch->width;

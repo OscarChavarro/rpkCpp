@@ -7,7 +7,7 @@
 #include "raycasting/stochasticRaytracing/basismcrad.h"
 
 #define CLEARCOEFFICIENTS(c, basis) {int _i, _n=basis->size; COLOR *_c;    \
-  for (_i=0, _c=(c); _i<_n; _i++, _c++) COLORCLEAR(*_c);        \
+  for (_i=0, _c=(c); _i<_n; _i++, _c++) colorClear(*_c);        \
 }
 
 #define COPYCOEFFICIENTS(dst, src, basis) {int _i, _n=basis->size; COLOR *_d, *_s; \

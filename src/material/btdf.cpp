@@ -25,7 +25,7 @@ COLOR BtdfTransmittance(BTDF *btdf, XXDFFLAGS flags) {
         return btdf->methods->Transmittance(btdf->data, flags);
     } else {
         static COLOR refl;
-        COLORCLEAR(refl);
+        colorClear(refl);
         return refl;
     }
 }
@@ -47,7 +47,7 @@ COLOR BtdfEval(BTDF *btdf, REFRACTIONINDEX inIndex, REFRACTIONINDEX outIndex, Ve
         return btdf->methods->Eval(btdf->data, inIndex, outIndex, in, out, normal, flags);
     } else {
         static COLOR refl;
-        COLORCLEAR(refl);
+        colorClear(refl);
         return refl;
     }
 }

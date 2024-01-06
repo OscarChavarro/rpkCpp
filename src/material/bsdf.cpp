@@ -34,7 +34,7 @@ BsdfDestroy(BSDF *bsdf) {
 COLOR
 BsdfScatteredPower(BSDF *bsdf, HITREC *hit, Vector3D *in, BSDFFLAGS flags) {
     COLOR refl;
-    COLORCLEAR(refl);
+    colorClear(refl);
     if ( bsdf && bsdf->methods->ScatteredPower ) {
         refl = bsdf->methods->ScatteredPower(bsdf->data, hit, in, flags);
     }
@@ -75,7 +75,7 @@ BsdfEval(BSDF *bsdf, HITREC *hit, BSDF *inBsdf, BSDF *outBsdf, Vector3D *in, Vec
         return bsdf->methods->Eval(bsdf->data, hit, inBsdf, outBsdf, in, out, flags);
     } else {
         static COLOR refl;
-        COLORCLEAR(refl);
+        colorClear(refl);
         return refl;
     }
 }
@@ -96,8 +96,8 @@ BsdfEvalComponents(BSDF *bsdf, HITREC *hit, BSDF *inBsdf,
     int i;
     BSDFFLAGS thisFlag;
 
-    COLORCLEAR(empty);
-    COLORCLEAR(result);
+    colorClear(empty);
+    colorClear(result);
 
     for ( i = 0; i < BSDFCOMPONENTS; i++ ) {
         thisFlag = BSDF_INDEXTOCOMP(i);

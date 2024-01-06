@@ -141,9 +141,9 @@ void TracePaths(long nr_paths,
     FreePathNodes(&path);
 
     /* update radiance, compute new total and unshot flux. */
-    COLORCLEAR(mcr.unshot_flux);
+    colorClear(mcr.unshot_flux);
     mcr.unshot_ymp = 0.;
-    COLORCLEAR(mcr.total_flux);
+    colorClear(mcr.total_flux);
     mcr.total_ymp = 0.;
     ForAllPatches(P, GLOBAL_scene_patches)
                 {

@@ -44,7 +44,7 @@ static void MakeLightSourceTable() {
                     CLEARCOEFFICIENTS(RAD(P), BAS(P));
                     CLEARCOEFFICIENTS(UNSHOT_RAD(P), BAS(P));
                     CLEARCOEFFICIENTS(RECEIVED_RAD(P), BAS(P));
-                    COLORCLEAR(SOURCE_RAD(P));
+                    colorClear(SOURCE_RAD(P));
                 }
     EndForAll;
 }
@@ -130,11 +130,11 @@ static void SampleLightSources(int nr_samples) {
 }
 
 static void Summarize() {
-    COLORCLEAR(mcr.unshot_flux);
+    colorClear(mcr.unshot_flux);
     mcr.unshot_ymp = 0.;
-    COLORCLEAR(mcr.total_flux);
+    colorClear(mcr.total_flux);
     mcr.total_ymp = 0.;
-    COLORCLEAR(mcr.imp_unshot_flux);
+    colorClear(mcr.imp_unshot_flux);
     ForAllPatches(P, GLOBAL_scene_patches)
                 {
                     COLORADDSCALED(mcr.unshot_flux, M_PI * P->area, UNSHOT_RAD(P)[0], mcr.unshot_flux);

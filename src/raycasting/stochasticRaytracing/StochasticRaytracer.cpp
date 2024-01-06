@@ -48,7 +48,7 @@ COLOR SR_GetScatteredRadiance(CPathNode *thisNode, SRCONFIG *config,
     thisNode->Attach(&newNode);
 
     COLOR result;
-    COLORCLEAR(result);
+    colorClear(result);
 
     if ((config->samplerConfig.surfaceSampler == nullptr) ||
         (thisNode->m_depth >= config->samplerConfig.maxDepth)) {
@@ -153,7 +153,7 @@ COLOR SR_GetScatteredRadiance(CPathNode *thisNode, SRCONFIG *config,
 COLOR SR_GetDirectRadiance(CPathNode *prevNode, SRCONFIG *config,
                            SRREADOUT readout) {
     COLOR result, radiance;
-    COLORCLEAR(result);
+    colorClear(result);
     Vector3D dirEL;
 
     if ((readout == READ_NOW) && (config->radMode == STORED_PHOTONMAP)) {
@@ -345,7 +345,7 @@ COLOR SR_GetRadiance(CPathNode *thisNode, SRCONFIG *config, SRREADOUT readout,
     else {
         EDF *thisEdf = thisNode->m_hit.material->edf;
 
-        COLORCLEAR(result);
+        colorClear(result);
 
         // Stored radiance
 
@@ -363,7 +363,7 @@ COLOR SR_GetRadiance(CPathNode *thisNode, SRCONFIG *config, SRREADOUT readout,
                         radiance = GetPmapNodeGRadiance(thisNode);
                         // This does not include Le (self emitted light)
                     } else {
-                        COLORCLEAR(radiance);
+                        colorClear(radiance);
                         readout = SCATTER; // This ensures extra scattering, direct light and c-map
                     }
                 } else {
@@ -479,7 +479,7 @@ static COLOR CalcPixel(int nx, int ny, SRCONFIG *config) {
     COLOR col, result;
     CStrat2D strat(config->samplesPerPixel);
 
-    COLORCLEAR(result);
+    colorClear(result);
 
     // Frame coherent & correlated sampling
     if ( rts.doFrameCoherent || rts.doCorrelatedSampling ) {

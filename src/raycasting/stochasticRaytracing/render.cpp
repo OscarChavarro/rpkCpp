@@ -32,7 +32,7 @@ static COLOR VertexRadiance(VERTEX *v) {
     int count = 0;
     COLOR radiance;
 
-    COLORCLEAR(radiance);
+    colorClear(radiance);
     ForAllElements(elem, v->radiance_data)
                 {
                     if ( !elem->regular_subelements ) {
@@ -54,7 +54,7 @@ COLOR VertexReflectance(VERTEX *v) {
     int count = 0;
     COLOR rd;
 
-    COLORCLEAR(rd);
+    colorClear(rd);
     ForAllElementsSharingVertex(elem, v)
                 {
                     if ( !elem->regular_subelements ) {
@@ -453,7 +453,7 @@ COLOR ElementDisplayRadianceAtPoint(ELEMENT *elem, double u, double v) {
                     break;
                 default:
                     Fatal(-1, "ElementDisplayRadianceAtPoint", "can only handle triangular or quadrilateral elements");
-                    COLORCLEAR(radiance);
+                    colorClear(radiance);
             }
         } else {    /* flat shading */
             radiance = ElementDisplayRadiance(elem);

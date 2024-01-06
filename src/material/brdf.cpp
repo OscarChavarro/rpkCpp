@@ -31,7 +31,7 @@ COLOR BrdfReflectance(BRDF *brdf, XXDFFLAGS flags) {
         return test;
     } else {
         static COLOR refl;
-        COLORCLEAR(refl);
+        colorClear(refl);
         return refl;
     }
 }
@@ -42,7 +42,7 @@ COLOR BrdfEval(BRDF *brdf, Vector3D *in, Vector3D *out, Vector3D *normal, XXDFFL
         return brdf->methods->Eval(brdf->data, in, out, normal, flags);
     } else {
         static COLOR refl;
-        COLORCLEAR(refl);
+        colorClear(refl);
         return refl;
     }
 }

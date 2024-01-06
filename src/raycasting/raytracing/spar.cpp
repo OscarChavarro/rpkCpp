@@ -61,7 +61,7 @@ COLOR CSparList::HandlePath(CSparConfig *sconfig,
     CSpar **pspar;
     COLOR total, col;
 
-    COLORCLEAR(total);
+    colorClear(total);
 
     while ((pspar = iter.Next())) {
         col = (*pspar)->HandlePath(sconfig, path);
@@ -77,8 +77,8 @@ void CSparList::HandlePath(CSparConfig *sconfig,
     CSpar **pspar;
     COLOR col;
 
-    COLORCLEAR(*fbpt);
-    COLORCLEAR(*frad);
+    colorClear(*fbpt);
+    colorClear(*frad);
 
     while ((pspar = iter.Next())) {
         col = (*pspar)->HandlePath(sconfig, path);
@@ -146,7 +146,7 @@ CSpar::~CSpar() {
 COLOR CSpar::HandlePath(CSparConfig *, CBiPath *) {
     COLOR result;
 
-    COLORCLEAR(result);
+    colorClear(result);
 
     return result;
 }
@@ -261,11 +261,6 @@ void CLeSpar::Init(CSparConfig *sconfig) {
         ParseAndInit(LDGROUP, sconfig->m_bcfg->wleRegExp);
         m_sparList[LDGROUP].Add(sconfig->m_ldSpar);
     }
-
-    //printf("Le disjunct\n");
-    //m_contrib[DISJUNCTGROUP].Print();
-    //printf("LDGroup\n");
-    //m_contrib[LDGROUP].Print();
 }
 
 
@@ -275,7 +270,7 @@ COLOR CLeSpar::HandlePath(CSparConfig *sconfig,
     double totalGeom = path->ComputeTotalGeomFactor();
     double wp;
 
-    COLORCLEAR(result);
+    colorClear(result);
 
     if ( !sconfig->m_bcfg->doLe && !sconfig->m_bcfg->doWeighted ) {
         return (result);
@@ -454,13 +449,13 @@ double CLeSpar::ComputeWeightTerms(TPathGroupID,
     PatchUV(L1->m_hit.patch,
             &L1->m_hit.point, &u, &v);
 
-    COLORCLEAR(col);
+    colorClear(col);
 
     COLORCLIPPOSITIVE(col, col);
 
     Sl = sumAl * COLORAVERAGE(col);
 
-    COLORCLEAR(col);
+    colorClear(col);
 
     COLORCLIPPOSITIVE(col, col);
 
@@ -780,8 +775,7 @@ COLOR CLDSpar::HandlePath(CSparConfig *sconfig,
                           CBiPath *path) {
     COLOR result, col;
 
-    COLORCLEAR(result);
-
+    colorClear(result);
 
     // Only path tracing paths !!
     if ( path->m_lightSize == 0 ) {
@@ -865,7 +859,7 @@ double CLDSpar::ComputeWeightTerms(TPathGroupID,
     PatchUV(L1->m_hit.patch,
             &L1->m_hit.point, &u, &v);
 
-    COLORCLEAR(col);
+    colorClear(col);
 
     COLORCLIPPOSITIVE(col, col);
 
@@ -973,7 +967,7 @@ COLOR CIDSpar::HandlePath(CSparConfig *sconfig,
                           CBiPath *path) {
     COLOR result;
 
-    COLORCLEAR(result);
+    colorClear(result);
 
     if ( sconfig->m_bcfg->doLI ) {
         // Only path tracing paths !!
@@ -1000,7 +994,7 @@ void CIDSpar::GetStoredRadiance(CPathNode *node) {
     PatchUV(node->m_hit.patch,
             &node->m_hit.point, &u, &v);
 
-    COLORCLEAR(col);
+    colorClear(col);
 
     COLORCLIPPOSITIVE(col, col);
 

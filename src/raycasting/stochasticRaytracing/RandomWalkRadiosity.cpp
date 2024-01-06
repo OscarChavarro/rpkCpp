@@ -211,8 +211,8 @@ DoShootingIteration() {
 static COLOR
 DetermineGatheringControlRadiosity() {
     COLOR c1, c2, cr;
-    COLORCLEAR(c1);
-    COLORCLEAR(c2);
+    colorClear(c1);
+    colorClear(c2);
     ForAllPatches(P, GLOBAL_scene_patches)
                 {
                     COLOR absorb, rho, Ed, num, denom;

@@ -256,7 +256,7 @@ GetCurrentMaterial() {
     /* convert lumen/m^2 to W/m^2 */
     COLORSCALE((1. / WHITE_EFFICACY), Ed, Ed);
 
-    COLORCLEAR(Es);
+    colorClear(Es);
     Ne = 0.;
 
     /* specular power = (0.6/roughness)^2 (see mgf docs) */

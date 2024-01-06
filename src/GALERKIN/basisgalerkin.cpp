@@ -14,7 +14,7 @@ COLOR RadianceAtPoint(ELEMENT *elem, COLOR *coefficients, double u, double v) {
     GalerkinBasis *basis = elem->pog.patch->nrvertices == 3 ? &triBasis : &quadBasis;
     int i;
 
-    COLORCLEAR(rad);
+    colorClear(rad);
     if ( !coefficients ) {
         return rad;
     }
@@ -73,7 +73,7 @@ void Push(ELEMENT *parent, COLOR *parent_coefficients,
         /* Parent and child basis should be the same */
         basis = child->pog.patch->nrvertices == 3 ? &triBasis : &quadBasis;
         for ( beta = 0; beta < child->basis_size; beta++ ) {
-            COLORCLEAR(child_coefficients[beta]);
+            colorClear(child_coefficients[beta]);
             for ( alpha = 0; alpha < parent->basis_size; alpha++ ) {
                 double f = basis->regular_filter[sigma][alpha][beta];
                 if ( f < -EPSILON || f > EPSILON ) COLORADDSCALED(child_coefficients[beta], f,
@@ -118,7 +118,7 @@ void Pull(ELEMENT *parent, COLOR *parent_coefficients,
         /* Parent and child basis should be the same */
         basis = child->pog.patch->nrvertices == 3 ? &triBasis : &quadBasis;
         for ( alpha = 0; alpha < parent->basis_size; alpha++ ) {
-            COLORCLEAR(parent_coefficients[alpha]);
+            colorClear(parent_coefficients[alpha]);
             for ( beta = 0; beta < child->basis_size; beta++ ) {
                 double f = basis->regular_filter[sigma][alpha][beta];
                 if ( f < -EPSILON || f > EPSILON ) COLORADDSCALED(parent_coefficients[alpha], f,
@@ -137,7 +137,7 @@ static void PushPullRadianceRecursive(ELEMENT *elem, COLOR *Bdown, COLOR *Bup) {
     /* "renormalize" the received radiance at this level and add to Bdown. */
     for ( i = 0; i < elem->basis_size; i++ ) {
         COLORADDSCALED(Bdown[i], 1. / elem->area, elem->received_radiance[i], Bdown[i]);
-        COLORCLEAR(elem->received_radiance[i]);
+        colorClear(elem->received_radiance[i]);
     }
 
     CLEARCOEFFICIENTS(Bup, elem->basis_size);

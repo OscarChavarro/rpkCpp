@@ -9,7 +9,7 @@ Macro's to manipulate radiance coefficients
 #include "raycasting/stochasticRaytracing/basismcrad.h"
 
 #define CLEARCOEFFICIENTS(c, n) {int _i; COLOR *_c; \
-  for (_i=0, _c=(c); _i<(n); _i++, _c++) COLORCLEAR(*_c); \
+  for (_i=0, _c=(c); _i<(n); _i++, _c++) colorClear(*_c); \
 }
 
 #define COPYCOEFFICIENTS(dst, src, n) {int _i; COLOR *_d, *_s; \

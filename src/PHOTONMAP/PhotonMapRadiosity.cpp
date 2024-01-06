@@ -615,7 +615,7 @@ GetPmapRadiance(PATCH *patch,
     HitShadingNormal(&hit, &hit.normal);
 
     if ( ZeroAlbedo(bsdf, &hit, BSDF_DIFFUSE_COMPONENT | BSDF_GLOSSY_COMPONENT)) {
-        COLORCLEAR(col);
+        colorClear(col);
         return col;
     }
 
@@ -658,7 +658,7 @@ GetPmapRadiance(PATCH *patch,
                                                                   bsdf,
                                                                   nullptr, bsdf);
             break;
-        default: COLORCLEAR(col);
+        default: colorClear(col);
             Error("GetPmapRadiance", "Unknown radiance return");
     }
 

@@ -283,7 +283,7 @@ InitGalerkin() {
 
     GLOBAL_galerkin_state.constant_radiance = GLOBAL_statistics_estimatedAverageRadiance;
     if ( GLOBAL_galerkin_state.use_constant_radiance ) {
-        COLORCLEAR(GLOBAL_galerkin_state.ambient_radiance);
+        colorClear(GLOBAL_galerkin_state.ambient_radiance);
     } else {
         GLOBAL_galerkin_state.ambient_radiance = GLOBAL_statistics_estimatedAverageRadiance;
     }

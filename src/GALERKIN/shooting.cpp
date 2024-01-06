@@ -192,7 +192,7 @@ DoPropagate(PATCH *shooting_patch) {
         PushPullRadiance(GLOBAL_galerkin_state.top_cluster);
         GLOBAL_galerkin_state.ambient_radiance = GLOBAL_galerkin_state.top_cluster->unshot_radiance[0];
     } else {
-        COLORCLEAR(GLOBAL_galerkin_state.ambient_radiance);
+        colorClear(GLOBAL_galerkin_state.ambient_radiance);
         PatchListIterate(GLOBAL_scene_patches, PatchUpdateRadianceAndPotential);
         COLORSCALE(1. / GLOBAL_statistics_totalArea, GLOBAL_galerkin_state.ambient_radiance, GLOBAL_galerkin_state.ambient_radiance);
     }

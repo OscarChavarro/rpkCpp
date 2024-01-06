@@ -295,7 +295,7 @@ double CPhotonMap::GetMaxR2() {
 
 void CPhotonMap::PhotonPrecomputeIrradiance(CIrrPhoton *photon) {
     COLOR irradiance, power;
-    COLORCLEAR(irradiance);
+    colorClear(irradiance);
 
     // locate nearest photons using a max radius limit
 
@@ -376,7 +376,7 @@ COLOR CPhotonMap::Reconstruct(HITREC *hit, Vector3D &outDir,
     COLOR result, eval, power, col;
     float factor;
 
-    COLORCLEAR(result);
+    colorClear(result);
 
     COLOR diffuseAlbedo, glossyAlbedo;
 

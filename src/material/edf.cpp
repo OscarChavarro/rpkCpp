@@ -52,7 +52,7 @@ COLOR EdfEmittance(EDF *edf, HITREC *hit, XXDFFLAGS flags) {
         return edf->methods->Emittance(edf->data, hit, flags);
     } else {
         static COLOR emit;
-        COLORCLEAR(emit);
+        colorClear(emit);
         return emit;
     }
 }
@@ -77,7 +77,7 @@ COLOR EdfEval(EDF *edf, HITREC *hit, Vector3D *out, XXDFFLAGS flags, double *pdf
         return edf->methods->Eval(edf->data, hit, out, flags, pdf);
     } else {
         static COLOR val;
-        COLORCLEAR(val);
+        colorClear(val);
         if ( pdf ) {
             *pdf = 0.;
         }

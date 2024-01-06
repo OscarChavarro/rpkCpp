@@ -54,10 +54,10 @@ ComputeSomeSceneStats() {
     VECTORSET(zero, 0, 0, 0);
 
     /* initialize */
-    COLORCLEAR(GLOBAL_statistics_totalEmittedPower);
-    COLORCLEAR(GLOBAL_statistics_averageReflectivity);
-    COLORCLEAR(GLOBAL_statistics_maxSelfEmittedRadiance);
-    COLORCLEAR(GLOBAL_statistics_maxSelfEmittedPower);
+    colorClear(GLOBAL_statistics_totalEmittedPower);
+    colorClear(GLOBAL_statistics_averageReflectivity);
+    colorClear(GLOBAL_statistics_maxSelfEmittedRadiance);
+    colorClear(GLOBAL_statistics_maxSelfEmittedPower);
     GLOBAL_statistics_totalArea = 0.;
 
     /* accumulate */

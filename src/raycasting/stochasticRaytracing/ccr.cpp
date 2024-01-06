@@ -16,8 +16,8 @@ static COLOR (*get_scaling)(ELEMENT *);
 static void InitialControlRadiosity(COLOR *minRad, COLOR *maxRad, COLOR *fmin, COLOR *fmax) {
     COLOR totalflux, maxrad;
     double area = 0.;
-    COLORCLEAR(totalflux);
-    COLORCLEAR(maxrad);
+    colorClear(totalflux);
+    colorClear(maxrad);
 
     /* initial interval: 0 ... maxrad */
     ForAllPatches(P, GLOBAL_scene_patches)
@@ -38,7 +38,7 @@ static void InitialControlRadiosity(COLOR *minRad, COLOR *maxRad, COLOR *fmin, C
                 }
     EndForAll;
 
-    COLORCLEAR(*minRad);
+    colorClear(*minRad);
     *fmin = totalflux;
 
     *maxRad = maxrad;
@@ -95,7 +95,7 @@ static void RefineControlRadiosity(COLOR *minRad, COLOR *maxRad, COLOR *fmin, CO
     /* initialisations. rad[i] = radiosity at boundary i. */
     COLORSUBTRACT(*maxRad, *minRad, d);
     for ( i = 0; i <= NRINTERVALS; i++ ) {
-        COLORCLEAR(f[i]);
+        colorClear(f[i]);
         COLORADDSCALED(*minRad, (double) i / (double) NRINTERVALS, d, rad[i]);
     }
 
@@ -145,7 +145,7 @@ COLOR DetermineControlRadiosity(COLOR *(*GetRadiance)(ELEMENT *),
 
     get_radiance = GetRadiance;
     get_scaling = GetScaling;
-    COLORCLEAR(beta);
+    colorClear(beta);
     if ( !get_radiance ) {
         return beta;
     }

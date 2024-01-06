@@ -211,7 +211,7 @@ static void DoHigherOrderAreaToAreaFormFactor(INTERACTION *link,
                 rcvphi[alpha][k] = rcvbasis->function[alpha](crrcv->u[k], crrcv->v[k]);
             }
         }
-        COLORCLEAR(deltarad[k]);
+        colorClear(deltarad[k]);
     }
 
     Gmin = HUGE;

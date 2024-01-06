@@ -115,7 +115,7 @@ static void PhongBtdfPrint(FILE *out, PHONG_BTDF *btdf) {
 static COLOR PhongEmittance(PHONG_EDF *edf, HITREC *hit, XXDFFLAGS flags) {
     COLOR result;
 
-    COLORCLEAR(result);
+    colorClear(result);
 
     if ( flags & DIFFUSE_COMPONENT ) {
         COLORADD(result, edf->Kd, result);
@@ -137,7 +137,7 @@ static COLOR PhongEmittance(PHONG_EDF *edf, HITREC *hit, XXDFFLAGS flags) {
 static COLOR PhongReflectance(PHONG_BRDF *brdf, XXDFFLAGS flags) {
     COLOR result;
 
-    COLORCLEAR(result);
+    colorClear(result);
 
     if ( flags & DIFFUSE_COMPONENT ) {
         COLORADD(result, brdf->Kd, result);
@@ -159,7 +159,7 @@ static COLOR PhongReflectance(PHONG_BRDF *brdf, XXDFFLAGS flags) {
 static COLOR PhongTransmittance(PHONG_BTDF *btdf, XXDFFLAGS flags) {
     COLOR result;
 
-    COLORCLEAR(result);
+    colorClear(result);
 
     if ( flags & DIFFUSE_COMPONENT ) {
         COLORADD(result, btdf->Kd, result);
@@ -196,7 +196,7 @@ static COLOR PhongEdfEval(PHONG_EDF *edf, HITREC *hit, Vector3D *out, XXDFFLAGS 
     COLOR result;
     double cosl;
 
-    COLORCLEAR(result);
+    colorClear(result);
     if ( pdf ) {
         *pdf = 0.;
     }
@@ -233,7 +233,9 @@ static Vector3D PhongEdfSample(PHONG_EDF *edf, HITREC *hit, XXDFFLAGS flags,
                                double xi1, double xi2,
                                COLOR *selfemitted_radiance, double *pdf) {
     Vector3D dir = {0., 0., 1.};
-    if ( selfemitted_radiance ) COLORCLEAR(*selfemitted_radiance);
+    if ( selfemitted_radiance ) {
+        colorClear(*selfemitted_radiance);
+    }
     if ( pdf ) {
         *pdf = 0.;
     }
@@ -274,7 +276,7 @@ static COLOR PhongBrdfEval(PHONG_BRDF *brdf, Vector3D *in, Vector3D *out, Vector
     Vector3D inrev;
     VECTORSCALE(-1., *in, inrev);
 
-    COLORCLEAR(result);
+    colorClear(result);
 
     /* kd + ks (idealreflected * out)^n */
 
@@ -511,9 +513,9 @@ static COLOR PhongBtdfEval(PHONG_BTDF *btdf, REFRACTIONINDEX inIndex, REFRACTION
        the material boundary
        */
 
-    COLORCLEAR(result);
+    colorClear(result);
 
-    if ((flags & DIFFUSE_COMPONENT) && (btdf->avgKd > 0)) {
+    if ( (flags & DIFFUSE_COMPONENT) && (btdf->avgKd > 0) ) {
         /* Diffuse part */
 
         /* Normal is pointing away from refracted direction */

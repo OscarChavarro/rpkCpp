@@ -143,7 +143,7 @@ void McrDefaults() {
     mcr.ray_units_per_it = 10;
     mcr.bidirectional_transfers = false;
     mcr.constant_control_variate = false;
-    COLORCLEAR(mcr.control_radiance);
+    colorClear(mcr.control_radiance);
     mcr.indirect_only = false;
     mcr.sequence = S4D_NIEDERREITER;
     mcr.approx_type = AT_CONSTANT;
@@ -235,7 +235,7 @@ static void McrInitPatch(PATCH *P) {
     CLEARCOEFFICIENTS(RECEIVED_RAD(P), BAS(P));
 
     RAD(P)[0] = UNSHOT_RAD(P)[0] = SOURCE_RAD(P) = Ed;
-    COLORCLEAR(RECEIVED_RAD(P)[0]);
+    colorClear(RECEIVED_RAD(P)[0]);
 
     RAY_INDEX(P) = P->id * 11;
     QUALITY(P) = 0.;
@@ -378,14 +378,14 @@ void McrReInit() {
     mcr.imp_traced_rays = mcr.prev_imp_traced_rays = 0;
     mcr.set_source = mcr.indirect_only;
     mcr.traced_paths = 0;
-    COLORCLEAR(mcr.control_radiance);
+    colorClear(mcr.control_radiance);
     mcr.nr_weighted_rays = mcr.old_nr_weighted_rays = 0;
 
-    COLORCLEAR(mcr.unshot_flux);
+    colorClear(mcr.unshot_flux);
     mcr.unshot_ymp = 0.;
-    COLORCLEAR(mcr.total_flux);
+    colorClear(mcr.total_flux);
     mcr.total_ymp = 0.;
-    COLORCLEAR(mcr.imp_unshot_flux);
+    colorClear(mcr.imp_unshot_flux);
     ForAllPatches(P, GLOBAL_scene_patches)
                 {
                     McrInitPatch(P);
@@ -453,7 +453,7 @@ static COLOR McrInterpolatedReflectanceAtPoint(ELEMENT *leaf, double u, double v
     }
     cachedleaf = leaf;
 
-    COLORCLEAR(rd);
+    colorClear(rd);
     switch ( leaf->nrvertices ) {
         case 3: COLORINTERPOLATEBARYCENTRIC(vrd[0], vrd[1], vrd[2], u, v, rd);
             break;
@@ -473,7 +473,7 @@ COLOR McrGetRadiance(PATCH *patch, double u, double v, Vector3D dir) {
     COLOR UsedRdAtPoint = renderopts.smooth_shading ? McrInterpolatedReflectanceAtPoint(leaf, u, v) : leaf->Rd;
     COLOR rad = ElementDisplayRadianceAtPoint(leaf, u, v);
     COLOR source_rad;
-    COLORCLEAR(source_rad);
+    colorClear(source_rad);
 
     /* subtract source radiance */
     if ( mcr.show != SHOW_INDIRECT_RADIANCE ) {

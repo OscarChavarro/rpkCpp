@@ -187,7 +187,7 @@ COLOR clusterRadianceToSamplePoint(ELEMENT *src, Vector3D sample) {
 
             /* accumulate the power emitted by the patches in the source cluster
              * towards the sample point. */
-            COLORCLEAR(srcrad);
+            colorClear(srcrad);
             iterateOverSurfaceElementsInCluster(src, AccumulatePowerToSamplePoint);
 
             /* divide by the source area used for computing the form factor:
@@ -425,7 +425,7 @@ static void DetermineMaxRadiance(ELEMENT *elem) {
 }
 
 COLOR maxClusterRadiance(ELEMENT *clus) {
-    COLORCLEAR(srcrad);
+    colorClear(srcrad);
     iterateOverSurfaceElementsInCluster(clus, DetermineMaxRadiance);
     return srcrad;
 }

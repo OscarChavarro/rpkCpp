@@ -144,7 +144,7 @@ static void ElementSetup(ELEMENT *elem) {
 /* returns true if succes, that is: sum of sampling probabilities is nonzero */
 static int Setup() {
     /* determine constant control radiosity if required. */
-    COLORCLEAR(mcr.control_radiance);
+    colorClear(mcr.control_radiance);
     if ( do_control_variate ) {
         mcr.control_radiance = DetermineControlRadiosity(get_radiance, nullptr);
     }
@@ -491,7 +491,7 @@ static void UpdateElement(ELEMENT *elem) {
 static void Push(ELEMENT *parent, ELEMENT *child) {
     if ( get_radiance ) {
         COLOR Rd;
-        COLORCLEAR(Rd);
+        colorClear(Rd);
 
         if ( parent->iscluster && !child->iscluster ) {
             /* multiply with reflectance (See PropagateRadianceToClusterIsotropic() above) */
@@ -564,18 +564,18 @@ static void PullRdEd(ELEMENT *elem) {
         return;
     }
 
-    COLORCLEAR(elem->Ed);
-    COLORCLEAR(elem->Rd);
+    colorClear(elem->Ed);
+    colorClear(elem->Rd);
     ForAllChildrenElements(elem, PullRdEdFromChild);
 }
 
 static void PushUpdatePullSweep() {
     /* update radiance, compute new total and unshot flux. */
-    COLORCLEAR(mcr.unshot_flux);
+    colorClear(mcr.unshot_flux);
     mcr.unshot_ymp = 0.;
-    COLORCLEAR(mcr.total_flux);
+    colorClear(mcr.total_flux);
     mcr.total_ymp = 0.;
-    COLORCLEAR(mcr.imp_unshot_flux);
+    colorClear(mcr.imp_unshot_flux);
 
     /* update reflectances and emittances (refinement yields more accurate estimates
      * on textured surfaces) */

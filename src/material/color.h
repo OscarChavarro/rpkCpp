@@ -16,7 +16,12 @@ class COLOR {
     }
 };
 
-#define COLORCLEAR(c)            ClearSpectrum((c).spec)
+
+inline void
+colorClear(COLOR &c) {
+    ClearSpectrum(c.spec);
+}
+
 #define COLORSET(c, v1, v2, v3)        SetSpectrum((c).spec, v1, v2, v3)
 #define COLORSETMONOCHROME(c, v)    SetSpectrumMonochrome((c).spec, v)
 #define COLORNULL(c)            IsBlackSpectrum((c).spec)
