@@ -132,27 +132,28 @@ ElementReallocCoefficients(ELEMENT *elem) {
     }
 
     radiance = (COLOR *)malloc(basis_size * sizeof(COLOR));
-    CLEARCOEFFICIENTS_CG(radiance, basis_size);
+    clusterGalerkinClearCoefficients(radiance, basis_size);
     if ( elem->radiance ) {
-        COPYCOEFFICIENTS_CG(radiance, elem->radiance, MIN(elem->basis_size, basis_size));
+        clusterGalerkinCopyCoefficients(radiance, elem->radiance, MIN(elem->basis_size, basis_size));
         free(elem->radiance);
     }
     elem->radiance = radiance;
 
     received_radiance = (COLOR *)malloc(basis_size * sizeof(COLOR));
-    CLEARCOEFFICIENTS_CG(received_radiance, basis_size);
+    clusterGalerkinClearCoefficients(received_radiance, basis_size);
     if ( elem->received_radiance ) {
-        COPYCOEFFICIENTS_CG(received_radiance, elem->received_radiance, MIN(elem->basis_size, basis_size));
+        clusterGalerkinCopyCoefficients(received_radiance, elem->received_radiance, MIN(elem->basis_size, basis_size));
         free(elem->received_radiance);
     }
     elem->received_radiance = received_radiance;
 
     if ( GLOBAL_galerkin_state.iteration_method == SOUTHWELL ) {
         unshot_radiance = (COLOR *)malloc(basis_size * sizeof(COLOR));
-        CLEARCOEFFICIENTS_CG(unshot_radiance, basis_size);
+        clusterGalerkinClearCoefficients(unshot_radiance, basis_size);
         if ( !IsCluster(elem)) {
             if ( elem->unshot_radiance ) {
-                COPYCOEFFICIENTS_CG(unshot_radiance, elem->unshot_radiance, MIN(elem->basis_size, basis_size));
+                clusterGalerkinCopyCoefficients(unshot_radiance, elem->unshot_radiance,
+                                                MIN(elem->basis_size, basis_size));
                 free(elem->unshot_radiance);
             } else if ( elem->pog.patch->surface ) {
                 unshot_radiance[0] = SELFEMITTED_RADIANCE(elem->pog.patch);

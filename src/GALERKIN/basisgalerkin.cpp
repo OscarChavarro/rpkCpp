@@ -60,12 +60,12 @@ void Push(ELEMENT *parent, COLOR *parent_coefficients,
     if ( IsCluster(parent)) {
         /* clusters have only irregular subelements and a constant
          * aprroximation is used on them. */
-        CLEARCOEFFICIENTS_CG(child_coefficients, child->basis_size);
+        clusterGalerkinClearCoefficients(child_coefficients, child->basis_size);
         child_coefficients[0] = parent_coefficients[0];
     } else {
         if ( sigma < 0 || sigma > 3 ) {
             logError("Push", "Not yet implemented for non-regular subdivision");
-            CLEARCOEFFICIENTS_CG(child_coefficients, child->basis_size);
+            clusterGalerkinClearCoefficients(child_coefficients, child->basis_size);
             child_coefficients[0] = parent_coefficients[0];
             return;
         }
@@ -106,12 +106,12 @@ void Pull(ELEMENT *parent, COLOR *parent_coefficients,
     if ( IsCluster(parent)) {
         /* clusters only have irregular subelements and a constant
          * radiance approximation is used on them. */
-        CLEARCOEFFICIENTS_CG(parent_coefficients, parent->basis_size);
+        clusterGalerkinClearCoefficients(parent_coefficients, parent->basis_size);
         colorScale(child->area / parent->area, child_coefficients[0], parent_coefficients[0]);
     } else {
         if ( sigma < 0 || sigma > 3 ) {
             logError("Pull", "Not yet implemented for non-regular subdivision");
-            CLEARCOEFFICIENTS_CG(parent_coefficients, parent->basis_size);
+            clusterGalerkinClearCoefficients(parent_coefficients, parent->basis_size);
             parent_coefficients[0] = child_coefficients[0];
             return;
         }
@@ -142,7 +142,7 @@ static void PushPullRadianceRecursive(ELEMENT *elem, COLOR *Bdown, COLOR *Bup) {
         colorClear(elem->received_radiance[i]);
     }
 
-    CLEARCOEFFICIENTS_CG(Bup, elem->basis_size);
+    clusterGalerkinClearCoefficients(Bup, elem->basis_size);
 
     if ( !elem->regular_subelements && !elem->irregular_subelements ) { /* leaf element */
         /* multiply with reflectivity at the lowest level */
@@ -173,7 +173,7 @@ static void PushPullRadianceRecursive(ELEMENT *elem, COLOR *Bdown, COLOR *Bup) {
             Pull(elem, Bup2, elem->regular_subelements[i], Btmp);
 
             /* 4) add to Bup */
-            ADDCOEFFICIENTS_CG(Bup, Bup2, elem->basis_size);
+            clusterGalerkinAddCoefficients(Bup, Bup2, elem->basis_size);
         }
     }
 
@@ -187,7 +187,8 @@ static void PushPullRadianceRecursive(ELEMENT *elem, COLOR *Bdown, COLOR *Bup) {
              * surface subelements). */
             if ( IsCluster(elem)) {
                 Push(elem, Bdown, subel, Bdown2);
-            } else CLEARCOEFFICIENTS_CG(Bdown2, elem->basis_size);
+            } else
+                clusterGalerkinClearCoefficients(Bdown2, elem->basis_size);
 
             /* 2) recusrive call the push-pull for the subelement */
             PushPullRadianceRecursive(subel, Bdown2, Btmp);
@@ -196,24 +197,24 @@ static void PushPullRadianceRecursive(ELEMENT *elem, COLOR *Bdown, COLOR *Bup) {
             Pull(elem, Bup2, subel, Btmp);
 
             /* 4) add to Bup */
-            ADDCOEFFICIENTS_CG(Bup, Bup2, elem->basis_size);
+            clusterGalerkinAddCoefficients(Bup, Bup2, elem->basis_size);
         }
     }
 
     if ( GLOBAL_galerkin_state.iteration_method == JACOBI || GLOBAL_galerkin_state.iteration_method == GAUSS_SEIDEL ) {
         /* gathering method: Bup is new approximation of the total radiance
          * at this level of detail. */
-        COPYCOEFFICIENTS_CG(elem->radiance, Bup, elem->basis_size);
+        clusterGalerkinCopyCoefficients(elem->radiance, Bup, elem->basis_size);
     } else {
         /* shooting: add Bup to the total and unshot radiance at this level */
-        ADDCOEFFICIENTS_CG(elem->radiance, Bup, elem->basis_size);
-        ADDCOEFFICIENTS_CG(elem->unshot_radiance, Bup, elem->basis_size);
+        clusterGalerkinAddCoefficients(elem->radiance, Bup, elem->basis_size);
+        clusterGalerkinAddCoefficients(elem->unshot_radiance, Bup, elem->basis_size);
     }
 }
 
 void PushPullRadiance(ELEMENT *top) {
     COLOR Bdown[MAXBASISSIZE], Bup[MAXBASISSIZE];
-    CLEARCOEFFICIENTS_CG(Bdown, top->basis_size);
+    clusterGalerkinClearCoefficients(Bdown, top->basis_size);
     PushPullRadianceRecursive(top, Bdown, Bup);
 }
 

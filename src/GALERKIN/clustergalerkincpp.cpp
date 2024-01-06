@@ -1,4 +1,6 @@
-/* cluster-specific operations */
+/**
+Cluster-specific operations
+*/
 
 #include "common/error.h"
 #include "skin/Geometry.h"
@@ -6,82 +8,99 @@
 #include "GALERKIN/scratch.h"
 #include "GALERKIN/mrvisibility.h"
 
-static ELEMENT *GalerkinDoCreateClusterHierarchy(Geometry *geom);
+static COLOR globalSourceRadiance;
+static Vector3D globalSamplePoint;
+static double globalProjectedArea;
+static COLOR *globalPsrcRad;
+static INTERACTION *globalTheLink;
 
-/* Creates a cluster hierarchy for the Geometry and adds it to the subcluster list of the
- * given parent cluster */
-static void GeomAddClusterChild(Geometry *geom, ELEMENT *parent_cluster) {
-    ELEMENT *clus;
+// Area corresponding to one pixel in the scratch frame buffer
+static double globalPixelArea;
 
-    clus = GalerkinDoCreateClusterHierarchy(geom);
+static ELEMENT *galerkinDoCreateClusterHierarchy(Geometry *geom);
 
-    parent_cluster->irregular_subelements = ElementListAdd(parent_cluster->irregular_subelements, clus);
-    clus->parent = parent_cluster;
+/**
+Creates a cluster hierarchy for the Geometry and adds it to the sub-cluster list of the
+given parent cluster
+*/
+static void
+geomAddClusterChild(Geometry *geom, ELEMENT *parent_cluster) {
+    ELEMENT *cluster = galerkinDoCreateClusterHierarchy(geom);
+
+    parent_cluster->irregular_subelements = ElementListAdd(parent_cluster->irregular_subelements, cluster);
+    cluster->parent = parent_cluster;
 }
 
-/* Adds the toplevel (surace) element of the patch to the list of irregular
- * subelements of the cluster. */
-static void PatchAddClusterChild(PATCH *patch, ELEMENT *cluster) {
-    ELEMENT *surfel = (ELEMENT *) (patch->radiance_data);
+/**
+Adds the toplevel (surface) element of the patch to the list of irregular
+sub-elements of the cluster
+*/
+static void
+patchAddClusterChild(PATCH *patch, ELEMENT *cluster) {
+    ELEMENT *surfaceElement = (ELEMENT *)patch->radiance_data;
 
-    cluster->irregular_subelements = ElementListAdd(cluster->irregular_subelements, surfel);
-    surfel->parent = cluster;
+    cluster->irregular_subelements = ElementListAdd(cluster->irregular_subelements, surfaceElement);
+    surfaceElement->parent = cluster;
 }
 
-/* Initializes the cluster element. Called bottom-up: first the
- * lowest level clusters and so up. */
-static void ClusterInit(ELEMENT *clus) {
+/**
+Initializes the cluster element. Called bottom-up: first the
+lowest level clusters and so up
+*/
+static void
+clusterInit(ELEMENT *cluster) {
     ELEMENTLIST *subellist;
 
     /* total area of surfaces inside the cluster is sum of the areas of
      * the subclusters + pull radiance. */
-    clus->area = 0.;
-    clus->nrpatches = 0;
-    clus->minarea = HUGE;
-    CLEARCOEFFICIENTS_CG(clus->radiance, clus->basis_size);
-    for ( subellist = clus->irregular_subelements; subellist; subellist = subellist->next ) {
+    cluster->area = 0.;
+    cluster->nrpatches = 0;
+    cluster->minarea = HUGE;
+    clusterGalerkinClearCoefficients(cluster->radiance, cluster->basis_size);
+    for ( subellist = cluster->irregular_subelements; subellist; subellist = subellist->next ) {
         ELEMENT *subclus = subellist->element;
-        clus->area += subclus->area;
-        clus->nrpatches += subclus->nrpatches;
-        colorAddScaled(clus->radiance[0], subclus->area, subclus->radiance[0], clus->radiance[0]);
-        if ( subclus->minarea < clus->minarea ) {
-            clus->minarea = subclus->minarea;
+        cluster->area += subclus->area;
+        cluster->nrpatches += subclus->nrpatches;
+        colorAddScaled(cluster->radiance[0], subclus->area, subclus->radiance[0], cluster->radiance[0]);
+        if ( subclus->minarea < cluster->minarea ) {
+            cluster->minarea = subclus->minarea;
         }
-        clus->flags |= (subclus->flags & IS_LIGHT_SOURCE);
-        colorAddScaled(clus->Ed, subclus->area, subclus->Ed, clus->Ed);
+        cluster->flags |= (subclus->flags & IS_LIGHT_SOURCE);
+        colorAddScaled(cluster->Ed, subclus->area, subclus->Ed, cluster->Ed);
     }
-    colorScale((1. / clus->area), clus->radiance[0], clus->radiance[0]);
-    colorScale((1. / clus->area), clus->Ed, clus->Ed);
+    colorScale((1.0f / cluster->area), cluster->radiance[0], cluster->radiance[0]);
+    colorScale((1.0f / cluster->area), cluster->Ed, cluster->Ed);
 
     /* also pull unshot radiance for the "shooting" methods */
     if ( GLOBAL_galerkin_state.iteration_method == SOUTHWELL ) {
-        CLEARCOEFFICIENTS_CG(clus->unshot_radiance, clus->basis_size);
-        for ( subellist = clus->irregular_subelements; subellist; subellist = subellist->next ) {
+        clusterGalerkinClearCoefficients(cluster->unshot_radiance, cluster->basis_size);
+        for ( subellist = cluster->irregular_subelements; subellist; subellist = subellist->next ) {
             ELEMENT *subclus = subellist->element;
-            colorAddScaled(clus->unshot_radiance[0], subclus->area, subclus->unshot_radiance[0],
-                           clus->unshot_radiance[0]);
+            colorAddScaled(cluster->unshot_radiance[0], subclus->area, subclus->unshot_radiance[0],
+                           cluster->unshot_radiance[0]);
         }
-        colorScale((1. / clus->area), clus->unshot_radiance[0], clus->unshot_radiance[0]);
+        colorScale((1.0f / cluster->area), cluster->unshot_radiance[0], cluster->unshot_radiance[0]);
     }
 
-    /* compute equivalent blocker (or blocker complement) size for multiresolution
+    /* compute equivalent blocker (or blocker complement) size for multi-resolution
      * visibility */
-    /* if (GLOBAL_galerkin_state.multires_visibility) */ {
+    /* if (GLOBAL_galerkin_state.multi-res_visibility) */ {
         /* This is very costly
-        clus->bsize = GeomBlockerSize(clus->pog.geom);
+        cluster->bsize = GeomBlockerSize(cluster->pog.geom);
         */
-        float *bbx = clus->pog.geom->bounds;
-        clus->bsize = MAX((bbx[MAX_X] - bbx[MIN_X]), (bbx[MAX_Y] - bbx[MIN_Y]));
-        clus->bsize = MAX(clus->bsize, (bbx[MAX_Z] - bbx[MIN_Z]));
+        float *bbx = cluster->pog.geom->bounds;
+        cluster->bsize = MAX((bbx[MAX_X] - bbx[MIN_X]), (bbx[MAX_Y] - bbx[MIN_Y]));
+        cluster->bsize = MAX(cluster->bsize, (bbx[MAX_Z] - bbx[MIN_Z]));
     } /* else
-    clus->bsize = 2.*sqrt((clus->area/4.)/M_PI); */
+    cluster->bsize = 2.*sqrt((cluster->area/4.)/M_PI); */
 }
 
-/* Creates a cluster for the Geometry, recurses for the children GEOMs, initializes and
- * returns the created cluster. */
-static ELEMENT *GalerkinDoCreateClusterHierarchy(Geometry *geom) {
-    ELEMENT *clus;
-
+/**
+Creates a cluster for the Geometry, recurses for the children GEOMs, initializes and
+returns the created cluster
+*/
+static ELEMENT *
+galerkinDoCreateClusterHierarchy(Geometry *geom) {
     /* geom will be nullptr if e.g. no scene is loaded when selecting
      * Galerkin radiosity for radiance computations. */
     if ( !geom ) {
@@ -89,36 +108,43 @@ static ELEMENT *GalerkinDoCreateClusterHierarchy(Geometry *geom) {
     }
 
     /* create a cluster for the geom */
-    clus = CreateClusterElement(geom);
+    ELEMENT *clus = CreateClusterElement(geom);
     geom->radiance_data = (void *) clus;
 
-    /* recursively creates list of subclusters */
+    /* recursively creates list of sub-clusters */
     if ( geomIsAggregate(geom)) {
-        GeomListIterate1A(geomPrimList(geom), (void (*)(Geometry *, void *)) GeomAddClusterChild, (void *) clus);
+        GeomListIterate1A(geomPrimList(geom), (void (*)(Geometry *, void *)) geomAddClusterChild, (void *) clus);
     } else {
-        PatchListIterate1A(geomPatchList(geom), (void (*)(PATCH *, void *)) PatchAddClusterChild, (void *) clus);
+        PatchListIterate1A(geomPatchList(geom), (void (*)(PATCH *, void *)) patchAddClusterChild, (void *) clus);
     }
 
-    ClusterInit(clus);
+    clusterInit(clus);
 
     return clus;
 }
 
-/* First initializes for equivalent blocker size determination, then calls
- * the above function, and finally terminates equivalent blocker size 
- * determination. */
-ELEMENT *galerkinCreateClusterHierarchy(Geometry *geom) {
-    ELEMENT *clus;
+/**
+Creates a cluster for the Geometry, recurses for the children geometries, initializes and
+returns the created cluster.
 
+First initializes for equivalent blocker size determination, then calls
+the above function, and finally terminates equivalent blocker size
+determination
+*/
+ELEMENT *
+galerkinCreateClusterHierarchy(Geometry *geom) {
     BlockerInit();
-    clus = GalerkinDoCreateClusterHierarchy(geom);
+    ELEMENT *cluster = galerkinDoCreateClusterHierarchy(geom);
     BlockerTerminate();
 
-    return clus;
+    return cluster;
 }
 
-/* Disposes of the cluster hierarchy */
-void galerkinDestroyClusterHierarchy(ELEMENT *cluster) {
+/**
+Disposes of the cluster hierarchy
+*/
+void
+galerkinDestroyClusterHierarchy(ELEMENT *cluster) {
     if ( !cluster || !IsCluster(cluster)) {
         return;
     }
@@ -127,8 +153,11 @@ void galerkinDestroyClusterHierarchy(ELEMENT *cluster) {
     DestroyClusterElement(cluster);
 }
 
-/* Executes func for every surface element in the cluster. */
-void iterateOverSurfaceElementsInCluster(ELEMENT *clus, void (*func)(ELEMENT *elem)) {
+/**
+Executes func for every surface element in the cluster
+*/
+void
+iterateOverSurfaceElementsInCluster(ELEMENT *clus, void (*func)(ELEMENT *elem)) {
     if ( !IsCluster(clus)) {
         func(clus);
     } else {
@@ -140,26 +169,27 @@ void iterateOverSurfaceElementsInCluster(ELEMENT *clus, void (*func)(ELEMENT *el
     }
 }
 
-static COLOR srcrad;
-static Vector3D samplepoint;
-
-/* Uses global variables srcrad and samplepoint: accumulates the
- * power emitted by the element towards the samplepoint in srcrad
- * only taking into account the surface orientation w.r.t. the 
- * sample point, (ignores intra cluster visibility). */
-static void AccumulatePowerToSamplePoint(ELEMENT *src) {
-    double srcos, dist;
+/**
+Uses global variables globalSourceRadiance and globalSamplePoint: accumulates the
+power emitted by the element towards the globalSamplePoint in globalSourceRadiance
+only taking into account the surface orientation w.r.t. the
+sample point, (ignores intra cluster visibility)
+*/
+static void
+accumulatePowerToSamplePoint(ELEMENT *src) {
+    float srcos;
+    float dist;
     Vector3D dir;
     COLOR rad;
 
-    VECTORSUBTRACT(samplepoint, src->pog.patch->midpoint, dir);
+    VECTORSUBTRACT(globalSamplePoint, src->pog.patch->midpoint, dir);
     dist = VECTORNORM(dir);
     if ( dist < EPSILON ) {
-        srcos = 1.;
+        srcos = 1.0f;
     } else {
         srcos = VECTORDOTPRODUCT(dir, src->pog.patch->normal) / dist;
     }
-    if ( srcos <= 0. ) {
+    if ( srcos <= 0.0f ) {
         return;
     }    /* receiver point is behind the src */
 
@@ -170,29 +200,32 @@ static void AccumulatePowerToSamplePoint(ELEMENT *src) {
         rad = src->unshot_radiance[0];
     }
 
-    colorAddScaled(srcrad, srcos * src->area, rad, srcrad);
+    colorAddScaled(globalSourceRadiance, srcos * src->area, rad, globalSourceRadiance);
 }
 
-/* Returns the radiance or unshot radiance (depending on the
- * iteration method) emitted by the src cluster,
- * towards the sample point. */
-COLOR clusterRadianceToSamplePoint(ELEMENT *src, Vector3D sample) {
+/**
+Returns the radiance or un-shot radiance (depending on the
+iteration method) emitted by the source element, a cluster,
+towards the sample point
+*/
+COLOR
+clusterRadianceToSamplePoint(ELEMENT *src, Vector3D sample) {
     switch ( GLOBAL_galerkin_state.clustering_strategy ) {
         case ISOTROPIC:
             return src->radiance[0];
 
         case ORIENTED: {
-            samplepoint = sample;
+            globalSamplePoint = sample;
 
             /* accumulate the power emitted by the patches in the source cluster
              * towards the sample point. */
-            colorClear(srcrad);
-            iterateOverSurfaceElementsInCluster(src, AccumulatePowerToSamplePoint);
+            colorClear(globalSourceRadiance);
+            iterateOverSurfaceElementsInCluster(src, accumulatePowerToSamplePoint);
 
             /* divide by the source area used for computing the form factor:
              * src->area / 4. (average projected area) */
-            colorScale(4. / src->area, srcrad, srcrad);
-            return srcrad;
+            colorScale(4. / src->area, globalSourceRadiance, globalSourceRadiance);
+            return globalSourceRadiance;
         }
 
         case Z_VISIBILITY:
@@ -206,14 +239,14 @@ COLOR clusterRadianceToSamplePoint(ELEMENT *src, Vector3D sample) {
                 float *bbx = ScratchRenderElementPtrs(src, sample);
 
                 /* Compute average radiance on the virtual screen */
-                srcrad = ScratchRadiance();
+                globalSourceRadiance = ScratchRadiance();
 
                 /* areafactor = area of virtual screen / source cluster area used for
                  * form factor computation */
                 areafactor = ((bbx[MAX_X] - bbx[MIN_X]) * (bbx[MAX_Y] - bbx[MIN_Y])) /
                              (0.25 * src->area);
-                colorScale(areafactor, srcrad, srcrad);
-                return srcrad;
+                colorScale(areafactor, globalSourceRadiance, globalSourceRadiance);
+                return globalSourceRadiance;
             }
 
         default:
@@ -221,13 +254,16 @@ COLOR clusterRadianceToSamplePoint(ELEMENT *src, Vector3D sample) {
                      GLOBAL_galerkin_state.clustering_strategy);
     }
 
-    return srcrad;    /* this point is never reached */
+    return globalSourceRadiance;    /* this point is never reached */
 }
 
-/* Determines the average radiance or unshot radiance (depending on
- * the iteration method) emitted by the source cluster towards the 
- * receiver in the link. The source should be a cluster. */
-COLOR sourceClusterRadiance(INTERACTION *link) {
+/**
+Determines the average radiance or un-shot radiance (depending on
+the iteration method) emitted by the source cluster towards the
+receiver in the link. The source should be a cluster
+*/
+COLOR
+sourceClusterRadiance(INTERACTION *link) {
     ELEMENT *src = link->src, *rcv = link->rcv;
 
     if ( !IsCluster(src) || src == rcv ) {
@@ -238,13 +274,16 @@ COLOR sourceClusterRadiance(INTERACTION *link) {
     return clusterRadianceToSamplePoint(src, ElementMidpoint(rcv));
 }
 
-/* computes projected area of receiver surface element towards the sample point
- * (global variable). Ignores intra cluster visibility. */
-static double SurfaceProjectedAreaToSamplePoint(ELEMENT *rcv) {
+/**
+Computes projected area of receiver surface element towards the sample point
+(global variable). Ignores intra cluster visibility
+*/
+static double
+surfaceProjectedAreaToSamplePoint(ELEMENT *rcv) {
     double rcvcos, dist;
     Vector3D dir;
 
-    VECTORSUBTRACT(samplepoint, rcv->pog.patch->midpoint, dir);
+    VECTORSUBTRACT(globalSamplePoint, rcv->pog.patch->midpoint, dir);
     dist = VECTORNORM(dir);
     if ( dist < EPSILON ) {
         rcvcos = 1.;
@@ -258,15 +297,17 @@ static double SurfaceProjectedAreaToSamplePoint(ELEMENT *rcv) {
     return rcvcos * rcv->area;
 }
 
-static double proj_area;
-
-static void AccumulateProjectedAreaToSamplePoint(ELEMENT *rcv) {
-    proj_area += SurfaceProjectedAreaToSamplePoint(rcv);
+static void
+accumulateProjectedAreaToSamplePoint(ELEMENT *rcv) {
+    globalProjectedArea += surfaceProjectedAreaToSamplePoint(rcv);
 }
 
-/* Computes projected area of receiver cluster as seen from the midpoint of the source,
- * ignoring intra-receiver visibility. */
-double receiverClusterArea(INTERACTION *link) {
+/**
+Computes projected area of receiver cluster as seen from the midpoint of the source,
+ignoring intra-receiver visibility
+*/
+double
+receiverClusterArea(INTERACTION *link) {
     ELEMENT *src = link->src, *rcv = link->rcv;
 
     if ( !IsCluster(rcv) || src == rcv ) {
@@ -278,25 +319,25 @@ double receiverClusterArea(INTERACTION *link) {
             return rcv->area;
 
         case ORIENTED: {
-            samplepoint = ElementMidpoint(src);
-            proj_area = 0.;
-            iterateOverSurfaceElementsInCluster(rcv, AccumulateProjectedAreaToSamplePoint);
-            return proj_area;
+            globalSamplePoint = ElementMidpoint(src);
+            globalProjectedArea = 0.;
+            iterateOverSurfaceElementsInCluster(rcv, accumulateProjectedAreaToSamplePoint);
+            return globalProjectedArea;
         }
 
         case Z_VISIBILITY:
-            samplepoint = ElementMidpoint(src);
-            if ( !OutOfBounds(&samplepoint, rcv->pog.geom->bounds)) {
+            globalSamplePoint = ElementMidpoint(src);
+            if ( !OutOfBounds(&globalSamplePoint, rcv->pog.geom->bounds)) {
                 return rcv->area;
             } else {
-                float *bbx = ScratchRenderElementPtrs(rcv, samplepoint);
+                float *bbx = ScratchRenderElementPtrs(rcv, globalSamplePoint);
 
                 /* projected area is the number of non background pixels over
                  * the total number of pixels * area of the virtual screen. */
-                proj_area = (double) ScratchNonBackgroundPixels() *
-                            (bbx[MAX_X] - bbx[MIN_X]) * (bbx[MAX_Y] - bbx[MIN_Y]) /
-                            (double) (GLOBAL_galerkin_state.scratch->vp_width * GLOBAL_galerkin_state.scratch->vp_height);
-                return proj_area;
+                globalProjectedArea = (double) ScratchNonBackgroundPixels() *
+                                      (bbx[MAX_X] - bbx[MIN_X]) * (bbx[MAX_Y] - bbx[MIN_Y]) /
+                                      (double) (GLOBAL_galerkin_state.scratch->vp_width * GLOBAL_galerkin_state.scratch->vp_height);
+                return globalProjectedArea;
             }
 
         default:
@@ -307,12 +348,15 @@ double receiverClusterArea(INTERACTION *link) {
     return 0.;    /* this point is never reached and if it is it's your fault. */
 }
 
-/* Gathers radiance over the interaction, from the interaction source to
- * the specified receiver element. area_factor is a correction factor
- * to account for the fact that the receiver cluster area/4 was used in
- * form factor computations instead of the true receiver area. The source
- * radiance is explicitely given. */
-static void DoGatherRadiance(ELEMENT *rcv, double area_factor, INTERACTION *link, COLOR *srcrad) {
+/**
+Gathers radiance over the interaction, from the interaction source to
+the specified receiver element. area_factor is a correction factor
+to account for the fact that the receiver cluster area/4 was used in
+form factor computations instead of the true receiver area. The source
+radiance is explicitely given
+*/
+static void
+doGatherRadiance(ELEMENT *rcv, double area_factor, INTERACTION *link, COLOR *srcrad) {
     COLOR *rcvrad = rcv->received_radiance;
 
     if ( link->nrcv == 1 && link->nsrc == 1 ) {
@@ -331,32 +375,29 @@ static void DoGatherRadiance(ELEMENT *rcv, double area_factor, INTERACTION *link
     }
 }
 
-static COLOR *psrcrad;
-static INTERACTION *the_link;
-
-/* Requires global variables psrcrad (srcrad pointer), the_link (interaction
- * over which is being gathered) and samplepoint (midpoint of source 
- * element). rcv is a surface element belonging to the receiver cluster
- * in the interaction. This routines gathers radiance to this receiver
- * surface, taking into account the projected area of the receiver
- * towards the midpoint of the source, ignoring visibility in the receiver 
- * cluster. */
-static void OrientedSurfaceGatherRadiance(ELEMENT *rcv) {
+/**
+Requires global variables globalPsrcRad (globalSourceRadiance pointer), globalTheLink (interaction
+over which is being gathered) and globalSamplePoint (midpoint of source
+element). rcv is a surface element belonging to the receiver cluster
+in the interaction. This routines gathers radiance to this receiver
+surface, taking into account the projected area of the receiver
+towards the midpoint of the source, ignoring visibility in the receiver
+cluster
+*/
+static void
+orientedSurfaceGatherRadiance(ELEMENT *rcv) {
     double area_factor;
 
-    /* the_link->rcv is a cluster, so it's total area divided by 4 (average projected area)
+    /* globalTheLink->rcv is a cluster, so it's total area divided by 4 (average projected area)
      * was used to compute link->K. */
-    area_factor = SurfaceProjectedAreaToSamplePoint(rcv) / (0.25 * the_link->rcv->area);
+    area_factor = surfaceProjectedAreaToSamplePoint(rcv) / (0.25 * globalTheLink->rcv->area);
 
-    DoGatherRadiance(rcv, area_factor, the_link, psrcrad);
+    doGatherRadiance(rcv, area_factor, globalTheLink, globalPsrcRad);
 }
-
-/* area corresponding to one pixel in the scratch frame buffer. */
-static double pix_area;
 
 /* Same as above, except that the number of pixels in the scratch frame buffer
  * times the area corresponding one such pixel is used as the visible area
- * of the element. Uses global variables pix_area, the_link, psrcrad. */
+ * of the element. Uses global variables globalPixelArea, globalTheLink, globalPsrcRad. */
 static void ZVisSurfaceGatherRadiance(ELEMENT *rcv) {
     double area_factor;
 
@@ -365,15 +406,18 @@ static void ZVisSurfaceGatherRadiance(ELEMENT *rcv) {
         return;
     }
 
-    area_factor = pix_area * (double) (rcv->tmp) / (0.25 * the_link->rcv->area);
-    DoGatherRadiance(rcv, area_factor, the_link, psrcrad);
+    area_factor = globalPixelArea * (double) (rcv->tmp) / (0.25 * globalTheLink->rcv->area);
+    doGatherRadiance(rcv, area_factor, globalTheLink, globalPsrcRad);
 
     rcv->tmp = 0;        /* set it to zero for future re-use. */
 }
 
-/* Distributes the srcrad radiance to the surface elements in the
- * receiver cluster */
-void clusterGatherRadiance(INTERACTION *link, COLOR *srcrad) {
+/**
+Distributes the source radiance to the surface elements in the
+receiver cluster
+*/
+void
+clusterGatherRadiance(INTERACTION *link, COLOR *srcrad) {
     ELEMENT *src = link->src, *rcv = link->rcv;
 
     if ( !IsCluster(rcv) || src == rcv ) {
@@ -381,29 +425,29 @@ void clusterGatherRadiance(INTERACTION *link, COLOR *srcrad) {
         return;
     }
 
-    psrcrad = srcrad;
-    the_link = link;
-    samplepoint = ElementMidpoint(src);
+    globalPsrcRad = srcrad;
+    globalTheLink = link;
+    globalSamplePoint = ElementMidpoint(src);
 
     switch ( GLOBAL_galerkin_state.clustering_strategy ) {
         case ISOTROPIC:
-            DoGatherRadiance(rcv, 1., link, srcrad);
+            doGatherRadiance(rcv, 1., link, srcrad);
             break;
         case ORIENTED:
-            iterateOverSurfaceElementsInCluster(rcv, OrientedSurfaceGatherRadiance);
+            iterateOverSurfaceElementsInCluster(rcv, orientedSurfaceGatherRadiance);
             break;
         case Z_VISIBILITY:
-            if ( !OutOfBounds(&samplepoint, rcv->pog.geom->bounds)) {
-                iterateOverSurfaceElementsInCluster(rcv, OrientedSurfaceGatherRadiance);
+            if ( !OutOfBounds(&globalSamplePoint, rcv->pog.geom->bounds)) {
+                iterateOverSurfaceElementsInCluster(rcv, orientedSurfaceGatherRadiance);
             } else {
-                float *bbx = ScratchRenderElementPtrs(rcv, samplepoint);
+                float *bbx = ScratchRenderElementPtrs(rcv, globalSamplePoint);
 
                 /* Count how many pixels each element occupies in the scratch frame buffer. */
                 ScratchPixelsPerElement();
 
                 /* area corresponding to one pixel on the virtual screen. */
-                pix_area = (bbx[MAX_X] - bbx[MIN_X]) * (bbx[MAX_Y] - bbx[MIN_Y]) /
-                           (double) (GLOBAL_galerkin_state.scratch->vp_width * GLOBAL_galerkin_state.scratch->vp_height);
+                globalPixelArea = (bbx[MAX_X] - bbx[MIN_X]) * (bbx[MAX_Y] - bbx[MIN_Y]) /
+                                  (double) (GLOBAL_galerkin_state.scratch->vp_width * GLOBAL_galerkin_state.scratch->vp_height);
 
                 /* gathers the radiance to each element that occupies at least one
                  * pixel in the scratch frame buffer and sets elem->tmp back to zero
@@ -417,7 +461,8 @@ void clusterGatherRadiance(INTERACTION *link, COLOR *srcrad) {
     }
 }
 
-static void DetermineMaxRadiance(ELEMENT *elem) {
+static void
+determineMaxRadiance(ELEMENT *elem) {
     COLOR rad;
     if ( GLOBAL_galerkin_state.iteration_method == GAUSS_SEIDEL ||
          GLOBAL_galerkin_state.iteration_method == JACOBI ) {
@@ -425,11 +470,12 @@ static void DetermineMaxRadiance(ELEMENT *elem) {
     } else {
         rad = elem->unshot_radiance[0];
     }
-    colorMaximum(srcrad, rad, srcrad);
+    colorMaximum(globalSourceRadiance, rad, globalSourceRadiance);
 }
 
-COLOR maxClusterRadiance(ELEMENT *clus) {
-    colorClear(srcrad);
-    iterateOverSurfaceElementsInCluster(clus, DetermineMaxRadiance);
-    return srcrad;
+COLOR
+maxClusterRadiance(ELEMENT *clus) {
+    colorClear(globalSourceRadiance);
+    iterateOverSurfaceElementsInCluster(clus, determineMaxRadiance);
+    return globalSourceRadiance;
 }
