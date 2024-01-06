@@ -147,7 +147,7 @@ COLOR ColorAtUV(GalerkinBasis *basis, COLOR *rad, double u, double v) {
     colorClear(res);
     for ( i = 0; i < basis->size; i++ ) {
         double s = basis->function[i](u, v);
-        COLORADDSCALED(res, s, rad[i], res);
+        colorAddScaled(res, s, rad[i], res);
     }
     return res;
 }
@@ -159,7 +159,7 @@ void FilterColorDown(COLOR *parent, FILTER *h, COLOR *child, int n) {
 
     for ( b = 0; b < n; b++ ) {
         for ( a = 0; a < n; a++ ) {
-            COLORADDSCALED(child[b], (*h)[a][b], parent[a], child[b]);
+            colorAddScaled(child[b], (*h)[a][b], parent[a], child[b]);
         }
     }
 }
@@ -170,7 +170,7 @@ void FilterColorUp(COLOR *child, FILTER *h, COLOR *parent, int n, double areafac
     for ( a = 0; a < n; a++ ) {
         for ( b = 0; b < n; b++ ) {
             double H = (*h)[a][b] * areafactor;
-            COLORADDSCALED(parent[a], H, child[b], parent[a]);
+            colorAddScaled(parent[a], H, child[b], parent[a]);
         }
     }
 }

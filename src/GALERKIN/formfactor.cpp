@@ -261,7 +261,9 @@ static void DoHigherOrderAreaToAreaFormFactor(INTERACTION *link,
             }
         }
 
-        for ( k = 0; k < crrcv->nrnodes; k++ ) COLORADDSCALED(deltarad[k], delta_beta[k], srcrad[beta], deltarad[k]);
+        for ( k = 0; k < crrcv->nrnodes; k++ ) {
+            colorAddScaled(deltarad[k], delta_beta[k], srcrad[beta], deltarad[k]);
+        }
 
         if ( beta == 0 ) {
             /* determine minimum and maximum point-to-patch form factor */
@@ -288,7 +290,7 @@ static void DoHigherOrderAreaToAreaFormFactor(INTERACTION *link,
         for ( k = 0; k < crrcv->nrnodes; k++ ) {
             double delta;
 
-            COLORDIV(deltarad[k], srcrad[0], deltarad[k]);
+            colorDivide(deltarad[k], srcrad[0], deltarad[k]);
             if ((delta = fabs(COLORMAXCOMPONENT(deltarad[k]))) > link->deltaK.f ) {
                 link->deltaK.f = delta;
             }

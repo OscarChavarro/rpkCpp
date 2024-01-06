@@ -113,7 +113,7 @@ void
 ScreenBuffer::Add(int x, int y, COLOR radiance) {
     int index = x + (m_cam.vres - y - 1) * m_cam.hres;
 
-    COLORADDSCALED(m_Radiance[index], m_AddFactor, radiance,
+    colorAddScaled(m_Radiance[index], m_AddFactor, radiance,
                    m_Radiance[index]);
     m_Synced = false;
 }

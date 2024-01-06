@@ -249,8 +249,9 @@ PatchInit(PATCH *patch) {
          * '95, Dublin, Ireland, June 1995, p 336-344. */
         colorProduct(rho, GLOBAL_galerkin_state.constant_radiance, RADIANCE(patch));
         colorAdd(RADIANCE(patch), Ed, RADIANCE(patch));
-        if ( GLOBAL_galerkin_state.iteration_method == SOUTHWELL ) COLORSUBTRACT(RADIANCE(patch), GLOBAL_galerkin_state.constant_radiance,
-                                                                                 UNSHOT_RADIANCE(patch));
+        if ( GLOBAL_galerkin_state.iteration_method == SOUTHWELL )
+            colorSubtract(RADIANCE(patch), GLOBAL_galerkin_state.constant_radiance,
+                          UNSHOT_RADIANCE(patch));
     } else {
         RADIANCE(patch) = Ed;
         if ( GLOBAL_galerkin_state.iteration_method == SOUTHWELL )

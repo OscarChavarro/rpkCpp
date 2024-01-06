@@ -38,7 +38,7 @@ PatchAccumulateStats(PATCH *patch) {
     GLOBAL_statistics_totalArea += patch->area;
     colorScale(patch->area, E, power);
     colorAdd(GLOBAL_statistics_totalEmittedPower, power, GLOBAL_statistics_totalEmittedPower);
-    COLORADDSCALED(GLOBAL_statistics_averageReflectivity, patch->area, R, GLOBAL_statistics_averageReflectivity);
+    colorAddScaled(GLOBAL_statistics_averageReflectivity, patch->area, R, GLOBAL_statistics_averageReflectivity);
     /* convert radiant exitance to exitant radiance */
     colorScale((1.0 / (float)M_PI), E, E);
     COLORMAX(E, GLOBAL_statistics_maxSelfEmittedRadiance, GLOBAL_statistics_maxSelfEmittedRadiance);
@@ -64,9 +64,9 @@ ComputeSomeSceneStats() {
     PatchListIterate(GLOBAL_scene_patches, PatchAccumulateStats);
 
     /* averages ... */
-    COLORSCALEINVERSE(GLOBAL_statistics_totalArea, GLOBAL_statistics_averageReflectivity, GLOBAL_statistics_averageReflectivity);
-    COLORSUBTRACT(one, GLOBAL_statistics_averageReflectivity, average_absorption);
-    COLORSCALEINVERSE(M_PI * GLOBAL_statistics_totalArea, GLOBAL_statistics_totalEmittedPower, GLOBAL_statistics_estimatedAverageRadiance);
+    colorScaleInverse(GLOBAL_statistics_totalArea, GLOBAL_statistics_averageReflectivity, GLOBAL_statistics_averageReflectivity);
+    colorSubtract(one, GLOBAL_statistics_averageReflectivity, average_absorption);
+    colorScaleInverse(M_PI * GLOBAL_statistics_totalArea, GLOBAL_statistics_totalEmittedPower, GLOBAL_statistics_estimatedAverageRadiance);
 
     /* include background radiation */
     BP = BackgroundPower(GLOBAL_scene_background, &zero);
@@ -74,7 +74,8 @@ ComputeSomeSceneStats() {
     colorAdd(GLOBAL_statistics_totalEmittedPower, BP, GLOBAL_statistics_totalEmittedPower);
     colorAdd(GLOBAL_statistics_estimatedAverageRadiance, BP, GLOBAL_statistics_estimatedAverageRadiance);
 
-    COLORDIV(GLOBAL_statistics_estimatedAverageRadiance, average_absorption, GLOBAL_statistics_estimatedAverageRadiance);
+    colorDivide(GLOBAL_statistics_estimatedAverageRadiance, average_absorption,
+                GLOBAL_statistics_estimatedAverageRadiance);
 
     GLOBAL_statistics_totalDirectPotential = GLOBAL_statistics_maxDirectPotential = GLOBAL_statistics_averageDirectPotential = GLOBAL_statistics_maxDirectImportance = 0.;
 }

@@ -1,58 +1,48 @@
-/* spectrum.h: representation of radiance, radiosity, power, ...
- * spectra */
-
-#ifndef _RPK_SPECTRUM_H_
-#define _RPK_SPECTRUM_H_
+#ifndef __SPECTRUM__
+#define __SPECTRUM__
 
 #include <cstdio>
 
 #include "common/linealAlgebra/Float.h"
-#include "material/spectrum_type.h"
 
-#define InitChannels2(spec1, chan1, spec2, chan2) const float *chan1 = (spec1); float *chan2 = (spec2);
+// Representation of radiance, radiosity, power, spectra
+typedef float SPECTRUM[3];
 
-
-#define InitChannels3(spec1, chan1, spec2, chan2, spec3, chan3) const float *chan1 = (spec1), *chan2 = (spec2); float *chan3 = (spec3);
-
-#define PrintSpectrum(fp, s)                \
-{                            \
-  fprintf(fp, "%g %g %g", s[0], s[1], s[2]);        \
+inline void
+PrintSpectrum(FILE *fp, SPECTRUM &s) {
+    fprintf(fp, "%g %g %g", s[0], s[1], s[2]);
 }
 
-#define ClearSpectrum(/*SPECTRUM*/ s)            \
-{                            \
-  s[0] = s[1] = s[2] = 0;                \
+inline void
+ClearSpectrum(SPECTRUM &s) {
+    s[0] = s[1] = s[2] = 0;
 }
 
-#define SetSpectrum(/*SPECTRUM*/ s, /*float*/ c1, /*float*/ c2, /*float*/ c3) \
-{                            \
-  s[0] = c1; s[1] = c2; s[2] = c3;            \
+inline void
+SetSpectrum(SPECTRUM &s, float c1, float c2, float c3) {
+    s[0] = c1; s[1] = c2; s[2] = c3;
 }
 
-#define SetSpectrumMonochrome(/*SPECTRUM*/ s, /*float*/ val)    \
-{                            \
-  s[0] = s[1] = s[2] = val;                \
+inline void
+SetSpectrumMonochrome(SPECTRUM &s, float val) {
+    s[0] = s[1] = s[2] = val;
 }
 
-#define CopySpectrum(/*SPECTRUM*/ dest, /*SPECTRUM*/ src)    \
-{                            \
-  InitChannels2(src, _s, dest, _r);            \
-  *_r++ = *_s++;                        \
-  *_r++ = *_s++;                        \
-  *_r   = *_s  ;                        \
+inline bool
+IsBlackSpectrum(SPECTRUM &s) {
+    return (s[0] > -EPSILON && s[0] < EPSILON &&
+            s[1] > -EPSILON && s[1] < EPSILON &&
+            s[2] > -EPSILON && s[2] < EPSILON);
 }
 
-#define IsBlackSpectrum(/*SPECTRUM*/ s)            \
-  (s[0] > -EPSILON && s[0] < EPSILON &&            \
-   s[1] > -EPSILON && s[1] < EPSILON &&            \
-   s[2] > -EPSILON && s[2] < EPSILON)
+inline void
+ScaleSpectrum(float a, const SPECTRUM spec, SPECTRUM &result) {
+    const float *_s = spec;
+    float *_r = result;
 
-#define ScaleSpectrum(/*float*/ a, /*SPECTRUM*/ spec, /*SPECTRUM*/ result) \
-{                            \
-  InitChannels2(spec, _s, result, _r);            \
-  *_r++ = (a) * *_s++;                    \
-  *_r++ = (a) * *_s++;                    \
-  *_r   = (a) * *_s;                    \
+    *_r++ = a * *_s++;
+    *_r++ = a * *_s++;
+    *_r = a * *_s;
 }
 
 inline void
@@ -85,121 +75,125 @@ AddSpectrum(SPECTRUM &spec1, SPECTRUM &spec2, SPECTRUM &result) {
     *_r = *_s1 + *_s2;
 }
 
-#define AddScaledSpectrum(/*SPECTRUM*/ spec1, /*float*/ a, /*SPECTRUM*/ spec2, /*SPECTRUM*/ result) \
-{                            \
-  InitChannels3(spec1, _s1, spec2, _s2, result, _r);    \
-  *_r++ = *_s1++ + (a) * *_s2++;                \
-  *_r++ = *_s1++ + (a) * *_s2++;                \
-  *_r   = *_s1   + (a) * *_s2  ;                \
+inline void
+AddScaledSpectrum(SPECTRUM &spec1, float a, SPECTRUM &spec2, SPECTRUM &result) {
+    const float *_s1 = spec1;
+    const float *_s2 = spec2;
+    float *_r = result;
+    *_r++ = *_s1++ + a * *_s2++;
+    *_r++ = *_s1++ + a * *_s2++;
+    *_r = *_s1 + a * *_s2;
 }
 
-#define AddConstantSpectrum(/*SPECTRUM*/ spec, /*float*/ val, /*SPECTRUM*/ result) \
-{                            \
-  InitChannels2(spec, _s, result, _r);            \
-  *_r++ = *_s++ + (val);                    \
-  *_r++ = *_s++ + (val);                    \
-  *_r   = *_s   + (val);                    \
+inline void
+AddConstantSpectrum(SPECTRUM &spec, float val, SPECTRUM &result) {
+    const float *_s = spec;
+    float *_r = result;
+    *_r++ = *_s++ + val;
+    *_r++ = *_s++ + val;
+    *_r = *_s + val;
 }
 
-#define SubtractSpectrum(/*SPECTRUM*/ spec1, /*SPECTRUM*/ spec2, /*SPECTRUM*/ result) \
-{                            \
-  InitChannels3(spec1, _s1, spec2, _s2, result, _r);    \
-  *_r++ = *_s1++ - *_s2++;                    \
-  *_r++ = *_s1++ - *_s2++;                    \
-  *_r   = *_s1   - *_s2  ;                    \
+inline void
+SubtractSpectrum(SPECTRUM &spec1, SPECTRUM &spec2, SPECTRUM &result) {
+    const float *_s1 = spec1;
+    const float *_s2 = spec2;
+    float *_r = result;
+    *_r++ = *_s1++ - *_s2++;
+    *_r++ = *_s1++ - *_s2++;
+    *_r = *_s1 - *_s2;
 }
 
-#define SubtractScaledSpectrum(/*SPECTRUM*/ spec1, /*float*/ a, /*SPECTRUM*/ spec2, /*SPECTRUM*/ result) \
-{                            \
-  InitChannels3(spec1, _s1, spec2, _s2, result, _r);    \
-  *_r++ = *_s1++ - (a) * *_s2++;                \
-  *_r++ = *_s1++ - (a) * *_s2++;                \
-  *_r   = *_s1   - (a) * *_s2  ;                \
+inline void
+DivideSpectrum(SPECTRUM &spec1, SPECTRUM &spec2, SPECTRUM &result) {
+    const float *_s1 = spec1;
+    const float *_s2 = spec2;
+    float *_r = result;
+    *_r++ = (*_s2 != 0.) ? *_s1 / *_s2 : *_s1; _s1++; _s2++;
+    *_r++ = (*_s2 != 0.) ? *_s1 / *_s2 : *_s1; _s1++; _s2++;
+    *_r   = (*_s2 != 0.) ? *_s1 / *_s2 : *_s1;
 }
 
-#define DivideSpectrum(/*SPECTRUM*/ spec1, /*SPECTRUM*/ spec2, /*SPECTRUM*/ result) \
-{                            \
-  InitChannels3(spec1, _s1, spec2, _s2, result, _r);    \
-  *_r++ = (*_s2 != 0.) ? *_s1 / *_s2 : *_s1; _s1++; _s2++;    \
-  *_r++ = (*_s2 != 0.) ? *_s1 / *_s2 : *_s1; _s1++; _s2++;    \
-  *_r   = (*_s2 != 0.) ? *_s1 / *_s2 : *_s1;            \
+inline void
+InverseScaleSpectrum(float a, SPECTRUM &spec, SPECTRUM &result) {
+    float _a = (a != 0.0f) ? 1.0f/a : 1.0f;
+    const float *_s = spec;
+    float *_r = result;
+    *_r++ = _a * *_s++;
+    *_r++ = _a * *_s++;
+    *_r   = _a * *_s  ;
 }
 
-#define InverseScaleSpectrum(/*float*/ a, /*SPECTRUM*/ spec, /*SPECTRUM*/ result) \
-{                            \
-  float _a = ((a) != 0.) ? 1./(a) : 1.;            \
-  InitChannels2(spec, _s, result, _r);            \
-  *_r++ = _a * *_s++;                    \
-  *_r++ = _a * *_s++;                    \
-  *_r   = _a * *_s  ;                    \
+inline float
+MaxSpectrumComponent(SPECTRUM &s) {
+    return (s[0] > s[1] ? (s[0] > s[2] ? s[0] : s[2]) : (s[1] > s[2] ? s[1] : s[2]));
 }
 
-#define MaxSpectrumComponent(/*SPECTRUM*/ s)        \
-  (s[0] > s[1] ? (s[0] > s[2] ? s[0] : s[2]) : (s[1] > s[2] ? s[1] : s[2]))
-
-#define MinSpectrumComponent(/*SPECTRUM*/ s)        \
-  (s[0] < s[1] ? (s[0] < s[2] ? s[0] : s[2]) : (s[1] < s[2] ? s[1] : s[2]))
-
-#define SumAbsSpectrumComponents(/*SPECTRUM*/ s)        \
-  (fabs(s[0]) + fabs(s[1]) + fabs(s[2]))
-
-#define AbsSpectrum(/*SPECTRUM*/ spec, /*SPECTRUM*/ result)    \
-{                            \
-  InitChannels2(spec, _s, result, _r);            \
-  *_r++ = fabs(*_s++);                    \
-  *_r++ = fabs(*_s++);                    \
-  *_r   = fabs(*_s  );                    \
+inline float
+SumAbsSpectrumComponents(SPECTRUM &s) {
+    return std::fabs(s[0]) + std::fabs(s[1]) + std::fabs(s[2]);
 }
 
-#define MaxSpectrum(/*SPECTRUM*/ spec1, /*SPECTRUM*/ spec2, /*SPECTRUM*/ result) \
-{                            \
-  InitChannels3(spec1, _s, spec2, _t, result, _r);        \
-  *_r++ = *_s > *_t ? *_s : *_t; _s++; _t++;            \
-  *_r++ = *_s > *_t ? *_s : *_t; _s++; _t++;            \
-  *_r   = *_s > *_t ? *_s : *_t;                \
+inline void
+AbsSpectrum(SPECTRUM &spec, SPECTRUM &result) {
+    const float *_s = spec;
+    float *_r = result;
+    *_r++ = std::fabs(*_s++);
+    *_r++ = std::fabs(*_s++);
+    *_r = std::fabs(*_s);
 }
 
-#define MinSpectrum(/*SPECTRUM*/ spec1, /*SPECTRUM*/ spec2, /*SPECTRUM*/ result) \
-{                            \
-  InitChannels3(spec1, _s, spec2, _t, result, _r);        \
-  *_r++ = *_s < *_t ? *_s : *_t; _s++; _t++;            \
-  *_r++ = *_s < *_t ? *_s : *_t; _s++; _t++;            \
-  *_r   = *_s < *_t ? *_s : *_t;                \
+inline void
+MaxSpectrum(SPECTRUM &spec1, SPECTRUM &spec2, SPECTRUM &result) {
+    const float *_s = spec1;
+    const float *_t = spec2;
+    float *_r = result;
+    *_r++ = *_s > *_t ? *_s : *_t; _s++; _t++;
+    *_r++ = *_s > *_t ? *_s : *_t; _s++; _t++;
+    *_r = *_s > *_t ? *_s : *_t;
 }
 
-#define ClipSpectrumPositive(/*SPECTRUM*/ spec, result) \
-{\
-  InitChannels2(spec, _s, result, _r);            \
-  *_r++ = *_s > 0.0 ? *_s : 0.0; _s++;                    \
-  *_r++ = *_s > 0.0 ? *_s : 0.0; _s++;                    \
-  *_r   = *_s > 0.0 ? *_s : 0.0; _s++;                    \
+inline void
+MinSpectrum(SPECTRUM &spec1, SPECTRUM &spec2, SPECTRUM &result) {
+    const float *_s = spec1;
+    const float *_t = spec2;
+    float *_r = result;
+    *_r++ = *_s < *_t ? *_s : *_t; _s++; _t++;
+    *_r++ = *_s < *_t ? *_s : *_t; _s++; _t++;
+    *_r = *_s < *_t ? *_s : *_t;
 }
 
-#define SpectrumAverage(/*SPECTRUM*/ s)            \
-  ((s[0] + s[1] + s[2]) / 3.0)
-
-#define SpectrumInterpolateBarycentric(/*SPECTRUM*/ c0, /*SPECTRUM*/ c1, /*SPECTRUM*/ c2, /*float*/ u, /*float*/ v, /*SPECTRUM*/ c) \
-{                            \
-  double _u = (u), _v = (v);                \
-  (c)[0] = (c0)[0] + _u * ((c1)[0] - (c0)[0]) + _v * ((c2)[0] - (c0)[0]); \
-  (c)[1] = (c0)[1] + _u * ((c1)[1] - (c0)[1]) + _v * ((c2)[1] - (c0)[1]); \
-  (c)[2] = (c0)[2] + _u * ((c1)[2] - (c0)[2]) + _v * ((c2)[2] - (c0)[2]); \
+inline void
+ClipSpectrumPositive(SPECTRUM &spec, SPECTRUM &result) {
+    const float *_s = spec;
+    float *_r = result;
+    *_r++ = *_s > 0.0f ? *_s : 0.0f; _s++;
+    *_r++ = *_s > 0.0f ? *_s : 0.0f; _s++;
+    *_r = *_s > 0.0f ? *_s : 0.0f;
 }
 
-#define SpectrumInterpolateBilinear(/*SPECTRUM*/ c0, /*SPECTRUM*/ c1, /*SPECTRUM*/ c2, /*SPECTRUM*/ c3, /*float*/ u, /*float*/ v, /*SPECTRUM*/ c) \
-{                            \
-  double _c=(u)*(v), _b=(u)-_c, _d=(v)-_c;        \
-  (c)[0] = (c0)[0] + (_b) * ((c1)[0] - (c0)[0]) + (_c) * ((c2)[0] - (c0)[0])+ (_d) * ((c3)[0] - (c0)[0]); \
-  (c)[1] = (c0)[1] + (_b) * ((c1)[1] - (c0)[1]) + (_c) * ((c2)[1] - (c0)[1])+ (_d) * ((c3)[1] - (c0)[1]); \
-  (c)[2] = (c0)[2] + (_b) * ((c1)[2] - (c0)[2]) + (_c) * ((c2)[2] - (c0)[2])+ (_d) * ((c3)[2] - (c0)[2]); \
+inline float
+SpectrumAverage(SPECTRUM &s) {
+    return (s[0] + s[1] + s[2]) / 3.0f;
 }
 
-#define SpectrumGammaCorrect(/*SPECTRUM*/ _c, /*float*/ _g) \
-        { \
-          float _ig = 1.0/_g; \
-          _c[0] = pow(_c[0], _ig); \
-          _c[1] = pow(_c[1], _ig); \
-          _c[2] = pow(_c[2], _ig); \
-        }
+inline void
+SpectrumInterpolateBarycentric(SPECTRUM &c0, SPECTRUM &c1, SPECTRUM &c2, float u, float v, SPECTRUM &c) {
+    float _u = (u);
+    float _v = (v);
+    c[0] = c0[0] + _u * (c1[0] - c0[0]) + _v * (c2[0] - c0[0]);
+    c[1] = c0[1] + _u * (c1[1] - c0[1]) + _v * (c2[1] - c0[1]);
+    c[2] = c0[2] + _u * (c1[2] - c0[2]) + _v * (c2[2] - c0[2]);
+}
+
+inline void
+SpectrumInterpolateBilinear(SPECTRUM &c0, SPECTRUM &c1, SPECTRUM &c2, SPECTRUM &c3, float u, float v, SPECTRUM &c) {
+    float _c = u * v;
+    float _b = u - _c;
+    float _d = v - _c;
+    c[0] = c0[0] + _b * (c1[0] - c0[0]) + _c * (c2[0] - c0[0])+ _d * (c3[0] - c0[0]);
+    c[1] = c0[1] + _b * (c1[1] - c0[1]) + _c * (c2[1] - c0[1])+ _d * (c3[1] - c0[1]);
+    c[2] = c0[2] + _b * (c1[2] - c0[2]) + _c * (c2[2] - c0[2])+ _d * (c3[2] - c0[2]);
+}
 
 #endif

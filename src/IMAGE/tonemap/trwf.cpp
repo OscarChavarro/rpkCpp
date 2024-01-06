@@ -322,7 +322,8 @@ static COLOR Ferwerda_ScaleForComputations(COLOR radiance) {
     colorScale(f_pm_comp, radiance, radiance);
 
     /* Eventually, offset by the scotopic luminance */
-    if ( sl > 0.0 ) COLORADDCONSTANT(radiance, sl, radiance);
+    if ( sl > 0.0 )
+        colorAddConstant(radiance, sl, radiance);
 
     return radiance;
 }
@@ -343,7 +344,8 @@ static COLOR Ferwerda_ScaleForDisplay(COLOR radiance) {
     colorScale(f_pm_disp, radiance, radiance);
 
     /* Eventually, offset by the scotopic luminance */
-    if ( sl > 0.0 ) COLORADDCONSTANT(radiance, sl, radiance);
+    if ( sl > 0.0 )
+        colorAddConstant(radiance, sl, radiance);
 
     return radiance;
 }

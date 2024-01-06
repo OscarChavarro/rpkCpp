@@ -137,9 +137,9 @@ static void Summarize() {
     colorClear(mcr.imp_unshot_flux);
     ForAllPatches(P, GLOBAL_scene_patches)
                 {
-                    COLORADDSCALED(mcr.unshot_flux, M_PI * P->area, UNSHOT_RAD(P)[0], mcr.unshot_flux);
-                    COLORADDSCALED(mcr.total_flux, M_PI * P->area, RAD(P)[0], mcr.total_flux);
-                    COLORADDSCALED(mcr.imp_unshot_flux, M_PI * P->area * (IMP(P) - SOURCE_IMP(P)), UNSHOT_RAD(P)[0],
+                    colorAddScaled(mcr.unshot_flux, M_PI * P->area, UNSHOT_RAD(P)[0], mcr.unshot_flux);
+                    colorAddScaled(mcr.total_flux, M_PI * P->area, RAD(P)[0], mcr.total_flux);
+                    colorAddScaled(mcr.imp_unshot_flux, M_PI * P->area * (IMP(P) - SOURCE_IMP(P)), UNSHOT_RAD(P)[0],
                                    mcr.imp_unshot_flux);
                     mcr.unshot_ymp += P->area * fabs(UNSHOT_IMP(P));
                     mcr.total_ymp += P->area * IMP(P);

@@ -349,7 +349,7 @@ COLOR PatchAverageNormalAlbedo(PATCH *patch, BSDFFLAGS components) {
         sample = BsdfScatteredPower(patch->surface->material->bsdf, &hit, &patch->normal, components);
         colorAdd(albedo, sample, albedo);
     }
-    COLORSCALEINVERSE((float) nrsamples, albedo, albedo);
+    colorScaleInverse((float) nrsamples, albedo, albedo);
 
     return albedo;
 }
@@ -372,7 +372,7 @@ COLOR PatchAverageEmittance(PATCH *patch, XXDFFLAGS components) {
         sample = EdfEmittance(patch->surface->material->edf, &hit, components);
         colorAdd(emittance, sample, emittance);
     }
-    COLORSCALEINVERSE((float) nrsamples, emittance, emittance);
+    colorScaleInverse((float) nrsamples, emittance, emittance);
 
     return emittance;
 }

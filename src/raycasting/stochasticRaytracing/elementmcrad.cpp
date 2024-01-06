@@ -149,7 +149,7 @@ CreateToplevelSurfaceElement(PATCH *patch) {
     CLEARCOEFFICIENTS(elem->received_rad, elem->basis);
 
     elem->Ed = PatchAverageEmittance(patch, DIFFUSE_COMPONENT);
-    COLORSCALEINVERSE(M_PI, elem->Ed, elem->Ed);
+    colorScaleInverse(M_PI, elem->Ed, elem->Ed);
     elem->Rd = PatchAverageNormalAlbedo(patch, BRDF_DIFFUSE_COMPONENT);
 
     return elem;
@@ -212,7 +212,7 @@ InitClusterPull(ELEMENT *parent, ELEMENT *child) {
 
     /* needs division by parent->area once it is known after InitClusterPull for
      * all children elements. */
-    COLORADDSCALED(parent->Ed, child->area, child->Ed, parent->Ed);
+    colorAddScaled(parent->Ed, child->area, child->Ed, parent->Ed);
 }
 
 static void
@@ -238,7 +238,7 @@ CreateClusterChildren(ELEMENT *parent) {
                     InitClusterPull(parent, child);
                 }
     EndForAll;
-    COLORSCALEINVERSE(parent->area, parent->Ed, parent->Ed);
+    colorScaleInverse(parent->area, parent->Ed, parent->Ed);
 }
 
 static ELEMENT *
@@ -591,8 +591,8 @@ ElementComputeAverageReflectanceAndEmittance(ELEMENT *elem) {
             colorAdd(emittance, sample, emittance);
         }
     }
-    COLORSCALEINVERSE((float) nrsamples, albedo, elem->Rd);
-    COLORSCALEINVERSE((float) nrsamples, emittance, elem->Ed);
+    colorScaleInverse((float) nrsamples, albedo, elem->Rd);
+    colorScaleInverse((float) nrsamples, emittance, elem->Ed);
 }
 
 /* initial push operation for surface subelements */

@@ -389,9 +389,9 @@ void McrReInit() {
     ForAllPatches(P, GLOBAL_scene_patches)
                 {
                     McrInitPatch(P);
-                    COLORADDSCALED(mcr.unshot_flux, M_PI * P->area, UNSHOT_RAD(P)[0], mcr.unshot_flux);
-                    COLORADDSCALED(mcr.total_flux, M_PI * P->area, RAD(P)[0], mcr.total_flux);
-                    COLORADDSCALED(mcr.imp_unshot_flux, M_PI * P->area * (IMP(P) - SOURCE_IMP(P)), UNSHOT_RAD(P)[0],
+                    colorAddScaled(mcr.unshot_flux, M_PI * P->area, UNSHOT_RAD(P)[0], mcr.unshot_flux);
+                    colorAddScaled(mcr.total_flux, M_PI * P->area, RAD(P)[0], mcr.total_flux);
+                    colorAddScaled(mcr.imp_unshot_flux, M_PI * P->area * (IMP(P) - SOURCE_IMP(P)), UNSHOT_RAD(P)[0],
                                    mcr.imp_unshot_flux);
                     mcr.unshot_ymp += P->area * fabs(UNSHOT_IMP(P));
                     mcr.total_ymp += P->area * IMP(P);
@@ -487,10 +487,10 @@ COLOR McrGetRadiance(PATCH *patch, double u, double v, Vector3D dir) {
             colorAdd(source_rad, leaf->Ed, source_rad);
         }
     }
-    COLORSUBTRACT(rad, source_rad, rad);
+    colorSubtract(rad, source_rad, rad);
 
     colorProduct(rad, TrueRdAtPoint, rad);
-    COLORDIV(rad, UsedRdAtPoint, rad);
+    colorDivide(rad, UsedRdAtPoint, rad);
 
     /* re-add source radiance */
     colorAdd(rad, source_rad, rad);

@@ -16,7 +16,6 @@ class COLOR {
     }
 };
 
-
 inline void
 colorClear(COLOR &c) {
     ClearSpectrum(c.spec);
@@ -57,11 +56,31 @@ colorAdd(COLOR &s, COLOR &t, COLOR &r) {
     AddSpectrum(s.spec, t.spec, r.spec);
 }
 
-#define COLORADDSCALED(s, a, t, r)    AddScaledSpectrum((s).spec, (a), (t).spec, (r).spec)
-#define COLORADDCONSTANT(s, a, r)    AddConstantSpectrum((s).spec, (a), (r).spec)
-#define COLORSUBTRACT(s, t, r)        SubtractSpectrum((s).spec, (t).spec, (r).spec)
-#define COLORDIV(s, t, r)        DivideSpectrum((s).spec, (t).spec, (r).spec)
-#define COLORSCALEINVERSE(a, s, r)    InverseScaleSpectrum((a), (s).spec, (r).spec)
+inline void
+colorAddScaled(COLOR &s, float a, COLOR &t, COLOR &r) {
+    AddScaledSpectrum((s).spec, (a), (t).spec, (r).spec);
+}
+
+inline void
+colorAddConstant(COLOR &s, float a, COLOR &r) {
+    AddConstantSpectrum(s.spec, a, r.spec);
+}
+
+inline void
+colorSubtract(COLOR &s, COLOR & t, COLOR &r) {
+    SubtractSpectrum(s.spec, t.spec, r.spec);
+}
+
+inline void
+colorDivide(COLOR &s, COLOR &t, COLOR &r) {
+    DivideSpectrum(s.spec, t.spec, r.spec);
+}
+
+inline void
+colorScaleInverse(float a, COLOR &s, COLOR &r) {
+    InverseScaleSpectrum(a, s.spec, r.spec);
+}
+
 #define COLORMAXCOMPONENT(s)        MaxSpectrumComponent((s).spec)
 #define COLORSUMABSCOMPONENTS(s)    SumAbsSpectrumComponents((s).spec)
 #define COLORABS(s, r)            AbsSpectrum((s).spec, (r).spec)

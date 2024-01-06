@@ -208,7 +208,7 @@ static double SourceClusterRadianceVariationError(INTERACTION *link, COLOR rcvrh
         COLORMIN(minsrcrad, rad, minsrcrad);
         COLORMAX(maxsrcrad, rad, maxsrcrad);
     }
-    COLORSUBTRACT(maxsrcrad, minsrcrad, error);
+    colorSubtract(maxsrcrad, minsrcrad, error);
 
     colorProductScaled(rcvrho, K / rcv_area, error, error);
     COLORABS(error, error);
@@ -324,12 +324,14 @@ static void ComputeLightTransport(INTERACTION *link) {
     } else {
         rcvrad = link->rcv->received_radiance;
         if ( link->nrcv == 1 && link->nsrc == 1 ) {
-            COLORADDSCALED(rcvrad[0], link->K.f, srcrad[0], rcvrad[0]);
+            colorAddScaled(rcvrad[0], link->K.f, srcrad[0], rcvrad[0]);
         } else {
             for ( alpha = 0; alpha < a; alpha++ ) {
-                for ( beta = 0; beta < b; beta++ ) COLORADDSCALED(rcvrad[alpha], link->K.p[alpha * link->nsrc + beta],
-                                                                  srcrad[beta], rcvrad[alpha])
-            };
+                for ( beta = 0; beta < b; beta++ ) {
+                    colorAddScaled(rcvrad[alpha], link->K.p[alpha * link->nsrc + beta],
+                                   srcrad[beta], rcvrad[alpha]);
+                }
+            }
         }
     }
 

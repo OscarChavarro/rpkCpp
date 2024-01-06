@@ -60,14 +60,14 @@ ShootUnshotRadianceAndPotentialOverLink(INTERACTION *link) {
     rcvrad = link->rcv->received_radiance;
 
     if ( link->nrcv == 1 && link->nsrc == 1 ) {
-        COLORADDSCALED(rcvrad[0], link->K.f, srcrad[0], rcvrad[0]);
+        colorAddScaled(rcvrad[0], link->K.f, srcrad[0], rcvrad[0]);
     } else {
         int alpha, beta, a, b;
         a = MIN(link->nrcv, link->rcv->basis_size);
         b = MIN(link->nsrc, link->src->basis_size);
         for ( alpha = 0; alpha < a; alpha++ ) {
             for ( beta = 0; beta < b; beta++ ) {
-                COLORADDSCALED(rcvrad[alpha], link->K.p[alpha * link->nsrc + beta], srcrad[beta], rcvrad[alpha]);
+                colorAddScaled(rcvrad[alpha], link->K.p[alpha * link->nsrc + beta], srcrad[beta], rcvrad[alpha]);
             }
         }
     }
@@ -175,7 +175,8 @@ PatchUpdateRadianceAndPotential(PATCH *patch) {
     }
     PushPullRadiance(TOPLEVEL_ELEMENT(patch));
 
-    COLORADDSCALED(GLOBAL_galerkin_state.ambient_radiance, patch->area, UNSHOT_RADIANCE(patch), GLOBAL_galerkin_state.ambient_radiance);
+    colorAddScaled(GLOBAL_galerkin_state.ambient_radiance, patch->area, UNSHOT_RADIANCE(patch),
+                   GLOBAL_galerkin_state.ambient_radiance);
 }
 
 static void

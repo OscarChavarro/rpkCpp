@@ -559,8 +559,8 @@ static void CPhotonMapGetGrid(Vector3D *pos, COORDSYS *coord,
 
     COLOR dest = colb;
 
-    COLORADDSCALED(colb, phi / (2 * M_PI), colr, dest);
-    COLORADDSCALED(dest, theta / (M_PI), colg, dest);
+    colorAddScaled(colb, phi / (2 * M_PI), colr, dest);
+    colorAddScaled(dest, theta / (M_PI), colg, dest);
 
     convertColorToRGB(dest, color);
     *distance = 0.1 * pm->GetGridValue(phi, theta);

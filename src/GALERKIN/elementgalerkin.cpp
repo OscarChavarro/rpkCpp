@@ -218,7 +218,7 @@ CreateToplevelElement(PATCH *patch) {
          patch->surface->material->edf ) {
         element->flags |= IS_LIGHT_SOURCE;
         element->Ed = PatchAverageEmittance(patch, DIFFUSE_COMPONENT);
-        COLORSCALEINVERSE(M_PI, element->Ed, element->Ed);
+        colorScaleInverse(M_PI, element->Ed, element->Ed);
     }
 
     patch->radiance_data = element;

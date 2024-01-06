@@ -83,7 +83,7 @@ static double Probability(ELEMENT *elem) {
         /* probability proportional to power to be propagated. */
         COLOR radiance = get_radiance(elem)[0];
         if ( mcr.constant_control_variate ) {
-            COLORSUBTRACT(radiance, mcr.control_radiance, radiance);
+            colorSubtract(radiance, mcr.control_radiance, radiance);
         }
         prob = /* M_PI * */ elem->area * COLORSUMABSCOMPONENTS(radiance);
         if ( mcr.importance_driven ) {
@@ -99,7 +99,7 @@ static double Probability(ELEMENT *elem) {
         if ( mcr.radiance_driven ) {
             /* received-radiance weighted importance transport */
             COLOR received_radiance;
-            COLORSUBTRACT(elem->rad[0], elem->source_rad, received_radiance);
+            colorSubtract(elem->rad[0], elem->source_rad, received_radiance);
             prob2 *= COLORSUMABSCOMPONENTS(received_radiance);
         }
 
@@ -172,14 +172,14 @@ static void PropagateRadianceToSurface(ELEMENT *rcv, double ur, double vr,
     for ( i = 0; i < rcv->basis->size; i++ ) {
         double dual = rcv->basis->dualfunction[i](ur, vr) / rcv->area;
         double w = dual * fraction / (double) nr_rays;
-        COLORADDSCALED(rcv->received_rad[i], w, raypow, rcv->received_rad[i]);
+        colorAddScaled(rcv->received_rad[i], w, raypow, rcv->received_rad[i]);
     }
 }
 
 static void PropagateRadianceToClusterIsotropic(ELEMENT *cluster, COLOR raypow, ELEMENT *src,
                                                 double fraction, double weight) {
     double w = fraction / cluster->area / (double) nr_rays;
-    COLORADDSCALED(cluster->received_rad[0], w, raypow, cluster->received_rad[0]);
+    colorAddScaled(cluster->received_rad[0], w, raypow, cluster->received_rad[0]);
 }
 
 static void PropagateRadianceToClusterOriented(ELEMENT *cluster, COLOR raypow, Ray *ray, float dir,
@@ -191,7 +191,7 @@ static void PropagateRadianceToClusterOriented(ELEMENT *cluster, COLOR raypow, R
                 if ( c > 0. ) {
                     double afrac = fraction * (c * rcv->area / projarea);
                     double w = afrac / rcv->area / (double) nr_rays;
-                    COLORADDSCALED(rcv->received_rad[0], w, raypow, rcv->received_rad[0]);
+                    colorAddScaled(rcv->received_rad[0], w, raypow, rcv->received_rad[0]);
                 }
             }
     REC_EndForAllClusterSurfaces;
@@ -234,7 +234,7 @@ static void PropagateRadiance(ELEMENT *src, double us, double vs,
 
     rad = GetSourceRadiance(src, us, vs);
     if ( mcr.constant_control_variate ) {
-        COLORSUBTRACT(rad, mcr.control_radiance, rad);
+        colorSubtract(rad, mcr.control_radiance, rad);
     }
     colorScale(weight, rad, raypow);
 
@@ -480,9 +480,9 @@ static void UpdateElement(ELEMENT *elem) {
 
     reflect(elem, (double) nr_rays / sum_probs);
 
-    COLORADDSCALED(mcr.unshot_flux, M_PI * elem->area, elem->unshot_rad[0], mcr.unshot_flux);
-    COLORADDSCALED(mcr.total_flux, M_PI * elem->area, elem->rad[0], mcr.total_flux);
-    COLORADDSCALED(mcr.imp_unshot_flux, M_PI * elem->area * (elem->imp - elem->source_imp), elem->unshot_rad[0],
+    colorAddScaled(mcr.unshot_flux, M_PI * elem->area, elem->unshot_rad[0], mcr.unshot_flux);
+    colorAddScaled(mcr.total_flux, M_PI * elem->area, elem->rad[0], mcr.total_flux);
+    colorAddScaled(mcr.imp_unshot_flux, M_PI * elem->area * (elem->imp - elem->source_imp), elem->unshot_rad[0],
                    mcr.imp_unshot_flux);
     mcr.unshot_ymp += elem->area * fabs(elem->unshot_imp);
     mcr.total_ymp += elem->area * elem->imp;
@@ -554,8 +554,8 @@ static void PullRdEdFromChild(ELEMENT *child) {
 
     PullRdEd(child);
 
-    COLORADDSCALED(parent->Ed, child->area / parent->area, child->Ed, parent->Ed);
-    COLORADDSCALED(parent->Rd, child->area / parent->area, child->Rd, parent->Rd);
+    colorAddScaled(parent->Ed, child->area / parent->area, child->Ed, parent->Ed);
+    colorAddScaled(parent->Rd, child->area / parent->area, child->Rd, parent->Rd);
     if ( parent->iscluster )
         colorSetMonochrome(parent->Rd, 1.);
 }

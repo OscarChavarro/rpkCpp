@@ -43,7 +43,9 @@ static COLOR VertexRadiance(VERTEX *v) {
                 }
     EndForAll;
 
-    if ( count > 0 ) COLORSCALEINVERSE((float) count, radiance, radiance);
+    if ( count > 0 ) {
+        colorScaleInverse((float) count, radiance, radiance);
+    }
 
     return radiance;
 }
@@ -64,7 +66,9 @@ COLOR VertexReflectance(VERTEX *v) {
                 }
     EndForAll;
 
-    if ( count > 0 ) COLORSCALEINVERSE((float) count, rd, rd);
+    if ( count > 0 ) {
+        colorScaleInverse((float) count, rd, rd);
+    }
 
     return rd;
 }
@@ -422,7 +426,7 @@ void RenderElement(ELEMENT *elem) {
 
 COLOR ElementDisplayRadiance(ELEMENT *elem) {
     COLOR rad;
-    COLORSUBTRACT(elem->rad[0], elem->source_rad, rad);
+    colorSubtract(elem->rad[0], elem->source_rad, rad);
 
     if ( mcr.show != SHOW_INDIRECT_RADIANCE ) {
         /* source_rad is self-emitted radiance if !mcr.indirect_only. It is direct
@@ -461,7 +465,7 @@ COLOR ElementDisplayRadianceAtPoint(ELEMENT *elem, double u, double v) {
     } else {    /* higher order approximations */
         radiance = ColorAtUV(elem->basis, elem->rad, u, v);
         if ( mcr.show == SHOW_INDIRECT_RADIANCE ) {
-            COLORSUBTRACT(radiance, elem->source_rad, radiance);
+            colorSubtract(radiance, elem->source_rad, radiance);
         }
     }
     return radiance;

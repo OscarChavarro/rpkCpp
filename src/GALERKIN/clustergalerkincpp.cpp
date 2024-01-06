@@ -44,12 +44,12 @@ static void ClusterInit(ELEMENT *clus) {
         ELEMENT *subclus = subellist->element;
         clus->area += subclus->area;
         clus->nrpatches += subclus->nrpatches;
-        COLORADDSCALED(clus->radiance[0], subclus->area, subclus->radiance[0], clus->radiance[0]);
+        colorAddScaled(clus->radiance[0], subclus->area, subclus->radiance[0], clus->radiance[0]);
         if ( subclus->minarea < clus->minarea ) {
             clus->minarea = subclus->minarea;
         }
         clus->flags |= (subclus->flags & IS_LIGHT_SOURCE);
-        COLORADDSCALED(clus->Ed, subclus->area, subclus->Ed, clus->Ed);
+        colorAddScaled(clus->Ed, subclus->area, subclus->Ed, clus->Ed);
     }
     colorScale((1. / clus->area), clus->radiance[0], clus->radiance[0]);
     colorScale((1. / clus->area), clus->Ed, clus->Ed);
@@ -59,7 +59,7 @@ static void ClusterInit(ELEMENT *clus) {
         CLEARCOEFFICIENTS(clus->unshot_radiance, clus->basis_size);
         for ( subellist = clus->irregular_subelements; subellist; subellist = subellist->next ) {
             ELEMENT *subclus = subellist->element;
-            COLORADDSCALED(clus->unshot_radiance[0], subclus->area, subclus->unshot_radiance[0],
+            colorAddScaled(clus->unshot_radiance[0], subclus->area, subclus->unshot_radiance[0],
                            clus->unshot_radiance[0]);
         }
         colorScale((1. / clus->area), clus->unshot_radiance[0], clus->unshot_radiance[0]);
@@ -171,7 +171,7 @@ static void AccumulatePowerToSamplePoint(ELEMENT *src) {
         rad = src->unshot_radiance[0];
     }
 
-    COLORADDSCALED(srcrad, srcos * src->area, rad, srcrad);
+    colorAddScaled(srcrad, srcos * src->area, rad, srcrad);
 }
 
 /* Returns the radiance or unshot radiance (depending on the
@@ -315,16 +315,18 @@ static void DoGatherRadiance(ELEMENT *rcv, double area_factor, INTERACTION *link
     COLOR *rcvrad = rcv->received_radiance;
 
     if ( link->nrcv == 1 && link->nsrc == 1 ) {
-        COLORADDSCALED(rcvrad[0], area_factor * link->K.f, srcrad[0], rcvrad[0]);
+        colorAddScaled(rcvrad[0], area_factor * link->K.f, srcrad[0], rcvrad[0]);
     } else {
         int alpha, beta, a, b;
         a = MIN(link->nrcv, rcv->basis_size);
         b = MIN(link->nsrc, link->src->basis_size);
         for ( alpha = 0; alpha < a; alpha++ ) {
-            for ( beta = 0; beta < b; beta++ ) COLORADDSCALED(rcvrad[alpha],
-                                                              area_factor * link->K.p[alpha * link->nsrc + beta],
-                                                              srcrad[beta], rcvrad[alpha])
-        };
+            for ( beta = 0; beta < b; beta++ ) {
+                colorAddScaled(rcvrad[alpha],
+                               area_factor * link->K.p[alpha * link->nsrc + beta],
+                               srcrad[beta], rcvrad[alpha]);
+            }
+        }
     }
 }
 

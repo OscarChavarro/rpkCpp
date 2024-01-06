@@ -245,7 +245,7 @@ static void ElementUpdateRadiance(ELEMENT *elem, double w) {
     }
 
     /* subtract source radiosity */
-    COLORSUBTRACT(elem->rad[0], elem->source_rad, elem->rad[0]);
+    colorSubtract(elem->rad[0], elem->source_rad, elem->rad[0]);
 
     /* combine with previous results */
     SCALECOEFFICIENTS(k, elem->rad, elem->basis);

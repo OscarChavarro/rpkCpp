@@ -21,7 +21,7 @@ COLOR RadianceAtPoint(ELEMENT *elem, COLOR *coefficients, double u, double v) {
 
     for ( i = 0; i < elem->basis_size; i++ ) {
         double f = basis->function[i](u, v);
-        COLORADDSCALED(rad, f, coefficients[i], rad);
+        colorAddScaled(rad, f, coefficients[i], rad);
     }
 
     return rad;
@@ -76,9 +76,10 @@ void Push(ELEMENT *parent, COLOR *parent_coefficients,
             colorClear(child_coefficients[beta]);
             for ( alpha = 0; alpha < parent->basis_size; alpha++ ) {
                 double f = basis->regular_filter[sigma][alpha][beta];
-                if ( f < -EPSILON || f > EPSILON ) COLORADDSCALED(child_coefficients[beta], f,
-                                                                  parent_coefficients[alpha],
-                                                                  child_coefficients[beta]);
+                if ( f < -EPSILON || f > EPSILON )
+                    colorAddScaled(child_coefficients[beta], f,
+                                   parent_coefficients[alpha],
+                                   child_coefficients[beta]);
             }
         }
     }
@@ -121,9 +122,10 @@ void Pull(ELEMENT *parent, COLOR *parent_coefficients,
             colorClear(parent_coefficients[alpha]);
             for ( beta = 0; beta < child->basis_size; beta++ ) {
                 double f = basis->regular_filter[sigma][alpha][beta];
-                if ( f < -EPSILON || f > EPSILON ) COLORADDSCALED(parent_coefficients[alpha], f,
-                                                                  child_coefficients[beta],
-                                                                  parent_coefficients[alpha]);
+                if ( f < -EPSILON || f > EPSILON )
+                    colorAddScaled(parent_coefficients[alpha], f,
+                                   child_coefficients[beta],
+                                   parent_coefficients[alpha]);
             }
             colorScale(0.25, parent_coefficients[alpha], parent_coefficients[alpha]);
         }
@@ -136,7 +138,7 @@ static void PushPullRadianceRecursive(ELEMENT *elem, COLOR *Bdown, COLOR *Bup) {
 
     /* "renormalize" the received radiance at this level and add to Bdown. */
     for ( i = 0; i < elem->basis_size; i++ ) {
-        COLORADDSCALED(Bdown[i], 1. / elem->area, elem->received_radiance[i], Bdown[i]);
+        colorAddScaled(Bdown[i], 1. / elem->area, elem->received_radiance[i], Bdown[i]);
         colorClear(elem->received_radiance[i]);
     }
 

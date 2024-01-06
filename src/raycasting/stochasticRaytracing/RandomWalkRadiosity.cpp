@@ -69,9 +69,9 @@ ReduceSource() {
 
                     colorSetMonochrome(newsrcrad, 1.);
                     rho = REFLECTANCE(P);
-                    COLORSUBTRACT(newsrcrad, rho, newsrcrad);    /* 1-rho */
+                    colorSubtract(newsrcrad, rho, newsrcrad);    /* 1-rho */
                     colorProduct(newsrcrad, mcr.control_radiance, newsrcrad);  /* (1-rho) * beta */
-                    COLORSUBTRACT(SOURCE_RAD(P), newsrcrad, newsrcrad);    /* E - (1-rho) beta */
+                    colorSubtract(SOURCE_RAD(P), newsrcrad, newsrcrad);    /* E - (1-rho) beta */
                     SOURCE_RAD(P) = newsrcrad;
                 }
     EndForAll;
@@ -148,7 +148,7 @@ ShootingScore(PATH *path, long nr_paths, double (*birth_prob)(PATCH *)) {
 
         for ( i = 0; i < BAS(P)->size; i++ ) {
             double dual = BAS(P)->dualfunction[i](uin, vin) / P->area;
-            COLORADDSCALED(RECEIVED_RAD(P)[i], (w * dual / (double) nr_paths), accum_pow, RECEIVED_RAD(P)[i]);
+            colorAddScaled(RECEIVED_RAD(P)[i], (w * dual / (double) nr_paths), accum_pow, RECEIVED_RAD(P)[i]);
 
             if ( !mcr.continuous_random_walk ) {
                 double basf = BAS(P)->function[i](uout, vout);
@@ -171,7 +171,7 @@ ShootingUpdate(PATCH *P, double w) {
     k = old_quality / QUALITY(P);
 
     /* subtract selfemitted rad */
-    COLORSUBTRACT(RAD(P)[0], SOURCE_RAD(P), RAD(P)[0]);
+    colorSubtract(RAD(P)[0], SOURCE_RAD(P), RAD(P)[0]);
 
     /* weight with previous results */
     SCALECOEFFICIENTS(k, RAD(P), BAS(P));
@@ -219,18 +219,18 @@ DetermineGatheringControlRadiosity() {
 
                     colorSetMonochrome(absorb, 1.);
                     rho = REFLECTANCE(P);
-                    COLORSUBTRACT(absorb, rho, absorb);    /* 1-rho */
+                    colorSubtract(absorb, rho, absorb);    /* 1-rho */
 
                     Ed = SOURCE_RAD(P);
                     colorProduct(absorb, Ed, num);
-                    COLORADDSCALED(c1, P->area, num, c1);    /* A_P (1-rho_P) E_P */
+                    colorAddScaled(c1, P->area, num, c1);    /* A_P (1-rho_P) E_P */
 
                     colorProduct(absorb, absorb, denom);
-                    COLORADDSCALED(c2, P->area, denom, c2);    /* A_P (1-rho_P)^2 */
+                    colorAddScaled(c2, P->area, denom, c2);    /* A_P (1-rho_P)^2 */
                 }
     EndForAll;
 
-    COLORDIV(c1, c2, cr);
+    colorDivide(c1, c2, cr);
     fprintf(stderr, "Control radiosity value = ");
     cr.print(stderr);
     fprintf(stderr, ", luminosity = %g\n", ColorLuminance(cr));
@@ -262,7 +262,7 @@ CollisionGatheringScore(PATH *path, long nr_paths, double (*birth_prob)(PATCH *)
 
         for ( i = 0; i < BAS(P)->size; i++ ) {
             double dual = BAS(P)->dualfunction[i](uout, vout);    /* = dual basis f * area */
-            COLORADDSCALED(RECEIVED_RAD(P)[i], dual, accum_rad, RECEIVED_RAD(P)[i]);
+            colorAddScaled(RECEIVED_RAD(P)[i], dual, accum_rad, RECEIVED_RAD(P)[i]);
 
             if ( !mcr.continuous_random_walk ) {
                 double basf = BAS(P)->function[i](uin, vin);

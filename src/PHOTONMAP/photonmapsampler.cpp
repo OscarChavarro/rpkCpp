@@ -320,7 +320,7 @@ bool CPhotonMapSampler::FresnelSample(CPathNode *prevNode,
     if ( doCosInverse ) {
         float cosb = fabs(VECTORDOTPRODUCT(newNode->m_hit.normal,
                                            newNode->m_inDirT));
-        COLORSCALEINVERSE(cosb, scatteringColor, thisNode->m_bsdfEval);
+        colorScaleInverse(cosb, scatteringColor, thisNode->m_bsdfEval);
     } else {
         thisNode->m_bsdfEval = scatteringColor;
     }

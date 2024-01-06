@@ -286,7 +286,7 @@ static COLOR PhongBrdfEval(PHONG_BRDF *brdf, Vector3D *in, Vector3D *out, Vector
     }
 
     if ((flags & DIFFUSE_COMPONENT) && (brdf->avgKd > 0.0)) {
-        COLORADDSCALED(result, M_1_PI, brdf->Kd, result);
+        colorAddScaled(result, M_1_PI, brdf->Kd, result);
     }
 
     if ( PHONG_IS_SPECULAR(*brdf)) {
@@ -303,7 +303,7 @@ static COLOR PhongBrdfEval(PHONG_BRDF *brdf, Vector3D *in, Vector3D *out, Vector
         if ( dotProduct > 0 ) {
             tmpFloat = (float) pow(dotProduct, brdf->Ns); /* cos(a) ^ n */
             tmpFloat *= ((int) brdf->Ns + 2.0) / (2 * M_PI); /* Ks -> ks */
-            COLORADDSCALED(result, tmpFloat, brdf->Ks, result);
+            colorAddScaled(result, tmpFloat, brdf->Ks, result);
         }
     }
 
@@ -546,7 +546,7 @@ static COLOR PhongBtdfEval(PHONG_BTDF *btdf, REFRACTIONINDEX inIndex, REFRACTION
         if ( dotProduct > 0 ) {
             tmpFloat = (float) pow(dotProduct, btdf->Ns); /* cos(a) ^ n */
             tmpFloat *= (btdf->Ns + 2.0) / (2 * M_PI); /* Ks -> ks */
-            COLORADDSCALED(result, tmpFloat, btdf->Ks, result);
+            colorAddScaled(result, tmpFloat, btdf->Ks, result);
         }
     }
 

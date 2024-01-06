@@ -284,7 +284,7 @@ COLOR CLeSpar::HandlePath(CSparConfig *sconfig,
         if ( COLORAVERAGE(col) > ZEROEPSILON ) {
             wp = EvalPDFAndWeight(sconfig, path);
 
-            COLORADDSCALED(result, wp * totalGeom, col, result);
+            colorAddScaled(result, wp * totalGeom, col, result);
         }
     }
 
@@ -300,7 +300,7 @@ COLOR CLeSpar::HandlePath(CSparConfig *sconfig,
             if ( COLORAVERAGE(col) > ZEROEPSILON ) {
                 wp = EvalPDFAndMPWeight(sconfig, path);
 
-                COLORADDSCALED(result, wp * totalGeom, col, result);
+                colorAddScaled(result, wp * totalGeom, col, result);
             }
         }
     }
@@ -788,7 +788,7 @@ COLOR CLDSpar::HandlePath(CSparConfig *sconfig,
 
             if ( COLORAVERAGE(col) > ZEROEPSILON ) {
                 wp = EvalPDFAndWeight(sconfig, path);
-                COLORADDSCALED(result, wp * totalGeom, col, result);
+                colorAddScaled(result, wp * totalGeom, col, result);
             }
         }
 
@@ -799,7 +799,7 @@ COLOR CLDSpar::HandlePath(CSparConfig *sconfig,
             if ( COLORAVERAGE(col) > ZEROEPSILON ) {
                 wp = EvalPDFAndMPWeight(sconfig, path);
 
-                COLORADDSCALED(result, wp * totalGeom, col, result);
+                colorAddScaled(result, wp * totalGeom, col, result);
             }
         }
     }

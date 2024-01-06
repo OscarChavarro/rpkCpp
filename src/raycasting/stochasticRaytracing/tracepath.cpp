@@ -148,8 +148,8 @@ void TracePaths(long nr_paths,
     ForAllPatches(P, GLOBAL_scene_patches)
                 {
                     Update(P, (double) nr_paths / sum_probs);
-                    COLORADDSCALED(mcr.unshot_flux, M_PI * P->area, UNSHOT_RAD(P)[0], mcr.unshot_flux);
-                    COLORADDSCALED(mcr.total_flux, M_PI * P->area, RAD(P)[0], mcr.total_flux);
+                    colorAddScaled(mcr.unshot_flux, M_PI * P->area, UNSHOT_RAD(P)[0], mcr.unshot_flux);
+                    colorAddScaled(mcr.total_flux, M_PI * P->area, RAD(P)[0], mcr.total_flux);
                 }
     EndForAll;
 }

@@ -30,7 +30,7 @@ static void InitialControlRadiosity(COLOR *minRad, COLOR *maxRad, COLOR *fmin, C
                                     warea *= (elem->imp - elem->source_imp); /* multiply with received importance */
                                 }
                                 /* factor M_PI is omitted everywhere */
-                                COLORADDSCALED(totalflux, /* M_PI* */ warea, rad, totalflux);
+                                colorAddScaled(totalflux, /* M_PI* */ warea, rad, totalflux);
                                 area += warea;
                                 COLORMAX(maxrad, rad, maxrad);
                             }
@@ -43,7 +43,7 @@ static void InitialControlRadiosity(COLOR *minRad, COLOR *maxRad, COLOR *fmin, C
 
     *maxRad = maxrad;
     colorScale(area, maxrad, *fmax);
-    COLORSUBTRACT(*fmax, totalflux, *fmax);
+    colorSubtract(*fmax, totalflux, *fmax);
 }
 
 #define NRINTERVALS 10
@@ -93,10 +93,10 @@ static void RefineControlRadiosity(COLOR *minRad, COLOR *maxRad, COLOR *fmin, CO
     colorSetMonochrome(color_one, 1.);
 
     /* initialisations. rad[i] = radiosity at boundary i. */
-    COLORSUBTRACT(*maxRad, *minRad, d);
+    colorSubtract(*maxRad, *minRad, d);
     for ( i = 0; i <= NRINTERVALS; i++ ) {
         colorClear(f[i]);
-        COLORADDSCALED(*minRad, (double) i / (double) NRINTERVALS, d, rad[i]);
+        colorAddScaled(*minRad, (double) i / (double) NRINTERVALS, d, rad[i]);
     }
 
     /* determine value of F(beta) = sum_i (area_i * fabs(B_i - beta)) on
@@ -114,9 +114,9 @@ static void RefineControlRadiosity(COLOR *minRad, COLOR *maxRad, COLOR *fmin, CO
                                 for ( i = 0; i <= NRINTERVALS; i++ ) {
                                     COLOR t;
                                     colorProduct(s, rad[i], t);
-                                    COLORSUBTRACT(B, t, t);
+                                    colorSubtract(B, t, t);
                                     COLORABS(t, t);
-                                    COLORADDSCALED(f[i], warea, t, f[i]);
+                                    colorAddScaled(f[i], warea, t, f[i]);
                                 }
                             }
                     REC_EndForAllSurfaceLeafs;
@@ -124,7 +124,7 @@ static void RefineControlRadiosity(COLOR *minRad, COLOR *maxRad, COLOR *fmin, CO
     EndForAll;
 
     /* find sub-interval containing optimal control radiosity (component-wise) */
-    for ( s = 0; s < SPECTRUM_CHANNELS; s++ ) {
+    for ( s = 0; s < 3; s++ ) {
         float fc[NRINTERVALS + 1], radc[NRINTERVALS + 1];
         for ( i = 0; i <= NRINTERVALS; i++ ) {    /* copy components */
             fc[i] = f[i].spec[s];
@@ -155,13 +155,13 @@ COLOR DetermineControlRadiosity(COLOR *(*GetRadiance)(ELEMENT *),
     f_orig = fmin;    /* initial minRad=0, f/f_orig will determine
 			 * possible efficiency gain */
 
-    COLORSUBTRACT(fmax, fmin, delta);
-    COLORADDSCALED(delta, (-eps), fmin, delta);
+    colorSubtract(fmax, fmin, delta);
+    colorAddScaled(delta, (-eps), fmin, delta);
     while ((COLORMAXCOMPONENT(delta) > 0.) || sweep < 4 ) {
         sweep++;
         RefineControlRadiosity(&minRad, &maxRad, &fmin, &fmax);
-        COLORSUBTRACT(fmax, fmin, delta);
-        COLORADDSCALED(delta, (-eps), fmin, delta);
+        colorSubtract(fmax, fmin, delta);
+        colorAddScaled(delta, (-eps), fmin, delta);
     }
 
     colorAdd(minRad, maxRad, beta);

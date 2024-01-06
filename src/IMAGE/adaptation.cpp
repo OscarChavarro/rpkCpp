@@ -62,7 +62,7 @@ static COLOR InitRadianceEstimate(PATCH *patch) {
             radiance;
 
     colorProduct(R, GLOBAL_statistics_estimatedAverageRadiance, radiance);
-    COLORADDSCALED(radiance, (1. / M_PI), E, radiance);
+    colorAddScaled(radiance, (1. / M_PI), E, radiance);
     return radiance;
 }
 
