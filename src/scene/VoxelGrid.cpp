@@ -1,13 +1,14 @@
-/* grid.c: Global_Raytracer_activeRaytracer acceleration using a uniform grid */
+/**
+Uniform voxel grid to optimize intersection operations
 
-#include <cstdlib>
+Ray-grid intersection: [SNYD1987] Snyder & Barr, SIGGRAPH '87, p123, with several
+optimisations/enhancements from rayshade 4.0.6 by Graig Kolb, Stanford U
+*/
 
+#include "java/util/ArrayList.txx"
 #include "common/error.h"
 #include "scene/VoxelGrid.h"
-#include "scene/gridP.h"
 #include "skin/hitlist.h"
-
-#define NEWGRIDITEM(grid) (VoxelData *)malloc(sizeof(VoxelData))
 
 /* *********************************************************************** */
 /* voxel grid construction */
@@ -19,7 +20,7 @@ static int IsSmall(float *bounds, VoxelGrid *grid) {
 }
 
 static VoxelData *NewGridItem(void *ptr, unsigned flags, VoxelGrid *grid) {
-    VoxelData *item = NEWGRIDITEM(grid);
+    VoxelData *item = (VoxelData *)malloc(sizeof(VoxelData));
     item->ptr = ptr;
     item->flags = flags;
     return item;
@@ -106,7 +107,7 @@ static void EngridGeom(Geometry *geom, VoxelGrid *grid) {
         if ( geom->tmp.i /*item count*/ < 10 ) {
             EngridItem(NewGridItem(geom, ISGEOM, grid), geom->bounds, grid);
         } else {
-            VoxelGrid *subgrid = CreateGrid(geom);
+            VoxelGrid *subgrid = createGrid(geom);
             EngridItem(NewGridItem(subgrid, ISGRID, grid), subgrid->boundingBox, grid);
         }
     } else {
@@ -194,7 +195,7 @@ static int GeomCountItems(Geometry *geom) {
 }
 
 /* Constructs a recursive grid structure containing the whole geom. */
-VoxelGrid *CreateGrid(Geometry *geom) {
+VoxelGrid *createGrid(Geometry *geom) {
     static int level = 0;
     int gridsize;
     VoxelGrid *grid;
@@ -236,7 +237,7 @@ static void DestroyGridRecursive(VoxelGrid *grid) {
     free((char *) grid);
 }
 
-void DestroyGrid(VoxelGrid *grid) {
+void destroyGrid(VoxelGrid *grid) {
     if ( !grid ) {
         return;
     }
@@ -277,17 +278,17 @@ static int GridBoundsIntersect(/*IN*/ VoxelGrid *grid, Ray *ray, float mindist, 
 static void GridTraceSetup(/*IN*/ VoxelGrid *grid, Ray *ray, float t0, Vector3D *P,
         /*OUT*/ int *g, Vector3D *tDelta, Vector3D *tNext, int *step, int *out) {
     /* Compute the grid cell g where this intersection occurs */
-    g[X] = x2voxel(P->x, grid);
-    if ( g[X] >= grid->xSize ) {
-        g[X] = grid->xSize - 1;
+    g[0] = x2voxel(P->x, grid);
+    if ( g[0] >= grid->xSize ) {
+        g[0] = grid->xSize - 1;
     }
-    g[Y] = y2voxel(P->y, grid);
-    if ( g[Y] >= grid->ySize ) {
-        g[Y] = grid->ySize - 1;
+    g[1] = y2voxel(P->y, grid);
+    if ( g[1] >= grid->ySize ) {
+        g[1] = grid->ySize - 1;
     }
-    g[Z] = z2voxel(P->z, grid);
-    if ( g[Z] >= grid->zSize ) {
-        g[Z] = grid->zSize - 1;
+    g[2] = z2voxel(P->z, grid);
+    if ( g[2] >= grid->zSize ) {
+        g[2] = grid->zSize - 1;
     }
 
     /* Setup X: */
@@ -295,19 +296,19 @@ static void GridTraceSetup(/*IN*/ VoxelGrid *grid, Ray *ray, float t0, Vector3D 
      * voxel in X direction.
      * tNext->x is the total distance from the ray origin to the next voxel
      * in X direction.
-     * step[X] is either +1 or -1 accroding to the ray X direction.
-     * out[X] is -1 or grid->xSize: the first x grid cell index outside the
+     * step[0] is either +1 or -1 accroding to the ray X direction.
+     * out[0] is -1 or grid->xSize: the first x grid cell index outside the
      * grid. */
     if ( fabs(ray->dir.x) > EPSILON ) {
         if ( ray->dir.x > 0. ) {
             tDelta->x = grid->voxelSize.x / ray->dir.x;
-            tNext->x = t0 + (voxel2x(g[X] + 1, grid) - P->x) / ray->dir.x;
-            step[X] = 1;
-            out[X] = grid->xSize;
+            tNext->x = t0 + (voxel2x(g[0] + 1, grid) - P->x) / ray->dir.x;
+            step[0] = 1;
+            out[0] = grid->xSize;
         } else {
             tDelta->x = grid->voxelSize.x / -ray->dir.x;
-            tNext->x = t0 + (voxel2x(g[X], grid) - P->x) / ray->dir.x;
-            step[X] = out[X] = -1;
+            tNext->x = t0 + (voxel2x(g[0], grid) - P->x) / ray->dir.x;
+            step[0] = out[0] = -1;
         }
     } else {
         tDelta->x = 0.;
@@ -318,13 +319,13 @@ static void GridTraceSetup(/*IN*/ VoxelGrid *grid, Ray *ray, float t0, Vector3D 
     if ( fabs(ray->dir.y) > EPSILON ) {
         if ( ray->dir.y > 0. ) {
             tDelta->y = grid->voxelSize.y / ray->dir.y;
-            tNext->y = t0 + (voxel2y(g[Y] + 1, grid) - P->y) / ray->dir.y;
-            step[Y] = 1;
-            out[Y] = grid->ySize;
+            tNext->y = t0 + (voxel2y(g[1] + 1, grid) - P->y) / ray->dir.y;
+            step[1] = 1;
+            out[1] = grid->ySize;
         } else {
             tDelta->y = grid->voxelSize.y / -ray->dir.y;
-            tNext->y = t0 + (voxel2y(g[Y], grid) - P->y) / ray->dir.y;
-            step[Y] = out[Y] = -1;
+            tNext->y = t0 + (voxel2y(g[1], grid) - P->y) / ray->dir.y;
+            step[1] = out[1] = -1;
         }
     } else {
         tDelta->y = 0.;
@@ -335,13 +336,13 @@ static void GridTraceSetup(/*IN*/ VoxelGrid *grid, Ray *ray, float t0, Vector3D 
     if ( fabs(ray->dir.z) > EPSILON ) {
         if ( ray->dir.z > 0. ) {
             tDelta->z = grid->voxelSize.z / ray->dir.z;
-            tNext->z = t0 + (voxel2z(g[Z] + 1, grid) - P->z) / ray->dir.z;
-            step[Z] = 1;
-            out[Z] = grid->zSize;
+            tNext->z = t0 + (voxel2z(g[2] + 1, grid) - P->z) / ray->dir.z;
+            step[2] = 1;
+            out[2] = grid->zSize;
         } else {
             tDelta->z = grid->voxelSize.z / -ray->dir.z;
-            tNext->z = t0 + (voxel2z(g[Z], grid) - P->z) / ray->dir.z;
-            step[Z] = out[Z] = -1;
+            tNext->z = t0 + (voxel2z(g[2], grid) - P->z) / ray->dir.z;
+            step[2] = out[2] = -1;
         }
     } else {
         tDelta->z = 0.;
@@ -356,20 +357,20 @@ static int NextVoxel(float *t0, int *g, Vector3D *tNext, Vector3D *tDelta, int *
     int ingrid = true;
 
     if ( tNext->x <= tNext->y && tNext->x <= tNext->z ) {  /* tNext->x is smallest */
-        g[X] += step[X];
+        g[0] += step[0];
         *t0 = tNext->x;
         tNext->x += tDelta->x;
-        ingrid = g[X] - out[X];               /* false if g[X]==out[X] */
+        ingrid = g[0] - out[0];               /* false if g[0]==out[0] */
     } else if ( tNext->y <= tNext->z ) {             /* tNext->y is smallest */
-        g[Y] += step[Y];
+        g[1] += step[1];
         *t0 = tNext->y;
         tNext->y += tDelta->y;
-        ingrid = g[Y] - out[Y];
+        ingrid = g[1] - out[1];
     } else {                         /* tNext->z is smallest */
-        g[Z] += step[Z];
+        g[2] += step[2];
         *t0 = tNext->z;
         tNext->z += tDelta->z;
-        ingrid = g[Z] - out[Z];
+        ingrid = g[2] - out[2];
     }
     return ingrid;
 }
@@ -430,7 +431,7 @@ HITREC *GridIntersect(VoxelGrid *grid, Ray *ray, float mindist, float *maxdist, 
     counter = RandomRayId();
 
     do {
-        GRIDITEMLIST *list = grid->volumeListsOfItems[CELLADDR(grid, g[X], g[Y], g[Z])];
+        GRIDITEMLIST *list = grid->volumeListsOfItems[CELLADDR(grid, g[0], g[1], g[2])];
         if ( list ) {
             HITREC *h;
             if ((h = VoxelIntersect(list, ray, counter, t0, maxdist, hitflags, hitstore))) {
@@ -463,7 +464,7 @@ static HITLIST *AllVoxelIntersections(HITLIST *hitlist,
                             hitlist = geomAllDiscretizationIntersections(hitlist, (Geometry *) item->ptr, ray, mindist,
                                                                          maxdist, hitflags);
                         } else if ( IsGrid(item)) {
-                            hitlist = AllGridIntersections(hitlist, (VoxelGrid *) item->ptr, ray, mindist, maxdist,
+                            hitlist = allGridIntersections(hitlist, (VoxelGrid *) item->ptr, ray, mindist, maxdist,
                                                            hitflags);
                         }
 
@@ -475,9 +476,11 @@ static HITLIST *AllVoxelIntersections(HITLIST *hitlist,
     return hitlist;
 }
 
-/* Traces a ray through a voxel grid. Adds all found intersections to the
- * passed 'hitlist' */
-HITLIST *AllGridIntersections(HITLIST *hits, VoxelGrid *grid, Ray *ray, float mindist, float maxdist, int hitflags) {
+/**
+Traces a ray through a voxel grid. Returns a list of all intersections
+*/
+HITLIST *
+allGridIntersections(HITLIST *hits, VoxelGrid *grid, Ray *ray, float mindist, float maxdist, int hitflags) {
     Vector3D tNext, tDelta, P;
     int step[3], out[3], g[3];
     float t0;
@@ -493,7 +496,7 @@ HITLIST *AllGridIntersections(HITLIST *hits, VoxelGrid *grid, Ray *ray, float mi
     counter = RandomRayId();
 
     do {
-        GRIDITEMLIST *itemlist = grid->volumeListsOfItems[CELLADDR(grid, g[X], g[Y], g[Z])];
+        GRIDITEMLIST *itemlist = grid->volumeListsOfItems[CELLADDR(grid, g[0], g[1], g[2])];
         if ( itemlist ) {
             hits = AllVoxelIntersections(hits, itemlist, ray, counter, t0, maxdist, hitflags);
         }

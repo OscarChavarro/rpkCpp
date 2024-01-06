@@ -489,7 +489,7 @@ ReadFile(char *filename) {
         oBackground->methods->Destroy(oBackground->data);
     }
 
-    DestroyGrid(oWorldGrid);
+    destroyGrid(oWorldGrid);
 
     MaterialListIterate(oMaterialLib, MaterialDestroy);
     MaterialListDestroy(oMaterialLib);
@@ -538,7 +538,7 @@ ReadFile(char *filename) {
     last = t;
 
     // engridding the thing
-    GLOBAL_scene_worldGrid = CreateGrid(GLOBAL_scene_clusteredWorldGeom);
+    GLOBAL_scene_worldGrid = createGrid(GLOBAL_scene_clusteredWorldGeom);
 
     t = clock();
     fprintf(stderr, "Engridding took %g secs.\n", (float) (t - last) / (float) CLOCKS_PER_SEC);
