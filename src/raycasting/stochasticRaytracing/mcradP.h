@@ -139,17 +139,9 @@ extern void monteCarloRadiosityUpdateMaterial(Material *oldMaterial, Material *n
 
 extern void stochasticRelaxationRadiosityParseOptions(int *argc, char **argv);
 extern void stochasticRelaxationRadiosityPrintOptions(FILE *fp);
-extern void stochasticRelaxationRadiosityCreateControlPanel(void *parent_widget);
-extern void stochasticRelaxationRadiosityUpdateControlPanel(void *parent_widget);
-extern void stochasticRelaxationRadiosityShowControlPanel();
-extern void stochasticRelaxationRadiosityHideControlPanel();
 
 extern void randomWalkRadiosityParseOptions(int *argc, char **argv);
 extern void randomWalkRadiosityPrintOptions(FILE *fp);
-extern void randomWalkRadiosityCreateControlPanel(void *parent_widget);
-extern void randomWalkRadiosityUpdateControlPanel(void *parent_widget);
-extern void randomWalkRadiosityShowControlPanel();
-extern void randomWalkRadiosityHideControlPanel();
 
 extern void doNonDiffuseFirstShot();
 

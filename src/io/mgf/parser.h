@@ -164,8 +164,8 @@ extern int e_include(int ac, char **av);
 
 typedef FLOAT FVECT[3];
 
-#define  VCOPY(v1, v2)    ((v1)[0]=(v2)[0],(v1)[1]=(v2)[1],(v1)[2]=(v2)[2])
-#define  DOT(v1, v2)    ((v1)[0]*(v2)[0]+(v1)[1]*(v2)[1]+(v1)[2]*(v2)[2])
+#define MGF_VERTEX_COPY(v1, v2) ((v1)[0]=(v2)[0],(v1)[1]=(v2)[1],(v1)[2]=(v2)[2])
+#define DOT(v1, v2) ((v1)[0]*(v2)[0]+(v1)[1]*(v2)[1]+(v1)[2]*(v2)[2])
 
 #define is0vect(v)    (DOT(v,v) <= FTINY*FTINY)
 

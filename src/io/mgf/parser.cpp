@@ -1202,7 +1202,7 @@ mgfEntityPrism(int ac, char **av)            /* turn a prism into polygons */
         norm[0] += v3[0];
         norm[1] += v3[1];
         norm[2] += v3[2];
-        VCOPY(v1, v2);
+        MGF_VERTEX_COPY(v1, v2);
     }
     if ( normalize(norm) == 0. ) {
         return MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;

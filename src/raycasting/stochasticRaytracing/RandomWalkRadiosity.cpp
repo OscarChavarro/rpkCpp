@@ -404,27 +404,22 @@ RwrGetStats() {
 }
 
 RADIANCEMETHOD RandomWalkRadiosity = {
-        "RandomWalk",
-        3,
-        "Random Walk Radiosity",
-        "randwalkButton",
-        monteCarloRadiosityDefaults,
-        randomWalkRadiosityParseOptions,
-        randomWalkRadiosityPrintOptions,
-        RwrInit,
-        RwrDoStep,
-        RwrTerminate,
-        monteCarloRadiosityGetRadiance,
-        monteCarloRadiosityCreatePatchData,
-        RwrPrintPatchData,
-        monteCarloRadiosityDestroyPatchData,
-        randomWalkRadiosityCreateControlPanel,
-        randomWalkRadiosityUpdateControlPanel,
-        randomWalkRadiosityShowControlPanel,
-        randomWalkRadiosityHideControlPanel,
-        RwrGetStats,
-        (void (*)()) nullptr, // use default rendering method
-        monteCarloRadiosityRecomputeDisplayColors,
-        monteCarloRadiosityUpdateMaterial,
-        (void (*)(FILE *)) nullptr // use default VRML model saver
+    "RandomWalk",
+    3,
+    "Random Walk Radiosity",
+    monteCarloRadiosityDefaults,
+    randomWalkRadiosityParseOptions,
+    randomWalkRadiosityPrintOptions,
+    RwrInit,
+    RwrDoStep,
+    RwrTerminate,
+    monteCarloRadiosityGetRadiance,
+    monteCarloRadiosityCreatePatchData,
+    RwrPrintPatchData,
+    monteCarloRadiosityDestroyPatchData,
+    RwrGetStats,
+    (void (*)()) nullptr, // use default rendering method
+    monteCarloRadiosityRecomputeDisplayColors,
+    monteCarloRadiosityUpdateMaterial,
+    (void (*)(FILE *)) nullptr // use default VRML model saver
 };

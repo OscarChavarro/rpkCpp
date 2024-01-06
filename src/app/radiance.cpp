@@ -57,7 +57,6 @@ static CMDLINEOPTDESC radianceOptions[] = {
 void
 SetRadianceMethod(RADIANCEMETHOD *newmethod) {
     if ( Radiance ) {
-        Radiance->HideControlPanel();
         Radiance->Terminate();
         /* until we have radiance data convertors, we dispose of the old data and
          * allocate new data for the new method. */

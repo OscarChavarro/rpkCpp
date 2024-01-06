@@ -140,13 +140,6 @@ extern void SetCubatureRules(CUBARULE **trirule, CUBARULE **quadrule, CUBATURE_D
 /* recomputes the color of a patch using ambient radiance term, ... if requested for */
 extern void PatchRecomputeColor(PATCH *patch);
 
-/* in ui_galerkin.c */
-extern void CreateGalerkinControlPanel(void *parent_widget);
-
-extern void ShowGalerkinControlPanel();
-
-extern void HideGalerkinControlPanel();
-
 /* in gathering.c. Returns true when converged and false if not. */
 extern int DoGatheringIteration();
 

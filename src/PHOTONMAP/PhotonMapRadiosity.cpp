@@ -23,7 +23,6 @@
 #include "PHOTONMAP/photonmap.h"
 #include "PHOTONMAP/importancemap.h"
 #include "PHOTONMAP/PhotonMapRadiosity.h"
-#include "PHOTONMAP/pmapP.h"
 #include "PHOTONMAP/pmapoptions.h"
 #include "PHOTONMAP/pmapconfig.h"
 #include "PHOTONMAP/pmapimportance.h"
@@ -741,26 +740,22 @@ PmapUpdateMaterial(Material */*oldmaterial*/,
 }
 
 RADIANCEMETHOD Pmap = {
-        "PMAP", 4,
-        "PhotonMap",
-        "pmapButton",
-        PmapDefaults,
-        ParsePmapOptions,
-        PrintPmapOptions,
-        InitPmap,
-        DoPmapStep,
-        TerminatePmap,
-        GetPmapRadiance,
-        CreatePatchData,
-        PrintPatchData,
-        DestroyPatchData,
-        CreatePmapControlPanel,
-        (void (*)(void *)) nullptr,
-        ShowPmapControlPanel,
-        HidePmapControlPanel,
-        GetPmapStats,
-        PmapRenderScreen,
-        PmapRecomputeDisplayColors,
-        PmapUpdateMaterial,
-        (void (*)(FILE *)) nullptr // use default VRML model saver
+    "PMAP",
+    4,
+    "PhotonMap",
+    PmapDefaults,
+    ParsePmapOptions,
+    PrintPmapOptions,
+    InitPmap,
+    DoPmapStep,
+    TerminatePmap,
+    GetPmapRadiance,
+    CreatePatchData,
+    PrintPatchData,
+    DestroyPatchData,
+    GetPmapStats,
+    PmapRenderScreen,
+    PmapRecomputeDisplayColors,
+    PmapUpdateMaterial,
+    (void (*)(FILE *)) nullptr // use default VRML model saver
 };

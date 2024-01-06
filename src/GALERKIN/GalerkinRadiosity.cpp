@@ -588,32 +588,22 @@ GalerkinWriteVRML(FILE *fp) {
 
 /* **************************************************************** */
 RADIANCEMETHOD GalerkinRadiosity = {
-        "Galerkin", 3,
-        "Galerkin Radiosity",
-        "galerkinButton",
-        GalerkinDefaults,
-        ParseGalerkinOptions,
-        PrintGalerkinOptions,
-        InitGalerkin,
-        DoGalerkinOneStep,
-        TerminateGalerkin,
-        GetRadiance,
-        CreatePatchData,
-        PrintPatchData,
-        DestroyPatchData,
-        CreateGalerkinControlPanel,
-        (void (*)(void *)) nullptr,
-        ShowGalerkinControlPanel,
-        HideGalerkinControlPanel,
-        GetGalerkinStats,
-        GalerkinRender,
-        (void (*)(void)) nullptr,
-        GalerkinUpdateMaterial,
-        GalerkinWriteVRML
+    "Galerkin",
+    3,
+    "Galerkin Radiosity",
+    GalerkinDefaults,
+    ParseGalerkinOptions,
+    PrintGalerkinOptions,
+    InitGalerkin,
+    DoGalerkinOneStep,
+    TerminateGalerkin,
+    GetRadiance,
+    CreatePatchData,
+    PrintPatchData,
+    DestroyPatchData,
+    GetGalerkinStats,
+    GalerkinRender,
+    (void (*)(void)) nullptr,
+    GalerkinUpdateMaterial,
+    GalerkinWriteVRML
 };
-
-void CreateGalerkinControlPanel(void *parent_widget) {}
-
-void ShowGalerkinControlPanel() {}
-
-void HideGalerkinControlPanel() {}

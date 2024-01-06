@@ -519,19 +519,3 @@ Returns scalar reflectance, for importance propagation
 float monteCarloRadiosityScalarReflectance(PATCH *P) {
     return ElementScalarReflectance(TOPLEVEL_ELEMENT(P));
 }
-
-void randomWalkRadiosityCreateControlPanel(void *parent_widget) {}
-
-void randomWalkRadiosityUpdateControlPanel(void *parent_widget) {}
-
-void randomWalkRadiosityShowControlPanel() {}
-
-void randomWalkRadiosityHideControlPanel() {}
-
-void stochasticRelaxationRadiosityCreateControlPanel(void *parent_widget) {}
-
-void stochasticRelaxationRadiosityUpdateControlPanel(void *parent_widget) {}
-
-void stochasticRelaxationRadiosityShowControlPanel() {}
-
-void stochasticRelaxationRadiosityHideControlPanel() {}

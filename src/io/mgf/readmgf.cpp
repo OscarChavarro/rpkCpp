@@ -308,22 +308,31 @@ The routine returns true if the material being used has changed
 */
 static int
 getCurrentMaterial() {
-    COLOR Ed, Es, Rd, Td, Rs, Ts, A;
-    float Ne, Nr, Nt, a;
-    char *matname;
+    COLOR Ed;
+    COLOR Es;
+    COLOR Rd;
+    COLOR Td;
+    COLOR Rs;
+    COLOR Ts;
+    COLOR A;
+    float Ne;
+    float Nr;
+    float Nt;
+    float a;
+    char *materialName;
 
-    matname = GLOBAL_mgf_currentMaterialName;
-    if ( !matname || *matname == '\0' ) {    /* this might cause strcmp to crash !! */
-        matname = (char *) "unnamed";
+    materialName = GLOBAL_mgf_currentMaterialName;
+    if ( !materialName || *materialName == '\0' ) {    /* this might cause strcmp to crash !! */
+        materialName = (char *) "unnamed";
     }
 
     /* is it another material than the one used for the previous face ?? If not, the
      * globalCurrentMaterial remains the same. */
-    if ( strcmp(matname, globalCurrentMaterial->name) == 0 && GLOBAL_mgf_currentMaterial->clock == 0 ) {
+    if ( strcmp(materialName, globalCurrentMaterial->name) == 0 && GLOBAL_mgf_currentMaterial->clock == 0 ) {
         return false;
     }
 
-    Material *theMaterial = materialLookup(GLOBAL_scene_materials, matname);
+    Material *theMaterial = materialLookup(GLOBAL_scene_materials, materialName);
     if ( theMaterial != nullptr ) {
         if ( GLOBAL_mgf_currentMaterial->clock == 0 ) {
             globalCurrentMaterial = theMaterial;
@@ -364,14 +373,14 @@ getCurrentMaterial() {
 
     /* specular power = (0.6/roughness)^2 (see mgf docs) */
     if ( GLOBAL_mgf_currentMaterial->rs_a != 0.0 ) {
-        Nr = 0.6 / GLOBAL_mgf_currentMaterial->rs_a;
+        Nr = 0.6f / GLOBAL_mgf_currentMaterial->rs_a;
         Nr *= Nr;
     } else {
         Nr = 0.0;
     }
 
     if ( GLOBAL_mgf_currentMaterial->ts_a != 0.0 ) {
-        Nt = 0.6 / GLOBAL_mgf_currentMaterial->ts_a;
+        Nt = 0.6f / GLOBAL_mgf_currentMaterial->ts_a;
         Nt *= Nt;
     } else {
         Nt = 0.0;
@@ -386,7 +395,7 @@ getCurrentMaterial() {
         colorSetMonochrome(Ts, colorGray(Ts));
     }
 
-    theMaterial = MaterialCreate(matname,
+    theMaterial = MaterialCreate(materialName,
                                  (colorNull(Ed) && colorNull(Es)) ? (EDF *) nullptr : EdfCreate(
                                          PhongEdfCreate(&Ed, &Es, Ne), &PhongEdfMethods),
                                  BsdfCreate(SplitBSDFCreate(
@@ -441,18 +450,18 @@ getVertex(char *name) {
         /* new vertex, or updated vertex or same vertex, but other transform, or
          * vertex without normal: create a new VERTEX. */
         FVECT vert, norm;
-        Vector3D *thenormal;
-        Vector3D *thepoint;
+        Vector3D *theNormal;
+        Vector3D *thePoint;
 
         xf_xfmpoint(vert, vp->p);
-        thepoint = installPoint(vert[0], vert[1], vert[2]);
+        thePoint = installPoint(vert[0], vert[1], vert[2]);
         if ( is0vect(vp->n)) {
-            thenormal = (Vector3D *) nullptr;
+            theNormal = (Vector3D *) nullptr;
         } else {
             xf_xfmvect(norm, vp->n);
-            thenormal = installNormal(norm[0], norm[1], norm[2]);
+            theNormal = installNormal(norm[0], norm[1], norm[2]);
         }
-        thevertex = installVertex(thepoint, thenormal, name);
+        thevertex = installVertex(thePoint, theNormal, name);
         vp->client_data = (void *) thevertex;
         vp->xid = xf_xid(xf_context);
     }
@@ -540,12 +549,12 @@ onto the coordinate plane "most parallel" to the polygon and checking the signs
 the cross product of succeeding edges: the signs are all equal for a convex polygon
 */
 static int
-faceIsConvex(int nrvertices, VERTEX **v, Vector3D *normal) {
+faceIsConvex(int numberOfVertices, VERTEX **v, Vector3D *normal) {
     Vector2Dd v2d[MAXIMUM_FACE_VERTICES + 1], p, c;
     int i, index, sign;
 
     index = VectorDominantCoord(normal);
-    for ( i = 0; i < nrvertices; i++ ) {
+    for ( i = 0; i < numberOfVertices; i++ ) {
 	VECTORPROJECT(v2d[i], *(v[i]->point), index);
     }
 
@@ -555,7 +564,7 @@ faceIsConvex(int nrvertices, VERTEX **v, Vector3D *normal) {
     c.v = v2d[0].v - v2d[3].v;
     sign = (p.u * c.v > c.u * p.v) ? 1 : -1;
 
-    for ( i = 1; i < nrvertices; i++ ) {
+    for ( i = 1; i < numberOfVertices; i++ ) {
         p.u = c.u;
         p.v = c.v;
         c.u = v2d[i].u - v2d[i - 1].u;

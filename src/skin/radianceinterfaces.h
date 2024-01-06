@@ -22,9 +22,6 @@ class RADIANCEMETHOD {
     /* a longer name for the method */
     const char *fullName;
 
-    /* name for the Radiance methods menu button to activate the method */
-    const char *buttonName;
-
     /* a function to set default values for the method */
     void (*Defaults)();
 
@@ -62,25 +59,6 @@ class RADIANCEMETHOD {
     /* destroys the radiance data for the patch. Clears the patch->radiance_data
      * pointer. */
     void (*DestroyPatchData)(PATCH *patch);
-
-    /* A function to create a control panel for itneractively modifying
-     * options. The parent widget is passed as a void *. It is of
-     * type Widget, but using that type would require to include the
-     * Xt include files, and we don't want to do that here (they are
-     * large). */
-    void (*CreateControlPanel)(void *parent_widget);
-
-    /* radiance method specific user interface routines */
-    /* updates the control panel to correctly reflect radiance method
-     * state variables. Can be nullptr. */
-    void (*UpdateControlPanel)(void *parent_widget);
-
-    /* radiance method specific user interface routines */
-    /* manages the control panel */
-    void (*ShowControlPanel)();
-
-    /* unmanages the control panel */
-    void (*HideControlPanel)();
 
     /* returns a string with statistics information about the current run so
      * far */

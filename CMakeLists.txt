@@ -174,7 +174,6 @@ set(MAIN_SRC
     src/PHOTONMAP/pmapimportance.cpp
     src/PHOTONMAP/pmapoptions.cpp
     src/PHOTONMAP/screensampler.cpp
-    src/PHOTONMAP/ui_pmap.cpp
     src/app/batch.cpp
     src/app/radiance.cpp
     src/app/rendercommon.cpp

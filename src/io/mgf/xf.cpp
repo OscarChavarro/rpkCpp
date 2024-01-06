@@ -219,7 +219,7 @@ void
 xf_xfmpoint(double *v1, double *v2)        /* transform a point by the current matrix */
 {
     if ( xf_context == nullptr) {
-        VCOPY(v1, v2);
+        MGF_VERTEX_COPY(v1, v2);
         return;
     }
     multp3(v1, v2, xf_context->xf.xfm);
@@ -229,7 +229,7 @@ void
 xf_xfmvect(double *v1, double *v2)        /* transform a vector using current matrix */
 {
     if ( xf_context == nullptr) {
-        VCOPY(v1, v2);
+        MGF_VERTEX_COPY(v1, v2);
         return;
     }
     multv3(v1, v2, xf_context->xf.xfm);
