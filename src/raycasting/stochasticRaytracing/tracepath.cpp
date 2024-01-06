@@ -112,7 +112,7 @@ void TracePaths(long nr_paths,
     ForAllPatches(P, GLOBAL_scene_patches)
                 {
                     sum_probs += BirthProbability(P);
-                    CLEARCOEFFICIENTS(RECEIVED_RAD(P), BAS(P));
+                    stochasticRadiosityClearCoefficients(RECEIVED_RAD(P), BAS(P));
                 }
     EndForAll;
     if ( sum_probs < EPSILON ) {

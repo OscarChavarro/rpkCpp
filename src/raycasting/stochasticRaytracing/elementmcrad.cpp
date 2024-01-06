@@ -144,9 +144,9 @@ CreateToplevelSurfaceElement(PATCH *patch) {
 
     AllocCoefficients(elem);    /* may need reallocation before the start
 				 * of the computations. */
-    CLEARCOEFFICIENTS(elem->rad, elem->basis);
-    CLEARCOEFFICIENTS(elem->unshot_rad, elem->basis);
-    CLEARCOEFFICIENTS(elem->received_rad, elem->basis);
+    stochasticRadiosityClearCoefficients(elem->rad, elem->basis);
+    stochasticRadiosityClearCoefficients(elem->unshot_rad, elem->basis);
+    stochasticRadiosityClearCoefficients(elem->received_rad, elem->basis);
 
     elem->Ed = PatchAverageEmittance(patch, DIFFUSE_COMPONENT);
     colorScaleInverse(M_PI, elem->Ed, elem->Ed);
@@ -174,9 +174,9 @@ CreateCluster(Geometry *geom) {
 
     AllocCoefficients(elem);    /* always constant approx. so no need to
 				 * delay allocating the coefficients. */
-    CLEARCOEFFICIENTS(elem->rad, elem->basis);
-    CLEARCOEFFICIENTS(elem->unshot_rad, elem->basis);
-    CLEARCOEFFICIENTS(elem->received_rad, elem->basis);
+    stochasticRadiosityClearCoefficients(elem->rad, elem->basis);
+    stochasticRadiosityClearCoefficients(elem->unshot_rad, elem->basis);
+    stochasticRadiosityClearCoefficients(elem->received_rad, elem->basis);
     elem->imp = elem->unshot_imp = elem->received_imp = 0.;
 
     hierarchy.nr_clusters++;
@@ -652,9 +652,9 @@ CreateSurfaceSubelement(
     elem->uptrans = elem->nrvertices == 3 ? &triupxfm[childnr] : &quadupxfm[childnr];
 
     AllocCoefficients(elem);
-    CLEARCOEFFICIENTS(elem->rad, elem->basis);
-    CLEARCOEFFICIENTS(elem->unshot_rad, elem->basis);
-    CLEARCOEFFICIENTS(elem->received_rad, elem->basis);
+    stochasticRadiosityClearCoefficients(elem->rad, elem->basis);
+    stochasticRadiosityClearCoefficients(elem->unshot_rad, elem->basis);
+    stochasticRadiosityClearCoefficients(elem->received_rad, elem->basis);
     elem->imp = elem->unshot_imp = elem->received_imp = 0.;
     InitSurfacePush(parent, elem);
 

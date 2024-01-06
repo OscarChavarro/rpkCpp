@@ -68,8 +68,8 @@ typedef float COLORMAT[3][3];  /* color coordinate conversion matrix */
  * converting from radiance (watts/sr/m^2).
  */
 
-extern COLORMAT rgb2xyzmat;            /* RGB to XYZ conversion matrix */
-extern COLORMAT xyz2rgbmat;            /* XYZ to RGB conversion matrix */
+extern COLORMAT globalRgb2XyzMat;            /* RGB to XYZ conversion matrix */
+extern COLORMAT globalXyz2RgbMat;            /* XYZ to RGB conversion matrix */
 
 char *tempbuffer(unsigned int len);                /* get a temporary buffer */
 int fwritecolrs(COLR *scanline, int len, FILE *fp); /* write out a colr scanline */

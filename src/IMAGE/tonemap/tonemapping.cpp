@@ -94,7 +94,7 @@ static void ChromaOption(void *value) {
         Fatal(-1, "ChromaOption", "invalid value pointer");
     }
 
-    ComputeColorConversionTransforms(tmopts.xr, tmopts.yr,
+    computeColorConversionTransforms(tmopts.xr, tmopts.yr,
                                      tmopts.xg, tmopts.yg,
                                      tmopts.xb, tmopts.yb,
                                      tmopts.xw, tmopts.yw);
@@ -190,7 +190,7 @@ void ToneMapDefaults() {
     bxy[1] = tmopts.yb = 0.060;
     wxy[0] = tmopts.xw = 0.333333333333;
     wxy[1] = tmopts.yw = 0.333333333333;
-    ComputeColorConversionTransforms(tmopts.xr, tmopts.yr,
+    computeColorConversionTransforms(tmopts.xr, tmopts.yr,
                                      tmopts.xg, tmopts.yg,
                                      tmopts.xb, tmopts.yb,
                                      tmopts.xw, tmopts.yw);

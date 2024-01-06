@@ -44,9 +44,9 @@ void
 AllocCoefficients(ELEMENT *elem) {
     DisposeCoefficients(elem);
     elem->basis = ActualBasis(elem);
-    elem->rad = (COLOR *)malloc(elem->basis->size*sizeof(COLOR));
-    elem->unshot_rad = (COLOR *)malloc(elem->basis->size*sizeof(COLOR));
-    elem->received_rad = (COLOR *)malloc(elem->basis->size*sizeof(COLOR));
+    elem->rad = (COLOR *)malloc(elem->basis->size * sizeof(COLOR));
+    elem->unshot_rad = (COLOR *)malloc(elem->basis->size * sizeof(COLOR));
+    elem->received_rad = (COLOR *)malloc(elem->basis->size * sizeof(COLOR));
 }
 
 void

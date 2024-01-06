@@ -230,9 +230,9 @@ static void McrInitPatch(PATCH *P) {
     COLOR Ed = EMITTANCE(P);
 
     ReAllocCoefficients(TOPLEVEL_ELEMENT(P));
-    CLEARCOEFFICIENTS(RAD(P), BAS(P));
-    CLEARCOEFFICIENTS(UNSHOT_RAD(P), BAS(P));
-    CLEARCOEFFICIENTS(RECEIVED_RAD(P), BAS(P));
+    stochasticRadiosityClearCoefficients(RAD(P), BAS(P));
+    stochasticRadiosityClearCoefficients(UNSHOT_RAD(P), BAS(P));
+    stochasticRadiosityClearCoefficients(RECEIVED_RAD(P), BAS(P));
 
     RAD(P)[0] = UNSHOT_RAD(P)[0] = SOURCE_RAD(P) = Ed;
     colorClear(RECEIVED_RAD(P)[0]);

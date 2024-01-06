@@ -33,22 +33,21 @@ static float CIE_y_w = 0.3333333333;
 #define CIE_bf          (CIE_y_b*CIE_C_bD/CIE_D)
 
 /* ---------------------------------------------------------------------------
-  `luminousEfficacy'
+  `globalLuminousEfficacy'
 
   Luminous efficacy currently in use.
   ------------------------------------------------------------------------- */
-static float
-luminousEfficacy = WHITE_EFFICACY;
+static float globalLuminousEfficacy = WHITE_EFFICACY;
 
 /* ---------------------------------------------------------------------------
-  `xyz2rgbmat'
-  `rgb2xyzmat'
+  `globalXyz2RgbMat'
+  `globalRgb2XyzMat'
 
   Conversion matrices for CIEXYZ<->RGB conversions. The actual values are
   set up according to specified monitor primaries. 
   ------------------------------------------------------------------------- */
-static float xyz2rgbmat[3][3];
-static float rgb2xyzmat[3][3];
+static float globalXyz2RgbMat[3][3];
+static float globalRgb2XyzMat[3][3];
 
 /* ---------------------------------------------------------------------------
                                                              PRIVATE FUNCTIONS
@@ -60,14 +59,14 @@ gray(const float *spec) {
 
 static float
 luminance(const float *spec) {
-    return luminousEfficacy * gray(spec);
+    return globalLuminousEfficacy * gray(spec);
 }
 
 static void
-setcolortrans(float mat[3][3],
-              float a, float b, float c,
-              float d, float e, float f,
-              float g, float h, float i) {
+setColorTransform(float mat[3][3],
+                  float a, float b, float c,
+                  float d, float e, float f,
+                  float g, float h, float i) {
     mat[0][0] = a;
     mat[0][1] = b;
     mat[0][2] = c;
@@ -80,7 +79,7 @@ setcolortrans(float mat[3][3],
 }
 
 static void
-colortrans(float *col, float mat[3][3], float *res) {
+colorTransform(float *col, float mat[3][3], float *res) {
     res[0] = mat[0][0] * col[0] + mat[0][1] * col[1] + mat[0][2] * col[2];
     res[1] = mat[1][0] * col[0] + mat[1][1] * col[1] + mat[1][2] * col[2];
     res[2] = mat[2][0] * col[0] + mat[2][1] * col[1] + mat[2][2] * col[2];
@@ -89,48 +88,48 @@ colortrans(float *col, float mat[3][3], float *res) {
 /* ---------------------------------------------------------------------------
                                                               PUBLIC FUNCTIONS
   ----------------------------------------------------------------------------
-  `GetLuminousEfficacy'
+  `getLuminousEfficacy'
   `SetLuminousEfficacy'
 
   Set/return the value usef for tristimulus white efficacy.
   ------------------------------------------------------------------------- */
 void
-GetLuminousEfficacy(float *e) {
-    *e = luminousEfficacy;
+getLuminousEfficacy(float *e) {
+    *e = globalLuminousEfficacy;
 }
 
 /* ---------------------------------------------------------------------------
-  `SpectrumGray'
+  `spectrumGray'
 
   Returns an achromatic value representing the spectral quantity.
   ------------------------------------------------------------------------- */
 float
-SpectrumGray(const float *spec) {
+spectrumGray(const float *spec) {
     return gray(spec);
 }
 
 /* ---------------------------------------------------------------------------
-  `SpectrumLuminance'
+  `spectrumLuminance'
 
   Returns the luminance, photometric quantity correspoinding to the
   radiance of the given spectrum. 
   ------------------------------------------------------------------------- */
 float
-SpectrumLuminance(const float *spec) {
+spectrumLuminance(const float *spec) {
     return luminance(spec);
 }
 
 /* ---------------------------------------------------------------------------
-  `ComputeColorConversionTransforms'
+  `computeColorConversionTransforms'
 
   Computes RGB <-> XYZ color transforms based on the given monitor primary
   colors and whitepoint.
   ------------------------------------------------------------------------- */
 void
-ComputeColorConversionTransforms(float xr, float yr,
-                                      float xg, float yg,
-                                      float xb, float yb,
-                                      float xw, float yw) {
+computeColorConversionTransforms(float xr, float yr,
+                                 float xg, float yg,
+                                 float xb, float yb,
+                                 float xw, float yw) {
     CIE_x_r = xr;
     CIE_y_r = yr;
     CIE_x_g = xg;
@@ -140,31 +139,31 @@ ComputeColorConversionTransforms(float xr, float yr,
     CIE_x_w = xw;
     CIE_y_w = yw;
 
-    setcolortrans(xyz2rgbmat,    /* XYZ to RGB */
-                  (CIE_y_g - CIE_y_b - CIE_x_b * CIE_y_g + CIE_y_b * CIE_x_g) / CIE_C_rD,
-                  (CIE_x_b - CIE_x_g - CIE_x_b * CIE_y_g + CIE_x_g * CIE_y_b) / CIE_C_rD,
-                  (CIE_x_g * CIE_y_b - CIE_x_b * CIE_y_g) / CIE_C_rD,
-                  (CIE_y_b - CIE_y_r - CIE_y_b * CIE_x_r + CIE_y_r * CIE_x_b) / CIE_C_gD,
-                  (CIE_x_r - CIE_x_b - CIE_x_r * CIE_y_b + CIE_x_b * CIE_y_r) / CIE_C_gD,
-                  (CIE_x_b * CIE_y_r - CIE_x_r * CIE_y_b) / CIE_C_gD,
-                  (CIE_y_r - CIE_y_g - CIE_y_r * CIE_x_g + CIE_y_g * CIE_x_r) / CIE_C_bD,
-                  (CIE_x_g - CIE_x_r - CIE_x_g * CIE_y_r + CIE_x_r * CIE_y_g) / CIE_C_bD,
-                  (CIE_x_r * CIE_y_g - CIE_x_g * CIE_y_r) / CIE_C_bD);
+    setColorTransform(globalXyz2RgbMat,    /* XYZ to RGB */
+                      (CIE_y_g - CIE_y_b - CIE_x_b * CIE_y_g + CIE_y_b * CIE_x_g) / CIE_C_rD,
+                      (CIE_x_b - CIE_x_g - CIE_x_b * CIE_y_g + CIE_x_g * CIE_y_b) / CIE_C_rD,
+                      (CIE_x_g * CIE_y_b - CIE_x_b * CIE_y_g) / CIE_C_rD,
+                      (CIE_y_b - CIE_y_r - CIE_y_b * CIE_x_r + CIE_y_r * CIE_x_b) / CIE_C_gD,
+                      (CIE_x_r - CIE_x_b - CIE_x_r * CIE_y_b + CIE_x_b * CIE_y_r) / CIE_C_gD,
+                      (CIE_x_b * CIE_y_r - CIE_x_r * CIE_y_b) / CIE_C_gD,
+                      (CIE_y_r - CIE_y_g - CIE_y_r * CIE_x_g + CIE_y_g * CIE_x_r) / CIE_C_bD,
+                      (CIE_x_g - CIE_x_r - CIE_x_g * CIE_y_r + CIE_x_r * CIE_y_g) / CIE_C_bD,
+                      (CIE_x_r * CIE_y_g - CIE_x_g * CIE_y_r) / CIE_C_bD);
 
-    setcolortrans(rgb2xyzmat,    /* RGB to XYZ */
-                  CIE_x_r * CIE_C_rD / CIE_D, CIE_x_g * CIE_C_gD / CIE_D, CIE_x_b * CIE_C_bD / CIE_D,
-                  CIE_y_r * CIE_C_rD / CIE_D, CIE_y_g * CIE_C_gD / CIE_D, CIE_y_b * CIE_C_bD / CIE_D,
-                  (1. - CIE_x_r - CIE_y_r) * CIE_C_rD / CIE_D,
-                  (1. - CIE_x_g - CIE_y_g) * CIE_C_gD / CIE_D,
-                  (1. - CIE_x_b - CIE_y_b) * CIE_C_bD / CIE_D);
+    setColorTransform(globalRgb2XyzMat,    /* RGB to XYZ */
+                      CIE_x_r * CIE_C_rD / CIE_D, CIE_x_g * CIE_C_gD / CIE_D, CIE_x_b * CIE_C_bD / CIE_D,
+                      CIE_y_r * CIE_C_rD / CIE_D, CIE_y_g * CIE_C_gD / CIE_D, CIE_y_b * CIE_C_bD / CIE_D,
+                      (1. - CIE_x_r - CIE_y_r) * CIE_C_rD / CIE_D,
+                      (1. - CIE_x_g - CIE_y_g) * CIE_C_gD / CIE_D,
+                      (1. - CIE_x_b - CIE_y_b) * CIE_C_bD / CIE_D);
 }
 
 /* ---------------------------------------------------------------------------
                                                                CIE XYZ <-> RGB
   ------------------------------------------------------------------------- */
 void
-xyz_rgb(float *xyz, float *rgb) {
-    colortrans(xyz, xyz2rgbmat, rgb);
+xyzToRgb(float *xyz, float *rgb) {
+    colorTransform(xyz, globalXyz2RgbMat, rgb);
 }
 
 /* ---------------------------------------------------------------------------
@@ -173,7 +172,7 @@ xyz_rgb(float *xyz, float *rgb) {
 
 /* Returns TRUE if the color was desaturated during gamut clipping. */
 int
-clipgamut(float *rgb) {
+clipGamut(float *rgb) {
     /* really SHOULD desaturate instead of just clipping! */
     int i, desaturated = 0;
     for ( i = 0; i < 3; i++ ) {

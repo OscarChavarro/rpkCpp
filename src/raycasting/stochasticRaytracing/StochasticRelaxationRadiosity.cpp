@@ -101,7 +101,7 @@ static void ElementIncrementRadiance(ELEMENT *elem, double w) {
         /* copy direct illumination and forget selfemitted illumination */
         elem->rad[0] = elem->source_rad = elem->received_rad[0];
     }
-    CLEARCOEFFICIENTS(elem->received_rad, elem->basis);
+    stochasticRadiosityClearCoefficients(elem->received_rad, elem->basis);
 }
 
 static void PrintIncrementalRadianceStats() {
@@ -256,8 +256,8 @@ static void ElementUpdateRadiance(ELEMENT *elem, double w) {
     colorAdd(elem->rad[0], elem->source_rad, elem->rad[0]);
 
     /* clear unshot and received radiance */
-    CLEARCOEFFICIENTS(elem->unshot_rad, elem->basis);
-    CLEARCOEFFICIENTS(elem->received_rad, elem->basis);
+    stochasticRadiosityClearCoefficients(elem->unshot_rad, elem->basis);
+    stochasticRadiosityClearCoefficients(elem->received_rad, elem->basis);
 }
 
 static void PrintRegularStats() {

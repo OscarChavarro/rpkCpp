@@ -39,7 +39,7 @@ static void ClusterInit(ELEMENT *clus) {
     clus->area = 0.;
     clus->nrpatches = 0;
     clus->minarea = HUGE;
-    CLEARCOEFFICIENTS(clus->radiance, clus->basis_size);
+    CLEARCOEFFICIENTS_CG(clus->radiance, clus->basis_size);
     for ( subellist = clus->irregular_subelements; subellist; subellist = subellist->next ) {
         ELEMENT *subclus = subellist->element;
         clus->area += subclus->area;
@@ -56,7 +56,7 @@ static void ClusterInit(ELEMENT *clus) {
 
     /* also pull unshot radiance for the "shooting" methods */
     if ( GLOBAL_galerkin_state.iteration_method == SOUTHWELL ) {
-        CLEARCOEFFICIENTS(clus->unshot_radiance, clus->basis_size);
+        CLEARCOEFFICIENTS_CG(clus->unshot_radiance, clus->basis_size);
         for ( subellist = clus->irregular_subelements; subellist; subellist = subellist->next ) {
             ELEMENT *subclus = subellist->element;
             colorAddScaled(clus->unshot_radiance[0], subclus->area, subclus->unshot_radiance[0],

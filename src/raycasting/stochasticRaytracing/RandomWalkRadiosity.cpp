@@ -55,7 +55,7 @@ ScalarReflectance(PATCH *P) {
 static COLOR *
 GetSelfEmittedRadiance(ELEMENT *elem) {
     static COLOR Ed[MAX_BASIS_SIZE];
-    CLEARCOEFFICIENTS(Ed, elem->basis);
+    stochasticRadiosityClearCoefficients(Ed, elem->basis);
     Ed[0] = EMITTANCE(elem->pog.patch);
     return Ed;
 }
@@ -182,8 +182,8 @@ ShootingUpdate(PATCH *P, double w) {
     colorAdd(RAD(P)[0], SOURCE_RAD(P), RAD(P)[0]);
 
     /* clear unshot and received radiance */
-    CLEARCOEFFICIENTS(UNSHOT_RAD(P), BAS(P));
-    CLEARCOEFFICIENTS(RECEIVED_RAD(P), BAS(P));
+    stochasticRadiosityClearCoefficients(UNSHOT_RAD(P), BAS(P));
+    stochasticRadiosityClearCoefficients(RECEIVED_RAD(P), BAS(P));
 }
 
 static void
@@ -300,7 +300,7 @@ GatheringUpdate(PATCH *P, double w) {
         colorAdd(RAD(P)[0], cr, RAD(P)[0]);
     }
 
-    CLEARCOEFFICIENTS(RECEIVED_RAD(P), BAS(P));
+    stochasticRadiosityClearCoefficients(RECEIVED_RAD(P), BAS(P));
 }
 
 static void
@@ -334,8 +334,8 @@ static void
 UpdateSourceIllum(ELEMENT *elem, double w) {
     COPYCOEFFICIENTS(elem->rad, elem->received_rad, elem->basis);
     elem->source_rad = elem->received_rad[0];
-    CLEARCOEFFICIENTS(elem->unshot_rad, elem->basis);
-    CLEARCOEFFICIENTS(elem->received_rad, elem->basis);
+    stochasticRadiosityClearCoefficients(elem->unshot_rad, elem->basis);
+    stochasticRadiosityClearCoefficients(elem->received_rad, elem->basis);
 }
 
 static void

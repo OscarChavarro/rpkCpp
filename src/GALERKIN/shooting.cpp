@@ -93,7 +93,7 @@ ShootUnshotRadianceAndPotential(ELEMENT *elem) {
     ITERATE_REGULAR_SUBELEMENTS(elem, ShootUnshotRadianceAndPotential);
     ITERATE_IRREGULAR_SUBELEMENTS(elem, ShootUnshotRadianceAndPotential);
     InteractionListIterate(elem->interactions, (void (*)(void *))ShootUnshotRadianceAndPotentialOverLink);
-    CLEARCOEFFICIENTS(elem->unshot_radiance, elem->basis_size);
+    CLEARCOEFFICIENTS_CG(elem->unshot_radiance, elem->basis_size);
     elem->unshot_potential.f = 0.;
 }
 
@@ -101,7 +101,7 @@ static void
 ClearUnshotRadianceAndPotential(ELEMENT *elem) {
     ITERATE_REGULAR_SUBELEMENTS(elem, ClearUnshotRadianceAndPotential);
     ITERATE_IRREGULAR_SUBELEMENTS(elem, ClearUnshotRadianceAndPotential);
-    CLEARCOEFFICIENTS(elem->unshot_radiance, elem->basis_size);
+    CLEARCOEFFICIENTS_CG(elem->unshot_radiance, elem->basis_size);
     elem->unshot_potential.f = 0.;
 }
 

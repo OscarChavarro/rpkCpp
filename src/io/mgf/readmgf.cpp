@@ -164,8 +164,8 @@ MgfGetColor(C_COLOR *cin, double intensity, COLOR *cout) {
         }
     }
 
-    xyz_rgb(xyz, rgb);
-    if ( clipgamut(rgb)) {
+    xyzToRgb(xyz, rgb);
+    if ( clipGamut(rgb)) {
         do_warning("color desaturated during gamut clipping");
     }
     colorSet(*cout, rgb[0], rgb[1], rgb[2]);

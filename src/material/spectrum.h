@@ -9,34 +9,34 @@
 typedef float SPECTRUM[3];
 
 inline void
-PrintSpectrum(FILE *fp, SPECTRUM &s) {
+printSpectrum(FILE *fp, SPECTRUM &s) {
     fprintf(fp, "%g %g %g", s[0], s[1], s[2]);
 }
 
 inline void
-ClearSpectrum(SPECTRUM &s) {
+clearSpectrum(SPECTRUM &s) {
     s[0] = s[1] = s[2] = 0;
 }
 
 inline void
-SetSpectrum(SPECTRUM &s, float c1, float c2, float c3) {
+setSpectrum(SPECTRUM &s, float c1, float c2, float c3) {
     s[0] = c1; s[1] = c2; s[2] = c3;
 }
 
 inline void
-SetSpectrumMonochrome(SPECTRUM &s, float val) {
+setSpectrumMonochrome(SPECTRUM &s, float val) {
     s[0] = s[1] = s[2] = val;
 }
 
 inline bool
-IsBlackSpectrum(SPECTRUM &s) {
+isBlackSpectrum(SPECTRUM &s) {
     return (s[0] > -EPSILON && s[0] < EPSILON &&
             s[1] > -EPSILON && s[1] < EPSILON &&
             s[2] > -EPSILON && s[2] < EPSILON);
 }
 
 inline void
-ScaleSpectrum(float a, const SPECTRUM spec, SPECTRUM &result) {
+scaleSpectrum(float a, const SPECTRUM spec, SPECTRUM &result) {
     const float *_s = spec;
     float *_r = result;
 
@@ -46,7 +46,7 @@ ScaleSpectrum(float a, const SPECTRUM spec, SPECTRUM &result) {
 }
 
 inline void
-MultiplySpectrum(SPECTRUM &spec1, SPECTRUM &spec2, SPECTRUM &result) {
+multiplySpectrum(SPECTRUM &spec1, SPECTRUM &spec2, SPECTRUM &result) {
     const float *_s1 = spec1;
     const float *_s2 = spec2;
     float *_r = result;
@@ -56,7 +56,7 @@ MultiplySpectrum(SPECTRUM &spec1, SPECTRUM &spec2, SPECTRUM &result) {
 }
 
 inline void
-MultiplyScaledSpectrum(SPECTRUM &spec1, float a, SPECTRUM &spec2, SPECTRUM result) {
+multiplyScaledSpectrum(SPECTRUM &spec1, float a, SPECTRUM &spec2, SPECTRUM result) {
     const float *_s1 = spec1;
     const float *_s2 = spec2;
     float *_r = result;
@@ -66,7 +66,7 @@ MultiplyScaledSpectrum(SPECTRUM &spec1, float a, SPECTRUM &spec2, SPECTRUM resul
 }
 
 inline void
-AddSpectrum(SPECTRUM &spec1, SPECTRUM &spec2, SPECTRUM &result) {
+addSpectrum(SPECTRUM &spec1, SPECTRUM &spec2, SPECTRUM &result) {
     const float *_s1 = spec1;
     const float *_s2 = spec2;
     float *_r = result;
@@ -76,7 +76,7 @@ AddSpectrum(SPECTRUM &spec1, SPECTRUM &spec2, SPECTRUM &result) {
 }
 
 inline void
-AddScaledSpectrum(SPECTRUM &spec1, float a, SPECTRUM &spec2, SPECTRUM &result) {
+addScaledSpectrum(SPECTRUM &spec1, float a, SPECTRUM &spec2, SPECTRUM &result) {
     const float *_s1 = spec1;
     const float *_s2 = spec2;
     float *_r = result;
@@ -86,7 +86,7 @@ AddScaledSpectrum(SPECTRUM &spec1, float a, SPECTRUM &spec2, SPECTRUM &result) {
 }
 
 inline void
-AddConstantSpectrum(SPECTRUM &spec, float val, SPECTRUM &result) {
+addConstantSpectrum(SPECTRUM &spec, float val, SPECTRUM &result) {
     const float *_s = spec;
     float *_r = result;
     *_r++ = *_s++ + val;
@@ -95,7 +95,7 @@ AddConstantSpectrum(SPECTRUM &spec, float val, SPECTRUM &result) {
 }
 
 inline void
-SubtractSpectrum(SPECTRUM &spec1, SPECTRUM &spec2, SPECTRUM &result) {
+subtractSpectrum(SPECTRUM &spec1, SPECTRUM &spec2, SPECTRUM &result) {
     const float *_s1 = spec1;
     const float *_s2 = spec2;
     float *_r = result;
@@ -105,7 +105,7 @@ SubtractSpectrum(SPECTRUM &spec1, SPECTRUM &spec2, SPECTRUM &result) {
 }
 
 inline void
-DivideSpectrum(SPECTRUM &spec1, SPECTRUM &spec2, SPECTRUM &result) {
+divideSpectrum(SPECTRUM &spec1, SPECTRUM &spec2, SPECTRUM &result) {
     const float *_s1 = spec1;
     const float *_s2 = spec2;
     float *_r = result;
@@ -115,7 +115,7 @@ DivideSpectrum(SPECTRUM &spec1, SPECTRUM &spec2, SPECTRUM &result) {
 }
 
 inline void
-InverseScaleSpectrum(float a, SPECTRUM &spec, SPECTRUM &result) {
+inverseScaleSpectrum(float a, SPECTRUM &spec, SPECTRUM &result) {
     float _a = (a != 0.0f) ? 1.0f/a : 1.0f;
     const float *_s = spec;
     float *_r = result;
@@ -125,17 +125,17 @@ InverseScaleSpectrum(float a, SPECTRUM &spec, SPECTRUM &result) {
 }
 
 inline float
-MaxSpectrumComponent(SPECTRUM &s) {
+maxSpectrumComponent(SPECTRUM &s) {
     return (s[0] > s[1] ? (s[0] > s[2] ? s[0] : s[2]) : (s[1] > s[2] ? s[1] : s[2]));
 }
 
 inline float
-SumAbsSpectrumComponents(SPECTRUM &s) {
+sumAbsSpectrumComponents(SPECTRUM &s) {
     return std::fabs(s[0]) + std::fabs(s[1]) + std::fabs(s[2]);
 }
 
 inline void
-AbsSpectrum(SPECTRUM &spec, SPECTRUM &result) {
+absSpectrum(SPECTRUM &spec, SPECTRUM &result) {
     const float *_s = spec;
     float *_r = result;
     *_r++ = std::fabs(*_s++);
@@ -144,7 +144,7 @@ AbsSpectrum(SPECTRUM &spec, SPECTRUM &result) {
 }
 
 inline void
-MaxSpectrum(SPECTRUM &spec1, SPECTRUM &spec2, SPECTRUM &result) {
+maxSpectrum(SPECTRUM &spec1, SPECTRUM &spec2, SPECTRUM &result) {
     const float *_s = spec1;
     const float *_t = spec2;
     float *_r = result;
@@ -154,7 +154,7 @@ MaxSpectrum(SPECTRUM &spec1, SPECTRUM &spec2, SPECTRUM &result) {
 }
 
 inline void
-MinSpectrum(SPECTRUM &spec1, SPECTRUM &spec2, SPECTRUM &result) {
+minSpectrum(SPECTRUM &spec1, SPECTRUM &spec2, SPECTRUM &result) {
     const float *_s = spec1;
     const float *_t = spec2;
     float *_r = result;
@@ -164,7 +164,7 @@ MinSpectrum(SPECTRUM &spec1, SPECTRUM &spec2, SPECTRUM &result) {
 }
 
 inline void
-ClipSpectrumPositive(SPECTRUM &spec, SPECTRUM &result) {
+clipSpectrumPositive(SPECTRUM &spec, SPECTRUM &result) {
     const float *_s = spec;
     float *_r = result;
     *_r++ = *_s > 0.0f ? *_s : 0.0f; _s++;
@@ -173,12 +173,12 @@ ClipSpectrumPositive(SPECTRUM &spec, SPECTRUM &result) {
 }
 
 inline float
-SpectrumAverage(SPECTRUM &s) {
+spectrumAverage(SPECTRUM &s) {
     return (s[0] + s[1] + s[2]) / 3.0f;
 }
 
 inline void
-SpectrumInterpolateBarycentric(SPECTRUM &c0, SPECTRUM &c1, SPECTRUM &c2, float u, float v, SPECTRUM &c) {
+spectrumInterpolateBarycentric(SPECTRUM &c0, SPECTRUM &c1, SPECTRUM &c2, float u, float v, SPECTRUM &c) {
     float _u = (u);
     float _v = (v);
     c[0] = c0[0] + _u * (c1[0] - c0[0]) + _v * (c2[0] - c0[0]);
@@ -187,7 +187,7 @@ SpectrumInterpolateBarycentric(SPECTRUM &c0, SPECTRUM &c1, SPECTRUM &c2, float u
 }
 
 inline void
-SpectrumInterpolateBilinear(SPECTRUM &c0, SPECTRUM &c1, SPECTRUM &c2, SPECTRUM &c3, float u, float v, SPECTRUM &c) {
+spectrumInterpolateBilinear(SPECTRUM &c0, SPECTRUM &c1, SPECTRUM &c2, SPECTRUM &c3, float u, float v, SPECTRUM &c) {
     float _c = u * v;
     float _b = u - _c;
     float _d = v - _c;

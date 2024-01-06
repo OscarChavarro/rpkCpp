@@ -6,33 +6,53 @@
 #include "material/color.h"
 #include "raycasting/stochasticRaytracing/basismcrad.h"
 
-#define CLEARCOEFFICIENTS(c, basis) {int _i, _n=basis->size; COLOR *_c;    \
-  for (_i=0, _c=(c); _i<_n; _i++, _c++) colorClear(*_c);        \
+inline void
+stochasticRadiosityClearCoefficients(COLOR *c, GalerkinBasis *galerkinBasis) {
+    int i;
+    for ( i = 0; i < galerkinBasis->size; i++ ) {
+        colorClear(c[i]);
+    }
 }
 
-#define COPYCOEFFICIENTS(dst, src, basis) {int _i, _n=basis->size; COLOR *_d, *_s; \
-  for (_i=0, _d=(dst), _s=(src); _i<_n; _i++, _d++, _s++) *_d=*_s;    \
+#define COPYCOEFFICIENTS(dst, src, galerkinBasis) { \
+    int _i; \
+    int _n = galerkinBasis->size; \
+    COLOR *_d; \
+    COLOR *_s; \
+    for ( _i = 0, _d = (dst), _s = (src); _i < _n; _i++, _d++, _s++) { \
+        *_d=*_s; \
+    } \
 }
 
-#define ADDCOEFFICIENTS(dst, extra, basis) {int _i, _n=basis->size; COLOR *_d, *_s; \
-  for (_i=0, _d=(dst), _s=(extra); _i<_n; _i++, _d++, _s++) { \
-    colorAdd(*_d, *_s, *_d); \
-}}
+#define ADDCOEFFICIENTS(dst, extra, galerkinBasis) { \
+    int _i; \
+    int _n = galerkinBasis->size; \
+    COLOR *_d; \
+    COLOR *_s; \
+    for ( _i = 0, _d = (dst), _s = (extra); _i < _n; _i++, _d++, _s++) { \
+        colorAdd(*_d, *_s, *_d); \
+    } \
+}
 
-#define SCALECOEFFICIENTS(scale, color, basis) {int _i, _n=basis->size; COLOR *_d; float _scale=(scale); \
-  for (_i=0, _d=(color); _i<_n; _i++, _d++) {                \
-    colorScale(_scale, *_d, *_d);                        \
-}}
+#define SCALECOEFFICIENTS(scale, color, galerkinBasis) { \
+    int _i; \
+    int _n = galerkinBasis->size; \
+    COLOR *_d; \
+    float _scale = (scale); \
+    for ( _i = 0, _d = (color); _i < _n; _i++, _d++) { \
+        colorScale(_scale, *_d, *_d); \
+    } \
+}
 
-#define MULTCOEFFICIENTS(color, coeff, basis) {int _i, _n=basis->size; COLOR *_d; COLOR _col = (color); \
+#define MULTCOEFFICIENTS(color, coeff, galerkinBasis) {int _i, _n=galerkinBasis->size; COLOR *_d; COLOR _col = (color); \
   for (_i=0, _d=(coeff); _i<_n; _i++, _d++) { \
     colorProduct(_col, *_d, *_d); \
 }}
 
 inline void
-stochasticRaytracingPrintCoefficients(FILE *fp, COLOR *c, GalerkinBasis *basis) {
+stochasticRaytracingPrintCoefficients(FILE *fp, COLOR *c, GalerkinBasis *galerkinBasis) {
     int _i;
-    int _n = basis->size;
+    int _n = galerkinBasis->size;
 
     if ( _n > 0 ) {
         c[0].print(fp);

@@ -115,7 +115,7 @@ static double Probability(ELEMENT *elem) {
 /* clear accumulators of all kinds of sample weights and contributions */
 static void ElementClearAccumulators(ELEMENT *elem) {
     if ( get_radiance ) {
-        CLEARCOEFFICIENTS(elem->received_rad, elem->basis);
+        stochasticRadiosityClearCoefficients(elem->received_rad, elem->basis);
     }
     if ( get_importance ) {
         elem->received_imp = 0.;
@@ -521,8 +521,8 @@ static void Pull(ELEMENT *parent, ELEMENT *child) {
 /* clears everything to be pulled from children elements to zero */
 static void ClearElement(ELEMENT *parent) {
     if ( get_radiance ) {
-        CLEARCOEFFICIENTS(parent->rad, parent->basis);
-        CLEARCOEFFICIENTS(parent->unshot_rad, parent->basis);
+        stochasticRadiosityClearCoefficients(parent->rad, parent->basis);
+        stochasticRadiosityClearCoefficients(parent->unshot_rad, parent->basis);
     }
     if ( get_importance ) {
         parent->imp = parent->unshot_imp = 0.;

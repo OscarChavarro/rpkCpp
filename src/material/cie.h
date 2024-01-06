@@ -27,29 +27,29 @@ converts mgf color specification into our representation of colors.
   ------------------------------------------------------------------------- */
 #define WHITE_EFFICACY 183.07 /* uniform white light */
 
-extern void xyz_rgb(float *xyz, float *rgb);
+extern void xyzToRgb(float *xyz, float *rgb);
 
 /* returns TRUE if the color was desaturated during clipping against the
  * monitor gamut */
-extern int clipgamut(float *rgb);
+extern int clipGamut(float *rgb);
 
 /* computes RGB <-> XYZ color transforms based on the 
  * given monitor primary colors and whitepoint */
-extern void ComputeColorConversionTransforms(float xr, float yr,
+extern void computeColorConversionTransforms(float xr, float yr,
                                              float xg, float yg,
                                              float xb, float yb,
                                              float xw, float yw);
 
 /* ---------------------------------------------------------------------------
-  `GetLuminousEfficacy'
+  `getLuminousEfficacy'
   `SetLuminousEfficacy'
 
   Set/return the value usef for tristimulus white efficacy.
   ------------------------------------------------------------------------- */
-extern void GetLuminousEfficacy(float *e);
+extern void getLuminousEfficacy(float *e);
 
-extern float SpectrumGray(const float * spec);
+extern float spectrumGray(const float * spec);
 
-extern float SpectrumLuminance(const float * spec);
+extern float spectrumLuminance(const float * spec);
 
 #endif

@@ -76,7 +76,7 @@ void PrintBasis(GalerkinBasis *basis) {
  * the transform to be used to find the point on the parent corresponding
  * to a given point on the child. 'cr' is the cubature rule to be used 
  * for computing the coefficients. The order should be at least the highest
- * product of the order of a parent and a child basis function. The filter 
+ * product of the order of a parent and a child basis function. The filter
  * coefficients are filled in in the table 'filter'. The filter coefficients are:
  *
  * H_{\alpha\,\beta} = int _S phi_\alpha(u',v') phi_\beta(u,v) du dv

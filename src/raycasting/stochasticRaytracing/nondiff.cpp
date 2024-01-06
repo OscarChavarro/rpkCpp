@@ -41,9 +41,9 @@ static void MakeLightSourceTable() {
     EndForAll;
     ForAllPatches(P, GLOBAL_scene_patches)
                 {
-                    CLEARCOEFFICIENTS(RAD(P), BAS(P));
-                    CLEARCOEFFICIENTS(UNSHOT_RAD(P), BAS(P));
-                    CLEARCOEFFICIENTS(RECEIVED_RAD(P), BAS(P));
+                    stochasticRadiosityClearCoefficients(RAD(P), BAS(P));
+                    stochasticRadiosityClearCoefficients(UNSHOT_RAD(P), BAS(P));
+                    stochasticRadiosityClearCoefficients(RECEIVED_RAD(P), BAS(P));
                     colorClear(SOURCE_RAD(P));
                 }
     EndForAll;

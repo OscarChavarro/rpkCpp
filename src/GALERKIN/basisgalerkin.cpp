@@ -33,7 +33,7 @@ COLOR RadianceAtPoint(ELEMENT *elem, COLOR *coefficients, double u, double v) {
  * Be x a point in 3D space located on the child element \sigma. x is also located
  * on the parent element. Then, the radiance L(x) at x on the parent element
  * can be written as \sum _\alpha L_\alpha \phi_\alpha(x), with L_\alpha the
- * radiance coefficients (given) on the parent element and \phi_\alpha the basis 
+ * radiance coefficients (given) on the parent element and \phi_\alpha the basis
  * functions on the parent. The same radiance is also approximated as 
  * \sum_\beta L_\beta^\sigma \phi_\beta^\sigma(x) with L_\beta^\sigma the radiance 
  * coefficients on the child element (to be determined) and \phi_\beta^\sigma the
@@ -60,12 +60,12 @@ void Push(ELEMENT *parent, COLOR *parent_coefficients,
     if ( IsCluster(parent)) {
         /* clusters have only irregular subelements and a constant
          * aprroximation is used on them. */
-        CLEARCOEFFICIENTS(child_coefficients, child->basis_size);
+        CLEARCOEFFICIENTS_CG(child_coefficients, child->basis_size);
         child_coefficients[0] = parent_coefficients[0];
     } else {
         if ( sigma < 0 || sigma > 3 ) {
             Error("Push", "Not yet implemented for non-regular subdivision");
-            CLEARCOEFFICIENTS(child_coefficients, child->basis_size);
+            CLEARCOEFFICIENTS_CG(child_coefficients, child->basis_size);
             child_coefficients[0] = parent_coefficients[0];
             return;
         }
@@ -106,12 +106,12 @@ void Pull(ELEMENT *parent, COLOR *parent_coefficients,
     if ( IsCluster(parent)) {
         /* clusters only have irregular subelements and a constant
          * radiance approximation is used on them. */
-        CLEARCOEFFICIENTS(parent_coefficients, parent->basis_size);
+        CLEARCOEFFICIENTS_CG(parent_coefficients, parent->basis_size);
         colorScale(child->area / parent->area, child_coefficients[0], parent_coefficients[0]);
     } else {
         if ( sigma < 0 || sigma > 3 ) {
             Error("Pull", "Not yet implemented for non-regular subdivision");
-            CLEARCOEFFICIENTS(parent_coefficients, parent->basis_size);
+            CLEARCOEFFICIENTS_CG(parent_coefficients, parent->basis_size);
             parent_coefficients[0] = child_coefficients[0];
             return;
         }
@@ -142,7 +142,7 @@ static void PushPullRadianceRecursive(ELEMENT *elem, COLOR *Bdown, COLOR *Bup) {
         colorClear(elem->received_radiance[i]);
     }
 
-    CLEARCOEFFICIENTS(Bup, elem->basis_size);
+    CLEARCOEFFICIENTS_CG(Bup, elem->basis_size);
 
     if ( !elem->regular_subelements && !elem->irregular_subelements ) { /* leaf element */
         /* multiply with reflectivity at the lowest level */
@@ -173,7 +173,7 @@ static void PushPullRadianceRecursive(ELEMENT *elem, COLOR *Bdown, COLOR *Bup) {
             Pull(elem, Bup2, elem->regular_subelements[i], Btmp);
 
             /* 4) add to Bup */
-            ADDCOEFFICIENTS(Bup, Bup2, elem->basis_size);
+            ADDCOEFFICIENTS_CG(Bup, Bup2, elem->basis_size);
         }
     }
 
@@ -187,7 +187,7 @@ static void PushPullRadianceRecursive(ELEMENT *elem, COLOR *Bdown, COLOR *Bup) {
              * surface subelements). */
             if ( IsCluster(elem)) {
                 Push(elem, Bdown, subel, Bdown2);
-            } else CLEARCOEFFICIENTS(Bdown2, elem->basis_size);
+            } else CLEARCOEFFICIENTS_CG(Bdown2, elem->basis_size);
 
             /* 2) recusrive call the push-pull for the subelement */
             PushPullRadianceRecursive(subel, Bdown2, Btmp);
@@ -196,24 +196,24 @@ static void PushPullRadianceRecursive(ELEMENT *elem, COLOR *Bdown, COLOR *Bup) {
             Pull(elem, Bup2, subel, Btmp);
 
             /* 4) add to Bup */
-            ADDCOEFFICIENTS(Bup, Bup2, elem->basis_size);
+            ADDCOEFFICIENTS_CG(Bup, Bup2, elem->basis_size);
         }
     }
 
     if ( GLOBAL_galerkin_state.iteration_method == JACOBI || GLOBAL_galerkin_state.iteration_method == GAUSS_SEIDEL ) {
         /* gathering method: Bup is new approximation of the total radiance
          * at this level of detail. */
-        COPYCOEFFICIENTS(elem->radiance, Bup, elem->basis_size);
+        COPYCOEFFICIENTS_CG(elem->radiance, Bup, elem->basis_size);
     } else {
         /* shooting: add Bup to the total and unshot radiance at this level */
-        ADDCOEFFICIENTS(elem->radiance, Bup, elem->basis_size);
-        ADDCOEFFICIENTS(elem->unshot_radiance, Bup, elem->basis_size);
+        ADDCOEFFICIENTS_CG(elem->radiance, Bup, elem->basis_size);
+        ADDCOEFFICIENTS_CG(elem->unshot_radiance, Bup, elem->basis_size);
     }
 }
 
 void PushPullRadiance(ELEMENT *top) {
     COLOR Bdown[MAXBASISSIZE], Bup[MAXBASISSIZE];
-    CLEARCOEFFICIENTS(Bdown, top->basis_size);
+    CLEARCOEFFICIENTS_CG(Bdown, top->basis_size);
     PushPullRadianceRecursive(top, Bdown, Bup);
 }
 
@@ -222,7 +222,7 @@ void PushPullRadiance(ELEMENT *top) {
  * the transform to be used to find the point on the parent corresponding
  * to a given point on the child. 'cr' is the cubature rule to be used 
  * for computing the coefficients. The order should be at least the highest
- * product of the order of a parent and a child basis function. The filter 
+ * product of the order of a parent and a child basis function. The filter
  * coefficients are filled in in the table 'filter'. The filter coefficients are:
  *
  * H_{\alpha\,\beta} = int _S phi_\alpha(u',v') phi_\beta(u,v) du dv

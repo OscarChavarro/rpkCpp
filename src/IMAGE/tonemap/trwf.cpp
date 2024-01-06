@@ -176,7 +176,7 @@ static COLOR TR_ScaleForDisplay(COLOR radiance) {
 
     rwl = M_PI * colorLuminance(radiance);
 
-    GetLuminousEfficacy(&eff);
+    getLuminousEfficacy(&eff);
     colorScale(eff * M_PI, radiance, radiance);
 
     if ( rwl > 0.0 ) {
@@ -223,7 +223,7 @@ static COLOR Ward_ScaleForComputations(COLOR radiance) {
 static COLOR Ward_ScaleForDisplay(COLOR radiance) {
     float eff;
 
-    GetLuminousEfficacy(&eff);
+    getLuminousEfficacy(&eff);
 
     colorScale(eff * m_disp, radiance, radiance);
     return radiance;
@@ -269,7 +269,7 @@ static COLOR RevisedTR_ScaleForDisplay(COLOR radiance) {
 
     rwl = M_PI * colorLuminance(radiance);
 
-    GetLuminousEfficacy(&eff);
+    getLuminousEfficacy(&eff);
     colorScale(eff * M_PI, radiance, radiance);
 
     if ( rwl > 0.0 ) {
@@ -311,7 +311,7 @@ static COLOR Ferwerda_ScaleForComputations(COLOR radiance) {
     float sl, eff;
 
     /* Convert to photometric values */
-    GetLuminousEfficacy(&eff);
+    getLuminousEfficacy(&eff);
     colorScale(eff, radiance, radiance);
 
     /* Compute the scotopic grayscale shift */
@@ -333,7 +333,7 @@ static COLOR Ferwerda_ScaleForDisplay(COLOR radiance) {
     float sl, eff;
 
     /* Convert to photometric values */
-    GetLuminousEfficacy(&eff);
+    getLuminousEfficacy(&eff);
     colorScale(eff, radiance, radiance);
 
     /* Compute the scotopic grayscale shift */
