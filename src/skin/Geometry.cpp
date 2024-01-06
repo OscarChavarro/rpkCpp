@@ -301,3 +301,27 @@ geomAllDiscretizationIntersections(
     }
     return geom->methods->allDiscretizationIntersections(hits, geom->obj, ray, mindist, maxdist, hitflags);
 }
+
+int
+Geometry::geomCountItems() {
+    int count = 0;
+
+    if ( geomIsAggregate(this)) {
+        GeometryListNode *geometryList = geomPrimList(this);
+        if ( geometryList != nullptr ) {
+            GeometryListNode *window;
+            for ( window = geometryList; window; window = window->next ) {
+                Geometry *geometry = window->geom;
+                count += geometry->geomCountItems();
+            }
+        }
+    } else {
+        count = 0;
+
+        for ( PatchSet *patches = geomPatchList(this); patches != nullptr; patches = patches->next ) {
+            count++;
+        }
+    }
+
+    return this->tmp.i = count;
+}

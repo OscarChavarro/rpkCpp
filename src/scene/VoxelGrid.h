@@ -1,69 +1,130 @@
-/**
-Global_Raytracer_activeRaytracer acceleration using a uniform grid
-*/
+#ifndef __VOXEL_GRID__
+#define __VOXEL_GRID__
 
-#ifndef _GRID_H_
-#define _GRID_H_
-
-#include "common/mymath.h"
 #include "java/util/ArrayList.h"
-#include "skin/bounds.h"
-#include "skin/Patch.h"
 #include "skin/Geometry.h"
 #include "scene/VoxelData.h"
 
-#define ISPATCH 0x10000000
-#define ISGEOM  0x20000000
-#define ISGRID  0x40000000
-#define RAYCOUNT_MASK 0x0fffffff
-
-#define LastRayId(griditem) (griditem->flags & RAYCOUNT_MASK)
-#define UpdateRayId(griditem, id) griditem->flags = (griditem->flags & ~RAYCOUNT_MASK) | (id & RAYCOUNT_MASK)
-#define IsPatch(griditem) (griditem->flags & ISPATCH)
-#define IsGeom(griditem)  (griditem->flags & ISGEOM)
-#define IsGrid(griditem)  (griditem->flags & ISGRID)
-
-#define CELLADDR(grid, a, b, c) ((a * grid->ySize + b) * grid->zSize + c)
-
-#define x2voxel(px, g)    ((g->voxelSize.x<EPSILON) ? 0 : ((px) - g->boundingBox[MIN_X]) / g->voxelSize.x)
-#define y2voxel(py, g)    ((g->voxelSize.y<EPSILON) ? 0 : ((py) - g->boundingBox[MIN_Y]) / g->voxelSize.y)
-#define z2voxel(pz, g)    ((g->voxelSize.z<EPSILON) ? 0 : ((pz) - g->boundingBox[MIN_Z]) / g->voxelSize.z)
-
-#define voxel2x(px, g)    ((px) * g->voxelSize.x + g->boundingBox[MIN_X])
-#define voxel2y(py, g)    ((py) * g->voxelSize.y + g->boundingBox[MIN_Y])
-#define voxel2z(pz, g)    ((pz) * g->voxelSize.z + g->boundingBox[MIN_Z])
-
-#include "common/dataStructures/List.h"
-
-#define GridItemListCreate    (GRIDITEMLIST *)ListCreate
-#define GridItemListAdd(griditemlist, griditem)    \
-        (GRIDITEMLIST *)ListAdd((LIST *)griditemlist, (void *)griditem)
-#define GridItemListDestroy(griditemlist) \
-        ListDestroy((LIST *)griditemlist)
-#define ForAllGridItems(item, griditemlist) ForAllInList(VoxelData, item, griditemlist)
-
-class GRIDITEMLIST {    /* same layout as LIST in List.h */
-  public:
-    VoxelData *elem;
-    GRIDITEMLIST *next;
-};
-
 class VoxelGrid {
-  public:
+  private:
     short xSize;
     short ySize;
     short zSize;
     Vector3D voxelSize;
-    GRIDITEMLIST **volumeListsOfItems; // 3D array of item lists
+    java::ArrayList<VoxelData *> **volumeListsOfItems; // 3D array of item lists
     void **gridItemPool;
     BOUNDINGBOX boundingBox;
+
+    inline float
+    voxel2x(const float px) {
+        return px * voxelSize.x + boundingBox[MIN_X];
+    }
+
+    inline float
+    voxel2y(const float py) {
+        return py * voxelSize.y + boundingBox[MIN_Y];
+    }
+
+    inline float
+    voxel2z(const float pz) {
+        return pz * voxelSize.z + boundingBox[MIN_Z];
+    }
+
+    inline short
+    x2voxel(const float px) {
+        return (short)((voxelSize.x<EPSILON) ? 0 : (px - boundingBox[MIN_X]) / voxelSize.x);
+    }
+
+    inline short
+    y2voxel(const float py) {
+        return (short)((voxelSize.y < EPSILON) ? 0 : (py - boundingBox[MIN_Y]) / voxelSize.y);
+    }
+
+    inline short
+    z2voxel(const float pz) {
+        return (short)((voxelSize.z < EPSILON) ? 0 : (pz - boundingBox[MIN_Z]) / voxelSize.z);
+    }
+
+    inline int
+    cellIndexAddress(const int a, const int b, const int c) const {
+        return (a * ySize + b) * zSize + c;
+    }
+
+    HITLIST *
+    allGridIntersections(
+        HITLIST *hits,
+        Ray *ray,
+        float minimumDistance,
+        float maximumDistance,
+        int hitFlags);
+
+    void putGeometryInsideVoxelGrid(Geometry *geometry, short na, short nb, short nc);
+
+    int isSmall(const float *boundsArr) const;
+
+    void putSubGeometryInsideVoxelGrid(Geometry *geom);
+
+    void destroyGridRecursive() const;
+
+    void
+    gridTraceSetup(
+        Ray *ray,
+        float t0,
+        Vector3D *P,
+        /*OUT*/ int *g,
+        Vector3D *tDelta,
+        Vector3D *tNext,
+        int *step,
+        int *out);
+
+    int
+    gridBoundsIntersect(
+        Ray *ray,
+        float minimumDistance,
+        float maximumDistance,
+        /*OUT*/ float *t0,
+        Vector3D *P);
+
+    void putItemInsideVoxelGrid(VoxelData *item, const float *itemBounds);
+
+    void putPatchInsideVoxelGrid(PATCH *patch);
+
+    static HITLIST *
+    allVoxelIntersections(
+        HITLIST *hitList,
+        java::ArrayList<VoxelData *> *items,
+        Ray *ray,
+        unsigned int counter,
+        float minimumDistance,
+        float maximumDistance,
+        int hitFlags);
+
+    static HITREC *
+    voxelIntersect(
+            java::ArrayList<VoxelData *> *items,
+            Ray *ray,
+            unsigned int counter,
+            float minimumDistance,
+            float *maximumDistance,
+            int hitFlags,
+            HITREC *hitStore);
+
+    static int
+    nextVoxel(float *t0, int *g, Vector3D *tNext, Vector3D *tDelta, const int *step, const int *out);
+
+    static int randomRayId();
+public:
+    explicit VoxelGrid(Geometry *geom);
+
+    void destroyGrid() const;
+
+    HITREC *
+    gridIntersect(
+            Ray *ray,
+            float minimumDistance,
+            float *maximumDistance,
+            int hitFlags,
+            HITREC *hitStore);
 };
-
-extern VoxelGrid *createGrid(Geometry *geom);
-extern void destroyGrid(VoxelGrid *grid);
-extern HITREC *
-GridIntersect(VoxelGrid *grid, Ray *ray, float mindist, float *maxdist, int hitflags, HITREC *hitstore);
-
-extern HITLIST *allGridIntersections(HITLIST *hits, VoxelGrid *grid, Ray *ray, float mindist, float maxdist, int hitflags);
 
 #endif

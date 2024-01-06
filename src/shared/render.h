@@ -43,9 +43,6 @@ extern void RenderPatchOutline(PATCH *patch);
 /* renders the all the patches using default colors */
 extern void RenderPatch(PATCH *patch);
 
-/* renders normals of patch vertices (rendercommon.c) */
-void RenderPatchNormals(PATCH *patch);
-
 /* renders a line from point p to point q, for eg debugging */
 extern void RenderLine(Vector3D *p, Vector3D *q);
 
@@ -156,9 +153,6 @@ extern void RenderGetNearFar(float *near, float *far);
 /* indicates that the scene has modified, so a new display list should be
  * compiled and rendered from now on. Only relevant when using display lists. */
 extern void RenderNewDisplayList();
-
-/* the following routines are for debugging */
-extern void RenderNormals();
 
 extern void ParseRenderingOptions(int *argc, char **argv);
 

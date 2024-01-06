@@ -29,6 +29,6 @@ extern GeometryListNode *GLOBAL_scene_clusteredWorld;
 extern Geometry *GLOBAL_scene_clusteredWorldGeom;
 
 // Voxel grid containing the whole world
-extern VoxelGrid *GLOBAL_scene_worldGrid;
+extern VoxelGrid *GLOBAL_scene_worldVoxelGrid;
 
 #endif

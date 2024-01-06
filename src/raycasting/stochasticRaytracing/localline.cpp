@@ -43,7 +43,7 @@ HITREC *McrShootRay(PATCH *P, Ray *ray, HITREC *hitstore) {
 
     /* reject selfintersections */
     PatchDontIntersect(2, P, P->twin);
-    hit = GridIntersect(GLOBAL_scene_worldGrid, ray, EPSILON < P->tolerance ? EPSILON : P->tolerance, &dist, HIT_FRONT | HIT_POINT,
+    hit = GLOBAL_scene_worldVoxelGrid->gridIntersect(ray, EPSILON < P->tolerance ? EPSILON : P->tolerance, &dist, HIT_FRONT | HIT_POINT,
                         hitstore);
     PatchDontIntersect(0);
     SomeFeedback();

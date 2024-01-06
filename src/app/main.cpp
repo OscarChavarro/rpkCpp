@@ -343,18 +343,24 @@ When a file cannot be read, the current scene is restored
 */
 bool
 ReadFile(char *filename) {
-    char *dot, *slash, *extension;
-    FILE *input;
-    GeometryListNode *oWorld, *oClusteredWorld;
-    Geometry *oClusteredWorldGeom;
-    MATERIALLIST *oMaterialLib;
-    PatchSet *oPatches, *oLightSourcePatches;
-    VoxelGrid *oWorldGrid;
-    RADIANCEMETHOD *oRadiance;
-    Raytracer *oRayTracing;
-    Background *oBackground;
-    int opatchid, onrpatches;
-    clock_t t, last;
+    char *dot{};
+    char *slash{};
+    char *extension{};
+    FILE *input{};
+    GeometryListNode *oWorld{};
+    GeometryListNode *oClusteredWorld{};
+    Geometry *oClusteredWorldGeom{};
+    MATERIALLIST *oMaterialLib{};
+    PatchSet *oPatches{};
+    PatchSet *lightSourcePatches{};
+    VoxelGrid *oWorldGrid{};
+    RADIANCEMETHOD *oRadiance{};
+    Raytracer *oRayTracing{};
+    Background *oBackground{};
+    int patchId{};
+    int numberOfPatches{};
+    clock_t t{};
+    clock_t last{};
 
     // check whether the file can be opened if not reading from stdin
     if ( filename[0] != '#' ) {
@@ -395,14 +401,14 @@ ReadFile(char *filename) {
     GLOBAL_scene_materials = MaterialListCreate();
     oPatches = GLOBAL_scene_patches;
     GLOBAL_scene_patches = PatchListCreate();
-    opatchid = PatchGetNextID();
+    patchId = PatchGetNextID();
     PatchSetNextID(1);
-    onrpatches = GLOBAL_statistics_numberOfPatches;
+    numberOfPatches = GLOBAL_statistics_numberOfPatches;
     oClusteredWorld = GLOBAL_scene_clusteredWorld;
     GLOBAL_scene_clusteredWorld = GeomListCreate();
     oClusteredWorldGeom = GLOBAL_scene_clusteredWorldGeom;
-    oLightSourcePatches = GLOBAL_scene_lightSourcePatches;
-    oWorldGrid = GLOBAL_scene_worldGrid;
+    lightSourcePatches = GLOBAL_scene_lightSourcePatches;
+    oWorldGrid = GLOBAL_scene_worldVoxelGrid;
     oBackground = GLOBAL_scene_background;
     GLOBAL_scene_background = (Background *) nullptr;
 
@@ -441,14 +447,14 @@ ReadFile(char *filename) {
         GLOBAL_scene_materials = oMaterialLib;
 
         GLOBAL_scene_patches = oPatches;
-        PatchSetNextID(opatchid);
-        GLOBAL_statistics_numberOfPatches = onrpatches;
+        PatchSetNextID(patchId);
+        GLOBAL_statistics_numberOfPatches = numberOfPatches;
 
         GLOBAL_scene_clusteredWorld = oClusteredWorld;
         GLOBAL_scene_clusteredWorldGeom = oClusteredWorldGeom;
-        GLOBAL_scene_lightSourcePatches = oLightSourcePatches;
+        GLOBAL_scene_lightSourcePatches = lightSourcePatches;
 
-        GLOBAL_scene_worldGrid = oWorldGrid;
+        GLOBAL_scene_worldVoxelGrid = oWorldGrid;
         GLOBAL_scene_background = oBackground;
 
         SetRadianceMethod(oRadiance);
@@ -477,7 +483,7 @@ ReadFile(char *filename) {
     }
 
     PatchListDestroy(oPatches);
-    PatchListDestroy(oLightSourcePatches);
+    PatchListDestroy(lightSourcePatches);
 
     GeomListIterate(oWorld, geomDestroy);
     GeomListDestroy(oWorld);
@@ -489,7 +495,9 @@ ReadFile(char *filename) {
         oBackground->methods->Destroy(oBackground->data);
     }
 
-    destroyGrid(oWorldGrid);
+    if ( oWorldGrid != nullptr ) {
+        oWorldGrid->destroyGrid();
+    }
 
     MaterialListIterate(oMaterialLib, MaterialDestroy);
     MaterialListDestroy(oMaterialLib);
@@ -538,7 +546,7 @@ ReadFile(char *filename) {
     last = t;
 
     // engridding the thing
-    GLOBAL_scene_worldGrid = createGrid(GLOBAL_scene_clusteredWorldGeom);
+    GLOBAL_scene_worldVoxelGrid = new VoxelGrid(GLOBAL_scene_clusteredWorldGeom);
 
     t = clock();
     fprintf(stderr, "Engridding took %g secs.\n", (float) (t - last) / (float) CLOCKS_PER_SEC);

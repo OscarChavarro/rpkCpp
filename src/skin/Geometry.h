@@ -58,6 +58,8 @@ class Geometry {
     GeometryListNode *aggregateData;
 
     void *obj; // @Deprecated
+
+    int geomCountItems();
 };
 
 extern Geometry *geomCreateSurface(MeshSurface *surfaceData, GEOM_METHODS *methods);

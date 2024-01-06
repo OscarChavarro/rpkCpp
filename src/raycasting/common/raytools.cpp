@@ -30,7 +30,7 @@ TraceWorld(
     dist = HUGE;
     PatchDontIntersect(3, patch, patch ? patch->twin : nullptr,
                        extraPatch);
-    result = GridIntersect(GLOBAL_scene_worldGrid, ray, 0., &dist, flags, hitstore);
+    result = GLOBAL_scene_worldVoxelGrid->gridIntersect(ray, 0., &dist, flags, hitstore);
 
     if ( result ) {
         /* compute shading frame (Z-axis = shading normal) at intersection point */
@@ -165,7 +165,7 @@ PathNodesVisible(CPathNode *node1, CPathNode *node2) {
 
         PatchDontIntersect(3, node2->m_hit.patch, node1->m_hit.patch,
                            node1->m_hit.patch ? node1->m_hit.patch->twin : nullptr);
-        hit = GridIntersect(GLOBAL_scene_worldGrid, &ray,
+        hit = GLOBAL_scene_worldVoxelGrid->gridIntersect(&ray,
                             0., &fdist,
                             HIT_FRONT | HIT_BACK | HIT_ANY, &hitstore);
         PatchDontIntersect(0);
@@ -250,7 +250,7 @@ EyeNodeVisible(
                     fdist = (float) dist;
                     PatchDontIntersect(3, node->m_hit.patch, eyeNode->m_hit.patch,
                                        eyeNode->m_hit.patch ? eyeNode->m_hit.patch->twin : nullptr);
-                    hit = GridIntersect(GLOBAL_scene_worldGrid, &ray,
+                    hit = GLOBAL_scene_worldVoxelGrid->gridIntersect(&ray,
                                         0., &fdist,
                                         HIT_FRONT | HIT_ANY, &hitstore);
                     PatchDontIntersect(0);

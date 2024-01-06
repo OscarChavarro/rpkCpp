@@ -52,7 +52,7 @@ BoundsEnlargePoint(float *bounds, Vector3D *point) {
 }
 
 float *
-BoundsCopy(float *from, float *to) {
+BoundsCopy(const float *from, float *to) {
     to[MIN_X] = from[MIN_X];
     to[MIN_Y] = from[MIN_Y];
     to[MIN_Z] = from[MIN_Z];

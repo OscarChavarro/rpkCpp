@@ -43,7 +43,7 @@ DisjunctBounds(float *b1, float *b2) {
 }
 
 extern float * BoundsCreate();
-extern float * BoundsCopy(float *from, float *to);
+extern float * BoundsCopy(const float *from, float *to);
 extern void BoundsDestroy(float *bounds);
 extern float * BoundsInit(float *bounds);
 extern float * BoundsEnlarge(float *bounds, float *extra);

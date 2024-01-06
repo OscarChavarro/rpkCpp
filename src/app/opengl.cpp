@@ -15,7 +15,6 @@
 
 static int displayListId = -1;
 static int openglInitialized = false;
-static int do_render_normals;
 static GLubyte *background_ptr = nullptr;
 static GLuint backgroundTex = 0;
 
@@ -69,8 +68,6 @@ OpenGLInitState() {
 
     openglInitialized = true;
     displayListId = -1;
-
-    do_render_normals = false;
 }
 
 /*
@@ -553,10 +550,6 @@ RenderScene() {
     glDrawBuffer(GL_FRONT_AND_BACK);
 
     CanvasPullMode();
-
-    if ( do_render_normals ) {
-        RenderNormals();
-    }
 }
 
 /*
