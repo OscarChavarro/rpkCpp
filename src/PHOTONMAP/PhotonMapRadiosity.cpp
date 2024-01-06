@@ -230,7 +230,7 @@ DoComputePixelFluxEstimate(PMAPCONFIG *config) {
 
     double factor = 1.0 / bp->EvalPDFAcc();
 
-    COLORSCALE(factor, f, f); // Flux estimate
+    colorScale(factor, f, f); // Flux estimate
 
     // Restore old values
     lightEndNode->m_bsdfEval = oldBsdfL;
@@ -293,7 +293,7 @@ DoScreenNEE(PMAPCONFIG *config) {
                       / (float) pmapstate.total_cpaths);
         }
 
-        COLORSCALE(factor, f, f);
+        colorScale(factor, f, f);
 
         config->screen->Add(nx, ny, f);
     }
@@ -367,13 +367,13 @@ HandlePath(PMAPCONFIG *config) {
     bp->m_geomConnect = 1.0; // No connection yet
 
     ldone = false;
-    COLORSETMONOCHROME(accPower, 1.0);
+    colorSetMonochrome(accPower, 1.0);
 
     while ( !ldone ) {
         // Adjust accPower
 
         factor = currentNode->m_G / currentNode->m_pdfFromPrev;
-        COLORSCALE(factor, accPower, accPower);
+        colorScale(factor, accPower, accPower);
 
         // Store photon, but not emitted light
 

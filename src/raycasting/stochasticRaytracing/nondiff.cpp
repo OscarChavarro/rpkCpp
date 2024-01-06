@@ -97,7 +97,7 @@ static void SampleLight(LIGHTSOURCETABLE *light, double light_selection_pdf) {
         double pdf = light_selection_pdf * point_selection_pdf * dir_selection_pdf;
         double outcos = VECTORDOTPRODUCT(ray.dir, light->patch->normal);
         COLOR rcvrad, Rd = REFLECTANCE(hit->patch);
-        COLORSCALE((outcos / (M_PI * hit->patch->area * pdf * nrsamples)), rad, rcvrad);
+        colorScale((outcos / (M_PI * hit->patch->area * pdf * nrsamples)), rad, rcvrad);
         COLORPROD(Rd, rcvrad, rcvrad);
         COLORADD(RAD(hit->patch)[0], rcvrad, RAD(hit->patch)[0]);
         COLORADD(UNSHOT_RAD(hit->patch)[0], rcvrad, UNSHOT_RAD(hit->patch)[0]);

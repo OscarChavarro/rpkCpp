@@ -163,7 +163,7 @@ CreateCluster(Geometry *geom) {
     elem->pog.geom = geom;
     elem->iscluster = true;
 
-    COLORSETMONOCHROME(elem->Rd, 1.);
+    colorSetMonochrome(elem->Rd, 1.);
     colorClear(elem->Ed);
 
     /* elem->area will be computed from the subelements in the cluster later */

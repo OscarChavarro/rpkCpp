@@ -78,7 +78,7 @@ ShootUnshotRadianceAndPotentialOverLink(INTERACTION *link) {
         COLOR srcrho;
 
         if ( IsCluster(link->src)) {
-            COLORSETMONOCHROME(srcrho, 1.);
+            colorSetMonochrome(srcrho, 1.);
         } else {
             srcrho = REFLECTIVITY(link->src->pog.patch);
         }
@@ -194,7 +194,8 @@ DoPropagate(PATCH *shooting_patch) {
     } else {
         colorClear(GLOBAL_galerkin_state.ambient_radiance);
         PatchListIterate(GLOBAL_scene_patches, PatchUpdateRadianceAndPotential);
-        COLORSCALE(1. / GLOBAL_statistics_totalArea, GLOBAL_galerkin_state.ambient_radiance, GLOBAL_galerkin_state.ambient_radiance);
+        colorScale(1. / GLOBAL_statistics_totalArea, GLOBAL_galerkin_state.ambient_radiance,
+                   GLOBAL_galerkin_state.ambient_radiance);
     }
 
     PatchListIterate(GLOBAL_scene_patches, PatchRecomputeColor);

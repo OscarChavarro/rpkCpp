@@ -276,7 +276,7 @@ static void DoHigherOrderAreaToAreaFormFactor(INTERACTION *link,
         }
     }
 
-    if ( COLORNULL(srcrad[0])) {
+    if ( colorNull(srcrad[0])) {
         /* no source radiance: use constant radiance error approximation */
         Gav = link->K.p[0] / rcv->area;
         link->deltaK.f = Gmax - Gav;

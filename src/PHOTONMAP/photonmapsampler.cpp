@@ -276,14 +276,14 @@ static bool ChooseFresnelDirection(CPathNode *thisNode, CPathNode *newNode,
 
     if ( reflected ) {
         if ( reflective ) {
-            COLORSCALE(F, reflectance, *scatteringColor);
+            colorScale(F, reflectance, *scatteringColor);
             *doCosInverse = false;
         } else {
-            COLORSCALE(F, transmittance, *scatteringColor);
+            colorScale(F, transmittance, *scatteringColor);
             *doCosInverse = true;
         }
     } else {
-        COLORSCALE(T, transmittance, *scatteringColor);
+        colorScale(T, transmittance, *scatteringColor);
         *doCosInverse = true;
     }
 

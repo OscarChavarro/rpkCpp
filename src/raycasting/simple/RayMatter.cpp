@@ -94,7 +94,7 @@ RayMatter::Matting() {
                 value = 1.0;
             }
 
-            COLORSET(matte, value, value, value);
+            colorSet(matte, value, value, value);
             scrn->Add(x, y, matte);
         }
 

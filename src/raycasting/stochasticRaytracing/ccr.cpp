@@ -42,7 +42,7 @@ static void InitialControlRadiosity(COLOR *minRad, COLOR *maxRad, COLOR *fmin, C
     *fmin = totalflux;
 
     *maxRad = maxrad;
-    COLORSCALE(area, maxrad, *fmax);
+    colorScale(area, maxrad, *fmax);
     COLORSUBTRACT(*fmax, totalflux, *fmax);
 }
 
@@ -90,7 +90,7 @@ static void RefineControlRadiosity(COLOR *minRad, COLOR *maxRad, COLOR *fmin, CO
     COLOR f[NRINTERVALS + 1], rad[NRINTERVALS + 1], d;
     int i, s;
 
-    COLORSETMONOCHROME(color_one, 1.);
+    colorSetMonochrome(color_one, 1.);
 
     /* initialisations. rad[i] = radiosity at boundary i. */
     COLORSUBTRACT(*maxRad, *minRad, d);
@@ -165,7 +165,7 @@ COLOR DetermineControlRadiosity(COLOR *(*GetRadiance)(ELEMENT *),
     }
 
     COLORADD(minRad, maxRad, beta);
-    COLORSCALE(0.5, beta, beta);
+    colorScale(0.5, beta, beta);
     beta.print(stderr);
     fprintf(stderr, " (%g lux)", M_PI * ColorLuminance(beta));
     fprintf(stderr, "\n");

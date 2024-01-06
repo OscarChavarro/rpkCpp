@@ -211,7 +211,7 @@ void CPhotonMap::Redistribute(CPhoton &photon, float acceptProb, short flags) {
     float factor = 1.0 / m_nrpCosinePos;
 
     pow = photon.Power();
-    COLORSCALE(factor, pow, deltaPower);
+    colorScale(factor, pow, deltaPower);
 
     for ( int i = 0; i < m_nrpFound; i++ ) {
         if ( m_cosines[i] > 0.0 ) {
@@ -317,7 +317,7 @@ void CPhotonMap::PhotonPrecomputeIrradiance(CIrrPhoton *photon) {
         // so we convert it to irradiance, maxDistance is already squared
         // An extra factor PI is added, that accounts for Albedo -> diffuse brdf...
         float factor = 1.0 / (M_PI * M_PI * maxDistance * m_totalPaths);
-        COLORSCALE(factor, irradiance, irradiance);
+        colorScale(factor, irradiance, irradiance);
     }
 
     photon->SetIrradiance(irradiance);
@@ -434,7 +434,7 @@ COLOR CPhotonMap::Reconstruct(HITREC *hit, Vector3D &outDir,
 
     factor = 1.0 / (M_PI * maxDistance * m_totalPaths);
 
-    COLORSCALE(factor, result, result);
+    colorScale(factor, result, result);
 
     return result;
 }

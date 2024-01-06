@@ -67,7 +67,7 @@ int EdfIsTextured(EDF *edf) {
 /* returns diffusely emitted radiance [W/m^2 sr] */
 COLOR EdfDiffuseRadiance(EDF *edf, HITREC *hit) {
     COLOR rad = EdfDiffuseEmittance(edf, hit);
-    COLORSCALE((1. / M_PI), rad, rad);
+    colorScale((1. / M_PI), rad, rad);
     return rad;
 }
 

@@ -339,7 +339,7 @@ COLOR SR_GetRadiance(CPathNode *thisNode, SRCONFIG *config, SRREADOUT readout,
 
         result = BackgroundRadiance(GLOBAL_scene_background, &(thisNode->Previous()->m_hit.point), &(thisNode->m_inDirF), nullptr);
 
-        COLORSCALE(weight, result, result);
+        colorScale(weight, result, result);
     }
         // handle non-background
     else {
@@ -535,7 +535,7 @@ static COLOR CalcPixel(int nx, int ny, SRCONFIG *config) {
             // -- Not neccessary yet ...
 
             // Account for pixel sampling
-            COLORSCALE(pixelNode.m_G / pixelNode.m_pdfFromPrev, col, col);
+            colorScale(pixelNode.m_G / pixelNode.m_pdfFromPrev, col, col);
             COLORADD(result, col, result);
         }
     }
@@ -545,7 +545,7 @@ static COLOR CalcPixel(int nx, int ny, SRCONFIG *config) {
     double factor = (ComputeFluxToRadFactor(nx, ny) /
                      config->samplesPerPixel);
 
-    COLORSCALE(factor, result, result);
+    colorScale(factor, result, result);
 
     // printf("RESULT %g %g %g \n", result.r, result.g, result.b);
 

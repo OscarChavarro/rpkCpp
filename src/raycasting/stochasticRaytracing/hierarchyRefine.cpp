@@ -126,7 +126,7 @@ static int LowPowerLink(LINK *link) {
     float threshold, propagated_power;
 
     /* compute receiver reflectance times source radiosity */
-    COLORSCALE(M_PI, src->rad[0], rhosrcrad);
+    colorScale(M_PI, src->rad[0], rhosrcrad);
     if ( !rcv->iscluster ) {
         COLOR Rd = REFLECTANCE(rcv->pog.patch);
         COLORPROD(Rd, rhosrcrad, rhosrcrad);

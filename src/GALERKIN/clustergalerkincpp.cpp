@@ -51,8 +51,8 @@ static void ClusterInit(ELEMENT *clus) {
         clus->flags |= (subclus->flags & IS_LIGHT_SOURCE);
         COLORADDSCALED(clus->Ed, subclus->area, subclus->Ed, clus->Ed);
     }
-    COLORSCALE((1. / clus->area), clus->radiance[0], clus->radiance[0]);
-    COLORSCALE((1. / clus->area), clus->Ed, clus->Ed);
+    colorScale((1. / clus->area), clus->radiance[0], clus->radiance[0]);
+    colorScale((1. / clus->area), clus->Ed, clus->Ed);
 
     /* also pull unshot radiance for the "shooting" methods */
     if ( GLOBAL_galerkin_state.iteration_method == SOUTHWELL ) {
@@ -62,7 +62,7 @@ static void ClusterInit(ELEMENT *clus) {
             COLORADDSCALED(clus->unshot_radiance[0], subclus->area, subclus->unshot_radiance[0],
                            clus->unshot_radiance[0]);
         }
-        COLORSCALE((1. / clus->area), clus->unshot_radiance[0], clus->unshot_radiance[0]);
+        colorScale((1. / clus->area), clus->unshot_radiance[0], clus->unshot_radiance[0]);
     }
 
     /* compute equivalent blocker (or blocker complement) size for multiresolution
@@ -192,7 +192,7 @@ COLOR clusterRadianceToSamplePoint(ELEMENT *src, Vector3D sample) {
 
             /* divide by the source area used for computing the form factor:
              * src->area / 4. (average projected area) */
-            COLORSCALE(4. / src->area, srcrad, srcrad);
+            colorScale(4. / src->area, srcrad, srcrad);
             return srcrad;
         }
 
@@ -213,7 +213,7 @@ COLOR clusterRadianceToSamplePoint(ELEMENT *src, Vector3D sample) {
                  * form factor computation */
                 areafactor = ((bbx[MAX_X] - bbx[MIN_X]) * (bbx[MAX_Y] - bbx[MIN_Y])) /
                              (0.25 * src->area);
-                COLORSCALE(areafactor, srcrad, srcrad);
+                colorScale(areafactor, srcrad, srcrad);
                 return srcrad;
             }
 

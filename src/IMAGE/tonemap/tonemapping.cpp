@@ -254,7 +254,7 @@ void RecomputeGammaTables(RGB gamma) {
   algorithm.
   ------------------------------------------------------------------------- */
 COLOR *RescaleRadiance(COLOR in, COLOR *out) {
-    COLORSCALE(tmopts.pow_bright_adjust, in, in);
+    colorScale(tmopts.pow_bright_adjust, in, in);
     *out = TonemapScaleForDisplay(in);
     return out;
 }

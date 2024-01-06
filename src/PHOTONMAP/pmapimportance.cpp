@@ -62,7 +62,7 @@ void HandlePotentialPath(PMAPCONFIG *config) {
 
     bp->m_geomConnect = 1.0; // No connection yet (not needed)
 
-    COLORSETMONOCHROME(accImportance, 1.0);
+    colorSetMonochrome(accImportance, 1.0);
 
     bool isLastNode = false;
     int DGBounces = 0;
@@ -71,7 +71,7 @@ void HandlePotentialPath(PMAPCONFIG *config) {
     while ( !isLastNode ) {
         // Adjust importance
         float factor = currentNode->m_G / currentNode->m_pdfFromPrev;
-        COLORSCALE(factor, accImportance, accImportance);
+        colorScale(factor, accImportance, accImportance);
 
         if ( prevNode )  // Skip the eye node
         {
@@ -119,11 +119,11 @@ static bool TracePotentialPath(PMAPCONFIG *config) {
     config->bipath.m_eyePath = path;  // In case no nodes were present
 
     COLOR accImportance;  // Track importance along the ray
-    COLORSETMONOCHROME(accImportance, 1.0);
+    colorSetMonochrome(accImportance, 1.0);
 
     // Adjust importance for eye ray
     float factor = path->m_G / path->m_pdfFromPrev;
-    COLORSCALE(factor, accImportance, accImportance);
+    colorScale(factor, accImportance, accImportance);
 
 
     int DGBounces = 0;  // Number of diffuse/glossy bounces
@@ -159,7 +159,7 @@ static bool TracePotentialPath(PMAPCONFIG *config) {
         // Adjust importance
         COLORPROD(prev->m_bsdfEval, accImportance, accImportance);
         factor = node->m_G / node->m_pdfFromPrev;
-        COLORSCALE(factor, accImportance, accImportance);
+        colorScale(factor, accImportance, accImportance);
 
 
         // Store in map

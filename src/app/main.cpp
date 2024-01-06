@@ -36,11 +36,11 @@ PatchAccumulateStats(PATCH *patch) {
             power;
 
     GLOBAL_statistics_totalArea += patch->area;
-    COLORSCALE(patch->area, E, power);
+    colorScale(patch->area, E, power);
     COLORADD(GLOBAL_statistics_totalEmittedPower, power, GLOBAL_statistics_totalEmittedPower);
     COLORADDSCALED(GLOBAL_statistics_averageReflectivity, patch->area, R, GLOBAL_statistics_averageReflectivity);
     /* convert radiant exitance to exitant radiance */
-    COLORSCALE((1. / M_PI), E, E);
+    colorScale((1.0 / (float)M_PI), E, E);
     COLORMAX(E, GLOBAL_statistics_maxSelfEmittedRadiance, GLOBAL_statistics_maxSelfEmittedRadiance);
     COLORMAX(power, GLOBAL_statistics_maxSelfEmittedPower, GLOBAL_statistics_maxSelfEmittedPower);
 }
@@ -50,7 +50,7 @@ ComputeSomeSceneStats() {
     Vector3D zero;
     COLOR one, average_absorption, BP;
 
-    COLORSETMONOCHROME(one, 1.);
+    colorSetMonochrome(one, 1.0f);
     VECTORSET(zero, 0, 0, 0);
 
     /* initialize */
@@ -70,7 +70,7 @@ ComputeSomeSceneStats() {
 
     /* include background radiation */
     BP = BackgroundPower(GLOBAL_scene_background, &zero);
-    COLORSCALE(1. / (4 * M_PI), BP, BP);
+    colorScale(1.0 / (4.0 * (double)M_PI), BP, BP);
     COLORADD(GLOBAL_statistics_totalEmittedPower, BP, GLOBAL_statistics_totalEmittedPower);
     COLORADD(GLOBAL_statistics_estimatedAverageRadiance, BP, GLOBAL_statistics_estimatedAverageRadiance);
 

@@ -106,7 +106,7 @@ void Pull(ELEMENT *parent, COLOR *parent_coefficients,
         /* clusters only have irregular subelements and a constant
          * radiance approximation is used on them. */
         CLEARCOEFFICIENTS(parent_coefficients, parent->basis_size);
-        COLORSCALE(child->area / parent->area, child_coefficients[0], parent_coefficients[0]);
+        colorScale(child->area / parent->area, child_coefficients[0], parent_coefficients[0]);
     } else {
         if ( sigma < 0 || sigma > 3 ) {
             Error("Pull", "Not yet implemented for non-regular subdivision");
@@ -125,7 +125,7 @@ void Pull(ELEMENT *parent, COLOR *parent_coefficients,
                                                                   child_coefficients[beta],
                                                                   parent_coefficients[alpha]);
             }
-            COLORSCALE(0.25, parent_coefficients[alpha], parent_coefficients[alpha]);
+            colorScale(0.25, parent_coefficients[alpha], parent_coefficients[alpha]);
         }
     }
 }

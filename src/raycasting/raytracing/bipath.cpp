@@ -32,7 +32,7 @@ COLOR CBiPath::EvalRadiance() {
     CPathNode *node;
     int i;
 
-    COLORSETMONOCHROME(col, 1.0);
+    colorSetMonochrome(col, 1.0);
 
     node = m_eyePath;
 
@@ -52,7 +52,7 @@ COLOR CBiPath::EvalRadiance() {
 
     factor *= m_geomConnect; // Next event ray geometry factor
 
-    COLORSCALE(factor, col, col);
+    colorScale(factor, col, col);
 
     return col;
 }

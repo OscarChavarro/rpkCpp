@@ -19,7 +19,7 @@
 static void PatchLazyCreateInteractions(PATCH *P) {
     ELEMENT *el = TOPLEVEL_ELEMENT(P);
 
-    if ( !COLORNULL(el->radiance[0]) && !(el->flags & INTERACTIONS_CREATED)) {
+    if ( !colorNull(el->radiance[0]) && !(el->flags & INTERACTIONS_CREATED)) {
         CreateInitialLinks(el, SOURCE);
         el->flags |= INTERACTIONS_CREATED;
     }

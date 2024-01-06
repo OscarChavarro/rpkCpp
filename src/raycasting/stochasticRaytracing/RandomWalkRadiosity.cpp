@@ -67,7 +67,7 @@ ReduceSource() {
                 {
                     COLOR newsrcrad, rho;
 
-                    COLORSETMONOCHROME(newsrcrad, 1.);
+                    colorSetMonochrome(newsrcrad, 1.);
                     rho = REFLECTANCE(P);
                     COLORSUBTRACT(newsrcrad, rho, newsrcrad);    /* 1-rho */
                     COLORPROD(newsrcrad, mcr.control_radiance, newsrcrad);  /* (1-rho) * beta */
@@ -127,7 +127,7 @@ ShootingScore(PATH *path, long nr_paths, double (*birth_prob)(PATCH *)) {
     PATHNODE *node = &path->nodes[0];
 
     /* path->nodes[0].probability is birth probability of the path */
-    COLORSCALE((node->patch->area / node->probability), SOURCE_RAD(node->patch), accum_pow);
+    colorScale((node->patch->area / node->probability), SOURCE_RAD(node->patch), accum_pow);
     for ( n = 1, node++; n < path->nrnodes; n++, node++ ) {
         double uin = 0., vin = 0., uout = 0., vout = 0., r = 1., w;
         int i;
@@ -156,7 +156,7 @@ ShootingScore(PATH *path, long nr_paths, double (*birth_prob)(PATCH *)) {
             }
         }
 
-        COLORSCALE((r / node->probability), accum_pow, accum_pow);
+        colorScale((r / node->probability), accum_pow, accum_pow);
     }
 }
 
@@ -217,7 +217,7 @@ DetermineGatheringControlRadiosity() {
                 {
                     COLOR absorb, rho, Ed, num, denom;
 
-                    COLORSETMONOCHROME(absorb, 1.);
+                    colorSetMonochrome(absorb, 1.);
                     rho = REFLECTANCE(P);
                     COLORSUBTRACT(absorb, rho, absorb);    /* 1-rho */
 
@@ -271,7 +271,7 @@ CollisionGatheringScore(PATH *path, long nr_paths, double (*birth_prob)(PATCH *)
         }
         NG(P)++;
 
-        COLORSCALE((r / node->probability), accum_rad, accum_rad);
+        colorScale((r / node->probability), accum_rad, accum_rad);
         COLORADD(accum_rad, SOURCE_RAD(P), accum_rad);
     }
 }

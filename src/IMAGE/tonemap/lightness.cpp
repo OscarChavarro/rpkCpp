@@ -51,7 +51,7 @@ static COLOR ScaleForDisplay(COLOR radiance) {
         return radiance;
     }
 
-    COLORSCALE((scale_factor / max), radiance, radiance);
+    colorScale((scale_factor / max), radiance, radiance);
     return radiance;
 }
 

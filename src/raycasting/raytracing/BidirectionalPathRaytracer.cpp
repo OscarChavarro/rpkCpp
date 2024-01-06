@@ -132,7 +132,7 @@ static void AddWithSpikeCheck(BPCONFIG *config, CBiPath *path, int nx, int ny,
                            * (float) config->bcfg->totalSamples;
 
             if ( COLORAVERAGE(f) > EPSILON ) {
-                COLORSCALE(factor, f, g); // Undo part of flux to rad factor
+                colorScale(factor, f, g); // Undo part of flux to rad factor
 
                 config->kernel.VarCover(center, g, rs, ds,
                                         config->bcfg->totalSamples, config->scaleSamples,
@@ -269,15 +269,15 @@ void HandlePath_X_0(BPCONFIG *config, CBiPath *path) {
         factor *= config->fluxToRadFactor / config->bcfg->samplesPerPixel;
 
         if ( config->bcfg->useSpars ) {
-            COLORSCALE(factor, frad, frad);
+            colorScale(factor, frad, frad);
             AddWithSpikeCheck(config, path, config->nx, config->ny,
                               config->xsample, config->ysample, frad, pdf, weight, true);
-            COLORSCALE(factor, f, f);
+            colorScale(factor, f, f);
             AddWithSpikeCheck(config, path, config->nx, config->ny,
                               config->xsample, config->ysample, f, pdf, weight, false);
 
         } else {
-            COLORSCALE(factor, f, f);
+            colorScale(factor, f, f);
             AddWithSpikeCheck(config, path, config->nx, config->ny,
                               config->xsample, config->ysample, f, pdf, weight);
         }
@@ -361,7 +361,7 @@ COLOR ComputeNEFluxEstimate(BPCONFIG *config, CBiPath *path,
         //if(COLORAVERAGE(f) > EPSILON)
         //{
         double factor = path->EvalPDFAndWeight(config->bcfg, pPdf, pWeight);
-        COLORSCALE(factor, f, f); // Flux estimate
+        colorScale(factor, f, f); // Flux estimate
         //}
         //else
         //{
@@ -456,12 +456,12 @@ void HandlePath_X_X(BPCONFIG *config, CBiPath *path) {
         f = ComputeNEFluxEstimate(config, path, &pdf, &weight, &frad);
 
         float factor = config->fluxToRadFactor / config->bcfg->samplesPerPixel;
-        COLORSCALE(factor, f, f);
+        colorScale(factor, f, f);
         AddWithSpikeCheck(config, path, config->nx, config->ny,
                           config->xsample, config->ysample, f, pdf, weight);
 
         if ( config->bcfg->useSpars ) {
-            COLORSCALE(factor, frad, frad);
+            colorScale(factor, frad, frad);
             AddWithSpikeCheck(config, path, config->nx, config->ny,
                               config->xsample, config->ysample, frad, pdf, weight, true);
         }
@@ -512,12 +512,12 @@ void HandlePath_1_X(BPCONFIG *config, CBiPath *path) {
             factor = (ComputeFluxToRadFactor(nx, ny)
                       / (float) config->bcfg->totalSamples);
         }
-        COLORSCALE(factor, f, f);
+        colorScale(factor, f, f);
 
         AddWithSpikeCheck(config, path, nx, ny, pix_x, pix_y, f, pdf, weight);
 
         if ( config->bcfg->useSpars ) {
-            COLORSCALE(factor, frad, frad);
+            colorScale(factor, frad, frad);
             AddWithSpikeCheck(config, path, nx, ny, pix_x, pix_y, frad, pdf, weight, true);
         }
 

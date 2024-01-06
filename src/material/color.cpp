@@ -15,6 +15,6 @@ convertColorToRGB(COLOR col, RGB *rgb) {
 
 COLOR *
 convertRGBToColor(RGB rgb, COLOR *col) {
-    COLORSET(*col, rgb.r, rgb.g, rgb.b);
+    colorSet(*col, rgb.r, rgb.g, rgb.b);
     return col;
 }

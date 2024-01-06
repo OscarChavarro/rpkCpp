@@ -78,7 +78,7 @@ void CKernel2D::Cover(const Vector2D &point, float scale, COLOR &col, ScreenBuff
                 (ny < screen->GetVRes())) {
                 center = screen->GetPixelCenter(nx, ny);
                 factor = scale * Evaluate(point, center);
-                COLORSCALE(factor, col, addCol);
+                colorScale(factor, col, addCol);
                 screen->Add(nx, ny, addCol);
             } else {
                 // Handle boundary bias !

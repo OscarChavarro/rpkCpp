@@ -55,9 +55,9 @@ PhongBrdfPrint(FILE *out, PHONG_BRDF *brdf);
 PHONG_EDF *PhongEdfCreate(COLOR *Kd, COLOR *Ks, double Ns) {
     PHONG_EDF *edf = NEWPHONGEDF();
     edf->Kd = *Kd;
-    COLORSCALE((1. / M_PI), edf->Kd, edf->kd);    /* because we use it often */
+    colorScale((1. / M_PI), edf->Kd, edf->kd);    /* because we use it often */
     edf->Ks = *Ks;
-    if ( !COLORNULL(edf->Ks)) {
+    if ( !colorNull(edf->Ks)) {
         Warning("PhongEdfCreate", "Non-diffuse light sources not yet inplemented");
     }
     edf->Ns = Ns;
@@ -256,7 +256,7 @@ static Vector3D PhongEdfSample(PHONG_EDF *edf, HITREC *hit, XXDFFLAGS flags,
             *pdf = spdf;
         }
         if ( selfemitted_radiance ) {
-            COLORSCALE((1. / M_PI), edf->Kd, *selfemitted_radiance);
+            colorScale((1.0f / (float)M_PI), edf->Kd, *selfemitted_radiance);
         }
     }
 
@@ -524,7 +524,7 @@ static COLOR PhongBtdfEval(PHONG_BTDF *btdf, REFRACTIONINDEX inIndex, REFRACTION
 
         if ( !IsReflection ) {
             result = btdf->Kd;
-            COLORSCALE(M_1_PI, result, result);
+            colorScale(M_1_PI, result, result);
         }
     }
 

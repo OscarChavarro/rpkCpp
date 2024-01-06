@@ -979,7 +979,7 @@ COLOR CIDSpar::HandlePath(CSparConfig *sconfig,
 
             wp = EvalPDFAndWeight(sconfig, path);
 
-            COLORSCALE(wp * totalGeom, result, result);
+            colorScale(wp * totalGeom, result, result);
         }
     }
 

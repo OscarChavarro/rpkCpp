@@ -167,7 +167,7 @@ static COLOR TR_ScaleForComputations(COLOR radiance) {
         scale = 0.0;
     }
 
-    COLORSCALE(scale, radiance, radiance);
+    colorScale(scale, radiance, radiance);
     return radiance;
 }
 
@@ -177,7 +177,7 @@ static COLOR TR_ScaleForDisplay(COLOR radiance) {
     rwl = M_PI * ColorLuminance(radiance);
 
     GetLuminousEfficacy(&eff);
-    COLORSCALE(eff * M_PI, radiance, radiance);
+    colorScale(eff * M_PI, radiance, radiance);
 
     if ( rwl > 0.0 ) {
         float m = (pow(TMO_CANDELA_LAMBERT(rwl), lrwexponent) * lrwm_disp - invcmax);
@@ -186,7 +186,7 @@ static COLOR TR_ScaleForDisplay(COLOR radiance) {
         scale = 0.0;
     }
 
-    COLORSCALE(scale, radiance, radiance);
+    colorScale(scale, radiance, radiance);
     return radiance;
 }
 
@@ -216,7 +216,7 @@ TONEMAP TM_TumblinRushmeier = {
 };
 
 static COLOR Ward_ScaleForComputations(COLOR radiance) {
-    COLORSCALE(m_comp, radiance, radiance);
+    colorScale(m_comp, radiance, radiance);
     return radiance;
 }
 
@@ -225,7 +225,7 @@ static COLOR Ward_ScaleForDisplay(COLOR radiance) {
 
     GetLuminousEfficacy(&eff);
 
-    COLORSCALE(eff * m_disp, radiance, radiance);
+    colorScale(eff * m_disp, radiance, radiance);
     return radiance;
 }
 
@@ -260,7 +260,7 @@ static COLOR RevisedTR_ScaleForComputations(COLOR radiance) {
         scale = 0.0;
     }
 
-    COLORSCALE(scale, radiance, radiance);
+    colorScale(scale, radiance, radiance);
     return radiance;
 }
 
@@ -270,7 +270,7 @@ static COLOR RevisedTR_ScaleForDisplay(COLOR radiance) {
     rwl = M_PI * ColorLuminance(radiance);
 
     GetLuminousEfficacy(&eff);
-    COLORSCALE(eff * M_PI, radiance, radiance);
+    colorScale(eff * M_PI, radiance, radiance);
 
     if ( rwl > 0.0 ) {
         scale = r_disp * (float)pow(rwl / _lwa, g) / rwl;
@@ -278,7 +278,7 @@ static COLOR RevisedTR_ScaleForDisplay(COLOR radiance) {
         scale = 0.0f;
     }
 
-    COLORSCALE(scale, radiance, radiance);
+    colorScale(scale, radiance, radiance);
     return radiance;
 }
 
@@ -312,14 +312,14 @@ static COLOR Ferwerda_ScaleForComputations(COLOR radiance) {
 
     /* Convert to photometric values */
     GetLuminousEfficacy(&eff);
-    COLORSCALE(eff, radiance, radiance);
+    colorScale(eff, radiance, radiance);
 
     /* Compute the scotopic grayscale shift */
     convertColorToRGB(radiance, &p);
     sl = f_sm_comp * f_msf * (p.r * f_sf.r + p.g * f_sf.g + p.b * f_sf.b);
 
     /* Scale the photopic luminance */
-    COLORSCALE(f_pm_comp, radiance, radiance);
+    colorScale(f_pm_comp, radiance, radiance);
 
     /* Eventually, offset by the scotopic luminance */
     if ( sl > 0.0 ) COLORADDCONSTANT(radiance, sl, radiance);
@@ -333,14 +333,14 @@ static COLOR Ferwerda_ScaleForDisplay(COLOR radiance) {
 
     /* Convert to photometric values */
     GetLuminousEfficacy(&eff);
-    COLORSCALE(eff, radiance, radiance);
+    colorScale(eff, radiance, radiance);
 
     /* Compute the scotopic grayscale shift */
     convertColorToRGB(radiance, &p);
     sl = f_sm_disp * f_msf * (p.r * f_sf.r + p.g * f_sf.g + p.b * f_sf.b);
 
     /* Scale the photopic luminance */
-    COLORSCALE(f_pm_disp, radiance, radiance);
+    colorScale(f_pm_disp, radiance, radiance);
 
     /* Eventually, offset by the scotopic luminance */
     if ( sl > 0.0 ) COLORADDCONSTANT(radiance, sl, radiance);
@@ -354,17 +354,17 @@ static float Ferwerda_ReverseScaleForComputations(float dl) {
 }
 
 TONEMAP TM_Ferwerda = {
-        "Partial Ferwerda's Mapping", "Ferwerda", "tmoFerwerdaButton", 3,
-        Defaults,
-        (void (*)(int *, char **)) nullptr,
-        (void (*)(FILE *)) nullptr,
-        Init,
-        Terminate,
-        Ferwerda_ScaleForComputations,
-        Ferwerda_ScaleForDisplay,
-        Ferwerda_ReverseScaleForComputations,
-        (void (*)(void *)) nullptr,
-        (void (*)(void *)) nullptr,
-        (void (*)(void)) nullptr,
-        (void (*)(void)) nullptr
+    "Partial Ferwerda's Mapping", "Ferwerda", "tmoFerwerdaButton", 3,
+    Defaults,
+    (void (*)(int *, char **)) nullptr,
+    (void (*)(FILE *)) nullptr,
+    Init,
+    Terminate,
+    Ferwerda_ScaleForComputations,
+    Ferwerda_ScaleForDisplay,
+    Ferwerda_ReverseScaleForComputations,
+    (void (*)(void *)) nullptr,
+    (void (*)(void *)) nullptr,
+    (void (*)(void)) nullptr,
+    (void (*)(void)) nullptr
 };

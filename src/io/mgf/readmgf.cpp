@@ -168,7 +168,7 @@ MgfGetColor(C_COLOR *cin, double intensity, COLOR *cout) {
     if ( clipgamut(rgb)) {
         do_warning("color desaturated during gamut clipping");
     }
-    COLORSET(*cout, rgb[0], rgb[1], rgb[2]);
+    colorSet(*cout, rgb[0], rgb[1], rgb[2]);
 }
 
 #define NUMSMPLS 3
@@ -238,26 +238,26 @@ GetCurrentMaterial() {
 
     /* check/correct range of reflectances and transmittances */
     COLORADD(Rd, Rs, A);
-    if ((a = ColorMax(A)) > 1. - EPSILON ) {
+    if ((a = ColorMax(A)) > 1.0 - EPSILON ) {
         do_warning("invalid material specification: total reflectance shall be < 1");
-        a = (1. - EPSILON) / a;
-        COLORSCALE(a, Rd, Rd);
-        COLORSCALE(a, Rs, Rs);
+        a = (1.0 - EPSILON) / a;
+        colorScale(a, Rd, Rd);
+        colorScale(a, Rs, Rs);
     }
 
     COLORADD(Td, Ts, A);
-    if ((a = ColorMax(A)) > 1. - EPSILON ) {
+    if ( (a = ColorMax(A)) > 1. - EPSILON ) {
         do_warning("invalid material specification: total transmittance shall be < 1");
-        a = (1. - EPSILON) / a;
-        COLORSCALE(a, Td, Td);
-        COLORSCALE(a, Ts, Ts);
+        a = (1.0 - EPSILON) / a;
+        colorScale(a, Td, Td);
+        colorScale(a, Ts, Ts);
     }
 
     /* convert lumen/m^2 to W/m^2 */
-    COLORSCALE((1. / WHITE_EFFICACY), Ed, Ed);
+    colorScale((1.0 / WHITE_EFFICACY), Ed, Ed);
 
     colorClear(Es);
-    Ne = 0.;
+    Ne = 0.0;
 
     /* specular power = (0.6/roughness)^2 (see mgf docs) */
     if ( c_cmaterial->rs_a != 0.0 ) {
@@ -275,21 +275,21 @@ GetCurrentMaterial() {
     }
 
     if ( monochrome ) {
-        COLORSETMONOCHROME(Ed, ColorGray(Ed));
-        COLORSETMONOCHROME(Es, ColorGray(Es));
-        COLORSETMONOCHROME(Rd, ColorGray(Rd));
-        COLORSETMONOCHROME(Rs, ColorGray(Rs));
-        COLORSETMONOCHROME(Td, ColorGray(Td));
-        COLORSETMONOCHROME(Ts, ColorGray(Ts));
+        colorSetMonochrome(Ed, ColorGray(Ed));
+        colorSetMonochrome(Es, ColorGray(Es));
+        colorSetMonochrome(Rd, ColorGray(Rd));
+        colorSetMonochrome(Rs, ColorGray(Rs));
+        colorSetMonochrome(Td, ColorGray(Td));
+        colorSetMonochrome(Ts, ColorGray(Ts));
     }
 
     thematerial = MaterialCreate(matname,
-                                 (COLORNULL(Ed) && COLORNULL(Es)) ? (EDF *) nullptr : EdfCreate(
+                                 (colorNull(Ed) && colorNull(Es)) ? (EDF *) nullptr : EdfCreate(
                                          PhongEdfCreate(&Ed, &Es, Ne), &PhongEdfMethods),
                                  BsdfCreate(SplitBSDFCreate(
-                                         (COLORNULL(Rd) && COLORNULL(Rs)) ? (BRDF *) nullptr : BrdfCreate(
+                                         (colorNull(Rd) && colorNull(Rs)) ? (BRDF *) nullptr : BrdfCreate(
                                                  PhongBrdfCreate(&Rd, &Rs, Nr), &PhongBrdfMethods),
-                                         (COLORNULL(Td) && COLORNULL(Ts)) ? (BTDF *) nullptr : BtdfCreate(
+                                         (colorNull(Td) && colorNull(Ts)) ? (BTDF *) nullptr : BtdfCreate(
                                                  PhongBtdfCreate(&Td, &Ts, Nt, c_cmaterial->nr, c_cmaterial->ni),
                                                  &PhongBtdfMethods), (TEXTURE *) nullptr), &SplitBsdfMethods),
                                  all_surfaces_sided ? 1 : c_cmaterial->sided);

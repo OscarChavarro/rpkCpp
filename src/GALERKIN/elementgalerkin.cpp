@@ -237,7 +237,7 @@ CreateClusterElement(Geometry *geom) {
     element->flags |= IS_CLUSTER;
     ElementReallocCoefficients(element);
 
-    COLORSETMONOCHROME(element->Rd, 1.);
+    colorSetMonochrome(element->Rd, 1.);
 
     /* whether the cluster contains light sources or not is also determined
      * after the hierarchy is constructed */

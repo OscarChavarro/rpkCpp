@@ -265,7 +265,7 @@ double PathNodeConnect(CPathNode *nodeE,
 
     if ( nodeEP == nullptr ) {
         // Eye
-        COLORSETMONOCHROME(nodeE->m_bsdfEval, 1.0);
+        colorSetMonochrome(nodeE->m_bsdfEval, 1.0);
         nodeE->m_bsdfComp.Clear();
         nodeE->m_bsdfComp.Fill(nodeE->m_bsdfEval, BRDF_DIFFUSE_COMPONENT);
     } else {

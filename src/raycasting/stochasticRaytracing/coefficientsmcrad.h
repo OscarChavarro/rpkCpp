@@ -21,7 +21,7 @@
 
 #define SCALECOEFFICIENTS(scale, color, basis) {int _i, _n=basis->size; COLOR *_d; float _scale=(scale); \
   for (_i=0, _d=(color); _i<_n; _i++, _d++) {                \
-    COLORSCALE(_scale, *_d, *_d);                        \
+    colorScale(_scale, *_d, *_d);                        \
 }}
 
 #define MULTCOEFFICIENTS(color, coeff, basis) {int _i, _n=basis->size; COLOR *_d; COLOR _col = (color); \

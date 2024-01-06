@@ -69,7 +69,7 @@ ScreenBuffer::Init(CAMERA *cam) {
 
     // Clear
     for ( i = 0; i < m_cam.hres * m_cam.vres; i++ ) {
-        COLORSETMONOCHROME(m_Radiance[i], 0.);
+        colorSetMonochrome(m_Radiance[i], 0.);
         m_RGB[i] = GLOBAL_material_black;
     }
 
@@ -121,14 +121,14 @@ ScreenBuffer::Add(int x, int y, COLOR radiance) {
 void
 ScreenBuffer::Set(int x, int y, COLOR radiance) {
     int index = x + (m_cam.vres - y - 1) * m_cam.hres;
-    COLORSCALE(m_AddFactor, radiance, m_Radiance[index]);
+    colorScale(m_AddFactor, radiance, m_Radiance[index]);
     m_Synced = false;
 }
 
 void
 ScreenBuffer::ScaleRadiance(float factor) {
     for ( int i = 0; i < m_cam.hres * m_cam.vres; i++ ) {
-        COLORSCALE(factor, m_Radiance[i], m_Radiance[i]);
+        colorScale(factor, m_Radiance[i], m_Radiance[i]);
     }
 
     m_Synced = false;
@@ -264,7 +264,7 @@ ScreenBuffer::Sync() {
     COLOR tmpRad{};
 
     for ( i = 0; i < m_cam.hres * m_cam.vres; i++ ) {
-        COLORSCALE(m_Factor, m_Radiance[i], tmpRad);
+        colorScale(m_Factor, m_Radiance[i], tmpRad);
         if ( !IsRGBImage()) {
             RadianceToRGB(tmpRad, &m_RGB[i]);
         } else {
@@ -282,7 +282,7 @@ ScreenBuffer::SyncLine(int lineNumber) {
     COLOR tmpRad{};
 
     for ( i = 0; i < m_cam.hres; i++ ) {
-        COLORSCALE(m_Factor, m_Radiance[lineNumber * m_cam.hres + i], tmpRad);
+        colorScale(m_Factor, m_Radiance[lineNumber * m_cam.hres + i], tmpRad);
         if ( !IsRGBImage()) {
             RadianceToRGB(tmpRad, &m_RGB[lineNumber * m_cam.hres + i]);
         } else {

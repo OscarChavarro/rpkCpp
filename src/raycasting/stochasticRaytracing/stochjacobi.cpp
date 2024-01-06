@@ -236,7 +236,7 @@ static void PropagateRadiance(ELEMENT *src, double us, double vs,
     if ( mcr.constant_control_variate ) {
         COLORSUBTRACT(rad, mcr.control_radiance, rad);
     }
-    COLORSCALE(weight, rad, raypow);
+    colorScale(weight, rad, raypow);
 
     if ( !rcv->iscluster ) {
         PropagateRadianceToSurface(rcv, ur, vr, raypow, src, fraction, weight);
@@ -556,7 +556,8 @@ static void PullRdEdFromChild(ELEMENT *child) {
 
     COLORADDSCALED(parent->Ed, child->area / parent->area, child->Ed, parent->Ed);
     COLORADDSCALED(parent->Rd, child->area / parent->area, child->Rd, parent->Rd);
-    if ( parent->iscluster ) COLORSETMONOCHROME(parent->Rd, 1.);
+    if ( parent->iscluster )
+        colorSetMonochrome(parent->Rd, 1.);
 }
 
 static void PullRdEd(ELEMENT *elem) {

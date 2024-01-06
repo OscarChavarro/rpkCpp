@@ -115,7 +115,7 @@ CFlagChain *FlagChainCombine(const CFlagChain *c1,
 
 COLOR CFlagChain::Compute(CBiPath *path) {
     COLOR result, tmpCol;
-    COLORSETMONOCHROME(result, 1.0);
+    colorSetMonochrome(result, 1.0);
     int i;
     int eyeSize = path->m_eyeSize;
     int lightSize = path->m_lightSize;
@@ -146,7 +146,7 @@ COLOR CFlagChain::Compute(CBiPath *path) {
     }
 
     if ( m_subtract ) {
-        COLORSCALE(-1, result, result);
+        colorScale(-1, result, result);
     }
 
     return result;

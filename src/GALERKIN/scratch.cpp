@@ -121,7 +121,8 @@ COLOR ScratchRadiance() {
         }
     }
     if ( nonbkgrnd > 0 ) {
-        COLORSCALE(1. / (double) (GLOBAL_galerkin_state.scratch->vp_width * GLOBAL_galerkin_state.scratch->vp_height), rad, rad);
+        colorScale(1. / (double) (GLOBAL_galerkin_state.scratch->vp_width * GLOBAL_galerkin_state.scratch->vp_height),
+                   rad, rad);
     }
     return rad;
 }

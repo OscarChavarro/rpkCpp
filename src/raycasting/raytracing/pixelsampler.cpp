@@ -37,7 +37,7 @@ bool CPixelSampler::Sample(CPathNode */*prevNode*/, CPathNode *thisNode,
     // "Bsdf" in thisNode
 
     // Potential is one for all directions through a pixel
-    COLORSETMONOCHROME(thisNode->m_bsdfEval, 1.0);
+    colorSetMonochrome(thisNode->m_bsdfEval, 1.0);
 
     // Make sure evaluation of eye components always includes the diff ref.
     thisNode->m_bsdfComp.Clear();

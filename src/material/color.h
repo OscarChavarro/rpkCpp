@@ -22,10 +22,26 @@ colorClear(COLOR &c) {
     ClearSpectrum(c.spec);
 }
 
-#define COLORSET(c, v1, v2, v3)        SetSpectrum((c).spec, v1, v2, v3)
-#define COLORSETMONOCHROME(c, v)    SetSpectrumMonochrome((c).spec, v)
-#define COLORNULL(c)            IsBlackSpectrum((c).spec)
-#define COLORSCALE(a, s, r)        ScaleSpectrum((a), (s).spec, (r).spec)
+inline void
+colorSet(COLOR &c, float v1, float v2, float v3) {
+    SetSpectrum((c).spec, v1, v2, v3);
+}
+
+inline void
+colorSetMonochrome(COLOR &c, float v) {
+    SetSpectrumMonochrome(c.spec, v);
+}
+
+inline bool
+colorNull(COLOR &c) {
+    return IsBlackSpectrum(c.spec);
+}
+
+inline void
+colorScale(float a, COLOR &s, COLOR &r) {
+    ScaleSpectrum(a, s.spec, r.spec);
+}
+
 #define COLORPROD(s, t, r)        MultSpectrum((s).spec, (t).spec, (r).spec)
 #define COLORPRODSCALED(s, a, t, r)    MultScaledSpectrum((s).spec, (a), (t).spec, (r).spec)
 #define COLORADD(s, t, r)        AddSpectrum((s).spec, (t).spec, (r).spec)

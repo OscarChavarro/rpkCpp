@@ -192,7 +192,7 @@ static double SourceClusterRadianceVariationError(INTERACTION *link, COLOR rcvrh
     double K;
 
     K = (link->nsrc == 1 && link->nrcv == 1) ? link->K.f : link->K.p[0];
-    if ( K == 0. || COLORNULL(rcvrho) || COLORNULL(link->src->radiance[0])) {
+    if ( K == 0. || colorNull(rcvrho) || colorNull(link->src->radiance[0])) {
         /* receiver reflectivity or coupling coefficient or source radiance
          * is zero */
         return 0.;
@@ -200,8 +200,8 @@ static double SourceClusterRadianceVariationError(INTERACTION *link, COLOR rcvrh
 
     nrcverts = ElementVertices(link->rcv, rcverts);
 
-    COLORSETMONOCHROME(minsrcrad, HUGE);
-    COLORSETMONOCHROME(maxsrcrad, -HUGE);
+    colorSetMonochrome(minsrcrad, HUGE);
+    colorSetMonochrome(maxsrcrad, -HUGE);
     for ( i = 0; i < nrcverts; i++ ) {
         COLOR rad;
         rad = clusterRadianceToSamplePoint(link->src, rcverts[i]);
@@ -242,7 +242,7 @@ static INTERACTION_EVALUATION_CODE EvaluateInteraction(INTERACTION *link) {
     /* determine receiver area (projected visible area for a receiver cluster)
      * and reflectivity. */
     if ( IsCluster(link->rcv)) {
-        COLORSETMONOCHROME(rcvrho, 1.);
+        colorSetMonochrome(rcvrho, 1.);
         rcv_area = receiverClusterArea(link);
     } else {
         rcvrho = REFLECTIVITY(link->rcv->pog.patch);
@@ -251,7 +251,7 @@ static INTERACTION_EVALUATION_CODE EvaluateInteraction(INTERACTION *link) {
 
     /* determine source reflectivity. */
     if ( IsCluster(link->src)) {
-        COLORSETMONOCHROME(srcrho, 1.);
+        colorSetMonochrome(srcrho, 1.0f);
     } else
         srcrho = REFLECTIVITY(link->src->pog.patch);
 
@@ -340,14 +340,14 @@ static void ComputeLightTransport(INTERACTION *link) {
         if ( GLOBAL_galerkin_state.iteration_method == GAUSS_SEIDEL ||
              GLOBAL_galerkin_state.iteration_method == JACOBI ) {
             if ( IsCluster(link->rcv)) {
-                COLORSETMONOCHROME(rcvrho, 1.);
+                colorSetMonochrome(rcvrho, 1.0f);
             } else {
                 rcvrho = REFLECTIVITY(link->rcv->pog.patch);
             }
             link->src->received_potential.f += K * ColorToError(rcvrho) * link->rcv->potential.f;
         } else if ( GLOBAL_galerkin_state.iteration_method == SOUTHWELL ) {
             if ( IsCluster(link->src)) {
-                COLORSETMONOCHROME(srcrho, 1.);
+                colorSetMonochrome(srcrho, 1.0f);
             } else {
                 srcrho = REFLECTIVITY(link->src->pog.patch);
             }
