@@ -1,5 +1,6 @@
-/* rtsoptions.H: Options and global state vars for 
-   stochastic raytracing */
+/**
+Options and global state vars for stochastic raytracing
+*/
 
 #ifndef _RTSOPTIONS_H_
 #define _RTSOPTIONS_H_
@@ -73,12 +74,12 @@ class RTStochastic_State {
 
 /*** The global state ***/
 
-extern RTStochastic_State rts;
+extern RTStochastic_State GLOBAL_raytracing_state;
 
 
 /*** Function prototypers ***/
 
-void RTStochasticDefaults();
+void stochasticRayTracerDefaults();
 
 void RTStochasticParseOptions(int *argc, char **argv);
 

@@ -123,8 +123,8 @@ set(MAIN_SRC
     src/raycasting/common/pathnode.cpp
     src/raycasting/common/pixelfilter.cpp
     src/raycasting/common/raytools.cpp
-    src/raycasting/common/rmoptions.cpp
     src/raycasting/common/Raytracer.cpp
+    src/raycasting/simple/RayMatterOptions.cpp
     src/raycasting/simple/RayCaster.cpp
     src/raycasting/simple/RayMatter.cpp
     src/raycasting/raytracing/BidirectionalPathRaytracer.cpp
@@ -138,22 +138,11 @@ set(MAIN_SRC
     src/raycasting/raytracing/lightdirsampler.cpp
     src/raycasting/raytracing/lightsampler.cpp
     src/raycasting/raytracing/pixelsampler.cpp
-    src/raycasting/raytracing/rtsoptions.cpp
     src/raycasting/raytracing/sampler.cpp
     src/raycasting/raytracing/samplertools.cpp
     src/raycasting/raytracing/screeniterate.cpp
     src/raycasting/raytracing/spar.cpp
     src/raycasting/raytracing/specularsampler.cpp
-    src/PHOTONMAP/importancemap.cpp
-    src/PHOTONMAP/photon.cpp
-    src/PHOTONMAP/photonkdtree.cpp
-    src/PHOTONMAP/photonmap.cpp
-    src/PHOTONMAP/photonmapsampler.cpp
-    src/PHOTONMAP/PhotonMapRadiosity.cpp
-    src/PHOTONMAP/pmapimportance.cpp
-    src/PHOTONMAP/pmapoptions.cpp
-    src/PHOTONMAP/screensampler.cpp
-    src/PHOTONMAP/ui_pmap.cpp
     src/raycasting/stochasticRaytracing/basismcrad.cpp
     src/raycasting/stochasticRaytracing/basisquadmcrad.cpp
     src/raycasting/stochasticRaytracing/basistrimcrad.cpp
@@ -175,6 +164,17 @@ set(MAIN_SRC
     src/raycasting/stochasticRaytracing/StochasticRelaxationRadiosity.cpp
     src/raycasting/stochasticRaytracing/tracepath.cpp
     src/raycasting/stochasticRaytracing/vrml/vrml.cpp
+    src/raycasting/stochasticRaytracing/StochasticRaytracerOptions.cpp
+    src/PHOTONMAP/importancemap.cpp
+    src/PHOTONMAP/photon.cpp
+    src/PHOTONMAP/photonkdtree.cpp
+    src/PHOTONMAP/photonmap.cpp
+    src/PHOTONMAP/photonmapsampler.cpp
+    src/PHOTONMAP/PhotonMapRadiosity.cpp
+    src/PHOTONMAP/pmapimportance.cpp
+    src/PHOTONMAP/pmapoptions.cpp
+    src/PHOTONMAP/screensampler.cpp
+    src/PHOTONMAP/ui_pmap.cpp
     src/app/batch.cpp
     src/app/radiance.cpp
     src/app/rendercommon.cpp

@@ -5,7 +5,7 @@ Original version by Vincent Masselus adapted by Pieter Peers (2001-06-01)
 #include <ctime>
 
 #include "raycasting/common/raytools.h"
-#include "raycasting/common/rmoptions.h"
+#include "RayMatterOptions.h"
 #include "raycasting/common/ScreenBuffer.h"
 #include "raycasting/simple/RayMatter.h"
 
@@ -38,16 +38,16 @@ RayMatter::CheckFilter() {
         delete Filter;
     }
 
-    if ( rms.filter == RM_BOX_FILTER ) {
+    if ( GLOBAL_rayCasting_rayMatterState.filter == RM_BOX_FILTER ) {
         Filter = new BoxFilter;
     }
-    if ( rms.filter == RM_TENT_FILTER ) {
+    if ( GLOBAL_rayCasting_rayMatterState.filter == RM_TENT_FILTER ) {
         Filter = new TentFilter;
     }
-    if ( rms.filter == RM_GAUSS_FILTER ) {
+    if ( GLOBAL_rayCasting_rayMatterState.filter == RM_GAUSS_FILTER ) {
         Filter = new NormalFilter;
     }
-    if ( rms.filter == RM_GAUSS2_FILTER ) {
+    if ( GLOBAL_rayCasting_rayMatterState.filter == RM_GAUSS2_FILTER ) {
         Filter = new NormalFilter(.5, 1.5);
     }
 }
@@ -68,7 +68,7 @@ RayMatter::Matting() {
         for ( long x = 0; x < width; x++ ) {
             float hits = 0;
 
-            for ( int i = 0; i < rms.samplesPerPixel; i++ ) {
+            for ( int i = 0; i < GLOBAL_rayCasting_rayMatterState.samplesPerPixel; i++ ) {
                 // uniform random var
                 double xi1 = drand48();
                 double xi2 = drand48();
@@ -89,7 +89,7 @@ RayMatter::Matting() {
             }
 
             // add matte value to screenbuffer
-            float value = (hits / rms.samplesPerPixel);
+            float value = (hits / GLOBAL_rayCasting_rayMatterState.samplesPerPixel);
             if ( value > 1.0 ) {
                 value = 1.0;
             }
@@ -124,7 +124,7 @@ RayMatter::interrupt() {
 }
 
 static RayMatter *rm = nullptr;
-RM_State rms;
+RayMattingState GLOBAL_rayCasting_rayMatterState;
 
 static void IRayMatte(ImageOutputHandle *ip) {
     if ( rm ) {
@@ -180,15 +180,15 @@ Initialize() {
 }
 
 Raytracer RayMatting = {
-    "RayMatting",
-    4,
-    "Ray Matting",
-    RM_Defaults,
-    RM_ParseOptions,
-    Initialize,
-    IRayMatte,
-    Redisplay,
-    SaveImage,
-    Interrupt,
-    Terminate
+        "RayMatting",
+        4,
+        "Ray Matting",
+        rayMattingDefaults,
+        rayMattingParseOptions,
+        Initialize,
+        IRayMatte,
+        Redisplay,
+        SaveImage,
+        Interrupt,
+        Terminate
 };

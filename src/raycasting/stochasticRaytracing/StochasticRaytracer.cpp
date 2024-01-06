@@ -11,7 +11,7 @@
 #include "shared/lightlist.h"
 #include "PHOTONMAP/PhotonMapRadiosity.h"
 #include "raycasting/common/Raytracer.h"
-#include "raycasting/raytracing/rtsoptions.h"
+#include "StochasticRaytracerOptions.h"
 #include "raycasting/raytracing/pixelsampler.h"
 #include "raycasting/raytracing/samplertools.h"
 #include "raycasting/common/raytools.h"
@@ -30,7 +30,7 @@
 const float PMAP_MIN_DIST = 0.02;
 const float PMAP_MIN_DIST2 = PMAP_MIN_DIST * PMAP_MIN_DIST; // squared
 
-RTStochastic_State rts;
+RTStochastic_State GLOBAL_raytracing_state;
 
 /******* Get radiance routines for stochastic raytracing *******/
 
@@ -113,7 +113,7 @@ COLOR SR_GetScatteredRadiance(CPathNode *thisNode, SRCONFIG *config,
                     }
 
                     // Frame coherent & correlated sampling
-                    if ( rts.doFrameCoherent || rts.doCorrelatedSampling ) {
+                    if ( GLOBAL_raytracing_state.doFrameCoherent || GLOBAL_raytracing_state.doCorrelatedSampling ) {
                         config->seedConfig.Save(newNode.m_depth);
                     }
 
@@ -126,7 +126,7 @@ COLOR SR_GetScatteredRadiance(CPathNode *thisNode, SRCONFIG *config,
                     }
 
                     // Frame coherent & correlated sampling
-                    if ( rts.doFrameCoherent || rts.doCorrelatedSampling ) {
+                    if ( GLOBAL_raytracing_state.doFrameCoherent || GLOBAL_raytracing_state.doCorrelatedSampling ) {
                         config->seedConfig.Restore(newNode.m_depth);
                     }
 
@@ -482,10 +482,10 @@ static COLOR CalcPixel(int nx, int ny, SRCONFIG *config) {
     colorClear(result);
 
     // Frame coherent & correlated sampling
-    if ( rts.doFrameCoherent || rts.doCorrelatedSampling ) {
-        if ( rts.doCorrelatedSampling ) {
+    if ( GLOBAL_raytracing_state.doFrameCoherent || GLOBAL_raytracing_state.doCorrelatedSampling ) {
+        if ( GLOBAL_raytracing_state.doCorrelatedSampling ) {
             // Correlated : start each pixel with same seed
-            srand48(rts.baseSeed);
+            srand48(GLOBAL_raytracing_state.baseSeed);
         }
         drand48(); // (randomize seed, gives new seed for uncorrelated sampling)
         config->seedConfig.Save(0);
@@ -515,7 +515,7 @@ static COLOR CalcPixel(int nx, int ny, SRCONFIG *config) {
             pixelNode.AssignBsdfAndNormal();
 
             // Frame coherent & correlated sampling
-            if ( rts.doFrameCoherent || rts.doCorrelatedSampling ) {
+            if ( GLOBAL_raytracing_state.doFrameCoherent || GLOBAL_raytracing_state.doCorrelatedSampling ) {
                 config->seedConfig.Save(pixelNode.m_depth);
             }
 
@@ -524,7 +524,7 @@ static COLOR CalcPixel(int nx, int ny, SRCONFIG *config) {
                                  config->samplesPerPixel);
 
             // Frame coherent & correlated sampling
-            if ( rts.doFrameCoherent || rts.doCorrelatedSampling ) {
+            if ( GLOBAL_raytracing_state.doFrameCoherent || GLOBAL_raytracing_state.doCorrelatedSampling ) {
                 config->seedConfig.Restore(pixelNode.m_depth);
             }
 
@@ -553,7 +553,7 @@ static COLOR CalcPixel(int nx, int ny, SRCONFIG *config) {
 
 
     // Frame coherent & correlated sampling
-    if ( rts.doFrameCoherent || rts.doCorrelatedSampling ) {
+    if ( GLOBAL_raytracing_state.doFrameCoherent || GLOBAL_raytracing_state.doCorrelatedSampling ) {
         config->seedConfig.Restore(0);
     }
 
@@ -566,16 +566,16 @@ static COLOR CalcPixel(int nx, int ny, SRCONFIG *config) {
  * pointed to by 'fp'. */
 
 void RTStochastic_Trace(ImageOutputHandle *ip) {
-    SRCONFIG config(rts); // config filled in by constructor
+    SRCONFIG config(GLOBAL_raytracing_state); // config filled in by constructor
 
     // Frame Coherent sampling : init fixed seed
-    if ( rts.doFrameCoherent ) {
-        srand48(rts.baseSeed);
+    if ( GLOBAL_raytracing_state.doFrameCoherent ) {
+        srand48(GLOBAL_raytracing_state.baseSeed);
     }
 
     CPathNode::m_dmaxsize = 0; // No need for derivative structures
 
-    if ( !rts.progressiveTracing ) {
+    if ( !GLOBAL_raytracing_state.progressiveTracing ) {
         ScreenIterateSequential((COLOR(*)(int, int, void *)) CalcPixel, &config);
     } else {
         ScreenIterateProgressive((COLOR(*)(int, int, void *)) CalcPixel, &config);
@@ -587,16 +587,16 @@ void RTStochastic_Trace(ImageOutputHandle *ip) {
         config.screen->WriteFile(ip);
     }
 
-    if ( rts.lastscreen ) {
-        delete rts.lastscreen;
+    if ( GLOBAL_raytracing_state.lastscreen ) {
+        delete GLOBAL_raytracing_state.lastscreen;
     }
-    rts.lastscreen = config.screen;
+    GLOBAL_raytracing_state.lastscreen = config.screen;
     config.screen = nullptr;
 }
 
 int RTStochastic_Redisplay() {
-    if ( rts.lastscreen ) {
-        rts.lastscreen->Render();
+    if ( GLOBAL_raytracing_state.lastscreen ) {
+        GLOBAL_raytracing_state.lastscreen->Render();
         return true;
     } else {
         return false;
@@ -604,9 +604,9 @@ int RTStochastic_Redisplay() {
 }
 
 int RTStochastic_SaveImage(ImageOutputHandle *ip) {
-    if ( ip && rts.lastscreen ) {
-        rts.lastscreen->Sync();
-        rts.lastscreen->WriteFile(ip);
+    if ( ip && GLOBAL_raytracing_state.lastscreen ) {
+        GLOBAL_raytracing_state.lastscreen->Sync();
+        GLOBAL_raytracing_state.lastscreen->WriteFile(ip);
         return true;
     } else {
         return false;
@@ -626,23 +626,23 @@ static void RTStochastic_Init() {
 }
 
 void RTStochastic_Terminate() {
-    if ( rts.lastscreen ) {
-        delete rts.lastscreen;
+    if ( GLOBAL_raytracing_state.lastscreen ) {
+        delete GLOBAL_raytracing_state.lastscreen;
     }
-    rts.lastscreen = (ScreenBuffer *) 0;
+    GLOBAL_raytracing_state.lastscreen = (ScreenBuffer *) 0;
 }
 
 Raytracer RT_StochasticMethod =
 {
-    (char *) "StochasticRaytracing",
-    4,
-    (char *) "Stochastic Raytracing & Final Gathers",
-    RTStochasticDefaults,
-    RTStochasticParseOptions,
-    RTStochastic_Init,
-    RTStochastic_Trace,
-    RTStochastic_Redisplay,
-    RTStochastic_SaveImage,
-    RTStochastic_Interrupt,
-    RTStochastic_Terminate
+        (char *) "StochasticRaytracing",
+        4,
+        (char *) "Stochastic Raytracing & Final Gathers",
+        stochasticRayTracerDefaults,
+        RTStochasticParseOptions,
+        RTStochastic_Init,
+        RTStochastic_Trace,
+        RTStochastic_Redisplay,
+        RTStochastic_SaveImage,
+        RTStochastic_Interrupt,
+        RTStochastic_Terminate
 };
