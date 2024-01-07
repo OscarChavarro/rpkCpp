@@ -23,7 +23,8 @@ static void (*elemfunc)(ELEMENT *);
 
 static int leaf_element_count;
 
-static void count_and_call(ELEMENT *elem) {
+static void
+countAndCall(ELEMENT *elem) {
     if ( leaf_element_count >= pass * FACES_PER_SET &&
          leaf_element_count < (pass + 1) * FACES_PER_SET ) {
         elemfunc(elem);
@@ -31,40 +32,48 @@ static void count_and_call(ELEMENT *elem) {
     leaf_element_count++;
 }
 
-static void GeomIterateLeafElements(Geometry *geom, void (*func)(ELEMENT *)) {
+static void
+geometryIterateLeafElements(Geometry *geom, void (*func)(ELEMENT *)) {
     PatchSet *patches = geomPatchList(geom);
     elemfunc = func;
     leaf_element_count = 0;
     ForAllPatches(P, patches)
                 {
-                    McrForAllLeafElements(TOPLEVEL_ELEMENT(P), count_and_call);
+                    McrForAllLeafElements(TOPLEVEL_ELEMENT(P), countAndCall);
                 }
     EndForAll;
 }
 
-static void ResetVertexId(VERTEX *v) {
+static void
+resetVertexId(VERTEX *v) {
     v->tmp = -1;
 }
 
-static void TriangleResetVertexIds(VERTEX *v1, VERTEX *v2, VERTEX *v3) {
-    ResetVertexId(v1);
-    ResetVertexId(v2);
-    ResetVertexId(v3);
+static void
+triangleResetVertexIds(VERTEX *v1, VERTEX *v2, VERTEX *v3) {
+    resetVertexId(v1);
+    resetVertexId(v2);
+    resetVertexId(v3);
 }
 
-static void QuadResetVertexIds(VERTEX *v1, VERTEX *v2, VERTEX *v3, VERTEX *v4) {
-    ResetVertexId(v1);
-    ResetVertexId(v2);
-    ResetVertexId(v3);
-    ResetVertexId(v4);
+static void
+quadResetVertexIds(VERTEX *v1, VERTEX *v2, VERTEX *v3, VERTEX *v4) {
+    resetVertexId(v1);
+    resetVertexId(v2);
+    resetVertexId(v3);
+    resetVertexId(v4);
 }
 
-/* with T-vertex elimination */
-static void ResetVertexIds(ELEMENT *elem) {
-    ElementTVertexElimination(elem, TriangleResetVertexIds, QuadResetVertexIds);
+/**
+With T-vertex elimination
+*/
+static void
+resetVertexIds(ELEMENT *elem) {
+    ElementTVertexElimination(elem, triangleResetVertexIds, quadResetVertexIds);
 }
 
-static void WriteVertexCoord(VERTEX *v) {
+static void
+writeVertexCoord(VERTEX *v) {
     if ( v->tmp == -1 ) {
         /* not yet written */
         if ( nwrit > 0 ) {
@@ -80,36 +89,41 @@ static void WriteVertexCoord(VERTEX *v) {
     }
 }
 
-static void TriangleWriteVertexCoords(VERTEX *v1, VERTEX *v2, VERTEX *v3) {
-    WriteVertexCoord(v1);
-    WriteVertexCoord(v2);
-    WriteVertexCoord(v3);
+static void
+triangleWriteVertexCoords(VERTEX *v1, VERTEX *v2, VERTEX *v3) {
+    writeVertexCoord(v1);
+    writeVertexCoord(v2);
+    writeVertexCoord(v3);
 }
 
-static void QuadWriteVertexCoords(VERTEX *v1, VERTEX *v2, VERTEX *v3, VERTEX *v4) {
-    WriteVertexCoord(v1);
-    WriteVertexCoord(v2);
-    WriteVertexCoord(v3);
-    WriteVertexCoord(v4);
+static void
+quadWriteVertexCoords(VERTEX *v1, VERTEX *v2, VERTEX *v3, VERTEX *v4) {
+    writeVertexCoord(v1);
+    writeVertexCoord(v2);
+    writeVertexCoord(v3);
+    writeVertexCoord(v4);
 }
 
-static void WriteVertexCoords(ELEMENT *elem) {
-    ElementTVertexElimination(elem, TriangleWriteVertexCoords, QuadWriteVertexCoords);
+static void
+writeVertexCoords(ELEMENT *elem) {
+    ElementTVertexElimination(elem, triangleWriteVertexCoords, quadWriteVertexCoords);
 }
 
-static void WritePrimitiveCoords(Geometry *geom) {
-    GeomIterateLeafElements(geom, ResetVertexIds);
+static void
+writePrimitiveCoords(Geometry *geom) {
+    geometryIterateLeafElements(geom, resetVertexIds);
 
     vid = nwrit = 0;
     fprintf(vrmlfp, "\tcoord Coordinate {\n\t  point [ ");
-    GeomIterateLeafElements(geom, WriteVertexCoords);
+    geometryIterateLeafElements(geom, writeVertexCoords);
     fprintf(vrmlfp, " ] ");
     fprintf(vrmlfp, "\n\t}\n");
 
     nrcoords = nwrit;
 }
 
-static void WriteVertexColor(VERTEX *v) {
+static void
+writeVertexColor(VERTEX *v) {
     if ( v->tmp == -1 ) {
         /* not yet written */
         if ( nwrit > 0 ) {
@@ -125,36 +139,41 @@ static void WriteVertexColor(VERTEX *v) {
     }
 }
 
-static void TriangleWriteVertexColors(VERTEX *v1, VERTEX *v2, VERTEX *v3) {
-    WriteVertexColor(v1);
-    WriteVertexColor(v2);
-    WriteVertexColor(v3);
+static void
+triangleWriteVertexColors(VERTEX *v1, VERTEX *v2, VERTEX *v3) {
+    writeVertexColor(v1);
+    writeVertexColor(v2);
+    writeVertexColor(v3);
 }
 
-static void QuadWriteVertexColors(VERTEX *v1, VERTEX *v2, VERTEX *v3, VERTEX *v4) {
-    WriteVertexColor(v1);
-    WriteVertexColor(v2);
-    WriteVertexColor(v3);
-    WriteVertexColor(v4);
+static void
+quadWriteVertexColors(VERTEX *v1, VERTEX *v2, VERTEX *v3, VERTEX *v4) {
+    writeVertexColor(v1);
+    writeVertexColor(v2);
+    writeVertexColor(v3);
+    writeVertexColor(v4);
 }
 
-static void ElementWriteVertexColors(ELEMENT *elem) {
-    ElementTVertexElimination(elem, TriangleWriteVertexColors, QuadWriteVertexColors);
+static void
+elementWriteVertexColors(ELEMENT *elem) {
+    ElementTVertexElimination(elem, triangleWriteVertexColors, quadWriteVertexColors);
 }
 
-static void WritePrimitiveColors(Geometry *geom) {
-    GeomIterateLeafElements(geom, ResetVertexIds);
+static void
+writePrimitiveColors(Geometry *geom) {
+    geometryIterateLeafElements(geom, resetVertexIds);
 
     vid = nwrit = 0;
     fprintf(vrmlfp, "\tcolor Color {\n\t  color [ ");
-    GeomIterateLeafElements(geom, ElementWriteVertexColors);
+    geometryIterateLeafElements(geom, elementWriteVertexColors);
     fprintf(vrmlfp, " ] ");
     fprintf(vrmlfp, "\n\t}\n");
 
     nrcolors = nwrit;
 }
 
-static void WriteCoordIndex(int index) {
+static void
+writeCoordIndex(int index) {
     nwrit++;
     if ( nwrit % 20 == 0 ) {
         fprintf(vrmlfp, "\n\t  ");
@@ -162,39 +181,40 @@ static void WriteCoordIndex(int index) {
     fprintf(vrmlfp, "%d ", index);
 }
 
-static void TriangleWriteVertexCoordIndices(VERTEX *v1, VERTEX *v2, VERTEX *v3) {
-    WriteCoordIndex(v1->tmp);
-    WriteCoordIndex(v2->tmp);
-    WriteCoordIndex(v3->tmp);
-    WriteCoordIndex(-1);
+static void
+triangleWriteVertexCoordIndices(VERTEX *v1, VERTEX *v2, VERTEX *v3) {
+    writeCoordIndex(v1->tmp);
+    writeCoordIndex(v2->tmp);
+    writeCoordIndex(v3->tmp);
+    writeCoordIndex(-1);
 }
 
-static void QuadWriteVertexCoordIndices(VERTEX *v1, VERTEX *v2, VERTEX *v3, VERTEX *v4) {
-    WriteCoordIndex(v1->tmp);
-    WriteCoordIndex(v2->tmp);
-    WriteCoordIndex(v3->tmp);
-    WriteCoordIndex(v4->tmp);
-    WriteCoordIndex(-1);
+static void
+quadWriteVertexCoordIndices(VERTEX *v1, VERTEX *v2, VERTEX *v3, VERTEX *v4) {
+    writeCoordIndex(v1->tmp);
+    writeCoordIndex(v2->tmp);
+    writeCoordIndex(v3->tmp);
+    writeCoordIndex(v4->tmp);
+    writeCoordIndex(-1);
 }
 
-static void ElementWriteCoordIndices(ELEMENT *elem) {
-    ElementTVertexElimination(elem, TriangleWriteVertexCoordIndices, QuadWriteVertexCoordIndices);
+static void
+elementWriteCoordIndices(ELEMENT *elem) {
+    ElementTVertexElimination(elem, triangleWriteVertexCoordIndices, quadWriteVertexCoordIndices);
 }
 
-static void WritePrimitiveCoordIndices(Geometry *geom) {
+static void
+writePrimitiveCoordIndices(Geometry *geom) {
     nwrit = 0;
     fprintf(vrmlfp, "\tcoordIndex [ ");
-    GeomIterateLeafElements(geom, ElementWriteCoordIndices);
+    geometryIterateLeafElements(geom, elementWriteCoordIndices);
     fprintf(vrmlfp, " ]\n");
 
     nrcoordindices = nwrit;
 }
 
-extern void
-McrWriteVRMLHeader(FILE *fp);
-
 void
-McrWriteVRMLHeader(FILE *fp) {
+mcrWriteVrmlHeader(FILE *fp) {
     Matrix4x4 model_xf;
     Vector3D model_rotaxis;
     float model_rotangle;
@@ -215,13 +235,15 @@ McrWriteVRMLHeader(FILE *fp) {
             model_rotaxis.x, model_rotaxis.y, model_rotaxis.z, model_rotangle);
 }
 
-void McrWriteVRMLTrailer(FILE *fp) {
+void
+mcrWriteVrmlTrailer(FILE *fp) {
     fprintf(fp, "  ]\n}\n\n");
 }
 
 static unsigned char IdFirstChar[256], IdRestChar[256];
 
-static void initidtranstabs() {
+static void
+initIdTransTabs() {
     int i;
     const char *IdSpecialChars = "!$%&()*/:;<=>?@^_`|~";
     for ( i = 0; i < 256; i++ ) {
@@ -246,7 +268,8 @@ static void initidtranstabs() {
     }
 }
 
-static const char *make_valid_vrml_id(const char *id) {
+static const char *
+makeValidVrmlId(const char *id) {
     int idlen, i, n;
     static char buf[101];
     if ( !id || id[0] == '\0' ) {
@@ -254,7 +277,7 @@ static const char *make_valid_vrml_id(const char *id) {
     }
     idlen = strlen(id);
     if ( idlen > 100 ) {
-        logWarning("make_valid_vrml_id", "id '%s' is being truncated to %d characters",
+        logWarning("makeValidVrmlId", "id '%s' is being truncated to %d characters",
                    id, 100);
     }
     n = idlen > 100 ? 100 : idlen;  /* minimum of both */
@@ -266,7 +289,8 @@ static const char *make_valid_vrml_id(const char *id) {
     return buf;
 }
 
-static void WriteMaterial(Geometry *geom) {
+static void
+writeMaterial(Geometry *geom) {
     MeshSurface *surf = GeomGetSurface(geom);
     Material *mat = surf->material;
     PATCH *first_patch = (surf->faces) ? surf->faces->patch : (PATCH *) nullptr;
@@ -282,7 +306,7 @@ static void WriteMaterial(Geometry *geom) {
     if ( mat->radiance_data != nullptr) {
         /* has been written before */
         fprintf(vrmlfp, "      appearance Appearance {\n");
-        fprintf(vrmlfp, "\tmaterial USE %s\n", make_valid_vrml_id((char *) mat->radiance_data));
+        fprintf(vrmlfp, "\tmaterial USE %s\n", makeValidVrmlId((char *) mat->radiance_data));
         fprintf(vrmlfp, "      }\n");
         return;
     }
@@ -295,7 +319,7 @@ static void WriteMaterial(Geometry *geom) {
     specularity = 128.;
 
     fprintf(vrmlfp, "      appearance Appearance {\n");
-    fprintf(vrmlfp, "\tmaterial DEF %s Material {\n", make_valid_vrml_id(mat->name));
+    fprintf(vrmlfp, "\tmaterial DEF %s Material {\n", makeValidVrmlId(mat->name));
     fprintf(vrmlfp, "\t  ambientIntensity 0.\n");
     if ( mat->edf ) {
         fprintf(vrmlfp, "\t  emissiveColor %.3g %.3g %.3g\n", rd.r, rd.g, rd.b);
@@ -312,11 +336,12 @@ static void WriteMaterial(Geometry *geom) {
     mat->radiance_data = (void *)mat->name;
 }
 
-static void BeginWritePrimitive(Geometry *geom) {
+static void
+beginWritePrimitive(Geometry *geom) {
     static int wgiv = false;
     fprintf(vrmlfp, "    Shape {\n");
     if ( GeomIsSurface(geom)) {
-        WriteMaterial(geom);
+        writeMaterial(geom);
     }
     fprintf(vrmlfp, "      geometry IndexedFaceSet {\n");
     if ( GeomIsSurface(geom)) {
@@ -329,47 +354,52 @@ static void BeginWritePrimitive(Geometry *geom) {
     fprintf(vrmlfp, "\tcolorPerVertex %s\n", "TRUE");
 }
 
-static const char *PrimitiveMatName(Geometry *geom) {
+static const char *
+primitiveMatName(Geometry *geom) {
     MeshSurface *surf = GeomGetSurface(geom);
     if ( !surf ) {
         return "unknown (not a surface)";
     } else {
-        return make_valid_vrml_id(surf->material->name);
+        return makeValidVrmlId(surf->material->name);
     }
 }
 
-static void EndWritePrimitive(Geometry *geom) {
+static void
+endWritePrimitive(Geometry *geom) {
     fprintf(vrmlfp, "      }\n"); /* end IndexedFaceSet */
     fprintf(vrmlfp, "    },\n");  /* end Shape */
 
     fprintf(stderr, "Shape material %s, pass %d, %d coords, %d colors, %d coordindices\n",
-            PrimitiveMatName(geom), pass, nrcoords, nrcolors, nrcoordindices);
+            primitiveMatName(geom), pass, nrcoords, nrcolors, nrcoordindices);
 }
 
-static void WritePrimitivePass(Geometry *geom) {
-    BeginWritePrimitive(geom);
-    WritePrimitiveCoords(geom);
-    WritePrimitiveColors(geom);
-    WritePrimitiveCoordIndices(geom);
-    EndWritePrimitive(geom);
+static void
+writePrimitivePass(Geometry *geom) {
+    beginWritePrimitive(geom);
+    writePrimitiveCoords(geom);
+    writePrimitiveColors(geom);
+    writePrimitiveCoordIndices(geom);
+    endWritePrimitive(geom);
 }
 
-static void WritePrimitive(Geometry *geom) {
+static void
+writePrimitive(Geometry *geom) {
     pass = 0;
-    WritePrimitivePass(geom);
+    writePrimitivePass(geom);
     if ( leaf_element_count > FACES_PER_SET ) {
         /* large set, additional passes needed */
         for ( pass = 1; pass <= leaf_element_count / FACES_PER_SET; pass++ ) {
-            WritePrimitivePass(geom);
+            writePrimitivePass(geom);
         } /* write next batch of leaf elements */
     }
 }
 
-void IteratePrimitiveGeoms(GeometryListNode *list, void (*func)(Geometry *)) {
+void
+iteratePrimitiveGeoms(GeometryListNode *list, void (*func)(Geometry *)) {
     ForAllGeoms(geom, list)
                 {
                     if ( geomIsAggregate(geom)) {
-                        IteratePrimitiveGeoms(geomPrimList(geom), func);
+                        iteratePrimitiveGeoms(geomPrimList(geom), func);
                     } else {
                         func(geom);
                     }
@@ -377,25 +407,25 @@ void IteratePrimitiveGeoms(GeometryListNode *list, void (*func)(Geometry *)) {
     EndForAll;
 }
 
-static void ResetMaterialData() {
-    ForAllMaterials(mat, GLOBAL_scene_materials)
-                {
-                    mat->radiance_data = (void *) nullptr;
-                }
-    EndForAll;
+static void
+resetMaterialData() {
+    for (int i = 0; GLOBAL_scene_materials != nullptr && i < GLOBAL_scene_materials->size(); i++) {
+        GLOBAL_scene_materials->get(i)->radiance_data = nullptr;
+    }
 }
 
-void McrWriteVRML(FILE *fp) {
-    initidtranstabs();
+void
+mcrWriteVrml(FILE *fp) {
+    initIdTransTabs();
 
     matidx = 0;
-    ResetMaterialData();
+    resetMaterialData();
 
-    McrWriteVRMLHeader(fp);
+    mcrWriteVrmlHeader(fp);
 
     vrmlfp = fp;
-    IteratePrimitiveGeoms(GLOBAL_scene_world, WritePrimitive);
-    McrWriteVRMLTrailer(fp);
+    iteratePrimitiveGeoms(GLOBAL_scene_world, writePrimitive);
+    mcrWriteVrmlTrailer(fp);
 
-    ResetMaterialData();
+    resetMaterialData();
 }

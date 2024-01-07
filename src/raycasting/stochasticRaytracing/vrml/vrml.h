@@ -3,7 +3,7 @@
 #ifndef _MCR_VRML_H_
 #define _MCR_VRML_H_
 
-extern void McrWriteVRML(FILE *fp);
+extern void mcrWriteVrml(FILE *fp);
 
 #endif
 

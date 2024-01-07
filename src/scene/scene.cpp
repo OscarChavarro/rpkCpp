@@ -1,7 +1,7 @@
 #include "scene/scene.h"
 
 GeometryListNode *GLOBAL_scene_world = (GeometryListNode *) nullptr;
-MATERIALLIST *GLOBAL_scene_materials = (MATERIALLIST *) nullptr;
+java::ArrayList<Material *> *GLOBAL_scene_materials = nullptr;
 Background *GLOBAL_scene_background = (Background *) nullptr;
 PatchSet *GLOBAL_scene_patches = (PatchSet *) nullptr;
 PatchSet *GLOBAL_scene_lightSourcePatches = (PatchSet *) nullptr;

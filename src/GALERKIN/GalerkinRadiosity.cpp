@@ -499,7 +499,7 @@ WriteVertexColor(RGB *color) {
 }
 
 static void
-ElementWriteVertexColors(ELEMENT *element) {
+WriteVertexColors(ELEMENT *element) {
     COLOR vertrad[4];
     int i;
 
@@ -534,7 +534,7 @@ static void
 WriteVertexColors() {
     vid = nwrit = 0;
     fprintf(vrmlfp, "\tcolor Color {\n\t  color [ ");
-    ForAllLeafElements(GLOBAL_galerkin_state.top_cluster, ElementWriteVertexColors);
+    ForAllLeafElements(GLOBAL_galerkin_state.top_cluster, WriteVertexColors);
     fprintf(vrmlfp, " ] ");
     fprintf(vrmlfp, "\n\t}\n");
 }
@@ -558,7 +558,7 @@ WriteCoordIndex(int index) {
 }
 
 static void
-ElementWriteCoordIndices(ELEMENT *elem) {
+WriteCoordIndices(ELEMENT *elem) {
     int i;
     for ( i = 0; i < elem->pog.patch->nrvertices; i++ ) {
         WriteCoordIndex(vid++);
@@ -570,7 +570,7 @@ static void
 WriteCoordIndices() {
     vid = nwrit = 0;
     fprintf(vrmlfp, "\tcoordIndex [ ");
-    ForAllLeafElements(GLOBAL_galerkin_state.top_cluster, ElementWriteCoordIndices);
+    ForAllLeafElements(GLOBAL_galerkin_state.top_cluster, WriteCoordIndices);
     fprintf(vrmlfp, " ]\n");
 }
 

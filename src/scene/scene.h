@@ -1,7 +1,7 @@
 #ifndef _SCENE_H_
 #define _SCENE_H_
 
-#include "material/materiallist.h"
+#include "java/util/ArrayList.h"
 #include "skin/geomlist.h"
 #include "skin/PatchSet.h"
 #include "scene/Background.h"
@@ -11,7 +11,7 @@
 extern GeometryListNode *GLOBAL_scene_world;
 
 // The list of all materials present in the current scene
-extern MATERIALLIST *GLOBAL_scene_materials;
+extern java::ArrayList<Material *> *GLOBAL_scene_materials;
 
 // The current background (sky, environment map, etc.) for the scene
 extern Background *GLOBAL_scene_background;

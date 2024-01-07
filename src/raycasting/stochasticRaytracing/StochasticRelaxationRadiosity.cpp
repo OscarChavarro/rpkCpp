@@ -402,24 +402,24 @@ static void SrrRender() {
 }
 
 RADIANCEMETHOD StochasticRelaxationRadiosity = {
-    "StochJacobi",
-    3,
-    "Stochastic Jacobi Radiosity",
-    monteCarloRadiosityDefaults,
-    stochasticRelaxationRadiosityParseOptions,
-    stochasticRelaxationRadiosityPrintOptions,
-    SrrInit,
-    SrrDoStep,
-    monteCarloRadiosityTerminate,
-    monteCarloRadiosityGetRadiance,
-    monteCarloRadiosityCreatePatchData,
-    monteCarloRadiosityPrintPatchData,
-    monteCarloRadiosityDestroyPatchData,
-    SrrGetStats,
-    SrrRender,
-    SrrRecomputeDisplayColors,
-    monteCarloRadiosityUpdateMaterial,
-    McrWriteVRML
+        "StochJacobi",
+        3,
+        "Stochastic Jacobi Radiosity",
+        monteCarloRadiosityDefaults,
+        stochasticRelaxationRadiosityParseOptions,
+        stochasticRelaxationRadiosityPrintOptions,
+        SrrInit,
+        SrrDoStep,
+        monteCarloRadiosityTerminate,
+        monteCarloRadiosityGetRadiance,
+        monteCarloRadiosityCreatePatchData,
+        monteCarloRadiosityPrintPatchData,
+        monteCarloRadiosityDestroyPatchData,
+        SrrGetStats,
+        SrrRender,
+        SrrRecomputeDisplayColors,
+        monteCarloRadiosityUpdateMaterial,
+        mcrWriteVrml
 };
 
 

@@ -288,16 +288,14 @@ Looks up a material with given name in the given material list. Returns
 a pointer to the material if found, or (Material *)nullptr if not found
 */
 static Material *
-materialLookup(MATERIALLIST *MaterialLib, char *name) {
-    Material *m;
-
-    while ((m = MaterialListNext(&MaterialLib))) {
-        if ( strcmp(m->name, name) == 0 ) {
+materialLookup(char *name) {
+    for ( int i = 0; GLOBAL_scene_materials != nullptr && i < GLOBAL_scene_materials->size(); i++ ) {
+        Material *m = GLOBAL_scene_materials->get(i);
+        if ( m != nullptr && m->name != nullptr && strcmp(m->name, name) == 0 ) {
             return m;
         }
     }
-
-    return (Material *)nullptr;
+    return nullptr;
 }
 
 /**
@@ -332,7 +330,7 @@ getCurrentMaterial() {
         return false;
     }
 
-    Material *theMaterial = materialLookup(GLOBAL_scene_materials, materialName);
+    Material *theMaterial = materialLookup(materialName);
     if ( theMaterial != nullptr ) {
         if ( GLOBAL_mgf_currentMaterial->clock == 0 ) {
             globalCurrentMaterial = theMaterial;
@@ -406,7 +404,7 @@ getCurrentMaterial() {
                                                  &PhongBtdfMethods), (TEXTURE *) nullptr), &SplitBsdfMethods),
                                  globalAllSurfacesSided ? 1 : GLOBAL_mgf_currentMaterial->sided);
 
-    GLOBAL_scene_materials = MaterialListAdd(GLOBAL_scene_materials, theMaterial);
+    GLOBAL_scene_materials->add(0, theMaterial);
     globalCurrentMaterial = theMaterial;
 
     /* reset the clock value so we will be aware of possible changes in future */
@@ -1143,7 +1141,9 @@ readMgf(char *filename) {
     globalNormalsOctree = nullptr;
     globalCurrentGeometryList = nullptr;
 
-    GLOBAL_scene_materials = nullptr;
+    if ( GLOBAL_scene_materials == nullptr ) {
+        GLOBAL_scene_materials = new java::ArrayList<Material *>();
+    }
     globalCurrentMaterial = &GLOBAL_material_defaultMaterial;
 
     globalGeometryStackPtr = globalGeometryStack;

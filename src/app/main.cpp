@@ -354,7 +354,7 @@ ReadFile(char *filename) {
     GeometryListNode *oWorld{};
     GeometryListNode *oClusteredWorld{};
     Geometry *oClusteredWorldGeom{};
-    MATERIALLIST *oMaterialLib{};
+    java::ArrayList<Material *> *oMaterialLib{};
     PatchSet *oPatches{};
     PatchSet *lightSourcePatches{};
     VoxelGrid *oWorldGrid{};
@@ -402,7 +402,11 @@ ReadFile(char *filename) {
     oWorld = GLOBAL_scene_world;
     GLOBAL_scene_world = nullptr;
     oMaterialLib = GLOBAL_scene_materials;
-    GLOBAL_scene_materials = MaterialListCreate();
+    if ( GLOBAL_scene_materials == nullptr ) {
+        GLOBAL_scene_materials = new java::ArrayList<Material *>();
+    }
+    oMaterialLib = GLOBAL_scene_materials;
+
     oPatches = GLOBAL_scene_patches;
     GLOBAL_scene_patches = PatchListCreate();
     patchId = PatchGetNextID();
@@ -446,8 +450,11 @@ ReadFile(char *filename) {
         GeomListDestroy(GLOBAL_scene_world);
         GLOBAL_scene_world = oWorld;
 
-        MaterialListIterate(GLOBAL_scene_materials, MaterialDestroy);
-        MaterialListDestroy(GLOBAL_scene_materials);
+        for ( int i = 0; GLOBAL_scene_materials != nullptr && i < GLOBAL_scene_materials->size(); i++ ) {
+            MaterialDestroy(GLOBAL_scene_materials->get(i));
+        }
+        delete GLOBAL_scene_materials;
+
         GLOBAL_scene_materials = oMaterialLib;
 
         GLOBAL_scene_patches = oPatches;
@@ -503,8 +510,14 @@ ReadFile(char *filename) {
         oWorldGrid->destroyGrid();
     }
 
-    MaterialListIterate(oMaterialLib, MaterialDestroy);
-    MaterialListDestroy(oMaterialLib);
+    if ( GLOBAL_scene_materials != nullptr ) {
+        // Note: it seems this should not be called - are materials linked to other structures?
+        //for ( int i; i < GLOBAL_scene_materials->size(); i++ ) {
+        //    MaterialDestroy(GLOBAL_scene_materials->get(i));
+        //}
+        delete GLOBAL_scene_materials;
+        GLOBAL_scene_materials = nullptr;
+    }
 
     t = clock();
     fprintf(stderr, "%g secs.\n", (float) (t - last) / (float) CLOCKS_PER_SEC);
