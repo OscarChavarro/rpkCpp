@@ -200,7 +200,7 @@ RenderPatchFlat(PATCH *patch) {
     int i;
 
     RenderSetColor(&patch->color);
-    switch ( patch->nrvertices ) {
+    switch ( patch->numberOfVertices ) {
         case 3:
             glBegin(GL_TRIANGLES);
             glVertex3fv((GLfloat *) patch->vertex[0]->point);
@@ -218,7 +218,7 @@ RenderPatchFlat(PATCH *patch) {
             break;
         default:
             glBegin(GL_POLYGON);
-            for ( i = 0; i < patch->nrvertices; i++ ) {
+            for ( i = 0; i < patch->numberOfVertices; i++ ) {
                 glVertex3fv((GLfloat *) patch->vertex[i]->point);
             }
             glEnd();
@@ -229,7 +229,7 @@ void
 RenderPatchSmooth(PATCH *patch) {
     int i;
 
-    switch ( patch->nrvertices ) {
+    switch ( patch->numberOfVertices ) {
         case 3:
             glBegin(GL_TRIANGLES);
             RenderSetColor(&patch->vertex[0]->color);
@@ -254,7 +254,7 @@ RenderPatchSmooth(PATCH *patch) {
             break;
         default:
             glBegin(GL_POLYGON);
-            for ( i = 0; i < patch->nrvertices; i++ ) {
+            for ( i = 0; i < patch->numberOfVertices; i++ ) {
                 RenderSetColor(&patch->vertex[i]->color);
                 glVertex3fv((GLfloat *) patch->vertex[i]->point);
             }
@@ -272,7 +272,7 @@ RenderPatchOutline(PATCH *patch) {
     Vector3D dir;
 
     glBegin(GL_LINE_LOOP);
-    for ( i = 0; i < patch->nrvertices; i++ ) {
+    for ( i = 0; i < patch->numberOfVertices; i++ ) {
         // move the outlines a bit closer to the eyepoint to avoid Z buffer artefacts
         VECTORSUBTRACT(GLOBAL_camera_mainCamera.eyep, *patch->vertex[i]->point, dir);
         VECTORSUMSCALED(*patch->vertex[i]->point, 0.01, dir, tmp);
@@ -292,7 +292,7 @@ RenderPatch(PATCH *patch) {
     }
 
     if ( renderopts.draw_outlines &&
-         (VECTORDOTPRODUCT(patch->normal, GLOBAL_camera_mainCamera.eyep) + patch->plane_constant > EPSILON
+         (VECTORDOTPRODUCT(patch->normal, GLOBAL_camera_mainCamera.eyep) + patch->planeConstant > EPSILON
           || renderopts.use_display_lists)) {
         RenderSetColor(&renderopts.outline_color);
         RenderPatchOutline(patch);

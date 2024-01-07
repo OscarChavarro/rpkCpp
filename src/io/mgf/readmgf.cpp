@@ -488,9 +488,9 @@ newFace(Vertex *v1, Vertex *v2, Vertex *v3, Vertex *v4, Vector3D *normal) {
     PATCH *theFace;
 
     if ( xf_context && xf_context->rev ) {
-        theFace = PatchCreate(v4 ? 4 : 3, v3, v2, v1, v4);
+        theFace = patchCreate(v4 ? 4 : 3, v3, v2, v1, v4);
     } else {
-        theFace = PatchCreate(v4 ? 4 : 3, v1, v2, v3, v4);
+        theFace = patchCreate(v4 ? 4 : 3, v1, v2, v3, v4);
     }
 
     if ( theFace ) {

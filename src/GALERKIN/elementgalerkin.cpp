@@ -21,7 +21,7 @@ static int nr_clusters = 0;
 
 /* Orientation and position of regular subelements is fully determined by the
  * following transformations. A uniform mapping of parameter domain to the
- * elements is supposed (i.o.w. use PatchUniformPoint() to map (u,v) coordinates
+ * elements is supposed (i.o.w. use patchUniformPoint() to map (u,v) coordinates
  * on the toplevel element to a 3D point on the patch). The subelements
  * have equal area. No explicit Jacobian stuff needed to compute integrals etc..
  * etc.. */
@@ -212,13 +212,13 @@ CreateToplevelElement(PATCH *patch) {
     element->pog.patch = patch;
     element->minarea = element->area = patch->area;
     element->bsize = 2.0f * (float)std::sqrt(element->area / M_PI);
-    element->direct_potential.f = patch->direct_potential;
+    element->direct_potential.f = patch->directPotential;
 
-    element->Rd = PatchAverageNormalAlbedo(patch, BRDF_DIFFUSE_COMPONENT);
+    element->Rd = patchAverageNormalAlbedo(patch, BRDF_DIFFUSE_COMPONENT);
     if ( patch->surface && patch->surface->material &&
          patch->surface->material->edf ) {
         element->flags |= IS_LIGHT_SOURCE;
-        element->Ed = PatchAverageEmittance(patch, DIFFUSE_COMPONENT);
+        element->Ed = patchAverageEmittance(patch, DIFFUSE_COMPONENT);
         colorScaleInverse(M_PI, element->Ed, element->Ed);
     }
 
@@ -269,7 +269,7 @@ RegularSubdivideElement(ELEMENT *element) {
         subelement[i]->pog.patch = element->pog.patch;
         subelement[i]->parent = element;
         subelement[i]->uptrans =
-                element->pog.patch->nrvertices == 3 ? &triupxfm[i] : &quadupxfm[i];
+                element->pog.patch->numberOfVertices == 3 ? &triupxfm[i] : &quadupxfm[i];
         subelement[i]->area = 0.25f * element->area;  /* we always use a uniform mapping */
         subelement[i]->bsize = 2.0f * (float)std::sqrt(subelement[i]->area / M_PI);
         subelement[i]->childnr = (char)i;
@@ -389,7 +389,7 @@ PrintElement(FILE *out, ELEMENT *element) {
         fprintf(out, "No unshot_radiance coefficients.\n");
     }
 
-    fprintf(out, "potential.f = %g, received_potential.f = %g, unshot_potential.f = %g, direct_potential = %g\n",
+    fprintf(out, "potential.f = %g, received_potential.f = %g, unshot_potential.f = %g, directPotential = %g\n",
             element->potential.f, element->received_potential.f, element->unshot_potential.f,
             element->direct_potential.f);
 
@@ -477,7 +477,7 @@ RegularSubelementAtPoint(ELEMENT *parent, double *u, double *v) {
     }
 
     /* Have a look at the drawings above to understand what is done exactly. */
-    switch ( parent->pog.patch->nrvertices ) {
+    switch ( parent->pog.patch->numberOfVertices ) {
         case 3:
             if ( _u + _v <= 0.5 ) {
                 child = parent->regular_subelements[0];
@@ -571,33 +571,33 @@ ElementVertices(ELEMENT *elem, Vector3D *p) {
         uv.u = 0.;
         uv.v = 0.;
         if ( elem->uptrans ) TRANSFORM_POINT_2D(toptrans, uv, uv);
-        PatchUniformPoint(elem->pog.patch, uv.u, uv.v, &p[0]);
+        patchUniformPoint(elem->pog.patch, uv.u, uv.v, &p[0]);
 
         uv.u = 1.;
         uv.v = 0.;
         if ( elem->uptrans ) TRANSFORM_POINT_2D(toptrans, uv, uv);
-        PatchUniformPoint(elem->pog.patch, uv.u, uv.v, &p[1]);
+        patchUniformPoint(elem->pog.patch, uv.u, uv.v, &p[1]);
 
-        if ( elem->pog.patch->nrvertices == 4 ) {
+        if ( elem->pog.patch->numberOfVertices == 4 ) {
             uv.u = 1.;
             uv.v = 1.;
             if ( elem->uptrans ) TRANSFORM_POINT_2D(toptrans, uv, uv);
-            PatchUniformPoint(elem->pog.patch, uv.u, uv.v, &p[2]);
+            patchUniformPoint(elem->pog.patch, uv.u, uv.v, &p[2]);
 
             uv.u = 0.;
             uv.v = 1.;
             if ( elem->uptrans ) TRANSFORM_POINT_2D(toptrans, uv, uv);
-            PatchUniformPoint(elem->pog.patch, uv.u, uv.v, &p[3]);
+            patchUniformPoint(elem->pog.patch, uv.u, uv.v, &p[3]);
         } else {
             uv.u = 0.;
             uv.v = 1.;
             if ( elem->uptrans ) TRANSFORM_POINT_2D(toptrans, uv, uv);
-            PatchUniformPoint(elem->pog.patch, uv.u, uv.v, &p[2]);
+            patchUniformPoint(elem->pog.patch, uv.u, uv.v, &p[2]);
 
             VECTORSET(p[3], 0., 0., 0.);
         }
 
-        return elem->pog.patch->nrvertices;
+        return elem->pog.patch->numberOfVertices;
     }
 }
 
@@ -660,7 +660,7 @@ ElementPolygon(ELEMENT *elem, POLYGON *poly) {
     }
 
     poly->normal = elem->pog.patch->normal;
-    poly->plane_constant = elem->pog.patch->plane_constant;
+    poly->plane_constant = elem->pog.patch->planeConstant;
     poly->index = elem->pog.patch->index;
     poly->nrvertices = ElementVertices(elem, poly->vertex);
 

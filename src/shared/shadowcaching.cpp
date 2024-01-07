@@ -25,7 +25,7 @@ HITREC *CacheHit(Ray *ray, float *dist, HITREC *hitstore) {
     HITREC *hit;
 
     for ( i = 0; i < ncached; i++ ) {
-        if ((hit = PatchIntersect(cache[i], ray, EPSILON * (*dist), dist, HIT_FRONT | HIT_ANY, hitstore))) {
+        if ((hit = patchIntersect(cache[i], ray, EPSILON * (*dist), dist, HIT_FRONT | HIT_ANY, hitstore))) {
             return hit;
         }
     }

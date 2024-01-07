@@ -30,16 +30,16 @@ static void ScratchRenderElementPtr(ELEMENT *elem) {
 
     /* Backface culling test: only render the element if it is turned towards
      * the current eye point */
-    if ( VECTORDOTPRODUCT(patch->normal, eyep) + patch->plane_constant < EPSILON ) {
+    if ( VECTORDOTPRODUCT(patch->normal, eyep) + patch->planeConstant < EPSILON ) {
         return;
     }
 
-    for ( i = 0; i < patch->nrvertices; i++ ) {
+    for ( i = 0; i < patch->numberOfVertices; i++ ) {
         v[i] = *patch->vertex[i]->point;
     }
 
     sglSetColor((SGL_PIXEL) elem);
-    sglPolygon(patch->nrvertices, v);
+    sglPolygon(patch->numberOfVertices, v);
 }
 
 /* Sets up an orthographic projection of the cluster as

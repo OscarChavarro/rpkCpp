@@ -23,7 +23,7 @@ Ray McrGenerateLocalLine(PATCH *patch, double *xi) {
         prevpatch = patch;
     }
 
-    PatchUniformPoint(patch, xi[0], xi[1], &ray.pos);
+    patchUniformPoint(patch, xi[0], xi[1], &ray.pos);
     ray.dir = SampleHemisphereCosTheta(&coordsys, xi[2], xi[3], &pdf);
 
     return ray;
@@ -42,10 +42,10 @@ HITREC *McrShootRay(PATCH *P, Ray *ray, HITREC *hitstore) {
     HITREC *hit;
 
     /* reject selfintersections */
-    PatchDontIntersect(2, P, P->twin);
+    patchDontIntersect(2, P, P->twin);
     hit = GLOBAL_scene_worldVoxelGrid->gridIntersect(ray, EPSILON < P->tolerance ? EPSILON : P->tolerance, &dist, HIT_FRONT | HIT_POINT,
                         hitstore);
-    PatchDontIntersect(0);
+    patchDontIntersect(0);
     SomeFeedback();
 
     return hit;

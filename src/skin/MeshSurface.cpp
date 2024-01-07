@@ -49,7 +49,7 @@ SurfaceConnectFace(MeshSurface *surf, PATCH *face) {
         case VERTEX_COLORS:
             /* average color of the vertices */
             RGBSET(face->color, 0, 0, 0);
-            for ( i = 0; i < face->nrvertices; i++ ) {
+            for ( i = 0; i < face->numberOfVertices; i++ ) {
                 face->color.r += face->vertex[i]->color.r;
                 face->color.g += face->vertex[i]->color.g;
                 face->color.b += face->vertex[i]->color.b;
@@ -59,7 +59,7 @@ SurfaceConnectFace(MeshSurface *surf, PATCH *face) {
             face->color.b /= (float) i;
             break;
         default: {
-            rho = PatchAverageNormalAlbedo(face, BRDF_DIFFUSE_COMPONENT | BRDF_GLOSSY_COMPONENT);
+            rho = patchAverageNormalAlbedo(face, BRDF_DIFFUSE_COMPONENT | BRDF_GLOSSY_COMPONENT);
             convertColorToRGB(rho, &face->color);
         }
     }
@@ -130,7 +130,7 @@ SurfaceDestroy(MeshSurface *surf) {
     /* It is important that the patches be destroyed first and then the
      * vertices, because otherwise, the brep_data for the vertices would
      * still be used and thus not destroyed by the BREP library. */
-    PatchListIterate(surf->faces, PatchDestroy);
+    PatchListIterate(surf->faces, patchDestroy);
     PatchListDestroy(surf->faces);
 
     if ( surf->vertices != nullptr ) {
@@ -157,10 +157,10 @@ SurfaceDestroy(MeshSurface *surf) {
 void SurfacePrint(FILE *out, MeshSurface *surface) {
     fprintf(out, "Surface id %d: material %s, patches ID: ",
             surface->id, surface->material->name);
-    PatchListIterate1B(surface->faces, PatchPrintID, out);
+    PatchListIterate1B(surface->faces, patchPrintId, out);
     fprintf(out, "\n");
 
-    PatchListIterate1B(surface->faces, PatchPrint, out);
+    PatchListIterate1B(surface->faces, patchPrint, out);
 }
 
 /* this method will compute a bounding box for a GEOMetry. The bounding box

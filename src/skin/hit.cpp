@@ -56,7 +56,7 @@ HitUV(HITREC *hit, Vector2Dd *uv) {
     }
 
     if ((hit->flags & HIT_PATCH) && (hit->flags && HIT_POINT)) {
-        PatchUV(hit->patch, &hit->point, &hit->uv.u, &hit->uv.v);
+        patchUv(hit->patch, &hit->point, &hit->uv.u, &hit->uv.v);
         *uv = hit->uv;
         hit->flags |= HIT_UV;
         return true;
@@ -77,7 +77,7 @@ HitTexCoord(HITREC *hit, Vector3D *texCoord) {
     }
 
     if ( hit->flags & HIT_PATCH ) {
-        *texCoord = hit->texCoord = PatchTextureCoordAtUV(hit->patch, hit->uv.u, hit->uv.v);
+        *texCoord = hit->texCoord = patchTextureCoordAtUv(hit->patch, hit->uv.u, hit->uv.v);
         hit->flags |= HIT_TEXCOORD;
         return true;
     }
@@ -94,7 +94,7 @@ HitShadingFrame(HITREC *hit, Vector3D *X, Vector3D *Y, Vector3D *Z) {
         return true;
     }
 
-    if ( !MaterialShadingFrame(hit, &hit->X, &hit->Y, &hit->Z)) {
+    if ( !materialShadingFrame(hit, &hit->X, &hit->Y, &hit->Z)) {
         return false;
     }
 
@@ -114,7 +114,7 @@ HitShadingNormal(HITREC *hit, Vector3D *normal) {
         return true;
     }
 
-    if ( !MaterialShadingFrame(hit, nullptr, nullptr, &hit->normal)) {
+    if ( !materialShadingFrame(hit, nullptr, nullptr, &hit->normal)) {
         return false;
     }
 

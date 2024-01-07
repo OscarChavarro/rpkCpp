@@ -93,7 +93,7 @@ extern STATE GLOBAL_stochasticRaytracing_monteCarloRadiosityState;
 
 inline int
 NR_VERTICES(ELEMENT *elem) {
-    return elem->pog.patch->nrvertices;
+    return elem->pog.patch->numberOfVertices;
 }
 
 inline ELEMENT*

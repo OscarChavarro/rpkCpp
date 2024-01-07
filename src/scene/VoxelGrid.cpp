@@ -133,7 +133,7 @@ void
 VoxelGrid::putPatchInsideVoxelGrid(PATCH *patch) {
     BOUNDINGBOX localBounds;
     putItemInsideVoxelGrid(new VoxelData(patch, PATCH_MASK),
-                           patch->bounds ? patch->bounds : PatchBounds(patch, localBounds));
+                           patch->bounds ? patch->bounds : patchBounds(patch, localBounds));
 }
 
 void
@@ -406,7 +406,7 @@ VoxelGrid::voxelIntersect(
             // Avoid testing objects multiple times
             HITREC *h = (HITREC *) nullptr;
             if ( item->isPatch()) {
-                h = PatchIntersect((PATCH *) item->ptr, ray, minimumDistance, maximumDistance, hitFlags, hitStore);
+                h = patchIntersect((PATCH *) item->ptr, ray, minimumDistance, maximumDistance, hitFlags, hitStore);
             } else if ( item->isGeom()) {
                 h = geomDiscretizationIntersect((Geometry *) item->ptr, ray, minimumDistance, maximumDistance, hitFlags,
                                                 hitStore);
@@ -445,7 +445,7 @@ VoxelGrid::allVoxelIntersections(
         if ( item->lastRayId() != counter ) {
             if ( item->isPatch()) {
                 float tMax = maximumDistance;
-                HITREC *h = PatchIntersect((PATCH *) item->ptr, ray, minimumDistance, &tMax, hitFlags, &hitStore);
+                HITREC *h = patchIntersect((PATCH *) item->ptr, ray, minimumDistance, &tMax, hitFlags, &hitStore);
                 if ( h ) {
                     hitList = HitListAdd(hitList, DuplicateHit(h));
                 }

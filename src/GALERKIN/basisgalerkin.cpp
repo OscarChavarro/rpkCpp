@@ -13,7 +13,7 @@ at the given point on the element
 COLOR
 basisGalerkinRadianceAtPoint(ELEMENT *elem, COLOR *coefficients, double u, double v) {
     COLOR rad;
-    GalerkinBasis *basis = elem->pog.patch->nrvertices == 3 ? &GLOBAL_galerkin_triBasis : &GLOBAL_galerkin_quadBasis;
+    GalerkinBasis *basis = elem->pog.patch->numberOfVertices == 3 ? &GLOBAL_galerkin_triBasis : &GLOBAL_galerkin_quadBasis;
     int i;
 
     colorClear(rad);
@@ -79,7 +79,7 @@ basisGalerkinPush(
         }
 
         /* Parent and child basis should be the same */
-        basis = child->pog.patch->nrvertices == 3 ? &GLOBAL_galerkin_triBasis : &GLOBAL_galerkin_quadBasis;
+        basis = child->pog.patch->numberOfVertices == 3 ? &GLOBAL_galerkin_triBasis : &GLOBAL_galerkin_quadBasis;
         for ( beta = 0; beta < child->basis_size; beta++ ) {
             colorClear(child_coefficients[beta]);
             for ( alpha = 0; alpha < parent->basis_size; alpha++ ) {
@@ -131,7 +131,7 @@ basisGalerkinPull(
         }
 
         /* Parent and child basis should be the same */
-        basis = child->pog.patch->nrvertices == 3 ? &GLOBAL_galerkin_triBasis : &GLOBAL_galerkin_quadBasis;
+        basis = child->pog.patch->numberOfVertices == 3 ? &GLOBAL_galerkin_triBasis : &GLOBAL_galerkin_quadBasis;
         for ( alpha = 0; alpha < parent->basis_size; alpha++ ) {
             colorClear(parent_coefficients[alpha]);
             for ( beta = 0; beta < child->basis_size; beta++ ) {

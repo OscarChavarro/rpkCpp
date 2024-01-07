@@ -32,7 +32,7 @@ static void MakeLightSourceTable() {
     lights = (LIGHTSOURCETABLE *)malloc(nrlights * sizeof(LIGHTSOURCETABLE));
     ForAllPatches(l, GLOBAL_scene_lightSourcePatches)
                 {
-                    COLOR emitted_rad = PatchAverageEmittance(l, ALL_COMPONENTS);
+                    COLOR emitted_rad = patchAverageEmittance(l, ALL_COMPONENTS);
                     double flux = M_PI * l->area * colorSumAbsComponents(emitted_rad);
                     totalflux += flux;
                     InitLight(&lights[i], l, flux);
@@ -51,7 +51,7 @@ static void MakeLightSourceTable() {
 
 static void NextLightSample(PATCH *patch, double *zeta) {
     double *xi = Sample4D(TOPLEVEL_ELEMENT(patch)->ray_index++);
-    if ( patch->nrvertices == 3 ) {
+    if ( patch->numberOfVertices == 3 ) {
         double u = xi[0], v = xi[1];
         FoldSampleF(&u, &v);
         zeta[0] = u;
@@ -71,7 +71,7 @@ static Ray SampleLightRay(PATCH *patch, COLOR *emitted_rad, double *point_select
         HITREC hit;
         NextLightSample(patch, zeta);
 
-        PatchUniformPoint(patch, zeta[0], zeta[1], &ray.pos);
+        patchUniformPoint(patch, zeta[0], zeta[1], &ray.pos);
 
         InitHit(&hit, patch, (Geometry *) 0, &ray.pos, &patch->normal, patch->surface->material, 0.);
         ray.dir = EdfSample(patch->surface->material->edf, &hit, ALL_COMPONENTS, zeta[2], zeta[3], emitted_rad,

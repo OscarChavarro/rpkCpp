@@ -31,17 +31,17 @@ class RayCaster {
             // Find intersection point of ray with patch P
             Vector3D point;
             float dist = VECTORDOTPRODUCT(P->normal, ray.dir);
-            dist = -(VECTORDOTPRODUCT(P->normal, ray.pos) + P->plane_constant) / dist;
+            dist = -(VECTORDOTPRODUCT(P->normal, ray.pos) + P->planeConstant) / dist;
             VECTORSUMSCALED(ray.pos, dist, ray.dir, point);
 
             // Find surface coordinates of hit point on patch
             double u, v;
-            PatchUV(P, &point, &u, &v);
+            patchUv(P, &point, &u, &v);
 
             // Boundary check is necessary because Z-buffer algorithm does
             // not yield exactly the same result as ray tracing at patch
             // boundaries.
-            ClipUV(P->nrvertices, &u, &v);
+            ClipUV(P->numberOfVertices, &u, &v);
 
             // Reverse ray direction and get radiance emited at hit point towards the eye
             Vector3D dir(-ray.dir.x, -ray.dir.y, -ray.dir.z);

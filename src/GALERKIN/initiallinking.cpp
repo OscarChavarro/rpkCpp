@@ -48,7 +48,7 @@ void CreateInitialLink(PATCH *patch) {
                                                        &shaft);
         } else {
             BOUNDINGBOX bbox;
-            the_shaft = ConstructShaft(the_patch_bounds, PatchBounds(patch, bbox), &shaft);
+            the_shaft = ConstructShaft(the_patch_bounds, patchBounds(patch, bbox), &shaft);
         }
 
         if ( the_shaft ) {
@@ -98,7 +98,7 @@ static void GeomLink(Geometry *geom) {
 
     /* immediately return if the Geometry is bounded and behind the plane of the patch
      * for which itneractions are created ... */
-    if ( geom->bounded && BoundsBehindPlane(geomBounds(geom), &the_patch->normal, the_patch->plane_constant)) {
+    if ( geom->bounded && BoundsBehindPlane(geomBounds(geom), &the_patch->normal, the_patch->planeConstant)) {
         return;
     }
 
@@ -139,7 +139,7 @@ void CreateInitialLinks(ELEMENT *top, ROLE role) {
     the_element = top;
     the_role = role;
     the_patch = top->pog.patch;
-    PatchBounds(the_patch, the_patch_bounds);
+    patchBounds(the_patch, the_patch_bounds);
     the_candlist = GLOBAL_scene_clusteredWorld;
     GeomListIterate(GLOBAL_scene_world, GeomLink);
 }

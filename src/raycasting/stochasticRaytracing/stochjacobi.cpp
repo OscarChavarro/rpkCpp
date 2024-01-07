@@ -362,10 +362,10 @@ static void UniformHitCoordinates(HITREC *hit, double *uhit, double *vhit) {
         *uhit = hit->uv.u;
         *vhit = hit->uv.v;
         if ( hit->patch->jacobian ) {
-            BilinearToUniform(hit->patch, uhit, vhit);
+            bilinearToUniform(hit->patch, uhit, vhit);
         }
     } else {
-        PatchUniformUV(hit->patch, &hit->point, uhit, vhit);
+        patchUniformUv(hit->patch, &hit->point, uhit, vhit);
     }
 
     /* clip uv coordinates to lay strictly inside the hit patch */

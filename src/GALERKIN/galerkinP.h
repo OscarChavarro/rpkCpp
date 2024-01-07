@@ -23,7 +23,7 @@
 #define REFLECTIVITY(patch) ((ELEMENT *)(patch->radiance_data))->Rd
 #define TOPLEVEL_ELEMENT(patch) ((ELEMENT *)(patch->radiance_data))
 
-/* Galerkin Radiosisty "state" information */
+/* Galerkin Radiosity "state" information */
 enum ITERATION_METHOD {
     JACOBI, GAUSS_SEIDEL, SOUTHWELL
 };

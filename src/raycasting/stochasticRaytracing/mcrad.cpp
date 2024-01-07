@@ -318,7 +318,7 @@ void monteCarloRadiosityUpdateViewImportance() {
  * area in the scene, ignoring the 10% area occupied by the smallest patches. */
 static double DetermineAreaFraction() {
     float *areas, cumul, areafrac;
-    int nrpatchids = PatchGetNextID(), i;
+    int nrpatchids = patchGetNextId(), i;
 
     if ( !GLOBAL_scene_world ) {
         return 100;
@@ -431,7 +431,7 @@ void monteCarloRadiosityTerminate() {
 static COLOR McrDiffuseReflectanceAtPoint(PATCH *patch, double u, double v) {
     HITREC hit;
     Vector3D point;
-    PatchUniformPoint(patch, u, v, &point);
+    patchUniformPoint(patch, u, v, &point);
     InitHit(&hit, patch, nullptr, &point, &patch->normal, patch->surface->material, 0.);
     hit.uv.u = u;
     hit.uv.v = v;

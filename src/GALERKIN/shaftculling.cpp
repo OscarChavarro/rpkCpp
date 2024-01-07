@@ -459,7 +459,7 @@ int ShaftPatchTest(PATCH *patch, SHAFT *shaft) {
     /* start by assuming that all vertices are on the negative side ("inside")
      * all shaft planes. */
     someout = false;
-    for ( j = 0; j < patch->nrvertices; j++ ) {
+    for ( j = 0; j < patch->numberOfVertices; j++ ) {
         inall[j] = true;
         tmin[j] = 0.;  /* defines the segment of the edge that lays within the shaft */
         tmax[j] = 1.;
@@ -475,7 +475,7 @@ int ShaftPatchTest(PATCH *patch, SHAFT *shaft) {
         VECTORSET(plane_normal, plane->n[0], plane->n[1], plane->n[2]);
 
         in = out = false;
-        for ( j = 0; j < patch->nrvertices; j++ ) {
+        for ( j = 0; j < patch->numberOfVertices; j++ ) {
             e[j] = VECTORDOTPRODUCT(plane_normal, *patch->vertex[j]->point) + plane->d;
             tolerance = fabs(plane->d) * EPSILON + ptol[j];
             side[j] = COPLANAR;
@@ -500,9 +500,9 @@ int ShaftPatchTest(PATCH *patch, SHAFT *shaft) {
 			 * if it is inside *all* planes, but it is outside
 			 * as soon it is outside *one* plane. */
 
-            for ( j = 0; j < patch->nrvertices; j++ ) {
+            for ( j = 0; j < patch->numberOfVertices; j++ ) {
                 /* reduce segment of edge that can lay within the shaft. */
-                int k = (j + 1) % patch->nrvertices;
+                int k = (j + 1) % patch->numberOfVertices;
                 if ( side[j] != side[k] ) {
                     if ( side[k] == OUTSIDE ) {    /* decrease tmax[j] */
                         if ( side[j] == INSIDE ) {    /* find intersection */
@@ -544,7 +544,7 @@ int ShaftPatchTest(PATCH *patch, SHAFT *shaft) {
         return INSIDE;
     }
 
-    for ( j = 0; j < patch->nrvertices; j++ ) {
+    for ( j = 0; j < patch->numberOfVertices; j++ ) {
         if ( inall[j] ) {    /* at least one patch vertex is really inside the shaft and */
             return OVERLAP;
         }
@@ -552,7 +552,7 @@ int ShaftPatchTest(PATCH *patch, SHAFT *shaft) {
 
     /* All vertices are outside or on the shaft. Check whether there are edges
      * intersecting the shaft. */
-    for ( j = 0; j < patch->nrvertices; j++ ) {
+    for ( j = 0; j < patch->numberOfVertices; j++ ) {
         if ( tmin[j] + EPSILON < tmax[j] - EPSILON ) {
             return OVERLAP;
         }
@@ -566,7 +566,7 @@ int ShaftPatchTest(PATCH *patch, SHAFT *shaft) {
     ray.pos = shaft->center1;
     VECTORSUBTRACT(shaft->center2, shaft->center1, ray.dir);
     dist = 1. - EPSILON;
-    if ( PatchIntersect(patch, &ray, EPSILON, &dist, HIT_FRONT | HIT_BACK, &hitstore)) {
+    if ( patchIntersect(patch, &ray, EPSILON, &dist, HIT_FRONT | HIT_BACK, &hitstore)) {
         shaft->cut = true;
         return OVERLAP;
     }
@@ -612,7 +612,7 @@ PatchSet *ShaftCullPatchlist(PatchSet *pl, SHAFT *shaft, PatchSet *culledpatchli
 
         if ( !pl->patch->bounds ) { /* compute getBoundingBox */
             BOUNDINGBOX bounds;
-            PatchBounds(pl->patch, bounds);
+            patchBounds(pl->patch, bounds);
         }
         if ((bbside = ShaftBoxTest(pl->patch->bounds, shaft)) != OUTSIDE ) {
             /* patch bounding box is inside the shaft, or overlaps with it. If it

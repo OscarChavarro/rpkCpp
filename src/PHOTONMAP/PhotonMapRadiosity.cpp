@@ -67,7 +67,7 @@ DestroyPatchData(PATCH *patch) {
 /* compute new color for the patch */
 static void
 PatchComputeNewColor(PATCH *patch) {
-    COLOR Rd = PatchAverageNormalAlbedo(patch, BRDF_DIFFUSE_COMPONENT);
+    COLOR Rd = patchAverageNormalAlbedo(patch, BRDF_DIFFUSE_COMPONENT);
     convertColorToRGB(Rd, &patch->color);
     patchComputeVertexColors(patch);
 }
@@ -609,7 +609,7 @@ GetPmapRadiance(PATCH *patch,
     COLOR col;
     float density;
 
-    PatchPoint(patch, u, v, &point);
+    patchPoint(patch, u, v, &point);
     InitHit(&hit, patch, nullptr, &point, &patch->normal, patch->surface->material, 0.);
     HitShadingNormal(&hit, &hit.normal);
 

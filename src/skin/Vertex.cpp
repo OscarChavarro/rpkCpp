@@ -75,7 +75,7 @@ vertexPrint(FILE *out, Vertex *vertex) {
     fprintf(out, "patches: ");
     ForAllPatches(P, vertex->patches)
                 {
-                    PatchPrintID(out, P);
+                    patchPrintId(out, P);
                 }
     EndForAll
 
@@ -117,7 +117,7 @@ void
 patchComputeVertexColors(PATCH *patch) {
     int i;
 
-    for ( i = 0; i < patch->nrvertices; i++ ) {
+    for ( i = 0; i < patch->numberOfVertices; i++ ) {
         computeVertexColor(patch->vertex[i]);
     }
 }

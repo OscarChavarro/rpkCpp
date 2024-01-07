@@ -21,22 +21,22 @@ public:
     unsigned id; // identification number for debugging, ID rendering
 
     PATCH *twin; // twin face (for double-sided surfaces)
-    BREP_FACE *brep_data; // topological data for the patch. Only filled in if a radiance method needs it
+    BREP_FACE *brepData; // topological data for the patch. Only filled in if a radiance method needs it
 
     Vertex *vertex[MAXIMUM_VERTICES_PER_PATCH]; // pointers to the vertices
-    char nrvertices; // number of vertices: 3 or 4
+    char numberOfVertices; // number of vertices: 3 or 4
 
     float *bounds; // bounding box
 
     Vector3D normal; // patch normal
-    float plane_constant; // patch plane constant
+    float planeConstant; // patch plane constant
     float tolerance; // patch plane tolerance
     float area; // patch area
     Vector3D midpoint; // patch midpoint
     Jacobian *jacobian; /* shape-related constants for irregular quadrilaterals.
                          Used for sampling the quadrilateral and for computing integrals
                          */
-    float direct_potential; /* directly received hemispherical potential
+    float directPotential; /* directly received hemispherical potential
                                (ref: Pattanaik, ACM Trans Graph).
                                Only determined when asked to do so (see potential.[ch]).
                                */
@@ -53,30 +53,30 @@ public:
     void *radiance_data; // data needed for radiance computations. Type depends on the current radiance algorithm
     MeshSurface *surface; // pointer to surface data (contains vertex list, material properties)
 
-    int isPatchVirtual();
+    PATCH();
+    int isPatchVirtual() const;
 };
 
-extern int IsPatchVirtual(PATCH *patch);
-extern PATCH *PatchCreate(int nrvertices, Vertex *v1, Vertex *v2, Vertex *v3, Vertex *v4);
-extern void PatchDestroy(PATCH *patch);
-extern float *PatchBounds(PATCH *patch, float *bounds);
-extern HITREC *PatchIntersect(PATCH *patch, Ray *ray, float mindist, float *maxdist, int hitflags, HITREC *hitstore);
-extern void PatchDontIntersect(int n, ...);
-extern void PatchPrint(FILE *out, PATCH *patch);
-extern void PatchPrintID(FILE *out, PATCH *patch);
-extern int PatchGetNextID();
-extern void PatchSetNextID(int id);
-extern Vector3D *PatchPoint(PATCH *patch, double u, double v, Vector3D *point);
-extern Vector3D *PatchUniformPoint(PATCH *patch, double u, double v, Vector3D *point);
-extern int PatchUV(PATCH *poly, Vector3D *point, double *u, double *v);
-extern int PatchUniformUV(PATCH *poly, Vector3D *point, double *u, double *v);
-extern void BilinearToUniform(PATCH *patch, double *u, double *v);
-extern void UniformToBilinear(PATCH *patch, double *u, double *v);
-extern Vector3D PatchInterpolatedNormalAtUV(PATCH *patch, double u, double v);
-extern void PatchInterpolatedFrameAtUV(PATCH *patch, double u, double v, Vector3D *X, Vector3D *Y, Vector3D *Z);
-extern Vector3D PatchTextureCoordAtUV(PATCH *patch, double u, double v);
-extern COLOR PatchAverageNormalAlbedo(PATCH *patch, BSDFFLAGS components);
-extern COLOR PatchAverageEmittance(PATCH *patch, XXDFFLAGS components);
-extern int MaterialShadingFrame(HITREC *hit, Vector3D *X, Vector3D *Y, Vector3D *Z);
+extern PATCH *patchCreate(int numberOfVertices, Vertex *v1, Vertex *v2, Vertex *v3, Vertex *v4);
+extern void patchDestroy(PATCH *patch);
+extern float *patchBounds(PATCH *patch, float *bounds);
+extern HITREC *patchIntersect(PATCH *patch, Ray *ray, float minimumDistance, float *maximumDistance, int hitFlags, HITREC *hitStore);
+extern void patchDontIntersect(int n, ...);
+extern void patchPrint(FILE *out, PATCH *patch);
+extern void patchPrintId(FILE *out, PATCH *patch);
+extern int patchGetNextId();
+extern void patchSetNextId(int id);
+extern Vector3D *patchPoint(PATCH *patch, double u, double v, Vector3D *point);
+extern Vector3D *patchUniformPoint(PATCH *patch, double u, double v, Vector3D *point);
+extern int patchUv(PATCH *poly, Vector3D *point, double *u, double *v);
+extern int patchUniformUv(PATCH *poly, Vector3D *point, double *u, double *v);
+extern void bilinearToUniform(PATCH *patch, double *u, double *v);
+extern void uniformToBilinear(PATCH *patch, double *u, double *v);
+extern Vector3D patchInterpolatedNormalAtUv(PATCH *patch, double u, double v);
+extern void patchInterpolatedFrameAtUv(PATCH *patch, double u, double v, Vector3D *X, Vector3D *Y, Vector3D *Z);
+extern Vector3D patchTextureCoordAtUv(PATCH *patch, double u, double v);
+extern COLOR patchAverageNormalAlbedo(PATCH *patch, BSDFFLAGS components);
+extern COLOR patchAverageEmittance(PATCH *patch, XXDFFLAGS components);
+extern int materialShadingFrame(HITREC *hit, Vector3D *X, Vector3D *Y, Vector3D *Z);
 
 #endif

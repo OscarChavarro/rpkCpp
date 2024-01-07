@@ -113,7 +113,7 @@ ResetVertexId() {
     ForAllPatches(P, GLOBAL_scene_patches)
                 {
                     int i;
-                    for ( i = 0; i < P->nrvertices; i++ ) {
+                    for ( i = 0; i < P->numberOfVertices; i++ ) {
                         P->vertex[i]->tmp = -1;
                     }
                 }
@@ -130,7 +130,7 @@ WriteCoords(FILE *fp) {
     ForAllPatches(P, GLOBAL_scene_patches)
                 {
                     int i;
-                    for ( i = 0; i < P->nrvertices; i++ ) {
+                    for ( i = 0; i < P->numberOfVertices; i++ ) {
                         Vertex *v = P->vertex[i];
                         if ( v->tmp == -1 ) {
                             /* not yet written */
@@ -162,7 +162,7 @@ WriteVertexColors(FILE *fp) {
     ForAllPatches(P, GLOBAL_scene_patches)
                 {
                     int i;
-                    for ( i = 0; i < P->nrvertices; i++ ) {
+                    for ( i = 0; i < P->numberOfVertices; i++ ) {
                         Vertex *v = P->vertex[i];
                         if ( v->tmp == -1 ) {
                             /* not yet written */
@@ -222,7 +222,7 @@ WriteCoordIndices(FILE *fp) {
     ForAllPatches(P, GLOBAL_scene_patches)
                 {
                     int i;
-                    for ( i = 0; i < P->nrvertices; i++ ) {
+                    for ( i = 0; i < P->numberOfVertices; i++ ) {
                         Vertex *v = P->vertex[i];
                         n++;
                         if ( n % 20 == 0 ) {

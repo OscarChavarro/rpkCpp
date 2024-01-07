@@ -13,7 +13,7 @@ PatchListBounds(PatchSet *pl, float *boundingbox) {
     BoundsInit(boundingbox);
     ForAllPatches(patch, pl)
                 {
-                    PatchBounds(patch, b);
+                    patchBounds(patch, b);
                     BoundsEnlarge(boundingbox, b);
                 }
     EndForAll;
@@ -28,7 +28,7 @@ PatchListIntersect(PatchSet *pl, Ray *ray, float mindist, float *maxdist, int hi
     HITREC *hit = (HITREC *) nullptr;
     ForAllPatches(P, pl)
                 {
-                    HITREC *h = PatchIntersect(P, ray, mindist, maxdist, hitflags, hitstore);
+                    HITREC *h = patchIntersect(P, ray, mindist, maxdist, hitflags, hitstore);
                     if ( h ) {
                         if ( hitflags & HIT_ANY ) {
                             return h;
@@ -47,7 +47,7 @@ PatchListAllIntersections(HITLIST *hits, PatchSet *patches, Ray *ray, float mind
     ForAllPatches(P, patches)
                 {
                     float tmax = maxdist;    /* do not modify maxdist */
-                    HITREC *hit = PatchIntersect(P, ray, mindist, &tmax, hitflags, &hitstore);
+                    HITREC *hit = patchIntersect(P, ray, mindist, &tmax, hitflags, &hitstore);
                     if ( hit ) {
                         hits = HitListAdd(hits, DuplicateHit(hit));
                     }

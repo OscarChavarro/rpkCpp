@@ -45,7 +45,7 @@ void UpdateDirectPotential() {
     lostpixels = 0;
 
     /* build a table to convert a patch ID to the corresponding PATCH * */
-    maxpatchid = PatchGetNextID() - 1;
+    maxpatchid = patchGetNextId() - 1;
     id2patch = (PATCH **)malloc((int) (maxpatchid + 1) * sizeof(PATCH *));
     for ( i = 0; i <= maxpatchid; i++ ) {
         id2patch[i] = (PATCH *) nullptr;
@@ -100,10 +100,10 @@ void UpdateDirectPotential() {
     for ( i = 1; i <= maxpatchid; i++ ) {
         PATCH *patch = id2patch[i];
 
-        patch->direct_potential = new_direct_importance[i] / patch->area;
+        patch->directPotential = new_direct_importance[i] / patch->area;
 
-        if ( patch->direct_potential > GLOBAL_statistics_maxDirectPotential ) {
-            GLOBAL_statistics_maxDirectPotential = patch->direct_potential;
+        if ( patch->directPotential > GLOBAL_statistics_maxDirectPotential ) {
+            GLOBAL_statistics_maxDirectPotential = patch->directPotential;
         }
         GLOBAL_statistics_totalDirectPotential += new_direct_importance[i];
         GLOBAL_statistics_averageDirectPotential += new_direct_importance[i];

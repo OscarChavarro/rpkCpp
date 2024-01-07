@@ -14,9 +14,9 @@
 int IsAtLeastPartlyInFront(PATCH *P, PATCH *Q) {
     int i;
 
-    for ( i = 0; i < P->nrvertices; i++ ) {
+    for ( i = 0; i < P->numberOfVertices; i++ ) {
         Vector3D *vp = P->vertex[i]->point;
-        double ep = VECTORDOTPRODUCT(Q->normal, *vp) + Q->plane_constant,
+        double ep = VECTORDOTPRODUCT(Q->normal, *vp) + Q->planeConstant,
                 tolp = Q->tolerance + VECTORTOLERANCE(*vp);
         if ( ep > tolp ) {    /* P is at least partly in front of Q */
             return true;
@@ -57,7 +57,7 @@ static void DetermineNodes(ELEMENT *elem, CUBARULE **cr, Vector3D x[CUBAMAXNODES
         }
     } else {
         /* what cubature rule should be used over the element */
-        switch ( elem->pog.patch->nrvertices ) {
+        switch ( elem->pog.patch->numberOfVertices ) {
             case 3:
                 *cr = role == RECEIVER ? GLOBAL_galerkin_state.rcv3rule : GLOBAL_galerkin_state.src3rule;
                 break;
@@ -81,7 +81,7 @@ static void DetermineNodes(ELEMENT *elem, CUBARULE **cr, Vector3D x[CUBAMAXNODES
             node.u = (*cr)->u[k];
             node.v = (*cr)->v[k];
             if ( elem->uptrans ) TRANSFORM_POINT_2D(topxf, node, node);
-            PatchUniformPoint(elem->pog.patch, node.u, node.v, &x[k]);
+            patchUniformPoint(elem->pog.patch, node.u, node.v, &x[k]);
         }
     }
 }
@@ -187,13 +187,13 @@ static void DoHigherOrderAreaToAreaFormFactor(INTERACTION *link,
          * clusters. */
         rcvbasis = (GalerkinBasis *) nullptr;
     } else {
-        rcvbasis = (rcv->pog.patch->nrvertices == 3 ? &GLOBAL_galerkin_triBasis : &GLOBAL_galerkin_quadBasis);
+        rcvbasis = (rcv->pog.patch->numberOfVertices == 3 ? &GLOBAL_galerkin_triBasis : &GLOBAL_galerkin_quadBasis);
     }
 
     if ( IsCluster(src)) {
         srcbasis = (GalerkinBasis *) nullptr;
     } else {
-        srcbasis = (src->pog.patch->nrvertices == 3 ? &GLOBAL_galerkin_triBasis : &GLOBAL_galerkin_quadBasis);
+        srcbasis = (src->pog.patch->numberOfVertices == 3 ? &GLOBAL_galerkin_triBasis : &GLOBAL_galerkin_quadBasis);
     }
 
     /* determine basis function values \phi_{i,\alpha}(x_k) at sample positions on the
@@ -458,7 +458,7 @@ unsigned AreaToAreaFormFactor(INTERACTION *link, GeometryListNode *shadowlist) {
         InitShadowCache();
 
         /* Mark the patches in order to avoid immediate selfintersections. */
-        PatchDontIntersect(4, IsCluster(rcv) ? (PATCH *) nullptr : rcv->pog.patch,
+        patchDontIntersect(4, IsCluster(rcv) ? (PATCH *) nullptr : rcv->pog.patch,
                            IsCluster(rcv) ? (PATCH *) nullptr : rcv->pog.patch->twin,
                            IsCluster(src) ? (PATCH *) nullptr : src->pog.patch,
                            IsCluster(src) ? (PATCH *) nullptr : src->pog.patch->twin);
@@ -492,7 +492,7 @@ unsigned AreaToAreaFormFactor(INTERACTION *link, GeometryListNode *shadowlist) {
 
         /* Unmark the patches, so they are considered for ray-patch intersections again
          * in future. */
-        PatchDontIntersect(0);
+        patchDontIntersect(0);
         geomDontIntersect((Geometry *) nullptr, (Geometry *) nullptr);
     }
 

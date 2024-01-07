@@ -93,7 +93,7 @@ GatheringPushPullPotential(ELEMENT *elem, float down) {
     up = 0.;
 
     if ( !elem->regular_subelements && !elem->irregular_subelements ) {
-        up = down + elem->pog.patch->direct_potential;
+        up = down + elem->pog.patch->directPotential;
     }
 
     if ( elem->regular_subelements ) {
@@ -180,7 +180,7 @@ DoClusteredGatheringIteration() {
             ForAllPatches(P, GLOBAL_scene_patches)
                         {
                             ELEMENT *top = TOPLEVEL_ELEMENT(P);
-                            float potential_increment = P->direct_potential - top->direct_potential.f;
+                            float potential_increment = P->directPotential - top->direct_potential.f;
                             GatheringUpdateDirectPotential(top, potential_increment);
                         }
             EndForAll;

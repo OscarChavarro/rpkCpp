@@ -80,7 +80,7 @@ bool CUniformLightSampler::Sample(CPathNode */*prevNode*/,
     }
 
     // Choose point (uniform for real, sampled for background)
-    if ( IsPatchVirtual(light)) {
+    if ( light->isPatchVirtual()) {
         double pdf;
         Vector3D dir = EdfSample(light->surface->material->edf, &(thisNode->m_hit), flags, x_1, x_2, nullptr, &pdf);
         VECTORSUBTRACT(thisNode->m_hit.point, dir, point);   // fake hit at distance 1!
@@ -95,7 +95,7 @@ bool CUniformLightSampler::Sample(CPathNode */*prevNode*/,
 
         pdfPoint = pdf;   // every direction corresponds to 1 point
     } else {
-        PatchUniformPoint(light, x_1, x_2, &point);
+        patchUniformPoint(light, x_1, x_2, &point);
         pdfPoint = 1.0 / light->area;
 
         // Fake a hit record
@@ -132,7 +132,7 @@ double CUniformLightSampler::EvalPDF(CPathNode */*thisNode*/,
     }
 
     // Prob for choosing this point(/direction)
-    if ( IsPatchVirtual(newNode->m_hit.patch))          // virtual patch
+    if ( newNode->m_hit.patch->isPatchVirtual())          // virtual patch
     {
         // virtual patch has no area!
         // choosing a point == choosing a dir --> use pdf from evalEdf
@@ -210,7 +210,7 @@ bool CImportantLightSampler::Sample(CPathNode */*prevNode*/,
     }
 
     // Choose point (uniform for real, sampled for background)
-    if ( IsPatchVirtual(light)) {
+    if ( light->isPatchVirtual()) {
         double pdf;
         Vector3D dir = EdfSample(light->surface->material->edf, nullptr, flags, x_1, x_2, nullptr, &pdf);
         VECTORADD(thisNode->m_hit.point, dir, point);   // fake hit at distance 1!
@@ -225,7 +225,7 @@ bool CImportantLightSampler::Sample(CPathNode */*prevNode*/,
 
         pdfPoint = pdf;   // every direction corresponds to 1 point
     } else {
-        PatchUniformPoint(light, x_1, x_2, &point);
+        patchUniformPoint(light, x_1, x_2, &point);
 
         pdfPoint = 1.0 / light->area;
 
@@ -259,7 +259,7 @@ double CImportantLightSampler::EvalPDF(CPathNode *thisNode,
                                        &thisNode->m_normal);
 
     // Prob for choosing this point(/direction)
-    if ( IsPatchVirtual(newNode->m_hit.patch))           // virtual patch
+    if ( newNode->m_hit.patch->isPatchVirtual())           // virtual patch
     {
         // virtual patch has no area!
         // choosing a point == choosing a dir --> use pdf from evalEdf

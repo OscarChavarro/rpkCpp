@@ -57,8 +57,8 @@ static float _lumMax = 0.0;
 
 /* a-priori estimate of a patch's radiance. */
 static COLOR InitRadianceEstimate(PATCH *patch) {
-    COLOR E = PatchAverageEmittance(patch, ALL_COMPONENTS),
-            R = PatchAverageNormalAlbedo(patch, BSDF_ALL_COMPONENTS),
+    COLOR E = patchAverageEmittance(patch, ALL_COMPONENTS),
+            R = patchAverageNormalAlbedo(patch, BSDF_ALL_COMPONENTS),
             radiance;
 
     colorProduct(R, GLOBAL_statistics_estimatedAverageRadiance, radiance);

@@ -35,8 +35,8 @@ static int globalImageOutputHeight = 0;
 static void
 PatchAccumulateStats(PATCH *patch) {
     COLOR
-            E = PatchAverageEmittance(patch, ALL_COMPONENTS),
-            R = PatchAverageNormalAlbedo(patch, BSDF_ALL_COMPONENTS),
+            E = patchAverageEmittance(patch, ALL_COMPONENTS),
+            R = patchAverageNormalAlbedo(patch, BSDF_ALL_COMPONENTS),
             power;
 
     GLOBAL_statistics_totalArea += patch->area;
@@ -409,8 +409,8 @@ ReadFile(char *filename) {
 
     oPatches = GLOBAL_scene_patches;
     GLOBAL_scene_patches = PatchListCreate();
-    patchId = PatchGetNextID();
-    PatchSetNextID(1);
+    patchId = patchGetNextId();
+    patchSetNextId(1);
     numberOfPatches = GLOBAL_statistics_numberOfPatches;
     oClusteredWorld = GLOBAL_scene_clusteredWorld;
     GLOBAL_scene_clusteredWorld = nullptr;
@@ -458,7 +458,7 @@ ReadFile(char *filename) {
         GLOBAL_scene_materials = oMaterialLib;
 
         GLOBAL_scene_patches = oPatches;
-        PatchSetNextID(patchId);
+        patchSetNextId(patchId);
         GLOBAL_statistics_numberOfPatches = numberOfPatches;
 
         GLOBAL_scene_clusteredWorld = oClusteredWorld;

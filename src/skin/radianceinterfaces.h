@@ -50,13 +50,13 @@ class RADIANCEMETHOD {
     GETRADIANCE_FT GetRadiance;
 
     /* Allocates memory for the radiance data for the given patch. Fills in
-    * the pointer in patch->radiance_data. */
+    * the pointer in patch->radianceData. */
     void *(*CreatePatchData)(PATCH *patch);
 
     /* Print radiance data for the patch to file out */
     void (*PrintPatchData)(FILE *out, PATCH *patch);
 
-    /* destroys the radiance data for the patch. Clears the patch->radiance_data
+    /* destroys the radiance data for the patch. Clears the patch->radianceData
      * pointer. */
     void (*DestroyPatchData)(PATCH *patch);
 

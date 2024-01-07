@@ -37,7 +37,7 @@ static PATCH *ChooseRadianceShootingPatch() {
         if ( GLOBAL_galerkin_state.importance_driven ) {
             /* for importance-driven progressive refinement radiosity, choose the patch
              * with highest indirectly received potential times power. */
-            powerimp = (POTENTIAL(patch).f - patch->direct_potential) * power;
+            powerimp = (POTENTIAL(patch).f - patch->directPotential) * power;
             if ( powerimp > maxpowerimp ) {
                 pot_shooting_patch = patch;
                 maxpowerimp = powerimp;
@@ -299,7 +299,7 @@ ReallyDoShootingStep() {
             ForAllPatches(P, GLOBAL_scene_patches)
                         {
                             ELEMENT *top = TOPLEVEL_ELEMENT(P);
-                            float potential_increment = P->direct_potential - top->direct_potential.f;
+                            float potential_increment = P->directPotential - top->direct_potential.f;
                             ShootingUpdateDirectPotential(top, potential_increment);
                         }
             EndForAll;

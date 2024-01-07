@@ -262,10 +262,10 @@ PatchInit(PATCH *patch) {
         switch ( GLOBAL_galerkin_state.iteration_method ) {
             case GAUSS_SEIDEL:
             case JACOBI:
-                POTENTIAL(patch).f = patch->direct_potential;
+                POTENTIAL(patch).f = patch->directPotential;
                 break;
             case SOUTHWELL:
-                POTENTIAL(patch).f = UNSHOT_POTENTIAL(patch).f = patch->direct_potential;
+                POTENTIAL(patch).f = UNSHOT_POTENTIAL(patch).f = patch->directPotential;
                 break;
             default:
                 logFatal(-1, "PatchInit", "Invalid iteration method");
@@ -353,7 +353,7 @@ GetRadiance(PATCH *patch, double u, double v, Vector3D dir) {
     COLOR rad;
 
     if ( patch->jacobian ) {
-        BilinearToUniform(patch, &u, &v);
+        bilinearToUniform(patch, &u, &v);
     }
 
     leaf = RegularLeafElementAtPoint(TOPLEVEL_ELEMENT(patch), &u, &v);
@@ -503,7 +503,7 @@ WriteVertexColors(ELEMENT *element) {
     COLOR vertrad[4];
     int i;
 
-    if ( element->pog.patch->nrvertices == 3 ) {
+    if ( element->pog.patch->numberOfVertices == 3 ) {
         vertrad[0] = basisGalerkinRadianceAtPoint(element, element->radiance, 0., 0.);
         vertrad[1] = basisGalerkinRadianceAtPoint(element, element->radiance, 1., 0.);
         vertrad[2] = basisGalerkinRadianceAtPoint(element, element->radiance, 0., 1.);
@@ -518,12 +518,12 @@ WriteVertexColors(ELEMENT *element) {
         COLOR rho = REFLECTIVITY(element->pog.patch), ambient;
 
         colorProduct(rho, GLOBAL_galerkin_state.ambient_radiance, ambient);
-        for ( i = 0; i < element->pog.patch->nrvertices; i++ ) {
+        for ( i = 0; i < element->pog.patch->numberOfVertices; i++ ) {
             colorAdd(vertrad[i], ambient, vertrad[i]);
         }
     }
 
-    for ( i = 0; i < element->pog.patch->nrvertices; i++ ) {
+    for ( i = 0; i < element->pog.patch->numberOfVertices; i++ ) {
         RGB col;
         RadianceToRGB(vertrad[i], &col);
         WriteVertexColor(&col);
@@ -560,7 +560,7 @@ WriteCoordIndex(int index) {
 static void
 WriteCoordIndices(ELEMENT *elem) {
     int i;
-    for ( i = 0; i < elem->pog.patch->nrvertices; i++ ) {
+    for ( i = 0; i < elem->pog.patch->numberOfVertices; i++ ) {
         WriteCoordIndex(vid++);
     }
     WriteCoordIndex(-1);

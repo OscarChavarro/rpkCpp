@@ -35,19 +35,19 @@ SoftRenderPatch(PATCH *P) {
     Vector3D verts[4];
 
     if ( renderopts.backface_culling &&
-         VECTORDOTPRODUCT(P->normal, GLOBAL_camera_mainCamera.eyep) + P->plane_constant < EPSILON ) {
+         VECTORDOTPRODUCT(P->normal, GLOBAL_camera_mainCamera.eyep) + P->planeConstant < EPSILON ) {
         return;
     }
 
     verts[0] = *P->vertex[0]->point;
     verts[1] = *P->vertex[1]->point;
     verts[2] = *P->vertex[2]->point;
-    if ( P->nrvertices > 3 ) {
+    if ( P->numberOfVertices > 3 ) {
         verts[3] = *P->vertex[3]->point;
     }
 
     sglSetColor(PatchPixel(P));
-    sglPolygon(P->nrvertices, verts);
+    sglPolygon(P->numberOfVertices, verts);
 }
 
 void

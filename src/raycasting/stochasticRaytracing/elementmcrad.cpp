@@ -15,7 +15,7 @@ static ELEMENT *CreateClusterHierarchyRecursive(Geometry *world);
 
 /* Orientation and position of regular subelements is fully determined by the
  * following transformations. A uniform mapping of parameter domain to the
- * elements is supposed (i.o.w. use PatchUniformPoint() to map (u,v) coordinates
+ * elements is supposed (i.o.w. use patchUniformPoint() to map (u,v) coordinates
  * on the toplevel element to a 3D point on the patch). The subelements
  * have equal area. No explicit Jacobian stuff needed to compute integrals etc..
  * etc..
@@ -136,7 +136,7 @@ CreateToplevelSurfaceElement(PATCH *patch) {
     elem->iscluster = false;
     elem->area = patch->area;
     elem->midpoint = patch->midpoint;
-    elem->nrvertices = patch->nrvertices;
+    elem->nrvertices = patch->numberOfVertices;
     for ( i = 0; i < elem->nrvertices; i++ ) {
         elem->vertex[i] = patch->vertex[i];
         VertexAttachElement(elem->vertex[i], elem);
@@ -148,9 +148,9 @@ CreateToplevelSurfaceElement(PATCH *patch) {
     stochasticRadiosityClearCoefficients(elem->unshot_rad, elem->basis);
     stochasticRadiosityClearCoefficients(elem->received_rad, elem->basis);
 
-    elem->Ed = PatchAverageEmittance(patch, DIFFUSE_COMPONENT);
+    elem->Ed = patchAverageEmittance(patch, DIFFUSE_COMPONENT);
     colorScaleInverse(M_PI, elem->Ed, elem->Ed);
-    elem->Rd = PatchAverageNormalAlbedo(patch, BRDF_DIFFUSE_COMPONENT);
+    elem->Rd = patchAverageNormalAlbedo(patch, BRDF_DIFFUSE_COMPONENT);
 
     return elem;
 }
@@ -583,7 +583,7 @@ ElementComputeAverageReflectanceAndEmittance(ELEMENT *elem) {
         hit.uv.u = (double) xi[0] * RECIP;
         hit.uv.v = (double) xi[1] * RECIP;
         hit.flags |= HIT_UV;
-        PatchUniformPoint(patch, hit.uv.u, hit.uv.v, &hit.point);
+        patchUniformPoint(patch, hit.uv.u, hit.uv.v, &hit.point);
         if ( patch->surface->material->bsdf ) {
             sample = BsdfScatteredPower(patch->surface->material->bsdf, &hit, &patch->normal, BRDF_DIFFUSE_COMPONENT);
             colorAdd(albedo, sample, albedo);
@@ -934,7 +934,7 @@ McrElementBounds(ELEMENT *elem, float *bounds) {
     if ( elem->iscluster ) {
         BoundsCopy(elem->pog.geom->bounds, bounds);
     } else if ( !elem->uptrans ) {
-        PatchBounds(elem->pog.patch, bounds);
+        patchBounds(elem->pog.patch, bounds);
     } else {
         BoundsInit(bounds);
         ForAllVerticesOfElement(v, elem)

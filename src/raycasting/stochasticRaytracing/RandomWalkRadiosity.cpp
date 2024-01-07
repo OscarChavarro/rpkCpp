@@ -34,7 +34,7 @@ PrintStats() {
 
 /* used as un-normalised probability for mimicking global lines */
 static double
-PatchArea(PATCH *P) {
+patchArea(PATCH *P) {
     return P->area;
 }
 
@@ -136,12 +136,12 @@ ShootingScore(PATH *path, long nr_paths, double (*birth_prob)(PATCH *)) {
         COLOR Rd = TOPLEVEL_ELEMENT(P)->Rd;
         colorProduct(accum_pow, Rd, accum_pow);
 
-        PatchUniformUV(P, &node->inpoint, &uin, &vin);
+        patchUniformUv(P, &node->inpoint, &uin, &vin);
         if ( !GLOBAL_stochasticRaytracing_monteCarloRadiosityState.continuousRandomWalk ) {
             r = 0.;
             if ( n < path->nrnodes - 1 ) {
                 /* not continuous random walk and not node of absorption */
-                PatchUniformUV(P, &node->outpoint, &uout, &vout);
+                patchUniformUv(P, &node->outpoint, &uout, &vout);
             }
         }
 
@@ -254,12 +254,12 @@ CollisionGatheringScore(PATH *path, long nr_paths, double (*birth_prob)(PATCH *)
         COLOR Rd = TOPLEVEL_ELEMENT(P)->Rd;
         colorProduct(Rd, accum_rad, accum_rad);
 
-        PatchUniformUV(P, &node->outpoint, &uout, &vout);
+        patchUniformUv(P, &node->outpoint, &uout, &vout);
         if ( !GLOBAL_stochasticRaytracing_monteCarloRadiosityState.continuousRandomWalk ) {
             r = 0.;
             if ( n > 0 ) {
                 /* not continuous random walk and not birth node */
-                PatchUniformUV(P, &node->inpoint, &uin, &vin);
+                patchUniformUv(P, &node->inpoint, &uin, &vin);
             }
         }
 
@@ -328,7 +328,7 @@ DoGatheringIteration() {
                     colorMaximumComponent(GLOBAL_statistics_averageReflectivity))));
 
     TracePaths(nr_walks,
-               PatchArea, ScalarReflectance,
+               patchArea, ScalarReflectance,
                CollisionGatheringScore,
                GatheringUpdate);
 }

@@ -55,7 +55,7 @@ extern void BsdfIndexOfRefraction(BSDF *bsdf, REFRACTIONINDEX *index);
  * be the same. 
  * This routine returns TRUE if a shading frame could be constructed and FALSE if
  * not. In the latter case, a default frame needs to be used (not computed by this
- * routine - MaterialShadingFrame() in material.[ch] constructs such a frame if
+ * routine - materialShadingFrame() in material.[ch] constructs such a frame if
  * needed) */
 extern int BsdfShadingFrame(BSDF *bsdf, HITREC *hit, Vector3D *X, Vector3D *Y, Vector3D *Z);
 
