@@ -27,7 +27,7 @@ is filled in bounding box and a pointer to the filled in bounding box returned
 */
 static float *
 compoundBounds(Compound *obj, float *boundingBox) {
-    return GeomListBounds(&obj->children, boundingBox);
+    return geometryListBounds(&obj->children, boundingBox);
 }
 
 /**
@@ -86,7 +86,8 @@ compoundDiscretizationIntersect(
         int hitFlags,
         HITREC *hitStore)
 {
-    return GeomListDiscretizationIntersect(&obj->children, ray, minimumDistance, maximumDistance, hitFlags, hitStore);
+    return geometryListDiscretizationIntersect(&obj->children, ray, minimumDistance, maximumDistance, hitFlags,
+                                               hitStore);
 }
 
 static HITLIST *

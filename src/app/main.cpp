@@ -561,7 +561,7 @@ readFile(char *filename) {
     fprintf(stderr, "Building patch list ... ");
     fflush(stderr);
 
-    GLOBAL_scene_patches = BuildPatchList(GLOBAL_scene_world, nullptr /*should replace with new list*/);
+    GLOBAL_scene_patches = buildPatchList(GLOBAL_scene_world, nullptr /*should replace with new list*/);
 
     t = clock();
     fprintf(stderr, "%g secs.\n", (float) (t - last) / (float) CLOCKS_PER_SEC);
@@ -586,7 +586,7 @@ readFile(char *filename) {
         GLOBAL_scene_clusteredWorld = (GeometryListNode *) (GLOBAL_scene_clusteredWorldGeom->obj);
     } else {
         // small memory leak here ... but exceptional situation!
-        GLOBAL_scene_clusteredWorld = GeomListAdd(nullptr, GLOBAL_scene_clusteredWorldGeom);
+        GLOBAL_scene_clusteredWorld = geometryListAdd(nullptr, GLOBAL_scene_clusteredWorldGeom);
         logWarning(nullptr, "Strange clusters for this world ...");
     }
 

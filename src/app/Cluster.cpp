@@ -58,7 +58,7 @@ Cluster::~Cluster() {
 void
 Cluster::commonBuild() {
     int i;
-    BoundsInit(boundingBox);
+    boundsInit(boundingBox);
     VECTORSET(boundingBoxCentroid, 0.0, 0.0, 0.0);
     patches = new java::ArrayList<PATCH *>();
 
@@ -79,7 +79,7 @@ Cluster::clusterAddPatch(PATCH *patch) {
 
     if ( patch != nullptr ) {
         patches->add(0, patch);
-        BoundsEnlarge(boundingBox, patch->bounds ? patch->bounds : patchBounds(patch, patchBoundingBox));
+        boundsEnlarge(boundingBox, patch->bounds ? patch->bounds : patchBounds(patch, patchBoundingBox));
     }
 }
 
@@ -140,7 +140,7 @@ Cluster::clusterMovePatch(int parentIndex) {
     selectedChildCluster->patches->add(patch);
 
     // Enlarge the bounding box the of sub-cluster
-    BoundsEnlarge(selectedChildCluster->boundingBox, patchBoundingBox);
+    boundsEnlarge(selectedChildCluster->boundingBox, patchBoundingBox);
 
     // Current patch was moved to the sub-cluster
     return true;
@@ -221,7 +221,7 @@ Cluster::convertClusterToGeom() {
         }
 
         if ( child != nullptr ) {
-            geometryListNode = GeomListAdd(geometryListNode, child);
+            geometryListNode = geometryListAdd(geometryListNode, child);
         }
     }
 
@@ -230,6 +230,6 @@ Cluster::convertClusterToGeom() {
     }
 
     // The patches in the cluster are the first to be tested for intersection with
-    geometryListNode = GeomListAdd(geometryListNode, thePatches);
+    geometryListNode = geometryListAdd(geometryListNode, thePatches);
     return geomCreateAggregateCompound(geometryListNode, &GLOBAL_skin_compoundGeometryMethods);
 }

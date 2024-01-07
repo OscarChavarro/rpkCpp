@@ -17,29 +17,29 @@ class GeometryListNode {
     GeometryListNode *next;
 };
 
-#define GeomListAdd(geomlist, geom)    \
-        (GeometryListNode *)ListAdd((LIST *)geomlist, (void *)geom)
-
 #define GeomListCount(geomlist) \
         ListCount((LIST *)geomlist)
 
 #define GeomListIterate(geomlist, proc) \
         ListIterate((LIST *)geomlist, (void (*)(void *))proc)
 
-#define GeomListIterate1A(geomlist, proc, data) \
-        ListIterate1A((LIST *)geomlist, (void (*)(void *, void *))proc, (void *)data)
-
 #define GeomListDestroy(geomlist) \
         ListDestroy((LIST *)geomlist)
 
 #define ForAllGeoms(geom, geomlist)    ForAllInList(Geometry, geom, geomlist)
 
-extern float *GeomListBounds(GeometryListNode *geomlist, float *boundingbox);
-extern PatchSet *BuildPatchList(GeometryListNode *world, PatchSet *patchlist);
+extern GeometryListNode *
+geometryListAdd(GeometryListNode *geometryList, Geometry *geometry);
+
+extern float *
+geometryListBounds(GeometryListNode *geometryList, float *boundingBox);
+
+extern PatchSet *
+buildPatchList(GeometryListNode *geometryList, PatchSet *patchList);
 
 extern HITREC *
-GeomListDiscretizationIntersect(
-    GeometryListNode *geomlist,
+geometryListDiscretizationIntersect(
+    GeometryListNode *geometryList,
     Ray *ray,
     float minimumDistance,
     float *maximumDistance,

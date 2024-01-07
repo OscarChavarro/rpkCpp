@@ -187,7 +187,7 @@ surfaceDone() {
                 globalCurrentFaceList,
                 NO_COLORS),
             &GLOBAL_skin_surfaceGeometryMethods);
-        globalCurrentGeometryList = GeomListAdd(globalCurrentGeometryList, newGeometry);
+        globalCurrentGeometryList = geometryListAdd(globalCurrentGeometryList, newGeometry);
     }
     globalInSurface = false;
 }
@@ -1067,7 +1067,7 @@ handleObjectEntity(int argc, char **argv) {
         popCurrentGeometryList();
 
         if ( theGeometry ) {
-            globalCurrentGeometryList = GeomListAdd(globalCurrentGeometryList, theGeometry);
+            globalCurrentGeometryList = geometryListAdd(globalCurrentGeometryList, theGeometry);
         }
 
         newSurface();

@@ -54,7 +54,7 @@ HITREC *ShadowTestDiscretisation(Ray *ray, GeometryListNode *world, float dist, 
         GLOBAL_statistics_numberOfShadowCacheHits++;
     } else {
         if ( world != GLOBAL_scene_clusteredWorld && world != GLOBAL_scene_world ) {
-            hit = GeomListDiscretizationIntersect(world, ray, EPSILON * dist, &dist, HIT_FRONT | HIT_ANY, hitstore);
+            hit = geometryListDiscretizationIntersect(world, ray, EPSILON * dist, &dist, HIT_FRONT | HIT_ANY, hitstore);
         } else {
             hit = GLOBAL_scene_worldVoxelGrid->gridIntersect(ray, EPSILON * dist, &dist, HIT_FRONT | HIT_ANY, hitstore);
         }

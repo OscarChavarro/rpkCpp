@@ -329,7 +329,8 @@ static int
 ViewCullBounds(float *bounds) {
     int i;
     for ( i = 0; i < NR_VIEW_PLANES; i++ ) {
-        if ( BoundsBehindPlane(bounds, &GLOBAL_camera_mainCamera.viewplane[i].norm, GLOBAL_camera_mainCamera.viewplane[i].d)) {
+        if ( boundsBehindPlane(bounds, &GLOBAL_camera_mainCamera.viewplane[i].norm,
+                               GLOBAL_camera_mainCamera.viewplane[i].d)) {
             return true;
         }
     }

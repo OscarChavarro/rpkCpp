@@ -471,7 +471,7 @@ static int SubdivideSourceCluster(INTERACTION *link) {
         if ( !IsCluster(child)) {
             PATCH *the_patch = child->pog.patch;
             if ((IsCluster(rcv) &&
-                 BoundsBehindPlane(geomBounds(rcv->pog.geom), &the_patch->normal, the_patch->planeConstant)) ||
+                    boundsBehindPlane(geomBounds(rcv->pog.geom), &the_patch->normal, the_patch->planeConstant)) ||
                 (!IsCluster(rcv) && !Facing(rcv->pog.patch, the_patch))) {
                 continue;
             }
@@ -504,7 +504,7 @@ static int SubdivideReceiverCluster(INTERACTION *link) {
         if ( !IsCluster(child)) {
             PATCH *the_patch = child->pog.patch;
             if ((IsCluster(src) &&
-                 BoundsBehindPlane(geomBounds(src->pog.geom), &the_patch->normal, the_patch->planeConstant)) ||
+                    boundsBehindPlane(geomBounds(src->pog.geom), &the_patch->normal, the_patch->planeConstant)) ||
                 (!IsCluster(src) && !Facing(src->pog.patch, the_patch))) {
                 continue;
             }

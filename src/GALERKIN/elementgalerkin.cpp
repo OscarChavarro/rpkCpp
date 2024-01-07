@@ -632,16 +632,16 @@ ElementMidpoint(ELEMENT *elem) {
 float *
 ElementBounds(ELEMENT *elem, float *bounds) {
     if ( IsCluster(elem)) {
-        BoundsCopy(geomBounds(elem->pog.geom), bounds);
+        boundsCopy(geomBounds(elem->pog.geom), bounds);
     } else {
         Vector3D p[4];
         int i, nrverts;
 
         nrverts = ElementVertices(elem, p);
 
-        BoundsInit(bounds);
+        boundsInit(bounds);
         for ( i = 0; i < nrverts; i++ ) {
-            BoundsEnlargePoint(bounds, &p[i]);
+            boundsEnlargePoint(bounds, &p[i]);
         }
     }
 
@@ -664,9 +664,9 @@ ElementPolygon(ELEMENT *elem, POLYGON *poly) {
     poly->index = elem->pog.patch->index;
     poly->nrvertices = ElementVertices(elem, poly->vertex);
 
-    BoundsInit(poly->bounds);
+    boundsInit(poly->bounds);
     for ( i = 0; i < poly->nrvertices; i++ ) {
-        BoundsEnlargePoint(poly->bounds, &poly->vertex[i]);
+        boundsEnlargePoint(poly->bounds, &poly->vertex[i]);
     }
 
     return poly;

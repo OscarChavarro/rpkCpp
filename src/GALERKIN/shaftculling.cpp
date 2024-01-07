@@ -369,8 +369,8 @@ SHAFT *ConstructPolygonToPolygonShaft(POLYGON *p1, POLYGON *p2, SHAFT *shaft) {
 
     /* shaft extent = bounding box containing the bounding boxes of the
      * patches */
-    BoundsCopy(p1->bounds, shaft->extent);
-    BoundsEnlarge(shaft->extent, p2->bounds);
+    boundsCopy(p1->bounds, shaft->extent);
+    boundsEnlarge(shaft->extent, p2->bounds);
 
     /* nothing (yet) to omit */
     shaft->omit[0] = shaft->omit[1] = (Geometry *) nullptr;
@@ -646,9 +646,9 @@ Keep(Geometry *geom, GeometryListNode *candlist) {
     if ( geom->shaftCullGeometry ) {
         Geometry *newgeom = geomDuplicate(geom);
         newgeom->shaftCullGeometry = true;
-        candlist = GeomListAdd(candlist, newgeom);
+        candlist = geometryListAdd(candlist, newgeom);
     } else {
-        candlist = GeomListAdd(candlist, geom);
+        candlist = geometryListAdd(candlist, geom);
     }
     return candlist;
 }
@@ -670,7 +670,7 @@ static GeometryListNode *Open(Geometry *geom, SHAFT *shaft, GeometryListNode *ca
             Geometry *newgeom;
             newgeom = geomCreatePatchSet(patchlist, &GLOBAL_skin_patchListGeometryMethods);
             newgeom->shaftCullGeometry = true;
-            candlist = GeomListAdd(candlist, newgeom);
+            candlist = geometryListAdd(candlist, newgeom);
         }
     }
     return candlist;

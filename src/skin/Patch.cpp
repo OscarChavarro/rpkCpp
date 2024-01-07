@@ -327,7 +327,7 @@ patchDestroy(PATCH *patch) {
     }
 
     if ( patch->bounds ) {
-        BoundsDestroy(patch->bounds);
+        boundsDestroy(patch->bounds);
     }
 
     if ( patch->jacobian ) {
@@ -357,14 +357,14 @@ patchBounds(PATCH *patch, float *bounds) {
     int i;
 
     if ( !patch->bounds ) {
-        patch->bounds = BoundsCreate();
-        BoundsInit(patch->bounds);
+        patch->bounds = boundsCreate();
+        boundsInit(patch->bounds);
         for ( i = 0; i < patch->numberOfVertices; i++ ) {
-            BoundsEnlargePoint(patch->bounds, patch->vertex[i]->point);
+            boundsEnlargePoint(patch->bounds, patch->vertex[i]->point);
         }
     }
 
-    BoundsCopy(patch->bounds, bounds);
+    boundsCopy(patch->bounds, bounds);
 
     return bounds;
 }

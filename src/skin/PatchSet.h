@@ -16,12 +16,6 @@ class PatchSet {
 
 class HITLIST;
 
-#define PatchListDuplicate(patchlist) \
-        (PatchSet *)ListDuplicate((LIST *)patchlist)
-
-#define PatchListMerge(patchlist1, patchlist2) \
-        (PatchSet *)ListMerge((LIST *)patchlist1, (LIST *)patchlist2);
-
 #define PatchListIterate(patchlist, proc) \
         ListIterate((LIST *)patchlist, (void (*)(void *))proc)
 

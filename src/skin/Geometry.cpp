@@ -56,7 +56,7 @@ geomCreateBase(void *geometryData, GEOM_METHODS *methods) {
         boundsEnlargeTinyBit(newGeometry->bounds);
         newGeometry->bounded = true;
     } else {
-        BoundsInit(newGeometry->bounds);
+        boundsInit(newGeometry->bounds);
         newGeometry->bounded = false;
     }
     newGeometry->shaftCullGeometry = false;
@@ -265,7 +265,7 @@ geomDiscretizationIntersect(
         VECTORSUMSCALED(ray->pos, mindist, ray->dir, vtmp);
         if ( OutOfBounds(&vtmp, geom->bounds)) {
             nmaxdist = *maxdist;
-            if ( !BoundsIntersect(ray, geom->bounds, mindist, &nmaxdist)) {
+            if ( !boundsIntersect(ray, geom->bounds, mindist, &nmaxdist)) {
                 return nullptr;
             }
         }
@@ -294,7 +294,7 @@ geomAllDiscretizationIntersections(
         VECTORSUMSCALED(ray->pos, mindist, ray->dir, vtmp);
         if ( OutOfBounds(&vtmp, geom->bounds)) {
             nmaxdist = maxdist;
-            if ( !BoundsIntersect(ray, geom->bounds, mindist, &nmaxdist)) {
+            if ( !boundsIntersect(ray, geom->bounds, mindist, &nmaxdist)) {
                 return hits;
             }
         }

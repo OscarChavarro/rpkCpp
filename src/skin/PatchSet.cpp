@@ -12,11 +12,11 @@ float *
 patchListBounds(PatchSet *pl, float *boundingbox) {
     BOUNDINGBOX b;
 
-    BoundsInit(boundingbox);
+    boundsInit(boundingbox);
     ForAllPatches(patch, pl)
                 {
                     patchBounds(patch, b);
-                    BoundsEnlarge(boundingbox, b);
+                    boundsEnlarge(boundingbox, b);
                 }
     EndForAll;
 
@@ -64,12 +64,14 @@ patchListAllIntersections(HITLIST *hits, PatchSet *patches, Ray *ray, float mini
     return hits;
 }
 
-/* The following routines are needed to make patchlists look like GEOMs. This 
- * is required for shaft culling (see shaftculling.[ch] and clustering (see
- * cluster.[ch]. In both cases, the PATCHes pointed to should not be
- * destroyed, only the PatchSet should. */
+/**
+The following routines are needed to make patch lists look like GEOMs. This
+is required for shaft culling (see shaft culling.[ch] and clustering (see
+cluster.[ch]. In both cases, the patches pointed to should not be
+destroyed, only the patches should
+*/
 static void
-PatchlistDestroy(PatchSet *patchlist) {
+patchListDestroy(PatchSet *patchlist) {
     PatchListDestroy(patchlist);
 }
 
@@ -79,29 +81,39 @@ PatchPrintId(FILE *out, PATCH *patch) {
 }
 
 static void
-PatchlistPrint(FILE *out, PatchSet *patchlist) {
+patchListPrint(FILE *out, PatchSet *patchlist) {
     fprintf(out, "getPatchList:\n");
     PatchListIterate1B(patchlist, PatchPrintId, out);
     fprintf(out, "\nend of getPatchList.\n");
 }
 
 static PatchSet *
-PatchlistPatchlist(PatchSet *patchlist) {
+getPatchList(PatchSet *patchlist) {
     return patchlist;
 }
 
 static PatchSet *
-PatchlistDuplicate(PatchSet *patchlist) {
-    return PatchListDuplicate(patchlist);
+patchListDuplicate(PatchSet *patchList) {
+    PatchSet *newList = (PatchSet *) nullptr;
+    void *patch;
+
+    while ( (patch = (patchList != nullptr ? (GLOBAL_listHandler = patchList->patch, patchList = patchList->next, GLOBAL_listHandler) : nullptr)) ) {
+        PatchSet *newListNode = (PatchSet *)malloc(sizeof(PatchSet));
+        newListNode->patch = (PATCH *)patch;
+        newListNode->next = newList;
+        newList = newListNode;
+    }
+
+    return newList;
 }
 
 GEOM_METHODS GLOBAL_skin_patchListGeometryMethods = {
         (float *(*)(void *, float *)) patchListBounds,
-        (void (*)(void *)) PatchlistDestroy,
-        (void (*)(FILE *, void *)) PatchlistPrint,
+        (void (*)(void *)) patchListDestroy,
+        (void (*)(FILE *, void *)) patchListPrint,
         (GeometryListNode *(*)(void *)) nullptr,
-        (PatchSet *(*)(void *)) PatchlistPatchlist,
+        (PatchSet *(*)(void *)) getPatchList,
         (HITREC *(*)(void *, Ray *, float, float *, int, HITREC *)) patchListIntersect,
         (HITLIST *(*)(HITLIST *, void *, Ray *, float, float, int)) patchListAllIntersections,
-        (void *(*)(void *)) PatchlistDuplicate
+        (void *(*)(void *)) patchListDuplicate
 };

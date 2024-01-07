@@ -932,14 +932,14 @@ Computes and fills in a bounding box for the element
 float *
 McrElementBounds(ELEMENT *elem, float *bounds) {
     if ( elem->iscluster ) {
-        BoundsCopy(elem->pog.geom->bounds, bounds);
+        boundsCopy(elem->pog.geom->bounds, bounds);
     } else if ( !elem->uptrans ) {
         patchBounds(elem->pog.patch, bounds);
     } else {
-        BoundsInit(bounds);
+        boundsInit(bounds);
         ForAllVerticesOfElement(v, elem)
                     {
-                        BoundsEnlargePoint(bounds, v->point);
+                        boundsEnlargePoint(bounds, v->point);
                     }
         EndForAll;
     }

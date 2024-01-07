@@ -7,7 +7,7 @@
 #define SetIfGreater(a, b) (a = ((a) > (b) ? (a) : (b)))
 
 float *
-BoundsCreate() {
+boundsCreate() {
     float *bounds;
 
     bounds = (float *)malloc(sizeof(BOUNDINGBOX));
@@ -15,12 +15,12 @@ BoundsCreate() {
 }
 
 void
-BoundsDestroy(float *bounds) {
+boundsDestroy(float *bounds) {
     free(bounds);
 }
 
 float *
-BoundsInit(float *bounds) {
+boundsInit(float *bounds) {
     bounds[MIN_X] = bounds[MIN_Y] = bounds[MIN_Z] = HUGE;
     bounds[MAX_X] = bounds[MAX_Y] = bounds[MAX_Z] = -HUGE;
     return bounds;
@@ -30,7 +30,7 @@ BoundsInit(float *bounds) {
 Enlarge getBoundingBox with extra
 */
 float *
-BoundsEnlarge(float *bounds, float *extra) {
+boundsEnlarge(float *bounds, float *extra) {
     SetIfLess(bounds[MIN_X], extra[MIN_X]);
     SetIfLess(bounds[MIN_Y], extra[MIN_Y]);
     SetIfLess(bounds[MIN_Z], extra[MIN_Z]);
@@ -41,7 +41,7 @@ BoundsEnlarge(float *bounds, float *extra) {
 }
 
 float *
-BoundsEnlargePoint(float *bounds, Vector3D *point) {
+boundsEnlargePoint(float *bounds, Vector3D *point) {
     SetIfLess(bounds[MIN_X], point->x);
     SetIfLess(bounds[MIN_Y], point->y);
     SetIfLess(bounds[MIN_Z], point->z);
@@ -52,7 +52,7 @@ BoundsEnlargePoint(float *bounds, Vector3D *point) {
 }
 
 float *
-BoundsCopy(const float *from, float *to) {
+boundsCopy(const float *from, float *to) {
     to[MIN_X] = from[MIN_X];
     to[MIN_Y] = from[MIN_Y];
     to[MIN_Z] = from[MIN_Z];
@@ -71,7 +71,7 @@ intersection, and true is returned.  Otherwise, false is returned.
 If this routine is used to check for intersection with a volume
 rather than a "hollow" box, one should first determine if
 (ray->pos + mindist * ray->dir) is inside the bounding volume, and
-call BoundsIntersect() only if it is not.
+call boundsIntersect() only if it is not.
 
 This routine was taken from rayshade [PhB].
 */
@@ -85,7 +85,7 @@ If there are no intersection in the given interval, false is returned. If there
 are intersections, true is returned.
 */
 int
-BoundsIntersectingSegment(Ray *ray, float *bounds, float *tmin, float *tmax) {
+boundsIntersectingSegment(Ray *ray, float *bounds, float *tmin, float *tmax) {
     float t, mindist, maxdist;
     float dir, pos;
 
@@ -218,13 +218,13 @@ BoundsIntersectingSegment(Ray *ray, float *bounds, float *tmin, float *tmax) {
 }
 
 int
-BoundsIntersect(Ray *ray, float *bounds, float mindist, float *maxdist) {
+boundsIntersect(Ray *ray, float *bounds, float mindist, float *maxdist) {
     float tmin, tmax;
     int hit;
 
     tmin = mindist;
     tmax = *maxdist;
-    hit = BoundsIntersectingSegment(ray, bounds, &tmin, &tmax);
+    hit = boundsIntersectingSegment(ray, bounds, &tmin, &tmax);
     if ( hit ) {
         // reduce maxdist
         if ( tmin == mindist ) {
@@ -241,11 +241,11 @@ BoundsIntersect(Ray *ray, float *bounds, float mindist, float *maxdist) {
 }
 
 /**
-Returns true if the boundingbox is behind the plane defined by norm and d
+Returns true if the bounding box is behind the plane defined by norm and d
 see F. Tampieri, Fast Vertex Radiosity Update, Graphics Gems II, p 303
 */
 int
-BoundsBehindPlane(float *bounds, Vector3D *norm, float d) {
+boundsBehindPlane(float *bounds, Vector3D *norm, float d) {
     Vector3D P;
 
     if ( norm->x > 0.0f ) {
@@ -274,7 +274,7 @@ Computes boundingbox after transforming bbx with xf. Result is filled
 in transbbx and a pointer to transbbx returned
 */
 float *
-BoundsTransform(float *bbx, Matrix4x4 *xf, float *transbbx) {
+boundsTransform(float *bbx, Matrix4x4 *xf, float *transbbx) {
     Vector3D v[8];
     int i;
     double d;
@@ -288,10 +288,10 @@ BoundsTransform(float *bbx, Matrix4x4 *xf, float *transbbx) {
     VECTORSET(v[6], bbx[MIN_X], bbx[MAX_Y], bbx[MAX_Z]);
     VECTORSET(v[7], bbx[MAX_X], bbx[MAX_Y], bbx[MAX_Z]);
 
-    BoundsInit(transbbx);
+    boundsInit(transbbx);
     for ( i = 0; i < 8; i++ ) {
         TRANSFORM_POINT_3D(*xf, v[i], v[i]);
-        BoundsEnlargePoint(transbbx, &v[i]);
+        boundsEnlargePoint(transbbx, &v[i]);
     }
 
     d = (transbbx[MAX_X] - transbbx[MIN_X]) * EPSILON;

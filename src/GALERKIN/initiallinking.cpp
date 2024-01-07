@@ -98,7 +98,7 @@ static void GeomLink(Geometry *geom) {
 
     /* immediately return if the Geometry is bounded and behind the plane of the patch
      * for which itneractions are created ... */
-    if ( geom->bounded && BoundsBehindPlane(geomBounds(geom), &the_patch->normal, the_patch->planeConstant)) {
+    if ( geom->bounded && boundsBehindPlane(geomBounds(geom), &the_patch->normal, the_patch->planeConstant)) {
         return;
     }
 

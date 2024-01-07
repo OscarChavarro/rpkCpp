@@ -60,7 +60,7 @@ VoxelGrid::putItemInsideVoxelGrid(VoxelData *item, const float *itemBounds) {
     float xExtent = (boundingBox[MAX_X] - boundingBox[MIN_X]) * 1e-4f;
     float yExtent = (boundingBox[MAX_Y] - boundingBox[MIN_Y]) * 1e-4f;
     float zExtent = (boundingBox[MAX_Z] - boundingBox[MIN_Z]) * 1e-4f;
-    BoundsCopy(itemBounds, boundaries);
+    boundsCopy(itemBounds, boundaries);
     boundaries[MIN_X] -= xExtent;
     boundaries[MAX_X] += xExtent;
     boundaries[MIN_Y] -= yExtent;
@@ -184,7 +184,7 @@ VoxelGrid::putGeometryInsideVoxelGrid(Geometry *geometry, const short na, const 
     xExtension = (geometry->bounds[MAX_X] - geometry->bounds[MIN_X]) * 1e-4f;
     yExtension = (geometry->bounds[MAX_Y] - geometry->bounds[MIN_Y]) * 1e-4f;
     zExtension = (geometry->bounds[MAX_Z] - geometry->bounds[MIN_Z]) * 1e-4f;
-    BoundsCopy(geometry->bounds, boundingBox);
+    boundsCopy(geometry->bounds, boundingBox);
     boundingBox[MIN_X] -= xExtension;
     boundingBox[MAX_X] += xExtension;
     boundingBox[MIN_Y] -= yExtension;
@@ -252,7 +252,7 @@ VoxelGrid::gridBoundsIntersect(
     VECTORSUMSCALED(ray->pos, *t0, ray->dir, *P);
     if ( OutOfBounds(P, boundingBox)) {
         *t0 = maximumDistance;
-        if ( !BoundsIntersect(ray, boundingBox, minimumDistance, t0)) {
+        if ( !boundsIntersect(ray, boundingBox, minimumDistance, t0)) {
             return false;
         }
         VECTORSUMSCALED(ray->pos, *t0, ray->dir, *P);

@@ -42,15 +42,15 @@ DisjunctBounds(float *b1, float *b2) {
         (b1[MIN_Z] > b2[MAX_Z]) || (b2[MIN_Z] > b1[MAX_Z]);
 }
 
-extern float * BoundsCreate();
-extern float * BoundsCopy(const float *from, float *to);
-extern void BoundsDestroy(float *bounds);
-extern float * BoundsInit(float *bounds);
-extern float * BoundsEnlarge(float *bounds, float *extra);
-extern float * BoundsEnlargePoint(float *bounds, Vector3D *point);
-extern int BoundsIntersect(Ray *ray, float *bounds, float mindist, float *maxdist);
-extern int BoundsBehindPlane(float *bounds, Vector3D *norm, float d);
-extern float *BoundsTransform(float *bbx, Matrix4x4 *xf, float *transbbx);
-extern int BoundsIntersectingSegment(Ray *ray, float *bounds, float *tmin, float *tmax);
+extern float * boundsCreate();
+extern float * boundsCopy(const float *from, float *to);
+extern void boundsDestroy(float *bounds);
+extern float * boundsInit(float *bounds);
+extern float * boundsEnlarge(float *bounds, float *extra);
+extern float * boundsEnlargePoint(float *bounds, Vector3D *point);
+extern int boundsIntersect(Ray *ray, float *bounds, float mindist, float *maxdist);
+extern int boundsBehindPlane(float *bounds, Vector3D *norm, float d);
+extern float *boundsTransform(float *bbx, Matrix4x4 *xf, float *transbbx);
+extern int boundsIntersectingSegment(Ray *ray, float *bounds, float *tmin, float *tmax);
 
 #endif
