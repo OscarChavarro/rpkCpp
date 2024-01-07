@@ -291,7 +291,7 @@ makeValidVrmlId(const char *id) {
 
 static void
 writeMaterial(Geometry *geom) {
-    MeshSurface *surf = GeomGetSurface(geom);
+    MeshSurface *surf = geomGetSurface(geom);
     Material *mat = surf->material;
     PATCH *first_patch = (surf->faces) ? surf->faces->patch : (PATCH *) nullptr;
     HITREC hit;
@@ -340,12 +340,12 @@ static void
 beginWritePrimitive(Geometry *geom) {
     static int wgiv = false;
     fprintf(vrmlfp, "    Shape {\n");
-    if ( GeomIsSurface(geom)) {
+    if ( geomIsSurface(geom)) {
         writeMaterial(geom);
     }
     fprintf(vrmlfp, "      geometry IndexedFaceSet {\n");
-    if ( GeomIsSurface(geom)) {
-        fprintf(vrmlfp, "\tsolid %s\n", GeomGetSurface(geom)->material->sided ? "TRUE" : "FALSE");
+    if ( geomIsSurface(geom)) {
+        fprintf(vrmlfp, "\tsolid %s\n", geomGetSurface(geom)->material->sided ? "TRUE" : "FALSE");
     }
     if ( !renderopts.smooth_shading && !wgiv ) {
         logWarning(nullptr, "I assume you want a smooth shaded model ...");
@@ -356,7 +356,7 @@ beginWritePrimitive(Geometry *geom) {
 
 static const char *
 primitiveMatName(Geometry *geom) {
-    MeshSurface *surf = GeomGetSurface(geom);
+    MeshSurface *surf = geomGetSurface(geom);
     if ( !surf ) {
         return "unknown (not a surface)";
     } else {

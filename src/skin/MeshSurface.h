@@ -17,7 +17,7 @@ class Geometry;
 class PatchSet;
 class Vertex;
 
-class MeshSurface {
+class MeshSurface : public Geometry {
   public:
     int id;
 
@@ -70,8 +70,15 @@ surfaceCreate(
 // A set of pointers to functions to operate on a MeshSurface
 extern GEOM_METHODS GLOBAL_skin_surfaceGeometryMethods;
 
-extern bool GeomIsSurface(Geometry *geom);
-extern MeshSurface *GeomGetSurface(Geometry *geom);
+inline bool
+geomIsSurface(Geometry *geom) {
+    return geom->methods == &GLOBAL_skin_surfaceGeometryMethods;
+}
+
+inline MeshSurface*
+geomGetSurface(Geometry *geom) {
+    return geomIsSurface(geom) ? geom->surfaceData : nullptr;
+}
 
 #include "skin/Geometry.h"
 

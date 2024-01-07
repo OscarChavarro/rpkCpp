@@ -2,10 +2,8 @@
 #define __GEOMETRY__
 
 #include "java/util/ArrayList.h"
-#include "material/hit.h"
 #include "skin/bounds.h"
-#include "skin/MeshSurface.h"
-#include "skin/geomlist.h"
+#include "material/hit.h"
 
 /**
 Currently, there are three types of geometries:
@@ -161,6 +159,9 @@ extern Geometry *GLOBAL_geom_excludedGeom2;
 #include "skin/PatchSet.h"
 #include "skin/MeshSurface.h"
 #include "skin/Compound.h"
+#include "skin/geomlist.h"
+
+#include "skin/MeshSurface.h"
 #include "skin/geomlist.h"
 
 #endif
