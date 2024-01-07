@@ -64,7 +64,7 @@ public:
 
     virtual void Init(CSparConfig *config);
 
-    // Init spar with a comma separated list of regular expressions
+    // mainInit spar with a comma separated list of regular expressions
     virtual void ParseAndInit(int group, char *regExp);
 
     // Destructor

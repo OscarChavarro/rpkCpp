@@ -239,14 +239,14 @@ void SRCONFIG::InitDependentVars() {
 
     siOthersCount = siIndex;
 
-    // Init the light list
+    // mainInit the light list
     if ( gLightList ) {
         delete gLightList;
     }
     gLightList = new CLightList(GLOBAL_scene_lightSourcePatches, (bool) backgroundSampling);
 
 
-    // Init the seed config
+    // mainInit the seed config
 
     seedConfig.Init(samplerConfig.maxDepth);
 }

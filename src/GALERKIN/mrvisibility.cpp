@@ -75,7 +75,8 @@ GeomMultiResolutionVisibility(
             return GeomListMultiResolutionVisibility(geomPrimList(geom), ray, rcvdist, srcsize, minfeaturesize);
         } else {
             HITREC *hit;
-            if ((hit = PatchListIntersect(geomPatchList(geom), ray, rcvdist * ((float)EPSILON), &rcvdist, HIT_FRONT | HIT_ANY,
+            if ((hit = patchListIntersect(geomPatchList(geom), ray, rcvdist * ((float) EPSILON), &rcvdist,
+                                          HIT_FRONT | HIT_ANY,
                                           &hitstore))) {
                 AddToShadowCache(hit->patch);
                 return 0.;

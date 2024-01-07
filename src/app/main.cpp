@@ -33,7 +33,7 @@ static int globalImageOutputHeight = 0;
 #define GeomIsCompound(geom) (geom->methods == &GLOBAL_skin_compoundGeometryMethods)
 
 static void
-PatchAccumulateStats(PATCH *patch) {
+patchAccumulateStats(PATCH *patch) {
     COLOR
             E = patchAverageEmittance(patch, ALL_COMPONENTS),
             R = patchAverageNormalAlbedo(patch, BSDF_ALL_COMPONENTS),
@@ -50,7 +50,7 @@ PatchAccumulateStats(PATCH *patch) {
 }
 
 static void
-ComputeSomeSceneStats() {
+computeSomeSceneStats() {
     Vector3D zero;
     COLOR one, average_absorption, BP;
 
@@ -65,7 +65,7 @@ ComputeSomeSceneStats() {
     GLOBAL_statistics_totalArea = 0.;
 
     /* accumulate */
-    PatchListIterate(GLOBAL_scene_patches, PatchAccumulateStats);
+    PatchListIterate(GLOBAL_scene_patches, patchAccumulateStats);
 
     /* averages ... */
     colorScaleInverse(GLOBAL_statistics_totalArea, GLOBAL_statistics_averageReflectivity, GLOBAL_statistics_averageReflectivity);
@@ -88,21 +88,30 @@ ComputeSomeSceneStats() {
 Adds the background to the global light source patch list
 */
 static void
-AddBackgroundToLightSourceList() {
-    if ( GLOBAL_scene_background ) {
-        GLOBAL_scene_lightSourcePatches = PatchListAdd(GLOBAL_scene_lightSourcePatches, GLOBAL_scene_background->bkgPatch);
+addBackgroundToLightSourceList() {
+    if ( GLOBAL_scene_background != nullptr && GLOBAL_scene_background->bkgPatch != nullptr ) {
+        PatchSet *newListNode = (PatchSet *)malloc(sizeof(PatchSet));
+        newListNode->patch = GLOBAL_scene_background->bkgPatch;
+        newListNode->next = GLOBAL_scene_lightSourcePatches;
+        GLOBAL_scene_lightSourcePatches = newListNode;
     }
 }
-
 
 /**
 Adds the patch to the global light source patch list if the patch is on 
 a light source (i.e. when the surfaces material has a non-null edf)
 */
 static void
-AddPatchToLightSourceListIfLightSource(PATCH *patch) {
-    if ( patch->surface->material->edf ) {
-        GLOBAL_scene_lightSourcePatches = PatchListAdd(GLOBAL_scene_lightSourcePatches, patch);
+addPatchToLightSourceListIfLightSource(PATCH *patch) {
+    if ( patch != nullptr
+         && patch->surface != nullptr
+         && patch->surface->material != nullptr
+         && patch->surface->material->edf != nullptr ) {
+        PatchSet *newListNode = (PatchSet *)malloc(sizeof(PatchSet));
+        newListNode->patch = patch;
+        newListNode->next = GLOBAL_scene_lightSourcePatches;
+        GLOBAL_scene_lightSourcePatches = newListNode;
+
         GLOBAL_statistics_numberOfLightSources++;
     }
 }
@@ -111,12 +120,12 @@ AddPatchToLightSourceListIfLightSource(PATCH *patch) {
 Build the global light source patch list
 */
 static void
-BuildLightSourcePatchList() {
+buildLightSourcePatchList() {
     GLOBAL_scene_lightSourcePatches = nullptr;
     GLOBAL_statistics_numberOfLightSources = 0;
-    PatchListIterate(GLOBAL_scene_patches, AddPatchToLightSourceListIfLightSource);
+    PatchListIterate(GLOBAL_scene_patches, addPatchToLightSourceListIfLightSource);
 
-    AddBackgroundToLightSourceList();
+    addBackgroundToLightSourceList();
     GLOBAL_statistics_numberOfLightSources++;
 }
 
@@ -142,7 +151,7 @@ Iterator over all available raytracing methods
 static char raytracing_methods_string[1000];
 
 static void
-make_raytracing_methods_string() {
+makeRaytracingMethodsString() {
     char *str = raytracing_methods_string;
     int n;
     sprintf(str, "\
@@ -165,7 +174,7 @@ make_raytracing_methods_string() {
 }
 
 static void
-RayTracingDefaults() {
+rayTracingDefaults() {
     ForAllRayTracingMethods(method)
                 {
                     method->Defaults();
@@ -174,11 +183,11 @@ RayTracingDefaults() {
                     }
                 }
     EndForAll;
-    make_raytracing_methods_string();    /* comes last */
+    makeRaytracingMethodsString();    /* comes last */
 }
 
 static void
-RayTracingOption(void *value) {
+rayTracingOption(void *value) {
     char *name = *(char **) value;
 
     ForAllRayTracingMethods(method)
@@ -201,13 +210,13 @@ RayTracingOption(void *value) {
 String describing the -raytracing-method command line option
 */
 static CMDLINEOPTDESC raytracingOptions[] = {
-    {"-raytracing-method", 4, Tstring,  nullptr, RayTracingOption,
+    {"-raytracing-method", 4, Tstring,  nullptr, rayTracingOption,
      raytracing_methods_string},
     {nullptr, 0, TYPELESS, nullptr, DEFAULT_ACTION, nullptr}
 };
 
 static void
-ParseRayTracingOptions(int *argc, char **argv) {
+parseRayTracingOptions(int *argc, char **argv) {
     parseOptions(raytracingOptions, argc, argv);
     ForAllRayTracingMethods(method)
                 {
@@ -217,7 +226,7 @@ ParseRayTracingOptions(int *argc, char **argv) {
 }
 
 static void
-RenderingDefaults() {
+renderingDefaults() {
     RGB outlinecolor = DEFAULT_OUTLINE_COLOR;
     RGB bbcolor = DEFAULT_BOUNDING_BOX_COLOR;
     RGB cluscolor = DEFAULT_CLUSTER_COLOR;
@@ -249,7 +258,7 @@ RenderingDefaults() {
 Global initializations
 */
 static void
-Init() {
+mainInit() {
     /* Transforms the cubature rules for quadrilaterals to be over the domain [0,1]^2
      * instead of [-1,1]^2. See cubature.[ch] */
     FixCubatureRules();
@@ -258,11 +267,11 @@ Init() {
     GLOBAL_fileOptions_forceOneSidedSurfaces = DEFAULT_FORCE_ONESIDEDNESS;
     GLOBAL_fileOptions_numberOfQuarterCircleDivisions = DEFAULT_NQCDIVS;
 
-    RenderingDefaults();
+    renderingDefaults();
     ToneMapDefaults();
     CameraDefaults();
     RadianceDefaults();
-    RayTracingDefaults();
+    rayTracingDefaults();
 
     /* Default vertex compare flags: both location and normal is relevant. Two
      * vertices without normal, but at the same location, are to be considered
@@ -276,23 +285,23 @@ Init() {
 }
 
 static void
-ForceOnesidedOption(void *value) {
+forceOneSidedOption(void *value) {
     GLOBAL_fileOptions_forceOneSidedSurfaces = *(int *) value;
 }
 
 static void
-MonochromeOption(void *value) {
+monochromeOption(void *value) {
     GLOBAL_fileOptions_monochrome = *(int *) value;
 }
 
 static CMDLINEOPTDESC globalOptions[] = {
     {"-nqcdivs", 3, Tint, &GLOBAL_fileOptions_numberOfQuarterCircleDivisions, DEFAULT_ACTION,
      "-nqcdivs <integer>\t: number of quarter circle divisions"},
-    {"-force-onesided", 10, TYPELESS, &yes, ForceOnesidedOption,
+    {"-force-onesided", 10, TYPELESS, &yes,     forceOneSidedOption,
      "-force-onesided\t\t: force one-sided surfaces"},
-    {"-dont-force-onesided", 14, TYPELESS, &no, ForceOnesidedOption,
+    {"-dont-force-onesided", 14, TYPELESS, &no, forceOneSidedOption,
      "-dont-force-onesided\t: allow two-sided surfaces"},
-    {"-monochromatic", 5, TYPELESS, &yes, MonochromeOption,
+    {"-monochromatic", 5, TYPELESS, &yes, monochromeOption,
      "-monochromatic \t\t: convert colors to shades of grey"},
     {nullptr, 0, TYPELESS, nullptr, DEFAULT_ACTION, nullptr}
 };
@@ -320,7 +329,6 @@ createClusterHierarchy(PatchSet *patches) {
     rootGeometry = rootCluster->convertClusterToGeom();
 
     delete rootCluster;
-
     return rootGeometry;
 }
 
@@ -333,7 +341,7 @@ parseGlobalOptions(int *argc, char **argv) {
     ParseToneMapOptions(argc, argv);
     ParseCameraOptions(argc, argv);
     ParseRadianceOptions(argc, argv);
-    ParseRayTracingOptions(argc, argv);
+    parseRayTracingOptions(argc, argv);
     parseBatchOptions(argc, argv);
     parseOptions(globalOptions, argc, argv);    /* this one comes last in order to
 						 * have all other options parsed before
@@ -346,7 +354,7 @@ Returns true if succesful. There's nothing GUI specific in this function.
 When a file cannot be read, the current scene is restored
 */
 static bool
-ReadFile(char *filename) {
+readFile(char *filename) {
     char *dot{};
     char *slash{};
     char *extension{};
@@ -563,7 +571,7 @@ ReadFile(char *filename) {
     fprintf(stderr, "Building light source patch list ... ");
     fflush(stderr);
 
-    BuildLightSourcePatchList();
+    buildLightSourcePatchList();
 
     t = clock();
     fprintf(stderr, "%g secs.\n", (float) (t - last) / (float) CLOCKS_PER_SEC);
@@ -598,7 +606,7 @@ ReadFile(char *filename) {
     fflush(stderr);
 
     GLOBAL_statistics_numberOfPatches = GLOBAL_statistics_numberOfElements;
-    ComputeSomeSceneStats();
+    computeSomeSceneStats();
     GLOBAL_statistics_referenceLuminance = 5.42 * ((1. - colorGray(GLOBAL_statistics_averageReflectivity)) *
             colorLuminance(GLOBAL_statistics_estimatedAverageRadiance));
 
@@ -668,7 +676,7 @@ startUserInterface(int *argc, char **argv) {
         if ( *argv[1] == '-' ) {
             logError(nullptr, "Unrecognized option '%s'", argv[1]);
         } else {
-            ReadFile(argv[1]);
+            readFile(argv[1]);
         }
     }
 
@@ -689,7 +697,7 @@ startUserInterface(int *argc, char **argv) {
 
 int
 main(int argc, char *argv[]) {
-    Init();
+    mainInit();
     parseGlobalOptions(&argc, argv);
     startUserInterface(&argc, argv);
     return 0;

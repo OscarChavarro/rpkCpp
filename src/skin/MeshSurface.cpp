@@ -173,7 +173,7 @@ returned
 */
 static float *
 surfaceBounds(MeshSurface *surf, float *boundingbox) {
-    return PatchListBounds(surf->faces, boundingbox);
+    return patchListBounds(surf->faces, boundingbox);
 }
 
 /**
@@ -187,13 +187,13 @@ surfacePatchList(MeshSurface *surf) {
 
 HITREC *
 surfaceDiscretizationIntersect(MeshSurface *surf, Ray *ray, float mindist, float *maxdist, int hitflags, HITREC *hitstore) {
-    return PatchListIntersect(surf->faces, ray, mindist, maxdist, hitflags, hitstore);
+    return patchListIntersect(surf->faces, ray, mindist, maxdist, hitflags, hitstore);
 }
 
 HITLIST *
 surfaceAllDiscretizationIntersections(HITLIST *hits, MeshSurface *surf, Ray *ray, float mindist, float maxdist,
                                       int hitflags) {
-    return PatchListAllIntersections(hits, surf->faces, ray, mindist, maxdist, hitflags);
+    return patchListAllIntersections(hits, surf->faces, ray, mindist, maxdist, hitflags);
 }
 
 GEOM_METHODS GLOBAL_skin_surfaceGeometryMethods = {

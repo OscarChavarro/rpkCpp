@@ -4,10 +4,12 @@
 #include "skin/hitlist.h"
 #include "skin/Geometry.h"
 
-/* computes a bounding box for the given list of PATCHes. The bounding box is
- * filled in 'boundingbox' and a pointer to it returned. */
+/**
+Computes a bounding box for the given list of patches. The bounding box is
+filled in 'bounding box' and a pointer to it returned
+*/
 float *
-PatchListBounds(PatchSet *pl, float *boundingbox) {
+patchListBounds(PatchSet *pl, float *boundingbox) {
     BOUNDINGBOX b;
 
     BoundsInit(boundingbox);
@@ -21,16 +23,18 @@ PatchListBounds(PatchSet *pl, float *boundingbox) {
     return boundingbox;
 }
 
-/* Tests whether the Ray intersect the PATCHes in the list. See geom.h
- * (geomDiscretizationIntersect()) for more explanation. */
+/**
+Tests whether the Ray intersect the patches in the list. See geometry.h
+(GeomDiscretizationIntersect()) for more explanation
+*/
 HITREC *
-PatchListIntersect(PatchSet *pl, Ray *ray, float mindist, float *maxdist, int hitflags, HITREC *hitstore) {
+patchListIntersect(PatchSet *patchList, Ray *ray, float minimumDistance, float *maximumDistance, int hitFlags, HITREC *hitStore) {
     HITREC *hit = (HITREC *) nullptr;
-    ForAllPatches(P, pl)
+    ForAllPatches(P, patchList)
                 {
-                    HITREC *h = patchIntersect(P, ray, mindist, maxdist, hitflags, hitstore);
+                    HITREC *h = patchIntersect(P, ray, minimumDistance, maximumDistance, hitFlags, hitStore);
                     if ( h ) {
-                        if ( hitflags & HIT_ANY ) {
+                        if ( hitFlags & HIT_ANY ) {
                             return h;
                         } else {
                             hit = h;
@@ -41,13 +45,17 @@ PatchListIntersect(PatchSet *pl, Ray *ray, float mindist, float *maxdist, int hi
     return hit;
 }
 
+/**
+Tests whether the Ray intersect the patches in the list. See geometry.h
+(GeomDiscretizationIntersect()) for more explanation
+*/
 HITLIST *
-PatchListAllIntersections(HITLIST *hits, PatchSet *patches, Ray *ray, float mindist, float maxdist, int hitflags) {
+patchListAllIntersections(HITLIST *hits, PatchSet *patches, Ray *ray, float minimumDistance, float maximumDistance, int hitFlags) {
     HITREC hitstore;
     ForAllPatches(P, patches)
                 {
-                    float tmax = maxdist;    /* do not modify maxdist */
-                    HITREC *hit = patchIntersect(P, ray, mindist, &tmax, hitflags, &hitstore);
+                    float tmax = maximumDistance;    /* do not modify maximumDistance */
+                    HITREC *hit = patchIntersect(P, ray, minimumDistance, &tmax, hitFlags, &hitstore);
                     if ( hit ) {
                         hits = HitListAdd(hits, DuplicateHit(hit));
                     }
@@ -88,12 +96,12 @@ PatchlistDuplicate(PatchSet *patchlist) {
 }
 
 GEOM_METHODS GLOBAL_skin_patchListGeometryMethods = {
-        (float *(*)(void *, float *)) PatchListBounds,
+        (float *(*)(void *, float *)) patchListBounds,
         (void (*)(void *)) PatchlistDestroy,
         (void (*)(FILE *, void *)) PatchlistPrint,
         (GeometryListNode *(*)(void *)) nullptr,
         (PatchSet *(*)(void *)) PatchlistPatchlist,
-        (HITREC *(*)(void *, Ray *, float, float *, int, HITREC *)) PatchListIntersect,
-        (HITLIST *(*)(HITLIST *, void *, Ray *, float, float, int)) PatchListAllIntersections,
+        (HITREC *(*)(void *, Ray *, float, float *, int, HITREC *)) patchListIntersect,
+        (HITLIST *(*)(HITLIST *, void *, Ray *, float, float, int)) patchListAllIntersections,
         (void *(*)(void *)) PatchlistDuplicate
 };

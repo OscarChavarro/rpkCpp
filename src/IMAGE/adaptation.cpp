@@ -124,7 +124,7 @@ void EstimateSceneAdaptation(COLOR (*patch_radiance)(PATCH *)) {
             break;
         }
         default:
-            logError("ComputeSomeSceneStats", "unknown static adaptation method %d", tmopts.statadapt);
+            logError("computeSomeSceneStats", "unknown static adaptation method %d", tmopts.statadapt);
     }
 }
 

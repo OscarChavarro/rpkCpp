@@ -618,7 +618,7 @@ static void RTStochastic_Interrupt() {
 }
 
 static void RTStochastic_Init() {
-    // Init the light list
+    // mainInit the light list
     if ( gLightList ) {
         delete gLightList;
     }

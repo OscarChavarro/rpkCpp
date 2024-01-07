@@ -447,7 +447,7 @@ int ShaftBoxTest(float *bounds, SHAFT *shaft) {
  * to whether the patch is fully inside the shaft, overlapping it, or fully outside. If it is detected that the patch fully occludes the shaft, shaft->cut is
  * set to true, indicating that there is full occlusion due to one patch and
  * that as such no further shaft culling is necessary. */
-int ShaftPatchTest(PATCH *patch, SHAFT *shaft) {
+int shaftPatchTest(PATCH *patch, SHAFT *shaft) {
     int i, j, someout, inall[MAXIMUM_VERTICES_PER_PATCH];
     SHAFTPLANE *plane;
     double tmin[MAXIMUM_VERTICES_PER_PATCH], tmax[MAXIMUM_VERTICES_PER_PATCH],
@@ -598,14 +598,18 @@ static int DontOpen(SHAFT *shaft, Geometry *geom) {
     return false;
 }
 
-/* Given a PatchSet pl and a shaft. This routine will check every patch in pl to
- * see if it is inside, outside or overlapping the shaft. Inside or overlapping patches
- * are added to culledpatchlist. A pointer to the possibly enlonged culledpatchlist 
- * is returned. */
-PatchSet *ShaftCullPatchlist(PatchSet *pl, SHAFT *shaft, PatchSet *culledpatchlist) {
-    int total, kept, bbside; /* can be used for ratio-open strategies */
+/**
+Given a PatchSet pl and a shaft. This routine will check every patch in pl to
+see if it is inside, outside or overlapping the shaft. Inside or overlapping patches
+are added to culledPatchList. A pointer to the possibly enlonged culledPatchList
+is returned
+*/
+PatchSet *
+shaftCullPatchList(PatchSet *pl, SHAFT *shaft, PatchSet *culledPatchList) {
+    int total; // Can be used for ratio-open strategies
+    int bbside;
 
-    for ( kept = total = 0; pl && !shaft->cut; pl = pl->next, total++ ) {
+    for ( total = 0; pl && !shaft->cut; pl = pl->next, total++ ) {
         if ( pl->patch->omit || Omit(shaft, (Geometry *) pl->patch)) {
             continue;
         }
@@ -618,18 +622,23 @@ PatchSet *ShaftCullPatchlist(PatchSet *pl, SHAFT *shaft, PatchSet *culledpatchli
             /* patch bounding box is inside the shaft, or overlaps with it. If it
              * overlaps, do a more expensive, but definitive, test to see whether
              * the patch itself is inside, outside or overlapping the shaft. */
-            if ( bbside == INSIDE || ShaftPatchTest(pl->patch, shaft) != OUTSIDE ) {
-                culledpatchlist = PatchListAdd(culledpatchlist, pl->patch);
-                kept++;
+            if ( bbside == INSIDE || shaftPatchTest(pl->patch, shaft) != OUTSIDE ) {
+                if ( pl->patch != nullptr) {
+                    PatchSet *newListNode = (PatchSet *) malloc(sizeof(PatchSet));
+                    newListNode->patch = pl->patch;
+                    newListNode->next = culledPatchList;
+                    culledPatchList = newListNode;
+                }
             }
         }
     }
-    return culledpatchlist;
+    return culledPatchList;
 }
 
 /* Adds the geom to the candlist, possibly duplicating it if the geom 
  * was created during previous shaftculling. */
-static GeometryListNode *Keep(Geometry *geom, GeometryListNode *candlist) {
+static GeometryListNode *
+Keep(Geometry *geom, GeometryListNode *candlist) {
     if ( geom->omit ) {
         return candlist;
     }
@@ -656,7 +665,7 @@ static GeometryListNode *Open(Geometry *geom, SHAFT *shaft, GeometryListNode *ca
     } else {
         PatchSet *patchlist;
         patchlist = geomPatchList(geom);
-        patchlist = ShaftCullPatchlist(patchlist, shaft, nullptr);
+        patchlist = shaftCullPatchList(patchlist, shaft, nullptr);
         if ( patchlist ) {
             Geometry *newgeom;
             newgeom = geomCreatePatchSet(patchlist, &GLOBAL_skin_patchListGeometryMethods);

@@ -31,7 +31,7 @@ class ScreenBuffer {
     bool m_RGBImage; /* Indicates an RGB image (=no radiance conversion!) */
 
   public:
-    explicit ScreenBuffer(CAMERA *cam); /* Also calls Init() */
+    explicit ScreenBuffer(CAMERA *cam); /* Also calls mainInit() */
     ~ScreenBuffer();
     void Init(CAMERA *cam = nullptr);
     void SetRGBImage(bool isRGB);

@@ -493,8 +493,11 @@ newFace(Vertex *v1, Vertex *v2, Vertex *v3, Vertex *v4, Vector3D *normal) {
         theFace = patchCreate(v4 ? 4 : 3, v1, v2, v3, v4);
     }
 
-    if ( theFace ) {
-        globalCurrentFaceList = PatchListAdd(globalCurrentFaceList, theFace);
+    if ( theFace != nullptr ) {
+        PatchSet *newListNode = (PatchSet *)malloc(sizeof(PatchSet));
+        newListNode->patch = theFace;
+        newListNode->next = globalCurrentFaceList;
+        globalCurrentFaceList = newListNode;
     }
 
     return theFace;

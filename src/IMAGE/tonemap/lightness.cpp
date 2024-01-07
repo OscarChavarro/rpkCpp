@@ -10,7 +10,7 @@ Lightness tone map
 static void Defaults() {
 }
 
-static void Init() {
+static void lightnessInit() {
 }
 
 static void Terminate() {
@@ -65,7 +65,7 @@ TONEMAP TM_Lightness = {
         Defaults,
         (void (*)(int *, char **)) nullptr,
         (void (*)(FILE *)) nullptr,
-        Init,
+        lightnessInit,
         Terminate,
         ScaleForComputations,
         ScaleForDisplay,

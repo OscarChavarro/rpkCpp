@@ -1,5 +1,5 @@
-#ifndef _PATCHLIST_H_
-#define _PATCHLIST_H_
+#ifndef __PATCH_LIST__
+#define __PATCH_LIST__
 
 #include "common/dataStructures/List.h"
 #include "material/hit.h"
@@ -15,9 +15,6 @@ class PatchSet {
 };
 
 class HITLIST;
-
-#define PatchListAdd(patchlist, patch)    \
-        (PatchSet *)ListAdd((LIST *)patchlist, (void *)patch)
 
 #define PatchListDuplicate(patchlist) \
         (PatchSet *)ListDuplicate((LIST *)patchlist)
@@ -36,21 +33,28 @@ class HITLIST;
 
 #define ForAllPatches(P, patches) ForAllInList(PATCH, P, patches)
 
-/* Computes a bounding box for the given list of PATCHes. The bounding box is
- * filled in in 'boundingbox' and a pointer to it returned. */
-extern float *PatchListBounds(PatchSet *pl, float *boundingbox);
-
-/* Tests whether the Ray intersect the PATCHes in the list. See geom.h
- * (geomDiscretizationIntersect()) for more explanation. */
-extern HITREC *
-PatchListIntersect(PatchSet *pl, Ray *ray, float mindist, float *maxdist, int hitflags, HITREC *hitstore);
-
-/* similar, but adds all found intersections to the hitlist */
-extern HITLIST *
-PatchListAllIntersections(HITLIST *hits, PatchSet *patches, Ray *ray, float mindist, float maxdist,
-                          int hitflags);
-
+// Note: Should create a Geometry class for a set of patches!
 extern GEOM_METHODS GLOBAL_skin_patchListGeometryMethods;
+
+extern float *patchListBounds(PatchSet *pl, float *boundingbox);
+
+extern HITREC *
+patchListIntersect(
+    PatchSet *patchList,
+    Ray *ray,
+    float minimumDistance,
+    float *maximumDistance,
+    int hitFlags,
+    HITREC *hitStore);
+
+extern HITLIST *
+patchListAllIntersections(
+    HITLIST *hits,
+    PatchSet *patches,
+    Ray *ray,
+    float minimumDistance,
+    float maximumDistance,
+    int hitFlags);
 
 #include "skin/Geometry.h"
 

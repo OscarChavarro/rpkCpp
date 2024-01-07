@@ -803,7 +803,7 @@ static void DoBPTAndSubsequentImages(BPCONFIG *config) {
 void DoBPTDensityEstimation(BPCONFIG *config) {
     char *fname = new char[300];
 
-    // Init the screens, one reference one destination
+    // mainInit the screens, one reference one destination
 
     config->ref = new ScreenBuffer(nullptr);
     config->dest = new ScreenBuffer(nullptr);
@@ -1130,7 +1130,7 @@ BidirPathInterrupt() {
 }
 
 static void BidirPathInit() {
-    // Init the light list
+    // mainInit the light list
     if ( gLightList ) {
         delete gLightList;
     }

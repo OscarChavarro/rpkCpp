@@ -7,7 +7,7 @@ Dummy tone map
 static void Defaults() {
 }
 
-static void Init() {
+static void dummyInit() {
 }
 
 static void Terminate() {
@@ -30,7 +30,7 @@ TONEMAP TM_Dummy = {
         Defaults,
         (void (*)(int *, char **)) nullptr,
         (void (*)(FILE *)) nullptr,
-        Init,
+        dummyInit,
         Terminate,
         ScaleForComputations,
         ScaleForDisplay,

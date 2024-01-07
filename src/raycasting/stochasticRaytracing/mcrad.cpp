@@ -422,7 +422,7 @@ monteCarloRadiosityPreStep() {
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.currentIteration++;
 }
 
-/* undoes the effect of Init() and all side-effects of Step() */
+/* undoes the effect of mainInit() and all side-effects of Step() */
 void monteCarloRadiosityTerminate() {
     ElementHierarchyTerminate();
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.inited = false;

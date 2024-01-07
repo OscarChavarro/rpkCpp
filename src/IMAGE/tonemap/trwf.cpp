@@ -91,7 +91,7 @@ static float _mesopicScaleFactor(float logLwa) {
 static void Defaults() {
 }
 
-static void Init() {
+static void trwfInit() {
     float lwa = _lwa = tmopts.lwa;
     float ldmax = tmopts.ldm;
     float cmax = tmopts.cmax;
@@ -204,7 +204,7 @@ TONEMAP TM_TumblinRushmeier = {
         Defaults,
         (void (*)(int *, char **)) nullptr,
         (void (*)(FILE *)) nullptr,
-        Init,
+        trwfInit,
         Terminate,
         TR_ScaleForComputations,
         TR_ScaleForDisplay,
@@ -238,7 +238,7 @@ TONEMAP TM_Ward = {
         Defaults,
         (void (*)(int *, char **)) nullptr,
         (void (*)(FILE *)) nullptr,
-        Init,
+        trwfInit,
         Terminate,
         Ward_ScaleForComputations,
         Ward_ScaleForDisplay,
@@ -295,7 +295,7 @@ TONEMAP TM_RevisedTumblinRushmeier = {
         Defaults,
         (void (*)(int *, char **)) nullptr,
         (void (*)(FILE *)) nullptr,
-        Init,
+        trwfInit,
         Terminate,
         RevisedTR_ScaleForComputations,
         RevisedTR_ScaleForDisplay,
@@ -356,17 +356,17 @@ static float Ferwerda_ReverseScaleForComputations(float dl) {
 }
 
 TONEMAP TM_Ferwerda = {
-    "Partial Ferwerda's Mapping", "Ferwerda", "tmoFerwerdaButton", 3,
-    Defaults,
-    (void (*)(int *, char **)) nullptr,
-    (void (*)(FILE *)) nullptr,
-    Init,
-    Terminate,
-    Ferwerda_ScaleForComputations,
-    Ferwerda_ScaleForDisplay,
-    Ferwerda_ReverseScaleForComputations,
-    (void (*)(void *)) nullptr,
-    (void (*)(void *)) nullptr,
-    (void (*)(void)) nullptr,
-    (void (*)(void)) nullptr
+        "Partial Ferwerda's Mapping", "Ferwerda", "tmoFerwerdaButton", 3,
+        Defaults,
+        (void (*)(int *, char **)) nullptr,
+        (void (*)(FILE *)) nullptr,
+        trwfInit,
+        Terminate,
+        Ferwerda_ScaleForComputations,
+        Ferwerda_ScaleForDisplay,
+        Ferwerda_ReverseScaleForComputations,
+        (void (*)(void *)) nullptr,
+        (void (*)(void *)) nullptr,
+        (void (*)(void)) nullptr,
+        (void (*)(void)) nullptr
 };

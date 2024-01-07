@@ -107,7 +107,7 @@ InitPmap() {
     }
     GLOBAL_photonMap_config.screen = new ScreenBuffer(nullptr);
 
-    // Init samplers
+    // mainInit samplers
 
     GLOBAL_photonMap_config.lightConfig.ReleaseVars();
     GLOBAL_photonMap_config.eyeConfig.ReleaseVars();
@@ -140,7 +140,7 @@ InitPmap() {
 
     Global_Raytracer_rayCount = 0;
 
-    // Init the photonmap
+    // mainInit the photonmap
 
     if ( GLOBAL_photonMap_config.globalMap ) {
         delete GLOBAL_photonMap_config.globalMap;
@@ -542,7 +542,7 @@ DoPmapStep() {
 		 * continue. */
 }
 
-/* undoes the effect of Init() and all side-effects of Step() */
+/* undoes the effect of mainInit() and all side-effects of Step() */
 static void
 TerminatePmap() {
     if ( GLOBAL_photonMap_config.screen ) {

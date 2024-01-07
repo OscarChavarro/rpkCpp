@@ -85,7 +85,7 @@ extern GeometryListNode *DoShaftCulling(GeometryListNode *world, SHAFT *shaft, G
 extern GeometryListNode *ShaftCullGeom(Geometry *geom, SHAFT *shaft, GeometryListNode *candlist);
 
 /* shaftculling for patch lists */
-extern PatchSet *ShaftCullPatchlist(PatchSet *pl, SHAFT *shaft, PatchSet *culledpatchlist);
+extern PatchSet *shaftCullPatchList(PatchSet *pl, SHAFT *shaft, PatchSet *culledPatchList);
 
 /* frees the memory occupied by a candidatelist produced by DoShaftCulling */
 extern void FreeCandidateList(GeometryListNode *candlist);
