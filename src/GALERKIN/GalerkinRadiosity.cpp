@@ -280,7 +280,7 @@ InitGalerkin() {
     GLOBAL_galerkin_state.iteration_nr = 0;
     GLOBAL_galerkin_state.cpu_secs = 0.;
 
-    InitBasis();
+    basisGalerkinInitBasis();
 
     GLOBAL_galerkin_state.constant_radiance = GLOBAL_statistics_estimatedAverageRadiance;
     if ( GLOBAL_galerkin_state.use_constant_radiance ) {
@@ -358,7 +358,7 @@ GetRadiance(PATCH *patch, double u, double v, Vector3D dir) {
 
     leaf = RegularLeafElementAtPoint(TOPLEVEL_ELEMENT(patch), &u, &v);
 
-    rad = RadianceAtPoint(leaf, leaf->radiance, u, v);
+    rad = basisGalerkinRadianceAtPoint(leaf, leaf->radiance, u, v);
 
     if ( GLOBAL_galerkin_state.use_ambient_radiance ) {
         /* add ambient radiance */
@@ -504,14 +504,14 @@ WriteVertexColors(ELEMENT *element) {
     int i;
 
     if ( element->pog.patch->nrvertices == 3 ) {
-        vertrad[0] = RadianceAtPoint(element, element->radiance, 0., 0.);
-        vertrad[1] = RadianceAtPoint(element, element->radiance, 1., 0.);
-        vertrad[2] = RadianceAtPoint(element, element->radiance, 0., 1.);
+        vertrad[0] = basisGalerkinRadianceAtPoint(element, element->radiance, 0., 0.);
+        vertrad[1] = basisGalerkinRadianceAtPoint(element, element->radiance, 1., 0.);
+        vertrad[2] = basisGalerkinRadianceAtPoint(element, element->radiance, 0., 1.);
     } else {
-        vertrad[0] = RadianceAtPoint(element, element->radiance, 0., 0.);
-        vertrad[1] = RadianceAtPoint(element, element->radiance, 1., 0.);
-        vertrad[2] = RadianceAtPoint(element, element->radiance, 1., 1.);
-        vertrad[3] = RadianceAtPoint(element, element->radiance, 0., 1.);
+        vertrad[0] = basisGalerkinRadianceAtPoint(element, element->radiance, 0., 0.);
+        vertrad[1] = basisGalerkinRadianceAtPoint(element, element->radiance, 1., 0.);
+        vertrad[2] = basisGalerkinRadianceAtPoint(element, element->radiance, 1., 1.);
+        vertrad[3] = basisGalerkinRadianceAtPoint(element, element->radiance, 0., 1.);
     }
 
     if ( GLOBAL_galerkin_state.use_ambient_radiance ) {

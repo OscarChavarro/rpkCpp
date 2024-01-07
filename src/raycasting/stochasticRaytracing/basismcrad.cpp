@@ -111,7 +111,7 @@ static void ComputeFilterCoefficients(GalerkinBasis *parent_basis, int parent_si
  * elements with given basis and uptransform. The cubature rule 'cr' is used
  * to compute the coefficients. The coefficients are filled in the
  * basis->regular_filter table. */
-static void ComputeRegularFilterCoefficients(GalerkinBasis *basis, Matrix2x2 *upxfm,
+static void basisGalerkinComputeRegularFilterCoefficients(GalerkinBasis *basis, Matrix2x2 *upxfm,
                                              CUBARULE *cr) {
     int s;
 
@@ -121,23 +121,21 @@ static void ComputeRegularFilterCoefficients(GalerkinBasis *basis, Matrix2x2 *up
     }
 }
 
-void InitBasis() {
+void
+monteCarloRadiosityInitBasis() {
     int et, at;
 
     if ( inited ) {
         return;
     }
 
-    ComputeRegularFilterCoefficients(&mcr_triBasis, mcr_triupxfm, &CRT8);
-    ComputeRegularFilterCoefficients(&mcr_quadBasis, mcr_quadupxfm, &CRQ8);
+    basisGalerkinComputeRegularFilterCoefficients(&mcr_triBasis, mcr_triupxfm, &CRT8);
+    basisGalerkinComputeRegularFilterCoefficients(&mcr_quadBasis, mcr_quadupxfm, &CRQ8);
 
     for ( et = 0; et < NR_ELEMENT_TYPES; et++ ) {
         for ( at = 0; at < NR_APPROX_TYPES; at++ )
             basis[et][at] = MakeBasis((ELEMENT_TYPE) et, (APPROX_TYPE) at);
     }
-    /*
-    PlotBases();
-    */
     inited = true;
 }
 

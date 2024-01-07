@@ -169,7 +169,7 @@ void monteCarloRadiosityDefaults() {
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.initialLightSourceSamples = 1000;
 
     ElementHierarchyDefaults();
-    InitBasis();
+    monteCarloRadiosityInitBasis();
 }
 
 void stochasticRelaxationRadiosityParseOptions(int *argc, char **argv) {

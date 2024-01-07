@@ -1,17 +1,19 @@
 /**
 Higher order approximations for Galerkin radiosity
- */
+*/
 
 #include "common/error.h"
-#include "GALERKIN/galerkinP.h"
 #include "GALERKIN/basisgalerkin.h"
 #include "GALERKIN/clustergalerkincpp.h"
 
-/* Given the radiance coefficients, this routine computes the radiance 
- * at the given point on the element. */
-COLOR RadianceAtPoint(ELEMENT *elem, COLOR *coefficients, double u, double v) {
+/**
+Given the radiance coefficients, this routine computes the radiance
+at the given point on the element
+*/
+COLOR
+basisGalerkinRadianceAtPoint(ELEMENT *elem, COLOR *coefficients, double u, double v) {
     COLOR rad;
-    GalerkinBasis *basis = elem->pog.patch->nrvertices == 3 ? &triBasis : &quadBasis;
+    GalerkinBasis *basis = elem->pog.patch->nrvertices == 3 ? &GLOBAL_galerkin_triBasis : &GLOBAL_galerkin_quadBasis;
     int i;
 
     colorClear(rad);
@@ -27,33 +29,39 @@ COLOR RadianceAtPoint(ELEMENT *elem, COLOR *coefficients, double u, double v) {
     return rad;
 }
 
-/* Pushes radiance down in the element hierarchy from the parent element to the 
- * dhild element. 
- *
- * Be x a point in 3D space located on the child element \sigma. x is also located
- * on the parent element. Then, the radiance L(x) at x on the parent element
- * can be written as \sum _\alpha L_\alpha \phi_\alpha(x), with L_\alpha the
- * radiance coefficients (given) on the parent element and \phi_\alpha the basis
- * functions on the parent. The same radiance is also approximated as 
- * \sum_\beta L_\beta^\sigma \phi_\beta^\sigma(x) with L_\beta^\sigma the radiance 
- * coefficients on the child element (to be determined) and \phi_\beta^\sigma the
- * basis functions on the subelement (index \sigma).
- *
- * The radiance coefficients L_\beta^\sigma on the child element are
- *
- *  L_\beta^\sigma = \sum _\alpha L_\alpha H_{\alpha,\beta}^\sigma
- *
- * with
- *
- * H_{\alpha,\beta}^\sigma = {1\over A^\sigma} \times
- *		\int _{A^\sigma} \phi_\beta^\sigma(x) \phi_\alpha(x) dA_x.
- * 
- * The H_{\alpha,\beta}^\sigma coefficients are precomputed once for all
- * regular subelements. They depend only on the type of domain, the basis functions,
- * and the uptransforms to relate subelements with the parent (see element.c) 
- */
-void Push(ELEMENT *parent, COLOR *parent_coefficients,
-          ELEMENT *child, COLOR *child_coefficients) {
+/**
+Pushes radiance down in the element hierarchy from the parent element to the
+child element.
+
+Be x a point in 3D space located on the child element \sigma. x is also located
+on the parent element. Then, the radiance L(x) at x on the parent element
+can be written as \sum _\alpha L_\alpha \phi_\alpha(x), with L_\alpha the
+radiance coefficients (given) on the parent element and \phi_\alpha the basis
+functions on the parent. The same radiance is also approximated as
+\sum_\beta L_\beta^\sigma \phi_\beta^\sigma(x) with L_\beta^\sigma the radiance
+coefficients on the child element (to be determined) and \phi_\beta^\sigma the
+basis functions on the subelement (index \sigma).
+
+The radiance coefficients L_\beta^\sigma on the child element are
+
+ L_\beta^\sigma = \sum _\alpha L_\alpha H_{\alpha,\beta}^\sigma
+
+with
+
+H_{\alpha,\beta}^\sigma = {1\over A^\sigma} \times
+	\int _{A^\sigma} \phi_\beta^\sigma(x) \phi_\alpha(x) dA_x.
+
+The H_{\alpha,\beta}^\sigma coefficients are precomputed once for all
+regular subelements. They depend only on the type of domain, the basis functions,
+and the uptransforms to relate subelements with the parent element
+*/
+void
+basisGalerkinPush(
+    ELEMENT *parent,
+    COLOR *parent_coefficients,
+    ELEMENT *child,
+    COLOR *child_coefficients)
+{
     GalerkinBasis *basis;
     int alpha, beta, sigma = child->childnr;
 
@@ -71,7 +79,7 @@ void Push(ELEMENT *parent, COLOR *parent_coefficients,
         }
 
         /* Parent and child basis should be the same */
-        basis = child->pog.patch->nrvertices == 3 ? &triBasis : &quadBasis;
+        basis = child->pog.patch->nrvertices == 3 ? &GLOBAL_galerkin_triBasis : &GLOBAL_galerkin_quadBasis;
         for ( beta = 0; beta < child->basis_size; beta++ ) {
             colorClear(child_coefficients[beta]);
             for ( alpha = 0; alpha < parent->basis_size; alpha++ ) {
@@ -85,21 +93,27 @@ void Push(ELEMENT *parent, COLOR *parent_coefficients,
     }
 }
 
-/* Pulls radiance up: reverse of the above: the radiance coefficients on the 
- * child element are given, determine the radiance coefficients on the parent
- * element.
- *
- * With the notations of above:
- *
- * L_\alpha = \sum_\sigma {A^\sigma \over A} 
- *			\sum_\beta L_{\beta,\sigma} H_{\alpha,\beta}^\sigma
- *
- * For regular subdivision, the ratio of the area of the child element and
- * the area of the parent element is always 0.25 for surface elements and 
- * regular (quadtree) subdivision.
- */
-void Pull(ELEMENT *parent, COLOR *parent_coefficients,
-          ELEMENT *child, COLOR *child_coefficients) {
+/**
+Pulls radiance up: reverse of the above: the radiance coefficients on the
+child element are given, determine the radiance coefficients on the parent
+element.
+
+With the notations of above:
+
+L_\alpha = \sum_\sigma {A^\sigma \over A}
+		\sum_\beta L_{\beta,\sigma} H_{\alpha,\beta}^\sigma
+
+For regular subdivision, the ratio of the area of the child element and
+the area of the parent element is always 0.25 for surface elements and
+regular (quadtree) subdivision.
+*/
+void
+basisGalerkinPull(
+    ELEMENT *parent,
+    COLOR *parent_coefficients,
+    ELEMENT *child,
+    COLOR *child_coefficients)
+{
     GalerkinBasis *basis;
     int alpha, beta, sigma = child->childnr;
 
@@ -117,7 +131,7 @@ void Pull(ELEMENT *parent, COLOR *parent_coefficients,
         }
 
         /* Parent and child basis should be the same */
-        basis = child->pog.patch->nrvertices == 3 ? &triBasis : &quadBasis;
+        basis = child->pog.patch->nrvertices == 3 ? &GLOBAL_galerkin_triBasis : &GLOBAL_galerkin_quadBasis;
         for ( alpha = 0; alpha < parent->basis_size; alpha++ ) {
             colorClear(parent_coefficients[alpha]);
             for ( beta = 0; beta < child->basis_size; beta++ ) {
@@ -132,8 +146,11 @@ void Pull(ELEMENT *parent, COLOR *parent_coefficients,
     }
 }
 
-/* Modifies Bdown! */
-static void PushPullRadianceRecursive(ELEMENT *elem, COLOR *Bdown, COLOR *Bup) {
+/**
+Modifies Bdown!
+*/
+static void
+basisGalerkinPushPullRadianceRecursive(ELEMENT *elem, COLOR *Bdown, COLOR *Bup) {
     int i;
 
     /* "renormalize" the received radiance at this level and add to Bdown. */
@@ -164,13 +181,13 @@ static void PushPullRadianceRecursive(ELEMENT *elem, COLOR *Bdown, COLOR *Bup) {
             COLOR Btmp[MAXBASISSIZE], Bdown2[MAXBASISSIZE], Bup2[MAXBASISSIZE];
 
             /* 1) push Bdown to the i-th subelement */
-            Push(elem, Bdown, elem->regular_subelements[i], Bdown2);
+            basisGalerkinPush(elem, Bdown, elem->regular_subelements[i], Bdown2);
 
             /* 2) recursive call the push-pull for the subelement */
-            PushPullRadianceRecursive(elem->regular_subelements[i], Bdown2, Btmp);
+            basisGalerkinPushPullRadianceRecursive(elem->regular_subelements[i], Bdown2, Btmp);
 
             /* 3) pull the radiance of the subelement up to this level again */
-            Pull(elem, Bup2, elem->regular_subelements[i], Btmp);
+            basisGalerkinPull(elem, Bup2, elem->regular_subelements[i], Btmp);
 
             /* 4) add to Bup */
             clusterGalerkinAddCoefficients(Bup, Bup2, elem->basis_size);
@@ -186,15 +203,15 @@ static void PushPullRadianceRecursive(ELEMENT *elem, COLOR *Bdown, COLOR *Bup) {
             /* 1) push Bdown to the subelement if a cluster (don't push to irregular
              * surface subelements). */
             if ( IsCluster(elem)) {
-                Push(elem, Bdown, subel, Bdown2);
+                basisGalerkinPush(elem, Bdown, subel, Bdown2);
             } else
                 clusterGalerkinClearCoefficients(Bdown2, elem->basis_size);
 
             /* 2) recusrive call the push-pull for the subelement */
-            PushPullRadianceRecursive(subel, Bdown2, Btmp);
+            basisGalerkinPushPullRadianceRecursive(subel, Bdown2, Btmp);
 
             /* 3) pull the radiance of the subelement up to this level again */
-            Pull(elem, Bup2, subel, Btmp);
+            basisGalerkinPull(elem, Bup2, subel, Btmp);
 
             /* 4) add to Bup */
             clusterGalerkinAddCoefficients(Bup, Bup2, elem->basis_size);
@@ -212,30 +229,40 @@ static void PushPullRadianceRecursive(ELEMENT *elem, COLOR *Bdown, COLOR *Bup) {
     }
 }
 
-void PushPullRadiance(ELEMENT *top) {
+void
+basisGalerkinPushPullRadiance(ELEMENT *top) {
     COLOR Bdown[MAXBASISSIZE], Bup[MAXBASISSIZE];
     clusterGalerkinClearCoefficients(Bdown, top->basis_size);
-    PushPullRadianceRecursive(top, Bdown, Bup);
+    basisGalerkinPushPullRadianceRecursive(top, Bdown, Bup);
 }
 
-/* Computes the filter coefficients for push-pull operations between a
- * parent and child with given basis and nr of basis functions. 'upxfm' is
- * the transform to be used to find the point on the parent corresponding
- * to a given point on the child. 'cr' is the cubature rule to be used 
- * for computing the coefficients. The order should be at least the highest
- * product of the order of a parent and a child basis function. The filter
- * coefficients are filled in in the table 'filter'. The filter coefficients are:
- *
- * H_{\alpha\,\beta} = int _S phi_\alpha(u',v') phi_\beta(u,v) du dv
- *
- * with S the domain on which the basis functions are defined (unit square or
- * standard triangle), and (u',v') the result of "up-transforming" (u,v).
- */
-static void ComputeFilterCoefficients(GalerkinBasis *parent_basis, int parent_size,
-                                      GalerkinBasis *child_basis, int child_size,
-                                      Matrix2x2 *upxfm, CUBARULE *cr,
-                                      double filter[MAXBASISSIZE][MAXBASISSIZE]) {
-    int alpha, beta, k;
+/**
+Computes the filter coefficients for push-pull operations between a
+parent and child with given basis and nr of basis functions. 'upxfm' is
+the transform to be used to find the point on the parent corresponding
+to a given point on the child. 'cr' is the cubature rule to be used
+for computing the coefficients. The order should be at least the highest
+product of the order of a parent and a child basis function. The filter
+coefficients are filled in in the table 'filter'. The filter coefficients are:
+
+H_{\alpha\,\beta} = int _S phi_\alpha(u',v') phi_\beta(u,v) du dv
+
+with S the domain on which the basis functions are defined (unit square or
+standard triangle), and (u',v') the result of "up-transforming" (u,v).
+*/
+static void
+basisGalerkinComputeFilterCoefficients(
+    GalerkinBasis *parent_basis,
+    int parent_size,
+    GalerkinBasis *child_basis,
+    int child_size,
+    Matrix2x2 *upxfm,
+    CUBARULE *cr,
+    double filter[MAXBASISSIZE][MAXBASISSIZE])
+{
+    int alpha;
+    int beta;
+    int k;
     double x;
 
     for ( alpha = 0; alpha < parent_size; alpha++ ) {
@@ -254,21 +281,28 @@ static void ComputeFilterCoefficients(GalerkinBasis *parent_basis, int parent_si
     }
 }
 
-/* Computes the push-pull filter coefficients for regular subdivision for
- * elements with given basis and uptransform. The cubature rule 'cr' is used
- * to compute the coefficients. The coefficients are filled in the
- * basis->regular_filter table. */
-static void ComputeRegularFilterCoefficients(GalerkinBasis *basis, Matrix2x2 *upxfm,
-                                             CUBARULE *cr) {
+/**
+Computes the push-pull filter coefficients for regular subdivision for
+elements with given basis and uptransform. The cubature rule 'cr' is used
+to compute the coefficients. The coefficients are filled in the
+basis->regular_filter table
+*/
+void
+basisGalerkinComputeRegularFilterCoefficients(
+    GalerkinBasis *basis,
+    Matrix2x2 *upxfm,
+    CUBARULE *cr)
+{
     int sigma;
 
     for ( sigma = 0; sigma < 4; sigma++ ) {
-        ComputeFilterCoefficients(basis, basis->size, basis, basis->size,
-                                  &upxfm[sigma], cr, basis->regular_filter[sigma]);
+        basisGalerkinComputeFilterCoefficients(basis, basis->size, basis, basis->size,
+                                               &upxfm[sigma], cr, basis->regular_filter[sigma]);
     }
 }
 
-void InitBasis() {
-    ComputeRegularFilterCoefficients(&quadBasis, quadupxfm, &CRQ8);
-    ComputeRegularFilterCoefficients(&triBasis, triupxfm, &CRT8);
+void
+basisGalerkinInitBasis() {
+    basisGalerkinComputeRegularFilterCoefficients(&GLOBAL_galerkin_quadBasis, quadupxfm, &CRQ8);
+    basisGalerkinComputeRegularFilterCoefficients(&GLOBAL_galerkin_triBasis, triupxfm, &CRT8);
 }

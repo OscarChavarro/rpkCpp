@@ -1,9 +1,9 @@
-/* basis.h: higher order approximations for Galerkin radiosity */
+/**
+Higher order approximations for Galerkin radiosity
+*/
 
 #ifndef _BASIS_H_
 #define _BASIS_H_
-
-#define InitBasis GAL_InitBasis
 
 #include "GALERKIN/elementgalerkin.h"
 
@@ -28,16 +28,25 @@ class GalerkinBasis {
     double regular_filter[4][MAXBASISSIZE][MAXBASISSIZE];
 };
 
-extern GalerkinBasis quadBasis, triBasis;
+extern GalerkinBasis GLOBAL_galerkin_quadBasis;
+extern GalerkinBasis GLOBAL_galerkin_triBasis;
 
-extern COLOR RadianceAtPoint(ELEMENT *elem, COLOR *coefficients, double u, double v);
+extern COLOR basisGalerkinRadianceAtPoint(ELEMENT *elem, COLOR *coefficients, double u, double v);
 
-extern void Push(ELEMENT *parent, COLOR *parent_coefficients,
-                 ELEMENT *child, COLOR *child_coefficients);
+extern void
+basisGalerkinPush(
+    ELEMENT *parent,
+    COLOR *parent_coefficients,
+    ELEMENT *child,
+    COLOR *child_coefficients);
 
-extern void Pull(ELEMENT *parent, COLOR *parent_coefficients,
-                 ELEMENT *child, COLOR *child_coefficients);
+extern void
+basisGalerkinPull(
+    ELEMENT *parent,
+    COLOR *parent_coefficients,
+    ELEMENT *child,
+    COLOR *child_coefficients);
 
-extern void InitBasis();
+extern void basisGalerkinInitBasis();
 
 #endif

@@ -187,13 +187,13 @@ static void DoHigherOrderAreaToAreaFormFactor(INTERACTION *link,
          * clusters. */
         rcvbasis = (GalerkinBasis *) nullptr;
     } else {
-        rcvbasis = (rcv->pog.patch->nrvertices == 3 ? &triBasis : &quadBasis);
+        rcvbasis = (rcv->pog.patch->nrvertices == 3 ? &GLOBAL_galerkin_triBasis : &GLOBAL_galerkin_quadBasis);
     }
 
     if ( IsCluster(src)) {
         srcbasis = (GalerkinBasis *) nullptr;
     } else {
-        srcbasis = (src->pog.patch->nrvertices == 3 ? &triBasis : &quadBasis);
+        srcbasis = (src->pog.patch->nrvertices == 3 ? &GLOBAL_galerkin_triBasis : &GLOBAL_galerkin_quadBasis);
     }
 
     /* determine basis function values \phi_{i,\alpha}(x_k) at sample positions on the

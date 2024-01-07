@@ -275,13 +275,13 @@ RegularSubdivideElement(ELEMENT *element) {
         subelement[i]->childnr = (char)i;
         ElementReallocCoefficients(subelement[i]);
 
-        Push(element, element->radiance, subelement[i], subelement[i]->radiance);
+        basisGalerkinPush(element, element->radiance, subelement[i], subelement[i]->radiance);
 
         subelement[i]->potential.f = element->potential.f;
         subelement[i]->direct_potential.f = element->direct_potential.f;
 
         if ( GLOBAL_galerkin_state.iteration_method == SOUTHWELL ) {
-            Push(element, element->unshot_radiance, subelement[i], subelement[i]->unshot_radiance);
+            basisGalerkinPush(element, element->unshot_radiance, subelement[i], subelement[i]->unshot_radiance);
             subelement[i]->unshot_potential.f = element->unshot_potential.f;
         }
 
@@ -706,14 +706,14 @@ DrawElement(ELEMENT *element, int mode) {
         int i;
 
         if ( nrverts == 3 ) {
-            vertrad[0] = RadianceAtPoint(element, element->radiance, 0., 0.);
-            vertrad[1] = RadianceAtPoint(element, element->radiance, 1., 0.);
-            vertrad[2] = RadianceAtPoint(element, element->radiance, 0., 1.);
+            vertrad[0] = basisGalerkinRadianceAtPoint(element, element->radiance, 0., 0.);
+            vertrad[1] = basisGalerkinRadianceAtPoint(element, element->radiance, 1., 0.);
+            vertrad[2] = basisGalerkinRadianceAtPoint(element, element->radiance, 0., 1.);
         } else {
-            vertrad[0] = RadianceAtPoint(element, element->radiance, 0., 0.);
-            vertrad[1] = RadianceAtPoint(element, element->radiance, 1., 0.);
-            vertrad[2] = RadianceAtPoint(element, element->radiance, 1., 1.);
-            vertrad[3] = RadianceAtPoint(element, element->radiance, 0., 1.);
+            vertrad[0] = basisGalerkinRadianceAtPoint(element, element->radiance, 0., 0.);
+            vertrad[1] = basisGalerkinRadianceAtPoint(element, element->radiance, 1., 0.);
+            vertrad[2] = basisGalerkinRadianceAtPoint(element, element->radiance, 1., 1.);
+            vertrad[3] = basisGalerkinRadianceAtPoint(element, element->radiance, 0., 1.);
         }
 
         if ( GLOBAL_galerkin_state.use_ambient_radiance ) {

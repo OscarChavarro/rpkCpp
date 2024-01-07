@@ -26,7 +26,7 @@ static void PatchLazyCreateInteractions(PATCH *P) {
 /* Converts the accumulated received radiance into exitant radiance, making the
  * hierarchical representation consistent and computes a new color for the patch. */
 static void PatchUpdateRadiance(PATCH *P) {
-    PushPullRadiance(TOPLEVEL_ELEMENT(P));
+    basisGalerkinPushPullRadiance(TOPLEVEL_ELEMENT(P));
     PatchRecomputeColor(P);
 }
 
@@ -216,7 +216,7 @@ DoClusteredGatheringIteration() {
      * it is multiplied with the reflectivity and the selfemitted radiance added,
      * and finally pulls back up for a consistent multiresolution representation
      * of radiance over all levels. */
-    PushPullRadiance(GLOBAL_galerkin_state.top_cluster);
+    basisGalerkinPushPullRadiance(GLOBAL_galerkin_state.top_cluster);
 
     if ( GLOBAL_galerkin_state.importance_driven ) {
         GatheringPushPullPotential(GLOBAL_galerkin_state.top_cluster, 0.);

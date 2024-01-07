@@ -173,7 +173,7 @@ PatchUpdateRadianceAndPotential(PATCH *patch) {
     if ( GLOBAL_galerkin_state.importance_driven ) {
         ShootingPushPullPotential(TOPLEVEL_ELEMENT(patch), 0.);
     }
-    PushPullRadiance(TOPLEVEL_ELEMENT(patch));
+    basisGalerkinPushPullRadiance(TOPLEVEL_ELEMENT(patch));
 
     colorAddScaled(GLOBAL_galerkin_state.ambient_radiance, patch->area, UNSHOT_RADIANCE(patch),
                    GLOBAL_galerkin_state.ambient_radiance);
@@ -190,7 +190,7 @@ DoPropagate(PATCH *shooting_patch) {
         if ( GLOBAL_galerkin_state.importance_driven ) {
             ShootingPushPullPotential(GLOBAL_galerkin_state.top_cluster, 0.);
         }
-        PushPullRadiance(GLOBAL_galerkin_state.top_cluster);
+        basisGalerkinPushPullRadiance(GLOBAL_galerkin_state.top_cluster);
         GLOBAL_galerkin_state.ambient_radiance = GLOBAL_galerkin_state.top_cluster->unshot_radiance[0];
     } else {
         colorClear(GLOBAL_galerkin_state.ambient_radiance);

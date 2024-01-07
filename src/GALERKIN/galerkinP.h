@@ -175,6 +175,6 @@ extern void RefineInteractions(ELEMENT *toplevelelement);
 
 /* in basis.c: converts the received radiance of a patch into exitant
  * radiance, making a consistent hierarchical representation. */
-extern void PushPullRadiance(ELEMENT *top);
+extern void basisGalerkinPushPullRadiance(ELEMENT *top);
 
 #endif

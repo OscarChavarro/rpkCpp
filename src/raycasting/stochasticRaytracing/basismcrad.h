@@ -66,7 +66,7 @@ enum ELEMENT_TYPE {
 extern GalerkinBasis basis[NR_ELEMENT_TYPES][NR_APPROX_TYPES], dummyBasis;
 
 /* initialises table of bases */
-extern void InitBasis();
+extern void monteCarloRadiosityInitBasis();
 
 /* prints info about basis */
 extern void PrintBasis(GalerkinBasis *basis);
