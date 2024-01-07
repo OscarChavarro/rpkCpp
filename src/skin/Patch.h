@@ -13,7 +13,7 @@
 #define PATCH_SET_VISIBLE(patch) {(patch)->flags |= PATCH_VISIBILITY;}
 #define PATCH_SET_INVISIBLE(patch) {(patch)->flags &= ~PATCH_VISIBILITY;}
 
-class VERTEX;
+class Vertex;
 class MeshSurface;
 
 class PATCH {
@@ -23,7 +23,7 @@ public:
     PATCH *twin; // twin face (for double-sided surfaces)
     BREP_FACE *brep_data; // topological data for the patch. Only filled in if a radiance method needs it
 
-    VERTEX *vertex[MAXIMUM_VERTICES_PER_PATCH]; // pointers to the vertices
+    Vertex *vertex[MAXIMUM_VERTICES_PER_PATCH]; // pointers to the vertices
     char nrvertices; // number of vertices: 3 or 4
 
     float *bounds; // bounding box
@@ -57,7 +57,7 @@ public:
 };
 
 extern int IsPatchVirtual(PATCH *patch);
-extern PATCH *PatchCreate(int nrvertices, VERTEX *v1, VERTEX *v2, VERTEX *v3, VERTEX *v4);
+extern PATCH *PatchCreate(int nrvertices, Vertex *v1, Vertex *v2, Vertex *v3, Vertex *v4);
 extern void PatchDestroy(PATCH *patch);
 extern float *PatchBounds(PATCH *patch, float *bounds);
 extern HITREC *PatchIntersect(PATCH *patch, Ray *ray, float mindist, float *maxdist, int hitflags, HITREC *hitstore);

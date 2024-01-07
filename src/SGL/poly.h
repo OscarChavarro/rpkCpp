@@ -9,7 +9,7 @@
 /* note that poly_clip, given an n-gon as input, might output an (n+6)gon */
 /* POLY_NMAX=10 is thus appropriate if input polygons are triangles or quads */
 
-class Poly_vert {        /* A POLYGON VERTEX */
+class Poly_vert {        /* A POLYGON Vertex */
   public:
     double sx, sy, sz, sw;    /* screen space position (sometimes homo.) */
     double x, y, z;        /* world space position */

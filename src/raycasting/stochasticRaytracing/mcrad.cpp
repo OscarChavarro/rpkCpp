@@ -215,7 +215,7 @@ void monteCarloRadiosityDestroyPatchData(PATCH *patch) {
  * in the current random walk radiosity implementation */
 void monteCarloRadiosityPatchComputeNewColor(PATCH *patch) {
     patch->color = ElementColor(TOPLEVEL_ELEMENT(patch));
-    PatchComputeVertexColors(patch);
+    patchComputeVertexColors(patch);
 }
 
 /* Initializes the computations for the current scene (if any): initialisations

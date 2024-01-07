@@ -45,19 +45,19 @@ geometryIterateLeafElements(Geometry *geom, void (*func)(ELEMENT *)) {
 }
 
 static void
-resetVertexId(VERTEX *v) {
+resetVertexId(Vertex *v) {
     v->tmp = -1;
 }
 
 static void
-triangleResetVertexIds(VERTEX *v1, VERTEX *v2, VERTEX *v3) {
+triangleResetVertexIds(Vertex *v1, Vertex *v2, Vertex *v3) {
     resetVertexId(v1);
     resetVertexId(v2);
     resetVertexId(v3);
 }
 
 static void
-quadResetVertexIds(VERTEX *v1, VERTEX *v2, VERTEX *v3, VERTEX *v4) {
+quadResetVertexIds(Vertex *v1, Vertex *v2, Vertex *v3, Vertex *v4) {
     resetVertexId(v1);
     resetVertexId(v2);
     resetVertexId(v3);
@@ -73,7 +73,7 @@ resetVertexIds(ELEMENT *elem) {
 }
 
 static void
-writeVertexCoord(VERTEX *v) {
+writeVertexCoord(Vertex *v) {
     if ( v->tmp == -1 ) {
         /* not yet written */
         if ( nwrit > 0 ) {
@@ -90,14 +90,14 @@ writeVertexCoord(VERTEX *v) {
 }
 
 static void
-triangleWriteVertexCoords(VERTEX *v1, VERTEX *v2, VERTEX *v3) {
+triangleWriteVertexCoords(Vertex *v1, Vertex *v2, Vertex *v3) {
     writeVertexCoord(v1);
     writeVertexCoord(v2);
     writeVertexCoord(v3);
 }
 
 static void
-quadWriteVertexCoords(VERTEX *v1, VERTEX *v2, VERTEX *v3, VERTEX *v4) {
+quadWriteVertexCoords(Vertex *v1, Vertex *v2, Vertex *v3, Vertex *v4) {
     writeVertexCoord(v1);
     writeVertexCoord(v2);
     writeVertexCoord(v3);
@@ -123,7 +123,7 @@ writePrimitiveCoords(Geometry *geom) {
 }
 
 static void
-writeVertexColor(VERTEX *v) {
+writeVertexColor(Vertex *v) {
     if ( v->tmp == -1 ) {
         /* not yet written */
         if ( nwrit > 0 ) {
@@ -140,14 +140,14 @@ writeVertexColor(VERTEX *v) {
 }
 
 static void
-triangleWriteVertexColors(VERTEX *v1, VERTEX *v2, VERTEX *v3) {
+triangleWriteVertexColors(Vertex *v1, Vertex *v2, Vertex *v3) {
     writeVertexColor(v1);
     writeVertexColor(v2);
     writeVertexColor(v3);
 }
 
 static void
-quadWriteVertexColors(VERTEX *v1, VERTEX *v2, VERTEX *v3, VERTEX *v4) {
+quadWriteVertexColors(Vertex *v1, Vertex *v2, Vertex *v3, Vertex *v4) {
     writeVertexColor(v1);
     writeVertexColor(v2);
     writeVertexColor(v3);
@@ -182,7 +182,7 @@ writeCoordIndex(int index) {
 }
 
 static void
-triangleWriteVertexCoordIndices(VERTEX *v1, VERTEX *v2, VERTEX *v3) {
+triangleWriteVertexCoordIndices(Vertex *v1, Vertex *v2, Vertex *v3) {
     writeCoordIndex(v1->tmp);
     writeCoordIndex(v2->tmp);
     writeCoordIndex(v3->tmp);
@@ -190,7 +190,7 @@ triangleWriteVertexCoordIndices(VERTEX *v1, VERTEX *v2, VERTEX *v3) {
 }
 
 static void
-quadWriteVertexCoordIndices(VERTEX *v1, VERTEX *v2, VERTEX *v3, VERTEX *v4) {
+quadWriteVertexCoordIndices(Vertex *v1, Vertex *v2, Vertex *v3, Vertex *v4) {
     writeCoordIndex(v1->tmp);
     writeCoordIndex(v2->tmp);
     writeCoordIndex(v3->tmp);

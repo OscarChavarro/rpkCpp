@@ -131,7 +131,7 @@ WriteCoords(FILE *fp) {
                 {
                     int i;
                     for ( i = 0; i < P->nrvertices; i++ ) {
-                        VERTEX *v = P->vertex[i];
+                        Vertex *v = P->vertex[i];
                         if ( v->tmp == -1 ) {
                             /* not yet written */
                             if ( n > 0 ) {
@@ -163,7 +163,7 @@ WriteVertexColors(FILE *fp) {
                 {
                     int i;
                     for ( i = 0; i < P->nrvertices; i++ ) {
-                        VERTEX *v = P->vertex[i];
+                        Vertex *v = P->vertex[i];
                         if ( v->tmp == -1 ) {
                             /* not yet written */
                             if ( n > 0 ) {
@@ -223,7 +223,7 @@ WriteCoordIndices(FILE *fp) {
                 {
                     int i;
                     for ( i = 0; i < P->nrvertices; i++ ) {
-                        VERTEX *v = P->vertex[i];
+                        Vertex *v = P->vertex[i];
                         n++;
                         if ( n % 20 == 0 ) {
                             fprintf(fp, "\n\t  ");

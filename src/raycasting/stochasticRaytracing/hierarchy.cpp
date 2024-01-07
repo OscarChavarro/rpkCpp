@@ -37,7 +37,7 @@ void ElementHierarchyInit() {
     GLOBAL_stochasticRaytracing_hierarchy.coords = VectorListCreate();
     GLOBAL_stochasticRaytracing_hierarchy.normals = VectorListCreate();
     GLOBAL_stochasticRaytracing_hierarchy.texCoords = VectorListCreate();
-    GLOBAL_stochasticRaytracing_hierarchy.vertices = new java::ArrayList<VERTEX *>();
+    GLOBAL_stochasticRaytracing_hierarchy.vertices = new java::ArrayList<Vertex *>();
 
     GLOBAL_stochasticRaytracing_hierarchy.topcluster = McrCreateClusterHierarchy(GLOBAL_scene_clusteredWorldGeom);
 }
@@ -58,10 +58,10 @@ void ElementHierarchyTerminate() {
     EndForAll;
 
     // Delete vertices
-    java::ArrayList<VERTEX *> *vertices = GLOBAL_stochasticRaytracing_hierarchy.vertices;
+    java::ArrayList<Vertex *> *vertices = GLOBAL_stochasticRaytracing_hierarchy.vertices;
     if ( vertices != nullptr ) {
         for ( int i = 0; i < vertices->size(); i++ ) {
-            VertexDestroy(vertices->get(i));
+            vertexDestroy(vertices->get(i));
         }
         delete vertices;
     }

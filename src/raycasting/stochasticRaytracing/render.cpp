@@ -30,7 +30,7 @@ RGB ElementColor(ELEMENT *element) {
     return color;
 }
 
-static COLOR VertexRadiance(VERTEX *v) {
+static COLOR VertexRadiance(Vertex *v) {
     int count = 0;
     COLOR radiance;
 
@@ -54,7 +54,7 @@ static COLOR VertexRadiance(VERTEX *v) {
 
 /* same as above but for the reflectance
  * (important in case of texturing) */
-COLOR VertexReflectance(VERTEX *v) {
+COLOR VertexReflectance(Vertex *v) {
     int count = 0;
     COLOR rd;
 
@@ -76,7 +76,7 @@ COLOR VertexReflectance(VERTEX *v) {
 }
 
 /* same as above but for importance */
-static float VertexImportance(VERTEX *v) {
+static float VertexImportance(Vertex *v) {
     int count = 0;
     float imp = 0.;
     ForAllElements(elem, v->radiance_data)
@@ -95,7 +95,7 @@ static float VertexImportance(VERTEX *v) {
     return imp;
 }
 
-RGB VertexColor(VERTEX *v) {
+RGB VertexColor(Vertex *v) {
     switch ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.show ) {
         case SHOW_TOTAL_RADIANCE:
         case SHOW_INDIRECT_RADIANCE:
@@ -132,7 +132,7 @@ void ElementComputeNewVertexColors(ELEMENT *elem) {
 }
 
 void ElementAdjustTVertexColors(ELEMENT *elem) {
-    VERTEX *m[4];
+    Vertex *m[4];
     int i, n;
     for ( i = 0, n = 0; i < elem->nrvertices; i++ ) {
         m[i] = McrEdgeMidpointVertex(elem, i);
@@ -153,7 +153,7 @@ void ElementAdjustTVertexColors(ELEMENT *elem) {
     }
 }
 
-static void RenderTriangle(VERTEX *v1, VERTEX *v2, VERTEX *v3) {
+static void RenderTriangle(Vertex *v1, Vertex *v2, Vertex *v3) {
     RGB col[3];
     Vector3D vert[3];
 
@@ -180,7 +180,7 @@ static void RenderTriangle(VERTEX *v1, VERTEX *v2, VERTEX *v3) {
     }
 }
 
-static void RenderQuadrilateral(VERTEX *v1, VERTEX *v2, VERTEX *v3, VERTEX *v4) {
+static void RenderQuadrilateral(Vertex *v1, Vertex *v2, Vertex *v3, Vertex *v4) {
     RGB col[4];
     Vector3D vert[4];
 
@@ -213,9 +213,9 @@ static void RenderQuadrilateral(VERTEX *v1, VERTEX *v2, VERTEX *v3, VERTEX *v4) 
 /* TODO: The T-vertex elimination code only fully eliminates T-vertices in
  * balanced meshes. Meshes are not yet balanced [PhB - 9901]. */
 
-static void TriangleTVertexElimination(VERTEX **v, VERTEX **m, int nrTvertices,
-                                       void (*do_triangle)(VERTEX *, VERTEX *, VERTEX *),
-                                       void (*do_quadrilateral)(VERTEX *, VERTEX *, VERTEX *, VERTEX *)) {
+static void TriangleTVertexElimination(Vertex **v, Vertex **m, int nrTvertices,
+                                       void (*do_triangle)(Vertex *, Vertex *, Vertex *),
+                                       void (*do_quadrilateral)(Vertex *, Vertex *, Vertex *, Vertex *)) {
     int a, b, c;
 
     switch ( nrTvertices ) {
@@ -254,9 +254,9 @@ static void TriangleTVertexElimination(VERTEX **v, VERTEX **m, int nrTvertices,
     }
 }
 
-static void QuadrilateralTVertexElimination(VERTEX **v, VERTEX **m, int nrTvertices,
-                                            void (*do_triangle)(VERTEX *, VERTEX *, VERTEX *),
-                                            void (*do_quadrilateral)(VERTEX *, VERTEX *, VERTEX *, VERTEX *)) {
+static void QuadrilateralTVertexElimination(Vertex **v, Vertex **m, int nrTvertices,
+                                            void (*do_triangle)(Vertex *, Vertex *, Vertex *),
+                                            void (*do_quadrilateral)(Vertex *, Vertex *, Vertex *, Vertex *)) {
     int a, b, c, d;
 
     switch ( nrTvertices ) {
@@ -325,18 +325,18 @@ static void QuadrilateralTVertexElimination(VERTEX **v, VERTEX **m, int nrTverti
     }
 }
 
-static void RenderTriangularElement(VERTEX **v, VERTEX **m, int nrTvertices) {
+static void RenderTriangularElement(Vertex **v, Vertex **m, int nrTvertices) {
     TriangleTVertexElimination(v, m, nrTvertices, RenderTriangle, RenderQuadrilateral);
 }
 
-static void RenderQuadrilateralElement(VERTEX **v, VERTEX **m, int nrTvertices) {
+static void RenderQuadrilateralElement(Vertex **v, Vertex **m, int nrTvertices) {
     QuadrilateralTVertexElimination(v, m, nrTvertices, RenderTriangle, RenderQuadrilateral);
 }
 
 void ElementTVertexElimination(ELEMENT *elem,
-                               void (*do_triangle)(VERTEX *, VERTEX *, VERTEX *),
-                               void (*do_quadrilateral)(VERTEX *, VERTEX *, VERTEX *, VERTEX *)) {
-    VERTEX *m[4];
+                               void (*do_triangle)(Vertex *, Vertex *, Vertex *),
+                               void (*do_quadrilateral)(Vertex *, Vertex *, Vertex *, Vertex *)) {
+    Vertex *m[4];
     int i, n;
     for ( i = 0, n = 0; i < elem->nrvertices; i++ ) {
         m[i] = McrEdgeMidpointVertex(elem, i);
@@ -384,7 +384,7 @@ McrRenderElement(ELEMENT *elem) {
     Vector3D verts[4];
 
     if ( renderopts.smooth_shading && GLOBAL_stochasticRaytracing_hierarchy.tvertex_elimination ) {
-        VERTEX *m[4];
+        Vertex *m[4];
         int i, n;
         for ( i = 0, n = 0; i < elem->nrvertices; i++ ) {
             m[i] = McrEdgeMidpointVertex(elem, i);

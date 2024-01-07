@@ -18,7 +18,7 @@ a new surface
 */
 enum MaterialColorFlags colorFlags = NO_COLORS;
 
-static void NormalizeVertexColor(VERTEX *vertex) {
+static void NormalizeVertexColor(Vertex *vertex) {
     long numberOfPatches = 0;
 
     if ( vertex->patches != nullptr ) {
@@ -74,7 +74,7 @@ surfaceCreate(
     Vector3DListNode *points,
     Vector3DListNode *normals,
     Vector3DListNode *texCoords,
-    java::ArrayList<VERTEX *> *vertices,
+    java::ArrayList<Vertex *> *vertices,
     PatchSet *faces,
     enum MaterialColorFlags flags)
 {
@@ -110,7 +110,7 @@ surfaceCreate(
     // Compute vertex colors
     if ( colorFlags != VERTEX_COLORS ) {
         for ( int i = 0; surf->vertices != nullptr && i < surf->vertices->size(); i++ ) {
-            ComputeVertexColor(surf->vertices->get(i));
+            computeVertexColor(surf->vertices->get(i));
         }
     }
 
@@ -135,7 +135,7 @@ SurfaceDestroy(MeshSurface *surf) {
 
     if ( surf->vertices != nullptr ) {
         for ( int i = 0; i < surf->vertices->size(); i++) {
-            VertexDestroy(surf->vertices->get(i));
+            vertexDestroy(surf->vertices->get(i));
         }
         delete surf->vertices;
     }

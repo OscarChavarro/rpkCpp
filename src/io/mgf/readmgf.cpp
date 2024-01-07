@@ -26,7 +26,7 @@ static VECTOROCTREE *globalNormalsOctree;
 // Elements for surface currently being created
 static Vector3DListNode *globalCurrentPointList;
 static Vector3DListNode *globalCurrentNormalList;
-static java::ArrayList<VERTEX *> *globalCurrentVertexList;
+static java::ArrayList<Vertex *> *globalCurrentVertexList;
 static PatchSet *globalCurrentFaceList;
 static GeometryListNode *globalCurrentGeometryList;
 static Material *globalCurrentMaterial;
@@ -167,7 +167,7 @@ static void
 newSurface() {
     globalCurrentPointList = VectorListCreate();
     globalCurrentNormalList = VectorListCreate();
-    globalCurrentVertexList = new java::ArrayList<VERTEX *>();
+    globalCurrentVertexList = new java::ArrayList<Vertex *>();
     globalCurrentFaceList = nullptr;
     globalInSurface = true;
 }
@@ -415,28 +415,28 @@ installNormal(float x, float y, float z) {
     return norm;
 }
 
-static VERTEX *
+static Vertex *
 installVertex(Vector3D *coord, Vector3D *norm, char *name) {
     java::ArrayList<PATCH *> *newPatchList = new java::ArrayList<PATCH *>();
-    VERTEX *v = VertexCreate(coord, norm, (Vector3D *) nullptr, newPatchList);
+    Vertex *v = vertexCreate(coord, norm, (Vector3D *) nullptr, newPatchList);
     globalCurrentVertexList->add(v);
     return v;
 }
 
-static VERTEX *
+static Vertex *
 getVertex(char *name) {
     MgfVertexContext *vp;
-    VERTEX *theVertex;
+    Vertex *theVertex;
 
     vp = c_getvert(name);
     if ( vp == nullptr ) {
-        return (VERTEX *) nullptr;
+        return (Vertex *) nullptr;
     }
 
-    theVertex = (VERTEX *) (vp->client_data);
+    theVertex = (Vertex *) (vp->client_data);
     if ( !theVertex || vp->clock >= 1 || vp->xid != xf_xid(xf_context) || is0vect(vp->n)) {
         /* new vertex, or updated vertex or same vertex, but other transform, or
-         * vertex without normal: create a new VERTEX. */
+         * vertex without normal: create a new Vertex. */
         FVECT vert;
         FVECT norm;
         Vector3D *theNormal;
@@ -463,9 +463,9 @@ getVertex(char *name) {
 Create a vertex with given name, but with reversed normal as
 the given vertex. For back-faces of two-sided surfaces
 */
-static VERTEX *
-getBackFaceVertex(VERTEX *v, char *name) {
-    VERTEX *back = v->back;
+static Vertex *
+getBackFaceVertex(Vertex *v, char *name) {
+    Vertex *back = v->back;
 
     if ( !back ) {
         Vector3D *the_point, *the_normal;
@@ -484,7 +484,7 @@ getBackFaceVertex(VERTEX *v, char *name) {
 }
 
 static PATCH *
-newFace(VERTEX *v1, VERTEX *v2, VERTEX *v3, VERTEX *v4, Vector3D *normal) {
+newFace(Vertex *v1, Vertex *v2, Vertex *v3, Vertex *v4, Vector3D *normal) {
     PATCH *theFace;
 
     if ( xf_context && xf_context->rev ) {
@@ -504,7 +504,7 @@ newFace(VERTEX *v1, VERTEX *v2, VERTEX *v3, VERTEX *v4, Vector3D *normal) {
 Computes the normal to the patch plane
 */
 static Vector3D *
-faceNormal(int numberOfVertices, VERTEX **v, Vector3D *normal) {
+faceNormal(int numberOfVertices, Vertex **v, Vector3D *normal) {
     double norm;
     Vector3D prev;
     Vector3D cur;
@@ -538,7 +538,7 @@ onto the coordinate plane "most parallel" to the polygon and checking the signs
 the cross product of succeeding edges: the signs are all equal for a convex polygon
 */
 static int
-faceIsConvex(int numberOfVertices, VERTEX **v, Vector3D *normal) {
+faceIsConvex(int numberOfVertices, Vertex **v, Vector3D *normal) {
     Vector2Dd v2d[MAXIMUM_FACE_VERTICES + 1], p, c;
     int i, index, sign;
 
@@ -679,7 +679,7 @@ Inspiration comes from Burger and Gillis, Interactive Computer Graphics and
 the (indispensable) Graphics Gems books
 */
 static int
-doComplexFace(int n, VERTEX **v, Vector3D *normal, VERTEX **backv, Vector3D *backnormal) {
+doComplexFace(int n, Vertex **v, Vector3D *normal, Vertex **backv, Vector3D *backnormal) {
     int i, j, max, p0, p1, p2, corners, start, good, index;
     double maxd, d, a;
     Vector3D center;
@@ -781,9 +781,9 @@ doComplexFace(int n, VERTEX **v, Vector3D *normal, VERTEX **backv, Vector3D *bac
 
         if ( fabs(a) > EPSILON ) {    /* avoid degenerate faces */
             PATCH *face, *twin;
-            face = newFace(v[p0], v[p1], v[p2], (VERTEX *) nullptr, normal);
+            face = newFace(v[p0], v[p1], v[p2], (Vertex *) nullptr, normal);
             if ( !globalCurrentMaterial->sided ) {
-                twin = newFace(backv[p2], backv[p1], backv[p0], (VERTEX *) nullptr, backnormal);
+                twin = newFace(backv[p2], backv[p1], backv[p0], (Vertex *) nullptr, backnormal);
                 face->twin = twin;
                 twin->twin = face;
             }
@@ -798,7 +798,7 @@ doComplexFace(int n, VERTEX **v, Vector3D *normal, VERTEX **backv, Vector3D *bac
 
 static int
 handleFaceEntity(int argc, char **argv) {
-    VERTEX *v[MAXIMUM_FACE_VERTICES + 1], *backv[MAXIMUM_FACE_VERTICES + 1];
+    Vertex *v[MAXIMUM_FACE_VERTICES + 1], *backv[MAXIMUM_FACE_VERTICES + 1];
     Vector3D normal, backnormal;
     PATCH *face, *twin;
     int i, errcode;
@@ -825,10 +825,10 @@ handleFaceEntity(int argc, char **argv) {
     }
 
     for ( i = 0; i < argc - 1; i++ ) {
-        if ((v[i] = getVertex(argv[i + 1])) == (VERTEX *) nullptr ) {
+        if ((v[i] = getVertex(argv[i + 1])) == (Vertex *) nullptr ) {
             return MG_EUNDEF;
         }    /* this is however a reason to stop parsing the input */
-        backv[i] = (VERTEX *) nullptr;
+        backv[i] = (Vertex *) nullptr;
         if ( !globalCurrentMaterial->sided )
             backv[i] = getBackFaceVertex(v[i], argv[i + 1]);
     }
@@ -841,9 +841,9 @@ handleFaceEntity(int argc, char **argv) {
 
     errcode = MG_OK;
     if ( argc == 4 ) {        /* triangles */
-        face = newFace(v[0], v[1], v[2], (VERTEX *) nullptr, &normal);
+        face = newFace(v[0], v[1], v[2], (Vertex *) nullptr, &normal);
         if ( !globalCurrentMaterial->sided ) {
-            twin = newFace(backv[2], backv[1], backv[0], (VERTEX *) nullptr, &backnormal);
+            twin = newFace(backv[2], backv[1], backv[0], (Vertex *) nullptr, &backnormal);
             face->twin = twin;
             twin->twin = face;
         }

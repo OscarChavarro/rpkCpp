@@ -2,16 +2,26 @@
 #include "material/statistics.h"
 #include "skin/Vertex.h"
 
-static unsigned int vertex_compare_flags = VCMP_LOCATION | VCMP_NORMAL | VCMP_TEXCOORD;
+static unsigned int vertex_compare_flags = VERTEX_COMPARE_LOCATION | VERTEX_COMPARE_NORMAL | VERTEX_COMPARE_TEXTURE_COORDINATE;
+
+Vertex::~Vertex() {
+    if ( patches ) {
+        // TODO: Check if should delete all content
+        for ( int i = 0; patches != nullptr && i < patches->size(); i++) {
+            //delete patches->get(i);
+        }
+        delete patches;
+    }
+}
 
 /**
 Create a vertex with given coordinates, normal vector and list of patches
 sharing the vertex. Several vertices can share the same coordinates
 and normal vector. Several patches can share the same vertex
 */
-VERTEX *
-VertexCreate(Vector3D *point, Vector3D *normal, Vector3D *texCoord, java::ArrayList<PATCH *> *patches) {
-    VERTEX *v = (VERTEX *)malloc(sizeof(VERTEX));
+Vertex *
+vertexCreate(Vector3D *point, Vector3D *normal, Vector3D *texCoord, java::ArrayList<PATCH *> *patches) {
+    Vertex *v = (Vertex *)malloc(sizeof(Vertex));
 
     v->id = GLOBAL_statistics_numberOfVertices++;
     v->point = point;
@@ -20,7 +30,7 @@ VertexCreate(Vector3D *point, Vector3D *normal, Vector3D *texCoord, java::ArrayL
     v->patches = patches;
     RGBSET(v->color, 0., 0., 0.);
     v->radiance_data = (void *)nullptr;
-    v->back = (VERTEX *)nullptr;
+    v->back = (Vertex *)nullptr;
 
     return v;
 }
@@ -30,7 +40,7 @@ Destroys the vertex. Does not destroy the coordinate vector and
 normal vector, neither the patches sharing the vertex
 */
 void
-VertexDestroy(VERTEX *vertex) {
+vertexDestroy(Vertex *vertex) {
     PatchListDestroy(vertex->patches);
     free(vertex);
     GLOBAL_statistics_numberOfVertices--;
@@ -40,7 +50,7 @@ VertexDestroy(VERTEX *vertex) {
 Prints the vertex data to the file 'out'
 */
 void
-VertexPrint(FILE *out, VERTEX *vertex) {
+vertexPrint(FILE *out, Vertex *vertex) {
     fprintf(out, "ID %d: (", vertex->id);
     VectorPrint(out, *(vertex->point));
     fprintf(out, ")");
@@ -77,7 +87,7 @@ Averages the color of each patch sharing the vertex and assign the
 resulting color to the vertex
 */
 void
-ComputeVertexColor(VERTEX *vertex) {
+computeVertexColor(Vertex *vertex) {
     long numberOfPatches;
 
     RGBSET(vertex->color, 0.0f, 0.0f, 0.0f);
@@ -104,16 +114,16 @@ ComputeVertexColor(VERTEX *vertex) {
 Computes a vertex color for the vertices of the patch
 */
 void
-PatchComputeVertexColors(PATCH *patch) {
+patchComputeVertexColors(PATCH *patch) {
     int i;
 
     for ( i = 0; i < patch->nrvertices; i++ ) {
-        ComputeVertexColor(patch->vertex[i]);
+        computeVertexColor(patch->vertex[i]);
     }
 }
 
 unsigned
-VertexSetCompareFlags(unsigned flags) {
+vertexSetCompareFlags(unsigned flags) {
     unsigned oldflags = vertex_compare_flags;
     vertex_compare_flags = flags;
     return oldflags;
@@ -123,7 +133,7 @@ VertexSetCompareFlags(unsigned flags) {
 This routine only compares the location of the two vertices
 */
 int
-VertexCompareLocation(VERTEX *v1, VERTEX *v2) {
+vertexCompareLocation(Vertex *v1, Vertex *v2) {
     /* two entities intersect if their tolerance region intersects, i.o.w. if
      * the distance between them is smaller than the sum of the two entity's
      * tolerances */
@@ -135,10 +145,10 @@ VertexCompareLocation(VERTEX *v1, VERTEX *v2) {
 This routine only compares the normal of the two vertices
 */
 int
-VertexCompareNormal(VERTEX *v1, VERTEX *v2) {
+vertexCompareNormal(Vertex *v1, Vertex *v2) {
     int code = vectorCompareByDimensions(v1->normal, v2->normal, EPSILON);
 
-    if ( code == XYZ_EQUAL && !(vertex_compare_flags & VCMP_NO_NORMAL_IS_EQUAL_NORMAL)) {
+    if ( code == XYZ_EQUAL && !(vertex_compare_flags & VERTEX_COMPARE_NO_NORMAL_IS_EQUAL_NORMAL)) {
         if ( v1->normal->x == 0. && v1->normal->y == 0. && v1->normal->z == 0. ) {
             return 0;
         }
@@ -150,7 +160,7 @@ VertexCompareNormal(VERTEX *v1, VERTEX *v2) {
 This routine only compares the texture coordinates of the two vertices
 */
 int
-VertexCompareTexCoord(VERTEX *v1, VERTEX *v2) {
+vertexCompareTexCoord(Vertex *v1, Vertex *v2) {
     if ( !v1->texCoord ) {
         if ( !v2->texCoord ) {
             return XYZ_EQUAL;
@@ -173,28 +183,28 @@ the same vertices and 0-7, the index of an octree branch to be expored
 further, if not
 */
 int
-VertexCompare(VERTEX *v1, VERTEX *v2) {
+vertexCompare(Vertex *v1, Vertex *v2) {
     int code = XYZ_EQUAL;
 
     // First compare the coordinates
-    if ( vertex_compare_flags & VCMP_LOCATION ) {
-        code = VertexCompareLocation(v1, v2);
+    if ( vertex_compare_flags & VERTEX_COMPARE_LOCATION ) {
+        code = vertexCompareLocation(v1, v2);
         if ( code != XYZ_EQUAL ) {
             return code;
         }
     }
 
     // Same coordinates, test the normals
-    if ( vertex_compare_flags & VCMP_NORMAL ) {
-        code = VertexCompareNormal(v1, v2);
+    if ( vertex_compare_flags & VERTEX_COMPARE_NORMAL ) {
+        code = vertexCompareNormal(v1, v2);
         if ( code != XYZ_EQUAL ) {
             return code;
         }
     }
 
     // Same coordinates and same normal, test texture coordinates
-    if ( vertex_compare_flags & VCMP_TEXCOORD ) {
-        code = VertexCompareTexCoord(v1, v2);
+    if ( vertex_compare_flags & VERTEX_COMPARE_TEXTURE_COORDINATE ) {
+        code = vertexCompareTexCoord(v1, v2);
         if ( code != XYZ_EQUAL ) {
             return code;
         }

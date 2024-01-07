@@ -108,7 +108,7 @@ CreateElement() {
     elem->imp_ray_index = 0;
 
     VECTORSET(elem->midpoint, 0., 0., 0.);
-    elem->vertex[0] = elem->vertex[1] = elem->vertex[2] = elem->vertex[3] = (VERTEX *) nullptr;
+    elem->vertex[0] = elem->vertex[1] = elem->vertex[2] = elem->vertex[3] = (Vertex *) nullptr;
     elem->parent = (ELEMENT *) nullptr;
     elem->regular_subelements = (ELEMENT **) nullptr;
     elem->irregular_subelements = (ELEMENTLIST *) nullptr;
@@ -124,7 +124,7 @@ CreateElement() {
 }
 
 static void
-VertexAttachElement(VERTEX *v, ELEMENT *elem) {
+VertexAttachElement(Vertex *v, ELEMENT *elem) {
     v->radiance_data = ElementListAdd(v->radiance_data, elem);
 }
 
@@ -389,16 +389,16 @@ InstallTexCoord(Vector3D *texCoord) {
     return t;
 }
 
-static VERTEX *
+static Vertex *
 InstallVertex(Vector3D *coord, Vector3D *norm, Vector3D *texCoord) {
     java::ArrayList<PATCH *> *newPatchList = new java::ArrayList<PATCH *>();
-    VERTEX *v = VertexCreate(coord, norm, texCoord, newPatchList);
+    Vertex *v = vertexCreate(coord, norm, texCoord, newPatchList);
     GLOBAL_stochasticRaytracing_hierarchy.vertices->add(0, v);
     return v;
 }
 
-static VERTEX *
-NewMidpointVertex(ELEMENT *elem, VERTEX *v1, VERTEX *v2) {
+static Vertex *
+NewMidpointVertex(ELEMENT *elem, Vertex *v1, Vertex *v2) {
     Vector3D coord, norm, texCoord, *p, *n, *t;
 
     MIDPOINT(*(v1->point), *(v2->point), coord);
@@ -426,7 +426,7 @@ NewMidpointVertex(ELEMENT *elem, VERTEX *v1, VERTEX *v2) {
  * (edgenr+1 modulo GLOBAL_statistics_numberOfVertices)-th vertex. */
 static ELEMENT *
 ElementNeighbour(ELEMENT *elem, int edgenr) {
-    VERTEX *from = elem->vertex[edgenr],
+    Vertex *from = elem->vertex[edgenr],
             *to = elem->vertex[(edgenr + 1) % elem->nrvertices];
 
     ForAllElements(e, to->radiance_data)
@@ -449,9 +449,9 @@ ElementNeighbour(ELEMENT *elem, int edgenr) {
     return (ELEMENT *) nullptr;
 }
 
-VERTEX *
+Vertex *
 McrEdgeMidpointVertex(ELEMENT *elem, int edgenr) {
-    VERTEX *v = (VERTEX *) nullptr,
+    Vertex *v = (Vertex *) nullptr,
             *to = elem->vertex[(edgenr + 1) % elem->nrvertices];
     ELEMENT *neighbour = ElementNeighbour(elem, edgenr);
 
@@ -510,11 +510,11 @@ McrEdgeMidpointVertex(ELEMENT *elem, int edgenr) {
     return v;
 }
 
-static VERTEX *
+static Vertex *
 NewEdgeMidpointVertex(ELEMENT *elem, int edgenr) {
-    VERTEX *v = McrEdgeMidpointVertex(elem, edgenr);
+    Vertex *v = McrEdgeMidpointVertex(elem, edgenr);
     if ( !v ) { /* first time we split the edge, create the midpoint vertex */
-        VERTEX *from = elem->vertex[edgenr],
+        Vertex *from = elem->vertex[edgenr],
                 *to = elem->vertex[(edgenr + 1) % elem->nrvertices];
         v = NewMidpointVertex(elem, from, to);
     }
@@ -624,12 +624,12 @@ InitSurfacePush(ELEMENT *parent, ELEMENT *child) {
   ------------------------------------------------------------------------- */
 static ELEMENT *
 CreateSurfaceSubelement(
-    ELEMENT *parent,
-    int childnr,
-    VERTEX *v0,
-    VERTEX *v1,
-    VERTEX *v2,
-    VERTEX *v3)
+        ELEMENT *parent,
+        int childnr,
+        Vertex *v0,
+        Vertex *v1,
+        Vertex *v2,
+        Vertex *v3)
 {
     int i;
 
@@ -666,7 +666,7 @@ CreateSurfaceSubelement(
 /* create subelements: regular subdivision, see drawings above. */
 static ELEMENT **
 RegularSubdivideTriangle(ELEMENT *element) {
-    VERTEX *v0, *v1, *v2, *m0, *m1, *m2;
+    Vertex *v0, *v1, *v2, *m0, *m1, *m2;
 
     v0 = element->vertex[0];
     v1 = element->vertex[1];
@@ -694,7 +694,7 @@ RegularSubdivideTriangle(ELEMENT *element) {
 
 static ELEMENT **
 RegularSubdivideQuad(ELEMENT *element) {
-    VERTEX *v0, *v1, *v2, *v3, *m0, *m1, *m2, *m3, *mm;
+    Vertex *v0, *v1, *v2, *v3, *m0, *m1, *m2, *m3, *mm;
 
     v0 = element->vertex[0];
     v1 = element->vertex[1];
@@ -821,10 +821,10 @@ McrDestroyClusterHierarchy(ELEMENT *top) {
 }
 
 static void
-TestPrintVertex(FILE *out, int i, VERTEX *v) {
+TestPrintVertex(FILE *out, int i, Vertex *v) {
     fprintf(out, "vertex[%d]: %s", i, v ? "" : "(nil)");
     if ( v ) {
-        VertexPrint(out, v);
+        vertexPrint(out, v);
     }
     fprintf(out, "\n");
 }

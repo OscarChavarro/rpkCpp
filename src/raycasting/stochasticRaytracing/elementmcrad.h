@@ -22,7 +22,7 @@ if ((parent)->irregular_subelements) {        \
 #define ForAllVerticesOfElement(vert, elem) {    \
   int _i_;                    \
   for (_i_=0; _i_<(elem)->nrvertices; _i_++) {    \
-    VERTEX *(vert) = (elem)->vertex[_i_]; {
+    Vertex *(vert) = (elem)->vertex[_i_]; {
 
 extern ELEMENT *CreateToplevelSurfaceElement(PATCH *patch);
 
@@ -56,7 +56,7 @@ extern ELEMENT *monteCarloRadiosityRegularSubElementAtPoint(ELEMENT *parent, dou
 
 extern ELEMENT *McrRegularLeafElementAtPoint(ELEMENT *top, double *u, double *v);
 
-extern VERTEX *McrEdgeMidpointVertex(ELEMENT *elem, int edgenr);
+extern Vertex *McrEdgeMidpointVertex(ELEMENT *elem, int edgenr);
 
 extern Matrix2x2 mcr_quadupxfm[4];
 extern Matrix2x2 mcr_triupxfm[4];
@@ -91,11 +91,11 @@ extern void ElementAdjustTVertexColors(ELEMENT *elem);
 
 extern RGB ElementColor(ELEMENT *elem);
 
-extern COLOR VertexReflectance(VERTEX *v);
+extern COLOR VertexReflectance(Vertex *v);
 
 extern void ElementTVertexElimination(ELEMENT *elem,
-                                      void (*do_triangle)(VERTEX *, VERTEX *, VERTEX *),
-                                      void (*do_quadrilateral)(VERTEX *, VERTEX *, VERTEX *, VERTEX *));
+                                      void (*do_triangle)(Vertex *, Vertex *, Vertex *),
+                                      void (*do_quadrilateral)(Vertex *, Vertex *, Vertex *, Vertex *));
 
 /* don't overuse the macros below. There are often elegant alternatives. */
 

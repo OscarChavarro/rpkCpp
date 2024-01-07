@@ -28,7 +28,7 @@ void PatchSetNextID(int id) {
 Adds the patch to the list of patches that share the vertex
 */
 void
-PatchConnectVertex(PATCH *patch, VERTEX *vertex) {
+PatchConnectVertex(PATCH *patch, Vertex *vertex) {
     if ( patch == nullptr) {
         return;
     }
@@ -195,7 +195,7 @@ int IsPatchVirtual(PATCH *patch) {
 
 /* Creates a patch structure for a patch with given vertices. */
 PATCH *PatchCreate(int nrvertices,
-                   VERTEX *v1, VERTEX *v2, VERTEX *v3, VERTEX *v4) {
+                   Vertex *v1, Vertex *v2, Vertex *v3, Vertex *v4) {
     PATCH *patch;
 
     /* this may occur after an error parsing the input file, and some other routine
@@ -290,7 +290,7 @@ void PatchDestroy(PATCH *patch) {
 
     if ( patch->brep_data ) {    /* also destroys all contours, and edges if not used in
 			 * other faces as well. Not the vertices: these are
-			 * destroyed when destroying the corresponding VERTEX. */
+			 * destroyed when destroying the corresponding Vertex. */
         BrepDestroyFace(patch->brep_data);
     }
 
@@ -394,7 +394,7 @@ void PatchPrint(FILE *out, PATCH *patch) {
 
     fprintf(out, "%d vertices:\n", patch->nrvertices);
     for ( i = 0; i < patch->nrvertices; i++ ) {
-        VertexPrint(out, patch->vertex[i]);
+        vertexPrint(out, patch->vertex[i]);
     }
     fprintf(out, "\n");
 
@@ -612,7 +612,7 @@ static int TriangleUV(PATCH *patch, Vector3D *point, Vector2Dd *uv) {
     static PATCH *cachedpatch = (PATCH *) nullptr;
     double u0, v0;
     REAL alpha = -1., beta = 1.;
-    VERTEX **v;
+    Vertex **v;
     Vector2Dd p0, p1, p2;
 
     if ( !patch ) {
@@ -685,7 +685,7 @@ in Graphics Gems V (edited by A. Paeth), Academic Press
 static int
 QuadUV(PATCH *patch, Vector3D *point, Vector2Dd *uv) {
     static PATCH *cachedpatch = (PATCH *) nullptr;
-    VERTEX **p;
+    Vertex **p;
     Vector2Dd A, B, C, D;                // Projected vertices
     Vector2Dd M;                         // Projected intersection point
     Vector2Dd AB, BC, CD, AD, AM, AE;    // AE = DC - AB = DA - CB

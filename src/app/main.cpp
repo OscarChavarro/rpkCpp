@@ -267,12 +267,12 @@ Init() {
     /* Default vertex compare flags: both location and normal is relevant. Two
      * vertices without normal, but at the same location, are to be considered
      * different. */
-    VertexSetCompareFlags(VCMP_LOCATION | VCMP_NORMAL);
+    vertexSetCompareFlags(VERTEX_COMPARE_LOCATION | VERTEX_COMPARE_NORMAL);
 
     /* Specify what routines to be used to compare vertices when using
      * BREP_VERTEX_OCTREEs */
-    brepSetVertexCompareRoutine((BREP_COMPARE_FUNC) VertexCompare);
-    brepSetVertexCompareLocationRoutine((BREP_COMPARE_FUNC) VertexCompareLocation);
+    brepSetVertexCompareRoutine((BREP_COMPARE_FUNC) vertexCompare);
+    brepSetVertexCompareLocationRoutine((BREP_COMPARE_FUNC) vertexCompareLocation);
 }
 
 static void

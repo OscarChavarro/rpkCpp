@@ -15,7 +15,7 @@ Surfaces are basically a list of PATCHes representing a simple object with given
 class GEOM_METHODS;
 class Geometry;
 class PatchSet;
-class VERTEX;
+class Vertex;
 
 class MeshSurface {
   public:
@@ -27,7 +27,7 @@ class MeshSurface {
     and 'normals' list. Different vertices can share the same coordinates and/or
     normals
     */
-    java::ArrayList<VERTEX *> *vertices;
+    java::ArrayList<Vertex *> *vertices;
 
     // A list of positions at the vertices of the patches of the surface
     Vector3DListNode *positions;
@@ -63,7 +63,7 @@ surfaceCreate(
         Vector3DListNode *points,
         Vector3DListNode *normals,
         Vector3DListNode *texCoords,
-        java::ArrayList<VERTEX *> *vertices,
+        java::ArrayList<Vertex *> *vertices,
         PatchSet *faces,
         MaterialColorFlags flags);
 

@@ -69,7 +69,7 @@ static void
 PatchComputeNewColor(PATCH *patch) {
     COLOR Rd = PatchAverageNormalAlbedo(patch, BRDF_DIFFUSE_COMPONENT);
     convertColorToRGB(Rd, &patch->color);
-    PatchComputeVertexColors(patch);
+    patchComputeVertexColors(patch);
 }
 
 static void

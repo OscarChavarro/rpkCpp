@@ -80,7 +80,7 @@ class ELEM_HIER_STATE {
     Vector3DListNode *coords;
     Vector3DListNode *normals;       /* created during element subdivision */
     Vector3DListNode *texCoords;       /* created during element subdivision */
-    java::ArrayList<VERTEX *> *vertices;
+    java::ArrayList<Vertex *> *vertices;
 };
 
 extern ELEM_HIER_STATE GLOBAL_stochasticRaytracing_hierarchy;

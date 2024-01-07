@@ -37,7 +37,7 @@ class ELEMENT {
     niedindex imp_ray_index;    /* ray index for importance propagation */
 
     Vector3D midpoint;            /* element midpoint */
-    VERTEX *vertex[4];            /* up to 4 vertex pointers for
+    Vertex *vertex[4];            /* up to 4 vertex pointers for
 					 * surface elements */
     ELEMENT *parent;        /* parent element in hierarchy */
     ELEMENT **regular_subelements;    /* for surface elements with regular
