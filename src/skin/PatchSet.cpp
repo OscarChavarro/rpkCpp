@@ -71,19 +71,21 @@ cluster.[ch]. In both cases, the patches pointed to should not be
 destroyed, only the patches should
 */
 static void
-patchListDestroy(PatchSet *patchlist) {
-    PatchListDestroy(patchlist);
+patchListDestroy(PatchSet *patchList) {
+    PatchSet *listWindow = patchList;
+    while ( listWindow != nullptr ) {
+        PatchSet *listNode = listWindow->next;
+        free(listWindow);
+        listWindow = listNode;
+    }
 }
 
 static void
-PatchPrintId(FILE *out, PATCH *patch) {
-    fprintf(out, "%d ", patch->id);
-}
-
-static void
-patchListPrint(FILE *out, PatchSet *patchlist) {
+patchListPrint(FILE *out, PatchSet *patchList) {
     fprintf(out, "getPatchList:\n");
-    PatchListIterate1B(patchlist, PatchPrintId, out);
+    for ( PatchSet *window = patchList; window != nullptr; window = window->next ) {
+        fprintf(out, "%d ", window->patch->id);
+    }
     fprintf(out, "\nend of getPatchList.\n");
 }
 

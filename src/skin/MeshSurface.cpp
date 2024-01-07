@@ -1,12 +1,9 @@
 #include <cstdlib>
 
 #include "java/util/ArrayList.txx"
-#include "common/Ray.h"
 #include "material/statistics.h"
 #include "skin/Patch.h"
 #include "skin/MeshSurface.h"
-#include "skin/Vertex.h"
-#include "skin/Geometry.h"
 
 // Static counter that is increased each time a surface is created for making unique MeshSurface ids
 static int globalNextSurfaceId = 0;
@@ -42,12 +39,12 @@ surfaceConnectFace(MeshSurface *surf, PATCH *face) {
 
     face->surface = surf;
 
-    /* also fill in a nicer default color for the patch */
+    // Also fill in a nicer default color for the patch
     switch ( globalColorFlags ) {
         case FACE_COLORS:
             break;
         case VERTEX_COLORS:
-            /* average color of the vertices */
+            // Average color of the vertices
             RGBSET(face->color, 0, 0, 0);
             for ( i = 0; i < face->numberOfVertices; i++ ) {
                 face->color.r += face->vertex[i]->color.r;
@@ -78,44 +75,47 @@ surfaceCreate(
     PatchSet *faces,
     enum MaterialColorFlags flags)
 {
-    MeshSurface *surf;
+    MeshSurface *surface;
 
-    surf = (MeshSurface *)malloc(sizeof(MeshSurface));
+    surface = (MeshSurface *)malloc(sizeof(MeshSurface));
     GLOBAL_statistics_numberOfSurfaces++;
-    surf->id = globalNextSurfaceId++;
-    surf->material = material;
-    surf->positions = points;
-    surf->normals = normals;
-    surf->vertices = vertices;
-    surf->texCoords = texCoords;
-    surf->faces = faces;
+    surface->id = globalNextSurfaceId++;
+    surface->material = material;
+    surface->positions = points;
+    surface->normals = normals;
+    surface->vertices = vertices;
+    surface->texCoords = texCoords;
+    surface->faces = faces;
 
     globalColorFlags = flags;
 
     // If globalColorFlags == VERTEX_COLORS< the vertices are assumed to contain
     // the sum of the colors as used in each patch sharing the vertex
     if ( globalColorFlags == VERTEX_COLORS ) {
-        for ( int i = 0; surf->vertices != nullptr && i < surf->vertices->size(); i++ ) {
-            normalizeVertexColor(surf->vertices->get(i));
+        for ( int i = 0; surface->vertices != nullptr && i < surface->vertices->size(); i++ ) {
+            normalizeVertexColor(surface->vertices->get(i));
         }
     }
 
-    /* fill in the MeshSurface backpointer of the FACEs in the MeshSurface. */
-    ForAllPatches(face, surf->faces)
-                {
-                    surfaceConnectFace(surf, face);
-                }
-    EndForAll;
+    // Fill in the MeshSurface back pointer of the FACEs in the MeshSurface
+    PatchSet *listStart = (PatchSet *)(surface->faces);
+    if ( listStart ) {
+        PatchSet *window;
+        for ( window = listStart; window; window = window->next ) {
+            PATCH *patch = window->patch;
+            surfaceConnectFace(surface, patch);
+        }
+    }
 
     // Compute vertex colors
     if ( globalColorFlags != VERTEX_COLORS ) {
-        for ( int i = 0; surf->vertices != nullptr && i < surf->vertices->size(); i++ ) {
-            computeVertexColor(surf->vertices->get(i));
+        for ( int i = 0; surface->vertices != nullptr && i < surface->vertices->size(); i++ ) {
+            computeVertexColor(surface->vertices->get(i));
         }
     }
 
     globalColorFlags = NO_COLORS;
-    return surf;
+    return surface;
 }
 
 /**
@@ -126,30 +126,79 @@ vertices, because otherwise, the brep_data for the vertices would
 still be used and thus not destroyed by the BREP library
 */
 void
-surfaceDestroy(MeshSurface *surf) {
-    /* It is important that the patches be destroyed first and then the
-     * vertices, because otherwise, the brep_data for the vertices would
-     * still be used and thus not destroyed by the BREP library. */
-    PatchListIterate(surf->faces, patchDestroy);
-    PatchListDestroy(surf->faces);
-
-    if ( surf->vertices != nullptr ) {
-        for ( int i = 0; i < surf->vertices->size(); i++) {
-            vertexDestroy(surf->vertices->get(i));
-        }
-        delete surf->vertices;
+surfaceDestroy(MeshSurface *surface) {
+    PatchSet *patchWindow = surface->faces;
+    PATCH *patch;
+    while ( patchWindow != nullptr ) {
+        patch = patchWindow->patch;
+        patchWindow = patchWindow->next;
+        patchDestroy(patch);
     }
 
-    VectorListIterate(surf->positions, VectorDestroy);
-    VectorListDestroy(surf->positions);
+    PatchSet *patchListNode;
+    patchWindow = surface->faces;
+    while ( patchWindow != nullptr ) {
+        patchListNode = patchWindow->next;
+        free(patchWindow);
+        patchWindow = patchListNode;
+    }
 
-    VectorListIterate(surf->normals, VectorDestroy);
-    VectorListDestroy(surf->normals);
+    if ( surface->vertices != nullptr ) {
+        for ( int i = 0; i < surface->vertices->size(); i++) {
+            vertexDestroy(surface->vertices->get(i));
+        }
+        delete surface->vertices;
+    }
 
-    VectorListIterate(surf->texCoords, VectorDestroy);
-    VectorListDestroy(surf->texCoords);
+    Vector3DListNode *vector3DWindow = surface->positions;
+    Vector3D *vectorPosition;
+    while ( vector3DWindow != nullptr ) {
+        vectorPosition = vector3DWindow->vector;
+        vector3DWindow = vector3DWindow->next;
+        VectorDestroy(vectorPosition);
+    }
 
-    free(surf);
+    vector3DWindow = surface->positions;
+    Vector3DListNode *vectorPositionNode;
+    while ( vector3DWindow != nullptr ) {
+        vectorPositionNode = vector3DWindow->next;
+        free(vector3DWindow);
+        vector3DWindow = vectorPositionNode;
+    }
+
+    Vector3DListNode *normalWindow = surface->normals;
+    Vector3D *normal;
+    while ( normalWindow != nullptr ) {
+        normal = normalWindow->vector;
+        normalWindow = normalWindow->next;
+        VectorDestroy(normal);
+    }
+
+    normalWindow = surface->normals;
+    Vector3DListNode *normalNode;
+    while ( normalWindow != nullptr ) {
+        normalNode = normalWindow->next;
+        free(normalWindow);
+        normalWindow = normalNode;
+    }
+
+    Vector3DListNode *texCoordWindow = (surface->texCoords);
+    Vector3D *texCoord;
+    while ( texCoordWindow != nullptr ) {
+        texCoord = texCoordWindow->vector;
+        texCoordWindow = texCoordWindow->next;
+        VectorDestroy(texCoord);
+    }
+
+    texCoordWindow = surface->texCoords;
+    Vector3DListNode *texCoordNode;
+    while ( texCoordWindow != nullptr ) {
+        texCoordNode = texCoordWindow->next;
+        free(texCoordWindow);
+        texCoordWindow = texCoordNode;
+    }
+
+    free(surface);
     GLOBAL_statistics_numberOfSurfaces--;
 }
 
@@ -158,12 +207,25 @@ This method will print the geometry to the file out
 */
 void
 surfacePrint(FILE *out, MeshSurface *surface) {
-    fprintf(out, "Surface id %d: material %s, patches ID: ",
+    fprintf(out, "MeshSurface id %d: material %s, patches ID: ",
             surface->id, surface->material->name);
-    PatchListIterate1B(surface->faces, patchPrintId, out);
+
+    PatchSet *patchWindow = (surface->faces);
+    PATCH *patchElement;
+    while (patchWindow) {
+        patchElement = patchWindow->patch;
+        patchWindow = patchWindow->next;
+        patchPrintId(out, patchElement);
+    }
     fprintf(out, "\n");
 
-    PatchListIterate1B(surface->faces, patchPrint, out);
+    PatchSet *patchWindow2 = (surface->faces);
+    PATCH *patchElement2;
+    while (patchWindow2) {
+        patchElement2 = patchWindow2->patch;
+        patchWindow2 = patchWindow2->next;
+        patchPrint(out, patchElement2);
+    }
 }
 
 /**
@@ -186,14 +248,27 @@ surfacePatchList(MeshSurface *surf) {
 }
 
 HITREC *
-surfaceDiscretizationIntersect(MeshSurface *surf, Ray *ray, float mindist, float *maxdist, int hitflags, HITREC *hitstore) {
-    return patchListIntersect(surf->faces, ray, mindist, maxdist, hitflags, hitstore);
+surfaceDiscretizationIntersect(
+    MeshSurface *surf,
+    Ray *ray,
+    float minimumDistance,
+    float *maximumDistance,
+    int hitFlags,
+    HITREC *hitStore)
+{
+    return patchListIntersect(surf->faces, ray, minimumDistance, maximumDistance, hitFlags, hitStore);
 }
 
 HITLIST *
-surfaceAllDiscretizationIntersections(HITLIST *hits, MeshSurface *surf, Ray *ray, float mindist, float maxdist,
-                                      int hitflags) {
-    return patchListAllIntersections(hits, surf->faces, ray, mindist, maxdist, hitflags);
+surfaceAllDiscretizationIntersections(
+    HITLIST *hits,
+    MeshSurface *surf,
+    Ray *ray,
+    float minimumDistance,
+    float maximumDistance,
+    int hitFlags)
+{
+    return patchListAllIntersections(hits, surf->faces, ray, minimumDistance, maximumDistance, hitFlags);
 }
 
 GEOM_METHODS GLOBAL_skin_surfaceGeometryMethods = {

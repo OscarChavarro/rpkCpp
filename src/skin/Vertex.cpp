@@ -21,7 +21,7 @@ and normal vector. Several patches can share the same vertex
 */
 Vertex *
 vertexCreate(Vector3D *point, Vector3D *normal, Vector3D *texCoord, java::ArrayList<PATCH *> *patches) {
-    Vertex *v = (Vertex *)malloc(sizeof(Vertex));
+    Vertex *v = new Vertex();
 
     v->id = GLOBAL_statistics_numberOfVertices++;
     v->point = point;
@@ -41,8 +41,7 @@ normal vector, neither the patches sharing the vertex
 */
 void
 vertexDestroy(Vertex *vertex) {
-    PatchListDestroy(vertex->patches);
-    free(vertex);
+    delete vertex;
     GLOBAL_statistics_numberOfVertices--;
 }
 

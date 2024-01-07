@@ -19,12 +19,6 @@ class HITLIST;
 #define PatchListIterate(patchlist, proc) \
         ListIterate((LIST *)patchlist, (void (*)(void *))proc)
 
-#define PatchListIterate1B(patchlist, proc, data) \
-        ListIterate1B((LIST *)patchlist, (void (*)(void *, void *))proc, (void *)data)
-
-#define PatchListDestroy(patchlist) \
-        ListDestroy((LIST *)patchlist)
-
 #define ForAllPatches(P, patches) ForAllInList(PATCH, P, patches)
 
 // Note: Should create a Geometry class for a set of patches!
