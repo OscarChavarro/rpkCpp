@@ -1,17 +1,17 @@
-#ifndef _JACOBIAN_H_
-#define _JACOBIAN_H_
+#ifndef __JACOBIAN__
+#define __JACOBIAN__
 
 /**
 Jacobian for a quadrilateral patch is J(u, v) = A + B.u + C.v
 */
-class JACOBIAN {
+class Jacobian {
   public:
     float A;
     float B;
     float C;
 };
 
-extern JACOBIAN *JacobianCreate(float A, float B, float C);
-extern void JacobianDestroy(JACOBIAN *jacobian);
+extern Jacobian *jacobianCreate(float A, float B, float C);
+extern void jacobianDestroy(Jacobian *jacobian);
 
 #endif

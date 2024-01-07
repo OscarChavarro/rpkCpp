@@ -1,12 +1,14 @@
-/* Monte Carlo Radiosity: common code for stochastic relaxation and random walks */
+/**
+Monte Carlo Radiosity: common code for stochastic relaxation and random walks
+*/
 
 #include <cstdlib>
 
 #include "common/error.h"
-#include "skin/patch_flags.h"
 #include "material/statistics.h"
-#include "scene/scene.h"
+#include "skin/Patch.h"
 #include "skin/Vertex.h"
+#include "scene/scene.h"
 #include "shared/options.h"
 #include "shared/potential.h"
 #include "shared/camera.h"

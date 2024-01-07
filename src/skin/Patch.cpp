@@ -5,7 +5,6 @@
 #include "material/statistics.h"
 #include "BREP/BREP_SOLID.h"
 #include "QMC/nied31.h"
-#include "skin/patch_flags.h"
 #include "skin/Patch.h"
 #include "skin/Vertex.h"
 #include "skin/radianceinterfaces.h"
@@ -88,7 +87,7 @@ float PatchArea(PATCH *patch) {
              * (0,0),(0,1),(1,0) to a triangular patch is constant and equal
              * to the area of the triangle ... so there is no need to store
              * any coefficients explicitely */
-            patch->jacobian = (JACOBIAN *) nullptr;
+            patch->jacobian = (Jacobian *) nullptr;
 
             p1 = patch->vertex[0]->point;
             p2 = patch->vertex[1]->point;
@@ -125,15 +124,15 @@ float PatchArea(PATCH *patch) {
             /* b and c are zero for parallellograms. In that case, the area is equal to
              * a, so we don't need to store the coefficients. */
             if ( fabs(b) / patch->area < EPSILON && fabs(c) / patch->area < EPSILON ) {
-                patch->jacobian = (JACOBIAN *) nullptr;
+                patch->jacobian = (Jacobian *) nullptr;
             } else {
-                patch->jacobian = JacobianCreate(a, b, c);
+                patch->jacobian = jacobianCreate(a, b, c);
             }
 
             break;
         default:
             logFatal(2, "PatchArea", "Can only handle triangular and quadrilateral patches.\n");
-            patch->jacobian = (JACOBIAN *) nullptr;
+            patch->jacobian = (Jacobian *) nullptr;
             patch->area = 0.0;
     }
 
@@ -280,7 +279,7 @@ void PatchDestroy(PATCH *patch) {
     }
 
     if ( patch->jacobian ) {
-        JacobianDestroy(patch->jacobian);
+        jacobianDestroy(patch->jacobian);
     }
 
     if ( patch->brep_data ) {    /* also destroys all contours, and edges if not used in

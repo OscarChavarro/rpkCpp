@@ -1,10 +1,8 @@
-/*
+/**
 Shaft culling ala Haines, E. A. and Wallace, J. R. "Shaft culling for
-	     efficient ray-traced radiosity", 2nd Eurographics Workshop
-	     on Rendering, Barcelona, Spain, may 1991
+    efficient ray-traced radiosity", 2nd Eurographics Workshop on Rendering, Barcelona, Spain, may 1991
 */
 
-#include "skin/patchlist_geom.h"
 #include "skin/Geometry.h"
 #include "skin/Patch.h"
 #include "GALERKIN/shaftculling.h"
@@ -450,10 +448,10 @@ int ShaftBoxTest(float *bounds, SHAFT *shaft) {
  * set to true, indicating that there is full occlusion due to one patch and
  * that as such no further shaft culling is necessary. */
 int ShaftPatchTest(PATCH *patch, SHAFT *shaft) {
-    int i, j, someout, inall[PATCHMAXVERTICES];
+    int i, j, someout, inall[MAXIMUM_VERTICES_PER_PATCH];
     SHAFTPLANE *plane;
-    double tmin[PATCHMAXVERTICES], tmax[PATCHMAXVERTICES],
-            ptol[PATCHMAXVERTICES];
+    double tmin[MAXIMUM_VERTICES_PER_PATCH], tmax[MAXIMUM_VERTICES_PER_PATCH],
+            ptol[MAXIMUM_VERTICES_PER_PATCH];
     Ray ray;
     float dist;
     HITREC hitstore;
@@ -471,8 +469,8 @@ int ShaftPatchTest(PATCH *patch, SHAFT *shaft) {
     for ( i = 0, plane = &shaft->plane[0]; i < shaft->planes; i++, plane++ ) {
         /* test patch against i-th plane of the shaft */
         Vector3Dd plane_normal;
-        double e[PATCHMAXVERTICES], tolerance;
-        int in, out, side[PATCHMAXVERTICES];
+        double e[MAXIMUM_VERTICES_PER_PATCH], tolerance;
+        int in, out, side[MAXIMUM_VERTICES_PER_PATCH];
 
         VECTORSET(plane_normal, plane->n[0], plane->n[1], plane->n[2]);
 
@@ -661,7 +659,7 @@ static GeometryListNode *Open(Geometry *geom, SHAFT *shaft, GeometryListNode *ca
         patchlist = ShaftCullPatchlist(patchlist, shaft, nullptr);
         if ( patchlist ) {
             Geometry *newgeom;
-            newgeom = geomCreatePatchSet(patchlist, PatchListMethods());
+            newgeom = geomCreatePatchSet(patchlist, &GLOBAL_skin_patchListGeometryMethods);
             newgeom->shaftCullGeometry = true;
             candlist = GeomListAdd(candlist, newgeom);
         }

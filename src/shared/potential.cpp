@@ -5,7 +5,6 @@ routines dealing with view potential
 #include <ctime>
 #include <cstdlib>
 
-#include "skin/patch_flags.h"
 #include "common/error.h"
 #include "skin/Patch.h"
 #include "scene/scene.h"

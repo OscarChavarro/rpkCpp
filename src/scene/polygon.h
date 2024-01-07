@@ -10,7 +10,7 @@ class POLYGON {
     Vector3D normal;
     float plane_constant;
     BOUNDINGBOX bounds;
-    Vector3D vertex[PATCHMAXVERTICES];
+    Vector3D vertex[MAXIMUM_VERTICES_PER_PATCH];
     int nrvertices, index;
 };
 

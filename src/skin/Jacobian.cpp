@@ -2,9 +2,9 @@
 
 #include "skin/Jacobian.h"
 
-JACOBIAN *
-JacobianCreate(float A, float B, float C) {
-    JACOBIAN *jacobian = (JACOBIAN *)malloc(sizeof(JACOBIAN));
+Jacobian *
+jacobianCreate(float A, float B, float C) {
+    Jacobian *jacobian = (Jacobian *)malloc(sizeof(Jacobian));
     jacobian->A = A;
     jacobian->B = B;
     jacobian->C = C;
@@ -13,6 +13,6 @@ JacobianCreate(float A, float B, float C) {
 }
 
 void
-JacobianDestroy(JACOBIAN *jacobian) {
+jacobianDestroy(Jacobian *jacobian) {
     free(jacobian);
 }

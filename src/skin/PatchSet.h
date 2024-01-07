@@ -21,9 +21,6 @@ class HITLIST;
 #define PatchListAdd(patchlist, patch)    \
         (PatchSet *)ListAdd((LIST *)patchlist, (void *)patch)
 
-#define PatchListCount(patchlist) \
-        ListCount((LIST *)patchlist)
-
 #define PatchListDuplicate(patchlist) \
         (PatchSet *)ListDuplicate((LIST *)patchlist)
 

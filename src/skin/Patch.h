@@ -7,22 +7,24 @@
 #include "skin/Vertex.h"
 #include "skin/MeshSurface.h"
 
-#define PATCHMAXVERTICES 4 // max. 4 vertices per patch
+#define MAXIMUM_VERTICES_PER_PATCH 4 // max. 4 vertices per patch
+#define PATCH_VISIBILITY 0x01
+#define PATCH_IS_VISIBLE(patch) (((patch)->flags & PATCH_VISIBILITY) != 0)
+#define PATCH_SET_VISIBLE(patch) {(patch)->flags |= PATCH_VISIBILITY;}
+#define PATCH_SET_INVISIBLE(patch) {(patch)->flags &= ~PATCH_VISIBILITY;}
 
 class VERTEX;
 class MeshSurface;
 
 class PATCH {
-  public:
+public:
     unsigned id; // identification number for debugging, ID rendering
 
-    PATCH *twin; // twin face (for double sided surfaces)
+    PATCH *twin; // twin face (for double-sided surfaces)
     BREP_FACE *brep_data; // topological data for the patch. Only filled in if a radiance method needs it
 
-    VERTEX *vertex[PATCHMAXVERTICES]; // pointers to the vertices
+    VERTEX *vertex[MAXIMUM_VERTICES_PER_PATCH]; // pointers to the vertices
     char nrvertices; // number of vertices: 3 or 4
-
-    MeshSurface *surface; // pointer to surface data (contains vertexlist, material properties
 
     float *bounds; // bounding box
 
@@ -31,24 +33,27 @@ class PATCH {
     float tolerance; // patch plane tolerance
     float area; // patch area
     Vector3D midpoint; // patch midpoint
-    JACOBIAN *jacobian; /* shape-related constants for irregular quadrilaterals.
-                         * Used for sampling the quadrilateral and for computing
-                         * integrals. */
+    Jacobian *jacobian; /* shape-related constants for irregular quadrilaterals.
+                         Used for sampling the quadrilateral and for computing integrals
+                         */
     float direct_potential; /* directly received hemispherical potential
-                         * (ref: Pattanaik, ACM Trans Graph).
-                         * Only determined when asked to do so
-                         * (see potential.[ch]). */
+                               (ref: Pattanaik, ACM Trans Graph).
+                               Only determined when asked to do so (see potential.[ch]).
+                               */
     char index; // indicates dominant part of patch normal
     char omit; /* indicates that the patch should not be considered
-                         * for a couple of things, such as intersection
-                         * testing, shaft culling, ... set to FALSE by
-                         * default. Don't forget to set to FALSE again
-			 * after you changed it!! */
+                  for a couple of things, such as intersection
+                  testing, shaft culling, ... set to FALSE by
+                  default. Don't forget to set to FALSE again
+			      after you changed it!! */
     unsigned char flags; // other flags
 
     RGB color; // color used to flat render the patch
 
     void *radiance_data; // data needed for radiance computations. Type depends on the current radiance algorithm
+    MeshSurface *surface; // pointer to surface data (contains vertex list, material properties)
+
+    int isPatchVirtual();
 };
 
 extern int IsPatchVirtual(PATCH *patch);
