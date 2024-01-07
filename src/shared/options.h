@@ -57,7 +57,7 @@ class CMDLINEOPTDESC {
 /* scans for options mentionned in the 'options' command line description 
  * list, parses their value, executes their associated actions, and
  * removes them from the argv list (decreasing argc) */
-extern void ParseOptions(CMDLINEOPTDESC *options, int *argc, char **argv);
+extern void parseOptions(CMDLINEOPTDESC *options, int *argc, char **argv);
 
 /* enumerated type options: let the enumTypeStruct.data field point to an array
  * of ENUMDESC entries. These entries describe the integer options values and

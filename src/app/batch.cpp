@@ -156,12 +156,12 @@ BatchRayTrace(char *filename, FILE *fp, int ispipe) {
 }
 
 void
-ParseBatchOptions(int *argc, char **argv) {
-    ParseOptions(batchOptions, argc, argv);
+parseBatchOptions(int *argc, char **argv) {
+    parseOptions(batchOptions, argc, argv);
 }
 
 void
-Batch() {
+batch() {
     clock_t start_time, wasted_start;
     float wasted_secs;
 

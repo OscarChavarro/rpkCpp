@@ -32,7 +32,7 @@ static CMDLINEOPTDESC pmapOptions[] = {
 
 
 void ParsePmapOptions(int *argc, char **argv) {
-    ParseOptions(pmapOptions, argc, argv);
+    parseOptions(pmapOptions, argc, argv);
 }
 
 void PrintPmapOptions(FILE *fp) {

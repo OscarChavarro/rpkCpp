@@ -6,5 +6,4 @@ mkdir -p output
     -raytracing-method none -iterations 11 -radiance-method Galerkin \
     -radiance-model-savefile output/03_hospital.wrl \
     -eyepoint 1.1769 -0.045 1.5556 -center 5.2872 9.0366 0.9494 \
-    -batch -batch-quit-at-end -offscreen \
     -raycast -radiance-image-savefile ./output/03_hospital.ppm

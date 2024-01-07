@@ -3,7 +3,7 @@
 #include "shared/camera.h"
 #include "common/error.h"
 
-void CreateOffscreenCanvasWindow(int hres, int vres) {
+void createOffscreenCanvasWindow(int hres, int vres) {
     RenderCreateOffscreenWindow(hres, vres);
 
     /* set correct width and height for the camera */

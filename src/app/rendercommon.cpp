@@ -101,7 +101,7 @@ static CMDLINEOPTDESC renderingOptions[] = {
 };
 
 void ParseRenderingOptions(int *argc, char **argv) {
-    ParseOptions(renderingOptions, argc, argv);
+    parseOptions(renderingOptions, argc, argv);
 }
 
 extern CAMERA GLOBAL_camera_alternateCamera;

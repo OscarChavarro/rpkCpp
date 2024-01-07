@@ -107,7 +107,7 @@ RadianceDefaults() {
 
 void
 ParseRadianceOptions(int *argc, char **argv) {
-    ParseOptions(radianceOptions, argc, argv);
+    parseOptions(radianceOptions, argc, argv);
 
     ForAllRadianceMethods(method)
                 {

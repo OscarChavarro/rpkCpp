@@ -344,7 +344,7 @@ static void process_arg(CMDLINEOPTDESC *options) {
     } else next_arg();
 }
 
-void ParseOptions(CMDLINEOPTDESC *options, int *argc, char **argv) {
+void parseOptions(CMDLINEOPTDESC *options, int *argc, char **argv) {
     init_arg(argc, argv);
     while ( args_remain()) {
         process_arg(options);

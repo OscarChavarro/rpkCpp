@@ -88,7 +88,7 @@ static CMDLINEOPTDESC cameraOptions[] = {
 };
 
 void ParseCameraOptions(int *argc, char **argv) {
-    ParseOptions(cameraOptions, argc, argv);
+    parseOptions(cameraOptions, argc, argv);
 }
 
 /* Sets virtual camera position, focus point, up-direction, field of view

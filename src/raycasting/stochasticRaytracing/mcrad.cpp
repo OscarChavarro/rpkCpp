@@ -171,14 +171,14 @@ void monteCarloRadiosityDefaults() {
 }
 
 void stochasticRelaxationRadiosityParseOptions(int *argc, char **argv) {
-    ParseOptions(srrOptions, argc, argv);
+    parseOptions(srrOptions, argc, argv);
 }
 
 void stochasticRelaxationRadiosityPrintOptions(FILE *fp) {
 }
 
 void randomWalkRadiosityParseOptions(int *argc, char **argv) {
-    ParseOptions(rwrOptions, argc, argv);
+    parseOptions(rwrOptions, argc, argv);
 }
 
 void randomWalkRadiosityPrintOptions(FILE *fp) {

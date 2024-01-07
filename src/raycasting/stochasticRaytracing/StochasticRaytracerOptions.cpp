@@ -105,5 +105,5 @@ static CMDLINEOPTDESC globalStochasticRatTracerOptions[] = {
 
 void
 RTStochasticParseOptions(int *argc, char **argv) {
-    ParseOptions(globalStochasticRatTracerOptions, argc, argv);
+    parseOptions(globalStochasticRatTracerOptions, argc, argv);
 }

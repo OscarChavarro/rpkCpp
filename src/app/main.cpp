@@ -2,29 +2,33 @@
 #include <ctime>
 #include <cstring>
 
+#include "java/util/ArrayList.txx"
 #include "common/error.h"
 #include "BREP/BREP_VERTEX_OCTREE.h"
 #include "material/statistics.h"
+#include "skin/Compound.h"
 #include "shared/defaults.h"
 #include "shared/options.h"
 #include "shared/render.h"
 #include "shared/cubature.h"
 #include "shared/renderhook.h"
+#include "shared/canvas.h"
 #include "scene/scene.h"
 #include "IMAGE/tonemap/tonemapping.h"
 #include "raycasting/simple/RayCaster.h"
 #include "raycasting/simple/RayMatter.h"
 #include "raycasting/raytracing/BidirectionalPathRaytracer.h"
 #include "raycasting/stochasticRaytracing/StochasticRaytracer.h"
-#include "app/Cluster.h"
-#include "app/ui.h"
 #include "io/mgf/readmgf.h"
-#include "skin/Compound.h"
 #include "io/mgf/fileopts.h"
+#include "app/Cluster.h"
+#include "app/batch.h"
 
 static char *currentDirectory;
 static int yes = 1;
 static int no = 0;
+static int globalImageOutputWidth = 0;
+static int globalImageOutputHeight = 0;
 
 #define GeomIsCompound(geom) (geom->methods == &GLOBAL_skin_compoundGeometryMethods)
 
@@ -204,7 +208,7 @@ static CMDLINEOPTDESC raytracingOptions[] = {
 
 static void
 ParseRayTracingOptions(int *argc, char **argv) {
-    ParseOptions(raytracingOptions, argc, argv);
+    parseOptions(raytracingOptions, argc, argv);
     ForAllRayTracingMethods(method)
                 {
                     method->ParseOptions(argc, argv);
@@ -324,14 +328,14 @@ createClusterHierarchy(PatchSet *patches) {
 Processes command line arguments not recognized by the Xt GUI toolkit
 */
 static void
-ParseGlobalOptions(int *argc, char **argv) {
+parseGlobalOptions(int *argc, char **argv) {
     ParseRenderingOptions(argc, argv);
     ParseToneMapOptions(argc, argv);
     ParseCameraOptions(argc, argv);
     ParseRadianceOptions(argc, argv);
     ParseRayTracingOptions(argc, argv);
-    ParseInterfaceOptions(argc, argv);
-    ParseOptions(globalOptions, argc, argv);    /* this one comes last in order to
+    parseBatchOptions(argc, argv);
+    parseOptions(globalOptions, argc, argv);    /* this one comes last in order to
 						 * have all other options parsed before
 						 * reading input from stdin. */
 }
@@ -341,7 +345,7 @@ Tries to read the scene in the given file. Returns false if not succesful.
 Returns true if succesful. There's nothing GUI specific in this function. 
 When a file cannot be read, the current scene is restored
 */
-bool
+static bool
 ReadFile(char *filename) {
     char *dot{};
     char *slash{};
@@ -620,10 +624,36 @@ ReadFile(char *filename) {
     return true;
 }
 
+static void
+startUserInterface(int *argc, char **argv) {
+    // All options should have disappeared from argv now
+    if ( *argc > 1 ) {
+        if ( *argv[1] == '-' ) {
+            logError(nullptr, "Unrecognized option '%s'", argv[1]);
+        } else {
+            ReadFile(argv[1]);
+        }
+    }
+
+    // Create the window in which to render (canvas window)
+    if ( globalImageOutputWidth <= 0 ) {
+        globalImageOutputWidth = 1920;
+    }
+    if ( globalImageOutputHeight <= 0 ) {
+        globalImageOutputHeight = 1080;
+    }
+    createOffscreenCanvasWindow(globalImageOutputWidth, globalImageOutputHeight);
+
+    while ( !RenderInitialized() );
+    RenderScene();
+
+    batch();
+}
+
 int
 main(int argc, char *argv[]) {
     Init();
-    ParseGlobalOptions(&argc, argv);
-    StartUserInterface(&argc, argv);
+    parseGlobalOptions(&argc, argv);
+    startUserInterface(&argc, argv);
     return 0;
 }

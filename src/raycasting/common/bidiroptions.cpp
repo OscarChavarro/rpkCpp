@@ -77,6 +77,6 @@ static CMDLINEOPTDESC bidirOptions[] = {
 };
 
 void BidirPathParseOptions(int *argc, char **argv) {
-    ParseOptions(bidirOptions, argc, argv);
+    parseOptions(bidirOptions, argc, argv);
 }
 

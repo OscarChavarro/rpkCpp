@@ -189,7 +189,7 @@ static CMDLINEOPTDESC galerkinOptions[] = {
 
 static void
 ParseGalerkinOptions(int *argc, char **argv) {
-    ParseOptions(galerkinOptions, argc, argv);
+    parseOptions(galerkinOptions, argc, argv);
 }
 
 static void

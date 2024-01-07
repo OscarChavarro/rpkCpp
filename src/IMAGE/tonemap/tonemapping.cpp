@@ -204,7 +204,7 @@ void ToneMapDefaults() {
 }
 
 void ParseToneMapOptions(int *argc, char **argv) {
-    ParseOptions(tmOptions, argc, argv);
+    parseOptions(tmOptions, argc, argv);
     RecomputeGammaTables(tmopts.gamma);
 
     ForAllAvailableToneMaps(map)

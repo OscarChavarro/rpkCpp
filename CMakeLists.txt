@@ -176,7 +176,6 @@ set(MAIN_SRC
     src/app/batch.cpp
     src/app/radiance.cpp
     src/app/rendercommon.cpp
-    src/app/ui_main.cpp
     src/app/opengl.cpp
     src/app/Cluster.cpp
     src/app/main.cpp
