@@ -1,5 +1,5 @@
-#ifndef _PATCH_H_
-#define _PATCH_H_
+#ifndef __PATCH__
+#define __PATCH__
 
 #include "common/Ray.h"
 #include "BREP/BREP_FACE.h"
@@ -7,7 +7,7 @@
 #include "skin/Vertex.h"
 #include "skin/MeshSurface.h"
 
-#define MAXIMUM_VERTICES_PER_PATCH 4 // max. 4 vertices per patch
+#define MAXIMUM_VERTICES_PER_PATCH 4
 #define PATCH_VISIBILITY 0x01
 #define PATCH_IS_VISIBLE(patch) (((patch)->flags & PATCH_VISIBILITY) != 0)
 #define PATCH_SET_VISIBLE(patch) {(patch)->flags |= PATCH_VISIBILITY;}
@@ -54,7 +54,7 @@ public:
     MeshSurface *surface; // pointer to surface data (contains vertex list, material properties)
 
     PATCH();
-    int isPatchVirtual() const;
+    int isVirtual() const;
 };
 
 extern PATCH *patchCreate(int numberOfVertices, Vertex *v1, Vertex *v2, Vertex *v3, Vertex *v4);

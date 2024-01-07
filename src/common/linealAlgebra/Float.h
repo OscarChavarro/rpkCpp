@@ -16,4 +16,7 @@
     #define MIN(a, b) ((a) < (b) ? (a) : (b))
 #endif
 
+// Yes, float or double makes a difference!
+#define REAL double
+
 #endif

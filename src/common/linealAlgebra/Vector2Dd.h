@@ -1,6 +1,8 @@
 #ifndef __Vector2Dd__
 #define __Vector2Dd__
 
+#include "common/linealAlgebra/Float.h"
+
 class Vector2Dd {
 public:
     double u;
@@ -109,6 +111,35 @@ inline double Vector2Dd::operator&(const Vector2Dd &r) const {
 
 inline double Vector2Dd::operator^(const Vector2Dd &r) const {
     return u * r.v - v * r.u;
+}
+
+inline
+void V2Set(Vector2Dd &v, double a, double b) {
+    v.u = a;
+    v.v = b;
+}
+
+inline void
+V2Sub(Vector2Dd &p, Vector2Dd &q, Vector2Dd &r) {
+    r.u = p.u - q.u;
+    r.v = p.v - q.v;
+}
+
+inline void
+V2Add(Vector2Dd &p, Vector2Dd &q, Vector2Dd &r) {
+    r.u = p.u + q.u;
+    r.v = p.v + q.v;
+}
+
+inline void
+V2Negate(Vector2Dd &p) {
+    p.u = -p.u;
+    p.v = -p.v;
+}
+
+inline REAL
+DETERMINANT(Vector2Dd &A, Vector2Dd &B) {
+    return ((REAL)A.u * (REAL)B.v - (REAL)A.v * (REAL)B.u);
 }
 
 #endif

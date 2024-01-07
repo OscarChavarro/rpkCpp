@@ -14,13 +14,6 @@
 
 /* Now comes same as above, but more efficient .... - PhB Oct 2000 */
 
-#define REAL double    /* yes, float or double makes a difference!!! */
-
-#define V2Set(V, a, b) { (V).u = (a) ; (V).v = (b) ; }
-#define V2Sub(p, q, r) { (r).u = (p).u - (q).u; (r).v = (p).v - (q).v; }
-#define V2Add(p, q, r) { (r).u = (p).u + (q).u; (r).v = (p).v + (q).v; }
-#define V2Negate(p)    { (p).u = -(p).u;  (p).v = -(p).v; }
-#define DETERMINANT(A, B)    (((REAL)(A).u * (REAL)(B).v - (REAL)(A).v * (REAL)(B).u))
 #define ABS(A) ((A)<0. ? -(A) : (A))
 
 #define TOLERANCE 1e-5
@@ -224,14 +217,13 @@ Computes a certain "width" for the plane, e.g. for coplanarity testing
 float
 patchTolerance(PATCH *patch) {
     int i;
-    double tolerance;
+    float tolerance;
 
-    /* fill in the vertices in the plane equation + take into account the vertex
-     * position tolerance */
-    tolerance = 0.;
+    // Fill in the vertices in the plane equation + take into account the vertex position tolerance
+    tolerance = 0.0f;
     for ( i = 0; i < patch->numberOfVertices; i++ ) {
         Vector3D *p = patch->vertex[i]->point;
-        double e = fabs(VECTORDOTPRODUCT(patch->normal, *p) + patch->planeConstant)
+        float e = (float)std::fabs(VECTORDOTPRODUCT(patch->normal, *p) + patch->planeConstant)
                    + VECTORTOLERANCE(*p);
         if ( e > tolerance ) {
             tolerance = e;
@@ -245,7 +237,7 @@ patchTolerance(PATCH *patch) {
 Return true if patch is virtual
 */
 int
-PATCH::isPatchVirtual() const {
+PATCH::isVirtual() const {
     return numberOfVertices == 0;
 }
 
@@ -782,7 +774,7 @@ quadUv(PATCH *patch, Vector3D *point, Vector2Dd *uv) {
         case XNORMAL: V2Set(A, (*p)->point->y, (*p)->point->z);
             p++;
             V2Set(B, (*p)->point->y, (*p)->point->z);
-            p++;
+            p++;    
             V2Set(C, (*p)->point->y, (*p)->point->z);
             p++;
             V2Set(D, (*p)->point->y, (*p)->point->z);
@@ -1101,7 +1093,7 @@ Vector3D *
 patchPoint(PATCH *patch, double u, double v, Vector3D *point) {
     Vector3D *v1, *v2, *v3, *v4;
 
-    if ( patch->isPatchVirtual() ) {
+    if ( patch->isVirtual() ) {
         return nullptr;
     }
 
