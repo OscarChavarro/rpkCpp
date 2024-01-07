@@ -91,13 +91,13 @@ static CMDLINEOPTDESC srrOptions[] = {
          "-srr-sampling-sequence <type>: \"PseudoRandom\", \"Niederreiter\""},
         {"-srr-approximation", 7, Tapprox, &GLOBAL_stochasticRaytracing_monteCarloRadiosityState.approximationOrderType, DEFAULT_ACTION,
          "-srr-approximation <order>  : \"constant\", \"linear\", \"quadratic\", \"cubic\""},
-        {"-srr-hierarchical", 7, Tbool, &hierarchy.do_h_meshing, DEFAULT_ACTION,
+        {"-srr-hierarchical", 7, Tbool, &GLOBAL_stochasticRaytracing_hierarchy.do_h_meshing,   DEFAULT_ACTION,
          "-srr-hierarchical <y|n>     : hierarchical refinement"},
-        {"-srr-clustering", 7, Tclustering, &hierarchy.clustering, DEFAULT_ACTION,
+        {"-srr-clustering", 7, Tclustering, &GLOBAL_stochasticRaytracing_hierarchy.clustering, DEFAULT_ACTION,
          "-srr-clustering <mode>      : \"none\", \"isotropic\", \"oriented\""},
-        {"-srr-epsilon", 7, Tfloat, &hierarchy.epsilon, DEFAULT_ACTION,
+        {"-srr-epsilon", 7, Tfloat, &GLOBAL_stochasticRaytracing_hierarchy.epsilon,            DEFAULT_ACTION,
          "-srr-epsilon <float>        : link power threshold (relative w.r.t. max. selfemitted power)"},
-        {"-srr-minarea", 7, Tfloat, &hierarchy.minarea, DEFAULT_ACTION,
+        {"-srr-minarea", 7, Tfloat, &GLOBAL_stochasticRaytracing_hierarchy.minarea,            DEFAULT_ACTION,
          "-srr-minarea <float>        : minimal element area (relative w.r.t. total area)"},
         {"-srr-display", 7, TshowWhat, &GLOBAL_stochasticRaytracing_monteCarloRadiosityState.show,                                        DEFAULT_ACTION,
          "-srr-display <what>         : \"total-radiance\", \"indirect-radiance\", \"weighting-gain\", \"importance\""},
@@ -294,7 +294,7 @@ void monteCarloRadiosityUpdateViewImportance() {
     UpdateDirectVisibility();
 
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.sourceYmp = GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotYmp = GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalYmp = 0.;
-    UpdateImportance(hierarchy.topcluster);
+    UpdateImportance(GLOBAL_stochasticRaytracing_hierarchy.topcluster);
 
     if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotYmp < GLOBAL_stochasticRaytracing_monteCarloRadiosityState.sourceYmp ) {
         fprintf(stderr, "Importance will be recomputed incrementally.\n");
@@ -305,7 +305,7 @@ void monteCarloRadiosityUpdateViewImportance() {
 
         /* re-compute from scratch */
         GLOBAL_stochasticRaytracing_monteCarloRadiosityState.sourceYmp = GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotYmp = GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalYmp = 0.;
-        ReInitImportance(hierarchy.topcluster);
+        ReInitImportance(GLOBAL_stochasticRaytracing_hierarchy.topcluster);
     }
 
     GLOBAL_camera_mainCamera.changed = false;    /* indicate that direct importance has been

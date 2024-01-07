@@ -150,7 +150,7 @@ static int Setup() {
     }
 
     sum_probs = 0.;
-    ElementSetup(hierarchy.topcluster);
+    ElementSetup(GLOBAL_stochasticRaytracing_hierarchy.topcluster);
 
     if ( sum_probs < EPSILON * EPSILON ) {
         logWarning("Iteration", "No sources");
@@ -241,7 +241,7 @@ static void PropagateRadiance(ELEMENT *src, double us, double vs,
     if ( !rcv->iscluster ) {
         PropagateRadianceToSurface(rcv, ur, vr, raypow, src, fraction, weight);
     } else {
-        switch ( hierarchy.clustering ) {
+        switch ( GLOBAL_stochasticRaytracing_hierarchy.clustering ) {
             case NO_CLUSTERING:
                 logFatal(-1, "Propagate", "Refine() returns cluster although clustering is disabled.\n");
                 break;
@@ -255,7 +255,7 @@ static void PropagateRadiance(ELEMENT *src, double us, double vs,
                 }
                 break;
             default:
-                logFatal(-1, "Propagate", "Invalid clustering mode %d\n", (int) hierarchy.clustering);
+                logFatal(-1, "Propagate", "Invalid clustering mode %d\n", (int) GLOBAL_stochasticRaytracing_hierarchy.clustering);
         }
     }
 }
@@ -268,7 +268,7 @@ static void PropagateImportance(ELEMENT *src, double us, double vs,
     double w = sum_probs / (src_prob + rcv_prob) / rcv->area / (double) nr_rays;
     rcv->received_imp += w * ElementScalarReflectance(src) * get_importance(src);
 
-    if ( hierarchy.do_h_meshing || hierarchy.clustering != NO_CLUSTERING ) {
+    if ( GLOBAL_stochasticRaytracing_hierarchy.do_h_meshing || GLOBAL_stochasticRaytracing_hierarchy.clustering != NO_CLUSTERING ) {
         logFatal(-1, "Propagate", "Importance propagation not implemented in combination with hierarchical refinement");
     }
 }
@@ -283,7 +283,7 @@ static void RefineAndPropagateRadiance(ELEMENT *src, double us, double vs,
                                        Ray *ray, float dir) {
     LINK link;
     link = TopLink(Q, P);
-    Refine(&link, Q, &uq, &vq, P, &up, &vp, hierarchy.oracle);
+    Refine(&link, Q, &uq, &vq, P, &up, &vp, GLOBAL_stochasticRaytracing_hierarchy.oracle);
     /* propagate from the leaf element src to the admissable receiver element
      * containing/contained by Q */
     PropagateRadiance(src, us, vs, link.rcv, uq, vq, src_prob, rcv_prob, ray, dir);
@@ -580,9 +580,9 @@ static void PushUpdatePullSweep() {
 
     /* update reflectances and emittances (refinement yields more accurate estimates
      * on textured surfaces) */
-    PullRdEd(hierarchy.topcluster);
+    PullRdEd(GLOBAL_stochasticRaytracing_hierarchy.topcluster);
 
-    PushUpdatePull(hierarchy.topcluster);
+    PushUpdatePull(GLOBAL_stochasticRaytracing_hierarchy.topcluster);
 }
 
 /*

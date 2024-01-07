@@ -1,11 +1,11 @@
+#include "java/util/ArrayList.txx"
 #include "material/statistics.h"
 #include "scene/scene.h"
 #include "skin/Vertex.h"
-#include "skin/vertexlist.h"
 #include "raycasting/stochasticRaytracing/mcradP.h"
 #include "raycasting/stochasticRaytracing/hierarchy.h"
 
-ELEM_HIER_STATE hierarchy;
+ELEM_HIER_STATE GLOBAL_stochasticRaytracing_hierarchy;
 
 /* ========================================================================
 
@@ -13,15 +13,15 @@ ELEM_HIER_STATE hierarchy;
 
    ======================================================================== */
 void ElementHierarchyDefaults() {
-    hierarchy.epsilon = DEFAULT_EH_EPSILON;
-    hierarchy.minarea = DEFAULT_EH_MINAREA;
-    hierarchy.do_h_meshing = DEFAULT_EH_HIERARCHICAL_MESHING;
-    hierarchy.clustering = DEFAULT_EH_CLUSTERING;
-    hierarchy.tvertex_elimination = DEFAULT_EH_TVERTEX_ELIMINATION;
-    hierarchy.oracle = PowerOracle;
+    GLOBAL_stochasticRaytracing_hierarchy.epsilon = DEFAULT_EH_EPSILON;
+    GLOBAL_stochasticRaytracing_hierarchy.minarea = DEFAULT_EH_MINAREA;
+    GLOBAL_stochasticRaytracing_hierarchy.do_h_meshing = DEFAULT_EH_HIERARCHICAL_MESHING;
+    GLOBAL_stochasticRaytracing_hierarchy.clustering = DEFAULT_EH_CLUSTERING;
+    GLOBAL_stochasticRaytracing_hierarchy.tvertex_elimination = DEFAULT_EH_TVERTEX_ELIMINATION;
+    GLOBAL_stochasticRaytracing_hierarchy.oracle = PowerOracle;
 
-    hierarchy.nr_elements = 0;
-    hierarchy.nr_clusters = 0;
+    GLOBAL_stochasticRaytracing_hierarchy.nr_elements = 0;
+    GLOBAL_stochasticRaytracing_hierarchy.nr_clusters = 0;
 }
 
 void ElementHierarchyInit() {
@@ -29,23 +29,23 @@ void ElementHierarchyInit() {
      * same, just in case of importance-driven computations the threshold
      * will be multiplied by the importance value. (jp) */
 
-    hierarchy.maxlinkpow = hierarchy.epsilon *
-            colorMaximumComponent(GLOBAL_statistics_maxSelfEmittedPower);
+    GLOBAL_stochasticRaytracing_hierarchy.maxlinkpow = GLOBAL_stochasticRaytracing_hierarchy.epsilon *
+                                                       colorMaximumComponent(GLOBAL_statistics_maxSelfEmittedPower);
 
     /* These lists hold vertices created during hierarchical refinement. */
 
-    hierarchy.coords = VectorListCreate();
-    hierarchy.normals = VectorListCreate();
-    hierarchy.texCoords = VectorListCreate();
-    hierarchy.vertices = nullptr;
+    GLOBAL_stochasticRaytracing_hierarchy.coords = VectorListCreate();
+    GLOBAL_stochasticRaytracing_hierarchy.normals = VectorListCreate();
+    GLOBAL_stochasticRaytracing_hierarchy.texCoords = VectorListCreate();
+    GLOBAL_stochasticRaytracing_hierarchy.vertices = new java::ArrayList<VERTEX *>();
 
-    hierarchy.topcluster = McrCreateClusterHierarchy(GLOBAL_scene_clusteredWorldGeom);
+    GLOBAL_stochasticRaytracing_hierarchy.topcluster = McrCreateClusterHierarchy(GLOBAL_scene_clusteredWorldGeom);
 }
 
 void ElementHierarchyTerminate() {
     /* destroy clusters */
-    McrDestroyClusterHierarchy(hierarchy.topcluster);
-    hierarchy.topcluster = (ELEMENT *) nullptr;
+    McrDestroyClusterHierarchy(GLOBAL_stochasticRaytracing_hierarchy.topcluster);
+    GLOBAL_stochasticRaytracing_hierarchy.topcluster = (ELEMENT *) nullptr;
 
     /* destroy surface elements */
     ForAllPatches(P, GLOBAL_scene_patches)
@@ -57,16 +57,63 @@ void ElementHierarchyTerminate() {
                 }
     EndForAll;
 
-    VertexListIterate(hierarchy.vertices, VertexDestroy);
-    VertexListDestroy(hierarchy.vertices);
-    hierarchy.vertices = nullptr;
-    VectorListIterate(hierarchy.coords, VectorDestroy);
-    VectorListDestroy(hierarchy.coords);
-    hierarchy.coords = VectorListCreate();
-    VectorListIterate(hierarchy.normals, VectorDestroy);
-    VectorListDestroy(hierarchy.normals);
-    hierarchy.normals = VectorListCreate();
-    VectorListIterate(hierarchy.texCoords, VectorDestroy);
-    VectorListDestroy(hierarchy.texCoords);
-    hierarchy.texCoords = VectorListCreate();
+    // Delete vertices
+    java::ArrayList<VERTEX *> *vertices = GLOBAL_stochasticRaytracing_hierarchy.vertices;
+    if ( vertices != nullptr ) {
+        for ( int i = 0; i < vertices->size(); i++ ) {
+            VertexDestroy(vertices->get(i));
+        }
+        delete vertices;
+    }
+
+    // Delete positions
+    Vector3DListNode *vectorWindow = GLOBAL_stochasticRaytracing_hierarchy.coords;
+    Vector3D *position;
+    while ( vectorWindow != nullptr ) {
+        position = vectorWindow->vector;
+        vectorWindow = vectorWindow->next;
+        VectorDestroy(position);
+    }
+
+    vectorWindow = GLOBAL_stochasticRaytracing_hierarchy.coords;
+    while ( vectorWindow != nullptr ) {
+        Vector3DListNode *positionNode = vectorWindow->next;
+        free(vectorWindow);
+        vectorWindow = positionNode;
+    }
+    GLOBAL_stochasticRaytracing_hierarchy.coords = nullptr;
+
+    // Delete normals
+    Vector3DListNode *normalWindow = GLOBAL_stochasticRaytracing_hierarchy.normals;
+    Vector3D *normal;
+    while ( normalWindow != nullptr ) {
+        normal = normalWindow->vector;
+        normalWindow = normalWindow->next;
+        VectorDestroy(normal);
+    }
+
+    normalWindow = GLOBAL_stochasticRaytracing_hierarchy.normals;
+    while ( normalWindow != nullptr ) {
+        Vector3DListNode *normalNode = normalWindow->next;
+        free(normalWindow);
+        normalWindow = normalNode;
+    }
+    GLOBAL_stochasticRaytracing_hierarchy.normals = nullptr;
+
+    // Delete texture coordinates
+    Vector3DListNode *texCoordWindow = GLOBAL_stochasticRaytracing_hierarchy.texCoords;
+    Vector3D *texCoord;
+    while ( texCoordWindow != nullptr ) {
+        texCoord = texCoordWindow->vector;
+        texCoordWindow = texCoordWindow->next;
+        VectorDestroy(texCoord);
+    }
+
+    texCoordWindow = GLOBAL_stochasticRaytracing_hierarchy.texCoords;
+    while ( texCoordWindow != nullptr ) {
+        Vector3DListNode *texCoordNode = texCoordWindow->next;
+        free(texCoordWindow);
+        texCoordWindow = texCoordNode;
+    }
+    GLOBAL_stochasticRaytracing_hierarchy.texCoords = nullptr;
 }

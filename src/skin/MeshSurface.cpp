@@ -1,11 +1,11 @@
 #include <cstdlib>
 
+#include "java/util/ArrayList.txx"
 #include "common/Ray.h"
 #include "material/statistics.h"
 #include "skin/Patch.h"
 #include "skin/MeshSurface.h"
 #include "skin/Vertex.h"
-#include "skin/vertexlist.h"
 #include "skin/Geometry.h"
 
 /* a static counter that is increased each time a surface is created.
@@ -19,21 +19,24 @@ a new surface
 enum MaterialColorFlags colorFlags = NO_COLORS;
 
 static void NormalizeVertexColor(VERTEX *vertex) {
-    int nrpatches = 0;
-    PatchSet *patches;
-    for ( patches = vertex->patches; patches; patches = patches->next ) {
-        nrpatches++;
+    long numberOfPatches = 0;
+
+    if ( vertex->patches != nullptr ) {
+        numberOfPatches = vertex->patches->size();
     }
-    if ( nrpatches > 0 ) {
-        vertex->color.r /= (float) nrpatches;
-        vertex->color.g /= (float) nrpatches;
-        vertex->color.b /= (float) nrpatches;
+
+    if ( numberOfPatches > 0 ) {
+        vertex->color.r /= (float) numberOfPatches;
+        vertex->color.g /= (float) numberOfPatches;
+        vertex->color.b /= (float) numberOfPatches;
     }
 }
 
-/* Fills in the MeshSurface backpointer of the face belonging to the given
- * surface. */
-void SurfaceConnectFace(MeshSurface *surf, PATCH *face) {
+/**
+Fills in the MeshSurface back pointer of the face belonging to the given surface
+*/
+void
+SurfaceConnectFace(MeshSurface *surf, PATCH *face) {
     int i;
     COLOR rho;
 
@@ -62,11 +65,19 @@ void SurfaceConnectFace(MeshSurface *surf, PATCH *face) {
     }
 }
 
-/* This routine creates a MeshSurface with given material, positions, etc... */
-MeshSurface *surfaceCreate(Material *material,
-                           Vector3DListNode *points, Vector3DListNode *normals, Vector3DListNode *texCoords,
-                           VERTEXLIST *vertices, PatchSet *faces,
-                           enum MaterialColorFlags flags) {
+/**
+This routine creates a MeshSurface with given material, positions
+*/
+MeshSurface *
+surfaceCreate(
+    Material *material,
+    Vector3DListNode *points,
+    Vector3DListNode *normals,
+    Vector3DListNode *texCoords,
+    java::ArrayList<VERTEX *> *vertices,
+    PatchSet *faces,
+    enum MaterialColorFlags flags)
+{
     MeshSurface *surf;
 
     surf = (MeshSurface *)malloc(sizeof(MeshSurface));
@@ -81,9 +92,13 @@ MeshSurface *surfaceCreate(Material *material,
 
     colorFlags = flags;
 
-    /* if colroflags == VERTEX_COLORS< the vertices are assumed to contain
-     * the sum of the colors as used in each patch sharing the vertex. */
-    if ( colorFlags == VERTEX_COLORS ) VertexListIterate(surf->vertices, NormalizeVertexColor);
+    // If colorFlags == VERTEX_COLORS< the vertices are assumed to contain
+    // the sum of the colors as used in each patch sharing the vertex
+    if ( colorFlags == VERTEX_COLORS ) {
+        for ( int i = 0; surf->vertices != nullptr && i < surf->vertices->size(); i++ ) {
+            NormalizeVertexColor(surf->vertices->get(i));
+        }
+    }
 
     /* fill in the MeshSurface backpointer of the FACEs in the MeshSurface. */
     ForAllPatches(face, surf->faces)
@@ -92,24 +107,38 @@ MeshSurface *surfaceCreate(Material *material,
                 }
     EndForAll;
 
-    /* compute vertex colors */
-    if ( colorFlags != VERTEX_COLORS ) VertexListIterate(surf->vertices, ComputeVertexColor);
+    // Compute vertex colors
+    if ( colorFlags != VERTEX_COLORS ) {
+        for ( int i = 0; surf->vertices != nullptr && i < surf->vertices->size(); i++ ) {
+            ComputeVertexColor(surf->vertices->get(i));
+        }
+    }
 
     colorFlags = NO_COLORS;
     return surf;
 }
 
-/* This method will destroy the GEOMetry and it's children GEOMetries if 
- * any */
-void SurfaceDestroy(MeshSurface *surf) {
+/**
+This method will destroy the geometry and it's children geometries if any.
+
+It is important that the patches be destroyed first and then the
+vertices, because otherwise, the brep_data for the vertices would
+still be used and thus not destroyed by the BREP library
+*/
+void
+SurfaceDestroy(MeshSurface *surf) {
     /* It is important that the patches be destroyed first and then the
      * vertices, because otherwise, the brep_data for the vertices would
      * still be used and thus not destroyed by the BREP library. */
     PatchListIterate(surf->faces, PatchDestroy);
     PatchListDestroy(surf->faces);
 
-    VertexListIterate(surf->vertices, VertexDestroy);
-    VertexListDestroy(surf->vertices);
+    if ( surf->vertices != nullptr ) {
+        for ( int i = 0; i < surf->vertices->size(); i++) {
+            VertexDestroy(surf->vertices->get(i));
+        }
+        delete surf->vertices;
+    }
 
     VectorListIterate(surf->positions, VectorDestroy);
     VectorListDestroy(surf->positions);

@@ -32,7 +32,7 @@ static char *SrrGetStats() {
     p += n;
     /*sprintf(p, "Memory usage: %ld KBytes.\n%n", GetMemoryUsage()/1024, &n); p += n;*/
     sprintf(p, "%ld elements (%ld clusters, %ld surfaces)\n%n",
-            hierarchy.nr_elements, hierarchy.nr_clusters, hierarchy.nr_elements - hierarchy.nr_clusters, &n);
+            GLOBAL_stochasticRaytracing_hierarchy.nr_elements, GLOBAL_stochasticRaytracing_hierarchy.nr_clusters, GLOBAL_stochasticRaytracing_hierarchy.nr_elements - GLOBAL_stochasticRaytracing_hierarchy.nr_clusters, &n);
     p += n;
     sprintf(p, "Radiance rays: %ld\n%n", GLOBAL_stochasticRaytracing_monteCarloRadiosityState.tracedRays, &n);
     p += n;
@@ -52,9 +52,9 @@ static long RandomRound(float x) {
 }
 
 static void SrrRecomputeDisplayColors() {
-    if ( hierarchy.topcluster ) {
-        McrForAllLeafElements(hierarchy.topcluster, ElementComputeNewVertexColors);
-        McrForAllLeafElements(hierarchy.topcluster, ElementAdjustTVertexColors);
+    if ( GLOBAL_stochasticRaytracing_hierarchy.topcluster ) {
+        McrForAllLeafElements(GLOBAL_stochasticRaytracing_hierarchy.topcluster, ElementComputeNewVertexColors);
+        McrForAllLeafElements(GLOBAL_stochasticRaytracing_hierarchy.topcluster, ElementAdjustTVertexColors);
     } else {
         PatchListIterate(GLOBAL_scene_patches, monteCarloRadiosityPatchComputeNewColor);
     }
@@ -183,8 +183,8 @@ static void PrintIncrementalImportanceStats() {
 static void DoIncrementalImportanceIterations() {
     long step_nr = 0;
     int radiance_driven = GLOBAL_stochasticRaytracing_monteCarloRadiosityState.radianceDriven;
-    int do_h_meshing = hierarchy.do_h_meshing;
-    CLUSTERING_MODE clustering = hierarchy.clustering;
+    int do_h_meshing = GLOBAL_stochasticRaytracing_hierarchy.do_h_meshing;
+    CLUSTERING_MODE clustering = GLOBAL_stochasticRaytracing_hierarchy.clustering;
     int weighted_sampling = GLOBAL_stochasticRaytracing_monteCarloRadiosityState.weightedSampling;
 
     if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.sourceYmp < EPSILON ) {
@@ -193,8 +193,8 @@ static void DoIncrementalImportanceIterations() {
     }
 
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.radianceDriven = false;    /* temporary switch it off */
-    hierarchy.do_h_meshing = false;
-    hierarchy.clustering = NO_CLUSTERING;
+    GLOBAL_stochasticRaytracing_hierarchy.do_h_meshing = false;
+    GLOBAL_stochasticRaytracing_hierarchy.clustering = NO_CLUSTERING;
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.weightedSampling = false;
 
     PrintIncrementalRadianceStats();
@@ -218,8 +218,8 @@ static void DoIncrementalImportanceIterations() {
     }
 
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.radianceDriven = radiance_driven;    /* switch on again */
-    hierarchy.do_h_meshing = do_h_meshing;
-    hierarchy.clustering = clustering;
+    GLOBAL_stochasticRaytracing_hierarchy.do_h_meshing = do_h_meshing;
+    GLOBAL_stochasticRaytracing_hierarchy.clustering = clustering;
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.weightedSampling = weighted_sampling;
 }
 
@@ -294,11 +294,11 @@ static void ElementUpdateImportance(ELEMENT *elem, double w) {
 
 static void DoRegularImportanceIteration() {
     long nr_rays;
-    int do_h_meshing = hierarchy.do_h_meshing;
-    CLUSTERING_MODE clustering = hierarchy.clustering;
+    int do_h_meshing = GLOBAL_stochasticRaytracing_hierarchy.do_h_meshing;
+    CLUSTERING_MODE clustering = GLOBAL_stochasticRaytracing_hierarchy.clustering;
     int weighted_sampling = GLOBAL_stochasticRaytracing_monteCarloRadiosityState.weightedSampling;
-    hierarchy.do_h_meshing = false;
-    hierarchy.clustering = NO_CLUSTERING;
+    GLOBAL_stochasticRaytracing_hierarchy.do_h_meshing = false;
+    GLOBAL_stochasticRaytracing_hierarchy.clustering = NO_CLUSTERING;
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.weightedSampling = false;
 
     nr_rays = GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceRaysPerIteration;
@@ -308,8 +308,8 @@ static void DoRegularImportanceIteration() {
     monteCarloRadiosityUpdateCpuSecs();
     PrintRegularStats();
 
-    hierarchy.do_h_meshing = do_h_meshing;
-    hierarchy.clustering = clustering;
+    GLOBAL_stochasticRaytracing_hierarchy.do_h_meshing = do_h_meshing;
+    GLOBAL_stochasticRaytracing_hierarchy.clustering = clustering;
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.weightedSampling = weighted_sampling;
 }
 
@@ -328,7 +328,7 @@ static void ElementDiscardIncremental(ELEMENT *elem) {
 static void DiscardIncremental() {
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.tracedRays = GLOBAL_stochasticRaytracing_monteCarloRadiosityState.prevTracedRays = 0;
 
-    ElementDiscardIncremental(hierarchy.topcluster);
+    ElementDiscardIncremental(GLOBAL_stochasticRaytracing_hierarchy.topcluster);
 }
 
 static int SrrDoStep() {

@@ -132,7 +132,7 @@ static int LowPowerLink(LINK *link) {
         colorProduct(Rd, rhosrcrad, rhosrcrad);
     }
 
-    threshold = hierarchy.epsilon * colorMaximumComponent(GLOBAL_statistics_maxSelfEmittedPower);
+    threshold = GLOBAL_stochasticRaytracing_hierarchy.epsilon * colorMaximumComponent(GLOBAL_statistics_maxSelfEmittedPower);
     propagated_power = rcv->area * ff * colorMaximumComponent(rhosrcrad);
     if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceDriven ) {
         propagated_power *= rcv->imp;
@@ -147,7 +147,7 @@ static int LowPowerLink(LINK *link) {
 static REFINE_ACTION SubdivideLargest(LINK *link) {
     ELEMENT *rcv = link->rcv;
     ELEMENT *src = link->src;
-    if ( rcv->area < hierarchy.minarea && src->area < hierarchy.minarea ) {
+    if ( rcv->area < GLOBAL_stochasticRaytracing_hierarchy.minarea && src->area < GLOBAL_stochasticRaytracing_hierarchy.minarea ) {
         return dontRefine;
     } else {
         return (rcv->area > src->area) ? subdivideReceiver : subdivideSource;
@@ -170,8 +170,8 @@ LINK TopLink(ELEMENT *rcvtop, ELEMENT *srctop) {
     ELEMENT *rcv, *src;
     LINK link;
 
-    if ( hierarchy.do_h_meshing && hierarchy.clustering != NO_CLUSTERING ) {
-        src = rcv = hierarchy.topcluster;
+    if ( GLOBAL_stochasticRaytracing_hierarchy.do_h_meshing && GLOBAL_stochasticRaytracing_hierarchy.clustering != NO_CLUSTERING ) {
+        src = rcv = GLOBAL_stochasticRaytracing_hierarchy.topcluster;
     } else {
         src = srctop;
         rcv = rcvtop;
@@ -190,7 +190,7 @@ Refine(LINK *link,
              ELEMENT *rcvtop, double *ur, double *vr,
              ELEMENT *srctop, double *us, double *vs,
              ORACLE evaluate_link) {
-    if ( !hierarchy.do_h_meshing ) {
+    if ( !GLOBAL_stochasticRaytracing_hierarchy.do_h_meshing ) {
         link->rcv = rcvtop;
         link->src = srctop;
     } else {

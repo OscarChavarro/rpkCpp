@@ -1,3 +1,4 @@
+#include "java/util/ArrayList.txx"
 #include "material/statistics.h"
 #include "skin/Vertex.h"
 
@@ -9,7 +10,7 @@ sharing the vertex. Several vertices can share the same coordinates
 and normal vector. Several patches can share the same vertex
 */
 VERTEX *
-VertexCreate(Vector3D *point, Vector3D *normal, Vector3D *texCoord, PatchSet *patches) {
+VertexCreate(Vector3D *point, Vector3D *normal, Vector3D *texCoord, java::ArrayList<PATCH *> *patches) {
     VERTEX *v = (VERTEX *)malloc(sizeof(VERTEX));
 
     v->id = GLOBAL_statistics_numberOfVertices++;
@@ -77,21 +78,25 @@ resulting color to the vertex
 */
 void
 ComputeVertexColor(VERTEX *vertex) {
-    PatchSet *patches;
-    int nrpatches;
+    long numberOfPatches;
 
-    RGBSET(vertex->color, 0., 0., 0.);
-    nrpatches = 0;
-    for ( patches = vertex->patches; patches; patches = patches->next ) {
-        vertex->color.r += patches->patch->color.r;
-        vertex->color.g += patches->patch->color.g;
-        vertex->color.b += patches->patch->color.b;
-        nrpatches++;
+    RGBSET(vertex->color, 0.0f, 0.0f, 0.0f);
+    numberOfPatches = 0;
+
+    if ( vertex->patches != nullptr ) {
+        for ( int i = 0; i < vertex->patches->size(); i++) {
+            PATCH *p = vertex->patches->get(i);
+            vertex->color.r += p->color.r;
+            vertex->color.g += p->color.g;
+            vertex->color.b += p->color.b;
+        }
+        numberOfPatches = vertex->patches->size();
     }
-    if ( nrpatches > 0 ) {
-        vertex->color.r /= (float) nrpatches;
-        vertex->color.g /= (float) nrpatches;
-        vertex->color.b /= (float) nrpatches;
+
+    if ( numberOfPatches > 0 ) {
+        vertex->color.r /= (float) numberOfPatches;
+        vertex->color.g /= (float) numberOfPatches;
+        vertex->color.b /= (float) numberOfPatches;
     }
 }
 

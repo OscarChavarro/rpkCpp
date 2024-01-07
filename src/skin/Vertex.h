@@ -1,11 +1,12 @@
-#ifndef _VERTEX_TYPE_H_
-#define _VERTEX_TYPE_H_
+#ifndef __VERTEX__
+#define __VERTEX__
 
+#include "java/util/ArrayList.h"
 #include "common/linealAlgebra/Vector3D.h"
 #include "material/color.h"
 #include "skin/PatchSet.h"
 
-class PatchSet;
+class Patch;
 
 class VERTEX {
   public:
@@ -16,13 +17,13 @@ class VERTEX {
     RGB color; // color for the vertex when rendering with Gouraud interpolation
     void *radiance_data; // data for the vertex maintained by the current radiance method
     VERTEX *back; // vertex at the same position, but with reversed normal, for back faces
-    PatchSet *patches; // list of patches sharing the vertex
+    java::ArrayList<PATCH *> *patches; // list of patches sharing the vertex
     int tmp; /* some temporary storage for vertices, used e.g. for saving VRML. Do not
                 assume the contents of this storage remain unchanged after leaving
 		control to the user. */
 };
 
-extern VERTEX *VertexCreate(Vector3D *point, Vector3D *normal, Vector3D *texCoord, PatchSet *patches);
+extern VERTEX *VertexCreate(Vector3D *point, Vector3D *normal, Vector3D *texCoord, java::ArrayList<PATCH *> *patches);
 extern void VertexDestroy(VERTEX *vertex);
 extern void VertexPrint(FILE *out, VERTEX *vertex);
 extern void ComputeVertexColor(VERTEX *vertex);
@@ -60,5 +61,7 @@ Vector3D.h
 extern unsigned VertexSetCompareFlags(unsigned flags);
 extern int VertexCompare(VERTEX *v1, VERTEX *v2);
 extern int VertexCompareLocation(VERTEX *v1, VERTEX *v2);
+
+#include "skin/Patch.h"
 
 #endif

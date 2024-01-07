@@ -1,11 +1,11 @@
 #include <cstdlib>
 
+#include "java/util/ArrayList.txx"
 #include "common/error.h"
 #include "material/statistics.h"
 #include "skin/Vertex.h"
 #include "skin/Patch.h"
 #include "skin/Geometry.h"
-#include "skin/vertexlist.h"
 #include "shared/render.h"
 #include "raycasting/stochasticRaytracing/mcradP.h"
 #include "raycasting/stochasticRaytracing/hierarchy.h"
@@ -118,7 +118,7 @@ CreateElement() {
     elem->iscluster = false;
     elem->flags = 0;
 
-    hierarchy.nr_elements++;
+    GLOBAL_stochasticRaytracing_hierarchy.nr_elements++;
 
     return elem;
 }
@@ -179,7 +179,7 @@ CreateCluster(Geometry *geom) {
     stochasticRadiosityClearCoefficients(elem->received_rad, elem->basis);
     elem->imp = elem->unshot_imp = elem->received_imp = 0.;
 
-    hierarchy.nr_clusters++;
+    GLOBAL_stochasticRaytracing_hierarchy.nr_clusters++;
 
     return elem;
 }
@@ -371,28 +371,29 @@ McrRegularLeafElementAtPoint(ELEMENT *top, double *u, double *v) {
 static Vector3D *
 InstallCoordinate(Vector3D *coord) {
     Vector3D *v = VectorCreate(coord->x, coord->y, coord->z);
-    hierarchy.coords = VectorListAdd(hierarchy.coords, v);
+    GLOBAL_stochasticRaytracing_hierarchy.coords = VectorListAdd(GLOBAL_stochasticRaytracing_hierarchy.coords, v);
     return v;
 }
 
 static Vector3D *
 InstallNormal(Vector3D *norm) {
     Vector3D *v = VectorCreate(norm->x, norm->y, norm->z);
-    hierarchy.normals = VectorListAdd(hierarchy.normals, v);
+    GLOBAL_stochasticRaytracing_hierarchy.normals = VectorListAdd(GLOBAL_stochasticRaytracing_hierarchy.normals, v);
     return v;
 }
 
 static Vector3D *
 InstallTexCoord(Vector3D *texCoord) {
     Vector3D *t = VectorCreate(texCoord->x, texCoord->y, texCoord->z);
-    hierarchy.texCoords = VectorListAdd(hierarchy.texCoords, t);
+    GLOBAL_stochasticRaytracing_hierarchy.texCoords = VectorListAdd(GLOBAL_stochasticRaytracing_hierarchy.texCoords, t);
     return t;
 }
 
 static VERTEX *
 InstallVertex(Vector3D *coord, Vector3D *norm, Vector3D *texCoord) {
-    VERTEX *v = VertexCreate(coord, norm, texCoord, (PatchSet *) nullptr);
-    hierarchy.vertices = VertexListAdd(hierarchy.vertices, v);
+    java::ArrayList<PATCH *> *newPatchList = new java::ArrayList<PATCH *>();
+    VERTEX *v = VertexCreate(coord, norm, texCoord, newPatchList);
+    GLOBAL_stochasticRaytracing_hierarchy.vertices->add(0, v);
     return v;
 }
 
@@ -771,9 +772,9 @@ DestroyElement(ELEMENT *elem) {
     }
 
     if ( elem->iscluster ) {
-        hierarchy.nr_clusters--;
+        GLOBAL_stochasticRaytracing_hierarchy.nr_clusters--;
     }
-    hierarchy.nr_elements--;
+    GLOBAL_stochasticRaytracing_hierarchy.nr_elements--;
 
     if ( elem->irregular_subelements )
         ElementListDestroy(elem->irregular_subelements);

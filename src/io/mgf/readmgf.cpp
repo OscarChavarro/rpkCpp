@@ -26,7 +26,7 @@ static VECTOROCTREE *globalNormalsOctree;
 // Elements for surface currently being created
 static Vector3DListNode *globalCurrentPointList;
 static Vector3DListNode *globalCurrentNormalList;
-static VERTEXLIST *globalCurrentVertexList;
+static java::ArrayList<VERTEX *> *globalCurrentVertexList;
 static PatchSet *globalCurrentFaceList;
 static GeometryListNode *globalCurrentGeometryList;
 static Material *globalCurrentMaterial;
@@ -34,10 +34,6 @@ static Material *globalCurrentMaterial;
 // Geometry stack: used for building a hierarchical representation of the scene
 static GeometryListNode *globalGeometryStack[MAXIMUM_GEOMETRY_STACK_DEPTH];
 static GeometryListNode **globalGeometryStackPtr;
-
-static VERTEXLIST *globalAutoVertexList;
-static VERTEXLIST *autoVertexListStack[MAXIMUM_GEOMETRY_STACK_DEPTH];
-static VERTEXLIST **globalAutoVertexListStackPtr;
 
 static int globalInComplex = false; // true if reading a sphere, torus or other unsupported
 static int globalInSurface = false; // true if busy creating a new surface
@@ -63,10 +59,6 @@ pushCurrentGeometryList() {
         *globalGeometryStackPtr = globalCurrentGeometryList;
         globalGeometryStackPtr++;
         globalCurrentGeometryList = nullptr;
-
-        *globalAutoVertexListStackPtr = globalAutoVertexList;
-        globalAutoVertexListStackPtr++;
-        globalAutoVertexList = nullptr;
     }
 }
 
@@ -79,10 +71,6 @@ popCurrentGeometryList() {
     } else {
         globalGeometryStackPtr--;
         globalCurrentGeometryList = *globalGeometryStackPtr;
-
-        VertexListDestroy(globalAutoVertexList);
-        globalAutoVertexListStackPtr--;
-        globalAutoVertexList = *globalAutoVertexListStackPtr;
     }
 }
 
@@ -179,7 +167,7 @@ static void
 newSurface() {
     globalCurrentPointList = VectorListCreate();
     globalCurrentNormalList = VectorListCreate();
-    globalCurrentVertexList = nullptr;
+    globalCurrentVertexList = new java::ArrayList<VERTEX *>();
     globalCurrentFaceList = nullptr;
     globalInSurface = true;
 }
@@ -429,8 +417,9 @@ installNormal(float x, float y, float z) {
 
 static VERTEX *
 installVertex(Vector3D *coord, Vector3D *norm, char *name) {
-    VERTEX *v = VertexCreate(coord, norm, (Vector3D *) nullptr, PatchListCreate());
-    globalCurrentVertexList = VertexListAdd(globalCurrentVertexList, v);
+    java::ArrayList<PATCH *> *newPatchList = new java::ArrayList<PATCH *>();
+    VERTEX *v = VertexCreate(coord, norm, (Vector3D *) nullptr, newPatchList);
+    globalCurrentVertexList->add(v);
     return v;
 }
 
@@ -1148,9 +1137,6 @@ readMgf(char *filename) {
 
     globalGeometryStackPtr = globalGeometryStack;
 
-    globalAutoVertexListStackPtr = autoVertexListStack;
-    globalAutoVertexList = nullptr;
-
     globalInComplex = false;
     globalInSurface = false;
 
@@ -1178,8 +1164,6 @@ readMgf(char *filename) {
         surfaceDone();
     }
     GLOBAL_scene_world = globalCurrentGeometryList;
-
-    VertexListDestroy(globalAutoVertexList);
 
     if ( globalPointsOctree != nullptr) {
         free(globalPointsOctree);

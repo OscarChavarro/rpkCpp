@@ -383,7 +383,7 @@ void
 McrRenderElement(ELEMENT *elem) {
     Vector3D verts[4];
 
-    if ( renderopts.smooth_shading && hierarchy.tvertex_elimination ) {
+    if ( renderopts.smooth_shading && GLOBAL_stochasticRaytracing_hierarchy.tvertex_elimination ) {
         VERTEX *m[4];
         int i, n;
         for ( i = 0, n = 0; i < elem->nrvertices; i++ ) {

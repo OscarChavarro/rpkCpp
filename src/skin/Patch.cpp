@@ -24,9 +24,15 @@ void PatchSetNextID(int id) {
     patchid = id;
 }
 
-/* adds the patch to the list of patches that share the vertex */
-void PatchConnectVertex(PATCH *patch, VERTEX *vertex) {
-    vertex->patches = PatchListAdd(vertex->patches, patch);
+/**
+Adds the patch to the list of patches that share the vertex
+*/
+void
+PatchConnectVertex(PATCH *patch, VERTEX *vertex) {
+    if ( patch == nullptr) {
+        return;
+    }
+    vertex->patches->add(patch);
 }
 
 /* adds the patch to the list of patches sharing each vertex */

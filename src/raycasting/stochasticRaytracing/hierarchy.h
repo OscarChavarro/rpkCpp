@@ -5,6 +5,7 @@ Hierarchical refinement stuff (includes Jan's elementP.h)
 #ifndef _RENDERPARK_ELEMENTP_H_
 #define _RENDERPARK_ELEMENTP_H_
 
+#include "java/util/ArrayList.h"
 #include "skin/vectorlist.h"
 #include "raycasting/stochasticRaytracing/elementtype.h"
 
@@ -79,10 +80,10 @@ class ELEM_HIER_STATE {
     Vector3DListNode *coords;
     Vector3DListNode *normals;       /* created during element subdivision */
     Vector3DListNode *texCoords;       /* created during element subdivision */
-    VERTEXLIST *vertices;
+    java::ArrayList<VERTEX *> *vertices;
 };
 
-extern ELEM_HIER_STATE hierarchy;
+extern ELEM_HIER_STATE GLOBAL_stochasticRaytracing_hierarchy;
 
 #define DEFAULT_EH_EPSILON                  5e-4
 #define DEFAULT_EH_MINAREA                  1e-6

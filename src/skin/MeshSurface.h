@@ -12,11 +12,10 @@ Surfaces are basically a list of PATCHes representing a simple object with given
 #include "skin/vectorlist.h"
 #include "skin/geomlist.h"
 
-#include "skin/vertexlist.h"
-
 class GEOM_METHODS;
 class Geometry;
 class PatchSet;
+class VERTEX;
 
 class MeshSurface {
   public:
@@ -28,7 +27,7 @@ class MeshSurface {
     and 'normals' list. Different vertices can share the same coordinates and/or
     normals
     */
-    VERTEXLIST *vertices;
+    java::ArrayList<VERTEX *> *vertices;
 
     // A list of positions at the vertices of the patches of the surface
     Vector3DListNode *positions;
@@ -64,7 +63,7 @@ surfaceCreate(
         Vector3DListNode *points,
         Vector3DListNode *normals,
         Vector3DListNode *texCoords,
-        VERTEXLIST *vertices,
+        java::ArrayList<VERTEX *> *vertices,
         PatchSet *faces,
         MaterialColorFlags flags);
 
