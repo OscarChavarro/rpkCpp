@@ -1,8 +1,8 @@
-/*
-dummy tone map
+/**
+Dummy tone map
 */
 
-#include "dummy.h"
+#include "IMAGE/tonemap/dummy.h"
 
 static void Defaults() {
 }

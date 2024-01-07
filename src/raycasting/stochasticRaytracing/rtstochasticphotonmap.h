@@ -1,8 +1,8 @@
 #ifndef __RPK_RTSTOCHASTICPHOTONMAP__
 #define __RPK_RTSTOCHASTICPHOTONMAP__
 
-#include "StochasticRaytracerOptions.h"
 #include "raycasting/raytracing/samplertools.h"
+#include "raycasting/stochasticRaytracing/StochasticRaytracerOptions.h"
 
 /*** SEED Configuration class ***/
 class CSeed {

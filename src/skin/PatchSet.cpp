@@ -1,4 +1,4 @@
-#include "bounds.h"
+#include "skin/bounds.h"
 #include "skin/PatchSet.h"
 #include "skin/Patch.h"
 #include "skin/hitlist.h"
@@ -6,7 +6,8 @@
 
 /* computes a bounding box for the given list of PATCHes. The bounding box is
  * filled in 'boundingbox' and a pointer to it returned. */
-float *PatchListBounds(PatchSet *pl, float *boundingbox) {
+float *
+PatchListBounds(PatchSet *pl, float *boundingbox) {
     BOUNDINGBOX b;
 
     BoundsInit(boundingbox);
@@ -22,7 +23,8 @@ float *PatchListBounds(PatchSet *pl, float *boundingbox) {
 
 /* Tests whether the Ray intersect the PATCHes in the list. See geom.h
  * (geomDiscretizationIntersect()) for more explanation. */
-HITREC *PatchListIntersect(PatchSet *pl, Ray *ray, float mindist, float *maxdist, int hitflags, HITREC *hitstore) {
+HITREC *
+PatchListIntersect(PatchSet *pl, Ray *ray, float mindist, float *maxdist, int hitflags, HITREC *hitstore) {
     HITREC *hit = (HITREC *) nullptr;
     ForAllPatches(P, pl)
                 {
@@ -58,25 +60,30 @@ PatchListAllIntersections(HITLIST *hits, PatchSet *patches, Ray *ray, float mind
  * is required for shaft culling (see shaftculling.[ch] and clustering (see
  * cluster.[ch]. In both cases, the PATCHes pointed to should not be
  * destroyed, only the PatchSet should. */
-static void PatchlistDestroy(PatchSet *patchlist) {
+static void
+PatchlistDestroy(PatchSet *patchlist) {
     PatchListDestroy(patchlist);
 }
 
-static void PatchPrintId(FILE *out, PATCH *patch) {
+static void
+PatchPrintId(FILE *out, PATCH *patch) {
     fprintf(out, "%d ", patch->id);
 }
 
-static void PatchlistPrint(FILE *out, PatchSet *patchlist) {
+static void
+PatchlistPrint(FILE *out, PatchSet *patchlist) {
     fprintf(out, "getPatchList:\n");
     PatchListIterate1B(patchlist, PatchPrintId, out);
     fprintf(out, "\nend of getPatchList.\n");
 }
 
-static PatchSet *PatchlistPatchlist(PatchSet *patchlist) {
+static PatchSet *
+PatchlistPatchlist(PatchSet *patchlist) {
     return patchlist;
 }
 
-static PatchSet *PatchlistDuplicate(PatchSet *patchlist) {
+static PatchSet *
+PatchlistDuplicate(PatchSet *patchlist) {
     return PatchListDuplicate(patchlist);
 }
 

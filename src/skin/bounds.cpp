@@ -1,7 +1,7 @@
 #include <cstdlib>
 
 #include "common/mymath.h"
-#include "bounds.h"
+#include "skin/bounds.h"
 
 #define SetIfLess(a, b) (a = ((a) < (b) ? (a) : (b)))
 #define SetIfGreater(a, b) (a = ((a) > (b) ? (a) : (b)))

@@ -1,48 +1,50 @@
-/* phong.c: Phong-type EDFs, BRDFs, BTDFs */
+/**
+Phong-type EDFs, BRDFs, BTDFs
+*/
 
 #include <cstdlib>
 
 #include "common/mymath.h"
-#include "phong.h"
+#include "scene/phong.h"
 #include "scene/spherical.h"
 #include "common/error.h"
 
-/*
- * The BRDF described in this file (phong.c) is a modified phong-brdf.
- * It satisfies the requirements of symmetry and energy conservation.
- *
- * The BRDF is expressed as:
- *
- * brdf(in, out) = kd + ks*pow(cos(a),n)
- *
- *   where:
- * kd: diffuse coefficient of the BRDF
- * ks: specular coefficient of the BRDF
- * n: specular power
- *   n small : glossy reflectance
- *   n large : specular reflectance (>= PHONG_LOWEST_SPECULAR_EXP)
- * a: angle between the out direction and the perfect mirror direction for in
- *
- * The variables Kd and Ks which are stored in in the PHONG_BRDF type are
- * not the above coefficients, but represent the total energy reflected
- * for light incident perpendicular on the surface.
- *
- * Thus:
- * Kd = kd*pi		or	kd = Kd/pi
- * Ks = ks*2*pi/(n+2)	or	ks = Ks*(n+2)/(2*pi)
- *
- * For this BRDF to be energy conserving, the following condition must be met:
- *
- * Kd + Ks <= 1
- *
- * Some fuctions sample a direction on the hemisphere, given a specific
- * incoming firection, proportional to the value of the Modified Phong BRDF.
- * There are several sampling strategies to achieve this:
- *	rejection sampling		PhongBrdfSampleRejection()
- *	inverse cumulative PDF sampling	PhongBrdfSampleCumPdf()
- *
- * The different sampling functions are commented seperately.
- */
+/**
+The BRDF described in this file (phong.c) is a modified phong-brdf.
+It satisfies the requirements of symmetry and energy conservation.
+
+The BRDF is expressed as:
+
+brdf(in, out) = kd + ks*pow(cos(a),n)
+
+  where:
+kd: diffuse coefficient of the BRDF
+ks: specular coefficient of the BRDF
+n: specular power
+  n small : glossy reflectance
+  n large : specular reflectance (>= PHONG_LOWEST_SPECULAR_EXP)
+a: angle between the out direction and the perfect mirror direction for in
+
+The variables Kd and Ks which are stored in in the PHONG_BRDF type are
+not the above coefficients, but represent the total energy reflected
+for light incident perpendicular on the surface.
+
+Thus:
+Kd = kd*pi		or	kd = Kd/pi
+Ks = ks*2*pi/(n+2)	or	ks = Ks*(n+2)/(2*pi)
+
+For this BRDF to be energy conserving, the following condition must be met:
+
+Kd + Ks <= 1
+
+Some functions sample a direction on the hemisphere, given a specific
+incoming direction, proportional to the value of the Modified Phong BRDF.
+There are several sampling strategies to achieve this:
+rejection sampling		PhongBrdfSampleRejection()
+inverse cumulative PDF sampling	PhongBrdfSampleCumPdf()
+
+The different sampling functions are commented seperately.
+*/
 
 #define NEWPHONGEDF() (PHONG_EDF *)malloc(sizeof(PHONG_EDF))
 #define NEWPHONGBRDF() (PHONG_BRDF *)malloc(sizeof(PHONG_BRDF))

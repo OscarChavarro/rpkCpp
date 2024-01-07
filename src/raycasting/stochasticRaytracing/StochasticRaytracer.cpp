@@ -2,22 +2,22 @@
 
 #include "common/Ray.h"
 #include "common/linealAlgebra/Float.h"
-#include "scene/scene.h"
-#include "scene/Background.h"
+#include "material/bsdf.h"
 #include "skin/Patch.h"
 #include "skin/radianceinterfaces.h"
-#include "material/bsdf.h"
+#include "scene/scene.h"
+#include "scene/Background.h"
 #include "shared/stratification.h"
 #include "shared/lightlist.h"
 #include "PHOTONMAP/PhotonMapRadiosity.h"
 #include "raycasting/common/Raytracer.h"
-#include "StochasticRaytracerOptions.h"
+#include "raycasting/common/raytools.h"
+#include "raycasting/common/ScreenBuffer.h"
 #include "raycasting/raytracing/pixelsampler.h"
 #include "raycasting/raytracing/samplertools.h"
-#include "raycasting/common/raytools.h"
 #include "raycasting/raytracing/screeniterate.h"
-#include "raycasting/common/ScreenBuffer.h"
 #include "raycasting/stochasticRaytracing/rtstochasticphotonmap.h"
+#include "raycasting/stochasticRaytracing/StochasticRaytracerOptions.h"
 
 /*** Defines ***/
 

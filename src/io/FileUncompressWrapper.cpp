@@ -2,8 +2,8 @@
 #include <cstring>
 #include <cstdlib>
 
-#include "FileUncompressWrapper.h"
 #include "common/error.h"
+#include "io/FileUncompressWrapper.h"
 
 /**
 Opens a file with given name and fopen() open_mode ("w" or "r" e.g.). Returns the

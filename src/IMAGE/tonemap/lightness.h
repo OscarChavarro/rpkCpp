@@ -3,7 +3,7 @@
 #ifndef _TM_LIGHTNESS_H_
 #define _TM_LIGHTNESS_H_
 
-#include "tonemapping.h"
+#include "IMAGE/tonemap/tonemapping.h"
 
 extern TONEMAP TM_Lightness;
 

@@ -5,8 +5,8 @@ Original version by Vincent Masselus adapted by Pieter Peers (2001-06-01)
 #include <ctime>
 
 #include "raycasting/common/raytools.h"
-#include "RayMatterOptions.h"
 #include "raycasting/common/ScreenBuffer.h"
+#include "raycasting/simple/RayMatterOptions.h"
 #include "raycasting/simple/RayMatter.h"
 
 RayMatter::RayMatter(ScreenBuffer *screen) {
@@ -27,7 +27,7 @@ RayMatter::~RayMatter() {
     if ( doDeleteScreen ) {
         delete scrn;
     }
-    if ( Filter ) {
+    if ( Filter != nullptr ) {
         delete Filter;
     }
 }

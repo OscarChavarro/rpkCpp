@@ -10,7 +10,7 @@
 #include "shared/defaults.h"
 #include "raycasting/stochasticRaytracing/mcradP.h"
 #include "raycasting/stochasticRaytracing/hierarchy.h"
-#include "vrml.h"
+#include "raycasting/stochasticRaytracing/vrml/vrml.h"
 
 #define FACES_PER_SET 1000  /* keeps all arrays smaller than 30k els */
 static int vid, nwrit, matidx;

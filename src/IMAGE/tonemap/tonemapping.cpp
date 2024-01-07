@@ -7,8 +7,8 @@
 #include "shared/defaults.h"
 #include "IMAGE/tonemap/dummy.h"
 #include "IMAGE/tonemap/lightness.h"
-#include "trwf.h"
-#include "tonemapping.h"
+#include "IMAGE/tonemap/trwf.h"
+#include "IMAGE/tonemap/tonemapping.h"
 
 #define DEFAULT_GAMMA 1.7
 
