@@ -39,8 +39,8 @@ RayCaster::render(GETRADIANCE_FT getrad = nullptr) {
     interrupt_requested = false;
 
     if ( getrad == nullptr ) {
-        if ( Radiance ) {
-            getrad = Radiance->GetRadiance;
+        if ( GLOBAL_radiance_currentRadianceMethodHandle ) {
+            getrad = GLOBAL_radiance_currentRadianceMethodHandle->GetRadiance;
         }
     }
 

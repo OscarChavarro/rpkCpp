@@ -352,7 +352,7 @@ COLOR SR_GetRadiance(CPathNode *thisNode, SRCONFIG *config, SRREADOUT readout,
         if ((readout == READ_NOW) && (config->siStorage.flags != NO_COMPONENTS)) {
             /* add the stored radiance being emitted from the patch */
 
-            if ( Radiance == &Pmap ) {
+            if ( GLOBAL_radiance_currentRadianceMethodHandle == &Pmap ) {
                 if ( config->radMode == STORED_PHOTONMAP ) {
                     // Check if the distance to the previous point is big enough
                     // otherwise we need more scattering...
@@ -379,8 +379,8 @@ COLOR SR_GetRadiance(CPathNode *thisNode, SRCONFIG *config, SRREADOUT readout,
                 patchUv(thisNode->m_hit.patch,
                         &thisNode->m_hit.point, &u, &v);
 
-                radiance = Radiance->GetRadiance(thisNode->m_hit.patch, u, v,
-                                                 thisNode->m_inDirF);
+                radiance = GLOBAL_radiance_currentRadianceMethodHandle->GetRadiance(thisNode->m_hit.patch, u, v,
+                                                                                    thisNode->m_inDirF);
 
                 // This includes Le diffuse, subtract first and
                 // handle total emitted later (possibly weighted)
@@ -418,7 +418,7 @@ COLOR SR_GetRadiance(CPathNode *thisNode, SRCONFIG *config, SRREADOUT readout,
 
         // Emitted Light
 
-        if ((config->radMode == STORED_PHOTONMAP) && (Radiance == &Pmap)) {
+        if ((config->radMode == STORED_PHOTONMAP) && (GLOBAL_radiance_currentRadianceMethodHandle == &Pmap)) {
             // Check if Le would contribute to a caustic
 
             if ((readout == READ_NOW) && !(config->siStorage.DoneThisBounce(thisNode->Previous()))) {

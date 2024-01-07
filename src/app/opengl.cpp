@@ -472,8 +472,8 @@ RenderNewDisplayList() {
 
 void
 ReallyRender() {
-    if ( Radiance && Radiance->RenderScene ) {
-        Radiance->RenderScene();
+    if ( GLOBAL_radiance_currentRadianceMethodHandle && GLOBAL_radiance_currentRadianceMethodHandle->RenderScene ) {
+        GLOBAL_radiance_currentRadianceMethodHandle->RenderScene();
     } else if ( renderopts.frustum_culling ) {
         RenderWorldOctree(RenderPatch);
     } else {

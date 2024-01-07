@@ -21,7 +21,7 @@ RADIANCEMETHOD *RadianceMethods[] = {
 };
 
 /* current radiance method handle */
-RADIANCEMETHOD *Radiance = (RADIANCEMETHOD *) nullptr;
+RADIANCEMETHOD *GLOBAL_radiance_currentRadianceMethodHandle = (RADIANCEMETHOD *) nullptr;
 
 static void
 RadianceMethodOption(void *value) {
@@ -56,16 +56,16 @@ static CMDLINEOPTDESC radianceOptions[] = {
 /* This routine sets the current radiance method to be used + initializes */
 void
 SetRadianceMethod(RADIANCEMETHOD *newmethod) {
-    if ( Radiance ) {
-        Radiance->Terminate();
+    if ( GLOBAL_radiance_currentRadianceMethodHandle ) {
+        GLOBAL_radiance_currentRadianceMethodHandle->Terminate();
         /* until we have radiance data convertors, we dispose of the old data and
          * allocate new data for the new method. */
-        if ( Radiance->DestroyPatchData ) PatchListIterate(GLOBAL_scene_patches, Radiance->DestroyPatchData);
+        if ( GLOBAL_radiance_currentRadianceMethodHandle->DestroyPatchData ) PatchListIterate(GLOBAL_scene_patches, GLOBAL_radiance_currentRadianceMethodHandle->DestroyPatchData);
     }
-    Radiance = newmethod;
-    if ( Radiance ) {
-        if ( Radiance->CreatePatchData ) PatchListIterate(GLOBAL_scene_patches, Radiance->CreatePatchData);
-        Radiance->Initialize();
+    GLOBAL_radiance_currentRadianceMethodHandle = newmethod;
+    if ( GLOBAL_radiance_currentRadianceMethodHandle ) {
+        if ( GLOBAL_radiance_currentRadianceMethodHandle->CreatePatchData ) PatchListIterate(GLOBAL_scene_patches, GLOBAL_radiance_currentRadianceMethodHandle->CreatePatchData);
+        GLOBAL_radiance_currentRadianceMethodHandle->Initialize();
     }
 }
 
@@ -79,13 +79,13 @@ make_radiance_methods_string() {
     str += n;
     sprintf(str, "\tmethods: %-20.20s %s%s\n%n",
             "none", "no world-space radiance computation",
-            !Radiance ? " (default)" : "", &n);
+            !GLOBAL_radiance_currentRadianceMethodHandle ? " (default)" : "", &n);
     str += n;
     ForAllRadianceMethods(method)
                 {
                     sprintf(str, "\t         %-20.20s %s%s\n%n",
                             method->shortName, method->fullName,
-                            Radiance == method ? " (default)" : "", &n);
+                            GLOBAL_radiance_currentRadianceMethodHandle == method ? " (default)" : "", &n);
                     str += n;
                 }
     EndForAll;

@@ -17,7 +17,7 @@ static INTERACTION *globalTheLink;
 // Area corresponding to one pixel in the scratch frame buffer
 static double globalPixelArea;
 
-static ELEMENT *galerkinDoCreateClusterHierarchy(Geometry *geom);
+static ELEMENT *galerkinDoCreateClusterHierarchy(Geometry *parentGeometry);
 
 /**
 Creates a cluster hierarchy for the Geometry and adds it to the sub-cluster list of the
@@ -96,31 +96,36 @@ clusterInit(ELEMENT *cluster) {
 }
 
 /**
-Creates a cluster for the Geometry, recurses for the children GEOMs, initializes and
+Creates a cluster for the Geometry, recursively traverses for the children GEOMs, initializes and
 returns the created cluster
 */
 static ELEMENT *
-galerkinDoCreateClusterHierarchy(Geometry *geom) {
-    /* geom will be nullptr if e.g. no scene is loaded when selecting
-     * Galerkin radiosity for radiance computations. */
-    if ( !geom ) {
-        return (ELEMENT *) nullptr;
+galerkinDoCreateClusterHierarchy(Geometry *parentGeometry) {
+    // Geom will be nullptr if e.g. no scene is loaded when selecting
+    // Galerkin radiosity for radiance computations
+    if ( !parentGeometry ) {
+        return nullptr;
     }
 
-    /* create a cluster for the geom */
-    ELEMENT *clus = CreateClusterElement(geom);
-    geom->radiance_data = (void *) clus;
+    /* create a cluster for the parentGeometry */
+    ELEMENT *cluster = CreateClusterElement(parentGeometry);
+    parentGeometry->radiance_data = (void *) cluster;
 
-    /* recursively creates list of sub-clusters */
-    if ( geomIsAggregate(geom)) {
-        GeomListIterate1A(geomPrimList(geom), (void (*)(Geometry *, void *)) geomAddClusterChild, (void *) clus);
+    // Recursively creates list of sub-clusters
+    if ( geomIsAggregate(parentGeometry) ) {
+        for ( GeometryListNode *window = geomPrimList(parentGeometry); window != nullptr; window = window->next ) {
+            Geometry *childGeometry = window->geom;
+            geomAddClusterChild(childGeometry, cluster);
+        }
     } else {
-        PatchListIterate1A(geomPatchList(geom), (void (*)(PATCH *, void *)) patchAddClusterChild, (void *) clus);
+        for ( PatchSet *window = geomPatchList(parentGeometry); window != nullptr; window = window->next ) {
+            patchAddClusterChild(window->patch, cluster);
+        }
     }
 
-    clusterInit(clus);
+    clusterInit(cluster);
 
-    return clus;
+    return cluster;
 }
 
 /**

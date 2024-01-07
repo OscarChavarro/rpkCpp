@@ -19,4 +19,9 @@
 // Yes, float or double makes a difference!
 #define REAL double
 
+inline REAL
+ABS(REAL A) {
+    return A < 0.0 ? -A : A;
+}
+
 #endif

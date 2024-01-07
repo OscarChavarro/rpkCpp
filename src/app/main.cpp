@@ -112,7 +112,7 @@ Build the global light source patch list
 */
 static void
 BuildLightSourcePatchList() {
-    GLOBAL_scene_lightSourcePatches = PatchListCreate();
+    GLOBAL_scene_lightSourcePatches = nullptr;
     GLOBAL_statistics_numberOfLightSources = 0;
     PatchListIterate(GLOBAL_scene_patches, AddPatchToLightSourceListIfLightSource);
 
@@ -355,7 +355,7 @@ ReadFile(char *filename) {
     GeometryListNode *oClusteredWorld{};
     Geometry *oClusteredWorldGeom{};
     java::ArrayList<Material *> *oMaterialLib{};
-    PatchSet *oPatches{};
+    PatchSet *objectPatches{};
     PatchSet *lightSourcePatches{};
     VoxelGrid *oWorldGrid{};
     RADIANCEMETHOD *oRadiance{};
@@ -392,7 +392,7 @@ ReadFile(char *filename) {
 
     // terminate any active radiance or raytracing methods
     fprintf(stderr, "Terminating current radiance/raytracing method ... \n");
-    oRadiance = Radiance;
+    oRadiance = GLOBAL_radiance_currentRadianceMethodHandle;
     SetRadianceMethod((RADIANCEMETHOD *) nullptr);
     oRayTracing = Global_Raytracer_activeRaytracer;
     SetRayTracing((Raytracer *) nullptr);
@@ -407,8 +407,8 @@ ReadFile(char *filename) {
     }
     oMaterialLib = GLOBAL_scene_materials;
 
-    oPatches = GLOBAL_scene_patches;
-    GLOBAL_scene_patches = PatchListCreate();
+    objectPatches = GLOBAL_scene_patches;
+    GLOBAL_scene_patches = nullptr;
     patchId = patchGetNextId();
     patchSetNextId(1);
     numberOfPatches = GLOBAL_statistics_numberOfPatches;
@@ -457,7 +457,7 @@ ReadFile(char *filename) {
 
         GLOBAL_scene_materials = oMaterialLib;
 
-        GLOBAL_scene_patches = oPatches;
+        GLOBAL_scene_patches = objectPatches;
         patchSetNextId(patchId);
         GLOBAL_statistics_numberOfPatches = numberOfPatches;
 
@@ -486,18 +486,42 @@ ReadFile(char *filename) {
     // Dispose of the old scene
     fprintf(stderr, "Disposing of the old scene ... ");
     fflush(stderr);
-    if ( Radiance ) {
-        Radiance->Terminate();
+    if ( GLOBAL_radiance_currentRadianceMethodHandle ) {
+        GLOBAL_radiance_currentRadianceMethodHandle->Terminate();
     }
     if ( Global_Raytracer_activeRaytracer ) {
         Global_Raytracer_activeRaytracer->Terminate();
     }
 
-    PatchListDestroy(oPatches);
-    PatchListDestroy(lightSourcePatches);
+    PatchSet *listWindow = objectPatches;
+    while ( listWindow != nullptr ) {
+        PatchSet *next = listWindow->next;
+        free(listWindow);
+        listWindow = next;
+    }
 
-    GeomListIterate(oWorld, geomDestroy);
-    GeomListDestroy(oWorld);
+    listWindow = lightSourcePatches;
+    while ( listWindow != nullptr ) {
+        PatchSet *next = listWindow->next;
+        free(listWindow);
+        listWindow = next;
+    }
+
+    GeometryListNode *window = oWorld;
+    Geometry *pelement;
+    while ( window ) {
+        pelement = window->geom;
+        window = window->next;
+        geomDestroy(pelement);
+    }
+
+    GeometryListNode *listNode;
+    window = oWorld;
+    while ( window ) {
+        listNode = window->next;
+        free(window);
+        window = listNode;
+    }
 
     if ( oClusteredWorldGeom ) {
         geomDestroy(oClusteredWorldGeom);
@@ -529,7 +553,7 @@ ReadFile(char *filename) {
     fprintf(stderr, "Building patch list ... ");
     fflush(stderr);
 
-    GLOBAL_scene_patches = BuildPatchList(GLOBAL_scene_world, PatchListCreate());
+    GLOBAL_scene_patches = BuildPatchList(GLOBAL_scene_world, nullptr /*should replace with new list*/);
 
     t = clock();
     fprintf(stderr, "%g secs.\n", (float) (t - last) / (float) CLOCKS_PER_SEC);

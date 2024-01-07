@@ -3,21 +3,27 @@
 #include "common/dataStructures/List.h"
 #include "common/error.h"
 
-void *__plistel__;
+void *GLOBAL_listHandler;
 
+/**
+Adds an element in front of the list, returns a pointer to the new list
+*/
 LIST *
-ListAdd(LIST *list, void *pelement) {
-    if ( pelement == (void *) nullptr) {
+ListAdd(LIST *list, void *element) {
+    if ( element == (void *) nullptr) {
         return list;
     }
 
-    LIST *newlist = (LIST *)malloc(sizeof(LIST));
-    newlist->pelement = pelement;
-    newlist->next = list;
+    LIST *newListNode = (LIST *)malloc(sizeof(LIST));
+    newListNode->pelement = element;
+    newListNode->next = list;
 
-    return newlist;
+    return newListNode;
 }
 
+/**
+Counts the number of elements in a list
+*/
 int
 ListCount(LIST *list) {
     int count = 0;
@@ -30,6 +36,10 @@ ListCount(LIST *list) {
     return count;
 }
 
+/**
+Merge two lists: the elements of list2 are prepended to the elements
+of list1. Returns a pointer to the enlarged list1
+*/
 LIST *
 ListMerge(LIST *list1, LIST *list2) {
     void *pelement = (void *) nullptr;
@@ -41,6 +51,10 @@ ListMerge(LIST *list1, LIST *list2) {
     return list1;
 }
 
+/**
+Duplicates a list: the elements are not duplicated: only a pointer
+to the elements is copied
+*/
 LIST *
 ListDuplicate(LIST *list) {
     LIST *newlist = (LIST *) nullptr;
@@ -53,6 +67,9 @@ ListDuplicate(LIST *list) {
     return newlist;
 }
 
+/**
+Removes an element from the list. Returns a pointer to the updated list
+*/
 LIST *
 ListRemove(LIST *list, void *pelement) {
     LIST *p, *q;
@@ -94,13 +111,14 @@ ListRemove(LIST *list, void *pelement) {
     return list;
 }
 
+/**
+Destroys a listWindow. Does not destroy the elements
+*/
 void
-ListDestroy(LIST *list) {
-    LIST *p;
-
-    while ( list ) {
-        p = list->next;
-        free(list);
-        list = p;
+ListDestroy(LIST *listWindow) {
+    while ( listWindow != nullptr ) {
+        LIST *listNode = listWindow->next;
+        free(listWindow);
+        listWindow = listNode;
     }
 }

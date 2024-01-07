@@ -12,10 +12,6 @@
 
 #define CLIP_TO_UNIT_INTERVAL(x)    ((x < EPSILON) ? EPSILON : ((x > (1.-EPSILON)) ? (1.-EPSILON) : x))
 
-/* Now comes same as above, but more efficient .... - PhB Oct 2000 */
-
-#define ABS(A) ((A)<0. ? -(A) : (A))
-
 #define TOLERANCE 1e-5
 
 #define MAX_EXCLUDED_PATCHES 4
@@ -112,7 +108,7 @@ square [0,1]^2 or the standard triangle (0,0),(1,0),(0,1) to the patch.
 - for quadrilaterals: J(u,v) = A + B.u + C.v
   the area of the patch = A + (B+C)/2
   for paralellograms holds that B=C=0
-  the coefficients A,B,C are only explicitely stored if B and C are nonzero.
+  the coefficients A,B,C are only stored if B and C are nonzero.
 
 The normal of the patch should have been computed before calling this routine
 */
@@ -312,8 +308,8 @@ patchCreate(int numberOfVertices, Vertex *v1, Vertex *v2, Vertex *v3, Vertex *v4
 
     /* if we are doing radiance computations, create radiance data for the
        patch */
-    patch->radiance_data = (Radiance && Radiance->CreatePatchData) ?
-                           Radiance->CreatePatchData(patch) : (void *) nullptr;
+    patch->radiance_data = (GLOBAL_radiance_currentRadianceMethodHandle && GLOBAL_radiance_currentRadianceMethodHandle->CreatePatchData) ?
+                           GLOBAL_radiance_currentRadianceMethodHandle->CreatePatchData(patch) : (void *) nullptr;
 
     return patch;
 }
@@ -324,9 +320,9 @@ the pointers to the patch in the vertices of the patch
 */
 void
 patchDestroy(PATCH *patch) {
-    if ( Radiance && patch->radiance_data ) {
-        if ( Radiance->DestroyPatchData ) {
-            Radiance->DestroyPatchData(patch);
+    if ( GLOBAL_radiance_currentRadianceMethodHandle && patch->radiance_data ) {
+        if ( GLOBAL_radiance_currentRadianceMethodHandle->DestroyPatchData ) {
+            GLOBAL_radiance_currentRadianceMethodHandle->DestroyPatchData(patch);
         }
     }
 
@@ -498,10 +494,10 @@ patchPrint(FILE *out, PATCH *patch) {
     fprintf(out, "flags: %s\n",
             PATCH_IS_VISIBLE(patch) ? "PATCH_IS_VISIBLE" : "");
 
-    if ( Radiance ) {
-        if ( patch->radiance_data && Radiance->PrintPatchData ) {
+    if ( GLOBAL_radiance_currentRadianceMethodHandle ) {
+        if ( patch->radiance_data && GLOBAL_radiance_currentRadianceMethodHandle->PrintPatchData ) {
             fprintf(out, "Radiance data:\n");
-            Radiance->PrintPatchData(out, patch);
+            GLOBAL_radiance_currentRadianceMethodHandle->PrintPatchData(out, patch);
         } else {
             fprintf(out, "No radiance data\n");
         }
@@ -774,7 +770,7 @@ quadUv(PATCH *patch, Vector3D *point, Vector2Dd *uv) {
         case XNORMAL: V2Set(A, (*p)->point->y, (*p)->point->z);
             p++;
             V2Set(B, (*p)->point->y, (*p)->point->z);
-            p++;    
+            p++;
             V2Set(C, (*p)->point->y, (*p)->point->z);
             p++;
             V2Set(D, (*p)->point->y, (*p)->point->z);

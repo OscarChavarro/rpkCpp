@@ -95,7 +95,7 @@ extern RADIANCEMETHOD *RadianceMethods[];
     RADIANCEMETHOD *methodp = *methodpp;
 
 /* pointer to current radiance method handle */
-extern RADIANCEMETHOD *Radiance;
+extern RADIANCEMETHOD *GLOBAL_radiance_currentRadianceMethodHandle;
 
 /* This routine sets the current radiance method to be used + initializes */
 extern void SetRadianceMethod(RADIANCEMETHOD *newmethod);

@@ -96,8 +96,8 @@ BatchSaveRadianceModel(const char *fname, FILE *fp, int ispipe) {
     fflush(stdout);
     t = clock();
 
-    if ( Radiance && Radiance->WriteVRML ) {
-        Radiance->WriteVRML(fp);
+    if ( GLOBAL_radiance_currentRadianceMethodHandle && GLOBAL_radiance_currentRadianceMethodHandle->WriteVRML ) {
+        GLOBAL_radiance_currentRadianceMethodHandle->WriteVRML(fp);
     } else {
         WriteVRML(fp);
     }
@@ -173,11 +173,11 @@ batch() {
     start_time = clock();
     wasted_secs = 0.0;
 
-    if ( Radiance ) {
+    if ( GLOBAL_radiance_currentRadianceMethodHandle ) {
         /* GLOBAL_scene_world-space radiance computations */
         int it = 0, done = false;
 
-        printf("Doing %s ...\n", Radiance->fullName);
+        printf("Doing %s ...\n", GLOBAL_radiance_currentRadianceMethodHandle->fullName);
 
         fflush(stdout);
         fflush(stderr);
@@ -188,13 +188,13 @@ batch() {
                    "-----------------------------------\n\n", it);
 
             CanvasPushMode();
-            done = Radiance->DoStep();
+            done = GLOBAL_radiance_currentRadianceMethodHandle->DoStep();
             CanvasPullMode();
 
             fflush(stdout);
             fflush(stderr);
 
-            printf("%s", Radiance->GetStats());
+            printf("%s", GLOBAL_radiance_currentRadianceMethodHandle->GetStats());
 
             fflush(stdout);
             fflush(stderr);

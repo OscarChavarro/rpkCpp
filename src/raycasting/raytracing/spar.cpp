@@ -755,7 +755,7 @@ void CLDSpar::Init(CSparConfig *sconfig) {
         return;
     }
 
-    if ( !Radiance ) {
+    if ( !GLOBAL_radiance_currentRadianceMethodHandle ) {
         logError("CLDSpar::Init", "Galerkin Radiance method not active !");
     }
 
@@ -927,8 +927,8 @@ void CLDSpar::GetStoredRadiance(CPathNode *node) {
     patchUv(node->m_hit.patch,
             &node->m_hit.point, &u, &v);
 
-    col = Radiance->GetRadiance(node->m_hit.patch, u, v,
-                                node->m_inDirF);
+    col = GLOBAL_radiance_currentRadianceMethodHandle->GetRadiance(node->m_hit.patch, u, v,
+                                                                   node->m_inDirF);
 
     colorClipPositive(col, col);
 
@@ -954,7 +954,7 @@ void CIDSpar::Init(CSparConfig *sconfig) {
         return;
     }
 
-    if ( !Radiance ) {
+    if ( !GLOBAL_radiance_currentRadianceMethodHandle ) {
         logError("CIDSpar::Init", "Galerkin Radiance method not active !");
     }
 

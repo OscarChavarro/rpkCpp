@@ -16,8 +16,6 @@ class PatchSet {
 
 class HITLIST;
 
-#define PatchListCreate    (PatchSet *)ListCreate
-
 #define PatchListAdd(patchlist, patch)    \
         (PatchSet *)ListAdd((LIST *)patchlist, (void *)patch)
 
@@ -29,9 +27,6 @@ class HITLIST;
 
 #define PatchListIterate(patchlist, proc) \
         ListIterate((LIST *)patchlist, (void (*)(void *))proc)
-
-#define PatchListIterate1A(patchlist, proc, data) \
-        ListIterate1A((LIST *)patchlist, (void (*)(void *, void *))proc, (void *)data)
 
 #define PatchListIterate1B(patchlist, proc, data) \
         ListIterate1B((LIST *)patchlist, (void (*)(void *, void *))proc, (void *)data)
