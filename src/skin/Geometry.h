@@ -55,8 +55,6 @@ class Geometry {
     java::ArrayList<Patch *> *newPatchSetData;
     GeometryListNode *aggregateData;
 
-    void *obj; // @Deprecated
-
     int geomCountItems();
 };
 

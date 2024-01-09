@@ -47,8 +47,13 @@ geomCreateBase(void *geometryData, GEOM_METHODS *methods) {
     Geometry *newGeometry = (Geometry *)malloc(sizeof(Geometry));
     GLOBAL_statistics_numberOfGeometries++;
     newGeometry->id = globalCurrentMaxId++;
-    newGeometry->obj = geometryData;
     newGeometry->methods = methods;
+    newGeometry->obj = geometryData;
+    newGeometry->surfaceData = nullptr;
+    newGeometry->compoundData = nullptr;
+    newGeometry->patchSetData = nullptr;
+    newGeometry->aggregateData = nullptr;
+    newGeometry->newPatchSetData = nullptr;
 
     if ( methods->getBoundingBox ) {
         methods->getBoundingBox(geometryData, newGeometry->bounds);
@@ -142,8 +147,6 @@ geomPrint(FILE *out, Geometry *geom) {
             geom->id,
             geom->bounded ? "TRUE" : "FALSE",
             geom->shaftCullGeometry ? "TRUE" : "FALSE");
-
-    geom->methods->print(out, geom->obj);
 }
 
 /**
@@ -159,7 +162,7 @@ This function destroys the given geometry
 */
 void
 geomDestroy(Geometry *geom) {
-    geom->methods->destroy(geom->obj);
+    //geom->methods->destroy(geom->obj);
     free(geom);
     GLOBAL_statistics_numberOfGeometries--;
 }
@@ -184,8 +187,8 @@ A nullptr pointer is returned if the geometry is a primitive
 */
 GeometryListNode *
 geomPrimList(Geometry *geom) {
-    if ( geom->methods->getPrimitiveGeometryChildrenList ) {
-        return geom->methods->getPrimitiveGeometryChildrenList(geom->obj);
+    if ( geomIsAggregate(geom) && geom->aggregateData != nullptr ) {
+        return geom->aggregateData;
     } else {
         return (GeometryListNode *) nullptr;
     }
@@ -197,11 +200,16 @@ pointer is returned if the given geometry is an aggregate
 */
 PatchSet *
 geomPatchList(Geometry *geom) {
-    if ( geom->methods->getPatchList ) {
-        return geom->methods->getPatchList(geom->obj);
-    } else {
-        return (PatchSet *) nullptr;
+    if ( geom->methods->getPatchList != nullptr ) {
+        if ( geom->methods == &GLOBAL_skin_surfaceGeometryMethods ) {
+            return geom->methods->getPatchList(geom->surfaceData);
+        } else if ( geom->methods == &GLOBAL_skin_patchListGeometryMethods ) {
+            return geom->patchSetData;
+        } else if ( geom->methods == &GLOBAL_skin_compoundGeometryMethods ) {
+            return geom->methods->getPatchList(geom->compoundData);
+        }
     }
+    return nullptr;
 }
 
 /**
@@ -212,13 +220,17 @@ Geometry *
 geomDuplicate(Geometry *geom) {
     if ( !geom->methods->duplicate ) {
         logError("geomDuplicate", "geometry has no duplicate method");
-        return (Geometry *) nullptr;
+        return nullptr;
     }
 
     Geometry *p = (Geometry *)malloc(sizeof(Geometry));
     GLOBAL_statistics_numberOfGeometries++;
     *p = *geom;
-    p->obj = geom->methods->duplicate(geom->obj);
+    p->surfaceData = geom->surfaceData;
+    p->compoundData = geom->compoundData;
+    p->patchSetData = geom->patchSetData;
+    p->aggregateData = geom->aggregateData;
+    p->obj = geom->obj;
 
     return p;
 }
@@ -257,11 +269,11 @@ geomDiscretizationIntersect(
     float nMaximumDistance;
 
     if ( geom == GLOBAL_geom_excludedGeom1 || geom == GLOBAL_geom_excludedGeom2 ) {
-        return (RayHit *) nullptr;
+        return nullptr;
     }
 
     if ( geom->bounded ) {
-        /* Check ray/bounding volume intersection */
+        // Check ray/bounding volume intersection
         VECTORSUMSCALED(ray->pos, minimumDistance, ray->dir, vTmp);
         if ( OutOfBounds(&vTmp, geom->bounds)) {
             nMaximumDistance = *maximumDistance;
@@ -270,7 +282,17 @@ geomDiscretizationIntersect(
             }
         }
     }
-    return geom->methods->discretizationIntersect(geom->obj, ray, minimumDistance, maximumDistance, hitFlags, hitStore);
+
+    if ( geom->surfaceData != nullptr ) {
+        return geom->methods->discretizationIntersect(geom->surfaceData, ray, minimumDistance, maximumDistance, hitFlags, hitStore);
+    } else if ( geom->compoundData != nullptr ) {
+        return geom->methods->discretizationIntersect(geom->compoundData, ray, minimumDistance, maximumDistance, hitFlags, hitStore);
+    } else if ( geom->patchSetData != nullptr ) {
+        return geom->methods->discretizationIntersect(geom->patchSetData, ray, minimumDistance, maximumDistance, hitFlags, hitStore);
+    } else if ( geom->aggregateData != nullptr ) {
+        return geom->methods->discretizationIntersect(geom->aggregateData, ray, minimumDistance, maximumDistance, hitFlags, hitStore);
+    }
+    return nullptr;
 }
 
 HITLIST *
@@ -300,7 +322,17 @@ geomAllDiscretizationIntersections(
         }
     }
 
-    return geom->methods->allDiscretizationIntersections(hits, geom->obj, ray, minimumDistance, maximumDistance, hitFlags);
+    if ( geom->surfaceData != nullptr ) {
+        return geom->methods->allDiscretizationIntersections(hits, geom->surfaceData, ray, minimumDistance, maximumDistance, hitFlags);
+    } else if ( geom->compoundData != nullptr ) {
+        return geom->methods->allDiscretizationIntersections(hits, geom->compoundData, ray, minimumDistance, maximumDistance, hitFlags);
+    } else if ( geom->patchSetData != nullptr ) {
+        return geom->methods->allDiscretizationIntersections(hits, geom->patchSetData, ray, minimumDistance, maximumDistance, hitFlags);
+    } else if ( geom->aggregateData != nullptr ) {
+        return geom->methods->allDiscretizationIntersections(hits, geom->aggregateData, ray, minimumDistance, maximumDistance, hitFlags);
+    }
+
+    return nullptr;
 }
 
 int
