@@ -48,7 +48,6 @@ geomCreateBase(void *geometryData, GEOM_METHODS *methods) {
     GLOBAL_statistics_numberOfGeometries++;
     newGeometry->id = globalCurrentMaxId++;
     newGeometry->methods = methods;
-    newGeometry->obj = geometryData;
     newGeometry->surfaceData = nullptr;
     newGeometry->compoundData = nullptr;
     newGeometry->patchSetData = nullptr;
@@ -230,7 +229,6 @@ geomDuplicate(Geometry *geom) {
     p->compoundData = geom->compoundData;
     p->patchSetData = geom->patchSetData;
     p->aggregateData = geom->aggregateData;
-    p->obj = geom->obj;
 
     return p;
 }
