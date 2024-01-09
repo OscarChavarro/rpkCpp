@@ -14,7 +14,7 @@ RGB ElementColor(ELEMENT *element) {
     switch ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.show ) {
         case SHOW_TOTAL_RADIANCE:
         case SHOW_INDIRECT_RADIANCE:
-            RadianceToRGB(ElementDisplayRadiance(element), &color);
+            radianceToRgb(ElementDisplayRadiance(element), &color);
             break;
         case SHOW_IMPORTANCE: {
             float gray = element->imp > 1. ? 1. : element->imp < 0. ? 0. : element->imp;
@@ -99,7 +99,7 @@ RGB VertexColor(Vertex *v) {
     switch ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.show ) {
         case SHOW_TOTAL_RADIANCE:
         case SHOW_INDIRECT_RADIANCE:
-            RadianceToRGB(VertexRadiance(v), &v->color);
+            radianceToRgb(VertexRadiance(v), &v->color);
             break;
         case SHOW_IMPORTANCE: {
             float gray = VertexImportance(v);
@@ -135,7 +135,7 @@ void ElementAdjustTVertexColors(ELEMENT *elem) {
     Vertex *m[4];
     int i, n;
     for ( i = 0, n = 0; i < elem->nrvertices; i++ ) {
-        m[i] = McrEdgeMidpointVertex(elem, i);
+        m[i] = monteCarloRadiosityEdgeMidpointVertex(elem, i);
         if ( m[i] ) {
             n++;
         }
@@ -339,7 +339,7 @@ void ElementTVertexElimination(ELEMENT *elem,
     Vertex *m[4];
     int i, n;
     for ( i = 0, n = 0; i < elem->nrvertices; i++ ) {
-        m[i] = McrEdgeMidpointVertex(elem, i);
+        m[i] = monteCarloRadiosityEdgeMidpointVertex(elem, i);
         if ( m[i] ) {
             n++;
         }
@@ -387,7 +387,7 @@ McrRenderElement(ELEMENT *elem) {
         Vertex *m[4];
         int i, n;
         for ( i = 0, n = 0; i < elem->nrvertices; i++ ) {
-            m[i] = McrEdgeMidpointVertex(elem, i);
+            m[i] = monteCarloRadiosityEdgeMidpointVertex(elem, i);
             if ( m[i] ) {
                 n++;
             }

@@ -94,7 +94,7 @@ static double Probability(ELEMENT *elem) {
     }
 
     if ( get_importance && GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceDriven ) {
-        double prob2 = elem->area * fabs(get_importance(elem)) * ElementScalarReflectance(elem);
+        double prob2 = elem->area * fabs(get_importance(elem)) * monteCarloRadiosityElementScalarReflectance(elem);
 
         if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.radianceDriven ) {
             /* received-radiance weighted importance transport */
@@ -126,7 +126,7 @@ static void ElementClearAccumulators(ELEMENT *elem) {
  * sampling probabilities at leaf elements. */
 static void ElementSetup(ELEMENT *elem) {
     elem->prob = 0.;
-    if ( !McrForAllChildrenElements(elem, ElementSetup)) {
+    if ( !monteCarloRadiosityForAllChildrenElements(elem, ElementSetup)) {
         /* elem is a leaf element. We need to compute the sum of the unnormalized
          * sampling "probabilities" at the leaf elements */
         elem->prob = Probability(elem);
@@ -266,7 +266,7 @@ static void PropagateImportance(ELEMENT *src, double us, double vs,
                                 double src_prob, double rcv_prob,
                                 Ray *ray, float dir) {
     double w = sum_probs / (src_prob + rcv_prob) / rcv->area / (double) nr_rays;
-    rcv->received_imp += w * ElementScalarReflectance(src) * get_importance(src);
+    rcv->received_imp += w * monteCarloRadiosityElementScalarReflectance(src) * get_importance(src);
 
     if ( GLOBAL_stochasticRaytracing_hierarchy.do_h_meshing || GLOBAL_stochasticRaytracing_hierarchy.clustering != NO_CLUSTERING ) {
         logFatal(-1, "Propagate", "Importance propagation not implemented in combination with hierarchical refinement");
@@ -308,12 +308,12 @@ static void RefineAndPropagate(ELEMENT *P, double up, double vp,
                                Ray *ray) {
     double src_prob;
     double us = up, vs = vp;
-    ELEMENT *src = McrRegularLeafElementAtPoint(P, &us, &vs);
+    ELEMENT *src = monteCarloRadiosityRegularLeafElementAtPoint(P, &us, &vs);
     src_prob = (double) src->prob / (double) src->area;
     if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.bidirectionalTransfers ) {
         double rcv_prob;
         double ur = uq, vr = vq;
-        ELEMENT *rcv = McrRegularLeafElementAtPoint(Q, &ur, &vr);
+        ELEMENT *rcv = monteCarloRadiosityRegularLeafElementAtPoint(Q, &ur, &vr);
         rcv_prob = (double) rcv->prob / (double) rcv->area;
 
         if ( get_radiance ) {
@@ -414,26 +414,26 @@ static void ElementShootRay(ELEMENT *src,
 static void InitPushRayIndex(ELEMENT *elem) {
     elem->ray_index = elem->parent->ray_index;
     elem->imp_ray_index = elem->parent->imp_ray_index;
-    McrForAllChildrenElements(elem, InitPushRayIndex);
+    monteCarloRadiosityForAllChildrenElements(elem, InitPushRayIndex);
 }
 
 /* determines nr of rays to shoot from elem and shoots this number of rays. */
 static void ElementShootRays(ELEMENT *elem, int rays_this_elem) {
     int i;
     int nmsb;        /* determines a range in which to generate a sample */
-    niedindex msb1, rmsb2;    /* see ElementRange() and NextSample() */
+    niedindex msb1, rmsb2;    /* see monteCarloRadiosityElementRange() and NextSample() */
 
     /* sample number range for 4D Niederreiter sequence */
-    ElementRange(elem, &nmsb, &msb1, &rmsb2);
+    monteCarloRadiosityElementRange(elem, &nmsb, &msb1, &rmsb2);
 
     /* shoot the rays */
     for ( i = 0; i < rays_this_elem; i++ ) {
         ElementShootRay(elem, nmsb, msb1, rmsb2);
     }
 
-    if ( !ElementIsLeaf(elem)) {
+    if ( !monteCarloRadiosityElementIsLeaf(elem)) {
         /* source got subdivided while shooting the rays */
-        McrForAllChildrenElements(elem, InitPushRayIndex);
+        monteCarloRadiosityForAllChildrenElements(elem, InitPushRayIndex);
     }
 }
 
@@ -539,11 +539,11 @@ static void PushUpdatePullChild(ELEMENT *child) {
 }
 
 static void PushUpdatePull(ELEMENT *elem) {
-    if ( ElementIsLeaf(elem)) {
+    if ( monteCarloRadiosityElementIsLeaf(elem)) {
         UpdateElement(elem);
     } else {    /* not a leaf element */
         ClearElement(elem);
-        McrForAllChildrenElements(elem, PushUpdatePullChild);
+        monteCarloRadiosityForAllChildrenElements(elem, PushUpdatePullChild);
     }
 }
 
@@ -561,13 +561,13 @@ static void PullRdEdFromChild(ELEMENT *child) {
 }
 
 static void PullRdEd(ELEMENT *elem) {
-    if ( ElementIsLeaf(elem) || (!elem->iscluster && !ElementIsTextured(elem))) {
+    if ( monteCarloRadiosityElementIsLeaf(elem) || (!elem->iscluster && !monteCarloRadiosityElementIsTextured(elem))) {
         return;
     }
 
     colorClear(elem->Ed);
     colorClear(elem->Rd);
-    McrForAllChildrenElements(elem, PullRdEdFromChild);
+    monteCarloRadiosityForAllChildrenElements(elem, PullRdEdFromChild);
 }
 
 static void PushUpdatePullSweep() {

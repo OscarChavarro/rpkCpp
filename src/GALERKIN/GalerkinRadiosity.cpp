@@ -216,17 +216,17 @@ Radiance data for a PATCH is a surface element
 */
 static void *
 createPatchData(PATCH *patch) {
-    return patch->radiance_data = (void *) CreateToplevelElement(patch);
+    return patch->radiance_data = (void *) galerkinCreateToplevelElement(patch);
 }
 
 static void
 printPatchData(FILE *out, PATCH *patch) {
-    PrintElement(out, (ELEMENT *) patch->radiance_data);
+    galerkinPrintElement(out, (ELEMENT *) patch->radiance_data);
 }
 
 static void
 destroyPatchData(PATCH *patch) {
-    DestroyToplevelElement((ELEMENT *) patch->radiance_data);
+    galerkinDestroyToplevelElement((ELEMENT *) patch->radiance_data);
     patch->radiance_data = (void *) nullptr;
 }
 
@@ -240,9 +240,9 @@ patchRecomputeColor(PATCH *patch) {
     if ( GLOBAL_galerkin_state.use_ambient_radiance ) {
         colorProduct(rho, GLOBAL_galerkin_state.ambient_radiance, rad_vis);
         colorAdd(rad_vis, RADIANCE(patch), rad_vis);
-        RadianceToRGB(rad_vis, &patch->color);
+        radianceToRgb(rad_vis, &patch->color);
     } else {
-        RadianceToRGB(RADIANCE(patch), &patch->color);
+        radianceToRgb(RADIANCE(patch), &patch->color);
     }
     patchComputeVertexColors(patch);
 }
@@ -539,7 +539,7 @@ galerkinWriteVertexColors(ELEMENT *element) {
 
     for ( i = 0; i < element->pog.patch->numberOfVertices; i++ ) {
         RGB col;
-        RadianceToRGB(vertrad[i], &col);
+        radianceToRgb(vertrad[i], &col);
         galerkinWriteVertexColor(&col);
     }
 }

@@ -39,12 +39,13 @@ void ElementHierarchyInit() {
     GLOBAL_stochasticRaytracing_hierarchy.texCoords = VectorListCreate();
     GLOBAL_stochasticRaytracing_hierarchy.vertices = new java::ArrayList<Vertex *>();
 
-    GLOBAL_stochasticRaytracing_hierarchy.topcluster = McrCreateClusterHierarchy(GLOBAL_scene_clusteredWorldGeom);
+    GLOBAL_stochasticRaytracing_hierarchy.topcluster = monteCarloRadiosityCreateClusterHierarchy(
+            GLOBAL_scene_clusteredWorldGeom);
 }
 
 void ElementHierarchyTerminate() {
     /* destroy clusters */
-    McrDestroyClusterHierarchy(GLOBAL_stochasticRaytracing_hierarchy.topcluster);
+    monteCarloRadiosityDestroyClusterHierarchy(GLOBAL_stochasticRaytracing_hierarchy.topcluster);
     GLOBAL_stochasticRaytracing_hierarchy.topcluster = (ELEMENT *) nullptr;
 
     /* destroy surface elements */
@@ -52,7 +53,7 @@ void ElementHierarchyTerminate() {
                 {
                     /* need to be destroyed before destroying the automatically created
                      * vertices */
-                    McrDestroyToplevelSurfaceElement(TOPLEVEL_ELEMENT(P));
+                    monteCarloRadiosityDestroyToplevelSurfaceElement(TOPLEVEL_ELEMENT(P));
                     P->radiance_data = (void *) nullptr; /* prevents destroying a 2nd time later */
                 }
     EndForAll;

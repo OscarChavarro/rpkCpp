@@ -10,7 +10,7 @@
 #include "GALERKIN/basisgalerkin.h"
 #include "GALERKIN/clustergalerkincpp.h"
 
-// element rendermodes, additive
+// Element render modes, additive
 #define OUTLINE    1
 #define FLAT    2
 #define GOURAUD 4
@@ -19,14 +19,16 @@
 static int nr_elements = 0;
 static int nr_clusters = 0;
 
-/* Orientation and position of regular subelements is fully determined by the
- * following transformations. A uniform mapping of parameter domain to the
- * elements is supposed (i.o.w. use patchUniformPoint() to map (u,v) coordinates
- * on the toplevel element to a 3D point on the patch). The subelements
- * have equal area. No explicit Jacobian stuff needed to compute integrals etc..
- * etc.. */
+/**
+Orientation and position of regular sub-elements is fully determined by the
+following transformations. A uniform mapping of parameter domain to the
+elements is supposed (i.o.w. use patchUniformPoint() to map (u,v) coordinates
+on the toplevel element to a 3D point on the patch). The sub-elements
+have equal area. No explicit Jacobian stuff needed to compute integrals etc..
+etc
+*/
 
-/* up-transforms for regular quadrilateral subelements:
+/* up-transforms for regular quadrilateral sub-elements:
  *
  *   (v)
  *
@@ -173,9 +175,11 @@ ElementReallocCoefficients(ELEMENT *elem) {
     }
 }
 
-/* use either CreateToplevelElement() or CreateRegularSubelement() */
+/**
+Use either galerkinCreateToplevelElement() or CreateRegularSubelement()
+*/
 static ELEMENT *
-CreateElement() {
+galerkinCreateElement() {
     ELEMENT *element = (ELEMENT *)malloc(sizeof(ELEMENT));
 
     colorClear(element->Ed);
@@ -205,10 +209,12 @@ CreateElement() {
     return element;
 }
 
-/* creates the toplevel element for the patch */
+/**
+Creates the toplevel element for the patch
+*/
 ELEMENT *
-CreateToplevelElement(PATCH *patch) {
-    ELEMENT *element = CreateElement();
+galerkinCreateToplevelElement(PATCH *patch) {
+    ELEMENT *element = galerkinCreateElement();
     element->pog.patch = patch;
     element->minarea = element->area = patch->area;
     element->bsize = 2.0f * (float)std::sqrt(element->area / M_PI);
@@ -228,11 +234,13 @@ CreateToplevelElement(PATCH *patch) {
     return element;
 }
 
-/* creates a cluster element for the given Geometry */
+/**
+Creates a cluster element for the given geometry
+ */
 ELEMENT *
-CreateClusterElement(Geometry *geom) {
-    ELEMENT *element = CreateElement();
-    element->pog.geom = geom;
+galerkinCreateClusterElement(Geometry *geometry) {
+    ELEMENT *element = galerkinCreateElement();
+    element->pog.geom = geometry;
     element->area = 0.;    /* needs to be computed after the whole cluster
 			 * hierarchy has been constructed */
     element->flags |= IS_CLUSTER;
@@ -246,15 +254,17 @@ CreateClusterElement(Geometry *geom) {
     return element;
 }
 
-/* Regularly subdivides the given element. A pointer to an array of
- * 4 pointers to subelements is returned. */
+/**
+Regularly subdivides the given element. A pointer to an array of
+4 pointers to sub-elements is returned
+*/
 ELEMENT **
-RegularSubdivideElement(ELEMENT *element) {
-    ELEMENT **subelement;
+galerkinRegularSubdivideElement(ELEMENT *element) {
+    ELEMENT **subElement;
     int i;
 
     if ( isCluster(element)) {
-        logFatal(-1, "RegularSubdivideElement", "Cannot regularly subdivide cluster elements");
+        logFatal(-1, "galerkinRegularSubdivideElement", "Cannot regularly subdivide cluster elements");
         return (ELEMENT **) nullptr;
     }
 
@@ -262,43 +272,43 @@ RegularSubdivideElement(ELEMENT *element) {
         return element->regular_subelements;
     }
 
-    subelement = (ELEMENT **)malloc(4*sizeof(ELEMENT *));
+    subElement = (ELEMENT **)malloc(4 * sizeof(ELEMENT *));
 
     for ( i = 0; i < 4; i++ ) {
-        subelement[i] = CreateElement();
-        subelement[i]->pog.patch = element->pog.patch;
-        subelement[i]->parent = element;
-        subelement[i]->uptrans =
+        subElement[i] = galerkinCreateElement();
+        subElement[i]->pog.patch = element->pog.patch;
+        subElement[i]->parent = element;
+        subElement[i]->uptrans =
                 element->pog.patch->numberOfVertices == 3 ? &triupxfm[i] : &quadupxfm[i];
-        subelement[i]->area = 0.25f * element->area;  /* we always use a uniform mapping */
-        subelement[i]->bsize = 2.0f * (float)std::sqrt(subelement[i]->area / M_PI);
-        subelement[i]->childnr = (char)i;
-        ElementReallocCoefficients(subelement[i]);
+        subElement[i]->area = 0.25f * element->area;  /* we always use a uniform mapping */
+        subElement[i]->bsize = 2.0f * (float)std::sqrt(subElement[i]->area / M_PI);
+        subElement[i]->childnr = (char)i;
+        ElementReallocCoefficients(subElement[i]);
 
-        basisGalerkinPush(element, element->radiance, subelement[i], subelement[i]->radiance);
+        basisGalerkinPush(element, element->radiance, subElement[i], subElement[i]->radiance);
 
-        subelement[i]->potential.f = element->potential.f;
-        subelement[i]->direct_potential.f = element->direct_potential.f;
+        subElement[i]->potential.f = element->potential.f;
+        subElement[i]->direct_potential.f = element->direct_potential.f;
 
         if ( GLOBAL_galerkin_state.iteration_method == SOUTHWELL ) {
-            basisGalerkinPush(element, element->unshot_radiance, subelement[i], subelement[i]->unshot_radiance);
-            subelement[i]->unshot_potential.f = element->unshot_potential.f;
+            basisGalerkinPush(element, element->unshot_radiance, subElement[i], subElement[i]->unshot_radiance);
+            subElement[i]->unshot_potential.f = element->unshot_potential.f;
         }
 
-        subelement[i]->flags |= (element->flags & IS_LIGHT_SOURCE);
+        subElement[i]->flags |= (element->flags & IS_LIGHT_SOURCE);
 
-        subelement[i]->Rd = element->Rd;
-        subelement[i]->Ed = element->Ed;
+        subElement[i]->Rd = element->Rd;
+        subElement[i]->Ed = element->Ed;
 
         renderSetColor(&renderopts.outline_color);
-        DrawElementOutline(subelement[i]);
+        DrawElementOutline(subElement[i]);
     }
 
-    return (element->regular_subelements = subelement);
+    return (element->regular_subelements = subElement);
 }
 
 static void
-DoDestroyElement(ELEMENT *element) {
+galerkinDoDestroyElement(ELEMENT *element) {
     InteractionListIterate(element->interactions, InteractionDestroy);
     InteractionListDestroy(element->interactions);
 
@@ -317,34 +327,34 @@ DoDestroyElement(ELEMENT *element) {
 
 /* destroys the toplevel surface element and it's subelements (recursive) */
 void
-DestroyToplevelElement(ELEMENT *element) {
+galerkinDestroyToplevelElement(ELEMENT *element) {
     if ( !element ) {
         return;
     }
 
     if ( element->regular_subelements ) {
-        ITERATE_REGULAR_SUBELEMENTS(element, DestroyToplevelElement);
+        ITERATE_REGULAR_SUBELEMENTS(element, galerkinDestroyToplevelElement);
         free(element->regular_subelements);
     }
 
     if ( element->irregular_subelements ) {
-        ITERATE_IRREGULAR_SUBELEMENTS(element, DestroyToplevelElement);
+        ITERATE_IRREGULAR_SUBELEMENTS(element, galerkinDestroyToplevelElement);
         ElementListDestroy(element->irregular_subelements);
     }
 
-    DoDestroyElement(element);
+    galerkinDoDestroyElement(element);
 }
 
 /* destroys the cluster element, not recursive. */
 void
-DestroyClusterElement(ELEMENT *element) {
-    DoDestroyElement(element);
+galerkinDestroyClusterElement(ELEMENT *element) {
+    galerkinDoDestroyElement(element);
     nr_clusters--;
 }
 
 /* prints the element data to the file 'out' */
 void
-PrintElement(FILE *out, ELEMENT *element) {
+galerkinPrintElement(FILE *out, ELEMENT *element) {
     fprintf(out, "Element %d: ", element->id);
     if ( isCluster(element)) {
         fprintf(out, "cluster element, ");
@@ -428,12 +438,12 @@ PrintElement(FILE *out, ELEMENT *element) {
 
 /* prints the patch id and the child numbers of the element and its parents. */
 void
-PrintElementId(FILE *out, ELEMENT *elem) {
+galerkinPrintElementId(FILE *out, ELEMENT *elem) {
     if ( isCluster(elem)) {
         fprintf(out, "geom %d cluster", elem->pog.geom->id);
     } else {
         if ( elem->uptrans ) {
-            PrintElementId(out, elem->parent);
+            galerkinPrintElementId(out, elem->parent);
             fprintf(out, "%d", elem->childnr + 1);
         } else {
             fprintf(out, "patch %d element ", elem->pog.patch->id);
@@ -450,7 +460,7 @@ PrintElementId(FILE *out, ELEMENT *elem) {
  * element). In the other case, the composed transform is filled in in xf and
  * xf (pointer to the transform) is returned. */
 Matrix2x2 *
-ElementToTopTransform(ELEMENT *element, Matrix2x2 *xf) {
+galerkinElementToTopTransform(ELEMENT *element, Matrix2x2 *xf) {
     /* toplevel element: no transform necessary to transform to top */
     if ( !element->uptrans ) {
         return (Matrix2x2 *) nullptr;
@@ -468,7 +478,7 @@ ElementToTopTransform(ELEMENT *element, Matrix2x2 *xf) {
  * element. Returns the parent element itself if there are no regular subelements. 
  * The point is transformed to the corresponding point on the subelement. */
 ELEMENT *
-RegularSubelementAtPoint(ELEMENT *parent, double *u, double *v) {
+galerkinRegularSubelementAtPoint(ELEMENT *parent, double *u, double *v) {
     ELEMENT *child = (ELEMENT *) nullptr;
     double _u = *u, _v = *v;
 
@@ -519,7 +529,7 @@ RegularSubelementAtPoint(ELEMENT *parent, double *u, double *v) {
             }
             break;
         default:
-            logFatal(-1, "RegularSubelementAtPoint", "Can handle only triangular or quadrilateral elements");
+            logFatal(-1, "galerkinRegularSubelementAtPoint", "Can handle only triangular or quadrilateral elements");
     }
 
     return child;
@@ -535,7 +545,7 @@ RegularLeafElementAtPoint(ELEMENT *top, double *u, double *v) {
     /* find leaf element of 'top' at (u,v) */
     leaf = top;
     while ( leaf->regular_subelements ) {
-        leaf = RegularSubelementAtPoint(leaf, u, v);
+        leaf = galerkinRegularSubelementAtPoint(leaf, u, v);
     }
 
     return leaf;
@@ -565,7 +575,7 @@ ElementVertices(ELEMENT *elem, Vector3D *p) {
         Vector2D uv;
 
         if ( elem->uptrans ) {
-            ElementToTopTransform(elem, &toptrans);
+            galerkinElementToTopTransform(elem, &toptrans);
         }
 
         uv.u = 0.;
@@ -603,7 +613,7 @@ ElementVertices(ELEMENT *elem, Vector3D *p) {
 
 /* Computes the midpoint of the element. */
 Vector3D
-ElementMidpoint(ELEMENT *elem) {
+galerkinElementMidpoint(ELEMENT *elem) {
     Vector3D c;
 
     if ( isCluster(elem)) {
@@ -694,9 +704,9 @@ DrawElement(ELEMENT *element, int mode) {
             COLOR rad_vis;
             colorProduct(rho, GLOBAL_galerkin_state.ambient_radiance, rad_vis);
             colorAdd(rad_vis, element->radiance[0], rad_vis);
-            RadianceToRGB(rad_vis, &color);
+            radianceToRgb(rad_vis, &color);
         } else {
-            RadianceToRGB(element->radiance[0], &color);
+            radianceToRgb(element->radiance[0], &color);
         }
         renderSetColor(&color);
         renderPolygonFlat(nrverts, p);
@@ -726,7 +736,7 @@ DrawElement(ELEMENT *element, int mode) {
         }
 
         for ( i = 0; i < nrverts; i++ ) {
-            RadianceToRGB(vertrad[i], &vertcol[i]);
+            radianceToRgb(vertrad[i], &vertcol[i]);
         }
 
         renderPolygonGouraud(nrverts, p, vertcol);

@@ -5,7 +5,9 @@
 
 #define EPSILON 1e-6
 
-/* tests whether two floating point numbers are eual within the given tolerance */
+/**
+Tests whether two floating point numbers are equal within the given tolerance
+*/
 #define FLOATEQUAL(a, b, tolerance) (((a)-(b)) > -(tolerance) && ((a)-(b)) < (tolerance))
 
 #ifndef MAX

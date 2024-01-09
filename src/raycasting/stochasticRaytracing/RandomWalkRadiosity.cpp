@@ -10,7 +10,7 @@
 
 static void
 randomWalkRadiosityPrintPatchData(FILE *out, PATCH *patch) {
-    McrPrintElement(out, TOPLEVEL_ELEMENT(patch));
+    monteCarloRadiosityPrintElement(out, TOPLEVEL_ELEMENT(patch));
 }
 
 static void

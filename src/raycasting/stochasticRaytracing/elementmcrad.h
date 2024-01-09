@@ -24,48 +24,48 @@ if ((parent)->irregular_subelements) {        \
   for (_i_=0; _i_<(elem)->nrvertices; _i_++) {    \
     Vertex *(vert) = (elem)->vertex[_i_]; {
 
-extern ELEMENT *CreateToplevelSurfaceElement(PATCH *patch);
+extern ELEMENT *monteCarloRadiosityCreateToplevelSurfaceElement(PATCH *patch);
 
-extern void McrDestroyToplevelSurfaceElement(ELEMENT *elem);
+extern void monteCarloRadiosityDestroyToplevelSurfaceElement(ELEMENT *elem);
 
-extern ELEMENT *McrCreateClusterHierarchy(Geometry *world);
+extern ELEMENT *monteCarloRadiosityCreateClusterHierarchy(Geometry *world);
 
-extern void McrDestroyClusterHierarchy(ELEMENT *top);
+extern void monteCarloRadiosityDestroyClusterHierarchy(ELEMENT *top);
 
-extern void McrPrintElement(FILE *out, ELEMENT *elem);
+extern void monteCarloRadiosityPrintElement(FILE *out, ELEMENT *elem);
 
-extern void McrForAllLeafElements(ELEMENT *top, void (*func)(ELEMENT *));
+extern void monteCarloRadiosityForAllLeafElements(ELEMENT *top, void (*func)(ELEMENT *));
 
-extern void McrForAllSurfaceLeafs(ELEMENT *top, void (*func)(ELEMENT *));
+extern void monteCarloRadiosityForAllSurfaceLeafs(ELEMENT *top, void (*func)(ELEMENT *));
 
 /* returns true if top has children and returns false if top is a leaf element */
-extern int McrForAllChildrenElements(ELEMENT *top, void (*func)(ELEMENT *));
+extern int monteCarloRadiosityForAllChildrenElements(ELEMENT *top, void (*func)(ELEMENT *));
 
 /* returns true if elem is a leaf element */
-extern int ElementIsLeaf(ELEMENT *elem);
+extern int monteCarloRadiosityElementIsLeaf(ELEMENT *elem);
 
-extern void ElementRange(ELEMENT *elem, int *nbits, niedindex *msb1, niedindex *rmsb2);
+extern void monteCarloRadiosityElementRange(ELEMENT *elem, int *nbits, niedindex *msb1, niedindex *rmsb2);
 
-extern float *McrElementBounds(ELEMENT *elem, float *bounds);
+extern float *monteCarloRadiosityElementBounds(ELEMENT *elem, float *bounds);
 
-extern ELEMENT *ClusterChildContainingElement(ELEMENT *parent, ELEMENT *descendant);
+extern ELEMENT *monteCarloRadiosityClusterChildContainingElement(ELEMENT *parent, ELEMENT *descendant);
 
-extern ELEMENT **McrRegularSubdivideElement(ELEMENT *element);
+extern ELEMENT **monteCarloRadiosityRegularSubdivideElement(ELEMENT *element);
 
 extern ELEMENT *monteCarloRadiosityRegularSubElementAtPoint(ELEMENT *parent, double *u, double *v);
 
-extern ELEMENT *McrRegularLeafElementAtPoint(ELEMENT *top, double *u, double *v);
+extern ELEMENT *monteCarloRadiosityRegularLeafElementAtPoint(ELEMENT *top, double *u, double *v);
 
-extern Vertex *McrEdgeMidpointVertex(ELEMENT *elem, int edgenr);
+extern Vertex *monteCarloRadiosityEdgeMidpointVertex(ELEMENT *elem, int edgenr);
 
-extern Matrix2x2 mcr_quadupxfm[4];
-extern Matrix2x2 mcr_triupxfm[4];
+extern Matrix2x2 GLOBAL_stochasticRaytracing_quadupxfm[4];
+extern Matrix2x2 GLOBAL_stochasticRaytracing_triupxfm[4];
 
 /* only for surface elements!! */
-extern int ElementIsTextured(ELEMENT *elem);
+extern int monteCarloRadiosityElementIsTextured(ELEMENT *elem);
 
 /* uses elem->Rd for surface elements */
-extern float ElementScalarReflectance(ELEMENT *elem);
+extern float monteCarloRadiosityElementScalarReflectance(ELEMENT *elem);
 
 /* implemented pushpull.c and basis.c */
 extern void PushRadiance(ELEMENT *parent, ELEMENT *child, COLOR *parent_rad, COLOR *child_rad);

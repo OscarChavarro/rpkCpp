@@ -99,15 +99,15 @@ meanAreaWeightedLuminance(LUMAREA *pairs, int numPairs) {
 
 /**
 Estimates adaptation luminance in the current scene using the current
-adaption estimation method in GLOBAL_toneMap_tmopts.statadapt
+adaption estimation method in GLOBAL_toneMap_options.statadapt
 'patch_radiance' is a pointer to a routine that computes the radiance
-emitted by a patch. The result is filled in GLOBAL_toneMap_tmopts.lwa
+emitted by a patch. The result is filled in GLOBAL_toneMap_options.lwa
 */
 static void
 estimateSceneAdaptation(COLOR (*patch_radiance)(PATCH *)) {
     PatchRadianceEstimate = patch_radiance;
 
-    switch ( GLOBAL_toneMap_tmopts.statadapt ) {
+    switch ( GLOBAL_toneMap_options.statadapt ) {
         case TMA_NONE:
             break;
         case TMA_AVERAGE: {
@@ -116,7 +116,7 @@ estimateSceneAdaptation(COLOR (*patch_radiance)(PATCH *)) {
             for ( PatchSet *window = GLOBAL_scene_patches; window != nullptr; window = window->next ) {
                 patchComputeLogAreaLum(window->patch);
             }
-            GLOBAL_toneMap_tmopts.lwa = (float)std::exp(globalLogAreaLum / GLOBAL_statistics_totalArea + 0.84);
+            GLOBAL_toneMap_options.lwa = (float)std::exp(globalLogAreaLum / GLOBAL_statistics_totalArea + 0.84);
             break;
         }
         case TMA_MEDIAN: {
@@ -127,13 +127,13 @@ estimateSceneAdaptation(COLOR (*patch_radiance)(PATCH *)) {
             for ( PatchSet *window = GLOBAL_scene_patches; window != nullptr; window = window->next ) {
                 patchFillLumArea(window->patch);
             }
-            GLOBAL_toneMap_tmopts.lwa = meanAreaWeightedLuminance(la, GLOBAL_statistics_numberOfPatches);
+            GLOBAL_toneMap_options.lwa = meanAreaWeightedLuminance(la, GLOBAL_statistics_numberOfPatches);
 
             free(la);
             break;
         }
         default:
-            logError("computeSomeSceneStats", "unknown static adaptation method %d", GLOBAL_toneMap_tmopts.statadapt);
+            logError("computeSomeSceneStats", "unknown static adaptation method %d", GLOBAL_toneMap_options.statadapt);
     }
 }
 

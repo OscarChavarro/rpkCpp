@@ -273,7 +273,7 @@ mainInit() {
     GLOBAL_fileOptions_numberOfQuarterCircleDivisions = DEFAULT_NQCDIVS;
 
     renderingDefaults();
-    ToneMapDefaults();
+    toneMapDefaults();
     CameraDefaults();
     radianceDefaults();
     rayTracingDefaults();
@@ -343,7 +343,7 @@ Processes command line arguments not recognized by the Xt GUI toolkit
 static void
 parseGlobalOptions(int *argc, char **argv) {
     ParseRenderingOptions(argc, argv);
-    ParseToneMapOptions(argc, argv);
+    parseToneMapOptions(argc, argv);
     ParseCameraOptions(argc, argv);
     parseRadianceOptions(argc, argv);
     parseRayTracingOptions(argc, argv);
@@ -623,7 +623,7 @@ readFile(char *filename) {
     fprintf(stderr, "Initializing tone mapping ... ");
     fflush(stderr);
 
-    InitToneMapping();
+    initToneMapping();
 
     t = clock();
     fprintf(stderr, "%g secs.\n", (float) (t - last) / (float) CLOCKS_PER_SEC);
@@ -641,7 +641,7 @@ readFile(char *filename) {
            colorGray(GLOBAL_statistics_averageReflectivity),
            colorGray(GLOBAL_statistics_maxSelfEmittedRadiance),
            colorGray(GLOBAL_statistics_maxSelfEmittedPower),
-           GLOBAL_toneMap_tmopts.lwa,
+           GLOBAL_toneMap_options.lwa,
            GLOBAL_statistics_totalArea);
 
     // initialize radiance for the freshly loaded scene

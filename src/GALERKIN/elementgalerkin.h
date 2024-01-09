@@ -124,15 +124,15 @@ extern int GetNumberOfClusters();
 extern int GetNumberOfSurfaceElements();
 
 /* creates the toplevel element for the patch */
-extern ELEMENT *CreateToplevelElement(PATCH *patch);
+extern ELEMENT *galerkinCreateToplevelElement(PATCH *patch);
 
 /* creates a cluster element for the given Geometry. The average projected area still
  * needs to be determined. */
-extern ELEMENT *CreateClusterElement(Geometry *geom);
+extern ELEMENT *galerkinCreateClusterElement(Geometry *geometry);
 
 /* Regularly subdivides the given element. A pointer to an array of
  * 4 pointers to subelements is returned. Only for surface elements. */
-extern ELEMENT **RegularSubdivideElement(ELEMENT *element);
+extern ELEMENT **galerkinRegularSubdivideElement(ELEMENT *element);
 
 /* position and orientation of the regular subelements is fully
  * determined by the following transforms, that transform (u,v)
@@ -141,17 +141,17 @@ extern ELEMENT **RegularSubdivideElement(ELEMENT *element);
 extern Matrix2x2 quadupxfm[4], triupxfm[4];
 
 /* prints the element data to the file 'out' */
-extern void PrintElement(FILE *out, ELEMENT *element);
+extern void galerkinPrintElement(FILE *out, ELEMENT *element);
 
 /* prints element patch id and the chain of child numbers of an element
  * in a hierarchy */
-extern void PrintElementId(FILE *out, ELEMENT *elem);
+extern void galerkinPrintElementId(FILE *out, ELEMENT *elem);
 
 /* destroys the toplevel surface element and it's subelements (recursive) */
-extern void DestroyToplevelElement(ELEMENT *element);
+extern void galerkinDestroyToplevelElement(ELEMENT *element);
 
 /* destroys the cluster element, not recursive. */
-extern void DestroyClusterElement(ELEMENT *element);
+extern void galerkinDestroyClusterElement(ELEMENT *element);
 
 /* Computes the transform relating a surface element to the toplevel element in the
  * hierarchy by concatenaing the up-transforms of the element and all parent 	
@@ -160,12 +160,12 @@ extern void DestroyClusterElement(ELEMENT *element);
  * to transform positions on the element to the corresponding point on the toplevel
  * element). In the other case, the composed transform is filled in in xf and
  * xf (pointer to the transform) is returned. */
-extern Matrix2x2 *ElementToTopTransform(ELEMENT *element, Matrix2x2 *xf);
+extern Matrix2x2 *galerkinElementToTopTransform(ELEMENT *element, Matrix2x2 *xf);
 
 /* Determines the regular subelement at point (u,v) of the given parent
  * surface element. Returns the parent element itself if there are no regular 
  * subelements. The point is transformed to the corresponding point on the subelement. */
-extern ELEMENT *RegularSubelementAtPoint(ELEMENT *parent, double *u, double *v);
+extern ELEMENT *galerkinRegularSubelementAtPoint(ELEMENT *parent, double *u, double *v);
 
 /* Returns the leaf regular subelement of 'top' at the point (u,v) (uniform 
  * coordinates!). (u,v) is transformed to the coordinates of the corresponding
@@ -190,7 +190,7 @@ extern int ElementVertices(ELEMENT *elem, Vector3D *p);
 extern float *ElementBounds(ELEMENT *elem, float *bounds);
 
 /* Computes the midpoint of the element. */
-extern Vector3D ElementMidpoint(ELEMENT *elem);
+extern Vector3D galerkinElementMidpoint(ELEMENT *elem);
 
 /* Computes a polygon description for shaft culling for the element. */
 extern POLYGON *ElementPolygon(ELEMENT *elem, POLYGON *poly);

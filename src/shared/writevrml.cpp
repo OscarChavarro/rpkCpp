@@ -15,12 +15,12 @@ Y-axis positions up in VRML2.0
 Matrix4x4
 VRMLModelTransform(Vector3D *model_rotaxis, float *model_rotangle) {
     Vector3D up_axis;
-    double cosa;
+    double cosA;
 
     VECTORSET(up_axis, 0.0, 1.0, 0.0);
-    cosa = VECTORDOTPRODUCT(GLOBAL_camera_mainCamera.updir, up_axis);
-    if ( cosa < 1. - EPSILON ) {
-        *model_rotangle = (float)acos(cosa);
+    cosA = VECTORDOTPRODUCT(GLOBAL_camera_mainCamera.updir, up_axis);
+    if ( cosA < 1. - EPSILON ) {
+        *model_rotangle = (float)acos(cosA);
         VECTORCROSSPRODUCT(GLOBAL_camera_mainCamera.updir, up_axis, *model_rotaxis);
         VECTORNORMALIZE(*model_rotaxis);
         return Rotate(*model_rotangle, *model_rotaxis);
@@ -110,14 +110,11 @@ void WriteVRMLTrailer(FILE *fp) {
 
 static void
 ResetVertexId() {
-    ForAllPatches(P, GLOBAL_scene_patches)
-                {
-                    int i;
-                    for ( i = 0; i < P->numberOfVertices; i++ ) {
-                        P->vertex[i]->tmp = -1;
-                    }
-                }
-    EndForAll;
+    for ( PatchSet *window = GLOBAL_scene_patches; window != nullptr; window = window->next ) {
+        for ( int i = 0; i < window->patch->numberOfVertices; i++ ) {
+            window->patch->vertex[i]->tmp = -1;
+        }
+    }
 }
 
 static void
@@ -127,27 +124,24 @@ WriteCoords(FILE *fp) {
     ResetVertexId();
 
     fprintf(fp, "\tcoord Coordinate {\n\t  point [ ");
-    ForAllPatches(P, GLOBAL_scene_patches)
-                {
-                    int i;
-                    for ( i = 0; i < P->numberOfVertices; i++ ) {
-                        Vertex *v = P->vertex[i];
-                        if ( v->tmp == -1 ) {
-                            /* not yet written */
-                            if ( n > 0 ) {
-                                fprintf(fp, ", ");
-                            }
-                            n++;
-                            if ( n % 4 == 0 ) {
-                                fprintf(fp, "\n\t  ");
-                            }
-                            fprintf(fp, "%g %g %g", v->point->x, v->point->y, v->point->z);
-                            v->tmp = id;
-                            id++;
-                        }
-                    }
+    for ( PatchSet *window = GLOBAL_scene_patches; window != nullptr; window = window->next ) {
+        for ( int i = 0; i < window->patch->numberOfVertices; i++ ) {
+            Vertex *v = window->patch->vertex[i];
+            if ( v->tmp == -1 ) {
+                // Not yet written
+                if ( n > 0 ) {
+                    fprintf(fp, ", ");
                 }
-    EndForAll;
+                n++;
+                if ( n % 4 == 0 ) {
+                    fprintf(fp, "\n\t  ");
+                }
+                fprintf(fp, "%g %g %g", v->point->x, v->point->y, v->point->z);
+                v->tmp = id;
+                id++;
+            }
+        }
+    }
     fprintf(fp, " ] ");
     fprintf(fp, "\n\t}\n");
 }
@@ -159,27 +153,25 @@ WriteVertexColors(FILE *fp) {
     ResetVertexId();
 
     fprintf(fp, "\tcolor Color {\n\t  color [ ");
-    ForAllPatches(P, GLOBAL_scene_patches)
-                {
-                    int i;
-                    for ( i = 0; i < P->numberOfVertices; i++ ) {
-                        Vertex *v = P->vertex[i];
-                        if ( v->tmp == -1 ) {
-                            /* not yet written */
-                            if ( n > 0 ) {
-                                fprintf(fp, ", ");
-                            }
-                            n++;
-                            if ( n % 4 == 0 ) {
-                                fprintf(fp, "\n\t  ");
-                            }
-                            fprintf(fp, "%.3g %.3g %.3g", v->color.r, v->color.g, v->color.b);
-                            v->tmp = id;
-                            id++;
-                        }
-                    }
+    for ( PatchSet *window = GLOBAL_scene_patches; window != nullptr; window = window->next ) {
+        int i;
+        for ( i = 0; i < window->patch->numberOfVertices; i++ ) {
+            Vertex *v = window->patch->vertex[i];
+            if ( v->tmp == -1 ) {
+                /* not yet written */
+                if ( n > 0 ) {
+                    fprintf(fp, ", ");
                 }
-    EndForAll;
+                n++;
+                if ( n % 4 == 0 ) {
+                    fprintf(fp, "\n\t  ");
+                }
+                fprintf(fp, "%.3g %.3g %.3g", v->color.r, v->color.g, v->color.b);
+                v->tmp = id;
+                id++;
+            }
+        }
+    }
     fprintf(fp, " ] ");
     fprintf(fp, "\n\t}\n");
 }
@@ -189,18 +181,16 @@ WriteFaceColors(FILE *fp) {
     int n = 0;
 
     fprintf(fp, "\tcolor Color {\n\t  color [ ");
-    ForAllPatches(P, GLOBAL_scene_patches)
-                {
-                    if ( n > 0 ) {
-                        fprintf(fp, ", ");
-                    }
-                    n++;
-                    if ( n % 4 == 0 ) {
-                        fprintf(fp, "\n\t  ");
-                    }
-                    fprintf(fp, "%.3g %.3g %.3g", P->color.r, P->color.g, P->color.b);
-                }
-    EndForAll;
+    for ( PatchSet *window = GLOBAL_scene_patches; window != nullptr; window = window->next ) {
+        if ( n > 0 ) {
+            fprintf(fp, ", ");
+        }
+        n++;
+        if ( n % 4 == 0 ) {
+            fprintf(fp, "\n\t  ");
+        }
+        fprintf(fp, "%.3g %.3g %.3g", window->patch->color.r, window->patch->color.g, window->patch->color.b);
+    }
     fprintf(fp, " ] ");
     fprintf(fp, "\n\t}\n");
 }
@@ -219,24 +209,22 @@ static void
 WriteCoordIndices(FILE *fp) {
     int n = 0;
     fprintf(fp, "\tcoordIndex [ ");
-    ForAllPatches(P, GLOBAL_scene_patches)
-                {
-                    int i;
-                    for ( i = 0; i < P->numberOfVertices; i++ ) {
-                        Vertex *v = P->vertex[i];
-                        n++;
-                        if ( n % 20 == 0 ) {
-                            fprintf(fp, "\n\t  ");
-                        }
-                        fprintf(fp, "%d ", v->tmp);
-                    }
-                    n++;
-                    if ( n % 20 == 0 ) {
-                        fprintf(fp, "\n\t  ");
-                    }
-                    fprintf(fp, "-1 ");
-                }
-    EndForAll;
+    for ( PatchSet *window = GLOBAL_scene_patches; window != nullptr; window = window->next ) {
+        int i;
+        for ( i = 0; i < window->patch->numberOfVertices; i++ ) {
+            Vertex *v = window->patch->vertex[i];
+            n++;
+            if ( n % 20 == 0 ) {
+                fprintf(fp, "\n\t  ");
+            }
+            fprintf(fp, "%d ", v->tmp);
+        }
+        n++;
+        if ( n % 20 == 0 ) {
+            fprintf(fp, "\n\t  ");
+        }
+        fprintf(fp, "-1 ");
+    }
     fprintf(fp, " ]\n");
 }
 

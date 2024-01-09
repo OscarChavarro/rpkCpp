@@ -129,8 +129,8 @@ monteCarloRadiosityInitBasis() {
         return;
     }
 
-    basisGalerkinComputeRegularFilterCoefficients(&mcr_triBasis, mcr_triupxfm, &CRT8);
-    basisGalerkinComputeRegularFilterCoefficients(&mcr_quadBasis, mcr_quadupxfm, &CRQ8);
+    basisGalerkinComputeRegularFilterCoefficients(&mcr_triBasis, GLOBAL_stochasticRaytracing_triupxfm, &CRT8);
+    basisGalerkinComputeRegularFilterCoefficients(&mcr_quadBasis, GLOBAL_stochasticRaytracing_quadupxfm, &CRQ8);
 
     for ( et = 0; et < NR_ELEMENT_TYPES; et++ ) {
         for ( at = 0; at < NR_APPROX_TYPES; at++ )

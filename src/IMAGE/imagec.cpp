@@ -65,7 +65,7 @@ int ImageOutputHandle::WriteDisplayRGB(float *rgbflt) {
     for ( int i = 0; i < width; i++ ) {
         // convert RGB radiance to display RGB
         RGB disprgb = *(RGB *) (&rgbflt[3 * i]);
-        // RadianceToRGB(*(COLOR *)&rgbflt[3*i], &disprgb);
+        // radianceToRgb(*(COLOR *)&rgbflt[3*i], &disprgb);
         // apply gamma correction
         GAMMACORRECT(disprgb, gamma);
         // convert float to byte representation
@@ -86,7 +86,7 @@ int ImageOutputHandle::WriteRadianceRGB(float *rgbrad) {
     for ( int i = 0; i < width; i++ ) {
         // convert RGB radiance to display RGB
         RGB disprgb;
-        RadianceToRGB(*(COLOR *) &rgbrad[3 * i], &disprgb);
+        radianceToRgb(*(COLOR *) &rgbrad[3 * i], &disprgb);
         // apply gamma correction
         GAMMACORRECT(disprgb, gamma);
         // convert float to byte representation
@@ -107,7 +107,7 @@ int ImageOutputHandle::WriteRadianceXYZ(float *xyzrad) {
     for ( int i = 0; i < width; i++ ) {
         // convert RGB radiance to display RGB
         RGB disprgb;
-        RadianceToRGB(*(COLOR *) &xyzrad[3 * i], &disprgb);
+        radianceToRgb(*(COLOR *) &xyzrad[3 * i], &disprgb);
         // apply gamma correction
         GAMMACORRECT(disprgb, gamma);
         // convert float to byte representation

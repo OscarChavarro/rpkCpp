@@ -55,12 +55,12 @@ class TONEMAP {
 };
 
 /* available tone mapping operators (nullptr terminated array) */
-extern TONEMAP *AvailableToneMaps[];
+extern TONEMAP *globalAvailableToneMaps[];
 
 /* iterates over all available tone maps */
 #define ForAllAvailableToneMaps(map)  {{    \
   TONEMAP **mapp;                \
-  for (mapp=AvailableToneMaps; *mapp; mapp++) { \
+  for (mapp=globalAvailableToneMaps; *mapp; mapp++) { \
     TONEMAP *map = *mapp;
 
 #ifndef EndForAll
@@ -68,7 +68,7 @@ extern TONEMAP *AvailableToneMaps[];
 #endif
 
 /* makes 'map' the current tone map and initialises. */
-extern void SetToneMap(TONEMAP *map);
+extern void setToneMap(TONEMAP *map);
 
 /* gamma correction table */
 #define GAMMATAB_BITS  12  /* 12-bit gamma table */
@@ -79,7 +79,7 @@ extern void SetToneMap(TONEMAP *map);
 
 /* recomputes gamma tables for the given gamma values for 
  * red, green and blue */
-extern void RecomputeGammaTables(RGB gamma);
+extern void recomputeGammaTables(RGB gamma);
 
 /* Displays a test image for testing/determining gamma correction factors */
 extern void RenderGammaTestImage(int which);
@@ -112,23 +112,23 @@ class TONEMAPPINGCONTEXT {
     RGB gamma;                  /* gamma factors for red, green, blue */
     float gammatab[3][GAMMATAB_SIZE]; /* gamma correction tables for red, green and blue */
 };
-extern TONEMAPPINGCONTEXT GLOBAL_toneMap_tmopts;
+extern TONEMAPPINGCONTEXT GLOBAL_toneMap_options;
 
 /* defaults and option handling */
-extern void ToneMapDefaults();
+extern void toneMapDefaults();
 
-extern void ParseToneMapOptions(int *argc, char **argv);
+extern void parseToneMapOptions(int *argc, char **argv);
 
 extern void PrintToneMapOptions(FILE *fp);
 
 /* initialises tone mapping for a new scene e.g. */
-extern void InitToneMapping();
+extern void initToneMapping();
 
 /* gamma correction */
 #define RGBGAMMACORRECT(rgb) {\
-  (rgb).r = GLOBAL_toneMap_tmopts.gammatab[0][GAMMATAB_ENTRY((rgb).r)]; \
-  (rgb).g = GLOBAL_toneMap_tmopts.gammatab[1][GAMMATAB_ENTRY((rgb).g)]; \
-  (rgb).b = GLOBAL_toneMap_tmopts.gammatab[2][GAMMATAB_ENTRY((rgb).b)]; \
+  (rgb).r = GLOBAL_toneMap_options.gammatab[0][GAMMATAB_ENTRY((rgb).r)]; \
+  (rgb).g = GLOBAL_toneMap_options.gammatab[1][GAMMATAB_ENTRY((rgb).g)]; \
+  (rgb).b = GLOBAL_toneMap_options.gammatab[2][GAMMATAB_ENTRY((rgb).b)]; \
 }
 
 /* shortcuts */
@@ -136,7 +136,7 @@ extern void InitToneMapping();
 
 inline COLOR
 toneMapScaleForDisplay(COLOR &radiance) {
-    return GLOBAL_toneMap_tmopts.ToneMap->ScaleForDisplay(radiance);
+    return GLOBAL_toneMap_options.ToneMap->ScaleForDisplay(radiance);
 }
 
 /* ---------------------------------------------------------------------------
@@ -162,7 +162,7 @@ extern void ContrastSensitivityEye(Vector3D *p);
  *    an RGB triplet for display on the screen
  * 3) clipping of RGB values to the range [0,1].
  * Gamma correction is performed in render.c. */
-extern RGB *RadianceToRGB(COLOR radiance, RGB *rgb);
+extern RGB *radianceToRgb(COLOR color, RGB *rgb);
 
 /* ---------------------------------------------------------------------------
   `TMO_COLOR_COMP'

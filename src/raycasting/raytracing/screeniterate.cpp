@@ -63,7 +63,7 @@ ScreenIterateSequential(SCREENITERATECALLBACK callback, void *data) {
     for ( j = 0; j < height && !interrupt_raytracing; j++ ) {
         for ( i = 0; i < width && !interrupt_raytracing; i++ ) {
             col = callback(i, j, data);
-            RadianceToRGB(col, &rgb[i]);
+            radianceToRgb(col, &rgb[i]);
             Global_Raytracer_pixelCount++;
         }
 
@@ -144,7 +144,7 @@ ScreenIterateProgressive(SCREENITERATECALLBACK callback, void *data) {
 
                 if ( !skip || (ysteps & 1) || (xsteps & 1)) {
                     col = callback(x0, height - y0 - 1, data);
-                    RadianceToRGB(col, &pixelRGB);
+                    radianceToRgb(col, &pixelRGB);
                     FillRect(x0, y0, x1, y1, pixelRGB, rgb);
 
                     Global_Raytracer_pixelCount++;

@@ -2,29 +2,25 @@
 
 #include "java/util/ArrayList.txx"
 #include "common/error.h"
-#include "material/statistics.h"
-#include "skin/Vertex.h"
-#include "skin/Patch.h"
-#include "skin/Geometry.h"
 #include "shared/render.h"
 #include "raycasting/stochasticRaytracing/mcradP.h"
 #include "raycasting/stochasticRaytracing/hierarchy.h"
-#include "raycasting/stochasticRaytracing/coefficientsmcrad.h"
 
-static ELEMENT *CreateClusterHierarchyRecursive(Geometry *world);
+static ELEMENT *monteCarloRadiosityCreateClusterHierarchyRecursive(Geometry *world);
 
-/* Orientation and position of regular subelements is fully determined by the
- * following transformations. A uniform mapping of parameter domain to the
- * elements is supposed (i.o.w. use patchUniformPoint() to map (u,v) coordinates
- * on the toplevel element to a 3D point on the patch). The subelements
- * have equal area. No explicit Jacobian stuff needed to compute integrals etc..
- * etc..
- *
- * Do not change the conventions below without knowing VERY well what
- * you are doing.
- */
+/**
+Orientation and position of regular sub-elements is fully determined by the
+following transformations. A uniform mapping of parameter domain to the
+elements is supposed (i.o.w. use patchUniformPoint() to map (u,v) coordinates
+on the toplevel element to a 3D point on the patch). The sub-elements
+have equal area. No explicit Jacobian stuff needed to compute integrals etc..
+etc.
 
-/* up-transforms for regular quadrilateral subelements:
+Do not change the conventions below without knowing VERY well what
+you are doing.
+*/
+
+/** Up-transforms for regular quadrilateral sub-elements:
  *
  *   (v)
  *
@@ -39,53 +35,54 @@ static ELEMENT *CreateClusterHierarchyRecursive(Geometry *world);
  *    0 +---------+---------+
  *      0        0.5        1   (u)
  */
-Matrix2x2 mcr_quadupxfm[4] = {
-        /* south-west [0,0.5] x [0,0.5] */
-        {{{0.5, 0.0}, {0.0, 0.5}}, {0.0, 0.0}},
+Matrix2x2 GLOBAL_stochasticRaytracing_quadupxfm[4] = {
+    // South-west [0,0.5] x [0,0.5]
+    {{{0.5, 0.0}, {0.0, 0.5}}, {0.0, 0.0}},
 
-        /* south-east: [0.5,1] x [0,0.5] */
-        {{{0.5, 0.0}, {0.0, 0.5}}, {0.5, 0.0}},
+    // South-east: [0.5,1] x [0,0.5]
+    {{{0.5, 0.0}, {0.0, 0.5}}, {0.5, 0.0}},
 
-        /* north-west: [0,0.5] x [0.5,1] */
-        {{{0.5, 0.0}, {0.0, 0.5}}, {0.0, 0.5}},
+    // North-west: [0,0.5] x [0.5,1]
+    {{{0.5, 0.0}, {0.0, 0.5}}, {0.0, 0.5}},
 
-        /* north-east: [0.5,1] x [0.5,1] */
-        {{{0.5, 0.0}, {0.0, 0.5}}, {0.5, 0.5}},
+    // North-east: [0.5,1] x [0.5,1]
+    {{{0.5, 0.0}, {0.0, 0.5}}, {0.5, 0.5}}
 };
 
-/* up-transforms for triangular subelements:
- *
- *  (v)
- *
- *   1 +
- *     | \
- *     |   \
- *     |     \
- *     | 2     \
- * 0.5 +---------+
- *     | \     3 | \
- *     |   \     |   \
- *     |     \   |     \
- *     | 0     \ | 1     \
- *   0 +---------+---------+
- *     0        0.5        1  (u)
- */
-Matrix2x2 mcr_triupxfm[4] = {
-        /* left: (0,0),(0.5,0),(0,0.5) */
-        {{{0.5,  0.0}, {0.0, 0.5}},  {0.0, 0.0}},
+/**
+Up-transforms for triangular sub-elements:
 
-        /* right: (0.5,0),(1,0),(0.5,0.5) */
-        {{{0.5,  0.0}, {0.0, 0.5}},  {0.5, 0.0}},
+ (v)
 
-        /* top: (0,0.5),(0.5,0.5),(0,1) */
-        {{{0.5,  0.0}, {0.0, 0.5}},  {0.0, 0.5}},
+  1 +
+    | \
+    |   \
+    |     \
+    | 2     \
+0.5 +---------+
+    | \     3 | \
+    |   \     |   \
+    |     \   |     \
+    | 0     \ | 1     \
+  0 +---------+---------+
+    0        0.5        1  (u)
+*/
+Matrix2x2 GLOBAL_stochasticRaytracing_triupxfm[4] = {
+    // Left: (0,0),(0.5,0),(0,0.5)
+    {{{0.5,  0.0}, {0.0, 0.5}},  {0.0, 0.0}},
 
-        /* middle: (0.5,0.5),(0,0.5),(0.5,0) */
-        {{{-0.5, 0.0}, {0.0, -0.5}}, {0.5, 0.5}},
+    // Right: (0.5,0),(1,0),(0.5,0.5)
+    {{{0.5,  0.0}, {0.0, 0.5}},  {0.5, 0.0}},
+
+    // Top: (0,0.5),(0.5,0.5),(0,1)
+    {{{0.5,  0.0}, {0.0, 0.5}},  {0.0, 0.5}},
+
+    // Middle: (0.5,0.5),(0,0.5),(0.5,0)
+    {{{-0.5, 0.0}, {0.0, -0.5}}, {0.5, 0.5}}
 };
 
 static ELEMENT *
-CreateElement() {
+createElement() {
     static long id = 1;
     ELEMENT *elem = (ELEMENT *)malloc(sizeof(ELEMENT));
 
@@ -124,14 +121,14 @@ CreateElement() {
 }
 
 static void
-VertexAttachElement(Vertex *v, ELEMENT *elem) {
+vertexAttachElement(Vertex *v, ELEMENT *elem) {
     v->radiance_data = ElementListAdd(v->radiance_data, elem);
 }
 
 ELEMENT *
-CreateToplevelSurfaceElement(PATCH *patch) {
+monteCarloRadiosityCreateToplevelSurfaceElement(PATCH *patch) {
     int i;
-    ELEMENT *elem = CreateElement();
+    ELEMENT *elem = createElement();
     elem->pog.patch = patch;
     elem->iscluster = false;
     elem->area = patch->area;
@@ -139,7 +136,7 @@ CreateToplevelSurfaceElement(PATCH *patch) {
     elem->nrvertices = patch->numberOfVertices;
     for ( i = 0; i < elem->nrvertices; i++ ) {
         elem->vertex[i] = patch->vertex[i];
-        VertexAttachElement(elem->vertex[i], elem);
+        vertexAttachElement(elem->vertex[i], elem);
     }
 
     allocCoefficients(elem);    /* may need reallocation before the start
@@ -156,8 +153,8 @@ CreateToplevelSurfaceElement(PATCH *patch) {
 }
 
 static ELEMENT *
-CreateCluster(Geometry *geom) {
-    ELEMENT *elem = CreateElement();
+monteCarloRadiosityCreateCluster(Geometry *geom) {
+    ELEMENT *elem = createElement();
     float *bounds = geom->bounds;
 
     elem->pog.geom = geom;
@@ -185,7 +182,7 @@ CreateCluster(Geometry *geom) {
 }
 
 static void
-CreateSurfaceElementChild(PATCH *patch, ELEMENT *parent) {
+monteCarloRadiosityCreateSurfaceElementChild(PATCH *patch, ELEMENT *parent) {
     ELEMENT *elem;
     elem = (ELEMENT *)patch->radiance_data;    /* created before */
     elem->parent = (ELEMENT *)parent;
@@ -193,15 +190,17 @@ CreateSurfaceElementChild(PATCH *patch, ELEMENT *parent) {
 }
 
 static void
-CreateClusterChild(Geometry *geom, ELEMENT *parent) {
-    ELEMENT *subcluster = CreateClusterHierarchyRecursive(geom);
-    subcluster->parent = parent;
-    parent->irregular_subelements = ElementListAdd(parent->irregular_subelements, subcluster);
+monteCarloRadiosityCreateClusterChild(Geometry *geom, ELEMENT *parent) {
+    ELEMENT *subCluster = monteCarloRadiosityCreateClusterHierarchyRecursive(geom);
+    subCluster->parent = parent;
+    parent->irregular_subelements = ElementListAdd(parent->irregular_subelements, subCluster);
 }
 
-/* initialises parent cluster radiance/importance/area for child elem. */
+/**
+Initialises parent cluster radiance/importance/area for child voxelData
+*/
 static void
-InitClusterPull(ELEMENT *parent, ELEMENT *child) {
+monteCarloRadiosityInitClusterPull(ELEMENT *parent, ELEMENT *child) {
     parent->area += child->area;
     PullRadiance(parent, child, parent->rad, child->rad);
     PullRadiance(parent, child, parent->unshot_rad, child->unshot_rad);
@@ -210,51 +209,52 @@ InitClusterPull(ELEMENT *parent, ELEMENT *child) {
     PullImportance(parent, child, &parent->unshot_imp, &child->unshot_imp);
     PullImportance(parent, child, &parent->received_imp, &child->received_imp);
 
-    /* needs division by parent->area once it is known after InitClusterPull for
+    /* needs division by parent->area once it is known after monteCarloRadiosityInitClusterPull for
      * all children elements. */
     colorAddScaled(parent->Ed, child->area, child->Ed, parent->Ed);
 }
 
 static void
-CreateClusterChildren(ELEMENT *parent) {
+monteCarloRadiosityCreateClusterChildren(ELEMENT *parent) {
     Geometry *geom = parent->pog.geom;
 
     if ( geomIsAggregate(geom)) {
-        ForAllGeoms(childgeom, geomPrimList(geom))
-                    {
-                        CreateClusterChild(childgeom, parent);
-                    }
-        EndForAll;
+        GeometryListNode *geometryList = geomPrimList(geom);
+        if ( geometryList != nullptr ) {
+            GeometryListNode *window;
+            for ( window = geometryList; window; window = window->next ) {
+                Geometry *geometry = window->geom;
+                monteCarloRadiosityCreateClusterChild(geometry, parent);
+            }
+        }
     } else {
-        ForAllPatches(childpatch, geomPatchList(geom))
-                    {
-                        CreateSurfaceElementChild(childpatch, parent);
-                    }
-        EndForAll;
+        for ( PatchSet *window = geomPatchList(geom); window != nullptr; window = window->next ) {
+            monteCarloRadiosityCreateSurfaceElementChild(window->patch, parent);
+        }
     }
 
     ForAllIrregularSubelements(child, parent)
                 {
-                    InitClusterPull(parent, child);
+                    monteCarloRadiosityInitClusterPull(parent, child);
                 }
     EndForAll;
     colorScaleInverse(parent->area, parent->Ed, parent->Ed);
 }
 
 static ELEMENT *
-CreateClusterHierarchyRecursive(Geometry *world) {
+monteCarloRadiosityCreateClusterHierarchyRecursive(Geometry *world) {
     ELEMENT *topcluster;
-    world->radiance_data = topcluster = (ELEMENT *) CreateCluster(world);
-    CreateClusterChildren(topcluster);
+    world->radiance_data = topcluster = (ELEMENT *) monteCarloRadiosityCreateCluster(world);
+    monteCarloRadiosityCreateClusterChildren(topcluster);
     return topcluster;
 }
 
 ELEMENT *
-McrCreateClusterHierarchy(Geometry *world) {
+monteCarloRadiosityCreateClusterHierarchy(Geometry *world) {
     if ( !world ) {
         return (ELEMENT *) nullptr;
     } else {
-        return CreateClusterHierarchyRecursive(world);
+        return monteCarloRadiosityCreateClusterHierarchyRecursive(world);
     }
 }
 
@@ -272,7 +272,7 @@ sample needs to be "folded" into the triangle. FoldSample() in sample4d.c
 does this
 */
 void
-ElementRange(ELEMENT *elem, int *nbits, niedindex *msb1, niedindex *rmsb2) {
+monteCarloRadiosityElementRange(ELEMENT *elem, int *nbits, niedindex *msb1, niedindex *rmsb2) {
     int nb;
     niedindex b1, b2;
 
@@ -290,9 +290,9 @@ ElementRange(ELEMENT *elem, int *nbits, niedindex *msb1, niedindex *rmsb2) {
 }
 
 /**
-Determines the regular subelement at point (u,v) of the given parent
-element. Returns the parent element itself if there are no regular subelements.
-The point is transformed to the corresponding point on the subelement
+Determines the regular sub-element at point (u,v) of the given parent
+element. Returns the parent element itself if there are no regular sub-elements.
+The point is transformed to the corresponding point on the sub-element
 */
 ELEMENT *
 monteCarloRadiosityRegularSubElementAtPoint(ELEMENT *parent, double *u, double *v) {
@@ -346,17 +346,19 @@ monteCarloRadiosityRegularSubElementAtPoint(ELEMENT *parent, double *u, double *
             }
             break;
         default:
-            logFatal(-1, "RegularSubelementAtPoint", "Can handle only triangular or quadrilateral elements");
+            logFatal(-1, "galerkinRegularSubelementAtPoint", "Can handle only triangular or quadrilateral elements");
     }
 
     return child;
 }
 
-/* Returns the leaf regular subelement of 'top' at the point (u,v) (uniform
- * coordinates!). (u,v) is transformed to the coordinates of the corresponding
- * point on the leaf element. 'top' is a surface element, not a cluster. */
+/**
+Returns the leaf regular sub-element of 'top' at the point (u,v) (uniform
+coordinates!). (u,v) is transformed to the coordinates of the corresponding
+point on the leaf element. 'top' is a surface element, not a cluster
+*/
 ELEMENT *
-McrRegularLeafElementAtPoint(ELEMENT *top, double *u, double *v) {
+monteCarloRadiosityRegularLeafElementAtPoint(ELEMENT *top, double *u, double *v) {
     ELEMENT *leaf;
 
     /* find leaf element of 'top' at (u,v) */
@@ -369,28 +371,28 @@ McrRegularLeafElementAtPoint(ELEMENT *top, double *u, double *v) {
 }
 
 static Vector3D *
-InstallCoordinate(Vector3D *coord) {
+monteCarloRadiosityInstallCoordinate(Vector3D *coord) {
     Vector3D *v = VectorCreate(coord->x, coord->y, coord->z);
     GLOBAL_stochasticRaytracing_hierarchy.coords = VectorListAdd(GLOBAL_stochasticRaytracing_hierarchy.coords, v);
     return v;
 }
 
 static Vector3D *
-InstallNormal(Vector3D *norm) {
+monteCarloRadiosityInstallNormal(Vector3D *norm) {
     Vector3D *v = VectorCreate(norm->x, norm->y, norm->z);
     GLOBAL_stochasticRaytracing_hierarchy.normals = VectorListAdd(GLOBAL_stochasticRaytracing_hierarchy.normals, v);
     return v;
 }
 
 static Vector3D *
-InstallTexCoord(Vector3D *texCoord) {
+monteCarloRadiosityInstallTexCoord(Vector3D *texCoord) {
     Vector3D *t = VectorCreate(texCoord->x, texCoord->y, texCoord->z);
     GLOBAL_stochasticRaytracing_hierarchy.texCoords = VectorListAdd(GLOBAL_stochasticRaytracing_hierarchy.texCoords, t);
     return t;
 }
 
 static Vertex *
-InstallVertex(Vector3D *coord, Vector3D *norm, Vector3D *texCoord) {
+monteCarloRadiosityInstallVertex(Vector3D *coord, Vector3D *norm, Vector3D *texCoord) {
     java::ArrayList<PATCH *> *newPatchList = new java::ArrayList<PATCH *>();
     Vertex *v = vertexCreate(coord, norm, texCoord, newPatchList);
     GLOBAL_stochasticRaytracing_hierarchy.vertices->add(0, v);
@@ -398,34 +400,36 @@ InstallVertex(Vector3D *coord, Vector3D *norm, Vector3D *texCoord) {
 }
 
 static Vertex *
-NewMidpointVertex(ELEMENT *elem, Vertex *v1, Vertex *v2) {
+monteCarloRadiosityNewMidpointVertex(ELEMENT *elem, Vertex *v1, Vertex *v2) {
     Vector3D coord, norm, texCoord, *p, *n, *t;
 
     MIDPOINT(*(v1->point), *(v2->point), coord);
-    p = InstallCoordinate(&coord);
+    p = monteCarloRadiosityInstallCoordinate(&coord);
 
     if ( v1->normal && v2->normal ) {
         MIDPOINT(*(v1->normal), *(v2->normal), norm);
-        n = InstallNormal(&norm);
+        n = monteCarloRadiosityInstallNormal(&norm);
     } else {
         n = &elem->pog.patch->normal;
     }
 
     if ( v1->texCoord && v2->texCoord ) {
         MIDPOINT(*(v1->texCoord), *(v2->texCoord), texCoord);
-        t = InstallTexCoord(&texCoord);
+        t = monteCarloRadiosityInstallTexCoord(&texCoord);
     } else {
         t = nullptr;
     }
 
-    return InstallVertex(p, n, t);
+    return monteCarloRadiosityInstallVertex(p, n, t);
 }
 
-/* Find the neighbouring element of the given element at the edgenr-th edge.
- * The edgenr-th edge is the edge connecting the edgenr-th vertex to the
- * (edgenr+1 modulo GLOBAL_statistics_numberOfVertices)-th vertex. */
+/**
+Find the neighbouring element of the given element at the edgenr-th edge.
+The edgenr-th edge is the edge connecting the edgenr-th vertex to the
+(edgenr+1 modulo GLOBAL_statistics_numberOfVertices)-th vertex
+*/
 static ELEMENT *
-ElementNeighbour(ELEMENT *elem, int edgenr) {
+monteCarloRadiosityElementNeighbour(ELEMENT *elem, int edgenr) {
     Vertex *from = elem->vertex[edgenr],
             *to = elem->vertex[(edgenr + 1) % elem->nrvertices];
 
@@ -450,10 +454,10 @@ ElementNeighbour(ELEMENT *elem, int edgenr) {
 }
 
 Vertex *
-McrEdgeMidpointVertex(ELEMENT *elem, int edgenr) {
+monteCarloRadiosityEdgeMidpointVertex(ELEMENT *elem, int edgenr) {
     Vertex *v = (Vertex *) nullptr,
             *to = elem->vertex[(edgenr + 1) % elem->nrvertices];
-    ELEMENT *neighbour = ElementNeighbour(elem, edgenr);
+    ELEMENT *neighbour = monteCarloRadiosityElementNeighbour(elem, edgenr);
 
     if ( neighbour && neighbour->regular_subelements ) {
         /* elem has a neighbour at the edge from 'from' to 'to'. This neighbouring
@@ -511,18 +515,18 @@ McrEdgeMidpointVertex(ELEMENT *elem, int edgenr) {
 }
 
 static Vertex *
-NewEdgeMidpointVertex(ELEMENT *elem, int edgenr) {
-    Vertex *v = McrEdgeMidpointVertex(elem, edgenr);
+monteCarloRadiosityNewEdgeMidpointVertex(ELEMENT *elem, int edgenr) {
+    Vertex *v = monteCarloRadiosityEdgeMidpointVertex(elem, edgenr);
     if ( !v ) { /* first time we split the edge, create the midpoint vertex */
         Vertex *from = elem->vertex[edgenr],
                 *to = elem->vertex[(edgenr + 1) % elem->nrvertices];
-        v = NewMidpointVertex(elem, from, to);
+        v = monteCarloRadiosityNewMidpointVertex(elem, from, to);
     }
     return v;
 }
 
 static Vector3D
-ElementMidpoint(ELEMENT *elem) {
+galerkinElementMidpoint(ELEMENT *elem) {
     int i;
     VECTORSET(elem->midpoint, 0., 0., 0.);
     for ( i = 0; i < elem->nrvertices; i++ ) {
@@ -534,10 +538,10 @@ ElementMidpoint(ELEMENT *elem) {
 }
 
 int
-ElementIsTextured(ELEMENT *elem) {
+monteCarloRadiosityElementIsTextured(ELEMENT *elem) {
     Material *mat;
     if ( elem->iscluster ) {
-        logFatal(-1, "ElementIsTextured", "this routine should not be called for cluster elements");
+        logFatal(-1, "monteCarloRadiosityElementIsTextured", "this routine should not be called for cluster elements");
         return false;
     }
     mat = elem->pog.patch->surface->material;
@@ -545,7 +549,7 @@ ElementIsTextured(ELEMENT *elem) {
 }
 
 float
-ElementScalarReflectance(ELEMENT *elem) {
+monteCarloRadiosityElementScalarReflectance(ELEMENT *elem) {
     float rd;
 
     if ( elem->iscluster ) {
@@ -559,25 +563,31 @@ ElementScalarReflectance(ELEMENT *elem) {
     return rd;
 }
 
-/* computes average reflectance and emittance of a surface sub-element */
+/**
+Computes average reflectance and emittance of a surface sub-element
+*/
 static void
-ElementComputeAverageReflectanceAndEmittance(ELEMENT *elem) {
+monteCarloRadiosityElementComputeAverageReflectanceAndEmittance(ELEMENT *elem) {
     PATCH *patch = elem->pog.patch;
-    int i, nrsamples, istextured;
+    int i;
+    int numberOfSamples;
+    int isTextured;
     int nbits;
-    niedindex msb1, rmsb2, n;
+    niedindex msb1;
+    niedindex rmsb2;
+    niedindex n;
     COLOR albedo, emittance;
     HITREC hit;
     InitHit(&hit, patch, nullptr, &patch->midpoint, &patch->normal, patch->surface->material, 0.);
 
-    istextured = ElementIsTextured(elem);
-    nrsamples = istextured ? 100 : 1;
+    isTextured = monteCarloRadiosityElementIsTextured(elem);
+    numberOfSamples = isTextured ? 100 : 1;
     colorClear(albedo);
     colorClear(emittance);
-    ElementRange(elem, &nbits, &msb1, &rmsb2);
+    monteCarloRadiosityElementRange(elem, &nbits, &msb1, &rmsb2);
 
     n = 1;
-    for ( i = 0; i < nrsamples; i++, n++ ) {
+    for ( i = 0; i < numberOfSamples; i++, n++ ) {
         COLOR sample;
         niedindex *xi = NextNiedInRange(&n, +1, nbits, msb1, rmsb2);
         hit.uv.u = (double) xi[0] * RECIP;
@@ -593,13 +603,15 @@ ElementComputeAverageReflectanceAndEmittance(ELEMENT *elem) {
             colorAdd(emittance, sample, emittance);
         }
     }
-    colorScaleInverse((float) nrsamples, albedo, elem->Rd);
-    colorScaleInverse((float) nrsamples, emittance, elem->Ed);
+    colorScaleInverse((float) numberOfSamples, albedo, elem->Rd);
+    colorScaleInverse((float) numberOfSamples, emittance, elem->Ed);
 }
 
-/* initial push operation for surface subelements */
+/**
+Initial push operation for surface sub-elements
+*/
 static void
-InitSurfacePush(ELEMENT *parent, ELEMENT *child) {
+monteCarloRadiosityInitSurfacePush(ELEMENT *parent, ELEMENT *child) {
     child->source_rad = parent->source_rad;
     PushRadiance(parent, child, parent->rad, child->rad);
     PushRadiance(parent, child, parent->unshot_rad, child->unshot_rad);
@@ -612,29 +624,27 @@ InitSurfacePush(ELEMENT *parent, ELEMENT *child) {
 
     child->Rd = parent->Rd;
     child->Ed = parent->Ed;
-    ElementComputeAverageReflectanceAndEmittance(child);
+    monteCarloRadiosityElementComputeAverageReflectanceAndEmittance(child);
 }
 
-/* ---------------------------------------------------------------------------
-  'CreateSurfaceSubelement'
-
-  Creates a subelement of the element "*parent", stores it as the
-  subelement number "childnr". Tha value of "v3" is unused in the
-  process of triangle subdivision.
-  ------------------------------------------------------------------------- */
+/**
+Creates a sub-element of the element "*parent", stores it as the
+sub-element number "childNumber". Tha value of "v3" is unused in the
+process of triangle subdivision.
+*/
 static ELEMENT *
-CreateSurfaceSubelement(
-        ELEMENT *parent,
-        int childnr,
-        Vertex *v0,
-        Vertex *v1,
-        Vertex *v2,
-        Vertex *v3)
+monteCarloRadiosityCreateSurfaceSubElement(
+    ELEMENT *parent,
+    int childNumber,
+    Vertex *v0,
+    Vertex *v1,
+    Vertex *v2,
+    Vertex *v3)
 {
     int i;
 
-    ELEMENT *elem = CreateElement();
-    parent->regular_subelements[childnr] = elem;
+    ELEMENT *elem = createElement();
+    parent->regular_subelements[childNumber] = elem;
 
     elem->pog.patch = parent->pog.patch;
     elem->nrvertices = parent->nrvertices;
@@ -643,44 +653,45 @@ CreateSurfaceSubelement(
     elem->vertex[2] = v2;
     elem->vertex[3] = v3;
     for ( i = 0; i < elem->nrvertices; i++ ) {
-        VertexAttachElement(elem->vertex[i], elem);
+        vertexAttachElement(elem->vertex[i], elem);
     }
 
     elem->area = 0.25 * parent->area; /* regular elements, regular subdivision */
-    elem->midpoint = ElementMidpoint(elem);
+    elem->midpoint = galerkinElementMidpoint(elem);
 
     elem->parent = parent;
-    elem->child_nr = childnr;
-    elem->uptrans = elem->nrvertices == 3 ? &mcr_triupxfm[childnr] : &mcr_quadupxfm[childnr];
+    elem->child_nr = childNumber;
+    elem->uptrans = elem->nrvertices == 3 ? &GLOBAL_stochasticRaytracing_triupxfm[childNumber] : &GLOBAL_stochasticRaytracing_quadupxfm[childNumber];
 
     allocCoefficients(elem);
     stochasticRadiosityClearCoefficients(elem->rad, elem->basis);
     stochasticRadiosityClearCoefficients(elem->unshot_rad, elem->basis);
     stochasticRadiosityClearCoefficients(elem->received_rad, elem->basis);
     elem->imp = elem->unshot_imp = elem->received_imp = 0.;
-    InitSurfacePush(parent, elem);
+    monteCarloRadiosityInitSurfacePush(parent, elem);
 
     return elem;
 }
 
-/* create subelements: regular subdivision, see drawings above. */
+/**
+Create sub-elements: regular subdivision, see drawings above
+*/
 static ELEMENT **
-RegularSubdivideTriangle(ELEMENT *element) {
+monteCarloRadiosityRegularSubdivideTriangle(ELEMENT *element) {
     Vertex *v0, *v1, *v2, *m0, *m1, *m2;
 
     v0 = element->vertex[0];
     v1 = element->vertex[1];
     v2 = element->vertex[2];
-    m0 = NewEdgeMidpointVertex(element, 0);
-    m1 = NewEdgeMidpointVertex(element, 1);
-    m2 = NewEdgeMidpointVertex(element, 2);
+    m0 = monteCarloRadiosityNewEdgeMidpointVertex(element, 0);
+    m1 = monteCarloRadiosityNewEdgeMidpointVertex(element, 1);
+    m2 = monteCarloRadiosityNewEdgeMidpointVertex(element, 2);
 
-    CreateSurfaceSubelement(element, 0, v0, m0, m2, nullptr);
-    CreateSurfaceSubelement(element, 1, m0, v1, m1, nullptr);
-    CreateSurfaceSubelement(element, 2, m2, m1, v2, nullptr);
-    CreateSurfaceSubelement(element, 3, m1, m2, m0, nullptr);
+    monteCarloRadiosityCreateSurfaceSubElement(element, 0, v0, m0, m2, nullptr);
+    monteCarloRadiosityCreateSurfaceSubElement(element, 1, m0, v1, m1, nullptr);
+    monteCarloRadiosityCreateSurfaceSubElement(element, 2, m2, m1, v2, nullptr);
+    monteCarloRadiosityCreateSurfaceSubElement(element, 3, m1, m2, m0, nullptr);
 
-#ifndef NO_SUBDIVISION_LINES
     renderSetColor(&renderopts.outline_color);
     renderLine(v0->point, v1->point);
     renderLine(v1->point, v2->point);
@@ -688,30 +699,29 @@ RegularSubdivideTriangle(ELEMENT *element) {
     renderLine(m0->point, m1->point);
     renderLine(m1->point, m2->point);
     renderLine(m2->point, m0->point);
-#endif
+
     return element->regular_subelements;
 }
 
 static ELEMENT **
-RegularSubdivideQuad(ELEMENT *element) {
+monteCarloRadiosityRegularSubdivideQuad(ELEMENT *element) {
     Vertex *v0, *v1, *v2, *v3, *m0, *m1, *m2, *m3, *mm;
 
     v0 = element->vertex[0];
     v1 = element->vertex[1];
     v2 = element->vertex[2];
     v3 = element->vertex[3];
-    m0 = NewEdgeMidpointVertex(element, 0);
-    m1 = NewEdgeMidpointVertex(element, 1);
-    m2 = NewEdgeMidpointVertex(element, 2);
-    m3 = NewEdgeMidpointVertex(element, 3);
-    mm = NewMidpointVertex(element, m0, m2);
+    m0 = monteCarloRadiosityNewEdgeMidpointVertex(element, 0);
+    m1 = monteCarloRadiosityNewEdgeMidpointVertex(element, 1);
+    m2 = monteCarloRadiosityNewEdgeMidpointVertex(element, 2);
+    m3 = monteCarloRadiosityNewEdgeMidpointVertex(element, 3);
+    mm = monteCarloRadiosityNewMidpointVertex(element, m0, m2);
 
-    CreateSurfaceSubelement(element, 0, v0, m0, mm, m3);
-    CreateSurfaceSubelement(element, 1, m0, v1, m1, mm);
-    CreateSurfaceSubelement(element, 2, m3, mm, m2, v3);
-    CreateSurfaceSubelement(element, 3, mm, m1, v2, m2);
+    monteCarloRadiosityCreateSurfaceSubElement(element, 0, v0, m0, mm, m3);
+    monteCarloRadiosityCreateSurfaceSubElement(element, 1, m0, v1, m1, mm);
+    monteCarloRadiosityCreateSurfaceSubElement(element, 2, m3, mm, m2, v3);
+    monteCarloRadiosityCreateSurfaceSubElement(element, 3, mm, m1, v2, m2);
 
-#ifndef NO_SUBDIVISION_LINES
     renderSetColor(&renderopts.outline_color);
     renderLine(v0->point, v1->point);
     renderLine(v1->point, v2->point);
@@ -719,31 +729,29 @@ RegularSubdivideQuad(ELEMENT *element) {
     renderLine(v3->point, v0->point);
     renderLine(m0->point, m2->point);
     renderLine(m1->point, m3->point);
-#endif
+
     return element->regular_subelements;
 }
 
-/* ---------------------------------------------------------------------------
-  'RegularSubdivideElement'
-
-  Subdivides given triangle or quadrangle into four subelements if not yet
-  done so before. Returns the list of created subelements.
-  ------------------------------------------------------------------------- */
+/**
+Subdivides given triangle or quadrangle into four sub-elements if not yet
+done so before. Returns the list of created sub-elements
+*/
 ELEMENT **
-McrRegularSubdivideElement(ELEMENT *element) {
+monteCarloRadiosityRegularSubdivideElement(ELEMENT *element) {
     if ( element->regular_subelements ) {
         return element->regular_subelements;
     }
 
     if ( element->iscluster ) {
-        logFatal(-1, "RegularSubdivideElement", "Cannot regularly subdivide cluster elements");
+        logFatal(-1, "galerkinRegularSubdivideElement", "Cannot regularly subdivide cluster elements");
         return (ELEMENT **) nullptr;
     }
 
     if ( element->pog.patch->jacobian ) {
         static int wgiv = false;
         if ( !wgiv ) {
-            logWarning("RegularSubdivideElement",
+            logWarning("galerkinRegularSubdivideElement",
                        "irregular quadrilateral patches are not correctly handled (but you probably won't notice it)");
         }
         wgiv = true;
@@ -753,21 +761,21 @@ McrRegularSubdivideElement(ELEMENT *element) {
     element->regular_subelements = (ELEMENT **)malloc(4*sizeof(ELEMENT *));
     switch ( element->nrvertices ) {
         case 3:
-            RegularSubdivideTriangle(element);
+            monteCarloRadiosityRegularSubdivideTriangle(element);
             break;
         case 4:
-            RegularSubdivideQuad(element);
+            monteCarloRadiosityRegularSubdivideQuad(element);
             break;
         default:
-            logFatal(-1, "RegularSubdivideElement", "invalid element: not 3 or 4 vertices");
+            logFatal(-1, "galerkinRegularSubdivideElement", "invalid element: not 3 or 4 vertices");
     }
     return element->regular_subelements;
 }
 
 static void
-DestroyElement(ELEMENT *elem) {
+monteCarloRadiosityDestroyElement(ELEMENT *elem) {
     int i;
-    if ( !elem ) {
+    if ( elem == nullptr ) {
         return;
     }
 
@@ -789,39 +797,39 @@ DestroyElement(ELEMENT *elem) {
 }
 
 static void
-DestroySurfaceElement(ELEMENT *elem) {
+monteCarloRadiosityDestroySurfaceElement(ELEMENT *elem) {
     if ( !elem ) {
         return;
     }
     ForAllRegularSubelements(child, elem)
                 {
-                    DestroySurfaceElement(child);
+                    monteCarloRadiosityDestroySurfaceElement(child);
                 }
     EndForAll;
-    DestroyElement(elem);
+    monteCarloRadiosityDestroyElement(elem);
 }
 
 void
-McrDestroyToplevelSurfaceElement(ELEMENT *elem) {
-    DestroySurfaceElement(elem);
+monteCarloRadiosityDestroyToplevelSurfaceElement(ELEMENT *elem) {
+    monteCarloRadiosityDestroySurfaceElement(elem);
 }
 
 void
-McrDestroyClusterHierarchy(ELEMENT *top) {
+monteCarloRadiosityDestroyClusterHierarchy(ELEMENT *top) {
     if ( !top || !top->iscluster ) {
         return;
     }
     ForAllIrregularSubelements(child, top)
                 {
                     if ( child->iscluster )
-                        McrDestroyClusterHierarchy(child);
+                        monteCarloRadiosityDestroyClusterHierarchy(child);
                 }
     EndForAll;
-    DestroyElement(top);
+    monteCarloRadiosityDestroyElement(top);
 }
 
 static void
-TestPrintVertex(FILE *out, int i, Vertex *v) {
+monteCarloRadiosityTestPrintVertex(FILE *out, int i, Vertex *v) {
     fprintf(out, "vertex[%d]: %s", i, v ? "" : "(nil)");
     if ( v ) {
         vertexPrint(out, v);
@@ -830,13 +838,13 @@ TestPrintVertex(FILE *out, int i, Vertex *v) {
 }
 
 void
-McrPrintElement(FILE *out, ELEMENT *elem) {
+monteCarloRadiosityPrintElement(FILE *out, ELEMENT *elem) {
     fprintf(out, "Element id %ld:\n", elem->id);
     fprintf(out, "Vertices: ");
-    TestPrintVertex(out, 0, elem->vertex[0]);
-    TestPrintVertex(out, 1, elem->vertex[1]);
-    TestPrintVertex(out, 2, elem->vertex[2]);
-    TestPrintVertex(out, 3, elem->vertex[3]);
+    monteCarloRadiosityTestPrintVertex(out, 0, elem->vertex[0]);
+    monteCarloRadiosityTestPrintVertex(out, 1, elem->vertex[1]);
+    monteCarloRadiosityTestPrintVertex(out, 2, elem->vertex[2]);
+    monteCarloRadiosityTestPrintVertex(out, 3, elem->vertex[3]);
     PrintBasis(elem->basis);
 
     if ( !elem->iscluster ) {
@@ -846,7 +854,7 @@ McrPrintElement(FILE *out, ELEMENT *elem) {
                 elem->pog.patch->surface->material->name,
                 colorGray(elem->Rd),
                 colorLuminance(elem->Ed));
-        ElementRange(elem, &nbits, &msb1, &rmsb2);
+        monteCarloRadiosityElementRange(elem, &nbits, &msb1, &rmsb2);
         fprintf(out, "Element range: %d bits, msb1 = %016llx, rmsb2 = %016llx\n", nbits, msb1, rmsb2);
     }
     fprintf(out, "rad = ");
@@ -870,9 +878,11 @@ McrPrintElement(FILE *out, ELEMENT *elem) {
             elem->prob, elem->quality, elem->ng);
 }
 
-/* returns true if there are children elements and false if top is nullptr or a leaf element */
+/**
+Returns true if there are children elements and false if top is nullptr or a leaf element
+*/
 int
-McrForAllChildrenElements(ELEMENT *top, void (*func)(ELEMENT *)) {
+monteCarloRadiosityForAllChildrenElements(ELEMENT *top, void (*func)(ELEMENT *)) {
     if ( !top ) {
         return false;
     }
@@ -893,18 +903,18 @@ McrForAllChildrenElements(ELEMENT *top, void (*func)(ELEMENT *)) {
 }
 
 void
-McrForAllLeafElements(ELEMENT *top, void (*func)(ELEMENT *)) {
+monteCarloRadiosityForAllLeafElements(ELEMENT *top, void (*func)(ELEMENT *)) {
     if ( !top ) {
         return;
     }
 
     if ( top->iscluster ) {
         ForAllIrregularSubelements(p, top)
-                    McrForAllLeafElements(p, func);
+                    monteCarloRadiosityForAllLeafElements(p, func);
         EndForAll;
     } else if ( top->regular_subelements ) {
         ForAllRegularSubelements(p, top)
-                    McrForAllLeafElements(p, func);
+                    monteCarloRadiosityForAllLeafElements(p, func);
         EndForAll;
     } else {
         func(top);
@@ -912,8 +922,8 @@ McrForAllLeafElements(ELEMENT *top, void (*func)(ELEMENT *)) {
 }
 
 void
-McrForAllSurfaceLeafs(ELEMENT *top,
-                        void (*func)(ELEMENT *)) {
+monteCarloRadiosityForAllSurfaceLeafs(ELEMENT *top,
+                                      void (*func)(ELEMENT *)) {
     REC_ForAllSurfaceLeafs(leaf, top)
             {
                 func(leaf);
@@ -922,7 +932,7 @@ McrForAllSurfaceLeafs(ELEMENT *top,
 }
 
 int
-ElementIsLeaf(ELEMENT *elem) {
+monteCarloRadiosityElementIsLeaf(ELEMENT *elem) {
     return (!elem->regular_subelements && !elem->irregular_subelements);
 }
 
@@ -930,7 +940,7 @@ ElementIsLeaf(ELEMENT *elem) {
 Computes and fills in a bounding box for the element
 */
 float *
-McrElementBounds(ELEMENT *elem, float *bounds) {
+monteCarloRadiosityElementBounds(ELEMENT *elem, float *bounds) {
     if ( elem->iscluster ) {
         boundsCopy(elem->pog.geom->bounds, bounds);
     } else if ( !elem->uptrans ) {
@@ -947,12 +957,12 @@ McrElementBounds(ELEMENT *elem, float *bounds) {
 }
 
 ELEMENT *
-ClusterChildContainingElement(ELEMENT *parent, ELEMENT *descendant) {
+monteCarloRadiosityClusterChildContainingElement(ELEMENT *parent, ELEMENT *descendant) {
     while ( descendant && descendant->parent != parent ) {
         descendant = descendant->parent;
     }
     if ( !descendant ) {
-        logFatal(-1, "ClusterChildContainingElement", "descendant is not a descendant of parent");
+        logFatal(-1, "monteCarloRadiosityClusterChildContainingElement", "descendant is not a descendant of parent");
     }
     return descendant;
 }

@@ -411,7 +411,7 @@ static int RegularSubdivideSource(INTERACTION *link) {
     ELEMENT *src = link->src, *rcv = link->rcv;
     int i;
 
-    RegularSubdivideElement(src);
+    galerkinRegularSubdivideElement(src);
     for ( i = 0; i < 4; i++ ) {
         ELEMENT *child = src->regular_subelements[i];
         INTERACTION subinteraction;
@@ -436,7 +436,7 @@ static int RegularSubdivideReceiver(INTERACTION *link) {
     ELEMENT *src = link->src, *rcv = link->rcv;
     int i;
 
-    RegularSubdivideElement(rcv);
+    galerkinRegularSubdivideElement(rcv);
     for ( i = 0; i < 4; i++ ) {
         INTERACTION subinteraction;
         float ff[MAXBASISSIZE * MAXBASISSIZE];

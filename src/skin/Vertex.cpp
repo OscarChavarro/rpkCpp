@@ -72,11 +72,9 @@ vertexPrint(FILE *out, Vertex *vertex) {
     fprintf(out, "),");
 
     fprintf(out, "patches: ");
-    ForAllPatches(P, vertex->patches)
-                {
-                    patchPrintId(out, P);
-                }
-    EndForAll
+    for ( int i = 0; vertex->patches != nullptr && i < vertex->patches->size(); i++ ) {
+        patchPrintId(out, vertex->patches->get(i));
+    }
 
     fprintf(out, "\n");
 }

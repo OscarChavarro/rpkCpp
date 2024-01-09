@@ -57,8 +57,10 @@ stochasticRelaxationRadiosityRandomRound(float x) {
 static void
 stochasticRelaxationRadiosityRecomputeDisplayColors() {
     if ( GLOBAL_stochasticRaytracing_hierarchy.topcluster ) {
-        McrForAllLeafElements(GLOBAL_stochasticRaytracing_hierarchy.topcluster, ElementComputeNewVertexColors);
-        McrForAllLeafElements(GLOBAL_stochasticRaytracing_hierarchy.topcluster, ElementAdjustTVertexColors);
+        monteCarloRadiosityForAllLeafElements(GLOBAL_stochasticRaytracing_hierarchy.topcluster,
+                                              ElementComputeNewVertexColors);
+        monteCarloRadiosityForAllLeafElements(GLOBAL_stochasticRaytracing_hierarchy.topcluster,
+                                              ElementAdjustTVertexColors);
     } else {
         for ( PatchSet *window = GLOBAL_scene_patches; window != nullptr; window = window->next ) {
             monteCarloRadiosityPatchComputeNewColor(window->patch);
@@ -81,7 +83,7 @@ stochasticRelaxationRadiosityQualityFactor(ELEMENT *elem, double w) {
     if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceDriven ) {
         return w * elem->imp;
     }
-    return w / ElementScalarReflectance(elem);
+    return w / monteCarloRadiosityElementScalarReflectance(elem);
 }
 
 static COLOR *
@@ -357,7 +359,7 @@ stochasticRelaxationRadiosityElementDiscardIncremental(ELEMENT *elem) {
     elem->quality = 0.;
 
     /* recurse */
-    McrForAllChildrenElements(elem, stochasticRelaxationRadiosityElementDiscardIncremental);
+    monteCarloRadiosityForAllChildrenElements(elem, stochasticRelaxationRadiosityElementDiscardIncremental);
 }
 
 static void
@@ -427,7 +429,7 @@ stochasticRelaxationRadiosityDoStep() {
 static void
 stochasticRelaxationRadiosityRenderPatch(PATCH *patch) {
     if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.inited ) {
-        McrForAllSurfaceLeafs(TOPLEVEL_ELEMENT(patch), McrRenderElement);
+        monteCarloRadiosityForAllSurfaceLeafs(TOPLEVEL_ELEMENT(patch), McrRenderElement);
     } else {
         renderPatch(patch);
     }    /* not yet initialised */

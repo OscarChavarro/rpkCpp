@@ -287,13 +287,14 @@ renderPatch(PATCH *patch) {
 }
 
 static void
-reallyRenderOctreeLeaf(Geometry *geom, void (*render_patch)(PATCH *)) {
-    PatchSet *patchlist = geomPatchList(geom);
-    ForAllPatches(P, patchlist)
-                {
-                    render_patch(P);
-                }
-    EndForAll;
+reallyRenderOctreeLeaf(Geometry *geom, void (*renderPatch)(PATCH *)) {
+    PatchSet *patchList = geomPatchList(geom);
+    PatchSet *pathWindow = (PatchSet *)patchList;
+    if ( pathWindow != nullptr) {
+        for ( PatchSet *window = pathWindow; window; window = window->next ) {
+            renderPatch(window->patch);
+        }
+    }
 }
 
 static void

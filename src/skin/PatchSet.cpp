@@ -13,12 +13,14 @@ patchListBounds(PatchSet *pl, float *boundingBox) {
     BOUNDINGBOX b;
 
     boundsInit(boundingBox);
-    ForAllPatches(patch, pl)
-                {
-                    patchBounds(patch, b);
-                    boundsEnlarge(boundingBox, b);
-                }
-    EndForAll;
+    PatchSet *listStart = pl;
+    if ( listStart != nullptr ) {
+        PatchSet *window;
+        for ( window = listStart; window; window = window->next ) {
+            patchBounds(window->patch, b);
+            boundsEnlarge(boundingBox, b);
+        }
+    }
 
     return boundingBox;
 }
@@ -28,20 +30,25 @@ Tests whether the Ray intersect the patches in the list. See geometry.h
 (GeomDiscretizationIntersect()) for more explanation
 */
 HITREC *
-patchListIntersect(PatchSet *patchList, Ray *ray, float minimumDistance, float *maximumDistance, int hitFlags, HITREC *hitStore) {
+patchListIntersect(
+    PatchSet *patchList,
+    Ray *ray,
+    float minimumDistance,
+    float *maximumDistance,
+    int hitFlags,
+    HITREC *hitStore)
+{
     HITREC *hit = (HITREC *) nullptr;
-    ForAllPatches(P, patchList)
-                {
-                    HITREC *h = patchIntersect(P, ray, minimumDistance, maximumDistance, hitFlags, hitStore);
-                    if ( h ) {
-                        if ( hitFlags & HIT_ANY ) {
-                            return h;
-                        } else {
-                            hit = h;
-                        }
-                    }
-                }
-    EndForAll;
+    for ( PatchSet *window = patchList; window != nullptr; window = window->next ) {
+        HITREC *h = patchIntersect(window->patch, ray, minimumDistance, maximumDistance, hitFlags, hitStore);
+        if ( h ) {
+            if ( hitFlags & HIT_ANY ) {
+                return h;
+            } else {
+                hit = h;
+            }
+        }
+    }
     return hit;
 }
 
@@ -51,16 +58,19 @@ Tests whether the Ray intersect the patches in the list. See geometry.h
 */
 HITLIST *
 patchListAllIntersections(HITLIST *hits, PatchSet *patches, Ray *ray, float minimumDistance, float maximumDistance, int hitFlags) {
-    HITREC hitstore;
-    ForAllPatches(P, patches)
-                {
-                    float tmax = maximumDistance;    /* do not modify maximumDistance */
-                    HITREC *hit = patchIntersect(P, ray, minimumDistance, &tmax, hitFlags, &hitstore);
-                    if ( hit ) {
-                        hits = HitListAdd(hits, DuplicateHit(hit));
-                    }
-                }
-    EndForAll;
+    HITREC hitStore;
+    PatchSet *listStart = patches;
+    if ( listStart != nullptr ) {
+        PatchSet *window;
+        for ( window = listStart; window; window = window->next ) {
+            PATCH *patch = (PATCH *)(window->patch);
+            float maxDistanceCopy = maximumDistance; // Do not modify maximumDistance
+            HITREC *hit = patchIntersect(patch, ray, minimumDistance, &maxDistanceCopy, hitFlags, &hitStore);
+            if ( hit ) {
+                hits = HitListAdd(hits, DuplicateHit(hit));
+            }
+        }
+    }
     return hits;
 }
 

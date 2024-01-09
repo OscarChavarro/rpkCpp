@@ -196,17 +196,17 @@ void monteCarloRadiosityUpdateCpuSecs() {
 }
 
 void *monteCarloRadiosityCreatePatchData(PATCH *patch) {
-    patch->radiance_data = (void *) CreateToplevelSurfaceElement(patch);
+    patch->radiance_data = (void *) monteCarloRadiosityCreateToplevelSurfaceElement(patch);
     return patch->radiance_data;
 }
 
 void monteCarloRadiosityPrintPatchData(FILE *out, PATCH *patch) {
-    McrPrintElement(out, TOPLEVEL_ELEMENT(patch));
+    monteCarloRadiosityPrintElement(out, TOPLEVEL_ELEMENT(patch));
 }
 
 void monteCarloRadiosityDestroyPatchData(PATCH *patch) {
     if ( patch->radiance_data ) {
-        McrDestroyToplevelSurfaceElement(TOPLEVEL_ELEMENT(patch));
+        monteCarloRadiosityDestroyToplevelSurfaceElement(TOPLEVEL_ELEMENT(patch));
     }
     patch->radiance_data = (void *) nullptr;
 }
@@ -260,7 +260,7 @@ static void AccumulateImportances(ELEMENT *elem) {
 
 /* update importance in the element hierarchy starting with the top cluster */
 static void UpdateImportance(ELEMENT *elem) {
-    if ( !McrForAllChildrenElements(elem, UpdateImportance)) {
+    if ( !monteCarloRadiosityForAllChildrenElements(elem, UpdateImportance)) {
         /* leaf element */
         float delta_imp = (PATCH_IS_VISIBLE(elem->pog.patch) ? 1. : 0.) - elem->source_imp;
         elem->imp += delta_imp;
@@ -270,13 +270,13 @@ static void UpdateImportance(ELEMENT *elem) {
     } else {
         /* not a leaf element: clear & pull importance */
         elem->imp = elem->source_imp = elem->unshot_imp = 0.;
-        McrForAllChildrenElements(elem, PullImportances);
+        monteCarloRadiosityForAllChildrenElements(elem, PullImportances);
     }
 }
 
 /* re-init importance in the element hierarchy starting with the top cluster */
 static void ReInitImportance(ELEMENT *elem) {
-    if ( !McrForAllChildrenElements(elem, ReInitImportance)) {
+    if ( !monteCarloRadiosityForAllChildrenElements(elem, ReInitImportance)) {
         /* leaf element */
         elem->imp = elem->source_imp = elem->unshot_imp
                 = PATCH_IS_VISIBLE(elem->pog.patch) ? 1. : 0.;
@@ -284,7 +284,7 @@ static void ReInitImportance(ELEMENT *elem) {
     } else {
         /* not a leaf element: clear & pull importance */
         elem->imp = elem->source_imp = elem->unshot_imp = 0.;
-        McrForAllChildrenElements(elem, PullImportances);
+        monteCarloRadiosityForAllChildrenElements(elem, PullImportances);
     }
 }
 
@@ -469,7 +469,7 @@ static COLOR McrInterpolatedReflectanceAtPoint(ELEMENT *leaf, double u, double v
  * (u,v) into the direction 'dir'. */
 COLOR monteCarloRadiosityGetRadiance(PATCH *patch, double u, double v, Vector3D dir) {
     COLOR TrueRdAtPoint = McrDiffuseReflectanceAtPoint(patch, u, v);
-    ELEMENT *leaf = McrRegularLeafElementAtPoint(TOPLEVEL_ELEMENT(patch), &u, &v);
+    ELEMENT *leaf = monteCarloRadiosityRegularLeafElementAtPoint(TOPLEVEL_ELEMENT(patch), &u, &v);
     COLOR UsedRdAtPoint = renderopts.smooth_shading ? McrInterpolatedReflectanceAtPoint(leaf, u, v) : leaf->Rd;
     COLOR rad = ElementDisplayRadianceAtPoint(leaf, u, v);
     COLOR source_rad;
@@ -519,5 +519,5 @@ void monteCarloRadiosityUpdateMaterial(Material *oldMaterial, Material *newMater
 Returns scalar reflectance, for importance propagation
 */
 float monteCarloRadiosityScalarReflectance(PATCH *P) {
-    return ElementScalarReflectance(TOPLEVEL_ELEMENT(P));
+    return monteCarloRadiosityElementScalarReflectance(TOPLEVEL_ELEMENT(P));
 }

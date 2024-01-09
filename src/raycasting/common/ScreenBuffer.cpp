@@ -213,9 +213,9 @@ ScreenBuffer::WriteFile(ImageOutputHandle *ip) {
 
     fprintf(stderr, "Writing %s file ... ", ip->drivername);
 
-    ip->gamma[0] = GLOBAL_toneMap_tmopts.gamma.r;    // for default radiance -> display RGB
-    ip->gamma[1] = GLOBAL_toneMap_tmopts.gamma.g;
-    ip->gamma[2] = GLOBAL_toneMap_tmopts.gamma.b;
+    ip->gamma[0] = GLOBAL_toneMap_options.gamma.r;    // for default radiance -> display RGB
+    ip->gamma[1] = GLOBAL_toneMap_options.gamma.g;
+    ip->gamma[2] = GLOBAL_toneMap_options.gamma.b;
     for ( int i = m_cam.vres - 1; i >= 0; i-- )    // write scanlines
     {
         if ( !IsRGBImage()) {
@@ -266,7 +266,7 @@ ScreenBuffer::Sync() {
     for ( i = 0; i < m_cam.hres * m_cam.vres; i++ ) {
         colorScale(m_Factor, m_Radiance[i], tmpRad);
         if ( !IsRGBImage()) {
-            RadianceToRGB(tmpRad, &m_RGB[i]);
+            radianceToRgb(tmpRad, &m_RGB[i]);
         } else {
             convertColorToRGB(tmpRad, &m_RGB[i]);
         }
@@ -284,7 +284,7 @@ ScreenBuffer::SyncLine(int lineNumber) {
     for ( i = 0; i < m_cam.hres; i++ ) {
         colorScale(m_Factor, m_Radiance[lineNumber * m_cam.hres + i], tmpRad);
         if ( !IsRGBImage()) {
-            RadianceToRGB(tmpRad, &m_RGB[lineNumber * m_cam.hres + i]);
+            radianceToRgb(tmpRad, &m_RGB[lineNumber * m_cam.hres + i]);
         } else {
             convertColorToRGB(tmpRad, &m_RGB[lineNumber * m_cam.hres + i]);
         }

@@ -296,19 +296,19 @@ propagatePotential() {
     }
 }
 
-/* One step of the progressive refinement radiosity algorithm */
+/**
+One step of the progressive refinement radiosity algorithm
+*/
 int
 reallyDoShootingStep() {
     if ( GLOBAL_galerkin_state.importance_driven ) {
         if ( GLOBAL_galerkin_state.iteration_nr <= 1 || GLOBAL_camera_mainCamera.changed ) {
             UpdateDirectPotential();
-            ForAllPatches(P, GLOBAL_scene_patches)
-                        {
-                            ELEMENT *top = TOPLEVEL_ELEMENT(P);
-                            float potential_increment = P->directPotential - top->direct_potential.f;
-                            shootingUpdateDirectPotential(top, potential_increment);
-                        }
-            EndForAll;
+            for ( PatchSet *window = GLOBAL_scene_patches; window != nullptr; window = window->next ) {
+                ELEMENT *top = TOPLEVEL_ELEMENT(window->patch);
+                float potential_increment = window->patch->directPotential - top->direct_potential.f;
+                shootingUpdateDirectPotential(top, potential_increment);
+            }
             GLOBAL_camera_mainCamera.changed = false;
             if ( GLOBAL_galerkin_state.clustered ) {
                 clusterUpdatePotential(GLOBAL_galerkin_state.top_cluster);

@@ -43,10 +43,10 @@ subdivideReceiver(
 {
     ELEMENT *rcv = link->rcv;
     if ( rcv->iscluster ) {
-        rcv = ClusterChildContainingElement(rcv, rcvtop);
+        rcv = monteCarloRadiosityClusterChildContainingElement(rcv, rcvtop);
     } else {
         if ( !rcv->regular_subelements ) {
-            McrRegularSubdivideElement(rcv);
+            monteCarloRadiosityRegularSubdivideElement(rcv);
         }
         rcv = monteCarloRadiosityRegularSubElementAtPoint(rcv, ur, vr);
     }
@@ -69,10 +69,10 @@ subdivideSource(
 {
     ELEMENT *src = link->src;
     if ( src->iscluster ) {
-        src = ClusterChildContainingElement(src, srctop);
+        src = monteCarloRadiosityClusterChildContainingElement(src, srctop);
     } else {
         if ( !src->regular_subelements ) {
-            McrRegularSubdivideElement(src);
+            monteCarloRadiosityRegularSubdivideElement(src);
         }
         src = monteCarloRadiosityRegularSubElementAtPoint(src, us, vs);
     }
@@ -93,8 +93,8 @@ linkInvolvingClusters(LINK *link) {
 static int
 disjunctElements(ELEMENT *rcv, ELEMENT *src) {
     BOUNDINGBOX rcvbounds, srcbounds;
-    McrElementBounds(rcv, rcvbounds);
-    McrElementBounds(src, srcbounds);
+    monteCarloRadiosityElementBounds(rcv, rcvbounds);
+    monteCarloRadiosityElementBounds(src, srcbounds);
     return DisjunctBounds(rcvbounds, srcbounds);
 }
 
@@ -137,7 +137,7 @@ static int LowPowerLink(LINK *link) {
     if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceDriven ) {
         propagated_power *= rcv->imp;
         if ( !rcv->iscluster ) {
-            propagated_power *= ElementScalarReflectance(rcv);
+            propagated_power *= monteCarloRadiosityElementScalarReflectance(rcv);
         }
     }
 

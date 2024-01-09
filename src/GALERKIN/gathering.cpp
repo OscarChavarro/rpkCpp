@@ -17,7 +17,7 @@ Lazy linking: delay creating the initial links for a patch until it has
 radiance to distribute in the environment. Leads to faster feedback to the
 user during the first Jacobi iterations. During the first iteration, only
 interactions with light sources are created. See Holschuch, EGRW '94
-(Darmstadt).
+(Darmstadt - EuroGraphics Rendering Workshop).
 */
 static void
 patchLazyCreateInteractions(PATCH *P) {
@@ -104,9 +104,9 @@ gatheringPushPullPotential(ELEMENT *elem, float down) {
     float up;
 
     down += elem->received_potential.f / elem->area;
-    elem->received_potential.f = 0.;
+    elem->received_potential.f = 0.0;
 
-    up = 0.;
+    up = 0.0;
 
     if ( !elem->regular_subelements && !elem->irregular_subelements ) {
         up = down + elem->pog.patch->directPotential;
@@ -124,7 +124,7 @@ gatheringPushPullPotential(ELEMENT *elem, float down) {
         for ( subellist = elem->irregular_subelements; subellist; subellist = subellist->next ) {
             ELEMENT *subel = subellist->element;
             if ( !isCluster(elem)) {
-                down = 0.;
+                down = 0.0;
             }    /* don't push to irregular surface subelements */
             up += subel->area / elem->area * gatheringPushPullPotential(subel, down);
         }
@@ -146,10 +146,10 @@ static float
 gatheringClusterUpdatePotential(ELEMENT *cluster) {
     if ( cluster->flags & IS_CLUSTER ) {
         ELEMENTLIST *subClusterList;
-        cluster->potential.f = 0.;
+        cluster->potential.f = 0.0;
         for ( subClusterList = cluster->irregular_subelements; subClusterList; subClusterList = subClusterList->next ) {
-            ELEMENT *subclus = subClusterList->element;
-            cluster->potential.f += subclus->area * gatheringClusterUpdatePotential(subclus);
+            ELEMENT *subCluster = subClusterList->element;
+            cluster->potential.f += subCluster->area * gatheringClusterUpdatePotential(subCluster);
         }
         cluster->potential.f /= cluster->area;
     }
@@ -213,13 +213,11 @@ doClusteredGatheringIteration() {
     if ( GLOBAL_galerkin_state.importance_driven ) {
         if ( GLOBAL_galerkin_state.iteration_nr <= 1 || GLOBAL_camera_mainCamera.changed ) {
             UpdateDirectPotential();
-            ForAllPatches(P, GLOBAL_scene_patches)
-                        {
-                            ELEMENT *top = TOPLEVEL_ELEMENT(P);
-                            float potential_increment = P->directPotential - top->direct_potential.f;
-                            gatheringUpdateDirectPotential(top, potential_increment);
-                        }
-            EndForAll;
+            for ( PatchSet *window = GLOBAL_scene_patches; window != nullptr; window = window->next ) {
+                ELEMENT *top = TOPLEVEL_ELEMENT(window->patch);
+                float potential_increment = window->patch->directPotential - top->direct_potential.f;
+                gatheringUpdateDirectPotential(top, potential_increment);
+            }
             gatheringClusterUpdatePotential(GLOBAL_galerkin_state.top_cluster);
             GLOBAL_camera_mainCamera.changed = false;
         }

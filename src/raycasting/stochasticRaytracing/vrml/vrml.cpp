@@ -37,11 +37,9 @@ geometryIterateLeafElements(Geometry *geom, void (*func)(ELEMENT *)) {
     PatchSet *patches = geomPatchList(geom);
     elemfunc = func;
     leaf_element_count = 0;
-    ForAllPatches(P, patches)
-                {
-                    McrForAllLeafElements(TOPLEVEL_ELEMENT(P), countAndCall);
-                }
-    EndForAll;
+    for ( PatchSet *window = patches; window != nullptr; window = window->next ) {
+        monteCarloRadiosityForAllLeafElements(TOPLEVEL_ELEMENT(window->patch), countAndCall);
+    }
 }
 
 static void
