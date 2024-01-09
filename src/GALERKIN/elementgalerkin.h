@@ -11,6 +11,8 @@
 #include "scene/polygon.h"
 #include "GALERKIN/elementlistgalerkin.h"
 
+class INTERACTIONLIST;
+
 typedef union FloatOrColorPtr {
     float f;
     COLOR *c;
@@ -81,7 +83,11 @@ class ELEMENT {
 					 * or contains surfaces emitting
 					 * light spontaneously. */
 
-#define IsCluster(element)    (element->flags & IS_CLUSTER)
+inline bool
+isCluster(ELEMENT *element) {
+    return element->flags & IS_CLUSTER;
+}
+
 #define IsLightSource(element)    (element->flags & IS_LIGHT_SOURCE)
 
 /* calls 'routine' for every regular subelement of the element (if there

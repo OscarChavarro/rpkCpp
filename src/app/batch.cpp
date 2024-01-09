@@ -77,7 +77,7 @@ BatchSaveRadianceImage(const char *fname, FILE *fp, int ispipe) {
 
     t = clock();
 
-    SaveScreen((char *)fname, fp, ispipe);
+    saveScreen((char *) fname, fp, ispipe);
 
     fprintf(stdout, "%g secs.\n", (float) (clock() - t) / (float) CLOCKS_PER_SEC);
     CanvasPullMode();
@@ -199,7 +199,7 @@ batch() {
             fflush(stdout);
             fflush(stderr);
 
-            RenderScene();
+            renderScene();
 
             fflush(stdout);
             fflush(stderr);

@@ -163,7 +163,7 @@ static void RenderTriangle(Vertex *v1, Vertex *v2, Vertex *v3) {
     col[1] = v2->color;
     vert[2] = *(v3->point);
     col[2] = v3->color;
-    RenderPolygonGouraud(3, vert, col);
+    renderPolygonGouraud(3, vert, col);
 
     if ( renderopts.draw_outlines ) {
         int i;
@@ -173,10 +173,10 @@ static void RenderTriangle(Vertex *v1, Vertex *v2, Vertex *v3) {
             VECTORSUMSCALED(vert[i], 0.01, d, vert[i]);
         }
 
-        RenderSetColor(&renderopts.outline_color);
-        RenderLine(&vert[0], &vert[1]);
-        RenderLine(&vert[1], &vert[2]);
-        RenderLine(&vert[2], &vert[0]);
+        renderSetColor(&renderopts.outline_color);
+        renderLine(&vert[0], &vert[1]);
+        renderLine(&vert[1], &vert[2]);
+        renderLine(&vert[2], &vert[0]);
     }
 }
 
@@ -192,7 +192,7 @@ static void RenderQuadrilateral(Vertex *v1, Vertex *v2, Vertex *v3, Vertex *v4) 
     col[2] = v3->color;
     vert[3] = *(v4->point);
     col[3] = v4->color;
-    RenderPolygonGouraud(4, vert, col);
+    renderPolygonGouraud(4, vert, col);
 
     if ( renderopts.draw_outlines ) {
         int i;
@@ -202,11 +202,11 @@ static void RenderQuadrilateral(Vertex *v1, Vertex *v2, Vertex *v3, Vertex *v4) 
             VECTORSUMSCALED(vert[i], 0.01, d, vert[i]);
         }
 
-        RenderSetColor(&renderopts.outline_color);
-        RenderLine(&vert[0], &vert[1]);
-        RenderLine(&vert[1], &vert[2]);
-        RenderLine(&vert[2], &vert[3]);
-        RenderLine(&vert[3], &vert[0]);
+        renderSetColor(&renderopts.outline_color);
+        renderLine(&vert[0], &vert[1]);
+        renderLine(&vert[1], &vert[2]);
+        renderLine(&vert[2], &vert[3]);
+        renderLine(&vert[3], &vert[0]);
     }
 }
 
@@ -368,14 +368,14 @@ void RenderElementOutline(ELEMENT *elem) {
         VECTORSUMSCALED(verts[i], 0.0001, d, verts[i]);
     }
 
-    RenderSetColor(&renderopts.outline_color);
-    RenderLine(&verts[0], &verts[1]);
-    RenderLine(&verts[1], &verts[2]);
+    renderSetColor(&renderopts.outline_color);
+    renderLine(&verts[0], &verts[1]);
+    renderLine(&verts[1], &verts[2]);
     if ( elem->nrvertices == 3 ) {
-        RenderLine(&verts[2], &verts[0]);
+        renderLine(&verts[2], &verts[0]);
     } else {
-        RenderLine(&verts[2], &verts[3]);
-        RenderLine(&verts[3], &verts[0]);
+        renderLine(&verts[2], &verts[3]);
+        renderLine(&verts[3], &verts[0]);
     }
 }
 
@@ -417,12 +417,12 @@ McrRenderElement(ELEMENT *elem) {
             vertcols[3] = elem->vertex[3]->color;
         }
 
-        RenderPolygonGouraud(elem->nrvertices, verts, vertcols);
+        renderPolygonGouraud(elem->nrvertices, verts, vertcols);
     } else {
         RGB color = ElementColor(elem);
 
-        RenderSetColor(&color);
-        RenderPolygonFlat(elem->nrvertices, verts);
+        renderSetColor(&color);
+        renderPolygonFlat(elem->nrvertices, verts);
     }
 
     if ( renderopts.draw_outlines )

@@ -9,18 +9,18 @@
 #include "raycasting/stochasticRaytracing/stochjacobi.h"
 
 static void
-RwrPrintPatchData(FILE *out, PATCH *patch) {
+randomWalkRadiosityPrintPatchData(FILE *out, PATCH *patch) {
     McrPrintElement(out, TOPLEVEL_ELEMENT(patch));
 }
 
 static void
-RwrInit() {
+randomWalkRadiosityInit() {
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.method = RANDOM_WALK_RADIOSITY_METHOD;
     monteCarloRadiosityInit();
 }
 
 static void
-PrintStats() {
+randomWalkRadiosityPrintStats() {
     fprintf(stderr, "%g secs., total radiance rays = %ld",
             GLOBAL_stochasticRaytracing_monteCarloRadiosityState.cpuSeconds, GLOBAL_stochasticRaytracing_monteCarloRadiosityState.tracedRays);
     fprintf(stderr, ", total flux = ");
@@ -32,37 +32,45 @@ PrintStats() {
     fprintf(stderr, "\n");
 }
 
-/* used as un-normalised probability for mimicking global lines */
+/**
+Used as un-normalised probability for mimicking global lines
+*/
 static double
-patchArea(PATCH *P) {
+randomWalkRadiosityPatchArea(PATCH *P) {
     return P->area;
 }
 
-/* probability proportional to power to be propagated. */
+/**
+Probability proportional to power to be propagated
+*/
 static double
-ScalarSourcePower(PATCH *P) {
+randomWalkRadiosityScalarSourcePower(PATCH *P) {
     COLOR radiance = TOPLEVEL_ELEMENT(P)->source_rad;
     return /* M_PI * */ P->area * colorSumAbsComponents(radiance);
 }
 
-/* returns a double instead of a float in order to make it useful as 
- * a survival probability function */
+/**
+Returns a double instead of a float in order to make it useful as
+a survival probability function
+*/
 static double
-ScalarReflectance(PATCH *P) {
+randomWalkRadiosityScalarReflectance(PATCH *P) {
     return monteCarloRadiosityScalarReflectance(P);
 }
 
 static COLOR *
-GetSelfEmittedRadiance(ELEMENT *elem) {
+randomWalkRadiosityGetSelfEmittedRadiance(ELEMENT *elem) {
     static COLOR Ed[MAX_BASIS_SIZE];
     stochasticRadiosityClearCoefficients(Ed, elem->basis);
     Ed[0] = TOPLEVEL_ELEMENT(elem->pog.patch)->Ed; // Emittance
     return Ed;
 }
 
-/* subtracts (1-rho) * control radiosity from the source radiosity of each patch */
+/**
+Subtracts (1-rho) * control radiosity from the source radiosity of each patch
+*/
 static void
-ReduceSource() {
+randomWalkRadiosityReduceSource() {
     ForAllPatches(P, GLOBAL_scene_patches)
                 {
                     COLOR newsrcrad, rho;
@@ -78,7 +86,7 @@ ReduceSource() {
 }
 
 static double
-ScoreWeight(PATH *path, int n) {
+randomWalkRadiosityScoreWeight(PATH *path, int n) {
     double w = 0.;
     int t = path->nrnodes - ((GLOBAL_stochasticRaytracing_monteCarloRadiosityState.randomWalkNumLast > 0) ? GLOBAL_stochasticRaytracing_monteCarloRadiosityState.randomWalkNumLast : 1);
 
@@ -115,14 +123,14 @@ ScoreWeight(PATH *path, int n) {
             }
             break;
         default:
-            logFatal(-1, "ScoreWeight", "Unknown random walk estimator kind %d",
+            logFatal(-1, "randomWalkRadiosityScoreWeight", "Unknown random walk estimator kind %d",
                      GLOBAL_stochasticRaytracing_monteCarloRadiosityState.randomWalkEstimatorKind);
     }
     return w;
 }
 
 static void
-ShootingScore(PATH *path, long nr_paths, double (*birth_prob)(PATCH *)) {
+randomWalkRadiosityShootingScore(PATH *path, long nr_paths, double (*birth_prob)(PATCH *)) {
     COLOR accum_pow;
     int n;
     PATHNODE *node = &path->nodes[0];
@@ -145,7 +153,7 @@ ShootingScore(PATH *path, long nr_paths, double (*birth_prob)(PATCH *)) {
             }
         }
 
-        w = ScoreWeight(path, n);
+        w = randomWalkRadiosityScoreWeight(path, n);
 
         for ( i = 0; i < getTopLevelPatchBasis(P)->size; i++ ) {
             double dual = getTopLevelPatchBasis(P)->dualfunction[i](uin, vin) / P->area;
@@ -162,7 +170,7 @@ ShootingScore(PATH *path, long nr_paths, double (*birth_prob)(PATCH *)) {
 }
 
 static void
-ShootingUpdate(PATCH *P, double w) {
+randomWalkRadiosityShootingUpdate(PATCH *P, double w) {
     double k, old_quality;
     old_quality = TOPLEVEL_ELEMENT(P)->quality;
     TOPLEVEL_ELEMENT(P)->quality += w;
@@ -188,7 +196,7 @@ ShootingUpdate(PATCH *P, double w) {
 }
 
 static void
-DoShootingIteration() {
+randomWalkRadiosityDoShootingIteration() {
     long nr_walks;
 
     nr_walks = GLOBAL_stochasticRaytracing_monteCarloRadiosityState.initialNumberOfRays;
@@ -205,14 +213,16 @@ DoShootingIteration() {
                     colorMaximumComponent(GLOBAL_statistics_averageReflectivity))));
 
     TracePaths(nr_walks,
-               ScalarSourcePower, ScalarReflectance,
-               ShootingScore,
-               ShootingUpdate);
+               randomWalkRadiosityScalarSourcePower, randomWalkRadiosityScalarReflectance,
+               randomWalkRadiosityShootingScore,
+               randomWalkRadiosityShootingUpdate);
 }
 
-/* determines control radiosity value for collision gathering estimator */
+/**
+Determines control radiosity value for collision gathering estimator
+*/
 static COLOR
-DetermineGatheringControlRadiosity() {
+randomWalkRadiosityDetermineGatheringControlRadiosity() {
     COLOR c1, c2, cr;
     colorClear(c1);
     colorClear(c2);
@@ -242,7 +252,7 @@ DetermineGatheringControlRadiosity() {
 }
 
 static void
-CollisionGatheringScore(PATH *path, long nr_paths, double (*birth_prob)(PATCH *)) {
+randomWalkRadiosityCollisionGatheringScore(PATH *path, long nr_paths, double (*birth_prob)(PATCH *)) {
     COLOR accum_rad;
     int n;
     PATHNODE *node = &path->nodes[path->nrnodes - 1];
@@ -280,7 +290,7 @@ CollisionGatheringScore(PATH *path, long nr_paths, double (*birth_prob)(PATCH *)
 }
 
 static void
-GatheringUpdate(PATCH *P, double w) {
+randomWalkRadiosityGatheringUpdate(PATCH *P, double w) {
     /* use un-shot rad for accumulating sum of contributions */
     stochasticRadiosityAddCoefficients(getTopLevelPatchUnShotRad(P), getTopLevelPatchReceivedRad(P),
                                        getTopLevelPatchBasis(P));
@@ -307,7 +317,7 @@ GatheringUpdate(PATCH *P, double w) {
 }
 
 static void
-DoGatheringIteration() {
+randomWalkRadiosityDoGatheringIteration() {
     long nr_walks = GLOBAL_stochasticRaytracing_monteCarloRadiosityState.initialNumberOfRays;
     if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.continuousRandomWalk ) {
         nr_walks *= approxdesc[GLOBAL_stochasticRaytracing_monteCarloRadiosityState.approximationOrderType].basis_size;
@@ -318,8 +328,8 @@ DoGatheringIteration() {
 
     if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.constantControlVariate && GLOBAL_stochasticRaytracing_monteCarloRadiosityState.currentIteration == 1 ) {
         /* constant control variate for gathering random walk radiosity */
-        GLOBAL_stochasticRaytracing_monteCarloRadiosityState.controlRadiance = DetermineGatheringControlRadiosity();
-        ReduceSource();    /* do this only once!! */
+        GLOBAL_stochasticRaytracing_monteCarloRadiosityState.controlRadiance = randomWalkRadiosityDetermineGatheringControlRadiosity();
+        randomWalkRadiosityReduceSource();    /* do this only once!! */
     }
 
     fprintf(stderr, "Collision gathering iteration %d (%ld paths, approximately %ld rays)\n",
@@ -328,13 +338,13 @@ DoGatheringIteration() {
                     colorMaximumComponent(GLOBAL_statistics_averageReflectivity))));
 
     TracePaths(nr_walks,
-               patchArea, ScalarReflectance,
-               CollisionGatheringScore,
-               GatheringUpdate);
+               randomWalkRadiosityPatchArea, randomWalkRadiosityScalarReflectance,
+               randomWalkRadiosityCollisionGatheringScore,
+               randomWalkRadiosityGatheringUpdate);
 }
 
 static void
-UpdateSourceIllum(ELEMENT *elem, double w) {
+randomWalkRadiosityUpdateSourceIllum(ELEMENT *elem, double w) {
     stochasticRadiosityCopyCoefficients(elem->rad, elem->received_rad, elem->basis);
     elem->source_rad = elem->received_rad[0];
     stochasticRadiosityClearCoefficients(elem->unshot_rad, elem->basis);
@@ -342,47 +352,51 @@ UpdateSourceIllum(ELEMENT *elem, double w) {
 }
 
 static void
-DoFirstShot() {
+randomWalkRadiosityDoFirstShot() {
     long nr_rays = GLOBAL_stochasticRaytracing_monteCarloRadiosityState.initialNumberOfRays * approxdesc[GLOBAL_stochasticRaytracing_monteCarloRadiosityState.approximationOrderType].basis_size;
     fprintf(stderr, "First shot (%ld rays):\n", nr_rays);
-    DoStochasticJacobiIteration(nr_rays, GetSelfEmittedRadiance, nullptr, UpdateSourceIllum);
-    PrintStats();
+    DoStochasticJacobiIteration(nr_rays, randomWalkRadiosityGetSelfEmittedRadiance, nullptr,
+                                randomWalkRadiosityUpdateSourceIllum);
+    randomWalkRadiosityPrintStats();
 }
 
 static int
-RwrDoStep() {
+randomWalkRadiosityDoStep() {
     monteCarloRadiosityPreStep();
 
     if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.currentIteration == 1 ) {
         if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.indirectOnly ) {
-            DoFirstShot();
+            randomWalkRadiosityDoFirstShot();
         }
     }
 
     switch ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.randomWalkEstimatorType ) {
         case RW_SHOOTING:
-            DoShootingIteration();
+            randomWalkRadiosityDoShootingIteration();
             break;
         case RW_GATHERING:
-            DoGatheringIteration();
+            randomWalkRadiosityDoGatheringIteration();
             break;
         default:
-            logFatal(-1, "RwrDoStep", "Unknown random walk estimator type %d",
+            logFatal(-1, "randomWalkRadiosityDoStep", "Unknown random walk estimator type %d",
                      GLOBAL_stochasticRaytracing_monteCarloRadiosityState.randomWalkEstimatorType);
     }
 
-    PatchListIterate(GLOBAL_scene_patches, monteCarloRadiosityPatchComputeNewColor);
-    return false; /* never converged */
+    for ( PatchSet *window = GLOBAL_scene_patches; window != nullptr; window = window->next ) {
+        monteCarloRadiosityPatchComputeNewColor(window->patch);
+    }
+
+    return false; // Never converged
 }
 
 static void
-RwrTerminate() {
+randomWalkRadiosityTerminate() {
     /*  TerminateLightSampling(); */
     monteCarloRadiosityTerminate();
 }
 
 static char *
-RwrGetStats() {
+randomWalkRadiosityGetStats() {
     static char stats[2000];
     char *p;
     int n;
@@ -394,7 +408,6 @@ RwrGetStats() {
     p += n;
     sprintf(p, "CPU time: %g secs\n%n", GLOBAL_stochasticRaytracing_monteCarloRadiosityState.cpuSeconds, &n);
     p += n;
-    /*sprintf(p, "Memory usage: %ld KBytes.\n%n", GetMemoryUsage()/1024, &n); p += n;*/
     sprintf(p, "Radiance rays: %ld\n%n", GLOBAL_stochasticRaytracing_monteCarloRadiosityState.tracedRays, &n);
     p += n;
     sprintf(p, "Importance rays: %ld\n%n", GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceTracedRays, &n);
@@ -403,23 +416,23 @@ RwrGetStats() {
     return stats;
 }
 
-RADIANCEMETHOD RandomWalkRadiosity = {
+RADIANCEMETHOD GLOBAL_stochasticRaytracing_randomWalkRadiosity = {
     "RandomWalk",
     3,
     "Random Walk Radiosity",
     monteCarloRadiosityDefaults,
     randomWalkRadiosityParseOptions,
     randomWalkRadiosityPrintOptions,
-    RwrInit,
-    RwrDoStep,
-    RwrTerminate,
+    randomWalkRadiosityInit,
+    randomWalkRadiosityDoStep,
+    randomWalkRadiosityTerminate,
     monteCarloRadiosityGetRadiance,
     monteCarloRadiosityCreatePatchData,
-    RwrPrintPatchData,
+    randomWalkRadiosityPrintPatchData,
     monteCarloRadiosityDestroyPatchData,
-    RwrGetStats,
-    (void (*)()) nullptr, // use default rendering method
+    randomWalkRadiosityGetStats,
+    (void (*)()) nullptr,
     monteCarloRadiosityRecomputeDisplayColors,
     monteCarloRadiosityUpdateMaterial,
-    (void (*)(FILE *)) nullptr // use default VRML model saver
+    (void (*)(FILE *)) nullptr
 };

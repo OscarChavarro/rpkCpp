@@ -57,7 +57,7 @@ SoftRenderPatches(SGL_PIXEL (*patch_pixel)(PATCH *)) {
     if ( renderopts.frustum_culling ) {
         int use_display_lists = renderopts.use_display_lists;
         renderopts.use_display_lists = false;  /* temporarily switch it off */
-        RenderWorldOctree(SoftRenderPatch);
+        renderWorldOctree(SoftRenderPatch);
         renderopts.use_display_lists = use_display_lists;
     } else {
         ForAllPatches(P, GLOBAL_scene_patches)

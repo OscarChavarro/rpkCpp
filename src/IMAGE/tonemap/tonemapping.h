@@ -30,7 +30,7 @@ class TONEMAP {
     COLOR (*ScaleForComputations)(COLOR radiance);
 
     /* ---------------------------------------------------------------------------
-      `TonemapScaleForDisplay'
+      `toneMapScaleForDisplay'
 
       Full tonemapping to display values. Transforms real world luminance of
       colour specified by "radiance" into corresponding display input
@@ -112,7 +112,7 @@ class TONEMAPPINGCONTEXT {
     RGB gamma;                  /* gamma factors for red, green, blue */
     float gammatab[3][GAMMATAB_SIZE]; /* gamma correction tables for red, green and blue */
 };
-extern TONEMAPPINGCONTEXT tmopts;
+extern TONEMAPPINGCONTEXT GLOBAL_toneMap_tmopts;
 
 /* defaults and option handling */
 extern void ToneMapDefaults();
@@ -126,15 +126,18 @@ extern void InitToneMapping();
 
 /* gamma correction */
 #define RGBGAMMACORRECT(rgb) {\
-  (rgb).r = tmopts.gammatab[0][GAMMATAB_ENTRY((rgb).r)]; \
-  (rgb).g = tmopts.gammatab[1][GAMMATAB_ENTRY((rgb).g)]; \
-  (rgb).b = tmopts.gammatab[2][GAMMATAB_ENTRY((rgb).b)]; \
+  (rgb).r = GLOBAL_toneMap_tmopts.gammatab[0][GAMMATAB_ENTRY((rgb).r)]; \
+  (rgb).g = GLOBAL_toneMap_tmopts.gammatab[1][GAMMATAB_ENTRY((rgb).g)]; \
+  (rgb).b = GLOBAL_toneMap_tmopts.gammatab[2][GAMMATAB_ENTRY((rgb).b)]; \
 }
 
 /* shortcuts */
 #define TonemapScaleForComputations(radiance)  (tmopts.ToneMap->ScaleForComputations(radiance))
-#define TonemapScaleForDisplay(radiance)  (tmopts.ToneMap->ScaleForDisplay(radiance))
-#define TonemapReverseScaleForComputations(dl)  (tmopts.ToneMap->ReverseScaleForComputations(dl))
+
+inline COLOR
+toneMapScaleForDisplay(COLOR &radiance) {
+    return GLOBAL_toneMap_tmopts.ToneMap->ScaleForDisplay(radiance);
+}
 
 /* ---------------------------------------------------------------------------
   `ContrastSensitivity'

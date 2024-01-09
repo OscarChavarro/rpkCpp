@@ -191,18 +191,18 @@ void RenderBounds(BOUNDINGBOX bounds) {
     VECTORSET(p[6], bounds[MIN_X], bounds[MAX_Y], bounds[MAX_Z]);
     VECTORSET(p[7], bounds[MAX_X], bounds[MAX_Y], bounds[MAX_Z]);
 
-    RenderLine(&p[0], &p[1]);
-    RenderLine(&p[1], &p[3]);
-    RenderLine(&p[3], &p[2]);
-    RenderLine(&p[2], &p[0]);
-    RenderLine(&p[4], &p[5]);
-    RenderLine(&p[5], &p[7]);
-    RenderLine(&p[7], &p[6]);
-    RenderLine(&p[6], &p[4]);
-    RenderLine(&p[0], &p[4]);
-    RenderLine(&p[1], &p[5]);
-    RenderLine(&p[2], &p[6]);
-    RenderLine(&p[3], &p[7]);
+    renderLine(&p[0], &p[1]);
+    renderLine(&p[1], &p[3]);
+    renderLine(&p[3], &p[2]);
+    renderLine(&p[2], &p[0]);
+    renderLine(&p[4], &p[5]);
+    renderLine(&p[5], &p[7]);
+    renderLine(&p[7], &p[6]);
+    renderLine(&p[6], &p[4]);
+    renderLine(&p[0], &p[4]);
+    renderLine(&p[1], &p[5]);
+    renderLine(&p[2], &p[6]);
+    renderLine(&p[3], &p[7]);
 }
 
 void RenderGeomBounds(Geometry *geom) {
@@ -218,12 +218,12 @@ void RenderGeomBounds(Geometry *geom) {
 }
 
 void RenderBoundingBoxHierarchy() {
-    RenderSetColor(&renderopts.bounding_box_color);
+    renderSetColor(&renderopts.bounding_box_color);
     GeomListIterate(GLOBAL_scene_world, RenderGeomBounds);
 }
 
 void RenderClusterHierarchy() {
-    RenderSetColor(&renderopts.cluster_color);
+    renderSetColor(&renderopts.cluster_color);
     GeomListIterate(GLOBAL_scene_clusteredWorld, RenderGeomBounds);
 }
 

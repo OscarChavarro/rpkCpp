@@ -36,10 +36,10 @@ int Facing(PATCH *P, PATCH *Q) {
  * of the cubature rule on the element. The role (RECEIVER or SOURCE) is only
  * relevant for surface elements. */
 static void DetermineNodes(ELEMENT *elem, CUBARULE **cr, Vector3D x[CUBAMAXNODES], ROLE role) {
-    Matrix2x2 topxf;
+    Matrix2x2 topxf{};
     int k;
 
-    if ( IsCluster(elem)) {
+    if ( isCluster(elem) ) {
         BOUNDINGBOX vol;
         double dx, dy, dz;
 
@@ -117,7 +117,7 @@ static double PointKernelEval(Vector3D *x, Vector3D *y,
 
     /* emitter factor times scale, see Sillion, "A Unified Hierarchical ...",
      * IEEE TVCG Vol 1 nr 3, sept 1995 */
-    if ( IsCluster(src)) {
+    if ( isCluster(src)) {
         cosq = 0.25;
     } else {
         cosq = VECTORDOTPRODUCT(ray.dir, src->pog.patch->normal);
@@ -127,7 +127,7 @@ static double PointKernelEval(Vector3D *x, Vector3D *y,
     }
 
     /* receiver factor times scale */
-    if ( IsCluster(rcv)) {
+    if ( isCluster(rcv)) {
         cosp = 0.25;
     } else {
         cosp = -VECTORDOTPRODUCT(ray.dir, rcv->pog.patch->normal);
@@ -182,7 +182,7 @@ static void DoHigherOrderAreaToAreaFormFactor(INTERACTION *link,
                     src->unshot_radiance : src->radiance;
 
     /* receiver and source basis description */
-    if ( IsCluster(rcv)) {
+    if ( isCluster(rcv)) {
         /* no basis description for clusters: we always use a constant approximation on
          * clusters. */
         rcvbasis = (GalerkinBasis *) nullptr;
@@ -190,7 +190,7 @@ static void DoHigherOrderAreaToAreaFormFactor(INTERACTION *link,
         rcvbasis = (rcv->pog.patch->numberOfVertices == 3 ? &GLOBAL_galerkin_triBasis : &GLOBAL_galerkin_quadBasis);
     }
 
-    if ( IsCluster(src)) {
+    if ( isCluster(src)) {
         srcbasis = (GalerkinBasis *) nullptr;
     } else {
         srcbasis = (src->pog.patch->numberOfVertices == 3 ? &GLOBAL_galerkin_triBasis : &GLOBAL_galerkin_quadBasis);
@@ -199,7 +199,7 @@ static void DoHigherOrderAreaToAreaFormFactor(INTERACTION *link,
     /* determine basis function values \phi_{i,\alpha}(x_k) at sample positions on the
      * receiver patch for all basis functions \alpha */
     for ( k = 0; k < crrcv->nrnodes; k++ ) {
-        if ( IsCluster(rcv)) {
+        if ( isCluster(rcv)) {
             /* constant approximation on clusters */
             if ( link->nrcv != 1 ) {
                 logFatal(-1, "DoHigherOrderAreaToAreaFormFactor",
@@ -219,7 +219,7 @@ static void DoHigherOrderAreaToAreaFormFactor(INTERACTION *link,
     for ( beta = 0; beta < link->nsrc; beta++ ) {
         /* determine basis function values \phi_{j,\beta}(x_l) at sample positions on the
          * source patch */
-        if ( IsCluster(src)) {
+        if ( isCluster(src)) {
             if ( beta > 0 ) {
                 logFatal(-1, "DoHigherOrderAreaToAreaFormFactor",
                          "non-constant approximation on source cluster is not possible");
@@ -392,7 +392,7 @@ unsigned AreaToAreaFormFactor(INTERACTION *link, GeometryListNode *shadowlist) {
     ELEMENT *rcv = link->rcv, *src = link->src;
     int k, l;
 
-    if ( IsCluster(rcv) || IsCluster(src)) {
+    if ( isCluster(rcv) || isCluster(src)) {
         BOUNDINGBOX rcvbounds, srcbounds;
         ElementBounds(rcv, rcvbounds);
         ElementBounds(src, srcbounds);
@@ -458,12 +458,12 @@ unsigned AreaToAreaFormFactor(INTERACTION *link, GeometryListNode *shadowlist) {
         InitShadowCache();
 
         /* Mark the patches in order to avoid immediate selfintersections. */
-        patchDontIntersect(4, IsCluster(rcv) ? (PATCH *) nullptr : rcv->pog.patch,
-                           IsCluster(rcv) ? (PATCH *) nullptr : rcv->pog.patch->twin,
-                           IsCluster(src) ? (PATCH *) nullptr : src->pog.patch,
-                           IsCluster(src) ? (PATCH *) nullptr : src->pog.patch->twin);
-        geomDontIntersect(IsCluster(rcv) ? rcv->pog.geom : (Geometry *) nullptr,
-                          IsCluster(src) ? src->pog.geom : (Geometry *) nullptr);
+        patchDontIntersect(4, isCluster(rcv) ? (PATCH *) nullptr : rcv->pog.patch,
+                           isCluster(rcv) ? (PATCH *) nullptr : rcv->pog.patch->twin,
+                           isCluster(src) ? (PATCH *) nullptr : src->pog.patch,
+                           isCluster(src) ? (PATCH *) nullptr : src->pog.patch->twin);
+        geomDontIntersect(isCluster(rcv) ? rcv->pog.geom : (Geometry *) nullptr,
+                          isCluster(src) ? src->pog.geom : (Geometry *) nullptr);
 
         maxkval = 0.;    /* compute maximum unoccluded kernel value */
         maxptff = 0.;    /* maximum unoccluded point-on-receiver to source form factor */
@@ -510,7 +510,7 @@ unsigned AreaToAreaFormFactor(INTERACTION *link, GeometryListNode *shadowlist) {
     GLOBAL_galerkin_state.fflastsrc = src;
 
     if ( GLOBAL_galerkin_state.clustering_strategy == ISOTROPIC &&
-         (IsCluster(rcv) || IsCluster(src))) {
+         (isCluster(rcv) || isCluster(src))) {
         link->deltaK.f = maxkval * src->area;
     }
 

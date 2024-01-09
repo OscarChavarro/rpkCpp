@@ -92,9 +92,9 @@ static void Defaults() {
 }
 
 static void trwfInit() {
-    float lwa = _lwa = tmopts.lwa;
-    float ldmax = tmopts.ldm;
-    float cmax = tmopts.cmax;
+    float lwa = _lwa = GLOBAL_toneMap_tmopts.lwa;
+    float ldmax = GLOBAL_toneMap_tmopts.ldm;
+    float cmax = GLOBAL_toneMap_tmopts.cmax;
 
     float alpharw, betarw, alphad, betad;
     float gwd;

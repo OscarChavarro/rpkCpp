@@ -23,7 +23,7 @@ TONEMAP *AvailableToneMaps[] = {
 };
 
 /* tone mapping context */
-TONEMAPPINGCONTEXT tmopts;
+TONEMAPPINGCONTEXT GLOBAL_toneMap_tmopts;
 
 /* composes explanation for -tonemapping command line option */
 static char tonemapping_methods_string[1000];
@@ -47,7 +47,7 @@ static void make_tonemapping_methods_string() {
                     first = false;
                     sprintf(str, "%-20.20s %s%s\n%n",
                             method->shortName, method->name,
-                            tmopts.ToneMap == method ? " (default)" : "", &n);
+                            GLOBAL_toneMap_tmopts.ToneMap == method ? " (default)" : "", &n);
                     str += n;
                 }
     EndForAll;
@@ -71,7 +71,7 @@ static void ToneMappingMethodOption(void *value) {
 
 /* tone mapping options */
 static void BrightnessAdjustOption(void *val) {
-    tmopts.pow_bright_adjust = pow(2., tmopts.brightness_adjust);
+    GLOBAL_toneMap_tmopts.pow_bright_adjust = pow(2., GLOBAL_toneMap_tmopts.brightness_adjust);
 }
 
 static float rxy[2], gxy[2], bxy[2], wxy[2];
@@ -79,37 +79,37 @@ static float rxy[2], gxy[2], bxy[2], wxy[2];
 static void ChromaOption(void *value) {
     float *chroma = (float *) value;
     if ( chroma == rxy ) {
-        tmopts.xr = chroma[0];
-        tmopts.yr = chroma[1];
+        GLOBAL_toneMap_tmopts.xr = chroma[0];
+        GLOBAL_toneMap_tmopts.yr = chroma[1];
     } else if ( chroma == gxy ) {
-        tmopts.xg = chroma[0];
-        tmopts.yg = chroma[1];
+        GLOBAL_toneMap_tmopts.xg = chroma[0];
+        GLOBAL_toneMap_tmopts.yg = chroma[1];
     } else if ( chroma == bxy ) {
-        tmopts.xb = chroma[0];
-        tmopts.yb = chroma[1];
+        GLOBAL_toneMap_tmopts.xb = chroma[0];
+        GLOBAL_toneMap_tmopts.yb = chroma[1];
     } else if ( chroma == wxy ) {
-        tmopts.xw = chroma[0];
-        tmopts.yw = chroma[1];
+        GLOBAL_toneMap_tmopts.xw = chroma[0];
+        GLOBAL_toneMap_tmopts.yw = chroma[1];
     } else {
         logFatal(-1, "ChromaOption", "invalid value pointer");
     }
 
-    computeColorConversionTransforms(tmopts.xr, tmopts.yr,
-                                     tmopts.xg, tmopts.yg,
-                                     tmopts.xb, tmopts.yb,
-                                     tmopts.xw, tmopts.yw);
+    computeColorConversionTransforms(GLOBAL_toneMap_tmopts.xr, GLOBAL_toneMap_tmopts.yr,
+                                     GLOBAL_toneMap_tmopts.xg, GLOBAL_toneMap_tmopts.yg,
+                                     GLOBAL_toneMap_tmopts.xb, GLOBAL_toneMap_tmopts.yb,
+                                     GLOBAL_toneMap_tmopts.xw, GLOBAL_toneMap_tmopts.yw);
 }
 
 static void _tmAdaptMethodOption(void *value) {
     char *name = *(char **) value;
 
     if ( strncasecmp(name, "average", 2) == 0 ) {
-        tmopts.statadapt = TMA_AVERAGE;
+        GLOBAL_toneMap_tmopts.statadapt = TMA_AVERAGE;
     } else if ( strncasecmp(name, "median", 2) == 0 ) {
-        tmopts.statadapt = TMA_MEDIAN;
+        GLOBAL_toneMap_tmopts.statadapt = TMA_MEDIAN;
         /* not yet supported
         else if (strncasecmp(name, "idrender", 2) == 0)
-          tmopts.statadapt = TMA_IDRENDER;
+          GLOBAL_toneMap_tmopts.statadapt = TMA_IDRENDER;
         */
     } else {
         logError(nullptr,
@@ -120,7 +120,7 @@ static void _tmAdaptMethodOption(void *value) {
 
 static void GammaOption(void *value) {
     float gam = *(float *) value;
-    RGBSET(tmopts.gamma, gam, gam, gam);
+    RGBSET(GLOBAL_toneMap_tmopts.gamma, gam, gam, gam);
 }
 
 static CMDLINEOPTDESC tmOptions[] = {
@@ -128,26 +128,26 @@ static CMDLINEOPTDESC tmOptions[] = {
                 nullptr,                   ToneMappingMethodOption,
                 tonemapping_methods_string},
         {"-brightness-adjust", 4, Tfloat,
-                &tmopts.brightness_adjust, BrightnessAdjustOption,
+                &GLOBAL_toneMap_tmopts.brightness_adjust, BrightnessAdjustOption,
                 "-brightness-adjust <float> : brightness adjustment factor"},
         {"-adapt",             5, Tstring,
                 nullptr,                   _tmAdaptMethodOption,
                 "-adapt <method>  \t: adaptation estimation method\n"
                 "\tmethods: \"average\", \"median\""},
         {"-lwa",               3, Tfloat,
-                &tmopts.lwa,   DEFAULT_ACTION,
+                &GLOBAL_toneMap_tmopts.lwa,   DEFAULT_ACTION,
                 "-lwa <float>\t\t: real world adaptation luminance"},
         {"-ldmax",             5, Tfloat,
-                &tmopts.ldm,   DEFAULT_ACTION,
+                &GLOBAL_toneMap_tmopts.ldm,   DEFAULT_ACTION,
                 "-ldmax <float>\t\t: maximum diaply luminance"},
         {"-cmax",              4, Tfloat,
-                &tmopts.cmax,  DEFAULT_ACTION,
+                &GLOBAL_toneMap_tmopts.cmax,  DEFAULT_ACTION,
                 "-cmax <float>\t\t: maximum displayable contrast"},
         {"-gamma",             4, Tfloat,
                 nullptr,                   GammaOption,
                 "-gamma <float>       \t: gamma correction factor (same for red, green. blue)"},
         {"-rgbgamma",          4, TRGB,
-                &tmopts.gamma, DEFAULT_ACTION,
+                &GLOBAL_toneMap_tmopts.gamma, DEFAULT_ACTION,
                 "-rgbgamma <r> <g> <b>\t: gamma correction factor (separate for red, green, blue)"},
         {"-red",               4, Txy,
                 rxy,                       ChromaOption,
@@ -174,38 +174,38 @@ void ToneMapDefaults() {
                 }
     EndForAll;
 
-    tmopts.brightness_adjust = 0.;
-    tmopts.pow_bright_adjust = pow(2., tmopts.brightness_adjust);
+    GLOBAL_toneMap_tmopts.brightness_adjust = 0.;
+    GLOBAL_toneMap_tmopts.pow_bright_adjust = pow(2., GLOBAL_toneMap_tmopts.brightness_adjust);
 
-    tmopts.statadapt = TMA_MEDIAN;
-    tmopts.lwa = DEFAULT_TM_LWA;
-    tmopts.ldm = DEFAULT_TM_LDMAX;
-    tmopts.cmax = DEFAULT_TM_CMAX;
+    GLOBAL_toneMap_tmopts.statadapt = TMA_MEDIAN;
+    GLOBAL_toneMap_tmopts.lwa = DEFAULT_TM_LWA;
+    GLOBAL_toneMap_tmopts.ldm = DEFAULT_TM_LDMAX;
+    GLOBAL_toneMap_tmopts.cmax = DEFAULT_TM_CMAX;
 
-    rxy[0] = tmopts.xr = 0.640;
-    rxy[1] = tmopts.yr = 0.330;
-    gxy[0] = tmopts.xg = 0.290;
-    gxy[1] = tmopts.yg = 0.600;
-    bxy[0] = tmopts.xb = 0.150;
-    bxy[1] = tmopts.yb = 0.060;
-    wxy[0] = tmopts.xw = 0.333333333333;
-    wxy[1] = tmopts.yw = 0.333333333333;
-    computeColorConversionTransforms(tmopts.xr, tmopts.yr,
-                                     tmopts.xg, tmopts.yg,
-                                     tmopts.xb, tmopts.yb,
-                                     tmopts.xw, tmopts.yw);
+    rxy[0] = GLOBAL_toneMap_tmopts.xr = 0.640;
+    rxy[1] = GLOBAL_toneMap_tmopts.yr = 0.330;
+    gxy[0] = GLOBAL_toneMap_tmopts.xg = 0.290;
+    gxy[1] = GLOBAL_toneMap_tmopts.yg = 0.600;
+    bxy[0] = GLOBAL_toneMap_tmopts.xb = 0.150;
+    bxy[1] = GLOBAL_toneMap_tmopts.yb = 0.060;
+    wxy[0] = GLOBAL_toneMap_tmopts.xw = 0.333333333333;
+    wxy[1] = GLOBAL_toneMap_tmopts.yw = 0.333333333333;
+    computeColorConversionTransforms(GLOBAL_toneMap_tmopts.xr, GLOBAL_toneMap_tmopts.yr,
+                                     GLOBAL_toneMap_tmopts.xg, GLOBAL_toneMap_tmopts.yg,
+                                     GLOBAL_toneMap_tmopts.xb, GLOBAL_toneMap_tmopts.yb,
+                                     GLOBAL_toneMap_tmopts.xw, GLOBAL_toneMap_tmopts.yw);
 
-    RGBSET(tmopts.gamma, DEFAULT_GAMMA, DEFAULT_GAMMA, DEFAULT_GAMMA);
-    RecomputeGammaTables(tmopts.gamma);
-    tmopts.ToneMap = &TM_Lightness;
-    tmopts.ToneMap->Init();
+    RGBSET(GLOBAL_toneMap_tmopts.gamma, DEFAULT_GAMMA, DEFAULT_GAMMA, DEFAULT_GAMMA);
+    RecomputeGammaTables(GLOBAL_toneMap_tmopts.gamma);
+    GLOBAL_toneMap_tmopts.ToneMap = &TM_Lightness;
+    GLOBAL_toneMap_tmopts.ToneMap->Init();
 
     make_tonemapping_methods_string();
 }
 
 void ParseToneMapOptions(int *argc, char **argv) {
     parseOptions(tmOptions, argc, argv);
-    RecomputeGammaTables(tmopts.gamma);
+    RecomputeGammaTables(GLOBAL_toneMap_tmopts.gamma);
 
     ForAllAvailableToneMaps(map)
                 {
@@ -218,15 +218,15 @@ void ParseToneMapOptions(int *argc, char **argv) {
 
 /* makes map the current tone mapping operator + initialises */
 void SetToneMap(TONEMAP *map) {
-    tmopts.ToneMap->Terminate();
-    tmopts.ToneMap = map ? map : &TM_Dummy;
-    tmopts.ToneMap->Init();
+    GLOBAL_toneMap_tmopts.ToneMap->Terminate();
+    GLOBAL_toneMap_tmopts.ToneMap = map ? map : &TM_Dummy;
+    GLOBAL_toneMap_tmopts.ToneMap->Init();
 }
 
 /* initialises tone mapping, e.g. for a new scene */
 void InitToneMapping() {
-    InitSceneAdaptation();
-    SetToneMap(tmopts.ToneMap);
+    initSceneAdaptation();
+    SetToneMap(GLOBAL_toneMap_tmopts.ToneMap);
 }
 
 void RecomputeGammaTable(int index, double gamma) {
@@ -235,7 +235,7 @@ void RecomputeGammaTable(int index, double gamma) {
         gamma = 1.;
     }
     for ( i = 0; i <= (1 << GAMMATAB_BITS); i++ ) {
-        tmopts.gammatab[index][i] = pow((double) i / (double) (1 << GAMMATAB_BITS), 1. / gamma);
+        GLOBAL_toneMap_tmopts.gammatab[index][i] = (float)std::pow((double) i / (double) (1 << GAMMATAB_BITS), 1. / gamma);
     }
 }
 
@@ -254,8 +254,8 @@ void RecomputeGammaTables(RGB gamma) {
   algorithm.
   ------------------------------------------------------------------------- */
 COLOR *RescaleRadiance(COLOR in, COLOR *out) {
-    colorScale(tmopts.pow_bright_adjust, in, in);
-    *out = TonemapScaleForDisplay(in);
+    colorScale(GLOBAL_toneMap_tmopts.pow_bright_adjust, in, in);
+    *out = toneMapScaleForDisplay(in);
     return out;
 }
 

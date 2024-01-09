@@ -9,18 +9,18 @@ Computes a bounding box for the given list of patches. The bounding box is
 filled in 'bounding box' and a pointer to it returned
 */
 float *
-patchListBounds(PatchSet *pl, float *boundingbox) {
+patchListBounds(PatchSet *pl, float *boundingBox) {
     BOUNDINGBOX b;
 
-    boundsInit(boundingbox);
+    boundsInit(boundingBox);
     ForAllPatches(patch, pl)
                 {
                     patchBounds(patch, b);
-                    boundsEnlarge(boundingbox, b);
+                    boundsEnlarge(boundingBox, b);
                 }
     EndForAll;
 
-    return boundingbox;
+    return boundingBox;
 }
 
 /**

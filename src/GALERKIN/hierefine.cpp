@@ -27,7 +27,7 @@ static GeometryListNode *Cull(INTERACTION *link) {
          GLOBAL_galerkin_state.shaftcullmode == ALWAYS_DO_SHAFTCULLING ) {
         SHAFT shaft, *the_shaft;
 
-        if ( GLOBAL_galerkin_state.exact_visibility && !IsCluster(link->rcv) && !IsCluster(link->src)) {
+        if ( GLOBAL_galerkin_state.exact_visibility && !isCluster(link->rcv) && !isCluster(link->src)) {
             POLYGON rcvpoly, srcpoly;
             the_shaft = ConstructPolygonToPolygonShaft(ElementPolygon(link->rcv, &rcvpoly),
                                                        ElementPolygon(link->src, &srcpoly),
@@ -42,13 +42,13 @@ static GeometryListNode *Cull(INTERACTION *link) {
             return ocandlist;
         }
 
-        if ( IsCluster(link->rcv)) {
+        if ( isCluster(link->rcv)) {
             ShaftDontOpen(&shaft, link->rcv->pog.geom);
         } else {
             ShaftOmit(&shaft, (Geometry *) link->rcv->pog.patch);
         }
 
-        if ( IsCluster(link->src)) {
+        if ( isCluster(link->src)) {
             ShaftDontOpen(&shaft, link->src->pog.geom);
         } else {
             ShaftOmit(&shaft, (Geometry *) link->src->pog.patch);
@@ -128,7 +128,7 @@ static double ApproximationError(INTERACTION *link, COLOR srcrho, COLOR rcvrho, 
     switch ( GLOBAL_galerkin_state.iteration_method ) {
         case GAUSS_SEIDEL:
         case JACOBI:
-            if ( IsCluster(link->src) && link->src != link->rcv ) {
+            if ( isCluster(link->src) && link->src != link->rcv ) {
                 srcrad = maxClusterRadiance(link->src); /* sourceClusterRadiance(link); */
             } else {
                 srcrad = link->src->radiance[0];
@@ -140,7 +140,7 @@ static double ApproximationError(INTERACTION *link, COLOR srcrho, COLOR rcvrho, 
             break;
 
         case SOUTHWELL:
-            if ( IsCluster(link->src) && link->src != link->rcv ) {
+            if ( isCluster(link->src) && link->src != link->rcv ) {
                 srcrad = sourceClusterRadiance(link); /* returns unshot radiance for shooting */
             } else {
                 srcrad = link->src->unshot_radiance[0];
@@ -150,7 +150,7 @@ static double ApproximationError(INTERACTION *link, COLOR srcrho, COLOR rcvrho, 
             colorAbs(error, error);
             approx_error = ColorToError(error);
 
-            if ( GLOBAL_galerkin_state.importance_driven && IsCluster(link->rcv)) {
+            if ( GLOBAL_galerkin_state.importance_driven && isCluster(link->rcv)) {
                 /* make sure the link is also suited for transport of unshot potential
                  * from source to receiver. Note that it makes no sense to
                  * subdivide receiver patches (potential is only used to help
@@ -241,7 +241,7 @@ static INTERACTION_EVALUATION_CODE EvaluateInteraction(INTERACTION *link) {
 
     /* determine receiver area (projected visible area for a receiver cluster)
      * and reflectivity. */
-    if ( IsCluster(link->rcv)) {
+    if ( isCluster(link->rcv)) {
         colorSetMonochrome(rcvrho, 1.);
         rcv_area = receiverClusterArea(link);
     } else {
@@ -250,7 +250,7 @@ static INTERACTION_EVALUATION_CODE EvaluateInteraction(INTERACTION *link) {
     }
 
     /* determine source reflectivity. */
-    if ( IsCluster(link->src)) {
+    if ( isCluster(link->src)) {
         colorSetMonochrome(srcrho, 1.0f);
     } else
         srcrho = REFLECTIVITY(link->src->pog.patch);
@@ -259,7 +259,7 @@ static INTERACTION_EVALUATION_CODE EvaluateInteraction(INTERACTION *link) {
     threshold = LinkErrorThreshold(link, rcv_area);
     error = ApproximationError(link, srcrho, rcvrho, rcv_area);
 
-    if ( IsCluster(link->src) && error < threshold && GLOBAL_galerkin_state.clustering_strategy != ISOTROPIC )
+    if ( isCluster(link->src) && error < threshold && GLOBAL_galerkin_state.clustering_strategy != ISOTROPIC )
         error += SourceClusterRadianceVariationError(link, rcvrho, rcv_area);
 
     /* Minimal element area for which subdivision is allowed. */
@@ -269,16 +269,16 @@ static INTERACTION_EVALUATION_CODE EvaluateInteraction(INTERACTION *link) {
     if ( error > threshold ) {
         /* A very simple but robust subdivision strategy: subdivide the
          * largest of the two elements in order to reduce the error. */
-        if ((!(IsCluster(link->src) && IsLightSource(link->src))) &&
+        if ((!(isCluster(link->src) && IsLightSource(link->src))) &&
             (rcv_area > link->src->area)) {
             if ( rcv_area > min_area ) {
-                if ( IsCluster(link->rcv))
+                if ( isCluster(link->rcv))
                     code = SUBDIVIDE_RECEIVER_CLUSTER;
                 else
                     code = REGULAR_SUBDIVIDE_RECEIVER;
             }
         } else {
-            if ( IsCluster(link->src))
+            if ( isCluster(link->src))
                 code = SUBDIVIDE_SOURCE_CLUSTER;
             else if ( link->src->area > min_area )
                 code = REGULAR_SUBDIVIDE_SOURCE;
@@ -314,12 +314,12 @@ static void ComputeLightTransport(INTERACTION *link) {
         srcrad = link->src->radiance;
     }
 
-    if ( IsCluster(link->src) && link->src != link->rcv ) {
+    if ( isCluster(link->src) && link->src != link->rcv ) {
         avsrclusrad = sourceClusterRadiance(link);
         srcrad = &avsrclusrad;
     }
 
-    if ( IsCluster(link->rcv) && link->src != link->rcv ) {
+    if ( isCluster(link->rcv) && link->src != link->rcv ) {
         clusterGatherRadiance(link, srcrad);
     } else {
         rcvrad = link->rcv->received_radiance;
@@ -341,14 +341,14 @@ static void ComputeLightTransport(INTERACTION *link) {
 
         if ( GLOBAL_galerkin_state.iteration_method == GAUSS_SEIDEL ||
              GLOBAL_galerkin_state.iteration_method == JACOBI ) {
-            if ( IsCluster(link->rcv)) {
+            if ( isCluster(link->rcv)) {
                 colorSetMonochrome(rcvrho, 1.0f);
             } else {
                 rcvrho = REFLECTIVITY(link->rcv->pog.patch);
             }
             link->src->received_potential.f += K * ColorToError(rcvrho) * link->rcv->potential.f;
         } else if ( GLOBAL_galerkin_state.iteration_method == SOUTHWELL ) {
-            if ( IsCluster(link->src)) {
+            if ( isCluster(link->src)) {
                 colorSetMonochrome(srcrho, 1.0f);
             } else {
                 srcrho = REFLECTIVITY(link->src->pog.patch);
@@ -370,13 +370,13 @@ int CreateSubdivisionLink(ELEMENT *rcv, ELEMENT *src, INTERACTION *link) {
     link->src = src;
 
     /* Always a constant approximation on cluster elements. */
-    if ( IsCluster(link->rcv)) {
+    if ( isCluster(link->rcv)) {
         link->nrcv = 1;
     } else {
         link->nrcv = rcv->basis_size;
     }
 
-    if ( IsCluster(link->src)) {
+    if ( isCluster(link->src)) {
         link->nsrc = 1;
     } else {
         link->nsrc = src->basis_size;
@@ -468,11 +468,11 @@ static int SubdivideSourceCluster(INTERACTION *link) {
         subinteraction.K.p = ff;    /* temporary storage for the formfactors */
         /* subinteraction.deltaK.p = */
 
-        if ( !IsCluster(child)) {
+        if ( !isCluster(child)) {
             PATCH *the_patch = child->pog.patch;
-            if ((IsCluster(rcv) &&
-                    boundsBehindPlane(geomBounds(rcv->pog.geom), &the_patch->normal, the_patch->planeConstant)) ||
-                (!IsCluster(rcv) && !Facing(rcv->pog.patch, the_patch))) {
+            if ((isCluster(rcv) &&
+                 boundsBehindPlane(geomBounds(rcv->pog.geom), &the_patch->normal, the_patch->planeConstant)) ||
+                (!isCluster(rcv) && !Facing(rcv->pog.patch, the_patch))) {
                 continue;
             }
         }
@@ -501,11 +501,11 @@ static int SubdivideReceiverCluster(INTERACTION *link) {
         float ff[MAXBASISSIZE * MAXBASISSIZE];
         subinteraction.K.p = ff;
 
-        if ( !IsCluster(child)) {
+        if ( !isCluster(child)) {
             PATCH *the_patch = child->pog.patch;
-            if ((IsCluster(src) &&
-                    boundsBehindPlane(geomBounds(src->pog.geom), &the_patch->normal, the_patch->planeConstant)) ||
-                (!IsCluster(src) && !Facing(src->pog.patch, the_patch))) {
+            if ((isCluster(src) &&
+                 boundsBehindPlane(geomBounds(src->pog.geom), &the_patch->normal, the_patch->planeConstant)) ||
+                (!isCluster(src) && !Facing(src->pog.patch, the_patch))) {
                 continue;
             }
         }

@@ -157,5 +157,5 @@ doNonDiffuseFirstShot() {
     MakeLightSourceTable();
     SampleLightSources(GLOBAL_stochasticRaytracing_monteCarloRadiosityState.initialLightSourceSamples * nrlights);
     Summarize();
-    RenderScene();
+    renderScene();
 }

@@ -150,7 +150,7 @@ Disposes of the cluster hierarchy
 */
 void
 galerkinDestroyClusterHierarchy(ELEMENT *cluster) {
-    if ( !cluster || !IsCluster(cluster)) {
+    if ( !cluster || !isCluster(cluster)) {
         return;
     }
 
@@ -163,7 +163,7 @@ Executes func for every surface element in the cluster
 */
 void
 iterateOverSurfaceElementsInCluster(ELEMENT *clus, void (*func)(ELEMENT *elem)) {
-    if ( !IsCluster(clus)) {
+    if ( !isCluster(clus)) {
         func(clus);
     } else {
         ELEMENTLIST *subcluslist;
@@ -234,7 +234,7 @@ clusterRadianceToSamplePoint(ELEMENT *src, Vector3D sample) {
         }
 
         case Z_VISIBILITY:
-            if ( !IsCluster(src) || !OutOfBounds(&sample, src->pog.geom->bounds)) {
+            if ( !isCluster(src) || !OutOfBounds(&sample, src->pog.geom->bounds)) {
                 return src->radiance[0];
             } else {
                 double areafactor;
@@ -271,7 +271,7 @@ COLOR
 sourceClusterRadiance(INTERACTION *link) {
     ELEMENT *src = link->src, *rcv = link->rcv;
 
-    if ( !IsCluster(src) || src == rcv ) {
+    if ( !isCluster(src) || src == rcv ) {
         logFatal(-1, "sourceClusterRadiance", "Source and receiver are the same or receiver is not a cluster");
     }
 
@@ -315,7 +315,7 @@ double
 receiverClusterArea(INTERACTION *link) {
     ELEMENT *src = link->src, *rcv = link->rcv;
 
-    if ( !IsCluster(rcv) || src == rcv ) {
+    if ( !isCluster(rcv) || src == rcv ) {
         return rcv->area;
     }
 
@@ -425,7 +425,7 @@ void
 clusterGatherRadiance(INTERACTION *link, COLOR *srcrad) {
     ELEMENT *src = link->src, *rcv = link->rcv;
 
-    if ( !IsCluster(rcv) || src == rcv ) {
+    if ( !isCluster(rcv) || src == rcv ) {
         logFatal(-1, "clusterGatherRadiance", "Source and receiver are the same or receiver is not a cluster");
         return;
     }

@@ -41,7 +41,7 @@ void PmapDefaults() {
 
 /* for counting how much CPU time was used for the computations */
 static void
-UpdateCpuSecs() {
+photonMapRadiosityUpdateCpuSecs() {
     clock_t t;
 
     t = clock();
@@ -534,7 +534,7 @@ DoPmapStep() {
 
     BRRealIteration();
 
-    UpdateCpuSecs();
+    photonMapRadiosityUpdateCpuSecs();
 
     pmapstate.runstop_nr++;
 
@@ -670,7 +670,9 @@ PmapRenderScreen() {
     if ( GLOBAL_photonMap_config.screen && pmapstate.renderImage ) {
         GLOBAL_photonMap_config.screen->Render();
     } else {
-        PatchListIterate(GLOBAL_scene_patches, RenderPatch);
+        for ( PatchSet *window = GLOBAL_scene_patches; window != nullptr; window = window->next ) {
+            renderPatch(window->patch);
+        }
     }
 }
 

@@ -71,7 +71,7 @@ class RADIANCEMETHOD {
     void (*RenderScene)();
 
     /* routine for recomputing display colors if default
-     * RenderScene method is being used. */
+     * renderScene method is being used. */
     void (*RecomputeDisplayColors)();
 
     /* called when a material has been updated. The radiance method recomputes
@@ -86,25 +86,25 @@ class RADIANCEMETHOD {
 };
 
 /* able of available radiance methods, terminated with a nullptr pointer. */
-extern RADIANCEMETHOD *RadianceMethods[];
+extern RADIANCEMETHOD *GLOBAL_radiance_radianceMethods[];
 
 /* iterator over all available radiance methods */
 #define ForAllRadianceMethods(methodp) {{        \
   RADIANCEMETHOD **methodpp;                \
-  for (methodpp=RadianceMethods; *methodpp; methodpp++) { \
+  for (methodpp=GLOBAL_radiance_radianceMethods; *methodpp; methodpp++) { \
     RADIANCEMETHOD *methodp = *methodpp;
 
 /* pointer to current radiance method handle */
 extern RADIANCEMETHOD *GLOBAL_radiance_currentRadianceMethodHandle;
 
 /* This routine sets the current radiance method to be used + initializes */
-extern void SetRadianceMethod(RADIANCEMETHOD *newmethod);
+extern void setRadianceMethod(RADIANCEMETHOD *newmethod);
 
 /* Initializes. Called from mainInit() in main.c. */
-extern void RadianceDefaults();
+extern void radianceDefaults();
 
 /* Parses (and consumes) command line options for radiance
  * computation. */
-extern void ParseRadianceOptions(int *argc, char **argv);
+extern void parseRadianceOptions(int *argc, char **argv);
 
 #endif

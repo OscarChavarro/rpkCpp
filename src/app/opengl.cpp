@@ -21,22 +21,22 @@ static GLuint backgroundTex = 0;
 extern CAMERA GLOBAL_camera_alternateCamera;
 
 void
-RenderClearWindow() {
+renderClearWindow() {
     glClearColor(GLOBAL_camera_mainCamera.background.r, GLOBAL_camera_mainCamera.background.g, GLOBAL_camera_mainCamera.background.b, 0.0);
     glClearDepth(1.0);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
 void
-RenderSetCamera() {
-    RenderClearWindow();
+renderSetCamera() {
+    renderClearWindow();
 
     // use full viewport
     glViewport(0, 0, GLOBAL_camera_mainCamera.hres, GLOBAL_camera_mainCamera.vres);
 
     // draw backgroudn when needed
     if ( renderopts.use_background && background_ptr ) {
-        RenderBackground(&GLOBAL_camera_mainCamera);
+        renderBackground(&GLOBAL_camera_mainCamera);
     }
 
     // determine distance to front- and backclipping plane
@@ -57,24 +57,24 @@ RenderSetCamera() {
 }
 
 static void
-OpenGLInitState() {
+openGlInitState() {
     glDepthFunc(GL_LEQUAL);
     glEnable(GL_DEPTH_TEST);
 
     glDrawBuffer(GL_FRONT_AND_BACK);
 
-    RenderClearWindow();
+    renderClearWindow();
     glFinish();
 
     openglInitialized = true;
     displayListId = -1;
 }
 
-/*
-creates an offscreen window for rendering
+/**
+Creates an offscreen window for rendering
 */
 void
-RenderCreateOffscreenWindow(int hres, int vres) {
+renderCreateOffscreenWindow(int hres, int vres) {
     GLubyte *image_buffer = (GLubyte *)malloc(hres * vres * sizeof(GLubyte) * 4);
 
     OSMesaContext osctx = OSMesaCreateContext(OSMESA_RGBA, nullptr);
@@ -87,15 +87,16 @@ RenderCreateOffscreenWindow(int hres, int vres) {
                  vres);
     }
 
-    OpenGLInitState();
+    openGlInitState();
 }
 
 int
-RenderInitialized() {
+renderInitialized() {
     return openglInitialized;
 }
 
-void RenderLine(Vector3D *x, Vector3D *y) {
+void
+renderLine(Vector3D *x, Vector3D *y) {
     Vector3D X;
     Vector3D Y;
     Vector3D dir;
@@ -114,45 +115,31 @@ void RenderLine(Vector3D *x, Vector3D *y) {
     glEnd();
 }
 
-
-void
-RenderAALine(Vector3D *x, Vector3D *y) {
-    glEnable(GL_LINE_SMOOTH);
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    glHint(GL_LINE_SMOOTH_HINT, GL_DONT_CARE);
-
-    RenderLine(x, y);
-
-    glDisable(GL_LINE_SMOOTH);
-    glDisable(GL_BLEND);
-}
-
-/*
-sets the current color
+/**
+Sets the current color
 */
 void
-RenderSetColor(RGB *rgb) {
-    RGB corrected_rgb;
+renderSetColor(RGB *rgb) {
+    RGB correctedRgb{};
 
-    corrected_rgb = *rgb;
-    RGBGAMMACORRECT(corrected_rgb);
-    glColor3fv((GLfloat *) &corrected_rgb);
+    correctedRgb = *rgb;
+    RGBGAMMACORRECT(correctedRgb);
+    glColor3fv((GLfloat *) &correctedRgb);
 }
 
-/*
-sets line width
+/**
+Sets line width
 */
 void
-RenderSetLineWidth(float width) {
+renderSetLineWidth(float width) {
     glLineWidth(width);
 }
 
-/*
-renders a convex polygon flat shaded in the current color
+/**
+Renders a convex polygon flat shaded in the current color
 */
 void
-RenderPolygonFlat(int nrverts, Vector3D *verts) {
+renderPolygonFlat(int nrverts, Vector3D *verts) {
     int i;
 
     glBegin(GL_POLYGON);
@@ -162,44 +149,44 @@ RenderPolygonFlat(int nrverts, Vector3D *verts) {
     glEnd();
 }
 
-/*
-renders a convex polygon with Gouraud shading
+/**
+Renders a convex polygon with Gouraud shading
 */
 void
-RenderPolygonGouraud(int nrverts, Vector3D *verts, RGB *vertcols) {
+renderPolygonGouraud(int nrverts, Vector3D *verts, RGB *vertcols) {
     int i;
 
     glBegin(GL_POLYGON);
     for ( i = 0; i < nrverts; i++ ) {
-        RenderSetColor(&vertcols[i]);
+        renderSetColor(&vertcols[i]);
         glVertex3fv((GLfloat *) &verts[i]);
     }
     glEnd();
 }
 
 void
-RenderBeginTriangleStrip() {
+renderBeginTriangleStrip() {
     glBegin(GL_TRIANGLE_STRIP);
 }
 
 void
-RenderNextTrianglePoint(Vector3D *point, RGB *col) {
+renderNextTrianglePoint(Vector3D *point, RGB *col) {
     if ( col ) {
-        RenderSetColor(col);
+        renderSetColor(col);
     }
     glVertex3fv((float *) point);
 }
 
 void
-RenderEndTriangleStrip() {
+renderEndTriangleStrip() {
     glEnd();
 }
 
 void
-RenderPatchFlat(PATCH *patch) {
+renderPatchFlat(PATCH *patch) {
     int i;
 
-    RenderSetColor(&patch->color);
+    renderSetColor(&patch->color);
     switch ( patch->numberOfVertices ) {
         case 3:
             glBegin(GL_TRIANGLES);
@@ -226,47 +213,47 @@ RenderPatchFlat(PATCH *patch) {
 }
 
 void
-RenderPatchSmooth(PATCH *patch) {
+renderPatchSmooth(PATCH *patch) {
     int i;
 
     switch ( patch->numberOfVertices ) {
         case 3:
             glBegin(GL_TRIANGLES);
-            RenderSetColor(&patch->vertex[0]->color);
+            renderSetColor(&patch->vertex[0]->color);
             glVertex3fv((GLfloat *) patch->vertex[0]->point);
-            RenderSetColor(&patch->vertex[1]->color);
+            renderSetColor(&patch->vertex[1]->color);
             glVertex3fv((GLfloat *) patch->vertex[1]->point);
-            RenderSetColor(&patch->vertex[2]->color);
+            renderSetColor(&patch->vertex[2]->color);
             glVertex3fv((GLfloat *) patch->vertex[2]->point);
             glEnd();
             break;
         case 4:
             glBegin(GL_QUADS);
-            RenderSetColor(&patch->vertex[0]->color);
+            renderSetColor(&patch->vertex[0]->color);
             glVertex3fv((GLfloat *) patch->vertex[0]->point);
-            RenderSetColor(&patch->vertex[1]->color);
+            renderSetColor(&patch->vertex[1]->color);
             glVertex3fv((GLfloat *) patch->vertex[1]->point);
-            RenderSetColor(&patch->vertex[2]->color);
+            renderSetColor(&patch->vertex[2]->color);
             glVertex3fv((GLfloat *) patch->vertex[2]->point);
-            RenderSetColor(&patch->vertex[3]->color);
+            renderSetColor(&patch->vertex[3]->color);
             glVertex3fv((GLfloat *) patch->vertex[3]->point);
             glEnd();
             break;
         default:
             glBegin(GL_POLYGON);
             for ( i = 0; i < patch->numberOfVertices; i++ ) {
-                RenderSetColor(&patch->vertex[i]->color);
+                renderSetColor(&patch->vertex[i]->color);
                 glVertex3fv((GLfloat *) patch->vertex[i]->point);
             }
             glEnd();
     }
 }
 
-/*
-renders the patch outline in the current color
+/**
+Renders the patch outline in the current color
 */
 void
-RenderPatchOutline(PATCH *patch) {
+renderPatchOutline(PATCH *patch) {
     int i;
     Vector3D tmp;
     Vector3D dir;
@@ -282,25 +269,25 @@ RenderPatchOutline(PATCH *patch) {
 }
 
 void
-RenderPatch(PATCH *patch) {
+renderPatch(PATCH *patch) {
     if ( !renderopts.no_shading ) {
         if ( renderopts.smooth_shading ) {
-            RenderPatchSmooth(patch);
+            renderPatchSmooth(patch);
         } else {
-            RenderPatchFlat(patch);
+            renderPatchFlat(patch);
         }
     }
 
     if ( renderopts.draw_outlines &&
          (VECTORDOTPRODUCT(patch->normal, GLOBAL_camera_mainCamera.eyep) + patch->planeConstant > EPSILON
           || renderopts.use_display_lists)) {
-        RenderSetColor(&renderopts.outline_color);
-        RenderPatchOutline(patch);
+        renderSetColor(&renderopts.outline_color);
+        renderPatchOutline(patch);
     }
 }
 
 static void
-ReallyRenderOctreeLeaf(Geometry *geom, void (*render_patch)(PATCH *)) {
+reallyRenderOctreeLeaf(Geometry *geom, void (*render_patch)(PATCH *)) {
     PatchSet *patchlist = geomPatchList(geom);
     ForAllPatches(P, patchlist)
                 {
@@ -310,23 +297,23 @@ ReallyRenderOctreeLeaf(Geometry *geom, void (*render_patch)(PATCH *)) {
 }
 
 static void
-RenderOctreeLeaf(Geometry *geom, void (*render_patch)(PATCH *)) {
+renderOctreeLeaf(Geometry *geom, void (*render_patch)(PATCH *)) {
     if ( renderopts.use_display_lists ) {
         if ( geom->dlistid <= 0 ) {
             geom->dlistid = geom->id;
             glNewList(geom->dlistid, GL_COMPILE_AND_EXECUTE);
-            ReallyRenderOctreeLeaf(geom, render_patch);
+            reallyRenderOctreeLeaf(geom, render_patch);
             glEndList();
         } else {
             glCallList(geom->dlistid);
         }
     } else {
-        ReallyRenderOctreeLeaf(geom, render_patch);
+        reallyRenderOctreeLeaf(geom, render_patch);
     }
 }
 
 static int
-ViewCullBounds(float *bounds) {
+viewCullBounds(float *bounds) {
     int i;
     for ( i = 0; i < NR_VIEW_PLANES; i++ ) {
         if ( boundsBehindPlane(bounds, &GLOBAL_camera_mainCamera.viewplane[i].norm,
@@ -337,16 +324,16 @@ ViewCullBounds(float *bounds) {
     return false;
 }
 
-/*
-squared distance to midpoint (avoid taking square root)
+/**
+Squared distance to midpoint (avoid taking square root)
 */
 static float
-BoundsDistance2(Vector3D p, float *bounds) {
+boundsDistance2(Vector3D p, float *bounds) {
     Vector3D mid, d;
     VECTORSET(mid,
-              0.5 * (bounds[MIN_X] + bounds[MAX_X]),
-              0.5 * (bounds[MIN_Y] + bounds[MAX_Y]),
-              0.5 * (bounds[MIN_Z] + bounds[MAX_Z]));
+              0.5f * (bounds[MIN_X] + bounds[MAX_X]),
+              0.5f * (bounds[MIN_Y] + bounds[MAX_Y]),
+              0.5f * (bounds[MIN_Z] + bounds[MAX_Z]));
     VECTORSUBTRACT(mid, p, d);
     return VECTORNORM2(d);
 }
@@ -357,48 +344,48 @@ class OctreeChild {
     float dist;
 };
 
-/*
-geom is a surface or a compoint with 1 surface and up to 8 compound children geoms,
-CLusetredWorldGeom is such a geom e.g.
+/**
+geometry is a surface or a compoint with 1 surface and up to 8 compound children geoms,
+CLusetredWorldGeom is such a geometry e.g.
 */
 static void
-RenderOctreeNonLeaf(Geometry *geom, void (*render_patch)(PATCH *)) {
+renderOctreeNonLeaf(Geometry *geometry, void (*render_patch)(PATCH *)) {
     int i, n, remaining;
     OctreeChild octree_children[8];
-    GeometryListNode *children = geomPrimList(geom);
+    GeometryListNode *children = geomPrimList(geometry);
 
     i = 0;
     ForAllGeoms(child, children)
                 {
                     if ( geomIsAggregate(child)) {
                         if ( i >= 8 ) {
-                            logError("RenderOctreeNonLeaf", "Invalid octree geom node (more than 8 compound children)");
+                            logError("renderOctreeNonLeaf", "Invalid octree geometry node (more than 8 compound children)");
                             return;
                         }
                         octree_children[i++].geom = child;
                     } else {
                         // render the patches associated with the octree node right away
-                        RenderOctreeLeaf(child, render_patch);
+                        renderOctreeLeaf(child, render_patch);
                     }
                 }
     EndForAll;
-    n = i; // nr of compound children
+    n = i; // Number of compound children
 
     // cull the non-leaf octree children geoms
     for ( i = 0; i < n; i++ ) {
-        if ( ViewCullBounds(octree_children[i].geom->bounds)) {
+        if ( viewCullBounds(octree_children[i].geom->bounds)) {
             octree_children[i].geom = nullptr; // culled
             octree_children[i].dist = HUGE;
         } else {
             // not culled, compute distance from eye to midpoint of child
-            octree_children[i].dist = BoundsDistance2(GLOBAL_camera_mainCamera.eyep, octree_children[i].geom->bounds);
+            octree_children[i].dist = boundsDistance2(GLOBAL_camera_mainCamera.eyep, octree_children[i].geom->bounds);
         }
     }
 
-    // render children geoms in front to back order
+    // Render children geometries, front to back order
     remaining = n;
     while ( remaining > 0 ) {
-        // find closest remaining child
+        // Find the closest remaining child
         int closest = 0;
         for ( i = 1; i < n; i++ ) {
             if ( octree_children[i].dist < octree_children[closest].dist ) {
@@ -411,7 +398,7 @@ RenderOctreeNonLeaf(Geometry *geom, void (*render_patch)(PATCH *)) {
         }
 
         // render it
-        RenderOctreeNonLeaf(octree_children[closest].geom, render_patch);
+        renderOctreeNonLeaf(octree_children[closest].geom, render_patch);
 
         // remove it from the list
         octree_children[closest].geom = nullptr;
@@ -421,22 +408,22 @@ RenderOctreeNonLeaf(Geometry *geom, void (*render_patch)(PATCH *)) {
 }
 
 void
-RenderWorldOctree(void (*render_patch)(PATCH *)) {
+renderWorldOctree(void (*render_patch)(PATCH *)) {
     if ( !GLOBAL_scene_clusteredWorldGeom ) {
         return;
     }
     if ( !render_patch ) {
-        render_patch = RenderPatch;
+        render_patch = renderPatch;
     }
     if ( geomIsAggregate(GLOBAL_scene_clusteredWorldGeom)) {
-        RenderOctreeNonLeaf(GLOBAL_scene_clusteredWorldGeom, render_patch);
+        renderOctreeNonLeaf(GLOBAL_scene_clusteredWorldGeom, render_patch);
     } else {
-        RenderOctreeLeaf(GLOBAL_scene_clusteredWorldGeom, render_patch);
+        renderOctreeLeaf(GLOBAL_scene_clusteredWorldGeom, render_patch);
     }
 }
 
 static void
-GeomDeleteDLists(Geometry *geom) {
+geometryDeleteDLists(Geometry *geom) {
     if ( geom->dlistid >= 0 ) {
         glDeleteLists(geom->dlistid, 1);
     }
@@ -446,51 +433,54 @@ GeomDeleteDLists(Geometry *geom) {
         GeometryListNode *children = geomPrimList(geom);
         ForAllGeoms(child, children)
                     {
-                        GeomDeleteDLists(child);
+                        geometryDeleteDLists(child);
                     }
         EndForAll;
     }
 }
 
 static void
-RenderNewOctreeDisplayLists() {
+renderNewOctreeDisplayLists() {
     if ( GLOBAL_scene_clusteredWorldGeom ) {
-        GeomDeleteDLists(GLOBAL_scene_clusteredWorldGeom);
+        geometryDeleteDLists(GLOBAL_scene_clusteredWorldGeom);
     }
 }
 
 void
-RenderNewDisplayList() {
+renderNewDisplayList() {
     if ( displayListId >= 0 ) {
         glDeleteLists(displayListId, 1);
     }
     displayListId = -1;
 
     if ( renderopts.frustum_culling ) {
-        RenderNewOctreeDisplayLists();
+        renderNewOctreeDisplayLists();
     }
 }
 
 void
-ReallyRender() {
+reallyRender() {
     if ( GLOBAL_radiance_currentRadianceMethodHandle && GLOBAL_radiance_currentRadianceMethodHandle->RenderScene ) {
         GLOBAL_radiance_currentRadianceMethodHandle->RenderScene();
     } else if ( renderopts.frustum_culling ) {
-        RenderWorldOctree(RenderPatch);
+        renderWorldOctree(renderPatch);
     } else {
-        PatchListIterate(GLOBAL_scene_patches, RenderPatch);
+        for ( PatchSet *patchWindow = GLOBAL_scene_patches; patchWindow != nullptr; patchWindow = patchWindow->next ) {
+            PATCH *patch = patchWindow->patch;
+            renderPatch(patch);
+        }
     }
 }
 
 void
-RenderRadiance() {
+renderRadiance() {
     if ( renderopts.smooth_shading ) {
         glShadeModel(GL_SMOOTH);
     } else {
         glShadeModel(GL_FLAT);
     }
 
-    RenderSetCamera();
+    renderSetCamera();
 
     if ( renderopts.backface_culling ) {
         glEnable(GL_CULL_FACE);
@@ -502,15 +492,15 @@ RenderRadiance() {
         if ( displayListId <= 0 ) {
             displayListId = 1;
             glNewList(displayListId, GL_COMPILE_AND_EXECUTE);
-            // render the scene
-            ReallyRender();
+            // Render the scene
+            reallyRender();
             glEndList();
         } else {
             glCallList(1);
         }
     } else {
-        // just render the scene
-        ReallyRender();
+        // Just render the scene
+        reallyRender();
     }
 
     if ( renderopts.draw_bounding_boxes ) {
@@ -522,17 +512,17 @@ RenderRadiance() {
     }
 
     if ( renderopts.draw_cameras ) {
-        RenderCameras();
+        renderCameras();
     }
 }
 
 void
-RenderScene() {
+renderScene() {
     if ( !openglInitialized ) {
         return;
     }
 
-    RenderSetLineWidth(renderopts.linewidth);
+    renderSetLineWidth(renderopts.linewidth);
 
     CanvasPushMode();
 
@@ -541,7 +531,7 @@ RenderScene() {
     }
 
     if ( !renderopts.render_raytraced_image || !RenderRayTraced()) {
-        RenderRadiance();
+        renderRadiance();
     }
 
     // Call installed render hooks, that want to render something in the scene
@@ -554,20 +544,12 @@ RenderScene() {
     CanvasPullMode();
 }
 
-/*
-returns only after all issued graphics commands have been executed
-*/
-void
-RenderFinish() {
-    glFinish();
-}
-
-/*
+/**
 Renders an image of m lines of n pixels at column x on row y (= lower
 left corner of image, relative to the lower left corner of the window)
 */
 void
-RenderPixels(int x, int y, int width, int height, RGB *rgb) {
+renderPixels(int x, int y, int width, int height, RGB *rgb) {
     int j;
     int rowlen;
     GLubyte *c;
@@ -620,7 +602,7 @@ RenderPixels(int x, int y, int width, int height, RGB *rgb) {
 }
 
 void
-SaveScreen(char *fname, FILE *fp, int ispipe) {
+saveScreen(char *fileName, FILE *fp, int isPipe) {
     ImageOutputHandle *img;
     long j, x = GLOBAL_camera_mainCamera.hres, y = GLOBAL_camera_mainCamera.vres;
     GLubyte *screen;
@@ -628,11 +610,11 @@ SaveScreen(char *fname, FILE *fp, int ispipe) {
 
     // RayCast() saves the current picture in display-mapped (!) real values
     if ( renderopts.trace ) {
-        RayCast(fname, fp, ispipe);
+        RayCast(fileName, fp, isPipe);
         return;
     }
 
-    if ( !fp || !(img = CreateImageOutputHandle(fname, fp, ispipe, x, y))) {
+    if ( !fp || !(img = CreateImageOutputHandle(fileName, fp, isPipe, x, y))) {
         return;
     }
 
@@ -661,12 +643,12 @@ SaveScreen(char *fname, FILE *fp, int ispipe) {
 }
 
 unsigned long *
-RenderIds(long *x, long *y) {
+renderIds(long *x, long *y) {
     return SoftRenderIds(x, y);
 }
 
 static void
-RenderFrustum(CAMERA *cam) {
+renderFrustum(CAMERA *cam) {
     Vector3D c;
     Vector3D P;
     Vector3D Q;
@@ -682,44 +664,44 @@ RenderFrustum(CAMERA *cam) {
 
     glDisable(GL_DEPTH_TEST);
 
-    RenderSetColor(&renderopts.camera_color);
+    renderSetColor(&renderopts.camera_color);
 
     for ( i = 0; i <= maxi; i++ ) {
         VECTORCOMB3(c, (-1.0 + 2.0 * ((float) i / (float) maxi)) * hsiz, cam->X, -vsiz, cam->Y, P);
         VECTORCOMB3(c, (-1.0 + 2.0 * ((float) i / (float) maxi)) * hsiz, cam->X, +vsiz, cam->Y, Q);
-        RenderLine(&P, &Q);
+        renderLine(&P, &Q);
     }
 
     for ( j = 0; j <= maxj; j++ ) {
         VECTORCOMB3(c, -hsiz, cam->X, (-1. + 2. * ((float) j / (float) maxj)) * vsiz, cam->Y, P);
         VECTORCOMB3(c, +hsiz, cam->X, (-1. + 2. * ((float) j / (float) maxj)) * vsiz, cam->Y, Q);
-        RenderLine(&P, &Q);
+        renderLine(&P, &Q);
     }
 
     VECTORCOMB3(c, hsiz, cam->X, -vsiz, cam->Y, Q);
-    RenderLine(&cam->eyep, &Q);
+    renderLine(&cam->eyep, &Q);
     VECTORCOMB3(c, -hsiz, cam->X, -vsiz, cam->Y, Q);
-    RenderLine(&cam->eyep, &Q);
+    renderLine(&cam->eyep, &Q);
     VECTORCOMB3(c, -hsiz, cam->X, vsiz, cam->Y, Q);
-    RenderLine(&cam->eyep, &Q);
+    renderLine(&cam->eyep, &Q);
     VECTORCOMB3(c, hsiz, cam->X, vsiz, cam->Y, Q);
-    RenderLine(&cam->eyep, &Q);
+    renderLine(&cam->eyep, &Q);
 
     glLineWidth(1);
     glEnable(GL_DEPTH_TEST);
 }
 
 void
-RenderCameras() {
-    RenderFrustum(&GLOBAL_camera_alternateCamera);
+renderCameras() {
+    renderFrustum(&GLOBAL_camera_alternateCamera);
 }
 
 void
-RenderBackground(CAMERA *cam) {
-    // turn of Z-buffer
+renderBackground(CAMERA *camera) {
+    // Turn off Z-buffer
     glDisable(GL_DEPTH_TEST);
 
-    // push matrix and create bogus cam
+    // Push matrix and create bogus camera
     glMatrixMode(GL_MODELVIEW);
     glPushMatrix();
     glLoadIdentity();
@@ -727,31 +709,31 @@ RenderBackground(CAMERA *cam) {
     glMatrixMode(GL_PROJECTION);
     glPushMatrix();
     glLoadIdentity();
-    gluOrtho2D(0, cam->hres, 0, cam->vres);
+    gluOrtho2D(0, camera->hres, 0, camera->vres);
 
-    // draw background (as texture)
+    // Draw background (as texture)
     glEnable(GL_TEXTURE_2D);
     glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
     glBindTexture(GL_TEXTURE_2D, backgroundTex);
     glBegin(GL_QUADS);
-    glTexCoord2f(0.0, 1.0);
-    glVertex3f(0, 0, 0.0);
-    glTexCoord2f(1.0, 1.0);
-    glVertex3f(cam->hres, 0, 0.0);
-    glTexCoord2f(1.0, 0.0);
-    glVertex3f(cam->hres, cam->vres, 0.0);
-    glTexCoord2f(0.0, 0.0);
-    glVertex3f(0, cam->vres, 0.0);
+    glTexCoord2f(0.0f, 1.0f);
+    glVertex3f(0.0f, 0.0f, 0.0f);
+    glTexCoord2f(1.0f, 1.0f);
+    glVertex3f((float)camera->hres, 0.0f, 0.0f);
+    glTexCoord2f(1.0f, 0.0f);
+    glVertex3f((float)camera->hres, (float)camera->vres, 0.0f);
+    glTexCoord2f(0.0f, 0.0f);
+    glVertex3f(0.0f, (float)camera->vres, 0.0f);
     glEnd();
     glDisable(GL_TEXTURE_2D);
 
-    // pop matrix
+    // Pop matrix
     glMatrixMode(GL_PROJECTION);
     glPopMatrix();
 
     glMatrixMode(GL_MODELVIEW);
     glPopMatrix();
 
-    // enable Z-buffer back
+    // Enable Z-buffer back
     glEnable(GL_DEPTH_TEST);
 }

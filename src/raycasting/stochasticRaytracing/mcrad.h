@@ -6,6 +6,6 @@
 #include "skin/radianceinterfaces.h"
 
 extern RADIANCEMETHOD StochasticRelaxationRadiosity;
-extern RADIANCEMETHOD RandomWalkRadiosity;
+extern RADIANCEMETHOD GLOBAL_stochasticRaytracing_randomWalkRadiosity;
 
 #endif

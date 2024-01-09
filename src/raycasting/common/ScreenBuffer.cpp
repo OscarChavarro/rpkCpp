@@ -198,7 +198,7 @@ ScreenBuffer::Render() {
         Sync();
     }
 
-    RenderPixels(0, 0, m_cam.hres, m_cam.vres, m_RGB);
+    renderPixels(0, 0, m_cam.hres, m_cam.vres, m_RGB);
 }
 
 void
@@ -213,9 +213,9 @@ ScreenBuffer::WriteFile(ImageOutputHandle *ip) {
 
     fprintf(stderr, "Writing %s file ... ", ip->drivername);
 
-    ip->gamma[0] = tmopts.gamma.r;    // for default radiance -> display RGB
-    ip->gamma[1] = tmopts.gamma.g;
-    ip->gamma[2] = tmopts.gamma.b;
+    ip->gamma[0] = GLOBAL_toneMap_tmopts.gamma.r;    // for default radiance -> display RGB
+    ip->gamma[1] = GLOBAL_toneMap_tmopts.gamma.g;
+    ip->gamma[2] = GLOBAL_toneMap_tmopts.gamma.b;
     for ( int i = m_cam.vres - 1; i >= 0; i-- )    // write scanlines
     {
         if ( !IsRGBImage()) {
@@ -255,7 +255,7 @@ ScreenBuffer::RenderScanline(int i) {
         SyncLine(i);
     }
 
-    RenderPixels(0, i, m_cam.hres, 1, &m_RGB[i * m_cam.hres]);
+    renderPixels(0, i, m_cam.hres, 1, &m_RGB[i * m_cam.hres]);
 }
 
 void

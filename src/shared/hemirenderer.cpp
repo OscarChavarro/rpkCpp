@@ -115,12 +115,12 @@ void CHemisphereRenderer::Render() {
 
     for ( t = 0; t < m_thetaSteps - 2; t++ ) {
         // Start a new triangle strip
-        RenderBeginTriangleStrip();
+        renderBeginTriangleStrip();
 
         for ( p = 0; p < m_phiSteps; p++ ) {
-            RenderNextTrianglePoint(&m_renderData[index2].point,
+            renderNextTrianglePoint(&m_renderData[index2].point,
                                     &m_renderData[index2].rgb);
-            RenderNextTrianglePoint(&m_renderData[index1].point,
+            renderNextTrianglePoint(&m_renderData[index1].point,
                                     &m_renderData[index1].rgb);
             index1++;
             index2++;
@@ -128,39 +128,39 @@ void CHemisphereRenderer::Render() {
 
         // Send first positions again to close strip
 
-        RenderNextTrianglePoint(&m_renderData[index1].point,
+        renderNextTrianglePoint(&m_renderData[index1].point,
                                 &m_renderData[index1].rgb);
-        RenderNextTrianglePoint(&m_renderData[index1 - m_phiSteps].point,
+        renderNextTrianglePoint(&m_renderData[index1 - m_phiSteps].point,
                                 &m_renderData[index1 - m_phiSteps].rgb);
 
         // End triangle strip
 
-        RenderEndTriangleStrip();
+        renderEndTriangleStrip();
     }
 
     // Now render the top of the hemisphere
 
     // Start a new triangle strip
-    RenderBeginTriangleStrip();
+    renderBeginTriangleStrip();
 
     for ( p = 0; p < m_phiSteps; p++ ) {
-        RenderNextTrianglePoint(&m_top.point,
+        renderNextTrianglePoint(&m_top.point,
                                 &m_top.rgb);
-        RenderNextTrianglePoint(&m_renderData[index1].point,
+        renderNextTrianglePoint(&m_renderData[index1].point,
                                 &m_renderData[index1].rgb);
         index1++;
     }
 
     // Send first positions again to close strip
 
-    RenderNextTrianglePoint(&m_top.point,
+    renderNextTrianglePoint(&m_top.point,
                             &m_top.rgb);
-    RenderNextTrianglePoint(&m_renderData[index1 - m_phiSteps].point,
+    renderNextTrianglePoint(&m_renderData[index1 - m_phiSteps].point,
                             &m_renderData[index1 - m_phiSteps].rgb);
 
     // End triangle strip
 
-    RenderEndTriangleStrip();
+    renderEndTriangleStrip();
 }
 
 // Callback needed for the render hook

@@ -16,15 +16,12 @@ class PatchSet {
 
 class HITLIST;
 
-#define PatchListIterate(patchlist, proc) \
-        ListIterate((LIST *)patchlist, (void (*)(void *))proc)
-
 #define ForAllPatches(P, patches) ForAllInList(PATCH, P, patches)
 
 // Note: Should create a Geometry class for a set of patches!
 extern GEOM_METHODS GLOBAL_skin_patchListGeometryMethods;
 
-extern float *patchListBounds(PatchSet *pl, float *boundingbox);
+extern float *patchListBounds(PatchSet *pl, float *boundingBox);
 
 extern HITREC *
 patchListIntersect(

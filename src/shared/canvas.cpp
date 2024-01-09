@@ -4,14 +4,14 @@
 #include "common/error.h"
 
 void createOffscreenCanvasWindow(int hres, int vres) {
-    RenderCreateOffscreenWindow(hres, vres);
+    renderCreateOffscreenWindow(hres, vres);
 
     /* set correct width and height for the camera */
     CameraSet(&GLOBAL_camera_mainCamera, &GLOBAL_camera_mainCamera.eyep, &GLOBAL_camera_mainCamera.lookp, &GLOBAL_camera_mainCamera.updir,
               GLOBAL_camera_mainCamera.fov, hres, vres, &GLOBAL_camera_mainCamera.background);
 
     /* render the scene (no expose events on the external canvas window!) */
-    RenderScene();
+    renderScene();
 }
 
 /* Size of the canvas mode stack. Canvas mode: determines how the program will

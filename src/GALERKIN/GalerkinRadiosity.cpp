@@ -1,7 +1,8 @@
-/* galerkin.h: Galerkin radiosity, with or without hierarchical refinement, with or
- *	       without clusters, with Jacobi, Gauss-Seidel or Southwell iterations,
- *	       potential-dirven or not ...
- */
+/**
+Galerkin radiosity, with or without hierarchical refinement, with or
+without clusters, with Jacobi, Gauss-Seidel or Southwell iterations,
+potential-driven or not.
+*/
 
 #include <cstring>
 #include <ctime>
@@ -26,9 +27,11 @@ GALERKIN_STATE GLOBAL_galerkin_state;
 static int t = true;
 static int f = false;
 
-/* installs cubature rules for triangles and quadrilaterals of the specified degree */
+/**
+Installs cubature rules for triangles and quadrilaterals of the specified degree
+*/
 void
-SetCubatureRules(CUBARULE **trirule, CUBARULE **quadrule, CUBATURE_DEGREE degree) {
+setCubatureRules(CUBARULE **trirule, CUBARULE **quadrule, CUBATURE_DEGREE degree) {
     switch ( degree ) {
         case DEGREE_1:
             *trirule = &CRT1;
@@ -79,12 +82,12 @@ SetCubatureRules(CUBARULE **trirule, CUBARULE **quadrule, CUBATURE_DEGREE degree
             *quadrule = &CRQ7PG;
             break;
         default:
-            logFatal(2, "SetCubatureRules", "Invalid degree %d", degree);
+            logFatal(2, "setCubatureRules", "Invalid degree %d", degree);
     }
 }
 
 static void
-GalerkinDefaults() {
+galerkinDefaults() {
     GLOBAL_galerkin_state.hierarchical = DEFAULT_GAL_HIERARCHICAL;
     GLOBAL_galerkin_state.importance_driven = DEFAULT_GAL_IMPORTANCE_DRIVEN;
     GLOBAL_galerkin_state.clustered = DEFAULT_GAL_CLUSTERED;
@@ -95,8 +98,8 @@ GalerkinDefaults() {
     GLOBAL_galerkin_state.shaftcullmode = DEFAULT_GAL_SHAFTCULLMODE;
     GLOBAL_galerkin_state.rcv_degree = DEFAULT_GAL_RCV_CUBATURE_DEGREE;
     GLOBAL_galerkin_state.src_degree = DEFAULT_GAL_SRC_CUBATURE_DEGREE;
-    SetCubatureRules(&GLOBAL_galerkin_state.rcv3rule, &GLOBAL_galerkin_state.rcv4rule, GLOBAL_galerkin_state.rcv_degree);
-    SetCubatureRules(&GLOBAL_galerkin_state.src3rule, &GLOBAL_galerkin_state.src4rule, GLOBAL_galerkin_state.src_degree);
+    setCubatureRules(&GLOBAL_galerkin_state.rcv3rule, &GLOBAL_galerkin_state.rcv4rule, GLOBAL_galerkin_state.rcv_degree);
+    setCubatureRules(&GLOBAL_galerkin_state.src3rule, &GLOBAL_galerkin_state.src4rule, GLOBAL_galerkin_state.src_degree);
     GLOBAL_galerkin_state.clusRule = &CRV1;
     GLOBAL_galerkin_state.rel_min_elem_area = DEFAULT_GAL_REL_MIN_ELEM_AREA;
     GLOBAL_galerkin_state.rel_link_error_threshold = DEFAULT_GAL_REL_LINK_ERROR_THRESHOLD;
@@ -112,7 +115,7 @@ GalerkinDefaults() {
 }
 
 static void
-IterationMethodOption(void *value) {
+iterationMethodOption(void *value) {
     char *name = *(char **) value;
 
     if ( strncasecmp(name, "jacobi", 2) == 0 ) {
@@ -127,57 +130,57 @@ IterationMethodOption(void *value) {
 }
 
 static void
-HierarchicalOption(void *value) {
+hierarchicalOption(void *value) {
     int yesno = *(int *) value;
     GLOBAL_galerkin_state.hierarchical = yesno;
 }
 
 static void
-LazyOption(void *value) {
+lazyOption(void *value) {
     int yesno = *(int *) value;
     GLOBAL_galerkin_state.lazy_linking = yesno;
 }
 
 static void
-ClusteringOption(void *value) {
+clusteringOption(void *value) {
     int yesno = *(int *) value;
     GLOBAL_galerkin_state.clustered = yesno;
 }
 
 static void
-ImportanceOption(void *value) {
+importanceOption(void *value) {
     int yesno = *(int *) value;
     GLOBAL_galerkin_state.importance_driven = yesno;
 }
 
 static void
-AmbientOption(void *value) {
+ambientOption(void *value) {
     int yesno = *(int *) value;
     GLOBAL_galerkin_state.use_ambient_radiance = yesno;
 }
 
 static CMDLINEOPTDESC galerkinOptions[] = {
-        {"-gr-iteration-method",     6,  Tstring,  nullptr,            IterationMethodOption,
+        {"-gr-iteration-method",     6,  Tstring,  nullptr, iterationMethodOption,
                 "-gr-iteration-method <methodname>: Jacobi, GaussSeidel, Southwell"},
-        {"-gr-hierarchical",         6,  TYPELESS, (void *) &t,  HierarchicalOption,
+        {"-gr-hierarchical",         6,  TYPELESS, (void *) &t, hierarchicalOption,
                 "-gr-hierarchical    \t: do hierarchical refinement"},
-        {"-gr-not-hierarchical",     10, TYPELESS, (void *) &f, HierarchicalOption,
+        {"-gr-not-hierarchical",     10, TYPELESS, (void *) &f, hierarchicalOption,
                 "-gr-not-hierarchical\t: don't do hierarchical refinement"},
-        {"-gr-lazy-linking",         6,  TYPELESS, (void *) &t,  LazyOption,
+        {"-gr-lazy-linking",         6,  TYPELESS, (void *) &t, lazyOption,
                 "-gr-lazy-linking    \t: do lazy linking"},
-        {"-gr-no-lazy-linking",      10, TYPELESS, (void *) &f, LazyOption,
+        {"-gr-no-lazy-linking",      10, TYPELESS, (void *) &f, lazyOption,
                 "-gr-no-lazy-linking \t: don't do lazy linking"},
-        {"-gr-clustering",           6,  TYPELESS, (void *) &t,  ClusteringOption,
+        {"-gr-clustering",           6,  TYPELESS, (void *) &t, clusteringOption,
                 "-gr-clustering      \t: do clustering"},
-        {"-gr-no-clustering",        10, TYPELESS, (void *) &f, ClusteringOption,
+        {"-gr-no-clustering",        10, TYPELESS, (void *) &f, clusteringOption,
                 "-gr-no-clustering   \t: don't do clustering"},
-        {"-gr-importance",           6,  TYPELESS, (void *) &t,  ImportanceOption,
+        {"-gr-importance",           6,  TYPELESS, (void *) &t, importanceOption,
                 "-gr-importance      \t: do view-potential driven computations"},
-        {"-gr-no-importance",        10, TYPELESS, (void *) &f, ImportanceOption,
+        {"-gr-no-importance",        10, TYPELESS, (void *) &f, importanceOption,
                 "-gr-no-importance   \t: don't use view-potential"},
-        {"-gr-ambient",              6,  TYPELESS, (void *) &t,  AmbientOption,
+        {"-gr-ambient",              6,  TYPELESS, (void *) &t, ambientOption,
                 "-gr-ambient         \t: do visualisation with ambient term"},
-        {"-gr-no-ambient",           10, TYPELESS, (void *) &f, AmbientOption,
+        {"-gr-no-ambient",           10, TYPELESS, (void *) &f, ambientOption,
                 "-gr-no-ambient      \t: do visualisation without ambient term"},
         {"-gr-link-error-threshold", 6,  Tfloat,   &GLOBAL_galerkin_state.rel_link_error_threshold, DEFAULT_ACTION,
                 "-gr-link-error-threshold <float>: Relative link error threshold"},
@@ -188,17 +191,19 @@ static CMDLINEOPTDESC galerkinOptions[] = {
 };
 
 static void
-ParseGalerkinOptions(int *argc, char **argv) {
+parseGalerkinOptions(int *argc, char **argv) {
     parseOptions(galerkinOptions, argc, argv);
 }
 
 static void
-PrintGalerkinOptions(FILE *fp) {
+printGalerkinOptions(FILE *fp) {
 }
 
-/* for counting how much CPU time was used for the computations */
+/**
+For counting how much CPU time was used for the computations
+*/
 static void
-UpdateCpuSecs() {
+updateCpuSecs() {
     clock_t t;
 
     t = clock();
@@ -206,25 +211,27 @@ UpdateCpuSecs() {
     GLOBAL_galerkin_state.lastclock = t;
 }
 
-/* radiance data for a PATCH is a surface element. */
+/**
+Radiance data for a PATCH is a surface element
+*/
 static void *
-CreatePatchData(PATCH *patch) {
+createPatchData(PATCH *patch) {
     return patch->radiance_data = (void *) CreateToplevelElement(patch);
 }
 
 static void
-PrintPatchData(FILE *out, PATCH *patch) {
+printPatchData(FILE *out, PATCH *patch) {
     PrintElement(out, (ELEMENT *) patch->radiance_data);
 }
 
 static void
-DestroyPatchData(PATCH *patch) {
+destroyPatchData(PATCH *patch) {
     DestroyToplevelElement((ELEMENT *) patch->radiance_data);
     patch->radiance_data = (void *) nullptr;
 }
 
 void
-PatchRecomputeColor(PATCH *patch) {
+patchRecomputeColor(PATCH *patch) {
     COLOR rho = REFLECTIVITY(patch);
     COLOR rad_vis;
 
@@ -241,7 +248,7 @@ PatchRecomputeColor(PATCH *patch) {
 }
 
 static void
-PatchInit(PATCH *patch) {
+patchInit(PATCH *patch) {
     COLOR rho = REFLECTIVITY(patch), Ed = SELFEMITTED_RADIANCE(patch);
 
     if ( GLOBAL_galerkin_state.use_constant_radiance ) {
@@ -268,15 +275,15 @@ PatchInit(PATCH *patch) {
                 POTENTIAL(patch).f = UNSHOT_POTENTIAL(patch).f = patch->directPotential;
                 break;
             default:
-                logFatal(-1, "PatchInit", "Invalid iteration method");
+                logFatal(-1, "patchInit", "Invalid iteration method");
         }
     }
 
-    PatchRecomputeColor(patch);
+    patchRecomputeColor(patch);
 }
 
 void
-InitGalerkin() {
+initGalerkin() {
     GLOBAL_galerkin_state.iteration_nr = 0;
     GLOBAL_galerkin_state.cpu_secs = 0.;
 
@@ -289,7 +296,9 @@ InitGalerkin() {
         GLOBAL_galerkin_state.ambient_radiance = GLOBAL_statistics_estimatedAverageRadiance;
     }
 
-    PatchListIterate(GLOBAL_scene_patches, PatchInit);
+    for ( PatchSet *window = GLOBAL_scene_patches; window != nullptr; window = window->next ) {
+        patchInit(window->patch);
+    }
 
     GLOBAL_galerkin_state.top_geom = GLOBAL_scene_clusteredWorldGeom;
     GLOBAL_galerkin_state.top_cluster = galerkinCreateClusterHierarchy(GLOBAL_galerkin_state.top_geom);
@@ -306,11 +315,11 @@ InitGalerkin() {
 }
 
 static int
-DoGalerkinOneStep() {
+doGalerkinOneStep() {
     int done = false;
 
     if ( GLOBAL_galerkin_state.iteration_nr < 0 ) {
-        logError("DoGalerkinOneStep", "method not initialized");
+        logError("doGalerkinOneStep", "method not initialized");
         return true;    /* done, don't continue! */
     }
 
@@ -324,31 +333,31 @@ DoGalerkinOneStep() {
         case JACOBI:
         case GAUSS_SEIDEL:
             if ( GLOBAL_galerkin_state.clustered ) {
-                done = DoClusteredGatheringIteration();
+                done = doClusteredGatheringIteration();
             } else {
-                done = DoGatheringIteration();
+                done = randomWalkRadiosityDoGatheringIteration();
             }
             break;
         case SOUTHWELL:
-            done = DoShootingStep();
+            done = doShootingStep();
             break;
         default:
-            logFatal(2, "DoGalerkinOneStep", "Invalid iteration method %d\n", GLOBAL_galerkin_state.iteration_method);
+            logFatal(2, "doGalerkinOneStep", "Invalid iteration method %d\n", GLOBAL_galerkin_state.iteration_method);
     }
 
-    UpdateCpuSecs();
+    updateCpuSecs();
 
     return done;
 }
 
 static void
-TerminateGalerkin() {
+terminateGalerkin() {
     ScratchTerminate();
     galerkinDestroyClusterHierarchy(GLOBAL_galerkin_state.top_cluster);
 }
 
 static COLOR
-GetRadiance(PATCH *patch, double u, double v, Vector3D dir) {
+getRadiance(PATCH *patch, double u, double v, Vector3D dir) {
     ELEMENT *leaf;
     COLOR rad;
 
@@ -372,7 +381,7 @@ GetRadiance(PATCH *patch, double u, double v, Vector3D dir) {
 }
 
 static char *
-GetGalerkinStats() {
+getGalerkinStats() {
     static char stats[2000];
     char *p;
     int n;
@@ -416,90 +425,95 @@ GetGalerkinStats() {
 }
 
 static void
-RenderElementHierarchy(ELEMENT *elem) {
+renderElementHierarchy(ELEMENT *elem) {
     if ( !elem->regular_subelements ) {
         RenderElement(elem);
-    } else ITERATE_REGULAR_SUBELEMENTS(elem, RenderElementHierarchy);
+    } else ITERATE_REGULAR_SUBELEMENTS(elem, renderElementHierarchy);
 }
 
 static void
-GalerkinRenderPatch(PATCH *patch) {
-    RenderElementHierarchy(TOPLEVEL_ELEMENT(patch));
+galerkinRenderPatch(PATCH *patch) {
+    renderElementHierarchy(TOPLEVEL_ELEMENT(patch));
 }
 
 void
-GalerkinRender() {
+galerkinRender() {
     if ( renderopts.frustum_culling ) {
-        RenderWorldOctree(GalerkinRenderPatch);
-    } else PatchListIterate(GLOBAL_scene_patches, GalerkinRenderPatch);
+        renderWorldOctree(galerkinRenderPatch);
+    } else {
+        for ( PatchSet *window = GLOBAL_scene_patches; window != nullptr; window = window->next ) {
+            galerkinRenderPatch(window->patch);
+        }
+    }
 }
 
 static void
-GalerkinUpdateMaterial(Material *oldmaterial, Material *newmaterial) {
+galerkinUpdateMaterial(Material *oldMaterial, Material *newMaterial) {
     if ( GLOBAL_galerkin_state.iteration_method == SOUTHWELL ) {
-        ShootingUpdateMaterial(oldmaterial, newmaterial);
+        shootingUpdateMaterial(oldMaterial, newMaterial);
     } else if ( GLOBAL_galerkin_state.iteration_method == JACOBI ||
                 GLOBAL_galerkin_state.iteration_method == GAUSS_SEIDEL ) {
-        GatheringUpdateMaterial(oldmaterial, newmaterial);
+        gatheringUpdateMaterial(oldMaterial, newMaterial);
     } else {
-        fprintf(stderr, "GalerkinUpdateMaterial: not yet implemented.\n");
+        fprintf(stderr, "galerkinUpdateMaterial: not yet implemented.\n");
     }
 
-    RenderScene();
+    renderScene();
 }
 
 /* *********************************************************** */
 /* VRML output */
-static FILE *vrmlfp;
-static int nwrit, vid;
+static FILE *globalVrmlFileDescriptor;
+static int globalNumberOfWrites;
+static int globalVertexId;
 
 static void
-WriteVertexCoord(Vector3D *p) {
-    if ( nwrit > 0 ) {
-        fprintf(vrmlfp, ", ");
+galerkinWriteVertexCoord(Vector3D *p) {
+    if ( globalNumberOfWrites > 0 ) {
+        fprintf(globalVrmlFileDescriptor, ", ");
     }
-    nwrit++;
-    if ( nwrit % 4 == 0 ) {
-        fprintf(vrmlfp, "\n\t  ");
+    globalNumberOfWrites++;
+    if ( globalNumberOfWrites % 4 == 0 ) {
+        fprintf(globalVrmlFileDescriptor, "\n\t  ");
     }
-    fprintf(vrmlfp, "%g %g %g", p->x, p->y, p->z);
-    vid++;
+    fprintf(globalVrmlFileDescriptor, "%g %g %g", p->x, p->y, p->z);
+    globalVertexId++;
 }
 
 static void
-WriteVertexCoords(ELEMENT *elem) {
+galerkinWriteVertexCoords(ELEMENT *elem) {
     Vector3D v[8];
     int i, nverts = ElementVertices(elem, v);
     for ( i = 0; i < nverts; i++ ) {
-        WriteVertexCoord(&v[i]);
+        galerkinWriteVertexCoord(&v[i]);
     }
 }
 
 static void
-WriteCoords() {
-    nwrit = vid = 0;
-    fprintf(vrmlfp, "\tcoord Coordinate {\n\t  point [ ");
-    ForAllLeafElements(GLOBAL_galerkin_state.top_cluster, WriteVertexCoords);
-    fprintf(vrmlfp, " ] ");
-    fprintf(vrmlfp, "\n\t}\n");
+galerkinWriteCoords() {
+    globalNumberOfWrites = globalVertexId = 0;
+    fprintf(globalVrmlFileDescriptor, "\tcoord Coordinate {\n\t  point [ ");
+    ForAllLeafElements(GLOBAL_galerkin_state.top_cluster, galerkinWriteVertexCoords);
+    fprintf(globalVrmlFileDescriptor, " ] ");
+    fprintf(globalVrmlFileDescriptor, "\n\t}\n");
 }
 
 static void
-WriteVertexColor(RGB *color) {
+galerkinWriteVertexColor(RGB *color) {
     /* not yet written */
-    if ( nwrit > 0 ) {
-        fprintf(vrmlfp, ", ");
+    if ( globalNumberOfWrites > 0 ) {
+        fprintf(globalVrmlFileDescriptor, ", ");
     }
-    nwrit++;
-    if ( nwrit % 4 == 0 ) {
-        fprintf(vrmlfp, "\n\t  ");
+    globalNumberOfWrites++;
+    if ( globalNumberOfWrites % 4 == 0 ) {
+        fprintf(globalVrmlFileDescriptor, "\n\t  ");
     }
-    fprintf(vrmlfp, "%.3g %.3g %.3g", color->r, color->g, color->b);
-    vid++;
+    fprintf(globalVrmlFileDescriptor, "%.3g %.3g %.3g", color->r, color->g, color->b);
+    globalVertexId++;
 }
 
 static void
-WriteVertexColors(ELEMENT *element) {
+galerkinWriteVertexColors(ELEMENT *element) {
     COLOR vertrad[4];
     int i;
 
@@ -526,62 +540,62 @@ WriteVertexColors(ELEMENT *element) {
     for ( i = 0; i < element->pog.patch->numberOfVertices; i++ ) {
         RGB col;
         RadianceToRGB(vertrad[i], &col);
-        WriteVertexColor(&col);
+        galerkinWriteVertexColor(&col);
     }
 }
 
 static void
-WriteVertexColors() {
-    vid = nwrit = 0;
-    fprintf(vrmlfp, "\tcolor Color {\n\t  color [ ");
-    ForAllLeafElements(GLOBAL_galerkin_state.top_cluster, WriteVertexColors);
-    fprintf(vrmlfp, " ] ");
-    fprintf(vrmlfp, "\n\t}\n");
+galerkinWriteVertexColors() {
+    globalVertexId = globalNumberOfWrites = 0;
+    fprintf(globalVrmlFileDescriptor, "\tcolor Color {\n\t  color [ ");
+    ForAllLeafElements(GLOBAL_galerkin_state.top_cluster, galerkinWriteVertexColors);
+    fprintf(globalVrmlFileDescriptor, " ] ");
+    fprintf(globalVrmlFileDescriptor, "\n\t}\n");
 }
 
 static void
-WriteColors() {
+galerkinWriteColors() {
     if ( !renderopts.smooth_shading ) {
         logWarning(nullptr, "I assume you want a smooth shaded model ...");
     }
-    fprintf(vrmlfp, "\tcolorPerVertex %s\n", "TRUE");
-    WriteVertexColors();
+    fprintf(globalVrmlFileDescriptor, "\tcolorPerVertex %s\n", "TRUE");
+    galerkinWriteVertexColors();
 }
 
 static void
-WriteCoordIndex(int index) {
-    nwrit++;
-    if ( nwrit % 20 == 0 ) {
-        fprintf(vrmlfp, "\n\t  ");
+galerkinWriteCoordIndex(int index) {
+    globalNumberOfWrites++;
+    if ( globalNumberOfWrites % 20 == 0 ) {
+        fprintf(globalVrmlFileDescriptor, "\n\t  ");
     }
-    fprintf(vrmlfp, "%d ", index);
+    fprintf(globalVrmlFileDescriptor, "%d ", index);
 }
 
 static void
-WriteCoordIndices(ELEMENT *elem) {
+galerkinWriteCoordIndices(ELEMENT *elem) {
     int i;
     for ( i = 0; i < elem->pog.patch->numberOfVertices; i++ ) {
-        WriteCoordIndex(vid++);
+        galerkinWriteCoordIndex(globalVertexId++);
     }
-    WriteCoordIndex(-1);
+    galerkinWriteCoordIndex(-1);
 }
 
 static void
-WriteCoordIndices() {
-    vid = nwrit = 0;
-    fprintf(vrmlfp, "\tcoordIndex [ ");
-    ForAllLeafElements(GLOBAL_galerkin_state.top_cluster, WriteCoordIndices);
-    fprintf(vrmlfp, " ]\n");
+galerkinWriteCoordIndices() {
+    globalVertexId = globalNumberOfWrites = 0;
+    fprintf(globalVrmlFileDescriptor, "\tcoordIndex [ ");
+    ForAllLeafElements(GLOBAL_galerkin_state.top_cluster, galerkinWriteCoordIndices);
+    fprintf(globalVrmlFileDescriptor, " ]\n");
 }
 
 static void
-GalerkinWriteVRML(FILE *fp) {
+galerkinWriteVRML(FILE *fp) {
     WriteVRMLHeader(fp);
 
-    vrmlfp = fp;
-    WriteCoords();
-    WriteColors();
-    WriteCoordIndices();
+    globalVrmlFileDescriptor = fp;
+    galerkinWriteCoords();
+    galerkinWriteColors();
+    galerkinWriteCoordIndices();
 
     WriteVRMLTrailer(fp);
 }
@@ -591,19 +605,19 @@ RADIANCEMETHOD GalerkinRadiosity = {
     "Galerkin",
     3,
     "Galerkin Radiosity",
-    GalerkinDefaults,
-    ParseGalerkinOptions,
-    PrintGalerkinOptions,
-    InitGalerkin,
-    DoGalerkinOneStep,
-    TerminateGalerkin,
-    GetRadiance,
-    CreatePatchData,
-    PrintPatchData,
-    DestroyPatchData,
-    GetGalerkinStats,
-    GalerkinRender,
+    galerkinDefaults,
+    parseGalerkinOptions,
+    printGalerkinOptions,
+    initGalerkin,
+    doGalerkinOneStep,
+    terminateGalerkin,
+    getRadiance,
+    createPatchData,
+    printPatchData,
+    destroyPatchData,
+    getGalerkinStats,
+    galerkinRender,
     (void (*)(void)) nullptr,
-    GalerkinUpdateMaterial,
-    GalerkinWriteVRML
+    galerkinUpdateMaterial,
+    galerkinWriteVRML
 };

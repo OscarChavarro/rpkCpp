@@ -113,7 +113,7 @@ square [0,1]^2 or the standard triangle (0,0),(1,0),(0,1) to the patch.
 The normal of the patch should have been computed before calling this routine
 */
 float
-patchArea(PATCH *patch) {
+randomWalkRadiosityPatchArea(PATCH *P) {
     Vector3D *p1;
     Vector3D *p2;
     Vector3D *p3;
@@ -130,27 +130,27 @@ patchArea(PATCH *patch) {
     float c;
 
     // Explicit compute the area and jacobian
-    switch ( patch->numberOfVertices ) {
+    switch ( P->numberOfVertices ) {
         case 3:
             /* jacobian J(u,v) for the mapping of the triangle
              * (0,0),(0,1),(1,0) to a triangular patch is constant and equal
              * to the area of the triangle ... so there is no need to store
              * any coefficients explicitely */
-            patch->jacobian = (Jacobian *) nullptr;
+            P->jacobian = (Jacobian *) nullptr;
 
-            p1 = patch->vertex[0]->point;
-            p2 = patch->vertex[1]->point;
-            p3 = patch->vertex[2]->point;
+            p1 = P->vertex[0]->point;
+            p2 = P->vertex[1]->point;
+            p3 = P->vertex[2]->point;
             VECTORSUBTRACT(*p2, *p1, d1);
             VECTORSUBTRACT(*p3, *p2, d2);
             VECTORCROSSPRODUCT(d1, d2, cp1);
-            patch->area = 0.5f * VECTORNORM(cp1);
+            P->area = 0.5f * VECTORNORM(cp1);
             break;
         case 4:
-            p1 = patch->vertex[0]->point;
-            p2 = patch->vertex[1]->point;
-            p3 = patch->vertex[2]->point;
-            p4 = patch->vertex[3]->point;
+            p1 = P->vertex[0]->point;
+            p2 = P->vertex[1]->point;
+            p3 = P->vertex[2]->point;
+            p4 = P->vertex[3]->point;
             VECTORSUBTRACT(*p2, *p1, d1);
             VECTORSUBTRACT(*p3, *p2, d2);
             VECTORSUBTRACT(*p3, *p4, d3);
@@ -158,38 +158,38 @@ patchArea(PATCH *patch) {
             VECTORCROSSPRODUCT(d1, d4, cp1);
             VECTORCROSSPRODUCT(d1, d3, cp2);
             VECTORCROSSPRODUCT(d2, d4, cp3);
-            a = VECTORDOTPRODUCT(cp1, patch->normal);
-            b = VECTORDOTPRODUCT(cp2, patch->normal);
-            c = VECTORDOTPRODUCT(cp3, patch->normal);
+            a = VECTORDOTPRODUCT(cp1, P->normal);
+            b = VECTORDOTPRODUCT(cp2, P->normal);
+            c = VECTORDOTPRODUCT(cp3, P->normal);
 
-            patch->area = a + 0.5 * (b + c);
-            if ( patch->area < 0. ) {    /* may happen if the normal direction and
+            P->area = a + 0.5 * (b + c);
+            if ( P->area < 0. ) {    /* may happen if the normal direction and
       a = -a;			 * vertex order are not consistent. */
                 b = -b;
                 c = -c;
-                patch->area = -patch->area;
+                P->area = -P->area;
             }
 
             /* b and c are zero for parallellograms. In that case, the area is equal to
              * a, so we don't need to store the coefficients. */
-            if ( fabs(b) / patch->area < EPSILON && fabs(c) / patch->area < EPSILON ) {
-                patch->jacobian = (Jacobian *) nullptr;
+            if ( fabs(b) / P->area < EPSILON && fabs(c) / P->area < EPSILON ) {
+                P->jacobian = (Jacobian *) nullptr;
             } else {
-                patch->jacobian = jacobianCreate(a, b, c);
+                P->jacobian = jacobianCreate(a, b, c);
             }
 
             break;
         default:
-            logFatal(2, "patchArea", "Can only handle triangular and quadrilateral patches.\n");
-            patch->jacobian = (Jacobian *) nullptr;
-            patch->area = 0.0;
+            logFatal(2, "randomWalkRadiosityPatchArea", "Can only handle triangular and quadrilateral patches.\n");
+            P->jacobian = (Jacobian *) nullptr;
+            P->area = 0.0;
     }
 
-    if ( patch->area < EPSILON * EPSILON ) {
-        fprintf(stderr, "Warning: very small patch id %d area = %g\n", patch->id, patch->area);
+    if ( P->area < EPSILON * EPSILON ) {
+        fprintf(stderr, "Warning: very small patch id %d area = %g\n", P->id, P->area);
     }
 
-    return patch->area;
+    return P->area;
 }
 
 /**
@@ -283,7 +283,7 @@ patchCreate(int numberOfVertices, Vertex *v1, Vertex *v2, Vertex *v3, Vertex *v4
     }
 
     /* also computes the jacobian */
-    patch->area = patchArea(patch);
+    patch->area = randomWalkRadiosityPatchArea(patch);
 
     /* patch midpoint */
     patchMidpoint(patch, &patch->midpoint);

@@ -13,7 +13,7 @@ extern int GLOBAL_statistics_numberOfElements;
 extern int GLOBAL_statistics_numberOfLightSources;
 extern int GLOBAL_statistics_numberOfShadowRays;
 extern int GLOBAL_statistics_numberOfShadowCacheHits;
-extern double GLOBAL_statistics_totalArea;
+extern float GLOBAL_statistics_totalArea;
 extern double GLOBAL_statistics_averageDirectPotential;
 extern double GLOBAL_statistics_maxDirectPotential;
 extern double GLOBAL_statistics_maxDirectImportance; // potential times area

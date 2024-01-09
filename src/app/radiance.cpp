@@ -1,6 +1,6 @@
-/* radiance.c: stuff common to all radiance methods */
-
-#include <cstring>
+/**
+Stuff common to all radiance methods
+*/
 
 #include "skin/radianceinterfaces.h"
 #include "common/error.h"
@@ -11,67 +11,77 @@
 #include "raycasting/stochasticRaytracing/mcrad.h"
 #include "PHOTONMAP/PhotonMapRadiosity.h"
 
-/* table of available radiance methods */
-RADIANCEMETHOD *RadianceMethods[] = {
-        &GalerkinRadiosity,
-        &StochasticRelaxationRadiosity,
-        &RandomWalkRadiosity,
-        &Pmap,
-        (RADIANCEMETHOD *) nullptr
+// Composes explanation for -radiance command line option
+static char globalRadianceMethodsString[1000];
+
+// Table of available radiance methods
+RADIANCEMETHOD *GLOBAL_radiance_radianceMethods[] = {
+    &GalerkinRadiosity,
+    &StochasticRelaxationRadiosity,
+    &GLOBAL_stochasticRaytracing_randomWalkRadiosity,
+    &Pmap,
+    (RADIANCEMETHOD *) nullptr
 };
 
-/* current radiance method handle */
+// Current radiance method handle
 RADIANCEMETHOD *GLOBAL_radiance_currentRadianceMethodHandle = (RADIANCEMETHOD *) nullptr;
 
 static void
-RadianceMethodOption(void *value) {
+radianceMethodOption(void *value) {
     char *name = *(char **) value;
 
     ForAllRadianceMethods(method)
                 {
                     if ( strncasecmp(name, method->shortName, method->nameAbbrev) == 0 ) {
-                        SetRadianceMethod(method);
+                        setRadianceMethod(method);
                         return;
                     }
                 }
     EndForAll;
 
     if ( strncasecmp(name, "none", 4) == 0 ) {
-        SetRadianceMethod(nullptr);
+        setRadianceMethod(nullptr);
     } else {
         logError(nullptr, "Invalid world-space radiance method name '%s'", name);
     }
 }
 
-/* composes explanation for -radiance command line option */
-static char radiance_methods_string[1000];
-
-static CMDLINEOPTDESC radianceOptions[] = {
-        {"-radiance-method", 4, Tstring,  nullptr, RadianceMethodOption,
-                radiance_methods_string},
+static CMDLINEOPTDESC globalRadianceOptions[] = {
+        {"-radiance-method", 4, Tstring,  nullptr, radianceMethodOption,
+                globalRadianceMethodsString},
         {nullptr,               0, TYPELESS, nullptr, DEFAULT_ACTION,
                 nullptr}
 };
 
-/* This routine sets the current radiance method to be used + initializes */
+/**
+This routine sets the current radiance method to be used + initializes
+*/
 void
-SetRadianceMethod(RADIANCEMETHOD *newmethod) {
+setRadianceMethod(RADIANCEMETHOD *newmethod) {
     if ( GLOBAL_radiance_currentRadianceMethodHandle ) {
         GLOBAL_radiance_currentRadianceMethodHandle->Terminate();
-        /* until we have radiance data convertors, we dispose of the old data and
-         * allocate new data for the new method. */
-        if ( GLOBAL_radiance_currentRadianceMethodHandle->DestroyPatchData ) PatchListIterate(GLOBAL_scene_patches, GLOBAL_radiance_currentRadianceMethodHandle->DestroyPatchData);
+        // Until we have radiance data convertors, we dispose of the old data and
+        // allocate new data for the new method
+        if ( GLOBAL_radiance_currentRadianceMethodHandle->DestroyPatchData ) {
+            for ( PatchSet *window = GLOBAL_scene_patches; window != nullptr; window = window->next ) {
+                GLOBAL_radiance_currentRadianceMethodHandle->DestroyPatchData(window->patch);
+            }
+        }
     }
     GLOBAL_radiance_currentRadianceMethodHandle = newmethod;
-    if ( GLOBAL_radiance_currentRadianceMethodHandle ) {
-        if ( GLOBAL_radiance_currentRadianceMethodHandle->CreatePatchData ) PatchListIterate(GLOBAL_scene_patches, GLOBAL_radiance_currentRadianceMethodHandle->CreatePatchData);
+    if ( GLOBAL_radiance_currentRadianceMethodHandle != nullptr ) {
+        if ( GLOBAL_radiance_currentRadianceMethodHandle->CreatePatchData ) {
+            for ( PatchSet *window = GLOBAL_scene_patches; window != nullptr; window = window->next ) {
+                GLOBAL_radiance_currentRadianceMethodHandle->CreatePatchData(window->patch);
+            }
+        }
         GLOBAL_radiance_currentRadianceMethodHandle->Initialize();
     }
 }
 
 static void
-make_radiance_methods_string() {
-    char *str = radiance_methods_string;
+makeRadianceMethodsString() {
+    char *str = globalRadianceMethodsString;
     int n;
     sprintf(str, "\
 -radiance-method <method>: Set world-space radiance computation method\n%n",
@@ -93,21 +103,21 @@ make_radiance_methods_string() {
 }
 
 void
-RadianceDefaults() {
+radianceDefaults() {
     ForAllRadianceMethods(method)
                 {
                     method->Defaults();
                     if ( strncasecmp(DEFAULT_RADIANCE_METHOD, method->shortName, method->nameAbbrev) == 0 ) {
-                        SetRadianceMethod(method);
+                        setRadianceMethod(method);
                     }
                 }
     EndForAll;
-    make_radiance_methods_string();
+    makeRadianceMethodsString();
 }
 
 void
-ParseRadianceOptions(int *argc, char **argv) {
-    parseOptions(radianceOptions, argc, argv);
+parseRadianceOptions(int *argc, char **argv) {
+    parseOptions(globalRadianceOptions, argc, argv);
 
     ForAllRadianceMethods(method)
                 {

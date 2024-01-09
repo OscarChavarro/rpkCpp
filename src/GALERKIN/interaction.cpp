@@ -69,14 +69,14 @@ InteractionCreate(
     interaction->deltaK.f = deltaK.f;
 
     TotalInteractions++;
-    if ( IsCluster(rcv)) {
-        if ( IsCluster(src)) {
+    if ( isCluster(rcv)) {
+        if ( isCluster(src)) {
             CCInteractions++;
         } else {
             SCInteractions++;
         }
     } else {
-        if ( IsCluster(src)) {
+        if ( isCluster(src)) {
             CSInteractions++;
         } else {
             SSInteractions++;
@@ -106,14 +106,14 @@ InteractionDestroy(INTERACTION *interaction) {
     free(interaction);
 
     TotalInteractions--;
-    if ( IsCluster(rcv)) {
-        if ( IsCluster(src)) {
+    if ( isCluster(rcv)) {
+        if ( isCluster(src)) {
             CCInteractions--;
         } else {
             SCInteractions--;
         }
     } else {
-        if ( IsCluster(src)) {
+        if ( isCluster(src)) {
             CSInteractions--;
         } else {
             SSInteractions--;

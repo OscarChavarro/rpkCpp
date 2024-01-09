@@ -681,13 +681,13 @@ RegularSubdivideTriangle(ELEMENT *element) {
     CreateSurfaceSubelement(element, 3, m1, m2, m0, nullptr);
 
 #ifndef NO_SUBDIVISION_LINES
-    RenderSetColor(&renderopts.outline_color);
-    RenderLine(v0->point, v1->point);
-    RenderLine(v1->point, v2->point);
-    RenderLine(v2->point, v0->point);
-    RenderLine(m0->point, m1->point);
-    RenderLine(m1->point, m2->point);
-    RenderLine(m2->point, m0->point);
+    renderSetColor(&renderopts.outline_color);
+    renderLine(v0->point, v1->point);
+    renderLine(v1->point, v2->point);
+    renderLine(v2->point, v0->point);
+    renderLine(m0->point, m1->point);
+    renderLine(m1->point, m2->point);
+    renderLine(m2->point, m0->point);
 #endif
     return element->regular_subelements;
 }
@@ -712,13 +712,13 @@ RegularSubdivideQuad(ELEMENT *element) {
     CreateSurfaceSubelement(element, 3, mm, m1, v2, m2);
 
 #ifndef NO_SUBDIVISION_LINES
-    RenderSetColor(&renderopts.outline_color);
-    RenderLine(v0->point, v1->point);
-    RenderLine(v1->point, v2->point);
-    RenderLine(v2->point, v3->point);
-    RenderLine(v3->point, v0->point);
-    RenderLine(m0->point, m2->point);
-    RenderLine(m1->point, m3->point);
+    renderSetColor(&renderopts.outline_color);
+    renderLine(v0->point, v1->point);
+    renderLine(v1->point, v2->point);
+    renderLine(v2->point, v3->point);
+    renderLine(v3->point, v0->point);
+    renderLine(m0->point, m2->point);
+    renderLine(m1->point, m3->point);
 #endif
     return element->regular_subelements;
 }

@@ -109,7 +109,7 @@ ElementReallocCoefficients(ELEMENT *elem) {
     COLOR *radiance, *received_radiance, *unshot_radiance;
     int basis_size = 0;
 
-    if ( IsCluster(elem)) {
+    if ( isCluster(elem)) {
         /* we always use a constant basis on cluster elements. */
         basis_size = 1;
     } else {
@@ -150,7 +150,7 @@ ElementReallocCoefficients(ELEMENT *elem) {
     if ( GLOBAL_galerkin_state.iteration_method == SOUTHWELL ) {
         unshot_radiance = (COLOR *)malloc(basis_size * sizeof(COLOR));
         clusterGalerkinClearCoefficients(unshot_radiance, basis_size);
-        if ( !IsCluster(elem)) {
+        if ( !isCluster(elem)) {
             if ( elem->unshot_radiance ) {
                 clusterGalerkinCopyCoefficients(unshot_radiance, elem->unshot_radiance,
                                                 MIN(elem->basis_size, basis_size));
@@ -253,7 +253,7 @@ RegularSubdivideElement(ELEMENT *element) {
     ELEMENT **subelement;
     int i;
 
-    if ( IsCluster(element)) {
+    if ( isCluster(element)) {
         logFatal(-1, "RegularSubdivideElement", "Cannot regularly subdivide cluster elements");
         return (ELEMENT **) nullptr;
     }
@@ -290,7 +290,7 @@ RegularSubdivideElement(ELEMENT *element) {
         subelement[i]->Rd = element->Rd;
         subelement[i]->Ed = element->Ed;
 
-        RenderSetColor(&renderopts.outline_color);
+        renderSetColor(&renderopts.outline_color);
         DrawElementOutline(subelement[i]);
     }
 
@@ -346,7 +346,7 @@ DestroyClusterElement(ELEMENT *element) {
 void
 PrintElement(FILE *out, ELEMENT *element) {
     fprintf(out, "Element %d: ", element->id);
-    if ( IsCluster(element)) {
+    if ( isCluster(element)) {
         fprintf(out, "cluster element, ");
     } else {
         fprintf(out, "belongs to patch ID %d, ",
@@ -429,7 +429,7 @@ PrintElement(FILE *out, ELEMENT *element) {
 /* prints the patch id and the child numbers of the element and its parents. */
 void
 PrintElementId(FILE *out, ELEMENT *elem) {
-    if ( IsCluster(elem)) {
+    if ( isCluster(elem)) {
         fprintf(out, "geom %d cluster", elem->pog.geom->id);
     } else {
         if ( elem->uptrans ) {
@@ -472,7 +472,7 @@ RegularSubelementAtPoint(ELEMENT *parent, double *u, double *v) {
     ELEMENT *child = (ELEMENT *) nullptr;
     double _u = *u, _v = *v;
 
-    if ( IsCluster(parent) || !parent->regular_subelements ) {
+    if ( isCluster(parent) || !parent->regular_subelements ) {
         return parent;
     }
 
@@ -545,7 +545,7 @@ RegularLeafElementAtPoint(ELEMENT *top, double *u, double *v) {
  * cluster element (8 vertices). The number of vertices is returned. */
 int
 ElementVertices(ELEMENT *elem, Vector3D *p) {
-    if ( IsCluster(elem)) {
+    if ( isCluster(elem)) {
         BOUNDINGBOX vol;
 
         ElementBounds(elem, vol);
@@ -606,7 +606,7 @@ Vector3D
 ElementMidpoint(ELEMENT *elem) {
     Vector3D c;
 
-    if ( IsCluster(elem)) {
+    if ( isCluster(elem)) {
         float *bbox = geomBounds(elem->pog.geom);
 
         VECTORSET(c,
@@ -631,7 +631,7 @@ ElementMidpoint(ELEMENT *elem) {
 /* Computes a bounding box for the element. */
 float *
 ElementBounds(ELEMENT *elem, float *bounds) {
-    if ( IsCluster(elem)) {
+    if ( isCluster(elem)) {
         boundsCopy(geomBounds(elem->pog.geom), bounds);
     } else {
         Vector3D p[4];
@@ -654,7 +654,7 @@ POLYGON *
 ElementPolygon(ELEMENT *elem, POLYGON *poly) {
     int i;
 
-    if ( IsCluster(elem)) {
+    if ( isCluster(elem)) {
         logFatal(-1, "ElementPolygon", "Cannot use this function for cluster elements");
         return (POLYGON *) nullptr;
     }
@@ -677,7 +677,7 @@ DrawElement(ELEMENT *element, int mode) {
     Vector3D p[4];
     int nrverts;
 
-    if ( IsCluster(element)) {
+    if ( isCluster(element)) {
         if ( mode & OUTLINE || mode & STRONG ) {
             RenderBounds(geomBounds(element->pog.geom));
         }
@@ -698,8 +698,8 @@ DrawElement(ELEMENT *element, int mode) {
         } else {
             RadianceToRGB(element->radiance[0], &color);
         }
-        RenderSetColor(&color);
-        RenderPolygonFlat(nrverts, p);
+        renderSetColor(&color);
+        renderPolygonFlat(nrverts, p);
     } else if ( mode & GOURAUD ) {
         RGB vertcol[4];
         COLOR vertrad[4];
@@ -729,7 +729,7 @@ DrawElement(ELEMENT *element, int mode) {
             RadianceToRGB(vertrad[i], &vertcol[i]);
         }
 
-        RenderPolygonGouraud(nrverts, p, vertcol);
+        renderPolygonGouraud(nrverts, p, vertcol);
     }
 
     /* modifies the positions, that's why it comes last */
@@ -743,14 +743,14 @@ DrawElement(ELEMENT *element, int mode) {
             VECTORSUMSCALED(p[i], 0.01, d, p[i]);
         }
 
-        RenderSetColor(&renderopts.outline_color);
-        RenderLine(&p[0], &p[1]);
-        RenderLine(&p[1], &p[2]);
+        renderSetColor(&renderopts.outline_color);
+        renderLine(&p[0], &p[1]);
+        renderLine(&p[1], &p[2]);
         if ( nrverts == 3 ) {
-            RenderLine(&p[2], &p[0]);
+            renderLine(&p[2], &p[0]);
         } else {
-            RenderLine(&p[2], &p[3]);
-            RenderLine(&p[3], &p[0]);
+            renderLine(&p[2], &p[3]);
+            renderLine(&p[3], &p[0]);
         }
 
         if ( mode & STRONG ) {
@@ -761,7 +761,7 @@ DrawElement(ELEMENT *element, int mode) {
 
                 for ( i = 1; i < 4; i++ ) {
                     VECTORSUMSCALED(p[1], i * 0.25, d, pt);
-                    RenderLine(&p[0], &pt);
+                    renderLine(&p[0], &pt);
                 }
             } else if ( nrverts == 4 ) {
                 Vector3D d1, d2, p1, p2;
@@ -773,7 +773,7 @@ DrawElement(ELEMENT *element, int mode) {
                 for ( i = 0; i < 5; i++ ) {
                     VECTORSUMSCALED(p[0], i * 0.25, d1, p1);
                     VECTORSUMSCALED(p[2], (1.0 - i * 0.25), d2, p2);
-                    RenderLine(&p1, &p2);
+                    renderLine(&p1, &p2);
                 }
             }
         }

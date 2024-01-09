@@ -7,38 +7,39 @@
 #include "GALERKIN/galerkinP.h"
 #include "GALERKIN/formfactor.h"
 
-static ELEMENT *the_element;    /* the element for which initial links are to be created */
-static ROLE the_role;        /* the role of that element: SOURCE or RECEIVER */
-static PATCH *the_patch;    /* the patch for the element is the toplevel element */
-static BOUNDINGBOX the_patch_bounds; /* bounding box for that patch */
-static GeometryListNode *the_candlist;    /* candidate list for shaft culling */
+static ELEMENT *globalElement; // The element for which initial links are to be created
+static ROLE globalRole; // The role of that element: SOURCE or RECEIVER
+static PATCH *globalPatch; // The patch for the element is the toplevel element
+static BOUNDINGBOX globalPatchBoundingBox; // Bounding box for that patch
+static GeometryListNode *globalCandidateList; // Candidate list for shaft culling
 
-void CreateInitialLink(PATCH *patch) {
-    ELEMENT *rcv = (ELEMENT *) nullptr, *src = (ELEMENT *) nullptr;
-    GeometryListNode *oldcandlist = the_candlist;
-    INTERACTION link;
+static void
+createInitialLink(PATCH *patch) {
+    ELEMENT *rcv = nullptr;
+    ELEMENT *src = nullptr;
+    GeometryListNode *oldCandidateList = globalCandidateList;
+    INTERACTION link{};
     float ff[MAXBASISSIZE * MAXBASISSIZE];
     link.K.p = ff;
-    /* link.deltaK.p = */
 
-    if ( !Facing(patch, the_patch)) {
+    if ( !Facing(patch, globalPatch)) {
         return;
     }
 
-    switch ( the_role ) {
+    switch ( globalRole ) {
         case SOURCE:
             rcv = TOPLEVEL_ELEMENT(patch);
-            src = the_element;
+            src = globalElement;
             break;
         case RECEIVER:
-            rcv = the_element;
+            rcv = globalElement;
             src = TOPLEVEL_ELEMENT(patch);
             break;
         default:
-            logFatal(2, "CreateInitialLink", "Impossible element role");
+            logFatal(2, "createInitialLink", "Impossible element role");
     }
 
-    if ((GLOBAL_galerkin_state.exact_visibility || GLOBAL_galerkin_state.shaftcullmode == ALWAYS_DO_SHAFTCULLING) && oldcandlist ) {
+    if ((GLOBAL_galerkin_state.exact_visibility || GLOBAL_galerkin_state.shaftcullmode == ALWAYS_DO_SHAFTCULLING) && oldCandidateList ) {
         SHAFT shaft, *the_shaft;
 
         if ( GLOBAL_galerkin_state.exact_visibility ) {
@@ -48,22 +49,22 @@ void CreateInitialLink(PATCH *patch) {
                                                        &shaft);
         } else {
             BOUNDINGBOX bbox;
-            the_shaft = ConstructShaft(the_patch_bounds, patchBounds(patch, bbox), &shaft);
+            the_shaft = ConstructShaft(globalPatchBoundingBox, patchBounds(patch, bbox), &shaft);
         }
 
         if ( the_shaft ) {
-            ShaftOmit(&shaft, (Geometry *) the_patch);
+            ShaftOmit(&shaft, (Geometry *) globalPatch);
             ShaftOmit(&shaft, (Geometry *) patch);
-            the_candlist = DoShaftCulling(oldcandlist, the_shaft, (GeometryListNode *) nullptr);
+            globalCandidateList = DoShaftCulling(oldCandidateList, the_shaft, (GeometryListNode *) nullptr);
 
             if ( the_shaft->cut == true ) {    /* one patch causes full occlusion. */
-                FreeCandidateList(the_candlist);
-                the_candlist = oldcandlist;
+                FreeCandidateList(globalCandidateList);
+                globalCandidateList = oldCandidateList;
                 return;
             }
         } else {
             /* should never happen though */
-            logWarning("CreateInitialLinks", "Unable to construct a shaft for shaft culling");
+            logWarning("createInitialLinks", "Unable to construct a shaft for shaft culling");
         }
     }
 
@@ -71,13 +72,13 @@ void CreateInitialLink(PATCH *patch) {
     link.src = src;
     link.nrcv = rcv->basis_size;
     link.nsrc = src->basis_size;
-    AreaToAreaFormFactor(&link, the_candlist);
+    AreaToAreaFormFactor(&link, globalCandidateList);
 
     if ( GLOBAL_galerkin_state.exact_visibility || GLOBAL_galerkin_state.shaftcullmode == ALWAYS_DO_SHAFTCULLING ) {
-        if ( oldcandlist != the_candlist ) {
-            FreeCandidateList(the_candlist);
+        if ( oldCandidateList != globalCandidateList ) {
+            FreeCandidateList(globalCandidateList);
         }
-        the_candlist = oldcandlist;
+        globalCandidateList = oldCandidateList;
     }
 
     if ( link.vis > 0 ) {
@@ -91,64 +92,81 @@ void CreateInitialLink(PATCH *patch) {
     }
 }
 
-/* yes ... we exploit the hierarchical structure of the scene during initial linking */
-static void GeomLink(Geometry *geom) {
+/**
+Yes ... we exploit the hierarchical structure of the scene during initial linking
+*/
+static void
+geomLink(Geometry *geom) {
     SHAFT shaft;
-    GeometryListNode *oldCandList = the_candlist;
+    GeometryListNode *oldCandidateList = globalCandidateList;
 
-    /* immediately return if the Geometry is bounded and behind the plane of the patch
-     * for which itneractions are created ... */
-    if ( geom->bounded && boundsBehindPlane(geomBounds(geom), &the_patch->normal, the_patch->planeConstant)) {
+    // Immediately return if the Geometry is bounded and behind the plane of the patch for which interactions are created
+    if ( geom->bounded && boundsBehindPlane(geomBounds(geom), &globalPatch->normal, globalPatch->planeConstant)) {
         return;
     }
 
     /* if the geometry is bounded, do shaft culling, reducing the candidate list
      * which contains the possible occluders between a pair of patches for which
      * an initial link will need to be created. */
-    if ( geom->bounded && oldCandList ) {
-        ConstructShaft(the_patch_bounds, geomBounds(geom), &shaft);
-        ShaftOmit(&shaft, (Geometry *) the_patch);
-        the_candlist = DoShaftCulling(oldCandList, &shaft, nullptr);
+    if ( geom->bounded && oldCandidateList ) {
+        ConstructShaft(globalPatchBoundingBox, geomBounds(geom), &shaft);
+        ShaftOmit(&shaft, (Geometry *) globalPatch);
+        globalCandidateList = DoShaftCulling(oldCandidateList, &shaft, nullptr);
     }
 
-    /* if the Geometry is an aggregate, test each of it's childer GEOMs, if it
-    * is a primitive, create an initial link with each patch it consists of. */
+    // If the Geometry is an aggregate, test each of its children GEOMs, if it
+    // is a primitive, create an initial link with each patch it consists of
     if ( geomIsAggregate(geom)) {
-        GeometryListNode *geoml = geomPrimList(geom);
-        GeomListIterate(geoml, GeomLink);
+        GeometryListNode *geometryList = geomPrimList(geom);
+        for ( GeometryListNode *window = geometryList; window != nullptr; window = window->next ) {
+            Geometry *geometry = window->geom;
+            geomLink(geometry);
+        }
     } else {
-        PatchSet *patchl = geomPatchList(geom);
-        PatchListIterate(patchl, CreateInitialLink);
+        for ( PatchSet *window = geomPatchList(geom); window != nullptr; window = window->next ) {
+            createInitialLink(window->patch);
+        }
     }
 
-    if ( geom->bounded && oldCandList ) {
-        FreeCandidateList(the_candlist);
+    if ( geom->bounded && oldCandidateList ) {
+        FreeCandidateList(globalCandidateList);
     }
-    the_candlist = oldCandList;
+    globalCandidateList = oldCandidateList;
 }
 
-/* Creates the initial interactions for a toplevel element which is
- * considered to be a SOURCE or RECEIVER according to 'role'. Interactions
- * are stored at the receiver element when doing gathering and at the
- * source element when doing shooting. */
-void CreateInitialLinks(ELEMENT *top, ROLE role) {
-    if ( IsCluster(top)) {
-        logFatal(-1, "CreateInitialLinks", "cannot use this routine for cluster elements");
+/**
+Creates the initial interactions for a toplevel element which is
+considered to be a SOURCE or RECEIVER according to 'role'. Interactions
+are stored at the receiver element when doing gathering and at the
+source element when doing shooting
+*/
+void
+createInitialLinks(ELEMENT *top, ROLE role) {
+    if ( top->flags & IS_CLUSTER ) {
+        logFatal(-1, "createInitialLinks", "cannot use this routine for cluster elements");
     }
 
-    the_element = top;
-    the_role = role;
-    the_patch = top->pog.patch;
-    patchBounds(the_patch, the_patch_bounds);
-    the_candlist = GLOBAL_scene_clusteredWorld;
-    GeomListIterate(GLOBAL_scene_world, GeomLink);
+    globalElement = top;
+    globalRole = role;
+    globalPatch = top->pog.patch;
+    patchBounds(globalPatch, globalPatchBoundingBox);
+    globalCandidateList = GLOBAL_scene_clusteredWorld;
+
+    for ( GeometryListNode *window = (GLOBAL_scene_world); window != nullptr; window = window->next ) {
+        Geometry *geometry = window->geom;
+        geomLink(geometry);
+    }
 }
 
-/* Creates an initial link between the given element and the top cluster. */
-void CreateInitialLinkWithTopCluster(ELEMENT *elem, ROLE role) {
+/**
+Creates an initial link between the given element and the top cluster
+*/
+void
+createInitialLinkWithTopCluster(ELEMENT *elem, ROLE role) {
     ELEMENT *rcv = (ELEMENT *) nullptr, *src = (ELEMENT *) nullptr;
     INTERACTION *link;
-    FloatOrPointer K, deltaK;
+    FloatOrPointer K;
+    FloatOrPointer deltaK;
     float ff[MAXBASISSIZE * MAXBASISSIZE];
     int i;
 
@@ -162,34 +180,36 @@ void CreateInitialLinkWithTopCluster(ELEMENT *elem, ROLE role) {
             rcv = GLOBAL_galerkin_state.top_cluster;
             break;
         default:
-            logFatal(-1, "CreateInitialLinkWithTopCluster", "Invalid role");
+            logFatal(-1, "createInitialLinkWithTopCluster", "Invalid role");
     }
 
-    /* assume no light transport (overlapping receiver and source) */
+    // Assume no light transport (overlapping receiver and source)
     if ( rcv->basis_size * src->basis_size == 1 ) {
-        K.f = 0.;
+        K.f = 0.0;
     } else {
         K.p = ff;
         for ( i = 0; i < rcv->basis_size * src->basis_size; i++ ) {
-            K.p[i] = 0.;
+            K.p[i] = 0.0;
         }
     }
-    deltaK.f = HUGE;    /* HUGE error on the form factor */
+    deltaK.f = HUGE; // HUGE error on the form factor
 
-    link = InteractionCreate(rcv, src,
-                             K, deltaK,
-                             rcv->basis_size /*nrcv*/,
-                             src->basis_size /*nsrc*/,
-            /*crcv*/ 1, /*vis*/ 128
+    link = InteractionCreate(
+        rcv,
+        src,
+        K,
+        deltaK,
+        rcv->basis_size, // nrcv
+        src->basis_size, // nsrc
+        1, // crcv
+        128 // vis
     );
 
-    /* store interactions with the source patch for the progressive radiosity method
-     * and with the receiving patch for gathering mathods. */
+    // Store interactions with the source patch for the progressive radiosity method
+    // and with the receiving patch for gathering methods
     if ( GLOBAL_galerkin_state.iteration_method == SOUTHWELL ) {
         src->interactions = InteractionListAdd(src->interactions, link);
     } else {
         rcv->interactions = InteractionListAdd(rcv->interactions, link);
     }
 }
-
-

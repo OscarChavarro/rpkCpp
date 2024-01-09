@@ -18,7 +18,8 @@ Southwell Galerkin radiosity (progressive refinement radiosity)
 /* Returns the patch with highest unshot power, weighted with indirect
  * importance if importance-driven (see Bekaert&Willems, "Importance-driven
  * Progressive refinement radiosity", EGRW'95, Dublin. */
-static PATCH *ChooseRadianceShootingPatch() {
+static PATCH *
+chooseRadianceShootingPatch() {
     PATCH *shooting_patch, *pot_shooting_patch;
     float power, maxpower, powerimp, maxpowerimp;
     PatchSet *pl;
@@ -53,7 +54,7 @@ static PATCH *ChooseRadianceShootingPatch() {
 
 /* Propagates unshot radiance and potential from source to receiver over the link. */
 void
-ShootUnshotRadianceAndPotentialOverLink(INTERACTION *link) {
+shootUnshotRadianceAndPotentialOverLink(INTERACTION *link) {
     COLOR *srcrad, *rcvrad;
 
     srcrad = link->src->unshot_radiance;
@@ -77,7 +78,7 @@ ShootUnshotRadianceAndPotentialOverLink(INTERACTION *link) {
         float K = ((link->nrcv == 1 && link->nsrc == 1) ? link->K.f : link->K.p[0]);
         COLOR srcrho;
 
-        if ( IsCluster(link->src)) {
+        if ( isCluster(link->src)) {
             colorSetMonochrome(srcrho, 1.);
         } else {
             srcrho = REFLECTIVITY(link->src->pog.patch);
@@ -89,18 +90,18 @@ ShootUnshotRadianceAndPotentialOverLink(INTERACTION *link) {
 /* Propagates and clears the unshot radiance and potential of the element and 
  * all its subelements */
 static void
-ShootUnshotRadianceAndPotential(ELEMENT *elem) {
-    ITERATE_REGULAR_SUBELEMENTS(elem, ShootUnshotRadianceAndPotential);
-    ITERATE_IRREGULAR_SUBELEMENTS(elem, ShootUnshotRadianceAndPotential);
-    InteractionListIterate(elem->interactions, (void (*)(void *))ShootUnshotRadianceAndPotentialOverLink);
+shootUnshotRadianceAndPotential(ELEMENT *elem) {
+    ITERATE_REGULAR_SUBELEMENTS(elem, shootUnshotRadianceAndPotential);
+    ITERATE_IRREGULAR_SUBELEMENTS(elem, shootUnshotRadianceAndPotential);
+    InteractionListIterate(elem->interactions, (void (*)(void *)) shootUnshotRadianceAndPotentialOverLink);
     clusterGalerkinClearCoefficients(elem->unshot_radiance, elem->basis_size);
     elem->unshot_potential.f = 0.;
 }
 
 static void
-ClearUnshotRadianceAndPotential(ELEMENT *elem) {
-    ITERATE_REGULAR_SUBELEMENTS(elem, ClearUnshotRadianceAndPotential);
-    ITERATE_IRREGULAR_SUBELEMENTS(elem, ClearUnshotRadianceAndPotential);
+clearUnshotRadianceAndPotential(ELEMENT *elem) {
+    ITERATE_REGULAR_SUBELEMENTS(elem, clearUnshotRadianceAndPotential);
+    ITERATE_IRREGULAR_SUBELEMENTS(elem, clearUnshotRadianceAndPotential);
     clusterGalerkinClearCoefficients(elem->unshot_radiance, elem->basis_size);
     elem->unshot_potential.f = 0.;
 }
@@ -109,14 +110,14 @@ ClearUnshotRadianceAndPotential(ELEMENT *elem) {
  * the patch into the environment. Finally clears the unshot radiance
  * at all levels of the element hierarchy for the patch. */
 static void
-PatchPropagateUnshotRadianceAndPotential(PATCH *shooting_patch) {
+patchPropagateUnshotRadianceAndPotential(PATCH *shooting_patch) {
     ELEMENT *top = TOPLEVEL_ELEMENT(shooting_patch);
 
     if ( !(top->flags & INTERACTIONS_CREATED)) {
         if ( GLOBAL_galerkin_state.clustered ) {
-            CreateInitialLinkWithTopCluster(top, SOURCE);
+            createInitialLinkWithTopCluster(top, SOURCE);
         } else {
-            CreateInitialLinks(top, SOURCE);
+            createInitialLinks(top, SOURCE);
         }
         top->flags |= INTERACTIONS_CREATED;
     }
@@ -127,13 +128,13 @@ PatchPropagateUnshotRadianceAndPotential(PATCH *shooting_patch) {
     /* EnforceEnergyConservation(shooting_patch); should be done before transport */
 
     /* Clear the unshot radiance at all levels */
-    ClearUnshotRadianceAndPotential(top);
+    clearUnshotRadianceAndPotential(top);
 }
 
 /* Makes the hierarchical representation of potential consistent over all
  * all levels. */
 static float
-ShootingPushPullPotential(ELEMENT *elem, float down) {
+shootingPushPullPotential(ELEMENT *elem, float down) {
     float up;
     int i;
 
@@ -148,18 +149,19 @@ ShootingPushPullPotential(ELEMENT *elem, float down) {
 
     if ( elem->regular_subelements ) {
         for ( i = 0; i < 4; i++ ) {
-            up += 0.25 * ShootingPushPullPotential(elem->regular_subelements[i], down);
+            up += 0.25f * shootingPushPullPotential(elem->regular_subelements[i], down);
         }
     }
 
     if ( elem->irregular_subelements ) {
-        ELEMENTLIST *subellist;
-        for ( subellist = elem->irregular_subelements; subellist; subellist = subellist->next ) {
-            ELEMENT *subel = subellist->element;
-            if ( !IsCluster(elem)) {
+        ELEMENTLIST *subElementList;
+        for ( subElementList = elem->irregular_subelements; subElementList; subElementList = subElementList->next ) {
+            ELEMENT *subElement = subElementList->element;
+            if ( !isCluster(elem)) {
                 down = 0.;
-            }    /* don't push to irregular surface subelements */
-            up += subel->area / elem->area * ShootingPushPullPotential(subel, down);
+            }
+            // Don't push to irregular surface sub-elements
+            up += subElement->area / elem->area * shootingPushPullPotential(subElement, down);
         }
     }
 
@@ -169,9 +171,9 @@ ShootingPushPullPotential(ELEMENT *elem, float down) {
 }
 
 static void
-PatchUpdateRadianceAndPotential(PATCH *patch) {
+patchUpdateRadianceAndPotential(PATCH *patch) {
     if ( GLOBAL_galerkin_state.importance_driven ) {
-        ShootingPushPullPotential(TOPLEVEL_ELEMENT(patch), 0.);
+        shootingPushPullPotential(TOPLEVEL_ELEMENT(patch), 0.);
     }
     basisGalerkinPushPullRadiance(TOPLEVEL_ELEMENT(patch));
 
@@ -180,43 +182,47 @@ PatchUpdateRadianceAndPotential(PATCH *patch) {
 }
 
 static void
-DoPropagate(PATCH *shooting_patch) {
-    /* propagate the unshot power of the shooting patch into the environment. */
-    PatchPropagateUnshotRadianceAndPotential(shooting_patch);
+doPropagate(PATCH *shooting_patch) {
+    // Propagate the un-shot power of the shooting patch into the environment
+    patchPropagateUnshotRadianceAndPotential(shooting_patch);
 
-    /* recompute the colors of all patches, not only the patches that received
-     * radiance from the shooting patch, since the ambient term has also changed. */
+    // Recompute the colors of all patches, not only the patches that received
+    // radiance from the shooting patch, since the ambient term has also changed
     if ( GLOBAL_galerkin_state.clustered ) {
         if ( GLOBAL_galerkin_state.importance_driven ) {
-            ShootingPushPullPotential(GLOBAL_galerkin_state.top_cluster, 0.);
+            shootingPushPullPotential(GLOBAL_galerkin_state.top_cluster, 0.0);
         }
         basisGalerkinPushPullRadiance(GLOBAL_galerkin_state.top_cluster);
         GLOBAL_galerkin_state.ambient_radiance = GLOBAL_galerkin_state.top_cluster->unshot_radiance[0];
     } else {
         colorClear(GLOBAL_galerkin_state.ambient_radiance);
-        PatchListIterate(GLOBAL_scene_patches, PatchUpdateRadianceAndPotential);
-        colorScale(1. / GLOBAL_statistics_totalArea, GLOBAL_galerkin_state.ambient_radiance,
+        for ( PatchSet *window = GLOBAL_scene_patches; window != nullptr; window = window->next ) {
+            patchUpdateRadianceAndPotential(window->patch);
+        }
+        colorScale(1.0f / GLOBAL_statistics_totalArea, GLOBAL_galerkin_state.ambient_radiance,
                    GLOBAL_galerkin_state.ambient_radiance);
     }
 
-    PatchListIterate(GLOBAL_scene_patches, PatchRecomputeColor);
+    for ( PatchSet *window = GLOBAL_scene_patches; window != nullptr; window = window->next ) {
+        patchRecomputeColor(window->patch);
+    }
 }
 
 static int
-PropagateRadiance() {
+propagateRadiance() {
     PATCH *shooting_patch;
 
     /* choose a shooting patch. also accumulates the total unshot power into
      * GLOBAL_galerkin_state.ambient_radiance. */
-    shooting_patch = ChooseRadianceShootingPatch();
+    shooting_patch = chooseRadianceShootingPatch();
     if ( !shooting_patch ) {
         return true;
     }
 
-    RenderSetColor(&GLOBAL_material_yellow);
-    RenderPatchOutline(shooting_patch);
+    renderSetColor(&GLOBAL_material_yellow);
+    renderPatchOutline(shooting_patch);
 
-    DoPropagate(shooting_patch);
+    doPropagate(shooting_patch);
 
     return false;
 }
@@ -224,11 +230,11 @@ PropagateRadiance() {
 /* Called for each patch after direct potential has changed (because the 
  * virtual camera has changed). */
 void
-ShootingUpdateDirectPotential(ELEMENT *elem, float potential_increment) {
+shootingUpdateDirectPotential(ELEMENT *elem, float potential_increment) {
     if ( elem->regular_subelements ) {
         int i;
         for ( i = 0; i < 4; i++ ) {
-            ShootingUpdateDirectPotential(elem->regular_subelements[i], potential_increment);
+            shootingUpdateDirectPotential(elem->regular_subelements[i], potential_increment);
         }
     }
     elem->direct_potential.f += potential_increment;
@@ -239,14 +245,14 @@ ShootingUpdateDirectPotential(ELEMENT *elem, float potential_increment) {
 /* Recomputes the potential and unshot potential of the cluster and its subclusters 
  * based on the potential of the contained patches. */
 static void
-ClusterUpdatePotential(ELEMENT *clus) {
-    if ( IsCluster(clus)) {
+clusterUpdatePotential(ELEMENT *clus) {
+    if ( isCluster(clus)) {
         ELEMENTLIST *subcluslist;
         clus->potential.f = 0.;
         clus->unshot_potential.f = 0.;
         for ( subcluslist = clus->irregular_subelements; subcluslist; subcluslist = subcluslist->next ) {
             ELEMENT *subclus = subcluslist->element;
-            ClusterUpdatePotential(subclus);
+            clusterUpdatePotential(subclus);
             clus->potential.f += subclus->area * subclus->potential.f;
             clus->unshot_potential.f += subclus->area * subclus->unshot_potential.f;
         }
@@ -258,7 +264,7 @@ ClusterUpdatePotential(ELEMENT *clus) {
 /* Chooses the patch with highest unshot importance (potential times 
  * area), see Bekaert&Willems, EGRW'95 (Dublin) */
 static PATCH *
-ChoosePotentialShootingPatch() {
+choosePotentialShootingPatch() {
     float maximp = 0.;
     PATCH *shooting_patch = (PATCH *) nullptr;
     PatchSet *pl;
@@ -277,14 +283,14 @@ ChoosePotentialShootingPatch() {
 }
 
 static void
-PropagatePotential() {
+propagatePotential() {
     PATCH *shooting_patch;
 
-    shooting_patch = ChoosePotentialShootingPatch();
+    shooting_patch = choosePotentialShootingPatch();
     if ( shooting_patch ) {
-        RenderSetColor(&GLOBAL_material_white);
-        RenderPatchOutline(shooting_patch);
-        DoPropagate(shooting_patch);
+        renderSetColor(&GLOBAL_material_white);
+        renderPatchOutline(shooting_patch);
+        doPropagate(shooting_patch);
     } else {
         fprintf(stderr, "No patches with unshot potential??\n");
     }
@@ -292,7 +298,7 @@ PropagatePotential() {
 
 /* One step of the progressive refinement radiosity algorithm */
 int
-ReallyDoShootingStep() {
+reallyDoShootingStep() {
     if ( GLOBAL_galerkin_state.importance_driven ) {
         if ( GLOBAL_galerkin_state.iteration_nr <= 1 || GLOBAL_camera_mainCamera.changed ) {
             UpdateDirectPotential();
@@ -300,25 +306,25 @@ ReallyDoShootingStep() {
                         {
                             ELEMENT *top = TOPLEVEL_ELEMENT(P);
                             float potential_increment = P->directPotential - top->direct_potential.f;
-                            ShootingUpdateDirectPotential(top, potential_increment);
+                            shootingUpdateDirectPotential(top, potential_increment);
                         }
             EndForAll;
             GLOBAL_camera_mainCamera.changed = false;
             if ( GLOBAL_galerkin_state.clustered ) {
-                ClusterUpdatePotential(GLOBAL_galerkin_state.top_cluster);
+                clusterUpdatePotential(GLOBAL_galerkin_state.top_cluster);
             }
         }
-        PropagatePotential();
+        propagatePotential();
     }
-    return PropagateRadiance();
+    return propagateRadiance();
 }
 
 int
-DoShootingStep() {
-    return ReallyDoShootingStep();
+doShootingStep() {
+    return reallyDoShootingStep();
 }
 
 void
-ShootingUpdateMaterial(Material *oldmaterial, Material *newmaterial) {
-    logWarning("ShootingUpdateMaterial", "Out of order");
+shootingUpdateMaterial(Material *oldMaterial, Material *newMaterial) {
+    logWarning("shootingUpdateMaterial", "Out of order");
 }

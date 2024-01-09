@@ -132,29 +132,29 @@ extern GALERKIN_STATE GLOBAL_galerkin_state;
 #define DEFAULT_GAL_CLUSTERING_STRATEGY ISOTROPIC
 #define DEFAULT_GAL_SCRATCH_FB_SIZE 200
 
-extern void InitGalerkin();
+extern void initGalerkin();
 
 /* installs cubature rules for triangles and quadrilaterals of the specified degree */
-extern void SetCubatureRules(CUBARULE **trirule, CUBARULE **quadrule, CUBATURE_DEGREE degree);
+extern void setCubatureRules(CUBARULE **trirule, CUBARULE **quadrule, CUBATURE_DEGREE degree);
 
 /* recomputes the color of a patch using ambient radiance term, ... if requested for */
-extern void PatchRecomputeColor(PATCH *patch);
+extern void patchRecomputeColor(PATCH *patch);
 
 /* in gathering.c. Returns true when converged and false if not. */
-extern int DoGatheringIteration();
+extern int randomWalkRadiosityDoGatheringIteration();
 
-extern int DoClusteredGatheringIteration();
+extern int doClusteredGatheringIteration();
 
-extern void GatheringUpdateDirectPotential(ELEMENT *top, float potential_increment);
+extern void gatheringUpdateDirectPotential(ELEMENT *elem, float potential_increment);
 
-extern void GatheringUpdateMaterial(Material *oldmaterial, Material *newmaterial);
+extern void gatheringUpdateMaterial(Material *oldMaterial, Material *newMaterial);
 
 /* in shooting.c. Returns true when converged and false if not. */
-extern int DoShootingStep();
+extern int doShootingStep();
 
-extern void ShootingUpdateDirectPotential(ELEMENT *top, float potential_increment);
+extern void shootingUpdateDirectPotential(ELEMENT *elem, float potential_increment);
 
-extern void ShootingUpdateMaterial(Material *oldmaterial, Material *newmaterial);
+extern void shootingUpdateMaterial(Material *oldMaterial, Material *newMaterial);
 
 enum ROLE {
     SOURCE,
@@ -165,10 +165,10 @@ enum ROLE {
  * considered to be a SOURCE or RECEIVER according to 'role'. Interactions
  * are stored at the receiver element when doing gathering and at the
  * source element when doing shooting. */
-extern void CreateInitialLinks(ELEMENT *toplevelelement, ROLE role);
+extern void createInitialLinks(ELEMENT *top, ROLE role);
 
 /* Creates an initial link between the given element and the top cluster. */
-extern void CreateInitialLinkWithTopCluster(ELEMENT *elem, ROLE role);
+extern void createInitialLinkWithTopCluster(ELEMENT *elem, ROLE role);
 
 /* recursively refines the interactions of the given toplevel element */
 extern void RefineInteractions(ELEMENT *toplevelelement);

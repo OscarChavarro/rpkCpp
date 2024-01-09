@@ -65,7 +65,7 @@ basisGalerkinPush(
     GalerkinBasis *basis;
     int alpha, beta, sigma = child->childnr;
 
-    if ( IsCluster(parent)) {
+    if ( isCluster(parent)) {
         /* clusters have only irregular subelements and a constant
          * aprroximation is used on them. */
         clusterGalerkinClearCoefficients(child_coefficients, child->basis_size);
@@ -117,7 +117,7 @@ basisGalerkinPull(
     GalerkinBasis *basis;
     int alpha, beta, sigma = child->childnr;
 
-    if ( IsCluster(parent)) {
+    if ( isCluster(parent)) {
         /* clusters only have irregular subelements and a constant
          * radiance approximation is used on them. */
         clusterGalerkinClearCoefficients(parent_coefficients, parent->basis_size);
@@ -202,7 +202,7 @@ basisGalerkinPushPullRadianceRecursive(ELEMENT *elem, COLOR *Bdown, COLOR *Bup) 
 
             /* 1) push Bdown to the subelement if a cluster (don't push to irregular
              * surface subelements). */
-            if ( IsCluster(elem)) {
+            if ( isCluster(elem)) {
                 basisGalerkinPush(elem, Bdown, subel, Bdown2);
             } else
                 clusterGalerkinClearCoefficients(Bdown2, elem->basis_size);

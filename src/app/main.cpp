@@ -43,7 +43,7 @@ patchAccumulateStats(PATCH *patch) {
     colorScale(patch->area, E, power);
     colorAdd(GLOBAL_statistics_totalEmittedPower, power, GLOBAL_statistics_totalEmittedPower);
     colorAddScaled(GLOBAL_statistics_averageReflectivity, patch->area, R, GLOBAL_statistics_averageReflectivity);
-    /* convert radiant exitance to exitant radiance */
+    // Convert radiant exitance to exitant radiance
     colorScale((1.0 / (float)M_PI), E, E);
     colorMaximum(E, GLOBAL_statistics_maxSelfEmittedRadiance, GLOBAL_statistics_maxSelfEmittedRadiance);
     colorMaximum(power, GLOBAL_statistics_maxSelfEmittedPower, GLOBAL_statistics_maxSelfEmittedPower);
@@ -57,22 +57,24 @@ computeSomeSceneStats() {
     colorSetMonochrome(one, 1.0f);
     VECTORSET(zero, 0, 0, 0);
 
-    /* initialize */
+    // Initialize
     colorClear(GLOBAL_statistics_totalEmittedPower);
     colorClear(GLOBAL_statistics_averageReflectivity);
     colorClear(GLOBAL_statistics_maxSelfEmittedRadiance);
     colorClear(GLOBAL_statistics_maxSelfEmittedPower);
     GLOBAL_statistics_totalArea = 0.;
 
-    /* accumulate */
-    PatchListIterate(GLOBAL_scene_patches, patchAccumulateStats);
+    // Accumulate
+    for ( PatchSet *window = GLOBAL_scene_patches; window != nullptr; window = window->next ) {
+        patchAccumulateStats(window->patch);
+    }
 
-    /* averages ... */
+    // Averages
     colorScaleInverse(GLOBAL_statistics_totalArea, GLOBAL_statistics_averageReflectivity, GLOBAL_statistics_averageReflectivity);
     colorSubtract(one, GLOBAL_statistics_averageReflectivity, average_absorption);
     colorScaleInverse(M_PI * GLOBAL_statistics_totalArea, GLOBAL_statistics_totalEmittedPower, GLOBAL_statistics_estimatedAverageRadiance);
 
-    /* include background radiation */
+    // Include background radiation
     BP = BackgroundPower(GLOBAL_scene_background, &zero);
     colorScale(1.0 / (4.0 * (double)M_PI), BP, BP);
     colorAdd(GLOBAL_statistics_totalEmittedPower, BP, GLOBAL_statistics_totalEmittedPower);
@@ -123,7 +125,10 @@ static void
 buildLightSourcePatchList() {
     GLOBAL_scene_lightSourcePatches = nullptr;
     GLOBAL_statistics_numberOfLightSources = 0;
-    PatchListIterate(GLOBAL_scene_patches, addPatchToLightSourceListIfLightSource);
+
+    for ( PatchSet *window = GLOBAL_scene_patches; window != nullptr; window = window->next ) {
+        addPatchToLightSourceListIfLightSource(window->patch);
+    }
 
     addBackgroundToLightSourceList();
     GLOBAL_statistics_numberOfLightSources++;
@@ -270,7 +275,7 @@ mainInit() {
     renderingDefaults();
     ToneMapDefaults();
     CameraDefaults();
-    RadianceDefaults();
+    radianceDefaults();
     rayTracingDefaults();
 
     /* Default vertex compare flags: both location and normal is relevant. Two
@@ -340,7 +345,7 @@ parseGlobalOptions(int *argc, char **argv) {
     ParseRenderingOptions(argc, argv);
     ParseToneMapOptions(argc, argv);
     ParseCameraOptions(argc, argv);
-    ParseRadianceOptions(argc, argv);
+    parseRadianceOptions(argc, argv);
     parseRayTracingOptions(argc, argv);
     parseBatchOptions(argc, argv);
     parseOptions(globalOptions, argc, argv);    /* this one comes last in order to
@@ -401,7 +406,7 @@ readFile(char *filename) {
     // terminate any active radiance or raytracing methods
     fprintf(stderr, "Terminating current radiance/raytracing method ... \n");
     oRadiance = GLOBAL_radiance_currentRadianceMethodHandle;
-    SetRadianceMethod((RADIANCEMETHOD *) nullptr);
+    setRadianceMethod((RADIANCEMETHOD *) nullptr);
     oRayTracing = Global_Raytracer_activeRaytracer;
     SetRayTracing((Raytracer *) nullptr);
 
@@ -476,7 +481,7 @@ readFile(char *filename) {
         GLOBAL_scene_worldVoxelGrid = oWorldGrid;
         GLOBAL_scene_background = oBackground;
 
-        SetRadianceMethod(oRadiance);
+        setRadianceMethod(oRadiance);
         SetRayTracing(oRayTracing);
 
         t = clock();
@@ -636,7 +641,7 @@ readFile(char *filename) {
            colorGray(GLOBAL_statistics_averageReflectivity),
            colorGray(GLOBAL_statistics_maxSelfEmittedRadiance),
            colorGray(GLOBAL_statistics_maxSelfEmittedPower),
-           tmopts.lwa,
+           GLOBAL_toneMap_tmopts.lwa,
            GLOBAL_statistics_totalArea);
 
     // initialize radiance for the freshly loaded scene
@@ -644,7 +649,7 @@ readFile(char *filename) {
         fprintf(stderr, "Initializing radiance computations ... ");
         fflush(stderr);
 
-        SetRadianceMethod(oRadiance);
+        setRadianceMethod(oRadiance);
 
         t = clock();
         fprintf(stderr, "%g secs.\n", (float) (t - last) / (float) CLOCKS_PER_SEC);
@@ -689,8 +694,8 @@ startUserInterface(int *argc, char **argv) {
     }
     createOffscreenCanvasWindow(globalImageOutputWidth, globalImageOutputHeight);
 
-    while ( !RenderInitialized() );
-    RenderScene();
+    while ( !renderInitialized() );
+    renderScene();
 
     batch();
 }

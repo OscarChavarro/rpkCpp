@@ -35,7 +35,7 @@ void UpdateDirectPotential() {
     CanvasPushMode();
 
     /* get the patch IDs for each pixel. */
-    ids = RenderIds(&x, &y);
+    ids = renderIds(&x, &y);
 
     CanvasPullMode();
 

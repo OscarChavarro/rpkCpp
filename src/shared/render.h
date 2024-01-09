@@ -10,54 +10,54 @@
 #include "skin/Patch.h"
 
 /* creates an offscreen window for rendering */
-extern void RenderCreateOffscreenWindow(int hres, int vres);
+extern void renderCreateOffscreenWindow(int hres, int vres);
 
 /* returns FALSE until rendering is fully initialized. Do not attempt to
  * render something until this function returns TRUE. */
-extern int RenderInitialized();
+extern int renderInitialized();
 
 /* renders the whole scene */
-extern void RenderScene();
+extern void renderScene();
 
 /* Patch ID rendering. Returns an array of size (*x)*(*y) containing the IDs of
  * the patches visible through each pixel or 0 if the background is visible through 
  * the pixel. x is normally the width and y the height of the canvas window. */
-extern unsigned long *RenderIds(long *x, long *y);
+extern unsigned long *renderIds(long *x, long *y);
 
 /* Renders an image of m lines of n pixels at column x on row y (= lower
  * left corner of image, relative to the lower left corner of the window) */
-extern void RenderPixels(int x, int y, int n, int m, RGB *rgb);
+extern void renderPixels(int x, int y, int width, int height, RGB *rgb);
 
 /* sets the current color for line or outline drawing */
-extern void RenderSetColor(RGB *rgb);
+extern void renderSetColor(RGB *rgb);
 
 /* renders a convex polygon flat shaded in the current color */
-extern void RenderPolygonFlat(int nrverts, Vector3D *verts);
+extern void renderPolygonFlat(int nrverts, Vector3D *verts);
 
 /* renders a convex polygon with Gouraud shading */
-extern void RenderPolygonGouraud(int nrverts, Vector3D *verts, RGB *vertcols);
+extern void renderPolygonGouraud(int nrverts, Vector3D *verts, RGB *vertcols);
 
 /* renders the outline of the given patch in the current color */
-extern void RenderPatchOutline(PATCH *patch);
+extern void renderPatchOutline(PATCH *patch);
 
 /* renders the all the patches using default colors */
-extern void RenderPatch(PATCH *patch);
+extern void renderPatch(PATCH *patch);
 
 /* renders a line from point p to point q, for eg debugging */
-extern void RenderLine(Vector3D *p, Vector3D *q);
+extern void renderLine(Vector3D *x, Vector3D *y);
 
 /* renders an anti aliased line from p to q. If
    anti-aliasing is not supported, a normal line is drawn */
 extern void RenderAALine(Vector3D *p, Vector3D *q);
 
 /* Start a strip */
-extern void RenderBeginTriangleStrip();
+extern void renderBeginTriangleStrip();
 
 /* Supply the next point (one at a time) */
-extern void RenderNextTrianglePoint(Vector3D *point, RGB *col);
+extern void renderNextTrianglePoint(Vector3D *point, RGB *col);
 
 /* End a strip */
-extern void RenderEndTriangleStrip();
+extern void renderEndTriangleStrip();
 
 /* renders a bounding box. */
 extern void RenderBounds(BOUNDINGBOX bounds);
@@ -69,26 +69,26 @@ extern void RenderBoundingBoxHierarchy();
 extern void RenderClusterHierarchy();
 
 /* saves a RGB image in the front buffer */
-extern void SaveScreen(char *filename, FILE *fp, int ispipe);
+extern void saveScreen(char *fileName, FILE *fp, int isPipe);
 
 /* renders alternate camera, virtual screen etc ... for didactical pictures etc.. */
-extern void RenderCameras();
+extern void renderCameras();
 
 /* rerenders last raytraced image if any, Returns TRUE if there is one,
  * and FALSE if not. */
 extern int RenderRayTraced();
 
 /* sets line width for outlines etc... */
-extern void RenderSetLineWidth(float width);
+extern void renderSetLineWidth(float width);
 
 /* traverses the patches in the scene in such a way to obtain
  * hierarchical view frustum culling + sorted (large patches first +
  * near to far) rendering. For every patch that is not culled,
  * render_patch is called. */
-extern void RenderWorldOctree(void (*render_patch)(PATCH *));
+extern void renderWorldOctree(void (*render_patch)(PATCH *));
 
 /* display background, no Z-buffer, fill whole screen */
-extern void RenderBackground(CAMERA *cam);
+extern void renderBackground(CAMERA *camera);
 
 /* rendering options */
 class RENDEROPTIONS {
@@ -152,7 +152,7 @@ extern void RenderGetNearFar(float *near, float *far);
 
 /* indicates that the scene has modified, so a new display list should be
  * compiled and rendered from now on. Only relevant when using display lists. */
-extern void RenderNewDisplayList();
+extern void renderNewDisplayList();
 
 extern void ParseRenderingOptions(int *argc, char **argv);
 
