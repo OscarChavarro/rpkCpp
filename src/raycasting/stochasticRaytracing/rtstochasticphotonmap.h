@@ -159,7 +159,7 @@ public:
 
     // Scattering info for the part of light
     // transport that is used from storage
-    // (Diffuse for getTopLevelPatchRad, Diffuse & Glossy for Pmap)
+    // (Diffuse for getTopLevelPatchRad, Diffuse & Glossy for GLOBAL_photonMapMethods)
     CScatterInfo siStorage;
 
     // Maximum 1 scattering block per component

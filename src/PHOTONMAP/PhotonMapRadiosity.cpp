@@ -29,17 +29,21 @@
 
 PMAPCONFIG GLOBAL_photonMap_config;
 
-// To adjust GetPmapRadiance returns
+// To adjust photonMapGetRadiance returns
 static bool s_doingLocalRaycast = false;
 
-/* Initializes the rendering methods 'state' structure. Don't forget to
- * update radiance.c to call this routine! */
+/**
+Initializes the rendering methods 'state' structure. Don't forget to
+update radiance.c to call this routine!
+*/
 static
-void PmapDefaults() {
+void photonMapDefaults() {
     pmapstate.Defaults();
 }
 
-/* for counting how much CPU time was used for the computations */
+/**
+For counting how much CPU time was used for the computations
+*/
 static void
 photonMapRadiosityUpdateCpuSecs() {
     clock_t t;
@@ -50,30 +54,32 @@ photonMapRadiosityUpdateCpuSecs() {
 }
 
 static void *
-CreatePatchData(PATCH *patch) {
+photonMapCreatePatchData(PATCH *patch) {
     return patch->radiance_data = nullptr;
 }
 
 static void
-PrintPatchData(FILE *out, PATCH *patch) {
+photonMapPrintPatchData(FILE *out, PATCH *patch) {
     fprintf(out, "No data\n");
 }
 
 static void
-DestroyPatchData(PATCH *patch) {
+photonMapDestroyPatchData(PATCH *patch) {
     patch->radiance_data = (void *) nullptr;
 }
 
-/* compute new color for the patch */
+/**
+Compute new color for the patch
+*/
 static void
-PatchComputeNewColor(PATCH *patch) {
+photonMapPatchComputeNewColor(PATCH *patch) {
     COLOR Rd = patchAverageNormalAlbedo(patch, BRDF_DIFFUSE_COMPONENT);
     convertColorToRGB(Rd, &patch->color);
     patchComputeVertexColors(patch);
 }
 
 static void
-ChooseSurfaceSampler(CSurfaceSampler **samplerPtr) {
+photonMapChooseSurfaceSampler(CSurfaceSampler **samplerPtr) {
     if ( *samplerPtr ) {
         delete *samplerPtr;
     }
@@ -85,9 +91,11 @@ ChooseSurfaceSampler(CSurfaceSampler **samplerPtr) {
     }
 }
 
-/* Initializes the computations for the current scene (if any). */
+/**
+Initializes the computations for the current scene (if any)
+*/
 static void
-InitPmap() {
+photonMapInitPmap() {
     fprintf(stderr, "Photonmap activated\n");
 
     pmapstate.lastclock = clock();
@@ -118,7 +126,7 @@ InitPmap() {
 
     cfg->dirSampler = new CScreenSampler;  // ps;
 
-    ChooseSurfaceSampler(&cfg->surfaceSampler);
+    photonMapChooseSurfaceSampler(&cfg->surfaceSampler);
     // cfg->surfaceSampler = new CPhotonMapSampler;
     // cfg->surfaceSampler = new CBsdfSampler;
     cfg->surfaceSampler->SetComputeFromNextPdf(false);
@@ -131,7 +139,7 @@ InitPmap() {
 
     cfg->pointSampler = new CUniformLightSampler;
     cfg->dirSampler = new CLightDirSampler;
-    ChooseSurfaceSampler(&cfg->surfaceSampler);
+    photonMapChooseSurfaceSampler(&cfg->surfaceSampler);
     // cfg->surfaceSampler = new CPhotonMapSampler; //new CBsdfSampler;
     cfg->surfaceSampler->SetComputeFromNextPdf(false);  // Only 1 pdf
 
@@ -166,19 +174,29 @@ InitPmap() {
     GLOBAL_photonMap_config.causticMap = new CPhotonMap(&pmapstate.reconCPhotons);
 }
 
-/***********************************************************************/
-
-/* Adapted from bidirpath.C, this is a bit overkill for here... */
+/**
+Adapted from bidirpath, this is a bit overkill for here
+*/
 static COLOR
-DoComputePixelFluxEstimate(PMAPCONFIG *config) {
+photonMapDoComputePixelFluxEstimate(PMAPCONFIG *config) {
     CBiPath *bp = &config->bipath;
-    CPathNode *eyePrevNode, *lightPrevNode;
-    COLOR oldBsdfL, oldBsdfE;
-    CBsdfComp oldBsdfCompL, oldBsdfCompE;
-    double oldPdfL, oldPdfE, oldRRPdfL, oldRRPdfE;
-    double oldPdfLP = 0., oldPdfEP = 0., oldRRPdfLP = 0., oldRRPdfEP = 0.;
+    CPathNode *eyePrevNode;
+    CPathNode *lightPrevNode;
+    COLOR oldBsdfL;
+    COLOR oldBsdfE;
+    CBsdfComp oldBsdfCompL;
+    CBsdfComp oldBsdfCompE;
+    double oldPdfL;
+    double oldPdfE;
+    double oldRRPdfL;
+    double oldRRPdfE;
+    double oldPdfLP = 0.0;
+    double oldPdfEP = 0.0;
+    double oldRRPdfLP = 0.0;
+    double oldRRPdfEP = 0.0;
     COLOR f;
-    CPathNode *eyeEndNode, *lightEndNode;
+    CPathNode *eyeEndNode;
+    CPathNode *lightEndNode;
 
     // Store PDF and BSDF evals that will be overwritten
 
@@ -214,8 +232,7 @@ DoComputePixelFluxEstimate(PMAPCONFIG *config) {
         oldRRPdfEP = eyePrevNode->m_rrPdfFromNext;
     }
 
-    // Connect the subpaths
-
+    // Connect the sub-paths
     bp->m_geomConnect =
             PathNodeConnect(eyeEndNode, lightEndNode,
                             &config->eyeConfig, &config->lightConfig,
@@ -263,7 +280,7 @@ particle tracing, although constructing global & caustic together
 does not give correct display
 */
 void
-DoScreenNEE(PMAPCONFIG *config) {
+photonMapDoScreenNEE(PMAPCONFIG *config) {
     int nx, ny;
     float pix_x, pix_y;
     COLOR f;
@@ -278,7 +295,7 @@ DoScreenNEE(PMAPCONFIG *config) {
     if ( EyeNodeVisible(bp->m_eyeEndNode, bp->m_lightEndNode,
                         &pix_x, &pix_y)) {
         // Visible !
-        f = DoComputePixelFluxEstimate(config);
+        f = photonMapDoComputePixelFluxEstimate(config);
 
         config->screen->GetPixel(pix_x, pix_y, &nx, &ny);
 
@@ -303,7 +320,7 @@ DoScreenNEE(PMAPCONFIG *config) {
 Store a photon. Some acceptance tests are performed first
 */
 bool
-DoPhotonStore(CPathNode *node, COLOR power) {
+photonMapDoPhotonStore(CPathNode *node, COLOR power) {
     //float scatteredPower;
     //COLOR col;
     BSDF *bsdf;
@@ -349,7 +366,7 @@ DoPhotonStore(CPathNode *node, COLOR power) {
 Handle one path : store at all end positions and for testing, connect to the eye
 */
 void
-HandlePath(PMAPCONFIG *config) {
+photonMapHandlePath(PMAPCONFIG *config) {
     bool ldone;
     CBiPath *bp = &config->bipath;
     COLOR accPower;
@@ -380,11 +397,11 @@ HandlePath(PMAPCONFIG *config) {
             if ( bp->m_lightSize > 1 ) {
                 // Store
 
-                if ( DoPhotonStore(currentNode, accPower)) {
+                if ( photonMapDoPhotonStore(currentNode, accPower)) {
                     // Screen next event estimation for testing
 
                     bp->m_lightEndNode = currentNode;
-                    DoScreenNEE(config);
+                    photonMapDoScreenNEE(config);
                 }
             }
         } else {
@@ -392,11 +409,11 @@ HandlePath(PMAPCONFIG *config) {
             if ( bp->m_lightSize > 2 ) {
                 // Store
 
-                if ( DoPhotonStore(currentNode, accPower)) {
+                if ( photonMapDoPhotonStore(currentNode, accPower)) {
                     // Screen next event estimation for testing
 
                     bp->m_lightEndNode = currentNode;
-                    DoScreenNEE(config);
+                    photonMapDoScreenNEE(config);
                 }
             }
         }
@@ -414,9 +431,8 @@ HandlePath(PMAPCONFIG *config) {
     }
 }
 
-/********* ONE iteration ********/
 static void
-TracePath(PMAPCONFIG *config, BSDFFLAGS bsdfFlags) {
+photonMapTracePath(PMAPCONFIG *config, BSDFFLAGS bsdfFlags) {
     config->bipath.m_eyePath = config->eyeConfig.TracePath(config->bipath.m_eyePath);
 
     // Use qmc for light sampling
@@ -452,21 +468,21 @@ TracePath(PMAPCONFIG *config, BSDFFLAGS bsdfFlags) {
 }
 
 static void
-TracePaths(int nrPaths, BSDFFLAGS bsdfFlags = BSDF_ALL_COMPONENTS) {
+photonMapTracePaths(int nrPaths, BSDFFLAGS bsdfFlags = BSDF_ALL_COMPONENTS) {
     int i;
 
     // Fill in config structures
     for ( i = 0; i < nrPaths; i++ ) {
-        TracePath(&GLOBAL_photonMap_config, bsdfFlags);
-        HandlePath(&GLOBAL_photonMap_config);
+        photonMapTracePath(&GLOBAL_photonMap_config, bsdfFlags);
+        photonMapHandlePath(&GLOBAL_photonMap_config);
     }
 }
 
 static void
-BRRealIteration() {
+photonMapBRRealIteration() {
     pmapstate.iteration_nr++;
 
-    fprintf(stderr, "Pmap Iteration %li\n", (long) pmapstate.iteration_nr);
+    fprintf(stderr, "GLOBAL_photonMapMethods Iteration %li\n", (long) pmapstate.iteration_nr);
 
     if ((pmapstate.iteration_nr > 1) && (pmapstate.doGlobalMap || pmapstate.doCausticMap)) {
         float scaleFactor = (pmapstate.iteration_nr - 1.0) / (float) pmapstate.iteration_nr;
@@ -485,7 +501,6 @@ BRRealIteration() {
         fprintf(stderr, "Total potential paths : %li, Total rays %li\n",
                 pmapstate.total_ipaths,
                 Global_Raytracer_rayCount);
-        //GLOBAL_photonMap_config.importanceMap->BalanceAnalysis();
     }
 
     // Global map
@@ -498,7 +513,7 @@ BRRealIteration() {
         // Set correct importance map: indirect importance
         GLOBAL_photonMap_config.currentImpMap = GLOBAL_photonMap_config.importanceMap;
 
-        TracePaths(pmapstate.gpaths_per_iteration);
+        photonMapTracePaths(pmapstate.gpaths_per_iteration);
 
         fprintf(stderr, "Global map: ");
         GLOBAL_photonMap_config.globalMap->PrintStats(stderr);
@@ -514,25 +529,27 @@ BRRealIteration() {
         // Set correct importance map: direct importance
         GLOBAL_photonMap_config.currentImpMap = GLOBAL_photonMap_config.importanceCMap;
 
-        TracePaths(pmapstate.cpaths_per_iteration, BSDF_SPECULAR_COMPONENT);
+        photonMapTracePaths(pmapstate.cpaths_per_iteration, BSDF_SPECULAR_COMPONENT);
 
         fprintf(stderr, "Caustic map: ");
         GLOBAL_photonMap_config.causticMap->PrintStats(stderr);
     }
 }
 
-/* Performs one step of the radiance computations. The goal most often is
- * to fill in a RGB color for display of each patch and/or vertex. These
- * colors are used for hardware rendering if the default hardware rendering
- * method is not superceeded in this file. */
+/**
+Performs one step of the radiance computations. The goal most often is
+to fill in a RGB color for display of each patch and/or vertex. These
+colors are used for hardware rendering if the default hardware rendering
+method is not superceeded in this file
+*/
 static int
-DoPmapStep() {
+photonMapDoStep() {
     pmapstate.wake_up = false;
     pmapstate.lastclock = clock();
 
     /* do some real work now */
 
-    BRRealIteration();
+    photonMapBRRealIteration();
 
     photonMapRadiosityUpdateCpuSecs();
 
@@ -542,9 +559,11 @@ DoPmapStep() {
 		 * continue. */
 }
 
-/* undoes the effect of mainInit() and all side-effects of Step() */
+/**
+Undoes the effect of mainInit() and all side-effects of Step()
+*/
 static void
-TerminatePmap() {
+photonMapTerminate() {
     if ( GLOBAL_photonMap_config.screen ) {
         delete GLOBAL_photonMap_config.screen;
         GLOBAL_photonMap_config.screen = nullptr;
@@ -574,9 +593,11 @@ TerminatePmap() {
     }
 }
 
-// Returns the radiance emitted in the node related direction
+/**
+Returns the radiance emitted in the node related direction
+*/
 COLOR
-GetPmapNodeGRadiance(CPathNode *node) {
+photonMapGetNodeGRadiance(CPathNode *node) {
     COLOR col;
 
     GLOBAL_photonMap_config.globalMap->DoBalancing(pmapstate.balanceKDTree);
@@ -586,9 +607,11 @@ GetPmapNodeGRadiance(CPathNode *node) {
     return col;
 }
 
-// Returns the radiance emitted in the node related direction
+/**
+Returns the radiance emitted in the node related direction
+*/
 COLOR
-GetPmapNodeCRadiance(CPathNode *node) {
+photonMapGetNodeCRadiance(CPathNode *node) {
     COLOR col;
 
     GLOBAL_photonMap_config.causticMap->DoBalancing(pmapstate.balanceKDTree);
@@ -600,9 +623,9 @@ GetPmapNodeCRadiance(CPathNode *node) {
 }
 
 static COLOR
-GetPmapRadiance(PATCH *patch,
-                             double u, double v,
-                             Vector3D dir) {
+photonMapGetRadiance(PATCH *patch,
+                     double u, double v,
+                     Vector3D dir) {
     HITREC hit;
     Vector3D point;
     BSDF *bsdf = patch->surface->material->bsdf;
@@ -658,15 +681,14 @@ GetPmapRadiance(PATCH *patch,
                                                                   nullptr, bsdf);
             break;
         default: colorClear(col);
-            logError("GetPmapRadiance", "Unknown radiance return");
+            logError("photonMapGetRadiance", "Unknown radiance return");
     }
 
     return col;
 }
 
-
 static void
-PmapRenderScreen() {
+photonMapRenderScreen() {
     if ( GLOBAL_photonMap_config.screen && pmapstate.renderImage ) {
         GLOBAL_photonMap_config.screen->Render();
     } else {
@@ -677,7 +699,7 @@ PmapRenderScreen() {
 }
 
 static char *
-GetPmapStats() {
+photonMapGetStats() {
     static char stats[1000];
     char *p;
     int n;
@@ -727,37 +749,35 @@ GetPmapStats() {
 }
 
 static void
-PmapRecomputeDisplayColors() {
-    ForAllPatches(P, GLOBAL_scene_patches)
-                {
-                    PatchComputeNewColor(P);
-                }
-    EndForAll;
+photonMapRecomputeDisplayColors() {
+    for ( PatchSet *window = GLOBAL_scene_patches; window != nullptr; window = window->next ) {
+        photonMapPatchComputeNewColor(window->patch);
+    }
 }
 
 static void
-PmapUpdateMaterial(Material */*oldmaterial*/,
-                   Material */*newmaterial*/) {
-    logError("PmapUpdateMaterial", "Not yet implemented");
+photonMapUpdateMaterial(Material */*oldMaterial*/,
+                        Material */*newMaterial*/) {
+    logError("photonMapUpdateMaterial", "Not yet implemented");
 }
 
-RADIANCEMETHOD Pmap = {
+RADIANCEMETHOD GLOBAL_photonMapMethods = {
     "PMAP",
     4,
     "PhotonMap",
-    PmapDefaults,
-    ParsePmapOptions,
-    PrintPmapOptions,
-    InitPmap,
-    DoPmapStep,
-    TerminatePmap,
-    GetPmapRadiance,
-    CreatePatchData,
-    PrintPatchData,
-    DestroyPatchData,
-    GetPmapStats,
-    PmapRenderScreen,
-    PmapRecomputeDisplayColors,
-    PmapUpdateMaterial,
-    (void (*)(FILE *)) nullptr // use default VRML model saver
+    photonMapDefaults,
+    photonMapParseOptions,
+    photonMapPrintOptions,
+    photonMapInitPmap,
+    photonMapDoStep,
+    photonMapTerminate,
+    photonMapGetRadiance,
+    photonMapCreatePatchData,
+    photonMapPrintPatchData,
+    photonMapDestroyPatchData,
+    photonMapGetStats,
+    photonMapRenderScreen,
+    photonMapRecomputeDisplayColors,
+    photonMapUpdateMaterial,
+    (void (*)(FILE *)) nullptr
 };

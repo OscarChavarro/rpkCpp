@@ -60,11 +60,9 @@ SoftRenderPatches(SGL_PIXEL (*patch_pixel)(PATCH *)) {
         renderWorldOctree(SoftRenderPatch);
         renderopts.use_display_lists = use_display_lists;
     } else {
-        ForAllPatches(P, GLOBAL_scene_patches)
-                    {
-                        SoftRenderPatch(P);
-                    }
-        EndForAll;
+        for ( PatchSet *window = GLOBAL_scene_patches; window != nullptr; window = window->next ) {
+            SoftRenderPatch(window->patch);
+        }
     }
 }
 

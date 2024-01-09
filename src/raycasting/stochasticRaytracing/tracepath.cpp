@@ -1,5 +1,5 @@
-/*
-random walk generation
+/**
+Random walk generation
 */
 
 #include <cstdlib>
@@ -11,16 +11,31 @@ random walk generation
 #include "raycasting/stochasticRaytracing/tracepath.h"
 #include "raycasting/stochasticRaytracing/localline.h"
 
-void InitPath(PATH *path) {
+static double (*globalBirthProbability)(PATCH *);
+static double globalSumProbabilities;
+
+/**
+Initialises nrnodes, nodesalloced to zero and 'nodes' to the nullptr pointer
+*/
+static void
+initPath(PATH *path) {
     path->nrnodes = path->nodesalloced = 0;
     path->nodes = (PATHNODE *) nullptr;
 }
 
-void ClearPath(PATH *path) {
+/**
+Sets nrnodes to zero (forgets old path, but does not free the memory for the nodes
+*/
+static void
+clearPath(PATH *path) {
     path->nrnodes = 0;
 }
 
-void PathAddNode(PATH *path, PATCH *patch, double prob, Vector3D inpoint, Vector3D outpoint) {
+/**
+Adds a node to the path. Re-allocates more space for the nodes if necessary
+*/
+static void
+pathAddNode(PATH *path, PATCH *patch, double prob, Vector3D inpoint, Vector3D outpoint) {
     PATHNODE *node;
 
     if ( path->nrnodes >= path->nodesalloced ) {
@@ -44,7 +59,11 @@ void PathAddNode(PATH *path, PATCH *patch, double prob, Vector3D inpoint, Vector
     path->nrnodes++;
 }
 
-void FreePathNodes(PATH *path) {
+/**
+Disposes of the memory for storing path nodes
+*/
+static void
+freePathNodes(PATH *path) {
     if ( path->nodes ) {
         free((char *) path->nodes);
     }
@@ -52,104 +71,127 @@ void FreePathNodes(PATH *path) {
     path->nodes = (PATHNODE *) nullptr;
 }
 
-/* path nodes are filled in 'path', 'path' itself is returned. */
-PATH *TracePath(PATCH *origin,
-                double birth_prob,
-                double (*SurvivalProbability)(PATCH *P),
-                PATH *path) {
-    Vector3D inpoint = {0., 0., 0.}, outpoint = {0., 0., 0.};
+/**
+Path nodes are filled in 'path', 'path' itself is returned
+
+Traces a random walk originating at 'origin', with birth probability
+'globalBirthProbability' (filled in as probability of the origin node: source term
+estimation is being suppressed --- survival probability at the origin is
+1). Survivial probability at other nodes than the origin is calculated by
+'SurvivalProbability()', results are stored in 'path', which should be an
+PATH, previously initialised by initPath(). If required, photonMapTracePath()
+allocates extra space for storing nodes calls to pathAddNode().
+freePathNodes() should be called in order to dispose of this memory
+when no longer needed
+*/
+static PATH *
+tracePath(
+    PATCH *origin,
+    double birth_prob,
+    double (*SurvivalProbability)(PATCH *P),
+    PATH *path)
+{
+    Vector3D inPoint = {0.0, 0.0, 0.0};
+    Vector3D outpoint = {0.0, 0.0, 0.0};
     PATCH *P = origin;
-    double surv_prob;
+    double survProb;
     Ray ray;
-    HITREC *hit, hitstore;
+    HITREC *hit;
+    HITREC hitStore;
 
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.tracedPaths++;
-    ClearPath(path);
-    PathAddNode(path, origin, birth_prob, inpoint, outpoint);
+    clearPath(path);
+    pathAddNode(path, origin, birth_prob, inPoint, outpoint);
     do {
         GLOBAL_stochasticRaytracing_monteCarloRadiosityState.tracedRays++;
         ray = McrGenerateLocalLine(P, Sample4D(TOPLEVEL_ELEMENT(P)->ray_index++));
         if ( path->nrnodes > 1 && GLOBAL_stochasticRaytracing_monteCarloRadiosityState.continuousRandomWalk ) {
-            /* scattered ray originates at point of incidence of previous ray */
+            // Scattered ray originates at point of incidence of previous ray
             ray.pos = path->nodes[path->nrnodes - 1].inpoint;
         }
         path->nodes[path->nrnodes - 1].outpoint = ray.pos;
 
-        hit = McrShootRay(P, &ray, &hitstore);
+        hit = McrShootRay(P, &ray, &hitStore);
         if ( !hit ) {
+            // Path disappears into background
             break;
-        }    /* path disappears into background */
+        }
 
         P = hit->patch;
-        surv_prob = SurvivalProbability(P);
-        PathAddNode(path, P, surv_prob, hit->point, outpoint);
-    } while ( drand48() < surv_prob );    /* repeat until absorption */
+        survProb = SurvivalProbability(P);
+        pathAddNode(path, P, survProb, hit->point, outpoint);
+    } while ( drand48() < survProb ); // Repeat until absorption
 
     return path;
 }
 
-static double (*birth_prob)(PATCH *), sum_probs;
-
-static double PatchNormalisedBirthProbability(PATCH *P) {
-    return birth_prob(P) / sum_probs;
+static double
+patchNormalisedBirthProbability(PATCH *P) {
+    return globalBirthProbability(P) / globalSumProbabilities;
 }
 
-/* traces 'nr_paths' paths with given birth probabilities */
-void TracePaths(long nr_paths,
-                double (*BirthProbability)(PATCH *P),
-                double (*SurvivalProbability)(PATCH *P),
-                void (*ScorePath)(PATH *, long nr_paths, double (*birth_prob)(PATCH *)),
-                void (*Update)(PATCH *P, double w)) {
-    double rnd, p_cumul;
+/**
+Traces 'numberOfPaths' paths with given birth probabilities
+*/
+void
+tracePaths(
+    long numberOfPaths,
+    double (*BirthProbability)(PATCH *P),
+    double (*SurvivalProbability)(PATCH *P),
+    void (*ScorePath)(PATH *, long nr_paths, double (*birth_prob)(PATCH *)),
+    void (*Update)(PATCH *P, double w))
+{
+    double rnd;
+    double pCumul;
     long path_count;
-    PATH path;
+    PATH path{};
 
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.prevTracedRays = GLOBAL_stochasticRaytracing_monteCarloRadiosityState.tracedRays;
-    birth_prob = BirthProbability;
+    globalBirthProbability = BirthProbability;
 
-    /* compute sampling probability normalisation factor */
-    sum_probs = 0.;
-    ForAllPatches(P, GLOBAL_scene_patches)
-                {
-                    sum_probs += BirthProbability(P);
-                    stochasticRadiosityClearCoefficients(getTopLevelPatchReceivedRad(P), getTopLevelPatchBasis(P));
-                }
-    EndForAll;
-    if ( sum_probs < EPSILON ) {
-        logWarning("TracePaths", "No sources");
+    // Compute sampling probability normalisation factor
+    globalSumProbabilities = 0.;
+    for ( PatchSet *window = GLOBAL_scene_patches; window != nullptr; window = window->next ) {
+        globalSumProbabilities += BirthProbability(window->patch);
+        stochasticRadiosityClearCoefficients(getTopLevelPatchReceivedRad(window->patch), getTopLevelPatchBasis(window->patch));
+    }
+    if ( globalSumProbabilities < EPSILON ) {
+        logWarning("tracePaths", "No sources");
         return;
     }
 
-    /* fire off paths from the patches, propagate radiance */
-    InitPath(&path);
+    // Fire off paths from the patches, propagate radiance
+    initPath(&path);
     rnd = drand48();
     path_count = 0;
-    p_cumul = 0.;
-    ForAllPatches(P, GLOBAL_scene_patches)
-                {
-                    double p = BirthProbability(P) / sum_probs;
-                    long i, paths_this_patch = (int) floor((p_cumul + p) * (double) nr_paths + rnd) - path_count;
-                    for ( i = 0; i < paths_this_patch; i++ ) {
-                        TracePath(P, p, SurvivalProbability, &path);
-                        ScorePath(&path, nr_paths, PatchNormalisedBirthProbability);
-                    }
-                    p_cumul += p;
-                    path_count += paths_this_patch;
-                }
-    EndForAll;
-    fprintf(stderr, "\n");
-    FreePathNodes(&path);
+    pCumul = 0.0;
+    for ( PatchSet *window = GLOBAL_scene_patches; window != nullptr; window = window->next ) {
+        double p = BirthProbability(window->patch) / globalSumProbabilities;
+        long i, paths_this_patch = (int) floor((pCumul + p) * (double) numberOfPaths + rnd) - path_count;
+        for ( i = 0; i < paths_this_patch; i++ ) {
+            tracePath(window->patch, p, SurvivalProbability, &path);
+            ScorePath(&path, numberOfPaths, patchNormalisedBirthProbability);
+        }
+        pCumul += p;
+        path_count += paths_this_patch;
+    }
 
-    /* update radiance, compute new total and unshot flux. */
+    fprintf(stderr, "\n");
+    freePathNodes(&path);
+
+    // Update radiance, compute new total and un-shot flux
     colorClear(GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotFlux);
-    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotYmp = 0.;
+    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotYmp = 0.0;
     colorClear(GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalFlux);
-    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalYmp = 0.;
-    ForAllPatches(P, GLOBAL_scene_patches)
-                {
-                    Update(P, (double) nr_paths / sum_probs);
-                    colorAddScaled(GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotFlux, M_PI * P->area, getTopLevelPatchUnShotRad(P)[0], GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotFlux);
-                    colorAddScaled(GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalFlux, M_PI * P->area, getTopLevelPatchRad(P)[0], GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalFlux);
-                }
-    EndForAll;
+    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalYmp = 0.0;
+
+    for ( PatchSet *window = GLOBAL_scene_patches; window != nullptr; window = window->next ) {
+        PATCH *patch = window->patch;
+        Update(patch, (double) numberOfPaths / globalSumProbabilities);
+        colorAddScaled(GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotFlux, M_PI * patch->area,
+                       getTopLevelPatchUnShotRad(patch)[0],
+                       GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotFlux);
+        colorAddScaled(GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalFlux, M_PI * patch->area,
+                       getTopLevelPatchRad(patch)[0], GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalFlux);
+    }
 }

@@ -352,7 +352,7 @@ COLOR SR_GetRadiance(CPathNode *thisNode, SRCONFIG *config, SRREADOUT readout,
         if ((readout == READ_NOW) && (config->siStorage.flags != NO_COMPONENTS)) {
             /* add the stored radiance being emitted from the patch */
 
-            if ( GLOBAL_radiance_currentRadianceMethodHandle == &Pmap ) {
+            if ( GLOBAL_radiance_currentRadianceMethodHandle == &GLOBAL_photonMapMethods ) {
                 if ( config->radMode == STORED_PHOTONMAP ) {
                     // Check if the distance to the previous point is big enough
                     // otherwise we need more scattering...
@@ -360,14 +360,14 @@ COLOR SR_GetRadiance(CPathNode *thisNode, SRCONFIG *config, SRREADOUT readout,
                     float dist2 = VECTORDIST2(thisNode->m_hit.point, thisNode->Previous()->m_hit.point);
 
                     if ( dist2 > PMAP_MIN_DIST2 ) {
-                        radiance = GetPmapNodeGRadiance(thisNode);
+                        radiance = photonMapGetNodeGRadiance(thisNode);
                         // This does not include Le (self emitted light)
                     } else {
                         colorClear(radiance);
                         readout = SCATTER; // This ensures extra scattering, direct light and c-map
                     }
                 } else {
-                    radiance = GetPmapNodeGRadiance(thisNode);
+                    radiance = photonMapGetNodeGRadiance(thisNode);
                     // This does not include Le (self emitted light)
                 }
             } else {
@@ -402,7 +402,7 @@ COLOR SR_GetRadiance(CPathNode *thisNode, SRCONFIG *config, SRREADOUT readout,
         // Stored caustic maps
 
         if ((config->radMode == STORED_PHOTONMAP) && readout == SCATTER ) {
-            radiance = GetPmapNodeCRadiance(thisNode);
+            radiance = photonMapGetNodeCRadiance(thisNode);
             colorAdd(result, radiance, result);
         }
 
@@ -418,7 +418,7 @@ COLOR SR_GetRadiance(CPathNode *thisNode, SRCONFIG *config, SRREADOUT readout,
 
         // Emitted Light
 
-        if ((config->radMode == STORED_PHOTONMAP) && (GLOBAL_radiance_currentRadianceMethodHandle == &Pmap)) {
+        if ((config->radMode == STORED_PHOTONMAP) && (GLOBAL_radiance_currentRadianceMethodHandle == &GLOBAL_photonMapMethods)) {
             // Check if Le would contribute to a caustic
 
             if ((readout == READ_NOW) && !(config->siStorage.DoneThisBounce(thisNode->Previous()))) {

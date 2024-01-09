@@ -31,11 +31,11 @@ static CMDLINEOPTDESC pmapOptions[] = {
 };
 
 
-void ParsePmapOptions(int *argc, char **argv) {
+void photonMapParseOptions(int *argc, char **argv) {
     parseOptions(pmapOptions, argc, argv);
 }
 
-void PrintPmapOptions(FILE *fp) {
+void photonMapPrintOptions(FILE *fp) {
 }
 
 CPmapState::CPmapState() {

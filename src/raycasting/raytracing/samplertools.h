@@ -99,7 +99,7 @@ public:
                          double x_1, double x_2,
                          BSDFFLAGS flags);
 
-    // TracePath : Traces a path using the samplers in the class
+    // photonMapTracePath : Traces a path using the samplers in the class
     // New nodes are allocated if necessary. TraceNode is used
     // for sampling individual nodes.
     // The first filled in node is returned (==nextNode if nextNode != nullptr)

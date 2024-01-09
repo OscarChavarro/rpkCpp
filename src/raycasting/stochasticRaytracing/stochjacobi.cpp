@@ -146,7 +146,8 @@ static int Setup() {
     /* determine constant control radiosity if required. */
     colorClear(GLOBAL_stochasticRaytracing_monteCarloRadiosityState.controlRadiance);
     if ( do_control_variate ) {
-        GLOBAL_stochasticRaytracing_monteCarloRadiosityState.controlRadiance = DetermineControlRadiosity(get_radiance, nullptr);
+        GLOBAL_stochasticRaytracing_monteCarloRadiosityState.controlRadiance = determineControlRadiosity(get_radiance,
+                                                                                                         nullptr);
     }
 
     sum_probs = 0.;
@@ -214,7 +215,7 @@ static double ReceiverProjectedArea(ELEMENT *cluster, Ray *ray, float dir) {
  * src_prob = unnormalised src birth probability / src area
  * rcv_prob = unnormalised rcv birth probability / rcv area for bidirectional transfers
  *       or = 0 for unidirectional transfers
- * score will be weighted with sum_probs / nr_rays (both are global).
+ * score will be weighted with globalSumProbabilities / nr_rays (both are global).
  * ray->dir and dir are used in order to determine projected cluster area
  * and cosine of incident direction of cluster surface elements when
  * the receiver is a cluster. */
@@ -438,30 +439,29 @@ static void ElementShootRays(ELEMENT *elem, int rays_this_elem) {
 }
 
 /* fire off rays from the leaf elements, propagate radiance/importance. */
-static void ShootRays() {
+static void
+shootRays() {
     double rnd = drand48();
     long ray_count = 0;
     double p_cumul = 0.0;
 
     /* loop over all leaf elements in the element hierarchy */
-    ForAllPatches(P, GLOBAL_scene_patches)
+    for ( PatchSet *window = GLOBAL_scene_patches; window != nullptr; window = window->next ) {
+        REC_ForAllSurfaceLeafs(leaf, TOPLEVEL_ELEMENT(window->patch))
                 {
-                    REC_ForAllSurfaceLeafs(leaf, TOPLEVEL_ELEMENT(P))
-                            {
-                                double p = leaf->prob / sum_probs;
-                                long rays_this_leaf =
-                                        (long) floor((p_cumul + p) * (double) nr_rays + rnd) - ray_count;
+                    double p = leaf->prob / sum_probs;
+                    long rays_this_leaf =
+                            (long) floor((p_cumul + p) * (double) nr_rays + rnd) - ray_count;
 
-                                if ( rays_this_leaf > 0 ) {
-                                    ElementShootRays(leaf, rays_this_leaf);
-                                }
+                    if ( rays_this_leaf > 0 ) {
+                        ElementShootRays(leaf, rays_this_leaf);
+                    }
 
-                                p_cumul += p;
-                                ray_count += rays_this_leaf;
-                            }
-                    REC_EndForAllSurfaceLeafs;
+                    p_cumul += p;
+                    ray_count += rays_this_leaf;
                 }
-    EndForAll;
+        REC_EndForAllSurfaceLeafs;
+    }
 
     fprintf(stderr, "\n");
 }
@@ -619,6 +619,6 @@ DoStochasticJacobiIteration(
     if ( !Setup()) {
         return;
     }
-    ShootRays();
+    shootRays();
     PushUpdatePullSweep();
 }

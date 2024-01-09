@@ -70,7 +70,7 @@ public:
     // Destructor
     virtual ~CSpar();
 
-    // HandlePath : Handles a bidirectional path. Image contribution
+    // photonMapHandlePath : Handles a bidirectional path. Image contribution
     // is returned. Normally this is a contribution for the pixel
     // affected by the path
 
@@ -80,7 +80,7 @@ public:
 
     // Compute weight terms : computes the sum of partial weight terms Ci.
     // The number of terms included depends on the number of PDF's used
-    // for path sampling in this spar (== number of accepted paths in HandlePath)
+    // for path sampling in this spar (== number of accepted paths in photonMapHandlePath)
     // ID indicates the path group under consideration.
     // returns the weight Ci for the pdf generating the supplied path
     // 'sum' is filled with the sum Ci for all pdf's that sample this spar

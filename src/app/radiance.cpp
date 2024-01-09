@@ -19,7 +19,7 @@ RADIANCEMETHOD *GLOBAL_radiance_radianceMethods[] = {
     &GalerkinRadiosity,
     &StochasticRelaxationRadiosity,
     &GLOBAL_stochasticRaytracing_randomWalkRadiosity,
-    &Pmap,
+    &GLOBAL_photonMapMethods,
     (RADIANCEMETHOD *) nullptr
 };
 

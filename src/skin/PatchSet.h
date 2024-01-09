@@ -16,8 +16,6 @@ class PatchSet {
 
 class HITLIST;
 
-#define ForAllPatches(P, patches) ForAllInList(PATCH, P, patches)
-
 // Note: Should create a Geometry class for a set of patches!
 extern GEOM_METHODS GLOBAL_skin_patchListGeometryMethods;
 

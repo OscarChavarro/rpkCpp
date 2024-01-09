@@ -67,22 +67,23 @@ randomWalkRadiosityGetSelfEmittedRadiance(ELEMENT *elem) {
 }
 
 /**
-Subtracts (1-rho) * control radiosity from the source radiosity of each patch
+Subtracts (1 - rho) * control radiosity from the source radiosity of each patch
 */
 static void
 randomWalkRadiosityReduceSource() {
-    ForAllPatches(P, GLOBAL_scene_patches)
-                {
-                    COLOR newsrcrad, rho;
+    for ( PatchSet *window = GLOBAL_scene_patches; window != nullptr; window = window->next ) {
+        PATCH *patch = window->patch;
+        COLOR newSourceRadiance;
+        COLOR rho;
 
-                    colorSetMonochrome(newsrcrad, 1.);
-                    rho = TOPLEVEL_ELEMENT(P)->Rd; // Reflectance
-                    colorSubtract(newsrcrad, rho, newsrcrad);    /* 1-rho */
-                    colorProduct(newsrcrad, GLOBAL_stochasticRaytracing_monteCarloRadiosityState.controlRadiance, newsrcrad);  /* (1-rho) * beta */
-                    colorSubtract(TOPLEVEL_ELEMENT(P)->source_rad, newsrcrad, newsrcrad);    /* E - (1-rho) beta */
-                    TOPLEVEL_ELEMENT(P)->source_rad = newsrcrad;
-                }
-    EndForAll;
+        colorSetMonochrome(newSourceRadiance, 1.0);
+        rho = TOPLEVEL_ELEMENT(patch)->Rd; // Reflectance
+        colorSubtract(newSourceRadiance, rho, newSourceRadiance); // 1 - rho
+        colorProduct(newSourceRadiance, GLOBAL_stochasticRaytracing_monteCarloRadiosityState.controlRadiance,
+                     newSourceRadiance); // (1-rho) * beta
+        colorSubtract(TOPLEVEL_ELEMENT(patch)->source_rad, newSourceRadiance, newSourceRadiance); // E - (1-rho) * beta
+        TOPLEVEL_ELEMENT(patch)->source_rad = newSourceRadiance;
+    }
 }
 
 static double
@@ -212,7 +213,7 @@ randomWalkRadiosityDoShootingIteration() {
             nr_walks, (long) floor((double) nr_walks / (1. -
                     colorMaximumComponent(GLOBAL_statistics_averageReflectivity))));
 
-    TracePaths(nr_walks,
+    tracePaths(nr_walks,
                randomWalkRadiosityScalarSourcePower, randomWalkRadiosityScalarReflectance,
                randomWalkRadiosityShootingScore,
                randomWalkRadiosityShootingUpdate);
@@ -223,25 +224,32 @@ Determines control radiosity value for collision gathering estimator
 */
 static COLOR
 randomWalkRadiosityDetermineGatheringControlRadiosity() {
-    COLOR c1, c2, cr;
+    COLOR c1;
+    COLOR c2;
+    COLOR cr;
+
     colorClear(c1);
     colorClear(c2);
-    ForAllPatches(P, GLOBAL_scene_patches)
-                {
-                    COLOR absorb, rho, Ed, num, denom;
 
-                    colorSetMonochrome(absorb, 1.);
-                    rho = TOPLEVEL_ELEMENT(P)->Rd;
-                    colorSubtract(absorb, rho, absorb);    /* 1-rho */
+    for ( PatchSet *window = GLOBAL_scene_patches; window != nullptr; window = window->next ) {
+        COLOR absorb;
+        COLOR rho;
+        COLOR Ed;
+        COLOR num;
+        COLOR denom;
+        PATCH *patch = window->patch;
 
-                    Ed = TOPLEVEL_ELEMENT(P)->source_rad;
-                    colorProduct(absorb, Ed, num);
-                    colorAddScaled(c1, P->area, num, c1);    /* A_P (1-rho_P) E_P */
+        colorSetMonochrome(absorb, 1.0);
+        rho = TOPLEVEL_ELEMENT(patch)->Rd;
+        colorSubtract(absorb, rho, absorb); // 1-rho
 
-                    colorProduct(absorb, absorb, denom);
-                    colorAddScaled(c2, P->area, denom, c2);    /* A_P (1-rho_P)^2 */
-                }
-    EndForAll;
+        Ed = TOPLEVEL_ELEMENT(patch)->source_rad;
+        colorProduct(absorb, Ed, num);
+        colorAddScaled(c1, patch->area, num, c1); // A_P (1-rho_P) E_P
+
+        colorProduct(absorb, absorb, denom);
+        colorAddScaled(c2, patch->area, denom, c2); // A_P (1-rho_P)^2
+    }
 
     colorDivide(c1, c2, cr);
     fprintf(stderr, "Control radiosity value = ");
@@ -337,7 +345,7 @@ randomWalkRadiosityDoGatheringIteration() {
             nr_walks, (long) floor((double) nr_walks / (1. -
                     colorMaximumComponent(GLOBAL_statistics_averageReflectivity))));
 
-    TracePaths(nr_walks,
+    tracePaths(nr_walks,
                randomWalkRadiosityPatchArea, randomWalkRadiosityScalarReflectance,
                randomWalkRadiosityCollisionGatheringScore,
                randomWalkRadiosityGatheringUpdate);

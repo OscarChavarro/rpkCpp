@@ -249,7 +249,7 @@ void HandlePath_X_0(BPCONFIG *config, CBiPath *path) {
         path->m_geomConnect = 1.0; // Fake connection for X_0 paths
 
         if ( config->bcfg->useSpars ) {
-            // f = config->sparList->HandlePath(&config->sparConfig, path);
+            // f = config->sparList->photonMapHandlePath(&config->sparConfig, path);
             config->sparList->HandlePath(&config->sparConfig, path, &frad, &f);
             factor = 1.0; // pdf and weight already taken into account
         } else {
@@ -352,7 +352,7 @@ COLOR ComputeNEFluxEstimate(BPCONFIG *config, CBiPath *path,
     // Evaluate radiance and pdf and weight
 
     if ( config->bcfg->useSpars ) {
-        // f = config->sparList->HandlePath(&config->sparConfig, path);
+        // f = config->sparList->photonMapHandlePath(&config->sparConfig, path);
         config->sparList->HandlePath(&config->sparConfig, path, frad, &f);
     } else {
         f = path->EvalRadiance();

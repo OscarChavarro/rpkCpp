@@ -7,56 +7,53 @@
 
 ELEM_HIER_STATE GLOBAL_stochasticRaytracing_hierarchy;
 
-/* ========================================================================
-
-                                                                    METHODS 
-
-   ======================================================================== */
-void ElementHierarchyDefaults() {
+void
+elementHierarchyDefaults() {
     GLOBAL_stochasticRaytracing_hierarchy.epsilon = DEFAULT_EH_EPSILON;
     GLOBAL_stochasticRaytracing_hierarchy.minarea = DEFAULT_EH_MINAREA;
     GLOBAL_stochasticRaytracing_hierarchy.do_h_meshing = DEFAULT_EH_HIERARCHICAL_MESHING;
     GLOBAL_stochasticRaytracing_hierarchy.clustering = DEFAULT_EH_CLUSTERING;
     GLOBAL_stochasticRaytracing_hierarchy.tvertex_elimination = DEFAULT_EH_TVERTEX_ELIMINATION;
     GLOBAL_stochasticRaytracing_hierarchy.oracle = PowerOracle;
-
     GLOBAL_stochasticRaytracing_hierarchy.nr_elements = 0;
     GLOBAL_stochasticRaytracing_hierarchy.nr_clusters = 0;
 }
 
-void ElementHierarchyInit() {
-    /* Max link power is importance-depndent, the inital value is however the
+void
+elementHierarchyInit() {
+    /* Max link power is importance-dependent, the initial value is however the
      * same, just in case of importance-driven computations the threshold
      * will be multiplied by the importance value. (jp) */
 
     GLOBAL_stochasticRaytracing_hierarchy.maxlinkpow = GLOBAL_stochasticRaytracing_hierarchy.epsilon *
                                                        colorMaximumComponent(GLOBAL_statistics_maxSelfEmittedPower);
 
-    /* These lists hold vertices created during hierarchical refinement. */
-
+    // These lists hold vertices created during hierarchical refinement
     GLOBAL_stochasticRaytracing_hierarchy.coords = VectorListCreate();
     GLOBAL_stochasticRaytracing_hierarchy.normals = VectorListCreate();
     GLOBAL_stochasticRaytracing_hierarchy.texCoords = VectorListCreate();
     GLOBAL_stochasticRaytracing_hierarchy.vertices = new java::ArrayList<Vertex *>();
-
     GLOBAL_stochasticRaytracing_hierarchy.topcluster = monteCarloRadiosityCreateClusterHierarchy(
             GLOBAL_scene_clusteredWorldGeom);
 }
 
-void ElementHierarchyTerminate() {
-    /* destroy clusters */
+void
+elementHierarchyTerminate() {
+    // Destroy clusters
     monteCarloRadiosityDestroyClusterHierarchy(GLOBAL_stochasticRaytracing_hierarchy.topcluster);
     GLOBAL_stochasticRaytracing_hierarchy.topcluster = (ELEMENT *) nullptr;
 
-    /* destroy surface elements */
-    ForAllPatches(P, GLOBAL_scene_patches)
-                {
-                    /* need to be destroyed before destroying the automatically created
-                     * vertices */
-                    monteCarloRadiosityDestroyToplevelSurfaceElement(TOPLEVEL_ELEMENT(P));
-                    P->radiance_data = (void *) nullptr; /* prevents destroying a 2nd time later */
-                }
-    EndForAll;
+    // Destroy surface elements
+    PatchSet *listStart = (PatchSet *)(GLOBAL_scene_patches);
+    if ( listStart != nullptr ) {
+        PatchSet *patchWindow;
+        for ( patchWindow = listStart; patchWindow; patchWindow = patchWindow->next ) {
+            PATCH *p = (PATCH *) (patchWindow->patch);
+            // need to be destroyed before destroying the automatically created vertices
+            monteCarloRadiosityDestroyToplevelSurfaceElement(TOPLEVEL_ELEMENT(p));
+            p->radiance_data = nullptr; // prevents destroying a 2nd time later
+        }
+    }
 
     // Delete vertices
     java::ArrayList<Vertex *> *vertices = GLOBAL_stochasticRaytracing_hierarchy.vertices;

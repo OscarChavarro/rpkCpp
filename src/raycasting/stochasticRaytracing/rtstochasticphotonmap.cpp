@@ -28,7 +28,7 @@ void SRCONFIG::Init(RTStochastic_State &state) {
         if ( GLOBAL_radiance_currentRadianceMethodHandle == nullptr ) {
             logError("Stored Radiance", "No radiance method active, using no storage");
             radMode = STORED_NONE;
-        } else if ((radMode == STORED_PHOTONMAP) && (GLOBAL_radiance_currentRadianceMethodHandle != &Pmap)) {
+        } else if ((radMode == STORED_PHOTONMAP) && (GLOBAL_radiance_currentRadianceMethodHandle != &GLOBAL_photonMapMethods)) {
             logError("Stored Radiance", "Photonmap method not active, using no storage");
             radMode = STORED_NONE;
         }
@@ -125,7 +125,7 @@ void SRCONFIG::InitDependentVars() {
     if ((GLOBAL_radiance_currentRadianceMethodHandle == nullptr) || (radMode == STORED_NONE)) {
         storeFlags = NO_COMPONENTS;
     } else {
-        if ( GLOBAL_radiance_currentRadianceMethodHandle == &Pmap ) {
+        if ( GLOBAL_radiance_currentRadianceMethodHandle == &GLOBAL_photonMapMethods ) {
             storeFlags = BSDF_GLOSSY_COMPONENT | BSDF_DIFFUSE_COMPONENT;
         } else {
             storeFlags = BRDF_DIFFUSE_COMPONENT;

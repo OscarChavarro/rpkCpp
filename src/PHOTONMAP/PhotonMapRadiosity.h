@@ -5,9 +5,9 @@
 #include "raycasting/common/pathnode.h"
 #include "PHOTONMAP/photonmap.h"
 
-extern RADIANCEMETHOD Pmap;
+extern RADIANCEMETHOD GLOBAL_photonMapMethods;
 
-COLOR GetPmapNodeGRadiance(CPathNode *node);
-COLOR GetPmapNodeCRadiance(CPathNode *node);
+COLOR photonMapGetNodeGRadiance(CPathNode *node);
+COLOR photonMapGetNodeCRadiance(CPathNode *node);
 
 #endif

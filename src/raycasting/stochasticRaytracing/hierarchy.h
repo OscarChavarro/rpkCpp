@@ -91,10 +91,10 @@ extern ELEM_HIER_STATE GLOBAL_stochasticRaytracing_hierarchy;
 #define DEFAULT_EH_CLUSTERING               ORIENTED_CLUSTERING
 #define DEFAULT_EH_TVERTEX_ELIMINATION        true
 
-extern void ElementHierarchyDefaults();
+extern void elementHierarchyDefaults();
 
-extern void ElementHierarchyInit();
+extern void elementHierarchyInit();
 
-extern void ElementHierarchyTerminate();
+extern void elementHierarchyTerminate();
 
 #endif

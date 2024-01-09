@@ -139,9 +139,9 @@ class CPmapState
 
 extern CPmapState pmapstate;
 
-extern void ParsePmapOptions(int *argc, char **argv);
+extern void photonMapParseOptions(int *argc, char **argv);
 
-extern void PrintPmapOptions(FILE *fp);
+extern void photonMapPrintOptions(FILE *fp);
 
 
 #endif /* _PMAPOPTIONS_H_ */
