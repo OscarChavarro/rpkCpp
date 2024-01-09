@@ -47,7 +47,7 @@ void EdfDestroy(EDF *edf) {
 }
 
 /* Returns the emittance of the EDF */
-COLOR EdfEmittance(EDF *edf, HITREC *hit, XXDFFLAGS flags) {
+COLOR EdfEmittance(EDF *edf, RayHit *hit, XXDFFLAGS flags) {
     if ( edf && edf->methods->Emittance ) {
         return edf->methods->Emittance(edf->data, hit, flags);
     } else {
@@ -65,14 +65,14 @@ int EdfIsTextured(EDF *edf) {
 }
 
 /* returns diffusely emitted radiance [W/m^2 sr] */
-COLOR EdfDiffuseRadiance(EDF *edf, HITREC *hit) {
+COLOR EdfDiffuseRadiance(EDF *edf, RayHit *hit) {
     COLOR rad = EdfDiffuseEmittance(edf, hit);
     colorScale((1. / M_PI), rad, rad);
     return rad;
 }
 
 /* Evaluates the edf */
-COLOR EdfEval(EDF *edf, HITREC *hit, Vector3D *out, XXDFFLAGS flags, double *pdf) {
+COLOR EdfEval(EDF *edf, RayHit *hit, Vector3D *out, XXDFFLAGS flags, double *pdf) {
     if ( edf && edf->methods->Eval ) {
         return edf->methods->Eval(edf->data, hit, out, flags, pdf);
     } else {
@@ -85,7 +85,7 @@ COLOR EdfEval(EDF *edf, HITREC *hit, Vector3D *out, XXDFFLAGS flags, double *pdf
     }
 }
 
-Vector3D EdfSample(EDF *edf, HITREC *hit, XXDFFLAGS flags,
+Vector3D EdfSample(EDF *edf, RayHit *hit, XXDFFLAGS flags,
                    double xi1, double xi2,
                    COLOR *emitted_radiance, double *pdf) {
     if ( edf && edf->methods->Sample ) {
@@ -98,7 +98,7 @@ Vector3D EdfSample(EDF *edf, HITREC *hit, XXDFFLAGS flags,
 }
 
 
-int EdfShadingFrame(EDF *edf, HITREC *hit, Vector3D *X, Vector3D *Y, Vector3D *Z) {
+int EdfShadingFrame(EDF *edf, RayHit *hit, Vector3D *X, Vector3D *Y, Vector3D *Z) {
     if ( edf && edf->methods->ShadingFrame ) {
         return edf->methods->ShadingFrame(edf->data, hit, X, Y, Z);
     }

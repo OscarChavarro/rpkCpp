@@ -130,7 +130,7 @@ VoxelGrid::putItemInsideVoxelGrid(VoxelData *item, const float *itemBounds) {
 }
 
 void
-VoxelGrid::putPatchInsideVoxelGrid(PATCH *patch) {
+VoxelGrid::putPatchInsideVoxelGrid(Patch *patch) {
     BOUNDINGBOX localBounds;
     putItemInsideVoxelGrid(new VoxelData(patch, PATCH_MASK),
                            patch->bounds ? patch->bounds : patchBounds(patch, localBounds));
@@ -160,7 +160,7 @@ VoxelGrid::putSubGeometryInsideVoxelGrid(Geometry *geom) {
             if ( listStart != nullptr ) {
                 PatchSet *window;
                 for ( window = listStart; window; window = window->next ) {
-                    PATCH *patch = (PATCH *) (window->patch);
+                    Patch *patch = (Patch *) (window->patch);
                     putPatchInsideVoxelGrid(patch);
                 }
             }
@@ -388,7 +388,7 @@ a voxel's item list. If there is an intersection, maximumDistance will contain
 the distance to the intersection point measured from the ray origin
 as usual. If there is no intersection, maximumDistance remains unmodified
 */
-HITREC *
+RayHit *
 VoxelGrid::voxelIntersect(
         java::ArrayList<VoxelData *> *items,
         Ray *ray,
@@ -396,17 +396,17 @@ VoxelGrid::voxelIntersect(
         const float minimumDistance,
         float *maximumDistance,
         const int hitFlags,
-        HITREC *hitStore)
+        RayHit *hitStore)
 {
-    HITREC *hit = nullptr;
+    RayHit *hit = nullptr;
 
     for ( long i = 0; items != nullptr && i < items->size(); i++ ) {
         VoxelData *item = items->get(i);
         if ( item->lastRayId() != counter ) {
             // Avoid testing objects multiple times
-            HITREC *h = (HITREC *) nullptr;
+            RayHit *h = (RayHit *) nullptr;
             if ( item->isPatch()) {
-                h = patchIntersect((PATCH *) item->ptr, ray, minimumDistance, maximumDistance, hitFlags, hitStore);
+                h = patchIntersect((Patch *) item->ptr, ray, minimumDistance, maximumDistance, hitFlags, hitStore);
             } else if ( item->isGeom()) {
                 h = geomDiscretizationIntersect((Geometry *) item->ptr, ray, minimumDistance, maximumDistance, hitFlags,
                                                 hitStore);
@@ -437,7 +437,7 @@ VoxelGrid::allVoxelIntersections(
     const float maximumDistance,
     const int hitFlags)
 {
-    HITREC hitStore;
+    RayHit hitStore;
     for ( long i = 0; items != nullptr && i < items->size(); i++ ) {
         VoxelData *item = items->get(i);
 
@@ -445,7 +445,7 @@ VoxelGrid::allVoxelIntersections(
         if ( item->lastRayId() != counter ) {
             if ( item->isPatch()) {
                 float tMax = maximumDistance;
-                HITREC *h = patchIntersect((PATCH *) item->ptr, ray, minimumDistance, &tMax, hitFlags, &hitStore);
+                RayHit *h = patchIntersect((Patch *) item->ptr, ray, minimumDistance, &tMax, hitFlags, &hitStore);
                 if ( h ) {
                     hitList = HitListAdd(hitList, DuplicateHit(h));
                 }
@@ -512,13 +512,13 @@ VoxelGrid::destroyGrid() const {
 /**
 Traces a ray through a voxel grid. Returns nearest intersection or nullptr
 */
-HITREC *
+RayHit *
 VoxelGrid::gridIntersect(
         Ray *ray,
         float minimumDistance,
         float *maximumDistance,
         int hitFlags,
-        HITREC *hitStore)
+        RayHit *hitStore)
 {
     Vector3D tNext;
     Vector3D tDelta;
@@ -526,12 +526,12 @@ VoxelGrid::gridIntersect(
     int step[3];
     int out[3];
     int g[3];
-    HITREC *hit = nullptr;
+    RayHit *hit = nullptr;
     float t0;
     int counter;
 
     if ( !gridBoundsIntersect(ray, minimumDistance, *maximumDistance, &t0, &P)) {
-        return (HITREC *) nullptr;
+        return (RayHit *) nullptr;
     }
 
     gridTraceSetup(ray, t0, &P, g, &tDelta, &tNext, step, out);
@@ -542,7 +542,7 @@ VoxelGrid::gridIntersect(
     do {
         java::ArrayList<VoxelData *> *list = volumeListsOfItems[cellIndexAddress(g[0], g[1], g[2])];
         if ( list != nullptr ) {
-            HITREC *h;
+            RayHit *h;
             if ((h = voxelIntersect(list, ray, counter, t0, maximumDistance, hitFlags, hitStore))) {
                 hit = h;
             }

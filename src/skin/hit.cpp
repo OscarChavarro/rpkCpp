@@ -3,7 +3,7 @@
 #include "skin/Patch.h"
 
 int
-HitInitialised(HITREC *hit) {
+HitInitialised(RayHit *hit) {
     return ((hit->flags & HIT_PATCH) || (hit->flags & HIT_GEOM))
            && (hit->flags & HIT_POINT)
            && (hit->flags & HIT_GNORMAL)
@@ -13,8 +13,8 @@ HitInitialised(HITREC *hit) {
 
 int
 InitHit(
-        HITREC *hit,
-        PATCH *patch,
+        RayHit *hit,
+        Patch *patch,
         Geometry *geom,
         Vector3D *point,
         Vector3D *gnormal,
@@ -49,7 +49,7 @@ InitHit(
 }
 
 int
-HitUV(HITREC *hit, Vector2Dd *uv) {
+HitUV(RayHit *hit, Vector2Dd *uv) {
     if ( hit->flags & HIT_UV ) {
         *uv = hit->uv;
         return true;
@@ -66,7 +66,7 @@ HitUV(HITREC *hit, Vector2Dd *uv) {
 }
 
 int
-HitTexCoord(HITREC *hit, Vector3D *texCoord) {
+HitTexCoord(RayHit *hit, Vector3D *texCoord) {
     if ( hit->flags & HIT_TEXCOORD ) {
         *texCoord = hit->texCoord;
         return true;
@@ -86,7 +86,7 @@ HitTexCoord(HITREC *hit, Vector3D *texCoord) {
 }
 
 int
-HitShadingFrame(HITREC *hit, Vector3D *X, Vector3D *Y, Vector3D *Z) {
+HitShadingFrame(RayHit *hit, Vector3D *X, Vector3D *Y, Vector3D *Z) {
     if ( hit->flags & HIT_SHADINGFRAME ) {
         *X = hit->X;
         *Y = hit->Y;
@@ -108,7 +108,7 @@ HitShadingFrame(HITREC *hit, Vector3D *X, Vector3D *Y, Vector3D *Z) {
 }
 
 int
-HitShadingNormal(HITREC *hit, Vector3D *normal) {
+HitShadingNormal(RayHit *hit, Vector3D *normal) {
     if ( hit->flags & HIT_SHADINGFRAME || hit->flags & HIT_NORMAL ) {
         *normal = hit->normal;
         return true;

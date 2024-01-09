@@ -114,7 +114,7 @@ static void PhongBtdfPrint(FILE *out, PHONG_BTDF *btdf) {
 }
 
 /* Returns emittance, reflectance, transmittance */
-static COLOR PhongEmittance(PHONG_EDF *edf, HITREC *hit, XXDFFLAGS flags) {
+static COLOR PhongEmittance(PHONG_EDF *edf, RayHit *hit, XXDFFLAGS flags) {
     COLOR result;
 
     colorClear(result);
@@ -193,7 +193,7 @@ void PhongIndexOfRefraction(PHONG_BTDF *btdf, REFRACTIONINDEX *index) {
 
 
 /* Edf evaluations */
-static COLOR PhongEdfEval(PHONG_EDF *edf, HITREC *hit, Vector3D *out, XXDFFLAGS flags, double *pdf) {
+static COLOR PhongEdfEval(PHONG_EDF *edf, RayHit *hit, Vector3D *out, XXDFFLAGS flags, double *pdf) {
     Vector3D normal;
     COLOR result;
     double cosl;
@@ -231,7 +231,7 @@ static COLOR PhongEdfEval(PHONG_EDF *edf, HITREC *hit, Vector3D *out, XXDFFLAGS 
 }
 
 /* Edf sampling */
-static Vector3D PhongEdfSample(PHONG_EDF *edf, HITREC *hit, XXDFFLAGS flags,
+static Vector3D PhongEdfSample(PHONG_EDF *edf, RayHit *hit, XXDFFLAGS flags,
                                double xi1, double xi2,
                                COLOR *selfemitted_radiance, double *pdf) {
     Vector3D dir = {0., 0., 1.};
@@ -754,11 +754,11 @@ static void PhongBtdfEvalPdf(PHONG_BTDF *btdf, REFRACTIONINDEX inIndex,
 
 /* Phong-type edf... method structs */
 EDF_METHODS PhongEdfMethods = {
-        (COLOR (*)(void *, HITREC *, XXDFFLAGS)) PhongEmittance,
+        (COLOR (*)(void *, RayHit *, XXDFFLAGS)) PhongEmittance,
         (int (*)(void *)) nullptr,    /* not textured */
-        (COLOR (*)(void *, HITREC *, Vector3D *, XXDFFLAGS, double *)) PhongEdfEval,
-        (Vector3D (*)(void *, HITREC *, XXDFFLAGS, double, double, COLOR *, double *)) PhongEdfSample,
-        (int (*)(void *, HITREC *, Vector3D *, Vector3D *, Vector3D *)) nullptr,
+        (COLOR (*)(void *, RayHit *, Vector3D *, XXDFFLAGS, double *)) PhongEdfEval,
+        (Vector3D (*)(void *, RayHit *, XXDFFLAGS, double, double, COLOR *, double *)) PhongEdfSample,
+        (int (*)(void *, RayHit *, Vector3D *, Vector3D *, Vector3D *)) nullptr,
         (void (*)(FILE *, void *)) PhongEdfPrint
 };
 

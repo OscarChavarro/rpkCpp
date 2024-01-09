@@ -16,11 +16,11 @@
 class Vertex;
 class MeshSurface;
 
-class PATCH {
+class Patch {
 public:
     unsigned id; // identification number for debugging, ID rendering
 
-    PATCH *twin; // twin face (for double-sided surfaces)
+    Patch *twin; // twin face (for double-sided surfaces)
     BREP_FACE *brepData; // topological data for the patch. Only filled in if a radiance method needs it
 
     Vertex *vertex[MAXIMUM_VERTICES_PER_PATCH]; // pointers to the vertices
@@ -53,30 +53,30 @@ public:
     void *radiance_data; // data needed for radiance computations. Type depends on the current radiance algorithm
     MeshSurface *surface; // pointer to surface data (contains vertex list, material properties)
 
-    PATCH();
+    Patch();
     int isVirtual() const;
 };
 
-extern PATCH *patchCreate(int numberOfVertices, Vertex *v1, Vertex *v2, Vertex *v3, Vertex *v4);
-extern void patchDestroy(PATCH *patch);
-extern float *patchBounds(PATCH *patch, float *bounds);
-extern HITREC *patchIntersect(PATCH *patch, Ray *ray, float minimumDistance, float *maximumDistance, int hitFlags, HITREC *hitStore);
+extern Patch *patchCreate(int numberOfVertices, Vertex *v1, Vertex *v2, Vertex *v3, Vertex *v4);
+extern void patchDestroy(Patch *patch);
+extern float *patchBounds(Patch *patch, float *bounds);
+extern RayHit *patchIntersect(Patch *patch, Ray *ray, float minimumDistance, float *maximumDistance, int hitFlags, RayHit *hitStore);
 extern void patchDontIntersect(int n, ...);
-extern void patchPrint(FILE *out, PATCH *patch);
-extern void patchPrintId(FILE *out, PATCH *patch);
+extern void patchPrint(FILE *out, Patch *patch);
+extern void patchPrintId(FILE *out, Patch *patch);
 extern int patchGetNextId();
 extern void patchSetNextId(int id);
-extern Vector3D *patchPoint(PATCH *patch, double u, double v, Vector3D *point);
-extern Vector3D *patchUniformPoint(PATCH *patch, double u, double v, Vector3D *point);
-extern int patchUv(PATCH *poly, Vector3D *point, double *u, double *v);
-extern int patchUniformUv(PATCH *poly, Vector3D *point, double *u, double *v);
-extern void bilinearToUniform(PATCH *patch, double *u, double *v);
-extern void uniformToBilinear(PATCH *patch, double *u, double *v);
-extern Vector3D patchInterpolatedNormalAtUv(PATCH *patch, double u, double v);
-extern void patchInterpolatedFrameAtUv(PATCH *patch, double u, double v, Vector3D *X, Vector3D *Y, Vector3D *Z);
-extern Vector3D patchTextureCoordAtUv(PATCH *patch, double u, double v);
-extern COLOR patchAverageNormalAlbedo(PATCH *patch, BSDFFLAGS components);
-extern COLOR patchAverageEmittance(PATCH *patch, XXDFFLAGS components);
-extern int materialShadingFrame(HITREC *hit, Vector3D *X, Vector3D *Y, Vector3D *Z);
+extern Vector3D *patchPoint(Patch *patch, double u, double v, Vector3D *point);
+extern Vector3D *patchUniformPoint(Patch *patch, double u, double v, Vector3D *point);
+extern int patchUv(Patch *poly, Vector3D *point, double *u, double *v);
+extern int patchUniformUv(Patch *poly, Vector3D *point, double *u, double *v);
+extern void bilinearToUniform(Patch *patch, double *u, double *v);
+extern void uniformToBilinear(Patch *patch, double *u, double *v);
+extern Vector3D patchInterpolatedNormalAtUv(Patch *patch, double u, double v);
+extern void patchInterpolatedFrameAtUv(Patch *patch, double u, double v, Vector3D *X, Vector3D *Y, Vector3D *Z);
+extern Vector3D patchTextureCoordAtUv(Patch *patch, double u, double v);
+extern COLOR patchAverageNormalAlbedo(Patch *patch, BSDFFLAGS components);
+extern COLOR patchAverageEmittance(Patch *patch, XXDFFLAGS components);
+extern int materialShadingFrame(RayHit *hit, Vector3D *X, Vector3D *Y, Vector3D *Z);
 
 #endif

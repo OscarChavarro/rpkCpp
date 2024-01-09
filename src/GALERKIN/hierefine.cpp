@@ -469,7 +469,7 @@ static int SubdivideSourceCluster(INTERACTION *link) {
         /* subinteraction.deltaK.p = */
 
         if ( !isCluster(child)) {
-            PATCH *the_patch = child->pog.patch;
+            Patch *the_patch = child->pog.patch;
             if ((isCluster(rcv) &&
                  boundsBehindPlane(geomBounds(rcv->pog.geom), &the_patch->normal, the_patch->planeConstant)) ||
                 (!isCluster(rcv) && !Facing(rcv->pog.patch, the_patch))) {
@@ -502,7 +502,7 @@ static int SubdivideReceiverCluster(INTERACTION *link) {
         subinteraction.K.p = ff;
 
         if ( !isCluster(child)) {
-            PATCH *the_patch = child->pog.patch;
+            Patch *the_patch = child->pog.patch;
             if ((isCluster(src) &&
                  boundsBehindPlane(geomBounds(src->pog.geom), &the_patch->normal, the_patch->planeConstant)) ||
                 (!isCluster(src) && !Facing(src->pog.patch, the_patch))) {

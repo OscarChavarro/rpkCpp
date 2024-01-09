@@ -43,7 +43,7 @@ public:
 
 
 public:
-    HITREC m_hit;
+    RayHit m_hit;
     Vector3D m_inDirT; // towards the patch
     Vector3D m_inDirF; // from the patch
     Vector3D m_normal;

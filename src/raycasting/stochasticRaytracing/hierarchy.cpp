@@ -48,7 +48,7 @@ elementHierarchyTerminate() {
     if ( listStart != nullptr ) {
         PatchSet *patchWindow;
         for ( patchWindow = listStart; patchWindow; patchWindow = patchWindow->next ) {
-            PATCH *p = (PATCH *) (patchWindow->patch);
+            Patch *p = (Patch *) (patchWindow->patch);
             // need to be destroyed before destroying the automatically created vertices
             monteCarloRadiosityDestroyToplevelSurfaceElement(TOPLEVEL_ELEMENT(p));
             p->radiance_data = nullptr; // prevents destroying a 2nd time later

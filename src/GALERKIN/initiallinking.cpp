@@ -9,12 +9,12 @@
 
 static ELEMENT *globalElement; // The element for which initial links are to be created
 static ROLE globalRole; // The role of that element: SOURCE or RECEIVER
-static PATCH *globalPatch; // The patch for the element is the toplevel element
+static Patch *globalPatch; // The patch for the element is the toplevel element
 static BOUNDINGBOX globalPatchBoundingBox; // Bounding box for that patch
 static GeometryListNode *globalCandidateList; // Candidate list for shaft culling
 
 static void
-createInitialLink(PATCH *patch) {
+createInitialLink(Patch *patch) {
     ELEMENT *rcv = nullptr;
     ELEMENT *src = nullptr;
     GeometryListNode *oldCandidateList = globalCandidateList;

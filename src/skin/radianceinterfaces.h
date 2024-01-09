@@ -7,7 +7,7 @@
 
 #include "skin/Geometry.h"
 
-typedef COLOR(*GETRADIANCE_FT)(PATCH *patch, double u, double v, Vector3D dir);
+typedef COLOR(*GETRADIANCE_FT)(Patch *patch, double u, double v, Vector3D dir);
 
 /* routines to be implemented for each radiance algorithm */
 class RADIANCEMETHOD {
@@ -46,19 +46,19 @@ class RADIANCEMETHOD {
 
     /* Returns the radiance being emitted from the specified patch, at
      * the point with given (u,v) parameters and into the given direction. */
-    /* COLOR (*GetRadiance)(PATCH *patch, double u, double v, Vector3D dir); */
+    /* COLOR (*GetRadiance)(Patch *patch, double u, double v, Vector3D dir); */
     GETRADIANCE_FT GetRadiance;
 
     /* Allocates memory for the radiance data for the given patch. Fills in
     * the pointer in patch->radianceData. */
-    void *(*CreatePatchData)(PATCH *patch);
+    void *(*CreatePatchData)(Patch *patch);
 
     /* Print radiance data for the patch to file out */
-    void (*PrintPatchData)(FILE *out, PATCH *patch);
+    void (*PrintPatchData)(FILE *out, Patch *patch);
 
     /* destroys the radiance data for the patch. Clears the patch->radianceData
      * pointer. */
-    void (*DestroyPatchData)(PATCH *patch);
+    void (*DestroyPatchData)(Patch *patch);
 
     /* returns a string with statistics information about the current run so
      * far */

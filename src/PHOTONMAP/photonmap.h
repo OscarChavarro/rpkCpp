@@ -13,7 +13,7 @@
 #include "PHOTONMAP/pmapoptions.h"
 
 
-bool ZeroAlbedo(BSDF *bsdf, HITREC *hit, BSDFFLAGS flags);
+bool ZeroAlbedo(BSDF *bsdf, RayHit *hit, BSDFFLAGS flags);
 
 // Convert a value val given a maximum into some nice color
 COLOR GetFalseColor(float val);
@@ -109,7 +109,7 @@ public:
 
     virtual bool AddPhoton(CPhoton &photon, Vector3D &normal, short flags = 0);
 
-    bool DC_AddPhoton(CPhoton &photon, HITREC &hit,
+    bool DC_AddPhoton(CPhoton &photon, RayHit &hit,
                       float requiredD, short flags = 0);
 
     void Redistribute(CPhoton &photon, float acceptProb, short flags = 0);
@@ -124,24 +124,24 @@ public:
     virtual void PhotonPrecomputeIrradiance(CIrrPhoton *photon);
 
     // Reconstruct
-    virtual COLOR Reconstruct(HITREC *hit, Vector3D &outDir,
+    virtual COLOR Reconstruct(RayHit *hit, Vector3D &outDir,
                               BSDF *bsdf, BSDF *inBsdf, BSDF *outBsdf);
 
     /*
-    bool IrradianceReconstruct(HITREC *hit, Vector3D &outDir,
+    bool IrradianceReconstruct(RayHit *hit, Vector3D &outDir,
                        BSDF *bsdf, BSDF *inBsdf,
                        BSDF *outBsdf,
                        COLOR *result);
     */
 
-    bool IrradianceReconstruct(HITREC *hit, Vector3D &outDir,
+    bool IrradianceReconstruct(RayHit *hit, Vector3D &outDir,
                                COLOR &diffuseAlbedo,
                                COLOR *result);
 
-    virtual float GetCurrentDensity(HITREC &hit, int nrPhotons = 0);
+    virtual float GetCurrentDensity(RayHit &hit, int nrPhotons = 0);
 
     // Return a color coded density of the photonmap
-    virtual COLOR GetDensityColor(HITREC &hit);
+    virtual COLOR GetDensityColor(RayHit &hit);
 
 
     // Sample values: Random values r,s are transformed into new

@@ -8,7 +8,7 @@ CSampler::SampleTransfer(CPathNode *thisNode,
                               CPathNode *newNode, Vector3D *dir,
                               double pdfDir) {
     Ray ray;
-    HITREC *hit;
+    RayHit *hit;
 
     ray.pos = thisNode->m_hit.point;
     ray.dir = *dir;

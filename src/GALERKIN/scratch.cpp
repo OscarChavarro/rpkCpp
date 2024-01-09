@@ -24,7 +24,7 @@ void ScratchTerminate() {
 static Vector3D eyep;
 
 static void ScratchRenderElementPtr(ELEMENT *elem) {
-    PATCH *patch = elem->pog.patch;
+    Patch *patch = elem->pog.patch;
     Vector3D v[4];
     int i;
 

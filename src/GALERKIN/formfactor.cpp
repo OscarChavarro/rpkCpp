@@ -11,7 +11,7 @@
 /* Returns true if P is at least partly in front the plane of Q. Returns false
  * if P is coplanar with or behind Q. It suffices to test the vertices of P w.r.t. 
  * the plane of Q. */
-int IsAtLeastPartlyInFront(PATCH *P, PATCH *Q) {
+int IsAtLeastPartlyInFront(Patch *P, Patch *Q) {
     int i;
 
     for ( i = 0; i < P->numberOfVertices; i++ ) {
@@ -27,7 +27,7 @@ int IsAtLeastPartlyInFront(PATCH *P, PATCH *Q) {
 
 /* Returns true if the two patches can "see" each other: P and Q see each 
  * other if at least a part of P is in front of Q and vice versa. */
-int Facing(PATCH *P, PATCH *Q) {
+int Facing(Patch *P, Patch *Q) {
     return (IsAtLeastPartlyInFront(P, Q) && IsAtLeastPartlyInFront(Q, P));
 }
 
@@ -100,7 +100,7 @@ static double PointKernelEval(Vector3D *x, Vector3D *y,
     double dist, cosp, cosq, ff;
     float fdist;
     Ray ray;
-    HITREC hitstore;
+    RayHit hitstore;
 
     /* Trace the ray from source to receiver (y to x) to handle one-sided surfaces
      * correctly. */
@@ -458,10 +458,10 @@ unsigned AreaToAreaFormFactor(INTERACTION *link, GeometryListNode *shadowlist) {
         InitShadowCache();
 
         /* Mark the patches in order to avoid immediate selfintersections. */
-        patchDontIntersect(4, isCluster(rcv) ? (PATCH *) nullptr : rcv->pog.patch,
-                           isCluster(rcv) ? (PATCH *) nullptr : rcv->pog.patch->twin,
-                           isCluster(src) ? (PATCH *) nullptr : src->pog.patch,
-                           isCluster(src) ? (PATCH *) nullptr : src->pog.patch->twin);
+        patchDontIntersect(4, isCluster(rcv) ? (Patch *) nullptr : rcv->pog.patch,
+                           isCluster(rcv) ? (Patch *) nullptr : rcv->pog.patch->twin,
+                           isCluster(src) ? (Patch *) nullptr : src->pog.patch,
+                           isCluster(src) ? (Patch *) nullptr : src->pog.patch->twin);
         geomDontIntersect(isCluster(rcv) ? rcv->pog.geom : (Geometry *) nullptr,
                           isCluster(src) ? src->pog.geom : (Geometry *) nullptr);
 

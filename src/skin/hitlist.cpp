@@ -3,8 +3,8 @@
 /**
 Creates a duplicate of the given hit record
 */
-HITREC *DuplicateHit(HITREC *hit) {
-    HITREC *duplhit = (HITREC *)malloc(sizeof(HITREC));
+RayHit *DuplicateHit(RayHit *hit) {
+    RayHit *duplhit = (RayHit *)malloc(sizeof(RayHit));
     *duplhit = *hit;
     return duplhit;
 }

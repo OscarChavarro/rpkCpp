@@ -97,43 +97,43 @@ NR_VERTICES(ELEMENT *elem) {
 }
 
 inline ELEMENT*
-TOPLEVEL_ELEMENT(PATCH *patch) {
+TOPLEVEL_ELEMENT(Patch *patch) {
     return (ELEMENT *)patch->radiance_data;
 }
 
 inline COLOR *
-getTopLevelPatchRad(PATCH *patch) {
+getTopLevelPatchRad(Patch *patch) {
     return TOPLEVEL_ELEMENT(patch)->rad;
 }
 
 inline COLOR *
-getTopLevelPatchUnShotRad(PATCH *patch) {
+getTopLevelPatchUnShotRad(Patch *patch) {
     return TOPLEVEL_ELEMENT(patch)->unshot_rad;
 }
 
 inline COLOR*
-getTopLevelPatchReceivedRad(PATCH *patch) {
+getTopLevelPatchReceivedRad(Patch *patch) {
     return TOPLEVEL_ELEMENT(patch)->received_rad;
 }
 
 inline GalerkinBasis *
-getTopLevelPatchBasis(PATCH *patch) {
+getTopLevelPatchBasis(Patch *patch) {
     return TOPLEVEL_ELEMENT(patch)->basis;
 }
 
-extern float monteCarloRadiosityScalarReflectance(PATCH *P);
+extern float monteCarloRadiosityScalarReflectance(Patch *P);
 extern void monteCarloRadiosityDefaults();
 extern void monteCarloRadiosityUpdateCpuSecs();
-extern void *monteCarloRadiosityCreatePatchData(PATCH *patch);
-extern void monteCarloRadiosityPrintPatchData(FILE *out, PATCH *patch);
-extern void monteCarloRadiosityDestroyPatchData(PATCH *patch);
-extern void monteCarloRadiosityPatchComputeNewColor(PATCH *patch);
+extern void *monteCarloRadiosityCreatePatchData(Patch *patch);
+extern void monteCarloRadiosityPrintPatchData(FILE *out, Patch *patch);
+extern void monteCarloRadiosityDestroyPatchData(Patch *patch);
+extern void monteCarloRadiosityPatchComputeNewColor(Patch *patch);
 extern void monteCarloRadiosityInit();
 extern void monteCarloRadiosityUpdateViewImportance();
 extern void monteCarloRadiosityReInit();
 extern void monteCarloRadiosityPreStep();
 extern void monteCarloRadiosityTerminate();
-extern COLOR monteCarloRadiosityGetRadiance(PATCH *patch, double u, double v, Vector3D dir);
+extern COLOR monteCarloRadiosityGetRadiance(Patch *patch, double u, double v, Vector3D dir);
 extern void monteCarloRadiosityRecomputeDisplayColors();
 extern void monteCarloRadiosityUpdateMaterial(Material *oldMaterial, Material *newMaterial);
 

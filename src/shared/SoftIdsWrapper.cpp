@@ -3,7 +3,7 @@
 #include "shared/SoftIdsWrapper.h"
 
 static SGL_PIXEL
-PatchPointer(PATCH *P) {
+PatchPointer(Patch *P) {
     return (SGL_PIXEL) P;
 }
 

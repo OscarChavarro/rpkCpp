@@ -77,14 +77,14 @@ compoundPrimitives(Compound *obj) {
     return &obj->children;
 }
 
-static HITREC *
+static RayHit *
 compoundDiscretizationIntersect(
         Compound *obj,
         Ray *ray,
         float minimumDistance,
         float *maximumDistance,
         int hitFlags,
-        HITREC *hitStore)
+        RayHit *hitStore)
 {
     return geometryListDiscretizationIntersect(&obj->children, ray, minimumDistance, maximumDistance, hitFlags,
                                                hitStore);
@@ -108,7 +108,7 @@ GEOM_METHODS GLOBAL_skin_compoundGeometryMethods = {
         (void (*)(FILE *, void *)) compoundPrint,
         (GeometryListNode *(*)(void *)) compoundPrimitives,
         (PatchSet *(*)(void *)) nullptr,
-        (HITREC *(*)(void *, Ray *, float, float *, int, HITREC *)) compoundDiscretizationIntersect,
+        (RayHit *(*)(void *, Ray *, float, float *, int, RayHit *)) compoundDiscretizationIntersect,
         (HITLIST *(*)(HITLIST *, void *, Ray *, float, float, int)) compoundAllDiscretizationIntersections,
         (void *(*)(void *)) nullptr
 };

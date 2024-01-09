@@ -291,8 +291,8 @@ static void
 writeMaterial(Geometry *geom) {
     MeshSurface *surf = geomGetSurface(geom);
     Material *mat = surf->material;
-    PATCH *first_patch = (surf->faces) ? surf->faces->patch : (PATCH *) nullptr;
-    HITREC hit;
+    Patch *first_patch = (surf->faces) ? surf->faces->patch : (Patch *) nullptr;
+    RayHit hit;
     COLOR Rd, Rs;
     RGB rd, rs;
     float specularity;

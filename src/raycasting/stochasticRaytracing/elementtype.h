@@ -9,7 +9,7 @@
 #include "raycasting/stochasticRaytracing/basismcrad.h"
 
 typedef union PatchOrGeomPtr {
-    PATCH *patch;
+    Patch *patch;
     Geometry *geom;
 } PatchOrGeomPtr;
 

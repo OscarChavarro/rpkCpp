@@ -212,26 +212,26 @@ updateCpuSecs() {
 }
 
 /**
-Radiance data for a PATCH is a surface element
+Radiance data for a Patch is a surface element
 */
 static void *
-createPatchData(PATCH *patch) {
+createPatchData(Patch *patch) {
     return patch->radiance_data = (void *) galerkinCreateToplevelElement(patch);
 }
 
 static void
-printPatchData(FILE *out, PATCH *patch) {
+printPatchData(FILE *out, Patch *patch) {
     galerkinPrintElement(out, (ELEMENT *) patch->radiance_data);
 }
 
 static void
-destroyPatchData(PATCH *patch) {
+destroyPatchData(Patch *patch) {
     galerkinDestroyToplevelElement((ELEMENT *) patch->radiance_data);
     patch->radiance_data = (void *) nullptr;
 }
 
 void
-patchRecomputeColor(PATCH *patch) {
+patchRecomputeColor(Patch *patch) {
     COLOR rho = REFLECTIVITY(patch);
     COLOR rad_vis;
 
@@ -248,7 +248,7 @@ patchRecomputeColor(PATCH *patch) {
 }
 
 static void
-patchInit(PATCH *patch) {
+patchInit(Patch *patch) {
     COLOR rho = REFLECTIVITY(patch), Ed = SELFEMITTED_RADIANCE(patch);
 
     if ( GLOBAL_galerkin_state.use_constant_radiance ) {
@@ -357,7 +357,7 @@ terminateGalerkin() {
 }
 
 static COLOR
-getRadiance(PATCH *patch, double u, double v, Vector3D dir) {
+getRadiance(Patch *patch, double u, double v, Vector3D dir) {
     ELEMENT *leaf;
     COLOR rad;
 
@@ -432,7 +432,7 @@ renderElementHierarchy(ELEMENT *elem) {
 }
 
 static void
-galerkinRenderPatch(PATCH *patch) {
+galerkinRenderPatch(Patch *patch) {
     renderElementHierarchy(TOPLEVEL_ELEMENT(patch));
 }
 

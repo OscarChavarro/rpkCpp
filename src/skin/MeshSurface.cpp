@@ -33,7 +33,7 @@ normalizeVertexColor(Vertex *vertex) {
 Fills in the MeshSurface back pointer of the face belonging to the given surface
 */
 void
-surfaceConnectFace(MeshSurface *surf, PATCH *face) {
+surfaceConnectFace(MeshSurface *surf, Patch *face) {
     int i;
     COLOR rho;
 
@@ -102,7 +102,7 @@ surfaceCreate(
     if ( listStart ) {
         PatchSet *window;
         for ( window = listStart; window; window = window->next ) {
-            PATCH *patch = window->patch;
+            Patch *patch = window->patch;
             surfaceConnectFace(surface, patch);
         }
     }
@@ -128,7 +128,7 @@ still be used and thus not destroyed by the BREP library
 void
 surfaceDestroy(MeshSurface *surface) {
     PatchSet *patchWindow = surface->faces;
-    PATCH *patch;
+    Patch *patch;
     while ( patchWindow != nullptr ) {
         patch = patchWindow->patch;
         patchWindow = patchWindow->next;
@@ -211,7 +211,7 @@ surfacePrint(FILE *out, MeshSurface *surface) {
             surface->id, surface->material->name);
 
     PatchSet *patchWindow = (surface->faces);
-    PATCH *patchElement;
+    Patch *patchElement;
     while (patchWindow) {
         patchElement = patchWindow->patch;
         patchWindow = patchWindow->next;
@@ -220,7 +220,7 @@ surfacePrint(FILE *out, MeshSurface *surface) {
     fprintf(out, "\n");
 
     PatchSet *patchWindow2 = (surface->faces);
-    PATCH *patchElement2;
+    Patch *patchElement2;
     while (patchWindow2) {
         patchElement2 = patchWindow2->patch;
         patchWindow2 = patchWindow2->next;
@@ -247,14 +247,14 @@ surfacePatchList(MeshSurface *surf) {
     return surf->faces;
 }
 
-HITREC *
+RayHit *
 surfaceDiscretizationIntersect(
-    MeshSurface *surf,
-    Ray *ray,
-    float minimumDistance,
-    float *maximumDistance,
-    int hitFlags,
-    HITREC *hitStore)
+        MeshSurface *surf,
+        Ray *ray,
+        float minimumDistance,
+        float *maximumDistance,
+        int hitFlags,
+        RayHit *hitStore)
 {
     return patchListIntersect(surf->faces, ray, minimumDistance, maximumDistance, hitFlags, hitStore);
 }
@@ -277,7 +277,7 @@ GEOM_METHODS GLOBAL_skin_surfaceGeometryMethods = {
     (void (*)(FILE *, void *)) surfacePrint,
     (GeometryListNode *(*)(void *)) nullptr,
     (PatchSet *(*)(void *)) surfacePatchList,
-    (HITREC *(*)(void *, Ray *, float, float *, int, HITREC *)) surfaceDiscretizationIntersect,
+    (RayHit *(*)(void *, Ray *, float, float *, int, RayHit *)) surfaceDiscretizationIntersect,
     (HITLIST *(*)(HITLIST *, void *, Ray *, float, float, int)) surfaceAllDiscretizationIntersections,
     (void *(*)(void *)) nullptr
 };

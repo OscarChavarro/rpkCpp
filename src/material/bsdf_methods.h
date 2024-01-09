@@ -16,7 +16,7 @@ class BSDF_METHODS {
   public:
     /* returns the scattered power (diffuse/glossy/specular
      * reflectance and/or transmittance) according to flags */
-    COLOR (*ScatteredPower)(void *data, HITREC *hit, Vector3D *in, BSDFFLAGS flags);
+    COLOR (*ScatteredPower)(void *data, RayHit *hit, Vector3D *in, BSDFFLAGS flags);
 
     int (*IsTextured)(void *data);
 
@@ -24,9 +24,9 @@ class BSDF_METHODS {
     void (*IndexOfRefraction)(void *data, REFRACTIONINDEX *index);
 
     /* void *incomingBsdf should be BSDF *incomingBsdf */
-    COLOR (*Eval)(void *data, HITREC *hit, void *inBsdf, void *outBsdf, Vector3D *in, Vector3D *out, BSDFFLAGS flags);
+    COLOR (*Eval)(void *data, RayHit *hit, void *inBsdf, void *outBsdf, Vector3D *in, Vector3D *out, BSDFFLAGS flags);
 
-    Vector3D (*Sample)(void *data, HITREC *hit,
+    Vector3D (*Sample)(void *data, RayHit *hit,
                        void *inBsdf, void *outBsdf,
                        Vector3D *in,
                        int doRussianRoulette, BSDFFLAGS flags,
@@ -34,7 +34,7 @@ class BSDF_METHODS {
                        double *pdf);
 
 
-    void (*EvalPdf)(void *data, HITREC *hit,
+    void (*EvalPdf)(void *data, RayHit *hit,
                     void *inBsdf, void *outBsdf,
                     Vector3D *in, Vector3D *out,
                     BSDFFLAGS flags,
@@ -42,7 +42,7 @@ class BSDF_METHODS {
 
     /* Constructs shading frame at hit point. Returns TRUE if succesful and
      * FALSE if not. X and Y may be null pointers. */
-    int (*ShadingFrame)(void *data, HITREC *hit, Vector3D *X, Vector3D *Y, Vector3D *Z);
+    int (*ShadingFrame)(void *data, RayHit *hit, Vector3D *X, Vector3D *Y, Vector3D *Z);
 
     /* prints the BSDF data to the specified file */
     void (*Print)(FILE *out, void *data);

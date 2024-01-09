@@ -22,7 +22,7 @@ class LUMAREA {
 A-priori estimate of a patch's radiance
 */
 static COLOR
-initRadianceEstimate(PATCH *patch) {
+initRadianceEstimate(Patch *patch) {
     COLOR E = patchAverageEmittance(patch, ALL_COMPONENTS),
             R = patchAverageNormalAlbedo(patch, BSDF_ALL_COMPONENTS),
             radiance;
@@ -37,7 +37,7 @@ static double globalLogAreaLum;
 static LUMAREA *globalLumArea;
 static float globalLumMin = HUGE;
 static float globalLumMax = 0.0;
-static COLOR (*PatchRadianceEstimate)(PATCH *globalP) = initRadianceEstimate;
+static COLOR (*PatchRadianceEstimate)(Patch *globalP) = initRadianceEstimate;
 
 static int
 adaptationLumAreaComp(const void *la1, const void *la2) {
@@ -47,7 +47,7 @@ adaptationLumAreaComp(const void *la1, const void *la2) {
 }
 
 static float
-patchBrightnessEstimate(PATCH *patch) {
+patchBrightnessEstimate(Patch *patch) {
     COLOR radiance = PatchRadianceEstimate(patch);
     float brightness = colorLuminance(radiance);
     if ( brightness < EPSILON ) {
@@ -57,13 +57,13 @@ patchBrightnessEstimate(PATCH *patch) {
 }
 
 static void
-patchComputeLogAreaLum(PATCH *patch) {
+patchComputeLogAreaLum(Patch *patch) {
     float brightness = patchBrightnessEstimate(patch);
     globalLogAreaLum += patch->area * std::log(brightness);
 }
 
 static void
-patchFillLumArea(PATCH *patch) {
+patchFillLumArea(Patch *patch) {
     float brightness = patchBrightnessEstimate(patch);
 
     globalLumArea->luminance = brightness;
@@ -104,7 +104,7 @@ adaption estimation method in GLOBAL_toneMap_options.statadapt
 emitted by a patch. The result is filled in GLOBAL_toneMap_options.lwa
 */
 static void
-estimateSceneAdaptation(COLOR (*patch_radiance)(PATCH *)) {
+estimateSceneAdaptation(COLOR (*patch_radiance)(Patch *)) {
     PatchRadianceEstimate = patch_radiance;
 
     switch ( GLOBAL_toneMap_options.statadapt ) {

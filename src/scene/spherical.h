@@ -15,7 +15,7 @@ class COORDSYS {
 };
 
 /* creates a coordinate system on the patch P with Z direction along the normal */
-extern void PatchCoordSys(PATCH *P, COORDSYS *coord);
+extern void PatchCoordSys(Patch *P, COORDSYS *coord);
 
 /* creates a coordinate system with the given UNIT direction vector as Z-axis */
 extern void VectorCoordSys(Vector3D *Z, COORDSYS *coord);

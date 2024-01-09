@@ -20,7 +20,7 @@ interactions with light sources are created. See Holschuch, EGRW '94
 (Darmstadt - EuroGraphics Rendering Workshop).
 */
 static void
-patchLazyCreateInteractions(PATCH *P) {
+patchLazyCreateInteractions(Patch *P) {
     ELEMENT *el = TOPLEVEL_ELEMENT(P);
 
     if ( !colorNull(el->radiance[0]) && !(el->flags & INTERACTIONS_CREATED)) {
@@ -34,7 +34,7 @@ Converts the accumulated received radiance into exitant radiance, making the
 hierarchical representation consistent and computes a new color for the patch
 */
 static void
-patchUpdateRadiance(PATCH *P) {
+patchUpdateRadiance(Patch *P) {
     basisGalerkinPushPullRadiance(TOPLEVEL_ELEMENT(P));
     patchRecomputeColor(P);
 }
@@ -46,7 +46,7 @@ interactions and updates the radiance for the patch if doing
 Gauss-Seidel iterations
 */
 static void
-patchGather(PATCH *P) {
+patchGather(Patch *P) {
     ELEMENT *el = TOPLEVEL_ELEMENT(P);
 
     /* don't gather to patches without importance. This optimisation can not
@@ -134,7 +134,7 @@ gatheringPushPullPotential(ELEMENT *elem, float down) {
 }
 
 static void
-patchUpdatePotential(PATCH *patch) {
+patchUpdatePotential(Patch *patch) {
     gatheringPushPullPotential(TOPLEVEL_ELEMENT(patch), 0.);
 }
 

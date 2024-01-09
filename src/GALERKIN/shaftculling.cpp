@@ -447,14 +447,14 @@ int ShaftBoxTest(float *bounds, SHAFT *shaft) {
  * to whether the patch is fully inside the shaft, overlapping it, or fully outside. If it is detected that the patch fully occludes the shaft, shaft->cut is
  * set to true, indicating that there is full occlusion due to one patch and
  * that as such no further shaft culling is necessary. */
-int shaftPatchTest(PATCH *patch, SHAFT *shaft) {
+int shaftPatchTest(Patch *patch, SHAFT *shaft) {
     int i, j, someout, inall[MAXIMUM_VERTICES_PER_PATCH];
     SHAFTPLANE *plane;
     double tmin[MAXIMUM_VERTICES_PER_PATCH], tmax[MAXIMUM_VERTICES_PER_PATCH],
             ptol[MAXIMUM_VERTICES_PER_PATCH];
     Ray ray;
     float dist;
-    HITREC hitstore;
+    RayHit hitstore;
 
     /* start by assuming that all vertices are on the negative side ("inside")
      * all shaft planes. */

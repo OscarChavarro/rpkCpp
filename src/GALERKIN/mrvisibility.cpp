@@ -33,7 +33,7 @@ GeomMultiResolutionVisibility(
     Vector3D vtmp;
     float tmin, tmax, t, fsize, *bbx;
     ELEMENT *clus = (ELEMENT *) (geom->radiance_data);
-    HITREC hitstore;
+    RayHit hitstore;
 
     if ( geom == GLOBAL_geom_excludedGeom1 || geom == GLOBAL_geom_excludedGeom2 ) {
         return 1.;
@@ -74,7 +74,7 @@ GeomMultiResolutionVisibility(
         if ( geomIsAggregate(geom)) {
             return GeomListMultiResolutionVisibility(geomPrimList(geom), ray, rcvdist, srcsize, minfeaturesize);
         } else {
-            HITREC *hit;
+            RayHit *hit;
             if ((hit = patchListIntersect(geomPatchList(geom), ray, rcvdist * ((float) EPSILON), &rcvdist,
                                           HIT_FRONT | HIT_ANY,
                                           &hitstore))) {

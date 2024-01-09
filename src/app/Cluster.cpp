@@ -32,9 +32,9 @@ Creates a toplevel cluster. The patch list of the cluster contains all inPatches
 Cluster::Cluster(PatchSet *inPatches) {
     commonBuild();
 
-    patches = new java::ArrayList<PATCH *>();
+    patches = new java::ArrayList<Patch *>();
     for ( PatchSet *window = inPatches; window != nullptr; window = window->next ) {
-        PATCH *patch = window->patch;
+        Patch *patch = window->patch;
         clusterAddPatch(patch);
     }
 
@@ -60,7 +60,7 @@ Cluster::commonBuild() {
     int i;
     boundsInit(boundingBox);
     VECTORSET(boundingBoxCentroid, 0.0, 0.0, 0.0);
-    patches = new java::ArrayList<PATCH *>();
+    patches = new java::ArrayList<Patch *>();
 
     for ( i = 0; i < 8; i++ ) {
         children[i] = nullptr;
@@ -74,7 +74,7 @@ patches have been added to the cluster and the bounding box is fully
 determined)
 */
 void
-Cluster::clusterAddPatch(PATCH *patch) {
+Cluster::clusterAddPatch(Patch *patch) {
     BOUNDINGBOX patchBoundingBox;
 
     if ( patch != nullptr ) {
@@ -101,7 +101,7 @@ bool
 Cluster::clusterMovePatch(int parentIndex) {
     // All patches that were added to the top cluster, which is being split now,
     // have a bounding box computed for them
-    PATCH *patch = patches->get(parentIndex);
+    Patch *patch = patches->get(parentIndex);
     float *patchBoundingBox = patch->bounds;
 
     // If the patch is larger than an octant, don´t move current patch from parent to sub-cluster

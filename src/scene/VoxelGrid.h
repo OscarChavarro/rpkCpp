@@ -87,7 +87,7 @@ class VoxelGrid {
 
     void putItemInsideVoxelGrid(VoxelData *item, const float *itemBounds);
 
-    void putPatchInsideVoxelGrid(PATCH *patch);
+    void putPatchInsideVoxelGrid(Patch *patch);
 
     static HITLIST *
     allVoxelIntersections(
@@ -99,7 +99,7 @@ class VoxelGrid {
         float maximumDistance,
         int hitFlags);
 
-    static HITREC *
+    static RayHit *
     voxelIntersect(
             java::ArrayList<VoxelData *> *items,
             Ray *ray,
@@ -107,7 +107,7 @@ class VoxelGrid {
             float minimumDistance,
             float *maximumDistance,
             int hitFlags,
-            HITREC *hitStore);
+            RayHit *hitStore);
 
     static int
     nextVoxel(float *t0, int *g, Vector3D *tNext, Vector3D *tDelta, const int *step, const int *out);
@@ -118,13 +118,13 @@ public:
 
     void destroyGrid() const;
 
-    HITREC *
+    RayHit *
     gridIntersect(
             Ray *ray,
             float minimumDistance,
             float *maximumDistance,
             int hitFlags,
-            HITREC *hitStore);
+            RayHit *hitStore);
 };
 
 #endif

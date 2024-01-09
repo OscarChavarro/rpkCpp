@@ -10,7 +10,7 @@ Some utility routines for ray intersections and for statistics
 #include "skin/Patch.h"
 #include "raycasting/common/pathnode.h"
 
-extern HITREC *FindRayIntersection(Ray *ray, PATCH *patch, BSDF *currentBsdf, HITREC *hitstore);
+extern RayHit *FindRayIntersection(Ray *ray, Patch *patch, BSDF *currentBsdf, RayHit *hitstore);
 extern bool PathNodesVisible(CPathNode *node1, CPathNode *node2);
 extern bool EyeNodeVisible(CPathNode *eye, CPathNode *node, float *pix_x, float *pix_y);
 

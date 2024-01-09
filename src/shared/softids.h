@@ -14,8 +14,8 @@ due to frame buffer formats, etc.
 extern SGL_CONTEXT *SetupSoftFrameBuffer();
 
 /* renders all GLOBAL_scene_patches in the current sgl renderer. PatchPixel returns
- * and SGL_PIXEL value for a given PATCH */
-extern void SoftRenderPatches(SGL_PIXEL (*PatchPixel)(PATCH *));
+ * and SGL_PIXEL value for a given Patch */
+extern void SoftRenderPatches(SGL_PIXEL (*PatchPixel)(Patch *));
 
 /* software ID rendering */
 extern unsigned long *SoftRenderIds(long *x, long *y);

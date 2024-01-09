@@ -1,5 +1,5 @@
 /**
-Ray casting using the SGL library for rendering PATCH pointers into
+Ray casting using the SGL library for rendering Patch pointers into
 a software frame buffer directly.
 */
 
@@ -56,7 +56,7 @@ RayCaster::render(GETRADIANCE_FT getrad = nullptr) {
     // TODO SITHMASTER: This is the main paralelizable loop for raycasting
     for ( y = 0; y < height; y++ ) {
         for ( x = 0; x < width; x++ ) {
-            PATCH *P = id_renderer->get_patch_at_pixel(x, y);
+            Patch *P = id_renderer->get_patch_at_pixel(x, y);
             COLOR rad = get_radiance_at_pixel(x, y, P, getrad);
             scrn->Add(x, y, rad);
         }

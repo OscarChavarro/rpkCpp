@@ -36,7 +36,7 @@ Adds the toplevel (surface) element of the patch to the list of irregular
 sub-elements of the cluster
 */
 static void
-patchAddClusterChild(PATCH *patch, ELEMENT *cluster) {
+patchAddClusterChild(Patch *patch, ELEMENT *cluster) {
     ELEMENT *surfaceElement = (ELEMENT *)patch->radiance_data;
 
     cluster->irregular_subelements = ElementListAdd(cluster->irregular_subelements, surfaceElement);

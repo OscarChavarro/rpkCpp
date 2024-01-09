@@ -11,13 +11,13 @@
 
 // TODO SITHMASTER: This is coupling hit with scene level classes :(
 class Geometry;
-class PATCH;
+class Patch;
 class Material;
 
-class HITREC {
+class RayHit {
   public:
     Geometry *geom; // geometry that was hit
-    PATCH *patch; // patch that was hit
+    Patch *patch; // patch that was hit
     Vector3D point; // intersection point
     Vector3D gnormal; // geometric normal
     Material *material; // material of hit surface
@@ -46,7 +46,7 @@ a ray itnersection routine is a front or back hit.
 
 /* These flags are set by ray intersection routines */
 #define HIT_GEOM     0x01 // intersected Geometry (currently never set)
-#define HIT_PATCH    0x02 // intersected PATCH (returned by DiscretisationHit routines)
+#define HIT_PATCH    0x02 // intersected Patch (returned by DiscretisationHit routines)
 #define HIT_POINT    0x04 // intersection point
 #define HIT_GNORMAL  0x08 // geometric normal
 #define HIT_MATERIAL 0x10 // material properties at intersection point
@@ -65,8 +65,8 @@ a ray itnersection routine is a front or back hit.
  * This routine can be used in order to construct BSDF queries at other positions
  * than hit positions returned by ray intersection routines. */
 extern int InitHit(
-        HITREC *hit,
-        PATCH *patch,
+        RayHit *hit,
+        Patch *patch,
         Geometry *geom,
         Vector3D *point,
         Vector3D *gnormal,
@@ -77,20 +77,20 @@ extern int InitHit(
  * means that at least 'patch' or 'geom' plus 'point', 'gnormal', 'material'
  * and 'dist' are initialised. Returns TRUE if the structure is properly
  * initialised and FALSE if not. */
-extern int HitInitialised(HITREC *hit);
+extern int HitInitialised(RayHit *hit);
 
 /* Fills in (u,v) paramters of hit point on the hit patch, computing it if not 
  * computed before. Returns FALSE if the (u,v) parameters could not be determined. */
-extern int HitUV(HITREC *hit, Vector2Dd *uv);
+extern int HitUV(RayHit *hit, Vector2Dd *uv);
 
 /* Fills in/computes texture coordinates of hit point */
-extern int HitTexCoord(HITREC *hit, Vector3D *texCoord);
+extern int HitTexCoord(RayHit *hit, Vector3D *texCoord);
 
 /* Fills in shading frame: Z is the shading normal. */
-extern int HitShadingFrame(HITREC *hit, Vector3D *X, Vector3D *Y, Vector3D *Z);
+extern int HitShadingFrame(RayHit *hit, Vector3D *X, Vector3D *Y, Vector3D *Z);
 
 /* Fills in shading normal (Z axis of shading frame) only, avoiding computation
  * of shading X and Y axis if possible */
-extern int HitShadingNormal(HITREC *hit, Vector3D *normal);
+extern int HitShadingNormal(RayHit *hit, Vector3D *normal);
 
 #endif

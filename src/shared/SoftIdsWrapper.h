@@ -26,14 +26,14 @@ public:
         *height = sgl->height;
     }
 
-    inline PATCH *
+    inline Patch *
     get_patch_at_pixel(int x, int y) {
-        return (PATCH *) (sgl->frameBuffer[(sgl->height - 1 - y) * sgl->width + x]);
+        return (Patch *) (sgl->frameBuffer[(sgl->height - 1 - y) * sgl->width + x]);
     }
 
-    inline PATCH **
+    inline Patch **
     get_patches_at_scanline(int y) {
-        return (PATCH **) &(sgl->frameBuffer[(sgl->height - 1 - y) * sgl->width]);
+        return (Patch **) &(sgl->frameBuffer[(sgl->height - 1 - y) * sgl->width]);
     }
 };
 

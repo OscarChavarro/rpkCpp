@@ -10,7 +10,7 @@ Non diffuse first shot
 
 class LIGHTSOURCETABLE {
   public:
-    PATCH *patch;
+    Patch *patch;
     double flux;
 };
 
@@ -20,7 +20,7 @@ static int globalNumberOfSamples;
 static double globalTotalFlux;
 
 static void
-initLight(LIGHTSOURCETABLE *light, PATCH *l, double flux) {
+initLight(LIGHTSOURCETABLE *light, Patch *l, double flux) {
     light->patch = l;
     light->flux = flux;
 }
@@ -32,7 +32,7 @@ makeLightSourceTable() {
     globalNumberOfLights = GLOBAL_statistics_numberOfLightSources;
     globalLights = (LIGHTSOURCETABLE *)malloc(globalNumberOfLights * sizeof(LIGHTSOURCETABLE));
     for ( PatchSet *window = GLOBAL_scene_lightSourcePatches; window != nullptr; window = window->next ) {
-        PATCH *light = window->patch;
+        Patch *light = window->patch;
         COLOR emitted_rad = patchAverageEmittance(light, ALL_COMPONENTS);
         double flux = M_PI * light->area * colorSumAbsComponents(emitted_rad);
         globalTotalFlux += flux;
@@ -40,7 +40,7 @@ makeLightSourceTable() {
         i++;
     }
     for ( PatchSet *window = GLOBAL_scene_patches; window != nullptr; window = window->next ) {
-        PATCH *patch = window->patch;
+        Patch *patch = window->patch;
         stochasticRadiosityClearCoefficients(getTopLevelPatchRad(patch), getTopLevelPatchBasis(patch));
         stochasticRadiosityClearCoefficients(getTopLevelPatchUnShotRad(patch), getTopLevelPatchBasis(patch));
         stochasticRadiosityClearCoefficients(getTopLevelPatchReceivedRad(patch), getTopLevelPatchBasis(patch));
@@ -49,7 +49,7 @@ makeLightSourceTable() {
 }
 
 static void
-nextLightSample(PATCH *patch, double *zeta) {
+nextLightSample(Patch *patch, double *zeta) {
     double *xi = Sample4D(TOPLEVEL_ELEMENT(patch)->ray_index++);
     if ( patch->numberOfVertices == 3 ) {
         double u = xi[0], v = xi[1];
@@ -65,11 +65,11 @@ nextLightSample(PATCH *patch, double *zeta) {
 }
 
 static Ray
-sampleLightRay(PATCH *patch, COLOR *emitted_rad, double *point_selection_pdf, double *dir_selection_pdf) {
+sampleLightRay(Patch *patch, COLOR *emitted_rad, double *point_selection_pdf, double *dir_selection_pdf) {
     Ray ray;
     do {
         double zeta[4];
-        HITREC hit;
+        RayHit hit;
         nextLightSample(patch, zeta);
 
         patchUniformPoint(patch, zeta[0], zeta[1], &ray.pos);
@@ -91,8 +91,8 @@ sampleLight(LIGHTSOURCETABLE *light, double light_selection_pdf) {
     COLOR rad;
     double point_selection_pdf, dir_selection_pdf;
     Ray ray = sampleLightRay(light->patch, &rad, &point_selection_pdf, &dir_selection_pdf);
-    HITREC hitStore;
-    HITREC *hit;
+    RayHit hitStore;
+    RayHit *hit;
 
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.tracedRays++;
     hit = McrShootRay(light->patch, &ray, &hitStore);
@@ -142,7 +142,7 @@ summarize() {
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalYmp = 0.;
     colorClear(GLOBAL_stochasticRaytracing_monteCarloRadiosityState.indirectImportanceWeightedUnShotFlux);
     for ( PatchSet *window = GLOBAL_scene_patches; window != nullptr; window = window->next ) {
-        PATCH *patch = window->patch;
+        Patch *patch = window->patch;
         colorAddScaled(GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotFlux, M_PI * patch->area, getTopLevelPatchUnShotRad(patch)[0], GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotFlux);
         colorAddScaled(GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalFlux, M_PI * patch->area, getTopLevelPatchRad(patch)[0], GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalFlux);
         colorAddScaled(GLOBAL_stochasticRaytracing_monteCarloRadiosityState.indirectImportanceWeightedUnShotFlux, M_PI * patch->area * (TOPLEVEL_ELEMENT(patch)->imp - TOPLEVEL_ELEMENT(patch)->source_imp), getTopLevelPatchUnShotRad(patch)[0],

@@ -3,7 +3,7 @@
 #ifndef _ELEMENT_H_
 #define _ELEMENT_H_
 
-/* Data associated with each PATCH: */
+/* Data associated with each Patch: */
 #include "raycasting/stochasticRaytracing/elementtype.h"
 
 /* close these macros with EndForAll */
@@ -24,7 +24,7 @@ if ((parent)->irregular_subelements) {        \
   for (_i_=0; _i_<(elem)->nrvertices; _i_++) {    \
     Vertex *(vert) = (elem)->vertex[_i_]; {
 
-extern ELEMENT *monteCarloRadiosityCreateToplevelSurfaceElement(PATCH *patch);
+extern ELEMENT *monteCarloRadiosityCreateToplevelSurfaceElement(Patch *patch);
 
 extern void monteCarloRadiosityDestroyToplevelSurfaceElement(ELEMENT *elem);
 

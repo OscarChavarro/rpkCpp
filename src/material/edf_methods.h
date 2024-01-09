@@ -15,21 +15,21 @@
 class EDF_METHODS {
   public:
     /* returns the emittance */
-    COLOR (*Emittance)(void *data, HITREC *hit, XXDFFLAGS flags);
+    COLOR (*Emittance)(void *data, RayHit *hit, XXDFFLAGS flags);
 
     int (*IsTextured)(void *data);
 
     /* evaluates the edf */
-    COLOR (*Eval)(void *data, HITREC *hit, Vector3D *out, XXDFFLAGS flags, double *pdf);
+    COLOR (*Eval)(void *data, RayHit *hit, Vector3D *out, XXDFFLAGS flags, double *pdf);
 
     /* samples the edf */
     Vector3D
-    (*Sample)(void *data, HITREC *hit, XXDFFLAGS flags, double xi1, double xi2, COLOR *emitted_radiance, double *pdf);
+    (*Sample)(void *data, RayHit *hit, XXDFFLAGS flags, double xi1, double xi2, COLOR *emitted_radiance, double *pdf);
 
 
     /* Computes shading frame at hit point. Returns TRUE if succesful and
      * FALSE if not. X and Y may be null pointers. */
-    int (*ShadingFrame)(void *data, HITREC *hit, Vector3D *X, Vector3D *Y, Vector3D *Z);
+    int (*ShadingFrame)(void *data, RayHit *hit, Vector3D *X, Vector3D *Y, Vector3D *Z);
 
     /* prints the EDF data to the specified file */
     void (*Print)(FILE *out, void *data);

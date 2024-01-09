@@ -12,17 +12,17 @@ bool interrupt_raytracing;
 #define PATH_FRONT_HITFLAGS (HIT_FRONT|HIT_POINT|HIT_MATERIAL)
 #define PATH_FRONT_BACK_HITFLAGS (PATH_FRONT_HITFLAGS|HIT_BACK)
 
-static HITREC *
+static RayHit *
 TraceWorld(
-    Ray *ray,
-    PATCH *patch,
-    unsigned int flags = PATH_FRONT_HITFLAGS,
-    PATCH *extraPatch = nullptr,
-    HITREC *hitstore = nullptr)
+        Ray *ray,
+        Patch *patch,
+        unsigned int flags = PATH_FRONT_HITFLAGS,
+        Patch *extraPatch = nullptr,
+        RayHit *hitstore = nullptr)
 {
-    static HITREC myhitstore;
+    static RayHit myhitstore;
     float dist;
-    HITREC *result;
+    RayHit *result;
     if ( !hitstore ) {
         hitstore = &myhitstore;
     }
@@ -50,15 +50,15 @@ TraceWorld(
     return result;
 }
 
-HITREC *
+RayHit *
 FindRayIntersection(
-    Ray *ray,
-    PATCH *patch,
-    BSDF *currentBsdf,
-    HITREC *hitstore)
+        Ray *ray,
+        Patch *patch,
+        BSDF *currentBsdf,
+        RayHit *hitstore)
 {
     int hitFlags;
-    HITREC *newHit;
+    RayHit *newHit;
 
     if ( currentBsdf == nullptr ) {
         /* outside everything in vacuum */
@@ -98,7 +98,7 @@ bool
 PathNodesVisible(CPathNode *node1, CPathNode *node2) {
     Vector3D dir;
     Ray ray;
-    HITREC *hit, hitstore;
+    RayHit *hit, hitstore;
     double cosRay1, cosRay2, dist, dist2;
     float fdist;
     bool visible = false, doTest;
@@ -195,7 +195,7 @@ EyeNodeVisible(
 {
     Vector3Dd dir;
     Ray ray;
-    HITREC *hit, hitstore;
+    RayHit *hit, hitstore;
     double cosRayLight, cosRayEye, dist, dist2;
     float fdist;
     bool visible = false;

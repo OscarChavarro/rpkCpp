@@ -20,7 +20,7 @@ sharing the vertex. Several vertices can share the same coordinates
 and normal vector. Several patches can share the same vertex
 */
 Vertex *
-vertexCreate(Vector3D *point, Vector3D *normal, Vector3D *texCoord, java::ArrayList<PATCH *> *patches) {
+vertexCreate(Vector3D *point, Vector3D *normal, Vector3D *texCoord, java::ArrayList<Patch *> *patches) {
     Vertex *v = new Vertex();
 
     v->id = GLOBAL_statistics_numberOfVertices++;
@@ -92,7 +92,7 @@ computeVertexColor(Vertex *vertex) {
 
     if ( vertex->patches != nullptr ) {
         for ( int i = 0; i < vertex->patches->size(); i++) {
-            PATCH *p = vertex->patches->get(i);
+            Patch *p = vertex->patches->get(i);
             vertex->color.r += p->color.r;
             vertex->color.g += p->color.g;
             vertex->color.b += p->color.b;
@@ -111,7 +111,7 @@ computeVertexColor(Vertex *vertex) {
 Computes a vertex color for the vertices of the patch
 */
 void
-patchComputeVertexColors(PATCH *patch) {
+patchComputeVertexColors(Patch *patch) {
     int i;
 
     for ( i = 0; i < patch->numberOfVertices; i++ ) {

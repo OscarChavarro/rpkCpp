@@ -29,18 +29,18 @@ patchListBounds(PatchSet *pl, float *boundingBox) {
 Tests whether the Ray intersect the patches in the list. See geometry.h
 (GeomDiscretizationIntersect()) for more explanation
 */
-HITREC *
+RayHit *
 patchListIntersect(
-    PatchSet *patchList,
-    Ray *ray,
-    float minimumDistance,
-    float *maximumDistance,
-    int hitFlags,
-    HITREC *hitStore)
+        PatchSet *patchList,
+        Ray *ray,
+        float minimumDistance,
+        float *maximumDistance,
+        int hitFlags,
+        RayHit *hitStore)
 {
-    HITREC *hit = (HITREC *) nullptr;
+    RayHit *hit = (RayHit *) nullptr;
     for ( PatchSet *window = patchList; window != nullptr; window = window->next ) {
-        HITREC *h = patchIntersect(window->patch, ray, minimumDistance, maximumDistance, hitFlags, hitStore);
+        RayHit *h = patchIntersect(window->patch, ray, minimumDistance, maximumDistance, hitFlags, hitStore);
         if ( h ) {
             if ( hitFlags & HIT_ANY ) {
                 return h;
@@ -58,14 +58,14 @@ Tests whether the Ray intersect the patches in the list. See geometry.h
 */
 HITLIST *
 patchListAllIntersections(HITLIST *hits, PatchSet *patches, Ray *ray, float minimumDistance, float maximumDistance, int hitFlags) {
-    HITREC hitStore;
+    RayHit hitStore;
     PatchSet *listStart = patches;
     if ( listStart != nullptr ) {
         PatchSet *window;
         for ( window = listStart; window; window = window->next ) {
-            PATCH *patch = (PATCH *)(window->patch);
+            Patch *patch = (Patch *)(window->patch);
             float maxDistanceCopy = maximumDistance; // Do not modify maximumDistance
-            HITREC *hit = patchIntersect(patch, ray, minimumDistance, &maxDistanceCopy, hitFlags, &hitStore);
+            RayHit *hit = patchIntersect(patch, ray, minimumDistance, &maxDistanceCopy, hitFlags, &hitStore);
             if ( hit ) {
                 hits = HitListAdd(hits, DuplicateHit(hit));
             }
@@ -111,7 +111,7 @@ patchListDuplicate(PatchSet *patchList) {
 
     while ( (patch = (patchList != nullptr ? (GLOBAL_listHandler = patchList->patch, patchList = patchList->next, GLOBAL_listHandler) : nullptr)) ) {
         PatchSet *newListNode = (PatchSet *)malloc(sizeof(PatchSet));
-        newListNode->patch = (PATCH *)patch;
+        newListNode->patch = (Patch *)patch;
         newListNode->next = newList;
         newList = newListNode;
     }
@@ -125,7 +125,7 @@ GEOM_METHODS GLOBAL_skin_patchListGeometryMethods = {
         (void (*)(FILE *, void *)) patchListPrint,
         (GeometryListNode *(*)(void *)) nullptr,
         (PatchSet *(*)(void *)) getPatchList,
-        (HITREC *(*)(void *, Ray *, float, float *, int, HITREC *)) patchListIntersect,
+        (RayHit *(*)(void *, Ray *, float, float *, int, RayHit *)) patchListIntersect,
         (HITLIST *(*)(HITLIST *, void *, Ray *, float, float, int)) patchListAllIntersections,
         (void *(*)(void *)) patchListDuplicate
 };

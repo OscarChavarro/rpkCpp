@@ -31,7 +31,7 @@ extern void BsdfDestroy(BSDF *bsdf);
 
 /* *** SCATTERED POWER *** */
 
-extern COLOR BsdfScatteredPower(BSDF *bsdf, HITREC *hit, Vector3D *dir, BSDFFLAGS flags);
+extern COLOR BsdfScatteredPower(BSDF *bsdf, RayHit *hit, Vector3D *dir, BSDFFLAGS flags);
 
 /* Returns the reflectance of hte BSDF according to the flags */
 # define BsdfReflectance(bsdf, hit, dir, xxflags) BsdfScatteredPower(bsdf, hit, dir, SETBRDFFLAGS(xxflags))
@@ -57,7 +57,7 @@ extern void BsdfIndexOfRefraction(BSDF *bsdf, REFRACTIONINDEX *index);
  * not. In the latter case, a default frame needs to be used (not computed by this
  * routine - materialShadingFrame() in material.[ch] constructs such a frame if
  * needed) */
-extern int BsdfShadingFrame(BSDF *bsdf, HITREC *hit, Vector3D *X, Vector3D *Y, Vector3D *Z);
+extern int BsdfShadingFrame(BSDF *bsdf, RayHit *hit, Vector3D *X, Vector3D *Y, Vector3D *Z);
 
 /************* BSDF Evaluation functions ****************/
 
@@ -70,7 +70,7 @@ extern int BsdfShadingFrame(BSDF *bsdf, HITREC *hit, Vector3D *X, Vector3D *Y, V
  * hit->normal : leaving from patch, on the incoming side.
  *          So in . hit->normal > 0 !!!
  */
-extern COLOR BsdfEval(BSDF *bsdf, HITREC *hit, BSDF *inBsdf, BSDF *outBsdf, Vector3D *in, Vector3D *out, BSDFFLAGS flags);
+extern COLOR BsdfEval(BSDF *bsdf, RayHit *hit, BSDF *inBsdf, BSDF *outBsdf, Vector3D *in, Vector3D *out, BSDFFLAGS flags);
 
 
 /*
@@ -79,7 +79,7 @@ extern COLOR BsdfEval(BSDF *bsdf, HITREC *hit, BSDF *inBsdf, BSDF *outBsdf, Vect
  * stores the result in 'colArray'.
  * Total evaluation is returned.
  */
-extern COLOR BsdfEvalComponents(BSDF *bsdf, HITREC *hit, BSDF *inBsdf,
+extern COLOR BsdfEvalComponents(BSDF *bsdf, RayHit *hit, BSDF *inBsdf,
                                 BSDF *outBsdf, Vector3D *in, Vector3D *out,
                                 BSDFFLAGS flags,
                                 COLOR *colArray);
@@ -87,14 +87,14 @@ extern COLOR BsdfEvalComponents(BSDF *bsdf, HITREC *hit, BSDF *inBsdf,
 
 /* Sampling routines, parameters as in evaluation, except that two
    random numbers x_1 and x_2 are needed (2D sampling process) */
-extern Vector3D BsdfSample(BSDF *bsdf, HITREC *hit,
+extern Vector3D BsdfSample(BSDF *bsdf, RayHit *hit,
                            BSDF *inBsdf, BSDF *outBsdf,
                            Vector3D *in,
                            int doRussianRoulette,
                            BSDFFLAGS flags, double x_1, double x_2,
                            double *pdf);
 
-extern void BsdfEvalPdf(BSDF *bsdf, HITREC *hit,
+extern void BsdfEvalPdf(BSDF *bsdf, RayHit *hit,
                         BSDF *inBsdf, BSDF *outBsdf,
                         Vector3D *in, Vector3D *out,
                         BSDFFLAGS flags,

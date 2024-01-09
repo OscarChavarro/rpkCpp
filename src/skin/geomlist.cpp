@@ -63,19 +63,19 @@ buildPatchList(GeometryListNode *geometryList, PatchSet *patchList) {
     return patchList;
 }
 
-HITREC *
+RayHit *
 geometryListDiscretizationIntersect(
-    GeometryListNode *geometryList,
-    Ray *ray,
-    float minimumDistance,
-    float *maximumDistance,
-    int hitFlags,
-    HITREC *hitStore)
+        GeometryListNode *geometryList,
+        Ray *ray,
+        float minimumDistance,
+        float *maximumDistance,
+        int hitFlags,
+        RayHit *hitStore)
 {
-    HITREC *h;
-    HITREC *hit;
+    RayHit *h;
+    RayHit *hit;
 
-    hit = (HITREC *) nullptr;
+    hit = (RayHit *) nullptr;
     if ( geometryList != nullptr ) {
         GeometryListNode *window;
         for ( window = geometryList; window; window = window->next ) {

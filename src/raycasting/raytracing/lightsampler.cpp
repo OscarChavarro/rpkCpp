@@ -44,7 +44,7 @@ bool CUniformLightSampler::Sample(CPathNode */*prevNode*/,
                                   CPathNode *newNode, double x_1, double x_2,
                                   bool /* doRR */, BSDFFLAGS flags) {
     double pdfLight, pdfPoint;
-    PATCH *light;
+    Patch *light;
     Vector3D point;
 
     /* thisNode is NOT used or altered. If you want the nodes connected,
@@ -137,7 +137,7 @@ double CUniformLightSampler::EvalPDF(CPathNode */*thisNode*/,
         // virtual patch has no area!
         // choosing a point == choosing a dir --> use pdf from evalEdf
         EdfEval(newNode->m_hit.patch->surface->material->edf,
-                (HITREC *) nullptr,
+                (RayHit *) nullptr,
                 &newNode->m_inDirF,
                 DIFFUSE_COMPONENT || GLOSSY_COMPONENT || SPECULAR_COMPONENT,
                 &pdfdir);
@@ -164,7 +164,7 @@ bool CImportantLightSampler::Sample(CPathNode */*prevNode*/,
                                     CPathNode *newNode, double x_1, double x_2,
                                     bool /* doRR */, BSDFFLAGS flags) {
     double pdfLight, pdfPoint;
-    PATCH *light;
+    Patch *light;
     Vector3D point;
 
     /* thisNode is NOT used or altered. If you want the nodes connected,
@@ -264,7 +264,7 @@ double CImportantLightSampler::EvalPDF(CPathNode *thisNode,
         // virtual patch has no area!
         // choosing a point == choosing a dir --> use pdf from evalEdf
         EdfEval(newNode->m_hit.patch->surface->material->edf,
-                (HITREC *) nullptr,
+                (RayHit *) nullptr,
                 &newNode->m_inDirF,
                 DIFFUSE_COMPONENT || GLOSSY_COMPONENT || SPECULAR_COMPONENT,
                 &pdfdir);

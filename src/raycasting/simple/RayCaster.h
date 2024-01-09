@@ -18,7 +18,7 @@ class RayCaster {
     (x,y). P shall be the nearest patch visible in the pixel.
     */
     COLOR
-    get_radiance_at_pixel(int x, int y, PATCH *P, GETRADIANCE_FT getrad) {
+    get_radiance_at_pixel(int x, int y, Patch *P, GETRADIANCE_FT getrad) {
         COLOR rad;
         colorClear(rad);
         if ( P && getrad ) {

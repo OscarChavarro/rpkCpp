@@ -10,7 +10,7 @@ class GEOM_METHODS;
 
 class PatchSet {
   public:
-    PATCH *patch;
+    Patch *patch;
     PatchSet *next;
 };
 
@@ -21,14 +21,14 @@ extern GEOM_METHODS GLOBAL_skin_patchListGeometryMethods;
 
 extern float *patchListBounds(PatchSet *pl, float *boundingBox);
 
-extern HITREC *
+extern RayHit *
 patchListIntersect(
-    PatchSet *patchList,
-    Ray *ray,
-    float minimumDistance,
-    float *maximumDistance,
-    int hitFlags,
-    HITREC *hitStore);
+        PatchSet *patchList,
+        Ray *ray,
+        float minimumDistance,
+        float *maximumDistance,
+        int hitFlags,
+        RayHit *hitStore);
 
 extern HITLIST *
 patchListAllIntersections(

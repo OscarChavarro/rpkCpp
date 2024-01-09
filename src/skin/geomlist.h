@@ -37,14 +37,14 @@ geometryListBounds(GeometryListNode *geometryList, float *boundingBox);
 extern PatchSet *
 buildPatchList(GeometryListNode *geometryList, PatchSet *patchList);
 
-extern HITREC *
+extern RayHit *
 geometryListDiscretizationIntersect(
-    GeometryListNode *geometryList,
-    Ray *ray,
-    float minimumDistance,
-    float *maximumDistance,
-    int hitFlags,
-    HITREC *hitStore);
+        GeometryListNode *geometryList,
+        Ray *ray,
+        float minimumDistance,
+        float *maximumDistance,
+        int hitFlags,
+        RayHit *hitStore);
 
 extern HITLIST *
 geomListAllDiscretizationIntersections(

@@ -18,16 +18,16 @@ Southwell Galerkin radiosity (progressive refinement radiosity)
 /* Returns the patch with highest unshot power, weighted with indirect
  * importance if importance-driven (see Bekaert&Willems, "Importance-driven
  * Progressive refinement radiosity", EGRW'95, Dublin. */
-static PATCH *
+static Patch *
 chooseRadianceShootingPatch() {
-    PATCH *shooting_patch, *pot_shooting_patch;
+    Patch *shooting_patch, *pot_shooting_patch;
     float power, maxpower, powerimp, maxpowerimp;
     PatchSet *pl;
 
     maxpower = maxpowerimp = 0.;
-    shooting_patch = pot_shooting_patch = (PATCH *) nullptr;
+    shooting_patch = pot_shooting_patch = (Patch *) nullptr;
     for ( pl = GLOBAL_scene_patches; pl; pl = pl->next ) {
-        PATCH *patch = pl->patch;
+        Patch *patch = pl->patch;
 
         power = M_PI * patch->area * colorSumAbsComponents(UNSHOT_RADIANCE(patch));
         if ( power > maxpower ) {
@@ -110,7 +110,7 @@ clearUnshotRadianceAndPotential(ELEMENT *elem) {
  * the patch into the environment. Finally clears the unshot radiance
  * at all levels of the element hierarchy for the patch. */
 static void
-patchPropagateUnshotRadianceAndPotential(PATCH *shooting_patch) {
+patchPropagateUnshotRadianceAndPotential(Patch *shooting_patch) {
     ELEMENT *top = TOPLEVEL_ELEMENT(shooting_patch);
 
     if ( !(top->flags & INTERACTIONS_CREATED)) {
@@ -171,7 +171,7 @@ shootingPushPullPotential(ELEMENT *elem, float down) {
 }
 
 static void
-patchUpdateRadianceAndPotential(PATCH *patch) {
+patchUpdateRadianceAndPotential(Patch *patch) {
     if ( GLOBAL_galerkin_state.importance_driven ) {
         shootingPushPullPotential(TOPLEVEL_ELEMENT(patch), 0.);
     }
@@ -182,7 +182,7 @@ patchUpdateRadianceAndPotential(PATCH *patch) {
 }
 
 static void
-doPropagate(PATCH *shooting_patch) {
+doPropagate(Patch *shooting_patch) {
     // Propagate the un-shot power of the shooting patch into the environment
     patchPropagateUnshotRadianceAndPotential(shooting_patch);
 
@@ -210,7 +210,7 @@ doPropagate(PATCH *shooting_patch) {
 
 static int
 propagateRadiance() {
-    PATCH *shooting_patch;
+    Patch *shooting_patch;
 
     /* choose a shooting patch. also accumulates the total unshot power into
      * GLOBAL_galerkin_state.ambient_radiance. */
@@ -263,14 +263,14 @@ clusterUpdatePotential(ELEMENT *clus) {
 
 /* Chooses the patch with highest unshot importance (potential times 
  * area), see Bekaert&Willems, EGRW'95 (Dublin) */
-static PATCH *
+static Patch *
 choosePotentialShootingPatch() {
     float maximp = 0.;
-    PATCH *shooting_patch = (PATCH *) nullptr;
+    Patch *shooting_patch = (Patch *) nullptr;
     PatchSet *pl;
 
     for ( pl = GLOBAL_scene_patches; pl; pl = pl->next ) {
-        PATCH *patch = pl->patch;
+        Patch *patch = pl->patch;
         float imp = patch->area * fabs(UNSHOT_POTENTIAL(patch).f);
 
         if ( imp > maximp ) {
@@ -284,7 +284,7 @@ choosePotentialShootingPatch() {
 
 static void
 propagatePotential() {
-    PATCH *shooting_patch;
+    Patch *shooting_patch;
 
     shooting_patch = choosePotentialShootingPatch();
     if ( shooting_patch ) {

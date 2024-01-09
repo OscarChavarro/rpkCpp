@@ -6,7 +6,7 @@
 /* path node: contains all necessary data for computing the score afterwards */
 class PATHNODE {
   public:
-    PATCH *patch;
+    Patch *patch;
     double probability;
     Vector3D inpoint, outpoint;
 };
@@ -20,9 +20,9 @@ class PATH {
 };
 
 extern void tracePaths(long numberOfPaths,
-                       double (*BirthProbability)(PATCH *P),
-                       double (*SurvivalProbability)(PATCH *P),
-                       void (*ScorePath)(PATH *, long nr_paths, double (*birth_prob)(PATCH *)),
-                       void (*Update)(PATCH *P, double w));
+                       double (*BirthProbability)(Patch *P),
+                       double (*SurvivalProbability)(Patch *P),
+                       void (*ScorePath)(PATH *, long nr_paths, double (*birth_prob)(Patch *)),
+                       void (*Update)(Patch *P, double w));
 
 #endif

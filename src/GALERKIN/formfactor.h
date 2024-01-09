@@ -8,7 +8,7 @@
 
 /* Returns true if the two patches can "see" each other: P and Q see each 
  * other if at least a part of P is in front of Q and vice versa. */
-extern int Facing(PATCH *P, PATCH *Q);
+extern int Facing(Patch *P, Patch *Q);
 
 /*
  * Area (or volume) to area (or volume) form factor:

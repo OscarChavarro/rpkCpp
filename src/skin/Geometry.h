@@ -52,7 +52,7 @@ class Geometry {
     MeshSurface *surfaceData;
     Compound *compoundData;
     PatchSet *patchSetData;
-    java::ArrayList<PATCH *> *newPatchSetData;
+    java::ArrayList<Patch *> *newPatchSetData;
     GeometryListNode *aggregateData;
 
     void *obj; // @Deprecated
@@ -61,7 +61,7 @@ class Geometry {
 };
 
 extern Geometry *geomCreateSurface(MeshSurface *surfaceData, GEOM_METHODS *methods);
-extern Geometry *geomCreatePatchSetNew(java::ArrayList<PATCH *> *geometryList, GEOM_METHODS *methods);
+extern Geometry *geomCreatePatchSetNew(java::ArrayList<Patch *> *geometryList, GEOM_METHODS *methods);
 extern Geometry *geomCreatePatchSet(PatchSet *patchSet, GEOM_METHODS *methods);
 extern Geometry *geomCreateCompound(Compound *compoundData, GEOM_METHODS *methods);
 extern Geometry *geomCreateAggregateCompound(GeometryListNode *aggregateData, GEOM_METHODS *methods);
@@ -75,16 +75,22 @@ extern PatchSet *geomPatchList(Geometry *geom);
 extern void geomDontIntersect(Geometry *geom1, Geometry *geom2);
 extern Geometry *geomDuplicate(Geometry *geom);
 
-extern HITREC *
-geomDiscretizationIntersect(Geometry *geom, Ray *ray,
-                            float mindist, float *maxdist,
-                            int hitflags, HITREC *hitstore);
+extern RayHit *
+geomDiscretizationIntersect(
+        Geometry *geom,
+        Ray *ray,
+        float minimumDistance,
+        float *maximumDistance,
+        int hitFlags,
+        RayHit *hitStore);
 
-extern HITLIST *geomAllDiscretizationIntersections(HITLIST *hits,
-                                                   Geometry *geom, Ray *ray,
-                                                   float mindist, float maxdist,
-                                                   int hitflags);
-
+extern HITLIST *geomAllDiscretizationIntersections(
+    HITLIST *hits,
+    Geometry *geom,
+    Ray *ray,
+    float minimumDistance,
+    float maximumDistance,
+    int hitFlags);
 
 /**
 Contains pointers to functions (methods) to operate on a
@@ -130,8 +136,8 @@ class GEOM_METHODS {
      * of the object. If the ray hits the object, a hit record is returned containing
      * information about the intersection point. See geometry.h for more explanation
      */
-    HITREC *
-    (*discretizationIntersect)(void *obj, Ray *ray, float mindist, float *maxdist, int hitflags, HITREC *hitstore);
+    RayHit *
+    (*discretizationIntersect)(void *obj, Ray *ray, float mindist, float *maxdist, int hitflags, RayHit *hitstore);
 
     /**
      * Similar, but appends all found intersections to the hit list hit record

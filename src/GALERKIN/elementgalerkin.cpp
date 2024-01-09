@@ -188,7 +188,7 @@ galerkinCreateElement() {
     element->radiance = element->received_radiance = element->unshot_radiance = (COLOR *) nullptr;
     element->potential.f = element->received_potential.f = element->unshot_potential.f = 0.;
     element->interactions = InteractionListCreate();
-    element->pog.patch = (PATCH *) nullptr;
+    element->pog.patch = (Patch *) nullptr;
     element->pog.geom = (Geometry *) nullptr;
     element->parent = (ELEMENT *) nullptr;
     element->regular_subelements = (ELEMENT **) nullptr;
@@ -213,7 +213,7 @@ galerkinCreateElement() {
 Creates the toplevel element for the patch
 */
 ELEMENT *
-galerkinCreateToplevelElement(PATCH *patch) {
+galerkinCreateToplevelElement(Patch *patch) {
     ELEMENT *element = galerkinCreateElement();
     element->pog.patch = patch;
     element->minarea = element->area = patch->area;

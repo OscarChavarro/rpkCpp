@@ -5,7 +5,7 @@
 #include "shared/shadowcaching.h"
 
 #define MAXCACHE 5    /* cache at most 5 blocking patches */
-static PATCH *cache[MAXCACHE];
+static Patch *cache[MAXCACHE];
 static int cachedpatches, ncached;
 
 /* initialize/empty the shadow cache */
@@ -20,9 +20,9 @@ void InitShadowCache() {
 
 /* test ray against patches in the shadow cache. Returns nullptr if the ray hits
  * no patches in the shadow cache, or a pointer to the first hit patch otherwise.  */
-HITREC *CacheHit(Ray *ray, float *dist, HITREC *hitstore) {
+RayHit *CacheHit(Ray *ray, float *dist, RayHit *hitstore) {
     int i;
-    HITREC *hit;
+    RayHit *hit;
 
     for ( i = 0; i < ncached; i++ ) {
         if ((hit = patchIntersect(cache[i], ray, EPSILON * (*dist), dist, HIT_FRONT | HIT_ANY, hitstore))) {
@@ -33,7 +33,7 @@ HITREC *CacheHit(Ray *ray, float *dist, HITREC *hitstore) {
 }
 
 /* replace least recently added patch */
-void AddToShadowCache(PATCH *patch) {
+void AddToShadowCache(Patch *patch) {
     cache[cachedpatches % MAXCACHE] = patch;
     cachedpatches++;
     if ( ncached < MAXCACHE ) {
@@ -46,8 +46,8 @@ void AddToShadowCache(PATCH *patch) {
  * patch if the ray does intersect one or more geometries. Intersections
  * further away than dist are ignored. GLOBAL_scene_patches in the shadow cache are
  * checked first. */
-HITREC *ShadowTestDiscretisation(Ray *ray, GeometryListNode *world, float dist, HITREC *hitstore) {
-    HITREC *hit = nullptr;
+RayHit *ShadowTestDiscretisation(Ray *ray, GeometryListNode *world, float dist, RayHit *hitstore) {
+    RayHit *hit = nullptr;
 
     GLOBAL_statistics_numberOfShadowRays++;
     if ((hit = CacheHit(ray, &dist, hitstore))) {

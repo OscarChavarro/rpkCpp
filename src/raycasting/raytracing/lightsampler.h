@@ -13,7 +13,7 @@
 class CUniformLightSampler : public CNextEventSampler {
 private:
     CLightList_Iter *iterator;
-    PATCH *currentPatch;
+    Patch *currentPatch;
     bool unitsActive;
 public:
     CUniformLightSampler();

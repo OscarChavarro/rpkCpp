@@ -17,7 +17,7 @@ class Vertex {
     RGB color; // color for the vertex when rendering with Gouraud interpolation
     void *radiance_data; // data for the vertex maintained by the current radiance method
     Vertex *back; // vertex at the same position, but with reversed normal, for back faces
-    java::ArrayList<PATCH *> *patches; // list of patches sharing the vertex
+    java::ArrayList<Patch *> *patches; // list of patches sharing the vertex
     int tmp; /* some temporary storage for vertices, used e.g. for saving VRML. Do not
                 assume the contents of this storage remain unchanged after leaving
 		control to the user. */
@@ -25,11 +25,11 @@ class Vertex {
     virtual ~Vertex();
 };
 
-extern Vertex *vertexCreate(Vector3D *point, Vector3D *normal, Vector3D *texCoord, java::ArrayList<PATCH *> *patches);
+extern Vertex *vertexCreate(Vector3D *point, Vector3D *normal, Vector3D *texCoord, java::ArrayList<Patch *> *patches);
 extern void vertexDestroy(Vertex *vertex);
 extern void vertexPrint(FILE *out, Vertex *vertex);
 extern void computeVertexColor(Vertex *vertex);
-extern void patchComputeVertexColors(PATCH *patch);
+extern void patchComputeVertexColors(Patch *patch);
 
 /**
 Vertex comparison

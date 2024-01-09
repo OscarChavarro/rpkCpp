@@ -21,7 +21,7 @@ bool CEyeSampler::Sample(CPathNode *prevNode, CPathNode *thisNode,
 
     // Fake a hit record
 
-    HITREC *hit = &newNode->m_hit;
+    RayHit *hit = &newNode->m_hit;
 
     InitHit(hit, nullptr, nullptr, &GLOBAL_camera_mainCamera.eyep, &GLOBAL_camera_mainCamera.Z, nullptr, 0.);
     hit->normal = GLOBAL_camera_mainCamera.Z;

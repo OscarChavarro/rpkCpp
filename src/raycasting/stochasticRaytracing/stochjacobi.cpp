@@ -357,7 +357,7 @@ static double *NextSample(ELEMENT *elem,
 }
 
 /* determines uniform (u,v) parameters of hit point on hit patch */
-static void UniformHitCoordinates(HITREC *hit, double *uhit, double *vhit) {
+static void UniformHitCoordinates(RayHit *hit, double *uhit, double *vhit) {
     if ( hit->flags & HIT_UV ) {    /* (u,v) coordinates obtained as side result
 				 * of intersection test */
         *uhit = hit->uv.u;
@@ -389,7 +389,7 @@ static void UniformHitCoordinates(HITREC *hit, double *uhit, double *vhit) {
 static void ElementShootRay(ELEMENT *src,
                             int nmsb, niedindex msb1, niedindex rmsb2) {
     Ray ray;
-    HITREC *hit, hitstore;
+    RayHit *hit, hitstore;
     double zeta[4];
 
     if ( get_radiance ) {

@@ -33,7 +33,7 @@ static int globalImageOutputHeight = 0;
 #define GeomIsCompound(geom) (geom->methods == &GLOBAL_skin_compoundGeometryMethods)
 
 static void
-patchAccumulateStats(PATCH *patch) {
+patchAccumulateStats(Patch *patch) {
     COLOR
             E = patchAverageEmittance(patch, ALL_COMPONENTS),
             R = patchAverageNormalAlbedo(patch, BSDF_ALL_COMPONENTS),
@@ -104,7 +104,7 @@ Adds the patch to the global light source patch list if the patch is on
 a light source (i.e. when the surfaces material has a non-null edf)
 */
 static void
-addPatchToLightSourceListIfLightSource(PATCH *patch) {
+addPatchToLightSourceListIfLightSource(Patch *patch) {
     if ( patch != nullptr
          && patch->surface != nullptr
          && patch->surface->material != nullptr
@@ -587,10 +587,19 @@ readFile(char *filename) {
     fflush(stderr);
 
     GLOBAL_scene_clusteredWorldGeom = createClusterHierarchy(GLOBAL_scene_patches);
-    if ( GeomIsCompound(GLOBAL_scene_clusteredWorldGeom)) {
-        GLOBAL_scene_clusteredWorld = (GeometryListNode *) (GLOBAL_scene_clusteredWorldGeom->obj);
+    if ( GLOBAL_scene_clusteredWorldGeom->methods == &GLOBAL_skin_compoundGeometryMethods ) {
+        if ( GLOBAL_scene_clusteredWorldGeom->compoundData != nullptr ) {
+            fprintf(stderr, "Unexpected case: review code - aggregate is not compound.\n");
+            //GLOBAL_scene_clusteredWorld = (GeometryListNode *)GLOBAL_scene_clusteredWorldGeom->obj;
+            exit(1);
+        } else if ( GLOBAL_scene_clusteredWorldGeom->aggregateData != nullptr ) {
+            GLOBAL_scene_clusteredWorld = GLOBAL_scene_clusteredWorldGeom->aggregateData;
+        } else {
+            fprintf(stderr, "Unexpected case: review code - generic case not supported anymore.\n");
+            exit(2);
+        }
     } else {
-        // small memory leak here ... but exceptional situation!
+        // Small memory leak here ... but exceptional situation!
         GLOBAL_scene_clusteredWorld = geometryListAdd(nullptr, GLOBAL_scene_clusteredWorldGeom);
         logWarning(nullptr, "Strange clusters for this world ...");
     }

@@ -20,7 +20,7 @@ void CPhotonMapSampler::SetPhotonMap(CPhotonMap *map) {
 
 // Returns true a component was chosen, false if absorbed
 bool CPhotonMapSampler::ChooseComponent(BSDFFLAGS flags1, BSDFFLAGS flags2,
-                                        BSDF *bsdf, HITREC *hit, bool doRR,
+                                        BSDF *bsdf, RayHit *hit, bool doRR,
                                         double *x, float *pdf, bool *chose1) {
     COLOR col;
     float power1, power2, totalPower;

@@ -27,21 +27,21 @@ extern void EdfDestroy(EDF *edf);
 extern void EdfPrint(FILE *out, EDF *edf);
 
 /* Returns the emittance (self-emitted radiant exitance) [W/m^2] of the EDF */
-extern COLOR EdfEmittance(EDF *edf, HITREC *hit, XXDFFLAGS flags);
+extern COLOR EdfEmittance(EDF *edf, RayHit *hit, XXDFFLAGS flags);
 
 extern int EdfIsTextured(EDF *edf);
 
 /* Evaluates the edf: return exitant radiance [W/m^2 sr] into the direction
  * out. If pdf is not null, the probability density of the direction is 
  * computed and returned in pdf. */
-extern COLOR EdfEval(EDF *edf, HITREC *hit, Vector3D *out,
+extern COLOR EdfEval(EDF *edf, RayHit *hit, Vector3D *out,
                      XXDFFLAGS flags, double *pdf);
 
 /* samples a direction according to the specified edf and emission range determined
  * by flags. If emitted_radiance is not a null pointer, the emitted radiance along
  * the generated direction is returned. If pdf is not null, the probability density
  * of the generated direction is computed and returned in pdf. */
-extern Vector3D EdfSample(EDF *edf, HITREC *hit, XXDFFLAGS flags,
+extern Vector3D EdfSample(EDF *edf, RayHit *hit, XXDFFLAGS flags,
                           double xi1, double xi2,
                           COLOR *emitted_radiance, double *pdf);
 
@@ -61,6 +61,6 @@ extern Vector3D EdfSample(EDF *edf, HITREC *hit, XXDFFLAGS flags,
  * not. In the latter case, a default frame needs to be used (not computed by this
  * routine - materialShadingFrame() in material.[ch] constructs such a frame if
  * needed) */
-extern int EdfShadingFrame(EDF *edf, HITREC *hit, Vector3D *X, Vector3D *Y, Vector3D *Z);
+extern int EdfShadingFrame(EDF *edf, RayHit *hit, Vector3D *X, Vector3D *Y, Vector3D *Z);
 
 #endif

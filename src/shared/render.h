@@ -38,10 +38,10 @@ extern void renderPolygonFlat(int nrverts, Vector3D *verts);
 extern void renderPolygonGouraud(int nrverts, Vector3D *verts, RGB *vertcols);
 
 /* renders the outline of the given patch in the current color */
-extern void renderPatchOutline(PATCH *patch);
+extern void renderPatchOutline(Patch *patch);
 
 /* renders the all the patches using default colors */
-extern void renderPatch(PATCH *patch);
+extern void renderPatch(Patch *patch);
 
 /* renders a line from point p to point q, for eg debugging */
 extern void renderLine(Vector3D *x, Vector3D *y);
@@ -85,7 +85,7 @@ extern void renderSetLineWidth(float width);
  * hierarchical view frustum culling + sorted (large patches first +
  * near to far) rendering. For every patch that is not culled,
  * render_patch is called. */
-extern void renderWorldOctree(void (*render_patch)(PATCH *));
+extern void renderWorldOctree(void (*render_patch)(Patch *));
 
 /* display background, no Z-buffer, fill whole screen */
 extern void renderBackground(CAMERA *camera);

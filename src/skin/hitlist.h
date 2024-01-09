@@ -11,13 +11,13 @@ Doubly linked list of HITRECs
 
 class HITLIST {
   public:
-    HITREC *hit;
+    RayHit *hit;
     HITLIST *prev;
     HITLIST *next;
 };
 
 #define HitListAdd(hitlist, hitp) (HITLIST *)DListAdd((DLIST *)hitlist, (void *)hitp)
 
-extern HITREC *DuplicateHit(HITREC *hit);
+extern RayHit *DuplicateHit(RayHit *hit);
 
 #endif

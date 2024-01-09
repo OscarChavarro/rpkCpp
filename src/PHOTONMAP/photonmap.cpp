@@ -7,7 +7,7 @@
 
 /**** Utility functions ****/
 
-bool ZeroAlbedo(BSDF *bsdf, HITREC *hit, BSDFFLAGS flags) {
+bool ZeroAlbedo(BSDF *bsdf, RayHit *hit, BSDFFLAGS flags) {
     COLOR col;
 
     col = BsdfScatteredPower(bsdf, hit, &hit->gnormal, flags);
@@ -221,7 +221,7 @@ void CPhotonMap::Redistribute(CPhoton &photon, float acceptProb, short flags) {
 }
 
 
-bool CPhotonMap::DC_AddPhoton(CPhoton &photon, HITREC &hit,
+bool CPhotonMap::DC_AddPhoton(CPhoton &photon, RayHit &hit,
                               float requiredD, short flags) {
     // Get current density
     // Vector3D pos = photon.Pos();
@@ -339,11 +339,11 @@ void CPhotonMap::PrecomputeIrradiance() {
 
 // Reconstruct
 
-// bool CPhotonMap::IrradianceReconstruct(HITREC *hit, Vector3D &outDir,
+// bool CPhotonMap::IrradianceReconstruct(RayHit *hit, Vector3D &outDir,
 // BSDF *bsdf, BSDF *inBsdf,
 // BSDF *outBsdf,
 // COLOR *result)
-bool CPhotonMap::IrradianceReconstruct(HITREC *hit, Vector3D &outDir,
+bool CPhotonMap::IrradianceReconstruct(RayHit *hit, Vector3D &outDir,
                                        COLOR &diffuseAlbedo,
                                        COLOR *result) {
     if ( !m_irradianceComputed ) {
@@ -368,7 +368,7 @@ bool CPhotonMap::IrradianceReconstruct(HITREC *hit, Vector3D &outDir,
     }
 }
 
-COLOR CPhotonMap::Reconstruct(HITREC *hit, Vector3D &outDir,
+COLOR CPhotonMap::Reconstruct(RayHit *hit, Vector3D &outDir,
                               BSDF *bsdf, BSDF *inBsdf, BSDF *outBsdf) {
     // Find nearest photons
 
@@ -439,7 +439,7 @@ COLOR CPhotonMap::Reconstruct(HITREC *hit, Vector3D &outDir,
     return result;
 }
 
-float CPhotonMap::GetCurrentDensity(HITREC &hit, int nrPhotons) {
+float CPhotonMap::GetCurrentDensity(RayHit &hit, int nrPhotons) {
     // Find nearest photons
 
     if ( nrPhotons == 0 ) {
@@ -472,7 +472,7 @@ float CPhotonMap::GetCurrentDensity(HITREC &hit, int nrPhotons) {
 
 
 // Return a color coded density of the photonmap
-COLOR CPhotonMap::GetDensityColor(HITREC &hit) {
+COLOR CPhotonMap::GetDensityColor(RayHit &hit) {
     float density;
     COLOR result;
 

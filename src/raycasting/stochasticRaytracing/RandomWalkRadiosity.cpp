@@ -9,7 +9,7 @@
 #include "raycasting/stochasticRaytracing/stochjacobi.h"
 
 static void
-randomWalkRadiosityPrintPatchData(FILE *out, PATCH *patch) {
+randomWalkRadiosityPrintPatchData(FILE *out, Patch *patch) {
     monteCarloRadiosityPrintElement(out, TOPLEVEL_ELEMENT(patch));
 }
 
@@ -36,7 +36,7 @@ randomWalkRadiosityPrintStats() {
 Used as un-normalised probability for mimicking global lines
 */
 static double
-randomWalkRadiosityPatchArea(PATCH *P) {
+randomWalkRadiosityPatchArea(Patch *P) {
     return P->area;
 }
 
@@ -44,7 +44,7 @@ randomWalkRadiosityPatchArea(PATCH *P) {
 Probability proportional to power to be propagated
 */
 static double
-randomWalkRadiosityScalarSourcePower(PATCH *P) {
+randomWalkRadiosityScalarSourcePower(Patch *P) {
     COLOR radiance = TOPLEVEL_ELEMENT(P)->source_rad;
     return /* M_PI * */ P->area * colorSumAbsComponents(radiance);
 }
@@ -54,7 +54,7 @@ Returns a double instead of a float in order to make it useful as
 a survival probability function
 */
 static double
-randomWalkRadiosityScalarReflectance(PATCH *P) {
+randomWalkRadiosityScalarReflectance(Patch *P) {
     return monteCarloRadiosityScalarReflectance(P);
 }
 
@@ -72,7 +72,7 @@ Subtracts (1 - rho) * control radiosity from the source radiosity of each patch
 static void
 randomWalkRadiosityReduceSource() {
     for ( PatchSet *window = GLOBAL_scene_patches; window != nullptr; window = window->next ) {
-        PATCH *patch = window->patch;
+        Patch *patch = window->patch;
         COLOR newSourceRadiance;
         COLOR rho;
 
@@ -131,7 +131,7 @@ randomWalkRadiosityScoreWeight(PATH *path, int n) {
 }
 
 static void
-randomWalkRadiosityShootingScore(PATH *path, long nr_paths, double (*birth_prob)(PATCH *)) {
+randomWalkRadiosityShootingScore(PATH *path, long nr_paths, double (*birth_prob)(Patch *)) {
     COLOR accum_pow;
     int n;
     PATHNODE *node = &path->nodes[0];
@@ -141,7 +141,7 @@ randomWalkRadiosityShootingScore(PATH *path, long nr_paths, double (*birth_prob)
     for ( n = 1, node++; n < path->nrnodes; n++, node++ ) {
         double uin = 0., vin = 0., uout = 0., vout = 0., r = 1., w;
         int i;
-        PATCH *P = node->patch;
+        Patch *P = node->patch;
         COLOR Rd = TOPLEVEL_ELEMENT(P)->Rd;
         colorProduct(accum_pow, Rd, accum_pow);
 
@@ -171,7 +171,7 @@ randomWalkRadiosityShootingScore(PATH *path, long nr_paths, double (*birth_prob)
 }
 
 static void
-randomWalkRadiosityShootingUpdate(PATCH *P, double w) {
+randomWalkRadiosityShootingUpdate(Patch *P, double w) {
     double k, old_quality;
     old_quality = TOPLEVEL_ELEMENT(P)->quality;
     TOPLEVEL_ELEMENT(P)->quality += w;
@@ -237,7 +237,7 @@ randomWalkRadiosityDetermineGatheringControlRadiosity() {
         COLOR Ed;
         COLOR num;
         COLOR denom;
-        PATCH *patch = window->patch;
+        Patch *patch = window->patch;
 
         colorSetMonochrome(absorb, 1.0);
         rho = TOPLEVEL_ELEMENT(patch)->Rd;
@@ -260,7 +260,7 @@ randomWalkRadiosityDetermineGatheringControlRadiosity() {
 }
 
 static void
-randomWalkRadiosityCollisionGatheringScore(PATH *path, long nr_paths, double (*birth_prob)(PATCH *)) {
+randomWalkRadiosityCollisionGatheringScore(PATH *path, long nr_paths, double (*birth_prob)(Patch *)) {
     COLOR accum_rad;
     int n;
     PATHNODE *node = &path->nodes[path->nrnodes - 1];
@@ -268,7 +268,7 @@ randomWalkRadiosityCollisionGatheringScore(PATH *path, long nr_paths, double (*b
     for ( n = path->nrnodes - 2, node--; n >= 0; n--, node-- ) {
         double uin = 0., vin = 0., uout = 0., vout = 0., r = 1.;
         int i;
-        PATCH *P = node->patch;
+        Patch *P = node->patch;
         COLOR Rd = TOPLEVEL_ELEMENT(P)->Rd;
         colorProduct(Rd, accum_rad, accum_rad);
 
@@ -298,7 +298,7 @@ randomWalkRadiosityCollisionGatheringScore(PATH *path, long nr_paths, double (*b
 }
 
 static void
-randomWalkRadiosityGatheringUpdate(PATCH *P, double w) {
+randomWalkRadiosityGatheringUpdate(Patch *P, double w) {
     /* use un-shot rad for accumulating sum of contributions */
     stochasticRadiosityAddCoefficients(getTopLevelPatchUnShotRad(P), getTopLevelPatchReceivedRad(P),
                                        getTopLevelPatchBasis(P));

@@ -203,18 +203,18 @@ monteCarloRadiosityUpdateCpuSecs() {
 }
 
 void *
-monteCarloRadiosityCreatePatchData(PATCH *patch) {
+monteCarloRadiosityCreatePatchData(Patch *patch) {
     patch->radiance_data = (void *) monteCarloRadiosityCreateToplevelSurfaceElement(patch);
     return patch->radiance_data;
 }
 
 void
-monteCarloRadiosityPrintPatchData(FILE *out, PATCH *patch) {
+monteCarloRadiosityPrintPatchData(FILE *out, Patch *patch) {
     monteCarloRadiosityPrintElement(out, TOPLEVEL_ELEMENT(patch));
 }
 
 void
-monteCarloRadiosityDestroyPatchData(PATCH *patch) {
+monteCarloRadiosityDestroyPatchData(Patch *patch) {
     if ( patch->radiance_data ) {
         monteCarloRadiosityDestroyToplevelSurfaceElement(TOPLEVEL_ELEMENT(patch));
     }
@@ -226,7 +226,7 @@ Compute new color for the patch: fine if no hierarchical refinement is used, e.g
 in the current random walk radiosity implementation
 */
 void
-monteCarloRadiosityPatchComputeNewColor(PATCH *patch) {
+monteCarloRadiosityPatchComputeNewColor(Patch *patch) {
     patch->color = ElementColor(TOPLEVEL_ELEMENT(patch));
     patchComputeVertexColors(patch);
 }
@@ -244,7 +244,7 @@ monteCarloRadiosityInit() {
 Initialises patch data
 */
 static void
-monteCarloRadiosityInitPatch(PATCH *P) {
+monteCarloRadiosityInitPatch(Patch *P) {
     COLOR Ed = TOPLEVEL_ELEMENT(P)->Ed;
 
     reAllocCoefficients(TOPLEVEL_ELEMENT(P));
@@ -424,7 +424,7 @@ monteCarloRadiosityReInit() {
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalYmp = 0.;
     colorClear(GLOBAL_stochasticRaytracing_monteCarloRadiosityState.indirectImportanceWeightedUnShotFlux);
     for ( PatchSet *window = GLOBAL_scene_patches; window != nullptr; window = window->next ) {
-        PATCH *patch = window->patch;
+        Patch *patch = window->patch;
         monteCarloRadiosityInitPatch(patch);
         colorAddScaled(GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotFlux, M_PI * patch->area, getTopLevelPatchUnShotRad(patch)[0], GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotFlux);
         colorAddScaled(GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalFlux, M_PI * patch->area, getTopLevelPatchRad(patch)[0], GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalFlux);
@@ -469,8 +469,8 @@ monteCarloRadiosityTerminate() {
 }
 
 static COLOR
-monteCarloRadiosityDiffuseReflectanceAtPoint(PATCH *patch, double u, double v) {
-    HITREC hit;
+monteCarloRadiosityDiffuseReflectanceAtPoint(Patch *patch, double u, double v) {
+    RayHit hit;
     Vector3D point;
     patchUniformPoint(patch, u, v, &point);
     InitHit(&hit, patch, nullptr, &point, &patch->normal, patch->surface->material, 0.);
@@ -512,7 +512,7 @@ Returns the radiance emitted from the patch at the point with parameters
 (u,v) into the direction 'dir'
 */
 COLOR
-monteCarloRadiosityGetRadiance(PATCH *patch, double u, double v, Vector3D dir) {
+monteCarloRadiosityGetRadiance(Patch *patch, double u, double v, Vector3D dir) {
     COLOR TrueRdAtPoint = monteCarloRadiosityDiffuseReflectanceAtPoint(patch, u, v);
     ELEMENT *leaf = monteCarloRadiosityRegularLeafElementAtPoint(TOPLEVEL_ELEMENT(patch), &u, &v);
     COLOR UsedRdAtPoint = renderopts.smooth_shading ? monteCarloRadiosityInterpolatedReflectanceAtPoint(leaf, u, v) : leaf->Rd;
@@ -564,6 +564,6 @@ monteCarloRadiosityUpdateMaterial(Material *oldMaterial, Material *newMaterial) 
 Returns scalar reflectance, for importance propagation
 */
 float
-monteCarloRadiosityScalarReflectance(PATCH *P) {
+monteCarloRadiosityScalarReflectance(Patch *P) {
     return monteCarloRadiosityElementScalarReflectance(TOPLEVEL_ELEMENT(P));
 }

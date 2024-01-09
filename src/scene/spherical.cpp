@@ -7,7 +7,7 @@ using Arvo's technique published in SIGGRAPH '95 p 437.
 #include "scene/spherical.h"
 
 /* creates a coordinate system on the patch P with Z direction along the normal */
-void PatchCoordSys(PATCH *P, COORDSYS *coord) {
+void PatchCoordSys(Patch *P, COORDSYS *coord) {
     coord->Z = P->normal;
     VECTORSUBTRACT(*P->vertex[1]->point, *P->vertex[0]->point, coord->X);
     VECTORNORMALIZE(coord->X);

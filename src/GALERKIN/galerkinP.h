@@ -138,7 +138,7 @@ extern void initGalerkin();
 extern void setCubatureRules(CUBARULE **trirule, CUBARULE **quadrule, CUBATURE_DEGREE degree);
 
 /* recomputes the color of a patch using ambient radiance term, ... if requested for */
-extern void patchRecomputeColor(PATCH *patch);
+extern void patchRecomputeColor(Patch *patch);
 
 /* in gathering.c. Returns true when converged and false if not. */
 extern int randomWalkRadiosityDoGatheringIteration();

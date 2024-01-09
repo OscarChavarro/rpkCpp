@@ -34,7 +34,7 @@ public:
 class Background {
   public:
     void *data; // Object state
-    PATCH *bkgPatch; // Virtual patch for background
+    Patch *bkgPatch; // Virtual patch for background
     BACKGROUND_METHODS *methods; // class methods operating on state
 };
 

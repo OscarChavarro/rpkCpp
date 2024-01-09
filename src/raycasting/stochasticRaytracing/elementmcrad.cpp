@@ -86,7 +86,7 @@ createElement() {
     static long id = 1;
     ELEMENT *elem = (ELEMENT *)malloc(sizeof(ELEMENT));
 
-    elem->pog.patch = (PATCH *) nullptr;
+    elem->pog.patch = (Patch *) nullptr;
     elem->id = id;
     id++;
     elem->area = 0.;
@@ -126,7 +126,7 @@ vertexAttachElement(Vertex *v, ELEMENT *elem) {
 }
 
 ELEMENT *
-monteCarloRadiosityCreateToplevelSurfaceElement(PATCH *patch) {
+monteCarloRadiosityCreateToplevelSurfaceElement(Patch *patch) {
     int i;
     ELEMENT *elem = createElement();
     elem->pog.patch = patch;
@@ -182,7 +182,7 @@ monteCarloRadiosityCreateCluster(Geometry *geom) {
 }
 
 static void
-monteCarloRadiosityCreateSurfaceElementChild(PATCH *patch, ELEMENT *parent) {
+monteCarloRadiosityCreateSurfaceElementChild(Patch *patch, ELEMENT *parent) {
     ELEMENT *elem;
     elem = (ELEMENT *)patch->radiance_data;    /* created before */
     elem->parent = (ELEMENT *)parent;
@@ -393,7 +393,7 @@ monteCarloRadiosityInstallTexCoord(Vector3D *texCoord) {
 
 static Vertex *
 monteCarloRadiosityInstallVertex(Vector3D *coord, Vector3D *norm, Vector3D *texCoord) {
-    java::ArrayList<PATCH *> *newPatchList = new java::ArrayList<PATCH *>();
+    java::ArrayList<Patch *> *newPatchList = new java::ArrayList<Patch *>();
     Vertex *v = vertexCreate(coord, norm, texCoord, newPatchList);
     GLOBAL_stochasticRaytracing_hierarchy.vertices->add(0, v);
     return v;
@@ -568,7 +568,7 @@ Computes average reflectance and emittance of a surface sub-element
 */
 static void
 monteCarloRadiosityElementComputeAverageReflectanceAndEmittance(ELEMENT *elem) {
-    PATCH *patch = elem->pog.patch;
+    Patch *patch = elem->pog.patch;
     int i;
     int numberOfSamples;
     int isTextured;
@@ -577,7 +577,7 @@ monteCarloRadiosityElementComputeAverageReflectanceAndEmittance(ELEMENT *elem) {
     niedindex rmsb2;
     niedindex n;
     COLOR albedo, emittance;
-    HITREC hit;
+    RayHit hit;
     InitHit(&hit, patch, nullptr, &patch->midpoint, &patch->normal, patch->surface->material, 0.);
 
     isTextured = monteCarloRadiosityElementIsTextured(elem);

@@ -54,7 +54,7 @@ SplitBsdfDestroy(SPLIT_BSDF *bsdf) {
 }
 
 static COLOR
-SplitBsdfEvalTexture(TEXTURE *texture, HITREC *hit) {
+SplitBsdfEvalTexture(TEXTURE *texture, RayHit *hit) {
     Vector3D texCoord;
     COLOR col;
     colorClear(col);
@@ -90,7 +90,7 @@ TexturedScattererEvalPdf(Vector3D *in, Vector3D *out, Vector3D *normal, double *
 }
 
 static COLOR
-SplitBsdfScatteredPower(SPLIT_BSDF *bsdf, HITREC *hit, Vector3D *in, BSDFFLAGS flags) {
+SplitBsdfScatteredPower(SPLIT_BSDF *bsdf, RayHit *hit, Vector3D *in, BSDFFLAGS flags) {
     COLOR albedo;
     colorClear(albedo);
 
@@ -120,13 +120,13 @@ SplitBsdfIndexOfRefraction(SPLIT_BSDF *bsdf, REFRACTIONINDEX *index) {
 
 static COLOR
 SplitBsdfEval(
-    SPLIT_BSDF *bsdf,
-    HITREC *hit,
-    BSDF *inBsdf,
-    BSDF *outBsdf,
-    Vector3D *in,
-    Vector3D *out,
-    BSDFFLAGS flags)
+        SPLIT_BSDF *bsdf,
+        RayHit *hit,
+        BSDF *inBsdf,
+        BSDF *outBsdf,
+        Vector3D *in,
+        Vector3D *out,
+        BSDFFLAGS flags)
 {
     COLOR result;
     Vector3D normal;
@@ -173,11 +173,11 @@ SplitBsdfEval(
  * or transmission. Also determines b[r|t]dfFlags taking into
  * account potential texturing. */
 static void
-SplitBsdfProbabilities(SPLIT_BSDF *bsdf, HITREC *hit, BSDFFLAGS flags,
-                                   double *Ptexture,
-                                   double *Preflection,
-                                   double *Ptransmission,
-                                   XXDFFLAGS *brdfFlags, XXDFFLAGS *btdfFlags) {
+SplitBsdfProbabilities(SPLIT_BSDF *bsdf, RayHit *hit, BSDFFLAGS flags,
+                       double *Ptexture,
+                       double *Preflection,
+                       double *Ptransmission,
+                       XXDFFLAGS *brdfFlags, XXDFFLAGS *btdfFlags) {
     COLOR textureColor, reflectance, transmittance;
 
     *Ptexture = 0.;
@@ -222,13 +222,13 @@ SplitBsdfSamplingMode(double Ptexture, double Preflection, double Ptransmission,
 }
 
 static Vector3D
-SplitBsdfSample(SPLIT_BSDF *bsdf, HITREC *hit,
-                                BSDF *inBsdf, BSDF *outBsdf,
-                                Vector3D *in,
-                                int doRussianRoulette,
-                                BSDFFLAGS flags,
-                                double x_1, double x_2,
-                                double *pdf) {
+SplitBsdfSample(SPLIT_BSDF *bsdf, RayHit *hit,
+                BSDF *inBsdf, BSDF *outBsdf,
+                Vector3D *in,
+                int doRussianRoulette,
+                BSDFFLAGS flags,
+                double x_1, double x_2,
+                double *pdf) {
     double Ptexture, Preflection, Ptransmission, Pscattering, p, pRR;
     REFRACTIONINDEX inIndex, outIndex;
     XXDFFLAGS brdfFlags, btdfFlags;
@@ -320,11 +320,11 @@ SplitBsdfSample(SPLIT_BSDF *bsdf, HITREC *hit,
 /* Sample a split bsdf. If no sample was taken (RR/absorption)
    the pdf will be 0 upon return */
 static void
-SplitBsdfEvalPdf(SPLIT_BSDF *bsdf, HITREC *hit,
-                             BSDF *inBsdf, BSDF *outBsdf,
-                             Vector3D *in, Vector3D *out,
-                             BSDFFLAGS flags,
-                             double *pdf, double *pdfRR) {
+SplitBsdfEvalPdf(SPLIT_BSDF *bsdf, RayHit *hit,
+                 BSDF *inBsdf, BSDF *outBsdf,
+                 Vector3D *in, Vector3D *out,
+                 BSDFFLAGS flags,
+                 double *pdf, double *pdfRR) {
     double Ptexture, Preflection, Ptransmission, Pscattering, p, pRR;
     REFRACTIONINDEX inIndex, outIndex;
     XXDFFLAGS brdfFlags, btdfFlags;
@@ -373,20 +373,20 @@ SplitBsdfIsTextured(SPLIT_BSDF *bsdf) {
 }
 
 BSDF_METHODS SplitBsdfMethods = {
-        (COLOR (*)(void *data, HITREC *hit, Vector3D *in, BSDFFLAGS flags)) SplitBsdfScatteredPower,
+        (COLOR (*)(void *data, RayHit *hit, Vector3D *in, BSDFFLAGS flags)) SplitBsdfScatteredPower,
         (int (*)(void *)) SplitBsdfIsTextured,
         (void (*)(void *data, REFRACTIONINDEX *index)) SplitBsdfIndexOfRefraction,
-        (COLOR (*)(void *data, HITREC *hit, void *inBsdf, void *outBsdf, Vector3D *in, Vector3D *out,
+        (COLOR (*)(void *data, RayHit *hit, void *inBsdf, void *outBsdf, Vector3D *in, Vector3D *out,
                    BSDFFLAGS flags)) SplitBsdfEval,
-        (Vector3D (*)(void *data, HITREC *hit, void *inBsdf, void *outBsdf, Vector3D *in,
+        (Vector3D (*)(void *data, RayHit *hit, void *inBsdf, void *outBsdf, Vector3D *in,
                       int doRussianRoulette,
                       BSDFFLAGS flags, double x_1, double x_2,
                       double *pdf)) SplitBsdfSample,
-        (void (*)(void *data, HITREC *hit, void *inBsdf, void *outBsdf,
+        (void (*)(void *data, RayHit *hit, void *inBsdf, void *outBsdf,
                   Vector3D *in, Vector3D *out,
                   BSDFFLAGS flags,
                   double *pdf, double *pdfRR)) SplitBsdfEvalPdf,
-        (int (*)(void *data, HITREC *hit, Vector3D *X, Vector3D *Y, Vector3D *Z)) nullptr,
+        (int (*)(void *data, RayHit *hit, Vector3D *X, Vector3D *Y, Vector3D *Z)) nullptr,
         (void (*)(FILE *out, void *data)) SplitBsdfPrint,
         (void *(*)(void *data)) SplitBsdfDuplicate,
         (void *(*)(void *parent, void *data)) nullptr,

@@ -11,7 +11,7 @@ Random walk generation
 #include "raycasting/stochasticRaytracing/tracepath.h"
 #include "raycasting/stochasticRaytracing/localline.h"
 
-static double (*globalBirthProbability)(PATCH *);
+static double (*globalBirthProbability)(Patch *);
 static double globalSumProbabilities;
 
 /**
@@ -35,7 +35,7 @@ clearPath(PATH *path) {
 Adds a node to the path. Re-allocates more space for the nodes if necessary
 */
 static void
-pathAddNode(PATH *path, PATCH *patch, double prob, Vector3D inpoint, Vector3D outpoint) {
+pathAddNode(PATH *path, Patch *patch, double prob, Vector3D inpoint, Vector3D outpoint) {
     PATHNODE *node;
 
     if ( path->nrnodes >= path->nodesalloced ) {
@@ -86,18 +86,18 @@ when no longer needed
 */
 static PATH *
 tracePath(
-    PATCH *origin,
-    double birth_prob,
-    double (*SurvivalProbability)(PATCH *P),
-    PATH *path)
+        Patch *origin,
+        double birth_prob,
+        double (*SurvivalProbability)(Patch *P),
+        PATH *path)
 {
     Vector3D inPoint = {0.0, 0.0, 0.0};
     Vector3D outpoint = {0.0, 0.0, 0.0};
-    PATCH *P = origin;
+    Patch *P = origin;
     double survProb;
     Ray ray;
-    HITREC *hit;
-    HITREC hitStore;
+    RayHit *hit;
+    RayHit hitStore;
 
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.tracedPaths++;
     clearPath(path);
@@ -126,7 +126,7 @@ tracePath(
 }
 
 static double
-patchNormalisedBirthProbability(PATCH *P) {
+patchNormalisedBirthProbability(Patch *P) {
     return globalBirthProbability(P) / globalSumProbabilities;
 }
 
@@ -136,10 +136,10 @@ Traces 'numberOfPaths' paths with given birth probabilities
 void
 tracePaths(
     long numberOfPaths,
-    double (*BirthProbability)(PATCH *P),
-    double (*SurvivalProbability)(PATCH *P),
-    void (*ScorePath)(PATH *, long nr_paths, double (*birth_prob)(PATCH *)),
-    void (*Update)(PATCH *P, double w))
+    double (*BirthProbability)(Patch *P),
+    double (*SurvivalProbability)(Patch *P),
+    void (*ScorePath)(PATH *, long nr_paths, double (*birth_prob)(Patch *)),
+    void (*Update)(Patch *P, double w))
 {
     double rnd;
     double pCumul;
@@ -186,7 +186,7 @@ tracePaths(
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalYmp = 0.0;
 
     for ( PatchSet *window = GLOBAL_scene_patches; window != nullptr; window = window->next ) {
-        PATCH *patch = window->patch;
+        Patch *patch = window->patch;
         Update(patch, (double) numberOfPaths / globalSumProbabilities);
         colorAddScaled(GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotFlux, M_PI * patch->area,
                        getTopLevelPatchUnShotRad(patch)[0],

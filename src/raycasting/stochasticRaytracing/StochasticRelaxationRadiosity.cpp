@@ -427,7 +427,7 @@ stochasticRelaxationRadiosityDoStep() {
 }
 
 static void
-stochasticRelaxationRadiosityRenderPatch(PATCH *patch) {
+stochasticRelaxationRadiosityRenderPatch(Patch *patch) {
     if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.inited ) {
         monteCarloRadiosityForAllSurfaceLeafs(TOPLEVEL_ELEMENT(patch), McrRenderElement);
     } else {

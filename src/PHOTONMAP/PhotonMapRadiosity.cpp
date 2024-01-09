@@ -54,17 +54,17 @@ photonMapRadiosityUpdateCpuSecs() {
 }
 
 static void *
-photonMapCreatePatchData(PATCH *patch) {
+photonMapCreatePatchData(Patch *patch) {
     return patch->radiance_data = nullptr;
 }
 
 static void
-photonMapPrintPatchData(FILE *out, PATCH *patch) {
+photonMapPrintPatchData(FILE *out, Patch *patch) {
     fprintf(out, "No data\n");
 }
 
 static void
-photonMapDestroyPatchData(PATCH *patch) {
+photonMapDestroyPatchData(Patch *patch) {
     patch->radiance_data = (void *) nullptr;
 }
 
@@ -72,7 +72,7 @@ photonMapDestroyPatchData(PATCH *patch) {
 Compute new color for the patch
 */
 static void
-photonMapPatchComputeNewColor(PATCH *patch) {
+photonMapPatchComputeNewColor(Patch *patch) {
     COLOR Rd = patchAverageNormalAlbedo(patch, BRDF_DIFFUSE_COMPONENT);
     convertColorToRGB(Rd, &patch->color);
     patchComputeVertexColors(patch);
@@ -623,10 +623,10 @@ photonMapGetNodeCRadiance(CPathNode *node) {
 }
 
 static COLOR
-photonMapGetRadiance(PATCH *patch,
+photonMapGetRadiance(Patch *patch,
                      double u, double v,
                      Vector3D dir) {
-    HITREC hit;
+    RayHit hit;
     Vector3D point;
     BSDF *bsdf = patch->surface->material->bsdf;
     COLOR col;

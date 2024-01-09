@@ -32,7 +32,7 @@ BsdfDestroy(BSDF *bsdf) {
 
 /* Returns the scattered power of the BSDF, depending on the flags */
 COLOR
-BsdfScatteredPower(BSDF *bsdf, HITREC *hit, Vector3D *in, BSDFFLAGS flags) {
+BsdfScatteredPower(BSDF *bsdf, RayHit *hit, Vector3D *in, BSDFFLAGS flags) {
     COLOR refl;
     colorClear(refl);
     if ( bsdf && bsdf->methods->ScatteredPower ) {
@@ -50,7 +50,7 @@ BsdfIsTextured(BSDF *bsdf) {
 }
 
 int
-BsdfShadingFrame(BSDF *bsdf, HITREC *hit, Vector3D *X, Vector3D *Y, Vector3D *Z) {
+BsdfShadingFrame(BSDF *bsdf, RayHit *hit, Vector3D *X, Vector3D *Y, Vector3D *Z) {
     if ( bsdf && bsdf->methods->ShadingFrame ) {
         return bsdf->methods->ShadingFrame(bsdf->data, hit, X, Y, Z);
     }
@@ -70,7 +70,7 @@ BsdfIndexOfRefraction(BSDF *bsdf, REFRACTIONINDEX *index) {
 
 /* Bsdf evaluations */
 COLOR
-BsdfEval(BSDF *bsdf, HITREC *hit, BSDF *inBsdf, BSDF *outBsdf, Vector3D *in, Vector3D *out, BSDFFLAGS flags) {
+BsdfEval(BSDF *bsdf, RayHit *hit, BSDF *inBsdf, BSDF *outBsdf, Vector3D *in, Vector3D *out, BSDFFLAGS flags) {
     if ( bsdf && bsdf->methods->Eval ) {
         return bsdf->methods->Eval(bsdf->data, hit, inBsdf, outBsdf, in, out, flags);
     } else {
@@ -87,10 +87,10 @@ BsdfEval(BSDF *bsdf, HITREC *hit, BSDF *inBsdf, BSDF *outBsdf, Vector3D *in, Vec
  * Total evaluation is returned.
  */
 COLOR
-BsdfEvalComponents(BSDF *bsdf, HITREC *hit, BSDF *inBsdf,
-                                BSDF *outBsdf, Vector3D *in, Vector3D *out,
-                                BSDFFLAGS flags,
-                                COLOR *colArray) {
+BsdfEvalComponents(BSDF *bsdf, RayHit *hit, BSDF *inBsdf,
+                   BSDF *outBsdf, Vector3D *in, Vector3D *out,
+                   BSDFFLAGS flags,
+                   COLOR *colArray) {
     /* Some caching optimisation could be used here */
     COLOR result, empty;
     int i;
@@ -115,12 +115,12 @@ BsdfEvalComponents(BSDF *bsdf, HITREC *hit, BSDF *inBsdf,
 
 /* Sampling and pdf evaluation */
 Vector3D
-BsdfSample(BSDF *bsdf, HITREC *hit,
-                    BSDF *inBsdf, BSDF *outBsdf,
-                    Vector3D *in,
-                    int doRussianRoulette, BSDFFLAGS flags,
-                    double x_1, double x_2,
-                    double *pdf) {
+BsdfSample(BSDF *bsdf, RayHit *hit,
+           BSDF *inBsdf, BSDF *outBsdf,
+           Vector3D *in,
+           int doRussianRoulette, BSDFFLAGS flags,
+           double x_1, double x_2,
+           double *pdf) {
     if ( bsdf && bsdf->methods->Sample ) {
         return bsdf->methods->Sample(bsdf->data, hit, inBsdf, outBsdf, in,
                                      doRussianRoulette, flags, x_1, x_2, pdf);
@@ -133,11 +133,11 @@ BsdfSample(BSDF *bsdf, HITREC *hit,
 
 
 void
-BsdfEvalPdf(BSDF *bsdf, HITREC *hit,
-                 BSDF *inBsdf, BSDF *outBsdf,
-                 Vector3D *in, Vector3D *out,
-                 BSDFFLAGS flags,
-                 double *pdf, double *pdfRR) {
+BsdfEvalPdf(BSDF *bsdf, RayHit *hit,
+            BSDF *inBsdf, BSDF *outBsdf,
+            Vector3D *in, Vector3D *out,
+            BSDFFLAGS flags,
+            double *pdf, double *pdfRR) {
     if ( bsdf && bsdf->methods->EvalPdf ) {
         bsdf->methods->EvalPdf(bsdf->data, hit, inBsdf, outBsdf, in, out,
                                flags, pdf, pdfRR);

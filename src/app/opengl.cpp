@@ -183,7 +183,7 @@ renderEndTriangleStrip() {
 }
 
 void
-renderPatchFlat(PATCH *patch) {
+renderPatchFlat(Patch *patch) {
     int i;
 
     renderSetColor(&patch->color);
@@ -213,7 +213,7 @@ renderPatchFlat(PATCH *patch) {
 }
 
 void
-renderPatchSmooth(PATCH *patch) {
+renderPatchSmooth(Patch *patch) {
     int i;
 
     switch ( patch->numberOfVertices ) {
@@ -253,7 +253,7 @@ renderPatchSmooth(PATCH *patch) {
 Renders the patch outline in the current color
 */
 void
-renderPatchOutline(PATCH *patch) {
+renderPatchOutline(Patch *patch) {
     int i;
     Vector3D tmp;
     Vector3D dir;
@@ -269,7 +269,7 @@ renderPatchOutline(PATCH *patch) {
 }
 
 void
-renderPatch(PATCH *patch) {
+renderPatch(Patch *patch) {
     if ( !renderopts.no_shading ) {
         if ( renderopts.smooth_shading ) {
             renderPatchSmooth(patch);
@@ -287,7 +287,7 @@ renderPatch(PATCH *patch) {
 }
 
 static void
-reallyRenderOctreeLeaf(Geometry *geom, void (*renderPatch)(PATCH *)) {
+reallyRenderOctreeLeaf(Geometry *geom, void (*renderPatch)(Patch *)) {
     PatchSet *patchList = geomPatchList(geom);
     PatchSet *pathWindow = (PatchSet *)patchList;
     if ( pathWindow != nullptr) {
@@ -298,7 +298,7 @@ reallyRenderOctreeLeaf(Geometry *geom, void (*renderPatch)(PATCH *)) {
 }
 
 static void
-renderOctreeLeaf(Geometry *geom, void (*render_patch)(PATCH *)) {
+renderOctreeLeaf(Geometry *geom, void (*render_patch)(Patch *)) {
     if ( renderopts.use_display_lists ) {
         if ( geom->dlistid <= 0 ) {
             geom->dlistid = geom->id;
@@ -350,7 +350,7 @@ geometry is a surface or a compoint with 1 surface and up to 8 compound children
 CLusetredWorldGeom is such a geometry e.g.
 */
 static void
-renderOctreeNonLeaf(Geometry *geometry, void (*render_patch)(PATCH *)) {
+renderOctreeNonLeaf(Geometry *geometry, void (*render_patch)(Patch *)) {
     int i, n, remaining;
     OctreeChild octree_children[8];
     GeometryListNode *children = geomPrimList(geometry);
@@ -409,7 +409,7 @@ renderOctreeNonLeaf(Geometry *geometry, void (*render_patch)(PATCH *)) {
 }
 
 void
-renderWorldOctree(void (*render_patch)(PATCH *)) {
+renderWorldOctree(void (*render_patch)(Patch *)) {
     if ( !GLOBAL_scene_clusteredWorldGeom ) {
         return;
     }
@@ -467,7 +467,7 @@ reallyRender() {
         renderWorldOctree(renderPatch);
     } else {
         for ( PatchSet *patchWindow = GLOBAL_scene_patches; patchWindow != nullptr; patchWindow = patchWindow->next ) {
-            PATCH *patch = patchWindow->patch;
+            Patch *patch = patchWindow->patch;
             renderPatch(patch);
         }
     }

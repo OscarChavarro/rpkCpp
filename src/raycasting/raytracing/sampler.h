@@ -97,7 +97,7 @@ public:
     // 'm_computeBsdfComponents' uses BsdfEval or BsdfEvalComponents
     // Introduced to share code
 
-    inline COLOR DoBsdfEval(BSDF *bsdf, HITREC *hit, BSDF *inBsdf,
+    inline COLOR DoBsdfEval(BSDF *bsdf, RayHit *hit, BSDF *inBsdf,
                             BSDF *outBsdf, Vector3D *in, Vector3D *out,
                             BSDFFLAGS flags,
                             CBsdfComp *bsdfComp) {

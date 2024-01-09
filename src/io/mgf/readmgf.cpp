@@ -417,7 +417,7 @@ installNormal(float x, float y, float z) {
 
 static Vertex *
 installVertex(Vector3D *coord, Vector3D *norm, char *name) {
-    java::ArrayList<PATCH *> *newPatchList = new java::ArrayList<PATCH *>();
+    java::ArrayList<Patch *> *newPatchList = new java::ArrayList<Patch *>();
     Vertex *v = vertexCreate(coord, norm, (Vector3D *) nullptr, newPatchList);
     globalCurrentVertexList->add(v);
     return v;
@@ -483,9 +483,9 @@ getBackFaceVertex(Vertex *v, char *name) {
     return back;
 }
 
-static PATCH *
+static Patch *
 newFace(Vertex *v1, Vertex *v2, Vertex *v3, Vertex *v4, Vector3D *normal) {
-    PATCH *theFace;
+    Patch *theFace;
 
     if ( xf_context && xf_context->rev ) {
         theFace = patchCreate(v4 ? 4 : 3, v3, v2, v1, v4);
@@ -783,7 +783,7 @@ doComplexFace(int n, Vertex **v, Vector3D *normal, Vertex **backv, Vector3D *bac
         }
 
         if ( fabs(a) > EPSILON ) {    /* avoid degenerate faces */
-            PATCH *face, *twin;
+            Patch *face, *twin;
             face = newFace(v[p0], v[p1], v[p2], (Vertex *) nullptr, normal);
             if ( !globalCurrentMaterial->sided ) {
                 twin = newFace(backv[p2], backv[p1], backv[p0], (Vertex *) nullptr, backnormal);
@@ -803,7 +803,7 @@ static int
 handleFaceEntity(int argc, char **argv) {
     Vertex *v[MAXIMUM_FACE_VERTICES + 1], *backv[MAXIMUM_FACE_VERTICES + 1];
     Vector3D normal, backnormal;
-    PATCH *face, *twin;
+    Patch *face, *twin;
     int i, errcode;
 
     if ( argc < 4 ) {

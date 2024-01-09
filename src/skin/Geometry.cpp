@@ -71,7 +71,7 @@ geomCreateBase(void *geometryData, GEOM_METHODS *methods) {
 }
 
 Geometry *
-geomCreatePatchSetNew(java::ArrayList<PATCH *> *geometryList, GEOM_METHODS *methods) {
+geomCreatePatchSetNew(java::ArrayList<Patch *> *geometryList, GEOM_METHODS *methods) {
     PatchSet *patchList = nullptr;
 
     for ( int i = 0; geometryList != nullptr && i < geometryList->size(); i++ ) {
@@ -95,7 +95,7 @@ geomCreatePatchSet(PatchSet *patchSet, GEOM_METHODS *methods) {
     }
 
     Geometry *newGeometry = geomCreateBase(patchSet, methods);
-    newGeometry->obj = patchSet;
+    newGeometry->patchSetData = patchSet;
     return newGeometry;
 }
 
@@ -134,7 +134,7 @@ geomCreateAggregateCompound(GeometryListNode *aggregateData, GEOM_METHODS *metho
 }
 
 /**
-This function prints the GEOMetry data to the file out
+This function prints the geometry data to the file out
 */
 void
 geomPrint(FILE *out, Geometry *geom) {
@@ -147,7 +147,7 @@ geomPrint(FILE *out, Geometry *geom) {
 }
 
 /**
-This function returns a bounding box for the GEOMetry
+This function returns a bounding box for the geometry
 */
 float *
 geomBounds(Geometry *geom) {
@@ -155,7 +155,7 @@ geomBounds(Geometry *geom) {
 }
 
 /**
-This function destroys the given GEOMetry
+This function destroys the given geometry
 */
 void
 geomDestroy(Geometry *geom) {
@@ -165,13 +165,13 @@ geomDestroy(Geometry *geom) {
 }
 
 /**
-This function returns nonzero if the given GEOMetry is an aggregate. An
+This function returns nonzero if the given geometry is an aggregate. An
 aggregate is a geometry that consists of simpler geometries. Currently,
 there is only one type of aggregate geometry: the compound, which is basically
 just a list of simpler geometries. Other aggregate geometries are also
-possible, e.g. CSG objects. If the given GEOMetry is a primitive, zero is
-returned. A primitive GEOMetry is a GEOMetry that does not consist of
-simpler GEOMetries
+possible, e.g. CSG objects. If the given geometry is a primitive, zero is
+returned. A primitive geometry is a geometry that does not consist of
+simpler geometries
 */
 int
 geomIsAggregate(Geometry *geom) {
@@ -179,8 +179,8 @@ geomIsAggregate(Geometry *geom) {
 }
 
 /**
-Returns a linear list of the simpler GEOMEtries making up an aggregate GEOMetry.
-A nullptr pointer is returned if the GEOMetry is a primitive
+Returns a linear list of the simpler geometries making up an aggregate geometry.
+A nullptr pointer is returned if the geometry is a primitive
 */
 GeometryListNode *
 geomPrimList(Geometry *geom) {
@@ -192,8 +192,8 @@ geomPrimList(Geometry *geom) {
 }
 
 /**
-Returns a linear list of patches making up a primitive GEOMetry. A nullptr
-pointer is returned if the given GEOMetry is an aggregate
+Returns a linear list of patches making up a primitive geometry. A nullptr
+pointer is returned if the given geometry is an aggregate
 */
 PatchSet *
 geomPatchList(Geometry *geom) {
@@ -225,7 +225,7 @@ geomDuplicate(Geometry *geom) {
 
 /**
 Will avoid intersection testing with geom1 and geom2 (possibly nullptr
-pointers). Can be used for avoiding immediate selfintersections
+pointers). Can be used for avoiding immediate self-intersections
 */
 void
 geomDontIntersect(Geometry *geom1, Geometry *geom2) {
@@ -234,56 +234,56 @@ geomDontIntersect(Geometry *geom1, Geometry *geom2) {
 }
 
 /**
-This routine returns nullptr is the ray doesn't hit the discretisation of the
-GEOMetry. If the ray hits the discretisation of the Geometry, containing
+This routine returns nullptr is the ray doesn't hit the discretization of the
+geometry. If the ray hits the discretization of the Geometry, containing
 (among other information) the hit patch is returned.
-The hitflags (defined in ray.h) determine whether the nearest intersection
+The hitFlags (defined in ray.h) determine whether the nearest intersection
 is returned, or rather just any intersection (e.g. for shadow rays in
 ray tracing or for form factor rays in radiosity), whether to consider
 intersections with front/back facing patches and what other information
 besides the hit patch (interpolated normal, intersection point, material
 properties) to return.
 */
-HITREC *
+RayHit *
 geomDiscretizationIntersect(
         Geometry *geom,
         Ray *ray,
-        float mindist,
-        float *maxdist,
-        int hitflags,
-        HITREC *hitstore)
+        float minimumDistance,
+        float *maximumDistance,
+        int hitFlags,
+        RayHit *hitStore)
 {
-    Vector3D vtmp;
-    float nmaxdist;
+    Vector3D vTmp;
+    float nMaximumDistance;
 
     if ( geom == GLOBAL_geom_excludedGeom1 || geom == GLOBAL_geom_excludedGeom2 ) {
-        return (HITREC *) nullptr;
+        return (RayHit *) nullptr;
     }
 
     if ( geom->bounded ) {
         /* Check ray/bounding volume intersection */
-        VECTORSUMSCALED(ray->pos, mindist, ray->dir, vtmp);
-        if ( OutOfBounds(&vtmp, geom->bounds)) {
-            nmaxdist = *maxdist;
-            if ( !boundsIntersect(ray, geom->bounds, mindist, &nmaxdist)) {
+        VECTORSUMSCALED(ray->pos, minimumDistance, ray->dir, vTmp);
+        if ( OutOfBounds(&vTmp, geom->bounds)) {
+            nMaximumDistance = *maximumDistance;
+            if ( !boundsIntersect(ray, geom->bounds, minimumDistance, &nMaximumDistance)) {
                 return nullptr;
             }
         }
     }
-    return geom->methods->discretizationIntersect(geom->obj, ray, mindist, maxdist, hitflags, hitstore);
+    return geom->methods->discretizationIntersect(geom->obj, ray, minimumDistance, maximumDistance, hitFlags, hitStore);
 }
 
 HITLIST *
 geomAllDiscretizationIntersections(
-        HITLIST *hits,
-        Geometry *geom,
-        Ray *ray,
-        float mindist,
-        float maxdist,
-        int hitflags)
+    HITLIST *hits,
+    Geometry *geom,
+    Ray *ray,
+    float minimumDistance,
+    float maximumDistance,
+    int hitFlags)
 {
-    Vector3D vtmp;
-    float nmaxdist;
+    Vector3D vTmp;
+    float nMaximumDistance;
 
     if ( geom == GLOBAL_geom_excludedGeom1 || geom == GLOBAL_geom_excludedGeom2 ) {
         return hits;
@@ -291,15 +291,16 @@ geomAllDiscretizationIntersections(
 
     if ( geom->bounded ) {
         // Check ray/bounding volume intersection
-        VECTORSUMSCALED(ray->pos, mindist, ray->dir, vtmp);
-        if ( OutOfBounds(&vtmp, geom->bounds)) {
-            nmaxdist = maxdist;
-            if ( !boundsIntersect(ray, geom->bounds, mindist, &nmaxdist)) {
+        VECTORSUMSCALED(ray->pos, minimumDistance, ray->dir, vTmp);
+        if ( OutOfBounds(&vTmp, geom->bounds)) {
+            nMaximumDistance = maximumDistance;
+            if ( !boundsIntersect(ray, geom->bounds, minimumDistance, &nMaximumDistance)) {
                 return hits;
             }
         }
     }
-    return geom->methods->allDiscretizationIntersections(hits, geom->obj, ray, mindist, maxdist, hitflags);
+
+    return geom->methods->allDiscretizationIntersections(hits, geom->obj, ray, minimumDistance, maximumDistance, hitFlags);
 }
 
 int

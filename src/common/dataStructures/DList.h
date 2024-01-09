@@ -20,12 +20,12 @@ class DLIST {
  * pointers to elements of type 'TYPE'. The elements are named 'p'.
  * Use this as follows:
  * 
- * ForAllInDList(PATCH, P, patches) {
+ * ForAllInDList(Patch, P, patches) {
  *  do something with 'P';
  * } EndForAll;
  *
  * PS: you can make things even nicer if you define macro's such as
- * #define ForAllPatches(p, patches) ForAllInDList(PATCH, p, patches)
+ * #define ForAllPatches(p, patches) ForAllInDList(Patch, p, patches)
  * You can than use
  * ForAllPatches(P, patches) {
  *  do something with 'P';

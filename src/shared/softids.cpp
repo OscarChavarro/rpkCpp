@@ -28,10 +28,10 @@ SetupSoftFrameBuffer() {
     return sgl;
 }
 
-static SGL_PIXEL (*PatchPixel)(PATCH *) = nullptr;
+static SGL_PIXEL (*PatchPixel)(Patch *) = nullptr;
 
 static void
-SoftRenderPatch(PATCH *P) {
+SoftRenderPatch(Patch *P) {
     Vector3D verts[4];
 
     if ( renderopts.backface_culling &&
@@ -51,7 +51,7 @@ SoftRenderPatch(PATCH *P) {
 }
 
 void
-SoftRenderPatches(SGL_PIXEL (*patch_pixel)(PATCH *)) {
+SoftRenderPatches(SGL_PIXEL (*patch_pixel)(Patch *)) {
     PatchPixel = patch_pixel;
 
     if ( renderopts.frustum_culling ) {
@@ -67,7 +67,7 @@ SoftRenderPatches(SGL_PIXEL (*patch_pixel)(PATCH *)) {
 }
 
 static SGL_PIXEL
-PatchID(PATCH *P) {
+PatchID(Patch *P) {
     return (SGL_PIXEL) P->id;
 }
 

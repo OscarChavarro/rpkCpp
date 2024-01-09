@@ -20,7 +20,7 @@ routines dealing with view potential
 
 /* Updates directly received potential for all patches. */
 void UpdateDirectPotential() {
-    PATCH **id2patch;
+    Patch **id2patch;
     unsigned long *ids, *id;
     long i;
     long j;
@@ -44,11 +44,11 @@ void UpdateDirectPotential() {
     }
     lostpixels = 0;
 
-    /* build a table to convert a patch ID to the corresponding PATCH * */
+    /* build a table to convert a patch ID to the corresponding Patch * */
     maxpatchid = patchGetNextId() - 1;
-    id2patch = (PATCH **)malloc((int) (maxpatchid + 1) * sizeof(PATCH *));
+    id2patch = (Patch **)malloc((int) (maxpatchid + 1) * sizeof(Patch *));
     for ( i = 0; i <= maxpatchid; i++ ) {
-        id2patch[i] = (PATCH *) nullptr;
+        id2patch[i] = (Patch *) nullptr;
     }
     for ( PatchSet *window = GLOBAL_scene_patches; window != nullptr; window = window->next ) {
         id2patch[window->patch->id] = window->patch;
@@ -96,7 +96,7 @@ void UpdateDirectPotential() {
     GLOBAL_statistics_averageDirectPotential = GLOBAL_statistics_totalDirectPotential =
     GLOBAL_statistics_maxDirectPotential = GLOBAL_statistics_maxDirectImportance = 0.;
     for ( i = 1; i <= maxpatchid; i++ ) {
-        PATCH *patch = id2patch[i];
+        Patch *patch = id2patch[i];
 
         patch->directPotential = new_direct_importance[i] / patch->area;
 
@@ -117,7 +117,7 @@ void UpdateDirectPotential() {
     free((char *) ids);
 }
 
-static SGL_PIXEL PatchPointer(PATCH *P) {
+static SGL_PIXEL PatchPointer(Patch *P) {
     return (SGL_PIXEL) P;
 }
 
@@ -131,7 +131,7 @@ static void SoftGetPatchPointers(SGL_CONTEXT *sgl) {
     }
 
     for ( pix = sgl->frameBuffer, i = 0; i < sgl->width * sgl->height; pix++, i++ ) {
-        PATCH *P = (PATCH *) (*pix);
+        Patch *P = (Patch *) (*pix);
         if ( P ) {
             // Visible
             PATCH_SET_VISIBLE(P);

@@ -15,7 +15,7 @@ class CLightInfo {
 public:
     float emittedFlux;
     float importance; // cumlative probability : for importance sampling
-    PATCH *light;
+    Patch *light;
 };
 
 
@@ -47,18 +47,18 @@ public:
     void IncludeVirtualPatches(bool newValue);
 
     // Normal sampling : uniform over emitted power
-    PATCH *Sample(double *x_1, double *pdf);
+    Patch *Sample(double *x_1, double *pdf);
 
 
     // Normal PDF evaluation : uniform over emitted power
-    double EvalPDF(PATCH *light, Vector3D *point);
+    double EvalPDF(Patch *light, Vector3D *point);
 
     // Importance sampling routines
 
-    PATCH *SampleImportant(Vector3D *point, Vector3D *normal, double *x_1,
+    Patch *SampleImportant(Vector3D *point, Vector3D *normal, double *x_1,
                            double *pdf);
 
-    double EvalPDFImportant(PATCH *light, Vector3D *lightPoint,
+    double EvalPDFImportant(Patch *light, Vector3D *lightPoint,
                             Vector3D *litPoint, Vector3D *normal);
 
 protected:
@@ -66,24 +66,24 @@ protected:
 
     void ComputeLightImportances(Vector3D *point, Vector3D *normal);
 
-    double ComputeOneLightImportance(PATCH *light, const Vector3D *point,
+    double ComputeOneLightImportance(Patch *light, const Vector3D *point,
                                      const Vector3D *normal,
                                      float avgEmittedRadiance);
 
 
     // specialisations by patch type (normal or virtual) of ComputeOneLightImportance
-    double ComputeOneLightImportance_virtual(PATCH *light, const Vector3D *point,
+    double ComputeOneLightImportance_virtual(Patch *light, const Vector3D *point,
                                              const Vector3D *normal,
                                              float avgEmittedRadiance);
 
-    double ComputeOneLightImportance_real(PATCH *light, const Vector3D *point,
+    double ComputeOneLightImportance_real(Patch *light, const Vector3D *point,
                                           const Vector3D *normal,
                                           float avgEmittedRadiance);
 
     // specialisations by patch type (normal or virtual) of EvalPDF
-    double EvalPDF_virtual(PATCH *light, Vector3D *point);
+    double EvalPDF_virtual(Patch *light, Vector3D *point);
 
-    double EvalPDF_real(PATCH *light, Vector3D *point);
+    double EvalPDF_real(Patch *light, Vector3D *point);
 
     friend class CLightList_Iter;
 };
@@ -95,7 +95,7 @@ private:
 public:
     CLightList_Iter(CLightList &list) : m_iter(list) {}
 
-    PATCH *First(CLightList &list) {
+    Patch *First(CLightList &list) {
         m_iter.Init(list);
 
         CLightInfo *li = m_iter.Next();
@@ -106,7 +106,7 @@ public:
         }
     }
 
-    PATCH *Next() {
+    Patch *Next() {
         CLightInfo *li = m_iter.Next();
         if ( li ) {
             return li->light;

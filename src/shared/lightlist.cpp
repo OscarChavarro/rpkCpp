@@ -11,7 +11,7 @@ CLightList *gLightList = nullptr;
 
 /* *** C METHODS *** */
 
-double LightEvalPDFImportant(PATCH *light, Vector3D *lightPoint,
+double LightEvalPDFImportant(Patch *light, Vector3D *lightPoint,
                              Vector3D *point, Vector3D *normal) {
     return gLightList->EvalPDFImportant(light, lightPoint,
                                         point, normal);
@@ -39,7 +39,7 @@ CLightList::CLightList(PatchSet *list, bool includeVirtualPatches) {
     lightCount = 0;
     includeVirtual = includeVirtualPatches;
 
-    ForAllInList(PATCH, light, list)
+    ForAllInList(Patch, light, list)
                 {
                     if ( !light->isVirtual() || includeVirtual ) {
                         if ( light->surface->material->edf != nullptr ) {
@@ -47,7 +47,7 @@ CLightList::CLightList(PatchSet *list, bool includeVirtualPatches) {
 
                             // calc emittedFlux
                             if ( light->isVirtual()) {
-                                COLOR e = EdfEmittance(light->surface->material->edf, (HITREC *) nullptr,
+                                COLOR e = EdfEmittance(light->surface->material->edf, (RayHit *) nullptr,
                                                        DIFFUSE_COMPONENT);
                                 info.emittedFlux = colorAverage(e);
                             } else {
@@ -71,7 +71,7 @@ CLightList::~CLightList() {
 
 // Returns sampled patch, scales x_1 back to a random in 0..1
 
-PATCH *CLightList::Sample(double *x_1, double *pdf) {
+Patch *CLightList::Sample(double *x_1, double *pdf) {
     CLightInfo *info, *lastInfo;
     CTSList_Iter<CLightInfo> iterator(*this);
 
@@ -115,20 +115,20 @@ PATCH *CLightList::Sample(double *x_1, double *pdf) {
     return nullptr;
 }
 
-double CLightList::EvalPDF_virtual(PATCH *light, Vector3D */*point*/) {
+double CLightList::EvalPDF_virtual(Patch *light, Vector3D */*point*/) {
     // EvalPDF for virtual patches (see EvalPDF)
     double pdf;
 
     // Prob for choosing this light
     XXDFFLAGS all = DIFFUSE_COMPONENT || GLOSSY_COMPONENT || SPECULAR_COMPONENT;
 
-    COLOR e = EdfEmittance(light->surface->material->edf, (HITREC *) nullptr, all);
+    COLOR e = EdfEmittance(light->surface->material->edf, (RayHit *) nullptr, all);
     pdf = colorAverage(e) / totalFlux;
 
     return pdf;
 }
 
-double CLightList::EvalPDF_real(PATCH *light, Vector3D */*point*/) {
+double CLightList::EvalPDF_real(Patch *light, Vector3D */*point*/) {
     // Eval PDF for normal patches (see EvalPDF)
     COLOR col;
     double pdf;
@@ -141,7 +141,7 @@ double CLightList::EvalPDF_real(PATCH *light, Vector3D */*point*/) {
     return pdf;
 }
 
-double CLightList::EvalPDF(PATCH *light, Vector3D *point) {
+double CLightList::EvalPDF(Patch *light, Vector3D *point) {
     // TODO!!!  1) patch should become class
     //          2) virtual patch should become child-class
     //          3) this method should be handled by specialisation
@@ -160,18 +160,18 @@ double CLightList::EvalPDF(PATCH *light, Vector3D *point) {
 /*************************************************************************/
 /* Important light sampling */
 
-double CLightList::ComputeOneLightImportance_virtual(PATCH *light,
+double CLightList::ComputeOneLightImportance_virtual(Patch *light,
                                                      const Vector3D *,
                                                      const Vector3D *,
                                                      float) {
     // ComputeOneLightImportance for virtual patches
     XXDFFLAGS all = DIFFUSE_COMPONENT || GLOSSY_COMPONENT || SPECULAR_COMPONENT;
 
-    COLOR e = EdfEmittance(light->surface->material->edf, (HITREC *) nullptr, all);
+    COLOR e = EdfEmittance(light->surface->material->edf, (RayHit *) nullptr, all);
     return colorAverage(e);
 }
 
-double CLightList::ComputeOneLightImportance_real(PATCH *light,
+double CLightList::ComputeOneLightImportance_real(Patch *light,
                                                   const Vector3D *point,
                                                   const Vector3D *normal,
                                                   float emittedFlux) {
@@ -243,7 +243,7 @@ double CLightList::ComputeOneLightImportance_real(PATCH *light,
     return contribution;
 }
 
-double CLightList::ComputeOneLightImportance(PATCH *light,
+double CLightList::ComputeOneLightImportance(Patch *light,
                                              const Vector3D *point,
                                              const Vector3D *normal,
                                              float emittedFlux) {
@@ -293,7 +293,7 @@ void CLightList::ComputeLightImportances(Vector3D *point, Vector3D *normal) {
     }
 }
 
-PATCH *CLightList::SampleImportant(Vector3D *point, Vector3D *normal,
+Patch *CLightList::SampleImportant(Vector3D *point, Vector3D *normal,
                                    double *x_1, double *pdf) {
     CLightInfo *info, *lastInfo;
     CTSList_Iter<CLightInfo> iterator(*this);
@@ -348,7 +348,7 @@ PATCH *CLightList::SampleImportant(Vector3D *point, Vector3D *normal,
     return nullptr;
 }
 
-double CLightList::EvalPDFImportant(PATCH *light, Vector3D */*lightPoint*/,
+double CLightList::EvalPDFImportant(Patch *light, Vector3D */*lightPoint*/,
                                     Vector3D *litPoint, Vector3D *normal) {
     double pdf;
     CLightInfo *info;

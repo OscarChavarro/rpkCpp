@@ -19,7 +19,7 @@ typedef union FloatOrColorPtr {
 } FloatOrColorPtr;
 
 typedef union PatchOrGeomPtr {
-    PATCH *patch;
+    Patch *patch;
     Geometry *geom;
 } PatchOrGeomPtr;
 
@@ -28,12 +28,12 @@ typedef union PatchOrGeomPtr {
  * surface elements. There are only a few differences between surface and cluster 
  * elements: cluster elements always have a constant basis on them, they contain
  * a pointer to the Geometry to which they are associated, while a surface element has
- * a pointer to the PATCH to which is belongs, they have only irregular subelements,
+ * a pointer to the Patch to which is belongs, they have only irregular subelements,
  * and no uptrans. */
 class ELEMENT {
   public:
     int id;        /* unique ID number for the element */
-    PatchOrGeomPtr pog;    /* The PATCH/Geometry to which the surface/cluster element
+    PatchOrGeomPtr pog;    /* The Patch/Geometry to which the surface/cluster element
 			 * belongs. */
     COLOR Ed, Rd;        /* diffuse emittance and reflectance */
     COLOR *radiance,    /* total radiance on the element as computed so far */
@@ -124,7 +124,7 @@ extern int GetNumberOfClusters();
 extern int GetNumberOfSurfaceElements();
 
 /* creates the toplevel element for the patch */
-extern ELEMENT *galerkinCreateToplevelElement(PATCH *patch);
+extern ELEMENT *galerkinCreateToplevelElement(Patch *patch);
 
 /* creates a cluster element for the given Geometry. The average projected area still
  * needs to be determined. */
