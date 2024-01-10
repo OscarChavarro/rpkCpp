@@ -181,7 +181,7 @@ RayCast(char *fname, FILE *fp, int ispipe) {
     }
 }
 
-Raytracer RayCasting = {
+Raytracer GLOBAL_rayCasting_RayCasting = {
     "RayCasting",
     4,
     "Ray Casting",

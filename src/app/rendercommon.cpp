@@ -1,4 +1,6 @@
-/* rendercommon.c: rendering stuff independent of the graphics library being used. */
+/**
+Rendering stuff independent of the graphics library being used
+*/
 
 #include "common/mymath.h"
 #include "shared/render.h"
@@ -9,105 +11,123 @@
 #include "shared/options.h"
 #include "raycasting/common/Raytracer.h"
 
-RENDEROPTIONS renderopts;
+RENDEROPTIONS GLOBAL_render_renderOptions;
 
-void RenderSetSmoothShading(char yesno) {
-    renderopts.smooth_shading = yesno;
+void
+renderSetSmoothShading(char yesno) {
+    GLOBAL_render_renderOptions.smooth_shading = yesno;
 }
 
-void RenderSetNoShading(char yesno) {
-    renderopts.no_shading = yesno;
+void
+renderSetNoShading(char yesno) {
+    GLOBAL_render_renderOptions.no_shading = yesno;
 }
 
-void RenderSetBackfaceCulling(char backface_culling) {
-    renderopts.backface_culling = backface_culling;
+void
+renderSetBackfaceCulling(char backface_culling) {
+    GLOBAL_render_renderOptions.backface_culling = backface_culling;
 }
 
-void RenderSetOutlineDrawing(char draw_outlines) {
-    renderopts.draw_outlines = draw_outlines;
+void
+renderSetOutlineDrawing(char draw_outlines) {
+    GLOBAL_render_renderOptions.draw_outlines = draw_outlines;
 }
 
-void RenderSetBoundingBoxDrawing(char yesno) {
-    renderopts.draw_bounding_boxes = yesno;
+void
+renderSetBoundingBoxDrawing(char yesno) {
+    GLOBAL_render_renderOptions.draw_bounding_boxes = yesno;
 }
 
-void RenderSetClusterDrawing(char yesno) {
-    renderopts.draw_clusters = yesno;
+void
+renderSetClusterDrawing(char yesno) {
+    GLOBAL_render_renderOptions.draw_clusters = yesno;
 }
 
-void RenderUseDisplayLists(char truefalse) {
-    renderopts.use_display_lists = truefalse;
+void
+renderUseDisplayLists(char truefalse) {
+    GLOBAL_render_renderOptions.use_display_lists = truefalse;
 }
 
-void RenderUseFrustumCulling(char truefalse) {
-    renderopts.frustum_culling = truefalse;
+void
+renderUseFrustumCulling(char truefalse) {
+    GLOBAL_render_renderOptions.frustum_culling = truefalse;
 }
 
-void RenderSetOutlineColor(RGB *outline_color) {
-    renderopts.outline_color = *outline_color;
+void
+renderSetOutlineColor(RGB *outline_color) {
+    GLOBAL_render_renderOptions.outline_color = *outline_color;
 }
 
-void RenderSetBoundingBoxColor(RGB *outline_color) {
-    renderopts.bounding_box_color = *outline_color;
+void
+renderSetBoundingBoxColor(RGB *outline_color) {
+    GLOBAL_render_renderOptions.bounding_box_color = *outline_color;
 }
 
-void RenderSetClusterColor(RGB *cluster_color) {
-    renderopts.cluster_color = *cluster_color;
+void
+renderSetClusterColor(RGB *cluster_color) {
+    GLOBAL_render_renderOptions.cluster_color = *cluster_color;
 }
 
-static void DisplayListsOption(void *value) {
-    renderopts.use_display_lists = true;
+static void
+displayListsOption(void *value) {
+    GLOBAL_render_renderOptions.use_display_lists = true;
 }
 
-static void FlatOption(void *value) {
-    renderopts.smooth_shading = false;
+static void
+flatOption(void *value) {
+    GLOBAL_render_renderOptions.smooth_shading = false;
 }
 
-static void NoCullingOption(void *value) {
-    renderopts.backface_culling = false;
+static void
+noCullingOption(void *value) {
+    GLOBAL_render_renderOptions.backface_culling = false;
 }
 
-static void OutlinesOption(void *value) {
-    renderopts.draw_outlines = true;
+static void
+outlinesOption(void *value) {
+    GLOBAL_render_renderOptions.draw_outlines = true;
 }
 
-static void TraceOption(void *value) {
-    renderopts.trace = true;
+static void
+traceOption(void *value) {
+    GLOBAL_render_renderOptions.trace = true;
 }
 
 static CMDLINEOPTDESC renderingOptions[] = {
         {"-display-lists", 10, TYPELESS,
-                nullptr, DisplayListsOption,
+                nullptr, displayListsOption,
                 "-display-lists\t\t"
                 ": use display lists for faster hardware-assisted rendering"},
         {"-flat-shading",  5,  TYPELESS,
-                nullptr, FlatOption,
+                nullptr, flatOption,
                 "-flat-shading\t\t: render without Gouraud (color) interpolation"},
         {"-raycast",       5,  TYPELESS,
-                nullptr, TraceOption,
+                nullptr, traceOption,
                 "-raycast\t\t: save raycasted scene view as a high dynamic range image"},
         {"-no-culling",    5,  TYPELESS,
-                nullptr, NoCullingOption,
+                nullptr, noCullingOption,
                 "-no-culling\t\t: don't use backface culling"},
         {"-outlines",      5,  TYPELESS,
-                nullptr, OutlinesOption,
+                nullptr, outlinesOption,
                 "-outlines\t\t: draw polygon outlines"},
         {"-outline-color", 10, TRGB,
-                &renderopts.outline_color, DEFAULT_ACTION,
+                &GLOBAL_render_renderOptions.outline_color, DEFAULT_ACTION,
                 "-outline-color <rgb> \t: color for polygon outlines"},
         {nullptr,             0,  TYPELESS,
                 nullptr,                      DEFAULT_ACTION,
                 nullptr}
 };
 
-void ParseRenderingOptions(int *argc, char **argv) {
+void
+parseRenderingOptions(int *argc, char **argv) {
     parseOptions(renderingOptions, argc, argv);
 }
 
 extern CAMERA GLOBAL_camera_alternateCamera;
 
 /* computes distance to front- and backclipping plane */
-void RenderGetNearFar(float *near, float *far) {
+void
+renderGetNearFar(float *near, float *far) {
     BOUNDINGBOX bounds;
     Vector3D b[2], d;
     int i, j, k;
@@ -142,9 +162,9 @@ void RenderGetNearFar(float *near, float *far) {
         }
     }
 
-    if ( renderopts.draw_cameras ) {
+    if ( GLOBAL_render_renderOptions.draw_cameras ) {
         CAMERA *cam = &GLOBAL_camera_alternateCamera;
-        float camlen = renderopts.camsize,
+        float camlen = GLOBAL_render_renderOptions.camsize,
                 hsiz = camlen * cam->viewdist * cam->tanhfov,
                 vsiz = camlen * cam->viewdist * cam->tanvfov;
         Vector3D c, P[5];
@@ -179,7 +199,8 @@ void RenderGetNearFar(float *near, float *far) {
     }
 }
 
-void RenderBounds(BOUNDINGBOX bounds) {
+void
+renderBounds(BOUNDINGBOX bounds) {
     Vector3D p[8];
 
     VECTORSET(p[0], bounds[MIN_X], bounds[MIN_Y], bounds[MIN_Z]);
@@ -205,29 +226,33 @@ void RenderBounds(BOUNDINGBOX bounds) {
     renderLine(&p[3], &p[7]);
 }
 
-void RenderGeomBounds(Geometry *geom) {
+void
+renderGeomBounds(Geometry *geom) {
     float *geombounds = geomBounds(geom);
 
     if ( geom->bounded && geombounds ) {
-        RenderBounds(geombounds);
+        renderBounds(geombounds);
     }
 
     if ( geomIsAggregate(geom)) {
-        GeomListIterate(geomPrimList(geom), RenderGeomBounds);
+        GeomListIterate(geomPrimList(geom), renderGeomBounds);
     }
 }
 
-void RenderBoundingBoxHierarchy() {
-    renderSetColor(&renderopts.bounding_box_color);
-    GeomListIterate(GLOBAL_scene_world, RenderGeomBounds);
+void
+renderBoundingBoxHierarchy() {
+    renderSetColor(&GLOBAL_render_renderOptions.bounding_box_color);
+    GeomListIterate(GLOBAL_scene_world, renderGeomBounds);
 }
 
-void RenderClusterHierarchy() {
-    renderSetColor(&renderopts.cluster_color);
-    GeomListIterate(GLOBAL_scene_clusteredWorld, RenderGeomBounds);
+void
+renderClusterHierarchy() {
+    renderSetColor(&GLOBAL_render_renderOptions.cluster_color);
+    GeomListIterate(GLOBAL_scene_clusteredWorld, renderGeomBounds);
 }
 
-int RenderRayTraced() {
+int
+renderRayTraced() {
     if ( !Global_Raytracer_activeRaytracer || !Global_Raytracer_activeRaytracer->Redisplay ) {
         return false;
     } else {

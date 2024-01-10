@@ -52,7 +52,7 @@ static void printint(FILE *fp, int *n, void *data) {
 
 static int dummy_int = 0;
 
-CMDLINEOPTTYPE intTypeStruct = {
+CMDLINEOPTTYPE GLOBAL_options_intType = {
         (int (*)(void *, void *)) getint,
         (void (*)(FILE *, void *, void *)) printint,
         (void *) &dummy_int,
@@ -73,7 +73,7 @@ static void printstring(FILE *fp, char **s, void *data) {
 
 static char *dummy_string = nullptr;
 
-CMDLINEOPTTYPE stringTypeStruct = {
+CMDLINEOPTTYPE GLOBAL_options_stringType = {
         (int (*)(void *, void *)) getstring,
         (void (*)(FILE *, void *, void *)) printstring,
         (void *) &dummy_string,
@@ -143,7 +143,7 @@ static ENUMDESC boolTable[] = {
         {0, nullptr,        0}
 };
 
-CMDLINEOPTTYPE boolTypeStruct = {
+CMDLINEOPTTYPE GLOBAL_options_boolType = {
         (int (*)(void *, void *)) Tenum_get,
         (void (*)(FILE *, void *, void *)) Tenum_print,
         (void *) &Tenum_dummy_val,
@@ -174,14 +174,14 @@ static void print_other(FILE *fp, void *x, void *data) {
 }
 
 
-CMDLINEOPTTYPE setTrueTypeStruct = {
+CMDLINEOPTTYPE GLOBAL_options_setTrueType = {
         (int (*)(void *, void *)) set_true,
         (void (*)(FILE *, void *, void *)) print_other,
         (void *) &dummy_true,
         (void *) nullptr
 };
 
-CMDLINEOPTTYPE setFalseTypeStruct = {
+CMDLINEOPTTYPE GLOBAL_options_setFalseType = {
         (int (*)(void *, void *)) set_false,
         (void (*)(FILE *, void *, void *)) print_other,
         (void *) &dummy_false,
@@ -203,7 +203,7 @@ static void printfloat(FILE *fp, float *x, void *data) {
 
 static float dummy_float = 0.;
 
-CMDLINEOPTTYPE floatTypeStruct = {
+CMDLINEOPTTYPE GLOBAL_options_floatType = {
         (int (*)(void *, void *)) getfloat,
         (void (*)(FILE *, void *, void *)) printfloat,
         (void *) &dummy_float,
@@ -235,7 +235,7 @@ static void printvector(FILE *fp, Vector3D *v, void *data) {
 
 static Vector3D dummy_vector = {0., 0., 0.};
 
-CMDLINEOPTTYPE vectorTypeStruct = {
+CMDLINEOPTTYPE GLOBAL_options_vectorType = {
         (int (*)(void *, void *)) getvector,
         (void (*)(FILE *, void *, void *)) printvector,
         (void *) &dummy_vector,
@@ -267,7 +267,7 @@ static void printrgb(FILE *fp, RGB *v, void *data) {
 
 static RGB dummy_rgb = {0., 0., 0.};
 
-CMDLINEOPTTYPE rgbTypeStruct = {
+CMDLINEOPTTYPE GLOBAL_options_rgbType = {
         (int (*)(void *, void *)) getrgb,
         (void (*)(FILE *, void *, void *)) printrgb,
         (void *) &dummy_rgb,
@@ -295,7 +295,7 @@ static void printxy(FILE *fp, float *c, void *data) {
 
 static float dummy_xy[2] = {0., 0.};
 
-CMDLINEOPTTYPE xyTypeStruct = {
+CMDLINEOPTTYPE GLOBAL_options_xyType = {
         (int (*)(void *, void *)) getxy,
         (void (*)(FILE *, void *, void *)) printxy,
         (void *) &dummy_xy,
@@ -320,8 +320,8 @@ static void process_arg(CMDLINEOPTDESC *options) {
     if ( opt ) {
         int ok = true;
         if ( opt->type ) {
-            if ((opt->type == &setTrueTypeStruct) ||
-                (opt->type == &setFalseTypeStruct)) {
+            if ((opt->type == &GLOBAL_options_setTrueType) ||
+                (opt->type == &GLOBAL_options_setFalseType)) {
                 if ( !opt->type->get(opt->value ? opt->value : opt->type->dummy, opt->type->data)) {
                     ok = false;
                 }

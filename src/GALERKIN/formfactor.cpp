@@ -49,7 +49,7 @@ static void DetermineNodes(ELEMENT *elem, CUBARULE **cr, Vector3D x[CUBAMAXNODES
         dx = vol[MAX_X] - vol[MIN_X];
         dy = vol[MAX_Y] - vol[MIN_Y];
         dz = vol[MAX_Z] - vol[MIN_Z];
-        for ( k = 0; k < (*cr)->nrnodes; k++ ) {
+        for ( k = 0; k < (*cr)->numberOfNodes; k++ ) {
             VECTORSET(x[k],
                       vol[MIN_X] + (*cr)->u[k] * dx,
                       vol[MIN_Y] + (*cr)->v[k] * dy,
@@ -76,7 +76,7 @@ static void DetermineNodes(ELEMENT *elem, CUBARULE **cr, Vector3D x[CUBAMAXNODES
 
         /* compute the positions x[k] corresponding to the nodes of the cubature rule
          * in the unit square or triangle used to parametrise the element. */
-        for ( k = 0; k < (*cr)->nrnodes; k++ ) {
+        for ( k = 0; k < (*cr)->numberOfNodes; k++ ) {
             Vector2D node;
             node.u = (*cr)->u[k];
             node.v = (*cr)->v[k];
@@ -198,7 +198,7 @@ static void DoHigherOrderAreaToAreaFormFactor(INTERACTION *link,
 
     /* determine basis function values \phi_{i,\alpha}(x_k) at sample positions on the
      * receiver patch for all basis functions \alpha */
-    for ( k = 0; k < crrcv->nrnodes; k++ ) {
+    for ( k = 0; k < crrcv->numberOfNodes; k++ ) {
         if ( isCluster(rcv)) {
             /* constant approximation on clusters */
             if ( link->nrcv != 1 ) {
@@ -224,20 +224,20 @@ static void DoHigherOrderAreaToAreaFormFactor(INTERACTION *link,
                 logFatal(-1, "DoHigherOrderAreaToAreaFormFactor",
                          "non-constant approximation on source cluster is not possible");
             }
-            for ( l = 0; l < crsrc->nrnodes; l++ ) {
+            for ( l = 0; l < crsrc->numberOfNodes; l++ ) {
                 srcphi[l] = 1.;
             }
         } else {
-            for ( l = 0; l < crsrc->nrnodes; l++ ) {
+            for ( l = 0; l < crsrc->numberOfNodes; l++ ) {
                 srcphi[l] = srcbasis->function[beta](crsrc->u[l], crsrc->v[l]);
             }
         }
 
-        for ( k = 0; k < crrcv->nrnodes; k++ ) {
+        for ( k = 0; k < crrcv->numberOfNodes; k++ ) {
             /* compute point-to-patch form factors for positions x_k on receiver and
              * basis function \beta on the source */
             G_beta[k] = 0.;
-            for ( l = 0; l < crsrc->nrnodes; l++ ) {
+            for ( l = 0; l < crsrc->numberOfNodes; l++ ) {
                 G_beta[k] += crsrc->w[l] * Gxy[k][l] * srcphi[l];
             }
             G_beta[k] *= src->area;
@@ -250,24 +250,24 @@ static void DoHigherOrderAreaToAreaFormFactor(INTERACTION *link,
             /* compute patch-to-patch form factor for basis function alpha on the
              * receiver and beta on the source. */
             G_alpha_beta = 0.;
-            for ( k = 0; k < crrcv->nrnodes; k++ ) {
+            for ( k = 0; k < crrcv->numberOfNodes; k++ ) {
                 G_alpha_beta += crrcv->w[k] * rcvphi[alpha][k] * G_beta[k];
             }
             link->K.p[alpha * link->nsrc + beta] = rcv->area * G_alpha_beta;
 
             /* second part of error estimate at receiver node x_k */
-            for ( k = 0; k < crrcv->nrnodes; k++ ) {
+            for ( k = 0; k < crrcv->numberOfNodes; k++ ) {
                 delta_beta[k] += G_alpha_beta * rcvphi[alpha][k];
             }
         }
 
-        for ( k = 0; k < crrcv->nrnodes; k++ ) {
+        for ( k = 0; k < crrcv->numberOfNodes; k++ ) {
             colorAddScaled(deltarad[k], delta_beta[k], srcrad[beta], deltarad[k]);
         }
 
         if ( beta == 0 ) {
             /* determine minimum and maximum point-to-patch form factor */
-            for ( k = 0; k < crrcv->nrnodes; k++ ) {
+            for ( k = 0; k < crrcv->numberOfNodes; k++ ) {
                 if ( G_beta[k] < Gmin ) {
                     Gmin = G_beta[k];
                 }
@@ -287,7 +287,7 @@ static void DoHigherOrderAreaToAreaFormFactor(INTERACTION *link,
         }
     } else {
         link->deltaK.f = 0.;
-        for ( k = 0; k < crrcv->nrnodes; k++ ) {
+        for ( k = 0; k < crrcv->numberOfNodes; k++ ) {
             double delta;
 
             colorDivide(deltarad[k], srcrad[0], deltarad[k]);
@@ -312,9 +312,9 @@ static void DoConstantAreaToAreaFormFactor(INTERACTION *link,
     G = 0.;
     Gmin = HUGE;
     Gmax = -HUGE;
-    for ( k = 0; k < crrcv->nrnodes; k++ ) {
+    for ( k = 0; k < crrcv->numberOfNodes; k++ ) {
         Gx = 0.;
-        for ( l = 0; l < crsrc->nrnodes; l++ ) {
+        for ( l = 0; l < crsrc->numberOfNodes; l++ ) {
             Gx += crsrc->w[l] * Gxy[k][l];
         }
         Gx *= src->area;
@@ -468,11 +468,11 @@ unsigned AreaToAreaFormFactor(INTERACTION *link, GeometryListNode *shadowlist) {
         maxkval = 0.;    /* compute maximum unoccluded kernel value */
         maxptff = 0.;    /* maximum unoccluded point-on-receiver to source form factor */
         viscount = 0;    /* count nr of rays that "pass" occluders */
-        for ( k = 0; k < crrcv->nrnodes; k++ ) {
+        for ( k = 0; k < crrcv->numberOfNodes; k++ ) {
             double f;
 
             f = 0.;
-            for ( l = 0; l < crsrc->nrnodes; l++ ) {
+            for ( l = 0; l < crsrc->numberOfNodes; l++ ) {
                 kval = PointKernelEval(&x[k], &y[l], rcv, src, shadowlist, &vis);
                 Gxy[k][l] = kval * vis;
                 f += crsrc->w[l] * kval;
@@ -517,7 +517,7 @@ unsigned AreaToAreaFormFactor(INTERACTION *link, GeometryListNode *shadowlist) {
     /* Returns the visibility: basically the fraction of rays that did not
      * hit an occluder. */
     link->vis = (unsigned) (255. * (double) viscount /
-                            (double) (crrcv->nrnodes * crsrc->nrnodes));
+                            (double) (crrcv->numberOfNodes * crsrc->numberOfNodes));
 
     if ( GLOBAL_galerkin_state.exact_visibility && shadowlist != (GeometryListNode *) nullptr && link->vis == 255 ) {
         link->vis = 254;

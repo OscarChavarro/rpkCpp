@@ -53,23 +53,17 @@ typedef float COLORMAT[3][3];  /* color coordinate conversion matrix */
 
 /***** The following definitions are valid for RGB colors only... *****/
 
-#define  bright(col)    (CIE_rf*(col)[RED_]+CIE_gf*(col)[GRN]+CIE_bf*(col)[BLU])
+// Luminous efficacy over visible spectrum
+#define WHITE_EFFICACY 179.0 /* uniform white light */
 
-/* luminous efficacies over visible spectrum */
-#define  WHTEFFICACY            179.            /* uniform white light */
-
-#define  luminance(col)         (WHTEFFICACY * bright(col))
-
-/***** ...end of stuff specific to RGB colors *****/
-
-/*
+/**
  * Conversions to and from XYZ space generally don't apply WHTEFFICACY.
  * If you need Y to be luminance (cd/m^2), this must be applied when
  * converting from radiance (watts/sr/m^2).
  */
 
-extern COLORMAT globalRgb2XyzMat;            /* RGB to XYZ conversion matrix */
-extern COLORMAT globalXyz2RgbMat;            /* XYZ to RGB conversion matrix */
+extern COLORMAT GLOBAL_rgb2XyzMat; // RGB to XYZ conversion matrix
+extern COLORMAT GLOBAL_xyz2RgbMat; // XYZ to RGB conversion matrix
 
 char *tempbuffer(unsigned int len);                /* get a temporary buffer */
 int fwritecolrs(COLR *scanline, int len, FILE *fp); /* write out a colr scanline */

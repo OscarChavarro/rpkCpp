@@ -18,9 +18,18 @@ MAT4 m4ident = MAT4IDENT;
 
 static MAT4 m4tmp; // for efficiency
 
-XfSpec *xf_context; // current context
-char **xf_argend; // end of transform argument list
+XfSpec *GLOBAL_mgf_xfContext; // current context
+char **GLOBAL_mgf_xfLastTransform; // end of transform argument list
 static char **xf_argbeg; // beginning of transform argument list
+
+XfSpec *new_xf(int, char **);        /* allocate new transform */
+void free_xf(XfSpec *);        /* free a transform */
+int xf_aname(XfArray *);    /* name this instance */
+long comp_xfid(MAT4);        /* compute unique ID */
+extern void multmat4(MAT4, MAT4, MAT4);    /* m4a = m4b X m4c */
+extern void multv3(FVECT, FVECT, MAT4);    /* v3a = v3b X m4 (vectors) */
+extern void multp3(FVECT, FVECT, MAT4);    /* p3a = p3b X m4 (positions) */
+extern int xf(XF *, int, char **);        /* interpret transform spec. */
 
 /**
 Handle xf entity
@@ -33,8 +42,8 @@ handleTransformationEntity(int ac, char **av) {
 
     if ( ac == 1 ) {
         // something with existing transform
-        if ((spec = xf_context) == nullptr) {
-            return MG_ECNTXT;
+        if ((spec = GLOBAL_mgf_xfContext) == nullptr) {
+            return MGF_ERROR_UNMATCHED_CONTEXT_CLOSE;
         }
         n = -1;
         if ( spec->xarr != nullptr) {
@@ -51,7 +60,7 @@ handleTransformationEntity(int ac, char **av) {
                 ap->aarg[n].i = 0;
             }
             if ( n >= 0 ) {
-                if ((rv = mgfGoToFilePosition(&ap->spos)) != MG_OK ) {
+                if ((rv = mgfGoToFilePosition(&ap->spos)) != MGF_OK ) {
                     return rv;
                 }
                 sprintf(ap->aarg[n].arg, "%d", ap->aarg[n].i);
@@ -59,25 +68,25 @@ handleTransformationEntity(int ac, char **av) {
             }
         }
         if ( n < 0 ) {            /* pop transform */
-            xf_context = spec->prev;
+            GLOBAL_mgf_xfContext = spec->prev;
             free_xf(spec);
-            return MG_OK;
+            return MGF_OK;
         }
     } else {            /* else allocate transform */
         if ((spec = new_xf(ac - 1, av + 1)) == nullptr) {
-            return MG_EMEM;
+            return MGF_ERROR_OUT_OF_MEMORY;
         }
         if ( spec->xarr != nullptr) {
             xf_aname(spec->xarr);
         }
-        spec->prev = xf_context;    /* push onto stack */
-        xf_context = spec;
+        spec->prev = GLOBAL_mgf_xfContext;    /* push onto stack */
+        GLOBAL_mgf_xfContext = spec;
     }
     /* translate new specification */
     n = xf_ac(spec);
     n -= xf_ac(spec->prev);        /* incremental comp. is more eff. */
     if ( xf(&spec->xf, n, xf_av(spec)) != n ) {
-        return MG_ETYPE;
+        return MGF_ERROR_ARGUMENT_TYPE;
     }
     /* check for vertex reversal */
     if ((spec->rev = (spec->xf.sca < 0.))) {
@@ -90,7 +99,7 @@ handleTransformationEntity(int ac, char **av) {
         spec->rev ^= spec->prev->rev;
     }
     spec->xid = comp_xfid(spec->xf.xfm);    /* compute unique ID */
-    return MG_OK;
+    return MGF_OK;
 }
 
 XfSpec *
@@ -137,11 +146,11 @@ new_xf(int ac, char **av)            /* allocate new transform structure */
             return nullptr;
         }
         for ( i = xf_argc; i-- > 0; ) {
-            newav[ac + i] = xf_argend[i - xf_context->xac];
+            newav[ac + i] = GLOBAL_mgf_xfLastTransform[i - GLOBAL_mgf_xfContext->xac];
         }
-        *(xf_argend = newav + spec->xac) = nullptr;
+        *(GLOBAL_mgf_xfLastTransform = newav + spec->xac) = nullptr;
         if ( xf_argbeg != nullptr) {
-            free((MEM_PTR) xf_argbeg);
+            free((void *) xf_argbeg);
         }
         xf_argbeg = newav;
     }
@@ -166,16 +175,16 @@ void
 free_xf(XfSpec *spec)            /* free a transform */
 {
     if ( spec->xarr != nullptr) {
-        free((MEM_PTR) spec->xarr);
+        free(spec->xarr);
     }
-    free((MEM_PTR) spec);
+    free(spec);
 }
 
 int
 xf_aname(XfArray *ap)            /* put out name for this instance */
 {
     static char oname[10 * XF_MAXDIM];
-    static char *oav[3] = {mg_ename[MG_E_OBJECT], oname};
+    static char *oav[3] = {GLOBAL_mgf_entityNames[MG_E_OBJECT], oname};
     int i;
     char *cp1, *cp2;
 
@@ -216,44 +225,44 @@ comp_xfid(double (*xfm)[4])            /* compute unique ID from matrix */
 }
 
 void
-xf_xfmpoint(double *v1, double *v2)        /* transform a point by the current matrix */
+mgfTransformPoint(FVECT v1, FVECT v2)        /* transform a point by the current matrix */
 {
-    if ( xf_context == nullptr) {
+    if ( GLOBAL_mgf_xfContext == nullptr) {
         MGF_VERTEX_COPY(v1, v2);
         return;
     }
-    multp3(v1, v2, xf_context->xf.xfm);
+    multp3(v1, v2, GLOBAL_mgf_xfContext->xf.xfm);
 }
 
 void
-xf_xfmvect(double *v1, double *v2)        /* transform a vector using current matrix */
+mgfTransformVector(FVECT v1, FVECT v2)        /* transform a vector using current matrix */
 {
-    if ( xf_context == nullptr) {
+    if ( GLOBAL_mgf_xfContext == nullptr) {
         MGF_VERTEX_COPY(v1, v2);
         return;
     }
-    multv3(v1, v2, xf_context->xf.xfm);
+    multv3(v1, v2, GLOBAL_mgf_xfContext->xf.xfm);
 }
 
 void
 xf_rotvect(double *v1, double *v2)        /* rotate a vector using current matrix */
 {
-    xf_xfmvect(v1, v2);
-    if ( xf_context == nullptr) {
+    mgfTransformVector(v1, v2);
+    if ( GLOBAL_mgf_xfContext == nullptr) {
         return;
     }
-    v1[0] /= xf_context->xf.sca;
-    v1[1] /= xf_context->xf.sca;
-    v1[2] /= xf_context->xf.sca;
+    v1[0] /= GLOBAL_mgf_xfContext->xf.sca;
+    v1[1] /= GLOBAL_mgf_xfContext->xf.sca;
+    v1[2] /= GLOBAL_mgf_xfContext->xf.sca;
 }
 
 double
 xf_scale(double d)            /* scale a number by the current transform */
 {
-    if ( xf_context == nullptr) {
+    if ( GLOBAL_mgf_xfContext == nullptr) {
         return d;
     }
-    return d * xf_context->xf.sca;
+    return d * GLOBAL_mgf_xfContext->xf.sca;
 }
 
 void

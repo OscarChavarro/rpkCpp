@@ -515,7 +515,7 @@ COLOR
 monteCarloRadiosityGetRadiance(Patch *patch, double u, double v, Vector3D dir) {
     COLOR TrueRdAtPoint = monteCarloRadiosityDiffuseReflectanceAtPoint(patch, u, v);
     ELEMENT *leaf = monteCarloRadiosityRegularLeafElementAtPoint(TOPLEVEL_ELEMENT(patch), &u, &v);
-    COLOR UsedRdAtPoint = renderopts.smooth_shading ? monteCarloRadiosityInterpolatedReflectanceAtPoint(leaf, u, v) : leaf->Rd;
+    COLOR UsedRdAtPoint = GLOBAL_render_renderOptions.smooth_shading ? monteCarloRadiosityInterpolatedReflectanceAtPoint(leaf, u, v) : leaf->Rd;
     COLOR rad = ElementDisplayRadianceAtPoint(leaf, u, v);
     COLOR source_rad;
     colorClear(source_rad);

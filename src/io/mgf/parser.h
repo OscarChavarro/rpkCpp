@@ -1,108 +1,125 @@
-/*
-Header file for mgf interpreter
-*/
-
-#ifndef MG_VMAJOR
+#ifndef MGF_MAJOR_VERSION_NUMBER
 
 #include <cstdio>
-#include <cstdlib>
 
 #include "common/mymath.h"
 
-#define MG_VMAJOR    2        /* major version number */
+#define MGF_MAJOR_VERSION_NUMBER    2        /* major version number */
 
-/* Entities (list is only appended, never modified) */
-#define MG_E_COLOR    1        /* c		*/
-#define MG_E_CCT    2        /* cct		*/
-#define MGF_ERROR_CONE    3        /* cone		*/
-#define MG_E_CMIX    4        /* cmix		*/
-#define MG_E_CSPEC    5        /* cspec	*/
-#define MG_E_CXY    6        /* cxy		*/
-#define MGF_ERROR_CYLINDER    7        /* cyl		*/
-#define MG_E_ED        8        /* ed		*/
-#define MG_E_FACE    9        /* f		*/
-#define MG_E_INCLUDE    10        /* i		*/
-#define MG_E_IES    11        /* ies		*/
-#define MG_E_IR        12        /* ir		*/
-#define MG_E_MATERIAL    13        /* m		*/
-#define MG_E_NORMAL    14        /* n		*/
-#define MG_E_OBJECT    15        /* o		*/
-#define MG_E_POINT    16        /* p		*/
-#define MGF_ERROR_PRISM    17        /* prism	*/
-#define MG_E_RD        18        /* rd		*/
-#define MGF_ERROR_RING    19        /* ring		*/
-#define MG_E_RS        20        /* rs		*/
-#define MG_E_SIDES    21        /* sides	*/
-#define MGF_ERROR_SPHERE    22        /* sph		*/
-#define MG_E_TD        23        /* td		*/
-#define MGF_ERROR_TORUS    24        /* torus	*/
-#define MG_E_TS        25        /* ts		*/
-#define MG_E_VERTEX    26        /* v		*/
-#define MG_E_XF        27        /* xf		*/
-/* end of Version 1 entities */
-#define MG_E_FACEH    28        /* fh		*/
-/* end of Version 2 entities */
+// Entities
+#define MG_E_COLOR 1 // c
+#define MG_E_CCT 2 // cct
+#define MGF_ERROR_CONE 3 // cone
+#define MG_E_CMIX 4 // cmix
+#define MG_E_CSPEC 5 // cspec
+#define MG_E_CXY 6 // cxy
+#define MGF_ERROR_CYLINDER 7 // cyl
+#define MG_E_ED 8 // ed
+#define MG_E_FACE 9 // f
+#define MG_E_INCLUDE 10 // i
+#define MG_E_IES 11 // ies
+#define MG_E_IR 12 // ir
+#define MG_E_MATERIAL 13 // m
+#define MG_E_NORMAL 14 // n
+#define MG_E_OBJECT 15 // o
+#define MG_E_POINT 16 // p
+#define MGF_ERROR_PRISM 17 // prism
+#define MG_E_RD 18 // rd
+#define MGF_ERROR_RING 19 // ring
+#define MG_E_RS 20 // rs
+#define MG_E_SIDES 21 // sides
+#define MGF_ERROR_SPHERE 22 // sph
+#define MG_E_TD 23 // td
+#define MGF_ERROR_TORUS 24 // torus
+#define MG_E_TS 25 // ts
+#define MG_E_VERTEX 26 // v
+#define MG_E_XF 27 // xf
+#define MG_E_FACEH 28 // fh (version 2 MGF)
+#define MGF_TOTAL_NUMBER_OF_ENTITIES 29
 
-#define MGF_TOTAL_NUMBER_OF_ENTITIES    29        /* total # entities */
+#define MG_NAMELIST { \
+    "#", \
+    "c", \
+    "cct", \
+    "cone", \
+    "cmix", \
+    "cspec", \
+    "cxy", \
+    "cyl", \
+    "ed", \
+    "f", \
+    "i", \
+    "ies", \
+    "ir", \
+    "m", \
+    "n", \
+    "o", \
+    "p", \
+    "prism", \
+    "rd", \
+    "ring", \
+    "rs", \
+    "sides", \
+    "sph", \
+    "td", \
+    "torus", \
+    "ts", \
+    "v", \
+    "xf", \
+    "fh" \
+}
 
-#define MG_NAMELIST    {"#","c","cct","cone","cmix","cspec","cxy","cyl","ed",\
-            "f","i","ies","ir","m","n","o","p","prism","rd",\
-            "ring","rs","sides","sph","td","torus","ts","v","xf",\
-            "fh"}
+#define MGF_MAXIMUM_ENTITY_NAME_LENGTH    6
 
-#define MG_MAXELEN    6
-
-extern char mg_ename[MGF_TOTAL_NUMBER_OF_ENTITIES][MG_MAXELEN];
-
-/* Handler routines for each entity and unknown ones */
+extern char GLOBAL_mgf_entityNames[MGF_TOTAL_NUMBER_OF_ENTITIES][MGF_MAXIMUM_ENTITY_NAME_LENGTH];
 
 extern int (*GLOBAL_mgf_handleCallbacks[MGF_TOTAL_NUMBER_OF_ENTITIES])(int argc, char **argv);
 
 extern int (*GLOBAL_mgf_unknownEntityHandleCallback)(int argc, char **argv);
 
-extern int mg_defuhand(int, char **);
+extern int mgfDefaultHandlerForUnknownEntities(int ac, char **av);
 
-extern unsigned mg_nunknown;        /* count of unknown entities */
+extern unsigned GLOBAL_mgf_unknownEntitiesCounter;
 
-/* Error codes */
-#define MG_OK        0        /* normal return value */
-#define MG_EUNK        1        /* unknown entity */
-#define MG_EARGC    2        /* wrong number of arguments */
-#define MG_ETYPE    3        /* argument type error */
-#define MGF_ERROR_ILLEGAL_ARGUMENT_VALUE        4        /* illegal argument value */
-#define MG_EUNDEF    5        /* undefined reference */
-#define MG_ENOFILE    6        /* cannot open input file */
-#define MG_EINCL    7        /* error in included file */
-#define MG_EMEM        8        /* out of memory */
-#define MG_ESEEK    9        /* file seek error */
-#define MG_ELINE    11        /* input line too long */
-#define MG_ECNTXT    12        /* unmatched context close */
+// logError codes
+#define MGF_OK 0 // normal return value
+#define MGF_ERROR_UNKNOWN_ENTITY 1
+#define MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS 2
+#define MGF_ERROR_ARGUMENT_TYPE 3
+#define MGF_ERROR_ILLEGAL_ARGUMENT_VALUE 4
+#define MGF_ERROR_UNDEFINED_REFERENCE 5
+#define MGF_ERROR_CAN_NOT_OPEN_INPUT_FILE 6
+#define MGF_ERROR_IN_INCLUDED_FILE 7
+#define MGF_ERROR_OUT_OF_MEMORY 8
+#define MGF_ERROR_FILE_SEEK_ERROR 9
+#define MGF_ERROR_LINE_TOO_LONG 11
+#define MGF_ERROR_UNMATCHED_CONTEXT_CLOSE 12
+#define MGF_NUMBER_OF_ERRORS 13
 
-#define MG_NERRS    13
+extern char *GLOBAL_mgf_errors[MGF_NUMBER_OF_ERRORS];
 
-extern char *GLOBAL_mgf_errors[MG_NERRS];    /* list of error messages */
+/**
+The general process for running the parser is to fill in the GLOBAL_mgf_handleCallbacks
+array with handlers for each entity you know how to handle.
+Then, call mg_init to fill in the rest.  This function will report
+an error and quit if you try to support an inconsistent set of entities.
+For each file you want to parse, call mg_load with the file name.
+To read from standard input, use nullptr as the file name.
+For additional control over error reporting and file management,
+use mgfOpen, mgfReadNextLine, mgfParseCurrentLine and mgfClose instead of mg_load.
+To globalPass an entity of your own construction to the parser, use
+the mgfHandle function rather than the GLOBAL_mgf_handleCallbacks routines directly.
+(The first argument to mgfHandle is the entity #, or -1.)
+To free any data structures and clear the parser, use mgfClear.
+If there is an error, mg_load, mgfOpen, mgfParseCurrentLine, mgfHandle and
+mgfGoToFilePosition will return an error from the list above.  In addition,
+mg_load will report the error to stderr.  The mgfReadNextLine routine
+returns 0 when the end of file has been reached.
+*/
 
-/*
- * The general process for running the parser is to fill in the GLOBAL_mgf_handleCallbacks
- * array with handlers for each entity you know how to handle.
- * Then, call mgfAlternativeInit to fill in the rest.  This function will report
- * an error and quit if you try to support an inconsistent set of entities.
- * For each file you want to parse, call mg_load with the file name.
- * To read from standard input, use nullptr as the file name.
- * For additional control over error reporting and file management,
- * use mg_open, mg_read, mg_parse and mgfClose instead of mg_load.
- * To pass an entity of your own construction to the parser, use
- * the mg_handle function rather than the GLOBAL_mgf_handleCallbacks routines directly.
- * (The first argument to mg_handle is the entity #, or -1.)
- * To free any data structures and clear the parser, use mgfClear.
- * If there is an error, mg_load, mg_open, mgfParseCurrentLine, mgfHandle and
- * mgfGoToFilePosition will return an error from the list above.  In addition,
- * mg_load will report the error to stderr.  The mgfReadNextLine routine
- * returns 0 when the end of file has been reached.
- */
-
-#define MGF_MAXIMUM_INPUT_LINE_LENGTH    4096        /* maximum input line length */
-#define MG_MAXARGC    (MGF_MAXIMUM_INPUT_LINE_LENGTH/4)    /* maximum argument count */
+#define MGF_MAXIMUM_INPUT_LINE_LENGTH 4096
+#define MGF_MAXIMUM_ARGUMENT_COUNT (MGF_MAXIMUM_INPUT_LINE_LENGTH / 4)
+#define MGF_DEFAULT_NUMBER_OF_DIVISIONS 5
 
 class MgfReaderContext {
 public:
@@ -121,8 +138,6 @@ public:
     int lineno; // line number in file
     long offset; // offset from beginning
 };
-
-#define MGF_DEFAULT_NUMBER_OF_DIVISIONS 5
 
 extern MgfReaderContext *GLOBAL_mgf_file;
 extern int GLOBAL_mgf_divisionsPerQuarterCircle;
@@ -174,23 +189,21 @@ typedef FLOAT FVECT[3];
 extern double normalize(FVECT);    /* normalize a vector */
 extern void fcross(FVECT, FVECT, FVECT);/* cross product of two vectors */
 
-/************************************************************************
- *	Definitions for context handling routines
- *	(materials, colors, vectors)
- */
+/**
+Definitions for context handling routines (materials, colors, vectors)
+*/
 
-#define C_CMINWL    380        /* minimum wavelength */
-#define C_CMAXWL    780        /* maximum wavelength */
-#define C_CNSS        41        /* number of spectral samples */
-#define C_CWLI        ((C_CMAXWL-C_CMINWL)/(C_CNSS-1))
-#define C_CMAXV        10000        /* nominal maximum sample value */
-#define C_CLPWM        (683./C_CMAXV)    /* peak lumens/watt multiplier */
-
-#define C_CSSPEC    01        /* flag if spectrum is set */
-#define C_CDSPEC    02        /* flag if defined w/ spectrum */
-#define C_CSXY        04        /* flag if xy is set */
-#define C_CDXY        010        /* flag if defined w/ xy */
-#define C_CSEFF        020        /* flag if efficacy set */
+#define C_CMINWL 380 // Minimum wavelength
+#define C_CMAXWL 780 // Maximum wavelength
+#define C_CNSS 41 // Number of spectral samples
+#define C_CWLI ((C_CMAXWL-C_CMINWL)/(C_CNSS-1))
+#define C_CMAXV 10000 // Nominal maximum sample value
+#define C_CLPWM (683.0/C_CMAXV) // Peak lumens/watt multiplier
+#define C_CSSPEC 01 // Flag if spectrum is set
+#define C_CDSPEC 02 // Flag if defined w/ spectrum
+#define C_CSXY 04 // Flag if xy is set
+#define C_CDXY 010 // Flag if defined w/ xy
+#define C_CSEFF 020 // Flag if efficacy set
 
 class MgfColorContext {
 public:
@@ -307,58 +320,39 @@ class XfArray {
 };
 
 class XfSpec {
-  public:
-    long xid;            /* unique transform id */
-    short xac;            /* context argument count */
-    short rev;            /* boolean true if vertices reversed */
-    XF xf;            /* cumulative transformation */
-    XfArray *xarr;        /* transformation array pointer */
-    XfSpec *prev;        /* previous transformation context */
-};            /* followed by argument buffer */
+public:
+    long xid; // Unique transform id
+    short xac; // Context argument count
+    short rev; // Boolean true if vertices reversed
+    XF xf; // Cumulative transformation
+    XfArray *xarr; // Transformation array pointer
+    XfSpec *prev; // Previous transformation context
+}; // Followed by argument buffer
 
-extern XfSpec *xf_context;            /* current transform context */
-extern char **xf_argend;            /* last transform argument */
+extern XfSpec *GLOBAL_mgf_xfContext; // Current transform context
+extern char **GLOBAL_mgf_xfLastTransform; // Last transform argument
 
-#define xf_ac(xf)    ((xf)==nullptr ? 0 : (xf)->xac)
-#define xf_av(xf)    (xf_argend - (xf)->xac)
+#define xf_ac(xf) ((xf)==nullptr ? 0 : (xf)->xac)
+#define xf_av(xf) (GLOBAL_mgf_xfLastTransform - (xf)->xac)
 
-#define xf_argc        xf_ac(xf_context)
+#define xf_argc xf_ac(GLOBAL_mgf_xfContext)
 
-#define xf_xid(xf)    ((xf)==nullptr ? 0 : (xf)->xid)
+#define xf_xid(xf) ((xf)==nullptr ? 0 : (xf)->xid)
 
-/*
- * The transformation handler should do most of the work that needs
- * doing.  Just pass it any xf entities, then use the associated
- * functions to transform and translate positions, transform vectors
- * (without translation), rotate vectors (without scaling) and scale
- * values appropriately.
- *
- * The routines xf_xfmpoint, xf_xfmvect and xf_rotvect take two
- * 3-D vectors (which may be identical), transforms the second and
- * puts the result into the first.
- */
+/**
+The transformation handler should do most of the work that needs
+doing.  Just globalPass it any xf entities, then use the associated
+functions to transform and translate positions, transform vectors
+(without translation), rotate vectors (without scaling) and scale
+values appropriately.
+
+The routines mgfTransformPoint, mgfTransformVector and xf_rotvect take two
+3-D vectors (which may be identical), transforms the second and
+puts the result into the first.
+*/
 
 extern int handleTransformationEntity(int ac, char **av);    /* handle xf entity */
-extern void xf_xfmpoint(FVECT, FVECT);    /* transform point */
-extern void xf_xfmvect(FVECT, FVECT);    /* transform vector */
-
-/* The following are support routines you probably won't call directly */
-
-XfSpec *new_xf(int, char **);        /* allocate new transform */
-void free_xf(XfSpec *);        /* free a transform */
-int xf_aname(XfArray *);    /* name this instance */
-long comp_xfid(MAT4);        /* compute unique ID */
-extern void multmat4(MAT4, MAT4, MAT4);    /* m4a = m4b X m4c */
-extern void multv3(FVECT, FVECT, MAT4);    /* v3a = v3b X m4 (vectors) */
-extern void multp3(FVECT, FVECT, MAT4);    /* p3a = p3b X m4 (positions) */
-extern int xf(XF *, int, char **);        /* interpret transform spec. */
-
-/************************************************************************
- *	Miscellaneous definitions
- */
-
-#ifndef MEM_PTR
-    #define MEM_PTR void *
-#endif
+extern void mgfTransformPoint(FVECT v1, FVECT v2);    /* transform point */
+extern void mgfTransformVector(FVECT v1, FVECT v2);    /* transform vector */
 
 #endif

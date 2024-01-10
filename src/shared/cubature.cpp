@@ -10,7 +10,7 @@ September, 5 1995
 /* ********************* quadrilaterals: [-1,1]^2 ************************** */
 
 /* degree 1, 1 point */
-CUBARULE CRQ1 = {
+CUBARULE GLOBAL_crq1 = {
         "quads degree 1, 1 point",
         1, 1,
         {0.0},
@@ -25,7 +25,7 @@ CUBARULE CRQ1 = {
 #define u    0.81649658092772603272    /* sqrt(2./3.) */
 #define c    (-0.5)            /* cos(2.*M_PI/3.) */
 #define s    0.86602540378443864676    /* sin(2.*M_PI/3.) */
-CUBARULE CRQ2 = {
+CUBARULE GLOBAL_crq2 = {
         "quads degree 2, 3 positions",
         2, 3,
         {u, u * c, u * c},
@@ -42,7 +42,7 @@ CUBARULE CRQ2 = {
  * Davis & Rabinowitz, Methods of Numerical Integration, 2nd edition 1984, 
  * p 367 */
 #define u    0.81649658092772603272    /* sqrt(2./3.) */
-CUBARULE CRQ3 = {
+CUBARULE GLOBAL_crq3 = {
         "quads degree 3, 4 positions",
         3, 4,
         {u, 0., -u, 0.},
@@ -54,7 +54,7 @@ CUBARULE CRQ3 = {
 
 /* degree 3, 4 positions, product Gauss-Legendre formula, */
 #define    u 0.57735026918962576450    /* sqrt(1./3.) */
-CUBARULE CRQ3PG = {
+CUBARULE GLOBAL_crq3pg = {
         "quads degree 3, 4 positions, product Gauss formula",
         3 /* degree */, 4 /* positions */,
         {u, u, -u, -u},  /* 1st coord. of abscissae */
@@ -71,7 +71,7 @@ CUBARULE CRQ3PG = {
  * because the abscissae seem to be nicer located.
  * You'll find the same rule in: Schmid, "On Cubature Formulae with a Minimal 
  * Number of Knots", Numer. Math. Vol 31 (1978) p281 */
-CUBARULE CRQ4 = {
+CUBARULE GLOBAL_crq4 = {
         "quads degree 4, 6 positions",
         4 /* degree */, 6 /* positions */,
         {0.0, 0.0, 0.774596669241483, -0.774596669241483, 0.774596669241483, -0.774596669241483},
@@ -90,7 +90,7 @@ CUBARULE CRQ4 = {
 #define r    /* sqrt(14./15.) */  0.96609178307929588492
 #define s    /* sqrt(1./3.) */    0.57735026918962573106
 #define t    /* sqrt(3./5.) */    0.77459666924148340428
-CUBARULE CRQ5 = {
+CUBARULE GLOBAL_crq5 = {
         "quads degree 5, 7 positions, Radon's rule",
         5 /* degree */, 7 /* positions */,
         {0.0, s, s, -s, -s, r, -r},
@@ -111,7 +111,7 @@ CUBARULE CRQ5 = {
 #define w0    (8.0/9.0)
 #define x1    0.7745966692414834
 #define w1    5./9.
-CUBARULE CRQ5PG = {
+CUBARULE GLOBAL_crq5pg = {
         "quads degree 5, 9 positions product Gauss rule",
         5, 9,
         {-x1, -x1, -x1, x0, x0, x0, x1, x1, x1},
@@ -128,7 +128,7 @@ CUBARULE CRQ5PG = {
  * from: Wissmann & Becker (cfr supra) 
  * They again give two formulae of this type and you'll also find one 
  * in Schmid, but I chose this one because it has the nicest weights */
-CUBARULE CRQ6 = {
+CUBARULE GLOBAL_crq6 = {
         "quads degree 6, 10 positions",
         6 /* degree */, 10 /* positions */,
         {0.0, 0.0, 0.863742826346154, -0.863742826346154,
@@ -164,7 +164,7 @@ CUBARULE CRQ6 = {
 #define w1    0.24197530864197530631    /* 49./810.*4. */
 #define w2    0.52059291666739448967    /* (178981.+2769.*sqrt(583.))/1888920.*4. */
 #define w3    0.23743177469063023177    /* (178981.-2769.*sqrt(583.))/1888920.*4. */
-CUBARULE CRQ7 = {
+CUBARULE GLOBAL_crq7 = {
         "quads degree 7, 12 positions",
         7 /* degree */, 12 /* positions */,
         {r, -r, 0.0, 0.0, s, s, -s, -s, t, t, -t, -t},
@@ -184,7 +184,7 @@ CUBARULE CRQ7 = {
 #define x2    0.33998104358485626480
 #define w1    0.34785484513745385737
 #define w2    0.65214515486254614263
-CUBARULE CRQ7PG = {
+CUBARULE GLOBAL_crq7pg = {
         "quads degree 7, 16 positions product Gauss rule",
         7, 16,
         {-x1, -x1, -x1, -x1, -x2, -x2, -x2, -x2, x2, x2, x2, x2, x1, x1, x1, x1},
@@ -208,7 +208,7 @@ CUBARULE CRQ7PG = {
  * minial number of nodes has nodes outside the unit square. That's not a 
  * desirable situation for us (see Cools & Rabinowitz ...).
  * Btw, the formula of degree 9 has only one point more than this one. */
-CUBARULE CRQ8 = {
+CUBARULE GLOBAL_crq8 = {
         "quads degree 8, 16 positions",
         8, 16,
         {0.0, 0.0, 0.952509466071562, -0.952509466071562,
@@ -245,7 +245,7 @@ CUBARULE CRQ8 = {
 #define w2    0.11209960212959648528
 #define w3    0.39828243926207009528
 #define w4    0.26905133763978080301
-CUBARULE CRQ9 = {
+CUBARULE GLOBAL_crq9 = {
         "quads degree 9, 17 positions",
         9, 17,
         {0.0,
@@ -288,7 +288,7 @@ CUBARULE CRQ9 = {
  * 0 <= x+y <= 1, x,y >= 0 */
 
 /* degree 1, 1 point */
-CUBARULE CRT1 = {
+CUBARULE GLOBAL_crt1 = {
         "triangles degree 1, 1 positions",
         1, 1,
         {1. / 3.},
@@ -299,7 +299,7 @@ CUBARULE CRT1 = {
 
 /* degree 2, 3 positions,
  * Stroud '71 p 307 */
-CUBARULE CRT2 = {
+CUBARULE GLOBAL_crt2 = {
         "triangles degree 2, 3 positions",
         2, 3,
         {1. / 6., 1. / 6., 2. / 3.},
@@ -310,7 +310,7 @@ CUBARULE CRT2 = {
 
 /* degree 3, 4 positions,
  * Stroud '71 p 308 */
-CUBARULE CRT3 = {
+CUBARULE GLOBAL_crt3 = {
         "triangles degree 3, 4 positions",
         3, 4,
         {1. / 3., 0.2, 0.2, 0.6},
@@ -337,7 +337,7 @@ CUBARULE CRT3PG = {
 #define a2    1.081030181680702e-1
 #define b2    4.459484909159649e-1
 #define c2    b2
-CUBARULE CRT4 = {
+CUBARULE GLOBAL_crt4 = {
         "triangles degree 4, 6 positions",
         4, 6,
         {a1, b1, c1, a2, b2, c2},
@@ -364,7 +364,7 @@ CUBARULE CRT4 = {
 #define A    0.225
 #define B    0.1259391805448271
 #define C    0.1323941527885062
-CUBARULE CRT5 = {
+CUBARULE GLOBAL_crt5 = {
         "triangles degree 5, 7 positions",
         5, 7,
         {t, r, r, s, u, u, v},
@@ -411,7 +411,7 @@ CUBARULE CRT5PG = {
 #define a4    0.5158423343536001
 #define b4    0.2777161669764050
 #define c4    0.2064414986699949
-CUBARULE CRT7 = {
+CUBARULE GLOBAL_crt7 = {
         "triangles degree 7, 12 positions",
         7, 12,
         {a1, b1, c1, a2, b2, c2,
@@ -469,7 +469,7 @@ CUBARULE CRT7PG = {
 #define a4    8.394777409957211e-3
 #define b4    7.284923929554041e-1
 #define c4    2.631128296346387e-1
-CUBARULE CRT8 = {
+CUBARULE GLOBAL_crt8 = {
         "triangles degree 8, 16 positions",
         8, 16,
         {a0,
@@ -541,7 +541,7 @@ CUBARULE CRT8 = {
 #define a5    3.683841205473626e-2
 #define b5    7.411985987844980e-1
 #define c5    2.219629891607657e-1
-CUBARULE CRT9 = {
+CUBARULE GLOBAL_crt9 = {
         "triangles degree 9, 19 positions",
         9, 19,
         {a0,
@@ -599,7 +599,7 @@ CUBARULE CRT9 = {
 /* degree 1, 9 positions */
 #define    u 1.
 #define w 8./9.
-CUBARULE CRV1 = {
+CUBARULE GLOBAL_crv1 = {
         "boxes degree 1, 9 positions (the corners + center)",
         1 /* degree */, 9 /* positions */,
         {u, u, u, u, -u, -u, -u, -u, 0.},
@@ -612,7 +612,7 @@ CUBARULE CRV1 = {
 
 /* degree 3, 8 positions, product Gauss-Legendre formula, */
 #define    u 0.57735026918962576450    /* sqrt(1./3.) */
-CUBARULE CRV3PG = {
+CUBARULE GLOBAL_crv3pg = {
         "boxes degree 3, 8 positions, product Gauss formula",
         3 /* degree */, 8 /* positions */,
         {u, u, u, u, -u, -u, -u, -u},
@@ -623,22 +623,22 @@ CUBARULE CRV3PG = {
 #undef u
 
 /* quadrule[i-1] is a rule of degree = i (i=1..9) over [-1,1]^2 */
-CUBARULE *quadrule[9] = {&CRQ1, &CRQ2, &CRQ3, &CRQ4, &CRQ5, &CRQ6, &CRQ7, &CRQ8, &CRQ9};
+CUBARULE *quadrule[9] = {&GLOBAL_crq1, &GLOBAL_crq2, &GLOBAL_crq3, &GLOBAL_crq4, &GLOBAL_crq5, &GLOBAL_crq6, &GLOBAL_crq7, &GLOBAL_crq8, &GLOBAL_crq9};
 
 /* quadprodrule[i-1] is a product rule of degree 2i+1 over [-1,1]^2 */
-CUBARULE *quadprodrule[3] = {&CRQ3PG, &CRQ5PG, &CRQ7PG};
+CUBARULE *quadprodrule[3] = {&GLOBAL_crq3pg, &GLOBAL_crq5pg, &GLOBAL_crq7pg};
 
 /* boxesrule[i-1] is a degree i rule over [-1,1] ^ 3 */
-CUBARULE *boxesrule[1] = {&CRV1};
+CUBARULE *boxesrule[1] = {&GLOBAL_crv1};
 
 /* boxesprodrule[i-1] is a product rule of degree 2i+1 over [-1,1]^3 */
-CUBARULE *boxesprodrule[1] = {&CRV3PG};
+CUBARULE *boxesprodrule[1] = {&GLOBAL_crv3pg};
 
 /* This routine transforms a rule over [-1,1]^2 to the unit square [0,1]^2 */
 static void TransformQuadRule(CUBARULE *rule) {
     int k;
 
-    for ( k = 0; k < rule->nrnodes; k++ ) {
+    for ( k = 0; k < rule->numberOfNodes; k++ ) {
         rule->u[k] = (rule->u[k] + 1.) / 2.;
         rule->v[k] = (rule->v[k] + 1.) / 2.;
         rule->w[k] /= 4.;
@@ -649,7 +649,7 @@ static void TransformQuadRule(CUBARULE *rule) {
 static void TransformCubeRule(CUBARULE *rule) {
     int k;
 
-    for ( k = 0; k < rule->nrnodes; k++ ) {
+    for ( k = 0; k < rule->numberOfNodes; k++ ) {
         rule->u[k] = (rule->u[k] + 1.) / 2.;
         rule->v[k] = (rule->v[k] + 1.) / 2.;
         rule->t[k] = (rule->t[k] + 1.) / 2.;
@@ -660,7 +660,7 @@ static void TransformCubeRule(CUBARULE *rule) {
 /* This routine should be called during initialization of the program: it
  * transforms the rules over [-1,1]^2 to rules over the unit square [0,1]^2,
  * which we use to map to patches. */
-void FixCubatureRules() {
+void fixCubatureRules() {
     int i;
 
     for ( i = 0; i < 9; i++ ) {

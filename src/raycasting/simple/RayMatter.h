@@ -22,6 +22,6 @@ class RayMatter {
     void interrupt();
 };
 
-extern Raytracer RayMatting;
+extern Raytracer GLOBAL_rayCasting_RayMatting;
 
 #endif

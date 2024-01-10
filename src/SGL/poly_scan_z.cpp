@@ -17,11 +17,11 @@
 #include "SGL/sgl.h"
 
 /*
- * incrementalize_y: put intersection of line Y=y+.5 with edge between positions
+ * incrementalizeY: put intersection of line Y=y+.5 with edge between positions
  * p1 and p2 in p, put change with respect to y in dp
  */
-
-static void incrementalize_y(double *p1, double *p2, double *p, double *dp, int y) {
+static void
+incrementalizeY(double *p1, double *p2, double *p, double *dp, int y) {
     double dy, frac;
 
     dy = ((Poly_vert *) p2)->sy - ((Poly_vert *) p1)->sy;
@@ -108,7 +108,7 @@ static void scanline(int y, Poly_vert *l, Poly_vert *r, Window *win) {
  * sx=x+.5 and sy=y+.5, since sampling is done at pixel centers.
  */
 
-void poly_scan_z(Poly *p, Window *win)
+void polyScanZ(Poly *p, Window *win)
 /* polygon */
 /* 2-D screen space clipping window */
 {
@@ -139,7 +139,7 @@ void poly_scan_z(Poly *p, Window *win)
             if ( i < 0 ) {
                 i = p->n - 1;
             }
-            incrementalize_y((double *) &p->vert[li], (double *) &p->vert[i], (double *) &l, (double *) &dl, y);
+            incrementalizeY((double *) &p->vert[li], (double *) &p->vert[i], (double *) &l, (double *) &dl, y);
             ly = floor(p->vert[i].sy + .5);
             li = i;
         }
@@ -149,7 +149,7 @@ void poly_scan_z(Poly *p, Window *win)
             if ( i >= p->n ) {
                 i = 0;
             }
-            incrementalize_y((double *) &p->vert[ri], (double *) &p->vert[i], (double *) &r, (double *) &dr, y);
+            incrementalizeY((double *) &p->vert[ri], (double *) &p->vert[i], (double *) &r, (double *) &dr, y);
             ry = floor(p->vert[i].sy + .5);
             ri = i;
         }

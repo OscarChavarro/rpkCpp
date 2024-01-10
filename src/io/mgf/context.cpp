@@ -94,41 +94,41 @@ handleColorEntity(int ac, char **av)        /* handle color entity */
     switch ( mgfEntity(av[0])) {
         case MG_E_COLOR:    /* get/set color context */
             if ( ac > 4 ) {
-                return MG_EARGC;
+                return MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
             }
             if ( ac == 1 ) {        /* set unnamed color context */
                 c_uncolor = c_dfcolor;
                 c_ccolor = &c_uncolor;
                 c_ccname = nullptr;
-                return MG_OK;
+                return MGF_OK;
             }
             if ( !isnameWords(av[1])) {
                 return MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
             }
             lp = lu_find(&clr_tab, av[1]);    /* lookup context */
             if ( lp == nullptr) {
-                return MG_EMEM;
+                return MGF_ERROR_OUT_OF_MEMORY;
             }
             c_ccname = lp->key;
             c_ccolor = (MgfColorContext *) lp->data;
             if ( ac == 2 ) {        /* reestablish previous context */
                 if ( c_ccolor == nullptr) {
-                    return MG_EUNDEF;
+                    return MGF_ERROR_UNDEFINED_REFERENCE;
                 }
-                return MG_OK;
+                return MGF_OK;
             }
             if ( av[2][0] != '=' || av[2][1] ) {
-                return MG_ETYPE;
+                return MGF_ERROR_ARGUMENT_TYPE;
             }
             if ( c_ccolor == nullptr) {    /* create new color context */
                 lp->key = (char *) malloc(strlen(av[1]) + 1);
                 if ( lp->key == nullptr) {
-                    return MG_EMEM;
+                    return MGF_ERROR_OUT_OF_MEMORY;
                 }
                 strcpy(lp->key, av[1]);
                 lp->data = (char *) malloc(sizeof(MgfColorContext));
                 if ( lp->data == nullptr) {
-                    return MG_EMEM;
+                    return MGF_ERROR_OUT_OF_MEMORY;
                 }
                 c_ccname = lp->key;
                 c_ccolor = (MgfColorContext *) lp->data;
@@ -138,24 +138,24 @@ handleColorEntity(int ac, char **av)        /* handle color entity */
             if ( ac == 3 ) {        /* use default template */
                 *c_ccolor = c_dfcolor;
                 c_ccolor->clock = i + 1;
-                return MG_OK;
+                return MGF_OK;
             }
             lp = lu_find(&clr_tab, av[3]);    /* lookup template */
             if ( lp == nullptr) {
-                return MG_EMEM;
+                return MGF_ERROR_OUT_OF_MEMORY;
             }
             if ( lp->data == nullptr) {
-                return MG_EUNDEF;
+                return MGF_ERROR_UNDEFINED_REFERENCE;
             }
             *c_ccolor = *(MgfColorContext *) lp->data;
             c_ccolor->clock = i + 1;
-            return MG_OK;
+            return MGF_OK;
         case MG_E_CXY:        /* assign CIE XY value */
             if ( ac != 3 ) {
-                return MG_EARGC;
+                return MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
             }
             if ( !isfltWords(av[1]) | !isfltWords(av[2])) {
-                return MG_ETYPE;
+                return MGF_ERROR_ARGUMENT_TYPE;
             }
             c_ccolor->cx = atof(av[1]);
             c_ccolor->cy = atof(av[2]);
@@ -165,49 +165,49 @@ handleColorEntity(int ac, char **av)        /* handle color entity */
                 return MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
             }
             c_ccolor->clock++;
-            return MG_OK;
+            return MGF_OK;
         case MG_E_CSPEC:    /* assign spectral values */
             if ( ac < 5 ) {
-                return MG_EARGC;
+                return MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
             }
             if ( !isfltWords(av[1]) || !isfltWords(av[2])) {
-                return MG_ETYPE;
+                return MGF_ERROR_ARGUMENT_TYPE;
             }
             return setspectrum(c_ccolor, atof(av[1]), atof(av[2]),
                                 ac - 3, av + 3);
         case MG_E_CCT:        /* assign black body spectrum */
             if ( ac != 2 ) {
-                return MG_EARGC;
+                return MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
             }
             if ( !isfltWords(av[1])) {
-                return MG_ETYPE;
+                return MGF_ERROR_ARGUMENT_TYPE;
             }
             return setbbtemp(c_ccolor, atof(av[1]));
         case MG_E_CMIX:        /* mix colors */
             if ( ac < 5 || (ac - 1) % 2 ) {
-                return MG_EARGC;
+                return MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
             }
             if ( !isfltWords(av[1])) {
-                return MG_ETYPE;
+                return MGF_ERROR_ARGUMENT_TYPE;
             }
             wsum = atof(av[1]);
             if ((lp = lu_find(&clr_tab, av[2])) == nullptr) {
-                return MG_EMEM;
+                return MGF_ERROR_OUT_OF_MEMORY;
             }
             if ( lp->data == nullptr) {
-                return MG_EUNDEF;
+                return MGF_ERROR_UNDEFINED_REFERENCE;
             }
             *c_ccolor = *(MgfColorContext *) lp->data;
             for ( i = 3; i < ac; i += 2 ) {
                 if ( !isfltWords(av[i])) {
-                    return MG_ETYPE;
+                    return MGF_ERROR_ARGUMENT_TYPE;
                 }
                 w = atof(av[i]);
                 if ((lp = lu_find(&clr_tab, av[i + 1])) == nullptr) {
-                    return MG_EMEM;
+                    return MGF_ERROR_OUT_OF_MEMORY;
                 }
                 if ( lp->data == nullptr) {
-                    return MG_EUNDEF;
+                    return MGF_ERROR_UNDEFINED_REFERENCE;
                 }
                 mixcolors(c_ccolor, wsum, c_ccolor,
                           w, (MgfColorContext *) lp->data);
@@ -217,9 +217,9 @@ handleColorEntity(int ac, char **av)        /* handle color entity */
                 return MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
             }
             c_ccolor->clock++;
-            return MG_OK;
+            return MGF_OK;
     }
-    return MG_EUNK;
+    return MGF_ERROR_UNKNOWN_ENTITY;
 }
 
 
@@ -232,41 +232,41 @@ handleMaterialEntity(int ac, char **av)        /* handle material entity */
     switch ( mgfEntity(av[0])) {
         case MG_E_MATERIAL:    /* get/set material context */
             if ( ac > 4 ) {
-                return MG_EARGC;
+                return MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
             }
             if ( ac == 1 ) {        /* set unnamed material context */
                 c_unmaterial = c_dfmaterial;
                 GLOBAL_mgf_currentMaterial = &c_unmaterial;
                 GLOBAL_mgf_currentMaterialName = nullptr;
-                return MG_OK;
+                return MGF_OK;
             }
             if ( !isnameWords(av[1])) {
                 return MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
             }
             lp = lu_find(&mat_tab, av[1]);    /* lookup context */
             if ( lp == nullptr) {
-                return MG_EMEM;
+                return MGF_ERROR_OUT_OF_MEMORY;
             }
             GLOBAL_mgf_currentMaterialName = lp->key;
             GLOBAL_mgf_currentMaterial = (MgfMaterialContext *) lp->data;
             if ( ac == 2 ) {        /* reestablish previous context */
                 if ( GLOBAL_mgf_currentMaterial == nullptr) {
-                    return MG_EUNDEF;
+                    return MGF_ERROR_UNDEFINED_REFERENCE;
                 }
-                return MG_OK;
+                return MGF_OK;
             }
             if ( av[2][0] != '=' || av[2][1] ) {
-                return MG_ETYPE;
+                return MGF_ERROR_ARGUMENT_TYPE;
             }
             if ( GLOBAL_mgf_currentMaterial == nullptr) {    /* create new material */
                 lp->key = (char *) malloc(strlen(av[1]) + 1);
                 if ( lp->key == nullptr) {
-                    return MG_EMEM;
+                    return MGF_ERROR_OUT_OF_MEMORY;
                 }
                 strcpy(lp->key, av[1]);
                 lp->data = (char *) malloc(sizeof(MgfMaterialContext));
                 if ( lp->data == nullptr) {
-                    return MG_EMEM;
+                    return MGF_ERROR_OUT_OF_MEMORY;
                 }
                 GLOBAL_mgf_currentMaterialName = lp->key;
                 GLOBAL_mgf_currentMaterial = (MgfMaterialContext *) lp->data;
@@ -276,24 +276,24 @@ handleMaterialEntity(int ac, char **av)        /* handle material entity */
             if ( ac == 3 ) {        /* use default template */
                 *GLOBAL_mgf_currentMaterial = c_dfmaterial;
                 GLOBAL_mgf_currentMaterial->clock = i + 1;
-                return MG_OK;
+                return MGF_OK;
             }
             lp = lu_find(&mat_tab, av[3]);    /* lookup template */
             if ( lp == nullptr) {
-                return MG_EMEM;
+                return MGF_ERROR_OUT_OF_MEMORY;
             }
             if ( lp->data == nullptr) {
-                return MG_EUNDEF;
+                return MGF_ERROR_UNDEFINED_REFERENCE;
             }
             *GLOBAL_mgf_currentMaterial = *(MgfMaterialContext *) lp->data;
             GLOBAL_mgf_currentMaterial->clock = i + 1;
-            return MG_OK;
+            return MGF_OK;
         case MG_E_IR:        /* set index of refraction */
             if ( ac != 3 ) {
-                return MG_EARGC;
+                return MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
             }
             if ( !isfltWords(av[1]) || !isfltWords(av[2])) {
-                return MG_ETYPE;
+                return MGF_ERROR_ARGUMENT_TYPE;
             }
             GLOBAL_mgf_currentMaterial->nr = atof(av[1]);
             GLOBAL_mgf_currentMaterial->ni = atof(av[2]);
@@ -301,13 +301,13 @@ handleMaterialEntity(int ac, char **av)        /* handle material entity */
                 return MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
             }
             GLOBAL_mgf_currentMaterial->clock++;
-            return MG_OK;
+            return MGF_OK;
         case MG_E_RD:        /* set diffuse reflectance */
             if ( ac != 2 ) {
-                return MG_EARGC;
+                return MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
             }
             if ( !isfltWords(av[1])) {
-                return MG_ETYPE;
+                return MGF_ERROR_ARGUMENT_TYPE;
             }
             GLOBAL_mgf_currentMaterial->rd = atof(av[1]);
             if ( GLOBAL_mgf_currentMaterial->rd < 0. || GLOBAL_mgf_currentMaterial->rd > 1. ) {
@@ -315,13 +315,13 @@ handleMaterialEntity(int ac, char **av)        /* handle material entity */
             }
             GLOBAL_mgf_currentMaterial->rd_c = *c_ccolor;
             GLOBAL_mgf_currentMaterial->clock++;
-            return MG_OK;
+            return MGF_OK;
         case MG_E_ED:        /* set diffuse emittance */
             if ( ac != 2 ) {
-                return MG_EARGC;
+                return MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
             }
             if ( !isfltWords(av[1])) {
-                return MG_ETYPE;
+                return MGF_ERROR_ARGUMENT_TYPE;
             }
             GLOBAL_mgf_currentMaterial->ed = atof(av[1]);
             if ( GLOBAL_mgf_currentMaterial->ed < 0. ) {
@@ -329,13 +329,13 @@ handleMaterialEntity(int ac, char **av)        /* handle material entity */
             }
             GLOBAL_mgf_currentMaterial->ed_c = *c_ccolor;
             GLOBAL_mgf_currentMaterial->clock++;
-            return MG_OK;
+            return MGF_OK;
         case MG_E_TD:        /* set diffuse transmittance */
             if ( ac != 2 ) {
-                return MG_EARGC;
+                return MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
             }
             if ( !isfltWords(av[1])) {
-                return MG_ETYPE;
+                return MGF_ERROR_ARGUMENT_TYPE;
             }
             GLOBAL_mgf_currentMaterial->td = atof(av[1]);
             if ( GLOBAL_mgf_currentMaterial->td < 0. || GLOBAL_mgf_currentMaterial->td > 1. ) {
@@ -343,13 +343,13 @@ handleMaterialEntity(int ac, char **av)        /* handle material entity */
             }
             GLOBAL_mgf_currentMaterial->td_c = *c_ccolor;
             GLOBAL_mgf_currentMaterial->clock++;
-            return MG_OK;
+            return MGF_OK;
         case MG_E_RS:        /* set specular reflectance */
             if ( ac != 3 ) {
-                return MG_EARGC;
+                return MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
             }
             if ( !isfltWords(av[1]) || !isfltWords(av[2])) {
-                return MG_ETYPE;
+                return MGF_ERROR_ARGUMENT_TYPE;
             }
             GLOBAL_mgf_currentMaterial->rs = atof(av[1]);
             GLOBAL_mgf_currentMaterial->rs_a = atof(av[2]);
@@ -359,13 +359,13 @@ handleMaterialEntity(int ac, char **av)        /* handle material entity */
             }
             GLOBAL_mgf_currentMaterial->rs_c = *c_ccolor;
             GLOBAL_mgf_currentMaterial->clock++;
-            return MG_OK;
+            return MGF_OK;
         case MG_E_TS:        /* set specular transmittance */
             if ( ac != 3 ) {
-                return MG_EARGC;
+                return MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
             }
             if ( !isfltWords(av[1]) || !isfltWords(av[2])) {
-                return MG_ETYPE;
+                return MGF_ERROR_ARGUMENT_TYPE;
             }
             GLOBAL_mgf_currentMaterial->ts = atof(av[1]);
             GLOBAL_mgf_currentMaterial->ts_a = atof(av[2]);
@@ -375,13 +375,13 @@ handleMaterialEntity(int ac, char **av)        /* handle material entity */
             }
             GLOBAL_mgf_currentMaterial->ts_c = *c_ccolor;
             GLOBAL_mgf_currentMaterial->clock++;
-            return MG_OK;
+            return MGF_OK;
         case MG_E_SIDES:    /* set number of sides */
             if ( ac != 2 ) {
-                return MG_EARGC;
+                return MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
             }
             if ( !isintWords(av[1])) {
-                return MG_ETYPE;
+                return MGF_ERROR_ARGUMENT_TYPE;
             }
             i = atoi(av[1]);
             if ( i == 1 ) {
@@ -392,9 +392,9 @@ handleMaterialEntity(int ac, char **av)        /* handle material entity */
                 return MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
             }
             GLOBAL_mgf_currentMaterial->clock++;
-            return MG_OK;
+            return MGF_OK;
     }
-    return MG_EUNK;
+    return MGF_ERROR_UNKNOWN_ENTITY;
 }
 
 int
@@ -406,42 +406,42 @@ handleVertexEntity(int ac, char **av)        /* handle a vertex entity */
     switch ( mgfEntity(av[0])) {
         case MG_E_VERTEX:    /* get/set vertex context */
             if ( ac > 4 ) {
-                return MG_EARGC;
+                return MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
             }
             if ( ac == 1 ) {        /* set unnamed vertex context */
                 c_unvertex = c_dfvertex;
                 c_cvertex = &c_unvertex;
                 c_cvname = nullptr;
-                return MG_OK;
+                return MGF_OK;
             }
             if ( !isnameWords(av[1])) {
                 return MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
             }
             lp = lu_find(&vtx_tab, av[1]);    /* lookup context */
             if ( lp == nullptr) {
-                return MG_EMEM;
+                return MGF_ERROR_OUT_OF_MEMORY;
             }
             c_cvname = lp->key;
             c_cvertex = (MgfVertexContext *) lp->data;
             if ( ac == 2 ) {        /* reestablish previous context */
                 if ( c_cvertex == nullptr) {
-                    return MG_EUNDEF;
+                    return MGF_ERROR_UNDEFINED_REFERENCE;
                 }
-                return MG_OK;
+                return MGF_OK;
             }
             if ( av[2][0] != '=' || av[2][1] ) {
-                return MG_ETYPE;
+                return MGF_ERROR_ARGUMENT_TYPE;
             }
             if ( c_cvertex == nullptr) {    /* create new vertex context */
                 c_cvname = (char *) malloc(strlen(av[1]) + 1);
                 if ( !c_cvname ) {
-                    return MG_EMEM;
+                    return MGF_ERROR_OUT_OF_MEMORY;
                 }
                 strcpy(c_cvname, av[1]);
                 lp->key = c_cvname;
                 c_cvertex = (MgfVertexContext *) malloc(sizeof(MgfVertexContext));
                 if ( !c_cvertex ) {
-                    return MG_EMEM;
+                    return MGF_ERROR_OUT_OF_MEMORY;
                 }
                 lp->data = (char *) c_cvertex;
             }
@@ -449,46 +449,46 @@ handleVertexEntity(int ac, char **av)        /* handle a vertex entity */
             if ( ac == 3 ) {        /* use default template */
                 *c_cvertex = c_dfvertex;
                 /* c_cvertex->clock = i + 1; */
-                return MG_OK;
+                return MGF_OK;
             }
             lp = lu_find(&vtx_tab, av[3]);    /* lookup template */
             if ( lp == nullptr) {
-                return MG_EMEM;
+                return MGF_ERROR_OUT_OF_MEMORY;
             }
             if ( lp->data == nullptr) {
-                return MG_EUNDEF;
+                return MGF_ERROR_UNDEFINED_REFERENCE;
             }
             *c_cvertex = *(MgfVertexContext *) lp->data;
             /* c_cvertex->clock = i + 1; */
             c_cvertex->clock++;
-            return MG_OK;
+            return MGF_OK;
         case MG_E_POINT:    /* set point */
             if ( ac != 4 ) {
-                return MG_EARGC;
+                return MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
             }
             if ( !isfltWords(av[1]) || !isfltWords(av[2]) || !isfltWords(av[3])) {
-                return MG_ETYPE;
+                return MGF_ERROR_ARGUMENT_TYPE;
             }
             c_cvertex->p[0] = atof(av[1]);
             c_cvertex->p[1] = atof(av[2]);
             c_cvertex->p[2] = atof(av[3]);
             c_cvertex->clock++;
-            return MG_OK;
+            return MGF_OK;
         case MG_E_NORMAL:    /* set normal */
             if ( ac != 4 ) {
-                return MG_EARGC;
+                return MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
             }
             if ( !isfltWords(av[1]) || !isfltWords(av[2]) || !isfltWords(av[3])) {
-                return MG_ETYPE;
+                return MGF_ERROR_ARGUMENT_TYPE;
             }
             c_cvertex->n[0] = atof(av[1]);
             c_cvertex->n[1] = atof(av[2]);
             c_cvertex->n[2] = atof(av[3]);
             normalize(c_cvertex->n);
             c_cvertex->clock++;
-            return MG_OK;
+            return MGF_OK;
     }
-    return MG_EUNK;
+    return MGF_ERROR_UNKNOWN_ENTITY;
 }
 
 
@@ -618,7 +618,7 @@ setspectrum(MgfColorContext *clr, double wlmin, double wlmax, int ac, char **av)
         n = 0;
         while ( boxpos < i + .5 && pos < ac ) {
             if ( !isfltWords(av[pos])) {
-                return MG_ETYPE;
+                return MGF_ERROR_ARGUMENT_TYPE;
             }
             va[i] += atof(av[pos++]);
             n++;
@@ -660,7 +660,7 @@ setspectrum(MgfColorContext *clr, double wlmin, double wlmax, int ac, char **av)
     }
     clr->flags = C_CDSPEC | C_CSSPEC;
     clr->clock++;
-    return MG_OK;
+    return MGF_OK;
 }
 
 static void
@@ -732,7 +732,7 @@ setbbtemp(MgfColorContext *clr, double tk)        /* set black body spectrum */
     }
     clr->flags = C_CDSPEC | C_CSSPEC;
     clr->clock++;
-    return MG_OK;
+    return MGF_OK;
 }
 
 #undef    C1

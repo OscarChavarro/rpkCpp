@@ -46,21 +46,17 @@ class Window {        /* WINDOW: A DISCRETE 2-D RECTANGLE */
     int x1, y1;            /* xmax and ymax (inclusive) */
 };
 
-#define POLY_MASK(elem) (1 << (&poly_dummy->elem - (double *)poly_dummy))
+#define POLY_MASK(elem) (1 << (&GLOBAL_sgl_polyDummy->elem - (double *)GLOBAL_sgl_polyDummy))
 
-#define POLY_CLIP_OUT 0        /* polygon entirely outside box */
-#define POLY_CLIP_PARTIAL 1    /* polygon partially inside */
-#define POLY_CLIP_IN 2        /* polygon entirely inside box */
+#define POLY_CLIP_OUT 0 /* polygon entirely outside box */
+#define POLY_CLIP_PARTIAL 1 /* polygon partially inside */
+#define POLY_CLIP_IN 2 /* polygon entirely inside box */
 
-extern Poly_vert *poly_dummy;    /* used superficially by POLY_MASK macro */
+extern Poly_vert *GLOBAL_sgl_polyDummy; // Used superficially by POLY_MASK macro
 
-int poly_clip_to_box(Poly *p1, Poly_box *box);
-
-void poly_clip_to_halfspace(Poly *p, Poly *q, int index, double sign, double k);
-
-/* optimized versions for flat shading without and with Z buffering. */
-void poly_scan_flat(Poly *p, Window *win);
-
-void poly_scan_z(Poly *p, Window *win);
+int polyClipToBox(Poly *p1, Poly_box *box);
+void polyClipToHalfSpace(Poly *p, Poly *q, int index, double sign, double k);
+void polyScanFlat(Poly *p, Window *win);
+void polyScanZ(Poly *p, Window *win);
 
 #endif

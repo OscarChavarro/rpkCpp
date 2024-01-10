@@ -256,12 +256,12 @@ properties) to return.
 */
 RayHit *
 geomDiscretizationIntersect(
-        Geometry *geom,
-        Ray *ray,
-        float minimumDistance,
-        float *maximumDistance,
-        int hitFlags,
-        RayHit *hitStore)
+    Geometry *geom,
+    Ray *ray,
+    float minimumDistance,
+    float *maximumDistance,
+    int hitFlags,
+    RayHit *hitStore)
 {
     Vector3D vTmp;
     float nMaximumDistance;

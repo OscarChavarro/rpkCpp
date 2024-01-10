@@ -20,7 +20,7 @@ extern int renderInitialized();
 extern void renderScene();
 
 /* Patch ID rendering. Returns an array of size (*x)*(*y) containing the IDs of
- * the patches visible through each pixel or 0 if the background is visible through 
+ * the patches visible through each pixel or 0 if the background is visible through
  * the pixel. x is normally the width and y the height of the canvas window. */
 extern unsigned long *renderIds(long *x, long *y);
 
@@ -46,10 +46,6 @@ extern void renderPatch(Patch *patch);
 /* renders a line from point p to point q, for eg debugging */
 extern void renderLine(Vector3D *x, Vector3D *y);
 
-/* renders an anti aliased line from p to q. If
-   anti-aliasing is not supported, a normal line is drawn */
-extern void RenderAALine(Vector3D *p, Vector3D *q);
-
 /* Start a strip */
 extern void renderBeginTriangleStrip();
 
@@ -60,13 +56,13 @@ extern void renderNextTrianglePoint(Vector3D *point, RGB *col);
 extern void renderEndTriangleStrip();
 
 /* renders a bounding box. */
-extern void RenderBounds(BOUNDINGBOX bounds);
+extern void renderBounds(BOUNDINGBOX bounds);
 
 /* renders the bounding boxes of all objects in the scene */
-extern void RenderBoundingBoxHierarchy();
+extern void renderBoundingBoxHierarchy();
 
 /* renders the cluster hierarchy bounding boxes */
-extern void RenderClusterHierarchy();
+extern void renderClusterHierarchy();
 
 /* saves a RGB image in the front buffer */
 extern void saveScreen(char *fileName, FILE *fp, int isPipe);
@@ -76,7 +72,7 @@ extern void renderCameras();
 
 /* rerenders last raytraced image if any, Returns TRUE if there is one,
  * and FALSE if not. */
-extern int RenderRayTraced();
+extern int renderRayTraced();
 
 /* sets line width for outlines etc... */
 extern void renderSetLineWidth(float width);
@@ -119,41 +115,28 @@ class RENDEROPTIONS {
     use_background;         /* use background image when rendering */
 };
 
-extern RENDEROPTIONS renderopts;
+extern RENDEROPTIONS GLOBAL_render_renderOptions;
 
-/* switches backface culling ... on when the argument is nonzero and off
- * if the argument is zero */
-extern void RenderSetBackfaceCulling(char truefalse);
-
-extern void RenderSetSmoothShading(char truefalse);
-
-extern void RenderSetOutlineDrawing(char truefalse);
-
-extern void RenderSetBoundingBoxDrawing(char truefalse);
-
-extern void RenderSetClusterDrawing(char truefalse);
-
-extern void RenderUseDisplayLists(char truefalse);
-
-extern void RenderUseFrustumCulling(char truefalse);
-
-extern void RenderSetNoShading(char truefalse);
-
-/* color for drawing outlines ... */
-extern void RenderSetOutlineColor(RGB *outline_color);
-
-extern void RenderSetBoundingBoxColor(RGB *outline_color);
-
-extern void RenderSetClusterColor(RGB *outline_color);
+extern void renderSetBackfaceCulling(char truefalse);
+extern void renderSetSmoothShading(char truefalse);
+extern void renderSetOutlineDrawing(char truefalse);
+extern void renderSetBoundingBoxDrawing(char truefalse);
+extern void renderSetClusterDrawing(char truefalse);
+extern void renderUseDisplayLists(char truefalse);
+extern void renderUseFrustumCulling(char truefalse);
+extern void renderSetNoShading(char truefalse);
+extern void renderSetOutlineColor(RGB *outline_color);
+extern void renderSetBoundingBoxColor(RGB *outline_color);
+extern void renderSetClusterColor(RGB *cluster_color);
 
 /* computes front- and backclipping plane distance for the current GLOBAL_scene_world and
  * GLOBAL_camera_mainCamera */
-extern void RenderGetNearFar(float *near, float *far);
+extern void renderGetNearFar(float *near, float *far);
 
 /* indicates that the scene has modified, so a new display list should be
  * compiled and rendered from now on. Only relevant when using display lists. */
 extern void renderNewDisplayList();
 
-extern void ParseRenderingOptions(int *argc, char **argv);
+extern void parseRenderingOptions(int *argc, char **argv);
 
 #endif

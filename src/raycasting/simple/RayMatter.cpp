@@ -179,16 +179,16 @@ static void
 Initialize() {
 }
 
-Raytracer RayMatting = {
-        "RayMatting",
-        4,
-        "Ray Matting",
-        rayMattingDefaults,
-        rayMattingParseOptions,
-        Initialize,
-        IRayMatte,
-        Redisplay,
-        SaveImage,
-        Interrupt,
-        Terminate
+Raytracer GLOBAL_rayCasting_RayMatting = {
+    "RayMatting",
+    4,
+    "Ray Matting",
+    rayMattingDefaults,
+    rayMattingParseOptions,
+    Initialize,
+    IRayMatte,
+    Redisplay,
+    SaveImage,
+    Interrupt,
+    Terminate
 };

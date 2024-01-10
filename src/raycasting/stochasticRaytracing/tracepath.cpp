@@ -15,7 +15,7 @@ static double (*globalBirthProbability)(Patch *);
 static double globalSumProbabilities;
 
 /**
-Initialises nrnodes, nodesalloced to zero and 'nodes' to the nullptr pointer
+Initialises numberOfNodes, nodesalloced to zero and 'nodes' to the nullptr pointer
 */
 static void
 initPath(PATH *path) {
@@ -24,7 +24,7 @@ initPath(PATH *path) {
 }
 
 /**
-Sets nrnodes to zero (forgets old path, but does not free the memory for the nodes
+Sets numberOfNodes to zero (forgets old path, but does not free the memory for the nodes
 */
 static void
 clearPath(PATH *path) {

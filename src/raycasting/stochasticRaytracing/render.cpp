@@ -165,7 +165,7 @@ static void RenderTriangle(Vertex *v1, Vertex *v2, Vertex *v3) {
     col[2] = v3->color;
     renderPolygonGouraud(3, vert, col);
 
-    if ( renderopts.draw_outlines ) {
+    if ( GLOBAL_render_renderOptions.draw_outlines ) {
         int i;
         for ( i = 0; i < 3; i++ ) {
             Vector3D d;
@@ -173,7 +173,7 @@ static void RenderTriangle(Vertex *v1, Vertex *v2, Vertex *v3) {
             VECTORSUMSCALED(vert[i], 0.01, d, vert[i]);
         }
 
-        renderSetColor(&renderopts.outline_color);
+        renderSetColor(&GLOBAL_render_renderOptions.outline_color);
         renderLine(&vert[0], &vert[1]);
         renderLine(&vert[1], &vert[2]);
         renderLine(&vert[2], &vert[0]);
@@ -194,7 +194,7 @@ static void RenderQuadrilateral(Vertex *v1, Vertex *v2, Vertex *v3, Vertex *v4) 
     col[3] = v4->color;
     renderPolygonGouraud(4, vert, col);
 
-    if ( renderopts.draw_outlines ) {
+    if ( GLOBAL_render_renderOptions.draw_outlines ) {
         int i;
         for ( i = 0; i < 4; i++ ) {
             Vector3D d;
@@ -202,7 +202,7 @@ static void RenderQuadrilateral(Vertex *v1, Vertex *v2, Vertex *v3, Vertex *v4) 
             VECTORSUMSCALED(vert[i], 0.01, d, vert[i]);
         }
 
-        renderSetColor(&renderopts.outline_color);
+        renderSetColor(&GLOBAL_render_renderOptions.outline_color);
         renderLine(&vert[0], &vert[1]);
         renderLine(&vert[1], &vert[2]);
         renderLine(&vert[2], &vert[3]);
@@ -368,7 +368,7 @@ void RenderElementOutline(ELEMENT *elem) {
         VECTORSUMSCALED(verts[i], 0.0001, d, verts[i]);
     }
 
-    renderSetColor(&renderopts.outline_color);
+    renderSetColor(&GLOBAL_render_renderOptions.outline_color);
     renderLine(&verts[0], &verts[1]);
     renderLine(&verts[1], &verts[2]);
     if ( elem->nrvertices == 3 ) {
@@ -383,7 +383,7 @@ void
 McrRenderElement(ELEMENT *elem) {
     Vector3D verts[4];
 
-    if ( renderopts.smooth_shading && GLOBAL_stochasticRaytracing_hierarchy.tvertex_elimination ) {
+    if ( GLOBAL_render_renderOptions.smooth_shading && GLOBAL_stochasticRaytracing_hierarchy.tvertex_elimination ) {
         Vertex *m[4];
         int i, n;
         for ( i = 0, n = 0; i < elem->nrvertices; i++ ) {
@@ -408,7 +408,7 @@ McrRenderElement(ELEMENT *elem) {
         verts[3] = *(elem->vertex[3]->point);
     }
 
-    if ( renderopts.smooth_shading ) {
+    if ( GLOBAL_render_renderOptions.smooth_shading ) {
         RGB vertcols[4];
         vertcols[0] = elem->vertex[0]->color;
         vertcols[1] = elem->vertex[1]->color;
@@ -425,7 +425,7 @@ McrRenderElement(ELEMENT *elem) {
         renderPolygonFlat(elem->nrvertices, verts);
     }
 
-    if ( renderopts.draw_outlines )
+    if ( GLOBAL_render_renderOptions.draw_outlines )
         RenderElementOutline(elem);
 }
 
@@ -448,7 +448,7 @@ COLOR ElementDisplayRadiance(ELEMENT *elem) {
 COLOR ElementDisplayRadianceAtPoint(ELEMENT *elem, double u, double v) {
     COLOR radiance;
     if ( elem->basis->size == 1 ) {
-        if ( renderopts.smooth_shading ) {
+        if ( GLOBAL_render_renderOptions.smooth_shading ) {
             /* do Gouraud interpolation if required */
             int i;
             COLOR rad[4];

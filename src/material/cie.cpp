@@ -40,14 +40,14 @@ static float CIE_y_w = 0.3333333333;
 static float globalLuminousEfficacy = WHITE_EFFICACY;
 
 /* ---------------------------------------------------------------------------
-  `globalXyz2RgbMat'
-  `globalRgb2XyzMat'
+  `GLOBAL_xyz2RgbMat'
+  `GLOBAL_rgb2XyzMat'
 
   Conversion matrices for CIEXYZ<->RGB conversions. The actual values are
   set up according to specified monitor primaries. 
   ------------------------------------------------------------------------- */
-static float globalXyz2RgbMat[3][3];
-static float globalRgb2XyzMat[3][3];
+static float GLOBAL_xyz2RgbMat[3][3];
+static float GLOBAL_rgb2XyzMat[3][3];
 
 /* ---------------------------------------------------------------------------
                                                              PRIVATE FUNCTIONS
@@ -139,7 +139,7 @@ computeColorConversionTransforms(float xr, float yr,
     CIE_x_w = xw;
     CIE_y_w = yw;
 
-    setColorTransform(globalXyz2RgbMat,    /* XYZ to RGB */
+    setColorTransform(GLOBAL_xyz2RgbMat,    /* XYZ to RGB */
                       (CIE_y_g - CIE_y_b - CIE_x_b * CIE_y_g + CIE_y_b * CIE_x_g) / CIE_C_rD,
                       (CIE_x_b - CIE_x_g - CIE_x_b * CIE_y_g + CIE_x_g * CIE_y_b) / CIE_C_rD,
                       (CIE_x_g * CIE_y_b - CIE_x_b * CIE_y_g) / CIE_C_rD,
@@ -150,7 +150,7 @@ computeColorConversionTransforms(float xr, float yr,
                       (CIE_x_g - CIE_x_r - CIE_x_g * CIE_y_r + CIE_x_r * CIE_y_g) / CIE_C_bD,
                       (CIE_x_r * CIE_y_g - CIE_x_g * CIE_y_r) / CIE_C_bD);
 
-    setColorTransform(globalRgb2XyzMat,    /* RGB to XYZ */
+    setColorTransform(GLOBAL_rgb2XyzMat,    /* RGB to XYZ */
                       CIE_x_r * CIE_C_rD / CIE_D, CIE_x_g * CIE_C_gD / CIE_D, CIE_x_b * CIE_C_bD / CIE_D,
                       CIE_y_r * CIE_C_rD / CIE_D, CIE_y_g * CIE_C_gD / CIE_D, CIE_y_b * CIE_C_bD / CIE_D,
                       (1. - CIE_x_r - CIE_y_r) * CIE_C_rD / CIE_D,
@@ -163,7 +163,7 @@ computeColorConversionTransforms(float xr, float yr,
   ------------------------------------------------------------------------- */
 void
 transformColorFromXYZ2RGB(float *xyz, float *rgb) {
-    colorTransform(xyz, globalXyz2RgbMat, rgb);
+    colorTransform(xyz, GLOBAL_xyz2RgbMat, rgb);
 }
 
 /* ---------------------------------------------------------------------------

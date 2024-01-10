@@ -434,7 +434,7 @@ getVertex(char *name) {
     }
 
     theVertex = (Vertex *) (vp->client_data);
-    if ( !theVertex || vp->clock >= 1 || vp->xid != xf_xid(xf_context) || is0vect(vp->n)) {
+    if ( !theVertex || vp->clock >= 1 || vp->xid != xf_xid(GLOBAL_mgf_xfContext) || is0vect(vp->n)) {
         /* new vertex, or updated vertex or same vertex, but other transform, or
          * vertex without normal: create a new Vertex. */
         FVECT vert;
@@ -442,17 +442,17 @@ getVertex(char *name) {
         Vector3D *theNormal;
         Vector3D *thePoint;
 
-        xf_xfmpoint(vert, vp->p);
+        mgfTransformPoint(vert, vp->p);
         thePoint = installPoint(vert[0], vert[1], vert[2]);
         if ( is0vect(vp->n)) {
             theNormal = (Vector3D *) nullptr;
         } else {
-            xf_xfmvect(norm, vp->n);
+            mgfTransformVector(norm, vp->n);
             theNormal = installNormal(norm[0], norm[1], norm[2]);
         }
         theVertex = installVertex(thePoint, theNormal, name);
         vp->client_data = (void *) theVertex;
-        vp->xid = xf_xid(xf_context);
+        vp->xid = xf_xid(GLOBAL_mgf_xfContext);
     }
     vp->clock = 0;
 
@@ -487,7 +487,7 @@ static Patch *
 newFace(Vertex *v1, Vertex *v2, Vertex *v3, Vertex *v4, Vector3D *normal) {
     Patch *theFace;
 
-    if ( xf_context && xf_context->rev ) {
+    if ( GLOBAL_mgf_xfContext && GLOBAL_mgf_xfContext->rev ) {
         theFace = patchCreate(v4 ? 4 : 3, v3, v2, v1, v4);
     } else {
         theFace = patchCreate(v4 ? 4 : 3, v1, v2, v3, v4);
@@ -779,7 +779,7 @@ doComplexFace(int n, Vertex **v, Vector3D *normal, Vertex **backv, Vector3D *bac
 
         if ( p0 == start ) {
             doError("misbuilt polygonal face");
-            return MG_OK;    /* don't stop parsing the input however. */
+            return MGF_OK;    /* don't stop parsing the input however. */
         }
 
         if ( fabs(a) > EPSILON ) {    /* avoid degenerate faces */
@@ -796,7 +796,7 @@ doComplexFace(int n, Vertex **v, Vector3D *normal, Vertex **backv, Vector3D *bac
         corners--;
     }
 
-    return MG_OK;
+    return MGF_OK;
 }
 
 static int
@@ -808,13 +808,13 @@ handleFaceEntity(int argc, char **argv) {
 
     if ( argc < 4 ) {
         doError("too few vertices in face");
-        return MG_OK;    /* don't stop parsing the input */
+        return MGF_OK;    /* don't stop parsing the input */
     }
 
     if ( argc - 1 > MAXIMUM_FACE_VERTICES ) {
         doWarning(
                 "too many vertices in face. Recompile the program with larger MAXIMUM_FACE_VERTICES constant in readmgf.c");
-        return MG_OK;    /* no reason to stop parsing the input */
+        return MGF_OK;    /* no reason to stop parsing the input */
     }
 
     if ( !globalInComplex ) {
@@ -829,7 +829,7 @@ handleFaceEntity(int argc, char **argv) {
 
     for ( i = 0; i < argc - 1; i++ ) {
         if ((v[i] = getVertex(argv[i + 1])) == (Vertex *) nullptr ) {
-            return MG_EUNDEF;
+            return MGF_ERROR_UNDEFINED_REFERENCE;
         }    /* this is however a reason to stop parsing the input */
         backv[i] = (Vertex *) nullptr;
         if ( !globalCurrentMaterial->sided )
@@ -838,11 +838,11 @@ handleFaceEntity(int argc, char **argv) {
 
     if ( !faceNormal(argc - 1, v, &normal)) {
         doWarning("degenerate face");
-        return MG_OK;    /* just ignore the generate face */
+        return MGF_OK;    /* just ignore the generate face */
     }
     if ( !globalCurrentMaterial->sided ) VECTORSCALE(-1., normal, backnormal);
 
-    errcode = MG_OK;
+    errcode = MGF_OK;
     if ( argc == 4 ) {        /* triangles */
         face = newFace(v[0], v[1], v[2], (Vertex *) nullptr, &normal);
         if ( !globalCurrentMaterial->sided ) {
@@ -890,7 +890,7 @@ handleFaceWithHolesEntity(int argc, char **argv) {
     if ( argc - 1 > MAXIMUM_FACE_VERTICES ) {
         doWarning(
                 "too many vertices in face. Recompile the program with larger MAXIMUM_FACE_VERTICES constant in readmgf.c");
-        return MG_OK;    /* no reason to stop parsing the input */
+        return MGF_OK;    /* no reason to stop parsing the input */
     }
 
     /* Get the location of the vertices: the location of the vertex
@@ -905,9 +905,9 @@ handleFaceWithHolesEntity(int argc, char **argv) {
 
         vp = c_getvert(argv[i]);
         if ( !vp ) {            /* undefined vertex. */
-            return MG_EUNDEF;
+            return MGF_ERROR_UNDEFINED_REFERENCE;
         }
-        xf_xfmpoint(v[i], vp->p);    /* transform with the current transform */
+        mgfTransformPoint(v[i], vp->p);    /* transform with the current transform */
 
         copied[i] = false;        /* vertex not yet copied to nargv */
     }
@@ -969,7 +969,7 @@ handleFaceWithHolesEntity(int argc, char **argv) {
         if ( ncopied + num + 2 > MAXIMUM_FACE_VERTICES ) {
             doWarning(
                     "too many vertices in face. Recompile the program with larger MAXIMUM_FACE_VERTICES constant in readmgf.c");
-            return MG_OK;    /* no reason to stop parsing the input */
+            return MGF_OK;    /* no reason to stop parsing the input */
         }
 
         /* shift the elements in newcontour starting at position nearestcopied
@@ -1080,7 +1080,7 @@ static int
 handleUnknownEntity(int argc, char **argv) {
     doWarning("unknown entity");
 
-    return MG_OK;
+    return MGF_OK;
 }
 
 static void

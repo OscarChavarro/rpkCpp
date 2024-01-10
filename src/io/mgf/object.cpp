@@ -23,14 +23,14 @@ obj_handler(int ac, char **av)
     if ( ac == 1 ) {
         // just pop top object
         if ( obj_nnames < 1 ) {
-            return MG_ECNTXT;
+            return MGF_ERROR_UNMATCHED_CONTEXT_CLOSE;
         }
-        free((MEM_PTR) obj_name[--obj_nnames]);
+        free(obj_name[--obj_nnames]);
         obj_name[obj_nnames] = nullptr;
-        return MG_OK;
+        return MGF_OK;
     }
     if ( ac != 2 ) {
-        return MG_EARGC;
+        return MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
     }
     if ( !isnameWords(av[1])) {
         return MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
@@ -41,19 +41,19 @@ obj_handler(int ac, char **av)
             obj_name = (char **) malloc(
                     (obj_maxname = ALLOC_INC) * sizeof(char *));
         } else {
-            obj_name = (char **) realloc((MEM_PTR) obj_name, (obj_maxname += ALLOC_INC) * sizeof(char *));
+            obj_name = (char **) realloc((void *) obj_name, (obj_maxname += ALLOC_INC) * sizeof(char *));
         }
         if ( obj_name == nullptr) {
-            return MG_EMEM;
+            return MGF_ERROR_OUT_OF_MEMORY;
         }
     }
 
     // allocate new entry
     obj_name[obj_nnames] = (char *) malloc(strlen(av[1]) + 1);
     if ( obj_name[obj_nnames] == nullptr) {
-        return MG_EMEM;
+        return MGF_ERROR_OUT_OF_MEMORY;
     }
     strcpy(obj_name[obj_nnames++], av[1]);
     obj_name[obj_nnames] = nullptr;
-    return MG_OK;
+    return MGF_OK;
 }

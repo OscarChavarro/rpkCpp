@@ -147,7 +147,7 @@ BatchSaveRaytracingImage(const char *fname, FILE *fp, int ispipe) {
 
 static void
 BatchRayTrace(char *filename, FILE *fp, int ispipe) {
-    renderopts.render_raytraced_image = true;
+    GLOBAL_render_renderOptions.render_raytraced_image = true;
     GLOBAL_camera_mainCamera.changed = false;
 
     CanvasPushMode();
@@ -209,7 +209,7 @@ batch() {
             if ((!(it % save_modulo)) && *radiance_image_filename_format ) {
                 char *fname = (char *)malloc(strlen(radiance_image_filename_format) + 1);
                 sprintf(fname, radiance_image_filename_format, it);
-                if ( renderopts.trace ) {
+                if ( GLOBAL_render_renderOptions.trace ) {
                     char *dot;
                     char *tmpName;
                     const char *tiffExt = "tif";

@@ -14,22 +14,28 @@ class CMDLINEOPTTYPE {
     void *data;                /* pointer to additional data */
 };
 
-extern CMDLINEOPTTYPE intTypeStruct, boolTypeStruct, setTrueTypeStruct, setFalseTypeStruct,
-        stringTypeStruct, nstringTypeStruct, floatTypeStruct,
-        vectorTypeStruct, rgbTypeStruct, xyTypeStruct, enumTypeStruct;
+extern CMDLINEOPTTYPE GLOBAL_options_intType;
+extern CMDLINEOPTTYPE GLOBAL_options_boolType;
+extern CMDLINEOPTTYPE GLOBAL_options_setTrueType;
+extern CMDLINEOPTTYPE GLOBAL_options_setFalseType;
+extern CMDLINEOPTTYPE GLOBAL_options_stringType;
+extern CMDLINEOPTTYPE GLOBAL_options_floatType;
+extern CMDLINEOPTTYPE GLOBAL_options_vectorType;
+extern CMDLINEOPTTYPE GLOBAL_options_rgbType;
+extern CMDLINEOPTTYPE GLOBAL_options_xyType;
 
 /* shorthands for specifying command line argument type, the 'type'
  * field of the CMDLINEOPTDESC structure below. */
 #define TYPELESS    (CMDLINEOPTTYPE *)0
-#define Tint        (&intTypeStruct)    /* int* value pointer */
-#define Tbool        (&boolTypeStruct)    /* int* value pointer */
-#define Tsettrue    (&setTrueTypeStruct)    /* int* value pointer */
-#define Tsetfalse    (&setFalseTypeStruct)    /* int* value pointer */
-#define Tstring        (&stringTypeStruct)    /* char** value pointer */
-#define Tfloat        (&floatTypeStruct)    /* float* value pointer */
-#define TVECTOR        (&vectorTypeStruct)    /* Vector3D* value pointer */
-#define TRGB        (&rgbTypeStruct)    /* RGB* value pointer */
-#define Txy        (&xyTypeStruct)        /* CIE xy color value pair (float [2]) */
+#define Tint        (&GLOBAL_options_intType)    /* int* value pointer */
+#define Tbool        (&GLOBAL_options_boolType)    /* int* value pointer */
+#define Tsettrue    (&GLOBAL_options_setTrueType)    /* int* value pointer */
+#define Tsetfalse    (&GLOBAL_options_setFalseType)    /* int* value pointer */
+#define Tstring        (&GLOBAL_options_stringType)    /* char** value pointer */
+#define Tfloat        (&GLOBAL_options_floatType)    /* float* value pointer */
+#define TVECTOR        (&GLOBAL_options_vectorType)    /* Vector3D* value pointer */
+#define TRGB        (&GLOBAL_options_rgbType)    /* RGB* value pointer */
+#define Txy        (&GLOBAL_options_xyType)        /* CIE xy color value pair (float [2]) */
 
 /* default action; no action */
 #define DEFAULT_ACTION (void (*)(void *))0

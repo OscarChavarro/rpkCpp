@@ -345,7 +345,7 @@ beginWritePrimitive(Geometry *geom) {
     if ( geomIsSurface(geom)) {
         fprintf(vrmlfp, "\tsolid %s\n", geomGetSurface(geom)->material->sided ? "TRUE" : "FALSE");
     }
-    if ( !renderopts.smooth_shading && !wgiv ) {
+    if ( !GLOBAL_render_renderOptions.smooth_shading && !wgiv ) {
         logWarning(nullptr, "I assume you want a smooth shaded model ...");
         wgiv = true;
     }

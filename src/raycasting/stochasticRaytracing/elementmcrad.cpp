@@ -692,7 +692,7 @@ monteCarloRadiosityRegularSubdivideTriangle(ELEMENT *element) {
     monteCarloRadiosityCreateSurfaceSubElement(element, 2, m2, m1, v2, nullptr);
     monteCarloRadiosityCreateSurfaceSubElement(element, 3, m1, m2, m0, nullptr);
 
-    renderSetColor(&renderopts.outline_color);
+    renderSetColor(&GLOBAL_render_renderOptions.outline_color);
     renderLine(v0->point, v1->point);
     renderLine(v1->point, v2->point);
     renderLine(v2->point, v0->point);
@@ -722,7 +722,7 @@ monteCarloRadiosityRegularSubdivideQuad(ELEMENT *element) {
     monteCarloRadiosityCreateSurfaceSubElement(element, 2, m3, mm, m2, v3);
     monteCarloRadiosityCreateSurfaceSubElement(element, 3, mm, m1, v2, m2);
 
-    renderSetColor(&renderopts.outline_color);
+    renderSetColor(&GLOBAL_render_renderOptions.outline_color);
     renderLine(v0->point, v1->point);
     renderLine(v1->point, v2->point);
     renderLine(v2->point, v3->point);

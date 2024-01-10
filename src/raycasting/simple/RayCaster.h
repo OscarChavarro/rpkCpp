@@ -75,7 +75,7 @@ class RayCaster {
     void interrupt();
 };
 
-extern Raytracer RayCasting;
+extern Raytracer GLOBAL_rayCasting_RayCasting;
 
 extern void RayCast(char *fname, FILE *fp, int ispipe);
 

@@ -17,7 +17,7 @@
 #include "SGL/poly.h"
 
 /*
- * incrementalize_y: put intersection of line Y=y+.5 with edge between positions
+ * incrementalizeY: put intersection of line Y=y+.5 with edge between positions
  * p1 and p2 in p, put change with respect to y in dp
  */
 

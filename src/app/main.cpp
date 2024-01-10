@@ -140,8 +140,8 @@ Table of available raytracing methods
 static Raytracer *RayTracingMethods[] = {
     &RT_StochasticMethod,
     &RT_BidirPathMethod,
-    &RayCasting,
-    &RayMatting,
+    &GLOBAL_rayCasting_RayCasting,
+    &GLOBAL_rayCasting_RayMatting,
     (Raytracer *)nullptr
 };
 
@@ -236,26 +236,26 @@ renderingDefaults() {
     RGB bbcolor = DEFAULT_BOUNDING_BOX_COLOR;
     RGB cluscolor = DEFAULT_CLUSTER_COLOR;
 
-    RenderUseDisplayLists(DEFAULT_DISPLAY_LISTS);
-    RenderSetSmoothShading(DEFAULT_SMOOTH_SHADING);
-    RenderSetBackfaceCulling(DEFAULT_BACKFACE_CULLING);
-    RenderSetOutlineDrawing(DEFAULT_OUTLINE_DRAWING);
-    RenderSetBoundingBoxDrawing(DEFAULT_BOUNDING_BOX_DRAWING);
-    RenderSetClusterDrawing(DEFAULT_CLUSTER_DRAWING);
-    RenderSetOutlineColor(&outlinecolor);
-    RenderSetBoundingBoxColor(&bbcolor);
-    RenderSetClusterColor(&cluscolor);
-    RenderUseFrustumCulling(true);
+    renderUseDisplayLists(DEFAULT_DISPLAY_LISTS);
+    renderSetSmoothShading(DEFAULT_SMOOTH_SHADING);
+    renderSetBackfaceCulling(DEFAULT_BACKFACE_CULLING);
+    renderSetOutlineDrawing(DEFAULT_OUTLINE_DRAWING);
+    renderSetBoundingBoxDrawing(DEFAULT_BOUNDING_BOX_DRAWING);
+    renderSetClusterDrawing(DEFAULT_CLUSTER_DRAWING);
+    renderSetOutlineColor(&outlinecolor);
+    renderSetBoundingBoxColor(&bbcolor);
+    renderSetClusterColor(&cluscolor);
+    renderUseFrustumCulling(true);
 
-    RenderSetNoShading(false);
+    renderSetNoShading(false);
 
-    renderopts.draw_cameras = false;
-    renderopts.camsize = 0.25;
-    renderopts.linewidth = 1.0;
-    renderopts.camera_color = GLOBAL_material_yellow;
+    GLOBAL_render_renderOptions.draw_cameras = false;
+    GLOBAL_render_renderOptions.camsize = 0.25;
+    GLOBAL_render_renderOptions.linewidth = 1.0;
+    GLOBAL_render_renderOptions.camera_color = GLOBAL_material_yellow;
 
-    renderopts.render_raytraced_image = false;
-    renderopts.use_background = true;
+    GLOBAL_render_renderOptions.render_raytraced_image = false;
+    GLOBAL_render_renderOptions.use_background = true;
 }
 
 
@@ -266,7 +266,7 @@ static void
 mainInit() {
     /* Transforms the cubature rules for quadrilaterals to be over the domain [0,1]^2
      * instead of [-1,1]^2. See cubature.[ch] */
-    FixCubatureRules();
+    fixCubatureRules();
 
     GLOBAL_fileOptions_monochrome = DEFAULT_MONOCHROME;
     GLOBAL_fileOptions_forceOneSidedSurfaces = DEFAULT_FORCE_ONESIDEDNESS;
@@ -342,7 +342,7 @@ Processes command line arguments not recognized by the Xt GUI toolkit
 */
 static void
 parseGlobalOptions(int *argc, char **argv) {
-    ParseRenderingOptions(argc, argv);
+    parseRenderingOptions(argc, argv);
     parseToneMapOptions(argc, argv);
     ParseCameraOptions(argc, argv);
     parseRadianceOptions(argc, argv);

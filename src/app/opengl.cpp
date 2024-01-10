@@ -35,12 +35,12 @@ renderSetCamera() {
     glViewport(0, 0, GLOBAL_camera_mainCamera.hres, GLOBAL_camera_mainCamera.vres);
 
     // draw backgroudn when needed
-    if ( renderopts.use_background && background_ptr ) {
+    if ( GLOBAL_render_renderOptions.use_background && background_ptr ) {
         renderBackground(&GLOBAL_camera_mainCamera);
     }
 
     // determine distance to front- and backclipping plane
-    RenderGetNearFar(&GLOBAL_camera_mainCamera.near, &GLOBAL_camera_mainCamera.far);
+    renderGetNearFar(&GLOBAL_camera_mainCamera.near, &GLOBAL_camera_mainCamera.far);
 
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
@@ -270,18 +270,18 @@ renderPatchOutline(Patch *patch) {
 
 void
 renderPatch(Patch *patch) {
-    if ( !renderopts.no_shading ) {
-        if ( renderopts.smooth_shading ) {
+    if ( !GLOBAL_render_renderOptions.no_shading ) {
+        if ( GLOBAL_render_renderOptions.smooth_shading ) {
             renderPatchSmooth(patch);
         } else {
             renderPatchFlat(patch);
         }
     }
 
-    if ( renderopts.draw_outlines &&
+    if ( GLOBAL_render_renderOptions.draw_outlines &&
          (VECTORDOTPRODUCT(patch->normal, GLOBAL_camera_mainCamera.eyep) + patch->planeConstant > EPSILON
-          || renderopts.use_display_lists)) {
-        renderSetColor(&renderopts.outline_color);
+          || GLOBAL_render_renderOptions.use_display_lists)) {
+        renderSetColor(&GLOBAL_render_renderOptions.outline_color);
         renderPatchOutline(patch);
     }
 }
@@ -299,7 +299,7 @@ reallyRenderOctreeLeaf(Geometry *geom, void (*renderPatch)(Patch *)) {
 
 static void
 renderOctreeLeaf(Geometry *geom, void (*render_patch)(Patch *)) {
-    if ( renderopts.use_display_lists ) {
+    if ( GLOBAL_render_renderOptions.use_display_lists ) {
         if ( geom->dlistid <= 0 ) {
             geom->dlistid = geom->id;
             glNewList(geom->dlistid, GL_COMPILE_AND_EXECUTE);
@@ -454,7 +454,7 @@ renderNewDisplayList() {
     }
     displayListId = -1;
 
-    if ( renderopts.frustum_culling ) {
+    if ( GLOBAL_render_renderOptions.frustum_culling ) {
         renderNewOctreeDisplayLists();
     }
 }
@@ -463,7 +463,7 @@ void
 reallyRender() {
     if ( GLOBAL_radiance_currentRadianceMethodHandle && GLOBAL_radiance_currentRadianceMethodHandle->RenderScene ) {
         GLOBAL_radiance_currentRadianceMethodHandle->RenderScene();
-    } else if ( renderopts.frustum_culling ) {
+    } else if ( GLOBAL_render_renderOptions.frustum_culling ) {
         renderWorldOctree(renderPatch);
     } else {
         for ( PatchSet *patchWindow = GLOBAL_scene_patches; patchWindow != nullptr; patchWindow = patchWindow->next ) {
@@ -475,7 +475,7 @@ reallyRender() {
 
 void
 renderRadiance() {
-    if ( renderopts.smooth_shading ) {
+    if ( GLOBAL_render_renderOptions.smooth_shading ) {
         glShadeModel(GL_SMOOTH);
     } else {
         glShadeModel(GL_FLAT);
@@ -483,13 +483,13 @@ renderRadiance() {
 
     renderSetCamera();
 
-    if ( renderopts.backface_culling ) {
+    if ( GLOBAL_render_renderOptions.backface_culling ) {
         glEnable(GL_CULL_FACE);
     } else {
         glDisable(GL_CULL_FACE);
     }
 
-    if ( renderopts.use_display_lists && !renderopts.frustum_culling ) {
+    if ( GLOBAL_render_renderOptions.use_display_lists && !GLOBAL_render_renderOptions.frustum_culling ) {
         if ( displayListId <= 0 ) {
             displayListId = 1;
             glNewList(displayListId, GL_COMPILE_AND_EXECUTE);
@@ -504,15 +504,15 @@ renderRadiance() {
         reallyRender();
     }
 
-    if ( renderopts.draw_bounding_boxes ) {
-        RenderBoundingBoxHierarchy();
+    if ( GLOBAL_render_renderOptions.draw_bounding_boxes ) {
+        renderBoundingBoxHierarchy();
     }
 
-    if ( renderopts.draw_clusters ) {
-        RenderClusterHierarchy();
+    if ( GLOBAL_render_renderOptions.draw_clusters ) {
+        renderClusterHierarchy();
     }
 
-    if ( renderopts.draw_cameras ) {
+    if ( GLOBAL_render_renderOptions.draw_cameras ) {
         renderCameras();
     }
 }
@@ -523,15 +523,15 @@ renderScene() {
         return;
     }
 
-    renderSetLineWidth(renderopts.linewidth);
+    renderSetLineWidth(GLOBAL_render_renderOptions.linewidth);
 
     CanvasPushMode();
 
     if ( GLOBAL_camera_mainCamera.changed ) {
-        renderopts.render_raytraced_image = false;
+        GLOBAL_render_renderOptions.render_raytraced_image = false;
     }
 
-    if ( !renderopts.render_raytraced_image || !RenderRayTraced()) {
+    if ( !GLOBAL_render_renderOptions.render_raytraced_image || !renderRayTraced()) {
         renderRadiance();
     }
 
@@ -610,7 +610,7 @@ saveScreen(char *fileName, FILE *fp, int isPipe) {
     unsigned char *buf;
 
     // RayCast() saves the current picture in display-mapped (!) real values
-    if ( renderopts.trace ) {
+    if ( GLOBAL_render_renderOptions.trace ) {
         RayCast(fileName, fp, isPipe);
         return;
     }
@@ -653,7 +653,7 @@ renderFrustum(CAMERA *cam) {
     Vector3D c;
     Vector3D P;
     Vector3D Q;
-    float camlen = renderopts.camsize;
+    float camlen = GLOBAL_render_renderOptions.camsize;
     float hsiz = camlen * cam->viewdist * cam->tanhfov;
     float vsiz = camlen * cam->viewdist * cam->tanvfov;
     int i;
@@ -665,7 +665,7 @@ renderFrustum(CAMERA *cam) {
 
     glDisable(GL_DEPTH_TEST);
 
-    renderSetColor(&renderopts.camera_color);
+    renderSetColor(&GLOBAL_render_renderOptions.camera_color);
 
     for ( i = 0; i <= maxi; i++ ) {
         VECTORCOMB3(c, (-1.0 + 2.0 * ((float) i / (float) maxi)) * hsiz, cam->X, -vsiz, cam->Y, P);

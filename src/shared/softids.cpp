@@ -34,7 +34,7 @@ static void
 SoftRenderPatch(Patch *P) {
     Vector3D verts[4];
 
-    if ( renderopts.backface_culling &&
+    if ( GLOBAL_render_renderOptions.backface_culling &&
          VECTORDOTPRODUCT(P->normal, GLOBAL_camera_mainCamera.eyep) + P->planeConstant < EPSILON ) {
         return;
     }
@@ -54,11 +54,11 @@ void
 SoftRenderPatches(SGL_PIXEL (*patch_pixel)(Patch *)) {
     PatchPixel = patch_pixel;
 
-    if ( renderopts.frustum_culling ) {
-        int use_display_lists = renderopts.use_display_lists;
-        renderopts.use_display_lists = false;  /* temporarily switch it off */
+    if ( GLOBAL_render_renderOptions.frustum_culling ) {
+        int use_display_lists = GLOBAL_render_renderOptions.use_display_lists;
+        GLOBAL_render_renderOptions.use_display_lists = false;  /* temporarily switch it off */
         renderWorldOctree(SoftRenderPatch);
-        renderopts.use_display_lists = use_display_lists;
+        GLOBAL_render_renderOptions.use_display_lists = use_display_lists;
     } else {
         for ( PatchSet *window = GLOBAL_scene_patches; window != nullptr; window = window->next ) {
             SoftRenderPatch(window->patch);

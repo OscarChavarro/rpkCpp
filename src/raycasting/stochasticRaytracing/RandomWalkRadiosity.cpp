@@ -112,7 +112,7 @@ randomWalkRadiosityScoreWeight(PATH *path, int n) {
                 w = 1. / (1. - node->probability);    /* absorption prob of the last node */
                 for ( i--, node--; i >= n; i--, node-- ) {
                     w /= node->probability;
-                }       /* survival prob of n...nrnodes-2th node */
+                }       /* survival prob of n...numberOfNodes-2th node */
             }
             break;
         case RW_N_LAST:

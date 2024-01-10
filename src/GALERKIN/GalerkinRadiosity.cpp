@@ -34,52 +34,52 @@ void
 setCubatureRules(CUBARULE **trirule, CUBARULE **quadrule, CUBATURE_DEGREE degree) {
     switch ( degree ) {
         case DEGREE_1:
-            *trirule = &CRT1;
-            *quadrule = &CRQ1;
+            *trirule = &GLOBAL_crt1;
+            *quadrule = &GLOBAL_crq1;
             break;
         case DEGREE_2:
-            *trirule = &CRT2;
-            *quadrule = &CRQ2;
+            *trirule = &GLOBAL_crt2;
+            *quadrule = &GLOBAL_crq2;
             break;
         case DEGREE_3:
-            *trirule = &CRT3;
-            *quadrule = &CRQ3;
+            *trirule = &GLOBAL_crt3;
+            *quadrule = &GLOBAL_crq3;
             break;
         case DEGREE_4:
-            *trirule = &CRT4;
-            *quadrule = &CRQ4;
+            *trirule = &GLOBAL_crt4;
+            *quadrule = &GLOBAL_crq4;
             break;
         case DEGREE_5:
-            *trirule = &CRT5;
-            *quadrule = &CRQ5;
+            *trirule = &GLOBAL_crt5;
+            *quadrule = &GLOBAL_crq5;
             break;
         case DEGREE_6:
-            *trirule = &CRT7;
-            *quadrule = &CRQ6;
+            *trirule = &GLOBAL_crt7;
+            *quadrule = &GLOBAL_crq6;
             break;
         case DEGREE_7:
-            *trirule = &CRT7;
-            *quadrule = &CRQ7;
+            *trirule = &GLOBAL_crt7;
+            *quadrule = &GLOBAL_crq7;
             break;
         case DEGREE_8:
-            *trirule = &CRT8;
-            *quadrule = &CRQ8;
+            *trirule = &GLOBAL_crt8;
+            *quadrule = &GLOBAL_crq8;
             break;
         case DEGREE_9:
-            *trirule = &CRT9;
-            *quadrule = &CRQ9;
+            *trirule = &GLOBAL_crt9;
+            *quadrule = &GLOBAL_crq9;
             break;
         case DEGREE_3_PROD:
-            *trirule = &CRT5;
-            *quadrule = &CRQ3PG;
+            *trirule = &GLOBAL_crt5;
+            *quadrule = &GLOBAL_crq3pg;
             break;
         case DEGREE_5_PROD:
-            *trirule = &CRT7;
-            *quadrule = &CRQ5PG;
+            *trirule = &GLOBAL_crt7;
+            *quadrule = &GLOBAL_crq5pg;
             break;
         case DEGREE_7_PROD:
-            *trirule = &CRT9;
-            *quadrule = &CRQ7PG;
+            *trirule = &GLOBAL_crt9;
+            *quadrule = &GLOBAL_crq7pg;
             break;
         default:
             logFatal(2, "setCubatureRules", "Invalid degree %d", degree);
@@ -100,7 +100,7 @@ galerkinDefaults() {
     GLOBAL_galerkin_state.src_degree = DEFAULT_GAL_SRC_CUBATURE_DEGREE;
     setCubatureRules(&GLOBAL_galerkin_state.rcv3rule, &GLOBAL_galerkin_state.rcv4rule, GLOBAL_galerkin_state.rcv_degree);
     setCubatureRules(&GLOBAL_galerkin_state.src3rule, &GLOBAL_galerkin_state.src4rule, GLOBAL_galerkin_state.src_degree);
-    GLOBAL_galerkin_state.clusRule = &CRV1;
+    GLOBAL_galerkin_state.clusRule = &GLOBAL_crv1;
     GLOBAL_galerkin_state.rel_min_elem_area = DEFAULT_GAL_REL_MIN_ELEM_AREA;
     GLOBAL_galerkin_state.rel_link_error_threshold = DEFAULT_GAL_REL_LINK_ERROR_THRESHOLD;
     GLOBAL_galerkin_state.error_norm = DEFAULT_GAL_ERROR_NORM;
@@ -438,7 +438,7 @@ galerkinRenderPatch(Patch *patch) {
 
 void
 galerkinRender() {
-    if ( renderopts.frustum_culling ) {
+    if ( GLOBAL_render_renderOptions.frustum_culling ) {
         renderWorldOctree(galerkinRenderPatch);
     } else {
         for ( PatchSet *window = GLOBAL_scene_patches; window != nullptr; window = window->next ) {
@@ -555,7 +555,7 @@ galerkinWriteVertexColors() {
 
 static void
 galerkinWriteColors() {
-    if ( !renderopts.smooth_shading ) {
+    if ( !GLOBAL_render_renderOptions.smooth_shading ) {
         logWarning(nullptr, "I assume you want a smooth shaded model ...");
     }
     fprintf(globalVrmlFileDescriptor, "\tcolorPerVertex %s\n", "TRUE");

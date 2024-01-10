@@ -9,7 +9,7 @@
 #include "SGL/poly.h"
 #include "SGL/sgl.h"
 
-Poly_vert *poly_dummy;        /* used superficially by POLY_MASK macro */
+Poly_vert *GLOBAL_sgl_polyDummy;        /* used superficially by POLY_MASK macro */
 
 SGL_CONTEXT *GLOBAL_sgl_currentContext = (SGL_CONTEXT *)nullptr;
 
@@ -198,7 +198,7 @@ void sglPolygon(int nrverts, Vector3D *verts) {
 
     if ( GLOBAL_sgl_currentContext->clipping ) {
         pol.mask = POLY_MASK(sx) | POLY_MASK(sy) | POLY_MASK(sz) | POLY_MASK(sw);
-        if ( poly_clip_to_box(&pol, &clip_box) == POLY_CLIP_OUT ) {
+        if ( polyClipToBox(&pol, &clip_box) == POLY_CLIP_OUT ) {
             return;
         }
     }
@@ -222,8 +222,8 @@ void sglPolygon(int nrverts, Vector3D *verts) {
     /* scan convert the polygon: use optimized version for flat shading
      * with or without Z buffering. */
     if ( !GLOBAL_sgl_currentContext->depthBuffer ) {
-        poly_scan_flat(&pol, &win);
+        polyScanFlat(&pol, &win);
     } else {
-        poly_scan_z(&pol, &win);
+        polyScanZ(&pol, &win);
     }
 }

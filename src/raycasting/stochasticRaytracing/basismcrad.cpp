@@ -94,7 +94,7 @@ static void ComputeFilterCoefficients(GalerkinBasis *parent_basis, int parent_si
     for ( a = 0; a < parent_size; a++ ) {
         for ( b = 0; b < child_size; b++ ) {
             x = 0.;
-            for ( k = 0; k < cr->nrnodes; k++ ) {
+            for ( k = 0; k < cr->numberOfNodes; k++ ) {
                 Vector2D up;
                 up.u = cr->u[k];
                 up.v = cr->v[k];
@@ -129,8 +129,8 @@ monteCarloRadiosityInitBasis() {
         return;
     }
 
-    basisGalerkinComputeRegularFilterCoefficients(&mcr_triBasis, GLOBAL_stochasticRaytracing_triupxfm, &CRT8);
-    basisGalerkinComputeRegularFilterCoefficients(&mcr_quadBasis, GLOBAL_stochasticRaytracing_quadupxfm, &CRQ8);
+    basisGalerkinComputeRegularFilterCoefficients(&mcr_triBasis, GLOBAL_stochasticRaytracing_triupxfm, &GLOBAL_crt8);
+    basisGalerkinComputeRegularFilterCoefficients(&mcr_quadBasis, GLOBAL_stochasticRaytracing_quadupxfm, &GLOBAL_crq8);
 
     for ( et = 0; et < NR_ELEMENT_TYPES; et++ ) {
         for ( at = 0; at < NR_APPROX_TYPES; at++ )

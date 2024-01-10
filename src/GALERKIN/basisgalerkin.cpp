@@ -268,7 +268,7 @@ basisGalerkinComputeFilterCoefficients(
     for ( alpha = 0; alpha < parent_size; alpha++ ) {
         for ( beta = 0; beta < child_size; beta++ ) {
             x = 0.;
-            for ( k = 0; k < cr->nrnodes; k++ ) {
+            for ( k = 0; k < cr->numberOfNodes; k++ ) {
                 Vector2D up;
                 up.u = cr->u[k];
                 up.v = cr->v[k];
@@ -303,6 +303,6 @@ basisGalerkinComputeRegularFilterCoefficients(
 
 void
 basisGalerkinInitBasis() {
-    basisGalerkinComputeRegularFilterCoefficients(&GLOBAL_galerkin_quadBasis, quadupxfm, &CRQ8);
-    basisGalerkinComputeRegularFilterCoefficients(&GLOBAL_galerkin_triBasis, triupxfm, &CRT8);
+    basisGalerkinComputeRegularFilterCoefficients(&GLOBAL_galerkin_quadBasis, quadupxfm, &GLOBAL_crq8);
+    basisGalerkinComputeRegularFilterCoefficients(&GLOBAL_galerkin_triBasis, triupxfm, &GLOBAL_crt8);
 }

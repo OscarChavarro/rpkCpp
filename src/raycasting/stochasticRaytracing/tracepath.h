@@ -11,7 +11,7 @@ class PATHNODE {
     Vector3D inpoint, outpoint;
 };
 
-/* a full path, basically an array of 'nrnodes' PATHNODEs */
+/* a full path, basically an array of 'numberOfNodes' PATHNODEs */
 class PATH {
   public:
     int nrnodes;

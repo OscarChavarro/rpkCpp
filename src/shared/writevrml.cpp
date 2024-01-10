@@ -101,7 +101,7 @@ WriteVRMLHeader(FILE *fp) {
     fprintf(fp, "Transform {\n  rotation %g %g %g %g\n  children [\n    Shape {\n      geometry IndexedFaceSet {\n",
             model_rotaxis.x, model_rotaxis.y, model_rotaxis.z, model_rotangle);
 
-    fprintf(fp, "\tsolid %s\n", renderopts.backface_culling ? "TRUE" : "FALSE");
+    fprintf(fp, "\tsolid %s\n", GLOBAL_render_renderOptions.backface_culling ? "TRUE" : "FALSE");
 }
 
 void WriteVRMLTrailer(FILE *fp) {
@@ -197,8 +197,8 @@ WriteFaceColors(FILE *fp) {
 
 static void
 WriteColors(FILE *fp) {
-    fprintf(fp, "\tcolorPerVertex %s\n", renderopts.smooth_shading ? "TRUE" : "FALSE");
-    if ( renderopts.smooth_shading ) {
+    fprintf(fp, "\tcolorPerVertex %s\n", GLOBAL_render_renderOptions.smooth_shading ? "TRUE" : "FALSE");
+    if ( GLOBAL_render_renderOptions.smooth_shading ) {
         WriteVertexColors(fp);
     } else {
         WriteFaceColors(fp);

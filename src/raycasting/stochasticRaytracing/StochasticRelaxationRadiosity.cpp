@@ -437,7 +437,7 @@ stochasticRelaxationRadiosityRenderPatch(Patch *patch) {
 
 static void
 stochasticRelaxationRadiosityRender() {
-    if ( renderopts.frustum_culling ) {
+    if ( GLOBAL_render_renderOptions.frustum_culling ) {
         renderWorldOctree(stochasticRelaxationRadiosityRenderPatch);
     } else {
         for ( PatchSet *window = GLOBAL_scene_patches; window != nullptr; window = window->next ) {

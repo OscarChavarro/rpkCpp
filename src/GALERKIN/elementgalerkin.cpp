@@ -300,7 +300,7 @@ galerkinRegularSubdivideElement(ELEMENT *element) {
         subElement[i]->Rd = element->Rd;
         subElement[i]->Ed = element->Ed;
 
-        renderSetColor(&renderopts.outline_color);
+        renderSetColor(&GLOBAL_render_renderOptions.outline_color);
         DrawElementOutline(subElement[i]);
     }
 
@@ -689,7 +689,7 @@ DrawElement(ELEMENT *element, int mode) {
 
     if ( isCluster(element)) {
         if ( mode & OUTLINE || mode & STRONG ) {
-            RenderBounds(geomBounds(element->pog.geom));
+            renderBounds(geomBounds(element->pog.geom));
         }
         return;
     }
@@ -753,7 +753,7 @@ DrawElement(ELEMENT *element, int mode) {
             VECTORSUMSCALED(p[i], 0.01, d, p[i]);
         }
 
-        renderSetColor(&renderopts.outline_color);
+        renderSetColor(&GLOBAL_render_renderOptions.outline_color);
         renderLine(&p[0], &p[1]);
         renderLine(&p[1], &p[2]);
         if ( nrverts == 3 ) {
@@ -799,11 +799,11 @@ void
 RenderElement(ELEMENT *elem) {
     int rendercode = 0;
 
-    if ( renderopts.draw_outlines ) {
+    if ( GLOBAL_render_renderOptions.draw_outlines ) {
         rendercode |= OUTLINE;
     }
 
-    if ( renderopts.smooth_shading ) {
+    if ( GLOBAL_render_renderOptions.smooth_shading ) {
         rendercode |= GOURAUD;
     } else {
         rendercode |= FLAT;
