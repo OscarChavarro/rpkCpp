@@ -5,8 +5,8 @@
 #include "material/statistics.h"
 #include "skin/Geometry.h"
 
-Geometry *GLOBAL_geom_excludedGeom1 = (Geometry *) nullptr;
-Geometry *GLOBAL_geom_excludedGeom2 = (Geometry *) nullptr;
+Geometry *GLOBAL_geom_excludedGeom1 = nullptr;
+Geometry *GLOBAL_geom_excludedGeom2 = nullptr;
 
 static int globalCurrentMaxId = 0;
 

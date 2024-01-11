@@ -15,27 +15,12 @@ Paul Heckbert 1985, Dec 1989
 #define SWAP(a, b, temp) {temp = a; a = b; b = temp;}
 #define COORD(vert, i) ((double *)(vert))[i]
 
-// Note: double check original ugly macro was correctly migrated to function, and
-// it is working for the swaps...
-/*
 #define CLIP_AND_SWAP(elem, sign, k, p, q, r) { \
-    poly_clip_to_halfspace(p, q, &v->elem-(double *)v, sign, sign*k); \
+    polyClipToHalfSpace(p, q, &v->elem-(double *)v, sign, sign*k); \
     if ( q->n == 0) { \
         p1->n = 0; return POLY_CLIP_OUT; \
     } \
     SWAP(p, q, r); \
-}
-*/
-
-inline bool
-CLIP_AND_SWAP(Poly *p1, Poly_vert *v, double *vElem, double sign, double k, Poly *p, Poly *q, Poly *r) {
-    polyClipToHalfSpace(p, q, vElem-(double *)v, sign, sign*k);
-    if ( q->n == 0) {
-        p1->n = 0;
-        return true;
-    }
-    SWAP(p, q, r);
-    return false;
 }
 
 /**
@@ -106,34 +91,22 @@ polyClipToBox(Poly *p1, Poly_box *box) {
     p = p1;
     q = &p2;
     if ( x0out ) {
-        if ( CLIP_AND_SWAP(p1, v, &v->sx, -1.0, box->x0, p, q, r) ) {
-            return POLY_CLIP_OUT;
-        }
+        CLIP_AND_SWAP(sx, -1.0, box->x0, p, q, r);
     }
     if ( x1out ) {
-        if ( CLIP_AND_SWAP(p1, v, &v->sx, 1.0, box->x1, p, q, r) ) {
-            return POLY_CLIP_OUT;
-        }
+        CLIP_AND_SWAP(sx, 1.0, box->x1, p, q, r);
     }
     if ( y0out ) {
-        if ( CLIP_AND_SWAP(p1, v, &v->sy, -1.0, box->y0, p, q, r) ) {
-            return POLY_CLIP_OUT;
-        }
+        CLIP_AND_SWAP(sy, -1.0, box->y0, p, q, r);
     }
     if ( y1out ) {
-        if ( CLIP_AND_SWAP(p1, v, &v->sy, 1.0, box->y1, p, q, r) ) {
-            return POLY_CLIP_OUT;
-        }
+        CLIP_AND_SWAP(sy, 1.0, box->y1, p, q, r);
     }
     if ( z0out ) {
-        if ( CLIP_AND_SWAP(p1, v, &v->sz, -1.0, box->z0, p, q, r) ) {
-            return POLY_CLIP_OUT;
-        }
+        CLIP_AND_SWAP(sz, -1.0, box->z0, p, q, r);
     }
     if ( z1out ) {
-        if ( CLIP_AND_SWAP(p1, v, &v->sz, 1.0, box->z1, p, q, r) ) {
-            return POLY_CLIP_OUT;
-        }
+        CLIP_AND_SWAP(sz, 1.0, box->z1, p, q, r);
     }
 
     // If result ended up in p2 then copy it to p1

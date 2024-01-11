@@ -30,8 +30,6 @@ static int no = 0;
 static int globalImageOutputWidth = 0;
 static int globalImageOutputHeight = 0;
 
-#define GeomIsCompound(geom) (geom->methods == &GLOBAL_skin_compoundGeometryMethods)
-
 static void
 patchAccumulateStats(Patch *patch) {
     COLOR
@@ -257,7 +255,6 @@ renderingDefaults() {
     GLOBAL_render_renderOptions.render_raytraced_image = false;
     GLOBAL_render_renderOptions.use_background = true;
 }
-
 
 /**
 Global initializations
@@ -493,7 +490,7 @@ readFile(char *filename) {
             logError(nullptr, "Empty world");
         }
 
-        return false; // not succesful
+        return false; // Not successful
     }
 
     // Dispose of the old scene
