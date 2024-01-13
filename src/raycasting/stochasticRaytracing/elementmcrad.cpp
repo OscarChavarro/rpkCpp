@@ -86,7 +86,7 @@ createElement() {
     static long id = 1;
     StochasticRadiosityElement *elem = (StochasticRadiosityElement *)malloc(sizeof(StochasticRadiosityElement));
 
-    elem->pog.patch = (Patch *) nullptr;
+    elem->patch = (Patch *) nullptr;
     elem->id = id;
     id++;
     elem->area = 0.;
@@ -129,7 +129,7 @@ StochasticRadiosityElement *
 monteCarloRadiosityCreateToplevelSurfaceElement(Patch *patch) {
     int i;
     StochasticRadiosityElement *elem = createElement();
-    elem->pog.patch = patch;
+    elem->patch = patch;
     elem->iscluster = false;
     elem->area = patch->area;
     elem->midpoint = patch->midpoint;
@@ -157,7 +157,7 @@ monteCarloRadiosityCreateCluster(Geometry *geom) {
     StochasticRadiosityElement *elem = createElement();
     float *bounds = geom->bounds;
 
-    elem->pog.geom = geom;
+    elem->geom = geom;
     elem->iscluster = true;
 
     colorSetMonochrome(elem->Rd, 1.);
@@ -184,7 +184,7 @@ monteCarloRadiosityCreateCluster(Geometry *geom) {
 static void
 monteCarloRadiosityCreateSurfaceElementChild(Patch *patch, StochasticRadiosityElement *parent) {
     StochasticRadiosityElement *elem;
-    elem = (StochasticRadiosityElement *)patch->radiance_data;    /* created before */
+    elem = (StochasticRadiosityElement *)patch->radianceData;    /* created before */
     elem->parent = (StochasticRadiosityElement *)parent;
     parent->irregular_subelements = ElementListAdd(parent->irregular_subelements, elem);
 }
@@ -216,7 +216,7 @@ monteCarloRadiosityInitClusterPull(StochasticRadiosityElement *parent, Stochasti
 
 static void
 monteCarloRadiosityCreateClusterChildren(StochasticRadiosityElement *parent) {
-    Geometry *geom = parent->pog.geom;
+    Geometry *geom = parent->geom;
 
     if ( geomIsAggregate(geom)) {
         GeometryListNode *geometryList = geomPrimList(geom);
@@ -411,7 +411,7 @@ monteCarloRadiosityNewMidpointVertex(StochasticRadiosityElement *elem, Vertex *v
         MIDPOINT(*(v1->normal), *(v2->normal), norm);
         n = monteCarloRadiosityInstallNormal(&norm);
     } else {
-        n = &elem->pog.patch->normal;
+        n = &elem->patch->normal;
     }
 
     if ( v1->texCoord && v2->texCoord ) {
@@ -545,7 +545,7 @@ monteCarloRadiosityElementIsTextured(StochasticRadiosityElement *elem) {
         logFatal(-1, "monteCarloRadiosityElementIsTextured", "this routine should not be called for cluster elements");
         return false;
     }
-    mat = elem->pog.patch->surface->material;
+    mat = elem->patch->surface->material;
     return BsdfIsTextured(mat->bsdf) || EdfIsTextured(mat->edf);
 }
 
@@ -569,7 +569,7 @@ Computes average reflectance and emittance of a surface sub-element
 */
 static void
 monteCarloRadiosityElementComputeAverageReflectanceAndEmittance(StochasticRadiosityElement *elem) {
-    Patch *patch = elem->pog.patch;
+    Patch *patch = elem->patch;
     int i;
     int numberOfSamples;
     int isTextured;
@@ -647,7 +647,7 @@ monteCarloRadiosityCreateSurfaceSubElement(
     StochasticRadiosityElement *elem = createElement();
     parent->regular_subelements[childNumber] = elem;
 
-    elem->pog.patch = parent->pog.patch;
+    elem->patch = parent->patch;
     elem->nrvertices = parent->nrvertices;
     elem->vertex[0] = v0;
     elem->vertex[1] = v1;
@@ -749,7 +749,7 @@ monteCarloRadiosityRegularSubdivideElement(StochasticRadiosityElement *element) 
         return (StochasticRadiosityElement **) nullptr;
     }
 
-    if ( element->pog.patch->jacobian ) {
+    if ( element->patch->jacobian ) {
         static int wgiv = false;
         if ( !wgiv ) {
             logWarning("galerkinRegularSubdivideElement",
@@ -852,7 +852,7 @@ monteCarloRadiosityPrintElement(FILE *out, StochasticRadiosityElement *elem) {
         int nbits;
         niedindex msb1, rmsb2;
         fprintf(out, "Surface element: material '%s', reflectosity = %g, self-emitted luminsoity = %g\n",
-                elem->pog.patch->surface->material->name,
+                elem->patch->surface->material->name,
                 colorGray(elem->Rd),
                 colorLuminance(elem->Ed));
         monteCarloRadiosityElementRange(elem, &nbits, &msb1, &rmsb2);
@@ -943,9 +943,9 @@ Computes and fills in a bounding box for the element
 float *
 monteCarloRadiosityElementBounds(StochasticRadiosityElement *elem, float *bounds) {
     if ( elem->iscluster ) {
-        boundsCopy(elem->pog.geom->bounds, bounds);
+        boundsCopy(elem->geom->bounds, bounds);
     } else if ( !elem->uptrans ) {
-        patchBounds(elem->pog.patch, bounds);
+        patchBounds(elem->patch, bounds);
     } else {
         boundsInit(bounds);
         ForAllVerticesOfElement(v, elem)

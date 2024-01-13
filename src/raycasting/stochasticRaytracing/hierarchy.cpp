@@ -48,7 +48,7 @@ elementHierarchyTerminate() {
         Patch *p = GLOBAL_scene_patches->get(i);
         // need to be destroyed before destroying the automatically created vertices
         monteCarloRadiosityDestroyToplevelSurfaceElement(TOPLEVEL_ELEMENT(p));
-        p->radiance_data = nullptr; // prevents destroying a 2nd time later
+        p->radianceData = nullptr; // prevents destroying a 2nd time later
     }
 
     // Delete vertices

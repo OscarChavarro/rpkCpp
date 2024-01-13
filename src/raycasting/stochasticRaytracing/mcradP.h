@@ -93,12 +93,12 @@ extern STATE GLOBAL_stochasticRaytracing_monteCarloRadiosityState;
 
 inline int
 NR_VERTICES(StochasticRadiosityElement *elem) {
-    return elem->pog.patch->numberOfVertices;
+    return elem->patch->numberOfVertices;
 }
 
 inline StochasticRadiosityElement*
 TOPLEVEL_ELEMENT(Patch *patch) {
-    return (StochasticRadiosityElement *)patch->radiance_data;
+    return (StochasticRadiosityElement *)patch->radianceData;
 }
 
 inline COLOR *
@@ -124,7 +124,7 @@ getTopLevelPatchBasis(Patch *patch) {
 extern float monteCarloRadiosityScalarReflectance(Patch *P);
 extern void monteCarloRadiosityDefaults();
 extern void monteCarloRadiosityUpdateCpuSecs();
-extern void *monteCarloRadiosityCreatePatchData(Patch *patch);
+extern Element *monteCarloRadiosityCreatePatchData(Patch *patch);
 extern void monteCarloRadiosityPrintPatchData(FILE *out, Patch *patch);
 extern void monteCarloRadiosityDestroyPatchData(Patch *patch);
 extern void monteCarloRadiosityPatchComputeNewColor(Patch *patch);

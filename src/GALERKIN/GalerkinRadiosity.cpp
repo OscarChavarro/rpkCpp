@@ -214,20 +214,20 @@ updateCpuSecs() {
 /**
 Radiance data for a Patch is a surface element
 */
-static void *
+static Element *
 createPatchData(Patch *patch) {
-    return patch->radiance_data = (void *) galerkinCreateToplevelElement(patch);
+    return patch->radianceData = galerkinCreateToplevelElement(patch);
 }
 
 static void
 printPatchData(FILE *out, Patch *patch) {
-    galerkinPrintElement(out, (GalerkingElement *) patch->radiance_data);
+    galerkinPrintElement(out, (GalerkingElement *) patch->radianceData);
 }
 
 static void
 destroyPatchData(Patch *patch) {
-    galerkinDestroyToplevelElement((GalerkingElement *) patch->radiance_data);
-    patch->radiance_data = (void *) nullptr;
+    //galerkinDestroyToplevelElement((GalerkingElement *) patch->radianceData);
+    //patch->radianceData = nullptr;
 }
 
 void
@@ -517,7 +517,11 @@ galerkinWriteVertexColors(GalerkingElement *element) {
     COLOR vertrad[4];
     int i;
 
-    if ( element->pog.patch->numberOfVertices == 3 ) {
+    if ( element == nullptr || element->patch == nullptr ) {
+        return;
+    }
+
+    if ( element->patch->numberOfVertices == 3 ) {
         vertrad[0] = basisGalerkinRadianceAtPoint(element, element->radiance, 0., 0.);
         vertrad[1] = basisGalerkinRadianceAtPoint(element, element->radiance, 1., 0.);
         vertrad[2] = basisGalerkinRadianceAtPoint(element, element->radiance, 0., 1.);
@@ -529,15 +533,15 @@ galerkinWriteVertexColors(GalerkingElement *element) {
     }
 
     if ( GLOBAL_galerkin_state.use_ambient_radiance ) {
-        COLOR rho = REFLECTIVITY(element->pog.patch), ambient;
+        COLOR rho = REFLECTIVITY(element->patch), ambient;
 
         colorProduct(rho, GLOBAL_galerkin_state.ambient_radiance, ambient);
-        for ( i = 0; i < element->pog.patch->numberOfVertices; i++ ) {
+        for ( i = 0; i < element->patch->numberOfVertices; i++ ) {
             colorAdd(vertrad[i], ambient, vertrad[i]);
         }
     }
 
-    for ( i = 0; i < element->pog.patch->numberOfVertices; i++ ) {
+    for ( i = 0; i < element->patch->numberOfVertices; i++ ) {
         RGB col;
         radianceToRgb(vertrad[i], &col);
         galerkinWriteVertexColor(&col);
@@ -574,7 +578,7 @@ galerkinWriteCoordIndex(int index) {
 static void
 galerkinWriteCoordIndices(GalerkingElement *elem) {
     int i;
-    for ( i = 0; i < elem->pog.patch->numberOfVertices; i++ ) {
+    for ( i = 0; elem != nullptr && elem->patch != nullptr && i < elem->patch->numberOfVertices; i++ ) {
         galerkinWriteCoordIndex(globalVertexId++);
     }
     galerkinWriteCoordIndex(-1);

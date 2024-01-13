@@ -107,11 +107,11 @@ static float formfactor_estimate(StochasticRadiosityElement *rcv, StochasticRadi
     d = VECTORNORM(D);
     f = src->area / (M_PI * d * d + src->area);
     f2 = 2. * f;
-    c1 = rcv->iscluster ? 1. /*0.25*/ : fabs(VECTORDOTPRODUCT(D, rcv->pog.patch->normal)) / d;
+    c1 = rcv->iscluster ? 1. /*0.25*/ : fabs(VECTORDOTPRODUCT(D, rcv->patch->normal)) / d;
     if ( c1 < f2 ) {
         c1 = f2;
     }
-    c2 = src->iscluster ? 1. /*0.25*/ : fabs(VECTORDOTPRODUCT(D, src->pog.patch->normal)) / d;
+    c2 = src->iscluster ? 1. /*0.25*/ : fabs(VECTORDOTPRODUCT(D, src->patch->normal)) / d;
     if ( c2 < f2 ) {
         c2 = f2;
     }
@@ -128,7 +128,7 @@ static int LowPowerLink(LINK *link) {
     /* compute receiver reflectance times source radiosity */
     colorScale(M_PI, src->rad[0], rhosrcrad);
     if ( !rcv->iscluster ) {
-        COLOR Rd = TOPLEVEL_ELEMENT(rcv->pog.patch)->Rd;
+        COLOR Rd = TOPLEVEL_ELEMENT(rcv->patch)->Rd;
         colorProduct(Rd, rhosrcrad, rhosrcrad);
     }
 

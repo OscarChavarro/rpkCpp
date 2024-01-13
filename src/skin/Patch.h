@@ -6,6 +6,7 @@
 #include "skin/Jacobian.h"
 #include "skin/Vertex.h"
 #include "skin/MeshSurface.h"
+#include "GALERKIN/Element.h"
 
 #define MAXIMUM_VERTICES_PER_PATCH 4
 #define PATCH_VISIBILITY 0x01
@@ -50,7 +51,7 @@ public:
 
     RGB color; // color used to flat render the patch
 
-    void *radiance_data; // data needed for radiance computations. Type depends on the current radiance algorithm
+    Element *radianceData; // data needed for radiance computations. Type depends on the current radiance algorithm
     MeshSurface *surface; // pointer to surface data (contains vertex list, material properties)
 
     Patch();

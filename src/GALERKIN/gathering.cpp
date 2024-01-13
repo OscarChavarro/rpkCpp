@@ -109,7 +109,7 @@ gatheringPushPullPotential(GalerkingElement *elem, float down) {
     up = 0.0;
 
     if ( !elem->regular_subelements && !elem->irregular_subelements ) {
-        up = down + elem->pog.patch->directPotential;
+        up = down + elem->patch->directPotential;
     }
 
     if ( elem->regular_subelements ) {

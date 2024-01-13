@@ -53,9 +53,9 @@ photonMapRadiosityUpdateCpuSecs() {
     pmapstate.lastclock = t;
 }
 
-static void *
+static Element *
 photonMapCreatePatchData(Patch *patch) {
-    return patch->radiance_data = nullptr;
+    return nullptr;
 }
 
 static void
@@ -65,7 +65,7 @@ photonMapPrintPatchData(FILE *out, Patch *patch) {
 
 static void
 photonMapDestroyPatchData(Patch *patch) {
-    patch->radiance_data = (void *) nullptr;
+    patch->radianceData = nullptr;
 }
 
 /**

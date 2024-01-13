@@ -37,7 +37,7 @@ sub-elements of the cluster
 */
 static void
 patchAddClusterChild(Patch *patch, GalerkingElement *cluster) {
-    GalerkingElement *surfaceElement = (GalerkingElement *)patch->radiance_data;
+    GalerkingElement *surfaceElement = (GalerkingElement *)patch->radianceData;
 
     cluster->irregular_subelements = ElementListAdd(cluster->irregular_subelements, surfaceElement);
     surfaceElement->parent = cluster;
@@ -88,7 +88,7 @@ clusterInit(GalerkingElement *cluster) {
         /* This is very costly
         cluster->bsize = GeomBlockerSize(cluster->pog.geom);
         */
-        float *bbx = cluster->pog.geom->bounds;
+        float *bbx = cluster->geom->bounds;
         cluster->bsize = MAX((bbx[MAX_X] - bbx[MIN_X]), (bbx[MAX_Y] - bbx[MIN_Y]));
         cluster->bsize = MAX(cluster->bsize, (bbx[MAX_Z] - bbx[MIN_Z]));
     } /* else
@@ -188,12 +188,12 @@ accumulatePowerToSamplePoint(GalerkingElement *src) {
     Vector3D dir;
     COLOR rad;
 
-    VECTORSUBTRACT(globalSamplePoint, src->pog.patch->midpoint, dir);
+    VECTORSUBTRACT(globalSamplePoint, src->patch->midpoint, dir);
     dist = VECTORNORM(dir);
     if ( dist < EPSILON ) {
         srcos = 1.0f;
     } else {
-        srcos = VECTORDOTPRODUCT(dir, src->pog.patch->normal) / dist;
+        srcos = VECTORDOTPRODUCT(dir, src->patch->normal) / dist;
     }
     if ( srcos <= 0.0f ) {
         return;
@@ -235,7 +235,7 @@ clusterRadianceToSamplePoint(GalerkingElement *src, Vector3D sample) {
         }
 
         case Z_VISIBILITY:
-            if ( !isCluster(src) || !OutOfBounds(&sample, src->pog.geom->bounds)) {
+            if ( !isCluster(src) || !OutOfBounds(&sample, src->geom->bounds)) {
                 return src->radiance[0];
             } else {
                 double areafactor;
@@ -289,12 +289,12 @@ surfaceProjectedAreaToSamplePoint(GalerkingElement *rcv) {
     double rcvcos, dist;
     Vector3D dir;
 
-    VECTORSUBTRACT(globalSamplePoint, rcv->pog.patch->midpoint, dir);
+    VECTORSUBTRACT(globalSamplePoint, rcv->patch->midpoint, dir);
     dist = VECTORNORM(dir);
     if ( dist < EPSILON ) {
         rcvcos = 1.;
     } else {
-        rcvcos = VECTORDOTPRODUCT(dir, rcv->pog.patch->normal) / dist;
+        rcvcos = VECTORDOTPRODUCT(dir, rcv->patch->normal) / dist;
     }
     if ( rcvcos <= 0. ) {
         return 0.;
@@ -333,7 +333,7 @@ receiverClusterArea(INTERACTION *link) {
 
         case Z_VISIBILITY:
             globalSamplePoint = galerkinElementMidpoint(src);
-            if ( !OutOfBounds(&globalSamplePoint, rcv->pog.geom->bounds)) {
+            if ( !OutOfBounds(&globalSamplePoint, rcv->geom->bounds)) {
                 return rcv->area;
             } else {
                 float *bbx = ScratchRenderElementPtrs(rcv, globalSamplePoint);
@@ -443,7 +443,7 @@ clusterGatherRadiance(INTERACTION *link, COLOR *srcrad) {
             iterateOverSurfaceElementsInCluster(rcv, orientedSurfaceGatherRadiance);
             break;
         case Z_VISIBILITY:
-            if ( !OutOfBounds(&globalSamplePoint, rcv->pog.geom->bounds)) {
+            if ( !OutOfBounds(&globalSamplePoint, rcv->geom->bounds)) {
                 iterateOverSurfaceElementsInCluster(rcv, orientedSurfaceGatherRadiance);
             } else {
                 float *bbx = ScratchRenderElementPtrs(rcv, globalSamplePoint);

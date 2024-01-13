@@ -62,7 +62,7 @@ static COLOR *
 randomWalkRadiosityGetSelfEmittedRadiance(StochasticRadiosityElement *elem) {
     static COLOR Ed[MAX_BASIS_SIZE];
     stochasticRadiosityClearCoefficients(Ed, elem->basis);
-    Ed[0] = TOPLEVEL_ELEMENT(elem->pog.patch)->Ed; // Emittance
+    Ed[0] = TOPLEVEL_ELEMENT(elem->patch)->Ed; // Emittance
     return Ed;
 }
 

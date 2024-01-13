@@ -202,10 +202,10 @@ monteCarloRadiosityUpdateCpuSecs() {
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.lastClock = t;
 }
 
-void *
+Element *
 monteCarloRadiosityCreatePatchData(Patch *patch) {
-    patch->radiance_data = (void *) monteCarloRadiosityCreateToplevelSurfaceElement(patch);
-    return patch->radiance_data;
+    patch->radianceData = monteCarloRadiosityCreateToplevelSurfaceElement(patch);
+    return patch->radianceData;
 }
 
 void
@@ -215,10 +215,9 @@ monteCarloRadiosityPrintPatchData(FILE *out, Patch *patch) {
 
 void
 monteCarloRadiosityDestroyPatchData(Patch *patch) {
-    if ( patch->radiance_data ) {
+    if ( patch->radianceData != nullptr ) {
         monteCarloRadiosityDestroyToplevelSurfaceElement(TOPLEVEL_ELEMENT(patch));
     }
-    patch->radiance_data = (void *) nullptr;
 }
 
 /**
@@ -287,7 +286,7 @@ static void
 monteCarloRadiosityUpdateImportance(StochasticRadiosityElement *elem) {
     if ( !monteCarloRadiosityForAllChildrenElements(elem, monteCarloRadiosityUpdateImportance)) {
         /* leaf element */
-        float delta_imp = (PATCH_IS_VISIBLE(elem->pog.patch) ? 1. : 0.) - elem->source_imp;
+        float delta_imp = (PATCH_IS_VISIBLE(elem->patch) ? 1. : 0.) - elem->source_imp;
         elem->imp += delta_imp;
         elem->source_imp += delta_imp;
         elem->unshot_imp += delta_imp;
@@ -307,7 +306,7 @@ monteCarloRadiosityReInitImportance(StochasticRadiosityElement *elem) {
     if ( !monteCarloRadiosityForAllChildrenElements(elem, monteCarloRadiosityReInitImportance)) {
         // Leaf element
         elem->imp = elem->source_imp = elem->unshot_imp
-                = PATCH_IS_VISIBLE(elem->pog.patch) ? 1.0 : 0.0;
+                = PATCH_IS_VISIBLE(elem->patch) ? 1.0 : 0.0;
         monteCarloRadiosityAccumulateImportances(elem);
     } else {
         // Not a leaf element: clear & pull importance

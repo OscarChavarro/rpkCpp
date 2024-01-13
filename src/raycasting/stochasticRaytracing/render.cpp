@@ -357,7 +357,7 @@ void RenderElementOutline(StochasticRadiosityElement *elem) {
     int i;
 
     /* test whether eye point is in front of the patch */
-    if ( VECTORDOTPRODUCT(elem->pog.patch->normal, GLOBAL_camera_mainCamera.eyep) + elem->pog.patch->planeConstant < 0. ) {
+    if ( VECTORDOTPRODUCT(elem->patch->normal, GLOBAL_camera_mainCamera.eyep) + elem->patch->planeConstant < 0. ) {
         return;
     }
 

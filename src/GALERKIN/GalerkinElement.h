@@ -1,15 +1,17 @@
-/* element.h: Galerkin finite elements: one structure for both surface and cluster
-1;95;0c * elements.  */
+/**
+Galerkin finite elements: one structure for both surface and cluster elements
+*/
 
 #ifndef _ELEMENT_H_
 #define _ELEMENT_H_
 
-#include "skin/Patch.h"
-#include "GALERKIN/interactionlist.h"
 #include "common/linealAlgebra/Matrix2x2.h"
 #include "common/linealAlgebra/Matrix4x4.h"
+#include "skin/Patch.h"
 #include "scene/polygon.h"
+#include "GALERKIN/interactionlist.h"
 #include "GALERKIN/elementlistgalerkin.h"
+#include "GALERKIN/Element.h"
 
 class INTERACTIONLIST;
 
@@ -17,11 +19,6 @@ typedef union FloatOrColorPtr {
     float f;
     COLOR *c;
 } FloatOrColorPtr;
-
-typedef union PatchOrGeomPtr {
-    Patch *patch;
-    Geometry *geom;
-} PatchOrGeomPtr;
 
 /**
 Galerkin radiosity specific data to be kept with every surface or
@@ -32,12 +29,10 @@ a pointer to the Geometry to which they are associated, while a surface element 
 a pointer to the Patch to which is belongs, they have only irregular sub-elements,
 and no up-trans
 */
-class GalerkingElement {
+class GalerkingElement : public Element {
   public:
     int id;        /* unique ID number for the element */
-    PatchOrGeomPtr pog;    /* The Patch/Geometry to which the surface/cluster element
-			 * belongs. */
-    COLOR Ed, Rd;        /* diffuse emittance and reflectance */
+
     COLOR *radiance,    /* total radiance on the element as computed so far */
     *received_radiance, /* radiance received during iteration */
     *unshot_radiance; /* for progressive refinement radiosity */
@@ -140,7 +135,7 @@ extern GalerkingElement **galerkinRegularSubdivideElement(GalerkingElement *elem
  * determined by the following transforms, that transform (u,v)
  * parameters of a point on a subelement to the (u',v') parameters
  * of the same point on the parent element. */
-extern Matrix2x2 quadupxfm[4], triupxfm[4];
+extern Matrix2x2 globalQuadUpTransformMatrix[4], globalTriangularUpTransformMatrix[4];
 
 /* prints the element data to the file 'out' */
 extern void galerkinPrintElement(FILE *out, GalerkingElement *element);

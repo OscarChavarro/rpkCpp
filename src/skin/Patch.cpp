@@ -24,9 +24,9 @@ order to make a unique Patch id
 static int globalPatchId = 1;
 
 Patch::Patch():
-    id{}, twin{}, brepData{}, vertex{}, numberOfVertices{}, bounds{}, normal{}, planeConstant{},
-    tolerance{}, area{}, midpoint{}, jacobian{}, directPotential{}, index{}, omit{}, flags{},
-    color{}, radiance_data{}, surface{}
+        id{}, twin{}, brepData{}, vertex{}, numberOfVertices{}, bounds{}, normal{}, planeConstant{},
+        tolerance{}, area{}, midpoint{}, jacobian{}, directPotential{}, index{}, omit{}, flags{},
+        color{}, radianceData{}, surface{}
 {
 
 }
@@ -306,10 +306,9 @@ patchCreate(int numberOfVertices, Vertex *v1, Vertex *v2, Vertex *v3, Vertex *v4
     patch->omit = false;
     patch->flags = 0;    /* other flags */
 
-    /* if we are doing radiance computations, create radiance data for the
-       patch */
-    patch->radiance_data = (GLOBAL_radiance_currentRadianceMethodHandle && GLOBAL_radiance_currentRadianceMethodHandle->CreatePatchData) ?
-                           GLOBAL_radiance_currentRadianceMethodHandle->CreatePatchData(patch) : (void *) nullptr;
+    // If we are doing radiance computations, create radiance data for the patch
+    patch->radianceData = (GLOBAL_radiance_currentRadianceMethodHandle && GLOBAL_radiance_currentRadianceMethodHandle->CreatePatchData) ?
+                          GLOBAL_radiance_currentRadianceMethodHandle->CreatePatchData(patch) : nullptr;
 
     return patch;
 }
@@ -320,7 +319,7 @@ the pointers to the patch in the vertices of the patch
 */
 void
 patchDestroy(Patch *patch) {
-    if ( GLOBAL_radiance_currentRadianceMethodHandle && patch->radiance_data ) {
+    if ( GLOBAL_radiance_currentRadianceMethodHandle && patch->radianceData ) {
         if ( GLOBAL_radiance_currentRadianceMethodHandle->DestroyPatchData ) {
             GLOBAL_radiance_currentRadianceMethodHandle->DestroyPatchData(patch);
         }
@@ -495,7 +494,7 @@ patchPrint(FILE *out, Patch *patch) {
             PATCH_IS_VISIBLE(patch) ? "PATCH_IS_VISIBLE" : "");
 
     if ( GLOBAL_radiance_currentRadianceMethodHandle ) {
-        if ( patch->radiance_data && GLOBAL_radiance_currentRadianceMethodHandle->PrintPatchData ) {
+        if ( patch->radianceData && GLOBAL_radiance_currentRadianceMethodHandle->PrintPatchData ) {
             fprintf(out, "Radiance data:\n");
             GLOBAL_radiance_currentRadianceMethodHandle->PrintPatchData(out, patch);
         } else {

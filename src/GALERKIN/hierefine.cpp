@@ -43,15 +43,15 @@ static GeometryListNode *Cull(INTERACTION *link) {
         }
 
         if ( isCluster(link->rcv)) {
-            ShaftDontOpen(&shaft, link->rcv->pog.geom);
+            ShaftDontOpen(&shaft, link->rcv->geom);
         } else {
-            ShaftOmit(&shaft, (Geometry *) link->rcv->pog.patch);
+            ShaftOmit(&shaft, (Geometry *) link->rcv->patch);
         }
 
         if ( isCluster(link->src)) {
-            ShaftDontOpen(&shaft, link->src->pog.geom);
+            ShaftDontOpen(&shaft, link->src->geom);
         } else {
-            ShaftOmit(&shaft, (Geometry *) link->src->pog.patch);
+            ShaftOmit(&shaft, (Geometry *) link->src->patch);
         }
 
         if ( ocandlist == GLOBAL_scene_clusteredWorld ) {
@@ -245,7 +245,7 @@ static INTERACTION_EVALUATION_CODE EvaluateInteraction(INTERACTION *link) {
         colorSetMonochrome(rcvrho, 1.);
         rcv_area = receiverClusterArea(link);
     } else {
-        rcvrho = REFLECTIVITY(link->rcv->pog.patch);
+        rcvrho = REFLECTIVITY(link->rcv->patch);
         rcv_area = link->rcv->area;
     }
 
@@ -253,7 +253,7 @@ static INTERACTION_EVALUATION_CODE EvaluateInteraction(INTERACTION *link) {
     if ( isCluster(link->src)) {
         colorSetMonochrome(srcrho, 1.0f);
     } else
-        srcrho = REFLECTIVITY(link->src->pog.patch);
+        srcrho = REFLECTIVITY(link->src->patch);
 
     /* determine error estimate and error threshold */
     threshold = LinkErrorThreshold(link, rcv_area);
@@ -344,14 +344,14 @@ static void ComputeLightTransport(INTERACTION *link) {
             if ( isCluster(link->rcv)) {
                 colorSetMonochrome(rcvrho, 1.0f);
             } else {
-                rcvrho = REFLECTIVITY(link->rcv->pog.patch);
+                rcvrho = REFLECTIVITY(link->rcv->patch);
             }
             link->src->received_potential.f += K * ColorToError(rcvrho) * link->rcv->potential.f;
         } else if ( GLOBAL_galerkin_state.iteration_method == SOUTHWELL ) {
             if ( isCluster(link->src)) {
                 colorSetMonochrome(srcrho, 1.0f);
             } else {
-                srcrho = REFLECTIVITY(link->src->pog.patch);
+                srcrho = REFLECTIVITY(link->src->patch);
             }
             link->rcv->received_potential.f += K * ColorToError(srcrho) * link->src->unshot_potential.f;
         } else {
@@ -469,10 +469,10 @@ static int SubdivideSourceCluster(INTERACTION *link) {
         /* subinteraction.deltaK.p = */
 
         if ( !isCluster(child)) {
-            Patch *the_patch = child->pog.patch;
+            Patch *the_patch = child->patch;
             if ((isCluster(rcv) &&
-                 boundsBehindPlane(geomBounds(rcv->pog.geom), &the_patch->normal, the_patch->planeConstant)) ||
-                (!isCluster(rcv) && !Facing(rcv->pog.patch, the_patch))) {
+                 boundsBehindPlane(geomBounds(rcv->geom), &the_patch->normal, the_patch->planeConstant)) ||
+                (!isCluster(rcv) && !Facing(rcv->patch, the_patch))) {
                 continue;
             }
         }
@@ -502,10 +502,10 @@ static int SubdivideReceiverCluster(INTERACTION *link) {
         subinteraction.K.p = ff;
 
         if ( !isCluster(child)) {
-            Patch *the_patch = child->pog.patch;
+            Patch *the_patch = child->patch;
             if ((isCluster(src) &&
-                 boundsBehindPlane(geomBounds(src->pog.geom), &the_patch->normal, the_patch->planeConstant)) ||
-                (!isCluster(src) && !Facing(src->pog.patch, the_patch))) {
+                 boundsBehindPlane(geomBounds(src->geom), &the_patch->normal, the_patch->planeConstant)) ||
+                (!isCluster(src) && !Facing(src->patch, the_patch))) {
                 continue;
             }
         }

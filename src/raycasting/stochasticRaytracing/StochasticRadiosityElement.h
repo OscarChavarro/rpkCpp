@@ -1,24 +1,19 @@
-/* elementtype.h: Monte Carlo radiosity element type */
+/**
+Monte Carlo radiosity element type
+*/
 
-#ifndef _ELEMENT_TYPE_H_
-#define _ELEMENT_TYPE_H_
+#ifndef __STOCHASTIC_RADIOSITY_ELEMENT__
+#define __STOCHASTIC_RADIOSITY_ELEMENT__
 
 #include "common/linealAlgebra/Matrix2x2.h"
 #include "QMC/niederreiter.h"
 #include "raycasting/stochasticRaytracing/elementlistmcrad.h"
 #include "raycasting/stochasticRaytracing/basismcrad.h"
+#include "GALERKIN/Element.h"
 
-typedef union PatchOrGeomPtr {
-    Patch *patch;
-    Geometry *geom;
-} PatchOrGeomPtr;
-
-class StochasticRadiosityElement {
+class StochasticRadiosityElement : public Element {
   public:
-    PatchOrGeomPtr pog;    /* pointer to patch for surface elements or
-			 * to geometry for cluster elements */
     long id;        /* unique ID number */
-    COLOR Ed, Rd;        /* average diffuse emittance and reflectance of element */
 
     niedindex ray_index;    /* incremented each time a ray is shot from the elem */
 

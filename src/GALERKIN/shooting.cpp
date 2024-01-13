@@ -82,7 +82,7 @@ shootUnshotRadianceAndPotentialOverLink(INTERACTION *link) {
         if ( isCluster(link->src)) {
             colorSetMonochrome(srcrho, 1.);
         } else {
-            srcrho = REFLECTIVITY(link->src->pog.patch);
+            srcrho = REFLECTIVITY(link->src->patch);
         }
         link->rcv->received_potential.f += K * colorMaximumComponent(srcrho) * link->src->unshot_potential.f;
     }

@@ -24,7 +24,7 @@ void ScratchTerminate() {
 static Vector3D eyep;
 
 static void ScratchRenderElementPtr(GalerkingElement *elem) {
-    Patch *patch = elem->pog.patch;
+    Patch *patch = elem->patch;
     Vector3D v[4];
     int i;
 
@@ -69,7 +69,7 @@ float *ScratchRenderElementPtrs(GalerkingElement *clus, Vector3D eye) {
     if ( fabs(VECTORDOTPRODUCT(up, viewdir)) > 1. - EPSILON ) VECTORSET(up, 0., 1., 0.);
     lookat = LookAt(eye, centre, up);
 
-    boundsTransform(geomBounds(clus->pog.geom), &lookat, bbx);
+    boundsTransform(geomBounds(clus->geom), &lookat, bbx);
 
     prev_sgl_context = sglMakeCurrent(GLOBAL_galerkin_state.scratch);
     sglLoadMatrix(Ortho(bbx[MIN_X], bbx[MAX_X], bbx[MIN_Y], bbx[MAX_Y], -bbx[MAX_Z], -bbx[MIN_Z]));

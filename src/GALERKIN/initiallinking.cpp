@@ -150,7 +150,7 @@ createInitialLinks(GalerkingElement *top, ROLE role) {
 
     globalElement = top;
     globalRole = role;
-    globalPatch = top->pog.patch;
+    globalPatch = top->patch;
     patchBounds(globalPatch, globalPatchBoundingBox);
     globalCandidateList = GLOBAL_scene_clusteredWorld;
 

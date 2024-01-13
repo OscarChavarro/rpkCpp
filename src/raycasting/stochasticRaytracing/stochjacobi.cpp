@@ -188,7 +188,7 @@ static void PropagateRadianceToClusterOriented(StochasticRadiosityElement *clust
                                                double fraction, double weight) {
     REC_ForAllClusterSurfaces(rcv, cluster)
             {
-                double c = -dir * VECTORDOTPRODUCT(rcv->pog.patch->normal, ray->dir);
+                double c = -dir * VECTORDOTPRODUCT(rcv->patch->normal, ray->dir);
                 if ( c > 0. ) {
                     double afrac = fraction * (c * rcv->area / projarea);
                     double w = afrac / rcv->area / (double) nr_rays;
@@ -202,7 +202,7 @@ static double ReceiverProjectedArea(StochasticRadiosityElement *cluster, Ray *ra
     double area = 0.;
     REC_ForAllClusterSurfaces(rcv, cluster)
             {
-                double c = -dir * VECTORDOTPRODUCT(rcv->pog.patch->normal, ray->dir);
+                double c = -dir * VECTORDOTPRODUCT(rcv->patch->normal, ray->dir);
                 if ( c > 0. ) {
                     area += c * rcv->area;
                 }
@@ -399,13 +399,14 @@ static void ElementShootRay(StochasticRadiosityElement *src,
         GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceTracedRays++;
     }
 
-    ray = McrGenerateLocalLine(src->pog.patch,
+    ray = McrGenerateLocalLine(src->patch,
                                NextSample(src, nmsb, msb1, rmsb2, zeta));
-    hit = McrShootRay(src->pog.patch, &ray, &hitstore);
+    hit = McrShootRay(src->patch, &ray, &hitstore);
     if ( hit ) {
-        double uhit = 0., vhit = 0.;
+        double uhit = 0.0;
+        double vhit = 0.0;
         UniformHitCoordinates(hit, &uhit, &vhit);
-        RefineAndPropagate(TOPLEVEL_ELEMENT(src->pog.patch), zeta[0], zeta[1],
+        RefineAndPropagate(TOPLEVEL_ELEMENT(src->patch), zeta[0], zeta[1],
                            TOPLEVEL_ELEMENT(hit->patch), uhit, vhit, &ray);
     } else {
         GLOBAL_stochasticRaytracing_monteCarloRadiosityState.numberOfMisses++;

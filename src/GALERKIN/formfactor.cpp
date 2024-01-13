@@ -57,7 +57,7 @@ static void DetermineNodes(GalerkingElement *elem, CUBARULE **cr, Vector3D x[CUB
         }
     } else {
         /* what cubature rule should be used over the element */
-        switch ( elem->pog.patch->numberOfVertices ) {
+        switch ( elem->patch->numberOfVertices ) {
             case 3:
                 *cr = role == RECEIVER ? GLOBAL_galerkin_state.rcv3rule : GLOBAL_galerkin_state.src3rule;
                 break;
@@ -81,7 +81,7 @@ static void DetermineNodes(GalerkingElement *elem, CUBARULE **cr, Vector3D x[CUB
             node.u = (*cr)->u[k];
             node.v = (*cr)->v[k];
             if ( elem->uptrans ) TRANSFORM_POINT_2D(topxf, node, node);
-            patchUniformPoint(elem->pog.patch, node.u, node.v, &x[k]);
+            patchUniformPoint(elem->patch, node.u, node.v, &x[k]);
         }
     }
 }
@@ -120,7 +120,7 @@ static double PointKernelEval(Vector3D *x, Vector3D *y,
     if ( isCluster(src)) {
         cosq = 0.25;
     } else {
-        cosq = VECTORDOTPRODUCT(ray.dir, src->pog.patch->normal);
+        cosq = VECTORDOTPRODUCT(ray.dir, src->patch->normal);
         if ( cosq <= 0. ) {    /* ray leaves behind the source */
             return 0.;
         }
@@ -130,7 +130,7 @@ static double PointKernelEval(Vector3D *x, Vector3D *y,
     if ( isCluster(rcv)) {
         cosp = 0.25;
     } else {
-        cosp = -VECTORDOTPRODUCT(ray.dir, rcv->pog.patch->normal);
+        cosp = -VECTORDOTPRODUCT(ray.dir, rcv->patch->normal);
         if ( cosp <= 0. ) {    /* ray hits receiver from the back */
             return 0.;
         }
@@ -187,13 +187,13 @@ static void DoHigherOrderAreaToAreaFormFactor(INTERACTION *link,
          * clusters. */
         rcvbasis = (GalerkinBasis *) nullptr;
     } else {
-        rcvbasis = (rcv->pog.patch->numberOfVertices == 3 ? &GLOBAL_galerkin_triBasis : &GLOBAL_galerkin_quadBasis);
+        rcvbasis = (rcv->patch->numberOfVertices == 3 ? &GLOBAL_galerkin_triBasis : &GLOBAL_galerkin_quadBasis);
     }
 
     if ( isCluster(src)) {
         srcbasis = (GalerkinBasis *) nullptr;
     } else {
-        srcbasis = (src->pog.patch->numberOfVertices == 3 ? &GLOBAL_galerkin_triBasis : &GLOBAL_galerkin_quadBasis);
+        srcbasis = (src->patch->numberOfVertices == 3 ? &GLOBAL_galerkin_triBasis : &GLOBAL_galerkin_quadBasis);
     }
 
     /* determine basis function values \phi_{i,\alpha}(x_k) at sample positions on the
@@ -458,12 +458,12 @@ unsigned AreaToAreaFormFactor(INTERACTION *link, GeometryListNode *shadowlist) {
         InitShadowCache();
 
         /* Mark the patches in order to avoid immediate selfintersections. */
-        patchDontIntersect(4, isCluster(rcv) ? (Patch *) nullptr : rcv->pog.patch,
-                           isCluster(rcv) ? (Patch *) nullptr : rcv->pog.patch->twin,
-                           isCluster(src) ? (Patch *) nullptr : src->pog.patch,
-                           isCluster(src) ? (Patch *) nullptr : src->pog.patch->twin);
-        geomDontIntersect(isCluster(rcv) ? rcv->pog.geom : (Geometry *) nullptr,
-                          isCluster(src) ? src->pog.geom : (Geometry *) nullptr);
+        patchDontIntersect(4, isCluster(rcv) ? (Patch *) nullptr : rcv->patch,
+                           isCluster(rcv) ? (Patch *) nullptr : rcv->patch->twin,
+                           isCluster(src) ? (Patch *) nullptr : src->patch,
+                           isCluster(src) ? (Patch *) nullptr : src->patch->twin);
+        geomDontIntersect(isCluster(rcv) ? rcv->geom : (Geometry *) nullptr,
+                          isCluster(src) ? src->geom : (Geometry *) nullptr);
 
         maxkval = 0.;    /* compute maximum unoccluded kernel value */
         maxptff = 0.;    /* maximum unoccluded point-on-receiver to source form factor */

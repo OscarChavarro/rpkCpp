@@ -11,17 +11,36 @@
 #include "SGL/sgl.h"
 #include "GALERKIN/GalerkinElement.h"
 
-/* the Galerkin specifix data for a patch is its toplevel element. The
- * ELEMENT structure is defined in element.h. */
+/**
+Galerkin specific data for a patch is its toplevel element
+*/
 
-/* to save typing work: */
-#define RADIANCE(patch) ((GalerkingElement *)(patch->radiance_data))->radiance[0]
-#define UNSHOT_RADIANCE(patch) ((GalerkingElement *)(patch->radiance_data))->unshot_radiance[0]
-#define POTENTIAL(patch) ((GalerkingElement *)(patch->radiance_data))->potential
-#define UNSHOT_POTENTIAL(patch) ((GalerkingElement *)(patch->radiance_data))->unshot_potential
-#define SELFEMITTED_RADIANCE(patch) ((GalerkingElement *)(patch->radiance_data))->Ed
-#define REFLECTIVITY(patch) ((GalerkingElement *)(patch->radiance_data))->Rd
-#define TOPLEVEL_ELEMENT(patch) ((GalerkingElement *)(patch->radiance_data))
+#define RADIANCE(patch) \
+    ((GalerkingElement *)patch->radianceData)->radiance[0]
+
+#define UNSHOT_RADIANCE(patch) ((GalerkingElement *)(patch->radianceData))->unshot_radiance[0]
+#define POTENTIAL(patch) ((GalerkingElement *)(patch->radianceData))->potential
+#define UNSHOT_POTENTIAL(patch) ((GalerkingElement *)(patch->radianceData))->unshot_potential
+
+inline COLOR
+SELFEMITTED_RADIANCE(Patch *patch) {
+    if ( patch == nullptr ) {
+        COLOR black{};
+        return black;
+    }
+    return patch->radianceData->Ed;
+}
+
+inline COLOR
+REFLECTIVITY(Patch *patch) {
+    if ( patch == nullptr ) {
+        COLOR black{};
+        return black;
+    }
+    return patch->radianceData->Rd;
+}
+
+#define TOPLEVEL_ELEMENT(patch) ((GalerkingElement *)(patch->radianceData))
 
 /* Galerkin Radiosity "state" information */
 enum ITERATION_METHOD {
