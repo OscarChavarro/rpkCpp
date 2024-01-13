@@ -8,7 +8,7 @@
 #include "raycasting/stochasticRaytracing/mcradP.h"
 #include "raycasting/stochasticRaytracing/hierarchy.h"
 
-RGB ElementColor(ELEMENT *element) {
+RGB ElementColor(StochasticRadiosityElement *element) {
     RGB color;
 
     switch ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.show ) {
@@ -122,7 +122,7 @@ RGB VertexColor(Vertex *v) {
 }
 
 /* compute new vertex colors */
-void ElementComputeNewVertexColors(ELEMENT *elem) {
+void ElementComputeNewVertexColors(StochasticRadiosityElement *elem) {
     VertexColor(elem->vertex[0]);
     VertexColor(elem->vertex[1]);
     VertexColor(elem->vertex[2]);
@@ -131,7 +131,7 @@ void ElementComputeNewVertexColors(ELEMENT *elem) {
     }
 }
 
-void ElementAdjustTVertexColors(ELEMENT *elem) {
+void ElementAdjustTVertexColors(StochasticRadiosityElement *elem) {
     Vertex *m[4];
     int i, n;
     for ( i = 0, n = 0; i < elem->nrvertices; i++ ) {
@@ -333,7 +333,7 @@ static void RenderQuadrilateralElement(Vertex **v, Vertex **m, int nrTvertices) 
     QuadrilateralTVertexElimination(v, m, nrTvertices, RenderTriangle, RenderQuadrilateral);
 }
 
-void ElementTVertexElimination(ELEMENT *elem,
+void ElementTVertexElimination(StochasticRadiosityElement *elem,
                                void (*do_triangle)(Vertex *, Vertex *, Vertex *),
                                void (*do_quadrilateral)(Vertex *, Vertex *, Vertex *, Vertex *)) {
     Vertex *m[4];
@@ -352,7 +352,7 @@ void ElementTVertexElimination(ELEMENT *elem,
     }
 }
 
-void RenderElementOutline(ELEMENT *elem) {
+void RenderElementOutline(StochasticRadiosityElement *elem) {
     Vector3D verts[4];
     int i;
 
@@ -380,7 +380,7 @@ void RenderElementOutline(ELEMENT *elem) {
 }
 
 void
-McrRenderElement(ELEMENT *elem) {
+McrRenderElement(StochasticRadiosityElement *elem) {
     Vector3D verts[4];
 
     if ( GLOBAL_render_renderOptions.smooth_shading && GLOBAL_stochasticRaytracing_hierarchy.tvertex_elimination ) {
@@ -429,7 +429,7 @@ McrRenderElement(ELEMENT *elem) {
         RenderElementOutline(elem);
 }
 
-COLOR ElementDisplayRadiance(ELEMENT *elem) {
+COLOR ElementDisplayRadiance(StochasticRadiosityElement *elem) {
     COLOR rad;
     colorSubtract(elem->rad[0], elem->source_rad, rad);
 
@@ -445,7 +445,7 @@ COLOR ElementDisplayRadiance(ELEMENT *elem) {
     return rad;
 }
 
-COLOR ElementDisplayRadianceAtPoint(ELEMENT *elem, double u, double v) {
+COLOR ElementDisplayRadianceAtPoint(StochasticRadiosityElement *elem, double u, double v) {
     COLOR radiance;
     if ( elem->basis->size == 1 ) {
         if ( GLOBAL_render_renderOptions.smooth_shading ) {

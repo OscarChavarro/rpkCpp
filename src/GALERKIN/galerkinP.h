@@ -9,19 +9,19 @@
 #include "material/color.h"
 #include "shared/cubature.h"
 #include "SGL/sgl.h"
-#include "GALERKIN/elementgalerkin.h"
+#include "GALERKIN/GalerkinElement.h"
 
 /* the Galerkin specifix data for a patch is its toplevel element. The
  * ELEMENT structure is defined in element.h. */
 
 /* to save typing work: */
-#define RADIANCE(patch) ((ELEMENT *)(patch->radiance_data))->radiance[0]
-#define UNSHOT_RADIANCE(patch) ((ELEMENT *)(patch->radiance_data))->unshot_radiance[0]
-#define POTENTIAL(patch) ((ELEMENT *)(patch->radiance_data))->potential
-#define UNSHOT_POTENTIAL(patch) ((ELEMENT *)(patch->radiance_data))->unshot_potential
-#define SELFEMITTED_RADIANCE(patch) ((ELEMENT *)(patch->radiance_data))->Ed
-#define REFLECTIVITY(patch) ((ELEMENT *)(patch->radiance_data))->Rd
-#define TOPLEVEL_ELEMENT(patch) ((ELEMENT *)(patch->radiance_data))
+#define RADIANCE(patch) ((GalerkingElement *)(patch->radiance_data))->radiance[0]
+#define UNSHOT_RADIANCE(patch) ((GalerkingElement *)(patch->radiance_data))->unshot_radiance[0]
+#define POTENTIAL(patch) ((GalerkingElement *)(patch->radiance_data))->potential
+#define UNSHOT_POTENTIAL(patch) ((GalerkingElement *)(patch->radiance_data))->unshot_potential
+#define SELFEMITTED_RADIANCE(patch) ((GalerkingElement *)(patch->radiance_data))->Ed
+#define REFLECTIVITY(patch) ((GalerkingElement *)(patch->radiance_data))->Rd
+#define TOPLEVEL_ELEMENT(patch) ((GalerkingElement *)(patch->radiance_data))
 
 /* Galerkin Radiosity "state" information */
 enum ITERATION_METHOD {
@@ -77,7 +77,7 @@ class GALERKIN_STATE {
     CUBARULE *clusRule;
 
     /* global variables concerning clustering */
-    ELEMENT *top_cluster;    /* toplevel cluster containing the whole scene */
+    GalerkingElement *top_cluster;    /* toplevel cluster containing the whole scene */
     Geometry *top_geom;    /* a single COMPOUND Geometry containing the whole scene */
 
     /* parameters that control accuracy */
@@ -96,8 +96,8 @@ class GALERKIN_STATE {
     CLUSTERING_STRATEGY clustering_strategy;
 
     /* some global variables for formfactor computation */
-    ELEMENT *fflastrcv;
-    ELEMENT *fflastsrc;
+    GalerkingElement *fflastrcv;
+    GalerkingElement *fflastsrc;
 
     /* scratch offscreen renderer for various clustering operations. */
     SGL_CONTEXT *scratch;
@@ -145,14 +145,14 @@ extern int randomWalkRadiosityDoGatheringIteration();
 
 extern int doClusteredGatheringIteration();
 
-extern void gatheringUpdateDirectPotential(ELEMENT *elem, float potential_increment);
+extern void gatheringUpdateDirectPotential(GalerkingElement *elem, float potential_increment);
 
 extern void gatheringUpdateMaterial(Material *oldMaterial, Material *newMaterial);
 
 /* in shooting.c. Returns true when converged and false if not. */
 extern int doShootingStep();
 
-extern void shootingUpdateDirectPotential(ELEMENT *elem, float potential_increment);
+extern void shootingUpdateDirectPotential(GalerkingElement *elem, float potential_increment);
 
 extern void shootingUpdateMaterial(Material *oldMaterial, Material *newMaterial);
 
@@ -165,16 +165,16 @@ enum ROLE {
  * considered to be a SOURCE or RECEIVER according to 'role'. Interactions
  * are stored at the receiver element when doing gathering and at the
  * source element when doing shooting. */
-extern void createInitialLinks(ELEMENT *top, ROLE role);
+extern void createInitialLinks(GalerkingElement *top, ROLE role);
 
 /* Creates an initial link between the given element and the top cluster. */
-extern void createInitialLinkWithTopCluster(ELEMENT *elem, ROLE role);
+extern void createInitialLinkWithTopCluster(GalerkingElement *elem, ROLE role);
 
 /* recursively refines the interactions of the given toplevel element */
-extern void RefineInteractions(ELEMENT *toplevelelement);
+extern void RefineInteractions(GalerkingElement *toplevelelement);
 
 /* in basis.c: converts the received radiance of a patch into exitant
  * radiance, making a consistent hierarchical representation. */
-extern void basisGalerkinPushPullRadiance(ELEMENT *top);
+extern void basisGalerkinPushPullRadiance(GalerkingElement *top);
 
 #endif

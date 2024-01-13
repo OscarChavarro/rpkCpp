@@ -16,13 +16,13 @@ Special refinement action used to indicate that a link is admissible
 */
 static LINK *
 dontRefine(
-    LINK *link,
-    ELEMENT *rcvtop,
-    double *ur,
-    double *vr,
-    ELEMENT *srctop,
-    double *us,
-    double *vs)
+        LINK *link,
+        StochasticRadiosityElement *rcvtop,
+        double *ur,
+        double *vr,
+        StochasticRadiosityElement *srctop,
+        double *us,
+        double *vs)
 {
     // Doesn't do anything
     return link;
@@ -33,15 +33,15 @@ Refinement action 2: subdivide the receiver using regular quadtree subdivision
 */
 static LINK *
 subdivideReceiver(
-    LINK *link,
-    ELEMENT *rcvtop,
-    double *ur,
-    double *vr,
-    ELEMENT *srctop,
-    double *us,
-    double *vs)
+        LINK *link,
+        StochasticRadiosityElement *rcvtop,
+        double *ur,
+        double *vr,
+        StochasticRadiosityElement *srctop,
+        double *us,
+        double *vs)
 {
-    ELEMENT *rcv = link->rcv;
+    StochasticRadiosityElement *rcv = link->rcv;
     if ( rcv->iscluster ) {
         rcv = monteCarloRadiosityClusterChildContainingElement(rcv, rcvtop);
     } else {
@@ -59,15 +59,15 @@ Refinement action 3: subdivide the source using regular quadtree subdivision
 */
 static LINK *
 subdivideSource(
-    LINK *link,
-    ELEMENT *rcvtop,
-    double *ur,
-    double *vr,
-    ELEMENT *srctop,
-    double *us,
-    double *vs)
+        LINK *link,
+        StochasticRadiosityElement *rcvtop,
+        double *ur,
+        double *vr,
+        StochasticRadiosityElement *srctop,
+        double *us,
+        double *vs)
 {
-    ELEMENT *src = link->src;
+    StochasticRadiosityElement *src = link->src;
     if ( src->iscluster ) {
         src = monteCarloRadiosityClusterChildContainingElement(src, srctop);
     } else {
@@ -91,7 +91,7 @@ linkInvolvingClusters(LINK *link) {
 }
 
 static int
-disjunctElements(ELEMENT *rcv, ELEMENT *src) {
+disjunctElements(StochasticRadiosityElement *rcv, StochasticRadiosityElement *src) {
     BOUNDINGBOX rcvbounds, srcbounds;
     monteCarloRadiosityElementBounds(rcv, rcvbounds);
     monteCarloRadiosityElementBounds(src, srcbounds);
@@ -100,7 +100,7 @@ disjunctElements(ELEMENT *rcv, ELEMENT *src) {
 
 /* Cheap form factor estimate to drive hierarchical refinement 
  * as in Hanrahan SIGGRAPH'91. */
-static float formfactor_estimate(ELEMENT *rcv, ELEMENT *src) {
+static float formfactor_estimate(StochasticRadiosityElement *rcv, StochasticRadiosityElement *src) {
     Vector3D D;
     double d, c1, c2, f, f2;
     VECTORSUBTRACT(src->midpoint, rcv->midpoint, D);
@@ -119,8 +119,8 @@ static float formfactor_estimate(ELEMENT *rcv, ELEMENT *src) {
 }
 
 static int LowPowerLink(LINK *link) {
-    ELEMENT *rcv = link->rcv;
-    ELEMENT *src = link->src;
+    StochasticRadiosityElement *rcv = link->rcv;
+    StochasticRadiosityElement *src = link->src;
     COLOR rhosrcrad;
     float ff = formfactor_estimate(rcv, src);
     float threshold, propagated_power;
@@ -145,8 +145,8 @@ static int LowPowerLink(LINK *link) {
 }
 
 static REFINE_ACTION SubdivideLargest(LINK *link) {
-    ELEMENT *rcv = link->rcv;
-    ELEMENT *src = link->src;
+    StochasticRadiosityElement *rcv = link->rcv;
+    StochasticRadiosityElement *src = link->src;
     if ( rcv->area < GLOBAL_stochasticRaytracing_hierarchy.minarea && src->area < GLOBAL_stochasticRaytracing_hierarchy.minarea ) {
         return dontRefine;
     } else {
@@ -166,8 +166,8 @@ REFINE_ACTION PowerOracle(LINK *link) {
     }
 }
 
-LINK TopLink(ELEMENT *rcvtop, ELEMENT *srctop) {
-    ELEMENT *rcv, *src;
+LINK TopLink(StochasticRadiosityElement *rcvtop, StochasticRadiosityElement *srctop) {
+    StochasticRadiosityElement *rcv, *src;
     LINK link;
 
     if ( GLOBAL_stochasticRaytracing_hierarchy.do_h_meshing && GLOBAL_stochasticRaytracing_hierarchy.clustering != NO_CLUSTERING ) {
@@ -187,9 +187,9 @@ LINK TopLink(ELEMENT *rcvtop, ELEMENT *srctop) {
  * (us,vs) coordinates of the point on the source patch. */
 LINK *
 Refine(LINK *link,
-             ELEMENT *rcvtop, double *ur, double *vr,
-             ELEMENT *srctop, double *us, double *vs,
-             ORACLE evaluate_link) {
+       StochasticRadiosityElement *rcvtop, double *ur, double *vr,
+       StochasticRadiosityElement *srctop, double *us, double *vs,
+       ORACLE evaluate_link) {
     if ( !GLOBAL_stochasticRaytracing_hierarchy.do_h_meshing ) {
         link->rcv = rcvtop;
         link->src = srctop;

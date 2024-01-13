@@ -19,12 +19,12 @@ static FILE *vrmlfp;
 
 /* iterator adapted in order to handle only a subset of the elements
  * at a time, taking into account 'pass' and FACES_PER_SET */
-static void (*elemfunc)(ELEMENT *);
+static void (*elemfunc)(StochasticRadiosityElement *);
 
 static int leaf_element_count;
 
 static void
-countAndCall(ELEMENT *elem) {
+countAndCall(StochasticRadiosityElement *elem) {
     if ( leaf_element_count >= pass * FACES_PER_SET &&
          leaf_element_count < (pass + 1) * FACES_PER_SET ) {
         elemfunc(elem);
@@ -33,7 +33,7 @@ countAndCall(ELEMENT *elem) {
 }
 
 static void
-geometryIterateLeafElements(Geometry *geom, void (*func)(ELEMENT *)) {
+geometryIterateLeafElements(Geometry *geom, void (*func)(StochasticRadiosityElement *)) {
     java::ArrayList<Patch *> *patchList = geomPatchList(geom);
     elemfunc = func;
     leaf_element_count = 0;
@@ -66,7 +66,7 @@ quadResetVertexIds(Vertex *v1, Vertex *v2, Vertex *v3, Vertex *v4) {
 With T-vertex elimination
 */
 static void
-resetVertexIds(ELEMENT *elem) {
+resetVertexIds(StochasticRadiosityElement *elem) {
     ElementTVertexElimination(elem, triangleResetVertexIds, quadResetVertexIds);
 }
 
@@ -103,7 +103,7 @@ quadWriteVertexCoords(Vertex *v1, Vertex *v2, Vertex *v3, Vertex *v4) {
 }
 
 static void
-writeVertexCoords(ELEMENT *elem) {
+writeVertexCoords(StochasticRadiosityElement *elem) {
     ElementTVertexElimination(elem, triangleWriteVertexCoords, quadWriteVertexCoords);
 }
 
@@ -153,7 +153,7 @@ quadWriteVertexColors(Vertex *v1, Vertex *v2, Vertex *v3, Vertex *v4) {
 }
 
 static void
-elementWriteVertexColors(ELEMENT *elem) {
+elementWriteVertexColors(StochasticRadiosityElement *elem) {
     ElementTVertexElimination(elem, triangleWriteVertexColors, quadWriteVertexColors);
 }
 
@@ -197,7 +197,7 @@ quadWriteVertexCoordIndices(Vertex *v1, Vertex *v2, Vertex *v3, Vertex *v4) {
 }
 
 static void
-elementWriteCoordIndices(ELEMENT *elem) {
+elementWriteCoordIndices(StochasticRadiosityElement *elem) {
     ElementTVertexElimination(elem, triangleWriteVertexCoordIndices, quadWriteVertexCoordIndices);
 }
 

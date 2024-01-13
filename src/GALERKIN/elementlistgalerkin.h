@@ -3,16 +3,16 @@
 #ifndef _ELEMENTLIST_H_
 #define _ELEMENTLIST_H_
 
-#include "GALERKIN/elementgalerkin.h"
+#include "GALERKIN/GalerkinElement.h"
 #include "common/dataStructures/List.h"
 
-class ELEMENT;
+class GalerkingElement;
 
 /* same layout as LIST in dataStructures/List.h in order to be able to use
  * the generic list procedures defined in dataStructures/List.c */
 class ELEMENTLIST {
   public:
-    ELEMENT *element;
+    GalerkingElement *element;
     ELEMENTLIST *next;
 };
 

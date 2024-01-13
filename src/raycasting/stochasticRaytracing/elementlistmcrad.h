@@ -4,15 +4,15 @@
 #define _ELEMENTLIST_H_
 
 #include "common/dataStructures/List.h"
-#include "raycasting/stochasticRaytracing/elementtype.h"
+#include "raycasting/stochasticRaytracing/StochasticRadiosityElement.h"
 
-class ELEMENT;
+class StochasticRadiosityElement;
 
 /* same layout as LIST in dataStructures/List.h in order to be able to use
  * the generic list procedures defined in dataStructures/List.c */
 class ELEMENTLIST {
   public:
-    ELEMENT *element;
+    StochasticRadiosityElement *element;
     ELEMENTLIST *next;
 };
 
@@ -27,6 +27,6 @@ class ELEMENTLIST {
 #define ElementListDestroy(elementlist) \
         ListDestroy((LIST *)elementlist)
 
-#define ForAllElements(elem, elemlist) ForAllInList(ELEMENT, elem, elemlist)
+#define ForAllElements(elem, elemlist) ForAllInList(StochasticRadiosityElement, elem, elemlist)
 
 #endif

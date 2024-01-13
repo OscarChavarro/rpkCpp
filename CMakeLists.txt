@@ -110,7 +110,7 @@ set(MAIN_SRC
     src/GALERKIN/formfactor.cpp
     src/GALERKIN/initiallinking.cpp
     src/GALERKIN/shooting.cpp
-    src/GALERKIN/elementgalerkin.cpp
+        src/GALERKIN/GalerkinElement.cpp
     src/GALERKIN/basistrigalerkin.cpp
     src/GALERKIN/interaction.cpp
     src/GALERKIN/scratch.cpp

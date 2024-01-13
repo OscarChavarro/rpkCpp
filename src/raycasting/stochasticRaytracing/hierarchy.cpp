@@ -41,7 +41,7 @@ void
 elementHierarchyTerminate() {
     // Destroy clusters
     monteCarloRadiosityDestroyClusterHierarchy(GLOBAL_stochasticRaytracing_hierarchy.topcluster);
-    GLOBAL_stochasticRaytracing_hierarchy.topcluster = (ELEMENT *) nullptr;
+    GLOBAL_stochasticRaytracing_hierarchy.topcluster = (StochasticRadiosityElement *) nullptr;
 
     // Destroy surface elements
     for ( int i = 0; GLOBAL_scene_patches != nullptr && i < GLOBAL_scene_patches->size(); i++ ) {

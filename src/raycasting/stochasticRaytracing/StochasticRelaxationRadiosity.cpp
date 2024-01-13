@@ -79,7 +79,7 @@ iterations properly taking into account the number of rays and importance
 distribution
 */
 static double
-stochasticRelaxationRadiosityQualityFactor(ELEMENT *elem, double w) {
+stochasticRelaxationRadiosityQualityFactor(StochasticRadiosityElement *elem, double w) {
     if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceDriven ) {
         return w * elem->imp;
     }
@@ -87,12 +87,12 @@ stochasticRelaxationRadiosityQualityFactor(ELEMENT *elem, double w) {
 }
 
 static COLOR *
-stochasticRelaxationRadiosityElementUnShotRadiance(ELEMENT *elem) {
+stochasticRelaxationRadiosityElementUnShotRadiance(StochasticRadiosityElement *elem) {
     return elem->unshot_rad;
 }
 
 static void
-stochasticRelaxationRadiosityElementIncrementRadiance(ELEMENT *elem, double w) {
+stochasticRelaxationRadiosityElementIncrementRadiance(StochasticRadiosityElement *elem, double w) {
     /* Each incremental iteration computes a different contribution to the
      * solution. The quality factor of the result remains constant. */
     if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.discardIncremental ) {
@@ -185,12 +185,12 @@ stochasticRelaxationRadiosityDoIncrementalRadianceIterations() {
 }
 
 static float
-stochasticRelaxationRadiosityElementUnShotImportance(ELEMENT *elem) {
+stochasticRelaxationRadiosityElementUnShotImportance(StochasticRadiosityElement *elem) {
     return elem->unshot_imp;
 }
 
 static void
-stochasticRelaxationRadiosityElementIncrementImportance(ELEMENT *elem, double w) {
+stochasticRelaxationRadiosityElementIncrementImportance(StochasticRadiosityElement *elem, double w) {
     elem->imp += elem->received_imp;
     elem->unshot_imp = elem->received_imp;
     elem->received_imp = 0.;
@@ -249,12 +249,12 @@ stochasticRelaxationRadiosityDoIncrementalImportanceIterations() {
 }
 
 static COLOR *
-stochasticRelaxationRadiosityElementRadiance(ELEMENT *elem) {
+stochasticRelaxationRadiosityElementRadiance(StochasticRadiosityElement *elem) {
     return elem->rad;
 }
 
 static void
-stochasticRelaxationRadiosityElementUpdateRadiance(ELEMENT *elem, double w) {
+stochasticRelaxationRadiosityElementUpdateRadiance(StochasticRadiosityElement *elem, double w) {
     double k = (double) GLOBAL_stochasticRaytracing_monteCarloRadiosityState.prevTracedRays / (double) (GLOBAL_stochasticRaytracing_monteCarloRadiosityState.tracedRays > 0 ? GLOBAL_stochasticRaytracing_monteCarloRadiosityState.tracedRays : 1);
 
     if ( !GLOBAL_stochasticRaytracing_monteCarloRadiosityState.naiveMerging ) {
@@ -312,12 +312,12 @@ stochasticRelaxationRadiosityDoRegularRadianceIteration() {
 }
 
 static float
-stochasticRelaxationRadiosityElementImportance(ELEMENT *elem) {
+stochasticRelaxationRadiosityElementImportance(StochasticRadiosityElement *elem) {
     return elem->imp;
 }
 
 static void
-stochasticRelaxationRadiosityElementUpdateImportance(ELEMENT *elem, double w) {
+stochasticRelaxationRadiosityElementUpdateImportance(StochasticRadiosityElement *elem, double w) {
     double k = (double) GLOBAL_stochasticRaytracing_monteCarloRadiosityState.prevImportanceTracedRays / (double) GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceTracedRays;
 
     elem->imp = (float)(k * (elem->imp - elem->source_imp) + (1.0 - k) * elem->received_imp + elem->source_imp);
@@ -355,7 +355,7 @@ rays except radiosity and importance needs to be reset to zero. This is
 required for some of the experimental stuff to work
 */
 static void
-stochasticRelaxationRadiosityElementDiscardIncremental(ELEMENT *elem) {
+stochasticRelaxationRadiosityElementDiscardIncremental(StochasticRadiosityElement *elem) {
     elem->quality = 0.;
 
     /* recurse */

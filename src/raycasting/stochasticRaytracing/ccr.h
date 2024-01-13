@@ -14,7 +14,7 @@
  * multiplied with the radiance of the element. If getScaling is a nullptr
  * pointer, no scaling is applied. Scaling is used in the context of 
  * random walk radiosity (see randwalk.c). */
-extern COLOR determineControlRadiosity(COLOR *(*getRadiance)(ELEMENT *),
-                                       COLOR (*getScaling)(ELEMENT *));
+extern COLOR determineControlRadiosity(COLOR *(*getRadiance)(StochasticRadiosityElement *),
+                                       COLOR (*getScaling)(StochasticRadiosityElement *));
 
 #endif

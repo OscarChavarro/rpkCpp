@@ -92,13 +92,13 @@ class STATE {
 extern STATE GLOBAL_stochasticRaytracing_monteCarloRadiosityState;
 
 inline int
-NR_VERTICES(ELEMENT *elem) {
+NR_VERTICES(StochasticRadiosityElement *elem) {
     return elem->pog.patch->numberOfVertices;
 }
 
-inline ELEMENT*
+inline StochasticRadiosityElement*
 TOPLEVEL_ELEMENT(Patch *patch) {
-    return (ELEMENT *)patch->radiance_data;
+    return (StochasticRadiosityElement *)patch->radiance_data;
 }
 
 inline COLOR *

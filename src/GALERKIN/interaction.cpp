@@ -36,14 +36,14 @@ GetNumberOfSurfaceToSurfaceInteractions() {
 
 INTERACTION *
 InteractionCreate(
-    ELEMENT *rcv,
-    ELEMENT *src,
-    FloatOrPointer K,
-    FloatOrPointer deltaK,
-    unsigned char nrcv,
-    unsigned char nsrc,
-    unsigned char crcv,
-    unsigned char vis
+        GalerkingElement *rcv,
+        GalerkingElement *src,
+        FloatOrPointer K,
+        FloatOrPointer deltaK,
+        unsigned char nrcv,
+        unsigned char nsrc,
+        unsigned char crcv,
+        unsigned char vis
 ) {
     int i;
     INTERACTION *interaction = (INTERACTION *)malloc(sizeof(INTERACTION));
@@ -97,7 +97,7 @@ InteractionDuplicate(INTERACTION *interaction) {
 
 void
 InteractionDestroy(INTERACTION *interaction) {
-    ELEMENT *src = interaction->src, *rcv = interaction->rcv;
+    GalerkingElement *src = interaction->src, *rcv = interaction->rcv;
 
     if ( interaction->nrcv > 1 || interaction->nsrc > 1 ) {
         free(interaction->K.p);

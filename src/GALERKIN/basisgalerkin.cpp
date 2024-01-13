@@ -11,7 +11,7 @@ Given the radiance coefficients, this routine computes the radiance
 at the given point on the element
 */
 COLOR
-basisGalerkinRadianceAtPoint(ELEMENT *elem, COLOR *coefficients, double u, double v) {
+basisGalerkinRadianceAtPoint(GalerkingElement *elem, COLOR *coefficients, double u, double v) {
     COLOR rad;
     GalerkinBasis *basis = elem->pog.patch->numberOfVertices == 3 ? &GLOBAL_galerkin_triBasis : &GLOBAL_galerkin_quadBasis;
     int i;
@@ -57,10 +57,10 @@ and the uptransforms to relate subelements with the parent element
 */
 void
 basisGalerkinPush(
-    ELEMENT *parent,
-    COLOR *parent_coefficients,
-    ELEMENT *child,
-    COLOR *child_coefficients)
+        GalerkingElement *parent,
+        COLOR *parent_coefficients,
+        GalerkingElement *child,
+        COLOR *child_coefficients)
 {
     GalerkinBasis *basis;
     int alpha, beta, sigma = child->childnr;
@@ -109,10 +109,10 @@ regular (quadtree) subdivision.
 */
 void
 basisGalerkinPull(
-    ELEMENT *parent,
-    COLOR *parent_coefficients,
-    ELEMENT *child,
-    COLOR *child_coefficients)
+        GalerkingElement *parent,
+        COLOR *parent_coefficients,
+        GalerkingElement *child,
+        COLOR *child_coefficients)
 {
     GalerkinBasis *basis;
     int alpha, beta, sigma = child->childnr;
@@ -150,7 +150,7 @@ basisGalerkinPull(
 Modifies Bdown!
 */
 static void
-basisGalerkinPushPullRadianceRecursive(ELEMENT *elem, COLOR *Bdown, COLOR *Bup) {
+basisGalerkinPushPullRadianceRecursive(GalerkingElement *elem, COLOR *Bdown, COLOR *Bup) {
     int i;
 
     /* "renormalize" the received radiance at this level and add to Bdown. */
@@ -197,7 +197,7 @@ basisGalerkinPushPullRadianceRecursive(ELEMENT *elem, COLOR *Bdown, COLOR *Bup) 
     if ( elem->irregular_subelements ) { /* a cluster or irregularly subdivided surface element */
         ELEMENTLIST *subellist;
         for ( subellist = elem->irregular_subelements; subellist; subellist = subellist->next ) {
-            ELEMENT *subel = subellist->element;
+            GalerkingElement *subel = subellist->element;
             COLOR Btmp[MAXBASISSIZE], Bdown2[MAXBASISSIZE], Bup2[MAXBASISSIZE];
 
             /* 1) push Bdown to the subelement if a cluster (don't push to irregular
@@ -230,7 +230,7 @@ basisGalerkinPushPullRadianceRecursive(ELEMENT *elem, COLOR *Bdown, COLOR *Bup) 
 }
 
 void
-basisGalerkinPushPullRadiance(ELEMENT *top) {
+basisGalerkinPushPullRadiance(GalerkingElement *top) {
     COLOR Bdown[MAXBASISSIZE], Bup[MAXBASISSIZE];
     clusterGalerkinClearCoefficients(Bdown, top->basis_size);
     basisGalerkinPushPullRadianceRecursive(top, Bdown, Bup);

@@ -59,7 +59,7 @@ randomWalkRadiosityScalarReflectance(Patch *P) {
 }
 
 static COLOR *
-randomWalkRadiosityGetSelfEmittedRadiance(ELEMENT *elem) {
+randomWalkRadiosityGetSelfEmittedRadiance(StochasticRadiosityElement *elem) {
     static COLOR Ed[MAX_BASIS_SIZE];
     stochasticRadiosityClearCoefficients(Ed, elem->basis);
     Ed[0] = TOPLEVEL_ELEMENT(elem->pog.patch)->Ed; // Emittance
@@ -352,7 +352,7 @@ randomWalkRadiosityDoGatheringIteration() {
 }
 
 static void
-randomWalkRadiosityUpdateSourceIllum(ELEMENT *elem, double w) {
+randomWalkRadiosityUpdateSourceIllum(StochasticRadiosityElement *elem, double w) {
     stochasticRadiosityCopyCoefficients(elem->rad, elem->received_rad, elem->basis);
     elem->source_rad = elem->received_rad[0];
     stochasticRadiosityClearCoefficients(elem->unshot_rad, elem->basis);

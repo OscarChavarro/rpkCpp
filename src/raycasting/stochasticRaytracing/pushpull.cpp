@@ -7,7 +7,7 @@ push/pull operations
 
 #define RegularChild(child) (child->child_nr >= 0 && child->child_nr <= 3)
 
-void PushRadiance(ELEMENT *parent, ELEMENT *child, COLOR *parent_rad, COLOR *child_rad) {
+void PushRadiance(StochasticRadiosityElement *parent, StochasticRadiosityElement *child, COLOR *parent_rad, COLOR *child_rad) {
     if ( parent->iscluster || child->basis->size == 1 ) {
         colorAdd(child_rad[0], parent_rad[0], child_rad[0]);
     } else if ( RegularChild(child) && child->basis == parent->basis ) {
@@ -18,11 +18,11 @@ void PushRadiance(ELEMENT *parent, ELEMENT *child, COLOR *parent_rad, COLOR *chi
     }
 }
 
-void PushImportance(ELEMENT *parent, ELEMENT *child, float *parent_imp, float *child_imp) {
+void PushImportance(StochasticRadiosityElement *parent, StochasticRadiosityElement *child, float *parent_imp, float *child_imp) {
     *child_imp += *parent_imp;
 }
 
-void PullRadiance(ELEMENT *parent, ELEMENT *child, COLOR *parent_rad, COLOR *child_rad) {
+void PullRadiance(StochasticRadiosityElement *parent, StochasticRadiosityElement *child, COLOR *parent_rad, COLOR *child_rad) {
     float areafactor = child->area / parent->area;
     if ( parent->iscluster || child->basis->size == 1 ) {
         colorAddScaled(parent_rad[0], areafactor, child_rad[0], parent_rad[0]);
@@ -35,6 +35,6 @@ void PullRadiance(ELEMENT *parent, ELEMENT *child, COLOR *parent_rad, COLOR *chi
     }
 }
 
-void PullImportance(ELEMENT *parent, ELEMENT *child, float *parent_imp, float *child_imp) {
+void PullImportance(StochasticRadiosityElement *parent, StochasticRadiosityElement *child, float *parent_imp, float *child_imp) {
     *parent_imp += child->area / parent->area * (*child_imp);
 }

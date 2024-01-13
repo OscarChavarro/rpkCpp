@@ -91,7 +91,7 @@ shootUnshotRadianceAndPotentialOverLink(INTERACTION *link) {
 /* Propagates and clears the unshot radiance and potential of the element and 
  * all its subelements */
 static void
-shootUnshotRadianceAndPotential(ELEMENT *elem) {
+shootUnshotRadianceAndPotential(GalerkingElement *elem) {
     ITERATE_REGULAR_SUBELEMENTS(elem, shootUnshotRadianceAndPotential);
     ITERATE_IRREGULAR_SUBELEMENTS(elem, shootUnshotRadianceAndPotential);
     InteractionListIterate(elem->interactions, (void (*)(void *)) shootUnshotRadianceAndPotentialOverLink);
@@ -100,7 +100,7 @@ shootUnshotRadianceAndPotential(ELEMENT *elem) {
 }
 
 static void
-clearUnshotRadianceAndPotential(ELEMENT *elem) {
+clearUnshotRadianceAndPotential(GalerkingElement *elem) {
     ITERATE_REGULAR_SUBELEMENTS(elem, clearUnshotRadianceAndPotential);
     ITERATE_IRREGULAR_SUBELEMENTS(elem, clearUnshotRadianceAndPotential);
     clusterGalerkinClearCoefficients(elem->unshot_radiance, elem->basis_size);
@@ -112,7 +112,7 @@ clearUnshotRadianceAndPotential(ELEMENT *elem) {
  * at all levels of the element hierarchy for the patch. */
 static void
 patchPropagateUnshotRadianceAndPotential(Patch *shooting_patch) {
-    ELEMENT *top = TOPLEVEL_ELEMENT(shooting_patch);
+    GalerkingElement *top = TOPLEVEL_ELEMENT(shooting_patch);
 
     if ( !(top->flags & INTERACTIONS_CREATED)) {
         if ( GLOBAL_galerkin_state.clustered ) {
@@ -135,7 +135,7 @@ patchPropagateUnshotRadianceAndPotential(Patch *shooting_patch) {
 /* Makes the hierarchical representation of potential consistent over all
  * all levels. */
 static float
-shootingPushPullPotential(ELEMENT *elem, float down) {
+shootingPushPullPotential(GalerkingElement *elem, float down) {
     float up;
     int i;
 
@@ -157,7 +157,7 @@ shootingPushPullPotential(ELEMENT *elem, float down) {
     if ( elem->irregular_subelements ) {
         ELEMENTLIST *subElementList;
         for ( subElementList = elem->irregular_subelements; subElementList; subElementList = subElementList->next ) {
-            ELEMENT *subElement = subElementList->element;
+            GalerkingElement *subElement = subElementList->element;
             if ( !isCluster(elem)) {
                 down = 0.;
             }
@@ -231,7 +231,7 @@ propagateRadiance() {
 /* Called for each patch after direct potential has changed (because the 
  * virtual camera has changed). */
 void
-shootingUpdateDirectPotential(ELEMENT *elem, float potential_increment) {
+shootingUpdateDirectPotential(GalerkingElement *elem, float potential_increment) {
     if ( elem->regular_subelements ) {
         int i;
         for ( i = 0; i < 4; i++ ) {
@@ -246,13 +246,13 @@ shootingUpdateDirectPotential(ELEMENT *elem, float potential_increment) {
 /* Recomputes the potential and unshot potential of the cluster and its subclusters 
  * based on the potential of the contained patches. */
 static void
-clusterUpdatePotential(ELEMENT *clus) {
+clusterUpdatePotential(GalerkingElement *clus) {
     if ( isCluster(clus)) {
         ELEMENTLIST *subcluslist;
         clus->potential.f = 0.;
         clus->unshot_potential.f = 0.;
         for ( subcluslist = clus->irregular_subelements; subcluslist; subcluslist = subcluslist->next ) {
-            ELEMENT *subclus = subcluslist->element;
+            GalerkingElement *subclus = subcluslist->element;
             clusterUpdatePotential(subclus);
             clus->potential.f += subclus->area * subclus->potential.f;
             clus->unshot_potential.f += subclus->area * subclus->unshot_potential.f;
@@ -306,7 +306,7 @@ reallyDoShootingStep() {
             UpdateDirectPotential();
             for ( int i = 0; GLOBAL_scene_patches != nullptr && i < GLOBAL_scene_patches->size(); i++ ) {
                 Patch *patch = GLOBAL_scene_patches->get(i);
-                ELEMENT *top = TOPLEVEL_ELEMENT(patch);
+                GalerkingElement *top = TOPLEVEL_ELEMENT(patch);
                 float potential_increment = patch->directPotential - top->direct_potential.f;
                 shootingUpdateDirectPotential(top, potential_increment);
             }

@@ -365,7 +365,7 @@ static void ComputeLightTransport(INTERACTION *link) {
 /* Computes the formfactor and error esitmation coefficients. If the formfactor
  * is not zero, the data is filled in the INTERACTION pointed to by 'link'
  * and true is returned. If the elements don't itneract, false is returned. */
-int CreateSubdivisionLink(ELEMENT *rcv, ELEMENT *src, INTERACTION *link) {
+int CreateSubdivisionLink(GalerkingElement *rcv, GalerkingElement *src, INTERACTION *link) {
     link->rcv = rcv;
     link->src = src;
 
@@ -390,7 +390,7 @@ int CreateSubdivisionLink(ELEMENT *rcv, ELEMENT *src, INTERACTION *link) {
 /* Duplicates the INTERACTION data and stores it with the receivers interactions
  * if doing gathering and with the source for shooting. */
 static void StoreInteraction(INTERACTION *link) {
-    ELEMENT *src = link->src, *rcv = link->rcv;
+    GalerkingElement *src = link->src, *rcv = link->rcv;
 
     if ( GLOBAL_galerkin_state.iteration_method == SOUTHWELL ) {
         src->interactions = InteractionListAdd(src->interactions, InteractionDuplicate(link));
@@ -408,12 +408,12 @@ static int RefineRecursive(INTERACTION *link);    /* forward decl. */
  * the passed interaction is always replaced by lower level interactions. */
 static int RegularSubdivideSource(INTERACTION *link) {
     GeometryListNode *ocandlist = Cull(link);
-    ELEMENT *src = link->src, *rcv = link->rcv;
+    GalerkingElement *src = link->src, *rcv = link->rcv;
     int i;
 
     galerkinRegularSubdivideElement(src);
     for ( i = 0; i < 4; i++ ) {
-        ELEMENT *child = src->regular_subelements[i];
+        GalerkingElement *child = src->regular_subelements[i];
         INTERACTION subinteraction;
         float ff[MAXBASISSIZE * MAXBASISSIZE];
         subinteraction.K.p = ff;    /* temporary storage for the formfactors */
@@ -433,14 +433,14 @@ static int RegularSubdivideSource(INTERACTION *link) {
 /* Same, but subdivides the receiver element. */
 static int RegularSubdivideReceiver(INTERACTION *link) {
     GeometryListNode *ocandlist = Cull(link);
-    ELEMENT *src = link->src, *rcv = link->rcv;
+    GalerkingElement *src = link->src, *rcv = link->rcv;
     int i;
 
     galerkinRegularSubdivideElement(rcv);
     for ( i = 0; i < 4; i++ ) {
         INTERACTION subinteraction;
         float ff[MAXBASISSIZE * MAXBASISSIZE];
-        ELEMENT *child = rcv->regular_subelements[i];
+        GalerkingElement *child = rcv->regular_subelements[i];
         subinteraction.K.p = ff;
 
         if ( CreateSubdivisionLink(child, src, &subinteraction)) {
@@ -458,11 +458,11 @@ static int RegularSubdivideReceiver(INTERACTION *link) {
  * which is a cluster. */
 static int SubdivideSourceCluster(INTERACTION *link) {
     GeometryListNode *ocandlist = Cull(link);
-    ELEMENT *src = link->src, *rcv = link->rcv;
+    GalerkingElement *src = link->src, *rcv = link->rcv;
     ELEMENTLIST *subcluslist;
 
     for ( subcluslist = src->irregular_subelements; subcluslist; subcluslist = subcluslist->next ) {
-        ELEMENT *child = subcluslist->element;
+        GalerkingElement *child = subcluslist->element;
         INTERACTION subinteraction;
         float ff[MAXBASISSIZE * MAXBASISSIZE];
         subinteraction.K.p = ff;    /* temporary storage for the formfactors */
@@ -492,11 +492,11 @@ static int SubdivideSourceCluster(INTERACTION *link) {
  * which is a cluster. */
 static int SubdivideReceiverCluster(INTERACTION *link) {
     GeometryListNode *ocandlist = Cull(link);
-    ELEMENT *src = link->src, *rcv = link->rcv;
+    GalerkingElement *src = link->src, *rcv = link->rcv;
     ELEMENTLIST *subcluslist;
 
     for ( subcluslist = rcv->irregular_subelements; subcluslist; subcluslist = subcluslist->next ) {
-        ELEMENT *child = subcluslist->element;
+        GalerkingElement *child = subcluslist->element;
         INTERACTION subinteraction;
         float ff[MAXBASISSIZE * MAXBASISSIZE];
         subinteraction.K.p = ff;
@@ -569,7 +569,7 @@ void RefineInteraction(INTERACTION *link) {
 
 /* Refines and computes light transport over all interactions of the given
  * toplevel element. */
-void RefineInteractions(ELEMENT *top) {
+void RefineInteractions(GalerkingElement *top) {
     /* interactions will only be replaced by lower level interactions. We try refinement
      * beginning at the lowest levels in the hierarchy and working upwards to
      * prevent already refined interactions from being tested for refinement

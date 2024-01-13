@@ -20,22 +20,22 @@
 #include "raycasting/stochasticRaytracing/localline.h"
 
 /* returns radiance or importance to be propagated */
-static COLOR *(*get_radiance)(ELEMENT *);
+static COLOR *(*get_radiance)(StochasticRadiosityElement *);
 
-static float (*get_importance)(ELEMENT *);
+static float (*get_importance)(StochasticRadiosityElement *);
 
 /* Converts received radiance or importance into a new approximation for
  * total and unshot radiance or importance */
-static void (*reflect)(ELEMENT *, double) = (void (*)(ELEMENT *, double)) nullptr;
+static void (*reflect)(StochasticRadiosityElement *, double) = (void (*)(StochasticRadiosityElement *, double)) nullptr;
 
 static int do_control_variate;    /* whether or not to use a constant control variate */
 static int nr_rays;        /* nr of rays to shoot in the iteration */
 static double sum_probs = 0.0;    /* sum of unnormalised sampling "probabilities" */
 
 static void InitGlobals(int nrrays,
-                        COLOR *(*GetRadiance)(ELEMENT *),
-                        float (*GetImportance)(ELEMENT *),
-                        void (*Update)(ELEMENT *P, double w)) {
+                        COLOR *(*GetRadiance)(StochasticRadiosityElement *),
+                        float (*GetImportance)(StochasticRadiosityElement *),
+                        void (*Update)(StochasticRadiosityElement *P, double w)) {
     nr_rays = nrrays;
     get_radiance = GetRadiance;
     get_importance = GetImportance;
@@ -76,7 +76,7 @@ static void PrintMessage(long nr_rays) {
 }
 
 /* compute (unnormalised) probability of shooting a ray from elem */
-static double Probability(ELEMENT *elem) {
+static double Probability(StochasticRadiosityElement *elem) {
     double prob = 0.;
 
     if ( get_radiance ) {
@@ -113,7 +113,7 @@ static double Probability(ELEMENT *elem) {
 }
 
 /* clear accumulators of all kinds of sample weights and contributions */
-static void ElementClearAccumulators(ELEMENT *elem) {
+static void ElementClearAccumulators(StochasticRadiosityElement *elem) {
     if ( get_radiance ) {
         stochasticRadiosityClearCoefficients(elem->received_rad, elem->basis);
     }
@@ -124,7 +124,7 @@ static void ElementClearAccumulators(ELEMENT *elem) {
 
 /* Clears received radiance and importance and accumulates the unnormalised
  * sampling probabilities at leaf elements. */
-static void ElementSetup(ELEMENT *elem) {
+static void ElementSetup(StochasticRadiosityElement *elem) {
     elem->prob = 0.;
     if ( !monteCarloRadiosityForAllChildrenElements(elem, ElementSetup)) {
         /* elem is a leaf element. We need to compute the sum of the unnormalized
@@ -161,13 +161,13 @@ static int Setup() {
 }
 
 /* returns radiance to be propagated from the given location of the element */
-static COLOR GetSourceRadiance(ELEMENT *src, double us, double vs) {
+static COLOR GetSourceRadiance(StochasticRadiosityElement *src, double us, double vs) {
     COLOR *srcrad = get_radiance(src);
     return ColorAtUV(src->basis, srcrad, us, vs);
 }
 
-static void PropagateRadianceToSurface(ELEMENT *rcv, double ur, double vr,
-                                       COLOR raypow, ELEMENT *src,
+static void PropagateRadianceToSurface(StochasticRadiosityElement *rcv, double ur, double vr,
+                                       COLOR raypow, StochasticRadiosityElement *src,
                                        double fraction, double weight) {
     int i;
     for ( i = 0; i < rcv->basis->size; i++ ) {
@@ -177,14 +177,14 @@ static void PropagateRadianceToSurface(ELEMENT *rcv, double ur, double vr,
     }
 }
 
-static void PropagateRadianceToClusterIsotropic(ELEMENT *cluster, COLOR raypow, ELEMENT *src,
+static void PropagateRadianceToClusterIsotropic(StochasticRadiosityElement *cluster, COLOR raypow, StochasticRadiosityElement *src,
                                                 double fraction, double weight) {
     double w = fraction / cluster->area / (double) nr_rays;
     colorAddScaled(cluster->received_rad[0], w, raypow, cluster->received_rad[0]);
 }
 
-static void PropagateRadianceToClusterOriented(ELEMENT *cluster, COLOR raypow, Ray *ray, float dir,
-                                               ELEMENT *src, double projarea,
+static void PropagateRadianceToClusterOriented(StochasticRadiosityElement *cluster, COLOR raypow, Ray *ray, float dir,
+                                               StochasticRadiosityElement *src, double projarea,
                                                double fraction, double weight) {
     REC_ForAllClusterSurfaces(rcv, cluster)
             {
@@ -198,7 +198,7 @@ static void PropagateRadianceToClusterOriented(ELEMENT *cluster, COLOR raypow, R
     REC_EndForAllClusterSurfaces;
 }
 
-static double ReceiverProjectedArea(ELEMENT *cluster, Ray *ray, float dir) {
+static double ReceiverProjectedArea(StochasticRadiosityElement *cluster, Ray *ray, float dir) {
     double area = 0.;
     REC_ForAllClusterSurfaces(rcv, cluster)
             {
@@ -219,8 +219,8 @@ static double ReceiverProjectedArea(ELEMENT *cluster, Ray *ray, float dir) {
  * ray->dir and dir are used in order to determine projected cluster area
  * and cosine of incident direction of cluster surface elements when
  * the receiver is a cluster. */
-static void PropagateRadiance(ELEMENT *src, double us, double vs,
-                              ELEMENT *rcv, double ur, double vr,
+static void PropagateRadiance(StochasticRadiosityElement *src, double us, double vs,
+                              StochasticRadiosityElement *rcv, double ur, double vr,
                               double src_prob, double rcv_prob,
                               Ray *ray, float dir) {
     COLOR rad, raypow;
@@ -262,8 +262,8 @@ static void PropagateRadiance(ELEMENT *src, double us, double vs,
 }
 
 /* idem but for importance */
-static void PropagateImportance(ELEMENT *src, double us, double vs,
-                                ELEMENT *rcv, double ur, double vr,
+static void PropagateImportance(StochasticRadiosityElement *src, double us, double vs,
+                                StochasticRadiosityElement *rcv, double ur, double vr,
                                 double src_prob, double rcv_prob,
                                 Ray *ray, float dir) {
     double w = sum_probs / (src_prob + rcv_prob) / rcv->area / (double) nr_rays;
@@ -277,9 +277,9 @@ static void PropagateImportance(ELEMENT *src, double us, double vs,
 /* src is the leaf element containing the point from which to propagate
  * radiance on P. P and Q are toplevel surface elements. Transfer 
  * is from P to Q. */
-static void RefineAndPropagateRadiance(ELEMENT *src, double us, double vs,
-                                       ELEMENT *P, double up, double vp,
-                                       ELEMENT *Q, double uq, double vq,
+static void RefineAndPropagateRadiance(StochasticRadiosityElement *src, double us, double vs,
+                                       StochasticRadiosityElement *P, double up, double vp,
+                                       StochasticRadiosityElement *Q, double uq, double vq,
                                        double src_prob, double rcv_prob,
                                        Ray *ray, float dir) {
     LINK link;
@@ -290,9 +290,9 @@ static void RefineAndPropagateRadiance(ELEMENT *src, double us, double vs,
     PropagateRadiance(src, us, vs, link.rcv, uq, vq, src_prob, rcv_prob, ray, dir);
 }
 
-static void RefineAndPropagateImportance(ELEMENT *src, double us, double vs,
-                                         ELEMENT *P, double up, double vp,
-                                         ELEMENT *Q, double uq, double vq,
+static void RefineAndPropagateImportance(StochasticRadiosityElement *src, double us, double vs,
+                                         StochasticRadiosityElement *P, double up, double vp,
+                                         StochasticRadiosityElement *Q, double uq, double vq,
                                          double src_prob, double rcv_prob,
                                          Ray *ray, float dir) {
     /* no refinement (yet) for importance: propagate between toplevel surfaces */
@@ -304,17 +304,17 @@ static void RefineAndPropagateImportance(ELEMENT *src, double us, double vs,
  * imaginary interaction between these elements and performs
  * radiance or importance transfer along the ray, taking into account
  * bidirectionality if requested. */
-static void RefineAndPropagate(ELEMENT *P, double up, double vp,
-                               ELEMENT *Q, double uq, double vq,
+static void RefineAndPropagate(StochasticRadiosityElement *P, double up, double vp,
+                               StochasticRadiosityElement *Q, double uq, double vq,
                                Ray *ray) {
     double src_prob;
     double us = up, vs = vp;
-    ELEMENT *src = monteCarloRadiosityRegularLeafElementAtPoint(P, &us, &vs);
+    StochasticRadiosityElement *src = monteCarloRadiosityRegularLeafElementAtPoint(P, &us, &vs);
     src_prob = (double) src->prob / (double) src->area;
     if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.bidirectionalTransfers ) {
         double rcv_prob;
         double ur = uq, vr = vq;
-        ELEMENT *rcv = monteCarloRadiosityRegularLeafElementAtPoint(Q, &ur, &vr);
+        StochasticRadiosityElement *rcv = monteCarloRadiosityRegularLeafElementAtPoint(Q, &ur, &vr);
         rcv_prob = (double) rcv->prob / (double) rcv->area;
 
         if ( get_radiance ) {
@@ -335,7 +335,7 @@ static void RefineAndPropagate(ELEMENT *P, double up, double vp,
     }
 }
 
-static double *NextSample(ELEMENT *elem,
+static double *NextSample(StochasticRadiosityElement *elem,
                           int nmsb, niedindex msb1, niedindex rmsb2,
                           double *zeta) {
     niedindex *xi = nullptr, u, v;
@@ -386,7 +386,7 @@ static void UniformHitCoordinates(RayHit *hit, double *uhit, double *vhit) {
 
 /* traces a local line from 'src' and propagates radiance and/or importance from P to
  * hit patch (and back for bidirectional transfers). */
-static void ElementShootRay(ELEMENT *src,
+static void ElementShootRay(StochasticRadiosityElement *src,
                             int nmsb, niedindex msb1, niedindex rmsb2) {
     Ray ray;
     RayHit *hit, hitstore;
@@ -412,14 +412,14 @@ static void ElementShootRay(ELEMENT *src,
     }
 }
 
-static void InitPushRayIndex(ELEMENT *elem) {
+static void InitPushRayIndex(StochasticRadiosityElement *elem) {
     elem->ray_index = elem->parent->ray_index;
     elem->imp_ray_index = elem->parent->imp_ray_index;
     monteCarloRadiosityForAllChildrenElements(elem, InitPushRayIndex);
 }
 
 /* determines nr of rays to shoot from elem and shoots this number of rays. */
-static void ElementShootRays(ELEMENT *elem, int rays_this_elem) {
+static void ElementShootRays(StochasticRadiosityElement *elem, int rays_this_elem) {
     int i;
     int nmsb;        /* determines a range in which to generate a sample */
     niedindex msb1, rmsb2;    /* see monteCarloRadiosityElementRange() and NextSample() */
@@ -468,7 +468,7 @@ shootRays() {
 
 /* converts received radiance and importance at a leaf element into a new
  * approximation of total and unshot radiance and importance */
-static void UpdateElement(ELEMENT *elem) {
+static void UpdateElement(StochasticRadiosityElement *elem) {
     if ( get_radiance ) {
         if ( do_control_variate ) {
             /* add constant radiosity contribution to received flux */
@@ -488,7 +488,7 @@ static void UpdateElement(ELEMENT *elem) {
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalYmp += elem->area * elem->imp;
 }
 
-static void Push(ELEMENT *parent, ELEMENT *child) {
+static void Push(StochasticRadiosityElement *parent, StochasticRadiosityElement *child) {
     if ( get_radiance ) {
         COLOR Rd;
         colorClear(Rd);
@@ -507,7 +507,7 @@ static void Push(ELEMENT *parent, ELEMENT *child) {
         PushImportance(parent, child, &parent->received_imp, &child->received_imp);
 }
 
-static void Pull(ELEMENT *parent, ELEMENT *child) {
+static void Pull(StochasticRadiosityElement *parent, StochasticRadiosityElement *child) {
     if ( get_radiance ) {
         PullRadiance(parent, child, parent->rad, child->rad);
         PullRadiance(parent, child, parent->unshot_rad, child->unshot_rad);
@@ -519,7 +519,7 @@ static void Pull(ELEMENT *parent, ELEMENT *child) {
 }
 
 /* clears everything to be pulled from children elements to zero */
-static void ClearElement(ELEMENT *parent) {
+static void ClearElement(StochasticRadiosityElement *parent) {
     if ( get_radiance ) {
         stochasticRadiosityClearCoefficients(parent->rad, parent->basis);
         stochasticRadiosityClearCoefficients(parent->unshot_rad, parent->basis);
@@ -529,16 +529,16 @@ static void ClearElement(ELEMENT *parent) {
     }
 }
 
-static void PushUpdatePull(ELEMENT *elem);
+static void PushUpdatePull(StochasticRadiosityElement *elem);
 
-static void PushUpdatePullChild(ELEMENT *child) {
-    ELEMENT *parent = child->parent;
+static void PushUpdatePullChild(StochasticRadiosityElement *child) {
+    StochasticRadiosityElement *parent = child->parent;
     Push(parent, child);
     PushUpdatePull(child);
     Pull(parent, child);
 }
 
-static void PushUpdatePull(ELEMENT *elem) {
+static void PushUpdatePull(StochasticRadiosityElement *elem) {
     if ( monteCarloRadiosityElementIsLeaf(elem)) {
         UpdateElement(elem);
     } else {    /* not a leaf element */
@@ -547,10 +547,10 @@ static void PushUpdatePull(ELEMENT *elem) {
     }
 }
 
-static void PullRdEd(ELEMENT *elem);
+static void PullRdEd(StochasticRadiosityElement *elem);
 
-static void PullRdEdFromChild(ELEMENT *child) {
-    ELEMENT *parent = child->parent;
+static void PullRdEdFromChild(StochasticRadiosityElement *child) {
+    StochasticRadiosityElement *parent = child->parent;
 
     PullRdEd(child);
 
@@ -560,7 +560,7 @@ static void PullRdEdFromChild(ELEMENT *child) {
         colorSetMonochrome(parent->Rd, 1.);
 }
 
-static void PullRdEd(ELEMENT *elem) {
+static void PullRdEd(StochasticRadiosityElement *elem) {
     if ( monteCarloRadiosityElementIsLeaf(elem) || (!elem->iscluster && !monteCarloRadiosityElementIsTextured(elem))) {
         return;
     }
@@ -610,9 +610,9 @@ static void PushUpdatePullSweep() {
 void
 DoStochasticJacobiIteration(
     long nr_rays,
-    COLOR *(*GetRadiance)(ELEMENT *),
-    float (*GetImportance)(ELEMENT *),
-    void (*Update)(ELEMENT *P, double w))
+    COLOR *(*GetRadiance)(StochasticRadiosityElement *),
+    float (*GetImportance)(StochasticRadiosityElement *),
+    void (*Update)(StochasticRadiosityElement *P, double w))
 {
     InitGlobals(nr_rays, GetRadiance, GetImportance, Update);
     PrintMessage(nr_rays);

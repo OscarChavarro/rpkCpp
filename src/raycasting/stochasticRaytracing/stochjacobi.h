@@ -25,8 +25,8 @@ propagation of importance and radiance does not work yet.
 */
 extern void DoStochasticJacobiIteration(
     long nr_rays,
-    COLOR *(*GetRadiance)(ELEMENT *),
-    float (*GetImportance)(ELEMENT *),
-    void Update(ELEMENT *elem, double w));
+    COLOR *(*GetRadiance)(StochasticRadiosityElement *),
+    float (*GetImportance)(StochasticRadiosityElement *),
+    void Update(StochasticRadiosityElement *elem, double w));
 
 #endif

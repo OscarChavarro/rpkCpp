@@ -35,7 +35,7 @@ int Facing(Patch *P, Patch *Q) {
  * and computes the positions on the elements patch that correspond to the nodes
  * of the cubature rule on the element. The role (RECEIVER or SOURCE) is only
  * relevant for surface elements. */
-static void DetermineNodes(ELEMENT *elem, CUBARULE **cr, Vector3D x[CUBAMAXNODES], ROLE role) {
+static void DetermineNodes(GalerkingElement *elem, CUBARULE **cr, Vector3D x[CUBAMAXNODES], ROLE role) {
     Matrix2x2 topxf{};
     int k;
 
@@ -95,7 +95,7 @@ static void DetermineNodes(ELEMENT *elem, CUBARULE **cr, Vector3D x[CUBAMAXNODES
  * point-to-point form factor is returned. Visibility is filled in vis. */
 /* to be used when integrating over the surface of the source element */
 static double PointKernelEval(Vector3D *x, Vector3D *y,
-                              ELEMENT *rcv, ELEMENT *src, GeometryListNode *ShadowList,
+                              GalerkingElement *rcv, GalerkingElement *src, GeometryListNode *ShadowList,
                               double *vis) {
     double dist, cosp, cosq, ff;
     float fdist;
@@ -174,7 +174,7 @@ static void DoHigherOrderAreaToAreaFormFactor(INTERACTION *link,
     static double G_beta[CUBAMAXNODES];       /* G_beta[k] = G_{j,\beta}(x_k)          */
     static double delta_beta[CUBAMAXNODES];   /* delta_beta[k] = \delta_{j,\beta}(x_k) */
 
-    ELEMENT *rcv = link->rcv, *src = link->src;
+    GalerkingElement *rcv = link->rcv, *src = link->src;
     GalerkinBasis *rcvbasis, *srcbasis;
     double G_alpha_beta, Gmin, Gmax, Gav;
     int k, l, alpha, beta;
@@ -305,7 +305,7 @@ static void DoConstantAreaToAreaFormFactor(INTERACTION *link,
                                            CUBARULE *crrcv, Vector3D *x,
                                            CUBARULE *crsrc, Vector3D *y,
                                            double Gxy[CUBAMAXNODES][CUBAMAXNODES]) {
-    ELEMENT *rcv = link->rcv, *src = link->src;
+    GalerkingElement *rcv = link->rcv, *src = link->src;
     double G, Gx, Gmin, Gmax;
     int k, l;
 
@@ -389,7 +389,7 @@ unsigned AreaToAreaFormFactor(INTERACTION *link, GeometryListNode *shadowlist) {
     static Vector3D x[CUBAMAXNODES], y[CUBAMAXNODES];
     static double Gxy[CUBAMAXNODES][CUBAMAXNODES], kval, vis, maxkval, maxptff;
     static unsigned viscount;        /* nr. of rays that "pass" occluders */
-    ELEMENT *rcv = link->rcv, *src = link->src;
+    GalerkingElement *rcv = link->rcv, *src = link->src;
     int k, l;
 
     if ( isCluster(rcv) || isCluster(src)) {

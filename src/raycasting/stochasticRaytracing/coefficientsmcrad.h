@@ -56,9 +56,9 @@ stochasticRadiosityMultiplyCoefficients(COLOR &color, COLOR *coefficients, Galer
 }
 
 extern void stochasticRaytracingPrintCoefficients(FILE *fp, COLOR *c, GalerkinBasis *galerkinBasis);
-extern void initCoefficients(ELEMENT *elem);
-extern void disposeCoefficients(ELEMENT *elem);
-extern void allocCoefficients(ELEMENT *elem);
-extern void reAllocCoefficients(ELEMENT *elem);
+extern void initCoefficients(StochasticRadiosityElement *elem);
+extern void disposeCoefficients(StochasticRadiosityElement *elem);
+extern void allocCoefficients(StochasticRadiosityElement *elem);
+extern void reAllocCoefficients(StochasticRadiosityElement *elem);
 
 #endif

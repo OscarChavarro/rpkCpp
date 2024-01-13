@@ -5,7 +5,7 @@
 #include "shared/render.h"
 #include "shared/camera.h"
 #include "IMAGE/tonemap/tonemapping.h"
-#include "GALERKIN/elementgalerkin.h"
+#include "GALERKIN/GalerkinElement.h"
 #include "GALERKIN/galerkinP.h"
 #include "GALERKIN/basisgalerkin.h"
 #include "GALERKIN/clustergalerkincpp.h"
@@ -107,7 +107,7 @@ GetNumberOfSurfaceElements() {
 /* (re)allocates storage for the coefficients to represent radiance, received radiance
  * and unshot radiance on the element. */
 void
-ElementReallocCoefficients(ELEMENT *elem) {
+ElementReallocCoefficients(GalerkingElement *elem) {
     COLOR *radiance, *received_radiance, *unshot_radiance;
     int basis_size = 0;
 
@@ -178,9 +178,9 @@ ElementReallocCoefficients(ELEMENT *elem) {
 /**
 Use either galerkinCreateToplevelElement() or CreateRegularSubelement()
 */
-static ELEMENT *
+static GalerkingElement *
 galerkinCreateElement() {
-    ELEMENT *element = (ELEMENT *)malloc(sizeof(ELEMENT));
+    GalerkingElement *element = (GalerkingElement *)malloc(sizeof(GalerkingElement));
 
     colorClear(element->Ed);
     colorClear(element->Rd);
@@ -190,8 +190,8 @@ galerkinCreateElement() {
     element->interactions = InteractionListCreate();
     element->pog.patch = (Patch *) nullptr;
     element->pog.geom = (Geometry *) nullptr;
-    element->parent = (ELEMENT *) nullptr;
-    element->regular_subelements = (ELEMENT **) nullptr;
+    element->parent = (GalerkingElement *) nullptr;
+    element->regular_subelements = (GalerkingElement **) nullptr;
     element->irregular_subelements = ElementListCreate();
     element->uptrans = (Matrix2x2 *) nullptr;
     element->area = 0.;
@@ -212,9 +212,9 @@ galerkinCreateElement() {
 /**
 Creates the toplevel element for the patch
 */
-ELEMENT *
+GalerkingElement *
 galerkinCreateToplevelElement(Patch *patch) {
-    ELEMENT *element = galerkinCreateElement();
+    GalerkingElement *element = galerkinCreateElement();
     element->pog.patch = patch;
     element->minarea = element->area = patch->area;
     element->bsize = 2.0f * (float)std::sqrt(element->area / M_PI);
@@ -237,9 +237,9 @@ galerkinCreateToplevelElement(Patch *patch) {
 /**
 Creates a cluster element for the given geometry
  */
-ELEMENT *
+GalerkingElement *
 galerkinCreateClusterElement(Geometry *geometry) {
-    ELEMENT *element = galerkinCreateElement();
+    GalerkingElement *element = galerkinCreateElement();
     element->pog.geom = geometry;
     element->area = 0.;    /* needs to be computed after the whole cluster
 			 * hierarchy has been constructed */
@@ -258,21 +258,21 @@ galerkinCreateClusterElement(Geometry *geometry) {
 Regularly subdivides the given element. A pointer to an array of
 4 pointers to sub-elements is returned
 */
-ELEMENT **
-galerkinRegularSubdivideElement(ELEMENT *element) {
-    ELEMENT **subElement;
+GalerkingElement **
+galerkinRegularSubdivideElement(GalerkingElement *element) {
+    GalerkingElement **subElement;
     int i;
 
     if ( isCluster(element)) {
         logFatal(-1, "galerkinRegularSubdivideElement", "Cannot regularly subdivide cluster elements");
-        return (ELEMENT **) nullptr;
+        return (GalerkingElement **) nullptr;
     }
 
     if ( element->regular_subelements ) {
         return element->regular_subelements;
     }
 
-    subElement = (ELEMENT **)malloc(4 * sizeof(ELEMENT *));
+    subElement = (GalerkingElement **)malloc(4 * sizeof(GalerkingElement *));
 
     for ( i = 0; i < 4; i++ ) {
         subElement[i] = galerkinCreateElement();
@@ -308,7 +308,7 @@ galerkinRegularSubdivideElement(ELEMENT *element) {
 }
 
 static void
-galerkinDoDestroyElement(ELEMENT *element) {
+galerkinDoDestroyElement(GalerkingElement *element) {
     InteractionListIterate(element->interactions, InteractionDestroy);
     InteractionListDestroy(element->interactions);
 
@@ -327,7 +327,7 @@ galerkinDoDestroyElement(ELEMENT *element) {
 
 /* destroys the toplevel surface element and it's subelements (recursive) */
 void
-galerkinDestroyToplevelElement(ELEMENT *element) {
+galerkinDestroyToplevelElement(GalerkingElement *element) {
     if ( !element ) {
         return;
     }
@@ -347,14 +347,14 @@ galerkinDestroyToplevelElement(ELEMENT *element) {
 
 /* destroys the cluster element, not recursive. */
 void
-galerkinDestroyClusterElement(ELEMENT *element) {
+galerkinDestroyClusterElement(GalerkingElement *element) {
     galerkinDoDestroyElement(element);
     nr_clusters--;
 }
 
 /* prints the element data to the file 'out' */
 void
-galerkinPrintElement(FILE *out, ELEMENT *element) {
+galerkinPrintElement(FILE *out, GalerkingElement *element) {
     fprintf(out, "Element %d: ", element->id);
     if ( isCluster(element)) {
         fprintf(out, "cluster element, ");
@@ -438,7 +438,7 @@ galerkinPrintElement(FILE *out, ELEMENT *element) {
 
 /* prints the patch id and the child numbers of the element and its parents. */
 void
-galerkinPrintElementId(FILE *out, ELEMENT *elem) {
+galerkinPrintElementId(FILE *out, GalerkingElement *elem) {
     if ( isCluster(elem)) {
         fprintf(out, "geom %d cluster", elem->pog.geom->id);
     } else {
@@ -460,7 +460,7 @@ galerkinPrintElementId(FILE *out, ELEMENT *elem) {
  * element). In the other case, the composed transform is filled in in xf and
  * xf (pointer to the transform) is returned. */
 Matrix2x2 *
-galerkinElementToTopTransform(ELEMENT *element, Matrix2x2 *xf) {
+galerkinElementToTopTransform(GalerkingElement *element, Matrix2x2 *xf) {
     /* toplevel element: no transform necessary to transform to top */
     if ( !element->uptrans ) {
         return (Matrix2x2 *) nullptr;
@@ -477,9 +477,9 @@ galerkinElementToTopTransform(ELEMENT *element, Matrix2x2 *xf) {
 /* Determines the regular subelement at point (u,v) of the given parent
  * element. Returns the parent element itself if there are no regular subelements. 
  * The point is transformed to the corresponding point on the subelement. */
-ELEMENT *
-galerkinRegularSubelementAtPoint(ELEMENT *parent, double *u, double *v) {
-    ELEMENT *child = (ELEMENT *) nullptr;
+GalerkingElement *
+galerkinRegularSubelementAtPoint(GalerkingElement *parent, double *u, double *v) {
+    GalerkingElement *child = (GalerkingElement *) nullptr;
     double _u = *u, _v = *v;
 
     if ( isCluster(parent) || !parent->regular_subelements ) {
@@ -538,9 +538,9 @@ galerkinRegularSubelementAtPoint(ELEMENT *parent, double *u, double *v) {
 /* Returns the leaf regular subelement of 'top' at the point (u,v) (uniform 
  * coordinates!). (u,v) is transformed to the coordinates of the corresponding
  * point on the leaf element. 'top' is a surface element, not a cluster. */
-ELEMENT *
-RegularLeafElementAtPoint(ELEMENT *top, double *u, double *v) {
-    ELEMENT *leaf;
+GalerkingElement *
+RegularLeafElementAtPoint(GalerkingElement *top, double *u, double *v) {
+    GalerkingElement *leaf;
 
     /* find leaf element of 'top' at (u,v) */
     leaf = top;
@@ -554,7 +554,7 @@ RegularLeafElementAtPoint(ELEMENT *top, double *u, double *v) {
 /* Computes the vertices of a surface element (3 or 4 vertices) or
  * cluster element (8 vertices). The number of vertices is returned. */
 int
-ElementVertices(ELEMENT *elem, Vector3D *p) {
+ElementVertices(GalerkingElement *elem, Vector3D *p) {
     if ( isCluster(elem)) {
         BOUNDINGBOX vol;
 
@@ -613,7 +613,7 @@ ElementVertices(ELEMENT *elem, Vector3D *p) {
 
 /* Computes the midpoint of the element. */
 Vector3D
-galerkinElementMidpoint(ELEMENT *elem) {
+galerkinElementMidpoint(GalerkingElement *elem) {
     Vector3D c;
 
     if ( isCluster(elem)) {
@@ -640,7 +640,7 @@ galerkinElementMidpoint(ELEMENT *elem) {
 
 /* Computes a bounding box for the element. */
 float *
-ElementBounds(ELEMENT *elem, float *bounds) {
+ElementBounds(GalerkingElement *elem, float *bounds) {
     if ( isCluster(elem)) {
         boundsCopy(geomBounds(elem->pog.geom), bounds);
     } else {
@@ -661,7 +661,7 @@ ElementBounds(ELEMENT *elem, float *bounds) {
 /* Computes a polygon description for shaft culling for the surface 
  * element. Cannot be used for clusters. */
 POLYGON *
-ElementPolygon(ELEMENT *elem, POLYGON *poly) {
+ElementPolygon(GalerkingElement *elem, POLYGON *poly) {
     int i;
 
     if ( isCluster(elem)) {
@@ -683,7 +683,7 @@ ElementPolygon(ELEMENT *elem, POLYGON *poly) {
 }
 
 static void
-DrawElement(ELEMENT *element, int mode) {
+DrawElement(GalerkingElement *element, int mode) {
     Vector3D p[4];
     int nrverts;
 
@@ -791,12 +791,12 @@ DrawElement(ELEMENT *element, int mode) {
 }
 
 void
-DrawElementOutline(ELEMENT *elem) {
+DrawElementOutline(GalerkingElement *elem) {
     DrawElement(elem, OUTLINE);
 }
 
 void
-RenderElement(ELEMENT *elem) {
+RenderElement(GalerkingElement *elem) {
     int rendercode = 0;
 
     if ( GLOBAL_render_renderOptions.draw_outlines ) {
@@ -813,7 +813,7 @@ RenderElement(ELEMENT *elem) {
 }
 
 void
-ForAllLeafElements(ELEMENT *top, void (*func)(ELEMENT *)) {
+ForAllLeafElements(GalerkingElement *top, void (*func)(GalerkingElement *)) {
     ForAllIrregularSubelements(child, top)
                 {
                     ForAllLeafElements(child, func);

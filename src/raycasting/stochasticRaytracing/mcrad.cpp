@@ -266,15 +266,15 @@ monteCarloRadiosityInitPatch(Patch *P) {
 Routines below update/re-initialise importance after a viewing change
 */
 static void
-monteCarloRadiosityPullImportances(ELEMENT *child) {
-    ELEMENT *parent = child->parent;
+monteCarloRadiosityPullImportances(StochasticRadiosityElement *child) {
+    StochasticRadiosityElement *parent = child->parent;
     PullImportance(parent, child, &parent->imp, &child->imp);
     PullImportance(parent, child, &parent->source_imp, &child->source_imp);
     PullImportance(parent, child, &parent->unshot_imp, &child->unshot_imp);
 }
 
 static void
-monteCarloRadiosityAccumulateImportances(ELEMENT *elem) {
+monteCarloRadiosityAccumulateImportances(StochasticRadiosityElement *elem) {
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalYmp += elem->area * elem->imp;
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.sourceYmp += elem->area * elem->source_imp;
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotYmp += elem->area * fabs(elem->unshot_imp);
@@ -284,7 +284,7 @@ monteCarloRadiosityAccumulateImportances(ELEMENT *elem) {
 Update importance in the element hierarchy starting with the top cluster
 */
 static void
-monteCarloRadiosityUpdateImportance(ELEMENT *elem) {
+monteCarloRadiosityUpdateImportance(StochasticRadiosityElement *elem) {
     if ( !monteCarloRadiosityForAllChildrenElements(elem, monteCarloRadiosityUpdateImportance)) {
         /* leaf element */
         float delta_imp = (PATCH_IS_VISIBLE(elem->pog.patch) ? 1. : 0.) - elem->source_imp;
@@ -303,7 +303,7 @@ monteCarloRadiosityUpdateImportance(ELEMENT *elem) {
 Re-init importance in the element hierarchy starting with the top cluster
 */
 static void
-monteCarloRadiosityReInitImportance(ELEMENT *elem) {
+monteCarloRadiosityReInitImportance(StochasticRadiosityElement *elem) {
     if ( !monteCarloRadiosityForAllChildrenElements(elem, monteCarloRadiosityReInitImportance)) {
         // Leaf element
         elem->imp = elem->source_imp = elem->unshot_imp
@@ -482,8 +482,8 @@ monteCarloRadiosityDiffuseReflectanceAtPoint(Patch *patch, double u, double v) {
 }
 
 static COLOR
-monteCarloRadiosityInterpolatedReflectanceAtPoint(ELEMENT *leaf, double u, double v) {
-    static ELEMENT *cachedleaf = nullptr;
+monteCarloRadiosityInterpolatedReflectanceAtPoint(StochasticRadiosityElement *leaf, double u, double v) {
+    static StochasticRadiosityElement *cachedleaf = nullptr;
     static COLOR vrd[4], rd;
 
     if ( leaf != cachedleaf ) {
@@ -515,7 +515,7 @@ Returns the radiance emitted from the patch at the point with parameters
 COLOR
 monteCarloRadiosityGetRadiance(Patch *patch, double u, double v, Vector3D dir) {
     COLOR TrueRdAtPoint = monteCarloRadiosityDiffuseReflectanceAtPoint(patch, u, v);
-    ELEMENT *leaf = monteCarloRadiosityRegularLeafElementAtPoint(TOPLEVEL_ELEMENT(patch), &u, &v);
+    StochasticRadiosityElement *leaf = monteCarloRadiosityRegularLeafElementAtPoint(TOPLEVEL_ELEMENT(patch), &u, &v);
     COLOR UsedRdAtPoint = GLOBAL_render_renderOptions.smooth_shading ? monteCarloRadiosityInterpolatedReflectanceAtPoint(leaf, u, v) : leaf->Rd;
     COLOR rad = ElementDisplayRadianceAtPoint(leaf, u, v);
     COLOR source_rad;

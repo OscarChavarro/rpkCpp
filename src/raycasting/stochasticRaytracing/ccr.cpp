@@ -10,8 +10,8 @@ Determination of constant control radiosity value
 
 #define NUMBER_OF_INTERVALS 10
 
-static COLOR *(*globalGetRadiance)(ELEMENT *);
-static COLOR (*globalGetScaling)(ELEMENT *);
+static COLOR *(*globalGetRadiance)(StochasticRadiosityElement *);
+static COLOR (*globalGetScaling)(StochasticRadiosityElement *);
 
 /**
 Initial guess for constant control radiance value
@@ -144,8 +144,8 @@ refineControlRadiosity(COLOR *minRad, COLOR *maxRad, COLOR *fmin, COLOR *fmax) {
 
 COLOR
 determineControlRadiosity(
-    COLOR *(*getRadiance)(ELEMENT *),
-    COLOR (*getScaling)(ELEMENT *))
+    COLOR *(*getRadiance)(StochasticRadiosityElement *),
+    COLOR (*getScaling)(StochasticRadiosityElement *))
 {
     COLOR minRad;
     COLOR maxRad;

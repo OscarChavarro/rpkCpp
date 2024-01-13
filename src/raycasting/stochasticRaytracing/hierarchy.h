@@ -7,7 +7,7 @@ Hierarchical refinement stuff (includes Jan's elementP.h)
 
 #include "java/util/ArrayList.h"
 #include "skin/vectorlist.h"
-#include "raycasting/stochasticRaytracing/elementtype.h"
+#include "raycasting/stochasticRaytracing/StochasticRadiosityElement.h"
 
 enum CLUSTERING_MODE {
     NO_CLUSTERING, ISOTROPIC_CLUSTERING, ORIENTED_CLUSTERING
@@ -16,8 +16,8 @@ enum CLUSTERING_MODE {
 /* a link contains a pointer to the receiver and source elements */
 class LINK {
   public:
-    ELEMENT *rcv;
-    ELEMENT *src;
+    StochasticRadiosityElement *rcv;
+    StochasticRadiosityElement *src;
 };
 
 /* a refinement action takes a LINK, performs some refinement action and
@@ -25,8 +25,8 @@ class LINK {
  * (ur,vr) are transformed to become the parameters of the same point on the 
  * subelement resulting after refinement. */
 typedef LINK *(*REFINE_ACTION)(LINK *link,
-                               ELEMENT *rcvtop, double *ur, double *vr,
-                               ELEMENT *srctop, double *us, double *vs);
+                               StochasticRadiosityElement *rcvtop, double *ur, double *vr,
+                               StochasticRadiosityElement *srctop, double *us, double *vs);
 
 /* A refinement oracle evaluates whether or not the given candidate
  * link is admissable for light transport. It returns a refinement action 
@@ -43,7 +43,7 @@ extern REFINE_ACTION PowerOracle(LINK *);
  * cluster containing the whole scene and itself if clustering is
  * enabled. If clustering is not enabled, a link between the
  * given toplevel surface elements is returned. */
-extern LINK TopLink(ELEMENT *rcvtop, ELEMENT *srctop);
+extern LINK TopLink(StochasticRadiosityElement *rcvtop, StochasticRadiosityElement *srctop);
 
 /* Refines a toplevel link (constructed with TopLink() above). The 
  * returned LINK structure contains pointers the admissable
@@ -55,8 +55,8 @@ extern LINK TopLink(ELEMENT *rcvtop, ELEMENT *srctop);
  * They will be replaced by the point parameters on the admissable elements
  * after refinement. */
 extern LINK *Refine(LINK *link,
-                    ELEMENT *rcvtop, double *ur, double *vr,
-                    ELEMENT *srctop, double *us, double *vs,
+                    StochasticRadiosityElement *rcvtop, double *ur, double *vr,
+                    StochasticRadiosityElement *srctop, double *us, double *vs,
                     ORACLE evaluate_link);
 
 
@@ -75,7 +75,7 @@ class ELEM_HIER_STATE {
     CLUSTERING_MODE clustering;       /* clustering mode, 0 => no clustering */
     ORACLE oracle;           /* refinement oracle to be used */
 
-    ELEMENT *topcluster;       /* top cluster element of element
+    StochasticRadiosityElement *topcluster;       /* top cluster element of element
 				      hierarchy */
     Vector3DListNode *coords;
     Vector3DListNode *normals;       /* created during element subdivision */

@@ -17,15 +17,15 @@ static INTERACTION *globalTheLink;
 // Area corresponding to one pixel in the scratch frame buffer
 static double globalPixelArea;
 
-static ELEMENT *galerkinDoCreateClusterHierarchy(Geometry *parentGeometry);
+static GalerkingElement *galerkinDoCreateClusterHierarchy(Geometry *parentGeometry);
 
 /**
 Creates a cluster hierarchy for the Geometry and adds it to the sub-cluster list of the
 given parent cluster
 */
 static void
-geomAddClusterChild(Geometry *geom, ELEMENT *parent_cluster) {
-    ELEMENT *cluster = galerkinDoCreateClusterHierarchy(geom);
+geomAddClusterChild(Geometry *geom, GalerkingElement *parent_cluster) {
+    GalerkingElement *cluster = galerkinDoCreateClusterHierarchy(geom);
 
     parent_cluster->irregular_subelements = ElementListAdd(parent_cluster->irregular_subelements, cluster);
     cluster->parent = parent_cluster;
@@ -36,8 +36,8 @@ Adds the toplevel (surface) element of the patch to the list of irregular
 sub-elements of the cluster
 */
 static void
-patchAddClusterChild(Patch *patch, ELEMENT *cluster) {
-    ELEMENT *surfaceElement = (ELEMENT *)patch->radiance_data;
+patchAddClusterChild(Patch *patch, GalerkingElement *cluster) {
+    GalerkingElement *surfaceElement = (GalerkingElement *)patch->radiance_data;
 
     cluster->irregular_subelements = ElementListAdd(cluster->irregular_subelements, surfaceElement);
     surfaceElement->parent = cluster;
@@ -48,7 +48,7 @@ Initializes the cluster element. Called bottom-up: first the
 lowest level clusters and so up
 */
 static void
-clusterInit(ELEMENT *cluster) {
+clusterInit(GalerkingElement *cluster) {
     ELEMENTLIST *subellist;
 
     /* total area of surfaces inside the cluster is sum of the areas of
@@ -58,7 +58,7 @@ clusterInit(ELEMENT *cluster) {
     cluster->minarea = HUGE;
     clusterGalerkinClearCoefficients(cluster->radiance, cluster->basis_size);
     for ( subellist = cluster->irregular_subelements; subellist; subellist = subellist->next ) {
-        ELEMENT *subclus = subellist->element;
+        GalerkingElement *subclus = subellist->element;
         cluster->area += subclus->area;
         cluster->nrpatches += subclus->nrpatches;
         colorAddScaled(cluster->radiance[0], subclus->area, subclus->radiance[0], cluster->radiance[0]);
@@ -75,7 +75,7 @@ clusterInit(ELEMENT *cluster) {
     if ( GLOBAL_galerkin_state.iteration_method == SOUTHWELL ) {
         clusterGalerkinClearCoefficients(cluster->unshot_radiance, cluster->basis_size);
         for ( subellist = cluster->irregular_subelements; subellist; subellist = subellist->next ) {
-            ELEMENT *subclus = subellist->element;
+            GalerkingElement *subclus = subellist->element;
             colorAddScaled(cluster->unshot_radiance[0], subclus->area, subclus->unshot_radiance[0],
                            cluster->unshot_radiance[0]);
         }
@@ -99,7 +99,7 @@ clusterInit(ELEMENT *cluster) {
 Creates a cluster for the Geometry, recursively traverses for the children GEOMs, initializes and
 returns the created cluster
 */
-static ELEMENT *
+static GalerkingElement *
 galerkinDoCreateClusterHierarchy(Geometry *parentGeometry) {
     // Geom will be nullptr if e.g. no scene is loaded when selecting
     // Galerkin radiosity for radiance computations
@@ -108,7 +108,7 @@ galerkinDoCreateClusterHierarchy(Geometry *parentGeometry) {
     }
 
     /* create a cluster for the parentGeometry */
-    ELEMENT *cluster = galerkinCreateClusterElement(parentGeometry);
+    GalerkingElement *cluster = galerkinCreateClusterElement(parentGeometry);
     parentGeometry->radiance_data = (void *) cluster;
 
     // Recursively creates list of sub-clusters
@@ -137,10 +137,10 @@ First initializes for equivalent blocker size determination, then calls
 the above function, and finally terminates equivalent blocker size
 determination
 */
-ELEMENT *
+GalerkingElement *
 galerkinCreateClusterHierarchy(Geometry *geom) {
     BlockerInit();
-    ELEMENT *cluster = galerkinDoCreateClusterHierarchy(geom);
+    GalerkingElement *cluster = galerkinDoCreateClusterHierarchy(geom);
     BlockerTerminate();
 
     return cluster;
@@ -150,7 +150,7 @@ galerkinCreateClusterHierarchy(Geometry *geom) {
 Disposes of the cluster hierarchy
 */
 void
-galerkinDestroyClusterHierarchy(ELEMENT *cluster) {
+galerkinDestroyClusterHierarchy(GalerkingElement *cluster) {
     if ( !cluster || !isCluster(cluster)) {
         return;
     }
@@ -163,13 +163,13 @@ galerkinDestroyClusterHierarchy(ELEMENT *cluster) {
 Executes func for every surface element in the cluster
 */
 void
-iterateOverSurfaceElementsInCluster(ELEMENT *clus, void (*func)(ELEMENT *elem)) {
+iterateOverSurfaceElementsInCluster(GalerkingElement *clus, void (*func)(GalerkingElement *elem)) {
     if ( !isCluster(clus)) {
         func(clus);
     } else {
         ELEMENTLIST *subcluslist;
         for ( subcluslist = clus->irregular_subelements; subcluslist; subcluslist = subcluslist->next ) {
-            ELEMENT *subclus = subcluslist->element;
+            GalerkingElement *subclus = subcluslist->element;
             iterateOverSurfaceElementsInCluster(subclus, func);
         }
     }
@@ -182,7 +182,7 @@ only taking into account the surface orientation w.r.t. the
 sample point, (ignores intra cluster visibility)
 */
 static void
-accumulatePowerToSamplePoint(ELEMENT *src) {
+accumulatePowerToSamplePoint(GalerkingElement *src) {
     float srcos;
     float dist;
     Vector3D dir;
@@ -215,7 +215,7 @@ iteration method) emitted by the source element, a cluster,
 towards the sample point
 */
 COLOR
-clusterRadianceToSamplePoint(ELEMENT *src, Vector3D sample) {
+clusterRadianceToSamplePoint(GalerkingElement *src, Vector3D sample) {
     switch ( GLOBAL_galerkin_state.clustering_strategy ) {
         case ISOTROPIC:
             return src->radiance[0];
@@ -270,7 +270,7 @@ receiver in the link. The source should be a cluster
 */
 COLOR
 sourceClusterRadiance(INTERACTION *link) {
-    ELEMENT *src = link->src, *rcv = link->rcv;
+    GalerkingElement *src = link->src, *rcv = link->rcv;
 
     if ( !isCluster(src) || src == rcv ) {
         logFatal(-1, "sourceClusterRadiance", "Source and receiver are the same or receiver is not a cluster");
@@ -285,7 +285,7 @@ Computes projected area of receiver surface element towards the sample point
 (global variable). Ignores intra cluster visibility
 */
 static double
-surfaceProjectedAreaToSamplePoint(ELEMENT *rcv) {
+surfaceProjectedAreaToSamplePoint(GalerkingElement *rcv) {
     double rcvcos, dist;
     Vector3D dir;
 
@@ -304,7 +304,7 @@ surfaceProjectedAreaToSamplePoint(ELEMENT *rcv) {
 }
 
 static void
-accumulateProjectedAreaToSamplePoint(ELEMENT *rcv) {
+accumulateProjectedAreaToSamplePoint(GalerkingElement *rcv) {
     globalProjectedArea += surfaceProjectedAreaToSamplePoint(rcv);
 }
 
@@ -314,7 +314,7 @@ ignoring intra-receiver visibility
 */
 double
 receiverClusterArea(INTERACTION *link) {
-    ELEMENT *src = link->src, *rcv = link->rcv;
+    GalerkingElement *src = link->src, *rcv = link->rcv;
 
     if ( !isCluster(rcv) || src == rcv ) {
         return rcv->area;
@@ -362,7 +362,7 @@ form factor computations instead of the true receiver area. The source
 radiance is explicitely given
 */
 static void
-doGatherRadiance(ELEMENT *rcv, double area_factor, INTERACTION *link, COLOR *srcrad) {
+doGatherRadiance(GalerkingElement *rcv, double area_factor, INTERACTION *link, COLOR *srcrad) {
     COLOR *rcvrad = rcv->received_radiance;
 
     if ( link->nrcv == 1 && link->nsrc == 1 ) {
@@ -391,7 +391,7 @@ towards the midpoint of the source, ignoring visibility in the receiver
 cluster
 */
 static void
-orientedSurfaceGatherRadiance(ELEMENT *rcv) {
+orientedSurfaceGatherRadiance(GalerkingElement *rcv) {
     double area_factor;
 
     /* globalTheLink->rcv is a cluster, so it's total area divided by 4 (average projected area)
@@ -404,7 +404,7 @@ orientedSurfaceGatherRadiance(ELEMENT *rcv) {
 /* Same as above, except that the number of pixels in the scratch frame buffer
  * times the area corresponding one such pixel is used as the visible area
  * of the element. Uses global variables globalPixelArea, globalTheLink, globalPsrcRad. */
-static void ZVisSurfaceGatherRadiance(ELEMENT *rcv) {
+static void ZVisSurfaceGatherRadiance(GalerkingElement *rcv) {
     double area_factor;
 
     if ( rcv->tmp <= 0 ) {
@@ -424,7 +424,7 @@ receiver cluster
 */
 void
 clusterGatherRadiance(INTERACTION *link, COLOR *srcrad) {
-    ELEMENT *src = link->src, *rcv = link->rcv;
+    GalerkingElement *src = link->src, *rcv = link->rcv;
 
     if ( !isCluster(rcv) || src == rcv ) {
         logFatal(-1, "clusterGatherRadiance", "Source and receiver are the same or receiver is not a cluster");
@@ -468,7 +468,7 @@ clusterGatherRadiance(INTERACTION *link, COLOR *srcrad) {
 }
 
 static void
-determineMaxRadiance(ELEMENT *elem) {
+determineMaxRadiance(GalerkingElement *elem) {
     COLOR rad;
     if ( GLOBAL_galerkin_state.iteration_method == GAUSS_SEIDEL ||
          GLOBAL_galerkin_state.iteration_method == JACOBI ) {
@@ -480,7 +480,7 @@ determineMaxRadiance(ELEMENT *elem) {
 }
 
 COLOR
-maxClusterRadiance(ELEMENT *clus) {
+maxClusterRadiance(GalerkingElement *clus) {
     colorClear(globalSourceRadiance);
     iterateOverSurfaceElementsInCluster(clus, determineMaxRadiance);
     return globalSourceRadiance;

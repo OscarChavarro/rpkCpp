@@ -221,12 +221,12 @@ createPatchData(Patch *patch) {
 
 static void
 printPatchData(FILE *out, Patch *patch) {
-    galerkinPrintElement(out, (ELEMENT *) patch->radiance_data);
+    galerkinPrintElement(out, (GalerkingElement *) patch->radiance_data);
 }
 
 static void
 destroyPatchData(Patch *patch) {
-    galerkinDestroyToplevelElement((ELEMENT *) patch->radiance_data);
+    galerkinDestroyToplevelElement((GalerkingElement *) patch->radiance_data);
     patch->radiance_data = (void *) nullptr;
 }
 
@@ -307,7 +307,7 @@ initGalerkin() {
     ScratchInit();
 
     /* global variables used for formfactor computation optimisation */
-    GLOBAL_galerkin_state.fflastrcv = GLOBAL_galerkin_state.fflastsrc = (ELEMENT *) nullptr;
+    GLOBAL_galerkin_state.fflastrcv = GLOBAL_galerkin_state.fflastsrc = (GalerkingElement *) nullptr;
 
     /* global variables for scratch rendering */
     GLOBAL_galerkin_state.lastclusid = -1;
@@ -358,7 +358,7 @@ terminateGalerkin() {
 
 static COLOR
 getRadiance(Patch *patch, double u, double v, Vector3D dir) {
-    ELEMENT *leaf;
+    GalerkingElement *leaf;
     COLOR rad;
 
     if ( patch->jacobian ) {
@@ -425,7 +425,7 @@ getGalerkinStats() {
 }
 
 static void
-renderElementHierarchy(ELEMENT *elem) {
+renderElementHierarchy(GalerkingElement *elem) {
     if ( !elem->regular_subelements ) {
         RenderElement(elem);
     } else ITERATE_REGULAR_SUBELEMENTS(elem, renderElementHierarchy);
@@ -481,7 +481,7 @@ galerkinWriteVertexCoord(Vector3D *p) {
 }
 
 static void
-galerkinWriteVertexCoords(ELEMENT *elem) {
+galerkinWriteVertexCoords(GalerkingElement *elem) {
     Vector3D v[8];
     int i, nverts = ElementVertices(elem, v);
     for ( i = 0; i < nverts; i++ ) {
@@ -513,7 +513,7 @@ galerkinWriteVertexColor(RGB *color) {
 }
 
 static void
-galerkinWriteVertexColors(ELEMENT *element) {
+galerkinWriteVertexColors(GalerkingElement *element) {
     COLOR vertrad[4];
     int i;
 
@@ -572,7 +572,7 @@ galerkinWriteCoordIndex(int index) {
 }
 
 static void
-galerkinWriteCoordIndices(ELEMENT *elem) {
+galerkinWriteCoordIndices(GalerkingElement *elem) {
     int i;
     for ( i = 0; i < elem->pog.patch->numberOfVertices; i++ ) {
         galerkinWriteCoordIndex(globalVertexId++);

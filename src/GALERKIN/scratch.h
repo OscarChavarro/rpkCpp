@@ -15,7 +15,7 @@ extern void ScratchTerminate();
  * in clus in the scratch frame buffer. Returns a boundingbox 
  * containing the size of the virtual screen, which nicely fits 
  * around clus. */
-extern float *ScratchRenderElementPtrs(ELEMENT *clus, Vector3D eye);
+extern float *ScratchRenderElementPtrs(GalerkingElement *clus, Vector3D eye);
 
 /* After rendering element pointers in the scratch frame buffer, this routine 
  * computes the average radiance or unshot radiance (depending on the

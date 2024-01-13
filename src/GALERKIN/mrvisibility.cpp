@@ -11,7 +11,7 @@ Control of Visibility Error", SIGGRAPH '95 p145
 #include "SGL/sgl.h"
 #include "shared/shadowcaching.h"
 #include "GALERKIN/mrvisibility.h"
-#include "GALERKIN/elementgalerkin.h"
+#include "GALERKIN/GalerkinElement.h"
 
 static SGL_CONTEXT *sgl; // sgl context for determining equivalent blocker sizes
 static unsigned char *buf1, *buf2; // needed for eroding and expanding
@@ -32,7 +32,7 @@ GeomMultiResolutionVisibility(
 {
     Vector3D vtmp;
     float tmin, tmax, t, fsize, *bbx;
-    ELEMENT *clus = (ELEMENT *) (geom->radiance_data);
+    GalerkingElement *clus = (GalerkingElement *) (geom->radiance_data);
     RayHit hitstore;
 
     if ( geom == GLOBAL_geom_excludedGeom1 || geom == GLOBAL_geom_excludedGeom2 ) {

@@ -23,14 +23,16 @@ typedef union PatchOrGeomPtr {
     Geometry *geom;
 } PatchOrGeomPtr;
 
-/* the Galerkin radiosity specific data to be kept with every surface or 
- * cluster element. A flag indicates whether a given element is a cluster or
- * surface elements. There are only a few differences between surface and cluster 
- * elements: cluster elements always have a constant basis on them, they contain
- * a pointer to the Geometry to which they are associated, while a surface element has
- * a pointer to the Patch to which is belongs, they have only irregular subelements,
- * and no uptrans. */
-class ELEMENT {
+/**
+Galerkin radiosity specific data to be kept with every surface or
+cluster element. A flag indicates whether a given element is a cluster or
+surface elements. There are only a few differences between surface and cluster
+elements: cluster elements always have a constant basis on them, they contain
+a pointer to the Geometry to which they are associated, while a surface element has
+a pointer to the Patch to which is belongs, they have only irregular sub-elements,
+and no up-trans
+*/
+class GalerkingElement {
   public:
     int id;        /* unique ID number for the element */
     PatchOrGeomPtr pog;    /* The Patch/Geometry to which the surface/cluster element
@@ -47,9 +49,9 @@ class ELEMENT {
 			 * a shooting algorithm, the links are kept 
 			 * with the source element. When doing gathering,
 			 * the links are kept with the receiver element. */
-    ELEMENT *parent;    /* parent element in a hierarchy, or
+    GalerkingElement *parent;    /* parent element in a hierarchy, or
 			 * a nullptr pointer if there is no parent. */
-    ELEMENT **regular_subelements;    /* a nullptr pointer if there are no
+    GalerkingElement **regular_subelements;    /* a nullptr pointer if there are no
 			 * regular sub-elements, or an array containing
 			 * exactly 4 pointers to the sub-elements. */
     ELEMENTLIST *irregular_subelements;    /* nullptr pointer or pointer to
@@ -84,7 +86,7 @@ class ELEMENT {
 					 * light spontaneously. */
 
 inline bool
-isCluster(ELEMENT *element) {
+isCluster(GalerkingElement *element) {
     return element->flags & IS_CLUSTER;
 }
 
@@ -107,13 +109,13 @@ isCluster(ELEMENT *element) {
   if ((elem)->regular_subelements) {                \
     int i;                            \
     for (i=0; i<4; i++) {                    \
-      ELEMENT *child = (elem)->regular_subelements[i] ;        \
+      GalerkingElement *child = (elem)->regular_subelements[i] ;        \
 
 #define ForAllIrregularSubelements(child, elem) {        \
   if ((elem)->irregular_subelements) {                \
     ELEMENTLIST *ellist;                    \
     for (ellist = (elem)->irregular_subelements; ellist; ellist=ellist->next) {\
-      ELEMENT *child = ellist->element;            \
+      GalerkingElement *child = ellist->element;            \
 
 
 /* returns the total number of elements in use */
@@ -124,15 +126,15 @@ extern int GetNumberOfClusters();
 extern int GetNumberOfSurfaceElements();
 
 /* creates the toplevel element for the patch */
-extern ELEMENT *galerkinCreateToplevelElement(Patch *patch);
+extern GalerkingElement *galerkinCreateToplevelElement(Patch *patch);
 
 /* creates a cluster element for the given Geometry. The average projected area still
  * needs to be determined. */
-extern ELEMENT *galerkinCreateClusterElement(Geometry *geometry);
+extern GalerkingElement *galerkinCreateClusterElement(Geometry *geometry);
 
 /* Regularly subdivides the given element. A pointer to an array of
  * 4 pointers to subelements is returned. Only for surface elements. */
-extern ELEMENT **galerkinRegularSubdivideElement(ELEMENT *element);
+extern GalerkingElement **galerkinRegularSubdivideElement(GalerkingElement *element);
 
 /* position and orientation of the regular subelements is fully
  * determined by the following transforms, that transform (u,v)
@@ -141,17 +143,17 @@ extern ELEMENT **galerkinRegularSubdivideElement(ELEMENT *element);
 extern Matrix2x2 quadupxfm[4], triupxfm[4];
 
 /* prints the element data to the file 'out' */
-extern void galerkinPrintElement(FILE *out, ELEMENT *element);
+extern void galerkinPrintElement(FILE *out, GalerkingElement *element);
 
 /* prints element patch id and the chain of child numbers of an element
  * in a hierarchy */
-extern void galerkinPrintElementId(FILE *out, ELEMENT *elem);
+extern void galerkinPrintElementId(FILE *out, GalerkingElement *elem);
 
 /* destroys the toplevel surface element and it's subelements (recursive) */
-extern void galerkinDestroyToplevelElement(ELEMENT *element);
+extern void galerkinDestroyToplevelElement(GalerkingElement *element);
 
 /* destroys the cluster element, not recursive. */
-extern void galerkinDestroyClusterElement(ELEMENT *element);
+extern void galerkinDestroyClusterElement(GalerkingElement *element);
 
 /* Computes the transform relating a surface element to the toplevel element in the
  * hierarchy by concatenaing the up-transforms of the element and all parent 	
@@ -160,42 +162,42 @@ extern void galerkinDestroyClusterElement(ELEMENT *element);
  * to transform positions on the element to the corresponding point on the toplevel
  * element). In the other case, the composed transform is filled in in xf and
  * xf (pointer to the transform) is returned. */
-extern Matrix2x2 *galerkinElementToTopTransform(ELEMENT *element, Matrix2x2 *xf);
+extern Matrix2x2 *galerkinElementToTopTransform(GalerkingElement *element, Matrix2x2 *xf);
 
 /* Determines the regular subelement at point (u,v) of the given parent
  * surface element. Returns the parent element itself if there are no regular 
  * subelements. The point is transformed to the corresponding point on the subelement. */
-extern ELEMENT *galerkinRegularSubelementAtPoint(ELEMENT *parent, double *u, double *v);
+extern GalerkingElement *galerkinRegularSubelementAtPoint(GalerkingElement *parent, double *u, double *v);
 
 /* Returns the leaf regular subelement of 'top' at the point (u,v) (uniform 
  * coordinates!). (u,v) is transformed to the coordinates of the corresponding
  * point on the leaf element. 'top' is a surface element. */
-extern ELEMENT *RegularLeafElementAtPoint(ELEMENT *top, double *u, double *v);
+extern GalerkingElement *RegularLeafElementAtPoint(GalerkingElement *top, double *u, double *v);
 
 /* draws element outline in the current outline color */
-extern void DrawElementOutline(ELEMENT *elem);
+extern void DrawElementOutline(GalerkingElement *elem);
 
 /* renders a surface element flat shaded based on its radiance. */
-extern void RenderElement(ELEMENT *elem);
+extern void RenderElement(GalerkingElement *elem);
 
 /* (re)allocates storage for the coefficients to represent radiance, received radiance
  * and unshot radiance on the element. */
-extern void ElementReallocCoefficients(ELEMENT *elem);
+extern void ElementReallocCoefficients(GalerkingElement *elem);
 
 /* Computes the vertices of a surface element (3 or 4 vertices) or
  * cluster element (8 vertices). The number of vertices is returned. */
-extern int ElementVertices(ELEMENT *elem, Vector3D *p);
+extern int ElementVertices(GalerkingElement *elem, Vector3D *p);
 
 /* Computes a bounding box for the element. */
-extern float *ElementBounds(ELEMENT *elem, float *bounds);
+extern float *ElementBounds(GalerkingElement *elem, float *bounds);
 
 /* Computes the midpoint of the element. */
-extern Vector3D galerkinElementMidpoint(ELEMENT *elem);
+extern Vector3D galerkinElementMidpoint(GalerkingElement *elem);
 
 /* Computes a polygon description for shaft culling for the element. */
-extern POLYGON *ElementPolygon(ELEMENT *elem, POLYGON *poly);
+extern POLYGON *ElementPolygon(GalerkingElement *elem, POLYGON *poly);
 
 /* Call func for each leaf element of top */
-extern void ForAllLeafElements(ELEMENT *top, void (*func)(ELEMENT *));
+extern void ForAllLeafElements(GalerkingElement *top, void (*func)(GalerkingElement *));
 
 #endif

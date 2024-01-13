@@ -10,7 +10,7 @@ initCoefficientPools() {
 Basically sets rad to nullptr
 */
 void
-initCoefficients(ELEMENT *elem) {
+initCoefficients(StochasticRadiosityElement *elem) {
     if ( !globalCoefficientPoolsInitialized ) {
         initCoefficientPools();
         globalCoefficientPoolsInitialized = true;
@@ -24,7 +24,7 @@ initCoefficients(ELEMENT *elem) {
 Disposes previously allocated coefficients
 */
 void
-disposeCoefficients(ELEMENT *elem) {
+disposeCoefficients(StochasticRadiosityElement *elem) {
     if ( elem->basis && elem->basis != &dummyBasis && elem->rad ) {
         free(elem->rad);
         free(elem->unshot_rad);
@@ -35,7 +35,7 @@ disposeCoefficients(ELEMENT *elem) {
 
 /* determines basis based on element type and currently desired approximation */
 static GalerkinBasis *
-ActualBasis(ELEMENT *elem) {
+ActualBasis(StochasticRadiosityElement *elem) {
     if ( elem->iscluster ) {
         return &clusterBasis;
     } else {
@@ -47,7 +47,7 @@ ActualBasis(ELEMENT *elem) {
 Allocates memory for radiance coefficients
 */
 void
-allocCoefficients(ELEMENT *elem) {
+allocCoefficients(StochasticRadiosityElement *elem) {
     disposeCoefficients(elem);
     elem->basis = ActualBasis(elem);
     elem->rad = (COLOR *)malloc(elem->basis->size * sizeof(COLOR));
@@ -62,7 +62,7 @@ as the approximation order for which the element has
 been initialised before
 */
 void
-reAllocCoefficients(ELEMENT *elem) {
+reAllocCoefficients(StochasticRadiosityElement *elem) {
     if ( elem->basis != ActualBasis(elem)) {
         allocCoefficients(elem);
     }

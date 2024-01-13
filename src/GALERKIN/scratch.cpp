@@ -23,7 +23,7 @@ void ScratchTerminate() {
  * eyep for backface culling. */
 static Vector3D eyep;
 
-static void ScratchRenderElementPtr(ELEMENT *elem) {
+static void ScratchRenderElementPtr(GalerkingElement *elem) {
     Patch *patch = elem->pog.patch;
     Vector3D v[4];
     int i;
@@ -47,7 +47,7 @@ static void ScratchRenderElementPtr(ELEMENT *elem) {
  * in clus in the scratch frame buffer and returns pointer to a boundingbox 
  * containing the size of the virtual screen. The cluster clus nicely fits
  * into the virtual screen. */
-float *ScratchRenderElementPtrs(ELEMENT *clus, Vector3D eye) {
+float *ScratchRenderElementPtrs(GalerkingElement *clus, Vector3D eye) {
     Vector3D centre = galerkinElementMidpoint(clus);
     Vector3D up = {0., 0., 1.}, viewdir;
     static BOUNDINGBOX bbx;
@@ -108,7 +108,7 @@ COLOR ScratchRadiance() {
     for ( j = 0; j < GLOBAL_galerkin_state.scratch->vp_height; j++ ) {
         pix = GLOBAL_galerkin_state.scratch->frameBuffer + j * GLOBAL_galerkin_state.scratch->width;
         for ( i = 0; i < GLOBAL_galerkin_state.scratch->vp_width; i++, pix++ ) {
-            ELEMENT *elem = (ELEMENT *) (*pix);
+            GalerkingElement *elem = (GalerkingElement *) (*pix);
             if ( elem ) {
                 if ( GLOBAL_galerkin_state.iteration_method == GAUSS_SEIDEL ||
                      GLOBAL_galerkin_state.iteration_method == JACOBI ) {
@@ -137,7 +137,7 @@ int ScratchNonBackgroundPixels() {
     for ( j = 0; j < GLOBAL_galerkin_state.scratch->vp_height; j++ ) {
         pix = GLOBAL_galerkin_state.scratch->frameBuffer + j * GLOBAL_galerkin_state.scratch->width;
         for ( i = 0; i < GLOBAL_galerkin_state.scratch->vp_width; i++, pix++ ) {
-            ELEMENT *elem = (ELEMENT *) (*pix);
+            GalerkingElement *elem = (GalerkingElement *) (*pix);
             if ( elem ) {
                 nonbkgrnd++;
             }
@@ -156,7 +156,7 @@ void ScratchPixelsPerElement() {
     for ( j = 0; j < GLOBAL_galerkin_state.scratch->vp_height; j++ ) {
         pix = GLOBAL_galerkin_state.scratch->frameBuffer + j * GLOBAL_galerkin_state.scratch->width;
         for ( i = 0; i < GLOBAL_galerkin_state.scratch->vp_width; i++, pix++ ) {
-            ELEMENT *elem = (ELEMENT *) (*pix);
+            GalerkingElement *elem = (GalerkingElement *) (*pix);
             if ( elem ) {
                 elem->tmp++;
             }

@@ -33,13 +33,13 @@ clusterGalerkinAddCoefficients(COLOR *dst, COLOR *extra, char n) {
     }
 }
 
-extern ELEMENT *galerkinCreateClusterHierarchy(Geometry *geom);
-extern void galerkinDestroyClusterHierarchy(ELEMENT *cluster);
-extern COLOR clusterRadianceToSamplePoint(ELEMENT *src, Vector3D sample);
+extern GalerkingElement *galerkinCreateClusterHierarchy(Geometry *geom);
+extern void galerkinDestroyClusterHierarchy(GalerkingElement *cluster);
+extern COLOR clusterRadianceToSamplePoint(GalerkingElement *src, Vector3D sample);
 extern COLOR sourceClusterRadiance(INTERACTION *link);
-extern void iterateOverSurfaceElementsInCluster(ELEMENT *clus, void (*func)(ELEMENT *elem));
+extern void iterateOverSurfaceElementsInCluster(GalerkingElement *clus, void (*func)(GalerkingElement *elem));
 extern double receiverClusterArea(INTERACTION *link);
 extern void clusterGatherRadiance(INTERACTION *link, COLOR *srcrad);
-extern COLOR maxClusterRadiance(ELEMENT *clus);
+extern COLOR maxClusterRadiance(GalerkingElement *clus);
 
 #endif

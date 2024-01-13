@@ -4,96 +4,96 @@
 #define _ELEMENT_H_
 
 /* Data associated with each Patch: */
-#include "raycasting/stochasticRaytracing/elementtype.h"
+#include "raycasting/stochasticRaytracing/StochasticRadiosityElement.h"
 
 /* close these macros with EndForAll */
 #define ForAllRegularSubelements(p, parent) {    \
 if ((parent)->regular_subelements) {        \
   int i;                    \
   for (i=0; i<4; i++) {                \
-    ELEMENT *p = (parent)->regular_subelements[i];
+    StochasticRadiosityElement *p = (parent)->regular_subelements[i];
 
 #define ForAllIrregularSubelements(p, parent) { \
 if ((parent)->irregular_subelements) {        \
   ELEMENTLIST *_el_;            \
   for (_el_ = (parent)->irregular_subelements; _el_; _el_ = _el_->next) { \
-    ELEMENT *p = _el_->element;
+    StochasticRadiosityElement *p = _el_->element;
 
 #define ForAllVerticesOfElement(vert, elem) {    \
   int _i_;                    \
   for (_i_=0; _i_<(elem)->nrvertices; _i_++) {    \
     Vertex *(vert) = (elem)->vertex[_i_]; {
 
-extern ELEMENT *monteCarloRadiosityCreateToplevelSurfaceElement(Patch *patch);
+extern StochasticRadiosityElement *monteCarloRadiosityCreateToplevelSurfaceElement(Patch *patch);
 
-extern void monteCarloRadiosityDestroyToplevelSurfaceElement(ELEMENT *elem);
+extern void monteCarloRadiosityDestroyToplevelSurfaceElement(StochasticRadiosityElement *elem);
 
-extern ELEMENT *monteCarloRadiosityCreateClusterHierarchy(Geometry *world);
+extern StochasticRadiosityElement *monteCarloRadiosityCreateClusterHierarchy(Geometry *world);
 
-extern void monteCarloRadiosityDestroyClusterHierarchy(ELEMENT *top);
+extern void monteCarloRadiosityDestroyClusterHierarchy(StochasticRadiosityElement *top);
 
-extern void monteCarloRadiosityPrintElement(FILE *out, ELEMENT *elem);
+extern void monteCarloRadiosityPrintElement(FILE *out, StochasticRadiosityElement *elem);
 
-extern void monteCarloRadiosityForAllLeafElements(ELEMENT *top, void (*func)(ELEMENT *));
+extern void monteCarloRadiosityForAllLeafElements(StochasticRadiosityElement *top, void (*func)(StochasticRadiosityElement *));
 
-extern void monteCarloRadiosityForAllSurfaceLeafs(ELEMENT *top, void (*func)(ELEMENT *));
+extern void monteCarloRadiosityForAllSurfaceLeafs(StochasticRadiosityElement *top, void (*func)(StochasticRadiosityElement *));
 
 /* returns true if top has children and returns false if top is a leaf element */
-extern int monteCarloRadiosityForAllChildrenElements(ELEMENT *top, void (*func)(ELEMENT *));
+extern int monteCarloRadiosityForAllChildrenElements(StochasticRadiosityElement *top, void (*func)(StochasticRadiosityElement *));
 
 /* returns true if elem is a leaf element */
-extern int monteCarloRadiosityElementIsLeaf(ELEMENT *elem);
+extern int monteCarloRadiosityElementIsLeaf(StochasticRadiosityElement *elem);
 
-extern void monteCarloRadiosityElementRange(ELEMENT *elem, int *nbits, niedindex *msb1, niedindex *rmsb2);
+extern void monteCarloRadiosityElementRange(StochasticRadiosityElement *elem, int *nbits, niedindex *msb1, niedindex *rmsb2);
 
-extern float *monteCarloRadiosityElementBounds(ELEMENT *elem, float *bounds);
+extern float *monteCarloRadiosityElementBounds(StochasticRadiosityElement *elem, float *bounds);
 
-extern ELEMENT *monteCarloRadiosityClusterChildContainingElement(ELEMENT *parent, ELEMENT *descendant);
+extern StochasticRadiosityElement *monteCarloRadiosityClusterChildContainingElement(StochasticRadiosityElement *parent, StochasticRadiosityElement *descendant);
 
-extern ELEMENT **monteCarloRadiosityRegularSubdivideElement(ELEMENT *element);
+extern StochasticRadiosityElement **monteCarloRadiosityRegularSubdivideElement(StochasticRadiosityElement *element);
 
-extern ELEMENT *monteCarloRadiosityRegularSubElementAtPoint(ELEMENT *parent, double *u, double *v);
+extern StochasticRadiosityElement *monteCarloRadiosityRegularSubElementAtPoint(StochasticRadiosityElement *parent, double *u, double *v);
 
-extern ELEMENT *monteCarloRadiosityRegularLeafElementAtPoint(ELEMENT *top, double *u, double *v);
+extern StochasticRadiosityElement *monteCarloRadiosityRegularLeafElementAtPoint(StochasticRadiosityElement *top, double *u, double *v);
 
-extern Vertex *monteCarloRadiosityEdgeMidpointVertex(ELEMENT *elem, int edgenr);
+extern Vertex *monteCarloRadiosityEdgeMidpointVertex(StochasticRadiosityElement *elem, int edgenr);
 
 extern Matrix2x2 GLOBAL_stochasticRaytracing_quadupxfm[4];
 extern Matrix2x2 GLOBAL_stochasticRaytracing_triupxfm[4];
 
 /* only for surface elements!! */
-extern int monteCarloRadiosityElementIsTextured(ELEMENT *elem);
+extern int monteCarloRadiosityElementIsTextured(StochasticRadiosityElement *elem);
 
 /* uses elem->Rd for surface elements */
-extern float monteCarloRadiosityElementScalarReflectance(ELEMENT *elem);
+extern float monteCarloRadiosityElementScalarReflectance(StochasticRadiosityElement *elem);
 
 /* implemented pushpull.c and basis.c */
-extern void PushRadiance(ELEMENT *parent, ELEMENT *child, COLOR *parent_rad, COLOR *child_rad);
+extern void PushRadiance(StochasticRadiosityElement *parent, StochasticRadiosityElement *child, COLOR *parent_rad, COLOR *child_rad);
 
-extern void PushImportance(ELEMENT *parent, ELEMENT *child, float *parent_imp, float *child_imp);
+extern void PushImportance(StochasticRadiosityElement *parent, StochasticRadiosityElement *child, float *parent_imp, float *child_imp);
 
-extern void PullRadiance(ELEMENT *parent, ELEMENT *child, COLOR *parent_rad, COLOR *child_rad);
+extern void PullRadiance(StochasticRadiosityElement *parent, StochasticRadiosityElement *child, COLOR *parent_rad, COLOR *child_rad);
 
-extern void PullImportance(ELEMENT *parent, ELEMENT *child, float *parent_imp, float *child_imp);
+extern void PullImportance(StochasticRadiosityElement *parent, StochasticRadiosityElement *child, float *parent_imp, float *child_imp);
 
 /* implemented in render.c */
-extern COLOR ElementDisplayRadiance(ELEMENT *elem);
+extern COLOR ElementDisplayRadiance(StochasticRadiosityElement *elem);
 
-extern COLOR ElementDisplayRadianceAtPoint(ELEMENT *elem, double u, double v);
+extern COLOR ElementDisplayRadianceAtPoint(StochasticRadiosityElement *elem, double u, double v);
 
-extern void McrRenderElement(ELEMENT *elem);
+extern void McrRenderElement(StochasticRadiosityElement *elem);
 
-extern void RenderElementOutline(ELEMENT *elem);
+extern void RenderElementOutline(StochasticRadiosityElement *elem);
 
-extern void ElementComputeNewVertexColors(ELEMENT *elem);
+extern void ElementComputeNewVertexColors(StochasticRadiosityElement *elem);
 
-extern void ElementAdjustTVertexColors(ELEMENT *elem);
+extern void ElementAdjustTVertexColors(StochasticRadiosityElement *elem);
 
-extern RGB ElementColor(ELEMENT *elem);
+extern RGB ElementColor(StochasticRadiosityElement *elem);
 
 extern COLOR VertexReflectance(Vertex *v);
 
-extern void ElementTVertexElimination(ELEMENT *elem,
+extern void ElementTVertexElimination(StochasticRadiosityElement *elem,
                                       void (*do_triangle)(Vertex *, Vertex *, Vertex *),
                                       void (*do_quadrilateral)(Vertex *, Vertex *, Vertex *, Vertex *));
 
@@ -120,7 +120,7 @@ extern void ElementTVertexElimination(ELEMENT *elem,
   int _did_recurse = false;                        \
   ELEMENTLIST *_subelp = (ELEMENTLIST*)nullptr;            \
   STACK_DECL(ELEMENTLIST*, _selstack, MAX_HIERARCHY_DEPTH, _selp);    \
-  ELEMENT *_curel = (top);                        \
+  StochasticRadiosityElement *_curel = (top);                        \
   _begin_recurse_CS:                            \
   if (_curel->iscluster) {                        \
     _did_recurse = true;                        \
@@ -136,7 +136,7 @@ extern void ElementTVertexElimination(ELEMENT *elem,
     if (_subelp)    /* not back at top */                \
       goto _end_recurse_CS;                        \
   } else {                                \
-    ELEMENT *surface = _curel;
+    StochasticRadiosityElement *surface = _curel;
 
 /* do something with 'surface' */
 
@@ -151,7 +151,7 @@ extern void ElementTVertexElimination(ELEMENT *elem,
 #define REC_ForAllSurfaceLeafs(leaf, top) {                \
   int _i_ = -1, _did_recurse = false;                    \
   STACK_DECL(int, _isave, MAX_HIERARCHY_DEPTH, _isaveptr);        \
-  ELEMENT *_curel = (top);                        \
+  StochasticRadiosityElement *_curel = (top);                        \
   _begin_recurse_SL:                            \
   if (_curel->regular_subelements) { /* not a leaf */            \
     _did_recurse = true;                        \
@@ -166,7 +166,7 @@ extern void ElementTVertexElimination(ELEMENT *elem,
     if (_curel != (top))    /* not back at top */            \
       goto _end_recurse_SL;                        \
   } else {                                \
-    ELEMENT *leaf = _curel;
+    StochasticRadiosityElement *leaf = _curel;
 
 /* do something with 'leaf' */
 

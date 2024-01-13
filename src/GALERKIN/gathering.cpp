@@ -21,7 +21,7 @@ interactions with light sources are created. See Holschuch, EGRW '94
 */
 static void
 patchLazyCreateInteractions(Patch *P) {
-    ELEMENT *el = TOPLEVEL_ELEMENT(P);
+    GalerkingElement *el = TOPLEVEL_ELEMENT(P);
 
     if ( !colorNull(el->radiance[0]) && !(el->flags & INTERACTIONS_CREATED)) {
         createInitialLinks(el, SOURCE);
@@ -47,7 +47,7 @@ Gauss-Seidel iterations
 */
 static void
 patchGather(Patch *P) {
-    ELEMENT *el = TOPLEVEL_ELEMENT(P);
+    GalerkingElement *el = TOPLEVEL_ELEMENT(P);
 
     /* don't gather to patches without importance. This optimisation can not
      * be combined with lazy linking based on radiance. */
@@ -84,7 +84,7 @@ Updates the potential of the element after a change of the camera, and as such
 a potential change in directly received potential
 */
 void
-gatheringUpdateDirectPotential(ELEMENT *elem, float potential_increment) {
+gatheringUpdateDirectPotential(GalerkingElement *elem, float potential_increment) {
     if ( elem->regular_subelements ) {
         int i;
         for ( i = 0; i < 4; i++ ) {
@@ -100,7 +100,7 @@ Makes the representation of potential consistent after an iteration
 (potential is always propagated using Jacobi iterations)
 */
 static float
-gatheringPushPullPotential(ELEMENT *elem, float down) {
+gatheringPushPullPotential(GalerkingElement *elem, float down) {
     float up;
 
     down += elem->received_potential.f / elem->area;
@@ -122,7 +122,7 @@ gatheringPushPullPotential(ELEMENT *elem, float down) {
     if ( elem->irregular_subelements ) {
         ELEMENTLIST *subellist;
         for ( subellist = elem->irregular_subelements; subellist; subellist = subellist->next ) {
-            ELEMENT *subel = subellist->element;
+            GalerkingElement *subel = subellist->element;
             if ( !isCluster(elem)) {
                 down = 0.0;
             }    /* don't push to irregular surface subelements */
@@ -143,12 +143,12 @@ Recomputes the potential of the cluster and its sub-clusters based on the
 potential of the contained patches
 */
 static float
-gatheringClusterUpdatePotential(ELEMENT *cluster) {
+gatheringClusterUpdatePotential(GalerkingElement *cluster) {
     if ( cluster->flags & IS_CLUSTER ) {
         ELEMENTLIST *subClusterList;
         cluster->potential.f = 0.0;
         for ( subClusterList = cluster->irregular_subelements; subClusterList; subClusterList = subClusterList->next ) {
-            ELEMENT *subCluster = subClusterList->element;
+            GalerkingElement *subCluster = subClusterList->element;
             cluster->potential.f += subCluster->area * gatheringClusterUpdatePotential(subCluster);
         }
         cluster->potential.f /= cluster->area;
@@ -215,7 +215,7 @@ doClusteredGatheringIteration() {
             UpdateDirectPotential();
             for ( int i = 0; GLOBAL_scene_patches != nullptr && i < GLOBAL_scene_patches->size(); i++ ) {
                 Patch *patch = GLOBAL_scene_patches->get(i);
-                ELEMENT *top = TOPLEVEL_ELEMENT(patch);
+                GalerkingElement *top = TOPLEVEL_ELEMENT(patch);
                 float potential_increment = patch->directPotential - top->direct_potential.f;
                 gatheringUpdateDirectPotential(top, potential_increment);
             }

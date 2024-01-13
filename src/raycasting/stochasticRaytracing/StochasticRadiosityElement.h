@@ -13,7 +13,7 @@ typedef union PatchOrGeomPtr {
     Geometry *geom;
 } PatchOrGeomPtr;
 
-class ELEMENT {
+class StochasticRadiosityElement {
   public:
     PatchOrGeomPtr pog;    /* pointer to patch for surface elements or
 			 * to geometry for cluster elements */
@@ -39,8 +39,8 @@ class ELEMENT {
     Vector3D midpoint;            /* element midpoint */
     Vertex *vertex[4];            /* up to 4 vertex pointers for
 					 * surface elements */
-    ELEMENT *parent;        /* parent element in hierarchy */
-    ELEMENT **regular_subelements;    /* for surface elements with regular
+    StochasticRadiosityElement *parent;        /* parent element in hierarchy */
+    StochasticRadiosityElement **regular_subelements;    /* for surface elements with regular
 					 * quadtree subdivision */
     ELEMENTLIST *irregular_subelements; /* clusters */
     Matrix2x2 *uptrans;            /* relates surface element (u,v)

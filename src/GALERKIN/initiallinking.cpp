@@ -8,7 +8,7 @@
 #include "GALERKIN/galerkinP.h"
 #include "GALERKIN/formfactor.h"
 
-static ELEMENT *globalElement; // The element for which initial links are to be created
+static GalerkingElement *globalElement; // The element for which initial links are to be created
 static ROLE globalRole; // The role of that element: SOURCE or RECEIVER
 static Patch *globalPatch; // The patch for the element is the toplevel element
 static BOUNDINGBOX globalPatchBoundingBox; // Bounding box for that patch
@@ -16,8 +16,8 @@ static GeometryListNode *globalCandidateList; // Candidate list for shaft cullin
 
 static void
 createInitialLink(Patch *patch) {
-    ELEMENT *rcv = nullptr;
-    ELEMENT *src = nullptr;
+    GalerkingElement *rcv = nullptr;
+    GalerkingElement *src = nullptr;
     GeometryListNode *oldCandidateList = globalCandidateList;
     INTERACTION link{};
     float ff[MAXBASISSIZE * MAXBASISSIZE];
@@ -143,7 +143,7 @@ are stored at the receiver element when doing gathering and at the
 source element when doing shooting
 */
 void
-createInitialLinks(ELEMENT *top, ROLE role) {
+createInitialLinks(GalerkingElement *top, ROLE role) {
     if ( top->flags & IS_CLUSTER ) {
         logFatal(-1, "createInitialLinks", "cannot use this routine for cluster elements");
     }
@@ -164,8 +164,8 @@ createInitialLinks(ELEMENT *top, ROLE role) {
 Creates an initial link between the given element and the top cluster
 */
 void
-createInitialLinkWithTopCluster(ELEMENT *elem, ROLE role) {
-    ELEMENT *rcv = (ELEMENT *) nullptr, *src = (ELEMENT *) nullptr;
+createInitialLinkWithTopCluster(GalerkingElement *elem, ROLE role) {
+    GalerkingElement *rcv = (GalerkingElement *) nullptr, *src = (GalerkingElement *) nullptr;
     INTERACTION *link;
     FloatOrPointer K;
     FloatOrPointer deltaK;
