@@ -60,8 +60,8 @@ SoftRenderPatches(SGL_PIXEL (*patch_pixel)(Patch *)) {
         renderWorldOctree(SoftRenderPatch);
         GLOBAL_render_renderOptions.use_display_lists = use_display_lists;
     } else {
-        for ( PatchSet *window = GLOBAL_scene_patches; window != nullptr; window = window->next ) {
-            SoftRenderPatch(window->patch);
+        for ( int i = 0; GLOBAL_scene_patches != nullptr && i < GLOBAL_scene_patches->size(); i++ ) {
+            SoftRenderPatch(GLOBAL_scene_patches->get(i));
         }
     }
 }

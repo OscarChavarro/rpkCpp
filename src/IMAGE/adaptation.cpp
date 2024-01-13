@@ -113,8 +113,8 @@ estimateSceneAdaptation(COLOR (*patch_radiance)(Patch *)) {
         case TMA_AVERAGE: {
             // Gibson's static adaptation after Tumblin[1993]
             globalLogAreaLum = 0.0;
-            for ( PatchSet *window = GLOBAL_scene_patches; window != nullptr; window = window->next ) {
-                patchComputeLogAreaLum(window->patch);
+            for ( int i = 0; GLOBAL_scene_patches != nullptr && i < GLOBAL_scene_patches->size(); i++ ) {
+                patchComputeLogAreaLum(GLOBAL_scene_patches->get(i));
             }
             GLOBAL_toneMap_options.lwa = (float)std::exp(globalLogAreaLum / GLOBAL_statistics_totalArea + 0.84);
             break;
@@ -124,8 +124,8 @@ estimateSceneAdaptation(COLOR (*patch_radiance)(Patch *)) {
             LUMAREA *la = (LUMAREA *)malloc(GLOBAL_statistics_numberOfPatches * sizeof(LUMAREA));
 
             globalLumArea = la;
-            for ( PatchSet *window = GLOBAL_scene_patches; window != nullptr; window = window->next ) {
-                patchFillLumArea(window->patch);
+            for ( int i = 0; GLOBAL_scene_patches != nullptr && i < GLOBAL_scene_patches->size(); i++ ) {
+                patchFillLumArea(GLOBAL_scene_patches->get(i));
             }
             GLOBAL_toneMap_options.lwa = meanAreaWeightedLuminance(la, GLOBAL_statistics_numberOfPatches);
 

@@ -76,18 +76,18 @@ extern void ShaftOmit(SHAFT *shaft, Geometry *geom);
 extern void ShaftDontOpen(SHAFT *shaft, Geometry *geom);
 
 /* adds all objects from world that overlap or lay inside the shaft to
- * candlist, returns the new candidate list */
-extern GeometryListNode *DoShaftCulling(GeometryListNode *world, SHAFT *shaft, GeometryListNode *candlist);
+ * candidateList, returns the new candidate list */
+extern GeometryListNode *doShaftCulling(GeometryListNode *world, SHAFT *shaft, GeometryListNode *candidateList);
 
 /* Tests the geom w.r.t. the shaft: if the geom is inside or overlaps
  * the shaft, it is copied to the shaft or broken open depending on
  * the current shaft culling strategy. */
-extern GeometryListNode *ShaftCullGeom(Geometry *geom, SHAFT *shaft, GeometryListNode *candlist);
+extern GeometryListNode *shaftCullGeometry(Geometry *geom, SHAFT *shaft, GeometryListNode *candidateList);
 
 /* shaftculling for patch lists */
-extern PatchSet *shaftCullPatchList(PatchSet *pl, SHAFT *shaft, PatchSet *culledPatchList);
+extern java::ArrayList<Patch *> *shaftCullPatchList(java::ArrayList<Patch *> *patchList, SHAFT *shaft, java::ArrayList<Patch *> *culledPatchList);
 
-/* frees the memory occupied by a candidatelist produced by DoShaftCulling */
+/* frees the memory occupied by a candidatelist produced by doShaftCulling */
 extern void FreeCandidateList(GeometryListNode *candlist);
 
 #endif

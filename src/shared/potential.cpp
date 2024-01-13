@@ -50,8 +50,10 @@ void UpdateDirectPotential() {
     for ( i = 0; i <= maxpatchid; i++ ) {
         id2patch[i] = (Patch *) nullptr;
     }
-    for ( PatchSet *window = GLOBAL_scene_patches; window != nullptr; window = window->next ) {
-        id2patch[window->patch->id] = window->patch;
+
+    for ( int i = 0; GLOBAL_scene_patches != nullptr && i < GLOBAL_scene_patches->size(); i++ ) {
+        Patch *patch = GLOBAL_scene_patches->get(i);
+        id2patch[patch->id] = patch;
     }
 
     /* allocate space for an array to hold the new direct potential of the
@@ -125,9 +127,9 @@ static void SoftGetPatchPointers(SGL_CONTEXT *sgl) {
     SGL_PIXEL *pix;
     int i;
 
-    for ( PatchSet *window = GLOBAL_scene_patches; window != nullptr; window = window->next ) {
+    for ( i = 0; GLOBAL_scene_patches != nullptr && i < GLOBAL_scene_patches->size(); i++ ) {
         // Initialise to invisible
-        PATCH_SET_INVISIBLE(window->patch);
+        PATCH_SET_INVISIBLE(GLOBAL_scene_patches->get(i));
     }
 
     for ( pix = sgl->frameBuffer, i = 0; i < sgl->width * sgl->height; pix++, i++ ) {
@@ -142,12 +144,12 @@ static void SoftGetPatchPointers(SGL_CONTEXT *sgl) {
 void
 SoftUpdateDirectVisibility() {
     clock_t t = clock();
-    SGL_CONTEXT *oldsgl = GLOBAL_sgl_currentContext;
-    SGL_CONTEXT *sgl = SetupSoftFrameBuffer();
+    SGL_CONTEXT *oldContext = GLOBAL_sgl_currentContext;
+    SGL_CONTEXT *currentContext = SetupSoftFrameBuffer();
     SoftRenderPatches(PatchPointer);
-    SoftGetPatchPointers(sgl);
-    sglClose(sgl);
-    sglMakeCurrent(oldsgl);
+    SoftGetPatchPointers(currentContext);
+    sglClose(currentContext);
+    sglMakeCurrent(oldContext);
 
     fprintf(stderr, "Determining visible patches in software took %g sec\n",
             (float) (clock() - t) / (float) CLOCKS_PER_SEC);

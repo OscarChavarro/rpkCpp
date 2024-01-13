@@ -692,8 +692,8 @@ photonMapRenderScreen() {
     if ( GLOBAL_photonMap_config.screen && pmapstate.renderImage ) {
         GLOBAL_photonMap_config.screen->Render();
     } else {
-        for ( PatchSet *window = GLOBAL_scene_patches; window != nullptr; window = window->next ) {
-            renderPatch(window->patch);
+        for ( int i = 0; GLOBAL_scene_patches != nullptr && i < GLOBAL_scene_patches->size(); i++ ) {
+            renderPatch(GLOBAL_scene_patches->get(i));
         }
     }
 }
@@ -750,8 +750,8 @@ photonMapGetStats() {
 
 static void
 photonMapRecomputeDisplayColors() {
-    for ( PatchSet *window = GLOBAL_scene_patches; window != nullptr; window = window->next ) {
-        photonMapPatchComputeNewColor(window->patch);
+    for ( int i = 0; GLOBAL_scene_patches != nullptr && i < GLOBAL_scene_patches->size(); i++ ) {
+        photonMapPatchComputeNewColor(GLOBAL_scene_patches->get(i));
     }
 }
 

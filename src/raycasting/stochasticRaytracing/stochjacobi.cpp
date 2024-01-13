@@ -445,9 +445,9 @@ shootRays() {
     long ray_count = 0;
     double p_cumul = 0.0;
 
-    /* loop over all leaf elements in the element hierarchy */
-    for ( PatchSet *window = GLOBAL_scene_patches; window != nullptr; window = window->next ) {
-        REC_ForAllSurfaceLeafs(leaf, TOPLEVEL_ELEMENT(window->patch))
+    // Loop over all leaf elements in the element hierarchy
+    for ( int i = 0; GLOBAL_scene_patches != nullptr && i < GLOBAL_scene_patches->size(); i++ ) {
+        REC_ForAllSurfaceLeafs(leaf, TOPLEVEL_ELEMENT(GLOBAL_scene_patches->get(i)))
                 {
                     double p = leaf->prob / sum_probs;
                     long rays_this_leaf =

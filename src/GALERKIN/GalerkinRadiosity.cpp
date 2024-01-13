@@ -296,8 +296,8 @@ initGalerkin() {
         GLOBAL_galerkin_state.ambient_radiance = GLOBAL_statistics_estimatedAverageRadiance;
     }
 
-    for ( PatchSet *window = GLOBAL_scene_patches; window != nullptr; window = window->next ) {
-        patchInit(window->patch);
+    for ( int i = 0; GLOBAL_scene_patches != nullptr && i < GLOBAL_scene_patches->size(); i++ ) {
+        patchInit(GLOBAL_scene_patches->get(i));
     }
 
     GLOBAL_galerkin_state.top_geom = GLOBAL_scene_clusteredWorldGeom;
@@ -441,8 +441,8 @@ galerkinRender() {
     if ( GLOBAL_render_renderOptions.frustum_culling ) {
         renderWorldOctree(galerkinRenderPatch);
     } else {
-        for ( PatchSet *window = GLOBAL_scene_patches; window != nullptr; window = window->next ) {
-            galerkinRenderPatch(window->patch);
+        for ( int i = 0; GLOBAL_scene_patches != nullptr && i < GLOBAL_scene_patches->size(); i++ ) {
+            galerkinRenderPatch(GLOBAL_scene_patches->get(i));
         }
     }
 }

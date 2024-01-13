@@ -27,20 +27,20 @@ initLight(LIGHTSOURCETABLE *light, Patch *l, double flux) {
 
 static void
 makeLightSourceTable() {
-    int i = 0;
     globalTotalFlux = 0.0;
     globalNumberOfLights = GLOBAL_statistics_numberOfLightSources;
     globalLights = (LIGHTSOURCETABLE *)malloc(globalNumberOfLights * sizeof(LIGHTSOURCETABLE));
-    for ( PatchSet *window = GLOBAL_scene_lightSourcePatches; window != nullptr; window = window->next ) {
-        Patch *light = window->patch;
+    for ( int i = 0; GLOBAL_scene_lightSourcePatches != nullptr && i < GLOBAL_scene_lightSourcePatches->size(); i++ ) {
+        Patch *light = GLOBAL_scene_lightSourcePatches->get(i);
         COLOR emitted_rad = patchAverageEmittance(light, ALL_COMPONENTS);
         double flux = M_PI * light->area * colorSumAbsComponents(emitted_rad);
         globalTotalFlux += flux;
         initLight(&globalLights[i], light, flux);
         i++;
     }
-    for ( PatchSet *window = GLOBAL_scene_patches; window != nullptr; window = window->next ) {
-        Patch *patch = window->patch;
+
+    for ( int i = 0; GLOBAL_scene_patches != nullptr && i < GLOBAL_scene_patches->size(); i++ ) {
+        Patch *patch = GLOBAL_scene_patches->get(i);
         stochasticRadiosityClearCoefficients(getTopLevelPatchRad(patch), getTopLevelPatchBasis(patch));
         stochasticRadiosityClearCoefficients(getTopLevelPatchUnShotRad(patch), getTopLevelPatchBasis(patch));
         stochasticRadiosityClearCoefficients(getTopLevelPatchReceivedRad(patch), getTopLevelPatchBasis(patch));
@@ -141,8 +141,8 @@ summarize() {
     colorClear(GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalFlux);
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalYmp = 0.;
     colorClear(GLOBAL_stochasticRaytracing_monteCarloRadiosityState.indirectImportanceWeightedUnShotFlux);
-    for ( PatchSet *window = GLOBAL_scene_patches; window != nullptr; window = window->next ) {
-        Patch *patch = window->patch;
+    for ( int i = 0; GLOBAL_scene_patches != nullptr && i < GLOBAL_scene_patches->size(); i++ ) {
+        Patch *patch = GLOBAL_scene_patches->get(i);
         colorAddScaled(GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotFlux, M_PI * patch->area, getTopLevelPatchUnShotRad(patch)[0], GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotFlux);
         colorAddScaled(GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalFlux, M_PI * patch->area, getTopLevelPatchRad(patch)[0], GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalFlux);
         colorAddScaled(GLOBAL_stochasticRaytracing_monteCarloRadiosityState.indirectImportanceWeightedUnShotFlux, M_PI * patch->area * (TOPLEVEL_ELEMENT(patch)->imp - TOPLEVEL_ELEMENT(patch)->source_imp), getTopLevelPatchUnShotRad(patch)[0],

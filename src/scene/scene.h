@@ -17,10 +17,10 @@ extern java::ArrayList<Material *> *GLOBAL_scene_materials;
 extern Background *GLOBAL_scene_background;
 
 // The list of all patches in the current scene. Automatically derived from 'GLOBAL_scene_world' when loading a scene
-extern PatchSet *GLOBAL_scene_patches;
+extern java::ArrayList<Patch *> *GLOBAL_scene_patches;
 
 // The light of all patches on light sources, useful for e.g. next event estimation in Monte Carlo raytracing etc.
-extern PatchSet *GLOBAL_scene_lightSourcePatches;
+extern java::ArrayList<Patch *> *GLOBAL_scene_lightSourcePatches;
 
 // The top of the patch cluster hierarchy for the scene. Automatically derived from 'GLOBAL_scene_patches' when loading a new scene
 extern GeometryListNode *GLOBAL_scene_clusteredWorld;

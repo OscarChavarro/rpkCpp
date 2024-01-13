@@ -63,8 +63,8 @@ computeSomeSceneStats() {
     GLOBAL_statistics_totalArea = 0.;
 
     // Accumulate
-    for ( PatchSet *window = GLOBAL_scene_patches; window != nullptr; window = window->next ) {
-        patchAccumulateStats(window->patch);
+    for ( int i = 0; GLOBAL_scene_patches != nullptr && i < GLOBAL_scene_patches->size(); i++ ) {
+        patchAccumulateStats(GLOBAL_scene_patches->get(i));
     }
 
     // Averages
@@ -90,10 +90,7 @@ Adds the background to the global light source patch list
 static void
 addBackgroundToLightSourceList() {
     if ( GLOBAL_scene_background != nullptr && GLOBAL_scene_background->bkgPatch != nullptr ) {
-        PatchSet *newListNode = (PatchSet *)malloc(sizeof(PatchSet));
-        newListNode->patch = GLOBAL_scene_background->bkgPatch;
-        newListNode->next = GLOBAL_scene_lightSourcePatches;
-        GLOBAL_scene_lightSourcePatches = newListNode;
+        GLOBAL_scene_lightSourcePatches->add(0, GLOBAL_scene_background->bkgPatch);
     }
 }
 
@@ -107,11 +104,7 @@ addPatchToLightSourceListIfLightSource(Patch *patch) {
          && patch->surface != nullptr
          && patch->surface->material != nullptr
          && patch->surface->material->edf != nullptr ) {
-        PatchSet *newListNode = (PatchSet *)malloc(sizeof(PatchSet));
-        newListNode->patch = patch;
-        newListNode->next = GLOBAL_scene_lightSourcePatches;
-        GLOBAL_scene_lightSourcePatches = newListNode;
-
+        GLOBAL_scene_lightSourcePatches->add(0, patch);
         GLOBAL_statistics_numberOfLightSources++;
     }
 }
@@ -121,11 +114,13 @@ Build the global light source patch list
 */
 static void
 buildLightSourcePatchList() {
-    GLOBAL_scene_lightSourcePatches = nullptr;
+    if ( GLOBAL_scene_lightSourcePatches == nullptr ) {
+        GLOBAL_scene_lightSourcePatches = new java::ArrayList<Patch *>();
+    }
     GLOBAL_statistics_numberOfLightSources = 0;
 
-    for ( PatchSet *window = GLOBAL_scene_patches; window != nullptr; window = window->next ) {
-        addPatchToLightSourceListIfLightSource(window->patch);
+    for ( int i = 0; GLOBAL_scene_patches != nullptr && i < GLOBAL_scene_patches->size(); i++ ) {
+        addPatchToLightSourceListIfLightSource(GLOBAL_scene_patches->get(i));
     }
 
     addBackgroundToLightSourceList();
@@ -317,7 +312,7 @@ This hierarchy is often much more efficient for tracing rays and clustering radi
 than the given hierarchy of bounding boxes. A pointer to the toplevel "cluster" is returned
 */
 static Geometry *
-createClusterHierarchy(PatchSet *patches) {
+createClusterHierarchy(java::ArrayList<Patch *> *patches) {
     Cluster *rootCluster;
     Geometry *rootGeometry;
 
@@ -365,8 +360,8 @@ readFile(char *filename) {
     GeometryListNode *oClusteredWorld{};
     Geometry *oClusteredWorldGeom{};
     java::ArrayList<Material *> *oMaterialLib{};
-    PatchSet *objectPatches{};
-    PatchSet *lightSourcePatches{};
+    java::ArrayList<Patch *> *objectPatches = new java::ArrayList<Patch *>();
+    java::ArrayList<Patch *> *lightSourcePatches  = new java::ArrayList<Patch *>();
     VoxelGrid *oWorldGrid{};
     RADIANCEMETHOD *oRadiance{};
     Raytracer *oRayTracing{};
@@ -411,14 +406,15 @@ readFile(char *filename) {
     fprintf(stderr, "Saving current scene ... \n");
     oWorld = GLOBAL_scene_world;
     GLOBAL_scene_world = nullptr;
-    oMaterialLib = GLOBAL_scene_materials;
     if ( GLOBAL_scene_materials == nullptr ) {
         GLOBAL_scene_materials = new java::ArrayList<Material *>();
     }
-    oMaterialLib = GLOBAL_scene_materials;
 
+    if ( GLOBAL_scene_patches == nullptr ) {
+        GLOBAL_scene_patches = new java::ArrayList<Patch *>();
+    }
     objectPatches = GLOBAL_scene_patches;
-    GLOBAL_scene_patches = nullptr;
+
     patchId = patchGetNextId();
     patchSetNextId(1);
     numberOfPatches = GLOBAL_statistics_numberOfPatches;
@@ -434,7 +430,8 @@ readFile(char *filename) {
     fprintf(stderr, "Reading the scene from file '%s' ... \n", filename);
     last = clock();
 
-    if ((dot = strrchr(filename, '.')) != nullptr ) {
+    dot = strrchr(filename, '.');
+    if ( dot != nullptr ) {
         extension = dot + 1;
     } else {
         extension = (char *) "mgf";
@@ -503,19 +500,17 @@ readFile(char *filename) {
         Global_Raytracer_activeRaytracer->Terminate();
     }
 
-    PatchSet *listWindow = objectPatches;
-    while ( listWindow != nullptr ) {
-        PatchSet *next = listWindow->next;
-        free(listWindow);
-        listWindow = next;
-    }
+    //for ( int i = 0; objectPatches->size(); i++ ) {
+    //    delete objectPatches->get(i);
+    //}
+    //delete objectPatches;
+    //objectPatches = nullptr;
 
-    listWindow = lightSourcePatches;
-    while ( listWindow != nullptr ) {
-        PatchSet *next = listWindow->next;
-        free(listWindow);
-        listWindow = next;
-    }
+    //for ( int i = 0; lightSourcePatches->size(); i++ ) {
+    //    delete lightSourcePatches->get(i);
+    //}
+    //delete lightSourcePatches;
+    //lightSourcePatches = nullptr;
 
     GeometryListNode *window = oWorld;
     Geometry *pelement;
@@ -563,7 +558,7 @@ readFile(char *filename) {
     fprintf(stderr, "Building patch list ... ");
     fflush(stderr);
 
-    GLOBAL_scene_patches = buildPatchList(GLOBAL_scene_world, nullptr /*should replace with new list*/);
+    buildPatchList(GLOBAL_scene_world, GLOBAL_scene_patches);
 
     t = clock();
     fprintf(stderr, "%g secs.\n", (float) (t - last) / (float) CLOCKS_PER_SEC);

@@ -50,9 +50,8 @@ geomCreateBase(void *geometryData, GEOM_METHODS *methods) {
     newGeometry->methods = methods;
     newGeometry->surfaceData = nullptr;
     newGeometry->compoundData = nullptr;
-    newGeometry->patchSetData = nullptr;
     newGeometry->aggregateData = nullptr;
-    newGeometry->newPatchSetData = nullptr;
+    newGeometry->patchSetData = nullptr;
 
     if ( methods->getBoundingBox ) {
         methods->getBoundingBox(geometryData, newGeometry->bounds);
@@ -75,31 +74,12 @@ geomCreateBase(void *geometryData, GEOM_METHODS *methods) {
 }
 
 Geometry *
-geomCreatePatchSetNew(java::ArrayList<Patch *> *geometryList, GEOM_METHODS *methods) {
-    PatchSet *patchList = nullptr;
-
-    for ( int i = 0; geometryList != nullptr && i < geometryList->size(); i++ ) {
-        PatchSet *newNode = (PatchSet *)malloc(sizeof(PatchSet));
-        newNode->next = patchList;
-        newNode->patch = geometryList->get(i);
-        patchList = newNode;
-    }
-
-    Geometry *newGeometry = geomCreatePatchSet(patchList, methods);
-    if ( newGeometry != nullptr ) {
-        newGeometry->newPatchSetData = geometryList;
-    }
-    return newGeometry;
-}
-
-Geometry *
-geomCreatePatchSet(PatchSet *patchSet, GEOM_METHODS *methods) {
-    if ( patchSet == nullptr ) {
+geomCreatePatchSetNew(java::ArrayList<Patch *> *patchList, GEOM_METHODS *methods) {
+    if ( patchList == nullptr ) {
         return nullptr;
     }
-
-    Geometry *newGeometry = geomCreateBase(patchSet, methods);
-    newGeometry->patchSetData = patchSet;
+    Geometry *newGeometry = geomCreateBase(patchList, methods);
+    newGeometry->patchSetData = patchList;
     return newGeometry;
 }
 
@@ -197,7 +177,7 @@ geomPrimList(Geometry *geom) {
 Returns a linear list of patches making up a primitive geometry. A nullptr
 pointer is returned if the given geometry is an aggregate
 */
-PatchSet *
+java::ArrayList<Patch *> *
 geomPatchList(Geometry *geom) {
     if ( geom->methods->getPatchList != nullptr ) {
         if ( geom->methods == &GLOBAL_skin_surfaceGeometryMethods ) {
@@ -348,9 +328,9 @@ Geometry::geomCountItems() {
         }
     } else {
         count = 0;
-
-        for ( PatchSet *patches = geomPatchList(this); patches != nullptr; patches = patches->next ) {
-            count++;
+	java::ArrayList<Patch *> *patches = geomPatchList(this);
+        if ( patches != nullptr ) {
+            count = patches->size();
         }
     }
 

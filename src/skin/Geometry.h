@@ -13,7 +13,7 @@ Currently, there are three types of geometries:
 - the MeshSurface: a primitive geometry which is basically a list of
   PATCHES representing some simple object with given Material properties
   etc.. see surface.
-- the PatchSet (PatchSet): a primitive geometry consisting of a list of patches
+- the patch set: a primitive geometry consisting of a list of patches
   without material properties and such. Used during shaft culling only,
   see shaft culling.
 
@@ -23,7 +23,6 @@ contains data that is independent of geometry type.
 
 class GEOM_METHODS;
 class HITLIST;
-class PatchSet;
 class MeshSurface;
 class Compound;
 class GeometryListNode;
@@ -51,16 +50,14 @@ class Geometry {
 
     MeshSurface *surfaceData;
     Compound *compoundData;
-    PatchSet *patchSetData;
-    java::ArrayList<Patch *> *newPatchSetData;
+    java::ArrayList<Patch *> *patchSetData;
     GeometryListNode *aggregateData;
 
     int geomCountItems();
 };
 
 extern Geometry *geomCreateSurface(MeshSurface *surfaceData, GEOM_METHODS *methods);
-extern Geometry *geomCreatePatchSetNew(java::ArrayList<Patch *> *geometryList, GEOM_METHODS *methods);
-extern Geometry *geomCreatePatchSet(PatchSet *patchSet, GEOM_METHODS *methods);
+extern Geometry *geomCreatePatchSetNew(java::ArrayList<Patch *> *patchList, GEOM_METHODS *methods);
 extern Geometry *geomCreateCompound(Compound *compoundData, GEOM_METHODS *methods);
 extern Geometry *geomCreateAggregateCompound(GeometryListNode *aggregateData, GEOM_METHODS *methods);
 
@@ -69,7 +66,7 @@ extern float *geomBounds(Geometry *geom);
 extern void geomDestroy(Geometry *geom);
 extern int geomIsAggregate(Geometry *geom);
 extern GeometryListNode *geomPrimList(Geometry *geom);
-extern PatchSet *geomPatchList(Geometry *geom);
+extern java::ArrayList<Patch *> *geomPatchList(Geometry *geom);
 extern void geomDontIntersect(Geometry *geom1, Geometry *geom2);
 extern Geometry *geomDuplicate(Geometry *geom);
 
@@ -127,7 +124,7 @@ class GEOM_METHODS {
      * Returns the list of patches making up a primitive geometry. This
      * method is not implemented for aggregate geometries
      */
-    PatchSet *(*getPatchList)(void *obj);
+    java::ArrayList<Patch *> *(*getPatchList)(void *obj);
 
     /**
      * DiscretizationIntersect returns nullptr is the ray doesn't hit the discretization
@@ -163,9 +160,6 @@ extern Geometry *GLOBAL_geom_excludedGeom2;
 #include "skin/PatchSet.h"
 #include "skin/MeshSurface.h"
 #include "skin/Compound.h"
-#include "skin/geomlist.h"
-
-#include "skin/MeshSurface.h"
 #include "skin/geomlist.h"
 
 #endif

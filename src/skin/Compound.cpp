@@ -1,5 +1,6 @@
 #include <cstdio>
 
+#include "java/util/ArrayList.txx"
 #include "material/statistics.h"
 #include "skin/Geometry.h"
 #include "skin/Compound.h"
@@ -107,7 +108,7 @@ GEOM_METHODS GLOBAL_skin_compoundGeometryMethods = {
         (void (*)(void *)) compoundDestroy,
         (void (*)(FILE *, void *)) compoundPrint,
         (GeometryListNode *(*)(void *)) compoundPrimitives,
-        (PatchSet *(*)(void *)) nullptr,
+        (java::ArrayList<Patch *> *(*)(void *)) nullptr,
         (RayHit *(*)(void *, Ray *, float, float *, int, RayHit *)) compoundDiscretizationIntersect,
         (HITLIST *(*)(HITLIST *, void *, Ray *, float, float, int)) compoundAllDiscretizationIntersections,
         (void *(*)(void *)) nullptr

@@ -1,3 +1,4 @@
+#include "java/util/ArrayList.txx"
 #include "common/error.h"
 #include "skin/Geometry.h"
 #include "scene/scene.h"
@@ -55,7 +56,7 @@ createInitialLink(Patch *patch) {
         if ( the_shaft ) {
             ShaftOmit(&shaft, (Geometry *) globalPatch);
             ShaftOmit(&shaft, (Geometry *) patch);
-            globalCandidateList = DoShaftCulling(oldCandidateList, the_shaft, (GeometryListNode *) nullptr);
+            globalCandidateList = doShaftCulling(oldCandidateList, the_shaft, (GeometryListNode *) nullptr);
 
             if ( the_shaft->cut == true ) {    /* one patch causes full occlusion. */
                 FreeCandidateList(globalCandidateList);
@@ -111,7 +112,7 @@ geomLink(Geometry *geom) {
     if ( geom->bounded && oldCandidateList ) {
         ConstructShaft(globalPatchBoundingBox, geomBounds(geom), &shaft);
         ShaftOmit(&shaft, (Geometry *) globalPatch);
-        globalCandidateList = DoShaftCulling(oldCandidateList, &shaft, nullptr);
+        globalCandidateList = doShaftCulling(oldCandidateList, &shaft, nullptr);
     }
 
     // If the Geometry is an aggregate, test each of its children GEOMs, if it
@@ -123,8 +124,9 @@ geomLink(Geometry *geom) {
             geomLink(geometry);
         }
     } else {
-        for ( PatchSet *window = geomPatchList(geom); window != nullptr; window = window->next ) {
-            createInitialLink(window->patch);
+        java::ArrayList<Patch *> *patchList = geomPatchList(geom);
+        for ( int i = 0; patchList != nullptr && i < patchList->size(); i++ ) {
+            createInitialLink(patchList->get(i));
         }
     }
 

@@ -365,8 +365,9 @@ monteCarloRadiosityDetermineAreaFraction() {
     for ( i = 0; i < nrpatchids; i++ ) {
         areas[i] = 0.;
     }
-    for ( PatchSet *window = GLOBAL_scene_patches; window != nullptr; window = window->next ) {
-        areas[window->patch->id] = window->patch->area;
+    for ( int i = 0; GLOBAL_scene_patches != nullptr && i < GLOBAL_scene_patches->size(); i++ ) {
+        Patch *patch = GLOBAL_scene_patches->get(i);
+        areas[patch->id] = patch->area;
     }
 
     /* sort the table to decreasing areas */
@@ -423,8 +424,8 @@ monteCarloRadiosityReInit() {
     colorClear(GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalFlux);
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalYmp = 0.;
     colorClear(GLOBAL_stochasticRaytracing_monteCarloRadiosityState.indirectImportanceWeightedUnShotFlux);
-    for ( PatchSet *window = GLOBAL_scene_patches; window != nullptr; window = window->next ) {
-        Patch *patch = window->patch;
+    for ( int i = 0; GLOBAL_scene_patches != nullptr && i < GLOBAL_scene_patches->size(); i++ ) {
+        Patch *patch = GLOBAL_scene_patches->get(i);
         monteCarloRadiosityInitPatch(patch);
         colorAddScaled(GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotFlux, M_PI * patch->area, getTopLevelPatchUnShotRad(patch)[0], GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotFlux);
         colorAddScaled(GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalFlux, M_PI * patch->area, getTopLevelPatchRad(patch)[0], GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalFlux);
@@ -550,8 +551,8 @@ monteCarloRadiosityRecomputeDisplayColors() {
     }
 
     fprintf(stderr, "Recomputing display colors ...\n");
-    for ( PatchSet *window = GLOBAL_scene_patches; window != nullptr; window = window->next ) {
-        monteCarloRadiosityPatchComputeNewColor(window->patch);
+    for ( int i = 0; GLOBAL_scene_patches != nullptr && i < GLOBAL_scene_patches->size(); i++ ) {
+        monteCarloRadiosityPatchComputeNewColor(GLOBAL_scene_patches->get(i));
     }
 }
 

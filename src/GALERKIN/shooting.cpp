@@ -15,19 +15,20 @@ Southwell Galerkin radiosity (progressive refinement radiosity)
 #include "GALERKIN/clustergalerkincpp.h"
 #include "GALERKIN/basisgalerkin.h"
 
-/* Returns the patch with highest unshot power, weighted with indirect
- * importance if importance-driven (see Bekaert&Willems, "Importance-driven
- * Progressive refinement radiosity", EGRW'95, Dublin. */
+/**
+Returns the patch with highest unshot power, weighted with indirect
+importance if importance-driven (see Bekaert&Willems, "Importance-driven
+Progressive refinement radiosity", EGRW'95, Dublin
+*/
 static Patch *
 chooseRadianceShootingPatch() {
     Patch *shooting_patch, *pot_shooting_patch;
     float power, maxpower, powerimp, maxpowerimp;
-    PatchSet *pl;
 
     maxpower = maxpowerimp = 0.;
     shooting_patch = pot_shooting_patch = (Patch *) nullptr;
-    for ( pl = GLOBAL_scene_patches; pl; pl = pl->next ) {
-        Patch *patch = pl->patch;
+    for ( int i = 0; GLOBAL_scene_patches != nullptr && i < GLOBAL_scene_patches->size(); i++ ) {
+        Patch *patch = GLOBAL_scene_patches->get(i);
 
         power = M_PI * patch->area * colorSumAbsComponents(UNSHOT_RADIANCE(patch));
         if ( power > maxpower ) {
@@ -196,15 +197,15 @@ doPropagate(Patch *shooting_patch) {
         GLOBAL_galerkin_state.ambient_radiance = GLOBAL_galerkin_state.top_cluster->unshot_radiance[0];
     } else {
         colorClear(GLOBAL_galerkin_state.ambient_radiance);
-        for ( PatchSet *window = GLOBAL_scene_patches; window != nullptr; window = window->next ) {
-            patchUpdateRadianceAndPotential(window->patch);
+        for ( int i = 0; GLOBAL_scene_patches != nullptr && i < GLOBAL_scene_patches->size(); i++ ) {
+            patchUpdateRadianceAndPotential(GLOBAL_scene_patches->get(i));
         }
         colorScale(1.0f / GLOBAL_statistics_totalArea, GLOBAL_galerkin_state.ambient_radiance,
                    GLOBAL_galerkin_state.ambient_radiance);
     }
 
-    for ( PatchSet *window = GLOBAL_scene_patches; window != nullptr; window = window->next ) {
-        patchRecomputeColor(window->patch);
+    for ( int i = 0; GLOBAL_scene_patches != nullptr && i < GLOBAL_scene_patches->size(); i++ ) {
+        patchRecomputeColor(GLOBAL_scene_patches->get(i));
     }
 }
 
@@ -267,10 +268,9 @@ static Patch *
 choosePotentialShootingPatch() {
     float maximp = 0.;
     Patch *shooting_patch = (Patch *) nullptr;
-    PatchSet *pl;
 
-    for ( pl = GLOBAL_scene_patches; pl; pl = pl->next ) {
-        Patch *patch = pl->patch;
+    for ( int i = 0; GLOBAL_scene_patches != nullptr && i < GLOBAL_scene_patches->size(); i++ ) {
+        Patch *patch = GLOBAL_scene_patches->get(i);
         float imp = patch->area * fabs(UNSHOT_POTENTIAL(patch).f);
 
         if ( imp > maximp ) {
@@ -304,9 +304,10 @@ reallyDoShootingStep() {
     if ( GLOBAL_galerkin_state.importance_driven ) {
         if ( GLOBAL_galerkin_state.iteration_nr <= 1 || GLOBAL_camera_mainCamera.changed ) {
             UpdateDirectPotential();
-            for ( PatchSet *window = GLOBAL_scene_patches; window != nullptr; window = window->next ) {
-                ELEMENT *top = TOPLEVEL_ELEMENT(window->patch);
-                float potential_increment = window->patch->directPotential - top->direct_potential.f;
+            for ( int i = 0; GLOBAL_scene_patches != nullptr && i < GLOBAL_scene_patches->size(); i++ ) {
+                Patch *patch = GLOBAL_scene_patches->get(i);
+                ELEMENT *top = TOPLEVEL_ELEMENT(patch);
+                float potential_increment = patch->directPotential - top->direct_potential.f;
                 shootingUpdateDirectPotential(top, potential_increment);
             }
             GLOBAL_camera_mainCamera.changed = false;

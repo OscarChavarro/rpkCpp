@@ -71,8 +71,8 @@ Subtracts (1 - rho) * control radiosity from the source radiosity of each patch
 */
 static void
 randomWalkRadiosityReduceSource() {
-    for ( PatchSet *window = GLOBAL_scene_patches; window != nullptr; window = window->next ) {
-        Patch *patch = window->patch;
+    for ( int i = 0; GLOBAL_scene_patches != nullptr && i < GLOBAL_scene_patches->size(); i++ ) {
+        Patch *patch = GLOBAL_scene_patches->get(i);
         COLOR newSourceRadiance;
         COLOR rho;
 
@@ -231,13 +231,13 @@ randomWalkRadiosityDetermineGatheringControlRadiosity() {
     colorClear(c1);
     colorClear(c2);
 
-    for ( PatchSet *window = GLOBAL_scene_patches; window != nullptr; window = window->next ) {
+    for ( int i = 0; GLOBAL_scene_patches != nullptr && i < GLOBAL_scene_patches->size(); i++ ) {
         COLOR absorb;
         COLOR rho;
         COLOR Ed;
         COLOR num;
         COLOR denom;
-        Patch *patch = window->patch;
+        Patch *patch = GLOBAL_scene_patches->get(i);
 
         colorSetMonochrome(absorb, 1.0);
         rho = TOPLEVEL_ELEMENT(patch)->Rd;
@@ -390,8 +390,8 @@ randomWalkRadiosityDoStep() {
                      GLOBAL_stochasticRaytracing_monteCarloRadiosityState.randomWalkEstimatorType);
     }
 
-    for ( PatchSet *window = GLOBAL_scene_patches; window != nullptr; window = window->next ) {
-        monteCarloRadiosityPatchComputeNewColor(window->patch);
+    for ( int i = 0; GLOBAL_scene_patches != nullptr && i < GLOBAL_scene_patches->size(); i++ ) {
+        monteCarloRadiosityPatchComputeNewColor(GLOBAL_scene_patches->get(i));
     }
 
     return false; // Never converged

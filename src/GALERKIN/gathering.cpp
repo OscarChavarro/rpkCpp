@@ -172,8 +172,8 @@ randomWalkRadiosityDoGatheringIteration() {
     /* non importance-driven Jacobi iterations with lazy linking */
     if ( GLOBAL_galerkin_state.iteration_method != GAUSS_SEIDEL && GLOBAL_galerkin_state.lazy_linking &&
          !GLOBAL_galerkin_state.importance_driven ) {
-        for ( PatchSet *window = GLOBAL_scene_patches; window != nullptr; window = window->next ) {
-            patchLazyCreateInteractions(window->patch);
+        for ( int i = 0; GLOBAL_scene_patches != nullptr && i < GLOBAL_scene_patches->size(); i++ ) {
+            patchLazyCreateInteractions(GLOBAL_scene_patches->get(i));
         }
     }
 
@@ -181,22 +181,22 @@ randomWalkRadiosityDoGatheringIteration() {
     colorClear(GLOBAL_galerkin_state.ambient_radiance);
 
     /* one iteration = gather to all patches */
-    for ( PatchSet *window = GLOBAL_scene_patches; window != nullptr; window = window->next ) {
-        patchGather(window->patch);
+    for ( int i = 0; GLOBAL_scene_patches != nullptr && i < GLOBAL_scene_patches->size(); i++ ) {
+        patchGather(GLOBAL_scene_patches->get(i));
     }
 
     /* update the radiosity after gathering to all patches with Jacobi, immediately
      * update with Gauss-Seidel so the new radiosity are already used for the
      * still-to-be-processed patches in the same iteration. */
     if ( GLOBAL_galerkin_state.iteration_method == JACOBI ) {
-        for ( PatchSet *window = GLOBAL_scene_patches; window != nullptr; window = window->next ) {
-            patchUpdateRadiance(window->patch);
+        for ( int i = 0; GLOBAL_scene_patches != nullptr && i < GLOBAL_scene_patches->size(); i++ ) {
+            patchUpdateRadiance(GLOBAL_scene_patches->get(i));
         }
     }
 
     if ( GLOBAL_galerkin_state.importance_driven ) {
-        for ( PatchSet *window = GLOBAL_scene_patches; window != nullptr; window = window->next ) {
-            patchUpdatePotential(window->patch);
+        for ( int i = 0; GLOBAL_scene_patches != nullptr && i < GLOBAL_scene_patches->size(); i++ ) {
+            patchUpdatePotential(GLOBAL_scene_patches->get(i));
         }
     }
 
@@ -213,9 +213,10 @@ doClusteredGatheringIteration() {
     if ( GLOBAL_galerkin_state.importance_driven ) {
         if ( GLOBAL_galerkin_state.iteration_nr <= 1 || GLOBAL_camera_mainCamera.changed ) {
             UpdateDirectPotential();
-            for ( PatchSet *window = GLOBAL_scene_patches; window != nullptr; window = window->next ) {
-                ELEMENT *top = TOPLEVEL_ELEMENT(window->patch);
-                float potential_increment = window->patch->directPotential - top->direct_potential.f;
+            for ( int i = 0; GLOBAL_scene_patches != nullptr && i < GLOBAL_scene_patches->size(); i++ ) {
+                Patch *patch = GLOBAL_scene_patches->get(i);
+                ELEMENT *top = TOPLEVEL_ELEMENT(patch);
+                float potential_increment = patch->directPotential - top->direct_potential.f;
                 gatheringUpdateDirectPotential(top, potential_increment);
             }
             gatheringClusterUpdatePotential(GLOBAL_galerkin_state.top_cluster);
@@ -251,8 +252,8 @@ doClusteredGatheringIteration() {
     colorClear(GLOBAL_galerkin_state.ambient_radiance);
 
     /* update the display colors of the patches */
-    for ( PatchSet *window = GLOBAL_scene_patches; window != nullptr; window = window->next ) {
-        patchRecomputeColor(window->patch);
+    for ( int i = 0; GLOBAL_scene_patches != nullptr && i < GLOBAL_scene_patches->size(); i++ ) {
+        patchRecomputeColor(GLOBAL_scene_patches->get(i));
     }
 
     return false; // Never done

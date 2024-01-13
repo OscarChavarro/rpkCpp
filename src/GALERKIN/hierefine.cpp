@@ -55,9 +55,9 @@ static GeometryListNode *Cull(INTERACTION *link) {
         }
 
         if ( ocandlist == GLOBAL_scene_clusteredWorld ) {
-            candlist = ShaftCullGeom(GLOBAL_scene_clusteredWorldGeom, &shaft, (GeometryListNode *) nullptr);
+            candlist = shaftCullGeometry(GLOBAL_scene_clusteredWorldGeom, &shaft, (GeometryListNode *) nullptr);
         } else {
-            candlist = DoShaftCulling(ocandlist, &shaft, (GeometryListNode *) nullptr);
+            candlist = doShaftCulling(ocandlist, &shaft, (GeometryListNode *) nullptr);
         }
     }
 

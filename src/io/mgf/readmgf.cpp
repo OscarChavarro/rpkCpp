@@ -27,7 +27,7 @@ static VECTOROCTREE *globalNormalsOctree;
 static Vector3DListNode *globalCurrentPointList;
 static Vector3DListNode *globalCurrentNormalList;
 static java::ArrayList<Vertex *> *globalCurrentVertexList;
-static PatchSet *globalCurrentFaceList;
+static java::ArrayList<Patch *> *globalCurrentFaceList;
 static GeometryListNode *globalCurrentGeometryList;
 static Material *globalCurrentMaterial;
 
@@ -168,7 +168,7 @@ newSurface() {
     globalCurrentPointList = VectorListCreate();
     globalCurrentNormalList = VectorListCreate();
     globalCurrentVertexList = new java::ArrayList<Vertex *>();
-    globalCurrentFaceList = nullptr;
+    globalCurrentFaceList = new java::ArrayList<Patch *>();
     globalInSurface = true;
 }
 
@@ -494,10 +494,7 @@ newFace(Vertex *v1, Vertex *v2, Vertex *v3, Vertex *v4, Vector3D *normal) {
     }
 
     if ( theFace != nullptr ) {
-        PatchSet *newListNode = (PatchSet *)malloc(sizeof(PatchSet));
-        newListNode->patch = theFace;
-        newListNode->next = globalCurrentFaceList;
-        globalCurrentFaceList = newListNode;
+        globalCurrentFaceList->add(0, theFace);
     }
 
     return theFace;
