@@ -68,7 +68,7 @@ patchGather(Patch *P) {
     }
 
     /* Refine the interactions and compute light transport at the leaves */
-    RefineInteractions(el);
+    refineInteractions(el);
 
     /* Immediately convert received radiance into radiance, make the representation
      * consistent and recompute the color of the patch when doing Gauss-Seidel.
@@ -219,7 +219,7 @@ doClusteredGatheringIteration() {
                 float potential_increment = patch->directPotential - top->direct_potential.f;
                 gatheringUpdateDirectPotential(top, potential_increment);
             }
-            gatheringClusterUpdatePotential(GLOBAL_galerkin_state.top_cluster);
+            gatheringClusterUpdatePotential(GLOBAL_galerkin_state.topLevelCluster);
             GLOBAL_camera_mainCamera.changed = false;
         }
     }
@@ -229,26 +229,28 @@ doClusteredGatheringIteration() {
     /* initial linking stage is replaced by the creation of a self-link between
      * the whole scene and itself */
     if ( GLOBAL_galerkin_state.iteration_nr <= 1 ) {
-        createInitialLinkWithTopCluster(GLOBAL_galerkin_state.top_cluster, RECEIVER);
+        createInitialLinkWithTopCluster(GLOBAL_galerkin_state.topLevelCluster, RECEIVER);
     }
 
     userErrorThreshold = GLOBAL_galerkin_state.rel_link_error_threshold;
     /* refines and computes light transport over the refined links */
-    RefineInteractions(GLOBAL_galerkin_state.top_cluster);
+    refineInteractions(GLOBAL_galerkin_state.topLevelCluster);
 
     GLOBAL_galerkin_state.rel_link_error_threshold = userErrorThreshold;
 
-    /* push received radiance down the hierarchy to the leaf elements, where
-     * it is multiplied with the reflectivity and the selfemitted radiance added,
-     * and finally pulls back up for a consistent multiresolution representation
-     * of radiance over all levels. */
-    basisGalerkinPushPullRadiance(GLOBAL_galerkin_state.top_cluster);
+    /*
+    Push received radiance down the hierarchy to the leaf elements, where
+    it is multiplied with the reflectivity and the self-emitted radiance added,
+    and finally pulls back up for a consistent multi-resolution representation
+    of radiance over all levels
+    */
+    basisGalerkinPushPullRadiance(GLOBAL_galerkin_state.topLevelCluster);
 
     if ( GLOBAL_galerkin_state.importance_driven ) {
-        gatheringPushPullPotential(GLOBAL_galerkin_state.top_cluster, 0.);
+        gatheringPushPullPotential(GLOBAL_galerkin_state.topLevelCluster, 0.0f);
     }
 
-    /* no visualisation with ambient term for gathering radiosity algorithms */
+    // No visualisation with ambient term for gathering radiosity algorithms
     colorClear(GLOBAL_galerkin_state.ambient_radiance);
 
     /* update the display colors of the patches */

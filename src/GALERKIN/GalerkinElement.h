@@ -11,7 +11,7 @@ Galerkin finite elements: one structure for both surface and cluster elements
 #include "scene/polygon.h"
 #include "GALERKIN/interactionlist.h"
 #include "GALERKIN/elementlistgalerkin.h"
-#include "GALERKIN/Element.h"
+#include "skin/Element.h"
 
 class INTERACTIONLIST;
 

@@ -175,11 +175,11 @@ createInitialLinkWithTopCluster(GalerkingElement *elem, ROLE role) {
     switch ( role ) {
         case RECEIVER:
             rcv = elem;
-            src = GLOBAL_galerkin_state.top_cluster;
+            src = GLOBAL_galerkin_state.topLevelCluster;
             break;
         case SOURCE:
             src = elem;
-            rcv = GLOBAL_galerkin_state.top_cluster;
+            rcv = GLOBAL_galerkin_state.topLevelCluster;
             break;
         default:
             logFatal(-1, "createInitialLinkWithTopCluster", "Invalid role");

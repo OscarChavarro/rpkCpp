@@ -69,8 +69,8 @@ InteractionCreate(
     interaction->deltaK.f = deltaK.f;
 
     TotalInteractions++;
-    if ( isCluster(rcv)) {
-        if ( isCluster(src)) {
+    if ( isCluster(rcv) ) {
+        if ( isCluster(src) ) {
             CCInteractions++;
         } else {
             SCInteractions++;

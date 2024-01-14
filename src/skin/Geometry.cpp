@@ -183,7 +183,7 @@ geomPatchList(Geometry *geom) {
         if ( geom->methods == &GLOBAL_skin_surfaceGeometryMethods ) {
             return geom->methods->getPatchList(geom->surfaceData);
         } else if ( geom->methods == &GLOBAL_skin_patchListGeometryMethods ) {
-            return geom->patchSetData;
+            return geom->methods->getPatchList(geom->patchSetData);
         } else if ( geom->methods == &GLOBAL_skin_compoundGeometryMethods ) {
             return geom->methods->getPatchList(geom->compoundData);
         }

@@ -241,7 +241,7 @@ static INTERACTION_EVALUATION_CODE EvaluateInteraction(INTERACTION *link) {
 
     /* determine receiver area (projected visible area for a receiver cluster)
      * and reflectivity. */
-    if ( isCluster(link->rcv)) {
+    if ( isCluster(link->rcv) ) {
         colorSetMonochrome(rcvrho, 1.);
         rcv_area = receiverClusterArea(link);
     } else {
@@ -250,7 +250,7 @@ static INTERACTION_EVALUATION_CODE EvaluateInteraction(INTERACTION *link) {
     }
 
     /* determine source reflectivity. */
-    if ( isCluster(link->src)) {
+    if ( isCluster(link->src) ) {
         colorSetMonochrome(srcrho, 1.0f);
     } else
         srcrho = REFLECTIVITY(link->src->patch);
@@ -262,26 +262,27 @@ static INTERACTION_EVALUATION_CODE EvaluateInteraction(INTERACTION *link) {
     if ( isCluster(link->src) && error < threshold && GLOBAL_galerkin_state.clustering_strategy != ISOTROPIC )
         error += SourceClusterRadianceVariationError(link, rcvrho, rcv_area);
 
-    /* Minimal element area for which subdivision is allowed. */
+    // Minimal element area for which subdivision is allowed
     min_area = GLOBAL_statistics_totalArea * GLOBAL_galerkin_state.rel_min_elem_area;
 
     code = ACCURATE_ENOUGH;
     if ( error > threshold ) {
-        /* A very simple but robust subdivision strategy: subdivide the
-         * largest of the two elements in order to reduce the error. */
-        if ((!(isCluster(link->src) && IsLightSource(link->src))) &&
+        // Subdivide the largest of the two elements in order to reduce the error
+        if ( (!(isCluster(link->src) && IsLightSource(link->src))) &&
             (rcv_area > link->src->area)) {
             if ( rcv_area > min_area ) {
-                if ( isCluster(link->rcv))
+                if ( isCluster(link->rcv) ) {
                     code = SUBDIVIDE_RECEIVER_CLUSTER;
-                else
+                } else {
                     code = REGULAR_SUBDIVIDE_RECEIVER;
+                }
             }
         } else {
-            if ( isCluster(link->src))
+            if ( isCluster(link->src) ) {
                 code = SUBDIVIDE_SOURCE_CLUSTER;
-            else if ( link->src->area > min_area )
+            } else if ( link->src->area > min_area ) {
                 code = REGULAR_SUBDIVIDE_SOURCE;
+            }
         }
     }
 
@@ -399,7 +400,7 @@ static void StoreInteraction(INTERACTION *link) {
     }
 }
 
-static int RefineRecursive(INTERACTION *link);    /* forward decl. */
+static int refineRecursive(INTERACTION *link);    /* forward decl. */
 
 /* Subdivides the source element, creates subinteractions and refines. If the 
  * subinteractions do not need to be refined any further, they are added to
@@ -420,7 +421,7 @@ static int RegularSubdivideSource(INTERACTION *link) {
         /* subinteraction.deltaK.p = */
 
         if ( CreateSubdivisionLink(rcv, child, &subinteraction)) {
-            if ( !RefineRecursive(&subinteraction)) {
+            if ( !refineRecursive(&subinteraction)) {
                 StoreInteraction(&subinteraction);
             }
         }
@@ -444,7 +445,7 @@ static int RegularSubdivideReceiver(INTERACTION *link) {
         subinteraction.K.p = ff;
 
         if ( CreateSubdivisionLink(child, src, &subinteraction)) {
-            if ( !RefineRecursive(&subinteraction)) {
+            if ( !refineRecursive(&subinteraction)) {
                 StoreInteraction(&subinteraction);
             }
         }
@@ -478,7 +479,7 @@ static int SubdivideSourceCluster(INTERACTION *link) {
         }
 
         if ( CreateSubdivisionLink(rcv, child, &subinteraction)) {
-            if ( !RefineRecursive(&subinteraction)) {
+            if ( !refineRecursive(&subinteraction)) {
                 StoreInteraction(&subinteraction);
             }
         }
@@ -511,7 +512,7 @@ static int SubdivideReceiverCluster(INTERACTION *link) {
         }
 
         if ( CreateSubdivisionLink(child, src, &subinteraction)) {
-            if ( !RefineRecursive(&subinteraction)) {
+            if ( !refineRecursive(&subinteraction)) {
                 StoreInteraction(&subinteraction);
             }
         }
@@ -521,14 +522,17 @@ static int SubdivideReceiverCluster(INTERACTION *link) {
     return true;
 }
 
-/* Recursievly refines the interaction. Returns true if the interaction was 
- * effectively refined, so the specified interaction can be deleted. Returns false
- * if the interaction was not refined and is to be retained. If the interaction
- * does not need to be refined, light transport over the interaction is computed. */
-int RefineRecursive(INTERACTION *link) {
+/**
+Recursively refines the interaction. Returns true if the interaction was
+effectively refined, so the specified interaction can be deleted. Returns false
+if the interaction was not refined and is to be retained. If the interaction
+does not need to be refined, light transport over the interaction is computed
+*/
+int
+refineRecursive(INTERACTION *link) {
     int refined = false;
 
-    switch ( EvaluateInteraction(link)) {
+    switch ( EvaluateInteraction(link) ) {
         case ACCURATE_ENOUGH:
             ComputeLightTransport(link);
             refined = false;
@@ -546,7 +550,7 @@ int RefineRecursive(INTERACTION *link) {
             refined = SubdivideReceiverCluster(link);
             break;
         default:
-            logFatal(2, "RefineRecursive", "Invalid result from EvaluateInteraction()");
+            logFatal(2, "refineRecursive", "Invalid result from EvaluateInteraction()");
     }
 
     return refined;
@@ -558,7 +562,7 @@ void RefineInteraction(INTERACTION *link) {
         candlist = (GeometryListNode *) nullptr;
     } /* we know for sure that there is full visibility */
 
-    if ( RefineRecursive(link)) {
+    if ( refineRecursive(link)) {
         if ( GLOBAL_galerkin_state.iteration_method == SOUTHWELL )
             link->src->interactions = InteractionListRemove(link->src->interactions, link);
         else
@@ -567,17 +571,20 @@ void RefineInteraction(INTERACTION *link) {
     }
 }
 
-/* Refines and computes light transport over all interactions of the given
- * toplevel element. */
-void RefineInteractions(GalerkingElement *top) {
+/**
+Refines and computes light transport over all interactions of the given
+toplevel element
+*/
+void
+refineInteractions(GalerkingElement *topLevelElement) {
     /* interactions will only be replaced by lower level interactions. We try refinement
      * beginning at the lowest levels in the hierarchy and working upwards to
      * prevent already refined interactions from being tested for refinement
      * again. */
-    ITERATE_IRREGULAR_SUBELEMENTS(top, RefineInteractions);
-    ITERATE_REGULAR_SUBELEMENTS(top, RefineInteractions);
+    ITERATE_IRREGULAR_SUBELEMENTS(topLevelElement, refineInteractions);
+    ITERATE_REGULAR_SUBELEMENTS(topLevelElement, refineInteractions);
 
     /* Iterate over the interactions. Interactions that are refined are removed from the
      * list in RefineInteraction(). ListIterate allows the current element to be deleted. */
-    InteractionListIterate(top->interactions, RefineInteraction);
+    InteractionListIterate(topLevelElement->interactions, RefineInteraction);
 }

@@ -50,7 +50,7 @@ void RemoveRenderHook(RENDERHOOKFUNCTION func, void *data) {
 }
 
 
-void RemoveAllRenderHooks() {
+void removeAllRenderHooks() {
     RenderHookListDestroy(oRenderHookList);
     oRenderHookList = nullptr;
 }

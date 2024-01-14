@@ -125,7 +125,7 @@ patchPropagateUnshotRadianceAndPotential(Patch *shooting_patch) {
 
     /* Recusrively refines the interactions of the shooting patch
      * and computes radiance and potential transport. */
-    RefineInteractions(top);
+    refineInteractions(top);
     /* EnforceEnergyConservation(shooting_patch); should be done before transport */
 
     /* Clear the unshot radiance at all levels */
@@ -191,10 +191,10 @@ doPropagate(Patch *shooting_patch) {
     // radiance from the shooting patch, since the ambient term has also changed
     if ( GLOBAL_galerkin_state.clustered ) {
         if ( GLOBAL_galerkin_state.importance_driven ) {
-            shootingPushPullPotential(GLOBAL_galerkin_state.top_cluster, 0.0);
+            shootingPushPullPotential(GLOBAL_galerkin_state.topLevelCluster, 0.0);
         }
-        basisGalerkinPushPullRadiance(GLOBAL_galerkin_state.top_cluster);
-        GLOBAL_galerkin_state.ambient_radiance = GLOBAL_galerkin_state.top_cluster->unshot_radiance[0];
+        basisGalerkinPushPullRadiance(GLOBAL_galerkin_state.topLevelCluster);
+        GLOBAL_galerkin_state.ambient_radiance = GLOBAL_galerkin_state.topLevelCluster->unshot_radiance[0];
     } else {
         colorClear(GLOBAL_galerkin_state.ambient_radiance);
         for ( int i = 0; GLOBAL_scene_patches != nullptr && i < GLOBAL_scene_patches->size(); i++ ) {
@@ -312,7 +312,7 @@ reallyDoShootingStep() {
             }
             GLOBAL_camera_mainCamera.changed = false;
             if ( GLOBAL_galerkin_state.clustered ) {
-                clusterUpdatePotential(GLOBAL_galerkin_state.top_cluster);
+                clusterUpdatePotential(GLOBAL_galerkin_state.topLevelCluster);
             }
         }
         propagatePotential();

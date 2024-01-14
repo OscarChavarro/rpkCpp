@@ -124,7 +124,7 @@ getTopLevelPatchBasis(Patch *patch) {
 extern float monteCarloRadiosityScalarReflectance(Patch *P);
 extern void monteCarloRadiosityDefaults();
 extern void monteCarloRadiosityUpdateCpuSecs();
-extern Element *monteCarloRadiosityCreatePatchData(Patch *patch);
+extern void monteCarloRadiosityCreatePatchData(Patch *patch);
 extern void monteCarloRadiosityPrintPatchData(FILE *out, Patch *patch);
 extern void monteCarloRadiosityDestroyPatchData(Patch *patch);
 extern void monteCarloRadiosityPatchComputeNewColor(Patch *patch);

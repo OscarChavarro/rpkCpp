@@ -207,11 +207,6 @@ galerkinCreateElement() {
 
     globalNumberOfElements++;
 
-    if ( element->id == 216 ) {
-        printf("*** Special case: create\n");
-    }
-    printf("Created[%d] element at pointer: %0X\n", element->id, element);
-
     return element;
 }
 
@@ -222,6 +217,7 @@ GalerkingElement *
 galerkinCreateToplevelElement(Patch *patch) {
     GalerkingElement *element = galerkinCreateElement();
     element->patch = patch;
+    element->geom = nullptr;
     element->minarea = element->area = patch->area;
     element->bsize = 2.0f * (float)std::sqrt(element->area / M_PI);
     element->direct_potential.f = patch->directPotential;
@@ -331,7 +327,9 @@ galerkinDoDestroyElement(GalerkingElement *element) {
     globalNumberOfElements--;
 }
 
-/* destroys the toplevel surface element and it's subelements (recursive) */
+/**
+Destroys the toplevel surface element and it's sub-elements (recursive)
+*/
 void
 galerkinDestroyToplevelElement(GalerkingElement *element) {
     if ( element == nullptr ) {

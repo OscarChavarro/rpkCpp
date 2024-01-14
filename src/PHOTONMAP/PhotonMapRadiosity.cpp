@@ -53,9 +53,8 @@ photonMapRadiosityUpdateCpuSecs() {
     pmapstate.lastclock = t;
 }
 
-static Element *
+static void
 photonMapCreatePatchData(Patch *patch) {
-    return nullptr;
 }
 
 static void

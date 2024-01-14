@@ -6,7 +6,7 @@
 #include "skin/Jacobian.h"
 #include "skin/Vertex.h"
 #include "skin/MeshSurface.h"
-#include "GALERKIN/Element.h"
+#include "skin/Element.h"
 
 #define MAXIMUM_VERTICES_PER_PATCH 4
 #define PATCH_VISIBILITY 0x01

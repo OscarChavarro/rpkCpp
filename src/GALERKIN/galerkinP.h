@@ -96,7 +96,7 @@ class GALERKIN_STATE {
     CUBARULE *clusRule;
 
     /* global variables concerning clustering */
-    GalerkingElement *top_cluster;    /* toplevel cluster containing the whole scene */
+    GalerkingElement *topLevelCluster;    /* toplevel cluster containing the whole scene */
     Geometry *top_geom;    /* a single COMPOUND Geometry containing the whole scene */
 
     /* parameters that control accuracy */
@@ -190,10 +190,10 @@ extern void createInitialLinks(GalerkingElement *top, ROLE role);
 extern void createInitialLinkWithTopCluster(GalerkingElement *elem, ROLE role);
 
 /* recursively refines the interactions of the given toplevel element */
-extern void RefineInteractions(GalerkingElement *toplevelelement);
+extern void refineInteractions(GalerkingElement *topLevelElement);
 
 /* in basis.c: converts the received radiance of a patch into exitant
  * radiance, making a consistent hierarchical representation. */
-extern void basisGalerkinPushPullRadiance(GalerkingElement *top);
+extern void basisGalerkinPushPullRadiance(GalerkingElement *topElement);
 
 #endif

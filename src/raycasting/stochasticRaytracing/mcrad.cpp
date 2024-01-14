@@ -202,10 +202,9 @@ monteCarloRadiosityUpdateCpuSecs() {
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.lastClock = t;
 }
 
-Element *
+void
 monteCarloRadiosityCreatePatchData(Patch *patch) {
     patch->radianceData = monteCarloRadiosityCreateToplevelSurfaceElement(patch);
-    return patch->radianceData;
 }
 
 void

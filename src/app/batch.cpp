@@ -206,7 +206,7 @@ batch() {
 
             wasted_start = clock();
 
-            if ((!(it % save_modulo)) && *radiance_image_filename_format ) {
+            if ( (!(it % save_modulo)) && *radiance_image_filename_format ) {
                 char *fname = (char *)malloc(strlen(radiance_image_filename_format) + 1);
                 sprintf(fname, radiance_image_filename_format, it);
                 if ( GLOBAL_render_renderOptions.trace ) {

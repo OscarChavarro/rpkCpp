@@ -9,7 +9,7 @@ Monte Carlo radiosity element type
 #include "QMC/niederreiter.h"
 #include "raycasting/stochasticRaytracing/elementlistmcrad.h"
 #include "raycasting/stochasticRaytracing/basismcrad.h"
-#include "GALERKIN/Element.h"
+#include "skin/Element.h"
 
 class StochasticRadiosityElement : public Element {
   public:
