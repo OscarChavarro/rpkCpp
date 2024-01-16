@@ -1,4 +1,3 @@
-#include "java/util/ArrayList.txx"
 #include "common/error.h"
 #include "skin/Geometry.h"
 #include "scene/scene.h"
@@ -8,7 +7,7 @@
 #include "GALERKIN/galerkinP.h"
 #include "GALERKIN/formfactor.h"
 
-static GalerkingElement *globalElement; // The element for which initial links are to be created
+static GalerkinElement *globalElement; // The element for which initial links are to be created
 static ROLE globalRole; // The role of that element: SOURCE or RECEIVER
 static Patch *globalPatch; // The patch for the element is the toplevel element
 static BOUNDINGBOX globalPatchBoundingBox; // Bounding box for that patch
@@ -16,8 +15,8 @@ static GeometryListNode *globalCandidateList; // Candidate list for shaft cullin
 
 static void
 createInitialLink(Patch *patch) {
-    GalerkingElement *rcv = nullptr;
-    GalerkingElement *src = nullptr;
+    GalerkinElement *rcv = nullptr;
+    GalerkinElement *src = nullptr;
     GeometryListNode *oldCandidateList = globalCandidateList;
     INTERACTION link{};
     float ff[MAXBASISSIZE * MAXBASISSIZE];
@@ -56,7 +55,7 @@ createInitialLink(Patch *patch) {
         if ( the_shaft ) {
             ShaftOmit(&shaft, (Geometry *) globalPatch);
             ShaftOmit(&shaft, (Geometry *) patch);
-            globalCandidateList = doShaftCulling(oldCandidateList, the_shaft, (GeometryListNode *) nullptr);
+            globalCandidateList = DoShaftCulling(oldCandidateList, the_shaft, (GeometryListNode *) nullptr);
 
             if ( the_shaft->cut == true ) {    /* one patch causes full occlusion. */
                 FreeCandidateList(globalCandidateList);
@@ -112,7 +111,7 @@ geomLink(Geometry *geom) {
     if ( geom->bounded && oldCandidateList ) {
         ConstructShaft(globalPatchBoundingBox, geomBounds(geom), &shaft);
         ShaftOmit(&shaft, (Geometry *) globalPatch);
-        globalCandidateList = doShaftCulling(oldCandidateList, &shaft, nullptr);
+        globalCandidateList = DoShaftCulling(oldCandidateList, &shaft, nullptr);
     }
 
     // If the Geometry is an aggregate, test each of its children GEOMs, if it
@@ -124,9 +123,8 @@ geomLink(Geometry *geom) {
             geomLink(geometry);
         }
     } else {
-        java::ArrayList<Patch *> *patchList = geomPatchList(geom);
-        for ( int i = 0; patchList != nullptr && i < patchList->size(); i++ ) {
-            createInitialLink(patchList->get(i));
+        for ( PatchSet *window = geomPatchList(geom); window != nullptr; window = window->next ) {
+            createInitialLink(window->patch);
         }
     }
 
@@ -143,7 +141,7 @@ are stored at the receiver element when doing gathering and at the
 source element when doing shooting
 */
 void
-createInitialLinks(GalerkingElement *top, ROLE role) {
+createInitialLinks(GalerkinElement *top, ROLE role) {
     if ( top->flags & IS_CLUSTER ) {
         logFatal(-1, "createInitialLinks", "cannot use this routine for cluster elements");
     }
@@ -164,8 +162,8 @@ createInitialLinks(GalerkingElement *top, ROLE role) {
 Creates an initial link between the given element and the top cluster
 */
 void
-createInitialLinkWithTopCluster(GalerkingElement *elem, ROLE role) {
-    GalerkingElement *rcv = (GalerkingElement *) nullptr, *src = (GalerkingElement *) nullptr;
+createInitialLinkWithTopCluster(GalerkinElement *elem, ROLE role) {
+    GalerkinElement *rcv = (GalerkinElement *) nullptr, *src = (GalerkinElement *) nullptr;
     INTERACTION *link;
     FloatOrPointer K;
     FloatOrPointer deltaK;
@@ -175,11 +173,11 @@ createInitialLinkWithTopCluster(GalerkingElement *elem, ROLE role) {
     switch ( role ) {
         case RECEIVER:
             rcv = elem;
-            src = GLOBAL_galerkin_state.topLevelCluster;
+            src = GLOBAL_galerkin_state.top_cluster;
             break;
         case SOURCE:
             src = elem;
-            rcv = GLOBAL_galerkin_state.topLevelCluster;
+            rcv = GLOBAL_galerkin_state.top_cluster;
             break;
         default:
             logFatal(-1, "createInitialLinkWithTopCluster", "Invalid role");

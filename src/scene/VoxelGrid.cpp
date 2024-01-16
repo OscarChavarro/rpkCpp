@@ -156,9 +156,13 @@ VoxelGrid::putSubGeometryInsideVoxelGrid(Geometry *geom) {
                 }
             }
         } else {
-            java::ArrayList<Patch *> *patchList = geomPatchList(geom);
-            for ( int i = 0; patchList != nullptr && i < patchList->size(); i++ ) {
-                putPatchInsideVoxelGrid(patchList->get(i));
+            PatchSet *listStart = (PatchSet *)(geomPatchList(geom));
+            if ( listStart != nullptr ) {
+                PatchSet *window;
+                for ( window = listStart; window; window = window->next ) {
+                    Patch *patch = (Patch *) (window->patch);
+                    putPatchInsideVoxelGrid(patch);
+                }
             }
         }
     }

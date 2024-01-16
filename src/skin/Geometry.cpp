@@ -50,8 +50,9 @@ geomCreateBase(void *geometryData, GEOM_METHODS *methods) {
     newGeometry->methods = methods;
     newGeometry->surfaceData = nullptr;
     newGeometry->compoundData = nullptr;
-    newGeometry->aggregateData = nullptr;
     newGeometry->patchSetData = nullptr;
+    newGeometry->aggregateData = nullptr;
+    newGeometry->newPatchSetData = nullptr;
 
     if ( methods->getBoundingBox ) {
         methods->getBoundingBox(geometryData, newGeometry->bounds);
@@ -74,12 +75,31 @@ geomCreateBase(void *geometryData, GEOM_METHODS *methods) {
 }
 
 Geometry *
-geomCreatePatchSetNew(java::ArrayList<Patch *> *patchList, GEOM_METHODS *methods) {
-    if ( patchList == nullptr ) {
+geomCreatePatchSetNew(java::ArrayList<Patch *> *geometryList, GEOM_METHODS *methods) {
+    PatchSet *patchList = nullptr;
+
+    for ( int i = 0; geometryList != nullptr && i < geometryList->size(); i++ ) {
+        PatchSet *newNode = (PatchSet *)malloc(sizeof(PatchSet));
+        newNode->next = patchList;
+        newNode->patch = geometryList->get(i);
+        patchList = newNode;
+    }
+
+    Geometry *newGeometry = geomCreatePatchSet(patchList, methods);
+    if ( newGeometry != nullptr ) {
+        newGeometry->newPatchSetData = geometryList;
+    }
+    return newGeometry;
+}
+
+Geometry *
+geomCreatePatchSet(PatchSet *patchSet, GEOM_METHODS *methods) {
+    if ( patchSet == nullptr ) {
         return nullptr;
     }
-    Geometry *newGeometry = geomCreateBase(patchList, methods);
-    newGeometry->patchSetData = patchList;
+
+    Geometry *newGeometry = geomCreateBase(patchSet, methods);
+    newGeometry->patchSetData = patchSet;
     return newGeometry;
 }
 
@@ -177,13 +197,13 @@ geomPrimList(Geometry *geom) {
 Returns a linear list of patches making up a primitive geometry. A nullptr
 pointer is returned if the given geometry is an aggregate
 */
-java::ArrayList<Patch *> *
+PatchSet *
 geomPatchList(Geometry *geom) {
     if ( geom->methods->getPatchList != nullptr ) {
         if ( geom->methods == &GLOBAL_skin_surfaceGeometryMethods ) {
             return geom->methods->getPatchList(geom->surfaceData);
         } else if ( geom->methods == &GLOBAL_skin_patchListGeometryMethods ) {
-            return geom->methods->getPatchList(geom->patchSetData);
+            return geom->patchSetData;
         } else if ( geom->methods == &GLOBAL_skin_compoundGeometryMethods ) {
             return geom->methods->getPatchList(geom->compoundData);
         }
@@ -328,9 +348,9 @@ Geometry::geomCountItems() {
         }
     } else {
         count = 0;
-	java::ArrayList<Patch *> *patches = geomPatchList(this);
-        if ( patches != nullptr ) {
-            count = patches->size();
+
+        for ( PatchSet *patches = geomPatchList(this); patches != nullptr; patches = patches->next ) {
+            count++;
         }
     }
 

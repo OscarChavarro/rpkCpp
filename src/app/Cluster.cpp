@@ -29,12 +29,13 @@ Cluster::Cluster() {
 /**
 Creates a toplevel cluster. The patch list of the cluster contains all inPatches.
 */
-Cluster::Cluster(java::ArrayList<Patch *> *inPatches) {
+Cluster::Cluster(PatchSet *inPatches) {
     commonBuild();
 
     patches = new java::ArrayList<Patch *>();
-    for ( int i = 0; inPatches != nullptr && i < inPatches->size(); i++ ) {
-        clusterAddPatch(inPatches->get(i));
+    for ( PatchSet *window = inPatches; window != nullptr; window = window->next ) {
+        Patch *patch = window->patch;
+        clusterAddPatch(patch);
     }
 
     VECTORSET(boundingBoxCentroid,

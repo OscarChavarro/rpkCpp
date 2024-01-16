@@ -15,20 +15,19 @@ Southwell Galerkin radiosity (progressive refinement radiosity)
 #include "GALERKIN/clustergalerkincpp.h"
 #include "GALERKIN/basisgalerkin.h"
 
-/**
-Returns the patch with highest unshot power, weighted with indirect
-importance if importance-driven (see Bekaert&Willems, "Importance-driven
-Progressive refinement radiosity", EGRW'95, Dublin
-*/
+/* Returns the patch with highest unshot power, weighted with indirect
+ * importance if importance-driven (see Bekaert&Willems, "Importance-driven
+ * Progressive refinement radiosity", EGRW'95, Dublin. */
 static Patch *
 chooseRadianceShootingPatch() {
     Patch *shooting_patch, *pot_shooting_patch;
     float power, maxpower, powerimp, maxpowerimp;
+    PatchSet *pl;
 
     maxpower = maxpowerimp = 0.;
     shooting_patch = pot_shooting_patch = (Patch *) nullptr;
-    for ( int i = 0; GLOBAL_scene_patches != nullptr && i < GLOBAL_scene_patches->size(); i++ ) {
-        Patch *patch = GLOBAL_scene_patches->get(i);
+    for ( pl = GLOBAL_scene_patches; pl; pl = pl->next ) {
+        Patch *patch = pl->patch;
 
         power = M_PI * patch->area * colorSumAbsComponents(UNSHOT_RADIANCE(patch));
         if ( power > maxpower ) {
@@ -91,7 +90,7 @@ shootUnshotRadianceAndPotentialOverLink(INTERACTION *link) {
 /* Propagates and clears the unshot radiance and potential of the element and 
  * all its subelements */
 static void
-shootUnshotRadianceAndPotential(GalerkingElement *elem) {
+shootUnshotRadianceAndPotential(GalerkinElement *elem) {
     ITERATE_REGULAR_SUBELEMENTS(elem, shootUnshotRadianceAndPotential);
     ITERATE_IRREGULAR_SUBELEMENTS(elem, shootUnshotRadianceAndPotential);
     InteractionListIterate(elem->interactions, (void (*)(void *)) shootUnshotRadianceAndPotentialOverLink);
@@ -100,7 +99,7 @@ shootUnshotRadianceAndPotential(GalerkingElement *elem) {
 }
 
 static void
-clearUnshotRadianceAndPotential(GalerkingElement *elem) {
+clearUnshotRadianceAndPotential(GalerkinElement *elem) {
     ITERATE_REGULAR_SUBELEMENTS(elem, clearUnshotRadianceAndPotential);
     ITERATE_IRREGULAR_SUBELEMENTS(elem, clearUnshotRadianceAndPotential);
     clusterGalerkinClearCoefficients(elem->unshot_radiance, elem->basis_size);
@@ -112,7 +111,7 @@ clearUnshotRadianceAndPotential(GalerkingElement *elem) {
  * at all levels of the element hierarchy for the patch. */
 static void
 patchPropagateUnshotRadianceAndPotential(Patch *shooting_patch) {
-    GalerkingElement *top = TOPLEVEL_ELEMENT(shooting_patch);
+    GalerkinElement *top = TOPLEVEL_ELEMENT(shooting_patch);
 
     if ( !(top->flags & INTERACTIONS_CREATED)) {
         if ( GLOBAL_galerkin_state.clustered ) {
@@ -125,7 +124,7 @@ patchPropagateUnshotRadianceAndPotential(Patch *shooting_patch) {
 
     /* Recusrively refines the interactions of the shooting patch
      * and computes radiance and potential transport. */
-    refineInteractions(top);
+    RefineInteractions(top);
     /* EnforceEnergyConservation(shooting_patch); should be done before transport */
 
     /* Clear the unshot radiance at all levels */
@@ -135,7 +134,7 @@ patchPropagateUnshotRadianceAndPotential(Patch *shooting_patch) {
 /* Makes the hierarchical representation of potential consistent over all
  * all levels. */
 static float
-shootingPushPullPotential(GalerkingElement *elem, float down) {
+shootingPushPullPotential(GalerkinElement *elem, float down) {
     float up;
     int i;
 
@@ -157,7 +156,7 @@ shootingPushPullPotential(GalerkingElement *elem, float down) {
     if ( elem->irregular_subelements ) {
         ELEMENTLIST *subElementList;
         for ( subElementList = elem->irregular_subelements; subElementList; subElementList = subElementList->next ) {
-            GalerkingElement *subElement = subElementList->element;
+            GalerkinElement *subElement = subElementList->element;
             if ( !isCluster(elem)) {
                 down = 0.;
             }
@@ -191,21 +190,21 @@ doPropagate(Patch *shooting_patch) {
     // radiance from the shooting patch, since the ambient term has also changed
     if ( GLOBAL_galerkin_state.clustered ) {
         if ( GLOBAL_galerkin_state.importance_driven ) {
-            shootingPushPullPotential(GLOBAL_galerkin_state.topLevelCluster, 0.0);
+            shootingPushPullPotential(GLOBAL_galerkin_state.top_cluster, 0.0);
         }
-        basisGalerkinPushPullRadiance(GLOBAL_galerkin_state.topLevelCluster);
-        GLOBAL_galerkin_state.ambient_radiance = GLOBAL_galerkin_state.topLevelCluster->unshot_radiance[0];
+        basisGalerkinPushPullRadiance(GLOBAL_galerkin_state.top_cluster);
+        GLOBAL_galerkin_state.ambient_radiance = GLOBAL_galerkin_state.top_cluster->unshot_radiance[0];
     } else {
         colorClear(GLOBAL_galerkin_state.ambient_radiance);
-        for ( int i = 0; GLOBAL_scene_patches != nullptr && i < GLOBAL_scene_patches->size(); i++ ) {
-            patchUpdateRadianceAndPotential(GLOBAL_scene_patches->get(i));
+        for ( PatchSet *window = GLOBAL_scene_patches; window != nullptr; window = window->next ) {
+            patchUpdateRadianceAndPotential(window->patch);
         }
         colorScale(1.0f / GLOBAL_statistics_totalArea, GLOBAL_galerkin_state.ambient_radiance,
                    GLOBAL_galerkin_state.ambient_radiance);
     }
 
-    for ( int i = 0; GLOBAL_scene_patches != nullptr && i < GLOBAL_scene_patches->size(); i++ ) {
-        patchRecomputeColor(GLOBAL_scene_patches->get(i));
+    for ( PatchSet *window = GLOBAL_scene_patches; window != nullptr; window = window->next ) {
+        patchRecomputeColor(window->patch);
     }
 }
 
@@ -231,7 +230,7 @@ propagateRadiance() {
 /* Called for each patch after direct potential has changed (because the 
  * virtual camera has changed). */
 void
-shootingUpdateDirectPotential(GalerkingElement *elem, float potential_increment) {
+shootingUpdateDirectPotential(GalerkinElement *elem, float potential_increment) {
     if ( elem->regular_subelements ) {
         int i;
         for ( i = 0; i < 4; i++ ) {
@@ -246,13 +245,13 @@ shootingUpdateDirectPotential(GalerkingElement *elem, float potential_increment)
 /* Recomputes the potential and unshot potential of the cluster and its subclusters 
  * based on the potential of the contained patches. */
 static void
-clusterUpdatePotential(GalerkingElement *clus) {
+clusterUpdatePotential(GalerkinElement *clus) {
     if ( isCluster(clus)) {
         ELEMENTLIST *subcluslist;
         clus->potential.f = 0.;
         clus->unshot_potential.f = 0.;
         for ( subcluslist = clus->irregular_subelements; subcluslist; subcluslist = subcluslist->next ) {
-            GalerkingElement *subclus = subcluslist->element;
+            GalerkinElement *subclus = subcluslist->element;
             clusterUpdatePotential(subclus);
             clus->potential.f += subclus->area * subclus->potential.f;
             clus->unshot_potential.f += subclus->area * subclus->unshot_potential.f;
@@ -268,9 +267,10 @@ static Patch *
 choosePotentialShootingPatch() {
     float maximp = 0.;
     Patch *shooting_patch = (Patch *) nullptr;
+    PatchSet *pl;
 
-    for ( int i = 0; GLOBAL_scene_patches != nullptr && i < GLOBAL_scene_patches->size(); i++ ) {
-        Patch *patch = GLOBAL_scene_patches->get(i);
+    for ( pl = GLOBAL_scene_patches; pl; pl = pl->next ) {
+        Patch *patch = pl->patch;
         float imp = patch->area * fabs(UNSHOT_POTENTIAL(patch).f);
 
         if ( imp > maximp ) {
@@ -304,15 +304,14 @@ reallyDoShootingStep() {
     if ( GLOBAL_galerkin_state.importance_driven ) {
         if ( GLOBAL_galerkin_state.iteration_nr <= 1 || GLOBAL_camera_mainCamera.changed ) {
             UpdateDirectPotential();
-            for ( int i = 0; GLOBAL_scene_patches != nullptr && i < GLOBAL_scene_patches->size(); i++ ) {
-                Patch *patch = GLOBAL_scene_patches->get(i);
-                GalerkingElement *top = TOPLEVEL_ELEMENT(patch);
-                float potential_increment = patch->directPotential - top->direct_potential.f;
+            for ( PatchSet *window = GLOBAL_scene_patches; window != nullptr; window = window->next ) {
+                GalerkinElement *top = TOPLEVEL_ELEMENT(window->patch);
+                float potential_increment = window->patch->directPotential - top->direct_potential.f;
                 shootingUpdateDirectPotential(top, potential_increment);
             }
             GLOBAL_camera_mainCamera.changed = false;
             if ( GLOBAL_galerkin_state.clustered ) {
-                clusterUpdatePotential(GLOBAL_galerkin_state.topLevelCluster);
+                clusterUpdatePotential(GLOBAL_galerkin_state.top_cluster);
             }
         }
         propagatePotential();

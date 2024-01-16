@@ -110,10 +110,9 @@ void WriteVRMLTrailer(FILE *fp) {
 
 static void
 ResetVertexId() {
-    for ( int i = 0; GLOBAL_scene_patches != nullptr && i < GLOBAL_scene_patches->size(); i++ ) {
-        Patch *patch = GLOBAL_scene_patches->get(i);
-        for ( int j = 0; j < patch->numberOfVertices; j++ ) {
-            patch->vertex[j]->tmp = -1;
+    for ( PatchSet *window = GLOBAL_scene_patches; window != nullptr; window = window->next ) {
+        for ( int i = 0; i < window->patch->numberOfVertices; i++ ) {
+            window->patch->vertex[i]->tmp = -1;
         }
     }
 }
@@ -125,10 +124,9 @@ WriteCoords(FILE *fp) {
     ResetVertexId();
 
     fprintf(fp, "\tcoord Coordinate {\n\t  point [ ");
-    for ( int i = 0; GLOBAL_scene_patches != nullptr && i < GLOBAL_scene_patches->size(); i++ ) {
-        Patch *patch = GLOBAL_scene_patches->get(i);
-        for ( int j = 0; j < patch->numberOfVertices; j++ ) {
-            Vertex *v = patch->vertex[j];
+    for ( PatchSet *window = GLOBAL_scene_patches; window != nullptr; window = window->next ) {
+        for ( int i = 0; i < window->patch->numberOfVertices; i++ ) {
+            Vertex *v = window->patch->vertex[i];
             if ( v->tmp == -1 ) {
                 // Not yet written
                 if ( n > 0 ) {
@@ -155,12 +153,10 @@ WriteVertexColors(FILE *fp) {
     ResetVertexId();
 
     fprintf(fp, "\tcolor Color {\n\t  color [ ");
-
-    for ( int i = 0; GLOBAL_scene_patches != nullptr && i < GLOBAL_scene_patches->size(); i++ ) {
-        Patch *patch = GLOBAL_scene_patches->get(i);
-        int j;
-        for ( j = 0; j < patch->numberOfVertices; j++ ) {
-            Vertex *v = patch->vertex[j];
+    for ( PatchSet *window = GLOBAL_scene_patches; window != nullptr; window = window->next ) {
+        int i;
+        for ( i = 0; i < window->patch->numberOfVertices; i++ ) {
+            Vertex *v = window->patch->vertex[i];
             if ( v->tmp == -1 ) {
                 /* not yet written */
                 if ( n > 0 ) {
@@ -185,8 +181,7 @@ WriteFaceColors(FILE *fp) {
     int n = 0;
 
     fprintf(fp, "\tcolor Color {\n\t  color [ ");
-    for ( int i = 0; GLOBAL_scene_patches != nullptr && i < GLOBAL_scene_patches->size(); i++ ) {
-        Patch *patch = GLOBAL_scene_patches->get(i);
+    for ( PatchSet *window = GLOBAL_scene_patches; window != nullptr; window = window->next ) {
         if ( n > 0 ) {
             fprintf(fp, ", ");
         }
@@ -194,7 +189,7 @@ WriteFaceColors(FILE *fp) {
         if ( n % 4 == 0 ) {
             fprintf(fp, "\n\t  ");
         }
-        fprintf(fp, "%.3g %.3g %.3g", patch->color.r, patch->color.g, patch->color.b);
+        fprintf(fp, "%.3g %.3g %.3g", window->patch->color.r, window->patch->color.g, window->patch->color.b);
     }
     fprintf(fp, " ] ");
     fprintf(fp, "\n\t}\n");
@@ -214,11 +209,10 @@ static void
 WriteCoordIndices(FILE *fp) {
     int n = 0;
     fprintf(fp, "\tcoordIndex [ ");
-    for ( int i = 0; GLOBAL_scene_patches != nullptr && i < GLOBAL_scene_patches->size(); i++ ) {
-        Patch *patch = GLOBAL_scene_patches->get(i);
-        int j;
-        for ( j = 0; j < patch->numberOfVertices; j++ ) {
-            Vertex *v = patch->vertex[j];
+    for ( PatchSet *window = GLOBAL_scene_patches; window != nullptr; window = window->next ) {
+        int i;
+        for ( i = 0; i < window->patch->numberOfVertices; i++ ) {
+            Vertex *v = window->patch->vertex[i];
             n++;
             if ( n % 20 == 0 ) {
                 fprintf(fp, "\n\t  ");

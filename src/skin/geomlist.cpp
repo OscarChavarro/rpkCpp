@@ -35,26 +35,32 @@ geometryListBounds(GeometryListNode *geometryList, float *boundingBox) {
 Builds a linear list of PATCHES making up all the geometries in the list, whether
 they are primitive or not
 */
-void
-buildPatchList(GeometryListNode *geometryList, java::ArrayList<Patch *> *patchList) {
+PatchSet *
+buildPatchList(GeometryListNode *geometryList, PatchSet *patchList) {
     if ( geometryList != nullptr ) {
         GeometryListNode *geometryWindow;
         for ( geometryWindow = geometryList; geometryWindow; geometryWindow = geometryWindow->next ) {
             Geometry *geometry = geometryWindow->geom;
-            if ( geomIsAggregate(geometry) ) {
-                buildPatchList(geomPrimList(geometry), patchList);
-            } else if ( patchList != nullptr ) {
-                java::ArrayList<Patch *> *list2 = geomPatchList(geometry);
+            if ( geomIsAggregate(geometry)) {
+                patchList = buildPatchList(geomPrimList(geometry), patchList);
+            } else {
+                PatchSet *list1 = patchList;
+                PatchSet *list2 = geomPatchList(geometry);
 
-                for ( int j = 0; list2 != nullptr && j < list2->size(); j++ ) {
-                    Patch *patch = list2->get(j);
-                    if ( patch != nullptr ) {
-                        patchList->add(0, patch);
+                for ( PatchSet *patchWindow = list2; patchWindow != nullptr; patchWindow = patchWindow->next ) {
+                    if ( patchWindow->patch != nullptr ) {
+                        PatchSet *newListNode = (PatchSet *)malloc(sizeof(PatchSet));
+                        newListNode->patch = patchWindow->patch;
+                        newListNode->next = list1;
+                        list1 = newListNode;
                     }
                 }
+                patchList = list1;
             }
         }
     }
+
+    return patchList;
 }
 
 RayHit *

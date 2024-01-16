@@ -62,8 +62,8 @@ stochasticRelaxationRadiosityRecomputeDisplayColors() {
         monteCarloRadiosityForAllLeafElements(GLOBAL_stochasticRaytracing_hierarchy.topcluster,
                                               ElementAdjustTVertexColors);
     } else {
-        for ( int i = 0; GLOBAL_scene_patches != nullptr && i < GLOBAL_scene_patches->size(); i++ ) {
-            monteCarloRadiosityPatchComputeNewColor(GLOBAL_scene_patches->get(i));
+        for ( PatchSet *window = GLOBAL_scene_patches; window != nullptr; window = window->next ) {
+            monteCarloRadiosityPatchComputeNewColor(window->patch);
         }
     }
 }
@@ -440,8 +440,8 @@ stochasticRelaxationRadiosityRender() {
     if ( GLOBAL_render_renderOptions.frustum_culling ) {
         renderWorldOctree(stochasticRelaxationRadiosityRenderPatch);
     } else {
-        for ( int i = 0; GLOBAL_scene_patches != nullptr && i < GLOBAL_scene_patches->size(); i++ ) {
-            stochasticRelaxationRadiosityRenderPatch(GLOBAL_scene_patches->get(i));
+        for ( PatchSet *window = GLOBAL_scene_patches; window != nullptr; window = window->next ) {
+            stochasticRelaxationRadiosityRenderPatch(window->patch);
         }
     }
 }

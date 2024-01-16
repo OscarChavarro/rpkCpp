@@ -84,40 +84,40 @@ Matrix2x2 GLOBAL_stochasticRaytracing_triupxfm[4] = {
 static StochasticRadiosityElement *
 createElement() {
     static long id = 1;
-    StochasticRadiosityElement *element = (StochasticRadiosityElement *)malloc(sizeof(StochasticRadiosityElement));
+    StochasticRadiosityElement *elem = (StochasticRadiosityElement *)malloc(sizeof(StochasticRadiosityElement));
 
-    element->patch = nullptr;
-    element->id = id;
+    elem->patch = (Patch *) nullptr;
+    elem->id = id;
     id++;
-    element->area = 0.;
-    initCoefficients(element);    /* allocation of the coefficients is left
+    elem->area = 0.;
+    initCoefficients(elem);    /* allocation of the coefficients is left
 				 * until just before the first iteration
 				 * in monteCarloRadiosityReInit() */
 
-    colorClear(element->Ed);
-    colorClear(element->Rd);
+    colorClear(elem->Ed);
+    colorClear(elem->Rd);
 
-    element->ray_index = 0;
-    element->quality = 0;
-    element->ng = 0.;
+    elem->ray_index = 0;
+    elem->quality = 0;
+    elem->ng = 0.;
 
-    element->imp = element->unshot_imp = element->source_imp = 0.;
-    element->imp_ray_index = 0;
+    elem->imp = elem->unshot_imp = elem->source_imp = 0.;
+    elem->imp_ray_index = 0;
 
-    VECTORSET(element->midpoint, 0., 0., 0.);
-    element->vertex[0] = element->vertex[1] = element->vertex[2] = element->vertex[3] = (Vertex *) nullptr;
-    element->parent = (StochasticRadiosityElement *) nullptr;
-    element->regular_subelements = (StochasticRadiosityElement **) nullptr;
-    element->irregular_subelements = (ELEMENTLIST *) nullptr;
-    element->uptrans = (Matrix2x2 *) nullptr;
-    element->child_nr = -1;
-    element->nrvertices = 0;
-    element->iscluster = false;
-    element->flags = 0;
+    VECTORSET(elem->midpoint, 0., 0., 0.);
+    elem->vertex[0] = elem->vertex[1] = elem->vertex[2] = elem->vertex[3] = (Vertex *) nullptr;
+    elem->parent = (StochasticRadiosityElement *) nullptr;
+    elem->regular_subelements = (StochasticRadiosityElement **) nullptr;
+    elem->irregular_subelements = (ELEMENTLIST *) nullptr;
+    elem->uptrans = (Matrix2x2 *) nullptr;
+    elem->child_nr = -1;
+    elem->nrvertices = 0;
+    elem->iscluster = false;
+    elem->flags = 0;
 
     GLOBAL_stochasticRaytracing_hierarchy.nr_elements++;
 
-    return element;
+    return elem;
 }
 
 static void
@@ -184,7 +184,7 @@ monteCarloRadiosityCreateCluster(Geometry *geom) {
 static void
 monteCarloRadiosityCreateSurfaceElementChild(Patch *patch, StochasticRadiosityElement *parent) {
     StochasticRadiosityElement *elem;
-    elem = (StochasticRadiosityElement *)patch->radianceData;    /* created before */
+    elem = (StochasticRadiosityElement *)patch->radiance_data;    /* created before */
     elem->parent = (StochasticRadiosityElement *)parent;
     parent->irregular_subelements = ElementListAdd(parent->irregular_subelements, elem);
 }
@@ -228,9 +228,8 @@ monteCarloRadiosityCreateClusterChildren(StochasticRadiosityElement *parent) {
             }
         }
     } else {
-        java::ArrayList<Patch *> *patchList = geomPatchList(geom);
-        for ( int i = 0; patchList != nullptr && i < patchList->size(); i++ ) {
-            monteCarloRadiosityCreateSurfaceElementChild(patchList->get(i), parent);
+        for ( PatchSet *window = geomPatchList(geom); window != nullptr; window = window->next ) {
+            monteCarloRadiosityCreateSurfaceElementChild(window->patch, parent);
         }
     }
 

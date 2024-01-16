@@ -98,7 +98,7 @@ NR_VERTICES(StochasticRadiosityElement *elem) {
 
 inline StochasticRadiosityElement*
 TOPLEVEL_ELEMENT(Patch *patch) {
-    return (StochasticRadiosityElement *)patch->radianceData;
+    return (StochasticRadiosityElement *)patch->radiance_data;
 }
 
 inline COLOR *
@@ -124,7 +124,7 @@ getTopLevelPatchBasis(Patch *patch) {
 extern float monteCarloRadiosityScalarReflectance(Patch *P);
 extern void monteCarloRadiosityDefaults();
 extern void monteCarloRadiosityUpdateCpuSecs();
-extern void monteCarloRadiosityCreatePatchData(Patch *patch);
+extern void *monteCarloRadiosityCreatePatchData(Patch *patch);
 extern void monteCarloRadiosityPrintPatchData(FILE *out, Patch *patch);
 extern void monteCarloRadiosityDestroyPatchData(Patch *patch);
 extern void monteCarloRadiosityPatchComputeNewColor(Patch *patch);

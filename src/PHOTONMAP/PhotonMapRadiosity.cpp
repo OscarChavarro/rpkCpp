@@ -53,8 +53,9 @@ photonMapRadiosityUpdateCpuSecs() {
     pmapstate.lastclock = t;
 }
 
-static void
+static void *
 photonMapCreatePatchData(Patch *patch) {
+    return patch->radiance_data = nullptr;
 }
 
 static void
@@ -64,7 +65,7 @@ photonMapPrintPatchData(FILE *out, Patch *patch) {
 
 static void
 photonMapDestroyPatchData(Patch *patch) {
-    patch->radianceData = nullptr;
+    patch->radiance_data = (void *) nullptr;
 }
 
 /**
@@ -691,8 +692,8 @@ photonMapRenderScreen() {
     if ( GLOBAL_photonMap_config.screen && pmapstate.renderImage ) {
         GLOBAL_photonMap_config.screen->Render();
     } else {
-        for ( int i = 0; GLOBAL_scene_patches != nullptr && i < GLOBAL_scene_patches->size(); i++ ) {
-            renderPatch(GLOBAL_scene_patches->get(i));
+        for ( PatchSet *window = GLOBAL_scene_patches; window != nullptr; window = window->next ) {
+            renderPatch(window->patch);
         }
     }
 }
@@ -749,8 +750,8 @@ photonMapGetStats() {
 
 static void
 photonMapRecomputeDisplayColors() {
-    for ( int i = 0; GLOBAL_scene_patches != nullptr && i < GLOBAL_scene_patches->size(); i++ ) {
-        photonMapPatchComputeNewColor(GLOBAL_scene_patches->get(i));
+    for ( PatchSet *window = GLOBAL_scene_patches; window != nullptr; window = window->next ) {
+        photonMapPatchComputeNewColor(window->patch);
     }
 }
 

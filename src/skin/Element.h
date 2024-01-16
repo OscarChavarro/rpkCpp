@@ -2,6 +2,8 @@
 #define RPK_ELEMENT_H
 
 #include "material/color.h"
+#include "skin/Patch.h"
+#include "skin/Geometry.h"
 
 class Element {
   public:

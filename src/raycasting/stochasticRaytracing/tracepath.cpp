@@ -151,10 +151,9 @@ tracePaths(
 
     // Compute sampling probability normalisation factor
     globalSumProbabilities = 0.;
-    for ( int i = 0; GLOBAL_scene_patches != nullptr && i < GLOBAL_scene_patches->size(); i++ ) {
-        Patch *patch = GLOBAL_scene_patches->get(i);
-        globalSumProbabilities += BirthProbability(patch);
-        stochasticRadiosityClearCoefficients(getTopLevelPatchReceivedRad(patch), getTopLevelPatchBasis(patch));
+    for ( PatchSet *window = GLOBAL_scene_patches; window != nullptr; window = window->next ) {
+        globalSumProbabilities += BirthProbability(window->patch);
+        stochasticRadiosityClearCoefficients(getTopLevelPatchReceivedRad(window->patch), getTopLevelPatchBasis(window->patch));
     }
     if ( globalSumProbabilities < EPSILON ) {
         logWarning("tracePaths", "No sources");
@@ -166,12 +165,11 @@ tracePaths(
     rnd = drand48();
     path_count = 0;
     pCumul = 0.0;
-    for ( int i = 0; GLOBAL_scene_patches != nullptr && i < GLOBAL_scene_patches->size(); i++ ) {
-        Patch *patch = GLOBAL_scene_patches->get(i);
-        double p = BirthProbability(patch) / globalSumProbabilities;
-        long paths_this_patch = (int) floor((pCumul + p) * (double) numberOfPaths + rnd) - path_count;
-        for ( long j = 0; j < paths_this_patch; j++ ) {
-            tracePath(patch, p, SurvivalProbability, &path);
+    for ( PatchSet *window = GLOBAL_scene_patches; window != nullptr; window = window->next ) {
+        double p = BirthProbability(window->patch) / globalSumProbabilities;
+        long i, paths_this_patch = (int) floor((pCumul + p) * (double) numberOfPaths + rnd) - path_count;
+        for ( i = 0; i < paths_this_patch; i++ ) {
+            tracePath(window->patch, p, SurvivalProbability, &path);
             ScorePath(&path, numberOfPaths, patchNormalisedBirthProbability);
         }
         pCumul += p;
@@ -187,8 +185,8 @@ tracePaths(
     colorClear(GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalFlux);
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalYmp = 0.0;
 
-    for ( int i = 0; GLOBAL_scene_patches != nullptr && i < GLOBAL_scene_patches->size(); i++ ) {
-        Patch *patch = GLOBAL_scene_patches->get(i);
+    for ( PatchSet *window = GLOBAL_scene_patches; window != nullptr; window = window->next ) {
+        Patch *patch = window->patch;
         Update(patch, (double) numberOfPaths / globalSumProbabilities);
         colorAddScaled(GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotFlux, M_PI * patch->area,
                        getTopLevelPatchUnShotRad(patch)[0],

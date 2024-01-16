@@ -574,9 +574,8 @@ int shaftPatchTest(Patch *patch, SHAFT *shaft) {
     return OUTSIDE;
 }
 
-/* returns true if the geometry is not to be enclosed in the shaft */
-static int
-Omit(SHAFT *shaft, Geometry *geom) {
+/* returns true if the geomerty is not to be enclosed in the shaft */
+static int Omit(SHAFT *shaft, Geometry *geom) {
     int i;
 
     for ( i = 0; i < shaft->nromit; i++ ) {
@@ -600,134 +599,126 @@ static int DontOpen(SHAFT *shaft, Geometry *geom) {
 }
 
 /**
-Given a patchList and a shaft, this routine will check every patch in patchList to
+Given a PatchSet pl and a shaft. This routine will check every patch in pl to
 see if it is inside, outside or overlapping the shaft. Inside or overlapping patches
 are added to culledPatchList. A pointer to the possibly enlonged culledPatchList
 is returned
 */
-java::ArrayList<Patch *> *
-shaftCullPatchList(java::ArrayList<Patch *> *patchList, SHAFT *shaft, java::ArrayList<Patch *> *culledPatchList) {
+PatchSet *
+shaftCullPatchList(PatchSet *pl, SHAFT *shaft, PatchSet *culledPatchList) {
+    int total; // Can be used for ratio-open strategies
+    int bbside;
 
-    for ( int i = 0; patchList != nullptr && !shaft->cut && i < patchList->size(); i++ ) {
-        Patch *patch = patchList->get(i);
-        // TODO SITHMASTER: Note this cast is very very bad - should change it to support Patch * directly
-        if ( patch->omit || Omit(shaft, (Geometry *)patch) ) {
+    for ( total = 0; pl && !shaft->cut; pl = pl->next, total++ ) {
+        if ( pl->patch->omit || Omit(shaft, (Geometry *) pl->patch)) {
             continue;
         }
 
-        if ( patch->bounds == nullptr ) {
-            // Compute getBoundingBox
+        if ( !pl->patch->bounds ) { /* compute getBoundingBox */
             BOUNDINGBOX bounds;
-            patchBounds(patch, bounds);
+            patchBounds(pl->patch, bounds);
         }
-
-        int boundingBoxSide = boundingBoxSide = ShaftBoxTest(patch->bounds, shaft);
-        if ( boundingBoxSide != OUTSIDE ) {
-            // Patch bounding box is inside the shaft, or overlaps with it. If it
-            // overlaps, do a more expensive, but definitive, test to see whether
-            // the patch itself is inside, outside or overlapping the shaft
-            if ( boundingBoxSide == INSIDE || shaftPatchTest(patch, shaft) != OUTSIDE ) {
-                culledPatchList->add(0, patch);
+        if ((bbside = ShaftBoxTest(pl->patch->bounds, shaft)) != OUTSIDE ) {
+            /* patch bounding box is inside the shaft, or overlaps with it. If it
+             * overlaps, do a more expensive, but definitive, test to see whether
+             * the patch itself is inside, outside or overlapping the shaft. */
+            if ( bbside == INSIDE || shaftPatchTest(pl->patch, shaft) != OUTSIDE ) {
+                if ( pl->patch != nullptr) {
+                    PatchSet *newListNode = (PatchSet *) malloc(sizeof(PatchSet));
+                    newListNode->patch = pl->patch;
+                    newListNode->next = culledPatchList;
+                    culledPatchList = newListNode;
+                }
             }
         }
     }
     return culledPatchList;
 }
 
-/**
-Adds the geom to the candidateList, possibly duplicating it if the geom
-was created during previous shaft culling
-*/
+/* Adds the geom to the candlist, possibly duplicating it if the geom 
+ * was created during previous shaftculling. */
 static GeometryListNode *
-Keep(Geometry *geom, GeometryListNode *candidateList) {
+Keep(Geometry *geom, GeometryListNode *candlist) {
     if ( geom->omit ) {
-        return candidateList;
+        return candlist;
     }
 
     if ( geom->shaftCullGeometry ) {
         Geometry *newgeom = geomDuplicate(geom);
         newgeom->shaftCullGeometry = true;
-        candidateList = geometryListAdd(candidateList, newgeom);
+        candlist = geometryListAdd(candlist, newgeom);
     } else {
-        candidateList = geometryListAdd(candidateList, geom);
+        candlist = geometryListAdd(candlist, geom);
     }
-    return candidateList;
+    return candlist;
 }
 
-/** Breaks the geom into it's components and does shaft culling on
+/* Breaks the geom into it's components and does shaft culling on
  * the components. */
-static GeometryListNode *
-shaftCullingOpen(Geometry *geom, SHAFT *shaft, GeometryListNode *candidateList) {
+static GeometryListNode *Open(Geometry *geom, SHAFT *shaft, GeometryListNode *candlist) {
     if ( geom->omit ) {
-        return candidateList;
+        return candlist;
     }
 
     if ( geomIsAggregate(geom)) {
-        candidateList = doShaftCulling(geomPrimList(geom), shaft, candidateList);
+        candlist = DoShaftCulling(geomPrimList(geom), shaft, candlist);
     } else {
-        // TODO SITHMASTER: Pending to verify! Not memory leak, full list lost here
-        java::ArrayList<Patch *> *patchList = geomPatchList(geom);
-        java::ArrayList<Patch *> *newPatchList = new java::ArrayList<Patch *>();
-        patchList = shaftCullPatchList(patchList, shaft, newPatchList);
-        if ( patchList->size() > 0 ) {
-            Geometry *newGeometry;
-            newGeometry = geomCreatePatchSetNew(patchList, &GLOBAL_skin_patchListGeometryMethods);
-            newGeometry->shaftCullGeometry = true;
-            candidateList = geometryListAdd(candidateList, newGeometry);
+        PatchSet *patchlist;
+        patchlist = geomPatchList(geom);
+        patchlist = shaftCullPatchList(patchlist, shaft, nullptr);
+        if ( patchlist ) {
+            Geometry *newgeom;
+            newgeom = geomCreatePatchSet(patchlist, &GLOBAL_skin_patchListGeometryMethods);
+            newgeom->shaftCullGeometry = true;
+            candlist = geometryListAdd(candlist, newgeom);
         }
     }
-    return candidateList;
+    return candlist;
 }
 
-/**
-Tests the geom w.r.t. the shaft: if the geom is inside or overlaps
-the shaft, it is copied to the shaft or broken open depending on
-the current shaft culling strategy
-*/
-GeometryListNode *
-shaftCullGeometry(Geometry *geom, SHAFT *shaft, GeometryListNode *candidateList) {
+/* Tests the geom w.r.t. the shaft: if the geom is inside or overlaps
+ * the shaft, it is copied to the shaft or broken open depending on
+ * the current shaft culling strategy. */
+GeometryListNode *ShaftCullGeom(Geometry *geom, SHAFT *shaft, GeometryListNode *candlist) {
     if ( geom->omit || Omit(shaft, geom)) {
-        return candidateList;
+        return candlist;
     }
 
     /* unbounded geoms always overlap the shaft */
     switch ( geom->bounded ? ShaftBoxTest(geom->bounds, shaft) : OVERLAP ) {
         case INSIDE:
             if ( strategy == ALWAYS_OPEN && !DontOpen(shaft, geom)) {
-                candidateList = shaftCullingOpen(geom, shaft, candidateList);
+                candlist = Open(geom, shaft, candlist);
             } else {
-                candidateList = Keep(geom, candidateList);
+                candlist = Keep(geom, candlist);
             }
             break;
         case OVERLAP:
             if ( strategy == KEEP_CLOSED || DontOpen(shaft, geom)) {
-                candidateList = Keep(geom, candidateList);
+                candlist = Keep(geom, candlist);
             } else {
-                candidateList = shaftCullingOpen(geom, shaft, candidateList);
+                candlist = Open(geom, shaft, candlist);
             }
             break;
         default:
             break;
     }
 
-    return candidateList;
+    return candlist;
 }
 
-/**
-Adds all objects from world that overlap or lay inside the shaft to
-candidateList, returns the new candidate list
+/* adds all objects from world that overlap or lay inside the shaft to
+ * candlist, returns the new candidate list */
 
-During shaft culling getPatchList "geoms" are created - they (and only they)
-need to be destroyed when destroying a geom candidate list created by
-doShaftCulling - for other kinds of geoms, only a pointer is copied
-*/
-GeometryListNode *
-doShaftCulling(GeometryListNode *world, SHAFT *shaft, GeometryListNode *candidateList) {
+/* During shaftculling getPatchList "geoms" are created - they (and only they)
+ * need to be destroyed when destroying a geom candidate list created by 
+ * DoShaftCulling - for other kinds of geoms, only a pointer is copied */
+GeometryListNode *DoShaftCulling(GeometryListNode *world, SHAFT *shaft, GeometryListNode *candlist) {
     for ( ; world && !shaft->cut; world = world->next ) {
-        candidateList = shaftCullGeometry(world->geom, shaft, candidateList);
+        candlist = ShaftCullGeom(world->geom, shaft, candlist);
     }
 
-    return candidateList;
+    return candlist;
 }
 
 void FreeCandidateList(GeometryListNode *candlist) {

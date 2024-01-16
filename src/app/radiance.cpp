@@ -63,16 +63,16 @@ setRadianceMethod(RADIANCEMETHOD *newmethod) {
         // Until we have radiance data convertors, we dispose of the old data and
         // allocate new data for the new method
         if ( GLOBAL_radiance_currentRadianceMethodHandle->DestroyPatchData ) {
-            for ( int i = 0; GLOBAL_scene_patches != nullptr && i < GLOBAL_scene_patches->size(); i++ ) {
-                GLOBAL_radiance_currentRadianceMethodHandle->DestroyPatchData(GLOBAL_scene_patches->get(i));
+            for ( PatchSet *window = GLOBAL_scene_patches; window != nullptr; window = window->next ) {
+                GLOBAL_radiance_currentRadianceMethodHandle->DestroyPatchData(window->patch);
             }
         }
     }
     GLOBAL_radiance_currentRadianceMethodHandle = newmethod;
     if ( GLOBAL_radiance_currentRadianceMethodHandle != nullptr ) {
-        if ( GLOBAL_radiance_currentRadianceMethodHandle->CreatePatchData != nullptr ) {
-            for ( int i = 0; GLOBAL_scene_patches != nullptr && i < GLOBAL_scene_patches->size(); i++ ) {
-                GLOBAL_radiance_currentRadianceMethodHandle->CreatePatchData(GLOBAL_scene_patches->get(i));
+        if ( GLOBAL_radiance_currentRadianceMethodHandle->CreatePatchData ) {
+            for ( PatchSet *window = GLOBAL_scene_patches; window != nullptr; window = window->next ) {
+                GLOBAL_radiance_currentRadianceMethodHandle->CreatePatchData(window->patch);
             }
         }
         GLOBAL_radiance_currentRadianceMethodHandle->Initialize();

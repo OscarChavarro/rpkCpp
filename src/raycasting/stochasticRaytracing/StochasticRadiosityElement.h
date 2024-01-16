@@ -1,15 +1,13 @@
-/**
-Monte Carlo radiosity element type
-*/
+/* elementtype.h: Monte Carlo radiosity element type */
 
-#ifndef __STOCHASTIC_RADIOSITY_ELEMENT__
-#define __STOCHASTIC_RADIOSITY_ELEMENT__
+#ifndef _ELEMENT_TYPE_H_
+#define _ELEMENT_TYPE_H_
 
 #include "common/linealAlgebra/Matrix2x2.h"
+#include "skin/Element.h"
 #include "QMC/niederreiter.h"
 #include "raycasting/stochasticRaytracing/elementlistmcrad.h"
 #include "raycasting/stochasticRaytracing/basismcrad.h"
-#include "skin/Element.h"
 
 class StochasticRadiosityElement : public Element {
   public:

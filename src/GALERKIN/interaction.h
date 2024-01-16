@@ -3,7 +3,7 @@
 
 #include <cstdio>
 
-class GalerkingElement;
+class GalerkinElement;
 
 /**
 For the coupling coefficients and error estimation coefficients: store
@@ -17,8 +17,8 @@ typedef union FloatOrPointer {
 
 class INTERACTION {
   public:
-    GalerkingElement *rcv; // receiver element
-    GalerkingElement *src; // source element
+    GalerkinElement *rcv; // receiver element
+    GalerkinElement *src; // source element
     FloatOrPointer K; // coupling coefficient(s), stored top to bottom, left to right */
     FloatOrPointer deltaK; // used for approximation error estimation over the link */
     unsigned char nrcv; // nr of basis functions on receiver and source */
@@ -29,8 +29,8 @@ class INTERACTION {
 
 extern INTERACTION *
 InteractionCreate(
-        GalerkingElement *rcv,
-        GalerkingElement *src,
+        GalerkinElement *rcv,
+        GalerkinElement *src,
         FloatOrPointer K,
         FloatOrPointer deltaK,
         unsigned char nrcv,

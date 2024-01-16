@@ -22,7 +22,7 @@ potential-driven or not.
 #include "GALERKIN/clustergalerkincpp.h"
 #include "GALERKIN/scratch.h"
 
-GALERKIN_STATE GLOBAL_galerkin_state{};
+GALERKIN_STATE GLOBAL_galerkin_state;
 
 static int t = true;
 static int f = false;
@@ -214,20 +214,20 @@ updateCpuSecs() {
 /**
 Radiance data for a Patch is a surface element
 */
-static void
+static void *
 createPatchData(Patch *patch) {
-    patch->radianceData = galerkinCreateToplevelElement(patch);
+    return patch->radiance_data = (void *) galerkinCreateToplevelElement(patch);
 }
 
 static void
 printPatchData(FILE *out, Patch *patch) {
-    galerkinPrintElement(out, (GalerkingElement *) patch->radianceData);
+    galerkinPrintElement(out, (GalerkinElement *) patch->radiance_data);
 }
 
 static void
 destroyPatchData(Patch *patch) {
-    //galerkinDestroyToplevelElement((GalerkingElement *) patch->radianceData);
-    //patch->radianceData = nullptr;
+    galerkinDestroyToplevelElement((GalerkinElement *) patch->radiance_data);
+    patch->radiance_data = (void *) nullptr;
 }
 
 void
@@ -296,18 +296,18 @@ initGalerkin() {
         GLOBAL_galerkin_state.ambient_radiance = GLOBAL_statistics_estimatedAverageRadiance;
     }
 
-    for ( int i = 0; GLOBAL_scene_patches != nullptr && i < GLOBAL_scene_patches->size(); i++ ) {
-        patchInit(GLOBAL_scene_patches->get(i));
+    for ( PatchSet *window = GLOBAL_scene_patches; window != nullptr; window = window->next ) {
+        patchInit(window->patch);
     }
 
     GLOBAL_galerkin_state.top_geom = GLOBAL_scene_clusteredWorldGeom;
-    GLOBAL_galerkin_state.topLevelCluster = galerkinCreateClusterHierarchy(GLOBAL_galerkin_state.top_geom);
+    GLOBAL_galerkin_state.top_cluster = galerkinCreateClusterHierarchy(GLOBAL_galerkin_state.top_geom);
 
     /* create a scratch software renderer for various operations on clusters */
     ScratchInit();
 
     /* global variables used for formfactor computation optimisation */
-    GLOBAL_galerkin_state.fflastrcv = GLOBAL_galerkin_state.fflastsrc = (GalerkingElement *) nullptr;
+    GLOBAL_galerkin_state.fflastrcv = GLOBAL_galerkin_state.fflastsrc = (GalerkinElement *) nullptr;
 
     /* global variables for scratch rendering */
     GLOBAL_galerkin_state.lastclusid = -1;
@@ -319,16 +319,16 @@ doGalerkinOneStep() {
     int done = false;
 
     if ( GLOBAL_galerkin_state.iteration_nr < 0 ) {
-        // Done, don't continue!
         logError("doGalerkinOneStep", "method not initialized");
-        return true;
+        return true;    /* done, don't continue! */
     }
 
     GLOBAL_galerkin_state.wake_up = false;
+
     GLOBAL_galerkin_state.iteration_nr++;
     GLOBAL_galerkin_state.lastclock = clock();
 
-    // And now the real work
+    /* and now the real work */
     switch ( GLOBAL_galerkin_state.iteration_method ) {
         case JACOBI:
         case GAUSS_SEIDEL:
@@ -353,12 +353,12 @@ doGalerkinOneStep() {
 static void
 terminateGalerkin() {
     ScratchTerminate();
-    galerkinDestroyClusterHierarchy(GLOBAL_galerkin_state.topLevelCluster);
+    galerkinDestroyClusterHierarchy(GLOBAL_galerkin_state.top_cluster);
 }
 
 static COLOR
 getRadiance(Patch *patch, double u, double v, Vector3D dir) {
-    GalerkingElement *leaf;
+    GalerkinElement *leaf;
     COLOR rad;
 
     if ( patch->jacobian ) {
@@ -425,7 +425,7 @@ getGalerkinStats() {
 }
 
 static void
-renderElementHierarchy(GalerkingElement *elem) {
+renderElementHierarchy(GalerkinElement *elem) {
     if ( !elem->regular_subelements ) {
         RenderElement(elem);
     } else ITERATE_REGULAR_SUBELEMENTS(elem, renderElementHierarchy);
@@ -441,8 +441,8 @@ galerkinRender() {
     if ( GLOBAL_render_renderOptions.frustum_culling ) {
         renderWorldOctree(galerkinRenderPatch);
     } else {
-        for ( int i = 0; GLOBAL_scene_patches != nullptr && i < GLOBAL_scene_patches->size(); i++ ) {
-            galerkinRenderPatch(GLOBAL_scene_patches->get(i));
+        for ( PatchSet *window = GLOBAL_scene_patches; window != nullptr; window = window->next ) {
+            galerkinRenderPatch(window->patch);
         }
     }
 }
@@ -481,7 +481,7 @@ galerkinWriteVertexCoord(Vector3D *p) {
 }
 
 static void
-galerkinWriteVertexCoords(GalerkingElement *elem) {
+galerkinWriteVertexCoords(GalerkinElement *elem) {
     Vector3D v[8];
     int i, nverts = ElementVertices(elem, v);
     for ( i = 0; i < nverts; i++ ) {
@@ -493,7 +493,7 @@ static void
 galerkinWriteCoords() {
     globalNumberOfWrites = globalVertexId = 0;
     fprintf(globalVrmlFileDescriptor, "\tcoord Coordinate {\n\t  point [ ");
-    ForAllLeafElements(GLOBAL_galerkin_state.topLevelCluster, galerkinWriteVertexCoords);
+    ForAllLeafElements(GLOBAL_galerkin_state.top_cluster, galerkinWriteVertexCoords);
     fprintf(globalVrmlFileDescriptor, " ] ");
     fprintf(globalVrmlFileDescriptor, "\n\t}\n");
 }
@@ -513,13 +513,9 @@ galerkinWriteVertexColor(RGB *color) {
 }
 
 static void
-galerkinWriteVertexColors(GalerkingElement *element) {
+galerkinWriteVertexColors(GalerkinElement *element) {
     COLOR vertrad[4];
     int i;
-
-    if ( element == nullptr || element->patch == nullptr ) {
-        return;
-    }
 
     if ( element->patch->numberOfVertices == 3 ) {
         vertrad[0] = basisGalerkinRadianceAtPoint(element, element->radiance, 0., 0.);
@@ -552,7 +548,7 @@ static void
 galerkinWriteVertexColors() {
     globalVertexId = globalNumberOfWrites = 0;
     fprintf(globalVrmlFileDescriptor, "\tcolor Color {\n\t  color [ ");
-    ForAllLeafElements(GLOBAL_galerkin_state.topLevelCluster, galerkinWriteVertexColors);
+    ForAllLeafElements(GLOBAL_galerkin_state.top_cluster, galerkinWriteVertexColors);
     fprintf(globalVrmlFileDescriptor, " ] ");
     fprintf(globalVrmlFileDescriptor, "\n\t}\n");
 }
@@ -576,9 +572,9 @@ galerkinWriteCoordIndex(int index) {
 }
 
 static void
-galerkinWriteCoordIndices(GalerkingElement *elem) {
+galerkinWriteCoordIndices(GalerkinElement *elem) {
     int i;
-    for ( i = 0; elem != nullptr && elem->patch != nullptr && i < elem->patch->numberOfVertices; i++ ) {
+    for ( i = 0; i < elem->patch->numberOfVertices; i++ ) {
         galerkinWriteCoordIndex(globalVertexId++);
     }
     galerkinWriteCoordIndex(-1);
@@ -588,7 +584,7 @@ static void
 galerkinWriteCoordIndices() {
     globalVertexId = globalNumberOfWrites = 0;
     fprintf(globalVrmlFileDescriptor, "\tcoordIndex [ ");
-    ForAllLeafElements(GLOBAL_galerkin_state.topLevelCluster, galerkinWriteCoordIndices);
+    ForAllLeafElements(GLOBAL_galerkin_state.top_cluster, galerkinWriteCoordIndices);
     fprintf(globalVrmlFileDescriptor, " ]\n");
 }
 

@@ -66,7 +66,7 @@ multiplyScaledSpectrum(SPECTRUM &spec1, float a, SPECTRUM &spec2, SPECTRUM resul
 }
 
 inline void
-addSpectrum(const SPECTRUM &spec1, const SPECTRUM &spec2, SPECTRUM &result) {
+addSpectrum(SPECTRUM &spec1, SPECTRUM &spec2, SPECTRUM &result) {
     const float *_s1 = spec1;
     const float *_s2 = spec2;
     float *_r = result;

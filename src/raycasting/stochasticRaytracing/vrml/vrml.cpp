@@ -34,11 +34,11 @@ countAndCall(StochasticRadiosityElement *elem) {
 
 static void
 geometryIterateLeafElements(Geometry *geom, void (*func)(StochasticRadiosityElement *)) {
-    java::ArrayList<Patch *> *patchList = geomPatchList(geom);
+    PatchSet *patches = geomPatchList(geom);
     elemfunc = func;
     leaf_element_count = 0;
-    for ( int i = 0; patchList != nullptr && i < patchList->size(); i++ ) {
-        monteCarloRadiosityForAllLeafElements(TOPLEVEL_ELEMENT(patchList->get(i)), countAndCall);
+    for ( PatchSet *window = patches; window != nullptr; window = window->next ) {
+        monteCarloRadiosityForAllLeafElements(TOPLEVEL_ELEMENT(window->patch), countAndCall);
     }
 }
 
@@ -291,34 +291,28 @@ static void
 writeMaterial(Geometry *geom) {
     MeshSurface *surf = geomGetSurface(geom);
     Material *mat = surf->material;
-    Patch *firstPatch = nullptr;
+    Patch *first_patch = (surf->faces) ? surf->faces->patch : (Patch *) nullptr;
     RayHit hit;
-    COLOR Rd;
-    COLOR Rs;
-    RGB rd{};
-    RGB rs{};
+    COLOR Rd, Rs;
+    RGB rd, rs;
     float specularity;
 
-    if ( surf->faces != nullptr && surf->faces->size() > 0 ) {
-        firstPatch = surf->faces->get(0);
-    }
-
-    if ( !firstPatch || !mat || !mat->bsdf ) {
+    if ( !first_patch || !mat || !mat->bsdf ) {
         return;
     }
 
     if ( mat->radiance_data != nullptr) {
-        // Has been written before
+        /* has been written before */
         fprintf(vrmlfp, "      appearance Appearance {\n");
         fprintf(vrmlfp, "\tmaterial USE %s\n", makeValidVrmlId((char *) mat->radiance_data));
         fprintf(vrmlfp, "      }\n");
         return;
     }
 
-    InitHit(&hit, firstPatch, (Geometry *) nullptr, &firstPatch->midpoint, &firstPatch->normal, mat, 0.);
-    Rd = BsdfScatteredPower(mat->bsdf, &hit, &firstPatch->normal, BRDF_DIFFUSE_COMPONENT);
+    InitHit(&hit, first_patch, (Geometry *) nullptr, &first_patch->midpoint, &first_patch->normal, mat, 0.);
+    Rd = BsdfScatteredPower(mat->bsdf, &hit, &first_patch->normal, BRDF_DIFFUSE_COMPONENT);
     convertColorToRGB(Rd, &rd);
-    Rs = BsdfScatteredPower(mat->bsdf, &hit, &firstPatch->normal, BRDF_GLOSSY_COMPONENT | BRDF_SPECULAR_COMPONENT);
+    Rs = BsdfScatteredPower(mat->bsdf, &hit, &first_patch->normal, BRDF_GLOSSY_COMPONENT | BRDF_SPECULAR_COMPONENT);
     convertColorToRGB(Rs, &rs);
     specularity = 128.;
 

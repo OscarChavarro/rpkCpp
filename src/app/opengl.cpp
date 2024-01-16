@@ -288,9 +288,12 @@ renderPatch(Patch *patch) {
 
 static void
 reallyRenderOctreeLeaf(Geometry *geom, void (*renderPatch)(Patch *)) {
-    java::ArrayList<Patch *> *patchList = geomPatchList(geom);
-    for ( int i = 0; patchList != nullptr && i < patchList->size(); i++ ) {
-        renderPatch(patchList->get(i));
+    PatchSet *patchList = geomPatchList(geom);
+    PatchSet *pathWindow = (PatchSet *)patchList;
+    if ( pathWindow != nullptr) {
+        for ( PatchSet *window = pathWindow; window; window = window->next ) {
+            renderPatch(window->patch);
+        }
     }
 }
 
@@ -463,8 +466,9 @@ reallyRender() {
     } else if ( GLOBAL_render_renderOptions.frustum_culling ) {
         renderWorldOctree(renderPatch);
     } else {
-        for ( int i = 0; GLOBAL_scene_patches != nullptr && i < GLOBAL_scene_patches->size(); i++ ) {
-            renderPatch(GLOBAL_scene_patches->get(i));
+        for ( PatchSet *patchWindow = GLOBAL_scene_patches; patchWindow != nullptr; patchWindow = patchWindow->next ) {
+            Patch *patch = patchWindow->patch;
+            renderPatch(patch);
         }
     }
 }

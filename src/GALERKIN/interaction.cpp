@@ -36,8 +36,8 @@ GetNumberOfSurfaceToSurfaceInteractions() {
 
 INTERACTION *
 InteractionCreate(
-        GalerkingElement *rcv,
-        GalerkingElement *src,
+        GalerkinElement *rcv,
+        GalerkinElement *src,
         FloatOrPointer K,
         FloatOrPointer deltaK,
         unsigned char nrcv,
@@ -69,8 +69,8 @@ InteractionCreate(
     interaction->deltaK.f = deltaK.f;
 
     TotalInteractions++;
-    if ( isCluster(rcv) ) {
-        if ( isCluster(src) ) {
+    if ( isCluster(rcv)) {
+        if ( isCluster(src)) {
             CCInteractions++;
         } else {
             SCInteractions++;
@@ -97,7 +97,7 @@ InteractionDuplicate(INTERACTION *interaction) {
 
 void
 InteractionDestroy(INTERACTION *interaction) {
-    GalerkingElement *src = interaction->src, *rcv = interaction->rcv;
+    GalerkinElement *src = interaction->src, *rcv = interaction->rcv;
 
     if ( interaction->nrcv > 1 || interaction->nsrc > 1 ) {
         free(interaction->K.p);

@@ -52,7 +52,7 @@ colorProductScaled(COLOR &s, float a, COLOR &t, COLOR &r) {
 }
 
 inline void
-colorAdd(const COLOR &s, const COLOR &t, COLOR &r) {
+colorAdd(COLOR &s, COLOR &t, COLOR &r) {
     addSpectrum(s.spec, t.spec, r.spec);
 }
 

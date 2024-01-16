@@ -24,7 +24,7 @@ void CLightList::IncludeVirtualPatches(bool newValue) {
     includeVirtual = newValue;
 }
 
-CLightList::CLightList(java::ArrayList<Patch *> *list, bool includeVirtualPatches) {
+CLightList::CLightList(PatchSet *list, bool includeVirtualPatches) {
     CLightInfo info;
     COLOR lightColor;
     {
@@ -39,27 +39,29 @@ CLightList::CLightList(java::ArrayList<Patch *> *list, bool includeVirtualPatche
     lightCount = 0;
     includeVirtual = includeVirtualPatches;
 
-    for ( int i = 0; list != nullptr && i < list->size(); i++ ) {
-        Patch *light = list->get(i);
-        if ( !light->isVirtual() || includeVirtual ) {
-            if ( light->surface->material->edf != nullptr ) {
-                info.light = light;
+    ForAllInList(Patch, light, list)
+                {
+                    if ( !light->isVirtual() || includeVirtual ) {
+                        if ( light->surface->material->edf != nullptr ) {
+                            info.light = light;
 
-                // Calculate emittedFlux
-                if ( light->isVirtual()) {
-                    COLOR e = EdfEmittance(light->surface->material->edf, nullptr, DIFFUSE_COMPONENT);
-                    info.emittedFlux = colorAverage(e);
-                } else {
-                    lightColor = patchAverageEmittance(light, DIFFUSE_COMPONENT);
-                    info.emittedFlux = colorAverage(lightColor) * light->area;
+                            // calc emittedFlux
+                            if ( light->isVirtual()) {
+                                COLOR e = EdfEmittance(light->surface->material->edf, (RayHit *) nullptr,
+                                                       DIFFUSE_COMPONENT);
+                                info.emittedFlux = colorAverage(e);
+                            } else {
+                                lightColor = patchAverageEmittance(light, DIFFUSE_COMPONENT);
+                                info.emittedFlux = colorAverage(lightColor) * light->area;
+                            }
+
+                            totalFlux += info.emittedFlux;
+                            lightCount++;
+                            Append(info);
+                        }
+                    }
                 }
-
-                totalFlux += info.emittedFlux;
-                lightCount++;
-                Append(info);
-            }
-        }
-    }
+    EndForAll;
 }
 
 CLightList::~CLightList() {

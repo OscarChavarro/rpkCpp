@@ -59,6 +59,6 @@ extern Raytracer *Global_Raytracer_activeRaytracer; // current raytracing method
 extern void RayTrace(char *filename, FILE *fp, int ispipe);
 
 /* initializes and makes current a new raytracing newMethod */
-extern void setRayTracing(Raytracer *newMethod);
+extern void SetRayTracing(Raytracer *newMethod);
 
 #endif

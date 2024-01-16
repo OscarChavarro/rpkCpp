@@ -6,7 +6,6 @@
 #ifndef _LIGHTLIST_H_
 #define _LIGHTLIST_H_
 
-#include "java/util/ArrayList.h"
 #include "skin/PatchSet.h"
 #include "common/linealAlgebra/vectorMacros.h"
 
@@ -40,7 +39,7 @@ public:
 
     // A getPatchList must be supplied for building a light list.
     // Non emitting patches (edf == nullptr) are NOT put in the list.
-    CLightList(java::ArrayList<Patch *> *list, bool includeVirtualPatches = false);
+    CLightList(PatchSet *list, bool includeVirtualPatches = false);
 
     ~CLightList();
 

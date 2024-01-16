@@ -1,7 +1,6 @@
 #ifndef __COMPOUND__
 #define __COMPOUND__
 
-#include "java/util/ArrayList.h"
 #include "skin/geomlist.h"
 
 class GEOM_METHODS;

@@ -25,8 +25,8 @@ initialControlRadiosity(COLOR *minRad, COLOR *maxRad, COLOR *fmin, COLOR *fmax) 
     colorClear(maxRadColor);
 
     // Initial interval: 0 ... maxRadColor
-    for ( int i = 0; GLOBAL_scene_patches != nullptr && i < GLOBAL_scene_patches->size(); i++ ) {
-        REC_ForAllSurfaceLeafs(elem, TOPLEVEL_ELEMENT(GLOBAL_scene_patches->get(i)))
+    for ( PatchSet *window = GLOBAL_scene_patches; window != nullptr; window = window->next ) {
+        REC_ForAllSurfaceLeafs(elem, TOPLEVEL_ELEMENT(window->patch))
                 {
                     COLOR rad = globalGetRadiance(elem)[0];
                     float warea = elem->area;    /* weighted area */
@@ -106,27 +106,27 @@ refineControlRadiosity(COLOR *minRad, COLOR *maxRad, COLOR *fmin, COLOR *fmax) {
         colorAddScaled(*minRad, (double) i / (double) NUMBER_OF_INTERVALS, d, rad[i]);
     }
 
-    // Determine value of F(beta) = sum_i (area_i * fabs(B_i - beta)) on
-    // a regular subdivision of the interval
-    for ( int i = 0; GLOBAL_scene_patches != nullptr && i < GLOBAL_scene_patches->size(); i++ ) {
-        REC_ForAllSurfaceLeafs(elem, TOPLEVEL_ELEMENT(GLOBAL_scene_patches->get(i)))
-            {
-                COLOR B = globalGetRadiance(elem)[0];
-                COLOR s = globalGetScaling ? globalGetScaling(elem) : color_one;
-                float weightedArea = elem->area;
-                if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceDriven &&
-                     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.method !=
-                     RANDOM_WALK_RADIOSITY_METHOD ) {
-                    weightedArea *= (elem->imp - elem->source_imp); // Multiply with received importance
+    /* determine value of F(beta) = sum_i (area_i * fabs(B_i - beta)) on
+     * a regular subdivision of the interval */
+    for ( PatchSet *window = GLOBAL_scene_patches; window != nullptr; window = window->next ) {
+        REC_ForAllSurfaceLeafs(elem, TOPLEVEL_ELEMENT(window->patch))
+                {
+                    COLOR B = globalGetRadiance(elem)[0];
+                    COLOR s = globalGetScaling ? globalGetScaling(elem) : color_one;
+                    float warea = elem->area;    /* weighted area */
+                    if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceDriven &&
+                         GLOBAL_stochasticRaytracing_monteCarloRadiosityState.method !=
+                         RANDOM_WALK_RADIOSITY_METHOD ) {
+                        warea *= (elem->imp - elem->source_imp); /* multiply with received importance */
+                    }
+                    for ( i = 0; i <= NUMBER_OF_INTERVALS; i++ ) {
+                        COLOR t;
+                        colorProduct(s, rad[i], t);
+                        colorSubtract(B, t, t);
+                        colorAbs(t, t);
+                        colorAddScaled(f[i], warea, t, f[i]);
+                    }
                 }
-                for ( i = 0; i <= NUMBER_OF_INTERVALS; i++ ) {
-                    COLOR t;
-                    colorProduct(s, rad[i], t);
-                    colorSubtract(B, t, t);
-                    colorAbs(t, t);
-                    colorAddScaled(f[i], weightedArea, t, f[i]);
-                }
-            }
         REC_EndForAllSurfaceLeafs;
     }
 

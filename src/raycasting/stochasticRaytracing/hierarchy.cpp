@@ -44,11 +44,15 @@ elementHierarchyTerminate() {
     GLOBAL_stochasticRaytracing_hierarchy.topcluster = (StochasticRadiosityElement *) nullptr;
 
     // Destroy surface elements
-    for ( int i = 0; GLOBAL_scene_patches != nullptr && i < GLOBAL_scene_patches->size(); i++ ) {
-        Patch *p = GLOBAL_scene_patches->get(i);
-        // need to be destroyed before destroying the automatically created vertices
-        monteCarloRadiosityDestroyToplevelSurfaceElement(TOPLEVEL_ELEMENT(p));
-        p->radianceData = nullptr; // prevents destroying a 2nd time later
+    PatchSet *listStart = (PatchSet *)(GLOBAL_scene_patches);
+    if ( listStart != nullptr ) {
+        PatchSet *patchWindow;
+        for ( patchWindow = listStart; patchWindow; patchWindow = patchWindow->next ) {
+            Patch *p = (Patch *) (patchWindow->patch);
+            // need to be destroyed before destroying the automatically created vertices
+            monteCarloRadiosityDestroyToplevelSurfaceElement(TOPLEVEL_ELEMENT(p));
+            p->radiance_data = nullptr; // prevents destroying a 2nd time later
+        }
     }
 
     // Delete vertices

@@ -403,8 +403,7 @@ static void ElementShootRay(StochasticRadiosityElement *src,
                                NextSample(src, nmsb, msb1, rmsb2, zeta));
     hit = McrShootRay(src->patch, &ray, &hitstore);
     if ( hit ) {
-        double uhit = 0.0;
-        double vhit = 0.0;
+        double uhit = 0., vhit = 0.;
         UniformHitCoordinates(hit, &uhit, &vhit);
         RefineAndPropagate(TOPLEVEL_ELEMENT(src->patch), zeta[0], zeta[1],
                            TOPLEVEL_ELEMENT(hit->patch), uhit, vhit, &ray);
@@ -446,9 +445,9 @@ shootRays() {
     long ray_count = 0;
     double p_cumul = 0.0;
 
-    // Loop over all leaf elements in the element hierarchy
-    for ( int i = 0; GLOBAL_scene_patches != nullptr && i < GLOBAL_scene_patches->size(); i++ ) {
-        REC_ForAllSurfaceLeafs(leaf, TOPLEVEL_ELEMENT(GLOBAL_scene_patches->get(i)))
+    /* loop over all leaf elements in the element hierarchy */
+    for ( PatchSet *window = GLOBAL_scene_patches; window != nullptr; window = window->next ) {
+        REC_ForAllSurfaceLeafs(leaf, TOPLEVEL_ELEMENT(window->patch))
                 {
                     double p = leaf->prob / sum_probs;
                     long rays_this_leaf =

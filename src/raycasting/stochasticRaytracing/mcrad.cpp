@@ -202,9 +202,10 @@ monteCarloRadiosityUpdateCpuSecs() {
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.lastClock = t;
 }
 
-void
+void *
 monteCarloRadiosityCreatePatchData(Patch *patch) {
-    patch->radianceData = monteCarloRadiosityCreateToplevelSurfaceElement(patch);
+    patch->radiance_data = (void *) monteCarloRadiosityCreateToplevelSurfaceElement(patch);
+    return patch->radiance_data;
 }
 
 void
@@ -214,9 +215,10 @@ monteCarloRadiosityPrintPatchData(FILE *out, Patch *patch) {
 
 void
 monteCarloRadiosityDestroyPatchData(Patch *patch) {
-    if ( patch->radianceData != nullptr ) {
+    if ( patch->radiance_data ) {
         monteCarloRadiosityDestroyToplevelSurfaceElement(TOPLEVEL_ELEMENT(patch));
     }
+    patch->radiance_data = (void *) nullptr;
 }
 
 /**
@@ -363,9 +365,8 @@ monteCarloRadiosityDetermineAreaFraction() {
     for ( i = 0; i < nrpatchids; i++ ) {
         areas[i] = 0.;
     }
-    for ( int i = 0; GLOBAL_scene_patches != nullptr && i < GLOBAL_scene_patches->size(); i++ ) {
-        Patch *patch = GLOBAL_scene_patches->get(i);
-        areas[patch->id] = patch->area;
+    for ( PatchSet *window = GLOBAL_scene_patches; window != nullptr; window = window->next ) {
+        areas[window->patch->id] = window->patch->area;
     }
 
     /* sort the table to decreasing areas */
@@ -422,8 +423,8 @@ monteCarloRadiosityReInit() {
     colorClear(GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalFlux);
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalYmp = 0.;
     colorClear(GLOBAL_stochasticRaytracing_monteCarloRadiosityState.indirectImportanceWeightedUnShotFlux);
-    for ( int i = 0; GLOBAL_scene_patches != nullptr && i < GLOBAL_scene_patches->size(); i++ ) {
-        Patch *patch = GLOBAL_scene_patches->get(i);
+    for ( PatchSet *window = GLOBAL_scene_patches; window != nullptr; window = window->next ) {
+        Patch *patch = window->patch;
         monteCarloRadiosityInitPatch(patch);
         colorAddScaled(GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotFlux, M_PI * patch->area, getTopLevelPatchUnShotRad(patch)[0], GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotFlux);
         colorAddScaled(GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalFlux, M_PI * patch->area, getTopLevelPatchRad(patch)[0], GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalFlux);
@@ -549,8 +550,8 @@ monteCarloRadiosityRecomputeDisplayColors() {
     }
 
     fprintf(stderr, "Recomputing display colors ...\n");
-    for ( int i = 0; GLOBAL_scene_patches != nullptr && i < GLOBAL_scene_patches->size(); i++ ) {
-        monteCarloRadiosityPatchComputeNewColor(GLOBAL_scene_patches->get(i));
+    for ( PatchSet *window = GLOBAL_scene_patches; window != nullptr; window = window->next ) {
+        monteCarloRadiosityPatchComputeNewColor(window->patch);
     }
 }
 

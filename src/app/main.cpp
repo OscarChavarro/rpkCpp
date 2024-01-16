@@ -24,6 +24,7 @@
 #include "app/Cluster.h"
 #include "app/batch.h"
 
+static char *currentDirectory;
 static int yes = 1;
 static int no = 0;
 static int globalImageOutputWidth = 0;
@@ -62,8 +63,8 @@ computeSomeSceneStats() {
     GLOBAL_statistics_totalArea = 0.;
 
     // Accumulate
-    for ( int i = 0; GLOBAL_scene_patches != nullptr && i < GLOBAL_scene_patches->size(); i++ ) {
-        patchAccumulateStats(GLOBAL_scene_patches->get(i));
+    for ( PatchSet *window = GLOBAL_scene_patches; window != nullptr; window = window->next ) {
+        patchAccumulateStats(window->patch);
     }
 
     // Averages
@@ -89,7 +90,10 @@ Adds the background to the global light source patch list
 static void
 addBackgroundToLightSourceList() {
     if ( GLOBAL_scene_background != nullptr && GLOBAL_scene_background->bkgPatch != nullptr ) {
-        GLOBAL_scene_lightSourcePatches->add(0, GLOBAL_scene_background->bkgPatch);
+        PatchSet *newListNode = (PatchSet *)malloc(sizeof(PatchSet));
+        newListNode->patch = GLOBAL_scene_background->bkgPatch;
+        newListNode->next = GLOBAL_scene_lightSourcePatches;
+        GLOBAL_scene_lightSourcePatches = newListNode;
     }
 }
 
@@ -103,7 +107,11 @@ addPatchToLightSourceListIfLightSource(Patch *patch) {
          && patch->surface != nullptr
          && patch->surface->material != nullptr
          && patch->surface->material->edf != nullptr ) {
-        GLOBAL_scene_lightSourcePatches->add(0, patch);
+        PatchSet *newListNode = (PatchSet *)malloc(sizeof(PatchSet));
+        newListNode->patch = patch;
+        newListNode->next = GLOBAL_scene_lightSourcePatches;
+        GLOBAL_scene_lightSourcePatches = newListNode;
+
         GLOBAL_statistics_numberOfLightSources++;
     }
 }
@@ -113,13 +121,11 @@ Build the global light source patch list
 */
 static void
 buildLightSourcePatchList() {
-    if ( GLOBAL_scene_lightSourcePatches == nullptr ) {
-        GLOBAL_scene_lightSourcePatches = new java::ArrayList<Patch *>();
-    }
+    GLOBAL_scene_lightSourcePatches = nullptr;
     GLOBAL_statistics_numberOfLightSources = 0;
 
-    for ( int i = 0; GLOBAL_scene_patches != nullptr && i < GLOBAL_scene_patches->size(); i++ ) {
-        addPatchToLightSourceListIfLightSource(GLOBAL_scene_patches->get(i));
+    for ( PatchSet *window = GLOBAL_scene_patches; window != nullptr; window = window->next ) {
+        addPatchToLightSourceListIfLightSource(window->patch);
     }
 
     addBackgroundToLightSourceList();
@@ -176,7 +182,7 @@ rayTracingDefaults() {
                 {
                     method->Defaults();
                     if ( strncasecmp(DEFAULT_RAYTRACING_METHOD, method->shortName, method->nameAbbrev) == 0 ) {
-                        setRayTracing(method);
+                        SetRayTracing(method);
                     }
                 }
     EndForAll;
@@ -190,14 +196,14 @@ rayTracingOption(void *value) {
     ForAllRayTracingMethods(method)
                 {
                     if ( strncasecmp(name, method->shortName, method->nameAbbrev) == 0 ) {
-                        setRayTracing(method);
+                        SetRayTracing(method);
                         return;
                     }
                 }
     EndForAll;
 
     if ( strncasecmp(name, "none", 4) == 0 ) {
-        setRayTracing((Raytracer *) nullptr);
+        SetRayTracing((Raytracer *) nullptr);
     } else {
         logError(nullptr, "Invalid raytracing method name '%s'", name);
     }
@@ -311,7 +317,7 @@ This hierarchy is often much more efficient for tracing rays and clustering radi
 than the given hierarchy of bounding boxes. A pointer to the toplevel "cluster" is returned
 */
 static Geometry *
-createClusterHierarchy(java::ArrayList<Patch *> *patches) {
+createClusterHierarchy(PatchSet *patches) {
     Cluster *rootCluster;
     Geometry *rootGeometry;
 
@@ -345,102 +351,107 @@ parseGlobalOptions(int *argc, char **argv) {
 }
 
 /**
-Tries to read the scene in the given file. Returns false if not successful.
-Returns true if successful. When a file cannot be read, the current scene is restored.
+Tries to read the scene in the given file. Returns false if not succesful.
+Returns true if succesful. There's nothing GUI specific in this function. 
+When a file cannot be read, the current scene is restored
 */
 static bool
-readFile(char *fileName) {
-    // Check whether the file can be opened if not reading from stdin
-    FILE *input;
-    if ( fileName[0] != '#' ) {
-        input = fopen(fileName, "r");
-        if ( input == nullptr || fgetc(input) == EOF ) {
+readFile(char *filename) {
+    char *dot{};
+    char *slash{};
+    char *extension{};
+    FILE *input{};
+    GeometryListNode *oWorld{};
+    GeometryListNode *oClusteredWorld{};
+    Geometry *oClusteredWorldGeom{};
+    java::ArrayList<Material *> *oMaterialLib{};
+    PatchSet *objectPatches{};
+    PatchSet *lightSourcePatches{};
+    VoxelGrid *oWorldGrid{};
+    RADIANCEMETHOD *oRadiance{};
+    Raytracer *oRayTracing{};
+    Background *oBackground{};
+    int patchId{};
+    int numberOfPatches{};
+    clock_t t{};
+    clock_t last{};
+
+    // check whether the file can be opened if not reading from stdin
+    if ( filename[0] != '#' ) {
+        if ((input = fopen(filename, "r")) == (FILE *) nullptr ||
+            fgetc(input) == EOF) {
             if ( input ) {
                 fclose(input);
             }
-            logError(nullptr, "Can't open file '%s' for reading", fileName);
+            logError(nullptr, "Can't open file '%s' for reading", filename);
             return false;
         }
         fclose(input);
     }
 
-    // Get current directory from the fileName
-    char *slash;
-    char *currentDirectory = new char[strlen(fileName) + 1];
-
-    sprintf(currentDirectory, "%s", fileName);
-    slash = strrchr(currentDirectory, '/');
-    if ( slash != nullptr ) {
+    // get current directory from the filename
+    currentDirectory = (char *)malloc(strlen(filename) + 1);
+    sprintf(currentDirectory, "%s", filename);
+    if ((slash = strrchr(currentDirectory, '/')) != nullptr ) {
         *slash = '\0';
     } else {
         *currentDirectory = '\0';
     }
 
-    logErrorReset();
+    ErrorReset();
 
-    // Terminate any active radiance or raytracing methods
-    RADIANCEMETHOD *oRadiance = GLOBAL_radiance_currentRadianceMethodHandle;
-    Raytracer *oRayTracing = Global_Raytracer_activeRaytracer;
-
+    // terminate any active radiance or raytracing methods
     fprintf(stderr, "Terminating current radiance/raytracing method ... \n");
+    oRadiance = GLOBAL_radiance_currentRadianceMethodHandle;
     setRadianceMethod((RADIANCEMETHOD *) nullptr);
-    setRayTracing((Raytracer *) nullptr);
+    oRayTracing = Global_Raytracer_activeRaytracer;
+    SetRayTracing((Raytracer *) nullptr);
 
-    // Save the current scene, so it can be restored if errors occur when reading the new scene
-    GeometryListNode *oWorld;
-
+    // save the current scene so it can be restored if errors occur when reading the new scene
     fprintf(stderr, "Saving current scene ... \n");
     oWorld = GLOBAL_scene_world;
     GLOBAL_scene_world = nullptr;
+    oMaterialLib = GLOBAL_scene_materials;
     if ( GLOBAL_scene_materials == nullptr ) {
         GLOBAL_scene_materials = new java::ArrayList<Material *>();
     }
+    oMaterialLib = GLOBAL_scene_materials;
 
-    if ( GLOBAL_scene_patches == nullptr ) {
-        GLOBAL_scene_patches = new java::ArrayList<Patch *>();
-    }
-
-    int patchId = patchGetNextId();
+    objectPatches = GLOBAL_scene_patches;
+    GLOBAL_scene_patches = nullptr;
+    patchId = patchGetNextId();
     patchSetNextId(1);
-
-    int numberOfPatches = GLOBAL_statistics_numberOfPatches;
-    GeometryListNode *oClusteredWorld = GLOBAL_scene_clusteredWorld;
-    Geometry *oClusteredWorldGeom = GLOBAL_scene_clusteredWorldGeom;
-    VoxelGrid *oWorldGrid = GLOBAL_scene_worldVoxelGrid;
-    Background *oBackground = GLOBAL_scene_background;
-
+    numberOfPatches = GLOBAL_statistics_numberOfPatches;
+    oClusteredWorld = GLOBAL_scene_clusteredWorld;
     GLOBAL_scene_clusteredWorld = nullptr;
+    oClusteredWorldGeom = GLOBAL_scene_clusteredWorldGeom;
+    lightSourcePatches = GLOBAL_scene_lightSourcePatches;
+    oWorldGrid = GLOBAL_scene_worldVoxelGrid;
+    oBackground = GLOBAL_scene_background;
     GLOBAL_scene_background = (Background *) nullptr;
 
     // Read the mgf file. The result is a new GLOBAL_scene_world and GLOBAL_scene_materials if everything goes well
-    clock_t last{};
-    char *dot{};
-    char *extension{};
-    clock_t t{};
-
-    fprintf(stderr, "Reading the scene from file '%s' ... \n", fileName);
+    fprintf(stderr, "Reading the scene from file '%s' ... \n", filename);
     last = clock();
 
-    dot = strrchr(fileName, '.');
-    if ( dot != nullptr ) {
+    if ((dot = strrchr(filename, '.')) != nullptr ) {
         extension = dot + 1;
     } else {
         extension = (char *) "mgf";
     }
 
     if ( strncmp(extension, "mgf", 3) == 0 ) {
-        readMgf(fileName);
+        readMgf(filename);
     }
 
     t = clock();
     fprintf(stderr, "Reading took %g secs.\n", (float) (t - last) / (float) CLOCKS_PER_SEC);
     last = t;
 
-    delete[] currentDirectory;
+    free(currentDirectory);
+    currentDirectory = nullptr;
 
     // Check for errors
-    java::ArrayList<Material *> *oMaterialLib{};
-
     if ( !GLOBAL_scene_world ) {
         // Restore the old scene
         fprintf(stderr, "Restoring old scene ... ");
@@ -456,24 +467,26 @@ readFile(char *fileName) {
 
         GLOBAL_scene_materials = oMaterialLib;
 
+        GLOBAL_scene_patches = objectPatches;
         patchSetNextId(patchId);
         GLOBAL_statistics_numberOfPatches = numberOfPatches;
 
         GLOBAL_scene_clusteredWorld = oClusteredWorld;
         GLOBAL_scene_clusteredWorldGeom = oClusteredWorldGeom;
+        GLOBAL_scene_lightSourcePatches = lightSourcePatches;
 
         GLOBAL_scene_worldVoxelGrid = oWorldGrid;
         GLOBAL_scene_background = oBackground;
 
         setRadianceMethod(oRadiance);
-        setRayTracing(oRayTracing);
+        SetRayTracing(oRayTracing);
 
         t = clock();
         fprintf(stderr, "%g secs.\n", (float) (t - last) / (float) CLOCKS_PER_SEC);
         last = t;
         fprintf(stderr, "Done.\n");
 
-        if ( !logErrorOccurred()) {
+        if ( !ErrorOccurred()) {
             logError(nullptr, "Empty world");
         }
 
@@ -490,17 +503,19 @@ readFile(char *fileName) {
         Global_Raytracer_activeRaytracer->Terminate();
     }
 
-    //for ( int i = 0; objectPatches->size(); i++ ) {
-    //    delete objectPatches->get(i);
-    //}
-    //delete objectPatches;
-    //objectPatches = nullptr;
+    PatchSet *listWindow = objectPatches;
+    while ( listWindow != nullptr ) {
+        PatchSet *next = listWindow->next;
+        free(listWindow);
+        listWindow = next;
+    }
 
-    //for ( int i = 0; lightSourcePatches->size(); i++ ) {
-    //    delete lightSourcePatches->get(i);
-    //}
-    //delete lightSourcePatches;
-    //lightSourcePatches = nullptr;
+    listWindow = lightSourcePatches;
+    while ( listWindow != nullptr ) {
+        PatchSet *next = listWindow->next;
+        free(listWindow);
+        listWindow = next;
+    }
 
     GeometryListNode *window = oWorld;
     Geometry *pelement;
@@ -542,13 +557,13 @@ readFile(char *fileName) {
     fprintf(stderr, "%g secs.\n", (float) (t - last) / (float) CLOCKS_PER_SEC);
     last = t;
 
-    /* Build the new patch list, this is duplicating already available
+    /* build the new patch list, this is duplicating already available
      * information and as such potentially dangerous, but we need it
      * so many times, so ... */
     fprintf(stderr, "Building patch list ... ");
     fflush(stderr);
 
-    buildPatchList(GLOBAL_scene_world, GLOBAL_scene_patches);
+    GLOBAL_scene_patches = buildPatchList(GLOBAL_scene_world, nullptr /*should replace with new list*/);
 
     t = clock();
     fprintf(stderr, "%g secs.\n", (float) (t - last) / (float) CLOCKS_PER_SEC);
@@ -650,15 +665,15 @@ readFile(char *fileName) {
     if ( oRayTracing ) {
         fprintf(stderr, "Initializing raytracing computations ... \n");
 
-        setRayTracing(oRayTracing);
+        SetRayTracing(oRayTracing);
 
         t = clock();
         fprintf(stderr, "%g secs.\n", (float) (t - last) / (float) CLOCKS_PER_SEC);
         last = t;
     }
 
-    // Remove possible render hooks
-    removeAllRenderHooks();
+    // Remove possible renderhooks
+    RemoveAllRenderHooks();
 
     fprintf(stderr, "Initialisations done.\n");
 
@@ -666,13 +681,13 @@ readFile(char *fileName) {
 }
 
 static void
-startUserInterface(const int *argumentCount, char **argumentValues) {
-    // All options should have disappeared from argumentValues now
-    if ( *argumentCount > 1 ) {
-        if ( *argumentValues[1] == '-' ) {
-            logError(nullptr, "Unrecognized option '%s'", argumentValues[1]);
+startUserInterface(int *argc, char **argv) {
+    // All options should have disappeared from argv now
+    if ( *argc > 1 ) {
+        if ( *argv[1] == '-' ) {
+            logError(nullptr, "Unrecognized option '%s'", argv[1]);
         } else {
-            readFile(argumentValues[1]);
+            readFile(argv[1]);
         }
     }
 

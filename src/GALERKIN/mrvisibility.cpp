@@ -32,7 +32,7 @@ GeomMultiResolutionVisibility(
 {
     Vector3D vtmp;
     float tmin, tmax, t, fsize, *bbx;
-    GalerkingElement *clus = (GalerkingElement *) (geom->radiance_data);
+    GalerkinElement *clus = (GalerkinElement *) (geom->radiance_data);
     RayHit hitstore;
 
     if ( geom == GLOBAL_geom_excludedGeom1 || geom == GLOBAL_geom_excludedGeom2 ) {

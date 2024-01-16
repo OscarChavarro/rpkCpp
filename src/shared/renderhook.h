@@ -25,6 +25,6 @@ void AddRenderHook(RENDERHOOKFUNCTION func, void *data);
 
 void RemoveRenderHook(RENDERHOOKFUNCTION func, void *data);
 
-void removeAllRenderHooks();
+void RemoveAllRenderHooks();
 
 #endif

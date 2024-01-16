@@ -14,6 +14,7 @@ Surfaces are basically a list of PATCHes representing a simple object with given
 
 class GEOM_METHODS;
 class Geometry;
+class PatchSet;
 class Vertex;
 
 class MeshSurface : public Geometry {
@@ -45,7 +46,7 @@ class MeshSurface : public Geometry {
     if a color is assigned to each vertex. Each patch also contains a back pointer to
     to MeshSurface to which it belongs
     */
-    java::ArrayList<Patch *> *faces;
+    PatchSet *faces;
 
     Material *material;
 };
@@ -63,7 +64,7 @@ surfaceCreate(
         Vector3DListNode *normals,
         Vector3DListNode *texCoords,
         java::ArrayList<Vertex *> *vertices,
-        java::ArrayList<Patch *> *faces,
+        PatchSet *faces,
         MaterialColorFlags flags);
 
 // A set of pointers to functions to operate on a MeshSurface

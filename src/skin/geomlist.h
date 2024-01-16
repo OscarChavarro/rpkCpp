@@ -9,6 +9,7 @@
 #include "common/dataStructures/List.h"
 
 class Geometry;
+class PatchSet;
 
 class GeometryListNode {
   public:
@@ -33,8 +34,8 @@ geometryListAdd(GeometryListNode *geometryList, Geometry *geometry);
 extern float *
 geometryListBounds(GeometryListNode *geometryList, float *boundingBox);
 
-void
-buildPatchList(GeometryListNode *geometryList, java::ArrayList<Patch*> *patchList);
+extern PatchSet *
+buildPatchList(GeometryListNode *geometryList, PatchSet *patchList);
 
 extern RayHit *
 geometryListDiscretizationIntersect(
