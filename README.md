@@ -9,7 +9,7 @@ This is a full rewrite with the following features:
 - Project controlled by cmake instead of make.
 - Motif GUI removed in favor of basic command line only basic algorithms.
 - Code syntax and format modernized.
-- Code compiling without warning on modern C++ compilers.
+- Code compiling without warnings on modern C++ compilers.
 - Reorganization in to new packages structure for clarity at software architecture level.
 - Memory leak free after valgrind analysis.
 - New java-style basic datastructures.
@@ -19,3 +19,4 @@ This is a full rewrite with the following features:
   much more.
 - References to papers and books on code has been downloaded to ./doc folder to ease the
   algorithm study process.
+- Ported to several architectures, including MacOSX, Windows, Linux on Intel/x86, ARM, RiscV, etc.
