@@ -202,9 +202,9 @@ monteCarloRadiosityUpdateCpuSecs() {
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.lastClock = t;
 }
 
-void *
+Element *
 monteCarloRadiosityCreatePatchData(Patch *patch) {
-    patch->radiance_data = (void *) monteCarloRadiosityCreateToplevelSurfaceElement(patch);
+    patch->radiance_data = monteCarloRadiosityCreateToplevelSurfaceElement(patch);
     return patch->radiance_data;
 }
 
@@ -218,7 +218,7 @@ monteCarloRadiosityDestroyPatchData(Patch *patch) {
     if ( patch->radiance_data ) {
         monteCarloRadiosityDestroyToplevelSurfaceElement(TOPLEVEL_ELEMENT(patch));
     }
-    patch->radiance_data = (void *) nullptr;
+    patch->radiance_data = nullptr;
 }
 
 /**

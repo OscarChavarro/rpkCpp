@@ -309,7 +309,7 @@ patchCreate(int numberOfVertices, Vertex *v1, Vertex *v2, Vertex *v3, Vertex *v4
     /* if we are doing radiance computations, create radiance data for the
        patch */
     patch->radiance_data = (GLOBAL_radiance_currentRadianceMethodHandle && GLOBAL_radiance_currentRadianceMethodHandle->CreatePatchData) ?
-                           GLOBAL_radiance_currentRadianceMethodHandle->CreatePatchData(patch) : (void *) nullptr;
+                           GLOBAL_radiance_currentRadianceMethodHandle->CreatePatchData(patch) : nullptr;
 
     return patch;
 }

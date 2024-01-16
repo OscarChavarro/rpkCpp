@@ -15,6 +15,7 @@
 
 class Vertex;
 class MeshSurface;
+class Element;
 
 class Patch {
 public:
@@ -50,7 +51,7 @@ public:
 
     RGB color; // color used to flat render the patch
 
-    void *radiance_data; // data needed for radiance computations. Type depends on the current radiance algorithm
+    Element *radiance_data; // data needed for radiance computations. Type depends on the current radiance algorithm
     MeshSurface *surface; // pointer to surface data (contains vertex list, material properties)
 
     Patch();
@@ -78,5 +79,7 @@ extern Vector3D patchTextureCoordAtUv(Patch *patch, double u, double v);
 extern COLOR patchAverageNormalAlbedo(Patch *patch, BSDFFLAGS components);
 extern COLOR patchAverageEmittance(Patch *patch, XXDFFLAGS components);
 extern int materialShadingFrame(RayHit *hit, Vector3D *X, Vector3D *Y, Vector3D *Z);
+
+#include "skin/Element.h"
 
 #endif

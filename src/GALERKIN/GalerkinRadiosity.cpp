@@ -214,9 +214,9 @@ updateCpuSecs() {
 /**
 Radiance data for a Patch is a surface element
 */
-static void *
+static Element *
 createPatchData(Patch *patch) {
-    return patch->radiance_data = (void *) galerkinCreateToplevelElement(patch);
+    return patch->radiance_data = galerkinCreateToplevelElement(patch);
 }
 
 static void
@@ -227,7 +227,7 @@ printPatchData(FILE *out, Patch *patch) {
 static void
 destroyPatchData(Patch *patch) {
     galerkinDestroyToplevelElement((GalerkinElement *) patch->radiance_data);
-    patch->radiance_data = (void *) nullptr;
+    patch->radiance_data = nullptr;
 }
 
 void
