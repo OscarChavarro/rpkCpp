@@ -44,8 +44,8 @@ createInitialLink(Patch *patch) {
 
         if ( GLOBAL_galerkin_state.exact_visibility ) {
             POLYGON rcvpoly, srcpoly;
-            the_shaft = ConstructPolygonToPolygonShaft(ElementPolygon(rcv, &rcvpoly),
-                                                       ElementPolygon(src, &srcpoly),
+            the_shaft = ConstructPolygonToPolygonShaft(galerkinElementPolygon(rcv, &rcvpoly),
+                                                       galerkinElementPolygon(src, &srcpoly),
                                                        &shaft);
         } else {
             BOUNDINGBOX bbox;

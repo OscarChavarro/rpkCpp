@@ -126,9 +126,9 @@ InteractionPrint(FILE *out, INTERACTION *link) {
     int a, b, c, alpha, beta, i;
 
     fprintf(out, "%d (", link->rcv->id);
-    galerkinPrintElementId(out, link->rcv);
+    galerkinElementPrintId(out, link->rcv);
     fprintf(out, ") <- %d (", link->src->id);
-    galerkinPrintElementId(out, link->src);
+    galerkinElementPrintId(out, link->src);
     fprintf(out, "): vis=%d, nrcv=%d, nsrc=%d, crcv=%d,\n",
             link->vis,
             link->nrcv,

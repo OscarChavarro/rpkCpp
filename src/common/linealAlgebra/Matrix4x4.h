@@ -21,18 +21,6 @@ class Matrix4x4 {
     fprintf(fp, "\t%f %f    %f\n", (trans).m[0][1], (trans).m[1][1], (trans).t[1]); \
 }
 
-/* xf(p) = xf2(xf1(p)) */
-#define PRECONCAT_TRANSFORM2D(xf2, xf1, xf) { \
-    Matrix2x2 _xf_; \
-    _xf_.m[0][0] = (xf2).m[0][0] * (xf1).m[0][0] + (xf2).m[0][1] * (xf1).m[1][0]; \
-    _xf_.m[0][1] = (xf2).m[0][0] * (xf1).m[0][1] + (xf2).m[0][1] * (xf1).m[1][1]; \
-    _xf_.m[1][0] = (xf2).m[1][0] * (xf1).m[0][0] + (xf2).m[1][1] * (xf1).m[1][0]; \
-    _xf_.m[1][1] = (xf2).m[1][0] * (xf1).m[0][1] + (xf2).m[1][1] * (xf1).m[1][1]; \
-    _xf_.t[0]  = (xf2).m[0][0] * (xf1).t[0]  + (xf2).m[0][1] * (xf1).t[1] + (xf2).t[0]; \
-    _xf_.t[1]  = (xf2).m[1][0] * (xf1).t[0]  + (xf2).m[1][1] * (xf1).t[1] + (xf2).t[1]; \
-    (xf) = _xf_; \
-}
-
 #define SET_3X3MATRIX(m, a, b, c, d, e, f, g, h, i) { \
     m[0][0] = a; m[0][1] = b; m[0][2] = c; \
     m[1][0] = d; m[1][1] = e; m[1][2] = f; \

@@ -29,13 +29,13 @@ static GeometryListNode *Cull(INTERACTION *link) {
 
         if ( GLOBAL_galerkin_state.exact_visibility && !isCluster(link->rcv) && !isCluster(link->src)) {
             POLYGON rcvpoly, srcpoly;
-            the_shaft = ConstructPolygonToPolygonShaft(ElementPolygon(link->rcv, &rcvpoly),
-                                                       ElementPolygon(link->src, &srcpoly),
+            the_shaft = ConstructPolygonToPolygonShaft(galerkinElementPolygon(link->rcv, &rcvpoly),
+                                                       galerkinElementPolygon(link->src, &srcpoly),
                                                        &shaft);
         } else {
             BOUNDINGBOX srcbounds, rcvbounds;
-            the_shaft = ConstructShaft(ElementBounds(link->rcv, rcvbounds),
-                                       ElementBounds(link->src, srcbounds), &shaft);
+            the_shaft = ConstructShaft(galerkinElementBounds(link->rcv, rcvbounds),
+                                       galerkinElementBounds(link->src, srcbounds), &shaft);
         }
         if ( !the_shaft ) {
             logError("Cull", "Couldn't construct shaft");
@@ -198,7 +198,7 @@ static double SourceClusterRadianceVariationError(INTERACTION *link, COLOR rcvrh
         return 0.;
     }
 
-    nrcverts = ElementVertices(link->rcv, rcverts);
+    nrcverts = galerkinElementVertices(link->rcv, rcverts);
 
     colorSetMonochrome(minsrcrad, HUGE);
     colorSetMonochrome(maxsrcrad, -HUGE);
@@ -411,7 +411,7 @@ static int RegularSubdivideSource(INTERACTION *link) {
     GalerkinElement *src = link->src, *rcv = link->rcv;
     int i;
 
-    galerkinRegularSubdivideElement(src);
+    galerkinElementRegularSubDivide(src);
     for ( i = 0; i < 4; i++ ) {
         GalerkinElement *child = src->regular_subelements[i];
         INTERACTION subinteraction;
@@ -436,7 +436,7 @@ static int RegularSubdivideReceiver(INTERACTION *link) {
     GalerkinElement *src = link->src, *rcv = link->rcv;
     int i;
 
-    galerkinRegularSubdivideElement(rcv);
+    galerkinElementRegularSubDivide(rcv);
     for ( i = 0; i < 4; i++ ) {
         INTERACTION subinteraction;
         float ff[MAXBASISSIZE * MAXBASISSIZE];

@@ -108,7 +108,7 @@ galerkinDoCreateClusterHierarchy(Geometry *parentGeometry) {
     }
 
     /* create a cluster for the parentGeometry */
-    GalerkinElement *cluster = galerkinCreateClusterElement(parentGeometry);
+    GalerkinElement *cluster = galerkinElementCreateCluster(parentGeometry);
     parentGeometry->radiance_data = (void *) cluster;
 
     // Recursively creates list of sub-clusters
@@ -155,7 +155,7 @@ galerkinDestroyClusterHierarchy(GalerkinElement *cluster) {
     }
 
     ITERATE_IRREGULAR_SUBELEMENTS(cluster, galerkinDestroyClusterHierarchy);
-    galerkinDestroyClusterElement(cluster);
+    galerkinElementDestroyCluster(cluster);
 }
 
 /**
@@ -276,7 +276,7 @@ sourceClusterRadiance(INTERACTION *link) {
     }
 
     /* take a sample point on the receiver */
-    return clusterRadianceToSamplePoint(src, galerkinElementMidpoint(rcv));
+    return clusterRadianceToSamplePoint(src, galerkinElementMidPoint(rcv));
 }
 
 /**
@@ -324,14 +324,14 @@ receiverClusterArea(INTERACTION *link) {
             return rcv->area;
 
         case ORIENTED: {
-            globalSamplePoint = galerkinElementMidpoint(src);
+            globalSamplePoint = galerkinElementMidPoint(src);
             globalProjectedArea = 0.;
             iterateOverSurfaceElementsInCluster(rcv, accumulateProjectedAreaToSamplePoint);
             return globalProjectedArea;
         }
 
         case Z_VISIBILITY:
-            globalSamplePoint = galerkinElementMidpoint(src);
+            globalSamplePoint = galerkinElementMidPoint(src);
             if ( !OutOfBounds(&globalSamplePoint, rcv->geom->bounds)) {
                 return rcv->area;
             } else {
@@ -432,7 +432,7 @@ clusterGatherRadiance(INTERACTION *link, COLOR *srcrad) {
 
     globalPsrcRad = srcrad;
     globalTheLink = link;
-    globalSamplePoint = galerkinElementMidpoint(src);
+    globalSamplePoint = galerkinElementMidPoint(src);
 
     switch ( GLOBAL_galerkin_state.clustering_strategy ) {
         case ISOTROPIC:

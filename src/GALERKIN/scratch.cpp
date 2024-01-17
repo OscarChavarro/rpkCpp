@@ -48,7 +48,7 @@ static void ScratchRenderElementPtr(GalerkinElement *elem) {
  * containing the size of the virtual screen. The cluster clus nicely fits
  * into the virtual screen. */
 float *ScratchRenderElementPtrs(GalerkinElement *clus, Vector3D eye) {
-    Vector3D centre = galerkinElementMidpoint(clus);
+    Vector3D centre = galerkinElementMidPoint(clus);
     Vector3D up = {0., 0., 1.}, viewdir;
     static BOUNDINGBOX bbx;
     Matrix4x4 lookat;

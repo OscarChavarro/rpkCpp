@@ -7,6 +7,7 @@
 
 class Element {
   public:
+    int id; // Unique ID number for the element
     COLOR Ed; // Diffuse emittance
     COLOR Rd; // Reflectance
     Patch *patch;

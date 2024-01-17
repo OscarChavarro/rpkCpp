@@ -33,7 +33,6 @@ typedef union PatchOrGeomPtr {
  * and no uptrans. */
 class GalerkinElement : public Element {
   public:
-    int id;        /* unique ID number for the element */
     COLOR *radiance,    /* total radiance on the element as computed so far */
     *received_radiance, /* radiance received during iteration */
     *unshot_radiance; /* for progressive refinement radiosity */
@@ -113,87 +112,35 @@ isCluster(GalerkinElement *element) {
     for (ellist = (elem)->irregular_subelements; ellist; ellist=ellist->next) {\
       GalerkinElement *child = ellist->element;            \
 
+/**
+Position and orientation of the regular subelements is fully
+determined by the following transforms, that transform (u,v)
+parameters of a point on a subelement to the (u',v') parameters
+of the same point on the parent element
+*/
+extern Matrix2x2 GLOBAL_galerkin_QuadUpTransformMatrix[4];
+extern Matrix2x2 GLOBAL_galerkin_TriangularUpTransformMatrix[4];
 
-/* returns the total number of elements in use */
-extern int GetNumberOfElements();
-
-extern int GetNumberOfClusters();
-
-extern int GetNumberOfSurfaceElements();
-
-/* creates the toplevel element for the patch */
-extern GalerkinElement *galerkinCreateToplevelElement(Patch *patch);
-
-/* creates a cluster element for the given Geometry. The average projected area still
- * needs to be determined. */
-extern GalerkinElement *galerkinCreateClusterElement(Geometry *geometry);
-
-/* Regularly subdivides the given element. A pointer to an array of
- * 4 pointers to subelements is returned. Only for surface elements. */
-extern GalerkinElement **galerkinRegularSubdivideElement(GalerkinElement *element);
-
-/* position and orientation of the regular subelements is fully
- * determined by the following transforms, that transform (u,v)
- * parameters of a point on a subelement to the (u',v') parameters
- * of the same point on the parent element. */
-extern Matrix2x2 quadupxfm[4], triupxfm[4];
-
-/* prints the element data to the file 'out' */
-extern void galerkinPrintElement(FILE *out, GalerkinElement *element);
-
-/* prints element patch id and the chain of child numbers of an element
- * in a hierarchy */
-extern void galerkinPrintElementId(FILE *out, GalerkinElement *elem);
-
-/* destroys the toplevel surface element and it's subelements (recursive) */
-extern void galerkinDestroyToplevelElement(GalerkinElement *element);
-
-/* destroys the cluster element, not recursive. */
-extern void galerkinDestroyClusterElement(GalerkinElement *element);
-
-/* Computes the transform relating a surface element to the toplevel element in the
- * hierarchy by concatenaing the up-transforms of the element and all parent 	
- * alements. If the element is a toplevel element, (Matrix4x4 *)nullptr is
- * returned and nothing is filled in in xf (no trnasform is necessary
- * to transform positions on the element to the corresponding point on the toplevel
- * element). In the other case, the composed transform is filled in in xf and
- * xf (pointer to the transform) is returned. */
+extern int galerkinElementGetNumberOfElements();
+extern int galerkinElementGetNumberOfClusters();
+extern int galerkinElementGetNumberOfSurfaceElements();
+extern GalerkinElement *galerkinElementCreateTopLevel(Patch *patch);
+extern GalerkinElement *galerkinElementCreateCluster(Geometry *geometry);
+extern GalerkinElement **galerkinElementRegularSubDivide(GalerkinElement *element);
+extern void galerkinElementPrint(FILE *out, GalerkinElement *element);
+extern void galerkinElementPrintId(FILE *out, GalerkinElement *elem);
+extern void galerkinElementDestroyTopLevel(GalerkinElement *element);
+extern void galerkinElementDestroyCluster(GalerkinElement *element);
 extern Matrix2x2 *galerkinElementToTopTransform(GalerkinElement *element, Matrix2x2 *xf);
-
-/* Determines the regular subelement at point (u,v) of the given parent
- * surface element. Returns the parent element itself if there are no regular 
- * subelements. The point is transformed to the corresponding point on the subelement. */
-extern GalerkinElement *galerkinRegularSubelementAtPoint(GalerkinElement *parent, double *u, double *v);
-
-/* Returns the leaf regular subelement of 'top' at the point (u,v) (uniform 
- * coordinates!). (u,v) is transformed to the coordinates of the corresponding
- * point on the leaf element. 'top' is a surface element. */
-extern GalerkinElement *RegularLeafElementAtPoint(GalerkinElement *top, double *u, double *v);
-
-/* draws element outline in the current outline color */
-extern void DrawElementOutline(GalerkinElement *elem);
-
-/* renders a surface element flat shaded based on its radiance. */
-extern void RenderElement(GalerkinElement *elem);
-
-/* (re)allocates storage for the coefficients to represent radiance, received radiance
- * and unshot radiance on the element. */
-extern void ElementReallocCoefficients(GalerkinElement *elem);
-
-/* Computes the vertices of a surface element (3 or 4 vertices) or
- * cluster element (8 vertices). The number of vertices is returned. */
-extern int ElementVertices(GalerkinElement *elem, Vector3D *p);
-
-/* Computes a bounding box for the element. */
-extern float *ElementBounds(GalerkinElement *elem, float *bounds);
-
-/* Computes the midpoint of the element. */
-extern Vector3D galerkinElementMidpoint(GalerkinElement *elem);
-
-/* Computes a polygon description for shaft culling for the element. */
-extern POLYGON *ElementPolygon(GalerkinElement *elem, POLYGON *poly);
-
-/* Call func for each leaf element of top */
-extern void ForAllLeafElements(GalerkinElement *top, void (*func)(GalerkinElement *));
+extern GalerkinElement *galerkinElementRegularSubElementAtPoint(GalerkinElement *parent, double *u, double *v);
+extern GalerkinElement *galerkinElementRegularLeafAtPoint(GalerkinElement *top, double *u, double *v);
+extern void galerkinElementDrawOutline(GalerkinElement *elem);
+extern void galerkinElementRender(GalerkinElement *elem);
+extern void galerkinElementReAllocCoefficients(GalerkinElement *element);
+extern int galerkinElementVertices(GalerkinElement *elem, Vector3D *p);
+extern float *galerkinElementBounds(GalerkinElement *elem, float *bounds);
+extern Vector3D galerkinElementMidPoint(GalerkinElement *elem);
+extern POLYGON *galerkinElementPolygon(GalerkinElement *elem, POLYGON *poly);
+extern void forAllLeafElements(GalerkinElement *top, void (*func)(GalerkinElement *));
 
 #endif

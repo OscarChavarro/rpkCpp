@@ -113,7 +113,6 @@ createElement() {
     elem->child_nr = -1;
     elem->nrvertices = 0;
     elem->iscluster = false;
-    elem->flags = 0;
 
     GLOBAL_stochasticRaytracing_hierarchy.nr_elements++;
 
@@ -346,7 +345,7 @@ monteCarloRadiosityRegularSubElementAtPoint(StochasticRadiosityElement *parent, 
             }
             break;
         default:
-            logFatal(-1, "galerkinRegularSubelementAtPoint", "Can handle only triangular or quadrilateral elements");
+            logFatal(-1, "galerkinElementRegularSubElementAtPoint", "Can handle only triangular or quadrilateral elements");
     }
 
     return child;
@@ -744,14 +743,14 @@ monteCarloRadiosityRegularSubdivideElement(StochasticRadiosityElement *element) 
     }
 
     if ( element->iscluster ) {
-        logFatal(-1, "galerkinRegularSubdivideElement", "Cannot regularly subdivide cluster elements");
+        logFatal(-1, "galerkinElementRegularSubDivide", "Cannot regularly subdivide cluster elements");
         return (StochasticRadiosityElement **) nullptr;
     }
 
     if ( element->patch->jacobian ) {
         static int wgiv = false;
         if ( !wgiv ) {
-            logWarning("galerkinRegularSubdivideElement",
+            logWarning("galerkinElementRegularSubDivide",
                        "irregular quadrilateral patches are not correctly handled (but you probably won't notice it)");
         }
         wgiv = true;
@@ -767,7 +766,7 @@ monteCarloRadiosityRegularSubdivideElement(StochasticRadiosityElement *element) 
             monteCarloRadiosityRegularSubdivideQuad(element);
             break;
         default:
-            logFatal(-1, "galerkinRegularSubdivideElement", "invalid element: not 3 or 4 vertices");
+            logFatal(-1, "galerkinElementRegularSubDivide", "invalid element: not 3 or 4 vertices");
     }
     return element->regular_subelements;
 }
@@ -839,7 +838,7 @@ monteCarloRadiosityTestPrintVertex(FILE *out, int i, Vertex *v) {
 
 void
 monteCarloRadiosityPrintElement(FILE *out, StochasticRadiosityElement *elem) {
-    fprintf(out, "Element id %ld:\n", elem->id);
+    fprintf(out, "Element id %d:\n", elem->id);
     fprintf(out, "Vertices: ");
     monteCarloRadiosityTestPrintVertex(out, 0, elem->vertex[0]);
     monteCarloRadiosityTestPrintVertex(out, 1, elem->vertex[1]);

@@ -216,17 +216,17 @@ Radiance data for a Patch is a surface element
 */
 static Element *
 createPatchData(Patch *patch) {
-    return patch->radiance_data = galerkinCreateToplevelElement(patch);
+    return patch->radiance_data = galerkinElementCreateTopLevel(patch);
 }
 
 static void
 printPatchData(FILE *out, Patch *patch) {
-    galerkinPrintElement(out, (GalerkinElement *) patch->radiance_data);
+    galerkinElementPrint(out, (GalerkinElement *) patch->radiance_data);
 }
 
 static void
 destroyPatchData(Patch *patch) {
-    galerkinDestroyToplevelElement((GalerkinElement *) patch->radiance_data);
+    galerkinElementDestroyTopLevel((GalerkinElement *) patch->radiance_data);
     patch->radiance_data = nullptr;
 }
 
@@ -365,7 +365,7 @@ getRadiance(Patch *patch, double u, double v, Vector3D dir) {
         bilinearToUniform(patch, &u, &v);
     }
 
-    leaf = RegularLeafElementAtPoint(TOPLEVEL_ELEMENT(patch), &u, &v);
+    leaf = galerkinElementRegularLeafAtPoint(TOPLEVEL_ELEMENT(patch), &u, &v);
 
     rad = basisGalerkinRadianceAtPoint(leaf, leaf->radiance, u, v);
 
@@ -391,11 +391,11 @@ getGalerkinStats() {
     p += n;
     sprintf(p, "Iteration: %d\n\n%n", GLOBAL_galerkin_state.iteration_nr, &n);
     p += n;
-    sprintf(p, "Nr. elements: %d\n%n", GetNumberOfElements(), &n);
+    sprintf(p, "Nr. elements: %d\n%n", galerkinElementGetNumberOfElements(), &n);
     p += n;
-    sprintf(p, "clusters: %d\n%n", GetNumberOfClusters(), &n);
+    sprintf(p, "clusters: %d\n%n", galerkinElementGetNumberOfClusters(), &n);
     p += n;
-    sprintf(p, "surface elements: %d\n\n%n", GetNumberOfSurfaceElements(), &n);
+    sprintf(p, "surface elements: %d\n\n%n", galerkinElementGetNumberOfSurfaceElements(), &n);
     p += n;
     sprintf(p, "Nr. interactions: %d\n%n", GetNumberOfInteractions(), &n);
     p += n;
@@ -427,7 +427,7 @@ getGalerkinStats() {
 static void
 renderElementHierarchy(GalerkinElement *elem) {
     if ( !elem->regular_subelements ) {
-        RenderElement(elem);
+        galerkinElementRender(elem);
     } else ITERATE_REGULAR_SUBELEMENTS(elem, renderElementHierarchy);
 }
 
@@ -483,7 +483,7 @@ galerkinWriteVertexCoord(Vector3D *p) {
 static void
 galerkinWriteVertexCoords(GalerkinElement *elem) {
     Vector3D v[8];
-    int i, nverts = ElementVertices(elem, v);
+    int i, nverts = galerkinElementVertices(elem, v);
     for ( i = 0; i < nverts; i++ ) {
         galerkinWriteVertexCoord(&v[i]);
     }
@@ -493,7 +493,7 @@ static void
 galerkinWriteCoords() {
     globalNumberOfWrites = globalVertexId = 0;
     fprintf(globalVrmlFileDescriptor, "\tcoord Coordinate {\n\t  point [ ");
-    ForAllLeafElements(GLOBAL_galerkin_state.top_cluster, galerkinWriteVertexCoords);
+    forAllLeafElements(GLOBAL_galerkin_state.top_cluster, galerkinWriteVertexCoords);
     fprintf(globalVrmlFileDescriptor, " ] ");
     fprintf(globalVrmlFileDescriptor, "\n\t}\n");
 }
@@ -548,7 +548,7 @@ static void
 galerkinWriteVertexColors() {
     globalVertexId = globalNumberOfWrites = 0;
     fprintf(globalVrmlFileDescriptor, "\tcolor Color {\n\t  color [ ");
-    ForAllLeafElements(GLOBAL_galerkin_state.top_cluster, galerkinWriteVertexColors);
+    forAllLeafElements(GLOBAL_galerkin_state.top_cluster, galerkinWriteVertexColors);
     fprintf(globalVrmlFileDescriptor, " ] ");
     fprintf(globalVrmlFileDescriptor, "\n\t}\n");
 }
@@ -584,7 +584,7 @@ static void
 galerkinWriteCoordIndices() {
     globalVertexId = globalNumberOfWrites = 0;
     fprintf(globalVrmlFileDescriptor, "\tcoordIndex [ ");
-    ForAllLeafElements(GLOBAL_galerkin_state.top_cluster, galerkinWriteCoordIndices);
+    forAllLeafElements(GLOBAL_galerkin_state.top_cluster, galerkinWriteCoordIndices);
     fprintf(globalVrmlFileDescriptor, " ]\n");
 }
 

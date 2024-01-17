@@ -11,8 +11,6 @@
 
 class StochasticRadiosityElement : public Element {
   public:
-    long id;        /* unique ID number */
-
     niedindex ray_index;    /* incremented each time a ray is shot from the elem */
 
     float quality;    /* for merging the result of multiple iterations */
@@ -23,7 +21,9 @@ class StochasticRadiosityElement : public Element {
     GalerkinBasis *basis;        /* radiosity approximation data, see basis.h */
     /* higher order approximations need an array of color values for representing
      * radiance. */
-    COLOR *rad, *unshot_rad, *received_rad;
+    COLOR *rad;
+    COLOR *unshot_rad;
+    COLOR *received_rad;
     COLOR source_rad;    /* always constant source radiosity */
 
     float imp, unshot_imp, received_imp, source_imp; /* for view-importance driven sampling */
@@ -44,7 +44,6 @@ class StochasticRadiosityElement : public Element {
 					 * regular surface subelements */
     char nrvertices;            /* nr of surf. element vertices */
     char iscluster;            /* whether it is a cluster or not */
-    char flags;                /* unused so far */
 };
 
 #endif

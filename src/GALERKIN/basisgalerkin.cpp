@@ -303,6 +303,6 @@ basisGalerkinComputeRegularFilterCoefficients(
 
 void
 basisGalerkinInitBasis() {
-    basisGalerkinComputeRegularFilterCoefficients(&GLOBAL_galerkin_quadBasis, quadupxfm, &GLOBAL_crq8);
-    basisGalerkinComputeRegularFilterCoefficients(&GLOBAL_galerkin_triBasis, triupxfm, &GLOBAL_crt8);
+    basisGalerkinComputeRegularFilterCoefficients(&GLOBAL_galerkin_quadBasis, GLOBAL_galerkin_QuadUpTransformMatrix, &GLOBAL_crq8);
+    basisGalerkinComputeRegularFilterCoefficients(&GLOBAL_galerkin_triBasis, GLOBAL_galerkin_TriangularUpTransformMatrix, &GLOBAL_crt8);
 }
