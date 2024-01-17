@@ -1,15 +1,25 @@
 cmake_minimum_required(VERSION 3.10)
 project(rpk)
 
-# C++ warnings to enable and fix:
-#-Wmaybe-uninitialized
-#-Wparentheses
-#-Wsign-compare
-#-Wstrict-aliasing
-#-Wuninitialized
+add_compile_options(-std=c++11 -ffast-math)
 
-add_compile_options(-Wdelete-non-virtual-dtor -Wunused-variable -Wunused-but-set-variable -Wunused-function -pedantic -std=c++11 -ffast-math -mavx512f)
+if(UNIX AND NOT APPLE)
+    # C++ warnings to enable and fix:
+    #-Wmaybe-uninitialized
+    #-Wparentheses
+    #-Wsign-compare
+    #-Wstrict-aliasing
+    #-Wuninitialized
+    add_compile_options(-Wdelete-non-virtual-dtor -Wunused-variable -Wunused-but-set-variable -Wunused-function -pedantic)
+endif()
+
 include_directories(src)
+
+if(APPLE)
+    include_directories(/opt/X11/include)
+    link_directories(/opt/X11/lib)
+endif()
+
 
 set(MAIN_SRC
     src/common/errorshared.cpp

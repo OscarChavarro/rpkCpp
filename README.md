@@ -20,3 +20,17 @@ This is a full rewrite with the following features:
 - References to papers and books on code has been downloaded to ./doc folder to ease the
   algorithm study process.
 - Ported to several architectures, including MacOSX, Windows, Linux on Intel/x86, ARM, RiscV, etc.
+
+## Install prerequisites
+
+### On linux
+
+```
+apt-get install cmake build-essential
+```
+
+### On MacOS
+
+```
+brew install mesa cmake
+```
