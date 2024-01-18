@@ -12,7 +12,8 @@ class CStrat2D {
     int totalSamples;
     int currentSample;
     int xMaxStratum, yMaxStratum;
-    int xStratum, yStratum;
+    int xStratum;
+    int yStratum;
 
     // methods
 public:
