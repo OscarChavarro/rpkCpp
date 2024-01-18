@@ -60,9 +60,11 @@ CMDLINEOPTTYPE GLOBAL_options_intType = {
 };
 
 /* ------------------- string option values --------------------- */
-static int getstring(char **s, void *data) {
-    *s = (char *)malloc(strlen(*_argv) + 1);
-    sprintf(*s, "%s", *_argv);
+static int
+getString(char **s, void *data) {
+    int n = strlen(*_argv) + 1;
+    *s = (char *)malloc(n);
+    snprintf(*s, n, "%s", *_argv);
     /*Free(*s, 0);*/
     return true;
 }
@@ -74,7 +76,7 @@ static void printstring(FILE *fp, char **s, void *data) {
 static char *dummy_string = nullptr;
 
 CMDLINEOPTTYPE GLOBAL_options_stringType = {
-        (int (*)(void *, void *)) getstring,
+        (int (*)(void *, void *)) getString,
         (void (*)(FILE *, void *, void *)) printstring,
         (void *) &dummy_string,
         nullptr

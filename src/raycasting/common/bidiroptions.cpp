@@ -25,18 +25,16 @@ void BidirPathDefaults() {
     // Weighted not in UI
     bidir.basecfg.doWeighted = false;
 
-    sprintf(bidir.basecfg.leRegExp, "(LX)(X)*(EX)");
-    sprintf(bidir.basecfg.ldRegExp, "(LX)(G|S)(X)*(EX),(LX)(EX)");
-    sprintf(bidir.basecfg.liRegExp, "(LX)(G|S)(X)*(EX),(LX)(EX)");
-    sprintf(bidir.basecfg.wleRegExp, "(LX)(DR)(X)*(EX)");
-    sprintf(bidir.basecfg.wldRegExp, "(LX)(X)*(EX)");
+    snprintf(bidir.basecfg.leRegExp, MAX_REGEXP_SIZE, "(LX)(X)*(EX)");
+    snprintf(bidir.basecfg.ldRegExp, MAX_REGEXP_SIZE, "(LX)(G|S)(X)*(EX),(LX)(EX)");
+    snprintf(bidir.basecfg.liRegExp, MAX_REGEXP_SIZE, "(LX)(G|S)(X)*(EX),(LX)(EX)");
+    snprintf(bidir.basecfg.wleRegExp, MAX_REGEXP_SIZE, "(LX)(DR)(X)*(EX)");
+    snprintf(bidir.basecfg.wldRegExp, MAX_REGEXP_SIZE, "(LX)(X)*(EX)");
 
     // -- Not in UI yet
     bidir.saveSubsequentImages = false;
     bidir.basecfg.eliminateSpikes = false;
     bidir.basecfg.doDensityEstimation = false;
-
-    //sprintf(bidir.baseFilename, "");
     bidir.baseFilename[0] = '\0';
 }
 

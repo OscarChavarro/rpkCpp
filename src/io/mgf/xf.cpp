@@ -63,11 +63,12 @@ handleTransformationEntity(int ac, char **av) {
                 if ((rv = mgfGoToFilePosition(&ap->spos)) != MGF_OK ) {
                     return rv;
                 }
-                sprintf(ap->aarg[n].arg, "%d", ap->aarg[n].i);
+                snprintf(ap->aarg[n].arg, 8, "%d", ap->aarg[n].i);
                 xf_aname(ap);
             }
         }
-        if ( n < 0 ) {            /* pop transform */
+        if ( n < 0 ) {
+            // Pop transform
             GLOBAL_mgf_xfContext = spec->prev;
             free_xf(spec);
             return MGF_OK;

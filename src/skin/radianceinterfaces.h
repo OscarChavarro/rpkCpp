@@ -98,7 +98,7 @@ extern RADIANCEMETHOD *GLOBAL_radiance_radianceMethods[];
 extern RADIANCEMETHOD *GLOBAL_radiance_currentRadianceMethodHandle;
 
 /* This routine sets the current radiance method to be used + initializes */
-extern void setRadianceMethod(RADIANCEMETHOD *newmethod);
+extern void setRadianceMethod(RADIANCEMETHOD *newMethod);
 
 /* Initializes. Called from mainInit() in main.c. */
 extern void radianceDefaults();

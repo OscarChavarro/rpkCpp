@@ -17,27 +17,28 @@ stochasticRelaxationRadiosityInit() {
     monteCarloRadiosityInit();
 }
 
+#define STRING_SIZE 2000
+
 static char *
 stochasticRelaxationRadiosityGetStats() {
-    static char stats[2000];
+    static char stats[STRING_SIZE];
     char *p;
     int n;
 
     p = stats;
-    sprintf(p, "Stochastic Relaxation Radiosity\nStatistics\n\n%n", &n);
+    snprintf(p, STRING_SIZE, "Stochastic Relaxation Radiosity\nStatistics\n\n%n", &n);
     p += n;
-    sprintf(p, "Iteration nr: %d\n%n", GLOBAL_stochasticRaytracing_monteCarloRadiosityState.currentIteration, &n);
+    snprintf(p, STRING_SIZE, "Iteration nr: %d\n%n", GLOBAL_stochasticRaytracing_monteCarloRadiosityState.currentIteration, &n);
     p += n;
-    sprintf(p, "CPU time: %g secs\n%n", GLOBAL_stochasticRaytracing_monteCarloRadiosityState.cpuSeconds, &n);
+    snprintf(p, STRING_SIZE, "CPU time: %g secs\n%n", GLOBAL_stochasticRaytracing_monteCarloRadiosityState.cpuSeconds, &n);
     p += n;
 
-    sprintf(p, "%ld elements (%ld clusters, %ld surfaces)\n%n",
+    snprintf(p, STRING_SIZE, "%ld elements (%ld clusters, %ld surfaces)\n%n",
             GLOBAL_stochasticRaytracing_hierarchy.nr_elements, GLOBAL_stochasticRaytracing_hierarchy.nr_clusters, GLOBAL_stochasticRaytracing_hierarchy.nr_elements - GLOBAL_stochasticRaytracing_hierarchy.nr_clusters, &n);
     p += n;
-    sprintf(p, "Radiance rays: %ld\n%n", GLOBAL_stochasticRaytracing_monteCarloRadiosityState.tracedRays, &n);
+    snprintf(p, STRING_SIZE, "Radiance rays: %ld\n%n", GLOBAL_stochasticRaytracing_monteCarloRadiosityState.tracedRays, &n);
     p += n;
-    sprintf(p, "Importance rays: %ld\n%n", GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceTracedRays, &n);
-    p += n;
+    snprintf(p, STRING_SIZE, "Importance rays: %ld\n%n", GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceTracedRays, &n);
 
     return stats;
 }

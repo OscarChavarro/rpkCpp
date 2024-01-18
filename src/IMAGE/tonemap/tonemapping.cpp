@@ -23,7 +23,8 @@ TONEMAP *globalAvailableToneMaps[] = {
 TONEMAPPINGCONTEXT GLOBAL_toneMap_options;
 
 // Composes explanation for -tonemapping command line option
-static char globalToneMappingMethodsString[1000];
+#define STRING_SIZE 1000
+static char globalToneMappingMethodsString[STRING_SIZE];
 static float globalRxy[2];
 static float globalGxy[2];
 static float globalBxy[2];
@@ -32,22 +33,21 @@ static float globalWxy[2];
 static void
 makeToneMappingMethodsString() {
     char *str = globalToneMappingMethodsString;
-    int n, first = true;
-    sprintf(str, "\
--tonemapping <method>: Set tone mapping method\n%n",
-            &n);
+    int n;
+    int first = true;
+    snprintf(str, 1000, "-tonemapping <method>: Set tone mapping method\n%n", &n);
     str += n;
-    sprintf(str, "\tmethods: %n", &n);
+    snprintf(str, 1000, "\tmethods: %n", &n);
     str += n;
 
     ForAllAvailableToneMaps(method)
                 {
                     if ( !first ) {
-                        sprintf(str, "\t         %n", &n);
+                        snprintf(str, STRING_SIZE, "\t         %n", &n);
                         str += n;
                     }
                     first = false;
-                    sprintf(str, "%-20.20s %s%s\n%n",
+                    snprintf(str, STRING_SIZE, "%-20.20s %s%s\n%n",
                             method->shortName, method->name,
                             GLOBAL_toneMap_options.ToneMap == method ? " (default)" : "", &n);
                     str += n;

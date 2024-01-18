@@ -16,7 +16,7 @@ MaterialCreate(const char *name,
                          int sided) {
     Material *m = (Material *)malloc(sizeof(Material));
     m->name = (char *)malloc(strlen(name) + 1);
-    sprintf((char *)m->name, "%s", name);
+    snprintf((char *)m->name, strlen(name) + 1, "%s", name);
     m->sided = sided;
     m->edf = edf;
     m->bsdf = bsdf;

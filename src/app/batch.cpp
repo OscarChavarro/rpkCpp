@@ -207,8 +207,9 @@ batch() {
             wasted_start = clock();
 
             if ((!(it % save_modulo)) && *radiance_image_filename_format ) {
-                char *fname = (char *)malloc(strlen(radiance_image_filename_format) + 1);
-                sprintf(fname, radiance_image_filename_format, it);
+                int n = strlen(radiance_image_filename_format) + 1;
+                char *fname = (char *)malloc(n);
+                snprintf(fname, n, radiance_image_filename_format, it);
                 if ( GLOBAL_render_renderOptions.trace ) {
                     char *dot;
                     char *tmpName;
@@ -233,10 +234,11 @@ batch() {
             }
 
             if ( *radiance_model_filename_format ) {
-                char *fname = (char *)malloc(strlen(radiance_model_filename_format) + 1);
-                sprintf(fname, radiance_model_filename_format, it);
-                BatchProcessFile(fname, "w", BatchSaveRadianceModel);
-                free(fname);
+                int n = strlen(radiance_model_filename_format) + 1;
+                char *fileName = (char *)malloc(n);
+                snprintf(fileName, n, radiance_model_filename_format, it);
+                BatchProcessFile(fileName, "w", BatchSaveRadianceModel);
+                free(fileName);
             }
 
             wasted_secs += (float) (wasted_start - clock()) / (float) CLOCKS_PER_SEC;

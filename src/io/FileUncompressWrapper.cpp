@@ -24,41 +24,42 @@ OpenFile(const char *filename, const char *open_mode, int *ispipe) {
     }
 
     if ( filename[0] != '\0' && filename[strlen(filename) - 1] != '/' ) {
-        char *cmd = (char *)malloc(strlen(filename) + 20);
+        int n = strlen(filename) + 20;
+        char *cmd = (char *)malloc(n);
         char *ext = (char *)strrchr(filename, '.');
         if ( filename[0] == '|' ) {
-            sprintf(cmd, "%s", filename + 1);
+            snprintf(cmd, n, "%s", filename + 1);
             fp = popen(cmd, open_mode);
             *ispipe = true;
         } else if ( ext && strcmp(ext, ".gz") == 0 ) {
             if ( *open_mode == 'r' ) {
-                sprintf(cmd, "gunzip < %s", filename);
+                snprintf(cmd, n, "gunzip < %s", filename);
             } else {
-                sprintf(cmd, "gzip > %s", filename);
+                snprintf(cmd, n, "gzip > %s", filename);
             }
             fp = popen(cmd, open_mode);
             *ispipe = true;
         } else if ( ext && strcmp(ext, ".Z") == 0 ) {
             if ( *open_mode == 'r' ) {
-                sprintf(cmd, "uncompress < %s", filename);
+                snprintf(cmd, n, "uncompress < %s", filename);
             } else {
-                sprintf(cmd, "compress > %s", filename);
+                snprintf(cmd, n, "compress > %s", filename);
             }
             fp = popen(cmd, open_mode);
             *ispipe = true;
         } else if ( ext && strcmp(ext, ".bz") == 0 ) {
             if ( *open_mode == 'r' ) {
-                sprintf(cmd, "bunzip < %s", filename);
+                snprintf(cmd, n, "bunzip < %s", filename);
             } else {
-                sprintf(cmd, "bzip > %s", filename);
+                snprintf(cmd, n, "bzip > %s", filename);
             }
             fp = popen(cmd, open_mode);
             *ispipe = true;
         } else if ( ext && strcmp(ext, ".bz2") == 0 ) {
             if ( *open_mode == 'r' ) {
-                sprintf(cmd, "bunzip2 < %s", filename);
+                snprintf(cmd, n, "bunzip2 < %s", filename);
             } else {
-                sprintf(cmd, "bzip2 > %s", filename);
+                snprintf(cmd, n, "bzip2 > %s", filename);
             }
             fp = popen(cmd, open_mode);
             *ispipe = true;

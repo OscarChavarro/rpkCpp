@@ -76,7 +76,7 @@ WriteVRMLViewPoints(FILE *fp, Matrix4x4 model_xf) {
     while ((cam = NextSavedCamera(cam)) != (CAMERA *) nullptr) {
         char vpname[21];
         count++;
-        sprintf(vpname, "ViewPoint %d", count);
+        snprintf(vpname, 21, "ViewPoint %d", count);
         WriteVRMLViewPoint(fp, model_xf, cam, vpname);
     }
 }

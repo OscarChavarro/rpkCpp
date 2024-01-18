@@ -158,9 +158,6 @@ public:
     double Sample(Vector3D &pos, double *r, double *s, COORDSYS *coord,
                   BSDFFLAGS flag, float n = 1);
 
-    double DebugSample(Vector3D &pos, double *r, double *s, COORDSYS *coord,
-                       BSDFFLAGS flag, float n = 1);
-
     float GetGridValue(double phi, double theta);
 
     // Utility functions
@@ -169,8 +166,8 @@ public:
         fprintf(fp, "%i stored photons\n", m_nrPhotons);
     }
 
-    void GetStats(char *p) {
-        sprintf(p,
+    void getStats(char *p, int n) {
+        snprintf(p, n,
                 "%i stored photons, %i total, %li paths\n",
                 m_nrPhotons, m_totalPhotons, m_totalPaths);
     }

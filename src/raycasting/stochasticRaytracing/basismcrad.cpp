@@ -35,7 +35,8 @@ APPROXDESC approxdesc[NR_APPROX_TYPES] = {
 
 static GalerkinBasis MakeBasis(ELEMENT_TYPE et, APPROX_TYPE at) {
     GalerkinBasis basis = mcr_quadBasis;
-    char desc[100];
+    int n = 100;
+    char desc[n];
     const char *elem = nullptr;
 
     switch ( et ) {
@@ -53,7 +54,7 @@ static GalerkinBasis MakeBasis(ELEMENT_TYPE et, APPROX_TYPE at) {
 
     basis.size = approxdesc[at].basis_size;
 
-    sprintf(desc, "%s orthonormal basis for %s", approxdesc[at].name, elem);
+    snprintf(desc, n, "%s orthonormal basis for %s", approxdesc[at].name, elem);
     basis.description = strdup(desc);
 
     return basis;

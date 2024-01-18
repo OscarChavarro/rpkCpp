@@ -151,23 +151,24 @@ Iterator over all available raytracing methods
   for (methodpp=RayTracingMethods; *methodpp; methodpp++) { \
     Raytracer *methodp = *methodpp;
 
-static char raytracing_methods_string[1000];
+#define STRING_SIZE 1000
+
+static char raytracing_methods_string[STRING_SIZE];
 
 static void
 makeRaytracingMethodsString() {
     char *str = raytracing_methods_string;
     int n;
-    sprintf(str, "\
--raytracing-method <method>: Set pixel-based radiance computation method\n%n",
+    snprintf(str, 80, "-raytracing-method <method>: Set pixel-based radiance computation method\n%n",
             &n);
     str += n;
-    sprintf(str, "\tmethods: %-20.20s %s%s\n%n",
+    snprintf(str, 80, "\tmethods: %-20.20s %s%s\n%n",
             "none", "no pixel-based radiance computation",
             !Global_Raytracer_activeRaytracer ? " (default)" : "", &n);
     str += n;
     ForAllRayTracingMethods(method)
                 {
-                    sprintf(str, "\t         %-20.20s %s%s\n%n",
+                    snprintf(str, STRING_SIZE, "\t         %-20.20s %s%s\n%n",
                             method->shortName, method->fullName,
                             Global_Raytracer_activeRaytracer == method ? " (default)" : "", &n);
                     str += n;
@@ -389,9 +390,10 @@ readFile(char *filename) {
         fclose(input);
     }
 
-    // get current directory from the filename
-    currentDirectory = (char *)malloc(strlen(filename) + 1);
-    sprintf(currentDirectory, "%s", filename);
+    // Get current directory from the filename
+    int n = strlen(filename) + 1;
+    currentDirectory = (char *)malloc(n);
+    snprintf(currentDirectory, n, "%s", filename);
     if ((slash = strrchr(currentDirectory, '/')) != nullptr ) {
         *slash = '\0';
     } else {
@@ -400,14 +402,14 @@ readFile(char *filename) {
 
     ErrorReset();
 
-    // terminate any active radiance or raytracing methods
+    // Terminate any active radiance or raytracing methods
     fprintf(stderr, "Terminating current radiance/raytracing method ... \n");
     oRadiance = GLOBAL_radiance_currentRadianceMethodHandle;
     setRadianceMethod((RADIANCEMETHOD *) nullptr);
     oRayTracing = Global_Raytracer_activeRaytracer;
     SetRayTracing((Raytracer *) nullptr);
 
-    // save the current scene so it can be restored if errors occur when reading the new scene
+    // Save the current scene so it can be restored if errors occur when reading the new scene
     fprintf(stderr, "Saving current scene ... \n");
     oWorld = GLOBAL_scene_world;
     GLOBAL_scene_world = nullptr;

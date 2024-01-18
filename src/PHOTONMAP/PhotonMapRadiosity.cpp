@@ -32,6 +32,8 @@ PMAPCONFIG GLOBAL_photonMap_config;
 // To adjust photonMapGetRadiance returns
 static bool s_doingLocalRaycast = false;
 
+#define STRING_LENGTH 1000
+
 /**
 Initializes the rendering methods 'state' structure. Don't forget to
 update radiance.c to call this routine!
@@ -700,49 +702,48 @@ photonMapRenderScreen() {
 
 static char *
 photonMapGetStats() {
-    static char stats[1000];
+    static char stats[STRING_LENGTH];
     char *p;
     int n;
 
     p = stats;
-    sprintf(p, "PMAP Statistics:\n\n%n", &n);
+    snprintf(p, STRING_LENGTH, "PMAP Statistics:\n\n%n", &n);
     p += n;
-    sprintf(p, "Ray count %li\n%n", Global_Raytracer_rayCount, &n);
+    snprintf(p, STRING_LENGTH, "Ray count %li\n%n", Global_Raytracer_rayCount, &n);
     p += n;
-    sprintf(p, "Time %g\n%n", pmapstate.cpu_secs, &n);
+    snprintf(p, STRING_LENGTH, "Time %g\n%n", pmapstate.cpu_secs, &n);
     p += n;
 
     if ( GLOBAL_photonMap_config.globalMap ) {
-        sprintf(p, "Global Map: %n", &n);
+        snprintf(p, STRING_LENGTH, "Global Map: %n", &n);
         p += n;
-        GLOBAL_photonMap_config.globalMap->GetStats(p);
+        GLOBAL_photonMap_config.globalMap->getStats(p, STRING_LENGTH);
         p += strlen(p);
-        sprintf(p, "\n%n", &n);
+        snprintf(p, STRING_LENGTH, "\n%n", &n);
         p += n;
     }
     if ( GLOBAL_photonMap_config.causticMap ) {
-        sprintf(p, "Caustic Map: %n", &n);
+        snprintf(p, STRING_LENGTH, "Caustic Map: %n", &n);
         p += n;
-        GLOBAL_photonMap_config.causticMap->GetStats(p);
+        GLOBAL_photonMap_config.causticMap->getStats(p, STRING_LENGTH);
         p += strlen(p);
-        sprintf(p, "\n%n", &n);
+        snprintf(p, STRING_LENGTH, "\n%n", &n);
         p += n;
     }
     if ( GLOBAL_photonMap_config.importanceMap ) {
-        sprintf(p, "Global Importance Map: %n", &n);
+        snprintf(p, STRING_LENGTH, "Global Importance Map: %n", &n);
         p += n;
-        GLOBAL_photonMap_config.importanceMap->GetStats(p);
+        GLOBAL_photonMap_config.importanceMap->getStats(p, STRING_LENGTH);
         p += strlen(p);
-        sprintf(p, "\n%n", &n);
+        snprintf(p, STRING_LENGTH, "\n%n", &n);
         p += n;
     }
     if ( GLOBAL_photonMap_config.importanceCMap ) {
-        sprintf(p, "Caustic Importance Map: %n", &n);
+        snprintf(p, STRING_LENGTH, "Caustic Importance Map: %n", &n);
         p += n;
-        GLOBAL_photonMap_config.importanceCMap->GetStats(p);
+        GLOBAL_photonMap_config.importanceCMap->getStats(p, STRING_LENGTH);
         p += strlen(p);
-        sprintf(p, "\n%n", &n);
-        p += n;
+        snprintf(p, STRING_LENGTH, "\n%n", &n);
     }
 
     return stats;

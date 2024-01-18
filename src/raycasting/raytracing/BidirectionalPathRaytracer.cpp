@@ -68,6 +68,8 @@ class BPCONFIG {
     int scaleSamples;
 };
 
+#define STRINGS_SIZE 300
+
 static bool SpikeCheck(COLOR col) {
     //  return false;
 
@@ -717,9 +719,9 @@ static COLOR BPCalcPixel(int nx, int ny, BPCONFIG *config) {
 
 static void DoBPTAndSubsequentImages(BPCONFIG *config) {
     int maxSamples, nrIterations;
-    char *format1 = new char[300];
-    char *format2 = new char[300];
-    char *filename = new char[300];
+    char *format1 = new char[STRINGS_SIZE];
+    char *format2 = new char[STRINGS_SIZE];
+    char *filename = new char[STRINGS_SIZE];
 
     // Do some trick to render several images, with different
     // number of samples per pixel.
@@ -743,8 +745,8 @@ static void DoBPTAndSubsequentImages(BPCONFIG *config) {
     char *last_occ = strrchr(bidir.baseFilename, '.');
 
     if ( last_occ == nullptr ) {
-        sprintf(format1, "%s%%i.tif", bidir.baseFilename);
-        sprintf(format2, "%s%%i.ppm.gz", bidir.baseFilename);
+        snprintf(format1, STRINGS_SIZE, "%s%%i.tif", bidir.baseFilename);
+        snprintf(format2, STRINGS_SIZE, "%s%%i.ppm.gz", bidir.baseFilename);
     } else {
         strncpy(format1, bidir.baseFilename, last_occ - bidir.baseFilename);
         strcat(format1, "%i");
@@ -779,11 +781,11 @@ static void DoBPTAndSubsequentImages(BPCONFIG *config) {
 
         // Save images
         if ( format1[0] != '\0' ) {
-            sprintf(filename, format1, totalSamples);
+            snprintf(filename, STRINGS_SIZE + 1, format1, totalSamples);
             config->screen->WriteFile(filename);
         }
         if ( format2[0] != '\0' ) {
-            sprintf(filename, format2, totalSamples);
+            snprintf(filename, STRINGS_SIZE, format2, totalSamples);
             config->screen->WriteFile(filename);
         }
 
@@ -801,7 +803,7 @@ static void DoBPTAndSubsequentImages(BPCONFIG *config) {
 }
 
 void DoBPTDensityEstimation(BPCONFIG *config) {
-    char *fname = new char[300];
+    char *fname = new char[STRINGS_SIZE];
 
     // mainInit the screens, one reference one destination
 
@@ -933,20 +935,20 @@ void DoBPTDensityEstimation(BPCONFIG *config) {
         // Render screen & write
 
         config->dest->Render();
-        sprintf(fname, "deScreen%i.ppm.gz", newTotalSPP);
+        snprintf(fname, STRINGS_SIZE, "deScreen%i.ppm.gz", newTotalSPP);
         //    config->dest->WriteFile(fileName);
 
 
         if ( config->dest2 ) {
             config->dest2->Render();
-            sprintf(fname, "de2Screen%i.ppm.gz", newTotalSPP);
+            snprintf(fname, STRINGS_SIZE, "de2Screen%i.ppm.gz", newTotalSPP);
             //      config->dest2->WriteFile(fileName);
 
             // Merge two images (just add!) into screen
 
             config->screen->Merge(config->dest, config->dest2);
             config->screen->Render();
-            sprintf(fname, "deMRGScreen%i.ppm.gz", newTotalSPP);
+            snprintf(fname, STRINGS_SIZE, "deMRGScreen%i.ppm.gz", newTotalSPP);
             //      config->screen->WriteFile(fileName);
         } else {
             config->screen->Copy(config->dest);

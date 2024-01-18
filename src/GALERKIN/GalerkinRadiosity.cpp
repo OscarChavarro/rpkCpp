@@ -27,6 +27,8 @@ GALERKIN_STATE GLOBAL_galerkin_state;
 static int t = true;
 static int f = false;
 
+#define STRING_LENGTH 2000
+
 /**
 Installs cubature rules for triangles and quadrilaterals of the specified degree
 */
@@ -382,36 +384,36 @@ getRadiance(Patch *patch, double u, double v, Vector3D dir) {
 
 static char *
 getGalerkinStats() {
-    static char stats[2000];
+    static char stats[STRING_LENGTH];
     char *p;
     int n;
 
     p = stats;
-    sprintf(p, "Galerkin Radiosity Statistics:\n\n%n", &n);
+    snprintf(p, STRING_LENGTH, "Galerkin Radiosity Statistics:\n\n%n", &n);
     p += n;
-    sprintf(p, "Iteration: %d\n\n%n", GLOBAL_galerkin_state.iteration_nr, &n);
+    snprintf(p, STRING_LENGTH, "Iteration: %d\n\n%n", GLOBAL_galerkin_state.iteration_nr, &n);
     p += n;
-    sprintf(p, "Nr. elements: %d\n%n", galerkinElementGetNumberOfElements(), &n);
+    snprintf(p, STRING_LENGTH, "Nr. elements: %d\n%n", galerkinElementGetNumberOfElements(), &n);
     p += n;
-    sprintf(p, "clusters: %d\n%n", galerkinElementGetNumberOfClusters(), &n);
+    snprintf(p, STRING_LENGTH, "clusters: %d\n%n", galerkinElementGetNumberOfClusters(), &n);
     p += n;
-    sprintf(p, "surface elements: %d\n\n%n", galerkinElementGetNumberOfSurfaceElements(), &n);
+    snprintf(p, STRING_LENGTH, "surface elements: %d\n\n%n", galerkinElementGetNumberOfSurfaceElements(), &n);
     p += n;
-    sprintf(p, "Nr. interactions: %d\n%n", GetNumberOfInteractions(), &n);
+    snprintf(p, STRING_LENGTH, "Nr. interactions: %d\n%n", GetNumberOfInteractions(), &n);
     p += n;
-    sprintf(p, "cluster to cluster: %d\n%n", GetNumberOfClusterToClusterInteractions(), &n);
+    snprintf(p, STRING_LENGTH, "cluster to cluster: %d\n%n", GetNumberOfClusterToClusterInteractions(), &n);
     p += n;
-    sprintf(p, "cluster to surface: %d\n%n", GetNumberOfClusterToSurfaceInteractions(), &n);
+    snprintf(p, STRING_LENGTH, "cluster to surface: %d\n%n", GetNumberOfClusterToSurfaceInteractions(), &n);
     p += n;
-    sprintf(p, "surface to cluster: %d\n%n", GetNumberOfSurfaceToClusterInteractions(), &n);
+    snprintf(p, STRING_LENGTH, "surface to cluster: %d\n%n", GetNumberOfSurfaceToClusterInteractions(), &n);
     p += n;
-    sprintf(p, "surface to surface: %d\n\n%n", GetNumberOfSurfaceToSurfaceInteractions(), &n);
+    snprintf(p, STRING_LENGTH, "surface to surface: %d\n\n%n", GetNumberOfSurfaceToSurfaceInteractions(), &n);
     p += n;
-    sprintf(p, "CPU time: %g secs.\n%n", GLOBAL_galerkin_state.cpu_secs, &n);
+    snprintf(p, STRING_LENGTH, "CPU time: %g secs.\n%n", GLOBAL_galerkin_state.cpu_secs, &n);
     p += n;
-    sprintf(p, "Minimum element area: %g m^2\n%n", GLOBAL_statistics_totalArea * (double) GLOBAL_galerkin_state.rel_min_elem_area, &n);
+    snprintf(p, STRING_LENGTH, "Minimum element area: %g m^2\n%n", GLOBAL_statistics_totalArea * (double) GLOBAL_galerkin_state.rel_min_elem_area, &n);
     p += n;
-    sprintf(p, "Link error threshold: %g %s\n\n%n",
+    snprintf(p, STRING_LENGTH, "Link error threshold: %g %s\n\n%n",
             (double) (GLOBAL_galerkin_state.error_norm == RADIANCE_ERROR ?
                       M_PI * (GLOBAL_galerkin_state.rel_link_error_threshold *
                               colorLuminance(GLOBAL_statistics_maxSelfEmittedRadiance)) :
@@ -419,7 +421,6 @@ getGalerkinStats() {
                               colorLuminance(GLOBAL_statistics_maxSelfEmittedPower)),
             (GLOBAL_galerkin_state.error_norm == RADIANCE_ERROR ? "lux" : "lumen"),
             &n);
-    p += n;
 
     return stats;
 }

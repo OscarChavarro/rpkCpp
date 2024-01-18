@@ -565,18 +565,3 @@ static void CPhotonMapGetGrid(Vector3D *pos, COORDSYS *coord,
     convertColorToRGB(dest, color);
     *distance = 0.1 * pm->GetGridValue(phi, theta);
 }
-
-double CPhotonMap::DebugSample(Vector3D &pos, double *r, double *s, COORDSYS *coord,
-                               BSDFFLAGS flag, float n) {
-    double pdf = Sample(pos, r, s, coord, flag, n);
-
-    // Now m_grid has the correct data
-    m_grid->Print();
-
-    CHemisphereRenderer *hemi = new CHemisphereRenderer;
-
-    hemi->Initialize(32, 8, pos, coord, CPhotonMapGetGrid, (void *) this);
-    hemi->EnableRendering(true);
-
-    return pdf;
-}

@@ -24,13 +24,16 @@ static BREP_MSG_CALLBACK_FUNC brep_info_callback_func = brep_info;
 static BREP_MSG_CALLBACK_FUNC brep_error_callback_func = brep_error;
 static BREP_MSG_CALLBACK_FUNC brep_fatal_callback_func = brep_fatal;
 
-/* prints an informational message */
-void BrepInfo(void *client_data, const char *routine, const char *text, ...) {
+/**
+Prints an informational message
+*/
+void
+BrepInfo(void *client_data, const char *routine, const char *text, ...) {
     va_list pvar;
     char buf[BREP_MAX_MESSAGE_LENGTH];
 
     va_start(pvar, text);
-    vsprintf(buf, text, pvar);
+    vsnprintf(buf, BREP_MAX_MESSAGE_LENGTH, text, pvar);
     va_end(pvar);
 
     brep_info_callback_func(client_data, buf);
@@ -42,7 +45,7 @@ void BrepError(void *client_data, const char *routine, const char *text, ...) {
     char buf[BREP_MAX_MESSAGE_LENGTH];
 
     va_start(pvar, text);
-    vsprintf(buf, text, pvar);
+    vsnprintf(buf, BREP_MAX_MESSAGE_LENGTH, text, pvar);
     va_end(pvar);
 
     brep_error_callback_func(client_data, buf);
@@ -54,7 +57,7 @@ void BrepFatal(void *client_data, const char *routine, const char *text, ...) {
     char buf[BREP_MAX_MESSAGE_LENGTH];
 
     va_start(pvar, text);
-    vsprintf(buf, text, pvar);
+    vsnprintf(buf, BREP_MAX_MESSAGE_LENGTH, text, pvar);
     va_end(pvar);
 
     brep_fatal_callback_func(client_data, buf);
