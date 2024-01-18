@@ -139,7 +139,7 @@ double CUniformLightSampler::EvalPDF(CPathNode */*thisNode*/,
         EdfEval(newNode->m_hit.patch->surface->material->edf,
                 (RayHit *) nullptr,
                 &newNode->m_inDirF,
-                DIFFUSE_COMPONENT || GLOSSY_COMPONENT || SPECULAR_COMPONENT,
+                DIFFUSE_COMPONENT | GLOSSY_COMPONENT | SPECULAR_COMPONENT,
                 &pdfdir);
 
         pdf *= pdfdir;
@@ -266,7 +266,7 @@ double CImportantLightSampler::EvalPDF(CPathNode *thisNode,
         EdfEval(newNode->m_hit.patch->surface->material->edf,
                 (RayHit *) nullptr,
                 &newNode->m_inDirF,
-                DIFFUSE_COMPONENT || GLOSSY_COMPONENT || SPECULAR_COMPONENT,
+                DIFFUSE_COMPONENT | GLOSSY_COMPONENT | SPECULAR_COMPONENT,
                 &pdfdir);
 
         pdf *= pdfdir;

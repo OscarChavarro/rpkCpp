@@ -120,7 +120,7 @@ double CLightList::EvalPDF_virtual(Patch *light, Vector3D */*point*/) {
     double pdf;
 
     // Prob for choosing this light
-    XXDFFLAGS all = DIFFUSE_COMPONENT || GLOSSY_COMPONENT || SPECULAR_COMPONENT;
+    XXDFFLAGS all = DIFFUSE_COMPONENT | GLOSSY_COMPONENT | SPECULAR_COMPONENT;
 
     COLOR e = EdfEmittance(light->surface->material->edf, (RayHit *) nullptr, all);
     pdf = colorAverage(e) / totalFlux;
@@ -165,7 +165,7 @@ double CLightList::ComputeOneLightImportance_virtual(Patch *light,
                                                      const Vector3D *,
                                                      float) {
     // ComputeOneLightImportance for virtual patches
-    XXDFFLAGS all = DIFFUSE_COMPONENT || GLOSSY_COMPONENT || SPECULAR_COMPONENT;
+    XXDFFLAGS all = DIFFUSE_COMPONENT | GLOSSY_COMPONENT | SPECULAR_COMPONENT;
 
     COLOR e = EdfEmittance(light->surface->material->edf, (RayHit *) nullptr, all);
     return colorAverage(e);

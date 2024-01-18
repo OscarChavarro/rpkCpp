@@ -544,24 +544,3 @@ float CPhotonMap::GetGridValue(double phi, double theta) {
 
     return m_grid->GetValue(r, s);
 }
-
-static void CPhotonMapGetGrid(Vector3D *pos, COORDSYS *coord,
-                              double phi, double theta,
-                              void *map, RGB *color,
-                              double *distance) {
-    CPhotonMap *pm = (CPhotonMap *) map;
-
-    COLOR colg, colr, colb;
-
-    convertRGBToColor(GLOBAL_material_green, &colg);
-    convertRGBToColor(GLOBAL_material_red, &colr);
-    convertRGBToColor(GLOBAL_material_blue, &colb);
-
-    COLOR dest = colb;
-
-    colorAddScaled(colb, phi / (2 * M_PI), colr, dest);
-    colorAddScaled(dest, theta / (M_PI), colg, dest);
-
-    convertColorToRGB(dest, color);
-    *distance = 0.1 * pm->GetGridValue(phi, theta);
-}
