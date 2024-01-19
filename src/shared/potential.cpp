@@ -32,12 +32,12 @@ void UpdateDirectPotential() {
     float v, h, xsample, ysample;
     float *new_direct_importance, delta_importance, pixarea;
 
-    CanvasPushMode();
+    canvasPushMode();
 
-    /* get the patch IDs for each pixel. */
+    // Get the patch IDs for each pixel
     ids = renderIds(&x, &y);
 
-    CanvasPullMode();
+    canvasPullMode();
 
     if ( !ids ) {
         return;
@@ -155,8 +155,8 @@ SoftUpdateDirectVisibility() {
 
 /* Updates view visibility status of all patches. */
 void UpdateDirectVisibility() {
-    CanvasPushMode();
+    canvasPushMode();
     SoftUpdateDirectVisibility();
-    CanvasPullMode();
+    canvasPullMode();
 }
 

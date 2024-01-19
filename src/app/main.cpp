@@ -247,14 +247,12 @@ mainRenderingDefaults() {
     renderSetBoundingBoxColor(&boundingBoxColor);
     renderSetClusterColor(&clusterColor);
     renderUseFrustumCulling(true);
-
     renderSetNoShading(false);
 
     GLOBAL_render_renderOptions.draw_cameras = false;
     GLOBAL_render_renderOptions.camsize = 0.25;
     GLOBAL_render_renderOptions.linewidth = 1.0;
     GLOBAL_render_renderOptions.camera_color = GLOBAL_material_yellow;
-
     GLOBAL_render_renderOptions.render_raytraced_image = false;
     GLOBAL_render_renderOptions.use_background = true;
 }

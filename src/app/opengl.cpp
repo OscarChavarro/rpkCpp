@@ -90,11 +90,18 @@ renderCreateOffscreenWindow(int hres, int vres) {
     openGlInitState();
 }
 
+/**
+Returns FALSE until rendering is fully initialized. Do not attempt to
+render something until this function returns TRUE
+*/
 int
 renderInitialized() {
     return openglInitialized;
 }
 
+/**
+Renders a line from point p to point q, for eg debugging
+*/
 void
 renderLine(Vector3D *x, Vector3D *y) {
     Vector3D X;
@@ -116,7 +123,7 @@ renderLine(Vector3D *x, Vector3D *y) {
 }
 
 /**
-Sets the current color
+Sets the current color for line or outline drawing
 */
 void
 renderSetColor(RGB *rgb) {
@@ -128,7 +135,7 @@ renderSetColor(RGB *rgb) {
 }
 
 /**
-Sets line width
+Sets line width for outlines, etc
 */
 void
 renderSetLineWidth(float width) {
@@ -164,11 +171,17 @@ renderPolygonGouraud(int nrverts, Vector3D *verts, RGB *vertcols) {
     glEnd();
 }
 
+/**
+Start a strip
+*/
 void
 renderBeginTriangleStrip() {
     glBegin(GL_TRIANGLE_STRIP);
 }
 
+/**
+Supply the next point (one at a time)
+*/
 void
 renderNextTrianglePoint(Vector3D *point, RGB *col) {
     if ( col ) {
@@ -177,6 +190,9 @@ renderNextTrianglePoint(Vector3D *point, RGB *col) {
     glVertex3fv((float *) point);
 }
 
+/**
+End a strip
+*/
 void
 renderEndTriangleStrip() {
     glEnd();
@@ -268,6 +284,9 @@ renderPatchOutline(Patch *patch) {
     glEnd();
 }
 
+/**
+Renders the all the patches using default colors
+*/
 void
 renderPatch(Patch *patch) {
     if ( !GLOBAL_render_renderOptions.no_shading ) {
@@ -408,6 +427,11 @@ renderOctreeNonLeaf(Geometry *geometry, void (*render_patch)(Patch *)) {
     }
 }
 
+/**
+Traverses the patches in the scene in such a way to obtain
+hierarchical view frustum culling + sorted (large patches first +
+near to far) rendering. For every patch that is not culled,
+render_patch is called. */
 void
 renderWorldOctree(void (*render_patch)(Patch *)) {
     if ( !GLOBAL_scene_clusteredWorldGeom ) {
@@ -447,6 +471,10 @@ renderNewOctreeDisplayLists() {
     }
 }
 
+/**
+Indicates that the scene has modified, so a new display list should be
+compiled and rendered from now on. Only relevant when using display lists
+*/
 void
 renderNewDisplayList() {
     if ( displayListId >= 0 ) {
@@ -517,6 +545,9 @@ renderRadiance() {
     }
 }
 
+/**
+Renders the whole scene
+*/
 void
 renderScene() {
     if ( !openglInitialized ) {
@@ -525,7 +556,7 @@ renderScene() {
 
     renderSetLineWidth(GLOBAL_render_renderOptions.linewidth);
 
-    CanvasPushMode();
+    canvasPushMode();
 
     if ( GLOBAL_camera_mainCamera.changed ) {
         GLOBAL_render_renderOptions.render_raytraced_image = false;
@@ -542,7 +573,7 @@ renderScene() {
 
     glDrawBuffer(GL_FRONT_AND_BACK);
 
-    CanvasPullMode();
+    canvasPullMode();
 }
 
 /**
@@ -602,6 +633,9 @@ renderPixels(int x, int y, int width, int height, RGB *rgb) {
     free((char *)c);
 }
 
+/**
+Saves a RGB image in the front buffer
+*/
 void
 saveScreen(char *fileName, FILE *fp, int isPipe) {
     ImageOutputHandle *img;
@@ -643,6 +677,11 @@ saveScreen(char *fileName, FILE *fp, int isPipe) {
     DeleteImageOutputHandle(img);
 }
 
+/**
+Patch ID rendering. Returns an array of size (*x)*(*y) containing the IDs of
+the patches visible through each pixel or 0 if the background is visible through
+the pixel. x is normally the width and y the height of the canvas window
+*/
 unsigned long *
 renderIds(long *x, long *y) {
     return SoftRenderIds(x, y);
@@ -692,11 +731,17 @@ renderFrustum(CAMERA *cam) {
     glEnable(GL_DEPTH_TEST);
 }
 
+/**
+Renders alternate camera, virtual screen etc ... for didactical pictures etc
+*/
 void
 renderCameras() {
     renderFrustum(&GLOBAL_camera_alternateCamera);
 }
 
+/**
+Display background, no Z-buffer, fill whole screen
+*/
 void
 renderBackground(CAMERA *camera) {
     // Turn off Z-buffer

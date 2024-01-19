@@ -125,7 +125,10 @@ parseRenderingOptions(int *argc, char **argv) {
 
 extern CAMERA GLOBAL_camera_alternateCamera;
 
-/* computes distance to front- and backclipping plane */
+/**
+Computes front- and back-clipping plane distance for the current GLOBAL_scene_world and
+GLOBAL_camera_mainCamera
+*/
 void
 renderGetNearFar(float *near, float *far) {
     BOUNDINGBOX bounds;
@@ -199,6 +202,9 @@ renderGetNearFar(float *near, float *far) {
     }
 }
 
+/**
+Renders a bounding box
+*/
 void
 renderBounds(BOUNDINGBOX bounds) {
     Vector3D p[8];
@@ -239,18 +245,28 @@ renderGeomBounds(Geometry *geom) {
     }
 }
 
+/**
+Renders the bounding boxes of all objects in the scene
+*/
 void
 renderBoundingBoxHierarchy() {
     renderSetColor(&GLOBAL_render_renderOptions.bounding_box_color);
     GeomListIterate(GLOBAL_scene_world, renderGeomBounds);
 }
 
+/**
+Renders the cluster hierarchy bounding boxes
+*/
 void
 renderClusterHierarchy() {
     renderSetColor(&GLOBAL_render_renderOptions.cluster_color);
     GeomListIterate(GLOBAL_scene_clusteredWorld, renderGeomBounds);
 }
 
+/**
+Re-renders last ray-traced image if any, Returns TRUE if there is one,
+and FALSE if not
+*/
 int
 renderRayTraced() {
     if ( !Global_Raytracer_activeRaytracer || !Global_Raytracer_activeRaytracer->Redisplay ) {

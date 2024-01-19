@@ -1,92 +1,29 @@
-#ifndef _RENDER_H_
-#define _RENDER_H_
+#ifndef __RENDER__
+#define __RENDER__
 
-#include <cstdio>
-
-#include "skin/bounds.h"
-#include "common/linealAlgebra/Vector4D.h"
-#include "material/color.h"
-#include "shared/camera.h"
 #include "skin/Patch.h"
+#include "shared/camera.h"
 
-/* creates an offscreen window for rendering */
-extern void renderCreateOffscreenWindow(int hres, int vres);
-
-/* returns FALSE until rendering is fully initialized. Do not attempt to
- * render something until this function returns TRUE. */
-extern int renderInitialized();
-
-/* renders the whole scene */
-extern void renderScene();
-
-/* Patch ID rendering. Returns an array of size (*x)*(*y) containing the IDs of
- * the patches visible through each pixel or 0 if the background is visible through
- * the pixel. x is normally the width and y the height of the canvas window. */
 extern unsigned long *renderIds(long *x, long *y);
-
-/* Renders an image of m lines of n pixels at column x on row y (= lower
- * left corner of image, relative to the lower left corner of the window) */
-extern void renderPixels(int x, int y, int width, int height, RGB *rgb);
-
-/* sets the current color for line or outline drawing */
-extern void renderSetColor(RGB *rgb);
-
-/* renders a convex polygon flat shaded in the current color */
-extern void renderPolygonFlat(int nrverts, Vector3D *verts);
-
-/* renders a convex polygon with Gouraud shading */
-extern void renderPolygonGouraud(int nrverts, Vector3D *verts, RGB *vertcols);
-
-/* renders the outline of the given patch in the current color */
-extern void renderPatchOutline(Patch *patch);
-
-/* renders the all the patches using default colors */
-extern void renderPatch(Patch *patch);
-
-/* renders a line from point p to point q, for eg debugging */
-extern void renderLine(Vector3D *x, Vector3D *y);
-
-/* Start a strip */
-extern void renderBeginTriangleStrip();
-
-/* Supply the next point (one at a time) */
-extern void renderNextTrianglePoint(Vector3D *point, RGB *col);
-
-/* End a strip */
-extern void renderEndTriangleStrip();
-
-/* renders a bounding box. */
-extern void renderBounds(BOUNDINGBOX bounds);
-
-/* renders the bounding boxes of all objects in the scene */
-extern void renderBoundingBoxHierarchy();
-
-/* renders the cluster hierarchy bounding boxes */
-extern void renderClusterHierarchy();
-
-/* saves a RGB image in the front buffer */
-extern void saveScreen(char *fileName, FILE *fp, int isPipe);
-
-/* renders alternate camera, virtual screen etc ... for didactical pictures etc.. */
-extern void renderCameras();
-
-/* rerenders last raytraced image if any, Returns TRUE if there is one,
- * and FALSE if not. */
-extern int renderRayTraced();
-
-/* sets line width for outlines etc... */
-extern void renderSetLineWidth(float width);
-
-/* traverses the patches in the scene in such a way to obtain
- * hierarchical view frustum culling + sorted (large patches first +
- * near to far) rendering. For every patch that is not culled,
- * render_patch is called. */
 extern void renderWorldOctree(void (*render_patch)(Patch *));
-
-/* display background, no Z-buffer, fill whole screen */
+extern void renderScene();
+extern void renderCreateOffscreenWindow(int hres, int vres);
+extern void renderPatch(Patch *patch);
+extern void renderSetColor(RGB *rgb);
+extern void renderPixels(int x, int y, int width, int height, RGB *rgb);
+extern void renderPatchOutline(Patch *patch);
+extern void renderBeginTriangleStrip();
+extern int renderInitialized();
+extern void renderPolygonFlat(int nrverts, Vector3D *verts);
+extern void renderPolygonGouraud(int nrverts, Vector3D *verts, RGB *vertcols);
+extern void renderLine(Vector3D *x, Vector3D *y);
+extern void renderNextTrianglePoint(Vector3D *point, RGB *col);
+extern void renderEndTriangleStrip();
+extern void saveScreen(char *fileName, FILE *fp, int isPipe);
+extern void renderCameras();
+extern void renderSetLineWidth(float width);
 extern void renderBackground(CAMERA *camera);
 
-/* rendering options */
 class RENDEROPTIONS {
   public:
     RGB outline_color,      /* color in which to draw outlines */
@@ -117,6 +54,10 @@ class RENDEROPTIONS {
 
 extern RENDEROPTIONS GLOBAL_render_renderOptions;
 
+extern void renderBounds(BOUNDINGBOX bounds);
+extern void renderBoundingBoxHierarchy();
+extern void renderClusterHierarchy();
+extern int renderRayTraced();
 extern void renderSetBackfaceCulling(char truefalse);
 extern void renderSetSmoothShading(char truefalse);
 extern void renderSetOutlineDrawing(char truefalse);
@@ -128,15 +69,8 @@ extern void renderSetNoShading(char truefalse);
 extern void renderSetOutlineColor(RGB *outline_color);
 extern void renderSetBoundingBoxColor(RGB *outline_color);
 extern void renderSetClusterColor(RGB *cluster_color);
-
-/* computes front- and backclipping plane distance for the current GLOBAL_scene_world and
- * GLOBAL_camera_mainCamera */
 extern void renderGetNearFar(float *near, float *far);
-
-/* indicates that the scene has modified, so a new display list should be
- * compiled and rendered from now on. Only relevant when using display lists. */
 extern void renderNewDisplayList();
-
 extern void parseRenderingOptions(int *argc, char **argv);
 
 #endif

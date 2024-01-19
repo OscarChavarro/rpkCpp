@@ -65,7 +65,7 @@ BatchSaveRadianceImage(const char *fname, FILE *fp, int ispipe) {
         return;
     }
 
-    CanvasPushMode();
+    canvasPushMode();
 
     extension = ImageFileExtension((char *)fname);
     if ( IS_TIFF_LOGLUV_EXT(extension)) {
@@ -80,7 +80,7 @@ BatchSaveRadianceImage(const char *fname, FILE *fp, int ispipe) {
     saveScreen((char *) fname, fp, ispipe);
 
     fprintf(stdout, "%g secs.\n", (float) (clock() - t) / (float) CLOCKS_PER_SEC);
-    CanvasPullMode();
+    canvasPullMode();
 }
 
 static void
@@ -91,7 +91,7 @@ BatchSaveRadianceModel(const char *fname, FILE *fp, int ispipe) {
         return;
     }
 
-    CanvasPushMode();
+    canvasPushMode();
     fprintf(stdout, "Saving VRML model to file '%s' ... ", fname);
     fflush(stdout);
     t = clock();
@@ -103,7 +103,7 @@ BatchSaveRadianceModel(const char *fname, FILE *fp, int ispipe) {
     }
 
     fprintf(stdout, "%g secs.\n", (float) (clock() - t) / (float) CLOCKS_PER_SEC);
-    CanvasPullMode();
+    canvasPullMode();
 }
 
 static void
@@ -150,9 +150,9 @@ BatchRayTrace(char *filename, FILE *fp, int ispipe) {
     GLOBAL_render_renderOptions.render_raytraced_image = true;
     GLOBAL_camera_mainCamera.changed = false;
 
-    CanvasPushMode();
+    canvasPushMode();
     RayTrace(filename, fp, ispipe);
-    CanvasPullMode();
+    canvasPullMode();
 }
 
 void
@@ -187,9 +187,9 @@ batch() {
                    "GLOBAL_scene_world-space radiance iteration %04d\n"
                    "-----------------------------------\n\n", it);
 
-            CanvasPushMode();
+            canvasPushMode();
             done = GLOBAL_radiance_currentRadianceMethodHandle->DoStep();
-            CanvasPullMode();
+            canvasPullMode();
 
             fflush(stdout);
             fflush(stderr);
