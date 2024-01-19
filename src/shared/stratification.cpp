@@ -4,7 +4,7 @@
 #include "shared/stratification.h"
 
 CStrat2D::CStrat2D(int nrSamples) {
-    GetNrDivisions(nrSamples, &xMaxStratum, &yMaxStratum);
+    getNumberOfDivisions(nrSamples, &xMaxStratum, &yMaxStratum);
     totalSamples = nrSamples;
     currentSample = 0;
     xStratum = 0;

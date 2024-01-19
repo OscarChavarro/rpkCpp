@@ -337,15 +337,15 @@ mgfEntity(char *name)
     char *cp;
 
     if ( !ent_tab.tsiz ) {        /* initialize hash table */
-        if ( !lu_init(&ent_tab, MGF_TOTAL_NUMBER_OF_ENTITIES)) {
+        if ( !lookUpInit(&ent_tab, MGF_TOTAL_NUMBER_OF_ENTITIES)) {
             return -1;
         }        /* what to do? */
         for ( cp = GLOBAL_mgf_entityNames[MGF_TOTAL_NUMBER_OF_ENTITIES - 1]; cp >= GLOBAL_mgf_entityNames[0];
               cp -= sizeof(GLOBAL_mgf_entityNames[0])) {
-            lu_find(&ent_tab, cp)->key = cp;
+            lookUpFind(&ent_tab, cp)->key = cp;
         }
     }
-    cp = lu_find(&ent_tab, name)->key;
+    cp = lookUpFind(&ent_tab, name)->key;
     if ( cp == nullptr) {
         return -1;
     }

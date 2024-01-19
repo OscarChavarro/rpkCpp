@@ -11,7 +11,7 @@ void CPhoton::FindRS(double *r, double *s, COORDSYS *coord,
 
     // Determine angles
 
-    VectorToSphericalCoord(&m_dir, coord, &phi, &theta);
+    vectorToSphericalCoord(&m_dir, coord, &phi, &theta);
 
     // Compute r,s
 

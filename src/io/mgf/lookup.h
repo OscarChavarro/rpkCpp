@@ -31,25 +31,25 @@ class LUTAB {
 }
 
 /**
-The lu_init routine is called to initialize a table.  The number of
+The lookUpInit routine is called to initialize a table.  The number of
 elements passed is not a limiting factor, as a table can grow to
 any size permitted by memory.  However, access will be more efficient
 if this number strikes a reasonable balance between default memory use
 and the expected (minimum) table size.  The value returned is the
 actual allocated table size (or zero if there was insufficient memory).
 */
-extern int lu_init(LUTAB *, int);
+extern int lookUpInit(LUTAB *tbl, int nel);
 
 /**
-The lu_find routine returns the entry corresponding to the given
+The lookUpFind routine returns the entry corresponding to the given
 key.  If the entry does not exist, the corresponding key field will
 be nullptr.  If the entry has been previously deleted but not yet freed,
 then only the data field will be nullptr.  It is the caller's
 responsibility to (allocate and) assign the key and data fields when
-creating a new entry.  The only case where lu_find returns nullptr is when
+creating a new entry.  The only case where lookUpFind returns nullptr is when
 the system has run out of memory.
 */
-extern LUENT *lu_find(LUTAB *, char *key);
+extern LUENT *lookUpFind(LUTAB *tbl, char *key);
 
 /**
 The lookUpDone routine calls the given free function once for each
@@ -68,8 +68,8 @@ should return 0 if the two passed keys match.  If it is not necessary
 (or possible) to free the key and/or data values, then the freek and/or
 freed member functions may be nullptr.
 
-It isn't fully necessary to call lu_init to initialize the LUTAB structure.
-If tsiz is 0, then the first call to lu_find will allocate a minimal table.
+It isn't fully necessary to call lookUpInit to initialize the LUTAB structure.
+If tsiz is 0, then the first call to lookUpFind will allocate a minimal table.
 The LU_SINIT macro provides a convenient static declaration for character
 string keys.
 */

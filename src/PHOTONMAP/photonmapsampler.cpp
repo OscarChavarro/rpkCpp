@@ -381,7 +381,7 @@ bool CPhotonMapSampler::GDSample(CPathNode *prevNode, CPathNode *thisNode,
     float glossy_exponent;
 
     if ( dChosen ) {
-        VectorCoordSys(&thisNode->m_normal, &coord);
+        vectorCoordSys(&thisNode->m_normal, &coord);
         glossy_exponent = 1;
         flags = BRDF_DIFFUSE_COMPONENT;
     } else {

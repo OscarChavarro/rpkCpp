@@ -19,12 +19,12 @@ Ray mcrGenerateLocalLine(Patch *patch, double *xi) {
     if ( patch != prevpatch ) {
         /* some work that does not need to be done over if the current patch is the
          * same as the previous one, which is often the case. */
-        PatchCoordSys(patch, &coordsys);
+        patchCoordSys(patch, &coordsys);
         prevpatch = patch;
     }
 
     patchUniformPoint(patch, xi[0], xi[1], &ray.pos);
-    ray.dir = SampleHemisphereCosTheta(&coordsys, xi[2], xi[3], &pdf);
+    ray.dir = sampleHemisphereCosTheta(&coordsys, xi[2], xi[3], &pdf);
 
     return ray;
 }

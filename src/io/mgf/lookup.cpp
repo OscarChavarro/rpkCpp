@@ -14,7 +14,7 @@
 Initialize tbl for at least nel elements
 */
 int
-lu_init(LUTAB *tbl, int nel)
+lookUpInit(LUTAB *tbl, int nel)
 {
     static int hsiztab[] = {
             31, 61, 127, 251, 509, 1021, 2039, 4093, 8191, 16381,
@@ -86,7 +86,7 @@ int lu_realloc(LUTAB *tbl, int nel) {
     oldtabl = tbl->tabl;
     oldtsiz = tbl->tsiz;
     i = tbl->ndel;
-    if ( !lu_init(tbl, nel)) {    /* no more memory! */
+    if ( !lookUpInit(tbl, nel)) {    /* no more memory! */
         tbl->tabl = oldtabl;
         tbl->tsiz = oldtsiz;
         tbl->ndel = i;
@@ -101,7 +101,7 @@ int lu_realloc(LUTAB *tbl, int nel) {
     for ( i = 0, le = oldtabl; i < oldtsiz; i++, le++ ) {
         if ( le->key != nullptr) {
             if ( le->data != nullptr) {
-                *lu_find(tbl, le->key) = *le;
+                *lookUpFind(tbl, le->key) = *le;
             } else {
                 if ( tbl->freek != nullptr) {
                     (*tbl->freek)(le->key);
@@ -116,7 +116,7 @@ int lu_realloc(LUTAB *tbl, int nel) {
 
 // find a table entry
 LUENT *
-lu_find(LUTAB *tbl, char *key)
+lookUpFind(LUTAB *tbl, char *key)
 {
     long hval;
     int ndx;
@@ -125,7 +125,7 @@ lu_find(LUTAB *tbl, char *key)
 
     /* look up object */
     if ( tbl->tsiz <= 0 ) {
-        lu_init(tbl, 1);
+        lookUpInit(tbl, 1);
     }
 
     hval = (*tbl->hashf)(key);

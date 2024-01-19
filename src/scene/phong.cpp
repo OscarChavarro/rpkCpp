@@ -252,8 +252,8 @@ static Vector3D PhongEdfSample(PHONG_EDF *edf, RayHit *hit, XXDFFLAGS flags,
             return dir;
         }
 
-        VectorCoordSys(&normal, &coord);
-        dir = SampleHemisphereCosTheta(&coord, xi1, xi2, &spdf);
+        vectorCoordSys(&normal, &coord);
+        dir = sampleHemisphereCosTheta(&coord, xi1, xi2, &spdf);
         if ( pdf ) {
             *pdf = spdf;
         }
@@ -372,8 +372,8 @@ static Vector3D PhongBrdfSample(PHONG_BRDF *brdf, Vector3D *in,
         /* Sample diffuse */
         x_1 = x_1 / (avgKd / scatteredPower);
 
-        VectorCoordSys(normal, &coord);
-        newDir = SampleHemisphereCosTheta(&coord, x_1, x_2, &diffPdf);
+        vectorCoordSys(normal, &coord);
+        newDir = sampleHemisphereCosTheta(&coord, x_1, x_2, &diffPdf);
         /* newDir = SampleHemisphereUniform(&coord, x_1, x_2, &diffPdf); */
 
         tmpFloat = VECTORDOTPRODUCT(idealDir, newDir);
@@ -388,8 +388,8 @@ static Vector3D PhongBrdfSample(PHONG_BRDF *brdf, Vector3D *in,
         /* Sample specular */
         x_1 = (x_1 - (avgKd / scatteredPower)) / (avgKs / scatteredPower);
 
-        VectorCoordSys(&idealDir, &coord);
-        newDir = SampleHemisphereCosNTheta(&coord, brdf->Ns, x_1, x_2,
+        vectorCoordSys(&idealDir, &coord);
+        newDir = sampleHemisphereCosNTheta(&coord, brdf->Ns, x_1, x_2,
                                            &nonDiffPdf);
 
         cos_theta = VECTORDOTPRODUCT(*normal, newDir);
@@ -619,9 +619,9 @@ static Vector3D PhongBtdfSample(PHONG_BTDF *btdf, REFRACTIONINDEX inIndex,
         /* Sample diffuse */
         x_1 = x_1 / (avgKd / scatteredPower);
 
-        VectorCoordSys(&invNormal, &coord);
+        vectorCoordSys(&invNormal, &coord);
 
-        newDir = SampleHemisphereCosTheta(&coord, x_1, x_2, &diffPdf);
+        newDir = sampleHemisphereCosTheta(&coord, x_1, x_2, &diffPdf);
         /* newDir = SampleHemisphereUniform(&coord, x_1, x_2, &diffPdf); */
 
         tmpFloat = VECTORDOTPRODUCT(idealDir, newDir);
@@ -636,8 +636,8 @@ static Vector3D PhongBtdfSample(PHONG_BTDF *btdf, REFRACTIONINDEX inIndex,
         /* Sample specular */
         x_1 = (x_1 - (avgKd / scatteredPower)) / (avgKs / scatteredPower);
 
-        VectorCoordSys(&idealDir, &coord);
-        newDir = SampleHemisphereCosNTheta(&coord, btdf->Ns, x_1, x_2,
+        vectorCoordSys(&idealDir, &coord);
+        newDir = sampleHemisphereCosNTheta(&coord, btdf->Ns, x_1, x_2,
                                            &nonDiffPdf);
 
         cos_theta = VECTORDOTPRODUCT(*normal, newDir);

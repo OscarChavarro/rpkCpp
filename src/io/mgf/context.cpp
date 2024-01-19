@@ -106,7 +106,7 @@ handleColorEntity(int ac, char **av)        /* handle color entity */
             if ( !isnameWords(av[1])) {
                 return MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
             }
-            lp = lu_find(&clr_tab, av[1]); // Lookup context
+            lp = lookUpFind(&clr_tab, av[1]); // Lookup context
             if ( lp == nullptr) {
                 return MGF_ERROR_OUT_OF_MEMORY;
             }
@@ -140,7 +140,7 @@ handleColorEntity(int ac, char **av)        /* handle color entity */
                 GLOBAL_mgf_currentColor->clock = i + 1;
                 return MGF_OK;
             }
-            lp = lu_find(&clr_tab, av[3]);    /* lookup template */
+            lp = lookUpFind(&clr_tab, av[3]);    /* lookup template */
             if ( lp == nullptr) {
                 return MGF_ERROR_OUT_OF_MEMORY;
             }
@@ -191,7 +191,7 @@ handleColorEntity(int ac, char **av)        /* handle color entity */
                 return MGF_ERROR_ARGUMENT_TYPE;
             }
             wsum = atof(av[1]);
-            if ((lp = lu_find(&clr_tab, av[2])) == nullptr) {
+            if ((lp = lookUpFind(&clr_tab, av[2])) == nullptr) {
                 return MGF_ERROR_OUT_OF_MEMORY;
             }
             if ( lp->data == nullptr) {
@@ -203,7 +203,7 @@ handleColorEntity(int ac, char **av)        /* handle color entity */
                     return MGF_ERROR_ARGUMENT_TYPE;
                 }
                 w = atof(av[i]);
-                if ((lp = lu_find(&clr_tab, av[i + 1])) == nullptr) {
+                if ((lp = lookUpFind(&clr_tab, av[i + 1])) == nullptr) {
                     return MGF_ERROR_OUT_OF_MEMORY;
                 }
                 if ( lp->data == nullptr) {
@@ -243,7 +243,7 @@ handleMaterialEntity(int ac, char **av)        /* handle material entity */
             if ( !isnameWords(av[1])) {
                 return MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
             }
-            lp = lu_find(&mat_tab, av[1]);    /* lookup context */
+            lp = lookUpFind(&mat_tab, av[1]);    /* lookup context */
             if ( lp == nullptr) {
                 return MGF_ERROR_OUT_OF_MEMORY;
             }
@@ -278,7 +278,7 @@ handleMaterialEntity(int ac, char **av)        /* handle material entity */
                 GLOBAL_mgf_currentMaterial->clock = i + 1;
                 return MGF_OK;
             }
-            lp = lu_find(&mat_tab, av[3]);    /* lookup template */
+            lp = lookUpFind(&mat_tab, av[3]);    /* lookup template */
             if ( lp == nullptr) {
                 return MGF_ERROR_OUT_OF_MEMORY;
             }
@@ -417,7 +417,7 @@ handleVertexEntity(int ac, char **av)        /* handle a vertex entity */
             if ( !isnameWords(av[1])) {
                 return MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
             }
-            lp = lu_find(&vtx_tab, av[1]);    /* lookup context */
+            lp = lookUpFind(&vtx_tab, av[1]);    /* lookup context */
             if ( lp == nullptr) {
                 return MGF_ERROR_OUT_OF_MEMORY;
             }
@@ -451,7 +451,7 @@ handleVertexEntity(int ac, char **av)        /* handle a vertex entity */
                 /* c_cvertex->clock = i + 1; */
                 return MGF_OK;
             }
-            lp = lu_find(&vtx_tab, av[3]);    /* lookup template */
+            lp = lookUpFind(&vtx_tab, av[3]);    /* lookup template */
             if ( lp == nullptr) {
                 return MGF_ERROR_OUT_OF_MEMORY;
             }
@@ -513,7 +513,7 @@ getNamedVertex(char *name)            /* get a named vertex */
 {
     LUENT *lp;
 
-    if ((lp = lu_find(&vtx_tab, name)) == nullptr) {
+    if ((lp = lookUpFind(&vtx_tab, name)) == nullptr) {
         return nullptr;
     }
     return (MgfVertexContext *) lp->data;

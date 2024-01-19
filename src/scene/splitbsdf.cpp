@@ -80,8 +80,8 @@ TexturedScattererEval(Vector3D *in, Vector3D *out, Vector3D *normal) {
 static Vector3D
 TexturedScattererSample(Vector3D *in, Vector3D *normal, double x_1, double x_2, double *pdf) {
     COORDSYS coord;
-    VectorCoordSys(normal, &coord);
-    return SampleHemisphereCosTheta(&coord, x_1, x_2, pdf);
+    vectorCoordSys(normal, &coord);
+    return sampleHemisphereCosTheta(&coord, x_1, x_2, pdf);
 }
 
 static void

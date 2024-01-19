@@ -72,7 +72,7 @@ void CHemisphereRenderer::Initialize(int Nphi, int Ntheta,
         for ( p = 0; p < m_phiSteps; p++ ) {
             // Calculate WC vector
 
-            SphericalCoordToVector(&m_coordsys, &curPhi, &curTheta, &vec);
+            sphericalCoordToVector(&m_coordsys, &curPhi, &curTheta, &vec);
 
             cb(&vec, &m_coordsys, curPhi, curTheta, cbData, &col, &dist);
 
@@ -92,7 +92,7 @@ void CHemisphereRenderer::Initialize(int Nphi, int Ntheta,
     curPhi = 0;
     curTheta = 0;
 
-    SphericalCoordToVector(&m_coordsys, &curPhi, &curTheta, &vec);
+    sphericalCoordToVector(&m_coordsys, &curPhi, &curTheta, &vec);
 
     cb(&vec, &m_coordsys, curPhi, curTheta, cbData, &col, &dist);
 

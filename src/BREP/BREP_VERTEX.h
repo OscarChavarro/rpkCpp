@@ -39,7 +39,7 @@ extern void BrepIterateWingsWithVertex(BREP_VERTEX *vertex1, BREP_VERTEX *vertex
 
 /* Disconnect the wing from its starting vertex. The wing must be properly
  * connected to a contour. */
-extern void BrepDisconnectWingFromVertex(BREP_WING *wing);
+extern void brepDisconnectWingFromVertex(BREP_WING *wing);
 
 /* release all storage associated with the vertex if it is not used
  * anymore in any edge. */

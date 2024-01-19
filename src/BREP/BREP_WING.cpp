@@ -51,7 +51,7 @@ Inverse of BrepCreateWing(), but also destroys unused vertices.
 */
 void BrepDestroyWing(BREP_WING *wing) {
     /* first disconnect the wing from its starting vertex */
-    BrepDisconnectWingFromVertex(wing);
+    brepDisconnectWingFromVertex(wing);
 
     /* then disconnect the wing from its contour */
     BrepDisconnectWingFromContour(wing);
