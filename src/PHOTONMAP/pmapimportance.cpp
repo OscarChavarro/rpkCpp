@@ -147,7 +147,7 @@ static bool TracePotentialPath(PMAPCONFIG *config) {
 
         // Determine scatter type
         bool didDG = BounceDiffuseOrGlossy(prev);
-        bool tooClose = (node->m_G > pmapstate.gThreshold);
+        bool tooClose = (node->m_G > GLOBAL_photonMap_state.gThreshold);
 
         if ( didDG ) {
             DGBounces++;

@@ -19,9 +19,9 @@ bool ZeroAlbedo(BSDF *bsdf, RayHit *hit, BSDFFLAGS flags) {
 float GetFalseMonochrome(float val) {
     float tmp; // r=0,g=0,b=0;
 
-    float max = pmapstate.falseColMax;
+    float max = GLOBAL_photonMap_state.falseColMax;
 
-    if ( pmapstate.falseColLog ) {
+    if ( GLOBAL_photonMap_state.falseColLog ) {
         max = log(1.0 + max);
         val = log(1.0 + val);
     }
@@ -40,16 +40,16 @@ COLOR GetFalseColor(float val) {
     COLOR col;
     float max, tmp, r = 0, g = 0, b = 0;
 
-    if ( pmapstate.falseColMono ) {
+    if ( GLOBAL_photonMap_state.falseColMono ) {
         tmp = GetFalseMonochrome(val);
         RGBSET(rgb, tmp, tmp, tmp);
         convertRGBToColor(rgb, &col);
         return col;
     }
 
-    max = pmapstate.falseColMax;
+    max = GLOBAL_photonMap_state.falseColMax;
 
-    if ( pmapstate.falseColLog ) {
+    if ( GLOBAL_photonMap_state.falseColLog ) {
         max = log(1.0 + max);
         val = log(1.0 + val);
     }
@@ -105,9 +105,9 @@ CPhotonMap::CPhotonMap(int *estimate_nrp, bool doPrecomputeIrradiance) {
     m_grid = new CSampleGrid2D(2, 4);
     VECTORSET(m_sampleLastPos, HUGE, HUGE, HUGE);
 
-    m_photons = new CPhoton *[MAXRECONPHOTONS];
-    m_distances = new float[MAXRECONPHOTONS];
-    m_cosines = new float[MAXRECONPHOTONS];
+    m_photons = new CPhoton *[MAXIMUM_RECON_PHOTONS];
+    m_distances = new float[MAXIMUM_RECON_PHOTONS];
+    m_cosines = new float[MAXIMUM_RECON_PHOTONS];
 
     m_nrpFound = 0;  // no valid photons in array
     m_cosinesOk = true;
@@ -181,13 +181,13 @@ bool CPhotonMap::AddPhoton(CPhoton &photon, Vector3D &normal,
 double ComputeAcceptProb(float currentD, float requiredD) {
     // Step function
 
-    if ( pmapstate.acceptPdfType == STEP ) {
+    if ( GLOBAL_photonMap_state.acceptPdfType == STEP ) {
         if ( currentD > requiredD ) {
             return 0.0;
         } else {
             return 1.0;
         }
-    } else if ( pmapstate.acceptPdfType == TRANSCOSINE ) {
+    } else if ( GLOBAL_photonMap_state.acceptPdfType == TRANSCOSINE ) {
         // Translated cosine
         double ratio = MIN(1.0, currentD / requiredD); // in [0,1]
 
@@ -227,7 +227,7 @@ bool CPhotonMap::DC_AddPhoton(CPhoton &photon, RayHit &hit,
     // Vector3D pos = photon.Pos();
     bool stored;
 
-    float currentD = GetCurrentDensity(hit, pmapstate.distribPhotons);
+    float currentD = GetCurrentDensity(hit, GLOBAL_photonMap_state.distribPhotons);
     // m_photons and m_distances is valid now !!
 
 

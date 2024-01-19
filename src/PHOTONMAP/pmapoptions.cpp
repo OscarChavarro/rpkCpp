@@ -1,41 +1,39 @@
-// pmapoptions.C
-
 #include "PHOTONMAP/pmapoptions.h"
 
-// Global pmap options
-CPmapState pmapstate;
+CPmapState GLOBAL_photonMap_state;
 
-// Command line options -- TODO expand...
-static CMDLINEOPTDESC pmapOptions[] = {
-        {"-pmap-do-global",       9,  Tbool,    &pmapstate.doGlobalMap,           DEFAULT_ACTION,
-                "-pmap-do-global <true|false> : Trace photons for the global map"},
-        {"-pmap-global-paths",    9,  Tint,     &pmapstate.gpaths_per_iteration,  DEFAULT_ACTION,
-                "-pmap-global-paths <number> : Number of paths per iteration for the global map"},
-        {"-pmap-g-preirradiance", 11, Tbool,    &pmapstate.precomputeGIrradiance, DEFAULT_ACTION,
-                "-pmap-g-preirradiance <true|false> : Use irradiance precomputation for global map"},
-        {"-pmap-do-caustic",      9,  Tbool,    &pmapstate.doCausticMap,          DEFAULT_ACTION,
-                "-pmap-do-caustic <true|false> : Trace photons for the caustic map"},
-        {"-pmap-caustic-paths",   9,  Tint,     &pmapstate.cpaths_per_iteration,  DEFAULT_ACTION,
-                "-pmap-caustic-paths <number> : Number of paths per iteration for the caustic map"},
-        {"-pmap-render-hits",     9,  Tsettrue, &pmapstate.renderImage,           DEFAULT_ACTION,
-                "-pmap-render-hits: Show photon hits on screen"},
-        {"-pmap-recon-gphotons",  9,  Tint,     &pmapstate.reconGPhotons,         DEFAULT_ACTION,
-                "-pmap-recon-cphotons <number> : Number of photons to use in reconstructions (global map)"},
-        {"-pmap-recon-iphotons",  9,  Tint,     &pmapstate.reconCPhotons,         DEFAULT_ACTION,
-                "-pmap-recon-photons <number> : Number of photons to use in reconstructions (caustic map)"},
-        {"-pmap-recon-photons",   9,  Tint,     &pmapstate.reconIPhotons,         DEFAULT_ACTION,
-                "-pmap-recon-photons <number> : Number of photons to use in reconstructions (importance)"},
-        {"-pmap-balancing",       9,  Tbool,    &pmapstate.balanceKDTree,         DEFAULT_ACTION,
-                "-pmap-balancing <true|false> : Balance KD Tree before raytracing"},
-        {nullptr,                    0,  TYPELESS, nullptr,                             DEFAULT_ACTION, nullptr}
+// Command line options
+static CMDLINEOPTDESC globalPhotonMapOptions[] = {
+    {"-pmap-do-global",       9,  Tbool,    &GLOBAL_photonMap_state.doGlobalMap,           DEFAULT_ACTION,
+"-pmap-do-global <true|false> : Trace photons for the global map"},
+    {"-pmap-global-paths",    9,  Tint,     &GLOBAL_photonMap_state.gpaths_per_iteration,  DEFAULT_ACTION,
+"-pmap-global-paths <number> : Number of paths per iteration for the global map"},
+    {"-pmap-g-preirradiance", 11, Tbool,    &GLOBAL_photonMap_state.precomputeGIrradiance, DEFAULT_ACTION,
+"-pmap-g-preirradiance <true|false> : Use irradiance precomputation for global map"},
+    {"-pmap-do-caustic",      9,  Tbool,    &GLOBAL_photonMap_state.doCausticMap,          DEFAULT_ACTION,
+"-pmap-do-caustic <true|false> : Trace photons for the caustic map"},
+    {"-pmap-caustic-paths",   9,  Tint,     &GLOBAL_photonMap_state.cpaths_per_iteration,  DEFAULT_ACTION,
+"-pmap-caustic-paths <number> : Number of paths per iteration for the caustic map"},
+    {"-pmap-render-hits",     9,  Tsettrue, &GLOBAL_photonMap_state.renderImage,           DEFAULT_ACTION,
+"-pmap-render-hits: Show photon hits on screen"},
+    {"-pmap-recon-gphotons",  9,  Tint,     &GLOBAL_photonMap_state.reconGPhotons,         DEFAULT_ACTION,
+"-pmap-recon-cphotons <number> : Number of photons to use in reconstructions (global map)"},
+    {"-pmap-recon-iphotons",  9,  Tint,     &GLOBAL_photonMap_state.reconCPhotons,         DEFAULT_ACTION,
+"-pmap-recon-photons <number> : Number of photons to use in reconstructions (caustic map)"},
+    {"-pmap-recon-photons",   9,  Tint,     &GLOBAL_photonMap_state.reconIPhotons,         DEFAULT_ACTION,
+"-pmap-recon-photons <number> : Number of photons to use in reconstructions (importance)"},
+    {"-pmap-balancing",       9,  Tbool,    &GLOBAL_photonMap_state.balanceKDTree,         DEFAULT_ACTION,
+"-pmap-balancing <true|false> : Balance KD Tree before raytracing"},
+    {nullptr, 0,  TYPELESS, nullptr, DEFAULT_ACTION, nullptr}
 };
 
-
-void photonMapParseOptions(int *argc, char **argv) {
-    parseOptions(pmapOptions, argc, argv);
+void
+photonMapParseOptions(int *argc, char **argv) {
+    parseOptions(globalPhotonMapOptions, argc, argv);
 }
 
-void photonMapPrintOptions(FILE *fp) {
+void
+photonMapPrintOptions(FILE *fp) {
 }
 
 CPmapState::CPmapState() {
@@ -88,7 +86,6 @@ CPmapState::Defaults() {
     falseColMono = false;
 
     radianceReturn = GLOBAL_RADIANCE;
-
 
     minimumLightPathDepth = 0;
     maximumLightPathDepth = 7;

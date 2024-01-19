@@ -40,7 +40,7 @@ update radiance.c to call this routine!
 */
 static
 void photonMapDefaults() {
-    pmapstate.Defaults();
+    GLOBAL_photonMap_state.Defaults();
 }
 
 /**
@@ -51,8 +51,8 @@ photonMapRadiosityUpdateCpuSecs() {
     clock_t t;
 
     t = clock();
-    pmapstate.cpu_secs += (float) (t - pmapstate.lastclock) / (float) CLOCKS_PER_SEC;
-    pmapstate.lastclock = t;
+    GLOBAL_photonMap_state.cpu_secs += (float) (t - GLOBAL_photonMap_state.lastclock) / (float) CLOCKS_PER_SEC;
+    GLOBAL_photonMap_state.lastclock = t;
 }
 
 static Element *
@@ -86,7 +86,7 @@ photonMapChooseSurfaceSampler(CSurfaceSampler **samplerPtr) {
         delete *samplerPtr;
     }
 
-    if ( pmapstate.usePhotonMapSampler ) {
+    if ( GLOBAL_photonMap_state.usePhotonMapSampler ) {
         *samplerPtr = new CPhotonMapSampler;
     } else {
         *samplerPtr = new CBsdfSampler;
@@ -100,17 +100,17 @@ static void
 photonMapInitPmap() {
     fprintf(stderr, "Photonmap activated\n");
 
-    pmapstate.lastclock = clock();
-    pmapstate.cpu_secs = 0.;
-    pmapstate.g_iteration_nr = 0;
-    pmapstate.c_iteration_nr = 0;
-    pmapstate.i_iteration_nr = 0;
-    pmapstate.iteration_nr = 0;
-    pmapstate.runstop_nr = 0;
-    pmapstate.total_gpaths = 0;
-    pmapstate.total_cpaths = 0;
-    pmapstate.total_ipaths = 0;
-    pmapstate.total_rays = 0;
+    GLOBAL_photonMap_state.lastclock = clock();
+    GLOBAL_photonMap_state.cpu_secs = 0.;
+    GLOBAL_photonMap_state.g_iteration_nr = 0;
+    GLOBAL_photonMap_state.c_iteration_nr = 0;
+    GLOBAL_photonMap_state.i_iteration_nr = 0;
+    GLOBAL_photonMap_state.iteration_nr = 0;
+    GLOBAL_photonMap_state.runstop_nr = 0;
+    GLOBAL_photonMap_state.total_gpaths = 0;
+    GLOBAL_photonMap_state.total_cpaths = 0;
+    GLOBAL_photonMap_state.total_ipaths = 0;
+    GLOBAL_photonMap_state.total_rays = 0;
 
     if ( GLOBAL_photonMap_config.screen ) {
         delete GLOBAL_photonMap_config.screen;
@@ -145,8 +145,8 @@ photonMapInitPmap() {
     // cfg->surfaceSampler = new CPhotonMapSampler; //new CBsdfSampler;
     cfg->surfaceSampler->SetComputeFromNextPdf(false);  // Only 1 pdf
 
-    cfg->minDepth = pmapstate.minimumLightPathDepth;
-    cfg->maxDepth = pmapstate.maximumLightPathDepth;
+    cfg->minDepth = GLOBAL_photonMap_state.minimumLightPathDepth;
+    cfg->maxDepth = GLOBAL_photonMap_state.maximumLightPathDepth;
 
     Global_Raytracer_rayCount = 0;
 
@@ -155,25 +155,25 @@ photonMapInitPmap() {
     if ( GLOBAL_photonMap_config.globalMap ) {
         delete GLOBAL_photonMap_config.globalMap;
     }
-    GLOBAL_photonMap_config.globalMap = new CPhotonMap(&pmapstate.reconGPhotons,
-                                                       pmapstate.precomputeGIrradiance);
+    GLOBAL_photonMap_config.globalMap = new CPhotonMap(&GLOBAL_photonMap_state.reconGPhotons,
+                                                       GLOBAL_photonMap_state.precomputeGIrradiance);
 
     if ( GLOBAL_photonMap_config.importanceMap ) {
         delete GLOBAL_photonMap_config.importanceMap;
     }
-    GLOBAL_photonMap_config.importanceMap = new CImportanceMap(&pmapstate.reconIPhotons,
-                                                               &pmapstate.gImpScale);
+    GLOBAL_photonMap_config.importanceMap = new CImportanceMap(&GLOBAL_photonMap_state.reconIPhotons,
+                                                               &GLOBAL_photonMap_state.gImpScale);
 
     if ( GLOBAL_photonMap_config.importanceCMap ) {
         delete GLOBAL_photonMap_config.importanceCMap;
     }
-    GLOBAL_photonMap_config.importanceCMap = new CImportanceMap(&pmapstate.reconIPhotons,
-                                                                &pmapstate.cImpScale);
+    GLOBAL_photonMap_config.importanceCMap = new CImportanceMap(&GLOBAL_photonMap_state.reconIPhotons,
+                                                                &GLOBAL_photonMap_state.cImpScale);
 
     if ( GLOBAL_photonMap_config.causticMap ) {
         delete GLOBAL_photonMap_config.causticMap;
     }
-    GLOBAL_photonMap_config.causticMap = new CPhotonMap(&pmapstate.reconCPhotons);
+    GLOBAL_photonMap_config.causticMap = new CPhotonMap(&GLOBAL_photonMap_state.reconCPhotons);
 }
 
 /**
@@ -305,10 +305,10 @@ photonMapDoScreenNEE(PMAPCONFIG *config) {
 
         if ( config->currentMap == config->globalMap ) {
             factor = (ComputeFluxToRadFactor(nx, ny)
-                      / (float) pmapstate.total_gpaths);
+                      / (float) GLOBAL_photonMap_state.total_gpaths);
         } else {
             factor = (ComputeFluxToRadFactor(nx, ny)
-                      / (float) pmapstate.total_cpaths);
+                      / (float) GLOBAL_photonMap_state.total_cpaths);
         }
 
         colorScale(factor, f, f);
@@ -344,13 +344,13 @@ photonMapDoPhotonStore(CPathNode *node, COLOR power) {
                 flags |= DIRECT_LIGHT_PHOTON;
             }
 
-            if ( pmapstate.densityControl == NO_DENSITY_CONTROL ) {
+            if ( GLOBAL_photonMap_state.densityControl == NO_DENSITY_CONTROL ) {
                 return GLOBAL_photonMap_config.currentMap->AddPhoton(photon, node->m_hit.normal,
                                                                      flags);
             } else {
                 float reqDensity;
-                if ( pmapstate.densityControl == CONSTANT_RD ) {
-                    reqDensity = pmapstate.constantRD;
+                if ( GLOBAL_photonMap_state.densityControl == CONSTANT_RD ) {
+                    reqDensity = GLOBAL_photonMap_state.constantRD;
                 } else {
                     reqDensity = GLOBAL_photonMap_config.currentImpMap->GetRequiredDensity(node->m_hit.point,
                                                                                            node->m_hit.normal);
@@ -482,56 +482,56 @@ photonMapTracePaths(int nrPaths, BSDFFLAGS bsdfFlags = BSDF_ALL_COMPONENTS) {
 
 static void
 photonMapBRRealIteration() {
-    pmapstate.iteration_nr++;
+    GLOBAL_photonMap_state.iteration_nr++;
 
-    fprintf(stderr, "GLOBAL_photonMapMethods Iteration %li\n", (long) pmapstate.iteration_nr);
+    fprintf(stderr, "GLOBAL_photonMapMethods Iteration %li\n", (long) GLOBAL_photonMap_state.iteration_nr);
 
-    if ((pmapstate.iteration_nr > 1) && (pmapstate.doGlobalMap || pmapstate.doCausticMap)) {
-        float scaleFactor = (pmapstate.iteration_nr - 1.0) / (float) pmapstate.iteration_nr;
+    if ((GLOBAL_photonMap_state.iteration_nr > 1) && (GLOBAL_photonMap_state.doGlobalMap || GLOBAL_photonMap_state.doCausticMap)) {
+        float scaleFactor = (GLOBAL_photonMap_state.iteration_nr - 1.0) / (float) GLOBAL_photonMap_state.iteration_nr;
         GLOBAL_photonMap_config.screen->ScaleRadiance(scaleFactor);
     }
 
-    if ((pmapstate.densityControl == IMPORTANCE_RD) && pmapstate.doImportanceMap ) {
-        pmapstate.i_iteration_nr++;
+    if ((GLOBAL_photonMap_state.densityControl == IMPORTANCE_RD) && GLOBAL_photonMap_state.doImportanceMap ) {
+        GLOBAL_photonMap_state.i_iteration_nr++;
         GLOBAL_photonMap_config.currentMap = GLOBAL_photonMap_config.importanceMap;
-        pmapstate.total_ipaths = pmapstate.i_iteration_nr * pmapstate.ipaths_per_iteration;
-        GLOBAL_photonMap_config.currentMap->SetTotalPaths(pmapstate.total_ipaths);
-        GLOBAL_photonMap_config.importanceCMap->SetTotalPaths(pmapstate.total_ipaths);
+        GLOBAL_photonMap_state.total_ipaths = GLOBAL_photonMap_state.i_iteration_nr * GLOBAL_photonMap_state.ipaths_per_iteration;
+        GLOBAL_photonMap_config.currentMap->SetTotalPaths(GLOBAL_photonMap_state.total_ipaths);
+        GLOBAL_photonMap_config.importanceCMap->SetTotalPaths(GLOBAL_photonMap_state.total_ipaths);
 
-        TracePotentialPaths(pmapstate.ipaths_per_iteration);
+        TracePotentialPaths(GLOBAL_photonMap_state.ipaths_per_iteration);
 
         fprintf(stderr, "Total potential paths : %li, Total rays %li\n",
-                pmapstate.total_ipaths,
+                GLOBAL_photonMap_state.total_ipaths,
                 Global_Raytracer_rayCount);
     }
 
     // Global map
-    if ( pmapstate.doGlobalMap ) {
-        pmapstate.g_iteration_nr++;
+    if ( GLOBAL_photonMap_state.doGlobalMap ) {
+        GLOBAL_photonMap_state.g_iteration_nr++;
         GLOBAL_photonMap_config.currentMap = GLOBAL_photonMap_config.globalMap;
-        pmapstate.total_gpaths = pmapstate.g_iteration_nr * pmapstate.gpaths_per_iteration;
-        GLOBAL_photonMap_config.currentMap->SetTotalPaths(pmapstate.total_gpaths);
+        GLOBAL_photonMap_state.total_gpaths = GLOBAL_photonMap_state.g_iteration_nr * GLOBAL_photonMap_state.gpaths_per_iteration;
+        GLOBAL_photonMap_config.currentMap->SetTotalPaths(GLOBAL_photonMap_state.total_gpaths);
 
         // Set correct importance map: indirect importance
         GLOBAL_photonMap_config.currentImpMap = GLOBAL_photonMap_config.importanceMap;
 
-        photonMapTracePaths(pmapstate.gpaths_per_iteration);
+        photonMapTracePaths(GLOBAL_photonMap_state.gpaths_per_iteration);
 
         fprintf(stderr, "Global map: ");
         GLOBAL_photonMap_config.globalMap->PrintStats(stderr);
     }
 
     // Caustic map
-    if ( pmapstate.doCausticMap ) {
-        pmapstate.c_iteration_nr++;
+    if ( GLOBAL_photonMap_state.doCausticMap ) {
+        GLOBAL_photonMap_state.c_iteration_nr++;
         GLOBAL_photonMap_config.currentMap = GLOBAL_photonMap_config.causticMap;
-        pmapstate.total_cpaths = pmapstate.c_iteration_nr * pmapstate.cpaths_per_iteration;
-        GLOBAL_photonMap_config.currentMap->SetTotalPaths(pmapstate.total_cpaths);
+        GLOBAL_photonMap_state.total_cpaths = GLOBAL_photonMap_state.c_iteration_nr * GLOBAL_photonMap_state.cpaths_per_iteration;
+        GLOBAL_photonMap_config.currentMap->SetTotalPaths(GLOBAL_photonMap_state.total_cpaths);
 
         // Set correct importance map: direct importance
         GLOBAL_photonMap_config.currentImpMap = GLOBAL_photonMap_config.importanceCMap;
 
-        photonMapTracePaths(pmapstate.cpaths_per_iteration, BSDF_SPECULAR_COMPONENT);
+        photonMapTracePaths(GLOBAL_photonMap_state.cpaths_per_iteration, BSDF_SPECULAR_COMPONENT);
 
         fprintf(stderr, "Caustic map: ");
         GLOBAL_photonMap_config.causticMap->PrintStats(stderr);
@@ -546,8 +546,8 @@ method is not superceeded in this file
 */
 static int
 photonMapDoStep() {
-    pmapstate.wake_up = false;
-    pmapstate.lastclock = clock();
+    GLOBAL_photonMap_state.wake_up = false;
+    GLOBAL_photonMap_state.lastclock = clock();
 
     /* do some real work now */
 
@@ -555,7 +555,7 @@ photonMapDoStep() {
 
     photonMapRadiosityUpdateCpuSecs();
 
-    pmapstate.runstop_nr++;
+    GLOBAL_photonMap_state.runstop_nr++;
 
     return false;    /* done. Return false if you want the computations to
 		 * continue. */
@@ -602,7 +602,7 @@ COLOR
 photonMapGetNodeGRadiance(CPathNode *node) {
     COLOR col;
 
-    GLOBAL_photonMap_config.globalMap->DoBalancing(pmapstate.balanceKDTree);
+    GLOBAL_photonMap_config.globalMap->DoBalancing(GLOBAL_photonMap_state.balanceKDTree);
     col = GLOBAL_photonMap_config.globalMap->Reconstruct(&node->m_hit, node->m_inDirF,
                                                          node->m_useBsdf,
                                                          node->m_inBsdf, node->m_outBsdf);
@@ -616,7 +616,7 @@ COLOR
 photonMapGetNodeCRadiance(CPathNode *node) {
     COLOR col;
 
-    GLOBAL_photonMap_config.causticMap->DoBalancing(pmapstate.balanceKDTree);
+    GLOBAL_photonMap_config.causticMap->DoBalancing(GLOBAL_photonMap_state.balanceKDTree);
 
     col = GLOBAL_photonMap_config.causticMap->Reconstruct(&node->m_hit, node->m_inDirF,
                                                           node->m_useBsdf,
@@ -646,7 +646,7 @@ photonMapGetRadiance(Patch *patch,
     RADRETURN_OPTION radreturn = GLOBAL_RADIANCE;
 
     if ( s_doingLocalRaycast ) {
-        radreturn = pmapstate.radianceReturn;
+        radreturn = GLOBAL_photonMap_state.radianceReturn;
     }
 
     switch ( radreturn ) {
@@ -663,12 +663,12 @@ photonMapGetRadiance(Patch *patch,
             col = GLOBAL_photonMap_config.importanceMap->GetDensityColor(hit);
             break;
         case REC_CDENSITY:
-            GLOBAL_photonMap_config.importanceCMap->DoBalancing(pmapstate.balanceKDTree);
+            GLOBAL_photonMap_config.importanceCMap->DoBalancing(GLOBAL_photonMap_state.balanceKDTree);
             density = GLOBAL_photonMap_config.importanceCMap->GetRequiredDensity(hit.point, hit.normal);
             col = GetFalseColor(density);
             break;
         case REC_GDENSITY:
-            GLOBAL_photonMap_config.importanceMap->DoBalancing(pmapstate.balanceKDTree);
+            GLOBAL_photonMap_config.importanceMap->DoBalancing(GLOBAL_photonMap_state.balanceKDTree);
             density = GLOBAL_photonMap_config.importanceMap->GetRequiredDensity(hit.point, hit.normal);
             col = GetFalseColor(density);
             break;
@@ -691,7 +691,7 @@ photonMapGetRadiance(Patch *patch,
 
 static void
 photonMapRenderScreen() {
-    if ( GLOBAL_photonMap_config.screen && pmapstate.renderImage ) {
+    if ( GLOBAL_photonMap_config.screen && GLOBAL_photonMap_state.renderImage ) {
         GLOBAL_photonMap_config.screen->Render();
     } else {
         for ( PatchSet *window = GLOBAL_scene_patches; window != nullptr; window = window->next ) {
@@ -711,7 +711,7 @@ photonMapGetStats() {
     p += n;
     snprintf(p, STRING_LENGTH, "Ray count %li\n%n", Global_Raytracer_rayCount, &n);
     p += n;
-    snprintf(p, STRING_LENGTH, "Time %g\n%n", pmapstate.cpu_secs, &n);
+    snprintf(p, STRING_LENGTH, "Time %g\n%n", GLOBAL_photonMap_state.cpu_secs, &n);
     p += n;
 
     if ( GLOBAL_photonMap_config.globalMap ) {

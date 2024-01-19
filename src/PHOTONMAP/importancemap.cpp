@@ -73,7 +73,7 @@ float CImportanceMap::GetImpReqDensity(Vector3D &pos, Vector3D &normal) {
 
 float CImportanceMap::GetRequiredDensity(Vector3D &pos, Vector3D &normal) {
     if ( m_nrPhotons == 0 ) {
-        return pmapstate.constantRD;
+        return GLOBAL_photonMap_state.constantRD;
     }  // Safety, if no importance map was constructed
 
     float density;
@@ -88,7 +88,7 @@ float CImportanceMap::GetRequiredDensity(Vector3D &pos, Vector3D &normal) {
                                                             m_totalMaxDistance);
 
         if ( photon ) {
-            switch ( pmapstate.importanceOption ) {
+            switch ( GLOBAL_photonMap_state.importanceOption ) {
                 case USE_IMPORTANCE:
                     density = photon->PImportance();
                     density *= *m_impScalePtr;
@@ -109,7 +109,7 @@ float CImportanceMap::GetRequiredDensity(Vector3D &pos, Vector3D &normal) {
         if ( m_nrpFound < 3 )
             return 0; // pmapstate.minimumImpRD;
 
-        switch ( pmapstate.importanceOption ) {
+        switch ( GLOBAL_photonMap_state.importanceOption ) {
             case USE_IMPORTANCE:
                 density = GetImpReqDensity(pos, normal);
                 density *= *m_impScalePtr;
@@ -122,8 +122,8 @@ float CImportanceMap::GetRequiredDensity(Vector3D &pos, Vector3D &normal) {
     }
 
     // Minimum required density
-    if ( density < pmapstate.minimumImpRD )
-        density = pmapstate.minimumImpRD;
+    if ( density < GLOBAL_photonMap_state.minimumImpRD )
+        density = GLOBAL_photonMap_state.minimumImpRD;
     return density;
 }
 

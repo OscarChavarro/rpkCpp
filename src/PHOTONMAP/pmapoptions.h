@@ -1,18 +1,13 @@
-// pmapoptions.H : class for Photon map options
+#ifndef __PHOTON_MAP_OPTIONS__
+#define __PHOTON_MAP_OPTIONS__
 
-#ifndef _PMAPOPTIONS_H_
-#define _PMAPOPTIONS_H_
-
-#include "shared/options.h"  // For parsing options
-#include "material/color.h"
 #include <ctime>
 
+#include "material/color.h"
+#include "shared/options.h"
 #include "raycasting/common/ScreenBuffer.h"
 
-
-/**** Used constants ****/
-
-const int MAXRECONPHOTONS = 400;
+const int MAXIMUM_RECON_PHOTONS = 400;
 
 enum PMAP_TYPE {
     GLOBAL_MAP,
@@ -46,7 +41,7 @@ enum DC_ACCEPTPDFTYPE {
     TRANSCOSINE
 };
 
-/**** Photon map options ****/
+// Photon map options
 
 class CPmapState
 {
@@ -74,7 +69,6 @@ class CPmapState
     DENSITY_CONTROL_OPTION densityControl;
     IMPORTANCE_OPTION importanceOption;
 
-
     DC_ACCEPTPDFTYPE acceptPdfType;
 
     float constantRD;
@@ -86,7 +80,6 @@ class CPmapState
     float cImpScale;
     float gImpScale;
 
-
     int cornerScatter;
     float gThreshold;
 
@@ -96,19 +89,11 @@ class CPmapState
 
     RADRETURN_OPTION radianceReturn;
     int returnCImportance;
-
-    /*
-      int minimumEyePathDepth;
-      int maximumEyePathDepth;
-    */
-
     int minimumLightPathDepth;
     int maximumLightPathDepth;
     int maxCombinedLength;
 
-
     // Other (changing) state options
-
     int iteration_nr;
     int g_iteration_nr;
     int c_iteration_nr;
@@ -136,12 +121,9 @@ class CPmapState
     virtual void Defaults();
 };
 
-
-extern CPmapState pmapstate;
+extern CPmapState GLOBAL_photonMap_state;
 
 extern void photonMapParseOptions(int *argc, char **argv);
-
 extern void photonMapPrintOptions(FILE *fp);
 
-
-#endif /* _PMAPOPTIONS_H_ */
+#endif
