@@ -192,8 +192,7 @@ static void
 mainMakeRaytracingMethodsString() {
     char *str = globalRaytracingMethodsString;
     int n;
-    snprintf(str, 80, "-raytracing-method <method>: Set pixel-based radiance computation method\n%n",
-            &n);
+    snprintf(str, 80, "-raytracing-method <method>: Set pixel-based radiance computation method\n%n", &n);
     str += n;
     snprintf(str, 80, "\tmethods: %-20.20s %s%s\n%n",
             "none", "no pixel-based radiance computation",
@@ -234,9 +233,9 @@ mainParseRayTracingOptions(int *argc, char **argv) {
 
 static void
 mainRenderingDefaults() {
-    RGB outlinecolor = DEFAULT_OUTLINE_COLOR;
-    RGB bbcolor = DEFAULT_BOUNDING_BOX_COLOR;
-    RGB cluscolor = DEFAULT_CLUSTER_COLOR;
+    RGB outlineColor = DEFAULT_OUTLINE_COLOR;
+    RGB boundingBoxColor = DEFAULT_BOUNDING_BOX_COLOR;
+    RGB clusterColor = DEFAULT_CLUSTER_COLOR;
 
     renderUseDisplayLists(DEFAULT_DISPLAY_LISTS);
     renderSetSmoothShading(DEFAULT_SMOOTH_SHADING);
@@ -244,9 +243,9 @@ mainRenderingDefaults() {
     renderSetOutlineDrawing(DEFAULT_OUTLINE_DRAWING);
     renderSetBoundingBoxDrawing(DEFAULT_BOUNDING_BOX_DRAWING);
     renderSetClusterDrawing(DEFAULT_CLUSTER_DRAWING);
-    renderSetOutlineColor(&outlinecolor);
-    renderSetBoundingBoxColor(&bbcolor);
-    renderSetClusterColor(&cluscolor);
+    renderSetOutlineColor(&outlineColor);
+    renderSetBoundingBoxColor(&boundingBoxColor);
+    renderSetClusterColor(&clusterColor);
     renderUseFrustumCulling(true);
 
     renderSetNoShading(false);
@@ -370,21 +369,15 @@ mainReadFile(char *filename) {
     Raytracer *oRayTracing = Global_Raytracer_activeRaytracer;
     setRayTracing(nullptr);
 
-    // Save the current scene, so it can be restored if errors occur when reading the new scene
-    GeometryListNode *oWorld;
-
-    fprintf(stderr, "Saving current scene ... \n");
-    oWorld = GLOBAL_scene_world;
+    // Prepare if errors occur when reading the new scene will abort
     GLOBAL_scene_world = nullptr;
     if ( GLOBAL_scene_materials == nullptr ) {
         GLOBAL_scene_materials = new java::ArrayList<Material *>();
     }
 
-    PatchSet *objectPatches = GLOBAL_scene_patches;
     GLOBAL_scene_patches = nullptr;
     patchSetNextId(1);
     GLOBAL_scene_clusteredWorld = nullptr;
-    PatchSet *lightSourcePatches = GLOBAL_scene_lightSourcePatches;
     GLOBAL_scene_background = nullptr;
 
     // Read the mgf file. The result is a new GLOBAL_scene_world and GLOBAL_scene_materials if everything goes well
@@ -424,31 +417,18 @@ mainReadFile(char *filename) {
         Global_Raytracer_activeRaytracer->Terminate();
     }
 
-    PatchSet *listWindow = objectPatches;
+    PatchSet *listWindow = GLOBAL_scene_patches;
     while ( listWindow != nullptr ) {
         PatchSet *next = listWindow->next;
         free(listWindow);
         listWindow = next;
     }
 
-    listWindow = lightSourcePatches;
+    listWindow = GLOBAL_scene_lightSourcePatches;
     while ( listWindow != nullptr ) {
         PatchSet *next = listWindow->next;
         free(listWindow);
         listWindow = next;
-    }
-
-    for ( GeometryListNode *window = oWorld; window != nullptr; window = window->next ) {
-        Geometry *geometry = window->geom;
-        geomDestroy(geometry);
-    }
-
-    GeometryListNode *listNode;
-    GeometryListNode *window = oWorld;
-    while ( window ) {
-        listNode = window->next;
-        free(window);
-        window = listNode;
     }
 
     if ( GLOBAL_scene_clusteredWorldGeom ) {
