@@ -22,7 +22,7 @@ Creates a coordinate system with the given UNIT direction vector as Z-axis
 */
 void
 vectorCoordSys(Vector3D *Z, COORDSYS *coord) {
-    double zz;
+    float zz;
 
     coord->Z = *Z;
     zz = sqrt(1 - Z->z * Z->z);
@@ -45,11 +45,11 @@ Given a unit vector and a coordinate system, this routine computes the spherical
 coordinates phi and theta of the vector with respect to the coordinate system
 */
 void
-vectorToSphericalCoord(Vector3D *C, COORDSYS *coordsys, double *phi, double *theta) {
+vectorToSphericalCoord(Vector3D *C, COORDSYS *coordSys, double *phi, double *theta) {
     double x, y, z;
     Vector3D c;
 
-    z = VECTORDOTPRODUCT(*C, coordsys->Z);
+    z = VECTORDOTPRODUCT(*C, coordSys->Z);
     if ( z > 1.0 ) {
         z = 1.0;
     }
@@ -60,10 +60,10 @@ vectorToSphericalCoord(Vector3D *C, COORDSYS *coordsys, double *phi, double *the
 
     *theta = acos(z);
 
-    VECTORSUMSCALED(*C, -z, coordsys->Z, c);
+    VECTORSUMSCALED(*C, -z, coordSys->Z, c);
     VECTORNORMALIZE(c);
-    x = VECTORDOTPRODUCT(c, coordsys->X);
-    y = VECTORDOTPRODUCT(c, coordsys->Y);
+    x = VECTORDOTPRODUCT(c, coordSys->X);
+    y = VECTORDOTPRODUCT(c, coordSys->Y);
 
     if ( x > 1.0 ) {
         x = 1.0;
@@ -78,24 +78,20 @@ vectorToSphericalCoord(Vector3D *C, COORDSYS *coordsys, double *phi, double *the
 
 void
 sphericalCoordToVector(
-    COORDSYS *coordsys,
-    double *phi,
-    double *theta,
+    COORDSYS *coordSys,
+    const double *phi,
+    const double *theta,
     Vector3D *C)
 {
-    double cos_phi;
-    double sin_phi;
-    double cos_theta;
-    double sin_theta;
     Vector3D CP;
 
-    cos_phi = cos(*phi);
-    sin_phi = sin(*phi);
-    cos_theta = cos(*theta);
-    sin_theta = sin(*theta);
+    float cos_phi = (float)std::cos(*phi);
+    float sin_phi = (float)std::sin(*phi);
+    float cos_theta = (float)std::cos(*theta);
+    float sin_theta = (float)std::sin(*theta);
 
-    VECTORCOMB2(cos_phi, coordsys->X, sin_phi, coordsys->Y, CP);
-    VECTORCOMB2(cos_theta, coordsys->Z, sin_theta, CP, *C);
+    VECTORCOMB2(cos_phi, coordSys->X, sin_phi, coordSys->Y, CP);
+    VECTORCOMB2(cos_theta, coordSys->Z, sin_theta, CP, *C);
 }
 
 /**
@@ -103,18 +99,14 @@ Samples the hemisphere according to a cos_theta distribution
 */
 Vector3D
 sampleHemisphereCosTheta(COORDSYS *coord, double xi_1, double xi_2, double *pdf_value) {
-    double phi;
-    double cos_phi;
-    double sin_phi;
-    double cos_theta;
-    double sin_theta;
+    float phi;
     Vector3D dir;
 
-    phi = 2.0 * M_PI * xi_1;
-    cos_phi = cos(phi);
-    sin_phi = sin(phi);
-    cos_theta = sqrt(1.0 - xi_2);
-    sin_theta = sqrt(xi_2);
+    phi = 2.0f * (float)M_PI * (float)xi_1;
+    float cos_phi = (float)std::cos(phi);
+    float sin_phi = (float)std::sin(phi);
+    float cos_theta = (float)std::sqrt(1.0 - xi_2);
+    float sin_theta = (float)std::sqrt(xi_2);
 
     VECTORCOMB2(cos_phi, coord->X,
                 sin_phi, coord->Y,
@@ -133,18 +125,14 @@ Samples the hemisphere according to a cos_theta ^ n  distribution
 */
 Vector3D
 sampleHemisphereCosNTheta(COORDSYS *coord, double n, double xi_1, double xi_2, double *pdf_value) {
-    double phi;
-    double cos_phi;
-    double sin_phi;
-    double cos_theta;
-    double sin_theta;
+    float phi;
     Vector3D dir;
 
-    phi = 2. * M_PI * xi_1;
-    cos_phi = cos(phi);
-    sin_phi = sin(phi);
-    cos_theta = pow(xi_2, 1.0 / (n + 1));
-    sin_theta = sqrt(1.0 - cos_theta * cos_theta);
+    phi = 2.0f * (float)M_PI * (float)xi_1;
+    float cos_phi = (float)std::cos(phi);
+    float sin_phi = (float)std::sin(phi);
+    float cos_theta = (float)std::pow(xi_2, 1.0 / (n + 1));
+    float sin_theta = (float)std::sqrt(1.0 - cos_theta * cos_theta);
 
     VECTORCOMB2(cos_phi, coord->X,
                 sin_phi, coord->Y,
