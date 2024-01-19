@@ -10,12 +10,12 @@
 
 #define DEFAULT_GAMMA 1.7
 
-TONEMAP *globalAvailableToneMaps[] = {
-    &TM_Lightness,
-    &TM_TumblinRushmeier,
-    &TM_Ward,
-    &TM_RevisedTumblinRushmeier,
-    &TM_Ferwerda,
+TONEMAP *GLOBAL_toneMap_availableToneMaps[] = {
+    &GLOBAL_toneMap_lightness,
+    &GLOBAL_toneMap_tumblinRushmeier,
+    &GLOBAL_toneMap_ward,
+    &GLOBAL_toneMap_revisedTumblinRushmeier,
+    &GLOBAL_toneMap_ferwerda,
     (TONEMAP *) nullptr
 };
 
@@ -110,10 +110,6 @@ toneMappingCommandLineOptionDescAdaptMethodOption(void *value) {
         GLOBAL_toneMap_options.statadapt = TMA_AVERAGE;
     } else if ( strncasecmp(name, "median", 2) == 0 ) {
         GLOBAL_toneMap_options.statadapt = TMA_MEDIAN;
-        /* not yet supported
-        else if (strncasecmp(name, "idrender", 2) == 0)
-          GLOBAL_toneMap_options.statadapt = TMA_IDRENDER;
-        */
     } else {
         logError(nullptr,
                  "Invalid adaptation estimate method '%s'",
@@ -128,46 +124,44 @@ gammaOption(void *value) {
 }
 
 static CMDLINEOPTDESC globalToneMappingOptions[] = {
-        {"-tonemapping",       4, Tstring,
-                nullptr, toneMappingMethodOption,
-                globalToneMappingMethodsString},
-        {"-brightness-adjust", 4, Tfloat,
-                &GLOBAL_toneMap_options.brightness_adjust, brightnessAdjustOption,
-                "-brightness-adjust <float> : brightness adjustment factor"},
-        {"-adapt",             5, Tstring,
-                nullptr, toneMappingCommandLineOptionDescAdaptMethodOption,
-                "-adapt <method>  \t: adaptation estimation method\n"
-                "\tmethods: \"average\", \"median\""},
-        {"-lwa",               3, Tfloat,
-                &GLOBAL_toneMap_options.lwa,   DEFAULT_ACTION,
-                "-lwa <float>\t\t: real world adaptation luminance"},
-        {"-ldmax",             5, Tfloat,
-                &GLOBAL_toneMap_options.ldm,   DEFAULT_ACTION,
-                "-ldmax <float>\t\t: maximum diaply luminance"},
-        {"-cmax",              4, Tfloat,
-                &GLOBAL_toneMap_options.cmax,  DEFAULT_ACTION,
-                "-cmax <float>\t\t: maximum displayable contrast"},
-        {"-gamma",             4, Tfloat,
-                nullptr, gammaOption,
-                "-gamma <float>       \t: gamma correction factor (same for red, green. blue)"},
-        {"-rgbgamma",          4, TRGB,
-                &GLOBAL_toneMap_options.gamma, DEFAULT_ACTION,
-                "-rgbgamma <r> <g> <b>\t: gamma correction factor (separate for red, green, blue)"},
-        {"-red",               4, Txy,
-                globalRxy, chromaOption,
-                "-red <xy>            \t: CIE xy chromaticity of monitor red"},
-        {"-green",             4, Txy,
-                globalGxy, chromaOption,
-                "-green <xy>          \t: CIE xy chromaticity of monitor green"},
-        {"-blue",              4, Txy,
-                globalBxy, chromaOption,
-                "-blue <xy>           \t: CIE xy chromaticity of monitor blue"},
-        {"-white",             4, Txy,
-                globalWxy, chromaOption,
-                "-white <xy>          \t: CIE xy chromaticity of monitor white"},
-        {nullptr,              0, TYPELESS,
-                nullptr,       DEFAULT_ACTION,
-                nullptr}
+{"-tonemapping",       4, Tstring,
+    nullptr, toneMappingMethodOption,
+    globalToneMappingMethodsString},
+{"-brightness-adjust", 4, Tfloat,
+    &GLOBAL_toneMap_options.brightness_adjust, brightnessAdjustOption,
+    "-brightness-adjust <float> : brightness adjustment factor"},
+{"-adapt",             5, Tstring,
+    nullptr, toneMappingCommandLineOptionDescAdaptMethodOption,
+    "-adapt <method>  \t: adaptation estimation method\n"
+    "\tmethods: \"average\", \"median\""},
+{"-lwa",               3, Tfloat,
+    &GLOBAL_toneMap_options.lwa,   DEFAULT_ACTION,
+    "-lwa <float>\t\t: real world adaptation luminance"},
+{"-ldmax",             5, Tfloat,
+    &GLOBAL_toneMap_options.ldm,   DEFAULT_ACTION,
+    "-ldmax <float>\t\t: maximum diaply luminance"},
+{"-cmax",              4, Tfloat,
+    &GLOBAL_toneMap_options.cmax,  DEFAULT_ACTION,
+    "-cmax <float>\t\t: maximum displayable contrast"},
+{"-gamma",             4, Tfloat,
+    nullptr, gammaOption,
+    "-gamma <float>       \t: gamma correction factor (same for red, green. blue)"},
+{"-rgbgamma",          4, TRGB,
+    &GLOBAL_toneMap_options.gamma, DEFAULT_ACTION,
+    "-rgbgamma <r> <g> <b>\t: gamma correction factor (separate for red, green, blue)"},
+{"-red",               4, Txy,
+    globalRxy, chromaOption,
+    "-red <xy>            \t: CIE xy chromaticity of monitor red"},
+{"-green",             4, Txy,
+    globalGxy, chromaOption,
+    "-green <xy>          \t: CIE xy chromaticity of monitor green"},
+{"-blue",              4, Txy,
+    globalBxy, chromaOption,
+    "-blue <xy>           \t: CIE xy chromaticity of monitor blue"},
+{"-white",             4, Txy,
+    globalWxy, chromaOption,
+    "-white <xy>          \t: CIE xy chromaticity of monitor white"},
+{nullptr, 0, TYPELESS, nullptr, DEFAULT_ACTION, nullptr}
 };
 
 void
@@ -201,7 +195,7 @@ toneMapDefaults() {
 
     RGBSET(GLOBAL_toneMap_options.gamma, DEFAULT_GAMMA, DEFAULT_GAMMA, DEFAULT_GAMMA);
     recomputeGammaTables(GLOBAL_toneMap_options.gamma);
-    GLOBAL_toneMap_options.ToneMap = &TM_Lightness;
+    GLOBAL_toneMap_options.ToneMap = &GLOBAL_toneMap_lightness;
     GLOBAL_toneMap_options.ToneMap->Init();
 
     makeToneMappingMethodsString();
@@ -227,7 +221,7 @@ Makes map the current tone mapping operator + initialises
 void
 setToneMap(TONEMAP *map) {
     GLOBAL_toneMap_options.ToneMap->Terminate();
-    GLOBAL_toneMap_options.ToneMap = map ? map : &TM_Dummy;
+    GLOBAL_toneMap_options.ToneMap = map ? map : &GLOBAL_toneMap_dummy;
     GLOBAL_toneMap_options.ToneMap->Init();
 }
 

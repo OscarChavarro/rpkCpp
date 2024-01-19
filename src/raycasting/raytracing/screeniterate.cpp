@@ -22,7 +22,7 @@ static SCREENITERATESTATE iState;
 /* for counting how much CPU time was used for the computations */
 static void
 screenIterateUpdateCpuSecs() {
-    GLOBAL_Raytracer_totalTime += (double)clock() - (double)iState.lastTime;
+    GLOBAL_raytracer_totalTime += (double)clock() - (double)iState.lastTime;
     iState.lastTime = clock();
 }
 
@@ -37,8 +37,8 @@ ScreenIterateInit() {
 
     /* initialize for statistics etc... */
     iState.lastTime = clock();
-    GLOBAL_Raytracer_totalTime = 0.;
-    Global_Raytracer_rayCount = Global_Raytracer_pixelCount = 0;
+    GLOBAL_raytracer_totalTime = 0.;
+    GLOBAL_raytracer_rayCount = GLOBAL_raytracer_pixelCount = 0;
 }
 
 void
@@ -64,7 +64,7 @@ ScreenIterateSequential(SCREENITERATECALLBACK callback, void *data) {
         for ( i = 0; i < width && !GLOBAL_rayCasting_interruptRaytracing; i++ ) {
             col = callback(i, j, data);
             radianceToRgb(col, &rgb[i]);
-            Global_Raytracer_pixelCount++;
+            GLOBAL_raytracer_pixelCount++;
         }
 
         renderPixels(0, height - j - 1, width, 1, rgb);
@@ -147,7 +147,7 @@ ScreenIterateProgressive(SCREENITERATECALLBACK callback, void *data) {
                     radianceToRgb(col, &pixelRGB);
                     FillRect(x0, y0, x1, y1, pixelRGB, rgb);
 
-                    Global_Raytracer_pixelCount++;
+                    GLOBAL_raytracer_pixelCount++;
 
                     if ( iState.wake_up & WAKE_UP_RENDER) {
                         iState.wake_up &= ~WAKE_UP_RENDER;

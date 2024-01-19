@@ -3,6 +3,6 @@
 
 #include "IMAGE/tonemap/tonemapping.h"
 
-extern TONEMAP TM_Dummy;
+extern TONEMAP GLOBAL_toneMap_dummy;
 
 #endif

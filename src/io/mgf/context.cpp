@@ -86,12 +86,14 @@ static void mixcolors(MgfColorContext *cres, double w1, MgfColorContext *c1, dou
 int
 handleColorEntity(int ac, char **av)        /* handle color entity */
 {
-    double w, wsum;
+    double w;
+    double wsum;
     int i;
     LUENT *lp;
 
-    switch ( mgfEntity(av[0])) {
-        case MG_E_COLOR:    /* get/set color context */
+    switch ( mgfEntity(av[0]) ) {
+        case MG_E_COLOR:
+            // Get/set color context
             if ( ac > 4 ) {
                 return MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
             }
@@ -109,7 +111,8 @@ handleColorEntity(int ac, char **av)        /* handle color entity */
                 return MGF_ERROR_OUT_OF_MEMORY;
             }
             GLOBAL_mgf_currentColor = (MgfColorContext *) lp->data;
-            if ( ac == 2 ) {        /* reestablish previous context */
+            if ( ac == 2 ) {
+                // Re-establish previous context
                 if ( GLOBAL_mgf_currentColor == nullptr) {
                     return MGF_ERROR_UNDEFINED_REFERENCE;
                 }

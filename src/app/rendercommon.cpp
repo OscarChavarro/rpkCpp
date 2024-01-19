@@ -269,9 +269,9 @@ and FALSE if not
 */
 int
 renderRayTraced() {
-    if ( !Global_Raytracer_activeRaytracer || !Global_Raytracer_activeRaytracer->Redisplay ) {
+    if ( !GLOBAL_raytracer_activeRaytracer || !GLOBAL_raytracer_activeRaytracer->Redisplay ) {
         return false;
     } else {
-        return Global_Raytracer_activeRaytracer->Redisplay();
+        return GLOBAL_raytracer_activeRaytracer->Redisplay();
     }
 }

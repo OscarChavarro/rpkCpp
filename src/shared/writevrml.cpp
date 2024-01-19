@@ -27,7 +27,7 @@ VRMLModelTransform(Vector3D *model_rotaxis, float *model_rotangle) {
     } else {
         VECTORSET(*model_rotaxis, 0., 1., 0.);
         *model_rotangle = 0.;
-        return IdentityTransform4x4;
+        return GLOBAL_matrix_identityTransform4x4;
     }
 }
 
@@ -50,7 +50,7 @@ WriteVRMLViewPoint(FILE *fp, Matrix4x4 model_xf, CAMERA *cam, const char *vpname
     TRANSFORM_VECTOR_3D(model_xf, Z, Z);
 
     /* construct view orientation transform and recover axis and angle */
-    view_xf = IdentityTransform4x4;
+    view_xf = GLOBAL_matrix_identityTransform4x4;
     SET_3X3MATRIX(view_xf.m,
                   X.x, Y.x, Z.x,
                   X.y, Y.y, Z.y,

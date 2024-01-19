@@ -104,8 +104,8 @@ RayMatter::Matting() {
         }
     }
 
-    GLOBAL_Raytracer_totalTime = (float) (clock() - t) / (float) CLOCKS_PER_SEC;
-    Global_Raytracer_rayCount = Global_Raytracer_pixelCount = 0;
+    GLOBAL_raytracer_totalTime = (float) (clock() - t) / (float) CLOCKS_PER_SEC;
+    GLOBAL_raytracer_rayCount = GLOBAL_raytracer_pixelCount = 0;
 }
 
 void

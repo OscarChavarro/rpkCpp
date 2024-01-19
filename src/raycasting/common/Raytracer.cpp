@@ -2,10 +2,10 @@
 #include "material/statistics.h"
 #include "raycasting/common/Raytracer.h"
 
-double GLOBAL_Raytracer_totalTime = 0.0;
-long Global_Raytracer_rayCount = 0;
-long Global_Raytracer_pixelCount = 0;
-Raytracer *Global_Raytracer_activeRaytracer = (Raytracer *) nullptr;
+double GLOBAL_raytracer_totalTime = 0.0;
+long GLOBAL_raytracer_rayCount = 0;
+long GLOBAL_raytracer_pixelCount = 0;
+Raytracer *GLOBAL_raytracer_activeRaytracer = (Raytracer *) nullptr;
 
 /**
 Initializes an ImageOutputHandle taking into account the image filename extension,
@@ -23,8 +23,8 @@ RayTrace(char *filename, FILE *fp, int ispipe) {
         }
     }
 
-    if ( Global_Raytracer_activeRaytracer ) {
-        Global_Raytracer_activeRaytracer->Raytrace(img);
+    if ( GLOBAL_raytracer_activeRaytracer ) {
+        GLOBAL_raytracer_activeRaytracer->Raytrace(img);
     }
 
     if ( img ) {
@@ -37,13 +37,13 @@ This routine sets the current raytracing method to be used
 */
 void
 setRayTracing(Raytracer *newMethod) {
-    if ( Global_Raytracer_activeRaytracer ) {
-        Global_Raytracer_activeRaytracer->InterruptRayTracing();
-        Global_Raytracer_activeRaytracer->Terminate();
+    if ( GLOBAL_raytracer_activeRaytracer ) {
+        GLOBAL_raytracer_activeRaytracer->InterruptRayTracing();
+        GLOBAL_raytracer_activeRaytracer->Terminate();
     }
 
-    Global_Raytracer_activeRaytracer = newMethod;
-    if ( Global_Raytracer_activeRaytracer ) {
-        Global_Raytracer_activeRaytracer->Initialize();
+    GLOBAL_raytracer_activeRaytracer = newMethod;
+    if ( GLOBAL_raytracer_activeRaytracer ) {
+        GLOBAL_raytracer_activeRaytracer->Initialize();
     }
 }

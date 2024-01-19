@@ -276,8 +276,8 @@ extern void mgfContextFixColorRepresentation(MgfColorContext *clr, int fl);
  *	Definitions for hierarchical object name handler
  */
 
-extern int obj_nnames;        /* depth of name hierarchy */
-extern char **obj_name;        /* names in hierarchy */
+extern int GLOBAL_mgf_objectNames;        /* depth of name hierarchy */
+extern char **GLOBAL_mgf_objectNamesList;        /* names in hierarchy */
 
 extern int obj_handler(int, char **);    /* handle an object entity */
 

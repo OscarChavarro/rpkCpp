@@ -3,7 +3,7 @@
 #include "common/linealAlgebra/Matrix4x4.h"
 #include "common/linealAlgebra/vectorMacros.h"
 
-Matrix4x4 IdentityTransform4x4 = {
+Matrix4x4 GLOBAL_matrix_identityTransform4x4 = {
     {
         {1.0f, 0.0f, 0.0f, 0.0f},
         {0.0f, 1.0f, 0.0f, 0.0f},
@@ -14,7 +14,7 @@ Matrix4x4 IdentityTransform4x4 = {
 
 Matrix4x4
 Translate(Vector3D t) {
-    Matrix4x4 xf = IdentityTransform4x4;
+    Matrix4x4 xf = GLOBAL_matrix_identityTransform4x4;
     xf.m[0][3] = t.x;
     xf.m[1][3] = t.y;
     xf.m[2][3] = t.z;
@@ -23,7 +23,7 @@ Translate(Vector3D t) {
 
 Matrix4x4
 Rotate(float alpha, Vector3D d) {
-    Matrix4x4 xf = IdentityTransform4x4;
+    Matrix4x4 xf = GLOBAL_matrix_identityTransform4x4;
     double x, y, z, c, s, t;
 
     /* singularity test */
@@ -134,7 +134,7 @@ TransCompose(Matrix4x4 xf2, Matrix4x4 xf1) {
  * towards the viewer) */
 Matrix4x4
 LookAt(Vector3D eye, Vector3D centre, Vector3D up) {
-    Matrix4x4 xf = IdentityTransform4x4;
+    Matrix4x4 xf = GLOBAL_matrix_identityTransform4x4;
     Vector3D s, X, Y, Z;
 
     VECTORSUBTRACT(eye, centre, Z);    /* Z positions towards viewer */
@@ -155,7 +155,7 @@ LookAt(Vector3D eye, Vector3D centre, Vector3D up) {
 
 Matrix4x4
 Perspective(float fov /*radians*/, float aspect, float near, float far) {
-    Matrix4x4 xf = IdentityTransform4x4;
+    Matrix4x4 xf = GLOBAL_matrix_identityTransform4x4;
     double f = 1. / tan(fov / 2.);
 
     xf.m[0][0] = f / aspect;
@@ -170,7 +170,7 @@ Perspective(float fov /*radians*/, float aspect, float near, float far) {
 
 extern Matrix4x4
 Ortho(float left, float right, float bottom, float top, float near, float far) {
-    Matrix4x4 xf = IdentityTransform4x4;
+    Matrix4x4 xf = GLOBAL_matrix_identityTransform4x4;
 
     xf.m[0][0] = 2.0f / (right - left);
     xf.m[0][3] = -(right + left) / (right - left);

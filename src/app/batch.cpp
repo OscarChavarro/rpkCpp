@@ -130,10 +130,10 @@ BatchSaveRaytracingImage(const char *fname, FILE *fp, int ispipe) {
         }
     }
 
-    if ( !Global_Raytracer_activeRaytracer ) {
+    if ( !GLOBAL_raytracer_activeRaytracer ) {
         logWarning(nullptr, "No ray tracing method active");
-    } else if ( !Global_Raytracer_activeRaytracer->SaveImage || !Global_Raytracer_activeRaytracer->SaveImage(img)) {
-        logWarning(nullptr, "No previous %s image available", Global_Raytracer_activeRaytracer->fullName);
+    } else if ( !GLOBAL_raytracer_activeRaytracer->SaveImage || !GLOBAL_raytracer_activeRaytracer->SaveImage(img)) {
+        logWarning(nullptr, "No previous %s image available", GLOBAL_raytracer_activeRaytracer->fullName);
     }
 
     if ( img ) {
@@ -260,8 +260,8 @@ batch() {
                 ((float) (clock() - start_time) / (float) CLOCKS_PER_SEC) - wasted_secs);
     }
 
-    if ( Global_Raytracer_activeRaytracer ) {
-        printf("Doing %s ...\n", Global_Raytracer_activeRaytracer->fullName);
+    if ( GLOBAL_raytracer_activeRaytracer ) {
+        printf("Doing %s ...\n", GLOBAL_raytracer_activeRaytracer->fullName);
 
         start_time = clock();
         BatchRayTrace(nullptr, nullptr, false);

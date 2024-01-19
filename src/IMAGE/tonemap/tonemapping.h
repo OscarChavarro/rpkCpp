@@ -55,12 +55,12 @@ class TONEMAP {
 };
 
 /* available tone mapping operators (nullptr terminated array) */
-extern TONEMAP *globalAvailableToneMaps[];
+extern TONEMAP *GLOBAL_toneMap_availableToneMaps[];
 
 /* iterates over all available tone maps */
 #define ForAllAvailableToneMaps(map)  {{    \
   TONEMAP **mapp;                \
-  for (mapp=globalAvailableToneMaps; *mapp; mapp++) { \
+  for (mapp=GLOBAL_toneMap_availableToneMaps; *mapp; mapp++) { \
     TONEMAP *map = *mapp;
 
 #ifndef EndForAll

@@ -55,7 +55,7 @@ FindRayIntersection(
 
     // Trace the ray
     newHit = TraceWorld(ray, patch, hitFlags, nullptr, hitStore);
-    Global_Raytracer_rayCount++; // statistics
+    GLOBAL_raytracer_rayCount++; // statistics
 
     // Robustness test : If a back is hit, check the current
     // bsdf and the bsdf of the material hit. If they
@@ -69,7 +69,7 @@ FindRayIntersection(
 
             newHit = TraceWorld(ray, patch,
                                 hitFlags, newHit->patch, hitStore);
-            Global_Raytracer_rayCount++; // statistics
+            GLOBAL_raytracer_rayCount++; // statistics
         }
     }
 
@@ -162,7 +162,7 @@ PathNodesVisible(CPathNode *node1, CPathNode *node2) {
         patchDontIntersect(0);
         visible = (hit == nullptr);
 
-        Global_Raytracer_rayCount++; // statistics
+        GLOBAL_raytracer_rayCount++; // statistics
 
         // geomFactor
 

@@ -195,16 +195,16 @@ mainMakeRaytracingMethodsString() {
     snprintf(str, 80, "-raytracing-method <method>: Set pixel-based radiance computation method\n%n", &n);
     str += n;
     snprintf(str, 80, "\tmethods: %-20.20s %s%s\n%n",
-            "none", "no pixel-based radiance computation",
-            !Global_Raytracer_activeRaytracer ? " (default)" : "", &n);
+             "none", "no pixel-based radiance computation",
+             !GLOBAL_raytracer_activeRaytracer ? " (default)" : "", &n);
     str += n;
 
     Raytracer **methodpp;
     for ( methodpp = globalRayTracingMethods; *methodpp; methodpp++ ) {
         Raytracer *method = *methodpp;
         snprintf(str, STRING_SIZE, "\t         %-20.20s %s%s\n%n",
-            method->shortName, method->fullName,
-           Global_Raytracer_activeRaytracer == method ? " (default)" : "", &n);
+                 method->shortName, method->fullName,
+                 GLOBAL_raytracer_activeRaytracer == method ? " (default)" : "", &n);
         str += n;
     }
     *(str - 1) = '\0'; // Discard last newline character
@@ -364,7 +364,7 @@ mainReadFile(char *filename) {
     fprintf(stderr, "Terminating current radiance/raytracing method ... \n");
     RADIANCEMETHOD *oRadiance = GLOBAL_radiance_currentRadianceMethodHandle;
     setRadianceMethod(nullptr);
-    Raytracer *oRayTracing = Global_Raytracer_activeRaytracer;
+    Raytracer *oRayTracing = GLOBAL_raytracer_activeRaytracer;
     setRayTracing(nullptr);
 
     // Prepare if errors occur when reading the new scene will abort
@@ -411,8 +411,8 @@ mainReadFile(char *filename) {
     if ( GLOBAL_radiance_currentRadianceMethodHandle ) {
         GLOBAL_radiance_currentRadianceMethodHandle->Terminate();
     }
-    if ( Global_Raytracer_activeRaytracer ) {
-        Global_Raytracer_activeRaytracer->Terminate();
+    if ( GLOBAL_raytracer_activeRaytracer ) {
+        GLOBAL_raytracer_activeRaytracer->Terminate();
     }
 
     PatchSet *listWindow = GLOBAL_scene_patches;

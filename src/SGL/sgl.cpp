@@ -28,7 +28,7 @@ SGL_CONTEXT *sglOpen(int width, int height) {
 
     /* transform stack and current transform */
     context->currentTransform = context->transformStack;
-    *context->currentTransform = IdentityTransform4x4;
+    *context->currentTransform = GLOBAL_matrix_identityTransform4x4;
 
     context->currentPixel = 0;
 

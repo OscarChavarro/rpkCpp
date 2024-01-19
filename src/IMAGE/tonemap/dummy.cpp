@@ -4,39 +4,42 @@ Dummy tone map
 
 #include "IMAGE/tonemap/dummy.h"
 
-static void Defaults() {
+static void dummyDefaults() {
 }
 
 static void dummyInit() {
 }
 
-static void Terminate() {
+static void dummyTerminate() {
 }
 
-static COLOR ScaleForComputations(COLOR radiance) {
+static COLOR dummyScaleForComputations(COLOR radiance) {
     return radiance;
 }
 
-static COLOR ScaleForDisplay(COLOR radiance) {
+static COLOR dummyScaleForDisplay(COLOR radiance) {
     return radiance;
 }
 
-static float ReverseScaleForComputations(float dl) {
+static float dummyReverseScaleForComputations(float /*dl*/) {
     return -1.0;
 }
 
-TONEMAP TM_Dummy = {
-        "Dummy", "Dummy", "dummyButton", 3,
-        Defaults,
-        (void (*)(int *, char **)) nullptr,
-        (void (*)(FILE *)) nullptr,
-        dummyInit,
-        Terminate,
-        ScaleForComputations,
-        ScaleForDisplay,
-        ReverseScaleForComputations,
-        (void (*)(void *)) nullptr,
-        (void (*)(void *)) nullptr,
-        (void (*)(void)) nullptr,
-        (void (*)(void)) nullptr
+TONEMAP GLOBAL_toneMap_dummy = {
+    "Dummy",
+    "Dummy",
+    "dummyButton",
+    3,
+    dummyDefaults,
+    (void (*)(int *, char **)) nullptr,
+    (void (*)(FILE *)) nullptr,
+    dummyInit,
+    dummyTerminate,
+    dummyScaleForComputations,
+    dummyScaleForDisplay,
+    dummyReverseScaleForComputations,
+    (void (*)(void *)) nullptr,
+    (void (*)(void *)) nullptr,
+    (void (*)()) nullptr,
+    (void (*)()) nullptr
 };

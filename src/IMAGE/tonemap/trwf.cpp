@@ -1,4 +1,4 @@
-/*
+/**
 Tumblin/Rushmeier/Ward/Ferwerda tone maps (Jan Prikryl)
 */
 
@@ -9,41 +9,47 @@ Tumblin/Rushmeier/Ward/Ferwerda tone maps (Jan Prikryl)
 #include "common/mymath.h"
 #include "IMAGE/tonemap/trwf.h"
 
-/*
-    REFERENCES:
- 
-    J. Tumblin, H.E. Rushmeier. Tone Reproduction for Realistic Images,
-    IEEE Computer Graphics and Applications, 13:6, 1993, pp. 42-48.
+/**
+REFERENCES:
 
-    G. Ward. A Contrast-Based Scalefactor for Luminance Display, Graphics
-    Gems IV, Academic Press, 1994, pp. 415-421.
+J. Tumblin, H.E. Rushmeier. Tone Reproduction for Realistic Images,
+IEEE Computer Graphics and Applications, 13:6, 1993, pp. 42-48.
 
-    J. Tumblin, J.K. Hodgins, B.K. Guenter. Two Methods for Display of High
-    Contrast Images, ACM Transactions on Graphics, 18:1, 1999, pp. 56-94.
+G. Ward. A Contrast-Based Scalefactor for Luminance Display, Graphics
+Gems IV, Academic Press, 1994, pp. 415-421.
 
-    J.A. Ferwerda, S.N. Pattanaik, P. Shirley, D. Greenberg. A Model of
-    Visual Adaptation for Realistic Image Synthesis, SIGGRAPH 1996,
-    pp. 249-258.
+J. Tumblin, J.K. Hodgins, B.K. Guenter. Two Methods for Display of High
+Contrast Images, ACM Transactions on Graphics, 18:1, 1999, pp. 56-94.
+
+J.A. Ferwerda, S.N. Pattanaik, P. Shirley, D. Greenberg. A Model of
+Visual Adaptation for Realistic Image Synthesis, SIGGRAPH 1996,
+pp. 249-258.
 */
-/* #define VERBOSE */
 
-/* Precomputed parameters for different tone mapping methods */
-
+// Precomputed parameters for different tone mapping methods
 static RGB f_sf = {0.062f, 0.608f, 0.330f};
-static float f_msf, f_pm_comp, f_pm_disp, f_sm_comp, f_sm_disp;
-static float invcmax, lrwm_comp, lrwm_disp, lrwexponent;
-static float m_comp, m_disp;
-static float g, r_comp, r_disp;
+static float f_msf;
+static float f_pm_comp;
+static float f_pm_disp;
+static float f_sm_comp;
+static float f_sm_disp;
+static float invcmax;
+static float lrwm_comp;
+static float lrwm_disp;
+static float lrwexponent;
+static float m_comp;
+static float m_disp;
+static float g;
+static float r_comp;
+static float r_disp;
 
-/* Environment parameters */
-
+// Environment parameters
 static float _lwa;
-static float _ldaTumb, _ldaWard;
+static float _ldaTumb;
+static float _ldaWard;
 
-/* ---------------------------------------------------------------------------
-                                                             PRIVATE FUNCTIONS
-  ------------------------------------------------------------------------- */
-static float _stevensGamma(float lum) {
+static float
+stevensGamma(float lum) {
     if ( lum > 100.0 ) {
         return 2.655;
     } else {
@@ -51,8 +57,8 @@ static float _stevensGamma(float lum) {
     }
 }
 
-
-static float _photopicOperator(float logLa) {
+static float
+photopicOperator(float logLa) {
     float r;
     if ( logLa <= -2.6 ) {
         r = -0.72;
@@ -62,10 +68,11 @@ static float _photopicOperator(float logLa) {
         r = pow(0.249 * logLa + 0.65, 2.7) - 0.72;
     }
 
-    return pow(10.0, r);
+    return std::pow(10.0, r);
 }
 
-static float _scotopicOperator(float logLa) {
+static float
+scotopicOperator(float logLa) {
     float r;
     if ( logLa <= -3.94 ) {
         r = -2.86;
@@ -78,7 +85,8 @@ static float _scotopicOperator(float logLa) {
     return pow(10.0, r);
 }
 
-static float _mesopicScaleFactor(float logLwa) {
+static float
+mesopicScaleFactor(float logLwa) {
     if ( logLwa < -2.5 ) {
         return 1.0;
     } else if ( logLwa > 0.8 ) {
@@ -88,19 +96,23 @@ static float _mesopicScaleFactor(float logLwa) {
     }
 }
 
-static void Defaults() {
+static void
+trwfDefaults() {
 }
 
-static void trwfInit() {
+static void
+trwfInit() {
     float lwa = _lwa = GLOBAL_toneMap_options.lwa;
     float ldmax = GLOBAL_toneMap_options.ldm;
     float cmax = GLOBAL_toneMap_options.cmax;
 
-    float alpharw, betarw, alphad, betad;
+    float alpharw;
+    float betarw;
+    float alphad;
+    float betad;
     float gwd;
 
-    /* Tumblin & Rushmeier */
-
+    // Tumblin & Rushmeier
     _ldaTumb = ldmax / sqrt(cmax);
 
     {
@@ -120,8 +132,7 @@ static void trwfInit() {
     lrwm_disp = lrwm_comp / (TMO_CANDELA_LAMBERT(ldmax));
     invcmax = 1.0 / cmax;
 
-    /* Ward */
-
+    // Ward
     _ldaWard = ldmax / 2.0;
     {
         double p1 = pow(_ldaWard, 0.4);
@@ -133,29 +144,30 @@ static void trwfInit() {
 
     m_disp = m_comp / ldmax;
 
-    /* Ferwerda */
-
-    f_msf = _mesopicScaleFactor(log10(lwa));
-    f_sm_comp = _scotopicOperator(log10(_ldaWard)) /
-                _scotopicOperator(log10(lwa));
-    f_pm_comp = _photopicOperator(log10(_ldaWard)) /
-                _photopicOperator(log10(lwa));
+    // Ferwerda
+    f_msf = mesopicScaleFactor(log10(lwa));
+    f_sm_comp = scotopicOperator(log10(_ldaWard)) /
+                scotopicOperator(log10(lwa));
+    f_pm_comp = photopicOperator(log10(_ldaWard)) /
+                photopicOperator(log10(lwa));
     f_sm_disp = f_sm_comp / ldmax;
     f_pm_disp = f_pm_comp / ldmax;
 
-    /* Revised Tumblin & Rushmeier */
-
-    g = _stevensGamma(lwa) / _stevensGamma(_ldaTumb);
-    gwd = _stevensGamma(lwa) / (1.855 + 0.4 * log(_ldaTumb));
+    // Revised Tumblin & Rushmeier
+    g = stevensGamma(lwa) / stevensGamma(_ldaTumb);
+    gwd = stevensGamma(lwa) / (1.855 + 0.4 * log(_ldaTumb));
     r_comp = pow(sqrt(cmax), gwd - 1) * _ldaTumb;
     r_disp = r_comp / ldmax;
 }
 
-static void Terminate() {
+static void
+trwfTerminate() {
 }
 
-static COLOR TR_ScaleForComputations(COLOR radiance) {
-    float rwl, scale;
+static COLOR
+trwfScaleForComputations(COLOR radiance) {
+    float rwl;
+    float scale;
 
     rwl = colorLuminance(radiance);
 
@@ -171,8 +183,11 @@ static COLOR TR_ScaleForComputations(COLOR radiance) {
     return radiance;
 }
 
-static COLOR TR_ScaleForDisplay(COLOR radiance) {
-    float rwl, scale, eff;
+static COLOR
+trwfScaleForDisplay(COLOR radiance) {
+    float rwl;
+    float scale;
+    float eff;
 
     rwl = M_PI * colorLuminance(radiance);
 
@@ -190,7 +205,8 @@ static COLOR TR_ScaleForDisplay(COLOR radiance) {
     return radiance;
 }
 
-static float TR_ReverseScaleForComputations(float dl) {
+static float
+trfwReverseScaleForComputations(float dl) {
     if ( dl > 0.0 ) {
         return (float)pow(dl * 3.14e-4 / lrwm_comp, 1.0 / lrwexponent) /
                 (float)(3.14e-4 * dl);
@@ -199,28 +215,33 @@ static float TR_ReverseScaleForComputations(float dl) {
     }
 }
 
-TONEMAP TM_TumblinRushmeier = {
-        "Tumblin/Rushmeier's Mapping", "TumblinRushmeier", "tmoTmblRushButton", 3,
-        Defaults,
-        (void (*)(int *, char **)) nullptr,
-        (void (*)(FILE *)) nullptr,
-        trwfInit,
-        Terminate,
-        TR_ScaleForComputations,
-        TR_ScaleForDisplay,
-        TR_ReverseScaleForComputations,
-        (void (*)(void *)) nullptr,
-        (void (*)(void *)) nullptr,
-        (void (*)(void)) nullptr,
-        (void (*)(void)) nullptr
+TONEMAP GLOBAL_toneMap_tumblinRushmeier = {
+    "Tumblin/Rushmeier's Mapping",
+    "TumblinRushmeier",
+    "tmoTmblRushButton",
+    3,
+    trwfDefaults,
+    (void (*)(int *, char **)) nullptr,
+    (void (*)(FILE *)) nullptr,
+    trwfInit,
+    trwfTerminate,
+    trwfScaleForComputations,
+    trwfScaleForDisplay,
+    trfwReverseScaleForComputations,
+    (void (*)(void *)) nullptr,
+    (void (*)(void *)) nullptr,
+    (void (*)(void)) nullptr,
+    (void (*)(void)) nullptr
 };
 
-static COLOR Ward_ScaleForComputations(COLOR radiance) {
+static COLOR
+wardScaleForComputations(COLOR radiance) {
     colorScale(m_comp, radiance, radiance);
     return radiance;
 }
 
-static COLOR Ward_ScaleForDisplay(COLOR radiance) {
+static COLOR
+wardScaleForDisplay(COLOR radiance) {
     float eff;
 
     getLuminousEfficacy(&eff);
@@ -229,28 +250,34 @@ static COLOR Ward_ScaleForDisplay(COLOR radiance) {
     return radiance;
 }
 
-static float Ward_ReverseScaleForComputations(float dl) {
+static float
+wardReverseScaleForComputations(float dl) {
     return 1.0 / m_comp;
 }
 
-TONEMAP TM_Ward = {
-        "Ward's Mapping", "Ward", "tmoWardButton", 3,
-        Defaults,
-        (void (*)(int *, char **)) nullptr,
-        (void (*)(FILE *)) nullptr,
-        trwfInit,
-        Terminate,
-        Ward_ScaleForComputations,
-        Ward_ScaleForDisplay,
-        Ward_ReverseScaleForComputations,
-        (void (*)(void *)) nullptr,
-        (void (*)(void *)) nullptr,
-        (void (*)(void)) nullptr,
-        (void (*)(void)) nullptr
+TONEMAP GLOBAL_toneMap_ward = {
+    "Ward's Mapping",
+    "Ward",
+    "tmoWardButton",
+    3,
+    trwfDefaults,
+    (void (*)(int *, char **)) nullptr,
+    (void (*)(FILE *)) nullptr,
+    trwfInit,
+    trwfTerminate,
+    wardScaleForComputations,
+    wardScaleForDisplay,
+    wardReverseScaleForComputations,
+    (void (*)(void *)) nullptr,
+    (void (*)(void *)) nullptr,
+    (void (*)(void)) nullptr,
+    (void (*)(void)) nullptr
 };
 
-static COLOR RevisedTR_ScaleForComputations(COLOR radiance) {
-    float rwl, scale;
+static COLOR
+revisedTRScaleForComputations(COLOR radiance) {
+    float rwl;
+    float scale;
 
     rwl = colorLuminance(radiance);
 
@@ -264,8 +291,11 @@ static COLOR RevisedTR_ScaleForComputations(COLOR radiance) {
     return radiance;
 }
 
-static COLOR RevisedTR_ScaleForDisplay(COLOR radiance) {
-    float rwl, scale, eff;
+static COLOR
+revisedTRScaleForDisplay(COLOR radiance) {
+    float rwl;
+    float scale;
+    float eff;
 
     rwl = M_PI * colorLuminance(radiance);
 
@@ -282,91 +312,102 @@ static COLOR RevisedTR_ScaleForDisplay(COLOR radiance) {
     return radiance;
 }
 
-static float RevisedTR_ReverseScaleForComputations(float dl) {
+static float
+revisedTRReverseScaleForComputations(float dl) {
     if ( dl > 0.0 ) {
-        return _lwa * pow(dl / r_comp, 1.0 / g) / dl;
+        return _lwa * std::pow(dl / r_comp, 1.0 / g) / dl;
     } else {
         return 0.0;
     }
 }
 
-TONEMAP TM_RevisedTumblinRushmeier = {
-        "Revised Tumblin/Rushmeier's Mapping", "RevisedTR", "tmoRevisedTmblRushButton", 3,
-        Defaults,
-        (void (*)(int *, char **)) nullptr,
-        (void (*)(FILE *)) nullptr,
-        trwfInit,
-        Terminate,
-        RevisedTR_ScaleForComputations,
-        RevisedTR_ScaleForDisplay,
-        RevisedTR_ReverseScaleForComputations,
-        (void (*)(void *)) nullptr,
-        (void (*)(void *)) nullptr,
-        (void (*)(void)) nullptr,
-        (void (*)(void)) nullptr
+TONEMAP GLOBAL_toneMap_revisedTumblinRushmeier = {
+    "Revised Tumblin/Rushmeier's Mapping",
+    "RevisedTR",
+    "tmoRevisedTmblRushButton",
+    3,
+    trwfDefaults,
+    (void (*)(int *, char **)) nullptr,
+    (void (*)(FILE *)) nullptr,
+    trwfInit,
+    trwfTerminate,
+    revisedTRScaleForComputations,
+    revisedTRScaleForDisplay,
+    revisedTRReverseScaleForComputations,
+    (void (*)(void *)) nullptr,
+    (void (*)(void *)) nullptr,
+    (void (*)(void)) nullptr,
+    (void (*)(void)) nullptr
 };
 
-static COLOR Ferwerda_ScaleForComputations(COLOR radiance) {
+static COLOR
+ferwerdaScaleForComputations(COLOR radiance) {
     RGB p;
-    float sl, eff;
+    float sl;
+    float eff;
 
-    /* Convert to photometric values */
+    // Convert to photometric values
     getLuminousEfficacy(&eff);
     colorScale(eff, radiance, radiance);
 
-    /* Compute the scotopic grayscale shift */
+    // Compute the scotopic grayscale shift
     convertColorToRGB(radiance, &p);
     sl = f_sm_comp * f_msf * (p.r * f_sf.r + p.g * f_sf.g + p.b * f_sf.b);
 
-    /* Scale the photopic luminance */
+    // Scale the photopic luminance
     colorScale(f_pm_comp, radiance, radiance);
 
-    /* Eventually, offset by the scotopic luminance */
-    if ( sl > 0.0 )
+    // Eventually, offset by the scotopic luminance
+    if ( sl > 0.0 ) {
         colorAddConstant(radiance, sl, radiance);
+    }
 
     return radiance;
 }
 
-static COLOR Ferwerda_ScaleForDisplay(COLOR radiance) {
+static COLOR
+ferwerdaScaleForDisplay(COLOR radiance) {
     RGB p;
-    float sl, eff;
+    float sl;
+    float eff;
 
-    /* Convert to photometric values */
+    // Convert to photometric values
     getLuminousEfficacy(&eff);
     colorScale(eff, radiance, radiance);
 
-    /* Compute the scotopic grayscale shift */
+    // Compute the scotopic grayscale shift
     convertColorToRGB(radiance, &p);
     sl = f_sm_disp * f_msf * (p.r * f_sf.r + p.g * f_sf.g + p.b * f_sf.b);
 
-    /* Scale the photopic luminance */
+    // Scale the photopic luminance
     colorScale(f_pm_disp, radiance, radiance);
 
-    /* Eventually, offset by the scotopic luminance */
-    if ( sl > 0.0 )
+    // Eventually, offset by the scotopic luminance
+    if ( sl > 0.0 ) {
         colorAddConstant(radiance, sl, radiance);
+    }
 
     return radiance;
 }
 
-static float Ferwerda_ReverseScaleForComputations(float dl) {
-    logFatal(-1, "Ferwerda_ReverseScaleForComputations", "Not yet implemented");
+static float
+ferwerdaReverseScaleForComputations(float dl) {
+    logFatal(-1, "ferwerdaReverseScaleForComputations", "Not yet implemented");
     return -1.0;
 }
 
-TONEMAP TM_Ferwerda = {
-        "Partial Ferwerda's Mapping", "Ferwerda", "tmoFerwerdaButton", 3,
-        Defaults,
-        (void (*)(int *, char **)) nullptr,
-        (void (*)(FILE *)) nullptr,
-        trwfInit,
-        Terminate,
-        Ferwerda_ScaleForComputations,
-        Ferwerda_ScaleForDisplay,
-        Ferwerda_ReverseScaleForComputations,
-        (void (*)(void *)) nullptr,
-        (void (*)(void *)) nullptr,
-        (void (*)(void)) nullptr,
-        (void (*)(void)) nullptr
+TONEMAP GLOBAL_toneMap_ferwerda = {
+    "Partial Ferwerda's Mapping", "Ferwerda", "tmoFerwerdaButton", 3,
+    trwfDefaults,
+    (void (*)(int *, char **)) nullptr,
+    (void (*)(FILE *)) nullptr,
+    trwfInit,
+    trwfTerminate,
+    ferwerdaScaleForComputations,
+    ferwerdaScaleForDisplay,
+    ferwerdaReverseScaleForComputations,
+    (void (*)(void *)) nullptr,
+    (void (*)(void *)) nullptr,
+    (void (*)(void)) nullptr,
+    (void (*)(void)) nullptr
 };

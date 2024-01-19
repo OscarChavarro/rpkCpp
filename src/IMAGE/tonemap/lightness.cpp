@@ -7,13 +7,13 @@ Lightness tone map
 #include "material/statistics.h"
 #include "IMAGE/tonemap/lightness.h"
 
-static void Defaults() {
+static void lightnessDefaults() {
 }
 
 static void lightnessInit() {
 }
 
-static void Terminate() {
+static void lightnessTerminate() {
 }
 
 static float Lightness(float luminance) {
@@ -60,18 +60,21 @@ static float ReverseScaleForComputations(float dl) {
     return -1.0;
 }
 
-TONEMAP TM_Lightness = {
-        "Lightness Mapping", "Lightness", "tmoLightnessButton", 3,
-        Defaults,
-        (void (*)(int *, char **)) nullptr,
-        (void (*)(FILE *)) nullptr,
-        lightnessInit,
-        Terminate,
-        ScaleForComputations,
-        ScaleForDisplay,
-        ReverseScaleForComputations,
-        (void (*)(void *)) nullptr,
-        (void (*)(void *)) nullptr,
-        (void (*)(void)) nullptr,
-        (void (*)(void)) nullptr
+TONEMAP GLOBAL_toneMap_lightness = {
+    "Lightness Mapping",
+    "Lightness",
+    "tmoLightnessButton",
+    3,
+    lightnessDefaults,
+    (void (*)(int *, char **)) nullptr,
+    (void (*)(FILE *)) nullptr,
+    lightnessInit,
+    lightnessTerminate,
+    ScaleForComputations,
+    ScaleForDisplay,
+    ReverseScaleForComputations,
+    (void (*)(void *)) nullptr,
+    (void (*)(void *)) nullptr,
+    (void (*)(void)) nullptr,
+    (void (*)(void)) nullptr
 };

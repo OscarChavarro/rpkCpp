@@ -148,7 +148,7 @@ photonMapInitPmap() {
     cfg->minDepth = GLOBAL_photonMap_state.minimumLightPathDepth;
     cfg->maxDepth = GLOBAL_photonMap_state.maximumLightPathDepth;
 
-    Global_Raytracer_rayCount = 0;
+    GLOBAL_raytracer_rayCount = 0;
 
     // mainInit the photonmap
 
@@ -502,7 +502,7 @@ photonMapBRRealIteration() {
 
         fprintf(stderr, "Total potential paths : %li, Total rays %li\n",
                 GLOBAL_photonMap_state.total_ipaths,
-                Global_Raytracer_rayCount);
+                GLOBAL_raytracer_rayCount);
     }
 
     // Global map
@@ -709,7 +709,7 @@ photonMapGetStats() {
     p = stats;
     snprintf(p, STRING_LENGTH, "PMAP Statistics:\n\n%n", &n);
     p += n;
-    snprintf(p, STRING_LENGTH, "Ray count %li\n%n", Global_Raytracer_rayCount, &n);
+    snprintf(p, STRING_LENGTH, "Ray count %li\n%n", GLOBAL_raytracer_rayCount, &n);
     p += n;
     snprintf(p, STRING_LENGTH, "Time %g\n%n", GLOBAL_photonMap_state.cpu_secs, &n);
     p += n;

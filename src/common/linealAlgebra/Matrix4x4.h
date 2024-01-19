@@ -52,7 +52,7 @@ class Matrix4x4 {
     (dst) = _d_; \
 }
 
-extern Matrix4x4 IdentityTransform4x4;
+extern Matrix4x4 GLOBAL_matrix_identityTransform4x4;
 
 /* xf(p) = xf2(xf1(p)) */
 extern Matrix4x4 TransCompose(Matrix4x4 xf2, Matrix4x4 xf1);
