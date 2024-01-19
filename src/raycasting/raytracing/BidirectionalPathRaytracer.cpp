@@ -1146,7 +1146,7 @@ static void BidirPathTerminate() {
     bidir.lastscreen = (ScreenBuffer *) 0;
 }
 
-Raytracer RT_BidirPathMethod =
+Raytracer GLOBAL_raytracing_biDirectionalPathMethod =
 {
     "BidirectionalPathTracing",
     4,

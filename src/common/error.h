@@ -21,9 +21,9 @@ extern void logFatal(int errcode, const char *routine, const char *text, ...);
 
 /* returns false if no errors have been reported since the last call to this
  * routine. */
-extern int ErrorOccurred();
+extern int logErrorOccurred();
 
 /* set state to "no errors occured" */
-extern void ErrorReset();
+extern void logErrorReset();
 
 #endif

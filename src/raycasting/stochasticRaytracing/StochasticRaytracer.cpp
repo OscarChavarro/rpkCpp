@@ -632,7 +632,7 @@ void RTStochastic_Terminate() {
     GLOBAL_raytracing_state.lastscreen = (ScreenBuffer *) 0;
 }
 
-Raytracer RT_StochasticMethod =
+Raytracer GLOBAL_raytracing_stochasticMethod =
 {
         (char *) "StochasticRaytracing",
         4,

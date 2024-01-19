@@ -1,11 +1,8 @@
-/* bidirpath.h : header for bidirectional path tracing */
+#ifndef _BI_DIRECTIONAL_PATH__
+#define _BI_DIRECTIONAL_PATH__
 
-#ifndef _BIDIRPATH_H_
-#define _BIDIRPATH_H_
-
-#include "material/color.h"
 #include "raycasting/common/Raytracer.h"
 
-extern Raytracer RT_BidirPathMethod;
+extern Raytracer GLOBAL_raytracing_biDirectionalPathMethod;
 
 #endif

@@ -1,4 +1,3 @@
-#include <cstdlib>
 #include <ctime>
 #include <cstring>
 
@@ -6,7 +5,6 @@
 #include "common/error.h"
 #include "BREP/BREP_VERTEX_OCTREE.h"
 #include "material/statistics.h"
-#include "skin/Compound.h"
 #include "shared/defaults.h"
 #include "shared/options.h"
 #include "shared/render.h"
@@ -24,18 +22,74 @@
 #include "app/Cluster.h"
 #include "app/batch.h"
 
-static char *currentDirectory;
-static int yes = 1;
-static int no = 0;
+#define STRING_SIZE 1000
+
+static Raytracer *globalRayTracingMethods[] = {
+    &GLOBAL_raytracing_stochasticMethod,
+    &GLOBAL_raytracing_biDirectionalPathMethod,
+    &GLOBAL_rayCasting_RayCasting,
+    &GLOBAL_rayCasting_RayMatting,
+    nullptr
+};
+
+static char globalRaytracingMethodsString[STRING_SIZE];
+static char *globalCurrentDirectory;
+static int globalYes = 1;
+static int globalNo = 0;
 static int globalImageOutputWidth = 0;
 static int globalImageOutputHeight = 0;
 
 static void
-patchAccumulateStats(Patch *patch) {
-    COLOR
-            E = patchAverageEmittance(patch, ALL_COMPONENTS),
-            R = patchAverageNormalAlbedo(patch, BSDF_ALL_COMPONENTS),
-            power;
+mainRayTracingOption(void *value) {
+    char *name = *(char **) value;
+
+    for ( Raytracer **methodpp = globalRayTracingMethods; *methodpp; methodpp++ ) {
+        Raytracer *method = *methodpp;
+        if ( strncasecmp(name, method->shortName, method->nameAbbrev) == 0 ) {
+            setRayTracing(method);
+            return;
+        }
+    }
+
+    if ( strncasecmp(name, "none", 4) == 0 ) {
+        setRayTracing(nullptr);
+    } else {
+        logError(nullptr, "Invalid raytracing method name '%s'", name);
+    }
+}
+
+static CMDLINEOPTDESC globalRaytracingOptions[] = {
+    {"-raytracing-method", 4, Tstring,  nullptr, mainRayTracingOption, globalRaytracingMethodsString},
+    {nullptr, 0, TYPELESS, nullptr, DEFAULT_ACTION, nullptr}
+};
+
+static void
+mainForceOneSidedOption(void *value) {
+    GLOBAL_fileOptions_forceOneSidedSurfaces = *((int *) value);
+}
+
+static void
+mainMonochromeOption(void *value) {
+    GLOBAL_fileOptions_monochrome = *(int *) value;
+}
+
+static CMDLINEOPTDESC globalOptions[] = {
+    {"-nqcdivs", 3, Tint, &GLOBAL_fileOptions_numberOfQuarterCircleDivisions, DEFAULT_ACTION,
+    "-nqcdivs <integer>\t: number of quarter circle divisions"},
+    {"-force-onesided", 10, TYPELESS, &globalYes,     mainForceOneSidedOption,
+    "-force-onesided\t\t: force one-sided surfaces"},
+    {"-dont-force-onesided", 14, TYPELESS, &globalNo, mainForceOneSidedOption,
+    "-dont-force-onesided\t: allow two-sided surfaces"},
+    {"-monochromatic", 5, TYPELESS, &globalYes, mainMonochromeOption,
+    "-monochromatic \t\t: convert colors to shades of grey"},
+    {nullptr, 0, TYPELESS, nullptr, DEFAULT_ACTION, nullptr}
+};
+
+static void
+mainPatchAccumulateStats(Patch *patch) {
+    COLOR E = patchAverageEmittance(patch, ALL_COMPONENTS);
+    COLOR R = patchAverageNormalAlbedo(patch, BSDF_ALL_COMPONENTS);
+    COLOR power;
 
     GLOBAL_statistics_totalArea += patch->area;
     colorScale(patch->area, E, power);
@@ -48,9 +102,11 @@ patchAccumulateStats(Patch *patch) {
 }
 
 static void
-computeSomeSceneStats() {
+mainComputeSomeSceneStats() {
     Vector3D zero;
-    COLOR one, average_absorption, BP;
+    COLOR one;
+    COLOR average_absorption;
+    COLOR BP;
 
     colorSetMonochrome(one, 1.0f);
     VECTORSET(zero, 0, 0, 0);
@@ -64,7 +120,7 @@ computeSomeSceneStats() {
 
     // Accumulate
     for ( PatchSet *window = GLOBAL_scene_patches; window != nullptr; window = window->next ) {
-        patchAccumulateStats(window->patch);
+        mainPatchAccumulateStats(window->patch);
     }
 
     // Averages
@@ -88,7 +144,7 @@ computeSomeSceneStats() {
 Adds the background to the global light source patch list
 */
 static void
-addBackgroundToLightSourceList() {
+mainAddBackgroundToLightSourceList() {
     if ( GLOBAL_scene_background != nullptr && GLOBAL_scene_background->bkgPatch != nullptr ) {
         PatchSet *newListNode = (PatchSet *)malloc(sizeof(PatchSet));
         newListNode->patch = GLOBAL_scene_background->bkgPatch;
@@ -102,7 +158,7 @@ Adds the patch to the global light source patch list if the patch is on
 a light source (i.e. when the surfaces material has a non-null edf)
 */
 static void
-addPatchToLightSourceListIfLightSource(Patch *patch) {
+mainAddPatchToLightSourceListIfLightSource(Patch *patch) {
     if ( patch != nullptr
          && patch->surface != nullptr
          && patch->surface->material != nullptr
@@ -120,44 +176,21 @@ addPatchToLightSourceListIfLightSource(Patch *patch) {
 Build the global light source patch list
 */
 static void
-buildLightSourcePatchList() {
+mainBuildLightSourcePatchList() {
     GLOBAL_scene_lightSourcePatches = nullptr;
     GLOBAL_statistics_numberOfLightSources = 0;
 
     for ( PatchSet *window = GLOBAL_scene_patches; window != nullptr; window = window->next ) {
-        addPatchToLightSourceListIfLightSource(window->patch);
+        mainAddPatchToLightSourceListIfLightSource(window->patch);
     }
 
-    addBackgroundToLightSourceList();
+    mainAddBackgroundToLightSourceList();
     GLOBAL_statistics_numberOfLightSources++;
 }
 
-/**
-Table of available raytracing methods
-*/
-static Raytracer *RayTracingMethods[] = {
-    &RT_StochasticMethod,
-    &RT_BidirPathMethod,
-    &GLOBAL_rayCasting_RayCasting,
-    &GLOBAL_rayCasting_RayMatting,
-    (Raytracer *)nullptr
-};
-
-/**
-Iterator over all available raytracing methods
-*/
-#define ForAllRayTracingMethods(methodp) {{ \
-  Raytracer **methodpp; \
-  for (methodpp=RayTracingMethods; *methodpp; methodpp++) { \
-    Raytracer *methodp = *methodpp;
-
-#define STRING_SIZE 1000
-
-static char raytracing_methods_string[STRING_SIZE];
-
 static void
-makeRaytracingMethodsString() {
-    char *str = raytracing_methods_string;
+mainMakeRaytracingMethodsString() {
+    char *str = globalRaytracingMethodsString;
     int n;
     snprintf(str, 80, "-raytracing-method <method>: Set pixel-based radiance computation method\n%n",
             &n);
@@ -166,71 +199,41 @@ makeRaytracingMethodsString() {
             "none", "no pixel-based radiance computation",
             !Global_Raytracer_activeRaytracer ? " (default)" : "", &n);
     str += n;
-    ForAllRayTracingMethods(method)
-                {
-                    snprintf(str, STRING_SIZE, "\t         %-20.20s %s%s\n%n",
-                            method->shortName, method->fullName,
-                            Global_Raytracer_activeRaytracer == method ? " (default)" : "", &n);
-                    str += n;
-                }
-    EndForAll;
-    *(str - 1) = '\0';    /* discard last newline character */
+
+    Raytracer **methodpp;
+    for ( methodpp = globalRayTracingMethods; *methodpp; methodpp++ ) {
+        Raytracer *method = *methodpp;
+        snprintf(str, STRING_SIZE, "\t         %-20.20s %s%s\n%n",
+            method->shortName, method->fullName,
+           Global_Raytracer_activeRaytracer == method ? " (default)" : "", &n);
+        str += n;
+    }
+    *(str - 1) = '\0'; // Discard last newline character
 }
 
 static void
-rayTracingDefaults() {
-    ForAllRayTracingMethods(method)
-                {
-                    method->Defaults();
-                    if ( strncasecmp(DEFAULT_RAYTRACING_METHOD, method->shortName, method->nameAbbrev) == 0 ) {
-                        SetRayTracing(method);
-                    }
-                }
-    EndForAll;
-    makeRaytracingMethodsString();    /* comes last */
+mainRayTracingDefaults() {
+    for ( Raytracer **methodpp = globalRayTracingMethods; *methodpp; methodpp++ ) {
+        Raytracer *method = *methodpp;
+        method->Defaults();
+        if ( strncasecmp(DEFAULT_RAYTRACING_METHOD, method->shortName, method->nameAbbrev) == 0 ) {
+            setRayTracing(method);
+        }
+    }
+    mainMakeRaytracingMethodsString(); // Comes last
 }
 
 static void
-rayTracingOption(void *value) {
-    char *name = *(char **) value;
-
-    ForAllRayTracingMethods(method)
-                {
-                    if ( strncasecmp(name, method->shortName, method->nameAbbrev) == 0 ) {
-                        SetRayTracing(method);
-                        return;
-                    }
-                }
-    EndForAll;
-
-    if ( strncasecmp(name, "none", 4) == 0 ) {
-        SetRayTracing((Raytracer *) nullptr);
-    } else {
-        logError(nullptr, "Invalid raytracing method name '%s'", name);
+mainParseRayTracingOptions(int *argc, char **argv) {
+    parseOptions(globalRaytracingOptions, argc, argv);
+    for ( Raytracer **methodpp = globalRayTracingMethods; *methodpp; methodpp++ ) {
+        Raytracer *method = *methodpp;
+        method->ParseOptions(argc, argv);
     }
 }
 
-/**
-String describing the -raytracing-method command line option
-*/
-static CMDLINEOPTDESC raytracingOptions[] = {
-    {"-raytracing-method", 4, Tstring,  nullptr, rayTracingOption,
-     raytracing_methods_string},
-    {nullptr, 0, TYPELESS, nullptr, DEFAULT_ACTION, nullptr}
-};
-
 static void
-parseRayTracingOptions(int *argc, char **argv) {
-    parseOptions(raytracingOptions, argc, argv);
-    ForAllRayTracingMethods(method)
-                {
-                    method->ParseOptions(argc, argv);
-                }
-    EndForAll;
-}
-
-static void
-renderingDefaults() {
+mainRenderingDefaults() {
     RGB outlinecolor = DEFAULT_OUTLINE_COLOR;
     RGB bbcolor = DEFAULT_BOUNDING_BOX_COLOR;
     RGB cluscolor = DEFAULT_CLUSTER_COLOR;
@@ -262,52 +265,29 @@ Global initializations
 */
 static void
 mainInit() {
-    /* Transforms the cubature rules for quadrilaterals to be over the domain [0,1]^2
-     * instead of [-1,1]^2. See cubature.[ch] */
+    // Transforms the cubature rules for quadrilaterals to be over the domain [0,1]^2 instead of [-1,1]^2
     fixCubatureRules();
 
     GLOBAL_fileOptions_monochrome = DEFAULT_MONOCHROME;
     GLOBAL_fileOptions_forceOneSidedSurfaces = DEFAULT_FORCE_ONESIDEDNESS;
     GLOBAL_fileOptions_numberOfQuarterCircleDivisions = DEFAULT_NQCDIVS;
 
-    renderingDefaults();
+    mainRenderingDefaults();
     toneMapDefaults();
     CameraDefaults();
     radianceDefaults();
-    rayTracingDefaults();
+    mainRayTracingDefaults();
 
-    /* Default vertex compare flags: both location and normal is relevant. Two
-     * vertices without normal, but at the same location, are to be considered
-     * different. */
+    // Default vertex compare flags: both location and normal is relevant. Two
+    // vertices without normal, but at the same location, are to be considered
+    // different
     vertexSetCompareFlags(VERTEX_COMPARE_LOCATION | VERTEX_COMPARE_NORMAL);
 
-    /* Specify what routines to be used to compare vertices when using
-     * BREP_VERTEX_OCTREEs */
+    // Specify what routines to be used to compare vertices when using
+    // BREP_VERTEX_OCTREEs
     brepSetVertexCompareRoutine((BREP_COMPARE_FUNC) vertexCompare);
     brepSetVertexCompareLocationRoutine((BREP_COMPARE_FUNC) vertexCompareLocation);
 }
-
-static void
-forceOneSidedOption(void *value) {
-    GLOBAL_fileOptions_forceOneSidedSurfaces = *(int *) value;
-}
-
-static void
-monochromeOption(void *value) {
-    GLOBAL_fileOptions_monochrome = *(int *) value;
-}
-
-static CMDLINEOPTDESC globalOptions[] = {
-    {"-nqcdivs", 3, Tint, &GLOBAL_fileOptions_numberOfQuarterCircleDivisions, DEFAULT_ACTION,
-     "-nqcdivs <integer>\t: number of quarter circle divisions"},
-    {"-force-onesided", 10, TYPELESS, &yes,     forceOneSidedOption,
-     "-force-onesided\t\t: force one-sided surfaces"},
-    {"-dont-force-onesided", 14, TYPELESS, &no, forceOneSidedOption,
-     "-dont-force-onesided\t: allow two-sided surfaces"},
-    {"-monochromatic", 5, TYPELESS, &yes, monochromeOption,
-     "-monochromatic \t\t: convert colors to shades of grey"},
-    {nullptr, 0, TYPELESS, nullptr, DEFAULT_ACTION, nullptr}
-};
 
 /**
 Creates a hierarchical model of the discrete scene (the patches in the scene) using the simple
@@ -318,7 +298,7 @@ This hierarchy is often much more efficient for tracing rays and clustering radi
 than the given hierarchy of bounding boxes. A pointer to the toplevel "cluster" is returned
 */
 static Geometry *
-createClusterHierarchy(PatchSet *patches) {
+mainCreateClusterHierarchy(PatchSet *patches) {
     Cluster *rootCluster;
     Geometry *rootGeometry;
 
@@ -339,49 +319,28 @@ createClusterHierarchy(PatchSet *patches) {
 Processes command line arguments not recognized by the Xt GUI toolkit
 */
 static void
-parseGlobalOptions(int *argc, char **argv) {
+mainParseGlobalOptions(int *argc, char **argv) {
     parseRenderingOptions(argc, argv);
     parseToneMapOptions(argc, argv);
     ParseCameraOptions(argc, argv);
     parseRadianceOptions(argc, argv);
-    parseRayTracingOptions(argc, argv);
+    mainParseRayTracingOptions(argc, argv);
     parseBatchOptions(argc, argv);
-    parseOptions(globalOptions, argc, argv);    /* this one comes last in order to
-						 * have all other options parsed before
-						 * reading input from stdin. */
+    parseOptions(globalOptions, argc, argv); // Order is important, this should be called last
 }
 
 /**
-Tries to read the scene in the given file. Returns false if not succesful.
-Returns true if succesful. There's nothing GUI specific in this function. 
+Tries to read the scene in the given file. Returns false if not successful.
+Returns true if successful. There's nothing GUI specific in this function.
 When a file cannot be read, the current scene is restored
 */
 static bool
-readFile(char *filename) {
-    char *dot{};
-    char *slash{};
-    char *extension{};
-    FILE *input{};
-    GeometryListNode *oWorld{};
-    GeometryListNode *oClusteredWorld{};
-    Geometry *oClusteredWorldGeom{};
-    java::ArrayList<Material *> *oMaterialLib{};
-    PatchSet *objectPatches{};
-    PatchSet *lightSourcePatches{};
-    VoxelGrid *oWorldGrid{};
-    RADIANCEMETHOD *oRadiance{};
-    Raytracer *oRayTracing{};
-    Background *oBackground{};
-    int patchId{};
-    int numberOfPatches{};
-    clock_t t{};
-    clock_t last{};
-
-    // check whether the file can be opened if not reading from stdin
+mainReadFile(char *filename) {
+    // Check whether the file can be opened if not reading from stdin
     if ( filename[0] != '#' ) {
-        if ((input = fopen(filename, "r")) == (FILE *) nullptr ||
-            fgetc(input) == EOF) {
-            if ( input ) {
+        FILE *input = fopen(filename, "r");
+        if ( input == nullptr || fgetc(input) == EOF ) {
+            if ( input != nullptr ) {
                 fclose(input);
             }
             logError(nullptr, "Can't open file '%s' for reading", filename);
@@ -391,107 +350,67 @@ readFile(char *filename) {
     }
 
     // Get current directory from the filename
-    int n = strlen(filename) + 1;
-    currentDirectory = (char *)malloc(n);
-    snprintf(currentDirectory, n, "%s", filename);
-    if ((slash = strrchr(currentDirectory, '/')) != nullptr ) {
+    unsigned long n = strlen(filename) + 1;
+
+    globalCurrentDirectory = (char *)malloc(n);
+    snprintf(globalCurrentDirectory, n, "%s", filename);
+    char *slash = strrchr(globalCurrentDirectory, '/');
+    if ( slash != nullptr ) {
         *slash = '\0';
     } else {
-        *currentDirectory = '\0';
+        *globalCurrentDirectory = '\0';
     }
 
-    ErrorReset();
+    logErrorReset();
 
     // Terminate any active radiance or raytracing methods
     fprintf(stderr, "Terminating current radiance/raytracing method ... \n");
-    oRadiance = GLOBAL_radiance_currentRadianceMethodHandle;
-    setRadianceMethod((RADIANCEMETHOD *) nullptr);
-    oRayTracing = Global_Raytracer_activeRaytracer;
-    SetRayTracing((Raytracer *) nullptr);
+    RADIANCEMETHOD *oRadiance = GLOBAL_radiance_currentRadianceMethodHandle;
+    setRadianceMethod(nullptr);
+    Raytracer *oRayTracing = Global_Raytracer_activeRaytracer;
+    setRayTracing(nullptr);
 
-    // Save the current scene so it can be restored if errors occur when reading the new scene
+    // Save the current scene, so it can be restored if errors occur when reading the new scene
+    GeometryListNode *oWorld;
+
     fprintf(stderr, "Saving current scene ... \n");
     oWorld = GLOBAL_scene_world;
     GLOBAL_scene_world = nullptr;
-    oMaterialLib = GLOBAL_scene_materials;
     if ( GLOBAL_scene_materials == nullptr ) {
         GLOBAL_scene_materials = new java::ArrayList<Material *>();
     }
-    oMaterialLib = GLOBAL_scene_materials;
 
-    objectPatches = GLOBAL_scene_patches;
+    PatchSet *objectPatches = GLOBAL_scene_patches;
     GLOBAL_scene_patches = nullptr;
-    patchId = patchGetNextId();
     patchSetNextId(1);
-    numberOfPatches = GLOBAL_statistics_numberOfPatches;
-    oClusteredWorld = GLOBAL_scene_clusteredWorld;
     GLOBAL_scene_clusteredWorld = nullptr;
-    oClusteredWorldGeom = GLOBAL_scene_clusteredWorldGeom;
-    lightSourcePatches = GLOBAL_scene_lightSourcePatches;
-    oWorldGrid = GLOBAL_scene_worldVoxelGrid;
-    oBackground = GLOBAL_scene_background;
-    GLOBAL_scene_background = (Background *) nullptr;
+    PatchSet *lightSourcePatches = GLOBAL_scene_lightSourcePatches;
+    GLOBAL_scene_background = nullptr;
 
     // Read the mgf file. The result is a new GLOBAL_scene_world and GLOBAL_scene_materials if everything goes well
+    char *extension;
     fprintf(stderr, "Reading the scene from file '%s' ... \n", filename);
-    last = clock();
+    clock_t last = clock();
 
-    if ((dot = strrchr(filename, '.')) != nullptr ) {
+    char *dot = strrchr(filename, '.');
+    if ( dot != nullptr ) {
         extension = dot + 1;
     } else {
-        extension = (char *) "mgf";
+        extension = (char *)"mgf";
     }
 
     if ( strncmp(extension, "mgf", 3) == 0 ) {
         readMgf(filename);
     }
 
-    t = clock();
+    clock_t t = clock();
     fprintf(stderr, "Reading took %g secs.\n", (float) (t - last) / (float) CLOCKS_PER_SEC);
     last = t;
 
-    free(currentDirectory);
-    currentDirectory = nullptr;
+    free(globalCurrentDirectory);
 
     // Check for errors
     if ( !GLOBAL_scene_world ) {
-        // Restore the old scene
-        fprintf(stderr, "Restoring old scene ... ");
-        fflush(stderr);
-        GeomListIterate(GLOBAL_scene_world, geomDestroy);
-        GeomListDestroy(GLOBAL_scene_world);
-        GLOBAL_scene_world = oWorld;
-
-        for ( int i = 0; GLOBAL_scene_materials != nullptr && i < GLOBAL_scene_materials->size(); i++ ) {
-            MaterialDestroy(GLOBAL_scene_materials->get(i));
-        }
-        delete GLOBAL_scene_materials;
-
-        GLOBAL_scene_materials = oMaterialLib;
-
-        GLOBAL_scene_patches = objectPatches;
-        patchSetNextId(patchId);
-        GLOBAL_statistics_numberOfPatches = numberOfPatches;
-
-        GLOBAL_scene_clusteredWorld = oClusteredWorld;
-        GLOBAL_scene_clusteredWorldGeom = oClusteredWorldGeom;
-        GLOBAL_scene_lightSourcePatches = lightSourcePatches;
-
-        GLOBAL_scene_worldVoxelGrid = oWorldGrid;
-        GLOBAL_scene_background = oBackground;
-
-        setRadianceMethod(oRadiance);
-        SetRayTracing(oRayTracing);
-
-        t = clock();
-        fprintf(stderr, "%g secs.\n", (float) (t - last) / (float) CLOCKS_PER_SEC);
-        last = t;
-        fprintf(stderr, "Done.\n");
-
-        if ( !ErrorOccurred()) {
-            logError(nullptr, "Empty world");
-        }
-
         return false; // Not successful
     }
 
@@ -519,31 +438,31 @@ readFile(char *filename) {
         listWindow = next;
     }
 
-    GeometryListNode *window = oWorld;
-    Geometry *pelement;
-    while ( window ) {
-        pelement = window->geom;
-        window = window->next;
-        geomDestroy(pelement);
+    for ( GeometryListNode *window = oWorld; window != nullptr; window = window->next ) {
+        Geometry *geometry = window->geom;
+        geomDestroy(geometry);
     }
 
     GeometryListNode *listNode;
-    window = oWorld;
+    GeometryListNode *window = oWorld;
     while ( window ) {
         listNode = window->next;
         free(window);
         window = listNode;
     }
 
-    if ( oClusteredWorldGeom ) {
-        geomDestroy(oClusteredWorldGeom);
+    if ( GLOBAL_scene_clusteredWorldGeom ) {
+        geomDestroy(GLOBAL_scene_clusteredWorldGeom);
+        GLOBAL_scene_clusteredWorldGeom = nullptr;
     }
-    if ( oBackground ) {
-        oBackground->methods->Destroy(oBackground->data);
+    if ( GLOBAL_scene_background != nullptr ) {
+        GLOBAL_scene_background->methods->Destroy(GLOBAL_scene_background->data);
+        GLOBAL_scene_background = nullptr;
     }
 
-    if ( oWorldGrid != nullptr ) {
-        oWorldGrid->destroyGrid();
+    if ( GLOBAL_scene_worldVoxelGrid != nullptr ) {
+        GLOBAL_scene_worldVoxelGrid->destroyGrid();
+        GLOBAL_scene_worldVoxelGrid = nullptr;
     }
 
     if ( GLOBAL_scene_materials != nullptr ) {
@@ -559,9 +478,9 @@ readFile(char *filename) {
     fprintf(stderr, "%g secs.\n", (float) (t - last) / (float) CLOCKS_PER_SEC);
     last = t;
 
-    /* build the new patch list, this is duplicating already available
-     * information and as such potentially dangerous, but we need it
-     * so many times, so ... */
+    // Build the new patch list, this is duplicating already available
+    // information and as such potentially dangerous, but we need it
+    // so many times
     fprintf(stderr, "Building patch list ... ");
     fflush(stderr);
 
@@ -575,7 +494,7 @@ readFile(char *filename) {
     fprintf(stderr, "Building light source patch list ... ");
     fflush(stderr);
 
-    buildLightSourcePatchList();
+    mainBuildLightSourcePatchList();
 
     t = clock();
     fprintf(stderr, "%g secs.\n", (float) (t - last) / (float) CLOCKS_PER_SEC);
@@ -585,11 +504,10 @@ readFile(char *filename) {
     fprintf(stderr, "Building cluster hierarchy ... ");
     fflush(stderr);
 
-    GLOBAL_scene_clusteredWorldGeom = createClusterHierarchy(GLOBAL_scene_patches);
+    GLOBAL_scene_clusteredWorldGeom = mainCreateClusterHierarchy(GLOBAL_scene_patches);
     if ( GLOBAL_scene_clusteredWorldGeom->methods == &GLOBAL_skin_compoundGeometryMethods ) {
         if ( GLOBAL_scene_clusteredWorldGeom->compoundData != nullptr ) {
             fprintf(stderr, "Unexpected case: review code - aggregate is not compound.\n");
-            //GLOBAL_scene_clusteredWorld = (GeometryListNode *)GLOBAL_scene_clusteredWorldGeom->obj;
             exit(1);
         } else if ( GLOBAL_scene_clusteredWorldGeom->aggregateData != nullptr ) {
             GLOBAL_scene_clusteredWorld = GLOBAL_scene_clusteredWorldGeom->aggregateData;
@@ -607,7 +525,7 @@ readFile(char *filename) {
     fprintf(stderr, "%g secs.\n", (float) (t - last) / (float) CLOCKS_PER_SEC);
     last = t;
 
-    // engridding the thing
+    // Engridding the thing
     GLOBAL_scene_worldVoxelGrid = new VoxelGrid(GLOBAL_scene_clusteredWorldGeom);
 
     t = clock();
@@ -619,7 +537,7 @@ readFile(char *filename) {
     fflush(stderr);
 
     GLOBAL_statistics_numberOfPatches = GLOBAL_statistics_numberOfElements;
-    computeSomeSceneStats();
+    mainComputeSomeSceneStats();
     GLOBAL_statistics_referenceLuminance = 5.42 * ((1. - colorGray(GLOBAL_statistics_averageReflectivity)) *
             colorLuminance(GLOBAL_statistics_estimatedAverageRadiance));
 
@@ -652,7 +570,7 @@ readFile(char *filename) {
            GLOBAL_toneMap_options.lwa,
            GLOBAL_statistics_totalArea);
 
-    // initialize radiance for the freshly loaded scene
+    // Initialize radiance for the freshly loaded scene
     if ( oRadiance ) {
         fprintf(stderr, "Initializing radiance computations ... ");
         fflush(stderr);
@@ -667,15 +585,14 @@ readFile(char *filename) {
     if ( oRayTracing ) {
         fprintf(stderr, "Initializing raytracing computations ... \n");
 
-        SetRayTracing(oRayTracing);
+        setRayTracing(oRayTracing);
 
         t = clock();
         fprintf(stderr, "%g secs.\n", (float) (t - last) / (float) CLOCKS_PER_SEC);
-        last = t;
     }
 
-    // Remove possible renderhooks
-    RemoveAllRenderHooks();
+    // Remove possible render hooks
+    removeAllRenderHooks();
 
     fprintf(stderr, "Initialisations done.\n");
 
@@ -683,13 +600,13 @@ readFile(char *filename) {
 }
 
 static void
-startUserInterface(int *argc, char **argv) {
+mainStartUserInterface(const int *argc, char **argv) {
     // All options should have disappeared from argv now
     if ( *argc > 1 ) {
         if ( *argv[1] == '-' ) {
             logError(nullptr, "Unrecognized option '%s'", argv[1]);
-        } else {
-            readFile(argv[1]);
+        } else if ( !mainReadFile(argv[1]) ) {
+            exit(1);
         }
     }
 
@@ -711,7 +628,7 @@ startUserInterface(int *argc, char **argv) {
 int
 main(int argc, char *argv[]) {
     mainInit();
-    parseGlobalOptions(&argc, argv);
-    startUserInterface(&argc, argv);
+    mainParseGlobalOptions(&argc, argv);
+    mainStartUserInterface(&argc, argv);
     return 0;
 }

@@ -5,14 +5,17 @@
 
 static int errorOccurred = false;
 
-/* stel toestand "geen fouten gebeurd" in */
-void ErrorReset() {
+/**
+stel toestand "geen fouten gebeurd" in
+*/
+void
+logErrorReset() {
     errorOccurred = false;
 }
 
 /* geeft false terug indien sinds de vorige oproep zich geen fouten hebben
  * voorgedaan. */
-int ErrorOccurred() {
+int logErrorOccurred() {
     int errocc = errorOccurred;
 
     errorOccurred = false;
@@ -40,7 +43,8 @@ void logError(const char *routine, const char *text, ...) {
 
 /* een fatale fout: druk boodschap of en verlaat het programma
  * met de opgegeven foutencode */
-void logFatal(int errcode, const char *routine, const char *text, ...) {
+void
+logFatal(int errcode, const char *routine, const char *text, ...) {
     va_list pvar;
 
     fprintf(stderr, "logFatal error: ");

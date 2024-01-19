@@ -20,7 +20,6 @@ if(APPLE)
     link_directories(/opt/X11/lib)
 endif()
 
-
 set(MAIN_SRC
     src/common/errorshared.cpp
     src/common/mymath.cpp

@@ -133,7 +133,7 @@ estimateSceneAdaptation(COLOR (*patch_radiance)(Patch *)) {
             break;
         }
         default:
-            logError("computeSomeSceneStats", "unknown static adaptation method %d", GLOBAL_toneMap_options.statadapt);
+            logError("mainComputeSomeSceneStats", "unknown static adaptation method %d", GLOBAL_toneMap_options.statadapt);
     }
 }
 

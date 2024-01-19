@@ -36,7 +36,7 @@ RayTrace(char *filename, FILE *fp, int ispipe) {
 This routine sets the current raytracing method to be used
 */
 void
-SetRayTracing(Raytracer *newMethod) {
+setRayTracing(Raytracer *newMethod) {
     if ( Global_Raytracer_activeRaytracer ) {
         Global_Raytracer_activeRaytracer->InterruptRayTracing();
         Global_Raytracer_activeRaytracer->Terminate();
