@@ -259,19 +259,18 @@ public:
                     0.,C_DEFCOLOR,0.,0.,C_DEFCOLOR,0.}
 #define C_DEFVERTEX    {{0.,0.,0.},{0.,0.,0.},0,1,(void *)0}
 
-extern MgfColorContext *c_ccolor;    /* the current color */
-extern char *c_ccname;    /* current color name */
-extern MgfMaterialContext *GLOBAL_mgf_currentMaterial;    /* the current material */
-extern char *GLOBAL_mgf_currentMaterialName;    /* current material name */
-extern MgfVertexContext *c_cvertex;    /* the current vertex */
-extern char *c_cvname;    /* current vertex name */
+extern MgfColorContext *GLOBAL_mgf_currentColor;
+extern MgfMaterialContext *GLOBAL_mgf_currentMaterial;
+extern char *GLOBAL_mgf_currentMaterialName;
+extern MgfVertexContext *GLOBAL_mgf_currentVertex;
+extern char *GLOBAL_mgf_currentVertexName;
 
-extern int handleColorEntity(int ac, char **av);        /* handle color entity */
-extern int handleMaterialEntity(int ac, char **av);    /* handle material entity */
-extern int handleVertexEntity(int ac, char **av);    /* handle vertex entity */
-extern void c_clearall();        /* clear context tables */
-extern MgfVertexContext *c_getvert(char *name);        /* get a named vertex */
-extern void mgfContextFixColorRepresentation(MgfColorContext *clr, int fl);        /* fix color representation */
+extern int handleColorEntity(int ac, char **av);
+extern int handleMaterialEntity(int ac, char **av);
+extern int handleVertexEntity(int ac, char **av);
+extern void clearContextTables();
+extern MgfVertexContext *getNamedVertex(char *name);
+extern void mgfContextFixColorRepresentation(MgfColorContext *clr, int fl);
 
 /*************************************************************************
  *	Definitions for hierarchical object name handler

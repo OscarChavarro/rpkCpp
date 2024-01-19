@@ -893,7 +893,7 @@ void DoBPTDensityEstimation(BPCONFIG *config) {
     int oldTotalSPP = oldSPP;
     int newTotalSPP = oldTotalSPP + newSPP;
 
-    for ( int i = 1; i <= nrIterations && !interrupt_raytracing; i++ ) {
+    for ( int i = 1; i <= nrIterations && !GLOBAL_rayCasting_interruptRaytracing; i++ ) {
         printf("Doing run with %i samples, %i samples already done\n", newSPP,
                oldTotalSPP);
 
@@ -962,7 +962,7 @@ void DoBPTDensityEstimation(BPCONFIG *config) {
         newTotalSPP = oldTotalSPP + newSPP;
     }
 
-    if ( interrupt_raytracing ) {
+    if ( GLOBAL_rayCasting_interruptRaytracing ) {
         if ( config->ref2 ) {
             config->screen->Merge(config->ref, config->ref2);
         } else {
@@ -1128,7 +1128,7 @@ static int BidirPathSaveImage(ImageOutputHandle *ip) {
 
 static void
 BidirPathInterrupt() {
-    interrupt_raytracing = true;
+    GLOBAL_rayCasting_interruptRaytracing = true;
 }
 
 static void BidirPathInit() {
@@ -1148,15 +1148,15 @@ static void BidirPathTerminate() {
 
 Raytracer GLOBAL_raytracing_biDirectionalPathMethod =
 {
-    "BidirectionalPathTracing",
-    4,
-    "Bidirectional Path Tracing",
-    BidirPathDefaults,
-    BidirPathParseOptions,
-    BidirPathInit,
-    BidirPathTrace,
-    BidirPathRedisplay,
-    BidirPathSaveImage,
-    BidirPathInterrupt,
-    BidirPathTerminate
+        "BidirectionalPathTracing",
+        4,
+        "Bidirectional Path Tracing",
+        biDirectionalPathDefaults,
+        biDirectionalPathParseOptions,
+        BidirPathInit,
+        BidirPathTrace,
+        BidirPathRedisplay,
+        BidirPathSaveImage,
+        BidirPathInterrupt,
+        BidirPathTerminate
 };

@@ -21,12 +21,11 @@ static MgfMaterialContext c_unmaterial = C_DEFMATERIAL;
 static MgfVertexContext c_unvertex = C_DEFVERTEX;
 
 /* the current contexts */
-MgfColorContext *c_ccolor = &c_uncolor;
-char *c_ccname = nullptr;
+MgfColorContext *GLOBAL_mgf_currentColor = &c_uncolor;
 MgfMaterialContext *GLOBAL_mgf_currentMaterial = &c_unmaterial;
 char *GLOBAL_mgf_currentMaterialName = nullptr;
-MgfVertexContext *c_cvertex = &c_unvertex;
-char *c_cvname = nullptr;
+MgfVertexContext *GLOBAL_mgf_currentVertex = &c_unvertex;
+char *GLOBAL_mgf_currentVertexName = nullptr;
 
 static LUTAB clr_tab = LU_SINIT(free, free);    /* color lookup table */
 static LUTAB mat_tab = LU_SINIT(free, free);    /* material lookup table */
@@ -96,23 +95,22 @@ handleColorEntity(int ac, char **av)        /* handle color entity */
             if ( ac > 4 ) {
                 return MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
             }
-            if ( ac == 1 ) {        /* set unnamed color context */
+            if ( ac == 1 ) {
+                // Set unnamed color context
                 c_uncolor = c_dfcolor;
-                c_ccolor = &c_uncolor;
-                c_ccname = nullptr;
+                GLOBAL_mgf_currentColor = &c_uncolor;
                 return MGF_OK;
             }
             if ( !isnameWords(av[1])) {
                 return MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
             }
-            lp = lu_find(&clr_tab, av[1]);    /* lookup context */
+            lp = lu_find(&clr_tab, av[1]); // Lookup context
             if ( lp == nullptr) {
                 return MGF_ERROR_OUT_OF_MEMORY;
             }
-            c_ccname = lp->key;
-            c_ccolor = (MgfColorContext *) lp->data;
+            GLOBAL_mgf_currentColor = (MgfColorContext *) lp->data;
             if ( ac == 2 ) {        /* reestablish previous context */
-                if ( c_ccolor == nullptr) {
+                if ( GLOBAL_mgf_currentColor == nullptr) {
                     return MGF_ERROR_UNDEFINED_REFERENCE;
                 }
                 return MGF_OK;
@@ -120,7 +118,7 @@ handleColorEntity(int ac, char **av)        /* handle color entity */
             if ( av[2][0] != '=' || av[2][1] ) {
                 return MGF_ERROR_ARGUMENT_TYPE;
             }
-            if ( c_ccolor == nullptr) {    /* create new color context */
+            if ( GLOBAL_mgf_currentColor == nullptr) {    /* create new color context */
                 lp->key = (char *) malloc(strlen(av[1]) + 1);
                 if ( lp->key == nullptr) {
                     return MGF_ERROR_OUT_OF_MEMORY;
@@ -130,14 +128,13 @@ handleColorEntity(int ac, char **av)        /* handle color entity */
                 if ( lp->data == nullptr) {
                     return MGF_ERROR_OUT_OF_MEMORY;
                 }
-                c_ccname = lp->key;
-                c_ccolor = (MgfColorContext *) lp->data;
-                c_ccolor->clock = 0;
+                GLOBAL_mgf_currentColor = (MgfColorContext *) lp->data;
+                GLOBAL_mgf_currentColor->clock = 0;
             }
-            i = c_ccolor->clock;
+            i = GLOBAL_mgf_currentColor->clock;
             if ( ac == 3 ) {        /* use default template */
-                *c_ccolor = c_dfcolor;
-                c_ccolor->clock = i + 1;
+                *GLOBAL_mgf_currentColor = c_dfcolor;
+                GLOBAL_mgf_currentColor->clock = i + 1;
                 return MGF_OK;
             }
             lp = lu_find(&clr_tab, av[3]);    /* lookup template */
@@ -147,8 +144,8 @@ handleColorEntity(int ac, char **av)        /* handle color entity */
             if ( lp->data == nullptr) {
                 return MGF_ERROR_UNDEFINED_REFERENCE;
             }
-            *c_ccolor = *(MgfColorContext *) lp->data;
-            c_ccolor->clock = i + 1;
+            *GLOBAL_mgf_currentColor = *(MgfColorContext *) lp->data;
+            GLOBAL_mgf_currentColor->clock = i + 1;
             return MGF_OK;
         case MG_E_CXY:        /* assign CIE XY value */
             if ( ac != 3 ) {
@@ -157,14 +154,14 @@ handleColorEntity(int ac, char **av)        /* handle color entity */
             if ( !isfltWords(av[1]) | !isfltWords(av[2])) {
                 return MGF_ERROR_ARGUMENT_TYPE;
             }
-            c_ccolor->cx = atof(av[1]);
-            c_ccolor->cy = atof(av[2]);
-            c_ccolor->flags = C_CDXY | C_CSXY;
-            if ( c_ccolor->cx < 0. || c_ccolor->cy < 0. ||
-                 c_ccolor->cx + c_ccolor->cy > 1. ) {
+            GLOBAL_mgf_currentColor->cx = atof(av[1]);
+            GLOBAL_mgf_currentColor->cy = atof(av[2]);
+            GLOBAL_mgf_currentColor->flags = C_CDXY | C_CSXY;
+            if ( GLOBAL_mgf_currentColor->cx < 0. || GLOBAL_mgf_currentColor->cy < 0. ||
+                 GLOBAL_mgf_currentColor->cx + GLOBAL_mgf_currentColor->cy > 1. ) {
                 return MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
             }
-            c_ccolor->clock++;
+            GLOBAL_mgf_currentColor->clock++;
             return MGF_OK;
         case MG_E_CSPEC:    /* assign spectral values */
             if ( ac < 5 ) {
@@ -173,7 +170,7 @@ handleColorEntity(int ac, char **av)        /* handle color entity */
             if ( !isfltWords(av[1]) || !isfltWords(av[2])) {
                 return MGF_ERROR_ARGUMENT_TYPE;
             }
-            return setspectrum(c_ccolor, atof(av[1]), atof(av[2]),
+            return setspectrum(GLOBAL_mgf_currentColor, atof(av[1]), atof(av[2]),
                                 ac - 3, av + 3);
         case MG_E_CCT:        /* assign black body spectrum */
             if ( ac != 2 ) {
@@ -182,7 +179,7 @@ handleColorEntity(int ac, char **av)        /* handle color entity */
             if ( !isfltWords(av[1])) {
                 return MGF_ERROR_ARGUMENT_TYPE;
             }
-            return setbbtemp(c_ccolor, atof(av[1]));
+            return setbbtemp(GLOBAL_mgf_currentColor, atof(av[1]));
         case MG_E_CMIX:        /* mix colors */
             if ( ac < 5 || (ac - 1) % 2 ) {
                 return MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
@@ -197,7 +194,7 @@ handleColorEntity(int ac, char **av)        /* handle color entity */
             if ( lp->data == nullptr) {
                 return MGF_ERROR_UNDEFINED_REFERENCE;
             }
-            *c_ccolor = *(MgfColorContext *) lp->data;
+            *GLOBAL_mgf_currentColor = *(MgfColorContext *) lp->data;
             for ( i = 3; i < ac; i += 2 ) {
                 if ( !isfltWords(av[i])) {
                     return MGF_ERROR_ARGUMENT_TYPE;
@@ -209,14 +206,14 @@ handleColorEntity(int ac, char **av)        /* handle color entity */
                 if ( lp->data == nullptr) {
                     return MGF_ERROR_UNDEFINED_REFERENCE;
                 }
-                mixcolors(c_ccolor, wsum, c_ccolor,
+                mixcolors(GLOBAL_mgf_currentColor, wsum, GLOBAL_mgf_currentColor,
                           w, (MgfColorContext *) lp->data);
                 wsum += w;
             }
             if ( wsum <= 0. ) {
                 return MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
             }
-            c_ccolor->clock++;
+            GLOBAL_mgf_currentColor->clock++;
             return MGF_OK;
     }
     return MGF_ERROR_UNKNOWN_ENTITY;
@@ -313,7 +310,7 @@ handleMaterialEntity(int ac, char **av)        /* handle material entity */
             if ( GLOBAL_mgf_currentMaterial->rd < 0. || GLOBAL_mgf_currentMaterial->rd > 1. ) {
                 return MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
             }
-            GLOBAL_mgf_currentMaterial->rd_c = *c_ccolor;
+            GLOBAL_mgf_currentMaterial->rd_c = *GLOBAL_mgf_currentColor;
             GLOBAL_mgf_currentMaterial->clock++;
             return MGF_OK;
         case MG_E_ED:        /* set diffuse emittance */
@@ -327,7 +324,7 @@ handleMaterialEntity(int ac, char **av)        /* handle material entity */
             if ( GLOBAL_mgf_currentMaterial->ed < 0. ) {
                 return MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
             }
-            GLOBAL_mgf_currentMaterial->ed_c = *c_ccolor;
+            GLOBAL_mgf_currentMaterial->ed_c = *GLOBAL_mgf_currentColor;
             GLOBAL_mgf_currentMaterial->clock++;
             return MGF_OK;
         case MG_E_TD:        /* set diffuse transmittance */
@@ -341,7 +338,7 @@ handleMaterialEntity(int ac, char **av)        /* handle material entity */
             if ( GLOBAL_mgf_currentMaterial->td < 0. || GLOBAL_mgf_currentMaterial->td > 1. ) {
                 return MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
             }
-            GLOBAL_mgf_currentMaterial->td_c = *c_ccolor;
+            GLOBAL_mgf_currentMaterial->td_c = *GLOBAL_mgf_currentColor;
             GLOBAL_mgf_currentMaterial->clock++;
             return MGF_OK;
         case MG_E_RS:        /* set specular reflectance */
@@ -357,7 +354,7 @@ handleMaterialEntity(int ac, char **av)        /* handle material entity */
                  GLOBAL_mgf_currentMaterial->rs_a < 0. ) {
                 return MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
             }
-            GLOBAL_mgf_currentMaterial->rs_c = *c_ccolor;
+            GLOBAL_mgf_currentMaterial->rs_c = *GLOBAL_mgf_currentColor;
             GLOBAL_mgf_currentMaterial->clock++;
             return MGF_OK;
         case MG_E_TS:        /* set specular transmittance */
@@ -373,7 +370,7 @@ handleMaterialEntity(int ac, char **av)        /* handle material entity */
                  GLOBAL_mgf_currentMaterial->ts_a < 0. ) {
                 return MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
             }
-            GLOBAL_mgf_currentMaterial->ts_c = *c_ccolor;
+            GLOBAL_mgf_currentMaterial->ts_c = *GLOBAL_mgf_currentColor;
             GLOBAL_mgf_currentMaterial->clock++;
             return MGF_OK;
         case MG_E_SIDES:    /* set number of sides */
@@ -410,8 +407,8 @@ handleVertexEntity(int ac, char **av)        /* handle a vertex entity */
             }
             if ( ac == 1 ) {        /* set unnamed vertex context */
                 c_unvertex = c_dfvertex;
-                c_cvertex = &c_unvertex;
-                c_cvname = nullptr;
+                GLOBAL_mgf_currentVertex = &c_unvertex;
+                GLOBAL_mgf_currentVertexName = nullptr;
                 return MGF_OK;
             }
             if ( !isnameWords(av[1])) {
@@ -421,10 +418,10 @@ handleVertexEntity(int ac, char **av)        /* handle a vertex entity */
             if ( lp == nullptr) {
                 return MGF_ERROR_OUT_OF_MEMORY;
             }
-            c_cvname = lp->key;
-            c_cvertex = (MgfVertexContext *) lp->data;
+            GLOBAL_mgf_currentVertexName = lp->key;
+            GLOBAL_mgf_currentVertex = (MgfVertexContext *) lp->data;
             if ( ac == 2 ) {        /* reestablish previous context */
-                if ( c_cvertex == nullptr) {
+                if ( GLOBAL_mgf_currentVertex == nullptr) {
                     return MGF_ERROR_UNDEFINED_REFERENCE;
                 }
                 return MGF_OK;
@@ -432,22 +429,22 @@ handleVertexEntity(int ac, char **av)        /* handle a vertex entity */
             if ( av[2][0] != '=' || av[2][1] ) {
                 return MGF_ERROR_ARGUMENT_TYPE;
             }
-            if ( c_cvertex == nullptr) {    /* create new vertex context */
-                c_cvname = (char *) malloc(strlen(av[1]) + 1);
-                if ( !c_cvname ) {
+            if ( GLOBAL_mgf_currentVertex == nullptr) {    /* create new vertex context */
+                GLOBAL_mgf_currentVertexName = (char *) malloc(strlen(av[1]) + 1);
+                if ( !GLOBAL_mgf_currentVertexName ) {
                     return MGF_ERROR_OUT_OF_MEMORY;
                 }
-                strcpy(c_cvname, av[1]);
-                lp->key = c_cvname;
-                c_cvertex = (MgfVertexContext *) malloc(sizeof(MgfVertexContext));
-                if ( !c_cvertex ) {
+                strcpy(GLOBAL_mgf_currentVertexName, av[1]);
+                lp->key = GLOBAL_mgf_currentVertexName;
+                GLOBAL_mgf_currentVertex = (MgfVertexContext *) malloc(sizeof(MgfVertexContext));
+                if ( !GLOBAL_mgf_currentVertex ) {
                     return MGF_ERROR_OUT_OF_MEMORY;
                 }
-                lp->data = (char *) c_cvertex;
+                lp->data = (char *) GLOBAL_mgf_currentVertex;
             }
             /* i = c_cvertex->clock; */
             if ( ac == 3 ) {        /* use default template */
-                *c_cvertex = c_dfvertex;
+                *GLOBAL_mgf_currentVertex = c_dfvertex;
                 /* c_cvertex->clock = i + 1; */
                 return MGF_OK;
             }
@@ -458,9 +455,9 @@ handleVertexEntity(int ac, char **av)        /* handle a vertex entity */
             if ( lp->data == nullptr) {
                 return MGF_ERROR_UNDEFINED_REFERENCE;
             }
-            *c_cvertex = *(MgfVertexContext *) lp->data;
+            *GLOBAL_mgf_currentVertex = *(MgfVertexContext *) lp->data;
             /* c_cvertex->clock = i + 1; */
-            c_cvertex->clock++;
+            GLOBAL_mgf_currentVertex->clock++;
             return MGF_OK;
         case MG_E_POINT:    /* set point */
             if ( ac != 4 ) {
@@ -469,10 +466,10 @@ handleVertexEntity(int ac, char **av)        /* handle a vertex entity */
             if ( !isfltWords(av[1]) || !isfltWords(av[2]) || !isfltWords(av[3])) {
                 return MGF_ERROR_ARGUMENT_TYPE;
             }
-            c_cvertex->p[0] = atof(av[1]);
-            c_cvertex->p[1] = atof(av[2]);
-            c_cvertex->p[2] = atof(av[3]);
-            c_cvertex->clock++;
+            GLOBAL_mgf_currentVertex->p[0] = atof(av[1]);
+            GLOBAL_mgf_currentVertex->p[1] = atof(av[2]);
+            GLOBAL_mgf_currentVertex->p[2] = atof(av[3]);
+            GLOBAL_mgf_currentVertex->clock++;
             return MGF_OK;
         case MG_E_NORMAL:    /* set normal */
             if ( ac != 4 ) {
@@ -481,11 +478,11 @@ handleVertexEntity(int ac, char **av)        /* handle a vertex entity */
             if ( !isfltWords(av[1]) || !isfltWords(av[2]) || !isfltWords(av[3])) {
                 return MGF_ERROR_ARGUMENT_TYPE;
             }
-            c_cvertex->n[0] = atof(av[1]);
-            c_cvertex->n[1] = atof(av[2]);
-            c_cvertex->n[2] = atof(av[3]);
-            normalize(c_cvertex->n);
-            c_cvertex->clock++;
+            GLOBAL_mgf_currentVertex->n[0] = atof(av[1]);
+            GLOBAL_mgf_currentVertex->n[1] = atof(av[2]);
+            GLOBAL_mgf_currentVertex->n[2] = atof(av[3]);
+            normalize(GLOBAL_mgf_currentVertex->n);
+            GLOBAL_mgf_currentVertex->clock++;
             return MGF_OK;
     }
     return MGF_ERROR_UNKNOWN_ENTITY;
@@ -493,24 +490,23 @@ handleVertexEntity(int ac, char **av)        /* handle a vertex entity */
 
 
 void
-c_clearall()            /* empty context tables */
+clearContextTables()            /* empty context tables */
 {
     c_uncolor = c_dfcolor;
-    c_ccolor = &c_uncolor;
-    c_ccname = nullptr;
+    GLOBAL_mgf_currentColor = &c_uncolor;
     lu_done(&clr_tab);
     c_unmaterial = c_dfmaterial;
     GLOBAL_mgf_currentMaterial = &c_unmaterial;
     GLOBAL_mgf_currentMaterialName = nullptr;
     lu_done(&mat_tab);
     c_unvertex = c_dfvertex;
-    c_cvertex = &c_unvertex;
-    c_cvname = nullptr;
+    GLOBAL_mgf_currentVertex = &c_unvertex;
+    GLOBAL_mgf_currentVertexName = nullptr;
     lu_done(&vtx_tab);
 }
 
 MgfVertexContext *
-c_getvert(char *name)            /* get a named vertex */
+getNamedVertex(char *name)            /* get a named vertex */
 {
     LUENT *lp;
 

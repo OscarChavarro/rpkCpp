@@ -1,18 +1,17 @@
-#include <cstdio>
 #include <cstring>
 
 #include "common/error.h"
 #include "shared/cubature.h"
-#include "raycasting/stochasticRaytracing/basismcrad.h"
 #include "raycasting/stochasticRaytracing/elementmcrad.h"
+#include "raycasting/stochasticRaytracing/basismcrad.h"
 
-GalerkinBasis basis[NR_ELEMENT_TYPES][NR_APPROX_TYPES];
-static int inited = false;
-
-GalerkinBasis dummyBasis = {
+GalerkinBasis GLOBAL_stochasticRadiosisty_basis[NR_ELEMENT_TYPES][NR_APPROX_TYPES];
+GalerkinBasis GLOBAL_stochasticRadiosisty_dummyBasis = {
         "dummy basis",
         0, nullptr, nullptr
 };
+
+static int inited = false;
 
 static double c(double u, double v) {
     return 1;
@@ -20,40 +19,42 @@ static double c(double u, double v) {
 
 static double (*f[1])(double, double) = {c};
 
-GalerkinBasis clusterBasis = {
-        "cluster basis",
-        1, f, f
+GalerkinBasis GLOBAL_stochasticRadiosisty_clusterBasis = {
+    "cluster basis",
+    1,
+    f,
+    f
 };
 
-APPROXDESC approxdesc[NR_APPROX_TYPES] = {
-        {"constant",  1},
-        {"linear",    3},
-        {"bilinear",  4},
-        {"quadratic", 6},
-        {"cubic",     10}
+APPROXDESC GLOBAL_stochasticRadiosisty_approxDesc[NR_APPROX_TYPES] = {
+    {"constant",  1},
+    {"linear",    3},
+    {"bilinear",  4},
+    {"quadratic", 6},
+    {"cubic",     10}
 };
 
 static GalerkinBasis MakeBasis(ELEMENT_TYPE et, APPROX_TYPE at) {
-    GalerkinBasis basis = mcr_quadBasis;
+    GalerkinBasis basis = GLOBAL_stochasticRadiosisty_quadBasis;
     char desc[100];
     const char *elem = nullptr;
 
     switch ( et ) {
         case ET_TRIANGLE:
-            basis = mcr_triBasis;
+            basis = GLOBAL_stochasticRadiosisty_triBasis;
             elem = "triangles";
             break;
         case ET_QUAD:
-            basis = mcr_quadBasis;
+            basis = GLOBAL_stochasticRadiosisty_quadBasis;
             elem = "quadrilaterals";
             break;
         default:
             logFatal(-1, "MakeBasis", "Invalid element type %d", et);
     }
 
-    basis.size = approxdesc[at].basis_size;
+    basis.size = GLOBAL_stochasticRadiosisty_approxDesc[at].basis_size;
 
-    snprintf(desc, 100, "%s orthonormal basis for %s", approxdesc[at].name, elem);
+    snprintf(desc, 100, "%s orthonormal basis for %s", GLOBAL_stochasticRadiosisty_approxDesc[at].name, elem);
     basis.description = strdup(desc);
 
     return basis;
@@ -129,12 +130,12 @@ monteCarloRadiosityInitBasis() {
         return;
     }
 
-    basisGalerkinComputeRegularFilterCoefficients(&mcr_triBasis, GLOBAL_stochasticRaytracing_triupxfm, &GLOBAL_crt8);
-    basisGalerkinComputeRegularFilterCoefficients(&mcr_quadBasis, GLOBAL_stochasticRaytracing_quadupxfm, &GLOBAL_crq8);
+    basisGalerkinComputeRegularFilterCoefficients(&GLOBAL_stochasticRadiosisty_triBasis, GLOBAL_stochasticRaytracing_triupxfm, &GLOBAL_crt8);
+    basisGalerkinComputeRegularFilterCoefficients(&GLOBAL_stochasticRadiosisty_quadBasis, GLOBAL_stochasticRaytracing_quadupxfm, &GLOBAL_crq8);
 
     for ( et = 0; et < NR_ELEMENT_TYPES; et++ ) {
         for ( at = 0; at < NR_APPROX_TYPES; at++ )
-            basis[et][at] = MakeBasis((ELEMENT_TYPE) et, (APPROX_TYPE) at);
+            GLOBAL_stochasticRadiosisty_basis[et][at] = MakeBasis((ELEMENT_TYPE) et, (APPROX_TYPE) at);
     }
     inited = true;
 }

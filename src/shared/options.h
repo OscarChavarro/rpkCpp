@@ -102,27 +102,27 @@ static CMDLINEOPTTYPE enumTypeStructName = {        \
   (void *)enumvaltab                    \
 }
 
-
-/* n string options: let the nstringTypeStruct.data field point to a maximum string length */
+// n string options: let the nstringTypeStruct.data field point to a maximum string length
 
 extern int Tnstring_get(char *, int);
 
-extern void Tnstring_print(FILE *, char *, int);
+extern void stringPrint(FILE *, char *, int);
 
-extern char *Tnstring_dummy_val;
+extern char *GLOBAL_option_dummyVal;
 
-/* The following macro declares an n string value options type:
- * example usage:
- * MakeNStringTypeStruct(nStringTypeStruct, n);
- * #define Tnstring (&nStringTypeStruct)
- * "Tnstring" then can be used as option value type in a CMDLINEOPTDESC record
- */
+/**
+The following macro declares an n string value options type:
+example usage:
+MakeNStringTypeStruct(nStringTypeStruct, n);
+#define Tnstring (&nStringTypeStruct)
+"Tnstring" then can be used as option value type in a CMDLINEOPTDESC record
+*/
 #define MakeNStringTypeStruct(nstringTypeStructName, n) \
-static CMDLINEOPTTYPE nstringTypeStructName = {        \
-  (int (*)(void *, void *))Tnstring_get,            \
-  (void (*)(FILE *, void *, void *))Tnstring_print,    \
-  (void *)&Tnstring_dummy_val,                \
-  (void *)n                    \
+static CMDLINEOPTTYPE nstringTypeStructName = { \
+  (int (*)(void *, void *))Tnstring_get, \
+  (void (*)(FILE *, void *, void *))stringPrint, \
+  (void *)&GLOBAL_option_dummyVal, \
+  (void *)n \
 }
 
 #endif

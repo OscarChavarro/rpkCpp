@@ -614,7 +614,7 @@ int RTStochastic_SaveImage(ImageOutputHandle *ip) {
 }
 
 static void RTStochastic_Interrupt() {
-    interrupt_raytracing = true;
+    GLOBAL_rayCasting_interruptRaytracing = true;
 }
 
 static void RTStochastic_Init() {

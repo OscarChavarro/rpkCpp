@@ -17,7 +17,7 @@ initCoefficients(StochasticRadiosityElement *elem) {
     }
 
     elem->rad = elem->unshot_rad = elem->received_rad = (COLOR *) nullptr;
-    elem->basis = &dummyBasis;
+    elem->basis = &GLOBAL_stochasticRadiosisty_dummyBasis;
 }
 
 /**
@@ -25,7 +25,7 @@ Disposes previously allocated coefficients
 */
 void
 disposeCoefficients(StochasticRadiosityElement *elem) {
-    if ( elem->basis && elem->basis != &dummyBasis && elem->rad ) {
+    if ( elem->basis && elem->basis != &GLOBAL_stochasticRadiosisty_dummyBasis && elem->rad ) {
         free(elem->rad);
         free(elem->unshot_rad);
         free(elem->received_rad);
@@ -37,9 +37,9 @@ disposeCoefficients(StochasticRadiosityElement *elem) {
 static GalerkinBasis *
 ActualBasis(StochasticRadiosityElement *elem) {
     if ( elem->iscluster ) {
-        return &clusterBasis;
+        return &GLOBAL_stochasticRadiosisty_clusterBasis;
     } else {
-        return &basis[NR_VERTICES(elem) == 3 ? ET_TRIANGLE : ET_QUAD][GLOBAL_stochasticRaytracing_monteCarloRadiosityState.approximationOrderType];
+        return &GLOBAL_stochasticRadiosisty_basis[NR_VERTICES(elem) == 3 ? ET_TRIANGLE : ET_QUAD][GLOBAL_stochasticRaytracing_monteCarloRadiosityState.approximationOrderType];
     }
 }
 

@@ -34,9 +34,9 @@ class GalerkinBasis {
 };
 
 /* bases for quadrilaterals and triangles, implemented in basis[quad|tri].c */
-extern GalerkinBasis mcr_triBasis;
-extern GalerkinBasis mcr_quadBasis;
-extern GalerkinBasis clusterBasis;
+extern GalerkinBasis GLOBAL_stochasticRadiosisty_triBasis;
+extern GalerkinBasis GLOBAL_stochasticRadiosisty_quadBasis;
+extern GalerkinBasis GLOBAL_stochasticRadiosisty_clusterBasis;
 
 #define NR_APPROX_TYPES 5
 enum APPROX_TYPE {
@@ -54,7 +54,7 @@ class APPROXDESC {
     int basis_size;
 };
 
-extern APPROXDESC approxdesc[NR_APPROX_TYPES];
+extern APPROXDESC GLOBAL_stochasticRadiosisty_approxDesc[NR_APPROX_TYPES];
 
 #define NR_ELEMENT_TYPES 2
 enum ELEMENT_TYPE {
@@ -63,7 +63,7 @@ enum ELEMENT_TYPE {
 };
 
 /* orthonormal canonical basis of given order for given type of elements */
-extern GalerkinBasis basis[NR_ELEMENT_TYPES][NR_APPROX_TYPES], dummyBasis;
+extern GalerkinBasis GLOBAL_stochasticRadiosisty_basis[NR_ELEMENT_TYPES][NR_APPROX_TYPES], GLOBAL_stochasticRadiosisty_dummyBasis;
 
 /* initialises table of bases */
 extern void monteCarloRadiosityInitBasis();

@@ -1,49 +1,35 @@
-#include <cmath>
-
 #include "scene/scene.h"
-#include "scene/VoxelGrid.h"
-#include "shared/camera.h"
-#include "skin/Patch.h"
 #include "raycasting/common/Raytracer.h"
 #include "raycasting/common/raytools.h"
 
-bool interrupt_raytracing;
+bool GLOBAL_rayCasting_interruptRaytracing;
 
-#define PATH_FRONT_HITFLAGS (HIT_FRONT|HIT_POINT|HIT_MATERIAL)
-#define PATH_FRONT_BACK_HITFLAGS (PATH_FRONT_HITFLAGS|HIT_BACK)
+#define PATH_FRONT_HIT_FLAGS (HIT_FRONT|HIT_POINT|HIT_MATERIAL)
+#define PATH_FRONT_BACK_HIT_FLAGS (PATH_FRONT_HIT_FLAGS|HIT_BACK)
 
 static RayHit *
 TraceWorld(
-        Ray *ray,
-        Patch *patch,
-        unsigned int flags = PATH_FRONT_HITFLAGS,
-        Patch *extraPatch = nullptr,
-        RayHit *hitstore = nullptr)
+    Ray *ray,
+    Patch *patch,
+    unsigned int flags = PATH_FRONT_HIT_FLAGS,
+    Patch *extraPatch = nullptr,
+    RayHit *hitStore = nullptr)
 {
-    static RayHit myhitstore;
+    static RayHit myHitStore;
     float dist;
     RayHit *result;
-    if ( !hitstore ) {
-        hitstore = &myhitstore;
+    if ( !hitStore ) {
+        hitStore = &myHitStore;
     }
 
     dist = HUGE;
-    patchDontIntersect(3, patch, patch ? patch->twin : nullptr,
-                       extraPatch);
-    result = GLOBAL_scene_worldVoxelGrid->gridIntersect(ray, 0., &dist, flags, hitstore);
+    patchDontIntersect(3, patch, patch ? patch->twin : nullptr, extraPatch);
+    result = GLOBAL_scene_worldVoxelGrid->gridIntersect(ray, 0.0, &dist, (int)flags, hitStore);
 
     if ( result ) {
         /* compute shading frame (Z-axis = shading normal) at intersection point */
         HitShadingFrame(result, &result->X, &result->Y, &result->Z);
     }
-
-    // Disable phong interpolation of normals
-    /*
-    if(result)
-    {
-      result->normal = result->patch->normal;
-    }
-    */
 
     patchDontIntersect(0);
 
@@ -52,23 +38,23 @@ TraceWorld(
 
 RayHit *
 FindRayIntersection(
-        Ray *ray,
-        Patch *patch,
-        BSDF *currentBsdf,
-        RayHit *hitstore)
+    Ray *ray,
+    Patch *patch,
+    BSDF *currentBsdf,
+    RayHit *hitStore)
 {
     int hitFlags;
     RayHit *newHit;
 
     if ( currentBsdf == nullptr ) {
         /* outside everything in vacuum */
-        hitFlags = PATH_FRONT_HITFLAGS;
+        hitFlags = PATH_FRONT_HIT_FLAGS;
     } else {
-        hitFlags = PATH_FRONT_BACK_HITFLAGS;
+        hitFlags = PATH_FRONT_BACK_HIT_FLAGS;
     }
 
     // Trace the ray
-    newHit = TraceWorld(ray, patch, hitFlags, nullptr, hitstore);
+    newHit = TraceWorld(ray, patch, hitFlags, nullptr, hitStore);
     Global_Raytracer_rayCount++; // statistics
 
     // Robustness test : If a back is hit, check the current
@@ -82,7 +68,7 @@ FindRayIntersection(
             // Warning("Findrayintersection", "Wrong patch : accuracy");
 
             newHit = TraceWorld(ray, patch,
-                                hitFlags, newHit->patch, hitstore);
+                                hitFlags, newHit->patch, hitStore);
             Global_Raytracer_rayCount++; // statistics
         }
     }
@@ -92,16 +78,21 @@ FindRayIntersection(
 
 
 /**
-PathNodesVisible : send a shadowray
+PathNodesVisible : send a shadow ray
 */
 bool
 PathNodesVisible(CPathNode *node1, CPathNode *node2) {
     Vector3D dir;
     Ray ray;
-    RayHit *hit, hitstore;
-    double cosRay1, cosRay2, dist, dist2;
-    float fdist;
-    bool visible = false, doTest;
+    RayHit *hit;
+    RayHit hitStore;
+    double cosRay1;
+    double cosRay2;
+    double dist;
+    double dist2;
+    float fDistance;
+    bool visible;
+    bool doTest;
 
     // Determines visibility between two nodes,
     // Returns visibility and direction from eye to light node (newDir_e)
@@ -119,7 +110,7 @@ PathNodesVisible(CPathNode *node1, CPathNode *node2) {
     dist2 = VECTORNORM2(dir);
     dist = sqrt(dist2);
 
-    VECTORSCALEINVERSE(dist, dir, dir);
+    VECTORSCALEINVERSE((float)dist, dir, dir);
 
     // *newDir_e = dir;
 
@@ -158,16 +149,16 @@ PathNodesVisible(CPathNode *node1, CPathNode *node2) {
 
     if ( doTest ) {
         if ( node2->m_hit.patch->isVirtual()) {
-            fdist = HUGE;
+            fDistance = HUGE;
         } else {
-            fdist = (float) dist;
+            fDistance = (float) dist;
         }
 
         patchDontIntersect(3, node2->m_hit.patch, node1->m_hit.patch,
                            node1->m_hit.patch ? node1->m_hit.patch->twin : nullptr);
         hit = GLOBAL_scene_worldVoxelGrid->gridIntersect(&ray,
-                            0., &fdist,
-                            HIT_FRONT | HIT_BACK | HIT_ANY, &hitstore);
+                            0., &fDistance,
+                            HIT_FRONT | HIT_BACK | HIT_ANY, &hitStore);
         patchDontIntersect(0);
         visible = (hit == nullptr);
 
@@ -195,12 +186,19 @@ EyeNodeVisible(
 {
     Vector3Dd dir;
     Ray ray;
-    RayHit *hit, hitstore;
-    double cosRayLight, cosRayEye, dist, dist2;
-    float fdist;
-    bool visible = false;
-    double x, y, z, xz, yz;
-    // double xn, yn, zn;
+    RayHit *hit;
+    RayHit hitStore;
+    double cosRayLight;
+    double cosRayEye;
+    double dist;
+    double dist2;
+    float fDistance;
+    bool visible;
+    double x;
+    double y;
+    double z;
+    double xz;
+    double yz;
 
     // Determines visibility between two nodes,
     // Returns visibility and direction from eye to light node (newDir_e)
@@ -234,10 +232,9 @@ EyeNodeVisible(
             yz = y / z;
 
             if ( fabs(yz) < GLOBAL_camera_mainCamera.tanvfov ) {
-                /* point is within view piramid */
+                // Point is within view pyramid
 
-                /* check normal directions */
-
+                // Check normal directions
                 dist = dist * (1 - EPSILON);
 
                 ray.pos = eyeNode->m_hit.point;
@@ -247,12 +244,12 @@ EyeNodeVisible(
                 cosRayLight = -VECTORDOTPRODUCT(dir, node->m_normal);
 
                 if ((cosRayLight > 0) && (cosRayEye > 0)) {
-                    fdist = (float) dist;
+                    fDistance = (float) dist;
                     patchDontIntersect(3, node->m_hit.patch, eyeNode->m_hit.patch,
                                        eyeNode->m_hit.patch ? eyeNode->m_hit.patch->twin : nullptr);
                     hit = GLOBAL_scene_worldVoxelGrid->gridIntersect(&ray,
-                                        0., &fdist,
-                                        HIT_FRONT | HIT_ANY, &hitstore);
+                                        0., &fDistance,
+                                        HIT_FRONT | HIT_ANY, &hitStore);
                     patchDontIntersect(0);
                     // HIT_BACK removed ! So you can see through backwalls with N.E.E
                     visible = (hit == nullptr);
@@ -262,8 +259,8 @@ EyeNodeVisible(
                     if ( visible ) {
                         // *geomFactor = cosRayEye * cosRayLight / dist2;
 
-                        *pix_x = xz;
-                        *pix_y = yz;
+                        *pix_x = (float)xz;
+                        *pix_y = (float)yz;
 
                         //*nx = (int)floor((1.0 + xz/GLOBAL_camera_mainCamera.tanhfov)/2.0 * GLOBAL_camera_mainCamera.hres);
                         //*ny = (int)floor((1.0 + yz/GLOBAL_camera_mainCamera.tanvfov)/2.0 * GLOBAL_camera_mainCamera.vres);

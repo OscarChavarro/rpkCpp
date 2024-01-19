@@ -101,8 +101,8 @@ put_cxy()
     static char ybuf[24];
     static char *ccom[4] = {GLOBAL_mgf_entityNames[MG_E_CXY], xbuf, ybuf};
 
-    snprintf(xbuf, 24, "%.4f", c_ccolor->cx);
-    snprintf(ybuf, 24, "%.4f", c_ccolor->cy);
+    snprintf(xbuf, 24, "%.4f", GLOBAL_mgf_currentColor->cx);
+    snprintf(ybuf, 24, "%.4f", GLOBAL_mgf_currentColor->cy);
     return mgfHandle(MG_E_CXY, 3, ccom);
 }
 
@@ -124,9 +124,9 @@ put_cspec()
         newav[0] = GLOBAL_mgf_entityNames[MG_E_CSPEC];
         newav[1] = wl[0];
         newav[2] = wl[1];
-        sf = (double) C_CNSS / c_ccolor->ssum;
+        sf = (double) C_CNSS / GLOBAL_mgf_currentColor->ssum;
         for ( i = 0; i < C_CNSS; i++ ) {
-            snprintf(vbuf[i], 24, "%.4f", sf * c_ccolor->ssamp[i]);
+            snprintf(vbuf[i], 24, "%.4f", sf * GLOBAL_mgf_currentColor->ssamp[i]);
             newav[i + 3] = vbuf[i];
         }
         newav[C_CNSS + 3] = nullptr;
@@ -143,7 +143,7 @@ Handle spectral color
 static int
 e_cspec(int ac, char **av) {
     /* convert to xy chromaticity */
-    mgfContextFixColorRepresentation(c_ccolor, C_CSXY);
+    mgfContextFixColorRepresentation(GLOBAL_mgf_currentColor, C_CSXY);
     /* if it's really their handler, use it */
     if ( GLOBAL_mgf_handleCallbacks[MG_E_CXY] != handleColorEntity ) {
         return put_cxy();
@@ -165,8 +165,8 @@ e_cmix(int ac, char **av) {
      *	5. if we have only xy results, handle it as c_spec() would
      */
     if ( GLOBAL_mgf_handleCallbacks[MG_E_CSPEC] == e_cspec ) {
-        mgfContextFixColorRepresentation(c_ccolor, C_CSXY);
-    } else if ( c_ccolor->flags & C_CDSPEC ) {
+        mgfContextFixColorRepresentation(GLOBAL_mgf_currentColor, C_CSXY);
+    } else if ( GLOBAL_mgf_currentColor->flags & C_CDSPEC ) {
         return put_cspec();
     }
     if ( GLOBAL_mgf_handleCallbacks[MG_E_CXY] != handleColorEntity ) {
@@ -190,7 +190,7 @@ e_cct(int ac, char **av)
     if ( GLOBAL_mgf_handleCallbacks[MG_E_CSPEC] != e_cspec ) {
         return put_cspec();
     }
-    mgfContextFixColorRepresentation(c_ccolor, C_CSXY);
+    mgfContextFixColorRepresentation(GLOBAL_mgf_currentColor, C_CSXY);
     if ( GLOBAL_mgf_handleCallbacks[MG_E_CXY] != handleColorEntity ) {
         return put_cxy();
     }
@@ -551,7 +551,7 @@ mgfDefaultHandlerForUnknownEntities(int ac, char **av)        /* default handler
 void
 mgfClear()            /* clear parser history */
 {
-    c_clearall();            /* clear context tables */
+    clearContextTables();            /* clear context tables */
     while ( GLOBAL_mgf_file != nullptr) {        /* reset our file context */
         mgfClose();
     }
@@ -674,7 +674,7 @@ mgfEntitySphere(int ac, char **av)            /* expand a sphere into cones */
     if ( ac != 3 ) {
         return MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
     }
-    if ((cv = c_getvert(av[1])) == nullptr) {
+    if ((cv = getNamedVertex(av[1])) == nullptr) {
         return MGF_ERROR_UNDEFINED_REFERENCE;
     }
     if ( !isfltWords(av[2])) {
@@ -737,7 +737,7 @@ mgfEntityTorus(int ac, char **av)            /* expand a torus into cones */
     if ( ac != 4 ) {
         return MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
     }
-    if ((cv = c_getvert(av[1])) == nullptr) {
+    if ((cv = getNamedVertex(av[1])) == nullptr) {
         return MGF_ERROR_UNDEFINED_REFERENCE;
     }
     if ( is0vect(cv->n)) {
@@ -864,7 +864,7 @@ mgfEntityRing(int ac, char **av)            /* turn a ring into polygons */
     if ( ac != 4 ) {
         return MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
     }
-    if ((cv = c_getvert(av[1])) == nullptr) {
+    if ((cv = getNamedVertex(av[1])) == nullptr) {
         return MGF_ERROR_UNDEFINED_REFERENCE;
     }
     if ( is0vect(cv->n)) {
@@ -993,8 +993,8 @@ mgfEntityCone(int ac, char **av)            /* turn a cone into polygons */
     if ( ac != 5 ) {
         return MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
     }
-    if ((cv1 = c_getvert(av[1])) == nullptr ||
-        (cv2 = c_getvert(av[3])) == nullptr) {
+    if ((cv1 = getNamedVertex(av[1])) == nullptr ||
+        (cv2 = getNamedVertex(av[3])) == nullptr) {
         return MGF_ERROR_UNDEFINED_REFERENCE;
     }
     v1n = av[1];
@@ -1198,14 +1198,14 @@ mgfEntityPrism(int ac, char **av)            /* turn a prism into polygons */
         return MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
     }
     /* compute face normal */
-    if ((cv0 = c_getvert(av[1])) == nullptr) {
+    if ((cv0 = getNamedVertex(av[1])) == nullptr) {
         return MGF_ERROR_UNDEFINED_REFERENCE;
     }
     hasnorm = 0;
     norm[0] = norm[1] = norm[2] = 0.;
     v1[0] = v1[1] = v1[2] = 0.;
     for ( i = 2; i < ac - 1; i++ ) {
-        if ((cv = c_getvert(av[i])) == nullptr) {
+        if ((cv = getNamedVertex(av[i])) == nullptr) {
             return MGF_ERROR_UNDEFINED_REFERENCE;
         }
         hasnorm += !is0vect(cv->n);
@@ -1229,7 +1229,7 @@ mgfEntityPrism(int ac, char **av)            /* turn a prism into polygons */
         if ((rv = mgfHandle(MG_E_VERTEX, 4, vent)) != MGF_OK ) {
             return rv;
         }
-        cv = c_getvert(av[i]);        /* checked above */
+        cv = getNamedVertex(av[i]);        /* checked above */
         for ( j = 0; j < 3; j++ ) {
             snprintf(p[j], 24, FLTFMT, cv->p[j] - length * norm[j]);
         }

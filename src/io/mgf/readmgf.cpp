@@ -428,7 +428,7 @@ getVertex(char *name) {
     MgfVertexContext *vp;
     Vertex *theVertex;
 
-    vp = c_getvert(name);
+    vp = getNamedVertex(name);
     if ( vp == nullptr ) {
         return (Vertex *) nullptr;
     }
@@ -903,7 +903,7 @@ handleFaceWithHolesEntity(int argc, char **argv) {
             continue;
         }
 
-        vp = c_getvert(argv[i]);
+        vp = getNamedVertex(argv[i]);
         if ( !vp ) {            /* undefined vertex. */
             return MGF_ERROR_UNDEFINED_REFERENCE;
         }

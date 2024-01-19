@@ -1,9 +1,8 @@
-/*
-command line options and defaults
+/**
+Command line options and defaults
 */
 
 #include <cstring>
-#include <cstdlib>
 
 #include "common/linealAlgebra/vectorMacros.h"
 #include "material/color.h"
@@ -82,25 +81,29 @@ CMDLINEOPTTYPE GLOBAL_options_stringType = {
         nullptr
 };
 
-/* ------------------- copied string (maxlength n) option values --------------------- */
-int Tnstring_get(char *s, int n) {
-    if ( s ) {
+/**
+Copied string (maxlength n) option values
+*/
+int
+Tnstring_get(char *s, int n) {
+    if ( s != nullptr ) {
         strncpy(s, *_argv, n);
-        s[n - 1] = '\0';  /* ensure zero ending c-string */
+        s[n - 1] = '\0';  // Ensure zero ending c-string
     }
 
     return true;
 }
 
-void Tnstring_print(FILE *fp, char *s, int n) {
+void
+stringPrint(FILE *fp, char *s, int n) {
     fprintf(fp, "'%s'", s ? s : "");
 }
 
-char *Tnstring_dummy_val = nullptr;
+char *GLOBAL_option_dummyVal = nullptr;
 
-
-/* ------------------- enumerated type option values --------------------- */
-static void print_enum_vals(ENUMDESC *tab) {
+// Enumerated type option values
+static void
+printEnumVals(ENUMDESC *tab) {
     while ( tab && tab->name ) {
         fprintf(stderr, "\t%s\n", tab->name);
         tab++;
@@ -117,7 +120,7 @@ int Tenum_get(int *v, ENUMDESC *tab) {
         tab++;
     }
     fprintf(stderr, "Invalid option argument '%s'. Should be one of:\n", *_argv);
-    print_enum_vals(tabsave);
+    printEnumVals(tabsave);
     return false;
 }
 

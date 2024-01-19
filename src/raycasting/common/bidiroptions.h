@@ -71,9 +71,9 @@ extern BIDIRPATH_STATE bidir;
 
 /*** Function prototypes ***/
 
-void BidirPathDefaults();
+void biDirectionalPathDefaults();
 
-void BidirPathParseOptions(int *argc, char **argv);
+void biDirectionalPathParseOptions(int *argc, char **argv);
 
 void BidirPathPrintOptions(FILE *fp);
 

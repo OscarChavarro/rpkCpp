@@ -162,7 +162,7 @@ stochasticRelaxationRadiosityDoIncrementalRadianceIterations() {
         }
         nr_rays = stochasticRelaxationRadiosityRandomRound(
                 (float)(unShotFraction * (double)GLOBAL_stochasticRaytracing_monteCarloRadiosityState.initialNumberOfRays *
-                approxdesc[GLOBAL_stochasticRaytracing_monteCarloRadiosityState.approximationOrderType].basis_size));
+                        GLOBAL_stochasticRadiosisty_approxDesc[GLOBAL_stochasticRaytracing_monteCarloRadiosityState.approximationOrderType].basis_size));
 
         stepNumber++;
         fprintf(stderr, "Incremental radiance propagation step %ld: %.3f%% unshot power left.\n",

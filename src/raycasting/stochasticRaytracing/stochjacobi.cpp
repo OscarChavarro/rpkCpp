@@ -106,7 +106,7 @@ static double Probability(StochasticRadiosityElement *elem) {
         /* equal weight to importance and radiance propagation for constant approximation,
          * but higher weight to radiance for higher order approximations. Still OK
          * if only propagating importance. */
-        prob = prob * approxdesc[GLOBAL_stochasticRaytracing_monteCarloRadiosityState.approximationOrderType].basis_size + prob2;
+        prob = prob * GLOBAL_stochasticRadiosisty_approxDesc[GLOBAL_stochasticRaytracing_monteCarloRadiosityState.approximationOrderType].basis_size + prob2;
     }
 
     return prob;
