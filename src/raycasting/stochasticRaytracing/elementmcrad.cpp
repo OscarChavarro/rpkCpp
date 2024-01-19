@@ -536,6 +536,9 @@ galerkinElementMidpoint(StochasticRadiosityElement *elem) {
     return elem->midpoint;
 }
 
+/**
+Only for surface elements
+*/
 int
 monteCarloRadiosityElementIsTextured(StochasticRadiosityElement *elem) {
     Material *mat;
@@ -547,6 +550,9 @@ monteCarloRadiosityElementIsTextured(StochasticRadiosityElement *elem) {
     return BsdfIsTextured(mat->bsdf) || EdfIsTextured(mat->edf);
 }
 
+/**
+Uses elem->Rd for surface elements
+*/
 float
 monteCarloRadiosityElementScalarReflectance(StochasticRadiosityElement *elem) {
     float rd;
@@ -930,6 +936,9 @@ monteCarloRadiosityForAllSurfaceLeafs(StochasticRadiosityElement *top,
     REC_EndForAllSurfaceLeafs;
 }
 
+/**
+Returns true if elem is a leaf element
+*/
 int
 monteCarloRadiosityElementIsLeaf(StochasticRadiosityElement *elem) {
     return (!elem->regular_subelements && !elem->irregular_subelements);

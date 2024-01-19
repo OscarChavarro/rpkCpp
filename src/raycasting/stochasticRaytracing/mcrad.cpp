@@ -227,7 +227,7 @@ in the current random walk radiosity implementation
 */
 void
 monteCarloRadiosityPatchComputeNewColor(Patch *patch) {
-    patch->color = ElementColor(TOPLEVEL_ELEMENT(patch));
+    patch->color = elementColor(TOPLEVEL_ELEMENT(patch));
     patchComputeVertexColors(patch);
 }
 
@@ -406,7 +406,7 @@ monteCarloRadiosityReInit() {
 
     fprintf(stderr, "Initialising Monte Carlo radiosity ...\n");
 
-    SetSequence4D(GLOBAL_stochasticRaytracing_monteCarloRadiosityState.sequence);
+    setSequence4D(GLOBAL_stochasticRaytracing_monteCarloRadiosityState.sequence);
 
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.inited = true;
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.cpuSeconds = 0.;
@@ -488,7 +488,7 @@ monteCarloRadiosityInterpolatedReflectanceAtPoint(StochasticRadiosityElement *le
     if ( leaf != cachedleaf ) {
         int i;
         for ( i = 0; i < leaf->nrvertices; i++ ) {
-            vrd[i] = VertexReflectance(leaf->vertex[i]);
+            vrd[i] = vertexReflectance(leaf->vertex[i]);
         }
     }
     cachedleaf = leaf;
@@ -516,7 +516,7 @@ monteCarloRadiosityGetRadiance(Patch *patch, double u, double v, Vector3D dir) {
     COLOR TrueRdAtPoint = monteCarloRadiosityDiffuseReflectanceAtPoint(patch, u, v);
     StochasticRadiosityElement *leaf = monteCarloRadiosityRegularLeafElementAtPoint(TOPLEVEL_ELEMENT(patch), &u, &v);
     COLOR UsedRdAtPoint = GLOBAL_render_renderOptions.smooth_shading ? monteCarloRadiosityInterpolatedReflectanceAtPoint(leaf, u, v) : leaf->Rd;
-    COLOR rad = ElementDisplayRadianceAtPoint(leaf, u, v);
+    COLOR rad = elementDisplayRadianceAtPoint(leaf, u, v);
     COLOR source_rad;
     colorClear(source_rad);
 

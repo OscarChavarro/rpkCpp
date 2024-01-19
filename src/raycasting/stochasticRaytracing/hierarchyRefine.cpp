@@ -154,7 +154,12 @@ static REFINE_ACTION SubdivideLargest(LINK *link) {
     }
 }
 
-REFINE_ACTION PowerOracle(LINK *link) {
+/**
+Well known power-based refinement oracle (Hanrahan'91, with importance
+a la Smits'92 if GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceDriven is true)
+*/
+REFINE_ACTION
+powerOracle(LINK *link) {
     if ( selfLink(link)) {
         return subdivideReceiver;
     } else if ( linkInvolvingClusters(link) && !disjunctElements(link->rcv, link->src)) {
@@ -166,7 +171,15 @@ REFINE_ACTION PowerOracle(LINK *link) {
     }
 }
 
-LINK TopLink(StochasticRadiosityElement *rcvtop, StochasticRadiosityElement *srctop) {
+/**
+Constructs a toplevel link for given toplevel surface elements
+rcvtop and srctop: the result is a link between the toplevel
+cluster containing the whole scene and itself if clustering is
+enabled. If clustering is not enabled, a link between the
+given toplevel surface elements is returned
+*/
+LINK
+topLink(StochasticRadiosityElement *rcvtop, StochasticRadiosityElement *srctop) {
     StochasticRadiosityElement *rcv, *src;
     LINK link;
 
@@ -183,20 +196,37 @@ LINK TopLink(StochasticRadiosityElement *rcvtop, StochasticRadiosityElement *src
     return link;
 }
 
-/* (ur,vr) are the coordinates of the point on the receiver patch, 
- * (us,vs) coordinates of the point on the source patch. */
+/**
+Refines a toplevel link (constructed with TopLink() above). The
+returned LINK structure contains pointers the admissable
+elements and corresponding point coordinates for light transport.
+rcvtop and srctop are toplevel surface elements containing the
+endpoint and origin respectively of a line along which light is to
+be transported. (ur,vr) and (us,vs) are the uniform parameters of
+the endpoint and origin on the toplevel surface elements on input.
+They will be replaced by the point parameters on the admissable elements
+after refinement
+(ur,vr) are the coordinates of the point on the receiver patch,
+(us,vs) coordinates of the point on the source patch
+*/
 LINK *
-Refine(LINK *link,
-       StochasticRadiosityElement *rcvtop, double *ur, double *vr,
-       StochasticRadiosityElement *srctop, double *us, double *vs,
-       ORACLE evaluate_link) {
+hierarchyRefine(
+    LINK *link,
+    StochasticRadiosityElement *rcvTop,
+    double *ur,
+    double *vr,
+    StochasticRadiosityElement *srcTop,
+    double *us,
+    double *vs,
+    ORACLE evaluate_link)
+{
     if ( !GLOBAL_stochasticRaytracing_hierarchy.do_h_meshing ) {
-        link->rcv = rcvtop;
-        link->src = srctop;
+        link->rcv = rcvTop;
+        link->src = srcTop;
     } else {
         REFINE_ACTION action;
         while ((action = evaluate_link(link)) != dontRefine ) {
-            link = action(link, rcvtop, ur, vr, srctop, us, vs);
+            link = action(link, rcvTop, ur, vr, srcTop, us, vs);
         }
     }
     return link;

@@ -23,7 +23,7 @@ This routine updates global ray counts and total/unshot power/importance statist
 CAVEAT: propagate either radiance or importance alone. Simultaneous
 propagation of importance and radiance does not work yet.
 */
-extern void DoStochasticJacobiIteration(
+extern void doStochasticJacobiIteration(
     long nr_rays,
     COLOR *(*GetRadiance)(StochasticRadiosityElement *),
     float (*GetImportance)(StochasticRadiosityElement *),

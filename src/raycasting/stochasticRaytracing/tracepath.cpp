@@ -104,14 +104,14 @@ tracePath(
     pathAddNode(path, origin, birth_prob, inPoint, outpoint);
     do {
         GLOBAL_stochasticRaytracing_monteCarloRadiosityState.tracedRays++;
-        ray = McrGenerateLocalLine(P, Sample4D(TOPLEVEL_ELEMENT(P)->ray_index++));
+        ray = mcrGenerateLocalLine(P, sample4D(TOPLEVEL_ELEMENT(P)->ray_index++));
         if ( path->nrnodes > 1 && GLOBAL_stochasticRaytracing_monteCarloRadiosityState.continuousRandomWalk ) {
             // Scattered ray originates at point of incidence of previous ray
             ray.pos = path->nodes[path->nrnodes - 1].inpoint;
         }
         path->nodes[path->nrnodes - 1].outpoint = ray.pos;
 
-        hit = McrShootRay(P, &ray, &hitStore);
+        hit = mcrShootRay(P, &ray, &hitStore);
         if ( !hit ) {
             // Path disappears into background
             break;

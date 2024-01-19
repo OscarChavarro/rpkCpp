@@ -59,9 +59,9 @@ static void
 stochasticRelaxationRadiosityRecomputeDisplayColors() {
     if ( GLOBAL_stochasticRaytracing_hierarchy.topcluster ) {
         monteCarloRadiosityForAllLeafElements(GLOBAL_stochasticRaytracing_hierarchy.topcluster,
-                                              ElementComputeNewVertexColors);
+                                              elementComputeNewVertexColors);
         monteCarloRadiosityForAllLeafElements(GLOBAL_stochasticRaytracing_hierarchy.topcluster,
-                                              ElementAdjustTVertexColors);
+                                              elementAdjustTVertexColors);
     } else {
         for ( PatchSet *window = GLOBAL_scene_patches; window != nullptr; window = window->next ) {
             monteCarloRadiosityPatchComputeNewColor(window->patch);
@@ -168,7 +168,7 @@ stochasticRelaxationRadiosityDoIncrementalRadianceIterations() {
         fprintf(stderr, "Incremental radiance propagation step %ld: %.3f%% unshot power left.\n",
                 stepNumber, 100. * unShotFraction);
 
-        DoStochasticJacobiIteration(nr_rays, stochasticRelaxationRadiosityElementUnShotRadiance, nullptr,
+        doStochasticJacobiIteration(nr_rays, stochasticRelaxationRadiosityElementUnShotRadiance, nullptr,
                                     stochasticRelaxationRadiosityElementIncrementRadiance);
         GLOBAL_stochasticRaytracing_monteCarloRadiosityState.setSource = false; // Direct illumination is copied to SOURCE_FLUX(P) only the first time
 
@@ -236,7 +236,7 @@ stochasticRelaxationRadiosityDoIncrementalImportanceIterations() {
         fprintf(stderr, "Incremental importance propagation step %ld: %.3f%% unshot importance left.\n",
                 step_nr, 100. * unshot_fraction);
 
-        DoStochasticJacobiIteration(nr_rays, nullptr, stochasticRelaxationRadiosityElementUnShotImportance,
+        doStochasticJacobiIteration(nr_rays, nullptr, stochasticRelaxationRadiosityElementUnShotImportance,
                                     stochasticRelaxationRadiosityElementIncrementImportance);
 
         monteCarloRadiosityUpdateCpuSecs();
@@ -304,7 +304,7 @@ stochasticRelaxationRadiosityPrintRegularStats() {
 static void
 stochasticRelaxationRadiosityDoRegularRadianceIteration() {
     fprintf(stderr, "Regular radiance iteration %d:\n", GLOBAL_stochasticRaytracing_monteCarloRadiosityState.currentIteration);
-    DoStochasticJacobiIteration(GLOBAL_stochasticRaytracing_monteCarloRadiosityState.raysPerIteration,
+    doStochasticJacobiIteration(GLOBAL_stochasticRaytracing_monteCarloRadiosityState.raysPerIteration,
                                 stochasticRelaxationRadiosityElementRadiance, nullptr,
                                 stochasticRelaxationRadiosityElementUpdateRadiance);
 
@@ -337,7 +337,7 @@ stochasticRelaxationRadiosityDoRegularImportanceIteration() {
 
     nr_rays = GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceRaysPerIteration;
     fprintf(stderr, "Regular importance iteration %d:\n", GLOBAL_stochasticRaytracing_monteCarloRadiosityState.currentIteration);
-    DoStochasticJacobiIteration(nr_rays, nullptr, stochasticRelaxationRadiosityElementImportance,
+    doStochasticJacobiIteration(nr_rays, nullptr, stochasticRelaxationRadiosityElementImportance,
                                 stochasticRelaxationRadiosityElementUpdateImportance);
 
     monteCarloRadiosityUpdateCpuSecs();
@@ -430,7 +430,7 @@ stochasticRelaxationRadiosityDoStep() {
 static void
 stochasticRelaxationRadiosityRenderPatch(Patch *patch) {
     if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.inited ) {
-        monteCarloRadiosityForAllSurfaceLeafs(TOPLEVEL_ELEMENT(patch), McrRenderElement);
+        monteCarloRadiosityForAllSurfaceLeafs(TOPLEVEL_ELEMENT(patch), mcrRenderElement);
     } else {
         renderPatch(patch);
     }    /* not yet initialised */

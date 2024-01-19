@@ -244,7 +244,7 @@ static void PropagateRadiance(StochasticRadiosityElement *src, double us, double
     } else {
         switch ( GLOBAL_stochasticRaytracing_hierarchy.clustering ) {
             case NO_CLUSTERING:
-                logFatal(-1, "Propagate", "Refine() returns cluster although clustering is disabled.\n");
+                logFatal(-1, "Propagate", "hierarchyRefine() returns cluster although clustering is disabled.\n");
                 break;
             case ISOTROPIC_CLUSTERING:
                 PropagateRadianceToClusterIsotropic(rcv, raypow, src, fraction, weight);
@@ -283,8 +283,8 @@ static void RefineAndPropagateRadiance(StochasticRadiosityElement *src, double u
                                        double src_prob, double rcv_prob,
                                        Ray *ray, float dir) {
     LINK link;
-    link = TopLink(Q, P);
-    Refine(&link, Q, &uq, &vq, P, &up, &vp, GLOBAL_stochasticRaytracing_hierarchy.oracle);
+    link = topLink(Q, P);
+    hierarchyRefine(&link, Q, &uq, &vq, P, &up, &vp, GLOBAL_stochasticRaytracing_hierarchy.oracle);
     /* propagate from the leaf element src to the admissable receiver element
      * containing/contained by Q */
     PropagateRadiance(src, us, vs, link.rcv, uq, vq, src_prob, rcv_prob, ray, dir);
@@ -399,9 +399,9 @@ static void ElementShootRay(StochasticRadiosityElement *src,
         GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceTracedRays++;
     }
 
-    ray = McrGenerateLocalLine(src->patch,
+    ray = mcrGenerateLocalLine(src->patch,
                                NextSample(src, nmsb, msb1, rmsb2, zeta));
-    hit = McrShootRay(src->patch, &ray, &hitstore);
+    hit = mcrShootRay(src->patch, &ray, &hitstore);
     if ( hit ) {
         double uhit = 0., vhit = 0.;
         UniformHitCoordinates(hit, &uhit, &vhit);
@@ -608,7 +608,7 @@ static void PushUpdatePullSweep() {
  * propagation of importance and radiance does not work yet.
  */
 void
-DoStochasticJacobiIteration(
+doStochasticJacobiIteration(
     long nr_rays,
     COLOR *(*GetRadiance)(StochasticRadiosityElement *),
     float (*GetImportance)(StochasticRadiosityElement *),

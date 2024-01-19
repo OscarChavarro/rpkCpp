@@ -18,7 +18,7 @@ static int globalObjectMaxName; // allocated list size
 Handle an object entity statement
 */
 int
-obj_handler(int ac, char **av)
+handleObject2Entity(int ac, char **av)
 {
     if ( ac == 1 ) {
         // just pop top object

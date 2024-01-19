@@ -50,10 +50,10 @@ makeLightSourceTable() {
 
 static void
 nextLightSample(Patch *patch, double *zeta) {
-    double *xi = Sample4D(TOPLEVEL_ELEMENT(patch)->ray_index++);
+    double *xi = sample4D(TOPLEVEL_ELEMENT(patch)->ray_index++);
     if ( patch->numberOfVertices == 3 ) {
         double u = xi[0], v = xi[1];
-        FoldSampleF(&u, &v);
+        foldSampleF(&u, &v);
         zeta[0] = u;
         zeta[1] = v;
     } else {
@@ -95,7 +95,7 @@ sampleLight(LIGHTSOURCETABLE *light, double light_selection_pdf) {
     RayHit *hit;
 
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.tracedRays++;
-    hit = McrShootRay(light->patch, &ray, &hitStore);
+    hit = mcrShootRay(light->patch, &ray, &hitStore);
     if ( hit ) {
         double pdf = light_selection_pdf * point_selection_pdf * dir_selection_pdf;
         double outcos = VECTORDOTPRODUCT(ray.dir, light->patch->normal);

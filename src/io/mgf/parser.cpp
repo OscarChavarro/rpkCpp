@@ -211,7 +211,7 @@ mgfAlternativeInit(int (*handleCallbacks[MGF_TOTAL_NUMBER_OF_ENTITIES])(int, cha
         handleCallbacks[MG_E_IES] = e_ies;
     }
     if ( handleCallbacks[MG_E_INCLUDE] == nullptr) {
-        handleCallbacks[MG_E_INCLUDE] = e_include;
+        handleCallbacks[MG_E_INCLUDE] = handleIncludedFile;
     }
     if ( handleCallbacks[MGF_ERROR_SPHERE] == nullptr) {
         handleCallbacks[MGF_ERROR_SPHERE] = mgfEntitySphere;
@@ -562,7 +562,7 @@ mgfClear()            /* clear parser history */
  */
 
 int
-e_include(int ac, char **av)        /* include file */
+handleIncludedFile(int ac, char **av)
 {
     char *xfarg[MGF_MAXIMUM_ARGUMENT_COUNT];
     MgfReaderContext ictx;

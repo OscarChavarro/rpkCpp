@@ -363,7 +363,7 @@ static void
 randomWalkRadiosityDoFirstShot() {
     long nr_rays = GLOBAL_stochasticRaytracing_monteCarloRadiosityState.initialNumberOfRays * GLOBAL_stochasticRadiosisty_approxDesc[GLOBAL_stochasticRaytracing_monteCarloRadiosityState.approximationOrderType].basis_size;
     fprintf(stderr, "First shot (%ld rays):\n", nr_rays);
-    DoStochasticJacobiIteration(nr_rays, randomWalkRadiosityGetSelfEmittedRadiance, nullptr,
+    doStochasticJacobiIteration(nr_rays, randomWalkRadiosityGetSelfEmittedRadiance, nullptr,
                                 randomWalkRadiosityUpdateSourceIllum);
     randomWalkRadiosityPrintStats();
 }

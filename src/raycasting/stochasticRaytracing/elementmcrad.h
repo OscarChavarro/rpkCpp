@@ -1,5 +1,3 @@
-/* element.h */
-
 #ifndef _ELEMENT_H_
 #define _ELEMENT_H_
 
@@ -38,10 +36,8 @@ extern void monteCarloRadiosityForAllLeafElements(StochasticRadiosityElement *to
 
 extern void monteCarloRadiosityForAllSurfaceLeafs(StochasticRadiosityElement *top, void (*func)(StochasticRadiosityElement *));
 
-/* returns true if top has children and returns false if top is a leaf element */
 extern int monteCarloRadiosityForAllChildrenElements(StochasticRadiosityElement *top, void (*func)(StochasticRadiosityElement *));
 
-/* returns true if elem is a leaf element */
 extern int monteCarloRadiosityElementIsLeaf(StochasticRadiosityElement *elem);
 
 extern void monteCarloRadiosityElementRange(StochasticRadiosityElement *elem, int *nbits, niedindex *msb1, niedindex *rmsb2);
@@ -61,13 +57,10 @@ extern Vertex *monteCarloRadiosityEdgeMidpointVertex(StochasticRadiosityElement 
 extern Matrix2x2 GLOBAL_stochasticRaytracing_quadupxfm[4];
 extern Matrix2x2 GLOBAL_stochasticRaytracing_triupxfm[4];
 
-/* only for surface elements!! */
 extern int monteCarloRadiosityElementIsTextured(StochasticRadiosityElement *elem);
 
-/* uses elem->Rd for surface elements */
 extern float monteCarloRadiosityElementScalarReflectance(StochasticRadiosityElement *elem);
 
-/* implemented pushpull.c and basis.c */
 extern void PushRadiance(StochasticRadiosityElement *parent, StochasticRadiosityElement *child, COLOR *parent_rad, COLOR *child_rad);
 
 extern void PushImportance(StochasticRadiosityElement *parent, StochasticRadiosityElement *child, float *parent_imp, float *child_imp);
@@ -76,24 +69,23 @@ extern void PullRadiance(StochasticRadiosityElement *parent, StochasticRadiosity
 
 extern void PullImportance(StochasticRadiosityElement *parent, StochasticRadiosityElement *child, float *parent_imp, float *child_imp);
 
-/* implemented in render.c */
-extern COLOR ElementDisplayRadiance(StochasticRadiosityElement *elem);
+extern COLOR elementDisplayRadiance(StochasticRadiosityElement *elem);
 
-extern COLOR ElementDisplayRadianceAtPoint(StochasticRadiosityElement *elem, double u, double v);
+extern COLOR elementDisplayRadianceAtPoint(StochasticRadiosityElement *elem, double u, double v);
 
-extern void McrRenderElement(StochasticRadiosityElement *elem);
+extern void mcrRenderElement(StochasticRadiosityElement *elem);
 
-extern void RenderElementOutline(StochasticRadiosityElement *elem);
+extern void renderElementOutline(StochasticRadiosityElement *elem);
 
-extern void ElementComputeNewVertexColors(StochasticRadiosityElement *elem);
+extern void elementComputeNewVertexColors(StochasticRadiosityElement *elem);
 
-extern void ElementAdjustTVertexColors(StochasticRadiosityElement *elem);
+extern void elementAdjustTVertexColors(StochasticRadiosityElement *elem);
 
-extern RGB ElementColor(StochasticRadiosityElement *elem);
+extern RGB elementColor(StochasticRadiosityElement *element);
 
-extern COLOR VertexReflectance(Vertex *v);
+extern COLOR vertexReflectance(Vertex *v);
 
-extern void ElementTVertexElimination(StochasticRadiosityElement *elem,
+extern void elementTVertexElimination(StochasticRadiosityElement *elem,
                                       void (*do_triangle)(Vertex *, Vertex *, Vertex *),
                                       void (*do_quadrilateral)(Vertex *, Vertex *, Vertex *, Vertex *));
 

@@ -497,15 +497,15 @@ clearContextTables()            /* empty context tables */
 {
     c_uncolor = c_dfcolor;
     GLOBAL_mgf_currentColor = &c_uncolor;
-    lu_done(&clr_tab);
+    lookUpDone(&clr_tab);
     c_unmaterial = c_dfmaterial;
     GLOBAL_mgf_currentMaterial = &c_unmaterial;
     GLOBAL_mgf_currentMaterialName = nullptr;
-    lu_done(&mat_tab);
+    lookUpDone(&mat_tab);
     c_unvertex = c_dfvertex;
     GLOBAL_mgf_currentVertex = &c_unvertex;
     GLOBAL_mgf_currentVertexName = nullptr;
-    lu_done(&vtx_tab);
+    lookUpDone(&vtx_tab);
 }
 
 MgfVertexContext *

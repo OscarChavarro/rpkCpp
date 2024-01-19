@@ -1073,7 +1073,7 @@ handleObjectEntity(int argc, char **argv) {
         newSurface();
     }
 
-    return obj_handler(argc, argv);
+    return handleObject2Entity(argc, argv);
 }
 
 static int

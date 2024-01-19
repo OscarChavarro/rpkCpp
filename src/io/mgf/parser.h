@@ -167,7 +167,7 @@ extern int isfltWords(char *);
 extern int isfltdWords(char *, char *);
 extern int isnameWords(char *);
 extern int badarg(int, char **, char *);
-extern int e_include(int ac, char **av);
+extern int handleIncludedFile(int ac, char **av);
 
 /************************************************************************
  *	Definitions for 3-d vector manipulation functions
@@ -279,7 +279,7 @@ extern void mgfContextFixColorRepresentation(MgfColorContext *clr, int fl);
 extern int GLOBAL_mgf_objectNames;        /* depth of name hierarchy */
 extern char **GLOBAL_mgf_objectNamesList;        /* names in hierarchy */
 
-extern int obj_handler(int, char **);    /* handle an object entity */
+extern int handleObject2Entity(int ac, char **av);
 
 /**************************************************************************
  *	Definitions for hierarchical transformation handler

@@ -144,12 +144,12 @@ static double PointKernelEval(Vector3D *x, Vector3D *y,
     if ( !ShadowList ) {
         *vis = 1.;
     } else if ( !GLOBAL_galerkin_state.multires_visibility ) {
-        if ( !ShadowTestDiscretisation(&ray, ShadowList, fdist, &hitstore)) {
+        if ( !shadowTestDiscretization(&ray, ShadowList, fdist, &hitstore) ) {
             *vis = 1.;
         } else {
             *vis = 0.;
         }
-    } else if ( CacheHit(&ray, &fdist, &hitstore)) {
+    } else if ( cacheHit(&ray, &fdist, &hitstore)) {
         *vis = 0.;
     } else {
         float min_feature_size = 2. * sqrt(GLOBAL_statistics_totalArea * GLOBAL_galerkin_state.rel_min_elem_area / M_PI);
@@ -455,7 +455,7 @@ unsigned AreaToAreaFormFactor(INTERACTION *link, GeometryListNode *shadowlist) {
      * last time. */
     if ( rcv != GLOBAL_galerkin_state.fflastrcv || src != GLOBAL_galerkin_state.fflastsrc ) {
         /* Use shadow caching for accelerating occlusion detection */
-        InitShadowCache();
+        initShadowCache();
 
         /* Mark the patches in order to avoid immediate selfintersections. */
         patchDontIntersect(4, isCluster(rcv) ? (Patch *) nullptr : rcv->patch,

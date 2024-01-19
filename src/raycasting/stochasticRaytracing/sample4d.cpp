@@ -1,4 +1,6 @@
-/* 4D vector sampling */
+/**
+4D vector sampling
+*/
 
 #include <cstdlib>
 
@@ -12,7 +14,11 @@
 
 static SEQ4D seq = S4D_RANDOM;
 
-void SetSequence4D(SEQ4D sequence) {
+/**
+Also initialises the sequence
+*/
+void
+setSequence4D(SEQ4D sequence) {
     seq = sequence;
     switch ( seq ) {
         case S4D_SOBOL:
@@ -29,7 +35,12 @@ void SetSequence4D(SEQ4D sequence) {
     }
 }
 
-double *Sample4D(unsigned seed) {
+/**
+Returns 4D sample with given index from current sequence. When the
+current sequence is 'random', the index is not used
+*/
+double *
+sample4D(unsigned seed) {
     static double xi[4];
     unsigned *zeta;
     double *xx;
@@ -77,20 +88,31 @@ double *Sample4D(unsigned seed) {
             xi[3] = (double) zeta[3] * RECIP;
             break;
         default:
-            logFatal(-1, "Sample4D", "QMC Sequence %s not yet implemented", SEQ4D_NAME(seq));
+            logFatal(-1, "sample4D", "QMC Sequence %s not yet implemented", SEQ4D_NAME(seq));
     }
 
     return xi;
 }
 
-void FoldSampleU(unsigned *xi1, unsigned *xi2) {
+/**
+The following routines are safe with Sample4D(), which calls only
+31-bit sequences (including 31-bit Niederreiter sequence). If
+you are looking for such a routine to use directly in conjunction
+with the routined Nied() or NextNiedInRange(), you should use
+the FoldSample() routine in niederreiter.h instead.
+Nied() and NextNiedInRange() are 63-bit unless compiled without
+'unsigned long long' support
+*/
+void
+foldSampleU(unsigned *xi1, unsigned *xi2) {
     FoldSample31(xi1, xi2);  /* declared in nied31.h */
 }
 
-void FoldSampleF(double *xi1, double *xi2) {
+void
+foldSampleF(double *xi1, double *xi2) {
     unsigned zeta1 = (*xi1 * RECIP1);
     unsigned zeta2 = (*xi2 * RECIP1);
-    FoldSampleU(&zeta1, &zeta2);
+    foldSampleU(&zeta1, &zeta2);
     *xi1 = (double) zeta1 * RECIP;
     *xi2 = (double) zeta2 * RECIP;
 }

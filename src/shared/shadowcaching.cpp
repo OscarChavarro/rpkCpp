@@ -1,65 +1,77 @@
 #include "material/statistics.h"
 #include "skin/Patch.h"
-#include "scene/VoxelGrid.h"
 #include "scene/scene.h"
 #include "shared/shadowcaching.h"
 
-#define MAXCACHE 5    /* cache at most 5 blocking patches */
-static Patch *cache[MAXCACHE];
-static int cachedpatches, ncached;
+// Cache at most 5 blocking patches
+#define MAX_CACHE 5
 
-/* initialize/empty the shadow cache */
-void InitShadowCache() {
-    int i;
+static Patch *globalCache[MAX_CACHE];
+static int globalCachedPatches;
+static int globalNumberOfCachedPatches;
 
-    ncached = cachedpatches = 0;
-    for ( i = 0; i < MAXCACHE; i++ ) {
-        cache[i] = nullptr;
+/**
+Initialize/empty the shadow cache
+*/
+void
+initShadowCache() {
+    globalNumberOfCachedPatches = globalCachedPatches = 0;
+    for ( int i = 0; i < MAX_CACHE; i++ ) {
+        globalCache[i] = nullptr;
     }
 }
 
-/* test ray against patches in the shadow cache. Returns nullptr if the ray hits
- * no patches in the shadow cache, or a pointer to the first hit patch otherwise.  */
-RayHit *CacheHit(Ray *ray, float *dist, RayHit *hitstore) {
+/**
+Test ray against patches in the shadow cache. Returns nullptr if the ray hits
+no patches in the shadow cache, or a pointer to the first hit patch otherwise
+*/
+RayHit *
+cacheHit(Ray *ray, float *dist, RayHit *hitstore) {
     int i;
     RayHit *hit;
 
-    for ( i = 0; i < ncached; i++ ) {
-        if ((hit = patchIntersect(cache[i], ray, EPSILON * (*dist), dist, HIT_FRONT | HIT_ANY, hitstore))) {
+    for ( i = 0; i < globalNumberOfCachedPatches; i++ ) {
+        if ((hit = patchIntersect(globalCache[i], ray, EPSILON * (*dist), dist, HIT_FRONT | HIT_ANY, hitstore))) {
             return hit;
         }
     }
     return nullptr;
 }
 
-/* replace least recently added patch */
-void AddToShadowCache(Patch *patch) {
-    cache[cachedpatches % MAXCACHE] = patch;
-    cachedpatches++;
-    if ( ncached < MAXCACHE ) {
-        ncached++;
+/**
+Replace least recently added patch
+*/
+void
+addToShadowCache(Patch *patch) {
+    globalCache[globalCachedPatches % MAX_CACHE] = patch;
+    globalCachedPatches++;
+    if ( globalNumberOfCachedPatches < MAX_CACHE ) {
+        globalNumberOfCachedPatches++;
     }
 }
 
-/* Tests whether the ray intersects the discretisation of a GEOMetry in the list 
- * 'world'. Returns nullptr if the ray hits no geometries. Returns an arbitrary hit 
- * patch if the ray does intersect one or more geometries. Intersections
- * further away than dist are ignored. GLOBAL_scene_patches in the shadow cache are
- * checked first. */
-RayHit *ShadowTestDiscretisation(Ray *ray, GeometryListNode *world, float dist, RayHit *hitstore) {
-    RayHit *hit = nullptr;
+/**
+Tests whether the ray intersects the discretisation of a GEOMetry in the list
+'world'. Returns nullptr if the ray hits no geometries. Returns an arbitrary hit
+patch if the ray does intersect one or more geometries. Intersections
+further away than dist are ignored. GLOBAL_scene_patches in the shadow cache are
+checked first
+*/
+RayHit *
+shadowTestDiscretization(Ray *ray, GeometryListNode *world, float dist, RayHit *hitStore) {
+    RayHit *hit;
 
     GLOBAL_statistics_numberOfShadowRays++;
-    if ((hit = CacheHit(ray, &dist, hitstore))) {
+    if ((hit = cacheHit(ray, &dist, hitStore))) {
         GLOBAL_statistics_numberOfShadowCacheHits++;
     } else {
         if ( world != GLOBAL_scene_clusteredWorld && world != GLOBAL_scene_world ) {
-            hit = geometryListDiscretizationIntersect(world, ray, EPSILON * dist, &dist, HIT_FRONT | HIT_ANY, hitstore);
+            hit = geometryListDiscretizationIntersect(world, ray, EPSILON * dist, &dist, HIT_FRONT | HIT_ANY, hitStore);
         } else {
-            hit = GLOBAL_scene_worldVoxelGrid->gridIntersect(ray, EPSILON * dist, &dist, HIT_FRONT | HIT_ANY, hitstore);
+            hit = GLOBAL_scene_worldVoxelGrid->gridIntersect(ray, EPSILON * dist, &dist, HIT_FRONT | HIT_ANY, hitStore);
         }
         if ( hit ) {
-            AddToShadowCache(hit->patch);
+            addToShadowCache(hit->patch);
         }
     }
 

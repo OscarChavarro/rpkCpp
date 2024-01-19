@@ -34,31 +34,17 @@ typedef LINK *(*REFINE_ACTION)(LINK *link,
  * returns the special action 'dontRefine' which does nothing. */
 typedef REFINE_ACTION (*ORACLE)(LINK *link);
 
-/* Wellknown power-based refinement oracle (Hanrahan'91, with importance
- * a la Smits'92 if GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceDriven is true) */
-extern REFINE_ACTION PowerOracle(LINK *);
-
-/* constructs a toplevel link for given toplevel surface elements
- * rcvtop and srctop: the result is a link between the toplevel
- * cluster containing the whole scene and itself if clustering is
- * enabled. If clustering is not enabled, a link between the
- * given toplevel surface elements is returned. */
-extern LINK TopLink(StochasticRadiosityElement *rcvtop, StochasticRadiosityElement *srctop);
-
-/* Refines a toplevel link (constructed with TopLink() above). The 
- * returned LINK structure contains pointers the admissable
- * elements and corresponding point coordinates for light transport.
- * rcvtop and srctop are toplevel surface elements containing the 
- * endpoint and origin respectively of a line along which light is to
- * be transported. (ur,vr) and (us,vs) are the uniform parameters of
- * the endpoint and origin on the toplevel surface elements on input.
- * They will be replaced by the point parameters on the admissable elements
- * after refinement. */
-extern LINK *Refine(LINK *link,
-                    StochasticRadiosityElement *rcvtop, double *ur, double *vr,
-                    StochasticRadiosityElement *srctop, double *us, double *vs,
-                    ORACLE evaluate_link);
-
+extern REFINE_ACTION powerOracle(LINK *link);
+extern LINK topLink(StochasticRadiosityElement *rcvtop, StochasticRadiosityElement *srctop);
+extern LINK *hierarchyRefine(
+    LINK *link,
+    StochasticRadiosityElement *rcvTop,
+    double *ur,
+    double *vr,
+    StochasticRadiosityElement *srcTop,
+    double *us,
+    double *vs,
+    ORACLE evaluate_link);
 
 /* global parameters controlling hierarchical refinement */
 class ELEM_HIER_STATE {
@@ -92,9 +78,7 @@ extern ELEM_HIER_STATE GLOBAL_stochasticRaytracing_hierarchy;
 #define DEFAULT_EH_TVERTEX_ELIMINATION        true
 
 extern void elementHierarchyDefaults();
-
 extern void elementHierarchyInit();
-
 extern void elementHierarchyTerminate();
 
 #endif

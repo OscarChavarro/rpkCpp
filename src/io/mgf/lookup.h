@@ -21,7 +21,7 @@ class LUTAB {
 };
 
 #define LU_SINIT(fk, fd) { \
-    (long (*)(char *))lu_shash, \
+    (long (*)(char *))lookUpSHash, \
     (int (*)(const char *, const char *))strcmp, \
     (void (*)(char *))(fk), \
     (void (*)(char *))(fd), \
@@ -52,13 +52,13 @@ the system has run out of memory.
 extern LUENT *lu_find(LUTAB *, char *key);
 
 /**
-The lu_done routine calls the given free function once for each
+The lookUpDone routine calls the given free function once for each
 assigned table entry (i.e. each entry with an assigned key value).
 The user must define these routines to free the key and the data
-in the LU_TAB structure.  The final action of lu_done is to free the
+in the LU_TAB structure.  The final action of lookUpDone is to free the
 allocated table itself.
 */
-extern void lu_done(LUTAB *);
+extern void lookUpDone(LUTAB *l);
 
 /**
 The hashf, keycmp, freek and freed member functions must be assigned
@@ -73,4 +73,4 @@ If tsiz is 0, then the first call to lu_find will allocate a minimal table.
 The LU_SINIT macro provides a convenient static declaration for character
 string keys.
 */
-extern long lu_shash(char *);
+extern long lookUpSHash(char *s);

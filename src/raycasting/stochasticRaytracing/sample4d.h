@@ -1,4 +1,6 @@
-/* sample4d.h: 4D vector sampling */
+/**
+4D vector sampling
+*/
 
 #ifndef _SAMPLE_4D_
 #define _SAMPLE_4D_
@@ -23,22 +25,9 @@ enum SEQ4D {
 (seq == S4D_NIEDERREITER) ? "Nied" : "Unknown"\
 )))))))
 
-/* also initialises the sequence */
-extern void SetSequence4D(SEQ4D sequence);
+extern void setSequence4D(SEQ4D sequence);
+extern double *sample4D(unsigned index);
+extern void foldSampleU(unsigned *, unsigned *);
+extern void foldSampleF(double *, double *);
 
-/* returns 4D sample with given index from current sequence. When the
- * current sequence is 'random', the index is not used. */
-extern double *Sample4D(unsigned index);
-
-/* The following routines are safe with Sample4D(), which calls only
- * 31-bit sequences (including 31-bit Niederreiter sequence). If
- * you are looking for such a routine to use directly in conjunction
- * with the routined Nied() or NextNiedInRange(), you should use
- * the FoldSample() routine in niederreiter.h instead.
- * Nied() and NextNiedInRange() are 63-bit unless compiled without
- * 'unsigned long long' support. */
-extern void FoldSampleU(unsigned *, unsigned *);
-
-extern void FoldSampleF(double *, double *);
-
-#endif /*_SAMPLE_4D_*/
+#endif

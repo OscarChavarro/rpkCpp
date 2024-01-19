@@ -67,7 +67,7 @@ With T-vertex elimination
 */
 static void
 resetVertexIds(StochasticRadiosityElement *elem) {
-    ElementTVertexElimination(elem, triangleResetVertexIds, quadResetVertexIds);
+    elementTVertexElimination(elem, triangleResetVertexIds, quadResetVertexIds);
 }
 
 static void
@@ -104,7 +104,7 @@ quadWriteVertexCoords(Vertex *v1, Vertex *v2, Vertex *v3, Vertex *v4) {
 
 static void
 writeVertexCoords(StochasticRadiosityElement *elem) {
-    ElementTVertexElimination(elem, triangleWriteVertexCoords, quadWriteVertexCoords);
+    elementTVertexElimination(elem, triangleWriteVertexCoords, quadWriteVertexCoords);
 }
 
 static void
@@ -154,7 +154,7 @@ quadWriteVertexColors(Vertex *v1, Vertex *v2, Vertex *v3, Vertex *v4) {
 
 static void
 elementWriteVertexColors(StochasticRadiosityElement *elem) {
-    ElementTVertexElimination(elem, triangleWriteVertexColors, quadWriteVertexColors);
+    elementTVertexElimination(elem, triangleWriteVertexColors, quadWriteVertexColors);
 }
 
 static void
@@ -198,7 +198,7 @@ quadWriteVertexCoordIndices(Vertex *v1, Vertex *v2, Vertex *v3, Vertex *v4) {
 
 static void
 elementWriteCoordIndices(StochasticRadiosityElement *elem) {
-    ElementTVertexElimination(elem, triangleWriteVertexCoordIndices, quadWriteVertexCoordIndices);
+    elementTVertexElimination(elem, triangleWriteVertexCoordIndices, quadWriteVertexCoordIndices);
 }
 
 static void

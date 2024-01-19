@@ -64,11 +64,11 @@ static unsigned char shuffle[256] = {
 Hash a nul-terminated string
 */
 long
-lu_shash(char *s)
+lookUpSHash(char *s)
 {
     int i = 0;
     long h = 0;
-    unsigned char *t = (unsigned char *) s;
+    unsigned char *t = (unsigned char *)s;
 
     while ( *t ) {
         h ^= (long) shuffle[*t++] << ((i += 11) & 0xf);
@@ -174,25 +174,25 @@ lu_assoc(LUTAB *tbl, LUENT *le, char *key, char *data) {
 Free table and contents
 */
 void
-lu_done(LUTAB *tbl)
+lookUpDone(LUTAB *l)
 {
     LUENT *tp;
 
-    if ( !tbl->tsiz ) {
+    if ( !l->tsiz ) {
         return;
     }
-    for ( tp = tbl->tabl + tbl->tsiz; tp-- > tbl->tabl; ) {
+    for ( tp = l->tabl + l->tsiz; tp-- > l->tabl; ) {
         if ( tp->key != nullptr) {
-            if ( tbl->freek != nullptr) {
-                (*tbl->freek)(tp->key);
+            if ( l->freek != nullptr) {
+                (*l->freek)(tp->key);
             }
-            if ( tp->data != nullptr && tbl->freed != nullptr) {
-                (*tbl->freed)(tp->data);
+            if ( tp->data != nullptr && l->freed != nullptr) {
+                (*l->freed)(tp->data);
             }
         }
     }
-    free((MEM_PTR) tbl->tabl);
-    tbl->tabl = nullptr;
-    tbl->tsiz = 0;
-    tbl->ndel = 0;
+    free((MEM_PTR) l->tabl);
+    l->tabl = nullptr;
+    l->tsiz = 0;
+    l->ndel = 0;
 }

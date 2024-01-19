@@ -10,7 +10,7 @@ generate and trace a local line
 /* constructs a ray with uniformly chosen origin on patch and cosine distributed 
  * direction w.r.t. patch normal. Origin and direction are uniquely determined by
  * the 4-dimensional sample vector xi. */
-Ray McrGenerateLocalLine(Patch *patch, double *xi) {
+Ray mcrGenerateLocalLine(Patch *patch, double *xi) {
     static Patch *prevpatch = (Patch *) nullptr;
     static COORDSYS coordsys;
     Ray ray;
@@ -36,8 +36,11 @@ static void SomeFeedback() {
     }
 }
 
-/* determines nearest intersection point and patch */
-RayHit *McrShootRay(Patch *P, Ray *ray, RayHit *hitstore) {
+/**
+Determines nearest intersection point and patch
+*/
+RayHit *
+mcrShootRay(Patch *P, Ray *ray, RayHit *hitstore) {
     float dist = HUGE;
     RayHit *hit;
 
