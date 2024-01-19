@@ -22,7 +22,7 @@ createInitialLink(Patch *patch) {
     float ff[MAXBASISSIZE * MAXBASISSIZE];
     link.K.p = ff;
 
-    if ( !Facing(patch, globalPatch)) {
+    if ( !facing(patch, globalPatch)) {
         return;
     }
 
@@ -72,7 +72,7 @@ createInitialLink(Patch *patch) {
     link.src = src;
     link.nrcv = rcv->basis_size;
     link.nsrc = src->basis_size;
-    AreaToAreaFormFactor(&link, globalCandidateList);
+    areaToAreaFormFactor(&link, globalCandidateList);
 
     if ( GLOBAL_galerkin_state.exact_visibility || GLOBAL_galerkin_state.shaftcullmode == ALWAYS_DO_SHAFTCULLING ) {
         if ( oldCandidateList != globalCandidateList ) {

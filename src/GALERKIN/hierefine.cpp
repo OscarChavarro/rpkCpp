@@ -382,7 +382,7 @@ int CreateSubdivisionLink(GalerkinElement *rcv, GalerkinElement *src, INTERACTIO
         link->nsrc = src->basis_size;
     }
 
-    AreaToAreaFormFactor(link, candlist);
+    areaToAreaFormFactor(link, candlist);
 
     return link->vis != 0;
 }
@@ -472,7 +472,7 @@ static int SubdivideSourceCluster(INTERACTION *link) {
             Patch *the_patch = child->patch;
             if ((isCluster(rcv) &&
                  boundsBehindPlane(geomBounds(rcv->geom), &the_patch->normal, the_patch->planeConstant)) ||
-                (!isCluster(rcv) && !Facing(rcv->patch, the_patch))) {
+                (!isCluster(rcv) && !facing(rcv->patch, the_patch))) {
                 continue;
             }
         }
@@ -505,7 +505,7 @@ static int SubdivideReceiverCluster(INTERACTION *link) {
             Patch *the_patch = child->patch;
             if ((isCluster(src) &&
                  boundsBehindPlane(geomBounds(src->geom), &the_patch->normal, the_patch->planeConstant)) ||
-                (!isCluster(src) && !Facing(src->patch, the_patch))) {
+                (!isCluster(src) && !facing(src->patch, the_patch))) {
                 continue;
             }
         }
