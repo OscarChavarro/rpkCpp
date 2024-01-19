@@ -116,11 +116,7 @@ public:
     }
 };
 
-
-/********************************************************************/
-
-// global var for the scene light list
-
-extern CLightList *gLightList;
+// Global var for the scene light list
+extern CLightList *GLOBAL_lightList;
 
 #endif

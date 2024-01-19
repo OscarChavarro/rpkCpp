@@ -26,7 +26,7 @@
 
 /*** Persistent BidirPath state, contains actual GUI state and
      some other stuff ***/
-BIDIRPATH_STATE bidir;
+BIDIRPATH_STATE GLOBAL_rayTracing_biDirectionalPath;
 
 /*** Bidirectional path tracing configuration structure.
      Non persistently used each time an image is rendered ***/
@@ -728,27 +728,27 @@ static void DoBPTAndSubsequentImages(BPCONFIG *config) {
 
     // Get highest power of two < number of samples
 
-    nrIterations = (int) (log((double) bidir.basecfg.samplesPerPixel) / log(2.0));
+    nrIterations = (int) (log((double) GLOBAL_rayTracing_biDirectionalPath.basecfg.samplesPerPixel) / log(2.0));
     maxSamples = (int) pow(2.0, nrIterations);
 
     nrIterations += 1; // First two are 1 and 1
 
     printf("nrIter %i, maxSamples %i, origSamples %i\n", nrIterations,
-           maxSamples, bidir.basecfg.samplesPerPixel);
+           maxSamples, GLOBAL_rayTracing_biDirectionalPath.basecfg.samplesPerPixel);
 
-    printf("Base name '%s'\n", bidir.baseFilename);
+    printf("Base name '%s'\n", GLOBAL_rayTracing_biDirectionalPath.baseFilename);
 
     // Numbers are placed after the last point. If
     // no point is given, both ppm.gz and tif images
     // are saved.
 
-    char *last_occ = strrchr(bidir.baseFilename, '.');
+    char *last_occ = strrchr(GLOBAL_rayTracing_biDirectionalPath.baseFilename, '.');
 
     if ( last_occ == nullptr ) {
-        snprintf(format1, STRINGS_SIZE, "%s%%i.tif", bidir.baseFilename);
-        snprintf(format2, STRINGS_SIZE, "%s%%i.ppm.gz", bidir.baseFilename);
+        snprintf(format1, STRINGS_SIZE, "%s%%i.tif", GLOBAL_rayTracing_biDirectionalPath.baseFilename);
+        snprintf(format2, STRINGS_SIZE, "%s%%i.ppm.gz", GLOBAL_rayTracing_biDirectionalPath.baseFilename);
     } else {
-        strncpy(format1, bidir.baseFilename, last_occ - bidir.baseFilename);
+        strncpy(format1, GLOBAL_rayTracing_biDirectionalPath.baseFilename, last_occ - GLOBAL_rayTracing_biDirectionalPath.baseFilename);
         strcat(format1, "%i");
         strcat(format1, last_occ);
         format2[0] = '\0';
@@ -882,7 +882,7 @@ void DoBPTDensityEstimation(BPCONFIG *config) {
 
     config->deStoreHits = false;
 
-    int nrIterations = (int) floor(log(bidir.basecfg.samplesPerPixel) / (log(2)));
+    int nrIterations = (int) floor(log(GLOBAL_rayTracing_biDirectionalPath.basecfg.samplesPerPixel) / (log(2)));
     int maxSamples = (int) pow(2.0, nrIterations);
 
     printf("Doing %i iterations, thus %i samples per pixel\n", nrIterations,
@@ -990,8 +990,8 @@ static void BidirPathTrace(ImageOutputHandle *ip) {
 
     // Copy base config (so that rendering is independent of GUI)
     config.bcfg = new BP_BASECONFIG;
-    *(config.bcfg) = bidir.basecfg;
-    config.bcfg->totalSamples = bidir.basecfg.samplesPerPixel * GLOBAL_camera_mainCamera.hres * GLOBAL_camera_mainCamera.vres;
+    *(config.bcfg) = GLOBAL_rayTracing_biDirectionalPath.basecfg;
+    config.bcfg->totalSamples = GLOBAL_rayTracing_biDirectionalPath.basecfg.samplesPerPixel * GLOBAL_camera_mainCamera.hres * GLOBAL_camera_mainCamera.vres;
 
     config.dBuffer = nullptr;
 
@@ -1000,31 +1000,31 @@ static void BidirPathTrace(ImageOutputHandle *ip) {
     config.eyeConfig.dirSampler = new CPixelSampler;
     config.eyeConfig.surfaceSampler = new CBsdfSampler;
     config.eyeConfig.surfaceSampler->SetComputeFromNextPdf(true);
-    config.eyeConfig.surfaceSampler->SetComputeBsdfComponents(bidir.basecfg.useSpars);
+    config.eyeConfig.surfaceSampler->SetComputeBsdfComponents(GLOBAL_rayTracing_biDirectionalPath.basecfg.useSpars);
 
-    if ( bidir.basecfg.sampleImportantLights ) {
+    if ( GLOBAL_rayTracing_biDirectionalPath.basecfg.sampleImportantLights ) {
         config.eyeConfig.neSampler = new CImportantLightSampler;
     } else {
         config.eyeConfig.neSampler = new CUniformLightSampler;
     }
 
-    config.eyeConfig.minDepth = bidir.basecfg.minimumPathDepth;
+    config.eyeConfig.minDepth = GLOBAL_rayTracing_biDirectionalPath.basecfg.minimumPathDepth;
 
-    if ( bidir.basecfg.maximumEyePathDepth < 1 ) {
+    if ( GLOBAL_rayTracing_biDirectionalPath.basecfg.maximumEyePathDepth < 1 ) {
         fprintf(stderr, "Maximum Eye Path Length too small (<1), using 1\n");
         config.eyeConfig.maxDepth = 1;
     } else {
-        config.eyeConfig.maxDepth = bidir.basecfg.maximumEyePathDepth;
+        config.eyeConfig.maxDepth = GLOBAL_rayTracing_biDirectionalPath.basecfg.maximumEyePathDepth;
     }
 
     config.lightConfig.pointSampler = new CUniformLightSampler;
     config.lightConfig.dirSampler = new CLightDirSampler;
     config.lightConfig.surfaceSampler = new CBsdfSampler;
     config.lightConfig.surfaceSampler->SetComputeFromNextPdf(true);
-    config.lightConfig.surfaceSampler->SetComputeBsdfComponents(bidir.basecfg.useSpars);
+    config.lightConfig.surfaceSampler->SetComputeBsdfComponents(GLOBAL_rayTracing_biDirectionalPath.basecfg.useSpars);
 
-    config.lightConfig.minDepth = bidir.basecfg.minimumPathDepth;
-    config.lightConfig.maxDepth = bidir.basecfg.maximumLightPathDepth;
+    config.lightConfig.minDepth = GLOBAL_rayTracing_biDirectionalPath.basecfg.minimumPathDepth;
+    config.lightConfig.maxDepth = GLOBAL_rayTracing_biDirectionalPath.basecfg.maximumLightPathDepth;
     config.lightConfig.neSampler = nullptr; // eyeSampler ?
 
 
@@ -1041,7 +1041,7 @@ static void BidirPathTrace(ImageOutputHandle *ip) {
     CLeSpar *leSpar = nullptr;
     CLDSpar *ldSpar = nullptr;
 
-    if ( bidir.basecfg.useSpars ) {
+    if ( GLOBAL_rayTracing_biDirectionalPath.basecfg.useSpars ) {
         CSparConfig *sc = &config.sparConfig;
 
         sc->m_bcfg = config.bcfg; // Share base config options
@@ -1061,11 +1061,11 @@ static void BidirPathTrace(ImageOutputHandle *ip) {
         config.sparList->Add(ldSpar);
     }
 
-    if ( bidir.saveSubsequentImages ) {
+    if ( GLOBAL_rayTracing_biDirectionalPath.saveSubsequentImages ) {
         DoBPTAndSubsequentImages(&config);
     } else if ( config.bcfg->doDensityEstimation ) {
         DoBPTDensityEstimation(&config);
-    } else if ( !bidir.basecfg.progressiveTracing ) {
+    } else if ( !GLOBAL_rayTracing_biDirectionalPath.basecfg.progressiveTracing ) {
         ScreenIterateSequential((COLOR(*)(int, int, void *)) BPCalcPixel, &config);
     } else {
         ScreenIterateProgressive((COLOR(*)(int, int, void *)) BPCalcPixel, &config);
@@ -1077,13 +1077,13 @@ static void BidirPathTrace(ImageOutputHandle *ip) {
         config.screen->WriteFile(ip);
     }
 
-    if ( bidir.lastscreen ) {
-        delete bidir.lastscreen;
+    if ( GLOBAL_rayTracing_biDirectionalPath.lastscreen ) {
+        delete GLOBAL_rayTracing_biDirectionalPath.lastscreen;
     }
-    bidir.lastscreen = config.screen;
+    GLOBAL_rayTracing_biDirectionalPath.lastscreen = config.screen;
 
 
-    if ( bidir.basecfg.useSpars ) {
+    if ( GLOBAL_rayTracing_biDirectionalPath.basecfg.useSpars ) {
         delete config.sparList;
 
         delete leSpar;
@@ -1108,8 +1108,8 @@ static void BidirPathTrace(ImageOutputHandle *ip) {
 }
 
 static int BidirPathRedisplay() {
-    if ( bidir.lastscreen ) {
-        bidir.lastscreen->Render();
+    if ( GLOBAL_rayTracing_biDirectionalPath.lastscreen ) {
+        GLOBAL_rayTracing_biDirectionalPath.lastscreen->Render();
         return true;
     } else {
         return false;
@@ -1117,9 +1117,9 @@ static int BidirPathRedisplay() {
 }
 
 static int BidirPathSaveImage(ImageOutputHandle *ip) {
-    if ( ip && bidir.lastscreen ) {
-        bidir.lastscreen->Sync();
-        bidir.lastscreen->WriteFile(ip);
+    if ( ip && GLOBAL_rayTracing_biDirectionalPath.lastscreen ) {
+        GLOBAL_rayTracing_biDirectionalPath.lastscreen->Sync();
+        GLOBAL_rayTracing_biDirectionalPath.lastscreen->WriteFile(ip);
         return true;
     } else {
         return false;
@@ -1133,17 +1133,17 @@ BidirPathInterrupt() {
 
 static void BidirPathInit() {
     // mainInit the light list
-    if ( gLightList ) {
-        delete gLightList;
+    if ( GLOBAL_lightList ) {
+        delete GLOBAL_lightList;
     }
-    gLightList = new CLightList(GLOBAL_scene_lightSourcePatches);
+    GLOBAL_lightList = new CLightList(GLOBAL_scene_lightSourcePatches);
 }
 
 static void BidirPathTerminate() {
-    if ( bidir.lastscreen ) {
-        delete bidir.lastscreen;
+    if ( GLOBAL_rayTracing_biDirectionalPath.lastscreen ) {
+        delete GLOBAL_rayTracing_biDirectionalPath.lastscreen;
     }
-    bidir.lastscreen = (ScreenBuffer *) 0;
+    GLOBAL_rayTracing_biDirectionalPath.lastscreen = (ScreenBuffer *) 0;
 }
 
 Raytracer GLOBAL_raytracing_biDirectionalPathMethod =

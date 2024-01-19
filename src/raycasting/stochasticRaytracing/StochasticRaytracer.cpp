@@ -619,10 +619,10 @@ static void RTStochastic_Interrupt() {
 
 static void RTStochastic_Init() {
     // mainInit the light list
-    if ( gLightList ) {
-        delete gLightList;
+    if ( GLOBAL_lightList ) {
+        delete GLOBAL_lightList;
     }
-    gLightList = new CLightList(GLOBAL_scene_lightSourcePatches);
+    GLOBAL_lightList = new CLightList(GLOBAL_scene_lightSourcePatches);
 }
 
 void RTStochastic_Terminate() {

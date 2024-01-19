@@ -240,10 +240,10 @@ void SRCONFIG::InitDependentVars() {
     siOthersCount = siIndex;
 
     // mainInit the light list
-    if ( gLightList ) {
-        delete gLightList;
+    if ( GLOBAL_lightList ) {
+        delete GLOBAL_lightList;
     }
-    gLightList = new CLightList(GLOBAL_scene_lightSourcePatches, (bool) backgroundSampling);
+    GLOBAL_lightList = new CLightList(GLOBAL_scene_lightSourcePatches, (bool) backgroundSampling);
 
 
     // mainInit the seed config

@@ -292,9 +292,9 @@ typedef FLOAT MAT4[4][4];
 #define  MAT4IDENT        { {1.,0.,0.,0.}, {0.,1.,0.,0.}, \
                 {0.,0.,1.,0.}, {0.,0.,0.,1.} }
 
-extern MAT4 m4ident;
+extern MAT4 GLOBAL_mgf_m4Ident;
 
-#define  setident4(m4)        copymat4(m4, m4ident)
+#define  setident4(m4)        copymat4(m4, GLOBAL_mgf_m4Ident)
 
 /* regular transformation */
 class XF {

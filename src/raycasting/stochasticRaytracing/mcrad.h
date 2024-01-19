@@ -1,11 +1,13 @@
-/* mcrad.h: Monte Carlo radiosity */
+/**
+Monte Carlo radiosity
+*/
 
-#ifndef _MCRAD_H_
-#define _MCRAD_H_
+#ifndef _MONTE_CARLO_RADIOSITY__
+#define _MONTE_CARLO_RADIOSITY__
 
 #include "skin/radianceinterfaces.h"
 
-extern RADIANCEMETHOD StochasticRelaxationRadiosity;
+extern RADIANCEMETHOD GLOBAL_stochasticRaytracing_stochasticRelaxationRadiosity;
 extern RADIANCEMETHOD GLOBAL_stochasticRaytracing_randomWalkRadiosity;
 
 #endif

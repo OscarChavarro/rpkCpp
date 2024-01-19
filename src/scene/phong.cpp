@@ -751,9 +751,8 @@ static void PhongBtdfEvalPdf(PHONG_BTDF *btdf, REFRACTIONINDEX inIndex,
     return;
 }
 
-
-/* Phong-type edf... method structs */
-EDF_METHODS PhongEdfMethods = {
+// Phong-type edf method structs
+EDF_METHODS GLOBAL_scene_phongEdfMethods = {
         (COLOR (*)(void *, RayHit *, XXDFFLAGS)) PhongEmittance,
         (int (*)(void *)) nullptr,    /* not textured */
         (COLOR (*)(void *, RayHit *, Vector3D *, XXDFFLAGS, double *)) PhongEdfEval,
@@ -762,7 +761,7 @@ EDF_METHODS PhongEdfMethods = {
         (void (*)(FILE *, void *)) PhongEdfPrint
 };
 
-BRDF_METHODS PhongBrdfMethods = {
+BRDF_METHODS GLOBAL_scene_phongBrdfMethods = {
         (COLOR (*)(void *, XXDFFLAGS)) PhongReflectance,
         (COLOR (*)(void *, Vector3D *, Vector3D *, Vector3D *, XXDFFLAGS)) PhongBrdfEval,
         (Vector3D (*)(void *, Vector3D *, Vector3D *, int, XXDFFLAGS, double, double,
@@ -772,14 +771,14 @@ BRDF_METHODS PhongBrdfMethods = {
         (void (*)(FILE *, void *)) PhongBrdfPrint
 };
 
-BTDF_METHODS PhongBtdfMethods = {
-        (COLOR (*)(void *, XXDFFLAGS)) PhongTransmittance,
-        reinterpret_cast<void (*)(void *, REFRACTIONINDEX *)>((void (*)()) PhongIndexOfRefraction),
-        (COLOR (*)(void *, REFRACTIONINDEX, REFRACTIONINDEX, Vector3D *, Vector3D *, Vector3D *, XXDFFLAGS)) PhongBtdfEval,
-        (Vector3D (*)(void *, REFRACTIONINDEX, REFRACTIONINDEX, Vector3D *,
-                      Vector3D *, int, XXDFFLAGS, double, double,
-                      double *)) PhongBtdfSample,
-        (void (*)(void *, REFRACTIONINDEX, REFRACTIONINDEX, Vector3D *,
-                  Vector3D *, Vector3D *, XXDFFLAGS, double *, double *)) PhongBtdfEvalPdf,
-        (void (*)(FILE *, void *)) PhongBtdfPrint
+BTDF_METHODS GLOBAL_scene_phongBtdfMethods = {
+    (COLOR (*)(void *, XXDFFLAGS)) PhongTransmittance,
+    reinterpret_cast<void (*)(void *, REFRACTIONINDEX *)>((void (*)()) PhongIndexOfRefraction),
+    (COLOR (*)(void *, REFRACTIONINDEX, REFRACTIONINDEX, Vector3D *, Vector3D *, Vector3D *, XXDFFLAGS)) PhongBtdfEval,
+    (Vector3D (*)(void *, REFRACTIONINDEX, REFRACTIONINDEX, Vector3D *,
+                  Vector3D *, int, XXDFFLAGS, double, double,
+                  double *)) PhongBtdfSample,
+    (void (*)(void *, REFRACTIONINDEX, REFRACTIONINDEX, Vector3D *,
+              Vector3D *, Vector3D *, XXDFFLAGS, double *, double *)) PhongBtdfEvalPdf,
+    (void (*)(FILE *, void *)) PhongBtdfPrint
 };

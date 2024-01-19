@@ -5,6 +5,6 @@
 
 #include "skin/radianceinterfaces.h"
 
-extern RADIANCEMETHOD GalerkinRadiosity;
+extern RADIANCEMETHOD GLOBAL_galerkin_radiosity;
 
 #endif

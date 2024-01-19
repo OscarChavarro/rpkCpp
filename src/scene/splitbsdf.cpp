@@ -372,7 +372,7 @@ SplitBsdfIsTextured(SPLIT_BSDF *bsdf) {
     return bsdf->texture != nullptr;
 }
 
-BSDF_METHODS SplitBsdfMethods = {
+BSDF_METHODS GLOBAL_scene_splitBsdfMethods = {
         (COLOR (*)(void *data, RayHit *hit, Vector3D *in, BSDFFLAGS flags)) SplitBsdfScatteredPower,
         (int (*)(void *)) SplitBsdfIsTextured,
         (void (*)(void *data, REFRACTIONINDEX *index)) SplitBsdfIndexOfRefraction,

@@ -447,7 +447,7 @@ stochasticRelaxationRadiosityRender() {
     }
 }
 
-RADIANCEMETHOD StochasticRelaxationRadiosity = {
+RADIANCEMETHOD GLOBAL_stochasticRaytracing_stochasticRelaxationRadiosity = {
     "StochJacobi",
     3,
     "Stochastic Jacobi Radiosity",

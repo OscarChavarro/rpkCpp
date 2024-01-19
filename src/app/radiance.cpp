@@ -15,8 +15,8 @@ static char globalRadianceMethodsString[STRING_LENGTH];
 
 // Table of available radiance methods
 RADIANCEMETHOD *GLOBAL_radiance_radianceMethods[] = {
-&GalerkinRadiosity,
-&StochasticRelaxationRadiosity,
+&GLOBAL_galerkin_radiosity,
+&GLOBAL_stochasticRaytracing_stochasticRelaxationRadiosity,
 &GLOBAL_stochasticRaytracing_randomWalkRadiosity,
 &GLOBAL_photonMapMethods,
 nullptr

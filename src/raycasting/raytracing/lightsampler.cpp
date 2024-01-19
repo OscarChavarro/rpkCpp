@@ -12,14 +12,14 @@ CUniformLightSampler::CUniformLightSampler() {
 
 bool CUniformLightSampler::ActivateFirstUnit() {
     if ( !iterator ) {
-        if ( gLightList ) {
-            iterator = new CLightList_Iter(*gLightList);
+        if ( GLOBAL_lightList ) {
+            iterator = new CLightList_Iter(*GLOBAL_lightList);
         } else {
             return false;
         }
     }
 
-    currentPatch = iterator->First(*gLightList);
+    currentPatch = iterator->First(*GLOBAL_lightList);
 
     if ( currentPatch != nullptr ) {
         unitsActive = true;
@@ -71,7 +71,7 @@ bool CUniformLightSampler::Sample(CPathNode */*prevNode*/,
             return false;
         }
     } else {
-        light = gLightList->Sample(&x_1, &pdfLight);
+        light = GLOBAL_lightList->Sample(&x_1, &pdfLight);
 
         if ( light == nullptr ) {
             logWarning("FillLightNode", "No light found");
@@ -128,7 +128,7 @@ double CUniformLightSampler::EvalPDF(CPathNode */*thisNode*/,
     if ( unitsActive ) {
         pdf = 1.0;
     } else {
-        pdf = gLightList->EvalPDF(newNode->m_hit.patch, &newNode->m_hit.point);
+        pdf = GLOBAL_lightList->EvalPDF(newNode->m_hit.patch, &newNode->m_hit.point);
     }
 
     // Prob for choosing this point(/direction)
@@ -188,17 +188,17 @@ bool CImportantLightSampler::Sample(CPathNode */*prevNode*/,
 
             VECTORSCALE(-1, thisNode->m_normal, invNormal);
 
-            light = gLightList->SampleImportant(&thisNode->m_hit.point,
-                                                &invNormal, &x_1, &pdfLight);
+            light = GLOBAL_lightList->SampleImportant(&thisNode->m_hit.point,
+                                                      &invNormal, &x_1, &pdfLight);
         } else {
             // No (important) light sampling inside a material
             light = nullptr;
         }
     } else {
         if ( thisNode->m_inBsdf == nullptr ) {
-            light = gLightList->SampleImportant(&thisNode->m_hit.point,
-                                                &thisNode->m_normal,
-                                                &x_1, &pdfLight);
+            light = GLOBAL_lightList->SampleImportant(&thisNode->m_hit.point,
+                                                      &thisNode->m_normal,
+                                                      &x_1, &pdfLight);
         } else {
             light = nullptr;
         }
@@ -253,10 +253,10 @@ double CImportantLightSampler::EvalPDF(CPathNode *thisNode,
     double pdf, pdfdir;
 
     // The light point is in NEW NODE !!
-    pdf = gLightList->EvalPDFImportant(newNode->m_hit.patch,
-                                       &newNode->m_hit.point,
-                                       &thisNode->m_hit.point,
-                                       &thisNode->m_normal);
+    pdf = GLOBAL_lightList->EvalPDFImportant(newNode->m_hit.patch,
+                                             &newNode->m_hit.point,
+                                             &thisNode->m_hit.point,
+                                             &thisNode->m_normal);
 
     // Prob for choosing this point(/direction)
     if ( newNode->m_hit.patch->isVirtual())           // virtual patch

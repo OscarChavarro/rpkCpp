@@ -14,7 +14,7 @@ Routines for 4x4 homogeneous, rigid-body transformations
 
 #define checkarg(a, l) if ( av[i][(a)] || badarg(ac - i - 1, av + i + 1, (char *)(l))) goto done
 
-MAT4 m4ident = MAT4IDENT;
+MAT4 GLOBAL_mgf_m4Ident = MAT4IDENT;
 
 static MAT4 m4tmp; // for efficiency
 

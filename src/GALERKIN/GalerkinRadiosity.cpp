@@ -602,7 +602,7 @@ galerkinWriteVRML(FILE *fp) {
 }
 
 /* **************************************************************** */
-RADIANCEMETHOD GalerkinRadiosity = {
+RADIANCEMETHOD GLOBAL_galerkin_radiosity = {
     "Galerkin",
     3,
     "Galerkin Radiosity",

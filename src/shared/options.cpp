@@ -135,7 +135,7 @@ void Tenum_print(FILE *fp, int *v, ENUMDESC *tab) {
     fprintf(fp, "INVALID ENUM VALUE!!!");
 }
 
-int Tenum_dummy_val = 0;
+int GLOBAL_options_dummyVal = 0;
 
 /* ------------------- boolean (yes|no) option values-------------------- */
 /* implemented as an enumeration type */
@@ -151,7 +151,7 @@ static ENUMDESC boolTable[] = {
 CMDLINEOPTTYPE GLOBAL_options_boolType = {
         (int (*)(void *, void *)) Tenum_get,
         (void (*)(FILE *, void *, void *)) Tenum_print,
-        (void *) &Tenum_dummy_val,
+        (void *) &GLOBAL_options_dummyVal,
         (void *) boolTable
 };
 

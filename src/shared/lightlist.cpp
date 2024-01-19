@@ -7,14 +7,14 @@
 
 /* *** GLOBALS *** */
 
-CLightList *gLightList = nullptr;
+CLightList *GLOBAL_lightList = nullptr;
 
 /* *** C METHODS *** */
 
 double LightEvalPDFImportant(Patch *light, Vector3D *lightPoint,
                              Vector3D *point, Vector3D *normal) {
-    return gLightList->EvalPDFImportant(light, lightPoint,
-                                        point, normal);
+    return GLOBAL_lightList->EvalPDFImportant(light, lightPoint,
+                                              point, normal);
 }
 
 

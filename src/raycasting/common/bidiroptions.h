@@ -66,8 +66,7 @@ class BIDIRPATH_STATE {
 };
 
 /*** Global state of bidirectional path tracing ***/
-extern BIDIRPATH_STATE bidir;
-
+extern BIDIRPATH_STATE GLOBAL_rayTracing_biDirectionalPath;
 
 /*** Function prototypes ***/
 

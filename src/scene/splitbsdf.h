@@ -18,7 +18,7 @@ class SPLIT_BSDF {
 };
 
 extern SPLIT_BSDF *SplitBSDFCreate(BRDF *brdf, BTDF *btdf, TEXTURE *texture);
-extern BSDF_METHODS SplitBsdfMethods;
+extern BSDF_METHODS GLOBAL_scene_splitBsdfMethods;
 extern void SplitBsdfPrint(FILE *out, SPLIT_BSDF *bsdf);
 
 #endif

@@ -80,7 +80,7 @@ extern int Tenum_get(int *, ENUMDESC *);
 
 extern void Tenum_print(FILE *, int *, ENUMDESC *);
 
-extern int Tenum_dummy_val;
+extern int GLOBAL_options_dummyVal;
 
 /* The following macro declares an enumerated value options type:
  * example usage:
@@ -98,7 +98,7 @@ extern int Tenum_dummy_val;
 static CMDLINEOPTTYPE enumTypeStructName = {        \
   (int (*)(void *, void *))Tenum_get,            \
   (void (*)(FILE *, void *, void *))Tenum_print,    \
-  (void *)&Tenum_dummy_val,                \
+  (void *)&GLOBAL_options_dummyVal,                \
   (void *)enumvaltab                    \
 }
 

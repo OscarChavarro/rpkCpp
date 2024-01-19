@@ -48,9 +48,9 @@ extern PHONG_BRDF *PhongBrdfCreate(COLOR *Kd, COLOR *Ks, double Ns);
 extern PHONG_BTDF *PhongBtdfCreate(COLOR *Kd, COLOR *Ks, double Ns, double nr, double ni);
 
 /* methods for manipulating Phong type EDFs, BRDFs, BTDFs */
-extern EDF_METHODS PhongEdfMethods;
-extern BRDF_METHODS PhongBrdfMethods;
-extern BTDF_METHODS PhongBtdfMethods;
+extern EDF_METHODS GLOBAL_scene_phongEdfMethods;
+extern BRDF_METHODS GLOBAL_scene_phongBrdfMethods;
+extern BTDF_METHODS GLOBAL_scene_phongBtdfMethods;
 
 extern void *CreatePhongEdfEditor(void *parent, PHONG_EDF *edf);
 
