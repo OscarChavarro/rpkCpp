@@ -28,7 +28,7 @@ vertexCreate(Vector3D *point, Vector3D *normal, Vector3D *texCoord, java::ArrayL
     v->normal = normal;
     v->texCoord = texCoord;
     v->patches = patches;
-    RGBSET(v->color, 0., 0., 0.);
+    setRGB(v->color, 0.0f, 0.0f, 0.0f);
     v->radiance_data = (void *)nullptr;
     v->back = (Vertex *)nullptr;
 
@@ -68,7 +68,7 @@ vertexPrint(FILE *out, Vertex *vertex) {
         fprintf(out, "/(no texCoord)");
     }
     fprintf(out, " color = (");
-    RGBPrint(out, vertex->color);
+    printRGB(out, vertex->color);
     fprintf(out, "),");
 
     fprintf(out, "patches: ");
@@ -87,7 +87,7 @@ void
 computeVertexColor(Vertex *vertex) {
     long numberOfPatches;
 
-    RGBSET(vertex->color, 0.0f, 0.0f, 0.0f);
+    setRGB(vertex->color, 0.0f, 0.0f, 0.0f);
     numberOfPatches = 0;
 
     if ( vertex->patches != nullptr ) {

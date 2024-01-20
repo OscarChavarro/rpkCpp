@@ -45,7 +45,7 @@ surfaceConnectFace(MeshSurface *surf, Patch *face) {
             break;
         case VERTEX_COLORS:
             // Average color of the vertices
-            RGBSET(face->color, 0, 0, 0);
+            setRGB(face->color, 0, 0, 0);
             for ( i = 0; i < face->numberOfVertices; i++ ) {
                 face->color.r += face->vertex[i]->color.r;
                 face->color.g += face->vertex[i]->color.g;

@@ -8,7 +8,7 @@ void PrintTexture(FILE *out, TEXTURE *t) {
     }
 }
 
-#define RGBSETMONOCHROME(rgb, val) RGBSET(rgb, val, val, val)
+#define RGBSETMONOCHROME(rgb, val) setRGB(rgb, val, val, val)
 
 COLOR EvalTextureColor(TEXTURE *texture, float u, float v) {
     RGB rgb00, rgb10, rgb01, rgb11, rgb;
@@ -55,17 +55,17 @@ COLOR EvalTextureColor(TEXTURE *texture, float u, float v) {
             break;
         case 3:
         case 4: {
-            RGBSET(rgb00, (float) pix00[0] / 255., (float) pix00[1] / 255., (float) pix00[2] / 255.);
-            RGBSET(rgb10, (float) pix10[0] / 255., (float) pix10[1] / 255., (float) pix10[2] / 255.);
-            RGBSET(rgb01, (float) pix01[0] / 255., (float) pix01[1] / 255., (float) pix01[2] / 255.);
-            RGBSET(rgb11, (float) pix11[0] / 255., (float) pix11[1] / 255., (float) pix11[2] / 255.);
+            setRGB(rgb00, (float) pix00[0] / 255., (float) pix00[1] / 255., (float) pix00[2] / 255.);
+            setRGB(rgb10, (float) pix10[0] / 255., (float) pix10[1] / 255., (float) pix10[2] / 255.);
+            setRGB(rgb01, (float) pix01[0] / 255., (float) pix01[1] / 255., (float) pix01[2] / 255.);
+            setRGB(rgb11, (float) pix11[0] / 255., (float) pix11[1] / 255., (float) pix11[2] / 255.);
         }
             break;
         default:
             break;
     }
 
-    RGBSET(rgb,
+    setRGB(rgb,
            0.25 * (u0 * v0 * rgb00.r + u1 * v0 * rgb10.r + u0 * v1 * rgb01.r + u1 * v1 * rgb11.r),
            0.25 * (u0 * v0 * rgb00.g + u1 * v0 * rgb10.g + u0 * v1 * rgb01.g + u1 * v1 * rgb11.g),
            0.25 * (u0 * v0 * rgb00.b + u1 * v0 * rgb10.b + u0 * v1 * rgb01.b + u1 * v1 * rgb11.b));

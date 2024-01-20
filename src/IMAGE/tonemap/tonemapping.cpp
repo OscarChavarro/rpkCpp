@@ -120,7 +120,7 @@ toneMappingCommandLineOptionDescAdaptMethodOption(void *value) {
 static void
 gammaOption(void *value) {
     float gam = *(float *) value;
-    RGBSET(GLOBAL_toneMap_options.gamma, gam, gam, gam);
+    setRGB(GLOBAL_toneMap_options.gamma, gam, gam, gam);
 }
 
 static CommandLineOptionDescription globalToneMappingOptions[] = {
@@ -193,7 +193,7 @@ toneMapDefaults() {
                                      GLOBAL_toneMap_options.xb, GLOBAL_toneMap_options.yb,
                                      GLOBAL_toneMap_options.xw, GLOBAL_toneMap_options.yw);
 
-    RGBSET(GLOBAL_toneMap_options.gamma, DEFAULT_GAMMA, DEFAULT_GAMMA, DEFAULT_GAMMA);
+    setRGB(GLOBAL_toneMap_options.gamma, DEFAULT_GAMMA, DEFAULT_GAMMA, DEFAULT_GAMMA);
     recomputeGammaTables(GLOBAL_toneMap_options.gamma);
     GLOBAL_toneMap_options.ToneMap = &GLOBAL_toneMap_lightness;
     GLOBAL_toneMap_options.ToneMap->Init();

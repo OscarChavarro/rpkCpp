@@ -42,7 +42,7 @@ COLOR GetFalseColor(float val) {
 
     if ( GLOBAL_photonMap_state.falseColMono ) {
         tmp = GetFalseMonochrome(val);
-        RGBSET(rgb, tmp, tmp, tmp);
+        setRGB(rgb, tmp, tmp, tmp);
         convertRGBToColor(rgb, &col);
         return col;
     }
@@ -72,7 +72,7 @@ COLOR GetFalseColor(float val) {
         g = 1.0 - r;
     }
 
-    RGBSET(rgb, r, g, b);
+    setRGB(rgb, r, g, b);
     convertRGBToColor(rgb, &col);
 
     return col;
@@ -330,7 +330,7 @@ static void PrecomputeIrradianceCallback(CPhotonMap *map, CIrrPhoton *photon) {
 void CPhotonMap::PrecomputeIrradiance() {
     fprintf(stderr, "CPhotonMap::PrecomputeIrradiance\n");
     if ( m_precomputeIrradiance && !m_irradianceComputed ) {
-        m_kdtree->IterateNodes((void (*)(void *, void *)) PrecomputeIrradianceCallback,
+        m_kdtree->iterateNodes((void (*)(void *, void *)) PrecomputeIrradianceCallback,
                                this);
         m_irradianceComputed = true;
     }

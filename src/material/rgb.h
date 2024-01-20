@@ -42,10 +42,10 @@ inline int operator==(RGB rgb1, RGB rgb2)
 }
 
 /**
-Print an RGB triplet
+print an RGB triplet
 */
 inline void
-RGBPrint(FILE *fp, RGB color) {
+printRGB(FILE *fp, RGB color) {
     fprintf(fp, "%g %g %g", color.r, color.g, color.b);
 }
 
@@ -53,7 +53,7 @@ RGBPrint(FILE *fp, RGB color) {
 Fill in an RGB structure with given red, green and blue components
 */
 inline void
-RGBSET(RGB &color, float R, float G, float B) {
+setRGB(RGB &color, float R, float G, float B) {
     color.r = R;
     color.g = G;
     color.b = B;

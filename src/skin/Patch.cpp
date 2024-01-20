@@ -301,7 +301,7 @@ patchCreate(int numberOfVertices, Vertex *v1, Vertex *v2, Vertex *v3, Vertex *v4
     patchConnectVertices(patch);
 
     patch->directPotential = 0.0;
-    RGBSET(patch->color, 0.0, 0.0, 0.0);
+    setRGB(patch->color, 0.0, 0.0, 0.0);
 
     patch->omit = false;
     patch->flags = 0;    /* other flags */
@@ -487,7 +487,7 @@ patchPrint(FILE *out, Patch *patch) {
     fprintf(out, ", self-emitted luminosity = %g\n", colorLuminance(Ed));
 
     fprintf(out, "color: ");
-    RGBPrint(out, patch->color);
+    printRGB(out, patch->color);
     fprintf(out, "\n");
     fprintf(out, "directly received potential: %g\n", patch->directPotential);
 

@@ -317,7 +317,7 @@ optionsGetRgb(RGB *c, void * /*data*/) {
 
 static void
 optionsPrintRgb(FILE *fp, RGB *v, void * /*data*/) {
-    RGBPrint(fp, *v);
+    printRGB(fp, *v);
 }
 
 CommandLineOptions GLOBAL_options_rgbType = {

@@ -97,7 +97,7 @@ brdfEvalPdf(
 }
 
 /**
-Print the brdf data the to specified file pointer
+print the brdf data the to specified file pointer
 */
 void
 brdfPrint(FILE *out, BRDF *brdf) {

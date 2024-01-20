@@ -70,16 +70,16 @@ class KDTreeNode {
     // 4 LOWER BITS ARE RESERVED !!
     int m_flags;
     void *m_data;
-    void FindMinMaxDepth(int depth, int *minDepth, int *maxDepth) const;
+    void findMinMaxDepth(int depth, int *minDepth, int *maxDepth) const;
 
-    inline int Discriminator() const {
+    inline int discriminator() const {
         return (m_flags & 0xF);
     }
 
-    inline void SetDiscriminator(int discriminator) {
-        m_flags = m_flags & 0xFFF0 | discriminator;
+    inline void setDiscriminator(int discriminator) {
+        m_flags = (m_flags & 0xFFF0) | discriminator;
     }
-    inline int Flags() const {
+    inline int flags() const {
         return (m_flags & (0xFFF0));
     }
 };
@@ -93,7 +93,7 @@ class BalancedKDTreeNode {
 
     inline void Copy(const KDTreeNode &kdnode) {
         m_data = kdnode.m_data;
-        m_flags = kdnode.Flags();
+        m_flags = kdnode.flags();
     }
 
     inline int Discriminator() const {
@@ -120,8 +120,8 @@ class KDTree {
   private:
     void *AssignData(void *data) const;
 
-    void DeleteNodes(KDTreeNode *node, bool deleteData);
-    void DeleteBNodes(bool deleteData);
+    void deleteNodes(KDTreeNode *node, bool deleteData);
+    void deleteBNodes(bool deleteData);
     void FindMinMaxDepth(int *minDepth, int *maxDepth); // Unbalanced part!
     void Query_rec(const KDTreeNode *node); // Unbalanced part
     void BQuery_rec(int node); // Balanced part
@@ -140,7 +140,7 @@ class KDTree {
                       short excludeFlags = 0);
 
     // Iterate nodes : iterate all nodes (only for balanced ?!)
-    void IterateNodes(void (*cb)(void *, void *), void *data);
+    void iterateNodes(void (*callBack)(void *, void *), void *data);
 
     // Analyses how balanced the tree is, and prints a report to stdout
     void BalanceAnalysis();

@@ -19,7 +19,7 @@ elementColor(StochasticRadiosityElement *element) {
             break;
         case SHOW_IMPORTANCE: {
             float gray = element->imp > 1. ? 1. : element->imp < 0. ? 0. : element->imp;
-            RGBSET(color, gray, gray, gray);
+            setRGB(color, gray, gray, gray);
             break;
         }
         default:
@@ -117,7 +117,7 @@ vertexColor(Vertex *v) {
             if ( gray < 0. ) {
                 gray = 0.;
             }
-            RGBSET(v->color, gray, gray, gray);
+            setRGB(v->color, gray, gray, gray);
             break;
         }
         default:
