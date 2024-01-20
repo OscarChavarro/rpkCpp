@@ -17,11 +17,6 @@ if ((parent)->irregular_subelements) {        \
   for (_el_ = (parent)->irregular_subelements; _el_; _el_ = _el_->next) { \
     StochasticRadiosityElement *p = _el_->element;
 
-#define ForAllVerticesOfElement(vert, elem) {    \
-  int _i_;                    \
-  for (_i_=0; _i_<(elem)->nrvertices; _i_++) {    \
-    Vertex *(vert) = (elem)->vertex[_i_]; {
-
 extern StochasticRadiosityElement *monteCarloRadiosityCreateToplevelSurfaceElement(Patch *patch);
 
 extern void monteCarloRadiosityDestroyToplevelSurfaceElement(StochasticRadiosityElement *elem);

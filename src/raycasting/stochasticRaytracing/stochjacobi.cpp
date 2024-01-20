@@ -347,7 +347,7 @@ static double *NextSample(StochasticRadiosityElement *elem,
     (*ray_index)++;
     u = (xi[0] & ~3) | 1;        /* avoid positions on subelement boundaries */
     v = (xi[1] & ~3) | 1;
-    if ( elem->nrvertices == 3 )
+    if ( elem->numberOfVertices == 3 )
         FoldSample(&u, &v);
     zeta[0] = (double) u * RECIP;
     zeta[1] = (double) v * RECIP;

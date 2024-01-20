@@ -42,7 +42,7 @@ class StochasticRadiosityElement : public Element {
     signed char child_nr;            /* -1 for clusters or toplevel
 					 * surface elements, 0..3 for
 					 * regular surface subelements */
-    char nrvertices;            /* nr of surf. element vertices */
+    char numberOfVertices;            /* nr of surf. element vertices */
     char iscluster;            /* whether it is a cluster or not */
 };
 

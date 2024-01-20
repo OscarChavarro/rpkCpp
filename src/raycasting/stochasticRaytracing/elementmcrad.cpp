@@ -111,7 +111,7 @@ createElement() {
     elem->irregular_subelements = (ELEMENTLIST *) nullptr;
     elem->uptrans = (Matrix2x2 *) nullptr;
     elem->child_nr = -1;
-    elem->nrvertices = 0;
+    elem->numberOfVertices = 0;
     elem->iscluster = false;
 
     GLOBAL_stochasticRaytracing_hierarchy.nr_elements++;
@@ -132,8 +132,8 @@ monteCarloRadiosityCreateToplevelSurfaceElement(Patch *patch) {
     elem->iscluster = false;
     elem->area = patch->area;
     elem->midpoint = patch->midpoint;
-    elem->nrvertices = patch->numberOfVertices;
-    for ( i = 0; i < elem->nrvertices; i++ ) {
+    elem->numberOfVertices = patch->numberOfVertices;
+    for ( i = 0; i < elem->numberOfVertices; i++ ) {
         elem->vertex[i] = patch->vertex[i];
         vertexAttachElement(elem->vertex[i], elem);
     }
@@ -303,7 +303,7 @@ monteCarloRadiosityRegularSubElementAtPoint(StochasticRadiosityElement *parent, 
     }
 
     /* Have a look at the drawings above to understand what is done exactly. */
-    switch ( parent->nrvertices ) {
+    switch ( parent->numberOfVertices ) {
         case 3:
             if ( _u + _v <= 0.5 ) {
                 child = parent->regular_subelements[0];
@@ -430,16 +430,16 @@ The edgenr-th edge is the edge connecting the edgenr-th vertex to the
 static StochasticRadiosityElement *
 monteCarloRadiosityElementNeighbour(StochasticRadiosityElement *elem, int edgenr) {
     Vertex *from = elem->vertex[edgenr],
-            *to = elem->vertex[(edgenr + 1) % elem->nrvertices];
+            *to = elem->vertex[(edgenr + 1) % elem->numberOfVertices];
 
     ForAllElements(e, to->radiance_data)
                 {
                     if ( e != elem &&
-                         ((e->nrvertices == 3 &&
+                         ((e->numberOfVertices == 3 &&
                            ((e->vertex[0] == to && e->vertex[1] == from) ||
                             (e->vertex[1] == to && e->vertex[2] == from) ||
                             (e->vertex[2] == to && e->vertex[0] == from)))
-                          || (e->nrvertices == 4 &&
+                          || (e->numberOfVertices == 4 &&
                               ((e->vertex[0] == to && e->vertex[1] == from) ||
                                (e->vertex[1] == to && e->vertex[2] == from) ||
                                (e->vertex[2] == to && e->vertex[3] == from) ||
@@ -455,7 +455,7 @@ monteCarloRadiosityElementNeighbour(StochasticRadiosityElement *elem, int edgenr
 Vertex *
 monteCarloRadiosityEdgeMidpointVertex(StochasticRadiosityElement *elem, int edgenr) {
     Vertex *v = (Vertex *) nullptr,
-            *to = elem->vertex[(edgenr + 1) % elem->nrvertices];
+            *to = elem->vertex[(edgenr + 1) % elem->numberOfVertices];
     StochasticRadiosityElement *neighbour = monteCarloRadiosityElementNeighbour(elem, edgenr);
 
     if ( neighbour && neighbour->regular_subelements ) {
@@ -470,7 +470,7 @@ monteCarloRadiosityEdgeMidpointVertex(StochasticRadiosityElement *elem, int edge
                       (to == neighbour->vertex[2] ? 2 :
                        (to == neighbour->vertex[3] ? 3 : -1))));
 
-        switch ( neighbour->nrvertices ) {
+        switch ( neighbour->numberOfVertices ) {
             case 3:
                 switch ( index ) {
                     case 0:
@@ -518,7 +518,7 @@ monteCarloRadiosityNewEdgeMidpointVertex(StochasticRadiosityElement *elem, int e
     Vertex *v = monteCarloRadiosityEdgeMidpointVertex(elem, edgenr);
     if ( !v ) { /* first time we split the edge, create the midpoint vertex */
         Vertex *from = elem->vertex[edgenr],
-                *to = elem->vertex[(edgenr + 1) % elem->nrvertices];
+                *to = elem->vertex[(edgenr + 1) % elem->numberOfVertices];
         v = monteCarloRadiosityNewMidpointVertex(elem, from, to);
     }
     return v;
@@ -528,10 +528,10 @@ static Vector3D
 galerkinElementMidpoint(StochasticRadiosityElement *elem) {
     int i;
     VECTORSET(elem->midpoint, 0., 0., 0.);
-    for ( i = 0; i < elem->nrvertices; i++ ) {
+    for ( i = 0; i < elem->numberOfVertices; i++ ) {
         VECTORADD(elem->midpoint, *elem->vertex[i]->point, elem->midpoint);
     }
-    VECTORSCALEINVERSE((float) elem->nrvertices, elem->midpoint, elem->midpoint);
+    VECTORSCALEINVERSE((float) elem->numberOfVertices, elem->midpoint, elem->midpoint);
 
     return elem->midpoint;
 }
@@ -652,12 +652,12 @@ monteCarloRadiosityCreateSurfaceSubElement(
     parent->regular_subelements[childNumber] = elem;
 
     elem->patch = parent->patch;
-    elem->nrvertices = parent->nrvertices;
+    elem->numberOfVertices = parent->numberOfVertices;
     elem->vertex[0] = v0;
     elem->vertex[1] = v1;
     elem->vertex[2] = v2;
     elem->vertex[3] = v3;
-    for ( i = 0; i < elem->nrvertices; i++ ) {
+    for ( i = 0; i < elem->numberOfVertices; i++ ) {
         vertexAttachElement(elem->vertex[i], elem);
     }
 
@@ -666,7 +666,7 @@ monteCarloRadiosityCreateSurfaceSubElement(
 
     elem->parent = parent;
     elem->child_nr = childNumber;
-    elem->uptrans = elem->nrvertices == 3 ? &GLOBAL_stochasticRaytracing_triupxfm[childNumber] : &GLOBAL_stochasticRaytracing_quadupxfm[childNumber];
+    elem->uptrans = elem->numberOfVertices == 3 ? &GLOBAL_stochasticRaytracing_triupxfm[childNumber] : &GLOBAL_stochasticRaytracing_quadupxfm[childNumber];
 
     allocCoefficients(elem);
     stochasticRadiosityClearCoefficients(elem->rad, elem->basis);
@@ -764,7 +764,7 @@ monteCarloRadiosityRegularSubdivideElement(StochasticRadiosityElement *element) 
 
     /* create the subelements */
     element->regular_subelements = (StochasticRadiosityElement **)malloc(4 * sizeof(StochasticRadiosityElement *));
-    switch ( element->nrvertices ) {
+    switch ( element->numberOfVertices ) {
         case 3:
             monteCarloRadiosityRegularSubdivideTriangle(element);
             break;
@@ -793,7 +793,7 @@ monteCarloRadiosityDestroyElement(StochasticRadiosityElement *elem) {
         ElementListDestroy(elem->irregular_subelements);
     if ( elem->regular_subelements )
         free(elem->regular_subelements);
-    for ( i = 0; i < elem->nrvertices; i++ ) {
+    for ( i = 0; i < elem->numberOfVertices; i++ ) {
         ElementListDestroy(elem->vertex[i]->radiance_data);
         elem->vertex[i]->radiance_data = nullptr;
     }
@@ -955,11 +955,10 @@ monteCarloRadiosityElementBounds(StochasticRadiosityElement *elem, float *bounds
         patchBounds(elem->patch, bounds);
     } else {
         boundsInit(bounds);
-        ForAllVerticesOfElement(v, elem)
-                    {
-                        boundsEnlargePoint(bounds, v->point);
-                    }
-        EndForAll;
+        for ( int i = 0; i < elem->numberOfVertices; i++ ) {
+            Vertex *v = elem->vertex[i];
+            boundsEnlargePoint(bounds, v->point);
+        }
     }
     return bounds;
 }

@@ -137,7 +137,7 @@ elementComputeNewVertexColors(StochasticRadiosityElement *elem) {
     vertexColor(elem->vertex[0]);
     vertexColor(elem->vertex[1]);
     vertexColor(elem->vertex[2]);
-    if ( elem->nrvertices > 3 ) {
+    if ( elem->numberOfVertices > 3 ) {
         vertexColor(elem->vertex[3]);
     }
 }
@@ -146,7 +146,7 @@ void
 elementAdjustTVertexColors(StochasticRadiosityElement *elem) {
     Vertex *m[4];
     int i, n;
-    for ( i = 0, n = 0; i < elem->nrvertices; i++ ) {
+    for ( i = 0, n = 0; i < elem->numberOfVertices; i++ ) {
         m[i] = monteCarloRadiosityEdgeMidpointVertex(elem, i);
         if ( m[i] ) {
             n++;
@@ -155,7 +155,7 @@ elementAdjustTVertexColors(StochasticRadiosityElement *elem) {
 
     if ( n > 0 ) {
         RGB color = elementColor(elem);
-        for ( i = 0; i < elem->nrvertices; i++ ) {
+        for ( i = 0; i < elem->numberOfVertices; i++ ) {
             if ( m[i] ) {
                 m[i]->color.r = (m[i]->color.r + color.r) * 0.5;
                 m[i]->color.g = (m[i]->color.g + color.g) * 0.5;
@@ -373,14 +373,14 @@ elementTVertexElimination(
 {
     Vertex *m[4];
     int i, n;
-    for ( i = 0, n = 0; i < elem->nrvertices; i++ ) {
+    for ( i = 0, n = 0; i < elem->numberOfVertices; i++ ) {
         m[i] = monteCarloRadiosityEdgeMidpointVertex(elem, i);
         if ( m[i] ) {
             n++;
         }
     }
 
-    if ( elem->nrvertices == 3 ) {
+    if ( elem->numberOfVertices == 3 ) {
         triangleTVertexElimination(elem->vertex, m, n, do_triangle, do_quadrilateral);
     } else {
         quadrilateralTVertexElimination(elem->vertex, m, n, do_triangle, do_quadrilateral);
@@ -397,7 +397,7 @@ renderElementOutline(StochasticRadiosityElement *elem) {
         return;
     }
 
-    for ( i = 0; i < elem->nrvertices; i++ ) {
+    for ( i = 0; i < elem->numberOfVertices; i++ ) {
         Vector3D d;
         verts[i] = *(elem->vertex[i]->point);
         VECTORSUBTRACT(GLOBAL_camera_mainCamera.eyePosition, verts[i], d);
@@ -407,7 +407,7 @@ renderElementOutline(StochasticRadiosityElement *elem) {
     renderSetColor(&GLOBAL_render_renderOptions.outline_color);
     renderLine(&verts[0], &verts[1]);
     renderLine(&verts[1], &verts[2]);
-    if ( elem->nrvertices == 3 ) {
+    if ( elem->numberOfVertices == 3 ) {
         renderLine(&verts[2], &verts[0]);
     } else {
         renderLine(&verts[2], &verts[3]);
@@ -422,14 +422,14 @@ mcrRenderElement(StochasticRadiosityElement *elem) {
     if ( GLOBAL_render_renderOptions.smooth_shading && GLOBAL_stochasticRaytracing_hierarchy.tvertex_elimination ) {
         Vertex *m[4];
         int i, n;
-        for ( i = 0, n = 0; i < elem->nrvertices; i++ ) {
+        for ( i = 0, n = 0; i < elem->numberOfVertices; i++ ) {
             m[i] = monteCarloRadiosityEdgeMidpointVertex(elem, i);
             if ( m[i] ) {
                 n++;
             }
         }
 
-        if ( elem->nrvertices == 3 ) {
+        if ( elem->numberOfVertices == 3 ) {
             renderTriangularElement(elem->vertex, m, n);
         } else {
             renderQuadrilateralElement(elem->vertex, m, n);
@@ -440,7 +440,7 @@ mcrRenderElement(StochasticRadiosityElement *elem) {
     verts[0] = *(elem->vertex[0]->point);
     verts[1] = *(elem->vertex[1]->point);
     verts[2] = *(elem->vertex[2]->point);
-    if ( elem->nrvertices > 3 ) {
+    if ( elem->numberOfVertices > 3 ) {
         verts[3] = *(elem->vertex[3]->point);
     }
 
@@ -449,16 +449,16 @@ mcrRenderElement(StochasticRadiosityElement *elem) {
         vertcols[0] = elem->vertex[0]->color;
         vertcols[1] = elem->vertex[1]->color;
         vertcols[2] = elem->vertex[2]->color;
-        if ( elem->nrvertices > 3 ) {
+        if ( elem->numberOfVertices > 3 ) {
             vertcols[3] = elem->vertex[3]->color;
         }
 
-        renderPolygonGouraud(elem->nrvertices, verts, vertcols);
+        renderPolygonGouraud(elem->numberOfVertices, verts, vertcols);
     } else {
         RGB color = elementColor(elem);
 
         renderSetColor(&color);
-        renderPolygonFlat(elem->nrvertices, verts);
+        renderPolygonFlat(elem->numberOfVertices, verts);
     }
 
     if ( GLOBAL_render_renderOptions.draw_outlines )
@@ -490,10 +490,10 @@ elementDisplayRadianceAtPoint(StochasticRadiosityElement *elem, double u, double
             // Do Gouraud interpolation if required
             int i;
             COLOR rad[4];
-            for ( i = 0; i < elem->nrvertices; i++ ) {
+            for ( i = 0; i < elem->numberOfVertices; i++ ) {
                 rad[i] = vertexRadiance(elem->vertex[i]);
             }
-            switch ( elem->nrvertices ) {
+            switch ( elem->numberOfVertices ) {
                 case 3:
                     colorInterpolateBarycentric(rad[0], rad[1], rad[2], u, v, radiance);
                     break;

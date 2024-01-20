@@ -5,12 +5,10 @@ add_compile_options(-std=c++11 -ffast-math)
 
 if(UNIX AND NOT APPLE)
     # C++ warnings to enable and fix:
-    #-Wmaybe-uninitialized
-    #-Wparentheses
     #-Wsign-compare
     #-Wstrict-aliasing
     #-Wuninitialized
-    add_compile_options(-Wdelete-non-virtual-dtor -Wunused-variable -Wunused-but-set-variable -Wunused-function -pedantic)
+    add_compile_options(-Wparentheses -Wmaybe-uninitialized -Wdelete-non-virtual-dtor -Wunused-variable -Wunused-but-set-variable -Wunused-function -pedantic)
 endif()
 
 include_directories(src)

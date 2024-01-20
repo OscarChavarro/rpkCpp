@@ -487,14 +487,14 @@ monteCarloRadiosityInterpolatedReflectanceAtPoint(StochasticRadiosityElement *le
 
     if ( leaf != cachedleaf ) {
         int i;
-        for ( i = 0; i < leaf->nrvertices; i++ ) {
+        for ( i = 0; i < leaf->numberOfVertices; i++ ) {
             vrd[i] = vertexReflectance(leaf->vertex[i]);
         }
     }
     cachedleaf = leaf;
 
     colorClear(rd);
-    switch ( leaf->nrvertices ) {
+    switch ( leaf->numberOfVertices ) {
         case 3:
             colorInterpolateBarycentric(vrd[0], vrd[1], vrd[2], u, v, rd);
             break;
@@ -502,7 +502,7 @@ monteCarloRadiosityInterpolatedReflectanceAtPoint(StochasticRadiosityElement *le
             colorInterpolateBilinear(vrd[0], vrd[1], vrd[2], vrd[3], u, v, rd);
             break;
         default:
-            logFatal(-1, "monteCarloRadiosityInterpolatedReflectanceAtPoint", "Invalid nr of vertices %d", leaf->nrvertices);
+            logFatal(-1, "monteCarloRadiosityInterpolatedReflectanceAtPoint", "Invalid nr of vertices %d", leaf->numberOfVertices);
     }
     return rd;
 }
