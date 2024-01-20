@@ -773,7 +773,7 @@ static void DoBPTAndSubsequentImages(BPCONFIG *config) {
         }
 
         config->bcfg->samplesPerPixel = currentSamples;
-        config->bcfg->totalSamples = currentSamples * GLOBAL_camera_mainCamera.hres * GLOBAL_camera_mainCamera.vres;;
+        config->bcfg->totalSamples = currentSamples * GLOBAL_camera_mainCamera.xSize * GLOBAL_camera_mainCamera.ySize;;
 
         ScreenIterateSequential((COLOR(*)(int, int, void *)) BPCalcPixel, config);
 
@@ -991,7 +991,7 @@ static void BidirPathTrace(ImageOutputHandle *ip) {
     // Copy base config (so that rendering is independent of GUI)
     config.bcfg = new BP_BASECONFIG;
     *(config.bcfg) = GLOBAL_rayTracing_biDirectionalPath.basecfg;
-    config.bcfg->totalSamples = GLOBAL_rayTracing_biDirectionalPath.basecfg.samplesPerPixel * GLOBAL_camera_mainCamera.hres * GLOBAL_camera_mainCamera.vres;
+    config.bcfg->totalSamples = GLOBAL_rayTracing_biDirectionalPath.basecfg.samplesPerPixel * GLOBAL_camera_mainCamera.xSize * GLOBAL_camera_mainCamera.ySize;
 
     config.dBuffer = nullptr;
 

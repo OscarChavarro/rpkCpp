@@ -5,7 +5,7 @@ Jocabi or Gauss-Seidel Galerkin radiosity
 #include "java/util/ArrayList.txx"
 #include "scene/scene.h"
 #include "skin/Vertex.h"
-#include "shared/camera.h"
+#include "shared/Camera.h"
 #include "shared/potential.h"
 #include "material/statistics.h"
 #include "common/error.h"

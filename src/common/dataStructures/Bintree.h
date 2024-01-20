@@ -8,7 +8,7 @@ class BINTREE {
     BINTREE *right;
 };
 
-extern void BinTreeIterate(BINTREE *bintree, void (*func)(void *));
-extern void BinTreeDestroy(BINTREE *bintree);
+extern void binTreeIterate(BINTREE *bintree, void (*func)(void *));
+extern void binTreeDestroy(BINTREE *bintree);
 
 #endif

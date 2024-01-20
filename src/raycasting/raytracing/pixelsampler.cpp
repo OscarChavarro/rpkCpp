@@ -1,5 +1,5 @@
 #include <cmath>
-#include "shared/camera.h"
+#include "shared/Camera.h"
 #include "raycasting/common/raytools.h"
 #include "raycasting/raytracing/pixelsampler.h"
 
@@ -11,8 +11,8 @@ bool CPixelSampler::Sample(CPathNode */*prevNode*/, CPathNode *thisNode,
     // Precond: thisNode == eye, prevNode == nullptr, SetPixel called
 
     // Sample direction
-    double xsample = (m_px + GLOBAL_camera_mainCamera.pixh * x_1);
-    double ysample = (m_py + GLOBAL_camera_mainCamera.pixv * x_2);
+    double xsample = (m_px + GLOBAL_camera_mainCamera.pixelWidth * x_1);
+    double ysample = (m_py + GLOBAL_camera_mainCamera.pixelHeight * x_2);
 
     VECTORCOMB3(GLOBAL_camera_mainCamera.Z, xsample, GLOBAL_camera_mainCamera.X, ysample, GLOBAL_camera_mainCamera.Y, dir);
     double distPixel2 = VECTORNORM2(dir);
@@ -21,7 +21,7 @@ bool CPixelSampler::Sample(CPathNode */*prevNode*/, CPathNode *thisNode,
 
     double cosPixel = fabs(VECTORDOTPRODUCT(GLOBAL_camera_mainCamera.Z, dir));
 
-    double pdfDir = ((1. / (GLOBAL_camera_mainCamera.pixh * GLOBAL_camera_mainCamera.pixv)) * // 1 / Area pixel
+    double pdfDir = ((1. / (GLOBAL_camera_mainCamera.pixelWidth * GLOBAL_camera_mainCamera.pixelHeight)) * // 1 / Area pixel
                      (distPixel2 / cosPixel));  // spher. angle measure
 
     // Determine ray type
@@ -53,7 +53,7 @@ bool CPixelSampler::Sample(CPathNode */*prevNode*/, CPathNode *thisNode,
     return true;
 }
 
-void CPixelSampler::SetPixel(int nx, int ny, CAMERA *cam) {
+void CPixelSampler::SetPixel(int nx, int ny, Camera *cam) {
     m_nx = nx;
     m_ny = ny;
 
@@ -61,8 +61,8 @@ void CPixelSampler::SetPixel(int nx, int ny, CAMERA *cam) {
         cam = &GLOBAL_camera_mainCamera;
     } // Primary camera
 
-    m_px = -cam->pixh * cam->hres / 2.0 + nx * cam->pixh;
-    m_py = -cam->pixv * cam->vres / 2.0 + ny * cam->pixv;
+    m_px = -cam->pixelWidth * cam->xSize / 2.0 + nx * cam->pixelWidth;
+    m_py = -cam->pixelHeight * cam->ySize / 2.0 + ny * cam->pixelHeight;
 }
 
 double CPixelSampler::EvalPDF(CPathNode *thisNode, CPathNode *newNode,
@@ -87,7 +87,7 @@ double CPixelSampler::EvalPDF(CPathNode *thisNode, CPathNode *newNode,
 
     // Three cosines : r^2 / cos = 1 / cos^3 since r is length
     // of viewing ray to the pixel.
-    pdf = 1.0 / (GLOBAL_camera_mainCamera.pixv * GLOBAL_camera_mainCamera.pixh * cosa * cosa * cosa);
+    pdf = 1.0 / (GLOBAL_camera_mainCamera.pixelHeight * GLOBAL_camera_mainCamera.pixelWidth * cosa * cosa * cosa);
 
     cosb = -VECTORDOTPRODUCT(newNode->m_normal, outDir);
     pdf = pdf * cosb / dist2;

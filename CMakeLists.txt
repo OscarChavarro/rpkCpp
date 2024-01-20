@@ -97,7 +97,7 @@ set(MAIN_SRC
     src/shared/SoftIdsWrapper.cpp
     src/shared/renderhook.cpp
     src/shared/shadowcaching.cpp
-    src/shared/camera.cpp
+    src/shared/Camera.cpp
     src/shared/canvas.cpp
     src/shared/stratification.cpp
     src/shared/softids.cpp

@@ -103,13 +103,13 @@ static GalerkinElement *
 galerkinDoCreateClusterHierarchy(Geometry *parentGeometry) {
     // Geom will be nullptr if e.g. no scene is loaded when selecting
     // Galerkin radiosity for radiance computations
-    if ( !parentGeometry ) {
+    if ( parentGeometry == nullptr ) {
         return nullptr;
     }
 
-    /* create a cluster for the parentGeometry */
+    // Create a cluster for the parentGeometry
     GalerkinElement *cluster = galerkinElementCreateCluster(parentGeometry);
-    parentGeometry->radiance_data = (void *) cluster;
+    parentGeometry->radiance_data = cluster;
 
     // Recursively creates list of sub-clusters
     if ( geomIsAggregate(parentGeometry) ) {
@@ -138,9 +138,9 @@ determination
 */
 GalerkinElement *
 galerkinCreateClusterHierarchy(Geometry *geom) {
-    BlockerInit();
+    blockerInit();
     GalerkinElement *cluster = galerkinDoCreateClusterHierarchy(geom);
-    BlockerTerminate();
+    blockerTerminate();
 
     return cluster;
 }

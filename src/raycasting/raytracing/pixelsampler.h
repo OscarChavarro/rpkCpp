@@ -21,7 +21,7 @@ public:
                            double *pdf = nullptr, double *pdfRR = nullptr);
 
     // Set pixel : sets the current pixel. This pixel will be sampled
-    void SetPixel(int nx, int ny, CAMERA *cam = nullptr);
+    void SetPixel(int nx, int ny, Camera *cam = nullptr);
 
 protected:
     int m_nx, m_ny;

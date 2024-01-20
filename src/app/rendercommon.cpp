@@ -6,7 +6,7 @@ Rendering stuff independent of the graphics library being used
 #include "shared/render.h"
 #include "common/linealAlgebra/vectorMacros.h"
 #include "scene/scene.h"
-#include "shared/camera.h"
+#include "shared/Camera.h"
 #include "skin/Geometry.h"
 #include "shared/options.h"
 #include "raycasting/common/Raytracer.h"
@@ -123,7 +123,7 @@ parseRenderingOptions(int *argc, char **argv) {
     parseOptions(renderingOptions, argc, argv);
 }
 
-extern CAMERA GLOBAL_camera_alternateCamera;
+extern Camera GLOBAL_camera_alternateCamera;
 
 /**
 Computes front- and back-clipping plane distance for the current GLOBAL_scene_world and
@@ -152,7 +152,7 @@ renderGetNearFar(float *near, float *far) {
         for ( j = 0; j <= 1; j++ ) {
             for ( k = 0; k <= 1; k++ ) {
                 VECTORSET(d, b[i].x, b[j].y, b[k].z);
-                VECTORSUBTRACT(d, GLOBAL_camera_mainCamera.eyep, d);
+                VECTORSUBTRACT(d, GLOBAL_camera_mainCamera.eyePosition, d);
                 z = VECTORDOTPRODUCT(d, GLOBAL_camera_mainCamera.Z);
 
                 if ( z > *far ) {
@@ -166,21 +166,21 @@ renderGetNearFar(float *near, float *far) {
     }
 
     if ( GLOBAL_render_renderOptions.draw_cameras ) {
-        CAMERA *cam = &GLOBAL_camera_alternateCamera;
+        Camera *cam = &GLOBAL_camera_alternateCamera;
         float camlen = GLOBAL_render_renderOptions.camsize,
-                hsiz = camlen * cam->viewdist * cam->tanhfov,
-                vsiz = camlen * cam->viewdist * cam->tanvfov;
+                hsiz = camlen * cam->viewDistance * cam->pixelWidthTangent,
+                vsiz = camlen * cam->viewDistance * cam->pixelHeightTangent;
         Vector3D c, P[5];
 
-        VECTORCOMB2(1., cam->eyep, camlen * cam->viewdist, cam->Z, c);
+        VECTORCOMB2(1., cam->eyePosition, camlen * cam->viewDistance, cam->Z, c);
         VECTORCOMB3(c, hsiz, cam->X, vsiz, cam->Y, P[0]);
         VECTORCOMB3(c, hsiz, cam->X, -vsiz, cam->Y, P[1]);
         VECTORCOMB3(c, -hsiz, cam->X, -vsiz, cam->Y, P[2]);
         VECTORCOMB3(c, -hsiz, cam->X, vsiz, cam->Y, P[3]);
-        P[4] = cam->eyep;
+        P[4] = cam->eyePosition;
 
         for ( i = 0; i < 5; i++ ) {
-            VECTORSUBTRACT(P[i], GLOBAL_camera_mainCamera.eyep, d);
+            VECTORSUBTRACT(P[i], GLOBAL_camera_mainCamera.eyePosition, d);
             z = VECTORDOTPRODUCT(d, GLOBAL_camera_mainCamera.Z);
             if ( z > *far ) {
                 *far = z;
@@ -195,10 +195,10 @@ renderGetNearFar(float *near, float *far) {
     *far += 0.02 * (*far);
     *near -= 0.02 * (*near);
     if ( *far < EPSILON ) {
-        *far = GLOBAL_camera_mainCamera.viewdist;
+        *far = GLOBAL_camera_mainCamera.viewDistance;
     }
     if ( *near < EPSILON ) {
-        *near = GLOBAL_camera_mainCamera.viewdist / 100.;
+        *near = GLOBAL_camera_mainCamera.viewDistance / 100.;
     }
 }
 

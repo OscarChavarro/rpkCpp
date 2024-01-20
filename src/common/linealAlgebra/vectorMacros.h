@@ -204,7 +204,7 @@ VECTORSUMSCALED(const Vector3Dd a, const double s, const Vector3Dd b, Vector3Dd 
 Scalar vector product: a.b
 */
 #ifdef USE_FUNCTIONS
-inline double
+inline float
 VECTORDOTPRODUCT(const Vector3D a, const Vector3D b) {
     return a.x * b.x + a.y * b.y + a.z * b. z;
 }

@@ -10,7 +10,7 @@
 
 /* Constructor : make an screen buffer from a camera definition. */
 /*    If (cam == nullptr) the current camera (GLOBAL_camera_mainCamera) is taken */
-ScreenBuffer::ScreenBuffer(CAMERA *cam) {
+ScreenBuffer::ScreenBuffer(Camera *cam) {
     m_Radiance = nullptr;
     m_RGB = nullptr;
     Init(cam);
@@ -43,7 +43,7 @@ ScreenBuffer::IsRGBImage() const {
 }
 
 void
-ScreenBuffer::Init(CAMERA *cam) {
+ScreenBuffer::Init(Camera *cam) {
     int i;
 
     if ( cam == nullptr ) {
@@ -51,8 +51,8 @@ ScreenBuffer::Init(CAMERA *cam) {
     } // Use the current camera
 
     if ((m_Radiance != nullptr) &&
-        ((cam->hres != m_cam.hres) ||
-         (cam->vres != m_cam.vres))) {
+        ((cam->xSize != m_cam.xSize) ||
+         (cam->ySize != m_cam.ySize))) {
         free((char *) m_RGB);
         free((char *) m_Radiance);
         m_Radiance = nullptr;
@@ -61,14 +61,14 @@ ScreenBuffer::Init(CAMERA *cam) {
     m_cam = *cam;
 
     if ( m_Radiance == nullptr ) {
-        m_Radiance = (COLOR *)malloc(m_cam.hres * m_cam.vres *
+        m_Radiance = (COLOR *)malloc(m_cam.xSize * m_cam.ySize *
                                      sizeof(COLOR));
-        m_RGB = (RGB *)malloc(m_cam.hres * m_cam.vres *
+        m_RGB = (RGB *)malloc(m_cam.xSize * m_cam.ySize *
                               sizeof(RGB));
     }
 
     // Clear
-    for ( i = 0; i < m_cam.hres * m_cam.vres; i++ ) {
+    for ( i = 0; i < m_cam.xSize * m_cam.ySize; i++ ) {
         colorSetMonochrome(m_Radiance[i], 0.);
         m_RGB[i] = GLOBAL_material_black;
     }
@@ -87,7 +87,7 @@ ScreenBuffer::Copy(ScreenBuffer *source) {
 
     // Now the resolution is ok.
 
-    memcpy(m_Radiance, source->m_Radiance, m_cam.hres * m_cam.vres * sizeof(COLOR));
+    memcpy(m_Radiance, source->m_Radiance, m_cam.xSize * m_cam.ySize * sizeof(COLOR));
     m_Synced = false;
 }
 
@@ -111,7 +111,7 @@ ScreenBuffer::Merge(ScreenBuffer *src1, ScreenBuffer *src2) {
 
 void
 ScreenBuffer::Add(int x, int y, COLOR radiance) {
-    int index = x + (m_cam.vres - y - 1) * m_cam.hres;
+    int index = x + (m_cam.ySize - y - 1) * m_cam.xSize;
 
     colorAddScaled(m_Radiance[index], m_AddFactor, radiance,
                    m_Radiance[index]);
@@ -120,14 +120,14 @@ ScreenBuffer::Add(int x, int y, COLOR radiance) {
 
 void
 ScreenBuffer::Set(int x, int y, COLOR radiance) {
-    int index = x + (m_cam.vres - y - 1) * m_cam.hres;
+    int index = x + (m_cam.ySize - y - 1) * m_cam.xSize;
     colorScale(m_AddFactor, radiance, m_Radiance[index]);
     m_Synced = false;
 }
 
 void
 ScreenBuffer::ScaleRadiance(float factor) {
-    for ( int i = 0; i < m_cam.hres * m_cam.vres; i++ ) {
+    for ( int i = 0; i < m_cam.xSize * m_cam.ySize; i++ ) {
         colorScale(factor, m_Radiance[i], m_Radiance[i]);
     }
 
@@ -136,7 +136,7 @@ ScreenBuffer::ScaleRadiance(float factor) {
 
 COLOR
 ScreenBuffer::Get(int x, int y) {
-    int index = x + (m_cam.vres - y - 1) * m_cam.hres;
+    int index = x + (m_cam.ySize - y - 1) * m_cam.xSize;
 
     return m_Radiance[index];
 }
@@ -198,7 +198,7 @@ ScreenBuffer::Render() {
         Sync();
     }
 
-    renderPixels(0, 0, m_cam.hres, m_cam.vres, m_RGB);
+    renderPixels(0, 0, m_cam.xSize, m_cam.ySize, m_RGB);
 }
 
 void
@@ -216,12 +216,12 @@ ScreenBuffer::WriteFile(ImageOutputHandle *ip) {
     ip->gamma[0] = GLOBAL_toneMap_options.gamma.r;    // for default radiance -> display RGB
     ip->gamma[1] = GLOBAL_toneMap_options.gamma.g;
     ip->gamma[2] = GLOBAL_toneMap_options.gamma.b;
-    for ( int i = m_cam.vres - 1; i >= 0; i-- )    // write scanlines
+    for ( int i = m_cam.ySize - 1; i >= 0; i-- )    // write scanlines
     {
         if ( !IsRGBImage()) {
-            ip->WriteRadianceRGB((float *) &m_Radiance[i * m_cam.hres]);
+            ip->WriteRadianceRGB((float *) &m_Radiance[i * m_cam.xSize]);
         } else {
-            ip->WriteDisplayRGB((float *) &m_Radiance[i * m_cam.hres]);
+            ip->WriteDisplayRGB((float *) &m_Radiance[i * m_cam.xSize]);
         }
     }
 
@@ -238,7 +238,7 @@ ScreenBuffer::WriteFile(char *filename) {
 
     ImageOutputHandle *ip =
             CreateRadianceImageOutputHandle(filename, fp, ispipe,
-                                            m_cam.hres, m_cam.vres,
+                                            m_cam.xSize, m_cam.ySize,
                                             (float)GLOBAL_statistics_referenceLuminance / 179.0f);
 
     WriteFile(ip);
@@ -249,13 +249,13 @@ ScreenBuffer::WriteFile(char *filename) {
 
 void
 ScreenBuffer::RenderScanline(int i) {
-    i = m_cam.vres - i - 1;
+    i = m_cam.ySize - i - 1;
 
     if ( !m_Synced ) {
         SyncLine(i);
     }
 
-    renderPixels(0, i, m_cam.hres, 1, &m_RGB[i * m_cam.hres]);
+    renderPixels(0, i, m_cam.xSize, 1, &m_RGB[i * m_cam.xSize]);
 }
 
 void
@@ -263,7 +263,7 @@ ScreenBuffer::Sync() {
     int i;
     COLOR tmpRad{};
 
-    for ( i = 0; i < m_cam.hres * m_cam.vres; i++ ) {
+    for ( i = 0; i < m_cam.xSize * m_cam.ySize; i++ ) {
         colorScale(m_Factor, m_Radiance[i], tmpRad);
         if ( !IsRGBImage()) {
             radianceToRgb(tmpRad, &m_RGB[i]);
@@ -281,44 +281,44 @@ ScreenBuffer::SyncLine(int lineNumber) {
     int i;
     COLOR tmpRad{};
 
-    for ( i = 0; i < m_cam.hres; i++ ) {
-        colorScale(m_Factor, m_Radiance[lineNumber * m_cam.hres + i], tmpRad);
+    for ( i = 0; i < m_cam.xSize; i++ ) {
+        colorScale(m_Factor, m_Radiance[lineNumber * m_cam.xSize + i], tmpRad);
         if ( !IsRGBImage()) {
-            radianceToRgb(tmpRad, &m_RGB[lineNumber * m_cam.hres + i]);
+            radianceToRgb(tmpRad, &m_RGB[lineNumber * m_cam.xSize + i]);
         } else {
-            convertColorToRGB(tmpRad, &m_RGB[lineNumber * m_cam.hres + i]);
+            convertColorToRGB(tmpRad, &m_RGB[lineNumber * m_cam.xSize + i]);
         }
     }
 }
 
 float
 ScreenBuffer::GetScreenXMin() const {
-    return -m_cam.pixh * (float)m_cam.hres / 2.0f;
+    return -m_cam.pixelWidth * (float)m_cam.xSize / 2.0f;
 }
 
 float
 ScreenBuffer::GetScreenYMin() const {
-    return -m_cam.pixv * (float)m_cam.vres / 2.0f;
+    return -m_cam.pixelHeight * (float)m_cam.ySize / 2.0f;
 }
 
 float
 ScreenBuffer::GetScreenXMax() const {
-    return m_cam.pixh * (float)m_cam.hres / 2.0f;
+    return m_cam.pixelWidth * (float)m_cam.xSize / 2.0f;
 }
 
 float
 ScreenBuffer::GetScreenYMax() const {
-    return m_cam.pixv * (float)m_cam.vres / 2.0f;
+    return m_cam.pixelHeight * (float)m_cam.ySize / 2.0f;
 }
 
 float
 ScreenBuffer::GetPixXSize() const {
-    return m_cam.pixh;
+    return m_cam.pixelWidth;
 }
 
 float
 ScreenBuffer::GetPixYSize() const {
-    return m_cam.pixv;
+    return m_cam.pixelHeight;
 }
 
 Vector2D
@@ -361,12 +361,12 @@ ScreenBuffer::GetPixelVector(int nx, int ny, float xoff, float yoff) const {
 /* Screen resolution */
 int
 ScreenBuffer::GetHRes() const {
-    return m_cam.hres;
+    return m_cam.xSize;
 }
 
 int
 ScreenBuffer::GetVRes() const {
-    return m_cam.vres;
+    return m_cam.ySize;
 }
 
 float
@@ -374,11 +374,11 @@ ComputeFluxToRadFactor(int pix_x, int pix_y) {
     double x, y, xsample, ysample;
     Vector3D dir;
     double distPixel2, distPixel, factor;
-    double h = GLOBAL_camera_mainCamera.pixh;
-    double v = GLOBAL_camera_mainCamera.pixv;
+    double h = GLOBAL_camera_mainCamera.pixelWidth;
+    double v = GLOBAL_camera_mainCamera.pixelHeight;
 
-    x = -h * GLOBAL_camera_mainCamera.hres / 2.0 + pix_x * h;
-    y = -v * GLOBAL_camera_mainCamera.vres / 2.0 + pix_y * v;
+    x = -h * GLOBAL_camera_mainCamera.xSize / 2.0 + pix_x * h;
+    y = -v * GLOBAL_camera_mainCamera.ySize / 2.0 + pix_y * v;
 
     xsample = x + h * 0.5;  // pix_x, Pix_y indicate upper left
     ysample = y + v * 0.5;

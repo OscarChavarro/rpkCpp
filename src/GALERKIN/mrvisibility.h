@@ -23,7 +23,7 @@
  * lead to this conclusion is added to the shadow cache (see shadowcaching.h). */
 
 extern double
-GeomListMultiResolutionVisibility(GeometryListNode *occluderlist, Ray *ray, float rcvdist, float srcsize, float minfeaturesize);
+geomListMultiResolutionVisibility(GeometryListNode *occluderList, Ray *ray, float rcvdist, float srcSize, float minimumFeatureSize);
 
 
 /* Equivalent blocker size determination: first call BlockerInit(),
@@ -31,8 +31,8 @@ GeomListMultiResolutionVisibility(GeometryListNode *occluderlist, Ray *ray, floa
  * geoms for which you like to compute the equivalent blocker size, and
  * finally terminate with BlockerTerminate(). */
 
-extern void BlockerInit();
+extern void blockerInit();
 
-extern void BlockerTerminate();
+extern void blockerTerminate();
 
 #endif

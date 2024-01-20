@@ -8,7 +8,7 @@ Southwell Galerkin radiosity (progressive refinement radiosity)
 #include "common/error.h"
 #include "scene/scene.h"
 #include "skin/Vertex.h"
-#include "shared/camera.h"
+#include "shared/Camera.h"
 #include "shared/potential.h"
 #include "shared/render.h"
 #include "GALERKIN/galerkinP.h"

@@ -6,7 +6,7 @@
 
 #include "IMAGE/imagecpp.h"
 #include "material/color.h"
-#include "shared/camera.h"
+#include "shared/Camera.h"
 
 /*************************************************************************/
 /* Class for storing pixel radiances/fluxes                              */
@@ -23,7 +23,7 @@ class ScreenBuffer {
   private:
     COLOR *m_Radiance;
     RGB *m_RGB;
-    CAMERA m_cam; /* GLOBAL_camera_mainCamera used (copied, no pointer!) */
+    Camera m_cam; /* GLOBAL_camera_mainCamera used (copied, no pointer!) */
 
     bool m_Synced;
     float m_Factor;
@@ -31,9 +31,9 @@ class ScreenBuffer {
     bool m_RGBImage; /* Indicates an RGB image (=no radiance conversion!) */
 
   public:
-    explicit ScreenBuffer(CAMERA *cam); /* Also calls mainInit() */
+    explicit ScreenBuffer(Camera *cam); /* Also calls mainInit() */
     ~ScreenBuffer();
-    void Init(CAMERA *cam = nullptr);
+    void Init(Camera *cam = nullptr);
     void SetRGBImage(bool isRGB);
     bool IsRGBImage() const;
     void Copy(ScreenBuffer *source);

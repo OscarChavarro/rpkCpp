@@ -1,4 +1,4 @@
-#include "shared/camera.h"
+#include "shared/Camera.h"
 #include "material/statistics.h"
 #include "raycasting/common/Raytracer.h"
 
@@ -17,7 +17,7 @@ RayTrace(char *filename, FILE *fp, int ispipe) {
 
     if ( fp != nullptr ) {
         img = CreateRadianceImageOutputHandle(filename, fp, ispipe,
-                                              GLOBAL_camera_mainCamera.hres, GLOBAL_camera_mainCamera.vres, (float)(GLOBAL_statistics_referenceLuminance / 179.0));
+                                              GLOBAL_camera_mainCamera.xSize, GLOBAL_camera_mainCamera.ySize, (float)(GLOBAL_statistics_referenceLuminance / 179.0));
         if ( img == nullptr ) {
             return;
         }

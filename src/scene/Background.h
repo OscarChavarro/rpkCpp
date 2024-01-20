@@ -38,7 +38,7 @@ class Background {
     BACKGROUND_METHODS *methods; // class methods operating on state
 };
 
-extern COLOR BackgroundRadiance(Background *bkg, Vector3D *position, Vector3D *direction, float *pdf);
-extern COLOR BackgroundPower(Background *bkg, Vector3D *position);
+extern COLOR backgroundRadiance(Background *bkg, Vector3D *position, Vector3D *direction, float *pdf);
+extern COLOR backgroundPower(Background *bkg, Vector3D *position);
 
 #endif

@@ -10,7 +10,7 @@ routines dealing with view potential
 #include "scene/scene.h"
 #include "material/statistics.h"
 #include "shared/potential.h"
-#include "shared/camera.h"
+#include "shared/Camera.h"
 #include "shared/render.h"
 #include "shared/canvas.h"
 #include "shared/softids.h"
@@ -63,8 +63,8 @@ void UpdateDirectPotential() {
 
     /* h and v are the horizontal resp. vertical distance between two
      * neighbooring pixels on the screen. */
-    h = 2. * tan(GLOBAL_camera_mainCamera.hfov * M_PI / 180.) / (float) x;
-    v = 2. * tan(GLOBAL_camera_mainCamera.vfov * M_PI / 180.) / (float) y;
+    h = 2. * tan(GLOBAL_camera_mainCamera.horizontalFov * M_PI / 180.) / (float) x;
+    v = 2. * tan(GLOBAL_camera_mainCamera.verticalFov * M_PI / 180.) / (float) y;
     pixarea = h * v;
 
     for ( j = y - 1, ysample = -v * (float) (y - 1) / 2.; j >= 0; j--, ysample += v ) {

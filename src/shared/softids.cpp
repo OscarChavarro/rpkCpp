@@ -8,7 +8,7 @@ formats, etc.
 
 #include "shared/softids.h"
 #include "scene/scene.h"
-#include "shared/camera.h"
+#include "shared/Camera.h"
 #include "shared/render.h"
 #include "common/error.h"
 
@@ -16,14 +16,14 @@ SGL_CONTEXT *
 SetupSoftFrameBuffer() {
     SGL_CONTEXT *sgl;
 
-    sgl = sglOpen(GLOBAL_camera_mainCamera.hres, GLOBAL_camera_mainCamera.vres);
+    sgl = sglOpen(GLOBAL_camera_mainCamera.xSize, GLOBAL_camera_mainCamera.ySize);
     sglDepthTesting(true);
     sglClipping(true);
     sglClear((SGL_PIXEL) 0, SGL_MAXIMUM_Z);
 
-    sglLoadMatrix(Perspective(GLOBAL_camera_mainCamera.fov * 2. * M_PI / 180., (float) GLOBAL_camera_mainCamera.hres / (float) GLOBAL_camera_mainCamera.vres, GLOBAL_camera_mainCamera.near,
+    sglLoadMatrix(Perspective(GLOBAL_camera_mainCamera.fov * 2. * M_PI / 180., (float) GLOBAL_camera_mainCamera.xSize / (float) GLOBAL_camera_mainCamera.ySize, GLOBAL_camera_mainCamera.near,
                               GLOBAL_camera_mainCamera.far));
-    sglMultMatrix(LookAt(GLOBAL_camera_mainCamera.eyep, GLOBAL_camera_mainCamera.lookp, GLOBAL_camera_mainCamera.updir));
+    sglMultMatrix(LookAt(GLOBAL_camera_mainCamera.eyePosition, GLOBAL_camera_mainCamera.lookPosition, GLOBAL_camera_mainCamera.upDirection));
 
     return sgl;
 }
@@ -35,7 +35,7 @@ SoftRenderPatch(Patch *P) {
     Vector3D verts[4];
 
     if ( GLOBAL_render_renderOptions.backface_culling &&
-         VECTORDOTPRODUCT(P->normal, GLOBAL_camera_mainCamera.eyep) + P->planeConstant < EPSILON ) {
+         VECTORDOTPRODUCT(P->normal, GLOBAL_camera_mainCamera.eyePosition) + P->planeConstant < EPSILON ) {
         return;
     }
 

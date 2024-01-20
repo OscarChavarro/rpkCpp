@@ -182,7 +182,7 @@ renderTriangle(Vertex *v1, Vertex *v2, Vertex *v3) {
         int i;
         for ( i = 0; i < 3; i++ ) {
             Vector3D d;
-            VECTORSUBTRACT(GLOBAL_camera_mainCamera.eyep, vert[i], d);
+            VECTORSUBTRACT(GLOBAL_camera_mainCamera.eyePosition, vert[i], d);
             VECTORSUMSCALED(vert[i], 0.01, d, vert[i]);
         }
 
@@ -212,7 +212,7 @@ renderQuadrilateral(Vertex *v1, Vertex *v2, Vertex *v3, Vertex *v4) {
         int i;
         for ( i = 0; i < 4; i++ ) {
             Vector3D d;
-            VECTORSUBTRACT(GLOBAL_camera_mainCamera.eyep, vert[i], d);
+            VECTORSUBTRACT(GLOBAL_camera_mainCamera.eyePosition, vert[i], d);
             VECTORSUMSCALED(vert[i], 0.01, d, vert[i]);
         }
 
@@ -393,14 +393,14 @@ renderElementOutline(StochasticRadiosityElement *elem) {
     int i;
 
     /* test whether eye point is in front of the patch */
-    if ( VECTORDOTPRODUCT(elem->patch->normal, GLOBAL_camera_mainCamera.eyep) + elem->patch->planeConstant < 0. ) {
+    if ( VECTORDOTPRODUCT(elem->patch->normal, GLOBAL_camera_mainCamera.eyePosition) + elem->patch->planeConstant < 0. ) {
         return;
     }
 
     for ( i = 0; i < elem->nrvertices; i++ ) {
         Vector3D d;
         verts[i] = *(elem->vertex[i]->point);
-        VECTORSUBTRACT(GLOBAL_camera_mainCamera.eyep, verts[i], d);
+        VECTORSUBTRACT(GLOBAL_camera_mainCamera.eyePosition, verts[i], d);
         VECTORSUMSCALED(verts[i], 0.0001, d, verts[i]);
     }
 

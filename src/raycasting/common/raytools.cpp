@@ -227,11 +227,11 @@ EyeNodeVisible(
         x = VECTORDOTPRODUCT(dir, GLOBAL_camera_mainCamera.X);
         xz = x / z;
 
-        if ( fabs(xz) < GLOBAL_camera_mainCamera.tanhfov ) {
+        if ( fabs(xz) < GLOBAL_camera_mainCamera.pixelWidthTangent ) {
             y = VECTORDOTPRODUCT(dir, GLOBAL_camera_mainCamera.Y);
             yz = y / z;
 
-            if ( fabs(yz) < GLOBAL_camera_mainCamera.tanvfov ) {
+            if ( fabs(yz) < GLOBAL_camera_mainCamera.pixelHeightTangent ) {
                 // Point is within view pyramid
 
                 // Check normal directions

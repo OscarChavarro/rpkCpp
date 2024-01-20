@@ -12,7 +12,7 @@ potential-driven or not.
 #include "scene/scene.h"
 #include "skin/Vertex.h"
 #include "shared/render.h"
-#include "shared/camera.h"
+#include "shared/Camera.h"
 #include "shared/options.h"
 #include "shared/writevrml.h"
 #include "IMAGE/tonemap/tonemapping.h"

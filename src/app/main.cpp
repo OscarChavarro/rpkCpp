@@ -129,7 +129,7 @@ mainComputeSomeSceneStats() {
     colorScaleInverse(M_PI * GLOBAL_statistics_totalArea, GLOBAL_statistics_totalEmittedPower, GLOBAL_statistics_estimatedAverageRadiance);
 
     // Include background radiation
-    BP = BackgroundPower(GLOBAL_scene_background, &zero);
+    BP = backgroundPower(GLOBAL_scene_background, &zero);
     colorScale(1.0 / (4.0 * (double)M_PI), BP, BP);
     colorAdd(GLOBAL_statistics_totalEmittedPower, BP, GLOBAL_statistics_totalEmittedPower);
     colorAdd(GLOBAL_statistics_estimatedAverageRadiance, BP, GLOBAL_statistics_estimatedAverageRadiance);
@@ -271,7 +271,7 @@ mainInit() {
 
     mainRenderingDefaults();
     toneMapDefaults();
-    CameraDefaults();
+    cameraDefaults();
     radianceDefaults();
     mainRayTracingDefaults();
 
@@ -319,7 +319,7 @@ static void
 mainParseGlobalOptions(int *argc, char **argv) {
     parseRenderingOptions(argc, argv);
     parseToneMapOptions(argc, argv);
-    ParseCameraOptions(argc, argv);
+    parseCameraOptions(argc, argv);
     parseRadianceOptions(argc, argv);
     mainParseRayTracingOptions(argc, argv);
     parseBatchOptions(argc, argv);

@@ -65,7 +65,7 @@ geomCreateBase(void *geometryData, GEOM_METHODS *methods) {
     }
     newGeometry->shaftCullGeometry = false;
 
-    newGeometry->radiance_data = (void *) nullptr;
+    newGeometry->radiance_data = nullptr;
     newGeometry->tmp.i = 0;
     newGeometry->omit = false;
 

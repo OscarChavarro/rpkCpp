@@ -170,7 +170,7 @@ pointKernelEval(
         *vis = 0.0;
     } else {
         float min_feature_size = 2.0 * std::sqrt(GLOBAL_statistics_totalArea * GLOBAL_galerkin_state.rel_min_elem_area / M_PI);
-        *vis = GeomListMultiResolutionVisibility(ShadowList, &ray, fdist, src->bsize, min_feature_size);
+        *vis = geomListMultiResolutionVisibility(ShadowList, &ray, fdist, src->bsize, min_feature_size);
     }
 
     return ff;

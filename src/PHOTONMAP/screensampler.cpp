@@ -2,7 +2,7 @@
 
 #include "PHOTONMAP/screensampler.h"
 #include "raycasting/common/raytools.h"
-#include "shared/camera.h"
+#include "shared/Camera.h"
 
 bool CScreenSampler::Sample(CPathNode */*prevNode*/,
                             CPathNode *thisNode,
@@ -13,8 +13,8 @@ bool CScreenSampler::Sample(CPathNode */*prevNode*/,
     // Precond: thisNode == eye, prevNode == nullptr, SetPixel called
 
     // Sample direction
-    double xsample = (GLOBAL_camera_mainCamera.pixh * GLOBAL_camera_mainCamera.hres * (-0.5 + x_1));
-    double ysample = (GLOBAL_camera_mainCamera.pixv * GLOBAL_camera_mainCamera.vres * (-0.5 + x_2));
+    double xsample = (GLOBAL_camera_mainCamera.pixelWidth * GLOBAL_camera_mainCamera.xSize * (-0.5 + x_1));
+    double ysample = (GLOBAL_camera_mainCamera.pixelHeight * GLOBAL_camera_mainCamera.ySize * (-0.5 + x_2));
 
     VECTORCOMB3(GLOBAL_camera_mainCamera.Z, xsample, GLOBAL_camera_mainCamera.X, ysample, GLOBAL_camera_mainCamera.Y, dir);
     double distScreen2 = VECTORNORM2(dir);
@@ -23,8 +23,8 @@ bool CScreenSampler::Sample(CPathNode */*prevNode*/,
 
     double cosScreen = fabs(VECTORDOTPRODUCT(GLOBAL_camera_mainCamera.Z, dir));
 
-    double pdfDir = ((1. / (GLOBAL_camera_mainCamera.pixh * GLOBAL_camera_mainCamera.hres *
-                            GLOBAL_camera_mainCamera.pixv * GLOBAL_camera_mainCamera.vres)) * // 1 / Area pixel
+    double pdfDir = ((1. / (GLOBAL_camera_mainCamera.pixelWidth * GLOBAL_camera_mainCamera.xSize *
+                            GLOBAL_camera_mainCamera.pixelHeight * GLOBAL_camera_mainCamera.ySize)) * // 1 / Area pixel
                      (distScreen2 / cosScreen));  // spher. angle measure
 
     // Determine ray type
@@ -75,8 +75,8 @@ double CScreenSampler::EvalPDF(CPathNode *thisNode, CPathNode *newNode,
 
     // Three cosines : r^2 / cos = 1 / cos^3 since r is length
     // of viewing ray to the screen.
-    pdf = 1.0 / (GLOBAL_camera_mainCamera.pixv * GLOBAL_camera_mainCamera.vres * GLOBAL_camera_mainCamera.pixh *
-                 GLOBAL_camera_mainCamera.hres * cosa * cosa * cosa);
+    pdf = 1.0 / (GLOBAL_camera_mainCamera.pixelHeight * GLOBAL_camera_mainCamera.ySize * GLOBAL_camera_mainCamera.pixelWidth *
+                 GLOBAL_camera_mainCamera.xSize * cosa * cosa * cosa);
 
     cosb = -VECTORDOTPRODUCT(newNode->m_normal, outDir);
     pdf = pdf * cosb / dist2;

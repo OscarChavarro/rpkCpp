@@ -774,7 +774,7 @@ galerkinElementDraw(GalerkinElement *element, int mode) {
         for ( i = 0; i < numberOfVertices; i++ ) {
             // Move the point a bit closer the eye point to avoid aliasing
             Vector3D d;
-            VECTORSUBTRACT(GLOBAL_camera_mainCamera.eyep, p[i], d);
+            VECTORSUBTRACT(GLOBAL_camera_mainCamera.eyePosition, p[i], d);
             VECTORSUMSCALED(p[i], 0.01, d, p[i]);
         }
 

@@ -1,7 +1,7 @@
 #include "scene/Background.h"
 
 COLOR
-BackgroundRadiance(
+backgroundRadiance(
     Background *bkg,
     Vector3D *position,
     Vector3D *direction,
@@ -16,7 +16,7 @@ BackgroundRadiance(
 }
 
 COLOR
-BackgroundPower(Background *bkg, Vector3D *position) {
+backgroundPower(Background *bkg, Vector3D *position) {
     if ( !bkg || !bkg->methods->Power ) {
         COLOR black;
         colorSetMonochrome(black, 0.);

@@ -1,7 +1,7 @@
 #include <ctime>
 
 #include "material/color.h"
-#include "shared/camera.h"
+#include "shared/Camera.h"
 #include "shared/render.h"
 #include "IMAGE/tonemap/tonemapping.h"
 #include "raycasting/common/raytools.h"
@@ -54,8 +54,8 @@ ScreenIterateSequential(SCREENITERATECALLBACK callback, void *data) {
 
     ScreenIterateInit();
 
-    width = GLOBAL_camera_mainCamera.hres;
-    height = GLOBAL_camera_mainCamera.vres;
+    width = GLOBAL_camera_mainCamera.xSize;
+    height = GLOBAL_camera_mainCamera.ySize;
     rgb = new RGB[width];
 
     /* shoot rays through all the pixels */
@@ -84,7 +84,7 @@ FillRect(int x0, int y0, int x1, int y1, RGB col, RGB *rgb) {
 
     for ( x = x0; x < x1; x++ ) {
         for ( y = y0; y < y1; y++ ) {
-            rgb[y * GLOBAL_camera_mainCamera.hres + x] = col;
+            rgb[y * GLOBAL_camera_mainCamera.xSize + x] = col;
         }
     }
 }
@@ -102,8 +102,8 @@ ScreenIterateProgressive(SCREENITERATECALLBACK callback, void *data) {
 
     ScreenIterateInit();
 
-    width = GLOBAL_camera_mainCamera.hres;
-    height = GLOBAL_camera_mainCamera.vres;
+    width = GLOBAL_camera_mainCamera.xSize;
+    height = GLOBAL_camera_mainCamera.ySize;
     rgb = new RGB[width * height]; // We need a full screen !
 
     for ( i = 0; i < width * height; i++ ) {

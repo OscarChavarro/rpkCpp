@@ -8,7 +8,7 @@ Saves the result of a radiosity computation as a VRML file.
 #include <cstdio>
 
 #include "common/linealAlgebra/Matrix4x4.h"
-#include "shared/camera.h"
+#include "shared/Camera.h"
 
 /* Default method for saving VRML models (if the current radiance method
  * doesn't have its own one. */
@@ -27,7 +27,7 @@ extern
 Matrix4x4 VRMLModelTransform(Vector3D *model_rotaxis, float *model_rotangle);
 
 extern
-void WriteVRMLViewPoint(FILE *fp, Matrix4x4 model_xf, CAMERA *cam, const char *vpname);
+void WriteVRMLViewPoint(FILE *fp, Matrix4x4 model_xf, Camera *cam, const char *vpname);
 
 extern
 void

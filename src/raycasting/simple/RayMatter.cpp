@@ -60,8 +60,8 @@ RayMatter::Matting() {
 
     CheckFilter();
 
-    long width = GLOBAL_camera_mainCamera.hres;
-    long height = GLOBAL_camera_mainCamera.vres;
+    long width = GLOBAL_camera_mainCamera.xSize;
+    long height = GLOBAL_camera_mainCamera.ySize;
 
     // TODO SITHMASTER: Main paralelizable loop for ray matter
     for ( long y = 0; y < height; y++ ) {
@@ -78,7 +78,7 @@ RayMatter::Matting() {
 
                 // generate ray
                 Ray ray;
-                ray.pos = GLOBAL_camera_mainCamera.eyep;
+                ray.pos = GLOBAL_camera_mainCamera.eyePosition;
                 ray.dir = scrn->GetPixelVector(x, y, xi1, xi2);
                 VECTORNORMALIZE(ray.dir);
 

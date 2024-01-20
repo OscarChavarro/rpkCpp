@@ -5,7 +5,7 @@ Saves the result of a radiosity computation as a VRML file
 #include "scene/scene.h"
 #include "shared/writevrml.h"
 #include "shared/defaults.h"
-#include "shared/camera.h"
+#include "shared/Camera.h"
 #include "shared/render.h"
 
 /**
@@ -18,10 +18,10 @@ VRMLModelTransform(Vector3D *model_rotaxis, float *model_rotangle) {
     double cosA;
 
     VECTORSET(up_axis, 0.0, 1.0, 0.0);
-    cosA = VECTORDOTPRODUCT(GLOBAL_camera_mainCamera.updir, up_axis);
+    cosA = VECTORDOTPRODUCT(GLOBAL_camera_mainCamera.upDirection, up_axis);
     if ( cosA < 1. - EPSILON ) {
         *model_rotangle = (float)acos(cosA);
-        VECTORCROSSPRODUCT(GLOBAL_camera_mainCamera.updir, up_axis, *model_rotaxis);
+        VECTORCROSSPRODUCT(GLOBAL_camera_mainCamera.upDirection, up_axis, *model_rotaxis);
         VECTORNORMALIZE(*model_rotaxis);
         return Rotate(*model_rotangle, *model_rotaxis);
     } else {
@@ -35,7 +35,7 @@ VRMLModelTransform(Vector3D *model_rotaxis, float *model_rotangle) {
 Write VRML ViewPoint node for the given camera position
 */
 void
-WriteVRMLViewPoint(FILE *fp, Matrix4x4 model_xf, CAMERA *cam, const char *vpname) {
+WriteVRMLViewPoint(FILE *fp, Matrix4x4 model_xf, Camera *cam, const char *vpname) {
     Vector3D X, Y, Z, view_rotaxis, eyep;
     Matrix4x4 view_xf;
     float view_rotangle;
@@ -58,7 +58,7 @@ WriteVRMLViewPoint(FILE *fp, Matrix4x4 model_xf, CAMERA *cam, const char *vpname
     RecoverRotation(view_xf, &view_rotangle, &view_rotaxis);
 
     /* apply model transform to eye point */
-    TRANSFORM_POINT_3D(model_xf, cam->eyep, eyep);
+    TRANSFORM_POINT_3D(model_xf, cam->eyePosition, eyep);
 
     fprintf(fp,
             "Viewpoint {\n  position %g %g %g\n  orientation %g %g %g %g\n  fieldOfView %g\n  description \"%s\"\n}\n\n",
@@ -70,10 +70,10 @@ WriteVRMLViewPoint(FILE *fp, Matrix4x4 model_xf, CAMERA *cam, const char *vpname
 
 void
 WriteVRMLViewPoints(FILE *fp, Matrix4x4 model_xf) {
-    CAMERA *cam = (CAMERA *) nullptr;
+    Camera *cam = (Camera *) nullptr;
     int count = 1;
     WriteVRMLViewPoint(fp, model_xf, &GLOBAL_camera_mainCamera, "ViewPoint 1");
-    while ((cam = NextSavedCamera(cam)) != (CAMERA *) nullptr) {
+    while ((cam = nextSavedCamera(cam)) != (Camera *) nullptr) {
         char vpname[21];
         count++;
         snprintf(vpname, 21, "ViewPoint %d", count);

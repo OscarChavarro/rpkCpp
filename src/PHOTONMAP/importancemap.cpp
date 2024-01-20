@@ -65,7 +65,7 @@ float CImportanceMap::GetImpReqDensity(Vector3D &pos, Vector3D &normal) {
     // We want impScale photons per pixel density, account for
     // the pixel area here
 
-    density /= GLOBAL_camera_mainCamera.pixh * GLOBAL_camera_mainCamera.pixv;
+    density /= GLOBAL_camera_mainCamera.pixelWidth * GLOBAL_camera_mainCamera.pixelHeight;
 
     return (density);
 }

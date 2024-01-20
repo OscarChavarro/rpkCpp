@@ -16,7 +16,8 @@ createOffscreenCanvasWindow(int width, int height) {
     renderCreateOffscreenWindow(width, height);
 
     // Set correct width and height for the camera
-    CameraSet(&GLOBAL_camera_mainCamera, &GLOBAL_camera_mainCamera.eyep, &GLOBAL_camera_mainCamera.lookp, &GLOBAL_camera_mainCamera.updir,
+    cameraSet(&GLOBAL_camera_mainCamera, &GLOBAL_camera_mainCamera.eyePosition, &GLOBAL_camera_mainCamera.lookPosition,
+              &GLOBAL_camera_mainCamera.upDirection,
               GLOBAL_camera_mainCamera.fov, width, height, &GLOBAL_camera_mainCamera.background);
 
     // Render the scene (no expose events on the external canvas window!)

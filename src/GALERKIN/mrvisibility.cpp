@@ -1,20 +1,17 @@
 /**
 Multi-Resolution Visibility ala Sillion & Drettakis, "Multi-Resolution
 Control of Visibility Error", SIGGRAPH '95 p145
- */
-
-#include <cstdlib>
+*/
 
 #include "common/error.h"
-#include "common/mymath.h"
-#include "skin/Geometry.h"
 #include "SGL/sgl.h"
 #include "shared/shadowcaching.h"
-#include "GALERKIN/mrvisibility.h"
 #include "GALERKIN/GalerkinElement.h"
+#include "GALERKIN/mrvisibility.h"
 
-static SGL_CONTEXT *sgl; // sgl context for determining equivalent blocker sizes
-static unsigned char *buf1, *buf2; // needed for eroding and expanding
+static SGL_CONTEXT *globalSglContext; // Sgl context for determining equivalent blocker sizes
+static unsigned char *globalBuffer1; // Needed for eroding and expanding
+static unsigned char *globalBuffer2;
 
 /**
 Geoms will be rendered into a frame buffer of this size for determining
@@ -23,15 +20,19 @@ the equivalent blocker size
 #define FRAME_BUFFER_SIDE_LENGTH_IN_PIXELS 30
 
 static double
-GeomMultiResolutionVisibility(
-        Geometry *geom,
-        Ray *ray,
-        float rcvdist,
-        float srcsize,
-        float minfeaturesize)
+geomMultiResolutionVisibility(
+    Geometry *geom,
+    Ray *ray,
+    float rcvdist,
+    float srcSize,
+    float minimumFeatureSize)
 {
     Vector3D vtmp;
-    float tmin, tmax, t, fsize, *bbx;
+    float tmin;
+    float tmax;
+    float t;
+    float fsize;
+    float *bbx;
     GalerkinElement *clus = (GalerkinElement *) (geom->radiance_data);
     RayHit hitstore;
 
@@ -40,7 +41,7 @@ GeomMultiResolutionVisibility(
     }
 
     if ( !geom->bounded ) {
-        logFatal(-1, "GeomMultiResolutionVisibility", "Don't know what to do with unbounded geoms");
+        logFatal(-1, "geomMultiResolutionVisibility", "Don't know what to do with unbounded geoms");
     }
 
     fsize = HUGE;
@@ -60,11 +61,11 @@ GeomMultiResolutionVisibility(
         if ( clus ) {
             /* Compute feature size using equivalent blocker size of the occluder */
             t = (tmin + tmax) / 2.0f;    /* put the centre of the equivalent blocker halfway tmin and tmax */
-            fsize = srcsize + rcvdist / t * (clus->bsize - srcsize);
+            fsize = srcSize + rcvdist / t * (clus->bsize - srcSize);
         }
     }
 
-    if ( fsize < minfeaturesize ) {
+    if ( fsize < minimumFeatureSize ) {
         double kappa, vol;
         vol = (bbx[MAX_X] - bbx[MIN_X] + EPSILON) * (bbx[MAX_Y] - bbx[MIN_Y] + EPSILON) *
               (bbx[MAX_Z] - bbx[MIN_Z] + EPSILON);
@@ -72,7 +73,7 @@ GeomMultiResolutionVisibility(
         return exp(-kappa * (tmax - tmin));
     } else {
         if ( geomIsAggregate(geom)) {
-            return GeomListMultiResolutionVisibility(geomPrimList(geom), ray, rcvdist, srcsize, minfeaturesize);
+            return geomListMultiResolutionVisibility(geomPrimList(geom), ray, rcvdist, srcSize, minimumFeatureSize);
         } else {
             RayHit *hit;
             if ((hit = patchListIntersect(geomPatchList(geom), ray, rcvdist * ((float) EPSILON), &rcvdist,
@@ -88,51 +89,54 @@ GeomMultiResolutionVisibility(
 }
 
 double
-GeomListMultiResolutionVisibility(
-        GeometryListNode *occluderlist,
-        Ray *ray, float rcvdist,
-        float srcsize,
-        float minfeaturesize)
+geomListMultiResolutionVisibility(
+    GeometryListNode *occluderList,
+    Ray *ray,
+    float rcvdist,
+    float srcSize,
+    float minimumFeatureSize)
 {
-    double vis = 1.;
+    double vis = 1.0;
 
-    while ( occluderlist ) {
+    while ( occluderList ) {
         double v;
-        v = GeomMultiResolutionVisibility(occluderlist->geom, ray, rcvdist, srcsize, minfeaturesize);
+        v = geomMultiResolutionVisibility(occluderList->geom, ray, rcvdist, srcSize, minimumFeatureSize);
         if ( v < EPSILON ) {
-            return 0.;
+            return 0.0;
         } else {
             vis *= v;
         }
 
-        occluderlist = occluderlist->next;
+        occluderList = occluderList->next;
     }
 
     return vis;
 }
 
-/* ************* Equivalent blocker size determination. ************** */
+/**
+Equivalent blocker size determination
+*/
 
 /**
 Creates an sgl context needed for determining the equivalent blocker size
 of some objects
 */
 void
-BlockerInit() {
-    sgl = sglOpen(FRAME_BUFFER_SIDE_LENGTH_IN_PIXELS, FRAME_BUFFER_SIDE_LENGTH_IN_PIXELS);
+blockerInit() {
+    globalSglContext = sglOpen(FRAME_BUFFER_SIDE_LENGTH_IN_PIXELS, FRAME_BUFFER_SIDE_LENGTH_IN_PIXELS);
     sglDepthTesting(true);
 
-    buf1 = (unsigned char *)malloc(FRAME_BUFFER_SIDE_LENGTH_IN_PIXELS * FRAME_BUFFER_SIDE_LENGTH_IN_PIXELS);
-    buf2 = (unsigned char *)malloc(FRAME_BUFFER_SIDE_LENGTH_IN_PIXELS * FRAME_BUFFER_SIDE_LENGTH_IN_PIXELS);
+    globalBuffer1 = (unsigned char *)malloc(FRAME_BUFFER_SIDE_LENGTH_IN_PIXELS * FRAME_BUFFER_SIDE_LENGTH_IN_PIXELS);
+    globalBuffer2 = (unsigned char *)malloc(FRAME_BUFFER_SIDE_LENGTH_IN_PIXELS * FRAME_BUFFER_SIDE_LENGTH_IN_PIXELS);
 }
 
 /**
-Destroys the sgl context created by BlockerInit()
+Destroys the sgl context created by blockerInit()
 */
 void
-BlockerTerminate() {
-    free((char *) buf2);
-    free((char *) buf1);
+blockerTerminate() {
+    free((char *) globalBuffer2);
+    free((char *) globalBuffer1);
 
-    sglClose(sgl);
+    sglClose(globalSglContext);
 }

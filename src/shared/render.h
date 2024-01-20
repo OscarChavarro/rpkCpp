@@ -2,7 +2,7 @@
 #define __RENDER__
 
 #include "skin/Patch.h"
-#include "shared/camera.h"
+#include "shared/Camera.h"
 
 extern unsigned long *renderIds(long *x, long *y);
 extern void renderWorldOctree(void (*render_patch)(Patch *));
@@ -22,7 +22,7 @@ extern void renderEndTriangleStrip();
 extern void saveScreen(char *fileName, FILE *fp, int isPipe);
 extern void renderCameras();
 extern void renderSetLineWidth(float width);
-extern void renderBackground(CAMERA *camera);
+extern void renderBackground(Camera *camera);
 
 class RENDEROPTIONS {
   public:

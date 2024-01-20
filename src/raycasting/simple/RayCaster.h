@@ -24,7 +24,7 @@ class RayCaster {
         if ( P && getrad ) {
             // Ray pointing from the eye through the center of the pixel.
             Ray ray;
-            ray.pos = GLOBAL_camera_mainCamera.eyep;
+            ray.pos = GLOBAL_camera_mainCamera.eyePosition;
             ray.dir = scrn->GetPixelVector(x, y);
             VECTORNORMALIZE(ray.dir);
 

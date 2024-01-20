@@ -337,7 +337,8 @@ COLOR SR_GetRadiance(CPathNode *thisNode, SRCONFIG *config, SRREADOUT readout,
             weight = cr / (cr + cl);
         }
 
-        result = BackgroundRadiance(GLOBAL_scene_background, &(thisNode->Previous()->m_hit.point), &(thisNode->m_inDirF), nullptr);
+        result = backgroundRadiance(GLOBAL_scene_background, &(thisNode->Previous()->m_hit.point),
+                                    &(thisNode->m_inDirF), nullptr);
 
         colorScale(weight, result, result);
     }

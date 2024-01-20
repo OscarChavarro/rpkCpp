@@ -3,19 +3,19 @@
 #include "common/dataStructures/Bintree.h"
 
 void
-BinTreeIterate(BINTREE *bintree, void (*func)(void *)) {
+binTreeIterate(BINTREE *bintree, void (*func)(void *)) {
     if ( bintree ) {
-        BinTreeIterate(bintree->left, func);
+        binTreeIterate(bintree->left, func);
         func(bintree->pelement);
-        BinTreeIterate(bintree->right, func);
+        binTreeIterate(bintree->right, func);
     }
 }
 
 void
-BinTreeDestroy(BINTREE *bintree) {
+binTreeDestroy(BINTREE *bintree) {
     if ( bintree ) {
-        BinTreeDestroy(bintree->left);
-        BinTreeDestroy(bintree->right);
+        binTreeDestroy(bintree->left);
+        binTreeDestroy(bintree->right);
         free(bintree);
     }
 }

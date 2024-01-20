@@ -27,13 +27,14 @@ class PatchSet;
 class MeshSurface;
 class Compound;
 class GeometryListNode;
+class Element;
 
 class Geometry {
   public:
     int id; // Unique ID number
     GEOM_METHODS *methods;
     BOUNDINGBOX bounds;
-    void *radiance_data; // data specific to the radiance algorithm being used
+    Element *radiance_data; // data specific to the radiance algorithm being used
     int dlistid; // display list ID for faster hardware rendering - initialised to -1
 
     // Temporary data
@@ -164,8 +165,6 @@ extern Geometry *GLOBAL_geom_excludedGeom2;
 #include "skin/MeshSurface.h"
 #include "skin/Compound.h"
 #include "skin/geomlist.h"
-
-#include "skin/MeshSurface.h"
-#include "skin/geomlist.h"
+#include "skin/Element.h"
 
 #endif

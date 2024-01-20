@@ -18,7 +18,7 @@ static int openglInitialized = false;
 static GLubyte *background_ptr = nullptr;
 static GLuint backgroundTex = 0;
 
-extern CAMERA GLOBAL_camera_alternateCamera;
+extern Camera GLOBAL_camera_alternateCamera;
 
 void
 renderClearWindow() {
@@ -32,7 +32,7 @@ renderSetCamera() {
     renderClearWindow();
 
     // use full viewport
-    glViewport(0, 0, GLOBAL_camera_mainCamera.hres, GLOBAL_camera_mainCamera.vres);
+    glViewport(0, 0, GLOBAL_camera_mainCamera.xSize, GLOBAL_camera_mainCamera.ySize);
 
     // draw backgroudn when needed
     if ( GLOBAL_render_renderOptions.use_background && background_ptr ) {
@@ -44,16 +44,16 @@ renderSetCamera() {
 
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    gluPerspective(GLOBAL_camera_mainCamera.vfov * 2.0,
-                   (float)GLOBAL_camera_mainCamera.hres / (float)GLOBAL_camera_mainCamera.vres,
+    gluPerspective(GLOBAL_camera_mainCamera.verticalFov * 2.0,
+                   (float)GLOBAL_camera_mainCamera.xSize / (float)GLOBAL_camera_mainCamera.ySize,
                    GLOBAL_camera_mainCamera.near,
                    GLOBAL_camera_mainCamera.far);
 
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
-    gluLookAt(GLOBAL_camera_mainCamera.eyep.x, GLOBAL_camera_mainCamera.eyep.y, GLOBAL_camera_mainCamera.eyep.z,
-              GLOBAL_camera_mainCamera.lookp.x, GLOBAL_camera_mainCamera.lookp.y, GLOBAL_camera_mainCamera.lookp.z,
-              GLOBAL_camera_mainCamera.updir.x, GLOBAL_camera_mainCamera.updir.y, GLOBAL_camera_mainCamera.updir.z);
+    gluLookAt(GLOBAL_camera_mainCamera.eyePosition.x, GLOBAL_camera_mainCamera.eyePosition.y, GLOBAL_camera_mainCamera.eyePosition.z,
+              GLOBAL_camera_mainCamera.lookPosition.x, GLOBAL_camera_mainCamera.lookPosition.y, GLOBAL_camera_mainCamera.lookPosition.z,
+              GLOBAL_camera_mainCamera.upDirection.x, GLOBAL_camera_mainCamera.upDirection.y, GLOBAL_camera_mainCamera.upDirection.z);
 }
 
 static void
@@ -111,11 +111,11 @@ renderLine(Vector3D *x, Vector3D *y) {
     glBegin(GL_LINES);
 
     // move the line a bit closer to the eyepoint to avoid Z buffer artefacts
-    VECTORSUBTRACT(GLOBAL_camera_mainCamera.eyep, *x, dir);
+    VECTORSUBTRACT(GLOBAL_camera_mainCamera.eyePosition, *x, dir);
     VECTORSUMSCALED(*x, 0.01, dir, X);
     glVertex3fv((GLfloat *) &X);
 
-    VECTORSUBTRACT(GLOBAL_camera_mainCamera.eyep, *y, dir);
+    VECTORSUBTRACT(GLOBAL_camera_mainCamera.eyePosition, *y, dir);
     VECTORSUMSCALED(*y, 0.01, dir, Y);
     glVertex3fv((GLfloat *) &Y);
 
@@ -277,7 +277,7 @@ renderPatchOutline(Patch *patch) {
     glBegin(GL_LINE_LOOP);
     for ( i = 0; i < patch->numberOfVertices; i++ ) {
         // move the outlines a bit closer to the eyepoint to avoid Z buffer artefacts
-        VECTORSUBTRACT(GLOBAL_camera_mainCamera.eyep, *patch->vertex[i]->point, dir);
+        VECTORSUBTRACT(GLOBAL_camera_mainCamera.eyePosition, *patch->vertex[i]->point, dir);
         VECTORSUMSCALED(*patch->vertex[i]->point, 0.01, dir, tmp);
         glVertex3fv((GLfloat *) &tmp);
     }
@@ -298,7 +298,7 @@ renderPatch(Patch *patch) {
     }
 
     if ( GLOBAL_render_renderOptions.draw_outlines &&
-         (VECTORDOTPRODUCT(patch->normal, GLOBAL_camera_mainCamera.eyep) + patch->planeConstant > EPSILON
+         (VECTORDOTPRODUCT(patch->normal, GLOBAL_camera_mainCamera.eyePosition) + patch->planeConstant > EPSILON
           || GLOBAL_render_renderOptions.use_display_lists)) {
         renderSetColor(&GLOBAL_render_renderOptions.outline_color);
         renderPatchOutline(patch);
@@ -335,9 +335,9 @@ renderOctreeLeaf(Geometry *geom, void (*render_patch)(Patch *)) {
 static int
 viewCullBounds(float *bounds) {
     int i;
-    for ( i = 0; i < NR_VIEW_PLANES; i++ ) {
-        if ( boundsBehindPlane(bounds, &GLOBAL_camera_mainCamera.viewplane[i].norm,
-                               GLOBAL_camera_mainCamera.viewplane[i].d)) {
+    for ( i = 0; i < NUMBER_OF_VIEW_PLANES; i++ ) {
+        if ( boundsBehindPlane(bounds, &GLOBAL_camera_mainCamera.viewPlane[i].normal,
+                               GLOBAL_camera_mainCamera.viewPlane[i].d)) {
             return true;
         }
     }
@@ -398,7 +398,7 @@ renderOctreeNonLeaf(Geometry *geometry, void (*render_patch)(Patch *)) {
             octree_children[i].dist = HUGE;
         } else {
             // not culled, compute distance from eye to midpoint of child
-            octree_children[i].dist = boundsDistance2(GLOBAL_camera_mainCamera.eyep, octree_children[i].geom->bounds);
+            octree_children[i].dist = boundsDistance2(GLOBAL_camera_mainCamera.eyePosition, octree_children[i].geom->bounds);
         }
     }
 
@@ -611,7 +611,7 @@ renderPixels(int x, int y, int width, int height, RGB *rgb) {
     glMatrixMode(GL_PROJECTION);
     glPushMatrix();
     glLoadIdentity();
-    glOrtho(0, GLOBAL_camera_mainCamera.hres, 0, GLOBAL_camera_mainCamera.vres, -1.0, 1.0);
+    glOrtho(0, GLOBAL_camera_mainCamera.xSize, 0, GLOBAL_camera_mainCamera.ySize, -1.0, 1.0);
 
     glDisable(GL_DEPTH_TEST);
 
@@ -639,7 +639,7 @@ Saves a RGB image in the front buffer
 void
 saveScreen(char *fileName, FILE *fp, int isPipe) {
     ImageOutputHandle *img;
-    long j, x = GLOBAL_camera_mainCamera.hres, y = GLOBAL_camera_mainCamera.vres;
+    long j, x = GLOBAL_camera_mainCamera.xSize, y = GLOBAL_camera_mainCamera.ySize;
     GLubyte *screen;
     unsigned char *buf;
 
@@ -688,19 +688,19 @@ renderIds(long *x, long *y) {
 }
 
 static void
-renderFrustum(CAMERA *cam) {
+renderFrustum(Camera *cam) {
     Vector3D c;
     Vector3D P;
     Vector3D Q;
     float camlen = GLOBAL_render_renderOptions.camsize;
-    float hsiz = camlen * cam->viewdist * cam->tanhfov;
-    float vsiz = camlen * cam->viewdist * cam->tanvfov;
+    float hsiz = camlen * cam->viewDistance * cam->pixelWidthTangent;
+    float vsiz = camlen * cam->viewDistance * cam->pixelHeightTangent;
     int i;
     int j;
     int maxi = 12;
     int maxj = (int)((float) maxi * vsiz / hsiz);
 
-    VECTORCOMB2(1., cam->eyep, camlen * cam->viewdist, cam->Z, c);
+    VECTORCOMB2(1., cam->eyePosition, camlen * cam->viewDistance, cam->Z, c);
 
     glDisable(GL_DEPTH_TEST);
 
@@ -719,13 +719,13 @@ renderFrustum(CAMERA *cam) {
     }
 
     VECTORCOMB3(c, hsiz, cam->X, -vsiz, cam->Y, Q);
-    renderLine(&cam->eyep, &Q);
+    renderLine(&cam->eyePosition, &Q);
     VECTORCOMB3(c, -hsiz, cam->X, -vsiz, cam->Y, Q);
-    renderLine(&cam->eyep, &Q);
+    renderLine(&cam->eyePosition, &Q);
     VECTORCOMB3(c, -hsiz, cam->X, vsiz, cam->Y, Q);
-    renderLine(&cam->eyep, &Q);
+    renderLine(&cam->eyePosition, &Q);
     VECTORCOMB3(c, hsiz, cam->X, vsiz, cam->Y, Q);
-    renderLine(&cam->eyep, &Q);
+    renderLine(&cam->eyePosition, &Q);
 
     glLineWidth(1);
     glEnable(GL_DEPTH_TEST);
@@ -743,7 +743,7 @@ renderCameras() {
 Display background, no Z-buffer, fill whole screen
 */
 void
-renderBackground(CAMERA *camera) {
+renderBackground(Camera *camera) {
     // Turn off Z-buffer
     glDisable(GL_DEPTH_TEST);
 
@@ -755,7 +755,7 @@ renderBackground(CAMERA *camera) {
     glMatrixMode(GL_PROJECTION);
     glPushMatrix();
     glLoadIdentity();
-    gluOrtho2D(0, camera->hres, 0, camera->vres);
+    gluOrtho2D(0, camera->xSize, 0, camera->ySize);
 
     // Draw background (as texture)
     glEnable(GL_TEXTURE_2D);
@@ -765,11 +765,11 @@ renderBackground(CAMERA *camera) {
     glTexCoord2f(0.0f, 1.0f);
     glVertex3f(0.0f, 0.0f, 0.0f);
     glTexCoord2f(1.0f, 1.0f);
-    glVertex3f((float)camera->hres, 0.0f, 0.0f);
+    glVertex3f((float)camera->xSize, 0.0f, 0.0f);
     glTexCoord2f(1.0f, 0.0f);
-    glVertex3f((float)camera->hres, (float)camera->vres, 0.0f);
+    glVertex3f((float)camera->xSize, (float)camera->ySize, 0.0f);
     glTexCoord2f(0.0f, 0.0f);
-    glVertex3f(0.0f, (float)camera->vres, 0.0f);
+    glVertex3f(0.0f, (float)camera->ySize, 0.0f);
     glEnd();
     glDisable(GL_TEXTURE_2D);
 
