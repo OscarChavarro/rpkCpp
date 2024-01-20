@@ -24,8 +24,8 @@ potential-driven or not.
 
 GALERKIN_STATE GLOBAL_galerkin_state;
 
-static int t = true;
-static int f = false;
+static int globalTrue = true;
+static int globalFalse = false;
 
 #define STRING_LENGTH 2000
 
@@ -162,34 +162,33 @@ ambientOption(void *value) {
 }
 
 static CommandLineOptionDescription galerkinOptions[] = {
-        {"-gr-iteration-method",     6,  Tstring,  nullptr, iterationMethodOption,
-                "-gr-iteration-method <methodname>: Jacobi, GaussSeidel, Southwell"},
-        {"-gr-hierarchical",         6,  TYPELESS, (void *) &t, hierarchicalOption,
-                "-gr-hierarchical    \t: do hierarchical refinement"},
-        {"-gr-not-hierarchical",     10, TYPELESS, (void *) &f, hierarchicalOption,
-                "-gr-not-hierarchical\t: don't do hierarchical refinement"},
-        {"-gr-lazy-linking",         6,  TYPELESS, (void *) &t, lazyOption,
-                "-gr-lazy-linking    \t: do lazy linking"},
-        {"-gr-no-lazy-linking",      10, TYPELESS, (void *) &f, lazyOption,
-                "-gr-no-lazy-linking \t: don't do lazy linking"},
-        {"-gr-clustering",           6,  TYPELESS, (void *) &t, clusteringOption,
-                "-gr-clustering      \t: do clustering"},
-        {"-gr-no-clustering",        10, TYPELESS, (void *) &f, clusteringOption,
-                "-gr-no-clustering   \t: don't do clustering"},
-        {"-gr-importance",           6,  TYPELESS, (void *) &t, importanceOption,
-                "-gr-importance      \t: do view-potential driven computations"},
-        {"-gr-no-importance",        10, TYPELESS, (void *) &f, importanceOption,
-                "-gr-no-importance   \t: don't use view-potential"},
-        {"-gr-ambient",              6,  TYPELESS, (void *) &t, ambientOption,
-                "-gr-ambient         \t: do visualisation with ambient term"},
-        {"-gr-no-ambient",           10, TYPELESS, (void *) &f, ambientOption,
-                "-gr-no-ambient      \t: do visualisation without ambient term"},
-        {"-gr-link-error-threshold", 6,  Tfloat,   &GLOBAL_galerkin_state.rel_link_error_threshold, DEFAULT_ACTION,
-                "-gr-link-error-threshold <float>: Relative link error threshold"},
-        {"-gr-min-elem-area",        6,  Tfloat,   &GLOBAL_galerkin_state.rel_min_elem_area,        DEFAULT_ACTION,
-                "-gr-min-elem-area <float> \t: Relative element area threshold"},
-        {nullptr,                       0,  TYPELESS, nullptr,                          DEFAULT_ACTION,
-                nullptr}
+    {"-gr-iteration-method",     6,  Tstring,  nullptr, iterationMethodOption,
+    "-gr-iteration-method <methodname>: Jacobi, GaussSeidel, Southwell"},
+    {"-gr-hierarchical",         6,  TYPELESS, (void *) &globalTrue, hierarchicalOption,
+    "-gr-hierarchical    \t: do hierarchical refinement"},
+    {"-gr-not-hierarchical",     10, TYPELESS, (void *) &globalFalse, hierarchicalOption,
+    "-gr-not-hierarchical\t: don't do hierarchical refinement"},
+    {"-gr-lazy-linking",         6,  TYPELESS, (void *) &globalTrue, lazyOption,
+    "-gr-lazy-linking    \t: do lazy linking"},
+    {"-gr-no-lazy-linking",      10, TYPELESS, (void *) &globalFalse, lazyOption,
+    "-gr-no-lazy-linking \t: don't do lazy linking"},
+    {"-gr-clustering",           6,  TYPELESS, (void *) &globalTrue, clusteringOption,
+    "-gr-clustering      \t: do clustering"},
+    {"-gr-no-clustering",        10, TYPELESS, (void *) &globalFalse, clusteringOption,
+    "-gr-no-clustering   \t: don't do clustering"},
+    {"-gr-importance",           6,  TYPELESS, (void *) &globalTrue, importanceOption,
+    "-gr-importance      \t: do view-potential driven computations"},
+    {"-gr-no-importance",        10, TYPELESS, (void *) &globalFalse, importanceOption,
+    "-gr-no-importance   \t: don't use view-potential"},
+    {"-gr-ambient",              6,  TYPELESS, (void *) &globalTrue, ambientOption,
+    "-gr-ambient         \t: do visualisation with ambient term"},
+    {"-gr-no-ambient",           10, TYPELESS, (void *) &globalFalse, ambientOption,
+    "-gr-no-ambient      \t: do visualisation without ambient term"},
+    {"-gr-link-error-threshold", 6,  Tfloat,   &GLOBAL_galerkin_state.rel_link_error_threshold, DEFAULT_ACTION,
+    "-gr-link-error-threshold <float>: Relative link error threshold"},
+    {"-gr-min-elem-area",        6,  Tfloat,   &GLOBAL_galerkin_state.rel_min_elem_area,        DEFAULT_ACTION,
+    "-gr-min-elem-area <float> \t: Relative element area threshold"},
+    {nullptr, 0, TYPELESS, nullptr, DEFAULT_ACTION, nullptr}
 };
 
 static void
@@ -591,17 +590,16 @@ galerkinWriteCoordIndices() {
 
 static void
 galerkinWriteVRML(FILE *fp) {
-    WriteVRMLHeader(fp);
+    writeVrmlHeader(fp);
 
     globalVrmlFileDescriptor = fp;
     galerkinWriteCoords();
     galerkinWriteColors();
     galerkinWriteCoordIndices();
 
-    WriteVRMLTrailer(fp);
+    writeVRMLTrailer(fp);
 }
 
-/* **************************************************************** */
 RADIANCEMETHOD GLOBAL_galerkin_radiosity = {
     "Galerkin",
     3,

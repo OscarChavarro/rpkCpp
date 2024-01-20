@@ -1,36 +1,17 @@
-/*
-Saves the result of a radiosity computation as a VRML file.
+/**
+Saves the result of a radiosity computation as a VRML file
 */
 
-#ifndef _WRITE_VRML_H_
-#define _WRITE_VRML_H_
+#ifndef __WRITE_VRML__
+#define __WRITE_VRML__
 
-#include <cstdio>
-
-#include "common/linealAlgebra/Matrix4x4.h"
 #include "shared/Camera.h"
 
-/* Default method for saving VRML models (if the current radiance method
- * doesn't have its own one. */
-extern
-void WriteVRML(FILE *fp);
-
-/* Can also be used by radiance-method specific VRML savers. See
- * WriteVRML.c for how they are to be used and what they do. */
-extern
-void WriteVRMLHeader(FILE *fp);
-
-extern
-void WriteVRMLTrailer(FILE *fp);
-
-extern
-Matrix4x4 VRMLModelTransform(Vector3D *model_rotaxis, float *model_rotangle);
-
-extern
-void WriteVRMLViewPoint(FILE *fp, Matrix4x4 model_xf, Camera *cam, const char *vpname);
-
-extern
-void
-WriteVRMLViewPoints(FILE *fp, Matrix4x4 model_xf);
+extern void writeVRML(FILE *fp);
+extern void writeVrmlHeader(FILE *fp);
+extern void writeVRMLTrailer(FILE *fp);
+extern Matrix4x4 transformModelVRML(Vector3D *model_rotaxis, float *model_rotangle);
+extern void writeVRMLViewPoint(FILE *fp, Matrix4x4 model_xf, Camera *cam, const char *vpname);
+extern void writeVRMLViewPoints(FILE *fp, Matrix4x4 model_xf);
 
 #endif

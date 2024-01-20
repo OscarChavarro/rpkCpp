@@ -226,8 +226,8 @@ mcrWriteVrmlHeader(FILE *fp) {
 
     fprintf(fp, "NavigationInfo {\n type \"WALK\"\n headlight FALSE\n}\n\n");
 
-    model_xf = VRMLModelTransform(&model_rotaxis, &model_rotangle);
-    WriteVRMLViewPoints(fp, model_xf);
+    model_xf = transformModelVRML(&model_rotaxis, &model_rotangle);
+    writeVRMLViewPoints(fp, model_xf);
 
     fprintf(fp, "Transform {\n  rotation %g %g %g %g\n  children [\n",
             model_rotaxis.x, model_rotaxis.y, model_rotaxis.z, model_rotangle);

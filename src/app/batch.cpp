@@ -99,7 +99,7 @@ BatchSaveRadianceModel(const char *fname, FILE *fp, int ispipe) {
     if ( GLOBAL_radiance_currentRadianceMethodHandle && GLOBAL_radiance_currentRadianceMethodHandle->WriteVRML ) {
         GLOBAL_radiance_currentRadianceMethodHandle->WriteVRML(fp);
     } else {
-        WriteVRML(fp);
+        writeVRML(fp);
     }
 
     fprintf(stdout, "%g secs.\n", (float) (clock() - t) / (float) CLOCKS_PER_SEC);
