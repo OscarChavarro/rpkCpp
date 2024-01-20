@@ -7,13 +7,20 @@
 #define RAY_COUNT_MASK 0x0fffffff
 
 class VoxelGrid;
+class Geometry;
+class Patch;
 
 class VoxelData {
   private:
-    void *ptr; // Patch or Geometry pointer
+    Patch *patch;
+    Geometry *geometry;
+    VoxelGrid *voxelGrid;
+
     unsigned flags; // patch or geometry? last ray id, ...
 
-    VoxelData(void *ptr, unsigned flags);
+    VoxelData(VoxelGrid *data, unsigned flags);
+    VoxelData(Patch *data, unsigned flags);
+    VoxelData(Geometry *data, unsigned flags);
 
     inline void
     updateRayId(const unsigned int id) {
@@ -44,5 +51,7 @@ class VoxelData {
 };
 
 #include "scene/VoxelGrid.h"
+#include "skin/Geometry.h"
+#include "skin/Patch.h"
 
 #endif

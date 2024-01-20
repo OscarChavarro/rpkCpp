@@ -215,11 +215,9 @@ VoxelGrid::destroyGridRecursive() const {
         if ( list != nullptr ) {
             for ( long int j = 0; j < list->size(); j++ ) {
                 VoxelData *item = list->get(j);
-                if ( item->isGrid() && item->ptr ) {
-                    if ( item->ptr != nullptr ) {
-                        ((VoxelGrid *) item->ptr)->destroyGridRecursive();
-                    }
-                    item->ptr = nullptr;
+                if ( item->isGrid() && item->voxelGrid != nullptr ) {
+                    item->voxelGrid->destroyGridRecursive();
+                    item->voxelGrid = nullptr;
                 }
             }
         }
@@ -405,13 +403,13 @@ VoxelGrid::voxelIntersect(
         if ( item->lastRayId() != counter ) {
             // Avoid testing objects multiple times
             RayHit *h = (RayHit *) nullptr;
-            if ( item->isPatch()) {
-                h = patchIntersect((Patch *) item->ptr, ray, minimumDistance, maximumDistance, hitFlags, hitStore);
-            } else if ( item->isGeom()) {
-                h = geomDiscretizationIntersect((Geometry *) item->ptr, ray, minimumDistance, maximumDistance, hitFlags,
+            if ( item->isPatch() ) {
+                h = patchIntersect(item->patch, ray, minimumDistance, maximumDistance, hitFlags, hitStore);
+            } else if ( item->isGeom() ) {
+                h = geomDiscretizationIntersect(item->geometry, ray, minimumDistance, maximumDistance, hitFlags,
                                                 hitStore);
-            } else if ( item->isGrid()) {
-                h = ((VoxelGrid *) item->ptr)->gridIntersect(ray, minimumDistance, maximumDistance, hitFlags, hitStore);
+            } else if ( item->isGrid() ) {
+                h = item->voxelGrid->gridIntersect(ray, minimumDistance, maximumDistance, hitFlags, hitStore);
             }
             if ( h ) {
                 hit = h;
@@ -445,17 +443,16 @@ VoxelGrid::allVoxelIntersections(
         if ( item->lastRayId() != counter ) {
             if ( item->isPatch()) {
                 float tMax = maximumDistance;
-                RayHit *h = patchIntersect((Patch *) item->ptr, ray, minimumDistance, &tMax, hitFlags, &hitStore);
+                RayHit *h = patchIntersect(item->patch, ray, minimumDistance, &tMax, hitFlags, &hitStore);
                 if ( h ) {
                     hitList = HitListAdd(hitList, DuplicateHit(h));
                 }
             } else if ( item->isGeom()) {
-                hitList = geomAllDiscretizationIntersections(hitList, (Geometry *) item->ptr, ray, minimumDistance,
-                                                             maximumDistance, hitFlags);
+                hitList = geomAllDiscretizationIntersections(
+                    hitList, item->geometry, ray, minimumDistance, maximumDistance, hitFlags);
             } else if ( item->isGrid()) {
-                hitList = ((VoxelGrid *) item->ptr)->allGridIntersections(hitList, ray, minimumDistance,
-                                                                          maximumDistance,
-                                                                          hitFlags);
+                hitList = item->voxelGrid->allGridIntersections(
+                    hitList, ray, minimumDistance, maximumDistance, hitFlags);
             }
 
             item->updateRayId(counter);
