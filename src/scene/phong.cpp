@@ -2,12 +2,9 @@
 Phong-type EDFs, BRDFs, BTDFs
 */
 
-#include <cstdlib>
-
-#include "common/mymath.h"
-#include "scene/phong.h"
-#include "scene/spherical.h"
 #include "common/error.h"
+#include "scene/spherical.h"
+#include "scene/phong.h"
 
 /**
 The BRDF described in this file (phong.c) is a modified phong-brdf.
@@ -40,34 +37,31 @@ Kd + Ks <= 1
 Some functions sample a direction on the hemisphere, given a specific
 incoming direction, proportional to the value of the Modified Phong BRDF.
 There are several sampling strategies to achieve this:
-rejection sampling		PhongBrdfSampleRejection()
+rejection sampling PhongBrdfSampleRejection()
 inverse cumulative PDF sampling	PhongBrdfSampleCumPdf()
 
-The different sampling functions are commented seperately.
+The different sampling functions are commented separately.
 */
 
-#define NEWPHONGEDF() (PHONG_EDF *)malloc(sizeof(PHONG_EDF))
-#define NEWPHONGBRDF() (PHONG_BRDF *)malloc(sizeof(PHONG_BRDF))
-#define NEWPHONGBTDF() (PHONG_BTDF *)malloc(sizeof(PHONG_BTDF))
-
-static void
-PhongBrdfPrint(FILE *out, PHONG_BRDF *brdf);
-
-/* creates Phong type EDF, BRDF, BTDF data structs */
-PHONG_EDF *PhongEdfCreate(COLOR *Kd, COLOR *Ks, double Ns) {
-    PHONG_EDF *edf = NEWPHONGEDF();
+/**
+Creates Phong type EDF, BRDF, BTDF data structs
+*/
+PHONG_EDF *
+phongEdfCreate(COLOR *Kd, COLOR *Ks, double Ns) {
+    PHONG_EDF *edf = (PHONG_EDF *)malloc(sizeof(PHONG_EDF));
     edf->Kd = *Kd;
-    colorScale((1. / M_PI), edf->Kd, edf->kd);    /* because we use it often */
+    colorScale((1.00f / (float)M_PI), edf->Kd, edf->kd); // Because we use it often
     edf->Ks = *Ks;
-    if ( !colorNull(edf->Ks)) {
-        logWarning("PhongEdfCreate", "Non-diffuse light sources not yet inplemented");
+    if ( !colorNull(edf->Ks) ) {
+        logWarning("phongEdfCreate", "Non-diffuse light sources not yet implemented");
     }
     edf->Ns = Ns;
     return edf;
 }
 
-PHONG_BRDF *PhongBrdfCreate(COLOR *Kd, COLOR *Ks, double Ns) {
-    PHONG_BRDF *brdf = NEWPHONGBRDF();
+PHONG_BRDF *
+phongBrdfCreate(COLOR *Kd, COLOR *Ks, double Ns) {
+    PHONG_BRDF *brdf = (PHONG_BRDF *)malloc(sizeof(PHONG_BRDF));
     brdf->Kd = *Kd;
     brdf->avgKd = colorAverage(brdf->Kd);
     brdf->Ks = *Ks;
@@ -76,8 +70,9 @@ PHONG_BRDF *PhongBrdfCreate(COLOR *Kd, COLOR *Ks, double Ns) {
     return brdf;
 }
 
-PHONG_BTDF *PhongBtdfCreate(COLOR *Kd, COLOR *Ks, double Ns, double nr, double ni) {
-    PHONG_BTDF *btdf = NEWPHONGBTDF();
+PHONG_BTDF *
+phongBtdfCreate(COLOR *Kd, COLOR *Ks, float Ns, float nr, float ni) {
+    PHONG_BTDF *btdf = (PHONG_BTDF *)malloc(sizeof(PHONG_BTDF));
     btdf->Kd = *Kd;
     btdf->avgKd = colorAverage(btdf->Kd);
     btdf->Ks = *Ks;
@@ -88,8 +83,11 @@ PHONG_BTDF *PhongBtdfCreate(COLOR *Kd, COLOR *Ks, double Ns, double nr, double n
     return btdf;
 }
 
-/* prints data for Phong-type edf, ... to the file pointed to by 'out' */
-static void PhongEdfPrint(FILE *out, PHONG_EDF *edf) {
+/**
+Prints data for Phong-type edf, ... to the file pointed to by 'out'
+*/
+static void
+phongEdfPrint(FILE *out, PHONG_EDF *edf) {
     fprintf(out, "Phong Edf: Kd = ");
     edf->Kd.print(out);
     fprintf(out, ", Ks = ");
@@ -97,7 +95,8 @@ static void PhongEdfPrint(FILE *out, PHONG_EDF *edf) {
     fprintf(out, ", Ns = %g\n", edf->Ns);
 }
 
-static void PhongBrdfPrint(FILE *out, PHONG_BRDF *brdf) {
+static void
+phongBrdfPrint(FILE *out, PHONG_BRDF *brdf) {
     fprintf(out, "Phong Brdf: Kd = ");
     brdf->Kd.print(out);
     fprintf(out, ", Ks = ");
@@ -105,7 +104,8 @@ static void PhongBrdfPrint(FILE *out, PHONG_BRDF *brdf) {
     fprintf(out, ", Ns = %g\n", brdf->Ns);
 }
 
-static void PhongBtdfPrint(FILE *out, PHONG_BTDF *btdf) {
+static void
+phongBtdfPrint(FILE *out, PHONG_BTDF *btdf) {
     fprintf(out, "Phong Btdf: Kd = ");
     btdf->Kd.print(out);
     fprintf(out, ", Ks = ");
@@ -113,8 +113,11 @@ static void PhongBtdfPrint(FILE *out, PHONG_BTDF *btdf) {
     fprintf(out, ", Ns = %g, nr=%g, ni=%g\n", btdf->Ns, btdf->refrIndex.nr, btdf->refrIndex.ni);
 }
 
-/* Returns emittance, reflectance, transmittance */
-static COLOR PhongEmittance(PHONG_EDF *edf, RayHit *hit, XXDFFLAGS flags) {
+/**
+Returns emittance, reflectance, transmittance
+*/
+static COLOR
+phongEmittance(PHONG_EDF *edf, RayHit * /*hit*/, XXDFFLAGS flags) {
     COLOR result;
 
     colorClear(result);
@@ -136,7 +139,8 @@ static COLOR PhongEmittance(PHONG_EDF *edf, RayHit *hit, XXDFFLAGS flags) {
     return result;
 }
 
-static COLOR PhongReflectance(PHONG_BRDF *brdf, XXDFFLAGS flags) {
+static COLOR
+phongReflectance(PHONG_BRDF *brdf, XXDFFLAGS flags) {
     COLOR result;
 
     colorClear(result);
@@ -158,7 +162,8 @@ static COLOR PhongReflectance(PHONG_BRDF *brdf, XXDFFLAGS flags) {
     return result;
 }
 
-static COLOR PhongTransmittance(PHONG_BTDF *btdf, XXDFFLAGS flags) {
+static COLOR
+phongTransmittance(PHONG_BTDF *btdf, XXDFFLAGS flags) {
     COLOR result;
 
     colorClear(result);
@@ -178,22 +183,26 @@ static COLOR PhongTransmittance(PHONG_BTDF *btdf, XXDFFLAGS flags) {
     }
 
     if ( !std::isfinite(colorAverage(result))) {
-        logFatal(-1, "PhongTransmittance", "Oops - result is not finite!");
+        logFatal(-1, "phongTransmittance", "Oops - result is not finite!");
     }
 
     return result;
 }
 
-
-/* Refraction index */
-void PhongIndexOfRefraction(PHONG_BTDF *btdf, REFRACTIONINDEX *index) {
+/**
+Refraction index
+*/
+static void
+phongIndexOfRefraction(PHONG_BTDF *btdf, REFRACTIONINDEX *index) {
     index->nr = btdf->refrIndex.nr;
     index->ni = btdf->refrIndex.ni;
 }
 
-
-/* Edf evaluations */
-static COLOR PhongEdfEval(PHONG_EDF *edf, RayHit *hit, Vector3D *out, XXDFFLAGS flags, double *pdf) {
+/**
+Edf evaluations
+*/
+static COLOR
+phongEdfEval(PHONG_EDF *edf, RayHit *hit, Vector3D *out, XXDFFLAGS flags, double *pdf) {
     Vector3D normal;
     COLOR result;
     double cosl;
@@ -203,8 +212,8 @@ static COLOR PhongEdfEval(PHONG_EDF *edf, RayHit *hit, Vector3D *out, XXDFFLAGS 
         *pdf = 0.;
     }
 
-    if ( !HitShadingNormal(hit, &normal)) {
-        logWarning("PhongEdfEval", "Couldn't determine shading normal");
+    if ( !HitShadingNormal(hit, &normal) ) {
+        logWarning("phongEdfEval", "Couldn't determine shading normal");
         return result;
     }
 
@@ -212,31 +221,41 @@ static COLOR PhongEdfEval(PHONG_EDF *edf, RayHit *hit, Vector3D *out, XXDFFLAGS 
 
     if ( cosl < 0.0 ) {
         return result;
-    } /* Back face of a light does not radiate */
+    } // Back face of a light does not radiate
 
-    /* kd + ks (idealreflected * out)^n */
+    // kd + ks (idealReflected * out)^n
 
     if ( flags & DIFFUSE_COMPONENT ) {
-        /* divide by PI to turn radiant exitance [W/m^2] into exitant radiance [W/m^2 sr] */
+        // Divide by PI to turn radiant exitance [W/m^2] into exitant radiance [W/m^2 sr]
         colorAdd(result, edf->kd, result);
-        if ( pdf )
+        if ( pdf ) {
             *pdf = cosl / M_PI;
+        }
     }
 
     if ( flags & SPECULAR_COMPONENT ) {
-        /* ??? */
+        // ???
     }
 
     return result;
 }
 
-/* Edf sampling */
-static Vector3D PhongEdfSample(PHONG_EDF *edf, RayHit *hit, XXDFFLAGS flags,
-                               double xi1, double xi2,
-                               COLOR *selfemitted_radiance, double *pdf) {
+/**
+Edf sampling
+*/
+static Vector3D
+phongEdfSample(
+    PHONG_EDF *edf,
+    RayHit *hit,
+    XXDFFLAGS flags,
+    double xi1,
+    double xi2,
+    COLOR *selfEmittedRadiance,
+    double *pdf)
+{
     Vector3D dir = {0., 0., 1.};
-    if ( selfemitted_radiance ) {
-        colorClear(*selfemitted_radiance);
+    if ( selfEmittedRadiance ) {
+        colorClear(*selfEmittedRadiance);
     }
     if ( pdf ) {
         *pdf = 0.;
@@ -248,7 +267,7 @@ static Vector3D PhongEdfSample(PHONG_EDF *edf, RayHit *hit, XXDFFLAGS flags,
 
         Vector3D normal;
         if ( !HitShadingNormal(hit, &normal)) {
-            logWarning("PhongEdfEval", "Couldn't determine shading normal");
+            logWarning("phongEdfEval", "Couldn't determine shading normal");
             return dir;
         }
 
@@ -257,54 +276,52 @@ static Vector3D PhongEdfSample(PHONG_EDF *edf, RayHit *hit, XXDFFLAGS flags,
         if ( pdf ) {
             *pdf = spdf;
         }
-        if ( selfemitted_radiance ) {
-            colorScale((1.0f / (float)M_PI), edf->Kd, *selfemitted_radiance);
+        if ( selfEmittedRadiance ) {
+            colorScale((1.0f / (float)M_PI), edf->Kd, *selfEmittedRadiance);
         }
     }
-
-    /* Other components not yet implemented, and they probably never will: The
-     * VRML parser with extensions for physically based rendering contains all this
-     * stuff already and much cleaner.*/
 
     return dir;
 }
 
-/* Brdf evaluations */
-static COLOR PhongBrdfEval(PHONG_BRDF *brdf, Vector3D *in, Vector3D *out, Vector3D *normal, XXDFFLAGS flags) {
+/**
+Brdf evaluations
+*/
+static COLOR
+phongBrdfEval(PHONG_BRDF *brdf, Vector3D *in, Vector3D *out, Vector3D *normal, XXDFFLAGS flags) {
     COLOR result;
-    float tmpFloat, dotProduct;
+    float tmpFloat;
+    float dotProduct;
     Vector3D idealReflected;
-    XXDFFLAGS nondiffuseFlag;
+    XXDFFLAGS nonDiffuseFlag;
     Vector3D inrev;
     VECTORSCALE(-1., *in, inrev);
 
     colorClear(result);
 
-    /* kd + ks (idealreflected * out)^n */
-
+    // kd + ks (idealReflected * out)^n
     if ( VECTORDOTPRODUCT(*out, *normal) < 0 ) {
         /* refracted ray ! */
         return result;
     }
 
-    if ((flags & DIFFUSE_COMPONENT) && (brdf->avgKd > 0.0)) {
+    if ( (flags & DIFFUSE_COMPONENT) && (brdf->avgKd > 0.0)) {
         colorAddScaled(result, M_1_PI, brdf->Kd, result);
     }
 
     if ( PHONG_IS_SPECULAR(*brdf)) {
-        nondiffuseFlag = SPECULAR_COMPONENT;
+        nonDiffuseFlag = SPECULAR_COMPONENT;
     } else {
-        nondiffuseFlag = GLOSSY_COMPONENT;
+        nonDiffuseFlag = GLOSSY_COMPONENT;
     }
 
-
-    if ((flags & nondiffuseFlag) && (brdf->avgKs > 0.0)) {
+    if ( (flags & nonDiffuseFlag) && (brdf->avgKs > 0.0)) {
         idealReflected = IdealReflectedDirection(&inrev, normal);
         dotProduct = VECTORDOTPRODUCT(idealReflected, *out);
 
         if ( dotProduct > 0 ) {
-            tmpFloat = (float) pow(dotProduct, brdf->Ns); /* cos(a) ^ n */
-            tmpFloat *= ((int) brdf->Ns + 2.0) / (2 * M_PI); /* Ks -> ks */
+            tmpFloat = (float) std::pow(dotProduct, brdf->Ns); // cos(a) ^ n
+            tmpFloat *= (brdf->Ns + 2.0f) / (2.0f * (float)M_PI); // Ks -> ks
             colorAddScaled(result, tmpFloat, brdf->Ks, result);
         }
     }
@@ -312,20 +329,28 @@ static COLOR PhongBrdfEval(PHONG_BRDF *brdf, Vector3D *in, Vector3D *out, Vector
     return result;
 }
 
-
-/* Brdf sampling */
-static Vector3D PhongBrdfSample(PHONG_BRDF *brdf, Vector3D *in,
-                                Vector3D *normal, int doRussianRoulette,
-                                XXDFFLAGS flags, double x_1, double x_2,
-                                double *pdf) {
+/**
+Brdf sampling
+*/
+static Vector3D
+phongBrdfSample(
+    PHONG_BRDF *brdf,
+    Vector3D *in,
+    Vector3D *normal,
+    int doRussianRoulette,
+    XXDFFLAGS flags,
+    double x_1,
+    double x_2,
+    double *pdf)
+{
     Vector3D newDir = {0., 0., 0.}, idealDir;
     double cos_theta, diffPdf, nonDiffPdf;
     double scatteredPower, avgKd, avgKs;
     float tmpFloat;
     COORDSYS coord;
-    XXDFFLAGS nondiffuseFlag;
+    XXDFFLAGS nonDiffuseFlag;
     Vector3D inrev;
-    VECTORSCALE(-1., *in, inrev);
+    VECTORSCALE(-1.0, *in, inrev);
 
     *pdf = 0;
 
@@ -335,14 +360,13 @@ static Vector3D PhongBrdfSample(PHONG_BRDF *brdf, Vector3D *in,
         avgKd = 0.0;
     }
 
-    if ( PHONG_IS_SPECULAR(*brdf)) {
-        nondiffuseFlag = SPECULAR_COMPONENT;
+    if ( PHONG_IS_SPECULAR(*brdf) ) {
+        nonDiffuseFlag = SPECULAR_COMPONENT;
     } else {
-        nondiffuseFlag = GLOSSY_COMPONENT;
+        nonDiffuseFlag = GLOSSY_COMPONENT;
     }
 
-
-    if ( flags & nondiffuseFlag ) {
+    if ( flags & nonDiffuseFlag ) {
         avgKs = brdf->avgKs;
     } else {
         avgKs = 0.0;
@@ -354,27 +378,25 @@ static Vector3D PhongBrdfSample(PHONG_BRDF *brdf, Vector3D *in,
         return newDir;
     }
 
-    /* determine diffuse or glossy/specular sampling */
-
+    // Determine diffuse or glossy/specular sampling
     if ( doRussianRoulette ) {
         if ( x_1 > scatteredPower ) {
             /* Absorption */
             return newDir;
         }
 
-        /* Rescaling of x_1 */
+        // Rescaling of x_1
         x_1 /= scatteredPower;
     }
 
     idealDir = IdealReflectedDirection(&inrev, normal);
 
     if ( x_1 < (avgKd / scatteredPower)) {
-        /* Sample diffuse */
+        // Sample diffuse
         x_1 = x_1 / (avgKd / scatteredPower);
 
         vectorCoordSys(normal, &coord);
         newDir = sampleHemisphereCosTheta(&coord, x_1, x_2, &diffPdf);
-        /* newDir = SampleHemisphereUniform(&coord, x_1, x_2, &diffPdf); */
 
         tmpFloat = VECTORDOTPRODUCT(idealDir, newDir);
 
@@ -385,7 +407,7 @@ static Vector3D PhongBrdfSample(PHONG_BRDF *brdf, Vector3D *in,
             nonDiffPdf = 0;
         }
     } else {
-        /* Sample specular */
+        // Sample specular
         x_1 = (x_1 - (avgKd / scatteredPower)) / (avgKs / scatteredPower);
 
         vectorCoordSys(&idealDir, &coord);
@@ -397,12 +419,10 @@ static Vector3D PhongBrdfSample(PHONG_BRDF *brdf, Vector3D *in,
             return newDir;
         }
 
-        /* diffPdf = 1 / (2.0 * M_PI); */
         diffPdf = cos_theta / M_PI;
     }
 
-    /* Combine pdf's */
-
+    // Combine pdf's
     *pdf = avgKd * diffPdf + avgKs * nonDiffPdf;
 
     if ( !doRussianRoulette ) {
@@ -412,13 +432,25 @@ static Vector3D PhongBrdfSample(PHONG_BRDF *brdf, Vector3D *in,
     return newDir;
 }
 
-static void PhongBrdfEvalPdf(PHONG_BRDF *brdf, Vector3D *in,
-                             Vector3D *out, Vector3D *normal,
-                             XXDFFLAGS flags, double *pdf, double *pdfRR) {
-    double cos_theta, cos_alpha, cos_in;
-    double diffPdf, nonDiffPdf, scatteredPower;
-    double avgKs, avgKd;
-    XXDFFLAGS nondiffuseFlag;
+static void
+phongBrdfEvalPdf(
+    PHONG_BRDF *brdf,
+    Vector3D *in,
+    Vector3D *out,
+    Vector3D *normal,
+    XXDFFLAGS flags,
+    double *pdf,
+    double *pdfRR)
+{
+    double cos_theta;
+    double cos_alpha;
+    double cos_in;
+    double diffPdf;
+    double nonDiffPdf;
+    double scatteredPower;
+    double avgKs;
+    double avgKd;
+    XXDFFLAGS nonDiffuseFlag;
     Vector3D idealDir;
     Vector3D inrev;
     Vector3D goodNormal;
@@ -428,8 +460,7 @@ static void PhongBrdfEvalPdf(PHONG_BRDF *brdf, Vector3D *in,
     *pdf = 0;
     *pdfRR = 0;
 
-    /* ensure 'in' on the same side as 'normal' ! */
-
+    // Ensure 'in' on the same side as 'normal'!
     cos_in = VECTORDOTPRODUCT(*in, *normal);
     if ( cos_in >= 0 ) {
         VECTORCOPY(*normal, goodNormal);
@@ -443,21 +474,20 @@ static void PhongBrdfEvalPdf(PHONG_BRDF *brdf, Vector3D *in,
         return;
     }
 
-    /* 'out' is a reflected direction */
+    // 'out' is a reflected direction
     if ( flags & DIFFUSE_COMPONENT ) {
-        avgKd = brdf->avgKd;  /* -- Store in phong data ? -- */
+        avgKd = brdf->avgKd; // Store in phong data ?
     } else {
         avgKd = 0.0;
     }
 
     if ( PHONG_IS_SPECULAR(*brdf)) {
-        nondiffuseFlag = SPECULAR_COMPONENT;
+        nonDiffuseFlag = SPECULAR_COMPONENT;
     } else {
-        nondiffuseFlag = GLOSSY_COMPONENT;
+        nonDiffuseFlag = GLOSSY_COMPONENT;
     }
 
-
-    if ( flags & nondiffuseFlag ) {
+    if ( flags & nonDiffuseFlag ) {
         avgKs = brdf->avgKs;
     } else {
         avgKs = 0.0;
@@ -469,14 +499,14 @@ static void PhongBrdfEvalPdf(PHONG_BRDF *brdf, Vector3D *in,
         return;
     }
 
-    /* Diffuse sampling pdf */
+    // Diffuse sampling pdf
     diffPdf = 0.0;
 
     if ( avgKd > 0 ) {
         diffPdf = cos_theta / M_PI;
     }
 
-    /* Glossy or specular */
+    // Glossy or specular
     nonDiffPdf = 0.0;
     if ( avgKs > 0 ) {
         idealDir = IdealReflectedDirection(&inrev, &goodNormal);
@@ -491,22 +521,30 @@ static void PhongBrdfEvalPdf(PHONG_BRDF *brdf, Vector3D *in,
 
     *pdf = (avgKd * diffPdf + avgKs * nonDiffPdf) / scatteredPower;
     *pdfRR = scatteredPower;
-
-    return;
 }
 
-
-/* Btdf evaluations */
-static COLOR PhongBtdfEval(PHONG_BTDF *btdf, REFRACTIONINDEX inIndex, REFRACTIONINDEX outIndex, Vector3D *in, Vector3D *out,
-                           Vector3D *normal, XXDFFLAGS flags) {
+/**
+Btdf evaluations
+*/
+static COLOR
+phongBtdfEval(
+    PHONG_BTDF *btdf,
+    REFRACTIONINDEX inIndex,
+    REFRACTIONINDEX outIndex,
+    Vector3D *in,
+    Vector3D *out,
+    Vector3D *normal,
+    XXDFFLAGS flags)
+{
     COLOR result;
-    float tmpFloat, dotProduct;
-    Vector3D idealrefracted;
+    float tmpFloat;
+    float dotProduct;
+    Vector3D idealRefracted;
     int totalIR;
     int IsReflection;
-    XXDFFLAGS nondiffuseFlag;
+    XXDFFLAGS nonDiffuseFlag;
     Vector3D inrev;
-    VECTORSCALE(-1., *in, inrev);
+    VECTORSCALE(-1.0, *in, inrev);
 
     /* Specular-like refraction can turn into reflection.
        So for refraction a complete sphere should be
@@ -518,9 +556,9 @@ static COLOR PhongBtdfEval(PHONG_BTDF *btdf, REFRACTIONINDEX inIndex, REFRACTION
     colorClear(result);
 
     if ( (flags & DIFFUSE_COMPONENT) && (btdf->avgKd > 0) ) {
-        /* Diffuse part */
+        // Diffuse part
 
-        /* Normal is pointing away from refracted direction */
+        // Normal is pointing away from refracted direction
 
         IsReflection = (VECTORDOTPRODUCT(*normal, *out) >= 0);
 
@@ -531,23 +569,22 @@ static COLOR PhongBtdfEval(PHONG_BTDF *btdf, REFRACTIONINDEX inIndex, REFRACTION
     }
 
     if ( PHONG_IS_SPECULAR(*btdf)) {
-        nondiffuseFlag = SPECULAR_COMPONENT;
+        nonDiffuseFlag = SPECULAR_COMPONENT;
     } else {
-        nondiffuseFlag = GLOSSY_COMPONENT;
+        nonDiffuseFlag = GLOSSY_COMPONENT;
     }
 
+    if ( (flags & nonDiffuseFlag) && (btdf->avgKs > 0) ) {
+        // Specular part
 
-    if ((flags & nondiffuseFlag) && (btdf->avgKs > 0)) {
-        /* Specular part */
-
-        idealrefracted = IdealRefractedDirection(&inrev, normal, inIndex,
+        idealRefracted = IdealRefractedDirection(&inrev, normal, inIndex,
                                                  outIndex, &totalIR);
 
-        dotProduct = VECTORDOTPRODUCT(idealrefracted, *out);
+        dotProduct = VECTORDOTPRODUCT(idealRefracted, *out);
 
         if ( dotProduct > 0 ) {
-            tmpFloat = (float) pow(dotProduct, btdf->Ns); /* cos(a) ^ n */
-            tmpFloat *= (btdf->Ns + 2.0) / (2 * M_PI); /* Ks -> ks */
+            tmpFloat = (float) pow(dotProduct, btdf->Ns); // cos(a) ^ n
+            tmpFloat *= (btdf->Ns + 2.0f) / (2.0f * (float)M_PI); // Ks -> ks
             colorAddScaled(result, tmpFloat, btdf->Ks, result);
         }
     }
@@ -555,40 +592,50 @@ static COLOR PhongBtdfEval(PHONG_BTDF *btdf, REFRACTIONINDEX inIndex, REFRACTION
     return result;
 }
 
-static Vector3D PhongBtdfSample(PHONG_BTDF *btdf, REFRACTIONINDEX inIndex,
-                                REFRACTIONINDEX outIndex, Vector3D *in,
-                                Vector3D *normal, int doRussianRoulette,
-                                XXDFFLAGS flags, double x_1, double x_2,
-                                double *pdf) {
-    Vector3D newDir = {0., 0., 0.};
+static Vector3D
+phongBtdfSample(
+    PHONG_BTDF *btdf,
+    REFRACTIONINDEX inIndex,
+    REFRACTIONINDEX outIndex,
+    Vector3D *in,
+    Vector3D *normal,
+    int doRussianRoulette,
+    XXDFFLAGS flags,
+    double x_1,
+    double x_2,
+    double *pdf)
+{
+    Vector3D newDir = {0.0, 0.0, 0.0};
     int totalIR;
     Vector3D idealDir, invNormal;
     COORDSYS coord;
     double cos_theta;
-    double avgKd, avgKs, scatteredPower;
-    double diffPdf, nonDiffPdf;
+    double avgKd;
+    double avgKs;
+    double scatteredPower;
+    double diffPdf;
+    double nonDiffPdf;
     float tmpFloat;
-    XXDFFLAGS nondiffuseFlag;
+    XXDFFLAGS nonDiffuseFlag;
     Vector3D inrev;
-    VECTORSCALE(-1., *in, inrev);
+    VECTORSCALE(-1.0, *in, inrev);
 
     *pdf = 0;
 
-    /* Chosse sampling mode */
+    // Choose sampling mode
     if ( flags & DIFFUSE_COMPONENT ) {
-        avgKd = btdf->avgKd;  /* -- Store in phong data ? -- */
+        avgKd = btdf->avgKd; // Store in phong data ?
     } else {
         avgKd = 0.0;
     }
 
     if ( PHONG_IS_SPECULAR(*btdf)) {
-        nondiffuseFlag = SPECULAR_COMPONENT;
+        nonDiffuseFlag = SPECULAR_COMPONENT;
     } else {
-        nondiffuseFlag = GLOSSY_COMPONENT;
+        nonDiffuseFlag = GLOSSY_COMPONENT;
     }
 
-
-    if ( flags & nondiffuseFlag ) {
+    if ( flags & nonDiffuseFlag ) {
         avgKs = btdf->avgKs;
     } else {
         avgKs = 0.0;
@@ -600,14 +647,14 @@ static Vector3D PhongBtdfSample(PHONG_BTDF *btdf, REFRACTIONINDEX inIndex,
         return newDir;
     }
 
-    /* determine diffuse or glossy/specular sampling */
+    // Determine diffuse or glossy/specular sampling
     if ( doRussianRoulette ) {
         if ( x_1 > scatteredPower ) {
-            /* Absorption */
+            // Absorption
             return newDir;
         }
 
-        /* Rescaling of x_1 */
+        // Rescaling of x_1
         x_1 /= scatteredPower;
     }
 
@@ -616,13 +663,12 @@ static Vector3D PhongBtdfSample(PHONG_BTDF *btdf, REFRACTIONINDEX inIndex,
     VECTORSCALE(-1, *normal, invNormal);
 
     if ( x_1 < (avgKd / scatteredPower)) {
-        /* Sample diffuse */
+        // Sample diffuse
         x_1 = x_1 / (avgKd / scatteredPower);
 
         vectorCoordSys(&invNormal, &coord);
 
         newDir = sampleHemisphereCosTheta(&coord, x_1, x_2, &diffPdf);
-        /* newDir = SampleHemisphereUniform(&coord, x_1, x_2, &diffPdf); */
 
         tmpFloat = VECTORDOTPRODUCT(idealDir, newDir);
 
@@ -633,7 +679,7 @@ static Vector3D PhongBtdfSample(PHONG_BTDF *btdf, REFRACTIONINDEX inIndex,
             nonDiffPdf = 0;
         }
     } else {
-        /* Sample specular */
+        // Sample specular
         x_1 = (x_1 - (avgKd / scatteredPower)) / (avgKs / scatteredPower);
 
         vectorCoordSys(&idealDir, &coord);
@@ -642,45 +688,54 @@ static Vector3D PhongBtdfSample(PHONG_BTDF *btdf, REFRACTIONINDEX inIndex,
 
         cos_theta = VECTORDOTPRODUCT(*normal, newDir);
         if ( cos_theta > 0 ) {
-            /* diffPdf = 1 / (2.0 * M_PI); */
             diffPdf = cos_theta / M_PI;
         } else {
-            /* assume totalIR (maybe we should test the refractionindices */
-
+            // Assume totalIR (maybe we should test the refractionIndices
             diffPdf = 0.0;
         }
     }
 
-    /* Combine pdf's */
+    // Combine pdf's
     *pdf = avgKd * diffPdf + avgKs * nonDiffPdf;
 
     if ( !doRussianRoulette ) {
         *pdf /= scatteredPower;
     }
 
-
     return newDir;
 }
 
-static void PhongBtdfEvalPdf(PHONG_BTDF *btdf, REFRACTIONINDEX inIndex,
-                             REFRACTIONINDEX outIndex, Vector3D *in,
-                             Vector3D *out, Vector3D *normal,
-                             XXDFFLAGS flags,
-                             double *pdf, double *pdfRR) {
-    double cos_theta, cos_alpha, cos_in;
-    double diffPdf, nonDiffPdf = 0., scatteredPower;
-    double avgKs, avgKd;
-    XXDFFLAGS nondiffuseFlag;
+static void
+phongBtdfEvalPdf(
+    PHONG_BTDF *btdf,
+    REFRACTIONINDEX inIndex,
+    REFRACTIONINDEX outIndex,
+    Vector3D *in,
+    Vector3D *out,
+    Vector3D *normal,
+    XXDFFLAGS flags,
+    double *pdf,
+    double *pdfRR)
+{
+    double cos_theta;
+    double cos_alpha;
+    double cos_in;
+    double diffPdf;
+    double nonDiffPdf = 0.0;
+    double scatteredPower;
+    double avgKs;
+    double avgKd;
+    XXDFFLAGS nonDiffuseFlag;
     Vector3D idealDir;
     int totalIR;
     Vector3D goodNormal;
     Vector3D inrev;
-    VECTORSCALE(-1., *in, inrev);
+    VECTORSCALE(-1.0, *in, inrev);
 
     *pdf = 0;
     *pdfRR = 0;
 
-    /* ensure 'in' on the same side as 'normal' ! */
+    // Ensure 'in' on the same side as 'normal'!
 
     cos_in = VECTORDOTPRODUCT(*in, *normal);
     if ( cos_in >= 0 ) {
@@ -699,13 +754,12 @@ static void PhongBtdfEvalPdf(PHONG_BTDF *btdf, REFRACTIONINDEX inIndex,
     }
 
     if ( PHONG_IS_SPECULAR(*btdf)) {
-        nondiffuseFlag = SPECULAR_COMPONENT;
+        nonDiffuseFlag = SPECULAR_COMPONENT;
     } else {
-        nondiffuseFlag = GLOSSY_COMPONENT;
+        nonDiffuseFlag = GLOSSY_COMPONENT;
     }
 
-
-    if ( flags & nondiffuseFlag ) {
+    if ( flags & nonDiffuseFlag ) {
         avgKs = btdf->avgKs;
     } else {
         avgKs = 0.0;
@@ -717,21 +771,20 @@ static void PhongBtdfEvalPdf(PHONG_BTDF *btdf, REFRACTIONINDEX inIndex,
         return;
     }
 
-    /* Diffuse sampling pdf */
+    // Diffuse sampling pdf
     if ( avgKd > 0 ) {
-        /* diffPdf = 1.0 / (2.0 * M_PI); */
         diffPdf = cos_theta / M_PI;
     } else {
         diffPdf = 0.0;
     }
 
-    /* Glossy or specular */
+    // Glossy or specular
     if ( avgKs > 0 ) {
         if ( cos_in >= 0 ) {
             idealDir = IdealRefractedDirection(&inrev, &goodNormal, inIndex,
                                                outIndex, &totalIR);
         } else {
-            /* Normal was inverted, so materialsides switch also */
+            // Normal was inverted, so materialSides switch also
             idealDir = IdealRefractedDirection(&inrev, &goodNormal, outIndex,
                                                inIndex, &totalIR);
         }
@@ -740,45 +793,43 @@ static void PhongBtdfEvalPdf(PHONG_BTDF *btdf, REFRACTIONINDEX inIndex,
 
         nonDiffPdf = 0.0;
         if ( cos_alpha > 0 ) {
-            nonDiffPdf = (btdf->Ns + 1.0) * pow(cos_alpha,
-                                                btdf->Ns) / (2.0 * M_PI);
+            nonDiffPdf = (btdf->Ns + 1.0) * pow(cos_alpha, btdf->Ns) / (2.0 * M_PI);
         }
     }
 
     *pdf = (avgKd * diffPdf + avgKs * nonDiffPdf) / scatteredPower;
     *pdfRR = scatteredPower;
-
-    return;
 }
 
 // Phong-type edf method structs
 EDF_METHODS GLOBAL_scene_phongEdfMethods = {
-        (COLOR (*)(void *, RayHit *, XXDFFLAGS)) PhongEmittance,
-        (int (*)(void *)) nullptr,    /* not textured */
-        (COLOR (*)(void *, RayHit *, Vector3D *, XXDFFLAGS, double *)) PhongEdfEval,
-        (Vector3D (*)(void *, RayHit *, XXDFFLAGS, double, double, COLOR *, double *)) PhongEdfSample,
-        (int (*)(void *, RayHit *, Vector3D *, Vector3D *, Vector3D *)) nullptr,
-        (void (*)(FILE *, void *)) PhongEdfPrint
+    (COLOR (*)(void *, RayHit *, XXDFFLAGS)) phongEmittance,
+    (int (*)(void *)) nullptr,    /* not textured */
+    (COLOR (*)(void *, RayHit *, Vector3D *, XXDFFLAGS, double *)) phongEdfEval,
+    (Vector3D (*)(void *, RayHit *, XXDFFLAGS, double, double, COLOR *, double *)) phongEdfSample,
+    (int (*)(void *, RayHit *, Vector3D *, Vector3D *, Vector3D *)) nullptr,
+    (void (*)(FILE *, void *)) phongEdfPrint
 };
 
 BRDF_METHODS GLOBAL_scene_phongBrdfMethods = {
-        (COLOR (*)(void *, XXDFFLAGS)) PhongReflectance,
-        (COLOR (*)(void *, Vector3D *, Vector3D *, Vector3D *, XXDFFLAGS)) PhongBrdfEval,
-        (Vector3D (*)(void *, Vector3D *, Vector3D *, int, XXDFFLAGS, double, double,
-                      double *)) PhongBrdfSample,
-        (void (*)(void *, Vector3D *, Vector3D *, Vector3D *,
-                  XXDFFLAGS, double *, double *)) PhongBrdfEvalPdf,
-        (void (*)(FILE *, void *)) PhongBrdfPrint
+    (COLOR (*)(void *, XXDFFLAGS)) phongReflectance,
+    (COLOR (*)(void *, Vector3D *, Vector3D *, Vector3D *, XXDFFLAGS)) phongBrdfEval,
+    (Vector3D (*)(void *, Vector3D *, Vector3D *, int, XXDFFLAGS, double, double,
+    double *)) phongBrdfSample,
+    (void (*)(void *, Vector3D *, Vector3D *, Vector3D *,
+    XXDFFLAGS, double *, double *)) phongBrdfEvalPdf,
+    (void (*)(FILE *, void *)) phongBrdfPrint
 };
 
 BTDF_METHODS GLOBAL_scene_phongBtdfMethods = {
-    (COLOR (*)(void *, XXDFFLAGS)) PhongTransmittance,
-    reinterpret_cast<void (*)(void *, REFRACTIONINDEX *)>((void (*)()) PhongIndexOfRefraction),
-    (COLOR (*)(void *, REFRACTIONINDEX, REFRACTIONINDEX, Vector3D *, Vector3D *, Vector3D *, XXDFFLAGS)) PhongBtdfEval,
+    (COLOR (*)(void *, XXDFFLAGS)) phongTransmittance,
+    reinterpret_cast<void (*)(void *, REFRACTIONINDEX *)>((void (*)()) phongIndexOfRefraction),
+    (COLOR (*)(void *, REFRACTIONINDEX, REFRACTIONINDEX, Vector3D *, Vector3D *, Vector3D *,
+    XXDFFLAGS)) phongBtdfEval,
     (Vector3D (*)(void *, REFRACTIONINDEX, REFRACTIONINDEX, Vector3D *,
-                  Vector3D *, int, XXDFFLAGS, double, double,
-                  double *)) PhongBtdfSample,
+    Vector3D *, int, XXDFFLAGS, double, double,
+    double *)) phongBtdfSample,
     (void (*)(void *, REFRACTIONINDEX, REFRACTIONINDEX, Vector3D *,
-              Vector3D *, Vector3D *, XXDFFLAGS, double *, double *)) PhongBtdfEvalPdf,
-    (void (*)(FILE *, void *)) PhongBtdfPrint
+    Vector3D *, Vector3D *, XXDFFLAGS, double *, double *)) phongBtdfEvalPdf,
+    (void (*)(FILE *, void *)) phongBtdfPrint
 };

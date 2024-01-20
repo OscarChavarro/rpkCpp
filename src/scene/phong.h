@@ -17,14 +17,18 @@ class PHONG_BRDF {
 
 class PHONG_EDF {
   public:
-    COLOR Kd, kd, Ks;
+    COLOR Kd;
+    COLOR kd;
+    COLOR Ks;
     float Ns;
 };
 
 class PHONG_BTDF {
   public:
-    COLOR Kd, Ks;
-    float avgKd, avgKs;
+    COLOR Kd;
+    COLOR Ks;
+    float avgKd;
+    float avgKs;
     float Ns;
     REFRACTIONINDEX refrIndex;
 };
@@ -41,19 +45,15 @@ class PHONG_BTDF {
  * Ks = specular emittance, reflectance or transmittance (same dimensions as Kd)
  * Ns = Phong exponent.
  * note: Emittance is total power emitted by the light source per unit of area. */
-extern PHONG_EDF *PhongEdfCreate(COLOR *Kd, COLOR *Ks, double Ns);
+extern PHONG_EDF *phongEdfCreate(COLOR *Kd, COLOR *Ks, double Ns);
 
-extern PHONG_BRDF *PhongBrdfCreate(COLOR *Kd, COLOR *Ks, double Ns);
+extern PHONG_BRDF *phongBrdfCreate(COLOR *Kd, COLOR *Ks, double Ns);
 
-extern PHONG_BTDF *PhongBtdfCreate(COLOR *Kd, COLOR *Ks, double Ns, double nr, double ni);
+extern PHONG_BTDF *phongBtdfCreate(COLOR *Kd, COLOR *Ks, float Ns, float nr, float ni);
 
 /* methods for manipulating Phong type EDFs, BRDFs, BTDFs */
 extern EDF_METHODS GLOBAL_scene_phongEdfMethods;
 extern BRDF_METHODS GLOBAL_scene_phongBrdfMethods;
 extern BTDF_METHODS GLOBAL_scene_phongBtdfMethods;
-
-extern void *CreatePhongEdfEditor(void *parent, PHONG_EDF *edf);
-
-extern void *CreatePhongBrdfEditor(void *parent, PHONG_BRDF *brdf);
 
 #endif
