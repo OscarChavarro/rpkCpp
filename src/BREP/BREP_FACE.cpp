@@ -5,7 +5,8 @@
 /**
 Disconnect the face from its containing shell
 */
-static void BrepDisconnectFaceFromShell(BREP_FACE *face) {
+static void
+brepDisconnectFaceFromShell(BREP_FACE *face) {
     BREP_SOLID *shell = face->shell;
 
     if ( !shell ) {
@@ -33,15 +34,16 @@ static void BrepDisconnectFaceFromShell(BREP_FACE *face) {
 /**
 Destroys the contours in a face
 */
-static void BrepFaceDestroyContours(BREP_CONTOUR *first) {
+static void
+brepFaceDestroyContours(BREP_CONTOUR *first) {
     BREP_CONTOUR *contour, *prev;
 
     if ( first ) {
         for ( contour = first->prev; contour != first; contour = prev ) {
             prev = contour->prev;
-            BrepDestroyContour(contour);
+            brepDestroyContour(contour);
         }
-        BrepDestroyContour(first);
+        brepDestroyContour(first);
     }
 }
 
@@ -49,14 +51,15 @@ static void BrepFaceDestroyContours(BREP_CONTOUR *first) {
 Release all storage associated with a face and its contours, including
 edges and vertices if not used in other faces as well
 */
-void BrepDestroyFace(BREP_FACE *face) {
-    // inverse actions performed in BrepCreateFace() in reverse order
+void
+brepDestroyFace(BREP_FACE *face) {
+    // inverse actions performed in brepCreateFace() in reverse order
 
     // disconnect the face from the containing shell
-    BrepDisconnectFaceFromShell(face);
+    brepDisconnectFaceFromShell(face);
 
     // destroy its contours
-    BrepFaceDestroyContours(face->outer_contour);
+    brepFaceDestroyContours(face->outer_contour);
 
     // dispose of the BREP_FACE structure itself
     free(face);

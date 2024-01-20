@@ -337,7 +337,7 @@ patchDestroy(Patch *patch) {
     if ( patch->brepData ) {    /* also destroys all contours, and edges if not used in
 			 * other faces as well. Not the vertices: these are
 			 * destroyed when destroying the corresponding Vertex. */
-        BrepDestroyFace(patch->brepData);
+        brepDestroyFace(patch->brepData);
     }
 
     if ( patch->twin ) {

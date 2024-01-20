@@ -33,13 +33,8 @@ class BREP_CONTOUR {
     BREP_FACE *face; // back pointer to the containing face
 };
 
-/* disconnects a contour from its containing face */
-extern void BrepDisconnectContourFromFace(BREP_CONTOUR *contour);
-
-/* release all storage associated with a contour and its wing/edges
- * if not used in other contours as well */
-extern void
-BrepDestroyContour(BREP_CONTOUR *contour);
+extern void brepDisconnectContourFromFace(BREP_CONTOUR *contour);
+extern void brepDestroyContour(BREP_CONTOUR *contour);
 
 #include "BREP/BREP_FACE.h"
 

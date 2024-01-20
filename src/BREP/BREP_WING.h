@@ -22,16 +22,16 @@ structure, but the code to operate on it is significantly simpler, cfr.
 */
 class BREP_WING { // A.k.a. half-edge
   public:
-    BREP_VERTEX *vertex; // start vertex
+    BREP_VERTEX *vertex; // Start vertex
     // ClockWise and CounterClockWise next wing within outer contours
     BREP_WING *prev;
     BREP_WING *next;
-    BREP_EDGE *edge; // pointer to the containing edge
-    BREP_CONTOUR *contour; // back pointer to the containing contour
+    BREP_EDGE *edge; // Pointer to the containing edge
+    BREP_CONTOUR *contour; // Back pointer to the containing contour
 };
 
-extern void BrepDisconnectWingFromContour(BREP_WING *wing);
-extern void BrepDestroyWing(BREP_WING *wing);
+extern void brepDisconnectWingFromContour(BREP_WING *wing);
+extern void brepDestroyWing(BREP_WING *wing);
 
 #include "BREP/BREP_EDGE.h"
 #include "BREP/BREP_CONTOUR.h"

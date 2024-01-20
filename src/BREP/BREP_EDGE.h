@@ -6,11 +6,9 @@
 class BREP_EDGE {
   public:
     void *client_data;
-    BREP_WING wing[2]; // two wings
+    BREP_WING wing[2]; // Two wings
 };
 
-/* release all storage associated with an edge if not used anymore in
- * any contour (the given edge must already be disconnected from its contours.) */
-extern void BrepDestroyEdge(BREP_EDGE *edge);
+extern void brepDestroyEdge(BREP_EDGE *edge);
 
 #endif

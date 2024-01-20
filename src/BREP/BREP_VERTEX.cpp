@@ -13,15 +13,15 @@ brepFindWingLeavingVertex(BREP_WING *wing) {
     BREP_VERTEX *vertex = wing->vertex;
     DoubleLinkedListOfWings *ringel, *next;
 
-    if ( vertex->wing_ring ) {
-        next = vertex->wing_ring;
+    if ( vertex->wingRing ) {
+        next = vertex->wingRing;
         do {
             ringel = next;
             next = ringel->next;
             if ( ringel->wing == wing ) {
                 return ringel;
             }
-        } while ( next && next != vertex->wing_ring );
+        } while ( next && next != vertex->wingRing );
     }
 
     return (DoubleLinkedListOfWings *) nullptr;
@@ -34,12 +34,12 @@ static void
 brepDisconnectWingRingFromVertex(DoubleLinkedListOfWings *ringel) {
     BREP_VERTEX *vertex = ringel->wing->vertex;
 
-    if ( vertex->wing_ring == ringel ) {
+    if ( vertex->wingRing == ringel ) {
         if ( ringel->next == ringel ) {        /* it's the only wing leaving the
 					 * vertex */
-            vertex->wing_ring = (DoubleLinkedListOfWings *) nullptr;
+            vertex->wingRing = (DoubleLinkedListOfWings *) nullptr;
         } else {
-            vertex->wing_ring = ringel->next;
+            vertex->wingRing = ringel->next;
         }
     }
 
@@ -58,7 +58,7 @@ brepDisconnectWingFromVertex(BREP_WING *wing) {
     // Find the wing in the wing ring
     ringElements = brepFindWingLeavingVertex(wing);
     if ( !ringElements ) {
-        BrepError(wing->edge->client_data, "brepDisconnectWingFromVertex", "wing not connected to the vertex");
+        brepError(wing->edge->client_data, "brepDisconnectWingFromVertex", "wing not connected to the vertex");
         return;
     }
 

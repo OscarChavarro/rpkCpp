@@ -123,8 +123,6 @@ parseRenderingOptions(int *argc, char **argv) {
     parseOptions(renderingOptions, argc, argv);
 }
 
-extern Camera GLOBAL_camera_alternateCamera;
-
 /**
 Computes front- and back-clipping plane distance for the current GLOBAL_scene_world and
 GLOBAL_camera_mainCamera

@@ -168,7 +168,7 @@ Perspective(float fov /*radians*/, float aspect, float near, float far) {
     return xf;
 }
 
-extern Matrix4x4
+Matrix4x4
 Ortho(float left, float right, float bottom, float top, float near, float far) {
     Matrix4x4 xf = GLOBAL_matrix_identityTransform4x4;
 

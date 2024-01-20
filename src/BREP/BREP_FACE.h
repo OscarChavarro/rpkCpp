@@ -22,16 +22,14 @@ interpretation).
 */
 class BREP_FACE {
   public:
-    // faces form a doubly linked ring
+    // Faces form a doubly linked ring
     BREP_FACE *prev;
     BREP_FACE *next;
     BREP_CONTOUR *outer_contour;
     BREP_SOLID *shell; // back pointer to the containing shell
 };
 
-/* release all storage associated with a face and its contours, including
- * edges if not used in other faces as well */
-extern void BrepDestroyFace(BREP_FACE *face);
+extern void brepDestroyFace(BREP_FACE *face);
 
 #include "BREP/BREP_SOLID.h"
 

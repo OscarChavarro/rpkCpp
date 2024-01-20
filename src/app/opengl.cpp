@@ -18,8 +18,6 @@ static int openglInitialized = false;
 static GLubyte *background_ptr = nullptr;
 static GLuint backgroundTex = 0;
 
-extern Camera GLOBAL_camera_alternateCamera;
-
 void
 renderClearWindow() {
     glClearColor(GLOBAL_camera_mainCamera.background.r, GLOBAL_camera_mainCamera.background.g, GLOBAL_camera_mainCamera.background.b, 0.0);
