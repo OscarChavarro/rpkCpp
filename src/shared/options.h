@@ -1,17 +1,19 @@
-/* options.h: command line options and defaults */
+/**
+Command line options and defaults
+*/
 
-#ifndef _RPK_OPTIONS_H_
-#define _RPK_OPTIONS_H_
+#ifndef __OPTIONS__
+#define __OPTIONS__
 
 #include <cstdio>
 
 /* command line option value type structures. See options.c for examples. */
 class CMDLINEOPTTYPE {
   public:
-    int (*get)(void *value, void *data);    /* retrieves a argument value */
-    void (*print)(FILE *fp, void *value, void *data);    /* prints an argument value */
-    void *dummy;                /* pointer to "dummy" argument value storage */
-    void *data;                /* pointer to additional data */
+    int (*get)(void *value, void *data); /* retrieves a argument value */
+    void (*print)(FILE *fp, void *value, void *data); /* prints an argument value */
+    void *dummy; /* pointer to "dummy" argument value storage */
+    void *data; /* pointer to additional data */
 };
 
 extern CMDLINEOPTTYPE GLOBAL_options_intType;
@@ -26,16 +28,16 @@ extern CMDLINEOPTTYPE GLOBAL_options_xyType;
 
 /* shorthands for specifying command line argument type, the 'type'
  * field of the CMDLINEOPTDESC structure below. */
-#define TYPELESS    (CMDLINEOPTTYPE *)0
-#define Tint        (&GLOBAL_options_intType)    /* int* value pointer */
-#define Tbool        (&GLOBAL_options_boolType)    /* int* value pointer */
-#define Tsettrue    (&GLOBAL_options_setTrueType)    /* int* value pointer */
-#define Tsetfalse    (&GLOBAL_options_setFalseType)    /* int* value pointer */
-#define Tstring        (&GLOBAL_options_stringType)    /* char** value pointer */
-#define Tfloat        (&GLOBAL_options_floatType)    /* float* value pointer */
-#define TVECTOR        (&GLOBAL_options_vectorType)    /* Vector3D* value pointer */
-#define TRGB        (&GLOBAL_options_rgbType)    /* RGB* value pointer */
-#define Txy        (&GLOBAL_options_xyType)        /* CIE xy color value pair (float [2]) */
+#define TYPELESS (CMDLINEOPTTYPE *)0
+#define Tint (&GLOBAL_options_intType)    /* int* value pointer */
+#define Tbool (&GLOBAL_options_boolType)    /* int* value pointer */
+#define Tsettrue (&GLOBAL_options_setTrueType)    /* int* value pointer */
+#define Tsetfalse (&GLOBAL_options_setFalseType)    /* int* value pointer */
+#define Tstring (&GLOBAL_options_stringType)    /* char** value pointer */
+#define Tfloat (&GLOBAL_options_floatType)    /* float* value pointer */
+#define TVECTOR (&GLOBAL_options_vectorType)    /* Vector3D* value pointer */
+#define TRGB (&GLOBAL_options_rgbType)    /* RGB* value pointer */
+#define Txy (&GLOBAL_options_xyType)        /* CIE xy color value pair (float [2]) */
 
 /* default action; no action */
 #define DEFAULT_ACTION (void (*)(void *))0
@@ -76,9 +78,8 @@ class ENUMDESC {
     int abbrev;
 };
 
-extern int Tenum_get(int *, ENUMDESC *);
-
-extern void Tenum_print(FILE *, int *, ENUMDESC *);
+extern int optionsEnumGet(int *, ENUMDESC *);
+extern void optionsEnumPrint(FILE *fp, const int *v, ENUMDESC *tab);
 
 extern int GLOBAL_options_dummyVal;
 
@@ -95,18 +96,18 @@ extern int GLOBAL_options_dummyVal;
  * "Tkind" then can be used as option value type in a CMDLINEOPTDESC record
  */
 #define MakeEnumOptTypeStruct(enumTypeStructName, enumvaltab) \
-static CMDLINEOPTTYPE enumTypeStructName = {        \
-  (int (*)(void *, void *))Tenum_get,            \
-  (void (*)(FILE *, void *, void *))Tenum_print,    \
-  (void *)&GLOBAL_options_dummyVal,                \
-  (void *)enumvaltab                    \
+static CMDLINEOPTTYPE enumTypeStructName = { \
+  (int (*)(void *, void *))optionsEnumGet, \
+  (void (*)(FILE *, void *, void *))optionsEnumPrint, \
+  (void *)&GLOBAL_options_dummyVal, \
+  (void *)enumvaltab \
 }
 
 // n string options: let the nstringTypeStruct.data field point to a maximum string length
 
-extern int Tnstring_get(char *, int);
+extern int optionsStringGet(char *, int);
 
-extern void stringPrint(FILE *, char *, int);
+extern void optionsStringPrint(FILE *fp, const char *s, int n);
 
 extern char *GLOBAL_option_dummyVal;
 
@@ -119,8 +120,8 @@ MakeNStringTypeStruct(nStringTypeStruct, n);
 */
 #define MakeNStringTypeStruct(nstringTypeStructName, n) \
 static CMDLINEOPTTYPE nstringTypeStructName = { \
-  (int (*)(void *, void *))Tnstring_get, \
-  (void (*)(FILE *, void *, void *))stringPrint, \
+  (int (*)(void *, void *))optionsStringGet, \
+  (void (*)(FILE *, void *, void *))optionsStringPrint, \
   (void *)&GLOBAL_option_dummyVal, \
   (void *)n \
 }

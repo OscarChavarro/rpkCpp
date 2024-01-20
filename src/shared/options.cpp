@@ -8,86 +8,131 @@ Command line options and defaults
 #include "material/color.h"
 #include "shared/options.h"
 
-static int *_argc;            /* pointer to argument count */
-static char **_argv,            /* pointer to current arg value */
-**first_arg;        /* pointer to first arg value */
+char *GLOBAL_option_dummyVal = nullptr;
+int GLOBAL_options_dummyVal = 0;
 
-/* initializes the global variables above */
-#define init_arg(pargc, argv)    {_argc = pargc; _argv = first_arg = argv;}
+static int *globalArgumentCount;
+static char **globalCurrentArgumentValue;
+static char **globalFirstArgument;
+static int globalDummyInt = 0;
+static char *globalDummyString = nullptr;
+static int globalDummyTrue = true;
+static int globalDummyFalse = false;
+static float globalDummyFloat = 0.0f;
+static Vector3D globalDummyVector3D = {0.0f, 0.0f, 0.0f};
+static RGB globalDummyRgb = {0.0f, 0.0f, 0.0f};
+static float globalDummyCieXy[2] = {0.0f, 0.0f};
 
-/* tests whether arguments remain */
-#define args_remain()        (_argv - first_arg < *_argc)
+/**
+Initializes the global variables above
+*/
+static void
+optionsInitArguments(int *argc, char **argv) {
+    globalArgumentCount = argc;
+    globalCurrentArgumentValue = globalFirstArgument = argv;
+}
 
-/* skips to next argument value */
-#define next_arg()        {_argv++;}
+/**
+Tests whether arguments remain
+*/
+static bool
+optionsArgumentsRemaining() {
+    return globalCurrentArgumentValue - globalFirstArgument < *globalArgumentCount;
+}
 
-/* consumes the current argument value, that is: removes it from the
- * list. */
-static void consume_arg() {
-    char **av = _argv;
-    while ( av - first_arg < *_argc - 1 ) {
+/**
+Skips to next argument value
+*/
+static void
+optionsNextArgument() {
+    globalCurrentArgumentValue++;
+}
+
+/**
+Consumes the current argument value, that is: removes it from the list
+*/
+static void
+optionsConsumeArgument() {
+    char **av = globalCurrentArgumentValue;
+    while ( av - globalFirstArgument < *globalArgumentCount - 1 ) {
         *av = *(av + 1);
         av++;
     }
     *av = nullptr;
-    (*_argc)--;
+    (*globalArgumentCount)--;
 }
 
-/* scans the current argument value for a value of given format */
-#define get_argval(format, res)    (sscanf(*_argv, format, res) == 1)
+/**
+Scans the current argument value for a value of given format
+*/
+static bool
+optionsGetArgumentIntValue(const char *format, int *res) {
+    return (sscanf(*globalCurrentArgumentValue, format, res) == 1);
+}
 
-/* ------------------- integer option values --------------------- */
-static int getint(int *n, void *data) {
-    if ( !get_argval("%d", n)) {
-        fprintf(stderr, "'%s' is not a valid integer value\n", *_argv);
+/**
+Scans the current argument value for a value of given format
+*/
+static bool
+optionsGetArgumentFloatValue(const char *format, float *res) {
+    return (sscanf(*globalCurrentArgumentValue, format, res) == 1);
+}
+
+/**
+Integer option values
+*/
+static int
+optionsGetInt(int *n, void * /*data*/) {
+    if ( !optionsGetArgumentIntValue("%d", n)) {
+        fprintf(stderr, "'%s' is not a valid integer value\n", *globalCurrentArgumentValue);
         return false;
     }
     return true;
 }
 
-static void printint(FILE *fp, int *n, void *data) {
+static void
+optionsPrintInt(FILE *fp, const int *n, void * /*data*/) {
     fprintf(fp, "%d", *n);
 }
 
-static int dummy_int = 0;
-
 CMDLINEOPTTYPE GLOBAL_options_intType = {
-        (int (*)(void *, void *)) getint,
-        (void (*)(FILE *, void *, void *)) printint,
-        (void *) &dummy_int,
-        nullptr
+    (int (*)(void *, void *)) optionsGetInt,
+    (void (*)(FILE *, void *, void *)) optionsPrintInt,
+    (void *) &globalDummyInt,
+    nullptr
 };
 
-/* ------------------- string option values --------------------- */
+/**
+String option values
+*/
 static int
-getString(char **s, void *data) {
-    int n = strlen(*_argv) + 1;
+optionsGetString(char **s, void * /*data*/) {
+    unsigned long n = strlen(*globalCurrentArgumentValue) + 1;
     *s = (char *)malloc(n);
-    snprintf(*s, n, "%s", *_argv);
+    snprintf(*s, n, "%s", *globalCurrentArgumentValue);
     /*Free(*s, 0);*/
     return true;
 }
 
-static void printstring(FILE *fp, char **s, void *data) {
+static void
+optionsPrintString(FILE *fp, char **s, void * /*data*/) {
     fprintf(fp, "'%s'", *s ? *s : "");
 }
 
-static char *dummy_string = nullptr;
-
 CMDLINEOPTTYPE GLOBAL_options_stringType = {
-        (int (*)(void *, void *)) getString,
-        (void (*)(FILE *, void *, void *)) printstring,
-        (void *) &dummy_string,
-        nullptr
+    (int (*)(void *, void *)) optionsGetString,
+    (void (*)(FILE *, void *, void *)) optionsPrintString,
+    (void *) &globalDummyString,
+    nullptr
 };
 
 /**
 Copied string (maxlength n) option values
 */
 int
-Tnstring_get(char *s, int n) {
+optionsStringGet(char *s, int n) {
     if ( s != nullptr ) {
-        strncpy(s, *_argv, n);
+        strncpy(s, *globalCurrentArgumentValue, n);
         s[n - 1] = '\0';  // Ensure zero ending c-string
     }
 
@@ -95,36 +140,38 @@ Tnstring_get(char *s, int n) {
 }
 
 void
-stringPrint(FILE *fp, char *s, int n) {
+optionsStringPrint(FILE *fp, const char *s, int /*n*/) {
     fprintf(fp, "'%s'", s ? s : "");
 }
 
-char *GLOBAL_option_dummyVal = nullptr;
-
-// Enumerated type option values
+/**
+Enumerated type option values
+*/
 static void
-printEnumVals(ENUMDESC *tab) {
+optionsPrintEnumValues(ENUMDESC *tab) {
     while ( tab && tab->name ) {
         fprintf(stderr, "\t%s\n", tab->name);
         tab++;
     }
 }
 
-int Tenum_get(int *v, ENUMDESC *tab) {
-    ENUMDESC *tabsave = tab;
+int
+optionsEnumGet(int *v, ENUMDESC *tab) {
+    ENUMDESC *tabSave = tab;
     while ( tab && tab->name ) {
-        if ( strncasecmp(*_argv, tab->name, tab->abbrev) == 0 ) {
+        if ( strncasecmp(*globalCurrentArgumentValue, tab->name, tab->abbrev) == 0 ) {
             *v = tab->value;
             return true;
         }
         tab++;
     }
-    fprintf(stderr, "Invalid option argument '%s'. Should be one of:\n", *_argv);
-    printEnumVals(tabsave);
+    fprintf(stderr, "Invalid option argument '%s'. Should be one of:\n", *globalCurrentArgumentValue);
+    optionsPrintEnumValues(tabSave);
     return false;
 }
 
-void Tenum_print(FILE *fp, int *v, ENUMDESC *tab) {
+void
+optionsEnumPrint(FILE *fp, const int *v, ENUMDESC *tab) {
     while ( tab && tab->name ) {
         if ( *v == tab->value ) {
             fprintf(fp, "%s", tab->name);
@@ -134,8 +181,6 @@ void Tenum_print(FILE *fp, int *v, ENUMDESC *tab) {
     }
     fprintf(fp, "INVALID ENUM VALUE!!!");
 }
-
-int GLOBAL_options_dummyVal = 0;
 
 /* ------------------- boolean (yes|no) option values-------------------- */
 /* implemented as an enumeration type */
@@ -149,83 +194,86 @@ static ENUMDESC boolTable[] = {
 };
 
 CMDLINEOPTTYPE GLOBAL_options_boolType = {
-        (int (*)(void *, void *)) Tenum_get,
-        (void (*)(FILE *, void *, void *)) Tenum_print,
-        (void *) &GLOBAL_options_dummyVal,
-        (void *) boolTable
+    (int (*)(void *, void *)) optionsEnumGet,
+    (void (*)(FILE *, void *, void *)) optionsEnumPrint,
+    (void *) &GLOBAL_options_dummyVal,
+    (void *) boolTable
 };
 
 /* ------------------- set true/false option values --------------------- */
 
-static int dummy_true = true;
-static int dummy_false = false;
-
-static int set_true(int *x, void *data) {
-    /* No option expected on command line, nothing consumed */
+static int
+optionsSetTrue(int *x, void * /*data*/) {
+    // No option expected on command line, nothing consumed
 
     *x = true;
     return true;
 }
 
-static int set_false(int *x, void *data) {
+static int
+optionsSetFalse(int *x, void * /*data*/) {
     /* No option expected on command line, nothing consumed */
 
     *x = false;
     return true;
 }
 
-static void print_other(FILE *fp, void *x, void *data) {
+static void
+optionsPrintOther(FILE *fp, void * /*x*/, void * /*data*/) {
     fprintf(fp, "other");
 }
 
 
 CMDLINEOPTTYPE GLOBAL_options_setTrueType = {
-        (int (*)(void *, void *)) set_true,
-        (void (*)(FILE *, void *, void *)) print_other,
-        (void *) &dummy_true,
-        (void *) nullptr
+    (int (*)(void *, void *)) optionsSetTrue,
+    (void (*)(FILE *, void *, void *)) optionsPrintOther,
+    (void *) &globalDummyTrue,
+    (void *) nullptr
 };
 
 CMDLINEOPTTYPE GLOBAL_options_setFalseType = {
-        (int (*)(void *, void *)) set_false,
-        (void (*)(FILE *, void *, void *)) print_other,
-        (void *) &dummy_false,
-        (void *) nullptr
+    (int (*)(void *, void *)) optionsSetFalse,
+    (void (*)(FILE *, void *, void *)) optionsPrintOther,
+    (void *) &globalDummyFalse,
+    (void *) nullptr
 };
 
 /* ------------------- float option values --------------------- */
-static int getfloat(float *x, void *data) {
-    if ( !get_argval("%f", x)) {
-        fprintf(stderr, "'%s' is not a valid floating point value\n", *_argv);
+static int
+optionsGetfloat(float *x, void * /*data*/) {
+    if ( !optionsGetArgumentFloatValue("%f", x)) {
+        fprintf(stderr, "'%s' is not a valid floating point value\n", *globalCurrentArgumentValue);
         return false;
     }
     return true;
 }
 
-static void printfloat(FILE *fp, float *x, void *data) {
+static void
+optionsPrintFloat(FILE *fp, const float *x, void * /*data*/) {
     fprintf(fp, "%g", *x);
 }
 
-static float dummy_float = 0.;
-
 CMDLINEOPTTYPE GLOBAL_options_floatType = {
-        (int (*)(void *, void *)) getfloat,
-        (void (*)(FILE *, void *, void *)) printfloat,
-        (void *) &dummy_float,
+        (int (*)(void *, void *)) optionsGetfloat,
+        (void (*)(FILE *, void *, void *)) optionsPrintFloat,
+        (void *) &globalDummyFloat,
         nullptr
 };
 
-/* ------------------- Vector3D option values --------------------- */
-static int getvector(Vector3D *v, void *data) {
-    int ok = true;
-    ok = get_argval("%f", &v->x);
+/**
+Vector3D option values
+*/
+
+static int
+optionsGetVector(Vector3D *v, void * /*data*/) {
+    int ok = optionsGetArgumentFloatValue("%f", &v->x);
     if ( ok ) {
-        consume_arg();
-        ok &= args_remain() && get_argval("%f", &v->y);
+        optionsConsumeArgument();
+        ok &= optionsArgumentsRemaining() && optionsGetArgumentFloatValue("%f", &v->y);
     }
     if ( ok ) {
-        consume_arg();
-        ok &= args_remain() && get_argval("%f", &v->z);
+        optionsConsumeArgument();
+        ok &= optionsArgumentsRemaining() && optionsGetArgumentFloatValue("%f", &v->z);
     }
     if ( !ok ) {
         fprintf(stderr, "invalid vector argument value");
@@ -235,30 +283,30 @@ static int getvector(Vector3D *v, void *data) {
 }
 
 static void
-printVector(FILE *fp, Vector3D *v, void *data) {
+optionsPrintVector(FILE *fp, Vector3D *v, void * /*data*/) {
     vector3DPrint(fp, *v);
 }
 
-static Vector3D dummy_vector = {0., 0., 0.};
-
 CMDLINEOPTTYPE GLOBAL_options_vectorType = {
-        (int (*)(void *, void *)) getvector,
-        (void (*)(FILE *, void *, void *)) printVector,
-        (void *) &dummy_vector,
+        (int (*)(void *, void *)) optionsGetVector,
+        (void (*)(FILE *, void *, void *)) optionsPrintVector,
+        (void *) &globalDummyVector3D,
         nullptr
 };
 
-/* ------------------- RGB option values --------------------- */
-static int getrgb(RGB *c, void *data) {
-    int ok = true;
-    ok = get_argval("%f", &c->r);
+/**
+RGB option values
+*/
+static int
+optionsGetRgb(RGB *c, void * /*data*/) {
+    int ok = optionsGetArgumentFloatValue("%f", &c->r);
     if ( ok ) {
-        consume_arg();
-        ok &= args_remain() && get_argval("%f", &c->g);
+        optionsConsumeArgument();
+        ok &= optionsArgumentsRemaining() && optionsGetArgumentFloatValue("%f", &c->g);
     }
     if ( ok ) {
-        consume_arg();
-        ok &= args_remain() && get_argval("%f", &c->b);
+        optionsConsumeArgument();
+        ok &= optionsArgumentsRemaining() && optionsGetArgumentFloatValue("%f", &c->b);
     }
     if ( !ok ) {
         fprintf(stderr, "invalid RGB color argument value");
@@ -267,26 +315,28 @@ static int getrgb(RGB *c, void *data) {
     return ok;
 }
 
-static void printrgb(FILE *fp, RGB *v, void *data) {
+static void
+optionsPrintRgb(FILE *fp, RGB *v, void * /*data*/) {
     RGBPrint(fp, *v);
 }
 
-static RGB dummy_rgb = {0., 0., 0.};
-
 CMDLINEOPTTYPE GLOBAL_options_rgbType = {
-        (int (*)(void *, void *)) getrgb,
-        (void (*)(FILE *, void *, void *)) printrgb,
-        (void *) &dummy_rgb,
-        nullptr
+    (int (*)(void *, void *)) optionsGetRgb,
+    (void (*)(FILE *, void *, void *)) optionsPrintRgb,
+    (void *) &globalDummyRgb,
+    nullptr
 };
 
-/* ------------------- CIE xy option values --------------------- */
-static int getxy(float *c, void *data) {
-    int ok = true;
-    ok = get_argval("%f", &c[0]);
+/**
+CIE xy option values
+*/
+
+static int
+optionsGetCieXy(float *c, void * /*data*/) {
+    int ok = optionsGetArgumentFloatValue("%f", &c[0]);
     if ( ok ) {
-        consume_arg();
-        ok &= args_remain() && get_argval("%f", &c[1]);
+        optionsConsumeArgument();
+        ok &= optionsArgumentsRemaining() && optionsGetArgumentFloatValue("%f", &c[1]);
     }
     if ( !ok ) {
         fprintf(stderr, "invalid CIE xy color argument value");
@@ -295,21 +345,24 @@ static int getxy(float *c, void *data) {
     return ok;
 }
 
-static void printxy(FILE *fp, float *c, void *data) {
+static void
+optionsPrintCieXy(FILE *fp, float *c, void * /*data*/) {
     fprintf(fp, "%g %g", c[0], c[1]);
 }
 
-static float dummy_xy[2] = {0., 0.};
-
 CMDLINEOPTTYPE GLOBAL_options_xyType = {
-        (int (*)(void *, void *)) getxy,
-        (void (*)(FILE *, void *, void *)) printxy,
-        (void *) &dummy_xy,
-        nullptr
+    (int (*)(void *, void *)) optionsGetCieXy,
+    (void (*)(FILE *, void *, void *)) optionsPrintCieXy,
+    (void *) &globalDummyCieXy,
+    nullptr
 };
 
-/* ------------------- argument parsing --------------------------- */
-static CMDLINEOPTDESC *LookupOption(char *s, CMDLINEOPTDESC *options) {
+/**
+Argument parsing
+*/
+
+static CMDLINEOPTDESC *
+optionsLookupOption(char *s, CMDLINEOPTDESC *options) {
     CMDLINEOPTDESC *opt = options;
     while ( opt->name ) {
         if ( strncmp(s, opt->name, MAX(opt->abbrevlength > 0 ? opt->abbrevlength : strlen(opt->name), strlen(s))) ==
@@ -321,8 +374,9 @@ static CMDLINEOPTDESC *LookupOption(char *s, CMDLINEOPTDESC *options) {
     return (CMDLINEOPTDESC *) nullptr;
 }
 
-static void process_arg(CMDLINEOPTDESC *options) {
-    CMDLINEOPTDESC *opt = LookupOption(*_argv, options);
+static void
+optionsProcessArguments(CMDLINEOPTDESC *options) {
+    CMDLINEOPTDESC *opt = optionsLookupOption(*globalCurrentArgumentValue, options);
     if ( opt ) {
         int ok = true;
         if ( opt->type ) {
@@ -332,8 +386,8 @@ static void process_arg(CMDLINEOPTDESC *options) {
                     ok = false;
                 }
             } else {
-                consume_arg();
-                if ( args_remain()) {
+                optionsConsumeArgument();
+                if ( optionsArgumentsRemaining()) {
                     if ( !opt->type->get(opt->value ? opt->value : opt->type->dummy, opt->type->data)) {
                         ok = false;
                     }
@@ -346,13 +400,14 @@ static void process_arg(CMDLINEOPTDESC *options) {
         if ( ok && opt->action ) {
             opt->action(opt->value ? opt->value : (opt->type ? opt->type->dummy : nullptr));
         }
-        consume_arg();
-    } else next_arg();
+        optionsConsumeArgument();
+    } else optionsNextArgument();
 }
 
-void parseOptions(CMDLINEOPTDESC *options, int *argc, char **argv) {
-    init_arg(argc, argv);
-    while ( args_remain()) {
-        process_arg(options);
+void
+parseOptions(CMDLINEOPTDESC *options, int *argc, char **argv) {
+    optionsInitArguments(argc, argv);
+    while ( optionsArgumentsRemaining()) {
+        optionsProcessArguments(options);
     }
 }
