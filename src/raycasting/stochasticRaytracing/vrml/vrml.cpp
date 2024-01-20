@@ -242,7 +242,7 @@ static unsigned char IdFirstChar[256], IdRestChar[256];
 
 static void
 initIdTransTabs() {
-    int i;
+    unsigned int i;
     const char *IdSpecialChars = "!$%&()*/:;<=>?@^_`|~";
     for ( i = 0; i < 256; i++ ) {
         IdFirstChar[i] = '_';

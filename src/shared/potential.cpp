@@ -25,7 +25,6 @@ updateDirectPotential() {
     Patch **id2patch;
     unsigned long *ids;
     unsigned long *id;
-    long i;
     long j;
     long x;
     long y;
@@ -55,7 +54,7 @@ updateDirectPotential() {
     // Build a table to convert a patch ID to the corresponding Patch
     maximumPatchId = patchGetNextId() - 1;
     id2patch = (Patch **)malloc((int) (maximumPatchId + 1) * sizeof(Patch *));
-    for ( i = 0; i <= maximumPatchId; i++ ) {
+    for ( unsigned long i = 0; i <= maximumPatchId; i++ ) {
         id2patch[i] = (Patch *) nullptr;
     }
     for ( PatchSet *window = GLOBAL_scene_patches; window != nullptr; window = window->next ) {
@@ -64,7 +63,7 @@ updateDirectPotential() {
 
     // Allocate space for an array to hold the new direct potential of the patches
     newDirectImportance = (float *)malloc((int) (maximumPatchId + 1) * sizeof(float));
-    for ( i = 0; i <= maximumPatchId; i++ ) {
+    for ( unsigned long i = 0; i <= maximumPatchId; i++ ) {
         newDirectImportance[i] = 0.;
     }
 
@@ -76,7 +75,7 @@ updateDirectPotential() {
 
     for ( j = y - 1, ySample = -v * (float) (y - 1) / 2.0; j >= 0; j--, ySample += v ) {
         id = ids + j * x;
-        for ( i = 0, xSample = -h * (float) (x - 1) / 2.0; i < x; i++, id++, xSample += h ) {
+        for ( long i = 0, xSample = -h * (float) (x - 1) / 2.0; i < x; i++, id++, xSample += h ) {
             unsigned long the_id = (*id) & 0xffffff;
 
             if ( the_id > 0 && the_id <= maximumPatchId ) {
@@ -102,7 +101,7 @@ updateDirectPotential() {
 
     GLOBAL_statistics_averageDirectPotential = GLOBAL_statistics_totalDirectPotential =
     GLOBAL_statistics_maxDirectPotential = GLOBAL_statistics_maxDirectImportance = 0.;
-    for ( i = 1; i <= maximumPatchId; i++ ) {
+    for ( unsigned long i = 1; i <= maximumPatchId; i++ ) {
         Patch *patch = id2patch[i];
 
         patch->directPotential = newDirectImportance[i] / patch->area;
