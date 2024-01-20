@@ -385,10 +385,11 @@ getCurrentMaterial() {
                                  (colorNull(Ed) && colorNull(Es)) ? (EDF *) nullptr : EdfCreate(
                                          phongEdfCreate(&Ed, &Es, Ne), &GLOBAL_scene_phongEdfMethods),
                                  bsdfCreate(SplitBSDFCreate(
-                                                    (colorNull(Rd) && colorNull(Rs)) ? (BRDF *) nullptr : brdfCreate(
+                                                    (colorNull(Rd) && colorNull(Rs)) ? nullptr : brdfCreate(
                                                             phongBrdfCreate(&Rd, &Rs, Nr), &GLOBAL_scene_phongBrdfMethods),
-                                                    (colorNull(Td) && colorNull(Ts)) ? (BTDF *) nullptr : BtdfCreate(
-                                                            phongBtdfCreate(&Td, &Ts, Nt, GLOBAL_mgf_currentMaterial->nr,
+                                                    (colorNull(Td) && colorNull(Ts)) ? nullptr : btdfCreate(
+                                                            phongBtdfCreate(&Td, &Ts, Nt,
+                                                                            GLOBAL_mgf_currentMaterial->nr,
                                                                             GLOBAL_mgf_currentMaterial->ni),
                                                             &GLOBAL_scene_phongBtdfMethods), (TEXTURE *) nullptr),
                                             &GLOBAL_scene_splitBsdfMethods),

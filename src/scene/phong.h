@@ -1,7 +1,7 @@
 /* phong.h: Phong type EDFs, BRDFs, BTDFs */
 
-#ifndef _PHONG_H_
-#define _PHONG_H_
+#ifndef __PHONG__
+#define __PHONG__
 
 #include "material/color.h"
 #include "material/edf_methods.h"

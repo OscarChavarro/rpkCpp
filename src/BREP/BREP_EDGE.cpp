@@ -9,13 +9,13 @@ be disconnected from its contours
 */
 void
 brepDestroyEdge(BREP_EDGE *edge) {
-    // Ccheck if the edge is still being used in a contour. If
+    // Check if the edge is still being used in a contour. If
     // so, don't destroy the edge
     if ( edge->wing[0].contour || edge->wing[1].contour ) {
         return;
     }
 
     // Dispose of the BREP_EDGE structure itself (inverse of
-    // BrepCreateEdgeWithoutVertices()
+    // brepCreateEdgeWithoutVertices()
     free(edge);
 }

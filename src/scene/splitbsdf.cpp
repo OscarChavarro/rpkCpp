@@ -25,7 +25,7 @@ SplitBsdfPrint(FILE *out, SPLIT_BSDF *bsdf) {
     fprintf(out, "Split Bsdf :\n  ");
     brdfPrint(out, bsdf->brdf);
     fprintf(out, "  ");
-    BtdfPrint(out, bsdf->btdf);
+    btdfPrint(out, bsdf->btdf);
     fprintf(out, "  ");
     PrintTexture(out, bsdf->texture);
 }
@@ -106,7 +106,7 @@ SplitBsdfScatteredPower(SPLIT_BSDF *bsdf, RayHit *hit, Vector3D *in, BSDFFLAGS f
     }
 
     if ( bsdf->btdf ) {
-        COLOR trans = BtdfTransmittance(bsdf->btdf, GETBTDFFLAGS(flags));
+        COLOR trans = btdfTransmittance(bsdf->btdf, GETBTDFFLAGS(flags));
         colorAdd(albedo, trans, albedo);
     }
 
@@ -115,7 +115,7 @@ SplitBsdfScatteredPower(SPLIT_BSDF *bsdf, RayHit *hit, Vector3D *in, BSDFFLAGS f
 
 static void
 SplitBsdfIndexOfRefraction(SPLIT_BSDF *bsdf, REFRACTIONINDEX *index) {
-    BtdfIndexOfRefraction(bsdf->btdf, index);
+    btdfIndexOfRefraction(bsdf->btdf, index);
 }
 
 static COLOR
@@ -158,7 +158,7 @@ SplitBsdfEval(
         COLOR refractionCol;
         bsdfIndexOfRefraction(inBsdf, &inIndex);
         bsdfIndexOfRefraction(outBsdf, &outIndex);
-        refractionCol = BtdfEval(bsdf->btdf, inIndex, outIndex,
+        refractionCol = btdfEval(bsdf->btdf, inIndex, outIndex,
                                  in, out, &normal, GETBTDFFLAGS(flags));
         colorAdd(result, refractionCol, result);
     }
@@ -195,7 +195,7 @@ SplitBsdfProbabilities(SPLIT_BSDF *bsdf, RayHit *hit, BSDFFLAGS flags,
     reflectance = brdfReflectance(bsdf->brdf, *brdfFlags);
     *Preflection = colorAverage(reflectance);
 
-    transmittance = BtdfTransmittance(bsdf->btdf, *btdfFlags);
+    transmittance = btdfTransmittance(bsdf->btdf, *btdfFlags);
     *Ptransmission = colorAverage(transmittance);
 }
 
@@ -282,7 +282,7 @@ SplitBsdfSample(SPLIT_BSDF *bsdf, RayHit *hit,
             *pdf = Preflection * p;
             break;
         case SAMPLE_TRANSMISSION:
-            out = BtdfSample(bsdf->btdf, inIndex, outIndex, in, &normal,
+            out = btdfSample(bsdf->btdf, inIndex, outIndex, in, &normal,
                              false, btdfFlags, x_1, x_2, &p);
             if ( p < EPSILON )
                 return out;
@@ -308,7 +308,7 @@ SplitBsdfSample(SPLIT_BSDF *bsdf, RayHit *hit,
         *pdf += Preflection * p;
     }
     if ( mode != SAMPLE_TRANSMISSION ) {
-        BtdfEvalPdf(bsdf->btdf, inIndex, outIndex, in, &out, &normal,
+        btdfEvalPdf(bsdf->btdf, inIndex, outIndex, in, &out, &normal,
                     btdfFlags, &p, &pRR);
         *pdf += Ptransmission * p;
     }
@@ -360,7 +360,7 @@ SplitBsdfEvalPdf(SPLIT_BSDF *bsdf, RayHit *hit,
                 brdfFlags, &p, &pRR);
     *pdf += Preflection * p;
 
-    BtdfEvalPdf(bsdf->btdf, inIndex, outIndex, in, out, &normal,
+    btdfEvalPdf(bsdf->btdf, inIndex, outIndex, in, out, &normal,
                 btdfFlags, &p, &pRR);
     *pdf += Ptransmission * p;
 
