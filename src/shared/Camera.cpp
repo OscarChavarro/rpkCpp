@@ -92,7 +92,7 @@ static void cameraSetAlternativeFieldOfVisionOption(void *val) {
     cameraSetFieldOfView(&GLOBAL_camera_alternateCamera, *v);
 }
 
-static CMDLINEOPTDESC globalCameraOptions[] = {
+static CommandLineOptionDescription globalCameraOptions[] = {
         {"-eyepoint",  4, TVECTOR, &GLOBAL_camera_mainCamera.eyePosition,      cameraSetEyePositionOption,
     "-eyepoint  <vector>\t: viewing position"},
         {"-center",    4, TVECTOR, &GLOBAL_camera_mainCamera.lookPosition,      cameraSetLookPositionOption,

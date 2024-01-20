@@ -69,7 +69,7 @@ static ENUMDESC samplingModeVals[] = {
 MakeEnumOptTypeStruct(samplingModeTypeStruct, samplingModeVals);
 #define TsamplingMode (&samplingModeTypeStruct)
 
-static CMDLINEOPTDESC globalStochasticRatTracerOptions[] = {
+static CommandLineOptionDescription globalStochasticRatTracerOptions[] = {
         {"-rts-samples-per-pixel", 7, Tint, &GLOBAL_raytracing_state.samplesPerPixel, DEFAULT_ACTION,
          "-rts-samples-per-pixel <number>\t: eye-rays per pixel"},
         {"-rts-no-progressive", 9, Tsetfalse, &GLOBAL_raytracing_state.progressiveTracing, DEFAULT_ACTION,

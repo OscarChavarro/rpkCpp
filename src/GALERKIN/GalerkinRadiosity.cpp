@@ -161,7 +161,7 @@ ambientOption(void *value) {
     GLOBAL_galerkin_state.use_ambient_radiance = yesno;
 }
 
-static CMDLINEOPTDESC galerkinOptions[] = {
+static CommandLineOptionDescription galerkinOptions[] = {
         {"-gr-iteration-method",     6,  Tstring,  nullptr, iterationMethodOption,
                 "-gr-iteration-method <methodname>: Jacobi, GaussSeidel, Southwell"},
         {"-gr-hierarchical",         6,  TYPELESS, (void *) &t, hierarchicalOption,

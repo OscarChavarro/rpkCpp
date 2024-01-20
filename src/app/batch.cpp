@@ -21,7 +21,7 @@ static const char *radiance_image_filename_format = "";
 static const char *radiance_model_filename_format = "";
 static const char *raytracing_image_filename = "";
 
-static CMDLINEOPTDESC batchOptions[] = {
+static CommandLineOptionDescription batchOptions[] = {
     {"-iterations", 3,  Tint, &iterations, DEFAULT_ACTION,
      "-iterations <integer>\t: world-space radiance iterations"},
     {"-radiance-image-savefile", 12, Tstring,

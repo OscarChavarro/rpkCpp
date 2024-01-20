@@ -3,7 +3,7 @@
 CPmapState GLOBAL_photonMap_state;
 
 // Command line options
-static CMDLINEOPTDESC globalPhotonMapOptions[] = {
+static CommandLineOptionDescription globalPhotonMapOptions[] = {
     {"-pmap-do-global",       9,  Tbool,    &GLOBAL_photonMap_state.doGlobalMap,           DEFAULT_ACTION,
 "-pmap-do-global <true|false> : Trace photons for the global map"},
     {"-pmap-global-paths",    9,  Tint,     &GLOBAL_photonMap_state.gpaths_per_iteration,  DEFAULT_ACTION,

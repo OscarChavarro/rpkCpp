@@ -41,7 +41,7 @@ biDirectionalPathDefaults() {
 MakeNStringTypeStruct(RegExpStringType, MAX_REGEXP_SIZE);
 #define TregexpString (&RegExpStringType)
 
-static CMDLINEOPTDESC globalBiDirectionalOptions[] = {
+static CommandLineOptionDescription globalBiDirectionalOptions[] = {
     {"-bidir-samples-per-pixel", 8, Tint,         &GLOBAL_rayTracing_biDirectionalPath.basecfg.samplesPerPixel,       DEFAULT_ACTION,
     "-bidir-samples-per-pixel <number> : eye-rays per pixel"},
     {"-bidir-no-progressive", 11, Tsetfalse,      &GLOBAL_rayTracing_biDirectionalPath.basecfg.progressiveTracing,    DEFAULT_ACTION,

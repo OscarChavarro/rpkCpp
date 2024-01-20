@@ -21,7 +21,7 @@ static ENUMDESC globalRayMatterPixelFilters[] = {
 MakeEnumOptTypeStruct(rmPixelFilterTypeStruct, globalRayMatterPixelFilters);
 #define TrmPixelFilter (&rmPixelFilterTypeStruct)
 
-static CMDLINEOPTDESC globalRayMatterOptions[] =
+static CommandLineOptionDescription globalRayMatterOptions[] =
 {
     {"-rm-samples-per-pixel", 6, Tint, &GLOBAL_rayCasting_rayMatterState.samplesPerPixel, DEFAULT_ACTION,
      "-rm-samples-per-pixel <number>\t: eye-rays per pixel"},

@@ -58,7 +58,7 @@ mainRayTracingOption(void *value) {
     }
 }
 
-static CMDLINEOPTDESC globalRaytracingOptions[] = {
+static CommandLineOptionDescription globalRaytracingOptions[] = {
     {"-raytracing-method", 4, Tstring,  nullptr, mainRayTracingOption, globalRaytracingMethodsString},
     {nullptr, 0, TYPELESS, nullptr, DEFAULT_ACTION, nullptr}
 };
@@ -73,7 +73,7 @@ mainMonochromeOption(void *value) {
     GLOBAL_fileOptions_monochrome = *(int *) value;
 }
 
-static CMDLINEOPTDESC globalOptions[] = {
+static CommandLineOptionDescription globalOptions[] = {
     {"-nqcdivs", 3, Tint, &GLOBAL_fileOptions_numberOfQuarterCircleDivisions, DEFAULT_ACTION,
     "-nqcdivs <integer>\t: number of quarter circle divisions"},
     {"-force-onesided", 10, TYPELESS, &globalYes,     mainForceOneSidedOption,

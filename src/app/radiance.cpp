@@ -45,7 +45,7 @@ radianceMethodOption(void *value) {
     }
 }
 
-static CMDLINEOPTDESC globalRadianceOptions[] = {
+static CommandLineOptionDescription globalRadianceOptions[] = {
         {"-radiance-method", 4, Tstring,  nullptr, radianceMethodOption,
                 globalRadianceMethodsString},
         {nullptr, 0, TYPELESS, nullptr, DEFAULT_ACTION, nullptr}

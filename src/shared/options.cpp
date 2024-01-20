@@ -95,7 +95,7 @@ optionsPrintInt(FILE *fp, const int *n, void * /*data*/) {
     fprintf(fp, "%d", *n);
 }
 
-CMDLINEOPTTYPE GLOBAL_options_intType = {
+CommandLineOptions GLOBAL_options_intType = {
     (int (*)(void *, void *)) optionsGetInt,
     (void (*)(FILE *, void *, void *)) optionsPrintInt,
     (void *) &globalDummyInt,
@@ -119,7 +119,7 @@ optionsPrintString(FILE *fp, char **s, void * /*data*/) {
     fprintf(fp, "'%s'", *s ? *s : "");
 }
 
-CMDLINEOPTTYPE GLOBAL_options_stringType = {
+CommandLineOptions GLOBAL_options_stringType = {
     (int (*)(void *, void *)) optionsGetString,
     (void (*)(FILE *, void *, void *)) optionsPrintString,
     (void *) &globalDummyString,
@@ -193,7 +193,7 @@ static ENUMDESC boolTable[] = {
         {0, nullptr,        0}
 };
 
-CMDLINEOPTTYPE GLOBAL_options_boolType = {
+CommandLineOptions GLOBAL_options_boolType = {
     (int (*)(void *, void *)) optionsEnumGet,
     (void (*)(FILE *, void *, void *)) optionsEnumPrint,
     (void *) &GLOBAL_options_dummyVal,
@@ -224,14 +224,14 @@ optionsPrintOther(FILE *fp, void * /*x*/, void * /*data*/) {
 }
 
 
-CMDLINEOPTTYPE GLOBAL_options_setTrueType = {
+CommandLineOptions GLOBAL_options_setTrueType = {
     (int (*)(void *, void *)) optionsSetTrue,
     (void (*)(FILE *, void *, void *)) optionsPrintOther,
     (void *) &globalDummyTrue,
     (void *) nullptr
 };
 
-CMDLINEOPTTYPE GLOBAL_options_setFalseType = {
+CommandLineOptions GLOBAL_options_setFalseType = {
     (int (*)(void *, void *)) optionsSetFalse,
     (void (*)(FILE *, void *, void *)) optionsPrintOther,
     (void *) &globalDummyFalse,
@@ -253,7 +253,7 @@ optionsPrintFloat(FILE *fp, const float *x, void * /*data*/) {
     fprintf(fp, "%g", *x);
 }
 
-CMDLINEOPTTYPE GLOBAL_options_floatType = {
+CommandLineOptions GLOBAL_options_floatType = {
         (int (*)(void *, void *)) optionsGetfloat,
         (void (*)(FILE *, void *, void *)) optionsPrintFloat,
         (void *) &globalDummyFloat,
@@ -287,7 +287,7 @@ optionsPrintVector(FILE *fp, Vector3D *v, void * /*data*/) {
     vector3DPrint(fp, *v);
 }
 
-CMDLINEOPTTYPE GLOBAL_options_vectorType = {
+CommandLineOptions GLOBAL_options_vectorType = {
         (int (*)(void *, void *)) optionsGetVector,
         (void (*)(FILE *, void *, void *)) optionsPrintVector,
         (void *) &globalDummyVector3D,
@@ -320,7 +320,7 @@ optionsPrintRgb(FILE *fp, RGB *v, void * /*data*/) {
     RGBPrint(fp, *v);
 }
 
-CMDLINEOPTTYPE GLOBAL_options_rgbType = {
+CommandLineOptions GLOBAL_options_rgbType = {
     (int (*)(void *, void *)) optionsGetRgb,
     (void (*)(FILE *, void *, void *)) optionsPrintRgb,
     (void *) &globalDummyRgb,
@@ -350,7 +350,7 @@ optionsPrintCieXy(FILE *fp, float *c, void * /*data*/) {
     fprintf(fp, "%g %g", c[0], c[1]);
 }
 
-CMDLINEOPTTYPE GLOBAL_options_xyType = {
+CommandLineOptions GLOBAL_options_xyType = {
     (int (*)(void *, void *)) optionsGetCieXy,
     (void (*)(FILE *, void *, void *)) optionsPrintCieXy,
     (void *) &globalDummyCieXy,
@@ -361,9 +361,9 @@ CMDLINEOPTTYPE GLOBAL_options_xyType = {
 Argument parsing
 */
 
-static CMDLINEOPTDESC *
-optionsLookupOption(char *s, CMDLINEOPTDESC *options) {
-    CMDLINEOPTDESC *opt = options;
+static CommandLineOptionDescription *
+optionsLookupOption(char *s, CommandLineOptionDescription *options) {
+    CommandLineOptionDescription *opt = options;
     while ( opt->name ) {
         if ( strncmp(s, opt->name, MAX(opt->abbrevlength > 0 ? opt->abbrevlength : strlen(opt->name), strlen(s))) ==
              0 ) {
@@ -371,12 +371,12 @@ optionsLookupOption(char *s, CMDLINEOPTDESC *options) {
         }
         opt++;
     }
-    return (CMDLINEOPTDESC *) nullptr;
+    return nullptr;
 }
 
 static void
-optionsProcessArguments(CMDLINEOPTDESC *options) {
-    CMDLINEOPTDESC *opt = optionsLookupOption(*globalCurrentArgumentValue, options);
+optionsProcessArguments(CommandLineOptionDescription *options) {
+    CommandLineOptionDescription *opt = optionsLookupOption(*globalCurrentArgumentValue, options);
     if ( opt ) {
         int ok = true;
         if ( opt->type ) {
@@ -404,8 +404,13 @@ optionsProcessArguments(CMDLINEOPTDESC *options) {
     } else optionsNextArgument();
 }
 
+/**
+Scans for options mentioned in the 'options' command line description
+list, parses their value, executes their associated actions, and
+removes them from the argv list (decreasing argc)
+*/
 void
-parseOptions(CMDLINEOPTDESC *options, int *argc, char **argv) {
+parseOptions(CommandLineOptionDescription *options, int *argc, char **argv) {
     optionsInitArguments(argc, argv);
     while ( optionsArgumentsRemaining()) {
         optionsProcessArguments(options);

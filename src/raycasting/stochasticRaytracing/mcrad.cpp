@@ -76,7 +76,7 @@ static ENUMDESC showWhatVals[] = {
 MakeEnumOptTypeStruct(showWhatTypeStruct, showWhatVals);
 #define TshowWhat (&showWhatTypeStruct)
 
-static CMDLINEOPTDESC srrOptions[] = {
+static CommandLineOptionDescription srrOptions[] = {
     {"-srr-ray-units", 8, Tint, &GLOBAL_stochasticRaytracing_monteCarloRadiosityState.rayUnitsPerIt,                                  DEFAULT_ACTION,
      "-srr-ray-units <n>          : To tune the amount of work in a single iteration"},
     {"-srr-bidirectional", 7, Tbool, &GLOBAL_stochasticRaytracing_monteCarloRadiosityState.bidirectionalTransfers,                    DEFAULT_ACTION,
@@ -114,7 +114,7 @@ static CMDLINEOPTDESC srrOptions[] = {
     {nullptr, 0, TYPELESS, nullptr, DEFAULT_ACTION, nullptr}
 };
 
-static CMDLINEOPTDESC rwrOptions[] = {
+static CommandLineOptionDescription rwrOptions[] = {
         {"-rwr-ray-units", 8, Tint, &GLOBAL_stochasticRaytracing_monteCarloRadiosityState.rayUnitsPerIt,                 DEFAULT_ACTION,
          "-rwr-ray-units <n>          : To tune the amount of work in a single iteration"},
         {"-rwr-continuous", 7, Tbool, &GLOBAL_stochasticRaytracing_monteCarloRadiosityState.continuousRandomWalk, DEFAULT_ACTION,

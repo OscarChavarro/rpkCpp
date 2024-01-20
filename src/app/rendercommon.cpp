@@ -93,7 +93,7 @@ traceOption(void *value) {
     GLOBAL_render_renderOptions.trace = true;
 }
 
-static CMDLINEOPTDESC renderingOptions[] = {
+static CommandLineOptionDescription renderingOptions[] = {
         {"-display-lists", 10, TYPELESS,
                 nullptr, displayListsOption,
                 "-display-lists\t\t"

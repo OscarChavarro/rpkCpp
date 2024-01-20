@@ -123,7 +123,7 @@ gammaOption(void *value) {
     RGBSET(GLOBAL_toneMap_options.gamma, gam, gam, gam);
 }
 
-static CMDLINEOPTDESC globalToneMappingOptions[] = {
+static CommandLineOptionDescription globalToneMappingOptions[] = {
 {"-tonemapping",       4, Tstring,
     nullptr, toneMappingMethodOption,
     globalToneMappingMethodsString},
