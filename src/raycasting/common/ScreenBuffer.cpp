@@ -219,9 +219,9 @@ ScreenBuffer::WriteFile(ImageOutputHandle *ip) {
     for ( int i = m_cam.ySize - 1; i >= 0; i-- )    // write scanlines
     {
         if ( !IsRGBImage()) {
-            ip->WriteRadianceRGB((float *) &m_Radiance[i * m_cam.xSize]);
+            ip->writeRadianceRGB((float *) &m_Radiance[i * m_cam.xSize]);
         } else {
-            ip->WriteDisplayRGB((float *) &m_Radiance[i * m_cam.xSize]);
+            ip->writeDisplayRGB((float *) &m_Radiance[i * m_cam.xSize]);
         }
     }
 
@@ -237,9 +237,9 @@ ScreenBuffer::WriteFile(char *filename) {
     }
 
     ImageOutputHandle *ip =
-            CreateRadianceImageOutputHandle(filename, fp, ispipe,
+            createRadianceImageOutputHandle(filename, fp, ispipe,
                                             m_cam.xSize, m_cam.ySize,
-                                            (float)GLOBAL_statistics_referenceLuminance / 179.0f);
+                                            (float) GLOBAL_statistics_referenceLuminance / 179.0f);
 
     WriteFile(ip);
 

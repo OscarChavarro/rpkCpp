@@ -67,7 +67,7 @@ BatchSaveRadianceImage(const char *fname, FILE *fp, int ispipe) {
 
     canvasPushMode();
 
-    extension = ImageFileExtension((char *)fname);
+    extension = imageFileExtension((char *) fname);
     if ( IS_TIFF_LOGLUV_EXT(extension)) {
         fprintf(stdout, "Saving LOGLUV image to file '%s' ....... ", fname);
     } else {
@@ -118,13 +118,13 @@ BatchSaveRaytracingImage(const char *fname, FILE *fp, int ispipe) {
     t = clock();
 
     if ( fp ) {
-        img = CreateRadianceImageOutputHandle(
-	    (char *)fname,
-	    fp,
-	    ispipe,
-            GLOBAL_camera_mainCamera.xSize,
-	    GLOBAL_camera_mainCamera.ySize,
-	    GLOBAL_statistics_referenceLuminance / 179.0);
+        img = createRadianceImageOutputHandle(
+                (char *) fname,
+                fp,
+                ispipe,
+                GLOBAL_camera_mainCamera.xSize,
+                GLOBAL_camera_mainCamera.ySize,
+                GLOBAL_statistics_referenceLuminance / 179.0);
         if ( !img ) {
             return;
         }
@@ -137,7 +137,7 @@ BatchSaveRaytracingImage(const char *fname, FILE *fp, int ispipe) {
     }
 
     if ( img ) {
-        DeleteImageOutputHandle(img);
+        deleteImageOutputHandle(img);
     }
 
     fprintf(stdout, "Raytrace save image: %g secs.\n", (float) (clock() - t) / (float) CLOCKS_PER_SEC);
@@ -221,7 +221,7 @@ batch() {
 
                     tmpName = (char *)malloc(strlen(fname) + strlen(tiffExt) + 1);
                     strcpy(tmpName, fname);
-                    dot = ImageFileExtension(tmpName);
+                    dot = imageFileExtension(tmpName);
                     if ( dot ) {
                         *dot = '\0';
                     }

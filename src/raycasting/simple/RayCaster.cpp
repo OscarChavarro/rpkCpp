@@ -162,8 +162,9 @@ RayCast(char *fname, FILE *fp, int ispipe) {
     ImageOutputHandle *img = nullptr;
 
     if ( fp ) {
-        img = CreateRadianceImageOutputHandle(fname, fp, ispipe,
-                                              GLOBAL_camera_mainCamera.xSize, GLOBAL_camera_mainCamera.ySize, GLOBAL_statistics_referenceLuminance / 179.0);
+        img = createRadianceImageOutputHandle(fname, fp, ispipe,
+                                              GLOBAL_camera_mainCamera.xSize, GLOBAL_camera_mainCamera.ySize,
+                                              GLOBAL_statistics_referenceLuminance / 179.0);
         if ( !img ) {
             return;
         }
@@ -177,7 +178,7 @@ RayCast(char *fname, FILE *fp, int ispipe) {
     delete rc;
 
     if ( img ) {
-        DeleteImageOutputHandle(img);
+        deleteImageOutputHandle(img);
     }
 }
 

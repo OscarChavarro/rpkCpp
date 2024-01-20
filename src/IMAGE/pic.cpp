@@ -24,7 +24,7 @@ PicOutputHandle::
 
 // writes scanline of high-dynamic range radiance data in RGB format
 int PicOutputHandle::
-WriteRadianceRGB(float *rgbrad) {
+writeRadianceRGB(float *rgbrad) {
     int result = 0;
 
     if ( pic ) {

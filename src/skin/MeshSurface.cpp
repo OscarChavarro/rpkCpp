@@ -155,7 +155,7 @@ surfaceDestroy(MeshSurface *surface) {
     while ( vector3DWindow != nullptr ) {
         vectorPosition = vector3DWindow->vector;
         vector3DWindow = vector3DWindow->next;
-        VectorDestroy(vectorPosition);
+        vector3DDestroy(vectorPosition);
     }
 
     vector3DWindow = surface->positions;
@@ -171,7 +171,7 @@ surfaceDestroy(MeshSurface *surface) {
     while ( normalWindow != nullptr ) {
         normal = normalWindow->vector;
         normalWindow = normalWindow->next;
-        VectorDestroy(normal);
+        vector3DDestroy(normal);
     }
 
     normalWindow = surface->normals;
@@ -187,7 +187,7 @@ surfaceDestroy(MeshSurface *surface) {
     while ( texCoordWindow != nullptr ) {
         texCoord = texCoordWindow->vector;
         texCoordWindow = texCoordWindow->next;
-        VectorDestroy(texCoord);
+        vector3DDestroy(texCoord);
     }
 
     texCoordWindow = surface->texCoords;

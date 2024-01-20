@@ -1,8 +1,8 @@
 #include "common/linealAlgebra/vectorMacros.h"
 
 void
-VectorDestroy(Vector3D *vector) {
-    free((char *)vector);
+vector3DDestroy(Vector3D *vector) {
+    free(vector);
 }
 
 /**
@@ -10,7 +10,7 @@ Find the "dominant" part of the vector (eg patch-normal).  This
 is used to turn the point-in-polygon test into a 2D problem.
 */
 int
-VectorDominantCoord(Vector3D *v) {
+vector3DDominantCoord(Vector3D *v) {
     Vector3Dd anorm;
     double indexValue;
 
@@ -45,15 +45,15 @@ vectorCompareByDimensions(Vector3D *v1, Vector3D *v2, float epsilon) {
     if ( v1->x < v2->x - epsilon ||
          v1->y < v2->y - epsilon ||
          v1->z < v2->z - epsilon ) {
-        // not the same coordinates
+        // Not the same coordinates
         return code;
     }
 
-    // same coordinates
+    // Same coordinates
     return XYZ_EQUAL;
 }
 
 void
-VectorPrint(FILE *fp, Vector3D &v) {
+vector3DPrint(FILE *fp, Vector3D &v) {
     fprintf(fp, "%g %g %g", v.x, v.y, v.z);
 }

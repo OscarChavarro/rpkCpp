@@ -31,25 +31,24 @@ public:
 
   /* writes a scanline of gamma-corrected display RGB pixels */
   /* returns the number of pixels written. */
-  virtual int WriteDisplayRGB(unsigned char *rgb);
-  virtual int WriteDisplayRGB(float *rgbflt);
+  virtual int writeDisplayRGB(unsigned char *rgb);
+  virtual int writeDisplayRGB(float *rgbflt);
 
   /* writes a scanline of raw radiance data */
   /* returns the number of pixels written. */
-  virtual int WriteRadianceRGB(float *rgbrad);	/* RGB radiance data */
-  virtual int WriteRadianceXYZ(float *xyzrad);	/* CIE XYZ radiance data */
+  virtual int writeRadianceRGB(float *rgbrad);	/* RGB radiance data */
 };
 
 #include <cstdio>
 
 /* Examines filename extension in order to decide what file format to use to write
  * radiance image.*/
-extern ImageOutputHandle *CreateRadianceImageOutputHandle(char *fname, FILE *fp, int ispipe,
+extern ImageOutputHandle *createRadianceImageOutputHandle(char *fileName, FILE *fp, int isPipe,
                                                           int width, int height,
-                                                          float reference_luminance);
+                                                          float referenceLuminance);
 
 /* Same, but for writing "normal" display RGB images instead radiance image. */
-extern ImageOutputHandle *CreateImageOutputHandle(char *fname, FILE *fp, int ispipe,
+extern ImageOutputHandle *createImageOutputHandle(char *fileName, FILE *fp, int isPipe,
                                                   int width, int height);
 
 #endif

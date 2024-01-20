@@ -179,8 +179,8 @@ VectorCreate(float x, float y, float z)
 }
 
 extern int vectorCompareByDimensions(Vector3D *v1, Vector3D *v2, float epsilon);
-extern void VectorDestroy(Vector3D *vector);
-extern int VectorDominantCoord(Vector3D *v);
-extern void VectorPrint(FILE *fp, Vector3D &v);
+extern void vector3DDestroy(Vector3D *vector);
+extern int vector3DDominantCoord(Vector3D *v);
+extern void vector3DPrint(FILE *fp, Vector3D &v);
 
 #endif

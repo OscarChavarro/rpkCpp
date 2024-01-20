@@ -38,14 +38,14 @@ void CPathNode::ReleaseAll(CPathNode *node) {
 void CPathNode::Print(FILE *out) {
     fprintf(out, "Pathnode at depth %i\n", m_depth);
     fprintf(out, "Pos : ");
-    VectorPrint(out, m_hit.point);
+    vector3DPrint(out, m_hit.point);
     fprintf(out, "\n");
     fprintf(out, "Norm: ");
-    VectorPrint(out, m_normal);
+    vector3DPrint(out, m_normal);
     fprintf(out, "\n");
     if ( m_previous ) {
         fprintf(out, "InF: ");
-        VectorPrint(out, m_inDirF);
+        vector3DPrint(out, m_inDirF);
         fprintf(out, "\n");
         fprintf(out, "Cos in  %f\n", VECTORDOTPRODUCT(m_normal, m_inDirF));
         fprintf(out, "GCos in %f\n", VECTORDOTPRODUCT(m_hit.patch->normal,
@@ -53,7 +53,7 @@ void CPathNode::Print(FILE *out) {
     }
     if ( m_next ) {
         fprintf(out, "OutF: ");
-        VectorPrint(out, m_next->m_inDirT);
+        vector3DPrint(out, m_next->m_inDirT);
         fprintf(out, "\n");
         fprintf(out, "Cos out %f\n", VECTORDOTPRODUCT(m_normal, m_next->m_inDirT));
         fprintf(out, "GCos out %f\n", VECTORDOTPRODUCT(m_hit.patch->normal,

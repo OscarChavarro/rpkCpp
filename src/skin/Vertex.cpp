@@ -51,18 +51,18 @@ Prints the vertex data to the file 'out'
 void
 vertexPrint(FILE *out, Vertex *vertex) {
     fprintf(out, "ID %d: (", vertex->id);
-    VectorPrint(out, *(vertex->point));
+    vector3DPrint(out, *(vertex->point));
     fprintf(out, ")");
     if ( vertex->normal ) {
         fprintf(out, "/(");
-        VectorPrint(out, *(vertex->normal));
+        vector3DPrint(out, *(vertex->normal));
         fprintf(out, ")");
     } else {
         fprintf(out, "/(no normal)");
     }
     if ( vertex->texCoord ) {
         fprintf(out, "/(");
-        VectorPrint(out, *(vertex->texCoord));
+        vector3DPrint(out, *(vertex->texCoord));
         fprintf(out, ")");
     } else {
         fprintf(out, "/(no texCoord)");

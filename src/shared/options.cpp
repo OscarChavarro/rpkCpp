@@ -234,15 +234,16 @@ static int getvector(Vector3D *v, void *data) {
     return ok;
 }
 
-static void printvector(FILE *fp, Vector3D *v, void *data) {
-    VectorPrint(fp, *v);
+static void
+printVector(FILE *fp, Vector3D *v, void *data) {
+    vector3DPrint(fp, *v);
 }
 
 static Vector3D dummy_vector = {0., 0., 0.};
 
 CMDLINEOPTTYPE GLOBAL_options_vectorType = {
         (int (*)(void *, void *)) getvector,
-        (void (*)(FILE *, void *, void *)) printvector,
+        (void (*)(FILE *, void *, void *)) printVector,
         (void *) &dummy_vector,
         nullptr
 };

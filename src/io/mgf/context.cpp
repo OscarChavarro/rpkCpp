@@ -297,7 +297,7 @@ handleMaterialEntity(int ac, char **av)        /* handle material entity */
             }
             GLOBAL_mgf_currentMaterial->nr = atof(av[1]);
             GLOBAL_mgf_currentMaterial->ni = atof(av[2]);
-            if ( GLOBAL_mgf_currentMaterial->nr <= FTINY) {
+            if ( GLOBAL_mgf_currentMaterial->nr <= FLOAT_TINY) {
                 return MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
             }
             GLOBAL_mgf_currentMaterial->clock++;
@@ -605,7 +605,7 @@ setspectrum(MgfColorContext *clr, double wlmin, double wlmax, int ac, char **av)
     boxpos = 0;
     boxstep = 1;
     if ( wlstep < C_CWLI) {
-        imax = (wlmax - wlmin) / C_CWLI + (1 - FTINY);
+        imax = (wlmax - wlmin) / C_CWLI + (1 - FLOAT_TINY);
         boxpos = (wlmin - C_CMINWL) / C_CWLI;
         boxstep = wlstep / C_CWLI;
         wlstep = C_CWLI;
@@ -632,7 +632,7 @@ setspectrum(MgfColorContext *clr, double wlmin, double wlmax, int ac, char **av)
             scale = -va[i];
         }
     }
-    if ( scale <= FTINY) {
+    if ( scale <= FLOAT_TINY) {
         return MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
     }
     scale = C_CMAXV / scale;
@@ -643,11 +643,11 @@ setspectrum(MgfColorContext *clr, double wlmin, double wlmax, int ac, char **av)
         if ( wl < wlmin || wl > wlmax ) {
             clr->ssamp[i] = 0;
         } else {
-            while ( wl0 + wlstep < wl + FTINY) {
+            while ( wl0 + wlstep < wl + FLOAT_TINY) {
                 wl0 += wlstep;
                 pos++;
             }
-            if ( wl + FTINY >= wl0 && wl - FTINY <= wl0 ) {
+            if ( wl + FLOAT_TINY >= wl0 && wl - FLOAT_TINY <= wl0 ) {
                 clr->ssamp[i] = scale * va[pos] + .5;
             } else {        /* interpolate if necessary */
                 clr->ssamp[i] = .5 + scale / wlstep *

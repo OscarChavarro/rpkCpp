@@ -545,7 +545,7 @@ faceIsConvex(int numberOfVertices, Vertex **v, Vector3D *normal) {
     Vector2Dd v2d[MAXIMUM_FACE_VERTICES + 1], p, c;
     int i, index, sign;
 
-    index = VectorDominantCoord(normal);
+    index = vector3DDominantCoord(normal);
     for ( i = 0; i < numberOfVertices; i++ ) {
 	VECTORPROJECT(v2d[i], *(v[i]->point), index);
     }
@@ -716,7 +716,7 @@ doComplexFace(int n, Vertex **v, Vector3D *normal, Vertex **backv, Vector3D *bac
     p2 = (p1 + 1) % n;
     VECTORTRIPLECROSSPRODUCT(*(v[p0]->point), *(v[p1]->point), *(v[p2]->point), *normal);
     VECTORNORMALIZE(*normal);
-    index = VectorDominantCoord(normal);
+    index = vector3DDominantCoord(normal);
 
     for ( i = 0; i < n; i++ ) {
 	VECTORPROJECT(q[i], *(v[i]->point), index);

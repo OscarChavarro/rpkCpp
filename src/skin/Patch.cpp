@@ -295,7 +295,7 @@ patchCreate(int numberOfVertices, Vertex *v1, Vertex *v2, Vertex *v3, Vertex *v4
     patch->tolerance = patchTolerance(patch);
 
     /* dominant part of normal */
-    patch->index = VectorDominantCoord(&patch->normal);
+    patch->index = vector3DDominantCoord(&patch->normal);
 
     /* tell the vertices that there's a new Patch using them */
     patchConnectVertices(patch);
@@ -459,9 +459,9 @@ patchPrint(FILE *out, Patch *patch) {
     fprintf(out, "\n");
 
     fprintf(out, "midpoint = ");
-    VectorPrint(out, patch->midpoint);
+    vector3DPrint(out, patch->midpoint);
     fprintf(out, ", normal = ");
-    VectorPrint(out, patch->normal);
+    vector3DPrint(out, patch->normal);
     fprintf(out, ", plane constant = %g, tolerance = %g\narea = %g, ",
             patch->planeConstant, patch->tolerance, patch->area);
     if ( patch->jacobian ) {

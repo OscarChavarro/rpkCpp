@@ -1,51 +1,50 @@
-/* ===========================================================================
-    Copyright (c) 1994-2000 K.U.Leuven
-    
-    This software is provided AS IS, without any express or implied
-    warranty.  In no event will the authors or the K.U.Leuven be held
-    liable for any damages or loss of profit arising from the use or
-    non-fitness for a particular purpose of this software.
-    
-    See file 0README in the home directory of RenderPark for details about
-    copyrights and licensing.
-   ===========================================================================
-    NAME:       image
-    TYPE:       c++ code
-    PROJECT:    Renderpark - Image output
-    CONTENT:    ANSI-C interface to the image output library
-   ===========================================================================
-    AUTHORS:    pb      Philippe Bekaert
-                jp      Jan Prikryl
-   ===========================================================================
-    HISTORY:
+/**
+Copyright (c) 1994-2000 K.U.Leuven
 
-    06-Mar-00 11:23:34  jp      last modification
-    06-Mar-00 11:22:51  jp      typo in NEW_TIFF_GENERAL_HANDLE for no TIFF
-    20-Sep-99 21:51:43  jp      changes for libtiff autoconf
-    03-Oct-98 15:26:04  pb      released
-=========================================================================== */
+This software is provided AS IS, without any express or implied
+warranty.  In no event will the authors or the K.U.Leuven be held
+liable for any damages or loss of profit arising from the use or
+non-fitness for a particular purpose of this software.
+
+See file 0README in the home directory of RenderPark for details about
+copyrights and licensing.
+===========================================================================
+NAME:       image
+TYPE:       c++ code
+PROJECT:    Renderpark - Image output
+CONTENT:    ANSI-C interface to the image output library
+===========================================================================
+AUTHORS:    pb      Philippe Bekaert
+            jp      Jan Prikryl
+===========================================================================
+HISTORY:
+
+06-Mar-00 11:23:34  jp      last modification
+06-Mar-00 11:22:51  jp      typo in NEW_TIFF_GENERAL_HANDLE for no TIFF
+20-Sep-99 21:51:43  jp      changes for libtiff autoconf
+03-Oct-98 15:26:04  pb      released
+*/
 
 #include <cstring>
 
-#include "material/color.h"
 #include "common/error.h"
 #include "IMAGE/tonemap/tonemapping.h"
 #include "IMAGE/imagecpp.h"
-#include "IMAGE/imagec.h"
 #include "IMAGE/ppm.h"
 #include "IMAGE/pic.h"
 
-/* ---------------------------------------------------------------------------
-                                                      RGB x LOGLUV TIFF MACROS
-  ------------------------------------------------------------------------- */
+/**
+RGB x LOGLUV TIFF MACROS
+*/
 
 #define PRE_TIFF_GENERAL_HANDLE(_func) \
     logError(_func, "TIFF support has not been compiled in")
 
-/* ---------------------------------------------------------------------------
-                                                       DEFAULT IMPLEMENTATIONS
-  ------------------------------------------------------------------------- */
-int ImageOutputHandle::WriteDisplayRGB(unsigned char *) {
+/**
+DEFAULT IMPLEMENTATIONS
+*/
+int
+ImageOutputHandle::writeDisplayRGB(unsigned char * /*x*/) {
     static bool wgiv = false;
     if ( !wgiv ) {
         fprintf(stderr, "%s does not support display RGB output.\n", drivername);
@@ -60,7 +59,8 @@ int ImageOutputHandle::WriteDisplayRGB(unsigned char *) {
   (rgb).b = (gamma)[2] == 1. ? (rgb).b : pow((rgb).b, 1./(gamma)[2]); \
 }
 
-int ImageOutputHandle::WriteDisplayRGB(float *rgbflt) {
+int
+ImageOutputHandle::writeDisplayRGB(float *rgbflt) {
     unsigned char *rgb = new unsigned char[3 * width];
     for ( int i = 0; i < width; i++ ) {
         // convert RGB radiance to display RGB
@@ -74,66 +74,44 @@ int ImageOutputHandle::WriteDisplayRGB(float *rgbflt) {
         rgb[3 * i + 2] = (unsigned char) (disprgb.b * 255.);
     }
 
-    // output display RGB values
-    int pixwrit = WriteDisplayRGB(rgb);
+    // Output display RGB values
+    int pixwrit = writeDisplayRGB(rgb);
 
     delete[] rgb;
     return pixwrit;
 }
 
-int ImageOutputHandle::WriteRadianceRGB(float *rgbrad) {
+int
+ImageOutputHandle::writeRadianceRGB(float *rgbrad) {
     unsigned char *rgb = new unsigned char[3 * width];
     for ( int i = 0; i < width; i++ ) {
-        // convert RGB radiance to display RGB
+        // Convert RGB radiance to display RGB
         RGB disprgb;
         radianceToRgb(*(COLOR *) &rgbrad[3 * i], &disprgb);
-        // apply gamma correction
+        // Apply gamma correction
         GAMMACORRECT(disprgb, gamma);
-        // convert float to byte representation
+        // Convert float to byte representation
         rgb[3 * i] = (unsigned char) (disprgb.r * 255.);
         rgb[3 * i + 1] = (unsigned char) (disprgb.g * 255.);
         rgb[3 * i + 2] = (unsigned char) (disprgb.b * 255.);
     }
 
-    // output display RGB values
-    int pixwrit = WriteDisplayRGB(rgb);
+    // Output display RGB values
+    int pixwrit = writeDisplayRGB(rgb);
 
     delete[] rgb;
     return pixwrit;
 }
 
-int ImageOutputHandle::WriteRadianceXYZ(float *xyzrad) {
-    unsigned char *rgb = new unsigned char[3 * width];
-    for ( int i = 0; i < width; i++ ) {
-        // convert RGB radiance to display RGB
-        RGB disprgb;
-        radianceToRgb(*(COLOR *) &xyzrad[3 * i], &disprgb);
-        // apply gamma correction
-        GAMMACORRECT(disprgb, gamma);
-        // convert float to byte representation
-        rgb[3 * i] = (unsigned char) (disprgb.r * 255.);
-        rgb[3 * i + 1] = (unsigned char) (disprgb.g * 255.);
-        rgb[3 * i + 2] = (unsigned char) (disprgb.b * 255.);
-    }
-
-    // output display RGB values
-    int pixwrit = WriteDisplayRGB(rgb);
-
-    delete[] rgb;
-    return pixwrit;
-}
-
-/* ---------------------------------------------------------------------------
-  `ImageFileExtension'
-
-  Returns file name extension. Understands extra suffixes ".Z", ".gz",
-  ".bz", and ".bz2".
-  ------------------------------------------------------------------------- */
+/**
+Returns file name extension. Understands extra suffixes ".Z", ".gz",
+".bz", and ".bz2".
+*/
 char *
-ImageFileExtension(char *fname) {
-    char *ext = fname + strlen(fname) - 1;    /* find filename extension */
+imageFileExtension(char *fileName) {
+    char *ext = fileName + strlen(fileName) - 1;    /* find filename extension */
 
-    while ( ext >= fname && *ext != '.' ) {
+    while ( ext >= fileName && *ext != '.' ) {
         ext--;
     }
 
@@ -141,33 +119,40 @@ ImageFileExtension(char *fname) {
         (!strcmp(ext, ".gz")) ||
         (!strcmp(ext, ".bz")) ||
         (!strcmp(ext, ".bz2"))) {
-        ext--;                /* before '.' */
-        while ( ext >= fname && *ext != '.' ) {
+        ext--; // before '.'
+        while ( ext >= fileName && *ext != '.' ) {
             ext--;
-        }                /* find extension before .gz or .Z */
+        }
+        // Find extension before .gz or .Z
     }
 
-    return ext + 1;                /* after '.' */
+    return ext + 1; // After '.'
 }
 
-/* Examines filename extension in order to decide what file format to
- * use to write radiance image.*/
+/**
+Examines filename extension in order to decide what file format to
+use to write radiance image
+*/
 ImageOutputHandle *
-CreateRadianceImageOutputHandle(char *fname, FILE *fp,
-                                int ispipe,
-                                int width, int height,
-                                float reference_luminance) {
+createRadianceImageOutputHandle(
+    char *fileName,
+    FILE *fp,
+    int isPipe,
+    int width,
+    int height,
+    float /*referenceLuminance*/)
+{
     if ( fp ) {
-        char *ext = ispipe ? (char *) "ppm" : ImageFileExtension(fname);
-        // assume PPM format if pipe
+        char *ext = isPipe ? (char *) "ppm" : imageFileExtension(fileName);
+        // Assume PPM format if pipe
 
         if ( strncasecmp(ext, "ppm", 3) == 0 ) {
             return new PPMOutputHandle(fp, width, height);
         }
-        /* olaf: HDR PIC output */
+        // Olaf: HDR PIC output
         else if ( strncasecmp(ext, "pic", 3) == 0 ) {
-            if ( ispipe ) {
-                logError("CreateRadianceImageOutputHandle",
+            if ( isPipe ) {
+                logError("createRadianceImageOutputHandle",
                          "Can't write PIC output to a pipe.\n");
                 return (ImageOutputHandle *) 0;
             }
@@ -177,40 +162,56 @@ CreateRadianceImageOutputHandle(char *fname, FILE *fp,
                 fprintf(stderr, "Warning: can not reopen /dev/null\n");
             }
 
-            return new PicOutputHandle(fname, width, height);
+            return new PicOutputHandle(fileName, width, height);
         } else {
-            PRE_TIFF_GENERAL_HANDLE("CreateRadianceImageOutputHandle");
-            logError("CreateRadianceImageOutputHandle",
+            PRE_TIFF_GENERAL_HANDLE("createRadianceImageOutputHandle");
+            logError("createRadianceImageOutputHandle",
                      "Can't save high dynamic range images to a '%s' file.", ext);
             return (ImageOutputHandle *) 0;
         }
     }
-    return (ImageOutputHandle *) 0;
+    return nullptr;
 }
 
-/* Same, but for writing "normal" display RGB images instead radiance image. */
+/**
+Same, but for writing "normal" display RGB images instead radiance image
+*/
 ImageOutputHandle *
-CreateImageOutputHandle(char *fname, FILE *fp,
-                        int ispipe, int width, int height) {
+createImageOutputHandle(
+    char *fileName,
+    FILE *fp,
+    int isPipe,
+    int width,
+    int height)
+{
     if ( fp ) {
-        char *ext = ispipe ? (char *) "ppm" : ImageFileExtension(fname);
+        char *ext = isPipe ? (char *) "ppm" : imageFileExtension(fileName);
 
         if ( strncasecmp(ext, "ppm", 3) == 0 ) {
             return new PPMOutputHandle(fp, width, height);
         } else {
-            PRE_TIFF_GENERAL_HANDLE("CreateImageOutputHandle");
-            logError("CreateImageOutputHandle",
+            PRE_TIFF_GENERAL_HANDLE("createImageOutputHandle");
+            logError("createImageOutputHandle",
                      "Can't save display-RGB images to a '%s' file.\n", ext);
             return (ImageOutputHandle *) 0;
         }
     }
-    return (ImageOutputHandle *) 0;
+    return nullptr;
 }
 
-int WriteDisplayRGB(ImageOutputHandle *img, unsigned char *data) {
-    return img->WriteDisplayRGB(data);
+/**
+Write a scanline of display RGB, RGB radiance or CIE XYZ radiance data.
+3 samples per pixel: RGB order for RGB data and XYZ order for CIE XYZ data
+*/
+int
+writeDisplayRGB(ImageOutputHandle *img, unsigned char *data) {
+    return img->writeDisplayRGB(data);
 }
 
-void DeleteImageOutputHandle(ImageOutputHandle *img) {
+/**
+Finish writing the image
+*/
+void
+deleteImageOutputHandle(ImageOutputHandle *img) {
     delete img;
 }

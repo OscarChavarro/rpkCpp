@@ -649,7 +649,7 @@ saveScreen(char *fileName, FILE *fp, int isPipe) {
         return;
     }
 
-    if ( !fp || !(img = CreateImageOutputHandle(fileName, fp, isPipe, x, y))) {
+    if ( !fp || !(img = createImageOutputHandle(fileName, fp, isPipe, x, y))) {
         return;
     }
 
@@ -668,13 +668,13 @@ saveScreen(char *fileName, FILE *fp, int isPipe) {
             *pbuf++ = pixel[1];
             *pbuf++ = pixel[2];
         }
-        WriteDisplayRGB(img, buf);
+        writeDisplayRGB(img, buf);
     }
 
     free((char *) buf);
     free((char *) screen);
 
-    DeleteImageOutputHandle(img);
+    deleteImageOutputHandle(img);
 }
 
 /**

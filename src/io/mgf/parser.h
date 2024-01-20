@@ -4,7 +4,8 @@
 
 #include "common/mymath.h"
 
-#define MGF_MAJOR_VERSION_NUMBER    2        /* major version number */
+// Major version number
+#define MGF_MAJOR_VERSION_NUMBER 2
 
 // Entities
 #define MG_E_COLOR 1 // c
@@ -72,13 +73,9 @@
 #define MGF_MAXIMUM_ENTITY_NAME_LENGTH    6
 
 extern char GLOBAL_mgf_entityNames[MGF_TOTAL_NUMBER_OF_ENTITIES][MGF_MAXIMUM_ENTITY_NAME_LENGTH];
-
 extern int (*GLOBAL_mgf_handleCallbacks[MGF_TOTAL_NUMBER_OF_ENTITIES])(int argc, char **argv);
-
 extern int (*GLOBAL_mgf_unknownEntityHandleCallback)(int argc, char **argv);
-
 extern int mgfDefaultHandlerForUnknownEntities(int ac, char **av);
-
 extern unsigned GLOBAL_mgf_unknownEntitiesCounter;
 
 // logError codes
@@ -103,17 +100,17 @@ The general process for running the parser is to fill in the GLOBAL_mgf_handleCa
 array with handlers for each entity you know how to handle.
 Then, call mg_init to fill in the rest.  This function will report
 an error and quit if you try to support an inconsistent set of entities.
-For each file you want to parse, call mg_load with the file name.
+For each file you want to parse, call mgfLoad with the file name.
 To read from standard input, use nullptr as the file name.
 For additional control over error reporting and file management,
-use mgfOpen, mgfReadNextLine, mgfParseCurrentLine and mgfClose instead of mg_load.
+use mgfOpen, mgfReadNextLine, mgfParseCurrentLine and mgfClose instead of mgfLoad.
 To globalPass an entity of your own construction to the parser, use
 the mgfHandle function rather than the GLOBAL_mgf_handleCallbacks routines directly.
 (The first argument to mgfHandle is the entity #, or -1.)
 To free any data structures and clear the parser, use mgfClear.
-If there is an error, mg_load, mgfOpen, mgfParseCurrentLine, mgfHandle and
+If there is an error, mgfLoad, mgfOpen, mgfParseCurrentLine, mgfHandle and
 mgfGoToFilePosition will return an error from the list above.  In addition,
-mg_load will report the error to stderr.  The mgfReadNextLine routine
+mgfLoad will report the error to stderr.  The mgfReadNextLine routine
 returns 0 when the end of file has been reached.
 */
 
@@ -169,25 +166,23 @@ extern int isnameWords(char *);
 extern int badarg(int, char **, char *);
 extern int handleIncludedFile(int ac, char **av);
 
-/************************************************************************
- *	Definitions for 3-d vector manipulation functions
- */
+/**
+Definitions for 3-d vector manipulation functions
+*/
 
-#define  FLOAT        double
-#define  FTINY        (1e-6)
-#define  FHUGE        (1e10)
+#define FLOAT double
+#define FLOAT_TINY (1e-6)
+#define FLOAT_HUGE (1e10)
 
 typedef FLOAT FVECT[3];
 
 #define MGF_VERTEX_COPY(v1, v2) ((v1)[0]=(v2)[0],(v1)[1]=(v2)[1],(v1)[2]=(v2)[2])
 #define DOT(v1, v2) ((v1)[0]*(v2)[0]+(v1)[1]*(v2)[1]+(v1)[2]*(v2)[2])
+#define is0vect(v) (DOT(v,v) <= FLOAT_TINY*FLOAT_TINY)
+#define round0(x) if (x <= FLOAT_TINY && x >= -FLOAT_TINY) x = 0
 
-#define is0vect(v)    (DOT(v,v) <= FTINY*FTINY)
-
-#define round0(x)    if (x <= FTINY && x >= -FTINY) x = 0
-
-extern double normalize(FVECT);    /* normalize a vector */
-extern void fcross(FVECT, FVECT, FVECT);/* cross product of two vectors */
+extern double normalize(FVECT);
+extern void floatCrossProduct(FVECT vres, FVECT v1, FVECT v2);
 
 /**
 Definitions for context handling routines (materials, colors, vectors)
@@ -216,18 +211,18 @@ public:
     float eff; // efficacy (lumens/watt)
 };
 
-#define C_DEFCOLOR    { 1, C_CDXY|C_CSXY|C_CSSPEC|C_CSEFF,\
-            {C_CMAXV,C_CMAXV,C_CMAXV,C_CMAXV,C_CMAXV,\
-            C_CMAXV,C_CMAXV,C_CMAXV,C_CMAXV,C_CMAXV,C_CMAXV,\
-            C_CMAXV,C_CMAXV,C_CMAXV,C_CMAXV,C_CMAXV,C_CMAXV,\
-            C_CMAXV,C_CMAXV,C_CMAXV,C_CMAXV,C_CMAXV,C_CMAXV,\
-            C_CMAXV,C_CMAXV,C_CMAXV,C_CMAXV,C_CMAXV,C_CMAXV,\
-            C_CMAXV,C_CMAXV,C_CMAXV,C_CMAXV,C_CMAXV,C_CMAXV,\
-            C_CMAXV,C_CMAXV,C_CMAXV,C_CMAXV,C_CMAXV,C_CMAXV},\
-            (long)C_CNSS*C_CMAXV, 1./3., 1./3., 178.006 }
+#define C_DEFCOLOR { 1, C_CDXY|C_CSXY|C_CSSPEC|C_CSEFF,\
+    {C_CMAXV,C_CMAXV,C_CMAXV,C_CMAXV,C_CMAXV,\
+    C_CMAXV,C_CMAXV,C_CMAXV,C_CMAXV,C_CMAXV,C_CMAXV,\
+    C_CMAXV,C_CMAXV,C_CMAXV,C_CMAXV,C_CMAXV,C_CMAXV,\
+    C_CMAXV,C_CMAXV,C_CMAXV,C_CMAXV,C_CMAXV,C_CMAXV,\
+    C_CMAXV,C_CMAXV,C_CMAXV,C_CMAXV,C_CMAXV,C_CMAXV,\
+    C_CMAXV,C_CMAXV,C_CMAXV,C_CMAXV,C_CMAXV,C_CMAXV,\
+    C_CMAXV,C_CMAXV,C_CMAXV,C_CMAXV,C_CMAXV,C_CMAXV},\
+    (long)C_CNSS*C_CMAXV, 1.0/3.0, 1.0/3.0, 178.006 }
 
 class MgfMaterialContext {
-public:
+  public:
     int clock; // Incremented each change -- resettable
     int sided; // 1 if surface is 1-sided, 0 for 2-sided
     float nr; // Index of refraction, real and imaginary
@@ -247,17 +242,17 @@ public:
 };
 
 class MgfVertexContext {
-public:
+  public:
     FVECT p; // Point
     FVECT n; // Normal
-    long xid; // transform id of transform last time the vertex was modified (or created)
-    int clock; // incremented each change -- resettable
-    void *client_data; // client data -- initialized to nullptr by the parser
+    long xid; // Transform id of transform last time the vertex was modified (or created)
+    int clock; // Incremented each change -- resettable
+    void *client_data; // Client data -- initialized to nullptr by the parser
 };
 
-#define C_DEFMATERIAL    {1,0,1.,0.,0.,C_DEFCOLOR,0.,C_DEFCOLOR,0.,C_DEFCOLOR,\
-                    0.,C_DEFCOLOR,0.,0.,C_DEFCOLOR,0.}
-#define C_DEFVERTEX    {{0.,0.,0.},{0.,0.,0.},0,1,(void *)0}
+#define C_DEFMATERIAL {1, 0, 1.0, 0.0, 0.0, C_DEFCOLOR, 0.0, C_DEFCOLOR, 0.0, C_DEFCOLOR,\
+                    0.0, C_DEFCOLOR, 0.0, 0.0, C_DEFCOLOR, 0.0}
+#define C_DEFVERTEX {{0.0, 0.0, 0.0}, {0.0, 0.0, 0.0}, 0, 1, (void *)nullptr}
 
 extern MgfColorContext *GLOBAL_mgf_currentColor;
 extern MgfMaterialContext *GLOBAL_mgf_currentMaterial;
@@ -272,49 +267,51 @@ extern void clearContextTables();
 extern MgfVertexContext *getNamedVertex(char *name);
 extern void mgfContextFixColorRepresentation(MgfColorContext *clr, int fl);
 
-/*************************************************************************
- *	Definitions for hierarchical object name handler
- */
+/**
+Definitions for hierarchical object name handler
+*/
 
-extern int GLOBAL_mgf_objectNames;        /* depth of name hierarchy */
-extern char **GLOBAL_mgf_objectNamesList;        /* names in hierarchy */
+extern int GLOBAL_mgf_objectNames; // Depth of name hierarchy
+extern char **GLOBAL_mgf_objectNamesList; // Names in hierarchy
 
 extern int handleObject2Entity(int ac, char **av);
 
-/**************************************************************************
- *	Definitions for hierarchical transformation handler
- */
+/**
+Definitions for hierarchical transformation handler
+*/
 
 typedef FLOAT MAT4[4][4];
 
-#define  copymat4(m4a, m4b)    memcpy((char *)m4a,(char *)m4b,sizeof(MAT4))
+#define copymat4(m4a, m4b)    memcpy((char *)m4a,(char *)m4b,sizeof(MAT4))
 
-#define  MAT4IDENT        { {1.,0.,0.,0.}, {0.,1.,0.,0.}, \
-                {0.,0.,1.,0.}, {0.,0.,0.,1.} }
+#define MAT4IDENT { {1.0, 0.0, 0.0, 0.0}, {0.0, 1.0, 0.0, 0.0}, \
+                {0.0, 0.0, 1.0, 0.0}, {0.0, 0.0, 0.0, 1.0} }
 
 extern MAT4 GLOBAL_mgf_m4Ident;
 
-#define  setident4(m4)        copymat4(m4, GLOBAL_mgf_m4Ident)
+#define setident4(m4) copymat4(m4, GLOBAL_mgf_m4Ident)
 
-/* regular transformation */
+// Regular transformation
 class XF {
   public:
-    MAT4 xfm;                /* transform matrix */
-    FLOAT sca;                /* scalefactor */
+    MAT4 xfm; // Transform matrix
+    FLOAT sca; // Scale factor
 };
 
-#define XF_MAXDIM    8        /* maximum array dimensions */
+// Maximum array dimensions
+#define XF_MAXDIM 8
 
 class XfArrayArg {
   public:
-    short i, n;        /* current count and maximum */
-    char arg[8];        /* string argument value */
+    short i; // Current count
+    short n; // Current maximum
+    char arg[8]; // String argument value
 };
 
 class XfArray {
   public:
-    MgdReaderFilePosition spos;            /* starting position on input */
-    int ndim;            /* number of array dimensions */
+    MgdReaderFilePosition spos; // Starting position on input
+    int ndim; // Number of array dimensions
     XfArrayArg aarg[XF_MAXDIM];
 };
 
@@ -333,14 +330,12 @@ extern char **GLOBAL_mgf_xfLastTransform; // Last transform argument
 
 #define xf_ac(xf) ((xf)==nullptr ? 0 : (xf)->xac)
 #define xf_av(xf) (GLOBAL_mgf_xfLastTransform - (xf)->xac)
-
 #define xf_argc xf_ac(GLOBAL_mgf_xfContext)
-
 #define xf_xid(xf) ((xf)==nullptr ? 0 : (xf)->xid)
 
 /**
 The transformation handler should do most of the work that needs
-doing.  Just globalPass it any xf entities, then use the associated
+doing. Just globalPass it any xf entities, then use the associated
 functions to transform and translate positions, transform vectors
 (without translation), rotate vectors (without scaling) and scale
 values appropriately.
@@ -350,8 +345,8 @@ The routines mgfTransformPoint, mgfTransformVector and xf_rotvect take two
 puts the result into the first.
 */
 
-extern int handleTransformationEntity(int ac, char **av);    /* handle xf entity */
-extern void mgfTransformPoint(FVECT v1, FVECT v2);    /* transform point */
-extern void mgfTransformVector(FVECT v1, FVECT v2);    /* transform vector */
+extern int handleTransformationEntity(int ac, char **av); // Handle xf entity
+extern void mgfTransformPoint(FVECT v1, FVECT v2); // Transform point
+extern void mgfTransformVector(FVECT v1, FVECT v2); // Transform vector
 
 #endif

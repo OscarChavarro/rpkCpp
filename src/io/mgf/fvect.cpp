@@ -19,7 +19,7 @@ normalize(double *v)
         return 0.0;
     }
 
-    if ( len <= 1.0 + FTINY && len >= 1.0 - FTINY) {
+    if ( len <= 1.0 + FLOAT_TINY && len >= 1.0 - FLOAT_TINY) {
 	// first order approximation
         len = 0.5 + 0.5 * len;
     } else {
@@ -34,10 +34,11 @@ normalize(double *v)
 }
 
 /**
+Cross product of two vectors
 vres = v1 X v2
 */
 void
-fcross(double *vres, double *v1, double *v2)
+floatCrossProduct(FVECT vres, FVECT v1, FVECT v2)
 {
     vres[0] = v1[1] * v2[2] - v1[2] * v2[1];
     vres[1] = v1[2] * v2[0] - v1[0] * v2[2];

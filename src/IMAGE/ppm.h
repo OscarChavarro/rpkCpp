@@ -9,7 +9,7 @@ class PPMOutputHandle : public ImageOutputHandle {
 
   public:
     PPMOutputHandle(FILE *_fp, int _width, int _height);
-    int WriteDisplayRGB(unsigned char *rgb);
+    int writeDisplayRGB(unsigned char *rgb);
 };
 
 #endif

@@ -16,8 +16,9 @@ RayTrace(char *filename, FILE *fp, int ispipe) {
     ImageOutputHandle *img = nullptr;
 
     if ( fp != nullptr ) {
-        img = CreateRadianceImageOutputHandle(filename, fp, ispipe,
-                                              GLOBAL_camera_mainCamera.xSize, GLOBAL_camera_mainCamera.ySize, (float)(GLOBAL_statistics_referenceLuminance / 179.0));
+        img = createRadianceImageOutputHandle(filename, fp, ispipe,
+                                              GLOBAL_camera_mainCamera.xSize, GLOBAL_camera_mainCamera.ySize,
+                                              (float) (GLOBAL_statistics_referenceLuminance / 179.0));
         if ( img == nullptr ) {
             return;
         }
@@ -28,7 +29,7 @@ RayTrace(char *filename, FILE *fp, int ispipe) {
     }
 
     if ( img ) {
-        DeleteImageOutputHandle(img);
+        deleteImageOutputHandle(img);
     }
 }
 

@@ -70,7 +70,7 @@ elementHierarchyTerminate() {
     while ( vectorWindow != nullptr ) {
         position = vectorWindow->vector;
         vectorWindow = vectorWindow->next;
-        VectorDestroy(position);
+        vector3DDestroy(position);
     }
 
     vectorWindow = GLOBAL_stochasticRaytracing_hierarchy.coords;
@@ -87,7 +87,7 @@ elementHierarchyTerminate() {
     while ( normalWindow != nullptr ) {
         normal = normalWindow->vector;
         normalWindow = normalWindow->next;
-        VectorDestroy(normal);
+        vector3DDestroy(normal);
     }
 
     normalWindow = GLOBAL_stochasticRaytracing_hierarchy.normals;
@@ -104,7 +104,7 @@ elementHierarchyTerminate() {
     while ( texCoordWindow != nullptr ) {
         texCoord = texCoordWindow->vector;
         texCoordWindow = texCoordWindow->next;
-        VectorDestroy(texCoord);
+        vector3DDestroy(texCoord);
     }
 
     texCoordWindow = GLOBAL_stochasticRaytracing_hierarchy.texCoords;

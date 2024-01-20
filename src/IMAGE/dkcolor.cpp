@@ -14,7 +14,6 @@
 
 char *tempbuffer(unsigned int len)                 /* get a temporary buffer */
 {
-    /*        extern char  *malloc(), *realloc();*/
     static char *tempbuf = nullptr;
     static unsigned tempbuflen = 0;
 

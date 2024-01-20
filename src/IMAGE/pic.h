@@ -19,7 +19,7 @@ public:
 
     ~PicOutputHandle();
 
-    int WriteRadianceRGB(float *rgbrad);
+    int writeRadianceRGB(float *rgbrad);
 };
 
 #endif
