@@ -125,8 +125,6 @@ static bool TracePotentialPath(PMAPCONFIG *config) {
     float factor = path->m_G / path->m_pdfFromPrev;
     colorScale(factor, accImportance, accImportance);
 
-
-    int DGBounces = 0;  // Number of diffuse/glossy bounces
     bool indirectImportance = false; // Can we store in the indirect importance map
 
     // New node
@@ -150,7 +148,6 @@ static bool TracePotentialPath(PMAPCONFIG *config) {
         bool tooClose = (node->m_G > GLOBAL_photonMap_state.gThreshold);
 
         if ( didDG ) {
-            DGBounces++;
             if ( !tooClose ) {
                 indirectImportance = true;
             }

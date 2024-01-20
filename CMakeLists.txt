@@ -1,21 +1,19 @@
 cmake_minimum_required(VERSION 3.10)
 project(rpk)
 
-add_compile_options(-std=c++11 -ffast-math)
-
 if(UNIX AND NOT APPLE)
-    # C++ warnings to enable and fix:
-    #-Wstrict-aliasing
-    #-Wuninitialized
-    add_compile_options(-Wsign-compare -Wparentheses -Wmaybe-uninitialized -Wdelete-non-virtual-dtor -Wunused-variable -Wunused-but-set-variable -Wunused-function -pedantic)
+    add_compile_options(-std=c++11 -Wall -pedantic)
 endif()
 
-include_directories(src)
-
 if(APPLE)
+    add_compile_options(-std=c++17 -Wall -pedantic)
     include_directories(/opt/X11/include)
     link_directories(/opt/X11/lib)
 endif()
+
+add_compile_options(-ffast-math)
+
+include_directories(src)
 
 set(MAIN_SRC
     src/common/errorshared.cpp

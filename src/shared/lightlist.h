@@ -29,8 +29,6 @@ private:
 
     int lightCount;
 
-    CTSList_Iter<CLightInfo> *current;
-
 public:
 
     // Iteration over lights, not multithreaded!!

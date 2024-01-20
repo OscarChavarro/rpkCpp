@@ -259,8 +259,8 @@ initIdTransTabs() {
     for ( i = 0; i < 256; i++ ) {
         IdRestChar[i] = IdFirstChar[i];
     }
-    IdRestChar['+'] = '+';
-    IdRestChar['-'] = '-';
+    IdRestChar[(int)'+'] = '+';
+    IdRestChar[(int)'-'] = '-';
     for ( i = '0'; i <= '9'; i++ ) {
         IdRestChar[i] = i;
     }

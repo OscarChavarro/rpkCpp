@@ -87,17 +87,6 @@ shootUnshotRadianceAndPotentialOverLink(INTERACTION *link) {
     }
 }
 
-/* Propagates and clears the unshot radiance and potential of the element and 
- * all its subelements */
-static void
-shootUnshotRadianceAndPotential(GalerkinElement *elem) {
-    ITERATE_REGULAR_SUBELEMENTS(elem, shootUnshotRadianceAndPotential);
-    ITERATE_IRREGULAR_SUBELEMENTS(elem, shootUnshotRadianceAndPotential);
-    InteractionListIterate(elem->interactions, (void (*)(void *)) shootUnshotRadianceAndPotentialOverLink);
-    clusterGalerkinClearCoefficients(elem->unshot_radiance, elem->basis_size);
-    elem->unshot_potential.f = 0.;
-}
-
 static void
 clearUnshotRadianceAndPotential(GalerkinElement *elem) {
     ITERATE_REGULAR_SUBELEMENTS(elem, clearUnshotRadianceAndPotential);

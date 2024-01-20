@@ -157,7 +157,6 @@ ScreenIterateProgressive(SCREENITERATECALLBACK callback, void *data) {
                         }
 
                         ymin = MAX(0, ymax - stepsize);
-                        ymax = ymax;
                     }
                 }
 

@@ -154,7 +154,7 @@ handleColorEntity(int ac, char **av)        /* handle color entity */
             if ( ac != 3 ) {
                 return MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
             }
-            if ( !isfltWords(av[1]) | !isfltWords(av[2])) {
+            if ( !isfltWords(av[1]) || !isfltWords(av[2])) {
                 return MGF_ERROR_ARGUMENT_TYPE;
             }
             GLOBAL_mgf_currentColor->cx = atof(av[1]);

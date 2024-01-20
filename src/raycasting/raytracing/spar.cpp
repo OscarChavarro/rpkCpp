@@ -337,18 +337,26 @@ static double ComputeCx(CSparConfig *sconfig,
     return Cx;
 }
 
-double CLeSpar::ComputeWeightTerms(TPathGroupID,
-                                   CSparConfig *sconfig,
-                                   CBiPath *path, double *sum) {
-    CPathNode *nextNode, *L1, *L2;
-    double pdfRR, oldPdfL2, oldPdfRR = 0.;
-    double *p_pdfL2, *p_pdfRR;
+double
+CLeSpar::ComputeWeightTerms(
+    TPathGroupID,
+    CSparConfig *sconfig,
+    CBiPath *path,
+    double *sum)
+{
+    CPathNode *nextNode;
+    CPathNode *L1;
+    CPathNode *L2;
+    double pdfRR = 0.0;
+    double oldPdfL2;
+    double oldPdfRR = 0.0;
+    double *p_pdfL2;
+    double *p_pdfRR;
 
     double currentPdf, pdfAcc, newPdf;
     double Ci, weight, Sl, Se;
     int currentConnect, nodesTotal;
     double L2L1pdf;
-
 
     // name L1, L2 nodes in the path and
     // compute the pdf for generating L2, so that it is
