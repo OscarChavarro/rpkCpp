@@ -320,7 +320,7 @@ void
 monteCarloRadiosityUpdateViewImportance() {
     fprintf(stderr, "Updating direct visibility ... \n");
 
-    UpdateDirectVisibility();
+    updateDirectVisibility();
 
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.sourceYmp = GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotYmp = GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalYmp = 0.;
     monteCarloRadiosityUpdateImportance(GLOBAL_stochasticRaytracing_hierarchy.topcluster);

@@ -3,7 +3,7 @@
 #include "shared/SoftIdsWrapper.h"
 
 static SGL_PIXEL
-PatchPointer(Patch *P) {
+patchPointer(Patch *P) {
     return (SGL_PIXEL) P;
 }
 
@@ -15,7 +15,7 @@ void
 Soft_ID_Renderer::init() {
     SGL_CONTEXT *oldsgl = GLOBAL_sgl_currentContext;
     sgl = SetupSoftFrameBuffer();
-    SoftRenderPatches(PatchPointer);
+    SoftRenderPatches(patchPointer);
     sglMakeCurrent(oldsgl); // make the old one current again
 }
 

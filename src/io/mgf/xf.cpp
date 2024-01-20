@@ -215,11 +215,11 @@ comp_xfid(double (*xfm)[4])            /* compute unique ID from matrix */
                                 10, 14, 12, 3, 5, 5, 14, 6, 12, 11,
                                 13, 9, 12, 8, 1, 6, 5, 12, 7, 13,
                                 15, 8, 9, 2, 6, 11, 9, 11};
-    int i;
     long xid;
 
-    xid = 0;            /* compute unique transform id */
-    for ( i = 0; i < sizeof(MAT4) / sizeof(unsigned short); i++ ) {
+    xid = 0;
+    // Compute unique transform id
+    for ( long unsigned int i = 0; i < sizeof(MAT4) / sizeof(unsigned short); i++ ) {
         xid ^= (long) (((unsigned short *) xfm)[i]) << shifttab[i & 63];
     }
     return xid;

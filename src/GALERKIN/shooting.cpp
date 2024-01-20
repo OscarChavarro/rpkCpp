@@ -303,7 +303,7 @@ int
 reallyDoShootingStep() {
     if ( GLOBAL_galerkin_state.importance_driven ) {
         if ( GLOBAL_galerkin_state.iteration_nr <= 1 || GLOBAL_camera_mainCamera.changed ) {
-            UpdateDirectPotential();
+            updateDirectPotential();
             for ( PatchSet *window = GLOBAL_scene_patches; window != nullptr; window = window->next ) {
                 GalerkinElement *top = TOPLEVEL_ELEMENT(window->patch);
                 float potential_increment = window->patch->directPotential - top->direct_potential.f;
