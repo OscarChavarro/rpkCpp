@@ -23,7 +23,7 @@ enum SAMPLING_MODE {
 void
 SplitBsdfPrint(FILE *out, SPLIT_BSDF *bsdf) {
     fprintf(out, "Split Bsdf :\n  ");
-    BrdfPrint(out, bsdf->brdf);
+    brdfPrint(out, bsdf->brdf);
     fprintf(out, "  ");
     BtdfPrint(out, bsdf->btdf);
     fprintf(out, "  ");
@@ -101,7 +101,7 @@ SplitBsdfScatteredPower(SPLIT_BSDF *bsdf, RayHit *hit, Vector3D *in, BSDFFLAGS f
     }
 
     if ( bsdf->brdf ) {
-        COLOR refl = BrdfReflectance(bsdf->brdf, GETBRDFFLAGS(flags));
+        COLOR refl = brdfReflectance(bsdf->brdf, GETBRDFFLAGS(flags));
         colorAdd(albedo, refl, albedo);
     }
 
@@ -148,7 +148,7 @@ SplitBsdfEval(
        handle the direction of out. Note that out * normal is
        computed more than once :-( */
     if ( bsdf->brdf ) {
-        COLOR reflectionCol = BrdfEval(bsdf->brdf, in, out, &normal,
+        COLOR reflectionCol = brdfEval(bsdf->brdf, in, out, &normal,
                                        GETBRDFFLAGS(flags));
         colorAdd(result, reflectionCol, result);
     }
@@ -192,7 +192,7 @@ SplitBsdfProbabilities(SPLIT_BSDF *bsdf, RayHit *hit, BSDFFLAGS flags,
     *brdfFlags = GETBRDFFLAGS(flags);
     *btdfFlags = GETBTDFFLAGS(flags);
 
-    reflectance = BrdfReflectance(bsdf->brdf, *brdfFlags);
+    reflectance = brdfReflectance(bsdf->brdf, *brdfFlags);
     *Preflection = colorAverage(reflectance);
 
     transmittance = BtdfTransmittance(bsdf->btdf, *btdfFlags);
@@ -276,7 +276,7 @@ SplitBsdfSample(SPLIT_BSDF *bsdf, RayHit *hit,
             *pdf = Ptexture * p; /* other components will be added later */
             break;
         case SAMPLE_REFLECTION:
-            out = BrdfSample(bsdf->brdf, in, &normal, false, brdfFlags, x_1, x_2, &p);
+            out = brdfSample(bsdf->brdf, in, &normal, false, brdfFlags, x_1, x_2, &p);
             if ( p < EPSILON )
                 return out;
             *pdf = Preflection * p;
@@ -303,7 +303,7 @@ SplitBsdfSample(SPLIT_BSDF *bsdf, RayHit *hit,
         *pdf += Ptexture * p;
     }
     if ( mode != SAMPLE_REFLECTION ) {
-        BrdfEvalPdf(bsdf->brdf, in, &out, &normal,
+        brdfEvalPdf(bsdf->brdf, in, &out, &normal,
                     brdfFlags, &p, &pRR);
         *pdf += Preflection * p;
     }
@@ -356,7 +356,7 @@ SplitBsdfEvalPdf(SPLIT_BSDF *bsdf, RayHit *hit,
     TexturedScattererEvalPdf(in, out, &normal, &p);
     *pdf = Ptexture * p;
 
-    BrdfEvalPdf(bsdf->brdf, in, out, &normal,
+    brdfEvalPdf(bsdf->brdf, in, out, &normal,
                 brdfFlags, &p, &pRR);
     *pdf += Preflection * p;
 

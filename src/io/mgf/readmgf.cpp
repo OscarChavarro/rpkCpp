@@ -385,7 +385,7 @@ getCurrentMaterial() {
                                  (colorNull(Ed) && colorNull(Es)) ? (EDF *) nullptr : EdfCreate(
                                          PhongEdfCreate(&Ed, &Es, Ne), &GLOBAL_scene_phongEdfMethods),
                                  BsdfCreate(SplitBSDFCreate(
-                                         (colorNull(Rd) && colorNull(Rs)) ? (BRDF *) nullptr : BrdfCreate(
+                                         (colorNull(Rd) && colorNull(Rs)) ? (BRDF *) nullptr : brdfCreate(
                                                  PhongBrdfCreate(&Rd, &Rs, Nr), &GLOBAL_scene_phongBrdfMethods),
                                          (colorNull(Td) && colorNull(Ts)) ? (BTDF *) nullptr : BtdfCreate(
                                                  PhongBtdfCreate(&Td, &Ts, Nt, GLOBAL_mgf_currentMaterial->nr, GLOBAL_mgf_currentMaterial->ni),
