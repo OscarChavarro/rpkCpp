@@ -10,7 +10,7 @@
 bool ZeroAlbedo(BSDF *bsdf, RayHit *hit, BSDFFLAGS flags) {
     COLOR col;
 
-    col = BsdfScatteredPower(bsdf, hit, &hit->gnormal, flags);
+    col = bsdfScatteredPower(bsdf, hit, &hit->gnormal, flags);
 
     return (colorAverage(col) < EPSILON);
 }
@@ -380,12 +380,9 @@ COLOR CPhotonMap::Reconstruct(RayHit *hit, Vector3D &outDir,
 
     COLOR diffuseAlbedo, glossyAlbedo;
 
-    diffuseAlbedo = BsdfScatteredPower(bsdf, hit, &hit->gnormal, BRDF_DIFFUSE_COMPONENT);
+    diffuseAlbedo = bsdfScatteredPower(bsdf, hit, &hit->gnormal, BRDF_DIFFUSE_COMPONENT);
     // -- TODO Irradiance precomputation for diffuse transmission
-    glossyAlbedo = BsdfScatteredPower(bsdf, hit, &hit->gnormal, BTDF_DIFFUSE_COMPONENT | BSDF_GLOSSY_COMPONENT);
-
-    //if(ZeroAlbedo(bsdf, hit, BSDF_DIFFUSE_COMPONENT | BSDF_GLOSSY_COMPONENT))
-    //  return result;
+    glossyAlbedo = bsdfScatteredPower(bsdf, hit, &hit->gnormal, BTDF_DIFFUSE_COMPONENT | BSDF_GLOSSY_COMPONENT);
 
     CheckNBalance();
 
@@ -420,7 +417,7 @@ COLOR CPhotonMap::Reconstruct(RayHit *hit, Vector3D &outDir,
 
     for ( int i = 0; i < m_nrpFound; i++ ) {
         Vector3D dir = m_photons[i]->Dir();
-        eval = BsdfEval(bsdf, hit, inBsdf, outBsdf, &outDir,
+        eval = bsdfEval(bsdf, hit, inBsdf, outBsdf, &outDir,
                         &dir,
                         BSDF_DIFFUSE_COMPONENT | BSDF_GLOSSY_COMPONENT);
         power = m_photons[i]->Power();

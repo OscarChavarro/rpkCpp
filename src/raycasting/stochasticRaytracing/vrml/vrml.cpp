@@ -310,9 +310,9 @@ writeMaterial(Geometry *geom) {
     }
 
     InitHit(&hit, first_patch, (Geometry *) nullptr, &first_patch->midpoint, &first_patch->normal, mat, 0.);
-    Rd = BsdfScatteredPower(mat->bsdf, &hit, &first_patch->normal, BRDF_DIFFUSE_COMPONENT);
+    Rd = bsdfScatteredPower(mat->bsdf, &hit, &first_patch->normal, BRDF_DIFFUSE_COMPONENT);
     convertColorToRGB(Rd, &rd);
-    Rs = BsdfScatteredPower(mat->bsdf, &hit, &first_patch->normal, BRDF_GLOSSY_COMPONENT | BRDF_SPECULAR_COMPONENT);
+    Rs = bsdfScatteredPower(mat->bsdf, &hit, &first_patch->normal, BRDF_GLOSSY_COMPONENT | BRDF_SPECULAR_COMPONENT);
     convertColorToRGB(Rs, &rs);
     specularity = 128.;
 

@@ -477,7 +477,7 @@ monteCarloRadiosityDiffuseReflectanceAtPoint(Patch *patch, double u, double v) {
     hit.uv.u = u;
     hit.uv.v = v;
     hit.flags |= HIT_UV;
-    return BsdfScatteredPower(hit.material->bsdf, &hit, &patch->normal, BRDF_DIFFUSE_COMPONENT);
+    return bsdfScatteredPower(hit.material->bsdf, &hit, &patch->normal, BRDF_DIFFUSE_COMPONENT);
 }
 
 static COLOR

@@ -27,10 +27,10 @@ bool CPhotonMapSampler::ChooseComponent(BSDFFLAGS flags1, BSDFFLAGS flags2,
 
     // Choose between flags1 or flags2 scattering
 
-    col = BsdfScatteredPower(bsdf, hit, &hit->gnormal, flags1);
+    col = bsdfScatteredPower(bsdf, hit, &hit->gnormal, flags1);
     power1 = colorAverage(col);
 
-    col = BsdfScatteredPower(bsdf, hit, &hit->gnormal, flags2);
+    col = bsdfScatteredPower(bsdf, hit, &hit->gnormal, flags2);
     power2 = colorAverage(col);
 
     totalPower = power1 + power2;
@@ -133,7 +133,7 @@ bool CPhotonMapSampler::Sample(CPathNode *prevNode, CPathNode *thisNode,
 static REFRACTIONINDEX BsdfGeometricIOR(BSDF *bsdf) {
     REFRACTIONINDEX nc;
 
-    BsdfIndexOfRefraction(bsdf, &nc);
+    bsdfIndexOfRefraction(bsdf, &nc);
 
     // Convert to geometric IOR if necessary
 
@@ -162,9 +162,9 @@ static bool ChooseFresnelDirection(CPathNode *thisNode, CPathNode *newNode,
     BSDF *bsdf = thisNode->m_useBsdf;
     // Vector3D *point = &thisNode->m_hit.point;
 
-    COLOR reflectance = BsdfSpecularReflectance(bsdf, &thisNode->m_hit,
+    COLOR reflectance = bsdfSpecularReflectance(bsdf, &thisNode->m_hit,
                                                 &thisNode->m_normal);
-    COLOR transmittance = BsdfSpecularTransmittance(bsdf, &thisNode->m_hit,
+    COLOR transmittance = bsdfSpecularTransmittance(bsdf, &thisNode->m_hit,
                                                     &thisNode->m_normal);
 
     bool reflective = (colorAverage(reflectance) > EPSILON);

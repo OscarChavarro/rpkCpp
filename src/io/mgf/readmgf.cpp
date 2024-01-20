@@ -384,13 +384,14 @@ getCurrentMaterial() {
     theMaterial = MaterialCreate(materialName,
                                  (colorNull(Ed) && colorNull(Es)) ? (EDF *) nullptr : EdfCreate(
                                          phongEdfCreate(&Ed, &Es, Ne), &GLOBAL_scene_phongEdfMethods),
-                                 BsdfCreate(SplitBSDFCreate(
-                                         (colorNull(Rd) && colorNull(Rs)) ? (BRDF *) nullptr : brdfCreate(
-                                                 phongBrdfCreate(&Rd, &Rs, Nr), &GLOBAL_scene_phongBrdfMethods),
-                                         (colorNull(Td) && colorNull(Ts)) ? (BTDF *) nullptr : BtdfCreate(
-                                                 phongBtdfCreate(&Td, &Ts, Nt, GLOBAL_mgf_currentMaterial->nr,
-                                                                 GLOBAL_mgf_currentMaterial->ni),
-                                                 &GLOBAL_scene_phongBtdfMethods), (TEXTURE *) nullptr), &GLOBAL_scene_splitBsdfMethods),
+                                 bsdfCreate(SplitBSDFCreate(
+                                                    (colorNull(Rd) && colorNull(Rs)) ? (BRDF *) nullptr : brdfCreate(
+                                                            phongBrdfCreate(&Rd, &Rs, Nr), &GLOBAL_scene_phongBrdfMethods),
+                                                    (colorNull(Td) && colorNull(Ts)) ? (BTDF *) nullptr : BtdfCreate(
+                                                            phongBtdfCreate(&Td, &Ts, Nt, GLOBAL_mgf_currentMaterial->nr,
+                                                                            GLOBAL_mgf_currentMaterial->ni),
+                                                            &GLOBAL_scene_phongBtdfMethods), (TEXTURE *) nullptr),
+                                            &GLOBAL_scene_splitBsdfMethods),
                                  globalAllSurfacesSided ? 1 : GLOBAL_mgf_currentMaterial->sided);
 
     GLOBAL_scene_materials->add(0, theMaterial);

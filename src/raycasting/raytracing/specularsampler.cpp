@@ -12,10 +12,11 @@ bool CSpecularSampler::Sample(CPathNode *prevNode, CPathNode *thisNode,
 
     // Choose a scattering mode : reflection vs. refraction
 
-    COLOR reflectance = BsdfReflectance(thisNode->m_useBsdf,
-                                        &thisNode->m_hit, &thisNode->m_hit.normal,
+    COLOR reflectance = bsdfReflectance(thisNode->m_useBsdf,
+                                        &thisNode->m_hit,
+                                        &thisNode->m_hit.normal,
                                         GETBRDFFLAGS(flags));
-    COLOR transmittance = BsdfTransmittance(thisNode->m_useBsdf,
+    COLOR transmittance = bsdfScatteredPower(thisNode->m_useBsdf,
                                             &thisNode->m_hit,
                                             &thisNode->m_hit.normal,
                                             GETBTDFFLAGS(flags));
@@ -47,8 +48,8 @@ bool CSpecularSampler::Sample(CPathNode *prevNode, CPathNode *thisNode,
         reflect = false;
         pdfDir *= avgTransmittance / avgScattering;
 
-        BsdfIndexOfRefraction(thisNode->m_inBsdf, &inIndex);
-        BsdfIndexOfRefraction(thisNode->m_outBsdf, &outIndex);
+        bsdfIndexOfRefraction(thisNode->m_inBsdf, &inIndex);
+        bsdfIndexOfRefraction(thisNode->m_outBsdf, &outIndex);
 
         dir = IdealRefractedDirection(&thisNode->m_inDirT,
                                       &thisNode->m_normal,

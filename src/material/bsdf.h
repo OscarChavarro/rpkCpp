@@ -1,18 +1,17 @@
-/* bsdf.h : A simple combination of brdf and btdf.
- *    Handles evaluation and sampling and also
- *    functions that relate to brdf or btdf like reflectance etc. 
- *
- *  All new code should be using BSDF's since this is more general.
- *  You should NEVER access brdf or btdf data directly from a
- *  bsdf. Since new models may not make the same distinction for
- *  light scattering.
- */
+/**
+A simple combination of brdf and btdf.
+Handles evaluation and sampling and also
+functions that relate to brdf or btdf like reflectance etc.
 
-#ifndef _BSDF_H_
-#define _BSDF_H_
+All new code should be using BSDF's since this is more general.
+You should NEVER access brdf or btdf data directly from a
+bsdf. Since new models may not make the same distinction for
+light scattering.
+*/
 
-#include "common/linealAlgebra/vectorMacros.h"
-#include "material/xxdf.h"
+#ifndef __BSDF__
+#define __BSDF__
+
 #include "material/bsdf_methods.h"
 
 class BSDF {
@@ -21,85 +20,91 @@ class BSDF {
     BSDF_METHODS *methods;
 };
 
+extern BSDF *bsdfCreate(void *data, BSDF_METHODS *methods);
+extern void bsdfDestroy(BSDF *bsdf);
+
+// SCATTERED POWER
+
+extern COLOR bsdfScatteredPower(BSDF *bsdf, RayHit *hit, Vector3D *dir, BSDFFLAGS flags);
+
 /**
-Creates a BSDF instance with given data and methods
+Returns the reflectance of hte BSDF according to the flags
 */
-extern BSDF *BsdfCreate(void *data, BSDF_METHODS *methods);
+inline COLOR
+bsdfReflectance(BSDF *bsdf, RayHit *hit, Vector3D *dir, int xxflags) {
+    return bsdfScatteredPower(bsdf, hit, dir, SETBRDFFLAGS(xxflags));
+}
 
-/* disposes of the memory occupied by the BSDF instance */
-extern void BsdfDestroy(BSDF *bsdf);
+inline COLOR
+bsdfSpecularReflectance(BSDF *bsdf, RayHit *hit, Vector3D *dir) {
+    return bsdfReflectance((bsdf), hit, dir, SPECULAR_COMPONENT);
+}
 
-/* *** SCATTERED POWER *** */
+/**
+Returns the transmittance of the BSDF
+*/
+inline COLOR
+bsdfTransmittance(BSDF *bsdf, RayHit *hit, Vector3D *dir, int xxflags) {
+    return bsdfScatteredPower(bsdf, hit, dir, SETBTDFFLAGS(xxflags));
+}
 
-extern COLOR BsdfScatteredPower(BSDF *bsdf, RayHit *hit, Vector3D *dir, BSDFFLAGS flags);
+inline COLOR
+bsdfSpecularTransmittance(BSDF *bsdf, RayHit *hit, Vector3D *dir) {
+    return bsdfTransmittance((bsdf), hit, dir, SPECULAR_COMPONENT);
+}
 
-/* Returns the reflectance of hte BSDF according to the flags */
-# define BsdfReflectance(bsdf, hit, dir, xxflags) BsdfScatteredPower(bsdf, hit, dir, SETBRDFFLAGS(xxflags))
-# define BsdfSpecularReflectance(bsdf, hit, dir) BsdfReflectance((bsdf), hit, dir, SPECULAR_COMPONENT)
+extern void bsdfIndexOfRefraction(BSDF *bsdf, REFRACTIONINDEX *index);
+extern int bsdfShadingFrame(BSDF *bsdf, RayHit *hit, Vector3D *X, Vector3D *Y, Vector3D *Z);
 
-/* Returns the transmittance of the BSDF */
-# define BsdfTransmittance(bsdf, hit, dir, xxflags) BsdfScatteredPower(bsdf, hit, dir, SETBTDFFLAGS(xxflags))
-#define BsdfSpecularTransmittance(bsdf, hit, dir) BsdfTransmittance((bsdf), hit, dir, SPECULAR_COMPONENT)
+/**
+BSDF Evaluation functions
+*/
 
-/* Returns the index of refraction of the BSDF */
-extern void BsdfIndexOfRefraction(BSDF *bsdf, REFRACTIONINDEX *index);
+extern COLOR
+bsdfEval(
+    BSDF *bsdf,
+    RayHit *hit,
+    BSDF *inBsdf,
+    BSDF *outBsdf,
+    Vector3D *in,
+    Vector3D *out,
+    BSDFFLAGS flags);
 
-/* Computes a shading frame at the given hit point. The Z axis of this frame is
- * the shading normal, The X axis is in the tangent plane on the surface at the
- * hit point ("brush" direction relevant for anisotropic shaders e.g.). Y
- * is perpendicular to X and Z. X and Y may be null pointers. In this case,
- * only the shading normal is returned, avoiding computation of the X and 
- * Y axis if possible). 
- * Note: also edf's can have a routine for computing the shading frame. If a
- * material has both an edf and a bsdf, the shading frame shall of course
- * be the same. 
- * This routine returns TRUE if a shading frame could be constructed and FALSE if
- * not. In the latter case, a default frame needs to be used (not computed by this
- * routine - materialShadingFrame() in material.[ch] constructs such a frame if
- * needed) */
-extern int BsdfShadingFrame(BSDF *bsdf, RayHit *hit, Vector3D *X, Vector3D *Y, Vector3D *Z);
+extern COLOR
+bsdfEvalComponents(
+    BSDF *bsdf,
+    RayHit *hit,
+    BSDF *inBsdf,
+    BSDF *outBsdf,
+    Vector3D *in,
+    Vector3D *out,
+    BSDFFLAGS flags,
+    COLOR *colArray);
 
-/************* BSDF Evaluation functions ****************/
+extern Vector3D
+bsdfSample(
+    BSDF *bsdf,
+    RayHit *hit,
+    BSDF *inBsdf,
+    BSDF *outBsdf,
+    Vector3D *in,
+    int doRussianRoulette,
+    BSDFFLAGS flags,
+    double x_1,
+    double x_2,
+    double *pdf);
 
-/* All components of the Bsdf
- *
- * Vector directions :
- *
- * in : from patch !!
- * out : from patch
- * hit->normal : leaving from patch, on the incoming side.
- *          So in . hit->normal > 0 !!!
- */
-extern COLOR BsdfEval(BSDF *bsdf, RayHit *hit, BSDF *inBsdf, BSDF *outBsdf, Vector3D *in, Vector3D *out, BSDFFLAGS flags);
+extern void bsdfEvalPdf(
+    BSDF *bsdf,
+    RayHit *hit,
+    BSDF *inBsdf,
+    BSDF *outBsdf,
+    Vector3D *in,
+    Vector3D *out,
+    BSDFFLAGS flags,
+    double *pdf,
+    double *pdfRR);
 
-
-/*
- * BsdfEvalComponents :
- * Evaluates all requested components of the BSDF separately and
- * stores the result in 'colArray'.
- * Total evaluation is returned.
- */
-extern COLOR BsdfEvalComponents(BSDF *bsdf, RayHit *hit, BSDF *inBsdf,
-                                BSDF *outBsdf, Vector3D *in, Vector3D *out,
-                                BSDFFLAGS flags,
-                                COLOR *colArray);
-
-
-/* Sampling routines, parameters as in evaluation, except that two
-   random numbers x_1 and x_2 are needed (2D sampling process) */
-extern Vector3D BsdfSample(BSDF *bsdf, RayHit *hit,
-                           BSDF *inBsdf, BSDF *outBsdf,
-                           Vector3D *in,
-                           int doRussianRoulette,
-                           BSDFFLAGS flags, double x_1, double x_2,
-                           double *pdf);
-
-extern void BsdfEvalPdf(BSDF *bsdf, RayHit *hit,
-                        BSDF *inBsdf, BSDF *outBsdf,
-                        Vector3D *in, Vector3D *out,
-                        BSDFFLAGS flags,
-                        double *pdf, double *pdfRR);
-
-extern int BsdfIsTextured(BSDF *bsdf);
+extern int bsdfIsTextured(BSDF *bsdf);
 
 #endif

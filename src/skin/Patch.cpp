@@ -372,7 +372,7 @@ patchBounds(Patch *patch, float *bounds) {
 static int
 getNumberOfSamples(Patch *patch) {
     int numberOfSamples = 1;
-    if ( BsdfIsTextured(patch->surface->material->bsdf)) {
+    if ( bsdfIsTextured(patch->surface->material->bsdf)) {
         if ( patch->vertex[0]->texCoord == patch->vertex[1]->texCoord &&
              patch->vertex[0]->texCoord == patch->vertex[2]->texCoord &&
              (patch->numberOfVertices == 3 || patch->vertex[0]->texCoord == patch->vertex[3]->texCoord) &&
@@ -407,7 +407,7 @@ patchAverageNormalAlbedo(Patch *patch, BSDFFLAGS components) {
         hit.uv.v = (double) xi[1] * RECIP;
         hit.flags |= HIT_UV;
         patchPoint(patch, hit.uv.u, hit.uv.v, &hit.point);
-        sample = BsdfScatteredPower(patch->surface->material->bsdf, &hit, &patch->normal, components);
+        sample = bsdfScatteredPower(patch->surface->material->bsdf, &hit, &patch->normal, components);
         colorAdd(albedo, sample, albedo);
     }
     colorScaleInverse((float) numberOfSamples, albedo, albedo);
@@ -1191,7 +1191,7 @@ materialShadingFrame(RayHit *hit, Vector3D *X, Vector3D *Y, Vector3D *Z) {
     }
 
     if ( hit->material && hit->material->bsdf && hit->material->bsdf->methods->ShadingFrame ) {
-        success = BsdfShadingFrame(hit->material->bsdf, hit, X, Y, Z);
+        success = bsdfShadingFrame(hit->material->bsdf, hit, X, Y, Z);
     }
 
     if ( !success && hit->material && hit->material->edf && hit->material->edf->methods->ShadingFrame ) {

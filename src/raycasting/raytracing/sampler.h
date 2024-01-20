@@ -102,11 +102,11 @@ public:
                             BSDFFLAGS flags,
                             CBsdfComp *bsdfComp) {
         if ( m_computeBsdfComponents ) {
-            return (BsdfEvalComponents(bsdf, hit, inBsdf, outBsdf,
+            return (bsdfEvalComponents(bsdf, hit, inBsdf, outBsdf,
                                        in, out, flags, *bsdfComp));
         } else {
             bsdfComp->Clear();
-            return (BsdfEval(bsdf, hit, inBsdf, outBsdf,
+            return (bsdfEval(bsdf, hit, inBsdf, outBsdf,
                              in, out, flags));
         }
     }

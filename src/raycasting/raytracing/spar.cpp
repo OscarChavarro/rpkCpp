@@ -364,7 +364,7 @@ double CLeSpar::ComputeWeightTerms(TPathGroupID,
 
             oldPdfL2 = *p_pdfL2;
 
-            BsdfEvalPdf(L1->m_useBsdf, &L1->m_hit,
+            bsdfEvalPdf(L1->m_useBsdf, &L1->m_hit,
                         L1->m_inBsdf, L1->m_outBsdf,
                         &L1->m_normal, // DUMMY IN
                         &L2->m_inDirT, // away from L1
@@ -393,7 +393,7 @@ double CLeSpar::ComputeWeightTerms(TPathGroupID,
                 L2->m_pdfFromNext = 0.0;
                 L2->m_rrPdfFromNext = 0.0;
             } else {
-                BsdfEvalPdf(L1->m_useBsdf, &L1->m_hit,
+                bsdfEvalPdf(L1->m_useBsdf, &L1->m_hit,
                             L1->m_inBsdf, L1->m_outBsdf,
                             &L1->m_normal, // DUMMY IN
                             &path->m_dirLE, // away from L1, N.E.E.
@@ -425,7 +425,7 @@ double CLeSpar::ComputeWeightTerms(TPathGroupID,
             L2->m_pdfFromNext = 0.0;
             L2->m_rrPdfFromNext = 0.0;
         } else {
-            BsdfEvalPdf(L1->m_useBsdf, &L1->m_hit,
+            bsdfEvalPdf(L1->m_useBsdf, &L1->m_hit,
                         L1->m_inBsdf, L1->m_outBsdf,
                         &L1->m_normal, // DUMMY IN
                         &L1->m_inDirF, // away from L1, N.E.E.

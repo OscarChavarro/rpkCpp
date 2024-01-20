@@ -33,7 +33,6 @@ updateDirectPotential() {
     Vector3D pixdir;
     float v;
     float h;
-    float xSample;
     float ySample;
     float *newDirectImportance;
     float deltaImportance;

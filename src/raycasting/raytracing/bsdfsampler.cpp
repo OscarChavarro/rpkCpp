@@ -11,7 +11,7 @@ bool CBsdfSampler::Sample(CPathNode *prevNode, CPathNode *thisNode,
     double pdfDir;
 
     // Sample direction
-    Vector3D dir = BsdfSample(thisNode->m_useBsdf,
+    Vector3D dir = bsdfSample(thisNode->m_useBsdf,
                               &thisNode->m_hit,
                               thisNode->m_inBsdf, thisNode->m_outBsdf,
                               &thisNode->m_inDirF,
@@ -26,7 +26,7 @@ bool CBsdfSampler::Sample(CPathNode *prevNode, CPathNode *thisNode,
 
     newNode->m_rracc = thisNode->m_rracc;
     if ( doRR ) {
-        COLOR albedo = BsdfScatteredPower(thisNode->m_useBsdf, &thisNode->m_hit,
+        COLOR albedo = bsdfScatteredPower(thisNode->m_useBsdf, &thisNode->m_hit,
                                           &thisNode->m_inDirF, flags);
         newNode->m_rracc *= colorAverage(albedo);
     }
@@ -72,7 +72,7 @@ bool CBsdfSampler::Sample(CPathNode *prevNode, CPathNode *thisNode,
         // prevpdf : new->this->prev pdf evaluation
         // normal direction is handled by the evalpdf routine
         /* -- Are the flags usable in both directions ? -- */
-        BsdfEvalPdf(thisNode->m_useBsdf,
+        bsdfEvalPdf(thisNode->m_useBsdf,
                     &thisNode->m_hit,
                     thisNode->m_outBsdf, thisNode->m_inBsdf,
                     &newNode->m_inDirT,
@@ -109,7 +109,7 @@ double CBsdfSampler::EvalPDF(CPathNode *thisNode, CPathNode *newNode,
     VECTORSCALEINVERSE(dist, outDir, outDir);
 
     // Beware : NOT RECIPROKE !!!!!!
-    BsdfEvalPdf(thisNode->m_useBsdf,
+    bsdfEvalPdf(thisNode->m_useBsdf,
                 &thisNode->m_hit,
                 thisNode->m_inBsdf, thisNode->m_outBsdf,
                 &thisNode->m_inDirF, &outDir,
@@ -144,7 +144,7 @@ double CBsdfSampler::EvalPDFPrev(CPathNode *prevNode,
     VECTORNORMALIZE(outDir);
 
     // Beware : NOT RECIPROKE !!!!!!
-    BsdfEvalPdf(thisNode->m_useBsdf,
+    bsdfEvalPdf(thisNode->m_useBsdf,
                 &thisNode->m_hit,
                 thisNode->m_outBsdf, thisNode->m_inBsdf,
                 &outDir, &thisNode->m_inDirF,

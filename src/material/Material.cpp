@@ -33,7 +33,7 @@ MaterialDestroy(Material *material) {
         EdfDestroy(material->edf);
     }
     if ( material->bsdf ) {
-        BsdfDestroy(material->bsdf);
+        bsdfDestroy(material->bsdf);
     }
     free(material);
 }

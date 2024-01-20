@@ -156,8 +156,8 @@ SplitBsdfEval(
     if ( bsdf->btdf ) {
         REFRACTIONINDEX inIndex, outIndex;
         COLOR refractionCol;
-        BsdfIndexOfRefraction(inBsdf, &inIndex);
-        BsdfIndexOfRefraction(outBsdf, &outIndex);
+        bsdfIndexOfRefraction(inBsdf, &inIndex);
+        bsdfIndexOfRefraction(outBsdf, &outIndex);
         refractionCol = BtdfEval(bsdf->btdf, inIndex, outIndex,
                                  in, out, &normal, GETBTDFFLAGS(flags));
         colorAdd(result, refractionCol, result);
@@ -263,8 +263,8 @@ SplitBsdfSample(SPLIT_BSDF *bsdf, RayHit *hit,
     }
     mode = SplitBsdfSamplingMode(Ptexture, Preflection, Ptransmission, &x_1);
 
-    BsdfIndexOfRefraction(inBsdf, &inIndex);
-    BsdfIndexOfRefraction(outBsdf, &outIndex);
+    bsdfIndexOfRefraction(inBsdf, &inIndex);
+    bsdfIndexOfRefraction(outBsdf, &outIndex);
 
     /* sample according to the selected mode */
     switch ( mode ) {
@@ -350,8 +350,8 @@ SplitBsdfEvalPdf(SPLIT_BSDF *bsdf, RayHit *hit,
     *pdfRR = Pscattering;
 
     /* probability of sampling the outgoing direction, after survival decision */
-    BsdfIndexOfRefraction(inBsdf, &inIndex);
-    BsdfIndexOfRefraction(outBsdf, &outIndex);
+    bsdfIndexOfRefraction(inBsdf, &inIndex);
+    bsdfIndexOfRefraction(outBsdf, &outIndex);
 
     TexturedScattererEvalPdf(in, out, &normal, &p);
     *pdf = Ptexture * p;

@@ -81,7 +81,7 @@ COLOR SR_GetScatteredRadiance(CPathNode *thisNode, SRCONFIG *config,
 
         if ( nrSamples > 2 )  // Some bigger value may be more efficient
         {
-            COLOR albedo = BsdfScatteredPower(thisNode->m_useBsdf,
+            COLOR albedo = bsdfScatteredPower(thisNode->m_useBsdf,
                                               &thisNode->m_hit, &thisNode->m_normal,
                                               si->flags);
             if ( colorAverage(albedo) < EPSILON ) {
