@@ -3,52 +3,52 @@
 #include "common/error.h"
 #include "GALERKIN/interaction.h"
 
-static int TotalInteractions = 0;
-static int CCInteractions = 0;
-static int CSInteractions = 0;
-static int SCInteractions = 0;
-static int SSInteractions = 0;
+static int globalTotalInteractions = 0;
+static int globalCCInteractions = 0;
+static int globalCSInteractions = 0;
+static int globalSCInteractions = 0;
+static int globalSSInteractions = 0;
 
 int
-GetNumberOfInteractions() {
-    return TotalInteractions;
+getNumberOfInteractions() {
+    return globalTotalInteractions;
 }
 
 int
-GetNumberOfClusterToClusterInteractions() {
-    return CCInteractions;
+getNumberOfClusterToClusterInteractions() {
+    return globalCCInteractions;
 }
 
 int
-GetNumberOfClusterToSurfaceInteractions() {
-    return CSInteractions;
+getNumberOfClusterToSurfaceInteractions() {
+    return globalCSInteractions;
 }
 
 int
-GetNumberOfSurfaceToClusterInteractions() {
-    return SCInteractions;
+getNumberOfSurfaceToClusterInteractions() {
+    return globalSCInteractions;
 }
 
 int
-GetNumberOfSurfaceToSurfaceInteractions() {
-    return SSInteractions;
+getNumberOfSurfaceToSurfaceInteractions() {
+    return globalSSInteractions;
 }
 
 INTERACTION *
-InteractionCreate(
-        GalerkinElement *rcv,
-        GalerkinElement *src,
-        FloatOrPointer K,
-        FloatOrPointer deltaK,
-        unsigned char nrcv,
-        unsigned char nsrc,
-        unsigned char crcv,
-        unsigned char vis
+interactionCreate(
+    GalerkinElement *rcv,
+    GalerkinElement *src,
+    FloatOrPointer K,
+    FloatOrPointer deltaK,
+    unsigned char nrcv,
+    unsigned char nsrc,
+    unsigned char crcv,
+    unsigned char vis
 ) {
     int i;
     INTERACTION *interaction = (INTERACTION *)malloc(sizeof(INTERACTION));
-    interaction->rcv = rcv;
-    interaction->src = src;
+    interaction->receiverElement = rcv;
+    interaction->sourceElement = src;
     interaction->nrcv = nrcv;
     interaction->nsrc = nsrc;
     interaction->crcv = crcv;
@@ -64,22 +64,22 @@ InteractionCreate(
     }
 
     if ( crcv > 1 ) {
-        logFatal(2, "InteractionCreate", "Not yet implemented for higher order approximations");
+        logFatal(2, "interactionCreate", "Not yet implemented for higher order approximations");
     }
     interaction->deltaK.f = deltaK.f;
 
-    TotalInteractions++;
+    globalTotalInteractions++;
     if ( isCluster(rcv)) {
         if ( isCluster(src)) {
-            CCInteractions++;
+            globalCCInteractions++;
         } else {
-            SCInteractions++;
+            globalSCInteractions++;
         }
     } else {
         if ( isCluster(src)) {
-            CSInteractions++;
+            globalCSInteractions++;
         } else {
-            SSInteractions++;
+            globalSSInteractions++;
         }
     }
 
@@ -87,8 +87,8 @@ InteractionCreate(
 }
 
 INTERACTION *
-InteractionDuplicate(INTERACTION *interaction) {
-    return InteractionCreate(interaction->rcv, interaction->src,
+interactionDuplicate(INTERACTION *interaction) {
+    return interactionCreate(interaction->receiverElement, interaction->sourceElement,
                              interaction->K, interaction->deltaK,
                              interaction->nrcv, interaction->nsrc,
                              interaction->crcv, interaction->vis
@@ -96,8 +96,8 @@ InteractionDuplicate(INTERACTION *interaction) {
 }
 
 void
-InteractionDestroy(INTERACTION *interaction) {
-    GalerkinElement *src = interaction->src, *rcv = interaction->rcv;
+interactionDestroy(INTERACTION *interaction) {
+    GalerkinElement *src = interaction->sourceElement, *rcv = interaction->receiverElement;
 
     if ( interaction->nrcv > 1 || interaction->nsrc > 1 ) {
         free(interaction->K.p);
@@ -105,30 +105,30 @@ InteractionDestroy(INTERACTION *interaction) {
 
     free(interaction);
 
-    TotalInteractions--;
+    globalTotalInteractions--;
     if ( isCluster(rcv)) {
         if ( isCluster(src)) {
-            CCInteractions--;
+            globalCCInteractions--;
         } else {
-            SCInteractions--;
+            globalSCInteractions--;
         }
     } else {
         if ( isCluster(src)) {
-            CSInteractions--;
+            globalCSInteractions--;
         } else {
-            SSInteractions--;
+            globalSSInteractions--;
         }
     }
 }
 
 void
-InteractionPrint(FILE *out, INTERACTION *link) {
+interactionPrint(FILE *out, INTERACTION *link) {
     int a, b, c, alpha, beta, i;
 
-    fprintf(out, "%d (", link->rcv->id);
-    galerkinElementPrintId(out, link->rcv);
-    fprintf(out, ") <- %d (", link->src->id);
-    galerkinElementPrintId(out, link->src);
+    fprintf(out, "%d (", link->receiverElement->id);
+    galerkinElementPrintId(out, link->receiverElement);
+    fprintf(out, ") <- %d (", link->sourceElement->id);
+    galerkinElementPrintId(out, link->sourceElement);
     fprintf(out, "): vis=%d, nrcv=%d, nsrc=%d, crcv=%d,\n",
             link->vis,
             link->nrcv,

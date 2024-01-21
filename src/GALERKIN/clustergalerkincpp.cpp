@@ -269,7 +269,7 @@ receiver in the link. The source should be a cluster
 */
 COLOR
 sourceClusterRadiance(INTERACTION *link) {
-    GalerkinElement *src = link->src, *rcv = link->rcv;
+    GalerkinElement *src = link->sourceElement, *rcv = link->receiverElement;
 
     if ( !isCluster(src) || src == rcv ) {
         logFatal(-1, "sourceClusterRadiance", "Source and receiver are the same or receiver is not a cluster");
@@ -313,7 +313,7 @@ ignoring intra-receiver visibility
 */
 double
 receiverClusterArea(INTERACTION *link) {
-    GalerkinElement *src = link->src, *rcv = link->rcv;
+    GalerkinElement *src = link->sourceElement, *rcv = link->receiverElement;
 
     if ( !isCluster(rcv) || src == rcv ) {
         return rcv->area;
@@ -369,7 +369,7 @@ doGatherRadiance(GalerkinElement *rcv, double area_factor, INTERACTION *link, CO
     } else {
         int alpha, beta, a, b;
         a = MIN(link->nrcv, rcv->basis_size);
-        b = MIN(link->nsrc, link->src->basis_size);
+        b = MIN(link->nsrc, link->sourceElement->basis_size);
         for ( alpha = 0; alpha < a; alpha++ ) {
             for ( beta = 0; beta < b; beta++ ) {
                 colorAddScaled(rcvrad[alpha],
@@ -395,7 +395,7 @@ orientedSurfaceGatherRadiance(GalerkinElement *rcv) {
 
     /* globalTheLink->rcv is a cluster, so it's total area divided by 4 (average projected area)
      * was used to compute link->K. */
-    area_factor = surfaceProjectedAreaToSamplePoint(rcv) / (0.25 * globalTheLink->rcv->area);
+    area_factor = surfaceProjectedAreaToSamplePoint(rcv) / (0.25 * globalTheLink->receiverElement->area);
 
     doGatherRadiance(rcv, area_factor, globalTheLink, globalPsrcRad);
 }
@@ -411,7 +411,7 @@ static void ZVisSurfaceGatherRadiance(GalerkinElement *rcv) {
         return;
     }
 
-    area_factor = globalPixelArea * (double) (rcv->tmp) / (0.25 * globalTheLink->rcv->area);
+    area_factor = globalPixelArea * (double) (rcv->tmp) / (0.25 * globalTheLink->receiverElement->area);
     doGatherRadiance(rcv, area_factor, globalTheLink, globalPsrcRad);
 
     rcv->tmp = 0;        /* set it to zero for future re-use. */
@@ -423,7 +423,7 @@ receiver cluster
 */
 void
 clusterGatherRadiance(INTERACTION *link, COLOR *srcrad) {
-    GalerkinElement *src = link->src, *rcv = link->rcv;
+    GalerkinElement *src = link->sourceElement, *rcv = link->receiverElement;
 
     if ( !isCluster(rcv) || src == rcv ) {
         logFatal(-1, "clusterGatherRadiance", "Source and receiver are the same or receiver is not a cluster");

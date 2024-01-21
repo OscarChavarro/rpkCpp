@@ -196,7 +196,7 @@ doHigherOrderAreaToAreaFormFactor(
     static double G_beta[CUBAMAXNODES]; // G_beta[k] = G_{j,\beta}(x_k)
     static double delta_beta[CUBAMAXNODES]; // delta_beta[k] = \delta_{j,\beta}(x_k)
 
-    GalerkinElement *rcv = link->rcv, *src = link->src;
+    GalerkinElement *rcv = link->receiverElement, *src = link->sourceElement;
     GalerkinBasis *rcvbasis;
     GalerkinBasis *srcbasis;
     double G_alpha_beta;
@@ -339,8 +339,8 @@ doConstantAreaToAreaFormFactor(
     Vector3D *y,
     double Gxy[CUBAMAXNODES][CUBAMAXNODES])
 {
-    GalerkinElement *rcv = link->rcv;
-    GalerkinElement *src = link->src;
+    GalerkinElement *rcv = link->receiverElement;
+    GalerkinElement *src = link->sourceElement;
     double G;
     double Gx;
     double Gmin;
@@ -432,8 +432,8 @@ areaToAreaFormFactor(INTERACTION *link, GeometryListNode *shadowlist) {
     static double maxkval;
     static double maxptff;
     static unsigned viscount; // Number of rays that "pass" occluders
-    GalerkinElement *rcv = link->rcv;
-    GalerkinElement *src = link->src;
+    GalerkinElement *rcv = link->receiverElement;
+    GalerkinElement *src = link->sourceElement;
     int k;
     int l;
 

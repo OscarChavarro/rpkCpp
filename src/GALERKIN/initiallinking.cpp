@@ -68,8 +68,8 @@ createInitialLink(Patch *patch) {
         }
     }
 
-    link.rcv = rcv;
-    link.src = src;
+    link.receiverElement = rcv;
+    link.sourceElement = src;
     link.nrcv = rcv->basis_size;
     link.nsrc = src->basis_size;
     areaToAreaFormFactor(&link, globalCandidateList);
@@ -85,9 +85,9 @@ createInitialLink(Patch *patch) {
         /* store interactions with the source patch for the progressive radiosity method
          * and with the receiving patch for gathering mathods. */
         if ( GLOBAL_galerkin_state.iteration_method == SOUTHWELL ) {
-            src->interactions = InteractionListAdd(src->interactions, InteractionDuplicate(&link));
+            src->interactions = InteractionListAdd(src->interactions, interactionDuplicate(&link));
         } else {
-            rcv->interactions = InteractionListAdd(rcv->interactions, InteractionDuplicate(&link));
+            rcv->interactions = InteractionListAdd(rcv->interactions, interactionDuplicate(&link));
         }
     }
 }
@@ -194,15 +194,15 @@ createInitialLinkWithTopCluster(GalerkinElement *elem, ROLE role) {
     }
     deltaK.f = HUGE; // HUGE error on the form factor
 
-    link = InteractionCreate(
-        rcv,
-        src,
-        K,
-        deltaK,
-        rcv->basis_size, // nrcv
-        src->basis_size, // nsrc
-        1, // crcv
-        128 // vis
+    link = interactionCreate(
+            rcv,
+            src,
+            K,
+            deltaK,
+            rcv->basis_size, // nrcv
+            src->basis_size, // nsrc
+            1, // crcv
+            128 // vis
     );
 
     // Store interactions with the source patch for the progressive radiosity method

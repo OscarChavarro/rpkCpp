@@ -27,31 +27,31 @@ static GeometryListNode *Cull(INTERACTION *link) {
          GLOBAL_galerkin_state.shaftcullmode == ALWAYS_DO_SHAFTCULLING ) {
         SHAFT shaft, *the_shaft;
 
-        if ( GLOBAL_galerkin_state.exact_visibility && !isCluster(link->rcv) && !isCluster(link->src)) {
+        if ( GLOBAL_galerkin_state.exact_visibility && !isCluster(link->receiverElement) && !isCluster(link->sourceElement)) {
             POLYGON rcvpoly, srcpoly;
-            the_shaft = constructPolygonToPolygonShaft(galerkinElementPolygon(link->rcv, &rcvpoly),
-                                                       galerkinElementPolygon(link->src, &srcpoly),
+            the_shaft = constructPolygonToPolygonShaft(galerkinElementPolygon(link->receiverElement, &rcvpoly),
+                                                       galerkinElementPolygon(link->sourceElement, &srcpoly),
                                                        &shaft);
         } else {
             BOUNDINGBOX srcbounds, rcvbounds;
-            the_shaft = constructShaft(galerkinElementBounds(link->rcv, rcvbounds),
-                                       galerkinElementBounds(link->src, srcbounds), &shaft);
+            the_shaft = constructShaft(galerkinElementBounds(link->receiverElement, rcvbounds),
+                                       galerkinElementBounds(link->sourceElement, srcbounds), &shaft);
         }
         if ( !the_shaft ) {
             logError("Cull", "Couldn't construct shaft");
             return ocandlist;
         }
 
-        if ( isCluster(link->rcv)) {
-            shaftDontOpen(&shaft, link->rcv->geom);
+        if ( isCluster(link->receiverElement)) {
+            shaftDontOpen(&shaft, link->receiverElement->geom);
         } else {
-            shaftOmit(&shaft, (Geometry *) link->rcv->patch);
+            shaftOmit(&shaft, (Geometry *) link->receiverElement->patch);
         }
 
-        if ( isCluster(link->src)) {
-            shaftDontOpen(&shaft, link->src->geom);
+        if ( isCluster(link->sourceElement)) {
+            shaftDontOpen(&shaft, link->sourceElement->geom);
         } else {
-            shaftOmit(&shaft, (Geometry *) link->src->patch);
+            shaftOmit(&shaft, (Geometry *) link->sourceElement->patch);
         }
 
         if ( ocandlist == GLOBAL_scene_clusteredWorld ) {
@@ -112,7 +112,7 @@ static double LinkErrorThreshold(INTERACTION *link, double rcv_area) {
     if ( GLOBAL_galerkin_state.importance_driven &&
          (GLOBAL_galerkin_state.iteration_method == JACOBI ||
           GLOBAL_galerkin_state.iteration_method == GAUSS_SEIDEL)) {
-        threshold /= 2. * link->rcv->potential.f / GLOBAL_statistics_maxDirectPotential;
+        threshold /= 2. * link->receiverElement->potential.f / GLOBAL_statistics_maxDirectPotential;
     }
 
     return threshold;
@@ -128,10 +128,10 @@ static double ApproximationError(INTERACTION *link, COLOR srcrho, COLOR rcvrho, 
     switch ( GLOBAL_galerkin_state.iteration_method ) {
         case GAUSS_SEIDEL:
         case JACOBI:
-            if ( isCluster(link->src) && link->src != link->rcv ) {
-                srcrad = maxClusterRadiance(link->src); /* sourceClusterRadiance(link); */
+            if ( isCluster(link->sourceElement) && link->sourceElement != link->receiverElement ) {
+                srcrad = maxClusterRadiance(link->sourceElement); /* sourceClusterRadiance(link); */
             } else {
-                srcrad = link->src->radiance[0];
+                srcrad = link->sourceElement->radiance[0];
             }
 
             colorProductScaled(rcvrho, link->deltaK.f, srcrad, error);
@@ -140,22 +140,22 @@ static double ApproximationError(INTERACTION *link, COLOR srcrho, COLOR rcvrho, 
             break;
 
         case SOUTHWELL:
-            if ( isCluster(link->src) && link->src != link->rcv ) {
+            if ( isCluster(link->sourceElement) && link->sourceElement != link->receiverElement ) {
                 srcrad = sourceClusterRadiance(link); /* returns unshot radiance for shooting */
             } else {
-                srcrad = link->src->unshot_radiance[0];
+                srcrad = link->sourceElement->unshot_radiance[0];
             }
 
             colorProductScaled(rcvrho, link->deltaK.f, srcrad, error);
             colorAbs(error, error);
             approx_error = ColorToError(error);
 
-            if ( GLOBAL_galerkin_state.importance_driven && isCluster(link->rcv)) {
+            if ( GLOBAL_galerkin_state.importance_driven && isCluster(link->receiverElement)) {
                 /* make sure the link is also suited for transport of unshot potential
                  * from source to receiver. Note that it makes no sense to
                  * subdivide receiver patches (potential is only used to help
                  * choosing a radiance shooting patch. */
-                approx_error2 = (ColorToError(srcrho) * link->deltaK.f * link->src->unshot_potential.f);
+                approx_error2 = (ColorToError(srcrho) * link->deltaK.f * link->sourceElement->unshot_potential.f);
 
                 /* compare potential error w.r.t. maximum direct potential or importance
                  * instead of selfemitted radiance or power. */
@@ -192,19 +192,19 @@ static double SourceClusterRadianceVariationError(INTERACTION *link, COLOR rcvrh
     double K;
 
     K = (link->nsrc == 1 && link->nrcv == 1) ? link->K.f : link->K.p[0];
-    if ( K == 0. || colorNull(rcvrho) || colorNull(link->src->radiance[0])) {
+    if ( K == 0. || colorNull(rcvrho) || colorNull(link->sourceElement->radiance[0])) {
         /* receiver reflectivity or coupling coefficient or source radiance
          * is zero */
         return 0.;
     }
 
-    nrcverts = galerkinElementVertices(link->rcv, rcverts);
+    nrcverts = galerkinElementVertices(link->receiverElement, rcverts);
 
     colorSetMonochrome(minsrcrad, HUGE);
     colorSetMonochrome(maxsrcrad, -HUGE);
     for ( i = 0; i < nrcverts; i++ ) {
         COLOR rad;
-        rad = clusterRadianceToSamplePoint(link->src, rcverts[i]);
+        rad = clusterRadianceToSamplePoint(link->sourceElement, rcverts[i]);
         colorMinimum(minsrcrad, rad, minsrcrad);
         colorMaximum(maxsrcrad, rad, maxsrcrad);
     }
@@ -241,25 +241,25 @@ static INTERACTION_EVALUATION_CODE EvaluateInteraction(INTERACTION *link) {
 
     /* determine receiver area (projected visible area for a receiver cluster)
      * and reflectivity. */
-    if ( isCluster(link->rcv)) {
+    if ( isCluster(link->receiverElement)) {
         colorSetMonochrome(rcvrho, 1.);
         rcv_area = receiverClusterArea(link);
     } else {
-        rcvrho = REFLECTIVITY(link->rcv->patch);
-        rcv_area = link->rcv->area;
+        rcvrho = REFLECTIVITY(link->receiverElement->patch);
+        rcv_area = link->receiverElement->area;
     }
 
     /* determine source reflectivity. */
-    if ( isCluster(link->src)) {
+    if ( isCluster(link->sourceElement)) {
         colorSetMonochrome(srcrho, 1.0f);
     } else
-        srcrho = REFLECTIVITY(link->src->patch);
+        srcrho = REFLECTIVITY(link->sourceElement->patch);
 
     /* determine error estimate and error threshold */
     threshold = LinkErrorThreshold(link, rcv_area);
     error = ApproximationError(link, srcrho, rcvrho, rcv_area);
 
-    if ( isCluster(link->src) && error < threshold && GLOBAL_galerkin_state.clustering_strategy != ISOTROPIC )
+    if ( isCluster(link->sourceElement) && error < threshold && GLOBAL_galerkin_state.clustering_strategy != ISOTROPIC )
         error += SourceClusterRadianceVariationError(link, rcvrho, rcv_area);
 
     /* Minimal element area for which subdivision is allowed. */
@@ -269,18 +269,18 @@ static INTERACTION_EVALUATION_CODE EvaluateInteraction(INTERACTION *link) {
     if ( error > threshold ) {
         /* A very simple but robust subdivision strategy: subdivide the
          * largest of the two elements in order to reduce the error. */
-        if ((!(isCluster(link->src) && IsLightSource(link->src))) &&
-            (rcv_area > link->src->area)) {
+        if ((!(isCluster(link->sourceElement) && IsLightSource(link->sourceElement))) &&
+            (rcv_area > link->sourceElement->area)) {
             if ( rcv_area > min_area ) {
-                if ( isCluster(link->rcv))
+                if ( isCluster(link->receiverElement))
                     code = SUBDIVIDE_RECEIVER_CLUSTER;
                 else
                     code = REGULAR_SUBDIVIDE_RECEIVER;
             }
         } else {
-            if ( isCluster(link->src))
+            if ( isCluster(link->sourceElement))
                 code = SUBDIVIDE_SOURCE_CLUSTER;
-            else if ( link->src->area > min_area )
+            else if ( link->sourceElement->area > min_area )
                 code = REGULAR_SUBDIVIDE_SOURCE;
         }
     }
@@ -299,30 +299,30 @@ static void ComputeLightTransport(INTERACTION *link) {
 
     /* Update the number of effectively used radiance coefficients on the
      * receiver element. */
-    a = MIN(link->nrcv, link->rcv->basis_size);
-    b = MIN(link->nsrc, link->src->basis_size);
-    if ( a > link->rcv->basis_used ) {
-        link->rcv->basis_used = a;
+    a = MIN(link->nrcv, link->receiverElement->basis_size);
+    b = MIN(link->nsrc, link->sourceElement->basis_size);
+    if ( a > link->receiverElement->basis_used ) {
+        link->receiverElement->basis_used = a;
     }
-    if ( b > link->src->basis_used ) {
-        link->src->basis_used = b;
+    if ( b > link->sourceElement->basis_used ) {
+        link->sourceElement->basis_used = b;
     }
 
     if ( GLOBAL_galerkin_state.iteration_method == SOUTHWELL ) {
-        srcrad = link->src->unshot_radiance;
+        srcrad = link->sourceElement->unshot_radiance;
     } else {
-        srcrad = link->src->radiance;
+        srcrad = link->sourceElement->radiance;
     }
 
-    if ( isCluster(link->src) && link->src != link->rcv ) {
+    if ( isCluster(link->sourceElement) && link->sourceElement != link->receiverElement ) {
         avsrclusrad = sourceClusterRadiance(link);
         srcrad = &avsrclusrad;
     }
 
-    if ( isCluster(link->rcv) && link->src != link->rcv ) {
+    if ( isCluster(link->receiverElement) && link->sourceElement != link->receiverElement ) {
         clusterGatherRadiance(link, srcrad);
     } else {
-        rcvrad = link->rcv->received_radiance;
+        rcvrad = link->receiverElement->received_radiance;
         if ( link->nrcv == 1 && link->nsrc == 1 ) {
             colorAddScaled(rcvrad[0], link->K.f, srcrad[0], rcvrad[0]);
         } else {
@@ -341,19 +341,19 @@ static void ComputeLightTransport(INTERACTION *link) {
 
         if ( GLOBAL_galerkin_state.iteration_method == GAUSS_SEIDEL ||
              GLOBAL_galerkin_state.iteration_method == JACOBI ) {
-            if ( isCluster(link->rcv)) {
+            if ( isCluster(link->receiverElement)) {
                 colorSetMonochrome(rcvrho, 1.0f);
             } else {
-                rcvrho = REFLECTIVITY(link->rcv->patch);
+                rcvrho = REFLECTIVITY(link->receiverElement->patch);
             }
-            link->src->received_potential.f += K * ColorToError(rcvrho) * link->rcv->potential.f;
+            link->sourceElement->received_potential.f += K * ColorToError(rcvrho) * link->receiverElement->potential.f;
         } else if ( GLOBAL_galerkin_state.iteration_method == SOUTHWELL ) {
-            if ( isCluster(link->src)) {
+            if ( isCluster(link->sourceElement)) {
                 colorSetMonochrome(srcrho, 1.0f);
             } else {
-                srcrho = REFLECTIVITY(link->src->patch);
+                srcrho = REFLECTIVITY(link->sourceElement->patch);
             }
-            link->rcv->received_potential.f += K * ColorToError(srcrho) * link->src->unshot_potential.f;
+            link->receiverElement->received_potential.f += K * ColorToError(srcrho) * link->sourceElement->unshot_potential.f;
         } else {
             logFatal(-1, "ComputeLightTransport", "Hela hola did you introduce a new iteration method or so??");
         }
@@ -366,17 +366,17 @@ static void ComputeLightTransport(INTERACTION *link) {
  * is not zero, the data is filled in the INTERACTION pointed to by 'link'
  * and true is returned. If the elements don't itneract, false is returned. */
 int CreateSubdivisionLink(GalerkinElement *rcv, GalerkinElement *src, INTERACTION *link) {
-    link->rcv = rcv;
-    link->src = src;
+    link->receiverElement = rcv;
+    link->sourceElement = src;
 
     /* Always a constant approximation on cluster elements. */
-    if ( isCluster(link->rcv)) {
+    if ( isCluster(link->receiverElement)) {
         link->nrcv = 1;
     } else {
         link->nrcv = rcv->basis_size;
     }
 
-    if ( isCluster(link->src)) {
+    if ( isCluster(link->sourceElement)) {
         link->nsrc = 1;
     } else {
         link->nsrc = src->basis_size;
@@ -390,12 +390,12 @@ int CreateSubdivisionLink(GalerkinElement *rcv, GalerkinElement *src, INTERACTIO
 /* Duplicates the INTERACTION data and stores it with the receivers interactions
  * if doing gathering and with the source for shooting. */
 static void StoreInteraction(INTERACTION *link) {
-    GalerkinElement *src = link->src, *rcv = link->rcv;
+    GalerkinElement *src = link->sourceElement, *rcv = link->receiverElement;
 
     if ( GLOBAL_galerkin_state.iteration_method == SOUTHWELL ) {
-        src->interactions = InteractionListAdd(src->interactions, InteractionDuplicate(link));
+        src->interactions = InteractionListAdd(src->interactions, interactionDuplicate(link));
     } else {
-        rcv->interactions = InteractionListAdd(rcv->interactions, InteractionDuplicate(link));
+        rcv->interactions = InteractionListAdd(rcv->interactions, interactionDuplicate(link));
     }
 }
 
@@ -408,7 +408,7 @@ static int RefineRecursive(INTERACTION *link);    /* forward decl. */
  * the passed interaction is always replaced by lower level interactions. */
 static int RegularSubdivideSource(INTERACTION *link) {
     GeometryListNode *ocandlist = Cull(link);
-    GalerkinElement *src = link->src, *rcv = link->rcv;
+    GalerkinElement *src = link->sourceElement, *rcv = link->receiverElement;
     int i;
 
     galerkinElementRegularSubDivide(src);
@@ -433,7 +433,7 @@ static int RegularSubdivideSource(INTERACTION *link) {
 /* Same, but subdivides the receiver element. */
 static int RegularSubdivideReceiver(INTERACTION *link) {
     GeometryListNode *ocandlist = Cull(link);
-    GalerkinElement *src = link->src, *rcv = link->rcv;
+    GalerkinElement *src = link->sourceElement, *rcv = link->receiverElement;
     int i;
 
     galerkinElementRegularSubDivide(rcv);
@@ -458,7 +458,7 @@ static int RegularSubdivideReceiver(INTERACTION *link) {
  * which is a cluster. */
 static int SubdivideSourceCluster(INTERACTION *link) {
     GeometryListNode *ocandlist = Cull(link);
-    GalerkinElement *src = link->src, *rcv = link->rcv;
+    GalerkinElement *src = link->sourceElement, *rcv = link->receiverElement;
     ELEMENTLIST *subcluslist;
 
     for ( subcluslist = src->irregular_subelements; subcluslist; subcluslist = subcluslist->next ) {
@@ -492,7 +492,7 @@ static int SubdivideSourceCluster(INTERACTION *link) {
  * which is a cluster. */
 static int SubdivideReceiverCluster(INTERACTION *link) {
     GeometryListNode *ocandlist = Cull(link);
-    GalerkinElement *src = link->src, *rcv = link->rcv;
+    GalerkinElement *src = link->sourceElement, *rcv = link->receiverElement;
     ELEMENTLIST *subcluslist;
 
     for ( subcluslist = rcv->irregular_subelements; subcluslist; subcluslist = subcluslist->next ) {
@@ -560,10 +560,10 @@ void RefineInteraction(INTERACTION *link) {
 
     if ( RefineRecursive(link)) {
         if ( GLOBAL_galerkin_state.iteration_method == SOUTHWELL )
-            link->src->interactions = InteractionListRemove(link->src->interactions, link);
+            link->sourceElement->interactions = InteractionListRemove(link->sourceElement->interactions, link);
         else
-            link->rcv->interactions = InteractionListRemove(link->rcv->interactions, link);
-        InteractionDestroy(link);
+            link->receiverElement->interactions = InteractionListRemove(link->receiverElement->interactions, link);
+        interactionDestroy(link);
     }
 }
 

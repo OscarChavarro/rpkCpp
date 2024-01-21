@@ -17,35 +17,36 @@ typedef union FloatOrPointer {
 
 class INTERACTION {
   public:
-    GalerkinElement *rcv; // receiver element
-    GalerkinElement *src; // source element
-    FloatOrPointer K; // coupling coefficient(s), stored top to bottom, left to right */
-    FloatOrPointer deltaK; // used for approximation error estimation over the link */
-    unsigned char nrcv; // nr of basis functions on receiver and source */
+    GalerkinElement *receiverElement;
+    GalerkinElement *sourceElement;
+    FloatOrPointer K; // Coupling coefficient(s), stored top to bottom, left to right
+    FloatOrPointer deltaK; // Used for approximation error estimation over the link
+    unsigned char nrcv; // Number of basis functions on receiver and source
     unsigned char nsrc;
-    unsigned char crcv; // nr of cubature positions on receiver */
+    unsigned char crcv; // Number of cubature positions on receiver
     unsigned char vis; // 255 for full visibility, 0 for full occlusion
 };
 
 extern INTERACTION *
-InteractionCreate(
-        GalerkinElement *rcv,
-        GalerkinElement *src,
-        FloatOrPointer K,
-        FloatOrPointer deltaK,
-        unsigned char nrcv,
-        unsigned char nsrc,
-        unsigned char crcv,
-        unsigned char vis
+interactionCreate(
+    GalerkinElement *rcv,
+    GalerkinElement *src,
+    FloatOrPointer K,
+    FloatOrPointer deltaK,
+    unsigned char nrcv,
+    unsigned char nsrc,
+    unsigned char crcv,
+    unsigned char vis
 );
-extern INTERACTION *InteractionDuplicate(INTERACTION *interaction);
-extern void InteractionDestroy(INTERACTION *interaction);
-extern void InteractionPrint(FILE *out, INTERACTION *interaction);
-extern int GetNumberOfInteractions();
-extern int GetNumberOfClusterToClusterInteractions();
-extern int GetNumberOfClusterToSurfaceInteractions();
-extern int GetNumberOfSurfaceToClusterInteractions();
-extern int GetNumberOfSurfaceToSurfaceInteractions();
+
+extern INTERACTION *interactionDuplicate(INTERACTION *interaction);
+extern void interactionDestroy(INTERACTION *interaction);
+extern void interactionPrint(FILE *out, INTERACTION *link);
+extern int getNumberOfInteractions();
+extern int getNumberOfClusterToClusterInteractions();
+extern int getNumberOfClusterToSurfaceInteractions();
+extern int getNumberOfSurfaceToClusterInteractions();
+extern int getNumberOfSurfaceToSurfaceInteractions();
 
 #include "GALERKIN/GalerkinElement.h"
 

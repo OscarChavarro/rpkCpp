@@ -311,7 +311,7 @@ galerkinElementRegularSubDivide(GalerkinElement *element) {
 
 static void
 galerkinElementDestroy(GalerkinElement *element) {
-    InteractionListIterate(element->interactions, InteractionDestroy);
+    InteractionListIterate(element->interactions, interactionDestroy);
     InteractionListDestroy(element->interactions);
 
     if ( element->radiance ) {
@@ -416,7 +416,7 @@ galerkinElementPrint(FILE *out, GalerkinElement *element) {
 
     if ( element->interactions ) {
         fprintf(out, ", interactions:\n");
-        InteractionListIterate1B(element->interactions, InteractionPrint, out);
+        InteractionListIterate1B(element->interactions, interactionPrint, out);
     } else {
         fprintf(out, ", no interactions.\n");
     }
