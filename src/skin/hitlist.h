@@ -2,11 +2,10 @@
 Doubly linked list of HITRECs
 */
 
-#ifndef _HITLIST_H_
-#define _HITLIST_H_
+#ifndef __HIT_LIST__
+#define __HIT_LIST__
 
 #include "material/hit.h"
-
 #include "common/dataStructures/DList.h"
 
 class HITLIST {
@@ -18,6 +17,6 @@ class HITLIST {
 
 #define HitListAdd(hitlist, hitp) (HITLIST *)DListAdd((DLIST *)hitlist, (void *)hitp)
 
-extern RayHit *DuplicateHit(RayHit *hit);
+extern RayHit *duplicateHit(RayHit *hit);
 
 #endif

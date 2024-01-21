@@ -82,10 +82,10 @@ bool CUniformLightSampler::Sample(CPathNode */*prevNode*/,
     // Choose point (uniform for real, sampled for background)
     if ( light->isVirtual()) {
         double pdf;
-        Vector3D dir = EdfSample(light->surface->material->edf, &(thisNode->m_hit), flags, x_1, x_2, nullptr, &pdf);
+        Vector3D dir = edfSample(light->surface->material->edf, &(thisNode->m_hit), flags, x_1, x_2, nullptr, &pdf);
         VECTORSUBTRACT(thisNode->m_hit.point, dir, point);   // fake hit at distance 1!
 
-        InitHit(&newNode->m_hit, light, nullptr, &point, nullptr,
+        hitInit(&newNode->m_hit, light, nullptr, &point, nullptr,
                 light->surface->material, 0.);
 
         // fill in directions
@@ -100,9 +100,9 @@ bool CUniformLightSampler::Sample(CPathNode */*prevNode*/,
 
         // Fake a hit record
 
-        InitHit(&newNode->m_hit, light, nullptr, &point, &light->normal,
+        hitInit(&newNode->m_hit, light, nullptr, &point, &light->normal,
                 light->surface->material, 0.);
-        HitShadingNormal(&newNode->m_hit, &newNode->m_hit.normal);
+        hitShadingNormal(&newNode->m_hit, &newNode->m_hit.normal);
         VECTORCOPY(newNode->m_hit.normal, newNode->m_normal);
     }
 
@@ -136,7 +136,7 @@ double CUniformLightSampler::EvalPDF(CPathNode */*thisNode*/,
     {
         // virtual patch has no area!
         // choosing a point == choosing a dir --> use pdf from evalEdf
-        EdfEval(newNode->m_hit.patch->surface->material->edf,
+        edfEval(newNode->m_hit.patch->surface->material->edf,
                 (RayHit *) nullptr,
                 &newNode->m_inDirF,
                 DIFFUSE_COMPONENT | GLOSSY_COMPONENT | SPECULAR_COMPONENT,
@@ -212,10 +212,10 @@ bool CImportantLightSampler::Sample(CPathNode */*prevNode*/,
     // Choose point (uniform for real, sampled for background)
     if ( light->isVirtual()) {
         double pdf;
-        Vector3D dir = EdfSample(light->surface->material->edf, nullptr, flags, x_1, x_2, nullptr, &pdf);
+        Vector3D dir = edfSample(light->surface->material->edf, nullptr, flags, x_1, x_2, nullptr, &pdf);
         VECTORADD(thisNode->m_hit.point, dir, point);   // fake hit at distance 1!
 
-        InitHit(&newNode->m_hit, light, nullptr, &point, nullptr,
+        hitInit(&newNode->m_hit, light, nullptr, &point, nullptr,
                 light->surface->material, 0.);
 
         // fill in directions
@@ -233,9 +233,9 @@ bool CImportantLightSampler::Sample(CPathNode */*prevNode*/,
 
         // Fake a hit record
 
-        InitHit(&newNode->m_hit, light, nullptr, &point, &light->normal,
+        hitInit(&newNode->m_hit, light, nullptr, &point, &light->normal,
                 light->surface->material, 0.);
-        HitShadingNormal(&newNode->m_hit, &newNode->m_hit.normal);
+        hitShadingNormal(&newNode->m_hit, &newNode->m_hit.normal);
         VECTORCOPY(newNode->m_hit.normal, newNode->m_normal);
     }
 
@@ -263,7 +263,7 @@ double CImportantLightSampler::EvalPDF(CPathNode *thisNode,
     {
         // virtual patch has no area!
         // choosing a point == choosing a dir --> use pdf from evalEdf
-        EdfEval(newNode->m_hit.patch->surface->material->edf,
+        edfEval(newNode->m_hit.patch->surface->material->edf,
                 (RayHit *) nullptr,
                 &newNode->m_inDirF,
                 DIFFUSE_COMPONENT | GLOSSY_COMPONENT | SPECULAR_COMPONENT,

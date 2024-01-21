@@ -28,7 +28,7 @@ TraceWorld(
 
     if ( result ) {
         /* compute shading frame (Z-axis = shading normal) at intersection point */
-        HitShadingFrame(result, &result->X, &result->Y, &result->Z);
+        hitShadingFrame(result, &result->X, &result->Y, &result->Z);
     }
 
     patchDontIntersect(0);

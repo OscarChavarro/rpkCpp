@@ -23,7 +23,7 @@ bool CEyeSampler::Sample(CPathNode *prevNode, CPathNode *thisNode,
 
     RayHit *hit = &newNode->m_hit;
 
-    InitHit(hit, nullptr, nullptr, &GLOBAL_camera_mainCamera.eyePosition, &GLOBAL_camera_mainCamera.Z, nullptr, 0.);
+    hitInit(hit, nullptr, nullptr, &GLOBAL_camera_mainCamera.eyePosition, &GLOBAL_camera_mainCamera.Z, nullptr, 0.);
     hit->normal = GLOBAL_camera_mainCamera.Z;
     hit->X = GLOBAL_camera_mainCamera.X;
     hit->Y = GLOBAL_camera_mainCamera.Y;

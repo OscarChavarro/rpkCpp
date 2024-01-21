@@ -390,7 +390,7 @@ COLOR SR_GetRadiance(CPathNode *thisNode, SRCONFIG *config, SRREADOUT readout,
 
                 COLOR diffEmit;
 
-                diffEmit = EdfEval(thisEdf, &thisNode->m_hit, &(thisNode->m_inDirF),
+                diffEmit = edfEval(thisEdf, &thisNode->m_hit, &(thisNode->m_inDirF),
                                    BRDF_DIFFUSE_COMPONENT, (double *) 0);
 
                 colorSubtract(radiance, diffEmit, radiance);
@@ -462,7 +462,7 @@ COLOR SR_GetRadiance(CPathNode *thisNode, SRCONFIG *config, SRREADOUT readout,
                 weight = 1;  // We don't do N.E.E. from the eye !
             }
 
-            col = EdfEval(thisEdf, &thisNode->m_hit,
+            col = edfEval(thisEdf, &thisNode->m_hit,
                           &(thisNode->m_inDirF),
                           edfFlags, (double *) 0);
 

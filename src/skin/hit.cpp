@@ -1,9 +1,8 @@
-#include "material/Material.h"
-#include "material/hit.h"
 #include "skin/Patch.h"
+#include "material/hit.h"
 
 int
-HitInitialised(RayHit *hit) {
+hitInitialised(RayHit *hit) {
     return ((hit->flags & HIT_PATCH) || (hit->flags & HIT_GEOM))
            && (hit->flags & HIT_POINT)
            && (hit->flags & HIT_GNORMAL)
@@ -12,12 +11,12 @@ HitInitialised(RayHit *hit) {
 }
 
 int
-InitHit(
+hitInit(
         RayHit *hit,
         Patch *patch,
         Geometry *geom,
         Vector3D *point,
-        Vector3D *gnormal,
+        Vector3D *gNormal,
         Material *material,
         float dist)
 {
@@ -34,8 +33,8 @@ InitHit(
         hit->point = *point;
         hit->flags |= HIT_POINT;
     }
-    if ( gnormal ) {
-        hit->gnormal = *gnormal;
+    if ( gNormal ) {
+        hit->gnormal = *gNormal;
         hit->flags |= HIT_GNORMAL;
     }
     hit->material = material;
@@ -45,11 +44,11 @@ InitHit(
     VECTORSET(hit->normal, 0, 0, 0);
     hit->texCoord = hit->X = hit->Y = hit->Z = hit->normal;
     hit->uv.u = hit->uv.v = 0.;
-    return HitInitialised(hit);
+    return hitInitialised(hit);
 }
 
 int
-HitUV(RayHit *hit, Vector2Dd *uv) {
+hitUv(RayHit *hit, Vector2Dd *uv) {
     if ( hit->flags & HIT_UV ) {
         *uv = hit->uv;
         return true;
@@ -66,13 +65,13 @@ HitUV(RayHit *hit, Vector2Dd *uv) {
 }
 
 int
-HitTexCoord(RayHit *hit, Vector3D *texCoord) {
+hitTexCoord(RayHit *hit, Vector3D *texCoord) {
     if ( hit->flags & HIT_TEXCOORD ) {
         *texCoord = hit->texCoord;
         return true;
     }
 
-    if ( !HitUV(hit, &hit->uv)) {
+    if ( !hitUv(hit, &hit->uv)) {
         return false;
     }
 
@@ -86,7 +85,7 @@ HitTexCoord(RayHit *hit, Vector3D *texCoord) {
 }
 
 int
-HitShadingFrame(RayHit *hit, Vector3D *X, Vector3D *Y, Vector3D *Z) {
+hitShadingFrame(RayHit *hit, Vector3D *X, Vector3D *Y, Vector3D *Z) {
     if ( hit->flags & HIT_SHADINGFRAME ) {
         *X = hit->X;
         *Y = hit->Y;
@@ -108,7 +107,7 @@ HitShadingFrame(RayHit *hit, Vector3D *X, Vector3D *Y, Vector3D *Z) {
 }
 
 int
-HitShadingNormal(RayHit *hit, Vector3D *normal) {
+hitShadingNormal(RayHit *hit, Vector3D *normal) {
     if ( hit->flags & HIT_SHADINGFRAME || hit->flags & HIT_NORMAL ) {
         *normal = hit->normal;
         return true;

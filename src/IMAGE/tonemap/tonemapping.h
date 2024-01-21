@@ -1,5 +1,3 @@
-/* tonemapping.h: tone mapping */
-
 #ifndef _RPK_TONE_MAPPING_
 #define _RPK_TONE_MAPPING_
 
@@ -67,7 +65,6 @@ extern TONEMAP *GLOBAL_toneMap_availableToneMaps[];
 #define EndForAll }}}
 #endif
 
-/* makes 'map' the current tone map and initialises. */
 extern void setToneMap(TONEMAP *map);
 
 /* gamma correction table */
@@ -80,15 +77,6 @@ extern void setToneMap(TONEMAP *map);
 /* recomputes gamma tables for the given gamma values for 
  * red, green and blue */
 extern void recomputeGammaTables(RGB gamma);
-
-/* Displays a test image for testing/determining gamma correction factors */
-extern void RenderGammaTestImage(int which);
-
-/* which can take the following values: */
-#define TESTIMG1    1        /* useless */
-#define TESTIMG2    2        /* useless */
-#define GAMMA_TEST_IMAGE    3    /* RGB stripes versus half intensity */
-#define BLACK_LEVEL_IMAGE    4    /* black level test image */
 
 /* tone mapping global variables */
 class TONEMAPPINGCONTEXT {
@@ -114,21 +102,15 @@ class TONEMAPPINGCONTEXT {
 };
 extern TONEMAPPINGCONTEXT GLOBAL_toneMap_options;
 
-/* defaults and option handling */
 extern void toneMapDefaults();
-
 extern void parseToneMapOptions(int *argc, char **argv);
-
-extern void PrintToneMapOptions(FILE *fp);
-
-/* initialises tone mapping for a new scene e.g. */
 extern void initToneMapping();
 
-/* gamma correction */
-#define RGBGAMMACORRECT(rgb) {\
-  (rgb).r = GLOBAL_toneMap_options.gammatab[0][GAMMATAB_ENTRY((rgb).r)]; \
-  (rgb).g = GLOBAL_toneMap_options.gammatab[1][GAMMATAB_ENTRY((rgb).g)]; \
-  (rgb).b = GLOBAL_toneMap_options.gammatab[2][GAMMATAB_ENTRY((rgb).b)]; \
+inline void
+toneMappingGammaCorrection(RGB &rgb) {
+  (rgb).r = GLOBAL_toneMap_options.gammatab[0][GAMMATAB_ENTRY((rgb).r)];
+  (rgb).g = GLOBAL_toneMap_options.gammatab[1][GAMMATAB_ENTRY((rgb).g)];
+  (rgb).b = GLOBAL_toneMap_options.gammatab[2][GAMMATAB_ENTRY((rgb).b)];
 }
 
 /* shortcuts */
@@ -139,22 +121,6 @@ toneMapScaleForDisplay(COLOR &radiance) {
     return GLOBAL_toneMap_options.ToneMap->ScaleForDisplay(radiance);
 }
 
-/* ---------------------------------------------------------------------------
-  `ContrastSensitivity'
-
-  Returns the normalised sensitivity to contrast changes along the line
-  from "p1" to "p2" in case that the positions are viewed from the eye point
-  for the current camera.
-  ------------------------------------------------------------------------- */
-extern float ContrastSensitivity(Vector3D *p1, Vector3D *p2);
-
-/* ---------------------------------------------------------------------------
-  `ContrastSensitivityEye'
-
-  Eyepoint for contrast sensitivity computations.
-  ------------------------------------------------------------------------- */
-extern void ContrastSensitivityEye(Vector3D *p);
-
 /* Does most to convert radiance to display RGB color
  * 1) radiance compression: from the high dynamic range in reality to
  *    the limited range of the computer screen.
@@ -163,49 +129,6 @@ extern void ContrastSensitivityEye(Vector3D *p);
  * 3) clipping of RGB values to the range [0,1].
  * Gamma correction is performed in render.c. */
 extern RGB *radianceToRgb(COLOR color, RGB *rgb);
-
-/* ---------------------------------------------------------------------------
-  `TMO_COLOR_COMP'
-
-  Scales the given radiance "_c" so that the luminance of the result
-  corresponds to the luminance that would be emitted by the display
-  device displaying this color.
-  ------------------------------------------------------------------------- */
-#define TMO_COLOR_COMP(_c) \
-    _c = TonemapScaleForComputations(_c)
-/* ---------------------------------------------------------------------------
-  `TMO_COLOR_DISP'
-
-  Scales the given radiance "_c" so that the result lays in [0,1] range.
-  ------------------------------------------------------------------------- */
-#define TMO_COLOR_DISP(_c) \
-    _c = TonemapScaleForDisplay(_c)
-
-/* ---------------------------------------------------------------------------
-  `TMO_COLOR_COMP_CLIPPED'
-
-  This is something that I am again not sure about: We need clipped
-  luminance value in cd/m^2 of display output - this has to be clipped
-  by "ldmax" as the display device can not produce higher luminance. I
-  am clipping the Y value and scaling the X and Z so that the
-  correspoding x,y stays the same. But:
-
-  * shall we not simply set it to maximum white? 
-  * what about gamut clipping in this case?
-  * is gamma correction necessary? (probably no, as it is just a means to
-    account for nonlinear response of the given display device; luminances
-    reproduced shall be OK.
-
-  Moreover, the effectivity of this piece of code is not very high. Blah.
-  ------------------------------------------------------------------------- */
-#define TMO_COLOR_COMP_CLIPPED(_c, _gamma) \
-    do { \
-          float _b, _ldmax; \
-          TMO_COLOR_COMP(_c); /* result is in cd/m2 */ \
-      _b = ColorGray(_c); /* achromatic luminance */ \
-      _ldmax = TonemapLdmax(); \
-          if (_b > _ldmax) { COLORSCALE(_ldmax/_b, _c, _c); } \
-    } while(0)
 
 /* ---------------------------------------------------------------------------
   `TMO_CANDELA_LAMBERT'

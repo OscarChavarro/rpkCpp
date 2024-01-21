@@ -3,8 +3,9 @@
 /**
 Creates a duplicate of the given hit record
 */
-RayHit *DuplicateHit(RayHit *hit) {
-    RayHit *duplhit = (RayHit *)malloc(sizeof(RayHit));
-    *duplhit = *hit;
-    return duplhit;
+RayHit *
+duplicateHit(RayHit *hit) {
+    RayHit *duplicatedHit = (RayHit *)malloc(sizeof(RayHit));
+    *duplicatedHit = *hit;
+    return duplicatedHit;
 }

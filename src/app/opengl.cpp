@@ -128,7 +128,7 @@ renderSetColor(RGB *rgb) {
     RGB correctedRgb{};
 
     correctedRgb = *rgb;
-    RGBGAMMACORRECT(correctedRgb);
+    toneMappingGammaCorrection(correctedRgb);
     glColor3fv((GLfloat *) &correctedRgb);
 }
 
@@ -594,7 +594,7 @@ renderPixels(int x, int y, int width, int height, RGB *rgb) {
         int i;
         for ( i = 0; i < width; i++, rgbp++ ) {
             RGB corrected_rgb = *rgbp;
-            RGBGAMMACORRECT(corrected_rgb);
+            toneMappingGammaCorrection(corrected_rgb);
             *p++ = (GLubyte) (corrected_rgb.r * 255.);
             *p++ = (GLubyte) (corrected_rgb.g * 255.);
             *p++ = (GLubyte) (corrected_rgb.b * 255.);

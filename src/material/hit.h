@@ -64,12 +64,12 @@ a ray itnersection routine is a front or back hit.
  * TRUE if the structure is properly initialised and FALSE if not. 
  * This routine can be used in order to construct BSDF queries at other positions
  * than hit positions returned by ray intersection routines. */
-extern int InitHit(
+extern int hitInit(
         RayHit *hit,
         Patch *patch,
         Geometry *geom,
         Vector3D *point,
-        Vector3D *gnormal,
+        Vector3D *gNormal,
         Material *material,
         float dist);
 
@@ -77,20 +77,20 @@ extern int InitHit(
  * means that at least 'patch' or 'geom' plus 'point', 'gnormal', 'material'
  * and 'dist' are initialised. Returns TRUE if the structure is properly
  * initialised and FALSE if not. */
-extern int HitInitialised(RayHit *hit);
+extern int hitInitialised(RayHit *hit);
 
 /* Fills in (u,v) paramters of hit point on the hit patch, computing it if not 
  * computed before. Returns FALSE if the (u,v) parameters could not be determined. */
-extern int HitUV(RayHit *hit, Vector2Dd *uv);
+extern int hitUv(RayHit *hit, Vector2Dd *uv);
 
 /* Fills in/computes texture coordinates of hit point */
-extern int HitTexCoord(RayHit *hit, Vector3D *texCoord);
+extern int hitTexCoord(RayHit *hit, Vector3D *texCoord);
 
 /* Fills in shading frame: Z is the shading normal. */
-extern int HitShadingFrame(RayHit *hit, Vector3D *X, Vector3D *Y, Vector3D *Z);
+extern int hitShadingFrame(RayHit *hit, Vector3D *X, Vector3D *Y, Vector3D *Z);
 
 /* Fills in shading normal (Z axis of shading frame) only, avoiding computation
  * of shading X and Y axis if possible */
-extern int HitShadingNormal(RayHit *hit, Vector3D *normal);
+extern int hitShadingNormal(RayHit *hit, Vector3D *normal);
 
 #endif

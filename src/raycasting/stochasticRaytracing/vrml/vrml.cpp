@@ -309,7 +309,7 @@ writeMaterial(Geometry *geom) {
         return;
     }
 
-    InitHit(&hit, first_patch, (Geometry *) nullptr, &first_patch->midpoint, &first_patch->normal, mat, 0.);
+    hitInit(&hit, first_patch, (Geometry *) nullptr, &first_patch->midpoint, &first_patch->normal, mat, 0.);
     Rd = bsdfScatteredPower(mat->bsdf, &hit, &first_patch->normal, BRDF_DIFFUSE_COMPONENT);
     convertColorToRGB(Rd, &rd);
     Rs = bsdfScatteredPower(mat->bsdf, &hit, &first_patch->normal, BRDF_GLOSSY_COMPONENT | BRDF_SPECULAR_COMPONENT);

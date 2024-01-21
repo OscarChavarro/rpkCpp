@@ -67,7 +67,7 @@ patchListAllIntersections(HITLIST *hits, PatchSet *patches, Ray *ray, float mini
             float maxDistanceCopy = maximumDistance; // Do not modify maximumDistance
             RayHit *hit = patchIntersect(patch, ray, minimumDistance, &maxDistanceCopy, hitFlags, &hitStore);
             if ( hit ) {
-                hits = HitListAdd(hits, DuplicateHit(hit));
+                hits = HitListAdd(hits, duplicateHit(hit));
             }
         }
     }

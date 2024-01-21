@@ -547,7 +547,7 @@ monteCarloRadiosityElementIsTextured(StochasticRadiosityElement *elem) {
         return false;
     }
     mat = elem->patch->surface->material;
-    return bsdfIsTextured(mat->bsdf) || EdfIsTextured(mat->edf);
+    return bsdfIsTextured(mat->bsdf) || edfIsTextured(mat->edf);
 }
 
 /**
@@ -583,7 +583,7 @@ monteCarloRadiosityElementComputeAverageReflectanceAndEmittance(StochasticRadios
     niedindex n;
     COLOR albedo, emittance;
     RayHit hit;
-    InitHit(&hit, patch, nullptr, &patch->midpoint, &patch->normal, patch->surface->material, 0.);
+    hitInit(&hit, patch, nullptr, &patch->midpoint, &patch->normal, patch->surface->material, 0.);
 
     isTextured = monteCarloRadiosityElementIsTextured(elem);
     numberOfSamples = isTextured ? 100 : 1;
@@ -604,7 +604,7 @@ monteCarloRadiosityElementComputeAverageReflectanceAndEmittance(StochasticRadios
             colorAdd(albedo, sample, albedo);
         }
         if ( patch->surface->material->edf ) {
-            sample = EdfEmittance(patch->surface->material->edf, &hit, DIFFUSE_COMPONENT);
+            sample = edfEmittance(patch->surface->material->edf, &hit, DIFFUSE_COMPONENT);
             colorAdd(emittance, sample, emittance);
         }
     }

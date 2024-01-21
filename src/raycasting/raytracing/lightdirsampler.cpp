@@ -16,7 +16,7 @@ bool CLightDirSampler::Sample(CPathNode */*prevNode*/, CPathNode *thisNode,
     }
 
     // Sample a light direction
-    Vector3D dir = EdfSample(thisNode->m_hit.material->edf,
+    Vector3D dir = edfSample(thisNode->m_hit.material->edf,
                              &thisNode->m_hit, DIFFUSE_COMPONENT,
                              x_1, x_2, &thisNode->m_bsdfEval,
                              &pdfDir);
@@ -72,7 +72,7 @@ double CLightDirSampler::EvalPDF(CPathNode *thisNode, CPathNode *newNode,
     VECTORSCALEINVERSE(dist, outDir, outDir);
 
     // EDF sampling
-    EdfEval(thisNode->m_hit.material->edf,
+    edfEval(thisNode->m_hit.material->edf,
             &thisNode->m_hit, &outDir, DIFFUSE_COMPONENT, &pdfDir);
 
     if ( pdfDir < 0. ) {

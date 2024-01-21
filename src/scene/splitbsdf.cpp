@@ -63,7 +63,7 @@ SplitBsdfEvalTexture(TEXTURE *texture, RayHit *hit) {
         return col;
     }
 
-    if ( !hit || !HitTexCoord(hit, &texCoord)) {
+    if ( !hit || !hitTexCoord(hit, &texCoord)) {
         logWarning("SplitBsdfEvalTexture", "Couldn't get texture coordinates");
         return col;
     }
@@ -132,7 +132,7 @@ SplitBsdfEval(
     Vector3D normal;
 
     colorClear(result);
-    if ( !HitShadingNormal(hit, &normal)) {
+    if ( !hitShadingNormal(hit, &normal)) {
         logWarning("SplitBsdfEval", "Couldn't determine shading normal");
         return result;
     }
@@ -237,7 +237,7 @@ SplitBsdfSample(SPLIT_BSDF *bsdf, RayHit *hit,
     Vector3D out;
 
     *pdf = 0; /* so we can return safely */
-    if ( !HitShadingNormal(hit, &normal)) {
+    if ( !hitShadingNormal(hit, &normal)) {
         logWarning("SplitBsdfSample", "Couldn't determine shading normal");
         VECTORSET(out, 0., 0., 1.);
         return out;
@@ -331,7 +331,7 @@ SplitBsdfEvalPdf(SPLIT_BSDF *bsdf, RayHit *hit,
     Vector3D normal;
 
     *pdf = *pdfRR = 0.; /* so we can return safely */
-    if ( !HitShadingNormal(hit, &normal)) {
+    if ( !hitShadingNormal(hit, &normal)) {
         logWarning("SplitBsdfEvalPdf", "Couldn't determine shading normal");
         return;
     }

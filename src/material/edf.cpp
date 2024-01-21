@@ -1,13 +1,14 @@
-/* edf.c: Emittance Distribution Functions */
-
 #include <cstdlib>
 
 #include "material/edf.h"
 #include "common/error.h"
 
-/* Creates a EDF instance with given data and methods. A pointer
- * to the created EDF object is returned. */
-EDF *EdfCreate(void *data, EDF_METHODS *methods) {
+/**
+Creates a EDF instance with given data and methods. A pointer
+to the created EDF object is returned
+*/
+EDF *
+edfCreate(void *data, EDF_METHODS *methods) {
     EDF *edf = (EDF *)malloc(sizeof(EDF));
     edf->data = data;
     edf->methods = methods;
@@ -15,30 +16,11 @@ EDF *EdfCreate(void *data, EDF_METHODS *methods) {
     return edf;
 }
 
-/* Creates and returns a duplicate of the given EDF */
-EDF *EdfDuplicate(EDF *oedf) {
-    if ( !oedf ) {
-        return oedf;
-    }
-
-    EDF *edf = (EDF *)malloc(sizeof(EDF));
-    edf->data = oedf->methods->Duplicate(oedf->data);
-    edf->methods = oedf->methods;
-
-    return edf;
-}
-
-/* Creates an editor widget for the EDF, returns the Widget casted
- * to a void * in order not to have to include all X window system files. */
-void *EdfCreateEditor(void *parent, EDF *edf) {
-    if ( !edf ) {
-        logFatal(-1, "EdfCreateEditor", "NULL edf pointer passed.");
-    }
-    return edf->methods->CreateEditor(parent, edf->data);
-}
-
-/* disposes of the memory occupied by the EDF instance */
-void EdfDestroy(EDF *edf) {
+/**
+Disposes of the memory occupied by the EDF instance
+*/
+void
+edfDestroy(EDF *edf) {
     if ( !edf ) {
         return;
     }
@@ -46,8 +28,11 @@ void EdfDestroy(EDF *edf) {
     free(edf);
 }
 
-/* Returns the emittance of the EDF */
-COLOR EdfEmittance(EDF *edf, RayHit *hit, XXDFFLAGS flags) {
+/**
+Returns the emittance (self-emitted radiant exitance) [W/m^2] of the EDF
+*/
+COLOR
+edfEmittance(EDF *edf, RayHit *hit, XXDFFLAGS flags) {
     if ( edf && edf->methods->Emittance ) {
         return edf->methods->Emittance(edf->data, hit, flags);
     } else {
@@ -57,22 +42,21 @@ COLOR EdfEmittance(EDF *edf, RayHit *hit, XXDFFLAGS flags) {
     }
 }
 
-int EdfIsTextured(EDF *edf) {
+int
+edfIsTextured(EDF *edf) {
     if ( edf && edf->methods->IsTextured ) {
         return edf->methods->IsTextured(edf->data);
     }
     return false;
 }
 
-/* returns diffusely emitted radiance [W/m^2 sr] */
-COLOR EdfDiffuseRadiance(EDF *edf, RayHit *hit) {
-    COLOR rad = EdfDiffuseEmittance(edf, hit);
-    colorScale((1. / M_PI), rad, rad);
-    return rad;
-}
-
-/* Evaluates the edf */
-COLOR EdfEval(EDF *edf, RayHit *hit, Vector3D *out, XXDFFLAGS flags, double *pdf) {
+/**
+Evaluates the edf: return exitant radiance [W/m^2 sr] into the direction
+out. If pdf is not null, the probability density of the direction is
+computed and returned in pdf
+*/
+COLOR
+edfEval(EDF *edf, RayHit *hit, Vector3D *out, XXDFFLAGS flags, double *pdf) {
     if ( edf && edf->methods->Eval ) {
         return edf->methods->Eval(edf->data, hit, out, flags, pdf);
     } else {
@@ -85,23 +69,44 @@ COLOR EdfEval(EDF *edf, RayHit *hit, Vector3D *out, XXDFFLAGS flags, double *pdf
     }
 }
 
-Vector3D EdfSample(EDF *edf, RayHit *hit, XXDFFLAGS flags,
-                   double xi1, double xi2,
-                   COLOR *emitted_radiance, double *pdf) {
+/**
+Samples a direction according to the specified edf and emission range determined
+by flags. If emitted_radiance is not a null pointer, the emitted radiance along
+the generated direction is returned. If pdf is not null, the probability density
+of the generated direction is computed and returned in pdf
+*/
+Vector3D
+edfSample(EDF *edf, RayHit *hit, XXDFFLAGS flags,
+          double xi1, double xi2,
+          COLOR *emitted_radiance, double *pdf) {
     if ( edf && edf->methods->Sample ) {
         return edf->methods->Sample(edf->data, hit, flags, xi1, xi2, emitted_radiance, pdf);
     } else {
         Vector3D v = {0., 0., 0.};
-        logFatal(-1, "EdfSample", "Can't sample EDF");
+        logFatal(-1, "edfSample", "Can't sample EDF");
         return v;
     }
 }
 
-
-int EdfShadingFrame(EDF *edf, RayHit *hit, Vector3D *X, Vector3D *Y, Vector3D *Z) {
+/**
+Computes a shading frame at the given hit point. The Z axis of this frame is
+the shading normal, The X axis is in the tangent plane on the surface at the
+hit point ("brush" direction relevant for anisotropic shaders e.g.). Y
+is perpendicular to X and Z. X and Y may be null pointers. In this case,
+only the shading normal is returned, avoiding computation of the X and
+Y axis if possible).
+Note: also edf's can have a routine for computing the shading frame. If a
+material has both an edf and a bsdf, the shading frame shall of course
+be the same.
+This routine returns TRUE if a shading frame could be constructed and FALSE if
+not. In the latter case, a default frame needs to be used (not computed by this
+routine - materialShadingFrame() in material.[ch] constructs such a frame if
+needed)
+*/
+int
+edfShadingFrame(EDF *edf, RayHit *hit, Vector3D *X, Vector3D *Y, Vector3D *Z) {
     if ( edf && edf->methods->ShadingFrame ) {
         return edf->methods->ShadingFrame(edf->data, hit, X, Y, Z);
     }
     return false;
 }
-

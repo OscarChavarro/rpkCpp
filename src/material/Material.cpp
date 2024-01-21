@@ -30,7 +30,7 @@ MaterialDestroy(Material *material) {
         free((void *)material->name);
     }
     if ( material->edf ) {
-        EdfDestroy(material->edf);
+        edfDestroy(material->edf);
     }
     if ( material->bsdf ) {
         bsdfDestroy(material->bsdf);

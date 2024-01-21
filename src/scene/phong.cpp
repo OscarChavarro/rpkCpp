@@ -216,7 +216,7 @@ phongEdfEval(PHONG_EDF *edf, RayHit *hit, Vector3D *out, XXDFFLAGS flags, double
         *pdf = 0.;
     }
 
-    if ( !HitShadingNormal(hit, &normal) ) {
+    if ( !hitShadingNormal(hit, &normal) ) {
         logWarning("phongEdfEval", "Couldn't determine shading normal");
         return result;
     }
@@ -270,7 +270,7 @@ phongEdfSample(
         COORDSYS coord;
 
         Vector3D normal;
-        if ( !HitShadingNormal(hit, &normal)) {
+        if ( !hitShadingNormal(hit, &normal)) {
             logWarning("phongEdfEval", "Couldn't determine shading normal");
             return dir;
         }

@@ -382,7 +382,7 @@ getCurrentMaterial() {
     }
 
     theMaterial = MaterialCreate(materialName,
-                                 (colorNull(Ed) && colorNull(Es)) ? (EDF *) nullptr : EdfCreate(
+                                 (colorNull(Ed) && colorNull(Es)) ? (EDF *) nullptr : edfCreate(
                                          phongEdfCreate(&Ed, &Es, Ne), &GLOBAL_scene_phongEdfMethods),
                                  bsdfCreate(SplitBSDFCreate(
                                                     (colorNull(Rd) && colorNull(Rs)) ? nullptr : brdfCreate(

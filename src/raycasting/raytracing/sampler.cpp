@@ -24,7 +24,7 @@ CSampler::SampleTransfer(CPathNode *thisNode,
     if ( !hit ) {
         if ( GLOBAL_scene_background ) {
             // Fill in pathnode for background
-            InitHit(&(newNode->m_hit), GLOBAL_scene_background->bkgPatch, nullptr, nullptr, dir, nullptr, HUGE);
+            hitInit(&(newNode->m_hit), GLOBAL_scene_background->bkgPatch, nullptr, nullptr, dir, nullptr, HUGE);
             newNode->m_inDirT = *dir;
             newNode->m_inDirF = -(*dir);
             newNode->m_pdfFromPrev = pdfDir;

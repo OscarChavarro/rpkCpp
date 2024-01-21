@@ -635,8 +635,8 @@ photonMapGetRadiance(Patch *patch,
     float density;
 
     patchPoint(patch, u, v, &point);
-    InitHit(&hit, patch, nullptr, &point, &patch->normal, patch->surface->material, 0.);
-    HitShadingNormal(&hit, &hit.normal);
+    hitInit(&hit, patch, nullptr, &point, &patch->normal, patch->surface->material, 0.);
+    hitShadingNormal(&hit, &hit.normal);
 
     if ( ZeroAlbedo(bsdf, &hit, BSDF_DIFFUSE_COMPONENT | BSDF_GLOSSY_COMPONENT)) {
         colorClear(col);

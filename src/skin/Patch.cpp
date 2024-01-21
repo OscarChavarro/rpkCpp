@@ -396,7 +396,7 @@ patchAverageNormalAlbedo(Patch *patch, BSDFFLAGS components) {
     int numberOfSamples;
     COLOR albedo;
     RayHit hit;
-    InitHit(&hit, patch, nullptr, &patch->midpoint, &patch->normal, patch->surface->material, 0.);
+    hitInit(&hit, patch, nullptr, &patch->midpoint, &patch->normal, patch->surface->material, 0.);
 
     numberOfSamples = getNumberOfSamples(patch);
     colorClear(albedo);
@@ -421,7 +421,7 @@ patchAverageEmittance(Patch *patch, XXDFFLAGS components) {
     int numberOfSamples;
     COLOR emittance;
     RayHit hit;
-    InitHit(&hit, patch, nullptr, &patch->midpoint, &patch->normal, patch->surface->material, 0.);
+    hitInit(&hit, patch, nullptr, &patch->midpoint, &patch->normal, patch->surface->material, 0.);
 
     numberOfSamples = getNumberOfSamples(patch);
     colorClear(emittance);
@@ -432,7 +432,7 @@ patchAverageEmittance(Patch *patch, XXDFFLAGS components) {
         hit.uv.v = (double) xi[1] * RECIP;
         hit.flags |= HIT_UV;
         patchPoint(patch, hit.uv.u, hit.uv.v, &hit.point);
-        sample = EdfEmittance(patch->surface->material->edf, &hit, components);
+        sample = edfEmittance(patch->surface->material->edf, &hit, components);
         colorAdd(emittance, sample, emittance);
     }
     colorScaleInverse((float) numberOfSamples, emittance, emittance);
@@ -1185,7 +1185,7 @@ int
 materialShadingFrame(RayHit *hit, Vector3D *X, Vector3D *Y, Vector3D *Z) {
     int success = false;
 
-    if ( !HitInitialised(hit)) {
+    if ( !hitInitialised(hit)) {
         logWarning("materialShadingFrame", "uninitialised hit structure");
         return false;
     }
@@ -1195,10 +1195,10 @@ materialShadingFrame(RayHit *hit, Vector3D *X, Vector3D *Y, Vector3D *Z) {
     }
 
     if ( !success && hit->material && hit->material->edf && hit->material->edf->methods->ShadingFrame ) {
-        success = EdfShadingFrame(hit->material->edf, hit, X, Y, Z);
+        success = edfShadingFrame(hit->material->edf, hit, X, Y, Z);
     }
 
-    if ( !success && HitUV(hit, &hit->uv)) {
+    if ( !success && hitUv(hit, &hit->uv)) {
         // Make default shading frame
         patchInterpolatedFrameAtUv(hit->patch, hit->uv.u, hit->uv.v, X, Y, Z);
         success = true;

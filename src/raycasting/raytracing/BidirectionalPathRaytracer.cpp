@@ -204,7 +204,7 @@ void HandlePath_X_0(BPCONFIG *config, CBiPath *path) {
 
         if ( endingEdf != nullptr ) {
             // Landed on a light : fill in values for BPT
-            eyeEndNode->m_bsdfEval = EdfEval(endingEdf,
+            eyeEndNode->m_bsdfEval = edfEval(endingEdf,
                                              &eyeEndNode->m_hit,
                                              &eyeEndNode->m_inDirF,
                                              ALL_COMPONENTS, (double *) 0);

@@ -283,7 +283,7 @@ double PathNodeConnect(CPathNode *nodeE,
     if ( nodeLP == nullptr ) {
         // nodeL is  light source
 
-        nodeL->m_bsdfEval = EdfEval(nodeL->m_hit.material->edf,
+        nodeL->m_bsdfEval = edfEval(nodeL->m_hit.material->edf,
                                     &nodeL->m_hit,
                                     &dirLE,
                                     bsdfFlagsL, (double *) 0);

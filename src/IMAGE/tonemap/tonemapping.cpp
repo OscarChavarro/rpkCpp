@@ -164,6 +164,9 @@ static CommandLineOptionDescription globalToneMappingOptions[] = {
 {nullptr, 0, TYPELESS, nullptr, DEFAULT_ACTION, nullptr}
 };
 
+/**
+Defaults and option handling
+*/
 void
 toneMapDefaults() {
     ForAllAvailableToneMaps(map)
