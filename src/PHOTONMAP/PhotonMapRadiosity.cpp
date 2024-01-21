@@ -299,21 +299,21 @@ photonMapDoScreenNEE(PMAPCONFIG *config) {
         // Visible !
         f = photonMapDoComputePixelFluxEstimate(config);
 
-        config->screen->GetPixel(pix_x, pix_y, &nx, &ny);
+        config->screen->getPixel(pix_x, pix_y, &nx, &ny);
 
         float factor;
 
         if ( config->currentMap == config->globalMap ) {
-            factor = (ComputeFluxToRadFactor(nx, ny)
+            factor = (computeFluxToRadFactor(nx, ny)
                       / (float) GLOBAL_photonMap_state.total_gpaths);
         } else {
-            factor = (ComputeFluxToRadFactor(nx, ny)
+            factor = (computeFluxToRadFactor(nx, ny)
                       / (float) GLOBAL_photonMap_state.total_cpaths);
         }
 
         colorScale(factor, f, f);
 
-        config->screen->Add(nx, ny, f);
+        config->screen->add(nx, ny, f);
     }
 }
 
@@ -488,7 +488,7 @@ photonMapBRRealIteration() {
 
     if ((GLOBAL_photonMap_state.iteration_nr > 1) && (GLOBAL_photonMap_state.doGlobalMap || GLOBAL_photonMap_state.doCausticMap)) {
         float scaleFactor = (GLOBAL_photonMap_state.iteration_nr - 1.0) / (float) GLOBAL_photonMap_state.iteration_nr;
-        GLOBAL_photonMap_config.screen->ScaleRadiance(scaleFactor);
+        GLOBAL_photonMap_config.screen->scaleRadiance(scaleFactor);
     }
 
     if ((GLOBAL_photonMap_state.densityControl == IMPORTANCE_RD) && GLOBAL_photonMap_state.doImportanceMap ) {
@@ -692,7 +692,7 @@ photonMapGetRadiance(Patch *patch,
 static void
 photonMapRenderScreen() {
     if ( GLOBAL_photonMap_config.screen && GLOBAL_photonMap_state.renderImage ) {
-        GLOBAL_photonMap_config.screen->Render();
+        GLOBAL_photonMap_config.screen->render();
     } else {
         for ( PatchSet *window = GLOBAL_scene_patches; window != nullptr; window = window->next ) {
             renderPatch(window->patch);

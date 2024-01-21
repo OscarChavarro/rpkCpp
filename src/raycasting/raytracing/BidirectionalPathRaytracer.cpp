@@ -130,7 +130,7 @@ static void AddWithSpikeCheck(BPCONFIG *config, CBiPath *path, int nx, int ny,
 
             // Convert f into DE quantities
 
-            float factor = rs->GetPixXSize() * rs->GetPixYSize()
+            float factor = rs->getPixXSize() * rs->getPixYSize()
                            * (float) config->bcfg->totalSamples;
 
             if ( colorAverage(f) > EPSILON ) {
@@ -153,13 +153,13 @@ static void AddWithSpikeCheck(BPCONFIG *config, CBiPath *path, int nx, int ny,
             }
             */
 
-            config->screen->Add(nx, ny, f);
+            config->screen->add(nx, ny, f);
         } else {
             // Wanna see the spikes !
             //  config->screen->Add(config->nx, config->ny, f);
         }
     } else {
-        config->screen->Add(nx, ny, f);
+        config->screen->add(nx, ny, f);
     }
 }
 
@@ -504,14 +504,14 @@ void HandlePath_1_X(BPCONFIG *config, CBiPath *path) {
 
         f = ComputeNEFluxEstimate(config, path, &pdf, &weight, &frad);
 
-        config->screen->GetPixel(pix_x, pix_y, &nx, &ny);
+        config->screen->getPixel(pix_x, pix_y, &nx, &ny);
 
         float factor;
         if ( config->bcfg->doDensityEstimation ) {
-            factor = (ComputeFluxToRadFactor(nx, ny)
+            factor = (computeFluxToRadFactor(nx, ny)
                       / (float) config->bcfg->totalSamples);
         } else {
-            factor = (ComputeFluxToRadFactor(nx, ny)
+            factor = (computeFluxToRadFactor(nx, ny)
                       / (float) config->bcfg->totalSamples);
         }
         colorScale(factor, f, f);
@@ -663,9 +663,9 @@ static COLOR BPCalcPixel(int nx, int ny, BPCONFIG *config) {
     config->nx = nx;
     config->ny = ny;
     if ( config->bcfg->doDensityEstimation ) {
-        config->fluxToRadFactor = ComputeFluxToRadFactor(nx, ny);
+        config->fluxToRadFactor = computeFluxToRadFactor(nx, ny);
     } else {
-        config->fluxToRadFactor = ComputeFluxToRadFactor(nx, ny);
+        config->fluxToRadFactor = computeFluxToRadFactor(nx, ny);
     }
 
     for ( i = 0; i < config->bcfg->samplesPerPixel; i++ ) {
@@ -675,7 +675,7 @@ static COLOR BPCalcPixel(int nx, int ny, BPCONFIG *config) {
 
             config->eyePath->m_rayType = Starts;
 
-            Vector2D tmpVec2D = config->screen->GetPixelCenter((int) (x_1), (int) (x_2));
+            Vector2D tmpVec2D = config->screen->getPixelCenter((int) (x_1), (int) (x_2));
             config->xsample = tmpVec2D.u; // pix_x + (GLOBAL_camera_mainCamera.pixh * x_1);
             config->ysample = tmpVec2D.v; //pix_y + (GLOBAL_camera_mainCamera.pixv * x_2);
 
@@ -706,12 +706,12 @@ static COLOR BPCalcPixel(int nx, int ny, BPCONFIG *config) {
 
     if ( config->bcfg->doDensityEstimation ) {
         if ( config->dBuffer != nullptr ) {
-            result = config->screen->Get(nx, ny);
+            result = config->screen->get(nx, ny);
         } else {
-            result = config->dest->Get(nx, ny);
+            result = config->dest->get(nx, ny);
         }
     } else {
-        result = config->screen->Get(nx, ny);
+        result = config->screen->get(nx, ny);
     }
 
     return result;
@@ -768,8 +768,8 @@ static void DoBPTAndSubsequentImages(BPCONFIG *config) {
         // Halve the screen contribs
 
         if ( i > 0 ) {
-            config->screen->ScaleRadiance(0.5);
-            config->screen->SetAddScaleFactor(0.5);
+            config->screen->scaleRadiance(0.5);
+            config->screen->setAddScaleFactor(0.5);
         }
 
         config->bcfg->samplesPerPixel = currentSamples;
@@ -777,16 +777,16 @@ static void DoBPTAndSubsequentImages(BPCONFIG *config) {
 
         ScreenIterateSequential((COLOR(*)(int, int, void *)) BPCalcPixel, config);
 
-        config->screen->Render();
+        config->screen->render();
 
         // Save images
         if ( format1[0] != '\0' ) {
             snprintf(filename, STRINGS_SIZE, format1, totalSamples);
-            config->screen->WriteFile(filename);
+            config->screen->writeFile(filename);
         }
         if ( format2[0] != '\0' ) {
             snprintf(filename, STRINGS_SIZE, format2, totalSamples);
-            config->screen->WriteFile(filename);
+            config->screen->writeFile(filename);
         }
 
 
@@ -810,8 +810,8 @@ void DoBPTDensityEstimation(BPCONFIG *config) {
     config->ref = new ScreenBuffer(nullptr);
     config->dest = new ScreenBuffer(nullptr);
 
-    config->ref->SetFactor(1.0);
-    config->dest->SetFactor(1.0);
+    config->ref->setFactor(1.0);
+    config->dest->setFactor(1.0);
 
     config->dBuffer = new CDensityBuffer(config->ref, config->bcfg);
 
@@ -819,8 +819,8 @@ void DoBPTDensityEstimation(BPCONFIG *config) {
         config->ref2 = new ScreenBuffer(nullptr);
         config->dest2 = new ScreenBuffer(nullptr);
 
-        config->ref2->SetFactor(1.0);
-        config->dest2->SetFactor(1.0);
+        config->ref2->setFactor(1.0);
+        config->dest2->setFactor(1.0);
 
         config->dBuffer2 = new CDensityBuffer(config->ref2, config->bcfg);
     } else {
@@ -833,7 +833,7 @@ void DoBPTDensityEstimation(BPCONFIG *config) {
 
     config->bcfg->samplesPerPixel = 1;
     config->bcfg->totalSamples = (config->bcfg->samplesPerPixel *
-                                  config->ref->GetHRes() * config->ref->GetVRes());
+            config->ref->getHRes() * config->ref->getVRes());
 
     config->deStoreHits = true;
 
@@ -845,23 +845,23 @@ void DoBPTDensityEstimation(BPCONFIG *config) {
     // Density estimation
 
     config->dBuffer->Reconstruct(); // Estimates ref with fixed kernel width
-    config->ref->Render();
+    config->ref->render();
     //  config->ref->WriteFile("./firstreffix.ppm.gz");
 
     if ( config->dBuffer2 ) {
         config->dBuffer2->Reconstruct(); // Estimates ref with fixed kernel width
-        config->ref2->Render();
+        config->ref2->render();
         //    config->ref2->WriteFile("./firstref2fix.ppm.gz");
     }
 
     // Now reconstruct the hits using variable kernels
     config->dBuffer->ReconstructVariable(config->dest, 5.0);
-    config->dest->Render();
+    config->dest->render();
     //  config->dest->WriteFile("./firstrefvar.ppm.gz");
 
     if ( config->dBuffer2 ) {
         config->dBuffer2->ReconstructVariable(config->dest2, 1.5);
-        config->dest2->Render();
+        config->dest2->render();
         //    config->dest2->WriteFile("./firstref2var.ppm.gz");
     }
 
@@ -899,32 +899,32 @@ void DoBPTDensityEstimation(BPCONFIG *config) {
 
         // copy dest to ref
 
-        config->ref->Copy(config->dest);
+        config->ref->copy(config->dest);
 
         if ( config->ref2 ) {
-            config->ref2->Copy(config->dest2);
+            config->ref2->copy(config->dest2);
         }
 
 
         // Rescale dest : Nold / Nnew
-        config->dest->ScaleRadiance((float) oldTotalSPP / (float) newTotalSPP);
+        config->dest->scaleRadiance((float) oldTotalSPP / (float) newTotalSPP);
 
         // Set scale factor for added radiance in this run
-        config->dest->SetAddScaleFactor((float) newSPP / (float) newTotalSPP);
+        config->dest->setAddScaleFactor((float) newSPP / (float) newTotalSPP);
 
         if ( config->dest2 ) {
             // Rescale dest : Nold / Nnew
-            config->dest2->ScaleRadiance((float) oldTotalSPP / (float) newTotalSPP);
+            config->dest2->scaleRadiance((float) oldTotalSPP / (float) newTotalSPP);
 
             // Set scale factor for added radiance in this run
-            config->dest2->SetAddScaleFactor((float) newSPP / (float) newTotalSPP);
+            config->dest2->setAddScaleFactor((float) newSPP / (float) newTotalSPP);
         }
 
         // Set current vars
 
         config->bcfg->samplesPerPixel = newSPP;
         config->bcfg->totalSamples = (config->bcfg->samplesPerPixel *
-                                      config->ref->GetHRes() * config->ref->GetVRes());
+                config->ref->getHRes() * config->ref->getVRes());
 
         config->scaleSamples = newTotalSPP; // Base kernel size on total #s/pix
 
@@ -934,24 +934,24 @@ void DoBPTDensityEstimation(BPCONFIG *config) {
 
         // Render screen & write
 
-        config->dest->Render();
+        config->dest->render();
         snprintf(fname, STRINGS_SIZE, "deScreen%i.ppm.gz", newTotalSPP);
         //    config->dest->WriteFile(fileName);
 
 
         if ( config->dest2 ) {
-            config->dest2->Render();
+            config->dest2->render();
             snprintf(fname, STRINGS_SIZE, "de2Screen%i.ppm.gz", newTotalSPP);
             //      config->dest2->WriteFile(fileName);
 
             // Merge two images (just add!) into screen
 
-            config->screen->Merge(config->dest, config->dest2);
-            config->screen->Render();
+            config->screen->merge(config->dest, config->dest2);
+            config->screen->render();
             snprintf(fname, STRINGS_SIZE, "deMRGScreen%i.ppm.gz", newTotalSPP);
             //      config->screen->WriteFile(fileName);
         } else {
-            config->screen->Copy(config->dest);
+            config->screen->copy(config->dest);
         }
 
         // Update vars
@@ -964,9 +964,9 @@ void DoBPTDensityEstimation(BPCONFIG *config) {
 
     if ( GLOBAL_rayCasting_interruptRaytracing ) {
         if ( config->ref2 ) {
-            config->screen->Merge(config->ref, config->ref2);
+            config->screen->merge(config->ref, config->ref2);
         } else {
-            config->screen->Copy(config->ref);  // Interrupt, use last reference image
+            config->screen->copy(config->ref);  // Interrupt, use last reference image
         }
     }
 
@@ -1031,7 +1031,7 @@ static void BidirPathTrace(ImageOutputHandle *ip) {
     // config.maxCombinedLength = bidir.basecfg.maximumPathDepth;
 
     config.screen = new ScreenBuffer(nullptr);
-    config.screen->SetFactor(1.0); // We're storing plain radiance
+    config.screen->setFactor(1.0); // We're storing plain radiance
 
     config.eyePath = nullptr;
     config.lightPath = nullptr;
@@ -1071,10 +1071,10 @@ static void BidirPathTrace(ImageOutputHandle *ip) {
         ScreenIterateProgressive((COLOR(*)(int, int, void *)) BPCalcPixel, &config);
     }
 
-    config.screen->Render();
+    config.screen->render();
 
     if ( ip ) {
-        config.screen->WriteFile(ip);
+        config.screen->writeFile(ip);
     }
 
     if ( GLOBAL_rayTracing_biDirectionalPath.lastscreen ) {
@@ -1109,7 +1109,7 @@ static void BidirPathTrace(ImageOutputHandle *ip) {
 
 static int BidirPathRedisplay() {
     if ( GLOBAL_rayTracing_biDirectionalPath.lastscreen ) {
-        GLOBAL_rayTracing_biDirectionalPath.lastscreen->Render();
+        GLOBAL_rayTracing_biDirectionalPath.lastscreen->render();
         return true;
     } else {
         return false;
@@ -1118,8 +1118,8 @@ static int BidirPathRedisplay() {
 
 static int BidirPathSaveImage(ImageOutputHandle *ip) {
     if ( ip && GLOBAL_rayTracing_biDirectionalPath.lastscreen ) {
-        GLOBAL_rayTracing_biDirectionalPath.lastscreen->Sync();
-        GLOBAL_rayTracing_biDirectionalPath.lastscreen->WriteFile(ip);
+        GLOBAL_rayTracing_biDirectionalPath.lastscreen->sync();
+        GLOBAL_rayTracing_biDirectionalPath.lastscreen->writeFile(ip);
         return true;
     } else {
         return false;

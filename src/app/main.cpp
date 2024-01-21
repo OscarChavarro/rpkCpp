@@ -192,7 +192,7 @@ static void
 mainMakeRaytracingMethodsString() {
     char *str = globalRaytracingMethodsString;
     int n;
-    snprintf(str, 80, "-raytracing-method <method>: Set pixel-based radiance computation method\n%n", &n);
+    snprintf(str, 80, "-raytracing-method <method>: set pixel-based radiance computation method\n%n", &n);
     str += n;
     snprintf(str, 80, "\tmethods: %-20.20s %s%s\n%n",
              "none", "no pixel-based radiance computation",

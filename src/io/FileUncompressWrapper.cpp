@@ -1,4 +1,3 @@
-#include <cstdio>
 #include <cstring>
 #include <cstdlib>
 
@@ -14,11 +13,11 @@ proper compress/uncompress commands. Also if the first character of the file nam
 equal to '|', the file name is opened as a pipe.
 */
 FILE *
-OpenFile(const char *filename, const char *open_mode, int *ispipe) {
+openFile(const char *filename, const char *open_mode, int *ispipe) {
     FILE *fp = (FILE *) nullptr;
 
     if ( (*open_mode != 'r' && *open_mode != 'w' && *open_mode != 'a') ) {
-        logError("OpenFile", "Invalid fopen() mode '%s'\n",
+        logError("openFile", "Invalid fopen() mode '%s'\n",
                  open_mode ? open_mode : "(null)");
         return fp;
     }
@@ -84,9 +83,9 @@ OpenFile(const char *filename, const char *open_mode, int *ispipe) {
 Closes the file taking into account whether or not it is a pipe
 */
 void
-CloseFile(FILE *fp, int ispipe) {
+closeFile(FILE *fp, int isPipe) {
     if ( fp ) {
-        if ( ispipe ) {
+        if ( isPipe ) {
             pclose(fp);
         } else {
             fclose(fp);

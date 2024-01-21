@@ -20,7 +20,7 @@ RayMatter::RayMatter(ScreenBuffer *screen) {
 
     Filter = nullptr;
     interrupt_requested = false;
-    scrn->SetRGBImage(true);
+    scrn->setRgbImage(true);
 }
 
 RayMatter::~RayMatter() {
@@ -79,7 +79,7 @@ RayMatter::Matting() {
                 // generate ray
                 Ray ray;
                 ray.pos = GLOBAL_camera_mainCamera.eyePosition;
-                ray.dir = scrn->GetPixelVector(x, y, xi1, xi2);
+                ray.dir = scrn->getPixelVector(x, y, xi1, xi2);
                 VECTORNORMALIZE(ray.dir);
 
                 // check if hit
@@ -95,10 +95,10 @@ RayMatter::Matting() {
             }
 
             colorSet(matte, value, value, value);
-            scrn->Add(x, y, matte);
+            scrn->add(x, y, matte);
         }
 
-        scrn->RenderScanline(y);
+        scrn->renderScanline(y);
         if ( interrupt_requested ) {
             break;
         }
@@ -110,12 +110,12 @@ RayMatter::Matting() {
 
 void
 RayMatter::display() {
-    scrn->Render();
+    scrn->render();
 }
 
 void
 RayMatter::save(ImageOutputHandle *ip) {
-    scrn->WriteFile(ip);
+    scrn->writeFile(ip);
 }
 
 void

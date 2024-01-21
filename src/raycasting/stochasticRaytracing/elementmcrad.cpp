@@ -201,12 +201,12 @@ Initialises parent cluster radiance/importance/area for child voxelData
 static void
 monteCarloRadiosityInitClusterPull(StochasticRadiosityElement *parent, StochasticRadiosityElement *child) {
     parent->area += child->area;
-    PullRadiance(parent, child, parent->rad, child->rad);
-    PullRadiance(parent, child, parent->unshot_rad, child->unshot_rad);
-    PullRadiance(parent, child, parent->received_rad, child->received_rad);
-    PullImportance(parent, child, &parent->imp, &child->imp);
-    PullImportance(parent, child, &parent->unshot_imp, &child->unshot_imp);
-    PullImportance(parent, child, &parent->received_imp, &child->received_imp);
+    pullRadiance(parent, child, parent->rad, child->rad);
+    pullRadiance(parent, child, parent->unshot_rad, child->unshot_rad);
+    pullRadiance(parent, child, parent->received_rad, child->received_rad);
+    pullImportance(parent, child, &parent->imp, &child->imp);
+    pullImportance(parent, child, &parent->unshot_imp, &child->unshot_imp);
+    pullImportance(parent, child, &parent->received_imp, &child->received_imp);
 
     /* needs division by parent->area once it is known after monteCarloRadiosityInitClusterPull for
      * all children elements. */
@@ -618,11 +618,11 @@ Initial push operation for surface sub-elements
 static void
 monteCarloRadiosityInitSurfacePush(StochasticRadiosityElement *parent, StochasticRadiosityElement *child) {
     child->source_rad = parent->source_rad;
-    PushRadiance(parent, child, parent->rad, child->rad);
-    PushRadiance(parent, child, parent->unshot_rad, child->unshot_rad);
-    PushImportance(parent, child, &parent->imp, &child->imp);
-    PushImportance(parent, child, &parent->source_imp, &child->source_imp);
-    PushImportance(parent, child, &parent->unshot_imp, &child->unshot_imp);
+    pushRadiance(parent, child, parent->rad, child->rad);
+    pushRadiance(parent, child, parent->unshot_rad, child->unshot_rad);
+    pushImportance(parent, child, &parent->imp, &child->imp);
+    pushImportance(parent, child, &parent->source_imp, &child->source_imp);
+    pushImportance(parent, child, &parent->unshot_imp, &child->unshot_imp);
     child->ray_index = parent->ray_index;
     child->quality = parent->quality;
     child->prob = parent->prob * child->area / parent->area;
@@ -850,7 +850,7 @@ monteCarloRadiosityPrintElement(FILE *out, StochasticRadiosityElement *elem) {
     monteCarloRadiosityTestPrintVertex(out, 1, elem->vertex[1]);
     monteCarloRadiosityTestPrintVertex(out, 2, elem->vertex[2]);
     monteCarloRadiosityTestPrintVertex(out, 3, elem->vertex[3]);
-    PrintBasis(elem->basis);
+    printBasis(elem->basis);
 
     if ( !elem->iscluster ) {
         int nbits;

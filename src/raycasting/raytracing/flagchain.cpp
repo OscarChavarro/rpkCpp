@@ -257,7 +257,7 @@ void CChainList::Add(CChainList *list) {
 void CChainList::Add(const CFlagChain &chain) {
     if ( m_count > 0 ) {
         if ( chain.m_length != m_length ) {
-            logError("CChainList::Add", "Wrong length flagchain inserted!");
+            logError("CChainList::add", "Wrong length flagchain inserted!");
             return;
         }
     } else {
@@ -272,7 +272,7 @@ void CChainList::Add(const CFlagChain &chain) {
 void CChainList::AddDisjunct(const CFlagChain &chain) {
     if ( m_count > 0 ) {
         if ( chain.m_length != m_length ) {
-            logError("CChainList::Add", "Wrong length flagchain inserted!");
+            logError("CChainList::add", "Wrong length flagchain inserted!");
             return;
         }
     } else {

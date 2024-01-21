@@ -44,7 +44,11 @@ The different sampling functions are commented separately.
 */
 
 /**
-Creates Phong type EDF, BRDF, BTDF data structs
+Creates Phong type EDF, BRDF, BTDF data structs:
+Kd = diffuse emittance [W/m^2], reflectance or transmittance (number between 0 and 1)
+Ks = specular emittance, reflectance or transmittance (same dimensions as Kd)
+Ns = Phong exponent.
+note: Emittance is total power emitted by the light source per unit of area
 */
 PHONG_EDF *
 phongEdfCreate(COLOR *Kd, COLOR *Ks, double Ns) {
@@ -316,7 +320,7 @@ phongBrdfEval(PHONG_BRDF *brdf, Vector3D *in, Vector3D *out, Vector3D *normal, X
     }
 
     if ( (flags & nonDiffuseFlag) && (brdf->avgKs > 0.0)) {
-        idealReflected = IdealReflectedDirection(&inrev, normal);
+        idealReflected = idealReflectedDirection(&inrev, normal);
         dotProduct = VECTORDOTPRODUCT(idealReflected, *out);
 
         if ( dotProduct > 0 ) {
@@ -389,7 +393,7 @@ phongBrdfSample(
         x_1 /= scatteredPower;
     }
 
-    idealDir = IdealReflectedDirection(&inrev, normal);
+    idealDir = idealReflectedDirection(&inrev, normal);
 
     if ( x_1 < (avgKd / scatteredPower)) {
         // Sample diffuse
@@ -509,7 +513,7 @@ phongBrdfEvalPdf(
     // Glossy or specular
     nonDiffPdf = 0.0;
     if ( avgKs > 0 ) {
-        idealDir = IdealReflectedDirection(&inrev, &goodNormal);
+        idealDir = idealReflectedDirection(&inrev, &goodNormal);
 
         cos_alpha = VECTORDOTPRODUCT(idealDir, *out);
 
@@ -577,7 +581,7 @@ phongBtdfEval(
     if ( (flags & nonDiffuseFlag) && (btdf->avgKs > 0) ) {
         // Specular part
 
-        idealRefracted = IdealRefractedDirection(&inrev, normal, inIndex,
+        idealRefracted = idealRefractedDirection(&inrev, normal, inIndex,
                                                  outIndex, &totalIR);
 
         dotProduct = VECTORDOTPRODUCT(idealRefracted, *out);
@@ -658,7 +662,7 @@ phongBtdfSample(
         x_1 /= scatteredPower;
     }
 
-    idealDir = IdealRefractedDirection(&inrev, normal, inIndex, outIndex,
+    idealDir = idealRefractedDirection(&inrev, normal, inIndex, outIndex,
                                        &totalIR);
     VECTORSCALE(-1, *normal, invNormal);
 
@@ -781,11 +785,11 @@ phongBtdfEvalPdf(
     // Glossy or specular
     if ( avgKs > 0 ) {
         if ( cos_in >= 0 ) {
-            idealDir = IdealRefractedDirection(&inrev, &goodNormal, inIndex,
+            idealDir = idealRefractedDirection(&inrev, &goodNormal, inIndex,
                                                outIndex, &totalIR);
         } else {
             // Normal was inverted, so materialSides switch also
-            idealDir = IdealRefractedDirection(&inrev, &goodNormal, outIndex,
+            idealDir = idealRefractedDirection(&inrev, &goodNormal, outIndex,
                                                inIndex, &totalIR);
         }
 

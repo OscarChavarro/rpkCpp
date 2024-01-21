@@ -1,7 +1,7 @@
 /* basis.h: higher order approximations for Galerkin radiosity */
 
-#ifndef _BASIS_H_
-#define _BASIS_H_
+#ifndef __BASIS__
+#define __BASIS__
 
 #include "material/color.h"
 #include "raycasting/stochasticRaytracing/mcrad.h"
@@ -65,19 +65,10 @@ enum ELEMENT_TYPE {
 /* orthonormal canonical basis of given order for given type of elements */
 extern GalerkinBasis GLOBAL_stochasticRadiosisty_basis[NR_ELEMENT_TYPES][NR_APPROX_TYPES], GLOBAL_stochasticRadiosisty_dummyBasis;
 
-/* initialises table of bases */
 extern void monteCarloRadiosityInitBasis();
-
-/* prints info about basis */
-extern void PrintBasis(GalerkinBasis *basis);
-
-/* returns color at a given point, with parameters (u,v) */
-extern COLOR ColorAtUV(GalerkinBasis *basis, COLOR *rad, double u, double v);
-
-/* these routines add the result of filterting down/up the source
- * coefficients to the destination coefficients */
-extern void FilterColorDown(COLOR *parent, FILTER *h, COLOR *child, int n);
-
-extern void FilterColorUp(COLOR *child, FILTER *h, COLOR *parent, int n, double areafactor);
+extern void printBasis(GalerkinBasis *basis);
+extern COLOR colorAtUv(GalerkinBasis *basis, COLOR *rad, double u, double v);
+extern void filterColorDown(COLOR *parent, FILTER *h, COLOR *child, int n);
+extern void filterColorUp(COLOR *child, FILTER *h, COLOR *parent, int n, double areafactor);
 
 #endif

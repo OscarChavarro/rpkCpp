@@ -1,5 +1,7 @@
-/* scratch.c: scratch renderer routines. Used for handling intra-cluster visibility
- * with a Z-buffer visibility algorithm in software. */
+/**
+Scratch renderer routines. Used for handling intra-cluster visibility
+with a Z-buffer visibility algorithm in software
+*/
 
 #include "SGL/sgl.h"
 #include "skin/Geometry.h"
@@ -7,23 +9,32 @@
 #include "GALERKIN/scratch.h"
 #include "GALERKIN/clustergalerkincpp.h"
 
-/* create a scratch software renderer for various operations on clusters. */
-void ScratchInit() {
+/**
+Src is a toplevel surface element. Render the corrsponding patch
+with pixel value a pointer to the element. Uses global variable
+eyep for backface culling
+*/
+static Vector3D eyep;
+
+/**
+Create a scratch software renderer for various operations on clusters
+*/
+void
+scratchInit() {
     GLOBAL_galerkin_state.scratch = sglOpen(GLOBAL_galerkin_state.scratch_fb_size, GLOBAL_galerkin_state.scratch_fb_size);
     sglDepthTesting(true);
 }
 
-/* terminates scratch rendering */
-void ScratchTerminate() {
+/**
+Terminates scratch rendering
+*/
+void
+scratchTerminate() {
     sglClose(GLOBAL_galerkin_state.scratch);
 }
 
-/* src is a toplevel surface element. Render the corrsponding patch 
- * with pixel value a pointer to the element. Uses global variable
- * eyep for backface culling. */
-static Vector3D eyep;
-
-static void ScratchRenderElementPtr(GalerkinElement *elem) {
+static void
+scratchRenderElementPtr(GalerkinElement *elem) {
     Patch *patch = elem->patch;
     Vector3D v[4];
     int i;
@@ -42,16 +53,19 @@ static void ScratchRenderElementPtr(GalerkinElement *elem) {
     sglPolygon(patch->numberOfVertices, v);
 }
 
-/* Sets up an orthographic projection of the cluster as
- * seen from the eye. Renders the element pointers to the elements
- * in clus in the scratch frame buffer and returns pointer to a boundingbox 
- * containing the size of the virtual screen. The cluster clus nicely fits
- * into the virtual screen. */
-float *ScratchRenderElementPtrs(GalerkinElement *clus, Vector3D eye) {
+/**
+Sets up an orthographic projection of the cluster as
+seen from the eye. Renders the element pointers to the elements
+in clus in the scratch frame buffer and returns pointer to a boundingbox
+containing the size of the virtual screen. The cluster clus nicely fits
+into the virtual screen
+*/
+float *
+scratchRenderElementPtrs(GalerkinElement *clus, Vector3D eye) {
     Vector3D centre = galerkinElementMidPoint(clus);
     Vector3D up = {0., 0., 1.}, viewdir;
     static BOUNDINGBOX bbx;
-    Matrix4x4 lookat;
+    Matrix4x4 lookAt{};
     SGL_CONTEXT *prev_sgl_context;
     int vp_size;
 
@@ -67,13 +81,13 @@ float *ScratchRenderElementPtrs(GalerkinElement *clus, Vector3D eye) {
     VECTORSUBTRACT(centre, eye, viewdir);
     VECTORNORMALIZE(viewdir);
     if ( fabs(VECTORDOTPRODUCT(up, viewdir)) > 1. - EPSILON ) VECTORSET(up, 0., 1., 0.);
-    lookat = LookAt(eye, centre, up);
+    lookAt = LookAt(eye, centre, up);
 
-    boundsTransform(geomBounds(clus->geom), &lookat, bbx);
+    boundsTransform(geomBounds(clus->geom), &lookAt, bbx);
 
     prev_sgl_context = sglMakeCurrent(GLOBAL_galerkin_state.scratch);
     sglLoadMatrix(Ortho(bbx[MIN_X], bbx[MAX_X], bbx[MIN_Y], bbx[MAX_Y], -bbx[MAX_Z], -bbx[MIN_Z]));
-    sglMultMatrix(lookat);
+    sglMultMatrix(lookAt);
 
     /* choose a viewport depending on the relative size of the smallest
      * surface element in the cluster to be rendered. */
@@ -89,19 +103,23 @@ float *ScratchRenderElementPtrs(GalerkinElement *clus, Vector3D eye) {
     /* Render element pointers in the scratch frame buffer. */
     eyep = eye;    /* needed for backface culling test */
     sglClear((SGL_PIXEL) nullptr, SGL_MAXIMUM_Z);
-    iterateOverSurfaceElementsInCluster(clus, ScratchRenderElementPtr);
+    iterateOverSurfaceElementsInCluster(clus, scratchRenderElementPtr);
 
     sglMakeCurrent(prev_sgl_context);
     return bbx;
 }
 
-/* After rendering element pointers in the scratch frame buffer, this routine
- * computes the average radiance of the virtual screen. */
-COLOR ScratchRadiance() {
+/**
+After rendering element pointers in the scratch frame buffer, this routine
+computes the average radiance of the virtual screen
+*/
+COLOR
+scratchRadiance() {
     int nonbkgrnd;
     SGL_PIXEL *pix;
     COLOR rad;
-    int i, j;
+    int i;
+    int j;
 
     colorClear(rad);
     nonbkgrnd = 0;
@@ -121,14 +139,17 @@ COLOR ScratchRadiance() {
         }
     }
     if ( nonbkgrnd > 0 ) {
-        colorScale(1. / (double) (GLOBAL_galerkin_state.scratch->vp_width * GLOBAL_galerkin_state.scratch->vp_height),
+        colorScale(1.0f / (float) (GLOBAL_galerkin_state.scratch->vp_width * GLOBAL_galerkin_state.scratch->vp_height),
                    rad, rad);
     }
     return rad;
 }
 
-/* Computes the number of non background pixels. */
-int ScratchNonBackgroundPixels() {
+/**
+Computes the number of non background pixels
+*/
+int
+scratchNonBackgroundPixels() {
     int nonbkgrnd;
     SGL_PIXEL *pix;
     int i, j;
@@ -146,16 +167,18 @@ int ScratchNonBackgroundPixels() {
     return nonbkgrnd;
 }
 
-/* Counts the number of pixels occupied by each element. The result is
- * accumulated in the tmp field of the elements. This field should be
- * initialized to zero before. */
-void ScratchPixelsPerElement() {
+/**
+Counts the number of pixels occupied by each element. The result is
+accumulated in the tmp field of the elements. This field should be
+initialized to zero before
+*/
+void
+scratchPixelsPerElement() {
     SGL_PIXEL *pix;
-    int i, j;
 
-    for ( j = 0; j < GLOBAL_galerkin_state.scratch->vp_height; j++ ) {
+    for ( int j = 0; j < GLOBAL_galerkin_state.scratch->vp_height; j++ ) {
         pix = GLOBAL_galerkin_state.scratch->frameBuffer + j * GLOBAL_galerkin_state.scratch->width;
-        for ( i = 0; i < GLOBAL_galerkin_state.scratch->vp_width; i++, pix++ ) {
+        for ( int i = 0; i < GLOBAL_galerkin_state.scratch->vp_width; i++, pix++ ) {
             GalerkinElement *elem = (GalerkinElement *) (*pix);
             if ( elem ) {
                 elem->tmp++;

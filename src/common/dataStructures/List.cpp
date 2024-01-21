@@ -37,7 +37,7 @@ ListCount(LIST *list) {
 }
 
 /**
-Merge two lists: the elements of list2 are prepended to the elements
+merge two lists: the elements of list2 are prepended to the elements
 of list1. Returns a pointer to the enlarged list1
 */
 LIST *

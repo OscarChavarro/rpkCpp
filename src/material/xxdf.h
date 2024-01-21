@@ -70,16 +70,16 @@ class REFRACTIONINDEX {
 };
 
 /* Compute an approximate Geometric IOR from a complex IOR (cfr. Gr.Gems II, p289) */
-extern float ComplexToGeometricRefractionIndex(REFRACTIONINDEX nc);
+extern float complexToGeometricRefractionIndex(REFRACTIONINDEX nc);
 
 /* Calculate the ideal reflected ray direction (independent of the brdf) */
-extern Vector3D IdealReflectedDirection(Vector3D *in, Vector3D *normal);
+extern Vector3D idealReflectedDirection(Vector3D *in, Vector3D *normal);
 
 /* Calculate the perfect refracted ray direction.
  * Sets totalInternalReflection to TRUE or FALSE accordingly.
  */
 
-extern Vector3D IdealRefractedDirection(Vector3D *in, Vector3D *normal,
+extern Vector3D idealRefractedDirection(Vector3D *in, Vector3D *normal,
                                         REFRACTIONINDEX inIndex,
                                         REFRACTIONINDEX outIndex,
                                         int *totalInternalReflection);

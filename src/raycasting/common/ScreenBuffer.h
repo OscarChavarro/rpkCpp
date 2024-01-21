@@ -8,16 +8,16 @@
 #include "material/color.h"
 #include "shared/Camera.h"
 
-/*************************************************************************/
-/* Class for storing pixel radiances/fluxes                              */
-/* and an associated RGB framebuffer                                     */
-/*                                                                       */
-/* 12/10/99 : The screen buffer has now a GLOBAL_camera_mainCamera variable that states    */
-/*            from where the image is made. Several functions            */
-/*            are provided to handle pixel float coordinates,            */
-/*            pixel numbers and screen boundaries. These are             */
-/*            derived from the camera variable                           */
-/*************************************************************************/
+/**
+Class for storing pixel radiances/fluxes
+and an associated RGB framebuffer
+
+12/10/99 : The screen buffer has now a GLOBAL_camera_mainCamera variable that states
+           from where the image is made. Several functions
+           are provided to handle pixel float coordinates,
+           pixel numbers and screen boundaries. These are
+           derived from the camera variable
+*/
 
 class ScreenBuffer {
   private:
@@ -33,42 +33,42 @@ class ScreenBuffer {
   public:
     explicit ScreenBuffer(Camera *cam); /* Also calls mainInit() */
     ~ScreenBuffer();
-    void Init(Camera *cam = nullptr);
-    void SetRGBImage(bool isRGB);
-    bool IsRGBImage() const;
-    void Copy(ScreenBuffer *source);
-    void Merge(ScreenBuffer *src1, ScreenBuffer *src2);
-    float GetScreenXMin() const;
-    float GetScreenYMin() const;
-    float GetScreenXMax() const;
-    float GetScreenYMax() const;
-    float GetPixXSize() const;
-    float GetPixYSize() const;
-    Vector2D GetPixelPoint(int nx, int ny, float xoff = 0.5, float yoff = 0.5) const;
-    Vector2D GetPixelCenter(int nx, int ny) const;
-    int GetNx(float x) const;
-    int GetNy(float y) const;
-    void GetPixel(float x, float y, int *nx, int *ny) const;
-    Vector3D GetPixelVector(int nx, int ny, float xoff = 0.5, float yoff = 0.5) const;
-    int GetHRes() const;
-    int GetVRes() const;
-    COLOR Get(int x, int y);
-    void Set(int x, int y, COLOR radiance);
-    COLOR GetBiLinear(float x, float y);
-    void Render();
-    void RenderScanline(int line);
-    void WriteFile(ImageOutputHandle *ip);
-    void WriteFile(char *filename);
-    void Add(int x, int y, COLOR radiance);
-    void SetFactor(float factor);
-    void SetAddScaleFactor(float factor);
-    void ScaleRadiance(float factor);
-    void Sync();
+    void init(Camera *cam = nullptr);
+    void setRgbImage(bool isRGB);
+    bool isRgbImage() const;
+    void copy(ScreenBuffer *source);
+    void merge(ScreenBuffer *src1, ScreenBuffer *src2);
+    float getScreenXMin() const;
+    float getScreenYMin() const;
+    float getScreenXMax() const;
+    float getScreenYMax() const;
+    float getPixXSize() const;
+    float getPixYSize() const;
+    Vector2D getPixelPoint(int nx, int ny, float xoff = 0.5, float yoff = 0.5) const;
+    Vector2D getPixelCenter(int nx, int ny) const;
+    int getNx(float x) const;
+    int getNy(float y) const;
+    void getPixel(float x, float y, int *nx, int *ny) const;
+    Vector3D getPixelVector(int nx, int ny, float xoff = 0.5, float yoff = 0.5) const;
+    int getHRes() const;
+    int getVRes() const;
+    COLOR get(int x, int y);
+    void set(int x, int y, COLOR radiance);
+    COLOR getBiLinear(float x, float y);
+    void render();
+    void renderScanline(int line);
+    void writeFile(ImageOutputHandle *ip);
+    void writeFile(char *filename);
+    void add(int x, int y, COLOR radiance);
+    void setFactor(float factor);
+    void setAddScaleFactor(float factor);
+    void scaleRadiance(float factor);
+    void sync();
 
   protected:
-    void SyncLine(int lineNumber);
+    void syncLine(int lineNumber);
 };
 
-extern float ComputeFluxToRadFactor(int pix_x, int pix_y);
+extern float computeFluxToRadFactor(int pix_x, int pix_y);
 
 #endif

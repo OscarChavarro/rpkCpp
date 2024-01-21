@@ -81,7 +81,7 @@ static void
 makeRadianceMethodsString() {
     char *str = globalRadianceMethodsString;
     int n;
-    snprintf(str, STRING_LENGTH, "-radiance-method <method>: Set world-space radiance computation method\n%n",
+    snprintf(str, STRING_LENGTH, "-radiance-method <method>: set world-space radiance computation method\n%n",
             &n);
     str += n;
     snprintf(str, STRING_LENGTH, "\tmethods: %-20.20s %s%s\n%n",

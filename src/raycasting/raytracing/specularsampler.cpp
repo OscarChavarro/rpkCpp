@@ -37,7 +37,7 @@ bool CSpecularSampler::Sample(CPathNode *prevNode, CPathNode *thisNode,
         reflect = true;
         pdfDir *= avgReflectance / avgScattering;
 
-        dir = IdealReflectedDirection(&thisNode->m_inDirT,
+        dir = idealReflectedDirection(&thisNode->m_inDirT,
                                       &thisNode->m_normal);
     } else {
         // REFRACT
@@ -51,7 +51,7 @@ bool CSpecularSampler::Sample(CPathNode *prevNode, CPathNode *thisNode,
         bsdfIndexOfRefraction(thisNode->m_inBsdf, &inIndex);
         bsdfIndexOfRefraction(thisNode->m_outBsdf, &outIndex);
 
-        dir = IdealRefractedDirection(&thisNode->m_inDirT,
+        dir = idealRefractedDirection(&thisNode->m_inDirT,
                                       &thisNode->m_normal,
                                       inIndex, outIndex, &dummyInt);
     }

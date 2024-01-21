@@ -40,7 +40,7 @@ typedef int (*BREP_COMPARE_FUNC)(void *, void *);
 extern BREP_COMPARE_FUNC brepSetVertexCompareRoutine(BREP_COMPARE_FUNC routine);
 
 /**
-Set a routine to compare only the location of two BREP_VERTEXes. There
+set a routine to compare only the location of two BREP_VERTEXes. There
 may be multiple vertices at the same location, e.g. having a different
 normal and/or name. These vertices are considered different vertices
 by the vertex compare routine which is set with brepSetVertexCompareRoutine(),

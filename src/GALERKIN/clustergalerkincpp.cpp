@@ -241,10 +241,10 @@ clusterRadianceToSamplePoint(GalerkinElement *src, Vector3D sample) {
 
                 /* Render pointers to the elements in the source cluster into the scratch frame
                  * buffer as seen from the sample point. */
-                float *bbx = ScratchRenderElementPtrs(src, sample);
+                float *bbx = scratchRenderElementPtrs(src, sample);
 
                 /* Compute average radiance on the virtual screen */
-                globalSourceRadiance = ScratchRadiance();
+                globalSourceRadiance = scratchRadiance();
 
                 /* areafactor = area of virtual screen / source cluster area used for
                  * form factor computation */
@@ -335,11 +335,11 @@ receiverClusterArea(INTERACTION *link) {
             if ( !OutOfBounds(&globalSamplePoint, rcv->geom->bounds)) {
                 return rcv->area;
             } else {
-                float *bbx = ScratchRenderElementPtrs(rcv, globalSamplePoint);
+                float *bbx = scratchRenderElementPtrs(rcv, globalSamplePoint);
 
                 /* projected area is the number of non background pixels over
                  * the total number of pixels * area of the virtual screen. */
-                globalProjectedArea = (double) ScratchNonBackgroundPixels() *
+                globalProjectedArea = (double) scratchNonBackgroundPixels() *
                                       (bbx[MAX_X] - bbx[MIN_X]) * (bbx[MAX_Y] - bbx[MIN_Y]) /
                                       (double) (GLOBAL_galerkin_state.scratch->vp_width * GLOBAL_galerkin_state.scratch->vp_height);
                 return globalProjectedArea;
@@ -445,10 +445,10 @@ clusterGatherRadiance(INTERACTION *link, COLOR *srcrad) {
             if ( !OutOfBounds(&globalSamplePoint, rcv->geom->bounds)) {
                 iterateOverSurfaceElementsInCluster(rcv, orientedSurfaceGatherRadiance);
             } else {
-                float *bbx = ScratchRenderElementPtrs(rcv, globalSamplePoint);
+                float *bbx = scratchRenderElementPtrs(rcv, globalSamplePoint);
 
                 /* Count how many pixels each element occupies in the scratch frame buffer. */
-                ScratchPixelsPerElement();
+                scratchPixelsPerElement();
 
                 /* area corresponding to one pixel on the virtual screen. */
                 globalPixelArea = (bbx[MAX_X] - bbx[MIN_X]) * (bbx[MAX_Y] - bbx[MIN_Y]) /

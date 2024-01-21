@@ -32,7 +32,7 @@ const float PMAP_MIN_DIST2 = PMAP_MIN_DIST * PMAP_MIN_DIST; // squared
 
 RTStochastic_State GLOBAL_raytracing_state;
 
-/******* Get radiance routines for stochastic raytracing *******/
+/******* get radiance routines for stochastic raytracing *******/
 
 // Forward declaration
 COLOR SR_GetRadiance(CPathNode *thisNode, SRCONFIG *config, SRREADOUT readout,
@@ -543,14 +543,14 @@ static COLOR CalcPixel(int nx, int ny, SRCONFIG *config) {
 
     // We have now the FLUX for the pixel (x N), convert it to radiance
 
-    double factor = (ComputeFluxToRadFactor(nx, ny) /
+    double factor = (computeFluxToRadFactor(nx, ny) /
                      config->samplesPerPixel);
 
     colorScale(factor, result, result);
 
     // printf("RESULT %g %g %g \n", result.r, result.g, result.b);
 
-    config->screen->Add(nx, ny, result);
+    config->screen->add(nx, ny, result);
 
 
     // Frame coherent & correlated sampling
@@ -582,10 +582,10 @@ void RTStochastic_Trace(ImageOutputHandle *ip) {
         ScreenIterateProgressive((COLOR(*)(int, int, void *)) CalcPixel, &config);
     }
 
-    config.screen->Render();
+    config.screen->render();
 
     if ( ip ) {
-        config.screen->WriteFile(ip);
+        config.screen->writeFile(ip);
     }
 
     if ( GLOBAL_raytracing_state.lastscreen ) {
@@ -597,7 +597,7 @@ void RTStochastic_Trace(ImageOutputHandle *ip) {
 
 int RTStochastic_Redisplay() {
     if ( GLOBAL_raytracing_state.lastscreen ) {
-        GLOBAL_raytracing_state.lastscreen->Render();
+        GLOBAL_raytracing_state.lastscreen->render();
         return true;
     } else {
         return false;
@@ -606,8 +606,8 @@ int RTStochastic_Redisplay() {
 
 int RTStochastic_SaveImage(ImageOutputHandle *ip) {
     if ( ip && GLOBAL_raytracing_state.lastscreen ) {
-        GLOBAL_raytracing_state.lastscreen->Sync();
-        GLOBAL_raytracing_state.lastscreen->WriteFile(ip);
+        GLOBAL_raytracing_state.lastscreen->sync();
+        GLOBAL_raytracing_state.lastscreen->writeFile(ip);
         return true;
     } else {
         return false;

@@ -35,7 +35,7 @@ makeToneMappingMethodsString() {
     char *str = globalToneMappingMethodsString;
     int n;
     int first = true;
-    snprintf(str, 1000, "-tonemapping <method>: Set tone mapping method\n%n", &n);
+    snprintf(str, 1000, "-tonemapping <method>: set tone mapping method\n%n", &n);
     str += n;
     snprintf(str, 1000, "\tmethods: %n", &n);
     str += n;

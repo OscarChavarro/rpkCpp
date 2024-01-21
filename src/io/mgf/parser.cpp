@@ -325,7 +325,7 @@ mgfAlternativeInit(int (*handleCallbacks[MGF_TOTAL_NUMBER_OF_ENTITIES])(int, cha
 }
 
 /**
-Get entity number from its name
+get entity number from its name
 */
 int
 mgfEntity(char *name)
@@ -400,7 +400,7 @@ mgfOpen(MgfReaderContext *ctx, char *fn)
         strcpy(ctx->fileName, fn);
     }
 
-    ctx->fp = OpenFile(ctx->fileName, "r", &ispipe);
+    ctx->fp = openFile(ctx->fileName, "r", &ispipe);
     ctx->isPipe = ispipe;
 
     if ( ctx->fp == nullptr) {
@@ -422,12 +422,12 @@ mgfClose()
 
     GLOBAL_mgf_file = ctx->prev;        /* restore enclosing context */
     if ( ctx->fp != stdin ) {        /* close file if it's a file */
-        CloseFile(ctx->fp, ctx->isPipe);
+        closeFile(ctx->fp, ctx->isPipe);
     }
 }
 
 /**
-Get current position in input file
+get current position in input file
 */
 void
 mgfGetFilePosition(MgdReaderFilePosition *pos)

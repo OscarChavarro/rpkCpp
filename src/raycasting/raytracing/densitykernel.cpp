@@ -69,17 +69,17 @@ void CKernel2D::Cover(const Vector2D &point, float scale, COLOR &col, ScreenBuff
     //return;
 
     // Get extents of possible pixels that are affected
-    screen->GetPixel(point.u - m_h, point.v - m_h, &nx_min, &ny_min);
-    screen->GetPixel(point.u + m_h, point.v + m_h, &nx_max, &ny_max);
+    screen->getPixel(point.u - m_h, point.v - m_h, &nx_min, &ny_min);
+    screen->getPixel(point.u + m_h, point.v + m_h, &nx_max, &ny_max);
 
     for ( nx = nx_min; nx <= nx_max; nx++ ) {
         for ( ny = ny_min; ny <= ny_max; ny++ ) {
-            if ((nx >= 0) && (ny >= 0) && (nx < screen->GetHRes()) &&
-                (ny < screen->GetVRes())) {
-                center = screen->GetPixelCenter(nx, ny);
+            if ((nx >= 0) && (ny >= 0) && (nx < screen->getHRes()) &&
+                (ny < screen->getVRes())) {
+                center = screen->getPixelCenter(nx, ny);
                 factor = scale * Evaluate(point, center);
                 colorScale(factor, col, addCol);
-                screen->Add(nx, ny, addCol);
+                screen->add(nx, ny, addCol);
             } else {
                 // Handle boundary bias !
             }
@@ -92,7 +92,7 @@ void CKernel2D::Cover(const Vector2D &point, float scale, COLOR &col, ScreenBuff
 void CKernel2D::VarCover(const Vector2D &center, COLOR &col, ScreenBuffer *ref,
                          ScreenBuffer *dest, int totalSamples, int scaleSamples,
                          float baseSize) {
-    float screenScale = MAX(ref->GetPixXSize(), ref->GetPixYSize());
+    float screenScale = MAX(ref->getPixXSize(), ref->getPixYSize());
     //float screenFactor = ref->GetPixXSize() * ref->GetPixYSize();
     float B = baseSize * screenScale; // what about the 8 ??
 
@@ -107,7 +107,7 @@ void CKernel2D::VarCover(const Vector2D &center, COLOR &col, ScreenBuffer *ref,
     // Now compute h for this sample
 
     // Reference estimated function
-    COLOR fe = ref->GetBiLinear(center.u, center.v);
+    COLOR fe = ref->getBiLinear(center.u, center.v);
 
     float avgFe = colorAverage(fe);
     float avgG = colorAverage(col);

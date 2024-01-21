@@ -8,7 +8,7 @@ static BREP_COMPARE_FUNC globalBrepVertexClientDataCompare = nullptr;
 static BREP_COMPARE_FUNC globalBrepVertexLocationCompare = nullptr;
 
 /**
-Set a routine to compare the BREP_VERTEX client data for two vertices.
+set a routine to compare the BREP_VERTEX client data for two vertices.
 brepSetVertexCompareRoutine() returns the previously installed compare
 routine so it can be restored when necessary
 */
@@ -20,7 +20,7 @@ brepSetVertexCompareLocationRoutine(BREP_COMPARE_FUNC routine) {
 }
 
 /**
-Set a routine to compare the location of two BREP vertices.
+set a routine to compare the location of two BREP vertices.
 brepSetVertexCompareLocationRoutine() returns the previously installed compare
 routine so it can be restored when necessary
 */

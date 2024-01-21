@@ -1,4 +1,6 @@
-/* phong.h: Phong type EDFs, BRDFs, BTDFs */
+/**
+Phong type EDFs, BRDFs, BTDFs
+*/
 
 #ifndef __PHONG__
 #define __PHONG__
@@ -10,8 +12,10 @@
 
 class PHONG_BRDF {
   public:
-    COLOR Kd, Ks;
-    float avgKd, avgKs;
+    COLOR Kd;
+    COLOR Ks;
+    float avgKd;
+    float avgKs;
     float Ns;
 };
 
@@ -40,18 +44,11 @@ class PHONG_BTDF {
 #define PHONG_LOWEST_SPECULAR_EXP 250
 #define PHONG_IS_SPECULAR(p) ((p).Ns >= PHONG_LOWEST_SPECULAR_EXP)
 
-/* creates Phong type EDF, BRDF, BTDF data structs:
- * Kd = diffuse emittance [W/m^2], reflectance or transmittance (number between 0 and 1)
- * Ks = specular emittance, reflectance or transmittance (same dimensions as Kd)
- * Ns = Phong exponent.
- * note: Emittance is total power emitted by the light source per unit of area. */
 extern PHONG_EDF *phongEdfCreate(COLOR *Kd, COLOR *Ks, double Ns);
-
 extern PHONG_BRDF *phongBrdfCreate(COLOR *Kd, COLOR *Ks, double Ns);
-
 extern PHONG_BTDF *phongBtdfCreate(COLOR *Kd, COLOR *Ks, float Ns, float nr, float ni);
 
-/* methods for manipulating Phong type EDFs, BRDFs, BTDFs */
+// Methods for manipulating Phong type EDFs, BRDFs, BTDFs
 extern EDF_METHODS GLOBAL_scene_phongEdfMethods;
 extern BRDF_METHODS GLOBAL_scene_phongBrdfMethods;
 extern BTDF_METHODS GLOBAL_scene_phongBtdfMethods;

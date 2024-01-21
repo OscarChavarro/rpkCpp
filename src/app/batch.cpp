@@ -48,12 +48,12 @@ static void
 BatchProcessFile(const char *filename, const char *open_mode,
                  void (*process_file)(const char *filename, FILE *fp, int ispipe)) {
     int ispipe;
-    FILE *fp = OpenFile(filename, open_mode, &ispipe);
+    FILE *fp = openFile(filename, open_mode, &ispipe);
 
     /* call the user supplied procedure to process the file */
     process_file(filename, fp, ispipe);
 
-    CloseFile(fp, ispipe);
+    closeFile(fp, ispipe);
 }
 
 static void

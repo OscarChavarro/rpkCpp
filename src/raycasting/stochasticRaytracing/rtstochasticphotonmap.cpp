@@ -85,7 +85,7 @@ void SRCONFIG::Init(RTStochastic_State &state) {
     samplerConfig.maxDepth = state.maxPathDepth;
 
     screen = new ScreenBuffer(nullptr);
-    screen->SetFactor(1.0); // We're storing plain radiance
+    screen->setFactor(1.0); // We're storing plain radiance
 
     InitDependentVars();
 }

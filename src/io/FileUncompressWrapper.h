@@ -3,7 +3,7 @@
 
 #include <cstdio>
 
-extern FILE *OpenFile(const char *filename, const char *open_mode, int *ispipe);
-extern void CloseFile(FILE *fp, int ispipe);
+extern FILE *openFile(const char *filename, const char *open_mode, int *ispipe);
+extern void closeFile(FILE *fp, int isPipe);
 
 #endif

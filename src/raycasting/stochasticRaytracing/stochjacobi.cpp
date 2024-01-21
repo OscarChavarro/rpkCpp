@@ -163,7 +163,7 @@ static int Setup() {
 /* returns radiance to be propagated from the given location of the element */
 static COLOR GetSourceRadiance(StochasticRadiosityElement *src, double us, double vs) {
     COLOR *srcrad = get_radiance(src);
-    return ColorAtUV(src->basis, srcrad, us, vs);
+    return colorAtUv(src->basis, srcrad, us, vs);
 }
 
 static void PropagateRadianceToSurface(StochasticRadiosityElement *rcv, double ur, double vr,
@@ -498,23 +498,23 @@ static void Push(StochasticRadiosityElement *parent, StochasticRadiosityElement 
             COLOR rad = parent->received_rad[0];
             Rd = child->Rd;
             colorProduct(Rd, rad, rad);
-            PushRadiance(parent, child, &rad, child->received_rad);
+            pushRadiance(parent, child, &rad, child->received_rad);
         } else
-            PushRadiance(parent, child, parent->received_rad, child->received_rad);
+            pushRadiance(parent, child, parent->received_rad, child->received_rad);
     }
 
     if ( get_importance )
-        PushImportance(parent, child, &parent->received_imp, &child->received_imp);
+        pushImportance(parent, child, &parent->received_imp, &child->received_imp);
 }
 
 static void Pull(StochasticRadiosityElement *parent, StochasticRadiosityElement *child) {
     if ( get_radiance ) {
-        PullRadiance(parent, child, parent->rad, child->rad);
-        PullRadiance(parent, child, parent->unshot_rad, child->unshot_rad);
+        pullRadiance(parent, child, parent->rad, child->rad);
+        pullRadiance(parent, child, parent->unshot_rad, child->unshot_rad);
     }
     if ( get_importance ) {
-        PullImportance(parent, child, &parent->imp, &child->imp);
-        PullImportance(parent, child, &parent->unshot_imp, &child->unshot_imp);
+        pullImportance(parent, child, &parent->imp, &child->imp);
+        pullImportance(parent, child, &parent->unshot_imp, &child->unshot_imp);
     }
 }
 

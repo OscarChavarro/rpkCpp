@@ -511,7 +511,7 @@ elementDisplayRadianceAtPoint(StochasticRadiosityElement *elem, double u, double
         }
     } else {
         // Higher order approximations
-        radiance = ColorAtUV(elem->basis, elem->rad, u, v);
+        radiance = colorAtUv(elem->basis, elem->rad, u, v);
         if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.show == SHOW_INDIRECT_RADIANCE ) {
             colorSubtract(radiance, elem->source_rad, radiance);
         }

@@ -47,8 +47,8 @@ RayCaster::render(GETRADIANCE_FT getrad = nullptr) {
     long width, height, x, y;
     Soft_ID_Renderer *id_renderer = new Soft_ID_Renderer;
     id_renderer->get_size(&width, &height);
-    if ( width != scrn->GetHRes() ||
-         height != scrn->GetVRes()) {
+    if ( width != scrn->getHRes() ||
+         height != scrn->getVRes()) {
 
         logFatal(-1, "RayCaster::render", "ID buffer size doesn't match screen size");
     }
@@ -58,10 +58,10 @@ RayCaster::render(GETRADIANCE_FT getrad = nullptr) {
         for ( x = 0; x < width; x++ ) {
             Patch *P = id_renderer->get_patch_at_pixel(x, y);
             COLOR rad = get_radiance_at_pixel(x, y, P, getrad);
-            scrn->Add(x, y, rad);
+            scrn->add(x, y, rad);
         }
 
-        scrn->RenderScanline(y);
+        scrn->renderScanline(y);
         if ( interrupt_requested ) {
             break;
         }
@@ -75,12 +75,12 @@ RayCaster::render(GETRADIANCE_FT getrad = nullptr) {
 
 void
 RayCaster::display() {
-    scrn->Render();
+    scrn->render();
 }
 
 void
 RayCaster::save(ImageOutputHandle *ip) {
-    scrn->WriteFile(ip);
+    scrn->writeFile(ip);
 }
 
 void

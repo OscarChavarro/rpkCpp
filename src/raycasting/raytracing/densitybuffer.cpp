@@ -66,10 +66,10 @@ CDensityBuffer::CDensityBuffer(ScreenBuffer *screen, BP_BASECONFIG *bcfg) {
     m_screen = screen;
     m_bcfg = bcfg;
 
-    m_xmin = m_screen->GetScreenXMin();
-    m_xmax = m_screen->GetScreenXMax();
-    m_ymin = m_screen->GetScreenYMin();
-    m_ymax = m_screen->GetScreenYMax();
+    m_xmin = m_screen->getScreenXMin();
+    m_xmax = m_screen->getScreenXMax();
+    m_ymin = m_screen->getScreenYMin();
+    m_ymax = m_screen->getScreenYMax();
 
     printf("Density Buffer :\nXmin %f, Ymin %f, Xmax %f, Ymax %f\n",
            m_xmin, m_ymin, m_xmax, m_ymax);
@@ -92,7 +92,7 @@ CDensityBuffer::~CDensityBuffer() {
 }
 
 void CDensityBuffer::Add(float x, float y, COLOR col, float pdf, float w) {
-    float factor = m_screen->GetPixXSize() * m_screen->GetPixYSize()
+    float factor = m_screen->getPixXSize() * m_screen->getPixYSize()
                    * (float) m_bcfg->totalSamples;
     COLOR tmpCol;
 
@@ -112,12 +112,12 @@ ScreenBuffer *CDensityBuffer::Reconstruct() {
     // For all samples -> compute pixel coverage
 
     // Kernel size. Now spread over 3 pixels
-    float h = 8 * MAX(m_screen->GetPixXSize(), m_screen->GetPixYSize())
+    float h = 8 * MAX(m_screen->getPixXSize(), m_screen->getPixYSize())
               / sqrt((double) m_bcfg->samplesPerPixel);
 
     printf("h = %f\n", h);
 
-    m_screen->ScaleRadiance(0.0); // Hack !!
+    m_screen->scaleRadiance(0.0); // Hack !!
 
     int i, j, k, maxk;
 
@@ -155,7 +155,7 @@ ScreenBuffer *CDensityBuffer::ReconstructVariable(ScreenBuffer *dest,
 
     // Base Kernel size. Now spread over a number of pixels
 
-    dest->ScaleRadiance(0.0); // Hack !!
+    dest->scaleRadiance(0.0); // Hack !!
 
     int i, j, k, maxk;
 

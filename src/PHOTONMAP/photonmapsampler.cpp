@@ -138,7 +138,7 @@ static REFRACTIONINDEX BsdfGeometricIOR(BSDF *bsdf) {
     // Convert to geometric IOR if necessary
 
     if ( nc.ni > EPSILON ) {
-        nc.nr = ComplexToGeometricRefractionIndex(nc);
+        nc.nr = complexToGeometricRefractionIndex(nc);
         nc.ni = 0.0; // ? Necessary ?
     }
 
@@ -188,7 +188,7 @@ static bool ChooseFresnelDirection(CPathNode *thisNode, CPathNode *newNode,
         if ( flags & BRDF_SPECULAR_COMPONENT ) {
             // Hack !?
             F = 1.0;
-            reflectedDir = IdealReflectedDirection(&thisNode->m_inDirT,
+            reflectedDir = idealReflectedDirection(&thisNode->m_inDirT,
                                                    &thisNode->m_normal);
             cosi = VECTORDOTPRODUCT(thisNode->m_normal, thisNode->m_inDirF);
             if ( cosi < 0 ) {
@@ -198,12 +198,12 @@ static bool ChooseFresnelDirection(CPathNode *thisNode, CPathNode *newNode,
             F = 0;
         }
     } else {
-        refractedDir = IdealRefractedDirection(&thisNode->m_inDirT,
+        refractedDir = idealRefractedDirection(&thisNode->m_inDirT,
                                                &thisNode->m_normal,
                                                nc_in, nc_out, &tir);
 
         if ( !tir ) {
-            reflectedDir = IdealReflectedDirection(&thisNode->m_inDirT,
+            reflectedDir = idealReflectedDirection(&thisNode->m_inDirT,
                                                    &thisNode->m_normal);
         }
 

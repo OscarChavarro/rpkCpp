@@ -305,7 +305,7 @@ initGalerkin() {
     GLOBAL_galerkin_state.top_cluster = galerkinCreateClusterHierarchy(GLOBAL_galerkin_state.top_geom);
 
     /* create a scratch software renderer for various operations on clusters */
-    ScratchInit();
+    scratchInit();
 
     /* global variables used for formfactor computation optimisation */
     GLOBAL_galerkin_state.fflastrcv = GLOBAL_galerkin_state.fflastsrc = (GalerkinElement *) nullptr;
@@ -353,7 +353,7 @@ doGalerkinOneStep() {
 
 static void
 terminateGalerkin() {
-    ScratchTerminate();
+    scratchTerminate();
     galerkinDestroyClusterHierarchy(GLOBAL_galerkin_state.top_cluster);
 }
 
