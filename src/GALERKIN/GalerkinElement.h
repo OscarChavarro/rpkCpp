@@ -1,8 +1,9 @@
-/* element.h: Galerkin finite elements: one structure for both surface and cluster
-1;95;0c * elements.  */
+/**
+Galerkin finite elements: one structure for both surface and cluster elements
+*/
 
-#ifndef _ELEMENT_H_
-#define _ELEMENT_H_
+#ifndef __GALERKIN_ELEMENT__
+#define __GALERKIN_ELEMENT__
 
 #include "skin/Patch.h"
 #include "GALERKIN/interactionlist.h"
@@ -24,33 +25,35 @@ typedef union PatchOrGeomPtr {
     Geometry *geom;
 } PatchOrGeomPtr;
 
-/* the Galerkin radiosity specific data to be kept with every surface or 
- * cluster element. A flag indicates whether a given element is a cluster or
- * surface elements. There are only a few differences between surface and cluster 
- * elements: cluster elements always have a constant basis on them, they contain
- * a pointer to the Geometry to which they are associated, while a surface element has
- * a pointer to the Patch to which is belongs, they have only irregular subelements,
- * and no uptrans. */
+/**
+The Galerkin radiosity specific data to be kept with every surface or
+cluster element. A flag indicates whether a given element is a cluster or
+surface elements. There are only a few differences between surface and cluster
+elements: cluster elements always have a constant basis on them, they contain
+a pointer to the Geometry to which they are associated, while a surface element has
+a pointer to the Patch to which is belongs, they have only irregular sub-elements,
+and no up trans
+*/
 class GalerkinElement : public Element {
   public:
-    COLOR *radiance,    /* total radiance on the element as computed so far */
-    *received_radiance, /* radiance received during iteration */
-    *unshot_radiance; /* for progressive refinement radiosity */
-    FloatOrColorPtr potential, received_potential, unshot_potential, direct_potential;
-    /* total potential of the element, potential
-* received during the last iteration and unshot
-* potential (progressive refinement radiosity). */
+    COLOR *radiance; // Total radiance on the element as computed so far
+    COLOR *receivedRadiance; // Radiance received during iteration
+    COLOR *unShotRadiance; // For progressive refinement radiosity
+    FloatOrColorPtr potential; // Total potential of the element
+    FloatOrColorPtr receivedPotential; // Potential received during the last iteration
+    FloatOrColorPtr unShotPotential; // Un-shot potential (progressive refinement radiosity)
+    FloatOrColorPtr directPotential;
     INTERACTIONLIST *interactions; /* links with other patches: when using
 			 * a shooting algorithm, the links are kept 
 			 * with the source element. When doing gathering,
 			 * the links are kept with the receiver element. */
     GalerkinElement *parent;    /* parent element in a hierarchy, or
 			 * a nullptr pointer if there is no parent. */
-    GalerkinElement **regular_subelements;    /* a nullptr pointer if there are no
+    GalerkinElement **regularSubElements; /* A nullptr pointer if there are no
 			 * regular sub-elements, or an array containing
-			 * exactly 4 pointers to the sub-elements. */
-    ELEMENTLIST *irregular_subelements;    /* nullptr pointer or pointer to
-			 * the list of irregular subelements. */
+			 * exactly 4 pointers to the sub-elements */
+    ELEMENTLIST *irregularSubElements; /* nullptr pointer or pointer to
+			 * the list of irregular sub-elements */
     Matrix2x2 *uptrans;    /* if non-null, transforms (u,v) coordinates on
 			 * a subelement to the (u,v) coordinates of the 
 			 * same point on the parent surface element. It is nullptr
@@ -59,15 +62,18 @@ class GalerkinElement : public Element {
 			 * a patch. */
     float area;            /* area of a surface element or sum of the areas
 			 * of the surfaces in a cluster element. */
-    float minarea;    /* equal to area for a surface element or the area
+    float minimumArea;    /* equal to area for a surface element or the area
 			 * of the smallest surface element in a cluster. */
-    float bsize;        /* Equivalent blocker size for multiresoltuin visibility */
-    int nrpatches;    /* number of patches in a cluster */
-    int tmp;        /* for occasional use */
-    char childnr;        /* rang nr of regular subelement in parent */
-    char basis_size;    /* nr of coefficients to represent radiance ... */
-    char basis_used;    /* nr of coefficients effectively used (<=basis_size) */
-    unsigned char flags;    /* various flags, see below */
+    float bsize; // Equivalent blocker size for multi-resolution visibility
+    int numberOfPatches; // Number of patches in a cluster
+    int tmp; // For occasional use
+    char childnr; // Rang nr of regular sub-element in parent
+    char basisSize; // Number of coefficients to represent radiance
+    char basisUsed; // Number of coefficients effectively used (<=basis_size)
+    unsigned char flags; // Various flags, see below
+
+    GalerkinElement();
+    void printRegularHierarchy(int level);
 };
 
 /* element flags: */
@@ -87,35 +93,39 @@ isCluster(GalerkinElement *element) {
 
 #define IsLightSource(element)    (element->flags & IS_LIGHT_SOURCE)
 
-/* calls 'routine' for every regular subelement of the element (if there
- * are any). 'routine' should have one argument: an ELEMENT *. */
-#define ITERATE_REGULAR_SUBELEMENTS(element, routine)        \
-  if ((element)->regular_subelements) {                \
-    int i;                            \
-    for (i=0; i<4; i++)                        \
-      (routine)((element)->regular_subelements[i]);        \
+/**
+Calls 'routine' for every regular subelement of the element (if there
+are any). 'routine' should have one argument: an ELEMENT *
+*/
+#define ITERATE_REGULAR_SUBELEMENTS(element, routine) \
+  if ((element)->regularSubElements) { \
+    int i; \
+    for ( i = 0; i < 4; i++) \
+      (routine)((element)->regularSubElements[i]); \
   }
 
-/* same, but for the irregular subelements. */
-#define ITERATE_IRREGULAR_SUBELEMENTS(element, routine)    \
-  ElementListIterate(element->irregular_subelements, routine)
+/**
+Same, but for the irregular sub-elements
+*/
+#define ITERATE_IRREGULAR_SUBELEMENTS(element, routine) \
+  ElementListIterate(element->irregularSubElements, routine)
 
-#define ForAllRegularSubelements(child, elem) {        \
-  if ((elem)->regular_subelements) {                \
-    int i;                            \
-    for (i=0; i<4; i++) {                    \
-      GalerkinElement *child = (elem)->regular_subelements[i] ;        \
+#define ForAllRegularSubelements(child, elem) { \
+  if ((elem)->regularSubElements) { \
+    int i; \
+    for ( i = 0; i < 4; i++) { \
+      GalerkinElement *child = (elem)->regularSubElements[i];
 
-#define ForAllIrregularSubelements(child, elem) {        \
-  if ((elem)->irregular_subelements) {                \
-    ELEMENTLIST *ellist;                    \
-    for (ellist = (elem)->irregular_subelements; ellist; ellist=ellist->next) {\
-      GalerkinElement *child = ellist->element;            \
+#define ForAllIrregularSubelements(child, elem) { \
+  if ((elem)->irregularSubElements) { \
+    ELEMENTLIST *ellist; \
+    for (ellist = (elem)->irregularSubElements; ellist; ellist=ellist->next) { \
+      GalerkinElement *child = ellist->element;
 
 /**
-Position and orientation of the regular subelements is fully
+Position and orientation of the regular sub-elements is fully
 determined by the following transforms, that transform (u,v)
-parameters of a point on a subelement to the (u',v') parameters
+parameters of a point on a sub-element to the (u',v') parameters
 of the same point on the parent element
 */
 extern Matrix2x2 GLOBAL_galerkin_QuadUpTransformMatrix[4];

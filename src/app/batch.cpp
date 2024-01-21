@@ -37,7 +37,7 @@ static CommandLineOptionDescription batchOptions[] = {
     {"-raytracing-image-savefile", 14, Tstring, &globalRaytracingImageFileName, DEFAULT_ACTION,
      "-raytracing-image-savefile <filename>\t: raytracing PPM savefile name"},
     {"-timings", 3,  Tsettrue, &globalTimings, DEFAULT_ACTION,
-     "-timings\t: print timings for world-space radiance and raytracing methods"},
+     "-timings\t: printRegularHierarchy timings for world-space radiance and raytracing methods"},
     {nullptr, 0,  TYPELESS, nullptr, DEFAULT_ACTION, nullptr}
 };
 

@@ -70,8 +70,8 @@ createInitialLink(Patch *patch) {
 
     link.receiverElement = rcv;
     link.sourceElement = src;
-    link.nrcv = rcv->basis_size;
-    link.nsrc = src->basis_size;
+    link.nrcv = rcv->basisSize;
+    link.nsrc = src->basisSize;
     areaToAreaFormFactor(&link, globalCandidateList);
 
     if ( GLOBAL_galerkin_state.exact_visibility || GLOBAL_galerkin_state.shaftcullmode == ALWAYS_DO_SHAFTCULLING ) {
@@ -184,11 +184,11 @@ createInitialLinkWithTopCluster(GalerkinElement *elem, ROLE role) {
     }
 
     // Assume no light transport (overlapping receiver and source)
-    if ( rcv->basis_size * src->basis_size == 1 ) {
+    if ( rcv->basisSize * src->basisSize == 1 ) {
         K.f = 0.0;
     } else {
         K.p = ff;
-        for ( i = 0; i < rcv->basis_size * src->basis_size; i++ ) {
+        for ( i = 0; i < rcv->basisSize * src->basisSize; i++ ) {
             K.p[i] = 0.0;
         }
     }
@@ -199,8 +199,8 @@ createInitialLinkWithTopCluster(GalerkinElement *elem, ROLE role) {
             src,
             K,
             deltaK,
-            rcv->basis_size, // nrcv
-            src->basis_size, // nsrc
+            rcv->basisSize, // nrcv
+            src->basisSize, // nsrc
             1, // crcv
             128 // vis
     );

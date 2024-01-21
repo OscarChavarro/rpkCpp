@@ -203,7 +203,7 @@ surfaceDestroy(MeshSurface *surface) {
 }
 
 /**
-This method will print the geometry to the file out
+This method will printRegularHierarchy the geometry to the file out
 */
 void
 surfacePrint(FILE *out, MeshSurface *surface) {

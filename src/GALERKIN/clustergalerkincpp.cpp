@@ -27,7 +27,7 @@ static void
 geomAddClusterChild(Geometry *geom, GalerkinElement *parent_cluster) {
     GalerkinElement *cluster = galerkinDoCreateClusterHierarchy(geom);
 
-    parent_cluster->irregular_subelements = ElementListAdd(parent_cluster->irregular_subelements, cluster);
+    parent_cluster->irregularSubElements = ElementListAdd(parent_cluster->irregularSubElements, cluster);
     cluster->parent = parent_cluster;
 }
 
@@ -39,7 +39,7 @@ static void
 patchAddClusterChild(Patch *patch, GalerkinElement *cluster) {
     GalerkinElement *surfaceElement = (GalerkinElement *)patch->radianceData;
 
-    cluster->irregular_subelements = ElementListAdd(cluster->irregular_subelements, surfaceElement);
+    cluster->irregularSubElements = ElementListAdd(cluster->irregularSubElements, surfaceElement);
     surfaceElement->parent = cluster;
 }
 
@@ -54,16 +54,16 @@ clusterInit(GalerkinElement *cluster) {
     /* total area of surfaces inside the cluster is sum of the areas of
      * the subclusters + pull radiance. */
     cluster->area = 0.;
-    cluster->nrpatches = 0;
-    cluster->minarea = HUGE;
-    clusterGalerkinClearCoefficients(cluster->radiance, cluster->basis_size);
-    for ( subellist = cluster->irregular_subelements; subellist; subellist = subellist->next ) {
+    cluster->numberOfPatches = 0;
+    cluster->minimumArea = HUGE;
+    clusterGalerkinClearCoefficients(cluster->radiance, cluster->basisSize);
+    for ( subellist = cluster->irregularSubElements; subellist; subellist = subellist->next ) {
         GalerkinElement *subclus = subellist->element;
         cluster->area += subclus->area;
-        cluster->nrpatches += subclus->nrpatches;
+        cluster->numberOfPatches += subclus->numberOfPatches;
         colorAddScaled(cluster->radiance[0], subclus->area, subclus->radiance[0], cluster->radiance[0]);
-        if ( subclus->minarea < cluster->minarea ) {
-            cluster->minarea = subclus->minarea;
+        if ( subclus->minimumArea < cluster->minimumArea ) {
+            cluster->minimumArea = subclus->minimumArea;
         }
         cluster->flags |= (subclus->flags & IS_LIGHT_SOURCE);
         colorAddScaled(cluster->Ed, subclus->area, subclus->Ed, cluster->Ed);
@@ -73,13 +73,13 @@ clusterInit(GalerkinElement *cluster) {
 
     /* also pull unshot radiance for the "shooting" methods */
     if ( GLOBAL_galerkin_state.iteration_method == SOUTHWELL ) {
-        clusterGalerkinClearCoefficients(cluster->unshot_radiance, cluster->basis_size);
-        for ( subellist = cluster->irregular_subelements; subellist; subellist = subellist->next ) {
+        clusterGalerkinClearCoefficients(cluster->unShotRadiance, cluster->basisSize);
+        for ( subellist = cluster->irregularSubElements; subellist; subellist = subellist->next ) {
             GalerkinElement *subclus = subellist->element;
-            colorAddScaled(cluster->unshot_radiance[0], subclus->area, subclus->unshot_radiance[0],
-                           cluster->unshot_radiance[0]);
+            colorAddScaled(cluster->unShotRadiance[0], subclus->area, subclus->unShotRadiance[0],
+                           cluster->unShotRadiance[0]);
         }
-        colorScale((1.0f / cluster->area), cluster->unshot_radiance[0], cluster->unshot_radiance[0]);
+        colorScale((1.0f / cluster->area), cluster->unShotRadiance[0], cluster->unShotRadiance[0]);
     }
 
     /* compute equivalent blocker (or blocker complement) size for multi-resolution
@@ -167,7 +167,7 @@ iterateOverSurfaceElementsInCluster(GalerkinElement *clus, void (*func)(Galerkin
         func(clus);
     } else {
         ELEMENTLIST *subcluslist;
-        for ( subcluslist = clus->irregular_subelements; subcluslist; subcluslist = subcluslist->next ) {
+        for ( subcluslist = clus->irregularSubElements; subcluslist; subcluslist = subcluslist->next ) {
             GalerkinElement *subclus = subcluslist->element;
             iterateOverSurfaceElementsInCluster(subclus, func);
         }
@@ -202,7 +202,7 @@ accumulatePowerToSamplePoint(GalerkinElement *src) {
          GLOBAL_galerkin_state.iteration_method == JACOBI ) {
         rad = src->radiance[0];
     } else {
-        rad = src->unshot_radiance[0];
+        rad = src->unShotRadiance[0];
     }
 
     colorAddScaled(globalSourceRadiance, srcos * src->area, rad, globalSourceRadiance);
@@ -362,14 +362,14 @@ radiance is explicitely given
 */
 static void
 doGatherRadiance(GalerkinElement *rcv, double area_factor, INTERACTION *link, COLOR *srcrad) {
-    COLOR *rcvrad = rcv->received_radiance;
+    COLOR *rcvrad = rcv->receivedRadiance;
 
     if ( link->nrcv == 1 && link->nsrc == 1 ) {
         colorAddScaled(rcvrad[0], area_factor * link->K.f, srcrad[0], rcvrad[0]);
     } else {
         int alpha, beta, a, b;
-        a = MIN(link->nrcv, rcv->basis_size);
-        b = MIN(link->nsrc, link->sourceElement->basis_size);
+        a = MIN(link->nrcv, rcv->basisSize);
+        b = MIN(link->nsrc, link->sourceElement->basisSize);
         for ( alpha = 0; alpha < a; alpha++ ) {
             for ( beta = 0; beta < b; beta++ ) {
                 colorAddScaled(rcvrad[alpha],
@@ -473,7 +473,7 @@ determineMaxRadiance(GalerkinElement *elem) {
          GLOBAL_galerkin_state.iteration_method == JACOBI ) {
         rad = elem->radiance[0];
     } else {
-        rad = elem->unshot_radiance[0];
+        rad = elem->unShotRadiance[0];
     }
     colorMaximum(globalSourceRadiance, rad, globalSourceRadiance);
 }

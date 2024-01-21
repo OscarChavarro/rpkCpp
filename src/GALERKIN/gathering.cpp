@@ -85,13 +85,13 @@ a potential change in directly received potential
 */
 void
 gatheringUpdateDirectPotential(GalerkinElement *elem, float potential_increment) {
-    if ( elem->regular_subelements ) {
+    if ( elem->regularSubElements ) {
         int i;
         for ( i = 0; i < 4; i++ ) {
-            gatheringUpdateDirectPotential(elem->regular_subelements[i], potential_increment);
+            gatheringUpdateDirectPotential(elem->regularSubElements[i], potential_increment);
         }
     }
-    elem->direct_potential.f += potential_increment;
+    elem->directPotential.f += potential_increment;
     elem->potential.f += potential_increment;
 }
 
@@ -103,25 +103,25 @@ static float
 gatheringPushPullPotential(GalerkinElement *elem, float down) {
     float up;
 
-    down += elem->received_potential.f / elem->area;
-    elem->received_potential.f = 0.0;
+    down += elem->receivedPotential.f / elem->area;
+    elem->receivedPotential.f = 0.0;
 
     up = 0.0;
 
-    if ( !elem->regular_subelements && !elem->irregular_subelements ) {
+    if ( !elem->regularSubElements && !elem->irregularSubElements ) {
         up = down + elem->patch->directPotential;
     }
 
-    if ( elem->regular_subelements ) {
+    if ( elem->regularSubElements ) {
         int i;
         for ( i = 0; i < 4; i++ ) {
-            up += 0.25f * gatheringPushPullPotential(elem->regular_subelements[i], down);
+            up += 0.25f * gatheringPushPullPotential(elem->regularSubElements[i], down);
         }
     }
 
-    if ( elem->irregular_subelements ) {
+    if ( elem->irregularSubElements ) {
         ELEMENTLIST *subellist;
-        for ( subellist = elem->irregular_subelements; subellist; subellist = subellist->next ) {
+        for ( subellist = elem->irregularSubElements; subellist; subellist = subellist->next ) {
             GalerkinElement *subel = subellist->element;
             if ( !isCluster(elem)) {
                 down = 0.0;
@@ -147,7 +147,7 @@ gatheringClusterUpdatePotential(GalerkinElement *cluster) {
     if ( cluster->flags & IS_CLUSTER ) {
         ELEMENTLIST *subClusterList;
         cluster->potential.f = 0.0;
-        for ( subClusterList = cluster->irregular_subelements; subClusterList; subClusterList = subClusterList->next ) {
+        for ( subClusterList = cluster->irregularSubElements; subClusterList; subClusterList = subClusterList->next ) {
             GalerkinElement *subCluster = subClusterList->element;
             cluster->potential.f += subCluster->area * gatheringClusterUpdatePotential(subCluster);
         }
@@ -215,7 +215,7 @@ doClusteredGatheringIteration() {
             updateDirectPotential();
             for ( PatchSet *window = GLOBAL_scene_patches; window != nullptr; window = window->next ) {
                 GalerkinElement *top = TOPLEVEL_ELEMENT(window->patch);
-                float potential_increment = window->patch->directPotential - top->direct_potential.f;
+                float potential_increment = window->patch->directPotential - top->directPotential.f;
                 gatheringUpdateDirectPotential(top, potential_increment);
             }
             gatheringClusterUpdatePotential(GLOBAL_galerkin_state.top_cluster);

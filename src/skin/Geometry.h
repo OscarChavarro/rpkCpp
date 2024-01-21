@@ -114,7 +114,7 @@ class GEOM_METHODS {
     void (*destroy)(void *obj);
 
     /**
-     * This method will print the geometry to the file out
+     * This method will printRegularHierarchy the geometry to the file out
      */
     void (*print)(FILE *out, void *obj);
 

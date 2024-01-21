@@ -54,7 +54,7 @@ compoundDestroy(Compound *obj) {
 }
 
 /**
-This method will print the geometry to the file out
+This method will printRegularHierarchy the geometry to the file out
 */
 static void
 compoundPrint(FILE *out, Compound *compound) {

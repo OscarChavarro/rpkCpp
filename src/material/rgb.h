@@ -42,7 +42,7 @@ inline int operator==(RGB rgb1, RGB rgb2)
 }
 
 /**
-print an RGB triplet
+printRegularHierarchy an RGB triplet
 */
 inline void
 printRGB(FILE *fp, RGB color) {

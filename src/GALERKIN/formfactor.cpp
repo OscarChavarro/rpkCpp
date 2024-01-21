@@ -208,7 +208,7 @@ doHigherOrderAreaToAreaFormFactor(
     int alpha;
     int beta;
     COLOR *srcrad = (GLOBAL_galerkin_state.iteration_method == SOUTHWELL) ?
-                    src->unshot_radiance : src->radiance;
+                    src->unShotRadiance : src->radiance;
 
     // Receiver and source basis description
     if ( isCluster(rcv) ) {

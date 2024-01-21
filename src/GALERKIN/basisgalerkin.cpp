@@ -21,7 +21,7 @@ basisGalerkinRadianceAtPoint(GalerkinElement *elem, COLOR *coefficients, double 
         return rad;
     }
 
-    for ( i = 0; i < elem->basis_size; i++ ) {
+    for ( i = 0; i < elem->basisSize; i++ ) {
         double f = basis->function[i](u, v);
         colorAddScaled(rad, f, coefficients[i], rad);
     }
@@ -66,23 +66,23 @@ basisGalerkinPush(
     int alpha, beta, sigma = child->childnr;
 
     if ( isCluster(parent)) {
-        /* clusters have only irregular subelements and a constant
-         * aprroximation is used on them. */
-        clusterGalerkinClearCoefficients(child_coefficients, child->basis_size);
+        // Clusters have only irregular sub-elements and a constant
+        // approximation is used on them
+        clusterGalerkinClearCoefficients(child_coefficients, child->basisSize);
         child_coefficients[0] = parent_coefficients[0];
     } else {
         if ( sigma < 0 || sigma > 3 ) {
             logError("stochasticJacobiPush", "Not yet implemented for non-regular subdivision");
-            clusterGalerkinClearCoefficients(child_coefficients, child->basis_size);
+            clusterGalerkinClearCoefficients(child_coefficients, child->basisSize);
             child_coefficients[0] = parent_coefficients[0];
             return;
         }
 
-        /* Parent and child basis should be the same */
+        // Parent and child basis should be the same
         basis = child->patch->numberOfVertices == 3 ? &GLOBAL_galerkin_triBasis : &GLOBAL_galerkin_quadBasis;
-        for ( beta = 0; beta < child->basis_size; beta++ ) {
+        for ( beta = 0; beta < child->basisSize; beta++ ) {
             colorClear(child_coefficients[beta]);
-            for ( alpha = 0; alpha < parent->basis_size; alpha++ ) {
+            for ( alpha = 0; alpha < parent->basisSize; alpha++ ) {
                 double f = basis->regular_filter[sigma][alpha][beta];
                 if ( f < -EPSILON || f > EPSILON )
                     colorAddScaled(child_coefficients[beta], f,
@@ -109,32 +109,32 @@ regular (quadtree) subdivision.
 */
 void
 basisGalerkinPull(
-        GalerkinElement *parent,
-        COLOR *parent_coefficients,
-        GalerkinElement *child,
-        COLOR *child_coefficients)
+    GalerkinElement *parent,
+    COLOR *parent_coefficients,
+    GalerkinElement *child,
+    COLOR *child_coefficients)
 {
     GalerkinBasis *basis;
     int alpha, beta, sigma = child->childnr;
 
-    if ( isCluster(parent)) {
-        /* clusters only have irregular subelements and a constant
-         * radiance approximation is used on them. */
-        clusterGalerkinClearCoefficients(parent_coefficients, parent->basis_size);
+    if ( isCluster(parent) ) {
+        // Clusters only have irregular sub-elements and a constant
+        // radiance approximation is used on them
+        clusterGalerkinClearCoefficients(parent_coefficients, parent->basisSize);
         colorScale(child->area / parent->area, child_coefficients[0], parent_coefficients[0]);
     } else {
         if ( sigma < 0 || sigma > 3 ) {
             logError("stochasticJacobiPull", "Not yet implemented for non-regular subdivision");
-            clusterGalerkinClearCoefficients(parent_coefficients, parent->basis_size);
+            clusterGalerkinClearCoefficients(parent_coefficients, parent->basisSize);
             parent_coefficients[0] = child_coefficients[0];
             return;
         }
 
-        /* Parent and child basis should be the same */
+        // Parent and child basis should be the same
         basis = child->patch->numberOfVertices == 3 ? &GLOBAL_galerkin_triBasis : &GLOBAL_galerkin_quadBasis;
-        for ( alpha = 0; alpha < parent->basis_size; alpha++ ) {
+        for ( alpha = 0; alpha < parent->basisSize; alpha++ ) {
             colorClear(parent_coefficients[alpha]);
-            for ( beta = 0; beta < child->basis_size; beta++ ) {
+            for ( beta = 0; beta < child->basisSize; beta++ ) {
                 double f = basis->regular_filter[sigma][alpha][beta];
                 if ( f < -EPSILON || f > EPSILON )
                     colorAddScaled(parent_coefficients[alpha], f,
@@ -154,29 +154,29 @@ basisGalerkinPushPullRadianceRecursive(GalerkinElement *elem, COLOR *Bdown, COLO
     int i;
 
     // Re-normalize the received radiance at this level and add to Bdown
-    for ( i = 0; i < elem->basis_size; i++ ) {
-        colorAddScaled(Bdown[i], 1. / elem->area, elem->received_radiance[i], Bdown[i]);
-        colorClear(elem->received_radiance[i]);
+    for ( i = 0; i < elem->basisSize; i++ ) {
+        colorAddScaled(Bdown[i], 1.0f / elem->area, elem->receivedRadiance[i], Bdown[i]);
+        colorClear(elem->receivedRadiance[i]);
     }
 
-    clusterGalerkinClearCoefficients(Bup, elem->basis_size);
+    clusterGalerkinClearCoefficients(Bup, elem->basisSize);
 
-    if ( !elem->regular_subelements && !elem->irregular_subelements ) {
+    if ( !elem->regularSubElements && !elem->irregularSubElements ) {
         // Leaf-element, multiply with reflectivity at the lowest level
         COLOR rho = elem->patch->radianceData->Rd;
-        for ( i = 0; i < elem->basis_size; i++ ) {
+        for ( i = 0; i < elem->basisSize; i++ ) {
             colorProduct(rho, Bdown[i], Bup[i]);
         }
 
         if ( GLOBAL_galerkin_state.iteration_method == JACOBI || GLOBAL_galerkin_state.iteration_method == GAUSS_SEIDEL ) {
             // Add self-emitted radiance. Bup is a new approximation of the total radiance
-            //add this leaf element
-            COLOR Ed = SELFEMITTED_RADIANCE(elem->patch);
+            // add this leaf element
+            COLOR Ed = elem->patch->radianceData->Ed;
             colorAdd(Bup[0], Ed, Bup[0]);
         }
     }
 
-    if ( elem->regular_subelements ) {
+    if ( elem->regularSubElements != nullptr ) {
         // Regularly subdivided surface element
         for ( i = 0; i < 4; i++ ) {
             COLOR Btmp[MAXBASISSIZE];
@@ -184,22 +184,22 @@ basisGalerkinPushPullRadianceRecursive(GalerkinElement *elem, COLOR *Bdown, COLO
             COLOR Bup2[MAXBASISSIZE];
 
             // 1. Push Bdown to the i-th sub-element
-            basisGalerkinPush(elem, Bdown, elem->regular_subelements[i], Bdown2);
+            basisGalerkinPush(elem, Bdown, elem->regularSubElements[i], Bdown2);
 
             // 2. Recursive call the push-pull for the sub-element
-            basisGalerkinPushPullRadianceRecursive(elem->regular_subelements[i], Bdown2, Btmp);
+            basisGalerkinPushPullRadianceRecursive(elem->regularSubElements[i], Bdown2, Btmp);
 
             // 3. Pull the radiance of the sub-element up to this level again
-            basisGalerkinPull(elem, Bup2, elem->regular_subelements[i], Btmp);
+            basisGalerkinPull(elem, Bup2, elem->regularSubElements[i], Btmp);
 
             // 4. Add to Bup
-            clusterGalerkinAddCoefficients(Bup, Bup2, elem->basis_size);
+            clusterGalerkinAddCoefficients(Bup, Bup2, elem->basisSize);
         }
     }
 
-    if ( elem->irregular_subelements ) { /* a cluster or irregularly subdivided surface element */
+    if ( elem->irregularSubElements ) { /* a cluster or irregularly subdivided surface element */
         ELEMENTLIST *subellist;
-        for ( subellist = elem->irregular_subelements; subellist; subellist = subellist->next ) {
+        for ( subellist = elem->irregularSubElements; subellist; subellist = subellist->next ) {
             GalerkinElement *subel = subellist->element;
             COLOR Btmp[MAXBASISSIZE], Bdown2[MAXBASISSIZE], Bup2[MAXBASISSIZE];
 
@@ -208,7 +208,7 @@ basisGalerkinPushPullRadianceRecursive(GalerkinElement *elem, COLOR *Bdown, COLO
             if ( isCluster(elem)) {
                 basisGalerkinPush(elem, Bdown, subel, Bdown2);
             } else
-                clusterGalerkinClearCoefficients(Bdown2, elem->basis_size);
+                clusterGalerkinClearCoefficients(Bdown2, elem->basisSize);
 
             // 2. Recursive call the push-pull for the sub-element
             basisGalerkinPushPullRadianceRecursive(subel, Bdown2, Btmp);
@@ -217,17 +217,17 @@ basisGalerkinPushPullRadianceRecursive(GalerkinElement *elem, COLOR *Bdown, COLO
             basisGalerkinPull(elem, Bup2, subel, Btmp);
 
             // 4. Add to Bup
-            clusterGalerkinAddCoefficients(Bup, Bup2, elem->basis_size);
+            clusterGalerkinAddCoefficients(Bup, Bup2, elem->basisSize);
         }
     }
 
     if ( GLOBAL_galerkin_state.iteration_method == JACOBI || GLOBAL_galerkin_state.iteration_method == GAUSS_SEIDEL ) {
         // Gathering method: Bup is new approximation of the total radiance at this level of detail
-        clusterGalerkinCopyCoefficients(elem->radiance, Bup, elem->basis_size);
+        clusterGalerkinCopyCoefficients(elem->radiance, Bup, elem->basisSize);
     } else {
         // Shooting: add Bup to the total and un-shot radiance at this level
-        clusterGalerkinAddCoefficients(elem->radiance, Bup, elem->basis_size);
-        clusterGalerkinAddCoefficients(elem->unshot_radiance, Bup, elem->basis_size);
+        clusterGalerkinAddCoefficients(elem->radiance, Bup, elem->basisSize);
+        clusterGalerkinAddCoefficients(elem->unShotRadiance, Bup, elem->basisSize);
     }
 }
 
@@ -237,8 +237,12 @@ radiance, making a consistent hierarchical representation
 */
 void
 basisGalerkinPushPullRadiance(GalerkinElement *top) {
+    printf("===================================\n");
+    top->printRegularHierarchy(0);
+    printf("-----------------------------------\n");
+
     COLOR Bdown[MAXBASISSIZE], Bup[MAXBASISSIZE];
-    clusterGalerkinClearCoefficients(Bdown, top->basis_size);
+    clusterGalerkinClearCoefficients(Bdown, top->basisSize);
     basisGalerkinPushPullRadianceRecursive(top, Bdown, Bup);
 }
 

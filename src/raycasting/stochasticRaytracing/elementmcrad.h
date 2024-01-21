@@ -1,5 +1,5 @@
-#ifndef _ELEMENT_H_
-#define _ELEMENT_H_
+#ifndef __GALERKIN_ELEMENT__
+#define __GALERKIN_ELEMENT__
 
 /**
 Data associated with each Patch:

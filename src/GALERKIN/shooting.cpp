@@ -57,15 +57,15 @@ void
 shootUnshotRadianceAndPotentialOverLink(INTERACTION *link) {
     COLOR *srcrad, *rcvrad;
 
-    srcrad = link->sourceElement->unshot_radiance;
-    rcvrad = link->receiverElement->received_radiance;
+    srcrad = link->sourceElement->unShotRadiance;
+    rcvrad = link->receiverElement->receivedRadiance;
 
     if ( link->nrcv == 1 && link->nsrc == 1 ) {
         colorAddScaled(rcvrad[0], link->K.f, srcrad[0], rcvrad[0]);
     } else {
         int alpha, beta, a, b;
-        a = MIN(link->nrcv, link->receiverElement->basis_size);
-        b = MIN(link->nsrc, link->sourceElement->basis_size);
+        a = MIN(link->nrcv, link->receiverElement->basisSize);
+        b = MIN(link->nsrc, link->sourceElement->basisSize);
         for ( alpha = 0; alpha < a; alpha++ ) {
             for ( beta = 0; beta < b; beta++ ) {
                 colorAddScaled(rcvrad[alpha], link->K.p[alpha * link->nsrc + beta], srcrad[beta], rcvrad[alpha]);
@@ -83,7 +83,7 @@ shootUnshotRadianceAndPotentialOverLink(INTERACTION *link) {
         } else {
             srcrho = REFLECTIVITY(link->sourceElement->patch);
         }
-        link->receiverElement->received_potential.f += K * colorMaximumComponent(srcrho) * link->sourceElement->unshot_potential.f;
+        link->receiverElement->receivedPotential.f += K * colorMaximumComponent(srcrho) * link->sourceElement->unShotPotential.f;
     }
 }
 
@@ -91,8 +91,8 @@ static void
 clearUnshotRadianceAndPotential(GalerkinElement *elem) {
     ITERATE_REGULAR_SUBELEMENTS(elem, clearUnshotRadianceAndPotential);
     ITERATE_IRREGULAR_SUBELEMENTS(elem, clearUnshotRadianceAndPotential);
-    clusterGalerkinClearCoefficients(elem->unshot_radiance, elem->basis_size);
-    elem->unshot_potential.f = 0.;
+    clusterGalerkinClearCoefficients(elem->unShotRadiance, elem->basisSize);
+    elem->unShotPotential.f = 0.;
 }
 
 /* Creates initial links if necessary. Propagates the unshot radiance of
@@ -127,24 +127,24 @@ shootingPushPullPotential(GalerkinElement *elem, float down) {
     float up;
     int i;
 
-    down += elem->received_potential.f / elem->area;
-    elem->received_potential.f = 0.;
+    down += elem->receivedPotential.f / elem->area;
+    elem->receivedPotential.f = 0.;
 
     up = 0.;
 
-    if ( !elem->regular_subelements && !elem->irregular_subelements ) {
+    if ( !elem->regularSubElements && !elem->irregularSubElements ) {
         up = down;
     }
 
-    if ( elem->regular_subelements ) {
+    if ( elem->regularSubElements ) {
         for ( i = 0; i < 4; i++ ) {
-            up += 0.25f * shootingPushPullPotential(elem->regular_subelements[i], down);
+            up += 0.25f * shootingPushPullPotential(elem->regularSubElements[i], down);
         }
     }
 
-    if ( elem->irregular_subelements ) {
+    if ( elem->irregularSubElements ) {
         ELEMENTLIST *subElementList;
-        for ( subElementList = elem->irregular_subelements; subElementList; subElementList = subElementList->next ) {
+        for ( subElementList = elem->irregularSubElements; subElementList; subElementList = subElementList->next ) {
             GalerkinElement *subElement = subElementList->element;
             if ( !isCluster(elem)) {
                 down = 0.;
@@ -155,7 +155,7 @@ shootingPushPullPotential(GalerkinElement *elem, float down) {
     }
 
     elem->potential.f += up;
-    elem->unshot_potential.f += up;
+    elem->unShotPotential.f += up;
     return up;
 }
 
@@ -182,7 +182,7 @@ doPropagate(Patch *shooting_patch) {
             shootingPushPullPotential(GLOBAL_galerkin_state.top_cluster, 0.0);
         }
         basisGalerkinPushPullRadiance(GLOBAL_galerkin_state.top_cluster);
-        GLOBAL_galerkin_state.ambient_radiance = GLOBAL_galerkin_state.top_cluster->unshot_radiance[0];
+        GLOBAL_galerkin_state.ambient_radiance = GLOBAL_galerkin_state.top_cluster->unShotRadiance[0];
     } else {
         colorClear(GLOBAL_galerkin_state.ambient_radiance);
         for ( PatchSet *window = GLOBAL_scene_patches; window != nullptr; window = window->next ) {
@@ -220,15 +220,15 @@ propagateRadiance() {
  * virtual camera has changed). */
 void
 shootingUpdateDirectPotential(GalerkinElement *elem, float potential_increment) {
-    if ( elem->regular_subelements ) {
+    if ( elem->regularSubElements ) {
         int i;
         for ( i = 0; i < 4; i++ ) {
-            shootingUpdateDirectPotential(elem->regular_subelements[i], potential_increment);
+            shootingUpdateDirectPotential(elem->regularSubElements[i], potential_increment);
         }
     }
-    elem->direct_potential.f += potential_increment;
+    elem->directPotential.f += potential_increment;
     elem->potential.f += potential_increment;
-    elem->unshot_potential.f += potential_increment;
+    elem->unShotPotential.f += potential_increment;
 }
 
 /* Recomputes the potential and unshot potential of the cluster and its subclusters 
@@ -238,15 +238,15 @@ clusterUpdatePotential(GalerkinElement *clus) {
     if ( isCluster(clus)) {
         ELEMENTLIST *subcluslist;
         clus->potential.f = 0.;
-        clus->unshot_potential.f = 0.;
-        for ( subcluslist = clus->irregular_subelements; subcluslist; subcluslist = subcluslist->next ) {
+        clus->unShotPotential.f = 0.;
+        for ( subcluslist = clus->irregularSubElements; subcluslist; subcluslist = subcluslist->next ) {
             GalerkinElement *subclus = subcluslist->element;
             clusterUpdatePotential(subclus);
             clus->potential.f += subclus->area * subclus->potential.f;
-            clus->unshot_potential.f += subclus->area * subclus->unshot_potential.f;
+            clus->unShotPotential.f += subclus->area * subclus->unShotPotential.f;
         }
         clus->potential.f /= clus->area;
-        clus->unshot_potential.f /= clus->area;
+        clus->unShotPotential.f /= clus->area;
     }
 }
 
@@ -295,7 +295,7 @@ reallyDoShootingStep() {
             updateDirectPotential();
             for ( PatchSet *window = GLOBAL_scene_patches; window != nullptr; window = window->next ) {
                 GalerkinElement *top = TOPLEVEL_ELEMENT(window->patch);
-                float potential_increment = window->patch->directPotential - top->direct_potential.f;
+                float potential_increment = window->patch->directPotential - top->directPotential.f;
                 shootingUpdateDirectPotential(top, potential_increment);
             }
             GLOBAL_camera_mainCamera.changed = false;

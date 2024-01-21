@@ -18,7 +18,7 @@ elementColor(StochasticRadiosityElement *element) {
             radianceToRgb(elementDisplayRadiance(element), &color);
             break;
         case SHOW_IMPORTANCE: {
-            float gray = element->imp > 1. ? 1. : element->imp < 0. ? 0. : element->imp;
+            float gray = element->imp > 1.0 ? 1.0 : element->imp < 0.0 ? 0.0 : element->imp;
             setRGB(color, gray, gray, gray);
             break;
         }
@@ -111,11 +111,11 @@ vertexColor(Vertex *v) {
             break;
         case SHOW_IMPORTANCE: {
             float gray = vertexImportance(v);
-            if ( gray > 1. ) {
-                gray = 1.;
+            if ( gray > 1.0 ) {
+                gray = 1.0;
             }
-            if ( gray < 0. ) {
-                gray = 0.;
+            if ( gray < 0.0 ) {
+                gray = 0.0;
             }
             setRGB(v->color, gray, gray, gray);
             break;

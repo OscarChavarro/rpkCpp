@@ -18,9 +18,9 @@ The Galerkin specific data for a patch is its toplevel element
 */
 
 #define RADIANCE(patch) ((GalerkinElement *)(patch->radianceData))->radiance[0]
-#define UNSHOT_RADIANCE(patch) ((GalerkinElement *)(patch->radianceData))->unshot_radiance[0]
+#define UNSHOT_RADIANCE(patch) ((GalerkinElement *)(patch->radianceData))->unShotRadiance[0]
 #define POTENTIAL(patch) ((GalerkinElement *)(patch->radianceData))->potential
-#define UNSHOT_POTENTIAL(patch) ((GalerkinElement *)(patch->radianceData))->unshot_potential
+#define UNSHOT_POTENTIAL(patch) ((GalerkinElement *)(patch->radianceData))->unShotPotential
 #define SELFEMITTED_RADIANCE(patch) ((GalerkinElement *)(patch->radianceData))->Ed
 #define REFLECTIVITY(patch) ((GalerkinElement *)(patch->radianceData))->Rd
 #define TOPLEVEL_ELEMENT(patch) ((GalerkinElement *)(patch->radianceData))

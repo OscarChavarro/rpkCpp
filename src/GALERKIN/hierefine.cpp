@@ -183,7 +183,7 @@ hierarchicRefinementApproximationError(INTERACTION *link, COLOR srcrho, COLOR rc
             if ( isCluster(link->sourceElement) && link->sourceElement != link->receiverElement ) {
                 srcrad = sourceClusterRadiance(link); /* returns unshot radiance for shooting */
             } else {
-                srcrad = link->sourceElement->unshot_radiance[0];
+                srcrad = link->sourceElement->unShotRadiance[0];
             }
 
             colorProductScaled(rcvrho, link->deltaK.f, srcrad, error);
@@ -195,7 +195,7 @@ hierarchicRefinementApproximationError(INTERACTION *link, COLOR srcrho, COLOR rc
                  * from source to receiver. Note that it makes no sense to
                  * subdivide receiver patches (potential is only used to help
                  * choosing a radiance shooting patch. */
-                approx_error2 = (hierarchicRefinementColorToError(srcrho) * link->deltaK.f * link->sourceElement->unshot_potential.f);
+                approx_error2 = (hierarchicRefinementColorToError(srcrho) * link->deltaK.f * link->sourceElement->unShotPotential.f);
 
                 /* compare potential error w.r.t. maximum direct potential or importance
                  * instead of selfemitted radiance or power. */
@@ -334,17 +334,17 @@ hierarchicRefinementComputeLightTransport(INTERACTION *link) {
 
     /* Update the number of effectively used radiance coefficients on the
      * receiver element. */
-    a = MIN(link->nrcv, link->receiverElement->basis_size);
-    b = MIN(link->nsrc, link->sourceElement->basis_size);
-    if ( a > link->receiverElement->basis_used ) {
-        link->receiverElement->basis_used = a;
+    a = MIN(link->nrcv, link->receiverElement->basisSize);
+    b = MIN(link->nsrc, link->sourceElement->basisSize);
+    if ( a > link->receiverElement->basisUsed ) {
+        link->receiverElement->basisUsed = a;
     }
-    if ( b > link->sourceElement->basis_used ) {
-        link->sourceElement->basis_used = b;
+    if ( b > link->sourceElement->basisUsed ) {
+        link->sourceElement->basisUsed = b;
     }
 
     if ( GLOBAL_galerkin_state.iteration_method == SOUTHWELL ) {
-        srcrad = link->sourceElement->unshot_radiance;
+        srcrad = link->sourceElement->unShotRadiance;
     } else {
         srcrad = link->sourceElement->radiance;
     }
@@ -357,7 +357,7 @@ hierarchicRefinementComputeLightTransport(INTERACTION *link) {
     if ( isCluster(link->receiverElement) && link->sourceElement != link->receiverElement ) {
         clusterGatherRadiance(link, srcrad);
     } else {
-        rcvrad = link->receiverElement->received_radiance;
+        rcvrad = link->receiverElement->receivedRadiance;
         if ( link->nrcv == 1 && link->nsrc == 1 ) {
             colorAddScaled(rcvrad[0], link->K.f, srcrad[0], rcvrad[0]);
         } else {
@@ -381,14 +381,14 @@ hierarchicRefinementComputeLightTransport(INTERACTION *link) {
             } else {
                 rcvrho = REFLECTIVITY(link->receiverElement->patch);
             }
-            link->sourceElement->received_potential.f += K * hierarchicRefinementColorToError(rcvrho) * link->receiverElement->potential.f;
+            link->sourceElement->receivedPotential.f += K * hierarchicRefinementColorToError(rcvrho) * link->receiverElement->potential.f;
         } else if ( GLOBAL_galerkin_state.iteration_method == SOUTHWELL ) {
             if ( isCluster(link->sourceElement)) {
                 colorSetMonochrome(srcrho, 1.0f);
             } else {
                 srcrho = REFLECTIVITY(link->sourceElement->patch);
             }
-            link->receiverElement->received_potential.f += K * hierarchicRefinementColorToError(srcrho) * link->sourceElement->unshot_potential.f;
+            link->receiverElement->receivedPotential.f += K * hierarchicRefinementColorToError(srcrho) * link->sourceElement->unShotPotential.f;
         } else {
             logFatal(-1, "hierarchicRefinementComputeLightTransport", "Hela hola did you introduce a new iteration method or so??");
         }
@@ -413,13 +413,13 @@ hierarchicRefinementCreateSubdivisionLink(GalerkinElement *rcv, GalerkinElement 
     if ( isCluster(link->receiverElement)) {
         link->nrcv = 1;
     } else {
-        link->nrcv = rcv->basis_size;
+        link->nrcv = rcv->basisSize;
     }
 
     if ( isCluster(link->sourceElement)) {
         link->nsrc = 1;
     } else {
-        link->nsrc = src->basis_size;
+        link->nsrc = src->basisSize;
     }
 
     areaToAreaFormFactor(link, globalCandidatesList);
@@ -457,7 +457,7 @@ hierarchicRefinementRegularSubdivideSource(INTERACTION *link) {
 
     galerkinElementRegularSubDivide(src);
     for ( i = 0; i < 4; i++ ) {
-        GalerkinElement *child = src->regular_subelements[i];
+        GalerkinElement *child = src->regularSubElements[i];
         INTERACTION subinteraction;
         float ff[MAXBASISSIZE * MAXBASISSIZE];
         subinteraction.K.p = ff;    /* temporary storage for the formfactors */
@@ -487,7 +487,7 @@ hierarchicRefinementRegularSubdivideReceiver(INTERACTION *link) {
     for ( i = 0; i < 4; i++ ) {
         INTERACTION subinteraction;
         float ff[MAXBASISSIZE * MAXBASISSIZE];
-        GalerkinElement *child = rcv->regular_subelements[i];
+        GalerkinElement *child = rcv->regularSubElements[i];
         subinteraction.K.p = ff;
 
         if ( hierarchicRefinementCreateSubdivisionLink(child, src, &subinteraction)) {
@@ -511,7 +511,7 @@ hierarchicRefinementSubdivideSourceCluster(INTERACTION *link) {
     GalerkinElement *src = link->sourceElement, *rcv = link->receiverElement;
     ELEMENTLIST *subcluslist;
 
-    for ( subcluslist = src->irregular_subelements; subcluslist; subcluslist = subcluslist->next ) {
+    for ( subcluslist = src->irregularSubElements; subcluslist; subcluslist = subcluslist->next ) {
         GalerkinElement *child = subcluslist->element;
         INTERACTION subinteraction;
         float ff[MAXBASISSIZE * MAXBASISSIZE];
@@ -547,7 +547,7 @@ hierarchicRefinementSubdivideReceiverCluster(INTERACTION *link) {
     GalerkinElement *src = link->sourceElement, *rcv = link->receiverElement;
     ELEMENTLIST *subcluslist;
 
-    for ( subcluslist = rcv->irregular_subelements; subcluslist; subcluslist = subcluslist->next ) {
+    for ( subcluslist = rcv->irregularSubElements; subcluslist; subcluslist = subcluslist->next ) {
         GalerkinElement *child = subcluslist->element;
         INTERACTION subinteraction;
         float ff[MAXBASISSIZE * MAXBASISSIZE];

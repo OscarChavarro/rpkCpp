@@ -97,7 +97,7 @@ brdfEvalPdf(
 }
 
 /**
-print the brdf data the to specified file pointer
+printRegularHierarchy the brdf data the to specified file pointer
 */
 void
 brdfPrint(FILE *out, BRDF *brdf) {

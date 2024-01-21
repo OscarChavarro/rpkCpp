@@ -14,6 +14,35 @@
 static int globalNumberOfElements = 0;
 static int globalNumberOfClusters = 0;
 
+GalerkinElement::GalerkinElement(): regularSubElements() {
+
+}
+
+void
+printPre(int level) {
+    if ( level <= 0 ) {
+        printf("- ");
+    } else if ( level == 1 ) {
+        printf(" . ");
+    } else {
+        for ( int i = 0; i < level; i++ ) {
+            printf("  ");
+        }
+        printf("->");
+    }
+}
+
+void
+GalerkinElement::printRegularHierarchy(int level) {
+    printPre(level);
+    printf("%d\n", id);
+    if ( regularSubElements != nullptr ) {
+        for ( int i = 0; i < 4; i++ ) {
+            regularSubElements[i]->printRegularHierarchy(level + 1);
+        }
+    }
+}
+
 /**
 Orientation and position of regular sub-elements is fully determined by the
 following transformations. A uniform mapping of parameter domain to the
@@ -139,42 +168,42 @@ galerkinElementReAllocCoefficients(GalerkinElement *element) {
     radiance = new COLOR[basisSize];
     clusterGalerkinClearCoefficients(radiance, basisSize);
     if ( element->radiance ) {
-        clusterGalerkinCopyCoefficients(radiance, element->radiance, MIN(element->basis_size, basisSize));
+        clusterGalerkinCopyCoefficients(radiance, element->radiance, MIN(element->basisSize, basisSize));
         free(element->radiance);
     }
     element->radiance = radiance;
 
     receivedRadiance = new COLOR[basisSize];
     clusterGalerkinClearCoefficients(receivedRadiance, basisSize);
-    if ( element->received_radiance ) {
-        clusterGalerkinCopyCoefficients(receivedRadiance, element->received_radiance, MIN(element->basis_size, basisSize));
-        free(element->received_radiance);
+    if ( element->receivedRadiance ) {
+        clusterGalerkinCopyCoefficients(receivedRadiance, element->receivedRadiance, MIN(element->basisSize, basisSize));
+        free(element->receivedRadiance);
     }
-    element->received_radiance = receivedRadiance;
+    element->receivedRadiance = receivedRadiance;
 
     if ( GLOBAL_galerkin_state.iteration_method == SOUTHWELL ) {
         unShotRadiance = new COLOR[basisSize];
         clusterGalerkinClearCoefficients(unShotRadiance, basisSize);
         if ( !isCluster(element)) {
-            if ( element->unshot_radiance ) {
-                clusterGalerkinCopyCoefficients(unShotRadiance, element->unshot_radiance,
-                                                MIN(element->basis_size, basisSize));
-                free(element->unshot_radiance);
+            if ( element->unShotRadiance ) {
+                clusterGalerkinCopyCoefficients(unShotRadiance, element->unShotRadiance,
+                                                MIN(element->basisSize, basisSize));
+                free(element->unShotRadiance);
             } else if ( element->patch->surface ) {
                 unShotRadiance[0] = SELFEMITTED_RADIANCE(element->patch);
             }
         }
-        element->unshot_radiance = unShotRadiance;
+        element->unShotRadiance = unShotRadiance;
     } else {
-        if ( element->unshot_radiance ) {
-            free(element->unshot_radiance);
+        if ( element->unShotRadiance ) {
+            free(element->unShotRadiance);
         }
-        element->unshot_radiance = (COLOR *) nullptr;
+        element->unShotRadiance = (COLOR *) nullptr;
     }
 
-    element->basis_size = basisSize;
-    if ( element->basis_used > element->basis_size ) {
-        element->basis_used = element->basis_size;
+    element->basisSize = basisSize;
+    if ( element->basisUsed > element->basisSize ) {
+        element->basisUsed = element->basisSize;
     }
 }
 
@@ -187,23 +216,23 @@ galerkinElementCreate() {
 
     colorClear(newElement->Ed);
     colorClear(newElement->Rd);
-    newElement->id = globalNumberOfElements + 1;    /* let the IDs start from 1, not 0 */
-    newElement->radiance = newElement->received_radiance = newElement->unshot_radiance = (COLOR *) nullptr;
-    newElement->potential.f = newElement->received_potential.f = newElement->unshot_potential.f = 0.;
+    newElement->id = globalNumberOfElements + 1; // Let the IDs start from 1, not 0
+    newElement->radiance = newElement->receivedRadiance = newElement->unShotRadiance = (COLOR *) nullptr;
+    newElement->potential.f = newElement->receivedPotential.f = newElement->unShotPotential.f = 0.;
     newElement->interactions = InteractionListCreate();
-    newElement->patch = (Patch *) nullptr;
-    newElement->geom = (Geometry *) nullptr;
-    newElement->parent = (GalerkinElement *) nullptr;
-    newElement->regular_subelements = (GalerkinElement **) nullptr;
-    newElement->irregular_subelements = ElementListCreate();
-    newElement->uptrans = (Matrix2x2 *) nullptr;
-    newElement->area = 0.;
+    newElement->patch = nullptr;
+    newElement->geom = nullptr;
+    newElement->parent = nullptr;
+    newElement->regularSubElements = nullptr;
+    newElement->irregularSubElements = ElementListCreate();
+    newElement->uptrans = nullptr;
+    newElement->area = 0.0;
     newElement->flags = 0x00;
     newElement->childnr = -1; // Means: "not a regular sub-element"
-    newElement->basis_size = 0;
-    newElement->basis_used = 0;
-    newElement->nrpatches = 1; // Correct for surface elements and it will be computed later for clusters
-    newElement->minarea = HUGE;
+    newElement->basisSize = 0;
+    newElement->basisUsed = 0;
+    newElement->numberOfPatches = 1; // Correct for surface elements, it will be computed later for clusters
+    newElement->minimumArea = HUGE;
     newElement->tmp = 0;
     newElement->bsize = 0.0; // Correct eq. blocker size will be computer later on
 
@@ -218,9 +247,9 @@ GalerkinElement *
 galerkinElementCreateTopLevel(Patch *patch) {
     GalerkinElement *element = galerkinElementCreate();
     element->patch = patch;
-    element->minarea = element->area = patch->area;
+    element->minimumArea = element->area = patch->area;
     element->bsize = 2.0f * (float)std::sqrt(element->area / M_PI);
-    element->direct_potential.f = patch->directPotential;
+    element->directPotential.f = patch->directPotential;
 
     element->Rd = patchAverageNormalAlbedo(patch, BRDF_DIFFUSE_COMPONENT);
     if ( patch->surface && patch->surface->material &&
@@ -257,26 +286,24 @@ galerkinElementCreateCluster(Geometry *geometry) {
 
 /**
 Regularly subdivides the given element. A pointer to an array of
-4 pointers to sub-elements is returned
-Only for surface elements
+4 pointers to sub-elements is returned.
+
+Only applicable to surface elements.
 */
 GalerkinElement **
 galerkinElementRegularSubDivide(GalerkinElement *element) {
-    GalerkinElement **subElement;
-    int i;
-
-    if ( isCluster(element)) {
+    if ( isCluster(element) ) {
         logFatal(-1, "galerkinElementRegularSubDivide", "Cannot regularly subdivide cluster elements");
-        return (GalerkinElement **) nullptr;
+        return nullptr;
     }
 
-    if ( element->regular_subelements ) {
-        return element->regular_subelements;
+    if ( element->regularSubElements != nullptr ) {
+        return element->regularSubElements;
     }
 
-    subElement = new GalerkinElement *[4];
+    GalerkinElement **subElement = new GalerkinElement *[4];
 
-    for ( i = 0; i < 4; i++ ) {
+    for ( int i = 0; i < 4; i++ ) {
         subElement[i] = galerkinElementCreate();
         subElement[i]->patch = element->patch;
         subElement[i]->parent = element;
@@ -290,11 +317,11 @@ galerkinElementRegularSubDivide(GalerkinElement *element) {
         basisGalerkinPush(element, element->radiance, subElement[i], subElement[i]->radiance);
 
         subElement[i]->potential.f = element->potential.f;
-        subElement[i]->direct_potential.f = element->direct_potential.f;
+        subElement[i]->directPotential.f = element->directPotential.f;
 
         if ( GLOBAL_galerkin_state.iteration_method == SOUTHWELL ) {
-            basisGalerkinPush(element, element->unshot_radiance, subElement[i], subElement[i]->unshot_radiance);
-            subElement[i]->unshot_potential.f = element->unshot_potential.f;
+            basisGalerkinPush(element, element->unShotRadiance, subElement[i], subElement[i]->unShotRadiance);
+            subElement[i]->unShotPotential.f = element->unShotPotential.f;
         }
 
         subElement[i]->flags |= (element->flags & IS_LIGHT_SOURCE);
@@ -306,7 +333,8 @@ galerkinElementRegularSubDivide(GalerkinElement *element) {
         galerkinElementDrawOutline(subElement[i]);
     }
 
-    return (element->regular_subelements = subElement);
+    element->regularSubElements = subElement;
+    return subElement;
 }
 
 static void
@@ -317,11 +345,11 @@ galerkinElementDestroy(GalerkinElement *element) {
     if ( element->radiance ) {
         delete[] element->radiance;
     }
-    if ( element->received_radiance ) {
-        delete[] element->received_radiance;
+    if ( element->receivedRadiance ) {
+        delete[] element->receivedRadiance;
     }
-    if ( element->unshot_radiance ) {
-        delete[] element->unshot_radiance;
+    if ( element->unShotRadiance ) {
+        delete[] element->unShotRadiance;
     }
     delete element;
     globalNumberOfElements--;
@@ -332,18 +360,18 @@ Destroys the toplevel surface element and it's sub-elements (recursive)
 */
 void
 galerkinElementDestroyTopLevel(GalerkinElement *element) {
-    if ( !element ) {
+    if ( element == nullptr ) {
         return;
     }
 
-    if ( element->regular_subelements ) {
+    if ( element->regularSubElements ) {
         ITERATE_REGULAR_SUBELEMENTS(element, galerkinElementDestroyTopLevel);
-        free(element->regular_subelements);
+        free(element->regularSubElements);
     }
 
-    if ( element->irregular_subelements ) {
+    if ( element->irregularSubElements ) {
         ITERATE_IRREGULAR_SUBELEMENTS(element, galerkinElementDestroyTopLevel);
-        ElementListDestroy(element->irregular_subelements);
+        ElementListDestroy(element->irregularSubElements);
     }
 
     galerkinElementDestroy(element);
@@ -374,7 +402,7 @@ galerkinElementPrint(FILE *out, GalerkinElement *element) {
             element->parent ? element->parent->id : -1,
             element->childnr);
     fprintf(out, "area = %g, bsize = %g, basis size = %d\n",
-            element->area, element->bsize, element->basis_size);
+            element->area, element->bsize, element->basisSize);
 
     if ( element->uptrans ) {
         fprintf(out, "up-transform:\n");
@@ -385,31 +413,31 @@ galerkinElementPrint(FILE *out, GalerkinElement *element) {
 
     if ( element->radiance ) {
         fprintf(out, "radiance = ");
-        printCoefficients(out, element->radiance, element->basis_size);
+        printCoefficients(out, element->radiance, element->basisSize);
         fprintf(out, "\n");
     } else {
         fprintf(out, "No radiance coefficients.\n");
     }
 
-    if ( element->received_radiance ) {
+    if ( element->receivedRadiance ) {
         fprintf(out, "received_radiance = ");
-        printCoefficients(out, element->received_radiance, element->basis_size);
+        printCoefficients(out, element->receivedRadiance, element->basisSize);
         fprintf(out, "\n");
     } else {
         fprintf(out, "No received_radiance coefficients.\n");
     }
 
-    if ( element->unshot_radiance ) {
+    if ( element->unShotRadiance ) {
         fprintf(out, "unshot_radiance = ");
-        printCoefficients(out, element->unshot_radiance, element->basis_size);
+        printCoefficients(out, element->unShotRadiance, element->basisSize);
         fprintf(out, "\n");
     } else {
         fprintf(out, "No unshot_radiance coefficients.\n");
     }
 
     fprintf(out, "potential.f = %g, received_potential.f = %g, unshot_potential.f = %g, directPotential = %g\n",
-            element->potential.f, element->received_potential.f, element->unshot_potential.f,
-            element->direct_potential.f);
+            element->potential.f, element->receivedPotential.f, element->unShotPotential.f,
+            element->directPotential.f);
 
     fprintf(out, "interactions_created = %s",
             element->flags & INTERACTIONS_CREATED ? "TRUE" : "FALSE");
@@ -421,21 +449,21 @@ galerkinElementPrint(FILE *out, GalerkinElement *element) {
         fprintf(out, ", no interactions.\n");
     }
 
-    if ( element->regular_subelements ) {
+    if ( element->regularSubElements ) {
         int i;
         fprintf(out, "regular subelements: ");
         for ( i = 0; i < 4; i++ ) {
-            fprintf(out, "%d, ", element->regular_subelements[i]->id);
+            fprintf(out, "%d, ", element->regularSubElements[i]->id);
         }
         fprintf(out, "\n");
     } else {
         fprintf(out, "No regular subelements.\n");
     }
 
-    if ( element->irregular_subelements ) {
+    if ( element->irregularSubElements ) {
         ELEMENTLIST *elist;
         fprintf(out, "irregular subelements: ");
-        for ( elist = element->irregular_subelements; elist; elist = elist->next ) {
+        for ( elist = element->irregularSubElements; elist; elist = elist->next ) {
             fprintf(out, "%d, ", elist->element->id);
         }
         fprintf(out, "\n");
@@ -497,7 +525,7 @@ galerkinElementRegularSubElementAtPoint(GalerkinElement *parent, double *u, doub
     double _u = *u;
     double _v = *v;
 
-    if ( isCluster(parent) || !parent->regular_subelements ) {
+    if ( isCluster(parent) || !parent->regularSubElements ) {
         return parent;
     }
 
@@ -505,19 +533,19 @@ galerkinElementRegularSubElementAtPoint(GalerkinElement *parent, double *u, doub
     switch ( parent->patch->numberOfVertices ) {
         case 3:
             if ( _u + _v <= 0.5 ) {
-                child = parent->regular_subelements[0];
+                child = parent->regularSubElements[0];
                 *u = _u * 2.;
                 *v = _v * 2.;
             } else if ( _u > 0.5 ) {
-                child = parent->regular_subelements[1];
+                child = parent->regularSubElements[1];
                 *u = (_u - 0.5) * 2.;
                 *v = _v * 2.;
             } else if ( _v > 0.5 ) {
-                child = parent->regular_subelements[2];
+                child = parent->regularSubElements[2];
                 *u = _u * 2.;
                 *v = (_v - 0.5) * 2.;
             } else {
-                child = parent->regular_subelements[3];
+                child = parent->regularSubElements[3];
                 *u = (0.5 - _u) * 2.;
                 *v = (0.5 - _v) * 2.;
             }
@@ -525,19 +553,19 @@ galerkinElementRegularSubElementAtPoint(GalerkinElement *parent, double *u, doub
         case 4:
             if ( _v <= 0.5 ) {
                 if ( _u < 0.5 ) {
-                    child = parent->regular_subelements[0];
+                    child = parent->regularSubElements[0];
                     *u = _u * 2.;
                 } else {
-                    child = parent->regular_subelements[1];
+                    child = parent->regularSubElements[1];
                     *u = (_u - 0.5) * 2.;
                 }
                 *v = _v * 2.;
             } else {
                 if ( _u < 0.5 ) {
-                    child = parent->regular_subelements[2];
+                    child = parent->regularSubElements[2];
                     *u = _u * 2.;
                 } else {
-                    child = parent->regular_subelements[3];
+                    child = parent->regularSubElements[3];
                     *u = (_u - 0.5) * 2.;
                 }
                 *v = (_v - 0.5) * 2.;
@@ -561,7 +589,7 @@ galerkinElementRegularLeafAtPoint(GalerkinElement *top, double *u, double *v) {
 
     /* find leaf element of 'top' at (u,v) */
     leaf = top;
-    while ( leaf->regular_subelements ) {
+    while ( leaf->regularSubElements ) {
         leaf = galerkinElementRegularSubElementAtPoint(leaf, u, v);
     }
 
@@ -862,7 +890,7 @@ forAllLeafElements(GalerkinElement *top, void (*func)(GalerkinElement *)) {
                 }
     EndForAll;
 
-    if ( !top->irregular_subelements && !top->regular_subelements ) {
+    if ( !top->irregularSubElements && !top->regularSubElements ) {
         func(top);
     }
 }

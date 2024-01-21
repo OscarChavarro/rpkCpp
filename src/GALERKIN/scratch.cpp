@@ -91,7 +91,7 @@ scratchRenderElementPtrs(GalerkinElement *clus, Vector3D eye) {
 
     /* choose a viewport depending on the relative size of the smallest
      * surface element in the cluster to be rendered. */
-    vp_size = (int) ((bbx[MAX_X] - bbx[MIN_X]) * (bbx[MAX_Y] - bbx[MIN_Y]) / clus->minarea);
+    vp_size = (int) ((bbx[MAX_X] - bbx[MIN_X]) * (bbx[MAX_Y] - bbx[MIN_Y]) / clus->minimumArea);
     if ( vp_size > GLOBAL_galerkin_state.scratch->width ) {
         vp_size = GLOBAL_galerkin_state.scratch->width;
     }
@@ -132,7 +132,7 @@ scratchRadiance() {
                      GLOBAL_galerkin_state.iteration_method == JACOBI ) {
                     colorAdd(rad, elem->radiance[0], rad);
                 } else {
-                    colorAdd(rad, elem->unshot_radiance[0], rad);
+                    colorAdd(rad, elem->unShotRadiance[0], rad);
                 }
                 nonbkgrnd++;
             }
