@@ -23,8 +23,8 @@
 
 #define Nied Nied63
 #define NextNiedInRange NextNiedInRange63
-#define RadicalInverse RadicalInverse63
-#define FoldSample FoldSample63
+#define radicalInverse radicalInverse63
+#define foldSample foldSample63
 #define niedindex unsigned long long
 
 extern unsigned long long *Nied63(unsigned long long index);

@@ -1,5 +1,5 @@
 /**
-Push/pull operations
+stochasticJacobiPush/pull operations
 */
 
 #include "common/error.h"

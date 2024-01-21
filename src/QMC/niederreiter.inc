@@ -112,7 +112,7 @@ niedindex *NextNiedInRange(niedindex *idx, int dir,
 }
 
 /* Computes the base-2 radical inverse of the given number (31 bits) */
-niedindex RadicalInverse(niedindex n) {
+niedindex radicalInverse(niedindex n) {
     niedindex inv = 0, f = NBITS_POW1;
     while ( n ) {
         if ( n & 1 ) {
@@ -140,7 +140,8 @@ niedindex RadicalInverse(niedindex n) {
 }
 
 /* "folds" a sample in the unit square to the standard triangle (0,0),(1,0),(0,1) */
-void FoldSample(niedindex *xi1, niedindex *xi2) {
+void
+foldSample(niedindex *xi1, niedindex *xi2) {
     niedindex u = *xi1, v = *xi2, d, m;
 
     u = (u & ~3) | 1;        /* clear last two bits / displace point */

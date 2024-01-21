@@ -1,21 +1,17 @@
-/* stochjacobi.c: generic stochastic Jacobi iteration (local lines) */
-/* TODO: combined radiance/importance propagation */
-/* TODO: hierarchical refinement for importance propagation */
-/* TODO: re-incorporate the rejection sampling technique for
- * sampling positions on shooters with higher order radiosity approximation
- * (lower variance) */
-/* TODO: global lines and global line bundles. */
+/**
+Generic stochastic Jacobi iteration (local lines)
+TODO: combined radiance/importance propagation
+TODO: hierarchical refinement for importance propagation
+TODO: re-incorporate the rejection sampling technique for
+sampling positions on shooters with higher order radiosity approximation
+(lower variance)
+TODO: global lines and global line bundles.
+*/
 
-#include <cstdlib>
-
-#include "material/statistics.h"
 #include "common/error.h"
-#include "QMC/niederreiter.h"
 #include "scene/scene.h"
-#include "scene/spherical.h"
 #include "raycasting/stochasticRaytracing/mcradP.h"
 #include "raycasting/stochasticRaytracing/hierarchy.h"
-#include "raycasting/stochasticRaytracing/stochjacobi.h"
 #include "raycasting/stochasticRaytracing/ccr.h"
 #include "raycasting/stochasticRaytracing/localline.h"
 
@@ -32,10 +28,13 @@ static int do_control_variate;    /* whether or not to use a constant control va
 static int nr_rays;        /* nr of rays to shoot in the iteration */
 static double sum_probs = 0.0;    /* sum of unnormalised sampling "probabilities" */
 
-static void InitGlobals(int nrrays,
-                        COLOR *(*GetRadiance)(StochasticRadiosityElement *),
-                        float (*GetImportance)(StochasticRadiosityElement *),
-                        void (*Update)(StochasticRadiosityElement *P, double w)) {
+static void
+stochasticJacobiInitGlobals(
+    int nrrays,
+    COLOR *(*GetRadiance)(StochasticRadiosityElement *),
+    float (*GetImportance)(StochasticRadiosityElement *),
+    void (*Update)(StochasticRadiosityElement *P, double w))
+{
     nr_rays = nrrays;
     get_radiance = GetRadiance;
     get_importance = GetImportance;
@@ -51,7 +50,8 @@ static void InitGlobals(int nrrays,
     }
 }
 
-static void PrintMessage(long nr_rays) {
+static void
+stochasticJacobiPrintMessage(long nr_rays) {
     fprintf(stderr, "%s-directional ",
             GLOBAL_stochasticRaytracing_monteCarloRadiosityState.bidirectionalTransfers ? "Bi" : "Uni");
     if ( get_radiance && get_importance ) {
@@ -75,12 +75,15 @@ static void PrintMessage(long nr_rays) {
     fprintf(stderr, "(%ld rays):\n", nr_rays);
 }
 
-/* compute (unnormalised) probability of shooting a ray from elem */
-static double Probability(StochasticRadiosityElement *elem) {
-    double prob = 0.;
+/**
+Compute (unnormalised) stochasticJacobiProbability of shooting a ray from elem
+*/
+static double
+stochasticJacobiProbability(StochasticRadiosityElement *elem) {
+    double prob = 0.0;
 
     if ( get_radiance ) {
-        /* probability proportional to power to be propagated. */
+        // Probability proportional to power to be propagated
         COLOR radiance = get_radiance(elem)[0];
         if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.constantControlVariate ) {
             colorSubtract(radiance, GLOBAL_stochasticRaytracing_monteCarloRadiosityState.controlRadiance, radiance);
@@ -97,7 +100,7 @@ static double Probability(StochasticRadiosityElement *elem) {
         double prob2 = elem->area * fabs(get_importance(elem)) * monteCarloRadiosityElementScalarReflectance(elem);
 
         if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.radianceDriven ) {
-            /* received-radiance weighted importance transport */
+            // Received-radiance weighted importance transport
             COLOR received_radiance;
             colorSubtract(elem->rad[0], elem->source_rad, received_radiance);
             prob2 *= colorSumAbsComponents(received_radiance);
@@ -112,8 +115,11 @@ static double Probability(StochasticRadiosityElement *elem) {
     return prob;
 }
 
-/* clear accumulators of all kinds of sample weights and contributions */
-static void ElementClearAccumulators(StochasticRadiosityElement *elem) {
+/**
+Clear accumulators of all kinds of sample weights and contributions
+*/
+static void
+stochasticJacobiElementClearAccumulators(StochasticRadiosityElement *elem) {
     if ( get_radiance ) {
         stochasticRadiosityClearCoefficients(elem->received_rad, elem->basis);
     }
@@ -122,14 +128,17 @@ static void ElementClearAccumulators(StochasticRadiosityElement *elem) {
     }
 }
 
-/* Clears received radiance and importance and accumulates the unnormalised
- * sampling probabilities at leaf elements. */
-static void ElementSetup(StochasticRadiosityElement *elem) {
+/**
+Clears received radiance and importance and accumulates the unnormalised
+sampling probabilities at leaf elements
+*/
+static void
+stochasticJacobiElementSetup(StochasticRadiosityElement *elem) {
     elem->prob = 0.;
-    if ( !monteCarloRadiosityForAllChildrenElements(elem, ElementSetup)) {
+    if ( !monteCarloRadiosityForAllChildrenElements(elem, stochasticJacobiElementSetup)) {
         /* elem is a leaf element. We need to compute the sum of the unnormalized
          * sampling "probabilities" at the leaf elements */
-        elem->prob = Probability(elem);
+        elem->prob = stochasticJacobiProbability(elem);
         sum_probs += elem->prob;
     }
     if ( elem->parent ) {
@@ -138,20 +147,22 @@ static void ElementSetup(StochasticRadiosityElement *elem) {
         elem->parent->prob += elem->prob;
     }
 
-    ElementClearAccumulators(elem);
+    stochasticJacobiElementClearAccumulators(elem);
 }
 
-/* returns true if succes, that is: sum of sampling probabilities is nonzero */
-static int Setup() {
-    /* determine constant control radiosity if required. */
+/**
+Returns true if succes, that is: sum of sampling probabilities is nonzero
+*/
+static int
+stochasticJacobiSetup() {
+    // Determine constant control radiosity if required
     colorClear(GLOBAL_stochasticRaytracing_monteCarloRadiosityState.controlRadiance);
     if ( do_control_variate ) {
-        GLOBAL_stochasticRaytracing_monteCarloRadiosityState.controlRadiance = determineControlRadiosity(get_radiance,
-                                                                                                         nullptr);
+        GLOBAL_stochasticRaytracing_monteCarloRadiosityState.controlRadiance = determineControlRadiosity(get_radiance, nullptr);
     }
 
-    sum_probs = 0.;
-    ElementSetup(GLOBAL_stochasticRaytracing_hierarchy.topcluster);
+    sum_probs = 0.0;
+    stochasticJacobiElementSetup(GLOBAL_stochasticRaytracing_hierarchy.topcluster);
 
     if ( sum_probs < EPSILON * EPSILON ) {
         logWarning("Iteration", "No sources");
@@ -160,15 +171,19 @@ static int Setup() {
     return true;
 }
 
-/* returns radiance to be propagated from the given location of the element */
-static COLOR GetSourceRadiance(StochasticRadiosityElement *src, double us, double vs) {
+/**
+Returns radiance to be propagated from the given location of the element
+*/
+static COLOR
+stochasticJacobiGetSourceRadiance(StochasticRadiosityElement *src, double us, double vs) {
     COLOR *srcrad = get_radiance(src);
     return colorAtUv(src->basis, srcrad, us, vs);
 }
 
-static void PropagateRadianceToSurface(StochasticRadiosityElement *rcv, double ur, double vr,
-                                       COLOR raypow, StochasticRadiosityElement *src,
-                                       double fraction, double weight) {
+static void
+stochasticJacobiPropagateRadianceToSurface(StochasticRadiosityElement *rcv, double ur, double vr,
+                                           COLOR raypow, StochasticRadiosityElement *src,
+                                           double fraction, double weight) {
     int i;
     for ( i = 0; i < rcv->basis->size; i++ ) {
         double dual = rcv->basis->dualfunction[i](ur, vr) / rcv->area;
@@ -177,15 +192,17 @@ static void PropagateRadianceToSurface(StochasticRadiosityElement *rcv, double u
     }
 }
 
-static void PropagateRadianceToClusterIsotropic(StochasticRadiosityElement *cluster, COLOR raypow, StochasticRadiosityElement *src,
-                                                double fraction, double weight) {
+static void
+stochasticJacobiPropagateRadianceToClusterIsotropic(StochasticRadiosityElement *cluster, COLOR raypow, StochasticRadiosityElement *src,
+                                                    double fraction, double weight) {
     double w = fraction / cluster->area / (double) nr_rays;
     colorAddScaled(cluster->received_rad[0], w, raypow, cluster->received_rad[0]);
 }
 
-static void PropagateRadianceToClusterOriented(StochasticRadiosityElement *cluster, COLOR raypow, Ray *ray, float dir,
-                                               StochasticRadiosityElement *src, double projarea,
-                                               double fraction, double weight) {
+static void
+stochasticJacobiPropagateRadianceToClusterOriented(StochasticRadiosityElement *cluster, COLOR raypow, Ray *ray, float dir,
+                                                   StochasticRadiosityElement *src, double projarea,
+                                                   double fraction, double weight) {
     REC_ForAllClusterSurfaces(rcv, cluster)
             {
                 double c = -dir * VECTORDOTPRODUCT(rcv->patch->normal, ray->dir);
@@ -198,7 +215,8 @@ static void PropagateRadianceToClusterOriented(StochasticRadiosityElement *clust
     REC_EndForAllClusterSurfaces;
 }
 
-static double ReceiverProjectedArea(StochasticRadiosityElement *cluster, Ray *ray, float dir) {
+static double
+stochasticJacobiReceiverProjectedArea(StochasticRadiosityElement *cluster, Ray *ray, float dir) {
     double area = 0.;
     REC_ForAllClusterSurfaces(rcv, cluster)
             {
@@ -211,48 +229,62 @@ static double ReceiverProjectedArea(StochasticRadiosityElement *cluster, Ray *ra
     return area;
 }
 
-/* transfer radiance from src to rcv.
- * src_prob = unnormalised src birth probability / src area
- * rcv_prob = unnormalised rcv birth probability / rcv area for bidirectional transfers
- *       or = 0 for unidirectional transfers
- * score will be weighted with globalSumProbabilities / nr_rays (both are global).
- * ray->dir and dir are used in order to determine projected cluster area
- * and cosine of incident direction of cluster surface elements when
- * the receiver is a cluster. */
-static void PropagateRadiance(StochasticRadiosityElement *src, double us, double vs,
-                              StochasticRadiosityElement *rcv, double ur, double vr,
-                              double src_prob, double rcv_prob,
-                              Ray *ray, float dir) {
-    COLOR rad, raypow;
-    double area,
-            weight = sum_probs / src_prob,        /* src area / normalised src prob */
-    fraction = src_prob / (src_prob + rcv_prob);    /* 1 for uni-directional transfers */
+/**
+Transfer radiance from src to rcv.
+src_prob = unnormalised src birth stochasticJacobiProbability / src area
+rcv_prob = unnormalised rcv birth stochasticJacobiProbability / rcv area for bidirectional transfers
+      or = 0 for unidirectional transfers
+score will be weighted with globalSumProbabilities / nr_rays (both are global).
+ray->dir and dir are used in order to determine projected cluster area
+and cosine of incident direction of cluster surface elements when
+the receiver is a cluster
+*/
+static void
+stochasticJacobiPropagateRadiance(
+    StochasticRadiosityElement *src,
+    double us,
+    double vs,
+    StochasticRadiosityElement *rcv,
+    double ur,
+    double vr,
+    double src_prob,
+    double rcv_prob,
+    Ray *ray,
+    float dir)
+{
+    COLOR rad;
+    COLOR raypow;
+    double area;
+    double weight = sum_probs / src_prob; // src area / normalised src prob
+    double fraction = src_prob / (src_prob + rcv_prob); // 1 for uni-directional transfers
 
     if ( src_prob < EPSILON * EPSILON /* this should never happen */
-         || fraction < EPSILON ) { /* reverse transfer from a black surface */
+         || fraction < EPSILON ) {
+        // Reverse transfer from a black surface
         return;
     }
 
-    rad = GetSourceRadiance(src, us, vs);
+    rad = stochasticJacobiGetSourceRadiance(src, us, vs);
     if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.constantControlVariate ) {
         colorSubtract(rad, GLOBAL_stochasticRaytracing_monteCarloRadiosityState.controlRadiance, rad);
     }
     colorScale(weight, rad, raypow);
 
     if ( !rcv->iscluster ) {
-        PropagateRadianceToSurface(rcv, ur, vr, raypow, src, fraction, weight);
+        stochasticJacobiPropagateRadianceToSurface(rcv, ur, vr, raypow, src, fraction, weight);
     } else {
         switch ( GLOBAL_stochasticRaytracing_hierarchy.clustering ) {
             case NO_CLUSTERING:
                 logFatal(-1, "Propagate", "hierarchyRefine() returns cluster although clustering is disabled.\n");
                 break;
             case ISOTROPIC_CLUSTERING:
-                PropagateRadianceToClusterIsotropic(rcv, raypow, src, fraction, weight);
+                stochasticJacobiPropagateRadianceToClusterIsotropic(rcv, raypow, src, fraction, weight);
                 break;
             case ORIENTED_CLUSTERING:
-                area = ReceiverProjectedArea(rcv, ray, dir);
+                area = stochasticJacobiReceiverProjectedArea(rcv, ray, dir);
                 if ( area > EPSILON ) {
-                    PropagateRadianceToClusterOriented(rcv, raypow, ray, dir, src, area, fraction, weight);
+                    stochasticJacobiPropagateRadianceToClusterOriented(rcv, raypow, ray, dir, src, area, fraction,
+                                                                       weight);
                 }
                 break;
             default:
@@ -261,11 +293,22 @@ static void PropagateRadiance(StochasticRadiosityElement *src, double us, double
     }
 }
 
-/* idem but for importance */
-static void PropagateImportance(StochasticRadiosityElement *src, double us, double vs,
-                                StochasticRadiosityElement *rcv, double ur, double vr,
-                                double src_prob, double rcv_prob,
-                                Ray *ray, float dir) {
+/**
+Idem but for importance
+*/
+static void
+stochasticJacobiPropagateImportance(
+    StochasticRadiosityElement *src,
+    double us,
+    double vs,
+    StochasticRadiosityElement *rcv,
+    double ur,
+    double vr,
+    double src_prob,
+    double rcv_prob,
+    Ray *ray,
+    float dir)
+{
     double w = sum_probs / (src_prob + rcv_prob) / rcv->area / (double) nr_rays;
     rcv->received_imp += w * monteCarloRadiosityElementScalarReflectance(src) * get_importance(src);
 
@@ -274,41 +317,74 @@ static void PropagateImportance(StochasticRadiosityElement *src, double us, doub
     }
 }
 
-/* src is the leaf element containing the point from which to propagate
- * radiance on P. P and Q are toplevel surface elements. Transfer 
- * is from P to Q. */
-static void RefineAndPropagateRadiance(StochasticRadiosityElement *src, double us, double vs,
-                                       StochasticRadiosityElement *P, double up, double vp,
-                                       StochasticRadiosityElement *Q, double uq, double vq,
-                                       double src_prob, double rcv_prob,
-                                       Ray *ray, float dir) {
+/**
+Src is the leaf element containing the point from which to propagate
+radiance on P. P and Q are toplevel surface elements. Transfer
+is from P to Q
+*/
+static void
+stochasticJacobiRefineAndPropagateRadiance(
+    StochasticRadiosityElement *src,
+    double us,
+    double vs,
+    StochasticRadiosityElement *P,
+    double up,
+    double vp,
+    StochasticRadiosityElement *Q,
+    double uq,
+    double vq,
+    double src_prob,
+    double rcv_prob,
+    Ray *ray,
+    float dir)
+{
     LINK link;
     link = topLink(Q, P);
     hierarchyRefine(&link, Q, &uq, &vq, P, &up, &vp, GLOBAL_stochasticRaytracing_hierarchy.oracle);
-    /* propagate from the leaf element src to the admissable receiver element
-     * containing/contained by Q */
-    PropagateRadiance(src, us, vs, link.rcv, uq, vq, src_prob, rcv_prob, ray, dir);
+    // Propagate from the leaf element src to the admissable receiver element containing/contained by Q
+    stochasticJacobiPropagateRadiance(src, us, vs, link.rcv, uq, vq, src_prob, rcv_prob, ray, dir);
 }
 
-static void RefineAndPropagateImportance(StochasticRadiosityElement *src, double us, double vs,
-                                         StochasticRadiosityElement *P, double up, double vp,
-                                         StochasticRadiosityElement *Q, double uq, double vq,
-                                         double src_prob, double rcv_prob,
-                                         Ray *ray, float dir) {
-    /* no refinement (yet) for importance: propagate between toplevel surfaces */
-    PropagateImportance(P, up, vp, Q, uq, vq, src_prob, rcv_prob, ray, dir);
+static void
+stochasticJacobiRefineAndPropagateImportance(
+    StochasticRadiosityElement *src,
+    double us,
+    double vs,
+    StochasticRadiosityElement *P,
+    double up,
+    double vp,
+    StochasticRadiosityElement *Q,
+    double uq,
+    double vq,
+    double src_prob,
+    double rcv_prob,
+    Ray *ray,
+    float dir)
+{
+    // No refinement (yet) for importance: propagate between toplevel surfaces
+    stochasticJacobiPropagateImportance(P, up, vp, Q, uq, vq, src_prob, rcv_prob, ray, dir);
 }
 
-/* ray is a ray connecting the positions with given (u,v) parameters
- * on the toplevel surface element P to Q. This routine refines the
- * imaginary interaction between these elements and performs
- * radiance or importance transfer along the ray, taking into account
- * bidirectionality if requested. */
-static void RefineAndPropagate(StochasticRadiosityElement *P, double up, double vp,
-                               StochasticRadiosityElement *Q, double uq, double vq,
-                               Ray *ray) {
+/**
+Ray is a ray connecting the positions with given (u,v) parameters
+on the toplevel surface element P to Q. This routine refines the
+imaginary interaction between these elements and performs
+radiance or importance transfer along the ray, taking into account
+bidirectionality if requested
+*/
+static void
+stochasticJacobiRefineAndPropagate(
+    StochasticRadiosityElement *P,
+    double up,
+    double vp,
+    StochasticRadiosityElement *Q,
+    double uq,
+    double vq,
+    Ray *ray)
+{
     double src_prob;
-    double us = up, vs = vp;
+    double us = up;
+    double vs = vp;
     StochasticRadiosityElement *src = monteCarloRadiosityRegularLeafElementAtPoint(P, &us, &vs);
     src_prob = (double) src->prob / (double) src->area;
     if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.bidirectionalTransfers ) {
@@ -318,37 +394,45 @@ static void RefineAndPropagate(StochasticRadiosityElement *P, double up, double 
         rcv_prob = (double) rcv->prob / (double) rcv->area;
 
         if ( get_radiance ) {
-            RefineAndPropagateRadiance(src, us, vs, P, up, vp, Q, uq, vq, src_prob, rcv_prob, ray, +1);
-            RefineAndPropagateRadiance(rcv, ur, vr, Q, uq, vq, P, up, vp, rcv_prob, src_prob, ray, -1);
+            stochasticJacobiRefineAndPropagateRadiance(src, us, vs, P, up, vp, Q, uq, vq, src_prob, rcv_prob, ray, +1);
+            stochasticJacobiRefineAndPropagateRadiance(rcv, ur, vr, Q, uq, vq, P, up, vp, rcv_prob, src_prob, ray, -1);
         }
         if ( get_importance ) {
-            RefineAndPropagateImportance(src, us, vs, P, up, vp, Q, uq, vq, src_prob, rcv_prob, ray, +1);
-            RefineAndPropagateImportance(rcv, ur, vr, Q, uq, vq, P, up, vp, rcv_prob, src_prob, ray, -1);
+            stochasticJacobiRefineAndPropagateImportance(src, us, vs, P, up, vp, Q, uq, vq, src_prob, rcv_prob, ray, +1);
+            stochasticJacobiRefineAndPropagateImportance(rcv, ur, vr, Q, uq, vq, P, up, vp, rcv_prob, src_prob, ray, -1);
         }
     } else {
         if ( get_radiance ) {
-            RefineAndPropagateRadiance(src, us, vs, P, up, vp, Q, uq, vq, src_prob, 0., ray, +1);
+            stochasticJacobiRefineAndPropagateRadiance(src, us, vs, P, up, vp, Q, uq, vq, src_prob, 0., ray, +1);
         }
         if ( get_importance ) {
-            RefineAndPropagateImportance(src, us, vs, P, up, vp, Q, uq, vq, src_prob, 0., ray, +1);
+            stochasticJacobiRefineAndPropagateImportance(src, us, vs, P, up, vp, Q, uq, vq, src_prob, 0., ray, +1);
         }
     }
 }
 
-static double *NextSample(StochasticRadiosityElement *elem,
-                          int nmsb, niedindex msb1, niedindex rmsb2,
-                          double *zeta) {
-    niedindex *xi = nullptr, u, v;
-    /* use different ray index for propagating importance and radiance */
+static double *
+stochasticJacobiNextSample(
+    StochasticRadiosityElement *elem,
+    int nmsb,
+    niedindex msb1,
+    niedindex rmsb2,
+    double *zeta)
+{
+    niedindex *xi;
+    niedindex u;
+    niedindex v;
+    // Use different ray index for propagating importance and radiance
     niedindex *ray_index = get_radiance ? &elem->ray_index : &elem->imp_ray_index;
 
     xi = NextNiedInRange(ray_index, +1, nmsb, msb1, rmsb2);
 
     (*ray_index)++;
-    u = (xi[0] & ~3) | 1;        /* avoid positions on subelement boundaries */
+    u = (xi[0] & ~3) | 1; // Avoid positions on sub-element boundaries
     v = (xi[1] & ~3) | 1;
-    if ( elem->numberOfVertices == 3 )
-        FoldSample(&u, &v);
+    if ( elem->numberOfVertices == 3 ) {
+        foldSample(&u, &v);
+    }
     zeta[0] = (double) u * RECIP;
     zeta[1] = (double) v * RECIP;
     zeta[2] = (double) xi[2] * RECIP;
@@ -356,10 +440,13 @@ static double *NextSample(StochasticRadiosityElement *elem,
     return zeta;
 }
 
-/* determines uniform (u,v) parameters of hit point on hit patch */
-static void UniformHitCoordinates(RayHit *hit, double *uhit, double *vhit) {
-    if ( hit->flags & HIT_UV ) {    /* (u,v) coordinates obtained as side result
-				 * of intersection test */
+/**
+Determines uniform (u,v) parameters of hit point on hit patch
+*/
+static void
+stochasticJacobiUniformHitCoordinates(RayHit *hit, double *uhit, double *vhit) {
+    if ( hit->flags & HIT_UV ) {
+        // (u,v) coordinates obtained as side result of intersection test
         *uhit = hit->uv.u;
         *vhit = hit->uv.v;
         if ( hit->patch->jacobian ) {
@@ -369,7 +456,7 @@ static void UniformHitCoordinates(RayHit *hit, double *uhit, double *vhit) {
         patchUniformUv(hit->patch, &hit->point, uhit, vhit);
     }
 
-    /* clip uv coordinates to lay strictly inside the hit patch */
+    // Clip uv coordinates to lay strictly inside the hit patch
     if ( *uhit < EPSILON ) {
         *uhit = EPSILON;
     }
@@ -384,12 +471,20 @@ static void UniformHitCoordinates(RayHit *hit, double *uhit, double *vhit) {
     }
 }
 
-/* traces a local line from 'src' and propagates radiance and/or importance from P to
- * hit patch (and back for bidirectional transfers). */
-static void ElementShootRay(StochasticRadiosityElement *src,
-                            int nmsb, niedindex msb1, niedindex rmsb2) {
+/**
+Traces a local line from 'src' and propagates radiance and/or importance from P to
+hit patch (and back for bidirectional transfers)
+*/
+static void
+stochasticJacobiElementShootRay(
+    StochasticRadiosityElement *src,
+    int nmsb,
+    niedindex msb1,
+    niedindex rmsb2)
+{
     Ray ray;
-    RayHit *hit, hitstore;
+    RayHit *hit;
+    RayHit hitstore;
     double zeta[4];
 
     if ( get_radiance ) {
@@ -400,52 +495,59 @@ static void ElementShootRay(StochasticRadiosityElement *src,
     }
 
     ray = mcrGenerateLocalLine(src->patch,
-                               NextSample(src, nmsb, msb1, rmsb2, zeta));
+                               stochasticJacobiNextSample(src, nmsb, msb1, rmsb2, zeta));
     hit = mcrShootRay(src->patch, &ray, &hitstore);
     if ( hit ) {
         double uhit = 0., vhit = 0.;
-        UniformHitCoordinates(hit, &uhit, &vhit);
-        RefineAndPropagate(TOPLEVEL_ELEMENT(src->patch), zeta[0], zeta[1],
-                           TOPLEVEL_ELEMENT(hit->patch), uhit, vhit, &ray);
+        stochasticJacobiUniformHitCoordinates(hit, &uhit, &vhit);
+        stochasticJacobiRefineAndPropagate(TOPLEVEL_ELEMENT(src->patch), zeta[0], zeta[1],
+                                           TOPLEVEL_ELEMENT(hit->patch), uhit, vhit, &ray);
     } else {
         GLOBAL_stochasticRaytracing_monteCarloRadiosityState.numberOfMisses++;
     }
 }
 
-static void InitPushRayIndex(StochasticRadiosityElement *elem) {
+static void
+stochasticJacobiInitPushRayIndex(StochasticRadiosityElement *elem) {
     elem->ray_index = elem->parent->ray_index;
     elem->imp_ray_index = elem->parent->imp_ray_index;
-    monteCarloRadiosityForAllChildrenElements(elem, InitPushRayIndex);
+    monteCarloRadiosityForAllChildrenElements(elem, stochasticJacobiInitPushRayIndex);
 }
 
-/* determines nr of rays to shoot from elem and shoots this number of rays. */
-static void ElementShootRays(StochasticRadiosityElement *elem, int rays_this_elem) {
+/**
+Determines nr of rays to shoot from elem and shoots this number of rays
+*/
+static void
+stochasticJacobiElementShootRays(StochasticRadiosityElement *elem, int rays_this_elem) {
     int i;
-    int nmsb;        /* determines a range in which to generate a sample */
-    niedindex msb1, rmsb2;    /* see monteCarloRadiosityElementRange() and NextSample() */
+    int nmsb; // Determines a range in which to generate a sample
+    niedindex msb1; // See monteCarloRadiosityElementRange() and NextSample()
+    niedindex rmsb2;
 
-    /* sample number range for 4D Niederreiter sequence */
+    // Sample number range for 4D Niederreiter sequence
     monteCarloRadiosityElementRange(elem, &nmsb, &msb1, &rmsb2);
 
-    /* shoot the rays */
+    // Shoot the rays
     for ( i = 0; i < rays_this_elem; i++ ) {
-        ElementShootRay(elem, nmsb, msb1, rmsb2);
+        stochasticJacobiElementShootRay(elem, nmsb, msb1, rmsb2);
     }
 
     if ( !monteCarloRadiosityElementIsLeaf(elem)) {
-        /* source got subdivided while shooting the rays */
-        monteCarloRadiosityForAllChildrenElements(elem, InitPushRayIndex);
+        // Source got subdivided while shooting the rays
+        monteCarloRadiosityForAllChildrenElements(elem, stochasticJacobiInitPushRayIndex);
     }
 }
 
-/* fire off rays from the leaf elements, propagate radiance/importance. */
+/**
+Fire off rays from the leaf elements, propagate radiance/importance
+*/
 static void
-shootRays() {
+stochasticJacobiShootRays() {
     double rnd = drand48();
     long ray_count = 0;
     double p_cumul = 0.0;
 
-    /* loop over all leaf elements in the element hierarchy */
+    // Loop over all leaf elements in the element hierarchy
     for ( PatchSet *window = GLOBAL_scene_patches; window != nullptr; window = window->next ) {
         REC_ForAllSurfaceLeafs(leaf, TOPLEVEL_ELEMENT(window->patch))
                 {
@@ -454,7 +556,7 @@ shootRays() {
                             (long) floor((p_cumul + p) * (double) nr_rays + rnd) - ray_count;
 
                     if ( rays_this_leaf > 0 ) {
-                        ElementShootRays(leaf, rays_this_leaf);
+                        stochasticJacobiElementShootRays(leaf, rays_this_leaf);
                     }
 
                     p_cumul += p;
@@ -466,15 +568,18 @@ shootRays() {
     fprintf(stderr, "\n");
 }
 
-/* converts received radiance and importance at a leaf element into a new
- * approximation of total and unshot radiance and importance */
-static void UpdateElement(StochasticRadiosityElement *elem) {
+/**
+Converts received radiance and importance at a leaf element into a new
+approximation of total and unshot radiance and importance
+*/
+static void
+stochasticJacobiUpdateElement(StochasticRadiosityElement *elem) {
     if ( get_radiance ) {
         if ( do_control_variate ) {
-            /* add constant radiosity contribution to received flux */
+            // Add constant radiosity contribution to received flux
             colorAdd(elem->received_rad[0], GLOBAL_stochasticRaytracing_monteCarloRadiosityState.controlRadiance, elem->received_rad[0]);
         }
-        /* multiply with reflectivity on leaf elements only */
+        // Multiply with reflectivity on leaf elements only
         stochasticRadiosityMultiplyCoefficients(elem->Rd, elem->received_rad, elem->basis);
     }
 
@@ -488,13 +593,14 @@ static void UpdateElement(StochasticRadiosityElement *elem) {
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalYmp += elem->area * elem->imp;
 }
 
-static void Push(StochasticRadiosityElement *parent, StochasticRadiosityElement *child) {
+static void
+stochasticJacobiPush(StochasticRadiosityElement *parent, StochasticRadiosityElement *child) {
     if ( get_radiance ) {
         COLOR Rd;
         colorClear(Rd);
 
         if ( parent->iscluster && !child->iscluster ) {
-            /* multiply with reflectance (See PropagateRadianceToClusterIsotropic() above) */
+            // Multiply with reflectance (See PropagateRadianceToClusterIsotropic() above)
             COLOR rad = parent->received_rad[0];
             Rd = child->Rd;
             colorProduct(Rd, rad, rad);
@@ -503,11 +609,13 @@ static void Push(StochasticRadiosityElement *parent, StochasticRadiosityElement 
             pushRadiance(parent, child, parent->received_rad, child->received_rad);
     }
 
-    if ( get_importance )
+    if ( get_importance ) {
         pushImportance(parent, child, &parent->received_imp, &child->received_imp);
+    }
 }
 
-static void Pull(StochasticRadiosityElement *parent, StochasticRadiosityElement *child) {
+static void
+stochasticJacobiPull(StochasticRadiosityElement *parent, StochasticRadiosityElement *child) {
     if ( get_radiance ) {
         pullRadiance(parent, child, parent->rad, child->rad);
         pullRadiance(parent, child, parent->unshot_rad, child->unshot_rad);
@@ -518,8 +626,11 @@ static void Pull(StochasticRadiosityElement *parent, StochasticRadiosityElement 
     }
 }
 
-/* clears everything to be pulled from children elements to zero */
-static void ClearElement(StochasticRadiosityElement *parent) {
+/**
+Clears everything to be pulled from children elements to zero
+*/
+static void
+stochasticJacobiClearElement(StochasticRadiosityElement *parent) {
     if ( get_radiance ) {
         stochasticRadiosityClearCoefficients(parent->rad, parent->basis);
         stochasticRadiosityClearCoefficients(parent->unshot_rad, parent->basis);
@@ -529,30 +640,35 @@ static void ClearElement(StochasticRadiosityElement *parent) {
     }
 }
 
-static void PushUpdatePull(StochasticRadiosityElement *elem);
+static void stochasticJacobiPushUpdatePull(StochasticRadiosityElement *elem);
 
-static void PushUpdatePullChild(StochasticRadiosityElement *child) {
+static void
+stochasticJacobiPushUpdatePullChild(StochasticRadiosityElement *child) {
     StochasticRadiosityElement *parent = child->parent;
-    Push(parent, child);
-    PushUpdatePull(child);
-    Pull(parent, child);
+    stochasticJacobiPush(parent, child);
+    stochasticJacobiPushUpdatePull(child);
+    stochasticJacobiPull(parent, child);
 }
 
-static void PushUpdatePull(StochasticRadiosityElement *elem) {
+static void
+stochasticJacobiPushUpdatePull(StochasticRadiosityElement *elem) {
     if ( monteCarloRadiosityElementIsLeaf(elem)) {
-        UpdateElement(elem);
-    } else {    /* not a leaf element */
-        ClearElement(elem);
-        monteCarloRadiosityForAllChildrenElements(elem, PushUpdatePullChild);
+        stochasticJacobiUpdateElement(elem);
+    } else {
+        // Not a leaf element
+        stochasticJacobiClearElement(elem);
+        monteCarloRadiosityForAllChildrenElements(elem, stochasticJacobiPushUpdatePullChild);
     }
 }
 
-static void PullRdEd(StochasticRadiosityElement *elem);
+static void
+stochasticJacobiPullRdEd(StochasticRadiosityElement *elem);
 
-static void PullRdEdFromChild(StochasticRadiosityElement *child) {
+static void
+stochasticJacobiPullRdEdFromChild(StochasticRadiosityElement *child) {
     StochasticRadiosityElement *parent = child->parent;
 
-    PullRdEd(child);
+    stochasticJacobiPullRdEd(child);
 
     colorAddScaled(parent->Ed, child->area / parent->area, child->Ed, parent->Ed);
     colorAddScaled(parent->Rd, child->area / parent->area, child->Rd, parent->Rd);
@@ -560,53 +676,55 @@ static void PullRdEdFromChild(StochasticRadiosityElement *child) {
         colorSetMonochrome(parent->Rd, 1.);
 }
 
-static void PullRdEd(StochasticRadiosityElement *elem) {
+static void
+stochasticJacobiPullRdEd(StochasticRadiosityElement *elem) {
     if ( monteCarloRadiosityElementIsLeaf(elem) || (!elem->iscluster && !monteCarloRadiosityElementIsTextured(elem))) {
         return;
     }
 
     colorClear(elem->Ed);
     colorClear(elem->Rd);
-    monteCarloRadiosityForAllChildrenElements(elem, PullRdEdFromChild);
+    monteCarloRadiosityForAllChildrenElements(elem, stochasticJacobiPullRdEdFromChild);
 }
 
-static void PushUpdatePullSweep() {
-    /* update radiance, compute new total and unshot flux. */
+static void
+stochasticJacobiPushUpdatePullSweep() {
+    // Update radiance, compute new total and un-shot flux
     colorClear(GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotFlux);
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotYmp = 0.;
     colorClear(GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalFlux);
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalYmp = 0.;
     colorClear(GLOBAL_stochasticRaytracing_monteCarloRadiosityState.indirectImportanceWeightedUnShotFlux);
 
-    /* update reflectances and emittances (refinement yields more accurate estimates
-     * on textured surfaces) */
-    PullRdEd(GLOBAL_stochasticRaytracing_hierarchy.topcluster);
+    // Update reflectances and emittances (refinement yields more accurate estimates
+    // on textured surfaces)
+    stochasticJacobiPullRdEd(GLOBAL_stochasticRaytracing_hierarchy.topcluster);
 
-    PushUpdatePull(GLOBAL_stochasticRaytracing_hierarchy.topcluster);
+    stochasticJacobiPushUpdatePull(GLOBAL_stochasticRaytracing_hierarchy.topcluster);
 }
 
-/*
- * Generic routine for Stochastic Jacobi iterations:
- * - nr_rays: nr of rays to use
- * - GetRadiance: routine returning radiance (total or unshot) to be 
- * propagated for a given element, or nullptr if no radiance propagation is
- * required.
- * - GetImportance: same, but for importance.
- * - Update: routine updating total, unshot and source radiance and/or
- * importance based on result received during the iteration. 
- *
- * The operation of this routine is further controlled by global parameters
- * - GLOBAL_stochasticRaytracing_monteCarloRadiosityState.do_control_radiosity: perform constant control variate variance reduction
- * - GLOBAL_stochasticRaytracing_monteCarloRadiosityState.bidirectionalTransfers: for using lines bidirectionally
- * - GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceDriven: importance-driven radiance propagation
- * - GLOBAL_stochasticRaytracing_monteCarloRadiosityState.radianceDriven: radiance-driven importance propagation
- * - hierarchy.do_h_meshing, hierarchy.clustering: hierarchical refinement/clustering
- *
- * This routine updates global ray counts and total/unshot power/importance statistics.
- *
- * CAVEAT: propagate either radiance or importance alone. Simultaneous
- * propagation of importance and radiance does not work yet.
- */
+/**
+Generic routine for Stochastic Jacobi iterations:
+- nr_rays: nr of rays to use
+- GetRadiance: routine returning radiance (total or unshot) to be
+propagated for a given element, or nullptr if no radiance propagation is
+required.
+- GetImportance: same, but for importance.
+- Update: routine updating total, unshot and source radiance and/or
+importance based on result received during the iteration.
+
+The operation of this routine is further controlled by global parameters
+- GLOBAL_stochasticRaytracing_monteCarloRadiosityState.do_control_radiosity: perform constant control variate variance reduction
+- GLOBAL_stochasticRaytracing_monteCarloRadiosityState.bidirectionalTransfers: for using lines bidirectionally
+- GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceDriven: importance-driven radiance propagation
+- GLOBAL_stochasticRaytracing_monteCarloRadiosityState.radianceDriven: radiance-driven importance propagation
+- hierarchy.do_h_meshing, hierarchy.clustering: hierarchical refinement/clustering
+
+This routine updates global ray counts and total/unshot power/importance statistics.
+
+CAVEAT: propagate either radiance or importance alone. Simultaneous
+propagation of importance and radiance does not work yet.
+*/
 void
 doStochasticJacobiIteration(
     long nr_rays,
@@ -614,11 +732,11 @@ doStochasticJacobiIteration(
     float (*GetImportance)(StochasticRadiosityElement *),
     void (*Update)(StochasticRadiosityElement *P, double w))
 {
-    InitGlobals(nr_rays, GetRadiance, GetImportance, Update);
-    PrintMessage(nr_rays);
-    if ( !Setup()) {
+    stochasticJacobiInitGlobals(nr_rays, GetRadiance, GetImportance, Update);
+    stochasticJacobiPrintMessage(nr_rays);
+    if ( !stochasticJacobiSetup()) {
         return;
     }
-    shootRays();
-    PushUpdatePullSweep();
+    stochasticJacobiShootRays();
+    stochasticJacobiPushUpdatePullSweep();
 }

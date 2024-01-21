@@ -99,13 +99,13 @@ The following routines are safe with Sample4D(), which calls only
 31-bit sequences (including 31-bit Niederreiter sequence). If
 you are looking for such a routine to use directly in conjunction
 with the routined Nied() or NextNiedInRange(), you should use
-the FoldSample() routine in niederreiter.h instead.
+the foldSample() routine in niederreiter.h instead.
 Nied() and NextNiedInRange() are 63-bit unless compiled without
 'unsigned long long' support
 */
 void
 foldSampleU(unsigned *xi1, unsigned *xi2) {
-    FoldSample31(xi1, xi2);  /* declared in nied31.h */
+    foldSample31(xi1, xi2);  /* declared in nied31.h */
 }
 
 void

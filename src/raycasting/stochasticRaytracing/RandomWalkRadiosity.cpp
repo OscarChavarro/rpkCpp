@@ -33,7 +33,7 @@ randomWalkRadiosityPrintStats() {
 }
 
 /**
-Used as un-normalised probability for mimicking global lines
+Used as un-normalised stochasticJacobiProbability for mimicking global lines
 */
 static double
 randomWalkRadiosityPatchArea(Patch *P) {
@@ -41,7 +41,7 @@ randomWalkRadiosityPatchArea(Patch *P) {
 }
 
 /**
-Probability proportional to power to be propagated
+stochasticJacobiProbability proportional to power to be propagated
 */
 static double
 randomWalkRadiosityScalarSourcePower(Patch *P) {
@@ -51,7 +51,7 @@ randomWalkRadiosityScalarSourcePower(Patch *P) {
 
 /**
 Returns a double instead of a float in order to make it useful as
-a survival probability function
+a survival stochasticJacobiProbability function
 */
 static double
 randomWalkRadiosityScalarReflectance(Patch *P) {

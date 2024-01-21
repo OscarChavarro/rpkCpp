@@ -59,9 +59,9 @@ extern niedindex *NextNiedInRange(niedindex *idx, int dir,
                                   niedindex rmsb2);
 
 /* Computes the (NBITS-bits) base-2 radical inverse of the given number */
-extern niedindex RadicalInverse(niedindex n);
+extern niedindex radicalInverse(niedindex n);
 
 /* "folds" a sample in the unit square to the standard triangle (0,0),(1,0),(0,1) */
-extern void FoldSample(niedindex *xi1, niedindex *xi2);
+extern void foldSample(niedindex *xi1, niedindex *xi2);
 
-#endif /*_NIEDERREITER_H_*/
+#endif

@@ -20,8 +20,8 @@
 
 #define Nied Nied31
 #define NextNiedInRange NextNiedInRange31
-#define RadicalInverse RadicalInverse31
-#define FoldSample FoldSample31
+#define radicalInverse radicalInverse31
+#define foldSample foldSample31
 #define niedindex unsigned
 
 extern unsigned *Nied31(unsigned index);
@@ -31,8 +31,8 @@ extern unsigned *NextNiedInRange31(unsigned *idx, int dir,
                                    unsigned msb1,
                                    unsigned rmsb2);
 
-extern unsigned RadicalInverse31(unsigned n);
+extern unsigned radicalInverse31(unsigned n);
 
-extern void FoldSample31(unsigned *xi1, unsigned *xi2);
+extern void foldSample31(unsigned *xi1, unsigned *xi2);
 
 #endif

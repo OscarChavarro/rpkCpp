@@ -74,10 +74,10 @@ freePathNodes(PATH *path) {
 /**
 Path nodes are filled in 'path', 'path' itself is returned
 
-Traces a random walk originating at 'origin', with birth probability
-'globalBirthProbability' (filled in as probability of the origin node: source term
-estimation is being suppressed --- survival probability at the origin is
-1). Survivial probability at other nodes than the origin is calculated by
+Traces a random walk originating at 'origin', with birth stochasticJacobiProbability
+'globalBirthProbability' (filled in as stochasticJacobiProbability of the origin node: source term
+estimation is being suppressed --- survival stochasticJacobiProbability at the origin is
+1). Survivial stochasticJacobiProbability at other nodes than the origin is calculated by
 'SurvivalProbability()', results are stored in 'path', which should be an
 PATH, previously initialised by initPath(). If required, photonMapTracePath()
 allocates extra space for storing nodes calls to pathAddNode().

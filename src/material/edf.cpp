@@ -52,7 +52,7 @@ edfIsTextured(EDF *edf) {
 
 /**
 Evaluates the edf: return exitant radiance [W/m^2 sr] into the direction
-out. If pdf is not null, the probability density of the direction is
+out. If pdf is not null, the stochasticJacobiProbability density of the direction is
 computed and returned in pdf
 */
 COLOR
@@ -72,7 +72,7 @@ edfEval(EDF *edf, RayHit *hit, Vector3D *out, XXDFFLAGS flags, double *pdf) {
 /**
 Samples a direction according to the specified edf and emission range determined
 by flags. If emitted_radiance is not a null pointer, the emitted radiance along
-the generated direction is returned. If pdf is not null, the probability density
+the generated direction is returned. If pdf is not null, the stochasticJacobiProbability density
 of the generated direction is computed and returned in pdf
 */
 Vector3D
