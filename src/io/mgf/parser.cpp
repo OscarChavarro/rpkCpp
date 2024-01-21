@@ -373,7 +373,7 @@ mgfHandle(int en, int ac, char **av)
 }
 
 /**
-Open new input file
+shaftCullOpen new input file
 */
 int
 mgfOpen(MgfReaderContext *ctx, char *fn)

@@ -44,21 +44,21 @@ createInitialLink(Patch *patch) {
 
         if ( GLOBAL_galerkin_state.exact_visibility ) {
             POLYGON rcvpoly, srcpoly;
-            the_shaft = ConstructPolygonToPolygonShaft(galerkinElementPolygon(rcv, &rcvpoly),
+            the_shaft = constructPolygonToPolygonShaft(galerkinElementPolygon(rcv, &rcvpoly),
                                                        galerkinElementPolygon(src, &srcpoly),
                                                        &shaft);
         } else {
             BOUNDINGBOX bbox;
-            the_shaft = ConstructShaft(globalPatchBoundingBox, patchBounds(patch, bbox), &shaft);
+            the_shaft = constructShaft(globalPatchBoundingBox, patchBounds(patch, bbox), &shaft);
         }
 
         if ( the_shaft ) {
-            ShaftOmit(&shaft, (Geometry *) globalPatch);
-            ShaftOmit(&shaft, (Geometry *) patch);
-            globalCandidateList = DoShaftCulling(oldCandidateList, the_shaft, (GeometryListNode *) nullptr);
+            shaftOmit(&shaft, (Geometry *) globalPatch);
+            shaftOmit(&shaft, (Geometry *) patch);
+            globalCandidateList = doShaftCulling(oldCandidateList, the_shaft, (GeometryListNode *) nullptr);
 
             if ( the_shaft->cut == true ) {    /* one patch causes full occlusion. */
-                FreeCandidateList(globalCandidateList);
+                freeCandidateList(globalCandidateList);
                 globalCandidateList = oldCandidateList;
                 return;
             }
@@ -76,7 +76,7 @@ createInitialLink(Patch *patch) {
 
     if ( GLOBAL_galerkin_state.exact_visibility || GLOBAL_galerkin_state.shaftcullmode == ALWAYS_DO_SHAFTCULLING ) {
         if ( oldCandidateList != globalCandidateList ) {
-            FreeCandidateList(globalCandidateList);
+            freeCandidateList(globalCandidateList);
         }
         globalCandidateList = oldCandidateList;
     }
@@ -109,9 +109,9 @@ geomLink(Geometry *geom) {
      * which contains the possible occluders between a pair of patches for which
      * an initial link will need to be created. */
     if ( geom->bounded && oldCandidateList ) {
-        ConstructShaft(globalPatchBoundingBox, geomBounds(geom), &shaft);
-        ShaftOmit(&shaft, (Geometry *) globalPatch);
-        globalCandidateList = DoShaftCulling(oldCandidateList, &shaft, nullptr);
+        constructShaft(globalPatchBoundingBox, geomBounds(geom), &shaft);
+        shaftOmit(&shaft, (Geometry *) globalPatch);
+        globalCandidateList = doShaftCulling(oldCandidateList, &shaft, nullptr);
     }
 
     // If the Geometry is an aggregate, test each of its children GEOMs, if it
@@ -129,7 +129,7 @@ geomLink(Geometry *geom) {
     }
 
     if ( geom->bounded && oldCandidateList ) {
-        FreeCandidateList(globalCandidateList);
+        freeCandidateList(globalCandidateList);
     }
     globalCandidateList = oldCandidateList;
 }

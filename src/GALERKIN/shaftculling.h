@@ -1,17 +1,14 @@
-#ifndef _SHAFTCULLING_H_
-#define _SHAFTCULLING_H_
+#ifndef __SHAFT_CULLING__
+#define __SHAFT_CULLING__
 
-/* References:
+/** References:
  *
  * - Haines, E. A. and Wallace, J. R. "Shaft culling for
  *   efficient ray-traced radiosity", 2nd Eurographics Workshop
  *   on Rendering, Barcelona, Spain, May 1991
  */
 
-#include "skin/geomlist.h"
-#include "skin/PatchSet.h"
 #include "scene/polygon.h"
-#include "scene/VoxelGrid.h"
 
 class SHAFTPLANE {
   public:
@@ -56,38 +53,13 @@ enum SHAFTCULLSTRATEGY {
     KEEP_CLOSED, OVERLAP_OPEN, ALWAYS_OPEN
 };
 
-/* Specify a shaftculling strategy. Defaults is OVERLAP_OPEN. Returns
- * previous strategy. */
-extern SHAFTCULLSTRATEGY SetShaftCullStrategy(SHAFTCULLSTRATEGY strategy);
-
-/* Constructs a shaft for two given bounding boxes. Supply a pointer to a SHAFT
- * structure. This structure will be filled in and the pointer returned if succesfull.
- * nullptr is returned if something goes wrong. */
-extern SHAFT *ConstructShaft(float *ref1, float *ref2, SHAFT *shaft);
-
-/* Constructs a shaft enclosing the two given polygons. */
-extern SHAFT *ConstructPolygonToPolygonShaft(POLYGON *p1, POLYGON *p2, SHAFT *shaft);
-
-/* marks a geometry as to be omitted during shaftculling: it will not be added to the
- * candidatelist, even if the geometry overlaps or is inside the shaft */
-extern void ShaftOmit(SHAFT *shaft, Geometry *geom);
-
-/* marks a geometry as one not to be opened during shaft culling. */
-extern void ShaftDontOpen(SHAFT *shaft, Geometry *geom);
-
-/* adds all objects from world that overlap or lay inside the shaft to
- * candlist, returns the new candidate list */
-extern GeometryListNode *DoShaftCulling(GeometryListNode *world, SHAFT *shaft, GeometryListNode *candlist);
-
-/* Tests the geom w.r.t. the shaft: if the geom is inside or overlaps
- * the shaft, it is copied to the shaft or broken open depending on
- * the current shaft culling strategy. */
-extern GeometryListNode *ShaftCullGeom(Geometry *geom, SHAFT *shaft, GeometryListNode *candlist);
-
-/* shaftculling for patch lists */
+extern SHAFT *constructShaft(float *ref1, float *ref2, SHAFT *shaft);
+extern SHAFT *constructPolygonToPolygonShaft(POLYGON *p1, POLYGON *p2, SHAFT *shaft);
+extern void shaftOmit(SHAFT *shaft, Geometry *geom);
+extern void shaftDontOpen(SHAFT *shaft, Geometry *geom);
+extern GeometryListNode *doShaftCulling(GeometryListNode *world, SHAFT *shaft, GeometryListNode *candidateList);
+extern GeometryListNode *shaftCullGeom(Geometry *geom, SHAFT *shaft, GeometryListNode *candlist);
 extern PatchSet *shaftCullPatchList(PatchSet *pl, SHAFT *shaft, PatchSet *culledPatchList);
-
-/* frees the memory occupied by a candidatelist produced by DoShaftCulling */
-extern void FreeCandidateList(GeometryListNode *candlist);
+extern void freeCandidateList(GeometryListNode *candidateList);
 
 #endif

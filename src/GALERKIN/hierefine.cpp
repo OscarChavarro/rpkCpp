@@ -29,12 +29,12 @@ static GeometryListNode *Cull(INTERACTION *link) {
 
         if ( GLOBAL_galerkin_state.exact_visibility && !isCluster(link->rcv) && !isCluster(link->src)) {
             POLYGON rcvpoly, srcpoly;
-            the_shaft = ConstructPolygonToPolygonShaft(galerkinElementPolygon(link->rcv, &rcvpoly),
+            the_shaft = constructPolygonToPolygonShaft(galerkinElementPolygon(link->rcv, &rcvpoly),
                                                        galerkinElementPolygon(link->src, &srcpoly),
                                                        &shaft);
         } else {
             BOUNDINGBOX srcbounds, rcvbounds;
-            the_shaft = ConstructShaft(galerkinElementBounds(link->rcv, rcvbounds),
+            the_shaft = constructShaft(galerkinElementBounds(link->rcv, rcvbounds),
                                        galerkinElementBounds(link->src, srcbounds), &shaft);
         }
         if ( !the_shaft ) {
@@ -43,21 +43,21 @@ static GeometryListNode *Cull(INTERACTION *link) {
         }
 
         if ( isCluster(link->rcv)) {
-            ShaftDontOpen(&shaft, link->rcv->geom);
+            shaftDontOpen(&shaft, link->rcv->geom);
         } else {
-            ShaftOmit(&shaft, (Geometry *) link->rcv->patch);
+            shaftOmit(&shaft, (Geometry *) link->rcv->patch);
         }
 
         if ( isCluster(link->src)) {
-            ShaftDontOpen(&shaft, link->src->geom);
+            shaftDontOpen(&shaft, link->src->geom);
         } else {
-            ShaftOmit(&shaft, (Geometry *) link->src->patch);
+            shaftOmit(&shaft, (Geometry *) link->src->patch);
         }
 
         if ( ocandlist == GLOBAL_scene_clusteredWorld ) {
-            candlist = ShaftCullGeom(GLOBAL_scene_clusteredWorldGeom, &shaft, (GeometryListNode *) nullptr);
+            candlist = shaftCullGeom(GLOBAL_scene_clusteredWorldGeom, &shaft, (GeometryListNode *) nullptr);
         } else {
-            candlist = DoShaftCulling(ocandlist, &shaft, (GeometryListNode *) nullptr);
+            candlist = doShaftCulling(ocandlist, &shaft, (GeometryListNode *) nullptr);
         }
     }
 
@@ -69,7 +69,7 @@ static GeometryListNode *Cull(INTERACTION *link) {
 static void UnCull(GeometryListNode *ocandlist) {
     if ( GLOBAL_galerkin_state.shaftcullmode == DO_SHAFTCULLING_FOR_REFINEMENT ||
          GLOBAL_galerkin_state.shaftcullmode == ALWAYS_DO_SHAFTCULLING ) {
-        FreeCandidateList(candlist);
+        freeCandidateList(candlist);
     }
 
     candlist = ocandlist;
