@@ -21,8 +21,7 @@ set(MAIN_SRC
     src/common/linealAlgebra/Vector3D.cpp
     src/common/linealAlgebra/Matrix4x4.cpp
     src/common/dataStructures/CSList.cpp
-    src/common/dataStructures/Octree.cpp
-    src/common/dataStructures/DList.cpp
+        src/common/dataStructures/DList.cpp
     src/common/dataStructures/KDTree.cpp
     src/common/dataStructures/List.cpp
     src/common/dataStructures/Bintree.cpp

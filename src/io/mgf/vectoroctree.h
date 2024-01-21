@@ -4,7 +4,6 @@
 #define _VECTOROCTREE_H_
 
 #include "common/linealAlgebra/vectorMacros.h"
-#include "common/dataStructures/Octree.h"
 
 class VECTOROCTREE {
   public:
