@@ -33,55 +33,55 @@ static int globalFalse = false;
 Installs cubature rules for triangles and quadrilaterals of the specified degree
 */
 void
-setCubatureRules(CUBARULE **trirule, CUBARULE **quadrule, CUBATURE_DEGREE degree) {
+setCubatureRules(CUBARULE **triRule, CUBARULE **quadRule, CUBATURE_DEGREE degree) {
     switch ( degree ) {
         case DEGREE_1:
-            *trirule = &GLOBAL_crt1;
-            *quadrule = &GLOBAL_crq1;
+            *triRule = &GLOBAL_crt1;
+            *quadRule = &GLOBAL_crq1;
             break;
         case DEGREE_2:
-            *trirule = &GLOBAL_crt2;
-            *quadrule = &GLOBAL_crq2;
+            *triRule = &GLOBAL_crt2;
+            *quadRule = &GLOBAL_crq2;
             break;
         case DEGREE_3:
-            *trirule = &GLOBAL_crt3;
-            *quadrule = &GLOBAL_crq3;
+            *triRule = &GLOBAL_crt3;
+            *quadRule = &GLOBAL_crq3;
             break;
         case DEGREE_4:
-            *trirule = &GLOBAL_crt4;
-            *quadrule = &GLOBAL_crq4;
+            *triRule = &GLOBAL_crt4;
+            *quadRule = &GLOBAL_crq4;
             break;
         case DEGREE_5:
-            *trirule = &GLOBAL_crt5;
-            *quadrule = &GLOBAL_crq5;
+            *triRule = &GLOBAL_crt5;
+            *quadRule = &GLOBAL_crq5;
             break;
         case DEGREE_6:
-            *trirule = &GLOBAL_crt7;
-            *quadrule = &GLOBAL_crq6;
+            *triRule = &GLOBAL_crt7;
+            *quadRule = &GLOBAL_crq6;
             break;
         case DEGREE_7:
-            *trirule = &GLOBAL_crt7;
-            *quadrule = &GLOBAL_crq7;
+            *triRule = &GLOBAL_crt7;
+            *quadRule = &GLOBAL_crq7;
             break;
         case DEGREE_8:
-            *trirule = &GLOBAL_crt8;
-            *quadrule = &GLOBAL_crq8;
+            *triRule = &GLOBAL_crt8;
+            *quadRule = &GLOBAL_crq8;
             break;
         case DEGREE_9:
-            *trirule = &GLOBAL_crt9;
-            *quadrule = &GLOBAL_crq9;
+            *triRule = &GLOBAL_crt9;
+            *quadRule = &GLOBAL_crq9;
             break;
         case DEGREE_3_PROD:
-            *trirule = &GLOBAL_crt5;
-            *quadrule = &GLOBAL_crq3pg;
+            *triRule = &GLOBAL_crt5;
+            *quadRule = &GLOBAL_crq3pg;
             break;
         case DEGREE_5_PROD:
-            *trirule = &GLOBAL_crt7;
-            *quadrule = &GLOBAL_crq5pg;
+            *triRule = &GLOBAL_crt7;
+            *quadRule = &GLOBAL_crq5pg;
             break;
         case DEGREE_7_PROD:
-            *trirule = &GLOBAL_crt9;
-            *quadrule = &GLOBAL_crq7pg;
+            *triRule = &GLOBAL_crt9;
+            *quadRule = &GLOBAL_crq7pg;
             break;
         default:
             logFatal(2, "setCubatureRules", "Invalid degree %d", degree);
@@ -231,6 +231,9 @@ destroyPatchData(Patch *patch) {
     patch->radiance_data = nullptr;
 }
 
+/**
+Recomputes the color of a patch using ambient radiance term, ... if requested for
+*/
 void
 patchRecomputeColor(Patch *patch) {
     COLOR rho = REFLECTIVITY(patch);

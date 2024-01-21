@@ -1,5 +1,5 @@
-#ifndef _HWRCAST_H_
-#define _HWRCAST_H_
+#ifndef __RAY_CASTER__
+#define __RAY_CASTER__
 
 #include "skin/radianceinterfaces.h"
 #include "raycasting/common/ScreenBuffer.h"
@@ -11,14 +11,14 @@ class RayCaster {
     bool interrupt_requested;
     bool doDeleteScreen;
 
-    void ClipUV(int nrvertices, double *u, double *v);
+    void clipUv(int nrvertices, double *u, double *v);
 
     /**
     Determines the radiance of the nearest patch visible through the pixel
     (x,y). P shall be the nearest patch visible in the pixel.
     */
     COLOR
-    get_radiance_at_pixel(int x, int y, Patch *P, GETRADIANCE_FT getrad) {
+    getRadianceAtPixel(int x, int y, Patch *P, GETRADIANCE_FT getrad) {
         COLOR rad;
         colorClear(rad);
         if ( P && getrad ) {
@@ -41,7 +41,7 @@ class RayCaster {
             // Boundary check is necessary because Z-buffer algorithm does
             // not yield exactly the same result as ray tracing at patch
             // boundaries.
-            ClipUV(P->numberOfVertices, &u, &v);
+            clipUv(P->numberOfVertices, &u, &v);
 
             // Reverse ray direction and get radiance emited at hit point towards the eye
             Vector3D dir(-ray.dir.x, -ray.dir.y, -ray.dir.z);
@@ -77,6 +77,6 @@ class RayCaster {
 
 extern Raytracer GLOBAL_rayCasting_RayCasting;
 
-extern void RayCast(char *fname, FILE *fp, int ispipe);
+extern void rayCast(char *fname, FILE *fp, int ispipe);
 
 #endif

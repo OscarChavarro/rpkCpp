@@ -11,13 +11,13 @@ due to frame buffer formats, etc.
 
 /* sets up a software rendering context and initialises transforms and 
  * viewport for the current view. The new renderer is made current. */
-extern SGL_CONTEXT *SetupSoftFrameBuffer();
+extern SGL_CONTEXT *setupSoftFrameBuffer();
 
 /* renders all GLOBAL_scene_patches in the current sgl renderer. PatchPixel returns
  * and SGL_PIXEL value for a given Patch */
-extern void SoftRenderPatches(SGL_PIXEL (*PatchPixel)(Patch *));
+extern void softRenderPatches(SGL_PIXEL (*patch_pixel)(Patch *));
 
 /* software ID rendering */
-extern unsigned long *SoftRenderIds(long *x, long *y);
+extern unsigned long *softRenderIds(long *x, long *y);
 
 #endif

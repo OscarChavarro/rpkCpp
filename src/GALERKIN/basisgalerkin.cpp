@@ -229,6 +229,10 @@ basisGalerkinPushPullRadianceRecursive(GalerkinElement *elem, COLOR *Bdown, COLO
     }
 }
 
+/**
+Converts the received radiance of a patch into exitant
+radiance, making a consistent hierarchical representation
+*/
 void
 basisGalerkinPushPullRadiance(GalerkinElement *top) {
     COLOR Bdown[MAXBASISSIZE], Bup[MAXBASISSIZE];

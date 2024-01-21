@@ -12,7 +12,7 @@ Initializes an ImageOutputHandle taking into account the image filename extensio
 and performs raytracing
  */
 void
-RayTrace(char *filename, FILE *fp, int ispipe) {
+rayTrace(char *filename, FILE *fp, int ispipe) {
     ImageOutputHandle *img = nullptr;
 
     if ( fp != nullptr ) {

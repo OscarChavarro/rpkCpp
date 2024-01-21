@@ -8,12 +8,11 @@ formats, etc.
 
 #include "shared/softids.h"
 #include "scene/scene.h"
-#include "shared/Camera.h"
 #include "shared/render.h"
 #include "common/error.h"
 
 SGL_CONTEXT *
-SetupSoftFrameBuffer() {
+setupSoftFrameBuffer() {
     SGL_CONTEXT *sgl;
 
     sgl = sglOpen(GLOBAL_camera_mainCamera.xSize, GLOBAL_camera_mainCamera.ySize);
@@ -34,7 +33,7 @@ SetupSoftFrameBuffer() {
 static SGL_PIXEL (*PatchPixel)(Patch *) = nullptr;
 
 static void
-SoftRenderPatch(Patch *P) {
+softRenderPatch(Patch *P) {
     Vector3D verts[4];
 
     if ( GLOBAL_render_renderOptions.backface_culling &&
@@ -54,43 +53,43 @@ SoftRenderPatch(Patch *P) {
 }
 
 void
-SoftRenderPatches(SGL_PIXEL (*patch_pixel)(Patch *)) {
+softRenderPatches(SGL_PIXEL (*patch_pixel)(Patch *)) {
     PatchPixel = patch_pixel;
 
     if ( GLOBAL_render_renderOptions.frustum_culling ) {
         int use_display_lists = GLOBAL_render_renderOptions.use_display_lists;
         GLOBAL_render_renderOptions.use_display_lists = false;  /* temporarily switch it off */
-        renderWorldOctree(SoftRenderPatch);
+        renderWorldOctree(softRenderPatch);
         GLOBAL_render_renderOptions.use_display_lists = use_display_lists;
     } else {
         for ( PatchSet *window = GLOBAL_scene_patches; window != nullptr; window = window->next ) {
-            SoftRenderPatch(window->patch);
+            softRenderPatch(window->patch);
         }
     }
 }
 
 static SGL_PIXEL
-PatchID(Patch *P) {
+patchId(Patch *P) {
     return (SGL_PIXEL) P->id;
 }
 
 static void
-SoftRenderPatchIds() {
-    SoftRenderPatches(PatchID);
+softRenderPatchIds() {
+    softRenderPatches(patchId);
 }
 
 unsigned long *
-SoftRenderIds(long *x, long *y) {
+softRenderIds(long *x, long *y) {
     SGL_CONTEXT *sgl, *oldsgl;
     unsigned long *ids;
 
     if ( sizeof(SGL_PIXEL) != sizeof(long)) {
-        logFatal(-1, "SoftRenderIds", "sizeof(SGL_PIXEL)!=sizeof(long).");
+        logFatal(-1, "softRenderIds", "sizeof(SGL_PIXEL)!=sizeof(long).");
     }
 
     oldsgl = GLOBAL_sgl_currentContext;
-    sgl = SetupSoftFrameBuffer();
-    SoftRenderPatchIds();
+    sgl = setupSoftFrameBuffer();
+    softRenderPatchIds();
 
     *x = sgl->width;
     *y = sgl->height;

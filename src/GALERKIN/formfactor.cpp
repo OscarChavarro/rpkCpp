@@ -383,7 +383,7 @@ IN: 	link->rcv, link->src, link->nrcv, link->nsrc: receiver and source element
 and the number of basis functions to consider on them.
 shadowlist: a list of possible occluders.
 OUT: link->K, link->deltaK: generalized form factor(s) and error estimation
-coefficients (to be used in the refinement oracle EvaluateInteraction()
+coefficients (to be used in the refinement oracle hierarchicRefinementEvaluateInteraction()
 in hierefine.c.
 link->crcv: number of error estimation coefficients (only 1 for the moment)
 link->vis: visibility factor: 255 for total visibility, 0 for total

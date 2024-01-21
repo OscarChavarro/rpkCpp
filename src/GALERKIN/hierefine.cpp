@@ -1,7 +1,9 @@
-/* hierefine.c: hierarchical refinement */
+/**
+Hierarchical refinement
+*/
 
-#include "material/statistics.h"
 #include "common/error.h"
+#include "material/statistics.h"
 #include "skin/Geometry.h"
 #include "GALERKIN/basisgalerkin.h"
 #include "GALERKIN/galerkinP.h"
@@ -9,15 +11,39 @@
 #include "GALERKIN/shaftculling.h"
 #include "GALERKIN/clustergalerkincpp.h"
 
-/* ************* Shaftculling stuff for hierarchical refinement *************** */
+/**
+Shaftculling stuff for hierarchical refinement
+*/
 
-static GeometryListNode *candlist;    /* candidate occluder list for a pair of patches. */
+static int refineRecursive(INTERACTION *link);    /* forward decl. */
 
-/* Does shaftculling between elements in a link (if the user asked for it).
- * Updates the global candlist. Returns the old candlist, so it can be restored 
- * later (using UnCull()). */
-static GeometryListNode *Cull(INTERACTION *link) {
-    GeometryListNode *ocandlist = candlist;
+static GeometryListNode *globalCandidatesList;    /* candidate occluder list for a pair of patches. */
+
+/**
+Evaluates the interaction and returns a code telling whether it is accurate enough
+for computing light transport, or what to do in order to reduce the
+(estimated) error in the most efficient way. This is the famous oracle function
+which is so crucial for efficient hierarchical refinement.
+
+See DOC/galerkin.text.
+*/
+enum INTERACTION_EVALUATION_CODE {
+    ACCURATE_ENOUGH,
+    REGULAR_SUBDIVIDE_SOURCE,
+    REGULAR_SUBDIVIDE_RECEIVER,
+    SUBDIVIDE_SOURCE_CLUSTER,
+    SUBDIVIDE_RECEIVER_CLUSTER,
+    ENLARGE_RECEIVER_BASIS
+};
+
+/**
+Does shaft-culling between elements in a link (if the user asked for it).
+Updates the global candlist. Returns the old candidate list, so it can be restored
+later (using hierarchicRefinementUnCull())
+*/
+static GeometryListNode *
+hierarchicRefinementCull(INTERACTION *link) {
+    GeometryListNode *ocandlist = globalCandidatesList;
 
     if ( ocandlist == (GeometryListNode *) nullptr) {
         return (GeometryListNode *) nullptr;
@@ -38,7 +64,7 @@ static GeometryListNode *Cull(INTERACTION *link) {
                                        galerkinElementBounds(link->sourceElement, srcbounds), &shaft);
         }
         if ( !the_shaft ) {
-            logError("Cull", "Couldn't construct shaft");
+            logError("hierarchicRefinementCull", "Couldn't construct shaft");
             return ocandlist;
         }
 
@@ -55,52 +81,61 @@ static GeometryListNode *Cull(INTERACTION *link) {
         }
 
         if ( ocandlist == GLOBAL_scene_clusteredWorld ) {
-            candlist = shaftCullGeom(GLOBAL_scene_clusteredWorldGeom, &shaft, (GeometryListNode *) nullptr);
+            globalCandidatesList = shaftCullGeom(GLOBAL_scene_clusteredWorldGeom, &shaft, (GeometryListNode *) nullptr);
         } else {
-            candlist = doShaftCulling(ocandlist, &shaft, (GeometryListNode *) nullptr);
+            globalCandidatesList = doShaftCulling(ocandlist, &shaft, (GeometryListNode *) nullptr);
         }
     }
 
     return ocandlist;
 }
 
-/* Destroys the current candlist and restores the previous one (passed as
- * an argument). */
-static void UnCull(GeometryListNode *ocandlist) {
+/**
+Destroys the current candlist and restores the previous one (passed as
+an argument)
+*/
+static void
+hierarchicRefinementUnCull(GeometryListNode *ocandlist) {
     if ( GLOBAL_galerkin_state.shaftcullmode == DO_SHAFTCULLING_FOR_REFINEMENT ||
          GLOBAL_galerkin_state.shaftcullmode == ALWAYS_DO_SHAFTCULLING ) {
-        freeCandidateList(candlist);
+        freeCandidateList(globalCandidatesList);
     }
 
-    candlist = ocandlist;
+    globalCandidatesList = ocandlist;
 }
 
-/* ********************* Link error estimation *********************** */
+/**
+Link error estimation
+*/
 
-static double ColorToError(COLOR rad) {
+static double
+hierarchicRefinementColorToError(COLOR rad) {
     RGB rgb;
     convertColorToRGB(rad, &rgb);
     return RGBMAXCOMPONENT(rgb);
 }
 
-/* Instead of computing the approximation etc... error in radiance or power 
- * error and comparing with a radiance resp. power threshold after weighting 
- * with importance, we modify the threshold and always compare with the error 
- * in radiance norm as if no importance is used. This enables us to skip 
- * estimation of some error terms if it turns out that they are not necessary 
- * anymore. */
-static double LinkErrorThreshold(INTERACTION *link, double rcv_area) {
+/**
+Instead of computing the approximation etc... error in radiance or power
+error and comparing with a radiance resp. power threshold after weighting
+with importance, we modify the threshold and always compare with the error
+in radiance norm as if no importance is used. This enables us to skip
+estimation of some error terms if it turns out that they are not necessary
+anymore
+*/
+static double
+hierarchicRefinementLinkErrorThreshold(INTERACTION *link, double rcv_area) {
     double threshold = 0.;
 
     switch ( GLOBAL_galerkin_state.error_norm ) {
         case RADIANCE_ERROR:
-            threshold = ColorToError(GLOBAL_statistics_maxSelfEmittedRadiance) * GLOBAL_galerkin_state.rel_link_error_threshold;
+            threshold = hierarchicRefinementColorToError(GLOBAL_statistics_maxSelfEmittedRadiance) * GLOBAL_galerkin_state.rel_link_error_threshold;
             break;
         case POWER_ERROR:
-            threshold = ColorToError(GLOBAL_statistics_maxSelfEmittedPower) * GLOBAL_galerkin_state.rel_link_error_threshold / (M_PI * rcv_area);
+            threshold = hierarchicRefinementColorToError(GLOBAL_statistics_maxSelfEmittedPower) * GLOBAL_galerkin_state.rel_link_error_threshold / (M_PI * rcv_area);
             break;
         default:
-            logFatal(2, "EvaluateInteraction", "Invalid error norm");
+            logFatal(2, "hierarchicRefinementEvaluateInteraction", "Invalid error norm");
     }
 
     /* Weight the error with the potential of the receiver in case of view-potential
@@ -118,12 +153,17 @@ static double LinkErrorThreshold(INTERACTION *link, double rcv_area) {
     return threshold;
 }
 
-/* Compute an estimate for the approximation error that would be made if the
- * candidate link were used for light transport. Use the sources unshot 
- * radiance when doing shooting and the total radiance when gathering. */
-static double ApproximationError(INTERACTION *link, COLOR srcrho, COLOR rcvrho, double rcv_area) {
-    COLOR error, srcrad;
-    double approx_error = 0., approx_error2;
+/**
+Compute an estimate for the approximation error that would be made if the
+candidate link were used for light transport. Use the sources un-shot
+radiance when doing shooting and the total radiance when gathering
+*/
+static double
+hierarchicRefinementApproximationError(INTERACTION *link, COLOR srcrho, COLOR rcvrho, double rcv_area) {
+    COLOR error;
+    COLOR srcrad;
+    double approx_error = 0.0;
+    double approx_error2;
 
     switch ( GLOBAL_galerkin_state.iteration_method ) {
         case GAUSS_SEIDEL:
@@ -136,7 +176,7 @@ static double ApproximationError(INTERACTION *link, COLOR srcrho, COLOR rcvrho, 
 
             colorProductScaled(rcvrho, link->deltaK.f, srcrad, error);
             colorAbs(error, error);
-            approx_error = ColorToError(error);
+            approx_error = hierarchicRefinementColorToError(error);
             break;
 
         case SOUTHWELL:
@@ -148,23 +188,24 @@ static double ApproximationError(INTERACTION *link, COLOR srcrho, COLOR rcvrho, 
 
             colorProductScaled(rcvrho, link->deltaK.f, srcrad, error);
             colorAbs(error, error);
-            approx_error = ColorToError(error);
+            approx_error = hierarchicRefinementColorToError(error);
 
             if ( GLOBAL_galerkin_state.importance_driven && isCluster(link->receiverElement)) {
                 /* make sure the link is also suited for transport of unshot potential
                  * from source to receiver. Note that it makes no sense to
                  * subdivide receiver patches (potential is only used to help
                  * choosing a radiance shooting patch. */
-                approx_error2 = (ColorToError(srcrho) * link->deltaK.f * link->sourceElement->unshot_potential.f);
+                approx_error2 = (hierarchicRefinementColorToError(srcrho) * link->deltaK.f * link->sourceElement->unshot_potential.f);
 
                 /* compare potential error w.r.t. maximum direct potential or importance
                  * instead of selfemitted radiance or power. */
                 switch ( GLOBAL_galerkin_state.error_norm ) {
                     case RADIANCE_ERROR:
-                        approx_error2 *= ColorToError(GLOBAL_statistics_maxSelfEmittedRadiance) / GLOBAL_statistics_maxDirectPotential;
+                        approx_error2 *= hierarchicRefinementColorToError(GLOBAL_statistics_maxSelfEmittedRadiance) / GLOBAL_statistics_maxDirectPotential;
                         break;
                     case POWER_ERROR:
-                        approx_error2 *= ColorToError(GLOBAL_statistics_maxSelfEmittedPower) / M_PI / GLOBAL_statistics_maxDirectImportance;
+                        approx_error2 *=
+                                hierarchicRefinementColorToError(GLOBAL_statistics_maxSelfEmittedPower) / M_PI / GLOBAL_statistics_maxDirectImportance;
                         break;
                 }
                 if ( approx_error2 > approx_error ) {
@@ -174,21 +215,26 @@ static double ApproximationError(INTERACTION *link, COLOR srcrho, COLOR rcvrho, 
             break;
 
         default:
-            logFatal(-1, "ApproximationError", "Invalid iteration method");
+            logFatal(-1, "hierarchicRefinementApproximationError", "Invalid iteration method");
     }
 
     return approx_error;
 }
 
-/* Estimates the error due to the variation of the source cluster radiance 
- * as seen from a number of sample positions on the receiver element. Especially
- * when intra source cluster visibility is handled with a Z-buffer algorithm,
- * this operation is quite expensive and should be avoided when not stricktly
- * necessary. */
-static double SourceClusterRadianceVariationError(INTERACTION *link, COLOR rcvrho, double rcv_area) {
+/**
+Estimates the error due to the variation of the source cluster radiance
+as seen from a number of sample positions on the receiver element. Especially
+when intra source cluster visibility is handled with a Z-buffer algorithm,
+this operation is quite expensive and should be avoided when not stricktly
+necessary
+*/
+static double
+sourceClusterRadianceVariationError(INTERACTION *link, COLOR rcvrho, double rcv_area) {
     Vector3D rcverts[8];
     int i, nrcverts;
-    COLOR minsrcrad, maxsrcrad, error;
+    COLOR minsrcrad;
+    COLOR maxsrcrad;
+    COLOR error;
     double K;
 
     K = (link->nsrc == 1 && link->nrcv == 1) ? link->K.f : link->K.p[0];
@@ -212,25 +258,11 @@ static double SourceClusterRadianceVariationError(INTERACTION *link, COLOR rcvrh
 
     colorProductScaled(rcvrho, K / rcv_area, error, error);
     colorAbs(error, error);
-    return ColorToError(error);
+    return hierarchicRefinementColorToError(error);
 }
 
-/* Evaluates the interaction and returns a code telling whether it is accurate enough
- * for computing light transport, or what to do in order to reduce the
- * (estimated) error in the most efficient way. This is the famous oracle function
- * which is so crucial for efficient hierarchical refinement. 
- *
- * See DOC/galerkin.text.
- */
-
-enum INTERACTION_EVALUATION_CODE {
-    ACCURATE_ENOUGH,
-    REGULAR_SUBDIVIDE_SOURCE, REGULAR_SUBDIVIDE_RECEIVER,
-    SUBDIVIDE_SOURCE_CLUSTER, SUBDIVIDE_RECEIVER_CLUSTER,
-    ENLARGE_RECEIVER_BASIS
-};
-
-static INTERACTION_EVALUATION_CODE EvaluateInteraction(INTERACTION *link) {
+static INTERACTION_EVALUATION_CODE
+hierarchicRefinementEvaluateInteraction(INTERACTION *link) {
     COLOR srcrho, rcvrho;
     double error, threshold, rcv_area, min_area;
     INTERACTION_EVALUATION_CODE code = ACCURATE_ENOUGH;
@@ -256,11 +288,11 @@ static INTERACTION_EVALUATION_CODE EvaluateInteraction(INTERACTION *link) {
         srcrho = REFLECTIVITY(link->sourceElement->patch);
 
     /* determine error estimate and error threshold */
-    threshold = LinkErrorThreshold(link, rcv_area);
-    error = ApproximationError(link, srcrho, rcvrho, rcv_area);
+    threshold = hierarchicRefinementLinkErrorThreshold(link, rcv_area);
+    error = hierarchicRefinementApproximationError(link, srcrho, rcvrho, rcv_area);
 
     if ( isCluster(link->sourceElement) && error < threshold && GLOBAL_galerkin_state.clustering_strategy != ISOTROPIC )
-        error += SourceClusterRadianceVariationError(link, rcvrho, rcv_area);
+        error += sourceClusterRadianceVariationError(link, rcvrho, rcv_area);
 
     /* Minimal element area for which subdivision is allowed. */
     min_area = GLOBAL_statistics_totalArea * GLOBAL_galerkin_state.rel_min_elem_area;
@@ -290,10 +322,13 @@ static INTERACTION_EVALUATION_CODE EvaluateInteraction(INTERACTION *link) {
 
 /* ****************** Light transport computation ********************* */
 
-/* Computes light transport over the given interaction, which is supposed to be
- * accurate enough for doing so. Renormalisation and reflection and such is done 
- * once for all accumulated received radiance during push-pull. */
-static void ComputeLightTransport(INTERACTION *link) {
+/**
+Computes light transport over the given interaction, which is supposed to be
+accurate enough for doing so. Renormalisation and reflection and such is done
+once for all accumulated received radiance during push-pull
+*/
+static void
+hierarchicRefinementComputeLightTransport(INTERACTION *link) {
     COLOR *srcrad, *rcvrad, avsrclusrad;
     int alpha, beta, a, b;
 
@@ -346,30 +381,35 @@ static void ComputeLightTransport(INTERACTION *link) {
             } else {
                 rcvrho = REFLECTIVITY(link->receiverElement->patch);
             }
-            link->sourceElement->received_potential.f += K * ColorToError(rcvrho) * link->receiverElement->potential.f;
+            link->sourceElement->received_potential.f += K * hierarchicRefinementColorToError(rcvrho) * link->receiverElement->potential.f;
         } else if ( GLOBAL_galerkin_state.iteration_method == SOUTHWELL ) {
             if ( isCluster(link->sourceElement)) {
                 colorSetMonochrome(srcrho, 1.0f);
             } else {
                 srcrho = REFLECTIVITY(link->sourceElement->patch);
             }
-            link->receiverElement->received_potential.f += K * ColorToError(srcrho) * link->sourceElement->unshot_potential.f;
+            link->receiverElement->received_potential.f += K * hierarchicRefinementColorToError(srcrho) * link->sourceElement->unshot_potential.f;
         } else {
-            logFatal(-1, "ComputeLightTransport", "Hela hola did you introduce a new iteration method or so??");
+            logFatal(-1, "hierarchicRefinementComputeLightTransport", "Hela hola did you introduce a new iteration method or so??");
         }
     }
 }
 
-/* ********************** Refinement procedures ************************* */
+/**
+Refinement procedures
+*/
 
-/* Computes the formfactor and error esitmation coefficients. If the formfactor
- * is not zero, the data is filled in the INTERACTION pointed to by 'link'
- * and true is returned. If the elements don't itneract, false is returned. */
-int CreateSubdivisionLink(GalerkinElement *rcv, GalerkinElement *src, INTERACTION *link) {
+/**
+Computes the form factor and error estimation coefficients. If the formfactor
+is not zero, the data is filled in the INTERACTION pointed to by 'link'
+and true is returned. If the elements don't interact, false is returned
+*/
+int
+hierarchicRefinementCreateSubdivisionLink(GalerkinElement *rcv, GalerkinElement *src, INTERACTION *link) {
     link->receiverElement = rcv;
     link->sourceElement = src;
 
-    /* Always a constant approximation on cluster elements. */
+    // Always a constant approximation on cluster elements
     if ( isCluster(link->receiverElement)) {
         link->nrcv = 1;
     } else {
@@ -382,14 +422,17 @@ int CreateSubdivisionLink(GalerkinElement *rcv, GalerkinElement *src, INTERACTIO
         link->nsrc = src->basis_size;
     }
 
-    areaToAreaFormFactor(link, candlist);
+    areaToAreaFormFactor(link, globalCandidatesList);
 
     return link->vis != 0;
 }
 
-/* Duplicates the INTERACTION data and stores it with the receivers interactions
- * if doing gathering and with the source for shooting. */
-static void StoreInteraction(INTERACTION *link) {
+/**
+Duplicates the INTERACTION data and stores it with the receivers interactions
+if doing gathering and with the source for shooting
+*/
+static void
+hierarchicRefinementStoreInteraction(INTERACTION *link) {
     GalerkinElement *src = link->sourceElement, *rcv = link->receiverElement;
 
     if ( GLOBAL_galerkin_state.iteration_method == SOUTHWELL ) {
@@ -399,15 +442,16 @@ static void StoreInteraction(INTERACTION *link) {
     }
 }
 
-static int RefineRecursive(INTERACTION *link);    /* forward decl. */
-
-/* Subdivides the source element, creates subinteractions and refines. If the 
- * subinteractions do not need to be refined any further, they are added to
- * either the sources, either the receivers interaction list, depending on the 
- * iteration method being used. This routine always returns true indicating that
- * the passed interaction is always replaced by lower level interactions. */
-static int RegularSubdivideSource(INTERACTION *link) {
-    GeometryListNode *ocandlist = Cull(link);
+/**
+Subdivides the source element, creates subinteractions and refines. If the
+sub-interactions do not need to be refined any further, they are added to
+either the sources, either the receivers interaction list, depending on the
+iteration method being used. This routine always returns true indicating that
+the passed interaction is always replaced by lower level interactions
+*/
+static int
+hierarchicRefinementRegularSubdivideSource(INTERACTION *link) {
+    GeometryListNode *ocandlist = hierarchicRefinementCull(link);
     GalerkinElement *src = link->sourceElement, *rcv = link->receiverElement;
     int i;
 
@@ -419,20 +463,23 @@ static int RegularSubdivideSource(INTERACTION *link) {
         subinteraction.K.p = ff;    /* temporary storage for the formfactors */
         /* subinteraction.deltaK.p = */
 
-        if ( CreateSubdivisionLink(rcv, child, &subinteraction)) {
-            if ( !RefineRecursive(&subinteraction)) {
-                StoreInteraction(&subinteraction);
+        if ( hierarchicRefinementCreateSubdivisionLink(rcv, child, &subinteraction)) {
+            if ( !refineRecursive(&subinteraction)) {
+                hierarchicRefinementStoreInteraction(&subinteraction);
             }
         }
     }
 
-    UnCull(ocandlist);
+    hierarchicRefinementUnCull(ocandlist);
     return true;
 }
 
-/* Same, but subdivides the receiver element. */
-static int RegularSubdivideReceiver(INTERACTION *link) {
-    GeometryListNode *ocandlist = Cull(link);
+/**
+Same, but subdivides the receiver element
+*/
+static int
+hierarchicRefinementRegularSubdivideReceiver(INTERACTION *link) {
+    GeometryListNode *ocandlist = hierarchicRefinementCull(link);
     GalerkinElement *src = link->sourceElement, *rcv = link->receiverElement;
     int i;
 
@@ -443,21 +490,24 @@ static int RegularSubdivideReceiver(INTERACTION *link) {
         GalerkinElement *child = rcv->regular_subelements[i];
         subinteraction.K.p = ff;
 
-        if ( CreateSubdivisionLink(child, src, &subinteraction)) {
-            if ( !RefineRecursive(&subinteraction)) {
-                StoreInteraction(&subinteraction);
+        if ( hierarchicRefinementCreateSubdivisionLink(child, src, &subinteraction)) {
+            if ( !refineRecursive(&subinteraction)) {
+                hierarchicRefinementStoreInteraction(&subinteraction);
             }
         }
     }
 
-    UnCull(ocandlist);
+    hierarchicRefinementUnCull(ocandlist);
     return true;
 }
 
-/* Replace the interaction by interactions with the subclusters of the source,
- * which is a cluster. */
-static int SubdivideSourceCluster(INTERACTION *link) {
-    GeometryListNode *ocandlist = Cull(link);
+/**
+Replace the interaction by interactions with the subclusters of the source,
+which is a cluster
+*/
+static int
+hierarchicRefinementSubdivideSourceCluster(INTERACTION *link) {
+    GeometryListNode *ocandlist = hierarchicRefinementCull(link);
     GalerkinElement *src = link->sourceElement, *rcv = link->receiverElement;
     ELEMENTLIST *subcluslist;
 
@@ -465,8 +515,7 @@ static int SubdivideSourceCluster(INTERACTION *link) {
         GalerkinElement *child = subcluslist->element;
         INTERACTION subinteraction;
         float ff[MAXBASISSIZE * MAXBASISSIZE];
-        subinteraction.K.p = ff;    /* temporary storage for the formfactors */
-        /* subinteraction.deltaK.p = */
+        subinteraction.K.p = ff; // Temporary storage for the form-factors
 
         if ( !isCluster(child)) {
             Patch *the_patch = child->patch;
@@ -477,21 +526,24 @@ static int SubdivideSourceCluster(INTERACTION *link) {
             }
         }
 
-        if ( CreateSubdivisionLink(rcv, child, &subinteraction)) {
-            if ( !RefineRecursive(&subinteraction)) {
-                StoreInteraction(&subinteraction);
+        if ( hierarchicRefinementCreateSubdivisionLink(rcv, child, &subinteraction)) {
+            if ( !refineRecursive(&subinteraction)) {
+                hierarchicRefinementStoreInteraction(&subinteraction);
             }
         }
     }
 
-    UnCull(ocandlist);
+    hierarchicRefinementUnCull(ocandlist);
     return true;
 }
 
-/* Replace the interaction by interactions with the subclusters of the receiver,
- * which is a cluster. */
-static int SubdivideReceiverCluster(INTERACTION *link) {
-    GeometryListNode *ocandlist = Cull(link);
+/**
+Replace the interaction by interactions with the subclusters of the receiver,
+which is a cluster
+*/
+static int
+hierarchicRefinementSubdivideReceiverCluster(INTERACTION *link) {
+    GeometryListNode *ocandlist = hierarchicRefinementCull(link);
     GalerkinElement *src = link->sourceElement, *rcv = link->receiverElement;
     ELEMENTLIST *subcluslist;
 
@@ -510,55 +562,60 @@ static int SubdivideReceiverCluster(INTERACTION *link) {
             }
         }
 
-        if ( CreateSubdivisionLink(child, src, &subinteraction)) {
-            if ( !RefineRecursive(&subinteraction)) {
-                StoreInteraction(&subinteraction);
+        if ( hierarchicRefinementCreateSubdivisionLink(child, src, &subinteraction)) {
+            if ( !refineRecursive(&subinteraction)) {
+                hierarchicRefinementStoreInteraction(&subinteraction);
             }
         }
     }
 
-    UnCull(ocandlist);
+    hierarchicRefinementUnCull(ocandlist);
     return true;
 }
 
-/* Recursievly refines the interaction. Returns true if the interaction was 
- * effectively refined, so the specified interaction can be deleted. Returns false
- * if the interaction was not refined and is to be retained. If the interaction
- * does not need to be refined, light transport over the interaction is computed. */
-int RefineRecursive(INTERACTION *link) {
+/**
+Recursievly refines the interaction. Returns true if the interaction was
+effectively refined, so the specified interaction can be deleted. Returns false
+if the interaction was not refined and is to be retained. If the interaction
+does not need to be refined, light transport over the interaction is computed
+*/
+int
+refineRecursive(INTERACTION *link) {
     int refined = false;
 
-    switch ( EvaluateInteraction(link)) {
+    switch ( hierarchicRefinementEvaluateInteraction(link)) {
         case ACCURATE_ENOUGH:
-            ComputeLightTransport(link);
+            hierarchicRefinementComputeLightTransport(link);
             refined = false;
             break;
         case REGULAR_SUBDIVIDE_SOURCE:
-            refined = RegularSubdivideSource(link);
+            refined = hierarchicRefinementRegularSubdivideSource(link);
             break;
         case REGULAR_SUBDIVIDE_RECEIVER:
-            refined = RegularSubdivideReceiver(link);
+            refined = hierarchicRefinementRegularSubdivideReceiver(link);
             break;
         case SUBDIVIDE_SOURCE_CLUSTER:
-            refined = SubdivideSourceCluster(link);
+            refined = hierarchicRefinementSubdivideSourceCluster(link);
             break;
         case SUBDIVIDE_RECEIVER_CLUSTER:
-            refined = SubdivideReceiverCluster(link);
+            refined = hierarchicRefinementSubdivideReceiverCluster(link);
             break;
         default:
-            logFatal(2, "RefineRecursive", "Invalid result from EvaluateInteraction()");
+            logFatal(2, "refineRecursive", "Invalid result from hierarchicRefinementEvaluateInteraction()");
     }
 
     return refined;
 }
 
-void RefineInteraction(INTERACTION *link) {
-    candlist = GLOBAL_scene_clusteredWorld;    /* candidate occluder list for a pair of patches. */
+void
+refineInteraction(INTERACTION *link) {
+    globalCandidatesList = GLOBAL_scene_clusteredWorld;    /* candidate occluder list for a pair of patches. */
     if ( GLOBAL_galerkin_state.exact_visibility && link->vis == 255 ) {
-        candlist = (GeometryListNode *) nullptr;
-    } /* we know for sure that there is full visibility */
+        globalCandidatesList = (GeometryListNode *) nullptr;
+    }
+    // we know for sure that there is full visibility
 
-    if ( RefineRecursive(link)) {
+    if ( refineRecursive(link)) {
         if ( GLOBAL_galerkin_state.iteration_method == SOUTHWELL )
             link->sourceElement->interactions = InteractionListRemove(link->sourceElement->interactions, link);
         else
@@ -567,17 +624,20 @@ void RefineInteraction(INTERACTION *link) {
     }
 }
 
-/* Refines and computes light transport over all interactions of the given
- * toplevel element. */
-void RefineInteractions(GalerkinElement *top) {
+/**
+Refines and computes light transport over all interactions of the given
+toplevel element
+*/
+void
+refineInteractions(GalerkinElement *top) {
     /* interactions will only be replaced by lower level interactions. We try refinement
      * beginning at the lowest levels in the hierarchy and working upwards to
      * prevent already refined interactions from being tested for refinement
      * again. */
-    ITERATE_IRREGULAR_SUBELEMENTS(top, RefineInteractions);
-    ITERATE_REGULAR_SUBELEMENTS(top, RefineInteractions);
+    ITERATE_IRREGULAR_SUBELEMENTS(top, refineInteractions);
+    ITERATE_REGULAR_SUBELEMENTS(top, refineInteractions);
 
     /* Iterate over the interactions. Interactions that are refined are removed from the
      * list in RefineInteraction(). ListIterate allows the current element to be deleted. */
-    InteractionListIterate(top->interactions, RefineInteraction);
+    InteractionListIterate(top->interactions, refineInteraction);
 }

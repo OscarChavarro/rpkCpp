@@ -324,6 +324,9 @@ randomWalkRadiosityGatheringUpdate(Patch *P, double w) {
     stochasticRadiosityClearCoefficients(getTopLevelPatchReceivedRad(P), getTopLevelPatchBasis(P));
 }
 
+/**
+Returns true when converged and false if not
+*/
 static void
 randomWalkRadiosityDoGatheringIteration() {
     long nr_walks = GLOBAL_stochasticRaytracing_monteCarloRadiosityState.initialNumberOfRays;

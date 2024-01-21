@@ -643,7 +643,7 @@ saveScreen(char *fileName, FILE *fp, int isPipe) {
 
     // RayCast() saves the current picture in display-mapped (!) real values
     if ( GLOBAL_render_renderOptions.trace ) {
-        RayCast(fileName, fp, isPipe);
+        rayCast(fileName, fp, isPipe);
         return;
     }
 
@@ -682,7 +682,7 @@ the pixel. x is normally the width and y the height of the canvas window
 */
 unsigned long *
 renderIds(long *x, long *y) {
-    return SoftRenderIds(x, y);
+    return softRenderIds(x, y);
 }
 
 static void

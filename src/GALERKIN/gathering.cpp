@@ -68,7 +68,7 @@ patchGather(Patch *P) {
     }
 
     /* Refine the interactions and compute light transport at the leaves */
-    RefineInteractions(el);
+    refineInteractions(el);
 
     /* Immediately convert received radiance into radiance, make the representation
      * consistent and recompute the color of the patch when doing Gauss-Seidel.
@@ -233,7 +233,7 @@ doClusteredGatheringIteration() {
 
     userErrorThreshold = GLOBAL_galerkin_state.rel_link_error_threshold;
     /* refines and computes light transport over the refined links */
-    RefineInteractions(GLOBAL_galerkin_state.top_cluster);
+    refineInteractions(GLOBAL_galerkin_state.top_cluster);
 
     GLOBAL_galerkin_state.rel_link_error_threshold = userErrorThreshold;
 

@@ -150,8 +150,8 @@ void
 softUpdateDirectVisibility() {
     clock_t t = clock();
     SGL_CONTEXT *oldsgl = GLOBAL_sgl_currentContext;
-    SGL_CONTEXT *sgl = SetupSoftFrameBuffer();
-    SoftRenderPatches(patchPointer);
+    SGL_CONTEXT *sgl = setupSoftFrameBuffer();
+    softRenderPatches(patchPointer);
     softGetPatchPointers(sgl);
     sglClose(sgl);
     sglMakeCurrent(oldsgl);

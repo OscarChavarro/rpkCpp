@@ -14,8 +14,8 @@ Soft_ID_Renderer::~Soft_ID_Renderer() {
 void
 Soft_ID_Renderer::init() {
     SGL_CONTEXT *oldsgl = GLOBAL_sgl_currentContext;
-    sgl = SetupSoftFrameBuffer();
-    SoftRenderPatches(patchPointer);
+    sgl = setupSoftFrameBuffer();
+    softRenderPatches(patchPointer);
     sglMakeCurrent(oldsgl); // make the old one current again
 }
 

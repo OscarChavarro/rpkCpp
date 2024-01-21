@@ -11,7 +11,7 @@ a software frame buffer directly.
 #include "raycasting/simple/RayCaster.h"
 
 void
-RayCaster::ClipUV(int nrvertices, double *u, double *v) {
+RayCaster::clipUv(int nrvertices, double *u, double *v) {
     if ( *u > 1. - EPSILON ) {
         *u = 1. - EPSILON;
     }
@@ -57,7 +57,7 @@ RayCaster::render(GETRADIANCE_FT getrad = nullptr) {
     for ( y = 0; y < height; y++ ) {
         for ( x = 0; x < width; x++ ) {
             Patch *P = id_renderer->get_patch_at_pixel(x, y);
-            COLOR rad = get_radiance_at_pixel(x, y, P, getrad);
+            COLOR rad = getRadianceAtPixel(x, y, P, getrad);
             scrn->add(x, y, rad);
         }
 
@@ -158,7 +158,7 @@ and saved into the file with given name and file pointer. 'ispipe'
 reflects whether this file pointer is a pipe or not.
 */
 void
-RayCast(char *fname, FILE *fp, int ispipe) {
+rayCast(char *fname, FILE *fp, int ispipe) {
     ImageOutputHandle *img = nullptr;
 
     if ( fp ) {

@@ -113,7 +113,7 @@ patchPropagateUnshotRadianceAndPotential(Patch *shooting_patch) {
 
     /* Recusrively refines the interactions of the shooting patch
      * and computes radiance and potential transport. */
-    RefineInteractions(top);
+    refineInteractions(top);
     /* EnforceEnergyConservation(shooting_patch); should be done before transport */
 
     /* Clear the unshot radiance at all levels */
@@ -308,6 +308,9 @@ reallyDoShootingStep() {
     return propagateRadiance();
 }
 
+/**
+Returns true when converged and false if not
+*/
 int
 doShootingStep() {
     return reallyDoShootingStep();

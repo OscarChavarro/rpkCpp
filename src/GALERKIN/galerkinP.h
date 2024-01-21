@@ -1,7 +1,9 @@
-/* galerkinP.h: Galerkin Radisoity "private" declarations */
+/**
+Galerkin Radiosity "private" declarations
+*/
 
-#ifndef _GALERKINP_H_
-#define _GALERKINP_H_
+#ifndef __GALERKIN_P__
+#define __GALERKIN_P__
 
 #include <cstdio>
 
@@ -11,10 +13,10 @@
 #include "SGL/sgl.h"
 #include "GALERKIN/GalerkinElement.h"
 
-/* the Galerkin specifix data for a patch is its toplevel element. The
- * ELEMENT structure is defined in element.h. */
+/**
+The Galerkin specific data for a patch is its toplevel element
+*/
 
-/* to save typing work: */
 #define RADIANCE(patch) ((GalerkinElement *)(patch->radiance_data))->radiance[0]
 #define UNSHOT_RADIANCE(patch) ((GalerkinElement *)(patch->radiance_data))->unshot_radiance[0]
 #define POTENTIAL(patch) ((GalerkinElement *)(patch->radiance_data))->potential
@@ -23,51 +25,71 @@
 #define REFLECTIVITY(patch) ((GalerkinElement *)(patch->radiance_data))->Rd
 #define TOPLEVEL_ELEMENT(patch) ((GalerkinElement *)(patch->radiance_data))
 
-/* Galerkin Radiosity "state" information */
+// Galerkin Radiosity "state" information
 enum ITERATION_METHOD {
-    JACOBI, GAUSS_SEIDEL, SOUTHWELL
+    JACOBI,
+    GAUSS_SEIDEL,
+    SOUTHWELL
 };
 
 enum SHAFTCULLMODE {
-    ALWAYS_DO_SHAFTCULLING, NEVER_DO_SHAFTCULLING, DO_SHAFTCULLING_FOR_REFINEMENT
+    ALWAYS_DO_SHAFTCULLING,
+    NEVER_DO_SHAFTCULLING,
+    DO_SHAFTCULLING_FOR_REFINEMENT
 };
 
 enum CUBATURE_DEGREE {
-    DEGREE_1, DEGREE_2, DEGREE_3, DEGREE_4, DEGREE_5, DEGREE_6, DEGREE_7,
-    DEGREE_8, DEGREE_9, DEGREE_3_PROD, DEGREE_5_PROD, DEGREE_7_PROD
+    DEGREE_1,
+    DEGREE_2,
+    DEGREE_3,
+    DEGREE_4,
+    DEGREE_5,
+    DEGREE_6,
+    DEGREE_7,
+    DEGREE_8,
+    DEGREE_9,
+    DEGREE_3_PROD,
+    DEGREE_5_PROD,
+    DEGREE_7_PROD
 };
 
 enum ERROR_NORM {
-    RADIANCE_ERROR, POWER_ERROR
+    RADIANCE_ERROR,
+    POWER_ERROR
 };
 
 enum BASIS_TYPE {
-    CONSTANT, LINEAR, QUADRATIC, CUBIC
+    CONSTANT,
+    LINEAR,
+    QUADRATIC,
+    CUBIC
 };
 
-/* determines how source radiance of a source cluster is determined and
- * how irradiance is distributed over the patches in a receiver cluster */
+// Determines how source radiance of a source cluster is determined and
+// how irradiance is distributed over the patches in a receiver cluster
 enum CLUSTERING_STRATEGY {
-    ISOTROPIC, ORIENTED, Z_VISIBILITY
+    ISOTROPIC,
+    ORIENTED,
+    Z_VISIBILITY
 };
 
 class GALERKIN_STATE {
   public:
-    int iteration_nr;    /* nr of iterations and nr of steps */
-    int hierarchical;        /* set true for hierarchical refinement */
-    int importance_driven;    /* set true for potential-driven comp. */
-    int clustered;        /* set true for clustering */
-    ITERATION_METHOD iteration_method; /* how to solve the resulting linear set */
-    int lazy_linking;        /* set true for lazy linking */
-    int exact_visibility;        /* for more exact treatment of visibility */
-    int multires_visibility;    /* for multiresolution visibility determination */
-    int use_constant_radiance;    /* set true for constant radiance initialization */
-    int use_ambient_radiance;    /* ambient radiance (for visualisation only) */
+    int iteration_nr; // Number of iterations and nr of steps
+    int hierarchical; // Set true for hierarchical refinement
+    int importance_driven; // Set true for potential-driven comp
+    int clustered; // Set true for clustering
+    ITERATION_METHOD iteration_method; // How to solve the resulting linear set
+    int lazy_linking; // Set true for lazy linking
+    int exact_visibility; // For more exact treatment of visibility
+    int multires_visibility; // For multi-resolution visibility determination
+    int use_constant_radiance; // Set true for constant radiance initialization
+    int use_ambient_radiance; // Ambient radiance (for visualisation only)
     COLOR constant_radiance;
     COLOR ambient_radiance;
-    SHAFTCULLMODE shaftcullmode;    /* when to do shaftculling */
+    SHAFTCULLMODE shaftcullmode; // When to do shaft culling
 
-    /* cubature rules for computing form factors */
+    // Cubature rules for computing form factors
     CUBATURE_DEGREE rcv_degree;
     CUBATURE_DEGREE src_degree;
     CUBARULE *rcv3rule;
@@ -76,12 +98,12 @@ class GALERKIN_STATE {
     CUBARULE *src4rule;
     CUBARULE *clusRule;
 
-    /* global variables concerning clustering */
-    GalerkinElement *top_cluster;    /* toplevel cluster containing the whole scene */
-    Geometry *top_geom;    /* a single COMPOUND Geometry containing the whole scene */
+    // Global variables concerning clustering
+    GalerkinElement *top_cluster; // Top level cluster containing the whole scene
+    Geometry *top_geom; // A single COMPOUND Geometry containing the whole scene
 
-    /* parameters that control accuracy */
-    ERROR_NORM error_norm;   /* control radiance or power error? */
+    // Parameters that control accuracy
+    ERROR_NORM error_norm; // Control radiance or power error?
     float rel_min_elem_area; /* subdivision of elements that are smaller
 			    * than the total surface area of the scene
 			    * times this number, will not be allowed. */
@@ -90,29 +112,28 @@ class GALERKIN_STATE {
 			    * to the max. selfemitted power when controlling
 			    * the power error. */
 
-    BASIS_TYPE basis_type;    /* determines max. approximation order */
+    BASIS_TYPE basis_type; // Determines max. approximation order
 
-    /* clustering strategy */
+    // Clustering strategy
     CLUSTERING_STRATEGY clustering_strategy;
 
-    /* some global variables for formfactor computation */
+    // Some global variables for form-factor computation
     GalerkinElement *fflastrcv;
     GalerkinElement *fflastsrc;
 
-    /* scratch offscreen renderer for various clustering operations. */
+    // Scratch offscreen renderer for various clustering operations
     SGL_CONTEXT *scratch;
-    int scratch_fb_size;        /* scratch frame buffer size */
-    int lastclusid;        /* used for caching cluster and eyepoint */
-    Vector3D lasteye;        /* rendered into the scratch frame buffer */
+    int scratch_fb_size; // Scratch frame buffer size
+    int lastclusid; // Used for caching cluster and eye point
+    Vector3D lasteye; // Rendered into the scratch frame buffer
 
-    long lastclock;        /* for CPU timing */
+    long lastclock; // For CPU timing
     float cpu_secs;
-    int wake_up;            /* for waking up now and then */
+    int wake_up; // For waking up now and then
 };
 
 extern GALERKIN_STATE GLOBAL_galerkin_state;
 
-/* default settings */
 #define DEFAULT_GAL_HIERARCHICAL true
 #define DEFAULT_GAL_IMPORTANCE_DRIVEN false
 #define DEFAULT_GAL_CLUSTERED true
@@ -132,49 +153,24 @@ extern GALERKIN_STATE GLOBAL_galerkin_state;
 #define DEFAULT_GAL_CLUSTERING_STRATEGY ISOTROPIC
 #define DEFAULT_GAL_SCRATCH_FB_SIZE 200
 
-extern void initGalerkin();
-
-/* installs cubature rules for triangles and quadrilaterals of the specified degree */
-extern void setCubatureRules(CUBARULE **trirule, CUBARULE **quadrule, CUBATURE_DEGREE degree);
-
-/* recomputes the color of a patch using ambient radiance term, ... if requested for */
-extern void patchRecomputeColor(Patch *patch);
-
-/* in gathering.c. Returns true when converged and false if not. */
-extern int randomWalkRadiosityDoGatheringIteration();
-
-extern int doClusteredGatheringIteration();
-
-extern void gatheringUpdateDirectPotential(GalerkinElement *elem, float potential_increment);
-
-extern void gatheringUpdateMaterial(Material *oldMaterial, Material *newMaterial);
-
-/* in shooting.c. Returns true when converged and false if not. */
-extern int doShootingStep();
-
-extern void shootingUpdateDirectPotential(GalerkinElement *elem, float potential_increment);
-
-extern void shootingUpdateMaterial(Material *oldMaterial, Material *newMaterial);
-
 enum ROLE {
     SOURCE,
     RECEIVER
 };
 
-/* Creates the initial interactions for a toplevel element which is
- * considered to be a SOURCE or RECEIVER according to 'role'. Interactions
- * are stored at the receiver element when doing gathering and at the
- * source element when doing shooting. */
+extern void initGalerkin();
+extern void setCubatureRules(CUBARULE **triRule, CUBARULE **quadRule, CUBATURE_DEGREE degree);
+extern void patchRecomputeColor(Patch *patch);
+extern int randomWalkRadiosityDoGatheringIteration();
+extern int doClusteredGatheringIteration();
+extern void gatheringUpdateDirectPotential(GalerkinElement *elem, float potential_increment);
+extern void gatheringUpdateMaterial(Material *oldMaterial, Material *newMaterial);
+extern int doShootingStep();
+extern void shootingUpdateDirectPotential(GalerkinElement *elem, float potential_increment);
+extern void shootingUpdateMaterial(Material *oldMaterial, Material *newMaterial);
 extern void createInitialLinks(GalerkinElement *top, ROLE role);
-
-/* Creates an initial link between the given element and the top cluster. */
 extern void createInitialLinkWithTopCluster(GalerkinElement *elem, ROLE role);
-
-/* recursively refines the interactions of the given toplevel element */
-extern void RefineInteractions(GalerkinElement *toplevelelement);
-
-/* in basis.c: converts the received radiance of a patch into exitant
- * radiance, making a consistent hierarchical representation. */
+extern void refineInteractions(GalerkinElement *top);
 extern void basisGalerkinPushPullRadiance(GalerkinElement *top);
 
 #endif

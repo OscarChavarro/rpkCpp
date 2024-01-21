@@ -151,7 +151,7 @@ BatchRayTrace(char *filename, FILE *fp, int ispipe) {
     GLOBAL_camera_mainCamera.changed = false;
 
     canvasPushMode();
-    RayTrace(filename, fp, ispipe);
+    rayTrace(filename, fp, ispipe);
     canvasPullMode();
 }
 
