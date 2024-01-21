@@ -13,7 +13,7 @@ Matrix4x4 GLOBAL_matrix_identityTransform4x4 = {
 };
 
 Matrix4x4
-Translate(Vector3D t) {
+translationMatrix(Vector3D t) {
     Matrix4x4 xf = GLOBAL_matrix_identityTransform4x4;
     xf.m[0][3] = t.x;
     xf.m[1][3] = t.y;
@@ -21,30 +21,34 @@ Translate(Vector3D t) {
     return xf;
 }
 
+/**
+Create scaling, ... transform. The transforms behave identically as the
+corresponding transforms in OpenGL
+*/
 Matrix4x4
-Rotate(float alpha, Vector3D d) {
+rotateMatrix(float angle, Vector3D axis) {
     Matrix4x4 xf = GLOBAL_matrix_identityTransform4x4;
     double x, y, z, c, s, t;
 
-    /* singularity test */
-    if ( (s = VECTORNORM(d)) < EPSILON ) {
+    // Singularity test
+    if ((s = VECTORNORM(axis)) < EPSILON ) {
         //Error("Rotate", "Bad rotation axis");
         return xf;
     } else {
         // normalize
-        VECTORSCALEINVERSE(s, d, d);
+        VECTORSCALEINVERSE(s, axis, axis);
     }
 
-    x = d.x;
-    y = d.y;
-    z = d.z;
-    c = std::cos(alpha);
-    s = std::sin(alpha);
+    x = axis.x;
+    y = axis.y;
+    z = axis.z;
+    c = std::cos(angle);
+    s = std::sin(angle);
     t = 1 - c;
-    SET_3X3MATRIX(xf.m,
-                  x * x * t + c, x * y * t - z * s, x * z * t + y * s,
-                  x * y * t + z * s, y * y * t + c, y * z * t - x * s,
-                  x * z * t - y * s, y * z * t + x * s, z * z * t + c);
+    set3X3Matrix(xf.m,
+                 x * x * t + c, x * y * t - z * s, x * z * t + y * s,
+                 x * y * t + z * s, y * y * t + c, y * z * t - x * s,
+                 x * z * t - y * s, y * z * t + x * s, z * z * t + c);
     return xf;
 }
 
@@ -53,7 +57,7 @@ Recovers the rotation axis and angle from the given rotation matrix.
 There is no check whether the transform really is a rotation.
 */
 void
-RecoverRotation(Matrix4x4 xf, float *angle, Vector3D *axis) {
+recoverRotationMatrix(Matrix4x4 xf, float *angle, Vector3D *axis) {
     double c, s;
 
     c = (xf.m[0][0] + xf.m[1][1] + xf.m[2][2] - 1.) * 0.5;
@@ -66,7 +70,7 @@ RecoverRotation(Matrix4x4 xf, float *angle, Vector3D *axis) {
         axis->y = sqrt((xf.m[1][1] + 1.) * 0.5);
         axis->z = sqrt((xf.m[2][2] + 1.) * 0.5);
 
-        /* assume x positive, determine sign of y and z */
+        // Assume x positive, determine sign of y and z */
         if ( xf.m[1][0] < 0. ) {
             axis->y = -axis->y;
         }
@@ -84,9 +88,11 @@ RecoverRotation(Matrix4x4 xf, float *angle, Vector3D *axis) {
     }
 }
 
-/* xf(p) = xf2(xf1(p)) */
+/**
+xf(p) = xf2(xf1(p))
+*/
 Matrix4x4
-TransCompose(Matrix4x4 xf2, Matrix4x4 xf1) {
+transComposeMatrix(Matrix4x4 xf2, Matrix4x4 xf1) {
     Matrix4x4 xf;
 
     xf.m[0][0] = xf2.m[0][0] * xf1.m[0][0] + xf2.m[0][1] * xf1.m[1][0] + xf2.m[0][2] * xf1.m[2][0] +
@@ -128,12 +134,14 @@ TransCompose(Matrix4x4 xf2, Matrix4x4 xf1) {
     return xf;
 }
 
-/* This transforms the eye point to the origin and rotates such
- * that the centre will be on the negative Z axis and the up direction 
- * on the positive Y axis (Y axis positions up, X positions right, Z positions
- * towards the viewer) */
+/**
+This transforms the eye point to the origin and rotates such
+that the centre will be on the negative Z axis and the up direction
+on the positive Y axis (Y axis positions up, X positions right, Z positions
+towards the viewer)
+*/
 Matrix4x4
-LookAt(Vector3D eye, Vector3D centre, Vector3D up) {
+lookAtMatrix(Vector3D eye, Vector3D centre, Vector3D up) {
     Matrix4x4 xf = GLOBAL_matrix_identityTransform4x4;
     Vector3D s, X, Y, Z;
 
@@ -144,17 +152,17 @@ LookAt(Vector3D eye, Vector3D centre, Vector3D up) {
     VECTORNORMALIZE(X);
 
     VECTORCROSSPRODUCT(Z, X, Y);        /* Y positions up */
-    SET_3X3MATRIX(xf.m,            /* view orientation transform */
-                  X.x, X.y, X.z,
-                  Y.x, Y.y, Y.z,
-                  Z.x, Z.y, Z.z);
+    set3X3Matrix(xf.m,            /* view orientation transform */
+                 X.x, X.y, X.z,
+                 Y.x, Y.y, Y.z,
+                 Z.x, Z.y, Z.z);
 
     VECTORSCALE(-1., eye, s);        /* translate eye to origin */
-    return TransCompose(xf, Translate(s));
+    return transComposeMatrix(xf, translationMatrix(s));
 }
 
 Matrix4x4
-Perspective(float fov /*radians*/, float aspect, float near, float far) {
+perspectiveMatrix(float fov /*radians*/, float aspect, float near, float far) {
     Matrix4x4 xf = GLOBAL_matrix_identityTransform4x4;
     double f = 1. / tan(fov / 2.);
 
@@ -169,7 +177,7 @@ Perspective(float fov /*radians*/, float aspect, float near, float far) {
 }
 
 Matrix4x4
-Ortho(float left, float right, float bottom, float top, float near, float far) {
+orthogonalViewMatrix(float left, float right, float bottom, float top, float near, float far) {
     Matrix4x4 xf = GLOBAL_matrix_identityTransform4x4;
 
     xf.m[0][0] = 2.0f / (right - left);

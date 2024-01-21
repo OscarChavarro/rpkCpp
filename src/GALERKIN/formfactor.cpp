@@ -87,7 +87,7 @@ determineNodes(GalerkinElement *elem, CUBARULE **cr, Vector3D x[CUBAMAXNODES], R
             Vector2D node;
             node.u = (*cr)->u[k];
             node.v = (*cr)->v[k];
-            if ( elem->uptrans ) TRANSFORM_POINT_2D(topxf, node, node);
+            if ( elem->uptrans ) transformPoint2D(topxf, node, node);
             patchUniformPoint(elem->patch, node.u, node.v, &x[k]);
         }
     }

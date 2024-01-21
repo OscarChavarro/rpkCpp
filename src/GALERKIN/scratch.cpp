@@ -81,12 +81,12 @@ scratchRenderElementPtrs(GalerkinElement *clus, Vector3D eye) {
     VECTORSUBTRACT(centre, eye, viewdir);
     VECTORNORMALIZE(viewdir);
     if ( fabs(VECTORDOTPRODUCT(up, viewdir)) > 1. - EPSILON ) VECTORSET(up, 0., 1., 0.);
-    lookAt = LookAt(eye, centre, up);
+    lookAt = lookAtMatrix(eye, centre, up);
 
     boundsTransform(geomBounds(clus->geom), &lookAt, bbx);
 
     prev_sgl_context = sglMakeCurrent(GLOBAL_galerkin_state.scratch);
-    sglLoadMatrix(Ortho(bbx[MIN_X], bbx[MAX_X], bbx[MIN_Y], bbx[MAX_Y], -bbx[MAX_Z], -bbx[MIN_Z]));
+    sglLoadMatrix(orthogonalViewMatrix(bbx[MIN_X], bbx[MAX_X], bbx[MIN_Y], bbx[MAX_Y], -bbx[MAX_Z], -bbx[MIN_Z]));
     sglMultMatrix(lookAt);
 
     /* choose a viewport depending on the relative size of the smallest

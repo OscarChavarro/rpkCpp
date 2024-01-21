@@ -151,7 +151,7 @@ void sglLoadMatrix(Matrix4x4 xf) {
 }
 
 void sglMultMatrix(Matrix4x4 xf) {
-    *GLOBAL_sgl_currentContext->currentTransform = TransCompose(*GLOBAL_sgl_currentContext->currentTransform, xf);
+    *GLOBAL_sgl_currentContext->currentTransform = transComposeMatrix(*GLOBAL_sgl_currentContext->currentTransform, xf);
 }
 
 void sglSetColor(SGL_PIXEL col) {
@@ -184,7 +184,7 @@ void sglPolygon(int nrverts, Vector3D *verts) {
         v.y = verts[i].y;
         v.z = verts[i].z;
         v.w = 1.;
-        TRANSFORM_POINT_4D(*GLOBAL_sgl_currentContext->currentTransform, v, v);
+        transformPoint4D(*GLOBAL_sgl_currentContext->currentTransform, v, v);
         if ( v.w > -EPSILON && v.w < EPSILON ) {
             return;
         }

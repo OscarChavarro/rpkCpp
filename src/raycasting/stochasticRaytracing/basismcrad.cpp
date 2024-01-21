@@ -111,7 +111,7 @@ computeFilterCoefficients(
                 Vector2D up;
                 up.u = cr->u[k];
                 up.v = cr->v[k];
-                TRANSFORM_POINT_2D((*upxfm), up, up);
+                transformPoint2D((*upxfm), up, up);
                 x += cr->w[k] * parent_basis->function[a](up.u, up.v) *
                      child_basis->function[b](cr->u[k], cr->v[k]);
             }

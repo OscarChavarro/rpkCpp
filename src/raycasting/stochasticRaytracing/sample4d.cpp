@@ -22,7 +22,7 @@ setSequence4D(SEQ4D sequence) {
     seq = sequence;
     switch ( seq ) {
         case S4D_SOBOL:
-            InitSobol(4);
+            initSobol(4);
             break;
         case S4D_FAURE:
             InitFaure(4);
@@ -66,7 +66,7 @@ sample4D(unsigned seed) {
             xi[3] = xx[3];
             break;
         case S4D_SOBOL:
-            xx = Sobol(seed);
+            xx = sobol(seed);
             xi[0] = xx[0];
             xi[1] = xx[1];
             xi[2] = xx[2];

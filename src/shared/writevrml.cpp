@@ -22,7 +22,7 @@ transformModelVRML(Vector3D *model_rotaxis, float *model_rotangle) {
         *model_rotangle = (float)acos(cosA);
         VECTORCROSSPRODUCT(GLOBAL_camera_mainCamera.upDirection, up_axis, *model_rotaxis);
         VECTORNORMALIZE(*model_rotaxis);
-        return Rotate(*model_rotangle, *model_rotaxis);
+        return rotateMatrix(*model_rotangle, *model_rotaxis);
     } else {
         VECTORSET(*model_rotaxis, 0., 1., 0.);
         *model_rotangle = 0.;
@@ -48,20 +48,20 @@ writeVRMLViewPoint(FILE *fp, Matrix4x4 model_xf, Camera *cam, const char *vpname
     VECTORSCALE(-1.0, cam->Z, Z); // cam->Z positions away, VRML wants Z to point towards viewer
 
     // Apply model transform
-    TRANSFORM_VECTOR_3D(model_xf, X, X);
-    TRANSFORM_VECTOR_3D(model_xf, Y, Y);
-    TRANSFORM_VECTOR_3D(model_xf, Z, Z);
+    transformPoint3D(model_xf, X, X);
+    transformPoint3D(model_xf, Y, Y);
+    transformPoint3D(model_xf, Z, Z);
 
     // Construct view orientation transform and recover axis and angle
     viewTransform = GLOBAL_matrix_identityTransform4x4;
-    SET_3X3MATRIX(viewTransform.m,
-                  X.x, Y.x, Z.x,
-                  X.y, Y.y, Z.y,
-                  X.z, Y.z, Z.z);
-    RecoverRotation(viewTransform, &viewRotationAngle, &viewRotationAxis);
+    set3X3Matrix(viewTransform.m,
+                 X.x, Y.x, Z.x,
+                 X.y, Y.y, Z.y,
+                 X.z, Y.z, Z.z);
+    recoverRotationMatrix(viewTransform, &viewRotationAngle, &viewRotationAxis);
 
     // Apply model transform to eye point
-    TRANSFORM_POINT_3D(model_xf, cam->eyePosition, eyePosition);
+    transformPoint3D(model_xf, cam->eyePosition, eyePosition);
 
     fprintf(fp,
             "Viewpoint {\n  position %g %g %g\n  orientation %g %g %g %g\n  fieldOfView %g\n  description \"%s\"\n}\n\n",

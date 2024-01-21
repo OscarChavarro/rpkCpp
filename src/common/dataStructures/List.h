@@ -93,8 +93,6 @@ WARNING: ListNext() calls cannot be nested!
 extern void *GLOBAL_listHandler;
 #define ListNext(plist) ((*(plist)) ? (GLOBAL_listHandler=(*(plist))->pelement, (*(plist))=(*(plist))->next, GLOBAL_listHandler) : (void *)nullptr)
 
-extern LIST *ListMerge(LIST *list1, LIST *list2);
-extern LIST *ListDuplicate(LIST *list);
 extern LIST *ListRemove(LIST *list, void *pelement);
 extern void ListDestroy(LIST *list);
 

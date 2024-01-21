@@ -1,7 +1,7 @@
 #include <cstdlib>
 
-#include "common/dataStructures/List.h"
 #include "common/error.h"
+#include "common/dataStructures/List.h"
 
 void *GLOBAL_listHandler;
 
@@ -34,37 +34,6 @@ ListCount(LIST *list) {
     }
 
     return count;
-}
-
-/**
-merge two lists: the elements of list2 are prepended to the elements
-of list1. Returns a pointer to the enlarged list1
-*/
-LIST *
-ListMerge(LIST *list1, LIST *list2) {
-    void *pelement = (void *) nullptr;
-
-    while ((pelement = ListNext(&list2))) {
-        list1 = ListAdd(list1, pelement);
-    }
-
-    return list1;
-}
-
-/**
-Duplicates a list: the elements are not duplicated: only a pointer
-to the elements is copied
-*/
-LIST *
-ListDuplicate(LIST *list) {
-    LIST *newlist = (LIST *) nullptr;
-    void *pelement;
-
-    while ((pelement = ListNext(&list))) {
-        newlist = ListAdd(newlist, pelement);
-    }
-
-    return newlist;
 }
 
 /**

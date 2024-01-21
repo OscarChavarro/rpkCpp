@@ -378,7 +378,7 @@ galerkinElementPrint(FILE *out, GalerkinElement *element) {
 
     if ( element->uptrans ) {
         fprintf(out, "up-transform:\n");
-        PRINT_TRANSFORM2D(out, *element->uptrans);
+        element->uptrans->print(out);
     } else {
         fprintf(out, "no up-transform.\n");
     }
@@ -599,28 +599,30 @@ galerkinElementVertices(GalerkinElement *elem, Vector3D *p) {
 
         uv.u = 0.;
         uv.v = 0.;
-        if ( elem->uptrans ) TRANSFORM_POINT_2D(topTrans, uv, uv);
+        if ( elem->uptrans ) {
+            transformPoint2D(topTrans, uv, uv);
+        }
         patchUniformPoint(elem->patch, uv.u, uv.v, &p[0]);
 
         uv.u = 1.;
         uv.v = 0.;
-        if ( elem->uptrans ) TRANSFORM_POINT_2D(topTrans, uv, uv);
+        if ( elem->uptrans ) transformPoint2D(topTrans, uv, uv);
         patchUniformPoint(elem->patch, uv.u, uv.v, &p[1]);
 
         if ( elem->patch->numberOfVertices == 4 ) {
             uv.u = 1.;
             uv.v = 1.;
-            if ( elem->uptrans ) TRANSFORM_POINT_2D(topTrans, uv, uv);
+            if ( elem->uptrans ) transformPoint2D(topTrans, uv, uv);
             patchUniformPoint(elem->patch, uv.u, uv.v, &p[2]);
 
             uv.u = 0.;
             uv.v = 1.;
-            if ( elem->uptrans ) TRANSFORM_POINT_2D(topTrans, uv, uv);
+            if ( elem->uptrans ) transformPoint2D(topTrans, uv, uv);
             patchUniformPoint(elem->patch, uv.u, uv.v, &p[3]);
         } else {
             uv.u = 0.;
             uv.v = 1.;
-            if ( elem->uptrans ) TRANSFORM_POINT_2D(topTrans, uv, uv);
+            if ( elem->uptrans ) transformPoint2D(topTrans, uv, uv);
             patchUniformPoint(elem->patch, uv.u, uv.v, &p[2]);
 
             VECTORSET(p[3], 0., 0., 0.);

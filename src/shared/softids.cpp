@@ -21,9 +21,12 @@ SetupSoftFrameBuffer() {
     sglClipping(true);
     sglClear((SGL_PIXEL) 0, SGL_MAXIMUM_Z);
 
-    sglLoadMatrix(Perspective(GLOBAL_camera_mainCamera.fov * 2. * M_PI / 180., (float) GLOBAL_camera_mainCamera.xSize / (float) GLOBAL_camera_mainCamera.ySize, GLOBAL_camera_mainCamera.near,
-                              GLOBAL_camera_mainCamera.far));
-    sglMultMatrix(LookAt(GLOBAL_camera_mainCamera.eyePosition, GLOBAL_camera_mainCamera.lookPosition, GLOBAL_camera_mainCamera.upDirection));
+    sglLoadMatrix(perspectiveMatrix(GLOBAL_camera_mainCamera.fov * 2. * M_PI / 180.,
+                                    (float) GLOBAL_camera_mainCamera.xSize / (float) GLOBAL_camera_mainCamera.ySize,
+                                    GLOBAL_camera_mainCamera.near,
+                                    GLOBAL_camera_mainCamera.far));
+    sglMultMatrix(lookAtMatrix(GLOBAL_camera_mainCamera.eyePosition, GLOBAL_camera_mainCamera.lookPosition,
+                               GLOBAL_camera_mainCamera.upDirection));
 
     return sgl;
 }

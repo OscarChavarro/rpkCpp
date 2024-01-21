@@ -290,7 +290,7 @@ boundsTransform(float *bbx, Matrix4x4 *xf, float *transbbx) {
 
     boundsInit(transbbx);
     for ( i = 0; i < 8; i++ ) {
-        TRANSFORM_POINT_3D(*xf, v[i], v[i]);
+        transformPoint3D(*xf, v[i], v[i]);
         boundsEnlargePoint(transbbx, &v[i]);
     }
 
