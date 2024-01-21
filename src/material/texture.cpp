@@ -1,6 +1,12 @@
 #include "material/texture.h"
 
-void PrintTexture(FILE *out, TEXTURE *t) {
+inline void
+rgbSetMonochrome(RGB rgb, float val) {
+    setRGB(rgb, val, val, val);
+}
+
+void
+printTexture(FILE *out, TEXTURE *t) {
     if ( !t ) {
         fprintf(out, "(NULL TEXTURE)");
     } else {
@@ -8,9 +14,8 @@ void PrintTexture(FILE *out, TEXTURE *t) {
     }
 }
 
-#define RGBSETMONOCHROME(rgb, val) setRGB(rgb, val, val, val)
-
-COLOR EvalTextureColor(TEXTURE *texture, float u, float v) {
+COLOR
+evalTextureColor(TEXTURE *texture, float u, float v) {
     RGB rgb00{};
     RGB rgb10{};
     RGB rgb01{};
@@ -19,8 +24,10 @@ COLOR EvalTextureColor(TEXTURE *texture, float u, float v) {
     COLOR col;
     unsigned char *pix00, *pix01, *pix10, *pix11;
     double u1 = u - floor(u), u0 = 1. - u1, v1 = v - floor(v), v0 = 1. - v1;
-    int i = (u1 * (float) texture->width), i1 = i + 1;
-    int j = (v1 * (float) (texture->height)), j1 = j + 1;
+    int i = (int)(u1 * texture->width);
+    int i1 = i + 1;
+    int j = (int)(v1 * texture->height);
+    int j1 = j + 1;
     if ( i < 0 ) {
         i = 0;
     }
@@ -52,17 +59,17 @@ COLOR EvalTextureColor(TEXTURE *texture, float u, float v) {
 
     switch ( texture->channels ) {
         case 1:
-            RGBSETMONOCHROME(rgb00, (float) pix00[0] / 255.);
-            RGBSETMONOCHROME(rgb10, (float) pix10[0] / 255.);
-            RGBSETMONOCHROME(rgb01, (float) pix01[0] / 255.);
-            RGBSETMONOCHROME(rgb11, (float) pix11[0] / 255.);
+            rgbSetMonochrome(rgb00, (float) pix00[0] / 255.0f);
+            rgbSetMonochrome(rgb10, (float) pix10[0] / 255.0f);
+            rgbSetMonochrome(rgb01, (float) pix01[0] / 255.0f);
+            rgbSetMonochrome(rgb11, (float) pix11[0] / 255.0f);
             break;
         case 3:
         case 4: {
-            setRGB(rgb00, (float) pix00[0] / 255., (float) pix00[1] / 255., (float) pix00[2] / 255.);
-            setRGB(rgb10, (float) pix10[0] / 255., (float) pix10[1] / 255., (float) pix10[2] / 255.);
-            setRGB(rgb01, (float) pix01[0] / 255., (float) pix01[1] / 255., (float) pix01[2] / 255.);
-            setRGB(rgb11, (float) pix11[0] / 255., (float) pix11[1] / 255., (float) pix11[2] / 255.);
+            setRGB(rgb00, (float) pix00[0] / 255.0f, (float) pix00[1] / 255.0f, (float) pix00[2] / 255.0f);
+            setRGB(rgb10, (float) pix10[0] / 255.0f, (float) pix10[1] / 255.0f, (float) pix10[2] / 255.0f);
+            setRGB(rgb01, (float) pix01[0] / 255.0f, (float) pix01[1] / 255.0f, (float) pix01[2] / 255.0f);
+            setRGB(rgb11, (float) pix11[0] / 255.0f, (float) pix11[1] / 255.0f, (float) pix11[2] / 255.0f);
         }
             break;
         default:
@@ -70,9 +77,9 @@ COLOR EvalTextureColor(TEXTURE *texture, float u, float v) {
     }
 
     setRGB(rgb,
-           0.25 * (u0 * v0 * rgb00.r + u1 * v0 * rgb10.r + u0 * v1 * rgb01.r + u1 * v1 * rgb11.r),
-           0.25 * (u0 * v0 * rgb00.g + u1 * v0 * rgb10.g + u0 * v1 * rgb01.g + u1 * v1 * rgb11.g),
-           0.25 * (u0 * v0 * rgb00.b + u1 * v0 * rgb10.b + u0 * v1 * rgb01.b + u1 * v1 * rgb11.b));
+           0.25f * (float)(u0 * v0 * rgb00.r + u1 * v0 * rgb10.r + u0 * v1 * rgb01.r + u1 * v1 * rgb11.r),
+           0.25f * (float)(u0 * v0 * rgb00.g + u1 * v0 * rgb10.g + u0 * v1 * rgb01.g + u1 * v1 * rgb11.g),
+           0.25f * (float)(u0 * v0 * rgb00.b + u1 * v0 * rgb10.b + u0 * v1 * rgb01.b + u1 * v1 * rgb11.b));
     convertRGBToColor(rgb, &col);
     return col;
 }

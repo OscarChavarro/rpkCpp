@@ -454,7 +454,7 @@ void HandlePath_X_X(BPCONFIG *config, CBiPath *path) {
         path->m_lightEndNode = &newLightNode;
     }
 
-    if ( PathNodesVisible(path->m_eyeEndNode, path->m_lightEndNode)) {
+    if ( pathNodesVisible(path->m_eyeEndNode, path->m_lightEndNode)) {
         f = ComputeNEFluxEstimate(config, path, &pdf, &weight, &frad);
 
         float factor = config->fluxToRadFactor / config->bcfg->samplesPerPixel;
@@ -498,7 +498,7 @@ void HandlePath_1_X(BPCONFIG *config, CBiPath *path) {
     // First we need to determine if the lightEndNode can be seen from
     // the camera. At the same time the pixel hit is computed
 
-    if ( EyeNodeVisible(path->m_eyeEndNode, path->m_lightEndNode,
+    if ( eyeNodeVisible(path->m_eyeEndNode, path->m_lightEndNode,
                         &pix_x, &pix_y)) {
         // Visible !
 

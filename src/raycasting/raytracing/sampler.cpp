@@ -18,7 +18,7 @@ CSampler::SampleTransfer(CPathNode *thisNode,
     newNode->m_depth = thisNode->m_depth + 1;
     newNode->m_rayType = Stops;
 
-    hit = FindRayIntersection(&ray, thisNode->m_hit.patch,
+    hit = findRayIntersection(&ray, thisNode->m_hit.patch,
                               newNode->m_inBsdf, &newNode->m_hit);
 
     if ( !hit ) {

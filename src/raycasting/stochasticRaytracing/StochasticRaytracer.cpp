@@ -191,7 +191,7 @@ COLOR SR_GetDirectRadiance(CPathNode *prevNode, SRCONFIG *config,
                                                              &lightNode, x_1, x_2,
                                                              true, BSDF_ALL_COMPONENTS)) {
 
-                    if ( PathNodesVisible(prevNode, &lightNode)) {
+                    if ( pathNodesVisible(prevNode, &lightNode)) {
                         // Now connect for all applicable scatter-info's
                         // If no weighting between reflection sampling and
                         // next event estimation were used, only one connect

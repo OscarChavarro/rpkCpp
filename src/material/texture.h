@@ -1,16 +1,17 @@
-#ifndef _RPK_TEXTURE_H_
-#define _RPK_TEXTURE_H_
+#ifndef __TEXTURE__
+#define __TEXTURE__
 
-#include <cstdio>
 #include "material/color.h"
 
 class TEXTURE {
   public:
-    int width, height, channels;
-    unsigned char *data;  // first bytes correspond to bottom-left pixel (as in OpenGL)
+    int width;
+    int height;
+    int channels;
+    unsigned char *data; // First bytes correspond to bottom-left pixel (as in OpenGL)
 };
 
-extern void PrintTexture(FILE *out, TEXTURE *texture);
-extern COLOR EvalTextureColor(TEXTURE *texture, float u, float v);
+extern void printTexture(FILE *out, TEXTURE *t);
+extern COLOR evalTextureColor(TEXTURE *texture, float u, float v);
 
 #endif

@@ -294,7 +294,7 @@ photonMapDoScreenNEE(PMAPCONFIG *config) {
 
     // First we need to determine if the lightEndNode can be seen from
     // the camera. At the same time the pixel hit is computed
-    if ( EyeNodeVisible(bp->m_eyeEndNode, bp->m_lightEndNode,
+    if ( eyeNodeVisible(bp->m_eyeEndNode, bp->m_lightEndNode,
                         &pix_x, &pix_y)) {
         // Visible !
         f = photonMapDoComputePixelFluxEstimate(config);

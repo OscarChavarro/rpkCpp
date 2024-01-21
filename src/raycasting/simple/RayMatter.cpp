@@ -83,7 +83,7 @@ RayMatter::Matting() {
                 VECTORNORMALIZE(ray.dir);
 
                 // check if hit
-                if ( FindRayIntersection(&ray, nullptr, nullptr, nullptr) != nullptr ) {
+                if ( findRayIntersection(&ray, nullptr, nullptr, nullptr) != nullptr ) {
                     hits++;
                 }
             }

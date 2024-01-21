@@ -1,9 +1,5 @@
-
-/* **** Split BSDF : the most commonly used BSDF consisting of
-   one brdf and one btdf **** */
-
-#ifndef _SPLITBSDF_H_
-#define _SPLITBSDF_H_
+#ifndef __SPLITBSDF__
+#define __SPLITBSDF__
 
 #include "material/texture.h"
 #include "material/bsdf.h"
@@ -17,8 +13,12 @@ class SPLIT_BSDF {
     TEXTURE *texture;
 };
 
-extern SPLIT_BSDF *SplitBSDFCreate(BRDF *brdf, BTDF *btdf, TEXTURE *texture);
 extern BSDF_METHODS GLOBAL_scene_splitBsdfMethods;
-extern void SplitBsdfPrint(FILE *out, SPLIT_BSDF *bsdf);
+
+extern SPLIT_BSDF *
+splitBsdfCreate(BRDF *brdf, BTDF *btdf, TEXTURE *texture);
+
+extern void
+splitBsdfPrint(FILE *out, SPLIT_BSDF *bsdf);
 
 #endif

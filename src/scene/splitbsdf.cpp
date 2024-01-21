@@ -1,37 +1,41 @@
-/* splitbsdf.c : implementation of a bsdf consisting of
-     one brdf and one bsdf. Either of the components may
-     be nullptr */
+/**
+Implementation of a BSDF consisting of one brdf and one bsdf. Either of the components may
+be nullptr
+*/
 
-#include <cstdlib>
-
-#include "common/linealAlgebra/vectorMacros.h"
 #include "common/error.h"
-#include "material/bsdf.h"
-#include "scene/splitbsdf.h"
 #include "scene/spherical.h"
+#include "scene/splitbsdf.h"
 
-/* texture modulates diffuse reflection */
+// Texture modulates diffuse reflection
 #define TEXTURED_COMPONENT BRDF_DIFFUSE_COMPONENT
 
-/* Selects sampling mode according to given probabilities and random number x_1.
- * If the selected mode is not absorption, x_1 is rescaled to the interval [0,1)
- * again. */
+// Selects sampling mode according to given probabilities and random number x_1.
+// If the selected mode is not absorption, x_1 is rescaled to the interval [0,1)
+// again
 enum SAMPLING_MODE {
-    SAMPLE_TEXTURE, SAMPLE_REFLECTION, SAMPLE_TRANSMISSION, SAMPLE_ABSORPTION
+    SAMPLE_TEXTURE,
+    SAMPLE_REFLECTION,
+    SAMPLE_TRANSMISSION,
+    SAMPLE_ABSORPTION
 };
 
 void
-SplitBsdfPrint(FILE *out, SPLIT_BSDF *bsdf) {
+splitBsdfPrint(FILE *out, SPLIT_BSDF *bsdf) {
     fprintf(out, "Split Bsdf :\n  ");
     brdfPrint(out, bsdf->brdf);
     fprintf(out, "  ");
     btdfPrint(out, bsdf->btdf);
     fprintf(out, "  ");
-    PrintTexture(out, bsdf->texture);
+    printTexture(out, bsdf->texture);
 }
 
 SPLIT_BSDF *
-SplitBSDFCreate(BRDF *brdf, BTDF *btdf, TEXTURE *texture) {
+splitBsdfCreate(
+    BRDF *brdf,
+    BTDF *btdf,
+    TEXTURE *texture)
+{
     SPLIT_BSDF *bsdf = (SPLIT_BSDF *)malloc(sizeof(SPLIT_BSDF));
 
     bsdf->brdf = brdf;
@@ -42,19 +46,19 @@ SplitBSDFCreate(BRDF *brdf, BTDF *btdf, TEXTURE *texture) {
 }
 
 static SPLIT_BSDF *
-SplitBsdfDuplicate(SPLIT_BSDF *bsdf) {
+splitBsdfDuplicate(SPLIT_BSDF *bsdf) {
     SPLIT_BSDF *newBsdf = (SPLIT_BSDF *)malloc(sizeof(SPLIT_BSDF));
     *newBsdf = *bsdf;
     return newBsdf;
 }
 
 static void
-SplitBsdfDestroy(SPLIT_BSDF *bsdf) {
+splitBsdfDestroy(SPLIT_BSDF *bsdf) {
     free(bsdf);
 }
 
 static COLOR
-SplitBsdfEvalTexture(TEXTURE *texture, RayHit *hit) {
+splitBsdfEvalTexture(TEXTURE *texture, RayHit *hit) {
     Vector3D texCoord;
     COLOR col;
     colorClear(col);
@@ -64,38 +68,40 @@ SplitBsdfEvalTexture(TEXTURE *texture, RayHit *hit) {
     }
 
     if ( !hit || !hitTexCoord(hit, &texCoord)) {
-        logWarning("SplitBsdfEvalTexture", "Couldn't get texture coordinates");
+        logWarning("splitBsdfEvalTexture", "Couldn't get texture coordinates");
         return col;
     }
 
-    return EvalTextureColor(texture, texCoord.x, texCoord.y);
+    return evalTextureColor(texture, texCoord.x, texCoord.y);
 }
 
 static double
-TexturedScattererEval(Vector3D *in, Vector3D *out, Vector3D *normal) {
-    return (1. / M_PI);
+texturedScattererEval(Vector3D *in, Vector3D *out, Vector3D *normal) {
+    return (1.0 / M_PI);
 }
 
-/* albedo is assumed to be 1 */
+/**
+Albedo is assumed to be 1
+*/
 static Vector3D
-TexturedScattererSample(Vector3D *in, Vector3D *normal, double x_1, double x_2, double *pdf) {
+texturedScattererSample(Vector3D *in, Vector3D *normal, double x_1, double x_2, double *pdf) {
     COORDSYS coord;
     vectorCoordSys(normal, &coord);
     return sampleHemisphereCosTheta(&coord, x_1, x_2, pdf);
 }
 
 static void
-TexturedScattererEvalPdf(Vector3D *in, Vector3D *out, Vector3D *normal, double *pdf) {
+texturedScattererEvalPdf(Vector3D *in, Vector3D *out, Vector3D *normal, double *pdf) {
     *pdf = VECTORDOTPRODUCT(*normal, *out) / M_PI;
 }
 
 static COLOR
-SplitBsdfScatteredPower(SPLIT_BSDF *bsdf, RayHit *hit, Vector3D *in, BSDFFLAGS flags) {
+splitBsdfScatteredPower(SPLIT_BSDF *bsdf, RayHit *hit, Vector3D *in, BSDFFLAGS flags) {
     COLOR albedo;
     colorClear(albedo);
 
     if ( bsdf->texture && (flags & TEXTURED_COMPONENT)) {
-        COLOR textureColor = SplitBsdfEvalTexture(bsdf->texture, hit);
+        COLOR textureColor = splitBsdfEvalTexture(bsdf->texture, hit);
         colorAdd(albedo, textureColor, albedo);
         flags &= ~TEXTURED_COMPONENT;  /* avoid taking it into account again */
     }
@@ -114,42 +120,41 @@ SplitBsdfScatteredPower(SPLIT_BSDF *bsdf, RayHit *hit, Vector3D *in, BSDFFLAGS f
 }
 
 static void
-SplitBsdfIndexOfRefraction(SPLIT_BSDF *bsdf, REFRACTIONINDEX *index) {
+splitBsdfIndexOfRefraction(SPLIT_BSDF *bsdf, REFRACTIONINDEX *index) {
     btdfIndexOfRefraction(bsdf->btdf, index);
 }
 
 static COLOR
-SplitBsdfEval(
-        SPLIT_BSDF *bsdf,
-        RayHit *hit,
-        BSDF *inBsdf,
-        BSDF *outBsdf,
-        Vector3D *in,
-        Vector3D *out,
-        BSDFFLAGS flags)
+splitBsdfEval(
+    SPLIT_BSDF *bsdf,
+    RayHit *hit,
+    BSDF *inBsdf,
+    BSDF *outBsdf,
+    Vector3D *in,
+    Vector3D *out,
+    BSDFFLAGS flags)
 {
     COLOR result;
     Vector3D normal;
 
     colorClear(result);
     if ( !hitShadingNormal(hit, &normal)) {
-        logWarning("SplitBsdfEval", "Couldn't determine shading normal");
+        logWarning("splitBsdfEval", "Couldn't determine shading normal");
         return result;
     }
 
     if ( bsdf->texture && (flags & TEXTURED_COMPONENT)) {
-        double textureBsdf = TexturedScattererEval(in, out, &normal);
-        COLOR textureCol = SplitBsdfEvalTexture(bsdf->texture, hit);
+        double textureBsdf = texturedScattererEval(in, out, &normal);
+        COLOR textureCol = splitBsdfEvalTexture(bsdf->texture, hit);
         colorAddScaled(result, textureBsdf, textureCol, result);
         flags &= ~TEXTURED_COMPONENT;
     }
 
-    /* Just add brdf and btdf contributions, the eval routines
-       handle the direction of out. Note that out * normal is
-       computed more than once :-( */
+    // Just add brdf and btdf contributions, the eval routines
+    // handle the direction of out. Note that out * normal is
+    // computed more than once :-(
     if ( bsdf->brdf ) {
-        COLOR reflectionCol = brdfEval(bsdf->brdf, in, out, &normal,
-                                       GETBRDFFLAGS(flags));
+        COLOR reflectionCol = brdfEval(bsdf->brdf, in, out, &normal, GETBRDFFLAGS(flags));
         colorAdd(result, reflectionCol, result);
     }
 
@@ -166,25 +171,32 @@ SplitBsdfEval(
     return result;
 }
 
-/* Sample a split bsdf. If no sample was taken (RR/absorption)
-   the pdf will be 0 upon return */
-
-/* Computes probabilities for sampling the texture, reflection minus texture,
- * or transmission. Also determines b[r|t]dfFlags taking into
- * account potential texturing. */
+/**
+Sample a split bsdf. If no sample was taken (RR/absorption)
+the pdf will be 0 upon return  Computes probabilities for sampling the texture, reflection minus texture,
+or transmission. Also determines b[r|t]dfFlags taking into
+account potential texturing
+*/
 static void
-SplitBsdfProbabilities(SPLIT_BSDF *bsdf, RayHit *hit, BSDFFLAGS flags,
-                       double *Ptexture,
-                       double *Preflection,
-                       double *Ptransmission,
-                       XXDFFLAGS *brdfFlags, XXDFFLAGS *btdfFlags) {
-    COLOR textureColor, reflectance, transmittance;
+splitBsdfProbabilities(
+    SPLIT_BSDF *bsdf,
+    RayHit *hit,
+    BSDFFLAGS flags,
+    double *Ptexture,
+    double *Preflection,
+    double *Ptransmission,
+    XXDFFLAGS *brdfFlags,
+    XXDFFLAGS *btdfFlags)
+{
+    COLOR textureColor;
+    COLOR reflectance;
+    COLOR transmittance;
 
-    *Ptexture = 0.;
+    *Ptexture = 0.0;
     if ( bsdf->texture && (flags & TEXTURED_COMPONENT)) {
-        /* bsdf has a texture for diffuse reflection and diffuse reflection
-         * needs to be sampled */
-        textureColor = SplitBsdfEvalTexture(bsdf->texture, hit);
+        // bsdf has a texture for diffuse reflection and diffuse reflection
+        // needs to be sampled
+        textureColor = splitBsdfEvalTexture(bsdf->texture, hit);
         *Ptexture = colorAverage(textureColor);
         flags &= ~TEXTURED_COMPONENT;
     }
@@ -200,7 +212,7 @@ SplitBsdfProbabilities(SPLIT_BSDF *bsdf, RayHit *hit, BSDFFLAGS flags,
 }
 
 static SAMPLING_MODE
-SplitBsdfSamplingMode(double Ptexture, double Preflection, double Ptransmission, double *x_1) {
+splitBsdfSamplingMode(double Ptexture, double Preflection, double Ptransmission, double *x_1) {
     SAMPLING_MODE mode = SAMPLE_ABSORPTION;
     if ( *x_1 < Ptexture ) {
         mode = SAMPLE_TEXTURE;
@@ -222,30 +234,42 @@ SplitBsdfSamplingMode(double Ptexture, double Preflection, double Ptransmission,
 }
 
 static Vector3D
-SplitBsdfSample(SPLIT_BSDF *bsdf, RayHit *hit,
-                BSDF *inBsdf, BSDF *outBsdf,
-                Vector3D *in,
-                int doRussianRoulette,
-                BSDFFLAGS flags,
-                double x_1, double x_2,
-                double *pdf) {
-    double Ptexture, Preflection, Ptransmission, Pscattering, p, pRR;
-    REFRACTIONINDEX inIndex, outIndex;
-    XXDFFLAGS brdfFlags, btdfFlags;
+splitBsdfSample(
+    SPLIT_BSDF *bsdf,
+    RayHit *hit,
+    BSDF *inBsdf,
+    BSDF *outBsdf,
+    Vector3D *in,
+    int doRussianRoulette,
+    BSDFFLAGS flags,
+    double x_1,
+    double x_2,
+    double *pdf)
+{
+    double Ptexture;
+    double Preflection;
+    double Ptransmission;
+    double Pscattering;
+    double p;
+    double pRR;
+    REFRACTIONINDEX inIndex;
+    REFRACTIONINDEX outIndex;
+    XXDFFLAGS brdfFlags;
+    XXDFFLAGS btdfFlags;
     Vector3D normal;
     SAMPLING_MODE mode;
     Vector3D out;
 
-    *pdf = 0; /* so we can return safely */
-    if ( !hitShadingNormal(hit, &normal)) {
-        logWarning("SplitBsdfSample", "Couldn't determine shading normal");
+    *pdf = 0; // So we can return safely
+    if ( !hitShadingNormal(hit, &normal) ) {
+        logWarning("splitBsdfSample", "Couldn't determine shading normal");
         VECTORSET(out, 0., 0., 1.);
         return out;
     }
 
-    /* Calculate probabilities for sampling the texture, reflection minus texture,
-     * and transmission. Also fills in correct b[r|t]dfFlags. */
-    SplitBsdfProbabilities(bsdf, hit, flags,
+    // Calculate probabilities for sampling the texture, reflection minus texture,
+    // and transmission. Also fills in correct b[r|t]dfFlags. */
+    splitBsdfProbabilities(bsdf, hit, flags,
                            &Ptexture, &Preflection, &Ptransmission,
                            &brdfFlags, &btdfFlags);
     Pscattering = Ptexture + Preflection + Ptransmission;
@@ -253,23 +277,23 @@ SplitBsdfSample(SPLIT_BSDF *bsdf, RayHit *hit,
         return out;
     }
 
-    /* Decide whether to sample the texture reflectance, the reflectance
-     * modes not in the texture, transmission or absorption */
+    // Decide whether to sample the texture reflectance, the reflectance
+    // modes not in the texture, transmission or absorption
     if ( !doRussianRoulette ) {
-        /* normalize: no absorption sampling */
+        // Normalize: no absorption sampling
         Ptexture /= Pscattering;
         Preflection /= Pscattering;
         Ptransmission /= Pscattering;
     }
-    mode = SplitBsdfSamplingMode(Ptexture, Preflection, Ptransmission, &x_1);
+    mode = splitBsdfSamplingMode(Ptexture, Preflection, Ptransmission, &x_1);
 
     bsdfIndexOfRefraction(inBsdf, &inIndex);
     bsdfIndexOfRefraction(outBsdf, &outIndex);
 
-    /* sample according to the selected mode */
+    // Sample according to the selected mode
     switch ( mode ) {
         case SAMPLE_TEXTURE:
-            out = TexturedScattererSample(in, &normal, x_1, x_2, &p);
+            out = texturedScattererSample(in, &normal, x_1, x_2, &p);
             if ( p < EPSILON ) {
                 return out;
             } /* don't care */
@@ -293,13 +317,13 @@ SplitBsdfSample(SPLIT_BSDF *bsdf, RayHit *hit,
             return out;
             break;
         default:
-            logFatal(-1, "SplitBsdfSample", "Impossible sampling mode %d", mode);
+            logFatal(-1, "splitBsdfSample", "Impossible sampling mode %d", mode);
     }
 
-    /* add probability of sampling the same direction in other than the
-     * selected scattering mode (e.g. internal reflection) */
+    // Add probability of sampling the same direction in other than the
+    // selected scattering mode (e.g. internal reflection) */
     if ( mode != SAMPLE_TEXTURE ) {
-        TexturedScattererEvalPdf(in, &out, &normal, &p);
+        texturedScattererEvalPdf(in, &out, &normal, &p);
         *pdf += Ptexture * p;
     }
     if ( mode != SAMPLE_REFLECTION ) {
@@ -316,79 +340,93 @@ SplitBsdfSample(SPLIT_BSDF *bsdf, RayHit *hit,
     return out;
 }
 
-
-/* Sample a split bsdf. If no sample was taken (RR/absorption)
-   the pdf will be 0 upon return */
+/**
+Sample a split bsdf. If no sample was taken (RR/absorption)
+the pdf will be 0 upon return
+*/
 static void
-SplitBsdfEvalPdf(SPLIT_BSDF *bsdf, RayHit *hit,
-                 BSDF *inBsdf, BSDF *outBsdf,
-                 Vector3D *in, Vector3D *out,
-                 BSDFFLAGS flags,
-                 double *pdf, double *pdfRR) {
-    double Ptexture, Preflection, Ptransmission, Pscattering, p, pRR;
-    REFRACTIONINDEX inIndex, outIndex;
-    XXDFFLAGS brdfFlags, btdfFlags;
+splitBsdfEvalPdf(
+    SPLIT_BSDF *bsdf,
+    RayHit *hit,
+    BSDF *inBsdf,
+    BSDF *outBsdf,
+    Vector3D *in,
+    Vector3D *out,
+    BSDFFLAGS flags,
+    double *pdf,
+    double *pdfRR)
+{
+    double pTexture;
+    double pReflection;
+    double pTransmission;
+    double pScattering;
+    double p;
+    double pRR;
+    REFRACTIONINDEX inIndex{};
+    REFRACTIONINDEX outIndex{};
+    XXDFFLAGS brdfFlags;
+    XXDFFLAGS btdfFlags;
     Vector3D normal;
 
-    *pdf = *pdfRR = 0.; /* so we can return safely */
-    if ( !hitShadingNormal(hit, &normal)) {
-        logWarning("SplitBsdfEvalPdf", "Couldn't determine shading normal");
+    *pdf = *pdfRR = 0.0; // So we can return safely
+    if ( !hitShadingNormal(hit, &normal) ) {
+        logWarning("splitBsdfEvalPdf", "Couldn't determine shading normal");
         return;
     }
 
-    /* Calculate probabilities for sampling the texture, reflection minus texture,
-     * and transmission. Also fills in correct b[r|t]dfFlags. */
-    SplitBsdfProbabilities(bsdf, hit, flags,
-                           &Ptexture, &Preflection, &Ptransmission,
+    // Calculate probabilities for sampling the texture, reflection minus texture,
+    // and transmission. Also fills in correct b[r|t]dfFlags
+    splitBsdfProbabilities(bsdf, hit, flags,
+                           &pTexture, &pReflection, &pTransmission,
                            &brdfFlags, &btdfFlags);
-    Pscattering = Ptexture + Preflection + Ptransmission;
-    if ( Pscattering < EPSILON ) {
+    pScattering = pTexture + pReflection + pTransmission;
+    if ( pScattering < EPSILON ) {
         return;
     }
 
-    /* survival probability */
-    *pdfRR = Pscattering;
+    // Survival probability
+    *pdfRR = pScattering;
 
-    /* probability of sampling the outgoing direction, after survival decision */
+    // Probability of sampling the outgoing direction, after survival decision
     bsdfIndexOfRefraction(inBsdf, &inIndex);
     bsdfIndexOfRefraction(outBsdf, &outIndex);
 
-    TexturedScattererEvalPdf(in, out, &normal, &p);
-    *pdf = Ptexture * p;
+    texturedScattererEvalPdf(in, out, &normal, &p);
+    *pdf = pTexture * p;
 
     brdfEvalPdf(bsdf->brdf, in, out, &normal,
                 brdfFlags, &p, &pRR);
-    *pdf += Preflection * p;
+    *pdf += pReflection * p;
 
     btdfEvalPdf(bsdf->btdf, inIndex, outIndex, in, out, &normal,
                 btdfFlags, &p, &pRR);
-    *pdf += Ptransmission * p;
+    *pdf += pTransmission * p;
 
-    *pdf /= Pscattering;
+    *pdf /= pScattering;
 }
 
 static int
-SplitBsdfIsTextured(SPLIT_BSDF *bsdf) {
+splitBsdfIsTextured(SPLIT_BSDF *bsdf) {
     return bsdf->texture != nullptr;
 }
 
 BSDF_METHODS GLOBAL_scene_splitBsdfMethods = {
-        (COLOR (*)(void *data, RayHit *hit, Vector3D *in, BSDFFLAGS flags)) SplitBsdfScatteredPower,
-        (int (*)(void *)) SplitBsdfIsTextured,
-        (void (*)(void *data, REFRACTIONINDEX *index)) SplitBsdfIndexOfRefraction,
-        (COLOR (*)(void *data, RayHit *hit, void *inBsdf, void *outBsdf, Vector3D *in, Vector3D *out,
-                   BSDFFLAGS flags)) SplitBsdfEval,
-        (Vector3D (*)(void *data, RayHit *hit, void *inBsdf, void *outBsdf, Vector3D *in,
-                      int doRussianRoulette,
-                      BSDFFLAGS flags, double x_1, double x_2,
-                      double *pdf)) SplitBsdfSample,
-        (void (*)(void *data, RayHit *hit, void *inBsdf, void *outBsdf,
-                  Vector3D *in, Vector3D *out,
-                  BSDFFLAGS flags,
-                  double *pdf, double *pdfRR)) SplitBsdfEvalPdf,
-        (int (*)(void *data, RayHit *hit, Vector3D *X, Vector3D *Y, Vector3D *Z)) nullptr,
-        (void (*)(FILE *out, void *data)) SplitBsdfPrint,
-        (void *(*)(void *data)) SplitBsdfDuplicate,
-        (void *(*)(void *parent, void *data)) nullptr,
-        (void (*)(void *data)) SplitBsdfDestroy
+    (COLOR (*)(void *data, RayHit *hit, Vector3D *in, BSDFFLAGS flags)) splitBsdfScatteredPower,
+    (int (*)(void *)) splitBsdfIsTextured,
+    (void (*)(void *data, REFRACTIONINDEX *index)) splitBsdfIndexOfRefraction,
+    (COLOR (*)(void *data, RayHit *hit, void *inBsdf, void *outBsdf, Vector3D *in, Vector3D *out,
+    BSDFFLAGS flags)) splitBsdfEval,
+    (Vector3D (*)(void *data, RayHit *hit, void *inBsdf, void *outBsdf, Vector3D *in,
+    int doRussianRoulette,
+    BSDFFLAGS flags, double x_1, double x_2,
+    double *pdf)) splitBsdfSample,
+    (void (*)(void *data, RayHit *hit, void *inBsdf, void *outBsdf,
+    Vector3D *in, Vector3D *out,
+    BSDFFLAGS flags,
+    double *pdf, double *pdfRR)) splitBsdfEvalPdf,
+    (int (*)(void *data, RayHit *hit, Vector3D *X, Vector3D *Y, Vector3D *Z)) nullptr,
+    (void (*)(FILE *out, void *data)) splitBsdfPrint,
+    (void *(*)(void *data)) splitBsdfDuplicate,
+    (void *(*)(void *parent, void *data)) nullptr,
+    (void (*)(void *data)) splitBsdfDestroy
 };
