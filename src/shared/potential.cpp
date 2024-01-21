@@ -133,15 +133,13 @@ softGetPatchPointers(SGL_CONTEXT *sgl) {
     int i;
 
     for ( PatchSet *window = GLOBAL_scene_patches; window != nullptr; window = window->next ) {
-        // Initialise to invisible
-        PATCH_SET_INVISIBLE(window->patch);
+        window->patch->setInvisible();
     }
 
     for ( pix = sgl->frameBuffer, i = 0; i < sgl->width * sgl->height; pix++, i++ ) {
         Patch *P = (Patch *) (*pix);
         if ( P ) {
-            // Visible
-            PATCH_SET_VISIBLE(P);
+            P->setVisible();
         }
     }
 }

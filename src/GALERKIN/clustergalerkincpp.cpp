@@ -37,7 +37,7 @@ sub-elements of the cluster
 */
 static void
 patchAddClusterChild(Patch *patch, GalerkinElement *cluster) {
-    GalerkinElement *surfaceElement = (GalerkinElement *)patch->radiance_data;
+    GalerkinElement *surfaceElement = (GalerkinElement *)patch->radianceData;
 
     cluster->irregular_subelements = ElementListAdd(cluster->irregular_subelements, surfaceElement);
     surfaceElement->parent = cluster;

@@ -17,13 +17,13 @@ Galerkin Radiosity "private" declarations
 The Galerkin specific data for a patch is its toplevel element
 */
 
-#define RADIANCE(patch) ((GalerkinElement *)(patch->radiance_data))->radiance[0]
-#define UNSHOT_RADIANCE(patch) ((GalerkinElement *)(patch->radiance_data))->unshot_radiance[0]
-#define POTENTIAL(patch) ((GalerkinElement *)(patch->radiance_data))->potential
-#define UNSHOT_POTENTIAL(patch) ((GalerkinElement *)(patch->radiance_data))->unshot_potential
-#define SELFEMITTED_RADIANCE(patch) ((GalerkinElement *)(patch->radiance_data))->Ed
-#define REFLECTIVITY(patch) ((GalerkinElement *)(patch->radiance_data))->Rd
-#define TOPLEVEL_ELEMENT(patch) ((GalerkinElement *)(patch->radiance_data))
+#define RADIANCE(patch) ((GalerkinElement *)(patch->radianceData))->radiance[0]
+#define UNSHOT_RADIANCE(patch) ((GalerkinElement *)(patch->radianceData))->unshot_radiance[0]
+#define POTENTIAL(patch) ((GalerkinElement *)(patch->radianceData))->potential
+#define UNSHOT_POTENTIAL(patch) ((GalerkinElement *)(patch->radianceData))->unshot_potential
+#define SELFEMITTED_RADIANCE(patch) ((GalerkinElement *)(patch->radianceData))->Ed
+#define REFLECTIVITY(patch) ((GalerkinElement *)(patch->radianceData))->Rd
+#define TOPLEVEL_ELEMENT(patch) ((GalerkinElement *)(patch->radianceData))
 
 // Galerkin Radiosity "state" information
 enum ITERATION_METHOD {

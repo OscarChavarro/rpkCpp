@@ -133,7 +133,7 @@ void
 VoxelGrid::putPatchInsideVoxelGrid(Patch *patch) {
     BOUNDINGBOX localBounds;
     putItemInsideVoxelGrid(new VoxelData(patch, PATCH_MASK),
-                           patch->bounds ? patch->bounds : patchBounds(patch, localBounds));
+                           patch->boundingBox ? patch->boundingBox : patchBounds(patch, localBounds));
 }
 
 void

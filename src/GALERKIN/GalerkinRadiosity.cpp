@@ -217,18 +217,18 @@ Radiance data for a Patch is a surface element
 */
 static Element *
 createPatchData(Patch *patch) {
-    return patch->radiance_data = galerkinElementCreateTopLevel(patch);
+    return patch->radianceData = galerkinElementCreateTopLevel(patch);
 }
 
 static void
 printPatchData(FILE *out, Patch *patch) {
-    galerkinElementPrint(out, (GalerkinElement *) patch->radiance_data);
+    galerkinElementPrint(out, (GalerkinElement *) patch->radianceData);
 }
 
 static void
 destroyPatchData(Patch *patch) {
-    galerkinElementDestroyTopLevel((GalerkinElement *) patch->radiance_data);
-    patch->radiance_data = nullptr;
+    galerkinElementDestroyTopLevel((GalerkinElement *) patch->radianceData);
+    patch->radianceData = nullptr;
 }
 
 /**

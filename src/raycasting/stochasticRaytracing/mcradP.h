@@ -98,7 +98,7 @@ NR_VERTICES(StochasticRadiosityElement *elem) {
 
 inline StochasticRadiosityElement*
 TOPLEVEL_ELEMENT(Patch *patch) {
-    return (StochasticRadiosityElement *)patch->radiance_data;
+    return (StochasticRadiosityElement *)patch->radianceData;
 }
 
 inline COLOR *

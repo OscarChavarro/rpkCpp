@@ -183,7 +183,7 @@ monteCarloRadiosityCreateCluster(Geometry *geom) {
 static void
 monteCarloRadiosityCreateSurfaceElementChild(Patch *patch, StochasticRadiosityElement *parent) {
     StochasticRadiosityElement *elem;
-    elem = (StochasticRadiosityElement *)patch->radiance_data;    /* created before */
+    elem = (StochasticRadiosityElement *)patch->radianceData;    /* created before */
     elem->parent = (StochasticRadiosityElement *)parent;
     parent->irregular_subelements = ElementListAdd(parent->irregular_subelements, elem);
 }

@@ -79,7 +79,7 @@ Cluster::clusterAddPatch(Patch *patch) {
 
     if ( patch != nullptr ) {
         patches->add(0, patch);
-        boundsEnlarge(boundingBox, patch->bounds ? patch->bounds : patchBounds(patch, patchBoundingBox));
+        boundsEnlarge(boundingBox, patch->boundingBox ? patch->boundingBox : patchBounds(patch, patchBoundingBox));
     }
 }
 
@@ -102,7 +102,7 @@ Cluster::clusterMovePatch(int parentIndex) {
     // All patches that were added to the top cluster, which is being split now,
     // have a bounding box computed for them
     Patch *patch = patches->get(parentIndex);
-    float *patchBoundingBox = patch->bounds;
+    float *patchBoundingBox = patch->boundingBox;
 
     // If the patch is larger than an octant, don´t move current patch from parent to sub-cluster
     float smallestBoxDimension = 10 * EPSILON;

@@ -153,7 +153,7 @@ static void
 basisGalerkinPushPullRadianceRecursive(GalerkinElement *elem, COLOR *Bdown, COLOR *Bup) {
     int i;
 
-    /* "renormalize" the received radiance at this level and add to Bdown. */
+    // Re-normalize the received radiance at this level and add to Bdown
     for ( i = 0; i < elem->basis_size; i++ ) {
         colorAddScaled(Bdown[i], 1. / elem->area, elem->received_radiance[i], Bdown[i]);
         colorClear(elem->received_radiance[i]);
@@ -161,35 +161,38 @@ basisGalerkinPushPullRadianceRecursive(GalerkinElement *elem, COLOR *Bdown, COLO
 
     clusterGalerkinClearCoefficients(Bup, elem->basis_size);
 
-    if ( !elem->regular_subelements && !elem->irregular_subelements ) { /* leaf element */
-        /* multiply with reflectivity at the lowest level */
-        COLOR rho = REFLECTIVITY(elem->patch);
+    if ( !elem->regular_subelements && !elem->irregular_subelements ) {
+        // Leaf-element, multiply with reflectivity at the lowest level
+        COLOR rho = elem->patch->radianceData->Rd;
         for ( i = 0; i < elem->basis_size; i++ ) {
             colorProduct(rho, Bdown[i], Bup[i]);
         }
 
         if ( GLOBAL_galerkin_state.iteration_method == JACOBI || GLOBAL_galerkin_state.iteration_method == GAUSS_SEIDEL ) {
-            /* add selfemitted radiance. Bup is a new approximation of the total radiance
-             * add this leaf element. */
+            // Add self-emitted radiance. Bup is a new approximation of the total radiance
+            //add this leaf element
             COLOR Ed = SELFEMITTED_RADIANCE(elem->patch);
             colorAdd(Bup[0], Ed, Bup[0]);
         }
     }
 
-    if ( elem->regular_subelements ) { /* regularly subdivided surface element. */
+    if ( elem->regular_subelements ) {
+        // Regularly subdivided surface element
         for ( i = 0; i < 4; i++ ) {
-            COLOR Btmp[MAXBASISSIZE], Bdown2[MAXBASISSIZE], Bup2[MAXBASISSIZE];
+            COLOR Btmp[MAXBASISSIZE];
+            COLOR Bdown2[MAXBASISSIZE];
+            COLOR Bup2[MAXBASISSIZE];
 
-            /* 1) push Bdown to the i-th subelement */
+            // 1. Push Bdown to the i-th sub-element
             basisGalerkinPush(elem, Bdown, elem->regular_subelements[i], Bdown2);
 
-            /* 2) recursive call the push-pull for the subelement */
+            // 2. Recursive call the push-pull for the sub-element
             basisGalerkinPushPullRadianceRecursive(elem->regular_subelements[i], Bdown2, Btmp);
 
-            /* 3) pull the radiance of the subelement up to this level again */
+            // 3. Pull the radiance of the sub-element up to this level again
             basisGalerkinPull(elem, Bup2, elem->regular_subelements[i], Btmp);
 
-            /* 4) add to Bup */
+            // 4. Add to Bup
             clusterGalerkinAddCoefficients(Bup, Bup2, elem->basis_size);
         }
     }
@@ -200,30 +203,29 @@ basisGalerkinPushPullRadianceRecursive(GalerkinElement *elem, COLOR *Bdown, COLO
             GalerkinElement *subel = subellist->element;
             COLOR Btmp[MAXBASISSIZE], Bdown2[MAXBASISSIZE], Bup2[MAXBASISSIZE];
 
-            /* 1) push Bdown to the subelement if a cluster (don't push to irregular
-             * surface subelements). */
+            // 1. Push Bdown to the sub-element if a cluster (don't push to irregular
+            // surface sub-elements)
             if ( isCluster(elem)) {
                 basisGalerkinPush(elem, Bdown, subel, Bdown2);
             } else
                 clusterGalerkinClearCoefficients(Bdown2, elem->basis_size);
 
-            /* 2) recusrive call the push-pull for the subelement */
+            // 2. Recursive call the push-pull for the sub-element
             basisGalerkinPushPullRadianceRecursive(subel, Bdown2, Btmp);
 
-            /* 3) pull the radiance of the subelement up to this level again */
+            // 3. Pull the radiance of the sub-element up to this level again
             basisGalerkinPull(elem, Bup2, subel, Btmp);
 
-            /* 4) add to Bup */
+            // 4. Add to Bup
             clusterGalerkinAddCoefficients(Bup, Bup2, elem->basis_size);
         }
     }
 
     if ( GLOBAL_galerkin_state.iteration_method == JACOBI || GLOBAL_galerkin_state.iteration_method == GAUSS_SEIDEL ) {
-        /* gathering method: Bup is new approximation of the total radiance
-         * at this level of detail. */
+        // Gathering method: Bup is new approximation of the total radiance at this level of detail
         clusterGalerkinCopyCoefficients(elem->radiance, Bup, elem->basis_size);
     } else {
-        /* shooting: add Bup to the total and unshot radiance at this level */
+        // Shooting: add Bup to the total and un-shot radiance at this level
         clusterGalerkinAddCoefficients(elem->radiance, Bup, elem->basis_size);
         clusterGalerkinAddCoefficients(elem->unshot_radiance, Bup, elem->basis_size);
     }
@@ -287,7 +289,7 @@ basisGalerkinComputeFilterCoefficients(
 
 /**
 Computes the push-pull filter coefficients for regular subdivision for
-elements with given basis and uptransform. The cubature rule 'cr' is used
+elements with given basis and up transform. The cubature rule 'cr' is used
 to compute the coefficients. The coefficients are filled in the
 basis->regular_filter table
 */

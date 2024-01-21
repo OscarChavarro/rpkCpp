@@ -683,11 +683,11 @@ shaftCullPatchList(PatchSet *pl, SHAFT *shaft, PatchSet *culledPatchList) {
             continue;
         }
 
-        if ( !pl->patch->bounds ) { /* compute getBoundingBox */
+        if ( !pl->patch->boundingBox ) { /* compute getBoundingBox */
             BOUNDINGBOX bounds;
             patchBounds(pl->patch, bounds);
         }
-        if ((bbside = shaftBoxTest(pl->patch->bounds, shaft)) != OUTSIDE ) {
+        if ((bbside = shaftBoxTest(pl->patch->boundingBox, shaft)) != OUTSIDE ) {
             // Patch bounding box is inside the shaft, or overlaps with it. If it
             // overlaps, do a more expensive, but definitive, test to see whether
             // the patch itself is inside, outside or overlapping the shaft. */

@@ -230,7 +230,7 @@ galerkinElementCreateTopLevel(Patch *patch) {
         colorScaleInverse(M_PI, element->Ed, element->Ed);
     }
 
-    patch->radiance_data = element;
+    patch->radianceData = element;
     galerkinElementReAllocCoefficients(element);
 
     return element;

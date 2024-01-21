@@ -19,7 +19,7 @@ Monte Carlo Radiosity: common code for stochastic relaxation and random walks
 
 STATE GLOBAL_stochasticRaytracing_monteCarloRadiosityState;
 
-static ENUMDESC approxVals[] = {
+static ENUMDESC globalApproximateValues[] = {
     {AT_CONSTANT, "constant", 2},
     {AT_LINEAR, "linear", 2},
     {AT_QUADRATIC, "quadratic", 2},
@@ -27,51 +27,51 @@ static ENUMDESC approxVals[] = {
     {0, nullptr, 0}
 };
 
-MakeEnumOptTypeStruct(approxTypeStruct, approxVals);
+MakeEnumOptTypeStruct(approxTypeStruct, globalApproximateValues);
 #define Tapprox (&approxTypeStruct)
 
 static ENUMDESC clusteringVals[] = {
-        {NO_CLUSTERING,        "none",      2},
-        {ISOTROPIC_CLUSTERING, "isotropic", 2},
-        {ORIENTED_CLUSTERING,  "oriented",  2},
-        {0, nullptr,                           0}
+    {NO_CLUSTERING, "none",      2},
+    {ISOTROPIC_CLUSTERING, "isotropic", 2},
+    {ORIENTED_CLUSTERING, "oriented",  2},
+    {0, nullptr, 0}
 };
 MakeEnumOptTypeStruct(clusteringTypeStruct, clusteringVals);
 #define Tclustering (&clusteringTypeStruct)
 
 static ENUMDESC sequenceVals[] = {
-        {S4D_RANDOM,       "PseudoRandom", 2},
-        {S4D_HALTON,       "Halton",       2},
-        {S4D_NIEDERREITER, "Niederreiter", 2},
-        {0, nullptr,                          0}
+    {S4D_RANDOM, "PseudoRandom", 2},
+    {S4D_HALTON, "Halton", 2},
+    {S4D_NIEDERREITER, "Niederreiter", 2},
+    {0, nullptr, 0}
 };
 MakeEnumOptTypeStruct(sequenceTypeStruct, sequenceVals);
 #define Tsequence (&sequenceTypeStruct)
 
 static ENUMDESC estTypeVals[] = {
-        {RW_SHOOTING,  "Shooting",  2},
-        {RW_GATHERING, "Gathering", 2},
-        {0, nullptr,                   0}
+    {RW_SHOOTING, "Shooting", 2},
+    {RW_GATHERING, "Gathering", 2},
+    {0, nullptr, 0}
 };
 MakeEnumOptTypeStruct(estTypeTypeStruct, estTypeVals);
 #define TestType (&estTypeTypeStruct)
 
-static ENUMDESC estKindVals[] = {
-        {RW_COLLISION,    "Collision",  2},
-        {RW_ABSORPTION,   "Absorption", 2},
-        {RW_SURVIVAL,     "Survival",   2},
-        {RW_LAST_BUT_NTH, "Last-but-N", 2},
-        {RW_N_LAST,       "Last-N",     2},
-        {0,               nullptr,      0}
+static ENUMDESC globalEstKindValues[] = {
+    {RW_COLLISION, "Collision", 2},
+    {RW_ABSORPTION, "Absorption", 2},
+    {RW_SURVIVAL, "Survival", 2},
+    {RW_LAST_BUT_NTH, "Last-but-N", 2},
+    {RW_N_LAST, "Last-N", 2},
+    {0, nullptr, 0}
 };
-MakeEnumOptTypeStruct(estKindTypeStruct, estKindVals);
+MakeEnumOptTypeStruct(estKindTypeStruct, globalEstKindValues);
 #define TestKind (&estKindTypeStruct)
 
 static ENUMDESC showWhatVals[] = {
-        {SHOW_TOTAL_RADIANCE,    "total-radiance",    2},
-        {SHOW_INDIRECT_RADIANCE, "indirect-radiance", 2},
-        {SHOW_IMPORTANCE,        "importance",        2},
-        {0, nullptr,                                     0}
+    {SHOW_TOTAL_RADIANCE, "total-radiance", 2},
+    {SHOW_INDIRECT_RADIANCE, "indirect-radiance", 2},
+    {SHOW_IMPORTANCE, "importance", 2},
+    {0, nullptr, 0}
 };
 MakeEnumOptTypeStruct(showWhatTypeStruct, showWhatVals);
 #define TshowWhat (&showWhatTypeStruct)
@@ -115,26 +115,25 @@ static CommandLineOptionDescription srrOptions[] = {
 };
 
 static CommandLineOptionDescription rwrOptions[] = {
-        {"-rwr-ray-units", 8, Tint, &GLOBAL_stochasticRaytracing_monteCarloRadiosityState.rayUnitsPerIt,                 DEFAULT_ACTION,
-         "-rwr-ray-units <n>          : To tune the amount of work in a single iteration"},
-        {"-rwr-continuous", 7, Tbool, &GLOBAL_stochasticRaytracing_monteCarloRadiosityState.continuousRandomWalk, DEFAULT_ACTION,
-         "-rwr-continuous <y|n>       : Continuous (yes) or Discrete (no) random walk"},
-        {"-rwr-control-variate", 7, Tbool, &GLOBAL_stochasticRaytracing_monteCarloRadiosityState.constantControlVariate, DEFAULT_ACTION,
-         "-rwr-control-variate <y|n>  : Constant Control Variate variance reduction"},
-        {"-rwr-indirect-only", 7, Tbool, &GLOBAL_stochasticRaytracing_monteCarloRadiosityState.indirectOnly,             DEFAULT_ACTION,
-         "-rwr-indirect-only <y|n>    : Compute indirect illumination only"},
-        {"-rwr-sampling-sequence", 7, Tsequence, &GLOBAL_stochasticRaytracing_monteCarloRadiosityState.sequence,         DEFAULT_ACTION,
-         "-rwr-sampling-sequence <type>: \"PseudoRandom\", \"Halton\", \"Niederreiter\""},
-        {"-rwr-approximation", 7, Tapprox, &GLOBAL_stochasticRaytracing_monteCarloRadiosityState.approximationOrderType, DEFAULT_ACTION,
-         "-rwr-approximation <order>  : \"constant\", \"linear\", \"quadratic\", \"cubic\""},
-        {"-rwr-estimator", 7, TestType, &GLOBAL_stochasticRaytracing_monteCarloRadiosityState.randomWalkEstimatorType, DEFAULT_ACTION,
-         "-rwr-estimator <type>       : \"shooting\", \"gathering\""},
-        {"-rwr-score", 7, TestKind, &GLOBAL_stochasticRaytracing_monteCarloRadiosityState.randomWalkEstimatorKind, DEFAULT_ACTION,
-         "-rwr-score <kind>           : \"collision\", \"absorption\", \"survival\", \"last-N\", \"last-but-N\""},
-        {"-rwr-numlast", 12, Tint, &GLOBAL_stochasticRaytracing_monteCarloRadiosityState.randomWalkNumLast,              DEFAULT_ACTION,
-         "-rwr-numlast <int>          : N to use in \"last-N\" and \"last-but-N\" scorers"},
-        {nullptr, 0, TYPELESS, nullptr, DEFAULT_ACTION,
-         nullptr}
+    {"-rwr-ray-units", 8, Tint, &GLOBAL_stochasticRaytracing_monteCarloRadiosityState.rayUnitsPerIt,                 DEFAULT_ACTION,
+     "-rwr-ray-units <n>          : To tune the amount of work in a single iteration"},
+    {"-rwr-continuous", 7, Tbool, &GLOBAL_stochasticRaytracing_monteCarloRadiosityState.continuousRandomWalk, DEFAULT_ACTION,
+     "-rwr-continuous <y|n>       : Continuous (yes) or Discrete (no) random walk"},
+    {"-rwr-control-variate", 7, Tbool, &GLOBAL_stochasticRaytracing_monteCarloRadiosityState.constantControlVariate, DEFAULT_ACTION,
+     "-rwr-control-variate <y|n>  : Constant Control Variate variance reduction"},
+    {"-rwr-indirect-only", 7, Tbool, &GLOBAL_stochasticRaytracing_monteCarloRadiosityState.indirectOnly,             DEFAULT_ACTION,
+     "-rwr-indirect-only <y|n>    : Compute indirect illumination only"},
+    {"-rwr-sampling-sequence", 7, Tsequence, &GLOBAL_stochasticRaytracing_monteCarloRadiosityState.sequence,         DEFAULT_ACTION,
+     "-rwr-sampling-sequence <type>: \"PseudoRandom\", \"Halton\", \"Niederreiter\""},
+    {"-rwr-approximation", 7, Tapprox, &GLOBAL_stochasticRaytracing_monteCarloRadiosityState.approximationOrderType, DEFAULT_ACTION,
+     "-rwr-approximation <order>  : \"constant\", \"linear\", \"quadratic\", \"cubic\""},
+    {"-rwr-estimator", 7, TestType, &GLOBAL_stochasticRaytracing_monteCarloRadiosityState.randomWalkEstimatorType, DEFAULT_ACTION,
+     "-rwr-estimator <type>       : \"shooting\", \"gathering\""},
+    {"-rwr-score", 7, TestKind, &GLOBAL_stochasticRaytracing_monteCarloRadiosityState.randomWalkEstimatorKind, DEFAULT_ACTION,
+     "-rwr-score <kind>           : \"collision\", \"absorption\", \"survival\", \"last-N\", \"last-but-N\""},
+    {"-rwr-numlast", 12, Tint, &GLOBAL_stochasticRaytracing_monteCarloRadiosityState.randomWalkNumLast,              DEFAULT_ACTION,
+     "-rwr-numlast <int>          : N to use in \"last-N\" and \"last-but-N\" scorers"},
+    {nullptr, 0, TYPELESS, nullptr, DEFAULT_ACTION, nullptr}
 };
 
 /**
@@ -162,9 +161,7 @@ monteCarloRadiosityDefaults() {
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.discardIncremental = false;
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.incrementalUsesImportance = false;
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.naiveMerging = false;
-
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.show = SHOW_TOTAL_RADIANCE;
-
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.doNonDiffuseFirstShot = false;
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.initialLightSourceSamples = 1000;
 
@@ -204,8 +201,8 @@ monteCarloRadiosityUpdateCpuSecs() {
 
 Element *
 monteCarloRadiosityCreatePatchData(Patch *patch) {
-    patch->radiance_data = monteCarloRadiosityCreateToplevelSurfaceElement(patch);
-    return patch->radiance_data;
+    patch->radianceData = monteCarloRadiosityCreateToplevelSurfaceElement(patch);
+    return patch->radianceData;
 }
 
 void
@@ -215,10 +212,10 @@ monteCarloRadiosityPrintPatchData(FILE *out, Patch *patch) {
 
 void
 monteCarloRadiosityDestroyPatchData(Patch *patch) {
-    if ( patch->radiance_data ) {
+    if ( patch->radianceData ) {
         monteCarloRadiosityDestroyToplevelSurfaceElement(TOPLEVEL_ELEMENT(patch));
     }
-    patch->radiance_data = nullptr;
+    patch->radianceData = nullptr;
 }
 
 /**
@@ -286,15 +283,15 @@ Update importance in the element hierarchy starting with the top cluster
 static void
 monteCarloRadiosityUpdateImportance(StochasticRadiosityElement *elem) {
     if ( !monteCarloRadiosityForAllChildrenElements(elem, monteCarloRadiosityUpdateImportance)) {
-        /* leaf element */
-        float delta_imp = (PATCH_IS_VISIBLE(elem->patch) ? 1. : 0.) - elem->source_imp;
+        // Leaf element
+        float delta_imp = (elem->patch->isVisible() ? 1.0 : 0.0) - elem->source_imp;
         elem->imp += delta_imp;
         elem->source_imp += delta_imp;
         elem->unshot_imp += delta_imp;
         monteCarloRadiosityAccumulateImportances(elem);
     } else {
-        /* not a leaf element: clear & pull importance */
-        elem->imp = elem->source_imp = elem->unshot_imp = 0.;
+        // Not a leaf element: clear & pull importance
+        elem->imp = elem->source_imp = elem->unshot_imp = 0.0;
         monteCarloRadiosityForAllChildrenElements(elem, monteCarloRadiosityPullImportances);
     }
 }
@@ -306,8 +303,7 @@ static void
 monteCarloRadiosityReInitImportance(StochasticRadiosityElement *elem) {
     if ( !monteCarloRadiosityForAllChildrenElements(elem, monteCarloRadiosityReInitImportance)) {
         // Leaf element
-        elem->imp = elem->source_imp = elem->unshot_imp
-                = PATCH_IS_VISIBLE(elem->patch) ? 1.0 : 0.0;
+        elem->imp = elem->source_imp = elem->unshot_imp = (elem->patch->isVisible()) ? 1.0 : 0.0;
         monteCarloRadiosityAccumulateImportances(elem);
     } else {
         // Not a leaf element: clear & pull importance
@@ -332,14 +328,13 @@ monteCarloRadiosityUpdateViewImportance() {
         fprintf(stderr, "Importance will be recomputed from scratch.\n");
         GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceUpdatedFromScratch = true;
 
-        /* re-compute from scratch */
+        // Re-compute from scratch
         GLOBAL_stochasticRaytracing_monteCarloRadiosityState.sourceYmp = GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotYmp = GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalYmp = 0.;
         monteCarloRadiosityReInitImportance(GLOBAL_stochasticRaytracing_hierarchy.topcluster);
     }
 
-    GLOBAL_camera_mainCamera.changed = false;    /* indicate that direct importance has been
-				 * computed for this view already. */
-    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceTracedRays = 0;    /* start over */
+    GLOBAL_camera_mainCamera.changed = false; // Indicate that direct importance has been computed for this view already
+    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceTracedRays = 0; // Start over
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceUpdated = true;
 }
 
@@ -520,15 +515,15 @@ monteCarloRadiosityGetRadiance(Patch *patch, double u, double v, Vector3D dir) {
     COLOR source_rad;
     colorClear(source_rad);
 
-    /* subtract source radiance */
+    // Subtract source radiance
     if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.show != SHOW_INDIRECT_RADIANCE ) {
-        /* source_rad is self-emitted radiance if !GLOBAL_stochasticRaytracing_monteCarloRadiosityState.indirectOnly. It is direct
-         * illumination if GLOBAL_stochasticRaytracing_monteCarloRadiosityState.direct_only */
+        // source_rad is self-emitted radiance if !GLOBAL_stochasticRaytracing_monteCarloRadiosityState.indirectOnly. It is direct
+        // illumination if GLOBAL_stochasticRaytracing_monteCarloRadiosityState.direct_only
         if ( !GLOBAL_stochasticRaytracing_monteCarloRadiosityState.doNonDiffuseFirstShot ) {
             source_rad = leaf->source_rad;
         }
         if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.indirectOnly || GLOBAL_stochasticRaytracing_monteCarloRadiosityState.doNonDiffuseFirstShot ) {
-            /* subtract self-emitted radiance */
+            // Subtract self-emitted radiance
             colorAdd(source_rad, leaf->Ed, source_rad);
         }
     }
@@ -537,7 +532,7 @@ monteCarloRadiosityGetRadiance(Patch *patch, double u, double v, Vector3D dir) {
     colorProduct(rad, TrueRdAtPoint, rad);
     colorDivide(rad, UsedRdAtPoint, rad);
 
-    /* re-add source radiance */
+    // Re-add source radiance
     colorAdd(rad, source_rad, rad);
 
     return rad;
