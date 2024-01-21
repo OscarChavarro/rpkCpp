@@ -381,7 +381,7 @@ getCurrentMaterial() {
         colorSetMonochrome(Ts, colorGray(Ts));
     }
 
-    theMaterial = MaterialCreate(materialName,
+    theMaterial = materialCreate(materialName,
                                  (colorNull(Ed) && colorNull(Es)) ? (EDF *) nullptr : edfCreate(
                                          phongEdfCreate(&Ed, &Es, Ne), &GLOBAL_scene_phongEdfMethods),
                                  bsdfCreate(SplitBSDFCreate(

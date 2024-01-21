@@ -331,7 +331,7 @@ writeMaterial(Geometry *geom) {
     fprintf(vrmlfp, "\t}\n");
     fprintf(vrmlfp, "      }\n");
 
-    mat->radiance_data = (void *)mat->name;
+    mat->radiance_data = mat->name;
 }
 
 static void
