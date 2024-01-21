@@ -13,17 +13,17 @@
 typedef void (*RENDERHOOKFUNCTION)(void *data);
 
 /* Renders the hooks, called from render.c */
-void RenderHooks();
+void renderHooks();
 
 /* Add a hook */
 
-void AddRenderHook(RENDERHOOKFUNCTION func, void *data);
+void addRenderHook(RENDERHOOKFUNCTION func, void *data);
 
 /* Remove a hook, function AND data must match
-   those used in the corresponding AddRenderHook call
+   those used in the corresponding addRenderHook call
  */
 
-void RemoveRenderHook(RENDERHOOKFUNCTION func, void *data);
+void removeRenderHook(RENDERHOOKFUNCTION func, void *data);
 
 void removeAllRenderHooks();
 

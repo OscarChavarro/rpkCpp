@@ -565,7 +565,7 @@ renderScene() {
     }
 
     // Call installed render hooks, that want to render something in the scene
-    RenderHooks();
+    renderHooks();
 
     glFinish();
 

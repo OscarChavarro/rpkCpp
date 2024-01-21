@@ -11,7 +11,11 @@ void PrintTexture(FILE *out, TEXTURE *t) {
 #define RGBSETMONOCHROME(rgb, val) setRGB(rgb, val, val, val)
 
 COLOR EvalTextureColor(TEXTURE *texture, float u, float v) {
-    RGB rgb00, rgb10, rgb01, rgb11, rgb;
+    RGB rgb00{};
+    RGB rgb10{};
+    RGB rgb01{};
+    RGB rgb11{};
+    RGB rgb{};
     COLOR col;
     unsigned char *pix00, *pix01, *pix10, *pix11;
     double u1 = u - floor(u), u0 = 1. - u1, v1 = v - floor(v), v0 = 1. - v1;

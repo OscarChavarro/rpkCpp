@@ -781,7 +781,7 @@ static void DoBPTAndSubsequentImages(BPCONFIG *config) {
 
         // Save images
         if ( format1[0] != '\0' ) {
-            snprintf(filename, STRINGS_SIZE + 1, format1, totalSamples);
+            snprintf(filename, STRINGS_SIZE, format1, totalSamples);
             config->screen->WriteFile(filename);
         }
         if ( format2[0] != '\0' ) {

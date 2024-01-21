@@ -175,11 +175,11 @@ static void RenderHemisphereHook(void *data) {
 void CHemisphereRenderer::EnableRendering(bool flag) {
     if ( flag ) {
         if ( !m_renderEnabled ) {
-            AddRenderHook(RenderHemisphereHook, this);
+            addRenderHook(RenderHemisphereHook, this);
         }
     } else {
         if ( m_renderEnabled ) {
-            RemoveRenderHook(RenderHemisphereHook, this);
+            removeRenderHook(RenderHemisphereHook, this);
         }
     }
 

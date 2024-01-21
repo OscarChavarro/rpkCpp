@@ -1,4 +1,3 @@
-#include <cstdio>
 #include <cstdlib>
 
 #include "shared/renderhook.h"
@@ -7,7 +6,8 @@
 
 static RENDERHOOKLIST *oRenderHookList = nullptr;
 
-void RenderHooks() {
+void
+renderHooks() {
     if ( oRenderHookList != nullptr) {
         ForAllHooks(h, oRenderHookList)
                     {
@@ -17,7 +17,8 @@ void RenderHooks() {
     }
 }
 
-void AddRenderHook(RENDERHOOKFUNCTION func, void *data) {
+void
+addRenderHook(RENDERHOOKFUNCTION func, void *data) {
     RENDERHOOK *hook;
 
     if ( oRenderHookList == nullptr) {
@@ -32,25 +33,27 @@ void AddRenderHook(RENDERHOOKFUNCTION func, void *data) {
     oRenderHookList = RenderHookListAdd(oRenderHookList, hook);
 }
 
-void RemoveRenderHook(RENDERHOOKFUNCTION func, void *data) {
+void
+removeRenderHook(RENDERHOOKFUNCTION func, void *data) {
     RENDERHOOKLIST *list = oRenderHookList;
     RENDERHOOK *hook;
 
-    /* Search the element in the list */
-
+    // Search the element in the list
     do {
-        hook = RenderHookListNext(&list);
+        hook = (RENDERHOOK *)
+            (list ? (GLOBAL_listHandler = list->renderhook, list = list->next, GLOBAL_listHandler) : nullptr);
     } while ( hook != nullptr && (hook->func != func || hook->data != data));
 
     if ( hook == nullptr) {
-        logWarning("RemoveRenderHook", "Hook to remove not found");
+        logWarning("removeRenderHook", "Hook to remove not found");
     } else {
         oRenderHookList = RenderHookListRemove(oRenderHookList, hook);
     }
 }
 
 
-void removeAllRenderHooks() {
+void
+removeAllRenderHooks() {
     RenderHookListDestroy(oRenderHookList);
     oRenderHookList = nullptr;
 }

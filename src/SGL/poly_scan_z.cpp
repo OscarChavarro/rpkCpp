@@ -87,34 +87,42 @@ static void scanline(int y, Poly_vert *l, Poly_vert *r, Window *win) {
     }
 }
 
-/*
- * poly_scan: Scan convert a polygon, calling pixelproc at each pixel with an
- * interpolated Poly_vert structure.  Polygon can be clockwise or ccw.
- * Polygon is clipped in 2-D to win, the screen space window.
- *
- * Scan conversion is done on the basis of Poly_vert fields sx and sy.
- * These two must always be interpolated, and only they have special meaning
- * to this code; any other fields are blindly interpolated regardless of
- * their semantics.
- *
- * The pixelproc subroutine takes the arguments:
- *
- *	pixelproc(x, y, point)
- *	int x, y;
- *	Poly_vert *point;
- *
- * All the fields of point indicated by p->mask will be valid inside pixelproc
- * except sx and sy.  If they were computed, they would have values
- * sx=x+.5 and sy=y+.5, since sampling is done at pixel centers.
- */
+/**
+Scan convert a polygon, calling pixelproc at each pixel with an
+interpolated Poly_vert structure.  Polygon can be clockwise or ccw.
+Polygon is clipped in 2-D to win, the screen space window.
 
-void polyScanZ(Poly *p, Window *win)
-/* polygon */
-/* 2-D screen space clipping window */
+Scan conversion is done on the basis of Poly_vert fields sx and sy.
+These two must always be interpolated, and only they have special meaning
+to this code; any other fields are blindly interpolated regardless of
+their semantics.
+
+The pixelproc subroutine takes the arguments:
+
+pixelproc(x, y, point)
+int x, y;
+Poly_vert *point;
+
+All the fields of point indicated by p->mask will be valid inside pixelproc
+except sx and sy.  If they were computed, they would have values
+sx=x+.5 and sy=y+.5, since sampling is done at pixel centers.
+*/
+void
+polyScanZ(Poly *p, Window *win)
 {
-    int i, li, ri, y, ly, ry, top, rem;
+    int i;
+    int li;
+    int ri;
+    int y;
+    int ly;
+    int ry;
+    int top;
+    int rem;
     double ymin;
-    Poly_vert l, r, dl, dr;
+    Poly_vert l{};
+    Poly_vert r{};
+    Poly_vert dl{};
+    Poly_vert dr{};
 
     ymin = HUGE;
     top = -1;

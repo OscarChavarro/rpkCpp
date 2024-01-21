@@ -23,9 +23,6 @@ public:
 #define RenderHookListAdd(renderHookList, hook)    \
         (RENDERHOOKLIST *)ListAdd((LIST *)renderHookList, (void *)hook)
 
-#define RenderHookListNext(prenderHookList) \
-        (RENDERHOOK *)ListNext((LIST **)prenderHookList)
-
 #define RenderHookListRemove(renderHookList, hook) \
         (RENDERHOOKLIST *)ListRemove((LIST *)renderHookList, (void *)hook)
 
