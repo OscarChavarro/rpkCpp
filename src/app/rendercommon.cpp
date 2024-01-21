@@ -266,10 +266,10 @@ Re-renders last ray-traced image if any, Returns TRUE if there is one,
 and FALSE if not
 */
 int
-renderRayTraced() {
-    if ( !GLOBAL_raytracer_activeRaytracer || !GLOBAL_raytracer_activeRaytracer->Redisplay ) {
+renderRayTraced(Raytracer *activeRayTracer) {
+    if ( activeRayTracer == nullptr || activeRayTracer->Redisplay == nullptr ) {
         return false;
     } else {
-        return GLOBAL_raytracer_activeRaytracer->Redisplay();
+        return activeRayTracer->Redisplay();
     }
 }

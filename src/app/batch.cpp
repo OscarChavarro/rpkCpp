@@ -11,32 +11,32 @@
 #include "shared/render.h"
 #include "io/FileUncompressWrapper.h"
 #include "raycasting/common/Raytracer.h"
+#include "app/opengl.h"
 #include "app/batch.h"
 
-static int iterations = 1; // radiance method iterations
-static int save_modulo = 10; // every 10th iteration will be saved
-static int timings = false;
-
-static const char *radiance_image_filename_format = "";
-static const char *radiance_model_filename_format = "";
-static const char *raytracing_image_filename = "";
+static int globalIterations = 1; // Radiance method iterations
+static int globalSaveModulo = 10; // Every 10th iteration, surface model and image will be saved
+static int globalTimings = false;
+static const char *globalRadianceImageFileNameFormat = "";
+static const char *globalRadianceModelFileNameFormat = "";
+static const char *globalRaytracingImageFileName = "";
 
 static CommandLineOptionDescription batchOptions[] = {
-    {"-iterations", 3,  Tint, &iterations, DEFAULT_ACTION,
+    {"-iterations", 3,  Tint, &globalIterations, DEFAULT_ACTION,
      "-iterations <integer>\t: world-space radiance iterations"},
     {"-radiance-image-savefile", 12, Tstring,
-     &radiance_image_filename_format, DEFAULT_ACTION,
+     &globalRadianceImageFileNameFormat, DEFAULT_ACTION,
      "-radiance-image-savefile <filename>\t: radiance PPM/LOGLUV savefile name,"
      "\n\tfirst '%%d' will be substituted by iteration number"},
     {"-radiance-model-savefile", 12, Tstring,
-     &radiance_model_filename_format, DEFAULT_ACTION,
+     &globalRadianceModelFileNameFormat, DEFAULT_ACTION,
      "-radiance-model-savefile <filename>\t: radiance VRML model savefile name,"
      "\n\tfirst '%%d' will be substituted by iteration number"},
-    {"-save-modulo", 8, Tint, &save_modulo, DEFAULT_ACTION,
+    {"-save-modulo", 8, Tint, &globalSaveModulo, DEFAULT_ACTION,
      "-save-modulo <integer>\t: save every n-th iteration"},
-    {"-raytracing-image-savefile", 14, Tstring, &raytracing_image_filename, DEFAULT_ACTION,
+    {"-raytracing-image-savefile", 14, Tstring, &globalRaytracingImageFileName, DEFAULT_ACTION,
      "-raytracing-image-savefile <filename>\t: raytracing PPM savefile name"},
-    {"-timings", 3,  Tsettrue, &timings, DEFAULT_ACTION,
+    {"-timings", 3,  Tsettrue, &globalTimings, DEFAULT_ACTION,
      "-timings\t: print timings for world-space radiance and raytracing methods"},
     {nullptr, 0,  TYPELESS, nullptr, DEFAULT_ACTION, nullptr}
 };
@@ -45,19 +45,19 @@ static CommandLineOptionDescription batchOptions[] = {
 This routine was copied from uit.c, leaving out all interface related things
 */
 static void
-BatchProcessFile(const char *filename, const char *open_mode,
-                 void (*process_file)(const char *filename, FILE *fp, int ispipe)) {
-    int ispipe;
-    FILE *fp = openFile(filename, open_mode, &ispipe);
+batchProcessFile(const char *filename, const char *open_mode,
+                 void (*process_file)(const char *filename, FILE *fp, int isPipe)) {
+    int isPipe;
+    FILE *fp = openFile(filename, open_mode, &isPipe);
 
     /* call the user supplied procedure to process the file */
-    process_file(filename, fp, ispipe);
+    process_file(filename, fp, isPipe);
 
-    closeFile(fp, ispipe);
+    closeFile(fp, isPipe);
 }
 
 static void
-BatchSaveRadianceImage(const char *fname, FILE *fp, int ispipe) {
+batchSaveRadianceImage(const char *fileName, FILE *fp, int isPipe) {
     clock_t t;
     char *extension;
 
@@ -67,24 +67,24 @@ BatchSaveRadianceImage(const char *fname, FILE *fp, int ispipe) {
 
     canvasPushMode();
 
-    extension = imageFileExtension((char *) fname);
+    extension = imageFileExtension((char *) fileName);
     if ( IS_TIFF_LOGLUV_EXT(extension)) {
-        fprintf(stdout, "Saving LOGLUV image to file '%s' ....... ", fname);
+        fprintf(stdout, "Saving LOGLUV image to file '%s' ....... ", fileName);
     } else {
-        fprintf(stdout, "Saving RGB image to file '%s' .......... ", fname);
+        fprintf(stdout, "Saving RGB image to file '%s' .......... ", fileName);
     }
     fflush(stdout);
 
     t = clock();
 
-    saveScreen((char *) fname, fp, ispipe);
+    saveScreen((char *) fileName, fp, isPipe);
 
     fprintf(stdout, "%g secs.\n", (float) (clock() - t) / (float) CLOCKS_PER_SEC);
     canvasPullMode();
 }
 
 static void
-BatchSaveRadianceModel(const char *fname, FILE *fp, int ispipe) {
+batchSaveRadianceModel(const char *fileName, FILE *fp, int /*isPipe*/) {
     clock_t t;
 
     if ( !fp ) {
@@ -92,7 +92,7 @@ BatchSaveRadianceModel(const char *fname, FILE *fp, int ispipe) {
     }
 
     canvasPushMode();
-    fprintf(stdout, "Saving VRML model to file '%s' ... ", fname);
+    fprintf(stdout, "Saving VRML model to file '%s' ... ", fileName);
     fflush(stdout);
     t = clock();
 
@@ -107,7 +107,7 @@ BatchSaveRadianceModel(const char *fname, FILE *fp, int ispipe) {
 }
 
 static void
-BatchSaveRaytracingImage(const char *fname, FILE *fp, int ispipe) {
+batchSaveRaytracingImage(const char *fileName, FILE *fp, int isPipe) {
     ImageOutputHandle *img = nullptr;
     clock_t t;
 
@@ -119,9 +119,9 @@ BatchSaveRaytracingImage(const char *fname, FILE *fp, int ispipe) {
 
     if ( fp ) {
         img = createRadianceImageOutputHandle(
-                (char *) fname,
+                (char *) fileName,
                 fp,
-                ispipe,
+                isPipe,
                 GLOBAL_camera_mainCamera.xSize,
                 GLOBAL_camera_mainCamera.ySize,
                 GLOBAL_statistics_referenceLuminance / 179.0);
@@ -136,7 +136,7 @@ BatchSaveRaytracingImage(const char *fname, FILE *fp, int ispipe) {
         logWarning(nullptr, "No previous %s image available", GLOBAL_raytracer_activeRaytracer->fullName);
     }
 
-    if ( img ) {
+    if ( img != nullptr ) {
         deleteImageOutputHandle(img);
     }
 
@@ -146,12 +146,12 @@ BatchSaveRaytracingImage(const char *fname, FILE *fp, int ispipe) {
 }
 
 static void
-BatchRayTrace(char *filename, FILE *fp, int ispipe) {
+batchRayTrace(char *filename, FILE *fp, int isPipe) {
     GLOBAL_render_renderOptions.render_raytraced_image = true;
     GLOBAL_camera_mainCamera.changed = false;
 
     canvasPushMode();
-    rayTrace(filename, fp, ispipe);
+    rayTrace(filename, fp, isPipe, GLOBAL_raytracer_activeRaytracer);
     canvasPullMode();
 }
 
@@ -174,8 +174,9 @@ batch() {
     wasted_secs = 0.0;
 
     if ( GLOBAL_radiance_currentRadianceMethodHandle ) {
-        /* GLOBAL_scene_world-space radiance computations */
-        int it = 0, done = false;
+        // GLOBAL_scene_world-space radiance computations
+        int it = 0;
+        bool done = false;
 
         printf("Doing %s ...\n", GLOBAL_radiance_currentRadianceMethodHandle->fullName);
 
@@ -206,16 +207,16 @@ batch() {
 
             wasted_start = clock();
 
-            if ((!(it % save_modulo)) && *radiance_image_filename_format ) {
-                int n = strlen(radiance_image_filename_format) + 1;
+            if ( (!(it % globalSaveModulo)) && *globalRadianceImageFileNameFormat ) {
+                int n = strlen(globalRadianceImageFileNameFormat) + 1;
                 char *fname = (char *)malloc(n);
-                snprintf(fname, n, radiance_image_filename_format, it);
+                snprintf(fname, n, globalRadianceImageFileNameFormat, it);
                 if ( GLOBAL_render_renderOptions.trace ) {
                     char *dot;
                     char *tmpName;
                     const char *tiffExt = "tif";
 
-                    BatchProcessFile(fname, "w", BatchSaveRadianceImage);
+                    batchProcessFile(fname, "w", batchSaveRadianceImage);
 
                     /* NOw, change the extenstion to '.tiff' and save it as RGB. */
 
@@ -226,18 +227,18 @@ batch() {
                         *dot = '\0';
                     }
                     strcat(tmpName, tiffExt);
-                    BatchProcessFile(tmpName, "w", BatchSaveRadianceImage);
+                    batchProcessFile(tmpName, "w", batchSaveRadianceImage);
                     free(tmpName);
                 } else {
-                    BatchProcessFile(fname, "w", BatchSaveRadianceImage);
+                    batchProcessFile(fname, "w", batchSaveRadianceImage);
                 }
             }
 
-            if ( *radiance_model_filename_format ) {
-                int n = strlen(radiance_model_filename_format) + 1;
+            if ( *globalRadianceModelFileNameFormat ) {
+                int n = strlen(globalRadianceModelFileNameFormat) + 1;
                 char *fileName = (char *)malloc(n);
-                snprintf(fileName, n, radiance_model_filename_format, it);
-                BatchProcessFile(fileName, "w", BatchSaveRadianceModel);
+                snprintf(fileName, n, globalRadianceModelFileNameFormat, it);
+                batchProcessFile(fileName, "w", batchSaveRadianceModel);
                 free(fileName);
             }
 
@@ -247,7 +248,7 @@ batch() {
             fflush(stderr);
 
             it++;
-            if ( iterations > 0 && it >= iterations ) {
+            if ( globalIterations > 0 && it >= globalIterations ) {
                 done = true;
             }
         }
@@ -255,7 +256,7 @@ batch() {
         printf("(No world-space radiance computations are being done)\n");
     }
 
-    if ( timings ) {
+    if ( globalTimings ) {
         fprintf(stdout, "Radiance total time %g secs.\n",
                 ((float) (clock() - start_time) / (float) CLOCKS_PER_SEC) - wasted_secs);
     }
@@ -264,13 +265,13 @@ batch() {
         printf("Doing %s ...\n", GLOBAL_raytracer_activeRaytracer->fullName);
 
         start_time = clock();
-        BatchRayTrace(nullptr, nullptr, false);
-        if ( timings ) {
+        batchRayTrace(nullptr, nullptr, false);
+        if ( globalTimings ) {
             fprintf(stdout, "Raytracing total time %g secs.\n",
                     (float) (clock() - start_time) / (float) CLOCKS_PER_SEC);
         }
 
-        BatchProcessFile(raytracing_image_filename, "w", BatchSaveRaytracingImage);
+        batchProcessFile(globalRaytracingImageFileName, "w", batchSaveRaytracingImage);
     } else {
         printf("(No pixel-based radiance computations are being done)\n");
     }

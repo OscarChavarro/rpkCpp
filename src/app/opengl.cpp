@@ -12,11 +12,14 @@
 #include "shared/softids.h"
 #include "IMAGE/tonemap/tonemapping.h"
 #include "raycasting/simple/RayCaster.h"
+#include "app/opengl.h"
 
 static int displayListId = -1;
 static int openglInitialized = false;
 static GLubyte *background_ptr = nullptr;
 static GLuint backgroundTex = 0;
+
+Raytracer *GLOBAL_raytracer_activeRaytracer = (Raytracer *) nullptr;
 
 void
 renderClearWindow() {
@@ -560,7 +563,7 @@ renderScene() {
         GLOBAL_render_renderOptions.render_raytraced_image = false;
     }
 
-    if ( !GLOBAL_render_renderOptions.render_raytraced_image || !renderRayTraced()) {
+    if ( !GLOBAL_render_renderOptions.render_raytraced_image || !renderRayTraced(GLOBAL_raytracer_activeRaytracer)) {
         renderRadiance();
     }
 

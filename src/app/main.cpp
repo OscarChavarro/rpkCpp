@@ -19,6 +19,7 @@
 #include "raycasting/stochasticRaytracing/StochasticRaytracer.h"
 #include "io/mgf/readmgf.h"
 #include "io/mgf/fileopts.h"
+#include "app/opengl.h"
 #include "app/Cluster.h"
 #include "app/batch.h"
 
@@ -39,6 +40,22 @@ static int globalNo = 0;
 static int globalImageOutputWidth = 0;
 static int globalImageOutputHeight = 0;
 
+/**
+This routine sets the current raytracing method to be used
+*/
+static void
+mainSetRayTracingMethod(Raytracer *newMethod) {
+    if ( GLOBAL_raytracer_activeRaytracer ) {
+        GLOBAL_raytracer_activeRaytracer->InterruptRayTracing();
+        GLOBAL_raytracer_activeRaytracer->Terminate();
+    }
+
+    GLOBAL_raytracer_activeRaytracer = newMethod;
+    if ( GLOBAL_raytracer_activeRaytracer ) {
+        GLOBAL_raytracer_activeRaytracer->Initialize();
+    }
+}
+
 static void
 mainRayTracingOption(void *value) {
     char *name = *(char **) value;
@@ -46,13 +63,13 @@ mainRayTracingOption(void *value) {
     for ( Raytracer **methodpp = globalRayTracingMethods; *methodpp; methodpp++ ) {
         Raytracer *method = *methodpp;
         if ( strncasecmp(name, method->shortName, method->nameAbbrev) == 0 ) {
-            setRayTracing(method);
+            mainSetRayTracingMethod(method);
             return;
         }
     }
 
     if ( strncasecmp(name, "none", 4) == 0 ) {
-        setRayTracing(nullptr);
+        mainSetRayTracingMethod(nullptr);
     } else {
         logError(nullptr, "Invalid raytracing method name '%s'", name);
     }
@@ -216,7 +233,7 @@ mainRayTracingDefaults() {
         Raytracer *method = *methodpp;
         method->Defaults();
         if ( strncasecmp(DEFAULT_RAYTRACING_METHOD, method->shortName, method->nameAbbrev) == 0 ) {
-            setRayTracing(method);
+            mainSetRayTracingMethod(method);
         }
     }
     mainMakeRaytracingMethodsString(); // Comes last
@@ -365,7 +382,7 @@ mainReadFile(char *filename) {
     RADIANCEMETHOD *oRadiance = GLOBAL_radiance_currentRadianceMethodHandle;
     setRadianceMethod(nullptr);
     Raytracer *oRayTracing = GLOBAL_raytracer_activeRaytracer;
-    setRayTracing(nullptr);
+    mainSetRayTracingMethod(nullptr);
 
     // Prepare if errors occur when reading the new scene will abort
     GLOBAL_scene_world = nullptr;
@@ -563,7 +580,7 @@ mainReadFile(char *filename) {
     if ( oRayTracing ) {
         fprintf(stderr, "Initializing raytracing computations ... \n");
 
-        setRayTracing(oRayTracing);
+        mainSetRayTracingMethod(oRayTracing);
 
         t = clock();
         fprintf(stderr, "%g secs.\n", (float) (t - last) / (float) CLOCKS_PER_SEC);

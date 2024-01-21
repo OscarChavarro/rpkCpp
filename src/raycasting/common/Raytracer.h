@@ -54,11 +54,7 @@ class Raytracer {
 extern double GLOBAL_raytracer_totalTime; // statistics: raytracing time
 extern long GLOBAL_raytracer_rayCount; // statistics: number of rays traced
 extern long GLOBAL_raytracer_pixelCount; // statistics: number of pixels drawn
-extern Raytracer *GLOBAL_raytracer_activeRaytracer; // current raytracing method
 
-extern void rayTrace(char *filename, FILE *fp, int ispipe);
-
-/* initializes and makes current a new raytracing newMethod */
-extern void setRayTracing(Raytracer *newMethod);
+extern void rayTrace(char *filename, FILE *fp, int ispipe, Raytracer *activeRayTracer);
 
 #endif

@@ -5,14 +5,13 @@
 double GLOBAL_raytracer_totalTime = 0.0;
 long GLOBAL_raytracer_rayCount = 0;
 long GLOBAL_raytracer_pixelCount = 0;
-Raytracer *GLOBAL_raytracer_activeRaytracer = (Raytracer *) nullptr;
 
 /**
 Initializes an ImageOutputHandle taking into account the image filename extension,
 and performs raytracing
  */
 void
-rayTrace(char *filename, FILE *fp, int ispipe) {
+rayTrace(char *filename, FILE *fp, int ispipe, Raytracer *activeRayTracer) {
     ImageOutputHandle *img = nullptr;
 
     if ( fp != nullptr ) {
@@ -24,27 +23,11 @@ rayTrace(char *filename, FILE *fp, int ispipe) {
         }
     }
 
-    if ( GLOBAL_raytracer_activeRaytracer ) {
-        GLOBAL_raytracer_activeRaytracer->Raytrace(img);
+    if ( activeRayTracer != nullptr ) {
+        activeRayTracer->Raytrace(img);
     }
 
     if ( img ) {
         deleteImageOutputHandle(img);
-    }
-}
-
-/**
-This routine sets the current raytracing method to be used
-*/
-void
-setRayTracing(Raytracer *newMethod) {
-    if ( GLOBAL_raytracer_activeRaytracer ) {
-        GLOBAL_raytracer_activeRaytracer->InterruptRayTracing();
-        GLOBAL_raytracer_activeRaytracer->Terminate();
-    }
-
-    GLOBAL_raytracer_activeRaytracer = newMethod;
-    if ( GLOBAL_raytracer_activeRaytracer ) {
-        GLOBAL_raytracer_activeRaytracer->Initialize();
     }
 }

@@ -3,6 +3,7 @@
 
 #include "skin/Patch.h"
 #include "shared/Camera.h"
+#include "raycasting/common/Raytracer.h"
 
 extern unsigned long *renderIds(long *x, long *y);
 extern void renderWorldOctree(void (*render_patch)(Patch *));
@@ -57,7 +58,7 @@ extern RENDEROPTIONS GLOBAL_render_renderOptions;
 extern void renderBounds(BOUNDINGBOX bounds);
 extern void renderBoundingBoxHierarchy();
 extern void renderClusterHierarchy();
-extern int renderRayTraced();
+extern int renderRayTraced(Raytracer *activeRayTracer);
 extern void renderSetBackfaceCulling(char truefalse);
 extern void renderSetSmoothShading(char truefalse);
 extern void renderSetOutlineDrawing(char truefalse);
