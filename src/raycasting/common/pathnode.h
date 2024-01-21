@@ -14,7 +14,6 @@
 #include "material/bsdf.h"
 
 // -- For evaluation of bi paths, should change!
-#include "raycasting/common/bidiroptions.h"
 #include "raycasting/common/bsdfcomp.h"
 
 

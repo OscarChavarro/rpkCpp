@@ -6,6 +6,7 @@
 #ifndef _BIPATH_H_
 #define _BIPATH_H_
 
+#include "raycasting/common/bidiroptions.h"
 #include "raycasting/common/pathnode.h"
 
 class CBiPath {
