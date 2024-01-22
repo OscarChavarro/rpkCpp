@@ -127,7 +127,7 @@ class GALERKIN_STATE {
     int lastclusid; // Used for caching cluster and eye point
     Vector3D lasteye; // Rendered into the scratch frame buffer
 
-    long lastclock; // For CPU timing
+    unsigned long lastclock; // For CPU timing
     float cpu_secs;
     int wake_up; // For waking up now and then
 };

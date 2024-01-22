@@ -49,7 +49,7 @@ ArrayList<T>::remove(long int pos)
 }
 
 template <class T> void
-ArrayList<T>::elim(void)
+ArrayList<T>::elim()
 {
     if ( Data ) {
         free(Data);

@@ -89,7 +89,7 @@ shootUnshotRadianceAndPotentialOverLink(INTERACTION *link) {
 
 static void
 clearUnshotRadianceAndPotential(GalerkinElement *elem) {
-    ITERATE_REGULAR_SUBELEMENTS(elem, clearUnshotRadianceAndPotential);
+    ITERATE_REGULAR_SUB_ELEMENTS(elem, clearUnshotRadianceAndPotential);
     ITERATE_IRREGULAR_SUBELEMENTS(elem, clearUnshotRadianceAndPotential);
     clusterGalerkinClearCoefficients(elem->unShotRadiance, elem->basisSize);
     elem->unShotPotential.f = 0.;
@@ -201,8 +201,8 @@ static int
 propagateRadiance() {
     Patch *shooting_patch;
 
-    /* choose a shooting patch. also accumulates the total unshot power into
-     * GLOBAL_galerkin_state.ambient_radiance. */
+    // Choose a shooting patch. also accumulates the total unshot power into
+    // GLOBAL_galerkin_state.ambient_radiance
     shooting_patch = chooseRadianceShootingPatch();
     if ( !shooting_patch ) {
         return true;

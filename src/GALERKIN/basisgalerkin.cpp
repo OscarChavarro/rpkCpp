@@ -198,23 +198,26 @@ basisGalerkinPushPullRadianceRecursive(GalerkinElement *elem, COLOR *Bdown, COLO
     }
 
     if ( elem->irregularSubElements ) { /* a cluster or irregularly subdivided surface element */
-        ELEMENTLIST *subellist;
-        for ( subellist = elem->irregularSubElements; subellist; subellist = subellist->next ) {
-            GalerkinElement *subel = subellist->element;
-            COLOR Btmp[MAXBASISSIZE], Bdown2[MAXBASISSIZE], Bup2[MAXBASISSIZE];
+        ELEMENTLIST *subElementsList;
+        for ( subElementsList = elem->irregularSubElements; subElementsList != nullptr; subElementsList = subElementsList->next ) {
+            GalerkinElement *subElement = subElementsList->element;
+            COLOR Btmp[MAXBASISSIZE];
+            COLOR Bdown2[MAXBASISSIZE];
+            COLOR Bup2[MAXBASISSIZE];
 
             // 1. Push Bdown to the sub-element if a cluster (don't push to irregular
             // surface sub-elements)
-            if ( isCluster(elem)) {
-                basisGalerkinPush(elem, Bdown, subel, Bdown2);
-            } else
+            if ( isCluster(elem) ) {
+                basisGalerkinPush(elem, Bdown, subElement, Bdown2);
+            } else {
                 clusterGalerkinClearCoefficients(Bdown2, elem->basisSize);
+            }
 
             // 2. Recursive call the push-pull for the sub-element
-            basisGalerkinPushPullRadianceRecursive(subel, Bdown2, Btmp);
+            basisGalerkinPushPullRadianceRecursive(subElement, Bdown2, Btmp);
 
             // 3. Pull the radiance of the sub-element up to this level again
-            basisGalerkinPull(elem, Bup2, subel, Btmp);
+            basisGalerkinPull(elem, Bup2, subElement, Btmp);
 
             // 4. Add to Bup
             clusterGalerkinAddCoefficients(Bup, Bup2, elem->basisSize);
@@ -241,7 +244,8 @@ basisGalerkinPushPullRadiance(GalerkinElement *top) {
     top->printRegularHierarchy(0);
     printf("-----------------------------------\n");
 
-    COLOR Bdown[MAXBASISSIZE], Bup[MAXBASISSIZE];
+    COLOR Bdown[MAXBASISSIZE];
+    COLOR Bup[MAXBASISSIZE];
     clusterGalerkinClearCoefficients(Bdown, top->basisSize);
     basisGalerkinPushPullRadianceRecursive(top, Bdown, Bup);
 }

@@ -75,6 +75,6 @@ TONEMAP GLOBAL_toneMap_lightness = {
     ReverseScaleForComputations,
     (void (*)(void *)) nullptr,
     (void (*)(void *)) nullptr,
-    (void (*)(void)) nullptr,
-    (void (*)(void)) nullptr
+    (void (*)()) nullptr,
+    (void (*)()) nullptr
 };

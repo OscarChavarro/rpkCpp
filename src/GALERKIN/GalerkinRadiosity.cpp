@@ -197,7 +197,7 @@ parseGalerkinOptions(int *argc, char **argv) {
 }
 
 static void
-printGalerkinOptions(FILE *fp) {
+printGalerkinOptions(FILE * /*fp*/) {
 }
 
 /**
@@ -289,7 +289,7 @@ patchInit(Patch *patch) {
 void
 initGalerkin() {
     GLOBAL_galerkin_state.iteration_nr = 0;
-    GLOBAL_galerkin_state.cpu_secs = 0.;
+    GLOBAL_galerkin_state.cpu_secs = 0.0;
 
     basisGalerkinInitBasis();
 
@@ -307,13 +307,13 @@ initGalerkin() {
     GLOBAL_galerkin_state.top_geom = GLOBAL_scene_clusteredWorldGeom;
     GLOBAL_galerkin_state.top_cluster = galerkinCreateClusterHierarchy(GLOBAL_galerkin_state.top_geom);
 
-    /* create a scratch software renderer for various operations on clusters */
+    // Create a scratch software renderer for various operations on clusters
     scratchInit();
 
-    /* global variables used for formfactor computation optimisation */
+    // Global variables used for form factor computation optimisation
     GLOBAL_galerkin_state.fflastrcv = GLOBAL_galerkin_state.fflastsrc = (GalerkinElement *) nullptr;
 
-    /* global variables for scratch rendering */
+    // Global variables for scratch rendering
     GLOBAL_galerkin_state.lastclusid = -1;
     VECTORSET(GLOBAL_galerkin_state.lasteye, HUGE, HUGE, HUGE);
 }
@@ -328,11 +328,10 @@ doGalerkinOneStep() {
     }
 
     GLOBAL_galerkin_state.wake_up = false;
-
     GLOBAL_galerkin_state.iteration_nr++;
     GLOBAL_galerkin_state.lastclock = clock();
 
-    /* and now the real work */
+    // And now the real work
     switch ( GLOBAL_galerkin_state.iteration_method ) {
         case JACOBI:
         case GAUSS_SEIDEL:
@@ -361,7 +360,7 @@ terminateGalerkin() {
 }
 
 static COLOR
-getRadiance(Patch *patch, double u, double v, Vector3D dir) {
+getRadiance(Patch *patch, double u, double v, Vector3D /*dir*/) {
     GalerkinElement *leaf;
     COLOR rad;
 
@@ -431,7 +430,11 @@ static void
 renderElementHierarchy(GalerkinElement *elem) {
     if ( !elem->regularSubElements ) {
         galerkinElementRender(elem);
-    } else ITERATE_REGULAR_SUBELEMENTS(elem, renderElementHierarchy);
+    } else if ( elem->regularSubElements != nullptr ) {
+        for ( int i = 0; i < 4; i++ ) {
+            renderElementHierarchy((elem)->regularSubElements[i]);
+        }
+    }
 }
 
 static void
@@ -541,7 +544,7 @@ galerkinWriteVertexColors(GalerkinElement *element) {
     }
 
     for ( i = 0; i < element->patch->numberOfVertices; i++ ) {
-        RGB col;
+        RGB col{};
         radianceToRgb(vertrad[i], &col);
         galerkinWriteVertexColor(&col);
     }
@@ -619,7 +622,7 @@ RADIANCEMETHOD GLOBAL_galerkin_radiosity = {
     destroyPatchData,
     getGalerkinStats,
     galerkinRender,
-    (void (*)(void)) nullptr,
+    (void (*)()) nullptr,
     galerkinUpdateMaterial,
     galerkinWriteVRML
 };

@@ -365,7 +365,7 @@ galerkinElementDestroyTopLevel(GalerkinElement *element) {
     }
 
     if ( element->regularSubElements ) {
-        ITERATE_REGULAR_SUBELEMENTS(element, galerkinElementDestroyTopLevel);
+        ITERATE_REGULAR_SUB_ELEMENTS(element, galerkinElementDestroyTopLevel);
         free(element->regularSubElements);
     }
 

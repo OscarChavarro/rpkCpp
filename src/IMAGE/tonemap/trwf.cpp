@@ -230,8 +230,8 @@ TONEMAP GLOBAL_toneMap_tumblinRushmeier = {
     trfwReverseScaleForComputations,
     (void (*)(void *)) nullptr,
     (void (*)(void *)) nullptr,
-    (void (*)(void)) nullptr,
-    (void (*)(void)) nullptr
+    (void (*)()) nullptr,
+    (void (*)()) nullptr
 };
 
 static COLOR
@@ -270,8 +270,8 @@ TONEMAP GLOBAL_toneMap_ward = {
     wardReverseScaleForComputations,
     (void (*)(void *)) nullptr,
     (void (*)(void *)) nullptr,
-    (void (*)(void)) nullptr,
-    (void (*)(void)) nullptr
+    (void (*)()) nullptr,
+    (void (*)()) nullptr
 };
 
 static COLOR
@@ -336,8 +336,8 @@ TONEMAP GLOBAL_toneMap_revisedTumblinRushmeier = {
     revisedTRReverseScaleForComputations,
     (void (*)(void *)) nullptr,
     (void (*)(void *)) nullptr,
-    (void (*)(void)) nullptr,
-    (void (*)(void)) nullptr
+    (void (*)()) nullptr,
+    (void (*)()) nullptr
 };
 
 static COLOR
@@ -408,6 +408,6 @@ TONEMAP GLOBAL_toneMap_ferwerda = {
     ferwerdaReverseScaleForComputations,
     (void (*)(void *)) nullptr,
     (void (*)(void *)) nullptr,
-    (void (*)(void)) nullptr,
-    (void (*)(void)) nullptr
+    (void (*)()) nullptr,
+    (void (*)()) nullptr
 };
