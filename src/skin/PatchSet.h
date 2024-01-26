@@ -1,6 +1,7 @@
 #ifndef __PATCH_LIST__
 #define __PATCH_LIST__
 
+#include "java/util/ArrayList.h"
 #include "common/dataStructures/List.h"
 #include "material/hit.h"
 #include "skin/Patch.h"
@@ -38,6 +39,9 @@ patchListAllIntersections(
     float minimumDistance,
     float maximumDistance,
     int hitFlags);
+
+extern java::ArrayList<Patch *> *
+convertPatchSetToPatchList(PatchSet *patchSet);
 
 #include "skin/Geometry.h"
 

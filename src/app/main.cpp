@@ -612,12 +612,12 @@ mainStartUserInterface(const int *argc, char **argv) {
     if ( globalImageOutputHeight <= 0 ) {
         globalImageOutputHeight = 1080;
     }
-    createOffscreenCanvasWindow(globalImageOutputWidth, globalImageOutputHeight);
+    createOffscreenCanvasWindow(globalImageOutputWidth, globalImageOutputHeight, convertPatchSetToPatchList(GLOBAL_scene_patches));
 
     while ( !renderInitialized() );
-    renderScene();
+    renderScene(convertPatchSetToPatchList(GLOBAL_scene_patches));
 
-    batch();
+    batch(convertPatchSetToPatchList(GLOBAL_scene_patches));
 }
 
 int

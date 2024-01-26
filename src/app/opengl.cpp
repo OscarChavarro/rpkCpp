@@ -489,21 +489,20 @@ renderNewDisplayList() {
 }
 
 void
-reallyRender() {
+reallyRender(java::ArrayList<Patch *> *scenePatches) {
     if ( GLOBAL_radiance_currentRadianceMethodHandle && GLOBAL_radiance_currentRadianceMethodHandle->RenderScene ) {
         GLOBAL_radiance_currentRadianceMethodHandle->RenderScene();
     } else if ( GLOBAL_render_renderOptions.frustum_culling ) {
         renderWorldOctree(renderPatch);
     } else {
-        for ( PatchSet *patchWindow = GLOBAL_scene_patches; patchWindow != nullptr; patchWindow = patchWindow->next ) {
-            Patch *patch = patchWindow->patch;
-            renderPatch(patch);
+        for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
+            renderPatch(scenePatches->get(i));
         }
     }
 }
 
 void
-renderRadiance() {
+renderRadiance(java::ArrayList<Patch *> *scenePatches) {
     if ( GLOBAL_render_renderOptions.smooth_shading ) {
         glShadeModel(GL_SMOOTH);
     } else {
@@ -523,14 +522,14 @@ renderRadiance() {
             displayListId = 1;
             glNewList(displayListId, GL_COMPILE_AND_EXECUTE);
             // Render the scene
-            reallyRender();
+            reallyRender(scenePatches);
             glEndList();
         } else {
             glCallList(1);
         }
     } else {
         // Just render the scene
-        reallyRender();
+        reallyRender(scenePatches);
     }
 
     if ( GLOBAL_render_renderOptions.draw_bounding_boxes ) {
@@ -550,7 +549,7 @@ renderRadiance() {
 Renders the whole scene
 */
 void
-renderScene() {
+renderScene(java::ArrayList<Patch *> *scenePatches) {
     if ( !openglInitialized ) {
         return;
     }
@@ -564,7 +563,7 @@ renderScene() {
     }
 
     if ( !GLOBAL_render_renderOptions.render_raytraced_image || !renderRayTraced(GLOBAL_raytracer_activeRaytracer)) {
-        renderRadiance();
+        renderRadiance(scenePatches);
     }
 
     // Call installed render hooks, that want to render something in the scene

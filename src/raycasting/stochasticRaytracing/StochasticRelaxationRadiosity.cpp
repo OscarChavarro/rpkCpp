@@ -131,7 +131,7 @@ stochasticRelaxationRadiosityPrintIncrementalRadianceStats() {
 }
 
 static void
-stochasticRelaxationRadiosityDoIncrementalRadianceIterations() {
+stochasticRelaxationRadiosityDoIncrementalRadianceIterations(java::ArrayList<Patch *> *scenePatches) {
     double refUnShot;
     long stepNumber = 0;
 
@@ -177,7 +177,7 @@ stochasticRelaxationRadiosityDoIncrementalRadianceIterations() {
         if ( unShotFraction > 0.3 ) {
             stochasticRelaxationRadiosityRecomputeDisplayColors();
             renderNewDisplayList();
-            renderScene();
+            renderScene(scenePatches);
         }
     }
 
@@ -394,7 +394,7 @@ stochasticRelaxationRadiosityDoStep() {
                 }
             }
         }
-        stochasticRelaxationRadiosityDoIncrementalRadianceIterations();
+        stochasticRelaxationRadiosityDoIncrementalRadianceIterations(convertPatchSetToPatchList(GLOBAL_scene_patches));
 
         /* subsequent regular iteratoins will take as many rays as in the whole
          * sequence of incremental iteration steps. */

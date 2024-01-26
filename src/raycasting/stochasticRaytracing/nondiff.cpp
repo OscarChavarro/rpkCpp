@@ -163,5 +163,5 @@ doNonDiffuseFirstShot() {
     sampleLightSources(
             GLOBAL_stochasticRaytracing_monteCarloRadiosityState.initialLightSourceSamples * globalNumberOfLights);
     summarize();
-    renderScene();
+    renderScene(convertPatchSetToPatchList(GLOBAL_scene_patches));
 }

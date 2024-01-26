@@ -1,13 +1,14 @@
 #ifndef __RENDER__
 #define __RENDER__
 
+#include "java/util/ArrayList.h"
 #include "skin/Patch.h"
 #include "shared/Camera.h"
 #include "raycasting/common/Raytracer.h"
 
 extern unsigned long *renderIds(long *x, long *y);
 extern void renderWorldOctree(void (*render_patch)(Patch *));
-extern void renderScene();
+extern void renderScene(java::ArrayList<Patch *> *scenePatches);
 extern void renderCreateOffscreenWindow(int hres, int vres);
 extern void renderPatch(Patch *patch);
 extern void renderSetColor(RGB *rgb);

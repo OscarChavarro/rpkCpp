@@ -46,7 +46,7 @@ field of the CMDLINEOPTDESC structure below
 #define Txy (&GLOBAL_options_xyType)
 
 // Default action; no action
-#define DEFAULT_ACTION (void (*)(void *))0
+#define DEFAULT_ACTION (void (*)(void *))nullptr
 
 class CommandLineOptionDescription {
   public:

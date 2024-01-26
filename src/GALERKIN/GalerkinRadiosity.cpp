@@ -186,7 +186,7 @@ static CommandLineOptionDescription galerkinOptions[] = {
     "-gr-no-ambient      \t: do visualisation without ambient term"},
     {"-gr-link-error-threshold", 6,  Tfloat,   &GLOBAL_galerkin_state.rel_link_error_threshold, DEFAULT_ACTION,
     "-gr-link-error-threshold <float>: Relative link error threshold"},
-    {"-gr-min-elem-area",        6,  Tfloat,   &GLOBAL_galerkin_state.rel_min_elem_area,        DEFAULT_ACTION,
+    {"-gr-min-elem-area",6, Tfloat, &GLOBAL_galerkin_state.rel_min_elem_area, DEFAULT_ACTION,
     "-gr-min-elem-area <float> \t: Relative element area threshold"},
     {nullptr, 0, TYPELESS, nullptr, DEFAULT_ACTION, nullptr}
 };
@@ -464,7 +464,7 @@ galerkinUpdateMaterial(Material *oldMaterial, Material *newMaterial) {
         fprintf(stderr, "galerkinUpdateMaterial: not yet implemented.\n");
     }
 
-    renderScene();
+    renderScene(convertPatchSetToPatchList(GLOBAL_scene_patches));
 }
 
 /* *********************************************************** */

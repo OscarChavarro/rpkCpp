@@ -161,7 +161,7 @@ parseBatchOptions(int *argc, char **argv) {
 }
 
 void
-batch() {
+batch(java::ArrayList<Patch *> *scenePatches) {
     clock_t start_time, wasted_start;
     float wasted_secs;
 
@@ -200,7 +200,7 @@ batch() {
             fflush(stdout);
             fflush(stderr);
 
-            renderScene();
+            renderScene(scenePatches);
 
             fflush(stdout);
             fflush(stderr);

@@ -1,5 +1,6 @@
-#include "shared/render.h"
 #include "common/error.h"
+#include "scene/scene.h"
+#include "shared/render.h"
 #include "shared/canvas.h"
 
 /**
@@ -12,7 +13,7 @@ is pushed on a stack and restored afterwards
 static int globalModeStackIndex;
 
 void
-createOffscreenCanvasWindow(int width, int height) {
+createOffscreenCanvasWindow(int width, int height, java::ArrayList<Patch *> *scenePatches) {
     renderCreateOffscreenWindow(width, height);
 
     // Set correct width and height for the camera
@@ -21,7 +22,7 @@ createOffscreenCanvasWindow(int width, int height) {
               GLOBAL_camera_mainCamera.fov, width, height, &GLOBAL_camera_mainCamera.background);
 
     // Render the scene (no expose events on the external canvas window!)
-    renderScene();
+    renderScene(scenePatches);
 }
 
 /**
