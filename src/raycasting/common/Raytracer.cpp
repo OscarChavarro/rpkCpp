@@ -1,4 +1,5 @@
 #include "shared/Camera.h"
+#include "shared/options.h"
 #include "material/statistics.h"
 #include "raycasting/common/Raytracer.h"
 
@@ -9,9 +10,9 @@ long GLOBAL_raytracer_pixelCount = 0;
 /**
 Initializes an ImageOutputHandle taking into account the image filename extension,
 and performs raytracing
- */
+*/
 void
-rayTrace(char *filename, FILE *fp, int ispipe, Raytracer *activeRayTracer) {
+rayTrace(char *filename, FILE *fp, int ispipe, Raytracer *activeRayTracer, java::ArrayList<Patch *> *scenePatches) {
     ImageOutputHandle *img = nullptr;
 
     if ( fp != nullptr ) {
@@ -24,7 +25,7 @@ rayTrace(char *filename, FILE *fp, int ispipe, Raytracer *activeRayTracer) {
     }
 
     if ( activeRayTracer != nullptr ) {
-        activeRayTracer->Raytrace(img);
+        activeRayTracer->Raytrace(img, scenePatches);
     }
 
     if ( img ) {

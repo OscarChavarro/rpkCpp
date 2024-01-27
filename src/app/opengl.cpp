@@ -638,7 +638,7 @@ renderPixels(int x, int y, int width, int height, RGB *rgb) {
 Saves a RGB image in the front buffer
 */
 void
-saveScreen(char *fileName, FILE *fp, int isPipe) {
+saveScreen(char *fileName, FILE *fp, int isPipe, java::ArrayList<Patch *> *scenePatches) {
     ImageOutputHandle *img;
     long j, x = GLOBAL_camera_mainCamera.xSize, y = GLOBAL_camera_mainCamera.ySize;
     GLubyte *screen;
@@ -646,7 +646,7 @@ saveScreen(char *fileName, FILE *fp, int isPipe) {
 
     // RayCast() saves the current picture in display-mapped (!) real values
     if ( GLOBAL_render_renderOptions.trace ) {
-        rayCast(fileName, fp, isPipe);
+        rayCast(fileName, fp, isPipe, scenePatches);
         return;
     }
 
@@ -684,8 +684,8 @@ the patches visible through each pixel or 0 if the background is visible through
 the pixel. x is normally the width and y the height of the canvas window
 */
 unsigned long *
-renderIds(long *x, long *y) {
-    return softRenderIds(x, y, convertPatchSetToPatchList(GLOBAL_scene_patches));
+renderIds(long *x, long *y, java::ArrayList<Patch *> *scenePatches) {
+    return softRenderIds(x, y, scenePatches);
 }
 
 static void

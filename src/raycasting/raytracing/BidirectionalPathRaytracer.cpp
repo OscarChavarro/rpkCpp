@@ -980,10 +980,13 @@ void DoBPTDensityEstimation(BPCONFIG *config) {
     }
 }
 
-/* Raytrace the current scene as seen with the current camera. If fp
- * is not a nullptr pointer, write the raytraced image to the file
- * pointed to by 'fp'. */
-static void BidirPathTrace(ImageOutputHandle *ip) {
+/**
+Raytrace the current scene as seen with the current camera. If fp
+is not a nullptr pointer, write the raytraced image to the file
+pointed to by 'fp'
+*/
+static void
+bidirPathTrace(ImageOutputHandle *ip, java::ArrayList<Patch *> * /*scenePatches*/) {
     // Install the samplers to be used in the state
 
     BPCONFIG config;
@@ -1154,7 +1157,7 @@ Raytracer GLOBAL_raytracing_biDirectionalPathMethod =
         biDirectionalPathDefaults,
         biDirectionalPathParseOptions,
         BidirPathInit,
-        BidirPathTrace,
+        bidirPathTrace,
         BidirPathRedisplay,
         BidirPathSaveImage,
         BidirPathInterrupt,

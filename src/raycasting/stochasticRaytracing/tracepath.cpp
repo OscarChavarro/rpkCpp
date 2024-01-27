@@ -4,6 +4,7 @@ Random walk generation
 
 #include <cstdlib>
 
+#include "java/util/ArrayList.txx"
 #include "common/error.h"
 #include "material/statistics.h"
 #include "shared/options.h"
@@ -77,7 +78,7 @@ Path nodes are filled in 'path', 'path' itself is returned
 Traces a random walk originating at 'origin', with birth stochasticJacobiProbability
 'globalBirthProbability' (filled in as stochasticJacobiProbability of the origin node: source term
 estimation is being suppressed --- survival stochasticJacobiProbability at the origin is
-1). Survivial stochasticJacobiProbability at other nodes than the origin is calculated by
+1). Survival stochasticJacobiProbability at other nodes than the origin is calculated by
 'SurvivalProbability()', results are stored in 'path', which should be an
 PATH, previously initialised by initPath(). If required, photonMapTracePath()
 allocates extra space for storing nodes calls to pathAddNode().
@@ -139,7 +140,8 @@ tracePaths(
     double (*BirthProbability)(Patch *P),
     double (*SurvivalProbability)(Patch *P),
     void (*ScorePath)(PATH *, long nr_paths, double (*birth_prob)(Patch *)),
-    void (*Update)(Patch *P, double w))
+    void (*Update)(Patch *P, double w),
+    java::ArrayList<Patch *> *scenePatches)
 {
     double rnd;
     double pCumul;
@@ -150,10 +152,11 @@ tracePaths(
     globalBirthProbability = BirthProbability;
 
     // Compute sampling probability normalisation factor
-    globalSumProbabilities = 0.;
-    for ( PatchSet *window = GLOBAL_scene_patches; window != nullptr; window = window->next ) {
-        globalSumProbabilities += BirthProbability(window->patch);
-        stochasticRadiosityClearCoefficients(getTopLevelPatchReceivedRad(window->patch), getTopLevelPatchBasis(window->patch));
+    globalSumProbabilities = 0.0;
+    for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
+        Patch *patch = scenePatches->get(i);
+        globalSumProbabilities += BirthProbability(patch);
+        stochasticRadiosityClearCoefficients(getTopLevelPatchReceivedRad(patch), getTopLevelPatchBasis(patch));
     }
     if ( globalSumProbabilities < EPSILON ) {
         logWarning("tracePaths", "No sources");
@@ -165,11 +168,12 @@ tracePaths(
     rnd = drand48();
     path_count = 0;
     pCumul = 0.0;
-    for ( PatchSet *window = GLOBAL_scene_patches; window != nullptr; window = window->next ) {
-        double p = BirthProbability(window->patch) / globalSumProbabilities;
-        long i, paths_this_patch = (int) floor((pCumul + p) * (double) numberOfPaths + rnd) - path_count;
-        for ( i = 0; i < paths_this_patch; i++ ) {
-            tracePath(window->patch, p, SurvivalProbability, &path);
+    for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
+        Patch *patch = scenePatches->get(i);
+        double p = BirthProbability(patch) / globalSumProbabilities;
+        long paths_this_patch = (int) std::floor((pCumul + p) * (double) numberOfPaths + rnd) - path_count;
+        for ( int j = 0; j < paths_this_patch; j++ ) {
+            tracePath(patch, p, SurvivalProbability, &path);
             ScorePath(&path, numberOfPaths, patchNormalisedBirthProbability);
         }
         pCumul += p;
@@ -185,8 +189,8 @@ tracePaths(
     colorClear(GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalFlux);
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalYmp = 0.0;
 
-    for ( PatchSet *window = GLOBAL_scene_patches; window != nullptr; window = window->next ) {
-        Patch *patch = window->patch;
+    for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
+        Patch *patch = scenePatches->get(i);
         Update(patch, (double) numberOfPaths / globalSumProbabilities);
         colorAddScaled(GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotFlux, M_PI * patch->area,
                        getTopLevelPatchUnShotRad(patch)[0],

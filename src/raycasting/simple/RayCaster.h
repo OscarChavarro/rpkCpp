@@ -1,6 +1,7 @@
 #ifndef __RAY_CASTER__
 #define __RAY_CASTER__
 
+#include "java/util/ArrayList.h"
 #include "skin/radianceinterfaces.h"
 #include "raycasting/common/ScreenBuffer.h"
 #include "raycasting/common/Raytracer.h"
@@ -70,13 +71,13 @@ class RayCaster {
     }
 
     void save(ImageOutputHandle *ip);
-    void render(GETRADIANCE_FT getrad);
+    void render(GETRADIANCE_FT getrad, java::ArrayList<Patch *> *scenePatches);
     void display();
     void interrupt();
 };
 
 extern Raytracer GLOBAL_rayCasting_RayCasting;
 
-extern void rayCast(char *fname, FILE *fp, int ispipe);
+extern void rayCast(char *fname, FILE *fp, int ispipe, java::ArrayList<Patch *> *scenePatches);
 
 #endif

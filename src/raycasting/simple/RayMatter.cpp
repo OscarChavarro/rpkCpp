@@ -126,7 +126,8 @@ RayMatter::interrupt() {
 static RayMatter *rm = nullptr;
 RayMattingState GLOBAL_rayCasting_rayMatterState;
 
-static void IRayMatte(ImageOutputHandle *ip) {
+static void
+IRayMatte(ImageOutputHandle *ip, java::ArrayList<Patch *> *scenePatches) {
     if ( rm ) {
         delete rm;
     }

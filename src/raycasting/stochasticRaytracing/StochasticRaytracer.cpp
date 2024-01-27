@@ -562,11 +562,13 @@ static COLOR CalcPixel(int nx, int ny, SRCONFIG *config) {
     return result;
 }
 
-/* Raytrace the current scene as seen with the current camera. If fp
- * is not a nullptr pointer, write the raytraced image to the file
- * pointed to by 'fp'. */
-
-void RTStochastic_Trace(ImageOutputHandle *ip) {
+/**
+Raytrace the current scene as seen with the current camera. If fp
+is not a nullptr pointer, write the raytraced image to the file
+pointed to by 'fp'
+*/
+void
+RTStochastic_Trace(ImageOutputHandle *ip, java::ArrayList<Patch *> * /*scenePatches*/) {
     SRCONFIG config(GLOBAL_raytracing_state); // config filled in by constructor
 
     // Frame Coherent sampling : init fixed seed

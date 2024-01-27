@@ -6,7 +6,7 @@
 #include "shared/Camera.h"
 #include "raycasting/common/Raytracer.h"
 
-extern unsigned long *renderIds(long *x, long *y);
+extern unsigned long *renderIds(long *x, long *y, java::ArrayList<Patch *> *scenePatches);
 extern void renderWorldOctree(void (*render_patch)(Patch *));
 extern void renderScene(java::ArrayList<Patch *> *scenePatches);
 extern void renderCreateOffscreenWindow(int hres, int vres);
@@ -21,7 +21,7 @@ extern void renderPolygonGouraud(int nrverts, Vector3D *verts, RGB *vertcols);
 extern void renderLine(Vector3D *x, Vector3D *y);
 extern void renderNextTrianglePoint(Vector3D *point, RGB *col);
 extern void renderEndTriangleStrip();
-extern void saveScreen(char *fileName, FILE *fp, int isPipe);
+extern void saveScreen(char *fileName, FILE *fp, int isPipe, java::ArrayList<Patch *> *scenePatches);
 extern void renderCameras();
 extern void renderSetLineWidth(float width);
 extern void renderBackground(Camera *camera);

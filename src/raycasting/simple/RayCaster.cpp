@@ -5,6 +5,7 @@ a software frame buffer directly.
 
 #include <ctime>
 
+#include "java/util/ArrayList.txx"
 #include "common/error.h"
 #include "material/statistics.h"
 #include "shared/options.h"
@@ -35,7 +36,7 @@ RayCaster::clipUv(int nrvertices, double *u, double *v) {
 }
 
 void
-RayCaster::render(GETRADIANCE_FT getrad = nullptr) {
+RayCaster::render(GETRADIANCE_FT getrad = nullptr, java::ArrayList<Patch *> *scenePatches = nullptr) {
     clock_t t = clock();
     interrupt_requested = false;
 
@@ -50,7 +51,7 @@ RayCaster::render(GETRADIANCE_FT getrad = nullptr) {
     long x;
     long y;
 
-    Soft_ID_Renderer *id_renderer = new Soft_ID_Renderer(convertPatchSetToPatchList(GLOBAL_scene_patches));
+    Soft_ID_Renderer *id_renderer = new Soft_ID_Renderer(scenePatches);
     id_renderer->get_size(&width, &height);
     if ( width != scrn->getHRes() || height != scrn->getVRes() ) {
         logFatal(-1, "RayCaster::render", "ID buffer size doesn't match screen size");
@@ -144,12 +145,12 @@ Initialize() {
 }
 
 static void
-IRayCast(ImageOutputHandle *ip) {
+IRayCast(ImageOutputHandle *ip, java::ArrayList<Patch *> *scenePatches) {
     if ( s_rc ) {
         delete s_rc;
     }
     s_rc = new RayCaster();
-    s_rc->render();
+    s_rc->render(nullptr, scenePatches);
     if ( ip ) {
         s_rc->save(ip);
     }
@@ -161,7 +162,7 @@ and saved into the file with given name and file pointer. 'ispipe'
 reflects whether this file pointer is a pipe or not.
 */
 void
-rayCast(char *fname, FILE *fp, int ispipe) {
+rayCast(char *fname, FILE *fp, int ispipe, java::ArrayList<Patch *> *scenePatches) {
     ImageOutputHandle *img = nullptr;
 
     if ( fp ) {
@@ -186,15 +187,15 @@ rayCast(char *fname, FILE *fp, int ispipe) {
 }
 
 Raytracer GLOBAL_rayCasting_RayCasting = {
-        "RayCasting",
-        4,
-        "Ray Casting",
-        Defaults,
-        ParseHWRCastOptions,
-        Initialize,
-        IRayCast,
-        Redisplay,
-        SaveImage,
-        Interrupt,
-        Terminate
+    "RayCasting",
+    4,
+    "Ray Casting",
+    Defaults,
+    ParseHWRCastOptions,
+    Initialize,
+    IRayCast,
+    Redisplay,
+    SaveImage,
+    Interrupt,
+    Terminate
 };

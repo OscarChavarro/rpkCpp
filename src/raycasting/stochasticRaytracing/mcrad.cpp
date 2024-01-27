@@ -336,7 +336,7 @@ Computes max_i (A_T/A_i): the ratio of the total area over the minimal patch
 area in the scene, ignoring the 10% area occupied by the smallest patches
 */
 static double
-monteCarloRadiosityDetermineAreaFraction() {
+monteCarloRadiosityDetermineAreaFraction(java::ArrayList<Patch *> *scenePatches) {
     float *areas;
     float cumul;
     float areafrac;
@@ -353,8 +353,9 @@ monteCarloRadiosityDetermineAreaFraction() {
     for ( i = 0; i < nrpatchids; i++ ) {
         areas[i] = 0.;
     }
-    for ( PatchSet *window = GLOBAL_scene_patches; window != nullptr; window = window->next ) {
-        areas[window->patch->id] = window->patch->area;
+    for ( i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
+        Patch *patch = scenePatches->get(i);
+        areas[patch->id] = patch->area;
     }
 
     /* sort the table to decreasing areas */
@@ -378,8 +379,8 @@ monteCarloRadiosityDetermineAreaFraction() {
 Determines elementary ray power for the initial incremental iterations
 */
 static void
-monteCarloRadiosityDetermineInitialNrRays() {
-    double areafrac = monteCarloRadiosityDetermineAreaFraction();
+monteCarloRadiosityDetermineInitialNrRays(java::ArrayList<Patch *> *scenePatches) {
+    double areafrac = monteCarloRadiosityDetermineAreaFraction(scenePatches);
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.initialNumberOfRays = (long) ((double) GLOBAL_stochasticRaytracing_monteCarloRadiosityState.rayUnitsPerIt * areafrac);
 }
 
@@ -411,8 +412,8 @@ monteCarloRadiosityReInit(java::ArrayList<Patch *> *scenePatches) {
     colorClear(GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalFlux);
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalYmp = 0.;
     colorClear(GLOBAL_stochasticRaytracing_monteCarloRadiosityState.indirectImportanceWeightedUnShotFlux);
-    for ( PatchSet *window = GLOBAL_scene_patches; window != nullptr; window = window->next ) {
-        Patch *patch = window->patch;
+    for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
+        Patch *patch = scenePatches->get(i);
         monteCarloRadiosityInitPatch(patch);
         colorAddScaled(GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotFlux, M_PI * patch->area, getTopLevelPatchUnShotRad(patch)[0], GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotFlux);
         colorAddScaled(GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalFlux, M_PI * patch->area, getTopLevelPatchRad(patch)[0], GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalFlux);
@@ -424,7 +425,7 @@ monteCarloRadiosityReInit(java::ArrayList<Patch *> *scenePatches) {
         monteCarloRadiosityPatchComputeNewColor(patch);
     }
 
-    monteCarloRadiosityDetermineInitialNrRays();
+    monteCarloRadiosityDetermineInitialNrRays(scenePatches);
 
     elementHierarchyInit();
 
