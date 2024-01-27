@@ -5,40 +5,32 @@
 #include "common/error.h"
 #include "BREP/BREP_VERTEX_OCTREE.h"
 #include "material/statistics.h"
+#include "skin/radianceinterfaces.h"
 #include "shared/defaults.h"
 #include "shared/options.h"
 #include "shared/render.h"
 #include "shared/cubature.h"
 #include "shared/renderhook.h"
-#include "shared/canvas.h"
 #include "scene/scene.h"
 #include "IMAGE/tonemap/tonemapping.h"
-#include "raycasting/simple/RayCaster.h"
-#include "raycasting/simple/RayMatter.h"
-#include "raycasting/raytracing/BidirectionalPathRaytracer.h"
-#include "raycasting/stochasticRaytracing/StochasticRaytracer.h"
 #include "io/mgf/readmgf.h"
 #include "io/mgf/fileopts.h"
 #include "app/opengl.h"
 #include "app/Cluster.h"
 #include "app/batch.h"
+#include "app/mainModel.h"
+#include "app/mainRendering.h"
 
-#define STRING_SIZE 1000
+static java::ArrayList<Patch *> *
+convertPatchSetToPatchList(PatchSet *patchSet) {
+    java::ArrayList<Patch *> *newList = new java::ArrayList<Patch *>();
 
-static Raytracer *globalRayTracingMethods[] = {
-    &GLOBAL_raytracing_stochasticMethod,
-    &GLOBAL_raytracing_biDirectionalPathMethod,
-    &GLOBAL_rayCasting_RayCasting,
-    &GLOBAL_rayCasting_RayMatting,
-    nullptr
-};
+    for ( PatchSet *window = patchSet; window != nullptr; window = window->next ) {
+        newList->add(0, window->patch);
+    }
 
-static char globalRaytracingMethodsString[STRING_SIZE];
-static char *globalCurrentDirectory;
-static int globalYes = 1;
-static int globalNo = 0;
-static int globalImageOutputWidth = 0;
-static int globalImageOutputHeight = 0;
+    return newList;
+}
 
 /**
 This routine sets the current raytracing method to be used
@@ -136,7 +128,7 @@ mainComputeSomeSceneStats() {
     GLOBAL_statistics_totalArea = 0.;
 
     // Accumulate
-    java::ArrayList<Patch *> *scenePatches = convertPatchSetToPatchList(GLOBAL_app_scenePatches);
+    java::ArrayList<Patch *> *scenePatches = convertPatchSetToPatchList(globalAppScenePatches);
     for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
         mainPatchAccumulateStats(scenePatches->get(i));
     }
@@ -198,7 +190,7 @@ mainBuildLightSourcePatchList() {
     GLOBAL_scene_lightSourcePatches = nullptr;
     GLOBAL_statistics_numberOfLightSources = 0;
 
-    java::ArrayList<Patch *> *scenePatches = convertPatchSetToPatchList(GLOBAL_app_scenePatches);
+    java::ArrayList<Patch *> *scenePatches = convertPatchSetToPatchList(globalAppScenePatches);
     for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
         mainAddPatchToLightSourceListIfLightSource(scenePatches->get(i));
     }
@@ -291,7 +283,7 @@ mainInit() {
     mainRenderingDefaults();
     toneMapDefaults();
     cameraDefaults();
-    radianceDefaults(convertPatchSetToPatchList(GLOBAL_app_scenePatches));
+    radianceDefaults(GLOBAL_scenePatches);
     mainRayTracingDefaults();
 
     // Default vertex compare flags: both location and normal is relevant. Two
@@ -336,6 +328,8 @@ Processes command line arguments not recognized by the Xt GUI toolkit
 */
 static void
 mainParseGlobalOptions(int *argc, char **argv) {
+    GLOBAL_scenePatches = convertPatchSetToPatchList(globalAppScenePatches);
+
     parseRenderingOptions(argc, argv);
     parseToneMapOptions(argc, argv);
     parseCameraOptions(argc, argv);
@@ -382,7 +376,7 @@ mainReadFile(char *filename) {
     // Terminate any active radiance or raytracing methods
     fprintf(stderr, "Terminating current radiance/raytracing method ... \n");
     RADIANCEMETHOD *oRadiance = GLOBAL_radiance_currentRadianceMethodHandle;
-    setRadianceMethod(nullptr, convertPatchSetToPatchList(GLOBAL_app_scenePatches));
+    setRadianceMethod(nullptr, GLOBAL_scenePatches);
     Raytracer *oRayTracing = GLOBAL_raytracer_activeRaytracer;
     mainSetRayTracingMethod(nullptr);
 
@@ -392,7 +386,7 @@ mainReadFile(char *filename) {
         GLOBAL_scene_materials = new java::ArrayList<Material *>();
     }
 
-    GLOBAL_app_scenePatches = nullptr;
+    globalAppScenePatches = nullptr;
     patchSetNextId(1);
     GLOBAL_scene_clusteredWorld = nullptr;
     GLOBAL_scene_background = nullptr;
@@ -428,13 +422,13 @@ mainReadFile(char *filename) {
     fprintf(stderr, "Disposing of the old scene ... ");
     fflush(stderr);
     if ( GLOBAL_radiance_currentRadianceMethodHandle ) {
-        GLOBAL_radiance_currentRadianceMethodHandle->terminate(convertPatchSetToPatchList(GLOBAL_app_scenePatches));
+        GLOBAL_radiance_currentRadianceMethodHandle->terminate(GLOBAL_scenePatches);
     }
     if ( GLOBAL_raytracer_activeRaytracer ) {
         GLOBAL_raytracer_activeRaytracer->Terminate();
     }
 
-    PatchSet *listWindow = GLOBAL_app_scenePatches;
+    PatchSet *listWindow = globalAppScenePatches;
     while ( listWindow != nullptr ) {
         PatchSet *next = listWindow->next;
         free(listWindow);
@@ -481,7 +475,7 @@ mainReadFile(char *filename) {
     fprintf(stderr, "Building patch list ... ");
     fflush(stderr);
 
-    GLOBAL_app_scenePatches = buildPatchList(GLOBAL_scene_world, nullptr /*should replace with new list*/);
+    globalAppScenePatches = buildPatchList(GLOBAL_scene_world, nullptr /*should replace with new list*/);
 
     t = clock();
     fprintf(stderr, "%g secs.\n", (float) (t - last) / (float) CLOCKS_PER_SEC);
@@ -501,7 +495,7 @@ mainReadFile(char *filename) {
     fprintf(stderr, "Building cluster hierarchy ... ");
     fflush(stderr);
 
-    GLOBAL_scene_clusteredWorldGeom = mainCreateClusterHierarchy(GLOBAL_app_scenePatches);
+    GLOBAL_scene_clusteredWorldGeom = mainCreateClusterHierarchy(globalAppScenePatches);
     if ( GLOBAL_scene_clusteredWorldGeom->methods == &GLOBAL_skin_compoundGeometryMethods ) {
         if ( GLOBAL_scene_clusteredWorldGeom->compoundData != nullptr ) {
             fprintf(stderr, "Unexpected case: review code - aggregate is not compound.\n");
@@ -546,7 +540,7 @@ mainReadFile(char *filename) {
     fprintf(stderr, "Initializing tone mapping ... ");
     fflush(stderr);
 
-    initToneMapping(convertPatchSetToPatchList(GLOBAL_app_scenePatches));
+    initToneMapping(convertPatchSetToPatchList(globalAppScenePatches));
 
     t = clock();
     fprintf(stderr, "%g secs.\n", (float) (t - last) / (float) CLOCKS_PER_SEC);
@@ -572,7 +566,7 @@ mainReadFile(char *filename) {
         fprintf(stderr, "Initializing radiance computations ... ");
         fflush(stderr);
 
-        setRadianceMethod(oRadiance, convertPatchSetToPatchList(GLOBAL_app_scenePatches));
+        setRadianceMethod(oRadiance, convertPatchSetToPatchList(globalAppScenePatches));
 
         t = clock();
         fprintf(stderr, "%g secs.\n", (float) (t - last) / (float) CLOCKS_PER_SEC);
@@ -597,35 +591,22 @@ mainReadFile(char *filename) {
 }
 
 static void
-mainStartUserInterface(const int *argc, char **argv) {
+mainBuildModel(const int *argc, char *const *argv) {
     // All options should have disappeared from argv now
     if ( *argc > 1 ) {
         if ( *argv[1] == '-' ) {
             logError(nullptr, "Unrecognized option '%s'", argv[1]);
         } else if ( !mainReadFile(argv[1]) ) {
-            exit(1);
-        }
+                exit(1);
+            }
     }
-
-    // Create the window in which to render (canvas window)
-    if ( globalImageOutputWidth <= 0 ) {
-        globalImageOutputWidth = 1920;
-    }
-    if ( globalImageOutputHeight <= 0 ) {
-        globalImageOutputHeight = 1080;
-    }
-    createOffscreenCanvasWindow(globalImageOutputWidth, globalImageOutputHeight, convertPatchSetToPatchList(GLOBAL_app_scenePatches));
-
-    while ( !renderInitialized() );
-    renderScene(convertPatchSetToPatchList(GLOBAL_app_scenePatches));
-
-    batch(convertPatchSetToPatchList(GLOBAL_app_scenePatches));
 }
 
 int
 main(int argc, char *argv[]) {
     mainInit();
     mainParseGlobalOptions(&argc, argv);
-    mainStartUserInterface(&argc, argv);
+    mainBuildModel(&argc, argv);
+    mainExecuteRendering(GLOBAL_scenePatches);
     return 0;
 }

@@ -40,9 +40,6 @@ patchListAllIntersections(
     float maximumDistance,
     int hitFlags);
 
-extern java::ArrayList<Patch *> *
-convertPatchSetToPatchList(PatchSet *patchSet);
-
 #include "skin/Geometry.h"
 
 #endif

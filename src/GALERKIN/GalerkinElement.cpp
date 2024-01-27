@@ -32,17 +32,6 @@ printPre(int level) {
     }
 }
 
-void
-GalerkinElement::printRegularHierarchy(int level) {
-    printPre(level);
-    printf("%d\n", id);
-    if ( regularSubElements != nullptr ) {
-        for ( int i = 0; i < 4; i++ ) {
-            regularSubElements[i]->printRegularHierarchy(level + 1);
-        }
-    }
-}
-
 /**
 Orientation and position of regular sub-elements is fully determined by the
 following transformations. A uniform mapping of parameter domain to the

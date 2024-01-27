@@ -130,14 +130,3 @@ GEOM_METHODS GLOBAL_skin_patchListGeometryMethods = {
         (HITLIST *(*)(HITLIST *, void *, Ray *, float, float, int)) patchListAllIntersections,
         (void *(*)(void *)) patchListDuplicate
 };
-
-java::ArrayList<Patch *> *
-convertPatchSetToPatchList(PatchSet *patchSet) {
-    java::ArrayList<Patch *> *newList = new java::ArrayList<Patch *>();
-
-    for ( PatchSet *window = patchSet; window != nullptr; window = window->next ) {
-        newList->add(0, window->patch);
-    }
-
-    return newList;
-}

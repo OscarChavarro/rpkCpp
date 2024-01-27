@@ -9,7 +9,6 @@ Stuff common to all radiance methods
 #include "GALERKIN/GalerkinRadiosity.h"
 #include "PHOTONMAP/PhotonMapRadiosity.h"
 #include "raycasting/stochasticRaytracing/mcrad.h"
-#include "app/batch.h"
 
 // Composes explanation for -radiance command line option
 #define STRING_LENGTH 1000
@@ -26,23 +25,23 @@ nullptr
 
 // Current radiance method handle
 RADIANCEMETHOD *GLOBAL_radiance_currentRadianceMethodHandle = nullptr;
+java::ArrayList<Patch *> *GLOBAL_scenePatches = nullptr;
 
 static void
 radianceMethodOption(void *value) {
     char *name = *(char **) value;
-    java::ArrayList<Patch *> *scenePatches = convertPatchSetToPatchList(GLOBAL_app_scenePatches);
 
     RADIANCEMETHOD **methodpp;
     for ( methodpp = GLOBAL_radiance_radianceMethods; *methodpp != nullptr; methodpp++) {
         RADIANCEMETHOD *method = *methodpp;
         if ( strncasecmp(name, method->shortName, method->nameAbbrev) == 0 ) {
-            setRadianceMethod(method, scenePatches);
+            setRadianceMethod(method, GLOBAL_scenePatches);
             return;
         }
     }
 
     if ( strncasecmp(name, "none", 4) == 0 ) {
-        setRadianceMethod(nullptr, scenePatches);
+        setRadianceMethod(nullptr, GLOBAL_scenePatches);
     } else {
         logError(nullptr, "Invalid world-space radiance method name '%s'", name);
     }
@@ -121,6 +120,7 @@ computation
 */
 void
 parseRadianceOptions(int *argc, char **argv) {
+
     parseOptions(globalRadianceOptions, argc, argv);
 
     RADIANCEMETHOD **methodpp;

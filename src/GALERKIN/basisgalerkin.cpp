@@ -240,10 +240,6 @@ radiance, making a consistent hierarchical representation
 */
 void
 basisGalerkinPushPullRadiance(GalerkinElement *top) {
-    printf("===================================\n");
-    top->printRegularHierarchy(0);
-    printf("-----------------------------------\n");
-
     COLOR Bdown[MAXBASISSIZE];
     COLOR Bup[MAXBASISSIZE];
     clusterGalerkinClearCoefficients(Bdown, top->basisSize);

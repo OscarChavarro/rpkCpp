@@ -14,8 +14,6 @@
 #include "app/opengl.h"
 #include "app/batch.h"
 
-PatchSet *GLOBAL_app_scenePatches = nullptr;
-
 static int globalIterations = 1; // Radiance method iterations
 static int globalSaveModulo = 10; // Every 10th iteration, surface model and image will be saved
 static int globalTimings = false;
@@ -50,13 +48,14 @@ static void
 batchProcessFile(
     const char *fileName,
     const char *open_mode,
-    void (*processFileCallback)(const char *fileName, FILE *fp, int isPipe, java::ArrayList<Patch *> *scenePatches))
+    void (*processFileCallback)(const char *fileName, FILE *fp, int isPipe, java::ArrayList<Patch *> *scenePatches),
+    java::ArrayList<Patch *> *scenePatches)
 {
     int isPipe;
     FILE *fp = openFile(fileName, open_mode, &isPipe);
 
     // Call the user supplied procedure to process the file
-    processFileCallback(fileName, fp, isPipe, convertPatchSetToPatchList(GLOBAL_app_scenePatches));
+    processFileCallback(fileName, fp, isPipe, scenePatches);
 
     closeFile(fp, isPipe);
 }
@@ -151,12 +150,12 @@ batchSaveRaytracingImage(const char *fileName, FILE *fp, int isPipe, java::Array
 }
 
 static void
-batchRayTrace(char *filename, FILE *fp, int isPipe) {
+batchRayTrace(char *filename, FILE *fp, int isPipe, java::ArrayList<Patch *> *scenePatches) {
     GLOBAL_render_renderOptions.render_raytraced_image = true;
     GLOBAL_camera_mainCamera.changed = false;
 
     canvasPushMode();
-    rayTrace(filename, fp, isPipe, GLOBAL_raytracer_activeRaytracer, convertPatchSetToPatchList(GLOBAL_app_scenePatches));
+    rayTrace(filename, fp, isPipe, GLOBAL_raytracer_activeRaytracer, scenePatches);
     canvasPullMode();
 }
 
@@ -194,7 +193,7 @@ batch(java::ArrayList<Patch *> *scenePatches) {
                    "-----------------------------------\n\n", it);
 
             canvasPushMode();
-            done = GLOBAL_radiance_currentRadianceMethodHandle->doStep(convertPatchSetToPatchList(GLOBAL_app_scenePatches));
+            done = GLOBAL_radiance_currentRadianceMethodHandle->doStep(scenePatches);
             canvasPullMode();
 
             fflush(stdout);
@@ -221,9 +220,9 @@ batch(java::ArrayList<Patch *> *scenePatches) {
                     char *tmpName;
                     const char *tiffExt = "tif";
 
-                    batchProcessFile(fileName, "w", batchSaveRadianceImage);
+                    batchProcessFile(fileName, "w", batchSaveRadianceImage, scenePatches);
 
-                    /* NOw, change the extenstion to '.tiff' and save it as RGB. */
+                    // Now, change the extension to '.tiff' and save it as RGB
 
                     tmpName = (char *)malloc(strlen(fileName) + strlen(tiffExt) + 1);
                     strcpy(tmpName, fileName);
@@ -232,10 +231,10 @@ batch(java::ArrayList<Patch *> *scenePatches) {
                         *dot = '\0';
                     }
                     strcat(tmpName, tiffExt);
-                    batchProcessFile(tmpName, "w", batchSaveRadianceImage);
+                    batchProcessFile(tmpName, "w", batchSaveRadianceImage, scenePatches);
                     free(tmpName);
                 } else {
-                    batchProcessFile(fileName, "w", batchSaveRadianceImage);
+                    batchProcessFile(fileName, "w", batchSaveRadianceImage, scenePatches);
                 }
             }
 
@@ -243,7 +242,7 @@ batch(java::ArrayList<Patch *> *scenePatches) {
                 int n = strlen(globalRadianceModelFileNameFormat) + 1;
                 char *fileName = (char *)malloc(n);
                 snprintf(fileName, n, globalRadianceModelFileNameFormat, it);
-                batchProcessFile(fileName, "w", batchSaveRadianceModel);
+                batchProcessFile(fileName, "w", batchSaveRadianceModel, scenePatches);
                 free(fileName);
             }
 
@@ -270,13 +269,13 @@ batch(java::ArrayList<Patch *> *scenePatches) {
         printf("Doing %s ...\n", GLOBAL_raytracer_activeRaytracer->fullName);
 
         start_time = clock();
-        batchRayTrace(nullptr, nullptr, false);
+        batchRayTrace(nullptr, nullptr, false, scenePatches);
         if ( globalTimings ) {
             fprintf(stdout, "Raytracing total time %g secs.\n",
                     (float) (clock() - start_time) / (float) CLOCKS_PER_SEC);
         }
 
-        batchProcessFile(globalRaytracingImageFileName, "w", batchSaveRaytracingImage);
+        batchProcessFile(globalRaytracingImageFileName, "w", batchSaveRaytracingImage, scenePatches);
     } else {
         printf("(No pixel-based radiance computations are being done)\n");
     }
