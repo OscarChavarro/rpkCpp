@@ -18,8 +18,32 @@
 #include "app/opengl.h"
 #include "app/Cluster.h"
 #include "app/batch.h"
-#include "app/mainModel.h"
-#include "app/mainRendering.h"
+#include "shared/canvas.h"
+#include "raycasting/stochasticRaytracing/StochasticRaytracer.h"
+#include "raycasting/raytracing/BidirectionalPathRaytracer.h"
+#include "raycasting/simple/RayCaster.h"
+#include "raycasting/simple/RayMatter.h"
+
+extern java::ArrayList<Patch *> *GLOBAL_scenePatches;
+
+// The list of all patches in the current scene. Automatically derived from 'GLOBAL_scene_world' when loading a scene
+static PatchSet *globalAppScenePatches = nullptr;
+#define STRING_SIZE 1000
+
+static Raytracer *globalRayTracingMethods[] = {
+    &GLOBAL_raytracing_stochasticMethod,
+    &GLOBAL_raytracing_biDirectionalPathMethod,
+    &GLOBAL_rayCasting_RayCasting,
+    &GLOBAL_rayCasting_RayMatting,
+    nullptr
+};
+
+static char globalRaytracingMethodsString[STRING_SIZE];
+static char *globalCurrentDirectory;
+static int globalYes = 1;
+static int globalNo = 0;
+static int globalImageOutputWidth = 0;
+static int globalImageOutputHeight = 0;
 
 static java::ArrayList<Patch *> *
 convertPatchSetToPatchList(PatchSet *patchSet) {
@@ -602,11 +626,28 @@ mainBuildModel(const int *argc, char *const *argv) {
     }
 }
 
+void
+mainExecuteRendering(java::ArrayList<Patch *> *scenePatches) {
+    // Create the window in which to render (canvas window)
+    if ( globalImageOutputWidth <= 0 ) {
+        globalImageOutputWidth = 1920;
+    }
+    if ( globalImageOutputHeight <= 0 ) {
+        globalImageOutputHeight = 1080;
+    }
+    createOffscreenCanvasWindow(globalImageOutputWidth, globalImageOutputHeight, scenePatches);
+
+    while ( !renderInitialized() );
+    renderScene(scenePatches);
+
+    batch(scenePatches);
+}
+
 int
 main(int argc, char *argv[]) {
     mainInit();
     mainParseGlobalOptions(&argc, argv);
     mainBuildModel(&argc, argv);
-    mainExecuteRendering(GLOBAL_scenePatches);
+    mainExecuteRendering(convertPatchSetToPatchList(globalAppScenePatches));
     return 0;
 }

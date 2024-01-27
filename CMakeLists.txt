@@ -181,8 +181,6 @@ set(MAIN_SRC
     src/app/radiance.cpp
     src/app/opengl.cpp
     src/app/batch.cpp
-    src/app/mainModel.cpp
-    src/app/mainRendering.cpp
     src/app/main.cpp)
 add_executable(rpk ${MAIN_SRC})
 
