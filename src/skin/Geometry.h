@@ -34,8 +34,8 @@ class Geometry {
     int id; // Unique ID number
     GEOM_METHODS *methods;
     BOUNDINGBOX bounds;
-    Element *radiance_data; // data specific to the radiance algorithm being used
-    int dlistid; // display list ID for faster hardware rendering - initialised to -1
+    Element *radiance_data; // Data specific to the radiance algorithm being used
+    int displayListId; // Display list ID for faster hardware rendering - initialised to -1
 
     // Temporary data
     union {
@@ -44,11 +44,11 @@ class Geometry {
     } tmp;
 
     // A flag indicating if the geometry has a bounding box
-    char bounded; // nonzero if bounded geometry
-    char shaftCullGeometry; // generated during shaftculling
-    char omit; /* indicates that the Geometry should not be considered for a number of things,
-                  such as intersection testing. Set to false by default, don't forget
-                  to set to false again after you changed it! */
+    char bounded; // Non-zero if bounded geometry
+    char shaftCullGeometry; // Generated during shaft culling
+    char omit; // Indicates that the Geometry should not be considered for a number of things,
+               // such as intersection testing. Set to false by default, don't forget
+               // to set to false again after you changed it!
 
     MeshSurface *surfaceData;
     Compound *compoundData;
@@ -129,6 +129,8 @@ class GEOM_METHODS {
      * method is not implemented for aggregate geometries
      */
     PatchSet *(*getPatchList)(void *obj);
+
+    java::ArrayList<PatchSet *> (*getPatchArrayList)(void *obj);
 
     /**
      * DiscretizationIntersect returns nullptr is the ray doesn't hit the discretization

@@ -460,7 +460,7 @@ shaftBoxTest(float *bounds, SHAFT *shaft) {
     SHAFTPLANE *plane;
 
     // Test against extent box
-    if ( DisjunctBounds(bounds, shaft->extent)) {
+    if ( disjunctBounds(bounds, shaft->extent)) {
         return OUTSIDE;
     }
 
@@ -476,8 +476,8 @@ shaftBoxTest(float *bounds, SHAFT *shaft) {
     }
 
     // Test against reference volumeListsOfItems
-    if ((shaft->ref1 && !DisjunctBounds(bounds, shaft->ref1)) ||
-        (shaft->ref2 && !DisjunctBounds(bounds, shaft->ref2))) {
+    if ((shaft->ref1 && !disjunctBounds(bounds, shaft->ref1)) ||
+        (shaft->ref2 && !disjunctBounds(bounds, shaft->ref2))) {
         return OVERLAP;
     }
 

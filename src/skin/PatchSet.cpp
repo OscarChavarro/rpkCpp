@@ -101,8 +101,8 @@ patchListPrint(FILE *out, PatchSet *patchList) {
 }
 
 static PatchSet *
-getPatchList(PatchSet *patchlist) {
-    return patchlist;
+getPatchList(PatchSet *patchList) {
+    return patchList;
 }
 
 static PatchSet *
@@ -121,12 +121,13 @@ patchListDuplicate(PatchSet *patchList) {
 }
 
 GEOM_METHODS GLOBAL_skin_patchListGeometryMethods = {
-        (float *(*)(void *, float *)) patchListBounds,
-        (void (*)(void *)) patchListDestroy,
-        (void (*)(FILE *, void *)) patchListPrint,
-        (GeometryListNode *(*)(void *)) nullptr,
-        (PatchSet *(*)(void *)) getPatchList,
-        (RayHit *(*)(void *, Ray *, float, float *, int, RayHit *)) patchListIntersect,
-        (HITLIST *(*)(HITLIST *, void *, Ray *, float, float, int)) patchListAllIntersections,
-        (void *(*)(void *)) patchListDuplicate
+    (float *(*)(void *, float *)) patchListBounds,
+    (void (*)(void *)) patchListDestroy,
+    (void (*)(FILE *, void *)) patchListPrint,
+    (GeometryListNode *(*)(void *)) nullptr,
+    (PatchSet *(*)(void *)) getPatchList,
+    nullptr,
+    (RayHit *(*)(void *, Ray *, float, float *, int, RayHit *)) patchListIntersect,
+    (HITLIST *(*)(HITLIST *, void *, Ray *, float, float, int)) patchListAllIntersections,
+    (void *(*)(void *)) patchListDuplicate
 };

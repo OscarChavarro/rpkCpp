@@ -69,7 +69,7 @@ geomCreateBase(void *geometryData, GEOM_METHODS *methods) {
     newGeometry->tmp.i = 0;
     newGeometry->omit = false;
 
-    newGeometry->dlistid = -1;
+    newGeometry->displayListId = -1;
 
     return newGeometry;
 }
@@ -273,7 +273,7 @@ geomDiscretizationIntersect(
     if ( geom->bounded ) {
         // Check ray/bounding volume intersection
         VECTORSUMSCALED(ray->pos, minimumDistance, ray->dir, vTmp);
-        if ( OutOfBounds(&vTmp, geom->bounds)) {
+        if ( outOfBounds(&vTmp, geom->bounds)) {
             nMaximumDistance = *maximumDistance;
             if ( !boundsIntersect(ray, geom->bounds, minimumDistance, &nMaximumDistance)) {
                 return nullptr;
@@ -312,7 +312,7 @@ geomAllDiscretizationIntersections(
     if ( geom->bounded ) {
         // Check ray/bounding volume intersection
         VECTORSUMSCALED(ray->pos, minimumDistance, ray->dir, vTmp);
-        if ( OutOfBounds(&vTmp, geom->bounds)) {
+        if ( outOfBounds(&vTmp, geom->bounds)) {
             nMaximumDistance = maximumDistance;
             if ( !boundsIntersect(ray, geom->bounds, minimumDistance, &nMaximumDistance)) {
                 return hits;

@@ -1,7 +1,4 @@
-#include <cstdio>
-
 #include "material/statistics.h"
-#include "skin/Geometry.h"
 #include "skin/Compound.h"
 
 /**
@@ -79,36 +76,38 @@ compoundPrimitives(Compound *obj) {
 
 static RayHit *
 compoundDiscretizationIntersect(
-        Compound *obj,
-        Ray *ray,
-        float minimumDistance,
-        float *maximumDistance,
-        int hitFlags,
-        RayHit *hitStore)
+    Compound *obj,
+    Ray *ray,
+    float minimumDistance,
+    float *maximumDistance,
+    int hitFlags,
+    RayHit *hitStore)
 {
-    return geometryListDiscretizationIntersect(&obj->children, ray, minimumDistance, maximumDistance, hitFlags,
-                                               hitStore);
+    return geometryListDiscretizationIntersect(
+        &obj->children, ray, minimumDistance, maximumDistance, hitFlags, hitStore);
 }
 
 static HITLIST *
 compoundAllDiscretizationIntersections(
-        HITLIST *hits,
-        Compound *obj,
-        Ray *ray,
-        float minimumDistance,
-        float maximumDistance,
-        int hitFlags) {
+    HITLIST *hits,
+    Compound *obj,
+    Ray *ray,
+    float minimumDistance,
+    float maximumDistance,
+    int hitFlags)
+{
     return geomListAllDiscretizationIntersections(hits, &obj->children, ray, minimumDistance, maximumDistance, hitFlags);
 }
 
 // A set of pointers to the functions (methods) to operate on compounds
 GEOM_METHODS GLOBAL_skin_compoundGeometryMethods = {
-        (float *(*)(void *, float *)) compoundBounds,
-        (void (*)(void *)) compoundDestroy,
-        (void (*)(FILE *, void *)) compoundPrint,
-        (GeometryListNode *(*)(void *)) compoundPrimitives,
-        (PatchSet *(*)(void *)) nullptr,
-        (RayHit *(*)(void *, Ray *, float, float *, int, RayHit *)) compoundDiscretizationIntersect,
-        (HITLIST *(*)(HITLIST *, void *, Ray *, float, float, int)) compoundAllDiscretizationIntersections,
-        (void *(*)(void *)) nullptr
+    (float *(*)(void *, float *)) compoundBounds,
+    (void (*)(void *)) compoundDestroy,
+    (void (*)(FILE *, void *)) compoundPrint,
+    (GeometryListNode *(*)(void *)) compoundPrimitives,
+    nullptr,
+    nullptr,
+    (RayHit *(*)(void *, Ray *, float, float *, int, RayHit *)) compoundDiscretizationIntersect,
+    (HITLIST *(*)(HITLIST *, void *, Ray *, float, float, int)) compoundAllDiscretizationIntersections,
+    (void *(*)(void *)) nullptr
 };

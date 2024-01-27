@@ -3,8 +3,15 @@
 #include "common/mymath.h"
 #include "skin/bounds.h"
 
-#define SetIfLess(a, b) (a = ((a) < (b) ? (a) : (b)))
-#define SetIfGreater(a, b) (a = ((a) > (b) ? (a) : (b)))
+static void inline
+setIfLess(float &a, float &b) {
+    a = a < b ? a : b;
+}
+
+static void inline
+setIfGreater(float &a, float &b) {
+    a = a > b ? a : b;
+}
 
 float *
 boundsCreate() {
@@ -31,23 +38,23 @@ Enlarge getBoundingBox with extra
 */
 float *
 boundsEnlarge(float *bounds, float *extra) {
-    SetIfLess(bounds[MIN_X], extra[MIN_X]);
-    SetIfLess(bounds[MIN_Y], extra[MIN_Y]);
-    SetIfLess(bounds[MIN_Z], extra[MIN_Z]);
-    SetIfGreater(bounds[MAX_X], extra[MAX_X]);
-    SetIfGreater(bounds[MAX_Y], extra[MAX_Y]);
-    SetIfGreater(bounds[MAX_Z], extra[MAX_Z]);
+    setIfLess(bounds[MIN_X], extra[MIN_X]);
+    setIfLess(bounds[MIN_Y], extra[MIN_Y]);
+    setIfLess(bounds[MIN_Z], extra[MIN_Z]);
+    setIfGreater(bounds[MAX_X], extra[MAX_X]);
+    setIfGreater(bounds[MAX_Y], extra[MAX_Y]);
+    setIfGreater(bounds[MAX_Z], extra[MAX_Z]);
     return bounds;
 }
 
 float *
 boundsEnlargePoint(float *bounds, Vector3D *point) {
-    SetIfLess(bounds[MIN_X], point->x);
-    SetIfLess(bounds[MIN_Y], point->y);
-    SetIfLess(bounds[MIN_Z], point->z);
-    SetIfGreater(bounds[MAX_X], point->x);
-    SetIfGreater(bounds[MAX_Y], point->y);
-    SetIfGreater(bounds[MAX_Z], point->z);
+    setIfLess(bounds[MIN_X], point->x);
+    setIfLess(bounds[MIN_Y], point->y);
+    setIfLess(bounds[MIN_Z], point->z);
+    setIfGreater(bounds[MAX_X], point->x);
+    setIfGreater(bounds[MAX_Y], point->y);
+    setIfGreater(bounds[MAX_Z], point->z);
     return bounds;
 }
 
@@ -85,45 +92,48 @@ If there are no intersection in the given interval, false is returned. If there
 are intersections, true is returned.
 */
 int
-boundsIntersectingSegment(Ray *ray, float *bounds, float *tmin, float *tmax) {
-    float t, mindist, maxdist;
-    float dir, pos;
+boundsIntersectingSegment(Ray *ray, const float *bounds, float *tMin, float *tMax) {
+    float t;
+    float minimumDistance;
+    float maximumDistance;
+    float dir;
+    float pos;
 
-    mindist = *tmin;
-    maxdist = *tmax;
+    minimumDistance = *tMin;
+    maximumDistance = *tMax;
 
     dir = ray->dir.x;
     pos = ray->pos.x;
 
     if ( dir < 0 ) {
         t = (bounds[MIN_X] - pos) / dir;
-        if ( t < *tmin ) {
+        if ( t < *tMin ) {
             return false;
         }
-        if ( t <= *tmax ) {
-            *tmax = t;
+        if ( t <= *tMax ) {
+            *tMax = t;
         }
         t = (bounds[MAX_X] - pos) / dir;
-        if ( t >= *tmin ) {
-            if ( t > *tmax * (1. + EPSILON)) {
+        if ( t >= *tMin ) {
+            if ( t > *tMax * (1. + EPSILON)) {
                 return false;
             }
-            *tmin = t;
+            *tMin = t;
         }
-    } else if ( dir > 0. ) {
+    } else if ( dir > 0.0 ) {
         t = (bounds[MAX_X] - pos) / dir;
-        if ( t < *tmin ) {
+        if ( t < *tMin ) {
             return false;
         }
-        if ( t <= *tmax ) {
-            *tmax = t;
+        if ( t <= *tMax ) {
+            *tMax = t;
         }
         t = (bounds[MIN_X] - pos) / dir;
-        if ( t >= *tmin ) {
-            if ( t > *tmax * (1. + EPSILON)) {
+        if ( t >= *tMin ) {
+            if ( t > *tMax * (1.0 + EPSILON)) {
                 return false;
             }
-            *tmin = t;
+            *tMin = t;
         }
     } else if ( pos < bounds[MIN_X] || pos > bounds[MAX_X] ) {
         return false;
@@ -134,33 +144,33 @@ boundsIntersectingSegment(Ray *ray, float *bounds, float *tmin, float *tmax) {
 
     if ( dir < 0 ) {
         t = (bounds[MIN_Y] - pos) / dir;
-        if ( t < *tmin ) {
+        if ( t < *tMin ) {
             return false;
         }
-        if ( t <= *tmax ) {
-            *tmax = t;
+        if ( t <= *tMax ) {
+            *tMax = t;
         }
         t = (bounds[MAX_Y] - pos) / dir;
-        if ( t >= *tmin ) {
-            if ( t > *tmax * (1. + EPSILON)) {
+        if ( t >= *tMin ) {
+            if ( t > *tMax * (1. + EPSILON)) {
                 return false;
             }
-            *tmin = t;
+            *tMin = t;
         }
     } else if ( dir > 0. ) {
         t = (bounds[MAX_Y] - pos) / dir;
-        if ( t < *tmin ) {
+        if ( t < *tMin ) {
             return false;
         }
-        if ( t <= *tmax ) {
-            *tmax = t;
+        if ( t <= *tMax ) {
+            *tMax = t;
         }
         t = (bounds[MIN_Y] - pos) / dir;
-        if ( t >= *tmin ) {
-            if ( t > *tmax * (1. + EPSILON)) {
+        if ( t >= *tMin ) {
+            if ( t > *tMax * (1. + EPSILON)) {
                 return false;
             }
-            *tmin = t;
+            *tMin = t;
         }
     } else if ( pos < bounds[MIN_Y] || pos > bounds[MAX_Y] ) {
         return false;
@@ -171,69 +181,70 @@ boundsIntersectingSegment(Ray *ray, float *bounds, float *tmin, float *tmax) {
 
     if ( dir < 0 ) {
         t = (bounds[MIN_Z] - pos) / dir;
-        if ( t < *tmin ) {
+        if ( t < *tMin ) {
             return false;
         }
-        if ( t <= *tmax ) {
-            *tmax = t;
+        if ( t <= *tMax ) {
+            *tMax = t;
         }
         t = (bounds[MAX_Z] - pos) / dir;
-        if ( t >= *tmin ) {
-            if ( t > *tmax * (1. + EPSILON)) {
+        if ( t >= *tMin ) {
+            if ( t > *tMax * (1. + EPSILON)) {
                 return false;
             }
-            *tmin = t;
+            *tMin = t;
         }
     } else if ( dir > 0. ) {
         t = (bounds[MAX_Z] - pos) / dir;
-        if ( t < *tmin ) {
+        if ( t < *tMin ) {
             return false;
         }
-        if ( t <= *tmax ) {
-            *tmax = t;
+        if ( t <= *tMax ) {
+            *tMax = t;
         }
         t = (bounds[MIN_Z] - pos) / dir;
-        if ( t >= *tmin ) {
-            if ( t > *tmax * (1. + EPSILON)) {
+        if ( t >= *tMin ) {
+            if ( t > *tMax * (1. + EPSILON)) {
                 return false;
             }
-            *tmin = t;
+            *tMin = t;
         }
     } else if ( pos < bounds[MIN_Z] || pos > bounds[MAX_Z] ) {
         return false;
     }
 
-    //If *tmin == mindist, then there was no "near"
-    //intersection farther than EPSILON away.
-    if ( *tmin == mindist ) {
-        if ( *tmax < maxdist ) {
+    // If *tmin == mindist, then there was no "near"
+    // intersection farther than EPSILON away.
+    if ( *tMin == minimumDistance ) {
+        if ( *tMax < maximumDistance ) {
             return true;
         }
     } else {
-        if ( *tmin < maxdist ) {
+        if ( *tMin < maximumDistance ) {
             return true;
         }
     }
-    return false; // hit, but not closer than maxdist
+    return false; // Hit, but not closer than maximumDistance
 }
 
 int
-boundsIntersect(Ray *ray, float *bounds, float mindist, float *maxdist) {
-    float tmin, tmax;
+boundsIntersect(Ray *ray, float *bounds, float minimumDistance, float *maximumDistance) {
+    float tMin;
+    float tMax;
     int hit;
 
-    tmin = mindist;
-    tmax = *maxdist;
-    hit = boundsIntersectingSegment(ray, bounds, &tmin, &tmax);
+    tMin = minimumDistance;
+    tMax = *maximumDistance;
+    hit = boundsIntersectingSegment(ray, bounds, &tMin, &tMax);
     if ( hit ) {
-        // reduce maxdist
-        if ( tmin == mindist ) {
-            if ( tmax < *maxdist ) {
-                *maxdist = tmax;
+        // Reduce maximumDistance
+        if ( tMin == minimumDistance ) {
+            if ( tMax < *maximumDistance ) {
+                *maximumDistance = tMax;
             }
         } else {
-            if ( tmin < *maxdist ) {
-                *maxdist = tmin;
+            if ( tMin < *maximumDistance ) {
+                *maximumDistance = tMin;
             }
         }
     }
@@ -245,7 +256,7 @@ Returns true if the bounding box is behind the plane defined by norm and d
 see F. Tampieri, Fast Vertex Radiosity Update, Graphics Gems II, p 303
 */
 int
-boundsBehindPlane(float *bounds, Vector3D *norm, float d) {
+boundsBehindPlane(const float *bounds, Vector3D *norm, float d) {
     Vector3D P;
 
     if ( norm->x > 0.0f ) {
@@ -277,7 +288,7 @@ float *
 boundsTransform(float *bbx, Matrix4x4 *xf, float *transbbx) {
     Vector3D v[8];
     int i;
-    double d;
+    float d;
 
     VECTORSET(v[0], bbx[MIN_X], bbx[MIN_Y], bbx[MIN_Z]);
     VECTORSET(v[1], bbx[MAX_X], bbx[MIN_Y], bbx[MIN_Z]);
@@ -294,13 +305,13 @@ boundsTransform(float *bbx, Matrix4x4 *xf, float *transbbx) {
         boundsEnlargePoint(transbbx, &v[i]);
     }
 
-    d = (transbbx[MAX_X] - transbbx[MIN_X]) * EPSILON;
+    d = (transbbx[MAX_X] - transbbx[MIN_X]) * (float)EPSILON;
     transbbx[MIN_X] -= d;
     transbbx[MAX_X] += d;
-    d = (transbbx[MAX_Y] - transbbx[MIN_Y]) * EPSILON;
+    d = (transbbx[MAX_Y] - transbbx[MIN_Y]) * (float)EPSILON;
     transbbx[MIN_Y] -= d;
     transbbx[MAX_Y] += d;
-    d = (transbbx[MAX_Z] - transbbx[MIN_Z]) * EPSILON;
+    d = (transbbx[MAX_Z] - transbbx[MIN_Z]) * (float)EPSILON;
     transbbx[MIN_Z] -= d;
     transbbx[MAX_Z] += d;
 

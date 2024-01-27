@@ -5,7 +5,7 @@
 
 class GEOM_METHODS;
 
-class Compound /*: public Geometry */ {
+class Compound /*: public Geometry*/ {
 public:
     GeometryListNode children;
 };
@@ -13,7 +13,5 @@ public:
 extern GEOM_METHODS GLOBAL_skin_compoundGeometryMethods;
 
 extern Compound *compoundCreate(GeometryListNode *geometryList);
-
-#define CompoundMethods() (&GLOBAL_skin_compoundGeometryMethods)
 
 #endif

@@ -1064,7 +1064,7 @@ handleObjectEntity(int argc, char **argv) {
         }
 
         if ( GeomListCount(globalCurrentGeometryList) > 0 ) {
-            theGeometry = geomCreateCompound(compoundCreate(globalCurrentGeometryList), CompoundMethods());
+            theGeometry = geomCreateCompound(compoundCreate(globalCurrentGeometryList), &GLOBAL_skin_compoundGeometryMethods);
         }
 
         popCurrentGeometryList();

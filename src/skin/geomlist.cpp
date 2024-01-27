@@ -25,7 +25,7 @@ geometryListBounds(GeometryListNode *geometryList, float *boundingBox) {
     if ( geometryList != nullptr ) {
         for ( GeometryListNode *window = geometryList; window != nullptr; window = window->next ) {
             Geometry *geometry = window->geom;
-            boundsEnlarge(boundingBox, geomBounds(geometry));
+            boundsEnlarge(boundingBox, geometry->bounds);
         }
     }
     return boundingBox;

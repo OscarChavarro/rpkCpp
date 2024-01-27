@@ -320,13 +320,13 @@ reallyRenderOctreeLeaf(Geometry *geom, void (*renderPatch)(Patch *)) {
 static void
 renderOctreeLeaf(Geometry *geom, void (*render_patch)(Patch *)) {
     if ( GLOBAL_render_renderOptions.use_display_lists ) {
-        if ( geom->dlistid <= 0 ) {
-            geom->dlistid = geom->id;
-            glNewList(geom->dlistid, GL_COMPILE_AND_EXECUTE);
+        if ( geom->displayListId <= 0 ) {
+            geom->displayListId = geom->id;
+            glNewList(geom->displayListId, GL_COMPILE_AND_EXECUTE);
             reallyRenderOctreeLeaf(geom, render_patch);
             glEndList();
         } else {
-            glCallList(geom->dlistid);
+            glCallList(geom->displayListId);
         }
     } else {
         reallyRenderOctreeLeaf(geom, render_patch);
@@ -450,10 +450,10 @@ renderWorldOctree(void (*render_patch)(Patch *)) {
 
 static void
 geometryDeleteDLists(Geometry *geom) {
-    if ( geom->dlistid >= 0 ) {
-        glDeleteLists(geom->dlistid, 1);
+    if ( geom->displayListId >= 0 ) {
+        glDeleteLists(geom->displayListId, 1);
     }
-    geom->dlistid = -1;
+    geom->displayListId = -1;
 
     if ( geomIsAggregate(GLOBAL_scene_clusteredWorldGeom)) {
         GeometryListNode *children = geomPrimList(geom);

@@ -95,7 +95,7 @@ disjunctElements(StochasticRadiosityElement *rcv, StochasticRadiosityElement *sr
     BOUNDINGBOX rcvbounds, srcbounds;
     monteCarloRadiosityElementBounds(rcv, rcvbounds);
     monteCarloRadiosityElementBounds(src, srcbounds);
-    return DisjunctBounds(rcvbounds, srcbounds);
+    return disjunctBounds(rcvbounds, srcbounds);
 }
 
 /* Cheap form factor estimate to drive hierarchical refinement 

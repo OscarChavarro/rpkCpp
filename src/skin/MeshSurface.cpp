@@ -277,6 +277,7 @@ GEOM_METHODS GLOBAL_skin_surfaceGeometryMethods = {
     (void (*)(FILE *, void *)) surfacePrint,
     (GeometryListNode *(*)(void *)) nullptr,
     (PatchSet *(*)(void *)) surfacePatchList,
+    nullptr,
     (RayHit *(*)(void *, Ray *, float, float *, int, RayHit *)) surfaceDiscretizationIntersect,
     (HITLIST *(*)(HITLIST *, void *, Ray *, float, float, int)) surfaceAllDiscretizationIntersections,
     (void *(*)(void *)) nullptr

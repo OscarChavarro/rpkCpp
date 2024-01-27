@@ -444,7 +444,7 @@ areaToAreaFormFactor(INTERACTION *link, GeometryListNode *shadowlist) {
         galerkinElementBounds(src, srcbounds);
 
         // Do not allow interactions between a pair of overlapping source and receiver
-        if ( !DisjunctBounds(rcvbounds, srcbounds) ) {
+        if ( !disjunctBounds(rcvbounds, srcbounds) ) {
             // Take 0 as form factor
             if ( link->nrcv == 1 && link->nsrc == 1 ) {
                 link->K.f = 0.;
