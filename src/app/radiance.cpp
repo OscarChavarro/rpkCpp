@@ -74,7 +74,7 @@ setRadianceMethod(RADIANCEMETHOD *newMethod, java::ArrayList<Patch *> *scenePatc
                 GLOBAL_radiance_currentRadianceMethodHandle->CreatePatchData(scenePatches->get(i));
             }
         }
-        GLOBAL_radiance_currentRadianceMethodHandle->Initialize();
+        GLOBAL_radiance_currentRadianceMethodHandle->initialize(scenePatches);
     }
 }
 

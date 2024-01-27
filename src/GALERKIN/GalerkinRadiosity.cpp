@@ -284,7 +284,7 @@ patchInit(Patch *patch) {
 }
 
 void
-initGalerkin() {
+initGalerkin(java::ArrayList<Patch *> *scenePatches) {
     GLOBAL_galerkin_state.iteration_nr = 0;
     GLOBAL_galerkin_state.cpu_secs = 0.0;
 
@@ -297,8 +297,8 @@ initGalerkin() {
         GLOBAL_galerkin_state.ambient_radiance = GLOBAL_statistics_estimatedAverageRadiance;
     }
 
-    for ( PatchSet *window = GLOBAL_scene_patches; window != nullptr; window = window->next ) {
-        patchInit(window->patch);
+    for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
+        patchInit(scenePatches->get(i));
     }
 
     GLOBAL_galerkin_state.top_geom = GLOBAL_scene_clusteredWorldGeom;
@@ -444,8 +444,8 @@ galerkinRender(java::ArrayList<Patch *> *scenePatches) {
     if ( GLOBAL_render_renderOptions.frustum_culling ) {
         renderWorldOctree(galerkinRenderPatch);
     } else {
-        for ( PatchSet *window = GLOBAL_scene_patches; window != nullptr; window = window->next ) {
-            galerkinRenderPatch(window->patch);
+        for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
+            galerkinRenderPatch(scenePatches->get(i));
         }
     }
 }

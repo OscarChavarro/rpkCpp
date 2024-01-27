@@ -13,7 +13,7 @@ Stochastic Relaxation Radiosity (currently only stochastic Jacobi)
 #include "raycasting/stochasticRaytracing/stochjacobi.h"
 
 static void
-stochasticRelaxationRadiosityInit() {
+stochasticRelaxationRadiosityInit(java::ArrayList<Patch *> * /*scenePatches*/) {
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.method = STOCHASTIC_RELAXATION_RADIOSITY_METHOD;
     monteCarloRadiosityInit();
 }
@@ -57,15 +57,15 @@ stochasticRelaxationRadiosityRandomRound(float x) {
 }
 
 static void
-stochasticRelaxationRadiosityRecomputeDisplayColors() {
+stochasticRelaxationRadiosityRecomputeDisplayColors(java::ArrayList<Patch *> *scenePatches) {
     if ( GLOBAL_stochasticRaytracing_hierarchy.topcluster ) {
         monteCarloRadiosityForAllLeafElements(GLOBAL_stochasticRaytracing_hierarchy.topcluster,
                                               elementComputeNewVertexColors);
         monteCarloRadiosityForAllLeafElements(GLOBAL_stochasticRaytracing_hierarchy.topcluster,
                                               elementAdjustTVertexColors);
     } else {
-        for ( PatchSet *window = GLOBAL_scene_patches; window != nullptr; window = window->next ) {
-            monteCarloRadiosityPatchComputeNewColor(window->patch);
+        for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
+            monteCarloRadiosityPatchComputeNewColor(scenePatches->get(i));
         }
     }
 }
@@ -176,7 +176,7 @@ stochasticRelaxationRadiosityDoIncrementalRadianceIterations(java::ArrayList<Pat
         monteCarloRadiosityUpdateCpuSecs();
         stochasticRelaxationRadiosityPrintIncrementalRadianceStats();
         if ( unShotFraction > 0.3 ) {
-            stochasticRelaxationRadiosityRecomputeDisplayColors();
+            stochasticRelaxationRadiosityRecomputeDisplayColors(scenePatches);
             renderNewDisplayList();
             renderScene(scenePatches);
         }
@@ -422,7 +422,7 @@ stochasticRelaxationRadiosityDoStep(java::ArrayList<Patch *> *scenePatches) {
         stochasticRelaxationRadiosityDoRegularRadianceIteration();
     }
 
-    stochasticRelaxationRadiosityRecomputeDisplayColors();
+    stochasticRelaxationRadiosityRecomputeDisplayColors(scenePatches);
 
     fprintf(stderr, "%s\n", stochasticRelaxationRadiosityGetStats());
 

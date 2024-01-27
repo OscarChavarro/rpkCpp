@@ -38,7 +38,7 @@ class RADIANCEMETHOD {
 
     // Initializes the current scene for radiance computations. Called when a new
     // scene is loaded or when selecting a particular radiance algorithm
-    void (*Initialize)();
+    void (*initialize)(java::ArrayList<Patch *> *scenePatches);
 
     // Does one step or iteration of the radiance computation, typically a unit
     // of computations after which the scene is to be redrawn. Returns TRUE when

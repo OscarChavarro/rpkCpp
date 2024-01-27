@@ -14,7 +14,7 @@ randomWalkRadiosityPrintPatchData(FILE *out, Patch *patch) {
 }
 
 static void
-randomWalkRadiosityInit() {
+randomWalkRadiosityInit(java::ArrayList<Patch *> * /*scenePatches*/) {
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.method = RANDOM_WALK_RADIOSITY_METHOD;
     monteCarloRadiosityInit();
 }

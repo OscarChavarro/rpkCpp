@@ -87,7 +87,7 @@ photonMapChooseSurfaceSampler(CSurfaceSampler **samplerPtr) {
 Initializes the computations for the current scene (if any)
 */
 static void
-photonMapInitPmap() {
+photonMapInitPmap(java::ArrayList<Patch *> * /*scenePatches*/) {
     fprintf(stderr, "Photonmap activated\n");
 
     GLOBAL_photonMap_state.lastclock = clock();
