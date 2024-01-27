@@ -1,5 +1,6 @@
 #include <cstring>
 
+#include "java/util/ArrayList.txx"
 #include "common/error.h"
 #include "shared/options.h"
 #include "shared/defaults.h"
@@ -232,8 +233,8 @@ setToneMap(TONEMAP *map) {
 Initialises tone mapping, e.g. for a new scene
 */
 void
-initToneMapping() {
-    initSceneAdaptation();
+initToneMapping(java::ArrayList<Patch *> *scenePatches) {
+    initSceneAdaptation(scenePatches);
     setToneMap(GLOBAL_toneMap_options.ToneMap);
 }
 

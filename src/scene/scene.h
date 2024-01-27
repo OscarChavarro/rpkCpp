@@ -1,5 +1,5 @@
-#ifndef _SCENE_H_
-#define _SCENE_H_
+#ifndef __SCENE__
+#define __SCENE__
 
 #include "java/util/ArrayList.h"
 #include "skin/geomlist.h"
@@ -19,7 +19,7 @@ extern Background *GLOBAL_scene_background;
 // The light of all patches on light sources, useful for e.g. next event estimation in Monte Carlo raytracing etc.
 extern PatchSet *GLOBAL_scene_lightSourcePatches;
 
-// The top of the patch cluster hierarchy for the scene. Automatically derived from 'GLOBAL_scene_patches' when loading a new scene
+// The top of the patch cluster hierarchy for the scene. Automatically derived from scene patches when loading a new scene
 extern GeometryListNode *GLOBAL_scene_clusteredWorld;
 
 // Single Geometry containing the above

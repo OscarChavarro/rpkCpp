@@ -164,7 +164,7 @@ int
 randomWalkRadiosityDoGatheringIteration() {
     if ( GLOBAL_galerkin_state.importance_driven ) {
         if ( GLOBAL_galerkin_state.iteration_nr <= 1 || GLOBAL_camera_mainCamera.changed ) {
-            updateDirectPotential();
+            updateDirectPotential(convertPatchSetToPatchList(GLOBAL_scene_patches));
             GLOBAL_camera_mainCamera.changed = false;
         }
     }
@@ -212,7 +212,7 @@ doClusteredGatheringIteration() {
 
     if ( GLOBAL_galerkin_state.importance_driven ) {
         if ( GLOBAL_galerkin_state.iteration_nr <= 1 || GLOBAL_camera_mainCamera.changed ) {
-            updateDirectPotential();
+            updateDirectPotential(convertPatchSetToPatchList(GLOBAL_scene_patches));
             for ( PatchSet *window = GLOBAL_scene_patches; window != nullptr; window = window->next ) {
                 GalerkinElement *top = TOPLEVEL_ELEMENT(window->patch);
                 float potential_increment = window->patch->directPotential - top->directPotential.f;

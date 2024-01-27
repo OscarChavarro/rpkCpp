@@ -22,7 +22,7 @@ call the integral of potential over surface area "importance"
 Updates directly received potential for all patches
 */
 void
-updateDirectPotential() {
+updateDirectPotential(java::ArrayList<Patch *> *scenePatches) {
     Patch **id2patch;
     unsigned long *ids;
     unsigned long *id;
@@ -31,7 +31,7 @@ updateDirectPotential() {
     long y;
     unsigned long maximumPatchId;
     long lostPixels;
-    Vector3D pixdir;
+    Vector3D pixDir;
     float v;
     float h;
     float ySample;
@@ -57,8 +57,9 @@ updateDirectPotential() {
     for ( unsigned long i = 0; i <= maximumPatchId; i++ ) {
         id2patch[i] = (Patch *) nullptr;
     }
-    for ( PatchSet *window = GLOBAL_scene_patches; window != nullptr; window = window->next ) {
-        id2patch[window->patch->id] = window->patch;
+    for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
+        Patch *patch = scenePatches->get(i);
+        id2patch[patch->id] = patch;
     }
 
     // Allocate space for an array to hold the new direct potential of the patches
@@ -73,19 +74,19 @@ updateDirectPotential() {
     v = 2.0f * (float)std::tan(GLOBAL_camera_mainCamera.verticalFov * (float)M_PI / 180.0f) / (float)y;
     pixelArea = h * v;
 
-    for ( j = y - 1, ySample = -v * (float) (y - 1) / 2.0; j >= 0; j--, ySample += v ) {
+    for ( j = y - 1, ySample = -v * (float) (y - 1) / 2.0f; j >= 0; j--, ySample += v ) {
         id = ids + j * x;
-        for ( long i = 0, xSample = -h * (float) (x - 1) / 2.0; i < x; i++, id++, xSample += h ) {
+        for ( long i = 0, xSample = -h * (float) (x - 1) / 2.0f; i < x; i++, id++, xSample += h ) {
             unsigned long the_id = (*id) & 0xffffff;
 
             if ( the_id > 0 && the_id <= maximumPatchId ) {
                 // Compute direction to center of pixel
-                VECTORCOMB3(GLOBAL_camera_mainCamera.Z, xSample, GLOBAL_camera_mainCamera.X, ySample, GLOBAL_camera_mainCamera.Y, pixdir);
+                VECTORCOMB3(GLOBAL_camera_mainCamera.Z, xSample, GLOBAL_camera_mainCamera.X, ySample, GLOBAL_camera_mainCamera.Y, pixDir);
 
-                /* delta_importance = (cosine of the angle between the direction to
-                 * the pixel and the viewing direction, over the distance from the
-                 * eye point to the pixel) squared, times area of the pixel. */
-                deltaImportance = VECTORDOTPRODUCT(GLOBAL_camera_mainCamera.Z, pixdir) / VECTORDOTPRODUCT(pixdir, pixdir);
+                // Delta_importance = (cosine of the angle between the direction to
+                // the pixel and the viewing direction, over the distance from the
+                // eye point to the pixel) squared, times area of the pixel
+                deltaImportance = VECTORDOTPRODUCT(GLOBAL_camera_mainCamera.Z, pixDir) / VECTORDOTPRODUCT(pixDir, pixDir);
                 deltaImportance *= deltaImportance * pixelArea;
 
                 newDirectImportance[the_id] += deltaImportance;
@@ -133,7 +134,7 @@ softGetPatchPointers(SGL_CONTEXT *sgl, java::ArrayList<Patch *> *scenePatches) {
     SGL_PIXEL *pix;
     int i;
 
-    for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
+    for ( i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
         scenePatches->get(i)->setInvisible();
     }
 
@@ -148,12 +149,13 @@ softGetPatchPointers(SGL_CONTEXT *sgl, java::ArrayList<Patch *> *scenePatches) {
 void
 softUpdateDirectVisibility(java::ArrayList<Patch *> *scenePatches) {
     clock_t t = clock();
-    SGL_CONTEXT *oldsgl = GLOBAL_sgl_currentContext;
-    SGL_CONTEXT *sgl = setupSoftFrameBuffer();
-    softRenderPatches(patchPointer, convertPatchSetToPatchList(GLOBAL_scene_patches));
-    softGetPatchPointers(sgl, scenePatches);
-    sglClose(sgl);
-    sglMakeCurrent(oldsgl);
+    SGL_CONTEXT *oldSglContext = GLOBAL_sgl_currentContext;
+    SGL_CONTEXT *currentSglContext = setupSoftFrameBuffer();
+
+    softRenderPatches(patchPointer, scenePatches);
+    softGetPatchPointers(currentSglContext, scenePatches);
+    sglClose(currentSglContext);
+    sglMakeCurrent(oldSglContext);
 
     fprintf(stderr, "Determining visible patches in software took %g sec\n",
             (float) (clock() - t) / (float) CLOCKS_PER_SEC);
@@ -168,4 +170,3 @@ updateDirectVisibility(java::ArrayList<Patch *> *scenePatches) {
     softUpdateDirectVisibility(scenePatches);
     canvasPullMode();
 }
-

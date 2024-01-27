@@ -1,6 +1,7 @@
 #ifndef _RPK_TONE_MAPPING_
 #define _RPK_TONE_MAPPING_
 
+#include "java/util/ArrayList.h"
 #include "IMAGE/adaptation.h"
 
 /* Most of the functions have similar meaning as for a radiance or ray-tracing method */
@@ -104,7 +105,7 @@ extern TONEMAPPINGCONTEXT GLOBAL_toneMap_options;
 
 extern void toneMapDefaults();
 extern void parseToneMapOptions(int *argc, char **argv);
-extern void initToneMapping();
+extern void initToneMapping(java::ArrayList<Patch *> *scenePatches);
 
 inline void
 toneMappingGammaCorrection(RGB &rgb) {

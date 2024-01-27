@@ -136,8 +136,9 @@ mainComputeSomeSceneStats() {
     GLOBAL_statistics_totalArea = 0.;
 
     // Accumulate
-    for ( PatchSet *window = GLOBAL_scene_patches; window != nullptr; window = window->next ) {
-        mainPatchAccumulateStats(window->patch);
+    java::ArrayList<Patch *> *scenePatches = convertPatchSetToPatchList(GLOBAL_scene_patches);
+    for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
+        mainPatchAccumulateStats(scenePatches->get(i));
     }
 
     // Averages
@@ -197,8 +198,9 @@ mainBuildLightSourcePatchList() {
     GLOBAL_scene_lightSourcePatches = nullptr;
     GLOBAL_statistics_numberOfLightSources = 0;
 
-    for ( PatchSet *window = GLOBAL_scene_patches; window != nullptr; window = window->next ) {
-        mainAddPatchToLightSourceListIfLightSource(window->patch);
+    java::ArrayList<Patch *> *scenePatches = convertPatchSetToPatchList(GLOBAL_scene_patches);
+    for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
+        mainAddPatchToLightSourceListIfLightSource(scenePatches->get(i));
     }
 
     mainAddBackgroundToLightSourceList();
@@ -544,7 +546,7 @@ mainReadFile(char *filename) {
     fprintf(stderr, "Initializing tone mapping ... ");
     fflush(stderr);
 
-    initToneMapping();
+    initToneMapping(convertPatchSetToPatchList(GLOBAL_scene_patches));
 
     t = clock();
     fprintf(stderr, "%g secs.\n", (float) (t - last) / (float) CLOCKS_PER_SEC);

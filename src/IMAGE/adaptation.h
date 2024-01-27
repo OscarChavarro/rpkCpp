@@ -1,15 +1,22 @@
-/* adaptation.h: estimate static adaptation luminance in the current scene */
+/**
+Estimate static adaptation luminance in the current scene
+*/
 
-#ifndef _RPK_ADAPTATION_H_
-#define _RPK_ADAPTATION_H_
+#ifndef __ADAPTATION__
+#define __ADAPTATION__
 
+#include "java/util/ArrayList.h"
 #include "skin/Patch.h"
 
-/* Static adaptation estimation methods */
+/**
+Static adaptation estimation methods
+*/
 enum TMA_METHOD {
-    TMA_NONE, TMA_AVERAGE, TMA_MEDIAN, TMA_IDRENDER
+    TMA_NONE,
+    TMA_AVERAGE,
+    TMA_MEDIAN
 };
 
-extern void initSceneAdaptation();
+extern void initSceneAdaptation(java::ArrayList<Patch *> *scenePatches);
 
 #endif

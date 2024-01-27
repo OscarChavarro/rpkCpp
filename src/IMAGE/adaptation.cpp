@@ -2,6 +2,7 @@
 Estimate static adaptation for tone mapping
 */
 
+#include "java/util/ArrayList.txx"
 #include "common/error.h"
 #include "material/statistics.h"
 #include "shared/options.h"
@@ -104,7 +105,7 @@ adaption estimation method in GLOBAL_toneMap_options.statadapt
 emitted by a patch. The result is filled in GLOBAL_toneMap_options.lwa
 */
 static void
-estimateSceneAdaptation(COLOR (*patch_radiance)(Patch *)) {
+estimateSceneAdaptation(COLOR (*patch_radiance)(Patch *), java::ArrayList<Patch *> *scenePatches) {
     PatchRadianceEstimate = patch_radiance;
 
     switch ( GLOBAL_toneMap_options.statadapt ) {
@@ -113,8 +114,8 @@ estimateSceneAdaptation(COLOR (*patch_radiance)(Patch *)) {
         case TMA_AVERAGE: {
             // Gibson's static adaptation after Tumblin[1993]
             globalLogAreaLum = 0.0;
-            for ( PatchSet *window = GLOBAL_scene_patches; window != nullptr; window = window->next ) {
-                patchComputeLogAreaLum(window->patch);
+            for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
+                patchComputeLogAreaLum(scenePatches->get(i));
             }
             GLOBAL_toneMap_options.lwa = (float)std::exp(globalLogAreaLum / GLOBAL_statistics_totalArea + 0.84);
             break;
@@ -124,8 +125,8 @@ estimateSceneAdaptation(COLOR (*patch_radiance)(Patch *)) {
             LUMAREA *la = (LUMAREA *)malloc(GLOBAL_statistics_numberOfPatches * sizeof(LUMAREA));
 
             globalLumArea = la;
-            for ( PatchSet *window = GLOBAL_scene_patches; window != nullptr; window = window->next ) {
-                patchFillLumArea(window->patch);
+            for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
+                patchFillLumArea(scenePatches->get(i));
             }
             GLOBAL_toneMap_options.lwa = meanAreaWeightedLuminance(la, GLOBAL_statistics_numberOfPatches);
 
@@ -142,6 +143,6 @@ Same as estimateSceneAdaptation, but uses some a-priori estimate for the radianc
 Used when loading a new scene
 */
 void
-initSceneAdaptation() {
-    estimateSceneAdaptation(initRadianceEstimate);
+initSceneAdaptation(java::ArrayList<Patch *> *scenePatches) {
+    estimateSceneAdaptation(initRadianceEstimate, scenePatches);
 }
