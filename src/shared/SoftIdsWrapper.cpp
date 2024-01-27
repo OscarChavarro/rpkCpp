@@ -1,5 +1,5 @@
-// C++ wrapper for soft id rendering utilities in softids.c
-
+#include "java/util/ArrayList.txx"
+#include "shared/options.h"
 #include "shared/SoftIdsWrapper.h"
 
 static SGL_PIXEL
@@ -12,10 +12,10 @@ Soft_ID_Renderer::~Soft_ID_Renderer() {
 }
 
 void
-Soft_ID_Renderer::init() {
-    SGL_CONTEXT *oldsgl = GLOBAL_sgl_currentContext;
+Soft_ID_Renderer::init(java::ArrayList<Patch *> *scenePatches) {
+    SGL_CONTEXT *oldSglContext = GLOBAL_sgl_currentContext;
     sgl = setupSoftFrameBuffer();
-    softRenderPatches(patchPointer);
-    sglMakeCurrent(oldsgl); // make the old one current again
+    softRenderPatches(patchPointer, scenePatches);
+    sglMakeCurrent(oldSglContext); // Make the old one current again
 }
 

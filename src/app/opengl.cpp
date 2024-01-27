@@ -10,6 +10,7 @@
 #include "shared/canvas.h"
 #include "shared/renderhook.h"
 #include "shared/softids.h"
+#include "shared/options.h"
 #include "IMAGE/tonemap/tonemapping.h"
 #include "raycasting/simple/RayCaster.h"
 #include "app/opengl.h"
@@ -684,7 +685,7 @@ the pixel. x is normally the width and y the height of the canvas window
 */
 unsigned long *
 renderIds(long *x, long *y) {
-    return softRenderIds(x, y);
+    return softRenderIds(x, y, convertPatchSetToPatchList(GLOBAL_scene_patches));
 }
 
 static void

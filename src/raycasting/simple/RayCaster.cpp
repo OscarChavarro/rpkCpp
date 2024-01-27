@@ -7,6 +7,7 @@ a software frame buffer directly.
 
 #include "common/error.h"
 #include "material/statistics.h"
+#include "shared/options.h"
 #include "shared/SoftIdsWrapper.h"
 #include "raycasting/simple/RayCaster.h"
 
@@ -44,16 +45,18 @@ RayCaster::render(GETRADIANCE_FT getrad = nullptr) {
         }
     }
 
-    long width, height, x, y;
-    Soft_ID_Renderer *id_renderer = new Soft_ID_Renderer;
-    id_renderer->get_size(&width, &height);
-    if ( width != scrn->getHRes() ||
-         height != scrn->getVRes()) {
+    long width;
+    long height;
+    long x;
+    long y;
 
+    Soft_ID_Renderer *id_renderer = new Soft_ID_Renderer(convertPatchSetToPatchList(GLOBAL_scene_patches));
+    id_renderer->get_size(&width, &height);
+    if ( width != scrn->getHRes() || height != scrn->getVRes() ) {
         logFatal(-1, "RayCaster::render", "ID buffer size doesn't match screen size");
     }
 
-    // TODO SITHMASTER: This is the main paralelizable loop for raycasting
+    // TODO SITHMASTER: This is the main paralelizable loop for ray-casting
     for ( y = 0; y < height; y++ ) {
         for ( x = 0; x < width; x++ ) {
             Patch *P = id_renderer->get_patch_at_pixel(x, y);

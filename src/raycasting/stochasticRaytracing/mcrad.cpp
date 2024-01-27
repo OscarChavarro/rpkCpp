@@ -4,6 +4,7 @@ Monte Carlo Radiosity: common code for stochastic relaxation and random walks
 
 #include <cstdlib>
 
+#include "java/util/ArrayList.txx"
 #include "common/error.h"
 #include "material/statistics.h"
 #include "skin/Patch.h"
@@ -313,10 +314,10 @@ monteCarloRadiosityReInitImportance(StochasticRadiosityElement *elem) {
 }
 
 void
-monteCarloRadiosityUpdateViewImportance() {
+monteCarloRadiosityUpdateViewImportance(java::ArrayList<Patch *> *scenePatches) {
     fprintf(stderr, "Updating direct visibility ... \n");
 
-    updateDirectVisibility();
+    updateDirectVisibility(scenePatches);
 
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.sourceYmp = GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotYmp = GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalYmp = 0.;
     monteCarloRadiosityUpdateImportance(GLOBAL_stochasticRaytracing_hierarchy.topcluster);
@@ -394,7 +395,7 @@ monteCarloRadiosityDetermineInitialNrRays() {
 Really initialises: before the first iteration step
 */
 void
-monteCarloRadiosityReInit() {
+monteCarloRadiosityReInit(java::ArrayList<Patch *> *scenePatches) {
     if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.inited ) {
         return;
     }
@@ -436,18 +437,18 @@ monteCarloRadiosityReInit() {
     elementHierarchyInit();
 
     if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceDriven ) {
-        monteCarloRadiosityUpdateViewImportance();
+        monteCarloRadiosityUpdateViewImportance(scenePatches);
         GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceUpdatedFromScratch = true;
     }
 }
 
 void
-monteCarloRadiosityPreStep() {
+monteCarloRadiosityPreStep(java::ArrayList<Patch *> *scenePatches) {
     if ( !GLOBAL_stochasticRaytracing_monteCarloRadiosityState.inited ) {
-        monteCarloRadiosityReInit();
+        monteCarloRadiosityReInit(scenePatches);
     }
     if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceDriven && GLOBAL_camera_mainCamera.changed ) {
-        monteCarloRadiosityUpdateViewImportance();
+        monteCarloRadiosityUpdateViewImportance(scenePatches);
     }
 
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.lastClock = clock();

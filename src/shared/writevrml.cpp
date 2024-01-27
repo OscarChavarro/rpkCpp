@@ -2,6 +2,7 @@
 Saves the result of a radiosity computation as a VRML file
 */
 
+#include "java/util/ArrayList.txx"
 #include "shared/options.h"
 #include "shared/defaults.h"
 #include "shared/render.h"
@@ -163,12 +164,12 @@ writeVRMLVertexColors(FILE *fp, java::ArrayList<Patch *> *scenePatches) {
     writeVRMLResetVertexId(scenePatches);
 
     fprintf(fp, "\tcolor Color {\n\t  color [ ");
-    for ( PatchSet *window = GLOBAL_scene_patches; window != nullptr; window = window->next ) {
-        int i;
-        for ( i = 0; i < window->patch->numberOfVertices; i++ ) {
-            Vertex *v = window->patch->vertex[i];
+    for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
+        Patch * patch = scenePatches->get(i);
+        for ( int j = 0; j < patch->numberOfVertices; j++ ) {
+            Vertex *v = patch->vertex[j];
             if ( v->tmp == -1 ) {
-                /* not yet written */
+                // Not yet written
                 if ( n > 0 ) {
                     fprintf(fp, ", ");
                 }
@@ -187,11 +188,12 @@ writeVRMLVertexColors(FILE *fp, java::ArrayList<Patch *> *scenePatches) {
 }
 
 static void
-writeVRMLFaceColors(FILE *fp) {
+writeVRMLFaceColors(FILE *fp, java::ArrayList<Patch *> *scenePatches) {
     int n = 0;
 
     fprintf(fp, "\tcolor Color {\n\t  color [ ");
-    for ( PatchSet *window = GLOBAL_scene_patches; window != nullptr; window = window->next ) {
+    for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
+        Patch *patch = scenePatches->get(i);
         if ( n > 0 ) {
             fprintf(fp, ", ");
         }
@@ -199,7 +201,7 @@ writeVRMLFaceColors(FILE *fp) {
         if ( n % 4 == 0 ) {
             fprintf(fp, "\n\t  ");
         }
-        fprintf(fp, "%.3g %.3g %.3g", window->patch->color.r, window->patch->color.g, window->patch->color.b);
+        fprintf(fp, "%.3g %.3g %.3g", patch->color.r, patch->color.g, patch->color.b);
     }
     fprintf(fp, " ] ");
     fprintf(fp, "\n\t}\n");
@@ -211,18 +213,18 @@ writeVRMLColors(FILE *fp, java::ArrayList<Patch *> *scenePatches) {
     if ( GLOBAL_render_renderOptions.smooth_shading ) {
         writeVRMLVertexColors(fp, scenePatches);
     } else {
-        writeVRMLFaceColors(fp);
+        writeVRMLFaceColors(fp, scenePatches);
     }
 }
 
 static void
-writeVRMLCoordIndices(FILE *fp) {
+writeVRMLCoordIndices(FILE *fp, java::ArrayList<Patch *> *scenePatches) {
     int n = 0;
     fprintf(fp, "\tcoordIndex [ ");
-    for ( PatchSet *window = GLOBAL_scene_patches; window != nullptr; window = window->next ) {
-        int i;
-        for ( i = 0; i < window->patch->numberOfVertices; i++ ) {
-            Vertex *v = window->patch->vertex[i];
+    for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
+        Patch *patch = scenePatches->get(i);
+        for ( int j = 0; j < patch->numberOfVertices; j++ ) {
+            Vertex *v = patch->vertex[j];
             n++;
             if ( n % 20 == 0 ) {
                 fprintf(fp, "\n\t  ");
@@ -248,7 +250,7 @@ writeVRML(FILE *fp, java::ArrayList<Patch *> *scenePatches) {
 
     writeVRMLCoords(fp, scenePatches);
     writeVRMLColors(fp, scenePatches);
-    writeVRMLCoordIndices(fp);
+    writeVRMLCoordIndices(fp, scenePatches);
 
     writeVRMLTrailer(fp);
 }

@@ -372,9 +372,9 @@ stochasticRelaxationRadiosityDiscardIncremental() {
 
 static int
 stochasticRelaxationRadiosityDoStep() {
-    monteCarloRadiosityPreStep();
+    monteCarloRadiosityPreStep(convertPatchSetToPatchList(GLOBAL_scene_patches));
 
-    /* do some real work now */
+    // Do some real work now
     if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.currentIteration == 1 ) {
         int initial_nr_of_rays = 0;
         if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.doNonDiffuseFirstShot )

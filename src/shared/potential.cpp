@@ -4,6 +4,7 @@ Routines dealing with view potential
 
 #include <ctime>
 
+#include "java/util/ArrayList.txx"
 #include "common/error.h"
 #include "material/statistics.h"
 #include "shared/options.h"
@@ -128,12 +129,12 @@ patchPointer(Patch *P) {
 }
 
 static void
-softGetPatchPointers(SGL_CONTEXT *sgl) {
+softGetPatchPointers(SGL_CONTEXT *sgl, java::ArrayList<Patch *> *scenePatches) {
     SGL_PIXEL *pix;
     int i;
 
-    for ( PatchSet *window = GLOBAL_scene_patches; window != nullptr; window = window->next ) {
-        window->patch->setInvisible();
+    for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
+        scenePatches->get(i)->setInvisible();
     }
 
     for ( pix = sgl->frameBuffer, i = 0; i < sgl->width * sgl->height; pix++, i++ ) {
@@ -145,12 +146,12 @@ softGetPatchPointers(SGL_CONTEXT *sgl) {
 }
 
 void
-softUpdateDirectVisibility() {
+softUpdateDirectVisibility(java::ArrayList<Patch *> *scenePatches) {
     clock_t t = clock();
     SGL_CONTEXT *oldsgl = GLOBAL_sgl_currentContext;
     SGL_CONTEXT *sgl = setupSoftFrameBuffer();
-    softRenderPatches(patchPointer);
-    softGetPatchPointers(sgl);
+    softRenderPatches(patchPointer, convertPatchSetToPatchList(GLOBAL_scene_patches));
+    softGetPatchPointers(sgl, scenePatches);
     sglClose(sgl);
     sglMakeCurrent(oldsgl);
 
@@ -162,9 +163,9 @@ softUpdateDirectVisibility() {
 Updates view visibility status of all patches
 */
 void
-updateDirectVisibility() {
+updateDirectVisibility(java::ArrayList<Patch *> *scenePatches) {
     canvasPushMode();
-    softUpdateDirectVisibility();
+    softUpdateDirectVisibility(scenePatches);
     canvasPullMode();
 }
 

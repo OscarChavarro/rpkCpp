@@ -373,7 +373,7 @@ randomWalkRadiosityDoFirstShot() {
 
 static int
 randomWalkRadiosityDoStep() {
-    monteCarloRadiosityPreStep();
+    monteCarloRadiosityPreStep(convertPatchSetToPatchList(GLOBAL_scene_patches));
 
     if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.currentIteration == 1 ) {
         if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.indirectOnly ) {

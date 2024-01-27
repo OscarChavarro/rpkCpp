@@ -3,6 +3,7 @@
 
 #include <ctime>
 
+#include "java/util/ArrayList.h"
 #include "raycasting/stochasticRaytracing/sample4d.h"
 #include "raycasting/stochasticRaytracing/elementmcrad.h"
 #include "raycasting/stochasticRaytracing/coefficientsmcrad.h"
@@ -129,9 +130,9 @@ extern void monteCarloRadiosityPrintPatchData(FILE *out, Patch *patch);
 extern void monteCarloRadiosityDestroyPatchData(Patch *patch);
 extern void monteCarloRadiosityPatchComputeNewColor(Patch *patch);
 extern void monteCarloRadiosityInit();
-extern void monteCarloRadiosityUpdateViewImportance();
-extern void monteCarloRadiosityReInit();
-extern void monteCarloRadiosityPreStep();
+extern void monteCarloRadiosityUpdateViewImportance(java::ArrayList<Patch *> *scenePatches);
+extern void monteCarloRadiosityReInit(java::ArrayList<Patch *> *scenePatches);
+extern void monteCarloRadiosityPreStep(java::ArrayList<Patch *> *scenePatches);
 extern void monteCarloRadiosityTerminate();
 extern COLOR monteCarloRadiosityGetRadiance(Patch *patch, double u, double v, Vector3D dir);
 extern void monteCarloRadiosityRecomputeDisplayColors();

@@ -1,21 +1,18 @@
-// SoftIds.H: C++ wrapper for softids.h
-
 #ifndef _CXX_SOFTIDS_H_
 #define _CXX_SOFTIDS_H_
 
+#include "java/util/ArrayList.h"
 #include "shared/softids.h"
 
 class Soft_ID_Renderer {
-protected:
-    SGL_CONTEXT *sgl; // the software rendering context,
-                      // includes frame buffer
+  protected:
+    SGL_CONTEXT *sgl; // Software rendering context, includes frame buffer
 
-    void init(); // also performs the actual ID rendering.
-
-public:
-    Soft_ID_Renderer() {
+    void init(java::ArrayList<Patch *> *scenePatches); // Also performs the actual ID rendering
+  public:
+    explicit Soft_ID_Renderer(java::ArrayList<Patch *> *scenePatches) {
         sgl = 0;
-        init();
+        init(scenePatches);
     }
 
     ~Soft_ID_Renderer();
@@ -29,11 +26,6 @@ public:
     inline Patch *
     get_patch_at_pixel(int x, int y) {
         return (Patch *) (sgl->frameBuffer[(sgl->height - 1 - y) * sgl->width + x]);
-    }
-
-    inline Patch **
-    get_patches_at_scanline(int y) {
-        return (Patch **) &(sgl->frameBuffer[(sgl->height - 1 - y) * sgl->width]);
     }
 };
 

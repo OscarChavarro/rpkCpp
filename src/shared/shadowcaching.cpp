@@ -1,5 +1,4 @@
 #include "material/statistics.h"
-#include "skin/Patch.h"
 #include "scene/scene.h"
 #include "shared/shadowcaching.h"
 
@@ -26,12 +25,12 @@ Test ray against patches in the shadow cache. Returns nullptr if the ray hits
 no patches in the shadow cache, or a pointer to the first hit patch otherwise
 */
 RayHit *
-cacheHit(Ray *ray, float *dist, RayHit *hitstore) {
-    int i;
+cacheHit(Ray *ray, float *dist, RayHit *hitStore) {
     RayHit *hit;
 
-    for ( i = 0; i < globalNumberOfCachedPatches; i++ ) {
-        if ((hit = patchIntersect(globalCache[i], ray, EPSILON * (*dist), dist, HIT_FRONT | HIT_ANY, hitstore))) {
+    for ( int i = 0; i < globalNumberOfCachedPatches; i++ ) {
+        hit = patchIntersect(globalCache[i], ray, EPSILON * (*dist), dist, HIT_FRONT | HIT_ANY, hitStore);
+        if ( hit != nullptr ) {
             return hit;
         }
     }
@@ -51,11 +50,10 @@ addToShadowCache(Patch *patch) {
 }
 
 /**
-Tests whether the ray intersects the discretisation of a GEOMetry in the list
+Tests whether the ray intersects the discretization of a geometry in the list
 'world'. Returns nullptr if the ray hits no geometries. Returns an arbitrary hit
 patch if the ray does intersect one or more geometries. Intersections
-further away than dist are ignored. GLOBAL_scene_patches in the shadow cache are
-checked first
+further away than dist are ignored.
 */
 RayHit *
 shadowTestDiscretization(Ray *ray, GeometryListNode *world, float dist, RayHit *hitStore) {
