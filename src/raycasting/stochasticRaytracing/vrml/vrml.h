@@ -1,9 +1,10 @@
-/* vrml.c: saves "illuminated" model in the VRML'97 file */
+/**
+Saves illuminated model in the VRML'97 file
+*/
 
-#ifndef _MCR_VRML_H_
-#define _MCR_VRML_H_
+#ifndef __MCR_VRML__
+#define __MCR_VRML__
 
 extern void mcrWriteVrml(FILE *fp);
 
 #endif
-

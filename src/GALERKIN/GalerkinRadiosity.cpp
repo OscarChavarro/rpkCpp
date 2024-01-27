@@ -7,6 +7,7 @@ potential-driven or not.
 #include <cstring>
 #include <ctime>
 
+#include "java/util/ArrayList.txx"
 #include "common/error.h"
 #include "material/statistics.h"
 #include "scene/scene.h"
@@ -603,6 +604,5 @@ RADIANCEMETHOD GLOBAL_galerkin_radiosity = {
     destroyPatchData,
     getGalerkinStats,
     galerkinRender,
-    (void (*)()) nullptr,
     galerkinWriteVRML
 };

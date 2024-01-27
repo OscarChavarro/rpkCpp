@@ -70,16 +70,6 @@ photonMapDestroyPatchData(Patch *patch) {
     patch->radianceData = nullptr;
 }
 
-/**
-Compute new color for the patch
-*/
-static void
-photonMapPatchComputeNewColor(Patch *patch) {
-    COLOR Rd = patchAverageNormalAlbedo(patch, BRDF_DIFFUSE_COMPONENT);
-    convertColorToRGB(Rd, &patch->color);
-    patchComputeVertexColors(patch);
-}
-
 static void
 photonMapChooseSurfaceSampler(CSurfaceSampler **samplerPtr) {
     if ( *samplerPtr ) {
@@ -751,15 +741,6 @@ photonMapGetStats() {
     return stats;
 }
 
-static void
-photonMapRecomputeDisplayColors() {
-
-    java::ArrayList<Patch *> *scenePatches = convertPatchSetToPatchList(GLOBAL_scene_patches);
-    for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
-        photonMapPatchComputeNewColor(scenePatches->get(i));
-    }
-}
-
 RADIANCEMETHOD GLOBAL_photonMapMethods = {
     "PMAP",
     4,
@@ -775,6 +756,5 @@ RADIANCEMETHOD GLOBAL_photonMapMethods = {
     photonMapDestroyPatchData,
     photonMapGetStats,
     photonMapRenderScreen,
-    photonMapRecomputeDisplayColors,
-    (void (*)(FILE *)) nullptr
+    nullptr
 };

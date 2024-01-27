@@ -333,14 +333,14 @@ randomWalkRadiosityDoGatheringIteration() {
     if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.continuousRandomWalk ) {
         nr_walks *= GLOBAL_stochasticRadiosisty_approxDesc[GLOBAL_stochasticRaytracing_monteCarloRadiosityState.approximationOrderType].basis_size;
     } else {
-        nr_walks *= pow(GLOBAL_stochasticRadiosisty_approxDesc[GLOBAL_stochasticRaytracing_monteCarloRadiosityState.approximationOrderType].basis_size, 1. / (1. -
+        nr_walks *= std::pow(GLOBAL_stochasticRadiosisty_approxDesc[GLOBAL_stochasticRaytracing_monteCarloRadiosityState.approximationOrderType].basis_size, 1. / (1. -
                                                                                                                                                               colorMaximumComponent(GLOBAL_statistics_averageReflectivity)));
     }
 
     if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.constantControlVariate && GLOBAL_stochasticRaytracing_monteCarloRadiosityState.currentIteration == 1 ) {
-        /* constant control variate for gathering random walk radiosity */
+        // Constant control variate for gathering random walk radiosity
         GLOBAL_stochasticRaytracing_monteCarloRadiosityState.controlRadiance = randomWalkRadiosityDetermineGatheringControlRadiosity();
-        randomWalkRadiosityReduceSource();    /* do this only once!! */
+        randomWalkRadiosityReduceSource(); // Do this only once!
     }
 
     fprintf(stderr, "Collision gathering iteration %d (%ld paths, approximately %ld rays)\n",
@@ -443,6 +443,5 @@ RADIANCEMETHOD GLOBAL_stochasticRaytracing_randomWalkRadiosity = {
     monteCarloRadiosityDestroyPatchData,
     randomWalkRadiosityGetStats,
     (void (*)()) nullptr,
-    monteCarloRadiosityRecomputeDisplayColors,
-    (void (*)(FILE *)) nullptr
+    nullptr
 };

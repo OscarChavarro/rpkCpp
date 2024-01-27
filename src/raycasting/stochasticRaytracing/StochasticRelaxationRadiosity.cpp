@@ -465,6 +465,5 @@ RADIANCEMETHOD GLOBAL_stochasticRaytracing_stochasticRelaxationRadiosity = {
     monteCarloRadiosityDestroyPatchData,
     stochasticRelaxationRadiosityGetStats,
     stochasticRelaxationRadiosityRender,
-    stochasticRelaxationRadiosityRecomputeDisplayColors,
     mcrWriteVrml
 };

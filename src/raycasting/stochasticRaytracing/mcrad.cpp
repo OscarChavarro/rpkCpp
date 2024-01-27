@@ -531,25 +531,6 @@ monteCarloRadiosityGetRadiance(Patch *patch, double u, double v, Vector3D dir) {
     return rad;
 }
 
-void
-monteCarloRadiosityRecomputeDisplayColors() {
-    if ( !GLOBAL_stochasticRaytracing_monteCarloRadiosityState.inited ) {
-        return;
-    }
-
-    fprintf(stderr, "Recomputing display colors ...\n");
-    for ( PatchSet *window = GLOBAL_scene_patches; window != nullptr; window = window->next ) {
-        monteCarloRadiosityPatchComputeNewColor(window->patch);
-    }
-}
-
-/**
-void
-monteCarloRadiosityUpdateMaterial(Material *oldMaterial, Material *newMaterial) {
-    logError("monteCarloRadiosityUpdateMaterial", "Not yet implemented");
-}
-*/
-
 /**
 Returns scalar reflectance, for importance propagation
 */

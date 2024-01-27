@@ -70,14 +70,10 @@ class RADIANCEMETHOD {
     // triplet they were assigned
     void (*RenderScene)();
 
-    // Routine for recomputing display colors if default
-    // renderScene method is being used
-    void (*RecomputeDisplayColors)();
-
     // If defined, this routine will save the current model in VRML format.
     // If not defined, the default method implemented in writevrml.[ch] will
     // be used
-    void (*WriteVRML)(FILE *fp);
+    void (*writeVRML)(FILE *fp);
 };
 
 // Available radiance methods, terminated with a nullptr pointer
