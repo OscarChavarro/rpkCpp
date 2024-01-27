@@ -17,7 +17,13 @@ static COLOR (*globalGetScaling)(StochasticRadiosityElement *);
 Initial guess for constant control radiance value
 */
 static void
-initialControlRadiosity(COLOR *minRad, COLOR *maxRad, COLOR *fmin, COLOR *fmax) {
+initialControlRadiosity(
+    COLOR *minRad,
+    COLOR *maxRad,
+    COLOR *fmin,
+    COLOR *fmax,
+    java::ArrayList<Patch *> *scenePatches)
+{
     COLOR totalFluxColor;
     COLOR maxRadColor;
     double area = 0.0;
@@ -25,8 +31,8 @@ initialControlRadiosity(COLOR *minRad, COLOR *maxRad, COLOR *fmin, COLOR *fmax) 
     colorClear(maxRadColor);
 
     // Initial interval: 0 ... maxRadColor
-    for ( PatchSet *window = GLOBAL_scene_patches; window != nullptr; window = window->next ) {
-        REC_ForAllSurfaceLeafs(elem, TOPLEVEL_ELEMENT(window->patch))
+    for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
+        REC_ForAllSurfaceLeafs(elem, TOPLEVEL_ELEMENT(scenePatches->get(i)))
                 {
                     COLOR rad = globalGetRadiance(elem)[0];
                     float warea = elem->area;    /* weighted area */
@@ -92,7 +98,13 @@ Uses regular interval subdivision (generalisation of the bisection
 method). Does so component wise
 */
 static void
-refineControlRadiosity(COLOR *minRad, COLOR *maxRad, COLOR *fmin, COLOR *fmax) {
+refineControlRadiosity(
+    COLOR *minRad,
+    COLOR *maxRad,
+    COLOR *fmin,
+    COLOR *fmax,
+    java::ArrayList<Patch *> *scenePatches)
+{
     COLOR color_one;
     COLOR f[NUMBER_OF_INTERVALS + 1], rad[NUMBER_OF_INTERVALS + 1], d;
     int i, s;
@@ -106,10 +118,10 @@ refineControlRadiosity(COLOR *minRad, COLOR *maxRad, COLOR *fmin, COLOR *fmax) {
         colorAddScaled(*minRad, (double) i / (double) NUMBER_OF_INTERVALS, d, rad[i]);
     }
 
-    /* determine value of F(beta) = sum_i (area_i * fabs(B_i - beta)) on
-     * a regular subdivision of the interval */
-    for ( PatchSet *window = GLOBAL_scene_patches; window != nullptr; window = window->next ) {
-        REC_ForAllSurfaceLeafs(elem, TOPLEVEL_ELEMENT(window->patch))
+    // Determine value of F(beta) = sum_i (area_i * fabs(B_i - beta)) on
+    // a regular subdivision of the interval
+    for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
+        REC_ForAllSurfaceLeafs(elem, TOPLEVEL_ELEMENT(scenePatches->get(i)))
                 {
                     COLOR B = globalGetRadiance(elem)[0];
                     COLOR s = globalGetScaling ? globalGetScaling(elem) : color_one;
@@ -142,10 +154,24 @@ refineControlRadiosity(COLOR *minRad, COLOR *maxRad, COLOR *fmin, COLOR *fmax) {
     }
 }
 
+/**
+Determines and returns optimal constant control radiosity value for
+the given radiance distribution: this is, the value of beta that
+minimises F(beta) = sum over all patches P of P->area times
+absolute value of (globalGetRadiance(P) - globalGetScaling(P) * beta).
+
+- getRadiance() returns the radiance to be propagated from a
+given ELEMENT.
+- getScaling() returns a scale factor (per color component) to be
+multiplied with the radiance of the element. If getScaling is a nullptr
+pointer, no scaling is applied. Scaling is used in the context of
+random walk radiosity
+*/
 COLOR
 determineControlRadiosity(
     COLOR *(*getRadiance)(StochasticRadiosityElement *),
-    COLOR (*getScaling)(StochasticRadiosityElement *))
+    COLOR (*getScaling)(StochasticRadiosityElement *),
+    java::ArrayList<Patch *> *scenePatches)
 {
     COLOR minRad;
     COLOR maxRad;
@@ -153,27 +179,24 @@ determineControlRadiosity(
     COLOR fmax;
     COLOR beta;
     COLOR delta;
-    COLOR f_orig;
-    float eps = 0.001;
+    float eps = 0.001f;
     int sweep = 0;
 
     globalGetRadiance = getRadiance;
     globalGetScaling = getScaling;
     colorClear(beta);
-    if ( !globalGetRadiance ) {
+    if ( globalGetRadiance == nullptr ) {
         return beta;
     }
 
     fprintf(stderr, "Determining optimal control radiosity value ... ");
-    initialControlRadiosity(&minRad, &maxRad, &fmin, &fmax);
-    f_orig = fmin;    /* initial minRad=0, f/f_orig will determine
-			 * possible efficiency gain */
+    initialControlRadiosity(&minRad, &maxRad, &fmin, &fmax, scenePatches);
 
     colorSubtract(fmax, fmin, delta);
     colorAddScaled(delta, (-eps), fmin, delta);
-    while ((colorMaximumComponent(delta) > 0.) || sweep < 4 ) {
+    while ( (colorMaximumComponent(delta) > 0.) || sweep < 4 ) {
         sweep++;
-        refineControlRadiosity(&minRad, &maxRad, &fmin, &fmax);
+        refineControlRadiosity(&minRad, &maxRad, &fmin, &fmax, scenePatches);
         colorSubtract(fmax, fmin, delta);
         colorAddScaled(delta, (-eps), fmin, delta);
     }

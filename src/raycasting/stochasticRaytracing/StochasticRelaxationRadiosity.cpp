@@ -170,7 +170,7 @@ stochasticRelaxationRadiosityDoIncrementalRadianceIterations(java::ArrayList<Pat
                 stepNumber, 100. * unShotFraction);
 
         doStochasticJacobiIteration(nr_rays, stochasticRelaxationRadiosityElementUnShotRadiance, nullptr,
-                                    stochasticRelaxationRadiosityElementIncrementRadiance);
+                                    stochasticRelaxationRadiosityElementIncrementRadiance, scenePatches);
         GLOBAL_stochasticRaytracing_monteCarloRadiosityState.setSource = false; // Direct illumination is copied to SOURCE_FLUX(P) only the first time
 
         monteCarloRadiosityUpdateCpuSecs();
@@ -205,7 +205,7 @@ stochasticRelaxationRadiosityPrintIncrementalImportanceStats() {
 }
 
 static void
-stochasticRelaxationRadiosityDoIncrementalImportanceIterations() {
+stochasticRelaxationRadiosityDoIncrementalImportanceIterations(java::ArrayList<Patch *> *scenePatches) {
     long step_nr = 0;
     int radiance_driven = GLOBAL_stochasticRaytracing_monteCarloRadiosityState.radianceDriven;
     int do_h_meshing = GLOBAL_stochasticRaytracing_hierarchy.do_h_meshing;
@@ -238,7 +238,7 @@ stochasticRelaxationRadiosityDoIncrementalImportanceIterations() {
                 step_nr, 100.0 * unshot_fraction);
 
         doStochasticJacobiIteration(nr_rays, nullptr, stochasticRelaxationRadiosityElementUnShotImportance,
-                                    stochasticRelaxationRadiosityElementIncrementImportance);
+                                    stochasticRelaxationRadiosityElementIncrementImportance, scenePatches);
 
         monteCarloRadiosityUpdateCpuSecs();
         stochasticRelaxationRadiosityPrintIncrementalImportanceStats();
@@ -306,11 +306,11 @@ stochasticRelaxationRadiosityPrintRegularStats() {
 }
 
 static void
-stochasticRelaxationRadiosityDoRegularRadianceIteration() {
+stochasticRelaxationRadiosityDoRegularRadianceIteration(java::ArrayList<Patch *> *scenePatches) {
     fprintf(stderr, "Regular radiance iteration %d:\n", GLOBAL_stochasticRaytracing_monteCarloRadiosityState.currentIteration);
     doStochasticJacobiIteration(GLOBAL_stochasticRaytracing_monteCarloRadiosityState.raysPerIteration,
                                 stochasticRelaxationRadiosityElementRadiance, nullptr,
-                                stochasticRelaxationRadiosityElementUpdateRadiance);
+                                stochasticRelaxationRadiosityElementUpdateRadiance, scenePatches);
 
     monteCarloRadiosityUpdateCpuSecs();
     stochasticRelaxationRadiosityPrintRegularStats();
@@ -330,7 +330,7 @@ stochasticRelaxationRadiosityElementUpdateImportance(StochasticRadiosityElement 
 }
 
 static void
-stochasticRelaxationRadiosityDoRegularImportanceIteration() {
+stochasticRelaxationRadiosityDoRegularImportanceIteration(java::ArrayList<Patch *> *scenePatches) {
     long nr_rays;
     int do_h_meshing = GLOBAL_stochasticRaytracing_hierarchy.do_h_meshing;
     CLUSTERING_MODE clustering = GLOBAL_stochasticRaytracing_hierarchy.clustering;
@@ -342,7 +342,7 @@ stochasticRelaxationRadiosityDoRegularImportanceIteration() {
     nr_rays = GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceRaysPerIteration;
     fprintf(stderr, "Regular importance iteration %d:\n", GLOBAL_stochasticRaytracing_monteCarloRadiosityState.currentIteration);
     doStochasticJacobiIteration(nr_rays, nullptr, stochasticRelaxationRadiosityElementImportance,
-                                stochasticRelaxationRadiosityElementUpdateImportance);
+                                stochasticRelaxationRadiosityElementUpdateImportance, scenePatches);
 
     monteCarloRadiosityUpdateCpuSecs();
     stochasticRelaxationRadiosityPrintRegularStats();
@@ -389,8 +389,8 @@ stochasticRelaxationRadiosityDoStep(java::ArrayList<Patch *> *scenePatches) {
             } else if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceUpdated ) {
                 GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceUpdated = false;
 
-                /* propagate importance changes */
-                stochasticRelaxationRadiosityDoIncrementalImportanceIterations();
+                // Propagate importance changes
+                stochasticRelaxationRadiosityDoIncrementalImportanceIterations(scenePatches);
                 if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceUpdatedFromScratch ) {
                     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceRaysPerIteration = GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceTracedRays;
                 }
@@ -411,15 +411,15 @@ stochasticRelaxationRadiosityDoStep(java::ArrayList<Patch *> *scenePatches) {
                 GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceUpdated = false;
 
                 // Propagate importance changes
-                stochasticRelaxationRadiosityDoIncrementalImportanceIterations();
+                stochasticRelaxationRadiosityDoIncrementalImportanceIterations(scenePatches);
                 if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceUpdatedFromScratch ) {
                     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceRaysPerIteration = GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceTracedRays;
                 }
             } else {
-                stochasticRelaxationRadiosityDoRegularImportanceIteration();
+                stochasticRelaxationRadiosityDoRegularImportanceIteration(scenePatches);
             }
         }
-        stochasticRelaxationRadiosityDoRegularRadianceIteration();
+        stochasticRelaxationRadiosityDoRegularRadianceIteration(scenePatches);
     }
 
     stochasticRelaxationRadiosityRecomputeDisplayColors(scenePatches);

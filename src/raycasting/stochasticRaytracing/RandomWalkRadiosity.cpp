@@ -363,11 +363,11 @@ randomWalkRadiosityUpdateSourceIllum(StochasticRadiosityElement *elem, double w)
 }
 
 static void
-randomWalkRadiosityDoFirstShot() {
+randomWalkRadiosityDoFirstShot(java::ArrayList<Patch *> *scenePatches) {
     long nr_rays = GLOBAL_stochasticRaytracing_monteCarloRadiosityState.initialNumberOfRays * GLOBAL_stochasticRadiosisty_approxDesc[GLOBAL_stochasticRaytracing_monteCarloRadiosityState.approximationOrderType].basis_size;
     fprintf(stderr, "First shot (%ld rays):\n", nr_rays);
     doStochasticJacobiIteration(nr_rays, randomWalkRadiosityGetSelfEmittedRadiance, nullptr,
-                                randomWalkRadiosityUpdateSourceIllum);
+                                randomWalkRadiosityUpdateSourceIllum, scenePatches);
     randomWalkRadiosityPrintStats();
 }
 
@@ -377,7 +377,7 @@ randomWalkRadiosityDoStep(java::ArrayList<Patch *> *scenePatches) {
 
     if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.currentIteration == 1 ) {
         if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.indirectOnly ) {
-            randomWalkRadiosityDoFirstShot();
+            randomWalkRadiosityDoFirstShot(scenePatches);
         }
     }
 

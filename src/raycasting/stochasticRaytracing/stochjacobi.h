@@ -1,6 +1,8 @@
 #ifndef _STOCHJACOBI_H_
 #define _STOCHJACOBI_H_
 
+#include "java/util/ArrayList.h"
+
 /**
 Generic routine for Stochastic Jacobi iterations:
 - nr_rays: nr of rays to use
@@ -27,6 +29,7 @@ extern void doStochasticJacobiIteration(
     long nr_rays,
     COLOR *(*GetRadiance)(StochasticRadiosityElement *),
     float (*GetImportance)(StochasticRadiosityElement *),
-    void Update(StochasticRadiosityElement *elem, double w));
+    void Update(StochasticRadiosityElement *elem, double w),
+    java::ArrayList<Patch *> *scenePatches);
 
 #endif

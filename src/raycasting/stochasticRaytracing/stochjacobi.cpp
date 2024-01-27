@@ -8,6 +8,7 @@ sampling positions on shooters with higher order radiosity approximation
 TODO: global lines and global line bundles.
 */
 
+#include "java/util/ArrayList.txx"
 #include "common/error.h"
 #include "shared/options.h"
 #include "raycasting/stochasticRaytracing/mcradP.h"
@@ -154,11 +155,11 @@ stochasticJacobiElementSetup(StochasticRadiosityElement *elem) {
 Returns true if succes, that is: sum of sampling probabilities is nonzero
 */
 static int
-stochasticJacobiSetup() {
+stochasticJacobiSetup(java::ArrayList<Patch *> *scenePatches) {
     // Determine constant control radiosity if required
     colorClear(GLOBAL_stochasticRaytracing_monteCarloRadiosityState.controlRadiance);
     if ( do_control_variate ) {
-        GLOBAL_stochasticRaytracing_monteCarloRadiosityState.controlRadiance = determineControlRadiosity(get_radiance, nullptr);
+        GLOBAL_stochasticRaytracing_monteCarloRadiosityState.controlRadiance = determineControlRadiosity(get_radiance, nullptr, scenePatches);
     }
 
     sum_probs = 0.0;
@@ -730,11 +731,12 @@ doStochasticJacobiIteration(
     long nr_rays,
     COLOR *(*GetRadiance)(StochasticRadiosityElement *),
     float (*GetImportance)(StochasticRadiosityElement *),
-    void (*Update)(StochasticRadiosityElement *P, double w))
+    void (*Update)(StochasticRadiosityElement *P, double w),
+    java::ArrayList<Patch *> *scenePatches)
 {
     stochasticJacobiInitGlobals(nr_rays, GetRadiance, GetImportance, Update);
     stochasticJacobiPrintMessage(nr_rays);
-    if ( !stochasticJacobiSetup()) {
+    if ( !stochasticJacobiSetup(scenePatches) ) {
         return;
     }
     stochasticJacobiShootRays();
