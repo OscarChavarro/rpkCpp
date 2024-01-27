@@ -10,7 +10,6 @@ TODO: global lines and global line bundles.
 
 #include "java/util/ArrayList.txx"
 #include "common/error.h"
-#include "shared/options.h"
 #include "raycasting/stochasticRaytracing/mcradP.h"
 #include "raycasting/stochasticRaytracing/hierarchy.h"
 #include "raycasting/stochasticRaytracing/ccr.h"

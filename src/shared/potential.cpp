@@ -7,7 +7,6 @@ Routines dealing with view potential
 #include "java/util/ArrayList.txx"
 #include "common/error.h"
 #include "material/statistics.h"
-#include "shared/options.h"
 #include "shared/render.h"
 #include "shared/canvas.h"
 #include "shared/softids.h"

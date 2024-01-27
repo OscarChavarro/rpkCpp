@@ -136,7 +136,7 @@ mainComputeSomeSceneStats() {
     GLOBAL_statistics_totalArea = 0.;
 
     // Accumulate
-    java::ArrayList<Patch *> *scenePatches = convertPatchSetToPatchList(GLOBAL_scene_patches);
+    java::ArrayList<Patch *> *scenePatches = convertPatchSetToPatchList(GLOBAL_app_scenePatches);
     for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
         mainPatchAccumulateStats(scenePatches->get(i));
     }
@@ -198,7 +198,7 @@ mainBuildLightSourcePatchList() {
     GLOBAL_scene_lightSourcePatches = nullptr;
     GLOBAL_statistics_numberOfLightSources = 0;
 
-    java::ArrayList<Patch *> *scenePatches = convertPatchSetToPatchList(GLOBAL_scene_patches);
+    java::ArrayList<Patch *> *scenePatches = convertPatchSetToPatchList(GLOBAL_app_scenePatches);
     for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
         mainAddPatchToLightSourceListIfLightSource(scenePatches->get(i));
     }
@@ -291,7 +291,7 @@ mainInit() {
     mainRenderingDefaults();
     toneMapDefaults();
     cameraDefaults();
-    radianceDefaults(convertPatchSetToPatchList(GLOBAL_scene_patches));
+    radianceDefaults(convertPatchSetToPatchList(GLOBAL_app_scenePatches));
     mainRayTracingDefaults();
 
     // Default vertex compare flags: both location and normal is relevant. Two
@@ -382,7 +382,7 @@ mainReadFile(char *filename) {
     // Terminate any active radiance or raytracing methods
     fprintf(stderr, "Terminating current radiance/raytracing method ... \n");
     RADIANCEMETHOD *oRadiance = GLOBAL_radiance_currentRadianceMethodHandle;
-    setRadianceMethod(nullptr, convertPatchSetToPatchList(GLOBAL_scene_patches));
+    setRadianceMethod(nullptr, convertPatchSetToPatchList(GLOBAL_app_scenePatches));
     Raytracer *oRayTracing = GLOBAL_raytracer_activeRaytracer;
     mainSetRayTracingMethod(nullptr);
 
@@ -392,7 +392,7 @@ mainReadFile(char *filename) {
         GLOBAL_scene_materials = new java::ArrayList<Material *>();
     }
 
-    GLOBAL_scene_patches = nullptr;
+    GLOBAL_app_scenePatches = nullptr;
     patchSetNextId(1);
     GLOBAL_scene_clusteredWorld = nullptr;
     GLOBAL_scene_background = nullptr;
@@ -428,13 +428,13 @@ mainReadFile(char *filename) {
     fprintf(stderr, "Disposing of the old scene ... ");
     fflush(stderr);
     if ( GLOBAL_radiance_currentRadianceMethodHandle ) {
-        GLOBAL_radiance_currentRadianceMethodHandle->terminate(convertPatchSetToPatchList(GLOBAL_scene_patches));
+        GLOBAL_radiance_currentRadianceMethodHandle->terminate(convertPatchSetToPatchList(GLOBAL_app_scenePatches));
     }
     if ( GLOBAL_raytracer_activeRaytracer ) {
         GLOBAL_raytracer_activeRaytracer->Terminate();
     }
 
-    PatchSet *listWindow = GLOBAL_scene_patches;
+    PatchSet *listWindow = GLOBAL_app_scenePatches;
     while ( listWindow != nullptr ) {
         PatchSet *next = listWindow->next;
         free(listWindow);
@@ -481,7 +481,7 @@ mainReadFile(char *filename) {
     fprintf(stderr, "Building patch list ... ");
     fflush(stderr);
 
-    GLOBAL_scene_patches = buildPatchList(GLOBAL_scene_world, nullptr /*should replace with new list*/);
+    GLOBAL_app_scenePatches = buildPatchList(GLOBAL_scene_world, nullptr /*should replace with new list*/);
 
     t = clock();
     fprintf(stderr, "%g secs.\n", (float) (t - last) / (float) CLOCKS_PER_SEC);
@@ -501,7 +501,7 @@ mainReadFile(char *filename) {
     fprintf(stderr, "Building cluster hierarchy ... ");
     fflush(stderr);
 
-    GLOBAL_scene_clusteredWorldGeom = mainCreateClusterHierarchy(GLOBAL_scene_patches);
+    GLOBAL_scene_clusteredWorldGeom = mainCreateClusterHierarchy(GLOBAL_app_scenePatches);
     if ( GLOBAL_scene_clusteredWorldGeom->methods == &GLOBAL_skin_compoundGeometryMethods ) {
         if ( GLOBAL_scene_clusteredWorldGeom->compoundData != nullptr ) {
             fprintf(stderr, "Unexpected case: review code - aggregate is not compound.\n");
@@ -546,7 +546,7 @@ mainReadFile(char *filename) {
     fprintf(stderr, "Initializing tone mapping ... ");
     fflush(stderr);
 
-    initToneMapping(convertPatchSetToPatchList(GLOBAL_scene_patches));
+    initToneMapping(convertPatchSetToPatchList(GLOBAL_app_scenePatches));
 
     t = clock();
     fprintf(stderr, "%g secs.\n", (float) (t - last) / (float) CLOCKS_PER_SEC);
@@ -572,7 +572,7 @@ mainReadFile(char *filename) {
         fprintf(stderr, "Initializing radiance computations ... ");
         fflush(stderr);
 
-        setRadianceMethod(oRadiance, convertPatchSetToPatchList(GLOBAL_scene_patches));
+        setRadianceMethod(oRadiance, convertPatchSetToPatchList(GLOBAL_app_scenePatches));
 
         t = clock();
         fprintf(stderr, "%g secs.\n", (float) (t - last) / (float) CLOCKS_PER_SEC);
@@ -614,12 +614,12 @@ mainStartUserInterface(const int *argc, char **argv) {
     if ( globalImageOutputHeight <= 0 ) {
         globalImageOutputHeight = 1080;
     }
-    createOffscreenCanvasWindow(globalImageOutputWidth, globalImageOutputHeight, convertPatchSetToPatchList(GLOBAL_scene_patches));
+    createOffscreenCanvasWindow(globalImageOutputWidth, globalImageOutputHeight, convertPatchSetToPatchList(GLOBAL_app_scenePatches));
 
     while ( !renderInitialized() );
-    renderScene(convertPatchSetToPatchList(GLOBAL_scene_patches));
+    renderScene(convertPatchSetToPatchList(GLOBAL_app_scenePatches));
 
-    batch(convertPatchSetToPatchList(GLOBAL_scene_patches));
+    batch(convertPatchSetToPatchList(GLOBAL_app_scenePatches));
 }
 
 int

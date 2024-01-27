@@ -1,3 +1,4 @@
+#include "shared/options.h"
 #include "PHOTONMAP/pmapoptions.h"
 
 CPmapState GLOBAL_photonMap_state;

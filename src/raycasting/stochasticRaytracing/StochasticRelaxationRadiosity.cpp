@@ -5,7 +5,6 @@ Stochastic Relaxation Radiosity (currently only stochastic Jacobi)
 #include "java/util/ArrayList.txx"
 #include "common/error.h"
 #include "material/statistics.h"
-#include "shared/options.h"
 #include "shared/render.h"
 #include "raycasting/stochasticRaytracing/vrml/vrml.h"
 #include "raycasting/stochasticRaytracing/mcradP.h"

@@ -4,7 +4,6 @@
 #include <ctime>
 
 #include "material/color.h"
-#include "shared/options.h"
 #include "raycasting/common/ScreenBuffer.h"
 
 const int MAXIMUM_RECON_PHOTONS = 400;

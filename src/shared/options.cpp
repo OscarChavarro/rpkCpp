@@ -10,7 +10,6 @@ Command line options and defaults
 
 char *GLOBAL_option_dummyVal = nullptr;
 int GLOBAL_options_dummyVal = 0;
-PatchSet *GLOBAL_scene_patches = nullptr;
 
 static int *globalArgumentCount;
 static char **globalCurrentArgumentValue;

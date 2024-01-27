@@ -3,7 +3,6 @@ Saves the result of a radiosity computation as a VRML file
 */
 
 #include "java/util/ArrayList.txx"
-#include "shared/options.h"
 #include "shared/defaults.h"
 #include "shared/render.h"
 #include "shared/writevrml.h"

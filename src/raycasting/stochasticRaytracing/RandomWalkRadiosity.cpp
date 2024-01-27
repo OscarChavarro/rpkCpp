@@ -2,7 +2,6 @@
 
 #include "common/error.h"
 #include "material/statistics.h"
-#include "shared/options.h"
 #include "raycasting/stochasticRaytracing/mcrad.h"
 #include "raycasting/stochasticRaytracing/mcradP.h"
 #include "raycasting/stochasticRaytracing/tracepath.h"

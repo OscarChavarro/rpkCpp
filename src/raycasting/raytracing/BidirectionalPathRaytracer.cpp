@@ -5,7 +5,6 @@
 #include "common/error.h"
 #include "skin/radianceinterfaces.h"
 #include "scene/scene.h"
-#include "shared/options.h"
 #include "shared/stratification.h"
 #include "raycasting/common/ScreenBuffer.h"
 #include "raycasting/common/raytools.h"

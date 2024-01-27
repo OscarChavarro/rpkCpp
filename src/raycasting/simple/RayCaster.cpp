@@ -8,7 +8,6 @@ a software frame buffer directly.
 #include "java/util/ArrayList.txx"
 #include "common/error.h"
 #include "material/statistics.h"
-#include "shared/options.h"
 #include "shared/SoftIdsWrapper.h"
 #include "raycasting/simple/RayCaster.h"
 

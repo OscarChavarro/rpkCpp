@@ -5,7 +5,6 @@ Estimate static adaptation for tone mapping
 #include "java/util/ArrayList.txx"
 #include "common/error.h"
 #include "material/statistics.h"
-#include "shared/options.h"
 #include "IMAGE/tonemap/tonemapping.h"
 #include "IMAGE/adaptation.h"
 

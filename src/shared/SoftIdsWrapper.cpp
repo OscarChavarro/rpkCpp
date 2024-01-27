@@ -1,5 +1,4 @@
 #include "java/util/ArrayList.txx"
-#include "shared/options.h"
 #include "shared/SoftIdsWrapper.h"
 
 static SGL_PIXEL

@@ -10,7 +10,6 @@
 #include "shared/canvas.h"
 #include "shared/renderhook.h"
 #include "shared/softids.h"
-#include "shared/options.h"
 #include "IMAGE/tonemap/tonemapping.h"
 #include "raycasting/simple/RayCaster.h"
 #include "app/opengl.h"

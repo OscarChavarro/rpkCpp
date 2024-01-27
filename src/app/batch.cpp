@@ -14,6 +14,8 @@
 #include "app/opengl.h"
 #include "app/batch.h"
 
+PatchSet *GLOBAL_app_scenePatches = nullptr;
+
 static int globalIterations = 1; // Radiance method iterations
 static int globalSaveModulo = 10; // Every 10th iteration, surface model and image will be saved
 static int globalTimings = false;
@@ -54,7 +56,7 @@ batchProcessFile(
     FILE *fp = openFile(fileName, open_mode, &isPipe);
 
     // Call the user supplied procedure to process the file
-    processFileCallback(fileName, fp, isPipe, convertPatchSetToPatchList(GLOBAL_scene_patches));
+    processFileCallback(fileName, fp, isPipe, convertPatchSetToPatchList(GLOBAL_app_scenePatches));
 
     closeFile(fp, isPipe);
 }
@@ -154,7 +156,7 @@ batchRayTrace(char *filename, FILE *fp, int isPipe) {
     GLOBAL_camera_mainCamera.changed = false;
 
     canvasPushMode();
-    rayTrace(filename, fp, isPipe, GLOBAL_raytracer_activeRaytracer, convertPatchSetToPatchList(GLOBAL_scene_patches));
+    rayTrace(filename, fp, isPipe, GLOBAL_raytracer_activeRaytracer, convertPatchSetToPatchList(GLOBAL_app_scenePatches));
     canvasPullMode();
 }
 
@@ -192,7 +194,7 @@ batch(java::ArrayList<Patch *> *scenePatches) {
                    "-----------------------------------\n\n", it);
 
             canvasPushMode();
-            done = GLOBAL_radiance_currentRadianceMethodHandle->doStep(convertPatchSetToPatchList(GLOBAL_scene_patches));
+            done = GLOBAL_radiance_currentRadianceMethodHandle->doStep(convertPatchSetToPatchList(GLOBAL_app_scenePatches));
             canvasPullMode();
 
             fflush(stdout);

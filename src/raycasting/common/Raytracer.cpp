@@ -1,5 +1,4 @@
 #include "shared/Camera.h"
-#include "shared/options.h"
 #include "material/statistics.h"
 #include "raycasting/common/Raytracer.h"
 

@@ -5,9 +5,11 @@ Stuff common to all radiance methods
 #include "java/util/ArrayList.txx"
 #include "common/error.h"
 #include "shared/defaults.h"
+#include "shared/options.h"
 #include "GALERKIN/GalerkinRadiosity.h"
-#include "raycasting/stochasticRaytracing/mcrad.h"
 #include "PHOTONMAP/PhotonMapRadiosity.h"
+#include "raycasting/stochasticRaytracing/mcrad.h"
+#include "app/batch.h"
 
 // Composes explanation for -radiance command line option
 #define STRING_LENGTH 1000
@@ -28,7 +30,7 @@ RADIANCEMETHOD *GLOBAL_radiance_currentRadianceMethodHandle = nullptr;
 static void
 radianceMethodOption(void *value) {
     char *name = *(char **) value;
-    java::ArrayList<Patch *> *scenePatches = convertPatchSetToPatchList(GLOBAL_scene_patches);
+    java::ArrayList<Patch *> *scenePatches = convertPatchSetToPatchList(GLOBAL_app_scenePatches);
 
     RADIANCEMETHOD **methodpp;
     for ( methodpp = GLOBAL_radiance_radianceMethods; *methodpp != nullptr; methodpp++) {

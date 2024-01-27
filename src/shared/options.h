@@ -32,9 +32,6 @@ extern CommandLineOptions GLOBAL_options_xyType;
 extern int GLOBAL_options_dummyVal;
 extern char *GLOBAL_option_dummyVal;
 
-// The list of all patches in the current scene. Automatically derived from 'GLOBAL_scene_world' when loading a scene
-extern PatchSet *GLOBAL_scene_patches;
-
 /**
 Shorthands for specifying command line argument type, the 'type'
 field of the CMDLINEOPTDESC structure below
