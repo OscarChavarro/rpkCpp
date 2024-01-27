@@ -45,19 +45,22 @@ static CommandLineOptionDescription batchOptions[] = {
 This routine was copied from uit.c, leaving out all interface related things
 */
 static void
-batchProcessFile(const char *filename, const char *open_mode,
-                 void (*process_file)(const char *filename, FILE *fp, int isPipe)) {
+batchProcessFile(
+    const char *fileName,
+    const char *open_mode,
+    void (*processFileCallback)(const char *fileName, FILE *fp, int isPipe, java::ArrayList<Patch *> *scenePatches))
+{
     int isPipe;
-    FILE *fp = openFile(filename, open_mode, &isPipe);
+    FILE *fp = openFile(fileName, open_mode, &isPipe);
 
-    /* call the user supplied procedure to process the file */
-    process_file(filename, fp, isPipe);
+    // Call the user supplied procedure to process the file
+    processFileCallback(fileName, fp, isPipe, convertPatchSetToPatchList(GLOBAL_scene_patches));
 
     closeFile(fp, isPipe);
 }
 
 static void
-batchSaveRadianceImage(const char *fileName, FILE *fp, int isPipe) {
+batchSaveRadianceImage(const char *fileName, FILE *fp, int isPipe, java::ArrayList<Patch *> *scenePatches) {
     clock_t t;
     char *extension;
 
@@ -84,7 +87,7 @@ batchSaveRadianceImage(const char *fileName, FILE *fp, int isPipe) {
 }
 
 static void
-batchSaveRadianceModel(const char *fileName, FILE *fp, int /*isPipe*/) {
+batchSaveRadianceModel(const char *fileName, FILE *fp, int /*isPipe*/, java::ArrayList<Patch *> *scenePatches) {
     clock_t t;
 
     if ( !fp ) {
@@ -99,7 +102,7 @@ batchSaveRadianceModel(const char *fileName, FILE *fp, int /*isPipe*/) {
     if ( GLOBAL_radiance_currentRadianceMethodHandle && GLOBAL_radiance_currentRadianceMethodHandle->WriteVRML ) {
         GLOBAL_radiance_currentRadianceMethodHandle->WriteVRML(fp);
     } else {
-        writeVRML(fp);
+        writeVRML(fp, scenePatches);
     }
 
     fprintf(stdout, "%g secs.\n", (float) (clock() - t) / (float) CLOCKS_PER_SEC);
@@ -107,7 +110,7 @@ batchSaveRadianceModel(const char *fileName, FILE *fp, int /*isPipe*/) {
 }
 
 static void
-batchSaveRaytracingImage(const char *fileName, FILE *fp, int isPipe) {
+batchSaveRaytracingImage(const char *fileName, FILE *fp, int isPipe, java::ArrayList<Patch *> *scenePatches) {
     ImageOutputHandle *img = nullptr;
     clock_t t;
 
@@ -124,7 +127,7 @@ batchSaveRaytracingImage(const char *fileName, FILE *fp, int isPipe) {
                 isPipe,
                 GLOBAL_camera_mainCamera.xSize,
                 GLOBAL_camera_mainCamera.ySize,
-                GLOBAL_statistics_referenceLuminance / 179.0);
+                GLOBAL_statistics_referenceLuminance / 179.0f);
         if ( !img ) {
             return;
         }
@@ -209,19 +212,19 @@ batch(java::ArrayList<Patch *> *scenePatches) {
 
             if ( (!(it % globalSaveModulo)) && *globalRadianceImageFileNameFormat ) {
                 int n = strlen(globalRadianceImageFileNameFormat) + 1;
-                char *fname = (char *)malloc(n);
-                snprintf(fname, n, globalRadianceImageFileNameFormat, it);
+                char *fileName = (char *)malloc(n);
+                snprintf(fileName, n, globalRadianceImageFileNameFormat, it);
                 if ( GLOBAL_render_renderOptions.trace ) {
                     char *dot;
                     char *tmpName;
                     const char *tiffExt = "tif";
 
-                    batchProcessFile(fname, "w", batchSaveRadianceImage);
+                    batchProcessFile(fileName, "w", batchSaveRadianceImage);
 
                     /* NOw, change the extenstion to '.tiff' and save it as RGB. */
 
-                    tmpName = (char *)malloc(strlen(fname) + strlen(tiffExt) + 1);
-                    strcpy(tmpName, fname);
+                    tmpName = (char *)malloc(strlen(fileName) + strlen(tiffExt) + 1);
+                    strcpy(tmpName, fileName);
                     dot = imageFileExtension(tmpName);
                     if ( dot ) {
                         *dot = '\0';
@@ -230,7 +233,7 @@ batch(java::ArrayList<Patch *> *scenePatches) {
                     batchProcessFile(tmpName, "w", batchSaveRadianceImage);
                     free(tmpName);
                 } else {
-                    batchProcessFile(fname, "w", batchSaveRadianceImage);
+                    batchProcessFile(fileName, "w", batchSaveRadianceImage);
                 }
             }
 

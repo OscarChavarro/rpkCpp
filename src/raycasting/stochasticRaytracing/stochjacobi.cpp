@@ -9,7 +9,7 @@ TODO: global lines and global line bundles.
 */
 
 #include "common/error.h"
-#include "scene/scene.h"
+#include "shared/options.h"
 #include "raycasting/stochasticRaytracing/mcradP.h"
 #include "raycasting/stochasticRaytracing/hierarchy.h"
 #include "raycasting/stochasticRaytracing/ccr.h"

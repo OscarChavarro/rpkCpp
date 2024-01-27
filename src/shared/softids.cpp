@@ -6,10 +6,10 @@ formats, etc.
 #include <cstring>
 #include <cstdlib>
 
-#include "shared/softids.h"
-#include "scene/scene.h"
-#include "shared/render.h"
 #include "common/error.h"
+#include "shared/softids.h"
+#include "shared/render.h"
+#include "shared/options.h"
 
 SGL_CONTEXT *
 setupSoftFrameBuffer() {

@@ -4,6 +4,7 @@ Non diffuse first shot
 
 #include "material/statistics.h"
 #include "scene/scene.h"
+#include "shared/options.h"
 #include "shared/render.h"
 #include "raycasting/stochasticRaytracing/localline.h"
 #include "raycasting/stochasticRaytracing/mcradP.h"

@@ -4,7 +4,7 @@ Estimate static adaptation for tone mapping
 
 #include "common/error.h"
 #include "material/statistics.h"
-#include "scene/scene.h"
+#include "shared/options.h"
 #include "IMAGE/tonemap/tonemapping.h"
 #include "IMAGE/adaptation.h"
 

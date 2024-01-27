@@ -2,7 +2,7 @@
 Saves the result of a radiosity computation as a VRML file
 */
 
-#include "scene/scene.h"
+#include "shared/options.h"
 #include "shared/defaults.h"
 #include "shared/render.h"
 #include "shared/writevrml.h"
@@ -12,20 +12,20 @@ Compute a rotation that will rotate the current "up"-direction to the Y axis.
 Y-axis positions up in VRML2.0
 */
 Matrix4x4
-transformModelVRML(Vector3D *model_rotaxis, float *model_rotangle) {
+transformModelVRML(Vector3D *modelRotationAxis, float *modelRotationAngle) {
     Vector3D up_axis;
     double cosA;
 
     VECTORSET(up_axis, 0.0, 1.0, 0.0);
     cosA = VECTORDOTPRODUCT(GLOBAL_camera_mainCamera.upDirection, up_axis);
     if ( cosA < 1. - EPSILON ) {
-        *model_rotangle = (float)acos(cosA);
-        VECTORCROSSPRODUCT(GLOBAL_camera_mainCamera.upDirection, up_axis, *model_rotaxis);
-        VECTORNORMALIZE(*model_rotaxis);
-        return rotateMatrix(*model_rotangle, *model_rotaxis);
+        *modelRotationAngle = (float)acos(cosA);
+        VECTORCROSSPRODUCT(GLOBAL_camera_mainCamera.upDirection, up_axis, *modelRotationAxis);
+        VECTORNORMALIZE(*modelRotationAxis);
+        return rotateMatrix(*modelRotationAngle, *modelRotationAxis);
     } else {
-        VECTORSET(*model_rotaxis, 0., 1., 0.);
-        *model_rotangle = 0.;
+        VECTORSET(*modelRotationAxis, 0., 1., 0.);
+        *modelRotationAngle = 0.;
         return GLOBAL_matrix_identityTransform4x4;
     }
 }
@@ -34,7 +34,7 @@ transformModelVRML(Vector3D *model_rotaxis, float *model_rotangle) {
 Write VRML ViewPoint node for the given camera position
 */
 void
-writeVRMLViewPoint(FILE *fp, Matrix4x4 model_xf, Camera *cam, const char *vpname) {
+writeVRMLViewPoint(FILE *fp, Matrix4x4 model_xf, Camera *cam, const char *viewPointName) {
     Vector3D X;
     Vector3D Y;
     Vector3D Z;
@@ -68,7 +68,7 @@ writeVRMLViewPoint(FILE *fp, Matrix4x4 model_xf, Camera *cam, const char *vpname
             eyePosition.x, eyePosition.y, eyePosition.z,
             viewRotationAxis.x, viewRotationAxis.y, viewRotationAxis.z, viewRotationAngle,
             (double) (2. * cam->fov * M_PI / 180.),
-            vpname);
+            viewPointName);
 }
 
 void
@@ -116,24 +116,26 @@ writeVRMLTrailer(FILE *fp) {
 }
 
 static void
-writeVRMLResetVertexId() {
-    for ( PatchSet *window = GLOBAL_scene_patches; window != nullptr; window = window->next ) {
-        for ( int i = 0; i < window->patch->numberOfVertices; i++ ) {
-            window->patch->vertex[i]->tmp = -1;
+writeVRMLResetVertexId(java::ArrayList<Patch *> *scenePatches) {
+    for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
+        Patch *patch = scenePatches->get(i);
+        for ( int j = 0; j < patch->numberOfVertices; j++ ) {
+            patch->vertex[j]->tmp = -1;
         }
     }
 }
 
 static void
-writeVRMLCoords(FILE *fp) {
+writeVRMLCoords(FILE *fp, java::ArrayList<Patch *> *scenePatches) {
     int id = 0, n = 0;
 
-    writeVRMLResetVertexId();
+    writeVRMLResetVertexId(scenePatches);
 
     fprintf(fp, "\tcoord Coordinate {\n\t  point [ ");
-    for ( PatchSet *window = GLOBAL_scene_patches; window != nullptr; window = window->next ) {
-        for ( int i = 0; i < window->patch->numberOfVertices; i++ ) {
-            Vertex *v = window->patch->vertex[i];
+    for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
+        Patch *patch = scenePatches->get(i);
+        for ( int j = 0; j < patch->numberOfVertices; j++ ) {
+            Vertex *v = patch->vertex[j];
             if ( v->tmp == -1 ) {
                 // Not yet written
                 if ( n > 0 ) {
@@ -154,11 +156,11 @@ writeVRMLCoords(FILE *fp) {
 }
 
 static void
-writeVRMLVertexColors(FILE *fp) {
+writeVRMLVertexColors(FILE *fp, java::ArrayList<Patch *> *scenePatches) {
     int id = 0;
     int n = 0;
 
-    writeVRMLResetVertexId();
+    writeVRMLResetVertexId(scenePatches);
 
     fprintf(fp, "\tcolor Color {\n\t  color [ ");
     for ( PatchSet *window = GLOBAL_scene_patches; window != nullptr; window = window->next ) {
@@ -204,10 +206,10 @@ writeVRMLFaceColors(FILE *fp) {
 }
 
 static void
-writeVRMLColors(FILE *fp) {
+writeVRMLColors(FILE *fp, java::ArrayList<Patch *> *scenePatches) {
     fprintf(fp, "\tcolorPerVertex %s\n", GLOBAL_render_renderOptions.smooth_shading ? "TRUE" : "FALSE");
     if ( GLOBAL_render_renderOptions.smooth_shading ) {
-        writeVRMLVertexColors(fp);
+        writeVRMLVertexColors(fp, scenePatches);
     } else {
         writeVRMLFaceColors(fp);
     }
@@ -241,11 +243,11 @@ Default method for saving VRML models (if the current radiance method
 doesn't have its own one
 */
 void
-writeVRML(FILE *fp) {
+writeVRML(FILE *fp, java::ArrayList<Patch *> *scenePatches) {
     writeVrmlHeader(fp);
 
-    writeVRMLCoords(fp);
-    writeVRMLColors(fp);
+    writeVRMLCoords(fp, scenePatches);
+    writeVRMLColors(fp, scenePatches);
     writeVRMLCoordIndices(fp);
 
     writeVRMLTrailer(fp);

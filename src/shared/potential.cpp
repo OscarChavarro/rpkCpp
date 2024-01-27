@@ -5,8 +5,8 @@ Routines dealing with view potential
 #include <ctime>
 
 #include "common/error.h"
-#include "scene/scene.h"
 #include "material/statistics.h"
+#include "shared/options.h"
 #include "shared/render.h"
 #include "shared/canvas.h"
 #include "shared/softids.h"

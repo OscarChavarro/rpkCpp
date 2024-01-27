@@ -3,7 +3,7 @@ Jocabi or Gauss-Seidel Galerkin radiosity
 */
 
 #include "java/util/ArrayList.txx"
-#include "scene/scene.h"
+#include "shared/options.h"
 #include "skin/Vertex.h"
 #include "shared/Camera.h"
 #include "shared/potential.h"
@@ -169,7 +169,7 @@ randomWalkRadiosityDoGatheringIteration() {
         }
     }
 
-    /* non importance-driven Jacobi iterations with lazy linking */
+    // Non importance-driven Jacobi iterations with lazy linking
     if ( GLOBAL_galerkin_state.iteration_method != GAUSS_SEIDEL && GLOBAL_galerkin_state.lazy_linking &&
          !GLOBAL_galerkin_state.importance_driven ) {
         for ( PatchSet *window = GLOBAL_scene_patches; window != nullptr; window = window->next ) {
@@ -177,17 +177,17 @@ randomWalkRadiosityDoGatheringIteration() {
         }
     }
 
-    /* no visualisation with ambient term for gathering radiosity algorithms */
+    // No visualisation with ambient term for gathering radiosity algorithms
     colorClear(GLOBAL_galerkin_state.ambient_radiance);
 
-    /* one iteration = gather to all patches */
+    // One iteration = gather to all patches
     for ( PatchSet *window = GLOBAL_scene_patches; window != nullptr; window = window->next ) {
         patchGather(window->patch);
     }
 
-    /* update the radiosity after gathering to all patches with Jacobi, immediately
-     * update with Gauss-Seidel so the new radiosity are already used for the
-     * still-to-be-processed patches in the same iteration. */
+    // Update the radiosity after gathering to all patches with Jacobi, immediately
+    // update with Gauss-Seidel so the new radiosity are already used for the
+    // still-to-be-processed patches in the same iteration
     if ( GLOBAL_galerkin_state.iteration_method == JACOBI ) {
         for ( PatchSet *window = GLOBAL_scene_patches; window != nullptr; window = window->next ) {
             patchUpdateRadiance(window->patch);
@@ -200,7 +200,7 @@ randomWalkRadiosityDoGatheringIteration() {
         }
     }
 
-    return false;    /* never done, until we have a better criterium. */
+    return false; // Never done, until we have a better criteria
 }
 
 /**

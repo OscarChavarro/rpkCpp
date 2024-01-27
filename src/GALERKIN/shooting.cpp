@@ -1,4 +1,4 @@
-/*
+/**
 Southwell Galerkin radiosity (progressive refinement radiosity)
 */
 
@@ -6,7 +6,7 @@ Southwell Galerkin radiosity (progressive refinement radiosity)
 
 #include "material/statistics.h"
 #include "common/error.h"
-#include "scene/scene.h"
+#include "shared/options.h"
 #include "skin/Vertex.h"
 #include "shared/Camera.h"
 #include "shared/potential.h"

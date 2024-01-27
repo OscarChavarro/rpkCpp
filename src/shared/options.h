@@ -7,6 +7,8 @@ Command line options and defaults
 
 #include <cstdio>
 
+#include "skin/PatchSet.h"
+
 /**
 Command line option value type structures
 */
@@ -29,6 +31,9 @@ extern CommandLineOptions GLOBAL_options_rgbType;
 extern CommandLineOptions GLOBAL_options_xyType;
 extern int GLOBAL_options_dummyVal;
 extern char *GLOBAL_option_dummyVal;
+
+// The list of all patches in the current scene. Automatically derived from 'GLOBAL_scene_world' when loading a scene
+extern PatchSet *GLOBAL_scene_patches;
 
 /**
 Shorthands for specifying command line argument type, the 'type'

@@ -16,9 +16,6 @@ extern java::ArrayList<Material *> *GLOBAL_scene_materials;
 // The current background (sky, environment map, etc.) for the scene
 extern Background *GLOBAL_scene_background;
 
-// The list of all patches in the current scene. Automatically derived from 'GLOBAL_scene_world' when loading a scene
-extern PatchSet *GLOBAL_scene_patches;
-
 // The light of all patches on light sources, useful for e.g. next event estimation in Monte Carlo raytracing etc.
 extern PatchSet *GLOBAL_scene_lightSourcePatches;
 
