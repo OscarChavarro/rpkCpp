@@ -10,18 +10,18 @@
 #define TOLERANCE 1e-5
 #define MAX_EXCLUDED_PATCHES 4
 
-static inline double
-clipToUnitInterval(double x) {
-    return x < EPSILON ? EPSILON : (x > (1.0 - EPSILON) ? 1.0 - EPSILON : x);
-}
-
-static Patch *excludedPatches[MAX_EXCLUDED_PATCHES] = {nullptr, nullptr, nullptr, nullptr};
+static Patch *globalExcludedPatches[MAX_EXCLUDED_PATCHES] = {nullptr, nullptr, nullptr, nullptr};
 
 /**
 A static counter which is increased every time a Patch is created in
 order to make a unique Patch id
 */
 static int globalPatchId = 1;
+
+static inline double
+clipToUnitInterval(double x) {
+    return x < EPSILON ? EPSILON : (x > (1.0 - EPSILON) ? 1.0 - EPSILON : x);
+}
 
 Patch::Patch():
     id{}, twin{}, brepData{}, vertex{}, numberOfVertices{}, boundingBox{}, normal{}, planeConstant{},
@@ -79,12 +79,11 @@ patchNormal(Patch *patch, Vector3D *normal) {
     float norm;
     Vector3Dd prev;
     Vector3Dd cur;
-    int i;
 
     VECTORSET(*normal, 0, 0, 0);
     VECTORSUBTRACT(*patch->vertex[patch->numberOfVertices - 1]->point,
                    *patch->vertex[0]->point, cur);
-    for ( i = 0; i < patch->numberOfVertices; i++ ) {
+    for ( int i = 0; i < patch->numberOfVertices; i++ ) {
         prev = cur;
         VECTORSUBTRACT(*patch->vertex[i]->point, *patch->vertex[0]->point, cur);
         normal->x += (float)((prev.y - cur.y) * (prev.z + cur.z));
@@ -92,9 +91,9 @@ patchNormal(Patch *patch, Vector3D *normal) {
         normal->z += (float)((prev.x - cur.x) * (prev.y + cur.y));
     }
 
-    if ((norm = VECTORNORM(*normal)) < EPSILON ) {
+    if ( (norm = VECTORNORM(*normal)) < EPSILON ) {
         logWarning("patchNormal", "degenerate patch (id %d)", patch->id);
-        return (Vector3D *) nullptr;
+        return nullptr;
     }
     VECTORSCALEINVERSE(norm, *normal, *normal);
 
@@ -137,7 +136,7 @@ randomWalkRadiosityPatchArea(Patch *P) {
              * (0,0),(0,1),(1,0) to a triangular patch is constant and equal
              * to the area of the triangle ... so there is no need to store
              * any coefficients explicitely */
-            P->jacobian = (Jacobian *) nullptr;
+            P->jacobian = nullptr;
 
             p1 = P->vertex[0]->point;
             p2 = P->vertex[1]->point;
@@ -164,8 +163,9 @@ randomWalkRadiosityPatchArea(Patch *P) {
             c = VECTORDOTPRODUCT(cp3, P->normal);
 
             P->area = a + 0.5f * (b + c);
-            if ( P->area < 0. ) {    /* may happen if the normal direction and
-      a = -a;			 * vertex order are not consistent. */
+            if ( P->area < 0. ) {
+                // May happen if the normal direction and
+                // a = -a; vertex order are not consistent
                 b = -b;
                 c = -c;
                 P->area = -P->area;
@@ -174,15 +174,14 @@ randomWalkRadiosityPatchArea(Patch *P) {
             // b and c are zero for parallelograms. In that case, the area is equal to
             // a, so we don't need to store the coefficients
             if ( fabs(b) / P->area < EPSILON && fabs(c) / P->area < EPSILON ) {
-                P->jacobian = (Jacobian *) nullptr;
+                P->jacobian = nullptr;
             } else {
                 P->jacobian = jacobianCreate(a, b, c);
             }
-
             break;
         default:
             logFatal(2, "randomWalkRadiosityPatchArea", "Can only handle triangular and quadrilateral patches.\n");
-            P->jacobian = (Jacobian *) nullptr;
+            P->jacobian = nullptr;
             P->area = 0.0;
     }
 
@@ -194,7 +193,7 @@ randomWalkRadiosityPatchArea(Patch *P) {
 }
 
 /**
-Computes the midpoint of the patch, stores the result in p and
+Computes the mid point of the patch, stores the result in p and
 returns a pointer to p
 */
 Vector3D *
@@ -213,12 +212,11 @@ Computes a certain "width" for the plane, e.g. for co-planarity testing
 */
 float
 patchTolerance(Patch *patch) {
-    int i;
     float tolerance;
 
     // Fill in the vertices in the plane equation + take into account the vertex position tolerance
     tolerance = 0.0f;
-    for ( i = 0; i < patch->numberOfVertices; i++ ) {
+    for ( int i = 0; i < patch->numberOfVertices; i++ ) {
         Vector3D *p = patch->vertex[i]->point;
         float e = (float)std::fabs(VECTORDOTPRODUCT(patch->normal, *p) + patch->planeConstant)
                    + VECTORTOLERANCE(*p);
@@ -248,22 +246,22 @@ patchCreate(int numberOfVertices, Vertex *v1, Vertex *v2, Vertex *v3, Vertex *v4
     // This may occur after an error parsing the input file, and some other routine
     // will already complain
     if ( !v1 || !v2 || !v3 || (numberOfVertices == 4 && !v4)) {
-        return (Patch *) nullptr;
+        return nullptr;
     }
 
     // It's sad but it's true
     if ( numberOfVertices != 3 && numberOfVertices != 4 ) {
         logError("patchCreate", "Can only handle quadrilateral or triangular patches");
-        return (Patch *) nullptr;
+        return nullptr;
     }
 
     patch = (Patch *)malloc(sizeof(Patch));
     GLOBAL_statistics_numberOfElements++;
-    patch->twin = (Patch *) nullptr;
+    patch->twin = nullptr;
     patch->id = globalPatchId;
     globalPatchId++;
 
-    patch->surface = (MeshSurface *) nullptr;
+    patch->surface = nullptr;
 
     patch->numberOfVertices = (char)numberOfVertices;
     patch->vertex[0] = v1;
@@ -271,16 +269,16 @@ patchCreate(int numberOfVertices, Vertex *v1, Vertex *v2, Vertex *v3, Vertex *v4
     patch->vertex[2] = v3;
     patch->vertex[3] = v4;
 
-    patch->brepData = (BREP_FACE *) nullptr;
+    patch->brepData = nullptr;
 
     // A bounding box will be computed the first time it is needed
-    patch->boundingBox = (float *) nullptr;
+    patch->boundingBox = nullptr;
 
     // Compute normal
     if ( !patchNormal(patch, &patch->normal)) {
         free(patch);
         GLOBAL_statistics_numberOfElements--;
-        return (Patch *) nullptr;
+        return nullptr;
     }
 
     // Also computes the jacobian
@@ -341,7 +339,7 @@ patchDestroy(Patch *patch) {
     }
 
     if ( patch->twin ) {
-        patch->twin->twin = (Patch *) nullptr;
+        patch->twin->twin = nullptr;
     }
 
     free(patch);
@@ -443,9 +441,6 @@ patchPrintId(FILE *out, Patch *patch) {
 
 void
 patchPrint(FILE *out, Patch *patch) {
-    COLOR Rd;
-    COLOR Ed;
-
     fprintf(out, "Patch id %d:\n", patch->id);
     fprintf(out, "%d vertices:\n", patch->numberOfVertices);
     for ( int i = 0; i < patch->numberOfVertices; i++ ) {
@@ -469,6 +464,10 @@ patchPrint(FILE *out, Patch *patch) {
     fprintf(out, "sided = %d, material = '%s'\n",
             patch->surface->material->sided,
             patch->surface->material->name ? patch->surface->material->name : "(default)");
+
+    COLOR Rd;
+    COLOR Ed;
+
     colorClear(Rd);
     if ( patch->surface->material->bsdf ) {
         Rd = patchAverageNormalAlbedo(patch, BRDF_DIFFUSE_COMPONENT);
@@ -518,18 +517,18 @@ patchDontIntersect(int n, ...) {
 
     va_start(ap, n);
     for ( i = 0; i < n; i++ ) {
-        excludedPatches[i] = va_arg(ap, Patch *);
+        globalExcludedPatches[i] = va_arg(ap, Patch *);
     }
     va_end(ap);
 
     while ( i < MAX_EXCLUDED_PATCHES ) {
-        excludedPatches[i++] = nullptr;
+        globalExcludedPatches[i++] = nullptr;
     }
 }
 
 int
 isExcludedPatch(Patch *p) {
-    Patch **excl = excludedPatches;
+    Patch **excl = globalExcludedPatches;
     // MAX_EXCLUDED_PATCHES tests!
     return (*excl == p || *++excl == p || *++excl == p || *++excl == p);
 }
@@ -651,7 +650,7 @@ patchTextureCoordAtUv(Patch *patch, double u, double v) {
 Returns (u,v) coordinates of the point in the triangle
 Didier Badouel, Graphics Gems I, p390
 */
-static int
+static bool
 triangleUv(Patch *patch, Vector3D *point, Vector2Dd *uv) {
     static Patch *cachedPatch = nullptr;
     double u0;
@@ -663,7 +662,7 @@ triangleUv(Patch *patch, Vector3D *point, Vector2Dd *uv) {
     Vector2Dd p1;
     Vector2Dd p2;
 
-    if ( !patch ) {
+    if ( patch == nullptr ) {
         patch = cachedPatch;
     }
     cachedPatch = patch;
@@ -801,7 +800,7 @@ quadUv(Patch *patch, Vector3D *point, Vector2Dd *uv) {
     V2Negate(AE);
     V2Sub(M, A, AM);
 
-    if ( fabs(DETERMINANT(AB, CD)) < EPSILON ) {
+    if ( std::fabs(DETERMINANT(AB, CD)) < EPSILON ) {
 	    // Case AB // CD
         V2Sub (AB, CD, Vector);
         v = DETERMINANT(AM, Vector) / DETERMINANT(AD, Vector);
@@ -863,7 +862,7 @@ quadUv(Patch *patch, Vector3D *point, Vector2Dd *uv) {
 Badouels and Schlicks method from graphics gems: slower, but consumes less storage and computes
 (u,v) parameters as a side result
 */
-static int
+static bool
 hitInPatch(RayHit *hit, Patch *patch) {
     hit->flags |= HIT_UV; // uv parameters computed as a side result
     return (patch->numberOfVertices == 3)
@@ -901,27 +900,27 @@ patchIntersect(
     if ( dist > EPSILON ) {
         // Back facing patch
         if ( !(hitFlags & HIT_BACK) ) {
-            return (RayHit *) nullptr;
+            return nullptr;
         } else {
             hit.flags = HIT_BACK;
         }
     } else if ( dist < -EPSILON ) {
         // Front facing patch
         if ( !(hitFlags & HIT_FRONT)) {
-            return (RayHit *) nullptr;
+            return nullptr;
         } else {
             hit.flags = HIT_FRONT;
         }
     } else {
         // Ray is parallel with the plane of the patch
-        return (RayHit *) nullptr;
+        return nullptr;
     }
 
     dist = -(VECTORDOTPRODUCT(patch->normal, ray->pos) + patch->planeConstant) / dist;
 
     if ( dist > *maximumDistance || dist < minimumDistance ) {
         // Intersection too far or too close
-        return (RayHit *) nullptr;
+        return nullptr;
     }
 
     // Intersection point of ray with plane of patch
@@ -929,8 +928,8 @@ patchIntersect(
     VECTORSUMSCALED(ray->pos, dist, ray->dir, hit.point);
 
     // Test whether it lays inside or outside the patch
-    if ( hitInPatch(&hit, patch)) {
-        hit.geom = (Geometry *) nullptr; // we don't know it
+    if ( hitInPatch(&hit, patch) ) {
+        hit.geom = nullptr; // we don't know it
         hit.patch = patch;
         hit.material = patch->surface->material;
         hit.gnormal = patch->normal;
@@ -947,7 +946,7 @@ patchIntersect(
         return hitStore;
     }
 
-    return (RayHit *) nullptr;
+    return nullptr;
 }
 
 /**
@@ -959,7 +958,9 @@ will be v.A.
 */
 void
 biLinearToUniform(Patch *patch, double *u, double *v) {
-    double a = patch->jacobian->A, b = patch->jacobian->B, c = patch->jacobian->C;
+    double a = patch->jacobian->A;
+    double b = patch->jacobian->B;
+    double c = patch->jacobian->C;
     *u = ((a + 0.5 * c) + 0.5 * b * (*u)) * (*u) / patch->area;
     *v = ((a + 0.5 * b) + 0.5 * c * (*v)) * (*v) / patch->area;
 }
@@ -974,7 +975,9 @@ is returned. Problems seem to be due to numerical inaccuracy
 */
 static int
 solveQuadraticUnitInterval(double A, double B, double C, double *x) {
-    double D = B * B - 4. * A * C, x1, x2;
+    double D = B * B - 4.0 * A * C;
+    double x1;
+    double x2;
 
     if ( A < TOLERANCE && A > -TOLERANCE ) {
         // Degenerate case, solve B*x + C = 0
@@ -989,8 +992,8 @@ solveQuadraticUnitInterval(double A, double B, double C, double *x) {
             return false;
         }
 
-        D = D > TOLERANCE * TOLERANCE ? sqrt(D) : 0.;
-        A = 1. / (2. * A);
+        D = D > TOLERANCE * TOLERANCE ? sqrt(D) : 0.0;
+        A = 1.0 / (2.0 * A);
         x1 = (-B + D) * A;
         x2 = (-B - D) * A;
 
@@ -1080,18 +1083,14 @@ u and v should be numbers in the range [0,1]. If u+v>1 for a triangle,
 */
 Vector3D *
 patchPoint(Patch *patch, double u, double v, Vector3D *point) {
-    Vector3D *v1;
-    Vector3D *v2;
-    Vector3D *v3;
-    Vector3D *v4;
-
     if ( patch->hasZeroVertices() ) {
         return nullptr;
     }
 
-    v1 = patch->vertex[0]->point;
-    v2 = patch->vertex[1]->point;
-    v3 = patch->vertex[2]->point;
+    Vector3D *v1 = patch->vertex[0]->point;
+    Vector3D *v2 = patch->vertex[1]->point;
+    Vector3D *v3 = patch->vertex[2]->point;
+    Vector3D *v4;
 
     if ( patch->numberOfVertices == 3 ) {
         if ( u + v > 1.0 ) {
@@ -1137,7 +1136,7 @@ patchUv(Patch *poly, Vector3D *point, double *u, double *v) {
     static Patch *cached;
     Patch *thePoly;
     Vector2Dd uv;
-    int inside = false;
+    bool inside = false;
 
     thePoly = poly ? poly : cached;
     cached = thePoly;
