@@ -551,7 +551,7 @@ photonMapDoStep(java::ArrayList<Patch *> *scenePatches) {
 Undoes the effect of mainInit() and all side-effects of Step()
 */
 static void
-photonMapTerminate() {
+photonMapTerminate(java::ArrayList<Patch *> * /*scenePatches*/) {
     if ( GLOBAL_photonMap_config.screen ) {
         delete GLOBAL_photonMap_config.screen;
         GLOBAL_photonMap_config.screen = nullptr;

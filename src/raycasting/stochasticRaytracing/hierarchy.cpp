@@ -39,21 +39,17 @@ elementHierarchyInit() {
 }
 
 void
-elementHierarchyTerminate() {
+elementHierarchyTerminate(java::ArrayList<Patch *> *scenePatches) {
     // Destroy clusters
     monteCarloRadiosityDestroyClusterHierarchy(GLOBAL_stochasticRaytracing_hierarchy.topcluster);
     GLOBAL_stochasticRaytracing_hierarchy.topcluster = (StochasticRadiosityElement *) nullptr;
 
     // Destroy surface elements
-    PatchSet *listStart = (PatchSet *)(GLOBAL_scene_patches);
-    if ( listStart != nullptr ) {
-        PatchSet *patchWindow;
-        for ( patchWindow = listStart; patchWindow; patchWindow = patchWindow->next ) {
-            Patch *p = (Patch *) (patchWindow->patch);
-            // need to be destroyed before destroying the automatically created vertices
-            monteCarloRadiosityDestroyToplevelSurfaceElement(TOPLEVEL_ELEMENT(p));
-            p->radianceData = nullptr; // prevents destroying a 2nd time later
-        }
+    for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
+        Patch *patch = scenePatches->get(i);
+        // Need to be destroyed before destroying the automatically created vertices
+        monteCarloRadiosityDestroyToplevelSurfaceElement(TOPLEVEL_ELEMENT(patch));
+        patch->radianceData = nullptr; // Prevents destroying a 2nd time later
     }
 
     // Delete vertices

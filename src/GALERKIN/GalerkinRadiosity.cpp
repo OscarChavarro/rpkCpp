@@ -351,7 +351,7 @@ doGalerkinOneStep(java::ArrayList<Patch *> *scenePatches) {
 }
 
 static void
-terminateGalerkin() {
+terminateGalerkin(java::ArrayList<Patch *> * /*scenePatches*/) {
     scratchTerminate();
     galerkinDestroyClusterHierarchy(GLOBAL_galerkin_state.top_cluster);
 }

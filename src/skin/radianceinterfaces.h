@@ -46,7 +46,7 @@ class RADIANCEMETHOD {
     int (*doStep)(java::ArrayList<Patch *> *scenePatches);
 
     // Terminates radiance computations on the current scene
-    void (*Terminate)();
+    void (*terminate)(java::ArrayList<Patch *> *scenePatches);
 
     // Returns the radiance being emitted from the specified patch, at
     // the point with given (u,v) parameters and into the given direction

@@ -380,7 +380,7 @@ stochasticRelaxationRadiosityDoStep(java::ArrayList<Patch *> *scenePatches) {
     if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.currentIteration == 1 ) {
         int initial_nr_of_rays = 0;
         if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.doNonDiffuseFirstShot )
-            doNonDiffuseFirstShot();
+            doNonDiffuseFirstShot(scenePatches);
         initial_nr_of_rays = GLOBAL_stochasticRaytracing_monteCarloRadiosityState.tracedRays;
 
         if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceDriven ) {

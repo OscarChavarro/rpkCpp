@@ -543,18 +543,18 @@ stochasticJacobiElementShootRays(StochasticRadiosityElement *elem, int rays_this
 Fire off rays from the leaf elements, propagate radiance/importance
 */
 static void
-stochasticJacobiShootRays() {
+stochasticJacobiShootRays(java::ArrayList<Patch *> *scenePatches) {
     double rnd = drand48();
     long ray_count = 0;
     double p_cumul = 0.0;
 
     // Loop over all leaf elements in the element hierarchy
-    for ( PatchSet *window = GLOBAL_scene_patches; window != nullptr; window = window->next ) {
-        REC_ForAllSurfaceLeafs(leaf, TOPLEVEL_ELEMENT(window->patch))
+    for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
+        REC_ForAllSurfaceLeafs(leaf, TOPLEVEL_ELEMENT(scenePatches->get(i)))
                 {
                     double p = leaf->prob / sum_probs;
                     long rays_this_leaf =
-                            (long) floor((p_cumul + p) * (double) nr_rays + rnd) - ray_count;
+                            (long) std::floor((p_cumul + p) * (double) nr_rays + rnd) - ray_count;
 
                     if ( rays_this_leaf > 0 ) {
                         stochasticJacobiElementShootRays(leaf, rays_this_leaf);
@@ -739,6 +739,6 @@ doStochasticJacobiIteration(
     if ( !stochasticJacobiSetup(scenePatches) ) {
         return;
     }
-    stochasticJacobiShootRays();
+    stochasticJacobiShootRays(scenePatches);
     stochasticJacobiPushUpdatePullSweep();
 }

@@ -77,8 +77,10 @@ extern ELEM_HIER_STATE GLOBAL_stochasticRaytracing_hierarchy;
 #define DEFAULT_EH_CLUSTERING               ORIENTED_CLUSTERING
 #define DEFAULT_EH_TVERTEX_ELIMINATION        true
 
+#include "java/util/ArrayList.h"
+
 extern void elementHierarchyDefaults();
 extern void elementHierarchyInit();
-extern void elementHierarchyTerminate();
+extern void elementHierarchyTerminate(java::ArrayList<Patch *> *scenePatches);
 
 #endif

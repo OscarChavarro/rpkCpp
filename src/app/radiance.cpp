@@ -58,7 +58,7 @@ This routine sets the current radiance method to be used + initializes
 void
 setRadianceMethod(RADIANCEMETHOD *newMethod, java::ArrayList<Patch *> *scenePatches) {
     if ( GLOBAL_radiance_currentRadianceMethodHandle ) {
-        GLOBAL_radiance_currentRadianceMethodHandle->Terminate();
+        GLOBAL_radiance_currentRadianceMethodHandle->terminate(scenePatches);
         // Until we have radiance data convertors, we dispose of the old data and
         // allocate new data for the new method
         if ( GLOBAL_radiance_currentRadianceMethodHandle->DestroyPatchData ) {

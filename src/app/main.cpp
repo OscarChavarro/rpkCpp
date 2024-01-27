@@ -428,7 +428,7 @@ mainReadFile(char *filename) {
     fprintf(stderr, "Disposing of the old scene ... ");
     fflush(stderr);
     if ( GLOBAL_radiance_currentRadianceMethodHandle ) {
-        GLOBAL_radiance_currentRadianceMethodHandle->Terminate();
+        GLOBAL_radiance_currentRadianceMethodHandle->terminate(convertPatchSetToPatchList(GLOBAL_scene_patches));
     }
     if ( GLOBAL_raytracer_activeRaytracer ) {
         GLOBAL_raytracer_activeRaytracer->Terminate();

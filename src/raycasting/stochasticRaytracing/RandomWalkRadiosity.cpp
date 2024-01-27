@@ -401,8 +401,8 @@ randomWalkRadiosityDoStep(java::ArrayList<Patch *> *scenePatches) {
 }
 
 static void
-randomWalkRadiosityTerminate() {
-    monteCarloRadiosityTerminate();
+randomWalkRadiosityTerminate(java::ArrayList<Patch *> *scenePatches) {
+    monteCarloRadiosityTerminate(scenePatches);
 }
 
 #define STRING_SIZE 2000

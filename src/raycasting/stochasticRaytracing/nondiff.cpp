@@ -2,6 +2,7 @@
 Non diffuse first shot
 */
 
+#include "java/util/ArrayList.txx"
 #include "material/statistics.h"
 #include "scene/scene.h"
 #include "shared/options.h"
@@ -27,7 +28,7 @@ initLight(LIGHTSOURCETABLE *light, Patch *l, double flux) {
 }
 
 static void
-makeLightSourceTable() {
+makeLightSourceTable(java::ArrayList<Patch *> *scenePatches) {
     int i = 0;
     globalTotalFlux = 0.0;
     globalNumberOfLights = GLOBAL_statistics_numberOfLightSources;
@@ -40,8 +41,8 @@ makeLightSourceTable() {
         initLight(&globalLights[i], light, flux);
         i++;
     }
-    for ( PatchSet *window = GLOBAL_scene_patches; window != nullptr; window = window->next ) {
-        Patch *patch = window->patch;
+    for ( i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
+        Patch *patch = scenePatches->get(i);
         stochasticRadiosityClearCoefficients(getTopLevelPatchRad(patch), getTopLevelPatchBasis(patch));
         stochasticRadiosityClearCoefficients(getTopLevelPatchUnShotRad(patch), getTopLevelPatchBasis(patch));
         stochasticRadiosityClearCoefficients(getTopLevelPatchReceivedRad(patch), getTopLevelPatchBasis(patch));
@@ -136,14 +137,14 @@ sampleLightSources(int nr_samples) {
 }
 
 static void
-summarize() {
+summarize(java::ArrayList<Patch *> *scenePatches) {
     colorClear(GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotFlux);
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotYmp = 0.;
     colorClear(GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalFlux);
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalYmp = 0.;
     colorClear(GLOBAL_stochasticRaytracing_monteCarloRadiosityState.indirectImportanceWeightedUnShotFlux);
-    for ( PatchSet *window = GLOBAL_scene_patches; window != nullptr; window = window->next ) {
-        Patch *patch = window->patch;
+    for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
+        Patch *patch = scenePatches->get(i);
         colorAddScaled(GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotFlux, M_PI * patch->area, getTopLevelPatchUnShotRad(patch)[0], GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotFlux);
         colorAddScaled(GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalFlux, M_PI * patch->area, getTopLevelPatchRad(patch)[0], GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalFlux);
         colorAddScaled(GLOBAL_stochasticRaytracing_monteCarloRadiosityState.indirectImportanceWeightedUnShotFlux, M_PI * patch->area * (TOPLEVEL_ELEMENT(patch)->imp - TOPLEVEL_ELEMENT(patch)->source_imp), getTopLevelPatchUnShotRad(patch)[0],
@@ -159,10 +160,10 @@ summarize() {
 Initial shooting pass handling non-diffuse light sources
 */
 void
-doNonDiffuseFirstShot() {
-    makeLightSourceTable();
+doNonDiffuseFirstShot(java::ArrayList<Patch *> *scenePatches) {
+    makeLightSourceTable(scenePatches);
     sampleLightSources(
             GLOBAL_stochasticRaytracing_monteCarloRadiosityState.initialLightSourceSamples * globalNumberOfLights);
-    summarize();
-    renderScene(convertPatchSetToPatchList(GLOBAL_scene_patches));
+    summarize(scenePatches);
+    renderScene(scenePatches);
 }
