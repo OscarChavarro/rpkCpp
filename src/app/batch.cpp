@@ -192,7 +192,7 @@ batch(java::ArrayList<Patch *> *scenePatches) {
                    "-----------------------------------\n\n", it);
 
             canvasPushMode();
-            done = GLOBAL_radiance_currentRadianceMethodHandle->DoStep();
+            done = GLOBAL_radiance_currentRadianceMethodHandle->doStep(convertPatchSetToPatchList(GLOBAL_scene_patches));
             canvasPullMode();
 
             fflush(stdout);

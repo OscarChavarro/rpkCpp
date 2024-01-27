@@ -535,20 +535,16 @@ colors are used for hardware rendering if the default hardware rendering
 method is not superceeded in this file
 */
 static int
-photonMapDoStep() {
+photonMapDoStep(java::ArrayList<Patch *> *scenePatches) {
     GLOBAL_photonMap_state.wake_up = false;
     GLOBAL_photonMap_state.lastclock = clock();
 
-    /* do some real work now */
-
     photonMapBRRealIteration();
-
     photonMapRadiosityUpdateCpuSecs();
 
     GLOBAL_photonMap_state.runstop_nr++;
 
-    return false;    /* done. Return false if you want the computations to
-		 * continue. */
+    return false; // Done. Return false if you want the computations to continue
 }
 
 /**
@@ -680,12 +676,10 @@ photonMapGetRadiance(Patch *patch,
 }
 
 static void
-photonMapRenderScreen() {
+photonMapRenderScreen(java::ArrayList<Patch *> *scenePatches) {
     if ( GLOBAL_photonMap_config.screen && GLOBAL_photonMap_state.renderImage ) {
         GLOBAL_photonMap_config.screen->render();
     } else {
-        java::ArrayList<Patch *> *scenePatches = convertPatchSetToPatchList(GLOBAL_scene_patches);
-
         for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
             renderPatch(scenePatches->get(i));
         }

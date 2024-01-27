@@ -373,8 +373,8 @@ stochasticRelaxationRadiosityDiscardIncremental() {
 }
 
 static int
-stochasticRelaxationRadiosityDoStep() {
-    monteCarloRadiosityPreStep(convertPatchSetToPatchList(GLOBAL_scene_patches));
+stochasticRelaxationRadiosityDoStep(java::ArrayList<Patch *> *scenePatches) {
+    monteCarloRadiosityPreStep(scenePatches);
 
     // Do some real work now
     if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.currentIteration == 1 ) {
@@ -396,7 +396,7 @@ stochasticRelaxationRadiosityDoStep() {
                 }
             }
         }
-        stochasticRelaxationRadiosityDoIncrementalRadianceIterations(convertPatchSetToPatchList(GLOBAL_scene_patches));
+        stochasticRelaxationRadiosityDoIncrementalRadianceIterations(scenePatches);
 
         // Subsequent regular iterations will take as many rays as in the whole
         // sequence of incremental iteration steps
@@ -440,12 +440,12 @@ stochasticRelaxationRadiosityRenderPatch(Patch *patch) {
 }
 
 static void
-stochasticRelaxationRadiosityRender() {
+stochasticRelaxationRadiosityRender(java::ArrayList<Patch *> *scenePatches) {
     if ( GLOBAL_render_renderOptions.frustum_culling ) {
         renderWorldOctree(stochasticRelaxationRadiosityRenderPatch);
     } else {
-        for ( PatchSet *window = GLOBAL_scene_patches; window != nullptr; window = window->next ) {
-            stochasticRelaxationRadiosityRenderPatch(window->patch);
+        for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
+            stochasticRelaxationRadiosityRenderPatch(scenePatches->get(i));
         }
     }
 }

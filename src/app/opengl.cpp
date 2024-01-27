@@ -491,8 +491,8 @@ renderNewDisplayList() {
 
 void
 reallyRender(java::ArrayList<Patch *> *scenePatches) {
-    if ( GLOBAL_radiance_currentRadianceMethodHandle && GLOBAL_radiance_currentRadianceMethodHandle->RenderScene ) {
-        GLOBAL_radiance_currentRadianceMethodHandle->RenderScene();
+    if ( GLOBAL_radiance_currentRadianceMethodHandle && GLOBAL_radiance_currentRadianceMethodHandle->renderScene ) {
+        GLOBAL_radiance_currentRadianceMethodHandle->renderScene(scenePatches);
     } else if ( GLOBAL_render_renderOptions.frustum_culling ) {
         renderWorldOctree(renderPatch);
     } else {

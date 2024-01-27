@@ -70,9 +70,9 @@ randomWalkRadiosityGetSelfEmittedRadiance(StochasticRadiosityElement *elem) {
 Subtracts (1 - rho) * control radiosity from the source radiosity of each patch
 */
 static void
-randomWalkRadiosityReduceSource() {
-    for ( PatchSet *window = GLOBAL_scene_patches; window != nullptr; window = window->next ) {
-        Patch *patch = window->patch;
+randomWalkRadiosityReduceSource(java::ArrayList<Patch *> *scenePatches) {
+    for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
+        Patch *patch = scenePatches->get(i);
         COLOR newSourceRadiance;
         COLOR rho;
 
@@ -223,7 +223,7 @@ randomWalkRadiosityDoShootingIteration() {
 Determines control radiosity value for collision gathering estimator
 */
 static COLOR
-randomWalkRadiosityDetermineGatheringControlRadiosity() {
+randomWalkRadiosityDetermineGatheringControlRadiosity(java::ArrayList<Patch *> *scenePatches) {
     COLOR c1;
     COLOR c2;
     COLOR cr;
@@ -231,13 +231,13 @@ randomWalkRadiosityDetermineGatheringControlRadiosity() {
     colorClear(c1);
     colorClear(c2);
 
-    for ( PatchSet *window = GLOBAL_scene_patches; window != nullptr; window = window->next ) {
+    for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
         COLOR absorb;
         COLOR rho;
         COLOR Ed;
         COLOR num;
         COLOR denom;
-        Patch *patch = window->patch;
+        Patch *patch = scenePatches->get(i);
 
         colorSetMonochrome(absorb, 1.0);
         rho = TOPLEVEL_ELEMENT(patch)->Rd;
@@ -328,7 +328,7 @@ randomWalkRadiosityGatheringUpdate(Patch *P, double w) {
 Returns true when converged and false if not
 */
 static void
-randomWalkRadiosityDoGatheringIteration() {
+randomWalkRadiosityDoGatheringIteration(java::ArrayList<Patch *> *scenePatches) {
     long nr_walks = GLOBAL_stochasticRaytracing_monteCarloRadiosityState.initialNumberOfRays;
     if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.continuousRandomWalk ) {
         nr_walks *= GLOBAL_stochasticRadiosisty_approxDesc[GLOBAL_stochasticRaytracing_monteCarloRadiosityState.approximationOrderType].basis_size;
@@ -339,8 +339,8 @@ randomWalkRadiosityDoGatheringIteration() {
 
     if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.constantControlVariate && GLOBAL_stochasticRaytracing_monteCarloRadiosityState.currentIteration == 1 ) {
         // Constant control variate for gathering random walk radiosity
-        GLOBAL_stochasticRaytracing_monteCarloRadiosityState.controlRadiance = randomWalkRadiosityDetermineGatheringControlRadiosity();
-        randomWalkRadiosityReduceSource(); // Do this only once!
+        GLOBAL_stochasticRaytracing_monteCarloRadiosityState.controlRadiance = randomWalkRadiosityDetermineGatheringControlRadiosity(scenePatches);
+        randomWalkRadiosityReduceSource(scenePatches); // Do this only once!
     }
 
     fprintf(stderr, "Collision gathering iteration %d (%ld paths, approximately %ld rays)\n",
@@ -372,8 +372,8 @@ randomWalkRadiosityDoFirstShot() {
 }
 
 static int
-randomWalkRadiosityDoStep() {
-    monteCarloRadiosityPreStep(convertPatchSetToPatchList(GLOBAL_scene_patches));
+randomWalkRadiosityDoStep(java::ArrayList<Patch *> *scenePatches) {
+    monteCarloRadiosityPreStep(scenePatches);
 
     if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.currentIteration == 1 ) {
         if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.indirectOnly ) {
@@ -386,15 +386,15 @@ randomWalkRadiosityDoStep() {
             randomWalkRadiosityDoShootingIteration();
             break;
         case RW_GATHERING:
-            randomWalkRadiosityDoGatheringIteration();
+            randomWalkRadiosityDoGatheringIteration(scenePatches);
             break;
         default:
             logFatal(-1, "randomWalkRadiosityDoStep", "Unknown random walk estimator type %d",
                      GLOBAL_stochasticRaytracing_monteCarloRadiosityState.randomWalkEstimatorType);
     }
 
-    for ( PatchSet *window = GLOBAL_scene_patches; window != nullptr; window = window->next ) {
-        monteCarloRadiosityPatchComputeNewColor(window->patch);
+    for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
+        monteCarloRadiosityPatchComputeNewColor(scenePatches->get(i));
     }
 
     return false; // Never converged
@@ -402,7 +402,6 @@ randomWalkRadiosityDoStep() {
 
 static void
 randomWalkRadiosityTerminate() {
-    /*  TerminateLightSampling(); */
     monteCarloRadiosityTerminate();
 }
 
@@ -442,6 +441,6 @@ RADIANCEMETHOD GLOBAL_stochasticRaytracing_randomWalkRadiosity = {
     randomWalkRadiosityPrintPatchData,
     monteCarloRadiosityDestroyPatchData,
     randomWalkRadiosityGetStats,
-    (void (*)()) nullptr,
+    nullptr,
     nullptr
 };

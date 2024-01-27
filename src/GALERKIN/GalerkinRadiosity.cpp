@@ -316,7 +316,7 @@ initGalerkin() {
 }
 
 static int
-doGalerkinOneStep() {
+doGalerkinOneStep(java::ArrayList<Patch *> *scenePatches) {
     int done = false;
 
     if ( GLOBAL_galerkin_state.iteration_nr < 0 ) {
@@ -440,7 +440,7 @@ galerkinRenderPatch(Patch *patch) {
 }
 
 void
-galerkinRender() {
+galerkinRender(java::ArrayList<Patch *> *scenePatches) {
     if ( GLOBAL_render_renderOptions.frustum_culling ) {
         renderWorldOctree(galerkinRenderPatch);
     } else {

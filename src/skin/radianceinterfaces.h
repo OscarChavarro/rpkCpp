@@ -43,7 +43,7 @@ class RADIANCEMETHOD {
     // Does one step or iteration of the radiance computation, typically a unit
     // of computations after which the scene is to be redrawn. Returns TRUE when
     // done
-    int (*DoStep)();
+    int (*doStep)(java::ArrayList<Patch *> *scenePatches);
 
     // Terminates radiance computations on the current scene
     void (*Terminate)();
@@ -68,7 +68,7 @@ class RADIANCEMETHOD {
     // a nullptr pointer. In that case, the default hardware assisted rendering
     // method (in render.c) is used: render all the patches with the RGB color
     // triplet they were assigned
-    void (*RenderScene)();
+    void (*renderScene)(java::ArrayList<Patch *> *scenePatches);
 
     // If defined, this routine will save the current model in VRML format.
     // If not defined, the default method implemented in writevrml.[ch] will
