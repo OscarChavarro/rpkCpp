@@ -214,7 +214,7 @@ geomPatchList(Geometry *geom) {
 java::ArrayList<Patch *> *
 geomPatchArrayList(Geometry *geom) {
     if ( geom->methods == &GLOBAL_skin_surfaceGeometryMethods ) {
-        return surfacePatchArrayList(geom->surfaceData);
+        return patchListExportToArrayList(geom->surfaceData->faces);
     } else if ( geom->methods == &GLOBAL_skin_patchListGeometryMethods ) {
         return patchListExportToArrayList(geom->patchSetData);
     } else if ( geom->methods == &GLOBAL_skin_compoundGeometryMethods ) {

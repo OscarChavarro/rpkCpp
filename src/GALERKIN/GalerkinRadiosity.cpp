@@ -362,7 +362,7 @@ getRadiance(Patch *patch, double u, double v, Vector3D /*dir*/) {
     COLOR rad;
 
     if ( patch->jacobian ) {
-        bilinearToUniform(patch, &u, &v);
+        biLinearToUniform(patch, &u, &v);
     }
 
     leaf = galerkinElementRegularLeafAtPoint(TOPLEVEL_ELEMENT(patch), &u, &v);

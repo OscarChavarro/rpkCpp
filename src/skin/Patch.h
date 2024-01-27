@@ -16,7 +16,7 @@ class Element;
 
 class Patch {
 public:
-    unsigned id; // Iidentification number for debugging, ID rendering
+    unsigned id; // Identification number for debugging, ID rendering
     Patch *twin; // Twin face (for double-sided surfaces)
     BREP_FACE *brepData; // Topological data for the patch. Only filled in if a radiance method needs it
     Vertex *vertex[MAXIMUM_VERTICES_PER_PATCH]; // Pointers to the vertices
@@ -43,7 +43,7 @@ public:
     MeshSurface *surface; // Pointer to surface data (contains vertex list, material properties)
 
     Patch();
-    int isVirtual() const;
+    int hasZeroVertices() const;
 
     void
     setVisible() {
@@ -56,7 +56,7 @@ public:
     }
 
     bool
-    isVisible() {
+    isVisible() const {
         return (flags & PATCH_VISIBILITY) != 0;
     }
 };
@@ -74,8 +74,8 @@ extern Vector3D *patchPoint(Patch *patch, double u, double v, Vector3D *point);
 extern Vector3D *patchUniformPoint(Patch *patch, double u, double v, Vector3D *point);
 extern int patchUv(Patch *poly, Vector3D *point, double *u, double *v);
 extern int patchUniformUv(Patch *poly, Vector3D *point, double *u, double *v);
-extern void bilinearToUniform(Patch *patch, double *u, double *v);
-extern void uniformToBilinear(Patch *patch, double *u, double *v);
+extern void biLinearToUniform(Patch *patch, double *u, double *v);
+extern void uniformToBiLinear(Patch *patch, double *u, double *v);
 extern Vector3D patchInterpolatedNormalAtUv(Patch *patch, double u, double v);
 extern void patchInterpolatedFrameAtUv(Patch *patch, double u, double v, Vector3D *X, Vector3D *Y, Vector3D *Z);
 extern Vector3D patchTextureCoordAtUv(Patch *patch, double u, double v);

@@ -41,12 +41,12 @@ CLightList::CLightList(PatchSet *list, bool includeVirtualPatches) {
 
     ForAllInList(Patch, light, list)
                 {
-                    if ( !light->isVirtual() || includeVirtual ) {
+                    if ( !light->hasZeroVertices() || includeVirtual ) {
                         if ( light->surface->material->edf != nullptr ) {
                             info.light = light;
 
                             // calc emittedFlux
-                            if ( light->isVirtual()) {
+                            if ( light->hasZeroVertices()) {
                                 COLOR e = edfEmittance(light->surface->material->edf, (RayHit *) nullptr,
                                                        DIFFUSE_COMPONENT);
                                 info.emittedFlux = colorAverage(e);
@@ -79,7 +79,7 @@ Patch *CLightList::Sample(double *x_1, double *pdf) {
     double currentSum;
 
     info = iterator.Next();
-    while ((info != nullptr) && (info->light->isVirtual()) && (!includeVirtual) ) {
+    while ((info != nullptr) && (info->light->hasZeroVertices()) && (!includeVirtual) ) {
         info = iterator.Next();
     }
 
@@ -93,7 +93,7 @@ Patch *CLightList::Sample(double *x_1, double *pdf) {
     while ((rnd > currentSum) && (info != nullptr)) {
         lastInfo = info;
         info = iterator.Next();
-        while ((info != nullptr) && (info->light->isVirtual()) && (!includeVirtual)) {
+        while ((info != nullptr) && (info->light->hasZeroVertices()) && (!includeVirtual)) {
             info = iterator.Next();
         }
 
@@ -148,7 +148,7 @@ double CLightList::EvalPDF(Patch *light, Vector3D *point) {
     if ( totalFlux < EPSILON ) {
         return 0.0;
     }
-    if ( light->isVirtual() ) {
+    if ( light->hasZeroVertices() ) {
         return EvalPDF_virtual(light, point);
     } else {
         return EvalPDF_real(light, point);
@@ -250,7 +250,7 @@ double CLightList::ComputeOneLightImportance(Patch *light,
     // TODO!!!  1) patch should become class
     //          2) virtual patch should become child-class
     //          3) this method should be handled by specialisation
-    if ( light->isVirtual()) {
+    if ( light->hasZeroVertices()) {
         return
                 ComputeOneLightImportance_virtual(light, point, normal, emittedFlux);
     } else {
@@ -275,7 +275,7 @@ void CLightList::ComputeLightImportances(Vector3D *point, Vector3D *normal) {
 
     // next
     info = iterator.Next();
-    while ((info != nullptr) && (info->light->isVirtual()) && (!includeVirtual)) {
+    while ((info != nullptr) && (info->light->hasZeroVertices()) && (!includeVirtual)) {
         info = iterator.Next();
     }
 
@@ -287,7 +287,7 @@ void CLightList::ComputeLightImportances(Vector3D *point, Vector3D *normal) {
 
         // next
         info = iterator.Next();
-        while ((info != nullptr) && (info->light->isVirtual()) && (!includeVirtual)) {
+        while ((info != nullptr) && (info->light->hasZeroVertices()) && (!includeVirtual)) {
             info = iterator.Next();
         }
     }
@@ -310,7 +310,7 @@ Patch *CLightList::SampleImportant(Vector3D *point, Vector3D *normal,
 
     // next
     info = iterator.Next();
-    while ((info != nullptr) && (info->light->isVirtual()) && (!includeVirtual)) {
+    while ((info != nullptr) && (info->light->hasZeroVertices()) && (!includeVirtual)) {
         info = iterator.Next();
     }
 
@@ -326,7 +326,7 @@ Patch *CLightList::SampleImportant(Vector3D *point, Vector3D *normal,
 
         // next
         info = iterator.Next();
-        while ( info != nullptr && info->light->isVirtual() && !includeVirtual ) {
+        while ( info != nullptr && info->light->hasZeroVertices() && !includeVirtual ) {
             info = iterator.Next();
         }
 

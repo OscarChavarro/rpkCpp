@@ -80,7 +80,7 @@ bool CUniformLightSampler::Sample(CPathNode */*prevNode*/,
     }
 
     // Choose point (uniform for real, sampled for background)
-    if ( light->isVirtual()) {
+    if ( light->hasZeroVertices()) {
         double pdf;
         Vector3D dir = edfSample(light->surface->material->edf, &(thisNode->m_hit), flags, x_1, x_2, nullptr, &pdf);
         VECTORSUBTRACT(thisNode->m_hit.point, dir, point);   // fake hit at distance 1!
@@ -132,7 +132,7 @@ double CUniformLightSampler::EvalPDF(CPathNode */*thisNode*/,
     }
 
     // Prob for choosing this point(/direction)
-    if ( newNode->m_hit.patch->isVirtual())          // virtual patch
+    if ( newNode->m_hit.patch->hasZeroVertices())          // virtual patch
     {
         // virtual patch has no area!
         // choosing a point == choosing a dir --> use pdf from evalEdf
@@ -210,7 +210,7 @@ bool CImportantLightSampler::Sample(CPathNode */*prevNode*/,
     }
 
     // Choose point (uniform for real, sampled for background)
-    if ( light->isVirtual()) {
+    if ( light->hasZeroVertices()) {
         double pdf;
         Vector3D dir = edfSample(light->surface->material->edf, nullptr, flags, x_1, x_2, nullptr, &pdf);
         VECTORADD(thisNode->m_hit.point, dir, point);   // fake hit at distance 1!
@@ -259,7 +259,7 @@ double CImportantLightSampler::EvalPDF(CPathNode *thisNode,
                                              &thisNode->m_normal);
 
     // Prob for choosing this point(/direction)
-    if ( newNode->m_hit.patch->isVirtual())           // virtual patch
+    if ( newNode->m_hit.patch->hasZeroVertices())           // virtual patch
     {
         // virtual patch has no area!
         // choosing a point == choosing a dir --> use pdf from evalEdf

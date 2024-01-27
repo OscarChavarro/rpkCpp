@@ -247,11 +247,6 @@ surfacePatchList(MeshSurface *surf) {
     return surf->faces;
 }
 
-java::ArrayList<Patch *> *
-surfacePatchArrayList(MeshSurface *surf) {
-    return patchListExportToArrayList(surf->faces);
-}
-
 RayHit *
 surfaceDiscretizationIntersect(
         MeshSurface *surf,

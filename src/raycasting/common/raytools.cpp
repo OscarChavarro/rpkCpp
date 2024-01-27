@@ -137,7 +137,7 @@ pathNodesVisible(CPathNode *node1, CPathNode *node2) {
     }
 
     if ( doTest ) {
-        if ( node2->m_hit.patch->isVirtual()) {
+        if ( node2->m_hit.patch->hasZeroVertices()) {
             fDistance = HUGE;
         } else {
             fDistance = (float) dist;

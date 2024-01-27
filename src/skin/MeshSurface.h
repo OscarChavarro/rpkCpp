@@ -80,9 +80,6 @@ geomGetSurface(Geometry *geom) {
     return geomIsSurface(geom) ? geom->surfaceData : nullptr;
 }
 
-extern java::ArrayList<Patch *> *
-surfacePatchArrayList(MeshSurface *surf);
-
 #include "skin/Geometry.h"
 
 #endif
