@@ -4,12 +4,9 @@ Jocabi or Gauss-Seidel Galerkin radiosity
 
 #include "java/util/ArrayList.txx"
 #include "shared/options.h"
-#include "skin/Vertex.h"
 #include "shared/Camera.h"
 #include "shared/potential.h"
 #include "material/statistics.h"
-#include "common/error.h"
-#include "GALERKIN/interactionlist.h"
 #include "GALERKIN/galerkinP.h"
 
 /**
@@ -83,11 +80,10 @@ patchGather(Patch *P) {
 Updates the potential of the element after a change of the camera, and as such
 a potential change in directly received potential
 */
-void
+static void
 gatheringUpdateDirectPotential(GalerkinElement *elem, float potential_increment) {
-    if ( elem->regularSubElements ) {
-        int i;
-        for ( i = 0; i < 4; i++ ) {
+    if ( elem->regularSubElements != nullptr ) {
+        for ( int i = 0; i < 4; i++ ) {
             gatheringUpdateDirectPotential(elem->regularSubElements[i], potential_increment);
         }
     }
@@ -161,19 +157,19 @@ Does one step of the radiance computations, returns true if the computations
 have converged and false if not
 */
 int
-randomWalkRadiosityDoGatheringIteration() {
+randomWalkRadiosityDoGatheringIteration(java::ArrayList<Patch *> *scenePatches) {
     if ( GLOBAL_galerkin_state.importance_driven ) {
         if ( GLOBAL_galerkin_state.iteration_nr <= 1 || GLOBAL_camera_mainCamera.changed ) {
-            updateDirectPotential(convertPatchSetToPatchList(GLOBAL_scene_patches));
+            updateDirectPotential(scenePatches);
             GLOBAL_camera_mainCamera.changed = false;
         }
     }
 
-    // Non importance-driven Jacobi iterations with lazy linking
+    // Not importance-driven Jacobi iterations with lazy linking
     if ( GLOBAL_galerkin_state.iteration_method != GAUSS_SEIDEL && GLOBAL_galerkin_state.lazy_linking &&
          !GLOBAL_galerkin_state.importance_driven ) {
-        for ( PatchSet *window = GLOBAL_scene_patches; window != nullptr; window = window->next ) {
-            patchLazyCreateInteractions(window->patch);
+        for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
+            patchLazyCreateInteractions(scenePatches->get(i));
         }
     }
 
@@ -181,22 +177,22 @@ randomWalkRadiosityDoGatheringIteration() {
     colorClear(GLOBAL_galerkin_state.ambient_radiance);
 
     // One iteration = gather to all patches
-    for ( PatchSet *window = GLOBAL_scene_patches; window != nullptr; window = window->next ) {
-        patchGather(window->patch);
+    for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
+        patchGather(scenePatches->get(i));
     }
 
     // Update the radiosity after gathering to all patches with Jacobi, immediately
     // update with Gauss-Seidel so the new radiosity are already used for the
     // still-to-be-processed patches in the same iteration
     if ( GLOBAL_galerkin_state.iteration_method == JACOBI ) {
-        for ( PatchSet *window = GLOBAL_scene_patches; window != nullptr; window = window->next ) {
-            patchUpdateRadiance(window->patch);
+        for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
+            patchUpdateRadiance(scenePatches->get(i));
         }
     }
 
     if ( GLOBAL_galerkin_state.importance_driven ) {
-        for ( PatchSet *window = GLOBAL_scene_patches; window != nullptr; window = window->next ) {
-            patchUpdatePotential(window->patch);
+        for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
+            patchUpdatePotential(scenePatches->get(i));
         }
     }
 
@@ -204,18 +200,19 @@ randomWalkRadiosityDoGatheringIteration() {
 }
 
 /**
-wat als ge clustering aan of afzet tijdens de berekeningen?
+what if you turn clustering on or off during the calculations?
 */
 int
-doClusteredGatheringIteration() {
+doClusteredGatheringIteration(java::ArrayList<Patch*> *scenePatches) {
     static double userErrorThreshold;
 
     if ( GLOBAL_galerkin_state.importance_driven ) {
         if ( GLOBAL_galerkin_state.iteration_nr <= 1 || GLOBAL_camera_mainCamera.changed ) {
-            updateDirectPotential(convertPatchSetToPatchList(GLOBAL_scene_patches));
-            for ( PatchSet *window = GLOBAL_scene_patches; window != nullptr; window = window->next ) {
-                GalerkinElement *top = TOPLEVEL_ELEMENT(window->patch);
-                float potential_increment = window->patch->directPotential - top->directPotential.f;
+            updateDirectPotential(scenePatches);
+            for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
+                Patch *patch = scenePatches->get(i);
+                GalerkinElement *top = (GalerkinElement *)patch->radianceData;
+                float potential_increment = patch->directPotential - top->directPotential.f;
                 gatheringUpdateDirectPotential(top, potential_increment);
             }
             gatheringClusterUpdatePotential(GLOBAL_galerkin_state.top_cluster);
@@ -225,40 +222,36 @@ doClusteredGatheringIteration() {
 
     printf("Gal iteration %i\n", GLOBAL_galerkin_state.iteration_nr);
 
-    /* initial linking stage is replaced by the creation of a self-link between
-     * the whole scene and itself */
+    // Initial linking stage is replaced by the creation of a self-link between
+    // the whole scene and itself
     if ( GLOBAL_galerkin_state.iteration_nr <= 1 ) {
         createInitialLinkWithTopCluster(GLOBAL_galerkin_state.top_cluster, RECEIVER);
     }
 
     userErrorThreshold = GLOBAL_galerkin_state.rel_link_error_threshold;
-    /* refines and computes light transport over the refined links */
+
+    // Refines and computes light transport over the refined links
     refineInteractions(GLOBAL_galerkin_state.top_cluster);
 
-    GLOBAL_galerkin_state.rel_link_error_threshold = userErrorThreshold;
+    GLOBAL_galerkin_state.rel_link_error_threshold = (float)userErrorThreshold;
 
-    /* push received radiance down the hierarchy to the leaf elements, where
-     * it is multiplied with the reflectivity and the selfemitted radiance added,
-     * and finally pulls back up for a consistent multiresolution representation
-     * of radiance over all levels. */
+    // Push received radiance down the hierarchy to the leaf elements, where
+    // it is multiplied with the reflectivity and the selfemitted radiance added,
+    // and finally pulls back up for a consistent multiresolution representation
+    // of radiance over all levels
     basisGalerkinPushPullRadiance(GLOBAL_galerkin_state.top_cluster);
 
     if ( GLOBAL_galerkin_state.importance_driven ) {
         gatheringPushPullPotential(GLOBAL_galerkin_state.top_cluster, 0.);
     }
 
-    /* no visualisation with ambient term for gathering radiosity algorithms */
+    // No visualisation with ambient term for gathering radiosity algorithms
     colorClear(GLOBAL_galerkin_state.ambient_radiance);
 
-    /* update the display colors of the patches */
-    for ( PatchSet *window = GLOBAL_scene_patches; window != nullptr; window = window->next ) {
-        patchRecomputeColor(window->patch);
+    // Update the display colors of the patches
+    for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
+        patchRecomputeColor(scenePatches->get(i));
     }
 
     return false; // Never done
-}
-
-void
-gatheringUpdateMaterial(Material *oldMaterial, Material *newMaterial) {
-    logWarning("gatheringUpdateMaterial", "Out of order");
 }

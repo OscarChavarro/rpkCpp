@@ -283,7 +283,7 @@ patchInit(Patch *patch) {
     patchRecomputeColor(patch);
 }
 
-void
+static void
 initGalerkin(java::ArrayList<Patch *> *scenePatches) {
     GLOBAL_galerkin_state.iteration_nr = 0;
     GLOBAL_galerkin_state.cpu_secs = 0.0;
@@ -333,13 +333,13 @@ doGalerkinOneStep(java::ArrayList<Patch *> *scenePatches) {
         case JACOBI:
         case GAUSS_SEIDEL:
             if ( GLOBAL_galerkin_state.clustered ) {
-                done = doClusteredGatheringIteration();
+                done = doClusteredGatheringIteration(scenePatches);
             } else {
-                done = randomWalkRadiosityDoGatheringIteration();
+                done = randomWalkRadiosityDoGatheringIteration(scenePatches);
             }
             break;
         case SOUTHWELL:
-            done = doShootingStep();
+            done = doShootingStep(scenePatches);
             break;
         default:
             logFatal(2, "doGalerkinOneStep", "Invalid iteration method %d\n", GLOBAL_galerkin_state.iteration_method);

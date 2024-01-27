@@ -7,6 +7,7 @@ Galerkin Radiosity "private" declarations
 
 #include <cstdio>
 
+#include "java/util/ArrayList.h"
 #include "common/mymath.h"
 #include "material/color.h"
 #include "shared/cubature.h"
@@ -158,19 +159,25 @@ enum ROLE {
     RECEIVER
 };
 
-extern void initGalerkin();
+// In GalerkingRadiosity.cpp
 extern void setCubatureRules(CUBARULE **triRule, CUBARULE **quadRule, CUBATURE_DEGREE degree);
 extern void patchRecomputeColor(Patch *patch);
-extern int randomWalkRadiosityDoGatheringIteration();
-extern int doClusteredGatheringIteration();
-extern void gatheringUpdateDirectPotential(GalerkinElement *elem, float potential_increment);
-extern void gatheringUpdateMaterial(Material *oldMaterial, Material *newMaterial);
-extern int doShootingStep();
-extern void shootingUpdateDirectPotential(GalerkinElement *elem, float potential_increment);
-extern void shootingUpdateMaterial(Material *oldMaterial, Material *newMaterial);
+
+// In shooting.cpp
+extern int doShootingStep(java::ArrayList<Patch *> *scenePatches);
+
+// In gathering.cpp
+extern int randomWalkRadiosityDoGatheringIteration(java::ArrayList<Patch *> *scenePatches);
+extern int doClusteredGatheringIteration(java::ArrayList<Patch *> *scenePatches);
+
+// In initiallinking.cpp
 extern void createInitialLinks(GalerkinElement *top, ROLE role);
 extern void createInitialLinkWithTopCluster(GalerkinElement *elem, ROLE role);
+
+// In hierefine.cpp
 extern void refineInteractions(GalerkinElement *top);
+
+// In basisgalerkin.cpp
 extern void basisGalerkinPushPullRadiance(GalerkinElement *top);
 
 #endif
