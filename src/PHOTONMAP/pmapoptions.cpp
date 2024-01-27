@@ -32,10 +32,6 @@ photonMapParseOptions(int *argc, char **argv) {
     parseOptions(globalPhotonMapOptions, argc, argv);
 }
 
-void
-photonMapPrintOptions(FILE *fp) {
-}
-
 CPmapState::CPmapState() {
     // One time state initialisations
     rcScreen = nullptr;

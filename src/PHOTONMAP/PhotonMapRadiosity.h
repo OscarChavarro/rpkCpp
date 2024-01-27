@@ -1,6 +1,7 @@
 #ifndef _PMAP_H_
 #define _PMAP_H_
 
+#include "java/util/ArrayList.h"
 #include "skin/radianceinterfaces.h"
 #include "raycasting/common/pathnode.h"
 #include "PHOTONMAP/photonmap.h"

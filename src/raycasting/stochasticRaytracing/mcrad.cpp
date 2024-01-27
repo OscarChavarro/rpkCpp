@@ -176,16 +176,8 @@ stochasticRelaxationRadiosityParseOptions(int *argc, char **argv) {
 }
 
 void
-stochasticRelaxationRadiosityPrintOptions(FILE *fp) {
-}
-
-void
 randomWalkRadiosityParseOptions(int *argc, char **argv) {
     parseOptions(rwrOptions, argc, argv);
-}
-
-void
-randomWalkRadiosityPrintOptions(FILE *fp) {
 }
 
 /**
@@ -551,10 +543,12 @@ monteCarloRadiosityRecomputeDisplayColors() {
     }
 }
 
+/**
 void
 monteCarloRadiosityUpdateMaterial(Material *oldMaterial, Material *newMaterial) {
     logError("monteCarloRadiosityUpdateMaterial", "Not yet implemented");
 }
+*/
 
 /**
 Returns scalar reflectance, for importance propagation

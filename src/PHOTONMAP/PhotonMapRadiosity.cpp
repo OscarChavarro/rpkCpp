@@ -1,9 +1,9 @@
 #include <cstdlib>
 #include <ctime>
 
+#include "java/util/ArrayList.h"
 #include "material/color.h"
 #include "common/error.h"
-#include "scene/scene.h"
 #include "skin/Vertex.h"
 #include "skin/Patch.h"
 #include "shared/render.h"
@@ -694,8 +694,10 @@ photonMapRenderScreen() {
     if ( GLOBAL_photonMap_config.screen && GLOBAL_photonMap_state.renderImage ) {
         GLOBAL_photonMap_config.screen->render();
     } else {
-        for ( PatchSet *window = GLOBAL_scene_patches; window != nullptr; window = window->next ) {
-            renderPatch(window->patch);
+        java::ArrayList<Patch *> *scenePatches = convertPatchSetToPatchList(GLOBAL_scene_patches);
+
+        for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
+            renderPatch(scenePatches->get(i));
         }
     }
 }
@@ -751,15 +753,11 @@ photonMapGetStats() {
 
 static void
 photonMapRecomputeDisplayColors() {
-    for ( PatchSet *window = GLOBAL_scene_patches; window != nullptr; window = window->next ) {
-        photonMapPatchComputeNewColor(window->patch);
-    }
-}
 
-static void
-photonMapUpdateMaterial(Material */*oldMaterial*/,
-                        Material */*newMaterial*/) {
-    logError("photonMapUpdateMaterial", "Not yet implemented");
+    java::ArrayList<Patch *> *scenePatches = convertPatchSetToPatchList(GLOBAL_scene_patches);
+    for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
+        photonMapPatchComputeNewColor(scenePatches->get(i));
+    }
 }
 
 RADIANCEMETHOD GLOBAL_photonMapMethods = {
@@ -768,7 +766,6 @@ RADIANCEMETHOD GLOBAL_photonMapMethods = {
     "PhotonMap",
     photonMapDefaults,
     photonMapParseOptions,
-    photonMapPrintOptions,
     photonMapInitPmap,
     photonMapDoStep,
     photonMapTerminate,
@@ -779,6 +776,5 @@ RADIANCEMETHOD GLOBAL_photonMapMethods = {
     photonMapGetStats,
     photonMapRenderScreen,
     photonMapRecomputeDisplayColors,
-    photonMapUpdateMaterial,
     (void (*)(FILE *)) nullptr
 };

@@ -291,7 +291,7 @@ mainInit() {
     mainRenderingDefaults();
     toneMapDefaults();
     cameraDefaults();
-    radianceDefaults();
+    radianceDefaults(convertPatchSetToPatchList(GLOBAL_scene_patches));
     mainRayTracingDefaults();
 
     // Default vertex compare flags: both location and normal is relevant. Two
@@ -382,7 +382,7 @@ mainReadFile(char *filename) {
     // Terminate any active radiance or raytracing methods
     fprintf(stderr, "Terminating current radiance/raytracing method ... \n");
     RADIANCEMETHOD *oRadiance = GLOBAL_radiance_currentRadianceMethodHandle;
-    setRadianceMethod(nullptr);
+    setRadianceMethod(nullptr, convertPatchSetToPatchList(GLOBAL_scene_patches));
     Raytracer *oRayTracing = GLOBAL_raytracer_activeRaytracer;
     mainSetRayTracingMethod(nullptr);
 
@@ -572,7 +572,7 @@ mainReadFile(char *filename) {
         fprintf(stderr, "Initializing radiance computations ... ");
         fflush(stderr);
 
-        setRadianceMethod(oRadiance);
+        setRadianceMethod(oRadiance, convertPatchSetToPatchList(GLOBAL_scene_patches));
 
         t = clock();
         fprintf(stderr, "%g secs.\n", (float) (t - last) / (float) CLOCKS_PER_SEC);

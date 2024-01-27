@@ -196,10 +196,6 @@ parseGalerkinOptions(int *argc, char **argv) {
     parseOptions(galerkinOptions, argc, argv);
 }
 
-static void
-printGalerkinOptions(FILE * /*fp*/) {
-}
-
 /**
 For counting how much CPU time was used for the computations
 */
@@ -453,20 +449,6 @@ galerkinRender() {
     }
 }
 
-static void
-galerkinUpdateMaterial(Material *oldMaterial, Material *newMaterial) {
-    if ( GLOBAL_galerkin_state.iteration_method == SOUTHWELL ) {
-        shootingUpdateMaterial(oldMaterial, newMaterial);
-    } else if ( GLOBAL_galerkin_state.iteration_method == JACOBI ||
-                GLOBAL_galerkin_state.iteration_method == GAUSS_SEIDEL ) {
-        gatheringUpdateMaterial(oldMaterial, newMaterial);
-    } else {
-        fprintf(stderr, "galerkinUpdateMaterial: not yet implemented.\n");
-    }
-
-    renderScene(convertPatchSetToPatchList(GLOBAL_scene_patches));
-}
-
 /* *********************************************************** */
 /* VRML output */
 static FILE *globalVrmlFileDescriptor;
@@ -612,7 +594,6 @@ RADIANCEMETHOD GLOBAL_galerkin_radiosity = {
     "Galerkin Radiosity",
     galerkinDefaults,
     parseGalerkinOptions,
-    printGalerkinOptions,
     initGalerkin,
     doGalerkinOneStep,
     terminateGalerkin,
@@ -623,6 +604,5 @@ RADIANCEMETHOD GLOBAL_galerkin_radiosity = {
     getGalerkinStats,
     galerkinRender,
     (void (*)()) nullptr,
-    galerkinUpdateMaterial,
     galerkinWriteVRML
 };

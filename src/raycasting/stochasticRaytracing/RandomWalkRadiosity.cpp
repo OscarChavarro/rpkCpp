@@ -434,7 +434,6 @@ RADIANCEMETHOD GLOBAL_stochasticRaytracing_randomWalkRadiosity = {
     "Random Walk Radiosity",
     monteCarloRadiosityDefaults,
     randomWalkRadiosityParseOptions,
-    randomWalkRadiosityPrintOptions,
     randomWalkRadiosityInit,
     randomWalkRadiosityDoStep,
     randomWalkRadiosityTerminate,
@@ -445,6 +444,5 @@ RADIANCEMETHOD GLOBAL_stochasticRaytracing_randomWalkRadiosity = {
     randomWalkRadiosityGetStats,
     (void (*)()) nullptr,
     monteCarloRadiosityRecomputeDisplayColors,
-    monteCarloRadiosityUpdateMaterial,
     (void (*)(FILE *)) nullptr
 };
