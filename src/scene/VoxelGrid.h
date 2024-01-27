@@ -62,7 +62,7 @@ class VoxelGrid {
 
     int isSmall(const float *boundsArr) const;
 
-    void putSubGeometryInsideVoxelGrid(Geometry *geom);
+    void putSubGeometryInsideVoxelGrid(Geometry *geometry);
 
     void destroyGridRecursive() const;
 

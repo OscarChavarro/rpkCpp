@@ -71,6 +71,7 @@ extern void geomDestroy(Geometry *geom);
 extern int geomIsAggregate(Geometry *geom);
 extern GeometryListNode *geomPrimList(Geometry *geom);
 extern PatchSet *geomPatchList(Geometry *geom);
+java::ArrayList<Patch *> *geomPatchArrayList(Geometry *geom);
 extern void geomDontIntersect(Geometry *geom1, Geometry *geom2);
 extern Geometry *geomDuplicate(Geometry *geom);
 
@@ -106,7 +107,7 @@ class GEOM_METHODS {
      * is filled in bounding box and a pointer to the filled in bounding box
      * returned
      */
-    float *(*getBoundingBox)(void *obj, float *boundingbox);
+    float *(*getBoundingBox)(void *obj, float *boundingBox);
 
     /**
      * This method will destroy the geometry and it's children geometries if any
@@ -129,8 +130,6 @@ class GEOM_METHODS {
      * method is not implemented for aggregate geometries
      */
     PatchSet *(*getPatchList)(void *obj);
-
-    java::ArrayList<PatchSet *> (*getPatchArrayList)(void *obj);
 
     /**
      * DiscretizationIntersect returns nullptr is the ray doesn't hit the discretization

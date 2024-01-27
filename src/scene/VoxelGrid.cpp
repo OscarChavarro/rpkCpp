@@ -137,17 +137,17 @@ VoxelGrid::putPatchInsideVoxelGrid(Patch *patch) {
 }
 
 void
-VoxelGrid::putSubGeometryInsideVoxelGrid(Geometry *geom) {
-    if ( isSmall(geom->bounds) ) {
-        if ( geom->tmp.i /*item count*/ < 10 ) {
-            putItemInsideVoxelGrid(new VoxelData(geom, GEOM_MASK), geom->bounds);
+VoxelGrid::putSubGeometryInsideVoxelGrid(Geometry *geometry) {
+    if ( isSmall(geometry->bounds) ) {
+        if ( geometry->tmp.i /*item count*/ < 10 ) {
+            putItemInsideVoxelGrid(new VoxelData(geometry, GEOM_MASK), geometry->bounds);
         } else {
-            VoxelGrid *subgrid = new VoxelGrid(geom);
+            VoxelGrid *subgrid = new VoxelGrid(geometry);
             putItemInsideVoxelGrid(new VoxelData(subgrid, GRID_MASK), subgrid->boundingBox);
         }
     } else {
-        if ( geomIsAggregate(geom) ) {
-            GeometryListNode *geometryList = geomPrimList(geom);
+        if ( geomIsAggregate(geometry) ) {
+            GeometryListNode *geometryList = geomPrimList(geometry);
             if ( geometryList != nullptr ) {
                 GeometryListNode *window;
                 for ( window = geometryList; window; window = window->next ) {
@@ -156,13 +156,9 @@ VoxelGrid::putSubGeometryInsideVoxelGrid(Geometry *geom) {
                 }
             }
         } else {
-            PatchSet *listStart = (PatchSet *)(geomPatchList(geom));
-            if ( listStart != nullptr ) {
-                PatchSet *window;
-                for ( window = listStart; window; window = window->next ) {
-                    Patch *patch = (Patch *) (window->patch);
-                    putPatchInsideVoxelGrid(patch);
-                }
+            java::ArrayList<Patch *> *patches = geomPatchArrayList(geometry);
+            for ( int i = 0; patches != nullptr && i < patches->size(); i++) {
+                putPatchInsideVoxelGrid(patches->get(i));
             }
         }
     }

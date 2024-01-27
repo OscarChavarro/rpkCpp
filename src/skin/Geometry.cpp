@@ -56,7 +56,7 @@ geomCreateBase(void *geometryData, GEOM_METHODS *methods) {
 
     if ( methods->getBoundingBox ) {
         methods->getBoundingBox(geometryData, newGeometry->bounds);
-        /* enlarge bounding box a tiny bit for more conservative bounding box culling */
+        // Enlarge bounding box a tiny bit for more conservative bounding box culling
         boundsEnlargeTinyBit(newGeometry->bounds);
         newGeometry->bounded = true;
     } else {
@@ -207,6 +207,18 @@ geomPatchList(Geometry *geom) {
         } else if ( geom->methods == &GLOBAL_skin_compoundGeometryMethods ) {
             return geom->methods->getPatchList(geom->compoundData);
         }
+    }
+    return nullptr;
+}
+
+java::ArrayList<Patch *> *
+geomPatchArrayList(Geometry *geom) {
+    if ( geom->methods == &GLOBAL_skin_surfaceGeometryMethods ) {
+        return surfacePatchArrayList(geom->surfaceData);
+    } else if ( geom->methods == &GLOBAL_skin_patchListGeometryMethods ) {
+        return patchListExportToArrayList(geom->patchSetData);
+    } else if ( geom->methods == &GLOBAL_skin_compoundGeometryMethods ) {
+        return nullptr;
     }
     return nullptr;
 }

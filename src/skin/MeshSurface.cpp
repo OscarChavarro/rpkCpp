@@ -247,6 +247,11 @@ surfacePatchList(MeshSurface *surf) {
     return surf->faces;
 }
 
+java::ArrayList<Patch *> *
+surfacePatchArrayList(MeshSurface *surf) {
+    return patchListExportToArrayList(surf->faces);
+}
+
 RayHit *
 surfaceDiscretizationIntersect(
         MeshSurface *surf,
@@ -276,8 +281,7 @@ GEOM_METHODS GLOBAL_skin_surfaceGeometryMethods = {
     (void (*)(void *)) surfaceDestroy,
     (void (*)(FILE *, void *)) surfacePrint,
     (GeometryListNode *(*)(void *)) nullptr,
-    (PatchSet *(*)(void *)) surfacePatchList,
-    nullptr,
+    (PatchSet *(*)(void *))surfacePatchList,
     (RayHit *(*)(void *, Ray *, float, float *, int, RayHit *)) surfaceDiscretizationIntersect,
     (HITLIST *(*)(HITLIST *, void *, Ray *, float, float, int)) surfaceAllDiscretizationIntersections,
     (void *(*)(void *)) nullptr

@@ -120,13 +120,23 @@ patchListDuplicate(PatchSet *patchList) {
     return newList;
 }
 
+extern java::ArrayList<Patch *> *
+patchListExportToArrayList(PatchSet *patches) {
+    java::ArrayList<Patch *> *newList = new java::ArrayList<Patch *>();
+
+    for ( PatchSet *window = patches; window != nullptr; window = window->next ) {
+        newList->add(0, window->patch);
+    }
+
+    return newList;
+}
+
 GEOM_METHODS GLOBAL_skin_patchListGeometryMethods = {
     (float *(*)(void *, float *)) patchListBounds,
     (void (*)(void *)) patchListDestroy,
     (void (*)(FILE *, void *)) patchListPrint,
     (GeometryListNode *(*)(void *)) nullptr,
     (PatchSet *(*)(void *)) getPatchList,
-    nullptr,
     (RayHit *(*)(void *, Ray *, float, float *, int, RayHit *)) patchListIntersect,
     (HITLIST *(*)(HITLIST *, void *, Ray *, float, float, int)) patchListAllIntersections,
     (void *(*)(void *)) patchListDuplicate

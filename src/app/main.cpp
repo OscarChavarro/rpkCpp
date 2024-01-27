@@ -306,7 +306,7 @@ This hierarchy is often much more efficient for tracing rays and clustering radi
 than the given hierarchy of bounding boxes. A pointer to the toplevel "cluster" is returned
 */
 static Geometry *
-mainCreateClusterHierarchy(PatchSet *patches) {
+mainCreateClusterHierarchy(java::ArrayList<Patch *> *patches) {
     Cluster *rootCluster;
     Geometry *rootGeometry;
 
@@ -495,7 +495,7 @@ mainReadFile(char *filename) {
     fprintf(stderr, "Building cluster hierarchy ... ");
     fflush(stderr);
 
-    GLOBAL_scene_clusteredWorldGeom = mainCreateClusterHierarchy(globalAppScenePatches);
+    GLOBAL_scene_clusteredWorldGeom = mainCreateClusterHierarchy(convertPatchSetToPatchList(globalAppScenePatches));
     if ( GLOBAL_scene_clusteredWorldGeom->methods == &GLOBAL_skin_compoundGeometryMethods ) {
         if ( GLOBAL_scene_clusteredWorldGeom->compoundData != nullptr ) {
             fprintf(stderr, "Unexpected case: review code - aggregate is not compound.\n");

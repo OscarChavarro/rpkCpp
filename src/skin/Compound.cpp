@@ -106,7 +106,6 @@ GEOM_METHODS GLOBAL_skin_compoundGeometryMethods = {
     (void (*)(FILE *, void *)) compoundPrint,
     (GeometryListNode *(*)(void *)) compoundPrimitives,
     nullptr,
-    nullptr,
     (RayHit *(*)(void *, Ray *, float, float *, int, RayHit *)) compoundDiscretizationIntersect,
     (HITLIST *(*)(HITLIST *, void *, Ray *, float, float, int)) compoundAllDiscretizationIntersections,
     (void *(*)(void *)) nullptr
