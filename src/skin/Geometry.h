@@ -29,6 +29,13 @@ class Compound;
 class GeometryListNode;
 class Element;
 
+enum GeometryClassId {
+    PATCH_SET,
+    SURFACE_MESH,
+    COMPOUND,
+    UNDEFINED
+};
+
 class Geometry {
   public:
     int id; // Unique ID number
@@ -56,7 +63,9 @@ class Geometry {
     java::ArrayList<Patch *> *newPatchSetData;
     GeometryListNode *aggregateData;
 
+    Geometry();
     int geomCountItems();
+    GeometryClassId className;
 };
 
 extern Geometry *geomCreateSurface(MeshSurface *surfaceData, GEOM_METHODS *methods);
@@ -67,7 +76,7 @@ extern Geometry *geomCreateAggregateCompound(GeometryListNode *aggregateData, GE
 
 extern void geomPrint(FILE *out, Geometry *geom);
 extern float *geomBounds(Geometry *geom);
-extern void geomDestroy(Geometry *geom);
+extern void geomDestroy(Geometry *geometry);
 extern int geomIsAggregate(Geometry *geom);
 extern GeometryListNode *geomPrimList(Geometry *geom);
 extern PatchSet *geomPatchList(Geometry *geom);

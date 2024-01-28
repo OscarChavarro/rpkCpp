@@ -656,9 +656,9 @@ shaftPatchTest(Patch *patch, SHAFT *shaft) {
 Returns true if the geometry is not to be enclosed in the shaft
 */
 static int
-omit(SHAFT *shaft, Geometry *geom) {
+omit(SHAFT *shaft, Geometry *geometry) {
     for ( int i = 0; i < shaft->nromit; i++ ) {
-        if ( shaft->omit[i] == geom ) {
+        if ( shaft->omit[i] == geometry ) {
             return true;
         }
     }

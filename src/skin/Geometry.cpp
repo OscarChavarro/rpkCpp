@@ -1,4 +1,5 @@
 #include <cstdlib>
+#include <cstdio>
 
 #include "java/util/ArrayList.txx"
 #include "common/error.h"
@@ -9,6 +10,10 @@ Geometry *GLOBAL_geom_excludedGeom1 = nullptr;
 Geometry *GLOBAL_geom_excludedGeom2 = nullptr;
 
 static int globalCurrentMaxId = 0;
+
+Geometry::Geometry(): id() {
+    className = GeometryClassId::UNDEFINED;
+}
 
 static void
 boundsEnlargeTinyBit(float *bounds) {
@@ -44,7 +49,7 @@ geomCreateBase(void *geometryData, GEOM_METHODS *methods) {
         return nullptr;
     }
 
-    Geometry *newGeometry = (Geometry *)malloc(sizeof(Geometry));
+    Geometry *newGeometry = new Geometry();
     GLOBAL_statistics_numberOfGeometries++;
     newGeometry->id = globalCurrentMaxId++;
     newGeometry->methods = methods;
@@ -103,6 +108,7 @@ geomCreatePatchSet(PatchSet *patchSet, GEOM_METHODS *methods) {
 
     Geometry *newGeometry = geomCreateBase(patchSet, methods);
     newGeometry->patchSetData = patchSet;
+    newGeometry->className = GeometryClassId::PATCH_SET;
     return newGeometry;
 }
 
@@ -114,6 +120,7 @@ geomCreateSurface(MeshSurface *surfaceData, GEOM_METHODS *methods) {
 
     Geometry *newGeometry = geomCreateBase(surfaceData, methods);
     newGeometry->surfaceData = surfaceData;
+    newGeometry->className = GeometryClassId::SURFACE_MESH;
     return newGeometry;
 }
 
@@ -126,6 +133,7 @@ geomCreateCompound(Compound *compoundData, GEOM_METHODS *methods) {
     Geometry *newGeometry = geomCreateBase(compoundData, methods);
     newGeometry->compoundData = compoundData;
     newGeometry->aggregateData = &compoundData->children;
+    newGeometry->className = GeometryClassId::COMPOUND;
     return newGeometry;
 }
 
@@ -163,9 +171,9 @@ geomBounds(Geometry *geom) {
 This function destroys the given geometry
 */
 void
-geomDestroy(Geometry *geom) {
+geomDestroy(Geometry *geometry) {
     //geom->methods->destroy(geom->obj);
-    free(geom);
+    delete geometry;
     GLOBAL_statistics_numberOfGeometries--;
 }
 
@@ -237,15 +245,15 @@ geomDuplicate(Geometry *geom) {
         return nullptr;
     }
 
-    Geometry *p = (Geometry *)malloc(sizeof(Geometry));
+    Geometry *newGeometry = new Geometry();
     GLOBAL_statistics_numberOfGeometries++;
-    *p = *geom;
-    p->surfaceData = geom->surfaceData;
-    p->compoundData = geom->compoundData;
-    p->patchSetData = geom->patchSetData;
-    p->aggregateData = geom->aggregateData;
+    *newGeometry = *geom;
+    newGeometry->surfaceData = geom->surfaceData;
+    newGeometry->compoundData = geom->compoundData;
+    newGeometry->patchSetData = geom->patchSetData;
+    newGeometry->aggregateData = geom->aggregateData;
 
-    return p;
+    return newGeometry;
 }
 
 /**
