@@ -1,16 +1,17 @@
+#include "java/util/ArrayList.txx"
 #include "shared/lightlist.h"
 #include "common/error.h"
 
 CLightList *GLOBAL_lightList = nullptr;
 
-CLightList::CLightList(PatchSet *list, bool includeVirtualPatches) {
+CLightList::CLightList(java::ArrayList<Patch *> *list, bool includeVirtualPatches) {
     CLightInfo info{};
     COLOR lightColor;
     {
-        static int wgiv = 0;
-        if ( !wgiv ) {
+        static int texturingEnabled = 0;
+        if ( !texturingEnabled ) {
             logWarning("CLightList::CLightList", "not yet ready for texturing");
-            wgiv = 1;
+            texturingEnabled = 1;
         }
     }
 
@@ -19,29 +20,28 @@ CLightList::CLightList(PatchSet *list, bool includeVirtualPatches) {
     includeVirtual = includeVirtualPatches;
     totalImp = 0.0;
 
-    ForAllInList(Patch, light, list)
-                {
-                    if ( !light->hasZeroVertices() || includeVirtual ) {
-                        if ( light->surface->material->edf != nullptr ) {
-                            info.light = light;
+    for ( int i = 0; list != nullptr && i < list->size(); i++ ) {
+        Patch *light = list->get(i);
+        if ( !light->hasZeroVertices() || includeVirtual ) {
+            if ( light->surface->material->edf != nullptr ) {
+                info.light = light;
 
-                            // calc emittedFlux
-                            if ( light->hasZeroVertices()) {
-                                COLOR e = edfEmittance(light->surface->material->edf, (RayHit *) nullptr,
-                                                       DIFFUSE_COMPONENT);
-                                info.emittedFlux = colorAverage(e);
-                            } else {
-                                lightColor = patchAverageEmittance(light, DIFFUSE_COMPONENT);
-                                info.emittedFlux = colorAverage(lightColor) * light->area;
-                            }
-
-                            totalFlux += info.emittedFlux;
-                            lightCount++;
-                            Append(info);
-                        }
-                    }
+                // calc emittedFlux
+                if ( light->hasZeroVertices()) {
+                    COLOR e = edfEmittance(light->surface->material->edf, (RayHit *) nullptr,
+                                           DIFFUSE_COMPONENT);
+                    info.emittedFlux = colorAverage(e);
+                } else {
+                    lightColor = patchAverageEmittance(light, DIFFUSE_COMPONENT);
+                    info.emittedFlux = colorAverage(lightColor) * light->area;
                 }
-    EndForAll;
+
+                totalFlux += info.emittedFlux;
+                lightCount++;
+                Append(info);
+            }
+        }
+    }
 }
 
 CLightList::~CLightList() {

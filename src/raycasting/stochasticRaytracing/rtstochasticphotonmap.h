@@ -169,19 +169,19 @@ public:
     SRREADOUT initialReadout;
 
 public:
-    void Init(RTStochastic_State &state);
+    void init(RTStochastic_State &state);
 
     // Constructors
     SRCONFIG() {}
 
-    SRCONFIG(RTStochastic_State &state) { Init(state); }
+    SRCONFIG(RTStochastic_State &state) { init(state); }
 
     ~SRCONFIG(){
         samplerConfig.ReleaseVars();
     };
 
 private:
-    void InitDependentVars();
+    void initDependentVars();
 };
 
 #endif

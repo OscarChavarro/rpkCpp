@@ -625,7 +625,9 @@ static void RTStochastic_Init() {
     if ( GLOBAL_lightList ) {
         delete GLOBAL_lightList;
     }
-    GLOBAL_lightList = new CLightList(GLOBAL_scene_lightSourcePatches);
+    java::ArrayList<Patch *> *tmpList = patchListExportToArrayList(GLOBAL_scene_lightSourcePatches);
+    GLOBAL_lightList = new CLightList(tmpList);
+    delete tmpList;
 }
 
 void RTStochastic_Terminate() {

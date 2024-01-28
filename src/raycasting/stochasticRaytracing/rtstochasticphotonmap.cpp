@@ -11,7 +11,8 @@
 
 CSeed CSeedConfig::m_xorseed;
 
-void SRCONFIG::Init(RTStochastic_State &state) {
+void
+SRCONFIG::init(RTStochastic_State &state) {
     // Copy state options
 
     samplesPerPixel = state.samplesPerPixel;
@@ -51,15 +52,6 @@ void SRCONFIG::Init(RTStochastic_State &state) {
         }
     }
 
-    /*
-    if(radMode == STORED_PHOTONMAP)
-    {
-      Warning("Reflection Sampling",
-        "Photonmap method uses special sampling");
-      reflectionSampling = BRDFSAMPLING;
-    }
-    */
-
     if ( radMode == STORED_PHOTONMAP ) {
         logWarning("Photon map reflection Sampling",
                    "Make sure to use the same sampling (brdf,fresnel) as for photonmap construction");
@@ -74,8 +66,8 @@ void SRCONFIG::Init(RTStochastic_State &state) {
 
     separateSpecular = state.separateSpecular;
 
-    if ( reflectionSampling == PHOTONMAPSAMPLING )  //radMode == STORED_PHOTONMAP)
-    {
+    if ( reflectionSampling == PHOTONMAPSAMPLING ) {
+        // radMode == STORED_PHOTONMAP)
         logWarning("Fresnel Specular Sampling",
                    "always uses separate specular");
         separateSpecular = true;  // Always separate specular with photonmap
@@ -87,10 +79,11 @@ void SRCONFIG::Init(RTStochastic_State &state) {
     screen = new ScreenBuffer(nullptr);
     screen->setFactor(1.0); // We're storing plain radiance
 
-    InitDependentVars();
+    initDependentVars();
 }
 
-void SRCONFIG::InitDependentVars() {
+void
+SRCONFIG::initDependentVars() {
     // Sampler configuration
     samplerConfig.pointSampler = new CEyeSampler;
     samplerConfig.dirSampler = new CPixelSampler;
@@ -106,7 +99,7 @@ void SRCONFIG::InitDependentVars() {
             samplerConfig.surfaceSampler = new CSpecularSampler;
             break;
         default:
-            logError("SRCONFIG::InitDependentVars", "Wrong sampling mode");
+            logError("SRCONFIG::initDependentVars", "Wrong sampling mode");
     }
 
     if ( lightMode == IMPORTANT_LIGHTS ) {
@@ -153,11 +146,11 @@ void SRCONFIG::InitDependentVars() {
             siStorage.nrSamplesAfter = 0;
             break;
         default:
-            logError("SRCONFIG::InitDependentVars", "Wrong Rad Mode");
+            logError("SRCONFIG::initDependentVars", "Wrong Rad Mode");
     }
 
     // Other blocks, this is non storage with optional
-    //   separation of specular components
+    // separation of specular components
 
     BSDFFLAGS remainingFlags = BSDF_ALL_COMPONENTS & ~storeFlags;
     int siIndex = 0;
@@ -203,7 +196,7 @@ void SRCONFIG::InitDependentVars() {
 
     // Glossy or diffuse with different firstDGSamples
 
-    if ((reflectionSampling != CLASSICALSAMPLING) && (scatterSamples != firstDGSamples)) {
+    if ( (reflectionSampling != CLASSICALSAMPLING) && (scatterSamples != firstDGSamples) ) {
         BSDFFLAGS gdFlags = (remainingFlags &
                              (BSDF_DIFFUSE_COMPONENT | BSDF_GLOSSY_COMPONENT));
         if ( gdFlags ) {
@@ -229,7 +222,6 @@ void SRCONFIG::InitDependentVars() {
     }
 
     // All other flags (possibly none) just get scattered normally
-
     if ( remainingFlags ) {
         siOthers[siIndex].flags = remainingFlags;
         siOthers[siIndex].nrSamplesBefore = scatterSamples;
@@ -239,14 +231,15 @@ void SRCONFIG::InitDependentVars() {
 
     siOthersCount = siIndex;
 
-    // mainInit the light list
+    // Main init the light list
     if ( GLOBAL_lightList ) {
         delete GLOBAL_lightList;
     }
-    GLOBAL_lightList = new CLightList(GLOBAL_scene_lightSourcePatches, (bool) backgroundSampling);
 
+    java::ArrayList<Patch *> *tmpList = patchListExportToArrayList(GLOBAL_scene_lightSourcePatches);
+    GLOBAL_lightList = new CLightList(tmpList, (bool) backgroundSampling);
+    delete tmpList;
 
-    // mainInit the seed config
-
+    // Main init the seed config
     seedConfig.Init(samplerConfig.maxDepth);
 }

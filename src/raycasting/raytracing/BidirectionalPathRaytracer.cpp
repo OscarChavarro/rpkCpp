@@ -1133,15 +1133,19 @@ BidirPathInterrupt() {
     GLOBAL_rayCasting_interruptRaytracing = true;
 }
 
-static void BidirPathInit() {
+static void
+BidirPathInit() {
     // mainInit the light list
     if ( GLOBAL_lightList ) {
         delete GLOBAL_lightList;
     }
-    GLOBAL_lightList = new CLightList(GLOBAL_scene_lightSourcePatches);
+    java::ArrayList<Patch *> *tmpList = patchListExportToArrayList(GLOBAL_scene_lightSourcePatches);
+    GLOBAL_lightList = new CLightList(tmpList);
+    delete tmpList;
 }
 
-static void BidirPathTerminate() {
+static void
+BidirPathTerminate() {
     if ( GLOBAL_rayTracing_biDirectionalPath.lastscreen ) {
         delete GLOBAL_rayTracing_biDirectionalPath.lastscreen;
     }

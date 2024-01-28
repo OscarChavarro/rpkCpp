@@ -1,15 +1,15 @@
-/*
- * lightlist.H : definition of the lightlist class
- *  this class can be used for sampling lights
- */
+/**
+Definition of the light list class
+this class can be used for sampling lights
+*/
 
 #ifndef _LIGHTLIST_H_
 #define _LIGHTLIST_H_
 
-#include "skin/PatchSet.h"
+#include "java/util/ArrayList.h"
 #include "common/linealAlgebra/vectorMacros.h"
-
 #include "common/dataStructures/CSList.h"
+#include "skin/PatchSet.h"
 
 class CLightInfo {
 public:
@@ -38,7 +38,7 @@ public:
 
     // A getPatchList must be supplied for building a light list.
     // Non emitting patches (edf == nullptr) are NOT put in the list.
-    CLightList(PatchSet *list, bool includeVirtualPatches = false);
+    CLightList(java::ArrayList<Patch *> *list, bool includeVirtualPatches = false);
 
     ~CLightList();
 
