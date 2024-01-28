@@ -118,8 +118,9 @@ galerkinDoCreateClusterHierarchy(Geometry *parentGeometry) {
             geomAddClusterChild(childGeometry, cluster);
         }
     } else {
-        for ( PatchSet *window = geomPatchList(parentGeometry); window != nullptr; window = window->next ) {
-            patchAddClusterChild(window->patch, cluster);
+        java::ArrayList<Patch *> *patchList = geomPatchArrayList(parentGeometry);
+        for ( int i = 0; patchList != nullptr && i < patchList->size(); i++ ) {
+            patchAddClusterChild(patchList->get(i), cluster);
         }
     }
 

@@ -3,6 +3,7 @@ Shaft culling ala Haines, E. A. and Wallace, J. R. "Shaft culling for
 efficient ray-traced radiosity", 2nd Eurographics Workshop on Rendering, Barcelona, Spain, may 1991
 */
 
+#include "java/util/ArrayList.txx"
 #include "GALERKIN/shaftculling.h"
 
 /**
@@ -673,30 +674,29 @@ see if it is inside, outside or overlapping the shaft. Inside or overlapping pat
 are added to culledPatchList. A pointer to the possibly enlonged culledPatchList
 is returned
 */
-PatchSet *
-shaftCullPatchList(PatchSet *pl, SHAFT *shaft, PatchSet *culledPatchList) {
-    int total; // Can be used for ratio-open strategies
-    int bbside;
+java::ArrayList<Patch *> *
+shaftCullPatchList(java::ArrayList<Patch *> *patchList, SHAFT *shaft, java::ArrayList<Patch *> *culledPatchList) {
+    int boundingBoxSide;
 
-    for ( total = 0; pl && !shaft->cut; pl = pl->next, total++ ) {
-        if ( pl->patch->omit || omit(shaft, (Geometry *) pl->patch)) {
+    for ( int i = 0; patchList != nullptr && !shaft->cut && i < patchList->size(); i++ ) {
+        Patch *patch = patchList->get(i);
+        // TODO SITHMASTER: Note this cast is very very bad - should change it to support Patch * directly
+        if ( patch->omit || omit(shaft, (Geometry *)patch) ) {
             continue;
         }
 
-        if ( !pl->patch->boundingBox ) { /* compute getBoundingBox */
+        if ( patch->boundingBox == nullptr ) {
+            // Compute getBoundingBox
             BOUNDINGBOX bounds;
-            patchBounds(pl->patch, bounds);
+            patchBounds(patch, bounds);
         }
-        if ((bbside = shaftBoxTest(pl->patch->boundingBox, shaft)) != OUTSIDE ) {
+        if ( (boundingBoxSide = shaftBoxTest(patch->boundingBox, shaft)) != OUTSIDE ) {
             // Patch bounding box is inside the shaft, or overlaps with it. If it
             // overlaps, do a more expensive, but definitive, test to see whether
-            // the patch itself is inside, outside or overlapping the shaft. */
-            if ( bbside == INSIDE || shaftPatchTest(pl->patch, shaft) != OUTSIDE ) {
-                if ( pl->patch != nullptr) {
-                    PatchSet *newListNode = (PatchSet *) malloc(sizeof(PatchSet));
-                    newListNode->patch = pl->patch;
-                    newListNode->next = culledPatchList;
-                    culledPatchList = newListNode;
+            // the patch itself is inside, outside or overlapping the shaft
+            if ( boundingBoxSide == INSIDE || shaftPatchTest(patch, shaft) != OUTSIDE ) {
+                if ( culledPatchList != nullptr ) {
+                    culledPatchList->add(0, patch);
                 }
             }
         }
@@ -737,12 +737,11 @@ shaftCullOpen(Geometry *geom, SHAFT *shaft, GeometryListNode *candlist) {
     if ( geomIsAggregate(geom) ) {
         candlist = doShaftCulling(geomPrimList(geom), shaft, candlist);
     } else {
-        PatchSet *patchlist;
-        patchlist = geomPatchList(geom);
+        java::ArrayList<Patch *> *patchlist = geomPatchArrayList(geom);
         patchlist = shaftCullPatchList(patchlist, shaft, nullptr);
         if ( patchlist ) {
             Geometry *newgeom;
-            newgeom = geomCreatePatchSet(patchlist, &GLOBAL_skin_patchListGeometryMethods);
+            newgeom = geomCreatePatchSetNew(patchlist, &GLOBAL_skin_patchListGeometryMethods);
             newgeom->shaftCullGeometry = true;
             candlist = geometryListAdd(candlist, newgeom);
         }

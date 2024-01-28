@@ -123,8 +123,9 @@ geomLink(Geometry *geom) {
             geomLink(geometry);
         }
     } else {
-        for ( PatchSet *window = geomPatchList(geom); window != nullptr; window = window->next ) {
-            createInitialLink(window->patch);
+        java::ArrayList<Patch *> *patchList = geomPatchArrayList(geom);
+        for ( int i = 0; patchList != nullptr && i < patchList->size(); i++ ) {
+            createInitialLink(patchList->get(i));
         }
     }
 

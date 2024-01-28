@@ -527,7 +527,7 @@ hierarchicRefinementSubdivideSourceCluster(INTERACTION *link) {
         }
 
         if ( hierarchicRefinementCreateSubdivisionLink(rcv, child, &subinteraction)) {
-            if ( !refineRecursive(&subinteraction)) {
+            if ( !refineRecursive(&subinteraction) ) {
                 hierarchicRefinementStoreInteraction(&subinteraction);
             }
         }
@@ -615,7 +615,7 @@ refineInteraction(INTERACTION *link) {
     }
     // we know for sure that there is full visibility
 
-    if ( refineRecursive(link)) {
+    if ( refineRecursive(link) ) {
         if ( GLOBAL_galerkin_state.iteration_method == SOUTHWELL )
             link->sourceElement->interactions = InteractionListRemove(link->sourceElement->interactions, link);
         else
