@@ -60,8 +60,7 @@ extern void shaftOmit(SHAFT *shaft, Geometry *geom);
 extern void shaftDontOpen(SHAFT *shaft, Geometry *geom);
 extern GeometryListNode *doShaftCulling(GeometryListNode *world, SHAFT *shaft, GeometryListNode *candidateList);
 extern GeometryListNode *shaftCullGeom(Geometry *geom, SHAFT *shaft, GeometryListNode *candlist);
-extern java::ArrayList<Patch *> *
-shaftCullPatchList(java::ArrayList<Patch *> *patchList, SHAFT *shaft, java::ArrayList<Patch *> *culledPatchList);
+extern PatchSet *shaftCullPatchList(PatchSet *pl, SHAFT *shaft, PatchSet *culledPatchList);
 extern void freeCandidateList(GeometryListNode *candidateList);
 
 #endif
