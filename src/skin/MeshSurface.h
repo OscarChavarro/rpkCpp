@@ -46,7 +46,7 @@ class MeshSurface : public Geometry {
     if a color is assigned to each vertex. Each patch also contains a back pointer to
     to MeshSurface to which it belongs
     */
-    PatchSet *faces;
+    java::ArrayList<Patch *> *faces;
 
     Material *material;
 };
@@ -64,7 +64,7 @@ surfaceCreate(
         Vector3DListNode *normals,
         Vector3DListNode *texCoords,
         java::ArrayList<Vertex *> *vertices,
-        PatchSet *faces,
+        java::ArrayList<Patch *>  *faces,
         MaterialColorFlags flags);
 
 // A set of pointers to functions to operate on a MeshSurface
@@ -79,6 +79,9 @@ inline MeshSurface*
 geomGetSurface(Geometry *geom) {
     return geomIsSurface(geom) ? geom->surfaceData : nullptr;
 }
+
+extern float *
+surfaceBounds(MeshSurface *surf, float *boundingBox);
 
 RayHit *
 surfaceDiscretizationIntersect(

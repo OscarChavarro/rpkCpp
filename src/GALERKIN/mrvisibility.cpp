@@ -75,10 +75,11 @@ geomMultiResolutionVisibility(
         if ( geomIsAggregate(geom)) {
             return geomListMultiResolutionVisibility(geomPrimList(geom), ray, rcvdist, srcSize, minimumFeatureSize);
         } else {
-            RayHit *hit;
-            if ((hit = patchListIntersect(geomPatchList(geom), ray, rcvdist * ((float) EPSILON), &rcvdist,
-                                          HIT_FRONT | HIT_ANY,
-                                          &hitstore))) {
+            RayHit *hit = patchListIntersect(
+                geomPatchArrayList(geom),
+                ray,
+                rcvdist * ((float) EPSILON), &rcvdist, HIT_FRONT | HIT_ANY, &hitstore);
+            if ( hit != nullptr ) {
                 addToShadowCache(hit->patch);
                 return 0.;
             } else {

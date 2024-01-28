@@ -72,7 +72,7 @@ surfaceCreate(
     Vector3DListNode *normals,
     Vector3DListNode *texCoords,
     java::ArrayList<Vertex *> *vertices,
-    PatchSet *faces,
+    java::ArrayList<Patch *>  *faces,
     enum MaterialColorFlags flags)
 {
     MeshSurface *surface;
@@ -98,13 +98,8 @@ surfaceCreate(
     }
 
     // Fill in the MeshSurface back pointer of the FACEs in the MeshSurface
-    PatchSet *listStart = (PatchSet *)(surface->faces);
-    if ( listStart ) {
-        PatchSet *window;
-        for ( window = listStart; window; window = window->next ) {
-            Patch *patch = window->patch;
-            surfaceConnectFace(surface, patch);
-        }
+    for ( int i = 0; surface->faces != nullptr && i < surface->faces->size(); i++ ) {
+        surfaceConnectFace(surface, surface->faces->get(i));
     }
 
     // Compute vertex colors
@@ -127,21 +122,16 @@ still be used and thus not destroyed by the BREP library
 */
 void
 surfaceDestroy(MeshSurface *surface) {
-    PatchSet *patchWindow = surface->faces;
-    Patch *patch;
-    while ( patchWindow != nullptr ) {
-        patch = patchWindow->patch;
-        patchWindow = patchWindow->next;
-        patchDestroy(patch);
+    if ( surface != nullptr || surface->faces == nullptr ) {
+        return;
     }
 
-    PatchSet *patchListNode;
-    patchWindow = surface->faces;
-    while ( patchWindow != nullptr ) {
-        patchListNode = patchWindow->next;
-        free(patchWindow);
-        patchWindow = patchListNode;
+    for ( int i = 0; i < surface->faces->size(); i++ ) {
+        patchDestroy(surface->faces->get(i));
     }
+
+    delete surface->faces;
+    surface->faces = nullptr;
 
     if ( surface->vertices != nullptr ) {
         for ( int i = 0; i < surface->vertices->size(); i++) {
@@ -210,21 +200,17 @@ surfacePrint(FILE *out, MeshSurface *surface) {
     fprintf(out, "MeshSurface id %d: material %s, patches ID: ",
             surface->id, surface->material->name);
 
-    PatchSet *patchWindow = (surface->faces);
-    Patch *patchElement;
-    while (patchWindow) {
-        patchElement = patchWindow->patch;
-        patchWindow = patchWindow->next;
-        patchPrintId(out, patchElement);
+    if ( surface == nullptr || surface->faces == nullptr ) {
+        return;
+    }
+
+    for ( int i = 0; i < surface->faces->size(); i++ ) {
+        patchPrintId(out, surface->faces->get(i));
     }
     fprintf(out, "\n");
 
-    PatchSet *patchWindow2 = (surface->faces);
-    Patch *patchElement2;
-    while (patchWindow2) {
-        patchElement2 = patchWindow2->patch;
-        patchWindow2 = patchWindow2->next;
-        patchPrint(out, patchElement2);
+    for ( int i = 0; i < surface->faces->size(); i++ ) {
+        patchPrint(out, surface->faces->get(i));
     }
 }
 
@@ -233,16 +219,16 @@ This method will compute a bounding box for a geometry. The bounding box
 is filled in bounding box and a pointer to the filled in bounding box
 returned
 */
-static float *
-surfaceBounds(MeshSurface *surf, float *boundingbox) {
-    return patchListBounds(surf->faces, boundingbox);
+float *
+surfaceBounds(MeshSurface *surf, float *boundingBox) {
+    return patchListBounds(surf->faces, boundingBox);
 }
 
 /**
 Returns the list of patches making up a primitive geometry. This
 method is not implemented for aggregate geometries
 */
-static PatchSet *
+static java::ArrayList<Patch *> *
 surfacePatchList(MeshSurface *surf) {
     return surf->faces;
 }
@@ -277,7 +263,6 @@ surfaceAllDiscretizationIntersections(
 }
 
 GEOM_METHODS GLOBAL_skin_surfaceGeometryMethods = {
-    (float *(*)(void *, float *)) surfaceBounds,
     (void (*)(void *)) surfaceDestroy,
     (void (*)(FILE *, void *)) surfacePrint,
     (GeometryListNode *(*)(void *)) nullptr,

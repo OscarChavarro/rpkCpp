@@ -10,17 +10,13 @@ Computes a bounding box for the given list of patches. The bounding box is
 filled in 'bounding box' and a pointer to it returned
 */
 float *
-patchListBounds(PatchSet *pl, float *boundingBox) {
+patchListBounds(java::ArrayList<Patch *> *patchList, float *boundingBox) {
     BOUNDINGBOX b;
 
     boundsInit(boundingBox);
-    PatchSet *listStart = pl;
-    if ( listStart != nullptr ) {
-        PatchSet *window;
-        for ( window = listStart; window; window = window->next ) {
-            patchBounds(window->patch, b);
-            boundsEnlarge(boundingBox, b);
-        }
+    for ( int i = 0; patchList != nullptr && i < patchList->size(); i++ ) {
+        patchBounds(patchList->get(i), b);
+        boundsEnlarge(boundingBox, b);
     }
 
     return boundingBox;
@@ -36,7 +32,7 @@ Tests whether the Ray intersect the patches in the list. See geometry.h
 */
 RayHit *
 patchListIntersect(
-    PatchSet *patchList,
+    java::ArrayList<Patch *> *patchList,
     Ray *ray,
     float minimumDistance,
     float *maximumDistance,
@@ -44,8 +40,8 @@ patchListIntersect(
     RayHit *hitStore)
 {
     RayHit *hit = (RayHit *) nullptr;
-    for ( PatchSet *window = patchList; window != nullptr; window = window->next ) {
-        RayHit *h = patchIntersect(window->patch, ray, minimumDistance, maximumDistance, hitFlags, hitStore);
+    for ( int i = 0; patchList != nullptr && i < patchList->size(); i++ ) {
+        RayHit *h = patchIntersect(patchList->get(i), ray, minimumDistance, maximumDistance, hitFlags, hitStore);
         if ( h ) {
             if ( hitFlags & HIT_ANY ) {
                 return h;
@@ -62,18 +58,14 @@ Tests whether the Ray intersect the patches in the list. See geometry.h
 (GeomDiscretizationIntersect()) for more explanation
 */
 HITLIST *
-patchListAllIntersections(HITLIST *hits, PatchSet *patches, Ray *ray, float minimumDistance, float maximumDistance, int hitFlags) {
+patchListAllIntersections(HITLIST *hits, java::ArrayList<Patch *> *patches, Ray *ray, float minimumDistance, float maximumDistance, int hitFlags) {
     RayHit hitStore;
-    PatchSet *listStart = patches;
-    if ( listStart != nullptr ) {
-        PatchSet *window;
-        for ( window = listStart; window; window = window->next ) {
-            Patch *patch = (Patch *)(window->patch);
-            float maxDistanceCopy = maximumDistance; // Do not modify maximumDistance
-            RayHit *hit = patchIntersect(patch, ray, minimumDistance, &maxDistanceCopy, hitFlags, &hitStore);
-            if ( hit ) {
-                hits = HitListAdd(hits, duplicateHit(hit));
-            }
+    for ( int i = 0; patches != nullptr && i < patches->size(); i++ ) {
+        Patch *patch = patches->get(i);
+        float maxDistanceCopy = maximumDistance; // Do not modify maximumDistance
+        RayHit *hit = patchIntersect(patch, ray, minimumDistance, &maxDistanceCopy, hitFlags, &hitStore);
+        if ( hit ) {
+            hits = HitListAdd(hits, duplicateHit(hit));
         }
     }
     return hits;
@@ -136,7 +128,6 @@ patchListExportToArrayList(PatchSet *patches) {
 }
 
 GEOM_METHODS GLOBAL_skin_patchListGeometryMethods = {
-    (float *(*)(void *, float *)) patchListBounds,
     (void (*)(void *)) patchListDestroy,
     (void (*)(FILE *, void *)) patchListPrint,
     (GeometryListNode *(*)(void *)) nullptr,

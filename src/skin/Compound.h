@@ -23,7 +23,7 @@ compoundDiscretizationIntersect(
     int hitFlags,
     RayHit *hitStore);
 
-RayHit *
+extern RayHit *
 aggregationDiscretizationIntersect(
     GeometryListNode *obj,
     Ray *ray,
@@ -31,5 +31,8 @@ aggregationDiscretizationIntersect(
     float *maximumDistance,
     int hitFlags,
     RayHit *hitStore);
+
+extern float *
+compoundBounds(Compound *obj, float *boundingBox);
 
 #endif

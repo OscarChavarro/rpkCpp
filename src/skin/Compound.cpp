@@ -22,7 +22,7 @@ compoundCreate(GeometryListNode *geometryList) {
 This method will compute a bounding box for a geometry. The bounding box
 is filled in bounding box and a pointer to the filled in bounding box returned
 */
-static float *
+float *
 compoundBounds(Compound *obj, float *boundingBox) {
     return geometryListBounds(&obj->children, boundingBox);
 }
@@ -119,7 +119,6 @@ compoundAllDiscretizationIntersections(
 
 // A set of pointers to the functions (methods) to operate on compounds
 GEOM_METHODS GLOBAL_skin_compoundGeometryMethods = {
-    (float *(*)(void *, float *)) compoundBounds,
     (void (*)(void *)) compoundDestroy,
     (void (*)(FILE *, void *)) compoundPrint,
     (GeometryListNode *(*)(void *)) compoundPrimitives,

@@ -1,3 +1,4 @@
+#include "java/util/ArrayList.txx"
 #include "skin/PatchSet.h"
 #include "skin/geomlist.h"
 #include "skin/Geometry.h"
@@ -45,12 +46,13 @@ buildPatchList(GeometryListNode *geometryList, PatchSet *patchList) {
                 patchList = buildPatchList(geomPrimList(geometry), patchList);
             } else {
                 PatchSet *list1 = patchList;
-                PatchSet *list2 = geomPatchList(geometry);
+                java::ArrayList<Patch *> *list2 = geomPatchArrayList(geometry);
 
-                for ( PatchSet *patchWindow = list2; patchWindow != nullptr; patchWindow = patchWindow->next ) {
-                    if ( patchWindow->patch != nullptr ) {
+                for ( int i = 0; list2 != nullptr && i < list2->size(); i++ ) {
+                    Patch *patch = list2->get(i);
+                    if ( patch != nullptr ) {
                         PatchSet *newListNode = (PatchSet *)malloc(sizeof(PatchSet));
-                        newListNode->patch = patchWindow->patch;
+                        newListNode->patch = patch;
                         newListNode->next = list1;
                         list1 = newListNode;
                     }

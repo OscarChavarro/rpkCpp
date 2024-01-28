@@ -103,13 +103,6 @@ implemented in surface.c.
 class GEOM_METHODS {
   public:
     /**
-     * This method will compute a bounding box for a geometry. The bounding box
-     * is filled in bounding box and a pointer to the filled in bounding box
-     * returned
-     */
-    float *(*getBoundingBox)(void *obj, float *boundingBox);
-
-    /**
      * This method will destroy the geometry and it's children geometries if any
      */
     void (*destroy)(void *obj);

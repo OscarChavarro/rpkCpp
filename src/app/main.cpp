@@ -621,8 +621,8 @@ mainBuildModel(const int *argc, char *const *argv) {
         if ( *argv[1] == '-' ) {
             logError(nullptr, "Unrecognized option '%s'", argv[1]);
         } else if ( !mainReadFile(argv[1]) ) {
-                exit(1);
-            }
+            exit(1);
+        }
     }
 }
 

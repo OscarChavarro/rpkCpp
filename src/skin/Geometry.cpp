@@ -40,8 +40,8 @@ Note: currently containing the super() method.
 */
 static Geometry *
 geomCreateBase(void *geometryData, GEOM_METHODS *methods) {
-    if ( geometryData == nullptr) {
-        return (Geometry *) nullptr;
+    if ( geometryData == nullptr ) {
+        return nullptr;
     }
 
     Geometry *newGeometry = (Geometry *)malloc(sizeof(Geometry));
@@ -54,15 +54,18 @@ geomCreateBase(void *geometryData, GEOM_METHODS *methods) {
     newGeometry->aggregateData = nullptr;
     newGeometry->newPatchSetData = nullptr;
 
-    if ( methods->getBoundingBox ) {
-        methods->getBoundingBox(geometryData, newGeometry->bounds);
-        // Enlarge bounding box a tiny bit for more conservative bounding box culling
-        boundsEnlargeTinyBit(newGeometry->bounds);
-        newGeometry->bounded = true;
-    } else {
-        boundsInit(newGeometry->bounds);
-        newGeometry->bounded = false;
+    if ( methods == &GLOBAL_skin_surfaceGeometryMethods ) {
+        surfaceBounds((MeshSurface *)geometryData, newGeometry->bounds);
+    } else if ( methods == &GLOBAL_skin_compoundGeometryMethods ) {
+        compoundBounds((Compound *)geometryData, newGeometry->bounds);
+    } else if ( methods == &GLOBAL_skin_patchListGeometryMethods ) {
+        PatchSet *data = (PatchSet *)geometryData;
+        patchListBounds(patchListExportToArrayList(data), newGeometry->bounds);
     }
+
+    // Enlarge bounding box a tiny bit for more conservative bounding box culling
+    boundsEnlargeTinyBit(newGeometry->bounds);
+    newGeometry->bounded = true;
     newGeometry->shaftCullGeometry = false;
 
     newGeometry->radiance_data = nullptr;
@@ -214,7 +217,7 @@ geomPatchList(Geometry *geom) {
 java::ArrayList<Patch *> *
 geomPatchArrayList(Geometry *geom) {
     if ( geom->methods == &GLOBAL_skin_surfaceGeometryMethods ) {
-        return patchListExportToArrayList(geom->surfaceData->faces);
+        return geom->surfaceData->faces;
     } else if ( geom->methods == &GLOBAL_skin_patchListGeometryMethods ) {
         return patchListExportToArrayList(geom->patchSetData);
     } else if ( geom->methods == &GLOBAL_skin_compoundGeometryMethods ) {
@@ -298,7 +301,7 @@ geomDiscretizationIntersect(
     } else if ( geom->compoundData != nullptr ) {
         return compoundDiscretizationIntersect(geom->compoundData, ray, minimumDistance, maximumDistance, hitFlags, hitStore);
     } else if ( geom->patchSetData != nullptr ) {
-        return patchListIntersect(geom->patchSetData, ray, minimumDistance, maximumDistance, hitFlags, hitStore);
+        return patchListIntersect(patchListExportToArrayList(geom->patchSetData), ray, minimumDistance, maximumDistance, hitFlags, hitStore);
     } else if ( geom->aggregateData != nullptr ) {
         return aggregationDiscretizationIntersect(geom->aggregateData, ray, minimumDistance, maximumDistance, hitFlags, hitStore);
     }
