@@ -380,12 +380,12 @@ constructPolygonToPolygonPlanes(POLYGON *p1, POLYGON *p2, SHAFT *shaft) {
             k = (i + 2) % p1->nrvertices;
             side = testPointWrtPlane(&p1->vertex[k], &normal, d);
             for ( k = (i + 3) % p1->nrvertices; k != i; k = (k + 1) % p1->nrvertices ) {
-                int nside = testPointWrtPlane(&p1->vertex[k], &normal, d);
+                int nSide = testPointWrtPlane(&p1->vertex[k], &normal, d);
                 if ( side == COPLANAR ) {
-                    side = nside;
-                } else if ( nside != COPLANAR ) {
-                    if ( side != nside ) {
-                        // side==INSIDE and nside==OUTSIDE or vice versa
+                    side = nSide;
+                } else if ( nSide != COPLANAR ) {
+                    if ( side != nSide ) {
+                        // side==INSIDE and nSide==OUTSIDE or vice versa
                         side = OVERLAP;
                     }
                 }
@@ -421,13 +421,10 @@ Constructs a shaft enclosing the two given polygons
 */
 SHAFT *
 constructPolygonToPolygonShaft(POLYGON *p1, POLYGON *p2, SHAFT *shaft) {
-    int i;
-
     // No "reference" bounding boxes to test with
     shaft->ref1 = shaft->ref2 = nullptr;
 
-    // Shaft extent = bounding box containing the bounding boxes of the
-    // patches
+    // Shaft extent = bounding box containing the bounding boxes of the patches
     boundsCopy(p1->bounds, shaft->extent);
     boundsEnlarge(shaft->extent, p2->bounds);
 
@@ -442,16 +439,16 @@ constructPolygonToPolygonShaft(POLYGON *p1, POLYGON *p2, SHAFT *shaft) {
 
     // Center positions of polygons define a line that is guaranteed to lay inside the shaft
     shaft->center1 = p1->vertex[0];
-    for ( i = 1; i < p1->nrvertices; i++ ) {
+    for ( int i = 1; i < p1->nrvertices; i++ ) {
         VECTORADD(shaft->center1, p1->vertex[i], shaft->center1);
     }
     VECTORSCALEINVERSE((float) p1->nrvertices, shaft->center1, shaft->center1);
 
     shaft->center2 = p2->vertex[0];
-    for ( i = 1; i < p2->nrvertices; i++ ) {
+    for ( int i = 1; i < p2->nrvertices; i++ ) {
         VECTORADD(shaft->center2, p2->vertex[i], shaft->center2);
     }
-    VECTORSCALEINVERSE((float) p2->nrvertices, shaft->center2, shaft->center2);
+    VECTORSCALEINVERSE((float)p2->nrvertices, shaft->center2, shaft->center2);
 
     // Determine the shaft planes
     shaft->planes = 0;
@@ -547,7 +544,7 @@ shaftPatchTest(Patch *patch, SHAFT *shaft) {
         in = out = false;
         for ( j = 0; j < patch->numberOfVertices; j++ ) {
             e[j] = VECTORDOTPRODUCT(plane_normal, *patch->vertex[j]->point) + plane->d;
-            tolerance = fabs(plane->d) * EPSILON + ptol[j];
+            tolerance = (float)(std::fabs(plane->d) * EPSILON + ptol[j]);
             side[j] = COPLANAR;
             if ( e[j] > tolerance ) {
                 side[j] = OUTSIDE;
@@ -682,13 +679,14 @@ dontOpen(SHAFT *shaft, Geometry *geom) {
 }
 
 /**
-Given a PatchSet pl and a shaft. This routine will check every patch in pl to
+Given a patchList and a shaft. This routine will check every patch in patchList to
 see if it is inside, outside or overlapping the shaft. Inside or overlapping patches
 are added to culledPatchList. A pointer to the possibly enlonged culledPatchList
 is returned
 */
-PatchSet *
-shaftCullPatchList(PatchSet *patchList, SHAFT *shaft, PatchSet *culledPatchList) {
+java::ArrayList<Patch *> *
+shaftCullPatchList(PatchSet *patchList, SHAFT *shaft) {
+    java::ArrayList<Patch *> *culledPatchList = new java::ArrayList<Patch *>();
     int total; // Can be used for ratio-open strategies
     int boundingBoxSide;
 
@@ -709,10 +707,7 @@ shaftCullPatchList(PatchSet *patchList, SHAFT *shaft, PatchSet *culledPatchList)
             // the patch itself is inside, outside or overlapping the shaft
             if ( boundingBoxSide == INSIDE || shaftPatchTest(patchList->patch, shaft) != OUTSIDE ) {
                 if ( patchList->patch != nullptr ) {
-                    PatchSet *newListNode = (PatchSet *) malloc(sizeof(PatchSet));
-                    newListNode->patch = patchList->patch;
-                    newListNode->next = culledPatchList;
-                    culledPatchList = newListNode;
+                    culledPatchList->add(0, patchList->patch);
                 }
             }
         }
@@ -754,13 +749,14 @@ shaftCullOpen(Geometry *geom, SHAFT *shaft, GeometryListNode *candidateList) {
         candidateList = doShaftCulling(geomPrimList(geom), shaft, candidateList);
     } else {
         PatchSet *patchList = geomPatchList(geom);
-        patchList = shaftCullPatchList(patchList, shaft, nullptr);
-        if ( patchList != nullptr ) {
+        java::ArrayList<Patch *> *culledPatches = shaftCullPatchList(patchList, shaft);
+        if ( culledPatches->size() > 0 ) {
             Geometry *newGeometry;
-            newGeometry = geomCreatePatchSet(patchList, &GLOBAL_skin_patchListGeometryMethods);
+            newGeometry = geomCreatePatchSetNew(culledPatches, &GLOBAL_skin_patchListGeometryMethods);
             newGeometry->shaftCullGeometry = true;
             candidateList = geometryListAdd(candidateList, newGeometry);
         }
+        delete culledPatches;
     }
     return candidateList;
 }
