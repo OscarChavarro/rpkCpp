@@ -85,7 +85,7 @@ geomCreateBase(void *geometryData, GEOM_METHODS *methods) {
 }
 
 Geometry *
-geomCreatePatchSetNew(java::ArrayList<Patch *> *geometryList, GEOM_METHODS *methods) {
+geomCreatePatchList(java::ArrayList<Patch *> *geometryList, GEOM_METHODS *methods) {
     PatchSet *patchList = nullptr;
 
     for ( int i = 0; geometryList != nullptr && i < geometryList->size(); i++ ) {
@@ -204,24 +204,6 @@ geomPrimList(Geometry *geom) {
     } else {
         return (GeometryListNode *) nullptr;
     }
-}
-
-/**
-Returns a linear list of patches making up a primitive geometry. A nullptr
-pointer is returned if the given geometry is an aggregate
-*/
-PatchSet *
-geomPatchList(Geometry *geom) {
-    if ( geom->methods->getPatchList != nullptr ) {
-        if ( geom->methods == &GLOBAL_skin_surfaceGeometryMethods ) {
-            return geom->methods->getPatchList(geom->surfaceData);
-        } else if ( geom->methods == &GLOBAL_skin_patchListGeometryMethods ) {
-            return geom->patchSetData;
-        } else if ( geom->methods == &GLOBAL_skin_compoundGeometryMethods ) {
-            return geom->methods->getPatchList(geom->compoundData);
-        }
-    }
-    return nullptr;
 }
 
 java::ArrayList<Patch *> *
@@ -379,8 +361,9 @@ Geometry::geomCountItems() {
     } else {
         count = 0;
 
-        for ( PatchSet *patches = geomPatchList(this); patches != nullptr; patches = patches->next ) {
-            count++;
+        java::ArrayList<Patch *> * list = geomPatchArrayList(this);
+        if ( list != nullptr ) {
+            count = (int)list->size();
         }
     }
 

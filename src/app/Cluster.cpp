@@ -210,7 +210,7 @@ Cluster::convertClusterToGeom() {
 
     thePatches = nullptr;
     if ( patches != nullptr ) {
-        thePatches = geomCreatePatchSetNew(patches, &GLOBAL_skin_patchListGeometryMethods);
+        thePatches = geomCreatePatchList(patches, &GLOBAL_skin_patchListGeometryMethods);
     }
 
     geometryListNode = nullptr; // Empty list

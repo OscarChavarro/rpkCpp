@@ -69,7 +69,7 @@ class Geometry {
 };
 
 extern Geometry *geomCreateSurface(MeshSurface *surfaceData, GEOM_METHODS *methods);
-extern Geometry *geomCreatePatchSetNew(java::ArrayList<Patch *> *geometryList, GEOM_METHODS *methods);
+extern Geometry *geomCreatePatchList(java::ArrayList<Patch *> *geometryList, GEOM_METHODS *methods);
 extern Geometry *geomCreatePatchSet(PatchSet *patchSet, GEOM_METHODS *methods);
 extern Geometry *geomCreateCompound(Compound *compoundData, GEOM_METHODS *methods);
 extern Geometry *geomCreateAggregateCompound(GeometryListNode *aggregateData, GEOM_METHODS *methods);
@@ -117,21 +117,10 @@ class GEOM_METHODS {
     void (*destroy)(void *obj);
 
     /**
-     * This method will printRegularHierarchy the geometry to the file out
-     */
-    void (*print)(FILE *out, void *obj);
-
-    /**
      * Returns the list of children geometries if the geometry is an aggregate.
      * This method is not implemented for primitive geometries
      */
     GeometryListNode *(*getPrimitiveGeometryChildrenList)(void *obj);
-
-    /**
-     * Returns the list of patches making up a primitive geometry. This
-     * method is not implemented for aggregate geometries
-     */
-    PatchSet *(*getPatchList)(void *obj);
 
     /**
      * Similar, but appends all found intersections to the hit list hit record

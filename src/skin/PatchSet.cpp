@@ -87,20 +87,6 @@ patchListDestroy(PatchSet *patchList) {
     }
 }
 
-static void
-patchListPrint(FILE *out, PatchSet *patchList) {
-    fprintf(out, "getPatchList:\n");
-    for ( PatchSet *window = patchList; window != nullptr; window = window->next ) {
-        fprintf(out, "%d ", window->patch->id);
-    }
-    fprintf(out, "\nend of getPatchList.\n");
-}
-
-static PatchSet *
-getPatchList(PatchSet *patchList) {
-    return patchList;
-}
-
 static PatchSet *
 patchListDuplicate(PatchSet *patchList) {
     PatchSet *newList = (PatchSet *) nullptr;
@@ -129,9 +115,7 @@ patchListExportToArrayList(PatchSet *patches) {
 
 GEOM_METHODS GLOBAL_skin_patchListGeometryMethods = {
     (void (*)(void *)) patchListDestroy,
-    (void (*)(FILE *, void *)) patchListPrint,
     (GeometryListNode *(*)(void *)) nullptr,
-    (PatchSet *(*)(void *)) getPatchList,
     (HITLIST *(*)(HITLIST *, void *, Ray *, float, float, int)) patchListAllIntersections,
     (void *(*)(void *)) patchListDuplicate
 };

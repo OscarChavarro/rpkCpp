@@ -185,7 +185,7 @@ surfaceDone() {
                 nullptr, // null texture coordinate list
                 globalCurrentVertexList,
                 patchListExportToArrayList(globalCurrentFaceList),
-                NO_COLORS),
+                MaterialColorFlags::NO_COLORS),
             &GLOBAL_skin_surfaceGeometryMethods);
         globalCurrentGeometryList = geometryListAdd(globalCurrentGeometryList, newGeometry);
     }

@@ -51,22 +51,6 @@ compoundDestroy(Compound *obj) {
 }
 
 /**
-This method will printRegularHierarchy the geometry to the file out
-*/
-static void
-compoundPrint(FILE *out, Compound *compound) {
-    fprintf(out, "compound\n");
-    GeometryListNode *window = &compound->children;
-    Geometry *geometry;
-    while (window) {
-        geometry = window->geom;
-        window = window->next;
-        geomPrint(out, geometry);
-    }
-    fprintf(out, "end of compound\n");
-}
-
-/**
 Returns the list of children geometries if the geometry is an aggregate
 */
 static GeometryListNode *
@@ -120,9 +104,7 @@ compoundAllDiscretizationIntersections(
 // A set of pointers to the functions (methods) to operate on compounds
 GEOM_METHODS GLOBAL_skin_compoundGeometryMethods = {
     (void (*)(void *)) compoundDestroy,
-    (void (*)(FILE *, void *)) compoundPrint,
     (GeometryListNode *(*)(void *)) compoundPrimitives,
-    nullptr,
     (HITLIST *(*)(HITLIST *, void *, Ray *, float, float, int)) compoundAllDiscretizationIntersections,
     (void *(*)(void *)) nullptr
 };

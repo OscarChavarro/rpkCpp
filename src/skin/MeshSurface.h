@@ -1,5 +1,5 @@
 /**
-Surfaces are basically a list of PATCHes representing a simple object with given Material.
+Surfaces are basically a list of patches representing a simple object with given material
 */
 
 #ifndef __SURFACE__
@@ -10,11 +10,8 @@ Surfaces are basically a list of PATCHes representing a simple object with given
 #include "java/util/ArrayList.h"
 #include "material/Material.h"
 #include "skin/vectorlist.h"
-#include "skin/geomlist.h"
+#include "skin/Geometry.h"
 
-class GEOM_METHODS;
-class Geometry;
-class PatchSet;
 class Vertex;
 
 class MeshSurface : public Geometry {
@@ -49,7 +46,12 @@ class MeshSurface : public Geometry {
     java::ArrayList<Patch *> *faces;
 
     Material *material;
+
+    MeshSurface();
 };
+
+// A set of pointers to functions to operate on a MeshSurface
+extern GEOM_METHODS GLOBAL_skin_surfaceGeometryMethods;
 
 enum MaterialColorFlags {
     NO_COLORS,
@@ -59,16 +61,13 @@ enum MaterialColorFlags {
 
 extern MeshSurface *
 surfaceCreate(
-        Material *material,
-        Vector3DListNode *points,
-        Vector3DListNode *normals,
-        Vector3DListNode *texCoords,
-        java::ArrayList<Vertex *> *vertices,
-        java::ArrayList<Patch *>  *faces,
-        MaterialColorFlags flags);
-
-// A set of pointers to functions to operate on a MeshSurface
-extern GEOM_METHODS GLOBAL_skin_surfaceGeometryMethods;
+    Material *material,
+    Vector3DListNode *points,
+    Vector3DListNode *normals,
+    Vector3DListNode *texCoords,
+    java::ArrayList<Vertex *> *vertices,
+    java::ArrayList<Patch *>  *faces,
+    MaterialColorFlags flags);
 
 inline bool
 geomIsSurface(Geometry *geom) {
@@ -91,7 +90,5 @@ surfaceDiscretizationIntersect(
         float *maximumDistance,
         int hitFlags,
         RayHit *hitStore);
-
-#include "skin/Geometry.h"
 
 #endif

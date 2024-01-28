@@ -8,6 +8,9 @@
 // Static counter that is increased each time a surface is created for making unique MeshSurface ids
 static int globalNextSurfaceId = 0;
 
+MeshSurface::MeshSurface(): id(), vertices(), positions(), normals(), texCoords(), faces(), material() {
+}
+
 /**
 Indicates on whether or not, and if so, which, colors are given when creating
 a new surface
@@ -41,9 +44,9 @@ surfaceConnectFace(MeshSurface *surf, Patch *face) {
 
     // Also fill in a nicer default color for the patch
     switch ( globalColorFlags ) {
-        case FACE_COLORS:
+        case MaterialColorFlags::FACE_COLORS:
             break;
-        case VERTEX_COLORS:
+        case MaterialColorFlags::VERTEX_COLORS:
             // Average color of the vertices
             setRGB(face->color, 0, 0, 0);
             for ( i = 0; i < face->numberOfVertices; i++ ) {
@@ -72,7 +75,7 @@ surfaceCreate(
     Vector3DListNode *normals,
     Vector3DListNode *texCoords,
     java::ArrayList<Vertex *> *vertices,
-    java::ArrayList<Patch *>  *faces,
+    java::ArrayList<Patch *> *faces,
     enum MaterialColorFlags flags)
 {
     MeshSurface *surface;
@@ -122,7 +125,7 @@ still be used and thus not destroyed by the BREP library
 */
 void
 surfaceDestroy(MeshSurface *surface) {
-    if ( surface != nullptr || surface->faces == nullptr ) {
+    if ( surface == nullptr || surface->faces == nullptr ) {
         return;
     }
 
@@ -193,28 +196,6 @@ surfaceDestroy(MeshSurface *surface) {
 }
 
 /**
-This method will printRegularHierarchy the geometry to the file out
-*/
-void
-surfacePrint(FILE *out, MeshSurface *surface) {
-    fprintf(out, "MeshSurface id %d: material %s, patches ID: ",
-            surface->id, surface->material->name);
-
-    if ( surface == nullptr || surface->faces == nullptr ) {
-        return;
-    }
-
-    for ( int i = 0; i < surface->faces->size(); i++ ) {
-        patchPrintId(out, surface->faces->get(i));
-    }
-    fprintf(out, "\n");
-
-    for ( int i = 0; i < surface->faces->size(); i++ ) {
-        patchPrint(out, surface->faces->get(i));
-    }
-}
-
-/**
 This method will compute a bounding box for a geometry. The bounding box
 is filled in bounding box and a pointer to the filled in bounding box
 returned
@@ -222,15 +203,6 @@ returned
 float *
 surfaceBounds(MeshSurface *surf, float *boundingBox) {
     return patchListBounds(surf->faces, boundingBox);
-}
-
-/**
-Returns the list of patches making up a primitive geometry. This
-method is not implemented for aggregate geometries
-*/
-static java::ArrayList<Patch *> *
-surfacePatchList(MeshSurface *surf) {
-    return surf->faces;
 }
 
 /**
@@ -264,9 +236,7 @@ surfaceAllDiscretizationIntersections(
 
 GEOM_METHODS GLOBAL_skin_surfaceGeometryMethods = {
     (void (*)(void *)) surfaceDestroy,
-    (void (*)(FILE *, void *)) surfacePrint,
-    (GeometryListNode *(*)(void *)) nullptr,
-    (PatchSet *(*)(void *))surfacePatchList,
+    nullptr,
     (HITLIST *(*)(HITLIST *, void *, Ray *, float, float, int)) surfaceAllDiscretizationIntersections,
-    (void *(*)(void *)) nullptr
+    nullptr
 };

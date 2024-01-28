@@ -7,8 +7,6 @@ Command line options and defaults
 
 #include <cstdio>
 
-#include "skin/PatchSet.h"
-
 /**
 Command line option value type structures
 */

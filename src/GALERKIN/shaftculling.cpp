@@ -685,29 +685,29 @@ are added to culledPatchList. A pointer to the possibly enlonged culledPatchList
 is returned
 */
 java::ArrayList<Patch *> *
-shaftCullPatchList(PatchSet *patchList, SHAFT *shaft) {
+shaftCullPatchList(java::ArrayList<Patch *> *patchList, SHAFT *shaft) {
     java::ArrayList<Patch *> *culledPatchList = new java::ArrayList<Patch *>();
-    int total; // Can be used for ratio-open strategies
     int boundingBoxSide;
 
-    for ( total = 0; patchList && !shaft->cut; patchList = patchList->next, total++ ) {
-        if ( patchList->patch->omit || patchIsOnOmitSet(shaft, patchList->patch)) {
+    for ( int i = 0; patchList != nullptr && i < patchList->size() && !shaft->cut; i++ ) {
+        Patch *patch = patchList->get(i);
+        if ( patch->omit || patchIsOnOmitSet(shaft, patch) ) {
             continue;
         }
 
-        if ( patchList->patch->boundingBox == nullptr ) {
+        if ( patch->boundingBox == nullptr ) {
             // Compute getBoundingBox
             BOUNDINGBOX bounds;
-            patchBounds(patchList->patch, bounds);
+            patchBounds(patch, bounds);
         }
-        boundingBoxSide = shaftBoxTest(patchList->patch->boundingBox, shaft);
+        boundingBoxSide = shaftBoxTest(patch->boundingBox, shaft);
         if ( boundingBoxSide != OUTSIDE ) {
             // Patch bounding box is inside the shaft, or overlaps with it. If it
             // overlaps, do a more expensive, but definitive, test to see whether
             // the patch itself is inside, outside or overlapping the shaft
-            if ( boundingBoxSide == INSIDE || shaftPatchTest(patchList->patch, shaft) != OUTSIDE ) {
-                if ( patchList->patch != nullptr ) {
-                    culledPatchList->add(0, patchList->patch);
+            if ( boundingBoxSide == INSIDE || shaftPatchTest(patch, shaft) != OUTSIDE ) {
+                if ( patch != nullptr ) {
+                    culledPatchList->add(0, patch);
                 }
             }
         }
@@ -748,15 +748,17 @@ shaftCullOpen(Geometry *geom, SHAFT *shaft, GeometryListNode *candidateList) {
     if ( geomIsAggregate(geom) ) {
         candidateList = doShaftCulling(geomPrimList(geom), shaft, candidateList);
     } else {
-        PatchSet *patchList = geomPatchList(geom);
-        java::ArrayList<Patch *> *culledPatches = shaftCullPatchList(patchList, shaft);
+        java::ArrayList<Patch *> *geometryPatchesList = geomPatchArrayList(geom);
+        java::ArrayList<Patch *> *culledPatches = shaftCullPatchList(geometryPatchesList, shaft);
+
         if ( culledPatches->size() > 0 ) {
             Geometry *newGeometry;
-            newGeometry = geomCreatePatchSetNew(culledPatches, &GLOBAL_skin_patchListGeometryMethods);
+            newGeometry = geomCreatePatchList(culledPatches, &GLOBAL_skin_patchListGeometryMethods);
             newGeometry->shaftCullGeometry = true;
             candidateList = geometryListAdd(candidateList, newGeometry);
         }
         delete culledPatches;
+        delete geometryPatchesList;
     }
     return candidateList;
 }
