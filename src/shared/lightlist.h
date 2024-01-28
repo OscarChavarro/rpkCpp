@@ -24,16 +24,17 @@ class CLightList_Iter;
 class CLightList : private CTSList<CLightInfo> {
 private:
     // Total flux ( sum(L * A * PI))
-    float totalFlux, totalImp;
+    float totalFlux;
+    float totalImp;
     bool includeVirtual;
 
     int lightCount;
 
 public:
 
-    // Iteration over lights, not multithreaded!!
+    // Iteration over lights, not multi-threaded!
 
-    // Discrete sampling of lightsources
+    // Discrete sampling of light sources
 
     // A getPatchList must be supplied for building a light list.
     // Non emitting patches (edf == nullptr) are NOT put in the list.
@@ -41,47 +42,45 @@ public:
 
     ~CLightList();
 
-    // mutator of includeVirtual
-    void IncludeVirtualPatches(bool newValue);
-
     // Normal sampling : uniform over emitted power
-    Patch *Sample(double *x_1, double *pdf);
-
+    Patch *sample(double *x1, double *pdf);
 
     // Normal PDF evaluation : uniform over emitted power
-    double EvalPDF(Patch *light, Vector3D *point);
+    double evalPdf(Patch *light, Vector3D *point);
 
     // Importance sampling routines
+    Patch *sampleImportant(Vector3D *point, Vector3D *normal, double *x1, double *pdf);
 
-    Patch *SampleImportant(Vector3D *point, Vector3D *normal, double *x_1,
-                           double *pdf);
-
-    double EvalPDFImportant(Patch *light, Vector3D *lightPoint,
-                            Vector3D *litPoint, Vector3D *normal);
+    double evalPdfImportant(Patch *light, Vector3D *, Vector3D *litPoint, Vector3D *normal);
 
 protected:
     Vector3D lastPoint, lastNormal;
 
-    void ComputeLightImportances(Vector3D *point, Vector3D *normal);
+    void computeLightImportance(Vector3D *point, Vector3D *normal);
 
-    double ComputeOneLightImportance(Patch *light, const Vector3D *point,
-                                     const Vector3D *normal,
-                                     float avgEmittedRadiance);
+    static double
+    computeOneLightImportance(
+        Patch *light,
+        const Vector3D *point,
+        const Vector3D *normal,
+        float emittedFlux);
 
+    // Specialisations by patch type (normal or virtual) of ComputeOneLightImportance
+    static double
+    computeOneLightImportanceVirtual(
+        Patch *light,
+        const Vector3D *,
+        const Vector3D *,
+        float);
 
-    // specialisations by patch type (normal or virtual) of ComputeOneLightImportance
-    double ComputeOneLightImportance_virtual(Patch *light, const Vector3D *point,
-                                             const Vector3D *normal,
-                                             float avgEmittedRadiance);
-
-    double ComputeOneLightImportance_real(Patch *light, const Vector3D *point,
-                                          const Vector3D *normal,
-                                          float avgEmittedRadiance);
+    static double computeOneLightImportanceReal(Patch *light, const Vector3D *point,
+                                         const Vector3D *normal,
+                                         float emittedFlux);
 
     // specialisations by patch type (normal or virtual) of EvalPDF
-    double EvalPDF_virtual(Patch *light, Vector3D *point);
+    double evalPdfVirtual(Patch *light, Vector3D *) const;
 
-    double EvalPDF_real(Patch *light, Vector3D *point);
+    double evalPdfReal(Patch *light, Vector3D *) const;
 
     friend class CLightList_Iter;
 };

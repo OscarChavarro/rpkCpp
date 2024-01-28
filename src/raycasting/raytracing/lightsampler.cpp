@@ -67,11 +67,11 @@ bool CUniformLightSampler::Sample(CPathNode */*prevNode*/,
             light = currentPatch;
             pdfLight = 1.0;
         } else {
-            logWarning("Sample Unit Light Node", "No valid light selected");
+            logWarning("sample Unit Light Node", "No valid light selected");
             return false;
         }
     } else {
-        light = GLOBAL_lightList->Sample(&x_1, &pdfLight);
+        light = GLOBAL_lightList->sample(&x_1, &pdfLight);
 
         if ( light == nullptr ) {
             logWarning("FillLightNode", "No light found");
@@ -128,7 +128,7 @@ double CUniformLightSampler::EvalPDF(CPathNode */*thisNode*/,
     if ( unitsActive ) {
         pdf = 1.0;
     } else {
-        pdf = GLOBAL_lightList->EvalPDF(newNode->m_hit.patch, &newNode->m_hit.point);
+        pdf = GLOBAL_lightList->evalPdf(newNode->m_hit.patch, &newNode->m_hit.point);
     }
 
     // Prob for choosing this point(/direction)
@@ -188,7 +188,7 @@ bool CImportantLightSampler::Sample(CPathNode */*prevNode*/,
 
             VECTORSCALE(-1, thisNode->m_normal, invNormal);
 
-            light = GLOBAL_lightList->SampleImportant(&thisNode->m_hit.point,
+            light = GLOBAL_lightList->sampleImportant(&thisNode->m_hit.point,
                                                       &invNormal, &x_1, &pdfLight);
         } else {
             // No (important) light sampling inside a material
@@ -196,7 +196,7 @@ bool CImportantLightSampler::Sample(CPathNode */*prevNode*/,
         }
     } else {
         if ( thisNode->m_inBsdf == nullptr ) {
-            light = GLOBAL_lightList->SampleImportant(&thisNode->m_hit.point,
+            light = GLOBAL_lightList->sampleImportant(&thisNode->m_hit.point,
                                                       &thisNode->m_normal,
                                                       &x_1, &pdfLight);
         } else {
@@ -253,7 +253,7 @@ double CImportantLightSampler::EvalPDF(CPathNode *thisNode,
     double pdf, pdfdir;
 
     // The light point is in NEW NODE !!
-    pdf = GLOBAL_lightList->EvalPDFImportant(newNode->m_hit.patch,
+    pdf = GLOBAL_lightList->evalPdfImportant(newNode->m_hit.patch,
                                              &newNode->m_hit.point,
                                              &thisNode->m_hit.point,
                                              &thisNode->m_normal);

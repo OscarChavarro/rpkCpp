@@ -1,31 +1,10 @@
-#include <cmath>
-
 #include "shared/lightlist.h"
-#include "skin/Patch.h"
-#include "material/color.h"
 #include "common/error.h"
-
-/* *** GLOBALS *** */
 
 CLightList *GLOBAL_lightList = nullptr;
 
-/* *** C METHODS *** */
-
-double LightEvalPDFImportant(Patch *light, Vector3D *lightPoint,
-                             Vector3D *point, Vector3D *normal) {
-    return GLOBAL_lightList->EvalPDFImportant(light, lightPoint,
-                                              point, normal);
-}
-
-
-/* *** METHODS *** */
-
-void CLightList::IncludeVirtualPatches(bool newValue) {
-    includeVirtual = newValue;
-}
-
 CLightList::CLightList(PatchSet *list, bool includeVirtualPatches) {
-    CLightInfo info;
+    CLightInfo info{};
     COLOR lightColor;
     {
         static int wgiv = 0;
@@ -38,6 +17,7 @@ CLightList::CLightList(PatchSet *list, bool includeVirtualPatches) {
     totalFlux = 0.0;
     lightCount = 0;
     includeVirtual = includeVirtualPatches;
+    totalImp = 0.0;
 
     ForAllInList(Patch, light, list)
                 {
@@ -68,14 +48,15 @@ CLightList::~CLightList() {
     RemoveAll();
 }
 
-
-// Returns sampled patch, scales x_1 back to a random in 0..1
-
-Patch *CLightList::Sample(double *x_1, double *pdf) {
+/**
+Returns sampled patch, scales x_1 back to a random in 0..1
+*/
+Patch *
+CLightList::sample(double *x1, double *pdf) {
     CLightInfo *info, *lastInfo;
     CTSList_Iter<CLightInfo> iterator(*this);
 
-    double rnd = *x_1 * totalFlux;
+    double rnd = *x1 * totalFlux;
     double currentSum;
 
     info = iterator.Next();
@@ -84,13 +65,13 @@ Patch *CLightList::Sample(double *x_1, double *pdf) {
     }
 
     if ( info == nullptr ) {
-        logWarning("CLightList::Sample", "No lights available");
+        logWarning("CLightList::sample", "No lights available");
         return nullptr;
     }
 
     currentSum = info->emittedFlux;
 
-    while ((rnd > currentSum) && (info != nullptr)) {
+    while ( (rnd > currentSum) && (info != nullptr) ) {
         lastInfo = info;
         info = iterator.Next();
         while ((info != nullptr) && (info->light->hasZeroVertices()) && (!includeVirtual)) {
@@ -106,8 +87,8 @@ Patch *CLightList::Sample(double *x_1, double *pdf) {
     }
 
     if ( info != nullptr ) {
-        *x_1 = ((*x_1 - ((currentSum - info->emittedFlux) / totalFlux)) /
-                (info->emittedFlux / totalFlux));
+        *x1 = ((*x1 - ((currentSum - info->emittedFlux) / totalFlux)) /
+               (info->emittedFlux / totalFlux));
         *pdf = info->emittedFlux / totalFlux;
         return (info->light);
     }
@@ -115,7 +96,8 @@ Patch *CLightList::Sample(double *x_1, double *pdf) {
     return nullptr;
 }
 
-double CLightList::EvalPDF_virtual(Patch *light, Vector3D */*point*/) {
+double
+CLightList::evalPdfVirtual(Patch *light, Vector3D */*point*/) const {
     // EvalPDF for virtual patches (see EvalPDF)
     double pdf;
 
@@ -128,7 +110,8 @@ double CLightList::EvalPDF_virtual(Patch *light, Vector3D */*point*/) {
     return pdf;
 }
 
-double CLightList::EvalPDF_real(Patch *light, Vector3D */*point*/) {
+double
+CLightList::evalPdfReal(Patch *light, Vector3D */*point*/) const {
     // Eval PDF for normal patches (see EvalPDF)
     COLOR col;
     double pdf;
@@ -141,7 +124,8 @@ double CLightList::EvalPDF_real(Patch *light, Vector3D */*point*/) {
     return pdf;
 }
 
-double CLightList::EvalPDF(Patch *light, Vector3D *point) {
+double
+CLightList::evalPdf(Patch *light, Vector3D *point) {
     // TODO!!!  1) patch should become class
     //          2) virtual patch should become child-class
     //          3) this method should be handled by specialisation
@@ -149,21 +133,20 @@ double CLightList::EvalPDF(Patch *light, Vector3D *point) {
         return 0.0;
     }
     if ( light->hasZeroVertices() ) {
-        return EvalPDF_virtual(light, point);
+        return evalPdfVirtual(light, point);
     } else {
-        return EvalPDF_real(light, point);
+        return evalPdfReal(light, point);
     }
 }
-
-
 
 /*************************************************************************/
 /* Important light sampling */
 
-double CLightList::ComputeOneLightImportance_virtual(Patch *light,
-                                                     const Vector3D *,
-                                                     const Vector3D *,
-                                                     float) {
+double
+CLightList::computeOneLightImportanceVirtual(Patch *light,
+                                             const Vector3D *,
+                                             const Vector3D *,
+                                             float) {
     // ComputeOneLightImportance for virtual patches
     XXDFFLAGS all = DIFFUSE_COMPONENT | GLOSSY_COMPONENT | SPECULAR_COMPONENT;
 
@@ -171,10 +154,11 @@ double CLightList::ComputeOneLightImportance_virtual(Patch *light,
     return colorAverage(e);
 }
 
-double CLightList::ComputeOneLightImportance_real(Patch *light,
-                                                  const Vector3D *point,
-                                                  const Vector3D *normal,
-                                                  float emittedFlux) {
+double
+CLightList::computeOneLightImportanceReal(Patch *light,
+                                          const Vector3D *point,
+                                          const Vector3D *normal,
+                                          float emittedFlux) {
     // ComputeOneLightImportance for real patches
     int tried = 0;  // No positions on the patch are tried yet
     int done = false;
@@ -214,14 +198,14 @@ double CLightList::ComputeOneLightImportance_real(Patch *light,
 
         // light_normal = PatchNormalAtUV(light, u, v);
 
-        // ray direction (but no ray is shot of course)
+        // Ray direction (but no ray is shot of course)
         Vector3D copy(point->x, point->y, point->z);
 	
         VECTORSUBTRACT(lightPoint, copy, dir);
         dist2 = VECTORNORM2(dir);
         // VECTORSCALE(1/dist, dir, dir);
 
-        /* Check normals */
+        // Check normals
 
         // Cosines have an addition dist length in them
 
@@ -243,24 +227,23 @@ double CLightList::ComputeOneLightImportance_real(Patch *light,
     return contribution;
 }
 
-double CLightList::ComputeOneLightImportance(Patch *light,
+double
+CLightList::computeOneLightImportance(Patch *light,
                                              const Vector3D *point,
                                              const Vector3D *normal,
                                              float emittedFlux) {
     // TODO!!!  1) patch should become class
     //          2) virtual patch should become child-class
     //          3) this method should be handled by specialisation
-    if ( light->hasZeroVertices()) {
-        return
-                ComputeOneLightImportance_virtual(light, point, normal, emittedFlux);
+    if ( light->hasZeroVertices() ) {
+        return computeOneLightImportanceVirtual(light, point, normal, emittedFlux);
     } else {
-        return
-                ComputeOneLightImportance_real(light, point, normal, emittedFlux);
+        return computeOneLightImportanceReal(light, point, normal, emittedFlux);
     }
-
 }
 
-void CLightList::ComputeLightImportances(Vector3D *point, Vector3D *normal) {
+void
+CLightList::computeLightImportance(Vector3D *point, Vector3D *normal) {
     if ((VECTOREQUAL(*point, lastPoint, EPSILON)) &&
         (VECTOREQUAL(*normal, lastNormal, EPSILON))) {
         return; // Still ok !!
@@ -280,48 +263,49 @@ void CLightList::ComputeLightImportances(Vector3D *point, Vector3D *normal) {
     }
 
     while ( info ) {
-        imp = ComputeOneLightImportance(info->light, point, normal,
+        imp = computeOneLightImportance(info->light, point, normal,
                                         info->emittedFlux);
-        totalImp += imp;
-        info->importance = imp;
+        totalImp += (float)imp;
+        info->importance = (float)imp;
 
         // next
         info = iterator.Next();
-        while ((info != nullptr) && (info->light->hasZeroVertices()) && (!includeVirtual)) {
+        while ( (info != nullptr) && (info->light->hasZeroVertices()) && (!includeVirtual) ) {
             info = iterator.Next();
         }
     }
 }
 
-Patch *CLightList::SampleImportant(Vector3D *point, Vector3D *normal,
-                                   double *x_1, double *pdf) {
+Patch *
+CLightList::sampleImportant(Vector3D *point, Vector3D *normal, double *x1, double *pdf) {
     CLightInfo *info, *lastInfo;
     CTSList_Iter<CLightInfo> iterator(*this);
-    double rnd, currentSum;
+    double rnd;
+    double currentSum;
 
-    ComputeLightImportances(point, normal);
+    computeLightImportance(point, normal);
 
     if ( totalImp == 0 ) {
         // No light is important, but we must return one (->optimize ?)
-        return (Sample(x_1, pdf));
+        return (sample(x1, pdf));
     }
 
-    rnd = *x_1 * totalImp;
+    rnd = *x1 * totalImp;
 
-    // next
+    // Next
     info = iterator.Next();
     while ((info != nullptr) && (info->light->hasZeroVertices()) && (!includeVirtual)) {
         info = iterator.Next();
     }
 
     if ( info == nullptr ) {
-        logWarning("CLightList::Sample", "No lights available");
+        logWarning("CLightList::sample", "No lights available");
         return nullptr;
     }
 
     currentSum = info->importance;
 
-    while ((rnd > currentSum) && (info != nullptr)) {
+    while ( (rnd > currentSum) && (info != nullptr) ) {
         lastInfo = info;
 
         // next
@@ -339,8 +323,8 @@ Patch *CLightList::SampleImportant(Vector3D *point, Vector3D *normal,
     }
 
     if ( info != nullptr ) {
-        *x_1 = ((*x_1 - ((currentSum - info->importance) / totalImp)) /
-                (info->importance / totalImp));
+        *x1 = ((*x1 - ((currentSum - info->importance) / totalImp)) /
+               (info->importance / totalImp));
         *pdf = info->importance / totalImp;
         return (info->light);
     }
@@ -348,21 +332,22 @@ Patch *CLightList::SampleImportant(Vector3D *point, Vector3D *normal,
     return nullptr;
 }
 
-double CLightList::EvalPDFImportant(Patch *light, Vector3D */*lightPoint*/,
-                                    Vector3D *litPoint, Vector3D *normal) {
+double
+CLightList::evalPdfImportant(Patch *light, Vector3D */*lightPoint*/,
+                             Vector3D *litPoint, Vector3D *normal) {
     double pdf;
     CLightInfo *info;
     CTSList_Iter<CLightInfo> iterator(*this);
 
-    ComputeLightImportances(litPoint, normal);
+    computeLightImportance(litPoint, normal);
 
     // Search the light in the list :-(
 
-    while ((info = iterator.Next()) && info->light != light ) {
+    while ( (info = iterator.Next()) && info->light != light ) {
     }
 
     if ( info == nullptr ) {
-        logWarning("CLightList::EvalPDFImportant", "Could not find light");
+        logWarning("CLightList::evalPdfImportant", "Could not find light");
         return 0.0;
     }
 
@@ -375,4 +360,3 @@ double CLightList::EvalPDFImportant(Patch *light, Vector3D */*lightPoint*/,
 
     return pdf;
 }
-

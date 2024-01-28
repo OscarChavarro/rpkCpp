@@ -172,7 +172,7 @@ splitBsdfEval(
 }
 
 /**
-Sample a split bsdf. If no sample was taken (RR/absorption)
+sample a split bsdf. If no sample was taken (RR/absorption)
 the pdf will be 0 upon return  Computes probabilities for sampling the texture, reflection minus texture,
 or transmission. Also determines b[r|t]dfFlags taking into
 account potential texturing
@@ -341,7 +341,7 @@ splitBsdfSample(
 }
 
 /**
-Sample a split bsdf. If no sample was taken (RR/absorption)
+sample a split bsdf. If no sample was taken (RR/absorption)
 the pdf will be 0 upon return
 */
 static void
