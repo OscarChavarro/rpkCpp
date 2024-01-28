@@ -17,17 +17,6 @@ class GeometryListNode {
     GeometryListNode *next;
 };
 
-#define GeomListCount(geomlist) \
-        ListCount((LIST *)geomlist)
-
-#define GeomListIterate(geomlist, proc) \
-        ListIterate((LIST *)geomlist, (void (*)(void *))proc)
-
-#define GeomListDestroy(geomlist) \
-        ListDestroy((LIST *)geomlist)
-
-#define ForAllGeoms(geom, geomlist)    ForAllInList(Geometry, geom, geomlist)
-
 extern GeometryListNode *
 geometryListAdd(GeometryListNode *geometryList, Geometry *geometry);
 

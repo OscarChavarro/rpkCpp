@@ -828,5 +828,10 @@ freeCandidateList(GeometryListNode *candidateList) {
         }
     }
 
-    GeomListDestroy(candidateList);
+    GeometryListNode *listWindow = candidateList;
+    while ( listWindow != nullptr ) {
+        GeometryListNode *listNode = listWindow->next;
+        free(listWindow);
+        listWindow = listNode;
+    }
 }

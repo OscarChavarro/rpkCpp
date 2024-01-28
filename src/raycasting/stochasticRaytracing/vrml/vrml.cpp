@@ -402,15 +402,17 @@ writePrimitive(Geometry *geom) {
 
 void
 iteratePrimitiveGeoms(GeometryListNode *list, void (*func)(Geometry *)) {
-    ForAllGeoms(geom, list)
-                {
-                    if ( geomIsAggregate(geom)) {
-                        iteratePrimitiveGeoms(geomPrimList(geom), func);
-                    } else {
-                        func(geom);
-                    }
-                }
-    EndForAll;
+    GeometryListNode *listStart = list;
+    if ( listStart != nullptr ) {
+        for ( GeometryListNode *window = listStart; window != nullptr; window = window->next ) {
+            Geometry *geom = window->geom;
+            if ( geomIsAggregate(geom)) {
+                iteratePrimitiveGeoms(geomPrimList(geom), func);
+            } else {
+                func(geom);
+            }
+        }
+    }
 }
 
 static void

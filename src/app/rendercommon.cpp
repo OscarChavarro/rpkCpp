@@ -238,8 +238,10 @@ renderGeomBounds(Geometry *geom) {
         renderBounds(geombounds);
     }
 
-    if ( geomIsAggregate(geom)) {
-        GeomListIterate(geomPrimList(geom), renderGeomBounds);
+    if ( geomIsAggregate(geom) ) {
+        for ( GeometryListNode *window = geomPrimList(geom); window != nullptr; window = window->next ) {
+            renderGeomBounds(window->geom);
+        }
     }
 }
 
@@ -249,7 +251,9 @@ Renders the bounding boxes of all objects in the scene
 void
 renderBoundingBoxHierarchy() {
     renderSetColor(&GLOBAL_render_renderOptions.bounding_box_color);
-    GeomListIterate(GLOBAL_scene_world, renderGeomBounds);
+    for ( GeometryListNode *window = GLOBAL_scene_world; window != nullptr; window = window->next ) {
+        renderGeomBounds(window->geom);
+    }
 }
 
 /**
@@ -258,7 +262,9 @@ Renders the cluster hierarchy bounding boxes
 void
 renderClusterHierarchy() {
     renderSetColor(&GLOBAL_render_renderOptions.cluster_color);
-    GeomListIterate(GLOBAL_scene_clusteredWorld, renderGeomBounds);
+    for ( GeometryListNode *window = GLOBAL_scene_clusteredWorld; window != nullptr; window = window->next ) {
+        renderGeomBounds(window->geom);
+    }
 }
 
 /**

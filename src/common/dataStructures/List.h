@@ -29,8 +29,7 @@ ForAllPatches(P, patches) {
 #define ForAllInList(TYPE, p, list) { \
     LIST *listStart = (LIST *)(list); \
     if ( listStart != nullptr ) { \
-        LIST *window; \
-        for (window = listStart; window; window = window->next) { \
+        for ( LIST *window = listStart; window != nullptr; window = window->next ) { \
             TYPE *p = (TYPE *)(window->pelement);
 
 #ifndef EndForAll

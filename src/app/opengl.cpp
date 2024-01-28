@@ -374,20 +374,19 @@ renderOctreeNonLeaf(Geometry *geometry, void (*render_patch)(Patch *)) {
     GeometryListNode *children = geomPrimList(geometry);
 
     i = 0;
-    ForAllGeoms(child, children)
-                {
-                    if ( geomIsAggregate(child)) {
-                        if ( i >= 8 ) {
-                            logError("renderOctreeNonLeaf", "Invalid octree geometry node (more than 8 compound children)");
-                            return;
-                        }
-                        octree_children[i++].geom = child;
-                    } else {
-                        // render the patches associated with the octree node right away
-                        renderOctreeLeaf(child, render_patch);
-                    }
-                }
-    EndForAll;
+    for ( GeometryListNode *window = children; window != nullptr; window = window->next ) {
+        Geometry *child = window->geom;
+        if ( geomIsAggregate(child) ) {
+            if ( i >= 8 ) {
+                logError("renderOctreeNonLeaf", "Invalid octree geometry node (more than 8 compound children)");
+                return;
+            }
+            octree_children[i++].geom = child;
+        } else {
+            // render the patches associated with the octree node right away
+            renderOctreeLeaf(child, render_patch);
+        }
+    }
     n = i; // Number of compound children
 
     // cull the non-leaf octree children geoms
@@ -455,11 +454,10 @@ geometryDeleteDLists(Geometry *geom) {
 
     if ( geomIsAggregate(GLOBAL_scene_clusteredWorldGeom)) {
         GeometryListNode *children = geomPrimList(geom);
-        ForAllGeoms(child, children)
-                    {
-                        geometryDeleteDLists(child);
-                    }
-        EndForAll;
+        for ( GeometryListNode *window = children; window != nullptr; window = window->next ) { \
+            Geometry *child = window->geom;
+            geometryDeleteDLists(child);
+        }
     }
 }
 

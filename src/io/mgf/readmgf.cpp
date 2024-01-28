@@ -1063,7 +1063,12 @@ handleObjectEntity(int argc, char **argv) {
             surfaceDone();
         }
 
-        if ( GeomListCount(globalCurrentGeometryList) > 0 ) {
+        int listSize = 0;
+        for ( GeometryListNode *window = globalCurrentGeometryList; window != nullptr; window = window->next ) {
+            listSize++;
+        }
+
+        if ( listSize > 0 ) {
             theGeometry = geomCreateCompound(compoundCreate(globalCurrentGeometryList), &GLOBAL_skin_compoundGeometryMethods);
         }
 
