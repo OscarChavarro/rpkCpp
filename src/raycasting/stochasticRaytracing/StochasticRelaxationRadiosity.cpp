@@ -373,15 +373,13 @@ stochasticRelaxationRadiosityDiscardIncremental() {
 }
 
 static int
-stochasticRelaxationRadiosityDoStep(java::ArrayList<Patch *> *scenePatches) {
+stochasticRelaxationRadiosityDoStep(java::ArrayList<Patch *> *scenePatches, java::ArrayList<Patch *> *lightPatches) {
     monteCarloRadiosityPreStep(scenePatches);
 
     // Do some real work now
     if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.currentIteration == 1 ) {
         if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.doNonDiffuseFirstShot ) {
-            java::ArrayList<Patch *> *lightPatches = patchListExportToArrayList(GLOBAL_scene_lightSourcePatches);
             doNonDiffuseFirstShot(scenePatches, lightPatches);
-            delete lightPatches;
         }
         int initial_nr_of_rays = GLOBAL_stochasticRaytracing_monteCarloRadiosityState.tracedRays;
 

@@ -1,3 +1,4 @@
+#include "scene/scene.h"
 #include "shared/Camera.h"
 #include "material/statistics.h"
 #include "raycasting/common/Raytracer.h"
@@ -11,11 +12,11 @@ Initializes an ImageOutputHandle taking into account the image filename extensio
 and performs raytracing
 */
 void
-rayTrace(char *filename, FILE *fp, int ispipe, Raytracer *activeRayTracer, java::ArrayList<Patch *> *scenePatches) {
+rayTrace(char *fileName, FILE *fp, int isPipe, Raytracer *activeRayTracer, java::ArrayList<Patch *> *scenePatches, java::ArrayList<Patch *> *lightPatches) {
     ImageOutputHandle *img = nullptr;
 
     if ( fp != nullptr ) {
-        img = createRadianceImageOutputHandle(filename, fp, ispipe,
+        img = createRadianceImageOutputHandle(fileName, fp, isPipe,
                                               GLOBAL_camera_mainCamera.xSize, GLOBAL_camera_mainCamera.ySize,
                                               (float) (GLOBAL_statistics_referenceLuminance / 179.0));
         if ( img == nullptr ) {
@@ -24,7 +25,7 @@ rayTrace(char *filename, FILE *fp, int ispipe, Raytracer *activeRayTracer, java:
     }
 
     if ( activeRayTracer != nullptr ) {
-        activeRayTracer->Raytrace(img, scenePatches);
+        activeRayTracer->Raytrace(img, scenePatches, lightPatches);
     }
 
     if ( img ) {

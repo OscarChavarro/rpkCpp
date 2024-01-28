@@ -150,12 +150,12 @@ batchSaveRaytracingImage(const char *fileName, FILE *fp, int isPipe, java::Array
 }
 
 static void
-batchRayTrace(char *filename, FILE *fp, int isPipe, java::ArrayList<Patch *> *scenePatches) {
+batchRayTrace(char *filename, FILE *fp, int isPipe, java::ArrayList<Patch *> *scenePatches, java::ArrayList<Patch *> *lightPatches) {
     GLOBAL_render_renderOptions.render_raytraced_image = true;
     GLOBAL_camera_mainCamera.changed = false;
 
     canvasPushMode();
-    rayTrace(filename, fp, isPipe, GLOBAL_raytracer_activeRaytracer, scenePatches);
+    rayTrace(filename, fp, isPipe, GLOBAL_raytracer_activeRaytracer, scenePatches, lightPatches);
     canvasPullMode();
 }
 
@@ -165,7 +165,7 @@ parseBatchOptions(int *argc, char **argv) {
 }
 
 void
-batch(java::ArrayList<Patch *> *scenePatches) {
+batch(java::ArrayList<Patch *> *scenePatches, java::ArrayList<Patch *> *lightPatches) {
     clock_t start_time, wasted_start;
     float wasted_secs;
 
@@ -193,7 +193,7 @@ batch(java::ArrayList<Patch *> *scenePatches) {
                    "-----------------------------------\n\n", it);
 
             canvasPushMode();
-            done = GLOBAL_radiance_currentRadianceMethodHandle->doStep(scenePatches);
+            done = GLOBAL_radiance_currentRadianceMethodHandle->doStep(scenePatches, lightPatches);
             canvasPullMode();
 
             fflush(stdout);
@@ -270,7 +270,8 @@ batch(java::ArrayList<Patch *> *scenePatches) {
         printf("Doing %s ...\n", GLOBAL_raytracer_activeRaytracer->fullName);
 
         start_time = clock();
-        batchRayTrace(nullptr, nullptr, false, scenePatches);
+        batchRayTrace(nullptr, nullptr, false, scenePatches, lightPatches);
+
         if ( globalTimings ) {
             fprintf(stdout, "Raytracing total time %g secs.\n",
                     (float) (clock() - start_time) / (float) CLOCKS_PER_SEC);

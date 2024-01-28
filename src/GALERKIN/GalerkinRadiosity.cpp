@@ -316,7 +316,7 @@ initGalerkin(java::ArrayList<Patch *> *scenePatches) {
 }
 
 static int
-doGalerkinOneStep(java::ArrayList<Patch *> *scenePatches) {
+doGalerkinOneStep(java::ArrayList<Patch *> *scenePatches, java::ArrayList<Patch *> * /*lightPatches*/) {
     int done = false;
 
     if ( GLOBAL_galerkin_state.iteration_nr < 0 ) {

@@ -140,11 +140,11 @@ ParseHWRCastOptions(int *argc, char **argv) {
 }
 
 static void
-Initialize() {
+Initialize(java::ArrayList<Patch *> * /*lightPatches*/) {
 }
 
 static void
-IRayCast(ImageOutputHandle *ip, java::ArrayList<Patch *> *scenePatches) {
+IRayCast(ImageOutputHandle *ip, java::ArrayList<Patch *> *scenePatches, java::ArrayList<Patch *> *lightPatches) {
     if ( s_rc ) {
         delete s_rc;
     }

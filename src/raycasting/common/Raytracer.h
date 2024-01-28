@@ -31,12 +31,12 @@ class Raytracer {
     /* Initializes the current scene for raytracing computations.
      *  Called when a new scene is loaded or when selecting a particular
      * raytracing algorithm. */
-    void (*Initialize)();
+    void (*Initialize)(java::ArrayList<Patch *> *lightPatches);
 
     /* Raytrace the current scene as seen with the current camera. If 'ip'
      * is not a nullptr pointer, write the raytraced image using the image output
      * handle pointerd to by 'ip' . */
-    void (*Raytrace)(ImageOutputHandle *ip, java::ArrayList<Patch *> *scenePatches);
+    void (*Raytrace)(ImageOutputHandle *ip, java::ArrayList<Patch *> *scenePatches, java::ArrayList<Patch *> *lightPatches);
 
     /* Redisplays last raytraced image. Returns FALSE if there is no
      * previous raytraced image and TRUE there is. */
@@ -57,6 +57,6 @@ extern double GLOBAL_raytracer_totalTime; // statistics: raytracing time
 extern long GLOBAL_raytracer_rayCount; // statistics: number of rays traced
 extern long GLOBAL_raytracer_pixelCount; // statistics: number of pixels drawn
 
-extern void rayTrace(char *filename, FILE *fp, int ispipe, Raytracer *activeRayTracer, java::ArrayList<Patch *> *scenePatches);
+extern void rayTrace(char *fileName, FILE *fp, int isPipe, Raytracer *activeRayTracer, java::ArrayList<Patch *> *scenePatches, java::ArrayList<Patch *> *lightPatches);
 
 #endif

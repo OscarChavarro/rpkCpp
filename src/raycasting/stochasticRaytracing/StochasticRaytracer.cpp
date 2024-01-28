@@ -564,12 +564,12 @@ static COLOR CalcPixel(int nx, int ny, SRCONFIG *config) {
 
 /**
 Raytrace the current scene as seen with the current camera. If fp
-is not a nullptr pointer, write the raytraced image to the file
+is not a nullptr pointer, write the ray-traced image to the file
 pointed to by 'fp'
 */
 void
-RTStochastic_Trace(ImageOutputHandle *ip, java::ArrayList<Patch *> * /*scenePatches*/) {
-    SRCONFIG config(GLOBAL_raytracing_state); // config filled in by constructor
+RTStochastic_Trace(ImageOutputHandle *ip, java::ArrayList<Patch *> * /*scenePatches*/, java::ArrayList<Patch *> *lightPatches) {
+    SRCONFIG config(GLOBAL_raytracing_state, lightPatches); // config filled in by constructor
 
     // Frame Coherent sampling : init fixed seed
     if ( GLOBAL_raytracing_state.doFrameCoherent ) {
@@ -620,14 +620,12 @@ static void RTStochastic_Interrupt() {
     GLOBAL_rayCasting_interruptRaytracing = true;
 }
 
-static void RTStochastic_Init() {
+static void RTStochastic_Init(java::ArrayList<Patch *> *lightPatches) {
     // mainInit the light list
     if ( GLOBAL_lightList ) {
         delete GLOBAL_lightList;
     }
-    java::ArrayList<Patch *> *tmpList = patchListExportToArrayList(GLOBAL_scene_lightSourcePatches);
-    GLOBAL_lightList = new CLightList(tmpList);
-    delete tmpList;
+    GLOBAL_lightList = new CLightList(lightPatches);
 }
 
 void RTStochastic_Terminate() {
@@ -639,15 +637,15 @@ void RTStochastic_Terminate() {
 
 Raytracer GLOBAL_raytracing_stochasticMethod =
 {
-        (char *) "StochasticRaytracing",
-        4,
-        (char *) "Stochastic Raytracing & Final Gathers",
-        stochasticRayTracerDefaults,
-        RTStochasticParseOptions,
-        RTStochastic_Init,
-        RTStochastic_Trace,
-        RTStochastic_Redisplay,
-        RTStochastic_SaveImage,
-        RTStochastic_Interrupt,
-        RTStochastic_Terminate
+    (char *) "StochasticRaytracing",
+    4,
+    (char *) "Stochastic Raytracing & Final Gathers",
+    stochasticRayTracerDefaults,
+    RTStochasticParseOptions,
+    RTStochastic_Init,
+    RTStochastic_Trace,
+    RTStochastic_Redisplay,
+    RTStochastic_SaveImage,
+    RTStochastic_Interrupt,
+    RTStochastic_Terminate
 };

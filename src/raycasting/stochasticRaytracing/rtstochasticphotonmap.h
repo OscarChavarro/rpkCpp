@@ -1,6 +1,7 @@
 #ifndef __RPK_RTSTOCHASTICPHOTONMAP__
 #define __RPK_RTSTOCHASTICPHOTONMAP__
 
+#include "java/util/ArrayList.h"
 #include "raycasting/raytracing/samplertools.h"
 #include "raycasting/stochasticRaytracing/StochasticRaytracerOptions.h"
 
@@ -169,19 +170,21 @@ public:
     SRREADOUT initialReadout;
 
 public:
-    void init(RTStochastic_State &state);
+    void init(RTStochastic_State &state, java::ArrayList<Patch *> *lightList);
 
     // Constructors
     SRCONFIG() {}
 
-    SRCONFIG(RTStochastic_State &state) { init(state); }
+    SRCONFIG(RTStochastic_State &state, java::ArrayList<Patch *> *lightList) {
+        init(state, lightList);
+    }
 
     ~SRCONFIG(){
         samplerConfig.ReleaseVars();
     };
 
 private:
-    void initDependentVars();
+    void initDependentVars(java::ArrayList<Patch *> *lightList);
 };
 
 #endif

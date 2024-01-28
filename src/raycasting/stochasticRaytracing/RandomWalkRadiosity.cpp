@@ -373,7 +373,7 @@ randomWalkRadiosityDoFirstShot(java::ArrayList<Patch *> *scenePatches) {
 }
 
 static int
-randomWalkRadiosityDoStep(java::ArrayList<Patch *> *scenePatches) {
+randomWalkRadiosityDoStep(java::ArrayList<Patch *> *scenePatches, java::ArrayList<Patch *> * /*lightPatches*/) {
     monteCarloRadiosityPreStep(scenePatches);
 
     if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.currentIteration == 1 ) {

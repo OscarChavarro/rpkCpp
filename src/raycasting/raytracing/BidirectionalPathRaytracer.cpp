@@ -985,7 +985,7 @@ is not a nullptr pointer, write the raytraced image to the file
 pointed to by 'fp'
 */
 static void
-bidirPathTrace(ImageOutputHandle *ip, java::ArrayList<Patch *> * /*scenePatches*/) {
+bidirPathTrace(ImageOutputHandle *ip, java::ArrayList<Patch *> * /*scenePatches*/, java::ArrayList<Patch *> *lightPatches) {
     // Install the samplers to be used in the state
 
     BPCONFIG config;
@@ -1134,14 +1134,12 @@ BidirPathInterrupt() {
 }
 
 static void
-BidirPathInit() {
+BidirPathInit(java::ArrayList<Patch *> *lightPatches) {
     // mainInit the light list
     if ( GLOBAL_lightList ) {
         delete GLOBAL_lightList;
     }
-    java::ArrayList<Patch *> *tmpList = patchListExportToArrayList(GLOBAL_scene_lightSourcePatches);
-    GLOBAL_lightList = new CLightList(tmpList);
-    delete tmpList;
+    GLOBAL_lightList = new CLightList(lightPatches);
 }
 
 static void
@@ -1154,15 +1152,15 @@ BidirPathTerminate() {
 
 Raytracer GLOBAL_raytracing_biDirectionalPathMethod =
 {
-        "BidirectionalPathTracing",
-        4,
-        "Bidirectional Path Tracing",
-        biDirectionalPathDefaults,
-        biDirectionalPathParseOptions,
-        BidirPathInit,
-        bidirPathTrace,
-        BidirPathRedisplay,
-        BidirPathSaveImage,
-        BidirPathInterrupt,
-        BidirPathTerminate
+    "BidirectionalPathTracing",
+    4,
+    "Bidirectional Path Tracing",
+    biDirectionalPathDefaults,
+    biDirectionalPathParseOptions,
+    BidirPathInit,
+    bidirPathTrace,
+    BidirPathRedisplay,
+    BidirPathSaveImage,
+    BidirPathInterrupt,
+    BidirPathTerminate
 };

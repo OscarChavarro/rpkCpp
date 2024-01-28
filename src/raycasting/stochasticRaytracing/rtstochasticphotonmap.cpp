@@ -1,6 +1,5 @@
 #include "common/error.h"
 #include "skin/radianceinterfaces.h"
-#include "scene/scene.h"
 #include "PHOTONMAP/PhotonMapRadiosity.h"
 #include "PHOTONMAP/photonmapsampler.h"
 #include "raycasting/raytracing/eyesampler.h"
@@ -12,7 +11,7 @@
 CSeed CSeedConfig::m_xorseed;
 
 void
-SRCONFIG::init(RTStochastic_State &state) {
+SRCONFIG::init(RTStochastic_State &state, java::ArrayList<Patch *> *lightList) {
     // Copy state options
 
     samplesPerPixel = state.samplesPerPixel;
@@ -79,11 +78,11 @@ SRCONFIG::init(RTStochastic_State &state) {
     screen = new ScreenBuffer(nullptr);
     screen->setFactor(1.0); // We're storing plain radiance
 
-    initDependentVars();
+    initDependentVars(lightList);
 }
 
 void
-SRCONFIG::initDependentVars() {
+SRCONFIG::initDependentVars(java::ArrayList<Patch *> *lightList) {
     // Sampler configuration
     samplerConfig.pointSampler = new CEyeSampler;
     samplerConfig.dirSampler = new CPixelSampler;
@@ -115,7 +114,7 @@ SRCONFIG::initDependentVars() {
 
     BSDFFLAGS storeFlags;
 
-    if ((GLOBAL_radiance_currentRadianceMethodHandle == nullptr) || (radMode == STORED_NONE)) {
+    if ( (GLOBAL_radiance_currentRadianceMethodHandle == nullptr) || (radMode == STORED_NONE) ) {
         storeFlags = NO_COMPONENTS;
     } else {
         if ( GLOBAL_radiance_currentRadianceMethodHandle == &GLOBAL_photonMapMethods ) {
@@ -236,9 +235,7 @@ SRCONFIG::initDependentVars() {
         delete GLOBAL_lightList;
     }
 
-    java::ArrayList<Patch *> *tmpList = patchListExportToArrayList(GLOBAL_scene_lightSourcePatches);
-    GLOBAL_lightList = new CLightList(tmpList, (bool) backgroundSampling);
-    delete tmpList;
+    GLOBAL_lightList = new CLightList(lightList, (bool) backgroundSampling);
 
     // Main init the seed config
     seedConfig.Init(samplerConfig.maxDepth);

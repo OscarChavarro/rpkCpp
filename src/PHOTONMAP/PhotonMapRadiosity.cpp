@@ -535,7 +535,7 @@ colors are used for hardware rendering if the default hardware rendering
 method is not superceeded in this file
 */
 static int
-photonMapDoStep(java::ArrayList<Patch *> *scenePatches) {
+photonMapDoStep(java::ArrayList<Patch *> *scenePatches, java::ArrayList<Patch *> * /*lightPatches*/) {
     GLOBAL_photonMap_state.wake_up = false;
     GLOBAL_photonMap_state.lastclock = clock();
 
