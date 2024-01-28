@@ -5,6 +5,7 @@ Stochastic Relaxation Radiosity (currently only stochastic Jacobi)
 #include "java/util/ArrayList.txx"
 #include "common/error.h"
 #include "material/statistics.h"
+#include "scene/scene.h"
 #include "shared/render.h"
 #include "raycasting/stochasticRaytracing/vrml/vrml.h"
 #include "raycasting/stochasticRaytracing/mcradP.h"
@@ -377,10 +378,12 @@ stochasticRelaxationRadiosityDoStep(java::ArrayList<Patch *> *scenePatches) {
 
     // Do some real work now
     if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.currentIteration == 1 ) {
-        int initial_nr_of_rays = 0;
-        if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.doNonDiffuseFirstShot )
-            doNonDiffuseFirstShot(scenePatches);
-        initial_nr_of_rays = GLOBAL_stochasticRaytracing_monteCarloRadiosityState.tracedRays;
+        if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.doNonDiffuseFirstShot ) {
+            java::ArrayList<Patch *> *lightPatches = patchListExportToArrayList(GLOBAL_scene_lightSourcePatches);
+            doNonDiffuseFirstShot(scenePatches, lightPatches);
+            delete lightPatches;
+        }
+        int initial_nr_of_rays = GLOBAL_stochasticRaytracing_monteCarloRadiosityState.tracedRays;
 
         if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceDriven ) {
             if ( !GLOBAL_stochasticRaytracing_monteCarloRadiosityState.incrementalUsesImportance ) {

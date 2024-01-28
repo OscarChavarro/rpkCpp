@@ -138,6 +138,6 @@ extern COLOR monteCarloRadiosityGetRadiance(Patch *patch, double u, double v, Ve
 extern void stochasticRelaxationRadiosityParseOptions(int *argc, char **argv);
 extern void randomWalkRadiosityParseOptions(int *argc, char **argv);
 
-extern void doNonDiffuseFirstShot(java::ArrayList<Patch *> *scenePatches);
+extern void doNonDiffuseFirstShot(java::ArrayList<Patch *> *scenePatches, java::ArrayList<Patch *> *lightPatches);
 
 #endif

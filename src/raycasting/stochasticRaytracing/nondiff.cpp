@@ -27,20 +27,20 @@ initLight(LIGHTSOURCETABLE *light, Patch *l, double flux) {
 }
 
 static void
-makeLightSourceTable(java::ArrayList<Patch *> *scenePatches) {
-    int i = 0;
+makeLightSourceTable(java::ArrayList<Patch *> *scenePatches, java::ArrayList<Patch *> *lightPatches) {
     globalTotalFlux = 0.0;
     globalNumberOfLights = GLOBAL_statistics_numberOfLightSources;
     globalLights = (LIGHTSOURCETABLE *)malloc(globalNumberOfLights * sizeof(LIGHTSOURCETABLE));
-    for ( PatchSet *window = GLOBAL_scene_lightSourcePatches; window != nullptr; window = window->next ) {
-        Patch *light = window->patch;
+
+    for ( int i = 0; lightPatches != nullptr && i < lightPatches->size(); i++ ) {
+        Patch *light = lightPatches->get(i);
         COLOR emitted_rad = patchAverageEmittance(light, ALL_COMPONENTS);
         double flux = M_PI * light->area * colorSumAbsComponents(emitted_rad);
         globalTotalFlux += flux;
         initLight(&globalLights[i], light, flux);
-        i++;
     }
-    for ( i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
+
+    for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
         Patch *patch = scenePatches->get(i);
         stochasticRadiosityClearCoefficients(getTopLevelPatchRad(patch), getTopLevelPatchBasis(patch));
         stochasticRadiosityClearCoefficients(getTopLevelPatchUnShotRad(patch), getTopLevelPatchBasis(patch));
@@ -159,8 +159,8 @@ summarize(java::ArrayList<Patch *> *scenePatches) {
 Initial shooting pass handling non-diffuse light sources
 */
 void
-doNonDiffuseFirstShot(java::ArrayList<Patch *> *scenePatches) {
-    makeLightSourceTable(scenePatches);
+doNonDiffuseFirstShot(java::ArrayList<Patch *> *scenePatches, java::ArrayList<Patch *> *lightPatches) {
+    makeLightSourceTable(scenePatches, lightPatches);
     sampleLightSources(
             GLOBAL_stochasticRaytracing_monteCarloRadiosityState.initialLightSourceSamples * globalNumberOfLights);
     summarize(scenePatches);
