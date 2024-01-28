@@ -23,7 +23,11 @@ ArrayList<T>::add(T voxelData)
 template <class T> void
 ArrayList<T>::add(long int pos, T elem)
 {
-    T last = get(size() - 1);
+    int lastPosition = size() - 1;
+    if ( lastPosition < 0 ) {
+        lastPosition = 0;
+    }
+    T last = get(lastPosition);
     add(last);
     int i;
     for ( i = size() - 1; i >= 1; i-- ) {

@@ -45,17 +45,6 @@ static int globalNo = 0;
 static int globalImageOutputWidth = 0;
 static int globalImageOutputHeight = 0;
 
-static java::ArrayList<Patch *> *
-convertPatchSetToPatchList(PatchSet *patchSet) {
-    java::ArrayList<Patch *> *newList = new java::ArrayList<Patch *>();
-
-    for ( PatchSet *window = patchSet; window != nullptr; window = window->next ) {
-        newList->add(0, window->patch);
-    }
-
-    return newList;
-}
-
 /**
 This routine sets the current raytracing method to be used
 */
@@ -152,10 +141,11 @@ mainComputeSomeSceneStats() {
     GLOBAL_statistics_totalArea = 0.;
 
     // Accumulate
-    java::ArrayList<Patch *> *scenePatches = convertPatchSetToPatchList(globalAppScenePatches);
+    java::ArrayList<Patch *> *scenePatches = patchListExportToArrayList(globalAppScenePatches);
     for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
         mainPatchAccumulateStats(scenePatches->get(i));
     }
+    delete scenePatches;
 
     // Averages
     colorScaleInverse(GLOBAL_statistics_totalArea, GLOBAL_statistics_averageReflectivity, GLOBAL_statistics_averageReflectivity);
@@ -214,10 +204,11 @@ mainBuildLightSourcePatchList() {
     GLOBAL_scene_lightSourcePatches = nullptr;
     GLOBAL_statistics_numberOfLightSources = 0;
 
-    java::ArrayList<Patch *> *scenePatches = convertPatchSetToPatchList(globalAppScenePatches);
+    java::ArrayList<Patch *> *scenePatches = patchListExportToArrayList(globalAppScenePatches);
     for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
         mainAddPatchToLightSourceListIfLightSource(scenePatches->get(i));
     }
+    delete scenePatches;
 
     mainAddBackgroundToLightSourceList();
     GLOBAL_statistics_numberOfLightSources++;
@@ -352,7 +343,7 @@ Processes command line arguments not recognized by the Xt GUI toolkit
 */
 static void
 mainParseGlobalOptions(int *argc, char **argv) {
-    GLOBAL_scenePatches = convertPatchSetToPatchList(globalAppScenePatches);
+    GLOBAL_scenePatches = patchListExportToArrayList(globalAppScenePatches);
 
     parseRenderingOptions(argc, argv);
     parseToneMapOptions(argc, argv);
@@ -519,7 +510,10 @@ mainReadFile(char *filename) {
     fprintf(stderr, "Building cluster hierarchy ... ");
     fflush(stderr);
 
-    GLOBAL_scene_clusteredWorldGeom = mainCreateClusterHierarchy(convertPatchSetToPatchList(globalAppScenePatches));
+    java::ArrayList<Patch *> *tmpList = patchListExportToArrayList(globalAppScenePatches);
+    GLOBAL_scene_clusteredWorldGeom = mainCreateClusterHierarchy(tmpList);
+    delete tmpList;
+
     if ( GLOBAL_scene_clusteredWorldGeom->methods == &GLOBAL_skin_compoundGeometryMethods ) {
         if ( GLOBAL_scene_clusteredWorldGeom->compoundData != nullptr ) {
             fprintf(stderr, "Unexpected case: review code - aggregate is not compound.\n");
@@ -564,7 +558,9 @@ mainReadFile(char *filename) {
     fprintf(stderr, "Initializing tone mapping ... ");
     fflush(stderr);
 
-    initToneMapping(convertPatchSetToPatchList(globalAppScenePatches));
+    tmpList = patchListExportToArrayList(globalAppScenePatches);
+    initToneMapping(tmpList);
+    delete tmpList;
 
     t = clock();
     fprintf(stderr, "%g secs.\n", (float) (t - last) / (float) CLOCKS_PER_SEC);
@@ -590,7 +586,9 @@ mainReadFile(char *filename) {
         fprintf(stderr, "Initializing radiance computations ... ");
         fflush(stderr);
 
-        setRadianceMethod(oRadiance, convertPatchSetToPatchList(globalAppScenePatches));
+        tmpList = patchListExportToArrayList(globalAppScenePatches);
+        setRadianceMethod(oRadiance, tmpList);
+        delete tmpList;
 
         t = clock();
         fprintf(stderr, "%g secs.\n", (float) (t - last) / (float) CLOCKS_PER_SEC);
@@ -648,6 +646,10 @@ main(int argc, char *argv[]) {
     mainInit();
     mainParseGlobalOptions(&argc, argv);
     mainBuildModel(&argc, argv);
-    mainExecuteRendering(convertPatchSetToPatchList(globalAppScenePatches));
+
+    auto tmpList = patchListExportToArrayList(globalAppScenePatches);
+    mainExecuteRendering(tmpList);
+    delete tmpList;
+
     return 0;
 }

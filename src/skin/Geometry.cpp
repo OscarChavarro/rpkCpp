@@ -65,7 +65,9 @@ geomCreateBase(void *geometryData, GEOM_METHODS *methods) {
         compoundBounds((Compound *)geometryData, newGeometry->bounds);
     } else if ( methods == &GLOBAL_skin_patchListGeometryMethods ) {
         PatchSet *data = (PatchSet *)geometryData;
-        patchListBounds(patchListExportToArrayList(data), newGeometry->bounds);
+        java::ArrayList<Patch *> *tmpList = patchListExportToArrayList(data);
+        patchListBounds(tmpList, newGeometry->bounds);
+        delete tmpList;
     }
 
     // Enlarge bounding box a tiny bit for more conservative bounding box culling
@@ -309,7 +311,12 @@ geomDiscretizationIntersect(
     } else if ( geom->compoundData != nullptr ) {
         return compoundDiscretizationIntersect(geom->compoundData, ray, minimumDistance, maximumDistance, hitFlags, hitStore);
     } else if ( geom->patchSetData != nullptr ) {
-        return patchListIntersect(patchListExportToArrayList(geom->patchSetData), ray, minimumDistance, maximumDistance, hitFlags, hitStore);
+        RayHit *response;
+        // TODO SITHMASTER: Note this is terribly inefficient. Should remove list conversions from here
+        java::ArrayList<Patch *> * tmpList = patchListExportToArrayList(geom->patchSetData);
+        response = patchListIntersect(tmpList, ray, minimumDistance, maximumDistance, hitFlags, hitStore);
+        delete tmpList;
+        return response;
     } else if ( geom->aggregateData != nullptr ) {
         return aggregationDiscretizationIntersect(geom->aggregateData, ray, minimumDistance, maximumDistance, hitFlags, hitStore);
     }

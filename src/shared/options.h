@@ -53,7 +53,7 @@ field of the CMDLINEOPTDESC structure below
 class CommandLineOptionDescription {
   public:
     const char *name; // Command line options name
-    int abbrevlength; // Minimum number of characters in command ine option name abbreviation or
+    int abbreviationLength; // Minimum number of characters in command ine option name abbreviation or
 				 // 0 if no abbreviation is allowed
     CommandLineOptions *type; // Value type, or TYPELESS
     void *value; // Pointer to value, or nullptr if TYPELESS option or to store value in temporary variable

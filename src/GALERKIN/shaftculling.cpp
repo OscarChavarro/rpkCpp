@@ -708,7 +708,7 @@ shaftCullPatchList(PatchSet *patchList, SHAFT *shaft, PatchSet *culledPatchList)
             // overlaps, do a more expensive, but definitive, test to see whether
             // the patch itself is inside, outside or overlapping the shaft
             if ( boundingBoxSide == INSIDE || shaftPatchTest(patchList->patch, shaft) != OUTSIDE ) {
-                if ( patchList->patch != nullptr) {
+                if ( patchList->patch != nullptr ) {
                     PatchSet *newListNode = (PatchSet *) malloc(sizeof(PatchSet));
                     newListNode->patch = patchList->patch;
                     newListNode->next = culledPatchList;

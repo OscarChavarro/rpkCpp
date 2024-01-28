@@ -9,7 +9,7 @@
 extern unsigned long *renderIds(long *x, long *y, java::ArrayList<Patch *> *scenePatches);
 extern void renderWorldOctree(void (*render_patch)(Patch *));
 extern void renderScene(java::ArrayList<Patch *> *scenePatches);
-extern void renderCreateOffscreenWindow(int hres, int vres);
+extern void renderCreateOffscreenWindow(int width, int height);
 extern void renderPatch(Patch *patch);
 extern void renderSetColor(RGB *rgb);
 extern void renderPixels(int x, int y, int width, int height, RGB *rgb);

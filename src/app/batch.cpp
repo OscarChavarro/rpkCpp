@@ -236,6 +236,7 @@ batch(java::ArrayList<Patch *> *scenePatches) {
                 } else {
                     batchProcessFile(fileName, "w", batchSaveRadianceImage, scenePatches);
                 }
+                free(fileName);
             }
 
             if ( *globalRadianceModelFileNameFormat ) {

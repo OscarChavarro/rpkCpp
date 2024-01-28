@@ -160,6 +160,7 @@ VoxelGrid::putSubGeometryInsideVoxelGrid(Geometry *geometry) {
             for ( int i = 0; patches != nullptr && i < patches->size(); i++) {
                 putPatchInsideVoxelGrid(patches->get(i));
             }
+            delete patches;
         }
     }
 }

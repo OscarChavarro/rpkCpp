@@ -75,20 +75,21 @@ openGlInitState() {
 Creates an offscreen window for rendering
 */
 void
-renderCreateOffscreenWindow(int hres, int vres) {
-    GLubyte *image_buffer = (GLubyte *)malloc(hres * vres * sizeof(GLubyte) * 4);
+renderCreateOffscreenWindow(int width, int height) {
+    GLubyte *imageBuffer = (GLubyte *)malloc(width * height * sizeof(GLubyte) * 4);
 
-    OSMesaContext osctx = OSMesaCreateContext(OSMESA_RGBA, nullptr);
-    if ( !osctx ) {
+    OSMesaContext osMesaContext = OSMesaCreateContext(OSMESA_RGBA, nullptr);
+    if ( !osMesaContext ) {
         logFatal(1, nullptr, "Couldn't create Mesa offscreen rendering context");
     }
 
-    if ( !OSMesaMakeCurrent(osctx, image_buffer, GL_UNSIGNED_BYTE, hres, vres)) {
-        logFatal(1, nullptr, "Couldn't bind Mesa offscreen rendering context to image buffer of size %d x %d", hres,
-                 vres);
+    if ( !OSMesaMakeCurrent(osMesaContext, imageBuffer, GL_UNSIGNED_BYTE, width, height) ) {
+        logFatal(1, nullptr, "Couldn't bind Mesa offscreen rendering context to image buffer of size %d x %d", width, height);
     }
 
     openGlInitState();
+    OSMesaDestroyContext(osMesaContext);
+    free(imageBuffer);
 }
 
 /**
