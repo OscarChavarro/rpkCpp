@@ -30,7 +30,7 @@ extern java::ArrayList<Patch *> *GLOBAL_scenePatches;
 PatchSet *globalLightSourcePatches = nullptr;
 
 // The list of all patches in the current scene. Automatically derived from 'GLOBAL_scene_world' when loading a scene
-static PatchSet *globalAppScenePatches = nullptr;
+static java::ArrayList<Patch *> *globalAppScenePatches = nullptr;
 #define STRING_SIZE 1000
 
 static Raytracer *globalRayTracingMethods[] = {
@@ -146,11 +146,9 @@ mainComputeSomeSceneStats() {
     GLOBAL_statistics_totalArea = 0.;
 
     // Accumulate
-    java::ArrayList<Patch *> *scenePatches = patchListExportToArrayList(globalAppScenePatches);
-    for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
-        mainPatchAccumulateStats(scenePatches->get(i));
+    for ( int i = 0; globalAppScenePatches != nullptr && i < globalAppScenePatches->size(); i++ ) {
+        mainPatchAccumulateStats(globalAppScenePatches->get(i));
     }
-    delete scenePatches;
 
     // Averages
     colorScaleInverse(GLOBAL_statistics_totalArea, GLOBAL_statistics_averageReflectivity, GLOBAL_statistics_averageReflectivity);
@@ -209,11 +207,9 @@ mainBuildLightSourcePatchList() {
     globalLightSourcePatches = nullptr;
     GLOBAL_statistics_numberOfLightSources = 0;
 
-    java::ArrayList<Patch *> *scenePatches = patchListExportToArrayList(globalAppScenePatches);
-    for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
-        mainAddPatchToLightSourceListIfLightSource(scenePatches->get(i));
+    for ( int i = 0; globalAppScenePatches != nullptr && i < globalAppScenePatches->size(); i++ ) {
+        mainAddPatchToLightSourceListIfLightSource(globalAppScenePatches->get(i));
     }
-    delete scenePatches;
 
     mainAddBackgroundToLightSourceList();
     GLOBAL_statistics_numberOfLightSources++;
@@ -348,7 +344,7 @@ Processes command line arguments not recognized by the Xt GUI toolkit
 */
 static void
 mainParseGlobalOptions(int *argc, char **argv) {
-    GLOBAL_scenePatches = patchListExportToArrayList(globalAppScenePatches);
+    GLOBAL_scenePatches = globalAppScenePatches;
 
     parseRenderingOptions(argc, argv);
     parseToneMapOptions(argc, argv);
@@ -448,19 +444,8 @@ mainReadFile(char *filename) {
         GLOBAL_raytracer_activeRaytracer->Terminate();
     }
 
-    PatchSet *listWindow = globalAppScenePatches;
-    while ( listWindow != nullptr ) {
-        PatchSet *next = listWindow->next;
-        free(listWindow);
-        listWindow = next;
-    }
-
-    listWindow = globalLightSourcePatches;
-    while ( listWindow != nullptr ) {
-        PatchSet *next = listWindow->next;
-        free(listWindow);
-        listWindow = next;
-    }
+    delete globalAppScenePatches;
+    globalAppScenePatches = nullptr;
 
     if ( GLOBAL_scene_clusteredWorldGeom ) {
         geomDestroy(GLOBAL_scene_clusteredWorldGeom);
@@ -495,7 +480,8 @@ mainReadFile(char *filename) {
     fprintf(stderr, "Building patch list ... ");
     fflush(stderr);
 
-    globalAppScenePatches = buildPatchList(GLOBAL_scene_world, nullptr /*should replace with new list*/);
+    globalAppScenePatches = new java::ArrayList<Patch *>();
+    buildPatchList(GLOBAL_scene_world, globalAppScenePatches);
 
     t = clock();
     fprintf(stderr, "%g secs.\n", (float) (t - last) / (float) CLOCKS_PER_SEC);
@@ -515,9 +501,7 @@ mainReadFile(char *filename) {
     fprintf(stderr, "Building cluster hierarchy ... ");
     fflush(stderr);
 
-    java::ArrayList<Patch *> *tmpList = patchListExportToArrayList(globalAppScenePatches);
-    GLOBAL_scene_clusteredWorldGeom = mainCreateClusterHierarchy(tmpList);
-    delete tmpList;
+    GLOBAL_scene_clusteredWorldGeom = mainCreateClusterHierarchy(globalAppScenePatches);
 
     if ( GLOBAL_scene_clusteredWorldGeom->methods == &GLOBAL_skin_compoundGeometryMethods ) {
         if ( GLOBAL_scene_clusteredWorldGeom->compoundData != nullptr ) {
@@ -563,9 +547,7 @@ mainReadFile(char *filename) {
     fprintf(stderr, "Initializing tone mapping ... ");
     fflush(stderr);
 
-    tmpList = patchListExportToArrayList(globalAppScenePatches);
-    initToneMapping(tmpList);
-    delete tmpList;
+    initToneMapping(globalAppScenePatches);
 
     t = clock();
     fprintf(stderr, "%g secs.\n", (float) (t - last) / (float) CLOCKS_PER_SEC);
@@ -591,9 +573,7 @@ mainReadFile(char *filename) {
         fprintf(stderr, "Initializing radiance computations ... ");
         fflush(stderr);
 
-        tmpList = patchListExportToArrayList(globalAppScenePatches);
-        setRadianceMethod(oRadiance, tmpList);
-        delete tmpList;
+        setRadianceMethod(oRadiance, globalAppScenePatches);
 
         t = clock();
         fprintf(stderr, "%g secs.\n", (float) (t - last) / (float) CLOCKS_PER_SEC);
@@ -654,9 +634,7 @@ main(int argc, char *argv[]) {
     mainParseGlobalOptions(&argc, argv);
     mainBuildModel(&argc, argv);
 
-    auto tmpList = patchListExportToArrayList(globalAppScenePatches);
-    mainExecuteRendering(tmpList);
-    delete tmpList;
+    mainExecuteRendering(globalAppScenePatches);
 
     return 0;
 }

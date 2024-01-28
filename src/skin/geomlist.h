@@ -20,11 +20,8 @@ class GeometryListNode {
 extern GeometryListNode *
 geometryListAdd(GeometryListNode *geometryList, Geometry *geometry);
 
-extern float *
-geometryListBounds(GeometryListNode *geometryList, float *boundingBox);
-
-extern PatchSet *
-buildPatchList(GeometryListNode *geometryList, PatchSet *patchList);
+extern float *geometryListBounds(GeometryListNode *geometryList, float *boundingBox);
+extern void buildPatchList(GeometryListNode *geometryList, java::ArrayList<Patch *> *patchList);
 
 extern RayHit *
 geometryListDiscretizationIntersect(

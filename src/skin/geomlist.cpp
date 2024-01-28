@@ -33,36 +33,30 @@ geometryListBounds(GeometryListNode *geometryList, float *boundingBox) {
 }
 
 /**
-Builds a linear list of PATCHES making up all the geometries in the list, whether
+Builds a linear list of patches making up all the geometries in the list, whether
 they are primitive or not
 */
-PatchSet *
-buildPatchList(GeometryListNode *geometryList, PatchSet *patchList) {
-    if ( geometryList != nullptr ) {
-        GeometryListNode *geometryWindow;
-        for ( geometryWindow = geometryList; geometryWindow; geometryWindow = geometryWindow->next ) {
-            Geometry *geometry = geometryWindow->geom;
-            if ( geomIsAggregate(geometry)) {
-                patchList = buildPatchList(geomPrimList(geometry), patchList);
-            } else {
-                PatchSet *list1 = patchList;
-                java::ArrayList<Patch *> *list2 = geomPatchArrayList(geometry);
+void
+buildPatchList(GeometryListNode *geometryList, java::ArrayList<Patch *> *patchList) {
+    if ( geometryList == nullptr ) {
+        return;
+    }
 
-                for ( int i = 0; list2 != nullptr && i < list2->size(); i++ ) {
-                    Patch *patch = list2->get(i);
-                    if ( patch != nullptr ) {
-                        PatchSet *newListNode = (PatchSet *)malloc(sizeof(PatchSet));
-                        newListNode->patch = patch;
-                        newListNode->next = list1;
-                        list1 = newListNode;
-                    }
+    for ( GeometryListNode *geometryWindow = geometryList; geometryWindow; geometryWindow = geometryWindow->next ) {
+        Geometry *geometry = geometryWindow->geom;
+        if ( geomIsAggregate(geometry)) {
+            buildPatchList(geomPrimList(geometry), patchList);
+        } else {
+            java::ArrayList<Patch *> *list2 = geomPatchArrayList(geometry);
+
+            for ( int i = 0; list2 != nullptr && i < list2->size(); i++ ) {
+                Patch *patch = list2->get(i);
+                if ( patch != nullptr ) {
+                    patchList->add(0, patch);
                 }
-                patchList = list1;
             }
         }
     }
-
-    return patchList;
 }
 
 RayHit *
