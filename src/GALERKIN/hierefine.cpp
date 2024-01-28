@@ -68,16 +68,16 @@ hierarchicRefinementCull(INTERACTION *link) {
             return ocandlist;
         }
 
-        if ( isCluster(link->receiverElement)) {
-            shaftDontOpen(&shaft, link->receiverElement->geom);
+        if ( isCluster(link->receiverElement) ) {
+            setShaftDontOpen(&shaft, link->receiverElement->geom);
         } else {
-            shaftOmit(&shaft, (Geometry *) link->receiverElement->patch);
+            setShaftOmit(&shaft, link->receiverElement->patch);
         }
 
         if ( isCluster(link->sourceElement)) {
-            shaftDontOpen(&shaft, link->sourceElement->geom);
+            setShaftDontOpen(&shaft, link->sourceElement->geom);
         } else {
-            shaftOmit(&shaft, (Geometry *) link->sourceElement->patch);
+            setShaftOmit(&shaft, link->sourceElement->patch);
         }
 
         if ( ocandlist == GLOBAL_scene_clusteredWorld ) {

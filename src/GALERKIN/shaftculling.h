@@ -32,9 +32,9 @@ class SHAFT {
     float extent[6];
     SHAFTPLANE plane[SHAFTMAXPLANES];
     int planes;  // Number of planes in plane-set
-    Geometry *omit[2]; // Geometries to be ignored during shaft culling. max. 2!
+    Patch *omit[2]; // Geometries to be ignored during shaft culling. max. 2!
     int nromit; // Number of geometries to be ignored
-    Geometry *dontopen[2]; // Geometries not to be opened during shaft culling. max. 2!
+    Geometry *dontOpen[2]; // Geometries not to be opened during shaft culling. max. 2!
     int nrdontopen; // Number of geometries not to be opened
     Vector3D center1; // The line segment from center1 to center2 is guaranteed
 				      // to lay within the shaft
@@ -56,10 +56,10 @@ enum SHAFTCULLSTRATEGY {
 
 extern SHAFT *constructShaft(float *ref1, float *ref2, SHAFT *shaft);
 extern SHAFT *constructPolygonToPolygonShaft(POLYGON *p1, POLYGON *p2, SHAFT *shaft);
-extern void shaftOmit(SHAFT *shaft, Geometry *geom);
-extern void shaftDontOpen(SHAFT *shaft, Geometry *geom);
+extern void setShaftOmit(SHAFT *shaft, Patch *geom);
+extern void setShaftDontOpen(SHAFT *shaft, Geometry *geom);
 extern GeometryListNode *doShaftCulling(GeometryListNode *world, SHAFT *shaft, GeometryListNode *candidateList);
-extern GeometryListNode *shaftCullGeom(Geometry *geom, SHAFT *shaft, GeometryListNode *candidateList);
+extern GeometryListNode *shaftCullGeom(Geometry *geometry, SHAFT *shaft, GeometryListNode *candidateList);
 extern PatchSet *shaftCullPatchList(PatchSet *patchList, SHAFT *shaft, PatchSet *culledPatchList);
 extern void freeCandidateList(GeometryListNode *candidateList);
 

@@ -97,9 +97,9 @@ static CommandLineOptionDescription globalStochasticRatTracerOptions[] = {
         {"-rts-max-path-length", 8, Tint, &GLOBAL_raytracing_state.maxPathDepth, DEFAULT_ACTION,
          "-rts-max-path-length <number>\t: maximum path length (ignoring higher orders)"},
         {"-rts-NOdirect-background-rad", 8, Tsetfalse, &GLOBAL_raytracing_state.backgroundDirect, DEFAULT_ACTION,
-         "-rts-NOdirect-background-rad\t: omit direct background radiance."},
+         "-rts-NOdirect-background-rad\t: patchIsOnOmitSet direct background radiance."},
         {"-rts-NOindirect-background-rad", 8, Tsetfalse, &GLOBAL_raytracing_state.backgroundIndirect, DEFAULT_ACTION,
-         "-rts-NOindirect-background-rad\t: omit indirect background radiance."},
+         "-rts-NOindirect-background-rad\t: patchIsOnOmitSet indirect background radiance."},
         {nullptr, 0, TYPELESS, nullptr, DEFAULT_ACTION, nullptr}
 };
 

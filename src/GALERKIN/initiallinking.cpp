@@ -53,8 +53,8 @@ createInitialLink(Patch *patch) {
         }
 
         if ( the_shaft ) {
-            shaftOmit(&shaft, (Geometry *) globalPatch);
-            shaftOmit(&shaft, (Geometry *) patch);
+            setShaftOmit(&shaft, globalPatch);
+            setShaftOmit(&shaft, patch);
             globalCandidateList = doShaftCulling(oldCandidateList, the_shaft, (GeometryListNode *) nullptr);
 
             if ( the_shaft->cut == true ) {    /* one patch causes full occlusion. */
@@ -110,7 +110,7 @@ geomLink(Geometry *geom) {
      * an initial link will need to be created. */
     if ( geom->bounded && oldCandidateList ) {
         constructShaft(globalPatchBoundingBox, geomBounds(geom), &shaft);
-        shaftOmit(&shaft, (Geometry *) globalPatch);
+        setShaftOmit(&shaft, globalPatch);
         globalCandidateList = doShaftCulling(oldCandidateList, &shaft, nullptr);
     }
 

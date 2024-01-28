@@ -25,7 +25,7 @@ Marks a geometry as to be omitted during shaft culling: it will not be added to 
 candidate list, even if the geometry overlaps or is inside the shaft
 */
 void
-shaftOmit(SHAFT *shaft, Geometry *geom) {
+setShaftOmit(SHAFT *shaft, Patch *geom) {
     shaft->omit[shaft->nromit++] = geom;
 }
 
@@ -33,8 +33,8 @@ shaftOmit(SHAFT *shaft, Geometry *geom) {
 Marks a geometry as one not to be opened during shaft culling
 */
 void
-shaftDontOpen(SHAFT *shaft, Geometry *geom) {
-    shaft->dontopen[shaft->nrdontopen++] = geom;
+setShaftDontOpen(SHAFT *shaft, Geometry *geom) {
+    shaft->dontOpen[shaft->nrdontopen++] = geom;
 }
 
 /**
@@ -432,9 +432,12 @@ constructPolygonToPolygonShaft(POLYGON *p1, POLYGON *p2, SHAFT *shaft) {
     boundsEnlarge(shaft->extent, p2->bounds);
 
     // Nothing (yet) to omit
-    shaft->omit[0] = shaft->omit[1] = nullptr;
-    shaft->dontopen[0] = shaft->dontopen[1] = nullptr;
-    shaft->nromit = shaft->nrdontopen = 0;
+    shaft->omit[0] = nullptr;
+    shaft->omit[1] = nullptr;
+    shaft->dontOpen[0] = nullptr;
+    shaft->dontOpen[1] = nullptr;
+    shaft->nromit = 0;
+    shaft->nrdontopen = 0;
     shaft->cut = false;
 
     // Center positions of polygons define a line that is guaranteed to lay inside the shaft
@@ -656,7 +659,7 @@ shaftPatchTest(Patch *patch, SHAFT *shaft) {
 Returns true if the geometry is not to be enclosed in the shaft
 */
 static int
-omit(SHAFT *shaft, Geometry *geometry) {
+patchIsOnOmitSet(SHAFT *shaft, Patch *geometry) {
     for ( int i = 0; i < shaft->nromit; i++ ) {
         if ( shaft->omit[i] == geometry ) {
             return true;
@@ -671,7 +674,7 @@ Returns true if the geometry is not to be opened during shaft culling
 static int
 dontOpen(SHAFT *shaft, Geometry *geom) {
     for ( int i = 0; i < shaft->nrdontopen; i++ ) {
-        if ( shaft->dontopen[i] == geom ) {
+        if ( shaft->dontOpen[i] == geom ) {
             return true;
         }
     }
@@ -690,7 +693,7 @@ shaftCullPatchList(PatchSet *patchList, SHAFT *shaft, PatchSet *culledPatchList)
     int boundingBoxSide;
 
     for ( total = 0; patchList && !shaft->cut; patchList = patchList->next, total++ ) {
-        if ( patchList->patch->omit || omit(shaft, (Geometry *) patchList->patch)) {
+        if ( patchList->patch->omit || patchIsOnOmitSet(shaft, patchList->patch)) {
             continue;
         }
 
@@ -768,25 +771,25 @@ the shaft, it is copied to the shaft or broken open depending on
 the current shaft culling strategy
 */
 GeometryListNode *
-shaftCullGeom(Geometry *geom, SHAFT *shaft, GeometryListNode *candidateList) {
-    if ( geom->omit || omit(shaft, geom) ) {
+shaftCullGeom(Geometry *geometry, SHAFT *shaft, GeometryListNode *candidateList) {
+    if ( geometry->className == GeometryClassId::PATCH_SET && (geometry->omit || patchIsOnOmitSet(shaft, (Patch *)geometry)) ) {
         return candidateList;
     }
 
     // Unbounded geoms always overlap the shaft
-    switch ( geom->bounded ? shaftBoxTest(geom->bounds, shaft) : OVERLAP ) {
+    switch ( geometry->bounded ? shaftBoxTest(geometry->bounds, shaft) : OVERLAP ) {
         case INSIDE:
-            if ( strategy == ALWAYS_OPEN && !dontOpen(shaft, geom) ) {
-                candidateList = shaftCullOpen(geom, shaft, candidateList);
+            if ( strategy == ALWAYS_OPEN && !dontOpen(shaft, geometry) ) {
+                candidateList = shaftCullOpen(geometry, shaft, candidateList);
             } else {
-                candidateList = keep(geom, candidateList);
+                candidateList = keep(geometry, candidateList);
             }
             break;
         case OVERLAP:
-            if ( strategy == KEEP_CLOSED || dontOpen(shaft, geom) ) {
-                candidateList = keep(geom, candidateList);
+            if ( strategy == KEEP_CLOSED || dontOpen(shaft, geometry) ) {
+                candidateList = keep(geometry, candidateList);
             } else {
-                candidateList = shaftCullOpen(geom, shaft, candidateList);
+                candidateList = shaftCullOpen(geometry, shaft, candidateList);
             }
             break;
         default:
