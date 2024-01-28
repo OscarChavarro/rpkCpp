@@ -307,13 +307,10 @@ renderPatch(Patch *patch) {
 }
 
 static void
-reallyRenderOctreeLeaf(Geometry *geom, void (*renderPatch)(Patch *)) {
-    PatchSet *patchList = geomPatchList(geom);
-    PatchSet *pathWindow = (PatchSet *)patchList;
-    if ( pathWindow != nullptr) {
-        for ( PatchSet *window = pathWindow; window; window = window->next ) {
-            renderPatch(window->patch);
-        }
+reallyRenderOctreeLeaf(Geometry *geometry, void (*renderPatch)(Patch *)) {
+    java::ArrayList<Patch *> *patchList = geomPatchArrayList(geometry);
+    for ( int i = 0; patchList != nullptr && i < patchList->size(); i++ ) {
+        renderPatch(patchList->get(i));
     }
 }
 

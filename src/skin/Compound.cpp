@@ -74,7 +74,12 @@ compoundPrimitives(Compound *obj) {
     return &obj->children;
 }
 
-static RayHit *
+/**
+DiscretizationIntersect returns nullptr is the ray doesn't hit the discretization
+of the object. If the ray hits the object, a hit record is returned containing
+information about the intersection point. See geometry.h for more explanation
+*/
+RayHit *
 compoundDiscretizationIntersect(
     Compound *obj,
     Ray *ray,
@@ -85,6 +90,19 @@ compoundDiscretizationIntersect(
 {
     return geometryListDiscretizationIntersect(
         &obj->children, ray, minimumDistance, maximumDistance, hitFlags, hitStore);
+}
+
+RayHit *
+aggregationDiscretizationIntersect(
+    GeometryListNode *obj,
+    Ray *ray,
+    float minimumDistance,
+    float *maximumDistance,
+    int hitFlags,
+    RayHit *hitStore)
+{
+    return geometryListDiscretizationIntersect(
+            obj, ray, minimumDistance, maximumDistance, hitFlags, hitStore);
 }
 
 static HITLIST *
@@ -106,7 +124,6 @@ GEOM_METHODS GLOBAL_skin_compoundGeometryMethods = {
     (void (*)(FILE *, void *)) compoundPrint,
     (GeometryListNode *(*)(void *)) compoundPrimitives,
     nullptr,
-    (RayHit *(*)(void *, Ray *, float, float *, int, RayHit *)) compoundDiscretizationIntersect,
     (HITLIST *(*)(HITLIST *, void *, Ray *, float, float, int)) compoundAllDiscretizationIntersections,
     (void *(*)(void *)) nullptr
 };

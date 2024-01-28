@@ -132,14 +132,6 @@ class GEOM_METHODS {
     PatchSet *(*getPatchList)(void *obj);
 
     /**
-     * DiscretizationIntersect returns nullptr is the ray doesn't hit the discretization
-     * of the object. If the ray hits the object, a hit record is returned containing
-     * information about the intersection point. See geometry.h for more explanation
-     */
-    RayHit *
-    (*discretizationIntersect)(void *obj, Ray *ray, float mindist, float *maxdist, int hitflags, RayHit *hitstore);
-
-    /**
      * Similar, but appends all found intersections to the hit list hit record
      * list. The possibly modified hit list is returned
      */

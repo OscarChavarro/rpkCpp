@@ -14,4 +14,22 @@ extern GEOM_METHODS GLOBAL_skin_compoundGeometryMethods;
 
 extern Compound *compoundCreate(GeometryListNode *geometryList);
 
+extern RayHit *
+compoundDiscretizationIntersect(
+    Compound *obj,
+    Ray *ray,
+    float minimumDistance,
+    float *maximumDistance,
+    int hitFlags,
+    RayHit *hitStore);
+
+RayHit *
+aggregationDiscretizationIntersect(
+    GeometryListNode *obj,
+    Ray *ray,
+    float minimumDistance,
+    float *maximumDistance,
+    int hitFlags,
+    RayHit *hitStore);
+
 #endif

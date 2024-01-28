@@ -294,13 +294,13 @@ geomDiscretizationIntersect(
     }
 
     if ( geom->surfaceData != nullptr ) {
-        return geom->methods->discretizationIntersect(geom->surfaceData, ray, minimumDistance, maximumDistance, hitFlags, hitStore);
+        return surfaceDiscretizationIntersect(geom->surfaceData, ray, minimumDistance, maximumDistance, hitFlags, hitStore);
     } else if ( geom->compoundData != nullptr ) {
-        return geom->methods->discretizationIntersect(geom->compoundData, ray, minimumDistance, maximumDistance, hitFlags, hitStore);
+        return compoundDiscretizationIntersect(geom->compoundData, ray, minimumDistance, maximumDistance, hitFlags, hitStore);
     } else if ( geom->patchSetData != nullptr ) {
-        return geom->methods->discretizationIntersect(geom->patchSetData, ray, minimumDistance, maximumDistance, hitFlags, hitStore);
+        return patchListIntersect(geom->patchSetData, ray, minimumDistance, maximumDistance, hitFlags, hitStore);
     } else if ( geom->aggregateData != nullptr ) {
-        return geom->methods->discretizationIntersect(geom->aggregateData, ray, minimumDistance, maximumDistance, hitFlags, hitStore);
+        return aggregationDiscretizationIntersect(geom->aggregateData, ray, minimumDistance, maximumDistance, hitFlags, hitStore);
     }
     return nullptr;
 }

@@ -80,6 +80,15 @@ geomGetSurface(Geometry *geom) {
     return geomIsSurface(geom) ? geom->surfaceData : nullptr;
 }
 
+RayHit *
+surfaceDiscretizationIntersect(
+        MeshSurface *surf,
+        Ray *ray,
+        float minimumDistance,
+        float *maximumDistance,
+        int hitFlags,
+        RayHit *hitStore);
+
 #include "skin/Geometry.h"
 
 #endif
