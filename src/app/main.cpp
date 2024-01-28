@@ -27,7 +27,7 @@
 extern java::ArrayList<Patch *> *GLOBAL_scenePatches;
 
 // The light of all patches on light sources, useful for e.g. next event estimation in Monte Carlo raytracing etc.
-PatchSet *globalLightSourcePatches = nullptr;
+java::ArrayList<Patch *> *globalLightSourcePatches = nullptr;
 
 // The list of all patches in the current scene. Automatically derived from 'GLOBAL_scene_world' when loading a scene
 static java::ArrayList<Patch *> *globalAppScenePatches = nullptr;
@@ -60,9 +60,7 @@ mainSetRayTracingMethod(Raytracer *newMethod) {
 
     GLOBAL_raytracer_activeRaytracer = newMethod;
     if ( GLOBAL_raytracer_activeRaytracer ) {
-        java::ArrayList<Patch *> *tmpList = patchListExportToArrayList(globalLightSourcePatches);
-        GLOBAL_raytracer_activeRaytracer->Initialize(tmpList);
-        delete tmpList;
+        GLOBAL_raytracer_activeRaytracer->Initialize(globalLightSourcePatches);
     }
 }
 
@@ -173,10 +171,7 @@ Adds the background to the global light source patch list
 static void
 mainAddBackgroundToLightSourceList() {
     if ( GLOBAL_scene_background != nullptr && GLOBAL_scene_background->bkgPatch != nullptr ) {
-        PatchSet *newListNode = (PatchSet *)malloc(sizeof(PatchSet));
-        newListNode->patch = GLOBAL_scene_background->bkgPatch;
-        newListNode->next = globalLightSourcePatches;
-        globalLightSourcePatches = newListNode;
+        globalLightSourcePatches->add(0, GLOBAL_scene_background->bkgPatch);
     }
 }
 
@@ -190,11 +185,7 @@ mainAddPatchToLightSourceListIfLightSource(Patch *patch) {
          && patch->surface != nullptr
          && patch->surface->material != nullptr
          && patch->surface->material->edf != nullptr ) {
-        PatchSet *newListNode = (PatchSet *)malloc(sizeof(PatchSet));
-        newListNode->patch = patch;
-        newListNode->next = globalLightSourcePatches;
-        globalLightSourcePatches = newListNode;
-
+        globalLightSourcePatches->add(0, patch);
         GLOBAL_statistics_numberOfLightSources++;
     }
 }
@@ -204,7 +195,7 @@ Build the global light source patch list
 */
 static void
 mainBuildLightSourcePatchList() {
-    globalLightSourcePatches = nullptr;
+    globalLightSourcePatches = new java::ArrayList<Patch *>();
     GLOBAL_statistics_numberOfLightSources = 0;
 
     for ( int i = 0; globalAppScenePatches != nullptr && i < globalAppScenePatches->size(); i++ ) {
@@ -623,9 +614,7 @@ mainExecuteRendering(java::ArrayList<Patch *> *scenePatches) {
     while ( !renderInitialized() );
     renderScene(scenePatches);
 
-    java::ArrayList<Patch *> *tmpList = patchListExportToArrayList(globalLightSourcePatches);
-    batch(scenePatches, tmpList);
-    delete tmpList;
+    batch(scenePatches, globalLightSourcePatches);
 }
 
 int

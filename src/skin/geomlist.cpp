@@ -1,5 +1,4 @@
 #include "java/util/ArrayList.txx"
-#include "skin/PatchSet.h"
 #include "skin/geomlist.h"
 #include "skin/Geometry.h"
 #include "skin/hitlist.h"
