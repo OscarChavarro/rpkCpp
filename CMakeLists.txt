@@ -71,8 +71,7 @@ set(MAIN_SRC
     src/io/mgf/parser.cpp
     src/io/mgf/context.cpp
     src/io/FileUncompressWrapper.cpp
-    src/SGL/poly_scan.cpp
-    src/SGL/poly_clip.cpp
+        src/SGL/poly_clip.cpp
     src/SGL/poly_scan_z.cpp
     src/SGL/sgl.cpp
     src/SGL/poly_scan_flat.cpp
