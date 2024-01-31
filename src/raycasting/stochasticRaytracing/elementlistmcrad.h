@@ -16,9 +16,9 @@ class ELEMENTLIST {
     ELEMENTLIST *next;
 };
 
-#define ElementListCreate    (ELEMENTLIST *)ListCreate
+#define ElementListCreate (ELEMENTLIST *)ListCreate
 
-#define ElementListAdd(elementlist, element)    \
+#define ElementListAdd(elementlist, element) \
         (ELEMENTLIST *)ListAdd((LIST *)elementlist, (void *)element)
 
 #define ElementListIterate(elementlist, proc) \

@@ -2,7 +2,6 @@
 #define __PATCH__
 
 #include "common/Ray.h"
-#include "BREP/BREP_FACE.h"
 #include "skin/Jacobian.h"
 #include "skin/Vertex.h"
 #include "skin/MeshSurface.h"
@@ -18,7 +17,6 @@ class Patch {
 public:
     unsigned id; // Identification number for debugging, ID rendering
     Patch *twin; // Twin face (for double-sided surfaces)
-    BREP_FACE *brepData; // Topological data for the patch. Only filled in if a radiance method needs it
     Vertex *vertex[MAXIMUM_VERTICES_PER_PATCH]; // Pointers to the vertices
     char numberOfVertices; // Number of vertices: 3 or 4
     float *boundingBox;

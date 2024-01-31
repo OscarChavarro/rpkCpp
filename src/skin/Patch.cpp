@@ -24,7 +24,7 @@ clipToUnitInterval(double x) {
 }
 
 Patch::Patch():
-    id{}, twin{}, brepData{}, vertex{}, numberOfVertices{}, boundingBox{}, normal{}, planeConstant{},
+    id{}, twin{}, vertex{}, numberOfVertices{}, boundingBox{}, normal{}, planeConstant{},
     tolerance{}, area{}, midpoint{}, jacobian{}, directPotential{}, index{}, omit{}, flags{},
     color{}, radianceData{}, surface{}
 {
@@ -269,8 +269,6 @@ patchCreate(int numberOfVertices, Vertex *v1, Vertex *v2, Vertex *v3, Vertex *v4
     patch->vertex[2] = v3;
     patch->vertex[3] = v4;
 
-    patch->brepData = nullptr;
-
     // A bounding box will be computed the first time it is needed
     patch->boundingBox = nullptr;
 
@@ -330,12 +328,6 @@ patchDestroy(Patch *patch) {
 
     if ( patch->jacobian ) {
         jacobianDestroy(patch->jacobian);
-    }
-
-    if ( patch->brepData ) {
-        // Also destroys all contours, and edges if not used in other faces as
-        // well. Not the vertices: these are destroyed when destroying the corresponding Vertex
-        brepDestroyFace(patch->brepData);
     }
 
     if ( patch->twin ) {

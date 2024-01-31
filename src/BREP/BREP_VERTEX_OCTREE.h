@@ -1,19 +1,8 @@
 #ifndef __BREP_VERTEX_OCTREE__
 #define __BREP_VERTEX_OCTREE__
 
-#include "BREP/BREP_VERTEX.h"
-
-/* ********************** vertex octrees *************************** */
-/* vertices can also be sorted and stored into an octree in order to make
- * searching for a vertex significantly faster. */
-class BREP_VERTEX_OCTREE {
-  public:
-    BREP_VERTEX *vertex;
-    BREP_VERTEX_OCTREE *child[8];
-};
-
 /* Before trying to store vertices in an octree, first a routine should
- * be speciied to compare the client data of two vertices.
+ * be specified to compare the client data of two vertices.
  * The routine specified should return a code with the following meaning:
  *
  * 	0:  x1 <= x2 , y1 <= y2, z1 <= z2 but not all are equal
