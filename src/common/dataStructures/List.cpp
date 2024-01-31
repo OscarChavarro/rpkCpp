@@ -22,21 +22,6 @@ ListAdd(LIST *list, void *element) {
 }
 
 /**
-Counts the number of elements in a list
-*/
-int
-ListCount(LIST *list) {
-    int count = 0;
-
-    while ( list ) {
-        count++;
-        list = list->next;
-    }
-
-    return count;
-}
-
-/**
 Removes an element from the list. Returns a pointer to the updated list
 */
 LIST *

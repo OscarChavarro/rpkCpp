@@ -33,6 +33,7 @@ enum GeometryClassId {
     PATCH_SET,
     SURFACE_MESH,
     COMPOUND,
+    AGGREGATE_COMPOUND,
     UNDEFINED
 };
 
@@ -74,12 +75,10 @@ extern Geometry *geomCreatePatchSet(PatchSet *patchSet, GEOM_METHODS *methods);
 extern Geometry *geomCreateCompound(Compound *compoundData, GEOM_METHODS *methods);
 extern Geometry *geomCreateAggregateCompound(GeometryListNode *aggregateData, GEOM_METHODS *methods);
 
-extern void geomPrint(FILE *out, Geometry *geom);
 extern float *geomBounds(Geometry *geom);
 extern void geomDestroy(Geometry *geometry);
 extern int geomIsAggregate(Geometry *geom);
 extern GeometryListNode *geomPrimList(Geometry *geom);
-extern PatchSet *geomPatchList(Geometry *geom);
 java::ArrayList<Patch *> *geomPatchArrayList(Geometry *geom);
 extern void geomDontIntersect(Geometry *geom1, Geometry *geom2);
 extern Geometry *geomDuplicate(Geometry *geom);

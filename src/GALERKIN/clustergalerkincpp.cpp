@@ -122,7 +122,7 @@ galerkinDoCreateClusterHierarchy(Geometry *parentGeometry) {
         for ( int i = 0; patchList != nullptr && i < patchList->size(); i++ ) {
             patchAddClusterChild(patchList->get(i), cluster);
         }
-        //delete patchList;
+        delete patchList;
     }
 
     clusterInit(cluster);

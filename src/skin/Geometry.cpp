@@ -1,5 +1,4 @@
 #include <cstdlib>
-#include <cstdio>
 
 #include "java/util/ArrayList.txx"
 #include "common/error.h"
@@ -11,7 +10,23 @@ Geometry *GLOBAL_geom_excludedGeom2 = nullptr;
 
 static int globalCurrentMaxId = 0;
 
-Geometry::Geometry(): id() {
+Geometry::Geometry():
+    id(),
+    methods(),
+    bounds(),
+    radiance_data(),
+    displayListId(),
+    tmp(),
+    bounded(),
+    shaftCullGeometry(),
+    omit(),
+    surfaceData(),
+    compoundData(),
+    patchSetData(),
+    newPatchSetData(),
+    aggregateData(),
+    className()
+{
     className = GeometryClassId::UNDEFINED;
 }
 
@@ -147,18 +162,8 @@ geomCreateAggregateCompound(GeometryListNode *aggregateData, GEOM_METHODS *metho
 
     Geometry *newGeometry = geomCreateBase(aggregateData, methods);
     newGeometry->aggregateData = aggregateData;
+    newGeometry->className = GeometryClassId::AGGREGATE_COMPOUND;
     return newGeometry;
-}
-
-/**
-This function prints the geometry data to the file out
-*/
-void
-geomPrint(FILE *out, Geometry *geom) {
-    fprintf(out, "Geom %d, bounded = %s, shaftCullGeometry = %s:\n",
-            geom->id,
-            geom->bounded ? "TRUE" : "FALSE",
-            geom->shaftCullGeometry ? "TRUE" : "FALSE");
 }
 
 /**

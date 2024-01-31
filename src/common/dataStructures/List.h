@@ -77,7 +77,6 @@ a pointer to the "extra" data, then a pointer to a list element
 
 
 extern LIST *ListAdd(LIST *list, void *element);
-extern int ListCount(LIST *list);
 
 /**
 The first argument is the address of a LIST *. First call this function
