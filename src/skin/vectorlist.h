@@ -10,15 +10,7 @@ class Vector3DListNode {
     Vector3DListNode *next;
 };
 
-#define VectorListCreate (Vector3DListNode *) ListCreate
-
 #define VectorListAdd(vectorlist, vector) \
-        (Vector3DListNode *)ListAdd((LIST *)vectorlist, (void *)vector)
-
-#define VectorListIterate(vectorlist, proc) \
-        ListIterate((LIST *)vectorlist, (void (*)(void *))proc)
-
-#define VectorListDestroy(vectorlist) \
-        ListDestroy((LIST *)vectorlist)
+    (Vector3DListNode *)ListAdd((LIST *)vectorlist, (void *)vector)
 
 #endif

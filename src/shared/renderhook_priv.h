@@ -18,17 +18,10 @@ public:
     RENDERHOOKLIST *next;
 };
 
-#define RenderHookListCreate    (RENDERHOOKLIST *)ListCreate
-
-#define RenderHookListAdd(renderHookList, hook)    \
+#define RenderHookListAdd(renderHookList, hook) \
         (RENDERHOOKLIST *)ListAdd((LIST *)renderHookList, (void *)hook)
 
 #define RenderHookListRemove(renderHookList, hook) \
         (RENDERHOOKLIST *)ListRemove((LIST *)renderHookList, (void *)hook)
-
-#define RenderHookListDestroy(renderHookList) \
-        ListDestroy((LIST *)renderHookList)
-
-#define ForAllHooks(h, hooklist) ForAllInList(RENDERHOOK, h, hooklist)
 
 #endif

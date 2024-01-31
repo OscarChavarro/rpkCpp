@@ -163,8 +163,8 @@ mgfSetMonochrome(int yesno) {
 
 static void
 newSurface() {
-    globalCurrentPointList = VectorListCreate();
-    globalCurrentNormalList = VectorListCreate();
+    globalCurrentPointList = nullptr;
+    globalCurrentNormalList = nullptr;
     globalCurrentVertexList = new java::ArrayList<Vertex *>();
     globalCurrentFaceList = new java::ArrayList<Patch *>();
     globalInSurface = true;
@@ -436,8 +436,8 @@ getVertex(char *name) {
 
     theVertex = (Vertex *) (vp->client_data);
     if ( !theVertex || vp->clock >= 1 || vp->xid != xf_xid(GLOBAL_mgf_xfContext) || is0vect(vp->n)) {
-        /* new vertex, or updated vertex or same vertex, but other transform, or
-         * vertex without normal: create a new Vertex. */
+        // New vertex, or updated vertex or same vertex, but other transform, or
+        // vertex without normal: create a new Vertex
         FVECT vert;
         FVECT norm;
         Vector3D *theNormal;

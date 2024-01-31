@@ -29,9 +29,9 @@ elementHierarchyInit() {
                                                        colorMaximumComponent(GLOBAL_statistics_maxSelfEmittedPower);
 
     // These lists hold vertices created during hierarchical refinement
-    GLOBAL_stochasticRaytracing_hierarchy.coords = VectorListCreate();
-    GLOBAL_stochasticRaytracing_hierarchy.normals = VectorListCreate();
-    GLOBAL_stochasticRaytracing_hierarchy.texCoords = VectorListCreate();
+    GLOBAL_stochasticRaytracing_hierarchy.coords = nullptr;
+    GLOBAL_stochasticRaytracing_hierarchy.normals = nullptr;
+    GLOBAL_stochasticRaytracing_hierarchy.texCoords = nullptr;
     GLOBAL_stochasticRaytracing_hierarchy.vertices = new java::ArrayList<Vertex *>();
     GLOBAL_stochasticRaytracing_hierarchy.topcluster = monteCarloRadiosityCreateClusterHierarchy(
             GLOBAL_scene_clusteredWorldGeom);

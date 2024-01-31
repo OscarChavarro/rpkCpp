@@ -2,7 +2,6 @@
 #define __PATCH_LIST__
 
 #include "java/util/ArrayList.h"
-#include "common/dataStructures/List.h"
 #include "material/hit.h"
 #include "skin/Patch.h"
 #include "common/Ray.h"
