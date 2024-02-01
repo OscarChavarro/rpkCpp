@@ -24,11 +24,11 @@ static void
 incrementalizeY(double *p1, double *p2, double *p, double *dp, int y) {
     double dy, frac;
 
-    dy = ((Poly_vert *) p2)->sy - ((Poly_vert *) p1)->sy;
+    dy = ((PolygonVertex *) p2)->sy - ((PolygonVertex *) p1)->sy;
     if ( dy == 0. ) {
         dy = 1.;
     }
-    frac = y + .5 - ((Poly_vert *) p1)->sy;
+    frac = y + .5 - ((PolygonVertex *) p1)->sy;
 
     /* interpolate only sx and sz (first and third field) */
     dp[0] = (p2[0] - p1[0]) / dy;
@@ -45,7 +45,7 @@ static void increment(double *p, double *dp) {
 
 /* scanline: output scanline by sampling polygon at Y=y+.5 */
 
-static void scanline(int y, Poly_vert *l, Poly_vert *r, Window *win) {
+static void scanline(int y, PolygonVertex *l, PolygonVertex *r, Window *win) {
     int x, lx, rx, offset;
     int dz;
     SGL_PIXEL *pix;
@@ -108,7 +108,7 @@ except sx and sy.  If they were computed, they would have values
 sx=x+.5 and sy=y+.5, since sampling is done at pixel centers.
 */
 void
-polyScanZ(Poly *p, Window *win)
+polyScanZ(Polygon *p, Window *win)
 {
     int i;
     int li;
@@ -119,16 +119,16 @@ polyScanZ(Poly *p, Window *win)
     int top;
     int rem;
     double ymin;
-    Poly_vert l{};
-    Poly_vert r{};
-    Poly_vert dl{};
-    Poly_vert dr{};
+    PolygonVertex l{};
+    PolygonVertex r{};
+    PolygonVertex dl{};
+    PolygonVertex dr{};
 
     ymin = HUGE;
     top = -1;
     for ( i = 0; i < p->n; i++ ) {        /* find top vertex (y positions down) */
-        if ( p->vert[i].sy < ymin ) {
-            ymin = p->vert[i].sy;
+        if ( p->vertices[i].sy < ymin ) {
+            ymin = p->vertices[i].sy;
             top = i;
         }
     }
@@ -147,8 +147,8 @@ polyScanZ(Poly *p, Window *win)
             if ( i < 0 ) {
                 i = p->n - 1;
             }
-            incrementalizeY((double *) &p->vert[li], (double *) &p->vert[i], (double *) &l, (double *) &dl, y);
-            ly = floor(p->vert[i].sy + .5);
+            incrementalizeY((double *) &p->vertices[li], (double *) &p->vertices[i], (double *) &l, (double *) &dl, y);
+            ly = floor(p->vertices[i].sy + .5);
             li = i;
         }
         while ( ry <= y && rem > 0 ) {    /* advance right edge? */
@@ -157,8 +157,8 @@ polyScanZ(Poly *p, Window *win)
             if ( i >= p->n ) {
                 i = 0;
             }
-            incrementalizeY((double *) &p->vert[ri], (double *) &p->vert[i], (double *) &r, (double *) &dr, y);
-            ry = floor(p->vert[i].sy + .5);
+            incrementalizeY((double *) &p->vertices[ri], (double *) &p->vertices[i], (double *) &r, (double *) &dr, y);
+            ry = floor(p->vertices[i].sy + .5);
             ri = i;
         }
 

@@ -1,62 +1,85 @@
-/* poly.h: definitions for polygon package */
+/**
+Definitions for polygon package
+*/
 
 #ifndef POLY_HDR
 #define POLY_HDR
 
 #include "common/mymath.h"
 
-#define POLY_NMAX 10        /* max #sides to a polygon; change if needed */
-/* note that poly_clip, given an n-gon as input, might output an (n+6)gon */
-/* POLY_NMAX=10 is thus appropriate if input polygons are triangles or quads */
+// Note that poly_clip, given an n-gon as input, might output an (n+6)gon
+#define MAXIMUM_SIDES_PER_POLYGON 10
 
-class Poly_vert {        /* A POLYGON Vertex */
+class PolygonVertex {
   public:
-    double sx, sy, sz, sw;    /* screen space position (sometimes homo.) */
-    double x, y, z;        /* world space position */
-    double u, v, q;        /* texture position (sometimes homogeneous) */
-    double r, g, b;        /* (red,green,blue) color */
-    double nx, ny, nz;        /* world space normal vector */
+    double sx; // Screen space position (sometimes homo)
+    double sy;
+    double sz;
+    double sw;
+    double x; // World space position
+    double y;
+    double z;
+    double u; // Texture position (sometimes homogeneous)
+    double v;
+    double q;
+    double r; // (red,green,blue) color
+    double g;
+    double b;
 };
 
-/* note: don't put > 32 doubles in Poly_vert, or mask will overflow */
+// Note: don't put > 32 doubles in Poly_vert, or mask will overflow
 
-class Poly {        /* A POLYGON */
+class Polygon {
   public:
-    int n;            /* number of sides */
-    unsigned long mask;        /* interpolation mask for vertex elems */
-    Poly_vert vert[POLY_NMAX];    /* vertices */
-};
-/*
- * mask is an interpolation mask whose kth bit indicates whether the kth
- * double in a Poly_vert is relevant.
- * For example, if the valid attributes are sx, sy, and sz, then set
- *	mask = POLY_MASK(sx) | POLY_MASK(sy) | POLY_MASK(sz);
- */
-
-class Poly_box {        /* A BOX (TYPICALLY IN SCREEN SPACE) */
-  public:
-    double x0, x1;        /* left and right */
-    double y0, y1;        /* top and bottom */
-    double z0, z1;        /* near and far */
+    int n; // Number of sides
+    unsigned long mask; // Interpolation mask for vertex elems
+    PolygonVertex vertices[MAXIMUM_SIDES_PER_POLYGON];
 };
 
-class Window {        /* WINDOW: A DISCRETE 2-D RECTANGLE */
+/**
+Mask is an interpolation mask whose kth bit indicates whether the kth
+double in a Poly_vert is relevant.
+For example, if the valid attributes are sx, sy, and sz, then set
+mask = POLY_MASK(sx) | POLY_MASK(sy) | POLY_MASK(sz);
+*/
+
+// A BOX (TYPICALLY IN SCREEN SPACE)
+class PolygonBox {
   public:
-    int x0, y0;            /* xmin and ymin */
-    int x1, y1;            /* xmax and ymax (inclusive) */
+    double x0; // Left and right
+    double x1;
+    double y0; // Top and bottom
+    double y1;
+    double z0; // Near and far
+    double z1;
+};
+
+// WINDOW: A DISCRETE 2-D RECTANGLE
+class Window {
+  public:
+    int x0; // x-min and y-min
+    int y0;
+    int x1; // x-max and y-max (inclusive)
+    int y1;
 };
 
 #define POLY_MASK(elem) (1 << (&GLOBAL_sgl_polyDummy->elem - (double *)GLOBAL_sgl_polyDummy))
 
-#define POLY_CLIP_OUT 0 /* polygon entirely outside box */
-#define POLY_CLIP_PARTIAL 1 /* polygon partially inside */
-#define POLY_CLIP_IN 2 /* polygon entirely inside box */
+// Polygon entirely outside box
+#define POLY_CLIP_OUT 0
 
-extern Poly_vert *GLOBAL_sgl_polyDummy; // Used superficially by POLY_MASK macro
+// Polygon partially inside
+#define POLY_CLIP_PARTIAL 1
 
-int polyClipToBox(Poly *p1, Poly_box *box);
-void polyClipToHalfSpace(Poly *p, Poly *q, int index, double sign, double k);
-void polyScanFlat(Poly *p, Window *win);
-void polyScanZ(Poly *p, Window *win);
+// Polygon entirely inside box
+#define POLY_CLIP_IN 2
+
+// Used superficially by POLY_MASK macro
+extern PolygonVertex *GLOBAL_sgl_polyDummy;
+
+int polyClipToBox(Polygon *p1, PolygonBox *box);
+void polyClipToHalfSpace(Polygon *p, Polygon *q, int index, double sign, double k);
+void polyScanFlat(Polygon *p, Window *win);
+void polyScanZ(Polygon *p, Window *win);
 
 #endif

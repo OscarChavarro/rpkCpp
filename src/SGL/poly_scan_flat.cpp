@@ -5,27 +5,27 @@ from "Graphics Gems", Academic Press, 1990
 
 Does no interpolations, for flat shading without Z buffering etc... PhB
 
-poly_scan.c: point-sampled scan conversion of convex polygons
+Point-sampled scan conversion of convex polygons
 
-Paul Heckbert	1985, Dec 1989
+Paul Heckbert 1985, Dec 1989
 */
 
 #include "SGL/poly.h"
 #include "SGL/sgl.h"
 
 /**
-Put intersection of line Y=y+.5 with edge between positions
+Put intersection of line Y = y + 0.5 with edge between positions
 p1 and p2 in p, put change with respect to y in dp
 */
 static void
 incrementalizeY(const double *p1, const double *p2, double *p, double *dp, int y) {
     double dy, frac;
 
-    dy = ((Poly_vert *) p2)->sy - ((Poly_vert *) p1)->sy;
+    dy = ((PolygonVertex *) p2)->sy - ((PolygonVertex *) p1)->sy;
     if ( dy == 0. ) {
         dy = 1.;
     }
-    frac = y + .5 - ((Poly_vert *) p1)->sy;
+    frac = y + .5 - ((PolygonVertex *) p1)->sy;
 
     /* interpolate only sx */
     *dp = (*p2 - *p1) / dy;
@@ -42,7 +42,7 @@ increment(double *p, const double *dp) {
 Output scanline by sampling polygon at Y=y+.5
 */
 static void
-scanline(int y, Poly_vert *l, Poly_vert *r, Window *win) {
+scanline(int y, PolygonVertex *l, PolygonVertex *r, Window *win) {
     int x, lx, rx;
     SGL_PIXEL *pix;
 
@@ -88,21 +88,21 @@ p: polygon
 win: 2-D screen space clipping window
 */
 void
-polyScanFlat(Poly *p, Window *win)
+polyScanFlat(Polygon *p, Window *win)
 {
     int i, li, ri, y, ly, ry, top, rem;
     double yMin;
-    Poly_vert l{};
-    Poly_vert r{};
-    Poly_vert dl{};
-    Poly_vert dr{};
+    PolygonVertex l{};
+    PolygonVertex r{};
+    PolygonVertex dl{};
+    PolygonVertex dr{};
 
     yMin = HUGE;
     top = -1;
     for ( i = 0; i < p->n; i++ ) {
         // Find top vertex (y positions down)
-        if ( p->vert[i].sy < yMin ) {
-            yMin = p->vert[i].sy;
+        if ( p->vertices[i].sy < yMin ) {
+            yMin = p->vertices[i].sy;
             top = i;
         }
     }
@@ -123,8 +123,8 @@ polyScanFlat(Poly *p, Window *win)
             if ( i < 0 ) {
                 i = p->n - 1;
             }
-            incrementalizeY((double *) &p->vert[li], (double *) &p->vert[i], (double *) &l, (double *) &dl, y);
-            ly = floor(p->vert[i].sy + .5);
+            incrementalizeY((double *) &p->vertices[li], (double *) &p->vertices[i], (double *) &l, (double *) &dl, y);
+            ly = floor(p->vertices[i].sy + .5);
             li = i;
         }
         while ( ry <= y && rem > 0 ) {
@@ -134,8 +134,8 @@ polyScanFlat(Poly *p, Window *win)
             if ( i >= p->n ) {
                 i = 0;
             }
-            incrementalizeY((double *) &p->vert[ri], (double *) &p->vert[i], (double *) &r, (double *) &dr, y);
-            ry = floor(p->vert[i].sy + .5);
+            incrementalizeY((double *) &p->vertices[ri], (double *) &p->vertices[i], (double *) &r, (double *) &dr, y);
+            ry = floor(p->vertices[i].sy + .5);
             ri = i;
         }
 

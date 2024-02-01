@@ -87,7 +87,7 @@ scratchRenderElementPtrs(GalerkinElement *clus, Vector3D eye) {
 
     prev_sgl_context = sglMakeCurrent(GLOBAL_galerkin_state.scratch);
     sglLoadMatrix(orthogonalViewMatrix(bbx[MIN_X], bbx[MAX_X], bbx[MIN_Y], bbx[MAX_Y], -bbx[MAX_Z], -bbx[MIN_Z]));
-    sglMultMatrix(lookAt);
+    sglMultiplyMatrix(lookAt);
 
     /* choose a viewport depending on the relative size of the smallest
      * surface element in the cluster to be rendered. */

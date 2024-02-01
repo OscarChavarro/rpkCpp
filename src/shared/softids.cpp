@@ -28,9 +28,9 @@ setupSoftFrameBuffer() {
             (float) GLOBAL_camera_mainCamera.xSize / (float) GLOBAL_camera_mainCamera.ySize,
             GLOBAL_camera_mainCamera.near,
             GLOBAL_camera_mainCamera.far));
-    sglMultMatrix(lookAtMatrix(
+    sglMultiplyMatrix(lookAtMatrix(
             GLOBAL_camera_mainCamera.eyePosition, GLOBAL_camera_mainCamera.lookPosition,
-           GLOBAL_camera_mainCamera.upDirection));
+            GLOBAL_camera_mainCamera.upDirection));
 
     return sgl;
 }

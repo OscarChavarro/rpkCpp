@@ -43,14 +43,14 @@ extern void sglClose(SGL_CONTEXT *context);
 extern SGL_CONTEXT *sglMakeCurrent(SGL_CONTEXT *context);
 
 /* returns current sgl renderer */
-extern void sglClearZBuffer(SGL_Z_VALUE defzval);
-extern void sglClear(SGL_PIXEL backgroundcol, SGL_Z_VALUE defzval);
+extern void sglClearZBuffer(SGL_Z_VALUE defZVal);
+extern void sglClear(SGL_PIXEL backgroundColor, SGL_Z_VALUE defZVal);
 extern void sglDepthTesting(SGL_BOOLEAN on);
 extern void sglClipping(SGL_BOOLEAN on);
 extern void sglLoadMatrix(Matrix4x4 xf);
-extern void sglMultMatrix(Matrix4x4 xf);
+extern void sglMultiplyMatrix(Matrix4x4 xf);
 extern void sglSetColor(SGL_PIXEL col);
 extern void sglViewport(int x, int y, int width, int height);
-extern void sglPolygon(int nrverts, Vector3D *verts);
+extern void sglPolygon(int numberOfVertices, Vector3D *vertices);
 
 #endif

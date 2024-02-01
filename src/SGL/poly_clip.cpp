@@ -12,7 +12,10 @@ Paul Heckbert 1985, Dec 1989
 
 #include "SGL/poly.h"
 
-#define SWAP(a, b, temp) {temp = a; a = b; b = temp;}
+#define SWAP(a, b, temp) { \
+    temp = a; a = b; b = temp; \
+}
+
 #define COORD(vert, i) ((double *)(vert))[i]
 
 #define CLIP_AND_SWAP(elem, sign, k, p, q, r) { \
@@ -37,41 +40,56 @@ Given an n-gon as input, clipping against 6 planes could generate an
 (n+6)gon, so POLY_NMAX in poly.h must be big enough to allow that.
 */
 int
-polyClipToBox(Poly *p1, Poly_box *box) {
-    int x0out = 0, x1out = 0, y0out = 0, y1out = 0, z0out = 0, z1out = 0;
+polyClipToBox(Polygon *p1, PolygonBox *box) {
+    int x0out = 0;
+    int x1out = 0;
+    int y0out = 0;
+    int y1out = 0;
+    int z0out = 0;
+    int z1out = 0;
     int i;
-    Poly_vert *v;
-    Poly p2{};
-    Poly *p;
-    Poly *q;
-    Poly *r;
+    PolygonVertex *v;
+    Polygon p2{};
+    Polygon *p;
+    Polygon *q;
+    Polygon *r;
 
-    if ( p1->n + 6 > POLY_NMAX ) {
+    if ( p1->n + 6 > MAXIMUM_SIDES_PER_POLYGON ) {
         fprintf(stderr, "polyClipToBox: too many vertices: %d (max=%d-6)\n",
-                p1->n, POLY_NMAX);
+                p1->n, MAXIMUM_SIDES_PER_POLYGON);
         exit(1);
     }
-    if ( sizeof(Poly_vert) / sizeof(double) > 32 ) {
+    if ( sizeof(PolygonVertex) / sizeof(double) > 32 ) {
         fprintf(stderr, "Poly_vert structure too big; must be <=32 doubles\n");
         exit(1);
     }
 
     // Count vertices "outside" with respect to each of the six planes
-    for ( v = p1->vert, i = p1->n; i > 0; i--, v++ ) {
+    for ( v = p1->vertices, i = p1->n; i > 0; i--, v++ ) {
         if ( v->sx < box->x0 * v->sw ) {
+            // Out on left
             x0out++;
-        }    /* out on left */
+        }
         if ( v->sx > box->x1 * v->sw ) {
+            // Out on right
             x1out++;
-        }    /* out on right */
-        if ( v->sy < box->y0 * v->sw )
-            y0out++;    /* out on top */
-        if ( v->sy > box->y1 * v->sw )
-            y1out++;    /* out on bottom */
-        if ( v->sz < box->z0 * v->sw )
-            z0out++;    /* out on near */
-        if ( v->sz > box->z1 * v->sw )
-            z1out++;    /* out on far */
+        }
+        if ( v->sy < box->y0 * v->sw ) {
+            // Out on top
+            y0out++;
+        }
+        if ( v->sy > box->y1 * v->sw ) {
+            // Out on bottom
+            y1out++;
+        }
+        if ( v->sz < box->z0 * v->sw ) {
+            // Out on near
+            z0out++;
+        }
+        if ( v->sz > box->z1 * v->sw ) {
+            // Out on far
+            z1out++;
+        }
     }
 
     // Check if all vertices inside
@@ -111,7 +129,7 @@ polyClipToBox(Poly *p1, Poly_box *box) {
 
     // If result ended up in p2 then copy it to p1
     if ( p == &p2 ) {
-        bcopy(&p2, p1, sizeof(Poly) - (POLY_NMAX - p2.n) * sizeof(Poly_vert));
+        bcopy(&p2, p1, sizeof(Polygon) - (MAXIMUM_SIDES_PER_POLYGON - p2.n) * sizeof(PolygonVertex));
     }
     return POLY_CLIP_PARTIAL;
 }
@@ -122,36 +140,40 @@ copying the portion satisfying sign*s[index] < k*sw into q,
 where s is a Poly_vert* cast as a double*.
 index is an index into the array of doubles at each vertex, such that
 s[index] is sx, sy, or sz (screen space x, y, or z).
-Thus, to clip against xmin, use
-polyClipToHalfspace(p, q, XINDEX, -1., -xmin);
-and to clip against xmax, use
-polyClipToHalfspace(p, q, XINDEX,  1.,  xmax);
+Thus, to clip against xMin, use
+polyClipToHalfSpace(p, q, XINDEX, -1.0, -xMin);
+and to clip against xMax, use
+polyClipToHalfSpace(p, q, XINDEX,  1.0,  xMax);
 */
 void
-polyClipToHalfSpace(Poly *p, Poly *q, int index, double sign, double k) {
+polyClipToHalfSpace(Polygon *p, Polygon *q, int index, double sign, double k) {
     unsigned long m;
-    double *up, *vp, *wp;
-    Poly_vert *v;
+    double *up;
+    double *vp;
+    double *wp;
+    PolygonVertex *v;
     int i;
-    Poly_vert *u;
-    double t, tu, tv;
+    PolygonVertex *u;
+    double t;
+    double tu;
+    double tv;
 
     q->n = 0;
     q->mask = p->mask;
 
     // Start with u=vert[n-1], v=vert[0]
-    u = &p->vert[p->n - 1];
+    u = &p->vertices[p->n - 1];
     tu = sign * COORD(u, index) - u->sw * k;
-    for ( v = &p->vert[0], i = p->n; i > 0; i--, u = v, tu = tv, v++ ) {
+    for ( v = &p->vertices[0], i = p->n; i > 0; i--, u = v, tu = tv, v++ ) {
         // On old polygon (p), u is previous vertex, v is current vertex
         // tv is negative if vertex v is in
         tv = sign * COORD(v, index) - v->sw * k;
-        if (((tu <= 0.) ^ (tv <= 0.))) {
+        if ( ((tu <= 0.0) ^ (tv <= 0.0)) ) {
             // Edge crosses plane; add intersection point to q
             t = tu / (tu - tv);
             up = (double *) u;
             vp = (double *) v;
-            wp = (double *) &q->vert[q->n];
+            wp = (double *) &q->vertices[q->n];
             for ( m = p->mask; m != 0; m >>= 1, up++, vp++, wp++ ) {
                 if ( m & 1 ) {
                     *wp = *up + t * (*vp - *up);
@@ -161,7 +183,7 @@ polyClipToHalfSpace(Poly *p, Poly *q, int index, double sign, double k) {
         }
         if ( tv <= 0.0 ) {
             // Vertex v is in, copy it to q
-            q->vert[q->n++] = *v;
+            q->vertices[q->n++] = *v;
         }
     }
 }
