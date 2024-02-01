@@ -216,23 +216,7 @@ batch(java::ArrayList<Patch *> *scenePatches, java::ArrayList<Patch *> *lightPat
                 char *fileName = (char *)malloc(n);
                 snprintf(fileName, n, globalRadianceImageFileNameFormat, it);
                 if ( GLOBAL_render_renderOptions.trace ) {
-                    char *dot;
-                    char *tmpName;
-                    const char *tiffExt = "tif";
-
                     batchProcessFile(fileName, "w", batchSaveRadianceImage, scenePatches);
-
-                    // Now, change the extension to '.tiff' and save it as RGB
-
-                    tmpName = (char *)malloc(strlen(fileName) + strlen(tiffExt) + 1);
-                    strcpy(tmpName, fileName);
-                    dot = imageFileExtension(tmpName);
-                    if ( dot ) {
-                        *dot = '\0';
-                    }
-                    strcat(tmpName, tiffExt);
-                    batchProcessFile(tmpName, "w", batchSaveRadianceImage, scenePatches);
-                    free(tmpName);
                 } else {
                     batchProcessFile(fileName, "w", batchSaveRadianceImage, scenePatches);
                 }
