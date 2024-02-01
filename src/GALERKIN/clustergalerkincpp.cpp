@@ -243,7 +243,7 @@ clusterRadianceToSamplePoint(GalerkinElement *src, Vector3D sample) {
 
                 /* Render pointers to the elements in the source cluster into the scratch frame
                  * buffer as seen from the sample point. */
-                float *bbx = scratchRenderElementPtrs(src, sample);
+                float *bbx = scratchRenderElements(src, sample);
 
                 /* Compute average radiance on the virtual screen */
                 globalSourceRadiance = scratchRadiance();
@@ -337,7 +337,7 @@ receiverClusterArea(INTERACTION *link) {
             if ( !outOfBounds(&globalSamplePoint, rcv->geom->bounds)) {
                 return rcv->area;
             } else {
-                float *bbx = scratchRenderElementPtrs(rcv, globalSamplePoint);
+                float *bbx = scratchRenderElements(rcv, globalSamplePoint);
 
                 /* projected area is the number of non background pixels over
                  * the total number of pixels * area of the virtual screen. */
@@ -447,7 +447,7 @@ clusterGatherRadiance(INTERACTION *link, COLOR *srcrad) {
             if ( !outOfBounds(&globalSamplePoint, rcv->geom->bounds)) {
                 iterateOverSurfaceElementsInCluster(rcv, orientedSurfaceGatherRadiance);
             } else {
-                float *bbx = scratchRenderElementPtrs(rcv, globalSamplePoint);
+                float *bbx = scratchRenderElements(rcv, globalSamplePoint);
 
                 /* Count how many pixels each element occupies in the scratch frame buffer. */
                 scratchPixelsPerElement();

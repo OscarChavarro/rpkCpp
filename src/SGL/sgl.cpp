@@ -12,9 +12,10 @@ of patches needs to be ID rendered very often
 // Used superficially by POLY_MASK macro
 PolygonVertex *GLOBAL_sgl_polyDummy;
 
-SGL_CONTEXT *GLOBAL_sgl_currentContext = (SGL_CONTEXT *)nullptr;
+SGL_CONTEXT *GLOBAL_sgl_currentContext{};
 
-SGL_CONTEXT *sglOpen(int width, int height) {
+SGL_CONTEXT *
+sglOpen(int width, int height) {
     SGL_CONTEXT *context = (SGL_CONTEXT *)malloc(sizeof(SGL_CONTEXT));
 
     GLOBAL_sgl_currentContext = context;
@@ -122,7 +123,7 @@ sglDepthTesting(SGL_BOOLEAN on) {
         }
     } else {
         if ( GLOBAL_sgl_currentContext->depthBuffer ) {
-            free((char *) GLOBAL_sgl_currentContext->depthBuffer);
+            free(GLOBAL_sgl_currentContext->depthBuffer);
             GLOBAL_sgl_currentContext->depthBuffer = (SGL_Z_VALUE *) nullptr;
         } else {
             return;

@@ -56,42 +56,43 @@ scratchRenderElementPtr(GalerkinElement *elem) {
 /**
 Sets up an orthographic projection of the cluster as
 seen from the eye. Renders the element pointers to the elements
-in clus in the scratch frame buffer and returns pointer to a boundingbox
+in cluster in the scratch frame buffer and returns pointer to a bounding box
 containing the size of the virtual screen. The cluster clus nicely fits
 into the virtual screen
 */
 float *
-scratchRenderElementPtrs(GalerkinElement *clus, Vector3D eye) {
-    Vector3D centre = galerkinElementMidPoint(clus);
-    Vector3D up = {0., 0., 1.}, viewdir;
+scratchRenderElements(GalerkinElement *cluster, Vector3D eye) {
+    Vector3D centre = galerkinElementMidPoint(cluster);
+    Vector3D up = {0.0, 0.0, 1.0};
+    Vector3D viewDirection;
     static BOUNDINGBOX bbx;
     Matrix4x4 lookAt{};
     SGL_CONTEXT *prev_sgl_context;
     int vp_size;
 
-    if ( clus->id == GLOBAL_galerkin_state.lastclusid && VECTOREQUAL(eye, GLOBAL_galerkin_state.lasteye, EPSILON)) {
+    if ( cluster->id == GLOBAL_galerkin_state.lastclusid && VECTOREQUAL(eye, GLOBAL_galerkin_state.lasteye, EPSILON)) {
         return bbx;
     } else {
-        /* cache previously rendered cluster and eye point in order to
-         * avoid rerendering the same situation next time. */
-        GLOBAL_galerkin_state.lastclusid = clus->id;
+        // Cache previously rendered cluster and eye point in order to
+        // avoid re-rendering the same situation next time
+        GLOBAL_galerkin_state.lastclusid = cluster->id;
         GLOBAL_galerkin_state.lasteye = eye;
     }
 
-    VECTORSUBTRACT(centre, eye, viewdir);
-    VECTORNORMALIZE(viewdir);
-    if ( fabs(VECTORDOTPRODUCT(up, viewdir)) > 1. - EPSILON ) VECTORSET(up, 0., 1., 0.);
+    VECTORSUBTRACT(centre, eye, viewDirection);
+    VECTORNORMALIZE(viewDirection);
+    if ( fabs(VECTORDOTPRODUCT(up, viewDirection)) > 1. - EPSILON ) VECTORSET(up, 0., 1., 0.);
     lookAt = lookAtMatrix(eye, centre, up);
 
-    boundsTransform(geomBounds(clus->geom), &lookAt, bbx);
+    boundsTransform(geomBounds(cluster->geom), &lookAt, bbx);
 
     prev_sgl_context = sglMakeCurrent(GLOBAL_galerkin_state.scratch);
     sglLoadMatrix(orthogonalViewMatrix(bbx[MIN_X], bbx[MAX_X], bbx[MIN_Y], bbx[MAX_Y], -bbx[MAX_Z], -bbx[MIN_Z]));
     sglMultiplyMatrix(lookAt);
 
-    /* choose a viewport depending on the relative size of the smallest
-     * surface element in the cluster to be rendered. */
-    vp_size = (int) ((bbx[MAX_X] - bbx[MIN_X]) * (bbx[MAX_Y] - bbx[MIN_Y]) / clus->minimumArea);
+    // Choose a viewport depending on the relative size of the smallest
+    // surface element in the cluster to be rendered
+    vp_size = (int) ((bbx[MAX_X] - bbx[MIN_X]) * (bbx[MAX_Y] - bbx[MIN_Y]) / cluster->minimumArea);
     if ( vp_size > GLOBAL_galerkin_state.scratch->width ) {
         vp_size = GLOBAL_galerkin_state.scratch->width;
     }
@@ -100,10 +101,10 @@ scratchRenderElementPtrs(GalerkinElement *clus, Vector3D eye) {
     }
     sglViewport(0, 0, vp_size, vp_size);
 
-    /* Render element pointers in the scratch frame buffer. */
-    eyep = eye;    /* needed for backface culling test */
+    // Render element pointers in the scratch frame buffer
+    eyep = eye; // Needed for backface culling test
     sglClear((SGL_PIXEL) nullptr, SGL_MAXIMUM_Z);
-    iterateOverSurfaceElementsInCluster(clus, scratchRenderElementPtr);
+    iterateOverSurfaceElementsInCluster(cluster, scratchRenderElementPtr);
 
     sglMakeCurrent(prev_sgl_context);
     return bbx;

@@ -19,38 +19,41 @@ p1 and p2 in p, put change with respect to y in dp
 */
 static void
 incrementalizeY(const double *p1, const double *p2, double *p, double *dp, int y) {
-    double dy, frac;
+    double dy;
+    double frac;
 
     dy = ((PolygonVertex *) p2)->sy - ((PolygonVertex *) p1)->sy;
-    if ( dy == 0. ) {
-        dy = 1.;
+    if ( dy == 0.0 ) {
+        dy = 1.0;
     }
-    frac = y + .5 - ((PolygonVertex *) p1)->sy;
+    frac = y + 0.5 - ((PolygonVertex *) p1)->sy;
 
-    /* interpolate only sx */
+    // Interpolate only sx
     *dp = (*p2 - *p1) / dy;
     *p = *p1 + *dp * frac;
 }
 
 static void
 increment(double *p, const double *dp) {
-    /* interpolate only sx */
+    // Interpolate only sx
     *p += *dp;
 }
 
 /**
-Output scanline by sampling polygon at Y=y+.5
+Output scanline by sampling polygon at Y = y + 0.5
 */
 static void
 scanline(int y, PolygonVertex *l, PolygonVertex *r, Window *win) {
-    int x, lx, rx;
+    int x;
+    int lx;
+    int rx;
     SGL_PIXEL *pix;
 
-    lx = ceil(l->sx - .5);
+    lx = std::ceil(l->sx - 0.5);
     if ( lx < win->x0 ) {
         lx = win->x0;
     }
-    rx = floor(r->sx - .5);
+    rx = std::floor(r->sx - 0.5);
     if ( rx > win->x1 ) {
         rx = win->x1;
     }
@@ -59,7 +62,8 @@ scanline(int y, PolygonVertex *l, PolygonVertex *r, Window *win) {
     }
 
     pix = GLOBAL_sgl_currentContext->frameBuffer + y * GLOBAL_sgl_currentContext->width + lx;
-    for ( x = lx; x <= rx; x++ ) {        /* scan in x, generating pixels */
+    for ( x = lx; x <= rx; x++ ) {
+        // Scan in x, generating pixels
         *pix++ = GLOBAL_sgl_currentContext->currentPixel;
     }
 }
@@ -90,7 +94,14 @@ win: 2-D screen space clipping window
 void
 polyScanFlat(Polygon *p, Window *win)
 {
-    int i, li, ri, y, ly, ry, top, rem;
+    int i;
+    int li;
+    int ri;
+    int y;
+    int ly;
+    int ry;
+    int top;
+    int rem;
     double yMin;
     PolygonVertex l{};
     PolygonVertex r{};
