@@ -42,6 +42,9 @@ patchListAllIntersections(
 extern java::ArrayList<Patch *> *
 patchListExportToArrayList(PatchSet *patches);
 
+extern PatchSet *
+patchListDuplicate(PatchSet *patchList);
+
 #include "skin/Geometry.h"
 
 #endif

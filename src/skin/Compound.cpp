@@ -81,6 +81,5 @@ compoundAllDiscretizationIntersections(
 // A set of pointers to the functions (methods) to operate on compounds
 GEOM_METHODS GLOBAL_skin_compoundGeometryMethods = {
     (GeometryListNode *(*)(void *)) compoundPrimitives,
-    (HITLIST *(*)(HITLIST *, void *, Ray *, float, float, int)) compoundAllDiscretizationIntersections,
-    (void *(*)(void *)) nullptr
+    (HITLIST *(*)(HITLIST *, void *, Ray *, float, float, int)) compoundAllDiscretizationIntersections
 };

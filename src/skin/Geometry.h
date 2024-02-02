@@ -127,11 +127,6 @@ class GEOM_METHODS {
         float minimumDistance,
         float maximumDistance,
         int hitFlags);
-
-    /**
-     * Duplicate: returns a duplicate of the object's data
-     */
-    void *(*duplicate)(void *obj);
 };
 
 extern Geometry *GLOBAL_geom_excludedGeom1;

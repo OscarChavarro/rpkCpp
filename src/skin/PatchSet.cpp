@@ -71,7 +71,7 @@ patchListAllIntersections(HITLIST *hits, java::ArrayList<Patch *> *patches, Ray 
     return hits;
 }
 
-static PatchSet *
+PatchSet *
 patchListDuplicate(PatchSet *patchList) {
     PatchSet *newList = (PatchSet *) nullptr;
     void *patch;
@@ -99,6 +99,5 @@ patchListExportToArrayList(PatchSet *patches) {
 
 GEOM_METHODS GLOBAL_skin_patchListGeometryMethods = {
     (GeometryListNode *(*)(void *)) nullptr,
-    (HITLIST *(*)(HITLIST *, void *, Ray *, float, float, int)) patchListAllIntersections,
-    (void *(*)(void *)) patchListDuplicate
+    (HITLIST *(*)(HITLIST *, void *, Ray *, float, float, int)) patchListAllIntersections
 };

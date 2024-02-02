@@ -219,7 +219,7 @@ shaft culling.
 */
 Geometry *
 geomDuplicate(Geometry *geom) {
-    if ( !geom->methods->duplicate ) {
+    if ( geom->className != GeometryClassId::PATCH_SET ) {
         logError("geomDuplicate", "geometry has no duplicate method");
         return nullptr;
     }
@@ -229,7 +229,7 @@ geomDuplicate(Geometry *geom) {
     *newGeometry = *geom;
     newGeometry->surfaceData = geom->surfaceData;
     newGeometry->compoundData = geom->compoundData;
-    newGeometry->patchSetData = geom->patchSetData;
+    newGeometry->patchSetData = patchListDuplicate(geom->patchSetData);
     newGeometry->aggregateData = geom->aggregateData;
 
     return newGeometry;

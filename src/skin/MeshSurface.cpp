@@ -157,6 +157,5 @@ surfaceAllDiscretizationIntersections(
 
 GEOM_METHODS GLOBAL_skin_surfaceGeometryMethods = {
     nullptr,
-    (HITLIST *(*)(HITLIST *, void *, Ray *, float, float, int)) surfaceAllDiscretizationIntersections,
-    nullptr
+    (HITLIST *(*)(HITLIST *, void *, Ray *, float, float, int)) surfaceAllDiscretizationIntersections
 };
