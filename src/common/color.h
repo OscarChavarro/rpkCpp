@@ -1,9 +1,9 @@
 #ifndef __COLOR__
 #define __COLOR__
 
-#include "spectrum.h"
+#include "common/spectrum.h"
 #include "material/cie.h"
-#include "rgb.h"
+#include "common/rgb.h"
 
 class COLOR {
   public:

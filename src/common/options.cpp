@@ -5,7 +5,7 @@ Command line options and defaults
 #include <cstring>
 
 #include "common/linealAlgebra/vectorMacros.h"
-#include "color.h"
+#include "common/color.h"
 #include "common/options.h"
 
 char *GLOBAL_option_dummyVal = nullptr;
