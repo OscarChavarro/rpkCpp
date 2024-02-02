@@ -1,5 +1,6 @@
 #include <ctime>
 #include <cstring>
+#include <GL/gl.h>
 
 #include "common/error.h"
 #include "material/statistics.h"
@@ -11,6 +12,7 @@
 #include "shared/render.h"
 #include "io/FileUncompressWrapper.h"
 #include "raycasting/common/Raytracer.h"
+#include "raycasting/simple/RayCaster.h"
 #include "render/opengl.h"
 #include "app/batch.h"
 
@@ -40,6 +42,50 @@ static CommandLineOptionDescription batchOptions[] = {
      "-timings\t: printRegularHierarchy timings for world-space radiance and raytracing methods"},
     {nullptr, 0,  TYPELESS, nullptr, DEFAULT_ACTION, nullptr}
 };
+
+/**
+Saves a RGB image in the front buffer
+*/
+static void
+openGlSaveScreen(char *fileName, FILE *fp, int isPipe, java::ArrayList<Patch *> *scenePatches) {
+    ImageOutputHandle *img;
+    long j, x = GLOBAL_camera_mainCamera.xSize, y = GLOBAL_camera_mainCamera.ySize;
+    GLubyte *screen;
+    unsigned char *buf;
+
+    // RayCast() saves the current picture in display-mapped (!) real values
+    if ( GLOBAL_render_renderOptions.trace ) {
+        rayCast(fileName, fp, isPipe, scenePatches);
+        return;
+    }
+
+    if ( !fp || !(img = createImageOutputHandle(fileName, fp, isPipe, x, y)) ) {
+        return;
+    }
+
+    screen = (GLubyte *)malloc((int) (x * y) * sizeof(GLubyte) * 4);
+    buf = (unsigned char *)malloc(3 * x);
+
+    glReadBuffer(GL_FRONT);
+    glReadPixels(0, 0, x, y, GL_RGBA, GL_UNSIGNED_BYTE, screen);
+
+    for ( j = y - 1; j >= 0; j-- ) {
+        long i;
+        unsigned char *bufferPosition = buf;
+        GLubyte *pixel = &screen[j * x * 4];
+        for ( i = 0; i < x; i++, pixel += 4 ) {
+            *bufferPosition++ = pixel[0];
+            *bufferPosition++ = pixel[1];
+            *bufferPosition++ = pixel[2];
+        }
+        writeDisplayRGB(img, buf);
+    }
+
+    free(buf);
+    free(screen);
+
+    deleteImageOutputHandle(img);
+}
 
 /**
 This routine was copied from uit.c, leaving out all interface related things

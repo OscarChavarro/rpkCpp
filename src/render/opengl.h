@@ -5,7 +5,6 @@
 #include "shared/Camera.h"
 
 extern int openGlRenderInitialized();
-extern void openGlSaveScreen(char *fileName, FILE *fp, int isPipe, java::ArrayList<Patch *> *scenePatches);
 extern void openGlRenderCameras();
 extern void openGlRenderSetLineWidth(float width);
 extern void openGlRenderBackground(Camera *camera);

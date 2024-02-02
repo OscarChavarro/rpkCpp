@@ -11,7 +11,6 @@
 #include "shared/renderhook.h"
 #include "shared/softids.h"
 #include "IMAGE/tonemap/tonemapping.h"
-#include "raycasting/simple/RayCaster.h"
 #include "render/opengl.h"
 
 class OctreeChild {
@@ -49,15 +48,15 @@ void
 openGlRenderSetCamera() {
     openGlRenderClearWindow();
 
-    // use full viewport
+    // Use the full viewport
     glViewport(0, 0, GLOBAL_camera_mainCamera.xSize, GLOBAL_camera_mainCamera.ySize);
 
-    // draw backgroudn when needed
+    // Draw background when needed
     if ( GLOBAL_render_renderOptions.use_background && globalBackground ) {
         openGlRenderBackground(&GLOBAL_camera_mainCamera);
     }
 
-    // determine distance to front- and backclipping plane
+    // Determine distance to front- and back-clipping plane
     renderGetNearFar(&GLOBAL_camera_mainCamera.near, &GLOBAL_camera_mainCamera.far);
 
     glMatrixMode(GL_PROJECTION);
@@ -129,7 +128,7 @@ openGlRenderLine(Vector3D *x, Vector3D *y) {
 
     glBegin(GL_LINES);
 
-    // move the line a bit closer to the eyepoint to avoid Z buffer artefacts
+    // Move the line a bit closer to the eye-point to avoid Z buffer artefacts
     VECTORSUBTRACT(GLOBAL_camera_mainCamera.eyePosition, *x, dir);
     VECTORSUMSCALED(*x, 0.01, dir, X);
     glVertex3fv((GLfloat *) &X);
@@ -293,7 +292,7 @@ openGlRenderPatchOutline(Patch *patch) {
 
     glBegin(GL_LINE_LOOP);
     for ( i = 0; i < patch->numberOfVertices; i++ ) {
-        // move the outlines a bit closer to the eyepoint to avoid Z buffer artefacts
+        // Move the outlines a bit closer to the eye-point to avoid Z buffer artefacts
         VECTORSUBTRACT(GLOBAL_camera_mainCamera.eyePosition, *patch->vertex[i]->point, dir);
         VECTORSUMSCALED(*patch->vertex[i]->point, 0.01, dir, tmp);
         glVertex3fv((GLfloat *) &tmp);
@@ -362,22 +361,27 @@ Squared distance to midpoint (avoid taking square root)
 */
 static float
 openGlBoundsDistance2(Vector3D p, float *bounds) {
-    Vector3D mid, d;
+    Vector3D mid;
+    Vector3D d;
+
     VECTORSET(mid,
               0.5f * (bounds[MIN_X] + bounds[MAX_X]),
               0.5f * (bounds[MIN_Y] + bounds[MAX_Y]),
               0.5f * (bounds[MIN_Z] + bounds[MAX_Z]));
     VECTORSUBTRACT(mid, p, d);
+
     return VECTORNORM2(d);
 }
 
 /**
 Geometry is a surface or a compound with 1 surface and up to 8 compound children geometries,
-CLusetredWorldGeom is such a geometry e.g.
+clusteredWorldGeom is such a geometry e.g.
 */
 static void
-renderOctreeNonLeaf(Geometry *geometry, void (*render_patch)(Patch *)) {
-    int i, n, remaining;
+openGlRenderOctreeNonLeaf(Geometry *geometry, void (*render_patch)(Patch *)) {
+    int i;
+    int n;
+    int remaining;
     OctreeChild octree_children[8];
     GeometryListNode *children = geomPrimList(geometry);
 
@@ -386,7 +390,7 @@ renderOctreeNonLeaf(Geometry *geometry, void (*render_patch)(Patch *)) {
         Geometry *child = window->geom;
         if ( geomIsAggregate(child) ) {
             if ( i >= 8 ) {
-                logError("renderOctreeNonLeaf", "Invalid octree geometry node (more than 8 compound children)");
+                logError("openGlRenderOctreeNonLeaf", "Invalid octree geometry node (more than 8 compound children)");
                 return;
             }
             octree_children[i++].geom = child;
@@ -425,7 +429,7 @@ renderOctreeNonLeaf(Geometry *geometry, void (*render_patch)(Patch *)) {
         }
 
         // render it
-        renderOctreeNonLeaf(octree_children[closest].geom, render_patch);
+        openGlRenderOctreeNonLeaf(octree_children[closest].geom, render_patch);
 
         // remove it from the list
         octree_children[closest].geom = nullptr;
@@ -448,7 +452,7 @@ openGlRenderWorldOctree(void (*render_patch)(Patch *)) {
         render_patch = openGlRenderPatch;
     }
     if ( geomIsAggregate(GLOBAL_scene_clusteredWorldGeom)) {
-        renderOctreeNonLeaf(GLOBAL_scene_clusteredWorldGeom, render_patch);
+        openGlRenderOctreeNonLeaf(GLOBAL_scene_clusteredWorldGeom, render_patch);
     } else {
         openGlRenderOctreeLeaf(GLOBAL_scene_clusteredWorldGeom, render_patch);
     }
@@ -587,24 +591,23 @@ left corner of image, relative to the lower left corner of the window)
 */
 void
 openGlRenderPixels(int x, int y, int width, int height, RGB *rgb) {
-    int j;
     int rowLength;
     GLubyte *c;
 
-    // length of one row of RGBA image data rounded up to a multiple of 8
+    // Length of one row of RGBA image data rounded up to a multiple of 8
     rowLength = (4 * width * sizeof(GLubyte) + 7) & ~7;
     c = new GLubyte[height * rowLength + 8];
 
-    for ( j = 0; j < height; j++ ) {
-        RGB *rgbp = &rgb[j * width];
-        GLubyte *p = c + j * rowLength; // let each line start on a 8-byte boundary
-        int i;
-        for ( i = 0; i < width; i++, rgbp++ ) {
-            RGB corrected_rgb = *rgbp;
+    for ( int j = 0; j < height; j++ ) {
+        RGB *rgbP = &rgb[j * width];
+
+        GLubyte *p = c + j * rowLength; // Let each line start on an 8-byte boundary
+        for ( int i = 0; i < width; i++, rgbP++ ) {
+            RGB corrected_rgb = *rgbP;
             toneMappingGammaCorrection(corrected_rgb);
-            *p++ = (GLubyte) (corrected_rgb.r * 255.);
-            *p++ = (GLubyte) (corrected_rgb.g * 255.);
-            *p++ = (GLubyte) (corrected_rgb.b * 255.);
+            *p++ = (GLubyte) (corrected_rgb.r * 255.0);
+            *p++ = (GLubyte) (corrected_rgb.g * 255.0);
+            *p++ = (GLubyte) (corrected_rgb.b * 255.0);
             *p++ = 255; // alpha = 1.0
         }
     }
@@ -639,50 +642,6 @@ openGlRenderPixels(int x, int y, int width, int height, RGB *rgb) {
 }
 
 /**
-Saves a RGB image in the front buffer
-*/
-void
-openGlSaveScreen(char *fileName, FILE *fp, int isPipe, java::ArrayList<Patch *> *scenePatches) {
-    ImageOutputHandle *img;
-    long j, x = GLOBAL_camera_mainCamera.xSize, y = GLOBAL_camera_mainCamera.ySize;
-    GLubyte *screen;
-    unsigned char *buf;
-
-    // RayCast() saves the current picture in display-mapped (!) real values
-    if ( GLOBAL_render_renderOptions.trace ) {
-        rayCast(fileName, fp, isPipe, scenePatches);
-        return;
-    }
-
-    if ( !fp || !(img = createImageOutputHandle(fileName, fp, isPipe, x, y))) {
-        return;
-    }
-
-    screen = (GLubyte *)malloc((int) (x * y) * sizeof(GLubyte) * 4);
-    buf = (unsigned char *)malloc(3 * x);
-
-    glReadBuffer(GL_FRONT);
-    glReadPixels(0, 0, x, y, GL_RGBA, GL_UNSIGNED_BYTE, screen);
-
-    for ( j = y - 1; j >= 0; j-- ) {
-        long i;
-        unsigned char *pbuf = buf;
-        GLubyte *pixel = &screen[j * x * 4];
-        for ( i = 0; i < x; i++, pixel += 4 ) {
-            *pbuf++ = pixel[0];
-            *pbuf++ = pixel[1];
-            *pbuf++ = pixel[2];
-        }
-        writeDisplayRGB(img, buf);
-    }
-
-    free((char *) buf);
-    free((char *) screen);
-
-    deleteImageOutputHandle(img);
-}
-
-/**
 Patch ID rendering. Returns an array of size (*x)*(*y) containing the IDs of
 the patches visible through each pixel or 0 if the background is visible through
 the pixel. x is normally the width and y the height of the canvas window
@@ -697,39 +656,39 @@ openGlRenderFrustum(Camera *cam) {
     Vector3D c;
     Vector3D P;
     Vector3D Q;
-    float camlen = GLOBAL_render_renderOptions.camsize;
-    float hsiz = camlen * cam->viewDistance * cam->pixelWidthTangent;
-    float vsiz = camlen * cam->viewDistance * cam->pixelHeightTangent;
+    float cameraSize = GLOBAL_render_renderOptions.camsize;
+    float width = cameraSize * cam->viewDistance * cam->pixelWidthTangent;
+    float height = cameraSize * cam->viewDistance * cam->pixelHeightTangent;
     int i;
     int j;
-    int maxi = 12;
-    int maxj = (int)((float) maxi * vsiz / hsiz);
+    int maxI = 12;
+    int maxJ = (int)((float) maxI * height / width);
 
-    VECTORCOMB2(1., cam->eyePosition, camlen * cam->viewDistance, cam->Z, c);
+    VECTORCOMB2(1.0, cam->eyePosition, cameraSize * cam->viewDistance, cam->Z, c);
 
     glDisable(GL_DEPTH_TEST);
 
     openGlRenderSetColor(&GLOBAL_render_renderOptions.camera_color);
 
-    for ( i = 0; i <= maxi; i++ ) {
-        VECTORCOMB3(c, (-1.0 + 2.0 * ((float) i / (float) maxi)) * hsiz, cam->X, -vsiz, cam->Y, P);
-        VECTORCOMB3(c, (-1.0 + 2.0 * ((float) i / (float) maxi)) * hsiz, cam->X, +vsiz, cam->Y, Q);
+    for ( i = 0; i <= maxI; i++ ) {
+        VECTORCOMB3(c, (-1.0f + 2.0f * ((float) i / (float) maxI)) * width, cam->X, -height, cam->Y, P);
+        VECTORCOMB3(c, (-1.0f + 2.0f * ((float) i / (float) maxI)) * width, cam->X, +height, cam->Y, Q);
         openGlRenderLine(&P, &Q);
     }
 
-    for ( j = 0; j <= maxj; j++ ) {
-        VECTORCOMB3(c, -hsiz, cam->X, (-1. + 2. * ((float) j / (float) maxj)) * vsiz, cam->Y, P);
-        VECTORCOMB3(c, +hsiz, cam->X, (-1. + 2. * ((float) j / (float) maxj)) * vsiz, cam->Y, Q);
+    for ( j = 0; j <= maxJ; j++ ) {
+        VECTORCOMB3(c, -width, cam->X, (-1.0f + 2.0f * ((float) j / (float) maxJ)) * height, cam->Y, P);
+        VECTORCOMB3(c, +width, cam->X, (-1.0f + 2.0f * ((float) j / (float) maxJ)) * height, cam->Y, Q);
         openGlRenderLine(&P, &Q);
     }
 
-    VECTORCOMB3(c, hsiz, cam->X, -vsiz, cam->Y, Q);
+    VECTORCOMB3(c, width, cam->X, -height, cam->Y, Q);
     openGlRenderLine(&cam->eyePosition, &Q);
-    VECTORCOMB3(c, -hsiz, cam->X, -vsiz, cam->Y, Q);
+    VECTORCOMB3(c, -width, cam->X, -height, cam->Y, Q);
     openGlRenderLine(&cam->eyePosition, &Q);
-    VECTORCOMB3(c, -hsiz, cam->X, vsiz, cam->Y, Q);
+    VECTORCOMB3(c, -width, cam->X, height, cam->Y, Q);
     openGlRenderLine(&cam->eyePosition, &Q);
-    VECTORCOMB3(c, hsiz, cam->X, vsiz, cam->Y, Q);
+    VECTORCOMB3(c, width, cam->X, height, cam->Y, Q);
     openGlRenderLine(&cam->eyePosition, &Q);
 
     glLineWidth(1);
@@ -737,7 +696,7 @@ openGlRenderFrustum(Camera *cam) {
 }
 
 /**
-Renders alternate camera, virtual screen etc ... for didactical pictures etc
+Renders alternate camera, virtual screen etc ... for didactic pictures etc
 */
 void
 openGlRenderCameras() {
