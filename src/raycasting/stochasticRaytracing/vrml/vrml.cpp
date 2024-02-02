@@ -7,7 +7,6 @@
 #include "scene/scene.h"
 #include "shared/writevrml.h"
 #include "shared/render.h"
-#include "shared/defaults.h"
 #include "raycasting/stochasticRaytracing/mcradP.h"
 #include "raycasting/stochasticRaytracing/hierarchy.h"
 #include "raycasting/stochasticRaytracing/vrml/vrml.h"

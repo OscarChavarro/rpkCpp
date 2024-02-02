@@ -6,7 +6,6 @@
 #include "BREP/BREP_VERTEX_OCTREE.h"
 #include "material/statistics.h"
 #include "skin/radianceinterfaces.h"
-#include "shared/defaults.h"
 #include "shared/options.h"
 #include "shared/render.h"
 #include "shared/cubature.h"
@@ -23,6 +22,25 @@
 #include "raycasting/raytracing/BidirectionalPathRaytracer.h"
 #include "raycasting/simple/RayCaster.h"
 #include "raycasting/simple/RayMatter.h"
+
+// Mgf defaults
+#define DEFAULT_NQCDIVS 4
+#define DEFAULT_FORCE_ONESIDEDNESS true
+#define DEFAULT_MONOCHROME false
+
+// Raytracing defaults
+#define DEFAULT_RAYTRACING_METHOD "stochastic"
+
+// Default rendering options
+#define DEFAULT_DISPLAY_LISTS false
+#define DEFAULT_SMOOTH_SHADING true
+#define DEFAULT_BACKFACE_CULLING true
+#define DEFAULT_OUTLINE_DRAWING false
+#define DEFAULT_BOUNDING_BOX_DRAWING false
+#define DEFAULT_CLUSTER_DRAWING false
+#define DEFAULT_OUTLINE_COLOR {0.5, 0.0, 0.0}
+#define DEFAULT_BOUNDING_BOX_COLOR {0.5, 0.0, 1.0}
+#define DEFAULT_CLUSTER_COLOR {1.0, 0.5, 0.0}
 
 extern java::ArrayList<Patch *> *GLOBAL_scenePatches;
 

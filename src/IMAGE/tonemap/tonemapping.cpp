@@ -3,13 +3,17 @@
 #include "java/util/ArrayList.txx"
 #include "common/error.h"
 #include "shared/options.h"
-#include "shared/defaults.h"
 #include "IMAGE/tonemap/dummy.h"
 #include "IMAGE/tonemap/lightness.h"
 #include "IMAGE/tonemap/trwf.h"
 #include "IMAGE/tonemap/tonemapping.h"
 
 #define DEFAULT_GAMMA 1.7
+
+// Tone mapping defaults
+#define DEFAULT_TM_LWA 10.0
+#define DEFAULT_TM_LDMAX 100.0
+#define DEFAULT_TM_CMAX 50.0
 
 TONEMAP *GLOBAL_toneMap_availableToneMaps[] = {
     &GLOBAL_toneMap_lightness,

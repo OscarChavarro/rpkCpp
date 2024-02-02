@@ -4,11 +4,13 @@ Stuff common to all radiance methods
 
 #include "java/util/ArrayList.txx"
 #include "common/error.h"
-#include "shared/defaults.h"
 #include "shared/options.h"
 #include "GALERKIN/GalerkinRadiosity.h"
 #include "PHOTONMAP/PhotonMapRadiosity.h"
 #include "raycasting/stochasticRaytracing/mcrad.h"
+
+// Default radiance method: a short name of a radiance method or "none"
+#define DEFAULT_RADIANCE_METHOD "none"
 
 // Composes explanation for -radiance command line option
 #define STRING_LENGTH 1000

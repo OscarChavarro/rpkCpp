@@ -1,7 +1,13 @@
 #include "common/error.h"
 #include "shared/options.h"
-#include "shared/defaults.h"
 #include "shared/Camera.h"
+
+// Default virtual camera
+#define DEFAULT_EYEP {10.0, 0.0, 0.0}
+#define DEFAULT_LOOKP { 0.0, 0.0, 0.0}
+#define DEFAULT_UPDIR { 0.0, 0.0, 1.0}
+#define DEFAULT_FOV 22.5
+#define DEFAULT_BACKGROUND_COLOR {0.0, 0.0, 0.0}
 
 // Camera position etc. can be saved on a stack of size MAXIMUM_CAMERA_STACK
 #define MAXIMUM_CAMERA_STACK 20
