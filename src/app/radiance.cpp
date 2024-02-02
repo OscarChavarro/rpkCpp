@@ -4,7 +4,7 @@ Stuff common to all radiance methods
 
 #include "java/util/ArrayList.txx"
 #include "common/error.h"
-#include "shared/options.h"
+#include "common/options.h"
 #include "GALERKIN/GalerkinRadiosity.h"
 #include "PHOTONMAP/PhotonMapRadiosity.h"
 #include "raycasting/stochasticRaytracing/mcrad.h"

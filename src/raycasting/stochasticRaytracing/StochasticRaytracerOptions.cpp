@@ -2,7 +2,7 @@
 Options defaults and parsing for stochastic raytracing
 */
 
-#include "shared/options.h"
+#include "common/options.h"
 #include "raycasting/stochasticRaytracing/StochasticRaytracerOptions.h"
 
 void

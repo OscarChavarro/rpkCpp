@@ -7,7 +7,7 @@ Rendering stuff independent of the graphics library being used
 #include "scene/scene.h"
 #include "shared/Camera.h"
 #include "skin/Geometry.h"
-#include "shared/options.h"
+#include "common/options.h"
 #include "render/opengl.h"
 #include "shared/render.h"
 

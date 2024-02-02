@@ -1,5 +1,5 @@
 #include "common/error.h"
-#include "shared/options.h"
+#include "common/options.h"
 #include "shared/Camera.h"
 
 // Default virtual camera

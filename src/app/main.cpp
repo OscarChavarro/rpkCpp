@@ -6,7 +6,7 @@
 #include "BREP/BREP_VERTEX_OCTREE.h"
 #include "material/statistics.h"
 #include "skin/radianceinterfaces.h"
-#include "shared/options.h"
+#include "common/options.h"
 #include "shared/render.h"
 #include "shared/cubature.h"
 #include "shared/renderhook.h"

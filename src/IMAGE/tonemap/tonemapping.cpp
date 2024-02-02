@@ -2,7 +2,7 @@
 
 #include "java/util/ArrayList.txx"
 #include "common/error.h"
-#include "shared/options.h"
+#include "common/options.h"
 #include "IMAGE/tonemap/dummy.h"
 #include "IMAGE/tonemap/lightness.h"
 #include "IMAGE/tonemap/trwf.h"

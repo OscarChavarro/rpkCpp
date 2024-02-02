@@ -77,7 +77,7 @@ set(MAIN_SRC
     src/SGL/poly_scan_flat.cpp
         src/render/hemirenderer.cpp
     src/shared/potential.cpp
-    src/shared/options.cpp
+        src/common/options.cpp
     src/shared/samplegrid.cpp
     src/shared/discretesampling.cpp
     src/shared/lightlist.cpp

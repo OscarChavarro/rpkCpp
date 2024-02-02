@@ -2,7 +2,7 @@
 Options defaults and parsing for ray matting
 */
 
-#include "shared/options.h"
+#include "common/options.h"
 #include "raycasting/simple/RayMatterOptions.h"
 
 void

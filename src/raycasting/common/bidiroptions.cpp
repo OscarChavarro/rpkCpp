@@ -2,7 +2,7 @@
 Implements option handling for bidirectional path tracing
 */
 
-#include "shared/options.h"
+#include "common/options.h"
 #include "raycasting/common/bidiroptions.h"
 
 /**

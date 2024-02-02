@@ -7,7 +7,7 @@
 #include "skin/radianceinterfaces.h"
 #include "scene/scene.h"
 #include "shared/writevrml.h"
-#include "shared/options.h"
+#include "common/options.h"
 #include "shared/canvas.h"
 #include "shared/render.h"
 #include "io/FileUncompressWrapper.h"

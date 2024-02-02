@@ -14,7 +14,7 @@ potential-driven or not.
 #include "skin/Vertex.h"
 #include "shared/render.h"
 #include "shared/Camera.h"
-#include "shared/options.h"
+#include "common/options.h"
 #include "shared/writevrml.h"
 #include "render/opengl.h"
 #include "IMAGE/tonemap/tonemapping.h"

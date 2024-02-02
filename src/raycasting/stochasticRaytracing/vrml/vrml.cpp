@@ -219,9 +219,8 @@ mcrWriteVrmlHeader(FILE *fp) {
     fprintf(fp, "#VRML V2.0 utf8\n\n");
 
     fprintf(fp,
-            "WorldInfo {\n  title \"%s\"\n  info [ \"Created with RenderPark (%s) using Monte Carlo radiosty\" ]\n}\n\n",
-            "Some nice model",
-            RPKHOME);
+            "WorldInfo {\n  rpk\n  info [ \"Created with RenderPark (%s) using Monte Carlo radiosty\" ]\n}\n\n",
+            "Some nice model");
 
     fprintf(fp, "NavigationInfo {\n type \"WALK\"\n headlight FALSE\n}\n\n");
 

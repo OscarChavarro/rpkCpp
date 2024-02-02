@@ -94,9 +94,8 @@ writeVrmlHeader(FILE *fp) {
 
     fprintf(fp, "#VRML V2.0 utf8\n\n");
 
-    fprintf(fp, "WorldInfo {\n  title \"%s\"\n  info [ \"Created using RenderPark (%s)\" ]\n}\n\n",
-            "Some nice model",
-            RPKHOME);
+    fprintf(fp, "WorldInfo {\n  rpk\n  info [ \"Created using RenderPark (%s)\" ]\n}\n\n",
+            "Some nice model");
 
     fprintf(fp, "NavigationInfo {\n type \"WALK\"\n headlight FALSE\n}\n\n");
 
