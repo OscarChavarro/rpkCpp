@@ -3,14 +3,10 @@
 
 #include "skin/geomlist.h"
 
-class GEOM_METHODS;
-
-class Compound /*: public Geometry*/ {
+class Compound /* : public Geometry */ {
 public:
     GeometryListNode children;
 };
-
-extern GEOM_METHODS GLOBAL_skin_compoundGeometryMethods;
 
 extern Compound *compoundCreate(GeometryListNode *geometryList);
 

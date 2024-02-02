@@ -2,22 +2,16 @@
 #define __PATCH_LIST__
 
 #include "java/util/ArrayList.h"
+#include "common/Ray.h"
 #include "material/hit.h"
 #include "skin/Patch.h"
-#include "common/Ray.h"
-
-class GEOM_METHODS;
+#include "skin/Geometry.h"
 
 class PatchSet {
   public:
     Patch *patch;
     PatchSet *next;
 };
-
-class HITLIST;
-
-// Note: Should create a Geometry class for a set of patches!
-extern GEOM_METHODS GLOBAL_skin_patchListGeometryMethods;
 
 extern float *patchListBounds(java::ArrayList<Patch *> *patchList, float *boundingBox);
 
@@ -44,7 +38,5 @@ patchListExportToArrayList(PatchSet *patches);
 
 extern PatchSet *
 patchListDuplicate(PatchSet *patchList);
-
-#include "skin/Geometry.h"
 
 #endif

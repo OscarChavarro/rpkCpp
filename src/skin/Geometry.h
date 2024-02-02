@@ -2,8 +2,9 @@
 #define __GEOMETRY__
 
 #include "java/util/ArrayList.h"
-#include "skin/bounds.h"
 #include "material/hit.h"
+#include "skin/bounds.h"
+#include "skin/hitlist.h"
 
 /**
 Currently, there are three types of geometries:
@@ -21,7 +22,6 @@ Each of these primitives has certain specific data. The geometry class
 contains data that is independent of geometry type.
 */
 
-class HITLIST;
 class PatchSet;
 class MeshSurface;
 class Compound;
@@ -82,14 +82,15 @@ extern Geometry *geomDuplicate(Geometry *geom);
 
 extern RayHit *
 geomDiscretizationIntersect(
-        Geometry *geom,
-        Ray *ray,
-        float minimumDistance,
-        float *maximumDistance,
-        int hitFlags,
-        RayHit *hitStore);
+    Geometry *geom,
+    Ray *ray,
+    float minimumDistance,
+    float *maximumDistance,
+    int hitFlags,
+    RayHit *hitStore);
 
-extern HITLIST *geomAllDiscretizationIntersections(
+extern HITLIST *
+geomAllDiscretizationIntersections(
     HITLIST *hits,
     Geometry *geom,
     Ray *ray,
@@ -100,7 +101,6 @@ extern HITLIST *geomAllDiscretizationIntersections(
 extern Geometry *GLOBAL_geom_excludedGeom1;
 extern Geometry *GLOBAL_geom_excludedGeom2;
 
-#include "skin/hitlist.h"
 #include "skin/PatchSet.h"
 #include "skin/MeshSurface.h"
 #include "skin/Compound.h"
