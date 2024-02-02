@@ -50,9 +50,6 @@ class MeshSurface : public Geometry {
     MeshSurface();
 };
 
-// A set of pointers to functions to operate on a MeshSurface
-extern GEOM_METHODS GLOBAL_skin_surfaceGeometryMethods;
-
 enum MaterialColorFlags {
     NO_COLORS,
     VERTEX_COLORS,
@@ -71,7 +68,7 @@ surfaceCreate(
 
 inline bool
 geomIsSurface(Geometry *geom) {
-    return geom->methods == &GLOBAL_skin_surfaceGeometryMethods;
+    return geom->className == GeometryClassId::SURFACE_MESH;
 }
 
 inline MeshSurface*
@@ -90,5 +87,14 @@ surfaceDiscretizationIntersect(
         float *maximumDistance,
         int hitFlags,
         RayHit *hitStore);
+
+extern HITLIST *
+surfaceAllDiscretizationIntersections(
+        HITLIST *hits,
+        MeshSurface *surf,
+        Ray *ray,
+        float minimumDistance,
+        float maximumDistance,
+        int hitFlags);
 
 #endif

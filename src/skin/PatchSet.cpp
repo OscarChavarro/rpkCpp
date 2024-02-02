@@ -96,8 +96,3 @@ patchListExportToArrayList(PatchSet *patches) {
 
     return newList;
 }
-
-GEOM_METHODS GLOBAL_skin_patchListGeometryMethods = {
-    (GeometryListNode *(*)(void *)) nullptr,
-    (HITLIST *(*)(HITLIST *, void *, Ray *, float, float, int)) patchListAllIntersections
-};

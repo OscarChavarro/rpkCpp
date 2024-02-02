@@ -183,8 +183,7 @@ surfaceDone() {
                 nullptr, // null texture coordinate list
                 globalCurrentVertexList,
                 globalCurrentFaceList,
-                MaterialColorFlags::NO_COLORS),
-            &GLOBAL_skin_surfaceGeometryMethods);
+                MaterialColorFlags::NO_COLORS));
         globalCurrentGeometryList = geometryListAdd(globalCurrentGeometryList, newGeometry);
     }
     globalInSurface = false;
@@ -1064,7 +1063,7 @@ handleObjectEntity(int argc, char **argv) {
         }
 
         if ( listSize > 0 ) {
-            theGeometry = geomCreateCompound(compoundCreate(globalCurrentGeometryList), &GLOBAL_skin_compoundGeometryMethods);
+            theGeometry = geomCreateCompound(compoundCreate(globalCurrentGeometryList));
         }
 
         popCurrentGeometryList();

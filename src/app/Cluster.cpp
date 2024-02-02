@@ -210,7 +210,7 @@ Cluster::convertClusterToGeom() {
 
     thePatches = nullptr;
     if ( patches != nullptr ) {
-        thePatches = geomCreatePatchList(patches, &GLOBAL_skin_patchListGeometryMethods);
+        thePatches = geomCreatePatchList(patches);
     }
 
     geometryListNode = nullptr; // Empty list
@@ -231,5 +231,5 @@ Cluster::convertClusterToGeom() {
 
     // The patches in the cluster are the first to be tested for intersection with
     geometryListNode = geometryListAdd(geometryListNode, thePatches);
-    return geomCreateAggregateCompound(geometryListNode, &GLOBAL_skin_compoundGeometryMethods);
+    return geomCreateAggregateCompound(geometryListNode);
 }

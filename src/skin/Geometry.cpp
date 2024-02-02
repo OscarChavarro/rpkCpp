@@ -12,7 +12,6 @@ static int globalCurrentMaxId = 0;
 
 Geometry::Geometry():
     id(),
-    methods(),
     bounds(),
     radiance_data(),
     displayListId(),
@@ -58,21 +57,21 @@ methods. A pointer to the new geometry is returned
 Note: currently containing the super() method.
 */
 static Geometry *
-geomCreateBase(void *geometryData, GEOM_METHODS *methods) {
+geomCreateBase(void *geometryData, GeometryClassId className) {
     Geometry *newGeometry = new Geometry();
     GLOBAL_statistics_numberOfGeometries++;
     newGeometry->id = globalCurrentMaxId++;
-    newGeometry->methods = methods;
     newGeometry->surfaceData = nullptr;
     newGeometry->compoundData = nullptr;
     newGeometry->patchSetData = nullptr;
     newGeometry->aggregateData = nullptr;
+    newGeometry->className = className;
 
-    if ( methods == &GLOBAL_skin_surfaceGeometryMethods ) {
+    if ( className == GeometryClassId::SURFACE_MESH ) {
         surfaceBounds((MeshSurface *)geometryData, newGeometry->bounds);
-    } else if ( methods == &GLOBAL_skin_compoundGeometryMethods ) {
+    } else if ( className == GeometryClassId::COMPOUND || className == GeometryClassId::AGGREGATE_COMPOUND ) {
         compoundBounds((Compound *)geometryData, newGeometry->bounds);
-    } else if ( methods == &GLOBAL_skin_patchListGeometryMethods ) {
+    } else if ( className == GeometryClassId::PATCH_SET ) {
         PatchSet *data = (PatchSet *)geometryData;
         java::ArrayList<Patch *> *tmpList = patchListExportToArrayList(data);
         patchListBounds(tmpList, newGeometry->bounds);
@@ -94,7 +93,7 @@ geomCreateBase(void *geometryData, GEOM_METHODS *methods) {
 }
 
 Geometry *
-geomCreatePatchList(java::ArrayList<Patch *> *geometryList, GEOM_METHODS *methods) {
+geomCreatePatchList(java::ArrayList<Patch *> *geometryList) {
     PatchSet *patchList = nullptr;
 
     for ( int i = 0; geometryList != nullptr && i < geometryList->size(); i++ ) {
@@ -104,55 +103,51 @@ geomCreatePatchList(java::ArrayList<Patch *> *geometryList, GEOM_METHODS *method
         patchList = newNode;
     }
 
-    return geomCreatePatchSet(patchList, methods);
+    return geomCreatePatchSet(patchList);
 }
 
 Geometry *
-geomCreatePatchSet(PatchSet *patchSet, GEOM_METHODS *methods) {
+geomCreatePatchSet(PatchSet *patchSet) {
     if ( patchSet == nullptr ) {
         return nullptr;
     }
 
-    Geometry *newGeometry = geomCreateBase(patchSet, methods);
+    Geometry *newGeometry = geomCreateBase(patchSet, GeometryClassId::PATCH_SET);
     newGeometry->patchSetData = patchSet;
-    newGeometry->className = GeometryClassId::PATCH_SET;
     return newGeometry;
 }
 
 Geometry *
-geomCreateSurface(MeshSurface *surfaceData, GEOM_METHODS *methods) {
+geomCreateSurface(MeshSurface *surfaceData) {
     if ( surfaceData == nullptr ) {
         return nullptr;
     }
 
-    Geometry *newGeometry = geomCreateBase(surfaceData, methods);
+    Geometry *newGeometry = geomCreateBase(surfaceData, GeometryClassId::SURFACE_MESH);
     newGeometry->surfaceData = surfaceData;
-    newGeometry->className = GeometryClassId::SURFACE_MESH;
     return newGeometry;
 }
 
 Geometry *
-geomCreateCompound(Compound *compoundData, GEOM_METHODS *methods) {
+geomCreateCompound(Compound *compoundData) {
     if ( compoundData == nullptr ) {
         return nullptr;
     }
 
-    Geometry *newGeometry = geomCreateBase(compoundData, methods);
+    Geometry *newGeometry = geomCreateBase(compoundData, GeometryClassId::COMPOUND);
     newGeometry->compoundData = compoundData;
     newGeometry->aggregateData = &compoundData->children;
-    newGeometry->className = GeometryClassId::COMPOUND;
     return newGeometry;
 }
 
 Geometry *
-geomCreateAggregateCompound(GeometryListNode *aggregateData, GEOM_METHODS *methods) {
+geomCreateAggregateCompound(GeometryListNode *aggregateData) {
     if ( aggregateData == nullptr ) {
         return nullptr;
     }
 
-    Geometry *newGeometry = geomCreateBase(aggregateData, methods);
+    Geometry *newGeometry = geomCreateBase(aggregateData, GeometryClassId::AGGREGATE_COMPOUND);
     newGeometry->aggregateData = aggregateData;
-    newGeometry->className = GeometryClassId::AGGREGATE_COMPOUND;
     return newGeometry;
 }
 
@@ -185,7 +180,7 @@ simpler geometries
 */
 int
 geomIsAggregate(Geometry *geom) {
-    return geom->methods->getPrimitiveGeometryChildrenList != (GeometryListNode *(*)(void *)) nullptr;
+    return geom != nullptr && (geom->className == GeometryClassId::COMPOUND || geom->className == GeometryClassId::AGGREGATE_COMPOUND);
 }
 
 /**
@@ -203,11 +198,11 @@ geomPrimList(Geometry *geom) {
 
 java::ArrayList<Patch *> *
 geomPatchArrayList(Geometry *geom) {
-    if ( geom->methods == &GLOBAL_skin_surfaceGeometryMethods ) {
+    if ( geom->className == GeometryClassId::SURFACE_MESH ) {
         return geom->surfaceData->faces;
-    } else if ( geom->methods == &GLOBAL_skin_patchListGeometryMethods ) {
+    } else if ( geom->className == GeometryClassId::PATCH_SET ) {
         return patchListExportToArrayList(geom->patchSetData);
-    } else if ( geom->methods == &GLOBAL_skin_compoundGeometryMethods ) {
+    } else if ( geom->className == GeometryClassId::COMPOUND || geom->className == GeometryClassId::AGGREGATE_COMPOUND ) {
         return nullptr;
     }
     return nullptr;
@@ -328,13 +323,14 @@ geomAllDiscretizationIntersections(
     }
 
     if ( geom->surfaceData != nullptr ) {
-        return geom->methods->allDiscretizationIntersections(hits, geom->surfaceData, ray, minimumDistance, maximumDistance, hitFlags);
+        return surfaceAllDiscretizationIntersections(hits, geom->surfaceData, ray, minimumDistance, maximumDistance, hitFlags);
     } else if ( geom->compoundData != nullptr ) {
-        return geom->methods->allDiscretizationIntersections(hits, geom->compoundData, ray, minimumDistance, maximumDistance, hitFlags);
+        return compoundAllDiscretizationIntersections(hits, geom->compoundData, ray, minimumDistance, maximumDistance, hitFlags);
     } else if ( geom->patchSetData != nullptr ) {
-        return geom->methods->allDiscretizationIntersections(hits, geom->patchSetData, ray, minimumDistance, maximumDistance, hitFlags);
+        //return patchListAllIntersections(hits, geom->patchSetData, ray, minimumDistance, maximumDistance, hitFlags);
+        return nullptr;
     } else if ( geom->aggregateData != nullptr ) {
-        return geom->methods->allDiscretizationIntersections(hits, geom->aggregateData, ray, minimumDistance, maximumDistance, hitFlags);
+        return compoundAllDiscretizationIntersections(hits, (Compound *)geom->aggregateData, ray, minimumDistance, maximumDistance, hitFlags);
     }
 
     return nullptr;

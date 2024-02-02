@@ -28,14 +28,6 @@ compoundBounds(Compound *obj, float *boundingBox) {
 }
 
 /**
-Returns the list of children geometries if the geometry is an aggregate
-*/
-static GeometryListNode *
-compoundPrimitives(Compound *obj) {
-    return &obj->children;
-}
-
-/**
 DiscretizationIntersect returns nullptr is the ray doesn't hit the discretization
 of the object. If the ray hits the object, a hit record is returned containing
 information about the intersection point. See geometry.h for more explanation
@@ -66,7 +58,7 @@ aggregationDiscretizationIntersect(
             obj, ray, minimumDistance, maximumDistance, hitFlags, hitStore);
 }
 
-static HITLIST *
+HITLIST *
 compoundAllDiscretizationIntersections(
     HITLIST *hits,
     Compound *obj,
@@ -77,9 +69,3 @@ compoundAllDiscretizationIntersections(
 {
     return geomListAllDiscretizationIntersections(hits, &obj->children, ray, minimumDistance, maximumDistance, hitFlags);
 }
-
-// A set of pointers to the functions (methods) to operate on compounds
-GEOM_METHODS GLOBAL_skin_compoundGeometryMethods = {
-    (GeometryListNode *(*)(void *)) compoundPrimitives,
-    (HITLIST *(*)(HITLIST *, void *, Ray *, float, float, int)) compoundAllDiscretizationIntersections
-};

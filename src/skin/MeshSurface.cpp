@@ -154,8 +154,3 @@ surfaceAllDiscretizationIntersections(
 {
     return patchListAllIntersections(hits, surf->faces, ray, minimumDistance, maximumDistance, hitFlags);
 }
-
-GEOM_METHODS GLOBAL_skin_surfaceGeometryMethods = {
-    nullptr,
-    (HITLIST *(*)(HITLIST *, void *, Ray *, float, float, int)) surfaceAllDiscretizationIntersections
-};

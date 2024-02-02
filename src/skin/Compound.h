@@ -35,4 +35,13 @@ aggregationDiscretizationIntersect(
 extern float *
 compoundBounds(Compound *obj, float *boundingBox);
 
+extern HITLIST *
+compoundAllDiscretizationIntersections(
+        HITLIST *hits,
+        Compound *obj,
+        Ray *ray,
+        float minimumDistance,
+        float maximumDistance,
+        int hitFlags);
+
 #endif

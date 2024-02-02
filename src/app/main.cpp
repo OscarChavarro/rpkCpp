@@ -506,7 +506,7 @@ mainReadFile(char *filename) {
 
     GLOBAL_scene_clusteredWorldGeom = mainCreateClusterHierarchy(globalAppScenePatches);
 
-    if ( GLOBAL_scene_clusteredWorldGeom->methods == &GLOBAL_skin_compoundGeometryMethods ) {
+    if ( GLOBAL_scene_clusteredWorldGeom->className == GeometryClassId::COMPOUND || GLOBAL_scene_clusteredWorldGeom->className == GeometryClassId::AGGREGATE_COMPOUND ) {
         if ( GLOBAL_scene_clusteredWorldGeom->compoundData != nullptr ) {
             fprintf(stderr, "Unexpected case: review code - aggregate is not compound.\n");
             exit(1);

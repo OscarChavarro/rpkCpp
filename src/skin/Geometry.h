@@ -21,7 +21,6 @@ Each of these primitives has certain specific data. The geometry class
 contains data that is independent of geometry type.
 */
 
-class GEOM_METHODS;
 class HITLIST;
 class PatchSet;
 class MeshSurface;
@@ -40,7 +39,6 @@ enum GeometryClassId {
 class Geometry {
   public:
     int id; // Unique ID number
-    GEOM_METHODS *methods;
     BOUNDINGBOX bounds;
     Element *radiance_data; // Data specific to the radiance algorithm being used
     int displayListId; // Display list ID for faster hardware rendering - initialised to -1
@@ -68,11 +66,11 @@ class Geometry {
     GeometryClassId className;
 };
 
-extern Geometry *geomCreateSurface(MeshSurface *surfaceData, GEOM_METHODS *methods);
-extern Geometry *geomCreatePatchList(java::ArrayList<Patch *> *geometryList, GEOM_METHODS *methods);
-extern Geometry *geomCreatePatchSet(PatchSet *patchSet, GEOM_METHODS *methods);
-extern Geometry *geomCreateCompound(Compound *compoundData, GEOM_METHODS *methods);
-extern Geometry *geomCreateAggregateCompound(GeometryListNode *aggregateData, GEOM_METHODS *methods);
+extern Geometry *geomCreateSurface(MeshSurface *surfaceData);
+extern Geometry *geomCreatePatchList(java::ArrayList<Patch *> *geometryList);
+extern Geometry *geomCreatePatchSet(PatchSet *patchSet);
+extern Geometry *geomCreateCompound(Compound *compoundData);
+extern Geometry *geomCreateAggregateCompound(GeometryListNode *aggregateData);
 
 extern float *geomBounds(Geometry *geom);
 extern void geomDestroy(Geometry *geometry);
@@ -98,36 +96,6 @@ extern HITLIST *geomAllDiscretizationIntersections(
     float minimumDistance,
     float maximumDistance,
     int hitFlags);
-
-/**
-Contains pointers to functions (methods) to operate on a
-geometry. The 'void *genericAttachedData' passed to the functions is the "state" data
-for the geometry, cast to a 'void *'. The implementation of these methods
-varies according to the type of geometry. For Compound geometries, the
-methods are implemented in compound.c. For surfaces, the methods are
-implemented in surface.c.
-*/
-class GEOM_METHODS {
-  public:
-    /**
-     * Returns the list of children geometries if the geometry is an aggregate.
-     * This method is not implemented for primitive geometries
-     */
-    GeometryListNode *(*getPrimitiveGeometryChildrenList)(void *obj);
-
-    /**
-     * Similar, but appends all found intersections to the hit list hit record
-     * list. The possibly modified hit list is returned
-     */
-    HITLIST *
-    (*allDiscretizationIntersections)(
-        HITLIST *hits,
-        void *obj,
-        Ray *ray,
-        float minimumDistance,
-        float maximumDistance,
-        int hitFlags);
-};
 
 extern Geometry *GLOBAL_geom_excludedGeom1;
 extern Geometry *GLOBAL_geom_excludedGeom2;
