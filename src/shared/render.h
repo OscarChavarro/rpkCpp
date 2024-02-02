@@ -4,7 +4,6 @@
 #include "java/util/ArrayList.h"
 #include "skin/Patch.h"
 #include "shared/Camera.h"
-#include "raycasting/common/Raytracer.h"
 
 class RENDEROPTIONS {
   public:
