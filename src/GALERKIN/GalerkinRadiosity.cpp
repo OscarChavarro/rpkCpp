@@ -442,7 +442,7 @@ galerkinRenderPatch(Patch *patch) {
 void
 galerkinRender(java::ArrayList<Patch *> *scenePatches) {
     if ( GLOBAL_render_renderOptions.frustum_culling ) {
-        renderWorldOctree(galerkinRenderPatch);
+        openGlRenderWorldOctree(galerkinRenderPatch);
     } else {
         for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
             galerkinRenderPatch(scenePatches->get(i));

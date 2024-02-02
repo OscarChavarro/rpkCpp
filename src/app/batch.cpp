@@ -204,7 +204,7 @@ batch(java::ArrayList<Patch *> *scenePatches, java::ArrayList<Patch *> *lightPat
             fflush(stdout);
             fflush(stderr);
 
-            renderScene(scenePatches);
+            openGlRenderScene(scenePatches);
 
             fflush(stdout);
             fflush(stderr);

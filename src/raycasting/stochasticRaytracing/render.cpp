@@ -176,7 +176,7 @@ renderTriangle(Vertex *v1, Vertex *v2, Vertex *v3) {
     col[1] = v2->color;
     vert[2] = *(v3->point);
     col[2] = v3->color;
-    renderPolygonGouraud(3, vert, col);
+    openGlRenderPolygonGouraud(3, vert, col);
 
     if ( GLOBAL_render_renderOptions.draw_outlines ) {
         int i;
@@ -186,10 +186,10 @@ renderTriangle(Vertex *v1, Vertex *v2, Vertex *v3) {
             VECTORSUMSCALED(vert[i], 0.01, d, vert[i]);
         }
 
-        renderSetColor(&GLOBAL_render_renderOptions.outline_color);
-        renderLine(&vert[0], &vert[1]);
-        renderLine(&vert[1], &vert[2]);
-        renderLine(&vert[2], &vert[0]);
+        openGlRenderSetColor(&GLOBAL_render_renderOptions.outline_color);
+        openGlRenderLine(&vert[0], &vert[1]);
+        openGlRenderLine(&vert[1], &vert[2]);
+        openGlRenderLine(&vert[2], &vert[0]);
     }
 }
 
@@ -206,7 +206,7 @@ renderQuadrilateral(Vertex *v1, Vertex *v2, Vertex *v3, Vertex *v4) {
     col[2] = v3->color;
     vert[3] = *(v4->point);
     col[3] = v4->color;
-    renderPolygonGouraud(4, vert, col);
+    openGlRenderPolygonGouraud(4, vert, col);
 
     if ( GLOBAL_render_renderOptions.draw_outlines ) {
         int i;
@@ -216,11 +216,11 @@ renderQuadrilateral(Vertex *v1, Vertex *v2, Vertex *v3, Vertex *v4) {
             VECTORSUMSCALED(vert[i], 0.01, d, vert[i]);
         }
 
-        renderSetColor(&GLOBAL_render_renderOptions.outline_color);
-        renderLine(&vert[0], &vert[1]);
-        renderLine(&vert[1], &vert[2]);
-        renderLine(&vert[2], &vert[3]);
-        renderLine(&vert[3], &vert[0]);
+        openGlRenderSetColor(&GLOBAL_render_renderOptions.outline_color);
+        openGlRenderLine(&vert[0], &vert[1]);
+        openGlRenderLine(&vert[1], &vert[2]);
+        openGlRenderLine(&vert[2], &vert[3]);
+        openGlRenderLine(&vert[3], &vert[0]);
     }
 }
 
@@ -404,14 +404,14 @@ renderElementOutline(StochasticRadiosityElement *elem) {
         VECTORSUMSCALED(verts[i], 0.0001, d, verts[i]);
     }
 
-    renderSetColor(&GLOBAL_render_renderOptions.outline_color);
-    renderLine(&verts[0], &verts[1]);
-    renderLine(&verts[1], &verts[2]);
+    openGlRenderSetColor(&GLOBAL_render_renderOptions.outline_color);
+    openGlRenderLine(&verts[0], &verts[1]);
+    openGlRenderLine(&verts[1], &verts[2]);
     if ( elem->numberOfVertices == 3 ) {
-        renderLine(&verts[2], &verts[0]);
+        openGlRenderLine(&verts[2], &verts[0]);
     } else {
-        renderLine(&verts[2], &verts[3]);
-        renderLine(&verts[3], &verts[0]);
+        openGlRenderLine(&verts[2], &verts[3]);
+        openGlRenderLine(&verts[3], &verts[0]);
     }
 }
 
@@ -453,12 +453,12 @@ mcrRenderElement(StochasticRadiosityElement *elem) {
             vertcols[3] = elem->vertex[3]->color;
         }
 
-        renderPolygonGouraud(elem->numberOfVertices, verts, vertcols);
+        openGlRenderPolygonGouraud(elem->numberOfVertices, verts, vertcols);
     } else {
         RGB color = elementColor(elem);
 
-        renderSetColor(&color);
-        renderPolygonFlat(elem->numberOfVertices, verts);
+        openGlRenderSetColor(&color);
+        openGlRenderPolygonFlat(elem->numberOfVertices, verts);
     }
 
     if ( GLOBAL_render_renderOptions.draw_outlines )

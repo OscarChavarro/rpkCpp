@@ -164,5 +164,5 @@ doNonDiffuseFirstShot(java::ArrayList<Patch *> *scenePatches, java::ArrayList<Pa
     sampleLightSources(
             GLOBAL_stochasticRaytracing_monteCarloRadiosityState.initialLightSourceSamples * globalNumberOfLights);
     summarize(scenePatches);
-    renderScene(scenePatches);
+    openGlRenderScene(scenePatches);
 }

@@ -318,7 +318,7 @@ galerkinElementRegularSubDivide(GalerkinElement *element) {
         subElement[i]->Rd = element->Rd;
         subElement[i]->Ed = element->Ed;
 
-        renderSetColor(&GLOBAL_render_renderOptions.outline_color);
+        openGlRenderSetColor(&GLOBAL_render_renderOptions.outline_color);
         galerkinElementDrawOutline(subElement[i]);
     }
 
@@ -752,8 +752,8 @@ galerkinElementDraw(GalerkinElement *element, int mode) {
         } else {
             radianceToRgb(element->radiance[0], &color);
         }
-        renderSetColor(&color);
-        renderPolygonFlat(numberOfVertices, p);
+        openGlRenderSetColor(&color);
+        openGlRenderPolygonFlat(numberOfVertices, p);
     } else if ( mode & GOURAUD ) {
         RGB vertcol[4];
         COLOR vertrad[4];
@@ -783,7 +783,7 @@ galerkinElementDraw(GalerkinElement *element, int mode) {
             radianceToRgb(vertrad[i], &vertcol[i]);
         }
 
-        renderPolygonGouraud(numberOfVertices, p, vertcol);
+            openGlRenderPolygonGouraud(numberOfVertices, p, vertcol);
     }
 
     // Modifies the positions, that's why it comes last
@@ -797,14 +797,14 @@ galerkinElementDraw(GalerkinElement *element, int mode) {
             VECTORSUMSCALED(p[i], 0.01, d, p[i]);
         }
 
-        renderSetColor(&GLOBAL_render_renderOptions.outline_color);
-        renderLine(&p[0], &p[1]);
-        renderLine(&p[1], &p[2]);
+        openGlRenderSetColor(&GLOBAL_render_renderOptions.outline_color);
+        openGlRenderLine(&p[0], &p[1]);
+        openGlRenderLine(&p[1], &p[2]);
         if ( numberOfVertices == 3 ) {
-            renderLine(&p[2], &p[0]);
+            openGlRenderLine(&p[2], &p[0]);
         } else {
-            renderLine(&p[2], &p[3]);
-            renderLine(&p[3], &p[0]);
+            openGlRenderLine(&p[2], &p[3]);
+            openGlRenderLine(&p[3], &p[0]);
         }
 
         if ( mode & STRONG ) {
@@ -815,7 +815,7 @@ galerkinElementDraw(GalerkinElement *element, int mode) {
 
                 for ( i = 1; i < 4; i++ ) {
                     VECTORSUMSCALED(p[1], i * 0.25, d, pt);
-                    renderLine(&p[0], &pt);
+                    openGlRenderLine(&p[0], &pt);
                 }
             } else if ( numberOfVertices == 4 ) {
                 Vector3D d1, d2, p1, p2;
@@ -827,7 +827,7 @@ galerkinElementDraw(GalerkinElement *element, int mode) {
                 for ( i = 0; i < 5; i++ ) {
                     VECTORSUMSCALED(p[0], i * 0.25, d1, p1);
                     VECTORSUMSCALED(p[2], (1.0 - i * 0.25), d2, p2);
-                    renderLine(&p1, &p2);
+                    openGlRenderLine(&p1, &p2);
                 }
             }
         }

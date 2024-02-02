@@ -183,8 +183,8 @@ propagateRadiance(java::ArrayList<Patch *> *scenePatches) {
         return true;
     }
 
-    renderSetColor(&GLOBAL_material_yellow);
-    renderPatchOutline(shooting_patch);
+    openGlRenderSetColor(&GLOBAL_material_yellow);
+    openGlRenderPatchOutline(shooting_patch);
 
     doPropagate(shooting_patch, scenePatches);
 
@@ -239,8 +239,8 @@ propagatePotential(java::ArrayList<Patch *> *scenePatches) {
 
     shooting_patch = choosePotentialShootingPatch(scenePatches);
     if ( shooting_patch ) {
-        renderSetColor(&GLOBAL_material_white);
-        renderPatchOutline(shooting_patch);
+        openGlRenderSetColor(&GLOBAL_material_white);
+        openGlRenderPatchOutline(shooting_patch);
         doPropagate(shooting_patch, scenePatches);
     } else {
         fprintf(stderr, "No patches with un-shot potential??\n");

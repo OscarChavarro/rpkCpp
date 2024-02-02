@@ -71,7 +71,7 @@ softRenderPatches(
     if ( GLOBAL_render_renderOptions.frustum_culling ) {
         char use_display_lists = GLOBAL_render_renderOptions.use_display_lists;
         GLOBAL_render_renderOptions.use_display_lists = false;  /* temporarily switch it off */
-        renderWorldOctree(softRenderPatch);
+        openGlRenderWorldOctree(softRenderPatch);
         GLOBAL_render_renderOptions.use_display_lists = use_display_lists;
     } else {
         for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {

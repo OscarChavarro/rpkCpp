@@ -6,26 +6,6 @@
 #include "shared/Camera.h"
 #include "raycasting/common/Raytracer.h"
 
-extern unsigned long *renderIds(long *x, long *y, java::ArrayList<Patch *> *scenePatches);
-extern void renderWorldOctree(void (*render_patch)(Patch *));
-extern void renderScene(java::ArrayList<Patch *> *scenePatches);
-extern void renderCreateOffscreenWindow(int width, int height);
-extern void renderPatch(Patch *patch);
-extern void renderSetColor(RGB *rgb);
-extern void renderPixels(int x, int y, int width, int height, RGB *rgb);
-extern void renderPatchOutline(Patch *patch);
-extern void renderBeginTriangleStrip();
-extern int renderInitialized();
-extern void renderPolygonFlat(int nrverts, Vector3D *verts);
-extern void renderPolygonGouraud(int nrverts, Vector3D *verts, RGB *vertcols);
-extern void renderLine(Vector3D *x, Vector3D *y);
-extern void renderNextTrianglePoint(Vector3D *point, RGB *col);
-extern void renderEndTriangleStrip();
-extern void saveScreen(char *fileName, FILE *fp, int isPipe, java::ArrayList<Patch *> *scenePatches);
-extern void renderCameras();
-extern void renderSetLineWidth(float width);
-extern void renderBackground(Camera *camera);
-
 class RENDEROPTIONS {
   public:
     RGB outline_color,      /* color in which to draw outlines */
@@ -56,10 +36,26 @@ class RENDEROPTIONS {
 
 extern RENDEROPTIONS GLOBAL_render_renderOptions;
 
+extern void openGlRenderLine(Vector3D *x, Vector3D *y);
+extern void openGlRenderSetColor(RGB *rgb);
+extern void openGlRenderWorldOctree(void (*render_patch)(Patch *));
+extern void openGlRenderScene(java::ArrayList<Patch *> *scenePatches);
+extern void openGlMesaRenderCreateOffscreenWindow(int width, int height);
+extern void openGlRenderBeginTriangleStrip();
+extern void openGlRenderNextTrianglePoint(Vector3D *point, RGB *col);
+extern void openGlRenderEndTriangleStrip();
+extern void openGlRenderPatchOutline(Patch *patch);
+extern void openGlRenderPolygonFlat(int nrverts, Vector3D *verts);
+extern void openGlRenderPolygonGouraud(int nrverts, Vector3D *verts, RGB *vertcols);
+extern void openGlRenderPixels(int x, int y, int width, int height, RGB *rgb);
+extern void openGlRenderPatch(Patch *patch);
+extern void openGlRenderNewDisplayList();
+
+extern unsigned long *sglRenderIds(long *x, long *y, java::ArrayList<Patch *> *scenePatches);
+
 extern void renderBounds(BOUNDINGBOX bounds);
 extern void renderBoundingBoxHierarchy();
 extern void renderClusterHierarchy();
-extern int renderRayTraced(Raytracer *activeRayTracer);
 extern void renderSetBackfaceCulling(char truefalse);
 extern void renderSetSmoothShading(char truefalse);
 extern void renderSetOutlineDrawing(char truefalse);
@@ -72,7 +68,6 @@ extern void renderSetOutlineColor(RGB *outline_color);
 extern void renderSetBoundingBoxColor(RGB *outline_color);
 extern void renderSetClusterColor(RGB *cluster_color);
 extern void renderGetNearFar(float *near, float *far);
-extern void renderNewDisplayList();
 extern void parseRenderingOptions(int *argc, char **argv);
 
 #endif

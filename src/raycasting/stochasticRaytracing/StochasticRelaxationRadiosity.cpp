@@ -177,8 +177,8 @@ stochasticRelaxationRadiosityDoIncrementalRadianceIterations(java::ArrayList<Pat
         stochasticRelaxationRadiosityPrintIncrementalRadianceStats();
         if ( unShotFraction > 0.3 ) {
             stochasticRelaxationRadiosityRecomputeDisplayColors(scenePatches);
-            renderNewDisplayList();
-            renderScene(scenePatches);
+            openGlRenderNewDisplayList();
+            openGlRenderScene(scenePatches);
         }
     }
 
@@ -434,7 +434,7 @@ stochasticRelaxationRadiosityRenderPatch(Patch *patch) {
     if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.inited ) {
         monteCarloRadiosityForAllSurfaceLeafs(TOPLEVEL_ELEMENT(patch), mcrRenderElement);
     } else {
-        renderPatch(patch);
+        openGlRenderPatch(patch);
     }
     // Not yet initialized
 }
@@ -442,7 +442,7 @@ stochasticRelaxationRadiosityRenderPatch(Patch *patch) {
 static void
 stochasticRelaxationRadiosityRender(java::ArrayList<Patch *> *scenePatches) {
     if ( GLOBAL_render_renderOptions.frustum_culling ) {
-        renderWorldOctree(stochasticRelaxationRadiosityRenderPatch);
+        openGlRenderWorldOctree(stochasticRelaxationRadiosityRenderPatch);
     } else {
         for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
             stochasticRelaxationRadiosityRenderPatch(scenePatches->get(i));

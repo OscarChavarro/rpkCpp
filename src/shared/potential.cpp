@@ -41,7 +41,7 @@ updateDirectPotential(java::ArrayList<Patch *> *scenePatches) {
     canvasPushMode();
 
     // Get the patch IDs for each pixel
-    ids = renderIds(&x, &y, scenePatches);
+    ids = sglRenderIds(&x, &y, scenePatches);
 
     canvasPullMode();
 

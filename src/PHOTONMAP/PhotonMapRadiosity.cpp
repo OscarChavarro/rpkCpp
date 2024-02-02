@@ -681,7 +681,7 @@ photonMapRenderScreen(java::ArrayList<Patch *> *scenePatches) {
         GLOBAL_photonMap_config.screen->render();
     } else {
         for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
-            renderPatch(scenePatches->get(i));
+            openGlRenderPatch(scenePatches->get(i));
         }
     }
 }

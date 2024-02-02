@@ -67,7 +67,7 @@ ScreenIterateSequential(SCREENITERATECALLBACK callback, void *data) {
             GLOBAL_raytracer_pixelCount++;
         }
 
-        renderPixels(0, height - j - 1, width, 1, rgb);
+        openGlRenderPixels(0, height - j - 1, width, 1, rgb);
     }
 
     delete[] rgb;
@@ -152,8 +152,8 @@ ScreenIterateProgressive(SCREENITERATECALLBACK callback, void *data) {
                     if ( iState.wake_up & WAKE_UP_RENDER) {
                         iState.wake_up &= ~WAKE_UP_RENDER;
                         if ((ymax > 0) && (ymax > ymin)) {
-                            renderPixels(0, ymin, width, ymax - ymin,
-                                         rgb + ymin * width);
+                            openGlRenderPixels(0, ymin, width, ymax - ymin,
+                                               rgb + ymin * width);
                         }
 
                         ymin = MAX(0, ymax - stepsize);
@@ -166,8 +166,8 @@ ScreenIterateProgressive(SCREENITERATECALLBACK callback, void *data) {
 
             if ( ymax >= height ) {
                 if ((ymax > ymin)) {
-                    renderPixels(0, ymin, width, ymax - ymin,
-                                 rgb + ymin * width);
+                    openGlRenderPixels(0, ymin, width, ymax - ymin,
+                                       rgb + ymin * width);
                 }
                 ymax = -1;
             }

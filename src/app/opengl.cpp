@@ -75,7 +75,7 @@ openGlInitState() {
 Creates an offscreen window for rendering
 */
 void
-renderCreateOffscreenWindow(int width, int height) {
+openGlMesaRenderCreateOffscreenWindow(int width, int height) {
     GLubyte *imageBuffer = (GLubyte *)malloc(width * height * sizeof(GLubyte) * 4);
 
     OSMesaContext osMesaContext = OSMesaCreateContext(OSMESA_RGBA, nullptr);
@@ -105,7 +105,7 @@ renderInitialized() {
 Renders a line from point p to point q, for eg debugging
 */
 void
-renderLine(Vector3D *x, Vector3D *y) {
+openGlRenderLine(Vector3D *x, Vector3D *y) {
     Vector3D X;
     Vector3D Y;
     Vector3D dir;
@@ -128,7 +128,7 @@ renderLine(Vector3D *x, Vector3D *y) {
 Sets the current color for line or outline drawing
 */
 void
-renderSetColor(RGB *rgb) {
+openGlRenderSetColor(RGB *rgb) {
     RGB correctedRgb{};
 
     correctedRgb = *rgb;
@@ -148,7 +148,7 @@ renderSetLineWidth(float width) {
 Renders a convex polygon flat shaded in the current color
 */
 void
-renderPolygonFlat(int nrverts, Vector3D *verts) {
+openGlRenderPolygonFlat(int nrverts, Vector3D *verts) {
     int i;
 
     glBegin(GL_POLYGON);
@@ -162,12 +162,12 @@ renderPolygonFlat(int nrverts, Vector3D *verts) {
 Renders a convex polygon with Gouraud shading
 */
 void
-renderPolygonGouraud(int nrverts, Vector3D *verts, RGB *vertcols) {
+openGlRenderPolygonGouraud(int nrverts, Vector3D *verts, RGB *vertcols) {
     int i;
 
     glBegin(GL_POLYGON);
     for ( i = 0; i < nrverts; i++ ) {
-        renderSetColor(&vertcols[i]);
+        openGlRenderSetColor(&vertcols[i]);
         glVertex3fv((GLfloat *) &verts[i]);
     }
     glEnd();
@@ -177,7 +177,7 @@ renderPolygonGouraud(int nrverts, Vector3D *verts, RGB *vertcols) {
 Start a strip
 */
 void
-renderBeginTriangleStrip() {
+openGlRenderBeginTriangleStrip() {
     glBegin(GL_TRIANGLE_STRIP);
 }
 
@@ -185,9 +185,9 @@ renderBeginTriangleStrip() {
 Supply the next point (one at a time)
 */
 void
-renderNextTrianglePoint(Vector3D *point, RGB *col) {
+openGlRenderNextTrianglePoint(Vector3D *point, RGB *col) {
     if ( col ) {
-        renderSetColor(col);
+        openGlRenderSetColor(col);
     }
     glVertex3fv((float *) point);
 }
@@ -196,7 +196,7 @@ renderNextTrianglePoint(Vector3D *point, RGB *col) {
 End a strip
 */
 void
-renderEndTriangleStrip() {
+openGlRenderEndTriangleStrip() {
     glEnd();
 }
 
@@ -204,7 +204,7 @@ void
 renderPatchFlat(Patch *patch) {
     int i;
 
-    renderSetColor(&patch->color);
+    openGlRenderSetColor(&patch->color);
     switch ( patch->numberOfVertices ) {
         case 3:
             glBegin(GL_TRIANGLES);
@@ -237,30 +237,30 @@ renderPatchSmooth(Patch *patch) {
     switch ( patch->numberOfVertices ) {
         case 3:
             glBegin(GL_TRIANGLES);
-            renderSetColor(&patch->vertex[0]->color);
+            openGlRenderSetColor(&patch->vertex[0]->color);
             glVertex3fv((GLfloat *) patch->vertex[0]->point);
-            renderSetColor(&patch->vertex[1]->color);
+            openGlRenderSetColor(&patch->vertex[1]->color);
             glVertex3fv((GLfloat *) patch->vertex[1]->point);
-            renderSetColor(&patch->vertex[2]->color);
+            openGlRenderSetColor(&patch->vertex[2]->color);
             glVertex3fv((GLfloat *) patch->vertex[2]->point);
             glEnd();
             break;
         case 4:
             glBegin(GL_QUADS);
-            renderSetColor(&patch->vertex[0]->color);
+            openGlRenderSetColor(&patch->vertex[0]->color);
             glVertex3fv((GLfloat *) patch->vertex[0]->point);
-            renderSetColor(&patch->vertex[1]->color);
+            openGlRenderSetColor(&patch->vertex[1]->color);
             glVertex3fv((GLfloat *) patch->vertex[1]->point);
-            renderSetColor(&patch->vertex[2]->color);
+            openGlRenderSetColor(&patch->vertex[2]->color);
             glVertex3fv((GLfloat *) patch->vertex[2]->point);
-            renderSetColor(&patch->vertex[3]->color);
+            openGlRenderSetColor(&patch->vertex[3]->color);
             glVertex3fv((GLfloat *) patch->vertex[3]->point);
             glEnd();
             break;
         default:
             glBegin(GL_POLYGON);
             for ( i = 0; i < patch->numberOfVertices; i++ ) {
-                renderSetColor(&patch->vertex[i]->color);
+                openGlRenderSetColor(&patch->vertex[i]->color);
                 glVertex3fv((GLfloat *) patch->vertex[i]->point);
             }
             glEnd();
@@ -271,7 +271,7 @@ renderPatchSmooth(Patch *patch) {
 Renders the patch outline in the current color
 */
 void
-renderPatchOutline(Patch *patch) {
+openGlRenderPatchOutline(Patch *patch) {
     int i;
     Vector3D tmp;
     Vector3D dir;
@@ -290,7 +290,7 @@ renderPatchOutline(Patch *patch) {
 Renders the all the patches using default colors
 */
 void
-renderPatch(Patch *patch) {
+openGlRenderPatch(Patch *patch) {
     if ( !GLOBAL_render_renderOptions.no_shading ) {
         if ( GLOBAL_render_renderOptions.smooth_shading ) {
             renderPatchSmooth(patch);
@@ -302,8 +302,8 @@ renderPatch(Patch *patch) {
     if ( GLOBAL_render_renderOptions.draw_outlines &&
          (VECTORDOTPRODUCT(patch->normal, GLOBAL_camera_mainCamera.eyePosition) + patch->planeConstant > EPSILON
           || GLOBAL_render_renderOptions.use_display_lists)) {
-        renderSetColor(&GLOBAL_render_renderOptions.outline_color);
-        renderPatchOutline(patch);
+        openGlRenderSetColor(&GLOBAL_render_renderOptions.outline_color);
+        openGlRenderPatchOutline(patch);
     }
 }
 
@@ -431,12 +431,12 @@ hierarchical view frustum culling + sorted (large patches first +
 near to far) rendering. For every patch that is not culled,
 render_patch is called. */
 void
-renderWorldOctree(void (*render_patch)(Patch *)) {
+openGlRenderWorldOctree(void (*render_patch)(Patch *)) {
     if ( !GLOBAL_scene_clusteredWorldGeom ) {
         return;
     }
     if ( !render_patch ) {
-        render_patch = renderPatch;
+        render_patch = openGlRenderPatch;
     }
     if ( geomIsAggregate(GLOBAL_scene_clusteredWorldGeom)) {
         renderOctreeNonLeaf(GLOBAL_scene_clusteredWorldGeom, render_patch);
@@ -473,7 +473,7 @@ Indicates that the scene has modified, so a new display list should be
 compiled and rendered from now on. Only relevant when using display lists
 */
 void
-renderNewDisplayList() {
+openGlRenderNewDisplayList() {
     if ( displayListId >= 0 ) {
         glDeleteLists(displayListId, 1);
     }
@@ -489,10 +489,10 @@ reallyRender(java::ArrayList<Patch *> *scenePatches) {
     if ( GLOBAL_radiance_currentRadianceMethodHandle && GLOBAL_radiance_currentRadianceMethodHandle->renderScene ) {
         GLOBAL_radiance_currentRadianceMethodHandle->renderScene(scenePatches);
     } else if ( GLOBAL_render_renderOptions.frustum_culling ) {
-        renderWorldOctree(renderPatch);
+            openGlRenderWorldOctree(openGlRenderPatch);
     } else {
         for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
-            renderPatch(scenePatches->get(i));
+            openGlRenderPatch(scenePatches->get(i));
         }
     }
 }
@@ -545,7 +545,7 @@ renderRadiance(java::ArrayList<Patch *> *scenePatches) {
 Renders the whole scene
 */
 void
-renderScene(java::ArrayList<Patch *> *scenePatches) {
+openGlRenderScene(java::ArrayList<Patch *> *scenePatches) {
     if ( !openglInitialized ) {
         return;
     }
@@ -577,18 +577,18 @@ Renders an image of m lines of n pixels at column x on row y (= lower
 left corner of image, relative to the lower left corner of the window)
 */
 void
-renderPixels(int x, int y, int width, int height, RGB *rgb) {
+openGlRenderPixels(int x, int y, int width, int height, RGB *rgb) {
     int j;
-    int rowlen;
+    int rowLength;
     GLubyte *c;
 
     // length of one row of RGBA image data rounded up to a multiple of 8
-    rowlen = (4 * width * sizeof(GLubyte) + 7) & ~7;
-    c = (GLubyte *)malloc(height * rowlen + 8);
+    rowLength = (4 * width * sizeof(GLubyte) + 7) & ~7;
+    c = new GLubyte[height * rowLength + 8];
 
     for ( j = 0; j < height; j++ ) {
         RGB *rgbp = &rgb[j * width];
-        GLubyte *p = c + j * rowlen; // let each line start on a 8-byte boundary
+        GLubyte *p = c + j * rowLength; // let each line start on a 8-byte boundary
         int i;
         for ( i = 0; i < width; i++, rgbp++ ) {
             RGB corrected_rgb = *rgbp;
@@ -626,7 +626,7 @@ renderPixels(int x, int y, int width, int height, RGB *rgb) {
     glMatrixMode(GL_MODELVIEW);
     glPopMatrix();
 
-    free((char *)c);
+    delete c;
 }
 
 /**
@@ -679,7 +679,7 @@ the patches visible through each pixel or 0 if the background is visible through
 the pixel. x is normally the width and y the height of the canvas window
 */
 unsigned long *
-renderIds(long *x, long *y, java::ArrayList<Patch *> *scenePatches) {
+sglRenderIds(long *x, long *y, java::ArrayList<Patch *> *scenePatches) {
     return softRenderIds(x, y, scenePatches);
 }
 
@@ -700,28 +700,28 @@ renderFrustum(Camera *cam) {
 
     glDisable(GL_DEPTH_TEST);
 
-    renderSetColor(&GLOBAL_render_renderOptions.camera_color);
+    openGlRenderSetColor(&GLOBAL_render_renderOptions.camera_color);
 
     for ( i = 0; i <= maxi; i++ ) {
         VECTORCOMB3(c, (-1.0 + 2.0 * ((float) i / (float) maxi)) * hsiz, cam->X, -vsiz, cam->Y, P);
         VECTORCOMB3(c, (-1.0 + 2.0 * ((float) i / (float) maxi)) * hsiz, cam->X, +vsiz, cam->Y, Q);
-        renderLine(&P, &Q);
+        openGlRenderLine(&P, &Q);
     }
 
     for ( j = 0; j <= maxj; j++ ) {
         VECTORCOMB3(c, -hsiz, cam->X, (-1. + 2. * ((float) j / (float) maxj)) * vsiz, cam->Y, P);
         VECTORCOMB3(c, +hsiz, cam->X, (-1. + 2. * ((float) j / (float) maxj)) * vsiz, cam->Y, Q);
-        renderLine(&P, &Q);
+        openGlRenderLine(&P, &Q);
     }
 
     VECTORCOMB3(c, hsiz, cam->X, -vsiz, cam->Y, Q);
-    renderLine(&cam->eyePosition, &Q);
+    openGlRenderLine(&cam->eyePosition, &Q);
     VECTORCOMB3(c, -hsiz, cam->X, -vsiz, cam->Y, Q);
-    renderLine(&cam->eyePosition, &Q);
+    openGlRenderLine(&cam->eyePosition, &Q);
     VECTORCOMB3(c, -hsiz, cam->X, vsiz, cam->Y, Q);
-    renderLine(&cam->eyePosition, &Q);
+    openGlRenderLine(&cam->eyePosition, &Q);
     VECTORCOMB3(c, hsiz, cam->X, vsiz, cam->Y, Q);
-    renderLine(&cam->eyePosition, &Q);
+    openGlRenderLine(&cam->eyePosition, &Q);
 
     glLineWidth(1);
     glEnable(GL_DEPTH_TEST);
@@ -778,4 +778,17 @@ renderBackground(Camera *camera) {
 
     // Enable Z-buffer back
     glEnable(GL_DEPTH_TEST);
+}
+
+/**
+Re-renders last ray-traced image if any, Returns TRUE if there is one,
+and FALSE if not
+*/
+int
+renderRayTraced(Raytracer *activeRayTracer) {
+    if ( activeRayTracer == nullptr || activeRayTracer->Redisplay == nullptr ) {
+        return false;
+    } else {
+        return activeRayTracer->Redisplay();
+    }
 }

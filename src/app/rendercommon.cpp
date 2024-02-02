@@ -216,18 +216,18 @@ renderBounds(BOUNDINGBOX bounds) {
     VECTORSET(p[6], bounds[MIN_X], bounds[MAX_Y], bounds[MAX_Z]);
     VECTORSET(p[7], bounds[MAX_X], bounds[MAX_Y], bounds[MAX_Z]);
 
-    renderLine(&p[0], &p[1]);
-    renderLine(&p[1], &p[3]);
-    renderLine(&p[3], &p[2]);
-    renderLine(&p[2], &p[0]);
-    renderLine(&p[4], &p[5]);
-    renderLine(&p[5], &p[7]);
-    renderLine(&p[7], &p[6]);
-    renderLine(&p[6], &p[4]);
-    renderLine(&p[0], &p[4]);
-    renderLine(&p[1], &p[5]);
-    renderLine(&p[2], &p[6]);
-    renderLine(&p[3], &p[7]);
+    openGlRenderLine(&p[0], &p[1]);
+    openGlRenderLine(&p[1], &p[3]);
+    openGlRenderLine(&p[3], &p[2]);
+    openGlRenderLine(&p[2], &p[0]);
+    openGlRenderLine(&p[4], &p[5]);
+    openGlRenderLine(&p[5], &p[7]);
+    openGlRenderLine(&p[7], &p[6]);
+    openGlRenderLine(&p[6], &p[4]);
+    openGlRenderLine(&p[0], &p[4]);
+    openGlRenderLine(&p[1], &p[5]);
+    openGlRenderLine(&p[2], &p[6]);
+    openGlRenderLine(&p[3], &p[7]);
 }
 
 void
@@ -250,7 +250,7 @@ Renders the bounding boxes of all objects in the scene
 */
 void
 renderBoundingBoxHierarchy() {
-    renderSetColor(&GLOBAL_render_renderOptions.bounding_box_color);
+    openGlRenderSetColor(&GLOBAL_render_renderOptions.bounding_box_color);
     for ( GeometryListNode *window = GLOBAL_scene_world; window != nullptr; window = window->next ) {
         renderGeomBounds(window->geom);
     }
@@ -261,21 +261,8 @@ Renders the cluster hierarchy bounding boxes
 */
 void
 renderClusterHierarchy() {
-    renderSetColor(&GLOBAL_render_renderOptions.cluster_color);
+    openGlRenderSetColor(&GLOBAL_render_renderOptions.cluster_color);
     for ( GeometryListNode *window = GLOBAL_scene_clusteredWorld; window != nullptr; window = window->next ) {
         renderGeomBounds(window->geom);
-    }
-}
-
-/**
-Re-renders last ray-traced image if any, Returns TRUE if there is one,
-and FALSE if not
-*/
-int
-renderRayTraced(Raytracer *activeRayTracer) {
-    if ( activeRayTracer == nullptr || activeRayTracer->Redisplay == nullptr ) {
-        return false;
-    } else {
-        return activeRayTracer->Redisplay();
     }
 }

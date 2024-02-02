@@ -14,7 +14,7 @@ static int globalModeStackIndex;
 
 void
 createOffscreenCanvasWindow(int width, int height, java::ArrayList<Patch *> *scenePatches) {
-    renderCreateOffscreenWindow(width, height);
+    openGlMesaRenderCreateOffscreenWindow(width, height);
 
     // Set correct width and height for the camera
     cameraSet(&GLOBAL_camera_mainCamera, &GLOBAL_camera_mainCamera.eyePosition, &GLOBAL_camera_mainCamera.lookPosition,
@@ -22,7 +22,7 @@ createOffscreenCanvasWindow(int width, int height, java::ArrayList<Patch *> *sce
               GLOBAL_camera_mainCamera.fov, width, height, &GLOBAL_camera_mainCamera.background);
 
     // Render the scene (no expose events on the external canvas window!)
-    renderScene(scenePatches);
+    openGlRenderScene(scenePatches);
 }
 
 /**

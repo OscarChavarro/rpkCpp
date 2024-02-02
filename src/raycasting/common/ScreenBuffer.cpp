@@ -198,7 +198,7 @@ ScreenBuffer::render() {
         sync();
     }
 
-    renderPixels(0, 0, m_cam.xSize, m_cam.ySize, m_RGB);
+    openGlRenderPixels(0, 0, m_cam.xSize, m_cam.ySize, m_RGB);
 }
 
 void
@@ -255,7 +255,7 @@ ScreenBuffer::renderScanline(int i) {
         syncLine(i);
     }
 
-    renderPixels(0, i, m_cam.xSize, 1, &m_RGB[i * m_cam.xSize]);
+    openGlRenderPixels(0, i, m_cam.xSize, 1, &m_RGB[i * m_cam.xSize]);
 }
 
 void
