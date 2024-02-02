@@ -71,22 +71,6 @@ patchListAllIntersections(HITLIST *hits, java::ArrayList<Patch *> *patches, Ray 
     return hits;
 }
 
-/**
-The following routines are needed to make patch lists look like GEOMs. This
-is required for shaft culling (see shaft culling.[ch] and clustering (see
-cluster.[ch]. In both cases, the patches pointed to should not be
-destroyed, only the patches should
-*/
-static void
-patchListDestroy(PatchSet *patchList) {
-    PatchSet *listWindow = patchList;
-    while ( listWindow != nullptr ) {
-        PatchSet *listNode = listWindow->next;
-        free(listWindow);
-        listWindow = listNode;
-    }
-}
-
 static PatchSet *
 patchListDuplicate(PatchSet *patchList) {
     PatchSet *newList = (PatchSet *) nullptr;
@@ -114,7 +98,6 @@ patchListExportToArrayList(PatchSet *patches) {
 }
 
 GEOM_METHODS GLOBAL_skin_patchListGeometryMethods = {
-    (void (*)(void *)) patchListDestroy,
     (GeometryListNode *(*)(void *)) nullptr,
     (HITLIST *(*)(HITLIST *, void *, Ray *, float, float, int)) patchListAllIntersections,
     (void *(*)(void *)) patchListDuplicate

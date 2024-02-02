@@ -28,29 +28,6 @@ compoundBounds(Compound *obj, float *boundingBox) {
 }
 
 /**
-This method will destroy the geometry and it's children geometries if any
-*/
-static void
-compoundDestroy(Compound *obj) {
-    GeometryListNode *window = &obj->children;
-    Geometry *geometry;
-    while (window) {
-        geometry = window->geom;
-        window = window->next;
-        geomDestroy(geometry);
-    }
-
-    window = &obj->children;
-    while ( window ) {
-        GeometryListNode *nextNode = window->next;
-        free(window);
-        window = nextNode;
-    }
-
-    GLOBAL_statistics_numberOfCompounds--;
-}
-
-/**
 Returns the list of children geometries if the geometry is an aggregate
 */
 static GeometryListNode *
@@ -103,7 +80,6 @@ compoundAllDiscretizationIntersections(
 
 // A set of pointers to the functions (methods) to operate on compounds
 GEOM_METHODS GLOBAL_skin_compoundGeometryMethods = {
-    (void (*)(void *)) compoundDestroy,
     (GeometryListNode *(*)(void *)) compoundPrimitives,
     (HITLIST *(*)(HITLIST *, void *, Ray *, float, float, int)) compoundAllDiscretizationIntersections,
     (void *(*)(void *)) nullptr

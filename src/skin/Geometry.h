@@ -61,7 +61,6 @@ class Geometry {
     MeshSurface *surfaceData;
     Compound *compoundData;
     PatchSet *patchSetData;
-    java::ArrayList<Patch *> *newPatchSetData;
     GeometryListNode *aggregateData;
 
     Geometry();
@@ -110,11 +109,6 @@ implemented in surface.c.
 */
 class GEOM_METHODS {
   public:
-    /**
-     * This method will destroy the geometry and it's children geometries if any
-     */
-    void (*destroy)(void *obj);
-
     /**
      * Returns the list of children geometries if the geometry is an aggregate.
      * This method is not implemented for primitive geometries

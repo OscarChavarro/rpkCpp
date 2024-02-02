@@ -311,34 +311,6 @@ patchCreate(int numberOfVertices, Vertex *v1, Vertex *v2, Vertex *v3, Vertex *v4
 }
 
 /**
-Disposes the memory allocated for the patch, does not remove
-the pointers to the patch in the vertices of the patch
-*/
-void
-patchDestroy(Patch *patch) {
-    if ( GLOBAL_radiance_currentRadianceMethodHandle && patch->radianceData ) {
-        if ( GLOBAL_radiance_currentRadianceMethodHandle->DestroyPatchData ) {
-            GLOBAL_radiance_currentRadianceMethodHandle->DestroyPatchData(patch);
-        }
-    }
-
-    if ( patch->boundingBox ) {
-        boundsDestroy(patch->boundingBox);
-    }
-
-    if ( patch->jacobian ) {
-        jacobianDestroy(patch->jacobian);
-    }
-
-    if ( patch->twin ) {
-        patch->twin->twin = nullptr;
-    }
-
-    free(patch);
-    GLOBAL_statistics_numberOfElements--;
-}
-
-/**
 Computes a bounding box for the patch. fills it in 'getBoundingBox' and returns
 a pointer to 'getBoundingBox'
 */

@@ -23,7 +23,6 @@ Geometry::Geometry():
     surfaceData(),
     compoundData(),
     patchSetData(),
-    newPatchSetData(),
     aggregateData(),
     className()
 {
@@ -60,10 +59,6 @@ Note: currently containing the super() method.
 */
 static Geometry *
 geomCreateBase(void *geometryData, GEOM_METHODS *methods) {
-    if ( geometryData == nullptr ) {
-        return nullptr;
-    }
-
     Geometry *newGeometry = new Geometry();
     GLOBAL_statistics_numberOfGeometries++;
     newGeometry->id = globalCurrentMaxId++;
@@ -72,7 +67,6 @@ geomCreateBase(void *geometryData, GEOM_METHODS *methods) {
     newGeometry->compoundData = nullptr;
     newGeometry->patchSetData = nullptr;
     newGeometry->aggregateData = nullptr;
-    newGeometry->newPatchSetData = nullptr;
 
     if ( methods == &GLOBAL_skin_surfaceGeometryMethods ) {
         surfaceBounds((MeshSurface *)geometryData, newGeometry->bounds);
@@ -110,11 +104,7 @@ geomCreatePatchList(java::ArrayList<Patch *> *geometryList, GEOM_METHODS *method
         patchList = newNode;
     }
 
-    Geometry *newGeometry = geomCreatePatchSet(patchList, methods);
-    if ( newGeometry != nullptr ) {
-        newGeometry->newPatchSetData = geometryList;
-    }
-    return newGeometry;
+    return geomCreatePatchSet(patchList, methods);
 }
 
 Geometry *

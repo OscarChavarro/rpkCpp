@@ -117,85 +117,6 @@ surfaceCreate(
 }
 
 /**
-This method will destroy the geometry and it's children geometries if any.
-
-It is important that the patches be destroyed first and then the
-vertices, because otherwise, the brep_data for the vertices would
-still be used and thus not destroyed by the BREP library
-*/
-void
-surfaceDestroy(MeshSurface *surface) {
-    if ( surface == nullptr || surface->faces == nullptr ) {
-        return;
-    }
-
-    for ( int i = 0; i < surface->faces->size(); i++ ) {
-        patchDestroy(surface->faces->get(i));
-    }
-
-    delete surface->faces;
-    surface->faces = nullptr;
-
-    if ( surface->vertices != nullptr ) {
-        for ( int i = 0; i < surface->vertices->size(); i++) {
-            vertexDestroy(surface->vertices->get(i));
-        }
-        delete surface->vertices;
-    }
-
-    Vector3DListNode *vector3DWindow = surface->positions;
-    Vector3D *vectorPosition;
-    while ( vector3DWindow != nullptr ) {
-        vectorPosition = vector3DWindow->vector;
-        vector3DWindow = vector3DWindow->next;
-        vector3DDestroy(vectorPosition);
-    }
-
-    vector3DWindow = surface->positions;
-    Vector3DListNode *vectorPositionNode;
-    while ( vector3DWindow != nullptr ) {
-        vectorPositionNode = vector3DWindow->next;
-        free(vector3DWindow);
-        vector3DWindow = vectorPositionNode;
-    }
-
-    Vector3DListNode *normalWindow = surface->normals;
-    Vector3D *normal;
-    while ( normalWindow != nullptr ) {
-        normal = normalWindow->vector;
-        normalWindow = normalWindow->next;
-        vector3DDestroy(normal);
-    }
-
-    normalWindow = surface->normals;
-    Vector3DListNode *normalNode;
-    while ( normalWindow != nullptr ) {
-        normalNode = normalWindow->next;
-        free(normalWindow);
-        normalWindow = normalNode;
-    }
-
-    Vector3DListNode *texCoordWindow = (surface->texCoords);
-    Vector3D *texCoord;
-    while ( texCoordWindow != nullptr ) {
-        texCoord = texCoordWindow->vector;
-        texCoordWindow = texCoordWindow->next;
-        vector3DDestroy(texCoord);
-    }
-
-    texCoordWindow = surface->texCoords;
-    Vector3DListNode *texCoordNode;
-    while ( texCoordWindow != nullptr ) {
-        texCoordNode = texCoordWindow->next;
-        free(texCoordWindow);
-        texCoordWindow = texCoordNode;
-    }
-
-    free(surface);
-    GLOBAL_statistics_numberOfSurfaces--;
-}
-
-/**
 This method will compute a bounding box for a geometry. The bounding box
 is filled in bounding box and a pointer to the filled in bounding box
 returned
@@ -235,7 +156,6 @@ surfaceAllDiscretizationIntersections(
 }
 
 GEOM_METHODS GLOBAL_skin_surfaceGeometryMethods = {
-    (void (*)(void *)) surfaceDestroy,
     nullptr,
     (HITLIST *(*)(HITLIST *, void *, Ray *, float, float, int)) surfaceAllDiscretizationIntersections,
     nullptr
