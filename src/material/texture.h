@@ -1,7 +1,7 @@
 #ifndef __TEXTURE__
 #define __TEXTURE__
 
-#include "material/color.h"
+#include "common/color.h"
 
 class TEXTURE {
   public:

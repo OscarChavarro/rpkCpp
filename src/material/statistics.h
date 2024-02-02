@@ -1,7 +1,7 @@
 #ifndef _STATISTICS_H_
 #define _STATISTICS_H_
 
-#include "material/color.h"
+#include "common/color.h"
 
 /* general statistics about the current scene */
 extern int GLOBAL_statistics_numberOfGeometries;

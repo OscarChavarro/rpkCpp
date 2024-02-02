@@ -10,7 +10,7 @@
 
 #include "common/linealAlgebra/vectorMacros.h"
 #include "common/Ray.h"
-#include "material/color.h"
+#include "common/color.h"
 #include "material/bsdf.h"
 
 // -- For evaluation of bi paths, should change!

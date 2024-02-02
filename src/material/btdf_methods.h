@@ -1,7 +1,7 @@
 #ifndef __BTDF_METHODS__
 #define __BTDF_METHODS__
 
-#include "material/color.h"
+#include "common/color.h"
 #include "material/xxdf.h"
 
 /**

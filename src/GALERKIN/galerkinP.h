@@ -9,7 +9,7 @@ Galerkin Radiosity "private" declarations
 
 #include "java/util/ArrayList.h"
 #include "common/mymath.h"
-#include "material/color.h"
+#include "common/color.h"
 #include "shared/cubature.h"
 #include "SGL/sgl.h"
 #include "GALERKIN/GalerkinElement.h"

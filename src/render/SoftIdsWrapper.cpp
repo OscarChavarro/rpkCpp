@@ -1,5 +1,5 @@
 #include "java/util/ArrayList.txx"
-#include "shared/SoftIdsWrapper.h"
+#include "render/SoftIdsWrapper.h"
 
 static SGL_PIXEL
 patchPointer(Patch *P) {

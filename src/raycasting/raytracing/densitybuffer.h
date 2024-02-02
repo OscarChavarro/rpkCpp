@@ -6,7 +6,7 @@
 #define _DENSITYBUFFER_H_
 
 #include "common/linealAlgebra/Vector2D.h"
-#include "material/color.h"
+#include "common/color.h"
 #include "raycasting/common/ScreenBuffer.h"
 #include "raycasting/common/bidiroptions.h"
 

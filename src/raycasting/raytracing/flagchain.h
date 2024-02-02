@@ -10,7 +10,7 @@ A chainlist is a set of scattering modes
 #define _FLAGCHAIN_H_
 
 #include "common/dataStructures/CSList.h"
-#include "material/color.h"
+#include "common/color.h"
 #include "material/bsdf.h"
 #include "raycasting/common/pathnode.h"
 #include "raycasting/raytracing/bipath.h"

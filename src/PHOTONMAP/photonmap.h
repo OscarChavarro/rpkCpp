@@ -4,7 +4,7 @@
 #define _PHOTONMAP_H_
 
 #include "common/linealAlgebra/vectorMacros.h"
-#include "material/color.h"
+#include "common/color.h"
 #include "PHOTONMAP/photonkdtree.h"
 #include "PHOTONMAP/photon.h"
 #include "material/bsdf.h"

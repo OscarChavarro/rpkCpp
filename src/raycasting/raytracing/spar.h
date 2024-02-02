@@ -5,7 +5,7 @@
 #ifndef _SPAR_H_
 #define _SPAR_H_
 
-#include "material/color.h"
+#include "common/color.h"
 
 #include "raycasting/common/pathnode.h"
 #include "raycasting/raytracing/bipath.h"

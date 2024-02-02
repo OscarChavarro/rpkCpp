@@ -3,7 +3,7 @@
 #ifndef __BASIS__
 #define __BASIS__
 
-#include "material/color.h"
+#include "common/color.h"
 #include "raycasting/stochasticRaytracing/mcrad.h"
 
 /* no basis consists of more than this number of basis functions */

@@ -5,7 +5,7 @@ Phong type EDFs, BRDFs, BTDFs
 #ifndef __PHONG__
 #define __PHONG__
 
-#include "material/color.h"
+#include "common/color.h"
 #include "material/edf_methods.h"
 #include "material/brdf_methods.h"
 #include "material/btdf_methods.h"

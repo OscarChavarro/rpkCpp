@@ -6,7 +6,7 @@
 #include <cstdio>
 
 #include "common/linealAlgebra/vectorMacros.h"
-#include "material/color.h"
+#include "common/color.h"
 #include "material/xxdf.h"
 #include "material/hit.h"
 

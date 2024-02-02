@@ -2,7 +2,7 @@
 #include <ctime>
 
 #include "java/util/ArrayList.h"
-#include "material/color.h"
+#include "common/color.h"
 #include "common/error.h"
 #include "skin/Patch.h"
 #include "render/opengl.h"

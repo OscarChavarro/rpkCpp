@@ -1,7 +1,7 @@
 #ifndef RPK_ELEMENT_H
 #define RPK_ELEMENT_H
 
-#include "material/color.h"
+#include "common/color.h"
 #include "skin/Patch.h"
 #include "skin/Geometry.h"
 

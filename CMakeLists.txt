@@ -21,10 +21,12 @@ set(MAIN_SRC
     src/common/linealAlgebra/Vector3D.cpp
     src/common/linealAlgebra/Matrix4x4.cpp
     src/common/dataStructures/CSList.cpp
-        src/common/dataStructures/DList.cpp
+    src/common/dataStructures/DList.cpp
     src/common/dataStructures/KDTree.cpp
     src/common/dataStructures/List.cpp
     src/common/dataStructures/Bintree.cpp
+    src/common/color.cpp
+    src/common/options.cpp
     src/QMC/halton.cpp
     src/QMC/scrambledhalton.cpp
     src/QMC/nied31.cpp
@@ -36,13 +38,12 @@ set(MAIN_SRC
     src/material/statistics.cpp
     src/material/xxdf.cpp
     src/material/btdf.cpp
-    src/material/color.cpp
     src/material/cie.cpp
     src/material/edf.cpp
     src/material/bsdf.cpp
     src/material/Material.cpp
-        src/BREP/BREP_VERTEX_OCTREE.cpp
-        src/skin/PatchSet.cpp
+    src/BREP/BREP_VERTEX_OCTREE.cpp
+    src/skin/PatchSet.cpp
     src/skin/hit.cpp
     src/skin/Compound.cpp
     src/skin/geomlist.cpp
@@ -71,23 +72,23 @@ set(MAIN_SRC
     src/io/mgf/parser.cpp
     src/io/mgf/context.cpp
     src/io/FileUncompressWrapper.cpp
-        src/SGL/poly_clip.cpp
+    src/SGL/poly_clip.cpp
     src/SGL/poly_scan_z.cpp
     src/SGL/sgl.cpp
     src/SGL/poly_scan_flat.cpp
-        src/render/hemirenderer.cpp
-    src/shared/potential.cpp
-        src/common/options.cpp
+    src/render/hemirenderer.cpp
+    src/render/potential.cpp
+    src/render/SoftIdsWrapper.cpp
+    src/render/softids.cpp
+    src/render/opengl.cpp
     src/shared/samplegrid.cpp
     src/shared/discretesampling.cpp
     src/shared/lightlist.cpp
-    src/shared/SoftIdsWrapper.cpp
     src/shared/renderhook.cpp
     src/shared/shadowcaching.cpp
     src/shared/Camera.cpp
     src/shared/canvas.cpp
     src/shared/stratification.cpp
-        src/render/softids.cpp
     src/shared/writevrml.cpp
     src/shared/cubature.cpp
     src/IMAGE/pic.cpp
@@ -172,7 +173,6 @@ set(MAIN_SRC
     src/app/Cluster.cpp
     src/app/rendercommon.cpp
     src/app/radiance.cpp
-        src/render/opengl.cpp
     src/app/batch.cpp
     src/app/main.cpp)
 add_executable(rpk ${MAIN_SRC})

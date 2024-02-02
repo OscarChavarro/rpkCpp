@@ -4,7 +4,7 @@ Jocabi or Gauss-Seidel Galerkin radiosity
 
 #include "java/util/ArrayList.txx"
 #include "shared/Camera.h"
-#include "shared/potential.h"
+#include "render/potential.h"
 #include "material/statistics.h"
 #include "GALERKIN/galerkinP.h"
 

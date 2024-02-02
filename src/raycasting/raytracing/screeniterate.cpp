@@ -1,6 +1,6 @@
 #include <ctime>
 
-#include "material/color.h"
+#include "common/color.h"
 #include "shared/Camera.h"
 #include "IMAGE/tonemap/tonemapping.h"
 #include "render/opengl.h"

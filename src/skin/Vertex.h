@@ -3,7 +3,7 @@
 
 #include "java/util/ArrayList.h"
 #include "common/linealAlgebra/Vector3D.h"
-#include "material/color.h"
+#include "common/color.h"
 #include "skin/PatchSet.h"
 
 class Patch;

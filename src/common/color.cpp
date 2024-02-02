@@ -1,10 +1,7 @@
-#include "material/color.h"
+#include "common/color.h"
 
 RGB GLOBAL_material_black = {0.0, 0.0, 0.0};
-RGB GLOBAL_material_red = {1.0, 0.0, 0.0};
 RGB GLOBAL_material_yellow = {1.0, 1.0, 0.0};
-RGB GLOBAL_material_green = {0.0, 1.0, 0.0};
-RGB GLOBAL_material_blue = {0.0, 0.0, 1.0};
 RGB GLOBAL_material_white = {1.0, 1.0, 1.0};
 
 RGB *

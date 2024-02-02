@@ -4,7 +4,7 @@
 #define _PHOTON_H_
 
 #include "common/linealAlgebra/vectorMacros.h"
-#include "material/color.h"
+#include "common/color.h"
 #include "scene/spherical.h"
 #include <cstring>
 

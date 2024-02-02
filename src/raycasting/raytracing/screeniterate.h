@@ -8,7 +8,7 @@
 #ifndef _SCREENITERATE_H_
 #define _SCREENITERATE_H_
 
-#include "material/color.h"
+#include "common/color.h"
 
 typedef COLOR(*SCREENITERATECALLBACK)(int, int, void *);
 

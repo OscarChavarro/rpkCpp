@@ -1,7 +1,7 @@
 #ifndef __COEFFICIENTS__
 #define __COEFFICIENTS__
 
-#include "material/color.h"
+#include "common/color.h"
 #include "raycasting/stochasticRaytracing/basismcrad.h"
 
 inline void

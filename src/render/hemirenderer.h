@@ -6,7 +6,7 @@
 #ifndef _HEMIRENDERER_H_
 #define _HEMIRENDERER_H_
 
-#include "material/color.h"
+#include "common/color.h"
 #include "common/linealAlgebra/vectorMacros.h"
 #include "scene/spherical.h"
 

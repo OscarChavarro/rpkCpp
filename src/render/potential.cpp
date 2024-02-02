@@ -10,7 +10,7 @@ Routines dealing with view potential
 #include "shared/render.h"
 #include "shared/canvas.h"
 #include "render/softids.h"
-#include "shared/potential.h"
+#include "render/potential.h"
 
 /**
 In analogy with Smits, "Importance-driven Radiosity", SIGGRAPH '92, we

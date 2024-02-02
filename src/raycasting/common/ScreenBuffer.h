@@ -5,7 +5,7 @@
 #include <cstdio>
 
 #include "IMAGE/imagecpp.h"
-#include "material/color.h"
+#include "common/color.h"
 #include "shared/Camera.h"
 
 /**
