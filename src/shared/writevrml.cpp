@@ -33,7 +33,7 @@ transformModelVRML(Vector3D *modelRotationAxis, float *modelRotationAngle) {
 /**
 Write VRML ViewPoint node for the given camera position
 */
-void
+static void
 writeVRMLViewPoint(FILE *fp, Matrix4x4 model_xf, Camera *cam, const char *viewPointName) {
     Vector3D X;
     Vector3D Y;

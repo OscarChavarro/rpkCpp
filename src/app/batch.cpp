@@ -213,22 +213,22 @@ batch(java::ArrayList<Patch *> *scenePatches, java::ArrayList<Patch *> *lightPat
 
             if ( (!(it % globalSaveModulo)) && *globalRadianceImageFileNameFormat ) {
                 int n = strlen(globalRadianceImageFileNameFormat) + 1;
-                char *fileName = (char *)malloc(n);
+                char *fileName = new char[n];
                 snprintf(fileName, n, globalRadianceImageFileNameFormat, it);
                 if ( GLOBAL_render_renderOptions.trace ) {
                     batchProcessFile(fileName, "w", batchSaveRadianceImage, scenePatches);
                 } else {
                     batchProcessFile(fileName, "w", batchSaveRadianceImage, scenePatches);
                 }
-                free(fileName);
+                delete[] fileName;
             }
 
             if ( *globalRadianceModelFileNameFormat ) {
                 int n = strlen(globalRadianceModelFileNameFormat) + 1;
-                char *fileName = (char *)malloc(n);
+                char *fileName = new char[n];
                 snprintf(fileName, n, globalRadianceModelFileNameFormat, it);
                 batchProcessFile(fileName, "w", batchSaveRadianceModel, scenePatches);
-                free(fileName);
+                delete[] fileName;
             }
 
             wasted_secs += (float) (wasted_start - clock()) / (float) CLOCKS_PER_SEC;

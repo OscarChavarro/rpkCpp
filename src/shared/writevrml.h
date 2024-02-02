@@ -11,7 +11,6 @@ extern void writeVRML(FILE *fp, java::ArrayList<Patch *> *scenePatches);
 extern void writeVrmlHeader(FILE *fp);
 extern void writeVRMLTrailer(FILE *fp);
 extern Matrix4x4 transformModelVRML(Vector3D *modelRotationAxis, float *modelRotationAngle);
-extern void writeVRMLViewPoint(FILE *fp, Matrix4x4 model_xf, Camera *cam, const char *viewPointName);
 extern void writeVRMLViewPoints(FILE *fp, Matrix4x4 model_xf);
 
 #endif

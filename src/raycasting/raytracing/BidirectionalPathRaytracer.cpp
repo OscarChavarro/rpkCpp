@@ -3,25 +3,18 @@
 #include <cstring>
 
 #include "common/error.h"
-#include "skin/radianceinterfaces.h"
-#include "scene/scene.h"
 #include "shared/stratification.h"
-#include "raycasting/common/ScreenBuffer.h"
 #include "raycasting/common/raytools.h"
 #include "raycasting/raytracing/BidirectionalPathRaytracer.h"
 #include "raycasting/raytracing/eyesampler.h"
-#include "raycasting/raytracing/pixelsampler.h"
 #include "raycasting/raytracing/lightsampler.h"
 #include "raycasting/raytracing/lightdirsampler.h"
 #include "raycasting/raytracing/bsdfsampler.h"
 #include "raycasting/raytracing/samplertools.h"
 #include "raycasting/raytracing/screeniterate.h"
-#include "raycasting/raytracing/bipath.h"
 #include "raycasting/raytracing/spar.h"
 #include "raycasting/raytracing/densitybuffer.h"
 #include "raycasting/raytracing/densitykernel.h"
-
-/*** Defines ***/
 
 /*** Persistent BidirPath state, contains actual GUI state and
      some other stuff ***/
@@ -40,13 +33,14 @@ class BPCONFIG {
     // Internal vars
     ScreenBuffer *screen;
     double fluxToRadFactor;
-    int nx, ny;
+    int nx;
+    int ny;
     double pdfLNE; // pdf for sampling light point separately
 
     CDensityBuffer *dBuffer;
     CDensityBuffer *dBuffer2;
-    float xsample, ysample;
-
+    float xSample;
+    float ySample;
     CPathNode *eyePath;
     CPathNode *lightPath;
 
@@ -272,15 +266,15 @@ void HandlePath_X_0(BPCONFIG *config, CBiPath *path) {
         if ( config->bcfg->useSpars ) {
             colorScale(factor, frad, frad);
             AddWithSpikeCheck(config, path, config->nx, config->ny,
-                              config->xsample, config->ysample, frad, pdf, weight, true);
+                              config->xSample, config->ySample, frad, pdf, weight, true);
             colorScale(factor, f, f);
             AddWithSpikeCheck(config, path, config->nx, config->ny,
-                              config->xsample, config->ysample, f, pdf, weight, false);
+                              config->xSample, config->ySample, f, pdf, weight, false);
 
         } else {
             colorScale(factor, f, f);
             AddWithSpikeCheck(config, path, config->nx, config->ny,
-                              config->xsample, config->ysample, f, pdf, weight);
+                              config->xSample, config->ySample, f, pdf, weight);
         }
 
         // Restore the Brdf and PDF evaluations
@@ -459,12 +453,12 @@ void HandlePath_X_X(BPCONFIG *config, CBiPath *path) {
         float factor = config->fluxToRadFactor / config->bcfg->samplesPerPixel;
         colorScale(factor, f, f);
         AddWithSpikeCheck(config, path, config->nx, config->ny,
-                          config->xsample, config->ysample, f, pdf, weight);
+                          config->xSample, config->ySample, f, pdf, weight);
 
         if ( config->bcfg->useSpars ) {
             colorScale(factor, frad, frad);
             AddWithSpikeCheck(config, path, config->nx, config->ny,
-                              config->xsample, config->ysample, frad, pdf, weight, true);
+                              config->xSample, config->ySample, frad, pdf, weight, true);
         }
     }
 
@@ -626,7 +620,8 @@ void BPCombinePaths(BPCONFIG *config) {
     }
 }
 
-static COLOR BPCalcPixel(int nx, int ny, BPCONFIG *config) {
+static COLOR
+BPCalcPixel(int nx, int ny, BPCONFIG *config) {
     int i;
     double x_1, x_2;
     COLOR result;
@@ -670,13 +665,13 @@ static COLOR BPCalcPixel(int nx, int ny, BPCONFIG *config) {
     for ( i = 0; i < config->bcfg->samplesPerPixel; i++ ) {
         if ( config->eyeConfig.maxDepth > 1 ) {
             // Generate an eye path
-            strat.Sample(&x_1, &x_2);
+            strat.sample(&x_1, &x_2);
 
             config->eyePath->m_rayType = Starts;
 
             Vector2D tmpVec2D = config->screen->getPixelCenter((int) (x_1), (int) (x_2));
-            config->xsample = tmpVec2D.u; // pix_x + (GLOBAL_camera_mainCamera.pixh * x_1);
-            config->ysample = tmpVec2D.v; //pix_y + (GLOBAL_camera_mainCamera.pixv * x_2);
+            config->xSample = tmpVec2D.u; // pix_x + (GLOBAL_camera_mainCamera.pixh * x_1);
+            config->ySample = tmpVec2D.v; //pix_y + (GLOBAL_camera_mainCamera.pixv * x_2);
 
             if ( config->eyeConfig.dirSampler->Sample(nullptr, config->eyePath,
                                                       pixNode, x_1, x_2)) {

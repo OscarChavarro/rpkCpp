@@ -98,7 +98,7 @@ COLOR SR_GetScatteredRadiance(CPathNode *thisNode, SRCONFIG *config,
             bool doRR = thisNode->m_depth >= config->samplerConfig.minDepth;
 
             for ( i = 0; i < nrSamples; i++ ) {
-                strat.Sample(&x_1, &x_2);
+                strat.sample(&x_1, &x_2);
 
                 // Surface sampling
 
@@ -184,7 +184,7 @@ COLOR SR_GetDirectRadiance(CPathNode *prevNode, SRCONFIG *config,
 
             for ( i = 0; i < config->nextEventSamples; i++ ) {
                 // Light sampling
-                strat.Sample(&x_1, &x_2);
+                strat.sample(&x_1, &x_2);
 
                 if ( config->samplerConfig.neSampler->Sample(prevNode->Previous(),
                                                              prevNode,
@@ -507,7 +507,7 @@ static COLOR CalcPixel(int nx, int ny, SRCONFIG *config) {
     // Stratified sampling of the pixel
 
     for ( i = 0; i < config->samplesPerPixel; i++ ) {
-        strat.Sample(&x_1, &x_2);
+        strat.sample(&x_1, &x_2);
 
         if ( config->samplerConfig.dirSampler->Sample(nullptr, &eyeNode,
                                                       &pixelNode, x_1,
