@@ -9,7 +9,7 @@
 #include "shared/render.h"
 #include "shared/canvas.h"
 #include "shared/renderhook.h"
-#include "softids.h"
+#include "render/softids.h"
 #include "IMAGE/tonemap/tonemapping.h"
 #include "render/opengl.h"
 
