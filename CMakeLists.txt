@@ -38,7 +38,7 @@ set(MAIN_SRC
     src/material/statistics.cpp
     src/material/xxdf.cpp
     src/material/btdf.cpp
-    src/material/cie.cpp
+        src/common/cie.cpp
     src/material/edf.cpp
     src/material/bsdf.cpp
     src/material/Material.cpp

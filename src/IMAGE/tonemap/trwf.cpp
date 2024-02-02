@@ -5,7 +5,7 @@ Tumblin/Rushmeier/Ward/Ferwerda tone maps (Jan Prikryl)
 #include "common/error.h"
 #include "common/rgb.h"
 #include "common/color.h"
-#include "material/cie.h"
+#include "common/cie.h"
 #include "common/mymath.h"
 #include "IMAGE/tonemap/trwf.h"
 

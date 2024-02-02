@@ -2,7 +2,7 @@
 #define __COLOR__
 
 #include "common/spectrum.h"
-#include "material/cie.h"
+#include "common/cie.h"
 #include "common/rgb.h"
 
 class COLOR {

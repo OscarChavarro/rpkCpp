@@ -1,4 +1,4 @@
-#include "material/cie.h"
+#include "common/cie.h"
 
 /* This code is a modified version of the CIE XYZ<->RGB code
  * in the mgf documentation */
