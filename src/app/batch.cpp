@@ -204,7 +204,11 @@ batch(java::ArrayList<Patch *> *scenePatches, java::ArrayList<Patch *> *lightPat
             fflush(stdout);
             fflush(stderr);
 
-            openGlRenderScene(scenePatches);
+            int (*f)() = nullptr;
+            if ( GLOBAL_raytracer_activeRaytracer != nullptr ) {
+                f = GLOBAL_raytracer_activeRaytracer->Redisplay;
+            }
+            openGlRenderScene(scenePatches, f);
 
             fflush(stdout);
             fflush(stderr);

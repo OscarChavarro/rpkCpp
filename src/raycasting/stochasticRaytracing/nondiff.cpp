@@ -6,6 +6,7 @@ Non diffuse first shot
 #include "material/statistics.h"
 #include "shared/render.h"
 #include "render/opengl.h"
+#include "raycasting/common/Raytracer.h"
 #include "raycasting/stochasticRaytracing/localline.h"
 #include "raycasting/stochasticRaytracing/mcradP.h"
 
@@ -164,5 +165,10 @@ doNonDiffuseFirstShot(java::ArrayList<Patch *> *scenePatches, java::ArrayList<Pa
     sampleLightSources(
             GLOBAL_stochasticRaytracing_monteCarloRadiosityState.initialLightSourceSamples * globalNumberOfLights);
     summarize(scenePatches);
-    openGlRenderScene(scenePatches);
+
+    int (*f)() = nullptr;
+    if ( GLOBAL_raytracer_activeRaytracer != nullptr ) {
+        f = GLOBAL_raytracer_activeRaytracer->Redisplay;
+    }
+    openGlRenderScene(scenePatches, f);
 }

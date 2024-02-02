@@ -348,8 +348,10 @@ ScreenBuffer::getPixel(float x, float y, int *nx, int *ny) const {
     *ny = getNy(y);
 }
 
-/* (unnormalised) vector pointing from the eye point to the */
-/* point with given fractional pixel coordinates. */
+/**
+Un-normalized vector pointing from the eye point to the
+point with given fractional pixel coordinates
+*/
 Vector3D
 ScreenBuffer::getPixelVector(int nx, int ny, float xoff, float yoff) const {
     Vector2D pix = getPixelPoint(nx, ny, xoff, yoff);
@@ -358,7 +360,9 @@ ScreenBuffer::getPixelVector(int nx, int ny, float xoff, float yoff) const {
     return dir;
 }
 
-/* Screen resolution */
+/**
+Screen resolution
+*/
 int
 ScreenBuffer::getHRes() const {
     return m_cam.xSize;

@@ -14,36 +14,40 @@
 #include "raycasting/simple/RayCaster.h"
 #include "render/opengl.h"
 
+class OctreeChild {
+public:
+    Geometry *geom;
+    float dist;
+};
+
 static int globalDisplayListId = -1;
 static int globalOpenGlInitialized = false;
 static GLubyte *globalBackground = nullptr;
 static GLuint globalBackgroundTex = 0;
-
-Raytracer *GLOBAL_raytracer_activeRaytracer = (Raytracer *) nullptr;
 
 /**
 Re-renders last ray-traced image if any, Returns TRUE if there is one,
 and FALSE if not
 */
 static int
-renderRayTraced(Raytracer *activeRayTracer) {
-    if ( activeRayTracer == nullptr || activeRayTracer->Redisplay == nullptr ) {
+openGlRenderRayTraced(int (*reDisplayCallback)()) {
+    if ( reDisplayCallback == nullptr ) {
         return false;
     } else {
-        return activeRayTracer->Redisplay();
+        return reDisplayCallback();
     }
 }
 
 void
-renderClearWindow() {
+openGlRenderClearWindow() {
     glClearColor(GLOBAL_camera_mainCamera.background.r, GLOBAL_camera_mainCamera.background.g, GLOBAL_camera_mainCamera.background.b, 0.0);
     glClearDepth(1.0);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
 void
-renderSetCamera() {
-    renderClearWindow();
+openGlRenderSetCamera() {
+    openGlRenderClearWindow();
 
     // use full viewport
     glViewport(0, 0, GLOBAL_camera_mainCamera.xSize, GLOBAL_camera_mainCamera.ySize);
@@ -77,7 +81,7 @@ openGlInitState() {
 
     glDrawBuffer(GL_FRONT_AND_BACK);
 
-    renderClearWindow();
+    openGlRenderClearWindow();
     glFinish();
 
     globalOpenGlInitialized = true;
@@ -161,12 +165,12 @@ openGlRenderSetLineWidth(float width) {
 Renders a convex polygon flat shaded in the current color
 */
 void
-openGlRenderPolygonFlat(int nrverts, Vector3D *verts) {
+openGlRenderPolygonFlat(int numberOfVertices, Vector3D *vertices) {
     int i;
 
     glBegin(GL_POLYGON);
-    for ( i = 0; i < nrverts; i++ ) {
-        glVertex3fv((GLfloat *) &verts[i]);
+    for ( i = 0; i < numberOfVertices; i++ ) {
+        glVertex3fv((GLfloat *) &vertices[i]);
     }
     glEnd();
 }
@@ -175,13 +179,13 @@ openGlRenderPolygonFlat(int nrverts, Vector3D *verts) {
 Renders a convex polygon with Gouraud shading
 */
 void
-openGlRenderPolygonGouraud(int nrverts, Vector3D *verts, RGB *vertcols) {
+openGlRenderPolygonGouraud(int numberOfVertices, Vector3D *vertices, RGB *verticesColors) {
     int i;
 
     glBegin(GL_POLYGON);
-    for ( i = 0; i < nrverts; i++ ) {
-        openGlRenderSetColor(&vertcols[i]);
-        glVertex3fv((GLfloat *) &verts[i]);
+    for ( i = 0; i < numberOfVertices; i++ ) {
+        openGlRenderSetColor(&verticesColors[i]);
+        glVertex3fv((GLfloat *) &vertices[i]);
     }
     glEnd();
 }
@@ -214,9 +218,7 @@ openGlRenderEndTriangleStrip() {
 }
 
 void
-renderPatchFlat(Patch *patch) {
-    int i;
-
+openGlRenderPatchFlat(Patch *patch) {
     openGlRenderSetColor(&patch->color);
     switch ( patch->numberOfVertices ) {
         case 3:
@@ -236,7 +238,7 @@ renderPatchFlat(Patch *patch) {
             break;
         default:
             glBegin(GL_POLYGON);
-            for ( i = 0; i < patch->numberOfVertices; i++ ) {
+            for ( int i = 0; i < patch->numberOfVertices; i++ ) {
                 glVertex3fv((GLfloat *) patch->vertex[i]->point);
             }
             glEnd();
@@ -244,7 +246,7 @@ renderPatchFlat(Patch *patch) {
 }
 
 void
-renderPatchSmooth(Patch *patch) {
+openGlRenderPatchSmooth(Patch *patch) {
     int i;
 
     switch ( patch->numberOfVertices ) {
@@ -306,9 +308,9 @@ void
 openGlRenderPatch(Patch *patch) {
     if ( !GLOBAL_render_renderOptions.no_shading ) {
         if ( GLOBAL_render_renderOptions.smooth_shading ) {
-            renderPatchSmooth(patch);
+            openGlRenderPatchSmooth(patch);
         } else {
-            renderPatchFlat(patch);
+            openGlRenderPatchFlat(patch);
         }
     }
 
@@ -321,7 +323,7 @@ openGlRenderPatch(Patch *patch) {
 }
 
 static void
-reallyRenderOctreeLeaf(Geometry *geometry, void (*renderPatch)(Patch *)) {
+openGlReallyRenderOctreeLeaf(Geometry *geometry, void (*renderPatch)(Patch *)) {
     java::ArrayList<Patch *> *patchList = geomPatchArrayList(geometry);
     for ( int i = 0; patchList != nullptr && i < patchList->size(); i++ ) {
         renderPatch(patchList->get(i));
@@ -329,25 +331,24 @@ reallyRenderOctreeLeaf(Geometry *geometry, void (*renderPatch)(Patch *)) {
 }
 
 static void
-renderOctreeLeaf(Geometry *geom, void (*render_patch)(Patch *)) {
+openGlRenderOctreeLeaf(Geometry *geom, void (*render_patch)(Patch *)) {
     if ( GLOBAL_render_renderOptions.use_display_lists ) {
         if ( geom->displayListId <= 0 ) {
             geom->displayListId = geom->id;
             glNewList(geom->displayListId, GL_COMPILE_AND_EXECUTE);
-            reallyRenderOctreeLeaf(geom, render_patch);
+            openGlReallyRenderOctreeLeaf(geom, render_patch);
             glEndList();
         } else {
             glCallList(geom->displayListId);
         }
     } else {
-        reallyRenderOctreeLeaf(geom, render_patch);
+        openGlReallyRenderOctreeLeaf(geom, render_patch);
     }
 }
 
 static int
-viewCullBounds(float *bounds) {
-    int i;
-    for ( i = 0; i < NUMBER_OF_VIEW_PLANES; i++ ) {
+openGlViewCullBounds(float *bounds) {
+    for ( int i = 0; i < NUMBER_OF_VIEW_PLANES; i++ ) {
         if ( boundsBehindPlane(bounds, &GLOBAL_camera_mainCamera.viewPlane[i].normal,
                                GLOBAL_camera_mainCamera.viewPlane[i].d)) {
             return true;
@@ -360,7 +361,7 @@ viewCullBounds(float *bounds) {
 Squared distance to midpoint (avoid taking square root)
 */
 static float
-boundsDistance2(Vector3D p, float *bounds) {
+openGlBoundsDistance2(Vector3D p, float *bounds) {
     Vector3D mid, d;
     VECTORSET(mid,
               0.5f * (bounds[MIN_X] + bounds[MAX_X]),
@@ -370,14 +371,8 @@ boundsDistance2(Vector3D p, float *bounds) {
     return VECTORNORM2(d);
 }
 
-class OctreeChild {
-  public:
-    Geometry *geom;
-    float dist;
-};
-
 /**
-geometry is a surface or a compoint with 1 surface and up to 8 compound children geoms,
+Geometry is a surface or a compound with 1 surface and up to 8 compound children geometries,
 CLusetredWorldGeom is such a geometry e.g.
 */
 static void
@@ -397,19 +392,20 @@ renderOctreeNonLeaf(Geometry *geometry, void (*render_patch)(Patch *)) {
             octree_children[i++].geom = child;
         } else {
             // render the patches associated with the octree node right away
-            renderOctreeLeaf(child, render_patch);
+            openGlRenderOctreeLeaf(child, render_patch);
         }
     }
     n = i; // Number of compound children
 
     // cull the non-leaf octree children geoms
     for ( i = 0; i < n; i++ ) {
-        if ( viewCullBounds(octree_children[i].geom->bounds)) {
+        if ( openGlViewCullBounds(octree_children[i].geom->bounds)) {
             octree_children[i].geom = nullptr; // culled
             octree_children[i].dist = HUGE;
         } else {
             // not culled, compute distance from eye to midpoint of child
-            octree_children[i].dist = boundsDistance2(GLOBAL_camera_mainCamera.eyePosition, octree_children[i].geom->bounds);
+            octree_children[i].dist = openGlBoundsDistance2(GLOBAL_camera_mainCamera.eyePosition,
+                                                            octree_children[i].geom->bounds);
         }
     }
 
@@ -454,12 +450,12 @@ openGlRenderWorldOctree(void (*render_patch)(Patch *)) {
     if ( geomIsAggregate(GLOBAL_scene_clusteredWorldGeom)) {
         renderOctreeNonLeaf(GLOBAL_scene_clusteredWorldGeom, render_patch);
     } else {
-        renderOctreeLeaf(GLOBAL_scene_clusteredWorldGeom, render_patch);
+        openGlRenderOctreeLeaf(GLOBAL_scene_clusteredWorldGeom, render_patch);
     }
 }
 
 static void
-geometryDeleteDLists(Geometry *geom) {
+openGlGeometryDeleteDLists(Geometry *geom) {
     if ( geom->displayListId >= 0 ) {
         glDeleteLists(geom->displayListId, 1);
     }
@@ -469,15 +465,15 @@ geometryDeleteDLists(Geometry *geom) {
         GeometryListNode *children = geomPrimList(geom);
         for ( GeometryListNode *window = children; window != nullptr; window = window->next ) { \
             Geometry *child = window->geom;
-            geometryDeleteDLists(child);
+            openGlGeometryDeleteDLists(child);
         }
     }
 }
 
 static void
-renderNewOctreeDisplayLists() {
+openGlRenderNewOctreeDisplayLists() {
     if ( GLOBAL_scene_clusteredWorldGeom ) {
-        geometryDeleteDLists(GLOBAL_scene_clusteredWorldGeom);
+        openGlGeometryDeleteDLists(GLOBAL_scene_clusteredWorldGeom);
     }
 }
 
@@ -493,12 +489,12 @@ openGlRenderNewDisplayList() {
     globalDisplayListId = -1;
 
     if ( GLOBAL_render_renderOptions.frustum_culling ) {
-        renderNewOctreeDisplayLists();
+        openGlRenderNewOctreeDisplayLists();
     }
 }
 
-void
-reallyRender(java::ArrayList<Patch *> *scenePatches) {
+static void
+openGlReallyRender(java::ArrayList<Patch *> *scenePatches) {
     if ( GLOBAL_radiance_currentRadianceMethodHandle && GLOBAL_radiance_currentRadianceMethodHandle->renderScene ) {
         GLOBAL_radiance_currentRadianceMethodHandle->renderScene(scenePatches);
     } else if ( GLOBAL_render_renderOptions.frustum_culling ) {
@@ -510,15 +506,15 @@ reallyRender(java::ArrayList<Patch *> *scenePatches) {
     }
 }
 
-void
-renderRadiance(java::ArrayList<Patch *> *scenePatches) {
+static void
+openGlRenderRadiance(java::ArrayList<Patch *> *scenePatches) {
     if ( GLOBAL_render_renderOptions.smooth_shading ) {
         glShadeModel(GL_SMOOTH);
     } else {
         glShadeModel(GL_FLAT);
     }
 
-    renderSetCamera();
+    openGlRenderSetCamera();
 
     if ( GLOBAL_render_renderOptions.backface_culling ) {
         glEnable(GL_CULL_FACE);
@@ -531,14 +527,14 @@ renderRadiance(java::ArrayList<Patch *> *scenePatches) {
             globalDisplayListId = 1;
             glNewList(globalDisplayListId, GL_COMPILE_AND_EXECUTE);
             // Render the scene
-            reallyRender(scenePatches);
+            openGlReallyRender(scenePatches);
             glEndList();
         } else {
             glCallList(1);
         }
     } else {
         // Just render the scene
-        reallyRender(scenePatches);
+        openGlReallyRender(scenePatches);
     }
 
     if ( GLOBAL_render_renderOptions.draw_bounding_boxes ) {
@@ -558,7 +554,7 @@ renderRadiance(java::ArrayList<Patch *> *scenePatches) {
 Renders the whole scene
 */
 void
-openGlRenderScene(java::ArrayList<Patch *> *scenePatches) {
+openGlRenderScene(java::ArrayList<Patch *> *scenePatches, int (*reDisplayCallback)()) {
     if ( !globalOpenGlInitialized ) {
         return;
     }
@@ -571,8 +567,8 @@ openGlRenderScene(java::ArrayList<Patch *> *scenePatches) {
         GLOBAL_render_renderOptions.render_raytraced_image = false;
     }
 
-    if ( !GLOBAL_render_renderOptions.render_raytraced_image || !renderRayTraced(GLOBAL_raytracer_activeRaytracer)) {
-        renderRadiance(scenePatches);
+    if ( !GLOBAL_render_renderOptions.render_raytraced_image || !openGlRenderRayTraced(reDisplayCallback)) {
+        openGlRenderRadiance(scenePatches);
     }
 
     // Call installed render hooks, that want to render something in the scene
@@ -697,7 +693,7 @@ sglRenderIds(long *x, long *y, java::ArrayList<Patch *> *scenePatches) {
 }
 
 static void
-renderFrustum(Camera *cam) {
+openGlRenderFrustum(Camera *cam) {
     Vector3D c;
     Vector3D P;
     Vector3D Q;
@@ -745,7 +741,7 @@ Renders alternate camera, virtual screen etc ... for didactical pictures etc
 */
 void
 openGlRenderCameras() {
-    renderFrustum(&GLOBAL_camera_alternateCamera);
+    openGlRenderFrustum(&GLOBAL_camera_alternateCamera);
 }
 
 /**

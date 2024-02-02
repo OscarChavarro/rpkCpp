@@ -53,6 +53,7 @@ class Raytracer {
     void (*Terminate)();
 };
 
+extern Raytracer *GLOBAL_raytracer_activeRaytracer;
 extern double GLOBAL_raytracer_totalTime; // statistics: raytracing time
 extern long GLOBAL_raytracer_rayCount; // statistics: number of rays traced
 extern long GLOBAL_raytracer_pixelCount; // statistics: number of pixels drawn

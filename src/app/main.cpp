@@ -610,7 +610,11 @@ createOffscreenCanvasWindow(int width, int height, java::ArrayList<Patch *> *sce
               GLOBAL_camera_mainCamera.fov, width, height, &GLOBAL_camera_mainCamera.background);
 
     // Render the scene (no expose events on the external canvas window!)
-    openGlRenderScene(scenePatches);
+    int (*f)() = nullptr;
+    if ( GLOBAL_raytracer_activeRaytracer != nullptr ) {
+        f = GLOBAL_raytracer_activeRaytracer->Redisplay;
+    }
+    openGlRenderScene(scenePatches, f);
 }
 
 static void
@@ -625,7 +629,12 @@ mainExecuteRendering(java::ArrayList<Patch *> *scenePatches) {
     createOffscreenCanvasWindow(globalImageOutputWidth, globalImageOutputHeight, scenePatches);
 
     while ( !openGlRenderInitialized() );
-    openGlRenderScene(scenePatches);
+
+    int (*f)() = nullptr;
+    if ( GLOBAL_raytracer_activeRaytracer != nullptr ) {
+        f = GLOBAL_raytracer_activeRaytracer->Redisplay;
+    }
+    openGlRenderScene(scenePatches, f);
 
     batch(scenePatches, globalLightSourcePatches);
 }
