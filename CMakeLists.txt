@@ -75,7 +75,7 @@ set(MAIN_SRC
     src/SGL/poly_scan_z.cpp
     src/SGL/sgl.cpp
     src/SGL/poly_scan_flat.cpp
-    src/shared/hemirenderer.cpp
+        src/render/hemirenderer.cpp
     src/shared/potential.cpp
     src/shared/options.cpp
     src/shared/samplegrid.cpp
@@ -87,7 +87,7 @@ set(MAIN_SRC
     src/shared/Camera.cpp
     src/shared/canvas.cpp
     src/shared/stratification.cpp
-    src/shared/softids.cpp
+        src/render/softids.cpp
     src/shared/writevrml.cpp
     src/shared/cubature.cpp
     src/IMAGE/pic.cpp

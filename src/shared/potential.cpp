@@ -9,7 +9,7 @@ Routines dealing with view potential
 #include "material/statistics.h"
 #include "shared/render.h"
 #include "shared/canvas.h"
-#include "shared/softids.h"
+#include "render/softids.h"
 #include "shared/potential.h"
 
 /**

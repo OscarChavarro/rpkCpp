@@ -532,7 +532,7 @@ double CPhotonMap::Sample(Vector3D &pos, double *r, double *s,
 }
 
 
-#include "shared/hemirenderer.h"
+#include "render/hemirenderer.h"
 
 float CPhotonMap::GetGridValue(double phi, double theta) {
     double s = phi / (2 * M_PI);

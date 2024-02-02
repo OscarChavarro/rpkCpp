@@ -9,7 +9,7 @@ formats, etc.
 #include "common/error.h"
 #include "render/opengl.h"
 #include "shared/render.h"
-#include "shared/softids.h"
+#include "render/softids.h"
 
 /**
 Sets up a software rendering context and initialises transforms and

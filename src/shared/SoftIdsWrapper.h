@@ -2,7 +2,7 @@
 #define _CXX_SOFTIDS_H_
 
 #include "java/util/ArrayList.h"
-#include "shared/softids.h"
+#include "render/softids.h"
 
 class Soft_ID_Renderer {
   protected:
