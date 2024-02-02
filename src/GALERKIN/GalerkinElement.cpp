@@ -4,6 +4,7 @@
 #include "GALERKIN/basisgalerkin.h"
 #include "GALERKIN/clustergalerkincpp.h"
 #include "GALERKIN/GalerkinElement.h"
+#include "render/opengl.h"
 
 // Element render modes, additive
 #define OUTLINE 1

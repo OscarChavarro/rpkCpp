@@ -2,8 +2,8 @@
 
 #include "material/color.h"
 #include "shared/Camera.h"
-#include "shared/render.h"
 #include "IMAGE/tonemap/tonemapping.h"
+#include "render/opengl.h"
 #include "raycasting/common/raytools.h"
 #include "raycasting/common/Raytracer.h"
 #include "raycasting/raytracing/screeniterate.h"

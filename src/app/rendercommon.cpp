@@ -3,13 +3,14 @@ Rendering stuff independent of the graphics library being used
 */
 
 #include "common/mymath.h"
-#include "shared/render.h"
 #include "common/linealAlgebra/vectorMacros.h"
 #include "scene/scene.h"
 #include "shared/Camera.h"
 #include "skin/Geometry.h"
 #include "shared/options.h"
-#include "raycasting/common/Raytracer.h"
+#include "render/opengl.h"
+#include "shared/render.h"
+
 
 RENDEROPTIONS GLOBAL_render_renderOptions;
 

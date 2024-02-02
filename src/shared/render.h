@@ -35,21 +35,6 @@ class RENDEROPTIONS {
 
 extern RENDEROPTIONS GLOBAL_render_renderOptions;
 
-extern void openGlRenderLine(Vector3D *x, Vector3D *y);
-extern void openGlRenderSetColor(RGB *rgb);
-extern void openGlRenderWorldOctree(void (*render_patch)(Patch *));
-extern void openGlRenderScene(java::ArrayList<Patch *> *scenePatches);
-extern void openGlMesaRenderCreateOffscreenWindow(int width, int height);
-extern void openGlRenderBeginTriangleStrip();
-extern void openGlRenderNextTrianglePoint(Vector3D *point, RGB *col);
-extern void openGlRenderEndTriangleStrip();
-extern void openGlRenderPatchOutline(Patch *patch);
-extern void openGlRenderPolygonFlat(int nrverts, Vector3D *verts);
-extern void openGlRenderPolygonGouraud(int nrverts, Vector3D *verts, RGB *vertcols);
-extern void openGlRenderPixels(int x, int y, int width, int height, RGB *rgb);
-extern void openGlRenderPatch(Patch *patch);
-extern void openGlRenderNewDisplayList();
-
 extern unsigned long *sglRenderIds(long *x, long *y, java::ArrayList<Patch *> *scenePatches);
 
 extern void renderBounds(BOUNDINGBOX bounds);

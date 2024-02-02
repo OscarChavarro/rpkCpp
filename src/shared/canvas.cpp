@@ -12,19 +12,6 @@ is pushed on a stack and restored afterwards
 #define CANVAS_MODE_STACK_SIZE 5
 static int globalModeStackIndex;
 
-void
-createOffscreenCanvasWindow(int width, int height, java::ArrayList<Patch *> *scenePatches) {
-    openGlMesaRenderCreateOffscreenWindow(width, height);
-
-    // Set correct width and height for the camera
-    cameraSet(&GLOBAL_camera_mainCamera, &GLOBAL_camera_mainCamera.eyePosition, &GLOBAL_camera_mainCamera.lookPosition,
-              &GLOBAL_camera_mainCamera.upDirection,
-              GLOBAL_camera_mainCamera.fov, width, height, &GLOBAL_camera_mainCamera.background);
-
-    // Render the scene (no expose events on the external canvas window!)
-    openGlRenderScene(scenePatches);
-}
-
 /**
 Pushes the current canvas mode on the canvas mode stack, so it can be restored later
 */

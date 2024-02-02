@@ -2,8 +2,8 @@
 #include <cstring>
 
 #include "common/error.h"
-#include "shared/render.h"
 #include "material/statistics.h"
+#include "render/opengl.h"
 #include "io/FileUncompressWrapper.h"
 #include "IMAGE/tonemap/tonemapping.h"
 #include "raycasting/common/ScreenBuffer.h"

@@ -1,18 +1,18 @@
-/* 
- * hemirenderer.C : tool class to render data defined on the
- *   hemisphere. 
- */
-#include <cmath>
-
+/**
+Tool class to render data defined on the hemisphere
+*/
 #include "shared/hemirenderer.h"
 #include "common/linealAlgebra/vectorMacros.h"
 #include "material/color.h"
-#include "shared/render.h"
 #include "shared/renderhook.h"
+#include "render/opengl.h"
 
-// Constructor : nr. of steps in phi and theta
-CHemisphereRenderer::CHemisphereRenderer() {
-    m_phiSteps = m_thetaSteps = 0;
+/**
+Constructor : nr. of steps in phi and theta
+*/
+CHemisphereRenderer::CHemisphereRenderer(): m_deltaPhi(), m_deltaTheta() {
+    m_phiSteps = 0;
+    m_thetaSteps = 0;
     m_renderData = nullptr;
     m_renderEnabled = false;
 }
@@ -27,12 +27,17 @@ CHemisphereRenderer::~CHemisphereRenderer() {
 
 // AcquireData fills in the data on the hemisphere.
 // The callback is called for every phi and theta value.
-
-void CHemisphereRenderer::Initialize(int Nphi, int Ntheta,
-                                     Vector3D center, COORDSYS *coordsys,
-                                     CHRAcquireCallback cb, void *cbData) {
+void
+CHemisphereRenderer::Initialize(
+    int Nphi,
+    int Ntheta,
+    Vector3D center,
+    COORDSYS *coordsys,
+    CHRAcquireCallback cb,
+    void *cbData)
+{
     Vector3D vec;
-    RGB col;
+    RGB col{};
     double curPhi, curTheta, dist;
     int t, p, index;
 

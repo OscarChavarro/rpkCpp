@@ -7,6 +7,7 @@ formats, etc.
 
 #include "java/util/ArrayList.txx"
 #include "common/error.h"
+#include "render/opengl.h"
 #include "shared/render.h"
 #include "shared/softids.h"
 

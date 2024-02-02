@@ -172,7 +172,7 @@ set(MAIN_SRC
     src/app/Cluster.cpp
     src/app/rendercommon.cpp
     src/app/radiance.cpp
-    src/app/opengl.cpp
+        src/render/opengl.cpp
     src/app/batch.cpp
     src/app/main.cpp)
 add_executable(rpk ${MAIN_SRC})

@@ -15,7 +15,7 @@
 #include "IMAGE/tonemap/tonemapping.h"
 #include "io/mgf/readmgf.h"
 #include "io/mgf/fileopts.h"
-#include "app/opengl.h"
+#include "render/opengl.h"
 #include "app/Cluster.h"
 #include "app/batch.h"
 #include "shared/canvas.h"
@@ -600,7 +600,20 @@ mainBuildModel(const int *argc, char *const *argv) {
     }
 }
 
-void
+static void
+createOffscreenCanvasWindow(int width, int height, java::ArrayList<Patch *> *scenePatches) {
+    openGlMesaRenderCreateOffscreenWindow(width, height);
+
+    // Set correct width and height for the camera
+    cameraSet(&GLOBAL_camera_mainCamera, &GLOBAL_camera_mainCamera.eyePosition, &GLOBAL_camera_mainCamera.lookPosition,
+              &GLOBAL_camera_mainCamera.upDirection,
+              GLOBAL_camera_mainCamera.fov, width, height, &GLOBAL_camera_mainCamera.background);
+
+    // Render the scene (no expose events on the external canvas window!)
+    openGlRenderScene(scenePatches);
+}
+
+static void
 mainExecuteRendering(java::ArrayList<Patch *> *scenePatches) {
     // Create the window in which to render (canvas window)
     if ( globalImageOutputWidth <= 0 ) {

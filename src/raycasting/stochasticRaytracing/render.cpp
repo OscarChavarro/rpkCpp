@@ -7,6 +7,7 @@ Rendering elements
 #include "IMAGE/tonemap/tonemapping.h"
 #include "raycasting/stochasticRaytracing/mcradP.h"
 #include "raycasting/stochasticRaytracing/hierarchy.h"
+#include "render/opengl.h"
 
 RGB
 elementColor(StochasticRadiosityElement *element) {

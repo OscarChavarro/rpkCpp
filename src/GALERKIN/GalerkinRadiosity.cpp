@@ -16,6 +16,7 @@ potential-driven or not.
 #include "shared/Camera.h"
 #include "shared/options.h"
 #include "shared/writevrml.h"
+#include "render/opengl.h"
 #include "IMAGE/tonemap/tonemapping.h"
 #include "GALERKIN/GalerkinRadiosity.h"
 #include "GALERKIN/galerkinP.h"

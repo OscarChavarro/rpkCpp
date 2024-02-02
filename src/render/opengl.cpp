@@ -12,7 +12,7 @@
 #include "shared/softids.h"
 #include "IMAGE/tonemap/tonemapping.h"
 #include "raycasting/simple/RayCaster.h"
-#include "app/opengl.h"
+#include "render/opengl.h"
 
 static int globalDisplayListId = -1;
 static int globalOpenGlInitialized = false;

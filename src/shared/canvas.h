@@ -4,7 +4,6 @@
 #include "java/util/ArrayList.h"
 #include "skin/Patch.h"
 
-extern void createOffscreenCanvasWindow(int width, int height, java::ArrayList<Patch *> *scenePatches);
 extern void canvasPushMode();
 extern void canvasPullMode();
 

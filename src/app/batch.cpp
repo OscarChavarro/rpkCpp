@@ -11,7 +11,7 @@
 #include "shared/render.h"
 #include "io/FileUncompressWrapper.h"
 #include "raycasting/common/Raytracer.h"
-#include "app/opengl.h"
+#include "render/opengl.h"
 #include "app/batch.h"
 
 static int globalIterations = 1; // Radiance method iterations

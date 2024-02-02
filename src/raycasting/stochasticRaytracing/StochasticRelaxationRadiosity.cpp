@@ -5,12 +5,12 @@ Stochastic Relaxation Radiosity (currently only stochastic Jacobi)
 #include "java/util/ArrayList.txx"
 #include "common/error.h"
 #include "material/statistics.h"
-#include "scene/scene.h"
 #include "shared/render.h"
 #include "raycasting/stochasticRaytracing/vrml/vrml.h"
 #include "raycasting/stochasticRaytracing/mcradP.h"
 #include "raycasting/stochasticRaytracing/hierarchy.h"
 #include "raycasting/stochasticRaytracing/stochjacobi.h"
+#include "render/opengl.h"
 
 static void
 stochasticRelaxationRadiosityInit(java::ArrayList<Patch *> * /*scenePatches*/) {
