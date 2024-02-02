@@ -42,8 +42,7 @@ set(MAIN_SRC
     src/material/edf.cpp
     src/material/bsdf.cpp
     src/material/Material.cpp
-    src/BREP/BREP_VERTEX_OCTREE.cpp
-    src/skin/PatchSet.cpp
+        src/skin/PatchSet.cpp
     src/skin/hit.cpp
     src/skin/Compound.cpp
     src/skin/geomlist.cpp

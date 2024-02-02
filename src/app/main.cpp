@@ -3,7 +3,6 @@
 
 #include "java/util/ArrayList.txx"
 #include "common/error.h"
-#include "BREP/BREP_VERTEX_OCTREE.h"
 #include "material/statistics.h"
 #include "skin/radianceinterfaces.h"
 #include "common/options.h"
@@ -315,11 +314,6 @@ mainInit() {
     // vertices without normal, but at the same location, are to be considered
     // different
     vertexSetCompareFlags(VERTEX_COMPARE_LOCATION | VERTEX_COMPARE_NORMAL);
-
-    // Specify what routines to be used to compare vertices when using
-    // BREP_VERTEX_OCTREEs
-    brepSetVertexCompareRoutine((BREP_COMPARE_FUNC) vertexCompare);
-    brepSetVertexCompareLocationRoutine((BREP_COMPARE_FUNC) vertexCompareLocation);
 }
 
 /**
