@@ -14,12 +14,25 @@
 #include "raycasting/simple/RayCaster.h"
 #include "app/opengl.h"
 
-static int displayListId = -1;
-static int openglInitialized = false;
-static GLubyte *background_ptr = nullptr;
-static GLuint backgroundTex = 0;
+static int globalDisplayListId = -1;
+static int globalOpenGlInitialized = false;
+static GLubyte *globalBackground = nullptr;
+static GLuint globalBackgroundTex = 0;
 
 Raytracer *GLOBAL_raytracer_activeRaytracer = (Raytracer *) nullptr;
+
+/**
+Re-renders last ray-traced image if any, Returns TRUE if there is one,
+and FALSE if not
+*/
+static int
+renderRayTraced(Raytracer *activeRayTracer) {
+    if ( activeRayTracer == nullptr || activeRayTracer->Redisplay == nullptr ) {
+        return false;
+    } else {
+        return activeRayTracer->Redisplay();
+    }
+}
 
 void
 renderClearWindow() {
@@ -36,8 +49,8 @@ renderSetCamera() {
     glViewport(0, 0, GLOBAL_camera_mainCamera.xSize, GLOBAL_camera_mainCamera.ySize);
 
     // draw backgroudn when needed
-    if ( GLOBAL_render_renderOptions.use_background && background_ptr ) {
-        renderBackground(&GLOBAL_camera_mainCamera);
+    if ( GLOBAL_render_renderOptions.use_background && globalBackground ) {
+        openGlRenderBackground(&GLOBAL_camera_mainCamera);
     }
 
     // determine distance to front- and backclipping plane
@@ -67,8 +80,8 @@ openGlInitState() {
     renderClearWindow();
     glFinish();
 
-    openglInitialized = true;
-    displayListId = -1;
+    globalOpenGlInitialized = true;
+    globalDisplayListId = -1;
 }
 
 /**
@@ -97,8 +110,8 @@ Returns FALSE until rendering is fully initialized. Do not attempt to
 render something until this function returns TRUE
 */
 int
-renderInitialized() {
-    return openglInitialized;
+openGlRenderInitialized() {
+    return globalOpenGlInitialized;
 }
 
 /**
@@ -140,7 +153,7 @@ openGlRenderSetColor(RGB *rgb) {
 Sets line width for outlines, etc
 */
 void
-renderSetLineWidth(float width) {
+openGlRenderSetLineWidth(float width) {
     glLineWidth(width);
 }
 
@@ -474,10 +487,10 @@ compiled and rendered from now on. Only relevant when using display lists
 */
 void
 openGlRenderNewDisplayList() {
-    if ( displayListId >= 0 ) {
-        glDeleteLists(displayListId, 1);
+    if ( globalDisplayListId >= 0 ) {
+        glDeleteLists(globalDisplayListId, 1);
     }
-    displayListId = -1;
+    globalDisplayListId = -1;
 
     if ( GLOBAL_render_renderOptions.frustum_culling ) {
         renderNewOctreeDisplayLists();
@@ -514,9 +527,9 @@ renderRadiance(java::ArrayList<Patch *> *scenePatches) {
     }
 
     if ( GLOBAL_render_renderOptions.use_display_lists && !GLOBAL_render_renderOptions.frustum_culling ) {
-        if ( displayListId <= 0 ) {
-            displayListId = 1;
-            glNewList(displayListId, GL_COMPILE_AND_EXECUTE);
+        if ( globalDisplayListId <= 0 ) {
+            globalDisplayListId = 1;
+            glNewList(globalDisplayListId, GL_COMPILE_AND_EXECUTE);
             // Render the scene
             reallyRender(scenePatches);
             glEndList();
@@ -537,7 +550,7 @@ renderRadiance(java::ArrayList<Patch *> *scenePatches) {
     }
 
     if ( GLOBAL_render_renderOptions.draw_cameras ) {
-        renderCameras();
+        openGlRenderCameras();
     }
 }
 
@@ -546,11 +559,11 @@ Renders the whole scene
 */
 void
 openGlRenderScene(java::ArrayList<Patch *> *scenePatches) {
-    if ( !openglInitialized ) {
+    if ( !globalOpenGlInitialized ) {
         return;
     }
 
-    renderSetLineWidth(GLOBAL_render_renderOptions.linewidth);
+    openGlRenderSetLineWidth(GLOBAL_render_renderOptions.linewidth);
 
     canvasPushMode();
 
@@ -633,7 +646,7 @@ openGlRenderPixels(int x, int y, int width, int height, RGB *rgb) {
 Saves a RGB image in the front buffer
 */
 void
-saveScreen(char *fileName, FILE *fp, int isPipe, java::ArrayList<Patch *> *scenePatches) {
+openGlSaveScreen(char *fileName, FILE *fp, int isPipe, java::ArrayList<Patch *> *scenePatches) {
     ImageOutputHandle *img;
     long j, x = GLOBAL_camera_mainCamera.xSize, y = GLOBAL_camera_mainCamera.ySize;
     GLubyte *screen;
@@ -731,7 +744,7 @@ renderFrustum(Camera *cam) {
 Renders alternate camera, virtual screen etc ... for didactical pictures etc
 */
 void
-renderCameras() {
+openGlRenderCameras() {
     renderFrustum(&GLOBAL_camera_alternateCamera);
 }
 
@@ -739,7 +752,7 @@ renderCameras() {
 Display background, no Z-buffer, fill whole screen
 */
 void
-renderBackground(Camera *camera) {
+openGlRenderBackground(Camera *camera) {
     // Turn off Z-buffer
     glDisable(GL_DEPTH_TEST);
 
@@ -756,7 +769,7 @@ renderBackground(Camera *camera) {
     // Draw background (as texture)
     glEnable(GL_TEXTURE_2D);
     glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
-    glBindTexture(GL_TEXTURE_2D, backgroundTex);
+    glBindTexture(GL_TEXTURE_2D, globalBackgroundTex);
     glBegin(GL_QUADS);
     glTexCoord2f(0.0f, 1.0f);
     glVertex3f(0.0f, 0.0f, 0.0f);
@@ -778,17 +791,4 @@ renderBackground(Camera *camera) {
 
     // Enable Z-buffer back
     glEnable(GL_DEPTH_TEST);
-}
-
-/**
-Re-renders last ray-traced image if any, Returns TRUE if there is one,
-and FALSE if not
-*/
-int
-renderRayTraced(Raytracer *activeRayTracer) {
-    if ( activeRayTracer == nullptr || activeRayTracer->Redisplay == nullptr ) {
-        return false;
-    } else {
-        return activeRayTracer->Redisplay();
-    }
 }

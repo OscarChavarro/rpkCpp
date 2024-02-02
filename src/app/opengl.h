@@ -5,11 +5,10 @@
 
 extern Raytracer *GLOBAL_raytracer_activeRaytracer;
 
-extern int renderRayTraced(Raytracer *activeRayTracer);
-extern int renderInitialized();
-extern void saveScreen(char *fileName, FILE *fp, int isPipe, java::ArrayList<Patch *> *scenePatches);
-extern void renderCameras();
-extern void renderSetLineWidth(float width);
-extern void renderBackground(Camera *camera);
+extern int openGlRenderInitialized();
+extern void openGlSaveScreen(char *fileName, FILE *fp, int isPipe, java::ArrayList<Patch *> *scenePatches);
+extern void openGlRenderCameras();
+extern void openGlRenderSetLineWidth(float width);
+extern void openGlRenderBackground(Camera *camera);
 
 #endif

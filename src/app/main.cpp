@@ -611,7 +611,7 @@ mainExecuteRendering(java::ArrayList<Patch *> *scenePatches) {
     }
     createOffscreenCanvasWindow(globalImageOutputWidth, globalImageOutputHeight, scenePatches);
 
-    while ( !renderInitialized() );
+    while ( !openGlRenderInitialized() );
     openGlRenderScene(scenePatches);
 
     batch(scenePatches, globalLightSourcePatches);

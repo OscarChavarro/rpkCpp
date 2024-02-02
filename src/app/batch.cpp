@@ -81,7 +81,7 @@ batchSaveRadianceImage(const char *fileName, FILE *fp, int isPipe, java::ArrayLi
 
     t = clock();
 
-    saveScreen((char *) fileName, fp, isPipe, scenePatches);
+    openGlSaveScreen((char *) fileName, fp, isPipe, scenePatches);
 
     fprintf(stdout, "%g secs.\n", (float) (clock() - t) / (float) CLOCKS_PER_SEC);
     canvasPullMode();
