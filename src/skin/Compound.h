@@ -12,7 +12,7 @@ extern Compound *compoundCreate(GeometryListNode *geometryList);
 
 extern RayHit *
 compoundDiscretizationIntersect(
-    Compound *obj,
+    GeometryListNode *obj,
     Ray *ray,
     float minimumDistance,
     float *maximumDistance,
@@ -34,7 +34,7 @@ compoundBounds(Compound *obj, float *boundingBox);
 extern HITLIST *
 compoundAllDiscretizationIntersections(
         HITLIST *hits,
-        Compound *obj,
+        GeometryListNode *obj,
         Ray *ray,
         float minimumDistance,
         float maximumDistance,

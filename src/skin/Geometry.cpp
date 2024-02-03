@@ -137,7 +137,7 @@ geomCreateCompound(Compound *compoundData) {
     }
 
     Geometry *newGeometry = geomCreateBase(nullptr, nullptr, compoundData, GeometryClassId::COMPOUND);
-    newGeometry->compoundData = compoundData;
+    newGeometry->compoundData = &compoundData->children;
     newGeometry->aggregateData = &compoundData->children;
     return newGeometry;
 }
@@ -333,7 +333,7 @@ geomAllDiscretizationIntersections(
         //return patchListAllIntersections(hits, geom->patchSetData, ray, minimumDistance, maximumDistance, hitFlags);
         return nullptr;
     } else if ( geom->aggregateData != nullptr ) {
-        return compoundAllDiscretizationIntersections(hits, (Compound *)geom->aggregateData, ray, minimumDistance, maximumDistance, hitFlags);
+        return compoundAllDiscretizationIntersections(hits, geom->aggregateData, ray, minimumDistance, maximumDistance, hitFlags);
     }
 
     return nullptr;

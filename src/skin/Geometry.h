@@ -57,7 +57,7 @@ class Geometry {
                // to set to false again after you changed it!
 
     MeshSurface *surfaceData;
-    Compound *compoundData;
+    GeometryListNode *compoundData;
     PatchSet *patchSetData;
     GeometryListNode *aggregateData;
 

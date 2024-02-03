@@ -34,7 +34,7 @@ information about the intersection point. See geometry.h for more explanation
 */
 RayHit *
 compoundDiscretizationIntersect(
-    Compound *obj,
+    GeometryListNode *obj,
     Ray *ray,
     float minimumDistance,
     float *maximumDistance,
@@ -42,7 +42,7 @@ compoundDiscretizationIntersect(
     RayHit *hitStore)
 {
     return geometryListDiscretizationIntersect(
-        &obj->children, ray, minimumDistance, maximumDistance, hitFlags, hitStore);
+        obj, ray, minimumDistance, maximumDistance, hitFlags, hitStore);
 }
 
 RayHit *
@@ -61,11 +61,11 @@ aggregationDiscretizationIntersect(
 HITLIST *
 compoundAllDiscretizationIntersections(
     HITLIST *hits,
-    Compound *obj,
+    GeometryListNode *obj,
     Ray *ray,
     float minimumDistance,
     float maximumDistance,
     int hitFlags)
 {
-    return geomListAllDiscretizationIntersections(hits, &obj->children, ray, minimumDistance, maximumDistance, hitFlags);
+    return geomListAllDiscretizationIntersections(hits, obj, ray, minimumDistance, maximumDistance, hitFlags);
 }
