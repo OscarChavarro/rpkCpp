@@ -1,5 +1,5 @@
-#ifndef RPK_ELEMENT_H
-#define RPK_ELEMENT_H
+#ifndef __ELEMENT__
+#define __ELEMENT__
 
 #include "common/color.h"
 #include "skin/Patch.h"
@@ -8,7 +8,7 @@
 class Element {
   public:
     int id; // Unique ID number for the element
-    COLOR Ed; // Diffuse emittance
+    COLOR Ed; // Diffuse emittance radiance
     COLOR Rd; // Reflectance
     Patch *patch;
     Geometry *geom;

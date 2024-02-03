@@ -29,7 +29,7 @@ chooseRadianceShootingPatch(java::ArrayList<Patch *> *scenePatches) {
     for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
         Patch *patch = scenePatches->get(i);
 
-        power = (float)M_PI * patch->area * colorSumAbsComponents(UNSHOT_RADIANCE(patch));
+        power = (float)M_PI * patch->area * colorSumAbsComponents(UN_SHOT_RADIANCE(patch));
         if ( power > maximumPower ) {
             shooting_patch = patch;
             maximumPower = power;
@@ -142,7 +142,7 @@ patchUpdateRadianceAndPotential(Patch *patch) {
     }
     basisGalerkinPushPullRadiance(TOPLEVEL_ELEMENT(patch));
 
-    colorAddScaled(GLOBAL_galerkin_state.ambient_radiance, patch->area, UNSHOT_RADIANCE(patch),
+    colorAddScaled(GLOBAL_galerkin_state.ambient_radiance, patch->area, UN_SHOT_RADIANCE(patch),
                    GLOBAL_galerkin_state.ambient_radiance);
 }
 
@@ -223,7 +223,7 @@ choosePotentialShootingPatch(java::ArrayList<Patch *> *scenePatches) {
 
     for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
         Patch *patch = scenePatches->get(i);
-        float imp = patch->area * fabs(UNSHOT_POTENTIAL(patch).f);
+        float imp = patch->area * fabs(UN_SHOT_POTENTIAL(patch).f);
 
         if ( imp > maximumImportance ) {
             shootingPatch = patch;

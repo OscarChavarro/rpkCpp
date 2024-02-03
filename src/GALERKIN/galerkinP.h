@@ -5,11 +5,7 @@ Galerkin Radiosity "private" declarations
 #ifndef __GALERKIN_P__
 #define __GALERKIN_P__
 
-#include <cstdio>
-
 #include "java/util/ArrayList.h"
-#include "common/mymath.h"
-#include "common/color.h"
 #include "shared/cubature.h"
 #include "SGL/sgl.h"
 #include "GALERKIN/GalerkinElement.h"
@@ -19,11 +15,9 @@ The Galerkin specific data for a patch is its toplevel element
 */
 
 #define RADIANCE(patch) ((GalerkinElement *)(patch->radianceData))->radiance[0]
-#define UNSHOT_RADIANCE(patch) ((GalerkinElement *)(patch->radianceData))->unShotRadiance[0]
+#define UN_SHOT_RADIANCE(patch) ((GalerkinElement *)(patch->radianceData))->unShotRadiance[0]
 #define POTENTIAL(patch) ((GalerkinElement *)(patch->radianceData))->potential
-#define UNSHOT_POTENTIAL(patch) ((GalerkinElement *)(patch->radianceData))->unShotPotential
-#define SELFEMITTED_RADIANCE(patch) ((GalerkinElement *)(patch->radianceData))->Ed
-#define REFLECTIVITY(patch) ((GalerkinElement *)(patch->radianceData))->Rd
+#define UN_SHOT_POTENTIAL(patch) ((GalerkinElement *)(patch->radianceData))->unShotPotential
 #define TOPLEVEL_ELEMENT(patch) ((GalerkinElement *)(patch->radianceData))
 
 // Galerkin Radiosity "state" information
@@ -35,7 +29,6 @@ enum ITERATION_METHOD {
 
 enum SHAFTCULLMODE {
     ALWAYS_DO_SHAFTCULLING,
-    NEVER_DO_SHAFTCULLING,
     DO_SHAFTCULLING_FOR_REFINEMENT
 };
 
@@ -130,7 +123,6 @@ class GALERKIN_STATE {
 
     unsigned long lastclock; // For CPU timing
     float cpu_secs;
-    int wake_up; // For waking up now and then
 };
 
 extern GALERKIN_STATE GLOBAL_galerkin_state;

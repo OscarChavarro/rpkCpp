@@ -234,13 +234,13 @@ Recomputes the color of a patch using ambient radiance term, ... if requested fo
 */
 void
 patchRecomputeColor(Patch *patch) {
-    COLOR rho = REFLECTIVITY(patch);
+    COLOR reflectivity = patch->radianceData->Rd;
     COLOR rad_vis;
 
     /* compute the patches color based on its radiance + ambient radiance
      * if desired. */
     if ( GLOBAL_galerkin_state.use_ambient_radiance ) {
-        colorProduct(rho, GLOBAL_galerkin_state.ambient_radiance, rad_vis);
+        colorProduct(reflectivity, GLOBAL_galerkin_state.ambient_radiance, rad_vis);
         colorAdd(rad_vis, RADIANCE(patch), rad_vis);
         radianceToRgb(rad_vis, &patch->color);
     } else {
@@ -251,20 +251,21 @@ patchRecomputeColor(Patch *patch) {
 
 static void
 patchInit(Patch *patch) {
-    COLOR rho = REFLECTIVITY(patch), Ed = SELFEMITTED_RADIANCE(patch);
+    COLOR reflectivity = patch->radianceData->Rd;
+    COLOR selfEmittanceRadiance = patch->radianceData->Ed;
 
     if ( GLOBAL_galerkin_state.use_constant_radiance ) {
-        /* see Neumann et al, "The Constant Radiosity Step", Eurographics Rendering Workshop
-         * '95, Dublin, Ireland, June 1995, p 336-344. */
-        colorProduct(rho, GLOBAL_galerkin_state.constant_radiance, RADIANCE(patch));
-        colorAdd(RADIANCE(patch), Ed, RADIANCE(patch));
+        // See Neumann et-al, "The Constant Radiosity Step", Euro-graphics Rendering Workshop
+        // '95, Dublin, Ireland, June 1995, p 336-344
+        colorProduct(reflectivity, GLOBAL_galerkin_state.constant_radiance, RADIANCE(patch));
+        colorAdd(RADIANCE(patch), selfEmittanceRadiance, RADIANCE(patch));
         if ( GLOBAL_galerkin_state.iteration_method == SOUTHWELL )
             colorSubtract(RADIANCE(patch), GLOBAL_galerkin_state.constant_radiance,
-                          UNSHOT_RADIANCE(patch));
+                          UN_SHOT_RADIANCE(patch));
     } else {
-        RADIANCE(patch) = Ed;
+        RADIANCE(patch) = selfEmittanceRadiance;
         if ( GLOBAL_galerkin_state.iteration_method == SOUTHWELL )
-            UNSHOT_RADIANCE(patch) = RADIANCE(patch);
+            UN_SHOT_RADIANCE(patch) = RADIANCE(patch);
     }
 
     if ( GLOBAL_galerkin_state.importance_driven ) {
@@ -274,7 +275,7 @@ patchInit(Patch *patch) {
                 POTENTIAL(patch).f = patch->directPotential;
                 break;
             case SOUTHWELL:
-                POTENTIAL(patch).f = UNSHOT_POTENTIAL(patch).f = patch->directPotential;
+                POTENTIAL(patch).f = UN_SHOT_POTENTIAL(patch).f = patch->directPotential;
                 break;
             default:
                 logFatal(-1, "patchInit", "Invalid iteration method");
@@ -325,7 +326,6 @@ doGalerkinOneStep(java::ArrayList<Patch *> *scenePatches, java::ArrayList<Patch 
         return true;    /* done, don't continue! */
     }
 
-    GLOBAL_galerkin_state.wake_up = false;
     GLOBAL_galerkin_state.iteration_nr++;
     GLOBAL_galerkin_state.lastclock = clock();
 
@@ -371,11 +371,11 @@ getRadiance(Patch *patch, double u, double v, Vector3D /*dir*/) {
     rad = basisGalerkinRadianceAtPoint(leaf, leaf->radiance, u, v);
 
     if ( GLOBAL_galerkin_state.use_ambient_radiance ) {
-        /* add ambient radiance */
-        COLOR rho = REFLECTIVITY(patch);
-        COLOR ambirad;
-        colorProduct(rho, GLOBAL_galerkin_state.ambient_radiance, ambirad);
-        colorAdd(rad, ambirad, rad);
+        // Add ambient radiance
+        COLOR reflectivity = patch->radianceData->Rd;
+        COLOR ambientRadiance;
+        colorProduct(reflectivity, GLOBAL_galerkin_state.ambient_radiance, ambientRadiance);
+        colorAdd(rad, ambientRadiance, rad);
     }
 
     return rad;
@@ -519,9 +519,10 @@ galerkinWriteVertexColors(GalerkinElement *element) {
     }
 
     if ( GLOBAL_galerkin_state.use_ambient_radiance ) {
-        COLOR rho = REFLECTIVITY(element->patch), ambient;
+        COLOR reflectivity = element->patch->radianceData->Rd;
+        COLOR ambient;
 
-        colorProduct(rho, GLOBAL_galerkin_state.ambient_radiance, ambient);
+        colorProduct(reflectivity, GLOBAL_galerkin_state.ambient_radiance, ambient);
         for ( i = 0; i < element->patch->numberOfVertices; i++ ) {
             colorAdd(vertrad[i], ambient, vertrad[i]);
         }

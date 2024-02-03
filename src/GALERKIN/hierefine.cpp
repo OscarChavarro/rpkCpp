@@ -263,44 +263,49 @@ sourceClusterRadianceVariationError(INTERACTION *link, COLOR rcvrho, double rcv_
 
 static INTERACTION_EVALUATION_CODE
 hierarchicRefinementEvaluateInteraction(INTERACTION *link) {
-    COLOR srcrho, rcvrho;
-    double error, threshold, rcv_area, min_area;
+    COLOR srcrho;
+    COLOR rcvrho;
+    double error;
+    double threshold;
+    double rcv_area;
+    double min_area;
     INTERACTION_EVALUATION_CODE code = ACCURATE_ENOUGH;
 
     if ( !GLOBAL_galerkin_state.hierarchical ) {
+        // Simply don't refine
         return ACCURATE_ENOUGH;
-    }    /* simply don't refine. */
+    }
 
-    /* determine receiver area (projected visible area for a receiver cluster)
-     * and reflectivity. */
+    // Determine receiver area (projected visible area for a receiver cluster)
+    // and reflectivity
     if ( isCluster(link->receiverElement)) {
         colorSetMonochrome(rcvrho, 1.);
         rcv_area = receiverClusterArea(link);
     } else {
-        rcvrho = REFLECTIVITY(link->receiverElement->patch);
+        rcvrho = link->receiverElement->patch->radianceData->Rd;
         rcv_area = link->receiverElement->area;
     }
 
-    /* determine source reflectivity. */
+    // Determine source reflectivity
     if ( isCluster(link->sourceElement)) {
         colorSetMonochrome(srcrho, 1.0f);
     } else
-        srcrho = REFLECTIVITY(link->sourceElement->patch);
+        srcrho = link->sourceElement->patch->radianceData->Rd;
 
-    /* determine error estimate and error threshold */
+    // Determine error estimate and error threshold
     threshold = hierarchicRefinementLinkErrorThreshold(link, rcv_area);
     error = hierarchicRefinementApproximationError(link, srcrho, rcvrho, rcv_area);
 
     if ( isCluster(link->sourceElement) && error < threshold && GLOBAL_galerkin_state.clustering_strategy != ISOTROPIC )
         error += sourceClusterRadianceVariationError(link, rcvrho, rcv_area);
 
-    /* Minimal element area for which subdivision is allowed. */
+    // Minimal element area for which subdivision is allowed
     min_area = GLOBAL_statistics_totalArea * GLOBAL_galerkin_state.rel_min_elem_area;
 
     code = ACCURATE_ENOUGH;
     if ( error > threshold ) {
-        /* A very simple but robust subdivision strategy: subdivide the
-         * largest of the two elements in order to reduce the error. */
+        // A very simple but robust subdivision strategy: subdivide the
+        // largest of the two elements in order to reduce the error
         if ((!(isCluster(link->sourceElement) && IsLightSource(link->sourceElement))) &&
             (rcv_area > link->sourceElement->area)) {
             if ( rcv_area > min_area ) {
@@ -320,7 +325,7 @@ hierarchicRefinementEvaluateInteraction(INTERACTION *link) {
     return code;
 }
 
-/* ****************** Light transport computation ********************* */
+/** Light transport computation */
 
 /**
 Computes light transport over the given interaction, which is supposed to be
@@ -329,11 +334,16 @@ once for all accumulated received radiance during push-pull
 */
 static void
 hierarchicRefinementComputeLightTransport(INTERACTION *link) {
-    COLOR *srcrad, *rcvrad, avsrclusrad;
-    int alpha, beta, a, b;
+    COLOR *srcrad;
+    COLOR *rcvrad;
+    COLOR avsrclusrad;
+    int alpha;
+    int beta;
+    int a;
+    int b;
 
-    /* Update the number of effectively used radiance coefficients on the
-     * receiver element. */
+    // Update the number of effectively used radiance coefficients on the
+    // receiver element
     a = MIN(link->nrcv, link->receiverElement->basisSize);
     b = MIN(link->nsrc, link->sourceElement->basisSize);
     if ( a > link->receiverElement->basisUsed ) {
@@ -379,14 +389,14 @@ hierarchicRefinementComputeLightTransport(INTERACTION *link) {
             if ( isCluster(link->receiverElement)) {
                 colorSetMonochrome(rcvrho, 1.0f);
             } else {
-                rcvrho = REFLECTIVITY(link->receiverElement->patch);
+                rcvrho = link->receiverElement->patch->radianceData->Rd;
             }
             link->sourceElement->receivedPotential.f += K * hierarchicRefinementColorToError(rcvrho) * link->receiverElement->potential.f;
         } else if ( GLOBAL_galerkin_state.iteration_method == SOUTHWELL ) {
             if ( isCluster(link->sourceElement)) {
                 colorSetMonochrome(srcrho, 1.0f);
             } else {
-                srcrho = REFLECTIVITY(link->sourceElement->patch);
+                srcrho = link->sourceElement->patch->radianceData->Rd;
             }
             link->receiverElement->receivedPotential.f += K * hierarchicRefinementColorToError(srcrho) * link->sourceElement->unShotPotential.f;
         } else {

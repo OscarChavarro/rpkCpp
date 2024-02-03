@@ -180,7 +180,7 @@ galerkinElementReAllocCoefficients(GalerkinElement *element) {
                                                 MIN(element->basisSize, basisSize));
                 free(element->unShotRadiance);
             } else if ( element->patch->surface ) {
-                unShotRadiance[0] = SELFEMITTED_RADIANCE(element->patch);
+                unShotRadiance[0] = element->patch->radianceData->Ed;
             }
         }
         element->unShotRadiance = unShotRadiance;
@@ -743,7 +743,7 @@ galerkinElementDraw(GalerkinElement *element, int mode) {
 
     if ( mode & FLAT ) {
         RGB color;
-        COLOR rho = REFLECTIVITY(element->patch);
+        COLOR rho = element->patch->radianceData->Rd;
 
         if ( GLOBAL_galerkin_state.use_ambient_radiance ) {
             COLOR rad_vis;
@@ -772,9 +772,10 @@ galerkinElementDraw(GalerkinElement *element, int mode) {
         }
 
         if ( GLOBAL_galerkin_state.use_ambient_radiance ) {
-            COLOR rho = REFLECTIVITY(element->patch), ambient;
+            COLOR reflectivity = element->patch->radianceData->Rd;
+            COLOR ambient;
 
-            colorProduct(rho, GLOBAL_galerkin_state.ambient_radiance, ambient);
+            colorProduct(reflectivity, GLOBAL_galerkin_state.ambient_radiance, ambient);
             for ( i = 0; i < numberOfVertices; i++ ) {
                 colorAdd(vertrad[i], ambient, vertrad[i]);
             }
