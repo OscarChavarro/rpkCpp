@@ -209,7 +209,7 @@ geomDuplicate(Geometry *geom) {
     *newGeometry = *geom;
     newGeometry->surfaceData = geom->surfaceData;
     newGeometry->compoundData = geom->compoundData;
-    newGeometry->patchSetData = patchListDuplicate(geom->patchSetData);
+    newGeometry->patchSetData = geom->patchSetData;
 
     return newGeometry;
 }

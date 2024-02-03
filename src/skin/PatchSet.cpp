@@ -67,20 +67,6 @@ patchListAllIntersections(HITLIST *hits, java::ArrayList<Patch *> *patches, Ray 
     return hits;
 }
 
-PatchSet *
-patchListDuplicate(PatchSet *patchSet) {
-    PatchSet *newPatchSet = nullptr;
-
-    for ( PatchSet *window = patchSet; window != nullptr; window = window->next ) {
-        PatchSet *newListNode = (PatchSet *)malloc(sizeof(PatchSet));
-        newListNode->patch = window->patch;
-        newListNode->next = newPatchSet;
-        newPatchSet = newListNode;
-    }
-
-    return newPatchSet;
-}
-
 extern java::ArrayList<Patch *> *
 patchListExportToArrayList(PatchSet *patchSet) {
     java::ArrayList<Patch *> *newList = new java::ArrayList<Patch *>();
