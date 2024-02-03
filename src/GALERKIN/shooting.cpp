@@ -38,7 +38,7 @@ chooseRadianceShootingPatch(java::ArrayList<Patch *> *scenePatches) {
         if ( GLOBAL_galerkin_state.importance_driven ) {
             // For importance-driven progressive refinement radiosity, choose the patch
             // with highest indirectly received potential times power
-            powerImportance = (POTENTIAL(patch).f - patch->directPotential) * power;
+            powerImportance = (POTENTIAL(patch) - patch->directPotential) * power;
             if ( powerImportance > maximumPowerImportance ) {
                 pot_shooting_patch = patch;
                 maximumPowerImportance = powerImportance;
@@ -130,7 +130,7 @@ shootingPushPullPotential(GalerkinElement *elem, float down) {
         }
     }
 
-    elem->potential.f += up;
+    elem->potential += up;
     elem->unShotPotential.f += up;
     return up;
 }
@@ -200,15 +200,15 @@ based on the potential of the contained patches
 static void
 clusterUpdatePotential(GalerkinElement *cluster) {
     if ( isCluster(cluster) ) {
-        cluster->potential.f = 0.0f;
+        cluster->potential = 0.0f;
         cluster->unShotPotential.f = 0.0f;
         for ( ELEMENTLIST *window = cluster->irregularSubElements; window; window = window->next ) {
             GalerkinElement *subCluster = window->element;
             clusterUpdatePotential(subCluster);
-            cluster->potential.f += subCluster->area * subCluster->potential.f;
+            cluster->potential += subCluster->area * subCluster->potential;
             cluster->unShotPotential.f += subCluster->area * subCluster->unShotPotential.f;
         }
-        cluster->potential.f /= cluster->area;
+        cluster->potential /= cluster->area;
         cluster->unShotPotential.f /= cluster->area;
     }
 }
@@ -262,7 +262,7 @@ shootingUpdateDirectPotential(GalerkinElement *elem, float potential_increment) 
         }
     }
     elem->directPotential.f += potential_increment;
-    elem->potential.f += potential_increment;
+    elem->potential += potential_increment;
     elem->unShotPotential.f += potential_increment;
 }
 

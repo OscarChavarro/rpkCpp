@@ -31,7 +31,7 @@ class GalerkinElement : public Element {
     COLOR *radiance; // Total radiance on the element as computed so far
     COLOR *receivedRadiance; // Radiance received during iteration
     COLOR *unShotRadiance; // For progressive refinement radiosity
-    FloatOrColorPtr potential; // Total potential of the element
+    float potential; // Total potential of the element
     FloatOrColorPtr receivedPotential; // Potential received during the last iteration
     FloatOrColorPtr unShotPotential; // Un-shot potential (progressive refinement radiosity)
     FloatOrColorPtr directPotential;

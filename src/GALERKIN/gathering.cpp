@@ -49,7 +49,7 @@ patchGather(Patch *patch) {
     /* don't gather to patches without importance. This optimisation can not
      * be combined with lazy linking based on radiance. */
     if ( GLOBAL_galerkin_state.importance_driven &&
-         topLevelElement->potential.f < GLOBAL_statistics_maxDirectPotential * EPSILON ) {
+         topLevelElement->potential < GLOBAL_statistics_maxDirectPotential * EPSILON ) {
         return;
     }
 
@@ -88,7 +88,7 @@ gatheringUpdateDirectPotential(GalerkinElement *elem, float potential_increment)
         }
     }
     elem->directPotential.f += potential_increment;
-    elem->potential.f += potential_increment;
+    elem->potential += potential_increment;
 }
 
 /**
@@ -127,7 +127,7 @@ gatheringPushPullPotential(GalerkinElement *elem, float down) {
         }
     }
 
-    return (elem->potential.f = up);
+    return (elem->potential = up);
 }
 
 static void
@@ -144,14 +144,14 @@ static float
 gatheringClusterUpdatePotential(GalerkinElement *cluster) {
     if ( cluster->flags & IS_CLUSTER ) {
         ELEMENTLIST *subClusterList;
-        cluster->potential.f = 0.0;
+        cluster->potential = 0.0;
         for ( subClusterList = cluster->irregularSubElements; subClusterList; subClusterList = subClusterList->next ) {
             GalerkinElement *subCluster = subClusterList->element;
-            cluster->potential.f += subCluster->area * gatheringClusterUpdatePotential(subCluster);
+            cluster->potential += subCluster->area * gatheringClusterUpdatePotential(subCluster);
         }
-        cluster->potential.f /= cluster->area;
+        cluster->potential /= cluster->area;
     }
-    return cluster->potential.f;
+    return cluster->potential;
 }
 
 /**

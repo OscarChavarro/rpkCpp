@@ -208,7 +208,9 @@ galerkinElementCreate() {
     colorClear(newElement->Rd);
     newElement->id = globalNumberOfElements + 1; // Let the IDs start from 1, not 0
     newElement->radiance = newElement->receivedRadiance = newElement->unShotRadiance = (COLOR *) nullptr;
-    newElement->potential.f = newElement->receivedPotential.f = newElement->unShotPotential.f = 0.;
+    newElement->potential = 0.0f;
+    newElement->receivedPotential.f = 0.0f;
+    newElement->unShotPotential.f = 0.0f;
     newElement->interactions = InteractionListCreate();
     newElement->patch = nullptr;
     newElement->geom = nullptr;
@@ -306,7 +308,7 @@ galerkinElementRegularSubDivide(GalerkinElement *element) {
 
         basisGalerkinPush(element, element->radiance, subElement[i], subElement[i]->radiance);
 
-        subElement[i]->potential.f = element->potential.f;
+        subElement[i]->potential = element->potential;
         subElement[i]->directPotential.f = element->directPotential.f;
 
         if ( GLOBAL_galerkin_state.iteration_method == SOUTH_WELL ) {
@@ -422,11 +424,11 @@ galerkinElementPrint(FILE *out, GalerkinElement *element) {
         printCoefficients(out, element->unShotRadiance, element->basisSize);
         fprintf(out, "\n");
     } else {
-        fprintf(out, "No unshot_radiance coefficients.\n");
+        fprintf(out, "No un-shot_radiance coefficients.\n");
     }
 
     fprintf(out, "potential.f = %g, received_potential.f = %g, unshot_potential.f = %g, directPotential = %g\n",
-            element->potential.f, element->receivedPotential.f, element->unShotPotential.f,
+            element->potential, element->receivedPotential.f, element->unShotPotential.f,
             element->directPotential.f);
 
     fprintf(out, "interactions_created = %s",

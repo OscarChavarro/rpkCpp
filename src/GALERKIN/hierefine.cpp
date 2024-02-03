@@ -147,7 +147,7 @@ hierarchicRefinementLinkErrorThreshold(INTERACTION *link, double rcv_area) {
     if ( GLOBAL_galerkin_state.importance_driven &&
          (GLOBAL_galerkin_state.iteration_method == JACOBI ||
           GLOBAL_galerkin_state.iteration_method == GAUSS_SEIDEL)) {
-        threshold /= 2. * link->receiverElement->potential.f / GLOBAL_statistics_maxDirectPotential;
+        threshold /= 2.0 * link->receiverElement->potential / GLOBAL_statistics_maxDirectPotential;
     }
 
     return threshold;
@@ -391,7 +391,7 @@ hierarchicRefinementComputeLightTransport(INTERACTION *link) {
             } else {
                 rcvrho = link->receiverElement->patch->radianceData->Rd;
             }
-            link->sourceElement->receivedPotential.f += K * hierarchicRefinementColorToError(rcvrho) * link->receiverElement->potential.f;
+            link->sourceElement->receivedPotential.f += K * hierarchicRefinementColorToError(rcvrho) * link->receiverElement->potential;
         } else if ( GLOBAL_galerkin_state.iteration_method == SOUTH_WELL ) {
             if ( isCluster(link->sourceElement)) {
                 colorSetMonochrome(srcrho, 1.0f);

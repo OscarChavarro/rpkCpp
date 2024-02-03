@@ -311,10 +311,10 @@ patchInit(Patch *patch) {
         switch ( GLOBAL_galerkin_state.iteration_method ) {
             case GAUSS_SEIDEL:
             case JACOBI:
-                POTENTIAL(patch).f = patch->directPotential;
+                POTENTIAL(patch) = patch->directPotential;
                 break;
             case SOUTH_WELL:
-                POTENTIAL(patch).f = UN_SHOT_POTENTIAL(patch).f = patch->directPotential;
+                POTENTIAL(patch) = UN_SHOT_POTENTIAL(patch).f = patch->directPotential;
                 break;
             default:
                 logFatal(-1, "patchInit", "Invalid iteration method");
