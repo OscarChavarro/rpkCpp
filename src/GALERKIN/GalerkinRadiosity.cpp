@@ -314,7 +314,7 @@ patchInit(Patch *patch) {
                 POTENTIAL(patch) = patch->directPotential;
                 break;
             case SOUTH_WELL:
-                POTENTIAL(patch) = UN_SHOT_POTENTIAL(patch).f = patch->directPotential;
+                POTENTIAL(patch) = UN_SHOT_POTENTIAL(patch) = patch->directPotential;
                 break;
             default:
                 logFatal(-1, "patchInit", "Invalid iteration method");

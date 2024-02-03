@@ -195,7 +195,7 @@ hierarchicRefinementApproximationError(INTERACTION *link, COLOR srcrho, COLOR rc
                  * from source to receiver. Note that it makes no sense to
                  * subdivide receiver patches (potential is only used to help
                  * choosing a radiance shooting patch. */
-                approx_error2 = (hierarchicRefinementColorToError(srcrho) * link->deltaK.f * link->sourceElement->unShotPotential.f);
+                approx_error2 = (hierarchicRefinementColorToError(srcrho) * link->deltaK.f * link->sourceElement->unShotPotential);
 
                 /* compare potential error w.r.t. maximum direct potential or importance
                  * instead of selfemitted radiance or power. */
@@ -391,14 +391,14 @@ hierarchicRefinementComputeLightTransport(INTERACTION *link) {
             } else {
                 rcvrho = link->receiverElement->patch->radianceData->Rd;
             }
-            link->sourceElement->receivedPotential.f += K * hierarchicRefinementColorToError(rcvrho) * link->receiverElement->potential;
+            link->sourceElement->receivedPotential += K * hierarchicRefinementColorToError(rcvrho) * link->receiverElement->potential;
         } else if ( GLOBAL_galerkin_state.iteration_method == SOUTH_WELL ) {
             if ( isCluster(link->sourceElement)) {
                 colorSetMonochrome(srcrho, 1.0f);
             } else {
                 srcrho = link->sourceElement->patch->radianceData->Rd;
             }
-            link->receiverElement->receivedPotential.f += K * hierarchicRefinementColorToError(srcrho) * link->sourceElement->unShotPotential.f;
+            link->receiverElement->receivedPotential += K * hierarchicRefinementColorToError(srcrho) * link->sourceElement->unShotPotential;
         } else {
             logFatal(-1, "hierarchicRefinementComputeLightTransport", "Hela hola did you introduce a new iteration method or so??");
         }

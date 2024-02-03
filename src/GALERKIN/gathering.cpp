@@ -87,7 +87,7 @@ gatheringUpdateDirectPotential(GalerkinElement *elem, float potential_increment)
             gatheringUpdateDirectPotential(elem->regularSubElements[i], potential_increment);
         }
     }
-    elem->directPotential.f += potential_increment;
+    elem->directPotential += potential_increment;
     elem->potential += potential_increment;
 }
 
@@ -99,8 +99,8 @@ static float
 gatheringPushPullPotential(GalerkinElement *elem, float down) {
     float up;
 
-    down += elem->receivedPotential.f / elem->area;
-    elem->receivedPotential.f = 0.0;
+    down += elem->receivedPotential / elem->area;
+    elem->receivedPotential = 0.0f;
 
     up = 0.0;
 
@@ -214,7 +214,7 @@ doClusteredGatheringIteration(java::ArrayList<Patch*> *scenePatches) {
             for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
                 Patch *patch = scenePatches->get(i);
                 GalerkinElement *top = (GalerkinElement *)patch->radianceData;
-                float potential_increment = patch->directPotential - top->directPotential.f;
+                float potential_increment = patch->directPotential - top->directPotential;
                 gatheringUpdateDirectPotential(top, potential_increment);
             }
             gatheringClusterUpdatePotential(GLOBAL_galerkin_state.topCluster);

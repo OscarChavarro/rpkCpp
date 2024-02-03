@@ -209,8 +209,8 @@ galerkinElementCreate() {
     newElement->id = globalNumberOfElements + 1; // Let the IDs start from 1, not 0
     newElement->radiance = newElement->receivedRadiance = newElement->unShotRadiance = (COLOR *) nullptr;
     newElement->potential = 0.0f;
-    newElement->receivedPotential.f = 0.0f;
-    newElement->unShotPotential.f = 0.0f;
+    newElement->receivedPotential = 0.0f;
+    newElement->unShotPotential = 0.0f;
     newElement->interactions = InteractionListCreate();
     newElement->patch = nullptr;
     newElement->geom = nullptr;
@@ -241,7 +241,7 @@ galerkinElementCreateTopLevel(Patch *patch) {
     element->patch = patch;
     element->minimumArea = element->area = patch->area;
     element->bsize = 2.0f * (float)std::sqrt(element->area / M_PI);
-    element->directPotential.f = patch->directPotential;
+    element->directPotential = patch->directPotential;
 
     element->Rd = patchAverageNormalAlbedo(patch, BRDF_DIFFUSE_COMPONENT);
     if ( patch->surface && patch->surface->material &&
@@ -309,11 +309,11 @@ galerkinElementRegularSubDivide(GalerkinElement *element) {
         basisGalerkinPush(element, element->radiance, subElement[i], subElement[i]->radiance);
 
         subElement[i]->potential = element->potential;
-        subElement[i]->directPotential.f = element->directPotential.f;
+        subElement[i]->directPotential = element->directPotential;
 
         if ( GLOBAL_galerkin_state.iteration_method == SOUTH_WELL ) {
             basisGalerkinPush(element, element->unShotRadiance, subElement[i], subElement[i]->unShotRadiance);
-            subElement[i]->unShotPotential.f = element->unShotPotential.f;
+            subElement[i]->unShotPotential = element->unShotPotential;
         }
 
         subElement[i]->flags |= (element->flags & IS_LIGHT_SOURCE);
@@ -428,8 +428,8 @@ galerkinElementPrint(FILE *out, GalerkinElement *element) {
     }
 
     fprintf(out, "potential.f = %g, received_potential.f = %g, unshot_potential.f = %g, directPotential = %g\n",
-            element->potential, element->receivedPotential.f, element->unShotPotential.f,
-            element->directPotential.f);
+            element->potential, element->receivedPotential, element->unShotPotential,
+            element->directPotential);
 
     fprintf(out, "interactions_created = %s",
             element->flags & INTERACTIONS_CREATED ? "TRUE" : "FALSE");

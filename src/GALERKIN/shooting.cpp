@@ -65,7 +65,7 @@ clearUnShotRadianceAndPotential(GalerkinElement *elem) {
     }
 
     clusterGalerkinClearCoefficients(elem->unShotRadiance, elem->basisSize);
-    elem->unShotPotential.f = 0.0f;
+    elem->unShotPotential = 0.0f;
 }
 
 /**
@@ -103,8 +103,8 @@ shootingPushPullPotential(GalerkinElement *elem, float down) {
     float up;
     int i;
 
-    down += elem->receivedPotential.f / elem->area;
-    elem->receivedPotential.f = 0.0f;
+    down += elem->receivedPotential / elem->area;
+    elem->receivedPotential = 0.0f;
 
     up = 0.0f;
 
@@ -131,7 +131,7 @@ shootingPushPullPotential(GalerkinElement *elem, float down) {
     }
 
     elem->potential += up;
-    elem->unShotPotential.f += up;
+    elem->unShotPotential += up;
     return up;
 }
 
@@ -201,15 +201,15 @@ static void
 clusterUpdatePotential(GalerkinElement *cluster) {
     if ( isCluster(cluster) ) {
         cluster->potential = 0.0f;
-        cluster->unShotPotential.f = 0.0f;
+        cluster->unShotPotential = 0.0f;
         for ( ELEMENTLIST *window = cluster->irregularSubElements; window; window = window->next ) {
             GalerkinElement *subCluster = window->element;
             clusterUpdatePotential(subCluster);
             cluster->potential += subCluster->area * subCluster->potential;
-            cluster->unShotPotential.f += subCluster->area * subCluster->unShotPotential.f;
+            cluster->unShotPotential += subCluster->area * subCluster->unShotPotential;
         }
         cluster->potential /= cluster->area;
-        cluster->unShotPotential.f /= cluster->area;
+        cluster->unShotPotential /= cluster->area;
     }
 }
 
@@ -224,7 +224,7 @@ choosePotentialShootingPatch(java::ArrayList<Patch *> *scenePatches) {
 
     for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
         Patch *patch = scenePatches->get(i);
-        float imp = patch->area * fabs(UN_SHOT_POTENTIAL(patch).f);
+        float imp = patch->area * fabs(UN_SHOT_POTENTIAL(patch));
 
         if ( imp > maximumImportance ) {
             shootingPatch = patch;
@@ -261,9 +261,9 @@ shootingUpdateDirectPotential(GalerkinElement *elem, float potential_increment) 
             shootingUpdateDirectPotential(elem->regularSubElements[i], potential_increment);
         }
     }
-    elem->directPotential.f += potential_increment;
+    elem->directPotential += potential_increment;
     elem->potential += potential_increment;
-    elem->unShotPotential.f += potential_increment;
+    elem->unShotPotential += potential_increment;
 }
 
 /**
@@ -277,7 +277,7 @@ reallyDoShootingStep(java::ArrayList<Patch *> *scenePatches) {
             for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
                 Patch *patch = scenePatches->get(i);
                 GalerkinElement *topLevelElement = topLevelGalerkinElement(patch);
-                float potential_increment = patch->directPotential - topLevelElement->directPotential.f;
+                float potential_increment = patch->directPotential - topLevelElement->directPotential;
                 shootingUpdateDirectPotential(topLevelElement, potential_increment);
             }
             GLOBAL_camera_mainCamera.changed = false;

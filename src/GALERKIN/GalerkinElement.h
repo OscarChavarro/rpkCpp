@@ -12,11 +12,6 @@ Galerkin finite elements: one structure for both surface and cluster elements
 
 class INTERACTIONLIST;
 
-typedef union FloatOrColorPtr {
-    float f;
-    COLOR *c;
-} FloatOrColorPtr;
-
 /**
 The Galerkin radiosity specific data to be kept with every surface or
 cluster element. A flag indicates whether a given element is a cluster or
@@ -32,30 +27,30 @@ class GalerkinElement : public Element {
     COLOR *receivedRadiance; // Radiance received during iteration
     COLOR *unShotRadiance; // For progressive refinement radiosity
     float potential; // Total potential of the element
-    FloatOrColorPtr receivedPotential; // Potential received during the last iteration
-    FloatOrColorPtr unShotPotential; // Un-shot potential (progressive refinement radiosity)
-    FloatOrColorPtr directPotential;
+    float receivedPotential; // Potential received during the last iteration
+    float unShotPotential; // Un-shot potential (progressive refinement radiosity)
+    float directPotential;
     INTERACTIONLIST *interactions; /* Links with other patches: when using
-			 * a shooting algorithm, the links are kept 
-			 * with the source element. When doing gathering,
-			 * the links are kept with the receiver element. */
+			 a shooting algorithm, the links are kept
+			 with the source element. When doing gathering,
+			 the links are kept with the receiver element. */
     GalerkinElement *parent; /* Parent element in a hierarchy, or
-			 * a nullptr pointer if there is no parent. */
+			 a nullptr pointer if there is no parent. */
     GalerkinElement **regularSubElements; /* A nullptr pointer if there are no
-			 * regular sub-elements, or an array containing
-			 * exactly 4 pointers to the sub-elements */
+			 regular sub-elements, or an array containing
+			 exactly 4 pointers to the sub-elements */
     ELEMENTLIST *irregularSubElements; /* nullptr pointer or pointer to
-			 * the list of irregular sub-elements */
+			 the list of irregular sub-elements */
     Matrix2x2 *upTrans; /* if non-null, transforms (u,v) coordinates on
-			 * a sub-element to the (u,v) coordinates of the
-			 * same point on the parent surface element. It is nullptr
-			 * if the element is a toplevel element for a patch or
-			 * a cluster element. If non-null it is a sub-element on
-			 * a patch. */
+			 a sub-element to the (u,v) coordinates of the
+			 same point on the parent surface element. It is nullptr
+			 if the element is a toplevel element for a patch or
+			 a cluster element. If non-null it is a sub-element on
+			 a patch. */
     float area; /* area of a surface element or sum of the areas
-			 * of the surfaces in a cluster element */
+			 of the surfaces in a cluster element */
     float minimumArea; /* equal to area for a surface element or the area
-			 * of the smallest surface element in a cluster */
+			 of the smallest surface element in a cluster */
     float bsize; // Equivalent blocker size for multi-resolution visibility
     int numberOfPatches; // Number of patches in a cluster
     int tmp; // For occasional use
@@ -68,14 +63,15 @@ class GalerkinElement : public Element {
 };
 
 // Element flags
-#define INTERACTIONS_CREATED    0x01    /* set when all interactions have
-					 * been created for a toplevel element. */
-#define IS_CLUSTER        0x10    /* if set, indicates that the element is
-					 * a cluster element. If not set, the element is
-					 * a surface element. */
-#define IS_LIGHT_SOURCE        0x20    /* if the element is
-					 * or contains surfaces emitting
-					 * light spontaneously. */
+
+// Set when all interactions have been created for a toplevel element
+#define INTERACTIONS_CREATED 0x01
+
+// If set, indicates that the element is a cluster element. If not set, the element is a surface element
+#define IS_CLUSTER 0x10
+
+// If the element is or contains surfaces emitting light spontaneously
+#define IS_LIGHT_SOURCE 0x20
 
 inline bool
 isCluster(GalerkinElement *element) {
