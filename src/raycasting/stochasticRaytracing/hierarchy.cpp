@@ -47,7 +47,7 @@ elementHierarchyTerminate(java::ArrayList<Patch *> *scenePatches) {
     for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
         Patch *patch = scenePatches->get(i);
         // Need to be destroyed before destroying the automatically created vertices
-        monteCarloRadiosityDestroyToplevelSurfaceElement(TOPLEVEL_ELEMENT(patch));
+        monteCarloRadiosityDestroyToplevelSurfaceElement(topLevelGalerkinElement(patch));
         patch->radianceData = nullptr; // Prevents destroying a 2nd time later
     }
 

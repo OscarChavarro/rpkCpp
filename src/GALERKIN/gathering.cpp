@@ -16,8 +16,8 @@ interactions with light sources are created. See Holschuch, EGRW '94
 (Darmstadt - EuroGraphics Rendering Workshop).
 */
 static void
-patchLazyCreateInteractions(Patch *P) {
-    GalerkinElement *topLevelElement = TOPLEVEL_ELEMENT(P);
+patchLazyCreateInteractions(Patch *patch) {
+    GalerkinElement *topLevelElement = topLevelGalerkinElement(patch);
 
     if ( !colorNull(topLevelElement->radiance[0]) && !(topLevelElement->flags & INTERACTIONS_CREATED)) {
         createInitialLinks(topLevelElement, SOURCE);
@@ -31,7 +31,7 @@ hierarchical representation consistent and computes a new color for the patch
 */
 static void
 patchUpdateRadiance(Patch *patch) {
-    GalerkinElement *topLevelElement = TOPLEVEL_ELEMENT(patch);
+    GalerkinElement *topLevelElement = topLevelGalerkinElement(patch);
     basisGalerkinPushPullRadiance(topLevelElement);
     patchRecomputeColor(patch);
 }
@@ -44,7 +44,7 @@ Gauss-Seidel iterations
 */
 static void
 patchGather(Patch *patch) {
-    GalerkinElement *topLevelElement = TOPLEVEL_ELEMENT(patch);
+    GalerkinElement *topLevelElement = topLevelGalerkinElement(patch);
 
     /* don't gather to patches without importance. This optimisation can not
      * be combined with lazy linking based on radiance. */
@@ -132,7 +132,7 @@ gatheringPushPullPotential(GalerkinElement *elem, float down) {
 
 static void
 patchUpdatePotential(Patch *patch) {
-    GalerkinElement *topLevelElement = TOPLEVEL_ELEMENT(patch);
+    GalerkinElement *topLevelElement = topLevelGalerkinElement(patch);
     gatheringPushPullPotential(topLevelElement, 0.0f);
 }
 

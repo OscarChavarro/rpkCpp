@@ -26,26 +26,28 @@ createInitialLink(Patch *patch) {
         return;
     }
 
+    GalerkinElement *topLevelElement = topLevelGalerkinElement(patch);
     switch ( globalRole ) {
         case SOURCE:
-            rcv = TOPLEVEL_ELEMENT(patch);
+            rcv = topLevelElement;
             src = globalElement;
             break;
         case RECEIVER:
             rcv = globalElement;
-            src = TOPLEVEL_ELEMENT(patch);
+            src = topLevelElement;
             break;
         default:
             logFatal(2, "createInitialLink", "Impossible element role");
     }
 
-    if ((GLOBAL_galerkin_state.exact_visibility || GLOBAL_galerkin_state.shaftCullMode == ALWAYS_DO_SHAFT_CULLING) && oldCandidateList ) {
+    if ( (GLOBAL_galerkin_state.exact_visibility || GLOBAL_galerkin_state.shaftCullMode == ALWAYS_DO_SHAFT_CULLING) && oldCandidateList ) {
         SHAFT shaft, *the_shaft;
 
         if ( GLOBAL_galerkin_state.exact_visibility ) {
-            POLYGON rcvpoly, srcpoly;
-            the_shaft = constructPolygonToPolygonShaft(galerkinElementPolygon(rcv, &rcvpoly),
-                                                       galerkinElementPolygon(src, &srcpoly),
+            POLYGON rcvPolygon;
+            POLYGON srcPolygon;
+            the_shaft = constructPolygonToPolygonShaft(galerkinElementPolygon(rcv, &rcvPolygon),
+                                                       galerkinElementPolygon(src, &srcPolygon),
                                                        &shaft);
         } else {
             BOUNDINGBOX bbox;
@@ -82,8 +84,8 @@ createInitialLink(Patch *patch) {
     }
 
     if ( link.vis > 0 ) {
-        /* store interactions with the source patch for the progressive radiosity method
-         * and with the receiving patch for gathering mathods. */
+        // Store interactions with the source patch for the progressive radiosity method
+        // and with the receiving patch for gathering methods
         if ( GLOBAL_galerkin_state.iteration_method == SOUTH_WELL ) {
             src->interactions = InteractionListAdd(src->interactions, interactionDuplicate(&link));
         } else {
@@ -105,9 +107,9 @@ geomLink(Geometry *geom) {
         return;
     }
 
-    /* if the geometry is bounded, do shaft culling, reducing the candidate list
-     * which contains the possible occluders between a pair of patches for which
-     * an initial link will need to be created. */
+    // If the geometry is bounded, do shaft culling, reducing the candidate list
+    // which contains the possible occluders between a pair of patches for which
+    // an initial link will need to be created
     if ( geom->bounded && oldCandidateList ) {
         constructShaft(globalPatchBoundingBox, geomBounds(geom), &shaft);
         setShaftOmit(&shaft, globalPatch);
@@ -200,10 +202,10 @@ createInitialLinkWithTopCluster(GalerkinElement *elem, GalerkinRole role) {
             src,
             K,
             deltaK,
-            rcv->basisSize, // nrcv
-            src->basisSize, // nsrc
-            1, // crcv
-            128 // vis
+            rcv->basisSize,
+            src->basisSize,
+            1,
+            128
     );
 
     // Store interactions with the source patch for the progressive radiosity method

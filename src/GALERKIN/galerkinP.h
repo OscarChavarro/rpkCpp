@@ -18,7 +18,11 @@ The Galerkin specific data for a patch is its toplevel element
 #define UN_SHOT_RADIANCE(patch) ((GalerkinElement *)((patch)->radianceData))->unShotRadiance[0]
 #define POTENTIAL(patch) ((GalerkinElement *)((patch)->radianceData))->potential
 #define UN_SHOT_POTENTIAL(patch) ((GalerkinElement *)((patch)->radianceData))->unShotPotential
-#define TOPLEVEL_ELEMENT(patch) ((GalerkinElement *)((patch)->radianceData))
+
+inline GalerkinElement*
+topLevelGalerkinElement(Patch *patch) {
+    return (GalerkinElement *)patch->radianceData;
+}
 
 // Galerkin Radiosity "state" information
 enum GalerkinIterationMethod {

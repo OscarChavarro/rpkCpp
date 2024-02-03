@@ -128,7 +128,7 @@ static int LowPowerLink(LINK *link) {
     /* compute receiver reflectance times source radiosity */
     colorScale(M_PI, src->rad[0], rhosrcrad);
     if ( !rcv->iscluster ) {
-        COLOR Rd = TOPLEVEL_ELEMENT(rcv->patch)->Rd;
+        COLOR Rd = topLevelGalerkinElement(rcv->patch)->Rd;
         colorProduct(Rd, rhosrcrad, rhosrcrad);
     }
 

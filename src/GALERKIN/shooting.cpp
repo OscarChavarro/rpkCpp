@@ -74,24 +74,24 @@ the patch into the environment. Finally clears the un-shot radiance
 at all levels of the element hierarchy for the patch
 */
 static void
-patchPropagateUnShotRadianceAndPotential(Patch *shooting_patch) {
-    GalerkinElement *top = TOPLEVEL_ELEMENT(shooting_patch);
+patchPropagateUnShotRadianceAndPotential(Patch *patch) {
+    GalerkinElement *topLevelElement = topLevelGalerkinElement(patch);
 
-    if ( !(top->flags & INTERACTIONS_CREATED)) {
+    if ( !(topLevelElement->flags & INTERACTIONS_CREATED) ) {
         if ( GLOBAL_galerkin_state.clustered ) {
-            createInitialLinkWithTopCluster(top, SOURCE);
+            createInitialLinkWithTopCluster(topLevelElement, SOURCE);
         } else {
-            createInitialLinks(top, SOURCE);
+            createInitialLinks(topLevelElement, SOURCE);
         }
-        top->flags |= INTERACTIONS_CREATED;
+        topLevelElement->flags |= INTERACTIONS_CREATED;
     }
 
     // Recursively refines the interactions of the shooting patch
     // and computes radiance and potential transport
-    refineInteractions(top);
+    refineInteractions(topLevelElement);
 
     // Clear the un-shot radiance at all levels
-    clearUnShotRadianceAndPotential(top);
+    clearUnShotRadianceAndPotential(topLevelElement);
 }
 
 /**
@@ -137,10 +137,11 @@ shootingPushPullPotential(GalerkinElement *elem, float down) {
 
 static void
 patchUpdateRadianceAndPotential(Patch *patch) {
+    GalerkinElement *topLevelElement = topLevelGalerkinElement(patch);
     if ( GLOBAL_galerkin_state.importance_driven ) {
-        shootingPushPullPotential(TOPLEVEL_ELEMENT(patch), 0.);
+        shootingPushPullPotential(topLevelElement, 0.0f);
     }
-    basisGalerkinPushPullRadiance(TOPLEVEL_ELEMENT(patch));
+    basisGalerkinPushPullRadiance(topLevelElement);
 
     colorAddScaled(GLOBAL_galerkin_state.ambient_radiance, patch->area, UN_SHOT_RADIANCE(patch),
                    GLOBAL_galerkin_state.ambient_radiance);
@@ -275,9 +276,9 @@ reallyDoShootingStep(java::ArrayList<Patch *> *scenePatches) {
             updateDirectPotential(scenePatches);
             for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
                 Patch *patch = scenePatches->get(i);
-                GalerkinElement *top = TOPLEVEL_ELEMENT(patch);
-                float potential_increment = patch->directPotential - top->directPotential.f;
-                shootingUpdateDirectPotential(top, potential_increment);
+                GalerkinElement *topLevelElement = topLevelGalerkinElement(patch);
+                float potential_increment = patch->directPotential - topLevelElement->directPotential.f;
+                shootingUpdateDirectPotential(topLevelElement, potential_increment);
             }
             GLOBAL_camera_mainCamera.changed = false;
             if ( GLOBAL_galerkin_state.clustered ) {

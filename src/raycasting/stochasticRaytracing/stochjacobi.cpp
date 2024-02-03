@@ -500,8 +500,8 @@ stochasticJacobiElementShootRay(
     if ( hit ) {
         double uhit = 0., vhit = 0.;
         stochasticJacobiUniformHitCoordinates(hit, &uhit, &vhit);
-        stochasticJacobiRefineAndPropagate(TOPLEVEL_ELEMENT(src->patch), zeta[0], zeta[1],
-                                           TOPLEVEL_ELEMENT(hit->patch), uhit, vhit, &ray);
+        stochasticJacobiRefineAndPropagate(topLevelGalerkinElement(src->patch), zeta[0], zeta[1],
+                                           topLevelGalerkinElement(hit->patch), uhit, vhit, &ray);
     } else {
         GLOBAL_stochasticRaytracing_monteCarloRadiosityState.numberOfMisses++;
     }
@@ -549,7 +549,7 @@ stochasticJacobiShootRays(java::ArrayList<Patch *> *scenePatches) {
 
     // Loop over all leaf elements in the element hierarchy
     for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
-        REC_ForAllSurfaceLeafs(leaf, TOPLEVEL_ELEMENT(scenePatches->get(i)))
+        REC_ForAllSurfaceLeafs(leaf, topLevelGalerkinElement(scenePatches->get(i)))
                 {
                     double p = leaf->prob / sum_probs;
                     long rays_this_leaf =

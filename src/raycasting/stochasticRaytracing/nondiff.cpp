@@ -46,13 +46,13 @@ makeLightSourceTable(java::ArrayList<Patch *> *scenePatches, java::ArrayList<Pat
         stochasticRadiosityClearCoefficients(getTopLevelPatchRad(patch), getTopLevelPatchBasis(patch));
         stochasticRadiosityClearCoefficients(getTopLevelPatchUnShotRad(patch), getTopLevelPatchBasis(patch));
         stochasticRadiosityClearCoefficients(getTopLevelPatchReceivedRad(patch), getTopLevelPatchBasis(patch));
-        colorClear(TOPLEVEL_ELEMENT(patch)->source_rad);
+        colorClear(topLevelGalerkinElement(patch)->source_rad);
     }
 }
 
 static void
 nextLightSample(Patch *patch, double *zeta) {
-    double *xi = sample4D(TOPLEVEL_ELEMENT(patch)->ray_index++);
+    double *xi = sample4D(topLevelGalerkinElement(patch)->ray_index++);
     if ( patch->numberOfVertices == 3 ) {
         double u = xi[0], v = xi[1];
         foldSampleF(&u, &v);
@@ -102,12 +102,12 @@ sampleLight(LIGHTSOURCETABLE *light, double light_selection_pdf) {
         double pdf = light_selection_pdf * point_selection_pdf * dir_selection_pdf;
         double outcos = VECTORDOTPRODUCT(ray.dir, light->patch->normal);
         COLOR rcvrad;
-        COLOR Rd = TOPLEVEL_ELEMENT(hit->patch)->Rd;
+        COLOR Rd = topLevelGalerkinElement(hit->patch)->Rd;
         colorScale((float)(outcos / (M_PI * hit->patch->area * pdf * globalNumberOfSamples)), rad, rcvrad);
         colorProduct(Rd, rcvrad, rcvrad);
         colorAdd(getTopLevelPatchRad(hit->patch)[0], rcvrad, getTopLevelPatchRad(hit->patch)[0]);
         colorAdd(getTopLevelPatchUnShotRad(hit->patch)[0], rcvrad, getTopLevelPatchUnShotRad(hit->patch)[0]);
-        colorAdd(TOPLEVEL_ELEMENT(hit->patch)->source_rad, rcvrad, TOPLEVEL_ELEMENT(hit->patch)->source_rad);
+        colorAdd(topLevelGalerkinElement(hit->patch)->source_rad, rcvrad, topLevelGalerkinElement(hit->patch)->source_rad);
     }
 }
 
@@ -147,11 +147,14 @@ summarize(java::ArrayList<Patch *> *scenePatches) {
         Patch *patch = scenePatches->get(i);
         colorAddScaled(GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotFlux, M_PI * patch->area, getTopLevelPatchUnShotRad(patch)[0], GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotFlux);
         colorAddScaled(GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalFlux, M_PI * patch->area, getTopLevelPatchRad(patch)[0], GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalFlux);
-        colorAddScaled(GLOBAL_stochasticRaytracing_monteCarloRadiosityState.indirectImportanceWeightedUnShotFlux, M_PI * patch->area * (TOPLEVEL_ELEMENT(patch)->imp - TOPLEVEL_ELEMENT(patch)->source_imp), getTopLevelPatchUnShotRad(patch)[0],
+        colorAddScaled(GLOBAL_stochasticRaytracing_monteCarloRadiosityState.indirectImportanceWeightedUnShotFlux, M_PI * patch->area * (topLevelGalerkinElement(
+                               patch)->imp -
+                                                                                                                                        topLevelGalerkinElement(patch)->source_imp), getTopLevelPatchUnShotRad(patch)[0],
                        GLOBAL_stochasticRaytracing_monteCarloRadiosityState.indirectImportanceWeightedUnShotFlux);
-        GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotYmp += patch->area * std::fabs(TOPLEVEL_ELEMENT(patch)->unshot_imp);
-        GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalYmp += patch->area * TOPLEVEL_ELEMENT(patch)->imp;
-        GLOBAL_stochasticRaytracing_monteCarloRadiosityState.sourceYmp += patch->area * TOPLEVEL_ELEMENT(patch)->source_imp;
+        GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotYmp += patch->area * std::fabs(
+                topLevelGalerkinElement(patch)->unshot_imp);
+        GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalYmp += patch->area * topLevelGalerkinElement(patch)->imp;
+        GLOBAL_stochasticRaytracing_monteCarloRadiosityState.sourceYmp += patch->area * topLevelGalerkinElement(patch)->source_imp;
         monteCarloRadiosityPatchComputeNewColor(patch);
     }
 }

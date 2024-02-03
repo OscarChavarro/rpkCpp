@@ -439,7 +439,7 @@ stochasticRelaxationRadiosityDoStep(java::ArrayList<Patch *> *scenePatches, java
 static void
 stochasticRelaxationRadiosityRenderPatch(Patch *patch) {
     if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.inited ) {
-        monteCarloRadiosityForAllSurfaceLeafs(TOPLEVEL_ELEMENT(patch), mcrRenderElement);
+        monteCarloRadiosityForAllSurfaceLeafs(topLevelGalerkinElement(patch), mcrRenderElement);
     } else {
         openGlRenderPatch(patch);
     }

@@ -37,7 +37,7 @@ geometryIterateLeafElements(Geometry *geom, void (*func)(StochasticRadiosityElem
     elemfunc = func;
     leaf_element_count = 0;
     for ( int i = 0; patchList != nullptr && i < patchList->size(); i++ ) {
-        monteCarloRadiosityForAllLeafElements(TOPLEVEL_ELEMENT(patchList->get(i)), countAndCall);
+        monteCarloRadiosityForAllLeafElements(topLevelGalerkinElement(patchList->get(i)), countAndCall);
     }
 }
 

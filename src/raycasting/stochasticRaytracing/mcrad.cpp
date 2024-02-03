@@ -200,13 +200,13 @@ monteCarloRadiosityCreatePatchData(Patch *patch) {
 
 void
 monteCarloRadiosityPrintPatchData(FILE *out, Patch *patch) {
-    monteCarloRadiosityPrintElement(out, TOPLEVEL_ELEMENT(patch));
+    monteCarloRadiosityPrintElement(out, topLevelGalerkinElement(patch));
 }
 
 void
 monteCarloRadiosityDestroyPatchData(Patch *patch) {
     if ( patch->radianceData ) {
-        monteCarloRadiosityDestroyToplevelSurfaceElement(TOPLEVEL_ELEMENT(patch));
+        monteCarloRadiosityDestroyToplevelSurfaceElement(topLevelGalerkinElement(patch));
     }
     patch->radianceData = nullptr;
 }
@@ -217,7 +217,7 @@ in the current random walk radiosity implementation
 */
 void
 monteCarloRadiosityPatchComputeNewColor(Patch *patch) {
-    patch->color = elementColor(TOPLEVEL_ELEMENT(patch));
+    patch->color = elementColor(topLevelGalerkinElement(patch));
     patchComputeVertexColors(patch);
 }
 
@@ -235,21 +235,22 @@ Initialises patch data
 */
 static void
 monteCarloRadiosityInitPatch(Patch *P) {
-    COLOR Ed = TOPLEVEL_ELEMENT(P)->Ed;
+    COLOR Ed = topLevelGalerkinElement(P)->Ed;
 
-    reAllocCoefficients(TOPLEVEL_ELEMENT(P));
+    reAllocCoefficients(topLevelGalerkinElement(P));
     stochasticRadiosityClearCoefficients(getTopLevelPatchRad(P), getTopLevelPatchBasis(P));
     stochasticRadiosityClearCoefficients(getTopLevelPatchUnShotRad(P), getTopLevelPatchBasis(P));
     stochasticRadiosityClearCoefficients(getTopLevelPatchReceivedRad(P), getTopLevelPatchBasis(P));
 
-    getTopLevelPatchRad(P)[0] = getTopLevelPatchUnShotRad(P)[0] = TOPLEVEL_ELEMENT(P)->source_rad = Ed;
+    getTopLevelPatchRad(P)[0] = getTopLevelPatchUnShotRad(P)[0] = topLevelGalerkinElement(P)->source_rad = Ed;
     colorClear(getTopLevelPatchReceivedRad(P)[0]);
 
-    TOPLEVEL_ELEMENT(P)->ray_index = P->id * 11;
-    TOPLEVEL_ELEMENT(P)->quality = 0.;
-    TOPLEVEL_ELEMENT(P)->ng = 0;
+    topLevelGalerkinElement(P)->ray_index = P->id * 11;
+    topLevelGalerkinElement(P)->quality = 0.;
+    topLevelGalerkinElement(P)->ng = 0;
 
-    TOPLEVEL_ELEMENT(P)->imp = TOPLEVEL_ELEMENT(P)->unshot_imp = TOPLEVEL_ELEMENT(P)->received_imp = TOPLEVEL_ELEMENT(P)->source_imp = 0.;
+    topLevelGalerkinElement(P)->imp = topLevelGalerkinElement(P)->unshot_imp = topLevelGalerkinElement(P)->received_imp = topLevelGalerkinElement(
+            P)->source_imp = 0.;
 }
 
 /**
@@ -417,11 +418,14 @@ monteCarloRadiosityReInit(java::ArrayList<Patch *> *scenePatches) {
         monteCarloRadiosityInitPatch(patch);
         colorAddScaled(GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotFlux, M_PI * patch->area, getTopLevelPatchUnShotRad(patch)[0], GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotFlux);
         colorAddScaled(GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalFlux, M_PI * patch->area, getTopLevelPatchRad(patch)[0], GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalFlux);
-        colorAddScaled(GLOBAL_stochasticRaytracing_monteCarloRadiosityState.indirectImportanceWeightedUnShotFlux, M_PI * patch->area * (TOPLEVEL_ELEMENT(patch)->imp - TOPLEVEL_ELEMENT(patch)->source_imp), getTopLevelPatchUnShotRad(patch)[0],
+        colorAddScaled(GLOBAL_stochasticRaytracing_monteCarloRadiosityState.indirectImportanceWeightedUnShotFlux, M_PI * patch->area * (topLevelGalerkinElement(
+                               patch)->imp -
+                                                                                                                                        topLevelGalerkinElement(patch)->source_imp), getTopLevelPatchUnShotRad(patch)[0],
                        GLOBAL_stochasticRaytracing_monteCarloRadiosityState.indirectImportanceWeightedUnShotFlux);
-        GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotYmp += patch->area * fabs(TOPLEVEL_ELEMENT(patch)->unshot_imp);
-        GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalYmp += patch->area * TOPLEVEL_ELEMENT(patch)->imp;
-        GLOBAL_stochasticRaytracing_monteCarloRadiosityState.sourceYmp += patch->area * TOPLEVEL_ELEMENT(patch)->source_imp;
+        GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotYmp += patch->area * fabs(
+                topLevelGalerkinElement(patch)->unshot_imp);
+        GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalYmp += patch->area * topLevelGalerkinElement(patch)->imp;
+        GLOBAL_stochasticRaytracing_monteCarloRadiosityState.sourceYmp += patch->area * topLevelGalerkinElement(patch)->source_imp;
         monteCarloRadiosityPatchComputeNewColor(patch);
     }
 
@@ -503,7 +507,7 @@ Returns the radiance emitted from the patch at the point with parameters
 COLOR
 monteCarloRadiosityGetRadiance(Patch *patch, double u, double v, Vector3D dir) {
     COLOR TrueRdAtPoint = monteCarloRadiosityDiffuseReflectanceAtPoint(patch, u, v);
-    StochasticRadiosityElement *leaf = monteCarloRadiosityRegularLeafElementAtPoint(TOPLEVEL_ELEMENT(patch), &u, &v);
+    StochasticRadiosityElement *leaf = monteCarloRadiosityRegularLeafElementAtPoint(topLevelGalerkinElement(patch), &u, &v);
     COLOR UsedRdAtPoint = GLOBAL_render_renderOptions.smooth_shading ? monteCarloRadiosityInterpolatedReflectanceAtPoint(leaf, u, v) : leaf->Rd;
     COLOR rad = elementDisplayRadianceAtPoint(leaf, u, v);
     COLOR source_rad;
@@ -537,5 +541,5 @@ Returns scalar reflectance, for importance propagation
 */
 float
 monteCarloRadiosityScalarReflectance(Patch *P) {
-    return monteCarloRadiosityElementScalarReflectance(TOPLEVEL_ELEMENT(P));
+    return monteCarloRadiosityElementScalarReflectance(topLevelGalerkinElement(P));
 }

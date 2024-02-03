@@ -31,7 +31,7 @@ initialControlRadiosity(
 
     // Initial interval: 0 ... maxRadColor
     for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
-        REC_ForAllSurfaceLeafs(elem, TOPLEVEL_ELEMENT(scenePatches->get(i)))
+        REC_ForAllSurfaceLeafs(elem, topLevelGalerkinElement(scenePatches->get(i)))
                 {
                     COLOR rad = globalGetRadiance(elem)[0];
                     float warea = elem->area;    /* weighted area */
@@ -120,7 +120,7 @@ refineControlRadiosity(
     // Determine value of F(beta) = sum_i (area_i * fabs(B_i - beta)) on
     // a regular subdivision of the interval
     for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
-        REC_ForAllSurfaceLeafs(elem, TOPLEVEL_ELEMENT(scenePatches->get(i)))
+        REC_ForAllSurfaceLeafs(elem, topLevelGalerkinElement(scenePatches->get(i)))
                 {
                     COLOR B = globalGetRadiance(elem)[0];
                     COLOR s = globalGetScaling ? globalGetScaling(elem) : color_one;
