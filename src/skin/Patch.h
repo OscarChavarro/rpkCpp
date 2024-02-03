@@ -60,7 +60,6 @@ public:
 };
 
 extern Patch *patchCreate(int numberOfVertices, Vertex *v1, Vertex *v2, Vertex *v3, Vertex *v4);
-extern void patchDestroy(Patch *patch);
 extern float *patchBounds(Patch *patch, float *bounds);
 extern RayHit *patchIntersect(Patch *patch, Ray *ray, float minimumDistance, float *maximumDistance, int hitFlags, RayHit *hitStore);
 extern void patchDontIntersect(int n, ...);

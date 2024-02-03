@@ -2,12 +2,9 @@
 #define __PATCH_LIST__
 
 #include "java/util/ArrayList.h"
-#include "common/Ray.h"
-#include "material/hit.h"
-#include "skin/Patch.h"
 #include "skin/Geometry.h"
 
-class PatchSet {
+class PatchSet /*: public Geometry */ {
   public:
     Patch *patch;
     PatchSet *next;

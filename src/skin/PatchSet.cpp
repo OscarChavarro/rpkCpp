@@ -1,7 +1,4 @@
 #include "java/util/ArrayList.txx"
-#include "skin/bounds.h"
-#include "skin/Patch.h"
-#include "skin/hitlist.h"
 #include "skin/PatchSet.h"
 
 /**
