@@ -336,7 +336,7 @@ mainCreateClusterHierarchy(java::ArrayList<Patch *> *patches) {
     rootCluster->splitCluster();
 
     // Convert to a Geometry GLOBAL_stochasticRaytracing_hierarchy, disposing of the clusters
-    rootGeometry = rootCluster->convertClusterToGeom();
+    rootGeometry = rootCluster->convertClusterToGeometry();
 
     delete rootCluster;
     return rootGeometry;

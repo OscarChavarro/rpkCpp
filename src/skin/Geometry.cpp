@@ -58,7 +58,7 @@ static Geometry *
 geomCreateBase(
     PatchSet *patchSetData,
     MeshSurface *surfaceData,
-    Compound *compoundData,
+    GeometryListNode *compoundData,
     GeometryClassId className)
 {
     Geometry *newGeometry = new Geometry();
@@ -136,7 +136,7 @@ geomCreateCompound(Compound *compoundData) {
         return nullptr;
     }
 
-    Geometry *newGeometry = geomCreateBase(nullptr, nullptr, compoundData, GeometryClassId::COMPOUND);
+    Geometry *newGeometry = geomCreateBase(nullptr, nullptr, &compoundData->children, GeometryClassId::COMPOUND);
     newGeometry->compoundData = &compoundData->children;
     newGeometry->aggregateData = &compoundData->children;
     return newGeometry;
@@ -148,8 +148,7 @@ geomCreateAggregateCompound(GeometryListNode *aggregateData) {
         return nullptr;
     }
 
-    // TODO SITHMASTER: Note this is converting GeometryListNode to Compound! should change
-    Geometry *newGeometry = geomCreateBase(nullptr, nullptr, (Compound *)aggregateData, GeometryClassId::AGGREGATE_COMPOUND);
+    Geometry *newGeometry = geomCreateBase(nullptr, nullptr, aggregateData, GeometryClassId::AGGREGATE_COMPOUND);
     newGeometry->aggregateData = aggregateData;
     return newGeometry;
 }

@@ -203,7 +203,7 @@ the Cluster GLOBAL_stochasticRaytracing_hierarchy is disposed of (the patch list
 are copied to the GEOMs)
 */
 Geometry *
-Cluster::convertClusterToGeom() {
+Cluster::convertClusterToGeometry() {
     GeometryListNode *geometryListNode;
     Geometry *thePatches;
     int i;
@@ -217,7 +217,7 @@ Cluster::convertClusterToGeom() {
     for ( i = 0; i < 8; i++ ) {
         Geometry *child = nullptr;
         if ( children[i] != nullptr ) {
-            child = children[i]->convertClusterToGeom();
+            child = children[i]->convertClusterToGeometry();
         }
 
         if ( child != nullptr ) {

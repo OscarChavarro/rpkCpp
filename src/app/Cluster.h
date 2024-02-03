@@ -20,7 +20,7 @@ public:
     virtual ~Cluster();
     explicit Cluster(java::ArrayList<Patch *> *inPatches);
     void splitCluster();
-    Geometry * convertClusterToGeom();
+    Geometry * convertClusterToGeometry();
 };
 
 #endif

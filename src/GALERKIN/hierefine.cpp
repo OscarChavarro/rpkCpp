@@ -45,8 +45,8 @@ static GeometryListNode *
 hierarchicRefinementCull(INTERACTION *link) {
     GeometryListNode *ocandlist = globalCandidatesList;
 
-    if ( ocandlist == (GeometryListNode *) nullptr) {
-        return (GeometryListNode *) nullptr;
+    if ( ocandlist == nullptr) {
+        return nullptr;
     }
 
     if ( GLOBAL_galerkin_state.shaftCullMode == DO_SHAFT_CULLING_FOR_REFINEMENT ||
@@ -81,9 +81,9 @@ hierarchicRefinementCull(INTERACTION *link) {
         }
 
         if ( ocandlist == GLOBAL_scene_clusteredWorld ) {
-            globalCandidatesList = shaftCullGeom(GLOBAL_scene_clusteredWorldGeom, &shaft, (GeometryListNode *) nullptr);
+            globalCandidatesList = shaftCullGeom(GLOBAL_scene_clusteredWorldGeom, &shaft, nullptr);
         } else {
-            globalCandidatesList = doShaftCulling(ocandlist, &shaft, (GeometryListNode *) nullptr);
+            globalCandidatesList = doShaftCulling(ocandlist, &shaft, nullptr);
         }
     }
 

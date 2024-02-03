@@ -3,7 +3,7 @@
 
 #include "skin/geomlist.h"
 
-class Compound /* : public Geometry */ {
+class Compound : public Geometry {
 public:
     GeometryListNode children;
 };
@@ -29,7 +29,7 @@ aggregationDiscretizationIntersect(
     RayHit *hitStore);
 
 extern float *
-compoundBounds(Compound *obj, float *boundingBox);
+compoundBounds(GeometryListNode *obj, float *boundingBox);
 
 extern HITLIST *
 compoundAllDiscretizationIntersections(

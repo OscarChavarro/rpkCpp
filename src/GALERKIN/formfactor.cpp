@@ -563,7 +563,7 @@ areaToAreaFormFactor(INTERACTION *link, GeometryListNode *shadowlist) {
     link->vis = (unsigned) (255.0 * (double) viscount /
                             (double) (crrcv->numberOfNodes * crsrc->numberOfNodes));
 
-    if ( GLOBAL_galerkin_state.exact_visibility && shadowlist != (GeometryListNode *) nullptr && link->vis == 255 ) {
+    if ( GLOBAL_galerkin_state.exact_visibility && shadowlist != nullptr && link->vis == 255 ) {
         link->vis = 254;
     }
     // Not full visibility, we missed the shadow!
