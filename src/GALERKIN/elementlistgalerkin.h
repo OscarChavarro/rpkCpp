@@ -16,15 +16,15 @@ class ELEMENTLIST {
     ELEMENTLIST *next;
 };
 
-#define ElementListCreate    (ELEMENTLIST *)ListCreate
+#define ElementListCreate (ELEMENTLIST *)ListCreate
 
-#define ElementListAdd(elementlist, element)    \
-        (ELEMENTLIST *)ListAdd((LIST *)elementlist, (void *)element)
+#define ElementListAdd(elementlist, element) \
+    (ELEMENTLIST *)ListAdd((LIST *)elementlist, (void *)element)
 
 #define ElementListIterate(elementlist, proc) \
-        ListIterate((LIST *)elementlist, (void (*)(void *))proc)
+    ListIterate((LIST *)elementlist, (void (*)(void *))proc)
 
 #define ElementListDestroy(elementlist) \
-        ListDestroy((LIST *)elementlist)
+    ListDestroy((LIST *)elementlist)
 
 #endif

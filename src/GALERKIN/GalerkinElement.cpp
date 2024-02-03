@@ -215,10 +215,10 @@ galerkinElementCreate() {
     newElement->parent = nullptr;
     newElement->regularSubElements = nullptr;
     newElement->irregularSubElements = ElementListCreate();
-    newElement->uptrans = nullptr;
+    newElement->upTrans = nullptr;
     newElement->area = 0.0;
     newElement->flags = 0x00;
-    newElement->childnr = -1; // Means: "not a regular sub-element"
+    newElement->childNumber = -1; // Means: "not a regular sub-element"
     newElement->basisSize = 0;
     newElement->basisUsed = 0;
     newElement->numberOfPatches = 1; // Correct for surface elements, it will be computed later for clusters
@@ -297,11 +297,11 @@ galerkinElementRegularSubDivide(GalerkinElement *element) {
         subElement[i] = galerkinElementCreate();
         subElement[i]->patch = element->patch;
         subElement[i]->parent = element;
-        subElement[i]->uptrans =
+        subElement[i]->upTrans =
                 element->patch->numberOfVertices == 3 ? &GLOBAL_galerkin_TriangularUpTransformMatrix[i] : &GLOBAL_galerkin_QuadUpTransformMatrix[i];
         subElement[i]->area = 0.25f * element->area;  /* we always use a uniform mapping */
         subElement[i]->bsize = 2.0f * (float)std::sqrt(subElement[i]->area / M_PI);
-        subElement[i]->childnr = (char)i;
+        subElement[i]->childNumber = (char)i;
         galerkinElementReAllocCoefficients(subElement[i]);
 
         basisGalerkinPush(element, element->radiance, subElement[i], subElement[i]->radiance);
@@ -360,7 +360,7 @@ galerkinElementDestroyTopLevel(GalerkinElement *element) {
     }
 
     if ( element->irregularSubElements ) {
-        ITERATE_IRREGULAR_SUBELEMENTS(element, galerkinElementDestroyTopLevel);
+        ITERATE_IRREGULAR_SUB_ELEMENTS(element, galerkinElementDestroyTopLevel);
         ElementListDestroy(element->irregularSubElements);
     }
 
@@ -390,13 +390,13 @@ galerkinElementPrint(FILE *out, GalerkinElement *element) {
     }
     fprintf(out, "parent element ID = %d, child nr = %d\n",
             element->parent ? element->parent->id : -1,
-            element->childnr);
+            element->childNumber);
     fprintf(out, "area = %g, bsize = %g, basis size = %d\n",
             element->area, element->bsize, element->basisSize);
 
-    if ( element->uptrans ) {
+    if ( element->upTrans ) {
         fprintf(out, "up-transform:\n");
-        element->uptrans->print(out);
+        element->upTrans->print(out);
     } else {
         fprintf(out, "no up-transform.\n");
     }
@@ -470,9 +470,9 @@ galerkinElementPrintId(FILE *out, GalerkinElement *elem) {
     if ( isCluster(elem)) {
         fprintf(out, "geom %d cluster", elem->geom->id);
     } else {
-        if ( elem->uptrans ) {
+        if ( elem->upTrans ) {
             galerkinElementPrintId(out, elem->parent);
-            fprintf(out, "%d", elem->childnr + 1);
+            fprintf(out, "%d", elem->childNumber + 1);
         } else {
             fprintf(out, "patch %d element ", elem->patch->id);
         }
@@ -492,13 +492,13 @@ xf (pointer to the transform) is returned
 Matrix2x2 *
 galerkinElementToTopTransform(GalerkinElement *element, Matrix2x2 *xf) {
     // Top level element: no transform necessary to transform to top
-    if ( !element->uptrans ) {
+    if ( !element->upTrans ) {
         return (Matrix2x2 *) nullptr;
     }
 
-    *xf = *element->uptrans;
-    while ( (element = element->parent) && element->uptrans ) {
-        PRECONCAT_TRANSFORM2D(*element->uptrans, *xf, *xf);
+    *xf = *element->upTrans;
+    while ( (element = element->parent) && element->upTrans ) {
+        PRECONCAT_TRANSFORM2D(*element->upTrans, *xf, *xf);
     }
 
     return xf;
@@ -611,36 +611,36 @@ galerkinElementVertices(GalerkinElement *elem, Vector3D *p) {
         Matrix2x2 topTrans;
         Vector2D uv;
 
-        if ( elem->uptrans ) {
+        if ( elem->upTrans ) {
             galerkinElementToTopTransform(elem, &topTrans);
         }
 
         uv.u = 0.;
         uv.v = 0.;
-        if ( elem->uptrans ) {
+        if ( elem->upTrans ) {
             transformPoint2D(topTrans, uv, uv);
         }
         patchUniformPoint(elem->patch, uv.u, uv.v, &p[0]);
 
         uv.u = 1.;
         uv.v = 0.;
-        if ( elem->uptrans ) transformPoint2D(topTrans, uv, uv);
+        if ( elem->upTrans ) transformPoint2D(topTrans, uv, uv);
         patchUniformPoint(elem->patch, uv.u, uv.v, &p[1]);
 
         if ( elem->patch->numberOfVertices == 4 ) {
             uv.u = 1.;
             uv.v = 1.;
-            if ( elem->uptrans ) transformPoint2D(topTrans, uv, uv);
+            if ( elem->upTrans ) transformPoint2D(topTrans, uv, uv);
             patchUniformPoint(elem->patch, uv.u, uv.v, &p[2]);
 
             uv.u = 0.;
             uv.v = 1.;
-            if ( elem->uptrans ) transformPoint2D(topTrans, uv, uv);
+            if ( elem->upTrans ) transformPoint2D(topTrans, uv, uv);
             patchUniformPoint(elem->patch, uv.u, uv.v, &p[3]);
         } else {
             uv.u = 0.;
             uv.v = 1.;
-            if ( elem->uptrans ) transformPoint2D(topTrans, uv, uv);
+            if ( elem->upTrans ) transformPoint2D(topTrans, uv, uv);
             patchUniformPoint(elem->patch, uv.u, uv.v, &p[2]);
 
             VECTORSET(p[3], 0., 0., 0.);
@@ -868,13 +868,13 @@ Call func for each leaf element of top
 */
 void
 forAllLeafElements(GalerkinElement *top, void (*func)(GalerkinElement *)) {
-    ForAllIrregularSubelements(child, top)
+    ForAllIrregularSubElements(child, top)
                 {
                     forAllLeafElements(child, func);
                 }
     EndForAll;
 
-    ForAllRegularSubelements(child, top)
+    ForAllRegularSubElements(child, top)
                 {
                     forAllLeafElements(child, func);
                 }

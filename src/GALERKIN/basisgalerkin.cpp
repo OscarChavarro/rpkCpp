@@ -63,7 +63,7 @@ basisGalerkinPush(
         COLOR *child_coefficients)
 {
     GalerkinBasis *basis;
-    int alpha, beta, sigma = child->childnr;
+    int alpha, beta, sigma = child->childNumber;
 
     if ( isCluster(parent)) {
         // Clusters have only irregular sub-elements and a constant
@@ -115,7 +115,7 @@ basisGalerkinPull(
     COLOR *child_coefficients)
 {
     GalerkinBasis *basis;
-    int alpha, beta, sigma = child->childnr;
+    int alpha, beta, sigma = child->childNumber;
 
     if ( isCluster(parent) ) {
         // Clusters only have irregular sub-elements and a constant

@@ -77,7 +77,7 @@ determineNodes(GalerkinElement *elem, CUBARULE **cr, Vector3D x[CUBAMAXNODES], R
 
         /* compute the transform relating positions on the element to positions on
          * the patch to which it belongs. */
-        if ( elem->uptrans ) {
+        if ( elem->upTrans ) {
             galerkinElementToTopTransform(elem, &topxf);
         }
 
@@ -87,7 +87,7 @@ determineNodes(GalerkinElement *elem, CUBARULE **cr, Vector3D x[CUBAMAXNODES], R
             Vector2D node;
             node.u = (*cr)->u[k];
             node.v = (*cr)->v[k];
-            if ( elem->uptrans ) transformPoint2D(topxf, node, node);
+            if ( elem->upTrans ) transformPoint2D(topxf, node, node);
             patchUniformPoint(elem->patch, node.u, node.v, &x[k]);
         }
     }

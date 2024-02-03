@@ -156,7 +156,7 @@ galerkinDestroyClusterHierarchy(GalerkinElement *cluster) {
         return;
     }
 
-    ITERATE_IRREGULAR_SUBELEMENTS(cluster, galerkinDestroyClusterHierarchy);
+    ITERATE_IRREGULAR_SUB_ELEMENTS(cluster, galerkinDestroyClusterHierarchy);
     galerkinElementDestroyCluster(cluster);
 }
 

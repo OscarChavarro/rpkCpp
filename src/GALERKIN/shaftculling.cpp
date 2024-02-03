@@ -753,7 +753,7 @@ shaftCullOpen(Geometry *geom, SHAFT *shaft, GeometryListNode *candidateList) {
 
         if ( culledPatches->size() > 0 ) {
             Geometry *newGeometry;
-            newGeometry = geomCreatePatchList(culledPatches);
+            newGeometry = geomCreatePatchSet(culledPatches);
             newGeometry->shaftCullGeometry = true;
             candidateList = geometryListAdd(candidateList, newGeometry);
         }

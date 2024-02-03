@@ -235,8 +235,8 @@ doClusteredGatheringIteration(java::ArrayList<Patch*> *scenePatches) {
     GLOBAL_galerkin_state.rel_link_error_threshold = (float)userErrorThreshold;
 
     // Push received radiance down the hierarchy to the leaf elements, where
-    // it is multiplied with the reflectivity and the selfemitted radiance added,
-    // and finally pulls back up for a consistent multiresolution representation
+    // it is multiplied with the reflectivity and the self-emitted radiance added,
+    // and finally pulls back up for a consistent multi-resolution representation
     // of radiance over all levels
     basisGalerkinPushPullRadiance(GLOBAL_galerkin_state.top_cluster);
 

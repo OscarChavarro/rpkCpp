@@ -9,13 +9,13 @@ Data associated with each Patch:
 /**
 Close these macros with EndForAll
 */
-#define ForAllRegularSubelements(p, parent) { \
+#define ForAllRegularSubElements(p, parent) { \
 if ((parent)->regular_subelements) { \
   int i; \
   for (i=0; i<4; i++) { \
     StochasticRadiosityElement *p = (parent)->regular_subelements[i];
 
-#define ForAllIrregularSubelements(p, parent) { \
+#define ForAllIrregularSubElements(p, parent) { \
 if ((parent)->irregular_subelements) { \
   ELEMENTLIST *_el_; \
   for (_el_ = (parent)->irregular_subelements; _el_; _el_ = _el_->next) { \

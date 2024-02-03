@@ -634,7 +634,7 @@ refineInteractions(GalerkinElement *top) {
      * beginning at the lowest levels in the hierarchy and working upwards to
      * prevent already refined interactions from being tested for refinement
      * again. */
-    ITERATE_IRREGULAR_SUBELEMENTS(top, refineInteractions);
+    ITERATE_IRREGULAR_SUB_ELEMENTS(top, refineInteractions);
     ITERATE_REGULAR_SUB_ELEMENTS(top, refineInteractions);
 
     /* Iterate over the interactions. Interactions that are refined are removed from the

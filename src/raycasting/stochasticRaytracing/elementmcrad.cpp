@@ -234,7 +234,7 @@ monteCarloRadiosityCreateClusterChildren(StochasticRadiosityElement *parent) {
         }
     }
 
-    ForAllIrregularSubelements(child, parent)
+    ForAllIrregularSubElements(child, parent)
                 {
                     monteCarloRadiosityInitClusterPull(parent, child);
                 }
@@ -808,7 +808,7 @@ monteCarloRadiosityDestroySurfaceElement(StochasticRadiosityElement *elem) {
     if ( !elem ) {
         return;
     }
-    ForAllRegularSubelements(child, elem)
+    ForAllRegularSubElements(child, elem)
                 {
                     monteCarloRadiosityDestroySurfaceElement(child);
                 }
@@ -826,7 +826,7 @@ monteCarloRadiosityDestroyClusterHierarchy(StochasticRadiosityElement *top) {
     if ( !top || !top->iscluster ) {
         return;
     }
-    ForAllIrregularSubelements(child, top)
+    ForAllIrregularSubElements(child, top)
                 {
                     if ( child->iscluster )
                         monteCarloRadiosityDestroyClusterHierarchy(child);
@@ -895,12 +895,12 @@ monteCarloRadiosityForAllChildrenElements(StochasticRadiosityElement *top, void 
     }
 
     if ( top->iscluster ) {
-        ForAllIrregularSubelements(p, top)
+        ForAllIrregularSubElements(p, top)
                     func(p);
         EndForAll;
         return true;
     } else if ( top->regular_subelements ) {
-        ForAllRegularSubelements(p, top)
+        ForAllRegularSubElements(p, top)
                     func(p);
         EndForAll;
         return true;
@@ -916,11 +916,11 @@ monteCarloRadiosityForAllLeafElements(StochasticRadiosityElement *top, void (*fu
     }
 
     if ( top->iscluster ) {
-        ForAllIrregularSubelements(p, top)
+        ForAllIrregularSubElements(p, top)
                     monteCarloRadiosityForAllLeafElements(p, func);
         EndForAll;
     } else if ( top->regular_subelements ) {
-        ForAllRegularSubelements(p, top)
+        ForAllRegularSubElements(p, top)
                     monteCarloRadiosityForAllLeafElements(p, func);
         EndForAll;
     } else {

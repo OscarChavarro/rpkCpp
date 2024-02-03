@@ -67,7 +67,7 @@ class Geometry {
 };
 
 extern Geometry *geomCreateSurface(MeshSurface *surfaceData);
-extern Geometry *geomCreatePatchList(java::ArrayList<Patch *> *geometryList);
+extern Geometry *geomCreatePatchSet(java::ArrayList<Patch *> *patchList);
 extern Geometry *geomCreatePatchSet(PatchSet *patchSet);
 extern Geometry *geomCreateCompound(Compound *compoundData);
 extern Geometry *geomCreateAggregateCompound(GeometryListNode *aggregateData);

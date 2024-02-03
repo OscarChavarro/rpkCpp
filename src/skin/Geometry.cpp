@@ -1,5 +1,3 @@
-#include <cstdlib>
-
 #include "java/util/ArrayList.txx"
 #include "common/error.h"
 #include "material/statistics.h"
@@ -93,7 +91,7 @@ geomCreateBase(void *geometryData, GeometryClassId className) {
 }
 
 Geometry *
-geomCreatePatchList(java::ArrayList<Patch *> *geometryList) {
+geomCreatePatchSet(java::ArrayList<Patch *> *geometryList) {
     PatchSet *patchList = nullptr;
 
     for ( int i = 0; geometryList != nullptr && i < geometryList->size(); i++ ) {

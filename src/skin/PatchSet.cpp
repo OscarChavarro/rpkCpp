@@ -1,9 +1,8 @@
 #include "java/util/ArrayList.txx"
 #include "skin/bounds.h"
-#include "skin/PatchSet.h"
 #include "skin/Patch.h"
 #include "skin/hitlist.h"
-#include "skin/Geometry.h"
+#include "skin/PatchSet.h"
 
 /**
 Computes a bounding box for the given list of patches. The bounding box is
@@ -73,24 +72,24 @@ patchListAllIntersections(HITLIST *hits, java::ArrayList<Patch *> *patches, Ray 
 
 PatchSet *
 patchListDuplicate(PatchSet *patchList) {
-    PatchSet *newList = (PatchSet *) nullptr;
+    PatchSet *newPatchSet = (PatchSet *) nullptr;
     void *patch;
 
     while ( (patch = (patchList != nullptr ? (GLOBAL_listHandler = patchList->patch, patchList = patchList->next, GLOBAL_listHandler) : nullptr)) ) {
         PatchSet *newListNode = (PatchSet *)malloc(sizeof(PatchSet));
         newListNode->patch = (Patch *)patch;
-        newListNode->next = newList;
-        newList = newListNode;
+        newListNode->next = newPatchSet;
+        newPatchSet = newListNode;
     }
 
-    return newList;
+    return newPatchSet;
 }
 
 extern java::ArrayList<Patch *> *
-patchListExportToArrayList(PatchSet *patches) {
+patchListExportToArrayList(PatchSet *patchSet) {
     java::ArrayList<Patch *> *newList = new java::ArrayList<Patch *>();
 
-    for ( PatchSet *window = patches; window != nullptr; window = window->next ) {
+    for ( PatchSet *window = patchSet; window != nullptr; window = window->next ) {
         newList->add(0, window->patch);
     }
 

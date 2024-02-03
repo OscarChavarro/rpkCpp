@@ -34,7 +34,7 @@ patchListAllIntersections(
     int hitFlags);
 
 extern java::ArrayList<Patch *> *
-patchListExportToArrayList(PatchSet *patches);
+patchListExportToArrayList(PatchSet *patchSet);
 
 extern PatchSet *
 patchListDuplicate(PatchSet *patchList);
