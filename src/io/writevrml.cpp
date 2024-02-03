@@ -3,8 +3,10 @@ Saves the result of a radiosity computation as a VRML file
 */
 
 #include "java/util/ArrayList.txx"
-#include "shared/render.h"
-#include "shared/writevrml.h"
+#include "common/linealAlgebra/Matrix4x4.h"
+#include "common/RenderOptions.h"
+#include "skin/Patch.h"
+#include "io/writevrml.h"
 
 /**
 Compute a rotation that will rotate the current "up"-direction to the Y axis.
@@ -105,7 +107,7 @@ writeVrmlHeader(FILE *fp) {
     fprintf(fp, "Transform {\n  rotation %g %g %g %g\n  children [\n    Shape {\n      geometry IndexedFaceSet {\n",
             modelRotationAxis.x, modelRotationAxis.y, modelRotationAxis.z, modelRotationAngle);
 
-    fprintf(fp, "\tsolid %s\n", GLOBAL_render_renderOptions.backface_culling ? "TRUE" : "FALSE");
+    fprintf(fp, "\tsolid %s\n", GLOBAL_render_renderOptions.backfaceCulling ? "TRUE" : "FALSE");
 }
 
 void
@@ -206,8 +208,8 @@ writeVRMLFaceColors(FILE *fp, java::ArrayList<Patch *> *scenePatches) {
 
 static void
 writeVRMLColors(FILE *fp, java::ArrayList<Patch *> *scenePatches) {
-    fprintf(fp, "\tcolorPerVertex %s\n", GLOBAL_render_renderOptions.smooth_shading ? "TRUE" : "FALSE");
-    if ( GLOBAL_render_renderOptions.smooth_shading ) {
+    fprintf(fp, "\tcolorPerVertex %s\n", GLOBAL_render_renderOptions.smoothShading ? "TRUE" : "FALSE");
+    if ( GLOBAL_render_renderOptions.smoothShading ) {
         writeVRMLVertexColors(fp, scenePatches);
     } else {
         writeVRMLFaceColors(fp, scenePatches);

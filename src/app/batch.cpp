@@ -6,10 +6,10 @@
 #include "material/statistics.h"
 #include "skin/radianceinterfaces.h"
 #include "scene/scene.h"
-#include "shared/writevrml.h"
+#include "io/writevrml.h"
 #include "common/options.h"
-#include "shared/canvas.h"
-#include "shared/render.h"
+#include "render/canvas.h"
+#include "render/render.h"
 #include "io/FileUncompressWrapper.h"
 #include "raycasting/common/Raytracer.h"
 #include "raycasting/simple/RayCaster.h"
@@ -197,7 +197,7 @@ batchSaveRaytracingImage(const char *fileName, FILE *fp, int isPipe, java::Array
 
 static void
 batchRayTrace(char *filename, FILE *fp, int isPipe, java::ArrayList<Patch *> *scenePatches, java::ArrayList<Patch *> *lightPatches) {
-    GLOBAL_render_renderOptions.render_raytraced_image = true;
+    GLOBAL_render_renderOptions.renderRayTracedImage = true;
     GLOBAL_camera_mainCamera.changed = false;
 
     canvasPushMode();

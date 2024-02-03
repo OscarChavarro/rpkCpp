@@ -1,11 +1,10 @@
-/*
- * lightsampler.H : Samples a point on a light source.
- *   Two implementations are given : uniform sampling and
- *   importance sampling
- */
+/**
+Samples a point on a light source. Two implementations are given : uniform sampling and
+importance sampling
+*/
 
-#ifndef _LIGHTSAMPLER_H_
-#define _LIGHTSAMPLER_H_
+#ifndef __LIGHTSAMPLER__
+#define __LIGHTSAMPLER__
 
 #include "shared/lightlist.h"
 #include "raycasting/raytracing/sampler.h"

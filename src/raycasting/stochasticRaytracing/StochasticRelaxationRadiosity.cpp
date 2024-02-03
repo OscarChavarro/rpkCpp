@@ -5,7 +5,7 @@ Stochastic Relaxation Radiosity (currently only stochastic Jacobi)
 #include "java/util/ArrayList.txx"
 #include "common/error.h"
 #include "material/statistics.h"
-#include "shared/render.h"
+#include "render/render.h"
 #include "raycasting/stochasticRaytracing/vrml/vrml.h"
 #include "raycasting/stochasticRaytracing/mcradP.h"
 #include "raycasting/stochasticRaytracing/hierarchy.h"
@@ -448,7 +448,7 @@ stochasticRelaxationRadiosityRenderPatch(Patch *patch) {
 
 static void
 stochasticRelaxationRadiosityRender(java::ArrayList<Patch *> *scenePatches) {
-    if ( GLOBAL_render_renderOptions.frustum_culling ) {
+    if ( GLOBAL_render_renderOptions.frustumCulling ) {
         openGlRenderWorldOctree(stochasticRelaxationRadiosityRenderPatch);
     } else {
         for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {

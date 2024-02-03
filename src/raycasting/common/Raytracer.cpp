@@ -1,4 +1,4 @@
-#include "shared/Camera.h"
+#include "scene/Camera.h"
 #include "material/statistics.h"
 #include "raycasting/common/Raytracer.h"
 

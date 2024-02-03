@@ -2,7 +2,7 @@
 #define __OPENGL__
 
 #include "skin/Patch.h"
-#include "shared/Camera.h"
+#include "scene/Camera.h"
 
 extern int openGlRenderInitialized();
 extern void openGlRenderCameras();

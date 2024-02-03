@@ -6,7 +6,7 @@
 
 #include "IMAGE/imagecpp.h"
 #include "common/color.h"
-#include "shared/Camera.h"
+#include "scene/Camera.h"
 
 /**
 Class for storing pixel radiances/fluxes

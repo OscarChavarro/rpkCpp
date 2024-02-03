@@ -8,7 +8,7 @@ formats, etc.
 #include "java/util/ArrayList.txx"
 #include "common/error.h"
 #include "render/opengl.h"
-#include "shared/render.h"
+#include "render/render.h"
 #include "render/softids.h"
 
 /**
@@ -42,7 +42,7 @@ static void
 softRenderPatch(Patch *P) {
     Vector3D vertices[4];
 
-    if ( GLOBAL_render_renderOptions.backface_culling &&
+    if ( GLOBAL_render_renderOptions.backfaceCulling &&
          VECTORDOTPRODUCT(P->normal, GLOBAL_camera_mainCamera.eyePosition) + P->planeConstant < EPSILON ) {
         return;
     }
@@ -69,11 +69,11 @@ softRenderPatches(
 {
     PatchPixel = patch_pixel;
 
-    if ( GLOBAL_render_renderOptions.frustum_culling ) {
-        char use_display_lists = GLOBAL_render_renderOptions.use_display_lists;
-        GLOBAL_render_renderOptions.use_display_lists = false;  /* temporarily switch it off */
+    if ( GLOBAL_render_renderOptions.frustumCulling ) {
+        char use_display_lists = GLOBAL_render_renderOptions.useDisplayLists;
+        GLOBAL_render_renderOptions.useDisplayLists = false;  /* temporarily switch it off */
         openGlRenderWorldOctree(softRenderPatch);
-        GLOBAL_render_renderOptions.use_display_lists = use_display_lists;
+        GLOBAL_render_renderOptions.useDisplayLists = use_display_lists;
     } else {
         for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
             softRenderPatch(scenePatches->get(i));

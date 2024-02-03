@@ -1,6 +1,6 @@
 #include "common/error.h"
 #include "common/options.h"
-#include "shared/Camera.h"
+#include "scene/Camera.h"
 
 // Default virtual camera
 #define DEFAULT_EYEP {10.0, 0.0, 0.0}

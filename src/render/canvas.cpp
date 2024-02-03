@@ -1,7 +1,5 @@
 #include "common/error.h"
-#include "scene/scene.h"
-#include "shared/render.h"
-#include "shared/canvas.h"
+#include "render/canvas.h"
 
 /**
 Size of the canvas mode stack. Canvas mode: determines how the program will

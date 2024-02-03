@@ -1,7 +1,8 @@
 #include <cstdio>
+
+#include "common/linealAlgebra/Float.h"
 #include "shared/samplegrid.h"
 #include "shared/discretesampling.h"
-#include "common/linealAlgebra/Float.h"
 
 CSampleGrid2D::CSampleGrid2D(int xsections, int ysections) {
     m_xsections = xsections;

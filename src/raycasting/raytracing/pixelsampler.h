@@ -6,7 +6,7 @@
 #ifndef _PIXELSAMPLER_H_
 #define _PIXELSAMPLER_H_
 
-#include "shared/Camera.h"
+#include "scene/Camera.h"
 #include "raycasting/raytracing/sampler.h"
 
 class CPixelSampler : public CSampler {

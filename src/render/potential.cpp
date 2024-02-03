@@ -7,8 +7,8 @@ Routines dealing with view potential
 #include "java/util/ArrayList.txx"
 #include "common/error.h"
 #include "material/statistics.h"
-#include "shared/render.h"
-#include "shared/canvas.h"
+#include "scene/Camera.h"
+#include "render/canvas.h"
 #include "render/softids.h"
 #include "render/potential.h"
 

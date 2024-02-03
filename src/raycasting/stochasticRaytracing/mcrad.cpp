@@ -12,8 +12,8 @@ Monte Carlo Radiosity: common code for stochastic relaxation and random walks
 #include "scene/scene.h"
 #include "common/options.h"
 #include "render/potential.h"
-#include "shared/Camera.h"
-#include "shared/render.h"
+#include "scene/Camera.h"
+#include "render/render.h"
 #include "raycasting/stochasticRaytracing/hierarchy.h"
 #include "raycasting/stochasticRaytracing/mcradP.h"
 #include "raycasting/stochasticRaytracing/elementmcrad.h"
@@ -508,7 +508,7 @@ COLOR
 monteCarloRadiosityGetRadiance(Patch *patch, double u, double v, Vector3D dir) {
     COLOR TrueRdAtPoint = monteCarloRadiosityDiffuseReflectanceAtPoint(patch, u, v);
     StochasticRadiosityElement *leaf = monteCarloRadiosityRegularLeafElementAtPoint(topLevelGalerkinElement(patch), &u, &v);
-    COLOR UsedRdAtPoint = GLOBAL_render_renderOptions.smooth_shading ? monteCarloRadiosityInterpolatedReflectanceAtPoint(leaf, u, v) : leaf->Rd;
+    COLOR UsedRdAtPoint = GLOBAL_render_renderOptions.smoothShading ? monteCarloRadiosityInterpolatedReflectanceAtPoint(leaf, u, v) : leaf->Rd;
     COLOR rad = elementDisplayRadianceAtPoint(leaf, u, v);
     COLOR source_rad;
     colorClear(source_rad);

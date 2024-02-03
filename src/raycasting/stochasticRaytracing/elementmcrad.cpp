@@ -2,7 +2,7 @@
 
 #include "java/util/ArrayList.txx"
 #include "common/error.h"
-#include "shared/render.h"
+#include "render/render.h"
 #include "raycasting/stochasticRaytracing/mcradP.h"
 #include "raycasting/stochasticRaytracing/hierarchy.h"
 #include "render/opengl.h"

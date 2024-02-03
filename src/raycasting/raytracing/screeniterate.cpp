@@ -1,7 +1,7 @@
 #include <ctime>
 
 #include "common/color.h"
-#include "shared/Camera.h"
+#include "scene/Camera.h"
 #include "IMAGE/tonemap/tonemapping.h"
 #include "render/opengl.h"
 #include "raycasting/common/raytools.h"

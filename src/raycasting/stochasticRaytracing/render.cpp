@@ -3,7 +3,7 @@ Rendering elements
 */
 
 #include "common/error.h"
-#include "shared/render.h"
+#include "render/render.h"
 #include "IMAGE/tonemap/tonemapping.h"
 #include "raycasting/stochasticRaytracing/mcradP.h"
 #include "raycasting/stochasticRaytracing/hierarchy.h"
@@ -179,7 +179,7 @@ renderTriangle(Vertex *v1, Vertex *v2, Vertex *v3) {
     col[2] = v3->color;
     openGlRenderPolygonGouraud(3, vert, col);
 
-    if ( GLOBAL_render_renderOptions.draw_outlines ) {
+    if ( GLOBAL_render_renderOptions.drawOutlines ) {
         int i;
         for ( i = 0; i < 3; i++ ) {
             Vector3D d;
@@ -209,7 +209,7 @@ renderQuadrilateral(Vertex *v1, Vertex *v2, Vertex *v3, Vertex *v4) {
     col[3] = v4->color;
     openGlRenderPolygonGouraud(4, vert, col);
 
-    if ( GLOBAL_render_renderOptions.draw_outlines ) {
+    if ( GLOBAL_render_renderOptions.drawOutlines ) {
         int i;
         for ( i = 0; i < 4; i++ ) {
             Vector3D d;
@@ -420,7 +420,7 @@ void
 mcrRenderElement(StochasticRadiosityElement *elem) {
     Vector3D verts[4];
 
-    if ( GLOBAL_render_renderOptions.smooth_shading && GLOBAL_stochasticRaytracing_hierarchy.tvertex_elimination ) {
+    if ( GLOBAL_render_renderOptions.smoothShading && GLOBAL_stochasticRaytracing_hierarchy.tvertex_elimination ) {
         Vertex *m[4];
         int i, n;
         for ( i = 0, n = 0; i < elem->numberOfVertices; i++ ) {
@@ -445,7 +445,7 @@ mcrRenderElement(StochasticRadiosityElement *elem) {
         verts[3] = *(elem->vertex[3]->point);
     }
 
-    if ( GLOBAL_render_renderOptions.smooth_shading ) {
+    if ( GLOBAL_render_renderOptions.smoothShading ) {
         RGB vertcols[4];
         vertcols[0] = elem->vertex[0]->color;
         vertcols[1] = elem->vertex[1]->color;
@@ -462,7 +462,7 @@ mcrRenderElement(StochasticRadiosityElement *elem) {
         openGlRenderPolygonFlat(elem->numberOfVertices, verts);
     }
 
-    if ( GLOBAL_render_renderOptions.draw_outlines )
+    if ( GLOBAL_render_renderOptions.drawOutlines )
         renderElementOutline(elem);
 }
 
@@ -487,7 +487,7 @@ COLOR
 elementDisplayRadianceAtPoint(StochasticRadiosityElement *elem, double u, double v) {
     COLOR radiance;
     if ( elem->basis->size == 1 ) {
-        if ( GLOBAL_render_renderOptions.smooth_shading ) {
+        if ( GLOBAL_render_renderOptions.smoothShading ) {
             // Do Gouraud interpolation if required
             int i;
             COLOR rad[4];

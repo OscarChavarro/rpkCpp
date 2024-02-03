@@ -1,5 +1,5 @@
 #include "scene/scene.h"
-#include "shared/Camera.h"
+#include "scene/Camera.h"
 #include "raycasting/common/Raytracer.h"
 #include "raycasting/common/raytools.h"
 

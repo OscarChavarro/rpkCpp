@@ -2,7 +2,7 @@
 #define _RENDERHOOK_PRIV_H_
 
 #include "common/dataStructures/List.h"
-#include "shared/renderhook.h"
+#include "render/renderhook.h"
 
 class RENDERHOOK {
 public:

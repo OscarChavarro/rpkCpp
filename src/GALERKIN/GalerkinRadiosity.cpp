@@ -12,10 +12,10 @@ potential-driven or not.
 #include "material/statistics.h"
 #include "scene/scene.h"
 #include "skin/Vertex.h"
-#include "shared/render.h"
-#include "shared/Camera.h"
+#include "render/render.h"
+#include "scene/Camera.h"
 #include "common/options.h"
-#include "shared/writevrml.h"
+#include "io/writevrml.h"
 #include "render/opengl.h"
 #include "IMAGE/tonemap/tonemapping.h"
 #include "GALERKIN/GalerkinRadiosity.h"
@@ -483,7 +483,7 @@ galerkinRenderPatch(Patch *patch) {
 
 void
 galerkinRender(java::ArrayList<Patch *> *scenePatches) {
-    if ( GLOBAL_render_renderOptions.frustum_culling ) {
+    if ( GLOBAL_render_renderOptions.frustumCulling ) {
         openGlRenderWorldOctree(galerkinRenderPatch);
     } else {
         for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
@@ -587,7 +587,7 @@ galerkinWriteVertexColors() {
 
 static void
 galerkinWriteColors() {
-    if ( !GLOBAL_render_renderOptions.smooth_shading ) {
+    if ( !GLOBAL_render_renderOptions.smoothShading ) {
         logWarning(nullptr, "I assume you want a smooth shaded model ...");
     }
     fprintf(globalVrmlFileDescriptor, "\tcolorPerVertex %s\n", "TRUE");

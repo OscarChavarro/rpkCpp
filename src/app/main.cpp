@@ -6,9 +6,9 @@
 #include "material/statistics.h"
 #include "skin/radianceinterfaces.h"
 #include "common/options.h"
-#include "shared/render.h"
+#include "render/render.h"
 #include "shared/cubature.h"
-#include "shared/renderhook.h"
+#include "render/renderhook.h"
 #include "scene/scene.h"
 #include "IMAGE/tonemap/tonemapping.h"
 #include "io/mgf/readmgf.h"
@@ -16,7 +16,7 @@
 #include "render/opengl.h"
 #include "app/Cluster.h"
 #include "app/batch.h"
-#include "shared/canvas.h"
+#include "render/canvas.h"
 #include "raycasting/stochasticRaytracing/StochasticRaytracer.h"
 #include "raycasting/raytracing/BidirectionalPathRaytracer.h"
 #include "raycasting/simple/RayCaster.h"
@@ -284,12 +284,12 @@ mainRenderingDefaults() {
     renderUseFrustumCulling(true);
     renderSetNoShading(false);
 
-    GLOBAL_render_renderOptions.draw_cameras = false;
-    GLOBAL_render_renderOptions.camsize = 0.25;
-    GLOBAL_render_renderOptions.linewidth = 1.0;
+    GLOBAL_render_renderOptions.drawCameras = false;
+    GLOBAL_render_renderOptions.cameraSize = 0.25;
+    GLOBAL_render_renderOptions.lineWidth = 1.0;
     GLOBAL_render_renderOptions.camera_color = GLOBAL_material_yellow;
-    GLOBAL_render_renderOptions.render_raytraced_image = false;
-    GLOBAL_render_renderOptions.use_background = true;
+    GLOBAL_render_renderOptions.renderRayTracedImage = false;
+    GLOBAL_render_renderOptions.useBackground = true;
 }
 
 /**
@@ -349,7 +349,7 @@ static void
 mainParseGlobalOptions(int *argc, char **argv) {
     GLOBAL_scenePatches = globalAppScenePatches;
 
-    parseRenderingOptions(argc, argv);
+    renderParseOptions(argc, argv);
     parseToneMapOptions(argc, argv);
     parseCameraOptions(argc, argv);
     parseRadianceOptions(argc, argv);

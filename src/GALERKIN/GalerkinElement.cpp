@@ -1,5 +1,5 @@
 #include "common/error.h"
-#include "shared/render.h"
+#include "render/render.h"
 #include "IMAGE/tonemap/tonemapping.h"
 #include "GALERKIN/basisgalerkin.h"
 #include "GALERKIN/clustergalerkincpp.h"
@@ -853,11 +853,11 @@ void
 galerkinElementRender(GalerkinElement *elem) {
     int renderCode = 0;
 
-    if ( GLOBAL_render_renderOptions.draw_outlines ) {
+    if ( GLOBAL_render_renderOptions.drawOutlines ) {
         renderCode |= OUTLINE;
     }
 
-    if ( GLOBAL_render_renderOptions.smooth_shading ) {
+    if ( GLOBAL_render_renderOptions.smoothShading ) {
         renderCode |= GOURAUD;
     } else {
         renderCode |= FLAT;

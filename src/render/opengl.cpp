@@ -6,12 +6,12 @@
 #include "common/error.h"
 #include "scene/scene.h"
 #include "skin/radianceinterfaces.h"
-#include "shared/render.h"
-#include "shared/canvas.h"
-#include "shared/renderhook.h"
+#include "render/canvas.h"
+#include "render/renderhook.h"
 #include "render/softids.h"
 #include "IMAGE/tonemap/tonemapping.h"
 #include "render/opengl.h"
+#include "render/render.h"
 
 class OctreeChild {
 public:
@@ -52,7 +52,7 @@ openGlRenderSetCamera() {
     glViewport(0, 0, GLOBAL_camera_mainCamera.xSize, GLOBAL_camera_mainCamera.ySize);
 
     // Draw background when needed
-    if ( GLOBAL_render_renderOptions.use_background && globalBackground ) {
+    if ( GLOBAL_render_renderOptions.useBackground && globalBackground ) {
         openGlRenderBackground(&GLOBAL_camera_mainCamera);
     }
 
@@ -305,17 +305,17 @@ Renders the all the patches using default colors
 */
 void
 openGlRenderPatch(Patch *patch) {
-    if ( !GLOBAL_render_renderOptions.no_shading ) {
-        if ( GLOBAL_render_renderOptions.smooth_shading ) {
+    if ( !GLOBAL_render_renderOptions.noShading ) {
+        if ( GLOBAL_render_renderOptions.smoothShading ) {
             openGlRenderPatchSmooth(patch);
         } else {
             openGlRenderPatchFlat(patch);
         }
     }
 
-    if ( GLOBAL_render_renderOptions.draw_outlines &&
+    if ( GLOBAL_render_renderOptions.drawOutlines &&
          (VECTORDOTPRODUCT(patch->normal, GLOBAL_camera_mainCamera.eyePosition) + patch->planeConstant > EPSILON
-          || GLOBAL_render_renderOptions.use_display_lists)) {
+          || GLOBAL_render_renderOptions.useDisplayLists)) {
         openGlRenderSetColor(&GLOBAL_render_renderOptions.outline_color);
         openGlRenderPatchOutline(patch);
     }
@@ -331,7 +331,7 @@ openGlReallyRenderOctreeLeaf(Geometry *geometry, void (*renderPatch)(Patch *)) {
 
 static void
 openGlRenderOctreeLeaf(Geometry *geom, void (*render_patch)(Patch *)) {
-    if ( GLOBAL_render_renderOptions.use_display_lists ) {
+    if ( GLOBAL_render_renderOptions.useDisplayLists ) {
         if ( geom->displayListId <= 0 ) {
             geom->displayListId = geom->id;
             glNewList(geom->displayListId, GL_COMPILE_AND_EXECUTE);
@@ -492,7 +492,7 @@ openGlRenderNewDisplayList() {
     }
     globalDisplayListId = -1;
 
-    if ( GLOBAL_render_renderOptions.frustum_culling ) {
+    if ( GLOBAL_render_renderOptions.frustumCulling ) {
         openGlRenderNewOctreeDisplayLists();
     }
 }
@@ -501,7 +501,7 @@ static void
 openGlReallyRender(java::ArrayList<Patch *> *scenePatches) {
     if ( GLOBAL_radiance_currentRadianceMethodHandle && GLOBAL_radiance_currentRadianceMethodHandle->renderScene ) {
         GLOBAL_radiance_currentRadianceMethodHandle->renderScene(scenePatches);
-    } else if ( GLOBAL_render_renderOptions.frustum_culling ) {
+    } else if ( GLOBAL_render_renderOptions.frustumCulling ) {
             openGlRenderWorldOctree(openGlRenderPatch);
     } else {
         for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
@@ -512,7 +512,7 @@ openGlReallyRender(java::ArrayList<Patch *> *scenePatches) {
 
 static void
 openGlRenderRadiance(java::ArrayList<Patch *> *scenePatches) {
-    if ( GLOBAL_render_renderOptions.smooth_shading ) {
+    if ( GLOBAL_render_renderOptions.smoothShading ) {
         glShadeModel(GL_SMOOTH);
     } else {
         glShadeModel(GL_FLAT);
@@ -520,13 +520,13 @@ openGlRenderRadiance(java::ArrayList<Patch *> *scenePatches) {
 
     openGlRenderSetCamera();
 
-    if ( GLOBAL_render_renderOptions.backface_culling ) {
+    if ( GLOBAL_render_renderOptions.backfaceCulling ) {
         glEnable(GL_CULL_FACE);
     } else {
         glDisable(GL_CULL_FACE);
     }
 
-    if ( GLOBAL_render_renderOptions.use_display_lists && !GLOBAL_render_renderOptions.frustum_culling ) {
+    if ( GLOBAL_render_renderOptions.useDisplayLists && !GLOBAL_render_renderOptions.frustumCulling ) {
         if ( globalDisplayListId <= 0 ) {
             globalDisplayListId = 1;
             glNewList(globalDisplayListId, GL_COMPILE_AND_EXECUTE);
@@ -541,15 +541,15 @@ openGlRenderRadiance(java::ArrayList<Patch *> *scenePatches) {
         openGlReallyRender(scenePatches);
     }
 
-    if ( GLOBAL_render_renderOptions.draw_bounding_boxes ) {
+    if ( GLOBAL_render_renderOptions.drawBoundingBoxes ) {
         renderBoundingBoxHierarchy();
     }
 
-    if ( GLOBAL_render_renderOptions.draw_clusters ) {
+    if ( GLOBAL_render_renderOptions.drawClusters ) {
         renderClusterHierarchy();
     }
 
-    if ( GLOBAL_render_renderOptions.draw_cameras ) {
+    if ( GLOBAL_render_renderOptions.drawCameras ) {
         openGlRenderCameras();
     }
 }
@@ -563,15 +563,15 @@ openGlRenderScene(java::ArrayList<Patch *> *scenePatches, int (*reDisplayCallbac
         return;
     }
 
-    openGlRenderSetLineWidth(GLOBAL_render_renderOptions.linewidth);
+    openGlRenderSetLineWidth(GLOBAL_render_renderOptions.lineWidth);
 
     canvasPushMode();
 
     if ( GLOBAL_camera_mainCamera.changed ) {
-        GLOBAL_render_renderOptions.render_raytraced_image = false;
+        GLOBAL_render_renderOptions.renderRayTracedImage = false;
     }
 
-    if ( !GLOBAL_render_renderOptions.render_raytraced_image || !openGlRenderRayTraced(reDisplayCallback)) {
+    if ( !GLOBAL_render_renderOptions.renderRayTracedImage || !openGlRenderRayTraced(reDisplayCallback)) {
         openGlRenderRadiance(scenePatches);
     }
 
@@ -641,22 +641,12 @@ openGlRenderPixels(int x, int y, int width, int height, RGB *rgb) {
     delete c;
 }
 
-/**
-Patch ID rendering. Returns an array of size (*x)*(*y) containing the IDs of
-the patches visible through each pixel or 0 if the background is visible through
-the pixel. x is normally the width and y the height of the canvas window
-*/
-unsigned long *
-sglRenderIds(long *x, long *y, java::ArrayList<Patch *> *scenePatches) {
-    return softRenderIds(x, y, scenePatches);
-}
-
 static void
 openGlRenderFrustum(Camera *cam) {
     Vector3D c;
     Vector3D P;
     Vector3D Q;
-    float cameraSize = GLOBAL_render_renderOptions.camsize;
+    float cameraSize = GLOBAL_render_renderOptions.cameraSize;
     float width = cameraSize * cam->viewDistance * cam->pixelWidthTangent;
     float height = cameraSize * cam->viewDistance * cam->pixelHeightTangent;
     int i;
@@ -746,4 +736,14 @@ openGlRenderBackground(Camera *camera) {
 
     // Enable Z-buffer back
     glEnable(GL_DEPTH_TEST);
+}
+
+/**
+Patch ID rendering. Returns an array of size (*x)*(*y) containing the IDs of
+the patches visible through each pixel or 0 if the background is visible through
+the pixel. x is normally the width and y the height of the canvas window
+*/
+unsigned long *
+sglRenderIds(long *x, long *y, java::ArrayList<Patch *> *scenePatches) {
+    return softRenderIds(x, y, scenePatches);
 }

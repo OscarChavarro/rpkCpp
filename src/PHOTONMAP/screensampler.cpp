@@ -2,7 +2,7 @@
 
 #include "PHOTONMAP/screensampler.h"
 #include "raycasting/common/raytools.h"
-#include "shared/Camera.h"
+#include "scene/Camera.h"
 
 bool CScreenSampler::Sample(CPathNode */*prevNode*/,
                             CPathNode *thisNode,

@@ -5,8 +5,8 @@
 #include "common/error.h"
 #include "skin/Geometry.h"
 #include "scene/scene.h"
-#include "shared/writevrml.h"
-#include "shared/render.h"
+#include "io/writevrml.h"
+#include "render/render.h"
 #include "raycasting/stochasticRaytracing/mcradP.h"
 #include "raycasting/stochasticRaytracing/hierarchy.h"
 #include "raycasting/stochasticRaytracing/vrml/vrml.h"
@@ -351,7 +351,7 @@ beginWritePrimitive(Geometry *geom) {
     if ( geomIsSurface(geom)) {
         fprintf(vrmlfp, "\tsolid %s\n", geomGetSurface(geom)->material->sided ? "TRUE" : "FALSE");
     }
-    if ( !GLOBAL_render_renderOptions.smooth_shading && !wgiv ) {
+    if ( !GLOBAL_render_renderOptions.smoothShading && !wgiv ) {
         logWarning(nullptr, "I assume you want a smooth shaded model ...");
         wgiv = true;
     }

@@ -20,13 +20,15 @@ set(MAIN_SRC
     src/common/mymath.cpp
     src/common/linealAlgebra/Vector3D.cpp
     src/common/linealAlgebra/Matrix4x4.cpp
+    src/common/color.cpp
+    src/common/options.cpp
+    src/common/cie.cpp
+    src/common/RenderOptions.cpp
     src/common/dataStructures/CSList.cpp
     src/common/dataStructures/DList.cpp
     src/common/dataStructures/KDTree.cpp
     src/common/dataStructures/List.cpp
     src/common/dataStructures/Bintree.cpp
-    src/common/color.cpp
-    src/common/options.cpp
     src/QMC/halton.cpp
     src/QMC/scrambledhalton.cpp
     src/QMC/nied31.cpp
@@ -38,11 +40,10 @@ set(MAIN_SRC
     src/material/statistics.cpp
     src/material/xxdf.cpp
     src/material/btdf.cpp
-        src/common/cie.cpp
     src/material/edf.cpp
     src/material/bsdf.cpp
     src/material/Material.cpp
-        src/skin/PatchSet.cpp
+    src/skin/PatchSet.cpp
     src/skin/hit.cpp
     src/skin/Compound.cpp
     src/skin/geomlist.cpp
@@ -53,6 +54,10 @@ set(MAIN_SRC
     src/skin/hitlist.cpp
     src/skin/Vertex.cpp
     src/skin/Jacobian.cpp
+    src/SGL/poly_clip.cpp
+    src/SGL/poly_scan_z.cpp
+    src/SGL/sgl.cpp
+    src/SGL/poly_scan_flat.cpp
     src/scene/spherical.cpp
     src/scene/scene.cpp
     src/scene/splitbsdf.cpp
@@ -60,6 +65,22 @@ set(MAIN_SRC
     src/scene/phong.cpp
     src/scene/Background.cpp
     src/scene/VoxelData.cpp
+    src/scene/Camera.cpp
+    src/IMAGE/pic.cpp
+    src/IMAGE/dkcolor.cpp
+    src/IMAGE/imagec.cpp
+    src/IMAGE/ppm.cpp
+    src/IMAGE/tonemap/lightness.cpp
+    src/IMAGE/tonemap/dummy.cpp
+    src/IMAGE/tonemap/tonemapping.cpp
+    src/IMAGE/tonemap/trwf.cpp
+    src/IMAGE/adaptation.cpp
+    src/shared/samplegrid.cpp
+    src/shared/discretesampling.cpp
+    src/shared/lightlist.cpp
+    src/shared/shadowcaching.cpp
+    src/shared/stratification.cpp
+    src/shared/cubature.cpp
     src/io/mgf/readmgf.cpp
     src/io/mgf/object.cpp
     src/io/mgf/lookup.cpp
@@ -71,34 +92,15 @@ set(MAIN_SRC
     src/io/mgf/parser.cpp
     src/io/mgf/context.cpp
     src/io/FileUncompressWrapper.cpp
-    src/SGL/poly_clip.cpp
-    src/SGL/poly_scan_z.cpp
-    src/SGL/sgl.cpp
-    src/SGL/poly_scan_flat.cpp
+    src/io/writevrml.cpp
     src/render/hemirenderer.cpp
     src/render/potential.cpp
     src/render/SoftIdsWrapper.cpp
     src/render/softids.cpp
     src/render/opengl.cpp
-    src/shared/samplegrid.cpp
-    src/shared/discretesampling.cpp
-    src/shared/lightlist.cpp
-    src/shared/renderhook.cpp
-    src/shared/shadowcaching.cpp
-    src/shared/Camera.cpp
-    src/shared/canvas.cpp
-    src/shared/stratification.cpp
-    src/shared/writevrml.cpp
-    src/shared/cubature.cpp
-    src/IMAGE/pic.cpp
-    src/IMAGE/dkcolor.cpp
-    src/IMAGE/imagec.cpp
-    src/IMAGE/ppm.cpp
-    src/IMAGE/tonemap/lightness.cpp
-    src/IMAGE/tonemap/dummy.cpp
-    src/IMAGE/tonemap/tonemapping.cpp
-    src/IMAGE/tonemap/trwf.cpp
-    src/IMAGE/adaptation.cpp
+    src/render/renderhook.cpp
+    src/render/canvas.cpp
+    src/render/rendercommon.cpp
     src/GALERKIN/basisgalerkin.cpp
     src/GALERKIN/GalerkinRadiosity.cpp
     src/GALERKIN/shaftculling.cpp
@@ -170,7 +172,6 @@ set(MAIN_SRC
     src/raycasting/stochasticRaytracing/hierarchyRefine.cpp
     src/raycasting/stochasticRaytracing/basisquadmcrad.cpp
     src/app/Cluster.cpp
-    src/app/rendercommon.cpp
     src/app/radiance.cpp
     src/app/batch.cpp
     src/app/main.cpp)

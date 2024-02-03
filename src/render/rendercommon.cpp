@@ -5,53 +5,50 @@ Rendering stuff independent of the graphics library being used
 #include "common/mymath.h"
 #include "common/linealAlgebra/vectorMacros.h"
 #include "scene/scene.h"
-#include "shared/Camera.h"
+#include "scene/Camera.h"
 #include "skin/Geometry.h"
 #include "common/options.h"
 #include "render/opengl.h"
-#include "shared/render.h"
-
-
-RENDEROPTIONS GLOBAL_render_renderOptions;
+#include "render/render.h"
 
 void
 renderSetSmoothShading(char yesno) {
-    GLOBAL_render_renderOptions.smooth_shading = yesno;
+    GLOBAL_render_renderOptions.smoothShading = yesno;
 }
 
 void
 renderSetNoShading(char yesno) {
-    GLOBAL_render_renderOptions.no_shading = yesno;
+    GLOBAL_render_renderOptions.noShading = yesno;
 }
 
 void
 renderSetBackfaceCulling(char backface_culling) {
-    GLOBAL_render_renderOptions.backface_culling = backface_culling;
+    GLOBAL_render_renderOptions.backfaceCulling = backface_culling;
 }
 
 void
 renderSetOutlineDrawing(char draw_outlines) {
-    GLOBAL_render_renderOptions.draw_outlines = draw_outlines;
+    GLOBAL_render_renderOptions.drawOutlines = draw_outlines;
 }
 
 void
 renderSetBoundingBoxDrawing(char yesno) {
-    GLOBAL_render_renderOptions.draw_bounding_boxes = yesno;
+    GLOBAL_render_renderOptions.drawBoundingBoxes = yesno;
 }
 
 void
 renderSetClusterDrawing(char yesno) {
-    GLOBAL_render_renderOptions.draw_clusters = yesno;
+    GLOBAL_render_renderOptions.drawClusters = yesno;
 }
 
 void
 renderUseDisplayLists(char truefalse) {
-    GLOBAL_render_renderOptions.use_display_lists = truefalse;
+    GLOBAL_render_renderOptions.useDisplayLists = truefalse;
 }
 
 void
 renderUseFrustumCulling(char truefalse) {
-    GLOBAL_render_renderOptions.frustum_culling = truefalse;
+    GLOBAL_render_renderOptions.frustumCulling = truefalse;
 }
 
 void
@@ -71,22 +68,22 @@ renderSetClusterColor(RGB *cluster_color) {
 
 static void
 displayListsOption(void *value) {
-    GLOBAL_render_renderOptions.use_display_lists = true;
+    GLOBAL_render_renderOptions.useDisplayLists = true;
 }
 
 static void
 flatOption(void *value) {
-    GLOBAL_render_renderOptions.smooth_shading = false;
+    GLOBAL_render_renderOptions.smoothShading = false;
 }
 
 static void
 noCullingOption(void *value) {
-    GLOBAL_render_renderOptions.backface_culling = false;
+    GLOBAL_render_renderOptions.backfaceCulling = false;
 }
 
 static void
 outlinesOption(void *value) {
-    GLOBAL_render_renderOptions.draw_outlines = true;
+    GLOBAL_render_renderOptions.drawOutlines = true;
 }
 
 static void
@@ -120,7 +117,7 @@ static CommandLineOptionDescription renderingOptions[] = {
 };
 
 void
-parseRenderingOptions(int *argc, char **argv) {
+renderParseOptions(int *argc, char **argv) {
     parseOptions(renderingOptions, argc, argv);
 }
 
@@ -164,9 +161,9 @@ renderGetNearFar(float *near, float *far) {
         }
     }
 
-    if ( GLOBAL_render_renderOptions.draw_cameras ) {
+    if ( GLOBAL_render_renderOptions.drawCameras ) {
         Camera *cam = &GLOBAL_camera_alternateCamera;
-        float camlen = GLOBAL_render_renderOptions.camsize,
+        float camlen = GLOBAL_render_renderOptions.cameraSize,
                 hsiz = camlen * cam->viewDistance * cam->pixelWidthTangent,
                 vsiz = camlen * cam->viewDistance * cam->pixelHeightTangent;
         Vector3D c, P[5];

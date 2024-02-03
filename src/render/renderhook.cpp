@@ -1,7 +1,7 @@
 #include <cstdlib>
 
-#include "shared/renderhook.h"
-#include "shared/renderhook_priv.h"
+#include "render/renderhook.h"
+#include "render/renderhook_priv.h"
 #include "common/error.h"
 
 static RENDERHOOKLIST *globalRenderHookList = nullptr;

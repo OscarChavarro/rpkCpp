@@ -1,5 +1,5 @@
 #include <cmath>
-#include "shared/Camera.h"
+#include "scene/Camera.h"
 #include "raycasting/common/raytools.h"
 #include "raycasting/raytracing/pixelsampler.h"
 
