@@ -506,12 +506,9 @@ mainReadFile(char *filename) {
 
     GLOBAL_scene_clusteredWorldGeom = mainCreateClusterHierarchy(globalAppScenePatches);
 
-    if ( GLOBAL_scene_clusteredWorldGeom->className == GeometryClassId::COMPOUND || GLOBAL_scene_clusteredWorldGeom->className == GeometryClassId::AGGREGATE_COMPOUND ) {
+    if ( GLOBAL_scene_clusteredWorldGeom->className == GeometryClassId::COMPOUND ) {
         if ( GLOBAL_scene_clusteredWorldGeom->compoundData != nullptr ) {
-            fprintf(stderr, "Unexpected case: review code - aggregate is not compound.\n");
-            exit(1);
-        } else if ( GLOBAL_scene_clusteredWorldGeom->aggregateData != nullptr ) {
-            GLOBAL_scene_clusteredWorld = GLOBAL_scene_clusteredWorldGeom->aggregateData;
+            GLOBAL_scene_clusteredWorld = &GLOBAL_scene_clusteredWorldGeom->compoundData->children;
         } else {
             fprintf(stderr, "Unexpected case: review code - generic case not supported anymore.\n");
             exit(2);

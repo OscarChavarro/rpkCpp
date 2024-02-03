@@ -32,7 +32,6 @@ enum GeometryClassId {
     PATCH_SET,
     SURFACE_MESH,
     COMPOUND,
-    AGGREGATE_COMPOUND,
     UNDEFINED
 };
 
@@ -57,9 +56,8 @@ class Geometry {
                // to set to false again after you changed it!
 
     MeshSurface *surfaceData;
-    GeometryListNode *compoundData;
+    Compound *compoundData;
     PatchSet *patchSetData;
-    GeometryListNode *aggregateData;
 
     Geometry();
     int geomCountItems();
@@ -70,11 +68,10 @@ extern Geometry *geomCreateSurface(MeshSurface *surfaceData);
 extern Geometry *geomCreatePatchSet(java::ArrayList<Patch *> *patchList);
 extern Geometry *geomCreatePatchSet(PatchSet *patchSet);
 extern Geometry *geomCreateCompound(Compound *compoundData);
-extern Geometry *geomCreateAggregateCompound(GeometryListNode *aggregateData);
 
 extern float *geomBounds(Geometry *geom);
 extern void geomDestroy(Geometry *geometry);
-extern int geomIsAggregate(Geometry *geom);
+extern int geomIsAggregate(Geometry *geometry);
 extern GeometryListNode *geomPrimList(Geometry *geom);
 java::ArrayList<Patch *> *geomPatchArrayList(Geometry *geom);
 extern void geomDontIntersect(Geometry *geom1, Geometry *geom2);

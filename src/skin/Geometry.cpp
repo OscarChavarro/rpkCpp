@@ -20,7 +20,6 @@ Geometry::Geometry():
     surfaceData(),
     compoundData(),
     patchSetData(),
-    aggregateData(),
     className()
 {
     className = GeometryClassId::UNDEFINED;
@@ -58,22 +57,21 @@ static Geometry *
 geomCreateBase(
     PatchSet *patchSetData,
     MeshSurface *surfaceData,
-    GeometryListNode *compoundData,
+    Compound *compoundData,
     GeometryClassId className)
 {
     Geometry *newGeometry = new Geometry();
     GLOBAL_statistics_numberOfGeometries++;
     newGeometry->id = globalCurrentMaxId++;
-    newGeometry->surfaceData = nullptr;
-    newGeometry->compoundData = nullptr;
-    newGeometry->patchSetData = nullptr;
-    newGeometry->aggregateData = nullptr;
+    newGeometry->surfaceData = surfaceData;
+    newGeometry->compoundData = compoundData;
+    newGeometry->patchSetData = patchSetData;
     newGeometry->className = className;
 
     if ( className == GeometryClassId::SURFACE_MESH ) {
         surfaceBounds(surfaceData, newGeometry->bounds);
-    } else if ( className == GeometryClassId::COMPOUND || className == GeometryClassId::AGGREGATE_COMPOUND ) {
-        compoundBounds(compoundData, newGeometry->bounds);
+    } else if ( className == GeometryClassId::COMPOUND ) {
+        compoundBounds(&compoundData->children, newGeometry->bounds);
     } else if ( className == GeometryClassId::PATCH_SET ) {
         java::ArrayList<Patch *> *tmpList = patchListExportToArrayList(patchSetData);
         patchListBounds(tmpList, newGeometry->bounds);
@@ -115,7 +113,6 @@ geomCreatePatchSet(PatchSet *patchSet) {
     }
 
     Geometry *newGeometry = geomCreateBase(patchSet, nullptr, nullptr, GeometryClassId::PATCH_SET);
-    newGeometry->patchSetData = patchSet;
     return newGeometry;
 }
 
@@ -126,7 +123,6 @@ geomCreateSurface(MeshSurface *surfaceData) {
     }
 
     Geometry *newGeometry = geomCreateBase(nullptr, surfaceData, nullptr, GeometryClassId::SURFACE_MESH);
-    newGeometry->surfaceData = surfaceData;
     return newGeometry;
 }
 
@@ -136,20 +132,7 @@ geomCreateCompound(Compound *compoundData) {
         return nullptr;
     }
 
-    Geometry *newGeometry = geomCreateBase(nullptr, nullptr, &compoundData->children, GeometryClassId::COMPOUND);
-    newGeometry->compoundData = &compoundData->children;
-    newGeometry->aggregateData = &compoundData->children;
-    return newGeometry;
-}
-
-Geometry *
-geomCreateAggregateCompound(GeometryListNode *aggregateData) {
-    if ( aggregateData == nullptr ) {
-        return nullptr;
-    }
-
-    Geometry *newGeometry = geomCreateBase(nullptr, nullptr, aggregateData, GeometryClassId::AGGREGATE_COMPOUND);
-    newGeometry->aggregateData = aggregateData;
+    Geometry *newGeometry = geomCreateBase(nullptr, nullptr, compoundData, GeometryClassId::COMPOUND);
     return newGeometry;
 }
 
@@ -181,8 +164,8 @@ returned. A primitive geometry is a geometry that does not consist of
 simpler geometries
 */
 int
-geomIsAggregate(Geometry *geom) {
-    return geom != nullptr && (geom->className == GeometryClassId::COMPOUND || geom->className == GeometryClassId::AGGREGATE_COMPOUND);
+geomIsAggregate(Geometry *geometry) {
+    return geometry != nullptr && (geometry->className == GeometryClassId::COMPOUND);
 }
 
 /**
@@ -191,8 +174,8 @@ A nullptr pointer is returned if the geometry is a primitive
 */
 GeometryListNode *
 geomPrimList(Geometry *geom) {
-    if ( geomIsAggregate(geom) && geom->aggregateData != nullptr ) {
-        return geom->aggregateData;
+    if ( geomIsAggregate(geom) && geom->compoundData != nullptr ) {
+        return &geom->compoundData->children;
     } else {
         return (GeometryListNode *) nullptr;
     }
@@ -204,7 +187,7 @@ geomPatchArrayList(Geometry *geom) {
         return geom->surfaceData->faces;
     } else if ( geom->className == GeometryClassId::PATCH_SET ) {
         return patchListExportToArrayList(geom->patchSetData);
-    } else if ( geom->className == GeometryClassId::COMPOUND || geom->className == GeometryClassId::AGGREGATE_COMPOUND ) {
+    } else if ( geom->className == GeometryClassId::COMPOUND ) {
         return nullptr;
     }
     return nullptr;
@@ -227,7 +210,6 @@ geomDuplicate(Geometry *geom) {
     newGeometry->surfaceData = geom->surfaceData;
     newGeometry->compoundData = geom->compoundData;
     newGeometry->patchSetData = patchListDuplicate(geom->patchSetData);
-    newGeometry->aggregateData = geom->aggregateData;
 
     return newGeometry;
 }
@@ -286,13 +268,10 @@ geomDiscretizationIntersect(
         return compoundDiscretizationIntersect(geom->compoundData, ray, minimumDistance, maximumDistance, hitFlags, hitStore);
     } else if ( geom->patchSetData != nullptr ) {
         RayHit *response;
-        // TODO SITHMASTER: Note this is terribly inefficient. Should remove list conversions from here
         java::ArrayList<Patch *> * tmpList = patchListExportToArrayList(geom->patchSetData);
         response = patchListIntersect(tmpList, ray, minimumDistance, maximumDistance, hitFlags, hitStore);
         delete tmpList;
         return response;
-    } else if ( geom->aggregateData != nullptr ) {
-        return aggregationDiscretizationIntersect(geom->aggregateData, ray, minimumDistance, maximumDistance, hitFlags, hitStore);
     }
     return nullptr;
 }
@@ -331,8 +310,6 @@ geomAllDiscretizationIntersections(
     } else if ( geom->patchSetData != nullptr ) {
         //return patchListAllIntersections(hits, geom->patchSetData, ray, minimumDistance, maximumDistance, hitFlags);
         return nullptr;
-    } else if ( geom->aggregateData != nullptr ) {
-        return compoundAllDiscretizationIntersections(hits, geom->aggregateData, ray, minimumDistance, maximumDistance, hitFlags);
     }
 
     return nullptr;

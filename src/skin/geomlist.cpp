@@ -60,12 +60,12 @@ buildPatchList(GeometryListNode *geometryList, java::ArrayList<Patch *> *patchLi
 
 RayHit *
 geometryListDiscretizationIntersect(
-        GeometryListNode *geometryList,
-        Ray *ray,
-        float minimumDistance,
-        float *maximumDistance,
-        int hitFlags,
-        RayHit *hitStore)
+    GeometryListNode *geometryList,
+    Ray *ray,
+    float minimumDistance,
+    float *maximumDistance,
+    int hitFlags,
+    RayHit *hitStore)
 {
     RayHit *h;
     RayHit *hit;

@@ -231,5 +231,7 @@ Cluster::convertClusterToGeometry() {
 
     // The patches in the cluster are the first to be tested for intersection with
     geometryListNode = geometryListAdd(geometryListNode, thePatches);
-    return geomCreateAggregateCompound(geometryListNode);
+    Compound *newCompound = new Compound();
+    newCompound->children = *geometryListNode;
+    return geomCreateCompound(newCompound);
 }
