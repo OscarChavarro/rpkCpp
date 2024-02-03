@@ -77,20 +77,6 @@ a pointer to the "extra" data, then a pointer to a list element
 
 
 extern LIST *ListAdd(LIST *list, void *element);
-
-/**
-The first argument is the address of a LIST *. First call this function
-with the address to the LIST * being the address of a pointer to the first
-element of the list. By calling this function successively, a
-pointer to each element of the list is returned in sequence.
-This function returns nullptr after the last element of the list
-has been encountered.
-
-WARNING: ListNext() calls cannot be nested!
-*/
-extern void *GLOBAL_listHandler;
-#define ListNext(plist) ((*(plist)) ? (GLOBAL_listHandler=(*(plist))->pelement, (*(plist))=(*(plist))->next, GLOBAL_listHandler) : (void *)nullptr)
-
 extern LIST *ListRemove(LIST *list, void *pelement);
 extern void ListDestroy(LIST *list);
 

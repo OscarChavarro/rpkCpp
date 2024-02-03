@@ -71,13 +71,12 @@ patchListAllIntersections(HITLIST *hits, java::ArrayList<Patch *> *patches, Ray 
 }
 
 PatchSet *
-patchListDuplicate(PatchSet *patchList) {
-    PatchSet *newPatchSet = (PatchSet *) nullptr;
-    void *patch;
+patchListDuplicate(PatchSet *patchSet) {
+    PatchSet *newPatchSet = nullptr;
 
-    while ( (patch = (patchList != nullptr ? (GLOBAL_listHandler = patchList->patch, patchList = patchList->next, GLOBAL_listHandler) : nullptr)) ) {
+    for ( PatchSet *window = patchSet; window != nullptr; window = window->next ) {
         PatchSet *newListNode = (PatchSet *)malloc(sizeof(PatchSet));
-        newListNode->patch = (Patch *)patch;
+        newListNode->patch = window->patch;
         newListNode->next = newPatchSet;
         newPatchSet = newListNode;
     }

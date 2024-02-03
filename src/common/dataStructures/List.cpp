@@ -3,8 +3,6 @@
 #include "common/error.h"
 #include "common/dataStructures/List.h"
 
-void *GLOBAL_listHandler;
-
 /**
 Adds an element in front of the list, returns a pointer to the new list
 */

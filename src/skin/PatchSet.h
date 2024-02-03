@@ -37,6 +37,6 @@ extern java::ArrayList<Patch *> *
 patchListExportToArrayList(PatchSet *patchSet);
 
 extern PatchSet *
-patchListDuplicate(PatchSet *patchList);
+patchListDuplicate(PatchSet *patchSet);
 
 #endif

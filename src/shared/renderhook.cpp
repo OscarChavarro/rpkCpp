@@ -41,9 +41,9 @@ removeRenderHook(RENDERHOOKFUNCTION func, void *data) {
     RENDERHOOK *hook;
 
     // Search the element in the list
+    RENDERHOOK *listHandler;
     do {
-        hook = (RENDERHOOK *)
-            (list ? (GLOBAL_listHandler = list->renderhook, list = list->next, GLOBAL_listHandler) : nullptr);
+        hook = (list ? (listHandler = list->renderhook, list = list->next, listHandler) : nullptr);
     } while ( hook != nullptr && (hook->func != func || hook->data != data));
 
     if ( hook == nullptr) {
