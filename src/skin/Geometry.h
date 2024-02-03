@@ -8,13 +8,13 @@
 
 /**
 Currently, there are three types of geometries:
-- the GeometryListNode compound: an aggregate geometry which is basically a list of other
+- the Compound: an aggregate geometry which is basically a list of other
   geometries, useful for representing the scene in a hierarchical manner
   see compound.
 - the MeshSurface: a primitive geometry which is basically a list of
   PATCHES representing some simple object with given Material properties
-  etc.. see surface.
-- the PatchSet (PatchSet): a primitive geometry consisting of a list of patches
+  etc. see surface.
+- the PatchSet: a primitive geometry consisting of a list of patches
   without material properties and such. Used during shaft culling only,
   see shaft culling.
 

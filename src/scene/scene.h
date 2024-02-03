@@ -3,7 +3,6 @@
 
 #include "java/util/ArrayList.h"
 #include "skin/geomlist.h"
-#include "skin/PatchSet.h"
 #include "scene/Background.h"
 #include "scene/VoxelGrid.h"
 

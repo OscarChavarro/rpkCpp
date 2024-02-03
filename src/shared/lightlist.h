@@ -9,7 +9,7 @@ this class can be used for sampling lights
 #include "java/util/ArrayList.h"
 #include "common/linealAlgebra/vectorMacros.h"
 #include "common/dataStructures/CSList.h"
-#include "skin/PatchSet.h"
+#include "skin/Patch.h"
 
 class CLightInfo {
 public:

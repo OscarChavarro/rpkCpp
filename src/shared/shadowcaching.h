@@ -1,7 +1,6 @@
 #ifndef __SHADOW_CACHING__
 #define __SHADOW_CACHING__
 
-#include "skin/PatchSet.h"
 #include "skin/geomlist.h"
 #include "common/Ray.h"
 

@@ -64,7 +64,6 @@ extern void patchDestroy(Patch *patch);
 extern float *patchBounds(Patch *patch, float *bounds);
 extern RayHit *patchIntersect(Patch *patch, Ray *ray, float minimumDistance, float *maximumDistance, int hitFlags, RayHit *hitStore);
 extern void patchDontIntersect(int n, ...);
-extern void patchPrint(FILE *out, Patch *patch);
 extern void patchPrintId(FILE *out, Patch *patch);
 extern int patchGetNextId();
 extern void patchSetNextId(int id);
