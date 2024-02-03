@@ -8,7 +8,7 @@
 #include "GALERKIN/formfactor.h"
 
 static GalerkinElement *globalElement; // The element for which initial links are to be created
-static ROLE globalRole; // The role of that element: SOURCE or RECEIVER
+static GalerkinRole globalRole; // The role of that element: SOURCE or RECEIVER
 static Patch *globalPatch; // The patch for the element is the toplevel element
 static BOUNDINGBOX globalPatchBoundingBox; // Bounding box for that patch
 static GeometryListNode *globalCandidateList; // Candidate list for shaft culling
@@ -39,7 +39,7 @@ createInitialLink(Patch *patch) {
             logFatal(2, "createInitialLink", "Impossible element role");
     }
 
-    if ((GLOBAL_galerkin_state.exact_visibility || GLOBAL_galerkin_state.shaftcullmode == ALWAYS_DO_SHAFTCULLING) && oldCandidateList ) {
+    if ((GLOBAL_galerkin_state.exact_visibility || GLOBAL_galerkin_state.shaftcullmode == ALWAYS_DO_SHAFT_CULLING) && oldCandidateList ) {
         SHAFT shaft, *the_shaft;
 
         if ( GLOBAL_galerkin_state.exact_visibility ) {
@@ -74,7 +74,7 @@ createInitialLink(Patch *patch) {
     link.nsrc = src->basisSize;
     areaToAreaFormFactor(&link, globalCandidateList);
 
-    if ( GLOBAL_galerkin_state.exact_visibility || GLOBAL_galerkin_state.shaftcullmode == ALWAYS_DO_SHAFTCULLING ) {
+    if ( GLOBAL_galerkin_state.exact_visibility || GLOBAL_galerkin_state.shaftcullmode == ALWAYS_DO_SHAFT_CULLING ) {
         if ( oldCandidateList != globalCandidateList ) {
             freeCandidateList(globalCandidateList);
         }
@@ -84,7 +84,7 @@ createInitialLink(Patch *patch) {
     if ( link.vis > 0 ) {
         /* store interactions with the source patch for the progressive radiosity method
          * and with the receiving patch for gathering mathods. */
-        if ( GLOBAL_galerkin_state.iteration_method == SOUTHWELL ) {
+        if ( GLOBAL_galerkin_state.iteration_method == SOUTH_WELL ) {
             src->interactions = InteractionListAdd(src->interactions, interactionDuplicate(&link));
         } else {
             rcv->interactions = InteractionListAdd(rcv->interactions, interactionDuplicate(&link));
@@ -142,7 +142,7 @@ are stored at the receiver element when doing gathering and at the
 source element when doing shooting
 */
 void
-createInitialLinks(GalerkinElement *top, ROLE role) {
+createInitialLinks(GalerkinElement *top, GalerkinRole role) {
     if ( top->flags & IS_CLUSTER ) {
         logFatal(-1, "createInitialLinks", "cannot use this routine for cluster elements");
     }
@@ -163,7 +163,7 @@ createInitialLinks(GalerkinElement *top, ROLE role) {
 Creates an initial link between the given element and the top cluster
 */
 void
-createInitialLinkWithTopCluster(GalerkinElement *elem, ROLE role) {
+createInitialLinkWithTopCluster(GalerkinElement *elem, GalerkinRole role) {
     GalerkinElement *rcv = (GalerkinElement *) nullptr, *src = (GalerkinElement *) nullptr;
     INTERACTION *link;
     FloatOrPointer K;
@@ -208,7 +208,7 @@ createInitialLinkWithTopCluster(GalerkinElement *elem, ROLE role) {
 
     // Store interactions with the source patch for the progressive radiosity method
     // and with the receiving patch for gathering methods
-    if ( GLOBAL_galerkin_state.iteration_method == SOUTHWELL ) {
+    if ( GLOBAL_galerkin_state.iteration_method == SOUTH_WELL ) {
         src->interactions = InteractionListAdd(src->interactions, link);
     } else {
         rcv->interactions = InteractionListAdd(rcv->interactions, link);

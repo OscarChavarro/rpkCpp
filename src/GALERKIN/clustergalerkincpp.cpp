@@ -72,7 +72,7 @@ clusterInit(GalerkinElement *cluster) {
     colorScale((1.0f / cluster->area), cluster->Ed, cluster->Ed);
 
     /* also pull unshot radiance for the "shooting" methods */
-    if ( GLOBAL_galerkin_state.iteration_method == SOUTHWELL ) {
+    if ( GLOBAL_galerkin_state.iteration_method == SOUTH_WELL ) {
         clusterGalerkinClearCoefficients(cluster->unShotRadiance, cluster->basisSize);
         for ( subellist = cluster->irregularSubElements; subellist; subellist = subellist->next ) {
             GalerkinElement *subclus = subellist->element;

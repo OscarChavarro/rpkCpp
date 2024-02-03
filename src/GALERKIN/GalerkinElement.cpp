@@ -171,7 +171,7 @@ galerkinElementReAllocCoefficients(GalerkinElement *element) {
     }
     element->receivedRadiance = receivedRadiance;
 
-    if ( GLOBAL_galerkin_state.iteration_method == SOUTHWELL ) {
+    if ( GLOBAL_galerkin_state.iteration_method == SOUTH_WELL ) {
         unShotRadiance = new COLOR[basisSize];
         clusterGalerkinClearCoefficients(unShotRadiance, basisSize);
         if ( !isCluster(element)) {
@@ -309,7 +309,7 @@ galerkinElementRegularSubDivide(GalerkinElement *element) {
         subElement[i]->potential.f = element->potential.f;
         subElement[i]->directPotential.f = element->directPotential.f;
 
-        if ( GLOBAL_galerkin_state.iteration_method == SOUTHWELL ) {
+        if ( GLOBAL_galerkin_state.iteration_method == SOUTH_WELL ) {
             basisGalerkinPush(element, element->unShotRadiance, subElement[i], subElement[i]->unShotRadiance);
             subElement[i]->unShotPotential.f = element->unShotPotential.f;
         }

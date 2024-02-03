@@ -24,7 +24,46 @@ potential-driven or not.
 #include "GALERKIN/clustergalerkincpp.h"
 #include "GALERKIN/scratch.h"
 
-GALERKIN_STATE GLOBAL_galerkin_state;
+GalerkinState GLOBAL_galerkin_state;
+
+GalerkinState::GalerkinState():
+    iteration_nr(),
+    hierarchical(),
+    importance_driven(),
+    clustered(),
+    iteration_method(),
+    lazy_linking(),
+    exact_visibility(),
+    multires_visibility(),
+    use_constant_radiance(),
+    use_ambient_radiance(),
+    constant_radiance(),
+    ambient_radiance(),
+    shaftcullmode(),
+    rcv_degree(),
+    src_degree(),
+    rcv3rule(),
+    rcv4rule(),
+    src3rule(),
+    src4rule(),
+    clusRule(),
+    top_cluster(),
+    top_geom(),
+    error_norm(),
+    rel_min_elem_area(),
+    rel_link_error_threshold (),
+    basis_type(),
+    clustering_strategy(),
+    fflastrcv(),
+    fflastsrc(),
+    scratch(),
+    scratch_fb_size(),
+    lastclusid(),
+    lasteye(),
+    lastclock(),
+    cpu_secs()
+{
+}
 
 static int globalTrue = true;
 static int globalFalse = false;
@@ -35,7 +74,7 @@ static int globalFalse = false;
 Installs cubature rules for triangles and quadrilaterals of the specified degree
 */
 void
-setCubatureRules(CUBARULE **triRule, CUBARULE **quadRule, CUBATURE_DEGREE degree) {
+setCubatureRules(CUBARULE **triRule, CUBARULE **quadRule, GalerkinCubatureDegree degree) {
     switch ( degree ) {
         case DEGREE_1:
             *triRule = &GLOBAL_crt1;
@@ -127,7 +166,7 @@ iterationMethodOption(void *value) {
     } else if ( strncasecmp(name, "gaussseidel", 2) == 0 ) {
         GLOBAL_galerkin_state.iteration_method = GAUSS_SEIDEL;
     } else if ( strncasecmp(name, "southwell", 2) == 0 ) {
-        GLOBAL_galerkin_state.iteration_method = SOUTHWELL;
+        GLOBAL_galerkin_state.iteration_method = SOUTH_WELL;
     } else {
         logError(nullptr, "Invalid iteration method '%s'", name);
     }
@@ -259,12 +298,12 @@ patchInit(Patch *patch) {
         // '95, Dublin, Ireland, June 1995, p 336-344
         colorProduct(reflectivity, GLOBAL_galerkin_state.constant_radiance, RADIANCE(patch));
         colorAdd(RADIANCE(patch), selfEmittanceRadiance, RADIANCE(patch));
-        if ( GLOBAL_galerkin_state.iteration_method == SOUTHWELL )
+        if ( GLOBAL_galerkin_state.iteration_method == SOUTH_WELL )
             colorSubtract(RADIANCE(patch), GLOBAL_galerkin_state.constant_radiance,
                           UN_SHOT_RADIANCE(patch));
     } else {
         RADIANCE(patch) = selfEmittanceRadiance;
-        if ( GLOBAL_galerkin_state.iteration_method == SOUTHWELL )
+        if ( GLOBAL_galerkin_state.iteration_method == SOUTH_WELL )
             UN_SHOT_RADIANCE(patch) = RADIANCE(patch);
     }
 
@@ -274,7 +313,7 @@ patchInit(Patch *patch) {
             case JACOBI:
                 POTENTIAL(patch).f = patch->directPotential;
                 break;
-            case SOUTHWELL:
+            case SOUTH_WELL:
                 POTENTIAL(patch).f = UN_SHOT_POTENTIAL(patch).f = patch->directPotential;
                 break;
             default:
@@ -339,7 +378,7 @@ doGalerkinOneStep(java::ArrayList<Patch *> *scenePatches, java::ArrayList<Patch 
                 done = randomWalkRadiosityDoGatheringIteration(scenePatches);
             }
             break;
-        case SOUTHWELL:
+        case SOUTH_WELL:
             done = doShootingStep(scenePatches);
             break;
         default:
@@ -366,7 +405,8 @@ getRadiance(Patch *patch, double u, double v, Vector3D /*dir*/) {
         biLinearToUniform(patch, &u, &v);
     }
 
-    leaf = galerkinElementRegularLeafAtPoint(TOPLEVEL_ELEMENT(patch), &u, &v);
+    GalerkinElement *topLevelElement = TOPLEVEL_ELEMENT(patch);
+    leaf = galerkinElementRegularLeafAtPoint(topLevelElement, &u, &v);
 
     rad = basisGalerkinRadianceAtPoint(leaf, leaf->radiance, u, v);
 
@@ -437,7 +477,8 @@ renderElementHierarchy(GalerkinElement *elem) {
 
 static void
 galerkinRenderPatch(Patch *patch) {
-    renderElementHierarchy(TOPLEVEL_ELEMENT(patch));
+    GalerkinElement *topLevelElement = TOPLEVEL_ELEMENT(patch);
+    renderElementHierarchy(topLevelElement);
 }
 
 void

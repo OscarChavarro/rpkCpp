@@ -14,25 +14,25 @@ Galerkin Radiosity "private" declarations
 The Galerkin specific data for a patch is its toplevel element
 */
 
-#define RADIANCE(patch) ((GalerkinElement *)(patch->radianceData))->radiance[0]
-#define UN_SHOT_RADIANCE(patch) ((GalerkinElement *)(patch->radianceData))->unShotRadiance[0]
-#define POTENTIAL(patch) ((GalerkinElement *)(patch->radianceData))->potential
-#define UN_SHOT_POTENTIAL(patch) ((GalerkinElement *)(patch->radianceData))->unShotPotential
-#define TOPLEVEL_ELEMENT(patch) ((GalerkinElement *)(patch->radianceData))
+#define RADIANCE(patch) ((GalerkinElement *)((patch)->radianceData))->radiance[0]
+#define UN_SHOT_RADIANCE(patch) ((GalerkinElement *)((patch)->radianceData))->unShotRadiance[0]
+#define POTENTIAL(patch) ((GalerkinElement *)((patch)->radianceData))->potential
+#define UN_SHOT_POTENTIAL(patch) ((GalerkinElement *)((patch)->radianceData))->unShotPotential
+#define TOPLEVEL_ELEMENT(patch) ((GalerkinElement *)((patch)->radianceData))
 
 // Galerkin Radiosity "state" information
-enum ITERATION_METHOD {
+enum GalerkinIterationMethod {
     JACOBI,
     GAUSS_SEIDEL,
-    SOUTHWELL
+    SOUTH_WELL
 };
 
-enum SHAFTCULLMODE {
-    ALWAYS_DO_SHAFTCULLING,
-    DO_SHAFTCULLING_FOR_REFINEMENT
+enum GalerkinShaftCullMode {
+    ALWAYS_DO_SHAFT_CULLING,
+    DO_SHAFT_CULLING_FOR_REFINEMENT
 };
 
-enum CUBATURE_DEGREE {
+enum GalerkinCubatureDegree {
     DEGREE_1,
     DEGREE_2,
     DEGREE_3,
@@ -47,12 +47,12 @@ enum CUBATURE_DEGREE {
     DEGREE_7_PROD
 };
 
-enum ERROR_NORM {
+enum GalerkinErrorNorm {
     RADIANCE_ERROR,
     POWER_ERROR
 };
 
-enum BASIS_TYPE {
+enum GalerkinBasisType {
     CONSTANT,
     LINEAR,
     QUADRATIC,
@@ -61,19 +61,19 @@ enum BASIS_TYPE {
 
 // Determines how source radiance of a source cluster is determined and
 // how irradiance is distributed over the patches in a receiver cluster
-enum CLUSTERING_STRATEGY {
+enum GalerkinClusteringStrategy {
     ISOTROPIC,
     ORIENTED,
     Z_VISIBILITY
 };
 
-class GALERKIN_STATE {
+class GalerkinState {
   public:
     int iteration_nr; // Number of iterations and nr of steps
     int hierarchical; // Set true for hierarchical refinement
     int importance_driven; // Set true for potential-driven comp
     int clustered; // Set true for clustering
-    ITERATION_METHOD iteration_method; // How to solve the resulting linear set
+    GalerkinIterationMethod iteration_method; // How to solve the resulting linear set
     int lazy_linking; // Set true for lazy linking
     int exact_visibility; // For more exact treatment of visibility
     int multires_visibility; // For multi-resolution visibility determination
@@ -81,11 +81,11 @@ class GALERKIN_STATE {
     int use_ambient_radiance; // Ambient radiance (for visualisation only)
     COLOR constant_radiance;
     COLOR ambient_radiance;
-    SHAFTCULLMODE shaftcullmode; // When to do shaft culling
+    GalerkinShaftCullMode shaftcullmode; // When to do shaft culling
 
     // Cubature rules for computing form factors
-    CUBATURE_DEGREE rcv_degree;
-    CUBATURE_DEGREE src_degree;
+    GalerkinCubatureDegree rcv_degree;
+    GalerkinCubatureDegree src_degree;
     CUBARULE *rcv3rule;
     CUBARULE *rcv4rule;
     CUBARULE *src3rule;
@@ -97,7 +97,7 @@ class GALERKIN_STATE {
     Geometry *top_geom; // A single COMPOUND Geometry containing the whole scene
 
     // Parameters that control accuracy
-    ERROR_NORM error_norm; // Control radiance or power error?
+    GalerkinErrorNorm error_norm; // Control radiance or power error?
     float rel_min_elem_area; /* subdivision of elements that are smaller
 			    * than the total surface area of the scene
 			    * times this number, will not be allowed. */
@@ -106,10 +106,10 @@ class GALERKIN_STATE {
 			    * to the max. selfemitted power when controlling
 			    * the power error. */
 
-    BASIS_TYPE basis_type; // Determines max. approximation order
+    GalerkinBasisType basis_type; // Determines max. approximation order
 
     // Clustering strategy
-    CLUSTERING_STRATEGY clustering_strategy;
+    GalerkinClusteringStrategy clustering_strategy;
 
     // Some global variables for form-factor computation
     GalerkinElement *fflastrcv;
@@ -123,9 +123,11 @@ class GALERKIN_STATE {
 
     unsigned long lastclock; // For CPU timing
     float cpu_secs;
+
+    GalerkinState();
 };
 
-extern GALERKIN_STATE GLOBAL_galerkin_state;
+extern GalerkinState GLOBAL_galerkin_state;
 
 #define DEFAULT_GAL_HIERARCHICAL true
 #define DEFAULT_GAL_IMPORTANCE_DRIVEN false
@@ -134,7 +136,7 @@ extern GALERKIN_STATE GLOBAL_galerkin_state;
 #define DEFAULT_GAL_LAZY_LINKING true
 #define DEFAULT_GAL_CONSTANT_RADIANCE false
 #define DEFAULT_GAL_AMBIENT_RADIANCE false
-#define DEFAULT_GAL_SHAFTCULLMODE DO_SHAFTCULLING_FOR_REFINEMENT
+#define DEFAULT_GAL_SHAFTCULLMODE DO_SHAFT_CULLING_FOR_REFINEMENT
 #define DEFAULT_GAL_RCV_CUBATURE_DEGREE DEGREE_5
 #define DEFAULT_GAL_SRC_CUBATURE_DEGREE DEGREE_4
 #define DEFAULT_GAL_REL_MIN_ELEM_AREA 1e-6
@@ -146,13 +148,13 @@ extern GALERKIN_STATE GLOBAL_galerkin_state;
 #define DEFAULT_GAL_CLUSTERING_STRATEGY ISOTROPIC
 #define DEFAULT_GAL_SCRATCH_FB_SIZE 200
 
-enum ROLE {
+enum GalerkinRole {
     SOURCE,
     RECEIVER
 };
 
-// In GalerkingRadiosity.cpp
-extern void setCubatureRules(CUBARULE **triRule, CUBARULE **quadRule, CUBATURE_DEGREE degree);
+// In GalerkinRadiosity.cpp
+extern void setCubatureRules(CUBARULE **triRule, CUBARULE **quadRule, GalerkinCubatureDegree degree);
 extern void patchRecomputeColor(Patch *patch);
 
 // In shooting.cpp
@@ -163,8 +165,8 @@ extern int randomWalkRadiosityDoGatheringIteration(java::ArrayList<Patch *> *sce
 extern int doClusteredGatheringIteration(java::ArrayList<Patch *> *scenePatches);
 
 // In initiallinking.cpp
-extern void createInitialLinks(GalerkinElement *top, ROLE role);
-extern void createInitialLinkWithTopCluster(GalerkinElement *elem, ROLE role);
+extern void createInitialLinks(GalerkinElement *top, GalerkinRole role);
+extern void createInitialLinkWithTopCluster(GalerkinElement *elem, GalerkinRole role);
 
 // In hierefine.cpp
 extern void refineInteractions(GalerkinElement *top);

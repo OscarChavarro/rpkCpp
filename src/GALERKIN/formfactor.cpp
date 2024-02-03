@@ -42,7 +42,7 @@ of the cubature rule on the element. The role (RECEIVER or SOURCE) is only
 relevant for surface elements
 */
 static void
-determineNodes(GalerkinElement *elem, CUBARULE **cr, Vector3D x[CUBAMAXNODES], ROLE role) {
+determineNodes(GalerkinElement *elem, CUBARULE **cr, Vector3D x[CUBAMAXNODES], GalerkinRole role) {
     Matrix2x2 topxf{};
     int k;
 
@@ -207,7 +207,7 @@ doHigherOrderAreaToAreaFormFactor(
     int l;
     int alpha;
     int beta;
-    COLOR *srcrad = (GLOBAL_galerkin_state.iteration_method == SOUTHWELL) ?
+    COLOR *srcrad = (GLOBAL_galerkin_state.iteration_method == SOUTH_WELL) ?
                     src->unShotRadiance : src->radiance;
 
     // Receiver and source basis description

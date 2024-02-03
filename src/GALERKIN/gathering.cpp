@@ -17,11 +17,11 @@ interactions with light sources are created. See Holschuch, EGRW '94
 */
 static void
 patchLazyCreateInteractions(Patch *P) {
-    GalerkinElement *el = TOPLEVEL_ELEMENT(P);
+    GalerkinElement *topLevelElement = TOPLEVEL_ELEMENT(P);
 
-    if ( !colorNull(el->radiance[0]) && !(el->flags & INTERACTIONS_CREATED)) {
-        createInitialLinks(el, SOURCE);
-        el->flags |= INTERACTIONS_CREATED;
+    if ( !colorNull(topLevelElement->radiance[0]) && !(topLevelElement->flags & INTERACTIONS_CREATED)) {
+        createInitialLinks(topLevelElement, SOURCE);
+        topLevelElement->flags |= INTERACTIONS_CREATED;
     }
 }
 
@@ -30,9 +30,10 @@ Converts the accumulated received radiance into exitant radiance, making the
 hierarchical representation consistent and computes a new color for the patch
 */
 static void
-patchUpdateRadiance(Patch *P) {
-    basisGalerkinPushPullRadiance(TOPLEVEL_ELEMENT(P));
-    patchRecomputeColor(P);
+patchUpdateRadiance(Patch *patch) {
+    GalerkinElement *topLevelElement = TOPLEVEL_ELEMENT(patch);
+    basisGalerkinPushPullRadiance(topLevelElement);
+    patchRecomputeColor(patch);
 }
 
 /**
@@ -42,13 +43,13 @@ interactions and updates the radiance for the patch if doing
 Gauss-Seidel iterations
 */
 static void
-patchGather(Patch *P) {
-    GalerkinElement *el = TOPLEVEL_ELEMENT(P);
+patchGather(Patch *patch) {
+    GalerkinElement *topLevelElement = TOPLEVEL_ELEMENT(patch);
 
     /* don't gather to patches without importance. This optimisation can not
      * be combined with lazy linking based on radiance. */
     if ( GLOBAL_galerkin_state.importance_driven &&
-         el->potential.f < GLOBAL_statistics_maxDirectPotential * EPSILON ) {
+         topLevelElement->potential.f < GLOBAL_statistics_maxDirectPotential * EPSILON ) {
         return;
     }
 
@@ -57,21 +58,21 @@ patchGather(Patch *P) {
      * linking. */
     if ( GLOBAL_galerkin_state.iteration_method == GAUSS_SEIDEL || !GLOBAL_galerkin_state.lazy_linking ||
          GLOBAL_galerkin_state.importance_driven ) {
-        if ( !(el->flags & INTERACTIONS_CREATED)) {
-            createInitialLinks(el, RECEIVER);
-            el->flags |= INTERACTIONS_CREATED;
+        if ( !(topLevelElement->flags & INTERACTIONS_CREATED)) {
+            createInitialLinks(topLevelElement, RECEIVER);
+            topLevelElement->flags |= INTERACTIONS_CREATED;
         }
     }
 
     /* Refine the interactions and compute light transport at the leaves */
-    refineInteractions(el);
+    refineInteractions(topLevelElement);
 
     /* Immediately convert received radiance into radiance, make the representation
      * consistent and recompute the color of the patch when doing Gauss-Seidel.
      * The new radiance values are immediately used in subsequent steps of
      * the current iteration. */
     if ( GLOBAL_galerkin_state.iteration_method == GAUSS_SEIDEL ) {
-        patchUpdateRadiance(P);
+        patchUpdateRadiance(patch);
     }
 }
 
@@ -118,9 +119,10 @@ gatheringPushPullPotential(GalerkinElement *elem, float down) {
         ELEMENTLIST *subellist;
         for ( subellist = elem->irregularSubElements; subellist; subellist = subellist->next ) {
             GalerkinElement *subel = subellist->element;
-            if ( !isCluster(elem)) {
+            if ( !isCluster(elem) ) {
+                // Don't push to irregular surface sub-elements
                 down = 0.0;
-            }    /* don't push to irregular surface subelements */
+            }
             up += subel->area / elem->area * gatheringPushPullPotential(subel, down);
         }
     }
@@ -130,7 +132,8 @@ gatheringPushPullPotential(GalerkinElement *elem, float down) {
 
 static void
 patchUpdatePotential(Patch *patch) {
-    gatheringPushPullPotential(TOPLEVEL_ELEMENT(patch), 0.);
+    GalerkinElement *topLevelElement = TOPLEVEL_ELEMENT(patch);
+    gatheringPushPullPotential(topLevelElement, 0.0f);
 }
 
 /**

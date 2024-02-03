@@ -49,8 +49,8 @@ hierarchicRefinementCull(INTERACTION *link) {
         return (GeometryListNode *) nullptr;
     }
 
-    if ( GLOBAL_galerkin_state.shaftcullmode == DO_SHAFTCULLING_FOR_REFINEMENT ||
-         GLOBAL_galerkin_state.shaftcullmode == ALWAYS_DO_SHAFTCULLING ) {
+    if ( GLOBAL_galerkin_state.shaftcullmode == DO_SHAFT_CULLING_FOR_REFINEMENT ||
+         GLOBAL_galerkin_state.shaftcullmode == ALWAYS_DO_SHAFT_CULLING ) {
         SHAFT shaft, *the_shaft;
 
         if ( GLOBAL_galerkin_state.exact_visibility && !isCluster(link->receiverElement) && !isCluster(link->sourceElement)) {
@@ -96,8 +96,8 @@ an argument)
 */
 static void
 hierarchicRefinementUnCull(GeometryListNode *ocandlist) {
-    if ( GLOBAL_galerkin_state.shaftcullmode == DO_SHAFTCULLING_FOR_REFINEMENT ||
-         GLOBAL_galerkin_state.shaftcullmode == ALWAYS_DO_SHAFTCULLING ) {
+    if ( GLOBAL_galerkin_state.shaftcullmode == DO_SHAFT_CULLING_FOR_REFINEMENT ||
+         GLOBAL_galerkin_state.shaftcullmode == ALWAYS_DO_SHAFT_CULLING ) {
         freeCandidateList(globalCandidatesList);
     }
 
@@ -179,7 +179,7 @@ hierarchicRefinementApproximationError(INTERACTION *link, COLOR srcrho, COLOR rc
             approx_error = hierarchicRefinementColorToError(error);
             break;
 
-        case SOUTHWELL:
+        case SOUTH_WELL:
             if ( isCluster(link->sourceElement) && link->sourceElement != link->receiverElement ) {
                 srcrad = sourceClusterRadiance(link); /* returns unshot radiance for shooting */
             } else {
@@ -353,7 +353,7 @@ hierarchicRefinementComputeLightTransport(INTERACTION *link) {
         link->sourceElement->basisUsed = b;
     }
 
-    if ( GLOBAL_galerkin_state.iteration_method == SOUTHWELL ) {
+    if ( GLOBAL_galerkin_state.iteration_method == SOUTH_WELL ) {
         srcrad = link->sourceElement->unShotRadiance;
     } else {
         srcrad = link->sourceElement->radiance;
@@ -392,7 +392,7 @@ hierarchicRefinementComputeLightTransport(INTERACTION *link) {
                 rcvrho = link->receiverElement->patch->radianceData->Rd;
             }
             link->sourceElement->receivedPotential.f += K * hierarchicRefinementColorToError(rcvrho) * link->receiverElement->potential.f;
-        } else if ( GLOBAL_galerkin_state.iteration_method == SOUTHWELL ) {
+        } else if ( GLOBAL_galerkin_state.iteration_method == SOUTH_WELL ) {
             if ( isCluster(link->sourceElement)) {
                 colorSetMonochrome(srcrho, 1.0f);
             } else {
@@ -445,7 +445,7 @@ static void
 hierarchicRefinementStoreInteraction(INTERACTION *link) {
     GalerkinElement *src = link->sourceElement, *rcv = link->receiverElement;
 
-    if ( GLOBAL_galerkin_state.iteration_method == SOUTHWELL ) {
+    if ( GLOBAL_galerkin_state.iteration_method == SOUTH_WELL ) {
         src->interactions = InteractionListAdd(src->interactions, interactionDuplicate(link));
     } else {
         rcv->interactions = InteractionListAdd(rcv->interactions, interactionDuplicate(link));
@@ -626,7 +626,7 @@ refineInteraction(INTERACTION *link) {
     // we know for sure that there is full visibility
 
     if ( refineRecursive(link) ) {
-        if ( GLOBAL_galerkin_state.iteration_method == SOUTHWELL )
+        if ( GLOBAL_galerkin_state.iteration_method == SOUTH_WELL )
             link->sourceElement->interactions = InteractionListRemove(link->sourceElement->interactions, link);
         else
             link->receiverElement->interactions = InteractionListRemove(link->receiverElement->interactions, link);
