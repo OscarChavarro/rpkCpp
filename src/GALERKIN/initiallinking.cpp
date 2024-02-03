@@ -39,7 +39,7 @@ createInitialLink(Patch *patch) {
             logFatal(2, "createInitialLink", "Impossible element role");
     }
 
-    if ((GLOBAL_galerkin_state.exact_visibility || GLOBAL_galerkin_state.shaftcullmode == ALWAYS_DO_SHAFT_CULLING) && oldCandidateList ) {
+    if ((GLOBAL_galerkin_state.exact_visibility || GLOBAL_galerkin_state.shaftCullMode == ALWAYS_DO_SHAFT_CULLING) && oldCandidateList ) {
         SHAFT shaft, *the_shaft;
 
         if ( GLOBAL_galerkin_state.exact_visibility ) {
@@ -74,7 +74,7 @@ createInitialLink(Patch *patch) {
     link.nsrc = src->basisSize;
     areaToAreaFormFactor(&link, globalCandidateList);
 
-    if ( GLOBAL_galerkin_state.exact_visibility || GLOBAL_galerkin_state.shaftcullmode == ALWAYS_DO_SHAFT_CULLING ) {
+    if ( GLOBAL_galerkin_state.exact_visibility || GLOBAL_galerkin_state.shaftCullMode == ALWAYS_DO_SHAFT_CULLING ) {
         if ( oldCandidateList != globalCandidateList ) {
             freeCandidateList(globalCandidateList);
         }
@@ -174,11 +174,11 @@ createInitialLinkWithTopCluster(GalerkinElement *elem, GalerkinRole role) {
     switch ( role ) {
         case RECEIVER:
             rcv = elem;
-            src = GLOBAL_galerkin_state.top_cluster;
+            src = GLOBAL_galerkin_state.topCluster;
             break;
         case SOURCE:
             src = elem;
-            rcv = GLOBAL_galerkin_state.top_cluster;
+            rcv = GLOBAL_galerkin_state.topCluster;
             break;
         default:
             logFatal(-1, "createInitialLinkWithTopCluster", "Invalid role");

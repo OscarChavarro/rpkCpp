@@ -155,10 +155,10 @@ doPropagate(Patch *shooting_patch, java::ArrayList<Patch *> *scenePatches) {
     // radiance from the shooting patch, since the ambient term has also changed
     if ( GLOBAL_galerkin_state.clustered ) {
         if ( GLOBAL_galerkin_state.importance_driven ) {
-            shootingPushPullPotential(GLOBAL_galerkin_state.top_cluster, 0.0);
+            shootingPushPullPotential(GLOBAL_galerkin_state.topCluster, 0.0);
         }
-        basisGalerkinPushPullRadiance(GLOBAL_galerkin_state.top_cluster);
-        GLOBAL_galerkin_state.ambient_radiance = GLOBAL_galerkin_state.top_cluster->unShotRadiance[0];
+        basisGalerkinPushPullRadiance(GLOBAL_galerkin_state.topCluster);
+        GLOBAL_galerkin_state.ambient_radiance = GLOBAL_galerkin_state.topCluster->unShotRadiance[0];
     } else {
         colorClear(GLOBAL_galerkin_state.ambient_radiance);
         for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
@@ -281,7 +281,7 @@ reallyDoShootingStep(java::ArrayList<Patch *> *scenePatches) {
             }
             GLOBAL_camera_mainCamera.changed = false;
             if ( GLOBAL_galerkin_state.clustered ) {
-                clusterUpdatePotential(GLOBAL_galerkin_state.top_cluster);
+                clusterUpdatePotential(GLOBAL_galerkin_state.topCluster);
             }
         }
         propagatePotential(scenePatches);

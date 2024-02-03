@@ -137,7 +137,7 @@ galerkinElementReAllocCoefficients(GalerkinElement *element) {
         // We always use a constant basis on cluster elements
         basisSize = 1;
     } else {
-        switch ( GLOBAL_galerkin_state.basis_type ) {
+        switch ( GLOBAL_galerkin_state.basisType ) {
             case CONSTANT:
                 basisSize = 1;
                 break;
@@ -151,7 +151,7 @@ galerkinElementReAllocCoefficients(GalerkinElement *element) {
                 basisSize = 10;
                 break;
             default:
-                logFatal(-1, "galerkinElementReAllocCoefficients", "Invalid basis type %d", GLOBAL_galerkin_state.basis_type);
+                logFatal(-1, "galerkinElementReAllocCoefficients", "Invalid basis type %d", GLOBAL_galerkin_state.basisType);
         }
     }
 

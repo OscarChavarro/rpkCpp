@@ -217,7 +217,7 @@ doClusteredGatheringIteration(java::ArrayList<Patch*> *scenePatches) {
                 float potential_increment = patch->directPotential - top->directPotential.f;
                 gatheringUpdateDirectPotential(top, potential_increment);
             }
-            gatheringClusterUpdatePotential(GLOBAL_galerkin_state.top_cluster);
+            gatheringClusterUpdatePotential(GLOBAL_galerkin_state.topCluster);
             GLOBAL_camera_mainCamera.changed = false;
         }
     }
@@ -227,24 +227,24 @@ doClusteredGatheringIteration(java::ArrayList<Patch*> *scenePatches) {
     // Initial linking stage is replaced by the creation of a self-link between
     // the whole scene and itself
     if ( GLOBAL_galerkin_state.iteration_nr <= 1 ) {
-        createInitialLinkWithTopCluster(GLOBAL_galerkin_state.top_cluster, RECEIVER);
+        createInitialLinkWithTopCluster(GLOBAL_galerkin_state.topCluster, RECEIVER);
     }
 
-    userErrorThreshold = GLOBAL_galerkin_state.rel_link_error_threshold;
+    userErrorThreshold = GLOBAL_galerkin_state.relLinkErrorThreshold;
 
     // Refines and computes light transport over the refined links
-    refineInteractions(GLOBAL_galerkin_state.top_cluster);
+    refineInteractions(GLOBAL_galerkin_state.topCluster);
 
-    GLOBAL_galerkin_state.rel_link_error_threshold = (float)userErrorThreshold;
+    GLOBAL_galerkin_state.relLinkErrorThreshold = (float)userErrorThreshold;
 
     // Push received radiance down the hierarchy to the leaf elements, where
     // it is multiplied with the reflectivity and the self-emitted radiance added,
     // and finally pulls back up for a consistent multi-resolution representation
     // of radiance over all levels
-    basisGalerkinPushPullRadiance(GLOBAL_galerkin_state.top_cluster);
+    basisGalerkinPushPullRadiance(GLOBAL_galerkin_state.topCluster);
 
     if ( GLOBAL_galerkin_state.importance_driven ) {
-        gatheringPushPullPotential(GLOBAL_galerkin_state.top_cluster, 0.);
+        gatheringPushPullPotential(GLOBAL_galerkin_state.topCluster, 0.);
     }
 
     // No visualisation with ambient term for gathering radiosity algorithms

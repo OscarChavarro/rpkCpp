@@ -49,8 +49,8 @@ hierarchicRefinementCull(INTERACTION *link) {
         return (GeometryListNode *) nullptr;
     }
 
-    if ( GLOBAL_galerkin_state.shaftcullmode == DO_SHAFT_CULLING_FOR_REFINEMENT ||
-         GLOBAL_galerkin_state.shaftcullmode == ALWAYS_DO_SHAFT_CULLING ) {
+    if ( GLOBAL_galerkin_state.shaftCullMode == DO_SHAFT_CULLING_FOR_REFINEMENT ||
+         GLOBAL_galerkin_state.shaftCullMode == ALWAYS_DO_SHAFT_CULLING ) {
         SHAFT shaft, *the_shaft;
 
         if ( GLOBAL_galerkin_state.exact_visibility && !isCluster(link->receiverElement) && !isCluster(link->sourceElement)) {
@@ -96,8 +96,8 @@ an argument)
 */
 static void
 hierarchicRefinementUnCull(GeometryListNode *ocandlist) {
-    if ( GLOBAL_galerkin_state.shaftcullmode == DO_SHAFT_CULLING_FOR_REFINEMENT ||
-         GLOBAL_galerkin_state.shaftcullmode == ALWAYS_DO_SHAFT_CULLING ) {
+    if ( GLOBAL_galerkin_state.shaftCullMode == DO_SHAFT_CULLING_FOR_REFINEMENT ||
+         GLOBAL_galerkin_state.shaftCullMode == ALWAYS_DO_SHAFT_CULLING ) {
         freeCandidateList(globalCandidatesList);
     }
 
@@ -127,12 +127,12 @@ static double
 hierarchicRefinementLinkErrorThreshold(INTERACTION *link, double rcv_area) {
     double threshold = 0.;
 
-    switch ( GLOBAL_galerkin_state.error_norm ) {
+    switch ( GLOBAL_galerkin_state.errorNorm ) {
         case RADIANCE_ERROR:
-            threshold = hierarchicRefinementColorToError(GLOBAL_statistics_maxSelfEmittedRadiance) * GLOBAL_galerkin_state.rel_link_error_threshold;
+            threshold = hierarchicRefinementColorToError(GLOBAL_statistics_maxSelfEmittedRadiance) * GLOBAL_galerkin_state.relLinkErrorThreshold;
             break;
         case POWER_ERROR:
-            threshold = hierarchicRefinementColorToError(GLOBAL_statistics_maxSelfEmittedPower) * GLOBAL_galerkin_state.rel_link_error_threshold / (M_PI * rcv_area);
+            threshold = hierarchicRefinementColorToError(GLOBAL_statistics_maxSelfEmittedPower) * GLOBAL_galerkin_state.relLinkErrorThreshold / (M_PI * rcv_area);
             break;
         default:
             logFatal(2, "hierarchicRefinementEvaluateInteraction", "Invalid error norm");
@@ -199,7 +199,7 @@ hierarchicRefinementApproximationError(INTERACTION *link, COLOR srcrho, COLOR rc
 
                 /* compare potential error w.r.t. maximum direct potential or importance
                  * instead of selfemitted radiance or power. */
-                switch ( GLOBAL_galerkin_state.error_norm ) {
+                switch ( GLOBAL_galerkin_state.errorNorm ) {
                     case RADIANCE_ERROR:
                         approx_error2 *= hierarchicRefinementColorToError(GLOBAL_statistics_maxSelfEmittedRadiance) / GLOBAL_statistics_maxDirectPotential;
                         break;
@@ -296,11 +296,11 @@ hierarchicRefinementEvaluateInteraction(INTERACTION *link) {
     threshold = hierarchicRefinementLinkErrorThreshold(link, rcv_area);
     error = hierarchicRefinementApproximationError(link, srcrho, rcvrho, rcv_area);
 
-    if ( isCluster(link->sourceElement) && error < threshold && GLOBAL_galerkin_state.clustering_strategy != ISOTROPIC )
+    if ( isCluster(link->sourceElement) && error < threshold && GLOBAL_galerkin_state.clusteringStrategy != ISOTROPIC )
         error += sourceClusterRadianceVariationError(link, rcvrho, rcv_area);
 
     // Minimal element area for which subdivision is allowed
-    min_area = GLOBAL_statistics_totalArea * GLOBAL_galerkin_state.rel_min_elem_area;
+    min_area = GLOBAL_statistics_totalArea * GLOBAL_galerkin_state.relMinElemArea;
 
     code = ACCURATE_ENOUGH;
     if ( error > threshold ) {

@@ -50,7 +50,7 @@ determineNodes(GalerkinElement *elem, CUBARULE **cr, Vector3D x[CUBAMAXNODES], G
         BOUNDINGBOX vol;
         double dx, dy, dz;
 
-        *cr = GLOBAL_galerkin_state.clusRule;
+        *cr = GLOBAL_galerkin_state.clusterRule;
 
         galerkinElementBounds(elem, vol);
         dx = vol[MAX_X] - vol[MIN_X];
@@ -160,7 +160,7 @@ pointKernelEval(
     // Determine transmissivity (visibility)
     if ( !ShadowList ) {
         *vis = 1.0;
-    } else if ( !GLOBAL_galerkin_state.multires_visibility ) {
+    } else if ( !GLOBAL_galerkin_state.multiResolutionVisibility ) {
         if ( !shadowTestDiscretization(&ray, ShadowList, fdist, &hitstore) ) {
             *vis = 1.0;
         } else {
@@ -169,7 +169,7 @@ pointKernelEval(
     } else if ( cacheHit(&ray, &fdist, &hitstore)) {
         *vis = 0.0;
     } else {
-        float min_feature_size = 2.0 * std::sqrt(GLOBAL_statistics_totalArea * GLOBAL_galerkin_state.rel_min_elem_area / M_PI);
+        float min_feature_size = 2.0 * std::sqrt(GLOBAL_statistics_totalArea * GLOBAL_galerkin_state.relMinElemArea / M_PI);
         *vis = geomListMultiResolutionVisibility(ShadowList, &ray, fdist, src->bsize, min_feature_size);
     }
 
@@ -487,19 +487,19 @@ areaToAreaFormFactor(INTERACTION *link, GeometryListNode *shadowlist) {
 
     // If the receiver is another one than before, determine the cubature
     // rule to be used on it and the nodes (positions on the patch)
-    if ( rcv != GLOBAL_galerkin_state.fflastrcv ) {
+    if ( rcv != GLOBAL_galerkin_state.formFactorLastRcv ) {
         determineNodes(rcv, &crrcv, x, RECEIVER);
     }
 
     // Same for the source element
-    if ( src != GLOBAL_galerkin_state.fflastsrc ) {
+    if ( src != GLOBAL_galerkin_state.formFactorLastSrc ) {
         determineNodes(src, &crsrc, y, SOURCE);
     }
 
     // Evaluate the radiosity kernel between each pair of nodes on the source
     // and the receiver element if at least receiver or source changed since
     // last time
-    if ( rcv != GLOBAL_galerkin_state.fflastrcv || src != GLOBAL_galerkin_state.fflastsrc ) {
+    if ( rcv != GLOBAL_galerkin_state.formFactorLastRcv || src != GLOBAL_galerkin_state.formFactorLastSrc ) {
         // Use shadow caching for accelerating occlusion detection
         initShadowCache();
 
@@ -551,10 +551,10 @@ areaToAreaFormFactor(INTERACTION *link, GeometryListNode *shadowlist) {
     }
 
     // Remember receiver and source for next time
-    GLOBAL_galerkin_state.fflastrcv = rcv;
-    GLOBAL_galerkin_state.fflastsrc = src;
+    GLOBAL_galerkin_state.formFactorLastRcv = rcv;
+    GLOBAL_galerkin_state.formFactorLastSrc = src;
 
-    if ( GLOBAL_galerkin_state.clustering_strategy == ISOTROPIC &&
+    if ( GLOBAL_galerkin_state.clusteringStrategy == ISOTROPIC &&
          (isCluster(rcv) || isCluster(src))) {
         link->deltaK.f = maxkval * src->area;
     }

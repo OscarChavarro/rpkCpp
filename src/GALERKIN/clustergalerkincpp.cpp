@@ -217,7 +217,7 @@ towards the sample point
 */
 COLOR
 clusterRadianceToSamplePoint(GalerkinElement *src, Vector3D sample) {
-    switch ( GLOBAL_galerkin_state.clustering_strategy ) {
+    switch ( GLOBAL_galerkin_state.clusteringStrategy ) {
         case ISOTROPIC:
             return src->radiance[0];
 
@@ -258,7 +258,7 @@ clusterRadianceToSamplePoint(GalerkinElement *src, Vector3D sample) {
 
         default:
             logFatal(-1, "clusterRadianceToSamplePoint", "Invalid clustering strategy %d\n",
-                     GLOBAL_galerkin_state.clustering_strategy);
+                     GLOBAL_galerkin_state.clusteringStrategy);
     }
 
     return globalSourceRadiance;    /* this point is never reached */
@@ -321,7 +321,7 @@ receiverClusterArea(INTERACTION *link) {
         return rcv->area;
     }
 
-    switch ( GLOBAL_galerkin_state.clustering_strategy ) {
+    switch ( GLOBAL_galerkin_state.clusteringStrategy ) {
         case ISOTROPIC:
             return rcv->area;
 
@@ -349,7 +349,7 @@ receiverClusterArea(INTERACTION *link) {
 
         default:
             logFatal(-1, "receiverClusterArea", "Invalid clustering strategy %d",
-                     GLOBAL_galerkin_state.clustering_strategy);
+                     GLOBAL_galerkin_state.clusteringStrategy);
     }
 
     return 0.;    /* this point is never reached and if it is it's your fault. */
@@ -436,7 +436,7 @@ clusterGatherRadiance(INTERACTION *link, COLOR *srcrad) {
     globalTheLink = link;
     globalSamplePoint = galerkinElementMidPoint(src);
 
-    switch ( GLOBAL_galerkin_state.clustering_strategy ) {
+    switch ( GLOBAL_galerkin_state.clusteringStrategy ) {
         case ISOTROPIC:
             doGatherRadiance(rcv, 1., link, srcrad);
             break;
@@ -464,7 +464,7 @@ clusterGatherRadiance(INTERACTION *link, COLOR *srcrad) {
             break;
         default:
             logFatal(-1, "clusterGatherRadiance", "Invalid clustering strategy %d",
-                     GLOBAL_galerkin_state.clustering_strategy);
+                     GLOBAL_galerkin_state.clusteringStrategy);
     }
 }
 

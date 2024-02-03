@@ -21,7 +21,7 @@ Create a scratch software renderer for various operations on clusters
 */
 void
 scratchInit() {
-    GLOBAL_galerkin_state.scratch = sglOpen(GLOBAL_galerkin_state.scratch_fb_size, GLOBAL_galerkin_state.scratch_fb_size);
+    GLOBAL_galerkin_state.scratch = sglOpen(GLOBAL_galerkin_state.scratchFbSize, GLOBAL_galerkin_state.scratchFbSize);
     sglDepthTesting(true);
 }
 
@@ -70,13 +70,13 @@ scratchRenderElements(GalerkinElement *cluster, Vector3D eye) {
     SGL_CONTEXT *prev_sgl_context;
     int vp_size;
 
-    if ( cluster->id == GLOBAL_galerkin_state.lastclusid && VECTOREQUAL(eye, GLOBAL_galerkin_state.lasteye, EPSILON)) {
+    if ( cluster->id == GLOBAL_galerkin_state.lastClusterId && VECTOREQUAL(eye, GLOBAL_galerkin_state.lastEye, EPSILON)) {
         return bbx;
     } else {
         // Cache previously rendered cluster and eye point in order to
         // avoid re-rendering the same situation next time
-        GLOBAL_galerkin_state.lastclusid = cluster->id;
-        GLOBAL_galerkin_state.lasteye = eye;
+        GLOBAL_galerkin_state.lastClusterId = cluster->id;
+        GLOBAL_galerkin_state.lastEye = eye;
     }
 
     VECTORSUBTRACT(centre, eye, viewDirection);

@@ -27,41 +27,41 @@ potential-driven or not.
 GalerkinState GLOBAL_galerkin_state;
 
 GalerkinState::GalerkinState():
-    iteration_nr(),
-    hierarchical(),
-    importance_driven(),
-    clustered(),
-    iteration_method(),
-    lazy_linking(),
-    exact_visibility(),
-    multires_visibility(),
-    use_constant_radiance(),
-    use_ambient_radiance(),
-    constant_radiance(),
-    ambient_radiance(),
-    shaftcullmode(),
-    rcv_degree(),
-    src_degree(),
-    rcv3rule(),
-    rcv4rule(),
-    src3rule(),
-    src4rule(),
-    clusRule(),
-    top_cluster(),
-    top_geom(),
-    error_norm(),
-    rel_min_elem_area(),
-    rel_link_error_threshold (),
-    basis_type(),
-    clustering_strategy(),
-    fflastrcv(),
-    fflastsrc(),
-    scratch(),
-    scratch_fb_size(),
-    lastclusid(),
-    lasteye(),
-    lastclock(),
-    cpu_secs()
+        iteration_nr(),
+        hierarchical(),
+        importance_driven(),
+        clustered(),
+        iteration_method(),
+        lazy_linking(),
+        exact_visibility(),
+        multiResolutionVisibility(),
+        use_constant_radiance(),
+        use_ambient_radiance(),
+        constant_radiance(),
+        ambient_radiance(),
+        shaftCullMode(),
+        rcvDegree(),
+        srcDegree(),
+        rcv3rule(),
+        rcv4rule(),
+        src3rule(),
+        src4rule(),
+        clusterRule(),
+        topCluster(),
+        topGeometry(),
+        errorNorm(),
+        relMinElemArea(),
+        relLinkErrorThreshold (),
+        basisType(),
+        clusteringStrategy(),
+        formFactorLastRcv(),
+        formFactorLastSrc(),
+        scratch(),
+        scratchFbSize(),
+        lastClusterId(),
+        lastEye(),
+        lastClock(),
+        cpu_secs()
 {
 }
 
@@ -138,21 +138,21 @@ galerkinDefaults() {
     GLOBAL_galerkin_state.lazy_linking = DEFAULT_GAL_LAZY_LINKING;
     GLOBAL_galerkin_state.use_constant_radiance = DEFAULT_GAL_CONSTANT_RADIANCE;
     GLOBAL_galerkin_state.use_ambient_radiance = DEFAULT_GAL_AMBIENT_RADIANCE;
-    GLOBAL_galerkin_state.shaftcullmode = DEFAULT_GAL_SHAFTCULLMODE;
-    GLOBAL_galerkin_state.rcv_degree = DEFAULT_GAL_RCV_CUBATURE_DEGREE;
-    GLOBAL_galerkin_state.src_degree = DEFAULT_GAL_SRC_CUBATURE_DEGREE;
-    setCubatureRules(&GLOBAL_galerkin_state.rcv3rule, &GLOBAL_galerkin_state.rcv4rule, GLOBAL_galerkin_state.rcv_degree);
-    setCubatureRules(&GLOBAL_galerkin_state.src3rule, &GLOBAL_galerkin_state.src4rule, GLOBAL_galerkin_state.src_degree);
-    GLOBAL_galerkin_state.clusRule = &GLOBAL_crv1;
-    GLOBAL_galerkin_state.rel_min_elem_area = DEFAULT_GAL_REL_MIN_ELEM_AREA;
-    GLOBAL_galerkin_state.rel_link_error_threshold = DEFAULT_GAL_REL_LINK_ERROR_THRESHOLD;
-    GLOBAL_galerkin_state.error_norm = DEFAULT_GAL_ERROR_NORM;
-    GLOBAL_galerkin_state.basis_type = DEFAULT_GAL_BASIS_TYPE;
+    GLOBAL_galerkin_state.shaftCullMode = DEFAULT_GAL_SHAFT_CULL_MODE;
+    GLOBAL_galerkin_state.rcvDegree = DEFAULT_GAL_RCV_CUBATURE_DEGREE;
+    GLOBAL_galerkin_state.srcDegree = DEFAULT_GAL_SRC_CUBATURE_DEGREE;
+    setCubatureRules(&GLOBAL_galerkin_state.rcv3rule, &GLOBAL_galerkin_state.rcv4rule, GLOBAL_galerkin_state.rcvDegree);
+    setCubatureRules(&GLOBAL_galerkin_state.src3rule, &GLOBAL_galerkin_state.src4rule, GLOBAL_galerkin_state.srcDegree);
+    GLOBAL_galerkin_state.clusterRule = &GLOBAL_crv1;
+    GLOBAL_galerkin_state.relMinElemArea = DEFAULT_GAL_REL_MIN_ELEM_AREA;
+    GLOBAL_galerkin_state.relLinkErrorThreshold = DEFAULT_GAL_REL_LINK_ERROR_THRESHOLD;
+    GLOBAL_galerkin_state.errorNorm = DEFAULT_GAL_ERROR_NORM;
+    GLOBAL_galerkin_state.basisType = DEFAULT_GAL_BASIS_TYPE;
     GLOBAL_galerkin_state.exact_visibility = DEFAULT_GAL_EXACT_VISIBILITY;
-    GLOBAL_galerkin_state.multires_visibility = DEFAULT_GAL_MULTIRES_VISIBILITY;
-    GLOBAL_galerkin_state.clustering_strategy = DEFAULT_GAL_CLUSTERING_STRATEGY;
+    GLOBAL_galerkin_state.multiResolutionVisibility = DEFAULT_GAL_MULTI_RESOLUTION_VISIBILITY;
+    GLOBAL_galerkin_state.clusteringStrategy = DEFAULT_GAL_CLUSTERING_STRATEGY;
     GLOBAL_galerkin_state.scratch = (SGL_CONTEXT *) nullptr;
-    GLOBAL_galerkin_state.scratch_fb_size = DEFAULT_GAL_SCRATCH_FB_SIZE;
+    GLOBAL_galerkin_state.scratchFbSize = DEFAULT_GAL_SCRATCH_FB_SIZE;
 
     GLOBAL_galerkin_state.iteration_nr = -1;    /* means "not initialized" */
 }
@@ -225,9 +225,9 @@ static CommandLineOptionDescription galerkinOptions[] = {
     "-gr-ambient         \t: do visualisation with ambient term"},
     {"-gr-no-ambient",           10, TYPELESS, (void *) &globalFalse, ambientOption,
     "-gr-no-ambient      \t: do visualisation without ambient term"},
-    {"-gr-link-error-threshold", 6,  Tfloat,   &GLOBAL_galerkin_state.rel_link_error_threshold, DEFAULT_ACTION,
+    {"-gr-link-error-threshold", 6,  Tfloat,   &GLOBAL_galerkin_state.relLinkErrorThreshold, DEFAULT_ACTION,
     "-gr-link-error-threshold <float>: Relative link error threshold"},
-    {"-gr-min-elem-area",6, Tfloat, &GLOBAL_galerkin_state.rel_min_elem_area, DEFAULT_ACTION,
+    {"-gr-min-elem-area",6, Tfloat, &GLOBAL_galerkin_state.relMinElemArea, DEFAULT_ACTION,
     "-gr-min-elem-area <float> \t: Relative element area threshold"},
     {nullptr, 0, TYPELESS, nullptr, DEFAULT_ACTION, nullptr}
 };
@@ -245,8 +245,8 @@ updateCpuSecs() {
     clock_t t;
 
     t = clock();
-    GLOBAL_galerkin_state.cpu_secs += (float) (t - GLOBAL_galerkin_state.lastclock) / (float) CLOCKS_PER_SEC;
-    GLOBAL_galerkin_state.lastclock = t;
+    GLOBAL_galerkin_state.cpu_secs += (float) (t - GLOBAL_galerkin_state.lastClock) / (float) CLOCKS_PER_SEC;
+    GLOBAL_galerkin_state.lastClock = t;
 }
 
 /**
@@ -342,18 +342,18 @@ initGalerkin(java::ArrayList<Patch *> *scenePatches) {
         patchInit(scenePatches->get(i));
     }
 
-    GLOBAL_galerkin_state.top_geom = GLOBAL_scene_clusteredWorldGeom;
-    GLOBAL_galerkin_state.top_cluster = galerkinCreateClusterHierarchy(GLOBAL_galerkin_state.top_geom);
+    GLOBAL_galerkin_state.topGeometry = GLOBAL_scene_clusteredWorldGeom;
+    GLOBAL_galerkin_state.topCluster = galerkinCreateClusterHierarchy(GLOBAL_galerkin_state.topGeometry);
 
     // Create a scratch software renderer for various operations on clusters
     scratchInit();
 
     // Global variables used for form factor computation optimisation
-    GLOBAL_galerkin_state.fflastrcv = GLOBAL_galerkin_state.fflastsrc = (GalerkinElement *) nullptr;
+    GLOBAL_galerkin_state.formFactorLastRcv = GLOBAL_galerkin_state.formFactorLastSrc = (GalerkinElement *) nullptr;
 
     // Global variables for scratch rendering
-    GLOBAL_galerkin_state.lastclusid = -1;
-    VECTORSET(GLOBAL_galerkin_state.lasteye, HUGE, HUGE, HUGE);
+    GLOBAL_galerkin_state.lastClusterId = -1;
+    VECTORSET(GLOBAL_galerkin_state.lastEye, HUGE, HUGE, HUGE);
 }
 
 static int
@@ -366,7 +366,7 @@ doGalerkinOneStep(java::ArrayList<Patch *> *scenePatches, java::ArrayList<Patch 
     }
 
     GLOBAL_galerkin_state.iteration_nr++;
-    GLOBAL_galerkin_state.lastclock = clock();
+    GLOBAL_galerkin_state.lastClock = clock();
 
     // And now the real work
     switch ( GLOBAL_galerkin_state.iteration_method ) {
@@ -393,7 +393,7 @@ doGalerkinOneStep(java::ArrayList<Patch *> *scenePatches, java::ArrayList<Patch 
 static void
 terminateGalerkin(java::ArrayList<Patch *> * /*scenePatches*/) {
     scratchTerminate();
-    galerkinDestroyClusterHierarchy(GLOBAL_galerkin_state.top_cluster);
+    galerkinDestroyClusterHierarchy(GLOBAL_galerkin_state.topCluster);
 }
 
 static COLOR
@@ -450,15 +450,15 @@ getGalerkinStats() {
     p += n;
     snprintf(p, STRING_LENGTH, "CPU time: %g secs.\n%n", GLOBAL_galerkin_state.cpu_secs, &n);
     p += n;
-    snprintf(p, STRING_LENGTH, "Minimum element area: %g m^2\n%n", GLOBAL_statistics_totalArea * (double) GLOBAL_galerkin_state.rel_min_elem_area, &n);
+    snprintf(p, STRING_LENGTH, "Minimum element area: %g m^2\n%n", GLOBAL_statistics_totalArea * (double) GLOBAL_galerkin_state.relMinElemArea, &n);
     p += n;
     snprintf(p, STRING_LENGTH, "Link error threshold: %g %s\n\n%n",
-            (double) (GLOBAL_galerkin_state.error_norm == RADIANCE_ERROR ?
-                      M_PI * (GLOBAL_galerkin_state.rel_link_error_threshold *
+            (double) (GLOBAL_galerkin_state.errorNorm == RADIANCE_ERROR ?
+                      M_PI * (GLOBAL_galerkin_state.relLinkErrorThreshold *
                               colorLuminance(GLOBAL_statistics_maxSelfEmittedRadiance)) :
-                      GLOBAL_galerkin_state.rel_link_error_threshold *
-                              colorLuminance(GLOBAL_statistics_maxSelfEmittedPower)),
-            (GLOBAL_galerkin_state.error_norm == RADIANCE_ERROR ? "lux" : "lumen"),
+                      GLOBAL_galerkin_state.relLinkErrorThreshold *
+                      colorLuminance(GLOBAL_statistics_maxSelfEmittedPower)),
+            (GLOBAL_galerkin_state.errorNorm == RADIANCE_ERROR ? "lux" : "lumen"),
             &n);
 
     return stats;
@@ -524,7 +524,7 @@ static void
 galerkinWriteCoords() {
     globalNumberOfWrites = globalVertexId = 0;
     fprintf(globalVrmlFileDescriptor, "\tcoord Coordinate {\n\t  point [ ");
-    forAllLeafElements(GLOBAL_galerkin_state.top_cluster, galerkinWriteVertexCoords);
+    forAllLeafElements(GLOBAL_galerkin_state.topCluster, galerkinWriteVertexCoords);
     fprintf(globalVrmlFileDescriptor, " ] ");
     fprintf(globalVrmlFileDescriptor, "\n\t}\n");
 }
@@ -580,7 +580,7 @@ static void
 galerkinWriteVertexColors() {
     globalVertexId = globalNumberOfWrites = 0;
     fprintf(globalVrmlFileDescriptor, "\tcolor Color {\n\t  color [ ");
-    forAllLeafElements(GLOBAL_galerkin_state.top_cluster, galerkinWriteVertexColors);
+    forAllLeafElements(GLOBAL_galerkin_state.topCluster, galerkinWriteVertexColors);
     fprintf(globalVrmlFileDescriptor, " ] ");
     fprintf(globalVrmlFileDescriptor, "\n\t}\n");
 }
@@ -616,7 +616,7 @@ static void
 galerkinWriteCoordIndices() {
     globalVertexId = globalNumberOfWrites = 0;
     fprintf(globalVrmlFileDescriptor, "\tcoordIndex [ ");
-    forAllLeafElements(GLOBAL_galerkin_state.top_cluster, galerkinWriteCoordIndices);
+    forAllLeafElements(GLOBAL_galerkin_state.topCluster, galerkinWriteCoordIndices);
     fprintf(globalVrmlFileDescriptor, " ]\n");
 }
 
