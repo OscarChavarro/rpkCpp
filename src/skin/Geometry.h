@@ -38,25 +38,22 @@ class Geometry {
   public:
     int id; // Unique ID number
     BOUNDINGBOX bounds;
-    Element *radiance_data; // Data specific to the radiance algorithm being used
+    Element *radianceData; // Data specific to the radiance algorithm being used
     int displayListId; // Display list ID for faster hardware rendering - initialised to -1
-
     int itemCount;
-
-    // A flag indicating if the geometry has a bounding box
-    char bounded; // Non-zero if bounded geometry
+    char bounded; // A flag indicating if the geometry has a bounding box, non-zero if bounded geometry
     char shaftCullGeometry; // Generated during shaft culling
     char omit; // Indicates that the Geometry should not be considered for a number of things,
                // such as intersection testing. Set to false by default, don't forget
                // to set to false again after you changed it!
 
+    GeometryClassId className;
     MeshSurface *surfaceData;
     Compound *compoundData;
     PatchSet *patchSetData;
 
     Geometry();
     int geomCountItems();
-    GeometryClassId className;
 };
 
 extern Geometry *geomCreateSurface(MeshSurface *surfaceData);

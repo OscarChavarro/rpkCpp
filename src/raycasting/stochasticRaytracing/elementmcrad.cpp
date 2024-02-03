@@ -245,7 +245,7 @@ monteCarloRadiosityCreateClusterChildren(StochasticRadiosityElement *parent) {
 static StochasticRadiosityElement *
 monteCarloRadiosityCreateClusterHierarchyRecursive(Geometry *world) {
     StochasticRadiosityElement *topcluster;
-    world->radiance_data = topcluster = (StochasticRadiosityElement *) monteCarloRadiosityCreateCluster(world);
+    world->radianceData = topcluster = (StochasticRadiosityElement *) monteCarloRadiosityCreateCluster(world);
     monteCarloRadiosityCreateClusterChildren(topcluster);
     return topcluster;
 }

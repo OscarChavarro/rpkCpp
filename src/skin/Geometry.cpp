@@ -11,16 +11,16 @@ static int globalCurrentMaxId = 0;
 Geometry::Geometry():
     id(),
     bounds(),
-    radiance_data(),
+    radianceData(),
     displayListId(),
     itemCount(),
     bounded(),
     shaftCullGeometry(),
     omit(),
+    className(),
     surfaceData(),
     compoundData(),
-    patchSetData(),
-    className()
+    patchSetData()
 {
     className = GeometryClassId::UNDEFINED;
 }
@@ -82,7 +82,7 @@ geomCreateBase(
     boundsEnlargeTinyBit(newGeometry->bounds);
     newGeometry->bounded = true;
     newGeometry->shaftCullGeometry = false;
-    newGeometry->radiance_data = nullptr;
+    newGeometry->radianceData = nullptr;
     newGeometry->itemCount = 0;
     newGeometry->omit = false;
     newGeometry->displayListId = -1;

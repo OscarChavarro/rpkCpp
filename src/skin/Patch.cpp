@@ -135,7 +135,7 @@ randomWalkRadiosityPatchArea(Patch *P) {
             /* jacobian J(u,v) for the mapping of the triangle
              * (0,0),(0,1),(1,0) to a triangular patch is constant and equal
              * to the area of the triangle ... so there is no need to store
-             * any coefficients explicitely */
+             * any coefficients explicitly */
             P->jacobian = nullptr;
 
             p1 = P->vertex[0]->point;
@@ -173,7 +173,7 @@ randomWalkRadiosityPatchArea(Patch *P) {
 
             // b and c are zero for parallelograms. In that case, the area is equal to
             // a, so we don't need to store the coefficients
-            if ( fabs(b) / P->area < EPSILON && fabs(c) / P->area < EPSILON ) {
+            if ( std::fabs(b) / P->area < EPSILON && std::fabs(c) / P->area < EPSILON ) {
                 P->jacobian = nullptr;
             } else {
                 P->jacobian = jacobianCreate(a, b, c);
@@ -245,7 +245,7 @@ patchCreate(int numberOfVertices, Vertex *v1, Vertex *v2, Vertex *v3, Vertex *v4
 
     // This may occur after an error parsing the input file, and some other routine
     // will already complain
-    if ( !v1 || !v2 || !v3 || (numberOfVertices == 4 && !v4)) {
+    if ( !v1 || !v2 || !v3 || (numberOfVertices == 4 && !v4) ) {
         return nullptr;
     }
 
@@ -273,7 +273,7 @@ patchCreate(int numberOfVertices, Vertex *v1, Vertex *v2, Vertex *v3, Vertex *v4
     patch->boundingBox = nullptr;
 
     // Compute normal
-    if ( !patchNormal(patch, &patch->normal)) {
+    if ( !patchNormal(patch, &patch->normal) ) {
         free(patch);
         GLOBAL_statistics_numberOfElements--;
         return nullptr;
@@ -336,7 +336,7 @@ getNumberOfSamples(Patch *patch) {
         if ( patch->vertex[0]->texCoord == patch->vertex[1]->texCoord &&
              patch->vertex[0]->texCoord == patch->vertex[2]->texCoord &&
              (patch->numberOfVertices == 3 || patch->vertex[0]->texCoord == patch->vertex[3]->texCoord) &&
-             patch->vertex[0]->texCoord != nullptr) {
+             patch->vertex[0]->texCoord != nullptr ) {
             // All vertices have same texture coordinates (important special case)
             numberOfSamples = 1;
         } else {
@@ -401,65 +401,6 @@ patchAverageEmittance(Patch *patch, XXDFFLAGS components) {
 void
 patchPrintId(FILE *out, Patch *patch) {
     fprintf(out, "%d ", patch->id);
-}
-
-void
-patchPrint(FILE *out, Patch *patch) {
-    fprintf(out, "Patch id %d:\n", patch->id);
-    fprintf(out, "%d vertices:\n", patch->numberOfVertices);
-    for ( int i = 0; i < patch->numberOfVertices; i++ ) {
-        vertexPrint(out, patch->vertex[i]);
-    }
-    fprintf(out, "\n");
-
-    fprintf(out, "midpoint = ");
-    vector3DPrint(out, patch->midpoint);
-    fprintf(out, ", normal = ");
-    vector3DPrint(out, patch->normal);
-    fprintf(out, ", plane constant = %g, tolerance = %g\narea = %g, ",
-            patch->planeConstant, patch->tolerance, patch->area);
-    if ( patch->jacobian ) {
-        fprintf(out, "Jacobian: %g %+g*u %+g*v \n",
-                patch->jacobian->A, patch->jacobian->B, patch->jacobian->C);
-    } else {
-        fprintf(out, "No explicitely stored jacobian\n");
-    }
-
-    fprintf(out, "sided = %d, material = '%s'\n",
-            patch->surface->material->sided,
-            patch->surface->material->name ? patch->surface->material->name : "(default)");
-
-    COLOR Rd;
-    COLOR Ed;
-
-    colorClear(Rd);
-    if ( patch->surface->material->bsdf ) {
-        Rd = patchAverageNormalAlbedo(patch, BRDF_DIFFUSE_COMPONENT);
-    }
-    colorClear(Ed);
-    if ( patch->surface->material->edf ) {
-        Ed = patchAverageEmittance(patch, DIFFUSE_COMPONENT);
-    }
-    fprintf(out, ", reflectance = ");
-    Rd.print(out);
-    fprintf(out, ", self-emitted luminosity = %g\n", colorLuminance(Ed));
-
-    fprintf(out, "color: ");
-    printRGB(out, patch->color);
-    fprintf(out, "\n");
-    fprintf(out, "directly received potential: %g\n", patch->directPotential);
-
-    fprintf(out, "flags: %s\n",
-            patch->isVisible() ? "PATCH_IS_VISIBLE" : "");
-
-    if ( GLOBAL_radiance_currentRadianceMethodHandle ) {
-        if ( patch->radianceData && GLOBAL_radiance_currentRadianceMethodHandle->PrintPatchData ) {
-            fprintf(out, "Radiance data:\n");
-            GLOBAL_radiance_currentRadianceMethodHandle->PrintPatchData(out, patch);
-        } else {
-            fprintf(out, "No radiance data\n");
-        }
-    }
 }
 
 /**
@@ -561,7 +502,7 @@ patchInterpolatedFrameAtUv(Patch *patch, double u, double v,
     *Z = patchInterpolatedNormalAtUv(patch, u, v);
 
     if ( X && Y ) {
-        double zz = sqrt(1 - Z->z * Z->z);
+        double zz = std::sqrt(1 - Z->z * Z->z);
         if ( zz < EPSILON ) {
             VECTORSET(*X, 1., 0., 0.);
         } else {

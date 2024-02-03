@@ -33,7 +33,7 @@ geomMultiResolutionVisibility(
     float t;
     float fsize;
     float *bbx;
-    GalerkinElement *clus = (GalerkinElement *) (geom->radiance_data);
+    GalerkinElement *clus = (GalerkinElement *) (geom->radianceData);
     RayHit hitstore;
 
     if ( geom == GLOBAL_geom_excludedGeom1 || geom == GLOBAL_geom_excludedGeom2 ) {

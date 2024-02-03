@@ -109,7 +109,7 @@ galerkinDoCreateClusterHierarchy(Geometry *parentGeometry) {
 
     // Create a cluster for the parentGeometry
     GalerkinElement *cluster = galerkinElementCreateCluster(parentGeometry);
-    parentGeometry->radiance_data = cluster;
+    parentGeometry->radianceData = cluster;
 
     // Recursively creates list of sub-clusters
     if ( geomIsAggregate(parentGeometry) ) {
