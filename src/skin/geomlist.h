@@ -11,7 +11,7 @@ class Geometry;
 
 class GeometryListNode {
   public:
-    Geometry *geom;
+    Geometry *geometry;
     GeometryListNode *next;
 };
 

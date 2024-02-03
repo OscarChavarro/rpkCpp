@@ -42,11 +42,7 @@ class Geometry {
     Element *radiance_data; // Data specific to the radiance algorithm being used
     int displayListId; // Display list ID for faster hardware rendering - initialised to -1
 
-    // Temporary data
-    union {
-        int i;
-        void *p;
-    } tmp;
+    int itemCount;
 
     // A flag indicating if the geometry has a bounding box
     char bounded; // Non-zero if bounded geometry

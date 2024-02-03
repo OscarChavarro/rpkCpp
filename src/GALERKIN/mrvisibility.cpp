@@ -101,7 +101,7 @@ geomListMultiResolutionVisibility(
 
     while ( occluderList ) {
         double v;
-        v = geomMultiResolutionVisibility(occluderList->geom, ray, rcvdist, srcSize, minimumFeatureSize);
+        v = geomMultiResolutionVisibility(occluderList->geometry, ray, rcvdist, srcSize, minimumFeatureSize);
         if ( v < EPSILON ) {
             return 0.0;
         } else {

@@ -13,7 +13,7 @@ Geometry::Geometry():
     bounds(),
     radiance_data(),
     displayListId(),
-    tmp(),
+    itemCount(),
     bounded(),
     shaftCullGeometry(),
     omit(),
@@ -72,7 +72,7 @@ geomCreateBase(
         surfaceBounds(surfaceData, newGeometry->bounds);
     } else if ( className == GeometryClassId::COMPOUND ) {
         compoundBounds(&compoundData->children, newGeometry->bounds);
-    } else if ( className == GeometryClassId::PATCH_SET ) {
+    } else /* if ( className == GeometryClassId::PATCH_SET ) */ {
         java::ArrayList<Patch *> *tmpList = patchListExportToArrayList(patchSetData);
         patchListBounds(tmpList, newGeometry->bounds);
         delete tmpList;
@@ -82,11 +82,9 @@ geomCreateBase(
     boundsEnlargeTinyBit(newGeometry->bounds);
     newGeometry->bounded = true;
     newGeometry->shaftCullGeometry = false;
-
     newGeometry->radiance_data = nullptr;
-    newGeometry->tmp.i = 0;
+    newGeometry->itemCount = 0;
     newGeometry->omit = false;
-
     newGeometry->displayListId = -1;
 
     return newGeometry;
@@ -324,7 +322,7 @@ Geometry::geomCountItems() {
         if ( geometryList != nullptr ) {
             GeometryListNode *window;
             for ( window = geometryList; window; window = window->next ) {
-                Geometry *geometry = window->geom;
+                Geometry *geometry = window->geometry;
                 count += geometry->geomCountItems();
             }
         }
@@ -337,5 +335,5 @@ Geometry::geomCountItems() {
         }
     }
 
-    return this->tmp.i = count;
+    return this->itemCount = count;
 }

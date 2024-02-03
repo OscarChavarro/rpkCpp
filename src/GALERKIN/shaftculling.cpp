@@ -808,7 +808,7 @@ doShaftCulling - for other kinds of geoms, only a pointer is copied
 GeometryListNode *
 doShaftCulling(GeometryListNode *world, SHAFT *shaft, GeometryListNode *candidateList) {
     for ( ; world && !shaft->cut; world = world->next ) {
-        candidateList = shaftCullGeom(world->geom, shaft, candidateList);
+        candidateList = shaftCullGeom(world->geometry, shaft, candidateList);
     }
 
     return candidateList;
@@ -823,8 +823,8 @@ freeCandidateList(GeometryListNode *candidateList) {
 
     // Only destroy geoms that were generated for shaft culling
     for ( gl = candidateList; gl; gl = gl->next ) {
-        if ( gl->geom->shaftCullGeometry ) {
-            geomDestroy(gl->geom);
+        if ( gl->geometry->shaftCullGeometry ) {
+            geomDestroy(gl->geometry);
         }
     }
 

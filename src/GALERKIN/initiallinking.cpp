@@ -121,7 +121,7 @@ geomLink(Geometry *geom) {
     if ( geomIsAggregate(geom)) {
         GeometryListNode *geometryList = geomPrimList(geom);
         for ( GeometryListNode *window = geometryList; window != nullptr; window = window->next ) {
-            Geometry *geometry = window->geom;
+            Geometry *geometry = window->geometry;
             geomLink(geometry);
         }
     } else {
@@ -156,7 +156,7 @@ createInitialLinks(GalerkinElement *top, GalerkinRole role) {
     globalCandidateList = GLOBAL_scene_clusteredWorld;
 
     for ( GeometryListNode *window = (GLOBAL_scene_world); window != nullptr; window = window->next ) {
-        Geometry *geometry = window->geom;
+        Geometry *geometry = window->geometry;
         geomLink(geometry);
     }
 }

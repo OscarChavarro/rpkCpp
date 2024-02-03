@@ -387,7 +387,7 @@ openGlRenderOctreeNonLeaf(Geometry *geometry, void (*render_patch)(Patch *)) {
 
     i = 0;
     for ( GeometryListNode *window = children; window != nullptr; window = window->next ) {
-        Geometry *child = window->geom;
+        Geometry *child = window->geometry;
         if ( geomIsAggregate(child) ) {
             if ( i >= 8 ) {
                 logError("openGlRenderOctreeNonLeaf", "Invalid octree geometry node (more than 8 compound children)");
@@ -468,7 +468,7 @@ openGlGeometryDeleteDLists(Geometry *geom) {
     if ( geomIsAggregate(GLOBAL_scene_clusteredWorldGeom)) {
         GeometryListNode *children = geomPrimList(geom);
         for ( GeometryListNode *window = children; window != nullptr; window = window->next ) { \
-            Geometry *child = window->geom;
+            Geometry *child = window->geometry;
             openGlGeometryDeleteDLists(child);
         }
     }

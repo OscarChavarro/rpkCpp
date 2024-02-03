@@ -26,9 +26,9 @@ VoxelGrid::VoxelGrid(Geometry *geom) : boundingBox{} {
         geom->geomCountItems();
     }
 
-    double p = std::pow((double) geom->tmp.i /*item count*/, 0.33333) + 1;
+    double p = std::pow((double) geom->itemCount, 0.33333) + 1;
     gridSize = (short)std::floor(p);
-    fprintf(stderr, "Setting %d volumeListsOfItems in %d^3 cells level %d voxel grid ... \n", geom->tmp.i, gridSize, level);
+    fprintf(stderr, "Setting %d volumeListsOfItems in %d^3 cells level %d voxel grid ... \n", geom->itemCount, gridSize, level);
     level++;
 
     putGeometryInsideVoxelGrid(geom, gridSize, gridSize, gridSize);
@@ -139,7 +139,7 @@ VoxelGrid::putPatchInsideVoxelGrid(Patch *patch) {
 void
 VoxelGrid::putSubGeometryInsideVoxelGrid(Geometry *geometry) {
     if ( isSmall(geometry->bounds) ) {
-        if ( geometry->tmp.i /*item count*/ < 10 ) {
+        if ( geometry->itemCount < 10 ) {
             putItemInsideVoxelGrid(new VoxelData(geometry, GEOM_MASK), geometry->bounds);
         } else {
             VoxelGrid *subgrid = new VoxelGrid(geometry);
@@ -151,8 +151,7 @@ VoxelGrid::putSubGeometryInsideVoxelGrid(Geometry *geometry) {
             if ( geometryList != nullptr ) {
                 GeometryListNode *window;
                 for ( window = geometryList; window; window = window->next ) {
-                    Geometry *geometry = window->geom;
-                    putSubGeometryInsideVoxelGrid(geometry);
+                    putSubGeometryInsideVoxelGrid(window->geometry);
                 }
             }
         } else {

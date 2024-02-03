@@ -403,7 +403,7 @@ iteratePrimitiveGeoms(GeometryListNode *list, void (*func)(Geometry *)) {
     GeometryListNode *listStart = list;
     if ( listStart != nullptr ) {
         for ( GeometryListNode *window = listStart; window != nullptr; window = window->next ) {
-            Geometry *geom = window->geom;
+            Geometry *geom = window->geometry;
             if ( geomIsAggregate(geom)) {
                 iteratePrimitiveGeoms(geomPrimList(geom), func);
             } else {

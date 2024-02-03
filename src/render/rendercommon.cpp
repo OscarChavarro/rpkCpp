@@ -238,7 +238,7 @@ renderGeomBounds(Geometry *geom) {
 
     if ( geomIsAggregate(geom) ) {
         for ( GeometryListNode *window = geomPrimList(geom); window != nullptr; window = window->next ) {
-            renderGeomBounds(window->geom);
+            renderGeomBounds(window->geometry);
         }
     }
 }
@@ -250,7 +250,7 @@ void
 renderBoundingBoxHierarchy() {
     openGlRenderSetColor(&GLOBAL_render_renderOptions.bounding_box_color);
     for ( GeometryListNode *window = GLOBAL_scene_world; window != nullptr; window = window->next ) {
-        renderGeomBounds(window->geom);
+        renderGeomBounds(window->geometry);
     }
 }
 
@@ -261,6 +261,6 @@ void
 renderClusterHierarchy() {
     openGlRenderSetColor(&GLOBAL_render_renderOptions.cluster_color);
     for ( GeometryListNode *window = GLOBAL_scene_clusteredWorld; window != nullptr; window = window->next ) {
-        renderGeomBounds(window->geom);
+        renderGeomBounds(window->geometry);
     }
 }

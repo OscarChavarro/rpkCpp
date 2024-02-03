@@ -114,7 +114,7 @@ galerkinDoCreateClusterHierarchy(Geometry *parentGeometry) {
     // Recursively creates list of sub-clusters
     if ( geomIsAggregate(parentGeometry) ) {
         for ( GeometryListNode *window = geomPrimList(parentGeometry); window != nullptr; window = window->next ) {
-            Geometry *childGeometry = window->geom;
+            Geometry *childGeometry = window->geometry;
             geomAddClusterChild(childGeometry, cluster);
         }
     } else {

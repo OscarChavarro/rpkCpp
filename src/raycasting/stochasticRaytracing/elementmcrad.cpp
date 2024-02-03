@@ -223,7 +223,7 @@ monteCarloRadiosityCreateClusterChildren(StochasticRadiosityElement *parent) {
         if ( geometryList != nullptr ) {
             GeometryListNode *window;
             for ( window = geometryList; window; window = window->next ) {
-                Geometry *geometry = window->geom;
+                Geometry *geometry = window->geometry;
                 monteCarloRadiosityCreateClusterChild(geometry, parent);
             }
         }

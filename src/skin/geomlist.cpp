@@ -10,7 +10,7 @@ geometryListAdd(GeometryListNode *geometryList, Geometry *geometry) {
     }
 
     GeometryListNode *newList = (GeometryListNode *)malloc(sizeof(LIST));
-    newList->geom = geometry;
+    newList->geometry = geometry;
     newList->next = geometryList;
 
     return newList;
@@ -24,7 +24,7 @@ geometryListBounds(GeometryListNode *geometryList, float *boundingBox) {
     boundsInit(boundingBox);
     if ( geometryList != nullptr ) {
         for ( GeometryListNode *window = geometryList; window != nullptr; window = window->next ) {
-            Geometry *geometry = window->geom;
+            Geometry *geometry = window->geometry;
             boundsEnlarge(boundingBox, geometry->bounds);
         }
     }
@@ -42,7 +42,7 @@ buildPatchList(GeometryListNode *geometryList, java::ArrayList<Patch *> *patchLi
     }
 
     for ( GeometryListNode *geometryWindow = geometryList; geometryWindow; geometryWindow = geometryWindow->next ) {
-        Geometry *geometry = geometryWindow->geom;
+        Geometry *geometry = geometryWindow->geometry;
         if ( geomIsAggregate(geometry)) {
             buildPatchList(geomPrimList(geometry), patchList);
         } else {
@@ -74,7 +74,7 @@ geometryListDiscretizationIntersect(
     if ( geometryList != nullptr ) {
         GeometryListNode *window;
         for ( window = geometryList; window; window = window->next ) {
-            Geometry *geometry = window->geom;
+            Geometry *geometry = window->geometry;
             if ((h = geomDiscretizationIntersect(geometry, ray, minimumDistance, maximumDistance, hitFlags, hitStore))) {
                 if ( hitFlags & HIT_ANY ) {
                     return h;
@@ -99,7 +99,7 @@ geomListAllDiscretizationIntersections(
     if ( geometryList != nullptr ) {
         GeometryListNode *window;
         for ( window = geometryList; window; window = window->next ) {
-            Geometry *geometry = window->geom;
+            Geometry *geometry = window->geometry;
             hits = geomAllDiscretizationIntersections(hits, geometry, ray, minimumDistance, maximumDistance, hitFlags);
         }
     }
