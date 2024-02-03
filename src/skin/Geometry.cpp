@@ -55,7 +55,12 @@ methods. A pointer to the new geometry is returned
 Note: currently containing the super() method.
 */
 static Geometry *
-geomCreateBase(void *geometryData, GeometryClassId className) {
+geomCreateBase(
+    PatchSet *patchSetData,
+    MeshSurface *surfaceData,
+    Compound *compoundData,
+    GeometryClassId className)
+{
     Geometry *newGeometry = new Geometry();
     GLOBAL_statistics_numberOfGeometries++;
     newGeometry->id = globalCurrentMaxId++;
@@ -66,12 +71,11 @@ geomCreateBase(void *geometryData, GeometryClassId className) {
     newGeometry->className = className;
 
     if ( className == GeometryClassId::SURFACE_MESH ) {
-        surfaceBounds((MeshSurface *)geometryData, newGeometry->bounds);
+        surfaceBounds(surfaceData, newGeometry->bounds);
     } else if ( className == GeometryClassId::COMPOUND || className == GeometryClassId::AGGREGATE_COMPOUND ) {
-        compoundBounds((Compound *)geometryData, newGeometry->bounds);
+        compoundBounds(compoundData, newGeometry->bounds);
     } else if ( className == GeometryClassId::PATCH_SET ) {
-        PatchSet *data = (PatchSet *)geometryData;
-        java::ArrayList<Patch *> *tmpList = patchListExportToArrayList(data);
+        java::ArrayList<Patch *> *tmpList = patchListExportToArrayList(patchSetData);
         patchListBounds(tmpList, newGeometry->bounds);
         delete tmpList;
     }
@@ -110,7 +114,7 @@ geomCreatePatchSet(PatchSet *patchSet) {
         return nullptr;
     }
 
-    Geometry *newGeometry = geomCreateBase(patchSet, GeometryClassId::PATCH_SET);
+    Geometry *newGeometry = geomCreateBase(patchSet, nullptr, nullptr, GeometryClassId::PATCH_SET);
     newGeometry->patchSetData = patchSet;
     return newGeometry;
 }
@@ -121,7 +125,7 @@ geomCreateSurface(MeshSurface *surfaceData) {
         return nullptr;
     }
 
-    Geometry *newGeometry = geomCreateBase(surfaceData, GeometryClassId::SURFACE_MESH);
+    Geometry *newGeometry = geomCreateBase(nullptr, surfaceData, nullptr, GeometryClassId::SURFACE_MESH);
     newGeometry->surfaceData = surfaceData;
     return newGeometry;
 }
@@ -132,7 +136,7 @@ geomCreateCompound(Compound *compoundData) {
         return nullptr;
     }
 
-    Geometry *newGeometry = geomCreateBase(compoundData, GeometryClassId::COMPOUND);
+    Geometry *newGeometry = geomCreateBase(nullptr, nullptr, compoundData, GeometryClassId::COMPOUND);
     newGeometry->compoundData = compoundData;
     newGeometry->aggregateData = &compoundData->children;
     return newGeometry;
@@ -144,7 +148,8 @@ geomCreateAggregateCompound(GeometryListNode *aggregateData) {
         return nullptr;
     }
 
-    Geometry *newGeometry = geomCreateBase(aggregateData, GeometryClassId::AGGREGATE_COMPOUND);
+    // TODO SITHMASTER: Note this is converting GeometryListNode to Compound! should change
+    Geometry *newGeometry = geomCreateBase(nullptr, nullptr, (Compound *)aggregateData, GeometryClassId::AGGREGATE_COMPOUND);
     newGeometry->aggregateData = aggregateData;
     return newGeometry;
 }
