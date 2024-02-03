@@ -2,7 +2,6 @@
 #define __GEOMETRY__
 
 #include "java/util/ArrayList.h"
-#include "material/hit.h"
 #include "skin/bounds.h"
 #include "skin/hitlist.h"
 
@@ -65,17 +64,17 @@ extern Geometry *geomCreatePatchSet(java::ArrayList<Patch *> *patchList);
 extern Geometry *geomCreatePatchSet(PatchSet *patchSet);
 extern Geometry *geomCreateCompound(Compound *compoundData);
 
-extern float *geomBounds(Geometry *geom);
+extern float *geomBounds(Geometry *geometry);
 extern void geomDestroy(Geometry *geometry);
 extern int geomIsAggregate(Geometry *geometry);
-extern GeometryListNode *geomPrimList(Geometry *geom);
-java::ArrayList<Patch *> *geomPatchArrayList(Geometry *geom);
-extern void geomDontIntersect(Geometry *geom1, Geometry *geom2);
-extern Geometry *geomDuplicate(Geometry *geom);
+extern GeometryListNode *geomPrimList(Geometry *geometry);
+java::ArrayList<Patch *> *geomPatchArrayList(Geometry *geometry);
+extern void geomDontIntersect(Geometry *geometry1, Geometry *geometry2);
+extern Geometry *geomDuplicate(Geometry *geometry);
 
 extern RayHit *
 geomDiscretizationIntersect(
-    Geometry *geom,
+    Geometry *geometry,
     Ray *ray,
     float minimumDistance,
     float *maximumDistance,
@@ -85,7 +84,7 @@ geomDiscretizationIntersect(
 extern HITLIST *
 geomAllDiscretizationIntersections(
     HITLIST *hits,
-    Geometry *geom,
+    Geometry *geometry,
     Ray *ray,
     float minimumDistance,
     float maximumDistance,

@@ -138,8 +138,8 @@ geomCreateCompound(Compound *compoundData) {
 This function returns a bounding box for the geometry
 */
 float *
-geomBounds(Geometry *geom) {
-    return geom->bounds;
+geomBounds(Geometry *geometry) {
+    return geometry->bounds;
 }
 
 /**
@@ -171,21 +171,21 @@ Returns a linear list of the simpler geometries making up an aggregate geometry.
 A nullptr pointer is returned if the geometry is a primitive
 */
 GeometryListNode *
-geomPrimList(Geometry *geom) {
-    if ( geomIsAggregate(geom) && geom->compoundData != nullptr ) {
-        return &geom->compoundData->children;
+geomPrimList(Geometry *geometry) {
+    if ( geomIsAggregate(geometry) && geometry->compoundData != nullptr ) {
+        return &geometry->compoundData->children;
     } else {
         return (GeometryListNode *) nullptr;
     }
 }
 
 java::ArrayList<Patch *> *
-geomPatchArrayList(Geometry *geom) {
-    if ( geom->className == GeometryClassId::SURFACE_MESH ) {
-        return geom->surfaceData->faces;
-    } else if ( geom->className == GeometryClassId::PATCH_SET ) {
-        return patchListExportToArrayList(geom->patchSetData);
-    } else if ( geom->className == GeometryClassId::COMPOUND ) {
+geomPatchArrayList(Geometry *geometry) {
+    if ( geometry->className == GeometryClassId::SURFACE_MESH ) {
+        return geometry->surfaceData->faces;
+    } else if ( geometry->className == GeometryClassId::PATCH_SET ) {
+        return patchListExportToArrayList(geometry->patchSetData);
+    } else if ( geometry->className == GeometryClassId::COMPOUND ) {
         return nullptr;
     }
     return nullptr;
@@ -196,18 +196,18 @@ This routine creates and returns a duplicate of the given geometry. Needed for
 shaft culling.
 */
 Geometry *
-geomDuplicate(Geometry *geom) {
-    if ( geom->className != GeometryClassId::PATCH_SET ) {
+geomDuplicate(Geometry *geometry) {
+    if ( geometry->className != GeometryClassId::PATCH_SET ) {
         logError("geomDuplicate", "geometry has no duplicate method");
         return nullptr;
     }
 
     Geometry *newGeometry = new Geometry();
     GLOBAL_statistics_numberOfGeometries++;
-    *newGeometry = *geom;
-    newGeometry->surfaceData = geom->surfaceData;
-    newGeometry->compoundData = geom->compoundData;
-    newGeometry->patchSetData = geom->patchSetData;
+    *newGeometry = *geometry;
+    newGeometry->surfaceData = geometry->surfaceData;
+    newGeometry->compoundData = geometry->compoundData;
+    newGeometry->patchSetData = geometry->patchSetData;
 
     return newGeometry;
 }
@@ -217,9 +217,9 @@ Will avoid intersection testing with geom1 and geom2 (possibly nullptr
 pointers). Can be used for avoiding immediate self-intersections
 */
 void
-geomDontIntersect(Geometry *geom1, Geometry *geom2) {
-    GLOBAL_geom_excludedGeom1 = geom1;
-    GLOBAL_geom_excludedGeom2 = geom2;
+geomDontIntersect(Geometry *geometry1, Geometry *geometry2) {
+    GLOBAL_geom_excludedGeom1 = geometry1;
+    GLOBAL_geom_excludedGeom2 = geometry2;
 }
 
 /**
@@ -235,7 +235,7 @@ properties) to return.
 */
 RayHit *
 geomDiscretizationIntersect(
-    Geometry *geom,
+    Geometry *geometry,
     Ray *ray,
     float minimumDistance,
     float *maximumDistance,
@@ -245,28 +245,28 @@ geomDiscretizationIntersect(
     Vector3D vTmp;
     float nMaximumDistance;
 
-    if ( geom == GLOBAL_geom_excludedGeom1 || geom == GLOBAL_geom_excludedGeom2 ) {
+    if ( geometry == GLOBAL_geom_excludedGeom1 || geometry == GLOBAL_geom_excludedGeom2 ) {
         return nullptr;
     }
 
-    if ( geom->bounded ) {
+    if ( geometry->bounded ) {
         // Check ray/bounding volume intersection
         VECTORSUMSCALED(ray->pos, minimumDistance, ray->dir, vTmp);
-        if ( outOfBounds(&vTmp, geom->bounds)) {
+        if ( outOfBounds(&vTmp, geometry->bounds)) {
             nMaximumDistance = *maximumDistance;
-            if ( !boundsIntersect(ray, geom->bounds, minimumDistance, &nMaximumDistance)) {
+            if ( !boundsIntersect(ray, geometry->bounds, minimumDistance, &nMaximumDistance)) {
                 return nullptr;
             }
         }
     }
 
-    if ( geom->surfaceData != nullptr ) {
-        return surfaceDiscretizationIntersect(geom->surfaceData, ray, minimumDistance, maximumDistance, hitFlags, hitStore);
-    } else if ( geom->compoundData != nullptr ) {
-        return compoundDiscretizationIntersect(geom->compoundData, ray, minimumDistance, maximumDistance, hitFlags, hitStore);
-    } else if ( geom->patchSetData != nullptr ) {
+    if ( geometry->surfaceData != nullptr ) {
+        return surfaceDiscretizationIntersect(geometry->surfaceData, ray, minimumDistance, maximumDistance, hitFlags, hitStore);
+    } else if ( geometry->compoundData != nullptr ) {
+        return compoundDiscretizationIntersect(geometry->compoundData, ray, minimumDistance, maximumDistance, hitFlags, hitStore);
+    } else if ( geometry->patchSetData != nullptr ) {
         RayHit *response;
-        java::ArrayList<Patch *> * tmpList = patchListExportToArrayList(geom->patchSetData);
+        java::ArrayList<Patch *> * tmpList = patchListExportToArrayList(geometry->patchSetData);
         response = patchListIntersect(tmpList, ray, minimumDistance, maximumDistance, hitFlags, hitStore);
         delete tmpList;
         return response;
@@ -277,7 +277,7 @@ geomDiscretizationIntersect(
 HITLIST *
 geomAllDiscretizationIntersections(
     HITLIST *hits,
-    Geometry *geom,
+    Geometry *geometry,
     Ray *ray,
     float minimumDistance,
     float maximumDistance,
@@ -286,26 +286,26 @@ geomAllDiscretizationIntersections(
     Vector3D vTmp;
     float nMaximumDistance;
 
-    if ( geom == GLOBAL_geom_excludedGeom1 || geom == GLOBAL_geom_excludedGeom2 ) {
+    if ( geometry == GLOBAL_geom_excludedGeom1 || geometry == GLOBAL_geom_excludedGeom2 ) {
         return hits;
     }
 
-    if ( geom->bounded ) {
+    if ( geometry->bounded ) {
         // Check ray/bounding volume intersection
         VECTORSUMSCALED(ray->pos, minimumDistance, ray->dir, vTmp);
-        if ( outOfBounds(&vTmp, geom->bounds)) {
+        if ( outOfBounds(&vTmp, geometry->bounds)) {
             nMaximumDistance = maximumDistance;
-            if ( !boundsIntersect(ray, geom->bounds, minimumDistance, &nMaximumDistance)) {
+            if ( !boundsIntersect(ray, geometry->bounds, minimumDistance, &nMaximumDistance)) {
                 return hits;
             }
         }
     }
 
-    if ( geom->surfaceData != nullptr ) {
-        return surfaceAllDiscretizationIntersections(hits, geom->surfaceData, ray, minimumDistance, maximumDistance, hitFlags);
-    } else if ( geom->compoundData != nullptr ) {
-        return compoundAllDiscretizationIntersections(hits, geom->compoundData, ray, minimumDistance, maximumDistance, hitFlags);
-    } else if ( geom->patchSetData != nullptr ) {
+    if ( geometry->surfaceData != nullptr ) {
+        return surfaceAllDiscretizationIntersections(hits, geometry->surfaceData, ray, minimumDistance, maximumDistance, hitFlags);
+    } else if ( geometry->compoundData != nullptr ) {
+        return compoundAllDiscretizationIntersections(hits, geometry->compoundData, ray, minimumDistance, maximumDistance, hitFlags);
+    } else if ( geometry->patchSetData != nullptr ) {
         //return patchListAllIntersections(hits, geom->patchSetData, ray, minimumDistance, maximumDistance, hitFlags);
         return nullptr;
     }
