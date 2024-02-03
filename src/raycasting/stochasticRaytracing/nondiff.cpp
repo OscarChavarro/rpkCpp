@@ -46,7 +46,7 @@ makeLightSourceTable(java::ArrayList<Patch *> *scenePatches, java::ArrayList<Pat
         stochasticRadiosityClearCoefficients(getTopLevelPatchRad(patch), getTopLevelPatchBasis(patch));
         stochasticRadiosityClearCoefficients(getTopLevelPatchUnShotRad(patch), getTopLevelPatchBasis(patch));
         stochasticRadiosityClearCoefficients(getTopLevelPatchReceivedRad(patch), getTopLevelPatchBasis(patch));
-        colorClear(topLevelGalerkinElement(patch)->source_rad);
+        colorClear(topLevelGalerkinElement(patch)->sourceRad);
     }
 }
 
@@ -107,7 +107,7 @@ sampleLight(LIGHTSOURCETABLE *light, double light_selection_pdf) {
         colorProduct(Rd, rcvrad, rcvrad);
         colorAdd(getTopLevelPatchRad(hit->patch)[0], rcvrad, getTopLevelPatchRad(hit->patch)[0]);
         colorAdd(getTopLevelPatchUnShotRad(hit->patch)[0], rcvrad, getTopLevelPatchUnShotRad(hit->patch)[0]);
-        colorAdd(topLevelGalerkinElement(hit->patch)->source_rad, rcvrad, topLevelGalerkinElement(hit->patch)->source_rad);
+        colorAdd(topLevelGalerkinElement(hit->patch)->sourceRad, rcvrad, topLevelGalerkinElement(hit->patch)->sourceRad);
     }
 }
 

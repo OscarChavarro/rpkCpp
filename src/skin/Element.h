@@ -5,6 +5,11 @@
 #include "skin/Patch.h"
 #include "skin/Geometry.h"
 
+enum ElementTypes {
+    ELEMENT_GALERKIN,
+    ELEMENT_STOCHASTIC_RADIOSITY
+};
+
 class Element {
   public:
     int id; // Unique ID number for the element
@@ -12,6 +17,7 @@ class Element {
     COLOR Rd; // Reflectance
     Patch *patch;
     Geometry *geom;
+    ElementTypes className;
 };
 
 #endif

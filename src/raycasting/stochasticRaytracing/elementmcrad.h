@@ -10,10 +10,10 @@ Data associated with each Patch:
 Close these macros with EndForAll
 */
 #define ForAllRegularSubElements(p, parent) { \
-if ((parent)->regular_subelements) { \
+if ((parent)->regularSubElements) { \
   int i; \
   for (i=0; i<4; i++) { \
-    StochasticRadiosityElement *p = (parent)->regular_subelements[i];
+    StochasticRadiosityElement *p = (parent)->regularSubElements[i];
 
 #define ForAllIrregularSubElements(p, parent) { \
 if ((parent)->irregular_subelements) { \
@@ -86,7 +86,7 @@ Usage:
   STACK_DECL(ELEMENTLIST*, _selstack, MAX_HIERARCHY_DEPTH, _selp); \
   StochasticRadiosityElement *_curel = (top); \
   _begin_recurse_CS: \
-  if (_curel->iscluster) { \
+  if (_curel->isCluster) { \
     _did_recurse = true; \
     STACK_SAVE(_subelp, _selstack, MAX_HIERARCHY_DEPTH, _selp); \
     _subelp = _curel->irregular_subelements; \
@@ -119,11 +119,11 @@ Iterates over all leaf elements in the surface element hierarchy with
   STACK_DECL(int, _isave, MAX_HIERARCHY_DEPTH, _isaveptr); \
   StochasticRadiosityElement *_curel = (top); \
   _begin_recurse_SL: \
-  if (_curel->regular_subelements) { /* not a leaf */ \
+  if (_curel->regularSubElements) { /* not a leaf */ \
     _did_recurse = true; \
     STACK_SAVE(_i_, _isave, MAX_HIERARCHY_DEPTH, _isaveptr); \
     for (_i_=0; _i_<4; _i_++) { \
-      _curel = _curel->regular_subelements[_i_]; \
+      _curel = _curel->regularSubElements[_i_]; \
       goto _begin_recurse_SL; \
     _end_recurse_SL: \
       _curel = _curel->parent; \

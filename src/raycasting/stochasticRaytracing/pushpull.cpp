@@ -7,15 +7,15 @@ stochasticJacobiPush/pull operations
 
 inline bool
 regularChild(StochasticRadiosityElement *child) {
-    return (child->child_nr >= 0 && child->child_nr <= 3);
+    return (child->childNumber >= 0 && child->childNumber <= 3);
 }
 
 void
 pushRadiance(StochasticRadiosityElement *parent, StochasticRadiosityElement *child, COLOR *parent_rad, COLOR *child_rad) {
-    if ( parent->iscluster || child->basis->size == 1 ) {
+    if ( parent->isCluster || child->basis->size == 1 ) {
         colorAdd(child_rad[0], parent_rad[0], child_rad[0]);
     } else if ( regularChild(child) && child->basis == parent->basis ) {
-            filterColorDown(parent_rad, &(*child->basis->regular_filter)[child->child_nr], child_rad,
+            filterColorDown(parent_rad, &(*child->basis->regular_filter)[child->childNumber], child_rad,
                             child->basis->size);
     } else {
         logFatal(-1, "pushRadiance",
@@ -31,10 +31,10 @@ pushImportance(StochasticRadiosityElement *parent, StochasticRadiosityElement *c
 void
 pullRadiance(StochasticRadiosityElement *parent, StochasticRadiosityElement *child, COLOR *parent_rad, COLOR *child_rad) {
     float areafactor = child->area / parent->area;
-    if ( parent->iscluster || child->basis->size == 1 ) {
+    if ( parent->isCluster || child->basis->size == 1 ) {
         colorAddScaled(parent_rad[0], areafactor, child_rad[0], parent_rad[0]);
     } else if ( regularChild(child) && child->basis == parent->basis ) {
-            filterColorUp(child_rad, &(*child->basis->regular_filter)[child->child_nr],
+            filterColorUp(child_rad, &(*child->basis->regular_filter)[child->childNumber],
                           parent_rad, child->basis->size, areafactor);
     } else {
         logFatal(-1, "pullRadiance",

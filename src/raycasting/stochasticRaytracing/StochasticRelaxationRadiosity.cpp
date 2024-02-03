@@ -91,7 +91,7 @@ stochasticRelaxationRadiosityQualityFactor(StochasticRadiosityElement *elem, dou
 
 static COLOR *
 stochasticRelaxationRadiosityElementUnShotRadiance(StochasticRadiosityElement *elem) {
-    return elem->unshot_rad;
+    return elem->unShotRad;
 }
 
 static void
@@ -111,13 +111,13 @@ stochasticRelaxationRadiosityElementIncrementRadiance(StochasticRadiosityElement
         elem->quality = (float)stochasticRelaxationRadiosityQualityFactor(elem, w);
     }
 
-    stochasticRadiosityAddCoefficients(elem->rad, elem->received_rad, elem->basis);
-    stochasticRadiosityCopyCoefficients(elem->unshot_rad, elem->received_rad, elem->basis);
+    stochasticRadiosityAddCoefficients(elem->rad, elem->receivedRad, elem->basis);
+    stochasticRadiosityCopyCoefficients(elem->unShotRad, elem->receivedRad, elem->basis);
     if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.setSource ) {
         /* copy direct illumination and forget selfemitted illumination */
-        elem->rad[0] = elem->source_rad = elem->received_rad[0];
+        elem->rad[0] = elem->sourceRad = elem->receivedRad[0];
     }
-    stochasticRadiosityClearCoefficients(elem->received_rad, elem->basis);
+    stochasticRadiosityClearCoefficients(elem->receivedRad, elem->basis);
 }
 
 static void
@@ -284,19 +284,19 @@ stochasticRelaxationRadiosityElementUpdateRadiance(StochasticRadiosityElement *e
     }
 
     // Subtract source radiosity
-    colorSubtract(elem->rad[0], elem->source_rad, elem->rad[0]);
+    colorSubtract(elem->rad[0], elem->sourceRad, elem->rad[0]);
 
     // Combine with previous results
     stochasticRadiosityScaleCoefficients(k, elem->rad, elem->basis);
-    stochasticRadiosityScaleCoefficients((1.0 - k), elem->received_rad, elem->basis);
-    stochasticRadiosityAddCoefficients(elem->rad, elem->received_rad, elem->basis);
+    stochasticRadiosityScaleCoefficients((1.0 - k), elem->receivedRad, elem->basis);
+    stochasticRadiosityAddCoefficients(elem->rad, elem->receivedRad, elem->basis);
 
     // Re-add source radiosity
-    colorAdd(elem->rad[0], elem->source_rad, elem->rad[0]);
+    colorAdd(elem->rad[0], elem->sourceRad, elem->rad[0]);
 
     // Clear unshot and received radiance
-    stochasticRadiosityClearCoefficients(elem->unshot_rad, elem->basis);
-    stochasticRadiosityClearCoefficients(elem->received_rad, elem->basis);
+    stochasticRadiosityClearCoefficients(elem->unShotRad, elem->basis);
+    stochasticRadiosityClearCoefficients(elem->receivedRad, elem->basis);
 }
 
 static void

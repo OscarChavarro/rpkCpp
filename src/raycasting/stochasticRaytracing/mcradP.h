@@ -109,12 +109,12 @@ getTopLevelPatchRad(Patch *patch) {
 
 inline COLOR *
 getTopLevelPatchUnShotRad(Patch *patch) {
-    return topLevelGalerkinElement(patch)->unshot_rad;
+    return topLevelGalerkinElement(patch)->unShotRad;
 }
 
 inline COLOR*
 getTopLevelPatchReceivedRad(Patch *patch) {
-    return topLevelGalerkinElement(patch)->received_rad;
+    return topLevelGalerkinElement(patch)->receivedRad;
 }
 
 inline GalerkinBasis *

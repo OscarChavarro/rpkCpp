@@ -16,7 +16,7 @@ initCoefficients(StochasticRadiosityElement *elem) {
         globalCoefficientPoolsInitialized = true;
     }
 
-    elem->rad = elem->unshot_rad = elem->received_rad = (COLOR *) nullptr;
+    elem->rad = elem->unShotRad = elem->receivedRad = (COLOR *) nullptr;
     elem->basis = &GLOBAL_stochasticRadiosisty_dummyBasis;
 }
 
@@ -27,8 +27,8 @@ void
 disposeCoefficients(StochasticRadiosityElement *elem) {
     if ( elem->basis && elem->basis != &GLOBAL_stochasticRadiosisty_dummyBasis && elem->rad ) {
         free(elem->rad);
-        free(elem->unshot_rad);
-        free(elem->received_rad);
+        free(elem->unShotRad);
+        free(elem->receivedRad);
     }
     initCoefficients(elem);
 }
@@ -36,7 +36,7 @@ disposeCoefficients(StochasticRadiosityElement *elem) {
 /* determines basis based on element type and currently desired approximation */
 static GalerkinBasis *
 ActualBasis(StochasticRadiosityElement *elem) {
-    if ( elem->iscluster ) {
+    if ( elem->isCluster ) {
         return &GLOBAL_stochasticRadiosisty_clusterBasis;
     } else {
         return &GLOBAL_stochasticRadiosisty_basis[NR_VERTICES(elem) == 3 ? ET_TRIANGLE : ET_QUAD][GLOBAL_stochasticRaytracing_monteCarloRadiosityState.approximationOrderType];
@@ -51,8 +51,8 @@ allocCoefficients(StochasticRadiosityElement *elem) {
     disposeCoefficients(elem);
     elem->basis = ActualBasis(elem);
     elem->rad = (COLOR *)malloc(elem->basis->size * sizeof(COLOR));
-    elem->unshot_rad = (COLOR *)malloc(elem->basis->size * sizeof(COLOR));
-    elem->received_rad = (COLOR *)malloc(elem->basis->size * sizeof(COLOR));
+    elem->unShotRad = (COLOR *)malloc(elem->basis->size * sizeof(COLOR));
+    elem->receivedRad = (COLOR *)malloc(elem->basis->size * sizeof(COLOR));
 }
 
 /**

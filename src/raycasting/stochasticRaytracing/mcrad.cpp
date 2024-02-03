@@ -242,7 +242,7 @@ monteCarloRadiosityInitPatch(Patch *P) {
     stochasticRadiosityClearCoefficients(getTopLevelPatchUnShotRad(P), getTopLevelPatchBasis(P));
     stochasticRadiosityClearCoefficients(getTopLevelPatchReceivedRad(P), getTopLevelPatchBasis(P));
 
-    getTopLevelPatchRad(P)[0] = getTopLevelPatchUnShotRad(P)[0] = topLevelGalerkinElement(P)->source_rad = Ed;
+    getTopLevelPatchRad(P)[0] = getTopLevelPatchUnShotRad(P)[0] = topLevelGalerkinElement(P)->sourceRad = Ed;
     colorClear(getTopLevelPatchReceivedRad(P)[0]);
 
     topLevelGalerkinElement(P)->ray_index = P->id * 11;
@@ -518,7 +518,7 @@ monteCarloRadiosityGetRadiance(Patch *patch, double u, double v, Vector3D dir) {
         // source_rad is self-emitted radiance if !GLOBAL_stochasticRaytracing_monteCarloRadiosityState.indirectOnly. It is direct
         // illumination if GLOBAL_stochasticRaytracing_monteCarloRadiosityState.direct_only
         if ( !GLOBAL_stochasticRaytracing_monteCarloRadiosityState.doNonDiffuseFirstShot ) {
-            source_rad = leaf->source_rad;
+            source_rad = leaf->sourceRad;
         }
         if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.indirectOnly || GLOBAL_stochasticRaytracing_monteCarloRadiosityState.doNonDiffuseFirstShot ) {
             // Subtract self-emitted radiance

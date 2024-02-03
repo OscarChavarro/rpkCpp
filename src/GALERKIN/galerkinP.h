@@ -21,6 +21,18 @@ The Galerkin specific data for a patch is its toplevel element
 
 inline GalerkinElement*
 topLevelGalerkinElement(Patch *patch) {
+    if ( patch == nullptr ) {
+        fprintf(stderr, "Fatal: Trying to access as GalerkinElement on a null Patch\n");
+        exit(1);
+    }
+    if ( patch->radianceData == nullptr ) {
+        fprintf(stderr, "Fatal: Trying to access as GalerkinElement on a Patch with null radianceData\n");
+        exit(1);
+    }
+    if ( patch->radianceData->className != ElementTypes::ELEMENT_GALERKIN ) {
+        fprintf(stderr, "Fatal: Trying to access as GalerkinElement a different type of element\n");
+        exit(1);
+    }
     return (GalerkinElement *)patch->radianceData;
 }
 

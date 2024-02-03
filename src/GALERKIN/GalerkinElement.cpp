@@ -16,7 +16,7 @@ static int globalNumberOfElements = 0;
 static int globalNumberOfClusters = 0;
 
 GalerkinElement::GalerkinElement(): regularSubElements() {
-
+    className = ElementTypes::ELEMENT_GALERKIN;
 }
 
 void

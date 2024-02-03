@@ -44,7 +44,7 @@ stochasticJacobiProbability proportional to power to be propagated
 */
 static double
 randomWalkRadiosityScalarSourcePower(Patch *P) {
-    COLOR radiance = topLevelGalerkinElement(P)->source_rad;
+    COLOR radiance = topLevelGalerkinElement(P)->sourceRad;
     return /* M_PI * */ P->area * colorSumAbsComponents(radiance);
 }
 
@@ -80,8 +80,8 @@ randomWalkRadiosityReduceSource(java::ArrayList<Patch *> *scenePatches) {
         colorSubtract(newSourceRadiance, rho, newSourceRadiance); // 1 - rho
         colorProduct(newSourceRadiance, GLOBAL_stochasticRaytracing_monteCarloRadiosityState.controlRadiance,
                      newSourceRadiance); // (1-rho) * beta
-        colorSubtract(topLevelGalerkinElement(patch)->source_rad, newSourceRadiance, newSourceRadiance); // E - (1-rho) * beta
-        topLevelGalerkinElement(patch)->source_rad = newSourceRadiance;
+        colorSubtract(topLevelGalerkinElement(patch)->sourceRad, newSourceRadiance, newSourceRadiance); // E - (1-rho) * beta
+        topLevelGalerkinElement(patch)->sourceRad = newSourceRadiance;
     }
 }
 
@@ -136,7 +136,7 @@ randomWalkRadiosityShootingScore(PATH *path, long nr_paths, double (*birth_prob)
     PATHNODE *node = &path->nodes[0];
 
     /* path->nodes[0].probability is birth probability of the path */
-    colorScale((node->patch->area / node->probability), topLevelGalerkinElement(node->patch)->source_rad, accum_pow);
+    colorScale((node->patch->area / node->probability), topLevelGalerkinElement(node->patch)->sourceRad, accum_pow);
     for ( n = 1, node++; n < path->nrnodes; n++, node++ ) {
         double uin = 0., vin = 0., uout = 0., vout = 0., r = 1., w;
         int i;
@@ -180,7 +180,7 @@ randomWalkRadiosityShootingUpdate(Patch *P, double w) {
     k = old_quality / topLevelGalerkinElement(P)->quality;
 
     /* subtract self-emitted rad */
-    colorSubtract(getTopLevelPatchRad(P)[0], topLevelGalerkinElement(P)->source_rad, getTopLevelPatchRad(P)[0]);
+    colorSubtract(getTopLevelPatchRad(P)[0], topLevelGalerkinElement(P)->sourceRad, getTopLevelPatchRad(P)[0]);
 
     /* weight with previous results */
     stochasticRadiosityScaleCoefficients((float)k, getTopLevelPatchRad(P), getTopLevelPatchBasis(P));
@@ -188,7 +188,7 @@ randomWalkRadiosityShootingUpdate(Patch *P, double w) {
     stochasticRadiosityAddCoefficients(getTopLevelPatchRad(P), getTopLevelPatchReceivedRad(P), getTopLevelPatchBasis(P));
 
     /* re-add self-emitted rad */
-    colorAdd(getTopLevelPatchRad(P)[0], topLevelGalerkinElement(P)->source_rad, getTopLevelPatchRad(P)[0]);
+    colorAdd(getTopLevelPatchRad(P)[0], topLevelGalerkinElement(P)->sourceRad, getTopLevelPatchRad(P)[0]);
 
     /* clear un-shot and received radiance */
     stochasticRadiosityClearCoefficients(getTopLevelPatchUnShotRad(P), getTopLevelPatchBasis(P));
@@ -243,7 +243,7 @@ randomWalkRadiosityDetermineGatheringControlRadiosity(java::ArrayList<Patch *> *
         rho = topLevelGalerkinElement(patch)->Rd;
         colorSubtract(absorb, rho, absorb); // 1-rho
 
-        Ed = topLevelGalerkinElement(patch)->source_rad;
+        Ed = topLevelGalerkinElement(patch)->sourceRad;
         colorProduct(absorb, Ed, num);
         colorAddScaled(c1, patch->area, num, c1); // A_P (1-rho_P) E_P
 
@@ -264,7 +264,7 @@ randomWalkRadiosityCollisionGatheringScore(PATH *path, long nr_paths, double (*b
     COLOR accum_rad;
     int n;
     PATHNODE *node = &path->nodes[path->nrnodes - 1];
-    accum_rad = topLevelGalerkinElement(node->patch)->source_rad;
+    accum_rad = topLevelGalerkinElement(node->patch)->sourceRad;
     for ( n = path->nrnodes - 2, node--; n >= 0; n--, node-- ) {
         double uin = 0., vin = 0., uout = 0., vout = 0., r = 1.;
         int i;
@@ -293,7 +293,7 @@ randomWalkRadiosityCollisionGatheringScore(PATH *path, long nr_paths, double (*b
         topLevelGalerkinElement(P)->ng++;
 
         colorScale((r / node->probability), accum_rad, accum_rad);
-        colorAdd(accum_rad, topLevelGalerkinElement(P)->source_rad, accum_rad);
+        colorAdd(accum_rad, topLevelGalerkinElement(P)->sourceRad, accum_rad);
     }
 }
 
@@ -309,7 +309,7 @@ randomWalkRadiosityGatheringUpdate(Patch *P, double w) {
         stochasticRadiosityScaleCoefficients((1.0f / (float) topLevelGalerkinElement(P)->ng), getTopLevelPatchRad(P), getTopLevelPatchBasis(P));
 
     /* add source radiance (source term estimation suppresion!) */
-    colorAdd(getTopLevelPatchRad(P)[0], topLevelGalerkinElement(P)->source_rad, getTopLevelPatchRad(P)[0]);
+    colorAdd(getTopLevelPatchRad(P)[0], topLevelGalerkinElement(P)->sourceRad, getTopLevelPatchRad(P)[0]);
 
     if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.constantControlVariate ) {
         /* add constant control radiosity value */
@@ -357,10 +357,10 @@ randomWalkRadiosityDoGatheringIteration(java::ArrayList<Patch *> *scenePatches) 
 
 static void
 randomWalkRadiosityUpdateSourceIllum(StochasticRadiosityElement *elem, double w) {
-    stochasticRadiosityCopyCoefficients(elem->rad, elem->received_rad, elem->basis);
-    elem->source_rad = elem->received_rad[0];
-    stochasticRadiosityClearCoefficients(elem->unshot_rad, elem->basis);
-    stochasticRadiosityClearCoefficients(elem->received_rad, elem->basis);
+    stochasticRadiosityCopyCoefficients(elem->rad, elem->receivedRad, elem->basis);
+    elem->sourceRad = elem->receivedRad[0];
+    stochasticRadiosityClearCoefficients(elem->unShotRad, elem->basis);
+    stochasticRadiosityClearCoefficients(elem->receivedRad, elem->basis);
 }
 
 static void

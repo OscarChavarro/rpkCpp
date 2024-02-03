@@ -42,10 +42,10 @@ subdivideReceiver(
         double *vs)
 {
     StochasticRadiosityElement *rcv = link->rcv;
-    if ( rcv->iscluster ) {
+    if ( rcv->isCluster ) {
         rcv = monteCarloRadiosityClusterChildContainingElement(rcv, rcvtop);
     } else {
-        if ( !rcv->regular_subelements ) {
+        if ( !rcv->regularSubElements ) {
             monteCarloRadiosityRegularSubdivideElement(rcv);
         }
         rcv = monteCarloRadiosityRegularSubElementAtPoint(rcv, ur, vr);
@@ -68,10 +68,10 @@ subdivideSource(
         double *vs)
 {
     StochasticRadiosityElement *src = link->src;
-    if ( src->iscluster ) {
+    if ( src->isCluster ) {
         src = monteCarloRadiosityClusterChildContainingElement(src, srctop);
     } else {
-        if ( !src->regular_subelements ) {
+        if ( !src->regularSubElements ) {
             monteCarloRadiosityRegularSubdivideElement(src);
         }
         src = monteCarloRadiosityRegularSubElementAtPoint(src, us, vs);
@@ -87,7 +87,7 @@ selfLink(LINK *link) {
 
 static int
 linkInvolvingClusters(LINK *link) {
-    return (link->rcv->iscluster || link->src->iscluster);
+    return (link->rcv->isCluster || link->src->isCluster);
 }
 
 static int
@@ -107,11 +107,11 @@ static float formfactor_estimate(StochasticRadiosityElement *rcv, StochasticRadi
     d = VECTORNORM(D);
     f = src->area / (M_PI * d * d + src->area);
     f2 = 2. * f;
-    c1 = rcv->iscluster ? 1. /*0.25*/ : fabs(VECTORDOTPRODUCT(D, rcv->patch->normal)) / d;
+    c1 = rcv->isCluster ? 1. /*0.25*/ : fabs(VECTORDOTPRODUCT(D, rcv->patch->normal)) / d;
     if ( c1 < f2 ) {
         c1 = f2;
     }
-    c2 = src->iscluster ? 1. /*0.25*/ : fabs(VECTORDOTPRODUCT(D, src->patch->normal)) / d;
+    c2 = src->isCluster ? 1. /*0.25*/ : fabs(VECTORDOTPRODUCT(D, src->patch->normal)) / d;
     if ( c2 < f2 ) {
         c2 = f2;
     }
@@ -127,7 +127,7 @@ static int LowPowerLink(LINK *link) {
 
     /* compute receiver reflectance times source radiosity */
     colorScale(M_PI, src->rad[0], rhosrcrad);
-    if ( !rcv->iscluster ) {
+    if ( !rcv->isCluster ) {
         COLOR Rd = topLevelGalerkinElement(rcv->patch)->Rd;
         colorProduct(Rd, rhosrcrad, rhosrcrad);
     }
@@ -136,7 +136,7 @@ static int LowPowerLink(LINK *link) {
     propagated_power = rcv->area * ff * colorMaximumComponent(rhosrcrad);
     if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceDriven ) {
         propagated_power *= rcv->imp;
-        if ( !rcv->iscluster ) {
+        if ( !rcv->isCluster ) {
             propagated_power *= monteCarloRadiosityElementScalarReflectance(rcv);
         }
     }

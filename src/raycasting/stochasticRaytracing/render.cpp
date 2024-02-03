@@ -40,7 +40,7 @@ vertexRadiance(Vertex *v) {
     colorClear(radiance);
     ForAllElements(elem, v->radiance_data)
                 {
-                    if ( !elem->regular_subelements ) {
+                    if ( !elem->regularSubElements ) {
                         COLOR elemrad = elementDisplayRadiance(elem);
                         colorAdd(radiance, elemrad, radiance);
                         count++;
@@ -66,7 +66,7 @@ vertexReflectance(Vertex *v) {
     colorClear(rd);
     ForAllElementsSharingVertex(elem, v)
                 {
-                    if ( !elem->regular_subelements ) {
+                    if ( !elem->regularSubElements ) {
                         colorAdd(rd, elem->Rd, rd);
                         count++;
                     }
@@ -89,7 +89,7 @@ vertexImportance(Vertex *v) {
     float imp = 0.;
     ForAllElements(elem, v->radiance_data)
                 {
-                    if ( !elem->regular_subelements ) {
+                    if ( !elem->regularSubElements ) {
                         imp += elem->imp;
                         count++;
                     }
@@ -469,12 +469,12 @@ mcrRenderElement(StochasticRadiosityElement *elem) {
 COLOR
 elementDisplayRadiance(StochasticRadiosityElement *elem) {
     COLOR rad;
-    colorSubtract(elem->rad[0], elem->source_rad, rad);
+    colorSubtract(elem->rad[0], elem->sourceRad, rad);
 
     if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.show != SHOW_INDIRECT_RADIANCE ) {
         // Source_rad is self-emitted radiance if !GLOBAL_stochasticRaytracing_monteCarloRadiosityState.indirectOnly. It is direct
         // illumination if GLOBAL_stochasticRaytracing_monteCarloRadiosityState.direct_only */
-        colorAdd(rad, elem->source_rad, rad);
+        colorAdd(rad, elem->sourceRad, rad);
         if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.indirectOnly || GLOBAL_stochasticRaytracing_monteCarloRadiosityState.doNonDiffuseFirstShot ) {
             // Add self-emitted radiance
             colorAdd(rad, elem->Ed, rad);
@@ -514,7 +514,7 @@ elementDisplayRadianceAtPoint(StochasticRadiosityElement *elem, double u, double
         // Higher order approximations
         radiance = colorAtUv(elem->basis, elem->rad, u, v);
         if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.show == SHOW_INDIRECT_RADIANCE ) {
-            colorSubtract(radiance, elem->source_rad, radiance);
+            colorSubtract(radiance, elem->sourceRad, radiance);
         }
     }
     return radiance;
