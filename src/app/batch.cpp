@@ -2,7 +2,6 @@
 #include <cstring>
 #include <GL/gl.h>
 
-#include "common/error.h"
 #include "material/statistics.h"
 #include "skin/radianceinterfaces.h"
 #include "scene/scene.h"
@@ -10,6 +9,7 @@
 #include "common/options.h"
 #include "render/canvas.h"
 #include "render/render.h"
+#include "IMAGE/imagec.h"
 #include "io/FileUncompressWrapper.h"
 #include "raycasting/common/Raytracer.h"
 #include "raycasting/simple/RayCaster.h"
@@ -199,14 +199,13 @@ batch(java::ArrayList<Patch *> *scenePatches, java::ArrayList<Patch *> *lightPat
 
             printf("%s", GLOBAL_radiance_currentRadianceMethodHandle->GetStats());
 
-            fflush(stdout);
-            fflush(stderr);
-
-            int (*f)() = nullptr;
-            if ( GLOBAL_raytracer_activeRaytracer != nullptr ) {
-                f = GLOBAL_raytracer_activeRaytracer->Redisplay;
-            }
-            openGlRenderScene(scenePatches, f);
+            #ifdef RAYTRACING_ENABLED
+                int (*f)() = nullptr;
+                if ( GLOBAL_raytracer_activeRaytracer != nullptr ) {
+                    f = GLOBAL_raytracer_activeRaytracer->Redisplay;
+                }
+                openGlRenderScene(scenePatches, f);
+            #endif
 
             fflush(stdout);
             fflush(stderr);
@@ -248,21 +247,23 @@ batch(java::ArrayList<Patch *> *scenePatches, java::ArrayList<Patch *> *lightPat
                 ((float) (clock() - start_time) / (float) CLOCKS_PER_SEC) - wasted_secs);
     }
 
-    if ( GLOBAL_raytracer_activeRaytracer ) {
-        printf("Doing %s ...\n", GLOBAL_raytracer_activeRaytracer->fullName);
+    #ifdef RAYTRACING_ENABLED
+        if ( GLOBAL_raytracer_activeRaytracer ) {
+            printf("Doing %s ...\n", GLOBAL_raytracer_activeRaytracer->fullName);
 
-        start_time = clock();
-        batchRayTrace(nullptr, nullptr, false, scenePatches, lightPatches);
+            start_time = clock();
+            batchRayTrace(nullptr, nullptr, false, scenePatches, lightPatches);
 
-        if ( globalTimings ) {
-            fprintf(stdout, "Raytracing total time %g secs.\n",
-                    (float) (clock() - start_time) / (float) CLOCKS_PER_SEC);
+            if ( globalTimings ) {
+                fprintf(stdout, "Raytracing total time %g secs.\n",
+                        (float) (clock() - start_time) / (float) CLOCKS_PER_SEC);
+            }
+
+            batchProcessFile(globalRaytracingImageFileName, "w", batchSaveRaytracingImage, scenePatches);
+        } else {
+            printf("(No pixel-based radiance computations are being done)\n");
         }
-
-        batchProcessFile(globalRaytracingImageFileName, "w", batchSaveRaytracingImage, scenePatches);
-    } else {
-        printf("(No pixel-based radiance computations are being done)\n");
-    }
+    #endif
 
     printf("Computations finished.\n");
 }

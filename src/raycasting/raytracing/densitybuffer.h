@@ -8,7 +8,7 @@
 #include "common/linealAlgebra/Vector2D.h"
 #include "common/color.h"
 #include "render/ScreenBuffer.h"
-#include "render/bidiroptions.h"
+#include "raycasting/raytracing/bidiroptions.h"
 
 //*********************************************************************
 // Class CDensityBuffer : class for storing sample hits on screen

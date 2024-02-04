@@ -306,9 +306,8 @@ mainReadFile(char *filename) {
 
     #ifdef RAYTRACING_ENABLED
         Raytracer *currentRaytracer = GLOBAL_raytracer_activeRaytracer;
+        mainSetRayTracingMethod(nullptr);
     #endif
-
-    mainSetRayTracingMethod(nullptr);
 
     // Prepare if errors occur when reading the new scene will abort
     GLOBAL_scene_world = nullptr;

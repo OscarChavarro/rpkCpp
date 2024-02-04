@@ -101,7 +101,6 @@ set(MAIN_SRC
     src/render/renderhook.cpp
     src/render/canvas.cpp
     src/render/rendercommon.cpp
-    src/render/bidiroptions.cpp
     src/render/ScreenBuffer.cpp
     src/GALERKIN/basisgalerkin.cpp
     src/GALERKIN/GalerkinRadiosity.cpp
@@ -125,6 +124,7 @@ set(MAIN_SRC
     src/raycasting/simple/RayMatterOptions.cpp
     src/raycasting/simple/RayCaster.cpp
     src/raycasting/simple/RayMatter.cpp
+    src/raycasting/raytracing/bidiroptions.cpp
     src/raycasting/raytracing/screeniterate.cpp
     src/raycasting/raytracing/specularsampler.cpp
     src/raycasting/raytracing/spar.cpp
