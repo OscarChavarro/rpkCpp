@@ -11,23 +11,24 @@ a software frame buffer directly.
 
 #include "java/util/ArrayList.txx"
 #include "common/error.h"
+#include "IMAGE/imagec.h"
 #include "material/statistics.h"
 #include "render/SoftIdsWrapper.h"
 #include "raycasting/simple/RayCaster.h"
 
 void
 RayCaster::clipUv(int numberOfVertices, double *u, double *v) {
-    if ( *u > 1. - EPSILON ) {
-        *u = 1. - EPSILON;
+    if ( *u > 1.0 - EPSILON ) {
+        *u = 1.0 - EPSILON;
     }
-    if ( *v > 1. - EPSILON ) {
-        *v = 1. - EPSILON;
+    if ( *v > 1.0 - EPSILON ) {
+        *v = 1.0 - EPSILON;
     }
-    if ( numberOfVertices == 3 && (*u + *v) > 1. - EPSILON ) {
+    if ( numberOfVertices == 3 && (*u + *v) > 1.0 - EPSILON ) {
         if ( *u > *v ) {
-            *u = 1. - *v - EPSILON;
+            *u = 1.0 - *v - EPSILON;
         } else {
-            *v = 1. - *u - EPSILON;
+            *v = 1.0 - *u - EPSILON;
         }
     }
     if ( *u < EPSILON ) {
@@ -94,13 +95,13 @@ RayCaster::save(ImageOutputHandle *ip) {
     screenBuffer->writeFile(ip);
 }
 
+#ifdef RAYTRACING_ENABLED
+static RayCaster *globalRayCaster = nullptr;
+
 void
 RayCaster::interrupt() {
     interrupt_requested = true;
 }
-
-#ifdef RAYTRACING_ENABLED
-static RayCaster *globalRayCaster = nullptr;
 
 /**
 Returns false if there is no previous image and true if there is
