@@ -8,6 +8,6 @@ Generate and trace a local line
 #include "common/Ray.h"
 
 extern Ray mcrGenerateLocalLine(Patch *patch, double *xi);
-extern RayHit *mcrShootRay(Patch *P, Ray *ray, RayHit *hitstore);
+extern RayHit *mcrShootRay(Patch *P, Ray *ray, RayHit *hitStore);
 
 #endif

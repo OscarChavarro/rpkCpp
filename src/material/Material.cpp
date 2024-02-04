@@ -6,8 +6,8 @@
 
 Material GLOBAL_material_defaultMaterial = {
         "(default)",
-        (EDF *) nullptr, (BSDF *)nullptr,
-        0    /* sided */
+        nullptr, nullptr,
+        0 // Sided
 };
 
 Material *

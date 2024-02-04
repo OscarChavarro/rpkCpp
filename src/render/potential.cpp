@@ -54,7 +54,7 @@ updateDirectPotential(java::ArrayList<Patch *> *scenePatches) {
     maximumPatchId = patchGetNextId() - 1;
     id2patch = (Patch **)malloc((int) (maximumPatchId + 1) * sizeof(Patch *));
     for ( unsigned long i = 0; i <= maximumPatchId; i++ ) {
-        id2patch[i] = (Patch *) nullptr;
+        id2patch[i] = nullptr;
     }
     for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
         Patch *patch = scenePatches->get(i);

@@ -50,7 +50,7 @@ handleTransformationEntity(int ac, char **av) {
             // check for iteration
             XfArray *ap = spec->xarr;
 
-            xf_aname((XfArray *) nullptr);
+            xf_aname(nullptr);
             n = ap->ndim;
             while ( n-- ) {
                 if ( ++ap->aarg[n].i < ap->aarg[n].n ) {

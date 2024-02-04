@@ -505,11 +505,11 @@ areaToAreaFormFactor(INTERACTION *link, GeometryListNode *geometryShadowList) {
 
         // Mark the patches in order to avoid immediate self-intersections
         patchDontIntersect(4, isCluster(rcv) ? nullptr : rcv->patch,
-                           isCluster(rcv) ? (Patch *) nullptr : rcv->patch->twin,
-                           isCluster(src) ? (Patch *) nullptr : src->patch,
-                           isCluster(src) ? (Patch *) nullptr : src->patch->twin);
-        geomDontIntersect(isCluster(rcv) ? rcv->geom : (Geometry *) nullptr,
-                          isCluster(src) ? src->geom : (Geometry *) nullptr);
+                           isCluster(rcv) ? nullptr : rcv->patch->twin,
+                           isCluster(src) ? nullptr : src->patch,
+                           isCluster(src) ? nullptr : src->patch->twin);
+        geomDontIntersect(isCluster(rcv) ? rcv->geom : nullptr,
+                          isCluster(src) ? src->geom : nullptr);
 
         maxkval = 0.0; // Compute maximum un-occluded kernel value
         maxptff = 0.0; // Maximum un-occluded point-on-receiver to source form factor
@@ -538,7 +538,7 @@ areaToAreaFormFactor(INTERACTION *link, GeometryListNode *geometryShadowList) {
 
         // Unmark the patches, so they are considered for ray-patch intersections again in future
         patchDontIntersect(0);
-        geomDontIntersect((Geometry *) nullptr, (Geometry *) nullptr);
+        geomDontIntersect(nullptr, nullptr);
     }
 
     if ( viscount != 0 ) {

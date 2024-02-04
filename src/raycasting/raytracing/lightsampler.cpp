@@ -137,7 +137,7 @@ double CUniformLightSampler::EvalPDF(CPathNode */*thisNode*/,
         // virtual patch has no area!
         // choosing a point == choosing a dir --> use pdf from evalEdf
         edfEval(newNode->m_hit.patch->surface->material->edf,
-                (RayHit *) nullptr,
+                nullptr,
                 &newNode->m_inDirF,
                 DIFFUSE_COMPONENT | GLOSSY_COMPONENT | SPECULAR_COMPONENT,
                 &pdfdir);
@@ -264,7 +264,7 @@ double CImportantLightSampler::EvalPDF(CPathNode *thisNode,
         // virtual patch has no area!
         // choosing a point == choosing a dir --> use pdf from evalEdf
         edfEval(newNode->m_hit.patch->surface->material->edf,
-                (RayHit *) nullptr,
+                nullptr,
                 &newNode->m_inDirF,
                 DIFFUSE_COMPONENT | GLOSSY_COMPONENT | SPECULAR_COMPONENT,
                 &pdfdir);

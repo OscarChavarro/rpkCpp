@@ -16,7 +16,9 @@ initCoefficients(StochasticRadiosityElement *elem) {
         globalCoefficientPoolsInitialized = true;
     }
 
-    elem->rad = elem->unShotRad = elem->receivedRad = (COLOR *) nullptr;
+    elem->rad = nullptr;
+    elem->unShotRad = nullptr;
+    elem->receivedRad = nullptr;
     elem->basis = &GLOBAL_stochasticRadiosisty_dummyBasis;
 }
 

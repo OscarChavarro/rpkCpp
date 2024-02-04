@@ -66,15 +66,15 @@ TONEMAP GLOBAL_toneMap_lightness = {
     "tmoLightnessButton",
     3,
     lightnessDefaults,
-    (void (*)(int *, char **)) nullptr,
-    (void (*)(FILE *)) nullptr,
+    nullptr,
+    nullptr,
     lightnessInit,
     lightnessTerminate,
     ScaleForComputations,
     ScaleForDisplay,
     ReverseScaleForComputations,
-    (void (*)(void *)) nullptr,
-    (void (*)(void *)) nullptr,
-    (void (*)()) nullptr,
-    (void (*)()) nullptr
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr
 };

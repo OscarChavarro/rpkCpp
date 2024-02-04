@@ -188,7 +188,7 @@ galerkinElementReAllocCoefficients(GalerkinElement *element) {
         if ( element->unShotRadiance ) {
             free(element->unShotRadiance);
         }
-        element->unShotRadiance = (COLOR *) nullptr;
+        element->unShotRadiance = nullptr;
     }
 
     element->basisSize = basisSize;
@@ -207,7 +207,9 @@ galerkinElementCreate() {
     colorClear(newElement->Ed);
     colorClear(newElement->Rd);
     newElement->id = globalNumberOfElements + 1; // Let the IDs start from 1, not 0
-    newElement->radiance = newElement->receivedRadiance = newElement->unShotRadiance = (COLOR *) nullptr;
+    newElement->radiance = nullptr;
+    newElement->receivedRadiance = nullptr;
+    newElement->unShotRadiance = nullptr;
     newElement->potential = 0.0f;
     newElement->receivedPotential = 0.0f;
     newElement->unShotPotential = 0.0f;
@@ -495,7 +497,7 @@ Matrix2x2 *
 galerkinElementToTopTransform(GalerkinElement *element, Matrix2x2 *xf) {
     // Top level element: no transform necessary to transform to top
     if ( !element->upTrans ) {
-        return (Matrix2x2 *) nullptr;
+        return nullptr;
     }
 
     *xf = *element->upTrans;
@@ -713,7 +715,7 @@ galerkinElementPolygon(GalerkinElement *elem, POLYGON *poly) {
 
     if ( isCluster(elem)) {
         logFatal(-1, "galerkinElementPolygon", "Cannot use this function for cluster elements");
-        return (POLYGON *) nullptr;
+        return nullptr;
     }
 
     poly->normal = elem->patch->normal;

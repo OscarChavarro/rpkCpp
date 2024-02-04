@@ -808,10 +808,10 @@ phongBtdfEvalPdf(
 // Phong-type edf method structs
 EDF_METHODS GLOBAL_scene_phongEdfMethods = {
     (COLOR (*)(void *, RayHit *, XXDFFLAGS)) phongEmittance,
-    (int (*)(void *)) nullptr,    /* not textured */
+    nullptr, // Not textured
     (COLOR (*)(void *, RayHit *, Vector3D *, XXDFFLAGS, double *)) phongEdfEval,
     (Vector3D (*)(void *, RayHit *, XXDFFLAGS, double, double, COLOR *, double *)) phongEdfSample,
-    (int (*)(void *, RayHit *, Vector3D *, Vector3D *, Vector3D *)) nullptr,
+    nullptr,
     (void (*)(FILE *, void *)) phongEdfPrint
 };
 

@@ -14,7 +14,7 @@ equal to '|', the file name is opened as a pipe.
 */
 FILE *
 openFile(const char *filename, const char *open_mode, int *ispipe) {
-    FILE *fp = (FILE *) nullptr;
+    FILE *fp = nullptr;
 
     if ( (*open_mode != 'r' && *open_mode != 'w' && *open_mode != 'a') ) {
         logError("openFile", "Invalid fopen() mode '%s'\n",
@@ -76,7 +76,7 @@ openFile(const char *filename, const char *open_mode, int *ispipe) {
         return fp;
     }
 
-    return (FILE *) nullptr;
+    return nullptr;
 }
 
 /**

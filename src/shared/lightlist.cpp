@@ -28,7 +28,7 @@ CLightList::CLightList(java::ArrayList<Patch *> *list, bool includeVirtualPatche
 
                 // calc emittedFlux
                 if ( light->hasZeroVertices()) {
-                    COLOR e = edfEmittance(light->surface->material->edf, (RayHit *) nullptr,
+                    COLOR e = edfEmittance(light->surface->material->edf, nullptr,
                                            DIFFUSE_COMPONENT);
                     info.emittedFlux = colorAverage(e);
                 } else {
@@ -104,7 +104,7 @@ CLightList::evalPdfVirtual(Patch *light, Vector3D */*point*/) const {
     // Prob for choosing this light
     XXDFFLAGS all = DIFFUSE_COMPONENT | GLOSSY_COMPONENT | SPECULAR_COMPONENT;
 
-    COLOR e = edfEmittance(light->surface->material->edf, (RayHit *) nullptr, all);
+    COLOR e = edfEmittance(light->surface->material->edf, nullptr, all);
     pdf = colorAverage(e) / totalFlux;
 
     return pdf;
@@ -150,7 +150,7 @@ CLightList::computeOneLightImportanceVirtual(Patch *light,
     // ComputeOneLightImportance for virtual patches
     XXDFFLAGS all = DIFFUSE_COMPONENT | GLOSSY_COMPONENT | SPECULAR_COMPONENT;
 
-    COLOR e = edfEmittance(light->surface->material->edf, (RayHit *) nullptr, all);
+    COLOR e = edfEmittance(light->surface->material->edf, nullptr, all);
     return colorAverage(e);
 }
 

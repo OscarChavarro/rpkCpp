@@ -57,7 +57,7 @@ createInitialLink(Patch *patch) {
         if ( the_shaft ) {
             setShaftOmit(&shaft, globalPatch);
             setShaftOmit(&shaft, patch);
-            globalCandidateList = doShaftCulling(oldCandidateList, the_shaft, (GeometryListNode *) nullptr);
+            globalCandidateList = doShaftCulling(oldCandidateList, the_shaft, nullptr);
 
             if ( the_shaft->cut == true ) {    /* one patch causes full occlusion. */
                 freeCandidateList(globalCandidateList);
@@ -166,7 +166,8 @@ Creates an initial link between the given element and the top cluster
 */
 void
 createInitialLinkWithTopCluster(GalerkinElement *elem, GalerkinRole role) {
-    GalerkinElement *rcv = (GalerkinElement *) nullptr, *src = (GalerkinElement *) nullptr;
+    GalerkinElement *rcv = nullptr;
+    GalerkinElement *src = nullptr;
     INTERACTION *link;
     FloatOrPointer K;
     FloatOrPointer deltaK;

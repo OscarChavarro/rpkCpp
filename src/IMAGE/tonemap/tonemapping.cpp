@@ -21,7 +21,7 @@ TONEMAP *GLOBAL_toneMap_availableToneMaps[] = {
     &GLOBAL_toneMap_ward,
     &GLOBAL_toneMap_revisedTumblinRushmeier,
     &GLOBAL_toneMap_ferwerda,
-    (TONEMAP *) nullptr
+    nullptr
 };
 
 // Tone mapping context

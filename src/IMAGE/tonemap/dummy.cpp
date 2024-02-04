@@ -31,15 +31,15 @@ TONEMAP GLOBAL_toneMap_dummy = {
     "dummyButton",
     3,
     dummyDefaults,
-    (void (*)(int *, char **)) nullptr,
-    (void (*)(FILE *)) nullptr,
+    nullptr,
+    nullptr,
     dummyInit,
     dummyTerminate,
     dummyScaleForComputations,
     dummyScaleForDisplay,
     dummyReverseScaleForComputations,
-    (void (*)(void *)) nullptr,
-    (void (*)(void *)) nullptr,
-    (void (*)()) nullptr,
-    (void (*)()) nullptr
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr
 };

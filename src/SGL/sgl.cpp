@@ -124,7 +124,7 @@ sglDepthTesting(SGL_BOOLEAN on) {
     } else {
         if ( GLOBAL_sgl_currentContext->depthBuffer ) {
             free(GLOBAL_sgl_currentContext->depthBuffer);
-            GLOBAL_sgl_currentContext->depthBuffer = (SGL_Z_VALUE *) nullptr;
+            GLOBAL_sgl_currentContext->depthBuffer = nullptr;
         } else {
             return;
         }

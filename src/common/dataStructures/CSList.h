@@ -167,7 +167,7 @@ inline CSList_Base_Iter::CSList_Base_Iter(CSList_Base &list) {
 inline CISLink *CSList_Base_Iter::Next() {
     CISLink *ret = (m_CurrentElement ?
                     (m_CurrentElement = m_CurrentElement->m_Next) :
-                    (CISLink *) nullptr);
+                    nullptr);
     if ( m_CurrentElement == m_CurrentList->m_Last ) {
         m_CurrentElement = nullptr;
     }
@@ -195,7 +195,7 @@ public:
 template<class T>
 inline T *CTSList_Iter<T>::Next() {
     CTSLink<T> *link = (CTSLink<T> *) CSList_Base_Iter::Next();
-    return (link ? &link->m_Data : (T *) nullptr);
+    return (link ? &link->m_Data : nullptr);
 }
 
 template<class T>

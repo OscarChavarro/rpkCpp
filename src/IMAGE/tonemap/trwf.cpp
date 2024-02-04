@@ -221,17 +221,17 @@ TONEMAP GLOBAL_toneMap_tumblinRushmeier = {
     "tmoTmblRushButton",
     3,
     trwfDefaults,
-    (void (*)(int *, char **)) nullptr,
-    (void (*)(FILE *)) nullptr,
+    nullptr,
+    nullptr,
     trwfInit,
     trwfTerminate,
     trwfScaleForComputations,
     trwfScaleForDisplay,
     trfwReverseScaleForComputations,
-    (void (*)(void *)) nullptr,
-    (void (*)(void *)) nullptr,
-    (void (*)()) nullptr,
-    (void (*)()) nullptr
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr
 };
 
 static COLOR
@@ -261,17 +261,17 @@ TONEMAP GLOBAL_toneMap_ward = {
     "tmoWardButton",
     3,
     trwfDefaults,
-    (void (*)(int *, char **)) nullptr,
-    (void (*)(FILE *)) nullptr,
+    nullptr,
+    nullptr,
     trwfInit,
     trwfTerminate,
     wardScaleForComputations,
     wardScaleForDisplay,
     wardReverseScaleForComputations,
-    (void (*)(void *)) nullptr,
-    (void (*)(void *)) nullptr,
-    (void (*)()) nullptr,
-    (void (*)()) nullptr
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr
 };
 
 static COLOR
@@ -327,17 +327,17 @@ TONEMAP GLOBAL_toneMap_revisedTumblinRushmeier = {
     "tmoRevisedTmblRushButton",
     3,
     trwfDefaults,
-    (void (*)(int *, char **)) nullptr,
-    (void (*)(FILE *)) nullptr,
+    nullptr,
+    nullptr,
     trwfInit,
     trwfTerminate,
     revisedTRScaleForComputations,
     revisedTRScaleForDisplay,
     revisedTRReverseScaleForComputations,
-    (void (*)(void *)) nullptr,
-    (void (*)(void *)) nullptr,
-    (void (*)()) nullptr,
-    (void (*)()) nullptr
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr
 };
 
 static COLOR
@@ -399,15 +399,15 @@ ferwerdaReverseScaleForComputations(float dl) {
 TONEMAP GLOBAL_toneMap_ferwerda = {
     "Partial Ferwerda's Mapping", "Ferwerda", "tmoFerwerdaButton", 3,
     trwfDefaults,
-    (void (*)(int *, char **)) nullptr,
-    (void (*)(FILE *)) nullptr,
+    nullptr,
+    nullptr,
     trwfInit,
     trwfTerminate,
     ferwerdaScaleForComputations,
     ferwerdaScaleForDisplay,
     ferwerdaReverseScaleForComputations,
-    (void (*)(void *)) nullptr,
-    (void (*)(void *)) nullptr,
-    (void (*)()) nullptr,
-    (void (*)()) nullptr
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr
 };

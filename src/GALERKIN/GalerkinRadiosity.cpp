@@ -151,7 +151,7 @@ galerkinDefaults() {
     GLOBAL_galerkin_state.exact_visibility = DEFAULT_GAL_EXACT_VISIBILITY;
     GLOBAL_galerkin_state.multiResolutionVisibility = DEFAULT_GAL_MULTI_RESOLUTION_VISIBILITY;
     GLOBAL_galerkin_state.clusteringStrategy = DEFAULT_GAL_CLUSTERING_STRATEGY;
-    GLOBAL_galerkin_state.scratch = (SGL_CONTEXT *) nullptr;
+    GLOBAL_galerkin_state.scratch = nullptr;
     GLOBAL_galerkin_state.scratchFbSize = DEFAULT_GAL_SCRATCH_FB_SIZE;
 
     GLOBAL_galerkin_state.iteration_nr = -1;    /* means "not initialized" */
@@ -349,7 +349,8 @@ initGalerkin(java::ArrayList<Patch *> *scenePatches) {
     scratchInit();
 
     // Global variables used for form factor computation optimisation
-    GLOBAL_galerkin_state.formFactorLastRcv = GLOBAL_galerkin_state.formFactorLastSrc = (GalerkinElement *) nullptr;
+    GLOBAL_galerkin_state.formFactorLastRcv = nullptr;
+    GLOBAL_galerkin_state.formFactorLastSrc = nullptr;
 
     // Global variables for scratch rendering
     GLOBAL_galerkin_state.lastClusterId = -1;

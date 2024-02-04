@@ -195,7 +195,7 @@ VoxelGrid::putGeometryInsideVoxelGrid(Geometry *geometry, const short na, const 
     voxelSize.y = (boundingBox[MAX_Y] - boundingBox[MIN_Y]) / (float) nb;
     voxelSize.z = (boundingBox[MAX_Z] - boundingBox[MIN_Z]) / (float) nc;
     volumeListsOfItems = new java::ArrayList<VoxelData *> *[na * nb * nc]();
-    gridItemPool = (void**) nullptr;
+    gridItemPool = nullptr;
     for ( i = 0; i < na * nb * nc; i++ ) {
         volumeListsOfItems[i] = nullptr;
     }
@@ -398,7 +398,7 @@ VoxelGrid::voxelIntersect(
         VoxelData *item = items->get(i);
         if ( item->lastRayId() != counter ) {
             // Avoid testing objects multiple times
-            RayHit *h = (RayHit *) nullptr;
+            RayHit *h = nullptr;
             if ( item->isPatch() ) {
                 h = patchIntersect(item->patch, ray, minimumDistance, maximumDistance, hitFlags, hitStore);
             } else if ( item->isGeom() ) {
@@ -523,8 +523,8 @@ VoxelGrid::gridIntersect(
     float t0;
     int counter;
 
-    if ( !gridBoundsIntersect(ray, minimumDistance, *maximumDistance, &t0, &P)) {
-        return (RayHit *) nullptr;
+    if ( !gridBoundsIntersect(ray, minimumDistance, *maximumDistance, &t0, &P) ) {
+        return nullptr;
     }
 
     gridTraceSetup(ray, t0, &P, g, &tDelta, &tNext, step, out);

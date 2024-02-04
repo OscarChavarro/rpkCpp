@@ -230,14 +230,14 @@ CommandLineOptions GLOBAL_options_setTrueType = {
     (int (*)(void *, void *)) optionsSetTrue,
     (void (*)(FILE *, void *, void *)) optionsPrintOther,
     (void *) &globalDummyTrue,
-    (void *) nullptr
+    nullptr
 };
 
 CommandLineOptions GLOBAL_options_setFalseType = {
     (int (*)(void *, void *)) optionsSetFalse,
     (void (*)(FILE *, void *, void *)) optionsPrintOther,
     (void *) &globalDummyFalse,
-    (void *) nullptr
+    nullptr
 };
 
 /* ------------------- float option values --------------------- */

@@ -8,7 +8,7 @@ Adds an element in front of the list, returns a pointer to the new list
 */
 LIST *
 ListAdd(LIST *list, void *element) {
-    if ( element == (void *) nullptr) {
+    if ( element == nullptr ) {
         return list;
     }
 

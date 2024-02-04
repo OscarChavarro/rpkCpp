@@ -424,9 +424,9 @@ BSDF_METHODS GLOBAL_scene_splitBsdfMethods = {
     Vector3D *in, Vector3D *out,
     BSDFFLAGS flags,
     double *pdf, double *pdfRR)) splitBsdfEvalPdf,
-    (int (*)(void *data, RayHit *hit, Vector3D *X, Vector3D *Y, Vector3D *Z)) nullptr,
+    nullptr,
     (void (*)(FILE *out, void *data)) splitBsdfPrint,
     (void *(*)(void *data)) splitBsdfDuplicate,
-    (void *(*)(void *parent, void *data)) nullptr,
+    nullptr,
     (void (*)(void *data)) splitBsdfDestroy
 };

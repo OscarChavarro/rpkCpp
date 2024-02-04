@@ -271,5 +271,5 @@ Camera *
 nextSavedCamera(Camera *previous) {
     Camera *cam = previous ? previous : globalCameraStackPtr;
     cam--;
-    return (cam < globalCameraStack) ? (Camera *) nullptr : cam;
+    return (cam < globalCameraStack) ? nullptr : cam;
 }

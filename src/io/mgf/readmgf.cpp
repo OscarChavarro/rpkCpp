@@ -379,7 +379,7 @@ getCurrentMaterial() {
     }
 
     theMaterial = materialCreate(materialName,
-                                 (colorNull(Ed) && colorNull(Es)) ? (EDF *) nullptr : edfCreate(
+                                 (colorNull(Ed) && colorNull(Es)) ? nullptr : edfCreate(
                                          phongEdfCreate(&Ed, &Es, Ne), &GLOBAL_scene_phongEdfMethods),
                                  bsdfCreate(splitBsdfCreate(
                                                     (colorNull(Rd) && colorNull(Rs)) ? nullptr : brdfCreate(
@@ -388,7 +388,7 @@ getCurrentMaterial() {
                                                             phongBtdfCreate(&Td, &Ts, Nt,
                                                                             GLOBAL_mgf_currentMaterial->nr,
                                                                             GLOBAL_mgf_currentMaterial->ni),
-                                                            &GLOBAL_scene_phongBtdfMethods), (TEXTURE *) nullptr),
+                                                            &GLOBAL_scene_phongBtdfMethods), nullptr),
                                             &GLOBAL_scene_splitBsdfMethods),
                                  globalAllSurfacesSided ? 1 : GLOBAL_mgf_currentMaterial->sided);
 
@@ -418,7 +418,7 @@ installNormal(float x, float y, float z) {
 static Vertex *
 installVertex(Vector3D *coord, Vector3D *norm, char *name) {
     java::ArrayList<Patch *> *newPatchList = new java::ArrayList<Patch *>();
-    Vertex *v = vertexCreate(coord, norm, (Vector3D *) nullptr, newPatchList);
+    Vertex *v = vertexCreate(coord, norm, nullptr, newPatchList);
     globalCurrentVertexList->add(v);
     return v;
 }
@@ -430,7 +430,7 @@ getVertex(char *name) {
 
     vp = getNamedVertex(name);
     if ( vp == nullptr ) {
-        return (Vertex *) nullptr;
+        return nullptr;
     }
 
     theVertex = (Vertex *) (vp->client_data);
@@ -445,7 +445,7 @@ getVertex(char *name) {
         mgfTransformPoint(vert, vp->p);
         thePoint = installPoint(vert[0], vert[1], vert[2]);
         if ( is0vect(vp->n)) {
-            theNormal = (Vector3D *) nullptr;
+            theNormal = nullptr;
         } else {
             mgfTransformVector(norm, vp->n);
             theNormal = installNormal(norm[0], norm[1], norm[2]);
@@ -523,8 +523,8 @@ faceNormal(int numberOfVertices, Vertex **v, Vector3D *normal) {
     norm = VECTORNORM(n);
 
     if ( norm < EPSILON ) {
-        /* Degenerate normal --> degenerate polygon */
-        return (Vector3D *) nullptr;
+        // Degenerate normal --> degenerate polygon
+        return nullptr;
     }
     VECTORSCALEINVERSE(norm, n, n);
     *normal = n;
@@ -781,9 +781,9 @@ doComplexFace(int n, Vertex **v, Vector3D *normal, Vertex **backv, Vector3D *bac
 
         if ( fabs(a) > EPSILON ) {    /* avoid degenerate faces */
             Patch *face, *twin;
-            face = newFace(v[p0], v[p1], v[p2], (Vertex *) nullptr, normal);
+            face = newFace(v[p0], v[p1], v[p2], nullptr, normal);
             if ( !globalCurrentMaterial->sided ) {
-                twin = newFace(backv[p2], backv[p1], backv[p0], (Vertex *) nullptr, backnormal);
+                twin = newFace(backv[p2], backv[p1], backv[p0], nullptr, backnormal);
                 face->twin = twin;
                 twin->twin = face;
             }
@@ -825,10 +825,12 @@ handleFaceEntity(int argc, char **argv) {
     }
 
     for ( i = 0; i < argc - 1; i++ ) {
-        if ((v[i] = getVertex(argv[i + 1])) == (Vertex *) nullptr ) {
+        v[i] = getVertex(argv[i + 1]);
+        if ( v[i] == nullptr ) {
+            // This is however a reason to stop parsing the input
             return MGF_ERROR_UNDEFINED_REFERENCE;
-        }    /* this is however a reason to stop parsing the input */
-        backv[i] = (Vertex *) nullptr;
+        }
+        backv[i] = nullptr;
         if ( !globalCurrentMaterial->sided )
             backv[i] = getBackFaceVertex(v[i], argv[i + 1]);
     }
@@ -840,10 +842,11 @@ handleFaceEntity(int argc, char **argv) {
     if ( !globalCurrentMaterial->sided ) VECTORSCALE(-1., normal, backnormal);
 
     errcode = MGF_OK;
-    if ( argc == 4 ) {        /* triangles */
-        face = newFace(v[0], v[1], v[2], (Vertex *) nullptr, &normal);
+    if ( argc == 4 ) {
+        // Triangles
+        face = newFace(v[0], v[1], v[2], nullptr, &normal);
         if ( !globalCurrentMaterial->sided ) {
-            twin = newFace(backv[2], backv[1], backv[0], (Vertex *) nullptr, &backnormal);
+            twin = newFace(backv[2], backv[1], backv[0], nullptr, &backnormal);
             face->twin = twin;
             twin->twin = face;
         }

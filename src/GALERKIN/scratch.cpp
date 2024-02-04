@@ -103,7 +103,7 @@ scratchRenderElements(GalerkinElement *cluster, Vector3D eye) {
 
     // Render element pointers in the scratch frame buffer
     eyep = eye; // Needed for backface culling test
-    sglClear((SGL_PIXEL) nullptr, SGL_MAXIMUM_Z);
+    sglClear((SGL_PIXEL) 0x00, SGL_MAXIMUM_Z);
     iterateOverSurfaceElementsInCluster(cluster, scratchRenderElementPtr);
 
     sglMakeCurrent(prev_sgl_context);
