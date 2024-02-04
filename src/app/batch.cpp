@@ -59,7 +59,7 @@ openGlSaveScreen(char *fileName, FILE *fp, int isPipe, java::ArrayList<Patch *> 
         return;
     }
 
-    if ( !fp || !(img = createImageOutputHandle(fileName, fp, isPipe, x, y)) ) {
+    if ( !fp || !(img = createImageOutputHandle(fileName, fp, isPipe, (int)x, (int)y)) ) {
         return;
     }
 
@@ -67,7 +67,7 @@ openGlSaveScreen(char *fileName, FILE *fp, int isPipe, java::ArrayList<Patch *> 
     buf = (unsigned char *)malloc(3 * x);
 
     glReadBuffer(GL_FRONT);
-    glReadPixels(0, 0, x, y, GL_RGBA, GL_UNSIGNED_BYTE, screen);
+    glReadPixels(0, 0, (int)x, (int)y, GL_RGBA, GL_UNSIGNED_BYTE, screen);
 
     for ( j = y - 1; j >= 0; j-- ) {
         long i;
@@ -169,12 +169,12 @@ batchSaveRaytracingImage(const char *fileName, FILE *fp, int isPipe, java::Array
 
     if ( fp ) {
         img = createRadianceImageOutputHandle(
-                (char *) fileName,
-                fp,
-                isPipe,
-                GLOBAL_camera_mainCamera.xSize,
-                GLOBAL_camera_mainCamera.ySize,
-                GLOBAL_statistics_referenceLuminance / 179.0f);
+            (char *) fileName,
+            fp,
+            isPipe,
+            GLOBAL_camera_mainCamera.xSize,
+            GLOBAL_camera_mainCamera.ySize,
+            (float)GLOBAL_statistics_referenceLuminance / 179.0f);
         if ( !img ) {
             return;
         }
@@ -191,8 +191,6 @@ batchSaveRaytracingImage(const char *fileName, FILE *fp, int isPipe, java::Array
     }
 
     fprintf(stdout, "Raytrace save image: %g secs.\n", (float) (clock() - t) / (float) CLOCKS_PER_SEC);
-
-    return;
 }
 
 static void
@@ -262,19 +260,15 @@ batch(java::ArrayList<Patch *> *scenePatches, java::ArrayList<Patch *> *lightPat
             wasted_start = clock();
 
             if ( (!(it % globalSaveModulo)) && *globalRadianceImageFileNameFormat ) {
-                int n = strlen(globalRadianceImageFileNameFormat) + 1;
+                int n = (int)strlen(globalRadianceImageFileNameFormat) + 1;
                 char *fileName = new char[n];
                 snprintf(fileName, n, globalRadianceImageFileNameFormat, it);
-                if ( GLOBAL_render_renderOptions.trace ) {
-                    batchProcessFile(fileName, "w", batchSaveRadianceImage, scenePatches);
-                } else {
-                    batchProcessFile(fileName, "w", batchSaveRadianceImage, scenePatches);
-                }
+                batchProcessFile(fileName, "w", batchSaveRadianceImage, scenePatches);
                 delete[] fileName;
             }
 
             if ( *globalRadianceModelFileNameFormat ) {
-                int n = strlen(globalRadianceModelFileNameFormat) + 1;
+                int n = (int)strlen(globalRadianceModelFileNameFormat) + 1;
                 char *fileName = new char[n];
                 snprintf(fileName, n, globalRadianceModelFileNameFormat, it);
                 batchProcessFile(fileName, "w", batchSaveRadianceModel, scenePatches);

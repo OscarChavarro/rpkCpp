@@ -12,14 +12,14 @@ a software frame buffer directly.
 #include "raycasting/simple/RayCaster.h"
 
 void
-RayCaster::clipUv(int nrvertices, double *u, double *v) {
+RayCaster::clipUv(int numberOfVertices, double *u, double *v) {
     if ( *u > 1. - EPSILON ) {
         *u = 1. - EPSILON;
     }
     if ( *v > 1. - EPSILON ) {
         *v = 1. - EPSILON;
     }
-    if ( nrvertices == 3 && (*u + *v) > 1. - EPSILON ) {
+    if ( numberOfVertices == 3 && (*u + *v) > 1. - EPSILON ) {
         if ( *u > *v ) {
             *u = 1. - *v - EPSILON;
         } else {
@@ -35,13 +35,13 @@ RayCaster::clipUv(int nrvertices, double *u, double *v) {
 }
 
 void
-RayCaster::render(GETRADIANCE_FT getrad = nullptr, java::ArrayList<Patch *> *scenePatches = nullptr) {
+RayCaster::render(GETRADIANCE_FT getRadiance = nullptr, java::ArrayList<Patch *> *scenePatches = nullptr) {
     clock_t t = clock();
     interrupt_requested = false;
 
-    if ( getrad == nullptr ) {
+    if ( getRadiance == nullptr ) {
         if ( GLOBAL_radiance_currentRadianceMethodHandle ) {
-            getrad = GLOBAL_radiance_currentRadianceMethodHandle->GetRadiance;
+            getRadiance = GLOBAL_radiance_currentRadianceMethodHandle->GetRadiance;
         }
     }
 
@@ -52,7 +52,7 @@ RayCaster::render(GETRADIANCE_FT getrad = nullptr, java::ArrayList<Patch *> *sce
 
     Soft_ID_Renderer *id_renderer = new Soft_ID_Renderer(scenePatches);
     id_renderer->get_size(&width, &height);
-    if ( width != scrn->getHRes() || height != scrn->getVRes() ) {
+    if ( width != screenBuffer->getHRes() || height != screenBuffer->getVRes() ) {
         logFatal(-1, "RayCaster::render", "ID buffer size doesn't match screen size");
     }
 
@@ -60,11 +60,11 @@ RayCaster::render(GETRADIANCE_FT getrad = nullptr, java::ArrayList<Patch *> *sce
     for ( y = 0; y < height; y++ ) {
         for ( x = 0; x < width; x++ ) {
             Patch *P = id_renderer->get_patch_at_pixel(x, y);
-            COLOR rad = getRadianceAtPixel(x, y, P, getrad);
-            scrn->add(x, y, rad);
+            COLOR rad = getRadianceAtPixel(x, y, P, getRadiance);
+            screenBuffer->add(x, y, rad);
         }
 
-        scrn->renderScanline(y);
+        screenBuffer->renderScanline(y);
         if ( interrupt_requested ) {
             break;
         }
@@ -78,12 +78,12 @@ RayCaster::render(GETRADIANCE_FT getrad = nullptr, java::ArrayList<Patch *> *sce
 
 void
 RayCaster::display() {
-    scrn->render();
+    screenBuffer->render();
 }
 
 void
 RayCaster::save(ImageOutputHandle *ip) {
-    scrn->writeFile(ip);
+    screenBuffer->writeFile(ip);
 }
 
 void
@@ -161,11 +161,11 @@ and saved into the file with given name and file pointer. 'ispipe'
 reflects whether this file pointer is a pipe or not.
 */
 void
-rayCast(char *fname, FILE *fp, int ispipe, java::ArrayList<Patch *> *scenePatches) {
+rayCast(char *fileName, FILE *fp, int isPipe, java::ArrayList<Patch *> *scenePatches) {
     ImageOutputHandle *img = nullptr;
 
     if ( fp ) {
-        img = createRadianceImageOutputHandle(fname, fp, ispipe,
+        img = createRadianceImageOutputHandle(fileName, fp, isPipe,
                                               GLOBAL_camera_mainCamera.xSize, GLOBAL_camera_mainCamera.ySize,
                                               GLOBAL_statistics_referenceLuminance / 179.0);
         if ( !img ) {

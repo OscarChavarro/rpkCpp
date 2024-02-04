@@ -101,6 +101,8 @@ set(MAIN_SRC
     src/render/renderhook.cpp
     src/render/canvas.cpp
     src/render/rendercommon.cpp
+    src/render/bidiroptions.cpp
+    src/render/ScreenBuffer.cpp
     src/GALERKIN/basisgalerkin.cpp
     src/GALERKIN/GalerkinRadiosity.cpp
     src/GALERKIN/shaftculling.cpp
@@ -117,8 +119,6 @@ set(MAIN_SRC
     src/GALERKIN/mrvisibility.cpp
     src/GALERKIN/basisquadgalerkin.cpp
     src/raycasting/common/Raytracer.cpp
-        src/render/bidiroptions.cpp
-        src/render/ScreenBuffer.cpp
     src/raycasting/common/pathnode.cpp
     src/raycasting/common/raytools.cpp
     src/raycasting/common/pixelfilter.cpp

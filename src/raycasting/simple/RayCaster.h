@@ -8,25 +8,25 @@
 
 class RayCaster {
   private:
-    ScreenBuffer *scrn;
+    ScreenBuffer *screenBuffer;
     bool interrupt_requested;
     bool doDeleteScreen;
 
-    void clipUv(int nrvertices, double *u, double *v);
+    void clipUv(int numberOfVertices, double *u, double *v);
 
     /**
     Determines the radiance of the nearest patch visible through the pixel
     (x,y). P shall be the nearest patch visible in the pixel.
     */
     COLOR
-    getRadianceAtPixel(int x, int y, Patch *P, GETRADIANCE_FT getrad) {
+    getRadianceAtPixel(int x, int y, Patch *P, GETRADIANCE_FT getRadiance) {
         COLOR rad;
         colorClear(rad);
-        if ( P && getrad ) {
+        if ( P && getRadiance ) {
             // Ray pointing from the eye through the center of the pixel.
             Ray ray;
             ray.pos = GLOBAL_camera_mainCamera.eyePosition;
-            ray.dir = scrn->getPixelVector(x, y);
+            ray.dir = screenBuffer->getPixelVector(x, y);
             VECTORNORMALIZE(ray.dir);
 
             // Find intersection point of ray with patch P
@@ -44,20 +44,20 @@ class RayCaster {
             // boundaries.
             clipUv(P->numberOfVertices, &u, &v);
 
-            // Reverse ray direction and get radiance emited at hit point towards the eye
+            // Reverse ray direction and get radiance emitted at hit point towards the eye
             Vector3D dir(-ray.dir.x, -ray.dir.y, -ray.dir.z);
-            rad = getrad(P, u, v, dir);
+            rad = getRadiance(P, u, v, dir);
         }
         return rad;
     }
 
   public:
-    RayCaster(ScreenBuffer *inscrn = nullptr) {
-        if ( inscrn == nullptr ) {
-            scrn = new ScreenBuffer(nullptr);
+    explicit RayCaster(ScreenBuffer *inScreen = nullptr) {
+        if ( inScreen == nullptr ) {
+            screenBuffer = new ScreenBuffer(nullptr);
             doDeleteScreen = true;
         } else {
-            scrn = inscrn;
+            screenBuffer = inScreen;
             doDeleteScreen = true;
         }
 
@@ -66,18 +66,18 @@ class RayCaster {
 
     virtual ~RayCaster() {
         if ( doDeleteScreen ) {
-            delete scrn;
+            delete screenBuffer;
         }
     }
 
     void save(ImageOutputHandle *ip);
-    void render(GETRADIANCE_FT getrad, java::ArrayList<Patch *> *scenePatches);
+    void render(GETRADIANCE_FT getRadiance, java::ArrayList<Patch *> *scenePatches);
     void display();
     void interrupt();
 };
 
 extern Raytracer GLOBAL_rayCasting_RayCasting;
 
-extern void rayCast(char *fname, FILE *fp, int ispipe, java::ArrayList<Patch *> *scenePatches);
+extern void rayCast(char *fileName, FILE *fp, int isPipe, java::ArrayList<Patch *> *scenePatches);
 
 #endif

@@ -33,9 +33,8 @@ static void
 radianceMethodOption(void *value) {
     char *name = *(char **) value;
 
-    RADIANCEMETHOD **methodpp;
-    for ( methodpp = GLOBAL_radiance_radianceMethods; *methodpp != nullptr; methodpp++) {
-        RADIANCEMETHOD *method = *methodpp;
+    for ( RADIANCEMETHOD **methodPointer = GLOBAL_radiance_radianceMethods; *methodPointer != nullptr; methodPointer++) {
+        RADIANCEMETHOD *method = *methodPointer;
         if ( strncasecmp(name, method->shortName, method->nameAbbrev) == 0 ) {
             setRadianceMethod(method, GLOBAL_scenePatches);
             return;
@@ -92,9 +91,8 @@ makeRadianceMethodsString() {
             "none", "no world-space radiance computation",
             !GLOBAL_radiance_currentRadianceMethodHandle ? " (default)" : "", &n);
     str += n;
-    RADIANCEMETHOD **methodpp;
-    for ( methodpp = GLOBAL_radiance_radianceMethods; *methodpp != nullptr; methodpp++) {
-        RADIANCEMETHOD *method = *methodpp;
+    for ( RADIANCEMETHOD **methodPointer = GLOBAL_radiance_radianceMethods; *methodPointer != nullptr; methodPointer++) {
+        RADIANCEMETHOD *method = *methodPointer;
         snprintf(str, STRING_LENGTH, "\t         %-20.20s %s%s\n%n",
                 method->shortName, method->fullName,
                 GLOBAL_radiance_currentRadianceMethodHandle == method ? " (default)" : "", &n);
@@ -105,9 +103,8 @@ makeRadianceMethodsString() {
 
 void
 radianceDefaults(java::ArrayList<Patch *> *scenePatches) {
-    RADIANCEMETHOD **methodpp;
-    for ( methodpp = GLOBAL_radiance_radianceMethods; *methodpp != nullptr; methodpp++) {
-        RADIANCEMETHOD *method = *methodpp;
+    for ( RADIANCEMETHOD **methodPointer = GLOBAL_radiance_radianceMethods; *methodPointer != nullptr; methodPointer++) {
+        RADIANCEMETHOD *method = *methodPointer;
         method->Defaults();
         if ( strncasecmp(DEFAULT_RADIANCE_METHOD, method->shortName, method->nameAbbrev) == 0 ) {
             setRadianceMethod(method, scenePatches);
@@ -122,12 +119,9 @@ computation
 */
 void
 parseRadianceOptions(int *argc, char **argv) {
-
     parseOptions(globalRadianceOptions, argc, argv);
-
-    RADIANCEMETHOD **methodpp;
-    for ( methodpp = GLOBAL_radiance_radianceMethods; *methodpp != nullptr; methodpp++) {
-        RADIANCEMETHOD *method = *methodpp;
+    for ( RADIANCEMETHOD **methodPointer = GLOBAL_radiance_radianceMethods; *methodPointer != nullptr; methodPointer++) {
+        RADIANCEMETHOD *method = *methodPointer;
         method->ParseOptions(argc, argv);
     }
 }
