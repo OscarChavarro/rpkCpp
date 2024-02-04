@@ -5,7 +5,10 @@
 #include "java/util/ArrayList.h"
 #include "skin/radianceinterfaces.h"
 #include "render/ScreenBuffer.h"
-#include "raycasting/common/Raytracer.h"
+
+#ifdef RAYTRACING_ENABLED
+    #include "raycasting/common/Raytracer.h"
+#endif
 
 class RayCaster {
   private:
