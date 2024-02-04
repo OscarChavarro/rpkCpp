@@ -11,11 +11,14 @@
 #include "render/render.h"
 #include "IMAGE/imagec.h"
 #include "io/FileUncompressWrapper.h"
-#include "raycasting/common/Raytracer.h"
 #include "raycasting/simple/RayCaster.h"
 #include "render/opengl.h"
-#include "app/raytrace.h"
 #include "app/batch.h"
+
+#ifdef RAYTRACING_ENABLED
+    #include "raycasting/common/Raytracer.h"
+    #include "app/raytrace.h"
+#endif
 
 static int globalIterations = 1; // Radiance method iterations
 static int globalSaveModulo = 10; // Every 10th iteration, surface model and image will be saved

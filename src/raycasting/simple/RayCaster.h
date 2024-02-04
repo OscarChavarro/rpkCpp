@@ -74,12 +74,15 @@ class RayCaster {
     void render(GETRADIANCE_FT getRadiance, java::ArrayList<Patch *> *scenePatches);
     void display();
     void save(ImageOutputHandle *ip);
+
+#ifdef RAYTRACING_ENABLED
     void interrupt();
+#endif
 };
 
-//#ifndef RAYTRACING_ENABLED
+#ifdef RAYTRACING_ENABLED
     extern Raytracer GLOBAL_rayCasting_RayCasting;
-//#endif
+#endif
 
 extern void rayCast(char *fileName, FILE *fp, int isPipe, java::ArrayList<Patch *> *scenePatches);
 

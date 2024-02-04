@@ -15,8 +15,11 @@
 #include "io/mgf/fileopts.h"
 #include "render/opengl.h"
 #include "app/Cluster.h"
-#include "app/raytrace.h"
 #include "app/batch.h"
+
+#ifdef RAYTRACING_ENABLED
+    #include "app/raytrace.h"
+#endif
 
 // Mgf defaults
 #define DEFAULT_NQCDIVS 4
