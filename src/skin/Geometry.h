@@ -53,6 +53,7 @@ class Geometry {
     PatchSet *patchSetData;
 
     Geometry();
+    virtual ~Geometry();
     int geomCountItems();
 };
 

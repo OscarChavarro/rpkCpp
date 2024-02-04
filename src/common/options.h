@@ -119,4 +119,6 @@ static CommandLineOptions nstringTypeStructName = { \
   (void *)n \
 }
 
+extern void deleteOptionsMemory();
+
 #endif

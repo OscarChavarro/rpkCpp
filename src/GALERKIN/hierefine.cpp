@@ -32,8 +32,7 @@ enum INTERACTION_EVALUATION_CODE {
     REGULAR_SUBDIVIDE_SOURCE,
     REGULAR_SUBDIVIDE_RECEIVER,
     SUBDIVIDE_SOURCE_CLUSTER,
-    SUBDIVIDE_RECEIVER_CLUSTER,
-    ENLARGE_RECEIVER_BASIS
+    SUBDIVIDE_RECEIVER_CLUSTER
 };
 
 /**
@@ -99,6 +98,7 @@ hierarchicRefinementUnCull(GeometryListNode *ocandlist) {
     if ( GLOBAL_galerkin_state.shaftCullMode == DO_SHAFT_CULLING_FOR_REFINEMENT ||
          GLOBAL_galerkin_state.shaftCullMode == ALWAYS_DO_SHAFT_CULLING ) {
         freeCandidateList(globalCandidatesList);
+        globalCandidatesList = nullptr;
     }
 
     globalCandidatesList = ocandlist;
@@ -468,14 +468,13 @@ hierarchicRefinementRegularSubdivideSource(INTERACTION *link) {
     galerkinElementRegularSubDivide(src);
     for ( i = 0; i < 4; i++ ) {
         GalerkinElement *child = src->regularSubElements[i];
-        INTERACTION subinteraction;
-        float ff[MAXBASISSIZE * MAXBASISSIZE];
-        subinteraction.K.p = ff;    /* temporary storage for the formfactors */
-        /* subinteraction.deltaK.p = */
+        INTERACTION subInteraction;
+        float formFactors[MAXBASISSIZE * MAXBASISSIZE];
+        subInteraction.K.p = formFactors; // Temporary storage for the form factors
 
-        if ( hierarchicRefinementCreateSubdivisionLink(rcv, child, &subinteraction)) {
-            if ( !refineRecursive(&subinteraction)) {
-                hierarchicRefinementStoreInteraction(&subinteraction);
+        if ( hierarchicRefinementCreateSubdivisionLink(rcv, child, &subInteraction) ) {
+            if ( !refineRecursive(&subInteraction) ) {
+                hierarchicRefinementStoreInteraction(&subInteraction);
             }
         }
     }
@@ -500,8 +499,8 @@ hierarchicRefinementRegularSubdivideReceiver(INTERACTION *link) {
         GalerkinElement *child = rcv->regularSubElements[i];
         subinteraction.K.p = ff;
 
-        if ( hierarchicRefinementCreateSubdivisionLink(child, src, &subinteraction)) {
-            if ( !refineRecursive(&subinteraction)) {
+        if ( hierarchicRefinementCreateSubdivisionLink(child, src, &subinteraction) ) {
+            if ( !refineRecursive(&subinteraction) ) {
                 hierarchicRefinementStoreInteraction(&subinteraction);
             }
         }

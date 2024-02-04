@@ -592,11 +592,10 @@ left corner of image, relative to the lower left corner of the window)
 void
 openGlRenderPixels(int x, int y, int width, int height, RGB *rgb) {
     int rowLength;
-    GLubyte *c;
 
     // Length of one row of RGBA image data rounded up to a multiple of 8
     rowLength = (4 * width * sizeof(GLubyte) + 7) & ~7;
-    c = new GLubyte[height * rowLength + 8];
+    GLubyte *c = new GLubyte[height * rowLength + 8];
 
     for ( int j = 0; j < height; j++ ) {
         RGB *rgbP = &rgb[j * width];
@@ -638,7 +637,7 @@ openGlRenderPixels(int x, int y, int width, int height, RGB *rgb) {
     glMatrixMode(GL_MODELVIEW);
     glPopMatrix();
 
-    delete c;
+    delete[] c;
 }
 
 static void

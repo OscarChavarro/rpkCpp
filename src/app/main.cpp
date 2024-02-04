@@ -14,13 +14,12 @@
 #include "io/mgf/readmgf.h"
 #include "io/mgf/fileopts.h"
 #include "render/opengl.h"
-#include "app/Cluster.h"
-#include "app/batch.h"
-#include "render/canvas.h"
 #include "raycasting/stochasticRaytracing/StochasticRaytracer.h"
 #include "raycasting/raytracing/BidirectionalPathRaytracer.h"
 #include "raycasting/simple/RayCaster.h"
 #include "raycasting/simple/RayMatter.h"
+#include "app/Cluster.h"
+#include "app/batch.h"
 
 // Mgf defaults
 #define DEFAULT_NQCDIVS 4
@@ -648,6 +647,15 @@ mainExecuteRendering(java::ArrayList<Patch *> *scenePatches) {
     batch(scenePatches, globalLightSourcePatches);
 }
 
+static void
+mainFreeMemory() {
+    if ( GLOBAL_scene_clusteredWorldGeom != nullptr ) {
+        delete GLOBAL_scene_clusteredWorldGeom;
+    }
+
+    deleteOptionsMemory();
+}
+
 int
 main(int argc, char *argv[]) {
     mainInit();
@@ -655,6 +663,7 @@ main(int argc, char *argv[]) {
     mainBuildModel(&argc, argv);
 
     mainExecuteRendering(globalAppScenePatches);
+    mainFreeMemory();
 
     return 0;
 }

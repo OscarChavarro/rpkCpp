@@ -4,6 +4,7 @@ Command line options and defaults
 
 #include <cstring>
 
+#include "java/util/ArrayList.txx"
 #include "common/linealAlgebra/vectorMacros.h"
 #include "common/color.h"
 #include "common/options.h"
@@ -12,7 +13,7 @@ char *GLOBAL_option_dummyVal = nullptr;
 int GLOBAL_options_dummyVal = 0;
 
 static int *globalArgumentCount;
-static char **globalCurrentArgumentValue;
+static char **globalCurrentArgumentValue = nullptr;
 static char **globalFirstArgument;
 static int globalDummyInt = 0;
 static char *globalDummyString = nullptr;
@@ -22,6 +23,7 @@ static float globalDummyFloat = 0.0f;
 static Vector3D globalDummyVector3D = {0.0f, 0.0f, 0.0f};
 static RGB globalDummyRgb = {0.0f, 0.0f, 0.0f};
 static float globalDummyCieXy[2] = {0.0f, 0.0f};
+static java::ArrayList<char *> *globalStringsToDelete = new java::ArrayList<char *>();
 
 /**
 Initializes the global variables above
@@ -108,7 +110,8 @@ String option values
 static int
 optionsGetString(char **s, void * /*data*/) {
     unsigned long n = strlen(*globalCurrentArgumentValue) + 1;
-    *s = (char *)malloc(n);
+    *s = new char[n];
+    globalStringsToDelete->add(*s);
     snprintf(*s, n, "%s", *globalCurrentArgumentValue);
     return true;
 }
@@ -413,5 +416,16 @@ parseOptions(CommandLineOptionDescription *options, int *argc, char **argv) {
     optionsInitArguments(argc, argv);
     while ( optionsArgumentsRemaining()) {
         optionsProcessArguments(options);
+    }
+}
+
+void
+deleteOptionsMemory() {
+    if ( globalStringsToDelete != nullptr ) {
+        for ( int i = 0; i < globalStringsToDelete->size(); i++ ) {
+            delete[] globalStringsToDelete->get(i);
+        }
+        delete globalStringsToDelete;
+        globalStringsToDelete = nullptr;
     }
 }

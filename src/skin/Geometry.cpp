@@ -25,6 +25,26 @@ Geometry::Geometry():
     className = GeometryClassId::UNDEFINED;
 }
 
+Geometry::~Geometry() {
+    /*
+    if ( radianceData != nullptr ) {
+        delete radianceData;
+    }
+
+    if ( surfaceData != nullptr ) {
+        delete surfaceData;
+    }
+
+    if ( compoundData != nullptr ) {
+        delete compoundData;
+    }
+
+    if ( patchSetData != nullptr ) {
+        delete patchSetData;
+    }
+    */
+}
+
 static void
 boundsEnlargeTinyBit(float *bounds) {
     float Dx = (float)((bounds[MAX_X] - bounds[MIN_X]) * 1e-4);
