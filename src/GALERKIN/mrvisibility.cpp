@@ -91,7 +91,7 @@ geomMultiResolutionVisibility(
 
 double
 geomListMultiResolutionVisibility(
-    GeometryListNode *occluderList,
+    GeometryListNode *geometryOccluderList,
     Ray *ray,
     float rcvdist,
     float srcSize,
@@ -99,16 +99,14 @@ geomListMultiResolutionVisibility(
 {
     double vis = 1.0;
 
-    while ( occluderList ) {
+    for ( GeometryListNode *window = geometryOccluderList; window != nullptr; window = window->next ) {
         double v;
-        v = geomMultiResolutionVisibility(occluderList->geometry, ray, rcvdist, srcSize, minimumFeatureSize);
+        v = geomMultiResolutionVisibility(window->geometry, ray, rcvdist, srcSize, minimumFeatureSize);
         if ( v < EPSILON ) {
             return 0.0;
         } else {
             vis *= v;
         }
-
-        occluderList = occluderList->next;
     }
 
     return vis;

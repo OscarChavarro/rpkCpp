@@ -87,7 +87,7 @@ createElement() {
     static long id = 1;
     StochasticRadiosityElement *elem = (StochasticRadiosityElement *)malloc(sizeof(StochasticRadiosityElement));
 
-    elem->patch = (Patch *) nullptr;
+    elem->patch = nullptr;
     elem->id = id;
     id++;
     elem->area = 0.;
@@ -106,11 +106,11 @@ createElement() {
     elem->imp_ray_index = 0;
 
     VECTORSET(elem->midpoint, 0., 0., 0.);
-    elem->vertex[0] = elem->vertex[1] = elem->vertex[2] = elem->vertex[3] = (Vertex *) nullptr;
-    elem->parent = (StochasticRadiosityElement *) nullptr;
-    elem->regularSubElements = (StochasticRadiosityElement **) nullptr;
-    elem->irregular_subelements = (ELEMENTLIST *) nullptr;
-    elem->upTrans = (Matrix2x2 *) nullptr;
+    elem->vertex[0] = elem->vertex[1] = elem->vertex[2] = elem->vertex[3] = nullptr;
+    elem->parent = nullptr;
+    elem->regularSubElements = nullptr;
+    elem->irregular_subelements = nullptr;
+    elem->upTrans = nullptr;
     elem->childNumber = -1;
     elem->numberOfVertices = 0;
     elem->isCluster = false;
@@ -220,12 +220,8 @@ monteCarloRadiosityCreateClusterChildren(StochasticRadiosityElement *parent) {
 
     if ( geomIsAggregate(geom)) {
         GeometryListNode *geometryList = geomPrimList(geom);
-        if ( geometryList != nullptr ) {
-            GeometryListNode *window;
-            for ( window = geometryList; window; window = window->next ) {
-                Geometry *geometry = window->geometry;
-                monteCarloRadiosityCreateClusterChild(geometry, parent);
-            }
+        for ( GeometryListNode *window = geometryList; window != nullptr; window = window->next ) {
+            monteCarloRadiosityCreateClusterChild(window->geometry, parent);
         }
     } else {
         java::ArrayList<Patch *> *patchList = geomPatchArrayList(geom);
@@ -253,7 +249,7 @@ monteCarloRadiosityCreateClusterHierarchyRecursive(Geometry *world) {
 StochasticRadiosityElement *
 monteCarloRadiosityCreateClusterHierarchy(Geometry *world) {
     if ( !world ) {
-        return (StochasticRadiosityElement *) nullptr;
+        return nullptr;
     } else {
         return monteCarloRadiosityCreateClusterHierarchyRecursive(world);
     }
@@ -297,11 +293,11 @@ The point is transformed to the corresponding point on the sub-element
 */
 StochasticRadiosityElement *
 monteCarloRadiosityRegularSubElementAtPoint(StochasticRadiosityElement *parent, double *u, double *v) {
-    StochasticRadiosityElement *child = (StochasticRadiosityElement *) nullptr;
+    StochasticRadiosityElement *child = nullptr;
     double _u = *u, _v = *v;
 
     if ( parent->isCluster || !parent->regularSubElements ) {
-        return (StochasticRadiosityElement *) nullptr;
+        return nullptr;
     }
 
     /* Have a look at the drawings above to understand what is done exactly. */
@@ -451,12 +447,12 @@ monteCarloRadiosityElementNeighbour(StochasticRadiosityElement *elem, int edgenr
                 }
     EndForAll;
 
-    return (StochasticRadiosityElement *) nullptr;
+    return nullptr;
 }
 
 Vertex *
 monteCarloRadiosityEdgeMidpointVertex(StochasticRadiosityElement *elem, int edgenr) {
-    Vertex *v = (Vertex *) nullptr,
+    Vertex *v = nullptr,
             *to = elem->vertex[(edgenr + 1) % elem->numberOfVertices];
     StochasticRadiosityElement *neighbour = monteCarloRadiosityElementNeighbour(elem, edgenr);
 
@@ -752,7 +748,7 @@ monteCarloRadiosityRegularSubdivideElement(StochasticRadiosityElement *element) 
 
     if ( element->isCluster ) {
         logFatal(-1, "galerkinElementRegularSubDivide", "Cannot regularly subdivide cluster elements");
-        return (StochasticRadiosityElement **) nullptr;
+        return nullptr;
     }
 
     if ( element->patch->jacobian ) {

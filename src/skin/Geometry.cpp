@@ -195,7 +195,7 @@ geomPrimList(Geometry *geometry) {
     if ( geomIsAggregate(geometry) && geometry->compoundData != nullptr ) {
         return &geometry->compoundData->children;
     } else {
-        return (GeometryListNode *) nullptr;
+        return nullptr;
     }
 }
 
@@ -337,14 +337,10 @@ int
 Geometry::geomCountItems() {
     int count = 0;
 
-    if ( geomIsAggregate(this)) {
+    if ( geomIsAggregate(this) ) {
         GeometryListNode *geometryList = geomPrimList(this);
-        if ( geometryList != nullptr ) {
-            GeometryListNode *window;
-            for ( window = geometryList; window; window = window->next ) {
-                Geometry *geometry = window->geometry;
-                count += geometry->geomCountItems();
-            }
+        for ( GeometryListNode *window = geometryList; window != nullptr; window = window->next ) {
+            count += window->geometry->geomCountItems();
         }
     } else {
         count = 0;

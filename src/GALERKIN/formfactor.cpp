@@ -109,7 +109,7 @@ pointKernelEval(
     Vector3D *y,
     GalerkinElement *rcv,
     GalerkinElement *src,
-    GeometryListNode *ShadowList,
+    GeometryListNode *geometryShadowList,
     double *vis)
 {
     double dist;
@@ -158,10 +158,10 @@ pointKernelEval(
     fdist = dist * (1.0 - EPSILON);
 
     // Determine transmissivity (visibility)
-    if ( !ShadowList ) {
+    if ( !geometryShadowList ) {
         *vis = 1.0;
     } else if ( !GLOBAL_galerkin_state.multiResolutionVisibility ) {
-        if ( !shadowTestDiscretization(&ray, ShadowList, fdist, &hitstore) ) {
+        if ( !shadowTestDiscretization(&ray, geometryShadowList, fdist, &hitstore) ) {
             *vis = 1.0;
         } else {
             *vis = 0.0;
@@ -170,7 +170,7 @@ pointKernelEval(
         *vis = 0.0;
     } else {
         float min_feature_size = 2.0 * std::sqrt(GLOBAL_statistics_totalArea * GLOBAL_galerkin_state.relMinElemArea / M_PI);
-        *vis = geomListMultiResolutionVisibility(ShadowList, &ray, fdist, src->bsize, min_feature_size);
+        *vis = geomListMultiResolutionVisibility(geometryShadowList, &ray, fdist, src->bsize, min_feature_size);
     }
 
     return ff;
@@ -418,7 +418,7 @@ with Scattering Volumes and Object Clusters", IEEE TVCG Vol 1 Nr 3,
 sept 1995.
 */
 unsigned
-areaToAreaFormFactor(INTERACTION *link, GeometryListNode *shadowlist) {
+areaToAreaFormFactor(INTERACTION *link, GeometryListNode *geometryShadowList) {
     // Very often, the source or receiver element is the same as the one in
     // the previous call of the function. We cache cubature rules and nodes
     // in order to prevent re-computation
@@ -438,13 +438,13 @@ areaToAreaFormFactor(INTERACTION *link, GeometryListNode *shadowlist) {
     int l;
 
     if ( isCluster(rcv) || isCluster(src) ) {
-        BOUNDINGBOX rcvbounds;
-        BOUNDINGBOX srcbounds;
-        galerkinElementBounds(rcv, rcvbounds);
-        galerkinElementBounds(src, srcbounds);
+        BOUNDINGBOX rcvBounds;
+        BOUNDINGBOX srcBounds;
+        galerkinElementBounds(rcv, rcvBounds);
+        galerkinElementBounds(src, srcBounds);
 
         // Do not allow interactions between a pair of overlapping source and receiver
-        if ( !disjunctBounds(rcvbounds, srcbounds) ) {
+        if ( !disjunctBounds(rcvBounds, srcBounds) ) {
             // Take 0 as form factor
             if ( link->nrcv == 1 && link->nsrc == 1 ) {
                 link->K.f = 0.;
@@ -504,7 +504,7 @@ areaToAreaFormFactor(INTERACTION *link, GeometryListNode *shadowlist) {
         initShadowCache();
 
         // Mark the patches in order to avoid immediate self-intersections
-        patchDontIntersect(4, isCluster(rcv) ? (Patch *) nullptr : rcv->patch,
+        patchDontIntersect(4, isCluster(rcv) ? nullptr : rcv->patch,
                            isCluster(rcv) ? (Patch *) nullptr : rcv->patch->twin,
                            isCluster(src) ? (Patch *) nullptr : src->patch,
                            isCluster(src) ? (Patch *) nullptr : src->patch->twin);
@@ -519,7 +519,7 @@ areaToAreaFormFactor(INTERACTION *link, GeometryListNode *shadowlist) {
 
             f = 0.0;
             for ( l = 0; l < crsrc->numberOfNodes; l++ ) {
-                kval = pointKernelEval(&x[k], &y[l], rcv, src, shadowlist, &vis);
+                kval = pointKernelEval(&x[k], &y[l], rcv, src, geometryShadowList, &vis);
                 Gxy[k][l] = kval * vis;
                 f += crsrc->w[l] * kval;
 
@@ -563,7 +563,7 @@ areaToAreaFormFactor(INTERACTION *link, GeometryListNode *shadowlist) {
     link->vis = (unsigned) (255.0 * (double) viscount /
                             (double) (crrcv->numberOfNodes * crsrc->numberOfNodes));
 
-    if ( GLOBAL_galerkin_state.exact_visibility && shadowlist != nullptr && link->vis == 255 ) {
+    if ( GLOBAL_galerkin_state.exact_visibility && geometryShadowList != nullptr && link->vis == 255 ) {
         link->vis = 254;
     }
     // Not full visibility, we missed the shadow!

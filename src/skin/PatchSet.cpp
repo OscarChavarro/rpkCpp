@@ -35,10 +35,10 @@ patchListIntersect(
     int hitFlags,
     RayHit *hitStore)
 {
-    RayHit *hit = (RayHit *) nullptr;
+    RayHit *hit = nullptr;
     for ( int i = 0; patchList != nullptr && i < patchList->size(); i++ ) {
         RayHit *h = patchIntersect(patchList->get(i), ray, minimumDistance, maximumDistance, hitFlags, hitStore);
-        if ( h ) {
+        if ( h != nullptr ) {
             if ( hitFlags & HIT_ANY ) {
                 return h;
             } else {

@@ -1,7 +1,6 @@
 #include "java/util/ArrayList.txx"
-#include "skin/geomlist.h"
 #include "skin/Geometry.h"
-#include "skin/hitlist.h"
+#include "skin/geomlist.h"
 
 GeometryListNode *
 geometryListAdd(GeometryListNode *geometryList, Geometry *geometry) {
@@ -22,11 +21,8 @@ This function computes a bounding box for a list of geometries
 float *
 geometryListBounds(GeometryListNode *geometryList, float *boundingBox) {
     boundsInit(boundingBox);
-    if ( geometryList != nullptr ) {
-        for ( GeometryListNode *window = geometryList; window != nullptr; window = window->next ) {
-            Geometry *geometry = window->geometry;
-            boundsEnlarge(boundingBox, geometry->bounds);
-        }
+    for ( GeometryListNode *window = geometryList; window != nullptr; window = window->next ) {
+        boundsEnlarge(boundingBox, window->geometry->bounds);
     }
     return boundingBox;
 }
@@ -41,9 +37,9 @@ buildPatchList(GeometryListNode *geometryList, java::ArrayList<Patch *> *patchLi
         return;
     }
 
-    for ( GeometryListNode *geometryWindow = geometryList; geometryWindow; geometryWindow = geometryWindow->next ) {
-        Geometry *geometry = geometryWindow->geometry;
-        if ( geomIsAggregate(geometry)) {
+    for ( GeometryListNode *window = geometryList; window != nullptr; window = window->next ) {
+        Geometry *geometry = window->geometry;
+        if ( geomIsAggregate(geometry) ) {
             buildPatchList(geomPrimList(geometry), patchList);
         } else {
             java::ArrayList<Patch *> *list2 = geomPatchArrayList(geometry);
@@ -67,20 +63,16 @@ geometryListDiscretizationIntersect(
     int hitFlags,
     RayHit *hitStore)
 {
-    RayHit *h;
-    RayHit *hit;
+    RayHit *hit = nullptr;
 
-    hit = (RayHit *) nullptr;
-    if ( geometryList != nullptr ) {
-        GeometryListNode *window;
-        for ( window = geometryList; window; window = window->next ) {
-            Geometry *geometry = window->geometry;
-            if ((h = geomDiscretizationIntersect(geometry, ray, minimumDistance, maximumDistance, hitFlags, hitStore))) {
-                if ( hitFlags & HIT_ANY ) {
-                    return h;
-                } else {
-                    hit = h;
-                }
+    for ( GeometryListNode *window = geometryList; window; window = window->next ) {
+        Geometry *geometry = window->geometry;
+        RayHit *h = geomDiscretizationIntersect(geometry, ray, minimumDistance, maximumDistance, hitFlags, hitStore);
+        if ( h != nullptr ) {
+            if ( hitFlags & HIT_ANY ) {
+                return h;
+            } else {
+                hit = h;
             }
         }
     }
@@ -96,12 +88,8 @@ geomListAllDiscretizationIntersections(
     float maximumDistance,
     int hitFlags)
 {
-    if ( geometryList != nullptr ) {
-        GeometryListNode *window;
-        for ( window = geometryList; window; window = window->next ) {
-            Geometry *geometry = window->geometry;
-            hits = geomAllDiscretizationIntersections(hits, geometry, ray, minimumDistance, maximumDistance, hitFlags);
-        }
+    for ( GeometryListNode *window = geometryList; window != nullptr; window = window->next ) {
+        hits = geomAllDiscretizationIntersections(hits, window->geometry, ray, minimumDistance, maximumDistance, hitFlags);
     }
     return hits;
 }

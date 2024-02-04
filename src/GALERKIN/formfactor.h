@@ -9,6 +9,6 @@ All kind of form factor computations
 #include "GALERKIN/interaction.h"
 
 extern int facing(Patch *P, Patch *Q);
-extern unsigned areaToAreaFormFactor(INTERACTION *link, GeometryListNode *shadowlist);
+extern unsigned areaToAreaFormFactor(INTERACTION *link, GeometryListNode *geometryShadowList);
 
 #endif

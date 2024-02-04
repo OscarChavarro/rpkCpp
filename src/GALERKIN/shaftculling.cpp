@@ -1,6 +1,6 @@
 /**
 Shaft culling ala Haines, E. A. and Wallace, J. R. "Shaft culling for
-efficient ray-traced radiosity", 2nd Eurographics Workshop on Rendering, Barcelona, Spain, may 1991
+efficient ray-traced radiosity", 2nd Euro-graphics Workshop on Rendering, Barcelona, Spain, may 1991
 */
 
 #include "java/util/ArrayList.txx"
@@ -490,8 +490,8 @@ shaftBoxTest(float *bounds, SHAFT *shaft) {
     }
 
     // If the bounding box survives all previous tests, it must overlap or be inside the
-    // shaft. If the farest corner of the bounding box is outside any shaft-plane, it
-    // overlaps the shaft, otherwise it is inside the shaft */
+    // shaft. If the farthest corner of the bounding box is outside any shaft-plane, it
+    // overlaps the shaft, otherwise it is inside the shaft
     for ( i = 0, plane = &shaft->plane[0]; i < shaft->planes; i++, plane++ ) {
         if ( plane->n[0] * bounds[(plane->coord_offset[0] + 3) % 6] +
              plane->n[1] * bounds[(plane->coord_offset[1] + 3) % 6] +
@@ -519,7 +519,7 @@ shaftPatchTest(Patch *patch, SHAFT *shaft) {
     SHAFTPLANE *plane;
     double tMin[MAXIMUM_VERTICES_PER_PATCH];
     double tMax[MAXIMUM_VERTICES_PER_PATCH];
-    double ptol[MAXIMUM_VERTICES_PER_PATCH];
+    double pTol[MAXIMUM_VERTICES_PER_PATCH];
     Ray ray;
     float dist;
     RayHit hitStore;
@@ -530,7 +530,7 @@ shaftPatchTest(Patch *patch, SHAFT *shaft) {
         inAll[j] = true;
         tMin[j] = 0.0;  // Defines the segment of the edge that lays within the shaft
         tMax[j] = 1.0;
-        ptol[j] = VECTORTOLERANCE(*patch->vertex[j]->point); // Vertex tolerance
+        pTol[j] = VECTORTOLERANCE(*patch->vertex[j]->point); // Vertex tolerance
     }
 
     for ( i = 0, plane = &shaft->plane[0]; i < shaft->planes; i++, plane++ ) {
@@ -544,7 +544,7 @@ shaftPatchTest(Patch *patch, SHAFT *shaft) {
         in = out = false;
         for ( j = 0; j < patch->numberOfVertices; j++ ) {
             e[j] = VECTORDOTPRODUCT(plane_normal, *patch->vertex[j]->point) + plane->d;
-            tolerance = (float)(std::fabs(plane->d) * EPSILON + ptol[j]);
+            tolerance = (float)(std::fabs(plane->d) * EPSILON + pTol[j]);
             side[j] = COPLANAR;
             if ( e[j] > tolerance ) {
                 side[j] = OUTSIDE;
@@ -681,7 +681,7 @@ dontOpen(SHAFT *shaft, Geometry *geom) {
 /**
 Given a patchList and a shaft. This routine will check every patch in patchList to
 see if it is inside, outside or overlapping the shaft. Inside or overlapping patches
-are added to culledPatchList. A pointer to the possibly enlonged culledPatchList
+are added to culledPatchList. A pointer to the possibly elongated culledPatchList
 is returned
 */
 java::ArrayList<Patch *> *
@@ -819,12 +819,11 @@ Frees the memory occupied by a candidate list produced by DoShaftCulling
 */
 void
 freeCandidateList(GeometryListNode *candidateList) {
-    GeometryListNode *gl;
-
     // Only destroy geoms that were generated for shaft culling
-    for ( gl = candidateList; gl; gl = gl->next ) {
-        if ( gl->geometry->shaftCullGeometry ) {
-            geomDestroy(gl->geometry);
+    for ( GeometryListNode *window = candidateList; window != nullptr; window = window->next ) {
+        Geometry *geometry = window->geometry;
+        if ( geometry->shaftCullGeometry ) {
+            geomDestroy(geometry);
         }
     }
 

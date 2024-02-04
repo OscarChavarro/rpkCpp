@@ -315,7 +315,7 @@ writeMaterial(Geometry *geom) {
         return;
     }
 
-    hitInit(&hit, firstPatch, (Geometry *) nullptr, &firstPatch->midpoint, &firstPatch->normal, mat, 0.);
+    hitInit(&hit, firstPatch, nullptr, &firstPatch->midpoint, &firstPatch->normal, mat, 0.);
     Rd = bsdfScatteredPower(mat->bsdf, &hit, &firstPatch->normal, BRDF_DIFFUSE_COMPONENT);
     convertColorToRGB(Rd, &rd);
     Rs = bsdfScatteredPower(mat->bsdf, &hit, &firstPatch->normal, BRDF_GLOSSY_COMPONENT | BRDF_SPECULAR_COMPONENT);
@@ -391,24 +391,23 @@ writePrimitive(Geometry *geom) {
     pass = 0;
     writePrimitivePass(geom);
     if ( leaf_element_count > FACES_PER_SET ) {
-        /* large set, additional passes needed */
+        // Large set, additional passes needed
         for ( pass = 1; pass <= leaf_element_count / FACES_PER_SET; pass++ ) {
+            // Write next batch of leaf elements
             writePrimitivePass(geom);
-        } /* write next batch of leaf elements */
+        }
     }
 }
 
 void
-iteratePrimitiveGeoms(GeometryListNode *list, void (*func)(Geometry *)) {
-    GeometryListNode *listStart = list;
-    if ( listStart != nullptr ) {
-        for ( GeometryListNode *window = listStart; window != nullptr; window = window->next ) {
-            Geometry *geom = window->geometry;
-            if ( geomIsAggregate(geom)) {
-                iteratePrimitiveGeoms(geomPrimList(geom), func);
-            } else {
-                func(geom);
-            }
+iteratePrimitiveGeoms(GeometryListNode *geometryList, void (*functionCallback)(Geometry *)) {
+    GeometryListNode *listStart = geometryList;
+    for ( GeometryListNode *window = listStart; window != nullptr; window = window->next ) {
+        Geometry *geometry = window->geometry;
+        if ( geomIsAggregate(geometry) ) {
+            iteratePrimitiveGeoms(geomPrimList(geometry), functionCallback);
+        } else {
+            functionCallback(geometry);
         }
     }
 }
