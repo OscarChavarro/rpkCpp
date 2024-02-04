@@ -14,20 +14,14 @@
 #include "io/mgf/readmgf.h"
 #include "io/mgf/fileopts.h"
 #include "render/opengl.h"
-#include "raycasting/stochasticRaytracing/StochasticRaytracer.h"
-#include "raycasting/raytracing/BidirectionalPathRaytracer.h"
-#include "raycasting/simple/RayCaster.h"
-#include "raycasting/simple/RayMatter.h"
 #include "app/Cluster.h"
+#include "app/raytrace.h"
 #include "app/batch.h"
 
 // Mgf defaults
 #define DEFAULT_NQCDIVS 4
 #define DEFAULT_FORCE_ONESIDEDNESS true
 #define DEFAULT_MONOCHROME false
-
-// Raytracing defaults
-#define DEFAULT_RAYTRACING_METHOD "stochastic"
 
 // Default rendering options
 #define DEFAULT_DISPLAY_LISTS false
@@ -43,66 +37,16 @@
 extern java::ArrayList<Patch *> *GLOBAL_scenePatches;
 
 // The light of all patches on light sources, useful for e.g. next event estimation in Monte Carlo raytracing etc.
-java::ArrayList<Patch *> *globalLightSourcePatches = nullptr;
+java::ArrayList<Patch *> *GLOBAL_app_lightSourcePatches = nullptr;
 
 // The list of all patches in the current scene. Automatically derived from 'GLOBAL_scene_world' when loading a scene
 static java::ArrayList<Patch *> *globalAppScenePatches = nullptr;
-#define STRING_SIZE 1000
 
-static Raytracer *globalRayTracingMethods[] = {
-    &GLOBAL_raytracing_stochasticMethod,
-    &GLOBAL_raytracing_biDirectionalPathMethod,
-    &GLOBAL_rayCasting_RayCasting,
-    &GLOBAL_rayCasting_RayMatting,
-    nullptr
-};
-
-static char globalRaytracingMethodsString[STRING_SIZE];
 static char *globalCurrentDirectory;
 static int globalYes = 1;
 static int globalNo = 0;
 static int globalImageOutputWidth = 0;
 static int globalImageOutputHeight = 0;
-
-/**
-This routine sets the current raytracing method to be used
-*/
-static void
-mainSetRayTracingMethod(Raytracer *newMethod) {
-    if ( GLOBAL_raytracer_activeRaytracer ) {
-        GLOBAL_raytracer_activeRaytracer->InterruptRayTracing();
-        GLOBAL_raytracer_activeRaytracer->Terminate();
-    }
-
-    GLOBAL_raytracer_activeRaytracer = newMethod;
-    if ( GLOBAL_raytracer_activeRaytracer ) {
-        GLOBAL_raytracer_activeRaytracer->Initialize(globalLightSourcePatches);
-    }
-}
-
-static void
-mainRayTracingOption(void *value) {
-    char *name = *(char **) value;
-
-    for ( Raytracer **methodpp = globalRayTracingMethods; *methodpp; methodpp++ ) {
-        Raytracer *method = *methodpp;
-        if ( strncasecmp(name, method->shortName, method->nameAbbrev) == 0 ) {
-            mainSetRayTracingMethod(method);
-            return;
-        }
-    }
-
-    if ( strncasecmp(name, "none", 4) == 0 ) {
-        mainSetRayTracingMethod(nullptr);
-    } else {
-        logError(nullptr, "Invalid raytracing method name '%s'", name);
-    }
-}
-
-static CommandLineOptionDescription globalRaytracingOptions[] = {
-    {"-raytracing-method", 4, Tstring,  nullptr, mainRayTracingOption, globalRaytracingMethodsString},
-    {nullptr, 0, TYPELESS, nullptr, DEFAULT_ACTION, nullptr}
-};
 
 static void
 mainForceOneSidedOption(void *value) {
@@ -187,7 +131,7 @@ Adds the background to the global light source patch list
 static void
 mainAddBackgroundToLightSourceList() {
     if ( GLOBAL_scene_background != nullptr && GLOBAL_scene_background->bkgPatch != nullptr ) {
-        globalLightSourcePatches->add(0, GLOBAL_scene_background->bkgPatch);
+        GLOBAL_app_lightSourcePatches->add(0, GLOBAL_scene_background->bkgPatch);
     }
 }
 
@@ -201,7 +145,7 @@ mainAddPatchToLightSourceListIfLightSource(Patch *patch) {
          && patch->surface != nullptr
          && patch->surface->material != nullptr
          && patch->surface->material->edf != nullptr ) {
-        globalLightSourcePatches->add(0, patch);
+        GLOBAL_app_lightSourcePatches->add(0, patch);
         GLOBAL_statistics_numberOfLightSources++;
     }
 }
@@ -211,7 +155,7 @@ Build the global light source patch list
 */
 static void
 mainBuildLightSourcePatchList() {
-    globalLightSourcePatches = new java::ArrayList<Patch *>();
+    GLOBAL_app_lightSourcePatches = new java::ArrayList<Patch *>();
     GLOBAL_statistics_numberOfLightSources = 0;
 
     for ( int i = 0; globalAppScenePatches != nullptr && i < globalAppScenePatches->size(); i++ ) {
@@ -220,49 +164,6 @@ mainBuildLightSourcePatchList() {
 
     mainAddBackgroundToLightSourceList();
     GLOBAL_statistics_numberOfLightSources++;
-}
-
-static void
-mainMakeRaytracingMethodsString() {
-    char *str = globalRaytracingMethodsString;
-    int n;
-    snprintf(str, 80, "-raytracing-method <method>: set pixel-based radiance computation method\n%n", &n);
-    str += n;
-    snprintf(str, 80, "\tmethods: %-20.20s %s%s\n%n",
-             "none", "no pixel-based radiance computation",
-             !GLOBAL_raytracer_activeRaytracer ? " (default)" : "", &n);
-    str += n;
-
-    Raytracer **methodpp;
-    for ( methodpp = globalRayTracingMethods; *methodpp; methodpp++ ) {
-        Raytracer *method = *methodpp;
-        snprintf(str, STRING_SIZE, "\t         %-20.20s %s%s\n%n",
-                 method->shortName, method->fullName,
-                 GLOBAL_raytracer_activeRaytracer == method ? " (default)" : "", &n);
-        str += n;
-    }
-    *(str - 1) = '\0'; // Discard last newline character
-}
-
-static void
-mainRayTracingDefaults() {
-    for ( Raytracer **methodpp = globalRayTracingMethods; *methodpp; methodpp++ ) {
-        Raytracer *method = *methodpp;
-        method->Defaults();
-        if ( strncasecmp(DEFAULT_RAYTRACING_METHOD, method->shortName, method->nameAbbrev) == 0 ) {
-            mainSetRayTracingMethod(method);
-        }
-    }
-    mainMakeRaytracingMethodsString(); // Comes last
-}
-
-static void
-mainParseRayTracingOptions(int *argc, char **argv) {
-    parseOptions(globalRaytracingOptions, argc, argv);
-    for ( Raytracer **methodpp = globalRayTracingMethods; *methodpp; methodpp++ ) {
-        Raytracer *method = *methodpp;
-        method->ParseOptions(argc, argv);
-    }
 }
 
 static void
@@ -644,7 +545,7 @@ mainExecuteRendering(java::ArrayList<Patch *> *scenePatches) {
     }
     openGlRenderScene(scenePatches, f);
 
-    batch(scenePatches, globalLightSourcePatches);
+    batch(scenePatches, GLOBAL_app_lightSourcePatches);
 }
 
 static void

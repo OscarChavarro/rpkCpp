@@ -173,6 +173,7 @@ set(MAIN_SRC
     src/raycasting/stochasticRaytracing/basisquadmcrad.cpp
     src/app/Cluster.cpp
     src/app/radiance.cpp
+    src/app/raytrace.cpp
     src/app/batch.cpp
     src/app/main.cpp)
 add_executable(rpk ${MAIN_SRC})
