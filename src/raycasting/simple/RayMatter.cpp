@@ -5,7 +5,7 @@ Original version by Vincent Masselus adapted by Pieter Peers (2001-06-01)
 #include <ctime>
 
 #include "raycasting/common/raytools.h"
-#include "raycasting/common/ScreenBuffer.h"
+#include "render/ScreenBuffer.h"
 #include "raycasting/simple/RayMatterOptions.h"
 #include "raycasting/simple/RayMatter.h"
 

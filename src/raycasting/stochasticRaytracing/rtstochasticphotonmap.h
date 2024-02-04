@@ -180,7 +180,7 @@ public:
     }
 
     ~SRCONFIG(){
-        samplerConfig.ReleaseVars();
+        samplerConfig.releaseVars();
     };
 
 private:

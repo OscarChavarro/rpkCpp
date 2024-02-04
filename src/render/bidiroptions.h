@@ -1,16 +1,18 @@
-/* bidiroptions.H: encapsulates option handling for bidirectional
-   path tracing */
+/**
+Encapsulates option handling for bidirectional path tracing
+*/
 
 #ifndef _BIDIROPTIONS_H_
 #define _BIDIROPTIONS_H_
 
-#include "raycasting/common/ScreenBuffer.h"
+#include "render/ScreenBuffer.h"
 
-/* BP_BASECONFIG contains basic config options used 
-   throughout the complete BPT code. typically two
-   instances are used. One persistent, containing current
-   GUI options and one non persistant copy when rendering an 
-   image 
+/**
+BP_BASECONFIG contains basic config options used
+throughout the complete BPT code. typically two
+instances are used. One persistent, containing current
+GUI options and one non persistent copy when rendering an
+image
 */
 
 #define MAX_REGEXP_SIZE 100
@@ -65,15 +67,12 @@ class BIDIRPATH_STATE {
     int saveSubsequentImages;
 };
 
-/*** Global state of bidirectional path tracing ***/
+// Global state of bidirectional path tracing
 extern BIDIRPATH_STATE GLOBAL_rayTracing_biDirectionalPath;
 
 /*** Function prototypes ***/
 
 void biDirectionalPathDefaults();
-
 void biDirectionalPathParseOptions(int *argc, char **argv);
 
-void BidirPathPrintOptions(FILE *fp);
-
-#endif /* _BIDIROPTIONS_H_ */
+#endif

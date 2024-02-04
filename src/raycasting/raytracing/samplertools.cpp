@@ -1,14 +1,10 @@
-#include <cmath>
-
 #include "common/error.h"
 #include "skin/Patch.h"
-#include "material/edf.h"
-#include "common/Ray.h"
 #include "QMC/nied31.h"
 #include "raycasting/raytracing/samplertools.h"
 
 void
-CSamplerConfig::Init(bool useQMC, int qmcDepth) {
+CSamplerConfig::init(bool useQMC, int qmcDepth) {
     m_useQMC = useQMC;
     m_qmcDepth = qmcDepth;
 
@@ -27,13 +23,13 @@ CSamplerConfig::Init(bool useQMC, int qmcDepth) {
     }
 }
 
-void CSamplerConfig::GetRand(int depth, double *x_1, double *x_2) {
+void
+CSamplerConfig::getRand(int depth, double *x_1, double *x_2) const {
     if ( !m_useQMC || depth >= m_qmcDepth ) {
         *x_1 = drand48();
         *x_2 = drand48();
     } else {
         // Niederreiter
-
         if ( depth == 0 ) {
             *x_1 = drand48();
             *x_2 = drand48();
@@ -50,21 +46,24 @@ void CSamplerConfig::GetRand(int depth, double *x_1, double *x_2) {
             *x_1 = drand48();
             *x_2 = drand48();
         }
-
     }
 }
 
-
-// TraceNode: trace a new node, given two random numbers
-// The correct sampler is chosen depending on the current
-// path depth.
-// RETURNS: 
-//   if sampling ok: nextNode or a newly allocated node if nextNode == nullptr
-//   if sampling fails: nullptr
-
-CPathNode *CSamplerConfig::TraceNode(CPathNode *nextNode,
-                                     double x_1, double x_2,
-                                     BSDFFLAGS flags) {
+/**
+Trace a new node, given two random numbers
+The correct sampler is chosen depending on the current
+path depth.
+RETURNS:
+  if sampling ok: nextNode or a newly allocated node if nextNode == nullptr
+  if sampling fails: nullptr
+*/
+CPathNode *
+CSamplerConfig::traceNode(
+    CPathNode *nextNode,
+    double x1,
+    double x2,
+    BSDFFLAGS flags) const
+{
     CPathNode *lastNode;
 
     if ( nextNode == nullptr ) {
@@ -75,16 +74,14 @@ CPathNode *CSamplerConfig::TraceNode(CPathNode *nextNode,
 
     if ( lastNode == nullptr ) {
         // Fill in first node
-
-        if ( !pointSampler->Sample(nullptr, nullptr, nextNode, x_1, x_2)) {
-            logWarning("CSamplerConfig::TraceNode", "Point sampler failed");
+        if ( !pointSampler->Sample(nullptr, nullptr, nextNode, x1, x2)) {
+            logWarning("CSamplerConfig::traceNode", "Point sampler failed");
             return nullptr;
         }
     } else if ( lastNode->m_depth == 0 ) {
         // Fill in second node : dir sampler
-
-        if ((lastNode->m_depth + 1) < maxDepth ) {
-            if ( !dirSampler->Sample(nullptr, lastNode, nextNode, x_1, x_2)) {
+        if ( (lastNode->m_depth + 1) < maxDepth ) {
+            if ( !dirSampler->Sample(nullptr, lastNode, nextNode, x1, x2)) {
                 // No point !
                 lastNode->m_rayType = Stops;
                 return nullptr;
@@ -97,7 +94,7 @@ CPathNode *CSamplerConfig::TraceNode(CPathNode *nextNode,
         // In the middle of a path
         if ((lastNode->m_depth + 1) < maxDepth ) {
             if ( !surfaceSampler->Sample(lastNode->Previous(), lastNode, nextNode,
-                                         x_1, x_2,
+                                         x1, x2,
                                          lastNode->m_depth >= minDepth,
                                          flags)) {
                 lastNode->m_rayType = Stops;
@@ -110,99 +107,98 @@ CPathNode *CSamplerConfig::TraceNode(CPathNode *nextNode,
     }
 
     // We're sure that nextNode contains a new sampled point
-
     if ( nextNode->m_depth > 0 ) {
+        // Lights and cam reside in vacuum
         nextNode->AssignBsdfAndNormal();
-    } // Lights and cam reside in vacuum
+    }
 
     return nextNode;
 }
 
-
-CPathNode *CSamplerConfig::TracePath(CPathNode *nextNode,
-                                     BSDFFLAGS flags) {
-    double x_1, x_2;
+CPathNode *
+CSamplerConfig::tracePath(CPathNode *nextNode, BSDFFLAGS flags) {
+    double x1;
+    double x2;
 
     if ( nextNode == nullptr || nextNode->Previous() == nullptr ) {
-        GetRand(0, &x_1, &x_2);
+        getRand(0, &x1, &x2);
     } else {
-        GetRand(nextNode->Previous()->m_depth + 1, &x_1, &x_2);
+        getRand(nextNode->Previous()->m_depth + 1, &x1, &x2);
     }
 
-    nextNode = TraceNode(nextNode, x_1, x_2, flags);
+    nextNode = traceNode(nextNode, x1, x2, flags);
 
     if ( nextNode != nullptr ) {
         nextNode->EnsureNext();
 
         // Recursive call
-        TracePath(nextNode->Next(), flags);
+        tracePath(nextNode->Next(), flags);
     }
 
     return nextNode;
 }
 
+double
+pathNodeConnect(
+    CPathNode *nodeX,
+    CPathNode *nodeY,
+    CSamplerConfig *eyeConfig,
+    CSamplerConfig *lightConfig,
+    CONNECTFLAGS flags,
+    BSDFFLAGS bsdfFlagsE,
+    BSDFFLAGS bsdfFlagsL,
+    Vector3D *pDirEl)
+{
+    CPathNode *nodeEP; // previous nodes
+    CPathNode *nodeLP;
+    double pdf;
+    double pdfRR;
+    double dist2;
+    double dist;
+    double geom;
+    Vector3D dirLE;
+    Vector3D dirEL;
 
-/**** Utility routines ******/
-
-int epcount = 0;
-
-double PathNodeConnect(CPathNode *nodeE,
-                       CPathNode *nodeL,
-                       CSamplerConfig *eyeConfig,
-                       CSamplerConfig *lightConfig,
-                       CONNECTFLAGS flags,
-                       BSDFFLAGS bsdfFlagsE,
-                       BSDFFLAGS bsdfFlagsL,
-                       Vector3D *p_dirEL) {
-    CPathNode *nodeEP, *nodeLP; // previous nodes
-    double pdf, pdfRR, dist2, dist, geom;
-    Vector3D dirLE, dirEL;
-
-    //epcount++;
-    //printf("ep %i\n", epcount);
-
-    VECTORSUBTRACT(nodeL->m_hit.point, nodeE->m_hit.point, dirEL);
+    VECTORSUBTRACT(nodeY->m_hit.point, nodeX->m_hit.point, dirEL);
     dist2 = VECTORNORM2(dirEL);
     dist = sqrt(dist2);
-    VECTORSCALEINVERSE(dist, dirEL, dirEL);
+    VECTORSCALEINVERSE((float)dist, dirEL, dirEL);
     VECTORSCALE(-1, dirEL, dirLE);
 
-    if ( p_dirEL ) VECTORCOPY(dirEL, *p_dirEL);
+    if ( pDirEl ) VECTORCOPY(dirEL, *pDirEl);
 
-    /* Always test the FOLLOW NEXT flags !!!! */
-
-    nodeEP = nodeE->Previous();
-    nodeLP = nodeL->Previous();
+    // Always test the FOLLOW NEXT flags!
+    nodeEP = nodeX->Previous();
+    nodeLP = nodeY->Previous();
 
     if ( flags & CONNECT_EL ) {
         // pdf (E->L)
 
         // Determine the sampler
-
-        if ( nodeE->m_depth < (eyeConfig->maxDepth - 1)) {
+        if ( nodeX->m_depth < (eyeConfig->maxDepth - 1) ) {
             if ( nodeEP == nullptr ) {
                 // nodeE is the eye -> use the pixel sampler !
-                /* -- Which pixel ?? -- */
-                pdf = eyeConfig->dirSampler->EvalPDF(nodeE, nodeL);
+                // -- Which pixel?
+                pdf = eyeConfig->dirSampler->EvalPDF(nodeX, nodeY);
                 pdfRR = 1.0;
             } else {
-                eyeConfig->surfaceSampler->EvalPDF(nodeE, nodeL, bsdfFlagsE, &pdf,
+                eyeConfig->surfaceSampler->EvalPDF(nodeX, nodeY, bsdfFlagsE, &pdf,
                                                    &pdfRR);
             }
         } else {
             pdf = 0.0;
-            pdfRR = 0.0; // Light point cannot be generated from eye subpath
+            pdfRR = 0.0; // Light point cannot be generated from eye sub-path
         }
 
-        nodeL->m_pdfFromNext = pdf;
+        nodeY->m_pdfFromNext = pdf;
 
-        PNAN(nodeL->m_pdfFromNext);
+        PNAN(nodeY->m_pdfFromNext);
 
-        nodeL->m_rrPdfFromNext = pdfRR;
+        nodeY->m_rrPdfFromNext = pdfRR;
 
-        if ((flags & FILL_OTHER_PDF) && (nodeLP != nullptr)) {
-            if ( nodeE->m_depth < (eyeConfig->maxDepth - 2)) {
-                lightConfig->surfaceSampler->EvalPDFPrev(nodeE, nodeL, nodeLP,
+        if ( (flags & FILL_OTHER_PDF) && (nodeLP != nullptr) ) {
+            if ( nodeX->m_depth < (eyeConfig->maxDepth - 2) ) {
+                lightConfig->surfaceSampler->EvalPDFPrev(nodeX, nodeY, nodeLP,
                                                          bsdfFlagsE,
                                                          &pdf, &pdfRR);
             } else {
@@ -221,31 +217,30 @@ double PathNodeConnect(CPathNode *nodeE,
     if ( flags & CONNECT_LE ) {
         // pdf (L->E)
 
-        if ( nodeL->m_depth < (lightConfig->maxDepth - 1)) {
+        if ( nodeY->m_depth < (lightConfig->maxDepth - 1)) {
             // Determine the sampler
 
             if ( nodeLP == nullptr ) {
-                // nodeE is the lightpoint -> use the dir sampler !
-                pdf = lightConfig->dirSampler->EvalPDF(nodeL, nodeE);
+                // nodeE is the light point -> use the dir sampler!
+                pdf = lightConfig->dirSampler->EvalPDF(nodeY, nodeX);
                 pdfRR = 1.0;
             } else {
-                lightConfig->surfaceSampler->EvalPDF(nodeL, nodeE, bsdfFlagsL, &pdf,
+                lightConfig->surfaceSampler->EvalPDF(nodeY, nodeX, bsdfFlagsL, &pdf,
                                                      &pdfRR);
             }
         } else {
             pdf = 0.0;
-            pdfRR = 0.0; // Eye point cannot be generated from light subpath
+            pdfRR = 0.0; // Eye point cannot be generated from light sub-path
         }
 
-        nodeE->m_pdfFromNext = pdf;
-        PNAN(nodeE->m_pdfFromNext);
+        nodeX->m_pdfFromNext = pdf;
+        PNAN(nodeX->m_pdfFromNext);
 
-        nodeE->m_rrPdfFromNext = pdfRR;
+        nodeX->m_rrPdfFromNext = pdfRR;
 
-
-        if ((flags & FILL_OTHER_PDF) && (nodeEP != nullptr)) {
-            if ( nodeL->m_depth < (lightConfig->maxDepth - 2)) {
-                lightConfig->surfaceSampler->EvalPDFPrev(nodeL, nodeE, nodeEP,
+        if ( (flags & FILL_OTHER_PDF) && (nodeEP != nullptr) ) {
+            if ( nodeY->m_depth < (lightConfig->maxDepth - 2) ) {
+                lightConfig->surfaceSampler->EvalPDFPrev(nodeY, nodeX, nodeEP,
                                                          bsdfFlagsL,
                                                          &pdf, &pdfRR);
             } else {
@@ -262,46 +257,43 @@ double PathNodeConnect(CPathNode *nodeE,
     // The bsdf in E and L are ALWAYS filled in
 
     // bsdf(EP->E->L)
-
     if ( nodeEP == nullptr ) {
         // Eye
-        colorSetMonochrome(nodeE->m_bsdfEval, 1.0);
-        nodeE->m_bsdfComp.Clear();
-        nodeE->m_bsdfComp.Fill(nodeE->m_bsdfEval, BRDF_DIFFUSE_COMPONENT);
+        colorSetMonochrome(nodeX->m_bsdfEval, 1.0);
+        nodeX->m_bsdfComp.Clear();
+        nodeX->m_bsdfComp.Fill(nodeX->m_bsdfEval, BRDF_DIFFUSE_COMPONENT);
     } else {
-        nodeE->m_bsdfEval =
-                eyeConfig->surfaceSampler->DoBsdfEval(nodeE->m_useBsdf,
-                                                      &nodeE->m_hit,
-                                                      nodeE->m_inBsdf, nodeE->m_outBsdf,
-                                                      &nodeE->m_inDirF, &dirEL,
+        nodeX->m_bsdfEval =
+                eyeConfig->surfaceSampler->DoBsdfEval(nodeX->m_useBsdf,
+                                                      &nodeX->m_hit,
+                                                      nodeX->m_inBsdf, nodeX->m_outBsdf,
+                                                      &nodeX->m_inDirF, &dirEL,
                                                       bsdfFlagsE,
-                                                      &nodeE->m_bsdfComp);
+                                                      &nodeX->m_bsdfComp);
     }
 
     // bsdf(LP->L->E)  (reciprocity assumed !)
-
     if ( nodeLP == nullptr ) {
         // nodeL is  light source
-
-        nodeL->m_bsdfEval = edfEval(nodeL->m_hit.material->edf,
-                                    &nodeL->m_hit,
+        nodeY->m_bsdfEval = edfEval(nodeY->m_hit.material->edf,
+                                    &nodeY->m_hit,
                                     &dirLE,
-                                    bsdfFlagsL, (double *) 0);
-        nodeL->m_bsdfComp.Clear();
-        nodeL->m_bsdfComp.Fill(nodeL->m_bsdfEval, BRDF_DIFFUSE_COMPONENT);
+                                    bsdfFlagsL, nullptr);
+        nodeY->m_bsdfComp.Clear();
+        nodeY->m_bsdfComp.Fill(nodeY->m_bsdfEval, BRDF_DIFFUSE_COMPONENT);
     } else {
-        nodeL->m_bsdfEval =
-                lightConfig->surfaceSampler->DoBsdfEval(nodeL->m_useBsdf,
-                                                        &nodeL->m_hit,
-                                                        nodeL->m_inBsdf, nodeL->m_outBsdf,
-                                                        &nodeL->m_inDirF, &dirLE,
+        nodeY->m_bsdfEval =
+                lightConfig->surfaceSampler->DoBsdfEval(nodeY->m_useBsdf,
+                                                        &nodeY->m_hit,
+                                                        nodeY->m_inBsdf, nodeY->m_outBsdf,
+                                                        &nodeY->m_inDirF, &dirLE,
                                                         bsdfFlagsL,
-                                                        &nodeL->m_bsdfComp);
+                                                        &nodeY->m_bsdfComp);
     }
 
 
-    double cosa = -VECTORDOTPRODUCT(dirEL, nodeL->m_normal);
-    geom = fabs(cosa * VECTORDOTPRODUCT(nodeE->m_normal, dirEL) / dist2);
+    double cosA = -VECTORDOTPRODUCT(dirEL, nodeY->m_normal);
+    geom = std::fabs(cosA * VECTORDOTPRODUCT(nodeX->m_normal, dirEL) / dist2);
 
     // Geom is always positive !  Visibility checking cannot be done
     // by checking cos signs because materials can be refractive.

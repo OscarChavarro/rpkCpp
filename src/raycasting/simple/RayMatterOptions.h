@@ -5,7 +5,7 @@ Options and global state vars for ray matting
 #ifndef _RMOPTIONS_H_
 #define _RMOPTIONS_H_
 
-#include "raycasting/common/ScreenBuffer.h"
+#include "render/ScreenBuffer.h"
 
 enum RM_FILTER_OPTION {
     RM_BOX_FILTER,

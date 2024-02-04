@@ -12,7 +12,7 @@
 #include "PHOTONMAP/PhotonMapRadiosity.h"
 #include "raycasting/common/Raytracer.h"
 #include "raycasting/common/raytools.h"
-#include "raycasting/common/ScreenBuffer.h"
+#include "render/ScreenBuffer.h"
 #include "raycasting/raytracing/pixelsampler.h"
 #include "raycasting/raytracing/samplertools.h"
 #include "raycasting/raytracing/screeniterate.h"
@@ -225,7 +225,7 @@ COLOR SR_GetDirectRadiance(CPathNode *prevNode, SRCONFIG *config,
 
                             if ( doSi ) {
                                 // Connect using correct flags
-                                geom = PathNodeConnect(prevNode, &lightNode, &config->samplerConfig,
+                                geom = pathNodeConnect(prevNode, &lightNode, &config->samplerConfig,
                                                        nullptr, // No light config
                                                        CONNECT_EL, si->flags,
                                                        BSDF_ALL_COMPONENTS,

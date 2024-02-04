@@ -4,7 +4,7 @@
 #ifndef _PMAPCONFIG_H_
 #define _PMAPCONFIG_H_
 
-#include "raycasting/common/ScreenBuffer.h"
+#include "render/ScreenBuffer.h"
 #include "raycasting/raytracing/bipath.h"
 #include "raycasting/raytracing/samplertools.h"
 #include "PHOTONMAP/photonmap.h"

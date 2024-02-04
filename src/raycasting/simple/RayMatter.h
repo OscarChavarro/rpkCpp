@@ -2,7 +2,7 @@
 #define _RAYMATTE_H_
 
 #include "raycasting/common/pixelfilter.h"
-#include "raycasting/common/ScreenBuffer.h"
+#include "render/ScreenBuffer.h"
 #include "raycasting/common/Raytracer.h"
 
 class RayMatter {

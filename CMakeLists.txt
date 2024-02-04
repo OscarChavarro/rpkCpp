@@ -117,8 +117,8 @@ set(MAIN_SRC
     src/GALERKIN/mrvisibility.cpp
     src/GALERKIN/basisquadgalerkin.cpp
     src/raycasting/common/Raytracer.cpp
-    src/raycasting/common/bidiroptions.cpp
-    src/raycasting/common/ScreenBuffer.cpp
+        src/render/bidiroptions.cpp
+        src/render/ScreenBuffer.cpp
     src/raycasting/common/pathnode.cpp
     src/raycasting/common/raytools.cpp
     src/raycasting/common/pixelfilter.cpp

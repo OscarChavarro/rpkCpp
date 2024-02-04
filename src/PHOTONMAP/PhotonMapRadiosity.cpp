@@ -8,7 +8,7 @@
 #include "render/opengl.h"
 #include "raycasting/common/Raytracer.h"
 #include "raycasting/common/raytools.h"
-#include "raycasting/common/ScreenBuffer.h"
+#include "render/ScreenBuffer.h"
 #include "raycasting/common/pathnode.h"
 #include "raycasting/simple/RayCaster.h"
 #include "raycasting/raytracing/bipath.h"
@@ -108,8 +108,8 @@ photonMapInitPmap(java::ArrayList<Patch *> * /*scenePatches*/) {
 
     // mainInit samplers
 
-    GLOBAL_photonMap_config.lightConfig.ReleaseVars();
-    GLOBAL_photonMap_config.eyeConfig.ReleaseVars();
+    GLOBAL_photonMap_config.lightConfig.releaseVars();
+    GLOBAL_photonMap_config.eyeConfig.releaseVars();
 
     CSamplerConfig *cfg = &GLOBAL_photonMap_config.eyeConfig;
 
@@ -225,7 +225,7 @@ photonMapDoComputePixelFluxEstimate(PMAPCONFIG *config) {
 
     // Connect the sub-paths
     bp->m_geomConnect =
-            PathNodeConnect(eyeEndNode, lightEndNode,
+            pathNodeConnect(eyeEndNode, lightEndNode,
                             &config->eyeConfig, &config->lightConfig,
                             CONNECT_EL | CONNECT_LE,
                             BSDF_ALL_COMPONENTS, BSDF_ALL_COMPONENTS, &bp->m_dirEL);
@@ -424,7 +424,7 @@ photonMapHandlePath(PMAPCONFIG *config) {
 
 static void
 photonMapTracePath(PMAPCONFIG *config, BSDFFLAGS bsdfFlags) {
-    config->bipath.m_eyePath = config->eyeConfig.TracePath(config->bipath.m_eyePath);
+    config->bipath.m_eyePath = config->eyeConfig.tracePath(config->bipath.m_eyePath);
 
     // Use qmc for light sampling
 
@@ -437,7 +437,7 @@ photonMapTracePath(PMAPCONFIG *config, BSDFFLAGS bsdfFlags) {
     x_1 = drand48(); //nrs[0] * RECIP;
     x_2 = drand48(); //nrs[1] * RECIP;
 
-    path = config->lightConfig.TraceNode(path, x_1, x_2, bsdfFlags);
+    path = config->lightConfig.traceNode(path, x_1, x_2, bsdfFlags);
     if ( path == nullptr ) {
         return;
     }
@@ -451,10 +451,10 @@ photonMapTracePath(PMAPCONFIG *config, BSDFFLAGS bsdfFlags) {
     x_1 = drand48(); // nrs[2] * RECIP;
     x_2 = drand48(); // nrs[3] * RECIP; // 4D Niederreiter...
 
-    if ( config->lightConfig.TraceNode(node, x_1, x_2, bsdfFlags)) {
+    if ( config->lightConfig.traceNode(node, x_1, x_2, bsdfFlags)) {
         // Succesful trace...
         node->EnsureNext();
-        config->lightConfig.TracePath(node->Next(), bsdfFlags);
+        config->lightConfig.tracePath(node->Next(), bsdfFlags);
     }
 }
 
@@ -556,8 +556,8 @@ photonMapTerminate(java::ArrayList<Patch *> * /*scenePatches*/) {
         GLOBAL_photonMap_config.screen = nullptr;
     }
 
-    GLOBAL_photonMap_config.lightConfig.ReleaseVars();
-    GLOBAL_photonMap_config.eyeConfig.ReleaseVars();
+    GLOBAL_photonMap_config.lightConfig.releaseVars();
+    GLOBAL_photonMap_config.eyeConfig.releaseVars();
 
     if ( GLOBAL_photonMap_config.globalMap ) {
         delete GLOBAL_photonMap_config.globalMap;

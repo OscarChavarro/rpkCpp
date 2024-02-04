@@ -16,12 +16,13 @@
 #include "raycasting/raytracing/densitybuffer.h"
 #include "raycasting/raytracing/densitykernel.h"
 
-/*** Persistent BidirPath state, contains actual GUI state and
-     some other stuff ***/
+// Persistent BidirPath state, contains actual GUI state and some other stuff
 BIDIRPATH_STATE GLOBAL_rayTracing_biDirectionalPath;
 
-/*** Bidirectional path tracing configuration structure.
-     Non persistently used each time an image is rendered ***/
+/**
+Bidirectional path tracing configuration structure.
+non persistently used each time an image is rendered
+*/
 class BPCONFIG {
   public:
     BP_BASECONFIG *bcfg;
@@ -337,7 +338,7 @@ COLOR ComputeNEFluxEstimate(BPCONFIG *config, CBiPath *path,
     // Connect the subpaths
 
     path->m_geomConnect =
-            PathNodeConnect(eyeEndNode, lightEndNode,
+            pathNodeConnect(eyeEndNode, lightEndNode,
                             &config->eyeConfig, &config->lightConfig,
                             CONNECT_EL | CONNECT_LE | FILL_OTHER_PDF,
                             BSDF_ALL_COMPONENTS, BSDF_ALL_COMPONENTS, &path->m_dirEL);
@@ -677,7 +678,7 @@ BPCalcPixel(int nx, int ny, BPCONFIG *config) {
                                                       pixNode, x_1, x_2)) {
                 pixNode->AssignBsdfAndNormal();
 
-                config->eyeConfig.TracePath(nextNode);
+                config->eyeConfig.tracePath(nextNode);
             }
         } else {
             config->eyePath->m_rayType = Stops;
@@ -686,7 +687,7 @@ BPCalcPixel(int nx, int ny, BPCONFIG *config) {
         // Generate a light path
 
         if ( config->lightConfig.maxDepth > 0 ) {
-            config->lightPath = config->lightConfig.TracePath(config->lightPath);
+            config->lightPath = config->lightConfig.tracePath(config->lightPath);
         } else {
             config->lightPath = nullptr;
         } // Normally this is already so, so no delete necessary ?!

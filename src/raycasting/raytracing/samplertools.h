@@ -1,11 +1,10 @@
-/* samplerconfig.H
- *
- * A configuration structure, that determines the sampling
- * procedure of a monte carlo ray tracing like algorithm
- */
+/**
+A configuration structure, that determines the sampling
+procedure of a monte carlo ray tracing like algorithm
+*/
 
-#ifndef _SAMPLERTOOLS_H_
-#define _SAMPLERTOOLS_H_
+#ifndef __SAMPLERTOOLS__
+#define __SAMPLERTOOLS__
 
 #include "raycasting/raytracing/sampler.h"
 #include "raycasting/raytracing/pixelsampler.h"
@@ -28,7 +27,8 @@ public:
 
     // Constructor
 
-    void ClearVars() {
+    void
+    clearVars() {
         pointSampler = nullptr;
         dirSampler = nullptr;
         surfaceSampler = nullptr;
@@ -36,7 +36,8 @@ public:
         m_qmcSeed = nullptr;
     }
 
-    void ReleaseVars() {
+    void
+    releaseVars() {
         if ( pointSampler ) {
             delete pointSampler;
             pointSampler = nullptr;
@@ -59,16 +60,11 @@ public:
         }
     }
 
-    void Init(bool useQMC = false, int maxd = 0);
+    void init(bool useQMC = false, int maxd = 0);
 
     CSamplerConfig() {
-        ClearVars();
-        Init();
-    }
-
-    CSamplerConfig(bool useQMC, int maxd) {
-        ClearVars();
-        Init(useQMC, maxd);
+        clearVars();
+        init();
     }
 
     ~CSamplerConfig() {
@@ -76,7 +72,6 @@ public:
             delete[] m_qmcSeed;
         }
     }
-
 
     // TraceNode: trace a new node, given two random numbers
     // The correct sampler is chosen depending on the current
@@ -95,42 +90,43 @@ public:
     //   if sampling ok: nextNode or a newly allocated node if nextNode == nullptr
     //   if sampling fails: nullptr
 
-    CPathNode *TraceNode(CPathNode *nextNode,
-                         double x_1, double x_2,
-                         BSDFFLAGS flags);
+    CPathNode *
+    traceNode(CPathNode *nextNode,
+              double x1, double x2,
+              BSDFFLAGS flags) const;
 
     // photonMapTracePath : Traces a path using the samplers in the class
     // New nodes are allocated if necessary. TraceNode is used
     // for sampling individual nodes.
     // The first filled in node is returned (==nextNode if nextNode != nullptr)
 
-    CPathNode *TracePath(CPathNode *nextNode, BSDFFLAGS flags = BSDF_ALL_COMPONENTS);
+    CPathNode *
+    tracePath(CPathNode *nextNode, BSDFFLAGS flags = BSDF_ALL_COMPONENTS);
 
 
     // Generate two random numbers. Depth needed for QMC sampling
-    void GetRand(int depth, double *x_1, double *x_2);
+    void getRand(int depth, double *x_1, double *x_2) const;
 
 };
 
-/*
- * PathNodeConnect : this is a flexible function for connecting
- * pathnodes.
- *
- * IN : 2 nodes are needed. nodeE and nodeL are going to be connected
- *      Visibility is NOT checked !
- *
- *      nodeE must be the node in an EYE subpath
- *      nodeL must be the node in a LIGHT subpath
- *
- *      config determines the samplers used to generate the paths.
- *      These samplers are needed for pdf evaluations
- *
- *      Flags determine what needs to be computed. See the flag definitions
- *
- * OUT : geom factor is returned (not filled in cause it would overwrite 
- *       other geom's !)
- */
+/**
+pathNodeConnect : this is a flexible function for connecting
+path nodes.
 
+IN : 2 nodes are needed. nodeE and nodeL are going to be connected
+     Visibility is NOT checked !
+
+     nodeE must be the node in an EYE subpath
+     nodeL must be the node in a LIGHT subpath
+
+     config determines the samplers used to generate the paths.
+     These samplers are needed for pdf evaluations
+
+     Flags determine what needs to be computed. See the flag definitions
+
+OUT : geom factor is returned (not filled in cause it would overwrite
+      other geom's !)
+*/
 typedef int CONNECTFLAGS;
 
 #define CONNECT_EL 0x01  // Compute pdf(E->L) and bsdf(EP -> E -> L)
@@ -141,13 +137,15 @@ typedef int CONNECTFLAGS;
 // (when coming from nodeE) for generating the node the leads to nodeL.
 // Same if (CONNECT_LE).
 
-double PathNodeConnect(CPathNode *nodeX,
-                       CPathNode *nodeY,
-                       CSamplerConfig *eyeConfig,
-                       CSamplerConfig *lightConfig,
-                       CONNECTFLAGS flags,
-                       BSDFFLAGS bsdfFlagsE = BSDF_ALL_COMPONENTS,
-                       BSDFFLAGS bsdfFlagsL = BSDF_ALL_COMPONENTS,
-                       Vector3D *p_dirEL = nullptr);
+double
+pathNodeConnect(
+    CPathNode *nodeX,
+    CPathNode *nodeY,
+    CSamplerConfig *eyeConfig,
+    CSamplerConfig *lightConfig,
+    CONNECTFLAGS flags,
+    BSDFFLAGS bsdfFlagsE = BSDF_ALL_COMPONENTS,
+    BSDFFLAGS bsdfFlagsL = BSDF_ALL_COMPONENTS,
+    Vector3D *pDirEl = nullptr);
 
-#endif // _SAMPLERTOOLS_H_
+#endif

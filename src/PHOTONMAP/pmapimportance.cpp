@@ -112,7 +112,7 @@ static bool TracePotentialPath(PMAPCONFIG *config) {
     CSamplerConfig &scfg = config->eyeConfig;
 
     // Eye node
-    path = scfg.TraceNode(path, drand48(), drand48(), BSDF_ALL_COMPONENTS);
+    path = scfg.traceNode(path, drand48(), drand48(), BSDF_ALL_COMPONENTS);
     if ( path == nullptr ) {
         return false;
     }
@@ -138,7 +138,7 @@ static bool TracePotentialPath(PMAPCONFIG *config) {
     x_1 = drand48();
     x_2 = drand48();
 
-    while ( scfg.TraceNode(node, x_1, x_2,
+    while ( scfg.traceNode(node, x_1, x_2,
                            (indirectImportance ? BSDF_SPECULAR_COMPONENT : BSDF_ALL_COMPONENTS))) {
         // Succesful trace
         CPathNode *prev = node->Previous();

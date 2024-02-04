@@ -5,7 +5,7 @@ Options and global state vars for stochastic raytracing
 #ifndef _RTSOPTIONS_H_
 #define _RTSOPTIONS_H_
 
-#include "raycasting/common/ScreenBuffer.h"
+#include "render/ScreenBuffer.h"
 
 /*** Typedefs & enums ***/
 

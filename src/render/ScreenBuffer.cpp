@@ -1,4 +1,3 @@
-#include <cstdlib>
 #include <cstring>
 
 #include "common/error.h"
@@ -6,10 +5,12 @@
 #include "render/opengl.h"
 #include "io/FileUncompressWrapper.h"
 #include "IMAGE/tonemap/tonemapping.h"
-#include "raycasting/common/ScreenBuffer.h"
+#include "ScreenBuffer.h"
 
-/* Constructor : make an screen buffer from a camera definition. */
-/*    If (cam == nullptr) the current camera (GLOBAL_camera_mainCamera) is taken */
+/**
+Constructor : make an screen buffer from a camera definition
+If (cam == nullptr) the current camera (GLOBAL_camera_mainCamera) is taken
+*/
 ScreenBuffer::ScreenBuffer(Camera *cam) {
     m_Radiance = nullptr;
     m_RGB = nullptr;
@@ -50,9 +51,9 @@ ScreenBuffer::init(Camera *cam) {
         cam = &GLOBAL_camera_mainCamera;
     } // Use the current camera
 
-    if ((m_Radiance != nullptr) &&
+    if ( (m_Radiance != nullptr) &&
         ((cam->xSize != m_cam.xSize) ||
-         (cam->ySize != m_cam.ySize))) {
+         (cam->ySize != m_cam.ySize)) ) {
         free((char *) m_RGB);
         free((char *) m_Radiance);
         m_Radiance = nullptr;
@@ -91,7 +92,9 @@ ScreenBuffer::copy(ScreenBuffer *source) {
     m_Synced = false;
 }
 
-// Merge (add) two screenbuffers (m_Radiance only) from src1 and src2
+/**
+Merge (add) two screen buffers (m_Radiance only) from src1 and src2
+*/
 void
 ScreenBuffer::merge(ScreenBuffer *src1, ScreenBuffer *src2) {
     init(&(src1->m_cam));
@@ -140,7 +143,6 @@ ScreenBuffer::get(int x, int y) {
 
     return m_Radiance[index];
 }
-
 
 COLOR
 ScreenBuffer::getBiLinear(float x, float y) {
