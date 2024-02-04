@@ -3,7 +3,7 @@
 
 #include "common/rgb.h"
 
-//#define RAYTRACING_ENABLED true
+#define RAYTRACING_ENABLED true
 
 class RenderOptions {
 public:
