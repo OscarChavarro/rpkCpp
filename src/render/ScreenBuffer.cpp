@@ -5,7 +5,7 @@
 #include "render/opengl.h"
 #include "io/FileUncompressWrapper.h"
 #include "IMAGE/tonemap/tonemapping.h"
-#include "ScreenBuffer.h"
+#include "render/ScreenBuffer.h"
 
 /**
 Constructor : make an screen buffer from a camera definition

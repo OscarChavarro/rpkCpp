@@ -8,7 +8,7 @@ Paul Heckbert 1985, Dec 1989
 
 #include <cstdio>
 #include <cstdlib>
-#include <strings.h>
+#include <cstring>
 
 #include "SGL/poly.h"
 
@@ -129,7 +129,8 @@ polyClipToBox(Polygon *p1, PolygonBox *box) {
 
     // If result ended up in p2 then copy it to p1
     if ( p == &p2 ) {
-        bcopy(&p2, p1, sizeof(Polygon) - (MAXIMUM_SIDES_PER_POLYGON - p2.n) * sizeof(PolygonVertex));
+        int n = sizeof(Polygon) - (MAXIMUM_SIDES_PER_POLYGON - p2.n) * sizeof(PolygonVertex);
+        memcpy(p1, &p2, n);
     }
     return POLY_CLIP_PARTIAL;
 }

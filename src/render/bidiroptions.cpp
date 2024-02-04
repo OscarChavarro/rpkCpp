@@ -3,7 +3,7 @@ Implements option handling for bidirectional path tracing
 */
 
 #include "common/options.h"
-#include "bidiroptions.h"
+#include "render/bidiroptions.h"
 
 /**
 User interface links
