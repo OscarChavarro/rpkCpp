@@ -48,11 +48,13 @@ Cluster::~Cluster() {
     // Can not delete the list since it is being transferred to geometry...
     for ( int i = 0; i < 8; i++ ) {
         if ( children[i] != nullptr ) {
-            //delete children[i];
+            delete children[i];
+            children[i] = nullptr;
         }
     }
 
-    //delete patches; // Containing just reference to patches owned by external objects
+    delete patches; // Containing just reference to patches owned by external objects
+    patches = nullptr;
 }
 
 void
@@ -181,7 +183,7 @@ Cluster::splitCluster() {
     for ( i = 0; i < 8; i++ ) {
         if ( children[i]->patches->size() == 0 ) {
             delete children[i];
-            children[i] = (Cluster *)nullptr;
+            children[i] = nullptr;
         } else {
             VECTORSET(children[i]->boundingBoxCentroid,
                       (children[i]->boundingBox[MIN_X] + children[i]->boundingBox[MAX_X]) * 0.5f,
