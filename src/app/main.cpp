@@ -208,7 +208,10 @@ mainInit() {
     toneMapDefaults();
     cameraDefaults();
     radianceDefaults(GLOBAL_scenePatches);
-    mainRayTracingDefaults();
+
+    #ifdef RAYTRACING_ENABLED
+        mainRayTracingDefaults();
+    #endif
 
     // Default vertex compare flags: both location and normal is relevant. Two
     // vertices without normal, but at the same location, are to be considered
@@ -253,7 +256,11 @@ mainParseGlobalOptions(int *argc, char **argv) {
     parseToneMapOptions(argc, argv);
     parseCameraOptions(argc, argv);
     parseRadianceOptions(argc, argv);
-    mainParseRayTracingOptions(argc, argv);
+
+    #ifdef RAYTRACING_ENABLED
+        mainParseRayTracingOptions(argc, argv);
+    #endif
+
     parseBatchOptions(argc, argv);
     parseOptions(globalOptions, argc, argv); // Order is important, this should be called last
 }
@@ -296,7 +303,11 @@ mainReadFile(char *filename) {
     fprintf(stderr, "Terminating current radiance/raytracing method ... \n");
     RADIANCEMETHOD *oRadiance = GLOBAL_radiance_currentRadianceMethodHandle;
     setRadianceMethod(nullptr, GLOBAL_scenePatches);
-    Raytracer *oRayTracing = GLOBAL_raytracer_activeRaytracer;
+
+    #ifdef RAYTRACING_ENABLED
+        Raytracer *currentRaytracer = GLOBAL_raytracer_activeRaytracer;
+    #endif
+
     mainSetRayTracingMethod(nullptr);
 
     // Prepare if errors occur when reading the new scene will abort
@@ -343,9 +354,12 @@ mainReadFile(char *filename) {
     if ( GLOBAL_radiance_currentRadianceMethodHandle ) {
         GLOBAL_radiance_currentRadianceMethodHandle->terminate(GLOBAL_scenePatches);
     }
-    if ( GLOBAL_raytracer_activeRaytracer ) {
-        GLOBAL_raytracer_activeRaytracer->Terminate();
-    }
+
+    #ifdef RAYTRACING_ENABLED
+        if ( GLOBAL_raytracer_activeRaytracer ) {
+            GLOBAL_raytracer_activeRaytracer->Terminate();
+        }
+    #endif
 
     delete globalAppScenePatches;
     globalAppScenePatches = nullptr;
@@ -480,14 +494,16 @@ mainReadFile(char *filename) {
         last = t;
     }
 
-    if ( oRayTracing ) {
-        fprintf(stderr, "Initializing raytracing computations ... \n");
+    #ifdef RAYTRACING_ENABLED
+        if ( currentRaytracer ) {
+            fprintf(stderr, "Initializing raytracing computations ... \n");
 
-        mainSetRayTracingMethod(oRayTracing);
+            mainSetRayTracingMethod(currentRaytracer);
 
-        t = clock();
-        fprintf(stderr, "%g secs.\n", (float) (t - last) / (float) CLOCKS_PER_SEC);
-    }
+            t = clock();
+            fprintf(stderr, "%g secs.\n", (float) (t - last) / (float) CLOCKS_PER_SEC);
+        }
+    #endif
 
     // Remove possible render hooks
     removeAllRenderHooks();
@@ -518,12 +534,14 @@ createOffscreenCanvasWindow(int width, int height, java::ArrayList<Patch *> *sce
               &GLOBAL_camera_mainCamera.upDirection,
               GLOBAL_camera_mainCamera.fov, width, height, &GLOBAL_camera_mainCamera.background);
 
-    // Render the scene (no expose events on the external canvas window!)
-    int (*f)() = nullptr;
-    if ( GLOBAL_raytracer_activeRaytracer != nullptr ) {
-        f = GLOBAL_raytracer_activeRaytracer->Redisplay;
-    }
-    openGlRenderScene(scenePatches, f);
+    #ifdef RAYTRACING_ENABLED
+        // Render the scene (no expose events on the external canvas window!)
+        int (*f)() = nullptr;
+        if ( GLOBAL_raytracer_activeRaytracer != nullptr ) {
+            f = GLOBAL_raytracer_activeRaytracer->Redisplay;
+        }
+        openGlRenderScene(scenePatches, f);
+    #endif
 }
 
 static void
@@ -537,13 +555,15 @@ mainExecuteRendering(java::ArrayList<Patch *> *scenePatches) {
     }
     createOffscreenCanvasWindow(globalImageOutputWidth, globalImageOutputHeight, scenePatches);
 
-    while ( !openGlRenderInitialized() );
+    while ( !openGlRenderInitialized() ) {}
 
-    int (*f)() = nullptr;
-    if ( GLOBAL_raytracer_activeRaytracer != nullptr ) {
-        f = GLOBAL_raytracer_activeRaytracer->Redisplay;
-    }
-    openGlRenderScene(scenePatches, f);
+    #ifdef RAYTRACING_ENABLED
+        int (*f)() = nullptr;
+        if ( GLOBAL_raytracer_activeRaytracer != nullptr ) {
+            f = GLOBAL_raytracer_activeRaytracer->Redisplay;
+        }
+        openGlRenderScene(scenePatches, f);
+    #endif
 
     batch(scenePatches, GLOBAL_app_lightSourcePatches);
 }

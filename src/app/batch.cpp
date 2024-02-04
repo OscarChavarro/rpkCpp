@@ -14,6 +14,7 @@
 #include "raycasting/common/Raytracer.h"
 #include "raycasting/simple/RayCaster.h"
 #include "render/opengl.h"
+#include "app/raytrace.h"
 #include "app/batch.h"
 
 static int globalIterations = 1; // Radiance method iterations
@@ -153,53 +154,6 @@ batchSaveRadianceModel(const char *fileName, FILE *fp, int /*isPipe*/, java::Arr
     }
 
     fprintf(stdout, "%g secs.\n", (float) (clock() - t) / (float) CLOCKS_PER_SEC);
-    canvasPullMode();
-}
-
-static void
-batchSaveRaytracingImage(const char *fileName, FILE *fp, int isPipe, java::ArrayList<Patch *> *scenePatches) {
-    ImageOutputHandle *img = nullptr;
-    clock_t t;
-
-    if ( !fp ) {
-        return;
-    }
-
-    t = clock();
-
-    if ( fp ) {
-        img = createRadianceImageOutputHandle(
-            (char *) fileName,
-            fp,
-            isPipe,
-            GLOBAL_camera_mainCamera.xSize,
-            GLOBAL_camera_mainCamera.ySize,
-            (float)GLOBAL_statistics_referenceLuminance / 179.0f);
-        if ( !img ) {
-            return;
-        }
-    }
-
-    if ( !GLOBAL_raytracer_activeRaytracer ) {
-        logWarning(nullptr, "No ray tracing method active");
-    } else if ( !GLOBAL_raytracer_activeRaytracer->SaveImage || !GLOBAL_raytracer_activeRaytracer->SaveImage(img)) {
-        logWarning(nullptr, "No previous %s image available", GLOBAL_raytracer_activeRaytracer->fullName);
-    }
-
-    if ( img != nullptr ) {
-        deleteImageOutputHandle(img);
-    }
-
-    fprintf(stdout, "Raytrace save image: %g secs.\n", (float) (clock() - t) / (float) CLOCKS_PER_SEC);
-}
-
-static void
-batchRayTrace(char *filename, FILE *fp, int isPipe, java::ArrayList<Patch *> *scenePatches, java::ArrayList<Patch *> *lightPatches) {
-    GLOBAL_render_renderOptions.renderRayTracedImage = true;
-    GLOBAL_camera_mainCamera.changed = false;
-
-    canvasPushMode();
-    rayTrace(filename, fp, isPipe, GLOBAL_raytracer_activeRaytracer, scenePatches, lightPatches);
     canvasPullMode();
 }
 

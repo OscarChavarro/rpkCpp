@@ -1,5 +1,6 @@
 #include <cstdio>
 #include <cstring>
+#include <ctime>
 
 #include "common/options.h"
 #include "common/error.h"
@@ -8,6 +9,9 @@
 #include "raycasting/simple/RayCaster.h"
 #include "raycasting/simple/RayMatter.h"
 #include "app/raytrace.h"
+#include "material/statistics.h"
+#include "common/RenderOptions.h"
+#include "render/canvas.h"
 
 // Raytracing defaults
 #define DEFAULT_RAYTRACING_METHOD "stochastic"
@@ -105,4 +109,51 @@ mainSetRayTracingMethod(Raytracer *newMethod) {
     if ( GLOBAL_raytracer_activeRaytracer ) {
         GLOBAL_raytracer_activeRaytracer->Initialize(GLOBAL_app_lightSourcePatches);
     }
+}
+
+void
+batchSaveRaytracingImage(const char *fileName, FILE *fp, int isPipe, java::ArrayList<Patch *> *scenePatches) {
+    ImageOutputHandle *img = nullptr;
+    clock_t t;
+
+    if ( !fp ) {
+        return;
+    }
+
+    t = clock();
+
+    if ( fp ) {
+        img = createRadianceImageOutputHandle(
+                (char *) fileName,
+                fp,
+                isPipe,
+                GLOBAL_camera_mainCamera.xSize,
+                GLOBAL_camera_mainCamera.ySize,
+                (float)GLOBAL_statistics_referenceLuminance / 179.0f);
+        if ( !img ) {
+            return;
+        }
+    }
+
+    if ( !GLOBAL_raytracer_activeRaytracer ) {
+        logWarning(nullptr, "No ray tracing method active");
+    } else if ( !GLOBAL_raytracer_activeRaytracer->SaveImage || !GLOBAL_raytracer_activeRaytracer->SaveImage(img)) {
+            logWarning(nullptr, "No previous %s image available", GLOBAL_raytracer_activeRaytracer->fullName);
+        }
+
+    if ( img != nullptr ) {
+        deleteImageOutputHandle(img);
+    }
+
+    fprintf(stdout, "Raytrace save image: %g secs.\n", (float) (clock() - t) / (float) CLOCKS_PER_SEC);
+}
+
+void
+batchRayTrace(char *filename, FILE *fp, int isPipe, java::ArrayList<Patch *> *scenePatches, java::ArrayList<Patch *> *lightPatches) {
+    GLOBAL_render_renderOptions.renderRayTracedImage = true;
+    GLOBAL_camera_mainCamera.changed = false;
+
+    canvasPushMode();
+    rayTrace(filename, fp, isPipe, GLOBAL_raytracer_activeRaytracer, scenePatches, lightPatches);
+    canvasPullMode();
 }

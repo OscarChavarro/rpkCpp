@@ -2,12 +2,18 @@
 Stuff common to all radiance methods
 */
 
+#include <cstring>
+
 #include "java/util/ArrayList.txx"
 #include "common/error.h"
 #include "common/options.h"
 #include "GALERKIN/GalerkinRadiosity.h"
-#include "PHOTONMAP/PhotonMapRadiosity.h"
-#include "raycasting/stochasticRaytracing/mcrad.h"
+#include "app/raytrace.h"
+
+#ifdef RAYTRACING_ENABLED
+    #include "PHOTONMAP/PhotonMapRadiosity.h"
+    #include "raycasting/stochasticRaytracing/mcrad.h"
+#endif
 
 // Default radiance method: a short name of a radiance method or "none"
 #define DEFAULT_RADIANCE_METHOD "none"
@@ -19,9 +25,11 @@ static char globalRadianceMethodsString[STRING_LENGTH];
 // Table of available radiance methods
 RADIANCEMETHOD *GLOBAL_radiance_radianceMethods[] = {
 &GLOBAL_galerkin_radiosity,
-&GLOBAL_stochasticRaytracing_stochasticRelaxationRadiosity,
-&GLOBAL_stochasticRaytracing_randomWalkRadiosity,
-&GLOBAL_photonMapMethods,
+    #ifdef RAYTRACING_ENABLED
+        &GLOBAL_stochasticRaytracing_stochasticRelaxationRadiosity,
+        &GLOBAL_stochasticRaytracing_randomWalkRadiosity,
+        &GLOBAL_photonMapMethods,
+    #endif
 nullptr
 };
 
