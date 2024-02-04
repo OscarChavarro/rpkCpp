@@ -45,13 +45,6 @@ splitBsdfCreate(
     return bsdf;
 }
 
-static SPLIT_BSDF *
-splitBsdfDuplicate(SPLIT_BSDF *bsdf) {
-    SPLIT_BSDF *newBsdf = (SPLIT_BSDF *)malloc(sizeof(SPLIT_BSDF));
-    *newBsdf = *bsdf;
-    return newBsdf;
-}
-
 static void
 splitBsdfDestroy(SPLIT_BSDF *bsdf) {
     free(bsdf);
@@ -426,7 +419,5 @@ BSDF_METHODS GLOBAL_scene_splitBsdfMethods = {
     double *pdf, double *pdfRR)) splitBsdfEvalPdf,
     nullptr,
     (void (*)(FILE *out, void *data)) splitBsdfPrint,
-    (void *(*)(void *data)) splitBsdfDuplicate,
-    nullptr,
     (void (*)(void *data)) splitBsdfDestroy
 };

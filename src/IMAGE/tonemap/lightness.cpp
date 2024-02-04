@@ -55,11 +55,6 @@ static COLOR ScaleForDisplay(COLOR radiance) {
     return radiance;
 }
 
-static float ReverseScaleForComputations(float dl) {
-    logFatal(-1, "ReverseScaleForComputations", "%s %d not yet implemented", __FILE__, __LINE__);
-    return -1.0;
-}
-
 TONEMAP GLOBAL_toneMap_lightness = {
     "Lightness Mapping",
     "Lightness",
@@ -71,10 +66,5 @@ TONEMAP GLOBAL_toneMap_lightness = {
     lightnessInit,
     lightnessTerminate,
     ScaleForComputations,
-    ScaleForDisplay,
-    ReverseScaleForComputations,
-    nullptr,
-    nullptr,
-    nullptr,
-    nullptr
+    ScaleForDisplay
 };

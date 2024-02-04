@@ -36,21 +36,6 @@ class TONEMAP {
       values. The result has to be clipped to <0,1> afterwards.
       ------------------------------------------------------------------------- */
     COLOR (*ScaleForDisplay)(COLOR radiance);
-
-    /* ---------------------------------------------------------------------------
-      `TonemapReverseScaleForComputations'
-
-      Knowing the display luminance "dl" this function determines the
-      correct scaling value that transforms display luminance back into
-      the real world luminance.
-      ------------------------------------------------------------------------- */
-    float (*ReverseScaleForComputations)(float dl);
-
-    /* the GUI routines below are currently unused */
-    void (*CreateControlPanel)(void *parent_widget);    /* optional */
-    void (*UpdateControlPanel)(void *parent_widget);    /* optional */
-    void (*ShowControlPanel)();            /* optional */
-    void (*HideControlPanel)();            /* optional */
 };
 
 /* available tone mapping operators (nullptr terminated array) */

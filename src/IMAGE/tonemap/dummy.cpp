@@ -21,10 +21,6 @@ static COLOR dummyScaleForDisplay(COLOR radiance) {
     return radiance;
 }
 
-static float dummyReverseScaleForComputations(float /*dl*/) {
-    return -1.0;
-}
-
 TONEMAP GLOBAL_toneMap_dummy = {
     "Dummy",
     "Dummy",
@@ -36,10 +32,5 @@ TONEMAP GLOBAL_toneMap_dummy = {
     dummyInit,
     dummyTerminate,
     dummyScaleForComputations,
-    dummyScaleForDisplay,
-    dummyReverseScaleForComputations,
-    nullptr,
-    nullptr,
-    nullptr,
-    nullptr
+    dummyScaleForDisplay
 };

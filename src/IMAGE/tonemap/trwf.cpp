@@ -205,16 +205,6 @@ trwfScaleForDisplay(COLOR radiance) {
     return radiance;
 }
 
-static float
-trfwReverseScaleForComputations(float dl) {
-    if ( dl > 0.0 ) {
-        return (float)pow(dl * 3.14e-4 / lrwm_comp, 1.0 / lrwexponent) /
-                (float)(3.14e-4 * dl);
-    } else {
-        return 0.0f;
-    }
-}
-
 TONEMAP GLOBAL_toneMap_tumblinRushmeier = {
     "Tumblin/Rushmeier's Mapping",
     "TumblinRushmeier",
@@ -226,12 +216,7 @@ TONEMAP GLOBAL_toneMap_tumblinRushmeier = {
     trwfInit,
     trwfTerminate,
     trwfScaleForComputations,
-    trwfScaleForDisplay,
-    trfwReverseScaleForComputations,
-    nullptr,
-    nullptr,
-    nullptr,
-    nullptr
+    trwfScaleForDisplay
 };
 
 static COLOR
@@ -250,11 +235,6 @@ wardScaleForDisplay(COLOR radiance) {
     return radiance;
 }
 
-static float
-wardReverseScaleForComputations(float dl) {
-    return 1.0 / m_comp;
-}
-
 TONEMAP GLOBAL_toneMap_ward = {
     "Ward's Mapping",
     "Ward",
@@ -266,12 +246,7 @@ TONEMAP GLOBAL_toneMap_ward = {
     trwfInit,
     trwfTerminate,
     wardScaleForComputations,
-    wardScaleForDisplay,
-    wardReverseScaleForComputations,
-    nullptr,
-    nullptr,
-    nullptr,
-    nullptr
+    wardScaleForDisplay
 };
 
 static COLOR
@@ -312,15 +287,6 @@ revisedTRScaleForDisplay(COLOR radiance) {
     return radiance;
 }
 
-static float
-revisedTRReverseScaleForComputations(float dl) {
-    if ( dl > 0.0 ) {
-        return _lwa * std::pow(dl / r_comp, 1.0 / g) / dl;
-    } else {
-        return 0.0;
-    }
-}
-
 TONEMAP GLOBAL_toneMap_revisedTumblinRushmeier = {
     "Revised Tumblin/Rushmeier's Mapping",
     "RevisedTR",
@@ -332,12 +298,7 @@ TONEMAP GLOBAL_toneMap_revisedTumblinRushmeier = {
     trwfInit,
     trwfTerminate,
     revisedTRScaleForComputations,
-    revisedTRScaleForDisplay,
-    revisedTRReverseScaleForComputations,
-    nullptr,
-    nullptr,
-    nullptr,
-    nullptr
+    revisedTRScaleForDisplay
 };
 
 static COLOR
@@ -390,12 +351,6 @@ ferwerdaScaleForDisplay(COLOR radiance) {
     return radiance;
 }
 
-static float
-ferwerdaReverseScaleForComputations(float dl) {
-    logFatal(-1, "ferwerdaReverseScaleForComputations", "Not yet implemented");
-    return -1.0;
-}
-
 TONEMAP GLOBAL_toneMap_ferwerda = {
     "Partial Ferwerda's Mapping", "Ferwerda", "tmoFerwerdaButton", 3,
     trwfDefaults,
@@ -404,10 +359,5 @@ TONEMAP GLOBAL_toneMap_ferwerda = {
     trwfInit,
     trwfTerminate,
     ferwerdaScaleForComputations,
-    ferwerdaScaleForDisplay,
-    ferwerdaReverseScaleForComputations,
-    nullptr,
-    nullptr,
-    nullptr,
-    nullptr
+    ferwerdaScaleForDisplay
 };
