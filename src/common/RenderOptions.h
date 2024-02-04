@@ -3,6 +3,11 @@
 
 #include "common/rgb.h"
 
+/**
+If this is undefined, the raytracing code can be trimmed as follows:
+- PHOTONMAP module can be removed
+- All of the ray-casting module can be removed except the RayCaster class
+*/
 #define RAYTRACING_ENABLED true
 
 class RenderOptions {

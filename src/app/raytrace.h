@@ -7,12 +7,6 @@
 #include "common/RenderOptions.h"
 #include "raycasting/common/Raytracer.h"
 
-/**
-If this is undefined, the raytracing code can be trimmed as follows:
-- PHOTONMAP module can be removed
-- All of the ray-casting module can be removed except the RayCaster class
-*/
-
 #ifdef RAYTRACING_ENABLED
     extern void mainRayTracingDefaults();
     extern void mainParseRayTracingOptions(int *argc, char **argv);
