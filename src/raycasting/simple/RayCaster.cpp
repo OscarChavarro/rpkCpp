@@ -3,7 +3,11 @@ Ray casting using the SGL library for rendering Patch pointers into
 a software frame buffer directly.
 */
 
-#include <ctime>
+#include "common/RenderOptions.h"
+
+#ifdef RAYTRACING_ENABLED
+    #include <ctime>
+#endif
 
 #include "java/util/ArrayList.txx"
 #include "common/error.h"
@@ -36,7 +40,9 @@ RayCaster::clipUv(int numberOfVertices, double *u, double *v) {
 
 void
 RayCaster::render(GETRADIANCE_FT getRadiance = nullptr, java::ArrayList<Patch *> *scenePatches = nullptr) {
-    clock_t t = clock();
+    #ifdef RAYTRACING_ENABLED
+        clock_t t = clock();
+    #endif
     interrupt_requested = false;
 
     if ( getRadiance == nullptr ) {
@@ -72,8 +78,10 @@ RayCaster::render(GETRADIANCE_FT getRadiance = nullptr, java::ArrayList<Patch *>
 
     delete id_renderer;
 
-    GLOBAL_raytracer_totalTime = (float) (clock() - t) / (float) CLOCKS_PER_SEC;
-    GLOBAL_raytracer_rayCount = GLOBAL_raytracer_pixelCount = 0;
+    #ifdef RAYTRACING_ENABLED
+        GLOBAL_raytracer_totalTime = (float) (clock() - t) / (float) CLOCKS_PER_SEC;
+        GLOBAL_raytracer_rayCount = GLOBAL_raytracer_pixelCount = 0;
+    #endif
 }
 
 void
@@ -91,69 +99,72 @@ RayCaster::interrupt() {
     interrupt_requested = true;
 }
 
-static RayCaster *s_rc = nullptr;
+#ifdef RAYTRACING_ENABLED
+static RayCaster *globalRayCaster = nullptr;
 
 /**
 Returns false if there is no previous image and true if there is
 */
 static int
-Redisplay() {
-    if ( !s_rc ) {
+rayCasterRedisplay() {
+    if ( !globalRayCaster ) {
         return false;
     }
 
-    s_rc->display();
+    globalRayCaster->display();
     return true;
 }
 
 static int
-SaveImage(ImageOutputHandle *ip) {
-    if ( !s_rc ) {
+rayCasterSaveImage(ImageOutputHandle *ip) {
+    if ( !globalRayCaster ) {
         return false;
     }
 
-    s_rc->save(ip);
+    globalRayCaster->save(ip);
     return true;
 }
 
 static void
-Interrupt() {
-    if ( s_rc ) {
-        s_rc->interrupt();
+rayCasterInterrupt() {
+    if ( globalRayCaster ) {
+        globalRayCaster->interrupt();
     }
 }
 
 static void
-Terminate() {
-    if ( s_rc ) {
-        delete s_rc;
+rayCasterTerminate() {
+    if ( globalRayCaster ) {
+        delete globalRayCaster;
     }
-    s_rc = 0;
+    globalRayCaster = 0;
 }
 
 static void
-Defaults() {
+rayCasterDefaults() {
 }
 
 static void
-ParseHWRCastOptions(int *argc, char **argv) {
+rayCasterParseHWRCastOptions(int *argc, char **argv) {
 }
 
 static void
-Initialize(java::ArrayList<Patch *> * /*lightPatches*/) {
+rayCasterInitialize(java::ArrayList<Patch *> * /*lightPatches*/) {
 }
 
 static void
-IRayCast(ImageOutputHandle *ip, java::ArrayList<Patch *> *scenePatches, java::ArrayList<Patch *> *lightPatches) {
-    if ( s_rc ) {
-        delete s_rc;
+rayCasterExecute(ImageOutputHandle *ip, java::ArrayList<Patch *> *scenePatches, java::ArrayList<Patch *> *lightPatches) {
+    if ( globalRayCaster ) {
+        delete globalRayCaster;
     }
-    s_rc = new RayCaster();
-    s_rc->render(nullptr, scenePatches);
+    globalRayCaster = new RayCaster();
+    globalRayCaster->render(nullptr, scenePatches);
     if ( ip ) {
-        s_rc->save(ip);
+        globalRayCaster->save(ip);
     }
 }
+
+#endif
 
 /**
 Ray-Casts the current Radiance solution. Output is displayed on the sceen
@@ -185,16 +196,18 @@ rayCast(char *fileName, FILE *fp, int isPipe, java::ArrayList<Patch *> *scenePat
     }
 }
 
+#ifdef RAYTRACING_ENABLED
 Raytracer GLOBAL_rayCasting_RayCasting = {
     "RayCasting",
     4,
     "Ray Casting",
-    Defaults,
-    ParseHWRCastOptions,
-    Initialize,
-    IRayCast,
-    Redisplay,
-    SaveImage,
-    Interrupt,
-    Terminate
+    rayCasterDefaults,
+    rayCasterParseHWRCastOptions,
+    rayCasterInitialize,
+    rayCasterExecute,
+    rayCasterRedisplay,
+    rayCasterSaveImage,
+    rayCasterInterrupt,
+    rayCasterTerminate
 };
+#endif

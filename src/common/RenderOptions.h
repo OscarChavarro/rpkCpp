@@ -3,6 +3,8 @@
 
 #include "common/rgb.h"
 
+//#define RAYTRACING_ENABLED true
+
 class RenderOptions {
 public:
     RGB outline_color; // Color in which to draw outlines

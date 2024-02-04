@@ -1,5 +1,5 @@
-#ifndef _RAYMATTE_H_
-#define _RAYMATTE_H_
+#ifndef __RAY_MATTER__
+#define __RAY_MATTER__
 
 #include "raycasting/common/pixelfilter.h"
 #include "render/ScreenBuffer.h"

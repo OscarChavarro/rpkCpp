@@ -170,7 +170,7 @@ static CommandLineOptionDescription globalToneMappingOptions[] = {
 };
 
 /**
-Defaults and option handling
+rayCasterDefaults and option handling
 */
 void
 toneMapDefaults() {

@@ -199,13 +199,13 @@ batch(java::ArrayList<Patch *> *scenePatches, java::ArrayList<Patch *> *lightPat
 
             printf("%s", GLOBAL_radiance_currentRadianceMethodHandle->GetStats());
 
+            int (*f)() = nullptr;
             #ifdef RAYTRACING_ENABLED
-                int (*f)() = nullptr;
                 if ( GLOBAL_raytracer_activeRaytracer != nullptr ) {
                     f = GLOBAL_raytracer_activeRaytracer->Redisplay;
                 }
-                openGlRenderScene(scenePatches, f);
             #endif
+            openGlRenderScene(scenePatches, f);
 
             fflush(stdout);
             fflush(stderr);

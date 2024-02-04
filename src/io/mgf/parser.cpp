@@ -195,7 +195,7 @@ e_cct(int ac, char **av)
 }
 
 /**
-Initialize alternate entity handlers
+rayCasterInitialize alternate entity handlers
 */
 void
 mgfAlternativeInit(int (*handleCallbacks[MGF_TOTAL_NUMBER_OF_ENTITIES])(int, char **)) {

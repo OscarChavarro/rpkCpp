@@ -17,6 +17,8 @@
 #define DEFAULT_RAYTRACING_METHOD "stochastic"
 #define STRING_SIZE 1000
 
+#ifdef RAYTRACING_ENABLED
+
 extern java::ArrayList<Patch *> *GLOBAL_app_lightSourcePatches;
 
 static char globalRaytracingMethodsString[STRING_SIZE];
@@ -157,3 +159,5 @@ batchRayTrace(char *filename, FILE *fp, int isPipe, java::ArrayList<Patch *> *sc
     rayTrace(filename, fp, isPipe, GLOBAL_raytracer_activeRaytracer, scenePatches, lightPatches);
     canvasPullMode();
 }
+
+#endif
