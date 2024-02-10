@@ -58,7 +58,7 @@ further away than dist are ignored.
 RayHit *
 shadowTestDiscretization(
     Ray *ray,
-    GeometryListNode *geometrySceneList,
+    java::ArrayList<Geometry *> *geometrySceneList,
     VoxelGrid *voxelGrid,
     float dist,
     RayHit *hitStore,
@@ -73,7 +73,7 @@ shadowTestDiscretization(
         GLOBAL_statistics_numberOfShadowCacheHits++;
     } else {
         if ( !isClusteredGeometry && !isSceneGeometry ) {
-            hit = geometryListDiscretizationIntersect(geometrySceneList, ray, EPSILON * dist, &dist, HIT_FRONT | HIT_ANY, hitStore);
+            hit = geometryListDiscretizationIntersect2(geometrySceneList, ray, EPSILON * dist, &dist, HIT_FRONT | HIT_ANY, hitStore);
         } else {
             hit = voxelGrid->gridIntersect(ray, EPSILON * dist, &dist, HIT_FRONT | HIT_ANY, hitStore);
         }

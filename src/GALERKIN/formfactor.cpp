@@ -165,9 +165,10 @@ pointKernelEval(
     } else if ( !GLOBAL_galerkin_state.multiResolutionVisibility ) {
         bool isSceneGeometry = (geometryShadowList == GLOBAL_scene_world);
         bool isClusteredGeometry = (geometryShadowList == GLOBAL_scene_clusteredWorld);
+        java::ArrayList<Geometry *> *geometryList = convertGeometryList(geometryShadowList);
         if ( !shadowTestDiscretization(
             &ray,
-            geometryShadowList,
+            geometryList,
             GLOBAL_scene_worldVoxelGrid,
             distance,
             &hitStore,
@@ -177,6 +178,7 @@ pointKernelEval(
         } else {
             *vis = 0.0;
         }
+        delete geometryList;
     } else if ( cacheHit(&ray, &distance, &hitStore) ) {
         *vis = 0.0;
     } else {
