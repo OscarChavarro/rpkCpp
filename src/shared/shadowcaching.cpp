@@ -60,7 +60,8 @@ shadowTestDiscretization(Ray *ray, GeometryListNode *world, float dist, RayHit *
     RayHit *hit;
 
     GLOBAL_statistics_numberOfShadowRays++;
-    if ((hit = cacheHit(ray, &dist, hitStore))) {
+    hit = cacheHit(ray, &dist, hitStore);
+    if ( hit != nullptr ) {
         GLOBAL_statistics_numberOfShadowCacheHits++;
     } else {
         if ( world != GLOBAL_scene_clusteredWorld && world != GLOBAL_scene_world ) {

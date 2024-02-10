@@ -22,7 +22,7 @@ Reference:
 /**
 Creates an empty cluster with initialized bounding box
 */
-Cluster::Cluster() {
+Cluster::Cluster(): patches() {
     commonBuild();
 }
 

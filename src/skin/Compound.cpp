@@ -1,3 +1,4 @@
+#include "java/util/ArrayList.txx"
 #include "material/statistics.h"
 #include "skin/Compound.h"
 

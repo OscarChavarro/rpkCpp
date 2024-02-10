@@ -251,8 +251,8 @@ Renders the bounding boxes of all objects in the scene
 void
 renderBoundingBoxHierarchy() {
     openGlRenderSetColor(&GLOBAL_render_renderOptions.bounding_box_color);
-    for ( GeometryListNode *window = GLOBAL_scene_world; window != nullptr; window = window->next ) {
-        renderGeomBounds(window->geometry);
+    for ( int i = 0; GLOBAL_scene_geometries != nullptr && i < GLOBAL_scene_geometries->size(); i++ ) {
+        renderGeomBounds(GLOBAL_scene_geometries->get(i));
     }
 }
 
@@ -260,9 +260,9 @@ renderBoundingBoxHierarchy() {
 Renders the cluster hierarchy bounding boxes
 */
 void
-renderClusterHierarchy() {
+renderClusterHierarchy(java::ArrayList<Geometry *> *clusteredGeometryList) {
     openGlRenderSetColor(&GLOBAL_render_renderOptions.cluster_color);
-    for ( GeometryListNode *window = GLOBAL_scene_clusteredWorld; window != nullptr; window = window->next ) {
-        renderGeomBounds(window->geometry);
+    for ( int i = 0; clusteredGeometryList != nullptr && i < clusteredGeometryList->size(); i++ ) {
+        renderGeomBounds(clusteredGeometryList->get(i));
     }
 }

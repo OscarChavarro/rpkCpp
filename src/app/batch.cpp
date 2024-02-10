@@ -208,7 +208,7 @@ batch(java::ArrayList<Patch *> *scenePatches, java::ArrayList<Patch *> *lightPat
                     f = GLOBAL_raytracer_activeRaytracer->Redisplay;
                 }
             #endif
-            openGlRenderScene(scenePatches, f);
+            openGlRenderScene(scenePatches, GLOBAL_scene_clusteredGeometries, f);
 
             fflush(stdout);
             fflush(stderr);

@@ -425,6 +425,7 @@ mainReadFile(char *filename) {
     if ( GLOBAL_scene_clusteredWorldGeom->className == GeometryClassId::COMPOUND ) {
         if ( GLOBAL_scene_clusteredWorldGeom->compoundData != nullptr ) {
             GLOBAL_scene_clusteredWorld = &GLOBAL_scene_clusteredWorldGeom->compoundData->children;
+            GLOBAL_scene_clusteredGeometries = convertGeometryList(GLOBAL_scene_clusteredWorld);
         } else {
             fprintf(stderr, "Unexpected case: review code - generic case not supported anymore.\n");
             exit(2);
@@ -432,6 +433,11 @@ mainReadFile(char *filename) {
     } else {
         // Small memory leak here ... but exceptional situation!
         GLOBAL_scene_clusteredWorld = geometryListAdd(nullptr, GLOBAL_scene_clusteredWorldGeom);
+        if ( GLOBAL_scene_clusteredGeometries != nullptr ) {
+            delete GLOBAL_scene_clusteredGeometries;
+            GLOBAL_scene_clusteredGeometries = nullptr;
+        }
+        GLOBAL_scene_clusteredGeometries = convertGeometryList(GLOBAL_scene_clusteredWorld);
         logWarning(nullptr, "Strange clusters for this world ...");
     }
 
@@ -542,7 +548,7 @@ createOffscreenCanvasWindow(int width, int height, java::ArrayList<Patch *> *sce
         if ( GLOBAL_raytracer_activeRaytracer != nullptr ) {
             f = GLOBAL_raytracer_activeRaytracer->Redisplay;
         }
-        openGlRenderScene(scenePatches, f);
+        openGlRenderScene(scenePatches, GLOBAL_scene_clusteredGeometries, f);
     #endif
 }
 
@@ -564,7 +570,7 @@ mainExecuteRendering(java::ArrayList<Patch *> *scenePatches) {
         if ( GLOBAL_raytracer_activeRaytracer != nullptr ) {
             f = GLOBAL_raytracer_activeRaytracer->Redisplay;
         }
-        openGlRenderScene(scenePatches, f);
+        openGlRenderScene(scenePatches, GLOBAL_scene_clusteredGeometries, f);
     #endif
 
     batch(scenePatches, GLOBAL_app_lightSourcePatches);

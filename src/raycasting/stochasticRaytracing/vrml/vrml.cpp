@@ -401,7 +401,7 @@ writePrimitive(Geometry *geom) {
 
 static void
 iteratePrimitiveGeoms(java::ArrayList<Geometry *> *geometryList, void (*functionCallback)(Geometry *)) {
-    for ( int i = 0; geometryList!= nullptr && geometryList->size(); i++ ) {
+    for ( int i = 0; geometryList!= nullptr && i < geometryList->size(); i++ ) {
         Geometry *geometry = geometryList->get(i);
 
         if ( geomIsAggregate(geometry) ) {

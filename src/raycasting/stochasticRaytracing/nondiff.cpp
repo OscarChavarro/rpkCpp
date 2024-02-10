@@ -9,6 +9,7 @@ Non diffuse first shot
 #include "raycasting/common/Raytracer.h"
 #include "raycasting/stochasticRaytracing/localline.h"
 #include "raycasting/stochasticRaytracing/mcradP.h"
+#include "scene/scene.h"
 
 class LIGHTSOURCETABLE {
   public:
@@ -173,5 +174,5 @@ doNonDiffuseFirstShot(java::ArrayList<Patch *> *scenePatches, java::ArrayList<Pa
     if ( GLOBAL_raytracer_activeRaytracer != nullptr ) {
         f = GLOBAL_raytracer_activeRaytracer->Redisplay;
     }
-    openGlRenderScene(scenePatches, f);
+    openGlRenderScene(scenePatches, GLOBAL_scene_clusteredGeometries, f);
 }

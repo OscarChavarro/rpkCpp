@@ -11,7 +11,7 @@ extern void openGlRenderBackground(Camera *camera);
 extern void openGlRenderLine(Vector3D *x, Vector3D *y);
 extern void openGlRenderSetColor(RGB *rgb);
 extern void openGlRenderWorldOctree(void (*render_patch)(Patch *));
-extern void openGlRenderScene(java::ArrayList<Patch *> *scenePatches, int (*reDisplayCallback)());
+extern void openGlRenderScene(java::ArrayList<Patch *> *scenePatches, java::ArrayList<Geometry *> *clusteredGeometryList, int (*reDisplayCallback)());
 extern void openGlMesaRenderCreateOffscreenWindow(int width, int height);
 extern void openGlRenderBeginTriangleStrip();
 extern void openGlRenderNextTrianglePoint(Vector3D *point, RGB *col);

@@ -12,6 +12,7 @@ Stochastic Relaxation Radiosity (currently only stochastic Jacobi)
 #include "raycasting/stochasticRaytracing/stochjacobi.h"
 #include "raycasting/common/Raytracer.h"
 #include "render/opengl.h"
+#include "scene/scene.h"
 
 static void
 stochasticRelaxationRadiosityInit(java::ArrayList<Patch *> * /*scenePatches*/) {
@@ -185,7 +186,7 @@ stochasticRelaxationRadiosityDoIncrementalRadianceIterations(java::ArrayList<Pat
                 f = GLOBAL_raytracer_activeRaytracer->Redisplay;
             }
 
-            openGlRenderScene(scenePatches, f);
+            openGlRenderScene(scenePatches, GLOBAL_scene_clusteredGeometries, f);
         }
     }
 

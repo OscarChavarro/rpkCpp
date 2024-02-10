@@ -469,7 +469,7 @@ openGlGeometryDeleteDLists(Geometry *geom) {
 
     if ( geomIsAggregate(GLOBAL_scene_clusteredWorldGeom)) {
         java::ArrayList<Geometry *> *children = geomPrimList2(geom);
-        for ( int i = 0; children != nullptr && i < children->size(); i++ ) { \
+        for ( int i = 0; children != nullptr && i < children->size(); i++ ) {
             openGlGeometryDeleteDLists(children->get(i));
         }
         delete children;
@@ -514,7 +514,7 @@ openGlReallyRender(java::ArrayList<Patch *> *scenePatches) {
 }
 
 static void
-openGlRenderRadiance(java::ArrayList<Patch *> *scenePatches) {
+openGlRenderRadiance(java::ArrayList<Patch *> *scenePatches, java::ArrayList<Geometry *> *clusteredGeometryList) {
     if ( GLOBAL_render_renderOptions.smoothShading ) {
         glShadeModel(GL_SMOOTH);
     } else {
@@ -549,7 +549,7 @@ openGlRenderRadiance(java::ArrayList<Patch *> *scenePatches) {
     }
 
     if ( GLOBAL_render_renderOptions.drawClusters ) {
-        renderClusterHierarchy();
+        renderClusterHierarchy(clusteredGeometryList);
     }
 
     if ( GLOBAL_render_renderOptions.drawCameras ) {
@@ -561,7 +561,7 @@ openGlRenderRadiance(java::ArrayList<Patch *> *scenePatches) {
 Renders the whole scene
 */
 void
-openGlRenderScene(java::ArrayList<Patch *> *scenePatches, int (*reDisplayCallback)()) {
+openGlRenderScene(java::ArrayList<Patch *> *scenePatches, java::ArrayList<Geometry *> *clusteredGeometryList, int (*reDisplayCallback)()) {
     if ( !globalOpenGlInitialized ) {
         return;
     }
@@ -575,7 +575,7 @@ openGlRenderScene(java::ArrayList<Patch *> *scenePatches, int (*reDisplayCallbac
     }
 
     if ( !GLOBAL_render_renderOptions.renderRayTracedImage || !openGlRenderRayTraced(reDisplayCallback)) {
-        openGlRenderRadiance(scenePatches);
+        openGlRenderRadiance(scenePatches, clusteredGeometryList);
     }
 
     // Call installed render hooks, that want to render something in the scene

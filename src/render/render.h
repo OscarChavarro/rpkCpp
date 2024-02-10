@@ -4,10 +4,11 @@
 #include "java/util/ArrayList.h"
 #include "common/RenderOptions.h"
 #include "skin/bounds.h"
+#include "skin/Geometry.h"
 
 extern void renderBounds(BOUNDINGBOX bounds);
 extern void renderBoundingBoxHierarchy();
-extern void renderClusterHierarchy();
+extern void renderClusterHierarchy(java::ArrayList<Geometry *> *clusteredGeometryList);
 extern void renderSetBackfaceCulling(char truefalse);
 extern void renderSetSmoothShading(char truefalse);
 extern void renderSetOutlineDrawing(char truefalse);
