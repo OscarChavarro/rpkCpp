@@ -26,16 +26,17 @@ static Vector3DListNode *globalCurrentPointList;
 static Vector3DListNode *globalCurrentNormalList;
 static java::ArrayList<Vertex *> *globalCurrentVertexList;
 static java::ArrayList<Patch *> *globalCurrentFaceList;
-static GeometryListNode *globalCurrentGeometryList;
+static java::ArrayList<Geometry *> *globalCurrentGeometryList = nullptr;
 static Material *globalCurrentMaterial;
 
 // Geometry stack: used for building a hierarchical representation of the scene
-static GeometryListNode *globalGeometryStack[MAXIMUM_GEOMETRY_STACK_DEPTH];
-static GeometryListNode **globalGeometryStackPtr;
+static java::ArrayList<Geometry *> *globalGeometryStack[MAXIMUM_GEOMETRY_STACK_DEPTH];
+static java::ArrayList<Geometry *> **globalGeometryStackPtr;
 
 static int globalInComplex = false; // true if reading a sphere, torus or other unsupported
 static int globalInSurface = false; // true if busy creating a new surface
 static int globalAllSurfacesSided = false; // when set to true, all surfaces will be considered one-sided
+static GeometryListNode *globalWeirdPointer;
 
 static void
 doError(const char *errmsg) {
@@ -174,6 +175,10 @@ static void
 surfaceDone() {
     Geometry *newGeometry{};
 
+    if ( globalCurrentGeometryList == nullptr ) {
+        globalCurrentGeometryList = new java::ArrayList<Geometry *>();
+    }
+
     if ( globalCurrentFaceList != nullptr ) {
         newGeometry = geomCreateSurface(
             surfaceCreate(
@@ -184,7 +189,7 @@ surfaceDone() {
                 globalCurrentVertexList,
                 globalCurrentFaceList,
                 MaterialColorFlags::NO_COLORS));
-        globalCurrentGeometryList = geometryListAdd(globalCurrentGeometryList, newGeometry);
+        globalCurrentGeometryList->add(0, newGeometry);
     }
     globalInSurface = false;
 }
@@ -1061,18 +1066,22 @@ handleObjectEntity(int argc, char **argv) {
         }
 
         int listSize = 0;
-        for ( GeometryListNode *window = globalCurrentGeometryList; window != nullptr; window = window->next ) {
-            listSize++;
+        if ( globalCurrentGeometryList != nullptr ) {
+            listSize += globalCurrentGeometryList->size();
         }
 
+        // TODO: Will have a memory leak on globalWeirdPointer, pending to clean this
+        globalWeirdPointer = nullptr;
         if ( listSize > 0 ) {
-            theGeometry = geomCreateCompound(compoundCreate(globalCurrentGeometryList));
+            globalWeirdPointer = convertToGeometryList(globalCurrentGeometryList);
+            theGeometry = geomCreateCompound(compoundCreate(globalWeirdPointer));
         }
 
         popCurrentGeometryList();
 
         if ( theGeometry ) {
-            globalCurrentGeometryList = geometryListAdd(globalCurrentGeometryList, theGeometry);
+            globalCurrentGeometryList->add(0, theGeometry);
+            globalWeirdPointer = convertToGeometryList(globalCurrentGeometryList);
         }
 
         newSurface();
@@ -1136,7 +1145,7 @@ readMgf(char *filename) {
 
     globalPointsOctree = nullptr;
     globalNormalsOctree = nullptr;
-    globalCurrentGeometryList = nullptr;
+    globalCurrentGeometryList = new java::ArrayList<Geometry *>();
 
     if ( GLOBAL_scene_materials == nullptr ) {
         GLOBAL_scene_materials = new java::ArrayList<Material *>();
@@ -1171,8 +1180,8 @@ readMgf(char *filename) {
     if ( globalInSurface ) {
         surfaceDone();
     }
-    GLOBAL_scene_world = globalCurrentGeometryList;
-    GLOBAL_scene_geometries = convertGeometryList(globalCurrentGeometryList);
+    GLOBAL_scene_world = globalWeirdPointer;
+    GLOBAL_scene_geometries = (globalCurrentGeometryList);
 
     if ( globalPointsOctree != nullptr) {
         free(globalPointsOctree);

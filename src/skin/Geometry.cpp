@@ -208,6 +208,22 @@ convertGeometryList(GeometryListNode *linkedList) {
     return geometryList;
 }
 
+GeometryListNode *
+convertToGeometryList(java::ArrayList<Geometry *> *geometryList) {
+    if ( geometryList == nullptr ) {
+        return nullptr;
+    }
+
+    GeometryListNode *window = nullptr;
+    for ( int i = geometryList->size() - 1; i >= 0; i-- ) {
+        GeometryListNode *newNode = (GeometryListNode *)malloc(sizeof(GeometryListNode));
+        newNode->next = window;
+        newNode->geometry = geometryList->get(i);
+        window = newNode;
+    }
+    return window;
+}
+
 /**
 Returns a list of the simpler geometries making up an aggregate geometry.
 A nullptr pointer is returned if the geometry is a primitive

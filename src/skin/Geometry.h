@@ -66,6 +66,7 @@ extern float *geomBounds(Geometry *geometry);
 extern void geomDestroy(Geometry *geometry);
 extern int geomIsAggregate(Geometry *geometry);
 extern java::ArrayList<Geometry *> *convertGeometryList(GeometryListNode *linkedList);
+extern GeometryListNode *convertToGeometryList(java::ArrayList<Geometry *> *geometryList);
 extern GeometryListNode *geomPrimList(Geometry *geometry);
 extern java::ArrayList<Geometry *> *geomPrimList2(Geometry *geometry);
 java::ArrayList<Patch *> *geomPatchArrayList(Geometry *geometry);
