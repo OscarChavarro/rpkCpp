@@ -74,7 +74,12 @@ createInitialLink(Patch *patch) {
     link.sourceElement = src;
     link.nrcv = rcv->basisSize;
     link.nsrc = src->basisSize;
-    areaToAreaFormFactor(&link, globalCandidateList);
+
+    bool isSceneGeometry = (globalCandidateList == GLOBAL_scene_world);
+    bool isClusteredGeometry = (globalCandidateList == GLOBAL_scene_clusteredWorld);
+    java::ArrayList<Geometry *> *geometryList = convertGeometryList(globalCandidateList);
+    areaToAreaFormFactor(&link, geometryList, isSceneGeometry, isClusteredGeometry);
+    delete geometryList;
 
     if ( GLOBAL_galerkin_state.exact_visibility || GLOBAL_galerkin_state.shaftCullMode == ALWAYS_DO_SHAFT_CULLING ) {
         if ( oldCandidateList != globalCandidateList ) {

@@ -110,8 +110,10 @@ pointKernelEval(
     Vector3D *y,
     GalerkinElement *rcv,
     GalerkinElement *src,
-    GeometryListNode *geometryShadowList,
-    double *vis)
+    java::ArrayList<Geometry *> *geometryShadowList,
+    double *vis,
+    bool isSceneGeometry,
+    bool isClusteredGeometry)
 {
     double dist;
     double cosP;
@@ -163,12 +165,9 @@ pointKernelEval(
     if ( !geometryShadowList ) {
         *vis = 1.0;
     } else if ( !GLOBAL_galerkin_state.multiResolutionVisibility ) {
-        bool isSceneGeometry = (geometryShadowList == GLOBAL_scene_world);
-        bool isClusteredGeometry = (geometryShadowList == GLOBAL_scene_clusteredWorld);
-        java::ArrayList<Geometry *> *geometryList = convertGeometryList(geometryShadowList);
         if ( !shadowTestDiscretization(
             &ray,
-            geometryList,
+            geometryShadowList,
             GLOBAL_scene_worldVoxelGrid,
             distance,
             &hitStore,
@@ -178,7 +177,6 @@ pointKernelEval(
         } else {
             *vis = 0.0;
         }
-        delete geometryList;
     } else if ( cacheHit(&ray, &distance, &hitStore) ) {
         *vis = 0.0;
     } else {
@@ -431,7 +429,12 @@ with Scattering Volumes and Object Clusters", IEEE TVCG Vol 1 Nr 3,
 sept 1995.
 */
 unsigned
-areaToAreaFormFactor(INTERACTION *link, GeometryListNode *geometryShadowList) {
+areaToAreaFormFactor(
+    INTERACTION *link,
+    java::ArrayList<Geometry *> *geometryShadowList,
+    bool isSceneGeometry,
+    bool isClusteredGeometry)
+{
     // Very often, the source or receiver element is the same as the one in
     // the previous call of the function. We cache cubature rules and nodes
     // in order to prevent re-computation
@@ -532,7 +535,7 @@ areaToAreaFormFactor(INTERACTION *link, GeometryListNode *geometryShadowList) {
 
             f = 0.0;
             for ( l = 0; l < crsrc->numberOfNodes; l++ ) {
-                kval = pointKernelEval(&x[k], &y[l], rcv, src, geometryShadowList, &vis);
+                kval = pointKernelEval(&x[k], &y[l], rcv, src, geometryShadowList, &vis, isSceneGeometry, isClusteredGeometry);
                 Gxy[k][l] = kval * vis;
                 f += crsrc->w[l] * kval;
 
