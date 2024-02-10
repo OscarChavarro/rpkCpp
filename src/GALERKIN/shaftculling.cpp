@@ -719,34 +719,33 @@ shaftCullPatchList(java::ArrayList<Patch *> *patchList, SHAFT *shaft) {
 Adds the geom to the candidateList, possibly duplicating it if the geom
 was created during previous shaft culling
 */
-static GeometryListNode *
-keep(Geometry *geom, GeometryListNode *candidateList) {
+static void
+keep(Geometry *geom, java::ArrayList<Geometry *> *candidateList) {
     if ( geom->omit ) {
-        return candidateList;
+        return;
     }
 
     if ( geom->shaftCullGeometry ) {
         Geometry *newGeometry = geomDuplicate(geom);
         newGeometry->shaftCullGeometry = true;
-        candidateList = geometryListAdd(candidateList, newGeometry);
+        candidateList->add(0, newGeometry);
     } else {
-        candidateList = geometryListAdd(candidateList, geom);
+        candidateList->add(0, geom);
     }
-    return candidateList;
 }
 
 /**
 Breaks the geom into it's components and does shaft culling on
 the components
 */
-static GeometryListNode *
-shaftCullOpen(Geometry *geom, SHAFT *shaft, GeometryListNode *candidateList) {
+static void
+shaftCullOpen(Geometry *geom, SHAFT *shaft, java::ArrayList<Geometry *> *candidateList) {
     if ( geom->omit ) {
-        return candidateList;
+        return;
     }
 
     if ( geomIsAggregate(geom) ) {
-        candidateList = convertToGeometryList(doShaftCulling(geomPrimList(geom), shaft, candidateList));
+        doShaftCulling(geomPrimList(geom), shaft, candidateList);
     } else {
         java::ArrayList<Patch *> *geometryPatchesList = geomPatchArrayList(geom);
         java::ArrayList<Patch *> *culledPatches = shaftCullPatchList(geometryPatchesList, shaft);
@@ -755,12 +754,11 @@ shaftCullOpen(Geometry *geom, SHAFT *shaft, GeometryListNode *candidateList) {
             Geometry *newGeometry;
             newGeometry = geomCreatePatchSet(culledPatches);
             newGeometry->shaftCullGeometry = true;
-            candidateList = geometryListAdd(candidateList, newGeometry);
+            candidateList->add(0, newGeometry);
         }
         delete culledPatches;
         delete geometryPatchesList;
     }
-    return candidateList;
 }
 
 /**
@@ -768,33 +766,31 @@ Tests the geom w.r.t. the shaft: if the geom is inside or overlaps
 the shaft, it is copied to the shaft or broken open depending on
 the current shaft culling strategy
 */
-GeometryListNode *
-shaftCullGeom(Geometry *geometry, SHAFT *shaft, GeometryListNode *candidateList) {
+void
+shaftCullGeom(Geometry *geometry, SHAFT *shaft, java::ArrayList<Geometry *> *candidateList) {
     if ( geometry->className == GeometryClassId::PATCH_SET && (geometry->omit || patchIsOnOmitSet(shaft, (Patch *)geometry)) ) {
-        return candidateList;
+        return;
     }
 
     // Unbounded geoms always overlap the shaft
     switch ( geometry->bounded ? shaftBoxTest(geometry->bounds, shaft) : OVERLAP ) {
         case INSIDE:
             if ( strategy == ALWAYS_OPEN && !dontOpen(shaft, geometry) ) {
-                candidateList = shaftCullOpen(geometry, shaft, candidateList);
+                shaftCullOpen(geometry, shaft, candidateList);
             } else {
-                candidateList = keep(geometry, candidateList);
+                keep(geometry, candidateList);
             }
             break;
         case OVERLAP:
             if ( strategy == KEEP_CLOSED || dontOpen(shaft, geometry) ) {
-                candidateList = keep(geometry, candidateList);
+                keep(geometry, candidateList);
             } else {
-                candidateList = shaftCullOpen(geometry, shaft, candidateList);
+                shaftCullOpen(geometry, shaft, candidateList);
             }
             break;
         default:
             break;
     }
-
-    return candidateList;
 }
 
 /**
@@ -805,13 +801,11 @@ During shaft culling getPatchList "geoms" are created - they (and only they)
 need to be destroyed when destroying a geom candidate list created by
 doShaftCulling - for other kinds of geoms, only a pointer is copied
 */
-java::ArrayList<Geometry *> *
-doShaftCulling(java::ArrayList<Geometry *> *world, SHAFT *shaft, GeometryListNode *candidateList) {
+void
+doShaftCulling(java::ArrayList<Geometry *> *world, SHAFT *shaft, java::ArrayList<Geometry *> *candidateList) {
     for ( int i = 0; world != nullptr && i < world->size() && !shaft->cut; i++ ) {
-        candidateList = shaftCullGeom(world->get(i), shaft, candidateList);
+        shaftCullGeom(world->get(i), shaft, candidateList);
     }
-
-    return convertGeometryList(candidateList);
 }
 
 /**

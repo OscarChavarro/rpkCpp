@@ -57,7 +57,9 @@ createInitialLink(Patch *patch) {
         if ( the_shaft ) {
             setShaftOmit(&shaft, globalPatch);
             setShaftOmit(&shaft, patch);
-            globalCandidateList = convertToGeometryList(doShaftCulling(convertGeometryList(oldCandidateList), the_shaft, nullptr));
+            java::ArrayList<Geometry*> *arr = new java::ArrayList<Geometry*>();
+            doShaftCulling(convertGeometryList(oldCandidateList), the_shaft, arr);
+            globalCandidateList = convertToGeometryList(arr);
 
             if ( the_shaft->cut == true ) {
                 // One patch causes full occlusion
@@ -119,7 +121,9 @@ geomLink(Geometry *geom) {
     if ( geom->bounded && oldCandidateList ) {
         constructShaft(globalPatchBoundingBox, geomBounds(geom), &shaft);
         setShaftOmit(&shaft, globalPatch);
-        globalCandidateList = convertToGeometryList(doShaftCulling(convertGeometryList(oldCandidateList), &shaft, nullptr));
+        java::ArrayList<Geometry*> *arr = new java::ArrayList<Geometry*>();
+        doShaftCulling(convertGeometryList(oldCandidateList), &shaft, arr);
+        globalCandidateList = convertToGeometryList(arr);
     }
 
     // If the Geometry is an aggregate, test each of its children GEOMs, if it

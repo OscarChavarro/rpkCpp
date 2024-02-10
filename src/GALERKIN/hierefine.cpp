@@ -84,9 +84,13 @@ hierarchicRefinementCull(INTERACTION *link) {
         bool isClusteredGeometry = (geometryCandidatesList == GLOBAL_scene_clusteredWorld);
 
         if ( isClusteredGeometry ) {
-            globalCandidatesList = shaftCullGeom(GLOBAL_scene_clusteredWorldGeom, &shaft, nullptr);
+            java::ArrayList<Geometry*> *arr = new java::ArrayList<Geometry*>();
+            shaftCullGeom(GLOBAL_scene_clusteredWorldGeom, &shaft, arr);
+            globalCandidatesList = convertToGeometryList(arr);
         } else {
-            globalCandidatesList = convertToGeometryList(doShaftCulling(convertGeometryList(geometryCandidatesList), &shaft, nullptr));
+            java::ArrayList<Geometry*> *arr = new java::ArrayList<Geometry*>();
+            doShaftCulling(convertGeometryList(geometryCandidatesList), &shaft, arr);
+            globalCandidatesList = convertToGeometryList(arr);
         }
     }
 
