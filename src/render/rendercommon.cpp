@@ -133,11 +133,12 @@ renderGetNearFar(float *near, float *far) {
     float z;
 
     if ( !GLOBAL_scene_world ) {
-        *far = 10.;
-        *near = 0.1;    /* zomaar iets */
+        *far = 10.0;
+        *near = 0.1;
         return;
     }
-    geometryListBounds(GLOBAL_scene_world, bounds);
+
+    geometryListBounds(GLOBAL_scene_geometries, bounds);
 
     VECTORSET(b[0], bounds[MIN_X], bounds[MIN_Y], bounds[MIN_Z]);
     VECTORSET(b[1], bounds[MAX_X], bounds[MAX_Y], bounds[MAX_Z]);

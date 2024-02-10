@@ -19,10 +19,10 @@ geometryListAdd(GeometryListNode *geometryList, Geometry *geometry) {
 This function computes a bounding box for a list of geometries
 */
 float *
-geometryListBounds(GeometryListNode *geometryList, float *boundingBox) {
+geometryListBounds(java::ArrayList<Geometry *> *geometryList, float *boundingBox) {
     boundsInit(boundingBox);
-    for ( GeometryListNode *window = geometryList; window != nullptr; window = window->next ) {
-        boundsEnlarge(boundingBox, window->geometry->bounds);
+    for ( int i = 0; geometryList != nullptr && i < geometryList->size(); i++ ) {
+        boundsEnlarge(boundingBox, geometryList->get(i)->bounds);
     }
     return boundingBox;
 }

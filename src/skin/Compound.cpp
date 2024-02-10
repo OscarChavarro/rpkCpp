@@ -25,7 +25,9 @@ is filled in bounding box and a pointer to the filled in bounding box returned
 */
 float *
 compoundBounds(GeometryListNode *obj, float *boundingBox) {
-    return geometryListBounds(obj, boundingBox);
+    java::ArrayList<Geometry *> *list = convertGeometryList(obj);
+    return geometryListBounds(list, boundingBox);
+    delete list;
 }
 
 /**
