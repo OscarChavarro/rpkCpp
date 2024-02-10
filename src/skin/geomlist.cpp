@@ -40,7 +40,7 @@ buildPatchList(java::ArrayList<Geometry *> *geometryList, java::ArrayList<Patch 
     for ( int i = 0; geometryList != nullptr && i < geometryList->size(); i++ ) {
         Geometry *geometry = geometryList->get(i);
         if ( geomIsAggregate(geometry) ) {
-            java::ArrayList<Geometry *> *subList = geomPrimList2(geometry);
+            java::ArrayList<Geometry *> *subList = geomPrimList(geometry);
             buildPatchList(subList, patchList);
             delete subList;
         } else {

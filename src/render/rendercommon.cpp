@@ -238,7 +238,7 @@ renderGeomBounds(Geometry *geom) {
     }
 
     if ( geomIsAggregate(geom) ) {
-        java::ArrayList<Geometry *> *geometryList = geomPrimList2(geom);
+        java::ArrayList<Geometry *> *geometryList = geomPrimList(geom);
         for ( int i = 0; geometryList != nullptr && i < geometryList->size(); i++ ) {
             renderGeomBounds(geometryList->get(i));
         }

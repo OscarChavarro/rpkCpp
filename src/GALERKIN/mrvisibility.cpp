@@ -73,7 +73,7 @@ geomMultiResolutionVisibility(
         return exp(-kappa * (tmax - tmin));
     } else {
         if ( geomIsAggregate(geom) ) {
-            double visibility = geomListMultiResolutionVisibility(geomPrimList2(geom), ray, rcvdist, srcSize, minimumFeatureSize);
+            double visibility = geomListMultiResolutionVisibility(geomPrimList(geom), ray, rcvdist, srcSize, minimumFeatureSize);
             return visibility;
         } else {
             RayHit *hit = patchListIntersect(

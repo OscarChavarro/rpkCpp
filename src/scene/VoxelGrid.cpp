@@ -147,7 +147,7 @@ VoxelGrid::putSubGeometryInsideVoxelGrid(Geometry *geometry) {
         }
     } else {
         if ( geomIsAggregate(geometry) ) {
-            java::ArrayList<Geometry *> *geometryList = geomPrimList2(geometry);
+            java::ArrayList<Geometry *> *geometryList = geomPrimList(geometry);
             for ( int i = 0; geometryList != nullptr && i < geometryList->size(); i++ ) {
                 putSubGeometryInsideVoxelGrid(geometryList->get(i));
             }

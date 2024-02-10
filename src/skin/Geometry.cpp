@@ -188,19 +188,6 @@ geomIsAggregate(Geometry *geometry) {
     return geometry != nullptr && (geometry->className == GeometryClassId::COMPOUND);
 }
 
-/**
-Returns a linear list of the simpler geometries making up an aggregate geometry.
-A nullptr pointer is returned if the geometry is a primitive
-*/
-GeometryListNode *
-geomPrimList(Geometry *geometry) {
-    if ( geomIsAggregate(geometry) && geometry->compoundData != nullptr ) {
-        return geometry->compoundData->children;
-    } else {
-        return nullptr;
-    }
-}
-
 java::ArrayList<Geometry *> *
 convertGeometryList(GeometryListNode *linkedList) {
     java::ArrayList<Geometry *> *geometryList = new java::ArrayList<Geometry *>();
@@ -231,7 +218,7 @@ Returns a list of the simpler geometries making up an aggregate geometry.
 A nullptr pointer is returned if the geometry is a primitive
 */
 java::ArrayList<Geometry *> *
-geomPrimList2(Geometry *geometry) {
+geomPrimList(Geometry *geometry) {
     if ( geomIsAggregate(geometry) && geometry->compoundData != nullptr ) {
         return convertGeometryList(geometry->compoundData->children);
     } else {
@@ -379,7 +366,7 @@ Geometry::geomCountItems() {
     int count = 0;
 
     if ( geomIsAggregate(this) ) {
-        java::ArrayList<Geometry *> *geometryList = geomPrimList2(this);
+        java::ArrayList<Geometry *> *geometryList = geomPrimList(this);
         for ( int i = 0; geometryList != nullptr && i < geometryList->size(); i++ ) {
             count += geometryList->get(i)->geomCountItems();
         }

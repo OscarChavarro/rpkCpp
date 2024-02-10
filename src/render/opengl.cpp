@@ -383,7 +383,7 @@ openGlRenderOctreeNonLeaf(Geometry *geometry, void (*render_patch)(Patch *)) {
     int n;
     int remaining;
     OctreeChild octree_children[8];
-    java::ArrayList<Geometry *> *children = geomPrimList2(geometry);
+    java::ArrayList<Geometry *> *children = geomPrimList(geometry);
 
     i = 0;
     for ( int j = 0; children != nullptr && j < children->size(); j++ ) {
@@ -468,7 +468,7 @@ openGlGeometryDeleteDLists(Geometry *geom) {
     geom->displayListId = -1;
 
     if ( geomIsAggregate(GLOBAL_scene_clusteredWorldGeom)) {
-        java::ArrayList<Geometry *> *children = geomPrimList2(geom);
+        java::ArrayList<Geometry *> *children = geomPrimList(geom);
         for ( int i = 0; children != nullptr && i < children->size(); i++ ) {
             openGlGeometryDeleteDLists(children->get(i));
         }

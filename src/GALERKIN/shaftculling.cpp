@@ -746,7 +746,7 @@ shaftCullOpen(Geometry *geom, SHAFT *shaft, GeometryListNode *candidateList) {
     }
 
     if ( geomIsAggregate(geom) ) {
-        candidateList = doShaftCulling(geomPrimList(geom), shaft, candidateList);
+        candidateList = convertToGeometryList(doShaftCulling(geomPrimList(geom), shaft, candidateList));
     } else {
         java::ArrayList<Patch *> *geometryPatchesList = geomPatchArrayList(geom);
         java::ArrayList<Patch *> *culledPatches = shaftCullPatchList(geometryPatchesList, shaft);
@@ -805,13 +805,13 @@ During shaft culling getPatchList "geoms" are created - they (and only they)
 need to be destroyed when destroying a geom candidate list created by
 doShaftCulling - for other kinds of geoms, only a pointer is copied
 */
-GeometryListNode *
-doShaftCulling(GeometryListNode *world, SHAFT *shaft, GeometryListNode *candidateList) {
-    for ( ; world && !shaft->cut; world = world->next ) {
-        candidateList = shaftCullGeom(world->geometry, shaft, candidateList);
+java::ArrayList<Geometry *> *
+doShaftCulling(java::ArrayList<Geometry *> *world, SHAFT *shaft, GeometryListNode *candidateList) {
+    for ( int i = 0; world != nullptr && i < world->size() && !shaft->cut; i++ ) {
+        candidateList = shaftCullGeom(world->get(i), shaft, candidateList);
     }
 
-    return candidateList;
+    return convertGeometryList(candidateList);
 }
 
 /**

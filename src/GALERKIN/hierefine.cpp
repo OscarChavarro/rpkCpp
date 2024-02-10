@@ -86,7 +86,7 @@ hierarchicRefinementCull(INTERACTION *link) {
         if ( isClusteredGeometry ) {
             globalCandidatesList = shaftCullGeom(GLOBAL_scene_clusteredWorldGeom, &shaft, nullptr);
         } else {
-            globalCandidatesList = doShaftCulling(geometryCandidatesList, &shaft, nullptr);
+            globalCandidatesList = convertToGeometryList(doShaftCulling(convertGeometryList(geometryCandidatesList), &shaft, nullptr));
         }
     }
 
