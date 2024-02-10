@@ -73,9 +73,7 @@ geomMultiResolutionVisibility(
         return exp(-kappa * (tmax - tmin));
     } else {
         if ( geomIsAggregate(geom) ) {
-            java::ArrayList<Geometry *> *geometryList = geomPrimList2(geom);
-            double visibility = geomListMultiResolutionVisibility(geometryList, ray, rcvdist, srcSize, minimumFeatureSize);
-            delete geometryList;
+            double visibility = geomListMultiResolutionVisibility(geomPrimList(geom), ray, rcvdist, srcSize, minimumFeatureSize);
             return visibility;
         } else {
             RayHit *hit = patchListIntersect(
@@ -94,7 +92,7 @@ geomMultiResolutionVisibility(
 
 double
 geomListMultiResolutionVisibility(
-    java::ArrayList<Geometry *> *geometryOccluderList,
+    GeometryListNode *geometryOccluderList,
     Ray *ray,
     float rcvdist,
     float srcSize,
@@ -102,9 +100,9 @@ geomListMultiResolutionVisibility(
 {
     double vis = 1.0;
 
-    for ( int i = 0; geometryOccluderList != nullptr && i < geometryOccluderList->size(); i++ ) {
+    for ( GeometryListNode *window = geometryOccluderList; window != nullptr; window = window->next ) {
         double v;
-        v = geomMultiResolutionVisibility(geometryOccluderList->get(i), ray, rcvdist, srcSize, minimumFeatureSize);
+        v = geomMultiResolutionVisibility(window->geometry, ray, rcvdist, srcSize, minimumFeatureSize);
         if ( v < EPSILON ) {
             return 0.0;
         } else {

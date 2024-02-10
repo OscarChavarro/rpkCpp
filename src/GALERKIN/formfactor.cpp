@@ -4,7 +4,6 @@
 #include "GALERKIN/galerkinP.h"
 #include "GALERKIN/basisgalerkin.h"
 #include "GALERKIN/mrvisibility.h"
-#include "scene/scene.h"
 
 /**
 Returns true if P is at least partly in front the plane of Q. Returns false
@@ -110,10 +109,8 @@ pointKernelEval(
     Vector3D *y,
     GalerkinElement *rcv,
     GalerkinElement *src,
-    java::ArrayList<Geometry *> *geometryShadowList,
-    double *vis,
-    bool isSceneGeometry,
-    bool isClusteredGeometry)
+    GeometryListNode *geometryShadowList,
+    double *vis)
 {
     double dist;
     double cosp;
@@ -164,7 +161,7 @@ pointKernelEval(
     if ( !geometryShadowList ) {
         *vis = 1.0;
     } else if ( !GLOBAL_galerkin_state.multiResolutionVisibility ) {
-        if ( !shadowTestDiscretization(&ray, geometryShadowList, GLOBAL_scene_worldVoxelGrid, fdist, &hitstore, isSceneGeometry, isClusteredGeometry) ) {
+        if ( !shadowTestDiscretization(&ray, geometryShadowList, fdist, &hitstore) ) {
             *vis = 1.0;
         } else {
             *vis = 0.0;
@@ -421,11 +418,7 @@ with Scattering Volumes and Object Clusters", IEEE TVCG Vol 1 Nr 3,
 sept 1995.
 */
 unsigned
-areaToAreaFormFactor(
-    INTERACTION *link,
-    java::ArrayList<Geometry *> *geometryShadowList,
-    bool isSceneGeometry,
-    bool isClusteredGeometry) {
+areaToAreaFormFactor(INTERACTION *link, GeometryListNode *geometryShadowList) {
     // Very often, the source or receiver element is the same as the one in
     // the previous call of the function. We cache cubature rules and nodes
     // in order to prevent re-computation
@@ -526,7 +519,7 @@ areaToAreaFormFactor(
 
             f = 0.0;
             for ( l = 0; l < crsrc->numberOfNodes; l++ ) {
-                kval = pointKernelEval(&x[k], &y[l], rcv, src, geometryShadowList, &vis, isSceneGeometry, isClusteredGeometry);
+                kval = pointKernelEval(&x[k], &y[l], rcv, src, geometryShadowList, &vis);
                 Gxy[k][l] = kval * vis;
                 f += crsrc->w[l] * kval;
 

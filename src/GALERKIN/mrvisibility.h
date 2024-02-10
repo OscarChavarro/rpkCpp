@@ -24,7 +24,7 @@ min feature size. If there is a "hard" occlusion, the first patch tested that
 lead to this conclusion is added to the shadow cache
 */
 extern double
-geomListMultiResolutionVisibility(java::ArrayList<Geometry *> *geometryOccluderList, Ray *ray, float rcvdist, float srcSize, float minimumFeatureSize);
+geomListMultiResolutionVisibility(GeometryListNode *geometryOccluderList, Ray *ray, float rcvdist, float srcSize, float minimumFeatureSize);
 
 
 /* Equivalent blocker size determination: first call BlockerInit(),

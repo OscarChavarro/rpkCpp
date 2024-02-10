@@ -433,12 +433,7 @@ hierarchicRefinementCreateSubdivisionLink(GalerkinElement *rcv, GalerkinElement 
         link->nsrc = src->basisSize;
     }
 
-    java::ArrayList<Geometry *> *geometryCandidateList = convertGeometryList(globalCandidatesList);
-    bool isSceneGeometry = (globalCandidatesList != GLOBAL_scene_world);
-    bool isClusteredGeometry = (globalCandidatesList == GLOBAL_scene_clusteredWorld);
-
-    areaToAreaFormFactor(link, geometryCandidateList, isSceneGeometry, isClusteredGeometry);
-    delete geometryCandidateList;
+    areaToAreaFormFactor(link, globalCandidatesList);
 
     return link->vis != 0;
 }
