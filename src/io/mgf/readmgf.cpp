@@ -202,12 +202,13 @@ materialChanged() {
     char *materialName;
 
     materialName = GLOBAL_mgf_currentMaterialName;
-    if ( !materialName || *materialName == '\0' ) {    /* this might cause strcmp to crash !! */
+    if ( !materialName || *materialName == '\0' ) {
+        // This might cause strcmp to crash!
         materialName = (char *) "unnamed";
     }
 
-    /* is it another material than the one used for the previous face ?? If not, the
-     * globalCurrentMaterial remains the same. */
+    // Is it another material than the one used for the previous face? If not, the
+    // globalCurrentMaterial remains the same
     if ( strcmp(materialName, globalCurrentMaterial->name) == 0 && GLOBAL_mgf_currentMaterial->clock == 0 ) {
         return false;
     }
@@ -255,9 +256,9 @@ mgfGetColor(MgfColorContext *cin, float intensity, COLOR *colorOut) {
 
 float
 colorMax(COLOR col) {
-    /* We should check every wavelength in the visible spectrum, but
-     * as a first approximation, only the three RGB primary colors
-     * are checked. */
+    // We should check every wavelength in the visible spectrum, but
+    // as a first approximation, only the three RGB primary colors
+    // are checked
     float samples[NUMBER_OF_SAMPLES], mx;
     int i;
 
@@ -310,12 +311,13 @@ getCurrentMaterial() {
     char *materialName;
 
     materialName = GLOBAL_mgf_currentMaterialName;
-    if ( !materialName || *materialName == '\0' ) {    /* this might cause strcmp to crash !! */
-        materialName = (char *) "unnamed";
+    if ( !materialName || *materialName == '\0' ) {
+        // This might cause strcmp to crash!
+        materialName = (char *)"unnamed";
     }
 
-    /* is it another material than the one used for the previous face ?? If not, the
-     * globalCurrentMaterial remains the same. */
+    // Is it another material than the one used for the previous face ?? If not, the
+    // globalCurrentMaterial remains the same
     if ( strcmp(materialName, globalCurrentMaterial->name) == 0 && GLOBAL_mgf_currentMaterial->clock == 0 ) {
         return false;
     }
@@ -328,15 +330,15 @@ getCurrentMaterial() {
         }
     }
 
-    /* new material, or a material that changed. Convert intensities and chromaticities
-     * to our color model. */
+    // New material, or a material that changed. Convert intensities and chromaticities
+    // to our color model
     mgfGetColor(&GLOBAL_mgf_currentMaterial->ed_c, GLOBAL_mgf_currentMaterial->ed, &Ed);
     mgfGetColor(&GLOBAL_mgf_currentMaterial->rd_c, GLOBAL_mgf_currentMaterial->rd, &Rd);
     mgfGetColor(&GLOBAL_mgf_currentMaterial->td_c, GLOBAL_mgf_currentMaterial->td, &Td);
     mgfGetColor(&GLOBAL_mgf_currentMaterial->rs_c, GLOBAL_mgf_currentMaterial->rs, &Rs);
     mgfGetColor(&GLOBAL_mgf_currentMaterial->ts_c, GLOBAL_mgf_currentMaterial->ts, &Ts);
 
-    /* check/correct range of reflectances and transmittances */
+    // Check/correct range of reflectances and transmittances
     colorAdd(Rd, Rs, A);
     if ( (a = colorMax(A)) > 1.0f - (float)EPSILON ) {
         doWarning("invalid material specification: total reflectance shall be < 1");
@@ -346,20 +348,20 @@ getCurrentMaterial() {
     }
 
     colorAdd(Td, Ts, A);
-    if ((a = colorMax(A)) > 1.0f - (float)EPSILON ) {
+    if ( (a = colorMax(A)) > 1.0f - (float)EPSILON ) {
         doWarning("invalid material specification: total transmittance shall be < 1");
         a = (1.0f - (float)EPSILON) / a;
         colorScale(a, Td, Td);
         colorScale(a, Ts, Ts);
     }
 
-    /* convert lumen/m^2 to W/m^2 */
+    // Convert lumen / m^2 to W / m^2
     colorScale((1.0 / WHITE_EFFICACY), Ed, Ed);
 
     colorClear(Es);
     Ne = 0.0;
 
-    /* specular power = (0.6/roughness)^2 (see mgf docs) */
+    // Specular power = (0.6/roughness)^2 (see mgf docs)
     if ( GLOBAL_mgf_currentMaterial->rs_a != 0.0 ) {
         Nr = 0.6f / GLOBAL_mgf_currentMaterial->rs_a;
         Nr *= Nr;
@@ -400,7 +402,7 @@ getCurrentMaterial() {
     GLOBAL_scene_materials->add(0, theMaterial);
     globalCurrentMaterial = theMaterial;
 
-    /* reset the clock value so we will be aware of possible changes in future */
+    // Reset the clock value to be aware of possible changes in future
     GLOBAL_mgf_currentMaterial->clock = 0;
 
     return true;
@@ -448,12 +450,12 @@ getVertex(char *name) {
         Vector3D *thePoint;
 
         mgfTransformPoint(vert, vp->p);
-        thePoint = installPoint(vert[0], vert[1], vert[2]);
+        thePoint = installPoint((float)vert[0], (float)vert[1], (float)vert[2]);
         if ( is0vect(vp->n)) {
             theNormal = nullptr;
         } else {
             mgfTransformVector(norm, vp->n);
-            theNormal = installNormal(norm[0], norm[1], norm[2]);
+            theNormal = installNormal((float)norm[0], (float)norm[1], (float)norm[2]);
         }
         theVertex = installVertex(thePoint, theNormal, name);
         vp->client_data = (void *) theVertex;
@@ -531,7 +533,7 @@ faceNormal(int numberOfVertices, Vertex **v, Vector3D *normal) {
         // Degenerate normal --> degenerate polygon
         return nullptr;
     }
-    VECTORSCALEINVERSE(norm, n, n);
+    VECTORSCALEINVERSE((float)norm, n, n);
     *normal = n;
 
     return normal;
@@ -578,7 +580,7 @@ static int
 pointInsideTriangle2D(Vector2D *p, Vector2D *p1, Vector2D *p2, Vector2D *p3) {
     double u0, v0, u1, v1, u2, v2, a, b;
 
-    /* from Graphics Gems I, Didier Badouel, An Efficient Ray-Polygon Intersection, p390 */
+    // From Graphics Gems I, Didier Badouel, An Efficient Ray-Polygon Intersection, p390
     u0 = p->u - p1->u;
     v0 = p->v - p1->v;
     u1 = p2->u - p1->u;
@@ -586,10 +588,10 @@ pointInsideTriangle2D(Vector2D *p, Vector2D *p1, Vector2D *p2, Vector2D *p3) {
     u2 = p3->u - p1->u;
     v2 = p3->v - p1->v;
 
-    a = 10.;
-    b = 10.;    /* values large enough so the result would be false */
-    if ( fabs(u1) < EPSILON ) {
-        if ( fabs(u2) > EPSILON && fabs(v1) > EPSILON ) {
+    a = 10.0;
+    b = 10.0; // Values large enough so the result would be false
+    if ( std::fabs(u1) < EPSILON ) {
+        if ( std::fabs(u2) > EPSILON && std::fabs(v1) > EPSILON ) {
             b = u0 / u2;
             if ( b < EPSILON || b > 1. - EPSILON ) {
                 return false;
@@ -599,9 +601,9 @@ pointInsideTriangle2D(Vector2D *p, Vector2D *p1, Vector2D *p2, Vector2D *p3) {
         }
     } else {
         b = v2 * u1 - u2 * v1;
-        if ( fabs(b) > EPSILON ) {
+        if ( std::fabs(b) > EPSILON ) {
             b = (v0 * u1 - u0 * v1) / b;
-            if ( b < EPSILON || b > 1. - EPSILON ) {
+            if ( b < EPSILON || b > 1.0 - EPSILON ) {
                 return false;
             } else {
                 a = (u0 - b * u2) / u1;
@@ -609,7 +611,7 @@ pointInsideTriangle2D(Vector2D *p, Vector2D *p1, Vector2D *p2, Vector2D *p3) {
         }
     }
 
-    return (a >= EPSILON && a <= 1. - EPSILON && (a + b) <= 1. - EPSILON);
+    return (a >= EPSILON && a <= 1.0 - EPSILON && (a + b) <= 1.0 - EPSILON);
 }
 
 /**
@@ -620,7 +622,7 @@ segmentsIntersect2D(Vector2D *p1, Vector2D *p2, Vector2D *p3, Vector2D *p4) {
     double a, b, c, du, dv, r1, r2, r3, r4;
     int colinear = false;
 
-    /* from Graphics Gems II, Mukesh Prasad, Intersection of Line Segments, p7 */
+    // From Graphics Gems II, Mukesh Prasad, Intersection of Line Segments, p7
     du = fabs(p2->u - p1->u);
     dv = fabs(p2->v - p1->v);
     if ( du > EPSILON || dv > EPSILON ) {
@@ -673,8 +675,8 @@ segmentsIntersect2D(Vector2D *p1, Vector2D *p2, Vector2D *p3, Vector2D *p4) {
         return true;
     }
 
-    return false;    /* colinear segments never intersect: do as if they are always
-		 * a little bit apart from each other */
+    return false; // Co-linear segments never intersect: do as if they are always
+		 // a bit apart from each other
 }
 
 /**
@@ -685,23 +687,34 @@ the (indispensable) Graphics Gems books
 */
 static int
 doComplexFace(int n, Vertex **v, Vector3D *normal, Vertex **backv, Vector3D *backnormal) {
-    int i, j, max, p0, p1, p2, corners, start, good, index;
-    double maxd, d, a;
+    int i;
+    int j;
+    int max;
+    int p0;
+    int p1;
+    int p2;
+    int corners;
+    int start;
+    int good;
+    int index;
+    double maxD;
+    double d;
+    double a;
     Vector3D center;
     char out[MAXIMUM_FACE_VERTICES + 1];
     Vector2D q[MAXIMUM_FACE_VERTICES + 1];
     Vector3D nn;
 
-    VECTORSET(center, 0., 0., 0.);
+    VECTORSET(center, 0.0, 0.0, 0.0);
     for ( i = 0; i < n; i++ ) VECTORADD(center, *(v[i]->point), center);
     VECTORSCALEINVERSE((float) n, center, center);
 
-    maxd = VECTORDIST(center, *(v[0]->point));
+    maxD = VECTORDIST(center, *(v[0]->point));
     max = 0;
     for ( i = 1; i < n; i++ ) {
         d = VECTORDIST(center, *(v[i]->point));
-        if ( d > maxd ) {
-            maxd = d;
+        if ( d > maxD ) {
+            maxD = d;
             max = i;
         }
     }
@@ -721,12 +734,12 @@ doComplexFace(int n, Vertex **v, Vector3D *normal, Vertex **backv, Vector3D *bac
     index = vector3DDominantCoord(normal);
 
     for ( i = 0; i < n; i++ ) {
-	VECTORPROJECT(q[i], *(v[i]->point), index);
+	    VECTORPROJECT(q[i], *(v[i]->point), index);
     }
 
     corners = n;
     p0 = -1;
-    a = 0.;    /* to make gcc -Wall not complain */
+    a = 0.0; // To make gcc -Wall not complain
 
     while ( corners >= 3 ) {
         start = p0;
@@ -753,7 +766,7 @@ doComplexFace(int n, Vertex **v, Vector3D *normal, Vertex **backv, Vector3D *bac
 
             VECTORTRIPLECROSSPRODUCT(*(v[p0]->point), *(v[p1]->point), *(v[p2]->point), nn);
             a = VECTORNORM(nn);
-            VECTORSCALEINVERSE(a, nn, nn);
+            VECTORSCALEINVERSE((float)a, nn, nn);
             d = VECTORDIST(nn, *normal);
 
             good = true;
@@ -781,10 +794,11 @@ doComplexFace(int n, Vertex **v, Vector3D *normal, Vertex **backv, Vector3D *bac
 
         if ( p0 == start ) {
             doError("misbuilt polygonal face");
-            return MGF_OK;    /* don't stop parsing the input however. */
+            return MGF_OK; // Don't stop parsing the input however
         }
 
-        if ( fabs(a) > EPSILON ) {    /* avoid degenerate faces */
+        if ( std::fabs(a) > EPSILON ) {
+            // Avoid degenerate faces
             Patch *face, *twin;
             face = newFace(v[p0], v[p1], v[p2], nullptr, normal);
             if ( !globalCurrentMaterial->sided ) {
@@ -803,20 +817,24 @@ doComplexFace(int n, Vertex **v, Vector3D *normal, Vertex **backv, Vector3D *bac
 
 static int
 handleFaceEntity(int argc, char **argv) {
-    Vertex *v[MAXIMUM_FACE_VERTICES + 1], *backv[MAXIMUM_FACE_VERTICES + 1];
-    Vector3D normal, backnormal;
-    Patch *face, *twin;
-    int i, errcode;
+    Vertex *v[MAXIMUM_FACE_VERTICES + 1];
+    Vertex *backV[MAXIMUM_FACE_VERTICES + 1];
+    Vector3D normal;
+    Vector3D backNormal;
+    Patch *face;
+    Patch *twin;
+    int i;
+    int errcode;
 
     if ( argc < 4 ) {
         doError("too few vertices in face");
-        return MGF_OK;    /* don't stop parsing the input */
+        return MGF_OK; // Don't stop parsing the input
     }
 
     if ( argc - 1 > MAXIMUM_FACE_VERTICES ) {
         doWarning(
                 "too many vertices in face. Recompile the program with larger MAXIMUM_FACE_VERTICES constant in readmgf.c");
-        return MGF_OK;    /* no reason to stop parsing the input */
+        return MGF_OK; // No reason to stop parsing the input
     }
 
     if ( !globalInComplex ) {
@@ -835,39 +853,41 @@ handleFaceEntity(int argc, char **argv) {
             // This is however a reason to stop parsing the input
             return MGF_ERROR_UNDEFINED_REFERENCE;
         }
-        backv[i] = nullptr;
+        backV[i] = nullptr;
         if ( !globalCurrentMaterial->sided )
-            backv[i] = getBackFaceVertex(v[i], argv[i + 1]);
+            backV[i] = getBackFaceVertex(v[i], argv[i + 1]);
     }
 
     if ( !faceNormal(argc - 1, v, &normal)) {
         doWarning("degenerate face");
-        return MGF_OK;    /* just ignore the generate face */
+        return MGF_OK; // Just ignore the generated face
     }
-    if ( !globalCurrentMaterial->sided ) VECTORSCALE(-1., normal, backnormal);
+    if ( !globalCurrentMaterial->sided ) VECTORSCALE(-1.0, normal, backNormal);
 
     errcode = MGF_OK;
     if ( argc == 4 ) {
         // Triangles
         face = newFace(v[0], v[1], v[2], nullptr, &normal);
         if ( !globalCurrentMaterial->sided ) {
-            twin = newFace(backv[2], backv[1], backv[0], nullptr, &backnormal);
+            twin = newFace(backV[2], backV[1], backV[0], nullptr, &backNormal);
             face->twin = twin;
             twin->twin = face;
         }
-    } else if ( argc == 5 ) {    /* quadrilaterals */
+    } else if ( argc == 5 ) {
+        // Quadrilaterals
         if ( globalInComplex || faceIsConvex(argc - 1, v, &normal)) {
             face = newFace(v[0], v[1], v[2], v[3], &normal);
             if ( !globalCurrentMaterial->sided ) {
-                twin = newFace(backv[3], backv[2], backv[1], backv[0], &backnormal);
+                twin = newFace(backV[3], backV[2], backV[1], backV[0], &backNormal);
                 face->twin = twin;
                 twin->twin = face;
             }
         } else {
-            errcode = doComplexFace(argc - 1, v, &normal, backv, &backnormal);
+            errcode = doComplexFace(argc - 1, v, &normal, backV, &backNormal);
         }
-    } else {            /* more than 4 vertices */
-        errcode = doComplexFace(argc - 1, v, &normal, backv, &backnormal);
+    } else {
+        // More than 4 vertices
+        errcode = doComplexFace(argc - 1, v, &normal, backV, &backNormal);
     }
 
     return errcode;
@@ -880,148 +900,163 @@ without hole entity handling routine handleFaceEntity() and calls it
 */
 static int
 handleFaceWithHolesEntity(int argc, char **argv) {
-    FVECT v[MAXIMUM_FACE_VERTICES + 1];      /* v[i] = location of vertex argv[i] */
-    char *nargv[MAXIMUM_FACE_VERTICES + 1], /* arguments to be passed to the face
-				   * without hole entity handler */
-    copied[MAXIMUM_FACE_VERTICES + 1]; /* copied[i] is 1 or 0 indicating whether
-				   * or not the vertex argv[i] has been 
-				   * copied to newcontour */
-    int newcontour[MAXIMUM_FACE_VERTICES];/* newcontour[i] will contain the i-th
-				   * vertex of the face with eliminated 
-				   * holes */
-    int i, ncopied;          /* ncopied is the number of vertices in
-				   * newcontour */
+    FVECT v[MAXIMUM_FACE_VERTICES + 1]; // v[i] = location of vertex argv[i]
+    char *nargv[MAXIMUM_FACE_VERTICES + 1], // Arguments to be passed to the face
+    // without hole entity handler
+    copied[MAXIMUM_FACE_VERTICES + 1]; // copied[i] is 1 or 0 indicating if
+    // the vertex argv[i] has been copied to new contour
+    int newcontour[MAXIMUM_FACE_VERTICES]; // newContour[i] will contain the i-th
+    // vertex of the face with eliminated holes
+    int i;
+    int numberOfVerticesInNewContour;
 
     if ( argc - 1 > MAXIMUM_FACE_VERTICES ) {
         doWarning(
                 "too many vertices in face. Recompile the program with larger MAXIMUM_FACE_VERTICES constant in readmgf.c");
-        return MGF_OK;    /* no reason to stop parsing the input */
+        return MGF_OK; // No reason to stop parsing the input
     }
 
-    /* Get the location of the vertices: the location of the vertex
-     * argv[i] is kept in v[i] (i=1 ... argc-1, and argv[i] not a contour
-     * separator) */
+    // Get the location of the vertices: the location of the vertex
+    // argv[i] is kept in v[i] (i=1 ... argc-1, and argv[i] not a contour
+    // separator)
     for ( i = 1; i < argc; i++ ) {
         MgfVertexContext *vp;
 
-        if ( *argv[i] == '-' ) {    /* skip contour separators */
+        if ( *argv[i] == '-' ) {
+            // Skip contour separators
             continue;
         }
 
         vp = getNamedVertex(argv[i]);
-        if ( !vp ) {            /* undefined vertex. */
+        if ( !vp ) {
+            // Undefined vertex
             return MGF_ERROR_UNDEFINED_REFERENCE;
         }
-        mgfTransformPoint(v[i], vp->p);    /* transform with the current transform */
+        mgfTransformPoint(v[i], vp->p); // Transform with the current transform
 
-        copied[i] = false;        /* vertex not yet copied to nargv */
+        copied[i] = false; // Vertex not yet copied to nargv
     }
 
-    /* copy the outer contour */
-    ncopied = 0;
+    // Copy the outer contour
+    numberOfVerticesInNewContour = 0;
     for ( i = 1; i < argc && *argv[i] != '-'; i++ ) {
-        newcontour[ncopied++] = i;
+        newcontour[numberOfVerticesInNewContour++] = i;
         copied[i] = true;
     }
 
-    /* find next not yet copied vertex in argv (i++ should suffice, but
-     * this way we can also skip multiple "-"s ...) */
+    // Find next not yet copied vertex in argv (i++ should suffice, but
+    // this way we can also skip multiple "-"s ...)
     for ( ; i < argc; i++ ) {
         if ( *argv[i] == '-' ) {
+            // Skip contour separators
             continue;
-        }        /* skip contour separators */
-        if ( !copied[i] )
-            break;        /* not yet copied vertex encountered */
+        }
+        if ( !copied[i] ) {
+            // Not yet copied vertex encountered
+            break;
+        }
     }
 
     while ( i < argc ) {
-        /* i is the first vertex of a hole that is not yet eliminated. */
-        int nearestcopied, nearestother, first, last, num, j, k;
-        double mindist;
+        // i is the first vertex of a hole that is not yet eliminated
+        int nearestCopied;
+        int nearestOther;
+        int first;
+        int last;
+        int num;
+        int j;
+        int k;
+        double minimumDistance;
 
-        /* Find the not yet copied vertex that is nearest to the already
-         * copied ones. */
-        nearestcopied = nearestother = 0;
-        mindist = HUGE;
+        // Find the not yet copied vertex that is nearest to the already
+        // copied ones
+        nearestCopied = nearestOther = 0;
+        minimumDistance = HUGE;
         for ( j = i; j < argc; j++ ) {
             if ( *argv[j] == '-' || copied[j] ) {
                 continue;
-            }    /* contour separator or already copied vertex */
-            for ( k = 0; k < ncopied; k++ ) {
+            }
+            // Contour separator or already copied vertex
+
+            for ( k = 0; k < numberOfVerticesInNewContour; k++ ) {
                 double d = distanceSquared(&v[j], &v[newcontour[k]]);
-                if ( d < mindist ) {
-                    mindist = d;
-                    nearestcopied = k;
-                    nearestother = j;
+                if ( d < minimumDistance ) {
+                    minimumDistance = d;
+                    nearestCopied = k;
+                    nearestOther = j;
                 }
             }
         }
 
-        /* find first vertex of this nearest contour */
-        for ( first = nearestother; *argv[first] != '-'; first-- ) {
+        // Find first vertex of this nearest contour
+        for ( first = nearestOther; *argv[first] != '-'; first-- ) {
         }
         first++;
 
-        /* find last vertex in this nearest contour */
-        for ( last = nearestother; last < argc && *argv[last] != '-'; last++ ) {
+        // Find last vertex in this nearest contour
+        for ( last = nearestOther; last < argc && *argv[last] != '-'; last++ ) {
         }
         last--;
 
-        /* number of vertices in nearest contour */
+        // Number of vertices in the nearest contour
         num = last - first + 1;
 
-        /* create num+2 extra vertices in newcontour. */
-        if ( ncopied + num + 2 > MAXIMUM_FACE_VERTICES ) {
+        // Create num+2 extra vertices in new contour
+        if ( numberOfVerticesInNewContour + num + 2 > MAXIMUM_FACE_VERTICES ) {
             doWarning(
                     "too many vertices in face. Recompile the program with larger MAXIMUM_FACE_VERTICES constant in readmgf.c");
-            return MGF_OK;    /* no reason to stop parsing the input */
+            return MGF_OK; // No reason to stop parsing the input
         }
 
-        /* shift the elements in newcontour starting at position nearestcopied
-         * num+2 places further. Vertex newcontour[nearestcopied] will be connected
-         * to vertex nearestother ... last, first ... nearestother and
-         * than back to newcontour[nearestcopied]. */
-        for ( k = ncopied - 1; k >= nearestcopied; k-- ) {
+        // Shift the elements in new contour starting at position nearestCopied
+        // num+2 places further. Vertex new contour[nearestCopied] will be connected
+        // to vertex nearestOther ... last, first ... nearestOther and
+        // back to newContour[nearestCopied]
+        for ( k = numberOfVerticesInNewContour - 1; k >= nearestCopied; k-- ) {
             newcontour[k + num + 2] = newcontour[k];
         }
-        ncopied += num + 2;
+        numberOfVerticesInNewContour += num + 2;
 
-        /* insert the vertices of the nearest contour (closing the loop) */
-        k = nearestcopied + 1;
-        for ( j = nearestother; j <= last; j++ ) {
+        // Insert the vertices of the nearest contour (closing the loop)
+        k = nearestCopied + 1;
+        for ( j = nearestOther; j <= last; j++ ) {
             newcontour[k++] = j;
             copied[j] = true;
         }
-        for ( j = first; j <= nearestother; j++ ) {
+        for ( j = first; j <= nearestOther; j++ ) {
             newcontour[k++] = j;
             copied[j] = true;
         }
 
-        /* find next not yet copied vertex in argv */
+        // Find next not yet copied vertex in argv
         for ( ; i < argc; i++ ) {
             if ( *argv[i] == '-' ) {
                 continue;
-            }    /* skip contour separators */
-            if ( !copied[i] )
-                break;        /* not yet copied vertex encountered */
+            }
+            // Skip contour separators
+            if ( !copied[i] ) {
+                // Not yet copied vertex encountered
+                break;
+            }
         }
     }
 
-    /* build an argument list for the new polygon without holes */
+    // Build an argument list for the new polygon without holes
     nargv[0] = (char *) "f";
-    for ( i = 0; i < ncopied; i++ ) {
+    for ( i = 0; i < numberOfVerticesInNewContour; i++ ) {
         nargv[i + 1] = argv[newcontour[i]];
     }
 
-    /* and handle the face without holes */
-    return handleFaceEntity(ncopied + 1, nargv);
+    // And handle the face without holes
+    return handleFaceEntity(numberOfVerticesInNewContour + 1, nargv);
 }
 
 static int
 handleSurfaceEntity(int argc, char **argv) {
     int errcode;
 
-    if ( globalInComplex ) { /* mgfEntitySphere calls mgfEntityCone ... */
+    if ( globalInComplex ) {
+        // mgfEntitySphere calls mgfEntityCone
         return doDiscretize(argc, argv);
     } else {
         globalInComplex = true;
@@ -1044,7 +1079,8 @@ static int
 handleObjectEntity(int argc, char **argv) {
     int i;
 
-    if ( argc > 1 ) {    /* beginning of a new object */
+    if ( argc > 1 ) {
+        // Beginning of a new object
         for ( i = 0; i < globalGeometryStackPtr - globalGeometryStack; i++ ) {
             fprintf(stderr, "\t");
         }
