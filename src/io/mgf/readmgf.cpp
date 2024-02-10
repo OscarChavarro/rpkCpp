@@ -902,11 +902,11 @@ static int
 handleFaceWithHolesEntity(int argc, char **argv) {
     FVECT v[MAXIMUM_FACE_VERTICES + 1]; // v[i] = location of vertex argv[i]
     char *nargv[MAXIMUM_FACE_VERTICES + 1], // Arguments to be passed to the face
-    // without hole entity handler
+                                            // without hole entity handler
     copied[MAXIMUM_FACE_VERTICES + 1]; // copied[i] is 1 or 0 indicating if
-    // the vertex argv[i] has been copied to new contour
-    int newcontour[MAXIMUM_FACE_VERTICES]; // newContour[i] will contain the i-th
-    // vertex of the face with eliminated holes
+                                       // the vertex argv[i] has been copied to new contour
+    int newContour[MAXIMUM_FACE_VERTICES]; // newContour[i] will contain the i-th
+                                           // vertex of the face with eliminated holes
     int i;
     int numberOfVerticesInNewContour;
 
@@ -940,7 +940,7 @@ handleFaceWithHolesEntity(int argc, char **argv) {
     // Copy the outer contour
     numberOfVerticesInNewContour = 0;
     for ( i = 1; i < argc && *argv[i] != '-'; i++ ) {
-        newcontour[numberOfVerticesInNewContour++] = i;
+        newContour[numberOfVerticesInNewContour++] = i;
         copied[i] = true;
     }
 
@@ -958,7 +958,7 @@ handleFaceWithHolesEntity(int argc, char **argv) {
     }
 
     while ( i < argc ) {
-        // i is the first vertex of a hole that is not yet eliminated
+        // First i vertex of a hole that is not yet eliminated
         int nearestCopied;
         int nearestOther;
         int first;
@@ -979,7 +979,7 @@ handleFaceWithHolesEntity(int argc, char **argv) {
             // Contour separator or already copied vertex
 
             for ( k = 0; k < numberOfVerticesInNewContour; k++ ) {
-                double d = distanceSquared(&v[j], &v[newcontour[k]]);
+                double d = distanceSquared(&v[j], &v[newContour[k]]);
                 if ( d < minimumDistance ) {
                     minimumDistance = d;
                     nearestCopied = k;
@@ -1013,18 +1013,18 @@ handleFaceWithHolesEntity(int argc, char **argv) {
         // to vertex nearestOther ... last, first ... nearestOther and
         // back to newContour[nearestCopied]
         for ( k = numberOfVerticesInNewContour - 1; k >= nearestCopied; k-- ) {
-            newcontour[k + num + 2] = newcontour[k];
+            newContour[k + num + 2] = newContour[k];
         }
         numberOfVerticesInNewContour += num + 2;
 
         // Insert the vertices of the nearest contour (closing the loop)
         k = nearestCopied + 1;
         for ( j = nearestOther; j <= last; j++ ) {
-            newcontour[k++] = j;
+            newContour[k++] = j;
             copied[j] = true;
         }
         for ( j = first; j <= nearestOther; j++ ) {
-            newcontour[k++] = j;
+            newContour[k++] = j;
             copied[j] = true;
         }
 
@@ -1044,7 +1044,7 @@ handleFaceWithHolesEntity(int argc, char **argv) {
     // Build an argument list for the new polygon without holes
     nargv[0] = (char *) "f";
     for ( i = 0; i < numberOfVerticesInNewContour; i++ ) {
-        nargv[i + 1] = argv[newcontour[i]];
+        nargv[i + 1] = argv[newContour[i]];
     }
 
     // And handle the face without holes
@@ -1101,7 +1101,7 @@ handleObjectEntity(int argc, char **argv) {
             surfaceDone();
         }
 
-        int listSize = 0;
+        long listSize = 0;
         if ( globalCurrentGeometryList != nullptr ) {
             listSize += globalCurrentGeometryList->size();
         }
