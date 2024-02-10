@@ -12,10 +12,10 @@ to geomCreateBase() for creating a Compound Geometry if you don't want
 it to be counted
 */
 Compound *
-compoundCreate(GeometryListNode *geometryList) {
+compoundCreate(java::ArrayList<Geometry *> *geometryList) {
     GLOBAL_statistics_numberOfCompounds++;
     Compound *group = new Compound();
-    group->children = geometryList;
+    group->children = convertToGeometryList(geometryList);;
     return group;
 }
 
@@ -24,10 +24,8 @@ This method will compute a bounding box for a geometry. The bounding box
 is filled in bounding box and a pointer to the filled in bounding box returned
 */
 float *
-compoundBounds(GeometryListNode *obj, float *boundingBox) {
-    java::ArrayList<Geometry *> *list = convertGeometryList(obj);
-    return geometryListBounds(list, boundingBox);
-    delete list;
+compoundBounds(java::ArrayList<Geometry *> *geometryList, float *boundingBox) {
+    return geometryListBounds(geometryList, boundingBox);
 }
 
 /**

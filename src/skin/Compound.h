@@ -9,7 +9,7 @@ public:
     GeometryListNode *children;
 };
 
-extern Compound *compoundCreate(GeometryListNode *geometryList);
+extern Compound *compoundCreate(java::ArrayList<Geometry *> *geometryList);
 
 extern RayHit *
 compoundDiscretizationIntersect(
@@ -21,7 +21,7 @@ compoundDiscretizationIntersect(
     RayHit *hitStore);
 
 extern float *
-compoundBounds(GeometryListNode *obj, float *boundingBox);
+compoundBounds(java::ArrayList<Geometry *> *obj, float *boundingBox);
 
 extern HITLIST *
 compoundAllDiscretizationIntersections(

@@ -36,7 +36,6 @@ static java::ArrayList<Geometry *> **globalGeometryStackPtr;
 static int globalInComplex = false; // true if reading a sphere, torus or other unsupported
 static int globalInSurface = false; // true if busy creating a new surface
 static int globalAllSurfacesSided = false; // when set to true, all surfaces will be considered one-sided
-static GeometryListNode *globalWeirdPointer;
 
 static void
 doError(const char *errmsg) {
@@ -1106,18 +1105,15 @@ handleObjectEntity(int argc, char **argv) {
             listSize += globalCurrentGeometryList->size();
         }
 
-        // TODO: Will have a memory leak on globalWeirdPointer, pending to clean this
-        globalWeirdPointer = nullptr;
         if ( listSize > 0 ) {
-            globalWeirdPointer = convertToGeometryList(globalCurrentGeometryList);
-            theGeometry = geomCreateCompound(compoundCreate(globalWeirdPointer));
+            theGeometry = geomCreateCompound(compoundCreate(globalCurrentGeometryList));
         }
 
         popCurrentGeometryList();
 
         if ( theGeometry ) {
             globalCurrentGeometryList->add(0, theGeometry);
-            globalWeirdPointer = convertToGeometryList(globalCurrentGeometryList);
+            GLOBAL_scene_world = convertToGeometryList(globalCurrentGeometryList);
         }
 
         newSurface();
@@ -1216,7 +1212,6 @@ readMgf(char *filename) {
     if ( globalInSurface ) {
         surfaceDone();
     }
-    GLOBAL_scene_world = globalWeirdPointer;
     GLOBAL_scene_geometries = (globalCurrentGeometryList);
 
     if ( globalPointsOctree != nullptr) {

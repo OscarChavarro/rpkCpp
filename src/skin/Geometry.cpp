@@ -91,7 +91,9 @@ geomCreateBase(
     if ( className == GeometryClassId::SURFACE_MESH ) {
         surfaceBounds(surfaceData, newGeometry->bounds);
     } else if ( className == GeometryClassId::COMPOUND ) {
-        compoundBounds(compoundData->children, newGeometry->bounds);
+        java::ArrayList<Geometry *> *geometryList = convertGeometryList(compoundData->children);
+        compoundBounds(geometryList, newGeometry->bounds);
+        delete geometryList;
     } else /* if ( className == GeometryClassId::PATCH_SET ) */ {
         java::ArrayList<Patch *> *tmpList = patchListExportToArrayList(patchSetData);
         patchListBounds(tmpList, newGeometry->bounds);
