@@ -3,6 +3,7 @@
 #include <cstring>
 
 #include "common/error.h"
+#include "common/options.h"
 #include "skin/Geometry.h"
 #include "scene/scene.h"
 #include "io/writevrml.h"
@@ -219,8 +220,9 @@ mcrWriteVrmlHeader(FILE *fp) {
     fprintf(fp, "#VRML V2.0 utf8\n\n");
 
     fprintf(fp,
-            "WorldInfo {\n  rpk\n  info [ \"Created with RenderPark (%s) using Monte Carlo radiosty\" ]\n}\n\n",
-            "Some nice model");
+            "WorldInfo {\n  title \"%s\"\n  info [ \"Created with RenderPark (%s) using Monte Carlo radiosty\" ]\n}\n\n",
+            "Some nice model",
+            RPKHOME);
 
     fprintf(fp, "NavigationInfo {\n type \"WALK\"\n headlight FALSE\n}\n\n");
 

@@ -4,6 +4,7 @@ Saves the result of a radiosity computation as a VRML file
 
 #include "java/util/ArrayList.txx"
 #include "common/linealAlgebra/Matrix4x4.h"
+#include "common/options.h"
 #include "common/RenderOptions.h"
 #include "skin/Patch.h"
 #include "io/writevrml.h"
@@ -96,8 +97,9 @@ writeVrmlHeader(FILE *fp) {
 
     fprintf(fp, "#VRML V2.0 utf8\n\n");
 
-    fprintf(fp, "WorldInfo {\n  rpk\n  info [ \"Created using RenderPark (%s)\" ]\n}\n\n",
-            "Some nice model");
+    fprintf(fp, "WorldInfo {\n  title \"%s\"\n  info [ \"Created using RenderPark (%s)\" ]\n}\n\n",
+            "Some nice model",
+            RPKHOME);
 
     fprintf(fp, "NavigationInfo {\n type \"WALK\"\n headlight FALSE\n}\n\n");
 
