@@ -2,6 +2,7 @@
 Hierarchical refinement
 */
 
+#include "java/util/ArrayList.txx"
 #include "common/error.h"
 #include "material/statistics.h"
 #include "GALERKIN/basisgalerkin.h"
@@ -13,9 +14,9 @@ Hierarchical refinement
 Shaft culling stuff for hierarchical refinement
 */
 
-static int refineRecursive(INTERACTION *link);    /* forward decl. */
+static int refineRecursive(INTERACTION *link);
 
-static GeometryListNode *globalCandidatesList;    /* candidate occluder list for a pair of patches. */
+static GeometryListNode *globalCandidatesList; // Candidate occluder list for a pair of patches
 
 /**
 Evaluates the interaction and returns a code telling whether it is accurate enough
@@ -79,7 +80,10 @@ hierarchicRefinementCull(INTERACTION *link) {
             setShaftOmit(&shaft, link->sourceElement->patch);
         }
 
-        if ( geometryCandidatesList == GLOBAL_scene_clusteredWorld ) {
+        //bool isSceneGeometry = (geometryCandidatesList == GLOBAL_scene_world);
+        bool isClusteredGeometry = (geometryCandidatesList == GLOBAL_scene_clusteredWorld);
+
+        if ( isClusteredGeometry ) {
             globalCandidatesList = shaftCullGeom(GLOBAL_scene_clusteredWorldGeom, &shaft, nullptr);
         } else {
             globalCandidatesList = doShaftCulling(geometryCandidatesList, &shaft, nullptr);
@@ -190,7 +194,7 @@ hierarchicRefinementApproximationError(INTERACTION *link, COLOR srcRho, COLOR rc
             colorAbs(error, error);
             approxError = hierarchicRefinementColorToError(error);
 
-            if ( GLOBAL_galerkin_state.importance_driven && isCluster(link->receiverElement)) {
+            if ( GLOBAL_galerkin_state.importance_driven && isCluster(link->receiverElement) ) {
                 // Make sure the link is also suited for transport of un-shot potential
                 // from source to receiver. Note that it makes no sense to
                 // subdivide receiver patches (potential is only used to help
@@ -278,8 +282,8 @@ hierarchicRefinementEvaluateInteraction(INTERACTION *link) {
 
     // Determine receiver area (projected visible area for a receiver cluster)
     // and reflectivity
-    if ( isCluster(link->receiverElement)) {
-        colorSetMonochrome(rcvRho, 1.);
+    if ( isCluster(link->receiverElement) ) {
+        colorSetMonochrome(rcvRho, 1.0);
         rcv_area = receiverClusterArea(link);
     } else {
         rcvRho = link->receiverElement->patch->radianceData->Rd;
@@ -306,8 +310,8 @@ hierarchicRefinementEvaluateInteraction(INTERACTION *link) {
     if ( error > threshold ) {
         // A very simple but robust subdivision strategy: subdivide the
         // largest of the two elements in order to reduce the error
-        if ((!(isCluster(link->sourceElement) && IsLightSource(link->sourceElement))) &&
-            (rcv_area > link->sourceElement->area)) {
+        if ( (!(isCluster(link->sourceElement) && IsLightSource(link->sourceElement))) &&
+            (rcv_area > link->sourceElement->area) ) {
             if ( rcv_area > min_area ) {
                 if ( isCluster(link->receiverElement))
                     code = SUBDIVIDE_RECEIVER_CLUSTER;
@@ -415,19 +419,19 @@ Computes the form factor and error estimation coefficients. If the form factor
 is not zero, the data is filled in the INTERACTION pointed to by 'link'
 and true is returned. If the elements don't interact, false is returned
 */
-int
+static int
 hierarchicRefinementCreateSubdivisionLink(GalerkinElement *rcv, GalerkinElement *src, INTERACTION *link) {
     link->receiverElement = rcv;
     link->sourceElement = src;
 
     // Always a constant approximation on cluster elements
-    if ( isCluster(link->receiverElement)) {
+    if ( isCluster(link->receiverElement) ) {
         link->nrcv = 1;
     } else {
         link->nrcv = rcv->basisSize;
     }
 
-    if ( isCluster(link->sourceElement)) {
+    if ( isCluster(link->sourceElement) ) {
         link->nsrc = 1;
     } else {
         link->nsrc = src->basisSize;
@@ -592,7 +596,7 @@ effectively refined, so the specified interaction can be deleted. Returns false
 if the interaction was not refined and is to be retained. If the interaction
 does not need to be refined, light transport over the interaction is computed
 */
-int
+static int
 refineRecursive(INTERACTION *link) {
     int refined = false;
 
@@ -622,7 +626,7 @@ refineRecursive(INTERACTION *link) {
 
 void
 refineInteraction(INTERACTION *link) {
-    globalCandidatesList = GLOBAL_scene_clusteredWorld;    /* candidate occluder list for a pair of patches. */
+    globalCandidatesList = GLOBAL_scene_clusteredWorld; // Candidate occluder list for a pair of patches
     if ( GLOBAL_galerkin_state.exact_visibility && link->vis == 255 ) {
         globalCandidatesList = nullptr;
     }

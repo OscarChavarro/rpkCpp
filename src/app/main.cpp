@@ -424,7 +424,7 @@ mainReadFile(char *filename) {
 
     if ( GLOBAL_scene_clusteredWorldGeom->className == GeometryClassId::COMPOUND ) {
         if ( GLOBAL_scene_clusteredWorldGeom->compoundData != nullptr ) {
-            GLOBAL_scene_clusteredWorld = &GLOBAL_scene_clusteredWorldGeom->compoundData->children;
+            GLOBAL_scene_clusteredWorld = GLOBAL_scene_clusteredWorldGeom->compoundData->children;
             GLOBAL_scene_clusteredGeometries = convertGeometryList(GLOBAL_scene_clusteredWorld);
         } else {
             fprintf(stderr, "Unexpected case: review code - generic case not supported anymore.\n");

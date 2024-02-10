@@ -91,7 +91,7 @@ geomCreateBase(
     if ( className == GeometryClassId::SURFACE_MESH ) {
         surfaceBounds(surfaceData, newGeometry->bounds);
     } else if ( className == GeometryClassId::COMPOUND ) {
-        compoundBounds(&compoundData->children, newGeometry->bounds);
+        compoundBounds(compoundData->children, newGeometry->bounds);
     } else /* if ( className == GeometryClassId::PATCH_SET ) */ {
         java::ArrayList<Patch *> *tmpList = patchListExportToArrayList(patchSetData);
         patchListBounds(tmpList, newGeometry->bounds);
@@ -193,7 +193,7 @@ A nullptr pointer is returned if the geometry is a primitive
 GeometryListNode *
 geomPrimList(Geometry *geometry) {
     if ( geomIsAggregate(geometry) && geometry->compoundData != nullptr ) {
-        return &geometry->compoundData->children;
+        return geometry->compoundData->children;
     } else {
         return nullptr;
     }
@@ -215,7 +215,7 @@ A nullptr pointer is returned if the geometry is a primitive
 java::ArrayList<Geometry *> *
 geomPrimList2(Geometry *geometry) {
     if ( geomIsAggregate(geometry) && geometry->compoundData != nullptr ) {
-        return convertGeometryList(&geometry->compoundData->children);
+        return convertGeometryList(geometry->compoundData->children);
     } else {
         return nullptr;
     }

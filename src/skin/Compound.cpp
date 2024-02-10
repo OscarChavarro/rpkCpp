@@ -15,7 +15,7 @@ Compound *
 compoundCreate(GeometryListNode *geometryList) {
     GLOBAL_statistics_numberOfCompounds++;
     Compound *group = new Compound();
-    group->children = *geometryList;
+    group->children = geometryList;
     return group;
 }
 
@@ -43,7 +43,7 @@ compoundDiscretizationIntersect(
     RayHit *hitStore)
 {
     return geometryListDiscretizationIntersect(
-        &compound->children, ray, minimumDistance, maximumDistance, hitFlags, hitStore);
+        compound->children, ray, minimumDistance, maximumDistance, hitFlags, hitStore);
 }
 
 HITLIST *
@@ -55,5 +55,5 @@ compoundAllDiscretizationIntersections(
     float maximumDistance,
     int hitFlags)
 {
-    return geomListAllDiscretizationIntersections(hits, &compound->children, ray, minimumDistance, maximumDistance, hitFlags);
+    return geomListAllDiscretizationIntersections(hits, compound->children, ray, minimumDistance, maximumDistance, hitFlags);
 }

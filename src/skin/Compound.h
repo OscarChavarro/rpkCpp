@@ -6,7 +6,7 @@
 
 class Compound : public Geometry {
 public:
-    GeometryListNode children;
+    GeometryListNode *children;
 };
 
 extern Compound *compoundCreate(GeometryListNode *geometryList);
