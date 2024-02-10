@@ -1,5 +1,6 @@
 #include "common/error.h"
 #include "material/statistics.h"
+#include "scene/scene.h"
 #include "shared/shadowcaching.h"
 #include "GALERKIN/galerkinP.h"
 #include "GALERKIN/basisgalerkin.h"
@@ -97,9 +98,9 @@ determineNodes(GalerkinElement *elem, CUBARULE **cr, Vector3D x[CUBAMAXNODES], G
 Evaluates the radiosity kernel (*not* taking into account the reflectivity of
 the receiver) at positions x on the receiver rcv and y on
 source src. ShadowList is a list of potential occluders.
-Shadowcaching is used to speed up the visibility detection
+Shadow caching is used to speed up the visibility detection
 between x and y. The shadow cache is initialized before doing the first
-evaluation of the kernel between each pair of patches. The unoccluded
+evaluation of the kernel between each pair of patches. The un-occluded
 point-to-point form factor is returned. Visibility is filled in vis
 To be used when integrating over the surface of the source element
 */
@@ -113,12 +114,12 @@ pointKernelEval(
     double *vis)
 {
     double dist;
-    double cosp;
-    double cosq;
-    double ff;
-    float fdist;
+    double cosP;
+    double cosQ;
+    double formFactor;
+    float distance;
     Ray ray;
-    RayHit hitstore;
+    RayHit hitStore;
 
     // Trace the ray from source to receiver (y to x) to handle one-sided surfaces correctly
     ray.pos = *y;
@@ -134,46 +135,56 @@ pointKernelEval(
 
     // Emitter factor times scale, see Sillion, "A Unified Hierarchical ...", IEEE TVCG Vol 1 nr 3, sept 1995
     if ( isCluster(src) ) {
-        cosq = 0.25;
+        cosQ = 0.25;
     } else {
-        cosq = VECTORDOTPRODUCT(ray.dir, src->patch->normal);
-        if ( cosq <= 0. ) {    /* ray leaves behind the source */
+        cosQ = VECTORDOTPRODUCT(ray.dir, src->patch->normal);
+        if ( cosQ <= 0. ) {
+            // Ray leaves behind the source
             return 0.0;
         }
     }
 
     // Receiver factor times scale
     if ( isCluster(rcv) ) {
-        cosp = 0.25;
+        cosP = 0.25;
     } else {
-        cosp = -VECTORDOTPRODUCT(ray.dir, rcv->patch->normal);
-        if ( cosp <= 0.0 ) {
+        cosP = -VECTORDOTPRODUCT(ray.dir, rcv->patch->normal);
+        if ( cosP <= 0.0 ) {
             // Ray hits receiver from the back
             return 0.0;
         }
     }
 
     // Un-occluded kernel value
-    ff = cosp * cosq / (M_PI * dist * dist);
-    fdist = dist * (1.0 - EPSILON);
+    formFactor = cosP * cosQ / (M_PI * dist * dist);
+    distance = dist * (1.0 - EPSILON);
 
     // Determine transmissivity (visibility)
     if ( !geometryShadowList ) {
         *vis = 1.0;
     } else if ( !GLOBAL_galerkin_state.multiResolutionVisibility ) {
-        if ( !shadowTestDiscretization(&ray, geometryShadowList, fdist, &hitstore) ) {
+        bool isSceneGeometry = (geometryShadowList == GLOBAL_scene_world);
+        bool isClusteredGeometry = (geometryShadowList == GLOBAL_scene_clusteredWorld);
+        if ( !shadowTestDiscretization(
+            &ray,
+            geometryShadowList,
+            GLOBAL_scene_worldVoxelGrid,
+            distance,
+            &hitStore,
+            isSceneGeometry,
+            isClusteredGeometry) ) {
             *vis = 1.0;
         } else {
             *vis = 0.0;
         }
-    } else if ( cacheHit(&ray, &fdist, &hitstore)) {
+    } else if ( cacheHit(&ray, &distance, &hitStore) ) {
         *vis = 0.0;
     } else {
         float min_feature_size = 2.0 * std::sqrt(GLOBAL_statistics_totalArea * GLOBAL_galerkin_state.relMinElemArea / M_PI);
-        *vis = geomListMultiResolutionVisibility(geometryShadowList, &ray, fdist, src->bsize, min_feature_size);
+        *vis = geomListMultiResolutionVisibility(geometryShadowList, &ray, distance, src->bsize, min_feature_size);
     }
 
-    return ff;
+    return formFactor;
 }
 
 /**

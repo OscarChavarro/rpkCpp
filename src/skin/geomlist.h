@@ -28,6 +28,15 @@ geometryListDiscretizationIntersect(
     int hitFlags,
     RayHit *hitStore);
 
+extern RayHit *
+geometryListDiscretizationIntersect2(
+    java::ArrayList<Geometry *> *geometryList,
+    Ray *ray,
+    float minimumDistance,
+    float *maximumDistance,
+    int hitFlags,
+    RayHit *hitStore);
+
 extern HITLIST *
 geomListAllDiscretizationIntersections(
     HITLIST *hits,
