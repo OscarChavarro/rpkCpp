@@ -400,7 +400,7 @@ mainReadFile(char *filename) {
     fflush(stderr);
 
     globalAppScenePatches = new java::ArrayList<Patch *>();
-    buildPatchList(GLOBAL_scene_world, globalAppScenePatches);
+    buildPatchList(GLOBAL_scene_geometries, globalAppScenePatches);
 
     t = clock();
     fprintf(stderr, "%g secs.\n", (float) (t - last) / (float) CLOCKS_PER_SEC);

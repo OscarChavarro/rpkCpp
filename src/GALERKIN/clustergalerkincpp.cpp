@@ -113,9 +113,9 @@ galerkinDoCreateClusterHierarchy(Geometry *parentGeometry) {
 
     // Recursively creates list of sub-clusters
     if ( geomIsAggregate(parentGeometry) ) {
-        GeometryListNode *geometryList = geomPrimList(parentGeometry);
-        for ( GeometryListNode *window = geometryList; window != nullptr; window = window->next ) {
-            geomAddClusterChild(window->geometry, cluster);
+        java::ArrayList<Geometry *> *geometryList = geomPrimList2(parentGeometry);
+        for ( int i = 0; geometryList != nullptr && i < geometryList->size(); i++ ) {
+            geomAddClusterChild(geometryList->get(i), cluster);
         }
     } else {
         java::ArrayList<Patch *> *patchList = geomPatchArrayList(parentGeometry);

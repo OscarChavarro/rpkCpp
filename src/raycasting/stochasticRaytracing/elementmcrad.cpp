@@ -219,9 +219,9 @@ monteCarloRadiosityCreateClusterChildren(StochasticRadiosityElement *parent) {
     Geometry *geom = parent->geom;
 
     if ( geomIsAggregate(geom)) {
-        GeometryListNode *geometryList = geomPrimList(geom);
-        for ( GeometryListNode *window = geometryList; window != nullptr; window = window->next ) {
-            monteCarloRadiosityCreateClusterChild(window->geometry, parent);
+        java::ArrayList<Geometry *> *geometryList = geomPrimList2(geom);
+        for ( int i = 0; geometryList != nullptr && i < geometryList->size(); i++ ) {
+            monteCarloRadiosityCreateClusterChild(geometryList->get(i), parent);
         }
     } else {
         java::ArrayList<Patch *> *patchList = geomPatchArrayList(geom);

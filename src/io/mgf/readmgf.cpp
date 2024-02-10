@@ -1172,6 +1172,7 @@ readMgf(char *filename) {
         surfaceDone();
     }
     GLOBAL_scene_world = globalCurrentGeometryList;
+    GLOBAL_scene_geometries = convertGeometryList(globalCurrentGeometryList);
 
     if ( globalPointsOctree != nullptr) {
         free(globalPointsOctree);

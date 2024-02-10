@@ -32,15 +32,17 @@ Builds a linear list of patches making up all the geometries in the list, whethe
 they are primitive or not
 */
 void
-buildPatchList(GeometryListNode *geometryList, java::ArrayList<Patch *> *patchList) {
+buildPatchList(java::ArrayList<Geometry *> *geometryList, java::ArrayList<Patch *> *patchList) {
     if ( geometryList == nullptr ) {
         return;
     }
 
-    for ( GeometryListNode *window = geometryList; window != nullptr; window = window->next ) {
-        Geometry *geometry = window->geometry;
+    for ( int i = 0; geometryList != nullptr && i < geometryList->size(); i++ ) {
+        Geometry *geometry = geometryList->get(i);
         if ( geomIsAggregate(geometry) ) {
-            buildPatchList(geomPrimList(geometry), patchList);
+            java::ArrayList<Geometry *> *subList = geomPrimList2(geometry);
+            buildPatchList(subList, patchList);
+            delete subList;
         } else {
             java::ArrayList<Patch *> *list2 = geomPatchArrayList(geometry);
 

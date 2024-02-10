@@ -17,7 +17,7 @@ class GeometryListNode {
 
 extern GeometryListNode *geometryListAdd(GeometryListNode *geometryList, Geometry *geometry);
 extern float *geometryListBounds(GeometryListNode *geometryList, float *boundingBox);
-extern void buildPatchList(GeometryListNode *geometryList, java::ArrayList<Patch *> *patchList);
+extern void buildPatchList(java::ArrayList<Geometry *> *geometryList, java::ArrayList<Patch *> *patchList);
 
 extern RayHit *
 geometryListDiscretizationIntersect(

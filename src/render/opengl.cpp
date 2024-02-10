@@ -383,14 +383,15 @@ openGlRenderOctreeNonLeaf(Geometry *geometry, void (*render_patch)(Patch *)) {
     int n;
     int remaining;
     OctreeChild octree_children[8];
-    GeometryListNode *children = geomPrimList(geometry);
+    java::ArrayList<Geometry *> *children = geomPrimList2(geometry);
 
     i = 0;
-    for ( GeometryListNode *window = children; window != nullptr; window = window->next ) {
-        Geometry *child = window->geometry;
+    for ( int j = 0; children != nullptr && j < children->size(); j++ ) {
+        Geometry *child = children->get(j);
         if ( geomIsAggregate(child) ) {
             if ( i >= 8 ) {
                 logError("openGlRenderOctreeNonLeaf", "Invalid octree geometry node (more than 8 compound children)");
+                delete children;
                 return;
             }
             octree_children[i++].geom = child;
@@ -436,6 +437,7 @@ openGlRenderOctreeNonLeaf(Geometry *geometry, void (*render_patch)(Patch *)) {
         octree_children[closest].dist = HUGE;
         remaining--;
     }
+    delete children;
 }
 
 /**
@@ -466,13 +468,14 @@ openGlGeometryDeleteDLists(Geometry *geom) {
     geom->displayListId = -1;
 
     if ( geomIsAggregate(GLOBAL_scene_clusteredWorldGeom)) {
-        GeometryListNode *children = geomPrimList(geom);
-        for ( GeometryListNode *window = children; window != nullptr; window = window->next ) { \
-            Geometry *child = window->geometry;
-            openGlGeometryDeleteDLists(child);
+        java::ArrayList<Geometry *> *children = geomPrimList2(geom);
+        for ( int i = 0; children != nullptr && i < children->size(); i++ ) { \
+            openGlGeometryDeleteDLists(children->get(i));
         }
+        delete children;
     }
 }
+
 
 static void
 openGlRenderNewOctreeDisplayLists() {

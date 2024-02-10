@@ -8,6 +8,7 @@
 
 // The current scene
 extern GeometryListNode *GLOBAL_scene_world;
+extern java::ArrayList<Geometry *> *GLOBAL_scene_geometries;
 
 // The list of all materials present in the current scene
 extern java::ArrayList<Material *> *GLOBAL_scene_materials;

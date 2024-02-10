@@ -399,13 +399,13 @@ writePrimitive(Geometry *geom) {
     }
 }
 
-void
-iteratePrimitiveGeoms(GeometryListNode *geometryList, void (*functionCallback)(Geometry *)) {
-    GeometryListNode *listStart = geometryList;
-    for ( GeometryListNode *window = listStart; window != nullptr; window = window->next ) {
-        Geometry *geometry = window->geometry;
+static void
+iteratePrimitiveGeoms(java::ArrayList<Geometry *> *geometryList, void (*functionCallback)(Geometry *)) {
+    for ( int i = 0; geometryList!= nullptr && geometryList->size(); i++ ) {
+        Geometry *geometry = geometryList->get(i);
+
         if ( geomIsAggregate(geometry) ) {
-            iteratePrimitiveGeoms(geomPrimList(geometry), functionCallback);
+            iteratePrimitiveGeoms(geomPrimList2(geometry), functionCallback);
         } else {
             functionCallback(geometry);
         }
@@ -429,7 +429,7 @@ mcrWriteVrml(FILE *fp) {
     mcrWriteVrmlHeader(fp);
 
     vrmlfp = fp;
-    iteratePrimitiveGeoms(GLOBAL_scene_world, writePrimitive);
+    iteratePrimitiveGeoms(GLOBAL_scene_geometries, writePrimitive);
     mcrWriteVrmlTrailer(fp);
 
     resetMaterialData();

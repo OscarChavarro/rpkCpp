@@ -230,16 +230,18 @@ renderBounds(BOUNDINGBOX bounds) {
 
 void
 renderGeomBounds(Geometry *geom) {
-    float *geombounds = geomBounds(geom);
+    float *geometryBoundingBox = geomBounds(geom);
 
-    if ( geom->bounded && geombounds ) {
-        renderBounds(geombounds);
+    if ( geom->bounded && geometryBoundingBox ) {
+        renderBounds(geometryBoundingBox);
     }
 
     if ( geomIsAggregate(geom) ) {
-        for ( GeometryListNode *window = geomPrimList(geom); window != nullptr; window = window->next ) {
-            renderGeomBounds(window->geometry);
+        java::ArrayList<Geometry *> *geometryList = geomPrimList2(geom);
+        for ( int i = 0; geometryList != nullptr && i < geometryList->size(); i++ ) {
+            renderGeomBounds(geometryList->get(i));
         }
+        delete geometryList;
     }
 }
 
