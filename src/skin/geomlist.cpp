@@ -57,13 +57,37 @@ buildPatchList(java::ArrayList<Geometry *> *geometryList, java::ArrayList<Patch 
 }
 
 RayHit *
-geometryListDiscretizationIntersect(
-    GeometryListNode *geometryList,
+geometryListDiscretizationIntersect2(
+    java::ArrayList<Geometry *>  *geometryList,
     Ray *ray,
     float minimumDistance,
     float *maximumDistance,
     int hitFlags,
     RayHit *hitStore)
+{
+    RayHit *hit = nullptr;
+
+    for ( int i = 0; geometryList != nullptr && i < geometryList->size(); i++ ) {
+        RayHit *h = geomDiscretizationIntersect(geometryList->get(i), ray, minimumDistance, maximumDistance, hitFlags, hitStore);
+        if ( h != nullptr ) {
+            if ( hitFlags & HIT_ANY ) {
+                return h;
+            } else {
+                hit = h;
+            }
+        }
+    }
+    return hit;
+}
+
+RayHit *
+geometryListDiscretizationIntersect(
+        GeometryListNode *geometryList,
+        Ray *ray,
+        float minimumDistance,
+        float *maximumDistance,
+        int hitFlags,
+        RayHit *hitStore)
 {
     RayHit *hit = nullptr;
 

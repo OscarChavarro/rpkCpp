@@ -4,6 +4,7 @@
 #include "GALERKIN/galerkinP.h"
 #include "GALERKIN/basisgalerkin.h"
 #include "GALERKIN/mrvisibility.h"
+#include "scene/scene.h"
 
 /**
 Returns true if P is at least partly in front the plane of Q. Returns false
@@ -161,11 +162,15 @@ pointKernelEval(
     if ( !geometryShadowList ) {
         *vis = 1.0;
     } else if ( !GLOBAL_galerkin_state.multiResolutionVisibility ) {
-        if ( !shadowTestDiscretization(&ray, geometryShadowList, fdist, &hitstore) ) {
+        bool isSceneGeometry = (geometryShadowList != GLOBAL_scene_world);
+        bool isClusteredGeometry = (geometryShadowList == GLOBAL_scene_clusteredWorld);
+        java::ArrayList<Geometry *> *shadowList = convertGeometryList(geometryShadowList);
+        if ( !shadowTestDiscretization(&ray, shadowList, GLOBAL_scene_worldVoxelGrid, fdist, &hitstore, isSceneGeometry, isClusteredGeometry) ) {
             *vis = 1.0;
         } else {
             *vis = 0.0;
         }
+        delete shadowList;
     } else if ( cacheHit(&ray, &fdist, &hitstore)) {
         *vis = 0.0;
     } else {

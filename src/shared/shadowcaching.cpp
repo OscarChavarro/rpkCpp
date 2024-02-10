@@ -56,18 +56,24 @@ patch if the ray does intersect one or more geometries. Intersections
 further away than dist are ignored.
 */
 RayHit *
-shadowTestDiscretization(Ray *ray, GeometryListNode *world, float dist, RayHit *hitStore) {
-    RayHit *hit;
-
+shadowTestDiscretization(
+    Ray *ray,
+    java::ArrayList<Geometry *> *geometryList,
+    VoxelGrid *voxelGrid,
+    float dist,
+    RayHit *hitStore,
+    bool isSceneGeometry,
+    bool isClusteredGeometry)
+{
     GLOBAL_statistics_numberOfShadowRays++;
-    hit = cacheHit(ray, &dist, hitStore);
+    RayHit *hit = cacheHit(ray, &dist, hitStore);
     if ( hit != nullptr ) {
         GLOBAL_statistics_numberOfShadowCacheHits++;
     } else {
-        if ( world != GLOBAL_scene_clusteredWorld && world != GLOBAL_scene_world ) {
-            hit = geometryListDiscretizationIntersect(world, ray, EPSILON * dist, &dist, HIT_FRONT | HIT_ANY, hitStore);
+        if ( !isClusteredGeometry && !isSceneGeometry ) {
+            hit = geometryListDiscretizationIntersect2(geometryList, ray, EPSILON * dist, &dist, HIT_FRONT | HIT_ANY, hitStore);
         } else {
-            hit = GLOBAL_scene_worldVoxelGrid->gridIntersect(ray, EPSILON * dist, &dist, HIT_FRONT | HIT_ANY, hitStore);
+            hit = voxelGrid->gridIntersect(ray, EPSILON * dist, &dist, HIT_FRONT | HIT_ANY, hitStore);
         }
         if ( hit ) {
             addToShadowCache(hit->patch);

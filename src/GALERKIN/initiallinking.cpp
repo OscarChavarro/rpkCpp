@@ -155,9 +155,8 @@ createInitialLinks(GalerkinElement *top, GalerkinRole role) {
     patchBounds(globalPatch, globalPatchBoundingBox);
     globalCandidateList = GLOBAL_scene_clusteredWorld;
 
-    for ( GeometryListNode *window = (GLOBAL_scene_world); window != nullptr; window = window->next ) {
-        Geometry *geometry = window->geometry;
-        geomLink(geometry);
+    for ( int i = 0; GLOBAL_scene_geometries != nullptr && i < GLOBAL_scene_geometries->size(); i++ ) {
+        geomLink(GLOBAL_scene_geometries->get(i));
     }
 }
 
