@@ -22,7 +22,7 @@ createInitialLink(Patch *patch) {
     float ff[MAXBASISSIZE * MAXBASISSIZE];
     link.K.p = ff;
 
-    if ( !facing(patch, globalPatch) ) {
+    if ( !facing(patch, globalPatch)) {
         return;
     }
 
@@ -63,7 +63,7 @@ createInitialLink(Patch *patch) {
 
             if ( the_shaft->cut == true ) {
                 // One patch causes full occlusion
-                freeCandidateList(convertGeometryList(globalCandidateList));
+                freeCandidateList(globalCandidateList);
                 globalCandidateList = oldCandidateList;
                 return;
             }
@@ -86,7 +86,7 @@ createInitialLink(Patch *patch) {
 
     if ( GLOBAL_galerkin_state.exact_visibility || GLOBAL_galerkin_state.shaftCullMode == ALWAYS_DO_SHAFT_CULLING ) {
         if ( oldCandidateList != globalCandidateList ) {
-            freeCandidateList(convertGeometryList(globalCandidateList));
+            freeCandidateList(globalCandidateList);
         }
         globalCandidateList = oldCandidateList;
     }
@@ -142,7 +142,7 @@ geomLink(Geometry *geom) {
     }
 
     if ( geom->bounded && oldCandidateList ) {
-        freeCandidateList(convertGeometryList(globalCandidateList));
+        freeCandidateList(globalCandidateList);
     }
     globalCandidateList = oldCandidateList;
 }
@@ -209,14 +209,14 @@ createInitialLinkWithTopCluster(GalerkinElement *elem, GalerkinRole role) {
     deltaK.f = HUGE; // HUGE error on the form factor
 
     link = interactionCreate(
-        rcv,
-        src,
-        K,
-        deltaK,
-        rcv->basisSize,
-        src->basisSize,
-        1,
-        128
+            rcv,
+            src,
+            K,
+            deltaK,
+            rcv->basisSize,
+            src->basisSize,
+            1,
+            128
     );
 
     // Store interactions with the source patch for the progressive radiosity method

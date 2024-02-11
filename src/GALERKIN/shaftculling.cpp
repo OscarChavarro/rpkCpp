@@ -812,14 +812,19 @@ doShaftCulling(java::ArrayList<Geometry *> *world, SHAFT *shaft, java::ArrayList
 Frees the memory occupied by a candidate list produced by DoShaftCulling
 */
 void
-freeCandidateList(java::ArrayList<Geometry *> *candidateList) {
+freeCandidateList(GeometryListNode *candidateList) {
     // Only destroy geoms that were generated for shaft culling
-    for ( int i = 0; candidateList != nullptr && i < candidateList->size(); i++ ) {
-        Geometry *geometry = candidateList->get(i);
+    for ( GeometryListNode *window = candidateList; window != nullptr; window = window->next ) {
+        Geometry *geometry = window->geometry;
         if ( geometry->shaftCullGeometry ) {
             geomDestroy(geometry);
         }
     }
 
-    delete candidateList;
+    GeometryListNode *listWindow = candidateList;
+    while ( listWindow != nullptr ) {
+        GeometryListNode *listNode = listWindow->next;
+        free(listWindow);
+        listWindow = listNode;
+    }
 }

@@ -39,10 +39,12 @@ Does shaft-culling between elements in a link (if the user asked for it).
 Updates the globalCandidatesList. Returns the old candidate list, so it can be restored
 later (using hierarchicRefinementUnCull())
 */
-static void
-hierarchicRefinementCull(INTERACTION *link, java::ArrayList<Geometry *> *geometryList, bool isClusteredGeometry) {
-    if ( geometryList == nullptr ) {
-        return;
+static GeometryListNode *
+hierarchicRefinementCull(INTERACTION *link) {
+    GeometryListNode *geometryCandidatesList = globalCandidatesList;
+
+    if ( geometryCandidatesList == nullptr) {
+        return nullptr;
     }
 
     if ( GLOBAL_galerkin_state.shaftCullMode == DO_SHAFT_CULLING_FOR_REFINEMENT ||
@@ -63,7 +65,7 @@ hierarchicRefinementCull(INTERACTION *link, java::ArrayList<Geometry *> *geometr
         }
         if ( !the_shaft ) {
             logError("hierarchicRefinementCull", "Couldn't construct shaft");
-            return;
+            return geometryCandidatesList;
         }
 
         if ( isCluster(link->receiverElement) ) {
@@ -78,12 +80,21 @@ hierarchicRefinementCull(INTERACTION *link, java::ArrayList<Geometry *> *geometr
             setShaftOmit(&shaft, link->sourceElement->patch);
         }
 
+        //bool isSceneGeometry = (geometryCandidatesList == GLOBAL_scene_world);
+        bool isClusteredGeometry = (geometryCandidatesList == GLOBAL_scene_clusteredWorld);
+
         if ( isClusteredGeometry ) {
-            shaftCullGeom(GLOBAL_scene_clusteredWorldGeom, &shaft, geometryList);
+            java::ArrayList<Geometry*> *arr = new java::ArrayList<Geometry*>();
+            shaftCullGeom(GLOBAL_scene_clusteredWorldGeom, &shaft, arr);
+            globalCandidatesList = convertToGeometryList(arr);
         } else {
-            doShaftCulling(convertGeometryList(globalCandidatesList), &shaft, geometryList);
+            java::ArrayList<Geometry*> *arr = new java::ArrayList<Geometry*>();
+            doShaftCulling(convertGeometryList(geometryCandidatesList), &shaft, arr);
+            globalCandidatesList = convertToGeometryList(arr);
         }
     }
+
+    return geometryCandidatesList;
 }
 
 /**
@@ -94,7 +105,7 @@ static void
 hierarchicRefinementUnCull(GeometryListNode *geometryCandidatesList) {
     if ( GLOBAL_galerkin_state.shaftCullMode == DO_SHAFT_CULLING_FOR_REFINEMENT ||
          GLOBAL_galerkin_state.shaftCullMode == ALWAYS_DO_SHAFT_CULLING ) {
-        freeCandidateList(convertGeometryList(globalCandidatesList));
+        freeCandidateList(globalCandidatesList);
         globalCandidatesList = nullptr;
     }
 
@@ -463,8 +474,7 @@ the passed interaction is always replaced by lower level interactions
 */
 static int
 hierarchicRefinementRegularSubdivideSource(INTERACTION *link) {
-    bool isClusteredGeometry = (globalCandidatesList == GLOBAL_scene_clusteredWorld);
-    hierarchicRefinementCull(link, convertGeometryList(globalCandidatesList), isClusteredGeometry);
+    GeometryListNode *geometryCandidatesList = hierarchicRefinementCull(link);
     GalerkinElement *src = link->sourceElement, *rcv = link->receiverElement;
 
     galerkinElementRegularSubDivide(src);
@@ -481,7 +491,7 @@ hierarchicRefinementRegularSubdivideSource(INTERACTION *link) {
         }
     }
 
-    hierarchicRefinementUnCull(globalCandidatesList);
+    hierarchicRefinementUnCull(geometryCandidatesList);
     return true;
 }
 
@@ -490,8 +500,7 @@ Same, but subdivides the receiver element
 */
 static int
 hierarchicRefinementRegularSubdivideReceiver(INTERACTION *link) {
-    bool isClusteredGeometry = (globalCandidatesList == GLOBAL_scene_clusteredWorld);
-    hierarchicRefinementCull(link, convertGeometryList(globalCandidatesList), isClusteredGeometry);
+    GeometryListNode *geometryCandidatesList = hierarchicRefinementCull(link);
     GalerkinElement *src = link->sourceElement, *rcv = link->receiverElement;
     int i;
 
@@ -509,7 +518,7 @@ hierarchicRefinementRegularSubdivideReceiver(INTERACTION *link) {
         }
     }
 
-    hierarchicRefinementUnCull(globalCandidatesList);
+    hierarchicRefinementUnCull(geometryCandidatesList);
     return true;
 }
 
@@ -519,8 +528,7 @@ which is a cluster
 */
 static int
 hierarchicRefinementSubdivideSourceCluster(INTERACTION *link) {
-    bool isClusteredGeometry = (globalCandidatesList == GLOBAL_scene_clusteredWorld);
-    hierarchicRefinementCull(link, convertGeometryList(globalCandidatesList), isClusteredGeometry);
+    GeometryListNode *geometryCandidatesList = hierarchicRefinementCull(link);
     GalerkinElement *src = link->sourceElement, *rcv = link->receiverElement;
     ELEMENTLIST *subClusterList;
 
@@ -546,7 +554,7 @@ hierarchicRefinementSubdivideSourceCluster(INTERACTION *link) {
         }
     }
 
-    hierarchicRefinementUnCull(globalCandidatesList);
+    hierarchicRefinementUnCull(geometryCandidatesList);
     return true;
 }
 
@@ -556,8 +564,7 @@ which is a cluster
 */
 static int
 hierarchicRefinementSubdivideReceiverCluster(INTERACTION *link) {
-    bool isClusteredGeometry = (globalCandidatesList == GLOBAL_scene_clusteredWorld);
-    hierarchicRefinementCull(link, convertGeometryList(globalCandidatesList), isClusteredGeometry);
+    GeometryListNode *geometryCandidatesList = hierarchicRefinementCull(link);
     GalerkinElement *src = link->sourceElement, *rcv = link->receiverElement;
     ELEMENTLIST *subClusterList;
 
@@ -583,7 +590,7 @@ hierarchicRefinementSubdivideReceiverCluster(INTERACTION *link) {
         }
     }
 
-    hierarchicRefinementUnCull(globalCandidatesList);
+    hierarchicRefinementUnCull(geometryCandidatesList);
     return true;
 }
 
