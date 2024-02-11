@@ -34,7 +34,7 @@ enum INTERACTION_EVALUATION_CODE {
 
 /**
 Does shaft-culling between elements in a link (if the user asked for it).
-Updates the globalCandidatesList. Returns the old candidate list, so it can be restored
+Updates the *candidatesList. Returns the old candidate list, so it can be restored
 later (using hierarchicRefinementUnCull())
 */
 static GeometryListNode *
@@ -310,16 +310,18 @@ hierarchicRefinementEvaluateInteraction(INTERACTION *link) {
         if ( (!(isCluster(link->sourceElement) && IsLightSource(link->sourceElement))) &&
             (rcv_area > link->sourceElement->area) ) {
             if ( rcv_area > min_area ) {
-                if ( isCluster(link->receiverElement))
+                if ( isCluster(link->receiverElement) ) {
                     code = SUBDIVIDE_RECEIVER_CLUSTER;
-                else
+                } else {
                     code = REGULAR_SUBDIVIDE_RECEIVER;
+                }
             }
         } else {
-            if ( isCluster(link->sourceElement))
+            if ( isCluster(link->sourceElement) ) {
                 code = SUBDIVIDE_SOURCE_CLUSTER;
-            else if ( link->sourceElement->area > min_area )
+            } else if ( link->sourceElement->area > min_area ) {
                 code = REGULAR_SUBDIVIDE_SOURCE;
+            }
         }
     }
 
@@ -374,8 +376,11 @@ hierarchicRefinementComputeLightTransport(INTERACTION *link) {
         } else {
             for ( alpha = 0; alpha < a; alpha++ ) {
                 for ( beta = 0; beta < b; beta++ ) {
-                    colorAddScaled(rcvRad[alpha], link->K.p[alpha * link->nsrc + beta],
-                                   srcRad[beta], rcvRad[alpha]);
+                    colorAddScaled(
+                     rcvRad[alpha],
+                     link->K.p[alpha * link->nsrc + beta],
+                     srcRad[beta],
+                     rcvRad[alpha]);
                 }
             }
         }
@@ -468,7 +473,8 @@ the passed interaction is always replaced by lower level interactions
 static int
 hierarchicRefinementRegularSubdivideSource(GeometryListNode **candidatesList, INTERACTION *link, bool isClusteredGeometry) {
     GeometryListNode *geometryCandidatesList = hierarchicRefinementCull(candidatesList, link, isClusteredGeometry);
-    GalerkinElement *src = link->sourceElement, *rcv = link->receiverElement;
+    GalerkinElement *src = link->sourceElement;
+    GalerkinElement *rcv = link->receiverElement;
 
     galerkinElementRegularSubDivide(src);
     for ( int i = 0; i < 4; i++ ) {
@@ -494,11 +500,11 @@ Same, but subdivides the receiver element
 static int
 hierarchicRefinementRegularSubdivideReceiver(GeometryListNode **candidatesList, INTERACTION *link, bool isClusteredGeometry) {
     GeometryListNode *geometryCandidatesList = hierarchicRefinementCull(candidatesList, link, isClusteredGeometry);
-    GalerkinElement *src = link->sourceElement, *rcv = link->receiverElement;
-    int i;
+    GalerkinElement *src = link->sourceElement;
+    GalerkinElement *rcv = link->receiverElement;
 
     galerkinElementRegularSubDivide(rcv);
-    for ( i = 0; i < 4; i++ ) {
+    for ( int i = 0; i < 4; i++ ) {
         INTERACTION subInteraction{};
         float ff[MAXBASISSIZE * MAXBASISSIZE];
         GalerkinElement *child = rcv->regularSubElements[i];
@@ -520,7 +526,11 @@ Replace the interaction by interactions with the sub-clusters of the source,
 which is a cluster
 */
 static int
-hierarchicRefinementSubdivideSourceCluster(GeometryListNode **candidatesList, INTERACTION *link, bool isClusteredGeometry) {
+hierarchicRefinementSubdivideSourceCluster(
+    GeometryListNode **candidatesList,
+    INTERACTION *link,
+    bool isClusteredGeometry)
+{
     GeometryListNode *geometryCandidatesList = hierarchicRefinementCull(candidatesList, link, isClusteredGeometry);
     GalerkinElement *src = link->sourceElement, *rcv = link->receiverElement;
     ELEMENTLIST *subClusterList;
@@ -533,9 +543,9 @@ hierarchicRefinementSubdivideSourceCluster(GeometryListNode **candidatesList, IN
 
         if ( !isCluster(child)) {
             Patch *the_patch = child->patch;
-            if ((isCluster(rcv) &&
+            if ( (isCluster(rcv) &&
                  boundsBehindPlane(geomBounds(rcv->geom), &the_patch->normal, the_patch->planeConstant)) ||
-                (!isCluster(rcv) && !facing(rcv->patch, the_patch))) {
+                (!isCluster(rcv) && !facing(rcv->patch, the_patch)) ) {
                 continue;
             }
         }
@@ -568,7 +578,7 @@ hierarchicRefinementSubdivideReceiverCluster(GeometryListNode **candidatesList, 
         float formFactor[MAXBASISSIZE * MAXBASISSIZE];
         subInteraction.K.p = formFactor;
 
-        if ( !isCluster(child)) {
+        if ( !isCluster(child) ) {
             Patch *the_patch = child->patch;
             if ((isCluster(src) &&
                  boundsBehindPlane(geomBounds(src->geom), &the_patch->normal, the_patch->planeConstant)) ||
@@ -625,12 +635,13 @@ refineRecursive(GeometryListNode **candidatesList, INTERACTION *link) {
 
 void
 refineInteraction(INTERACTION *link) {
-    GeometryListNode *currentCandidatesList = GLOBAL_scene_clusteredWorld; // Candidate occluder list for a pair of patches
+    // Candidate occluder list for a pair of patches, note it is changed inside the methods!
+    GeometryListNode *currentCandidatesList = GLOBAL_scene_clusteredWorld;
 
     if ( GLOBAL_galerkin_state.exact_visibility && link->vis == 255 ) {
         currentCandidatesList = nullptr;
     }
-    // we know for sure that there is full visibility
+    // We know for sure that there is full visibility
     if ( refineRecursive(&currentCandidatesList, link) ) {
         if ( GLOBAL_galerkin_state.iteration_method == SOUTH_WELL )
             link->sourceElement->interactions = InteractionListRemove(link->sourceElement->interactions, link);
