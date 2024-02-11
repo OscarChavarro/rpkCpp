@@ -40,7 +40,7 @@ Updates the globalCandidatesList. Returns the old candidate list, so it can be r
 later (using hierarchicRefinementUnCull())
 */
 static GeometryListNode *
-hierarchicRefinementCull(INTERACTION *link) {
+hierarchicRefinementCull(INTERACTION *link, bool isClusteredGeometry) {
     GeometryListNode *geometryCandidatesList = globalCandidatesList;
 
     if ( geometryCandidatesList == nullptr) {
@@ -80,9 +80,6 @@ hierarchicRefinementCull(INTERACTION *link) {
             setShaftOmit(&shaft, link->sourceElement->patch);
         }
 
-        //bool isSceneGeometry = (geometryCandidatesList == GLOBAL_scene_world);
-        bool isClusteredGeometry = (geometryCandidatesList == GLOBAL_scene_clusteredWorld);
-
         if ( isClusteredGeometry ) {
             java::ArrayList<Geometry*> *arr = new java::ArrayList<Geometry*>();
             shaftCullGeom(GLOBAL_scene_clusteredWorldGeom, &shaft, arr);
@@ -106,7 +103,6 @@ hierarchicRefinementUnCull(GeometryListNode *geometryCandidatesList) {
     if ( GLOBAL_galerkin_state.shaftCullMode == DO_SHAFT_CULLING_FOR_REFINEMENT ||
          GLOBAL_galerkin_state.shaftCullMode == ALWAYS_DO_SHAFT_CULLING ) {
         freeCandidateList(globalCandidatesList);
-        globalCandidatesList = nullptr;
     }
 
     globalCandidatesList = geometryCandidatesList;
@@ -277,7 +273,7 @@ hierarchicRefinementEvaluateInteraction(INTERACTION *link) {
     double threshold;
     double rcv_area;
     double min_area;
-    INTERACTION_EVALUATION_CODE code = ACCURATE_ENOUGH;
+    INTERACTION_EVALUATION_CODE code;
 
     if ( !GLOBAL_galerkin_state.hierarchical ) {
         // Simply don't refine
@@ -358,16 +354,16 @@ hierarchicRefinementComputeLightTransport(INTERACTION *link) {
         link->sourceElement->basisUsed = (char)b;
     }
 
-    COLOR *srcRad{};
-    COLOR *rcvRad{};
+    COLOR *srcRad;
+    COLOR *rcvRad;
     if ( GLOBAL_galerkin_state.iteration_method == SOUTH_WELL ) {
         srcRad = link->sourceElement->unShotRadiance;
     } else {
         srcRad = link->sourceElement->radiance;
     }
 
+    COLOR linkClusterRad;
     if ( isCluster(link->sourceElement) && link->sourceElement != link->receiverElement ) {
-        COLOR linkClusterRad;
         linkClusterRad = sourceClusterRadiance(link);
         srcRad = &linkClusterRad;
     }
@@ -474,7 +470,8 @@ the passed interaction is always replaced by lower level interactions
 */
 static int
 hierarchicRefinementRegularSubdivideSource(INTERACTION *link) {
-    GeometryListNode *geometryCandidatesList = hierarchicRefinementCull(link);
+    bool isClusteredGeometry = (globalCandidatesList == GLOBAL_scene_clusteredWorld);
+    GeometryListNode *geometryCandidatesList = hierarchicRefinementCull(link, isClusteredGeometry);
     GalerkinElement *src = link->sourceElement, *rcv = link->receiverElement;
 
     galerkinElementRegularSubDivide(src);
@@ -500,7 +497,8 @@ Same, but subdivides the receiver element
 */
 static int
 hierarchicRefinementRegularSubdivideReceiver(INTERACTION *link) {
-    GeometryListNode *geometryCandidatesList = hierarchicRefinementCull(link);
+    bool isClusteredGeometry = (globalCandidatesList == GLOBAL_scene_clusteredWorld);
+    GeometryListNode *geometryCandidatesList = hierarchicRefinementCull(link, isClusteredGeometry);
     GalerkinElement *src = link->sourceElement, *rcv = link->receiverElement;
     int i;
 
@@ -528,7 +526,8 @@ which is a cluster
 */
 static int
 hierarchicRefinementSubdivideSourceCluster(INTERACTION *link) {
-    GeometryListNode *geometryCandidatesList = hierarchicRefinementCull(link);
+    bool isClusteredGeometry = (globalCandidatesList == GLOBAL_scene_clusteredWorld);
+    GeometryListNode *geometryCandidatesList = hierarchicRefinementCull(link, isClusteredGeometry);
     GalerkinElement *src = link->sourceElement, *rcv = link->receiverElement;
     ELEMENTLIST *subClusterList;
 
@@ -564,7 +563,8 @@ which is a cluster
 */
 static int
 hierarchicRefinementSubdivideReceiverCluster(INTERACTION *link) {
-    GeometryListNode *geometryCandidatesList = hierarchicRefinementCull(link);
+    bool isClusteredGeometry = (globalCandidatesList == GLOBAL_scene_clusteredWorld);
+    GeometryListNode *geometryCandidatesList = hierarchicRefinementCull(link, isClusteredGeometry);
     GalerkinElement *src = link->sourceElement, *rcv = link->receiverElement;
     ELEMENTLIST *subClusterList;
 
@@ -604,7 +604,7 @@ static int
 refineRecursive(INTERACTION *link) {
     int refined = false;
 
-    switch ( hierarchicRefinementEvaluateInteraction(link)) {
+    switch ( hierarchicRefinementEvaluateInteraction(link) ) {
         case ACCURATE_ENOUGH:
             hierarchicRefinementComputeLightTransport(link);
             refined = false;
