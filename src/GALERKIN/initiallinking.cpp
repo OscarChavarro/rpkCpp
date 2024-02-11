@@ -63,7 +63,8 @@ createInitialLink(Patch *patch) {
 
             if ( the_shaft->cut == true ) {
                 // One patch causes full occlusion
-                freeCandidateList(globalCandidateList);
+                java::ArrayList<Geometry *> *arr = convertGeometryList(globalCandidateList);
+                freeCandidateList(&arr);
                 globalCandidateList = oldCandidateList;
                 return;
             }
@@ -86,7 +87,8 @@ createInitialLink(Patch *patch) {
 
     if ( GLOBAL_galerkin_state.exact_visibility || GLOBAL_galerkin_state.shaftCullMode == ALWAYS_DO_SHAFT_CULLING ) {
         if ( oldCandidateList != globalCandidateList ) {
-            freeCandidateList(globalCandidateList);
+            java::ArrayList<Geometry *> *arr = convertGeometryList(globalCandidateList);
+            freeCandidateList(&arr);
         }
         globalCandidateList = oldCandidateList;
     }
@@ -142,7 +144,8 @@ geomLink(Geometry *geom) {
     }
 
     if ( geom->bounded && oldCandidateList ) {
-        freeCandidateList(globalCandidateList);
+        java::ArrayList<Geometry *> *arr = convertGeometryList(globalCandidateList);
+        freeCandidateList(&arr);
     }
     globalCandidateList = oldCandidateList;
 }
@@ -163,7 +166,7 @@ createInitialLinks(GalerkinElement *top, GalerkinRole role) {
     globalRole = role;
     globalPatch = top->patch;
     patchBounds(globalPatch, globalPatchBoundingBox);
-    globalCandidateList = GLOBAL_scene_clusteredWorld;
+    globalCandidateList = convertToGeometryList(GLOBAL_scene_clusteredGeometries);
 
     for ( int i = 0; GLOBAL_scene_geometries != nullptr && i < GLOBAL_scene_geometries->size(); i++ ) {
         geomLink(GLOBAL_scene_geometries->get(i));
