@@ -59,7 +59,7 @@ extern SHAFT *constructPolygonToPolygonShaft(POLYGON *p1, POLYGON *p2, SHAFT *sh
 extern void setShaftOmit(SHAFT *shaft, Patch *geom);
 extern void setShaftDontOpen(SHAFT *shaft, Geometry *geom);
 extern void doShaftCulling(java::ArrayList<Geometry *> *world, SHAFT *shaft, java::ArrayList<Geometry *> *candidateList);
-extern void shaftCullGeom(Geometry *geometry, SHAFT *shaft, java::ArrayList<Geometry *> *candidateList);
+extern void shaftCullGeometry(Geometry *geometry, SHAFT *shaft, java::ArrayList<Geometry *> *candidateList);
 extern java::ArrayList<Patch *> *shaftCullPatchList(java::ArrayList<Patch *> *patchList, SHAFT *shaft);
 extern void freeCandidateList(GeometryListNode *candidateList);
 

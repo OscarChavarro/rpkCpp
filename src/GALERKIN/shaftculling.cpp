@@ -762,12 +762,12 @@ shaftCullOpen(Geometry *geom, SHAFT *shaft, java::ArrayList<Geometry *> *candida
 }
 
 /**
-Tests the geom w.r.t. the shaft: if the geom is inside or overlaps
+Tests the geometry with respect to the shaft: if the geometry is inside or overlaps
 the shaft, it is copied to the shaft or broken open depending on
 the current shaft culling strategy
 */
 void
-shaftCullGeom(Geometry *geometry, SHAFT *shaft, java::ArrayList<Geometry *> *candidateList) {
+shaftCullGeometry(Geometry *geometry, SHAFT *shaft, java::ArrayList<Geometry *> *candidateList) {
     if ( geometry->className == GeometryClassId::PATCH_SET && (geometry->omit || patchIsOnOmitSet(shaft, (Patch *)geometry)) ) {
         return;
     }
@@ -804,7 +804,7 @@ doShaftCulling - for other kinds of geoms, only a pointer is copied
 void
 doShaftCulling(java::ArrayList<Geometry *> *world, SHAFT *shaft, java::ArrayList<Geometry *> *candidateList) {
     for ( int i = 0; world != nullptr && i < world->size() && !shaft->cut; i++ ) {
-        shaftCullGeom(world->get(i), shaft, candidateList);
+        shaftCullGeometry(world->get(i), shaft, candidateList);
     }
 }
 
