@@ -80,6 +80,7 @@ hierarchicRefinementCull(INTERACTION *link) {
             setShaftOmit(&shaft, link->sourceElement->patch);
         }
 
+        //bool isSceneGeometry = (geometryCandidatesList == GLOBAL_scene_world);
         bool isClusteredGeometry = (geometryCandidatesList == GLOBAL_scene_clusteredWorld);
 
         if ( isClusteredGeometry ) {
@@ -104,8 +105,7 @@ static void
 hierarchicRefinementUnCull(GeometryListNode *geometryCandidatesList) {
     if ( GLOBAL_galerkin_state.shaftCullMode == DO_SHAFT_CULLING_FOR_REFINEMENT ||
          GLOBAL_galerkin_state.shaftCullMode == ALWAYS_DO_SHAFT_CULLING ) {
-        java::ArrayList<Geometry *> *arr = convertGeometryList(geometryCandidatesList);
-        freeCandidateList(&arr);
+        freeCandidateList(globalCandidatesList);
         globalCandidatesList = nullptr;
     }
 
@@ -133,7 +133,7 @@ anymore
 */
 static double
 hierarchicRefinementLinkErrorThreshold(INTERACTION *link, double rcv_area) {
-    double threshold = 0.0;
+    double threshold = 0.;
 
     switch ( GLOBAL_galerkin_state.errorNorm ) {
         case RADIANCE_ERROR:
