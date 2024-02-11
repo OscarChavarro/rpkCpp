@@ -11,13 +11,13 @@ static GalerkinElement *globalElement; // The element for which initial links ar
 static GalerkinRole globalRole; // The role of that element: SOURCE or RECEIVER
 static Patch *globalPatch; // The patch for the element is the toplevel element
 static BOUNDINGBOX globalPatchBoundingBox; // Bounding box for that patch
-static GeometryListNode *globalCandidateList; // Candidate list for shaft culling
+static java::ArrayList<Geometry *> *globalCandidateList; // Candidate list for shaft culling
 
 static void
 createInitialLink(Patch *patch) {
     GalerkinElement *rcv = nullptr;
     GalerkinElement *src = nullptr;
-    GeometryListNode *oldCandidateList = globalCandidateList;
+    java::ArrayList<Geometry *> *oldCandidateList = globalCandidateList;
     INTERACTION link{};
     float ff[MAXBASISSIZE * MAXBASISSIZE];
     link.K.p = ff;
@@ -58,8 +58,8 @@ createInitialLink(Patch *patch) {
             setShaftOmit(&shaft, globalPatch);
             setShaftOmit(&shaft, patch);
             java::ArrayList<Geometry*> *arr = new java::ArrayList<Geometry*>();
-            doShaftCulling(convertGeometryList(oldCandidateList), the_shaft, arr);
-            globalCandidateList = convertToGeometryList(arr);
+            doShaftCulling(oldCandidateList, the_shaft, globalCandidateList);
+            globalCandidateList = arr;
 
             if ( the_shaft->cut == true ) {
                 // One patch causes full occlusion
@@ -78,11 +78,11 @@ createInitialLink(Patch *patch) {
     link.nrcv = rcv->basisSize;
     link.nsrc = src->basisSize;
 
-    bool isSceneGeometry = (globalCandidateList == GLOBAL_scene_world);
-    bool isClusteredGeometry = (globalCandidateList == GLOBAL_scene_clusteredWorld);
-    java::ArrayList<Geometry *> *geometryList = convertGeometryList(globalCandidateList);
+    bool isSceneGeometry = (globalCandidateList == GLOBAL_scene_geometries);
+    bool isClusteredGeometry = (globalCandidateList == GLOBAL_scene_clusteredGeometries);
+    java::ArrayList<Geometry *> *geometryList = globalCandidateList;
     areaToAreaFormFactor(&link, geometryList, isSceneGeometry, isClusteredGeometry);
-    delete geometryList;
+    //delete geometryList;
 
     if ( GLOBAL_galerkin_state.exact_visibility || GLOBAL_galerkin_state.shaftCullMode == ALWAYS_DO_SHAFT_CULLING ) {
         if ( oldCandidateList != globalCandidateList ) {
@@ -108,7 +108,7 @@ Yes ... we exploit the hierarchical structure of the scene during initial linkin
 static void
 geomLink(Geometry *geom) {
     SHAFT shaft;
-    GeometryListNode *oldCandidateList = globalCandidateList;
+    java::ArrayList<Geometry *> *oldCandidateList = globalCandidateList;
 
     // Immediately return if the Geometry is bounded and behind the plane of the patch for which interactions are created
     if ( geom->bounded && boundsBehindPlane(geomBounds(geom), &globalPatch->normal, globalPatch->planeConstant)) {
@@ -122,8 +122,8 @@ geomLink(Geometry *geom) {
         constructShaft(globalPatchBoundingBox, geomBounds(geom), &shaft);
         setShaftOmit(&shaft, globalPatch);
         java::ArrayList<Geometry*> *arr = new java::ArrayList<Geometry*>();
-        doShaftCulling(convertGeometryList(oldCandidateList), &shaft, arr);
-        globalCandidateList = convertToGeometryList(arr);
+        doShaftCulling(oldCandidateList, &shaft, arr);
+        globalCandidateList = arr;
     }
 
     // If the Geometry is an aggregate, test each of its children GEOMs, if it
@@ -133,7 +133,7 @@ geomLink(Geometry *geom) {
         for ( int i = 0; geometryList != nullptr && i < geometryList->size(); i++ ) {
             geomLink(geometryList->get(i));
         }
-        delete geometryList;
+        //delete geometryList;
     } else {
         java::ArrayList<Patch *> *patchList = geomPatchArrayList(geom);
         for ( int i = 0; patchList != nullptr && i < patchList->size(); i++ ) {
@@ -163,7 +163,7 @@ createInitialLinks(GalerkinElement *top, GalerkinRole role) {
     globalRole = role;
     globalPatch = top->patch;
     patchBounds(globalPatch, globalPatchBoundingBox);
-    globalCandidateList = GLOBAL_scene_clusteredWorld;
+    globalCandidateList = GLOBAL_scene_clusteredGeometries;
 
     for ( int i = 0; GLOBAL_scene_geometries != nullptr && i < GLOBAL_scene_geometries->size(); i++ ) {
         geomLink(GLOBAL_scene_geometries->get(i));

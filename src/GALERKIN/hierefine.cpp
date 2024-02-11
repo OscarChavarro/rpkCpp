@@ -14,7 +14,7 @@ Hierarchical refinement
 Shaft culling stuff for hierarchical refinement
 */
 
-static bool refineRecursive(GeometryListNode **candidatesList, INTERACTION *link);
+static bool refineRecursive(java::ArrayList<Geometry *> **candidatesList, INTERACTION *link);
 
 /**
 Evaluates the interaction and returns a code telling whether it is accurate enough
@@ -37,12 +37,11 @@ Does shaft-culling between elements in a link (if the user asked for it).
 Updates the *candidatesList. Returns the old candidate list, so it can be restored
 later (using hierarchicRefinementUnCull())
 */
-static GeometryListNode *
-hierarchicRefinementCull(GeometryListNode **candidatesList, INTERACTION *link, bool isClusteredGeometry) {
+static void
+hierarchicRefinementCull(java::ArrayList<Geometry *> **candidatesList, INTERACTION *link, bool isClusteredGeometry) {
     if ( *candidatesList == nullptr ) {
-        return nullptr;
+        return;
     }
-    GeometryListNode *listCopy = *candidatesList;
 
     if ( GLOBAL_galerkin_state.shaftCullMode == DO_SHAFT_CULLING_FOR_REFINEMENT ||
          GLOBAL_galerkin_state.shaftCullMode == ALWAYS_DO_SHAFT_CULLING ) {
@@ -63,7 +62,7 @@ hierarchicRefinementCull(GeometryListNode **candidatesList, INTERACTION *link, b
         }
         if ( !the_shaft ) {
             logError("hierarchicRefinementCull", "Couldn't construct shaft");
-            return listCopy;
+            return;
         }
 
         if ( isCluster(link->receiverElement) ) {
@@ -81,15 +80,13 @@ hierarchicRefinementCull(GeometryListNode **candidatesList, INTERACTION *link, b
         if ( isClusteredGeometry ) {
             java::ArrayList<Geometry*> *arr = new java::ArrayList<Geometry*>();
             shaftCullGeometry(GLOBAL_scene_clusteredWorldGeom, &shaft, arr);
-            *candidatesList = convertToGeometryList(arr);
+            *candidatesList = arr;
         } else {
             java::ArrayList<Geometry*> *arr = new java::ArrayList<Geometry*>();
-            doShaftCulling(convertGeometryList(listCopy), &shaft, arr);
-            *candidatesList = convertToGeometryList(arr);
+            doShaftCulling(*candidatesList, &shaft, arr);
+            *candidatesList = arr;
         }
     }
-
-    return listCopy;
 }
 
 /**
@@ -97,7 +94,7 @@ Destroys the current geometryCandidatesList and restores the previous one (passe
 an argument)
 */
 static void
-hierarchicRefinementUnCull(GeometryListNode **candidatesList) {
+hierarchicRefinementUnCull(java::ArrayList<Geometry *> **candidatesList) {
     if ( GLOBAL_galerkin_state.shaftCullMode == DO_SHAFT_CULLING_FOR_REFINEMENT ||
          GLOBAL_galerkin_state.shaftCullMode == ALWAYS_DO_SHAFT_CULLING ) {
         freeCandidateList(*candidatesList);
@@ -421,7 +418,7 @@ is not zero, the data is filled in the INTERACTION pointed to by 'link'
 and true is returned. If the elements don't interact, false is returned
 */
 static int
-hierarchicRefinementCreateSubdivisionLink(GeometryListNode *candidatesList, GalerkinElement *rcv, GalerkinElement *src, INTERACTION *link) {
+hierarchicRefinementCreateSubdivisionLink(java::ArrayList<Geometry *> *candidatesList, GalerkinElement *rcv, GalerkinElement *src, INTERACTION *link) {
     link->receiverElement = rcv;
     link->sourceElement = src;
 
@@ -438,11 +435,11 @@ hierarchicRefinementCreateSubdivisionLink(GeometryListNode *candidatesList, Gale
         link->nsrc = src->basisSize;
     }
 
-    java::ArrayList<Geometry *> *geometryCandidateList = convertGeometryList(candidatesList);
-    bool isSceneGeometry = (candidatesList == GLOBAL_scene_world);
-    bool isClusteredGeometry = (candidatesList == GLOBAL_scene_clusteredWorld);
+    java::ArrayList<Geometry *> *geometryCandidateList = candidatesList;
+    bool isSceneGeometry = (candidatesList == GLOBAL_scene_geometries);
+    bool isClusteredGeometry = (candidatesList == GLOBAL_scene_clusteredGeometries);
     areaToAreaFormFactor(link, geometryCandidateList, isSceneGeometry, isClusteredGeometry);
-    delete geometryCandidateList;
+    //delete geometryCandidateList;
 
     return link->vis != 0;
 }
@@ -470,9 +467,9 @@ iteration method being used. This routine always returns true indicating that
 the passed interaction is always replaced by lower level interactions
 */
 static void
-hierarchicRefinementRegularSubdivideSource(GeometryListNode **candidatesList, INTERACTION *link, bool isClusteredGeometry) {
-    GeometryListNode *backup = *candidatesList;
-    GeometryListNode *geometryCandidatesList = hierarchicRefinementCull(candidatesList, link, isClusteredGeometry);
+hierarchicRefinementRegularSubdivideSource(java::ArrayList<Geometry *> **candidatesList, INTERACTION *link, bool isClusteredGeometry) {
+    java::ArrayList<Geometry *> *backup = *candidatesList;
+    hierarchicRefinementCull(candidatesList, link, isClusteredGeometry);
     GalerkinElement *src = link->sourceElement;
     GalerkinElement *rcv = link->receiverElement;
 
@@ -491,7 +488,6 @@ hierarchicRefinementRegularSubdivideSource(GeometryListNode **candidatesList, IN
     }
 
     hierarchicRefinementUnCull(candidatesList);
-    geometryCandidatesList = nullptr;
     *candidatesList = backup;
 }
 
@@ -499,9 +495,9 @@ hierarchicRefinementRegularSubdivideSource(GeometryListNode **candidatesList, IN
 Same, but subdivides the receiver element
 */
 static void
-hierarchicRefinementRegularSubdivideReceiver(GeometryListNode **candidatesList, INTERACTION *link, bool isClusteredGeometry) {
-    GeometryListNode *backup = *candidatesList;
-    GeometryListNode *geometryCandidatesList = hierarchicRefinementCull(candidatesList, link, isClusteredGeometry);
+hierarchicRefinementRegularSubdivideReceiver(java::ArrayList<Geometry *> **candidatesList, INTERACTION *link, bool isClusteredGeometry) {
+    java::ArrayList<Geometry *> *backup = *candidatesList;
+    hierarchicRefinementCull(candidatesList, link, isClusteredGeometry);
     GalerkinElement *src = link->sourceElement;
     GalerkinElement *rcv = link->receiverElement;
 
@@ -520,7 +516,6 @@ hierarchicRefinementRegularSubdivideReceiver(GeometryListNode **candidatesList, 
     }
 
     hierarchicRefinementUnCull(candidatesList);
-    geometryCandidatesList = nullptr;
     *candidatesList = backup;
 }
 
@@ -530,12 +525,12 @@ which is a cluster
 */
 static void
 hierarchicRefinementSubdivideSourceCluster(
-    GeometryListNode **candidatesList,
+    java::ArrayList<Geometry *> **candidatesList,
     INTERACTION *link,
     bool isClusteredGeometry)
 {
-    GeometryListNode *backup = *candidatesList;
-    GeometryListNode *geometryCandidatesList = hierarchicRefinementCull(candidatesList, link, isClusteredGeometry);
+    java::ArrayList<Geometry *> *backup = *candidatesList;
+    hierarchicRefinementCull(candidatesList, link, isClusteredGeometry);
     GalerkinElement *src = link->sourceElement, *rcv = link->receiverElement;
     ELEMENTLIST *subClusterList;
 
@@ -562,7 +557,6 @@ hierarchicRefinementSubdivideSourceCluster(
     }
 
     hierarchicRefinementUnCull(candidatesList);
-    geometryCandidatesList = nullptr;
     *candidatesList = backup;
 }
 
@@ -571,9 +565,9 @@ Replace the interaction by interactions with the sub-clusters of the receiver,
 which is a cluster
 */
 static void
-hierarchicRefinementSubdivideReceiverCluster(GeometryListNode **candidatesList, INTERACTION *link, bool isClusteredGeometry) {
-    GeometryListNode *backup = *candidatesList;
-    GeometryListNode *geometryCandidatesList = hierarchicRefinementCull(candidatesList, link, isClusteredGeometry);
+hierarchicRefinementSubdivideReceiverCluster(java::ArrayList<Geometry *> **candidatesList, INTERACTION *link, bool isClusteredGeometry) {
+    java::ArrayList<Geometry *> *backup = *candidatesList;
+    hierarchicRefinementCull(candidatesList, link, isClusteredGeometry);
     GalerkinElement *src = link->sourceElement;
     GalerkinElement *rcv = link->receiverElement;
     ELEMENTLIST *subClusterList;
@@ -601,7 +595,6 @@ hierarchicRefinementSubdivideReceiverCluster(GeometryListNode **candidatesList, 
     }
 
     hierarchicRefinementUnCull(candidatesList);
-    geometryCandidatesList = nullptr;
     *candidatesList = backup;
 }
 
@@ -612,10 +605,10 @@ if the interaction was not refined and is to be retained. If the interaction
 does not need to be refined, light transport over the interaction is computed
 */
 static bool
-refineRecursive(GeometryListNode **candidatesList, INTERACTION *link) {
+refineRecursive(java::ArrayList<Geometry *> **candidatesList, INTERACTION *link) {
     bool refined = false;
 
-    bool isClusteredGeometry = (*candidatesList == GLOBAL_scene_clusteredWorld);
+    bool isClusteredGeometry = (*candidatesList == GLOBAL_scene_clusteredGeometries);
     switch ( hierarchicRefinementEvaluateInteraction(link) ) {
         case ACCURATE_ENOUGH:
             hierarchicRefinementComputeLightTransport(link);
@@ -647,7 +640,7 @@ refineRecursive(GeometryListNode **candidatesList, INTERACTION *link) {
 void
 refineInteraction(INTERACTION *link) {
     // Candidate occluder list for a pair of patches, note it is changed inside the methods!
-    GeometryListNode *currentCandidatesList = GLOBAL_scene_clusteredWorld;
+    java::ArrayList<Geometry *> *currentCandidatesList = GLOBAL_scene_clusteredGeometries;
 
     if ( GLOBAL_galerkin_state.exact_visibility && link->vis == 255 ) {
         currentCandidatesList = nullptr;
