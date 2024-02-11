@@ -40,12 +40,11 @@ Updates the globalCandidatesList. Returns the old candidate list, so it can be r
 later (using hierarchicRefinementUnCull())
 */
 static GeometryListNode *
-hierarchicRefinementCull(INTERACTION *link, bool isClusteredGeometry) {
-    GeometryListNode *geometryCandidatesList = globalCandidatesList;
-
-    if ( geometryCandidatesList == nullptr) {
+hierarchicRefinementCull(GeometryListNode **candidatesList, INTERACTION *link, bool isClusteredGeometry) {
+    if ( globalCandidatesList == nullptr ) {
         return nullptr;
     }
+    GeometryListNode *listCopy = *candidatesList;
 
     if ( GLOBAL_galerkin_state.shaftCullMode == DO_SHAFT_CULLING_FOR_REFINEMENT ||
          GLOBAL_galerkin_state.shaftCullMode == ALWAYS_DO_SHAFT_CULLING ) {
@@ -65,7 +64,7 @@ hierarchicRefinementCull(INTERACTION *link, bool isClusteredGeometry) {
         }
         if ( !the_shaft ) {
             logError("hierarchicRefinementCull", "Couldn't construct shaft");
-            return geometryCandidatesList;
+            return listCopy;
         }
 
         if ( isCluster(link->receiverElement) ) {
@@ -83,15 +82,15 @@ hierarchicRefinementCull(INTERACTION *link, bool isClusteredGeometry) {
         if ( isClusteredGeometry ) {
             java::ArrayList<Geometry*> *arr = new java::ArrayList<Geometry*>();
             shaftCullGeom(GLOBAL_scene_clusteredWorldGeom, &shaft, arr);
-            globalCandidatesList = convertToGeometryList(arr);
+            *candidatesList = convertToGeometryList(arr);
         } else {
             java::ArrayList<Geometry*> *arr = new java::ArrayList<Geometry*>();
-            doShaftCulling(convertGeometryList(geometryCandidatesList), &shaft, arr);
-            globalCandidatesList = convertToGeometryList(arr);
+            doShaftCulling(convertGeometryList(listCopy), &shaft, arr);
+            *candidatesList = convertToGeometryList(arr);
         }
     }
 
-    return geometryCandidatesList;
+    return listCopy;
 }
 
 /**
@@ -471,7 +470,7 @@ the passed interaction is always replaced by lower level interactions
 static int
 hierarchicRefinementRegularSubdivideSource(INTERACTION *link) {
     bool isClusteredGeometry = (globalCandidatesList == GLOBAL_scene_clusteredWorld);
-    GeometryListNode *geometryCandidatesList = hierarchicRefinementCull(link, isClusteredGeometry);
+    GeometryListNode *geometryCandidatesList = hierarchicRefinementCull(&globalCandidatesList, link, isClusteredGeometry);
     GalerkinElement *src = link->sourceElement, *rcv = link->receiverElement;
 
     galerkinElementRegularSubDivide(src);
@@ -498,7 +497,7 @@ Same, but subdivides the receiver element
 static int
 hierarchicRefinementRegularSubdivideReceiver(INTERACTION *link) {
     bool isClusteredGeometry = (globalCandidatesList == GLOBAL_scene_clusteredWorld);
-    GeometryListNode *geometryCandidatesList = hierarchicRefinementCull(link, isClusteredGeometry);
+    GeometryListNode *geometryCandidatesList = hierarchicRefinementCull(&globalCandidatesList, link, isClusteredGeometry);
     GalerkinElement *src = link->sourceElement, *rcv = link->receiverElement;
     int i;
 
@@ -527,7 +526,7 @@ which is a cluster
 static int
 hierarchicRefinementSubdivideSourceCluster(INTERACTION *link) {
     bool isClusteredGeometry = (globalCandidatesList == GLOBAL_scene_clusteredWorld);
-    GeometryListNode *geometryCandidatesList = hierarchicRefinementCull(link, isClusteredGeometry);
+    GeometryListNode *geometryCandidatesList = hierarchicRefinementCull(&globalCandidatesList, link, isClusteredGeometry);
     GalerkinElement *src = link->sourceElement, *rcv = link->receiverElement;
     ELEMENTLIST *subClusterList;
 
@@ -564,8 +563,9 @@ which is a cluster
 static int
 hierarchicRefinementSubdivideReceiverCluster(INTERACTION *link) {
     bool isClusteredGeometry = (globalCandidatesList == GLOBAL_scene_clusteredWorld);
-    GeometryListNode *geometryCandidatesList = hierarchicRefinementCull(link, isClusteredGeometry);
-    GalerkinElement *src = link->sourceElement, *rcv = link->receiverElement;
+    GeometryListNode *geometryCandidatesList = hierarchicRefinementCull(&globalCandidatesList, link, isClusteredGeometry);
+    GalerkinElement *src = link->sourceElement;
+    GalerkinElement *rcv = link->receiverElement;
     ELEMENTLIST *subClusterList;
 
     for ( subClusterList = rcv->irregularSubElements; subClusterList; subClusterList = subClusterList->next ) {
