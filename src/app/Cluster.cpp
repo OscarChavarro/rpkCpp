@@ -206,34 +206,34 @@ are copied to the GEOMs)
 */
 Geometry *
 Cluster::convertClusterToGeometry() {
-    GeometryListNode *geometryListNode;
-    Geometry *thePatches;
-    int i;
+    Geometry *patchesGeometry;
 
-    thePatches = nullptr;
+    patchesGeometry = nullptr;
     if ( patches != nullptr ) {
-        thePatches = geomCreatePatchSet(patches);
+        patchesGeometry = geomCreatePatchSet(patches);
     }
 
-    geometryListNode = nullptr; // Empty list
-    for ( i = 0; i < 8; i++ ) {
+    java::ArrayList<Geometry *> *geometryList = new java::ArrayList<Geometry *>();
+    for ( int i = 0; i < 8; i++ ) {
         Geometry *child = nullptr;
         if ( children[i] != nullptr ) {
             child = children[i]->convertClusterToGeometry();
         }
 
         if ( child != nullptr ) {
-            geometryListNode = geometryListAdd(geometryListNode, child);
+            geometryList->add(0, child);
         }
     }
 
-    if ( !geometryListNode ) {
-        return thePatches;
+    if ( !geometryList ) {
+        return patchesGeometry;
     }
 
     // The patches in the cluster are the first to be tested for intersection with
-    geometryListNode = geometryListAdd(geometryListNode, thePatches);
+    if ( patchesGeometry != nullptr ) {
+        geometryList->add(0, patchesGeometry);
+    }
     Compound *newCompound = new Compound();
-    newCompound->children = geometryListNode;
+    newCompound->children = convertToGeometryList(geometryList);
     return geomCreateCompound(newCompound);
 }

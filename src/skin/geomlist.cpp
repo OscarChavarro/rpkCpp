@@ -4,15 +4,15 @@
 
 GeometryListNode *
 geometryListAdd(GeometryListNode *geometryList, Geometry *geometry) {
-    if ( geometry == nullptr) {
+    if ( geometry == nullptr ) {
         return geometryList;
     }
 
-    GeometryListNode *newList = (GeometryListNode *)malloc(sizeof(LIST));
-    newList->geometry = geometry;
-    newList->next = geometryList;
+    GeometryListNode *newListNode = (GeometryListNode *)malloc(sizeof(LIST));
+    newListNode->geometry = geometry;
+    newListNode->next = geometryList;
 
-    return newList;
+    return newListNode;
 }
 
 /**
