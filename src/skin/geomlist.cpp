@@ -2,19 +2,6 @@
 #include "skin/Geometry.h"
 #include "skin/geomlist.h"
 
-GeometryListNode *
-geometryListAdd(GeometryListNode *geometryList, Geometry *geometry) {
-    if ( geometry == nullptr ) {
-        return geometryList;
-    }
-
-    GeometryListNode *newListNode = (GeometryListNode *)malloc(sizeof(LIST));
-    newListNode->geometry = geometry;
-    newListNode->next = geometryList;
-
-    return newListNode;
-}
-
 /**
 This function computes a bounding box for a list of geometries
 */
