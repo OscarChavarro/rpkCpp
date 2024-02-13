@@ -24,8 +24,4 @@ extern Geometry *GLOBAL_scene_clusteredWorldGeom;
 // Voxel grid containing the whole world
 extern VoxelGrid *GLOBAL_scene_worldVoxelGrid;
 
-// Deprecated
-extern GeometryListNode *GLOBAL_scene_world;
-extern GeometryListNode *GLOBAL_scene_clusteredWorld;
-
 #endif

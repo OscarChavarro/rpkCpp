@@ -344,10 +344,10 @@ monteCarloRadiosityDetermineAreaFraction(java::ArrayList<Patch *> *scenePatches)
     int nrpatchids = patchGetNextId();
     int i;
 
-    if ( !GLOBAL_scene_world ) {
+    if ( GLOBAL_scene_geometries == nullptr || GLOBAL_scene_geometries->size() == 0 ) {
+        // An arbitrary positive number (in order to avoid divisions by zero
         return 100;
-    }    /* an arbitrary positive number (in order
-				 * to avoid divisions by zero */
+    }
 
     // Build a table of patch areas
     areas = (float *)malloc(nrpatchids * sizeof(float));

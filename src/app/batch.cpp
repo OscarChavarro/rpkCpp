@@ -170,7 +170,7 @@ batch(java::ArrayList<Patch *> *scenePatches, java::ArrayList<Patch *> *lightPat
     clock_t start_time, wasted_start;
     float wasted_secs;
 
-    if ( !GLOBAL_scene_world ) {
+    if ( GLOBAL_scene_geometries == nullptr || GLOBAL_scene_geometries->size() == 0 ) {
         printf("Empty world??\n");
         return;
     }

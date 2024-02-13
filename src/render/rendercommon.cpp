@@ -132,7 +132,7 @@ renderGetNearFar(float *near, float *far) {
     int i, j, k;
     float z;
 
-    if ( !GLOBAL_scene_world ) {
+    if ( GLOBAL_scene_geometries == nullptr || GLOBAL_scene_geometries->size() == 0 ) {
         *far = 10.0;
         *near = 0.1;
         return;

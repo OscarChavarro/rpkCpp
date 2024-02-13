@@ -6,6 +6,3 @@ Background *GLOBAL_scene_background = nullptr;
 java::ArrayList<Geometry *> *GLOBAL_scene_clusteredGeometries = nullptr;
 Geometry *GLOBAL_scene_clusteredWorldGeom = nullptr;
 VoxelGrid *GLOBAL_scene_worldVoxelGrid = nullptr;
-
-GeometryListNode *GLOBAL_scene_world = nullptr;
-GeometryListNode *GLOBAL_scene_clusteredWorld = nullptr;

@@ -1113,7 +1113,7 @@ handleObjectEntity(int argc, char **argv) {
 
         if ( theGeometry ) {
             globalCurrentGeometryList->add(0, theGeometry);
-            GLOBAL_scene_world = convertToGeometryList(globalCurrentGeometryList);
+            GLOBAL_scene_geometries = globalCurrentGeometryList;
         }
 
         newSurface();

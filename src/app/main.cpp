@@ -313,14 +313,14 @@ mainReadFile(char *filename) {
     #endif
 
     // Prepare if errors occur when reading the new scene will abort
-    GLOBAL_scene_world = nullptr;
+    GLOBAL_scene_geometries = new java::ArrayList<Geometry *>();
     if ( GLOBAL_scene_materials == nullptr ) {
         GLOBAL_scene_materials = new java::ArrayList<Material *>();
     }
 
     globalAppScenePatches = nullptr;
     patchSetNextId(1);
-    GLOBAL_scene_clusteredWorld = nullptr;
+    GLOBAL_scene_clusteredGeometries = new java::ArrayList<Geometry *>();
     GLOBAL_scene_background = nullptr;
 
     // Read the mgf file. The result is a new GLOBAL_scene_world and GLOBAL_scene_materials if everything goes well
@@ -346,7 +346,7 @@ mainReadFile(char *filename) {
     free(globalCurrentDirectory);
 
     // Check for errors
-    if ( !GLOBAL_scene_world ) {
+    if ( GLOBAL_scene_geometries == nullptr || GLOBAL_scene_geometries->size() == 0 ) {
         return false; // Not successful
     }
 
@@ -423,21 +423,11 @@ mainReadFile(char *filename) {
     GLOBAL_scene_clusteredWorldGeom = mainCreateClusterHierarchy(globalAppScenePatches);
 
     if ( GLOBAL_scene_clusteredWorldGeom->className == GeometryClassId::COMPOUND ) {
-        if ( GLOBAL_scene_clusteredWorldGeom->compoundData != nullptr ) {
-            GLOBAL_scene_clusteredWorld = GLOBAL_scene_clusteredWorldGeom->compoundData->children;
-            GLOBAL_scene_clusteredGeometries = convertGeometryList(GLOBAL_scene_clusteredWorld);
-        } else {
+        if ( GLOBAL_scene_clusteredWorldGeom->compoundData == nullptr ) {
             fprintf(stderr, "Unexpected case: review code - generic case not supported anymore.\n");
             exit(2);
         }
     } else {
-        // Small memory leak here ... but exceptional situation!
-        GLOBAL_scene_clusteredWorld = geometryListAdd(nullptr, GLOBAL_scene_clusteredWorldGeom);
-        if ( GLOBAL_scene_clusteredGeometries != nullptr ) {
-            delete GLOBAL_scene_clusteredGeometries;
-            GLOBAL_scene_clusteredGeometries = nullptr;
-        }
-        GLOBAL_scene_clusteredGeometries = convertGeometryList(GLOBAL_scene_clusteredWorld);
         logWarning(nullptr, "Strange clusters for this world ...");
     }
 

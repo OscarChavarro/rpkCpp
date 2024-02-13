@@ -431,7 +431,7 @@ mcrWriteVrml(FILE *fp) {
     mcrWriteVrmlHeader(fp);
 
     vrmlfp = fp;
-    java::ArrayList<Geometry *> *allGeometries = convertGeometryList(GLOBAL_scene_world);
+    java::ArrayList<Geometry *> *allGeometries = GLOBAL_scene_geometries;
     iteratePrimitiveGeoms(allGeometries, writePrimitive);
     delete allGeometries;
     mcrWriteVrmlTrailer(fp);
