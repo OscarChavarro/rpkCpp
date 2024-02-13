@@ -7,7 +7,6 @@
 #include "scene/VoxelGrid.h"
 
 // The current scene
-extern GeometryListNode *GLOBAL_scene_world;
 extern java::ArrayList<Geometry *> *GLOBAL_scene_geometries;
 
 // The list of all materials present in the current scene
@@ -17,7 +16,6 @@ extern java::ArrayList<Material *> *GLOBAL_scene_materials;
 extern Background *GLOBAL_scene_background;
 
 // The top of the patch cluster hierarchy for the scene. Automatically derived from scene patches when loading a new scene
-extern GeometryListNode *GLOBAL_scene_clusteredWorld;
 extern java::ArrayList<Geometry *> *GLOBAL_scene_clusteredGeometries;
 
 // Single Geometry containing the above
@@ -25,5 +23,9 @@ extern Geometry *GLOBAL_scene_clusteredWorldGeom;
 
 // Voxel grid containing the whole world
 extern VoxelGrid *GLOBAL_scene_worldVoxelGrid;
+
+// Deprecated
+extern GeometryListNode *GLOBAL_scene_world;
+extern GeometryListNode *GLOBAL_scene_clusteredWorld;
 
 #endif

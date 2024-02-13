@@ -81,16 +81,16 @@ geometryListDiscretizationIntersect(
 }
 
 HITLIST *
-geomListAllDiscretizationIntersections(
+geometryListAllDiscretizationIntersections(
     HITLIST *hits,
-    GeometryListNode *geometryList,
+    java::ArrayList<Geometry *> *geometryList,
     Ray *ray,
     float minimumDistance,
     float maximumDistance,
     int hitFlags)
 {
-    for ( GeometryListNode *window = geometryList; window != nullptr; window = window->next ) {
-        hits = geomAllDiscretizationIntersections(hits, window->geometry, ray, minimumDistance, maximumDistance, hitFlags);
+    for ( int i = 0; geometryList != nullptr && i < geometryList->size(); i++ ) {
+        hits = geomAllDiscretizationIntersections(hits, geometryList->get(i), ray, minimumDistance, maximumDistance, hitFlags);
     }
     return hits;
 }

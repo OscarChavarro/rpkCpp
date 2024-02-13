@@ -24,7 +24,6 @@ contains data that is independent of geometry type.
 class PatchSet;
 class MeshSurface;
 class Compound;
-class GeometryListNode;
 class Element;
 
 enum GeometryClassId {
@@ -65,8 +64,6 @@ extern Geometry *geomCreateCompound(Compound *compoundData);
 extern float *geomBounds(Geometry *geometry);
 extern void geomDestroy(Geometry *geometry);
 extern int geomIsAggregate(Geometry *geometry);
-extern java::ArrayList<Geometry *> *convertGeometryList(GeometryListNode *linkedList);
-extern GeometryListNode *convertToGeometryList(java::ArrayList<Geometry *> *geometryList);
 extern java::ArrayList<Geometry *> *geomPrimList(Geometry *geometry);
 java::ArrayList<Patch *> *geomPatchArrayList(Geometry *geometry);
 extern void geomDontIntersect(Geometry *geometry1, Geometry *geometry2);
@@ -92,6 +89,11 @@ geomAllDiscretizationIntersections(
 
 extern Geometry *GLOBAL_geom_excludedGeom1;
 extern Geometry *GLOBAL_geom_excludedGeom2;
+
+class GeometryListNode;
+
+extern java::ArrayList<Geometry *> *convertGeometryList(GeometryListNode *linkedList);
+extern GeometryListNode *convertToGeometryList(java::ArrayList<Geometry *> *geometryList);
 
 #include "skin/PatchSet.h"
 #include "skin/MeshSurface.h"

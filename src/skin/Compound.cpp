@@ -58,5 +58,9 @@ compoundAllDiscretizationIntersections(
     float maximumDistance,
     int hitFlags)
 {
-    return geomListAllDiscretizationIntersections(hits, compound->children, ray, minimumDistance, maximumDistance, hitFlags);
+    java::ArrayList<Geometry *> *tmpList = convertGeometryList(compound->children);
+    HITLIST *result = geometryListAllDiscretizationIntersections(hits, tmpList, ray, minimumDistance, maximumDistance,
+                                                                 hitFlags);
+    delete tmpList;
+    return result;
 }
