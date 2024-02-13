@@ -90,11 +90,6 @@ geomAllDiscretizationIntersections(
 extern Geometry *GLOBAL_geom_excludedGeom1;
 extern Geometry *GLOBAL_geom_excludedGeom2;
 
-class GeometryListNode;
-
-extern java::ArrayList<Geometry *> *convertGeometryList(GeometryListNode *linkedList);
-extern GeometryListNode *convertToGeometryList(java::ArrayList<Geometry *> *geometryList);
-
 #include "skin/PatchSet.h"
 #include "skin/MeshSurface.h"
 #include "skin/Compound.h"

@@ -745,7 +745,9 @@ shaftCullOpen(Geometry *geom, SHAFT *shaft, java::ArrayList<Geometry *> *candida
     }
 
     if ( geomIsAggregate(geom) ) {
-        doShaftCulling(geomPrimList(geom), shaft, candidateList);
+        java::ArrayList<Geometry *> *geometryList = geomPrimList(geom);
+        doShaftCulling(geometryList, shaft, candidateList);
+        delete geometryList;
     } else {
         java::ArrayList<Patch *> *geometryPatchesList = geomPatchArrayList(geom);
         java::ArrayList<Patch *> *culledPatches = shaftCullPatchList(geometryPatchesList, shaft);

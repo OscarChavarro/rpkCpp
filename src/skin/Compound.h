@@ -6,7 +6,7 @@
 
 class Compound : public Geometry {
 public:
-    GeometryListNode *children;
+    java::ArrayList<Geometry *> *children;
 };
 
 extern Compound *compoundCreate(java::ArrayList<Geometry *> *geometryList);

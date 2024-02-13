@@ -15,7 +15,7 @@ Compound *
 compoundCreate(java::ArrayList<Geometry *> *geometryList) {
     GLOBAL_statistics_numberOfCompounds++;
     Compound *group = new Compound();
-    group->children = convertToGeometryList(geometryList);;
+    group->children = geometryList;
     return group;
 }
 
@@ -42,10 +42,8 @@ compoundDiscretizationIntersect(
     int hitFlags,
     RayHit *hitStore)
 {
-    java::ArrayList<Geometry *> *tmpList = convertGeometryList(compound->children);
     RayHit * result = geometryListDiscretizationIntersect(
-            tmpList, ray, minimumDistance, maximumDistance, hitFlags, hitStore);
-    delete tmpList;
+            compound->children, ray, minimumDistance, maximumDistance, hitFlags, hitStore);
     return result;
 }
 
@@ -58,9 +56,6 @@ compoundAllDiscretizationIntersections(
     float maximumDistance,
     int hitFlags)
 {
-    java::ArrayList<Geometry *> *tmpList = convertGeometryList(compound->children);
-    HITLIST *result = geometryListAllDiscretizationIntersections(hits, tmpList, ray, minimumDistance, maximumDistance,
-                                                                 hitFlags);
-    delete tmpList;
-    return result;
+    return geometryListAllDiscretizationIntersections(
+        hits, compound->children, ray, minimumDistance, maximumDistance, hitFlags);
 }

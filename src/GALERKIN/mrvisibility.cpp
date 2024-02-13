@@ -70,10 +70,12 @@ geomMultiResolutionVisibility(
         vol = (bbx[MAX_X] - bbx[MIN_X] + EPSILON) * (bbx[MAX_Y] - bbx[MIN_Y] + EPSILON) *
               (bbx[MAX_Z] - bbx[MIN_Z] + EPSILON);
         kappa = clus->area / (4.0 * vol);
-        return exp(-kappa * (tmax - tmin));
+        return std::exp(-kappa * (tmax - tmin));
     } else {
         if ( geomIsAggregate(geom) ) {
-            double visibility = geomListMultiResolutionVisibility(geomPrimList(geom), ray, rcvdist, srcSize, minimumFeatureSize);
+            java::ArrayList<Geometry *> *geometryList = geomPrimList(geom);
+            double visibility = geomListMultiResolutionVisibility(geometryList, ray, rcvdist, srcSize, minimumFeatureSize);
+            delete geometryList;
             return visibility;
         } else {
             RayHit *hit = patchListIntersect(
