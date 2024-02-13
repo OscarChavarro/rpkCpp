@@ -42,8 +42,11 @@ compoundDiscretizationIntersect(
     int hitFlags,
     RayHit *hitStore)
 {
-    return geometryListDiscretizationIntersect(
-        compound->children, ray, minimumDistance, maximumDistance, hitFlags, hitStore);
+    java::ArrayList<Geometry *> *tmpList = convertGeometryList(compound->children);
+    RayHit * result = geometryListDiscretizationIntersect(
+            tmpList, ray, minimumDistance, maximumDistance, hitFlags, hitStore);
+    delete tmpList;
+    return result;
 }
 
 HITLIST *

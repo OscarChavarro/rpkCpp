@@ -21,15 +21,6 @@ extern void buildPatchList(java::ArrayList<Geometry *> *geometryList, java::Arra
 
 extern RayHit *
 geometryListDiscretizationIntersect(
-    GeometryListNode *geometryList,
-    Ray *ray,
-    float minimumDistance,
-    float *maximumDistance,
-    int hitFlags,
-    RayHit *hitStore);
-
-extern RayHit *
-geometryListDiscretizationIntersect2(
     java::ArrayList<Geometry *> *geometryList,
     Ray *ray,
     float minimumDistance,

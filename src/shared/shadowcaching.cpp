@@ -73,7 +73,8 @@ shadowTestDiscretization(
         GLOBAL_statistics_numberOfShadowCacheHits++;
     } else {
         if ( !isClusteredGeometry && !isSceneGeometry ) {
-            hit = geometryListDiscretizationIntersect2(geometrySceneList, ray, EPSILON * dist, &dist, HIT_FRONT | HIT_ANY, hitStore);
+            hit = geometryListDiscretizationIntersect(geometrySceneList, ray, EPSILON * dist, &dist,
+                                                      HIT_FRONT | HIT_ANY, hitStore);
         } else {
             hit = voxelGrid->gridIntersect(ray, EPSILON * dist, &dist, HIT_FRONT | HIT_ANY, hitStore);
         }
