@@ -27,14 +27,13 @@ buildPatchList(java::ArrayList<Geometry *> *geometryList, java::ArrayList<Patch 
     for ( int i = 0; geometryList != nullptr && i < geometryList->size(); i++ ) {
         Geometry *geometry = geometryList->get(i);
         if ( geomIsAggregate(geometry) ) {
-            java::ArrayList<Geometry *> *subList = geomPrimList(geometry);
+            java::ArrayList<Geometry *> *subList = geomPrimListReference(geometry);
             buildPatchList(subList, patchList);
-            delete subList;
         } else {
             java::ArrayList<Patch *> *list2 = geomPatchArrayList(geometry);
 
-            for ( int i = 0; list2 != nullptr && i < list2->size(); i++ ) {
-                Patch *patch = list2->get(i);
+            for ( int j = 0; list2 != nullptr && j < list2->size(); j++ ) {
+                Patch *patch = list2->get(j);
                 if ( patch != nullptr ) {
                     patchList->add(0, patch);
                 }

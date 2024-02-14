@@ -202,14 +202,13 @@ Returns a list of the simpler geometries making up an aggregate geometry.
 A nullptr pointer is returned if the geometry is a primitive
 */
 java::ArrayList<Geometry *> *
-geomPrimList(Geometry *geometry) {
+geomPrimListReference(Geometry *geometry) {
     if ( geomIsAggregate(geometry) && geometry->compoundData != nullptr ) {
-        return cloneGeometryList(geometry->compoundData->children);
+        return geometry->compoundData->children;
     } else {
         return nullptr;
     }
 }
-
 
 java::ArrayList<Patch *> *
 geomPatchArrayList(Geometry *geometry) {
@@ -350,7 +349,7 @@ Geometry::geomCountItems() {
     int count = 0;
 
     if ( geomIsAggregate(this) ) {
-        java::ArrayList<Geometry *> *geometryList = geomPrimList(this);
+        java::ArrayList<Geometry *> *geometryList = geomPrimListReference(this);
         for ( int i = 0; geometryList != nullptr && i < geometryList->size(); i++ ) {
             count += geometryList->get(i)->geomCountItems();
         }

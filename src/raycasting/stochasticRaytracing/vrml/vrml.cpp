@@ -407,9 +407,8 @@ iteratePrimitiveGeoms(java::ArrayList<Geometry *> *geometryList, void (*function
         Geometry *geometry = geometryList->get(i);
 
         if ( geomIsAggregate(geometry) ) {
-            java::ArrayList<Geometry *> * geometryList = geomPrimList(geometry);
+            java::ArrayList<Geometry *> * geometryList = geomPrimListReference(geometry);
             iteratePrimitiveGeoms(geometryList, functionCallback);
-            delete geometryList;
         } else {
             functionCallback(geometry);
         }

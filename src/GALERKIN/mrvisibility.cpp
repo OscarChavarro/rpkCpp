@@ -73,10 +73,8 @@ geomMultiResolutionVisibility(
         return std::exp(-kappa * (tmax - tmin));
     } else {
         if ( geomIsAggregate(geom) ) {
-            java::ArrayList<Geometry *> *geometryList = geomPrimList(geom);
-            double visibility = geomListMultiResolutionVisibility(geometryList, ray, rcvdist, srcSize, minimumFeatureSize);
-            delete geometryList;
-            return visibility;
+            java::ArrayList<Geometry *> *geometryList = geomPrimListReference(geom);
+            return geomListMultiResolutionVisibility(geometryList, ray, rcvdist, srcSize, minimumFeatureSize);
         } else {
             RayHit *hit = patchListIntersect(
                 geomPatchArrayList(geom),
