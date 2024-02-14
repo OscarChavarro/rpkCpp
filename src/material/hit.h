@@ -1,19 +1,22 @@
-/* hit.h: hit record structure, returned by ray-object intersection routines and
- * used as a parameter for BSDF/EDF queries */
+/**
+Hit record structure, returned by ray-object intersection routines and
+used as a parameter for BSDF/EDF queries
+*/
 
-#ifndef _HIT_H_
-#define _HIT_H_
+#ifndef __HIT__
+#define __HIT__
 
 #include "common/linealAlgebra/vectorMacros.h"
-
-/* information returned by ray-geometry or ray-discretisation intersection 
- * routines */
 
 // TODO SITHMASTER: This is coupling hit with scene level classes :(
 class Geometry;
 class Patch;
 class Material;
 
+/**
+Information returned by ray-geometry or ray-discretization intersection
+routines
+*/
 class RayHit {
   public:
     Geometry *geom; // geometry that was hit
@@ -26,17 +29,17 @@ class RayHit {
     Vector3D X; // shading frame (Z = shading normal: hit->Z == hit->normal)
     Vector3D Y;
     Vector3D Z;
-    Vector2Dd uv; // bilinear/barycentric parameters of hit
+    Vector2Dd uv; // Bi-linear/barycentric parameters of hit
     float dist; // distance to ray origin: always computed
     unsigned int flags; // flags indicating which of the above fields have been filled in
 };
 
-/*
+/**
 The flags below have a double function: if passed as an argument 
 to a ray intersection routine, they indicate that only front or back 
 or both kind of intersections should be returned.
 On output, they contain whether a particular hit record returned by
-a ray itnersection routine is a front or back hit.
+a ray intersection routine is a front or back hit
 */
 #define HIT_FRONT 0x10000 // return intersections with surfaces oriented towards the origin of the ray
 #define HIT_BACK  0x20000 // return intersections with surfaces oriented away from the origin of the ray
@@ -60,37 +63,20 @@ a ray itnersection routine is a front or back hit.
                                          * normal and may differ from the geometric normal */
 #define HIT_NORMAL       0x800 // shading normal (filled in by HitShadingNormal() or HitShadingFrame())
 
-/* Initialises a hit record. Either patch or geom shall be non-null. Returns
- * TRUE if the structure is properly initialised and FALSE if not. 
- * This routine can be used in order to construct BSDF queries at other positions
- * than hit positions returned by ray intersection routines. */
-extern int hitInit(
-        RayHit *hit,
-        Patch *patch,
-        Geometry *geom,
-        Vector3D *point,
-        Vector3D *gNormal,
-        Material *material,
-        float dist);
+extern int
+hitInit(
+    RayHit *hit,
+    Patch *patch,
+    Geometry *geom,
+    Vector3D *point,
+    Vector3D *gNormal,
+    Material *material,
+    float dist);
 
-/* Checks whether or not the hit record is properly initialised, that
- * means that at least 'patch' or 'geom' plus 'point', 'gnormal', 'material'
- * and 'dist' are initialised. Returns TRUE if the structure is properly
- * initialised and FALSE if not. */
 extern int hitInitialised(RayHit *hit);
-
-/* Fills in (u,v) paramters of hit point on the hit patch, computing it if not 
- * computed before. Returns FALSE if the (u,v) parameters could not be determined. */
 extern int hitUv(RayHit *hit, Vector2Dd *uv);
-
-/* Fills in/computes texture coordinates of hit point */
 extern int hitTexCoord(RayHit *hit, Vector3D *texCoord);
-
-/* Fills in shading frame: Z is the shading normal. */
 extern int hitShadingFrame(RayHit *hit, Vector3D *X, Vector3D *Y, Vector3D *Z);
-
-/* Fills in shading normal (Z axis of shading frame) only, avoiding computation
- * of shading X and Y axis if possible */
 extern int hitShadingNormal(RayHit *hit, Vector3D *normal);
 
 #endif

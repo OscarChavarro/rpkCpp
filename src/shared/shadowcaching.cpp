@@ -1,5 +1,4 @@
 #include "material/statistics.h"
-#include "scene/scene.h"
 #include "shared/shadowcaching.h"
 
 // Cache at most 5 blocking patches

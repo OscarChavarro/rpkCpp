@@ -269,6 +269,34 @@ mainParseGlobalOptions(int *argc, char **argv) {
 }
 
 /**
+Builds a linear list of patches making up all the geometries in the list, whether
+they are primitive or not
+*/
+static void
+buildPatchList(java::ArrayList<Geometry *> *geometryList, java::ArrayList<Patch *> *patchList) {
+    if ( geometryList == nullptr ) {
+        return;
+    }
+
+    for ( int i = 0; geometryList != nullptr && i < geometryList->size(); i++ ) {
+        Geometry *geometry = geometryList->get(i);
+        if ( geomIsAggregate(geometry) ) {
+            java::ArrayList<Geometry *> *subList = geomPrimListReference(geometry);
+            buildPatchList(subList, patchList);
+        } else {
+            java::ArrayList<Patch *> *list2 = geomPatchArrayList(geometry);
+
+            for ( int j = 0; list2 != nullptr && j < list2->size(); j++ ) {
+                Patch *patch = list2->get(j);
+                if ( patch != nullptr ) {
+                    patchList->add(0, patch);
+                }
+            }
+        }
+    }
+}
+
+/**
 Tries to read the scene in the given file. Returns false if not successful.
 Returns true if successful. There's nothing GUI specific in this function.
 When a file cannot be read, the current scene is restored

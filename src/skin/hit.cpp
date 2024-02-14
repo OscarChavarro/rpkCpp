@@ -1,6 +1,12 @@
 #include "skin/Patch.h"
 #include "material/hit.h"
 
+/**
+Checks whether or not the hit record is properly initialised, that
+means that at least 'patch' or 'geom' plus 'point', 'gnormal', 'material'
+and 'dist' are initialised. Returns TRUE if the structure is properly
+initialised and FALSE if not
+*/
 int
 hitInitialised(RayHit *hit) {
     return ((hit->flags & HIT_PATCH) || (hit->flags & HIT_GEOM))
@@ -10,15 +16,21 @@ hitInitialised(RayHit *hit) {
            && (hit->flags & HIT_DIST);
 }
 
+/**
+Initialises a hit record. Either patch or geom shall be non-null. Returns
+TRUE if the structure is properly initialised and FALSE if not.
+This routine can be used in order to construct BSDF queries at other positions
+than hit positions returned by ray intersection routines
+*/
 int
 hitInit(
-        RayHit *hit,
-        Patch *patch,
-        Geometry *geom,
-        Vector3D *point,
-        Vector3D *gNormal,
-        Material *material,
-        float dist)
+    RayHit *hit,
+    Patch *patch,
+    Geometry *geom,
+    Vector3D *point,
+    Vector3D *gNormal,
+    Material *material,
+    float dist)
 {
     hit->flags = 0;
     hit->patch = patch;
@@ -47,6 +59,10 @@ hitInit(
     return hitInitialised(hit);
 }
 
+/**
+Fills in (u,v) parameters of hit point on the hit patch, computing it if not
+computed before. Returns FALSE if the (u,v) parameters could not be determined
+*/
 int
 hitUv(RayHit *hit, Vector2Dd *uv) {
     if ( hit->flags & HIT_UV ) {
@@ -64,6 +80,9 @@ hitUv(RayHit *hit, Vector2Dd *uv) {
     return false;
 }
 
+/**
+Fills in/computes texture coordinates of hit point
+*/
 int
 hitTexCoord(RayHit *hit, Vector3D *texCoord) {
     if ( hit->flags & HIT_TEXCOORD ) {
@@ -84,6 +103,9 @@ hitTexCoord(RayHit *hit, Vector3D *texCoord) {
     return false;
 }
 
+/**
+Fills in shading frame: Z is the shading normal
+*/
 int
 hitShadingFrame(RayHit *hit, Vector3D *X, Vector3D *Y, Vector3D *Z) {
     if ( hit->flags & HIT_SHADINGFRAME ) {
@@ -106,6 +128,10 @@ hitShadingFrame(RayHit *hit, Vector3D *X, Vector3D *Y, Vector3D *Z) {
     return true;
 }
 
+/**
+Fills in shading normal (Z axis of shading frame) only, avoiding computation
+of shading X and Y axis if possible
+*/
 int
 hitShadingNormal(RayHit *hit, Vector3D *normal) {
     if ( hit->flags & HIT_SHADINGFRAME || hit->flags & HIT_NORMAL ) {
