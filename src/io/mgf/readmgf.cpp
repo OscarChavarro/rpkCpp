@@ -1106,7 +1106,7 @@ handleObjectEntity(int argc, char **argv) {
         }
 
         if ( listSize > 0 ) {
-            theGeometry = geomCreateCompound(compoundCreate(globalCurrentGeometryList));
+            theGeometry = geomCreateCompound(new Compound(globalCurrentGeometryList));
         }
 
         popCurrentGeometryList();

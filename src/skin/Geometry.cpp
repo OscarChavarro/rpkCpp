@@ -101,7 +101,7 @@ geomCreateBase(
         surfaceBounds(surfaceData, newGeometry->bounds);
     } else if ( className == GeometryClassId::COMPOUND ) {
         java::ArrayList<Geometry *> *geometryList = cloneGeometryList(compoundData->children);
-        compoundBounds(geometryList, newGeometry->bounds);
+        geometryListBounds(geometryList, newGeometry->bounds);
         delete geometryList;
     } else /* if ( className == GeometryClassId::PATCH_SET ) */ {
         java::ArrayList<Patch *> *tmpList = patchListExportToArrayList(patchSetData);
@@ -294,7 +294,7 @@ geomDiscretizationIntersect(
     if ( geometry->surfaceData != nullptr ) {
         return surfaceDiscretizationIntersect(geometry->surfaceData, ray, minimumDistance, maximumDistance, hitFlags, hitStore);
     } else if ( geometry->compoundData != nullptr ) {
-        return compoundDiscretizationIntersect(geometry->compoundData, ray, minimumDistance, maximumDistance, hitFlags, hitStore);
+        return geometry->compoundData->discretizationIntersect(ray, minimumDistance, maximumDistance, hitFlags, hitStore);
     } else if ( geometry->patchSetData != nullptr ) {
         RayHit *response;
         java::ArrayList<Patch *> * tmpList = patchListExportToArrayList(geometry->patchSetData);
@@ -335,7 +335,8 @@ geomAllDiscretizationIntersections(
     if ( geometry->surfaceData != nullptr ) {
         return surfaceAllDiscretizationIntersections(hits, geometry->surfaceData, ray, minimumDistance, maximumDistance, hitFlags);
     } else if ( geometry->compoundData != nullptr ) {
-        return compoundAllDiscretizationIntersections(hits, geometry->compoundData, ray, minimumDistance, maximumDistance, hitFlags);
+        return geometry->compoundData->allDiscretizationIntersections(hits, ray, minimumDistance, maximumDistance,
+                                                                      hitFlags);
     } else if ( geometry->patchSetData != nullptr ) {
         //return patchListAllIntersections(hits, geom->patchSetData, ray, minimumDistance, maximumDistance, hitFlags);
         return nullptr;

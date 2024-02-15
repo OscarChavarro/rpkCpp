@@ -68,6 +68,7 @@ extern java::ArrayList<Geometry *> * geomPrimListReference(Geometry *geometry);
 extern java::ArrayList<Patch *> *geomPatchArrayList(Geometry *geometry);
 extern void geomDontIntersect(Geometry *geometry1, Geometry *geometry2);
 extern Geometry *geomDuplicate(Geometry *geometry);
+extern float *computeBoundsFromGeometryList(java::ArrayList<Geometry *> *geometryList, float *boundingBox);
 
 extern RayHit *
 geomDiscretizationIntersect(

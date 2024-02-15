@@ -7,29 +7,25 @@
 class Compound : public Geometry {
 public:
     java::ArrayList<Geometry *> *children;
+
+    explicit Compound(java::ArrayList<Geometry *> *geometryList);
+
+    HITLIST *
+    allDiscretizationIntersections(
+        HITLIST *hits,
+        Ray *ray,
+        float minimumDistance,
+        float maximumDistance,
+        int hitFlags) const;
+
+    RayHit *
+    discretizationIntersect(
+        Ray *ray,
+        float minimumDistance,
+        float *maximumDistance,
+        int hitFlags,
+        RayHit *hitStore);
+
 };
-
-extern Compound *compoundCreate(java::ArrayList<Geometry *> *geometryList);
-
-extern RayHit *
-compoundDiscretizationIntersect(
-    Compound *compound,
-    Ray *ray,
-    float minimumDistance,
-    float *maximumDistance,
-    int hitFlags,
-    RayHit *hitStore);
-
-extern float *
-compoundBounds(java::ArrayList<Geometry *> *obj, float *boundingBox);
-
-extern HITLIST *
-compoundAllDiscretizationIntersections(
-    HITLIST *hits,
-    Compound *compound,
-    Ray *ray,
-    float minimumDistance,
-    float maximumDistance,
-    int hitFlags);
 
 #endif

@@ -3,7 +3,7 @@
 
 #include "common/color.h"
 
-/* general statistics about the current scene */
+// General statistics about the current scene
 extern int GLOBAL_statistics_numberOfGeometries;
 extern int GLOBAL_statistics_numberOfCompounds;
 extern int GLOBAL_statistics_numberOfSurfaces;
