@@ -950,7 +950,7 @@ monteCarloRadiosityElementBounds(StochasticRadiosityElement *elem, float *bounds
     if ( elem->isCluster ) {
         boundsCopy(elem->geom->bounds, bounds);
     } else if ( !elem->upTrans ) {
-        patchBounds(elem->patch, bounds);
+            elem->patch->patchBounds(bounds);
     } else {
         boundsInit(bounds);
         for ( int i = 0; i < elem->numberOfVertices; i++ ) {

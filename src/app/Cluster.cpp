@@ -81,7 +81,7 @@ Cluster::clusterAddPatch(Patch *patch) {
 
     if ( patch != nullptr ) {
         patches->add(0, patch);
-        boundsEnlarge(boundingBox, patch->boundingBox ? patch->boundingBox : patchBounds(patch, patchBoundingBox));
+        boundsEnlarge(boundingBox, patch->boundingBox ? patch->boundingBox : patch->patchBounds(patchBoundingBox));
     }
 }
 

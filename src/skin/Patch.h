@@ -57,15 +57,18 @@ public:
     isVisible() const {
         return (flags & PATCH_VISIBILITY) != 0;
     }
+
+    float *patchBounds(float *bounds);
 };
 
 extern Patch *patchCreate(int numberOfVertices, Vertex *v1, Vertex *v2, Vertex *v3, Vertex *v4);
-extern float *patchBounds(Patch *patch, float *bounds);
-extern RayHit *patchIntersect(Patch *patch, Ray *ray, float minimumDistance, float *maximumDistance, int hitFlags, RayHit *hitStore);
 extern void patchDontIntersect(int n, ...);
-extern void patchPrintId(FILE *out, Patch *patch);
 extern int patchGetNextId();
 extern void patchSetNextId(int id);
+extern int materialShadingFrame(RayHit *hit, Vector3D *X, Vector3D *Y, Vector3D *Z);
+
+extern RayHit *patchIntersect(Patch *patch, Ray *ray, float minimumDistance, float *maximumDistance, int hitFlags, RayHit *hitStore);
+extern void patchPrintId(FILE *out, Patch *patch);
 extern Vector3D *patchPoint(Patch *patch, double u, double v, Vector3D *point);
 extern Vector3D *patchUniformPoint(Patch *patch, double u, double v, Vector3D *point);
 extern int patchUv(Patch *poly, Vector3D *point, double *u, double *v);
@@ -77,7 +80,6 @@ extern void patchInterpolatedFrameAtUv(Patch *patch, double u, double v, Vector3
 extern Vector3D patchTextureCoordAtUv(Patch *patch, double u, double v);
 extern COLOR patchAverageNormalAlbedo(Patch *patch, BSDFFLAGS components);
 extern COLOR patchAverageEmittance(Patch *patch, XXDFFLAGS components);
-extern int materialShadingFrame(RayHit *hit, Vector3D *X, Vector3D *Y, Vector3D *Z);
 
 #include "skin/Element.h"
 

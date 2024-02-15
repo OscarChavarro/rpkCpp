@@ -51,7 +51,7 @@ createInitialLink(Patch *patch) {
                                                        &shaft);
         } else {
             BOUNDINGBOX bbox;
-            the_shaft = constructShaft(globalPatchBoundingBox, patchBounds(patch, bbox), &shaft);
+            the_shaft = constructShaft(globalPatchBoundingBox, patch->patchBounds(bbox), &shaft);
         }
 
         if ( the_shaft ) {
@@ -161,7 +161,7 @@ createInitialLinks(GalerkinElement *top, GalerkinRole role) {
     globalElement = top;
     globalRole = role;
     globalPatch = top->patch;
-    patchBounds(globalPatch, globalPatchBoundingBox);
+    globalPatch->patchBounds(globalPatchBoundingBox);
     globalCandidateList = GLOBAL_scene_clusteredGeometries;
 
     for ( int i = 0; GLOBAL_scene_geometries != nullptr && i < GLOBAL_scene_geometries->size(); i++ ) {

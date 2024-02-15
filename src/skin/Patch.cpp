@@ -315,16 +315,16 @@ Computes a bounding box for the patch. fills it in 'getBoundingBox' and returns
 a pointer to 'getBoundingBox'
 */
 float *
-patchBounds(Patch *patch, float *bounds) {
-    if ( !patch->boundingBox ) {
-        patch->boundingBox = boundsCreate();
-        boundsInit(patch->boundingBox);
-        for ( int i = 0; i < patch->numberOfVertices; i++ ) {
-            boundsEnlargePoint(patch->boundingBox, patch->vertex[i]->point);
+Patch::patchBounds(float *bounds) {
+    if ( !boundingBox ) {
+        boundingBox = boundsCreate();
+        boundsInit(boundingBox);
+        for ( int i = 0; i < numberOfVertices; i++ ) {
+            boundsEnlargePoint(boundingBox, vertex[i]->point);
         }
     }
 
-    boundsCopy(patch->boundingBox, bounds);
+    boundsCopy(boundingBox, bounds);
 
     return bounds;
 }

@@ -1,18 +1,6 @@
 #include "java/util/ArrayList.txx"
 #include "skin/geomlist.h"
 
-/**
-This function computes a bounding box for a list of geometries
-*/
-float *
-geometryListBounds(java::ArrayList<Geometry *> *geometryList, float *boundingBox) {
-    boundsInit(boundingBox);
-    for ( int i = 0; geometryList != nullptr && i < geometryList->size(); i++ ) {
-        boundsEnlarge(boundingBox, geometryList->get(i)->bounds);
-    }
-    return boundingBox;
-}
-
 RayHit *
 geometryListDiscretizationIntersect(
     java::ArrayList<Geometry *> *geometryList,
@@ -35,4 +23,16 @@ geometryListDiscretizationIntersect(
         }
     }
     return hit;
+}
+
+/**
+This function computes a bounding box for a list of geometries
+*/
+float *
+geometryListBounds(java::ArrayList<Geometry *> *geometryList, float *boundingBox) {
+    boundsInit(boundingBox);
+    for ( int i = 0; geometryList != nullptr && i < geometryList->size(); i++ ) {
+        boundsEnlarge(boundingBox, geometryList->get(i)->bounds);
+    }
+    return boundingBox;
 }

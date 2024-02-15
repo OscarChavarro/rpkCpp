@@ -33,7 +33,7 @@ geomMultiResolutionVisibility(
     float t;
     float fsize;
     float *bbx;
-    GalerkinElement *clus = (GalerkinElement *) (geom->radianceData);
+    GalerkinElement *cluster = (GalerkinElement *) (geom->radianceData);
     RayHit hitstore;
 
     if ( geom == GLOBAL_geom_excludedGeom1 || geom == GLOBAL_geom_excludedGeom2 ) {
@@ -58,10 +58,10 @@ geomMultiResolutionVisibility(
         }  /* ray doesn't intersect the bounding box of the Geometry within
 		   * distance interval tmin ... tmax. */
 
-        if ( clus ) {
+        if ( cluster ) {
             /* Compute feature size using equivalent blocker size of the occluder */
             t = (tmin + tmax) / 2.0f;    /* put the centre of the equivalent blocker halfway tmin and tmax */
-            fsize = srcSize + rcvdist / t * (clus->bsize - srcSize);
+            fsize = srcSize + rcvdist / t * (cluster->bsize - srcSize);
         }
     }
 
@@ -69,7 +69,7 @@ geomMultiResolutionVisibility(
         double kappa, vol;
         vol = (bbx[MAX_X] - bbx[MIN_X] + EPSILON) * (bbx[MAX_Y] - bbx[MIN_Y] + EPSILON) *
               (bbx[MAX_Z] - bbx[MIN_Z] + EPSILON);
-        kappa = clus->area / (4.0 * vol);
+        kappa = cluster->area / (4.0 * vol);
         return std::exp(-kappa * (tmax - tmin));
     } else {
         if ( geomIsAggregate(geom) ) {

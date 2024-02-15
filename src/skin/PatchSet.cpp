@@ -11,7 +11,7 @@ patchListBounds(java::ArrayList<Patch *> *patchList, float *boundingBox) {
 
     boundsInit(boundingBox);
     for ( int i = 0; patchList != nullptr && i < patchList->size(); i++ ) {
-        patchBounds(patchList->get(i), b);
+        patchList->get(i)->patchBounds(b);
         boundsEnlarge(boundingBox, b);
     }
 

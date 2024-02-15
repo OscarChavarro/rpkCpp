@@ -21,11 +21,6 @@ boundsCreate() {
     return bounds;
 }
 
-void
-boundsDestroy(float *bounds) {
-    free(bounds);
-}
-
 float *
 boundsInit(float *bounds) {
     bounds[MIN_X] = bounds[MIN_Y] = bounds[MIN_Z] = HUGE;
@@ -87,23 +82,19 @@ This routine was taken from rayshade [PhB].
 This routine computes the segment of intersection of the ray and the bounding box.
 On input, tmin and tmax contain minimum and maximum allowed distance to the ray 
 origin. On output, tmin and tmin contain the distance to the eye origin of
-the intersection positions of the ray with the boundingbox.
+the intersection positions of the ray with the bounding box.
 If there are no intersection in the given interval, false is returned. If there
 are intersections, true is returned.
 */
 int
 boundsIntersectingSegment(Ray *ray, const float *bounds, float *tMin, float *tMax) {
     float t;
-    float minimumDistance;
-    float maximumDistance;
-    float dir;
-    float pos;
 
-    minimumDistance = *tMin;
-    maximumDistance = *tMax;
+    float minimumDistance = *tMin;
+    float maximumDistance = *tMax;
 
-    dir = ray->dir.x;
-    pos = ray->pos.x;
+    float dir = ray->dir.x;
+    float pos = ray->pos.x;
 
     if ( dir < 0 ) {
         t = (bounds[MIN_X] - pos) / dir;
@@ -281,7 +272,7 @@ boundsBehindPlane(const float *bounds, Vector3D *norm, float d) {
 }
 
 /**
-Computes boundingbox after transforming bbx with xf. Result is filled
+Computes bounding box after transforming bbx with xf. Result is filled
 in transbbx and a pointer to transbbx returned
 */
 float *
