@@ -465,7 +465,7 @@ static COLOR
 monteCarloRadiosityDiffuseReflectanceAtPoint(Patch *patch, double u, double v) {
     RayHit hit;
     Vector3D point;
-    patchUniformPoint(patch, u, v, &point);
+    patch->uniformPoint(u, v, &point);
     hitInit(&hit, patch, nullptr, &point, &patch->normal, patch->surface->material, 0.);
     hit.uv.u = u;
     hit.uv.v = v;

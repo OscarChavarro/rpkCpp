@@ -66,6 +66,10 @@ public:
 
     RayHit *intersect(Ray *ray, float minimumDistance, float *maximumDistance, int hitFlags, RayHit *hitStore);
 
+    Vector3D *pointBarycentricMapping(double u, double v, Vector3D *point);
+
+    Vector3D *uniformPoint(double u, double v, Vector3D *point);
+
     friend Patch *
     patchCreate(int numberOfVertices, Vertex *v1, Vertex *v2, Vertex *v3, Vertex *v4);
 };
@@ -76,8 +80,6 @@ extern void patchDontIntersect(int n, ...);
 extern int patchGetNextId();
 extern void patchSetNextId(int id);
 
-extern Vector3D *patchPoint(Patch *patch, double u, double v, Vector3D *point);
-extern Vector3D *patchUniformPoint(Patch *patch, double u, double v, Vector3D *point);
 extern int patchUv(Patch *poly, Vector3D *point, double *u, double *v);
 extern int patchUniformUv(Patch *poly, Vector3D *point, double *u, double *v);
 extern void biLinearToUniform(Patch *patch, double *u, double *v);

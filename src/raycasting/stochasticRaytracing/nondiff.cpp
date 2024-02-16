@@ -75,7 +75,7 @@ sampleLightRay(Patch *patch, COLOR *emitted_rad, double *point_selection_pdf, do
         RayHit hit;
         nextLightSample(patch, zeta);
 
-        patchUniformPoint(patch, zeta[0], zeta[1], &ray.pos);
+        patch->uniformPoint(zeta[0], zeta[1], &ray.pos);
 
         hitInit(&hit, patch, nullptr, &ray.pos, &patch->normal, patch->surface->material, 0.0);
         ray.dir = edfSample(patch->surface->material->edf, &hit, ALL_COMPONENTS, zeta[2], zeta[3], emitted_rad,

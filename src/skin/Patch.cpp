@@ -365,7 +365,7 @@ patchAverageNormalAlbedo(Patch *patch, BSDFFLAGS components) {
         hit.uv.u = (double) xi[0] * RECIP;
         hit.uv.v = (double) xi[1] * RECIP;
         hit.flags |= HIT_UV;
-        patchPoint(patch, hit.uv.u, hit.uv.v, &hit.point);
+        patch->pointBarycentricMapping(hit.uv.u, hit.uv.v, &hit.point);
         sample = bsdfScatteredPower(patch->surface->material->bsdf, &hit, &patch->normal, components);
         colorAdd(albedo, sample, albedo);
     }
@@ -389,7 +389,7 @@ patchAverageEmittance(Patch *patch, XXDFFLAGS components) {
         hit.uv.u = (double) xi[0] * RECIP;
         hit.uv.v = (double) xi[1] * RECIP;
         hit.flags |= HIT_UV;
-        patchPoint(patch, hit.uv.u, hit.uv.v, &hit.point);
+        patch->pointBarycentricMapping(hit.uv.u, hit.uv.v, &hit.point);
         sample = edfEmittance(patch->surface->material->edf, &hit, components);
         colorAdd(emittance, sample, emittance);
     }
@@ -986,28 +986,28 @@ u and v should be numbers in the range [0,1]. If u+v>1 for a triangle,
 (1-u) and (1-v) are used instead
 */
 Vector3D *
-patchPoint(Patch *patch, double u, double v, Vector3D *point) {
-    if ( patch->hasZeroVertices() ) {
+Patch::pointBarycentricMapping(double u, double v, Vector3D *point) {
+    if ( hasZeroVertices() ) {
         return nullptr;
     }
 
-    Vector3D *v1 = patch->vertex[0]->point;
-    Vector3D *v2 = patch->vertex[1]->point;
-    Vector3D *v3 = patch->vertex[2]->point;
+    Vector3D *v1 = vertex[0]->point;
+    Vector3D *v2 = vertex[1]->point;
+    Vector3D *v3 = vertex[2]->point;
     Vector3D *v4;
 
-    if ( patch->numberOfVertices == 3 ) {
+    if ( numberOfVertices == 3 ) {
         if ( u + v > 1.0 ) {
             u = 1.0 - u;
             v = 1.0 - v;
             // Warning("patchPoint", "(u,v) outside unit triangle");
         }
         PINT(*v1, *v2, *v3, (float)u, (float)v, *point);
-    } else if ( patch->numberOfVertices == 4 ) {
-        v4 = patch->vertex[3]->point;
+    } else if ( numberOfVertices == 4 ) {
+        v4 = vertex[3]->point;
         PINQ(*v1, *v2, *v3, *v4, (float)u, (float)v, *point);
     } else {
-        logFatal(4, "patchPoint", "Can only handle triangular or quadrilateral patches");
+        logFatal(4, "pointBarycentricMapping", "Can only handle triangular or quadrilateral patches");
     }
 
     return point;
@@ -1021,11 +1021,11 @@ only once for which this routine will yield other positions than the above
 routine)
 */
 Vector3D *
-patchUniformPoint(Patch *patch, double u, double v, Vector3D *point) {
-    if ( patch->jacobian ) {
-        uniformToBiLinear(patch, &u, &v);
+Patch::uniformPoint(double u, double v, Vector3D *point) {
+    if ( jacobian != nullptr ) {
+        uniformToBiLinear(this, &u, &v);
     }
-    return patchPoint(patch, u, v, point);
+    return pointBarycentricMapping(u, v, point);
 }
 
 /**
@@ -1063,7 +1063,7 @@ patchUv(Patch *poly, Vector3D *point, double *u, double *v) {
 }
 
 /**
-Like above, but returns uniform coordinates (inverse of patchUniformPoint())
+Like above, but returns uniform coordinates (inverse of uniformPoint())
 */
 int
 patchUniformUv(Patch *poly, Vector3D *point, double *u, double *v) {

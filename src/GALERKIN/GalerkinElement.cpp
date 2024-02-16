@@ -36,7 +36,7 @@ printPre(int level) {
 /**
 Orientation and position of regular sub-elements is fully determined by the
 following transformations. A uniform mapping of parameter domain to the
-elements is supposed (i.o.w. use patchUniformPoint() to map (u,v) coordinates
+elements is supposed (i.o.w. use uniformPoint() to map (u,v) coordinates
 on the toplevel element to a 3D point on the patch). The sub-elements
 have equal area. No explicit Jacobian stuff needed to compute integrals etc..
 etc
@@ -624,30 +624,30 @@ galerkinElementVertices(GalerkinElement *elem, Vector3D *p) {
         if ( elem->upTrans ) {
             transformPoint2D(topTrans, uv, uv);
         }
-        patchUniformPoint(elem->patch, uv.u, uv.v, &p[0]);
+        elem->patch->uniformPoint(uv.u, uv.v, &p[0]);
 
         uv.u = 1.;
         uv.v = 0.;
         if ( elem->upTrans ) transformPoint2D(topTrans, uv, uv);
-        patchUniformPoint(elem->patch, uv.u, uv.v, &p[1]);
+        elem->patch->uniformPoint(uv.u, uv.v, &p[1]);
 
         if ( elem->patch->numberOfVertices == 4 ) {
             uv.u = 1.;
             uv.v = 1.;
             if ( elem->upTrans ) transformPoint2D(topTrans, uv, uv);
-            patchUniformPoint(elem->patch, uv.u, uv.v, &p[2]);
+            elem->patch->uniformPoint(uv.u, uv.v, &p[2]);
 
             uv.u = 0.;
             uv.v = 1.;
             if ( elem->upTrans ) transformPoint2D(topTrans, uv, uv);
-            patchUniformPoint(elem->patch, uv.u, uv.v, &p[3]);
+            elem->patch->uniformPoint(uv.u, uv.v, &p[3]);
         } else {
             uv.u = 0.;
             uv.v = 1.;
             if ( elem->upTrans ) transformPoint2D(topTrans, uv, uv);
-            patchUniformPoint(elem->patch, uv.u, uv.v, &p[2]);
+            elem->patch->uniformPoint(uv.u, uv.v, &p[2]);
 
-            VECTORSET(p[3], 0., 0., 0.);
+            VECTORSET(p[3], 0.0, 0.0, 0.0);
         }
 
         return elem->patch->numberOfVertices;

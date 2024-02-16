@@ -26,7 +26,7 @@ mcrGenerateLocalLine(Patch *patch, double *xi) {
         previousPatch = patch;
     }
 
-    patchUniformPoint(patch, xi[0], xi[1], &ray.pos);
+    patch->uniformPoint(xi[0], xi[1], &ray.pos);
     ray.dir = sampleHemisphereCosTheta(&coordSys, xi[2], xi[3], &pdf);
 
     return ray;

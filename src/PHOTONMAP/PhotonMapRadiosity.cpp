@@ -619,7 +619,7 @@ photonMapGetRadiance(Patch *patch,
     COLOR col;
     float density;
 
-    patchPoint(patch, u, v, &point);
+    patch->pointBarycentricMapping(u, v, &point);
     hitInit(&hit, patch, nullptr, &point, &patch->normal, patch->surface->material, 0.);
     hitShadingNormal(&hit, &hit.normal);
 

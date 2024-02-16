@@ -12,7 +12,7 @@ static StochasticRadiosityElement *monteCarloRadiosityCreateClusterHierarchyRecu
 /**
 Orientation and position of regular sub-elements is fully determined by the
 following transformations. A uniform mapping of parameter domain to the
-elements is supposed (i.o.w. use patchUniformPoint() to map (u,v) coordinates
+elements is supposed (i.o.w. use uniformPoint() to map (u,v) coordinates
 on the toplevel element to a 3D point on the patch). The sub-elements
 have equal area. No explicit Jacobian stuff needed to compute integrals etc..
 etc.
@@ -596,7 +596,7 @@ monteCarloRadiosityElementComputeAverageReflectanceAndEmittance(StochasticRadios
         hit.uv.u = (double) xi[0] * RECIP;
         hit.uv.v = (double) xi[1] * RECIP;
         hit.flags |= HIT_UV;
-        patchUniformPoint(patch, hit.uv.u, hit.uv.v, &hit.point);
+        patch->uniformPoint(hit.uv.u, hit.uv.v, &hit.point);
         if ( patch->surface->material->bsdf ) {
             sample = bsdfScatteredPower(patch->surface->material->bsdf, &hit, &patch->normal, BRDF_DIFFUSE_COMPONENT);
             colorAdd(albedo, sample, albedo);

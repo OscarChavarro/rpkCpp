@@ -95,7 +95,7 @@ bool CUniformLightSampler::Sample(CPathNode */*prevNode*/,
 
         pdfPoint = pdf;   // every direction corresponds to 1 point
     } else {
-        patchUniformPoint(light, x_1, x_2, &point);
+        light->uniformPoint(x_1, x_2, &point);
         pdfPoint = 1.0 / light->area;
 
         // Fake a hit record
@@ -223,9 +223,9 @@ bool CImportantLightSampler::Sample(CPathNode */*prevNode*/,
         VECTORCOPY(dir, newNode->m_inDirF);
         VECTORCOPY(dir, newNode->m_normal);
 
-        pdfPoint = pdf;   // every direction corresponds to 1 point
+        pdfPoint = pdf; // Every direction corresponds to 1 point
     } else {
-        patchUniformPoint(light, x_1, x_2, &point);
+        light->uniformPoint(x_1, x_2, &point);
 
         pdfPoint = 1.0 / light->area;
 
