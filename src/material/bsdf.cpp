@@ -60,7 +60,7 @@ material has both an edf and a bsdf, the shading frame shall of course
 be the same.
 This routine returns TRUE if a shading frame could be constructed and FALSE if
 not. In the latter case, a default frame needs to be used (not computed by this
-routine - materialShadingFrame() in material.[ch] constructs such a frame if
+routine - hitPointShadingFrame() in material.[ch] constructs such a frame if
 needed)
 */
 int

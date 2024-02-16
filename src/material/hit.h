@@ -78,5 +78,6 @@ extern int hitUv(RayHit *hit, Vector2Dd *uv);
 extern int hitTexCoord(RayHit *hit, Vector3D *texCoord);
 extern int hitShadingFrame(RayHit *hit, Vector3D *X, Vector3D *Y, Vector3D *Z);
 extern int hitShadingNormal(RayHit *hit, Vector3D *normal);
+extern int hitPointShadingFrame(RayHit *hit, Vector3D *X, Vector3D *Y, Vector3D *Z);
 
 #endif

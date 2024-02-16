@@ -37,7 +37,7 @@ patchListIntersect(
 {
     RayHit *hit = nullptr;
     for ( int i = 0; patchList != nullptr && i < patchList->size(); i++ ) {
-        RayHit *h = patchIntersect(patchList->get(i), ray, minimumDistance, maximumDistance, hitFlags, hitStore);
+        RayHit *h = patchList->get(i)->intersect(ray, minimumDistance, maximumDistance, hitFlags, hitStore);
         if ( h != nullptr ) {
             if ( hitFlags & HIT_ANY ) {
                 return h;
@@ -59,7 +59,7 @@ patchListAllIntersections(HITLIST *hits, java::ArrayList<Patch *> *patches, Ray 
     for ( int i = 0; patches != nullptr && i < patches->size(); i++ ) {
         Patch *patch = patches->get(i);
         float maxDistanceCopy = maximumDistance; // Do not modify maximumDistance
-        RayHit *hit = patchIntersect(patch, ray, minimumDistance, &maxDistanceCopy, hitFlags, &hitStore);
+        RayHit *hit = patch->intersect(ray, minimumDistance, &maxDistanceCopy, hitFlags, &hitStore);
         if ( hit ) {
             hits = HitListAdd(hits, duplicateHit(hit));
         }

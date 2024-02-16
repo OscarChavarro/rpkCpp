@@ -14,6 +14,9 @@ class MeshSurface;
 class Element;
 
 class Patch {
+private:
+    unsigned char flags; // Other flags
+
 public:
     unsigned id; // Identification number for debugging, ID rendering
     Patch *twin; // Twin face (for double-sided surfaces)
@@ -35,7 +38,6 @@ public:
                // testing, shaft culling, ... set to FALSE by
                // default. Don't forget to set to FALSE again
 			   // after you changed it!
-    unsigned char flags; // Other flags
     RGB color; // Color used to flat render the patch
     Element *radianceData; // Data needed for radiance computations. Type depends on the current radiance algorithm
     MeshSurface *surface; // Pointer to surface data (contains vertex list, material properties)
@@ -59,16 +61,21 @@ public:
     }
 
     float *patchBounds(float *bounds);
+
+    void patchPrintId(FILE *out);
+
+    RayHit *intersect(Ray *ray, float minimumDistance, float *maximumDistance, int hitFlags, RayHit *hitStore);
+
+    friend Patch *
+    patchCreate(int numberOfVertices, Vertex *v1, Vertex *v2, Vertex *v3, Vertex *v4);
 };
 
 extern Patch *patchCreate(int numberOfVertices, Vertex *v1, Vertex *v2, Vertex *v3, Vertex *v4);
+
 extern void patchDontIntersect(int n, ...);
 extern int patchGetNextId();
 extern void patchSetNextId(int id);
-extern int materialShadingFrame(RayHit *hit, Vector3D *X, Vector3D *Y, Vector3D *Z);
 
-extern RayHit *patchIntersect(Patch *patch, Ray *ray, float minimumDistance, float *maximumDistance, int hitFlags, RayHit *hitStore);
-extern void patchPrintId(FILE *out, Patch *patch);
 extern Vector3D *patchPoint(Patch *patch, double u, double v, Vector3D *point);
 extern Vector3D *patchUniformPoint(Patch *patch, double u, double v, Vector3D *point);
 extern int patchUv(Patch *poly, Vector3D *point, double *u, double *v);

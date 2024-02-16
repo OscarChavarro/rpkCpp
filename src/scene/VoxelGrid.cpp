@@ -397,7 +397,7 @@ VoxelGrid::voxelIntersect(
             // Avoid testing objects multiple times
             RayHit *h = nullptr;
             if ( item->isPatch() ) {
-                h = patchIntersect(item->patch, ray, minimumDistance, maximumDistance, hitFlags, hitStore);
+                h = item->patch->intersect(ray, minimumDistance, maximumDistance, hitFlags, hitStore);
             } else if ( item->isGeom() ) {
                 h = geomDiscretizationIntersect(item->geometry, ray, minimumDistance, maximumDistance, hitFlags,
                                                 hitStore);
@@ -436,8 +436,8 @@ VoxelGrid::allVoxelIntersections(
         if ( item->lastRayId() != counter ) {
             if ( item->isPatch()) {
                 float tMax = maximumDistance;
-                RayHit *h = patchIntersect(item->patch, ray, minimumDistance, &tMax, hitFlags, &hitStore);
-                if ( h ) {
+                RayHit *h = item->patch->intersect(ray, minimumDistance, &tMax, hitFlags, &hitStore);
+                if ( h != nullptr ) {
                     hitList = HitListAdd(hitList, duplicateHit(h));
                 }
             } else if ( item->isGeom()) {

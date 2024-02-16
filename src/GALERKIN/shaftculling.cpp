@@ -644,7 +644,7 @@ shaftPatchTest(Patch *patch, SHAFT *shaft) {
     ray.pos = shaft->center1;
     VECTORSUBTRACT(shaft->center2, shaft->center1, ray.dir);
     dist = 1.0 - EPSILON;
-    if ( patchIntersect(patch, &ray, EPSILON, &dist, HIT_FRONT | HIT_BACK, &hitStore)) {
+    if ( patch->intersect(&ray, EPSILON, &dist, HIT_FRONT | HIT_BACK, &hitStore)) {
         shaft->cut = true;
         return OVERLAP;
     }

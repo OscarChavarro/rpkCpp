@@ -1,5 +1,6 @@
 #include "skin/Patch.h"
 #include "material/hit.h"
+#include "common/error.h"
 
 /**
 Checks whether or not the hit record is properly initialised, that
@@ -115,7 +116,7 @@ hitShadingFrame(RayHit *hit, Vector3D *X, Vector3D *Y, Vector3D *Z) {
         return true;
     }
 
-    if ( !materialShadingFrame(hit, &hit->X, &hit->Y, &hit->Z)) {
+    if ( !hitPointShadingFrame(hit, &hit->X, &hit->Y, &hit->Z) ) {
         return false;
     }
 
@@ -139,11 +140,43 @@ hitShadingNormal(RayHit *hit, Vector3D *normal) {
         return true;
     }
 
-    if ( !materialShadingFrame(hit, nullptr, nullptr, &hit->normal)) {
+    if ( !hitPointShadingFrame(hit, nullptr, nullptr, &hit->normal)) {
         return false;
     }
 
     hit->flags |= HIT_NORMAL;
     *normal = hit->Z = hit->normal;
     return true;
+}
+
+/**
+Computes shading frame at hit point. Z is the shading normal. Returns FALSE
+if the shading frame could not be determined.
+If X and Y are null pointers, only the shading normal is returned in Z
+possibly avoiding computations of the X and Y axis
+*/
+int
+hitPointShadingFrame(RayHit *hit, Vector3D *X, Vector3D *Y, Vector3D *Z) {
+    int success = false;
+
+    if ( !hitInitialised(hit) ) {
+        logWarning("hitPointShadingFrame", "uninitialised hit structure");
+        return false;
+    }
+
+    if ( hit->material && hit->material->bsdf && hit->material->bsdf->methods->ShadingFrame ) {
+        success = bsdfShadingFrame(hit->material->bsdf, hit, X, Y, Z);
+    }
+
+    if ( !success && hit->material && hit->material->edf && hit->material->edf->methods->ShadingFrame ) {
+        success = edfShadingFrame(hit->material->edf, hit, X, Y, Z);
+    }
+
+    if ( !success && hitUv(hit, &hit->uv) ) {
+        // Make default shading frame
+        patchInterpolatedFrameAtUv(hit->patch, hit->uv.u, hit->uv.v, X, Y, Z);
+        success = true;
+    }
+
+    return success;
 }

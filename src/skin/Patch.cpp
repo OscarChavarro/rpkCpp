@@ -24,8 +24,8 @@ clipToUnitInterval(double x) {
 }
 
 Patch::Patch():
-    id{}, twin{}, vertex{}, numberOfVertices{}, boundingBox{}, normal{}, planeConstant{},
-    tolerance{}, area{}, midpoint{}, jacobian{}, directPotential{}, index{}, omit{}, flags{},
+    flags{}, id{}, twin{}, vertex{}, numberOfVertices{}, boundingBox{}, normal{}, planeConstant{},
+    tolerance{}, area{}, midpoint{}, jacobian{}, directPotential{}, index{}, omit{},
     color{}, radianceData{}, surface{}
 {
 
@@ -399,8 +399,8 @@ patchAverageEmittance(Patch *patch, XXDFFLAGS components) {
 }
 
 void
-patchPrintId(FILE *out, Patch *patch) {
-    fprintf(out, "%d ", patch->id);
+Patch::patchPrintId(FILE *out) {
+    fprintf(out, "%d ", id);
 }
 
 /**
@@ -786,8 +786,7 @@ intersection and whether or not front/back facing patches are to be
 considered and are described in ray.h.
 */
 RayHit *
-patchIntersect(
-    Patch *patch,
+Patch::intersect(
     Ray *ray,
     float minimumDistance,
     float *maximumDistance,
@@ -797,11 +796,11 @@ patchIntersect(
     RayHit hit;
     float dist;
 
-    if ( isExcludedPatch(patch) ) {
+    if ( isExcludedPatch(this) ) {
         return nullptr;
     }
 
-    dist = VECTORDOTPRODUCT(patch->normal, ray->dir);
+    dist = VECTORDOTPRODUCT(normal, ray->dir);
     if ( dist > EPSILON ) {
         // Back facing patch
         if ( !(hitFlags & HIT_BACK) ) {
@@ -821,7 +820,7 @@ patchIntersect(
         return nullptr;
     }
 
-    dist = -(VECTORDOTPRODUCT(patch->normal, ray->pos) + patch->planeConstant) / dist;
+    dist = -(VECTORDOTPRODUCT(normal, ray->pos) + planeConstant) / dist;
 
     if ( dist > *maximumDistance || dist < minimumDistance ) {
         // Intersection too far or too close
@@ -833,11 +832,11 @@ patchIntersect(
     VECTORSUMSCALED(ray->pos, dist, ray->dir, hit.point);
 
     // Test whether it lays inside or outside the patch
-    if ( hitInPatch(&hit, patch) ) {
+    if ( hitInPatch(&hit, this) ) {
         hit.geom = nullptr; // we don't know it
-        hit.patch = patch;
-        hit.material = patch->surface->material;
-        hit.gnormal = patch->normal;
+        hit.patch = this;
+        hit.material = surface->material;
+        hit.gnormal = normal;
         hit.flags |= HIT_PATCH | HIT_POINT | HIT_MATERIAL | HIT_GNORMAL | HIT_DIST;
         if ( hitFlags & HIT_UV ) {
             if ( !(hit.flags & HIT_UV)) {
@@ -1073,36 +1072,4 @@ patchUniformUv(Patch *poly, Vector3D *point, double *u, double *v) {
         biLinearToUniform(poly, u, v);
     }
     return inside;
-}
-
-/**
-Computes shading frame at hit point. Z is the shading normal. Returns FALSE
-if the shading frame could not be determined.
-If X and Y are null pointers, only the shading normal is returned in Z
-possibly avoiding computations of the X and Y axis
-*/
-int
-materialShadingFrame(RayHit *hit, Vector3D *X, Vector3D *Y, Vector3D *Z) {
-    int success = false;
-
-    if ( !hitInitialised(hit)) {
-        logWarning("materialShadingFrame", "uninitialised hit structure");
-        return false;
-    }
-
-    if ( hit->material && hit->material->bsdf && hit->material->bsdf->methods->ShadingFrame ) {
-        success = bsdfShadingFrame(hit->material->bsdf, hit, X, Y, Z);
-    }
-
-    if ( !success && hit->material && hit->material->edf && hit->material->edf->methods->ShadingFrame ) {
-        success = edfShadingFrame(hit->material->edf, hit, X, Y, Z);
-    }
-
-    if ( !success && hitUv(hit, &hit->uv)) {
-        // Make default shading frame
-        patchInterpolatedFrameAtUv(hit->patch, hit->uv.u, hit->uv.v, X, Y, Z);
-        success = true;
-    }
-
-    return success;
 }

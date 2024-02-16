@@ -28,7 +28,7 @@ cacheHit(Ray *ray, float *dist, RayHit *hitStore) {
     RayHit *hit;
 
     for ( int i = 0; i < globalNumberOfCachedPatches; i++ ) {
-        hit = patchIntersect(globalCache[i], ray, EPSILON * (*dist), dist, HIT_FRONT | HIT_ANY, hitStore);
+        hit = globalCache[i]->intersect(ray, EPSILON * (*dist), dist, HIT_FRONT | HIT_ANY, hitStore);
         if ( hit != nullptr ) {
             return hit;
         }
