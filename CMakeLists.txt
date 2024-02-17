@@ -25,7 +25,6 @@ set(MAIN_SRC
     src/common/cie.cpp
     src/common/RenderOptions.cpp
     src/common/dataStructures/CSList.cpp
-    src/common/dataStructures/DList.cpp
     src/common/dataStructures/KDTree.cpp
     src/common/dataStructures/List.cpp
     src/common/dataStructures/Bintree.cpp

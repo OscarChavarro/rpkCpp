@@ -434,16 +434,19 @@ VoxelGrid::allVoxelIntersections(
 
         // Avoid testing objects multiple times
         if ( item->lastRayId() != counter ) {
-            if ( item->isPatch()) {
+            if ( item->isPatch() ) {
                 float tMax = maximumDistance;
                 RayHit *h = item->patch->intersect(ray, minimumDistance, &tMax, hitFlags, &hitStore);
                 if ( h != nullptr ) {
-                    hitList = HitListAdd(hitList, h);
+                    HITLIST *newNode = (HITLIST *) malloc(sizeof(HITLIST));
+                    newNode->hit = h;
+                    newNode->next = hitList;
+                    hitList = newNode;
                 }
-            } else if ( item->isGeom()) {
+            } else if ( item->isGeom() ) {
                 hitList = geomAllDiscretizationIntersections(
                     hitList, item->geometry, ray, minimumDistance, maximumDistance, hitFlags);
-            } else if ( item->isGrid()) {
+            } else if ( item->isGrid() ) {
                 hitList = item->voxelGrid->allGridIntersections(
                     hitList, ray, minimumDistance, maximumDistance, hitFlags);
             }
