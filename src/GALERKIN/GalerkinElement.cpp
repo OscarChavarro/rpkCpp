@@ -213,12 +213,12 @@ galerkinElementCreate() {
     newElement->potential = 0.0f;
     newElement->receivedPotential = 0.0f;
     newElement->unShotPotential = 0.0f;
-    newElement->interactions = InteractionListCreate();
+    newElement->interactions = nullptr; // New list
     newElement->patch = nullptr;
     newElement->geom = nullptr;
     newElement->parent = nullptr;
     newElement->regularSubElements = nullptr;
-    newElement->irregularSubElements = ElementListCreate();
+    newElement->irregularSubElements = nullptr; // New list
     newElement->upTrans = nullptr;
     newElement->area = 0.0;
     newElement->flags = 0x00;
@@ -438,7 +438,9 @@ galerkinElementPrint(FILE *out, GalerkinElement *element) {
 
     if ( element->interactions ) {
         fprintf(out, ", interactions:\n");
-        InteractionListIterate1B(element->interactions, interactionPrint, out);
+        for ( INTERACTIONLIST *window = element->interactions; window != nullptr; window = window->next ) {
+            interactionPrint(out, window->interaction);
+        }
     } else {
         fprintf(out, ", no interactions.\n");
     }

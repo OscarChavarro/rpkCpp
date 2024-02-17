@@ -12,9 +12,7 @@ class INTERACTIONLIST {
     INTERACTIONLIST *next;
 };
 
-#define InteractionListCreate    (INTERACTIONLIST *)ListCreate
-
-#define InteractionListAdd(interactionlist, interaction)    \
+#define InteractionListAdd(interactionlist, interaction) \
         (INTERACTIONLIST *)ListAdd((LIST *)interactionlist, (void *)interaction)
 
 #define InteractionListRemove(interactionlist, interaction) \
@@ -22,9 +20,6 @@ class INTERACTIONLIST {
 
 #define InteractionListIterate(interactionlist, proc) \
         ListIterate((LIST *)interactionlist, (void (*)(void *))proc)
-
-#define InteractionListIterate1B(interactionlist, proc, data) \
-        ListIterate1B((LIST *)interactionlist, (void (*)(void *, void *))proc, (void *)data)
 
 #define InteractionListDestroy(interactionlist) \
         ListDestroy((LIST *)interactionlist)

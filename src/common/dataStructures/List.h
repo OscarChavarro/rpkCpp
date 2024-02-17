@@ -1,17 +1,14 @@
-#ifndef _LIST_H_
-#define _LIST_H_
+#ifndef __LIST__
+#define __LIST__
 
 class LIST {
   public:
-    void *pelement;    /* pointer to an element */
-    LIST *next;    /* pointer to the rest of the list */
+    void *pelement;
+    LIST *next;
 };
 
-// Creates an empty list
-#define ListCreate()  ((LIST *)nullptr)
-
 /**
-iterator: iterates over all elements in the list 'list', containing
+Iterator: iterates over all elements in the list 'list', containing
 pointers to elements of type 'TYPE'. The elements are named 'p'.
 Use this as follows:
 
@@ -50,31 +47,6 @@ a procedure that accepts only one parameter: a pointer to an element
         ((void (*)(void *))proc)(pelement); \
     } \
 }
-
-/**
-Use ListIterate1A with procedures that accepts two parameters: first
-a pointer to the list element, then a pointer to the "extra" data
-*/
-#define ListIterate1A(list, proc, extra) \
-{ \
-    for ( LIST *window = (list); window != nullptr; window = window->next ) { \
-        void *pelement = window->pelement; \
-        ((void (*)(void *, void *))proc)(pelement, (void *)(extra)); \
-    } \
-}
-
-/**
-Use ListIterate1B with procedures that accepts two parameters: first
-a pointer to the "extra" data, then a pointer to a list element
-*/
-#define ListIterate1B(list, proc, extra) \
-{ \
-    for ( LIST *window = (list); window != nullptr; window = window->next ) { \
-        void *pelement = window->pelement; \
-        ((void (*)(void *, void *))proc)((void *)(extra), pelement); \
-    } \
-}
-
 
 extern LIST *ListAdd(LIST *list, void *element);
 extern LIST *ListRemove(LIST *list, void *pelement);

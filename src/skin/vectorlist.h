@@ -12,5 +12,4 @@ class Vector3DListNode {
 
 #define VectorListAdd(vectorlist, vector) \
     (Vector3DListNode *)ListAdd((LIST *)vectorlist, (void *)vector)
-
 #endif
