@@ -1,16 +1,19 @@
 #ifndef __PATCH__
 #define __PATCH__
 
+#include "common/linealAlgebra/Vector3D.h"
 #include "common/Ray.h"
+#include "common/rgb.h"
 #include "skin/Jacobian.h"
 #include "skin/Vertex.h"
+#include "skin/Element.h"
 #include "skin/MeshSurface.h"
+#include "material/hit.h"
+#include "material/xxdf.h"
 
 #define MAXIMUM_VERTICES_PER_PATCH 4
 #define PATCH_VISIBILITY 0x01
 #define MAX_EXCLUDED_PATCHES 4
-
-class Element;
 
 class Patch {
   private:
@@ -103,7 +106,5 @@ public:
     COLOR averageNormalAlbedo(BSDFFLAGS components);
     COLOR averageEmittance(XXDFFLAGS components);
 };
-
-#include "skin/Element.h"
 
 #endif
