@@ -103,12 +103,6 @@ Same, but for the irregular sub-elements
     for ( i = 0; i < 4; i++) { \
       GalerkinElement *child = (elem)->regularSubElements[i];
 
-#define ForAllIrregularSubElements(child, elem) { \
-  if ((elem)->irregularSubElements) { \
-    ELEMENTLIST *ellist; \
-    for (ellist = (elem)->irregularSubElements; ellist; ellist=ellist->next) { \
-      GalerkinElement *child = ellist->element;
-
 /**
 Position and orientation of the regular sub-elements is fully
 determined by the following transforms, that transform (u,v)

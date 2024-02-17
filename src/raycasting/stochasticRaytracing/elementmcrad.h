@@ -15,12 +15,6 @@ if ((parent)->regularSubElements) { \
   for (i=0; i<4; i++) { \
     StochasticRadiosityElement *p = (parent)->regularSubElements[i];
 
-#define ForAllIrregularSubElements(p, parent) { \
-if ((parent)->irregular_subelements) { \
-  ELEMENTLIST *_el_; \
-  for (_el_ = (parent)->irregular_subelements; _el_; _el_ = _el_->next) { \
-    StochasticRadiosityElement *p = _el_->element;
-
 extern StochasticRadiosityElement *monteCarloRadiosityCreateToplevelSurfaceElement(Patch *patch);
 extern void monteCarloRadiosityDestroyToplevelSurfaceElement(StochasticRadiosityElement *elem);
 extern StochasticRadiosityElement *monteCarloRadiosityCreateClusterHierarchy(Geometry *world);

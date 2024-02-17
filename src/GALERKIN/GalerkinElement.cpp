@@ -875,11 +875,9 @@ Call func for each leaf element of top
 */
 void
 forAllLeafElements(GalerkinElement *top, void (*func)(GalerkinElement *)) {
-    ForAllIrregularSubElements(child, top)
-                {
-                    forAllLeafElements(child, func);
-                }
-    EndForAll;
+    for ( ELEMENTLIST *window = top->irregularSubElements; window != nullptr; window = window->next ) {
+        forAllLeafElements(window->element, func);
+    }
 
     ForAllRegularSubElements(child, top)
                 {
