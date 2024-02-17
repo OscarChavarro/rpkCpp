@@ -33,4 +33,4 @@ mkdir -p output
     -eyepoint 9.16 3.0 0.81 -center -2.72 1.63 -0.44 -updir 0 0 1 \
     -raycast -raytracing-image-savefile \
     ./output/10_floorGlossStochasticRaytracing_StochJacobi.ppm \
-    -rts-samples-per-pixel 1 # quite noise free at 3000 iterations
+    -rts-samples-per-pixel 10 # quite noise free at 3000 iterations
