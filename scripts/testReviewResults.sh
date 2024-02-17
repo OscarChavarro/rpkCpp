@@ -9,7 +9,7 @@ if [ "$N" -eq 13 ]; then
     echo "TEST PASS"
 else
     echo "*** TEST ERROR! ***"
-    echo "$N found, expected 12:"
+    echo "$N found, expected 13:"
     rm -f /tmp/y
     while IFS= read -r line; do
 	underscore_position=$(awk -F'_' '{print length($0) - length($NF)}' <<< "$line")
