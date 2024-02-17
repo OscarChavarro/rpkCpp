@@ -56,6 +56,9 @@ class Geometry {
     int geomCountItems();
 };
 
+extern Geometry *GLOBAL_geom_excludedGeom1;
+extern Geometry *GLOBAL_geom_excludedGeom2;
+
 extern Geometry *geomCreateSurface(MeshSurface *surfaceData);
 extern Geometry *geomCreatePatchSet(java::ArrayList<Patch *> *patchList);
 extern Geometry *geomCreatePatchSet(PatchSet *patchSet);
@@ -78,13 +81,20 @@ geomDiscretizationIntersect(
     int hitFlags,
     RayHit *hitStore);
 
-extern Geometry *GLOBAL_geom_excludedGeom1;
-extern Geometry *GLOBAL_geom_excludedGeom2;
+extern float *geometryListBounds(java::ArrayList<Geometry *> *geometryList, float *boundingBox);
+
+extern RayHit *
+geometryListDiscretizationIntersect(
+        java::ArrayList<Geometry *> *geometryList,
+        Ray *ray,
+        float minimumDistance,
+        float *maximumDistance,
+        int hitFlags,
+        RayHit *hitStore);
 
 #include "skin/PatchSet.h"
 #include "skin/MeshSurface.h"
 #include "skin/Compound.h"
-#include "skin/geomlist.h"
 #include "skin/Element.h"
 
 #endif

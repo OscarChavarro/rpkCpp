@@ -45,7 +45,6 @@ set(MAIN_SRC
     src/skin/PatchSet.cpp
     src/skin/hit.cpp
     src/skin/Compound.cpp
-    src/skin/geomlist.cpp
     src/skin/Geometry.cpp
     src/skin/Patch.cpp
     src/skin/bounds.cpp

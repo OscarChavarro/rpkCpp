@@ -2,7 +2,6 @@
 #define __SHADOW_CACHING__
 
 #include "common/Ray.h"
-#include "skin/geomlist.h"
 #include "scene/VoxelGrid.h"
 
 extern void initShadowCache();

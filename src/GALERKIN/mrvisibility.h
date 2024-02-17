@@ -4,7 +4,6 @@
 #ifndef _MRVISIBILITY_H_
 #define _MRVISIBILITY_H_
 
-#include "skin/geomlist.h"
 #include "common/Ray.h"
 
 /**

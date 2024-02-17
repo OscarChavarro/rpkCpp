@@ -2,7 +2,6 @@
 #define __SCENE__
 
 #include "java/util/ArrayList.h"
-#include "skin/geomlist.h"
 #include "scene/Background.h"
 #include "scene/VoxelGrid.h"
 
