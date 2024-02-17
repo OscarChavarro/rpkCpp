@@ -139,8 +139,7 @@ monteCarloRadiosityCreateToplevelSurfaceElement(Patch *patch) {
         vertexAttachElement(elem->vertex[i], elem);
     }
 
-    allocCoefficients(elem);    /* may need reallocation before the start
-				 * of the computations. */
+    allocCoefficients(elem); // May need reallocation before the start of the computations
     stochasticRadiosityClearCoefficients(elem->rad, elem->basis);
     stochasticRadiosityClearCoefficients(elem->unShotRad, elem->basis);
     stochasticRadiosityClearCoefficients(elem->receivedRad, elem->basis);
@@ -301,46 +300,46 @@ monteCarloRadiosityRegularSubElementAtPoint(StochasticRadiosityElement *parent, 
         return nullptr;
     }
 
-    /* Have a look at the drawings above to understand what is done exactly. */
+    // Have a look at the drawings above to understand what is done exactly
     switch ( parent->numberOfVertices ) {
         case 3:
             if ( _u + _v <= 0.5 ) {
                 child = parent->regularSubElements[0];
-                *u = _u * 2.;
-                *v = _v * 2.;
+                *u = _u * 2.0;
+                *v = _v * 2.0;
             } else if ( _u > 0.5 ) {
                 child = parent->regularSubElements[1];
-                *u = (_u - 0.5) * 2.;
-                *v = _v * 2.;
+                *u = (_u - 0.5) * 2.0;
+                *v = _v * 2.0;
             } else if ( _v > 0.5 ) {
                 child = parent->regularSubElements[2];
                 *u = _u * 2.;
-                *v = (_v - 0.5) * 2.;
+                *v = (_v - 0.5) * 2.0;
             } else {
                 child = parent->regularSubElements[3];
-                *u = (0.5 - _u) * 2.;
-                *v = (0.5 - _v) * 2.;
+                *u = (0.5 - _u) * 2.0;
+                *v = (0.5 - _v) * 2.0;
             }
             break;
         case 4:
             if ( _v <= 0.5 ) {
                 if ( _u < 0.5 ) {
                     child = parent->regularSubElements[0];
-                    *u = _u * 2.;
+                    *u = _u * 2.0;
                 } else {
                     child = parent->regularSubElements[1];
-                    *u = (_u - 0.5) * 2.;
+                    *u = (_u - 0.5) * 2.0;
                 }
-                *v = _v * 2.;
+                *v = _v * 2.0;
             } else {
                 if ( _u < 0.5 ) {
                     child = parent->regularSubElements[2];
-                    *u = _u * 2.;
+                    *u = _u * 2.0;
                 } else {
                     child = parent->regularSubElements[3];
-                    *u = (_u - 0.5) * 2.;
+                    *u = (_u - 0.5) * 2.0;
                 }
-                *v = (_v - 0.5) * 2.;
+                *v = (_v - 0.5) * 2.0;
             }
             break;
         default:
@@ -359,7 +358,7 @@ StochasticRadiosityElement *
 monteCarloRadiosityRegularLeafElementAtPoint(StochasticRadiosityElement *top, double *u, double *v) {
     StochasticRadiosityElement *leaf;
 
-    /* find leaf element of 'top' at (u,v) */
+    // Find leaf element of 'top' at (u,v)
     leaf = top;
     while ( leaf->regularSubElements ) {
         leaf = monteCarloRadiosityRegularSubElementAtPoint(leaf, u, v);
@@ -458,12 +457,12 @@ monteCarloRadiosityEdgeMidpointVertex(StochasticRadiosityElement *elem, int edge
     StochasticRadiosityElement *neighbour = monteCarloRadiosityElementNeighbour(elem, edgenr);
 
     if ( neighbour && neighbour->regularSubElements ) {
-        /* elem has a neighbour at the edge from 'from' to 'to'. This neighbouring
-         * element has been subdivided before, so the edge midpoint vertex already
-         * exists: it is the midpoint of the neighbour's edge leading from 'to' to
-         * 'from'. This midpoint is a vertex of a regular sub-element of 'neighbour'.
-         * Which regular sub-element and which vertex is determined from the diagrams
-         * above. */
+        // Elem has a neighbour at the edge from 'from' to 'to'. This neighbouring
+        // element has been subdivided before, so the edge midpoint vertex already
+        // exists: it is the midpoint of the neighbour's edge leading from 'to' to
+        // 'from'. This midpoint is a vertex of a regular sub-element of 'neighbour'.
+        // Which regular sub-element and which vertex is determined from the diagrams
+        // above
         int index = (to == neighbour->vertex[0] ? 0 :
                      (to == neighbour->vertex[1] ? 1 :
                       (to == neighbour->vertex[2] ? 2 :
@@ -515,7 +514,8 @@ monteCarloRadiosityEdgeMidpointVertex(StochasticRadiosityElement *elem, int edge
 static Vertex *
 monteCarloRadiosityNewEdgeMidpointVertex(StochasticRadiosityElement *elem, int edgenr) {
     Vertex *v = monteCarloRadiosityEdgeMidpointVertex(elem, edgenr);
-    if ( !v ) { /* first time we split the edge, create the midpoint vertex */
+    if ( !v ) {
+        // First time we split the edge, create the midpoint vertex
         Vertex *from = elem->vertex[edgenr],
                 *to = elem->vertex[(edgenr + 1) % elem->numberOfVertices];
         v = monteCarloRadiosityNewMidpointVertex(elem, from, to);
@@ -562,8 +562,9 @@ monteCarloRadiosityElementScalarReflectance(StochasticRadiosityElement *elem) {
 
     rd = colorMaximumComponent(elem->Rd);
     if ( rd < EPSILON ) {
+        // Avoid divisions by zero
         rd = EPSILON;
-    }    /* avoid divisions by zero */
+    }
     return rd;
 }
 
@@ -900,7 +901,8 @@ monteCarloRadiosityForAllChildrenElements(StochasticRadiosityElement *top, void 
                     func(p);
         EndForAll;
         return true;
-    } else {     /* leaf element */
+    } else {
+        // Leaf element
         return false;
     }
 }
