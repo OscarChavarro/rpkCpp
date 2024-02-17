@@ -246,12 +246,13 @@ patchCreate(int numberOfVertices, Vertex *v1, Vertex *v2, Vertex *v3, Vertex *v4
     // This may occur after an error parsing the input file, and some other routine
     // will already complain
     if ( !v1 || !v2 || !v3 || (numberOfVertices == 4 && !v4) ) {
+        logError("Patch::Patch", "Null vertex!");
         return nullptr;
     }
 
     // It's sad but it's true
     if ( numberOfVertices != 3 && numberOfVertices != 4 ) {
-        logError("patchCreate", "Can only handle quadrilateral or triangular patches");
+        logError("Patch::Patch", "Can only handle quadrilateral or triangular patches");
         return nullptr;
     }
 
@@ -840,7 +841,7 @@ Patch::intersect(
         hit.flags |= HIT_PATCH | HIT_POINT | HIT_MATERIAL | HIT_GNORMAL | HIT_DIST;
         if ( hitFlags & HIT_UV ) {
             if ( !(hit.flags & HIT_UV)) {
-                patchUv(hit.patch, &hit.point, &hit.uv.u, &hit.uv.v);
+                hit.patch->uv(&hit.point, &hit.uv.u, &hit.uv.v);
                 hit.flags &= HIT_UV;
             }
         }
@@ -861,12 +862,12 @@ will be u.A and the area under the line of positions with v-coordinate 'v'
 will be v.A.
 */
 void
-biLinearToUniform(Patch *patch, double *u, double *v) {
-    double a = patch->jacobian->A;
-    double b = patch->jacobian->B;
-    double c = patch->jacobian->C;
-    *u = ((a + 0.5 * c) + 0.5 * b * (*u)) * (*u) / patch->area;
-    *v = ((a + 0.5 * b) + 0.5 * c * (*v)) * (*v) / patch->area;
+Patch::biLinearToUniform(double *u, double *v) {
+    double a = jacobian->A;
+    double b = jacobian->B;
+    double c = jacobian->C;
+    *u = ((a + 0.5 * c) + 0.5 * b * (*u)) * (*u) / area;
+    *v = ((a + 0.5 * b) + 0.5 * c * (*v)) * (*v) / area;
 }
 
 /**
@@ -1036,24 +1037,19 @@ WARNING: The (u,v) coordinates are correctly computed only for positions inside
 the patch. For positions outside, they can be garbage!
 */
 int
-patchUv(Patch *poly, Vector3D *point, double *u, double *v) {
-    static Patch *cached;
-    Patch *thePoly;
+Patch::uv(Vector3D *point, double *u, double *v) {
     Vector2Dd uv;
     bool inside = false;
 
-    thePoly = poly ? poly : cached;
-    cached = thePoly;
-
-    switch ( thePoly->numberOfVertices ) {
+    switch ( numberOfVertices ) {
         case 3:
-            inside = triangleUv(thePoly, point, &uv);
+            inside = triangleUv(this, point, &uv);
             break;
         case 4:
-            inside = quadUv(thePoly, point, &uv);
+            inside = quadUv(this, point, &uv);
             break;
         default:
-            logFatal(3, "patchUv", "Can only handle triangular or quadrilateral patches");
+            logFatal(3, "uv", "Can only handle triangular or quadrilateral patches");
     }
 
     *u = uv.u;
@@ -1066,10 +1062,10 @@ patchUv(Patch *poly, Vector3D *point, double *u, double *v) {
 Like above, but returns uniform coordinates (inverse of uniformPoint())
 */
 int
-patchUniformUv(Patch *poly, Vector3D *point, double *u, double *v) {
-    int inside = patchUv(poly, point, u, v);
-    if ( poly->jacobian ) {
-        biLinearToUniform(poly, u, v);
+Patch::uniformUv(Vector3D *point, double *u, double *v) {
+    int inside = uv(point, u, v);
+    if ( jacobian != nullptr ) {
+        biLinearToUniform(u, v);
     }
     return inside;
 }

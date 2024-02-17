@@ -492,11 +492,16 @@ getBackFaceVertex(Vertex *v, char *name) {
 static Patch *
 newFace(Vertex *v1, Vertex *v2, Vertex *v3, Vertex *v4, Vector3D *normal) {
     Patch *theFace;
+    int numberOfVertices = v4 ? 4 : 3;
+
+    if ( !v1 || !v2 || !v3 || (numberOfVertices == 4 && !v4) ) {
+        return nullptr;
+    }
 
     if ( GLOBAL_mgf_xfContext && GLOBAL_mgf_xfContext->rev ) {
-        theFace = patchCreate(v4 ? 4 : 3, v3, v2, v1, v4);
+        theFace = patchCreate(numberOfVertices, v3, v2, v1, v4);
     } else {
-        theFace = patchCreate(v4 ? 4 : 3, v1, v2, v3, v4);
+        theFace = patchCreate(numberOfVertices, v1, v2, v3, v4);
     }
 
     if ( theFace != nullptr ) {

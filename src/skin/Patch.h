@@ -70,6 +70,12 @@ public:
 
     Vector3D *uniformPoint(double u, double v, Vector3D *point);
 
+    int uv(Vector3D *point, double *u, double *v);
+
+    int uniformUv(Vector3D *point, double *u, double *v);
+
+    void biLinearToUniform(double *u, double *v);
+
     friend Patch *
     patchCreate(int numberOfVertices, Vertex *v1, Vertex *v2, Vertex *v3, Vertex *v4);
 };
@@ -80,9 +86,6 @@ extern void patchDontIntersect(int n, ...);
 extern int patchGetNextId();
 extern void patchSetNextId(int id);
 
-extern int patchUv(Patch *poly, Vector3D *point, double *u, double *v);
-extern int patchUniformUv(Patch *poly, Vector3D *point, double *u, double *v);
-extern void biLinearToUniform(Patch *patch, double *u, double *v);
 extern void uniformToBiLinear(Patch *patch, double *u, double *v);
 extern Vector3D patchInterpolatedNormalAtUv(Patch *patch, double u, double v);
 extern void patchInterpolatedFrameAtUv(Patch *patch, double u, double v, Vector3D *X, Vector3D *Y, Vector3D *Z);

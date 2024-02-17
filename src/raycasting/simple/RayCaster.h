@@ -40,8 +40,9 @@ class RayCaster {
             VECTORSUMSCALED(ray.pos, dist, ray.dir, point);
 
             // Find surface coordinates of hit point on patch
-            double u, v;
-            patchUv(P, &point, &u, &v);
+            double u;
+            double v;
+            P->uv(&point, &u, &v);
 
             // Boundary check is necessary because Z-buffer algorithm does
             // not yield exactly the same result as ray tracing at patch

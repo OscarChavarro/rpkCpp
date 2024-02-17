@@ -467,10 +467,10 @@ stochasticJacobiUniformHitCoordinates(RayHit *hit, double *uHit, double *vHit) {
         *uHit = hit->uv.u;
         *vHit = hit->uv.v;
         if ( hit->patch->jacobian ) {
-            biLinearToUniform(hit->patch, uHit, vHit);
+            hit->patch->biLinearToUniform(uHit, vHit);
         }
     } else {
-        patchUniformUv(hit->patch, &hit->point, uHit, vHit);
+        hit->patch->uniformUv(&hit->point, uHit, vHit);
     }
 
     // Clip uv coordinates to lay strictly inside the hit patch

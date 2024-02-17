@@ -453,9 +453,8 @@ CLeSpar::ComputeWeightTerms(
     double u, v;
     COLOR col;
 
-    /* u,v coordinates of intersection point */
-    patchUv(L1->m_hit.patch,
-            &L1->m_hit.point, &u, &v);
+    // (u, v) coordinates of intersection point
+    L1->m_hit.patch->uv(&L1->m_hit.point, &u, &v);
 
     colorClear(col);
 
@@ -863,9 +862,8 @@ double CLDSpar::ComputeWeightTerms(TPathGroupID,
     double u, v;
     COLOR col;
 
-    /* u,v coordinates of intersection point */
-    patchUv(L1->m_hit.patch,
-            &L1->m_hit.point, &u, &v);
+    // (u, v) coordinates of intersection point
+    L1->m_hit.patch->uv(&L1->m_hit.point, &u, &v);
 
     colorClear(col);
 
@@ -932,8 +930,7 @@ void CLDSpar::GetStoredRadiance(CPathNode *node) {
     COLOR col;
 
     /* u,v coordinates of intersection point */
-    patchUv(node->m_hit.patch,
-            &node->m_hit.point, &u, &v);
+    node->m_hit.patch->uv(&node->m_hit.point, &u, &v);
 
     col = GLOBAL_radiance_currentRadianceMethodHandle->GetRadiance(node->m_hit.patch, u, v,
                                                                    node->m_inDirF);
@@ -998,9 +995,8 @@ void CIDSpar::GetStoredRadiance(CPathNode *node) {
     double u, v;
     COLOR col;
 
-    /* u,v coordinates of intersection point */
-    patchUv(node->m_hit.patch,
-            &node->m_hit.point, &u, &v);
+    // (u, v) coordinates of intersection point
+    node->m_hit.patch->uv(&node->m_hit.point, &u, &v);
 
     colorClear(col);
 

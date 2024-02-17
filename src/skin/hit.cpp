@@ -72,7 +72,7 @@ hitUv(RayHit *hit, Vector2Dd *uv) {
     }
 
     if ( (hit->flags & HIT_PATCH) && (hit->flags & HIT_POINT) ) {
-        patchUv(hit->patch, &hit->point, &hit->uv.u, &hit->uv.v);
+        hit->patch->uv(&hit->point, &hit->uv.u, &hit->uv.v);
         *uv = hit->uv;
         hit->flags |= HIT_UV;
         return true;

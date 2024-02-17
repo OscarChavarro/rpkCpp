@@ -376,9 +376,8 @@ COLOR SR_GetRadiance(CPathNode *thisNode, SRCONFIG *config, SRREADOUT readout,
 
                 double u, v;
 
-                /* u,v coordinates of intersection point */
-                patchUv(thisNode->m_hit.patch,
-                        &thisNode->m_hit.point, &u, &v);
+                // (u, v) coordinates of intersection point
+                thisNode->m_hit.patch->uv(&thisNode->m_hit.point, &u, &v);
 
                 radiance = GLOBAL_radiance_currentRadianceMethodHandle->GetRadiance(thisNode->m_hit.patch, u, v,
                                                                                     thisNode->m_inDirF);

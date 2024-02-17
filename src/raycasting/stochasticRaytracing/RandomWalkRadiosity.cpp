@@ -144,12 +144,12 @@ randomWalkRadiosityShootingScore(PATH *path, long nr_paths, double (*birth_prob)
         COLOR Rd = topLevelGalerkinElement(P)->Rd;
         colorProduct(accum_pow, Rd, accum_pow);
 
-        patchUniformUv(P, &node->inpoint, &uin, &vin);
+        P->uniformUv(&node->inpoint, &uin, &vin);
         if ( !GLOBAL_stochasticRaytracing_monteCarloRadiosityState.continuousRandomWalk ) {
             r = 0.;
             if ( n < path->nrnodes - 1 ) {
-                /* not continuous random walk and not node of absorption */
-                patchUniformUv(P, &node->outpoint, &uout, &vout);
+                // Not continuous random walk and not node of absorption
+                P->uniformUv(&node->outpoint, &uout, &vout);
             }
         }
 
@@ -272,12 +272,12 @@ randomWalkRadiosityCollisionGatheringScore(PATH *path, long nr_paths, double (*b
         COLOR Rd = topLevelGalerkinElement(P)->Rd;
         colorProduct(Rd, accum_rad, accum_rad);
 
-        patchUniformUv(P, &node->outpoint, &uout, &vout);
+        P->uniformUv(&node->outpoint, &uout, &vout);
         if ( !GLOBAL_stochasticRaytracing_monteCarloRadiosityState.continuousRandomWalk ) {
             r = 0.;
             if ( n > 0 ) {
-                /* not continuous random walk and not birth node */
-                patchUniformUv(P, &node->inpoint, &uin, &vin);
+                // Not continuous random walk and not birth node
+                P->uniformUv(&node->inpoint, &uin, &vin);
             }
         }
 

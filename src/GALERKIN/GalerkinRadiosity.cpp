@@ -403,7 +403,7 @@ getRadiance(Patch *patch, double u, double v, Vector3D /*dir*/) {
     COLOR rad;
 
     if ( patch->jacobian ) {
-        biLinearToUniform(patch, &u, &v);
+        patch->biLinearToUniform(&u, &v);
     }
 
     GalerkinElement *topLevelElement = topLevelGalerkinElement(patch);
