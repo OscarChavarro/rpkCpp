@@ -147,10 +147,11 @@ VoxelGrid::putSubGeometryInsideVoxelGrid(Geometry *geometry) {
         }
     } else {
         if ( geomIsAggregate(geometry) ) {
-            java::ArrayList<Geometry *> *geometryList = geomPrimListReference(geometry);
+            java::ArrayList<Geometry *> *geometryList = geomPrimListCopy(geometry);
             for ( int i = 0; geometryList != nullptr && i < geometryList->size(); i++ ) {
                 putSubGeometryInsideVoxelGrid(geometryList->get(i));
             }
+            delete geometryList;
         } else {
             java::ArrayList<Patch *> *patches = geomPatchArrayList(geometry);
             for ( int i = 0; patches != nullptr && i < patches->size(); i++) {

@@ -129,10 +129,11 @@ geomLink(Geometry *geom) {
     // If the Geometry is an aggregate, test each of its children GEOMs, if it
     // is a primitive, create an initial link with each patch it consists of
     if ( geomIsAggregate(geom)) {
-        java::ArrayList<Geometry *> *geometryList = geomPrimListReference(geom);
+        java::ArrayList<Geometry *> *geometryList = geomPrimListCopy(geom);
         for ( int i = 0; geometryList != nullptr && i < geometryList->size(); i++ ) {
             geomLink(geometryList->get(i));
         }
+        delete geometryList;
     } else {
         java::ArrayList<Patch *> *patchList = geomPatchArrayList(geom);
         for ( int i = 0; patchList != nullptr && i < patchList->size(); i++ ) {

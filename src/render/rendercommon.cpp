@@ -238,10 +238,11 @@ renderGeomBounds(Geometry *geom) {
     }
 
     if ( geomIsAggregate(geom) ) {
-        java::ArrayList<Geometry *> *geometryList = geomPrimListReference(geom);
+        java::ArrayList<Geometry *> *geometryList = geomPrimListCopy(geom);
         for ( int i = 0; geometryList != nullptr && i < geometryList->size(); i++ ) {
             renderGeomBounds(geometryList->get(i));
         }
+        delete geometryList;
     }
 }
 

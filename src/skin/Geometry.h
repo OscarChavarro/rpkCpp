@@ -64,8 +64,8 @@ extern Geometry *geomCreateCompound(Compound *compoundData);
 extern float *geomBounds(Geometry *geometry);
 extern void geomDestroy(Geometry *geometry);
 extern int geomIsAggregate(Geometry *geometry);
-extern java::ArrayList<Geometry *> * geomPrimListReference(Geometry *geometry);
-extern java::ArrayList<Patch *> *geomPatchArrayList(Geometry *geometry);
+extern java::ArrayList<Geometry *> *geomPrimListCopy(Geometry *geometry);
+java::ArrayList<Patch *> *geomPatchArrayList(Geometry *geometry);
 extern void geomDontIntersect(Geometry *geometry1, Geometry *geometry2);
 extern Geometry *geomDuplicate(Geometry *geometry);
 
