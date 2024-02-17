@@ -50,14 +50,6 @@ class VoxelGrid {
         return (a * ySize + b) * zSize + c;
     }
 
-    HITLIST *
-    allGridIntersections(
-        HITLIST *hits,
-        Ray *ray,
-        float minimumDistance,
-        float maximumDistance,
-        int hitFlags);
-
     void putGeometryInsideVoxelGrid(Geometry *geometry, short na, short nb, short nc);
 
     int isSmall(const float *boundsArr) const;
@@ -88,16 +80,6 @@ class VoxelGrid {
     void putItemInsideVoxelGrid(VoxelData *item, const float *itemBounds);
 
     void putPatchInsideVoxelGrid(Patch *patch);
-
-    static HITLIST *
-    allVoxelIntersections(
-        HITLIST *hitList,
-        java::ArrayList<VoxelData *> *items,
-        Ray *ray,
-        unsigned int counter,
-        float minimumDistance,
-        float maximumDistance,
-        int hitFlags);
 
     static RayHit *
     voxelIntersect(

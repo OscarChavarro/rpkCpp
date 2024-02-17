@@ -10,14 +10,6 @@ public:
 
     explicit Compound(java::ArrayList<Geometry *> *geometryList);
 
-    HITLIST *
-    allDiscretizationIntersections(
-        HITLIST *hits,
-        Ray *ray,
-        float minimumDistance,
-        float maximumDistance,
-        int hitFlags) const;
-
     RayHit *
     discretizationIntersect(
         Ray *ray,

@@ -81,20 +81,11 @@ surfaceBounds(MeshSurface *surf, float *boundingBox);
 
 RayHit *
 surfaceDiscretizationIntersect(
-        MeshSurface *surf,
-        Ray *ray,
-        float minimumDistance,
-        float *maximumDistance,
-        int hitFlags,
-        RayHit *hitStore);
-
-extern HITLIST *
-surfaceAllDiscretizationIntersections(
-        HITLIST *hits,
-        MeshSurface *surf,
-        Ray *ray,
-        float minimumDistance,
-        float maximumDistance,
-        int hitFlags);
+    MeshSurface *surf,
+    Ray *ray,
+    float minimumDistance,
+    float *maximumDistance,
+    int hitFlags,
+    RayHit *hitStore);
 
 #endif

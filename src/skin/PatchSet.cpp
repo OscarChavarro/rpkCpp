@@ -53,21 +53,24 @@ patchListIntersect(
 Tests whether the Ray intersect the patches in the list. See geometry.h
 (GeomDiscretizationIntersect()) for more explanation
 */
-HITLIST *
-patchListAllIntersections(HITLIST *hits, java::ArrayList<Patch *> *patches, Ray *ray, float minimumDistance, float maximumDistance, int hitFlags) {
+void
+patchListAllIntersections(
+    java::ArrayList<RayHit *> *rayHitList,
+    java::ArrayList<Patch *> *patches,
+    Ray *ray,
+    float minimumDistance,
+    float maximumDistance,
+    int hitFlags)
+{
     RayHit hitStore;
     for ( int i = 0; patches != nullptr && i < patches->size(); i++ ) {
         Patch *patch = patches->get(i);
         float maxDistanceCopy = maximumDistance; // Do not modify maximumDistance
         RayHit *hit = patch->intersect(ray, minimumDistance, &maxDistanceCopy, hitFlags, &hitStore);
         if ( hit != nullptr ) {
-            HITLIST *newNode = (HITLIST *) malloc(sizeof(HITLIST));
-            newNode->hit = hit;
-            newNode->next = hits;
-            hits = newNode;
+            rayHitList->add(0, hit);
         }
     }
-    return hits;
 }
 
 extern java::ArrayList<Patch *> *

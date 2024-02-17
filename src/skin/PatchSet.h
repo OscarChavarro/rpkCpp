@@ -21,9 +21,9 @@ patchListIntersect(
     int hitFlags,
     RayHit *hitStore);
 
-extern HITLIST *
+extern void
 patchListAllIntersections(
-    HITLIST *hits,
+    java::ArrayList<RayHit *> *rayHitList,
     java::ArrayList<Patch *> *patches,
     Ray *ray,
     float minimumDistance,

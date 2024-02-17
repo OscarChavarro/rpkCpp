@@ -294,46 +294,6 @@ geomDiscretizationIntersect(
     return nullptr;
 }
 
-HITLIST *
-geomAllDiscretizationIntersections(
-    HITLIST *hits,
-    Geometry *geometry,
-    Ray *ray,
-    float minimumDistance,
-    float maximumDistance,
-    int hitFlags)
-{
-    Vector3D vTmp;
-    float nMaximumDistance;
-
-    if ( geometry == GLOBAL_geom_excludedGeom1 || geometry == GLOBAL_geom_excludedGeom2 ) {
-        return hits;
-    }
-
-    if ( geometry->bounded ) {
-        // Check ray/bounding volume intersection
-        VECTORSUMSCALED(ray->pos, minimumDistance, ray->dir, vTmp);
-        if ( outOfBounds(&vTmp, geometry->bounds)) {
-            nMaximumDistance = maximumDistance;
-            if ( !boundsIntersect(ray, geometry->bounds, minimumDistance, &nMaximumDistance)) {
-                return hits;
-            }
-        }
-    }
-
-    if ( geometry->surfaceData != nullptr ) {
-        return surfaceAllDiscretizationIntersections(hits, geometry->surfaceData, ray, minimumDistance, maximumDistance, hitFlags);
-    } else if ( geometry->compoundData != nullptr ) {
-        return geometry->compoundData->allDiscretizationIntersections(hits, ray, minimumDistance, maximumDistance,
-                                                                      hitFlags);
-    } else if ( geometry->patchSetData != nullptr ) {
-        //return patchListAllIntersections(hits, geom->patchSetData, ray, minimumDistance, maximumDistance, hitFlags);
-        return nullptr;
-    }
-
-    return nullptr;
-}
-
 int
 Geometry::geomCountItems() {
     int count = 0;

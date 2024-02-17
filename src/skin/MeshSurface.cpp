@@ -142,15 +142,3 @@ surfaceDiscretizationIntersect(
 {
     return patchListIntersect(surf->faces, ray, minimumDistance, maximumDistance, hitFlags, hitStore);
 }
-
-HITLIST *
-surfaceAllDiscretizationIntersections(
-    HITLIST *hits,
-    MeshSurface *surf,
-    Ray *ray,
-    float minimumDistance,
-    float maximumDistance,
-    int hitFlags)
-{
-    return patchListAllIntersections(hits, surf->faces, ray, minimumDistance, maximumDistance, hitFlags);
-}

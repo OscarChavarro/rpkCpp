@@ -31,17 +31,3 @@ Compound::discretizationIntersect(
             children, ray, minimumDistance, maximumDistance, hitFlags, hitStore);
     return result;
 }
-
-HITLIST *
-Compound::allDiscretizationIntersections(
-    HITLIST *hits,
-    Ray *ray,
-    float minimumDistance,
-    float maximumDistance,
-    int hitFlags) const
-{
-    for ( int i = 0; children != nullptr && i < children->size(); i++ ) {
-        hits = ::geomAllDiscretizationIntersections(hits, children->get(i), ray, minimumDistance, maximumDistance, hitFlags);
-    }
-    return hits;
-}

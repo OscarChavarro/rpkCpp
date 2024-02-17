@@ -2,8 +2,8 @@
 #define __GEOMETRY__
 
 #include "java/util/ArrayList.h"
+#include "material/hit.h"
 #include "skin/bounds.h"
-#include "skin/hitlist.h"
 
 /**
 Currently, there are three types of geometries:
@@ -68,7 +68,6 @@ extern java::ArrayList<Geometry *> * geomPrimListReference(Geometry *geometry);
 extern java::ArrayList<Patch *> *geomPatchArrayList(Geometry *geometry);
 extern void geomDontIntersect(Geometry *geometry1, Geometry *geometry2);
 extern Geometry *geomDuplicate(Geometry *geometry);
-extern float *computeBoundsFromGeometryList(java::ArrayList<Geometry *> *geometryList, float *boundingBox);
 
 extern RayHit *
 geomDiscretizationIntersect(
@@ -78,15 +77,6 @@ geomDiscretizationIntersect(
     float *maximumDistance,
     int hitFlags,
     RayHit *hitStore);
-
-extern HITLIST *
-geomAllDiscretizationIntersections(
-    HITLIST *hits,
-    Geometry *geometry,
-    Ray *ray,
-    float minimumDistance,
-    float maximumDistance,
-    int hitFlags);
 
 extern Geometry *GLOBAL_geom_excludedGeom1;
 extern Geometry *GLOBAL_geom_excludedGeom2;
