@@ -8,22 +8,42 @@
 
 #define MAXIMUM_VERTICES_PER_PATCH 4
 #define PATCH_VISIBILITY 0x01
+#define MAX_EXCLUDED_PATCHES 4
 
 class Element;
 
 class Patch {
   private:
-    unsigned char flags; // Other flags
-
     // A static counter which is increased every time a Patch is created in
     //order to make a unique Patch id
     static int globalPatchId;
+    static Patch *globalExcludedPatches[MAX_EXCLUDED_PATCHES];
+
+    unsigned char flags; // Other flags
+
+    static double
+    clipToUnitInterval(double x) {
+        return x < EPSILON ? EPSILON : (x > (1.0 - EPSILON) ? 1.0 - EPSILON : x);
+    }
+
+    static int solveQuadraticUnitInterval(double A, double B, double C, double *x);
+    static int quadUv(Patch *patch, Vector3D *point, Vector2Dd *uv);
 
     void uniformToBiLinear(double *u, double *v) const;
     Vector3D interpolatedNormalAtUv(double u, double v);
     int getNumberOfSamples();
+    bool isExcluded();
+    bool hitInPatch(RayHit *hit, Patch *patch);
+    bool allVerticesHaveANormal();
+    Vector3D getInterpolatedNormalAtUv(double u, double v);
+    void patchConnectVertex(Vertex *paramVertex);
+    void patchConnectVertices();
+    float randomWalkRadiosityPatchArea();
+    Vector3D *computeMidpoint(Vector3D *p);
+    float computeTolerance();
+    bool triangleUv(Vector3D *point, Vector2Dd *uv);
 
-  public:
+public:
     unsigned id; // Identification number for debugging, ID rendering
     Patch *twin; // Twin face (for double-sided surfaces)
     Vertex *vertex[MAXIMUM_VERTICES_PER_PATCH]; // Pointers to the vertices
@@ -48,8 +68,11 @@ class Patch {
     Element *radianceData; // Data needed for radiance computations. Type depends on the current radiance algorithm
     MeshSurface *surface; // Pointer to surface data (contains vertex list, material properties)
 
+    static void dontIntersect(int n, ...);
+    static int getNextId();
+    static void setNextId(int id);
+
     Patch(int inNumberOfVertices, Vertex *v1, Vertex *v2, Vertex *v3, Vertex *v4);
-    int hasZeroVertices() const;
 
     void
     setVisible() {
@@ -66,10 +89,7 @@ class Patch {
         return (flags & PATCH_VISIBILITY) != 0;
     }
 
-    static void dontIntersect(int n, ...);
-    static int getNextId();
-    static void setNextId(int id);
-
+    int hasZeroVertices() const;
     float *patchBounds(float *bounds);
     void patchPrintId(FILE *out) const;
     RayHit *intersect(Ray *ray, float minimumDistance, float *maximumDistance, int hitFlags, RayHit *hitStore);

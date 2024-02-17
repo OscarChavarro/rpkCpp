@@ -8,16 +8,9 @@
 #include "skin/Patch.h"
 
 #define TOLERANCE 1e-5
-#define MAX_EXCLUDED_PATCHES 4
 
 int Patch::globalPatchId = 1;
-
-static Patch *globalExcludedPatches[MAX_EXCLUDED_PATCHES] = {nullptr, nullptr, nullptr, nullptr};
-
-static inline double
-clipToUnitInterval(double x) {
-    return x < EPSILON ? EPSILON : (x > (1.0 - EPSILON) ? 1.0 - EPSILON : x);
-}
+Patch *Patch::globalExcludedPatches[MAX_EXCLUDED_PATCHES] = {nullptr, nullptr, nullptr, nullptr};
 
 /**
 This routine returns the ID number the next patch would get
@@ -36,27 +29,481 @@ Patch::setNextId(int id) {
     globalPatchId = id;
 }
 
+bool
+Patch::isExcluded() {
+    Patch **excl = globalExcludedPatches;
+    // MAX_EXCLUDED_PATCHES tests!
+    return (*excl == this || *++excl == this || *++excl == this || *++excl == this);
+}
+
+bool
+Patch::allVerticesHaveANormal() {
+    int i;
+
+    for ( i = 0; i < numberOfVertices; i++ ) {
+        if ( !vertex[i]->normal ) {
+            break;
+        }
+    }
+    return i >= numberOfVertices;
+}
+
+Vector3D
+Patch::getInterpolatedNormalAtUv(double u, double v) {
+    Vector3D localNormal;
+    Vector3D *v1 = vertex[0]->normal;
+    Vector3D *v2 = vertex[1]->normal;
+    Vector3D *v3 = vertex[2]->normal;
+    Vector3D *v4;
+
+    switch ( numberOfVertices ) {
+        case 3:
+            PINT(*v1, *v2, *v3, (float)u, (float)v, localNormal);
+            break;
+        case 4:
+            v4 = vertex[3]->normal;
+            PINQ(*v1, *v2, *v3, *v4, (float)u, (float)v, localNormal);
+            break;
+        default:
+            logFatal(-1, "PatchNormalAtUV", "Invalid number of vertices %d", numberOfVertices);
+    }
+
+    VECTORNORMALIZE(localNormal);
+    return localNormal;
+}
+
+/**
+Looks for solution of the quadratic equation A.u^2 + B.u + C = 0
+in the interval [0,1]. There must be exactly one such solution.
+Returns true if one such solution is found, or false if the equation
+has no real solutions, both solutions are in the interval [0,1] or
+none of them is. In case of problems, a best guess solution
+is returned. Problems seem to be due to numerical inaccuracy
+*/
+int
+Patch::solveQuadraticUnitInterval(double A, double B, double C, double *x) {
+    double D = B * B - 4.0 * A * C;
+    double x1;
+    double x2;
+
+    if ( A < TOLERANCE && A > -TOLERANCE ) {
+        // Degenerate case, solve B*x + C = 0
+        x1 = -1.0;
+        x2 = -C / B;
+    } else {
+        if ( D < -TOLERANCE * TOLERANCE ) {
+            *x = -B / (2. * A);
+            logError(nullptr,
+                     "Bi-linear->Uniform mapping has negative discriminant D = %g.\nTaking 0 as discriminant and %g as solution.",
+                     D, *x);
+            return false;
+        }
+
+        D = D > TOLERANCE * TOLERANCE ? std::sqrt(D) : 0.0;
+        A = 1.0 / (2.0 * A);
+        x1 = (-B + D) * A;
+        x2 = (-B - D) * A;
+
+        if ( x1 > -TOLERANCE && x1 < 1.0 + TOLERANCE ) {
+            *x = x1;
+            if ( x2 > -TOLERANCE && x2 < 1. + TOLERANCE ) {
+                // Error(nullptr, "Bi-linear->Uniform mapping ambiguous: x1=%g, x2=%g, taking %g as solution", x1, x2, x1);
+                return false;
+            } else {
+                return true;
+            }
+        }
+    }
+
+    if ( x2 > -TOLERANCE && x2 < 1. + TOLERANCE ) {
+        *x = x2;
+        return true;
+    } else {
+        double d;
+
+        // May happen due to numerical errors chose the root closest to [0,1]
+        if ( x1 > 1.0 ) {
+            d = x1 - 1.0;
+        } else {
+            // x1 < 0.0
+            d = -x1;
+        }
+        *x = x1;
+        if ( x2 > 1.0 ) {
+            if ( x2 - 1.0 < d ) {
+                *x = x2;
+            }
+        } else {
+            if ( 0.0 - x2 < d ) {
+                *x = x2;
+            }
+        }
+
+        // Clip it to [0,1]
+        if ( *x < 0.0 ) {
+            *x = 0.0;
+        }
+        if ( *x > 1.0 ) {
+            *x = 1.0;
+        }
+        // Error(nullptr, "Bi-linear->Uniform mapping has no valid solution: x1=%g, x2=%g, taking %g as solution", x1, x2, *x);
+        return false;
+    }
+}
+
 /**
 Adds the patch to the list of patches that share the vertex
 */
 void
-patchConnectVertex(Patch *patch, Vertex *vertex) {
-    if ( patch == nullptr) {
-        return;
-    }
-    vertex->patches->add(patch);
+Patch::patchConnectVertex(Vertex *paramVertex) {
+    paramVertex->patches->add(this);
 }
 
 /**
 Adds the patch to the list of patches sharing each vertex
 */
 void
-patchConnectVertices(Patch *patch) {
-    int i;
-
-    for ( i = 0; i < patch->numberOfVertices; i++ ) {
-        patchConnectVertex(patch, patch->vertex[i]);
+Patch::patchConnectVertices() {
+    for ( int i = 0; i < numberOfVertices; i++ ) {
+        patchConnectVertex(vertex[i]);
     }
+}
+
+/**
+We also compute the jacobian J(u,v) of the coordinate mapping from the unit
+square [0,1]^2 or the standard triangle (0,0), (1,0), (0,1) to the patch.
+- For triangles: J(u,v) = the area of the triangle
+- For quadrilaterals: J(u,v) = A + B.u + C.v
+  the area of the patch = A + (B+C)/2
+  for parallelograms holds that B=C=0
+  the coefficients A,B,C are only stored if B and C are nonzero.
+The normal of the patch should have been computed before calling this routine
+*/
+float
+Patch::randomWalkRadiosityPatchArea() {
+    Vector3D *p1;
+    Vector3D *p2;
+    Vector3D *p3;
+    Vector3D *p4;
+    Vector3D d1;
+    Vector3D d2;
+    Vector3D d3;
+    Vector3D d4;
+    Vector3D cp1;
+    Vector3D cp2;
+    Vector3D cp3;
+    float a;
+    float b;
+    float c;
+
+    // Explicit compute the area and jacobian
+    switch ( this->numberOfVertices ) {
+        case 3:
+            // Jacobian J(u,v) for the mapping of the triangle
+            // (0,0),(0,1),(1,0) to a triangular patch is constant and equal
+            // to the area of the triangle ... so there is no need to store
+            // any coefficients explicitly
+            this->jacobian = nullptr;
+
+            p1 = this->vertex[0]->point;
+            p2 = this->vertex[1]->point;
+            p3 = this->vertex[2]->point;
+            VECTORSUBTRACT(*p2, *p1, d1);
+            VECTORSUBTRACT(*p3, *p2, d2);
+            VECTORCROSSPRODUCT(d1, d2, cp1);
+            this->area = 0.5f * VECTORNORM(cp1);
+            break;
+        case 4:
+            p1 = this->vertex[0]->point;
+            p2 = this->vertex[1]->point;
+            p3 = this->vertex[2]->point;
+            p4 = this->vertex[3]->point;
+            VECTORSUBTRACT(*p2, *p1, d1);
+            VECTORSUBTRACT(*p3, *p2, d2);
+            VECTORSUBTRACT(*p3, *p4, d3);
+            VECTORSUBTRACT(*p4, *p1, d4);
+            VECTORCROSSPRODUCT(d1, d4, cp1);
+            VECTORCROSSPRODUCT(d1, d3, cp2);
+            VECTORCROSSPRODUCT(d2, d4, cp3);
+            a = VECTORDOTPRODUCT(cp1, this->normal);
+            b = VECTORDOTPRODUCT(cp2, this->normal);
+            c = VECTORDOTPRODUCT(cp3, this->normal);
+
+            this->area = a + 0.5f * (b + c);
+            if ( this->area < 0.0 ) {
+                // May happen if the normal direction and
+                // a = -a; vertex order are not consistent
+                b = -b;
+                c = -c;
+                this->area = -this->area;
+            }
+
+            // 'b' and 'c' are zero for parallelograms. In that case, the area is equal to
+            // 'a', so we don't need to store the coefficients
+            if ( std::fabs(b) / this->area < EPSILON && std::fabs(c) / this->area < EPSILON ) {
+                this->jacobian = nullptr;
+            } else {
+                this->jacobian = jacobianCreate(a, b, c);
+            }
+            break;
+        default:
+            logFatal(2, "randomWalkRadiosityPatchArea", "Can only handle triangular and quadrilateral patches.\n");
+            this->jacobian = nullptr;
+            this->area = 0.0;
+    }
+
+    if ( this->area < EPSILON * EPSILON ) {
+        fprintf(stderr, "Warning: very small patch id %d area = %g\n", this->id, this->area);
+    }
+
+    return this->area;
+}
+
+/**
+Computes the mid point of the patch, stores the result in p and
+returns a pointer to p
+*/
+Vector3D *
+Patch::computeMidpoint(Vector3D *p) {
+    VECTORSET(*p, 0, 0, 0);
+    for ( int i = 0; i < numberOfVertices; i++ ) {
+        VECTORADD(*p, *(vertex[i]->point), *p);
+    }
+    VECTORSCALEINVERSE((float)numberOfVertices, *p, *p);
+
+    return p;
+}
+
+/**
+Computes a certain "width" for the plane, e.g. for co-planarity testing
+*/
+float
+Patch::computeTolerance() {
+    // Fill in the vertices in the plane equation + take into account the vertex position tolerance
+    float localTolerance = 0.0f;
+    for ( int i = 0; i < numberOfVertices; i++ ) {
+        Vector3D *p = vertex[i]->point;
+        float e = (float)std::fabs(VECTORDOTPRODUCT(normal, *p) + planeConstant)
+                   + VECTORTOLERANCE(*p);
+        if ( e > localTolerance ) {
+            localTolerance = e;
+        }
+    }
+
+    return localTolerance;
+}
+
+/**
+Returns (u,v) coordinates of the point in the triangle
+Didier Badouel, Graphics Gems I, p390
+*/
+bool
+Patch::triangleUv(Vector3D *point, Vector2Dd *uv) {
+    double u0;
+    double v0;
+    REAL alpha;
+    REAL beta;
+    Vertex **v;
+    Vector2Dd p0;
+    Vector2Dd p1;
+    Vector2Dd p2;
+
+    // Project to 2D
+    v = vertex;
+    switch ( index ) {
+        case XNORMAL:
+            u0 = (*v)->point->y;
+            v0 = (*v)->point->z;
+            V2Set(p0, point->y - u0, point->z - v0);
+            v++;
+            V2Set(p1, (*v)->point->y - u0, (*v)->point->z - v0);
+            v++;
+            V2Set(p2, (*v)->point->y - u0, (*v)->point->z - v0);
+            break;
+
+        case YNORMAL:
+            u0 = (*v)->point->x;
+            v0 = (*v)->point->z;
+            V2Set(p0, point->x - u0, point->z - v0);
+            v++;
+            V2Set(p1, (*v)->point->x - u0, (*v)->point->z - v0);
+            v++;
+            V2Set(p2, (*v)->point->x - u0, (*v)->point->z - v0);
+            break;
+
+        case ZNORMAL:
+            u0 = (*v)->point->x;
+            v0 = (*v)->point->y;
+            V2Set(p0, point->x - u0, point->y - v0);
+            v++;
+            V2Set(p1, (*v)->point->x - u0, (*v)->point->y - v0);
+            v++;
+            V2Set(p2, (*v)->point->x - u0, (*v)->point->y - v0);
+            break;
+    }
+
+    if ( p1.u < -EPSILON || p1.u > EPSILON ) {
+        // p1.u non zero
+        beta = (p0.v * p1.u - p0.u * p1.v) / (p2.v * p1.u - p2.u * p1.v);
+        if ( beta >= 0. && beta <= 1. ) {
+            alpha = (p0.u - beta * p2.u) / p1.u;
+        } else {
+            return false;
+        }
+    } else {
+        beta = p0.u / p2.u;
+        if ( beta >= 0. && beta <= 1. ) {
+            alpha = (p0.v - beta * p2.v) / p1.v;
+        } else {
+            return false;
+        }
+    }
+    uv->u = alpha;
+    uv->v = beta;
+    if ( alpha < 0. || (alpha + beta) > 1. ) {
+        return false;
+    }
+    return true;
+}
+
+/**
+Christophe Schlick and Gilles Subrenat (15 May 1994)
+"Ray Intersection of Tessellated Surfaces : Quadrangles versus Triangles"
+in Graphics Gems V (edited by A. Paeth), Academic Press
+*/
+int
+Patch::quadUv(Patch *patch, Vector3D *point, Vector2Dd *uv) {
+    Vertex **p;
+    Vector2Dd A; // Projected vertices
+    Vector2Dd B;
+    Vector2Dd C;
+    Vector2Dd D;
+    Vector2Dd M; // Projected intersection point
+    Vector2Dd AB; // AE = DC - AB = DA - CB
+    Vector2Dd BC;
+    Vector2Dd CD;
+    Vector2Dd AD;
+    Vector2Dd AM;
+    Vector2Dd AE;
+    REAL u = -1.0; // Parametric coordinates
+    REAL v = -1.0;
+    REAL a; // For the quadratic equation
+    REAL b;
+    REAL c;
+    REAL SqrtDelta;
+    Vector2Dd Vector; // Temporary 2D-vector
+    int isInside = false;
+
+    // Projection on the plane that is most parallel to the facet
+    p = patch->vertex;
+    switch ( patch->index ) {
+        case XNORMAL: V2Set(A, (*p)->point->y, (*p)->point->z);
+            p++;
+            V2Set(B, (*p)->point->y, (*p)->point->z);
+            p++;
+            V2Set(C, (*p)->point->y, (*p)->point->z);
+            p++;
+            V2Set(D, (*p)->point->y, (*p)->point->z);
+            V2Set(M, point->y, point->z);
+            break;
+
+        case YNORMAL: V2Set(A, (*p)->point->x, (*p)->point->z);
+            p++;
+            V2Set(B, (*p)->point->x, (*p)->point->z);
+            p++;
+            V2Set(C, (*p)->point->x, (*p)->point->z);
+            p++;
+            V2Set(D, (*p)->point->x, (*p)->point->z);
+            V2Set(M, point->x, point->z);
+            break;
+
+        case ZNORMAL: V2Set(A, (*p)->point->x, (*p)->point->y);
+            p++;
+            V2Set(B, (*p)->point->x, (*p)->point->y);
+            p++;
+            V2Set(C, (*p)->point->x, (*p)->point->y);
+            p++;
+            V2Set(D, (*p)->point->x, (*p)->point->y);
+            V2Set(M, point->x, point->y);
+            break;
+    }
+
+    V2Sub(B, A, AB);
+    V2Sub(C, B, BC);
+    V2Sub(D, C, CD);
+    V2Sub(D, A, AD);
+    V2Add(CD, AB, AE);
+    V2Negate(AE);
+    V2Sub(M, A, AM);
+
+    if ( std::fabs(DETERMINANT(AB, CD)) < EPSILON ) {
+        // Case AB // CD
+        V2Sub (AB, CD, Vector);
+        v = DETERMINANT(AM, Vector) / DETERMINANT(AD, Vector);
+        if ( (v >= 0.0) && (v <= 1.0) ) {
+            b = DETERMINANT(AB, AD) - DETERMINANT(AM, AE);
+            c = DETERMINANT (AM, AD);
+            u = ABS(b) < EPSILON ? -1 : c / b;
+            isInside = ((u >= 0.0) && (u <= 1.0));
+        }
+    } else if ( std::fabs(DETERMINANT(BC, AD)) < EPSILON ) {
+            // Case AD // BC
+            V2Add (AD, BC, Vector);
+            u = DETERMINANT(AM, Vector) / DETERMINANT(AB, Vector);
+            if ((u >= 0.0) && (u <= 1.0)) {
+                b = DETERMINANT(AD, AB) - DETERMINANT(AM, AE);
+                c = DETERMINANT (AM, AB);
+                v = ABS(b) < EPSILON ? -1 : c / b;
+                isInside = ((v >= 0.0) && (v <= 1.0));
+            }
+        } else {
+            // General case
+            a = DETERMINANT(AB, AE);
+            c = -DETERMINANT (AM, AD);
+            b = DETERMINANT(AB, AD) - DETERMINANT(AM, AE);
+            a = -0.5 / a;
+            b *= a;
+            c *= (a + a);
+            SqrtDelta = b * b + c;
+            if ( SqrtDelta >= 0.0 ) {
+                SqrtDelta = sqrt(SqrtDelta);
+                u = b - SqrtDelta;
+                if ( (u < 0.0) || (u > 1.0) ) {
+                    // To choose u between 0 and 1
+                    u = b + SqrtDelta;
+                }
+                if ( (u >= 0.0) && (u <= 1.0) ) {
+                    v = AD.u + u * AE.u;
+                    if ( ABS(v) < EPSILON ) {
+                        v = (AM.v - u * AB.v) / (AD.v + u * AE.v);
+                    } else {
+                        v = (AM.u - u * AB.u) / v;
+                    }
+                    isInside = ((v >= 0.0) && (v <= 1.0));
+                }
+            } else {
+                u = v = -1.0;
+            }
+        }
+
+    uv->u = u;
+    uv->v = v;
+    uv->u = clipToUnitInterval(uv->u);
+    uv->v = clipToUnitInterval(uv->v);
+
+    return isInside;
+}
+
+/**
+Badouels and Schlicks method from graphics gems: slower, but consumes less storage and computes
+(u,v) parameters as a side result
+*/
+bool
+Patch::hitInPatch(RayHit *hit, Patch *patch) {
+    hit->flags |= HIT_UV; // uv parameters computed as a side result
+    return (patch->numberOfVertices == 3)
+           ? triangleUv(&hit->point, &hit->uv)
+           : quadUv(patch, &hit->point, &hit->uv);
 }
 
 /**
@@ -86,132 +533,6 @@ patchNormal(Patch *patch, Vector3D *normal) {
     VECTORSCALEINVERSE(norm, *normal, *normal);
 
     return normal;
-}
-
-/**
-We also compute the jacobian J(u,v) of the coordinate mapping from the unit
-square [0,1]^2 or the standard triangle (0,0), (1,0), (0,1) to the patch.
-- For triangles: J(u,v) = the area of the triangle
-- For quadrilaterals: J(u,v) = A + B.u + C.v
-  the area of the patch = A + (B+C)/2
-  for parallelograms holds that B=C=0
-  the coefficients A,B,C are only stored if B and C are nonzero.
-The normal of the patch should have been computed before calling this routine
-*/
-float
-randomWalkRadiosityPatchArea(Patch *P) {
-    Vector3D *p1;
-    Vector3D *p2;
-    Vector3D *p3;
-    Vector3D *p4;
-    Vector3D d1;
-    Vector3D d2;
-    Vector3D d3;
-    Vector3D d4;
-    Vector3D cp1;
-    Vector3D cp2;
-    Vector3D cp3;
-    float a;
-    float b;
-    float c;
-
-    // Explicit compute the area and jacobian
-    switch ( P->numberOfVertices ) {
-        case 3:
-            // Jacobian J(u,v) for the mapping of the triangle
-            // (0,0),(0,1),(1,0) to a triangular patch is constant and equal
-            // to the area of the triangle ... so there is no need to store
-            // any coefficients explicitly
-            P->jacobian = nullptr;
-
-            p1 = P->vertex[0]->point;
-            p2 = P->vertex[1]->point;
-            p3 = P->vertex[2]->point;
-            VECTORSUBTRACT(*p2, *p1, d1);
-            VECTORSUBTRACT(*p3, *p2, d2);
-            VECTORCROSSPRODUCT(d1, d2, cp1);
-            P->area = 0.5f * VECTORNORM(cp1);
-            break;
-        case 4:
-            p1 = P->vertex[0]->point;
-            p2 = P->vertex[1]->point;
-            p3 = P->vertex[2]->point;
-            p4 = P->vertex[3]->point;
-            VECTORSUBTRACT(*p2, *p1, d1);
-            VECTORSUBTRACT(*p3, *p2, d2);
-            VECTORSUBTRACT(*p3, *p4, d3);
-            VECTORSUBTRACT(*p4, *p1, d4);
-            VECTORCROSSPRODUCT(d1, d4, cp1);
-            VECTORCROSSPRODUCT(d1, d3, cp2);
-            VECTORCROSSPRODUCT(d2, d4, cp3);
-            a = VECTORDOTPRODUCT(cp1, P->normal);
-            b = VECTORDOTPRODUCT(cp2, P->normal);
-            c = VECTORDOTPRODUCT(cp3, P->normal);
-
-            P->area = a + 0.5f * (b + c);
-            if ( P->area < 0.0 ) {
-                // May happen if the normal direction and
-                // a = -a; vertex order are not consistent
-                b = -b;
-                c = -c;
-                P->area = -P->area;
-            }
-
-            // 'b' and 'c' are zero for parallelograms. In that case, the area is equal to
-            // 'a', so we don't need to store the coefficients
-            if ( std::fabs(b) / P->area < EPSILON && std::fabs(c) / P->area < EPSILON ) {
-                P->jacobian = nullptr;
-            } else {
-                P->jacobian = jacobianCreate(a, b, c);
-            }
-            break;
-        default:
-            logFatal(2, "randomWalkRadiosityPatchArea", "Can only handle triangular and quadrilateral patches.\n");
-            P->jacobian = nullptr;
-            P->area = 0.0;
-    }
-
-    if ( P->area < EPSILON * EPSILON ) {
-        fprintf(stderr, "Warning: very small patch id %d area = %g\n", P->id, P->area);
-    }
-
-    return P->area;
-}
-
-/**
-Computes the mid point of the patch, stores the result in p and
-returns a pointer to p
-*/
-Vector3D *
-patchMidpoint(Patch *patch, Vector3D *p) {
-    int i;
-
-    VECTORSET(*p, 0, 0, 0);
-    for ( i = 0; i < patch->numberOfVertices; i++ ) VECTORADD(*p, *(patch->vertex[i]->point), *p);
-    VECTORSCALEINVERSE((float) patch->numberOfVertices, *p, *p);
-
-    return p;
-}
-
-/**
-Computes a certain "width" for the plane, e.g. for co-planarity testing
-*/
-float
-patchTolerance(Patch *patch) {
-    float tolerance;
-
-    // Fill in the vertices in the plane equation + take into account the vertex position tolerance
-    tolerance = 0.0f;
-    for ( int i = 0; i < patch->numberOfVertices; i++ ) {
-        Vector3D *p = patch->vertex[i]->point;
-        float e = (float)std::fabs(VECTORDOTPRODUCT(patch->normal, *p) + patch->planeConstant)
-                   + VECTORTOLERANCE(*p);
-        if ( e > tolerance ) {
-            tolerance = e;
-        }
-    }
-
-    return tolerance;
 }
 
 /**
@@ -265,22 +586,22 @@ Patch::Patch(int inNumberOfVertices, Vertex *v1, Vertex *v2, Vertex *v3, Vertex 
     }
 
     // Also computes the jacobian
-    area = randomWalkRadiosityPatchArea(this);
+    area = randomWalkRadiosityPatchArea();
 
     // Patch midpoint
-    patchMidpoint(this, &midpoint);
+    computeMidpoint(&midpoint);
 
     // Plane constant
     planeConstant = -VECTORDOTPRODUCT(normal, midpoint);
 
     // Plane tolerance
-    tolerance = patchTolerance(this);
+    tolerance = computeTolerance();
 
     // Dominant part of normal
     index = (char)vector3DDominantCoord(&normal);
 
     // Tell the vertices that there's a new Patch using them
-    patchConnectVertices(this);
+    patchConnectVertices();
 
     directPotential = 0.0;
     setRGB(color, 0.0, 0.0, 0.0);
@@ -414,60 +735,16 @@ Patch::dontIntersect(int n, ...) {
     }
 }
 
-int
-isExcludedPatch(Patch *p) {
-    Patch **excl = globalExcludedPatches;
-    // MAX_EXCLUDED_PATCHES tests!
-    return (*excl == p || *++excl == p || *++excl == p || *++excl == p);
-}
-
-static int
-allVerticesHaveANormal(Patch *patch) {
-    int i;
-
-    for ( i = 0; i < patch->numberOfVertices; i++ ) {
-        if ( !patch->vertex[i]->normal ) {
-            break;
-        }
-    }
-    return i >= patch->numberOfVertices;
-}
-
-
-static Vector3D
-getInterpolatedNormalAtUv(Patch *patch, double u, double v) {
-    Vector3D normal;
-    Vector3D *v1 = patch->vertex[0]->normal;
-    Vector3D *v2 = patch->vertex[1]->normal;
-    Vector3D *v3 = patch->vertex[2]->normal;
-    Vector3D *v4;
-
-    switch ( patch->numberOfVertices ) {
-        case 3:
-            PINT(*v1, *v2, *v3, (float)u, (float)v, normal);
-            break;
-        case 4:
-            v4 = patch->vertex[3]->normal;
-            PINQ(*v1, *v2, *v3, *v4, (float)u, (float)v, normal);
-            break;
-        default:
-            logFatal(-1, "PatchNormalAtUV", "Invalid number of vertices %d", patch->numberOfVertices);
-    }
-
-    VECTORNORMALIZE(normal);
-    return normal;
-}
-
 /**
 Computes interpolated (= shading) normal at the point with given parameters
 on the patch
 */
 Vector3D
 Patch::interpolatedNormalAtUv(double u, double v) {
-    if ( !allVerticesHaveANormal(this) ) {
+    if ( !allVerticesHaveANormal() ) {
         return normal;
     }
-    return getInterpolatedNormalAtUv(this, u, v);
+    return getInterpolatedNormalAtUv(u, v);
 }
 
 /**
@@ -535,231 +812,6 @@ Patch::textureCoordAtUv(double u, double v) {
 }
 
 /**
-Returns (u,v) coordinates of the point in the triangle
-Didier Badouel, Graphics Gems I, p390
-*/
-static bool
-triangleUv(Patch *patch, Vector3D *point, Vector2Dd *uv) {
-    static Patch *cachedPatch = nullptr;
-    double u0;
-    double v0;
-    REAL alpha;
-    REAL beta;
-    Vertex **v;
-    Vector2Dd p0;
-    Vector2Dd p1;
-    Vector2Dd p2;
-
-    if ( patch == nullptr ) {
-        patch = cachedPatch;
-    }
-    cachedPatch = patch;
-
-    // Project to 2D
-    v = patch->vertex;
-    switch ( patch->index ) {
-        case XNORMAL:
-            u0 = (*v)->point->y;
-            v0 = (*v)->point->z;
-            V2Set(p0, point->y - u0, point->z - v0);
-            v++;
-            V2Set(p1, (*v)->point->y - u0, (*v)->point->z - v0);
-            v++;
-            V2Set(p2, (*v)->point->y - u0, (*v)->point->z - v0);
-            break;
-
-        case YNORMAL:
-            u0 = (*v)->point->x;
-            v0 = (*v)->point->z;
-            V2Set(p0, point->x - u0, point->z - v0);
-            v++;
-            V2Set(p1, (*v)->point->x - u0, (*v)->point->z - v0);
-            v++;
-            V2Set(p2, (*v)->point->x - u0, (*v)->point->z - v0);
-            break;
-
-        case ZNORMAL:
-            u0 = (*v)->point->x;
-            v0 = (*v)->point->y;
-            V2Set(p0, point->x - u0, point->y - v0);
-            v++;
-            V2Set(p1, (*v)->point->x - u0, (*v)->point->y - v0);
-            v++;
-            V2Set(p2, (*v)->point->x - u0, (*v)->point->y - v0);
-            break;
-    }
-
-    if ( p1.u < -EPSILON || p1.u > EPSILON ) {
-        // p1.u non zero
-        beta = (p0.v * p1.u - p0.u * p1.v) / (p2.v * p1.u - p2.u * p1.v);
-        if ( beta >= 0. && beta <= 1. ) {
-            alpha = (p0.u - beta * p2.u) / p1.u;
-        } else {
-            return false;
-        }
-    } else {
-        beta = p0.u / p2.u;
-        if ( beta >= 0. && beta <= 1. ) {
-            alpha = (p0.v - beta * p2.v) / p1.v;
-        } else {
-            return false;
-        }
-    }
-    uv->u = alpha;
-    uv->v = beta;
-    if ( alpha < 0. || (alpha + beta) > 1. ) {
-        return false;
-    }
-    return true;
-}
-
-/**
-Christophe Schlick and Gilles Subrenat (15 May 1994)
-"Ray Intersection of Tessellated Surfaces : Quadrangles versus Triangles"
-in Graphics Gems V (edited by A. Paeth), Academic Press
-*/
-static int
-quadUv(Patch *patch, Vector3D *point, Vector2Dd *uv) {
-    static Patch *cachedPatch = nullptr;
-    Vertex **p;
-    Vector2Dd A; // Projected vertices
-    Vector2Dd B;
-    Vector2Dd C;
-    Vector2Dd D;
-    Vector2Dd M; // Projected intersection point
-    Vector2Dd AB; // AE = DC - AB = DA - CB
-    Vector2Dd BC;
-    Vector2Dd CD;
-    Vector2Dd AD;
-    Vector2Dd AM;
-    Vector2Dd AE;
-    REAL u = -1.0; // Parametric coordinates
-    REAL v = -1.0;
-    REAL a; // For the quadratic equation
-    REAL b;
-    REAL c;
-    REAL SqrtDelta;
-    Vector2Dd Vector; // Temporary 2D-vector
-    int isInside = false;
-
-    if ( patch == nullptr ) {
-        patch = cachedPatch;
-    }
-    cachedPatch = patch;
-
-    // Projection on the plane that is most parallel to the facet
-    p = patch->vertex;
-    switch ( patch->index ) {
-        case XNORMAL: V2Set(A, (*p)->point->y, (*p)->point->z);
-            p++;
-            V2Set(B, (*p)->point->y, (*p)->point->z);
-            p++;
-            V2Set(C, (*p)->point->y, (*p)->point->z);
-            p++;
-            V2Set(D, (*p)->point->y, (*p)->point->z);
-            V2Set(M, point->y, point->z);
-            break;
-
-        case YNORMAL: V2Set(A, (*p)->point->x, (*p)->point->z);
-            p++;
-            V2Set(B, (*p)->point->x, (*p)->point->z);
-            p++;
-            V2Set(C, (*p)->point->x, (*p)->point->z);
-            p++;
-            V2Set(D, (*p)->point->x, (*p)->point->z);
-            V2Set(M, point->x, point->z);
-            break;
-
-        case ZNORMAL: V2Set(A, (*p)->point->x, (*p)->point->y);
-            p++;
-            V2Set(B, (*p)->point->x, (*p)->point->y);
-            p++;
-            V2Set(C, (*p)->point->x, (*p)->point->y);
-            p++;
-            V2Set(D, (*p)->point->x, (*p)->point->y);
-            V2Set(M, point->x, point->y);
-            break;
-    }
-
-    V2Sub(B, A, AB);
-    V2Sub(C, B, BC);
-    V2Sub(D, C, CD);
-    V2Sub(D, A, AD);
-    V2Add(CD, AB, AE);
-    V2Negate(AE);
-    V2Sub(M, A, AM);
-
-    if ( std::fabs(DETERMINANT(AB, CD)) < EPSILON ) {
-	    // Case AB // CD
-        V2Sub (AB, CD, Vector);
-        v = DETERMINANT(AM, Vector) / DETERMINANT(AD, Vector);
-        if ((v >= 0.0) && (v <= 1.0)) {
-            b = DETERMINANT(AB, AD) - DETERMINANT(AM, AE);
-            c = DETERMINANT (AM, AD);
-            u = ABS(b) < EPSILON ? -1 : c / b;
-            isInside = ((u >= 0.0) && (u <= 1.0));
-        }
-    } else if ( fabs(DETERMINANT(BC, AD)) < EPSILON ) {
-        // Case AD // BC
-        V2Add (AD, BC, Vector);
-        u = DETERMINANT(AM, Vector) / DETERMINANT(AB, Vector);
-        if ((u >= 0.0) && (u <= 1.0)) {
-            b = DETERMINANT(AD, AB) - DETERMINANT(AM, AE);
-            c = DETERMINANT (AM, AB);
-            v = ABS(b) < EPSILON ? -1 : c / b;
-            isInside = ((v >= 0.0) && (v <= 1.0));
-        }
-    } else {
-        // General case
-        a = DETERMINANT(AB, AE);
-        c = -DETERMINANT (AM, AD);
-        b = DETERMINANT(AB, AD) - DETERMINANT(AM, AE);
-        a = -0.5 / a;
-        b *= a;
-        c *= (a + a);
-        SqrtDelta = b * b + c;
-        if ( SqrtDelta >= 0.0 ) {
-            SqrtDelta = sqrt(SqrtDelta);
-            u = b - SqrtDelta;
-            if ( (u < 0.0) || (u > 1.0) ) {
-                // To choose u between 0 and 1
-                u = b + SqrtDelta;
-            }
-            if ( (u >= 0.0) && (u <= 1.0) ) {
-                v = AD.u + u * AE.u;
-                if ( ABS(v) < EPSILON ) {
-                    v = (AM.v - u * AB.v) / (AD.v + u * AE.v);
-                } else {
-                    v = (AM.u - u * AB.u) / v;
-                }
-                isInside = ((v >= 0.0) && (v <= 1.0));
-            }
-        } else {
-            u = v = -1.0;
-        }
-    }
-
-    uv->u = u;
-    uv->v = v;
-    uv->u = clipToUnitInterval(uv->u);
-    uv->v = clipToUnitInterval(uv->v);
-
-    return isInside;
-}
-
-/**
-Badouels and Schlicks method from graphics gems: slower, but consumes less storage and computes
-(u,v) parameters as a side result
-*/
-static bool
-hitInPatch(RayHit *hit, Patch *patch) {
-    hit->flags |= HIT_UV; // uv parameters computed as a side result
-    return (patch->numberOfVertices == 3)
-           ? triangleUv(patch, &hit->point, &hit->uv)
-           : quadUv(patch, &hit->point, &hit->uv);
-}
-
-/**
 Ray-patch intersection test, for computing form factors, creating ray-cast
 images ... Returns nullptr if the Ray doesn't hit the patch. Fills in the
 'the_hit' hit record if there is a new hit and returns a pointer to it.
@@ -780,7 +832,7 @@ Patch::intersect(
     RayHit hit;
     float dist;
 
-    if ( isExcludedPatch(this) ) {
+    if ( isExcluded() ) {
         return nullptr;
     }
 
@@ -851,85 +903,6 @@ Patch::biLinearToUniform(double *u, double *v) const {
     double c = jacobian->C;
     *u = ((a + 0.5 * c) + 0.5 * b * (*u)) * (*u) / area;
     *v = ((a + 0.5 * b) + 0.5 * c * (*v)) * (*v) / area;
-}
-
-/**
-Looks for solution of the quadratic equation A.u^2 + B.u + C = 0
-in the interval [0,1]. There must be exactly one such solution.
-Returns true if one such solution is found, or false if the equation
-has no real solutions, both solutions are in the interval [0,1] or
-none of them is. In case of problems, a best guess solution
-is returned. Problems seem to be due to numerical inaccuracy
-*/
-static int
-solveQuadraticUnitInterval(double A, double B, double C, double *x) {
-    double D = B * B - 4.0 * A * C;
-    double x1;
-    double x2;
-
-    if ( A < TOLERANCE && A > -TOLERANCE ) {
-        // Degenerate case, solve B*x + C = 0
-        x1 = -1.0;
-        x2 = -C / B;
-    } else {
-        if ( D < -TOLERANCE * TOLERANCE ) {
-            *x = -B / (2. * A);
-            logError(nullptr,
-                     "Bi-linear->Uniform mapping has negative discriminant D = %g.\nTaking 0 as discriminant and %g as solution.",
-                     D, *x);
-            return false;
-        }
-
-        D = D > TOLERANCE * TOLERANCE ? sqrt(D) : 0.0;
-        A = 1.0 / (2.0 * A);
-        x1 = (-B + D) * A;
-        x2 = (-B - D) * A;
-
-        if ( x1 > -TOLERANCE && x1 < 1.0 + TOLERANCE ) {
-            *x = x1;
-            if ( x2 > -TOLERANCE && x2 < 1. + TOLERANCE ) {
-                // Error(nullptr, "Bi-linear->Uniform mapping ambiguous: x1=%g, x2=%g, taking %g as solution", x1, x2, x1);
-                return false;
-            } else {
-                return true;
-            }
-        }
-    }
-
-    if ( x2 > -TOLERANCE && x2 < 1. + TOLERANCE ) {
-        *x = x2;
-        return true;
-    } else {
-        double d;
-
-        // May happen due to numerical errors chose the root closest to [0,1]
-        if ( x1 > 1.0 ) {
-            d = x1 - 1.0;
-        } else {
-            // x1 < 0.0
-            d = -x1;
-        }
-        *x = x1;
-        if ( x2 > 1.0 ) {
-            if ( x2 - 1.0 < d ) {
-                *x = x2;
-            }
-        } else {
-            if ( 0.0 - x2 < d ) {
-                *x = x2;
-            }
-        }
-
-        // Clip it to [0,1]
-        if ( *x < 0.0 ) {
-            *x = 0.0;
-        }
-        if ( *x > 1.0 ) {
-            *x = 1.0;
-        }
-        // Error(nullptr, "Bi-linear->Uniform mapping has no valid solution: x1=%g, x2=%g, taking %g as solution", x1, x2, *x);
-        return false;
-    }
 }
 
 /**
@@ -1027,7 +1000,7 @@ Patch::uv(Vector3D *point, double *u, double *v) {
 
     switch ( numberOfVertices ) {
         case 3:
-            inside = triangleUv(this, point, &uv);
+            inside = triangleUv(point, &uv);
             break;
         case 4:
             inside = quadUv(this, point, &uv);
