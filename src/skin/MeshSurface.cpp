@@ -71,9 +71,9 @@ This routine creates a MeshSurface with given material, positions
 MeshSurface *
 surfaceCreate(
     Material *material,
-    Vector3DListNode *points,
-    Vector3DListNode *normals,
-    Vector3DListNode *texCoords,
+    java::ArrayList<Vector3D *> *points,
+    java::ArrayList<Vector3D *> *normals,
+    java::ArrayList<Vector3D *> *texCoords, // Note this is not being used!
     java::ArrayList<Vertex *> *vertices,
     java::ArrayList<Patch *> *faces,
     enum MaterialColorFlags flags)

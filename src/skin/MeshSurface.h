@@ -9,7 +9,6 @@ Surfaces are basically a list of patches representing a simple object with given
 
 #include "java/util/ArrayList.h"
 #include "material/Material.h"
-#include "skin/vectorlist.h"
 #include "skin/Geometry.h"
 
 class Vertex;
@@ -27,13 +26,13 @@ class MeshSurface : public Geometry {
     java::ArrayList<Vertex *> *vertices;
 
     // A list of positions at the vertices of the patches of the surface
-    Vector3DListNode *positions;
+    java::ArrayList<Vector3D *> *positions;
 
     // A list of normals at the vertices of the patches
-    Vector3DListNode *normals;
+    java::ArrayList<Vector3D *> *normals;
 
     // A list of texture coordinates of the vertices of the patches
-    Vector3DListNode *texCoords;
+    java::ArrayList<Vector3D *> *texCoords;
 
     /**
     The patches making up the MeshSurface. Each patch contains pointers to three
@@ -59,9 +58,9 @@ enum MaterialColorFlags {
 extern MeshSurface *
 surfaceCreate(
     Material *material,
-    Vector3DListNode *points,
-    Vector3DListNode *normals,
-    Vector3DListNode *texCoords,
+    java::ArrayList<Vector3D *> *points,
+    java::ArrayList<Vector3D *> *normals,
+    java::ArrayList<Vector3D *> *texCoords,
     java::ArrayList<Vertex *> *vertices,
     java::ArrayList<Patch *>  *faces,
     MaterialColorFlags flags);

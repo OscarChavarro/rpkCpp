@@ -184,7 +184,7 @@ topLink(StochasticRadiosityElement *rcvtop, StochasticRadiosityElement *srctop) 
     LINK link;
 
     if ( GLOBAL_stochasticRaytracing_hierarchy.do_h_meshing && GLOBAL_stochasticRaytracing_hierarchy.clustering != NO_CLUSTERING ) {
-        src = rcv = GLOBAL_stochasticRaytracing_hierarchy.topcluster;
+        src = rcv = GLOBAL_stochasticRaytracing_hierarchy.topCluster;
     } else {
         src = srctop;
         rcv = rcvtop;

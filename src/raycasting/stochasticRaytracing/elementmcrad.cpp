@@ -370,21 +370,21 @@ monteCarloRadiosityRegularLeafElementAtPoint(StochasticRadiosityElement *top, do
 static Vector3D *
 monteCarloRadiosityInstallCoordinate(Vector3D *coord) {
     Vector3D *v = VectorCreate(coord->x, coord->y, coord->z);
-    GLOBAL_stochasticRaytracing_hierarchy.coords = VectorListAdd(GLOBAL_stochasticRaytracing_hierarchy.coords, v);
+    GLOBAL_stochasticRaytracing_hierarchy.coords->add(0, v);
     return v;
 }
 
 static Vector3D *
 monteCarloRadiosityInstallNormal(Vector3D *norm) {
     Vector3D *v = VectorCreate(norm->x, norm->y, norm->z);
-    GLOBAL_stochasticRaytracing_hierarchy.normals = VectorListAdd(GLOBAL_stochasticRaytracing_hierarchy.normals, v);
+    GLOBAL_stochasticRaytracing_hierarchy.normals->add(0, v);
     return v;
 }
 
 static Vector3D *
 monteCarloRadiosityInstallTexCoord(Vector3D *texCoord) {
     Vector3D *t = VectorCreate(texCoord->x, texCoord->y, texCoord->z);
-    GLOBAL_stochasticRaytracing_hierarchy.texCoords = VectorListAdd(GLOBAL_stochasticRaytracing_hierarchy.texCoords, t);
+    GLOBAL_stochasticRaytracing_hierarchy.texCoords->add(0, t);
     return t;
 }
 

@@ -22,8 +22,8 @@ static VECTOROCTREE *globalPointsOctree;
 static VECTOROCTREE *globalNormalsOctree;
 
 // Elements for surface currently being created
-static Vector3DListNode *globalCurrentPointList;
-static Vector3DListNode *globalCurrentNormalList;
+static java::ArrayList<Vector3D *> *globalCurrentPointList;
+static java::ArrayList<Vector3D *> *globalCurrentNormalList;
 static java::ArrayList<Vertex *> *globalCurrentVertexList;
 static java::ArrayList<Patch *> *globalCurrentFaceList;
 static java::ArrayList<Geometry *> *globalCurrentGeometryList = nullptr;
@@ -163,8 +163,8 @@ mgfSetMonochrome(int yesno) {
 
 static void
 newSurface() {
-    globalCurrentPointList = nullptr;
-    globalCurrentNormalList = nullptr;
+    globalCurrentPointList = new java::ArrayList<Vector3D *>();
+    globalCurrentNormalList = new java::ArrayList<Vector3D *>();
     globalCurrentVertexList = new java::ArrayList<Vertex *>();
     globalCurrentFaceList = new java::ArrayList<Patch *>();
     globalInSurface = true;
@@ -410,14 +410,14 @@ getCurrentMaterial() {
 static Vector3D *
 installPoint(float x, float y, float z) {
     Vector3D *coord = VectorCreate(x, y, z);
-    globalCurrentPointList = VectorListAdd(globalCurrentPointList, coord);
+    globalCurrentPointList->add(0, coord);
     return coord;
 }
 
 static Vector3D *
 installNormal(float x, float y, float z) {
     Vector3D *norm = VectorCreate(x, y, z);
-    globalCurrentNormalList = VectorListAdd(globalCurrentNormalList, norm);
+    globalCurrentNormalList->add(0, norm);
     return norm;
 }
 

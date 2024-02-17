@@ -162,7 +162,7 @@ stochasticJacobiSetup(java::ArrayList<Patch *> *scenePatches) {
     }
 
     globalSumOfProbabilities = 0.0;
-    stochasticJacobiElementSetup(GLOBAL_stochasticRaytracing_hierarchy.topcluster);
+    stochasticJacobiElementSetup(GLOBAL_stochasticRaytracing_hierarchy.topCluster);
 
     if ( globalSumOfProbabilities < EPSILON * EPSILON ) {
         logWarning("Iteration", "No sources");
@@ -716,9 +716,9 @@ stochasticJacobiPushUpdatePullSweep() {
 
     // Update reflectances and emittances (refinement yields more accurate estimates
     // on textured surfaces)
-    stochasticJacobiPullRdEd(GLOBAL_stochasticRaytracing_hierarchy.topcluster);
+    stochasticJacobiPullRdEd(GLOBAL_stochasticRaytracing_hierarchy.topCluster);
 
-    stochasticJacobiPushUpdatePull(GLOBAL_stochasticRaytracing_hierarchy.topcluster);
+    stochasticJacobiPushUpdatePull(GLOBAL_stochasticRaytracing_hierarchy.topCluster);
 }
 
 /**

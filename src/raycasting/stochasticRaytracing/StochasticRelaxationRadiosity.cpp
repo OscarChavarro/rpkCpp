@@ -60,10 +60,10 @@ stochasticRelaxationRadiosityRandomRound(float x) {
 
 static void
 stochasticRelaxationRadiosityRecomputeDisplayColors(java::ArrayList<Patch *> *scenePatches) {
-    if ( GLOBAL_stochasticRaytracing_hierarchy.topcluster ) {
-        monteCarloRadiosityForAllLeafElements(GLOBAL_stochasticRaytracing_hierarchy.topcluster,
+    if ( GLOBAL_stochasticRaytracing_hierarchy.topCluster ) {
+        monteCarloRadiosityForAllLeafElements(GLOBAL_stochasticRaytracing_hierarchy.topCluster,
                                               elementComputeNewVertexColors);
-        monteCarloRadiosityForAllLeafElements(GLOBAL_stochasticRaytracing_hierarchy.topcluster,
+        monteCarloRadiosityForAllLeafElements(GLOBAL_stochasticRaytracing_hierarchy.topCluster,
                                               elementAdjustTVertexColors);
     } else {
         for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
@@ -377,7 +377,7 @@ static void
 stochasticRelaxationRadiosityDiscardIncremental() {
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.tracedRays = GLOBAL_stochasticRaytracing_monteCarloRadiosityState.prevTracedRays = 0;
 
-    stochasticRelaxationRadiosityElementDiscardIncremental(GLOBAL_stochasticRaytracing_hierarchy.topcluster);
+    stochasticRelaxationRadiosityElementDiscardIncremental(GLOBAL_stochasticRaytracing_hierarchy.topCluster);
 }
 
 static int

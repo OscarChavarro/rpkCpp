@@ -1,5 +1,4 @@
 #include "java/util/ArrayList.txx"
-#include "material/statistics.h"
 #include "scene/scene.h"
 #include "skin/Vertex.h"
 #include "raycasting/stochasticRaytracing/mcradP.h"
@@ -21,27 +20,20 @@ elementHierarchyDefaults() {
 
 void
 elementHierarchyInit() {
-    /* Max link power is importance-dependent, the initial value is however the
-     * same, just in case of importance-driven computations the threshold
-     * will be multiplied by the importance value. (jp) */
-
-    GLOBAL_stochasticRaytracing_hierarchy.maxlinkpow = GLOBAL_stochasticRaytracing_hierarchy.epsilon *
-                                                       colorMaximumComponent(GLOBAL_statistics_maxSelfEmittedPower);
-
     // These lists hold vertices created during hierarchical refinement
-    GLOBAL_stochasticRaytracing_hierarchy.coords = nullptr;
-    GLOBAL_stochasticRaytracing_hierarchy.normals = nullptr;
-    GLOBAL_stochasticRaytracing_hierarchy.texCoords = nullptr;
+    GLOBAL_stochasticRaytracing_hierarchy.coords = new java::ArrayList<Vector3D *>();
+    GLOBAL_stochasticRaytracing_hierarchy.normals = new java::ArrayList<Vector3D *>();
+    GLOBAL_stochasticRaytracing_hierarchy.texCoords = new java::ArrayList<Vector3D *>();
     GLOBAL_stochasticRaytracing_hierarchy.vertices = new java::ArrayList<Vertex *>();
-    GLOBAL_stochasticRaytracing_hierarchy.topcluster = monteCarloRadiosityCreateClusterHierarchy(
+    GLOBAL_stochasticRaytracing_hierarchy.topCluster = monteCarloRadiosityCreateClusterHierarchy(
             GLOBAL_scene_clusteredWorldGeom);
 }
 
 void
 elementHierarchyTerminate(java::ArrayList<Patch *> *scenePatches) {
     // Destroy clusters
-    monteCarloRadiosityDestroyClusterHierarchy(GLOBAL_stochasticRaytracing_hierarchy.topcluster);
-    GLOBAL_stochasticRaytracing_hierarchy.topcluster = nullptr;
+    monteCarloRadiosityDestroyClusterHierarchy(GLOBAL_stochasticRaytracing_hierarchy.topCluster);
+    GLOBAL_stochasticRaytracing_hierarchy.topCluster = nullptr;
 
     // Destroy surface elements
     for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
@@ -61,53 +53,36 @@ elementHierarchyTerminate(java::ArrayList<Patch *> *scenePatches) {
     }
 
     // Delete positions
-    Vector3DListNode *vectorWindow = GLOBAL_stochasticRaytracing_hierarchy.coords;
-    Vector3D *position;
-    while ( vectorWindow != nullptr ) {
-        position = vectorWindow->vector;
-        vectorWindow = vectorWindow->next;
-        vector3DDestroy(position);
+    for ( int i = 0;
+        GLOBAL_stochasticRaytracing_hierarchy.coords != nullptr &&
+        i < GLOBAL_stochasticRaytracing_hierarchy.coords->size();
+        i++) {
+        vector3DDestroy(GLOBAL_stochasticRaytracing_hierarchy.coords->get(i));
     }
 
-    vectorWindow = GLOBAL_stochasticRaytracing_hierarchy.coords;
-    while ( vectorWindow != nullptr ) {
-        Vector3DListNode *positionNode = vectorWindow->next;
-        free(vectorWindow);
-        vectorWindow = positionNode;
-    }
+    delete GLOBAL_stochasticRaytracing_hierarchy.coords;
     GLOBAL_stochasticRaytracing_hierarchy.coords = nullptr;
 
     // Delete normals
-    Vector3DListNode *normalWindow = GLOBAL_stochasticRaytracing_hierarchy.normals;
-    Vector3D *normal;
-    while ( normalWindow != nullptr ) {
-        normal = normalWindow->vector;
-        normalWindow = normalWindow->next;
-        vector3DDestroy(normal);
+    for ( int i = 0;
+          GLOBAL_stochasticRaytracing_hierarchy.normals != nullptr &&
+          i < GLOBAL_stochasticRaytracing_hierarchy.normals->size();
+          i++ ) {
+        vector3DDestroy(GLOBAL_stochasticRaytracing_hierarchy.normals->get(i));
     }
 
-    normalWindow = GLOBAL_stochasticRaytracing_hierarchy.normals;
-    while ( normalWindow != nullptr ) {
-        Vector3DListNode *normalNode = normalWindow->next;
-        free(normalWindow);
-        normalWindow = normalNode;
-    }
+    delete GLOBAL_stochasticRaytracing_hierarchy.normals;
     GLOBAL_stochasticRaytracing_hierarchy.normals = nullptr;
 
     // Delete texture coordinates
-    Vector3DListNode *texCoordWindow = GLOBAL_stochasticRaytracing_hierarchy.texCoords;
-    Vector3D *texCoord;
-    while ( texCoordWindow != nullptr ) {
-        texCoord = texCoordWindow->vector;
-        texCoordWindow = texCoordWindow->next;
+    for ( int i = 0;
+          GLOBAL_stochasticRaytracing_hierarchy.texCoords != nullptr &&
+          i < GLOBAL_stochasticRaytracing_hierarchy.texCoords->size();
+          i++ ) {
+        Vector3D *texCoord = GLOBAL_stochasticRaytracing_hierarchy.texCoords->get(i);
         vector3DDestroy(texCoord);
     }
 
-    texCoordWindow = GLOBAL_stochasticRaytracing_hierarchy.texCoords;
-    while ( texCoordWindow != nullptr ) {
-        Vector3DListNode *texCoordNode = texCoordWindow->next;
-        free(texCoordWindow);
-        texCoordWindow = texCoordNode;
-    }
+    delete GLOBAL_stochasticRaytracing_hierarchy.texCoords;
     GLOBAL_stochasticRaytracing_hierarchy.texCoords = nullptr;
 }

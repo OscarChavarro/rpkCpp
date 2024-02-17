@@ -6,7 +6,6 @@ Hierarchical refinement stuff (includes Jan's elementP.h)
 #define _RENDERPARK_ELEMENTP_H_
 
 #include "java/util/ArrayList.h"
-#include "skin/vectorlist.h"
 #include "raycasting/stochasticRaytracing/StochasticRadiosityElement.h"
 
 enum CLUSTERING_MODE {
@@ -46,26 +45,23 @@ extern LINK *hierarchyRefine(
     double *vs,
     ORACLE evaluate_link);
 
-/* global parameters controlling hierarchical refinement */
+/**
+Global parameters controlling hierarchical refinement
+*/
 class ELEM_HIER_STATE {
   public:
-    float epsilon;                 /* determines meshing accuracy */
-    int do_h_meshing;            /* whether or not to do hierarchical
-                                      meshing */
-    float maxlinkpow;              /* maximum power transported over a link */
-    float minarea;           /* minimum allowed element area */
-    long nr_elements;             /* number of elements */
-    long nr_clusters;             /* number of clusters */
-    int tvertex_elimination;       /* whether or not to do T-vertex
-				      elimination for rendering. */
-    CLUSTERING_MODE clustering;       /* clustering mode, 0 => no clustering */
-    ORACLE oracle;           /* refinement oracle to be used */
-
-    StochasticRadiosityElement *topcluster;       /* top cluster element of element
-				      hierarchy */
-    Vector3DListNode *coords;
-    Vector3DListNode *normals;       /* created during element subdivision */
-    Vector3DListNode *texCoords;       /* created during element subdivision */
+    float epsilon; // Determines meshing accuracy
+    int do_h_meshing; // If doing hierarchical meshing
+    float minarea; // Minimum allowed element area
+    long nr_elements; // Number of elements
+    long nr_clusters; // Number of clusters
+    int tvertex_elimination; // If doing T-vertex elimination for rendering
+    CLUSTERING_MODE clustering; // Clustering mode, 0 => no clustering
+    ORACLE oracle; // Refinement oracle to be used
+    StochasticRadiosityElement *topCluster; // Top cluster element of element hierarchy
+    java::ArrayList<Vector3D *> *coords;
+    java::ArrayList<Vector3D *> *normals; // Created during element subdivision
+    java::ArrayList<Vector3D *> *texCoords; // Created during element subdivision
     java::ArrayList<Vertex *> *vertices;
 };
 

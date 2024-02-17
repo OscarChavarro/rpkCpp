@@ -313,7 +313,7 @@ monteCarloRadiosityUpdateViewImportance(java::ArrayList<Patch *> *scenePatches) 
     updateDirectVisibility(scenePatches);
 
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.sourceYmp = GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotYmp = GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalYmp = 0.;
-    monteCarloRadiosityUpdateImportance(GLOBAL_stochasticRaytracing_hierarchy.topcluster);
+    monteCarloRadiosityUpdateImportance(GLOBAL_stochasticRaytracing_hierarchy.topCluster);
 
     if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotYmp < GLOBAL_stochasticRaytracing_monteCarloRadiosityState.sourceYmp ) {
         fprintf(stderr, "Importance will be recomputed incrementally.\n");
@@ -324,7 +324,7 @@ monteCarloRadiosityUpdateViewImportance(java::ArrayList<Patch *> *scenePatches) 
 
         // Re-compute from scratch
         GLOBAL_stochasticRaytracing_monteCarloRadiosityState.sourceYmp = GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotYmp = GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalYmp = 0.;
-        monteCarloRadiosityReInitImportance(GLOBAL_stochasticRaytracing_hierarchy.topcluster);
+        monteCarloRadiosityReInitImportance(GLOBAL_stochasticRaytracing_hierarchy.topCluster);
     }
 
     GLOBAL_camera_mainCamera.changed = false; // Indicate that direct importance has been computed for this view already
