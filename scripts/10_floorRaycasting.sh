@@ -30,7 +30,7 @@ mkdir -p output
 ./build/rpk etc/floor_gloss.mgf -raytracing-method StochasticRaytracing \
     -nqcdivs 16 \
     -iterations 9 -radiance-method StochJacobi \
-    -eyepoint 8.16 1.99 0.81 -center -1.72 2.63 -0.44 -updir 0 0 1 \
+    -eyepoint 9.16 3.0 0.81 -center -2.72 1.63 -0.44 -updir 0 0 1 \
     -raycast -raytracing-image-savefile \
     ./output/10_floorGlossStochasticRaytracing_StochJacobi.ppm \
-    -rts-samples-per-pixel 100 # quite noise free at 3000 iterations
+    -rts-samples-per-pixel 1 # quite noise free at 3000 iterations
