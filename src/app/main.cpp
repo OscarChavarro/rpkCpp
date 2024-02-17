@@ -284,7 +284,7 @@ buildPatchList(java::ArrayList<Geometry *> *geometryList, java::ArrayList<Patch 
             java::ArrayList<Geometry *> *subList = geomPrimListCopy(geometry);
             buildPatchList(subList, patchList);
         } else {
-            java::ArrayList<Patch *> *list2 = geomPatchArrayList(geometry);
+            java::ArrayList<Patch *> *list2 = geomPatchArrayListReference(geometry);
 
             for ( int j = 0; list2 != nullptr && j < list2->size(); j++ ) {
                 Patch *patch = list2->get(j);

@@ -79,8 +79,8 @@ geomMultiResolutionVisibility(
             return visibility;
         } else {
             RayHit *hit = patchListIntersect(
-                geomPatchArrayList(geom),
-                ray,
+                    geomPatchArrayListReference(geom),
+                    ray,
                 rcvdist * ((float) EPSILON), &rcvdist, HIT_FRONT | HIT_ANY, &hitstore);
             if ( hit != nullptr ) {
                 addToShadowCache(hit->patch);

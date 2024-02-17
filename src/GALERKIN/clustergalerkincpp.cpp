@@ -119,11 +119,10 @@ galerkinDoCreateClusterHierarchy(Geometry *parentGeometry) {
         }
         delete geometryList;
     } else {
-        java::ArrayList<Patch *> *patchList = geomPatchArrayList(parentGeometry);
+        java::ArrayList<Patch *> *patchList = geomPatchArrayListReference(parentGeometry);
         for ( int i = 0; patchList != nullptr && i < patchList->size(); i++ ) {
             patchAddClusterChild(patchList->get(i), cluster);
         }
-        delete patchList;
     }
 
     clusterInit(cluster);

@@ -224,7 +224,7 @@ monteCarloRadiosityCreateClusterChildren(StochasticRadiosityElement *parent) {
         }
         delete geometryList;
     } else {
-        java::ArrayList<Patch *> *patchList = geomPatchArrayList(geom);
+        java::ArrayList<Patch *> *patchList = geomPatchArrayListReference(geom);
         for ( int i = 0; patchList != nullptr && i < patchList->size(); i++ ) {
             monteCarloRadiosityCreateSurfaceElementChild(patchList->get(i), parent);
         }

@@ -55,14 +55,3 @@ patchListIntersect(
     }
     return hit;
 }
-
-extern java::ArrayList<Patch *> *
-patchListExportToArrayList(java::ArrayList<Patch *> *patchList) {
-    java::ArrayList<Patch *> *newList = new java::ArrayList<Patch *>();
-
-    for ( int i = 0; patchList != nullptr && i < patchList->size(); i++ ) {
-        newList->add(patchList->get(i));
-    }
-
-    return newList;
-}

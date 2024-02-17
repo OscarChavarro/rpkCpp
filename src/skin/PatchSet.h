@@ -21,7 +21,4 @@ patchListIntersect(
     int hitFlags,
     RayHit *hitStore);
 
-extern java::ArrayList<Patch *> *
-patchListExportToArrayList(java::ArrayList<Patch *> *patchList);
-
 #endif

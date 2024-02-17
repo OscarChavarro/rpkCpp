@@ -749,7 +749,7 @@ shaftCullOpen(Geometry *geom, SHAFT *shaft, java::ArrayList<Geometry *> *candida
         doShaftCulling(geometryList, shaft, candidateList);
         delete geometryList;
     } else {
-        java::ArrayList<Patch *> *geometryPatchesList = geomPatchArrayList(geom);
+        java::ArrayList<Patch *> *geometryPatchesList = geomPatchArrayListReference(geom);
         java::ArrayList<Patch *> *culledPatches = shaftCullPatchList(geometryPatchesList, shaft);
 
         if ( culledPatches->size() > 0 ) {
@@ -759,7 +759,6 @@ shaftCullOpen(Geometry *geom, SHAFT *shaft, java::ArrayList<Geometry *> *candida
             candidateList->add(0, newGeometry);
         }
         delete culledPatches;
-        delete geometryPatchesList;
     }
 }
 

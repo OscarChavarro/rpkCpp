@@ -34,7 +34,7 @@ countAndCall(StochasticRadiosityElement *elem) {
 
 static void
 geometryIterateLeafElements(Geometry *geom, void (*func)(StochasticRadiosityElement *)) {
-    java::ArrayList<Patch *> *patchList = geomPatchArrayList(geom);
+    java::ArrayList<Patch *> *patchList = geomPatchArrayListReference(geom);
     elemfunc = func;
     leaf_element_count = 0;
     for ( int i = 0; patchList != nullptr && i < patchList->size(); i++ ) {

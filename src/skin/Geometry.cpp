@@ -93,9 +93,7 @@ geomCreateBase(
     } else if ( className == GeometryClassId::COMPOUND ) {
         geometryListBounds(compoundData->children, newGeometry->bounds);
     } else /* if ( className == GeometryClassId::PATCH_SET ) */ {
-        java::ArrayList<Patch *> *tmpList = patchListExportToArrayList(patchSetData->patchList);
-        patchListBounds(tmpList, newGeometry->bounds);
-        delete tmpList;
+        patchListBounds(patchSetData->patchList, newGeometry->bounds);
     }
 
     // Enlarge bounding box a tiny bit for more conservative bounding box culling
@@ -207,11 +205,11 @@ geomPrimListCopy(Geometry *geometry) {
 
 
 java::ArrayList<Patch *> *
-geomPatchArrayList(Geometry *geometry) {
+geomPatchArrayListReference(Geometry *geometry) {
     if ( geometry->className == GeometryClassId::SURFACE_MESH ) {
         return geometry->surfaceData->faces;
     } else if ( geometry->className == GeometryClassId::PATCH_SET ) {
-        return patchListExportToArrayList(geometry->patchSetData->patchList);
+        return geometry->patchSetData->patchList;
     } else if ( geometry->className == GeometryClassId::COMPOUND ) {
         return nullptr;
     }
@@ -293,9 +291,7 @@ geomDiscretizationIntersect(
         return geometry->compoundData->discretizationIntersect(ray, minimumDistance, maximumDistance, hitFlags, hitStore);
     } else if ( geometry->patchSetData != nullptr ) {
         RayHit *response;
-        java::ArrayList<Patch *> * tmpList = patchListExportToArrayList(geometry->patchSetData->patchList);
-        response = patchListIntersect(tmpList, ray, minimumDistance, maximumDistance, hitFlags, hitStore);
-        delete tmpList;
+        response = patchListIntersect(geometry->patchSetData->patchList, ray, minimumDistance, maximumDistance, hitFlags, hitStore);
         return response;
     }
     return nullptr;
@@ -313,7 +309,7 @@ Geometry::geomCountItems() {
     } else {
         count = 0;
 
-        java::ArrayList<Patch *> * list = geomPatchArrayList(this);
+        java::ArrayList<Patch *> * list = geomPatchArrayListReference(this);
         if ( list != nullptr ) {
             count = (int)list->size();
         }

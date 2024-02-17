@@ -323,7 +323,7 @@ openGlRenderPatch(Patch *patch) {
 
 static void
 openGlReallyRenderOctreeLeaf(Geometry *geometry, void (*renderPatch)(Patch *)) {
-    java::ArrayList<Patch *> *patchList = geomPatchArrayList(geometry);
+    java::ArrayList<Patch *> *patchList = geomPatchArrayListReference(geometry);
     for ( int i = 0; patchList != nullptr && i < patchList->size(); i++ ) {
         renderPatch(patchList->get(i));
     }
