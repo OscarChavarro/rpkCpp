@@ -5,7 +5,7 @@ PATTERN=`pwd -P`/
 
 N=`awk -v pattern="$PATTERN" '{gsub(pattern, ""); print}' /tmp/x | wc -l`
 
-if [ "$N" -eq 12 ]; then
+if [ "$N" -eq 13 ]; then
     echo "TEST PASS"
 else
     echo "*** TEST ERROR! ***"
