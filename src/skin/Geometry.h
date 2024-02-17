@@ -85,12 +85,12 @@ extern float *geometryListBounds(java::ArrayList<Geometry *> *geometryList, floa
 
 extern RayHit *
 geometryListDiscretizationIntersect(
-        java::ArrayList<Geometry *> *geometryList,
-        Ray *ray,
-        float minimumDistance,
-        float *maximumDistance,
-        int hitFlags,
-        RayHit *hitStore);
+    java::ArrayList<Geometry *> *geometryList,
+    Ray *ray,
+    float minimumDistance,
+    float *maximumDistance,
+    int hitFlags,
+    RayHit *hitStore);
 
 #include "skin/PatchSet.h"
 #include "skin/MeshSurface.h"

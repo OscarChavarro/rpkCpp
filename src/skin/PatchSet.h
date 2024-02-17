@@ -6,8 +6,8 @@
 
 class PatchSet /*: public Geometry */ {
   public:
-    Patch *patch;
-    PatchSet *next;
+    java::ArrayList<Patch *> *patchList;
+    PatchSet(java::ArrayList<Patch *> *input);
 };
 
 extern float *patchListBounds(java::ArrayList<Patch *> *patchList, float *boundingBox);
@@ -22,6 +22,6 @@ patchListIntersect(
     RayHit *hitStore);
 
 extern java::ArrayList<Patch *> *
-patchListExportToArrayList(PatchSet *patchSet);
+patchListExportToArrayList(java::ArrayList<Patch *> *patchList);
 
 #endif

@@ -1,6 +1,13 @@
 #include "java/util/ArrayList.txx"
 #include "skin/PatchSet.h"
 
+PatchSet::PatchSet(java::ArrayList<Patch *> *input) {
+    patchList = new java::ArrayList<Patch *>();
+    for ( int i = 0; input != nullptr && i < input->size(); i++ ) {
+        patchList->add(input->get(i));
+    }
+}
+
 /**
 Computes a bounding box for the given list of patches. The bounding box is
 filled in 'bounding box' and a pointer to it returned
@@ -50,11 +57,11 @@ patchListIntersect(
 }
 
 extern java::ArrayList<Patch *> *
-patchListExportToArrayList(PatchSet *patchSet) {
+patchListExportToArrayList(java::ArrayList<Patch *> *patchList) {
     java::ArrayList<Patch *> *newList = new java::ArrayList<Patch *>();
 
-    for ( PatchSet *window = patchSet; window != nullptr; window = window->next ) {
-        newList->add(0, window->patch);
+    for ( int i = 0; patchList != nullptr && i < patchList->size(); i++ ) {
+        newList->add(patchList->get(i));
     }
 
     return newList;

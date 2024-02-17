@@ -93,7 +93,7 @@ geomCreateBase(
     } else if ( className == GeometryClassId::COMPOUND ) {
         geometryListBounds(compoundData->children, newGeometry->bounds);
     } else /* if ( className == GeometryClassId::PATCH_SET ) */ {
-        java::ArrayList<Patch *> *tmpList = patchListExportToArrayList(patchSetData);
+        java::ArrayList<Patch *> *tmpList = patchListExportToArrayList(patchSetData->patchList);
         patchListBounds(tmpList, newGeometry->bounds);
         delete tmpList;
     }
@@ -112,16 +112,13 @@ geomCreateBase(
 
 Geometry *
 geomCreatePatchSet(java::ArrayList<Patch *> *geometryList) {
-    PatchSet *patchList = nullptr;
+    PatchSet *patchSet = nullptr;
 
-    for ( int i = 0; geometryList != nullptr && i < geometryList->size(); i++ ) {
-        PatchSet *newNode = (PatchSet *)malloc(sizeof(PatchSet));
-        newNode->next = patchList;
-        newNode->patch = geometryList->get(i);
-        patchList = newNode;
+    if ( geometryList != nullptr && geometryList->size() > 0 ) {
+        patchSet = new PatchSet(geometryList);
     }
 
-    return geomCreatePatchSet(patchList);
+    return geomCreatePatchSet(patchSet);
 }
 
 Geometry *
@@ -214,7 +211,7 @@ geomPatchArrayList(Geometry *geometry) {
     if ( geometry->className == GeometryClassId::SURFACE_MESH ) {
         return geometry->surfaceData->faces;
     } else if ( geometry->className == GeometryClassId::PATCH_SET ) {
-        return patchListExportToArrayList(geometry->patchSetData);
+        return patchListExportToArrayList(geometry->patchSetData->patchList);
     } else if ( geometry->className == GeometryClassId::COMPOUND ) {
         return nullptr;
     }
@@ -296,7 +293,7 @@ geomDiscretizationIntersect(
         return geometry->compoundData->discretizationIntersect(ray, minimumDistance, maximumDistance, hitFlags, hitStore);
     } else if ( geometry->patchSetData != nullptr ) {
         RayHit *response;
-        java::ArrayList<Patch *> * tmpList = patchListExportToArrayList(geometry->patchSetData);
+        java::ArrayList<Patch *> * tmpList = patchListExportToArrayList(geometry->patchSetData->patchList);
         response = patchListIntersect(tmpList, ray, minimumDistance, maximumDistance, hitFlags, hitStore);
         delete tmpList;
         return response;
