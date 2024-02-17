@@ -9,15 +9,21 @@
 #define MAXIMUM_VERTICES_PER_PATCH 4
 #define PATCH_VISIBILITY 0x01
 
-class Vertex;
-class MeshSurface;
 class Element;
 
 class Patch {
-private:
+  private:
     unsigned char flags; // Other flags
 
-public:
+    // A static counter which is increased every time a Patch is created in
+    //order to make a unique Patch id
+    static int globalPatchId;
+
+    void uniformToBiLinear(double *u, double *v) const;
+    Vector3D interpolatedNormalAtUv(double u, double v);
+    int getNumberOfSamples();
+
+  public:
     unsigned id; // Identification number for debugging, ID rendering
     Patch *twin; // Twin face (for double-sided surfaces)
     Vertex *vertex[MAXIMUM_VERTICES_PER_PATCH]; // Pointers to the vertices
@@ -42,7 +48,7 @@ public:
     Element *radianceData; // Data needed for radiance computations. Type depends on the current radiance algorithm
     MeshSurface *surface; // Pointer to surface data (contains vertex list, material properties)
 
-    Patch();
+    Patch(int inNumberOfVertices, Vertex *v1, Vertex *v2, Vertex *v3, Vertex *v4);
     int hasZeroVertices() const;
 
     void
@@ -60,38 +66,23 @@ public:
         return (flags & PATCH_VISIBILITY) != 0;
     }
 
+    static void dontIntersect(int n, ...);
+    static int getNextId();
+    static void setNextId(int id);
+
     float *patchBounds(float *bounds);
-
-    void patchPrintId(FILE *out);
-
+    void patchPrintId(FILE *out) const;
     RayHit *intersect(Ray *ray, float minimumDistance, float *maximumDistance, int hitFlags, RayHit *hitStore);
-
     Vector3D *pointBarycentricMapping(double u, double v, Vector3D *point);
-
     Vector3D *uniformPoint(double u, double v, Vector3D *point);
-
     int uv(Vector3D *point, double *u, double *v);
-
     int uniformUv(Vector3D *point, double *u, double *v);
-
-    void biLinearToUniform(double *u, double *v);
-
-    friend Patch *
-    patchCreate(int numberOfVertices, Vertex *v1, Vertex *v2, Vertex *v3, Vertex *v4);
+    void biLinearToUniform(double *u, double *v) const;
+    void interpolatedFrameAtUv(double u, double v, Vector3D *X, Vector3D *Y, Vector3D *Z);
+    Vector3D textureCoordAtUv(double u, double v);
+    COLOR averageNormalAlbedo(BSDFFLAGS components);
+    COLOR averageEmittance(XXDFFLAGS components);
 };
-
-extern Patch *patchCreate(int numberOfVertices, Vertex *v1, Vertex *v2, Vertex *v3, Vertex *v4);
-
-extern void patchDontIntersect(int n, ...);
-extern int patchGetNextId();
-extern void patchSetNextId(int id);
-
-extern void uniformToBiLinear(Patch *patch, double *u, double *v);
-extern Vector3D patchInterpolatedNormalAtUv(Patch *patch, double u, double v);
-extern void patchInterpolatedFrameAtUv(Patch *patch, double u, double v, Vector3D *X, Vector3D *Y, Vector3D *Z);
-extern Vector3D patchTextureCoordAtUv(Patch *patch, double u, double v);
-extern COLOR patchAverageNormalAlbedo(Patch *patch, BSDFFLAGS components);
-extern COLOR patchAverageEmittance(Patch *patch, XXDFFLAGS components);
 
 #include "skin/Element.h"
 

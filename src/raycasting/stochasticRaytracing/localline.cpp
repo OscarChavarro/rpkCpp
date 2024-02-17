@@ -51,10 +51,10 @@ mcrShootRay(Patch *P, Ray *ray, RayHit *hitStore) {
     RayHit *hit;
 
     // Reject self-intersections
-    patchDontIntersect(2, P, P->twin);
+    Patch::dontIntersect(2, P, P->twin);
     hit = GLOBAL_scene_worldVoxelGrid->gridIntersect(ray, EPSILON < P->tolerance ? EPSILON : P->tolerance, &dist, HIT_FRONT | HIT_POINT,
                                                      hitStore);
-    patchDontIntersect(0);
+    Patch::dontIntersect(0);
     someFeedback();
 
     return hit;

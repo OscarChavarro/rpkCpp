@@ -96,7 +96,7 @@ hitTexCoord(RayHit *hit, Vector3D *texCoord) {
     }
 
     if ( hit->flags & HIT_PATCH ) {
-        *texCoord = hit->texCoord = patchTextureCoordAtUv(hit->patch, hit->uv.u, hit->uv.v);
+        *texCoord = hit->texCoord = hit->patch->textureCoordAtUv(hit->uv.u, hit->uv.v);
         hit->flags |= HIT_TEXCOORD;
         return true;
     }
@@ -174,7 +174,7 @@ hitPointShadingFrame(RayHit *hit, Vector3D *X, Vector3D *Y, Vector3D *Z) {
 
     if ( !success && hitUv(hit, &hit->uv) ) {
         // Make default shading frame
-        patchInterpolatedFrameAtUv(hit->patch, hit->uv.u, hit->uv.v, X, Y, Z);
+        hit->patch->interpolatedFrameAtUv(hit->uv.u, hit->uv.v, X, Y, Z);
         success = true;
     }
 

@@ -18,6 +18,8 @@ class Element {
     Patch *patch;
     Geometry *geom;
     ElementTypes className;
+
+    Element(): id(), Ed(), Rd(), patch(), geom(), className() {}
 };
 
 #endif

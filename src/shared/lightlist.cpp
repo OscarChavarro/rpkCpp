@@ -32,7 +32,7 @@ CLightList::CLightList(java::ArrayList<Patch *> *list, bool includeVirtualPatche
                                            DIFFUSE_COMPONENT);
                     info.emittedFlux = colorAverage(e);
                 } else {
-                    lightColor = patchAverageEmittance(light, DIFFUSE_COMPONENT);
+                    lightColor = light->averageEmittance(DIFFUSE_COMPONENT);
                     info.emittedFlux = colorAverage(lightColor) * light->area;
                 }
 
@@ -116,7 +116,7 @@ CLightList::evalPdfReal(Patch *light, Vector3D */*point*/) const {
     COLOR col;
     double pdf;
 
-    col = patchAverageEmittance(light, DIFFUSE_COMPONENT);
+    col = light->averageEmittance(DIFFUSE_COMPONENT);
 
     // Prob for choosing this light
     pdf = colorAverage(col) * light->area / totalFlux;

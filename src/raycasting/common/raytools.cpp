@@ -24,7 +24,7 @@ traceWorld(
     }
 
     dist = HUGE;
-    patchDontIntersect(3, patch, patch ? patch->twin : nullptr, extraPatch);
+    Patch::dontIntersect(3, patch, patch ? patch->twin : nullptr, extraPatch);
     result = GLOBAL_scene_worldVoxelGrid->gridIntersect(ray, 0.0, &dist, (int)flags, hitStore);
 
     if ( result ) {
@@ -32,7 +32,7 @@ traceWorld(
         hitShadingFrame(result, &result->X, &result->Y, &result->Z);
     }
 
-    patchDontIntersect(0);
+    Patch::dontIntersect(0);
 
     return result;
 }
@@ -143,12 +143,12 @@ pathNodesVisible(CPathNode *node1, CPathNode *node2) {
             fDistance = (float) dist;
         }
 
-        patchDontIntersect(3, node2->m_hit.patch, node1->m_hit.patch,
-                           node1->m_hit.patch ? node1->m_hit.patch->twin : nullptr);
+        Patch::dontIntersect(3, node2->m_hit.patch, node1->m_hit.patch,
+                             node1->m_hit.patch ? node1->m_hit.patch->twin : nullptr);
         hit = GLOBAL_scene_worldVoxelGrid->gridIntersect(&ray,
                             0., &fDistance,
                             HIT_FRONT | HIT_BACK | HIT_ANY, &hitStore);
-        patchDontIntersect(0);
+        Patch::dontIntersect(0);
         visible = (hit == nullptr);
 
         GLOBAL_raytracer_rayCount++; // Statistics
@@ -222,12 +222,12 @@ eyeNodeVisible(
 
                 if ( (cosRayLight > 0) && (cosRayEye > 0) ) {
                     fDistance = (float) dist;
-                    patchDontIntersect(3, node->m_hit.patch, eyeNode->m_hit.patch,
-                                       eyeNode->m_hit.patch ? eyeNode->m_hit.patch->twin : nullptr);
+                    Patch::dontIntersect(3, node->m_hit.patch, eyeNode->m_hit.patch,
+                                         eyeNode->m_hit.patch ? eyeNode->m_hit.patch->twin : nullptr);
                     hit = GLOBAL_scene_worldVoxelGrid->gridIntersect(&ray,
                                         0., &fDistance,
                                         HIT_FRONT | HIT_ANY, &hitStore);
-                    patchDontIntersect(0);
+                    Patch::dontIntersect(0);
                     // HIT_BACK removed ! So you can see through backwalls with N.E.E
                     visible = (hit == nullptr);
 

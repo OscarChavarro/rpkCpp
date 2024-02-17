@@ -36,7 +36,7 @@ makeLightSourceTable(java::ArrayList<Patch *> *scenePatches, java::ArrayList<Pat
 
     for ( int i = 0; lightPatches != nullptr && i < lightPatches->size(); i++ ) {
         Patch *light = lightPatches->get(i);
-        COLOR emitted_rad = patchAverageEmittance(light, ALL_COMPONENTS);
+        COLOR emitted_rad = light->averageEmittance(ALL_COMPONENTS);
         double flux = M_PI * light->area * colorSumAbsComponents(emitted_rad);
         globalTotalFlux += flux;
         initLight(&globalLights[i], light, flux);

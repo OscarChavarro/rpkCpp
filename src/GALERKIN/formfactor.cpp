@@ -520,10 +520,10 @@ areaToAreaFormFactor(
         initShadowCache();
 
         // Mark the patches in order to avoid immediate self-intersections
-        patchDontIntersect(4, isCluster(rcv) ? nullptr : rcv->patch,
-                           isCluster(rcv) ? nullptr : rcv->patch->twin,
-                           isCluster(src) ? nullptr : src->patch,
-                           isCluster(src) ? nullptr : src->patch->twin);
+        Patch::dontIntersect(4, isCluster(rcv) ? nullptr : rcv->patch,
+                             isCluster(rcv) ? nullptr : rcv->patch->twin,
+                             isCluster(src) ? nullptr : src->patch,
+                             isCluster(src) ? nullptr : src->patch->twin);
         geomDontIntersect(isCluster(rcv) ? rcv->geom : nullptr,
                           isCluster(src) ? src->geom : nullptr);
 
@@ -553,7 +553,7 @@ areaToAreaFormFactor(
         maxptff *= src->area;
 
         // Unmark the patches, so they are considered for ray-patch intersections again in future
-        patchDontIntersect(0);
+        Patch::dontIntersect(0);
         geomDontIntersect(nullptr, nullptr);
     }
 

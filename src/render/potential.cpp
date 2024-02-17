@@ -51,7 +51,7 @@ updateDirectPotential(java::ArrayList<Patch *> *scenePatches) {
     lostPixels = 0;
 
     // Build a table to convert a patch ID to the corresponding Patch
-    maximumPatchId = patchGetNextId() - 1;
+    maximumPatchId = Patch::getNextId() - 1;
     id2patch = (Patch **)malloc((int) (maximumPatchId + 1) * sizeof(Patch *));
     for ( unsigned long i = 0; i <= maximumPatchId; i++ ) {
         id2patch[i] = nullptr;

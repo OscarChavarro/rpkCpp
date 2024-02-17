@@ -75,8 +75,8 @@ static CommandLineOptionDescription globalOptions[] = {
 
 static void
 mainPatchAccumulateStats(Patch *patch) {
-    COLOR E = patchAverageEmittance(patch, ALL_COMPONENTS);
-    COLOR R = patchAverageNormalAlbedo(patch, BSDF_ALL_COMPONENTS);
+    COLOR E = patch->averageEmittance(ALL_COMPONENTS);
+    COLOR R = patch->averageNormalAlbedo(BSDF_ALL_COMPONENTS);
     COLOR power;
 
     GLOBAL_statistics_totalArea += patch->area;
@@ -347,7 +347,7 @@ mainReadFile(char *filename) {
     }
 
     globalAppScenePatches = nullptr;
-    patchSetNextId(1);
+    Patch::setNextId(1);
     GLOBAL_scene_clusteredGeometries = new java::ArrayList<Geometry *>();
     GLOBAL_scene_background = nullptr;
 

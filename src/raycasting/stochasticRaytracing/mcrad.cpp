@@ -341,7 +341,7 @@ monteCarloRadiosityDetermineAreaFraction(java::ArrayList<Patch *> *scenePatches)
     float *areas;
     float cumul;
     float areafrac;
-    int nrpatchids = patchGetNextId();
+    int nrpatchids = Patch::getNextId();
     int i;
 
     if ( GLOBAL_scene_geometries == nullptr || GLOBAL_scene_geometries->size() == 0 ) {

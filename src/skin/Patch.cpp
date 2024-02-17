@@ -10,32 +10,20 @@
 #define TOLERANCE 1e-5
 #define MAX_EXCLUDED_PATCHES 4
 
-static Patch *globalExcludedPatches[MAX_EXCLUDED_PATCHES] = {nullptr, nullptr, nullptr, nullptr};
+int Patch::globalPatchId = 1;
 
-/**
-A static counter which is increased every time a Patch is created in
-order to make a unique Patch id
-*/
-static int globalPatchId = 1;
+static Patch *globalExcludedPatches[MAX_EXCLUDED_PATCHES] = {nullptr, nullptr, nullptr, nullptr};
 
 static inline double
 clipToUnitInterval(double x) {
     return x < EPSILON ? EPSILON : (x > (1.0 - EPSILON) ? 1.0 - EPSILON : x);
 }
 
-Patch::Patch():
-    flags{}, id{}, twin{}, vertex{}, numberOfVertices{}, boundingBox{}, normal{}, planeConstant{},
-    tolerance{}, area{}, midpoint{}, jacobian{}, directPotential{}, index{}, omit{},
-    color{}, radianceData{}, surface{}
-{
-
-}
-
 /**
 This routine returns the ID number the next patch would get
 */
 int
-patchGetNextId() {
+Patch::getNextId() {
     return globalPatchId;
 }
 
@@ -44,7 +32,7 @@ With this routine, the ID number is set that the next patch will get.
 Note that patch ID 0 is reserved. The smallest patch ID number should be 1
 */
 void
-patchSetNextId(int id) {
+Patch::setNextId(int id) {
     globalPatchId = id;
 }
 
@@ -102,14 +90,12 @@ patchNormal(Patch *patch, Vector3D *normal) {
 
 /**
 We also compute the jacobian J(u,v) of the coordinate mapping from the unit
-square [0,1]^2 or the standard triangle (0,0),(1,0),(0,1) to the patch.
-
-- for triangles: J(u,v) = the area of the triangle
-- for quadrilaterals: J(u,v) = A + B.u + C.v
+square [0,1]^2 or the standard triangle (0,0), (1,0), (0,1) to the patch.
+- For triangles: J(u,v) = the area of the triangle
+- For quadrilaterals: J(u,v) = A + B.u + C.v
   the area of the patch = A + (B+C)/2
   for parallelograms holds that B=C=0
   the coefficients A,B,C are only stored if B and C are nonzero.
-
 The normal of the patch should have been computed before calling this routine
 */
 float
@@ -132,10 +118,10 @@ randomWalkRadiosityPatchArea(Patch *P) {
     // Explicit compute the area and jacobian
     switch ( P->numberOfVertices ) {
         case 3:
-            /* jacobian J(u,v) for the mapping of the triangle
-             * (0,0),(0,1),(1,0) to a triangular patch is constant and equal
-             * to the area of the triangle ... so there is no need to store
-             * any coefficients explicitly */
+            // Jacobian J(u,v) for the mapping of the triangle
+            // (0,0),(0,1),(1,0) to a triangular patch is constant and equal
+            // to the area of the triangle ... so there is no need to store
+            // any coefficients explicitly
             P->jacobian = nullptr;
 
             p1 = P->vertex[0]->point;
@@ -163,7 +149,7 @@ randomWalkRadiosityPatchArea(Patch *P) {
             c = VECTORDOTPRODUCT(cp3, P->normal);
 
             P->area = a + 0.5f * (b + c);
-            if ( P->area < 0. ) {
+            if ( P->area < 0.0 ) {
                 // May happen if the normal direction and
                 // a = -a; vertex order are not consistent
                 b = -b;
@@ -171,8 +157,8 @@ randomWalkRadiosityPatchArea(Patch *P) {
                 P->area = -P->area;
             }
 
-            // b and c are zero for parallelograms. In that case, the area is equal to
-            // a, so we don't need to store the coefficients
+            // 'b' and 'c' are zero for parallelograms. In that case, the area is equal to
+            // 'a', so we don't need to store the coefficients
             if ( std::fabs(b) / P->area < EPSILON && std::fabs(c) / P->area < EPSILON ) {
                 P->jacobian = nullptr;
             } else {
@@ -239,76 +225,72 @@ Patch::hasZeroVertices() const {
 /**
 Creates a patch structure for a patch with given vertices
 */
-Patch *
-patchCreate(int numberOfVertices, Vertex *v1, Vertex *v2, Vertex *v3, Vertex *v4) {
-    Patch *patch;
-
-    // This may occur after an error parsing the input file, and some other routine
-    // will already complain
-    if ( !v1 || !v2 || !v3 || (numberOfVertices == 4 && !v4) ) {
+Patch::Patch(int inNumberOfVertices, Vertex *v1, Vertex *v2, Vertex *v3, Vertex *v4):
+    flags(), id(), twin(), vertex(), numberOfVertices(), boundingBox(), normal(), planeConstant(),
+    tolerance(), area(), midpoint(), jacobian(), directPotential(), index(), omit(),
+    color(), radianceData(), surface()
+{
+    if ( v1 == nullptr || v2 == nullptr || v3 == nullptr || (inNumberOfVertices == 4 && v4 == nullptr) ) {
         logError("Patch::Patch", "Null vertex!");
-        return nullptr;
+        exit(1);
     }
 
     // It's sad but it's true
-    if ( numberOfVertices != 3 && numberOfVertices != 4 ) {
+    if ( inNumberOfVertices != 3 && inNumberOfVertices != 4 ) {
         logError("Patch::Patch", "Can only handle quadrilateral or triangular patches");
-        return nullptr;
+        exit(2);
     }
 
-    patch = (Patch *)malloc(sizeof(Patch));
     GLOBAL_statistics_numberOfElements++;
-    patch->twin = nullptr;
-    patch->id = globalPatchId;
+    twin = nullptr;
+    id = globalPatchId;
     globalPatchId++;
 
-    patch->surface = nullptr;
+    surface = nullptr;
 
-    patch->numberOfVertices = (char)numberOfVertices;
-    patch->vertex[0] = v1;
-    patch->vertex[1] = v2;
-    patch->vertex[2] = v3;
-    patch->vertex[3] = v4;
+    numberOfVertices = (char)inNumberOfVertices;
+    vertex[0] = v1;
+    vertex[1] = v2;
+    vertex[2] = v3;
+    vertex[3] = v4;
 
     // A bounding box will be computed the first time it is needed
-    patch->boundingBox = nullptr;
+    boundingBox = nullptr;
 
     // Compute normal
-    if ( !patchNormal(patch, &patch->normal) ) {
-        free(patch);
+    if ( !patchNormal(this, &normal) ) {
         GLOBAL_statistics_numberOfElements--;
-        return nullptr;
+        logError("Patch::Patch", "Error computing patch normal");
+        exit(3);
     }
 
     // Also computes the jacobian
-    patch->area = randomWalkRadiosityPatchArea(patch);
+    area = randomWalkRadiosityPatchArea(this);
 
     // Patch midpoint
-    patchMidpoint(patch, &patch->midpoint);
+    patchMidpoint(this, &midpoint);
 
     // Plane constant
-    patch->planeConstant = -VECTORDOTPRODUCT(patch->normal, patch->midpoint);
+    planeConstant = -VECTORDOTPRODUCT(normal, midpoint);
 
     // Plane tolerance
-    patch->tolerance = patchTolerance(patch);
+    tolerance = patchTolerance(this);
 
     // Dominant part of normal
-    patch->index = (char)vector3DDominantCoord(&patch->normal);
+    index = (char)vector3DDominantCoord(&normal);
 
     // Tell the vertices that there's a new Patch using them
-    patchConnectVertices(patch);
+    patchConnectVertices(this);
 
-    patch->directPotential = 0.0;
-    setRGB(patch->color, 0.0, 0.0, 0.0);
+    directPotential = 0.0;
+    setRGB(color, 0.0, 0.0, 0.0);
 
-    patch->omit = false;
-    patch->flags = 0; // Other flags
+    omit = false;
+    flags = 0; // Other flags
 
     // If we are doing radiance computations, create radiance data for the patch
-    patch->radianceData = (GLOBAL_radiance_currentRadianceMethodHandle && GLOBAL_radiance_currentRadianceMethodHandle->CreatePatchData) ?
-                          GLOBAL_radiance_currentRadianceMethodHandle->CreatePatchData(patch) : nullptr;
-
-    return patch;
+    radianceData = (GLOBAL_radiance_currentRadianceMethodHandle && GLOBAL_radiance_currentRadianceMethodHandle->CreatePatchData) ?
+                          GLOBAL_radiance_currentRadianceMethodHandle->CreatePatchData(this) : nullptr;
 }
 
 /**
@@ -330,14 +312,14 @@ Patch::patchBounds(float *bounds) {
     return bounds;
 }
 
-static int
-getNumberOfSamples(Patch *patch) {
+int
+Patch::getNumberOfSamples() {
     int numberOfSamples = 1;
-    if ( bsdfIsTextured(patch->surface->material->bsdf)) {
-        if ( patch->vertex[0]->texCoord == patch->vertex[1]->texCoord &&
-             patch->vertex[0]->texCoord == patch->vertex[2]->texCoord &&
-             (patch->numberOfVertices == 3 || patch->vertex[0]->texCoord == patch->vertex[3]->texCoord) &&
-             patch->vertex[0]->texCoord != nullptr ) {
+    if ( bsdfIsTextured(surface->material->bsdf)) {
+        if ( vertex[0]->texCoord == vertex[1]->texCoord &&
+             vertex[0]->texCoord == vertex[2]->texCoord &&
+             (numberOfVertices == 3 || vertex[0]->texCoord == vertex[3]->texCoord) &&
+             vertex[0]->texCoord != nullptr ) {
             // All vertices have same texture coordinates (important special case)
             numberOfSamples = 1;
         } else {
@@ -352,13 +334,13 @@ Use next function (with PatchListIterate) to close any open files of the patch u
 Computes average scattered power and emittance of the Patch
 */
 COLOR
-patchAverageNormalAlbedo(Patch *patch, BSDFFLAGS components) {
+Patch::averageNormalAlbedo(BSDFFLAGS components) {
     int numberOfSamples;
     COLOR albedo;
     RayHit hit;
-    hitInit(&hit, patch, nullptr, &patch->midpoint, &patch->normal, patch->surface->material, 0.);
+    hitInit(&hit, this, nullptr, &midpoint, &normal, surface->material, 0.);
 
-    numberOfSamples = getNumberOfSamples(patch);
+    numberOfSamples = getNumberOfSamples();
     colorClear(albedo);
     for ( int i = 0; i < numberOfSamples; i++ ) {
         COLOR sample;
@@ -366,8 +348,8 @@ patchAverageNormalAlbedo(Patch *patch, BSDFFLAGS components) {
         hit.uv.u = (double) xi[0] * RECIP;
         hit.uv.v = (double) xi[1] * RECIP;
         hit.flags |= HIT_UV;
-        patch->pointBarycentricMapping(hit.uv.u, hit.uv.v, &hit.point);
-        sample = bsdfScatteredPower(patch->surface->material->bsdf, &hit, &patch->normal, components);
+        pointBarycentricMapping(hit.uv.u, hit.uv.v, &hit.point);
+        sample = bsdfScatteredPower(surface->material->bsdf, &hit, &normal, components);
         colorAdd(albedo, sample, albedo);
     }
     colorScaleInverse((float) numberOfSamples, albedo, albedo);
@@ -376,13 +358,13 @@ patchAverageNormalAlbedo(Patch *patch, BSDFFLAGS components) {
 }
 
 COLOR
-patchAverageEmittance(Patch *patch, XXDFFLAGS components) {
+Patch::averageEmittance(XXDFFLAGS components) {
     int numberOfSamples;
     COLOR emittance;
     RayHit hit;
-    hitInit(&hit, patch, nullptr, &patch->midpoint, &patch->normal, patch->surface->material, 0.);
+    hitInit(&hit, this, nullptr, &midpoint, &normal, surface->material, 0.);
 
-    numberOfSamples = getNumberOfSamples(patch);
+    numberOfSamples = getNumberOfSamples();
     colorClear(emittance);
     for ( int i = 0; i < numberOfSamples; i++ ) {
         COLOR sample;
@@ -390,8 +372,8 @@ patchAverageEmittance(Patch *patch, XXDFFLAGS components) {
         hit.uv.u = (double) xi[0] * RECIP;
         hit.uv.v = (double) xi[1] * RECIP;
         hit.flags |= HIT_UV;
-        patch->pointBarycentricMapping(hit.uv.u, hit.uv.v, &hit.point);
-        sample = edfEmittance(patch->surface->material->edf, &hit, components);
+        pointBarycentricMapping(hit.uv.u, hit.uv.v, &hit.point);
+        sample = edfEmittance(surface->material->edf, &hit, components);
         colorAdd(emittance, sample, emittance);
     }
     colorScaleInverse((float) numberOfSamples, emittance, emittance);
@@ -400,7 +382,7 @@ patchAverageEmittance(Patch *patch, XXDFFLAGS components) {
 }
 
 void
-Patch::patchPrintId(FILE *out) {
+Patch::patchPrintId(FILE *out) const {
     fprintf(out, "%d ", id);
 }
 
@@ -411,12 +393,12 @@ patches to include. next arguments are pointers to the patches to exclude.
 Call with first parameter == 0 to clear the list
 */
 void
-patchDontIntersect(int n, ...) {
+Patch::dontIntersect(int n, ...) {
     va_list ap;
     int i;
 
     if ( n > MAX_EXCLUDED_PATCHES ) {
-        logFatal(-1, "patchDontIntersect", "Too many patches to exclude from intersection tests (maximum is %d)",
+        logFatal(-1, "dontIntersect", "Too many patches to exclude from intersection tests (maximum is %d)",
                  MAX_EXCLUDED_PATCHES);
         return;
     }
@@ -481,11 +463,11 @@ Computes interpolated (= shading) normal at the point with given parameters
 on the patch
 */
 Vector3D
-patchInterpolatedNormalAtUv(Patch *patch, double u, double v) {
-    if ( !allVerticesHaveANormal(patch)) {
-        return patch->normal;
+Patch::interpolatedNormalAtUv(double u, double v) {
+    if ( !allVerticesHaveANormal(this) ) {
+        return normal;
     }
-    return getInterpolatedNormalAtUv(patch, u, v);
+    return getInterpolatedNormalAtUv(this, u, v);
 }
 
 /**
@@ -498,9 +480,9 @@ normal The X is determined by Z and the projection of the patch by
 the dominant axis (patch->index)
 */
 void
-patchInterpolatedFrameAtUv(Patch *patch, double u, double v,
-                           Vector3D *X, Vector3D *Y, Vector3D *Z) {
-    *Z = patchInterpolatedNormalAtUv(patch, u, v);
+Patch::interpolatedFrameAtUv(
+    double u, double v, Vector3D *X, Vector3D *Y, Vector3D *Z) {
+    *Z = interpolatedNormalAtUv(u, v);
 
     if ( X && Y ) {
         double zz = std::sqrt(1 - Z->z * Z->z);
@@ -510,16 +492,16 @@ patchInterpolatedFrameAtUv(Patch *patch, double u, double v,
             VECTORSET(*X, (float)(Z->y / zz), (float)(-Z->x / zz), 0.0f);
         }
 
-        VECTORCROSSPRODUCT(*Z, *X, *Y); /* *Y = (*Z) ^ (*X); */
+        VECTORCROSSPRODUCT(*Z, *X, *Y); // *Y = (*Z) ^ (*X)
     }
 }
 
 /**
 Returns texture coordinates determined from vertex texture coordinates and
-given u and v bilinear of barycentric coordinates on the patch
+given u and v bi-linear of barycentric coordinates on the patch
 */
 Vector3D
-patchTextureCoordAtUv(Patch *patch, double u, double v) {
+Patch::textureCoordAtUv(double u, double v) {
     Vector3D *t0;
     Vector3D *t1;
     Vector3D *t2;
@@ -527,10 +509,10 @@ patchTextureCoordAtUv(Patch *patch, double u, double v) {
     Vector3D texCoord;
     VECTORSET(texCoord, 0.0, 0.0, 0.0);
 
-    t0 = patch->vertex[0]->texCoord;
-    t1 = patch->vertex[1]->texCoord;
-    t2 = patch->vertex[2]->texCoord;
-    switch ( patch->numberOfVertices ) {
+    t0 = vertex[0]->texCoord;
+    t1 = vertex[1]->texCoord;
+    t2 = vertex[2]->texCoord;
+    switch ( numberOfVertices ) {
         case 3:
             if ( !t0 || !t1 || !t2 ) {
                 VECTORSET(texCoord, (float)u, (float)v, 0.0f);
@@ -539,7 +521,7 @@ patchTextureCoordAtUv(Patch *patch, double u, double v) {
             }
             break;
         case 4:
-            t3 = patch->vertex[3]->texCoord;
+            t3 = vertex[3]->texCoord;
             if ( !t0 || !t1 || !t2 || !t3 ) {
                 VECTORSET(texCoord, (float)u, (float)v, 0.0f);
             } else {
@@ -547,7 +529,7 @@ patchTextureCoordAtUv(Patch *patch, double u, double v) {
             }
             break;
         default:
-            logFatal(-1, "patchTextureCoordAtUv", "Invalid nr of vertices %d", patch->numberOfVertices);
+            logFatal(-1, "textureCoordAtUv", "Invalid nr of vertices %d", numberOfVertices);
     }
     return texCoord;
 }
@@ -607,7 +589,8 @@ triangleUv(Patch *patch, Vector3D *point, Vector2Dd *uv) {
             break;
     }
 
-    if ( p1.u < -EPSILON || p1.u > EPSILON ) {  /* p1.u non zero */
+    if ( p1.u < -EPSILON || p1.u > EPSILON ) {
+        // p1.u non zero
         beta = (p0.v * p1.u - p0.u * p1.v) / (p2.v * p1.u - p2.u * p1.v);
         if ( beta >= 0. && beta <= 1. ) {
             alpha = (p0.u - beta * p2.u) / p1.u;
@@ -859,10 +842,10 @@ Converts bi-linear coordinates into uniform (area preserving)
 coordinates for a polygon with given jacobian. Uniform coordinates
 are such that the area left of the line of positions with u-coordinate 'u',
 will be u.A and the area under the line of positions with v-coordinate 'v'
-will be v.A.
+will be v.A
 */
 void
-Patch::biLinearToUniform(double *u, double *v) {
+Patch::biLinearToUniform(double *u, double *v) const {
     double a = jacobian->A;
     double b = jacobian->B;
     double c = jacobian->C;
@@ -953,29 +936,30 @@ solveQuadraticUnitInterval(double A, double B, double C, double *x) {
 Converts uniform to bi-linear coordinates
 */
 void
-uniformToBiLinear(Patch *patch, double *u, double *v) {
-    double a = patch->jacobian->A, b = patch->jacobian->B, c = patch->jacobian->C, A, B, C;
+Patch::uniformToBiLinear(double *u, double *v) const {
+    double a = jacobian->A;
+    double b = jacobian->B;
+    double c = jacobian->C;
+    double A;
+    double B;
+    double C;
 
-    A = 0.5 * b / patch->area;
-    B = (a + 0.5 * c) / patch->area;
+    A = 0.5 * b / area;
+    B = (a + 0.5 * c) / area;
     C = -(*u);
-    if ( !solveQuadraticUnitInterval(A, B, C, u)) {
-        /*
-        Error(nullptr, "Tried to solve %g*u^2 + %g*u = %g for patch %d",
-          A, B, -C, patch->id);
+    if ( !solveQuadraticUnitInterval(A, B, C, u) ) {
+        logError(nullptr, "Tried to solve %g*u^2 + %g*u = %g for patch %d",
+          A, B, -C, id);
         fprintf(stderr, "Jacobian: %g + %g*u + %g*v\n", a, b, c);
-        */
     }
 
-    A = 0.5 * c / patch->area;
-    B = (a + 0.5 * b) / patch->area;
+    A = 0.5 * c / area;
+    B = (a + 0.5 * b) / area;
     C = -(*v);
-    if ( !solveQuadraticUnitInterval(A, B, C, v)) {
-        /*
-        Error(nullptr, "Tried to solve %g*v^2 + %g*v = %g for patch %d",
-          A, B, -C, patch->id);
+    if ( !solveQuadraticUnitInterval(A, B, C, v) ) {
+        logError(nullptr, "Tried to solve %g*v^2 + %g*v = %g for patch %d",
+          A, B, -C, id);
         fprintf(stderr, "Jacobian: %g + %g*u + %g*v\n", a, b, c);
-        */
     }
 }
 
@@ -1024,7 +1008,7 @@ routine)
 Vector3D *
 Patch::uniformPoint(double u, double v, Vector3D *point) {
     if ( jacobian != nullptr ) {
-        uniformToBiLinear(this, &u, &v);
+        uniformToBiLinear(&u, &v);
     }
     return pointBarycentricMapping(u, v, point);
 }

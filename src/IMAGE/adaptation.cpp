@@ -23,9 +23,9 @@ A-priori estimate of a patch's radiance
 */
 static COLOR
 initRadianceEstimate(Patch *patch) {
-    COLOR E = patchAverageEmittance(patch, ALL_COMPONENTS),
-            R = patchAverageNormalAlbedo(patch, BSDF_ALL_COMPONENTS),
-            radiance;
+    COLOR E = patch->averageEmittance(ALL_COMPONENTS);
+    COLOR R = patch->averageNormalAlbedo(BSDF_ALL_COMPONENTS);
+    COLOR radiance;
 
     colorProduct(R, GLOBAL_statistics_estimatedAverageRadiance, radiance);
     colorAddScaled(radiance, (1.0 / M_PI), E, radiance);

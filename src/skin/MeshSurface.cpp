@@ -59,7 +59,7 @@ surfaceConnectFace(MeshSurface *surf, Patch *face) {
             face->color.b /= (float) i;
             break;
         default: {
-            rho = patchAverageNormalAlbedo(face, BRDF_DIFFUSE_COMPONENT | BRDF_GLOSSY_COMPONENT);
+            rho = face->averageNormalAlbedo(BRDF_DIFFUSE_COMPONENT | BRDF_GLOSSY_COMPONENT);
             convertColorToRGB(rho, &face->color);
         }
     }

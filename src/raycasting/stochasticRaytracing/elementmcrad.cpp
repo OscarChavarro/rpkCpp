@@ -145,9 +145,9 @@ monteCarloRadiosityCreateToplevelSurfaceElement(Patch *patch) {
     stochasticRadiosityClearCoefficients(elem->unShotRad, elem->basis);
     stochasticRadiosityClearCoefficients(elem->receivedRad, elem->basis);
 
-    elem->Ed = patchAverageEmittance(patch, DIFFUSE_COMPONENT);
+    elem->Ed = patch->averageEmittance(DIFFUSE_COMPONENT);
     colorScaleInverse(M_PI, elem->Ed, elem->Ed);
-    elem->Rd = patchAverageNormalAlbedo(patch, BRDF_DIFFUSE_COMPONENT);
+    elem->Rd = patch->averageNormalAlbedo(BRDF_DIFFUSE_COMPONENT);
 
     return elem;
 }

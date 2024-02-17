@@ -245,11 +245,11 @@ galerkinElementCreateTopLevel(Patch *patch) {
     element->bsize = 2.0f * (float)std::sqrt(element->area / M_PI);
     element->directPotential = patch->directPotential;
 
-    element->Rd = patchAverageNormalAlbedo(patch, BRDF_DIFFUSE_COMPONENT);
+    element->Rd = patch->averageNormalAlbedo(BRDF_DIFFUSE_COMPONENT);
     if ( patch->surface && patch->surface->material &&
          patch->surface->material->edf ) {
         element->flags |= IS_LIGHT_SOURCE;
-        element->Ed = patchAverageEmittance(patch, DIFFUSE_COMPONENT);
+        element->Ed = patch->averageEmittance(DIFFUSE_COMPONENT);
         colorScaleInverse(M_PI, element->Ed, element->Ed);
     }
 
