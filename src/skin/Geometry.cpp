@@ -162,7 +162,6 @@ This function destroys the given geometry
 */
 void
 geomDestroy(Geometry *geometry) {
-    //geom->methods->destroy(geom->obj);
     delete geometry;
     GLOBAL_statistics_numberOfGeometries--;
 }
@@ -202,7 +201,6 @@ geomPrimListCopy(Geometry *geometry) {
         return nullptr;
     }
 }
-
 
 java::ArrayList<Patch *> *
 geomPatchArrayListReference(Geometry *geometry) {

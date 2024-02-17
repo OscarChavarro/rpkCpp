@@ -1,66 +1,54 @@
 #include <cstdlib>
 
+#include "java/util/ArrayList.txx"
 #include "render/renderhook.h"
 #include "render/renderhook_priv.h"
 #include "common/error.h"
 
-static RENDERHOOKLIST *globalRenderHookList = nullptr;
+static java::ArrayList<RENDERHOOK *> *globalRenderHookList = new java::ArrayList<RENDERHOOK*>();
 
 void
 renderHooks() {
-    if ( globalRenderHookList != nullptr) {
-        RENDERHOOKLIST *listStart = globalRenderHookList;
-        if ( listStart != nullptr ) {
-            for ( RENDERHOOKLIST *window = listStart; window != nullptr; window = window->next ) {
-                RENDERHOOK *h = window->renderhook;
-                h->func(h->data);
-            }
-        }
+    for ( int i = 0; globalRenderHookList != nullptr && i < globalRenderHookList->size(); i++ ) {
+        RENDERHOOK *h = globalRenderHookList->get(i);
+        h->func(h->data);
     }
 }
 
 void
 addRenderHook(RENDERHOOKFUNCTION func, void *data) {
-    RENDERHOOK *hook;
-
-    if ( globalRenderHookList == nullptr) {
+    if ( globalRenderHookList == nullptr ) {
         globalRenderHookList = nullptr;
     }
 
-    hook = (RENDERHOOK *)malloc(sizeof(RENDERHOOK));
-
+    RENDERHOOK *hook = new RENDERHOOK();
     hook->func = func;
     hook->data = data;
 
-    globalRenderHookList = RenderHookListAdd(globalRenderHookList, hook);
+    if ( globalRenderHookList != nullptr ) {
+        globalRenderHookList->add(0, hook);
+    }
 }
 
 void
 removeRenderHook(RENDERHOOKFUNCTION func, void *data) {
-    RENDERHOOKLIST *list = globalRenderHookList;
-    RENDERHOOK *hook;
-
     // Search the element in the list
-    RENDERHOOK *listHandler;
-    do {
-        hook = (list ? (listHandler = list->renderhook, list = list->next, listHandler) : nullptr);
-    } while ( hook != nullptr && (hook->func != func || hook->data != data));
+    RENDERHOOK *hook = nullptr;
+    for ( int i = 0; globalRenderHookList != nullptr && i < globalRenderHookList->size(); i++ ) {
+        if ( hook->func == func && hook->data == data ) {
+            globalRenderHookList->remove(i);
+            break;
+        }
+    }
 
-    if ( hook == nullptr) {
+    if ( hook == nullptr ) {
         logWarning("removeRenderHook", "Hook to remove not found");
-    } else {
-        globalRenderHookList = RenderHookListRemove(globalRenderHookList, hook);
     }
 }
 
 
 void
 removeAllRenderHooks() {
-    RENDERHOOKLIST *listWindow = globalRenderHookList;
-    while ( listWindow != nullptr ) {
-        RENDERHOOKLIST *listNode = listWindow->next;
-        free(listWindow);
-        listWindow = listNode;
-    }
+    delete globalRenderHookList;
     globalRenderHookList = nullptr;
 }
