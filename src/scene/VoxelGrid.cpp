@@ -438,7 +438,7 @@ VoxelGrid::allVoxelIntersections(
                 float tMax = maximumDistance;
                 RayHit *h = item->patch->intersect(ray, minimumDistance, &tMax, hitFlags, &hitStore);
                 if ( h != nullptr ) {
-                    hitList = HitListAdd(hitList, duplicateHit(h));
+                    hitList = HitListAdd(hitList, h);
                 }
             } else if ( item->isGeom()) {
                 hitList = geomAllDiscretizationIntersections(

@@ -9,19 +9,15 @@ List.c: generic double linked linear lists
 /**
 Prepends the element to the list, returns the modified list
  */
-DLIST *DListAdd(DLIST *dlist, void *pelement) {
-    if ( pelement == nullptr) {
-        return dlist;
+DLIST *
+listAdd(DLIST *list, void *element) {
+    if ( element == nullptr) {
+        return list;
     }
 
-    DLIST *newdlist = (DLIST *)malloc(sizeof(DLIST));
-    newdlist->pelement = pelement;
-    newdlist->next = dlist;
-    newdlist->prev = nullptr;
+    DLIST *newNode = (DLIST *)malloc(sizeof(DLIST));
+    newNode->element = element;
+    newNode->next = list;
 
-    if ( dlist ) {
-        dlist->prev = newdlist;
-    }
-
-    return newdlist;
+    return newNode;
 }

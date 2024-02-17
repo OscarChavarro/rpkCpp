@@ -60,8 +60,8 @@ patchListAllIntersections(HITLIST *hits, java::ArrayList<Patch *> *patches, Ray 
         Patch *patch = patches->get(i);
         float maxDistanceCopy = maximumDistance; // Do not modify maximumDistance
         RayHit *hit = patch->intersect(ray, minimumDistance, &maxDistanceCopy, hitFlags, &hitStore);
-        if ( hit ) {
-            hits = HitListAdd(hits, duplicateHit(hit));
+        if ( hit != nullptr ) {
+            hits = HitListAdd(hits, hit);
         }
     }
     return hits;

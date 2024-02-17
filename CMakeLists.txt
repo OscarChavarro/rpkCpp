@@ -51,7 +51,6 @@ set(MAIN_SRC
     src/skin/Patch.cpp
     src/skin/bounds.cpp
     src/skin/MeshSurface.cpp
-    src/skin/hitlist.cpp
     src/skin/Vertex.cpp
     src/skin/Jacobian.cpp
     src/SGL/poly_clip.cpp
