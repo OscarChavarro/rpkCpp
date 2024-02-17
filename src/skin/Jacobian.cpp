@@ -11,8 +11,3 @@ jacobianCreate(float A, float B, float C) {
 
     return jacobian;
 }
-
-void
-jacobianDestroy(Jacobian *jacobian) {
-    free(jacobian);
-}

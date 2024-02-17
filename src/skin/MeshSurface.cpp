@@ -26,9 +26,9 @@ normalizeVertexColor(Vertex *vertex) {
     }
 
     if ( numberOfPatches > 0 ) {
-        vertex->color.r /= (float) numberOfPatches;
-        vertex->color.g /= (float) numberOfPatches;
-        vertex->color.b /= (float) numberOfPatches;
+        vertex->color.r /= (float)numberOfPatches;
+        vertex->color.g /= (float)numberOfPatches;
+        vertex->color.b /= (float)numberOfPatches;
     }
 }
 

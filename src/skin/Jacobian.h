@@ -12,6 +12,5 @@ class Jacobian {
 };
 
 extern Jacobian *jacobianCreate(float A, float B, float C);
-extern void jacobianDestroy(Jacobian *jacobian);
 
 #endif

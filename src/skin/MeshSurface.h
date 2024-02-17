@@ -31,7 +31,7 @@ class MeshSurface : public Geometry {
     // A list of normals at the vertices of the patches
     java::ArrayList<Vector3D *> *normals;
 
-    // A list of texture coordinates of the vertices of the patches
+    // A list of texture coordinates of the vertices of the patches (not used)
     java::ArrayList<Vector3D *> *texCoords;
 
     /**
@@ -62,7 +62,7 @@ surfaceCreate(
     java::ArrayList<Vector3D *> *normals,
     java::ArrayList<Vector3D *> *texCoords,
     java::ArrayList<Vertex *> *vertices,
-    java::ArrayList<Patch *>  *faces,
+    java::ArrayList<Patch *> *faces,
     MaterialColorFlags flags);
 
 inline bool
