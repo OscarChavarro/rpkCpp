@@ -4,7 +4,7 @@
 #include "java/util/ArrayList.h"
 #include "skin/Geometry.h"
 
-class PatchSet /*: public Geometry */ {
+class PatchSet : public Geometry {
   public:
     java::ArrayList<Patch *> *patchList;
     PatchSet(java::ArrayList<Patch *> *input);

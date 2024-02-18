@@ -39,7 +39,7 @@ class GalerkinElement : public Element {
     GalerkinElement **regularSubElements; /* A nullptr pointer if there are no
 			 regular sub-elements, or an array containing
 			 exactly 4 pointers to the sub-elements */
-    ELEMENTLIST *irregularSubElements; /* nullptr pointer or pointer to
+    StochasticRadiosityElementListNode *irregularSubElements; /* nullptr pointer or pointer to
 			 the list of irregular sub-elements */
     Matrix2x2 *upTrans; /* if non-null, transforms (u,v) coordinates on
 			 a sub-element to the (u,v) coordinates of the
@@ -95,7 +95,7 @@ are any). 'routine' should have one argument: an ELEMENT *
 Same, but for the irregular sub-elements
 */
 #define ITERATE_IRREGULAR_SUB_ELEMENTS(element, routine) \
-  ElementListIterate((element)->irregularSubElements, routine)
+  StochasticRadiosityElementListIterate((element)->irregularSubElements, routine)
 
 #define ForAllRegularSubElements(child, elem) { \
   if ((elem)->regularSubElements) { \

@@ -60,7 +60,7 @@ clearUnShotRadianceAndPotential(GalerkinElement *elem) {
         }
     }
 
-    for ( ELEMENTLIST *window = elem->irregularSubElements; window != nullptr; window = window->next ) {
+    for ( StochasticRadiosityElementListNode *window = elem->irregularSubElements; window != nullptr; window = window->next ) {
         clearUnShotRadianceAndPotential(window->element);
     }
 
@@ -119,7 +119,7 @@ shootingPushPullPotential(GalerkinElement *elem, float down) {
     }
 
     if ( elem->irregularSubElements ) {
-        ELEMENTLIST *subElementList;
+        StochasticRadiosityElementListNode *subElementList;
         for ( subElementList = elem->irregularSubElements; subElementList; subElementList = subElementList->next ) {
             GalerkinElement *subElement = subElementList->element;
             if ( !isCluster(elem) ) {
@@ -202,7 +202,7 @@ clusterUpdatePotential(GalerkinElement *cluster) {
     if ( isCluster(cluster) ) {
         cluster->potential = 0.0f;
         cluster->unShotPotential = 0.0f;
-        for ( ELEMENTLIST *window = cluster->irregularSubElements; window; window = window->next ) {
+        for ( StochasticRadiosityElementListNode *window = cluster->irregularSubElements; window; window = window->next ) {
             GalerkinElement *subCluster = window->element;
             clusterUpdatePotential(subCluster);
             cluster->potential += subCluster->area * subCluster->potential;

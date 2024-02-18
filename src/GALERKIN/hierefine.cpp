@@ -532,7 +532,7 @@ hierarchicRefinementSubdivideSourceCluster(
     java::ArrayList<Geometry *> *backup = *candidatesList;
     hierarchicRefinementCull(candidatesList, link, isClusteredGeometry);
     GalerkinElement *src = link->sourceElement, *rcv = link->receiverElement;
-    ELEMENTLIST *subClusterList;
+    StochasticRadiosityElementListNode *subClusterList;
 
     for ( subClusterList = src->irregularSubElements; subClusterList; subClusterList = subClusterList->next ) {
         GalerkinElement *child = subClusterList->element;
@@ -570,7 +570,7 @@ hierarchicRefinementSubdivideReceiverCluster(java::ArrayList<Geometry *> **candi
     hierarchicRefinementCull(candidatesList, link, isClusteredGeometry);
     GalerkinElement *src = link->sourceElement;
     GalerkinElement *rcv = link->receiverElement;
-    ELEMENTLIST *subClusterList;
+    StochasticRadiosityElementListNode *subClusterList;
 
     for ( subClusterList = rcv->irregularSubElements; subClusterList; subClusterList = subClusterList->next ) {
         GalerkinElement *child = subClusterList->element;

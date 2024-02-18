@@ -38,7 +38,7 @@ vertexRadiance(Vertex *v) {
     COLOR radiance;
 
     colorClear(radiance);
-    ForAllElements(elem, v->radiance_data)
+    ForAllStochasticRadiosityElements(elem, v->radiance_data)
                 {
                     if ( !elem->regularSubElements ) {
                         COLOR elemrad = elementDisplayRadiance(elem);
@@ -87,7 +87,7 @@ static float
 vertexImportance(Vertex *v) {
     int count = 0;
     float imp = 0.;
-    ForAllElements(elem, v->radiance_data)
+    ForAllStochasticRadiosityElements(elem, v->radiance_data)
                 {
                     if ( !elem->regularSubElements ) {
                         imp += elem->imp;

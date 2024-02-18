@@ -76,8 +76,8 @@ Usage:
 */
 #define REC_ForAllClusterSurfaces(surface, top) { \
   int _did_recurse = false; \
-  ELEMENTLIST *_subelp = (ELEMENTLIST*)nullptr; \
-  STACK_DECL(ELEMENTLIST*, _selstack, MAX_HIERARCHY_DEPTH, _selp); \
+  StochasticRadiosityElementListNode *_subelp = (StochasticRadiosityElementListNode*)nullptr; \
+  STACK_DECL(StochasticRadiosityElementListNode*, _selstack, MAX_HIERARCHY_DEPTH, _selp); \
   StochasticRadiosityElement *_curel = (top); \
   _begin_recurse_CS: \
   if (_curel->isCluster) { \
@@ -137,6 +137,6 @@ Do something with 'leaf'
   } \
 }
 
-#define ForAllElementsSharingVertex(elem, v) ForAllElements(elem, (v)->radiance_data)
+#define ForAllElementsSharingVertex(elem, v) ForAllStochasticRadiosityElements(elem, (v)->radiance_data)
 
 #endif

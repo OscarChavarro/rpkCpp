@@ -1,32 +1,26 @@
-/* elementlist.h: linear lists of ELEMENTs */
-
-#ifndef _ELEMENTLIST_H_
-#define _ELEMENTLIST_H_
+#ifndef __ELEMENT_LIST__
+#define __ELEMENT_LIST__
 
 #include "common/dataStructures/List.h"
 #include "raycasting/stochasticRaytracing/StochasticRadiosityElement.h"
 
 class StochasticRadiosityElement;
 
-/* same layout as LIST in dataStructures/List.h in order to be able to use
- * the generic list procedures defined in dataStructures/List.c */
-class ELEMENTLIST {
+class StochasticRadiosityElementListNode {
   public:
     StochasticRadiosityElement *element;
-    ELEMENTLIST *next;
+    StochasticRadiosityElementListNode *next;
 };
 
-#define ElementListCreate (ELEMENTLIST *)ListCreate
+#define StochasticRadiosityElementListAdd(elementlist, element) \
+        (StochasticRadiosityElementListNode *)ListAdd((LIST *)elementlist, (void *)element)
 
-#define ElementListAdd(elementlist, element) \
-        (ELEMENTLIST *)ListAdd((LIST *)elementlist, (void *)element)
-
-#define ElementListIterate(elementlist, proc) \
+#define StochasticRadiosityElementListIterate(elementlist, proc) \
         ListIterate((LIST *)elementlist, (void (*)(void *))proc)
 
-#define ElementListDestroy(elementlist) \
+#define StochasticRadiosityElementListDestroy(elementlist) \
         ListDestroy((LIST *)elementlist)
 
-#define ForAllElements(elem, elemlist) ForAllInList(StochasticRadiosityElement, elem, elemlist)
+#define ForAllStochasticRadiosityElements(elem, elemlist) ForAllInList(StochasticRadiosityElement, elem, elemlist)
 
 #endif

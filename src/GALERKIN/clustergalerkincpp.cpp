@@ -27,7 +27,7 @@ static void
 geomAddClusterChild(Geometry *geom, GalerkinElement *parent_cluster) {
     GalerkinElement *cluster = galerkinDoCreateClusterHierarchy(geom);
 
-    parent_cluster->irregularSubElements = ElementListAdd(parent_cluster->irregularSubElements, cluster);
+    parent_cluster->irregularSubElements = StochasticRadiosityElementListAdd(parent_cluster->irregularSubElements, cluster);
     cluster->parent = parent_cluster;
 }
 
@@ -39,7 +39,7 @@ static void
 patchAddClusterChild(Patch *patch, GalerkinElement *cluster) {
     GalerkinElement *surfaceElement = (GalerkinElement *)patch->radianceData;
 
-    cluster->irregularSubElements = ElementListAdd(cluster->irregularSubElements, surfaceElement);
+    cluster->irregularSubElements = StochasticRadiosityElementListAdd(cluster->irregularSubElements, surfaceElement);
     surfaceElement->parent = cluster;
 }
 
@@ -49,7 +49,7 @@ lowest level clusters and so up
 */
 static void
 clusterInit(GalerkinElement *cluster) {
-    ELEMENTLIST *subellist;
+    StochasticRadiosityElementListNode *subellist;
 
     /* total area of surfaces inside the cluster is sum of the areas of
      * the subclusters + pull radiance. */
@@ -168,7 +168,7 @@ iterateOverSurfaceElementsInCluster(GalerkinElement *clus, void (*func)(Galerkin
     if ( !isCluster(clus)) {
         func(clus);
     } else {
-        ELEMENTLIST *subcluslist;
+        StochasticRadiosityElementListNode *subcluslist;
         for ( subcluslist = clus->irregularSubElements; subcluslist; subcluslist = subcluslist->next ) {
             GalerkinElement *subclus = subcluslist->element;
             iterateOverSurfaceElementsInCluster(subclus, func);

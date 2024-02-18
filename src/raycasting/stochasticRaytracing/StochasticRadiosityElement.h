@@ -34,7 +34,7 @@ class StochasticRadiosityElement : public Element {
     Vertex *vertex[4]; // Up to 4 vertex pointers for surface elements
     StochasticRadiosityElement *parent; // Parent element in hierarchy
     StochasticRadiosityElement **regularSubElements; // For surface elements with regular quadtree subdivision
-    ELEMENTLIST *irregular_subelements; // Clusters
+    StochasticRadiosityElementListNode *irregular_subelements; // Clusters
     Matrix2x2 *upTrans; // Relates surface element (u,v) coordinates to patch (u,v) coordinates
     signed char childNumber; // -1 for clusters or toplevel surface elements, 0..3 for regular surface sub-elements
     char numberOfVertices; // Number of surface element vertices
