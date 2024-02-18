@@ -156,7 +156,10 @@ galerkinDestroyClusterHierarchy(GalerkinElement *cluster) {
         return;
     }
 
-    ITERATE_IRREGULAR_SUB_ELEMENTS(cluster, galerkinDestroyClusterHierarchy);
+    for ( StochasticRadiosityElementListNode *window = cluster->irregularSubElements;
+          window != nullptr; window = window->next ) {
+        galerkinDestroyClusterHierarchy(window->element);
+    }
     galerkinElementDestroyCluster(cluster);
 }
 

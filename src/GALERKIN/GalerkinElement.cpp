@@ -5,6 +5,7 @@
 #include "GALERKIN/clustergalerkincpp.h"
 #include "GALERKIN/GalerkinElement.h"
 #include "render/opengl.h"
+#include "raycasting/stochasticRaytracing/StochasticRadiosityElement.h"
 
 // Element render modes, additive
 #define OUTLINE 1
@@ -358,13 +359,19 @@ galerkinElementDestroyTopLevel(GalerkinElement *element) {
         return;
     }
 
-    if ( element->regularSubElements ) {
-        ITERATE_REGULAR_SUB_ELEMENTS(element, galerkinElementDestroyTopLevel);
+    if ( element->regularSubElements != nullptr ) {
+        for ( int i = 0; i < 4; i++) {
+            galerkinElementDestroyTopLevel((element)->regularSubElements[i]);
+        }
         free(element->regularSubElements);
     }
 
-    if ( element->irregularSubElements ) {
-        ITERATE_IRREGULAR_SUB_ELEMENTS(element, galerkinElementDestroyTopLevel);
+    if ( element->irregularSubElements != nullptr ) {
+        for ( StochasticRadiosityElementListNode *window = element->irregularSubElements;
+            window != nullptr; window = window->next ) {
+            galerkinElementDestroyTopLevel(window->element);
+        }
+
         StochasticRadiosityElementListDestroy(element->irregularSubElements);
     }
 

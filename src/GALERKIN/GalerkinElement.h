@@ -78,25 +78,6 @@ isCluster(GalerkinElement *element) {
     return element->flags & IS_CLUSTER;
 }
 
-#define IsLightSource(element) ((element)->flags & IS_LIGHT_SOURCE)
-
-/**
-Calls 'routine' for every regular sub-element of the element (if there
-are any). 'routine' should have one argument: an ELEMENT *
-*/
-#define ITERATE_REGULAR_SUB_ELEMENTS(element, routine) \
-    if ( (element)->regularSubElements != nullptr ) { \
-        for ( int i = 0; i < 4; i++) { \
-            (routine)((element)->regularSubElements[i]); \
-        } \
-    }
-
-/**
-Same, but for the irregular sub-elements
-*/
-#define ITERATE_IRREGULAR_SUB_ELEMENTS(element, routine) \
-  StochasticRadiosityElementListIterate((element)->irregularSubElements, routine)
-
 #define ForAllRegularSubElements(child, elem) { \
   if ((elem)->regularSubElements) { \
     int i; \

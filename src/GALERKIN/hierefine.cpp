@@ -303,7 +303,7 @@ hierarchicRefinementEvaluateInteraction(INTERACTION *link) {
     if ( error > threshold ) {
         // A very simple but robust subdivision strategy: subdivide the
         // largest of the two elements in order to reduce the error
-        if ( (!(isCluster(link->sourceElement) && IsLightSource(link->sourceElement))) &&
+        if ( (!(isCluster(link->sourceElement) && (link->sourceElement->flags & IS_LIGHT_SOURCE)) ) &&
             (rcv_area > link->sourceElement->area) ) {
             if ( rcv_area > min_area ) {
                 if ( isCluster(link->receiverElement) ) {
@@ -666,8 +666,16 @@ refineInteractions(GalerkinElement *top) {
     // beginning at the lowest levels in the hierarchy and working upwards to
     // prevent already refined interactions from being tested for refinement
     // again
-    ITERATE_IRREGULAR_SUB_ELEMENTS(top, refineInteractions);
-    ITERATE_REGULAR_SUB_ELEMENTS(top, refineInteractions);
+    for ( StochasticRadiosityElementListNode *window = top->irregularSubElements;
+          window != nullptr; window = window->next ) {
+        refineInteractions(window->element);
+    }
+
+    if ( top->regularSubElements != nullptr ) {
+        for ( int i = 0; i < 4; i++) {
+            refineInteractions(top->regularSubElements[i]);
+        }
+    }
 
     // Iterate over the interactions. Interactions that are refined are removed from the
     // list in RefineInteraction(). ListIterate allows the current element to be deleted

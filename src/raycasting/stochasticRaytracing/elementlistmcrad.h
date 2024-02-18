@@ -15,9 +15,6 @@ class StochasticRadiosityElementListNode {
 #define StochasticRadiosityElementListAdd(elementlist, element) \
         (StochasticRadiosityElementListNode *)ListAdd((LIST *)elementlist, (void *)element)
 
-#define StochasticRadiosityElementListIterate(elementlist, proc) \
-        ListIterate((LIST *)elementlist, (void (*)(void *))proc)
-
 #define StochasticRadiosityElementListDestroy(elementlist) \
         ListDestroy((LIST *)elementlist)
 
