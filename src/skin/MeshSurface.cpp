@@ -78,10 +78,11 @@ surfaceCreate(
     java::ArrayList<Patch *> *faces,
     enum MaterialColorFlags flags)
 {
+    GLOBAL_statistics_numberOfSurfaces++;
+
     MeshSurface *surface;
 
-    surface = (MeshSurface *)malloc(sizeof(MeshSurface));
-    GLOBAL_statistics_numberOfSurfaces++;
+    surface = new MeshSurface();
     surface->id = globalNextSurfaceId++;
     surface->material = material;
     surface->positions = points;

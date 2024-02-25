@@ -50,6 +50,7 @@ class Geometry {
     MeshSurface *surfaceData;
     Compound *compoundData;
     PatchSet *patchSetData;
+    bool isDuplicate;
 
     Geometry();
     virtual ~Geometry();

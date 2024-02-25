@@ -20,20 +20,6 @@ GalerkinElement::GalerkinElement(): regularSubElements() {
     className = ElementTypes::ELEMENT_GALERKIN;
 }
 
-void
-printPre(int level) {
-    if ( level <= 0 ) {
-        printf("- ");
-    } else if ( level == 1 ) {
-        printf(" . ");
-    } else {
-        for ( int i = 0; i < level; i++ ) {
-            printf("  ");
-        }
-        printf("->");
-    }
-}
-
 /**
 Orientation and position of regular sub-elements is fully determined by the
 following transformations. A uniform mapping of parameter domain to the

@@ -278,11 +278,12 @@ buildPatchList(java::ArrayList<Geometry *> *geometryList, java::ArrayList<Patch 
         return;
     }
 
-    for ( int i = 0; geometryList != nullptr && i < geometryList->size(); i++ ) {
+    for ( int i = 0; i < geometryList->size(); i++ ) {
         Geometry *geometry = geometryList->get(i);
         if ( geomIsAggregate(geometry) ) {
             java::ArrayList<Geometry *> *subList = geomPrimListCopy(geometry);
             buildPatchList(subList, patchList);
+            delete subList;
         } else {
             java::ArrayList<Patch *> *list2 = geomPatchArrayListReference(geometry);
 
@@ -386,7 +387,7 @@ mainReadFile(char *filename) {
     }
 
     #ifdef RAYTRACING_ENABLED
-        if ( GLOBAL_raytracer_activeRaytracer ) {
+        if ( GLOBAL_raytracer_activeRaytracer != nullptr ) {
             GLOBAL_raytracer_activeRaytracer->Terminate();
         }
     #endif
@@ -493,13 +494,13 @@ mainReadFile(char *filename) {
     fprintf(stderr, "%g secs.\n", (float) (t - last) / (float) CLOCKS_PER_SEC);
     last = t;
 
-    printf("Stats: GLOBAL_statistics_totalEmittedPower .............: %f W\n"
-           "       estimated_average_illuminance ...: %f W/sr\n"
-           "       GLOBAL_statistics_averageReflectivity ............: %f\n"
-           "       GLOBAL_statistics_maxSelfEmittedRadiance ........: %f W/sr\n"
-           "       GLOBAL_statistics_maxSelfEmittedPower ...........: %f W\n"
-           "       adaptation_luminance ............: %f cd/m2\n"
-           "       GLOBAL_statistics_totalArea ......................: %f m2\n",
+    printf("Stats: GLOBAL_statistics_totalEmittedPower ................: %f W\n"
+           "       GLOBAL_statistics_estimatedAverageRadiance .........: %f W/sr\n"
+           "       GLOBAL_statistics_averageReflectivity ..............: %f\n"
+           "       GLOBAL_statistics_maxSelfEmittedRadiance ...........: %f W/sr\n"
+           "       GLOBAL_statistics_maxSelfEmittedPower ..............: %f W\n"
+           "       GLOBAL_toneMap_options.lwa (adaptationLuminance) ...: %f cd/m2\n"
+           "       GLOBAL_statistics_totalArea ........................: %f m2\n",
            colorGray(GLOBAL_statistics_totalEmittedPower),
            colorGray(GLOBAL_statistics_estimatedAverageRadiance),
            colorGray(GLOBAL_statistics_averageReflectivity),
@@ -509,7 +510,7 @@ mainReadFile(char *filename) {
            GLOBAL_statistics_totalArea);
 
     // Initialize radiance for the freshly loaded scene
-    if ( oRadiance ) {
+    if ( oRadiance != nullptr ) {
         fprintf(stderr, "Initializing radiance computations ... ");
         fflush(stderr);
 
@@ -521,7 +522,7 @@ mainReadFile(char *filename) {
     }
 
     #ifdef RAYTRACING_ENABLED
-        if ( currentRaytracer ) {
+        if ( currentRaytracer != nullptr ) {
             fprintf(stderr, "Initializing raytracing computations ... \n");
 
             mainSetRayTracingMethod(currentRaytracer);
@@ -601,6 +602,8 @@ mainFreeMemory() {
     }
 
     deleteOptionsMemory();
+    mgfFreeMemory();
+    //delete GLOBAL_scene_geometries;
 }
 
 int

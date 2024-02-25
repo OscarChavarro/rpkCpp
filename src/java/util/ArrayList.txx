@@ -52,14 +52,4 @@ ArrayList<T>::remove(long int pos)
     currentSize--;
 }
 
-template <class T> void
-ArrayList<T>::elim()
-{
-    if ( Data ) {
-        free(Data);
-        Data = NULL;
-        currentSize = 0;
-    }
-}
-
 }

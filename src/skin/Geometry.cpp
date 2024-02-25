@@ -26,23 +26,26 @@ Geometry::Geometry():
 }
 
 Geometry::~Geometry() {
-    /*
-    if ( radianceData != nullptr ) {
+    if ( radianceData != nullptr && !isDuplicate ) {
         delete radianceData;
+        radianceData = nullptr;
     }
 
-    if ( surfaceData != nullptr ) {
-        delete surfaceData;
+    if ( surfaceData != nullptr && !isDuplicate ) {
+        // TODO: Check where is this being deleted and solve related memory leak
+        //delete surfaceData;
+        surfaceData = nullptr;
     }
 
-    if ( compoundData != nullptr ) {
+    if ( compoundData != nullptr && !isDuplicate ) {
         delete compoundData;
+        compoundData = nullptr;
     }
 
-    if ( patchSetData != nullptr ) {
+    if ( patchSetData != nullptr && !isDuplicate ) {
         delete patchSetData;
+        patchSetData = nullptr;
     }
-    */
 }
 
 static void
@@ -87,6 +90,7 @@ geomCreateBase(
     newGeometry->compoundData = compoundData;
     newGeometry->patchSetData = patchSetData;
     newGeometry->className = className;
+    newGeometry->isDuplicate = false;
 
     if ( className == GeometryClassId::SURFACE_MESH ) {
         surfaceBounds(surfaceData, newGeometry->bounds);
@@ -162,6 +166,9 @@ This function destroys the given geometry
 */
 void
 geomDestroy(Geometry *geometry) {
+    if ( geometry == nullptr ) {
+        return;
+    }
     delete geometry;
     GLOBAL_statistics_numberOfGeometries--;
 }
@@ -231,6 +238,7 @@ geomDuplicate(Geometry *geometry) {
     newGeometry->surfaceData = geometry->surfaceData;
     newGeometry->compoundData = geometry->compoundData;
     newGeometry->patchSetData = geometry->patchSetData;
+    newGeometry->isDuplicate = true;
 
     return newGeometry;
 }
@@ -304,6 +312,7 @@ Geometry::geomCountItems() {
         for ( int i = 0; geometryList != nullptr && i < geometryList->size(); i++ ) {
             count += geometryList->get(i)->geomCountItems();
         }
+        delete geometryList;
     } else {
         count = 0;
 
@@ -311,6 +320,7 @@ Geometry::geomCountItems() {
         if ( list != nullptr ) {
             count = (int)list->size();
         }
+        //delete list;
     }
 
     return this->itemCount = count;

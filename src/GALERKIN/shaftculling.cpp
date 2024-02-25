@@ -753,9 +753,9 @@ shaftCullOpen(Geometry *geom, SHAFT *shaft, java::ArrayList<Geometry *> *candida
         java::ArrayList<Patch *> *culledPatches = shaftCullPatchList(geometryPatchesList, shaft);
 
         if ( culledPatches->size() > 0 ) {
-            Geometry *newGeometry;
-            newGeometry = geomCreatePatchSet(culledPatches);
+            Geometry *newGeometry = geomCreatePatchSet(culledPatches);
             newGeometry->shaftCullGeometry = true;
+            newGeometry->isDuplicate = false;
             candidateList->add(0, newGeometry);
         }
         delete culledPatches;

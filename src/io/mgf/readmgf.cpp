@@ -1226,3 +1226,27 @@ readMgf(char *filename) {
         free(globalNormalsOctree);
     }
 }
+
+void
+mgfFreeMemory() {
+    printf("Freeing %ld geometries\n", globalCurrentGeometryList->size());
+    long surfaces = 0;
+    long patchSets = 0;
+    for ( int i = 0; i < globalCurrentGeometryList->size(); i++ ) {
+        if ( globalCurrentGeometryList->get(i)->surfaceData != nullptr ) {
+            surfaces++;
+        }
+        if ( globalCurrentGeometryList->get(i)->patchSetData != nullptr ) {
+            patchSets++;
+        }
+    }
+    printf("  - Surfaces: %ld\n", surfaces);
+    printf("  - Patch sets: %ld\n", patchSets);
+    fflush(stdout);
+
+    for ( int i = 0; i < globalCurrentGeometryList->size(); i++ ) {
+        geomDestroy(globalCurrentGeometryList->get(i));
+    }
+    delete globalCurrentGeometryList;
+    globalCurrentGeometryList = nullptr;
+}

@@ -44,8 +44,6 @@ namespace java {
             currentSize = 0;
         };
 
-        void elim();
-
         bool add(T elem);
 
         long int size() {

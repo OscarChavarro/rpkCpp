@@ -679,5 +679,10 @@ refineInteractions(GalerkinElement *top) {
 
     // Iterate over the interactions. Interactions that are refined are removed from the
     // list in RefineInteraction(). ListIterate allows the current element to be deleted
+
+    // TODO: Double check why this macro can not be un-rolled!
     InteractionListIterate(top->interactions, refineInteraction);
+    //for ( INTERACTIONLIST *window = top->interactions; window != nullptr; window = window->next ) {
+    //    refineInteraction(window->interaction, geometriesToDelete);
+    //}
 }
