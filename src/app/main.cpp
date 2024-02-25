@@ -494,7 +494,7 @@ mainReadFile(char *filename) {
     fprintf(stderr, "%g secs.\n", (float) (t - last) / (float) CLOCKS_PER_SEC);
     last = t;
 
-    printf("Stats: GLOBAL_statistics_totalEmittedPower ................: %f W\n"
+    printf("\nStats: GLOBAL_statistics_totalEmittedPower ................: %f W\n"
            "       GLOBAL_statistics_estimatedAverageRadiance .........: %f W/sr\n"
            "       GLOBAL_statistics_averageReflectivity ..............: %f\n"
            "       GLOBAL_statistics_maxSelfEmittedRadiance ...........: %f W/sr\n"

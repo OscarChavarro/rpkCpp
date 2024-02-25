@@ -8,6 +8,14 @@ PatchSet::PatchSet(java::ArrayList<Patch *> *input) {
     }
 }
 
+PatchSet::~PatchSet() {
+    for ( int i = 0; i < patchList->size(); i++ ) {
+        //delete patchList->get(i);
+    }
+    delete patchList;
+    patchList = nullptr;
+}
+
 /**
 Computes a bounding box for the given list of patches. The bounding box is
 filled in 'bounding box' and a pointer to it returned

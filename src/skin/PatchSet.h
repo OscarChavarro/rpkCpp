@@ -8,6 +8,7 @@ class PatchSet : public Geometry {
   public:
     java::ArrayList<Patch *> *patchList;
     PatchSet(java::ArrayList<Patch *> *input);
+    virtual ~PatchSet();
 };
 
 extern float *patchListBounds(java::ArrayList<Patch *> *patchList, float *boundingBox);
