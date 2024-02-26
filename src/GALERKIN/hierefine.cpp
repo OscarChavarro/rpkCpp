@@ -14,7 +14,7 @@ Hierarchical refinement
 Shaft culling stuff for hierarchical refinement
 */
 
-static bool refineRecursive(java::ArrayList<Geometry *> **candidatesList, INTERACTION *link);
+static bool refineRecursive(java::ArrayList<Geometry *> **candidatesList, Interaction *link);
 
 /**
 Evaluates the interaction and returns a code telling whether it is accurate enough
@@ -38,7 +38,7 @@ Updates the *candidatesList. Returns the old candidate list, so it can be restor
 later (using hierarchicRefinementUnCull())
 */
 static void
-hierarchicRefinementCull(java::ArrayList<Geometry *> **candidatesList, INTERACTION *link, bool isClusteredGeometry) {
+hierarchicRefinementCull(java::ArrayList<Geometry *> **candidatesList, Interaction *link, bool isClusteredGeometry) {
     if ( *candidatesList == nullptr ) {
         return;
     }
@@ -121,7 +121,7 @@ estimation of some error terms if it turns out that they are not necessary
 anymore
 */
 static double
-hierarchicRefinementLinkErrorThreshold(INTERACTION *link, double rcv_area) {
+hierarchicRefinementLinkErrorThreshold(Interaction *link, double rcv_area) {
     double threshold = 0.;
 
     switch ( GLOBAL_galerkin_state.errorNorm ) {
@@ -156,7 +156,7 @@ candidate link were used for light transport. Use the sources un-shot
 radiance when doing shooting and the total radiance when gathering
 */
 static double
-hierarchicRefinementApproximationError(INTERACTION *link, COLOR srcRho, COLOR rcvRho, double /*rcvArea*/) {
+hierarchicRefinementApproximationError(Interaction *link, COLOR srcRho, COLOR rcvRho, double /*rcvArea*/) {
     COLOR error;
     COLOR srcRad;
     double approxError = 0.0;
@@ -226,7 +226,7 @@ this operation is quite expensive and should be avoided when not strictly
 necessary
 */
 static double
-sourceClusterRadianceVariationError(INTERACTION *link, COLOR rcvRho, double rcv_area) {
+sourceClusterRadianceVariationError(Interaction *link, COLOR rcvRho, double rcv_area) {
     Vector3D rcVertices[8];
     int numberOfRcVertices;
     COLOR minimumSrcRad;
@@ -259,7 +259,7 @@ sourceClusterRadianceVariationError(INTERACTION *link, COLOR rcvRho, double rcv_
 }
 
 static INTERACTION_EVALUATION_CODE
-hierarchicRefinementEvaluateInteraction(INTERACTION *link) {
+hierarchicRefinementEvaluateInteraction(Interaction *link) {
     COLOR srcRho;
     COLOR rcvRho;
     double error;
@@ -332,7 +332,7 @@ accurate enough for doing so. Renormalisation and reflection and such is done
 once for all accumulated received radiance during push-pull
 */
 static void
-hierarchicRefinementComputeLightTransport(INTERACTION *link) {
+hierarchicRefinementComputeLightTransport(Interaction *link) {
     int alpha;
     int beta;
     int a;
@@ -418,7 +418,7 @@ is not zero, the data is filled in the INTERACTION pointed to by 'link'
 and true is returned. If the elements don't interact, false is returned
 */
 static int
-hierarchicRefinementCreateSubdivisionLink(java::ArrayList<Geometry *> *candidatesList, GalerkinElement *rcv, GalerkinElement *src, INTERACTION *link) {
+hierarchicRefinementCreateSubdivisionLink(java::ArrayList<Geometry *> *candidatesList, GalerkinElement *rcv, GalerkinElement *src, Interaction *link) {
     link->receiverElement = rcv;
     link->sourceElement = src;
 
@@ -449,7 +449,7 @@ Duplicates the INTERACTION data and stores it with the receivers interactions
 if doing gathering and with the source for shooting
 */
 static void
-hierarchicRefinementStoreInteraction(INTERACTION *link) {
+hierarchicRefinementStoreInteraction(Interaction *link) {
     GalerkinElement *src = link->sourceElement, *rcv = link->receiverElement;
 
     if ( GLOBAL_galerkin_state.iteration_method == SOUTH_WELL ) {
@@ -467,7 +467,7 @@ iteration method being used. This routine always returns true indicating that
 the passed interaction is always replaced by lower level interactions
 */
 static void
-hierarchicRefinementRegularSubdivideSource(java::ArrayList<Geometry *> **candidatesList, INTERACTION *link, bool isClusteredGeometry) {
+hierarchicRefinementRegularSubdivideSource(java::ArrayList<Geometry *> **candidatesList, Interaction *link, bool isClusteredGeometry) {
     java::ArrayList<Geometry *> *backup = *candidatesList;
     hierarchicRefinementCull(candidatesList, link, isClusteredGeometry);
     GalerkinElement *src = link->sourceElement;
@@ -476,7 +476,7 @@ hierarchicRefinementRegularSubdivideSource(java::ArrayList<Geometry *> **candida
     galerkinElementRegularSubDivide(src);
     for ( int i = 0; i < 4; i++ ) {
         GalerkinElement *child = src->regularSubElements[i];
-        INTERACTION subInteraction{};
+        Interaction subInteraction{};
         float formFactors[MAXBASISSIZE * MAXBASISSIZE];
         subInteraction.K.p = formFactors; // Temporary storage for the form factors
 
@@ -495,7 +495,7 @@ hierarchicRefinementRegularSubdivideSource(java::ArrayList<Geometry *> **candida
 Same, but subdivides the receiver element
 */
 static void
-hierarchicRefinementRegularSubdivideReceiver(java::ArrayList<Geometry *> **candidatesList, INTERACTION *link, bool isClusteredGeometry) {
+hierarchicRefinementRegularSubdivideReceiver(java::ArrayList<Geometry *> **candidatesList, Interaction *link, bool isClusteredGeometry) {
     java::ArrayList<Geometry *> *backup = *candidatesList;
     hierarchicRefinementCull(candidatesList, link, isClusteredGeometry);
     GalerkinElement *src = link->sourceElement;
@@ -503,7 +503,7 @@ hierarchicRefinementRegularSubdivideReceiver(java::ArrayList<Geometry *> **candi
 
     galerkinElementRegularSubDivide(rcv);
     for ( int i = 0; i < 4; i++ ) {
-        INTERACTION subInteraction{};
+        Interaction subInteraction{};
         float ff[MAXBASISSIZE * MAXBASISSIZE];
         GalerkinElement *child = rcv->regularSubElements[i];
         subInteraction.K.p = ff;
@@ -526,7 +526,7 @@ which is a cluster
 static void
 hierarchicRefinementSubdivideSourceCluster(
     java::ArrayList<Geometry *> **candidatesList,
-    INTERACTION *link,
+    Interaction *link,
     bool isClusteredGeometry)
 {
     java::ArrayList<Geometry *> *backup = *candidatesList;
@@ -536,7 +536,7 @@ hierarchicRefinementSubdivideSourceCluster(
 
     for ( subClusterList = src->irregularSubElements; subClusterList; subClusterList = subClusterList->next ) {
         GalerkinElement *child = subClusterList->element;
-        INTERACTION subInteraction{};
+        Interaction subInteraction{};
         float ff[MAXBASISSIZE * MAXBASISSIZE];
         subInteraction.K.p = ff; // Temporary storage for the form-factors
 
@@ -565,7 +565,11 @@ Replace the interaction by interactions with the sub-clusters of the receiver,
 which is a cluster
 */
 static void
-hierarchicRefinementSubdivideReceiverCluster(java::ArrayList<Geometry *> **candidatesList, INTERACTION *link, bool isClusteredGeometry) {
+hierarchicRefinementSubdivideReceiverCluster(
+    java::ArrayList<Geometry *> **candidatesList,
+    Interaction *link,
+    bool isClusteredGeometry)
+{
     java::ArrayList<Geometry *> *backup = *candidatesList;
     hierarchicRefinementCull(candidatesList, link, isClusteredGeometry);
     GalerkinElement *src = link->sourceElement;
@@ -574,7 +578,7 @@ hierarchicRefinementSubdivideReceiverCluster(java::ArrayList<Geometry *> **candi
 
     for ( subClusterList = rcv->irregularSubElements; subClusterList; subClusterList = subClusterList->next ) {
         GalerkinElement *child = subClusterList->element;
-        INTERACTION subInteraction{};
+        Interaction subInteraction{};
         float formFactor[MAXBASISSIZE * MAXBASISSIZE];
         subInteraction.K.p = formFactor;
 
@@ -605,7 +609,7 @@ if the interaction was not refined and is to be retained. If the interaction
 does not need to be refined, light transport over the interaction is computed
 */
 static bool
-refineRecursive(java::ArrayList<Geometry *> **candidatesList, INTERACTION *link) {
+refineRecursive(java::ArrayList<Geometry *> **candidatesList, Interaction *link) {
     bool refined = false;
 
     bool isClusteredGeometry = (*candidatesList == GLOBAL_scene_clusteredGeometries);
@@ -638,7 +642,7 @@ refineRecursive(java::ArrayList<Geometry *> **candidatesList, INTERACTION *link)
 }
 
 void
-refineInteraction(INTERACTION *link) {
+refineInteraction(Interaction *link) {
     // Candidate occluder list for a pair of patches, note it is changed inside the methods!
     java::ArrayList<Geometry *> *currentCandidatesList = GLOBAL_scene_clusteredGeometries;
 
@@ -682,7 +686,7 @@ refineInteractions(GalerkinElement *top) {
     // by calling the function after updating the window.
     INTERACTIONLIST *window = top->interactions;
     while ( window != nullptr ) {
-        INTERACTION *element = window->interaction;
+        Interaction *element = window->interaction;
         window = window->next;
         refineInteraction(element);
     }

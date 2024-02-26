@@ -195,7 +195,7 @@ Workshop, Porto, Portugal, June 1996, p 158.
 */
 static void
 doHigherOrderAreaToAreaFormFactor(
-    INTERACTION *link,
+    Interaction *link,
     CUBARULE *crrcv,
     Vector3D *x,
     CUBARULE *crsrc, Vector3D *y,
@@ -343,7 +343,7 @@ element, which makes things slightly simpler
 */
 static void
 doConstantAreaToAreaFormFactor(
-    INTERACTION *link,
+    Interaction *link,
     CUBARULE *crrcv,
     Vector3D *x,
     CUBARULE *crsrc,
@@ -430,7 +430,7 @@ sept 1995.
 */
 unsigned
 areaToAreaFormFactor(
-    INTERACTION *link,
+    Interaction *link,
     java::ArrayList<Geometry *> *geometryShadowList,
     bool isSceneGeometry,
     bool isClusteredGeometry)

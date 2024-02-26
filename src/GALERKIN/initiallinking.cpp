@@ -18,7 +18,7 @@ createInitialLink(Patch *patch) {
     GalerkinElement *rcv = nullptr;
     GalerkinElement *src = nullptr;
     java::ArrayList<Geometry *> *oldCandidateList = globalCandidateList;
-    INTERACTION link{};
+    Interaction link{};
     float ff[MAXBASISSIZE * MAXBASISSIZE];
     link.K.p = ff;
 
@@ -178,7 +178,7 @@ void
 createInitialLinkWithTopCluster(GalerkinElement *elem, GalerkinRole role) {
     GalerkinElement *rcv = nullptr;
     GalerkinElement *src = nullptr;
-    INTERACTION *link;
+    Interaction *link;
     FloatOrPointer K;
     FloatOrPointer deltaK;
     float ff[MAXBASISSIZE * MAXBASISSIZE];
@@ -208,15 +208,15 @@ createInitialLinkWithTopCluster(GalerkinElement *elem, GalerkinRole role) {
     }
     deltaK.f = HUGE; // HUGE error on the form factor
 
-    link = interactionCreate(
-            rcv,
-            src,
-            K,
-            deltaK,
-            rcv->basisSize,
-            src->basisSize,
-            1,
-            128
+    link = new Interaction(
+        rcv,
+        src,
+        K,
+        deltaK,
+        rcv->basisSize,
+        src->basisSize,
+        1,
+        128
     );
 
     // Store interactions with the source patch for the progressive radiosity method

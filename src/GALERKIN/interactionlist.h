@@ -1,14 +1,14 @@
 #ifndef _INTERACTIONLIST_H_
 #define _INTERACTIONLIST_H_
 
-#include "GALERKIN/interaction.h"
+#include "GALERKIN/Interaction.h"
 #include "common/dataStructures/List.h"
 
-class INTERACTION;
+class Interaction;
 
 class INTERACTIONLIST {
   public:
-    INTERACTION *interaction;
+    Interaction *interaction;
     INTERACTIONLIST *next;
 };
 

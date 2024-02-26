@@ -108,7 +108,7 @@ set(MAIN_SRC
     src/GALERKIN/shooting.cpp
     src/GALERKIN/GalerkinElement.cpp
     src/GALERKIN/basistrigalerkin.cpp
-    src/GALERKIN/interaction.cpp
+    src/GALERKIN/Interaction.cpp
     src/GALERKIN/scratch.cpp
     src/GALERKIN/hierefine.cpp
     src/GALERKIN/clustergalerkincpp.cpp

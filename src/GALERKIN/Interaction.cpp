@@ -1,7 +1,5 @@
-#include <cstdlib>
-
 #include "common/error.h"
-#include "GALERKIN/interaction.h"
+#include "GALERKIN/Interaction.h"
 
 static int globalTotalInteractions = 0;
 static int globalCCInteractions = 0;
@@ -34,8 +32,17 @@ getNumberOfSurfaceToSurfaceInteractions() {
     return globalSSInteractions;
 }
 
-INTERACTION *
-interactionCreate(
+Interaction::Interaction():
+    receiverElement(),
+    sourceElement(),
+    K(),
+    deltaK(),
+    nrcv(),
+    crcv(),
+    vis() {
+}
+
+Interaction::Interaction(
     GalerkinElement *rcv,
     GalerkinElement *src,
     FloatOrPointer K,
@@ -45,75 +52,77 @@ interactionCreate(
     unsigned char crcv,
     unsigned char vis
 ) {
-    int i;
-    INTERACTION *interaction = (INTERACTION *)malloc(sizeof(INTERACTION));
-    interaction->receiverElement = rcv;
-    interaction->sourceElement = src;
-    interaction->nrcv = nrcv;
-    interaction->nsrc = nsrc;
-    interaction->crcv = crcv;
-    interaction->vis = vis;
+    this->receiverElement = rcv;
+    this->sourceElement = src;
+    this->nrcv = nrcv;
+    this->nsrc = nsrc;
+    this->crcv = crcv;
+    this->vis = vis;
 
     if ( nrcv == 1 && nsrc == 1 ) {
-        interaction->K.f = K.f;
+        this->K.f = K.f;
     } else {
-        interaction->K.p = (float *)malloc(nrcv * nsrc * sizeof(float));
-        for ( i = 0; i < nrcv * nsrc; i++ ) {
-            interaction->K.p[i] = K.p[i];
+        this->K.p = new float[nrcv * nsrc];
+        for ( int i = 0; i < nrcv * nsrc; i++ ) {
+            this->K.p[i] = K.p[i];
         }
     }
 
     if ( crcv > 1 ) {
         logFatal(2, "interactionCreate", "Not yet implemented for higher order approximations");
     }
-    interaction->deltaK.f = deltaK.f;
+    this->deltaK.f = deltaK.f;
 
     globalTotalInteractions++;
-    if ( isCluster(rcv)) {
-        if ( isCluster(src)) {
+    if ( isCluster(rcv) ) {
+        if ( isCluster(src) ) {
             globalCCInteractions++;
         } else {
             globalSCInteractions++;
         }
     } else {
-        if ( isCluster(src)) {
+        if ( isCluster(src) ) {
             globalCSInteractions++;
         } else {
             globalSSInteractions++;
         }
     }
-
-    return interaction;
 }
 
-INTERACTION *
-interactionDuplicate(INTERACTION *interaction) {
-    return interactionCreate(interaction->receiverElement, interaction->sourceElement,
-                             interaction->K, interaction->deltaK,
-                             interaction->nrcv, interaction->nsrc,
-                             interaction->crcv, interaction->vis
+Interaction *
+interactionDuplicate(Interaction *interaction) {
+    return new Interaction(
+        interaction->receiverElement,
+        interaction->sourceElement,
+        interaction->K,
+        interaction->deltaK,
+        interaction->nrcv,
+        interaction->nsrc,
+        interaction->crcv,
+        interaction->vis
     );
 }
 
 void
-interactionDestroy(INTERACTION *interaction) {
-    GalerkinElement *src = interaction->sourceElement, *rcv = interaction->receiverElement;
+interactionDestroy(Interaction *interaction) {
+    GalerkinElement *src = interaction->sourceElement;
+    GalerkinElement *rcv = interaction->receiverElement;
 
     if ( interaction->nrcv > 1 || interaction->nsrc > 1 ) {
-        free(interaction->K.p);
+        delete[] interaction->K.p;
     }
 
-    free(interaction);
+    delete interaction;
 
     globalTotalInteractions--;
-    if ( isCluster(rcv)) {
-        if ( isCluster(src)) {
+    if ( isCluster(rcv) ) {
+        if ( isCluster(src) ) {
             globalCCInteractions--;
         } else {
             globalSCInteractions--;
         }
     } else {
-        if ( isCluster(src)) {
+        if ( isCluster(src) ) {
             globalCSInteractions--;
         } else {
             globalSSInteractions--;
@@ -122,8 +131,12 @@ interactionDestroy(INTERACTION *interaction) {
 }
 
 void
-interactionPrint(FILE *out, INTERACTION *link) {
-    int a, b, c, alpha, beta, i;
+interactionPrint(FILE *out, Interaction *link) {
+    int a;
+    int b;
+    int c;
+    int alpha;
+    int beta;
 
     fprintf(out, "%d (", link->receiverElement->id);
     galerkinElementPrintId(out, link->receiverElement);
@@ -158,7 +171,7 @@ interactionPrint(FILE *out, INTERACTION *link) {
         fprintf(out, "\tdeltaK = %f\n", link->deltaK.f);
     } else {
         fprintf(out, "\tdeltaK[%d] = ", c);
-        for ( i = 0; i < c; i++ ) {
+        for ( int i = 0; i < c; i++ ) {
             fprintf(out, "%7.7f ", link->deltaK.p[i]);
         }
         fprintf(out, "\n");

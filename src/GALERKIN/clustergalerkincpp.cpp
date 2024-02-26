@@ -12,7 +12,7 @@ static COLOR globalSourceRadiance;
 static Vector3D globalSamplePoint;
 static double globalProjectedArea;
 static COLOR *globalPsrcRad;
-static INTERACTION *globalTheLink;
+static Interaction *globalTheLink;
 
 // Area corresponding to one pixel in the scratch frame buffer
 static double globalPixelArea;
@@ -273,7 +273,7 @@ the iteration method) emitted by the source cluster towards the
 receiver in the link. The source should be a cluster
 */
 COLOR
-sourceClusterRadiance(INTERACTION *link) {
+sourceClusterRadiance(Interaction *link) {
     GalerkinElement *src = link->sourceElement, *rcv = link->receiverElement;
 
     if ( !isCluster(src) || src == rcv ) {
@@ -317,7 +317,7 @@ Computes projected area of receiver cluster as seen from the midpoint of the sou
 ignoring intra-receiver visibility
 */
 double
-receiverClusterArea(INTERACTION *link) {
+receiverClusterArea(Interaction *link) {
     GalerkinElement *src = link->sourceElement, *rcv = link->receiverElement;
 
     if ( !isCluster(rcv) || src == rcv ) {
@@ -366,7 +366,7 @@ form factor computations instead of the true receiver area. The source
 radiance is explicitely given
 */
 static void
-doGatherRadiance(GalerkinElement *rcv, double area_factor, INTERACTION *link, COLOR *srcrad) {
+doGatherRadiance(GalerkinElement *rcv, double area_factor, Interaction *link, COLOR *srcrad) {
     COLOR *rcvrad = rcv->receivedRadiance;
 
     if ( link->nrcv == 1 && link->nsrc == 1 ) {
@@ -427,7 +427,7 @@ Distributes the source radiance to the surface elements in the
 receiver cluster
 */
 void
-clusterGatherRadiance(INTERACTION *link, COLOR *srcrad) {
+clusterGatherRadiance(Interaction *link, COLOR *srcrad) {
     GalerkinElement *src = link->sourceElement, *rcv = link->receiverElement;
 
     if ( !isCluster(rcv) || src == rcv ) {

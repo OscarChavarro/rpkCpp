@@ -15,7 +15,7 @@ typedef union FloatOrPointer {
     float *p;
 } FloatOrPointer;
 
-class INTERACTION {
+class Interaction {
   public:
     GalerkinElement *receiverElement;
     GalerkinElement *sourceElement;
@@ -25,23 +25,23 @@ class INTERACTION {
     unsigned char nsrc;
     unsigned char crcv; // Number of cubature positions on receiver
     unsigned char vis; // 255 for full visibility, 0 for full occlusion
+
+    Interaction();
+    explicit Interaction(
+            GalerkinElement *rcv,
+            GalerkinElement *src,
+            FloatOrPointer K,
+            FloatOrPointer deltaK,
+            unsigned char nrcv,
+            unsigned char nsrc,
+            unsigned char crcv,
+            unsigned char vis
+    );
 };
 
-extern INTERACTION *
-interactionCreate(
-    GalerkinElement *rcv,
-    GalerkinElement *src,
-    FloatOrPointer K,
-    FloatOrPointer deltaK,
-    unsigned char nrcv,
-    unsigned char nsrc,
-    unsigned char crcv,
-    unsigned char vis
-);
-
-extern INTERACTION *interactionDuplicate(INTERACTION *interaction);
-extern void interactionDestroy(INTERACTION *interaction);
-extern void interactionPrint(FILE *out, INTERACTION *link);
+extern Interaction *interactionDuplicate(Interaction *interaction);
+extern void interactionDestroy(Interaction *interaction);
+extern void interactionPrint(FILE *out, Interaction *link);
 extern int getNumberOfInteractions();
 extern int getNumberOfClusterToClusterInteractions();
 extern int getNumberOfClusterToSurfaceInteractions();
