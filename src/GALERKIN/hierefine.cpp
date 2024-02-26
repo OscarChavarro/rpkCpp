@@ -5,6 +5,7 @@ Hierarchical refinement
 #include "java/util/ArrayList.txx"
 #include "common/error.h"
 #include "material/statistics.h"
+#include "scene/scene.h"
 #include "GALERKIN/basisgalerkin.h"
 #include "GALERKIN/formfactor.h"
 #include "GALERKIN/shaftculling.h"
