@@ -79,9 +79,8 @@ isCluster(GalerkinElement *element) {
 }
 
 #define ForAllRegularSubElements(child, elem) { \
-  if ((elem)->regularSubElements) { \
-    int i; \
-    for ( i = 0; i < 4; i++) { \
+  if ( (elem)->regularSubElements ) { \
+    for ( int i = 0; i < 4; i++) { \
       GalerkinElement *child = (elem)->regularSubElements[i];
 
 /**

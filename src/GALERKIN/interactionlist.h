@@ -18,9 +18,6 @@ class INTERACTIONLIST {
 #define InteractionListRemove(interactionlist, interaction) \
         (INTERACTIONLIST *)ListRemove((LIST *)interactionlist, (void *)interaction)
 
-#define InteractionListIterate(interactionlist, proc) \
-        ListIterate((LIST *)interactionlist, (void (*)(void *))proc)
-
 #define InteractionListDestroy(interactionlist) \
         ListDestroy((LIST *)interactionlist)
 

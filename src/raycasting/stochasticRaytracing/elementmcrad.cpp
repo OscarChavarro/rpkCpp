@@ -806,11 +806,11 @@ monteCarloRadiosityDestroySurfaceElement(StochasticRadiosityElement *elem) {
     if ( !elem ) {
         return;
     }
-    ForAllRegularSubElements(child, elem)
-                {
-                    monteCarloRadiosityDestroySurfaceElement(child);
-                }
-    EndForAll;
+    if ( elem->regularSubElements != nullptr ) {
+        for ( int i = 0; i < 4; i++ ) {
+            monteCarloRadiosityDestroySurfaceElement(elem->regularSubElements[i]);
+        }
+    }
     monteCarloRadiosityDestroyElement(elem);
 }
 
@@ -897,9 +897,11 @@ monteCarloRadiosityForAllChildrenElements(StochasticRadiosityElement *top, void 
         }
         return true;
     } else if ( top->regularSubElements ) {
-        ForAllRegularSubElements(p, top)
-                    func(p);
-        EndForAll;
+        if ( top->regularSubElements != nullptr ) {
+            for ( int i = 0; i < 4; i++ ) {
+                func(top->regularSubElements[i]);
+            }
+        }
         return true;
     } else {
         // Leaf element
@@ -918,9 +920,11 @@ monteCarloRadiosityForAllLeafElements(StochasticRadiosityElement *top, void (*fu
             monteCarloRadiosityForAllLeafElements(window->element, func);
         }
     } else if ( top->regularSubElements ) {
-        ForAllRegularSubElements(p, top)
-                    monteCarloRadiosityForAllLeafElements(p, func);
-        EndForAll;
+        if ( top->regularSubElements != nullptr ) {
+            for ( int i = 0; i < 4; i++ ) {
+                monteCarloRadiosityForAllLeafElements(top->regularSubElements[i], func);
+            }
+        }
     } else {
         func(top);
     }

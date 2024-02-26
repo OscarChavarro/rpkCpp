@@ -319,7 +319,10 @@ galerkinElementRegularSubDivide(GalerkinElement *element) {
 
 static void
 galerkinElementDestroy(GalerkinElement *element) {
-    InteractionListIterate(element->interactions, interactionDestroy);
+    for ( INTERACTIONLIST *window = element->interactions; window != nullptr; window = window->next ) {
+        interactionDestroy(window->interaction);
+    }
+
     InteractionListDestroy(element->interactions);
 
     if ( element->radiance ) {
@@ -871,11 +874,11 @@ forAllLeafElements(GalerkinElement *top, void (*func)(GalerkinElement *)) {
         forAllLeafElements(window->element, func);
     }
 
-    ForAllRegularSubElements(child, top)
-                {
-                    forAllLeafElements(child, func);
-                }
-    EndForAll;
+    if ( top->regularSubElements != nullptr ) {
+        for ( int i = 0; i < 4; i++ ) {
+            forAllLeafElements(top->regularSubElements[i], func);
+        }
+    }
 
     if ( !top->irregularSubElements && !top->regularSubElements ) {
         func(top);
