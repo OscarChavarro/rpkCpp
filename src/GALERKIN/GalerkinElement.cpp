@@ -5,7 +5,6 @@
 #include "GALERKIN/clustergalerkincpp.h"
 #include "GALERKIN/GalerkinElement.h"
 #include "render/opengl.h"
-#include "raycasting/stochasticRaytracing/StochasticRadiosityElement.h"
 
 // Element render modes, additive
 #define OUTLINE 1

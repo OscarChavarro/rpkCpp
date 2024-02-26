@@ -37,9 +37,9 @@ extern GalerkinElement *galerkinCreateClusterHierarchy(Geometry *geom);
 extern void galerkinDestroyClusterHierarchy(GalerkinElement *cluster);
 extern COLOR clusterRadianceToSamplePoint(GalerkinElement *src, Vector3D sample);
 extern COLOR sourceClusterRadiance(Interaction *link);
-extern void iterateOverSurfaceElementsInCluster(GalerkinElement *clus, void (*func)(GalerkinElement *elem));
+extern void iterateOverSurfaceElementsInCluster(GalerkinElement *galerkinElement, void (*func)(GalerkinElement *elem));
 extern double receiverClusterArea(Interaction *link);
-extern void clusterGatherRadiance(Interaction *link, COLOR *srcrad);
-extern COLOR maxClusterRadiance(GalerkinElement *clus);
+extern void clusterGatherRadiance(Interaction *link, COLOR *srcRad);
+extern COLOR maxClusterRadiance(GalerkinElement *cluster);
 
 #endif
