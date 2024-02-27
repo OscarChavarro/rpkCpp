@@ -3,10 +3,10 @@ Samples a point on a light source. Two implementations are given : uniform sampl
 importance sampling
 */
 
-#ifndef __LIGHTSAMPLER__
-#define __LIGHTSAMPLER__
+#ifndef __LIGHT_SAMPLER__
+#define __LIGHT_SAMPLER__
 
-#include "lightlist.h"
+#include "raycasting/raytracing/lightlist.h"
 #include "raycasting/raytracing/sampler.h"
 
 class CUniformLightSampler : public CNextEventSampler {
