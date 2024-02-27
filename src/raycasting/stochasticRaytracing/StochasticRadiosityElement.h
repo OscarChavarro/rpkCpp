@@ -5,10 +5,10 @@ Monte Carlo radiosity element type
 #ifndef _ELEMENT_TYPE_H_
 #define _ELEMENT_TYPE_H_
 
+#include "java/util/ArrayList.h"
 #include "common/linealAlgebra/Matrix2x2.h"
 #include "skin/Element.h"
 #include "QMC/niederreiter.h"
-#include "raycasting/stochasticRaytracing/elementlistmcrad.h"
 #include "raycasting/stochasticRaytracing/basismcrad.h"
 
 class StochasticRadiosityElement : public Element {
@@ -36,7 +36,7 @@ class StochasticRadiosityElement : public Element {
     Vertex *vertex[4]; // Up to 4 vertex pointers for surface elements
     StochasticRadiosityElement *parent; // Parent element in hierarchy
     StochasticRadiosityElement **regularSubElements; // For surface elements with regular quadtree subdivision
-    StochasticRadiosityElementListNode *irregularSubElements; // Clusters
+    java::ArrayList<StochasticRadiosityElement *> *irregularSubElements; // Clusters
     Matrix2x2 *upTrans; // Relates surface element (u,v) coordinates to patch (u,v) coordinates
     signed char childNumber; // -1 for clusters or toplevel surface elements, 0..3 for regular surface sub-elements
     char numberOfVertices; // Number of surface element vertices

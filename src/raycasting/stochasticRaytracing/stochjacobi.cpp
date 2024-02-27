@@ -210,6 +210,37 @@ stochasticJacobiPropagateRadianceToClusterIsotropic(
 }
 
 static void
+stochasticJacobiPropagateRadianceClusterRecursive(
+    StochasticRadiosityElement *currentElement,
+    COLOR rayPower,
+    Ray *ray,
+    float dir,
+    double projectedArea,
+    double fraction)
+{
+    if ( currentElement != nullptr && !currentElement->isCluster ) {
+        // Trivial case
+        double c = -dir * VECTORDOTPRODUCT(currentElement->patch->normal, ray->dir);
+        if ( c > 0. ) {
+            double afrac = fraction * (c * currentElement->area / projectedArea);
+            double w = afrac / currentElement->area / (double) globalNumberOfRays;
+            colorAddScaled(currentElement->receivedRad[0], (float)w, rayPower, currentElement->receivedRad[0]);
+        }
+    } else {
+        // Recursive case
+        for ( int i = 0; currentElement->irregularSubElements != nullptr && i < currentElement->irregularSubElements->size(); i++ ) {
+            stochasticJacobiPropagateRadianceClusterRecursive(
+                currentElement->irregularSubElements->get(i),
+                rayPower,
+                ray,
+                dir,
+                projectedArea,
+                fraction);
+        }
+    }
+}
+
+static void
 stochasticJacobiPropagateRadianceToClusterOriented(
     StochasticRadiosityElement *cluster,
     COLOR rayPower,
@@ -220,29 +251,38 @@ stochasticJacobiPropagateRadianceToClusterOriented(
     double fraction,
     double /*weight*/)
 {
-    REC_ForAllClusterSurfaces(rcv, cluster)
-            {
-                double c = -dir * VECTORDOTPRODUCT(rcv->patch->normal, ray->dir);
-                if ( c > 0. ) {
-                    double afrac = fraction * (c * rcv->area / projectedArea);
-                    double w = afrac / rcv->area / (double) globalNumberOfRays;
-                    colorAddScaled(rcv->receivedRad[0], (float)w, rayPower, rcv->receivedRad[0]);
-                }
-            }
-    REC_EndForAllClusterSurfaces;
+    stochasticJacobiPropagateRadianceClusterRecursive(cluster, rayPower, ray, dir, projectedArea, fraction);
+}
+
+static void
+stochasticJacobiReceiverProjectedAreaRecursive(
+    StochasticRadiosityElement *currentElement,
+    Ray *ray,
+    float dir,
+    double *area) {
+    if ( currentElement != nullptr && !currentElement->isCluster ) {
+        // Trivial case
+        double c = -dir * VECTORDOTPRODUCT(currentElement->patch->normal, ray->dir);
+        if ( c > 0.0 ) {
+            *area += c * currentElement->area;
+        }
+    } else {
+        // Recursive case
+        for ( int i = 0; currentElement->irregularSubElements != nullptr &&
+                 i < currentElement->irregularSubElements->size(); i++ ) {
+            stochasticJacobiReceiverProjectedAreaRecursive(
+                currentElement->irregularSubElements->get(i),
+                ray,
+                dir,
+                area);
+        }
+    }
 }
 
 static double
 stochasticJacobiReceiverProjectedArea(StochasticRadiosityElement *cluster, Ray *ray, float dir) {
-    double area = 0.;
-    REC_ForAllClusterSurfaces(rcv, cluster)
-            {
-                double c = -dir * VECTORDOTPRODUCT(rcv->patch->normal, ray->dir);
-                if ( c > 0. ) {
-                    area += c * rcv->area;
-                }
-            }
-    REC_EndForAllClusterSurfaces;
+    double area = 0.0;
+    stochasticJacobiReceiverProjectedAreaRecursive(cluster, ray, dir, &area);
     return area;
 }
 

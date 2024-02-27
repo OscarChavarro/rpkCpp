@@ -64,47 +64,6 @@ normal situation anyways!
 #include "common/dataStructures/stackmac.h"
 
 /**
-Iterates over all toplevel surface element in the element hierarchy
-with the cluster element 'top' on top.
-
-Usage:
-
-  ELEMENT *cluster = (some cluster element)
-  REC_ForAllClusterSurfaces(surf, cluster) {
-     do something with ELEMENT 'surf'
-  } REC_EndForAllClusterSurfaces;    <---- don't forget!!!
-*/
-#define REC_ForAllClusterSurfaces(surface, top) { \
-  int _did_recurse = false; \
-  StochasticRadiosityElementListNode *_subelp = (StochasticRadiosityElementListNode*)nullptr; \
-  STACK_DECL(StochasticRadiosityElementListNode*, _selstack, MAX_HIERARCHY_DEPTH, _selp); \
-  StochasticRadiosityElement *_curel = (top); \
-  _begin_recurse_CS: \
-  if (_curel->isCluster) { \
-    _did_recurse = true; \
-    STACK_SAVE(_subelp, _selstack, MAX_HIERARCHY_DEPTH, _selp); \
-    _subelp = _curel->irregularSubElements; \
-    while (_subelp) { \
-      _curel = _subelp->element; \
-      goto _begin_recurse_CS; \
-    _end_recurse_CS: \
-      _subelp = _subelp->next; \
-    } \
-    STACK_RESTORE_NOCHECK(_subelp, _selstack, _selp); \
-    if (_subelp) /* not back at top */ \
-      goto _end_recurse_CS; \
-  } else { \
-    StochasticRadiosityElement *surface = _curel;
-
-/* do something with 'surface' */
-
-#define REC_EndForAllClusterSurfaces \
-    if (_did_recurse) \
-      goto _end_recurse_CS; \
-  } \
-}
-
-/**
 Iterates over all leaf elements in the surface element hierarchy with
 'top' (a surface element) on top
 */
@@ -136,7 +95,5 @@ Do something with 'leaf'
       goto _end_recurse_SL; \
   } \
 }
-
-#define ForAllElementsSharingVertex(elem, v) ForAllStochasticRadiosityElements(elem, (v)->radiance_data)
 
 #endif

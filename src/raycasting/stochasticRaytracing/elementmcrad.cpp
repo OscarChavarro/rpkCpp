@@ -1,5 +1,3 @@
-#include <cstdlib>
-
 #include "java/util/ArrayList.txx"
 #include "common/error.h"
 #include "render/render.h"
@@ -86,7 +84,7 @@ Matrix2x2 GLOBAL_stochasticRaytracing_triupxfm[4] = {
 static StochasticRadiosityElement *
 createElement() {
     static long id = 1;
-    StochasticRadiosityElement *elem = (StochasticRadiosityElement *)malloc(sizeof(StochasticRadiosityElement));
+    StochasticRadiosityElement *elem = new StochasticRadiosityElement();
 
     elem->patch = nullptr;
     elem->id = (int)id;
@@ -122,7 +120,11 @@ createElement() {
 
 static void
 vertexAttachElement(Vertex *v, StochasticRadiosityElement *elem) {
-    v->radiance_data = StochasticRadiosityElementListAdd(v->radiance_data, elem);
+    elem->className = ElementTypes::ELEMENT_STOCHASTIC_RADIOSITY;
+    if ( v->radiance_data == nullptr ) {
+        v->radiance_data = new java::ArrayList<Element *>();
+    }
+    v->radiance_data->add(0, elem);
 }
 
 StochasticRadiosityElement *
@@ -185,14 +187,23 @@ static void
 monteCarloRadiosityCreateSurfaceElementChild(Patch *patch, StochasticRadiosityElement *parent) {
     StochasticRadiosityElement *elem = (StochasticRadiosityElement *)patch->radianceData; // Created before
     elem->parent = (StochasticRadiosityElement *)parent;
-    parent->irregularSubElements = StochasticRadiosityElementListAdd(parent->irregularSubElements, elem);
+
+    elem->className = ElementTypes::ELEMENT_STOCHASTIC_RADIOSITY;
+    if ( parent->irregularSubElements == nullptr ) {
+        parent->irregularSubElements = new java::ArrayList<StochasticRadiosityElement *>();
+    }
+    parent->irregularSubElements->add(0, elem);
 }
 
 static void
 monteCarloRadiosityCreateClusterChild(Geometry *geom, StochasticRadiosityElement *parent) {
     StochasticRadiosityElement *subCluster = monteCarloRadiosityCreateClusterHierarchyRecursive(geom);
     subCluster->parent = parent;
-    parent->irregularSubElements = StochasticRadiosityElementListAdd(parent->irregularSubElements, subCluster);
+    subCluster->className = ElementTypes::ELEMENT_STOCHASTIC_RADIOSITY;
+    if ( parent->irregularSubElements == nullptr ) {
+        parent->irregularSubElements = new java::ArrayList<StochasticRadiosityElement *>();
+    }
+    parent->irregularSubElements->add(0, subCluster);
 }
 
 /**
@@ -230,8 +241,8 @@ monteCarloRadiosityCreateClusterChildren(StochasticRadiosityElement *parent) {
         }
     }
 
-    for ( StochasticRadiosityElementListNode *window = parent->irregularSubElements; window != nullptr; window = window->next ) {
-        monteCarloRadiosityInitClusterPull(parent, window->element);
+    for ( int i = 0; parent->irregularSubElements != nullptr && i < parent->irregularSubElements->size(); i++ ) {
+        monteCarloRadiosityInitClusterPull(parent, parent->irregularSubElements->get(i));
     }
     colorScaleInverse(parent->area, parent->Ed, parent->Ed);
 }
@@ -421,31 +432,34 @@ monteCarloRadiosityNewMidpointVertex(StochasticRadiosityElement *elem, Vertex *v
 }
 
 /**
-Find the neighbouring element of the given element at the edgenr-th edge.
-The edgenr-th edge is the edge connecting the edgenr-th vertex to the
-(edgenr+1 modulo GLOBAL_statistics_numberOfVertices)-th vertex
+Find the neighbouring element of the given element at the edgeNumber-th edge.
+The edgeNumber-th edge is the edge connecting the edgeNumber-th vertex to the
+(edgeNumber + 1 modulo GLOBAL_statistics_numberOfVertices)-th vertex
 */
 static StochasticRadiosityElement *
-monteCarloRadiosityElementNeighbour(StochasticRadiosityElement *elem, int edgenr) {
-    Vertex *from = elem->vertex[edgenr],
-            *to = elem->vertex[(edgenr + 1) % elem->numberOfVertices];
+monteCarloRadiosityElementNeighbour(StochasticRadiosityElement *elem, int edgeNumber) {
+    Vertex *from = elem->vertex[edgeNumber];
+    Vertex *to = elem->vertex[(edgeNumber + 1) % elem->numberOfVertices];
 
-    ForAllStochasticRadiosityElements(e, to->radiance_data)
-                {
-                    if ( e != elem &&
-                         ((e->numberOfVertices == 3 &&
-                           ((e->vertex[0] == to && e->vertex[1] == from) ||
-                            (e->vertex[1] == to && e->vertex[2] == from) ||
-                            (e->vertex[2] == to && e->vertex[0] == from)))
-                          || (e->numberOfVertices == 4 &&
-                              ((e->vertex[0] == to && e->vertex[1] == from) ||
-                               (e->vertex[1] == to && e->vertex[2] == from) ||
-                               (e->vertex[2] == to && e->vertex[3] == from) ||
-                               (e->vertex[3] == to && e->vertex[0] == from))))) {
-                        return e;
-                    }
-                }
-    EndForAll;
+    for ( int i = 0; to->radiance_data != nullptr && i < to->radiance_data->size(); i++ ) {
+        Element *element = to->radiance_data->get(i);
+        if ( element->className != ElementTypes::ELEMENT_STOCHASTIC_RADIOSITY ) {
+            continue;
+        }
+        StochasticRadiosityElement *e = (StochasticRadiosityElement *)element;
+        if ( e != elem &&
+             ((e->numberOfVertices == 3 &&
+               ((e->vertex[0] == to && e->vertex[1] == from) ||
+                (e->vertex[1] == to && e->vertex[2] == from) ||
+                (e->vertex[2] == to && e->vertex[0] == from)))
+              || (e->numberOfVertices == 4 &&
+                  ((e->vertex[0] == to && e->vertex[1] == from) ||
+                   (e->vertex[1] == to && e->vertex[2] == from) ||
+                   (e->vertex[2] == to && e->vertex[3] == from) ||
+                   (e->vertex[3] == to && e->vertex[0] == from))))) {
+            return e;
+        }
+    }
 
     return nullptr;
 }
@@ -763,7 +777,7 @@ monteCarloRadiosityRegularSubdivideElement(StochasticRadiosityElement *element) 
     }
 
     // Create the sub-elements
-    element->regularSubElements = (StochasticRadiosityElement **)malloc(4 * sizeof(StochasticRadiosityElement *));
+    element->regularSubElements = new StochasticRadiosityElement *[4];
     switch ( element->numberOfVertices ) {
         case 3:
             monteCarloRadiosityRegularSubdivideTriangle(element);
@@ -789,16 +803,26 @@ monteCarloRadiosityDestroyElement(StochasticRadiosityElement *elem) {
     }
     GLOBAL_stochasticRaytracing_hierarchy.nr_elements--;
 
-    if ( elem->irregularSubElements )
-        StochasticRadiosityElementListDestroy(elem->irregularSubElements);
-    if ( elem->regularSubElements )
-        free(elem->regularSubElements);
+    if ( elem->irregularSubElements ) {
+        for ( int i = 0; elem->irregularSubElements != nullptr && i < elem->irregularSubElements->size(); i++ ) {
+            delete elem->irregularSubElements->get(i);
+        }
+        delete elem->irregularSubElements;
+        elem->irregularSubElements = nullptr;
+    }
+
+    if ( elem->regularSubElements ) {
+        delete[] elem->regularSubElements;
+    }
     for ( i = 0; i < elem->numberOfVertices; i++ ) {
-        StochasticRadiosityElementListDestroy(elem->vertex[i]->radiance_data);
+        for ( int j = 0; elem->vertex[i]->radiance_data != nullptr && j < elem->vertex[i]->radiance_data->size(); j++ ) {
+            delete elem->vertex[i]->radiance_data->get(j);
+        }
+        delete elem->vertex[i]->radiance_data;
         elem->vertex[i]->radiance_data = nullptr;
     }
     disposeCoefficients(elem);
-    free(elem);
+    delete elem;
 }
 
 static void
@@ -824,9 +848,10 @@ monteCarloRadiosityDestroyClusterHierarchy(StochasticRadiosityElement *top) {
     if ( top == nullptr || !top->isCluster ) {
         return;
     }
-    for ( StochasticRadiosityElementListNode *window = top->irregularSubElements; window != nullptr; window = window->next ) {
-        if ( window->element->isCluster ) {
-            monteCarloRadiosityDestroyClusterHierarchy(window->element);
+    for ( int i = 0; top->irregularSubElements != nullptr && i < top->irregularSubElements->size(); i++ ) {
+        StochasticRadiosityElement *element = top->irregularSubElements->get(i);
+        if ( element->isCluster ) {
+            monteCarloRadiosityDestroyClusterHierarchy(element);
         }
     }
     monteCarloRadiosityDestroyElement(top);
@@ -854,7 +879,7 @@ monteCarloRadiosityPrintElement(FILE *out, StochasticRadiosityElement *elem) {
     if ( !elem->isCluster ) {
         int nbits;
         niedindex msb1, rmsb2;
-        fprintf(out, "Surface element: material '%s', reflectosity = %g, self-emitted luminsoity = %g\n",
+        fprintf(out, "Surface element: material '%s', reflectosity = %g, self-emitted luminosity = %g\n",
                 elem->patch->surface->material->name,
                 colorGray(elem->Rd),
                 colorLuminance(elem->Ed));
@@ -892,8 +917,8 @@ monteCarloRadiosityForAllChildrenElements(StochasticRadiosityElement *top, void 
     }
 
     if ( top->isCluster ) {
-        for ( StochasticRadiosityElementListNode *window = top->irregularSubElements; window != nullptr; window = window->next ) {
-            func(window->element);
+        for ( int i = 0; top->irregularSubElements != nullptr && i < top->irregularSubElements->size(); i++ ) {
+            func(top->irregularSubElements->get(i));
         }
         return true;
     } else if ( top->regularSubElements ) {
@@ -916,8 +941,8 @@ monteCarloRadiosityForAllLeafElements(StochasticRadiosityElement *top, void (*fu
     }
 
     if ( top->isCluster ) {
-        for ( StochasticRadiosityElementListNode *window = top->irregularSubElements; window != nullptr; window = window->next ) {
-            monteCarloRadiosityForAllLeafElements(window->element, func);
+        for ( int i = 0; top->irregularSubElements != nullptr && i < top->irregularSubElements->size(); i++ ) {
+            monteCarloRadiosityForAllLeafElements(top->irregularSubElements->get(i), func);
         }
     } else if ( top->regularSubElements ) {
         if ( top->regularSubElements != nullptr ) {

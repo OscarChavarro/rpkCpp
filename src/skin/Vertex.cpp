@@ -29,7 +29,7 @@ vertexCreate(Vector3D *point, Vector3D *normal, Vector3D *texCoord, java::ArrayL
     v->texCoord = texCoord;
     v->patches = patches;
     setRGB(v->color, 0.0f, 0.0f, 0.0f);
-    v->radiance_data = (void *)nullptr;
+    v->radiance_data = nullptr;
     v->back = (Vertex *)nullptr;
 
     return v;
@@ -171,41 +171,4 @@ vertexCompareTexCoord(Vertex *v1, Vertex *v2) {
             return vectorCompareByDimensions(v1->texCoord, v2->texCoord, EPSILON);
         }
     }
-}
-
-/**
-Compares two vertices and returns a code useful for ordering vertices
-into an octree. Returns 8 if the two vertices are to be considered
-the same vertices and 0-7, the index of an octree branch to be expored
-further, if not
-*/
-int
-vertexCompare(Vertex *v1, Vertex *v2) {
-    int code = XYZ_EQUAL;
-
-    // First compare the coordinates
-    if ( vertex_compare_flags & VERTEX_COMPARE_LOCATION ) {
-        code = vertexCompareLocation(v1, v2);
-        if ( code != XYZ_EQUAL ) {
-            return code;
-        }
-    }
-
-    // Same coordinates, test the normals
-    if ( vertex_compare_flags & VERTEX_COMPARE_NORMAL ) {
-        code = vertexCompareNormal(v1, v2);
-        if ( code != XYZ_EQUAL ) {
-            return code;
-        }
-    }
-
-    // Same coordinates and same normal, test texture coordinates
-    if ( vertex_compare_flags & VERTEX_COMPARE_TEXTURE_COORDINATE ) {
-        code = vertexCompareTexCoord(v1, v2);
-        if ( code != XYZ_EQUAL ) {
-            return code;
-        }
-    }
-
-    return XYZ_EQUAL;
 }

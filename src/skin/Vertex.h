@@ -5,6 +5,7 @@
 #include "common/linealAlgebra/Vector3D.h"
 #include "common/color.h"
 
+class Element;
 class Patch;
 
 class Vertex {
@@ -14,7 +15,7 @@ class Vertex {
     Vector3D *normal; // pointer to the normal vector at the vertex
     Vector3D *texCoord; // texture coordinates
     RGB color; // color for the vertex when rendering with Gouraud interpolation
-    void *radiance_data; // data for the vertex maintained by the current radiance method
+    java::ArrayList<Element *> *radiance_data; // Data for the vertex maintained by the current radiance method
     Vertex *back; // vertex at the same position, but with reversed normal, for back faces
     java::ArrayList<Patch *> *patches; // list of patches sharing the vertex
     int tmp; /* some temporary storage for vertices, used e.g. for saving VRML. Do not
@@ -60,9 +61,9 @@ Vector3D.h
 #define VERTEX_COMPARE_NO_NORMAL_IS_EQUAL_NORMAL 0x80
 
 extern unsigned vertexSetCompareFlags(unsigned flags);
-extern int vertexCompare(Vertex *v1, Vertex *v2);
 extern int vertexCompareLocation(Vertex *v1, Vertex *v2);
 
 #include "skin/Patch.h"
+#include "skin/Element.h"
 
 #endif
