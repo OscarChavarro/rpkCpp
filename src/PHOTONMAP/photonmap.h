@@ -1,27 +1,19 @@
-/* photonmap.H: the real photonmap storage */
-
-#ifndef _PHOTONMAP_H_
-#define _PHOTONMAP_H_
+#ifndef __PHOTON_MAP__
+#define __PHOTON_MAP__
 
 #include "common/linealAlgebra/vectorMacros.h"
 #include "common/color.h"
-#include "PHOTONMAP/photonkdtree.h"
-#include "PHOTONMAP/photon.h"
 #include "material/bsdf.h"
 #include "scene/spherical.h"
-#include "shared/samplegrid.h"
+#include "PHOTONMAP/photonkdtree.h"
+#include "PHOTONMAP/photon.h"
+#include "PHOTONMAP/samplegrid.h"
 #include "PHOTONMAP/pmapoptions.h"
-
 
 bool ZeroAlbedo(BSDF *bsdf, RayHit *hit, BSDFFLAGS flags);
 
 // Convert a value val given a maximum into some nice color
 COLOR GetFalseColor(float val);
-
-COLOR GetFalseColorMonochrome(float val);
-
-bool ZeroAlbedo(BSDF *bsdf, Vector3D *pos, BSDFFLAGS flags);
-
 
 class CPhotonMap {
 protected:
@@ -30,7 +22,6 @@ protected:
 
     bool m_precomputeIrradiance;
     bool m_irradianceComputed;
-
 
     // kdtree storage
 
@@ -103,8 +94,6 @@ public:
 
     void SetTotalPaths(long totalPaths) { m_totalPaths = totalPaths; }
 
-    void AddPath() { m_totalPaths++; }
-
     // Adding photons, returns if photon was added
 
     virtual bool AddPhoton(CPhoton &photon, Vector3D &normal, short flags = 0);
@@ -127,13 +116,6 @@ public:
     virtual COLOR Reconstruct(RayHit *hit, Vector3D &outDir,
                               BSDF *bsdf, BSDF *inBsdf, BSDF *outBsdf);
 
-    /*
-    bool IrradianceReconstruct(RayHit *hit, Vector3D &outDir,
-                       BSDF *bsdf, BSDF *inBsdf,
-                       BSDF *outBsdf,
-                       COLOR *result);
-    */
-
     bool IrradianceReconstruct(RayHit *hit, Vector3D &outDir,
                                COLOR &diffuseAlbedo,
                                COLOR *result);
@@ -146,7 +128,7 @@ public:
 
     // Sample values: Random values r,s are transformed into new
     // random values so that importance sampling using the photon
-    // map is incorportated.
+    // map is incorporated
 
     // IN: r,s in [0,1[
     //     coord: coordinate system that determines angles
@@ -170,10 +152,6 @@ public:
         snprintf(p, n,
                 "%i stored photons, %i total, %li paths\n",
                 m_nrPhotons, m_totalPhotons, m_totalPaths);
-    }
-
-    void BalanceAnalysis() {
-        m_kdtree->BalanceAnalysis();
     }
 
     void Balance() {

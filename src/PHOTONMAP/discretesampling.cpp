@@ -1,7 +1,12 @@
-#include "shared/discretesampling.h"
+#include "PHOTONMAP/discretesampling.h"
 
 int
-DSampleDiscrete(const double probabilities[], double total, double *x_1, double *pdf) {
+DSampleDiscrete(
+    const double probabilities[],
+    double total,
+    double *x_1,
+    double *pdf)
+{
     int i = 0;
     double sum, left;
     double sample = *x_1 * total;
@@ -13,7 +18,7 @@ DSampleDiscrete(const double probabilities[], double total, double *x_1, double 
         sum += probabilities[i];
     }
 
-    /* Rescale x_1 */
+    // Rescale x_1
     left = sum - probabilities[i];
 
     *x_1 = ((sample - left) / (sum - left));

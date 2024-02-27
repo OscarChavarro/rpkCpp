@@ -1,11 +1,10 @@
-/* samplegrid.H
- *
- * Class for doing multidimensional discrete sampling.
- * Grid values are doubles. Grid domain is [0,1]^dim
- */
+/**
+Class for doing multidimensional discrete sampling.
+Grid values are doubles. Grid domain is [0,1]^dim
+*/
 
-#ifndef _SAMPLEGRID_H_
-#define _SAMPLEGRID_H_
+#ifndef __SAMPLE_GRID__
+#define __SAMPLE_GRID__
 
 // CSampleGrid2D : sampling a 2D grid
 
@@ -59,4 +58,4 @@ public:
 
 };
 
-#endif /* _SAMPLEGRID_H_ */
+#endif /* __SAMPLE_GRID__ */

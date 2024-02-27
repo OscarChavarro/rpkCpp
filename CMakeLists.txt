@@ -73,8 +73,6 @@ set(MAIN_SRC
     src/IMAGE/tonemap/tonemapping.cpp
     src/IMAGE/tonemap/trwf.cpp
     src/IMAGE/adaptation.cpp
-    src/shared/samplegrid.cpp
-    src/shared/discretesampling.cpp
     src/shared/stratification.cpp
     src/io/mgf/readmgf.cpp
     src/io/mgf/object.cpp
@@ -137,6 +135,8 @@ set(MAIN_SRC
     src/raycasting/raytracing/samplertools.cpp
     src/raycasting/raytracing/densitykernel.cpp
     src/raycasting/raytracing/pixelsampler.cpp
+    src/PHOTONMAP/samplegrid.cpp
+    src/PHOTONMAP/discretesampling.cpp
     src/PHOTONMAP/photonkdtree.cpp
     src/PHOTONMAP/pmapimportance.cpp
     src/PHOTONMAP/screensampler.cpp
