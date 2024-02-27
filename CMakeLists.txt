@@ -148,6 +148,7 @@ set(MAIN_SRC
     src/PHOTONMAP/photonmapsampler.cpp
     src/raycasting/stochasticRaytracing/StochasticRaytracer.cpp
     src/raycasting/stochasticRaytracing/StochasticRaytracerOptions.cpp
+    src/raycasting/stochasticRaytracing/StochasticRadiosityElement.cpp
     src/raycasting/stochasticRaytracing/elementmcrad.cpp
     src/raycasting/stochasticRaytracing/hierarchy.cpp
     src/raycasting/stochasticRaytracing/StochasticRelaxationRadiosity.cpp

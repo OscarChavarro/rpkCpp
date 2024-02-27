@@ -38,10 +38,13 @@ RTStochastic_State GLOBAL_raytracing_state;
 COLOR SR_GetRadiance(CPathNode *thisNode, SRCONFIG *config, SRREADOUT readout,
                      int usedScatterSamples);
 
-
-COLOR SR_GetScatteredRadiance(CPathNode *thisNode, SRCONFIG *config,
-                              SRREADOUT readout) {
-    int siCurrent; // What scatterblock are we handling
+COLOR
+SR_GetScatteredRadiance(
+    CPathNode *thisNode,
+    SRCONFIG *config,
+    SRREADOUT readout)
+{
+    int siCurrent; // What scatter block are we handling
     CScatterInfo *si;
 
     CPathNode newNode;

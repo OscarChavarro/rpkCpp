@@ -6,15 +6,6 @@ Data associated with each Patch:
 */
 #include "raycasting/stochasticRaytracing/StochasticRadiosityElement.h"
 
-/**
-Close these macros with EndForAll
-*/
-#define ForAllRegularSubElements(p, parent) { \
-if ((parent)->regularSubElements) { \
-  int i; \
-  for (i=0; i<4; i++) { \
-    StochasticRadiosityElement *p = (parent)->regularSubElements[i];
-
 extern StochasticRadiosityElement *monteCarloRadiosityCreateToplevelSurfaceElement(Patch *patch);
 extern void monteCarloRadiosityDestroyToplevelSurfaceElement(StochasticRadiosityElement *elem);
 extern StochasticRadiosityElement *monteCarloRadiosityCreateClusterHierarchy(Geometry *world);
@@ -68,24 +59,26 @@ Iterates over all leaf elements in the surface element hierarchy with
 'top' (a surface element) on top
 */
 #define REC_ForAllSurfaceLeafs(leaf, top) { \
-  int _i_ = -1, _did_recurse = false; \
-  STACK_DECL(int, _isave, MAX_HIERARCHY_DEPTH, _isaveptr); \
-  StochasticRadiosityElement *_curel = (top); \
+    int _i_ = -1; \
+    int _did_recurse = false; \
+    STACK_DECL(int, _isave, MAX_HIERARCHY_DEPTH, _isaveptr); \
+    StochasticRadiosityElement *_curel = (top); \
   _begin_recurse_SL: \
-  if (_curel->regularSubElements) { /* not a leaf */ \
-    _did_recurse = true; \
-    STACK_SAVE(_i_, _isave, MAX_HIERARCHY_DEPTH, _isaveptr); \
-    for (_i_=0; _i_<4; _i_++) { \
-      _curel = _curel->regularSubElements[_i_]; \
-      goto _begin_recurse_SL; \
-    _end_recurse_SL: \
-      _curel = _curel->parent; \
-    } \
-    STACK_RESTORE_NOCHECK(_i_, _isave, _isaveptr); \
-    if ( _curel != (top) ) /* not back at top */ \
-      goto _end_recurse_SL; \
-  } else { \
-    StochasticRadiosityElement *leaf = _curel;
+    if ( _curel->regularSubElements ) { /* recursive case */ \
+        _did_recurse = true; \
+        STACK_SAVE(_i_, _isave, MAX_HIERARCHY_DEPTH, _isaveptr); \
+        for ( _i_ = 0; _i_ < 4; _i_++ ) { \
+            _curel = _curel->regularSubElements[_i_]; \
+            goto _begin_recurse_SL; \
+          _end_recurse_SL: \
+            _curel = _curel->parent; \
+        } \
+        STACK_RESTORE_NOCHECK(_i_, _isave, _isaveptr); \
+        if ( _curel != (top) ) {/* not back at top */ \
+            goto _end_recurse_SL; \
+        } \
+    } else { \
+        StochasticRadiosityElement *leaf = _curel;
 
 /**
 Do something with 'leaf'

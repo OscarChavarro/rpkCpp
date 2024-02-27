@@ -2,8 +2,8 @@
 Monte Carlo radiosity element type
 */
 
-#ifndef _ELEMENT_TYPE_H_
-#define _ELEMENT_TYPE_H_
+#ifndef __STOCHASTIC_RADIOSITY_ELEMENT__
+#define __STOCHASTIC_RADIOSITY_ELEMENT__
 
 #include "java/util/ArrayList.h"
 #include "common/linealAlgebra/Matrix2x2.h"
@@ -36,39 +36,14 @@ class StochasticRadiosityElement : public Element {
     Vertex *vertex[4]; // Up to 4 vertex pointers for surface elements
     StochasticRadiosityElement *parent; // Parent element in hierarchy
     StochasticRadiosityElement **regularSubElements; // For surface elements with regular quadtree subdivision
-    java::ArrayList<StochasticRadiosityElement *> *irregularSubElements; // Clusters
+    java::ArrayList<StochasticRadiosityElement *> *irregularSubElements; // Hierarchy of clusters
     Matrix2x2 *upTrans; // Relates surface element (u,v) coordinates to patch (u,v) coordinates
     signed char childNumber; // -1 for clusters or toplevel surface elements, 0..3 for regular surface sub-elements
     char numberOfVertices; // Number of surface element vertices
     char isCluster; // whether it is a cluster or not
 
-    StochasticRadiosityElement():
-            ray_index(),
-            quality(),
-            prob(),
-            ng(),
-            area(),
-            basis(),
-            rad(),
-            unShotRad(),
-            receivedRad(),
-            imp(),
-            unShotImp(),
-            received_imp(),
-            source_imp(),
-            imp_ray_index(),
-            vertex(),
-            parent(),
-            regularSubElements(),
-            irregularSubElements(),
-            upTrans(),
-            childNumber(),
-            numberOfVertices(),
-            isCluster()
-    {
-        className = ElementTypes::ELEMENT_STOCHASTIC_RADIOSITY;
-    };
-    ~StochasticRadiosityElement() {}
+    StochasticRadiosityElement();
+    ~StochasticRadiosityElement();
 };
 
 #endif
