@@ -4,15 +4,27 @@
 #include "skin/bounds.h"
 #include "skin/Patch.h"
 
-/* A structure describing polygons. Only used for shaftculling for the moment. */
+/**
+A structure describing polygons. Only used for shaft culling for the moment
+*/
 class POLYGON {
   public:
     Vector3D normal;
-    float plane_constant;
+    float planeConstant;
     BOUNDINGBOX bounds;
-    Vector3D vertex[MAXIMUM_VERTICES_PER_PATCH];
-    int nrvertices;
+    Vector3D vertex[MAXIMUM_VERTICES_PER_PATCH + 4];
+    int numberOfVertices;
     int index;
+
+    POLYGON():
+        normal(),
+        planeConstant(),
+        bounds(),
+        vertex(),
+        numberOfVertices(),
+        index()
+    {
+    }
 };
 
 #endif

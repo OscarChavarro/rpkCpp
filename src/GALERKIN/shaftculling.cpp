@@ -156,7 +156,7 @@ testPolygonWrtPlane(POLYGON *poly, Vector3D *normal, double d) {
     int in; // in  = there are positions on the negative side of the plane
 
     out = in = false;
-    for ( i = 0; i < poly->nrvertices; i++ ) {
+    for ( i = 0; i < poly->numberOfVertices; i++ ) {
         double e = VECTORDOTPRODUCT(
                 *normal,
                 poly->vertex[i]) + d,
@@ -179,7 +179,7 @@ verifyPolygonWrtPlane(POLYGON *poly, Vector3D *normal, double d, int side) {
     bool out = false;
     bool in = false;
 
-    for ( int i = 0; i < poly->nrvertices; i++ ) {
+    for ( int i = 0; i < poly->numberOfVertices; i++ ) {
         double e = VECTORDOTPRODUCT(*normal, poly->vertex[i]) + d,
                 tolerance = fabs(d) * EPSILON + VECTORTOLERANCE(poly->vertex[i]);
         out |= e > tolerance;
@@ -323,11 +323,11 @@ constructPolygonToPolygonPlanes(POLYGON *p1, POLYGON *p2, SHAFT *shaft) {
 
     // Test p2 wrt plane of p1
     VECTORCOPY(p1->normal, normal); // Convert to double precision
-    switch ( testPolygonWrtPlane(p2, &normal, p1->plane_constant) ) {
+    switch ( testPolygonWrtPlane(p2, &normal, p1->planeConstant) ) {
         case INSIDE:
             // Polygon p2 is on the negative side of the plane of p1. The plane of p1 is
             // a shaft plane and there will be at most one shaft plane per edge of p1
-            fillInPlane(plane, p1->normal.x, p1->normal.y, p1->normal.z, p1->plane_constant);
+            fillInPlane(plane, p1->normal.x, p1->normal.y, p1->normal.z, p1->planeConstant);
             if ( uniqueShaftPlane(shaft, plane) ) {
                 plane++;
             }
@@ -336,7 +336,7 @@ constructPolygonToPolygonPlanes(POLYGON *p1, POLYGON *p2, SHAFT *shaft) {
         case OUTSIDE:
             // Like above, except that p2 is on the positive side of the plane of p1, so
             // we have to invert normal and plane constant
-            fillInPlane(plane, -p1->normal.x, -p1->normal.y, -p1->normal.z, -p1->plane_constant);
+            fillInPlane(plane, -p1->normal.x, -p1->normal.y, -p1->normal.z, -p1->planeConstant);
             if ( uniqueShaftPlane(shaft, plane) ) {
                 plane++;
             }
@@ -355,13 +355,13 @@ constructPolygonToPolygonPlanes(POLYGON *p1, POLYGON *p2, SHAFT *shaft) {
             return;
     }
 
-    for ( i = 0; i < p1->nrvertices; i++ ) {
+    for ( i = 0; i < p1->numberOfVertices; i++ ) {
         // For each edge of p1
         cur = &p1->vertex[i];
-        next = &p1->vertex[(i + 1) % p1->nrvertices];
+        next = &p1->vertex[(i + 1) % p1->numberOfVertices];
 
         planesFoundForEdge = 0;
-        for ( j = 0; j < p2->nrvertices && planesFoundForEdge < maxPlanesPerEdge; j++ ) {
+        for ( j = 0; j < p2->numberOfVertices && planesFoundForEdge < maxPlanesPerEdge; j++ ) {
             // For each vertex of p2
             other = &p2->vertex[j];
 
@@ -377,9 +377,9 @@ constructPolygonToPolygonPlanes(POLYGON *p1, POLYGON *p2, SHAFT *shaft) {
 
             // Test position of p1 w.r.t. the constructed plane. Skip the vertices
             // that were used to construct the plane
-            k = (i + 2) % p1->nrvertices;
+            k = (i + 2) % p1->numberOfVertices;
             side = testPointWrtPlane(&p1->vertex[k], &normal, d);
-            for ( k = (i + 3) % p1->nrvertices; k != i; k = (k + 1) % p1->nrvertices ) {
+            for ( k = (i + 3) % p1->numberOfVertices; k != i; k = (k + 1) % p1->numberOfVertices ) {
                 int nSide = testPointWrtPlane(&p1->vertex[k], &normal, d);
                 if ( side == COPLANAR ) {
                     side = nSide;
@@ -439,16 +439,16 @@ constructPolygonToPolygonShaft(POLYGON *p1, POLYGON *p2, SHAFT *shaft) {
 
     // Center positions of polygons define a line that is guaranteed to lay inside the shaft
     shaft->center1 = p1->vertex[0];
-    for ( int i = 1; i < p1->nrvertices; i++ ) {
+    for ( int i = 1; i < p1->numberOfVertices; i++ ) {
         VECTORADD(shaft->center1, p1->vertex[i], shaft->center1);
     }
-    VECTORSCALEINVERSE((float) p1->nrvertices, shaft->center1, shaft->center1);
+    VECTORSCALEINVERSE((float) p1->numberOfVertices, shaft->center1, shaft->center1);
 
     shaft->center2 = p2->vertex[0];
-    for ( int i = 1; i < p2->nrvertices; i++ ) {
+    for ( int i = 1; i < p2->numberOfVertices; i++ ) {
         VECTORADD(shaft->center2, p2->vertex[i], shaft->center2);
     }
-    VECTORSCALEINVERSE((float)p2->nrvertices, shaft->center2, shaft->center2);
+    VECTORSCALEINVERSE((float)p2->numberOfVertices, shaft->center2, shaft->center2);
 
     // Determine the shaft planes
     shaft->planes = 0;

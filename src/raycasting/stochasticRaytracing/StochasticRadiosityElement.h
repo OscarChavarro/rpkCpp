@@ -44,6 +44,7 @@ class StochasticRadiosityElement : public Element {
     StochasticRadiosityElement() {
         className = ElementTypes::ELEMENT_STOCHASTIC_RADIOSITY;
     };
+    virtual ~StochasticRadiosityElement() {}
 };
 
 #endif

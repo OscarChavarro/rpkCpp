@@ -59,6 +59,7 @@ class GalerkinElement : public Element {
     unsigned char flags; // Various flags, see below
 
     GalerkinElement();
+    virtual ~GalerkinElement();
 };
 
 // Element flags

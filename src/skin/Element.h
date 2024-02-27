@@ -20,6 +20,7 @@ class Element {
     ElementTypes className;
 
     Element(): id(), Ed(), Rd(), patch(), geom(), className() {}
+    virtual ~Element() {};
 };
 
 #endif

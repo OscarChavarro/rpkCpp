@@ -43,6 +43,12 @@ GalerkinElement::GalerkinElement():
     irregularSubElements = new java::ArrayList<GalerkinElement *>();
 }
 
+GalerkinElement::~GalerkinElement() {
+    if ( irregularSubElements != nullptr ) {
+        delete irregularSubElements;
+    }
+}
+
 /**
 Orientation and position of regular sub-elements is fully determined by the
 following transformations. A uniform mapping of parameter domain to the
@@ -614,7 +620,7 @@ cluster element (8 vertices). The number of vertices is returned
 */
 int
 galerkinElementVertices(GalerkinElement *elem, Vector3D *p) {
-    if ( isCluster(elem)) {
+    if ( isCluster(elem) ) {
         BOUNDINGBOX vol;
 
         galerkinElementBounds(elem, vol);
@@ -687,14 +693,16 @@ galerkinElementMidPoint(GalerkinElement *elem) {
                   (bbox[MIN_Y] + bbox[MAX_Y]) / 2.0f,
                   (bbox[MIN_Z] + bbox[MAX_Z]) / 2.0f);
     } else {
-        Vector3D p[4];
-        int i, nrverts;
+        Vector3D p[8];
+        int i;
+        int nrverts;
 
         nrverts = galerkinElementVertices(elem, p);
 
-        VECTORSET(c, 0., 0., 0.);
-        for ( i = 0; i < nrverts; i++ )
-                VECTORADD (c, p[i], c);
+        VECTORSET(c, 0.0, 0.0, 0.0);
+        for ( i = 0; i < nrverts; i++ ) {
+            VECTORADD(c, p[i], c);
+        }
         VECTORSCALE((1.0f / (float) nrverts), c, c);
     }
 
@@ -709,7 +717,7 @@ galerkinElementBounds(GalerkinElement *elem, float *bounds) {
     if ( isCluster(elem)) {
         boundsCopy(geomBounds(elem->geom), bounds);
     } else {
-        Vector3D p[4];
+        Vector3D p[8];
         int i, nrverts;
 
         nrverts = galerkinElementVertices(elem, p);
@@ -731,18 +739,18 @@ POLYGON *
 galerkinElementPolygon(GalerkinElement *elem, POLYGON *poly) {
     int i;
 
-    if ( isCluster(elem)) {
+    if ( isCluster(elem) ) {
         logFatal(-1, "galerkinElementPolygon", "Cannot use this function for cluster elements");
         return nullptr;
     }
 
     poly->normal = elem->patch->normal;
-    poly->plane_constant = elem->patch->planeConstant;
+    poly->planeConstant = elem->patch->planeConstant;
     poly->index = elem->patch->index;
-    poly->nrvertices = galerkinElementVertices(elem, poly->vertex);
+    poly->numberOfVertices = galerkinElementVertices(elem, poly->vertex);
 
     boundsInit(poly->bounds);
-    for ( i = 0; i < poly->nrvertices; i++ ) {
+    for ( i = 0; i < poly->numberOfVertices; i++ ) {
         boundsEnlargePoint(poly->bounds, &poly->vertex[i]);
     }
 
