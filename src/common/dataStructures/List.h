@@ -33,21 +33,6 @@ ForAllPatches(P, patches) {
 #define EndForAll }}}
 #endif
 
-/**
-Iterators: executes the procedure for each element of the list.
-There are a number of iterators here: use ListIterate with
-a procedure that accepts only one parameter: a pointer to an element
-*/
-#define ListIterate(list, proc) \
-{ \
-    LIST *window = (list); \
-    while ( window != nullptr ) { \
-        void *pelement = window->pelement; \
-        window = window->next; \
-        ((void (*)(void *))proc)(pelement); \
-    } \
-}
-
 extern LIST *ListAdd(LIST *list, void *element);
 extern LIST *ListRemove(LIST *list, void *pelement);
 extern void ListDestroy(LIST *list);

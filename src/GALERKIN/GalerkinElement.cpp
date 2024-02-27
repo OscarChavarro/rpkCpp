@@ -355,12 +355,17 @@ galerkinElementDestroyTopLevel(GalerkinElement *element) {
     }
 
     if ( element->irregularSubElements != nullptr ) {
-        for ( StochasticRadiosityElementListNode *window = element->irregularSubElements;
+        for ( GalerkinElementListNode *window = element->irregularSubElements;
             window != nullptr; window = window->next ) {
             galerkinElementDestroyTopLevel(window->element);
         }
 
-        StochasticRadiosityElementListDestroy(element->irregularSubElements);
+        GalerkinElementListNode *window = element->irregularSubElements;
+        while ( window != nullptr ) {
+            GalerkinElementListNode *listNode = window->next;
+            free(window);
+            window = listNode;
+        }
     }
 
     galerkinElementDestroy(element);
@@ -452,7 +457,7 @@ galerkinElementPrint(FILE *out, GalerkinElement *element) {
     }
 
     if ( element->irregularSubElements ) {
-        StochasticRadiosityElementListNode *elist;
+        GalerkinElementListNode *elist;
         fprintf(out, "irregular subelements: ");
         for ( elist = element->irregularSubElements; elist; elist = elist->next ) {
             fprintf(out, "%d, ", elist->element->id);
@@ -870,7 +875,7 @@ Call func for each leaf element of top
 */
 void
 forAllLeafElements(GalerkinElement *top, void (*func)(GalerkinElement *)) {
-    for ( StochasticRadiosityElementListNode *window = top->irregularSubElements; window != nullptr; window = window->next ) {
+    for ( GalerkinElementListNode *window = top->irregularSubElements; window != nullptr; window = window->next ) {
         forAllLeafElements(window->element, func);
     }
 

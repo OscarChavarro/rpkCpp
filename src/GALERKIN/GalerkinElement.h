@@ -39,7 +39,7 @@ class GalerkinElement : public Element {
     GalerkinElement **regularSubElements; /* A nullptr pointer if there are no
 			 regular sub-elements, or an array containing
 			 exactly 4 pointers to the sub-elements */
-    StochasticRadiosityElementListNode *irregularSubElements; /* nullptr pointer or pointer to
+    GalerkinElementListNode *irregularSubElements; /* nullptr pointer or pointer to
 			 the list of irregular sub-elements */
     Matrix2x2 *upTrans; /* if non-null, transforms (u,v) coordinates on
 			 a sub-element to the (u,v) coordinates of the
@@ -77,11 +77,6 @@ inline bool
 isCluster(GalerkinElement *element) {
     return element->flags & IS_CLUSTER;
 }
-
-#define ForAllRegularSubElements(child, elem) { \
-  if ( (elem)->regularSubElements ) { \
-    for ( int i = 0; i < 4; i++) { \
-      GalerkinElement *child = (elem)->regularSubElements[i];
 
 /**
 Position and orientation of the regular sub-elements is fully

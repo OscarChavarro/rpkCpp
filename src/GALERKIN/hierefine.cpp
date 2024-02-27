@@ -533,7 +533,7 @@ hierarchicRefinementSubdivideSourceCluster(
     java::ArrayList<Geometry *> *backup = *candidatesList;
     hierarchicRefinementCull(candidatesList, link, isClusteredGeometry);
     GalerkinElement *src = link->sourceElement, *rcv = link->receiverElement;
-    StochasticRadiosityElementListNode *subClusterList;
+    GalerkinElementListNode *subClusterList;
 
     for ( subClusterList = src->irregularSubElements; subClusterList; subClusterList = subClusterList->next ) {
         GalerkinElement *child = subClusterList->element;
@@ -575,7 +575,7 @@ hierarchicRefinementSubdivideReceiverCluster(
     hierarchicRefinementCull(candidatesList, link, isClusteredGeometry);
     GalerkinElement *src = link->sourceElement;
     GalerkinElement *rcv = link->receiverElement;
-    StochasticRadiosityElementListNode *subClusterList;
+    GalerkinElementListNode *subClusterList;
 
     for ( subClusterList = rcv->irregularSubElements; subClusterList; subClusterList = subClusterList->next ) {
         GalerkinElement *child = subClusterList->element;
@@ -671,7 +671,7 @@ refineInteractions(GalerkinElement *top) {
     // beginning at the lowest levels in the hierarchy and working upwards to
     // prevent already refined interactions from being tested for refinement
     // again
-    for ( StochasticRadiosityElementListNode *window = top->irregularSubElements;
+    for ( GalerkinElementListNode *window = top->irregularSubElements;
           window != nullptr; window = window->next ) {
         refineInteractions(window->element);
     }

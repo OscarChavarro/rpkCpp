@@ -27,7 +27,7 @@ static void
 geomAddClusterChild(Geometry *geom, GalerkinElement *parent_cluster) {
     GalerkinElement *cluster = galerkinDoCreateClusterHierarchy(geom);
 
-    parent_cluster->irregularSubElements = StochasticRadiosityElementListAdd(parent_cluster->irregularSubElements, cluster);
+    parent_cluster->irregularSubElements = GalerkinElementListAdd(parent_cluster->irregularSubElements, cluster);
     cluster->parent = parent_cluster;
 }
 
@@ -39,7 +39,7 @@ static void
 patchAddClusterChild(Patch *patch, GalerkinElement *cluster) {
     GalerkinElement *surfaceElement = (GalerkinElement *)patch->radianceData;
 
-    cluster->irregularSubElements = StochasticRadiosityElementListAdd(cluster->irregularSubElements, surfaceElement);
+    cluster->irregularSubElements = GalerkinElementListAdd(cluster->irregularSubElements, surfaceElement);
     surfaceElement->parent = cluster;
 }
 
@@ -55,7 +55,7 @@ clusterInit(GalerkinElement *cluster) {
     cluster->numberOfPatches = 0;
     cluster->minimumArea = HUGE;
     clusterGalerkinClearCoefficients(cluster->radiance, cluster->basisSize);
-    for ( StochasticRadiosityElementListNode *subElementList = cluster->irregularSubElements; subElementList; subElementList = subElementList->next ) {
+    for ( GalerkinElementListNode *subElementList = cluster->irregularSubElements; subElementList; subElementList = subElementList->next ) {
         GalerkinElement *subCluster = subElementList->element;
         cluster->area += subCluster->area;
         cluster->numberOfPatches += subCluster->numberOfPatches;
@@ -72,7 +72,7 @@ clusterInit(GalerkinElement *cluster) {
     // Also pull un-shot radiance for the "shooting" methods
     if ( GLOBAL_galerkin_state.iteration_method == SOUTH_WELL ) {
         clusterGalerkinClearCoefficients(cluster->unShotRadiance, cluster->basisSize);
-        for ( StochasticRadiosityElementListNode *subElementList = cluster->irregularSubElements; subElementList; subElementList = subElementList->next ) {
+        for ( GalerkinElementListNode *subElementList = cluster->irregularSubElements; subElementList; subElementList = subElementList->next ) {
             GalerkinElement *subCluster = subElementList->element;
             colorAddScaled(cluster->unShotRadiance[0], subCluster->area, subCluster->unShotRadiance[0],
                            cluster->unShotRadiance[0]);
@@ -148,7 +148,7 @@ galerkinDestroyClusterHierarchy(GalerkinElement *cluster) {
         return;
     }
 
-    for ( StochasticRadiosityElementListNode *window = cluster->irregularSubElements;
+    for ( GalerkinElementListNode *window = cluster->irregularSubElements;
           window != nullptr; window = window->next ) {
         galerkinDestroyClusterHierarchy(window->element);
     }
@@ -163,7 +163,7 @@ iterateOverSurfaceElementsInCluster(GalerkinElement *galerkinElement, void (*fun
     if ( !isCluster(galerkinElement) ) {
         func(galerkinElement);
     } else {
-        StochasticRadiosityElementListNode *subClusterList;
+        GalerkinElementListNode *subClusterList;
         for ( subClusterList = galerkinElement->irregularSubElements; subClusterList; subClusterList = subClusterList->next ) {
             GalerkinElement *subCluster = subClusterList->element;
             iterateOverSurfaceElementsInCluster(subCluster, func);

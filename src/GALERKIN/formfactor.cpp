@@ -59,9 +59,9 @@ determineNodes(GalerkinElement *elem, CUBARULE **cr, Vector3D x[CUBAMAXNODES], G
         dz = vol[MAX_Z] - vol[MIN_Z];
         for ( k = 0; k < (*cr)->numberOfNodes; k++ ) {
             VECTORSET(x[k],
-                      vol[MIN_X] + (*cr)->u[k] * dx,
-                      vol[MIN_Y] + (*cr)->v[k] * dy,
-                      vol[MIN_Z] + (*cr)->t[k] * dz);
+                      (float)(vol[MIN_X] + (*cr)->u[k] * dx),
+                      (float)(vol[MIN_Y] + (*cr)->v[k] * dy),
+                      (float)(vol[MIN_Z] + (*cr)->t[k] * dz));
         }
     } else {
         // What cubature rule should be used over the element
@@ -86,8 +86,8 @@ determineNodes(GalerkinElement *elem, CUBARULE **cr, Vector3D x[CUBAMAXNODES], G
          * in the unit square or triangle used to parametrise the element. */
         for ( k = 0; k < (*cr)->numberOfNodes; k++ ) {
             Vector2D node;
-            node.u = (*cr)->u[k];
-            node.v = (*cr)->v[k];
+            node.u = (float)(*cr)->u[k];
+            node.v = (float)(*cr)->v[k];
             if ( elem->upTrans ) transformPoint2D(topxf, node, node);
             elem->patch->uniformPoint(node.u, node.v, &x[k]);
         }
@@ -127,7 +127,7 @@ pointKernelEval(
     ray.pos = *y;
     VECTORSUBTRACT(*x, *y, ray.dir);
     dist = VECTORNORM(ray.dir);
-    VECTORSCALEINVERSE(dist, ray.dir, ray.dir);
+    VECTORSCALEINVERSE((float)dist, ray.dir, ray.dir);
 
     // Don't allow too nearby nodes to interact
     if ( dist < EPSILON ) {
@@ -159,7 +159,7 @@ pointKernelEval(
 
     // Un-occluded kernel value
     formFactor = cosP * cosQ / (M_PI * dist * dist);
-    distance = dist * (1.0 - EPSILON);
+    distance = (float)(dist * (1.0f - EPSILON));
 
     // Determine transmissivity (visibility)
     if ( !geometryShadowList ) {
@@ -180,7 +180,7 @@ pointKernelEval(
     } else if ( cacheHit(&ray, &distance, &hitStore) ) {
         *vis = 0.0;
     } else {
-        float min_feature_size = 2.0 * std::sqrt(GLOBAL_statistics_totalArea * GLOBAL_galerkin_state.relMinElemArea / M_PI);
+        float min_feature_size = 2.0f * (float)std::sqrt(GLOBAL_statistics_totalArea * GLOBAL_galerkin_state.relMinElemArea / M_PI);
         *vis = geomListMultiResolutionVisibility(geometryShadowList, &ray, distance, src->bsize, min_feature_size);
     }
 
@@ -197,8 +197,7 @@ static void
 doHigherOrderAreaToAreaFormFactor(
     Interaction *link,
     CUBARULE *crrcv,
-    Vector3D *x,
-    CUBARULE *crsrc, Vector3D *y,
+    CUBARULE *crsrc,
     double Gxy[CUBAMAXNODES][CUBAMAXNODES])
 {
     static COLOR deltarad[CUBAMAXNODES]; // See Bekaert & Willems, p159 bottom
@@ -246,7 +245,7 @@ doHigherOrderAreaToAreaFormFactor(
             }
             rcvphi[0][k] = 1.;
         } else {
-            for ( alpha = 0; alpha < link->nrcv; alpha++ ) {
+            for ( alpha = 0; alpha < link->nrcv && rcvbasis != nullptr; alpha++ ) {
                 rcvphi[alpha][k] = rcvbasis->function[alpha](crrcv->u[k], crrcv->v[k]);
             }
         }
@@ -266,7 +265,7 @@ doHigherOrderAreaToAreaFormFactor(
                 srcphi[l] = 1.;
             }
         } else {
-            for ( l = 0; l < crsrc->numberOfNodes; l++ ) {
+            for ( l = 0; l < crsrc->numberOfNodes && srcbasis != nullptr; l++ ) {
                 srcphi[l] = srcbasis->function[beta](crsrc->u[l], crsrc->v[l]);
             }
         }
@@ -291,7 +290,7 @@ doHigherOrderAreaToAreaFormFactor(
             for ( k = 0; k < crrcv->numberOfNodes; k++ ) {
                 G_alpha_beta += crrcv->w[k] * rcvphi[alpha][k] * G_beta[k];
             }
-            link->K.p[alpha * link->nsrc + beta] = rcv->area * G_alpha_beta;
+            link->K.p[alpha * link->nsrc + beta] = (float)(rcv->area * G_alpha_beta);
 
             // Second part of error estimate at receiver node x_k
             for ( k = 0; k < crrcv->numberOfNodes; k++ ) {
@@ -300,7 +299,7 @@ doHigherOrderAreaToAreaFormFactor(
         }
 
         for ( k = 0; k < crrcv->numberOfNodes; k++ ) {
-            colorAddScaled(deltarad[k], delta_beta[k], srcrad[beta], deltarad[k]);
+            colorAddScaled(deltarad[k], (float)delta_beta[k], srcrad[beta], deltarad[k]);
         }
 
         if ( beta == 0 ) {
@@ -319,9 +318,9 @@ doHigherOrderAreaToAreaFormFactor(
     if ( colorNull(srcrad[0])) {
         // No source radiance: use constant radiance error approximation
         Gav = link->K.p[0] / rcv->area;
-        link->deltaK.f = Gmax - Gav;
+        link->deltaK.f = (float)(Gmax - Gav);
         if ( Gav - Gmin > link->deltaK.f ) {
-            link->deltaK.f = Gav - Gmin;
+            link->deltaK.f = (float)(Gav - Gmin);
         }
     } else {
         link->deltaK.f = 0.;
@@ -330,7 +329,7 @@ doHigherOrderAreaToAreaFormFactor(
 
             colorDivide(deltarad[k], srcrad[0], deltarad[k]);
             if ((delta = fabs(colorMaximumComponent(deltarad[k]))) > link->deltaK.f ) {
-                link->deltaK.f = delta;
+                link->deltaK.f = (float)delta;
             }
         }
     }
@@ -345,9 +344,7 @@ static void
 doConstantAreaToAreaFormFactor(
     Interaction *link,
     CUBARULE *crrcv,
-    Vector3D *x,
     CUBARULE *crsrc,
-    Vector3D *y,
     double Gxy[CUBAMAXNODES][CUBAMAXNODES])
 {
     GalerkinElement *rcv = link->receiverElement;
@@ -377,11 +374,11 @@ doConstantAreaToAreaFormFactor(
             Gmin = Gx;
         }
     }
-    link->K.f = rcv->area * G;
+    link->K.f = (float)(rcv->area * G);
 
-    link->deltaK.f = G - Gmin;
+    link->deltaK.f = (float)(G - Gmin);
     if ( Gmax - G > link->deltaK.f ) {
-        link->deltaK.f = Gmax - G;
+        link->deltaK.f = (float)(Gmax - G);
     }
 
     link->crcv = 1;
@@ -560,9 +557,9 @@ areaToAreaFormFactor(
     if ( viscount != 0 ) {
         // Actually compute the form factors
         if ( link->nrcv == 1 && link->nsrc == 1 ) {
-            doConstantAreaToAreaFormFactor(link, crrcv, x, crsrc, y, Gxy);
+            doConstantAreaToAreaFormFactor(link, crrcv, crsrc, Gxy);
         } else {
-            doHigherOrderAreaToAreaFormFactor(link, crrcv, x, crsrc, y, Gxy);
+            doHigherOrderAreaToAreaFormFactor(link, crrcv, crsrc, Gxy);
         }
     }
 
@@ -572,7 +569,7 @@ areaToAreaFormFactor(
 
     if ( GLOBAL_galerkin_state.clusteringStrategy == ISOTROPIC &&
          (isCluster(rcv) || isCluster(src))) {
-        link->deltaK.f = maxkval * src->area;
+        link->deltaK.f = (float)(maxkval * src->area);
     }
 
     // Returns the visibility: basically the fraction of rays that did not hit an occluder

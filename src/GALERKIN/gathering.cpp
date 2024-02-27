@@ -116,7 +116,7 @@ gatheringPushPullPotential(GalerkinElement *elem, float down) {
     }
 
     if ( elem->irregularSubElements ) {
-        StochasticRadiosityElementListNode *subellist;
+        GalerkinElementListNode *subellist;
         for ( subellist = elem->irregularSubElements; subellist; subellist = subellist->next ) {
             GalerkinElement *subel = subellist->element;
             if ( !isCluster(elem) ) {
@@ -143,7 +143,7 @@ potential of the contained patches
 static float
 gatheringClusterUpdatePotential(GalerkinElement *cluster) {
     if ( cluster->flags & IS_CLUSTER ) {
-        StochasticRadiosityElementListNode *subClusterList;
+        GalerkinElementListNode *subClusterList;
         cluster->potential = 0.0;
         for ( subClusterList = cluster->irregularSubElements; subClusterList; subClusterList = subClusterList->next ) {
             GalerkinElement *subCluster = subClusterList->element;
