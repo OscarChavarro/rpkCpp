@@ -201,7 +201,7 @@ doHigherOrderAreaToAreaFormFactor(
     double Gxy[CUBAMAXNODES][CUBAMAXNODES])
 {
     static COLOR deltarad[CUBAMAXNODES]; // See Bekaert & Willems, p159 bottom
-    static double rcvphi[MAXBASISSIZE][CUBAMAXNODES];
+    static double rcvphi[MAX_BASIS_SIZE][CUBAMAXNODES];
     static double srcphi[CUBAMAXNODES];
     static double G_beta[CUBAMAXNODES]; // G_beta[k] = G_{j,\beta}(x_k)
     static double delta_beta[CUBAMAXNODES]; // delta_beta[k] = \delta_{j,\beta}(x_k)
@@ -315,7 +315,7 @@ doHigherOrderAreaToAreaFormFactor(
         }
     }
 
-    if ( colorNull(srcrad[0])) {
+    if ( colorNull(srcrad[0]) ) {
         // No source radiance: use constant radiance error approximation
         Gav = link->K.p[0] / rcv->area;
         link->deltaK.f = (float)(Gmax - Gav);
@@ -323,7 +323,7 @@ doHigherOrderAreaToAreaFormFactor(
             link->deltaK.f = (float)(Gav - Gmin);
         }
     } else {
-        link->deltaK.f = 0.;
+        link->deltaK.f = 0.0;
         for ( k = 0; k < crrcv->numberOfNodes; k++ ) {
             double delta;
 
@@ -481,16 +481,16 @@ areaToAreaFormFactor(
         if ( rcv == src ) {
             // Take 0. as form factor
             if ( link->nrcv == 1 && link->nsrc == 1 ) {
-                link->K.f = 0.;
+                link->K.f = 0.0;
             } else {
                 int i;
                 for ( i = 0; i < link->nrcv * link->nsrc; i++ ) {
-                    link->K.p[i] = 0.;
+                    link->K.p[i] = 0.0;
                 }
             }
 
             // And a 0 error on the form factor
-            link->deltaK.f = 0.;
+            link->deltaK.f = 0.0;
             link->crcv = 1;
 
             // And full occlusion
@@ -528,9 +528,7 @@ areaToAreaFormFactor(
         maxptff = 0.0; // Maximum un-occluded point-on-receiver to source form factor
         viscount = 0; // Count nr of rays that "pass" occluders
         for ( k = 0; k < crrcv->numberOfNodes; k++ ) {
-            double f;
-
-            f = 0.0;
+            double f = 0.0;
             for ( l = 0; l < crsrc->numberOfNodes; l++ ) {
                 kval = pointKernelEval(&x[k], &y[l], rcv, src, geometryShadowList, &vis, isSceneGeometry, isClusteredGeometry);
                 Gxy[k][l] = kval * vis;

@@ -478,7 +478,7 @@ hierarchicRefinementRegularSubdivideSource(java::ArrayList<Geometry *> **candida
     for ( int i = 0; i < 4; i++ ) {
         GalerkinElement *child = src->regularSubElements[i];
         Interaction subInteraction{};
-        float formFactors[MAXBASISSIZE * MAXBASISSIZE];
+        float formFactors[MAX_BASIS_SIZE * MAX_BASIS_SIZE];
         subInteraction.K.p = formFactors; // Temporary storage for the form factors
 
         if ( hierarchicRefinementCreateSubdivisionLink(*candidatesList, rcv, child, &subInteraction) ) {
@@ -505,7 +505,7 @@ hierarchicRefinementRegularSubdivideReceiver(java::ArrayList<Geometry *> **candi
     galerkinElementRegularSubDivide(rcv);
     for ( int i = 0; i < 4; i++ ) {
         Interaction subInteraction{};
-        float ff[MAXBASISSIZE * MAXBASISSIZE];
+        float ff[MAX_BASIS_SIZE * MAX_BASIS_SIZE];
         GalerkinElement *child = rcv->regularSubElements[i];
         subInteraction.K.p = ff;
 
@@ -537,7 +537,7 @@ hierarchicRefinementSubdivideSourceCluster(
     for ( int i = 0; src->irregularSubElements != nullptr && i < src->irregularSubElements->size(); i++ ) {
         GalerkinElement *child = src->irregularSubElements->get(i);
         Interaction subInteraction{};
-        float ff[MAXBASISSIZE * MAXBASISSIZE];
+        float ff[MAX_BASIS_SIZE * MAX_BASIS_SIZE];
         subInteraction.K.p = ff; // Temporary storage for the form-factors
 
         if ( !isCluster(child)) {
@@ -578,7 +578,7 @@ hierarchicRefinementSubdivideReceiverCluster(
     for ( int i = 0; rcv->irregularSubElements != nullptr && i < rcv->irregularSubElements->size(); i++ ) {
         GalerkinElement *child = rcv->irregularSubElements->get(i);
         Interaction subInteraction{};
-        float formFactor[MAXBASISSIZE * MAXBASISSIZE];
+        float formFactor[MAX_BASIS_SIZE * MAX_BASIS_SIZE];
         subInteraction.K.p = formFactor;
 
         if ( !isCluster(child) ) {

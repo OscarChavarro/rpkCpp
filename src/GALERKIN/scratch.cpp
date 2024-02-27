@@ -10,11 +10,11 @@ with a Z-buffer visibility algorithm in software
 #include "GALERKIN/clustergalerkincpp.h"
 
 /**
-Src is a toplevel surface element. Render the corrsponding patch
+Src is a toplevel surface element. Render the corresponding patch
 with pixel value a pointer to the element. Uses global variable
-eyep for backface culling
+eyePoint for backface culling
 */
-static Vector3D eyep;
+static Vector3D globalEyePoint;
 
 /**
 Create a scratch software renderer for various operations on clusters
@@ -39,9 +39,9 @@ scratchRenderElementPtr(GalerkinElement *elem) {
     Vector3D v[4];
     int i;
 
-    /* Backface culling test: only render the element if it is turned towards
-     * the current eye point */
-    if ( VECTORDOTPRODUCT(patch->normal, eyep) + patch->planeConstant < EPSILON ) {
+    // Backface culling test: only render the element if it is turned towards
+    // the current eye point
+    if ( VECTORDOTPRODUCT(patch->normal, globalEyePoint) + patch->planeConstant < EPSILON ) {
         return;
     }
 
@@ -57,7 +57,7 @@ scratchRenderElementPtr(GalerkinElement *elem) {
 Sets up an orthographic projection of the cluster as
 seen from the eye. Renders the element pointers to the elements
 in cluster in the scratch frame buffer and returns pointer to a bounding box
-containing the size of the virtual screen. The cluster clus nicely fits
+containing the size of the virtual screen. The cluster nicely fits
 into the virtual screen
 */
 float *
@@ -102,7 +102,7 @@ scratchRenderElements(GalerkinElement *cluster, Vector3D eye) {
     sglViewport(0, 0, vp_size, vp_size);
 
     // Render element pointers in the scratch frame buffer
-    eyep = eye; // Needed for backface culling test
+    globalEyePoint = eye; // Needed for backface culling test
     sglClear((SGL_PIXEL) 0x00, SGL_MAXIMUM_Z);
     iterateOverSurfaceElementsInCluster(cluster, scratchRenderElementPtr);
 
@@ -116,14 +116,14 @@ computes the average radiance of the virtual screen
 */
 COLOR
 scratchRadiance() {
-    int nonbkgrnd;
+    int nonBackGround;
     SGL_PIXEL *pix;
     COLOR rad;
     int i;
     int j;
 
     colorClear(rad);
-    nonbkgrnd = 0;
+    nonBackGround = 0;
     for ( j = 0; j < GLOBAL_galerkin_state.scratch->vp_height; j++ ) {
         pix = GLOBAL_galerkin_state.scratch->frameBuffer + j * GLOBAL_galerkin_state.scratch->width;
         for ( i = 0; i < GLOBAL_galerkin_state.scratch->vp_width; i++, pix++ ) {
@@ -135,11 +135,11 @@ scratchRadiance() {
                 } else {
                     colorAdd(rad, elem->unShotRadiance[0], rad);
                 }
-                nonbkgrnd++;
+                nonBackGround++;
             }
         }
     }
-    if ( nonbkgrnd > 0 ) {
+    if ( nonBackGround > 0 ) {
         colorScale(1.0f / (float) (GLOBAL_galerkin_state.scratch->vp_width * GLOBAL_galerkin_state.scratch->vp_height),
                    rad, rad);
     }
@@ -151,21 +151,21 @@ Computes the number of non background pixels
 */
 int
 scratchNonBackgroundPixels() {
-    int nonbkgrnd;
+    int nonBackGround;
     SGL_PIXEL *pix;
     int i, j;
 
-    nonbkgrnd = 0;
+    nonBackGround = 0;
     for ( j = 0; j < GLOBAL_galerkin_state.scratch->vp_height; j++ ) {
         pix = GLOBAL_galerkin_state.scratch->frameBuffer + j * GLOBAL_galerkin_state.scratch->width;
         for ( i = 0; i < GLOBAL_galerkin_state.scratch->vp_width; i++, pix++ ) {
             GalerkinElement *elem = (GalerkinElement *) (*pix);
             if ( elem ) {
-                nonbkgrnd++;
+                nonBackGround++;
             }
         }
     }
-    return nonbkgrnd;
+    return nonBackGround;
 }
 
 /**

@@ -19,7 +19,7 @@ createInitialLink(Patch *patch) {
     GalerkinElement *src = nullptr;
     java::ArrayList<Geometry *> *oldCandidateList = globalCandidateList;
     Interaction link{};
-    float ff[MAXBASISSIZE * MAXBASISSIZE];
+    float ff[MAX_BASIS_SIZE * MAX_BASIS_SIZE];
     link.K.p = ff;
 
     if ( !facing(patch, globalPatch)) {
@@ -187,7 +187,7 @@ createInitialLinkWithTopCluster(GalerkinElement *elem, GalerkinRole role) {
     Interaction *link;
     FloatOrPointer K;
     FloatOrPointer deltaK;
-    float ff[MAXBASISSIZE * MAXBASISSIZE];
+    float ff[MAX_BASIS_SIZE * MAX_BASIS_SIZE];
     int i;
 
     switch ( role ) {
