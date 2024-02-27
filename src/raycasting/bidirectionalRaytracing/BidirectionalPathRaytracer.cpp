@@ -9,9 +9,9 @@
 #include "raycasting/raytracing/bsdfsampler.h"
 #include "raycasting/raytracing/samplertools.h"
 #include "raycasting/raytracing/screeniterate.h"
-#include "raycasting/bidirectionalRaytracing/spar.h"
 #include "raycasting/raytracing/densitybuffer.h"
 #include "raycasting/raytracing/densitykernel.h"
+#include "raycasting/bidirectionalRaytracing/spar.h"
 #include "raycasting/bidirectionalRaytracing/BidirectionalPathRaytracer.h"
 
 // Persistent BidirPath state, contains actual GUI state and some other stuff
@@ -43,15 +43,10 @@ class BPCONFIG {
     CPathNode *eyePath;
     CPathNode *lightPath;
 
-    //  int maxCombinedLength;
-
     // SPaR configuration
-
     CSparConfig sparConfig;
     CSparList *sparList;
-
     bool deStoreHits;
-
     ScreenBuffer *ref;
     ScreenBuffer *dest;
     ScreenBuffer *ref2;
@@ -62,12 +57,11 @@ class BPCONFIG {
 
 #define STRINGS_SIZE 300
 
-static bool SpikeCheck(COLOR col) {
-    //  return false;
-
+static bool
+SpikeCheck(COLOR col) {
     double colAvg = colorAverage(col);
 
-    if ( ISNAN(colAvg)) {
+    if ( ISNAN(colAvg) ) {
         printf("COL ");
         col.print(stdout);
         printf("\n");
@@ -87,9 +81,19 @@ static bool SpikeCheck(COLOR col) {
     return false;
 }
 
-static void AddWithSpikeCheck(BPCONFIG *config, CBiPath *path, int nx, int ny,
-                              float pix_x, float pix_y, COLOR f,
-                              double pdf, double weight, bool radSample = false) {
+static void
+AddWithSpikeCheck(
+    BPCONFIG *config,
+    CBiPath *path,
+    int nx,
+    int ny,
+    float pix_x,
+    float pix_y,
+    COLOR f,
+    double pdf,
+    double weight,
+    bool radSample = false)
+{
     if ( config->bcfg->doDensityEstimation ) {
         ScreenBuffer *rs, *ds;
         CDensityBuffer *db;
@@ -116,12 +120,10 @@ static void AddWithSpikeCheck(BPCONFIG *config, CBiPath *path, int nx, int ny,
             COLOR g;
 
             // Get the center:
-
             center.u = pix_x;
             center.v = pix_y;
 
             // Convert f into DE quantities
-
             float factor = rs->getPixXSize() * rs->getPixYSize()
                            * (float) config->bcfg->totalSamples;
 
@@ -138,13 +140,6 @@ static void AddWithSpikeCheck(BPCONFIG *config, CBiPath *path, int nx, int ny,
 
     if ( config->bcfg->eliminateSpikes ) {
         if ( !SpikeCheck(f)) {
-            /*
-            if(!radSample)
-            {
-          printf("L %i E %i F %g\n", path->m_lightSize, path->m_eyeSize, COLORAVERAGE(f));
-            }
-            */
-
             config->screen->add(nx, ny, f);
         } else {
             // Wanna see the spikes !
@@ -155,15 +150,24 @@ static void AddWithSpikeCheck(BPCONFIG *config, CBiPath *path, int nx, int ny,
     }
 }
 
-void HandlePath_X_0(BPCONFIG *config, CBiPath *path) {
+void
+HandlePath_X_0(BPCONFIG *config, CBiPath *path) {
     EDF *endingEdf = path->m_eyeEndNode->m_hit.material ? path->m_eyeEndNode->m_hit.material->edf : nullptr;
-    COLOR oldBsdfEval, f, frad;
+    COLOR oldBsdfEval;
+    COLOR f;
+    COLOR frad;
     CBsdfComp oldBsdfComp;
-    double factor, pdfLNE, oldPdfLNE;
-    double oldPDFLightEval, oldPDFDirEval;
-    double oldRRPDFLightEval, oldRRPDFDirEval;
-    double pdf = 1.0, weight = 1.0;
-    CPathNode *eyePrevNode, *eyeEndNode;
+    double factor;
+    double pdfLNE;
+    double oldPdfLNE;
+    double oldPDFLightEval;
+    double oldPDFDirEval;
+    double oldRRPDFLightEval;
+    double oldRRPDFDirEval;
+    double pdf = 1.0;
+    double weight = 1.0;
+    CPathNode *eyePrevNode;
+    CPathNode*eyeEndNode;
 
     if ( path->m_eyeSize > config->bcfg->maximumPathDepth ) {
         return;
@@ -191,7 +195,6 @@ void HandlePath_X_0(BPCONFIG *config, CBiPath *path) {
         oldPdfLNE = path->m_pdfLNE;
 
         // Fill in new values
-
         eyeEndNode->m_bsdfComp.Clear();
 
         if ( endingEdf != nullptr ) {
@@ -240,25 +243,14 @@ void HandlePath_X_0(BPCONFIG *config, CBiPath *path) {
         }
 
         // Path radiance evaluation
-
         path->m_geomConnect = 1.0; // Fake connection for X_0 paths
 
         if ( config->bcfg->useSpars ) {
-            // f = config->sparList->photonMapHandlePath(&config->sparConfig, path);
             config->sparList->handlePath(&config->sparConfig, path, &frad, &f);
             factor = 1.0; // pdf and weight already taken into account
         } else {
-            // endingEdf != nullptr !!
             f = path->EvalRadiance();
-
-            //      if(COLORAVERAGE(f) > EPSILON)
-            //{
             factor = path->EvalPDFAndWeight(config->bcfg, &pdf, &weight);
-            //}
-            //else
-            //{
-            //factor = 0.0;
-            //}
         }
 
         factor *= config->fluxToRadFactor / config->bcfg->samplesPerPixel;
@@ -270,7 +262,6 @@ void HandlePath_X_0(BPCONFIG *config, CBiPath *path) {
             colorScale(factor, f, f);
             AddWithSpikeCheck(config, path, config->nx, config->ny,
                               config->xSample, config->ySample, f, pdf, weight, false);
-
         } else {
             colorScale(factor, f, f);
             AddWithSpikeCheck(config, path, config->nx, config->ny,
@@ -278,7 +269,6 @@ void HandlePath_X_0(BPCONFIG *config, CBiPath *path) {
         }
 
         // Restore the Brdf and PDF evaluations
-
         path->m_pdfLNE = oldPdfLNE;
         eyeEndNode->m_bsdfEval = oldBsdfEval;
         eyeEndNode->m_bsdfComp = oldBsdfComp;
@@ -289,19 +279,33 @@ void HandlePath_X_0(BPCONFIG *config, CBiPath *path) {
     }
 }
 
-/*************************************************************************/
-COLOR ComputeNEFluxEstimate(BPCONFIG *config, CBiPath *path,
-                            double *pPdf = nullptr, double *pWeight = nullptr, COLOR *frad = nullptr) {
-    CPathNode *eyePrevNode, *lightPrevNode;
-    COLOR oldBsdfL, oldBsdfE;
-    CBsdfComp oldBsdfCompL, oldBsdfCompE;
-    double oldPdfL, oldPdfE, oldRRPdfL, oldRRPdfE;
-    double oldPdfLP = 0., oldPdfEP = 0., oldRRPdfLP = 0., oldRRPdfEP = 0.;
+COLOR
+ComputeNEFluxEstimate(
+    BPCONFIG *config,
+    CBiPath *path,
+    double *pPdf = nullptr,
+    double *pWeight = nullptr,
+    COLOR *frad = nullptr)
+{
+    CPathNode *eyePrevNode;
+    CPathNode *lightPrevNode;
+    COLOR oldBsdfL;
+    COLOR oldBsdfE;
+    CBsdfComp oldBsdfCompL;
+    CBsdfComp oldBsdfCompE;
+    double oldPdfL;
+    double oldPdfE;
+    double oldRRPdfL;
+    double oldRRPdfE;
+    double oldPdfLP = 0.0;
+    double oldPdfEP = 0.0;
+    double oldRRPdfLP = 0.0;
+    double oldRRPdfEP = 0.0;
     COLOR f;
-    CPathNode *eyeEndNode, *lightEndNode;
+    CPathNode *eyeEndNode;
+    CPathNode *lightEndNode;
 
     // Store PDF and BSDF evals that will be overwritten
-
     eyeEndNode = path->m_eyeEndNode;
     lightEndNode = path->m_lightEndNode;
     eyePrevNode = eyeEndNode->Previous();
@@ -335,7 +339,6 @@ COLOR ComputeNEFluxEstimate(BPCONFIG *config, CBiPath *path,
     }
 
     // Connect the subpaths
-
     path->m_geomConnect =
             pathNodeConnect(eyeEndNode, lightEndNode,
                             &config->eyeConfig, &config->lightConfig,
@@ -345,27 +348,17 @@ COLOR ComputeNEFluxEstimate(BPCONFIG *config, CBiPath *path,
     VECTORSCALE(-1, path->m_dirEL, path->m_dirLE);
 
     // Evaluate radiance and pdf and weight
-
     if ( config->bcfg->useSpars ) {
         // f = config->sparList->photonMapHandlePath(&config->sparConfig, path);
         config->sparList->handlePath(&config->sparConfig, path, frad, &f);
     } else {
         f = path->EvalRadiance();
 
-
-        //if(COLORAVERAGE(f) > EPSILON)
-        //{
         double factor = path->EvalPDFAndWeight(config->bcfg, pPdf, pWeight);
         colorScale(factor, f, f); // Flux estimate
-        //}
-        //else
-        //{
-        //  colorClear(f);
-        //}
     }
 
     // Restore old values
-
     lightEndNode->m_bsdfEval = oldBsdfL;
     lightEndNode->m_bsdfComp = oldBsdfCompL;
 
@@ -391,20 +384,24 @@ COLOR ComputeNEFluxEstimate(BPCONFIG *config, CBiPath *path,
     return f;
 }
 
-/*************************************************************************/
-/*
- * HandlePath_X_X : handle a path with eyeSize >= 2 and
- * lightsize >= 1
- */
-void HandlePath_X_X(BPCONFIG *config, CBiPath *path) {
-    COLOR f, frad;
-    double oldPdfLNE = 0.0, pdf, weight;
+/**
+HandlePath_X_X : handle a path with eyeSize >= 2 and
+lightsize >= 1
+*/
+void
+HandlePath_X_X(BPCONFIG *config, CBiPath *path) {
+    COLOR f;
+    COLOR frad;
+    double oldPdfLNE = 0.0;
+    double pdf;
+    double weight;
     bool doLNE;
     CPathNode newLightNode;
-    CPathNode *oldLightPath = nullptr, *oldLightEndNode = nullptr;
+    CPathNode *oldLightPath = nullptr;
+    CPathNode *oldLightEndNode = nullptr;
     int oldLightSize = 0;
 
-    if ((path->m_eyeSize + path->m_lightSize) > config->bcfg->maximumPathDepth ) {
+    if ( (path->m_eyeSize + path->m_lightSize) > config->bcfg->maximumPathDepth ) {
         return;
     }
 
@@ -414,8 +411,7 @@ void HandlePath_X_X(BPCONFIG *config, CBiPath *path) {
     doLNE = (path->m_lightSize == 1) && config->bcfg->sampleImportantLights;
 
     if ( doLNE ) {
-        // Replace the current lightpath with new importance sampled path
-
+        // Replace the current light path with new importance sampled path
         oldLightPath = path->m_lightPath;
         oldLightSize = path->m_lightSize;
         oldLightEndNode = path->m_lightEndNode;
@@ -435,7 +431,6 @@ void HandlePath_X_X(BPCONFIG *config, CBiPath *path) {
         }
 
         // Compute the normal sampling pdf for the new path/point
-
         oldPdfLNE = path->m_pdfLNE;
         path->m_pdfLNE = newLightNode.m_pdfFromPrev;
         newLightNode.m_pdfFromPrev =
@@ -447,7 +442,7 @@ void HandlePath_X_X(BPCONFIG *config, CBiPath *path) {
         path->m_lightEndNode = &newLightNode;
     }
 
-    if ( pathNodesVisible(path->m_eyeEndNode, path->m_lightEndNode)) {
+    if ( pathNodesVisible(path->m_eyeEndNode, path->m_lightEndNode) ) {
         f = ComputeNEFluxEstimate(config, path, &pdf, &weight, &frad);
 
         float factor = config->fluxToRadFactor / config->bcfg->samplesPerPixel;
@@ -463,8 +458,7 @@ void HandlePath_X_X(BPCONFIG *config, CBiPath *path) {
     }
 
     if ( doLNE ) {
-        // Restore the current lightpath
-
+        // Restore the current light path
         path->m_lightPath = oldLightPath;
         path->m_lightSize = oldLightSize;
         path->m_lightEndNode = oldLightEndNode;
@@ -472,40 +466,39 @@ void HandlePath_X_X(BPCONFIG *config, CBiPath *path) {
     }
 }
 
-void HandlePath_1_X(BPCONFIG *config, CBiPath *path) {
-    int nx, ny;
-    float pix_x, pix_y;
-    COLOR f, frad;
-    double oldPdfLNE, pdf, weight;
+void
+HandlePath_1_X(BPCONFIG *config, CBiPath *path) {
+    int nx;
+    int ny;
+    float pix_x;
+    float pix_y;
+    COLOR f;
+    COLOR frad;
+    double oldPdfLNE;
+    double pdf;
+    double weight;
 
-    if ((path->m_eyeSize + path->m_lightSize) > config->bcfg->maximumPathDepth ) {
+    if ( (path->m_eyeSize + path->m_lightSize) > config->bcfg->maximumPathDepth ) {
         return;
     }
 
-
     // We don't do light importance sampling for particle tracing paths
-
     oldPdfLNE = path->m_pdfLNE;
     path->m_pdfLNE = config->lightPath->m_pdfFromPrev;
 
     // First we need to determine if the lightEndNode can be seen from
     // the camera. At the same time the pixel hit is computed
-
-    if ( eyeNodeVisible(path->m_eyeEndNode, path->m_lightEndNode,
-                        &pix_x, &pix_y)) {
+    if ( eyeNodeVisible(path->m_eyeEndNode, path->m_lightEndNode, &pix_x, &pix_y) ) {
         // Visible !
-
         f = ComputeNEFluxEstimate(config, path, &pdf, &weight, &frad);
 
         config->screen->getPixel(pix_x, pix_y, &nx, &ny);
 
         float factor;
         if ( config->bcfg->doDensityEstimation ) {
-            factor = (computeFluxToRadFactor(nx, ny)
-                      / (float) config->bcfg->totalSamples);
+            factor = (computeFluxToRadFactor(nx, ny) / (float) config->bcfg->totalSamples);
         } else {
-            factor = (computeFluxToRadFactor(nx, ny)
-                      / (float) config->bcfg->totalSamples);
+            factor = (computeFluxToRadFactor(nx, ny) / (float) config->bcfg->totalSamples);
         }
         colorScale(factor, f, f);
 
@@ -515,26 +508,28 @@ void HandlePath_1_X(BPCONFIG *config, CBiPath *path) {
             colorScale(factor, frad, frad);
             AddWithSpikeCheck(config, path, nx, ny, pix_x, pix_y, frad, pdf, weight, true);
         }
-
     }
 
-    // restore
+    // Restore
     path->m_pdfLNE = oldPdfLNE;
 }
 
-void BPCombinePaths(BPCONFIG *config) {
-    int eyeSize, lightSize;
-    bool eyeSubPathDone, lightSubPathDone;
-    CPathNode *eyeEndNode, *lightEndNode;
-    CPathNode *eyePath, *lightPath;
+void
+BPCombinePaths(BPCONFIG *config) {
+    int eyeSize;
+    int lightSize;
+    bool eyeSubPathDone;
+    bool lightSubPathDone;
+    CPathNode *eyeEndNode;
+    CPathNode *lightEndNode;
+    CPathNode *eyePath;
+    CPathNode *lightPath;
     CBiPath path;
 
     eyePath = config->eyePath;
     lightPath = config->lightPath;
 
-
     // Compute pdfLNE for the second point in the light path
-
     if ( config->lightPath ) {
         // Single light point get importance sampled, so compute
         // the pdf for it, in order to get correct weights.
@@ -556,17 +551,14 @@ void BPCombinePaths(BPCONFIG *config) {
 
     // Loop over all possible paths that can be constructed from
     // the eye and light path
-
     eyeSubPathDone = false;
-    eyeSize = 1;  // Always include the eyepoint !
+    eyeSize = 1;  // Always include the eye point!
     eyeEndNode = eyePath;
 
     while ( !eyeSubPathDone ) {
         // Handle direct hit on light (lightSize = 0)
 
         if ( eyeSize > 1 ) {
-            // printf("Handle : E %i L %i\n", eyeSize, 0);
-
             path.m_eyeSize = eyeSize;
             path.m_eyeEndNode = eyeEndNode;
             path.m_lightSize = 0;
@@ -576,7 +568,6 @@ void BPCombinePaths(BPCONFIG *config) {
         }
 
         // Handle lightSize > 0 (with N.E.E.)
-
         lightSubPathDone = lightPath == nullptr;
         lightSize = 1; // lightSize == 0 handled in X_0
         lightEndNode = lightPath;
@@ -593,8 +584,6 @@ void BPCombinePaths(BPCONFIG *config) {
                 path.m_lightEndNode = lightEndNode;
                 HandlePath_X_X(config, &path);
             } else {
-                // printf("Handle : E %i L %i\n", eyeSize, lightSize);
-
                 path.m_eyeSize = eyeSize;
                 path.m_eyeEndNode = eyeEndNode;
                 path.m_lightSize = lightSize;
@@ -611,7 +600,7 @@ void BPCombinePaths(BPCONFIG *config) {
             }
         }
 
-        if ( eyeEndNode->Ends()) {
+        if ( eyeEndNode->Ends() ) {
             eyeSubPathDone = true;
         } else {
             eyeSize++;
@@ -631,7 +620,6 @@ BPCalcPixel(int nx, int ny, BPCONFIG *config) {
     colorClear(result);
 
     // We sample the eye here since it's always the same point
-
     if ( config->eyePath == nullptr ) {
         config->eyePath = new CPathNode;
     }
@@ -640,7 +628,6 @@ BPCalcPixel(int nx, int ny, BPCONFIG *config) {
     ((CPixelSampler *) config->eyeConfig.dirSampler)->SetPixel(nx, ny);
 
     // Provide a node for the pixel sampling
-
     pixNode = config->eyePath->Next();
 
     if ( pixNode == nullptr ) {
@@ -684,20 +671,18 @@ BPCalcPixel(int nx, int ny, BPCONFIG *config) {
         }
 
         // Generate a light path
-
         if ( config->lightConfig.maxDepth > 0 ) {
             config->lightPath = config->lightConfig.tracePath(config->lightPath);
         } else {
+            // Normally this is already so, so no delete necessary ?!
             config->lightPath = nullptr;
-        } // Normally this is already so, so no delete necessary ?!
+        }
 
         // Connect all endpoints and compute contribution
-
         BPCombinePaths(config);
     }
 
     // Radiance contributions are added to the screen buffer directly
-
     if ( config->bcfg->doDensityEstimation ) {
         if ( config->dBuffer != nullptr ) {
             result = config->screen->get(nx, ny);
@@ -711,8 +696,10 @@ BPCalcPixel(int nx, int ny, BPCONFIG *config) {
     return result;
 }
 
-static void DoBPTAndSubsequentImages(BPCONFIG *config) {
-    int maxSamples, nrIterations;
+static void
+DoBPTAndSubsequentImages(BPCONFIG *config) {
+    int maxSamples;
+    int nrIterations;
     char *format1 = new char[STRINGS_SIZE];
     char *format2 = new char[STRINGS_SIZE];
     char *filename = new char[STRINGS_SIZE];
@@ -720,10 +707,9 @@ static void DoBPTAndSubsequentImages(BPCONFIG *config) {
     // Do some trick to render several images, with different
     // number of samples per pixel.
 
-    // Get highest power of two < number of samples
-
-    nrIterations = (int) (log((double) GLOBAL_rayTracing_biDirectionalPath.basecfg.samplesPerPixel) / log(2.0));
-    maxSamples = (int) pow(2.0, nrIterations);
+    // Get the highest power of two < number of samples
+    nrIterations = (int)(std::log((double) GLOBAL_rayTracing_biDirectionalPath.basecfg.samplesPerPixel) / std::log(2.0));
+    maxSamples = (int)std::pow(2.0, nrIterations);
 
     nrIterations += 1; // First two are 1 and 1
 
@@ -735,7 +721,6 @@ static void DoBPTAndSubsequentImages(BPCONFIG *config) {
     // Numbers are placed after the last point. If
     // no point is given, both ppm.gz and tif images
     // are saved.
-
     char *last_occ = strrchr(GLOBAL_rayTracing_biDirectionalPath.baseFilename, '.');
 
     if ( last_occ == nullptr ) {
@@ -753,14 +738,13 @@ static void DoBPTAndSubsequentImages(BPCONFIG *config) {
 
     // Now trace the screen several times, each time
     // with twice the number of samples as the previous
-    // time. The screenbuffer is scaled by 0.5 each iteration
+    // time. The screen buffer is scaled by 0.5 each iteration
 
     int currentSamples = 1;
     int totalSamples = 1;
 
     for ( int i = 0; i < nrIterations; i++ ) {
         // Halve the screen contribs
-
         if ( i > 0 ) {
             config->screen->scaleRadiance(0.5);
             config->screen->setAddScaleFactor(0.5);
@@ -783,7 +767,6 @@ static void DoBPTAndSubsequentImages(BPCONFIG *config) {
             config->screen->writeFile(filename);
         }
 
-
         if ( i > 0 ) {
             currentSamples *= 2;
         }
@@ -796,11 +779,11 @@ static void DoBPTAndSubsequentImages(BPCONFIG *config) {
     delete[] filename;
 }
 
-void DoBPTDensityEstimation(BPCONFIG *config) {
+void
+DoBPTDensityEstimation(BPCONFIG *config) {
     char *fname = new char[STRINGS_SIZE];
 
     // mainInit the screens, one reference one destination
-
     config->ref = new ScreenBuffer(nullptr);
     config->dest = new ScreenBuffer(nullptr);
 
@@ -824,7 +807,6 @@ void DoBPTDensityEstimation(BPCONFIG *config) {
     }
 
     // First make a run with D.E. to build ref
-
     config->bcfg->samplesPerPixel = 1;
     config->bcfg->totalSamples = (config->bcfg->samplesPerPixel *
             config->ref->getHRes() * config->ref->getVRes());
@@ -915,7 +897,6 @@ void DoBPTDensityEstimation(BPCONFIG *config) {
         }
 
         // Set current vars
-
         config->bcfg->samplesPerPixel = newSPP;
         config->bcfg->totalSamples = (config->bcfg->samplesPerPixel *
                 config->ref->getHRes() * config->ref->getVRes());
@@ -931,7 +912,6 @@ void DoBPTDensityEstimation(BPCONFIG *config) {
         config->dest->render();
         snprintf(fname, STRINGS_SIZE, "deScreen%i.ppm.gz", newTotalSPP);
         //    config->dest->WriteFile(fileName);
-
 
         if ( config->dest2 ) {
             config->dest2->render();
@@ -949,7 +929,6 @@ void DoBPTDensityEstimation(BPCONFIG *config) {
         }
 
         // Update vars
-
         oldSPP = newSPP;
         newSPP = newSPP * 2;
         oldTotalSPP = newTotalSPP;
@@ -1025,7 +1004,6 @@ bidirPathTrace(ImageOutputHandle *ip, java::ArrayList<Patch *> * /*scenePatches*
     config.lightConfig.neSampler = nullptr; // eyeSampler ?
 
     // config.maxCombinedLength = bidir.basecfg.maximumPathDepth;
-
     config.screen = new ScreenBuffer(nullptr);
     config.screen->setFactor(1.0); // We're storing plain radiance
 
@@ -1081,7 +1059,6 @@ bidirPathTrace(ImageOutputHandle *ip, java::ArrayList<Patch *> * /*scenePatches*
 
     if ( GLOBAL_rayTracing_biDirectionalPath.basecfg.useSpars ) {
         delete config.sparList;
-
         delete leSpar;
         delete ldSpar;
     }
@@ -1090,7 +1067,6 @@ bidirPathTrace(ImageOutputHandle *ip, java::ArrayList<Patch *> * /*scenePatches*
     delete config.eyeConfig.dirSampler;
     delete config.eyeConfig.surfaceSampler;
     delete config.eyeConfig.neSampler;
-
     delete config.lightConfig.pointSampler;
     delete config.lightConfig.dirSampler;
     delete config.lightConfig.surfaceSampler;
@@ -1103,7 +1079,8 @@ bidirPathTrace(ImageOutputHandle *ip, java::ArrayList<Patch *> * /*scenePatches*
     delete config.bcfg;
 }
 
-static int BidirPathRedisplay() {
+static int
+BidirPathRedisplay() {
     if ( GLOBAL_rayTracing_biDirectionalPath.lastscreen ) {
         GLOBAL_rayTracing_biDirectionalPath.lastscreen->render();
         return true;
@@ -1112,7 +1089,8 @@ static int BidirPathRedisplay() {
     }
 }
 
-static int BidirPathSaveImage(ImageOutputHandle *ip) {
+static int
+BidirPathSaveImage(ImageOutputHandle *ip) {
     if ( ip && GLOBAL_rayTracing_biDirectionalPath.lastscreen ) {
         GLOBAL_rayTracing_biDirectionalPath.lastscreen->sync();
         GLOBAL_rayTracing_biDirectionalPath.lastscreen->writeFile(ip);
@@ -1144,8 +1122,8 @@ BidirPathTerminate() {
     GLOBAL_rayTracing_biDirectionalPath.lastscreen = (ScreenBuffer *) 0;
 }
 
-Raytracer GLOBAL_raytracing_biDirectionalPathMethod =
-{
+Raytracer
+GLOBAL_raytracing_biDirectionalPathMethod = {
     "BidirectionalPathTracing",
     4,
     "Bidirectional Path Tracing",

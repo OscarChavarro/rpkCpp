@@ -1,10 +1,7 @@
-#include "material/statistics.h"
 #include "common/error.h"
+#include "material/statistics.h"
 #include "GALERKIN/GalerkinRadiosity.h"
 #include "raycasting/bidirectionalRaytracing/spar.h"
-
-#define ZEROEPSILON 1e-12
-#define MPMISFUNC(Ci) (Ci)
 
 CSpar::CSpar() {
     m_contrib = new CContribHandler[MAXPATHGROUPS];
@@ -18,9 +15,7 @@ CSpar::~CSpar() {
 
 void
 CSpar::init(CSparConfig *config) {
-    int i;
-
-    for ( i = 0; i < MAXPATHGROUPS; i++ ) {
+    for ( int i = 0; i < MAXPATHGROUPS; i++ ) {
         m_contrib[i].Init(config->m_bcfg->maximumPathDepth);
         m_sparList[i].RemoveAll();
     }
@@ -34,7 +29,6 @@ CSpar::parseAndInit(int group, char *regExp) {
     while ( regExp[endPos] != '\0' ) {
         if ( regExp[endPos] == ',' ) {
             // Next RegExp
-
             tmpChar = regExp[endPos];
             regExp[endPos] = '\0';
 
