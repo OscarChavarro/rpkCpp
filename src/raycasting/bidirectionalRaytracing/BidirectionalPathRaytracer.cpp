@@ -5,7 +5,6 @@
 #include "common/error.h"
 #include "shared/stratification.h"
 #include "raycasting/common/raytools.h"
-#include "BidirectionalPathRaytracer.h"
 #include "raycasting/raytracing/eyesampler.h"
 #include "raycasting/raytracing/lightsampler.h"
 #include "raycasting/raytracing/lightdirsampler.h"
@@ -15,6 +14,7 @@
 #include "raycasting/bidirectionalRaytracing/spar.h"
 #include "raycasting/raytracing/densitybuffer.h"
 #include "raycasting/raytracing/densitykernel.h"
+#include "raycasting/bidirectionalRaytracing/BidirectionalPathRaytracer.h"
 
 // Persistent BidirPath state, contains actual GUI state and some other stuff
 BIDIRPATH_STATE GLOBAL_rayTracing_biDirectionalPath;
