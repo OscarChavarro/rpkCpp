@@ -156,7 +156,7 @@ randomWalkRadiosityShootingScore(PATH *path, long nr_paths, double (*birth_prob)
         w = randomWalkRadiosityScoreWeight(path, n);
 
         for ( i = 0; i < getTopLevelPatchBasis(P)->size; i++ ) {
-            double dual = getTopLevelPatchBasis(P)->dualfunction[i](uin, vin) / P->area;
+            double dual = getTopLevelPatchBasis(P)->dualFunction[i](uin, vin) / P->area;
             colorAddScaled(getTopLevelPatchReceivedRad(P)[i], (w * dual / (double) nr_paths), accum_pow, getTopLevelPatchReceivedRad(P)[i]);
 
             if ( !GLOBAL_stochasticRaytracing_monteCarloRadiosityState.continuousRandomWalk ) {
@@ -201,10 +201,10 @@ randomWalkRadiosityDoShootingIteration(java::ArrayList<Patch *> *scenePatches) {
 
     nr_walks = GLOBAL_stochasticRaytracing_monteCarloRadiosityState.initialNumberOfRays;
     if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.continuousRandomWalk ) {
-        nr_walks *= GLOBAL_stochasticRadiosisty_approxDesc[GLOBAL_stochasticRaytracing_monteCarloRadiosityState.approximationOrderType].basis_size;
+        nr_walks *= GLOBAL_stochasticRadiosity_approxDesc[GLOBAL_stochasticRaytracing_monteCarloRadiosityState.approximationOrderType].basis_size;
     } else {
-        nr_walks *= std::pow(GLOBAL_stochasticRadiosisty_approxDesc[GLOBAL_stochasticRaytracing_monteCarloRadiosityState.approximationOrderType].basis_size, 1. / (1. -
-                                                                                                                                                              colorMaximumComponent(GLOBAL_statistics_averageReflectivity)));
+        nr_walks *= std::pow(GLOBAL_stochasticRadiosity_approxDesc[GLOBAL_stochasticRaytracing_monteCarloRadiosityState.approximationOrderType].basis_size, 1. / (1. -
+                                                                                                                                                                  colorMaximumComponent(GLOBAL_statistics_averageReflectivity)));
     }
 
     fprintf(stderr, "Shooting iteration %d (%ld paths, approximately %ld rays)\n",
@@ -282,7 +282,7 @@ randomWalkRadiosityCollisionGatheringScore(PATH *path, long nr_paths, double (*b
         }
 
         for ( i = 0; i < getTopLevelPatchBasis(P)->size; i++ ) {
-            double dual = getTopLevelPatchBasis(P)->dualfunction[i](uout, vout);    /* = dual basis f * area */
+            double dual = getTopLevelPatchBasis(P)->dualFunction[i](uout, vout);    /* = dual basis f * area */
             colorAddScaled(getTopLevelPatchReceivedRad(P)[i], dual, accum_rad, getTopLevelPatchReceivedRad(P)[i]);
 
             if ( !GLOBAL_stochasticRaytracing_monteCarloRadiosityState.continuousRandomWalk ) {
@@ -331,10 +331,10 @@ static void
 randomWalkRadiosityDoGatheringIteration(java::ArrayList<Patch *> *scenePatches) {
     long nr_walks = GLOBAL_stochasticRaytracing_monteCarloRadiosityState.initialNumberOfRays;
     if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.continuousRandomWalk ) {
-        nr_walks *= GLOBAL_stochasticRadiosisty_approxDesc[GLOBAL_stochasticRaytracing_monteCarloRadiosityState.approximationOrderType].basis_size;
+        nr_walks *= GLOBAL_stochasticRadiosity_approxDesc[GLOBAL_stochasticRaytracing_monteCarloRadiosityState.approximationOrderType].basis_size;
     } else {
-        nr_walks *= std::pow(GLOBAL_stochasticRadiosisty_approxDesc[GLOBAL_stochasticRaytracing_monteCarloRadiosityState.approximationOrderType].basis_size, 1. / (1. -
-                                                                                                                                                              colorMaximumComponent(GLOBAL_statistics_averageReflectivity)));
+        nr_walks *= std::pow(GLOBAL_stochasticRadiosity_approxDesc[GLOBAL_stochasticRaytracing_monteCarloRadiosityState.approximationOrderType].basis_size, 1. / (1. -
+                                                                                                                                                                  colorMaximumComponent(GLOBAL_statistics_averageReflectivity)));
     }
 
     if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.constantControlVariate && GLOBAL_stochasticRaytracing_monteCarloRadiosityState.currentIteration == 1 ) {
@@ -365,7 +365,7 @@ randomWalkRadiosityUpdateSourceIllum(StochasticRadiosityElement *elem, double w)
 
 static void
 randomWalkRadiosityDoFirstShot(java::ArrayList<Patch *> *scenePatches) {
-    long nr_rays = GLOBAL_stochasticRaytracing_monteCarloRadiosityState.initialNumberOfRays * GLOBAL_stochasticRadiosisty_approxDesc[GLOBAL_stochasticRaytracing_monteCarloRadiosityState.approximationOrderType].basis_size;
+    long nr_rays = GLOBAL_stochasticRaytracing_monteCarloRadiosityState.initialNumberOfRays * GLOBAL_stochasticRadiosity_approxDesc[GLOBAL_stochasticRaytracing_monteCarloRadiosityState.approximationOrderType].basis_size;
     fprintf(stderr, "First shot (%ld rays):\n", nr_rays);
     doStochasticJacobiIteration(nr_rays, randomWalkRadiosityGetSelfEmittedRadiance, nullptr,
                                 randomWalkRadiosityUpdateSourceIllum, scenePatches);

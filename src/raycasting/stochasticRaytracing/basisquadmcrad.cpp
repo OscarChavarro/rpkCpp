@@ -49,11 +49,11 @@ static double qm9(double u, double v) {
 static double (*f[MAX_BASIS_SIZE])(double, double) =
         {qm0, qm1, qm2, qm3, qm4, qm5, qm6, qm7, qm8, qm9}; // Functions
 
-static FILTERTABLE h;  /* push-pull filter: computed in basis.c */
+static FILTER_TABLE h;  /* push-pull filter: computed in basis.c */
 
-GalerkinBasis GLOBAL_stochasticRadiosisty_quadBasis = {
-        "orthonormal basis on the unit square", // Description
-        MAX_BASIS_SIZE, // Size
-        f, f, // Primary and dual canonical basis functions are equal
-        &h // Push-pull filter coefficients
+GalerkinBasis GLOBAL_stochasticRadiosity_quadBasis = {
+    "orthonormal basis on the unit square", // Description
+    MAX_BASIS_SIZE, // Size
+    f, f, // Primary and dual canonical basis functions are equal
+    &h // Push-pull filter coefficients
 };

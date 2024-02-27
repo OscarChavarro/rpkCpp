@@ -109,7 +109,7 @@ stochasticJacobiProbability(StochasticRadiosityElement *elem) {
         // Equal weight to importance and radiance propagation for constant approximation,
         // but higher weight to radiance for higher order approximations. Still OK
         // if only propagating importance
-        prob = prob * GLOBAL_stochasticRadiosisty_approxDesc[GLOBAL_stochasticRaytracing_monteCarloRadiosityState.approximationOrderType].basis_size + prob2;
+        prob = prob * GLOBAL_stochasticRadiosity_approxDesc[GLOBAL_stochasticRaytracing_monteCarloRadiosityState.approximationOrderType].basis_size + prob2;
     }
 
     return prob;
@@ -191,7 +191,7 @@ stochasticJacobiPropagateRadianceToSurface(
     double /*weight*/)
 {
     for ( int i = 0; i < rcv->basis->size; i++ ) {
-        double dual = rcv->basis->dualfunction[i](ur, vr) / rcv->area;
+        double dual = rcv->basis->dualFunction[i](ur, vr) / rcv->area;
         double w = dual * fraction / (double) globalNumberOfRays;
         colorAddScaled(rcv->receivedRad[i], (float)w, rayPower, rcv->receivedRad[i]);
     }

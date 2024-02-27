@@ -54,9 +54,9 @@ static double tm9(double u, double v) {
 static double (*f[MAX_BASIS_SIZE])(double, double) =
         {tm0, tm1, tm2, tm3, tm4, tm5, tm6, tm7, tm8, tm9}; // Functions
 
-static FILTERTABLE h; // push-pull filter: computed in basis.c
+static FILTER_TABLE h; // push-pull filter: computed in basis.c
 
-GalerkinBasis GLOBAL_stochasticRadiosisty_triBasis = {
+GalerkinBasis GLOBAL_stochasticRadiosity_triBasis = {
         "orthonormal basis on the standard triangle", // description
         MAX_BASIS_SIZE, // size
         f, f,

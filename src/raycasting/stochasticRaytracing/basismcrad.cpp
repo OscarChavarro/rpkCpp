@@ -5,8 +5,8 @@
 #include "raycasting/stochasticRaytracing/elementmcrad.h"
 #include "raycasting/stochasticRaytracing/basismcrad.h"
 
-GalerkinBasis GLOBAL_stochasticRadiosisty_basis[NR_ELEMENT_TYPES][NR_APPROX_TYPES];
-GalerkinBasis GLOBAL_stochasticRadiosisty_dummyBasis = {
+GalerkinBasis GLOBAL_stochasticRadiosity_basis[NR_ELEMENT_TYPES][NR_APPROX_TYPES];
+GalerkinBasis GLOBAL_stochasticRadiosity_dummyBasis = {
         "dummy basis",
         0, nullptr, nullptr
 };
@@ -22,14 +22,14 @@ static double (*f[1])(double, double) = {
     oneBasis
 };
 
-GalerkinBasis GLOBAL_stochasticRadiosisty_clusterBasis = {
+GalerkinBasis GLOBAL_stochasticRadiosity_clusterBasis = {
     "cluster basis",
     1,
     f,
     f
 };
 
-APPROXDESC GLOBAL_stochasticRadiosisty_approxDesc[NR_APPROX_TYPES] = {
+ApproximationTypeDescription GLOBAL_stochasticRadiosity_approxDesc[NR_APPROX_TYPES] = {
     {"constant",  1},
     {"linear",    3},
     {"bilinear",  4},
@@ -37,27 +37,27 @@ APPROXDESC GLOBAL_stochasticRadiosisty_approxDesc[NR_APPROX_TYPES] = {
     {"cubic",     10}
 };
 
-static GalerkinBasis MakeBasis(ELEMENT_TYPE et, APPROX_TYPE at) {
-    GalerkinBasis basis = GLOBAL_stochasticRadiosisty_quadBasis;
+static GalerkinBasis MakeBasis(ElementType et, APPROX_TYPE at) {
+    GalerkinBasis basis = GLOBAL_stochasticRadiosity_quadBasis;
     char desc[100];
     const char *elem = nullptr;
 
     switch ( et ) {
         case ET_TRIANGLE:
-            basis = GLOBAL_stochasticRadiosisty_triBasis;
+            basis = GLOBAL_stochasticRadiosity_triBasis;
             elem = "triangles";
             break;
         case ET_QUAD:
-            basis = GLOBAL_stochasticRadiosisty_quadBasis;
+            basis = GLOBAL_stochasticRadiosity_quadBasis;
             elem = "quadrilaterals";
             break;
         default:
             logFatal(-1, "MakeBasis", "Invalid element type %d", et);
     }
 
-    basis.size = GLOBAL_stochasticRadiosisty_approxDesc[at].basis_size;
+    basis.size = GLOBAL_stochasticRadiosity_approxDesc[at].basis_size;
 
-    snprintf(desc, 100, "%s orthonormal basis for %s", GLOBAL_stochasticRadiosisty_approxDesc[at].name, elem);
+    snprintf(desc, 100, "%s orthonormal basis for %s", GLOBAL_stochasticRadiosity_approxDesc[at].name, elem);
     basis.description = strdup(desc);
 
     return basis;
@@ -156,12 +156,12 @@ monteCarloRadiosityInitBasis() {
         return;
     }
 
-    basisGalerkinComputeRegularFilterCoefficients(&GLOBAL_stochasticRadiosisty_triBasis, GLOBAL_stochasticRaytracing_triupxfm, &GLOBAL_crt8);
-    basisGalerkinComputeRegularFilterCoefficients(&GLOBAL_stochasticRadiosisty_quadBasis, GLOBAL_stochasticRaytracing_quadupxfm, &GLOBAL_crq8);
+    basisGalerkinComputeRegularFilterCoefficients(&GLOBAL_stochasticRadiosity_triBasis, GLOBAL_stochasticRaytracing_triupxfm, &GLOBAL_crt8);
+    basisGalerkinComputeRegularFilterCoefficients(&GLOBAL_stochasticRadiosity_quadBasis, GLOBAL_stochasticRaytracing_quadupxfm, &GLOBAL_crq8);
 
     for ( et = 0; et < NR_ELEMENT_TYPES; et++ ) {
         for ( at = 0; at < NR_APPROX_TYPES; at++ )
-            GLOBAL_stochasticRadiosisty_basis[et][at] = MakeBasis((ELEMENT_TYPE) et, (APPROX_TYPE) at);
+            GLOBAL_stochasticRadiosity_basis[et][at] = MakeBasis((ElementType) et, (APPROX_TYPE) at);
     }
     inited = true;
 }
@@ -195,10 +195,10 @@ filterColorDown(COLOR *parent, FILTER *h, COLOR *child, int n) {
 }
 
 void
-filterColorUp(COLOR *child, FILTER *h, COLOR *parent, int n, double areafactor) {
+filterColorUp(COLOR *child, FILTER *h, COLOR *parent, int n, double areaFactor) {
     for ( int a = 0; a < n; a++ ) {
         for ( int b = 0; b < n; b++ ) {
-            double H = (*h)[a][b] * areafactor;
+            double H = (*h)[a][b] * areaFactor;
             colorAddScaled(parent[a], H, child[b], parent[a]);
         }
     }
