@@ -1,3 +1,4 @@
+#include "java/util/ArrayList.txx"
 #include "common/error.h"
 #include "render/render.h"
 #include "IMAGE/tonemap/tonemapping.h"
@@ -15,8 +16,31 @@
 static int globalNumberOfElements = 0;
 static int globalNumberOfClusters = 0;
 
-GalerkinElement::GalerkinElement(): regularSubElements() {
+GalerkinElement::GalerkinElement():
+    radiance(),
+    receivedRadiance(),
+    unShotRadiance(),
+    potential(),
+    receivedPotential(),
+    unShotPotential(),
+    directPotential(),
+    interactions(),
+    parent(),
+    regularSubElements(),
+    irregularSubElements(),
+    upTrans(),
+    area(),
+    minimumArea(),
+    bsize(),
+    numberOfPatches(),
+    tmp(),
+    childNumber(),
+    basisSize(),
+    basisUsed(),
+    flags()
+{
     className = ElementTypes::ELEMENT_GALERKIN;
+    irregularSubElements = new java::ArrayList<GalerkinElement *>();
 }
 
 /**
@@ -355,17 +379,10 @@ galerkinElementDestroyTopLevel(GalerkinElement *element) {
     }
 
     if ( element->irregularSubElements != nullptr ) {
-        for ( GalerkinElementListNode *window = element->irregularSubElements;
-            window != nullptr; window = window->next ) {
-            galerkinElementDestroyTopLevel(window->element);
+        for ( int i = 0; element->irregularSubElements != nullptr && i < element->irregularSubElements->size(); i++ ) {
+            galerkinElementDestroyTopLevel(element->irregularSubElements->get(i));
         }
-
-        GalerkinElementListNode *window = element->irregularSubElements;
-        while ( window != nullptr ) {
-            GalerkinElementListNode *listNode = window->next;
-            free(window);
-            window = listNode;
-        }
+        delete element->irregularSubElements;
     }
 
     galerkinElementDestroy(element);
@@ -457,10 +474,9 @@ galerkinElementPrint(FILE *out, GalerkinElement *element) {
     }
 
     if ( element->irregularSubElements ) {
-        GalerkinElementListNode *elist;
         fprintf(out, "irregular subelements: ");
-        for ( elist = element->irregularSubElements; elist; elist = elist->next ) {
-            fprintf(out, "%d, ", elist->element->id);
+        for ( int i = 0; element->irregularSubElements != nullptr && i < element->irregularSubElements->size(); i++ ) {
+            fprintf(out, "%d, ", element->irregularSubElements->get(i)->id);
         }
         fprintf(out, "\n");
     } else {
@@ -614,7 +630,7 @@ galerkinElementVertices(GalerkinElement *elem, Vector3D *p) {
 
         return 8;
     } else {
-        Matrix2x2 topTrans;
+        Matrix2x2 topTrans{};
         Vector2D uv;
 
         if ( elem->upTrans ) {
@@ -748,7 +764,7 @@ galerkinElementDraw(GalerkinElement *element, int mode) {
     numberOfVertices = galerkinElementVertices(element, p);
 
     if ( mode & FLAT ) {
-        RGB color;
+        RGB color{};
         COLOR rho = element->patch->radianceData->Rd;
 
         if ( GLOBAL_galerkin_state.use_ambient_radiance ) {
@@ -875,8 +891,8 @@ Call func for each leaf element of top
 */
 void
 forAllLeafElements(GalerkinElement *top, void (*func)(GalerkinElement *)) {
-    for ( GalerkinElementListNode *window = top->irregularSubElements; window != nullptr; window = window->next ) {
-        forAllLeafElements(window->element, func);
+    for ( int i = 0; top->irregularSubElements != nullptr && i < top->irregularSubElements->size(); i++ ) {
+        forAllLeafElements(top->irregularSubElements->get(i), func);
     }
 
     if ( top->regularSubElements != nullptr ) {

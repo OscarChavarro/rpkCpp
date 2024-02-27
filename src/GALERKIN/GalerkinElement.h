@@ -5,10 +5,10 @@ Galerkin finite elements: one structure for both surface and cluster elements
 #ifndef __GALERKIN_ELEMENT__
 #define __GALERKIN_ELEMENT__
 
+#include "java/util/ArrayList.h"
 #include "GALERKIN/interactionlist.h"
 #include "common/linealAlgebra/Matrix2x2.h"
 #include "scene/polygon.h"
-#include "GALERKIN/elementlistgalerkin.h"
 
 class INTERACTIONLIST;
 
@@ -39,8 +39,7 @@ class GalerkinElement : public Element {
     GalerkinElement **regularSubElements; /* A nullptr pointer if there are no
 			 regular sub-elements, or an array containing
 			 exactly 4 pointers to the sub-elements */
-    GalerkinElementListNode *irregularSubElements; /* nullptr pointer or pointer to
-			 the list of irregular sub-elements */
+    java::ArrayList<GalerkinElement *> *irregularSubElements;
     Matrix2x2 *upTrans; /* if non-null, transforms (u,v) coordinates on
 			 a sub-element to the (u,v) coordinates of the
 			 same point on the parent surface element. It is nullptr

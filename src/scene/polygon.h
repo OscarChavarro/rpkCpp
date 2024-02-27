@@ -11,7 +11,8 @@ class POLYGON {
     float plane_constant;
     BOUNDINGBOX bounds;
     Vector3D vertex[MAXIMUM_VERTICES_PER_PATCH];
-    int nrvertices, index;
+    int nrvertices;
+    int index;
 };
 
 #endif

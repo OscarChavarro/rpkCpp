@@ -116,14 +116,13 @@ gatheringPushPullPotential(GalerkinElement *elem, float down) {
     }
 
     if ( elem->irregularSubElements ) {
-        GalerkinElementListNode *subellist;
-        for ( subellist = elem->irregularSubElements; subellist; subellist = subellist->next ) {
-            GalerkinElement *subel = subellist->element;
+        for ( int i = 0; elem->irregularSubElements != nullptr && i < elem->irregularSubElements->size(); i++ ) {
+            GalerkinElement *subElement = elem->irregularSubElements->get(i);
             if ( !isCluster(elem) ) {
                 // Don't push to irregular surface sub-elements
                 down = 0.0;
             }
-            up += subel->area / elem->area * gatheringPushPullPotential(subel, down);
+            up += subElement->area / elem->area * gatheringPushPullPotential(subElement, down);
         }
     }
 
@@ -143,10 +142,9 @@ potential of the contained patches
 static float
 gatheringClusterUpdatePotential(GalerkinElement *cluster) {
     if ( cluster->flags & IS_CLUSTER ) {
-        GalerkinElementListNode *subClusterList;
         cluster->potential = 0.0;
-        for ( subClusterList = cluster->irregularSubElements; subClusterList; subClusterList = subClusterList->next ) {
-            GalerkinElement *subCluster = subClusterList->element;
+        for ( int i = 0; cluster->irregularSubElements != nullptr && i < cluster->irregularSubElements->size(); i++ ) {
+            GalerkinElement *subCluster = cluster->irregularSubElements->get(i);
             cluster->potential += subCluster->area * gatheringClusterUpdatePotential(subCluster);
         }
         cluster->potential /= cluster->area;

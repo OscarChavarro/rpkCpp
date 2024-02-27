@@ -2,6 +2,7 @@
 Cluster-specific operations
 */
 
+#include "java/util/ArrayList.txx"
 #include "common/error.h"
 #include "skin/Geometry.h"
 #include "GALERKIN/clustergalerkincpp.h"
@@ -27,7 +28,10 @@ static void
 geomAddClusterChild(Geometry *geom, GalerkinElement *parent_cluster) {
     GalerkinElement *cluster = galerkinDoCreateClusterHierarchy(geom);
 
-    parent_cluster->irregularSubElements = GalerkinElementListAdd(parent_cluster->irregularSubElements, cluster);
+    if ( parent_cluster->irregularSubElements == nullptr ) {
+        parent_cluster->irregularSubElements = new java::ArrayList<GalerkinElement *>();
+    }
+    parent_cluster->irregularSubElements->add(0, cluster);
     cluster->parent = parent_cluster;
 }
 
@@ -39,7 +43,10 @@ static void
 patchAddClusterChild(Patch *patch, GalerkinElement *cluster) {
     GalerkinElement *surfaceElement = (GalerkinElement *)patch->radianceData;
 
-    cluster->irregularSubElements = GalerkinElementListAdd(cluster->irregularSubElements, surfaceElement);
+    if ( cluster->irregularSubElements == nullptr ) {
+        cluster->irregularSubElements = new java::ArrayList<GalerkinElement *>();
+    }
+    cluster->irregularSubElements->add(0, surfaceElement);
     surfaceElement->parent = cluster;
 }
 
@@ -55,8 +62,8 @@ clusterInit(GalerkinElement *cluster) {
     cluster->numberOfPatches = 0;
     cluster->minimumArea = HUGE;
     clusterGalerkinClearCoefficients(cluster->radiance, cluster->basisSize);
-    for ( GalerkinElementListNode *subElementList = cluster->irregularSubElements; subElementList; subElementList = subElementList->next ) {
-        GalerkinElement *subCluster = subElementList->element;
+    for ( int i = 0; cluster->irregularSubElements != nullptr && i< cluster->irregularSubElements->size(); i++ ) {
+        GalerkinElement *subCluster = cluster->irregularSubElements->get(i);
         cluster->area += subCluster->area;
         cluster->numberOfPatches += subCluster->numberOfPatches;
         colorAddScaled(cluster->radiance[0], subCluster->area, subCluster->radiance[0], cluster->radiance[0]);
@@ -72,8 +79,8 @@ clusterInit(GalerkinElement *cluster) {
     // Also pull un-shot radiance for the "shooting" methods
     if ( GLOBAL_galerkin_state.iteration_method == SOUTH_WELL ) {
         clusterGalerkinClearCoefficients(cluster->unShotRadiance, cluster->basisSize);
-        for ( GalerkinElementListNode *subElementList = cluster->irregularSubElements; subElementList; subElementList = subElementList->next ) {
-            GalerkinElement *subCluster = subElementList->element;
+        for ( int i = 0; cluster->irregularSubElements != nullptr && i < cluster->irregularSubElements->size(); i++ ) {
+            GalerkinElement *subCluster = cluster->irregularSubElements->get(i);
             colorAddScaled(cluster->unShotRadiance[0], subCluster->area, subCluster->unShotRadiance[0],
                            cluster->unShotRadiance[0]);
         }
@@ -148,9 +155,8 @@ galerkinDestroyClusterHierarchy(GalerkinElement *cluster) {
         return;
     }
 
-    for ( GalerkinElementListNode *window = cluster->irregularSubElements;
-          window != nullptr; window = window->next ) {
-        galerkinDestroyClusterHierarchy(window->element);
+    for ( int i = 0; cluster->irregularSubElements != nullptr && i < cluster->irregularSubElements->size(); i++ ) {
+        galerkinDestroyClusterHierarchy(cluster->irregularSubElements->get(i));
     }
     galerkinElementDestroyCluster(cluster);
 }
@@ -163,9 +169,8 @@ iterateOverSurfaceElementsInCluster(GalerkinElement *galerkinElement, void (*fun
     if ( !isCluster(galerkinElement) ) {
         func(galerkinElement);
     } else {
-        GalerkinElementListNode *subClusterList;
-        for ( subClusterList = galerkinElement->irregularSubElements; subClusterList; subClusterList = subClusterList->next ) {
-            GalerkinElement *subCluster = subClusterList->element;
+        for ( int i = 0; galerkinElement->irregularSubElements != nullptr && i < galerkinElement->irregularSubElements->size(); i++ ) {
+            GalerkinElement *subCluster = galerkinElement->irregularSubElements->get(i);
             iterateOverSurfaceElementsInCluster(subCluster, func);
         }
     }

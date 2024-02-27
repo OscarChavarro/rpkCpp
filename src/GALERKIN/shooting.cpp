@@ -5,7 +5,6 @@ Southwell Galerkin radiosity (progressive refinement radiosity)
 #include "java/util/ArrayList.txx"
 #include "material/statistics.h"
 #include "render/potential.h"
-#include "render/render.h"
 #include "GALERKIN/clustergalerkincpp.h"
 #include "GALERKIN/galerkinP.h"
 #include "render/opengl.h"
@@ -60,8 +59,8 @@ clearUnShotRadianceAndPotential(GalerkinElement *elem) {
         }
     }
 
-    for ( GalerkinElementListNode *window = elem->irregularSubElements; window != nullptr; window = window->next ) {
-        clearUnShotRadianceAndPotential(window->element);
+    for ( int i = 0; elem->irregularSubElements != nullptr && i < elem->irregularSubElements->size(); i++ ) {
+        clearUnShotRadianceAndPotential(elem->irregularSubElements->get(i));
     }
 
     clusterGalerkinClearCoefficients(elem->unShotRadiance, elem->basisSize);
@@ -119,9 +118,8 @@ shootingPushPullPotential(GalerkinElement *elem, float down) {
     }
 
     if ( elem->irregularSubElements ) {
-        GalerkinElementListNode *subElementList;
-        for ( subElementList = elem->irregularSubElements; subElementList; subElementList = subElementList->next ) {
-            GalerkinElement *subElement = subElementList->element;
+        for ( int j = 0; elem->irregularSubElements != nullptr && j < elem->irregularSubElements->size(); j++ ) {
+            GalerkinElement *subElement = elem->irregularSubElements->get(j);
             if ( !isCluster(elem) ) {
                 down = 0.0;
             }
@@ -202,8 +200,8 @@ clusterUpdatePotential(GalerkinElement *cluster) {
     if ( isCluster(cluster) ) {
         cluster->potential = 0.0f;
         cluster->unShotPotential = 0.0f;
-        for ( GalerkinElementListNode *window = cluster->irregularSubElements; window; window = window->next ) {
-            GalerkinElement *subCluster = window->element;
+        for ( int i = 0; cluster->irregularSubElements != nullptr && i < cluster->irregularSubElements->size(); i++ ) {
+            GalerkinElement *subCluster = cluster->irregularSubElements->get(i);
             clusterUpdatePotential(subCluster);
             cluster->potential += subCluster->area * subCluster->potential;
             cluster->unShotPotential += subCluster->area * subCluster->unShotPotential;

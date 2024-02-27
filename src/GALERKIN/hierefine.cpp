@@ -533,10 +533,9 @@ hierarchicRefinementSubdivideSourceCluster(
     java::ArrayList<Geometry *> *backup = *candidatesList;
     hierarchicRefinementCull(candidatesList, link, isClusteredGeometry);
     GalerkinElement *src = link->sourceElement, *rcv = link->receiverElement;
-    GalerkinElementListNode *subClusterList;
 
-    for ( subClusterList = src->irregularSubElements; subClusterList; subClusterList = subClusterList->next ) {
-        GalerkinElement *child = subClusterList->element;
+    for ( int i = 0; src->irregularSubElements != nullptr && i < src->irregularSubElements->size(); i++ ) {
+        GalerkinElement *child = src->irregularSubElements->get(i);
         Interaction subInteraction{};
         float ff[MAXBASISSIZE * MAXBASISSIZE];
         subInteraction.K.p = ff; // Temporary storage for the form-factors
@@ -575,10 +574,9 @@ hierarchicRefinementSubdivideReceiverCluster(
     hierarchicRefinementCull(candidatesList, link, isClusteredGeometry);
     GalerkinElement *src = link->sourceElement;
     GalerkinElement *rcv = link->receiverElement;
-    GalerkinElementListNode *subClusterList;
 
-    for ( subClusterList = rcv->irregularSubElements; subClusterList; subClusterList = subClusterList->next ) {
-        GalerkinElement *child = subClusterList->element;
+    for ( int i = 0; rcv->irregularSubElements != nullptr && i < rcv->irregularSubElements->size(); i++ ) {
+        GalerkinElement *child = rcv->irregularSubElements->get(i);
         Interaction subInteraction{};
         float formFactor[MAXBASISSIZE * MAXBASISSIZE];
         subInteraction.K.p = formFactor;
@@ -671,9 +669,8 @@ refineInteractions(GalerkinElement *top) {
     // beginning at the lowest levels in the hierarchy and working upwards to
     // prevent already refined interactions from being tested for refinement
     // again
-    for ( GalerkinElementListNode *window = top->irregularSubElements;
-          window != nullptr; window = window->next ) {
-        refineInteractions(window->element);
+    for ( int i = 0; top->irregularSubElements != nullptr && i < top->irregularSubElements->size(); i++ ) {
+        refineInteractions(top->irregularSubElements->get(i));
     }
 
     if ( top->regularSubElements != nullptr ) {
