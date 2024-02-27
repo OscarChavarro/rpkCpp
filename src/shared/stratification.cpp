@@ -1,6 +1,6 @@
 #include <cmath>
+#include <cstdlib>
 
-#include "scene/spherical.h"
 #include "shared/stratification.h"
 
 CStrat2D::CStrat2D(int nrSamples) {
@@ -23,5 +23,24 @@ CStrat2D::sample(double *x1, double *x2) {
         // All strata sampled -> now just uniform sampling
         *x1 = drand48();
         *x2 = drand48();
+    }
+}
+
+/**
+Makes a nice grid for stratified sampling
+*/
+void
+getNumberOfDivisions(int samples, int *divs1, int *divs2) {
+    if ( samples <= 0 ) {
+        *divs1 = 0;
+        *divs2 = 0;
+        return;
+    }
+
+    *divs1 = (int) ceil(sqrt((double) samples));
+    *divs2 = samples / (*divs1);
+    while ( (*divs1) * (*divs2) != samples && (*divs1) > 1 ) {
+        (*divs1)--;
+        *divs2 = samples / (*divs1);
     }
 }

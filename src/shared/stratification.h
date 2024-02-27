@@ -24,4 +24,6 @@ public:
     void sample(double *x1, double *x2);
 };
 
+extern void getNumberOfDivisions(int samples, int *divs1, int *divs2);
+
 #endif

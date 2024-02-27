@@ -145,22 +145,3 @@ sampleHemisphereCosNTheta(COORDSYS *coord, double n, double xi_1, double xi_2, d
 
     return dir;
 }
-
-/**
-Makes a nice grid for stratified sampling
-*/
-void
-getNumberOfDivisions(int samples, int *divs1, int *divs2) {
-    if ( samples <= 0 ) {
-        *divs1 = 0;
-        *divs2 = 0;
-        return;
-    }
-
-    *divs1 = (int) ceil(sqrt((double) samples));
-    *divs2 = samples / (*divs1);
-    while ((*divs1) * (*divs2) != samples && (*divs1) > 1 ) {
-        (*divs1)--;
-        *divs2 = samples / (*divs1);
-    }
-}
