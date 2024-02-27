@@ -1,5 +1,3 @@
-#include <cmath>
-#include <cstdlib>
 #include <cstring>
 
 #include "common/error.h"
@@ -201,7 +199,8 @@ void HandlePath_X_0(BPCONFIG *config, CBiPath *path) {
             eyeEndNode->m_bsdfEval = edfEval(endingEdf,
                                              &eyeEndNode->m_hit,
                                              &eyeEndNode->m_inDirF,
-                                             ALL_COMPONENTS, (double *) 0);
+                                             ALL_COMPONENTS,
+                                             nullptr);
             eyeEndNode->m_bsdfComp.Fill(eyeEndNode->m_bsdfEval,
                                         BRDF_DIFFUSE_COMPONENT);
 
@@ -1024,7 +1023,6 @@ bidirPathTrace(ImageOutputHandle *ip, java::ArrayList<Patch *> * /*scenePatches*
     config.lightConfig.minDepth = GLOBAL_rayTracing_biDirectionalPath.basecfg.minimumPathDepth;
     config.lightConfig.maxDepth = GLOBAL_rayTracing_biDirectionalPath.basecfg.maximumLightPathDepth;
     config.lightConfig.neSampler = nullptr; // eyeSampler ?
-
 
     // config.maxCombinedLength = bidir.basecfg.maximumPathDepth;
 
