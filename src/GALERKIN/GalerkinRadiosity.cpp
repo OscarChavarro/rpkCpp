@@ -515,8 +515,9 @@ galerkinWriteVertexCoord(Vector3D *p) {
 static void
 galerkinWriteVertexCoords(GalerkinElement *elem) {
     Vector3D v[8];
-    int i, nverts = galerkinElementVertices(elem, v);
-    for ( i = 0; i < nverts; i++ ) {
+    int i;
+    int numberOfVertices = galerkinElementVertices(elem, v, 8);
+    for ( i = 0; i < numberOfVertices; i++ ) {
         galerkinWriteVertexCoord(&v[i]);
     }
 }

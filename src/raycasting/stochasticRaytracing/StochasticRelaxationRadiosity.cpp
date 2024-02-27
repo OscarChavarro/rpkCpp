@@ -196,13 +196,13 @@ stochasticRelaxationRadiosityDoIncrementalRadianceIterations(java::ArrayList<Pat
 
 static float
 stochasticRelaxationRadiosityElementUnShotImportance(StochasticRadiosityElement *elem) {
-    return elem->unshot_imp;
+    return elem->unShotImp;
 }
 
 static void
 stochasticRelaxationRadiosityElementIncrementImportance(StochasticRadiosityElement *elem, double w) {
     elem->imp += elem->received_imp;
-    elem->unshot_imp = elem->received_imp;
+    elem->unShotImp = elem->received_imp;
     elem->received_imp = 0.;
 }
 
@@ -334,7 +334,7 @@ stochasticRelaxationRadiosityElementUpdateImportance(StochasticRadiosityElement 
     double k = (double) GLOBAL_stochasticRaytracing_monteCarloRadiosityState.prevImportanceTracedRays / (double) GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceTracedRays;
 
     elem->imp = (float)(k * (elem->imp - elem->source_imp) + (1.0 - k) * elem->received_imp + elem->source_imp);
-    elem->unshot_imp = elem->received_imp = 0.0;
+    elem->unShotImp = elem->received_imp = 0.0;
 }
 
 static void

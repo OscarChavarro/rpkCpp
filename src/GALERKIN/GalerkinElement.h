@@ -59,7 +59,7 @@ class GalerkinElement : public Element {
     unsigned char flags; // Various flags, see below
 
     GalerkinElement();
-    virtual ~GalerkinElement();
+    ~GalerkinElement();
 };
 
 // Element flags
@@ -103,10 +103,10 @@ extern GalerkinElement *galerkinElementRegularLeafAtPoint(GalerkinElement *top, 
 extern void galerkinElementDrawOutline(GalerkinElement *elem);
 extern void galerkinElementRender(GalerkinElement *elem);
 extern void galerkinElementReAllocCoefficients(GalerkinElement *element);
-extern int galerkinElementVertices(GalerkinElement *elem, Vector3D *p);
+extern int galerkinElementVertices(GalerkinElement *elem, Vector3D *p, int n);
 extern float *galerkinElementBounds(GalerkinElement *elem, float *bounds);
 extern Vector3D galerkinElementMidPoint(GalerkinElement *elem);
-extern POLYGON *galerkinElementPolygon(GalerkinElement *elem, POLYGON *poly);
+extern POLYGON *galerkinElementPolygon(GalerkinElement *elem, POLYGON *polygon);
 extern void forAllLeafElements(GalerkinElement *top, void (*func)(GalerkinElement *));
 
 #endif

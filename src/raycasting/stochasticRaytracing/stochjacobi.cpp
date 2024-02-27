@@ -607,7 +607,7 @@ stochasticJacobiUpdateElement(StochasticRadiosityElement *elem) {
     colorAddScaled(GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalFlux, M_PI * elem->area, elem->rad[0], GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalFlux);
     colorAddScaled(GLOBAL_stochasticRaytracing_monteCarloRadiosityState.indirectImportanceWeightedUnShotFlux, M_PI * elem->area * (elem->imp - elem->source_imp), elem->unShotRad[0],
                    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.indirectImportanceWeightedUnShotFlux);
-    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotYmp += elem->area * fabs(elem->unshot_imp);
+    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotYmp += elem->area * fabs(elem->unShotImp);
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalYmp += elem->area * elem->imp;
 }
 
@@ -640,7 +640,7 @@ stochasticJacobiPull(StochasticRadiosityElement *parent, StochasticRadiosityElem
     }
     if ( get_importance ) {
         pullImportance(parent, child, &parent->imp, &child->imp);
-        pullImportance(parent, child, &parent->unshot_imp, &child->unshot_imp);
+        pullImportance(parent, child, &parent->unShotImp, &child->unShotImp);
     }
 }
 
@@ -654,7 +654,7 @@ stochasticJacobiClearElement(StochasticRadiosityElement *parent) {
         stochasticRadiosityClearCoefficients(parent->unShotRad, parent->basis);
     }
     if ( get_importance ) {
-        parent->imp = parent->unshot_imp = 0.;
+        parent->imp = parent->unShotImp = 0.;
     }
 }
 

@@ -239,10 +239,10 @@ sourceClusterRadianceVariationError(Interaction *link, COLOR rcvRho, double rcv_
     if ( K == 0. || colorNull(rcvRho) || colorNull(link->sourceElement->radiance[0])) {
         /* receiver reflectivity or coupling coefficient or source radiance
          * is zero */
-        return 0.;
+        return 0.0;
     }
 
-    numberOfRcVertices = galerkinElementVertices(link->receiverElement, rcVertices);
+    numberOfRcVertices = galerkinElementVertices(link->receiverElement, rcVertices, 8);
 
     colorSetMonochrome(minimumSrcRad, HUGE);
     colorSetMonochrome(maximumSrcRad, -HUGE);

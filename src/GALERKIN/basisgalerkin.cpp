@@ -23,7 +23,7 @@ basisGalerkinRadianceAtPoint(GalerkinElement *elem, COLOR *coefficients, double 
 
     for ( i = 0; i < elem->basisSize; i++ ) {
         double f = basis->function[i](u, v);
-        colorAddScaled(rad, f, coefficients[i], rad);
+        colorAddScaled(rad, (float)f, coefficients[i], rad);
     }
 
     return rad;
@@ -40,7 +40,7 @@ radiance coefficients (given) on the parent element and \phi_\alpha the basis
 functions on the parent. The same radiance is also approximated as
 \sum_\beta L_\beta^\sigma \phi_\beta^\sigma(x) with L_\beta^\sigma the radiance
 coefficients on the child element (to be determined) and \phi_\beta^\sigma the
-basis functions on the subelement (index \sigma).
+basis functions on the sub-element (index \sigma).
 
 The radiance coefficients L_\beta^\sigma on the child element are
 
@@ -52,8 +52,8 @@ H_{\alpha,\beta}^\sigma = {1\over A^\sigma} \times
 	\int _{A^\sigma} \phi_\beta^\sigma(x) \phi_\alpha(x) dA_x.
 
 The H_{\alpha,\beta}^\sigma coefficients are precomputed once for all
-regular subelements. They depend only on the type of domain, the basis functions,
-and the uptransforms to relate subelements with the parent element
+regular sub-elements. They depend only on the type of domain, the basis functions,
+and the up transforms to relate sub-elements with the parent element
 */
 void
 basisGalerkinPush(
@@ -63,7 +63,9 @@ basisGalerkinPush(
         COLOR *child_coefficients)
 {
     GalerkinBasis *basis;
-    int alpha, beta, sigma = child->childNumber;
+    int alpha;
+    int beta;
+    int sigma = (unsigned char)child->childNumber;
 
     if ( isCluster(parent)) {
         // Clusters have only irregular sub-elements and a constant
@@ -85,7 +87,8 @@ basisGalerkinPush(
             for ( alpha = 0; alpha < parent->basisSize; alpha++ ) {
                 double f = basis->regular_filter[sigma][alpha][beta];
                 if ( f < -EPSILON || f > EPSILON )
-                    colorAddScaled(child_coefficients[beta], f,
+                    colorAddScaled(child_coefficients[beta],
+                                   (float)f,
                                    parent_coefficients[alpha],
                                    child_coefficients[beta]);
             }
@@ -115,7 +118,9 @@ basisGalerkinPull(
     COLOR *child_coefficients)
 {
     GalerkinBasis *basis;
-    int alpha, beta, sigma = child->childNumber;
+    int alpha;
+    int beta;
+    int sigma = (unsigned char)child->childNumber;
 
     if ( isCluster(parent) ) {
         // Clusters only have irregular sub-elements and a constant
@@ -137,7 +142,8 @@ basisGalerkinPull(
             for ( beta = 0; beta < child->basisSize; beta++ ) {
                 double f = basis->regular_filter[sigma][alpha][beta];
                 if ( f < -EPSILON || f > EPSILON )
-                    colorAddScaled(parent_coefficients[alpha], f,
+                    colorAddScaled(parent_coefficients[alpha],
+                                   (float)f,
                                    child_coefficients[beta],
                                    parent_coefficients[alpha]);
             }
@@ -151,10 +157,8 @@ Modifies Bdown!
 */
 static void
 basisGalerkinPushPullRadianceRecursive(GalerkinElement *elem, COLOR *Bdown, COLOR *Bup) {
-    int i;
-
     // Re-normalize the received radiance at this level and add to Bdown
-    for ( i = 0; i < elem->basisSize; i++ ) {
+    for ( int i = 0; i < elem->basisSize; i++ ) {
         colorAddScaled(Bdown[i], 1.0f / elem->area, elem->receivedRadiance[i], Bdown[i]);
         colorClear(elem->receivedRadiance[i]);
     }
@@ -164,7 +168,7 @@ basisGalerkinPushPullRadianceRecursive(GalerkinElement *elem, COLOR *Bdown, COLO
     if ( !elem->regularSubElements && !elem->irregularSubElements ) {
         // Leaf-element, multiply with reflectivity at the lowest level
         COLOR rho = elem->patch->radianceData->Rd;
-        for ( i = 0; i < elem->basisSize; i++ ) {
+        for ( int i = 0; i < elem->basisSize; i++ ) {
             colorProduct(rho, Bdown[i], Bup[i]);
         }
 
@@ -178,7 +182,7 @@ basisGalerkinPushPullRadianceRecursive(GalerkinElement *elem, COLOR *Bdown, COLO
 
     if ( elem->regularSubElements != nullptr ) {
         // Regularly subdivided surface element
-        for ( i = 0; i < 4; i++ ) {
+        for ( int i = 0; i < 4; i++ ) {
             COLOR Btmp[MAXBASISSIZE];
             COLOR Bdown2[MAXBASISSIZE];
             COLOR Bup2[MAXBASISSIZE];
@@ -235,7 +239,7 @@ basisGalerkinPushPullRadianceRecursive(GalerkinElement *elem, COLOR *Bdown, COLO
 }
 
 /**
-Converts the received radiance of a patch into exitant
+Converts the received radiance of a patch into exit
 radiance, making a consistent hierarchical representation
 */
 void
@@ -248,7 +252,7 @@ basisGalerkinPushPullRadiance(GalerkinElement *top) {
 
 /**
 Computes the filter coefficients for push-pull operations between a
-parent and child with given basis and nr of basis functions. 'upxfm' is
+parent and child with given basis and nr of basis functions. 'up transform' is
 the transform to be used to find the point on the parent corresponding
 to a given point on the child. 'cr' is the cubature rule to be used
 for computing the coefficients. The order should be at least the highest
@@ -266,7 +270,7 @@ basisGalerkinComputeFilterCoefficients(
     int parent_size,
     GalerkinBasis *child_basis,
     int child_size,
-    Matrix2x2 *upxfm,
+    Matrix2x2 *upTransform,
     CUBARULE *cr,
     double filter[MAXBASISSIZE][MAXBASISSIZE])
 {
@@ -280,9 +284,9 @@ basisGalerkinComputeFilterCoefficients(
             x = 0.;
             for ( k = 0; k < cr->numberOfNodes; k++ ) {
                 Vector2D up;
-                up.u = cr->u[k];
-                up.v = cr->v[k];
-                transformPoint2D((*upxfm), up, up);
+                up.u = (float)cr->u[k];
+                up.v = (float)cr->v[k];
+                transformPoint2D((*upTransform), up, up);
                 x += cr->w[k] * parent_basis->function[alpha](up.u, up.v) *
                      child_basis->function[beta](cr->u[k], cr->v[k]);
             }
@@ -297,17 +301,15 @@ elements with given basis and up transform. The cubature rule 'cr' is used
 to compute the coefficients. The coefficients are filled in the
 basis->regular_filter table
 */
-void
+static void
 basisGalerkinComputeRegularFilterCoefficients(
     GalerkinBasis *basis,
-    Matrix2x2 *upxfm,
+    Matrix2x2 *upTransform,
     CUBARULE *cr)
 {
-    int sigma;
-
-    for ( sigma = 0; sigma < 4; sigma++ ) {
+    for ( int sigma = 0; sigma < 4; sigma++ ) {
         basisGalerkinComputeFilterCoefficients(basis, basis->size, basis, basis->size,
-                                               &upxfm[sigma], cr, basis->regular_filter[sigma]);
+                                               &upTransform[sigma], cr, basis->regular_filter[sigma]);
     }
 }
 

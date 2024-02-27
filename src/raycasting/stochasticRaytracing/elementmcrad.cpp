@@ -102,14 +102,14 @@ createElement() {
     elem->quality = 0;
     elem->ng = 0.;
 
-    elem->imp = elem->unshot_imp = elem->source_imp = 0.;
+    elem->imp = elem->unShotImp = elem->source_imp = 0.;
     elem->imp_ray_index = 0;
 
     VECTORSET(elem->midpoint, 0., 0., 0.);
     elem->vertex[0] = elem->vertex[1] = elem->vertex[2] = elem->vertex[3] = nullptr;
     elem->parent = nullptr;
     elem->regularSubElements = nullptr;
-    elem->irregular_subelements = nullptr;
+    elem->irregularSubElements = nullptr;
     elem->upTrans = nullptr;
     elem->childNumber = -1;
     elem->numberOfVertices = 0;
@@ -173,7 +173,7 @@ monteCarloRadiosityCreateCluster(Geometry *geom) {
     stochasticRadiosityClearCoefficients(elem->unShotRad, elem->basis);
     stochasticRadiosityClearCoefficients(elem->receivedRad, elem->basis);
     elem->imp = 0.0;
-    elem->unshot_imp = 0.0;
+    elem->unShotImp = 0.0;
     elem->received_imp = 0.0;
 
     GLOBAL_stochasticRaytracing_hierarchy.nr_clusters++;
@@ -185,14 +185,14 @@ static void
 monteCarloRadiosityCreateSurfaceElementChild(Patch *patch, StochasticRadiosityElement *parent) {
     StochasticRadiosityElement *elem = (StochasticRadiosityElement *)patch->radianceData; // Created before
     elem->parent = (StochasticRadiosityElement *)parent;
-    parent->irregular_subelements = StochasticRadiosityElementListAdd(parent->irregular_subelements, elem);
+    parent->irregularSubElements = StochasticRadiosityElementListAdd(parent->irregularSubElements, elem);
 }
 
 static void
 monteCarloRadiosityCreateClusterChild(Geometry *geom, StochasticRadiosityElement *parent) {
     StochasticRadiosityElement *subCluster = monteCarloRadiosityCreateClusterHierarchyRecursive(geom);
     subCluster->parent = parent;
-    parent->irregular_subelements = StochasticRadiosityElementListAdd(parent->irregular_subelements, subCluster);
+    parent->irregularSubElements = StochasticRadiosityElementListAdd(parent->irregularSubElements, subCluster);
 }
 
 /**
@@ -205,7 +205,7 @@ monteCarloRadiosityInitClusterPull(StochasticRadiosityElement *parent, Stochasti
     pullRadiance(parent, child, parent->unShotRad, child->unShotRad);
     pullRadiance(parent, child, parent->receivedRad, child->receivedRad);
     pullImportance(parent, child, &parent->imp, &child->imp);
-    pullImportance(parent, child, &parent->unshot_imp, &child->unshot_imp);
+    pullImportance(parent, child, &parent->unShotImp, &child->unShotImp);
     pullImportance(parent, child, &parent->received_imp, &child->received_imp);
 
     // Needs division by parent->area once it is known after monteCarloRadiosityInitClusterPull for
@@ -230,7 +230,7 @@ monteCarloRadiosityCreateClusterChildren(StochasticRadiosityElement *parent) {
         }
     }
 
-    for ( StochasticRadiosityElementListNode *window = parent->irregular_subelements; window != nullptr; window = window->next ) {
+    for ( StochasticRadiosityElementListNode *window = parent->irregularSubElements; window != nullptr; window = window->next ) {
         monteCarloRadiosityInitClusterPull(parent, window->element);
     }
     colorScaleInverse(parent->area, parent->Ed, parent->Ed);
@@ -622,7 +622,7 @@ monteCarloRadiosityInitSurfacePush(StochasticRadiosityElement *parent, Stochasti
     pushRadiance(parent, child, parent->unShotRad, child->unShotRad);
     pushImportance(parent, child, &parent->imp, &child->imp);
     pushImportance(parent, child, &parent->source_imp, &child->source_imp);
-    pushImportance(parent, child, &parent->unshot_imp, &child->unshot_imp);
+    pushImportance(parent, child, &parent->unShotImp, &child->unShotImp);
     child->ray_index = parent->ray_index;
     child->quality = parent->quality;
     child->prob = parent->prob * child->area / parent->area;
@@ -672,7 +672,7 @@ monteCarloRadiosityCreateSurfaceSubElement(
     stochasticRadiosityClearCoefficients(elem->rad, elem->basis);
     stochasticRadiosityClearCoefficients(elem->unShotRad, elem->basis);
     stochasticRadiosityClearCoefficients(elem->receivedRad, elem->basis);
-    elem->imp = elem->unshot_imp = elem->received_imp = 0.;
+    elem->imp = elem->unShotImp = elem->received_imp = 0.;
     monteCarloRadiosityInitSurfacePush(parent, elem);
 
     return elem;
@@ -789,8 +789,8 @@ monteCarloRadiosityDestroyElement(StochasticRadiosityElement *elem) {
     }
     GLOBAL_stochasticRaytracing_hierarchy.nr_elements--;
 
-    if ( elem->irregular_subelements )
-        StochasticRadiosityElementListDestroy(elem->irregular_subelements);
+    if ( elem->irregularSubElements )
+        StochasticRadiosityElementListDestroy(elem->irregularSubElements);
     if ( elem->regularSubElements )
         free(elem->regularSubElements);
     for ( i = 0; i < elem->numberOfVertices; i++ ) {
@@ -824,7 +824,7 @@ monteCarloRadiosityDestroyClusterHierarchy(StochasticRadiosityElement *top) {
     if ( top == nullptr || !top->isCluster ) {
         return;
     }
-    for ( StochasticRadiosityElementListNode *window = top->irregular_subelements; window != nullptr; window = window->next ) {
+    for ( StochasticRadiosityElementListNode *window = top->irregularSubElements; window != nullptr; window = window->next ) {
         if ( window->element->isCluster ) {
             monteCarloRadiosityDestroyClusterHierarchy(window->element);
         }
@@ -876,7 +876,7 @@ monteCarloRadiosityPrintElement(FILE *out, StochasticRadiosityElement *elem) {
     fprintf(out, ", luminosity = %g\n", colorLuminance(elem->sourceRad) * M_PI);
     fprintf(out, "ray index = %d\n", (unsigned) elem->ray_index);
     fprintf(out, "imp = %g, un-shot_imp = %g, received_imp = %g, source_imp = %g\n",
-            elem->imp, elem->unshot_imp, elem->received_imp, elem->source_imp);
+            elem->imp, elem->unShotImp, elem->received_imp, elem->source_imp);
     fprintf(out, "importance ray index = %d\n", (unsigned) elem->imp_ray_index);
     fprintf(out, "prob = %g, quality factor = %g\nng = %g\n",
             elem->prob, elem->quality, elem->ng);
@@ -892,7 +892,7 @@ monteCarloRadiosityForAllChildrenElements(StochasticRadiosityElement *top, void 
     }
 
     if ( top->isCluster ) {
-        for ( StochasticRadiosityElementListNode *window = top->irregular_subelements; window != nullptr; window = window->next ) {
+        for ( StochasticRadiosityElementListNode *window = top->irregularSubElements; window != nullptr; window = window->next ) {
             func(window->element);
         }
         return true;
@@ -916,7 +916,7 @@ monteCarloRadiosityForAllLeafElements(StochasticRadiosityElement *top, void (*fu
     }
 
     if ( top->isCluster ) {
-        for ( StochasticRadiosityElementListNode *window = top->irregular_subelements; window != nullptr; window = window->next ) {
+        for ( StochasticRadiosityElementListNode *window = top->irregularSubElements; window != nullptr; window = window->next ) {
             monteCarloRadiosityForAllLeafElements(window->element, func);
         }
     } else if ( top->regularSubElements ) {
@@ -945,7 +945,7 @@ Returns true if elem is a leaf element
 */
 int
 monteCarloRadiosityElementIsLeaf(StochasticRadiosityElement *elem) {
-    return (!elem->regularSubElements && !elem->irregular_subelements);
+    return (!elem->regularSubElements && !elem->irregularSubElements);
 }
 
 /**

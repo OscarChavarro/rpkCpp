@@ -68,15 +68,21 @@ createInitialLink(Patch *patch) {
                 return;
             }
         } else {
-            /* should never happen though */
+            // Should never happen though
             logWarning("createInitialLinks", "Unable to construct a shaft for shaft culling");
         }
     }
 
     link.receiverElement = rcv;
     link.sourceElement = src;
-    link.nrcv = rcv->basisSize;
-    link.nsrc = src->basisSize;
+
+    if ( rcv != nullptr ) {
+        link.nrcv = rcv->basisSize;
+    }
+
+    if ( src != nullptr ) {
+        link.nsrc = src->basisSize;
+    }
 
     bool isSceneGeometry = (globalCandidateList == GLOBAL_scene_geometries);
     bool isClusteredGeometry = (globalCandidateList == GLOBAL_scene_clusteredGeometries);
@@ -198,7 +204,7 @@ createInitialLinkWithTopCluster(GalerkinElement *elem, GalerkinRole role) {
     }
 
     // Assume no light transport (overlapping receiver and source)
-    if ( rcv->basisSize * src->basisSize == 1 ) {
+    if ( rcv != nullptr && src != nullptr && rcv->basisSize * src->basisSize == 1 ) {
         K.f = 0.0;
     } else {
         K.p = ff;

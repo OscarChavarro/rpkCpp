@@ -12,7 +12,7 @@ class POLYGON {
     Vector3D normal;
     float planeConstant;
     BOUNDINGBOX bounds;
-    Vector3D vertex[MAXIMUM_VERTICES_PER_PATCH + 4];
+    Vector3D vertex[MAXIMUM_VERTICES_PER_PATCH];
     int numberOfVertices;
     int index;
 

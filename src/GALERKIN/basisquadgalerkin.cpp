@@ -1,4 +1,6 @@
-/* basisquad.c: cubic orthonormal basis for the unit square [0,1]^2 */
+/**
+Cubic orthonormal basis for the unit square [0, 1]^2
+*/
 #include "GALERKIN/basisgalerkin.h"
 
 static double qg0(double u, double v) {

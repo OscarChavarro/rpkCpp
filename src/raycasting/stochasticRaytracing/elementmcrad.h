@@ -83,7 +83,7 @@ Usage:
   if (_curel->isCluster) { \
     _did_recurse = true; \
     STACK_SAVE(_subelp, _selstack, MAX_HIERARCHY_DEPTH, _selp); \
-    _subelp = _curel->irregular_subelements; \
+    _subelp = _curel->irregularSubElements; \
     while (_subelp) { \
       _curel = _subelp->element; \
       goto _begin_recurse_CS; \

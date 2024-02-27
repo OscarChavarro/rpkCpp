@@ -153,7 +153,7 @@ summarize(java::ArrayList<Patch *> *scenePatches) {
                                                                                                                                         topLevelGalerkinElement(patch)->source_imp), getTopLevelPatchUnShotRad(patch)[0],
                        GLOBAL_stochasticRaytracing_monteCarloRadiosityState.indirectImportanceWeightedUnShotFlux);
         GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotYmp += patch->area * std::fabs(
-                topLevelGalerkinElement(patch)->unshot_imp);
+                topLevelGalerkinElement(patch)->unShotImp);
         GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalYmp += patch->area * topLevelGalerkinElement(patch)->imp;
         GLOBAL_stochasticRaytracing_monteCarloRadiosityState.sourceYmp += patch->area * topLevelGalerkinElement(patch)->source_imp;
         monteCarloRadiosityPatchComputeNewColor(patch);

@@ -38,6 +38,7 @@ Interaction::Interaction():
     K(),
     deltaK(),
     nrcv(),
+    nsrc(),
     crcv(),
     vis() {
 }
@@ -51,7 +52,7 @@ Interaction::Interaction(
     unsigned char nsrc,
     unsigned char crcv,
     unsigned char vis
-) {
+): K(), deltaK() {
     this->receiverElement = rcv;
     this->sourceElement = src;
     this->nrcv = nrcv;

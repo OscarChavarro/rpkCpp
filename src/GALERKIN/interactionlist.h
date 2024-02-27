@@ -1,5 +1,5 @@
-#ifndef _INTERACTIONLIST_H_
-#define _INTERACTIONLIST_H_
+#ifndef __INTERACTION_LIST__
+#define __INTERACTION_LIST__
 
 #include "GALERKIN/Interaction.h"
 #include "common/dataStructures/List.h"

@@ -1,4 +1,6 @@
-/* elementtype.h: Monte Carlo radiosity element type */
+/**
+Monte Carlo radiosity element type
+*/
 
 #ifndef _ELEMENT_TYPE_H_
 #define _ELEMENT_TYPE_H_
@@ -25,7 +27,7 @@ class StochasticRadiosityElement : public Element {
     COLOR sourceRad; // Always constant source radiosity
 
     float imp; // For view-importance driven sampling
-    float unshot_imp;
+    float unShotImp;
     float received_imp;
     float source_imp;
     niedindex imp_ray_index; // Ray index for importance propagation
@@ -34,17 +36,39 @@ class StochasticRadiosityElement : public Element {
     Vertex *vertex[4]; // Up to 4 vertex pointers for surface elements
     StochasticRadiosityElement *parent; // Parent element in hierarchy
     StochasticRadiosityElement **regularSubElements; // For surface elements with regular quadtree subdivision
-    StochasticRadiosityElementListNode *irregular_subelements; // Clusters
+    StochasticRadiosityElementListNode *irregularSubElements; // Clusters
     Matrix2x2 *upTrans; // Relates surface element (u,v) coordinates to patch (u,v) coordinates
     signed char childNumber; // -1 for clusters or toplevel surface elements, 0..3 for regular surface sub-elements
     char numberOfVertices; // Number of surface element vertices
     char isCluster; // whether it is a cluster or not
 
-    ElementTypes className;
-    StochasticRadiosityElement() {
+    StochasticRadiosityElement():
+            ray_index(),
+            quality(),
+            prob(),
+            ng(),
+            area(),
+            basis(),
+            rad(),
+            unShotRad(),
+            receivedRad(),
+            imp(),
+            unShotImp(),
+            received_imp(),
+            source_imp(),
+            imp_ray_index(),
+            vertex(),
+            parent(),
+            regularSubElements(),
+            irregularSubElements(),
+            upTrans(),
+            childNumber(),
+            numberOfVertices(),
+            isCluster()
+    {
         className = ElementTypes::ELEMENT_STOCHASTIC_RADIOSITY;
     };
-    virtual ~StochasticRadiosityElement() {}
+    ~StochasticRadiosityElement() {}
 };
 
 #endif
