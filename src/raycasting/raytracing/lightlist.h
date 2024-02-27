@@ -3,8 +3,8 @@ Definition of the light list class
 this class can be used for sampling lights
 */
 
-#ifndef _LIGHTLIST_H_
-#define _LIGHTLIST_H_
+#ifndef __LIGHT_LIST__
+#define __LIGHT_LIST__
 
 #include "java/util/ArrayList.h"
 #include "common/linealAlgebra/vectorMacros.h"
@@ -14,7 +14,7 @@ this class can be used for sampling lights
 class CLightInfo {
 public:
     float emittedFlux;
-    float importance; // cumlative probability : for importance sampling
+    float importance; // Cumulative probability : for importance sampling
     Patch *light;
 };
 
@@ -27,18 +27,16 @@ private:
     float totalFlux;
     float totalImp;
     bool includeVirtual;
-
     int lightCount;
 
 public:
-
-    // Iteration over lights, not multi-threaded!
+    // Iteration over lights, not multi-thread!
 
     // Discrete sampling of light sources
 
     // A getPatchList must be supplied for building a light list.
     // Non emitting patches (edf == nullptr) are NOT put in the list.
-    CLightList(java::ArrayList<Patch *> *list, bool includeVirtualPatches = false);
+    explicit CLightList(java::ArrayList<Patch *> *list, bool includeVirtualPatches = false);
 
     ~CLightList();
 
@@ -54,7 +52,8 @@ public:
     double evalPdfImportant(Patch *light, Vector3D *, Vector3D *litPoint, Vector3D *normal);
 
 protected:
-    Vector3D lastPoint, lastNormal;
+    Vector3D lastPoint;
+    Vector3D lastNormal;
 
     void computeLightImportance(Vector3D *point, Vector3D *normal);
 
@@ -73,9 +72,12 @@ protected:
         const Vector3D *,
         float);
 
-    static double computeOneLightImportanceReal(Patch *light, const Vector3D *point,
-                                         const Vector3D *normal,
-                                         float emittedFlux);
+    static double
+    computeOneLightImportanceReal(
+        Patch *light,
+        const Vector3D *point,
+        const Vector3D *normal,
+        float emittedFlux);
 
     // specialisations by patch type (normal or virtual) of EvalPDF
     double evalPdfVirtual(Patch *light, Vector3D *) const;
@@ -85,14 +87,14 @@ protected:
     friend class CLightList_Iter;
 };
 
-
 class CLightList_Iter {
-private:
+  private:
     CTSList_Iter<CLightInfo> m_iter;
-public:
-    CLightList_Iter(CLightList &list) : m_iter(list) {}
+  public:
+    explicit CLightList_Iter(CLightList &list) : m_iter(list) {}
 
-    Patch *First(CLightList &list) {
+    Patch *
+    First(CLightList &list) {
         m_iter.Init(list);
 
         CLightInfo *li = m_iter.Next();
@@ -103,7 +105,8 @@ public:
         }
     }
 
-    Patch *Next() {
+    Patch *
+    Next() {
         CLightInfo *li = m_iter.Next();
         if ( li ) {
             return li->light;

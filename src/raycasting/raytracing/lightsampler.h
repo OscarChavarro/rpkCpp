@@ -6,7 +6,7 @@ importance sampling
 #ifndef __LIGHTSAMPLER__
 #define __LIGHTSAMPLER__
 
-#include "shared/lightlist.h"
+#include "lightlist.h"
 #include "raycasting/raytracing/sampler.h"
 
 class CUniformLightSampler : public CNextEventSampler {

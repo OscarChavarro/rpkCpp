@@ -8,7 +8,7 @@
 #include "scene/scene.h"
 #include "scene/Background.h"
 #include "shared/stratification.h"
-#include "shared/lightlist.h"
+#include "raycasting/raytracing/lightlist.h"
 #include "PHOTONMAP/PhotonMapRadiosity.h"
 #include "raycasting/common/Raytracer.h"
 #include "raycasting/common/raytools.h"

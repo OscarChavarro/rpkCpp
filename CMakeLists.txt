@@ -75,7 +75,6 @@ set(MAIN_SRC
     src/IMAGE/adaptation.cpp
     src/shared/samplegrid.cpp
     src/shared/discretesampling.cpp
-    src/shared/lightlist.cpp
     src/shared/stratification.cpp
     src/io/mgf/readmgf.cpp
     src/io/mgf/object.cpp
@@ -123,6 +122,7 @@ set(MAIN_SRC
     src/raycasting/simple/RayMatter.cpp
     src/raycasting/bidirectionalRaytracing/spar.cpp
     src/raycasting/bidirectionalRaytracing/BidirectionalPathRaytracer.cpp
+    src/raycasting/raytracing/lightlist.cpp
     src/raycasting/raytracing/bidiroptions.cpp
     src/raycasting/raytracing/screeniterate.cpp
     src/raycasting/raytracing/specularsampler.cpp
