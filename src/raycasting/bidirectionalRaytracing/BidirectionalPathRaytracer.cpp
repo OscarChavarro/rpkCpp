@@ -5,14 +5,14 @@
 #include "common/error.h"
 #include "shared/stratification.h"
 #include "raycasting/common/raytools.h"
-#include "raycasting/raytracing/BidirectionalPathRaytracer.h"
+#include "BidirectionalPathRaytracer.h"
 #include "raycasting/raytracing/eyesampler.h"
 #include "raycasting/raytracing/lightsampler.h"
 #include "raycasting/raytracing/lightdirsampler.h"
 #include "raycasting/raytracing/bsdfsampler.h"
 #include "raycasting/raytracing/samplertools.h"
 #include "raycasting/raytracing/screeniterate.h"
-#include "raycasting/raytracing/spar.h"
+#include "raycasting/bidirectionalRaytracing/spar.h"
 #include "raycasting/raytracing/densitybuffer.h"
 #include "raycasting/raytracing/densitykernel.h"
 
@@ -246,7 +246,7 @@ void HandlePath_X_0(BPCONFIG *config, CBiPath *path) {
 
         if ( config->bcfg->useSpars ) {
             // f = config->sparList->photonMapHandlePath(&config->sparConfig, path);
-            config->sparList->HandlePath(&config->sparConfig, path, &frad, &f);
+            config->sparList->handlePath(&config->sparConfig, path, &frad, &f);
             factor = 1.0; // pdf and weight already taken into account
         } else {
             // endingEdf != nullptr !!
@@ -349,7 +349,7 @@ COLOR ComputeNEFluxEstimate(BPCONFIG *config, CBiPath *path,
 
     if ( config->bcfg->useSpars ) {
         // f = config->sparList->photonMapHandlePath(&config->sparConfig, path);
-        config->sparList->HandlePath(&config->sparConfig, path, frad, &f);
+        config->sparList->handlePath(&config->sparConfig, path, frad, &f);
     } else {
         f = path->EvalRadiance();
 
@@ -1052,8 +1052,8 @@ bidirPathTrace(ImageOutputHandle *ip, java::ArrayList<Patch *> * /*scenePatches*
         sc->m_leSpar = leSpar;
         sc->m_ldSpar = ldSpar;
 
-        leSpar->Init(sc);
-        ldSpar->Init(sc);
+        leSpar->init(sc);
+        ldSpar->init(sc);
 
         config.sparList->Add(leSpar);
         config.sparList->Add(ldSpar);

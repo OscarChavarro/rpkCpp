@@ -5,7 +5,7 @@
 #include "common/options.h"
 #include "common/error.h"
 #include "raycasting/stochasticRaytracing/StochasticRaytracer.h"
-#include "raycasting/raytracing/BidirectionalPathRaytracer.h"
+#include "raycasting/bidirectionalRaytracing/BidirectionalPathRaytracer.h"
 #include "raycasting/simple/RayCaster.h"
 #include "raycasting/simple/RayMatter.h"
 #include "app/raytrace.h"
