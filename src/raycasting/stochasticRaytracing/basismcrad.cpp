@@ -1,7 +1,7 @@
 #include <cstring>
 
 #include "common/error.h"
-#include "shared/cubature.h"
+#include "common/cubature.h"
 #include "raycasting/stochasticRaytracing/elementmcrad.h"
 #include "raycasting/stochasticRaytracing/basismcrad.h"
 

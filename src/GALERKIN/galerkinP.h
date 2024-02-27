@@ -6,7 +6,7 @@ Galerkin Radiosity "private" declarations
 #define __GALERKIN_P__
 
 #include "java/util/ArrayList.h"
-#include "shared/cubature.h"
+#include "common/cubature.h"
 #include "SGL/sgl.h"
 #include "GALERKIN/GalerkinElement.h"
 

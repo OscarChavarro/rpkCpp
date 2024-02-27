@@ -3,11 +3,11 @@
 
 #include "java/util/ArrayList.txx"
 #include "common/error.h"
+#include "common/options.h"
+#include "common/cubature.h"
 #include "material/statistics.h"
 #include "skin/radianceinterfaces.h"
-#include "common/options.h"
 #include "render/render.h"
-#include "shared/cubature.h"
 #include "render/renderhook.h"
 #include "scene/scene.h"
 #include "IMAGE/tonemap/tonemapping.h"

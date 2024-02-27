@@ -5,7 +5,7 @@ Control of Visibility Error", SIGGRAPH '95 p145
 
 #include "common/error.h"
 #include "SGL/sgl.h"
-#include "shared/shadowcaching.h"
+#include "GALERKIN/shadowcaching.h"
 #include "GALERKIN/GalerkinElement.h"
 #include "GALERKIN/mrvisibility.h"
 

@@ -24,6 +24,7 @@ set(MAIN_SRC
     src/common/options.cpp
     src/common/cie.cpp
     src/common/RenderOptions.cpp
+    src/common/cubature.cpp
     src/common/dataStructures/CSList.cpp
     src/common/dataStructures/KDTree.cpp
     src/common/dataStructures/List.cpp
@@ -75,9 +76,7 @@ set(MAIN_SRC
     src/shared/samplegrid.cpp
     src/shared/discretesampling.cpp
     src/shared/lightlist.cpp
-    src/shared/shadowcaching.cpp
     src/shared/stratification.cpp
-    src/shared/cubature.cpp
     src/io/mgf/readmgf.cpp
     src/io/mgf/object.cpp
     src/io/mgf/lookup.cpp
@@ -99,6 +98,7 @@ set(MAIN_SRC
     src/render/canvas.cpp
     src/render/rendercommon.cpp
     src/render/ScreenBuffer.cpp
+    src/GALERKIN/shadowcaching.cpp
     src/GALERKIN/basisgalerkin.cpp
     src/GALERKIN/GalerkinRadiosity.cpp
     src/GALERKIN/shaftculling.cpp

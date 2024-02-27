@@ -1,7 +1,7 @@
 #include "common/error.h"
 #include "material/statistics.h"
 #include "scene/scene.h"
-#include "shared/shadowcaching.h"
+#include "GALERKIN/shadowcaching.h"
 #include "GALERKIN/galerkinP.h"
 #include "GALERKIN/basisgalerkin.h"
 #include "GALERKIN/mrvisibility.h"

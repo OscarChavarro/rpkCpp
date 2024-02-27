@@ -1,5 +1,5 @@
 #include "material/statistics.h"
-#include "shared/shadowcaching.h"
+#include "GALERKIN/shadowcaching.h"
 
 // Cache at most 5 blocking patches
 #define MAX_CACHE 5
