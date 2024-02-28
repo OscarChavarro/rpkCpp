@@ -65,8 +65,8 @@ RayCaster::render(GETRADIANCE_FT getRadiance = nullptr, java::ArrayList<Patch *>
     // TODO SITHMASTER: This is the main paralelizable loop for ray-casting
     for ( y = 0; y < height; y++ ) {
         for ( x = 0; x < width; x++ ) {
-            Patch *P = id_renderer->getPatchAtPixel(x, y);
-            COLOR rad = getRadianceAtPixel(x, y, P, getRadiance);
+            Patch *patch = id_renderer->getPatchAtPixel(x, y);
+            COLOR rad = getRadianceAtPixel(x, y, patch, getRadiance);
             screenBuffer->add(x, y, rad);
         }
 

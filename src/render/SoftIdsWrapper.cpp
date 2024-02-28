@@ -2,8 +2,8 @@
 #include "render/SoftIdsWrapper.h"
 
 static SGL_PIXEL
-patchPointer(Patch *P) {
-    return (SGL_PIXEL) P;
+patchPointer(Patch *patch) {
+    return (SGL_PIXEL)patch;
 }
 
 Soft_ID_Renderer::~Soft_ID_Renderer() {

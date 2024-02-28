@@ -64,7 +64,7 @@ updateDirectPotential(java::ArrayList<Patch *> *scenePatches) {
     // Allocate space for an array to hold the new direct potential of the patches
     newDirectImportance = (float *)malloc((int) (maximumPatchId + 1) * sizeof(float));
     for ( unsigned long i = 0; i <= maximumPatchId; i++ ) {
-        newDirectImportance[i] = 0.;
+        newDirectImportance[i] = 0.0;
     }
 
     // h and v are the horizontal resp. vertical distance between two
@@ -124,8 +124,8 @@ updateDirectPotential(java::ArrayList<Patch *> *scenePatches) {
 }
 
 static SGL_PIXEL
-patchPointer(Patch *P) {
-    return (SGL_PIXEL) P;
+patchPointer(Patch *patch) {
+    return (SGL_PIXEL)patch;
 }
 
 static void

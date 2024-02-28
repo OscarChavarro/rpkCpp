@@ -4,6 +4,7 @@
 #define _SGL_H_
 
 #include "common/linealAlgebra/Matrix4x4.h"
+#include "skin/Patch.h"
 
 typedef unsigned long SGL_PIXEL;
 typedef unsigned long SGL_Z_VALUE;
@@ -15,7 +16,12 @@ typedef int SGL_BOOLEAN;
 
 class SGL_CONTEXT {
 public:
+    // Note that this is being used to store a generic matrix of any type value:
+    // 1. pixels (SGL_PIXEL * / unsigned long *)
+    // 2. pointers to Patch (Patch *)
+    // 3. patch->id (unsigned)
     SGL_PIXEL *frameBuffer;
+    Patch **patchBuffer; // being created to avoid reusing pointer on different types
     SGL_Z_VALUE *depthBuffer; // Z buffer
     int width; // canvas size
     int height;

@@ -22,10 +22,10 @@ class RayCaster {
     (x,y). P shall be the nearest patch visible in the pixel.
     */
     COLOR
-    getRadianceAtPixel(int x, int y, Patch *P, GETRADIANCE_FT getRadiance) {
+    getRadianceAtPixel(int x, int y, Patch *patch, GETRADIANCE_FT getRadiance) {
         COLOR rad;
         colorClear(rad);
-        if ( P && getRadiance ) {
+        if ( patch && getRadiance ) {
             // Ray pointing from the eye through the center of the pixel.
             Ray ray;
             ray.pos = GLOBAL_camera_mainCamera.eyePosition;
@@ -34,23 +34,23 @@ class RayCaster {
 
             // Find intersection point of ray with patch P
             Vector3D point;
-            float dist = VECTORDOTPRODUCT(P->normal, ray.dir);
-            dist = -(VECTORDOTPRODUCT(P->normal, ray.pos) + P->planeConstant) / dist;
+            float dist = VECTORDOTPRODUCT(patch->normal, ray.dir);
+            dist = -(VECTORDOTPRODUCT(patch->normal, ray.pos) + patch->planeConstant) / dist;
             VECTORSUMSCALED(ray.pos, dist, ray.dir, point);
 
             // Find surface coordinates of hit point on patch
             double u;
             double v;
-            P->uv(&point, &u, &v);
+            patch->uv(&point, &u, &v);
 
             // Boundary check is necessary because Z-buffer algorithm does
             // not yield exactly the same result as ray tracing at patch
             // boundaries.
-            clipUv(P->numberOfVertices, &u, &v);
+            clipUv(patch->numberOfVertices, &u, &v);
 
             // Reverse ray direction and get radiance emitted at hit point towards the eye
             Vector3D dir(-ray.dir.x, -ray.dir.y, -ray.dir.z);
-            rad = getRadiance(P, u, v, dir);
+            rad = getRadiance(patch, u, v, dir);
         }
         return rad;
     }

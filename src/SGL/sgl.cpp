@@ -23,7 +23,8 @@ sglOpen(int width, int height) {
     // Frame buffer
     context->width = width;
     context->height = height;
-    context->frameBuffer = (SGL_PIXEL *)malloc(width * height * sizeof(SGL_PIXEL));
+    context->frameBuffer = new SGL_PIXEL[width * height];
+    context->patchBuffer = new Patch *[width * height];
 
     // No Z buffer
     context->depthBuffer = nullptr;
@@ -52,8 +53,16 @@ sglClose(SGL_CONTEXT *context) {
     if ( context == nullptr ) {
         return;
     }
-    free(context->frameBuffer);
-    if ( context->depthBuffer ) {
+
+    if ( context->frameBuffer != nullptr ) {
+        delete []context->frameBuffer;
+    }
+
+    if ( context->patchBuffer != nullptr ) {
+        delete []context->patchBuffer;
+    }
+
+    if ( context->depthBuffer != nullptr ) {
         free(context->depthBuffer);
     }
 
@@ -79,11 +88,11 @@ sglClearFrameBuffer(SGL_PIXEL backgroundColor) {
     SGL_PIXEL *pixel;
     SGL_PIXEL *lPixel;
     int i;
-    int j;
 
-    lPixel = GLOBAL_sgl_currentContext->frameBuffer + GLOBAL_sgl_currentContext->vp_y * GLOBAL_sgl_currentContext->width +
+    lPixel = GLOBAL_sgl_currentContext->frameBuffer +
+             GLOBAL_sgl_currentContext->vp_y * GLOBAL_sgl_currentContext->width +
              GLOBAL_sgl_currentContext->vp_x;
-    for ( j = 0; j < GLOBAL_sgl_currentContext->vp_height; j++, lPixel += GLOBAL_sgl_currentContext->width ) {
+    for ( int j = 0; j < GLOBAL_sgl_currentContext->vp_height; j++, lPixel += GLOBAL_sgl_currentContext->width ) {
         for ( pixel = lPixel, i = 0; i < GLOBAL_sgl_currentContext->vp_width; i++ ) {
             *pixel++ = backgroundColor;
         }

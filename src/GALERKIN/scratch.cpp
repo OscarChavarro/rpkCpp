@@ -128,7 +128,7 @@ scratchRadiance() {
         pix = GLOBAL_galerkin_state.scratch->frameBuffer + j * GLOBAL_galerkin_state.scratch->width;
         for ( i = 0; i < GLOBAL_galerkin_state.scratch->vp_width; i++, pix++ ) {
             GalerkinElement *elem = (GalerkinElement *) (*pix);
-            if ( elem ) {
+            if ( elem != nullptr ) {
                 if ( GLOBAL_galerkin_state.iteration_method == GAUSS_SEIDEL ||
                      GLOBAL_galerkin_state.iteration_method == JACOBI ) {
                     colorAdd(rad, elem->radiance[0], rad);

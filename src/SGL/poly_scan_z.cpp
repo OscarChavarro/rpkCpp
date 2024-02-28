@@ -16,19 +16,19 @@
 #include "SGL/poly.h"
 #include "SGL/sgl.h"
 
-/*
- * incrementalizeY: put intersection of line Y=y+.5 with edge between positions
- * p1 and p2 in p, put change with respect to y in dp
- */
+/**
+incrementalizeY: put intersection of line Y=y+.5 with edge between positions
+p1 and p2 in p, put change with respect to y in dp
+*/
 static void
-incrementalizeY(double *p1, double *p2, double *p, double *dp, int y) {
+incrementalizeY(const double *p1, const double *p2, double *p, double *dp, int y) {
     double dy, frac;
 
     dy = ((PolygonVertex *) p2)->sy - ((PolygonVertex *) p1)->sy;
-    if ( dy == 0. ) {
-        dy = 1.;
+    if ( dy == 0.0 ) {
+        dy = 1.0;
     }
-    frac = y + .5 - ((PolygonVertex *) p1)->sy;
+    frac = y + 0.5 - ((PolygonVertex *) p1)->sy;
 
     /* interpolate only sx and sz (first and third field) */
     dp[0] = (p2[0] - p1[0]) / dy;
@@ -37,26 +37,35 @@ incrementalizeY(double *p1, double *p2, double *p, double *dp, int y) {
     p[2] = p1[2] + dp[2] * frac;
 }
 
-static void increment(double *p, double *dp) {
-    /* increment only sx and sz */
+static void
+increment(double *p, const double *dp) {
+    // Increment only sx and sz
     p[0] += dp[0];
     p[2] += dp[2];
 }
 
-/* scanline: output scanline by sampling polygon at Y=y+.5 */
-
-static void scanline(int y, PolygonVertex *l, PolygonVertex *r, Window *win) {
-    int x, lx, rx, offset;
+/**
+Output scanline by sampling polygon at Y = y + 0.5
+*/
+static void
+scanline(int y, PolygonVertex *l, PolygonVertex *r, Window *win) {
+    int x;
+    int lx;
+    int rx;
+    int offset;
     int dz;
     SGL_PIXEL *pix;
-    SGL_Z_VALUE *zval, z;
-    double dx, frac, dzf;
+    SGL_Z_VALUE *zValue;
+    SGL_Z_VALUE z;
+    double dx;
+    double frac;
+    double dzf;
 
-    lx = ceil(l->sx - .5);
+    lx = ceil(l->sx - 0.5);
     if ( lx < win->x0 ) {
         lx = win->x0;
     }
-    rx = floor(r->sx - .5);
+    rx = floor(r->sx - 0.5);
     if ( rx > win->x1 ) {
         rx = win->x1;
     }
@@ -65,24 +74,25 @@ static void scanline(int y, PolygonVertex *l, PolygonVertex *r, Window *win) {
     }
 
     dx = r->sx - l->sx;
-    if ( dx == 0. ) {
-        dx = 1.;
+    if ( dx == 0.0 ) {
+        dx = 1.0;
     }
-    frac = lx + .5 - l->sx;
+    frac = lx + 0.5 - l->sx;
     dzf = (r->sz - l->sz) / dx;
     z = (SGL_Z_VALUE) (l->sz + dzf * frac);
     dz = (int) dzf;
 
     offset = y * GLOBAL_sgl_currentContext->width + lx;
     pix = GLOBAL_sgl_currentContext->frameBuffer + offset;
-    zval = GLOBAL_sgl_currentContext->depthBuffer + offset;
-    for ( x = lx; x <= rx; x++ ) {        /* scan in x, generating pixels */
-        if ( z <= *zval ) {
+    zValue = GLOBAL_sgl_currentContext->depthBuffer + offset;
+    for ( x = lx; x <= rx; x++ ) {
+        // Scan in x, generating pixels
+        if ( z <= *zValue ) {
             *pix = GLOBAL_sgl_currentContext->currentPixel;
-            *zval = z;
+            *zValue = z;
         }
         pix++;
-        zval++;
+        zValue++;
         z += dz;
     }
 }
@@ -118,42 +128,44 @@ polyScanZ(Polygon *p, Window *win)
     int ry;
     int top;
     int rem;
-    double ymin;
+    double yMin;
     PolygonVertex l{};
     PolygonVertex r{};
     PolygonVertex dl{};
     PolygonVertex dr{};
 
-    ymin = HUGE;
+    yMin = HUGE;
     top = -1;
     for ( i = 0; i < p->n; i++ ) {        /* find top vertex (y positions down) */
-        if ( p->vertices[i].sy < ymin ) {
-            ymin = p->vertices[i].sy;
+        if ( p->vertices[i].sy < yMin ) {
+            yMin = p->vertices[i].sy;
             top = i;
         }
     }
 
     li = ri = top;            /* left and right vertex indices */
     rem = p->n;                /* number of vertices remaining */
-    y = ceil(ymin - .5);            /* current scan line */
+    y = ceil(yMin - 0.5);            /* current scan line */
     ly = ry = y - 1;            /* lower end of left & right edges */
 
-    while ( rem > 0 ) {    /* scan in y, activating new edges on left & right */
-        /* as scan line passes over new vertices */
-
-        while ( ly <= y && rem > 0 ) {    /* advance left edge? */
+    while ( rem > 0 ) {
+        // Scan in y, activating new edges on left & right
+        // as scan line passes over new vertices
+        while ( ly <= y && rem > 0 ) {
+            // Advance left edge?
             rem--;
-            i = li - 1;            /* step ccw down left side */
+            i = li - 1; // Step ccw down left side
             if ( i < 0 ) {
                 i = p->n - 1;
             }
             incrementalizeY((double *) &p->vertices[li], (double *) &p->vertices[i], (double *) &l, (double *) &dl, y);
-            ly = floor(p->vertices[i].sy + .5);
+            ly = floor(p->vertices[i].sy + 0.5);
             li = i;
         }
-        while ( ry <= y && rem > 0 ) {    /* advance right edge? */
+        while ( ry <= y && rem > 0 ) {
+            // Advance right edge?
             rem--;
-            i = ri + 1;            /* step cw down right edge */
+            i = ri + 1; // Step cw down right edge
             if ( i >= p->n ) {
                 i = 0;
             }
@@ -162,7 +174,8 @@ polyScanZ(Polygon *p, Window *win)
             ri = i;
         }
 
-        while ( y < ly && y < ry ) {        /* do scanlines till end of l or r edge */
+        while ( y < ly && y < ry ) {
+            // Do scan lines till end of l or r edge
             if ( y >= win->y0 && y <= win->y1 ) {
                 if ( l.sx <= r.sx ) {
                     scanline(y, &l, &r, win);
@@ -176,4 +189,3 @@ polyScanZ(Polygon *p, Window *win)
         }
     }
 }
-
