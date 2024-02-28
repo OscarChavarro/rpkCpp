@@ -39,18 +39,25 @@ void CUniformLightSampler::DeactivateUnits() {
     currentPatch = nullptr;
 }
 
-bool CUniformLightSampler::Sample(CPathNode */*prevNode*/,
-                                  CPathNode *thisNode,
-                                  CPathNode *newNode, double x_1, double x_2,
-                                  bool /* doRR */, BSDFFLAGS flags) {
-    double pdfLight, pdfPoint;
+bool
+CUniformLightSampler::Sample(
+    CPathNode */*prevNode*/,
+    CPathNode *thisNode,
+    CPathNode *newNode,
+    double x1,
+    double x2,
+    bool /* doRR */,
+    BSDFFLAGS flags)
+{
+    double pdfLight;
+    double pdfPoint;
     Patch *light;
     Vector3D point;
 
-    /* thisNode is NOT used or altered. If you want the nodes connected,
-       use the Connect method of a surface sampler and a light direction
-       sampler. Otherwise pdf's cannot be calculated
-       Visibility is NOT determined here ! */
+    // thisNode is NOT used or altered. If you want the nodes connected,
+    // use the Connect method of a surface sampler and a light direction
+    // sampler. Otherwise, pdf's cannot be calculated
+    // Visibility is NOT determined here!
 
     newNode->m_depth = 0;
     newNode->m_rayType = Stops;
@@ -61,7 +68,6 @@ bool CUniformLightSampler::Sample(CPathNode */*prevNode*/,
     newNode->m_G = 1.0;
 
     // Choose light
-
     if ( unitsActive ) {
         if ( currentPatch ) {
             light = currentPatch;
@@ -71,7 +77,7 @@ bool CUniformLightSampler::Sample(CPathNode */*prevNode*/,
             return false;
         }
     } else {
-        light = GLOBAL_lightList->sample(&x_1, &pdfLight);
+        light = GLOBAL_lightList->sample(&x1, &pdfLight);
 
         if ( light == nullptr ) {
             logWarning("FillLightNode", "No light found");
@@ -82,24 +88,23 @@ bool CUniformLightSampler::Sample(CPathNode */*prevNode*/,
     // Choose point (uniform for real, sampled for background)
     if ( light->hasZeroVertices()) {
         double pdf;
-        Vector3D dir = edfSample(light->surface->material->edf, &(thisNode->m_hit), flags, x_1, x_2, nullptr, &pdf);
+        Vector3D dir = edfSample(light->surface->material->edf, &(thisNode->m_hit), flags, x1, x2, nullptr, &pdf);
         VECTORSUBTRACT(thisNode->m_hit.point, dir, point);   // fake hit at distance 1!
 
         hitInit(&newNode->m_hit, light, nullptr, &point, nullptr,
                 light->surface->material, 0.);
 
-        // fill in directions
+        // Fill in directions
         VECTORSCALE(-1, dir, newNode->m_inDirT);
         VECTORCOPY(dir, newNode->m_inDirF);
         VECTORCOPY(dir, newNode->m_normal);
 
         pdfPoint = pdf;   // every direction corresponds to 1 point
     } else {
-        light->uniformPoint(x_1, x_2, &point);
+        light->uniformPoint(x1, x2, &point);
         pdfPoint = 1.0 / light->area;
 
         // Fake a hit record
-
         hitInit(&newNode->m_hit, light, nullptr, &point, &light->normal,
                 light->surface->material, 0.);
         hitShadingNormal(&newNode->m_hit, &newNode->m_hit.normal);
@@ -117,14 +122,17 @@ bool CUniformLightSampler::Sample(CPathNode */*prevNode*/,
     return true;
 }
 
-double CUniformLightSampler::EvalPDF(CPathNode */*thisNode*/,
-                                     CPathNode *newNode,
-                                     BSDFFLAGS /*flags*/, double * /*pdf*/,
-                                     double * /*pdfRR*/) {
-    double pdf, pdfdir;
+double
+CUniformLightSampler::EvalPDF(
+    CPathNode */*thisNode*/,
+    CPathNode *newNode,
+    BSDFFLAGS /*flags*/, double * /*pdf*/,
+    double * /*pdfRR*/)
+{
+    double pdf;
+    double pdfdir;
 
-    // The light point is in NEW NODE !!
-
+    // The light point is in NEW NODE!
     if ( unitsActive ) {
         pdf = 1.0;
     } else {
@@ -132,8 +140,7 @@ double CUniformLightSampler::EvalPDF(CPathNode */*thisNode*/,
     }
 
     // Prob for choosing this point(/direction)
-    if ( newNode->m_hit.patch->hasZeroVertices())          // virtual patch
-    {
+    if ( newNode->m_hit.patch->hasZeroVertices() ) {
         // virtual patch has no area!
         // choosing a point == choosing a dir --> use pdf from evalEdf
         edfEval(newNode->m_hit.patch->surface->material->edf,
@@ -143,8 +150,8 @@ double CUniformLightSampler::EvalPDF(CPathNode */*thisNode*/,
                 &pdfdir);
 
         pdf *= pdfdir;
-    } else {                                            // normal patch
-        // choosing point uniformly
+    } else {
+        // Normal patch, choosing point uniformly
         if ( pdf >= EPSILON && newNode->m_hit.patch->area > EPSILON ) {
             pdf = pdf / newNode->m_hit.patch->area;
         } else {
@@ -156,25 +163,29 @@ double CUniformLightSampler::EvalPDF(CPathNode */*thisNode*/,
     return pdf;
 }
 
-
-/****** Important light sampler : attach weights to each lamp ******/
-
-bool CImportantLightSampler::Sample(CPathNode */*prevNode*/,
-                                    CPathNode *thisNode,
-                                    CPathNode *newNode, double x_1, double x_2,
-                                    bool /* doRR */, BSDFFLAGS flags) {
+/**
+Important light sampler : attach weights to each lamp
+*/
+bool
+CImportantLightSampler::Sample(
+    CPathNode */*prevNode*/,
+    CPathNode *thisNode,
+    CPathNode *newNode,
+    double x1,
+    double x2,
+    bool /* doRR */,
+    BSDFFLAGS flags)
+{
     double pdfLight, pdfPoint;
     Patch *light;
     Vector3D point;
 
-    /* thisNode is NOT used or altered. If you want the nodes connected,
-       use the Connect method of a surface sampler and a light direction
-       sampler. Otherwise pdf's cannot be calculated
-       Visibility is NOT determined here ! */
-
+    // thisNode is NOT used or altered. If you want the nodes connected,
+    // use the Connect method of a surface sampler and a light direction
+    // sampler. Otherwise, pdf's cannot be calculated
+    // Visibility is NOT determined here!
     newNode->m_depth = 0;
     newNode->m_rayType = Stops;
-
     newNode->m_useBsdf = nullptr;
     newNode->m_inBsdf = nullptr;
     newNode->m_outBsdf = nullptr;
@@ -189,7 +200,7 @@ bool CImportantLightSampler::Sample(CPathNode */*prevNode*/,
             VECTORSCALE(-1, thisNode->m_normal, invNormal);
 
             light = GLOBAL_lightList->sampleImportant(&thisNode->m_hit.point,
-                                                      &invNormal, &x_1, &pdfLight);
+                                                      &invNormal, &x1, &pdfLight);
         } else {
             // No (important) light sampling inside a material
             light = nullptr;
@@ -198,7 +209,7 @@ bool CImportantLightSampler::Sample(CPathNode */*prevNode*/,
         if ( thisNode->m_inBsdf == nullptr ) {
             light = GLOBAL_lightList->sampleImportant(&thisNode->m_hit.point,
                                                       &thisNode->m_normal,
-                                                      &x_1, &pdfLight);
+                                                      &x1, &pdfLight);
         } else {
             light = nullptr;
         }
@@ -210,9 +221,9 @@ bool CImportantLightSampler::Sample(CPathNode */*prevNode*/,
     }
 
     // Choose point (uniform for real, sampled for background)
-    if ( light->hasZeroVertices()) {
+    if ( light->hasZeroVertices() ) {
         double pdf;
-        Vector3D dir = edfSample(light->surface->material->edf, nullptr, flags, x_1, x_2, nullptr, &pdf);
+        Vector3D dir = edfSample(light->surface->material->edf, nullptr, flags, x1, x2, nullptr, &pdf);
         VECTORADD(thisNode->m_hit.point, dir, point);   // fake hit at distance 1!
 
         hitInit(&newNode->m_hit, light, nullptr, &point, nullptr,
@@ -225,42 +236,45 @@ bool CImportantLightSampler::Sample(CPathNode */*prevNode*/,
 
         pdfPoint = pdf; // Every direction corresponds to 1 point
     } else {
-        light->uniformPoint(x_1, x_2, &point);
+        light->uniformPoint(x1, x2, &point);
 
         pdfPoint = 1.0 / light->area;
 
         // Light position and value are known now
 
         // Fake a hit record
-
         hitInit(&newNode->m_hit, light, nullptr, &point, &light->normal,
-                light->surface->material, 0.);
+                light->surface->material, 0.0);
         hitShadingNormal(&newNode->m_hit, &newNode->m_hit.normal);
         VECTORCOPY(newNode->m_hit.normal, newNode->m_normal);
     }
 
-    // outDir's, m_G not filled in yet (lightdirection sampler does this)
+    // outDir's, m_G not filled in yet (light direction sampler does this)
 
     newNode->m_pdfFromPrev = pdfLight * pdfPoint;
 
     return true;
 }
 
-double CImportantLightSampler::EvalPDF(CPathNode *thisNode,
-                                       CPathNode *newNode,
-                                       BSDFFLAGS /*flags*/, double * /*pdf*/,
-                                       double * /*pdfRR*/) {
-    double pdf, pdfdir;
+double
+CImportantLightSampler::EvalPDF(
+    CPathNode *thisNode,
+    CPathNode *newNode,
+    BSDFFLAGS /*flags*/, double * /*pdf*/,
+    double * /*pdfRR*/)
+{
+    double pdf;
+    double pdfdir;
 
     // The light point is in NEW NODE !!
-    pdf = GLOBAL_lightList->evalPdfImportant(newNode->m_hit.patch,
-                                             &newNode->m_hit.point,
-                                             &thisNode->m_hit.point,
-                                             &thisNode->m_normal);
+    pdf = GLOBAL_lightList->evalPdfImportant(
+    newNode->m_hit.patch,
+    &newNode->m_hit.point,
+    &thisNode->m_hit.point,
+    &thisNode->m_normal);
 
     // Prob for choosing this point(/direction)
-    if ( newNode->m_hit.patch->hasZeroVertices())           // virtual patch
-    {
+    if ( newNode->m_hit.patch->hasZeroVertices() ) {
         // virtual patch has no area!
         // choosing a point == choosing a dir --> use pdf from evalEdf
         edfEval(newNode->m_hit.patch->surface->material->edf,
@@ -270,14 +284,13 @@ double CImportantLightSampler::EvalPDF(CPathNode *thisNode,
                 &pdfdir);
 
         pdf *= pdfdir;
-    } else {                                            // normal patch
-        // choosing point uniformly
+    } else {
+        // Normal patch, choosing point uniformly
         if ( pdf >= EPSILON && newNode->m_hit.patch->area > EPSILON ) {
             pdf = pdf / newNode->m_hit.patch->area;
         } else {
             pdf = 0.0;
         }
-
     }
 
     return pdf;

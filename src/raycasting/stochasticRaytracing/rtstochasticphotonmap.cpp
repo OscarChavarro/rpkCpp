@@ -235,7 +235,7 @@ SRCONFIG::initDependentVars(java::ArrayList<Patch *> *lightList) {
         delete GLOBAL_lightList;
     }
 
-    GLOBAL_lightList = new CLightList(lightList, (bool) backgroundSampling);
+    GLOBAL_lightList = new CLightList(lightList, backgroundSampling);
 
     // Main init the seed config
     seedConfig.Init(samplerConfig.maxDepth);

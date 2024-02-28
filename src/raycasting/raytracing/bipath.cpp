@@ -115,7 +115,7 @@ double CBiPath::EvalPDFAndWeight(BP_BASECONFIG *bcfg, double *pPdf,
         realPdf = pdfAcc;
     }
 
-    weight = MISFUNC(c * realPdf); // Still needs to be divided by the sum
+    weight = MULTIPLE_IMPORTANCE_SAMPLING_FUNC(c * realPdf); // Still needs to be divided by the sum
     pdfSum = weight;
 
     // To the light
@@ -148,7 +148,7 @@ double CBiPath::EvalPDFAndWeight(BP_BASECONFIG *bcfg, double *pPdf,
             tmpPdf = newPdf;
         }
 
-        pdfSum += MISFUNC(c * tmpPdf);
+        pdfSum += MULTIPLE_IMPORTANCE_SAMPLING_FUNC(c * tmpPdf);
 
         currentPdf = newPdf;
         nextNode = nextNode->Previous();
@@ -189,7 +189,7 @@ double CBiPath::EvalPDFAndWeight(BP_BASECONFIG *bcfg, double *pPdf,
         }
 
 
-        pdfSum += MISFUNC(c * tmpPdf);
+        pdfSum += MULTIPLE_IMPORTANCE_SAMPLING_FUNC(c * tmpPdf);
 
         currentPdf = newPdf;
         nextNode = nextNode->Previous();

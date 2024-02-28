@@ -18,7 +18,7 @@
 
 
 // Macro determining the heuristic used for weighting
-#define MISFUNC(a) ((a)*(a))
+#define MULTIPLE_IMPORTANCE_SAMPLING_FUNC(a) ((a)*(a))
 
 
 // Type definitions used in CPathNode

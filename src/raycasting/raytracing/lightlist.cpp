@@ -7,13 +7,6 @@ CLightList *GLOBAL_lightList = nullptr;
 CLightList::CLightList(java::ArrayList<Patch *> *list, bool includeVirtualPatches) {
     CLightInfo info{};
     COLOR lightColor;
-    {
-        static int texturingEnabled = 0;
-        if ( !texturingEnabled ) {
-            logWarning("CLightList::CLightList", "not yet ready for texturing");
-            texturingEnabled = 1;
-        }
-    }
 
     totalFlux = 0.0;
     lightCount = 0;
@@ -60,7 +53,7 @@ CLightList::sample(double *x1, double *pdf) {
     double currentSum;
 
     info = iterator.Next();
-    while ((info != nullptr) && (info->light->hasZeroVertices()) && (!includeVirtual) ) {
+    while ( (info != nullptr) && (info->light->hasZeroVertices()) && (!includeVirtual) ) {
         info = iterator.Next();
     }
 
@@ -203,7 +196,6 @@ CLightList::computeOneLightImportanceReal(Patch *light,
 	
         VECTORSUBTRACT(lightPoint, copy, dir);
         dist2 = VECTORNORM2(dir);
-        // VECTORSCALE(1/dist, dir, dir);
 
         // Check normals
 

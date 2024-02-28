@@ -1,42 +1,31 @@
-#include <cstdlib>
-
-#include "common/Ray.h"
-#include "common/linealAlgebra/Float.h"
-#include "material/bsdf.h"
-#include "skin/Patch.h"
-#include "skin/radianceinterfaces.h"
 #include "scene/scene.h"
-#include "scene/Background.h"
 #include "shared/stratification.h"
 #include "raycasting/raytracing/lightlist.h"
 #include "PHOTONMAP/PhotonMapRadiosity.h"
 #include "raycasting/common/Raytracer.h"
 #include "raycasting/common/raytools.h"
-#include "render/ScreenBuffer.h"
-#include "raycasting/raytracing/pixelsampler.h"
-#include "raycasting/raytracing/samplertools.h"
 #include "raycasting/raytracing/screeniterate.h"
 #include "raycasting/stochasticRaytracing/rtstochasticphotonmap.h"
-#include "raycasting/stochasticRaytracing/StochasticRaytracerOptions.h"
-
-/*** Defines ***/
 
 // Heuristic for Multiple Importance sampling
-#define MISFUNC(a) ((a)*(a))
+#define MULTIPLE_IMPORTANCE_SAMPLING_FUNC(a) ((a)*(a))
 
 // Heuristic minimum distance threshold for photon map readouts
 // should be tuned and dependent on scene size, ...
-// -- TODO Match with importance driven photon maps: gThreshold
-const float PMAP_MIN_DIST = 0.02;
-const float PMAP_MIN_DIST2 = PMAP_MIN_DIST * PMAP_MIN_DIST; // squared
+const float PHOTON_MAP_MIN_DIST = 0.02;
+const float PHOTON_MAP_MIN_DIST2 = PHOTON_MAP_MIN_DIST * PHOTON_MAP_MIN_DIST; // squared
 
 RTStochastic_State GLOBAL_raytracing_state;
 
 /******* get radiance routines for stochastic raytracing *******/
 
 // Forward declaration
-COLOR SR_GetRadiance(CPathNode *thisNode, SRCONFIG *config, SRREADOUT readout,
-                     int usedScatterSamples);
+COLOR
+SR_GetRadiance(
+    CPathNode *thisNode,
+    SRCONFIG *config,
+    SRREADOUT readout,
+    int usedScatterSamples);
 
 COLOR
 SR_GetScatteredRadiance(
@@ -53,14 +42,14 @@ SR_GetScatteredRadiance(
     COLOR result;
     colorClear(result);
 
-    if ((config->samplerConfig.surfaceSampler == nullptr) ||
-        (thisNode->m_depth >= config->samplerConfig.maxDepth)) {
+    if ( (config->samplerConfig.surfaceSampler == nullptr) ||
+        (thisNode->m_depth >= config->samplerConfig.maxDepth) ) {
         // No scattering
         return result;
     }
 
-    if ((config->siStorage.flags != NO_COMPONENTS) &&
-        (readout == SCATTER)) {
+    if ( (config->siStorage.flags != NO_COMPONENTS) &&
+        (readout == SCATTER) ) {
         // Do storage components
         si = &config->siStorage;
         siCurrent = -1;
@@ -73,7 +62,7 @@ SR_GetScatteredRadiance(
     while ( siCurrent < config->siOthersCount ) {
         int nrSamples;
 
-        if ( si->DoneSomePreviousBounce(thisNode)) {
+        if ( si->DoneSomePreviousBounce(thisNode) ) {
             nrSamples = si->nrSamplesAfter;
         } else {
             nrSamples = si->nrSamplesBefore;
@@ -82,20 +71,25 @@ SR_GetScatteredRadiance(
         // A small optimisation to prevent sampling surface that
         // don't have this scattering component.
 
-        if ( nrSamples > 2 )  // Some bigger value may be more efficient
-        {
-            COLOR albedo = bsdfScatteredPower(thisNode->m_useBsdf,
-                                              &thisNode->m_hit, &thisNode->m_normal,
-                                              si->flags);
+        if ( nrSamples > 2 ) {
+            // Some bigger value may be more efficient
+            COLOR albedo = bsdfScatteredPower(
+                thisNode->m_useBsdf,
+                  &thisNode->m_hit,
+                  &thisNode->m_normal,
+                  si->flags);
             if ( colorAverage(albedo) < EPSILON ) {
+                // Skip, no contribution anyway
                 nrSamples = 0;
-            } // Skip, no contribution anyway
+            }
         }
 
         // Do we need to compute scattered radiance at all...
-        if ((nrSamples > 0) && (thisNode->m_depth + 1 < config->samplerConfig.maxDepth)) {
+        if ( (nrSamples > 0) && (thisNode->m_depth + 1 < config->samplerConfig.maxDepth) ) {
             int i;
-            double x_1, x_2, factor;
+            double x_1;
+            double x_2;
+            double factor;
             CStrat2D strat(nrSamples);
             COLOR radiance;
             bool doRR = thisNode->m_depth >= config->samplerConfig.minDepth;
@@ -104,13 +98,13 @@ SR_GetScatteredRadiance(
                 strat.sample(&x_1, &x_2);
 
                 // Surface sampling
-
-                if ( config->samplerConfig.surfaceSampler->Sample(thisNode->Previous(),
-                                                                  thisNode,
-                                                                  &newNode, x_1, x_2,
-                                                                  doRR,
-                                                                  si->flags)
-                     && ((newNode.m_rayType != Environment) || (config->backgroundIndirect))) {
+                if ( config->samplerConfig.surfaceSampler->Sample(
+                thisNode->Previous(),
+                         thisNode,
+                         &newNode, x_1, x_2,
+                         doRR,
+                         si->flags)
+                     && ((newNode.m_rayType != Environment) || (config->backgroundIndirect)) ) {
                     if ( newNode.m_rayType != Environment ) {
                         newNode.AssignBsdfAndNormal();
                     }
@@ -136,30 +130,35 @@ SR_GetScatteredRadiance(
                     // Collect outgoing radiance
                     factor = newNode.m_G / (newNode.m_pdfFromPrev * nrSamples);
 
-                    colorProductScaled(radiance, factor, thisNode->m_bsdfEval, radiance);
+                    colorProductScaled(radiance, (float)factor, thisNode->m_bsdfEval, radiance);
                     colorAdd(radiance, result, result);
                 }
-            } // for each sample
-        } // if nrSamples > 0
+            }
+        }
 
         // Next scatter info block
         siCurrent++;
         if ( siCurrent < config->siOthersCount ) {
             si = &config->siOthers[siCurrent];
         }
-    } // while not all si done
+    }
 
     thisNode->SetNext(nullptr);
     return result;
 }
 
-COLOR SR_GetDirectRadiance(CPathNode *prevNode, SRCONFIG *config,
-                           SRREADOUT readout) {
-    COLOR result, radiance;
+COLOR
+SR_GetDirectRadiance(
+    CPathNode *prevNode,
+    SRCONFIG *config,
+    SRREADOUT readout)
+{
+    COLOR result;
+    COLOR radiance;
     colorClear(result);
     Vector3D dirEL;
 
-    if ((readout == READ_NOW) && (config->radMode == STORED_PHOTONMAP)) {
+    if ( (readout == READ_NOW) && (config->radMode == STORED_PHOTONMAP) ) {
         return result;
     } // We're reading out D|G, specular not with direct light
 
@@ -167,14 +166,19 @@ COLOR SR_GetDirectRadiance(CPathNode *prevNode, SRCONFIG *config,
 
     // Check if N.E.E. can give a contribution. I.e. not inside
     // a medium or just about to leave to vacuum
-    /* -- TODO -- */
-
-    if ((nes != nullptr) &&
+    if ( (nes != nullptr) &&
         (config->nextEventSamples > 0) &&
-        (prevNode->m_depth + 1 < config->samplerConfig.maxDepth)) {
+        (prevNode->m_depth + 1 < config->samplerConfig.maxDepth) ) {
         int i;
         CPathNode lightNode;
-        double x_1, x_2, geom, weight, cl, cr, factor, nrs;
+        double x_1;
+        double x_2;
+        double geom;
+        double weight;
+        double cl;
+        double cr;
+        double factor;
+        double nrs;
         bool lightsToDo = true;
 
         if ( config->lightMode == ALL_LIGHTS ) {
@@ -189,23 +193,25 @@ COLOR SR_GetDirectRadiance(CPathNode *prevNode, SRCONFIG *config,
                 // Light sampling
                 strat.sample(&x_1, &x_2);
 
-                if ( config->samplerConfig.neSampler->Sample(prevNode->Previous(),
-                                                             prevNode,
-                                                             &lightNode, x_1, x_2,
-                                                             true, BSDF_ALL_COMPONENTS)) {
+                if ( config->samplerConfig.neSampler->Sample(
+                        prevNode->Previous(),
+                        prevNode,
+                        &lightNode,
+                        x_1,
+                        x_2,
+                        true,
+                        BSDF_ALL_COMPONENTS) ) {
 
-                    if ( pathNodesVisible(prevNode, &lightNode)) {
+                    if ( pathNodesVisible(prevNode, &lightNode) ) {
                         // Now connect for all applicable scatter-info's
                         // If no weighting between reflection sampling and
                         // next event estimation were used, only one connect
                         // using the union of different scatter info flags
-                        // are necessary (=speedup).
-
+                        // are necessary (=speedup)
                         int siCurrent;
                         CScatterInfo *si;
 
-                        if ((config->siStorage.flags != NO_COMPONENTS) &&
-                            (readout == SCATTER)) {
+                        if ( (config->siStorage.flags != NO_COMPONENTS) && (readout == SCATTER) ) {
                             // Do storage components
                             si = &config->siStorage;
                             siCurrent = -1;
@@ -218,59 +224,59 @@ COLOR SR_GetDirectRadiance(CPathNode *prevNode, SRCONFIG *config,
                         while ( siCurrent < config->siOthersCount ) {
                             bool doSi = true;
 
-                            if ((config->reflectionSampling == PHOTONMAPSAMPLING)
-                                // was (config->radMode == STORED_PHOTONMAP)
-                                || (config->reflectionSampling == CLASSICALSAMPLING)) {
-                                if ( si->flags & BSDF_SPECULAR_COMPONENT) {
+                            if ( (config->reflectionSampling == PHOTONMAPSAMPLING)
+                                || (config->reflectionSampling == CLASSICALSAMPLING) ) {
+                                if ( si->flags & BSDF_SPECULAR_COMPONENT ) {
+                                    // Perfect mirror reflection, no n.e.e.
                                     doSi = false;
-                                } // Perfect mirror reflection, no n.e.e.
+                                }
                             }
 
                             if ( doSi ) {
                                 // Connect using correct flags
-                                geom = pathNodeConnect(prevNode, &lightNode, &config->samplerConfig,
-                                                       nullptr, // No light config
-                                                       CONNECT_EL, si->flags,
-                                                       BSDF_ALL_COMPONENTS,
-                                                       &dirEL);
+                                geom = pathNodeConnect(
+                                prevNode,
+                                &lightNode,
+                                &config->samplerConfig,
+                                nullptr, // No light config
+                                CONNECT_EL,
+                                si->flags,
+                                BSDF_ALL_COMPONENTS,
+                                &dirEL);
 
                                 // Contribution of this sample (with Multiple Imp. S.)
 
                                 if ( config->reflectionSampling == CLASSICALSAMPLING ) {
                                     weight = 1.0;
                                 } else {
-                                    // Ndirect * pdf  for the n.e.e.
-                                    cl = MISFUNC(config->nextEventSamples * lightNode.m_pdfFromPrev);
+                                    // N direct * pdf  for the n.e.e.
+                                    cl = MULTIPLE_IMPORTANCE_SAMPLING_FUNC(config->nextEventSamples * lightNode.m_pdfFromPrev);
 
-                                    // Nscatter * pdf  for possible scattering
+                                    // N scatter * pdf  for possible scattering
                                     if ( si->DoneSomePreviousBounce(prevNode)) {
                                         nrs = si->nrSamplesAfter;
                                     } else {
                                         nrs = si->nrSamplesBefore;
                                     }
 
-                                    cr = MISFUNC(nrs * lightNode.m_pdfFromNext);
+                                    cr = MULTIPLE_IMPORTANCE_SAMPLING_FUNC(nrs * lightNode.m_pdfFromNext);
 
                                     // Are we deep enough to do russian roulette
                                     if ( lightNode.m_depth >= config->samplerConfig.minDepth ) {
-                                        cr *= MISFUNC(lightNode.m_rrPdfFromNext);
+                                        cr *= MULTIPLE_IMPORTANCE_SAMPLING_FUNC(lightNode.m_rrPdfFromNext);
                                     }
 
                                     weight = cl / (cl + cr);
                                 }
 
-                                // printf("cl %g : %i %g, cr %g : %i %g\n", cl,
-                                //  config->nextEventSamples, lightNode.m_pdfFromPrev,
-                                //  cr, config->scatterSamples, lightNode.m_pdfFromNext);
-
                                 factor = weight * geom / (lightNode.m_pdfFromPrev *
                                                           config->nextEventSamples);
-                                colorProductScaled(prevNode->m_bsdfEval, factor, lightNode.m_bsdfEval,
+                                colorProductScaled(prevNode->m_bsdfEval, (float)factor, lightNode.m_bsdfEval,
                                                    radiance);
 
                                 // Collect outgoing radiance
                                 colorAdd(result, radiance, result);
-                            } // if not photonmap or no caustic path
+                            } // if not photon map or no caustic path
 
                             // Next scatter info block
                             siCurrent++;
@@ -278,33 +284,38 @@ COLOR SR_GetDirectRadiance(CPathNode *prevNode, SRCONFIG *config,
                                 si = &config->siOthers[siCurrent];
                             }
 
-                        } // while not all si done
-                    } // if pathnodes visible
-                } // for each sample
-            } // if light point sampled
+                        }
+                    }
+                }
+            }
 
             if ( config->lightMode == ALL_LIGHTS ) {
                 lightsToDo = nes->ActivateNextUnit();
             } else {
                 lightsToDo = false;
             }
-
-        } // while(!lightsDone)
+        }
     }
     return result;
 }
 
-COLOR SR_GetRadiance(CPathNode *thisNode, SRCONFIG *config, SRREADOUT readout,
-                     int usedScatterSamples) {
-    COLOR result, radiance;
-    //  BSDFFLAGS bsdfFlags = BSDF_ALL_COMPONENTS;
+COLOR
+SR_GetRadiance(
+    CPathNode *thisNode,
+    SRCONFIG *config,
+    SRREADOUT readout,
+    int usedScatterSamples)
+{
+    COLOR result;
+    COLOR radiance;
     XXDFFLAGS edfFlags = ALL_COMPONENTS;
 
-    // handle background
+    // Handle background
     if ( thisNode->m_rayType == Environment ) {
-        // check for  weighting
-        double weight = 1, cr, cl;
-
+        // Check for  weighting
+        double weight = 1;
+        double cr;
+        double cl;
         bool doWeight = true;
 
         if ( thisNode->m_depth <= 1 ) {   // don't weight direct light
@@ -315,27 +326,16 @@ COLOR SR_GetRadiance(CPathNode *thisNode, SRCONFIG *config, SRREADOUT readout,
             doWeight = false;
         }
 
-        /*************************************************************/
-        /* uncomment if environment light is added to the photon map */
-        /*************************************************************
-        if((config->radMode == STORED_PHOTONMAP) && (thisNode->m_depth > 1))
-       {
-           if(thisNode->Previous()->m_usedComponents & BSDF_SPECULAR_COMPONENT)
-       oWeight = false;  // Perfect Specular scatter, no weighting
-       }
-        **************************************************************/
-
-        if ( !(config->backgroundSampling)) {
+        if ( !(config->backgroundSampling) ) {
             doWeight = false;
         }
 
         if ( doWeight ) {
             cl = config->nextEventSamples *
-                 config->samplerConfig.neSampler->EvalPDF(thisNode->Previous(),
-                                                          thisNode);
-            cl = MISFUNC(cl);
+                 config->samplerConfig.neSampler->EvalPDF(thisNode->Previous(), thisNode);
+            cl = MULTIPLE_IMPORTANCE_SAMPLING_FUNC(cl);
             cr = usedScatterSamples * thisNode->m_pdfFromPrev;
-            cr = MISFUNC(cr);
+            cr = MULTIPLE_IMPORTANCE_SAMPLING_FUNC(cr);
 
             weight = cr / (cr + cl);
         }
@@ -343,27 +343,23 @@ COLOR SR_GetRadiance(CPathNode *thisNode, SRCONFIG *config, SRREADOUT readout,
         result = backgroundRadiance(GLOBAL_scene_background, &(thisNode->Previous()->m_hit.point),
                                     &(thisNode->m_inDirF), nullptr);
 
-        colorScale(weight, result, result);
-    }
-        // handle non-background
-    else {
+        colorScale((float)weight, result, result);
+    } else {
+        // Handle non-background
         EDF *thisEdf = thisNode->m_hit.material->edf;
 
         colorClear(result);
 
         // Stored radiance
-
-        if ((readout == READ_NOW) && (config->siStorage.flags != NO_COMPONENTS)) {
-            /* add the stored radiance being emitted from the patch */
-
+        if ( (readout == READ_NOW) && (config->siStorage.flags != NO_COMPONENTS) ) {
+            // Add the stored radiance being emitted from the patch
             if ( GLOBAL_radiance_currentRadianceMethodHandle == &GLOBAL_photonMapMethods ) {
                 if ( config->radMode == STORED_PHOTONMAP ) {
                     // Check if the distance to the previous point is big enough
                     // otherwise we need more scattering...
-
                     float dist2 = VECTORDIST2(thisNode->m_hit.point, thisNode->Previous()->m_hit.point);
 
-                    if ( dist2 > PMAP_MIN_DIST2 ) {
+                    if ( dist2 > PHOTON_MAP_MIN_DIST2 ) {
                         radiance = photonMapGetNodeGRadiance(thisNode);
                         // This does not include Le (self emitted light)
                     } else {
@@ -376,8 +372,8 @@ COLOR SR_GetRadiance(CPathNode *thisNode, SRCONFIG *config, SRREADOUT readout,
                 }
             } else {
                 // Other radiosity method
-
-                double u, v;
+                double u;
+                double v;
 
                 // (u, v) coordinates of intersection point
                 thisNode->m_hit.patch->uv(&thisNode->m_hit.point, &u, &v);
@@ -385,15 +381,13 @@ COLOR SR_GetRadiance(CPathNode *thisNode, SRCONFIG *config, SRREADOUT readout,
                 radiance = GLOBAL_radiance_currentRadianceMethodHandle->GetRadiance(thisNode->m_hit.patch, u, v,
                                                                                     thisNode->m_inDirF);
 
-                // This includes Le diffuse, subtract first and
-                // handle total emitted later (possibly weighted)
+                // This includes Le diffuse, subtract first and handle total emitted later (possibly weighted)
                 // -- Interface mechanism needed to determine what a
                 // -- radiance method does...
-
                 COLOR diffEmit;
 
                 diffEmit = edfEval(thisEdf, &thisNode->m_hit, &(thisNode->m_inDirF),
-                                   BRDF_DIFFUSE_COMPONENT, (double *) 0);
+                                   BRDF_DIFFUSE_COMPONENT, nullptr);
 
                 colorSubtract(radiance, diffEmit, radiance);
             }
@@ -403,37 +397,32 @@ COLOR SR_GetRadiance(CPathNode *thisNode, SRCONFIG *config, SRREADOUT readout,
         } // Done: Stored radiance, no self emitted light included!
 
         // Stored caustic maps
-
-        if ((config->radMode == STORED_PHOTONMAP) && readout == SCATTER ) {
+        if ( (config->radMode == STORED_PHOTONMAP) && readout == SCATTER ) {
             radiance = photonMapGetNodeCRadiance(thisNode);
             colorAdd(result, radiance, result);
         }
 
         radiance = SR_GetDirectRadiance(thisNode, config, readout);
-
         colorAdd(result, radiance, result);
 
         // Scattered light
-
         radiance = SR_GetScatteredRadiance(thisNode, config, readout);
-
         colorAdd(result, radiance, result);
 
         // Emitted Light
-
-        if ((config->radMode == STORED_PHOTONMAP) && (GLOBAL_radiance_currentRadianceMethodHandle == &GLOBAL_photonMapMethods)) {
+        if ( (config->radMode == STORED_PHOTONMAP) && (GLOBAL_radiance_currentRadianceMethodHandle == &GLOBAL_photonMapMethods) ) {
             // Check if Le would contribute to a caustic
-
-            if ((readout == READ_NOW) && !(config->siStorage.DoneThisBounce(thisNode->Previous()))) {
+            if ( (readout == READ_NOW) && !(config->siStorage.DoneThisBounce(thisNode->Previous())) ) {
                 // Caustic contribution:  (E...(D|G)...?L) with ? some specular bounce
                 edfFlags = 0;
             }
         }
 
-        if ((thisEdf != nullptr) && (edfFlags != 0)) {
-            double weight, cr, cl;
+        if ( (thisEdf != nullptr) && (edfFlags != 0) ) {
+            double weight;
+            double cr;
+            double cl;
             COLOR col;
-
             bool doWeight = true;
 
             if ( thisNode->m_depth <= 1 ) {
@@ -444,41 +433,44 @@ COLOR SR_GetRadiance(CPathNode *thisNode, SRCONFIG *config, SRREADOUT readout,
                 doWeight = false;
             }
 
-            if ((config->reflectionSampling == PHOTONMAPSAMPLING)
-                /*(config->radMode == STORED_PHOTONMAP)*/ && (thisNode->m_depth > 1)) {
+            if ( (config->reflectionSampling == PHOTONMAPSAMPLING) && (thisNode->m_depth > 1) ) {
                 if ( thisNode->Previous()->m_usedComponents & BSDF_SPECULAR_COMPONENT) {
+                    // Perfect Specular scatter, no weighting
                     doWeight = false;
-                }  // Perfect Specular scatter, no weighting
+                }
             }
 
             if ( doWeight ) {
                 cl = config->nextEventSamples *
                      config->samplerConfig.neSampler->EvalPDF(thisNode->Previous(),
                                                               thisNode);
-                cl = MISFUNC(cl);
+                cl = MULTIPLE_IMPORTANCE_SAMPLING_FUNC(cl);
                 cr = usedScatterSamples * thisNode->m_pdfFromPrev;
-                cr = MISFUNC(cr);
+                cr = MULTIPLE_IMPORTANCE_SAMPLING_FUNC(cr);
 
                 weight = cr / (cr + cl);
             } else {
-                weight = 1;  // We don't do N.E.E. from the eye !
+                // We don't do N.E.E. from the eye !
+                weight = 1;
             }
 
             col = edfEval(thisEdf, &thisNode->m_hit,
                           &(thisNode->m_inDirF),
-                          edfFlags, (double *) 0);
+                          edfFlags, nullptr);
 
-            colorAddScaled(result, weight, col, result);
+            colorAddScaled(result, (float)weight, col, result);
         }
     }
 
     return result;
 }
 
-static COLOR CalcPixel(int nx, int ny, SRCONFIG *config) {
+static COLOR
+CalcPixel(int nx, int ny, SRCONFIG *config) {
     int i;
     CPathNode eyeNode, pixelNode;
-    double x_1, x_2;
+    double x1;
+    double x2;
     COLOR col, result;
     CStrat2D strat(config->samplesPerPixel);
 
@@ -496,24 +488,17 @@ static COLOR CalcPixel(int nx, int ny, SRCONFIG *config) {
 
     // Calc pixel data
 
-    //  printf("Pix %i %i : ", nx, ny);
-
     // Sample eye node
-
     config->samplerConfig.pointSampler->Sample(nullptr, nullptr, &eyeNode, 0, 0);
     ((CPixelSampler *) config->samplerConfig.dirSampler)->SetPixel(nx, ny);
-
 
     eyeNode.Attach(&pixelNode);
 
     // Stratified sampling of the pixel
-
     for ( i = 0; i < config->samplesPerPixel; i++ ) {
-        strat.sample(&x_1, &x_2);
+        strat.sample(&x1, &x2);
 
-        if ( config->samplerConfig.dirSampler->Sample(nullptr, &eyeNode,
-                                                      &pixelNode, x_1,
-                                                      x_2)
+        if ( config->samplerConfig.dirSampler->Sample(nullptr, &eyeNode, &pixelNode, x1, x2)
              && ((pixelNode.m_rayType != Environment) || (config->backgroundDirect))) {
             pixelNode.AssignBsdfAndNormal();
 
@@ -521,7 +506,6 @@ static COLOR CalcPixel(int nx, int ny, SRCONFIG *config) {
             if ( GLOBAL_raytracing_state.doFrameCoherent || GLOBAL_raytracing_state.doCorrelatedSampling ) {
                 config->seedConfig.Save(pixelNode.m_depth);
             }
-
 
             col = SR_GetRadiance(&pixelNode, config, config->initialReadout,
                                  config->samplesPerPixel);
@@ -535,31 +519,25 @@ static COLOR CalcPixel(int nx, int ny, SRCONFIG *config) {
             // in the pixel sampled point.
 
             // Account for the eye sampling
-            // -- Not neccessary yet ...
+            // -- Not needed yet ...
 
             // Account for pixel sampling
-            colorScale(pixelNode.m_G / pixelNode.m_pdfFromPrev, col, col);
+            colorScale((float)(pixelNode.m_G / pixelNode.m_pdfFromPrev), col, col);
             colorAdd(result, col, result);
         }
     }
 
     // We have now the FLUX for the pixel (x N), convert it to radiance
-
     double factor = (computeFluxToRadFactor(nx, ny) /
-                     config->samplesPerPixel);
+            (float)config->samplesPerPixel);
 
-    colorScale(factor, result, result);
-
-    // printf("RESULT %g %g %g \n", result.r, result.g, result.b);
-
+    colorScale((float)factor, result, result);
     config->screen->add(nx, ny, result);
-
 
     // Frame coherent & correlated sampling
     if ( GLOBAL_raytracing_state.doFrameCoherent || GLOBAL_raytracing_state.doCorrelatedSampling ) {
         config->seedConfig.Restore(0);
     }
-
 
     return result;
 }
@@ -570,7 +548,11 @@ is not a nullptr pointer, write the ray-traced image to the file
 pointed to by 'fp'
 */
 void
-RTStochastic_Trace(ImageOutputHandle *ip, java::ArrayList<Patch *> * /*scenePatches*/, java::ArrayList<Patch *> *lightPatches) {
+RTStochastic_Trace(
+    ImageOutputHandle *ip,
+    java::ArrayList<Patch *> * /*scenePatches*/,
+    java::ArrayList<Patch *> *lightPatches)
+{
     SRCONFIG config(GLOBAL_raytracing_state, lightPatches); // config filled in by constructor
 
     // Frame Coherent sampling : init fixed seed
@@ -581,9 +563,9 @@ RTStochastic_Trace(ImageOutputHandle *ip, java::ArrayList<Patch *> * /*scenePatc
     CPathNode::m_dmaxsize = 0; // No need for derivative structures
 
     if ( !GLOBAL_raytracing_state.progressiveTracing ) {
-        ScreenIterateSequential((COLOR(*)(int, int, void *)) CalcPixel, &config);
+        ScreenIterateSequential((COLOR(*)(int, int, void *))CalcPixel, &config);
     } else {
-        ScreenIterateProgressive((COLOR(*)(int, int, void *)) CalcPixel, &config);
+        ScreenIterateProgressive((COLOR(*)(int, int, void *))CalcPixel, &config);
     }
 
     config.screen->render();
@@ -599,7 +581,8 @@ RTStochastic_Trace(ImageOutputHandle *ip, java::ArrayList<Patch *> * /*scenePatc
     config.screen = nullptr;
 }
 
-int RTStochastic_Redisplay() {
+int
+RTStochastic_Redisplay() {
     if ( GLOBAL_raytracing_state.lastscreen ) {
         GLOBAL_raytracing_state.lastscreen->render();
         return true;
@@ -608,7 +591,8 @@ int RTStochastic_Redisplay() {
     }
 }
 
-int RTStochastic_SaveImage(ImageOutputHandle *ip) {
+int
+RTStochastic_SaveImage(ImageOutputHandle *ip) {
     if ( ip && GLOBAL_raytracing_state.lastscreen ) {
         GLOBAL_raytracing_state.lastscreen->sync();
         GLOBAL_raytracing_state.lastscreen->writeFile(ip);
@@ -618,11 +602,13 @@ int RTStochastic_SaveImage(ImageOutputHandle *ip) {
     }
 }
 
-static void RTStochastic_Interrupt() {
+static void
+RTStochastic_Interrupt() {
     GLOBAL_rayCasting_interruptRaytracing = true;
 }
 
-static void RTStochastic_Init(java::ArrayList<Patch *> *lightPatches) {
+static void
+RTStochastic_Init(java::ArrayList<Patch *> *lightPatches) {
     // mainInit the light list
     if ( GLOBAL_lightList ) {
         delete GLOBAL_lightList;
@@ -630,18 +616,20 @@ static void RTStochastic_Init(java::ArrayList<Patch *> *lightPatches) {
     GLOBAL_lightList = new CLightList(lightPatches);
 }
 
-void RTStochastic_Terminate() {
+void
+RTStochastic_Terminate() {
     if ( GLOBAL_raytracing_state.lastscreen ) {
         delete GLOBAL_raytracing_state.lastscreen;
     }
-    GLOBAL_raytracing_state.lastscreen = (ScreenBuffer *) 0;
+    GLOBAL_raytracing_state.lastscreen = nullptr;
 }
 
-Raytracer GLOBAL_raytracing_stochasticMethod =
+Raytracer
+GLOBAL_raytracing_stochasticMethod =
 {
-    (char *) "StochasticRaytracing",
+    (char *)"StochasticRaytracing",
     4,
-    (char *) "Stochastic Raytracing & Final Gathers",
+    (char *)"Stochastic Raytracing & Final Gathers",
     stochasticRayTracerDefaults,
     RTStochasticParseOptions,
     RTStochastic_Init,
