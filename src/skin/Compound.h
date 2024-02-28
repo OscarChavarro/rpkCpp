@@ -9,6 +9,7 @@ public:
     java::ArrayList<Geometry *> *children;
 
     explicit Compound(java::ArrayList<Geometry *> *geometryList);
+    virtual ~Compound();
 
     RayHit *
     discretizationIntersect(

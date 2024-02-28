@@ -25,15 +25,29 @@ Geometry::Geometry():
     className = GeometryClassId::UNDEFINED;
 }
 
+static bool contains(java::ArrayList<MeshSurface *> *deleted, MeshSurface *candidate) {
+    for ( int i = 0; i < deleted->size(); i++ ) {
+        if ( deleted->get(i) == candidate ) {
+            return true;
+        }
+    }
+    return false;
+}
+
 Geometry::~Geometry() {
+    static java::ArrayList<MeshSurface *> deleted;
+
     if ( radianceData != nullptr && !isDuplicate ) {
         delete radianceData;
         radianceData = nullptr;
     }
 
     if ( surfaceData != nullptr && !isDuplicate ) {
-        // TODO: Check where is this being deleted and solve related memory leak
-        //delete surfaceData;
+        // TODO: Check why some elements are added twice to the main list
+        if ( !contains(&deleted, surfaceData) ) {
+            deleted.add(surfaceData);
+            delete surfaceData;
+        }
         surfaceData = nullptr;
     }
 

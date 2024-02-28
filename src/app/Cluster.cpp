@@ -30,6 +30,7 @@ Cluster::Cluster(): patches() {
 Creates a toplevel cluster. The patch list of the cluster contains all inPatches.
 */
 Cluster::Cluster(java::ArrayList<Patch *> *inPatches) {
+    patches = inPatches;
     commonBuild();
 
     patches = new java::ArrayList<Patch *>();
@@ -62,7 +63,10 @@ Cluster::commonBuild() {
     int i;
     boundsInit(boundingBox);
     VECTORSET(boundingBoxCentroid, 0.0, 0.0, 0.0);
-    patches = new java::ArrayList<Patch *>();
+
+    if ( patches == nullptr ) {
+        patches = new java::ArrayList<Patch *>();
+    }
 
     for ( i = 0; i < 8; i++ ) {
         children[i] = nullptr;
@@ -223,10 +227,6 @@ Cluster::convertClusterToGeometry() {
         if ( child != nullptr ) {
             geometryList->add(0, child);
         }
-    }
-
-    if ( !geometryList ) {
-        return patchesGeometry;
     }
 
     // The patches in the cluster are the first to be tested for intersection with

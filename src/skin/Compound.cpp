@@ -14,6 +14,12 @@ Compound::Compound(java::ArrayList<Geometry *> *geometryList) {
     children = geometryList;
 }
 
+Compound::~Compound() {
+    if ( children != nullptr ) {
+        delete children;
+    }
+}
+
 /**
 DiscretizationIntersect returns nullptr is the ray doesn't hit the discretization
 of the object. If the ray hits the object, a hit record is returned containing

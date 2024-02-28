@@ -37,6 +37,8 @@ static int globalInComplex = false; // true if reading a sphere, torus or other 
 static int globalInSurface = false; // true if busy creating a new surface
 static int globalAllSurfacesSided = false; // when set to true, all surfaces will be considered one-sided
 
+void freeLists();
+
 static void
 doError(const char *errmsg) {
     logError(nullptr, (char *) "%s line %d: %s", GLOBAL_mgf_file->fileName, GLOBAL_mgf_file->lineNumber, errmsg);
@@ -172,14 +174,12 @@ newSurface() {
 
 static void
 surfaceDone() {
-    Geometry *newGeometry{};
-
     if ( globalCurrentGeometryList == nullptr ) {
         globalCurrentGeometryList = new java::ArrayList<Geometry *>();
     }
 
     if ( globalCurrentFaceList != nullptr ) {
-        newGeometry = geomCreateSurface(
+        Geometry *newGeometry = geomCreateSurface(
             surfaceCreate(
                 globalCurrentMaterial,
                 globalCurrentPointList,
@@ -1249,4 +1249,29 @@ mgfFreeMemory() {
     }
     delete globalCurrentGeometryList;
     globalCurrentGeometryList = nullptr;
+    GLOBAL_scene_geometries = nullptr;
+
+    freeLists();
+}
+
+void freeLists() {
+    if ( globalCurrentPointList != nullptr ) {
+        delete globalCurrentPointList;
+        globalCurrentPointList = nullptr;
+    }
+
+    if ( globalCurrentNormalList != nullptr ) {
+        delete globalCurrentNormalList;
+        globalCurrentNormalList = nullptr;
+    }
+
+    if ( globalCurrentVertexList != nullptr ) {
+        delete globalCurrentVertexList;
+        globalCurrentVertexList = nullptr;
+    }
+
+    if ( globalCurrentFaceList != nullptr ) {
+        delete globalCurrentFaceList;
+        globalCurrentFaceList = nullptr;
+    }
 }

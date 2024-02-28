@@ -342,7 +342,7 @@ mainReadFile(char *filename) {
     #endif
 
     // Prepare if errors occur when reading the new scene will abort
-    GLOBAL_scene_geometries = new java::ArrayList<Geometry *>();
+    GLOBAL_scene_geometries = nullptr;
     if ( GLOBAL_scene_materials == nullptr ) {
         GLOBAL_scene_materials = new java::ArrayList<Material *>();
     }
@@ -599,11 +599,11 @@ static void
 mainFreeMemory() {
     if ( GLOBAL_scene_clusteredWorldGeom != nullptr ) {
         delete GLOBAL_scene_clusteredWorldGeom;
+        GLOBAL_scene_clusteredWorldGeom = nullptr;
     }
 
     deleteOptionsMemory();
     mgfFreeMemory();
-    //delete GLOBAL_scene_geometries;
 }
 
 int
