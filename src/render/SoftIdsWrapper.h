@@ -24,8 +24,10 @@ class Soft_ID_Renderer {
     }
 
     inline Patch *
-    get_patch_at_pixel(int x, int y) {
-        return (Patch *) (sgl->frameBuffer[(sgl->height - 1 - y) * sgl->width + x]);
+    getPatchAtPixel(int x, int y) {
+        int index = (sgl->height - 1 - y) * sgl->width + x;
+        // TODO: This makes no sense!
+        return (Patch *)(sgl->frameBuffer[index]);
     }
 };
 

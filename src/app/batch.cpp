@@ -59,7 +59,7 @@ openGlSaveScreen(char *fileName, FILE *fp, int isPipe, java::ArrayList<Patch *> 
 
     // RayCast() saves the current picture in display-mapped (!) real values
     if ( GLOBAL_render_renderOptions.trace ) {
-        rayCast(fileName, fp, isPipe, scenePatches);
+        rayCast(fileName, fp, isPipe);
         return;
     }
 

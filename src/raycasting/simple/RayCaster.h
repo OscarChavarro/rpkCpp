@@ -13,7 +13,6 @@
 class RayCaster {
   private:
     ScreenBuffer *screenBuffer;
-    bool interrupt_requested;
     bool doDeleteScreen;
 
     void clipUv(int numberOfVertices, double *u, double *v);
@@ -65,8 +64,6 @@ class RayCaster {
             screenBuffer = inScreen;
             doDeleteScreen = true;
         }
-
-        interrupt_requested = false;
     }
 
     virtual ~RayCaster() {
@@ -78,16 +75,12 @@ class RayCaster {
     void render(GETRADIANCE_FT getRadiance, java::ArrayList<Patch *> *scenePatches);
     void display();
     void save(ImageOutputHandle *ip);
-
-#ifdef RAYTRACING_ENABLED
-    void interrupt();
-#endif
 };
 
 #ifdef RAYTRACING_ENABLED
     extern Raytracer GLOBAL_rayCasting_RayCasting;
 #endif
 
-extern void rayCast(char *fileName, FILE *fp, int isPipe, java::ArrayList<Patch *> *scenePatches);
+extern void rayCast(char *fileName, FILE *fp, int isPipe);
 
 #endif

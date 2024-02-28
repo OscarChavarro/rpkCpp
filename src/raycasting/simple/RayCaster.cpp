@@ -44,7 +44,6 @@ RayCaster::render(GETRADIANCE_FT getRadiance = nullptr, java::ArrayList<Patch *>
     #ifdef RAYTRACING_ENABLED
         clock_t t = clock();
     #endif
-    interrupt_requested = false;
 
     if ( getRadiance == nullptr ) {
         if ( GLOBAL_radiance_currentRadianceMethodHandle ) {
@@ -66,15 +65,12 @@ RayCaster::render(GETRADIANCE_FT getRadiance = nullptr, java::ArrayList<Patch *>
     // TODO SITHMASTER: This is the main paralelizable loop for ray-casting
     for ( y = 0; y < height; y++ ) {
         for ( x = 0; x < width; x++ ) {
-            Patch *P = id_renderer->get_patch_at_pixel(x, y);
+            Patch *P = id_renderer->getPatchAtPixel(x, y);
             COLOR rad = getRadianceAtPixel(x, y, P, getRadiance);
             screenBuffer->add(x, y, rad);
         }
 
         screenBuffer->renderScanline(y);
-        if ( interrupt_requested ) {
-            break;
-        }
     }
 
     delete id_renderer;
@@ -97,11 +93,6 @@ RayCaster::save(ImageOutputHandle *ip) {
 
 #ifdef RAYTRACING_ENABLED
 static RayCaster *globalRayCaster = nullptr;
-
-void
-RayCaster::interrupt() {
-    interrupt_requested = true;
-}
 
 /**
 Returns false if there is no previous image and true if there is
@@ -128,9 +119,6 @@ rayCasterSaveImage(ImageOutputHandle *ip) {
 
 static void
 rayCasterInterrupt() {
-    if ( globalRayCaster ) {
-        globalRayCaster->interrupt();
-    }
 }
 
 static void
@@ -173,7 +161,7 @@ and saved into the file with given name and file pointer. 'ispipe'
 reflects whether this file pointer is a pipe or not.
 */
 void
-rayCast(char *fileName, FILE *fp, int isPipe, java::ArrayList<Patch *> *scenePatches) {
+rayCast(char *fileName, FILE *fp, int isPipe) {
     ImageOutputHandle *img = nullptr;
 
     if ( fp ) {
