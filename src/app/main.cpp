@@ -14,6 +14,7 @@
 #include "io/mgf/readmgf.h"
 #include "io/mgf/fileopts.h"
 #include "render/opengl.h"
+#include "GALERKIN/GalerkinRadiosity.h"
 #include "app/Cluster.h"
 #include "app/batch.h"
 
@@ -604,6 +605,7 @@ mainFreeMemory() {
 
     deleteOptionsMemory();
     mgfFreeMemory();
+    galerkinFreeMemory();
 }
 
 int

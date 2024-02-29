@@ -1,10 +1,10 @@
-/* galerkin.h: Galerkin Radiosity */
-
-#ifndef _GALERKIN_H_
-#define _GALERKIN_H_
+#ifndef __GALERKIN_RADIOSITY__
+#define __GALERKIN_RADIOSITY__
 
 #include "skin/radianceinterfaces.h"
 
 extern RADIANCEMETHOD GLOBAL_galerkin_radiosity;
+
+extern void galerkinFreeMemory();
 
 #endif

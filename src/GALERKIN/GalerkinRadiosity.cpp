@@ -493,8 +493,6 @@ galerkinRender(java::ArrayList<Patch *> *scenePatches) {
     }
 }
 
-/* *********************************************************** */
-/* VRML output */
 static FILE *globalVrmlFileDescriptor;
 static int globalNumberOfWrites;
 static int globalVertexId;
@@ -547,18 +545,18 @@ galerkinWriteVertexColor(RGB *color) {
 
 static void
 galerkinWriteVertexColors(GalerkinElement *element) {
-    COLOR vertrad[4];
+    COLOR vertexRadiosity[4];
     int i;
 
     if ( element->patch->numberOfVertices == 3 ) {
-        vertrad[0] = basisGalerkinRadianceAtPoint(element, element->radiance, 0., 0.);
-        vertrad[1] = basisGalerkinRadianceAtPoint(element, element->radiance, 1., 0.);
-        vertrad[2] = basisGalerkinRadianceAtPoint(element, element->radiance, 0., 1.);
+        vertexRadiosity[0] = basisGalerkinRadianceAtPoint(element, element->radiance, 0., 0.);
+        vertexRadiosity[1] = basisGalerkinRadianceAtPoint(element, element->radiance, 1., 0.);
+        vertexRadiosity[2] = basisGalerkinRadianceAtPoint(element, element->radiance, 0., 1.);
     } else {
-        vertrad[0] = basisGalerkinRadianceAtPoint(element, element->radiance, 0., 0.);
-        vertrad[1] = basisGalerkinRadianceAtPoint(element, element->radiance, 1., 0.);
-        vertrad[2] = basisGalerkinRadianceAtPoint(element, element->radiance, 1., 1.);
-        vertrad[3] = basisGalerkinRadianceAtPoint(element, element->radiance, 0., 1.);
+        vertexRadiosity[0] = basisGalerkinRadianceAtPoint(element, element->radiance, 0., 0.);
+        vertexRadiosity[1] = basisGalerkinRadianceAtPoint(element, element->radiance, 1., 0.);
+        vertexRadiosity[2] = basisGalerkinRadianceAtPoint(element, element->radiance, 1., 1.);
+        vertexRadiosity[3] = basisGalerkinRadianceAtPoint(element, element->radiance, 0., 1.);
     }
 
     if ( GLOBAL_galerkin_state.use_ambient_radiance ) {
@@ -567,13 +565,13 @@ galerkinWriteVertexColors(GalerkinElement *element) {
 
         colorProduct(reflectivity, GLOBAL_galerkin_state.ambient_radiance, ambient);
         for ( i = 0; i < element->patch->numberOfVertices; i++ ) {
-            colorAdd(vertrad[i], ambient, vertrad[i]);
+            colorAdd(vertexRadiosity[i], ambient, vertexRadiosity[i]);
         }
     }
 
     for ( i = 0; i < element->patch->numberOfVertices; i++ ) {
         RGB col{};
-        radianceToRgb(vertrad[i], &col);
+        radianceToRgb(vertexRadiosity[i], &col);
         galerkinWriteVertexColor(&col);
     }
 }
@@ -632,6 +630,14 @@ galerkinWriteVRML(FILE *fp) {
     galerkinWriteCoordIndices();
 
     writeVRMLTrailer(fp);
+}
+
+void
+galerkinFreeMemory() {
+    if ( GLOBAL_galerkin_state.scratch != nullptr ) {
+        delete GLOBAL_galerkin_state.scratch;
+        GLOBAL_galerkin_state.scratch = nullptr;
+    }
 }
 
 RADIANCEMETHOD GLOBAL_galerkin_radiosity = {
