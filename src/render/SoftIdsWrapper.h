@@ -18,7 +18,7 @@ class Soft_ID_Renderer {
     ~Soft_ID_Renderer();
 
     inline void
-    get_size(long *width, long *height) {
+    getSize(long *width, long *height) {
         *width = sgl->width;
         *height = sgl->height;
     }

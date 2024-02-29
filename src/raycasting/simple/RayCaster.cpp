@@ -16,6 +16,22 @@ a software frame buffer directly.
 #include "render/SoftIdsWrapper.h"
 #include "raycasting/simple/RayCaster.h"
 
+RayCaster::RayCaster(ScreenBuffer *inScreen) {
+    if ( inScreen == nullptr ) {
+        screenBuffer = new ScreenBuffer(nullptr);
+        doDeleteScreen = true;
+    } else {
+        screenBuffer = inScreen;
+        doDeleteScreen = true;
+    }
+}
+
+RayCaster::~RayCaster() {
+    if ( doDeleteScreen ) {
+        delete screenBuffer;
+    }
+}
+
 void
 RayCaster::clipUv(int numberOfVertices, double *u, double *v) {
     if ( *u > 1.0 - EPSILON ) {
@@ -39,8 +55,46 @@ RayCaster::clipUv(int numberOfVertices, double *u, double *v) {
     }
 }
 
+/**
+Determines the radiance of the nearest patch visible through the pixel
+(x,y). P shall be the nearest patch visible in the pixel.
+*/
+inline COLOR
+RayCaster::getRadianceAtPixel(int x, int y, Patch *patch, GETRADIANCE_FT getRadiance) {
+    COLOR rad;
+    colorClear(rad);
+    if ( patch != nullptr && getRadiance != nullptr ) {
+        // Ray pointing from the eye through the center of the pixel.
+        Ray ray;
+        ray.pos = GLOBAL_camera_mainCamera.eyePosition;
+        ray.dir = screenBuffer->getPixelVector(x, y);
+        VECTORNORMALIZE(ray.dir);
+
+        // Find intersection point of ray with patch
+        Vector3D point;
+        float dist = VECTORDOTPRODUCT(patch->normal, ray.dir);
+        dist = -(VECTORDOTPRODUCT(patch->normal, ray.pos) + patch->planeConstant) / dist;
+        VECTORSUMSCALED(ray.pos, dist, ray.dir, point);
+
+        // Find surface coordinates of hit point on patch
+        double u;
+        double v;
+        patch->uv(&point, &u, &v);
+
+        // Boundary check is necessary because Z-buffer algorithm does
+        // not yield exactly the same result as ray tracing at patch
+        // boundaries.
+        clipUv(patch->numberOfVertices, &u, &v);
+
+        // Reverse ray direction and get radiance emitted at hit point towards the eye
+        Vector3D dir(-ray.dir.x, -ray.dir.y, -ray.dir.z);
+        rad = getRadiance(patch, u, v, dir);
+    }
+    return rad;
+}
+
 void
-RayCaster::render(GETRADIANCE_FT getRadiance = nullptr, java::ArrayList<Patch *> *scenePatches = nullptr) {
+RayCaster::render(GETRADIANCE_FT getRadiance, java::ArrayList<Patch *> *scenePatches) {
     #ifdef RAYTRACING_ENABLED
         clock_t t = clock();
     #endif
@@ -51,21 +105,19 @@ RayCaster::render(GETRADIANCE_FT getRadiance = nullptr, java::ArrayList<Patch *>
         }
     }
 
+    Soft_ID_Renderer *idRenderer = new Soft_ID_Renderer(scenePatches);
+
     long width;
     long height;
-    long x;
-    long y;
-
-    Soft_ID_Renderer *id_renderer = new Soft_ID_Renderer(scenePatches);
-    id_renderer->get_size(&width, &height);
+    idRenderer->getSize(&width, &height);
     if ( width != screenBuffer->getHRes() || height != screenBuffer->getVRes() ) {
         logFatal(-1, "RayCaster::render", "ID buffer size doesn't match screen size");
     }
 
-    // TODO SITHMASTER: This is the main paralelizable loop for ray-casting
-    for ( y = 0; y < height; y++ ) {
-        for ( x = 0; x < width; x++ ) {
-            Patch *patch = id_renderer->getPatchAtPixel(x, y);
+    // TODO: This is the main loop for ray-casting
+    for ( long y = 0; y < height; y++ ) {
+        for ( long x = 0; x < width; x++ ) {
+            Patch *patch = idRenderer->getPatchAtPixel(x, y);
             COLOR rad = getRadianceAtPixel(x, y, patch, getRadiance);
             screenBuffer->add(x, y, rad);
         }
@@ -73,11 +125,12 @@ RayCaster::render(GETRADIANCE_FT getRadiance = nullptr, java::ArrayList<Patch *>
         screenBuffer->renderScanline(y);
     }
 
-    delete id_renderer;
+    delete idRenderer;
 
     #ifdef RAYTRACING_ENABLED
         GLOBAL_raytracer_totalTime = (float) (clock() - t) / (float) CLOCKS_PER_SEC;
-        GLOBAL_raytracer_rayCount = GLOBAL_raytracer_pixelCount = 0;
+        GLOBAL_raytracer_rayCount = 0;
+        GLOBAL_raytracer_pixelCount = 0;
     #endif
 }
 
@@ -146,13 +199,12 @@ rayCasterExecute(ImageOutputHandle *ip, java::ArrayList<Patch *> *scenePatches, 
     if ( globalRayCaster ) {
         delete globalRayCaster;
     }
-    globalRayCaster = new RayCaster();
+    globalRayCaster = new RayCaster(nullptr);
     globalRayCaster->render(nullptr, scenePatches);
     if ( ip ) {
         globalRayCaster->save(ip);
     }
 }
-
 #endif
 
 /**
@@ -173,8 +225,8 @@ rayCast(char *fileName, FILE *fp, int isPipe) {
         }
     }
 
-    RayCaster *rc = new RayCaster;
-    rc->render();
+    RayCaster *rc = new RayCaster(nullptr);
+    rc->render(nullptr, nullptr);
     if ( img ) {
         rc->save(img);
     }
