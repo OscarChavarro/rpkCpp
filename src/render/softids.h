@@ -12,10 +12,7 @@ due to frame buffer formats, etc.
 
 extern SGL_CONTEXT *setupSoftFrameBuffer();
 
-extern void
-softRenderPatches(
-    SGL_PIXEL (*patch_pixel)(Patch *),
-    java::ArrayList<Patch *> *scenePatches);
+extern void softRenderPatches(java::ArrayList<Patch *> *scenePatches);
 
 extern unsigned long *
 softRenderIds(

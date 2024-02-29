@@ -36,26 +36,24 @@ setupSoftFrameBuffer() {
     return sgl;
 }
 
-static SGL_PIXEL (*PatchPixel)(Patch *) = nullptr;
-
 static void
-softRenderPatch(Patch *P) {
+softRenderPatch(Patch *patch) {
     Vector3D vertices[4];
 
     if ( GLOBAL_render_renderOptions.backfaceCulling &&
-         VECTORDOTPRODUCT(P->normal, GLOBAL_camera_mainCamera.eyePosition) + P->planeConstant < EPSILON ) {
+         VECTORDOTPRODUCT(patch->normal, GLOBAL_camera_mainCamera.eyePosition) + patch->planeConstant < EPSILON ) {
         return;
     }
 
-    vertices[0] = *P->vertex[0]->point;
-    vertices[1] = *P->vertex[1]->point;
-    vertices[2] = *P->vertex[2]->point;
-    if ( P->numberOfVertices > 3 ) {
-        vertices[3] = *P->vertex[3]->point;
+    vertices[0] = *patch->vertex[0]->point;
+    vertices[1] = *patch->vertex[1]->point;
+    vertices[2] = *patch->vertex[2]->point;
+    if ( patch->numberOfVertices > 3 ) {
+        vertices[3] = *patch->vertex[3]->point;
     }
 
-    sglSetColor(PatchPixel(P));
-    sglPolygon(P->numberOfVertices, vertices);
+    sglSetPatch(patch);
+    sglPolygon(patch->numberOfVertices, vertices);
 }
 
 /**
@@ -63,12 +61,7 @@ Renders all scenePatches in the current sgl renderer. PatchPixel returns
 and SGL_PIXEL value for a given Patch
 */
 void
-softRenderPatches(
-    SGL_PIXEL (*patch_pixel)(Patch *),
-    java::ArrayList<Patch *> *scenePatches)
-{
-    PatchPixel = patch_pixel;
-
+softRenderPatches(java::ArrayList<Patch *> *scenePatches) {
     if ( GLOBAL_render_renderOptions.frustumCulling ) {
         char use_display_lists = GLOBAL_render_renderOptions.useDisplayLists;
         GLOBAL_render_renderOptions.useDisplayLists = false;  /* temporarily switch it off */
@@ -79,16 +72,6 @@ softRenderPatches(
             softRenderPatch(scenePatches->get(i));
         }
     }
-}
-
-static SGL_PIXEL
-patchId(Patch *P) {
-    return (SGL_PIXEL) P->id;
-}
-
-static void
-softRenderPatchIds(java::ArrayList<Patch *> *scenePatches) {
-    softRenderPatches(patchId, scenePatches);
 }
 
 /**
@@ -106,7 +89,7 @@ softRenderIds(long *x, long *y, java::ArrayList<Patch *> *scenePatches) {
 
     oldSglContext = GLOBAL_sgl_currentContext;
     currentSglContext = setupSoftFrameBuffer();
-    softRenderPatchIds(scenePatches);
+    softRenderPatches(scenePatches);
 
     *x = currentSglContext->width;
     *y = currentSglContext->height;

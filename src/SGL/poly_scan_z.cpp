@@ -49,23 +49,19 @@ Output scanline by sampling polygon at Y = y + 0.5
 */
 static void
 scanline(int y, PolygonVertex *l, PolygonVertex *r, Window *win) {
-    int x;
-    int lx;
-    int rx;
-    int offset;
     int dz;
-    SGL_PIXEL *pix;
     SGL_Z_VALUE *zValue;
     SGL_Z_VALUE z;
     double dx;
     double frac;
     double dzf;
 
-    lx = ceil(l->sx - 0.5);
+    int lx = ceil(l->sx - 0.5);
     if ( lx < win->x0 ) {
         lx = win->x0;
     }
-    rx = floor(r->sx - 0.5);
+
+    int rx = floor(r->sx - 0.5);
     if ( rx > win->x1 ) {
         rx = win->x1;
     }
@@ -82,16 +78,23 @@ scanline(int y, PolygonVertex *l, PolygonVertex *r, Window *win) {
     z = (SGL_Z_VALUE) (l->sz + dzf * frac);
     dz = (int) dzf;
 
-    offset = y * GLOBAL_sgl_currentContext->width + lx;
-    pix = GLOBAL_sgl_currentContext->frameBuffer + offset;
+    int offset = y * GLOBAL_sgl_currentContext->width + lx;
+    SGL_PIXEL *pix = GLOBAL_sgl_currentContext->frameBuffer + offset;
+    Patch **patch = GLOBAL_sgl_currentContext->patchBuffer + offset;
+
     zValue = GLOBAL_sgl_currentContext->depthBuffer + offset;
-    for ( x = lx; x <= rx; x++ ) {
+    for ( int x = lx; x <= rx; x++ ) {
         // Scan in x, generating pixels
         if ( z <= *zValue ) {
-            *pix = GLOBAL_sgl_currentContext->currentPixel;
+            if ( GLOBAL_sgl_currentContext->pixelData == PixelContent::PATCH_POINTER ) {
+                *patch = GLOBAL_sgl_currentContext->currentPatch;
+            } else {
+                *pix = GLOBAL_sgl_currentContext->currentPixel;
+            }
             *zValue = z;
         }
         pix++;
+        patch++;
         zValue++;
         z += dz;
     }

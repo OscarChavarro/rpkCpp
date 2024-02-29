@@ -14,6 +14,10 @@ PolygonVertex *GLOBAL_sgl_polyDummy;
 
 SGL_CONTEXT *GLOBAL_sgl_currentContext{};
 
+/**
+Creates, destroys an SGL rendering context. sglOpen() also makes the new context
+the current context
+*/
 SGL_CONTEXT *
 sglOpen(int width, int height) {
     SGL_CONTEXT *context = (SGL_CONTEXT *)malloc(sizeof(SGL_CONTEXT));
@@ -25,6 +29,7 @@ sglOpen(int width, int height) {
     context->height = height;
     context->frameBuffer = new SGL_PIXEL[width * height];
     context->patchBuffer = new Patch *[width * height];
+    context->pixelData = PixelContent::PIXEL;
 
     // No Z buffer
     context->depthBuffer = nullptr;
@@ -34,6 +39,7 @@ sglOpen(int width, int height) {
     *context->currentTransform = GLOBAL_matrix_identityTransform4x4;
 
     context->currentPixel = 0;
+    context->currentPatch = nullptr;
 
     context->clipping = true;
 
@@ -72,6 +78,9 @@ sglClose(SGL_CONTEXT *context) {
     free(context);
 }
 
+/**
+Makes the specified context current, returns the previous current context
+*/
 SGL_CONTEXT *
 sglMakeCurrent(SGL_CONTEXT *context) {
     SGL_CONTEXT *old_context = GLOBAL_sgl_currentContext;
@@ -99,6 +108,9 @@ sglClearFrameBuffer(SGL_PIXEL backgroundColor) {
     }
 }
 
+/**
+Returns current sgl renderer
+*/
 void
 sglClearZBuffer(SGL_Z_VALUE defZVal) {
     SGL_Z_VALUE *zVal;
@@ -158,6 +170,12 @@ sglMultiplyMatrix(Matrix4x4 xf) {
 void
 sglSetColor(SGL_PIXEL col) {
     GLOBAL_sgl_currentContext->currentPixel = col;
+}
+
+void
+sglSetPatch(Patch *patch) {
+    GLOBAL_sgl_currentContext->pixelData = PixelContent::PATCH_POINTER;
+    GLOBAL_sgl_currentContext->currentPatch = patch;
 }
 
 void

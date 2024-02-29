@@ -123,11 +123,6 @@ updateDirectPotential(java::ArrayList<Patch *> *scenePatches) {
     free((char *) ids);
 }
 
-static SGL_PIXEL
-patchPointer(Patch *patch) {
-    return (SGL_PIXEL)patch;
-}
-
 static void
 softGetPatchPointers(SGL_CONTEXT *sgl, java::ArrayList<Patch *> *scenePatches) {
     SGL_PIXEL *pix;
@@ -151,7 +146,7 @@ softUpdateDirectVisibility(java::ArrayList<Patch *> *scenePatches) {
     SGL_CONTEXT *oldSglContext = GLOBAL_sgl_currentContext;
     SGL_CONTEXT *currentSglContext = setupSoftFrameBuffer();
 
-    softRenderPatches(patchPointer, scenePatches);
+    softRenderPatches(scenePatches);
     softGetPatchPointers(currentSglContext, scenePatches);
     sglClose(currentSglContext);
     sglMakeCurrent(oldSglContext);

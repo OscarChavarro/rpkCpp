@@ -62,9 +62,14 @@ scanline(int y, PolygonVertex *l, PolygonVertex *r, Window *win) {
     }
 
     pix = GLOBAL_sgl_currentContext->frameBuffer + y * GLOBAL_sgl_currentContext->width + lx;
+    Patch **patch = GLOBAL_sgl_currentContext->patchBuffer + lx;
     for ( x = lx; x <= rx; x++ ) {
         // Scan in x, generating pixels
-        *pix++ = GLOBAL_sgl_currentContext->currentPixel;
+        if ( GLOBAL_sgl_currentContext->pixelData == PixelContent::PATCH_POINTER ) {
+            *patch++ = GLOBAL_sgl_currentContext->currentPatch;
+        } else {
+            *pix++ = GLOBAL_sgl_currentContext->currentPixel;
+        }
     }
 }
 
