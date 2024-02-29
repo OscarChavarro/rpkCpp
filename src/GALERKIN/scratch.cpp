@@ -22,7 +22,7 @@ Create a scratch software renderer for various operations on clusters
 void
 scratchInit() {
     GLOBAL_galerkin_state.scratch = sglOpen(GLOBAL_galerkin_state.scratchFbSize, GLOBAL_galerkin_state.scratchFbSize);
-    sglDepthTesting(true);
+    sglDepthTesting(GLOBAL_sgl_currentContext, true);
 }
 
 /**
@@ -49,8 +49,9 @@ scratchRenderElementPtr(GalerkinElement *elem) {
         v[i] = *patch->vertex[i]->point;
     }
 
-    sglSetColor((SGL_PIXEL) elem);
-    sglPolygon(patch->numberOfVertices, v);
+    // TODO: Extend SGL_CONTEXT to support Element*
+    sglSetColor(GLOBAL_sgl_currentContext, (SGL_PIXEL)elem);
+    sglPolygon(GLOBAL_sgl_currentContext, patch->numberOfVertices, v);
 }
 
 /**
@@ -87,8 +88,8 @@ scratchRenderElements(GalerkinElement *cluster, Vector3D eye) {
     boundsTransform(geomBounds(cluster->geom), &lookAt, bbx);
 
     prev_sgl_context = sglMakeCurrent(GLOBAL_galerkin_state.scratch);
-    sglLoadMatrix(orthogonalViewMatrix(bbx[MIN_X], bbx[MAX_X], bbx[MIN_Y], bbx[MAX_Y], -bbx[MAX_Z], -bbx[MIN_Z]));
-    sglMultiplyMatrix(lookAt);
+    sglLoadMatrix(GLOBAL_sgl_currentContext, orthogonalViewMatrix(bbx[MIN_X], bbx[MAX_X], bbx[MIN_Y], bbx[MAX_Y], -bbx[MAX_Z], -bbx[MIN_Z]));
+    sglMultiplyMatrix(GLOBAL_sgl_currentContext, lookAt);
 
     // Choose a viewport depending on the relative size of the smallest
     // surface element in the cluster to be rendered
@@ -99,11 +100,11 @@ scratchRenderElements(GalerkinElement *cluster, Vector3D eye) {
     if ( vp_size < 32 ) {
         vp_size = 32;
     }
-    sglViewport(0, 0, vp_size, vp_size);
+    sglViewport(GLOBAL_sgl_currentContext, 0, 0, vp_size, vp_size);
 
     // Render element pointers in the scratch frame buffer
     globalEyePoint = eye; // Needed for backface culling test
-    sglClear((SGL_PIXEL) 0x00, SGL_MAXIMUM_Z);
+    sglClear(GLOBAL_sgl_currentContext, (SGL_PIXEL) 0x00, SGL_MAXIMUM_Z);
     iterateOverSurfaceElementsInCluster(cluster, scratchRenderElementPtr);
 
     sglMakeCurrent(prev_sgl_context);

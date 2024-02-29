@@ -1,16 +1,12 @@
-/* flat shading + Z buffering. */
+/**
+Flat shading + Z buffering
+Generic Convex Polygon Scan Conversion and Clipping
+by Paul Heckbert
+from "Graphics Gems", Academic Press, 1990
+Point-sampled scan conversion of convex polygons
 
-/*
- * Generic Convex Polygon Scan Conversion and Clipping
- * by Paul Heckbert
- * from "Graphics Gems", Academic Press, 1990
- */
-
-/*
- * poly_scan.c: point-sampled scan conversion of convex polygons
- *
- * Paul Heckbert	1985, Dec 1989
- */
+Paul Heckbert	1985, Dec 1989
+*/
 
 #include "common/mymath.h"
 #include "SGL/poly.h"
@@ -22,7 +18,8 @@ p1 and p2 in p, put change with respect to y in dp
 */
 static void
 incrementalizeY(const double *p1, const double *p2, double *p, double *dp, int y) {
-    double dy, frac;
+    double dy;
+    double frac;
 
     dy = ((PolygonVertex *) p2)->sy - ((PolygonVertex *) p1)->sy;
     if ( dy == 0.0 ) {
@@ -30,7 +27,7 @@ incrementalizeY(const double *p1, const double *p2, double *p, double *dp, int y
     }
     frac = y + 0.5 - ((PolygonVertex *) p1)->sy;
 
-    /* interpolate only sx and sz (first and third field) */
+    // Interpolate only sx and sz (first and third field)
     dp[0] = (p2[0] - p1[0]) / dy;
     p[0] = p1[0] + dp[0] * frac;
     dp[2] = (p2[2] - p1[2]) / dy;
@@ -48,7 +45,7 @@ increment(double *p, const double *dp) {
 Output scanline by sampling polygon at Y = y + 0.5
 */
 static void
-scanline(int y, PolygonVertex *l, PolygonVertex *r, Window *win) {
+scanline(SGL_CONTEXT *sglContext, int y, PolygonVertex *l, PolygonVertex *r, Window *win) {
     int dz;
     SGL_Z_VALUE *zValue;
     SGL_Z_VALUE z;
@@ -78,18 +75,18 @@ scanline(int y, PolygonVertex *l, PolygonVertex *r, Window *win) {
     z = (SGL_Z_VALUE) (l->sz + dzf * frac);
     dz = (int) dzf;
 
-    int offset = y * GLOBAL_sgl_currentContext->width + lx;
-    SGL_PIXEL *pix = GLOBAL_sgl_currentContext->frameBuffer + offset;
-    Patch **patch = GLOBAL_sgl_currentContext->patchBuffer + offset;
+    int offset = y * sglContext->width + lx;
+    SGL_PIXEL *pix = sglContext->frameBuffer + offset;
+    Patch **patch = sglContext->patchBuffer + offset;
 
-    zValue = GLOBAL_sgl_currentContext->depthBuffer + offset;
+    zValue = sglContext->depthBuffer + offset;
     for ( int x = lx; x <= rx; x++ ) {
         // Scan in x, generating pixels
         if ( z <= *zValue ) {
-            if ( GLOBAL_sgl_currentContext->pixelData == PixelContent::PATCH_POINTER ) {
-                *patch = GLOBAL_sgl_currentContext->currentPatch;
+            if ( sglContext->pixelData == PixelContent::PATCH_POINTER ) {
+                *patch = sglContext->currentPatch;
             } else {
-                *pix = GLOBAL_sgl_currentContext->currentPixel;
+                *pix = sglContext->currentPixel;
             }
             *zValue = z;
         }
@@ -101,7 +98,7 @@ scanline(int y, PolygonVertex *l, PolygonVertex *r, Window *win) {
 }
 
 /**
-Scan convert a polygon, calling pixelproc at each pixel with an
+Scan convert a polygon, calling pixelProc at each pixel with an
 interpolated Poly_vert structure.  Polygon can be clockwise or ccw.
 Polygon is clipped in 2-D to win, the screen space window.
 
@@ -110,9 +107,9 @@ These two must always be interpolated, and only they have special meaning
 to this code; any other fields are blindly interpolated regardless of
 their semantics.
 
-The pixelproc subroutine takes the arguments:
+The pixelProc subroutine takes the arguments:
 
-pixelproc(x, y, point)
+pixelProc(x, y, point)
 int x, y;
 Poly_vert *point;
 
@@ -121,7 +118,7 @@ except sx and sy.  If they were computed, they would have values
 sx=x+.5 and sy=y+.5, since sampling is done at pixel centers.
 */
 void
-polyScanZ(Polygon *p, Window *win)
+polyScanZ(SGL_CONTEXT *sglContext, Polygon *p, Window *win)
 {
     int i;
     int li;
@@ -139,17 +136,18 @@ polyScanZ(Polygon *p, Window *win)
 
     yMin = HUGE;
     top = -1;
-    for ( i = 0; i < p->n; i++ ) {        /* find top vertex (y positions down) */
+    for ( i = 0; i < p->n; i++ ) {
+        // Find top vertex (y positions down)
         if ( p->vertices[i].sy < yMin ) {
             yMin = p->vertices[i].sy;
             top = i;
         }
     }
 
-    li = ri = top;            /* left and right vertex indices */
-    rem = p->n;                /* number of vertices remaining */
-    y = ceil(yMin - 0.5);            /* current scan line */
-    ly = ry = y - 1;            /* lower end of left & right edges */
+    li = ri = top; // Left and right vertex indices
+    rem = p->n; // Number of vertices remaining
+    y = ceil(yMin - 0.5); // Current scan line
+    ly = ry = y - 1; // Lower end of left & right edges
 
     while ( rem > 0 ) {
         // Scan in y, activating new edges on left & right
@@ -181,9 +179,9 @@ polyScanZ(Polygon *p, Window *win)
             // Do scan lines till end of l or r edge
             if ( y >= win->y0 && y <= win->y1 ) {
                 if ( l.sx <= r.sx ) {
-                    scanline(y, &l, &r, win);
+                    scanline(sglContext, y, &l, &r, win);
                 } else {
-                    scanline(y, &r, &l, win);
+                    scanline(sglContext, y, &r, &l, win);
                 }
             }
             y++;

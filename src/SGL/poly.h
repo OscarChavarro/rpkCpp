@@ -6,6 +6,7 @@ Definitions for polygon package
 #define POLY_HDR
 
 #include "common/mymath.h"
+#include "sgl.h"
 
 // Note that poly_clip, given an n-gon as input, might output an (n+6)gon
 #define MAXIMUM_SIDES_PER_POLYGON 10
@@ -79,7 +80,7 @@ extern PolygonVertex *GLOBAL_sgl_polyDummy;
 
 int polyClipToBox(Polygon *p1, PolygonBox *box);
 void polyClipToHalfSpace(Polygon *p, Polygon *q, int index, double sign, double k);
-void polyScanFlat(Polygon *p, Window *win);
-void polyScanZ(Polygon *p, Window *win);
+void polyScanFlat(SGL_CONTEXT *sglContext, Polygon *p, Window *win);
+void polyScanZ(SGL_CONTEXT *sglContext, Polygon *p, Window *win);
 
 #endif

@@ -43,7 +43,7 @@ increment(double *p, const double *dp) {
 Output scanline by sampling polygon at Y = y + 0.5
 */
 static void
-scanline(int y, PolygonVertex *l, PolygonVertex *r, Window *win) {
+scanline(SGL_CONTEXT *sglContext, int y, PolygonVertex *l, PolygonVertex *r, Window *win) {
     int x;
     int lx;
     int rx;
@@ -61,14 +61,14 @@ scanline(int y, PolygonVertex *l, PolygonVertex *r, Window *win) {
         return;
     }
 
-    pix = GLOBAL_sgl_currentContext->frameBuffer + y * GLOBAL_sgl_currentContext->width + lx;
-    Patch **patch = GLOBAL_sgl_currentContext->patchBuffer + lx;
+    pix = sglContext->frameBuffer + y * sglContext->width + lx;
+    Patch **patch = sglContext->patchBuffer + lx;
     for ( x = lx; x <= rx; x++ ) {
         // Scan in x, generating pixels
-        if ( GLOBAL_sgl_currentContext->pixelData == PixelContent::PATCH_POINTER ) {
-            *patch++ = GLOBAL_sgl_currentContext->currentPatch;
+        if ( sglContext->pixelData == PixelContent::PATCH_POINTER ) {
+            *patch++ = sglContext->currentPatch;
         } else {
-            *pix++ = GLOBAL_sgl_currentContext->currentPixel;
+            *pix++ = sglContext->currentPixel;
         }
     }
 }
@@ -97,7 +97,7 @@ p: polygon
 win: 2-D screen space clipping window
 */
 void
-polyScanFlat(Polygon *p, Window *win)
+polyScanFlat(SGL_CONTEXT *sglContext, Polygon *p, Window *win)
 {
     int i;
     int li;
@@ -159,9 +159,9 @@ polyScanFlat(Polygon *p, Window *win)
             // Do scan lines till end of l or r edge
             if ( y >= win->y0 && y <= win->y1 ) {
                 if ( l.sx <= r.sx ) {
-                    scanline(y, &l, &r, win);
+                    scanline(sglContext, y, &l, &r, win);
                 } else {
-                    scanline(y, &r, &l, win);
+                    scanline(sglContext, y, &r, &l, win);
                 }
             }
             y++;

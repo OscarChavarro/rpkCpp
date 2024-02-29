@@ -20,16 +20,16 @@ setupSoftFrameBuffer() {
     SGL_CONTEXT *sgl;
 
     sgl = sglOpen(GLOBAL_camera_mainCamera.xSize, GLOBAL_camera_mainCamera.ySize);
-    sglDepthTesting(true);
-    sglClipping(true);
-    sglClear((SGL_PIXEL) 0, SGL_MAXIMUM_Z);
+    sglDepthTesting(GLOBAL_sgl_currentContext, true);
+    sglClipping(GLOBAL_sgl_currentContext, true);
+    sglClear(GLOBAL_sgl_currentContext, (SGL_PIXEL) 0, SGL_MAXIMUM_Z);
 
-    sglLoadMatrix(perspectiveMatrix(
+    sglLoadMatrix(GLOBAL_sgl_currentContext, perspectiveMatrix(
         GLOBAL_camera_mainCamera.fov * 2.0f * (float)M_PI / 180.0f,
             (float) GLOBAL_camera_mainCamera.xSize / (float) GLOBAL_camera_mainCamera.ySize,
             GLOBAL_camera_mainCamera.near,
             GLOBAL_camera_mainCamera.far));
-    sglMultiplyMatrix(lookAtMatrix(
+    sglMultiplyMatrix(GLOBAL_sgl_currentContext, lookAtMatrix(
             GLOBAL_camera_mainCamera.eyePosition, GLOBAL_camera_mainCamera.lookPosition,
             GLOBAL_camera_mainCamera.upDirection));
 
@@ -52,8 +52,8 @@ softRenderPatch(Patch *patch) {
         vertices[3] = *patch->vertex[3]->point;
     }
 
-    sglSetPatch(patch);
-    sglPolygon(patch->numberOfVertices, vertices);
+    sglSetPatch(GLOBAL_sgl_currentContext, patch);
+    sglPolygon(GLOBAL_sgl_currentContext, patch->numberOfVertices, vertices);
 }
 
 /**
