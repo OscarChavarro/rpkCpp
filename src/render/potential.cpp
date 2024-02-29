@@ -148,7 +148,7 @@ softUpdateDirectVisibility(java::ArrayList<Patch *> *scenePatches) {
 
     softRenderPatches(scenePatches);
     softGetPatchPointers(currentSglContext, scenePatches);
-    sglClose(currentSglContext);
+    delete currentSglContext;
     sglMakeCurrent(oldSglContext);
 
     fprintf(stderr, "Determining visible patches in software took %g sec\n",

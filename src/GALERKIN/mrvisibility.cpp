@@ -125,8 +125,8 @@ of some objects
 */
 void
 blockerInit() {
-    globalSglContext = sglOpen(FRAME_BUFFER_SIDE_LENGTH_IN_PIXELS, FRAME_BUFFER_SIDE_LENGTH_IN_PIXELS);
-    sglDepthTesting(GLOBAL_sgl_currentContext, true);
+    globalSglContext = new SGL_CONTEXT(FRAME_BUFFER_SIDE_LENGTH_IN_PIXELS, FRAME_BUFFER_SIDE_LENGTH_IN_PIXELS);
+    GLOBAL_sgl_currentContext->sglDepthTesting(true);
 
     globalBuffer1 = (unsigned char *)malloc(FRAME_BUFFER_SIDE_LENGTH_IN_PIXELS * FRAME_BUFFER_SIDE_LENGTH_IN_PIXELS);
     globalBuffer2 = (unsigned char *)malloc(FRAME_BUFFER_SIDE_LENGTH_IN_PIXELS * FRAME_BUFFER_SIDE_LENGTH_IN_PIXELS);
@@ -140,5 +140,5 @@ blockerTerminate() {
     free((char *) globalBuffer2);
     free((char *) globalBuffer1);
 
-    sglClose(globalSglContext);
+    delete globalSglContext;
 }

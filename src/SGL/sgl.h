@@ -25,6 +25,15 @@ enum PixelContent {
 
 class SGL_CONTEXT {
 public:
+    Matrix4x4 transformStack[SGL_TRANSFORM_STACK_SIZE]; // Transform stack
+    Matrix4x4 *currentTransform;
+    SGL_BOOLEAN clipping; // Whether to do clipping or not
+    int vp_x; // Viewport
+    int vp_y;
+    double near; // Depth range
+    double far;
+
+public:
     PixelContent pixelData;
     SGL_PIXEL *frameBuffer;
     Patch **patchBuffer;
@@ -38,33 +47,26 @@ public:
 
     int width; // canvas size
     int height;
-    Matrix4x4 transformStack[SGL_TRANSFORM_STACK_SIZE]; // Transform stack
-    Matrix4x4 *currentTransform;
-    SGL_BOOLEAN clipping; // Whether to do clipping or not
-    int vp_x; // Viewport
-    int vp_y;
     int vp_width;
     int vp_height;
-    double near; // Depth range
-    double far;
+
+    explicit SGL_CONTEXT(int width, int height);
+    ~SGL_CONTEXT();
+
+    void sglClearZBuffer(SGL_Z_VALUE defZVal);
+    void sglClear(SGL_PIXEL backgroundColor, SGL_Z_VALUE defZVal);
+    void sglDepthTesting(SGL_BOOLEAN on);
+    void sglClipping(SGL_BOOLEAN on);
+    void sglLoadMatrix(Matrix4x4 xf);
+    void sglMultiplyMatrix(Matrix4x4 xf);
+    void sglSetColor(SGL_PIXEL col);
+    void sglSetPatch(Patch *col);
+    void sglViewport(int x, int y, int width, int height);
+    void sglPolygon(int numberOfVertices, Vector3D *vertices);
 };
 
 extern SGL_CONTEXT *GLOBAL_sgl_currentContext;
 
-extern SGL_CONTEXT *sglOpen(int width, int height);
-extern void sglClose(SGL_CONTEXT *context);
-
 extern SGL_CONTEXT *sglMakeCurrent(SGL_CONTEXT *context);
-
-extern void sglClearZBuffer(SGL_CONTEXT *sglContext, SGL_Z_VALUE defZVal);
-extern void sglClear(SGL_CONTEXT *sglContext, SGL_PIXEL backgroundColor, SGL_Z_VALUE defZVal);
-extern void sglDepthTesting(SGL_CONTEXT *sglContext, SGL_BOOLEAN on);
-extern void sglClipping(SGL_CONTEXT *sglContext, SGL_BOOLEAN on);
-extern void sglLoadMatrix(SGL_CONTEXT *sglContext, Matrix4x4 xf);
-extern void sglMultiplyMatrix(SGL_CONTEXT *sglContext, Matrix4x4 xf);
-extern void sglSetColor(SGL_CONTEXT *sglContext, SGL_PIXEL col);
-extern void sglSetPatch(SGL_CONTEXT *sglContext, Patch *col);
-extern void sglViewport(SGL_CONTEXT *sglContext, int x, int y, int width, int height);
-extern void sglPolygon(SGL_CONTEXT *sglContext, int numberOfVertices, Vector3D *vertices);
 
 #endif

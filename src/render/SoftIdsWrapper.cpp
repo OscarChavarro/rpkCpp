@@ -2,7 +2,7 @@
 #include "render/SoftIdsWrapper.h"
 
 Soft_ID_Renderer::~Soft_ID_Renderer() {
-    sglClose(sgl);
+    delete sgl;
 }
 
 void

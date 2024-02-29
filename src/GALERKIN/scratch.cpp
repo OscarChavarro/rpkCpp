@@ -21,8 +21,8 @@ Create a scratch software renderer for various operations on clusters
 */
 void
 scratchInit() {
-    GLOBAL_galerkin_state.scratch = sglOpen(GLOBAL_galerkin_state.scratchFbSize, GLOBAL_galerkin_state.scratchFbSize);
-    sglDepthTesting(GLOBAL_sgl_currentContext, true);
+    GLOBAL_galerkin_state.scratch = new SGL_CONTEXT(GLOBAL_galerkin_state.scratchFbSize, GLOBAL_galerkin_state.scratchFbSize);
+    GLOBAL_sgl_currentContext->sglDepthTesting(true);
 }
 
 /**
@@ -30,7 +30,7 @@ Terminates scratch rendering
 */
 void
 scratchTerminate() {
-    sglClose(GLOBAL_galerkin_state.scratch);
+    delete GLOBAL_galerkin_state.scratch;
 }
 
 static void
@@ -50,8 +50,8 @@ scratchRenderElementPtr(GalerkinElement *elem) {
     }
 
     // TODO: Extend SGL_CONTEXT to support Element*
-    sglSetColor(GLOBAL_sgl_currentContext, (SGL_PIXEL)elem);
-    sglPolygon(GLOBAL_sgl_currentContext, patch->numberOfVertices, v);
+    GLOBAL_sgl_currentContext->sglSetColor((SGL_PIXEL)elem);
+    GLOBAL_sgl_currentContext->sglPolygon(patch->numberOfVertices, v);
 }
 
 /**
@@ -88,8 +88,8 @@ scratchRenderElements(GalerkinElement *cluster, Vector3D eye) {
     boundsTransform(geomBounds(cluster->geom), &lookAt, bbx);
 
     prev_sgl_context = sglMakeCurrent(GLOBAL_galerkin_state.scratch);
-    sglLoadMatrix(GLOBAL_sgl_currentContext, orthogonalViewMatrix(bbx[MIN_X], bbx[MAX_X], bbx[MIN_Y], bbx[MAX_Y], -bbx[MAX_Z], -bbx[MIN_Z]));
-    sglMultiplyMatrix(GLOBAL_sgl_currentContext, lookAt);
+    GLOBAL_sgl_currentContext->sglLoadMatrix(orthogonalViewMatrix(bbx[MIN_X], bbx[MAX_X], bbx[MIN_Y], bbx[MAX_Y], -bbx[MAX_Z], -bbx[MIN_Z]));
+    GLOBAL_sgl_currentContext->sglMultiplyMatrix(lookAt);
 
     // Choose a viewport depending on the relative size of the smallest
     // surface element in the cluster to be rendered
@@ -100,11 +100,11 @@ scratchRenderElements(GalerkinElement *cluster, Vector3D eye) {
     if ( vp_size < 32 ) {
         vp_size = 32;
     }
-    sglViewport(GLOBAL_sgl_currentContext, 0, 0, vp_size, vp_size);
+    GLOBAL_sgl_currentContext->sglViewport(0, 0, vp_size, vp_size);
 
     // Render element pointers in the scratch frame buffer
     globalEyePoint = eye; // Needed for backface culling test
-    sglClear(GLOBAL_sgl_currentContext, (SGL_PIXEL) 0x00, SGL_MAXIMUM_Z);
+    GLOBAL_sgl_currentContext->sglClear((SGL_PIXEL) 0x00, SGL_MAXIMUM_Z);
     iterateOverSurfaceElementsInCluster(cluster, scratchRenderElementPtr);
 
     sglMakeCurrent(prev_sgl_context);

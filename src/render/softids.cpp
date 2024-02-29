@@ -17,19 +17,17 @@ viewport for the current view. The new renderer is made current
 */
 SGL_CONTEXT *
 setupSoftFrameBuffer() {
-    SGL_CONTEXT *sgl;
+    SGL_CONTEXT *sgl = new SGL_CONTEXT(GLOBAL_camera_mainCamera.xSize, GLOBAL_camera_mainCamera.ySize);
+    GLOBAL_sgl_currentContext->sglDepthTesting(true);
+    GLOBAL_sgl_currentContext->sglClipping(true);
+    GLOBAL_sgl_currentContext->sglClear((SGL_PIXEL) 0, SGL_MAXIMUM_Z);
 
-    sgl = sglOpen(GLOBAL_camera_mainCamera.xSize, GLOBAL_camera_mainCamera.ySize);
-    sglDepthTesting(GLOBAL_sgl_currentContext, true);
-    sglClipping(GLOBAL_sgl_currentContext, true);
-    sglClear(GLOBAL_sgl_currentContext, (SGL_PIXEL) 0, SGL_MAXIMUM_Z);
-
-    sglLoadMatrix(GLOBAL_sgl_currentContext, perspectiveMatrix(
+    GLOBAL_sgl_currentContext->sglLoadMatrix(perspectiveMatrix(
         GLOBAL_camera_mainCamera.fov * 2.0f * (float)M_PI / 180.0f,
             (float) GLOBAL_camera_mainCamera.xSize / (float) GLOBAL_camera_mainCamera.ySize,
             GLOBAL_camera_mainCamera.near,
             GLOBAL_camera_mainCamera.far));
-    sglMultiplyMatrix(GLOBAL_sgl_currentContext, lookAtMatrix(
+    GLOBAL_sgl_currentContext->sglMultiplyMatrix(lookAtMatrix(
             GLOBAL_camera_mainCamera.eyePosition, GLOBAL_camera_mainCamera.lookPosition,
             GLOBAL_camera_mainCamera.upDirection));
 
@@ -52,8 +50,8 @@ softRenderPatch(Patch *patch) {
         vertices[3] = *patch->vertex[3]->point;
     }
 
-    sglSetPatch(GLOBAL_sgl_currentContext, patch);
-    sglPolygon(GLOBAL_sgl_currentContext, patch->numberOfVertices, vertices);
+    GLOBAL_sgl_currentContext->sglSetPatch(patch);
+    GLOBAL_sgl_currentContext->sglPolygon(patch->numberOfVertices, vertices);
 }
 
 /**
@@ -96,7 +94,7 @@ softRenderIds(long *x, long *y, java::ArrayList<Patch *> *scenePatches) {
     ids = (unsigned long *)malloc((int) (*x) * (int) (*y) * sizeof(unsigned long));
     memcpy(ids, currentSglContext->frameBuffer, currentSglContext->width * currentSglContext->height * sizeof(long));
 
-    sglClose(currentSglContext);
+    delete currentSglContext;
     sglMakeCurrent(oldSglContext);
 
     return ids;
