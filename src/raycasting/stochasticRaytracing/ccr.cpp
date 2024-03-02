@@ -2,7 +2,6 @@
 Determination of constant control radiosity value
 */
 
-#include "common/error.h"
 #include "raycasting/stochasticRaytracing/elementmcrad.h"
 #include "raycasting/stochasticRaytracing/mcradP.h"
 #include "raycasting/stochasticRaytracing/ccr.h"
@@ -12,6 +11,45 @@ Determination of constant control radiosity value
 static COLOR *(*globalGetRadiance)(StochasticRadiosityElement *);
 static COLOR (*globalGetScaling)(StochasticRadiosityElement *);
 
+static void
+initialControlRadiosityRecursive(
+    StochasticRadiosityElement *element,
+    COLOR *minRad,
+    COLOR *maxRad,
+    COLOR *fMin,
+    COLOR *fMax,
+    COLOR *totalFluxColor,
+    COLOR *maxRadColor,
+    double *area)
+{
+    if ( element->regularSubElements == nullptr ) {
+        // Trivial case
+        COLOR rad = globalGetRadiance(element)[0];
+        float weightedArea = element->area;
+        if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceDriven &&
+             GLOBAL_stochasticRaytracing_monteCarloRadiosityState.method != RANDOM_WALK_RADIOSITY_METHOD ) {
+            weightedArea *= (element->imp - element->source_imp); // Multiply with received importance
+        }
+        // factor M_PI is omitted everywhere
+        colorAddScaled(*totalFluxColor, /* M_PI* */ weightedArea, rad, *totalFluxColor);
+        *area += weightedArea;
+        colorMaximum(*maxRadColor, rad, *maxRadColor);
+    } else {
+        // Recursive case
+        for ( int i = 0; i < 4; i++ ) {
+            initialControlRadiosityRecursive(
+                    element->regularSubElements[i],
+                    minRad,
+                    maxRad,
+                    fMin,
+                    fMax,
+                    totalFluxColor,
+                    maxRadColor,
+                    area);
+        }
+    }
+}
+
 /**
 Initial guess for constant control radiance value
 */
@@ -19,8 +57,8 @@ static void
 initialControlRadiosity(
     COLOR *minRad,
     COLOR *maxRad,
-    COLOR *fmin,
-    COLOR *fmax,
+    COLOR *fMin,
+    COLOR *fMax,
     java::ArrayList<Patch *> *scenePatches)
 {
     COLOR totalFluxColor;
@@ -31,62 +69,93 @@ initialControlRadiosity(
 
     // Initial interval: 0 ... maxRadColor
     for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
-        REC_ForAllSurfaceLeafs(elem, topLevelGalerkinElement(scenePatches->get(i)))
-                {
-                    COLOR rad = globalGetRadiance(elem)[0];
-                    float warea = elem->area;    /* weighted area */
-                    if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceDriven &&
-                         GLOBAL_stochasticRaytracing_monteCarloRadiosityState.method != RANDOM_WALK_RADIOSITY_METHOD ) {
-                        warea *= (elem->imp - elem->source_imp); /* multiply with received importance */
-                    }
-                    /* factor M_PI is omitted everywhere */
-                    colorAddScaled(totalFluxColor, /* M_PI* */ warea, rad, totalFluxColor);
-                    area += warea;
-                    colorMaximum(maxRadColor, rad, maxRadColor);
-                }
-        REC_EndForAllSurfaceLeafs;
+        initialControlRadiosityRecursive(
+                topLevelGalerkinElement(scenePatches->get(i)),
+                minRad,
+                maxRad,
+                fMin,
+                fMax,
+                &totalFluxColor,
+                &maxRadColor,
+                &area);
     }
 
-
     colorClear(*minRad);
-    *fmin = totalFluxColor;
+    *fMin = totalFluxColor;
 
     *maxRad = maxRadColor;
-    colorScale(area, maxRadColor, *fmax);
-    colorSubtract(*fmax, totalFluxColor, *fmax);
+    colorScale((float)area, maxRadColor, *fMax);
+    colorSubtract(*fMax, totalFluxColor, *fMax);
 }
 
 static void
-refineComponent(float *minRad, float *maxRad, float *fmin, float *fmax,
-                float *f, float *rad) {
-    int i, imin;
+refineComponent(float *minRad, float *maxRad, float *fMin, float *fMax,
+                const float *f, const float *rad) {
+    int i;
+    int iMin;
 
-    /* find subinterval containing the minimum */
-    *fmax = f[0];
-    *fmin = f[0], imin = 0;
+    // Find sub-interval containing the minimum
+    *fMax = f[0];
+    *fMin = f[0], iMin = 0;
     for ( i = 1; i <= NUMBER_OF_INTERVALS; i++ ) {
-        if ( f[i] < *fmin ) {
-            *fmin = f[i];
-            imin = i;
+        if ( f[i] < *fMin ) {
+            *fMin = f[i];
+            iMin = i;
         }
-        if ( f[i] > *fmax ) {
-            *fmax = f[i];
+        if ( f[i] > *fMax ) {
+            *fMax = f[i];
         }
     }
 
-    if ( imin == 0 ) {            /* first subinterval contains minimum */
+    if ( iMin == 0 ) {
+        // First sub-interval contains minimum
         *minRad = rad[0];
         *maxRad = rad[1];
-    } else if ( imin == NUMBER_OF_INTERVALS ) {    /* last subinterval contains minimum */
+    } else if ( iMin == NUMBER_OF_INTERVALS ) {
+        // Last sub-interval contains minimum
         *minRad = rad[NUMBER_OF_INTERVALS - 1];
         *maxRad = rad[NUMBER_OF_INTERVALS];
     } else {
-        if ( f[imin - 1] < f[imin + 1] ) {    /* subinterval left of imin contains minimum */
-            *minRad = rad[imin - 1];
-            *maxRad = rad[imin];
-        } else {                /* subinterval right of imin */
-            *minRad = rad[imin];
-            *maxRad = rad[imin + 1];
+        if ( f[iMin - 1] < f[iMin + 1] ) {
+            // Sub-interval left of iMin contains minimum
+            *minRad = rad[iMin - 1];
+            *maxRad = rad[iMin];
+        } else {
+            // Sub-interval right of iMin
+            *minRad = rad[iMin];
+            *maxRad = rad[iMin + 1];
+        }
+    }
+}
+
+static void
+refineControlRadiosityRecursive(
+    StochasticRadiosityElement *element,
+    COLOR *colorOne,
+    COLOR rad[NUMBER_OF_INTERVALS + 1],
+    COLOR f[NUMBER_OF_INTERVALS + 1])
+{
+    if ( element->regularSubElements == nullptr ) {
+        // Trivial case
+        COLOR B = globalGetRadiance(element)[0];
+        COLOR s = globalGetScaling ? globalGetScaling(element) : *colorOne;
+        float weightedArea = element->area;
+        if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceDriven &&
+             GLOBAL_stochasticRaytracing_monteCarloRadiosityState.method !=
+             RANDOM_WALK_RADIOSITY_METHOD ) {
+            weightedArea *= (element->imp - element->source_imp); /* multiply with received importance */
+        }
+        for ( int i = 0; i <= NUMBER_OF_INTERVALS; i++ ) {
+            COLOR t;
+            colorProduct(s, rad[i], t);
+            colorSubtract(B, t, t);
+            colorAbs(t, t);
+            colorAddScaled(f[i], weightedArea, t, f[i]);
+        }
+    } else {
+        // Recursive case
+        for ( int i = 0; i < 4; i++ ) {
+            refineControlRadiosityRecursive(element->regularSubElements[i], colorOne, rad, f);
         }
     }
 }
@@ -100,56 +169,50 @@ static void
 refineControlRadiosity(
     COLOR *minRad,
     COLOR *maxRad,
-    COLOR *fmin,
-    COLOR *fmax,
+    COLOR *fMin,
+    COLOR *fMax,
     java::ArrayList<Patch *> *scenePatches)
 {
-    COLOR color_one;
-    COLOR f[NUMBER_OF_INTERVALS + 1], rad[NUMBER_OF_INTERVALS + 1], d;
-    int i, s;
+    COLOR colorOne;
+    COLOR f[NUMBER_OF_INTERVALS + 1];
+    COLOR rad[NUMBER_OF_INTERVALS + 1];
+    COLOR d;
 
-    colorSetMonochrome(color_one, 1.);
+    colorSetMonochrome(colorOne, 1.0);
 
-    /* initialisations. rad[i] = radiosity at boundary i. */
+    // Initialisations. rad[i] = radiosity at boundary i
     colorSubtract(*maxRad, *minRad, d);
-    for ( i = 0; i <= NUMBER_OF_INTERVALS; i++ ) {
+    for ( int i = 0; i <= NUMBER_OF_INTERVALS; i++ ) {
         colorClear(f[i]);
-        colorAddScaled(*minRad, (double) i / (double) NUMBER_OF_INTERVALS, d, rad[i]);
+        colorAddScaled(*minRad, (float)i / (float) NUMBER_OF_INTERVALS, d, rad[i]);
     }
 
-    // Determine value of F(beta) = sum_i (area_i * fabs(B_i - beta)) on
+    // Determine value of F(beta) = sum_i (area_i * std::fabs(B_i - beta)) on
     // a regular subdivision of the interval
     for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
-        REC_ForAllSurfaceLeafs(elem, topLevelGalerkinElement(scenePatches->get(i)))
-                {
-                    COLOR B = globalGetRadiance(elem)[0];
-                    COLOR s = globalGetScaling ? globalGetScaling(elem) : color_one;
-                    float warea = elem->area;    /* weighted area */
-                    if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceDriven &&
-                         GLOBAL_stochasticRaytracing_monteCarloRadiosityState.method !=
-                         RANDOM_WALK_RADIOSITY_METHOD ) {
-                        warea *= (elem->imp - elem->source_imp); /* multiply with received importance */
-                    }
-                    for ( i = 0; i <= NUMBER_OF_INTERVALS; i++ ) {
-                        COLOR t;
-                        colorProduct(s, rad[i], t);
-                        colorSubtract(B, t, t);
-                        colorAbs(t, t);
-                        colorAddScaled(f[i], warea, t, f[i]);
-                    }
-                }
-        REC_EndForAllSurfaceLeafs;
+        refineControlRadiosityRecursive(
+            topLevelGalerkinElement(scenePatches->get(i)),
+            &colorOne,
+            rad,
+            f);
     }
 
-    /* find sub-interval containing optimal control radiosity (component-wise) */
-    for ( s = 0; s < 3; s++ ) {
-        float fc[NUMBER_OF_INTERVALS + 1], radc[NUMBER_OF_INTERVALS + 1];
-        for ( i = 0; i <= NUMBER_OF_INTERVALS; i++ ) {    /* copy components */
+    // Find sub-interval containing optimal control radiosity (component-wise)
+    for ( int s = 0; s < 3; s++ ) {
+        float fc[NUMBER_OF_INTERVALS + 1];
+        float radC[NUMBER_OF_INTERVALS + 1];
+        for ( int i = 0; i <= NUMBER_OF_INTERVALS; i++ ) {
+            // Copy components
             fc[i] = f[i].spec[s];
-            radc[i] = rad[i].spec[s];
+            radC[i] = rad[i].spec[s];
         }
-        refineComponent(&(minRad->spec[s]), &(maxRad->spec[s]),
-                        &(fmin->spec[s]), &(fmax->spec[s]), fc, radc);
+        refineComponent(
+            &(minRad->spec[s]),
+            &(maxRad->spec[s]),
+            &(fMin->spec[s]),
+            &(fMax->spec[s]),
+            fc,
+            radC);
     }
 }
 
@@ -174,8 +237,8 @@ determineControlRadiosity(
 {
     COLOR minRad;
     COLOR maxRad;
-    COLOR fmin;
-    COLOR fmax;
+    COLOR fMin;
+    COLOR fMax;
     COLOR beta;
     COLOR delta;
     float eps = 0.001f;
@@ -189,15 +252,15 @@ determineControlRadiosity(
     }
 
     fprintf(stderr, "Determining optimal control radiosity value ... ");
-    initialControlRadiosity(&minRad, &maxRad, &fmin, &fmax, scenePatches);
+    initialControlRadiosity(&minRad, &maxRad, &fMin, &fMax, scenePatches);
 
-    colorSubtract(fmax, fmin, delta);
-    colorAddScaled(delta, (-eps), fmin, delta);
+    colorSubtract(fMax, fMin, delta);
+    colorAddScaled(delta, (-eps), fMin, delta);
     while ( (colorMaximumComponent(delta) > 0.) || sweep < 4 ) {
         sweep++;
-        refineControlRadiosity(&minRad, &maxRad, &fmin, &fmax, scenePatches);
-        colorSubtract(fmax, fmin, delta);
-        colorAddScaled(delta, (-eps), fmin, delta);
+        refineControlRadiosity(&minRad, &maxRad, &fMin, &fMax, scenePatches);
+        colorSubtract(fMax, fMin, delta);
+        colorAddScaled(delta, (-eps), fMin, delta);
     }
 
     colorAdd(minRad, maxRad, beta);

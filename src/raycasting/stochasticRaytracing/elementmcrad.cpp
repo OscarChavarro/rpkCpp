@@ -955,14 +955,28 @@ monteCarloRadiosityForAllLeafElements(StochasticRadiosityElement *top, void (*fu
     }
 }
 
+static void
+monteCarloRadiosityForAllSurfaceLeafsRecursive(
+    StochasticRadiosityElement *element,
+    void (*func)(StochasticRadiosityElement *))
+{
+    if ( element->regularSubElements == nullptr ) {
+        // Trivial case
+        func(element);
+    } else {
+        // Recursive case
+        for ( int i = 0; i < 4; i++ ) {
+            monteCarloRadiosityForAllSurfaceLeafsRecursive(element->regularSubElements[i], func);
+        }
+    }
+}
+
 void
-monteCarloRadiosityForAllSurfaceLeafs(StochasticRadiosityElement *top,
-                                      void (*func)(StochasticRadiosityElement *)) {
-    REC_ForAllSurfaceLeafs(leaf, top)
-            {
-                func(leaf);
-            }
-    REC_EndForAllSurfaceLeafs;
+monteCarloRadiosityForAllSurfaceLeafs(
+    StochasticRadiosityElement *top,
+    void (*func)(StochasticRadiosityElement *))
+{
+    monteCarloRadiosityForAllSurfaceLeafsRecursive(top, func);
 }
 
 /**
