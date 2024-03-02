@@ -475,7 +475,7 @@ CPhotonMap::Sample(
 
         // Find the nearest photons
 
-        m_nrpFound = DoQuery(&pos, m_sample_nrp, KDMAXRADIUS, NO_IMPSAMP_PHOTON);
+        m_nrpFound = DoQuery(&pos, m_sample_nrp, KD_MAX_RADIUS, NO_IMPSAMP_PHOTON);
 
         //printf("m_nrpFound %i\n", m_nrpFound);
 

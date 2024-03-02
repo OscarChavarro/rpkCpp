@@ -49,8 +49,8 @@ Ref : - Bentley, J.L. (1975) Multidimensional search trees used for
 */
 
 
-#ifndef _KDTREE_H_
-#define _KDTREE_H_
+#ifndef __K_D_TREE__
+#define __K_D_TREE__
 
 #include "common/mymath.h"
 #include "common/linealAlgebra/Float.h"
@@ -59,7 +59,8 @@ Ref : - Bentley, J.L. (1975) Multidimensional search trees used for
 ** KD node
 */
 
-const float KDMAXRADIUS = 1e10; // Not HUGE, since we need to square it.
+// Not HUGE, since we need to square it
+#define KD_MAX_RADIUS 1e10
 
 class KDTreeNode {
   public:
@@ -84,7 +85,7 @@ class KDTreeNode {
     }
 };
 
-// Node for a balanced kdtree, this nodes are placed in arrays
+// Node for a balanced kdtree, nodes are placed in arrays
 // and no loson, hison pointers are necessary
 class BalancedKDTreeNode {
   public:
@@ -122,7 +123,6 @@ class KDTree {
 
     void deleteNodes(KDTreeNode *node, bool deleteData);
     void deleteBNodes(bool deleteData);
-    void FindMinMaxDepth(int *minDepth, int *maxDepth); // Unbalanced part!
     void Query_rec(const KDTreeNode *node); // Unbalanced part
     void BQuery_rec(int node); // Balanced part
 
@@ -136,14 +136,11 @@ class KDTree {
     // Query the kd tree : both balanced and unbalanced parts taken into
     // account !  (The balanced part is searched first)
     int Query(const float *point, int N, void *results,
-                      float *distances = nullptr, float radius = KDMAXRADIUS,
+                      float *distances = nullptr, float radius = KD_MAX_RADIUS,
                       short excludeFlags = 0);
 
     // Iterate nodes : iterate all nodes (only for balanced ?!)
     void iterateNodes(void (*callBack)(void *, void *), void *data);
-
-    // Analyses how balanced the tree is, and prints a report to stdout
-    void BalanceAnalysis();
 
     // Balance the tree, it is possible that a part is already balanced!!
     void Balance();

@@ -510,10 +510,9 @@ KDTree::BQuery_rec(int index) {
 
 void
 KDTreeNode::findMinMaxDepth(int depth, int *minDepth, int *maxDepth) const {
-    if ((loson == nullptr) && (hison == nullptr)) {
+    if ( (loson == nullptr) && (hison == nullptr) ) {
         *maxDepth = floatMax(*maxDepth, depth);
         *minDepth = floatMin(*minDepth, depth);
-        //    printf("Min %i Max %i\n", *minDepth, *maxDepth);
     } else {
         if ( loson ) {
             loson->findMinMaxDepth(depth + 1, minDepth, maxDepth);
@@ -524,34 +523,8 @@ KDTreeNode::findMinMaxDepth(int depth, int *minDepth, int *maxDepth) const {
     }
 }
 
-//** KD TREE additional routines and old stuff
-void
-KDTree::FindMinMaxDepth(int *minDepth, int *maxDepth) {
-    *minDepth = m_numNodes + 1;
-    *maxDepth = 0;
-
-    if ( m_root ) {
-        m_root->findMinMaxDepth(1, minDepth, maxDepth);
-    } else {
-        *minDepth = 0;
-        *maxDepth = 0;
-    }
-}
-
-void
-KDTree::BalanceAnalysis() {
-    int deepest, shortest;
-
-    printf("KD Tree Analysis\n====================\n");
-
-    FindMinMaxDepth(&shortest, &deepest);
-
-    printf("Numnodes %i, Shortest %i, Deepest %i\n", m_numNodes, shortest,
-           deepest);
-}
-
 /**
-This Quickselect routine is adapted from the algorithm described in
+This Quick select routine is adapted from the algorithm described in
 "Numerical recipes in C", Second Edition,
 Cambridge University Press, 1992, Section 8.5, ISBN 0-521-43108-5
 */
