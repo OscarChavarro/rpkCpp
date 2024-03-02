@@ -28,8 +28,7 @@ set(MAIN_SRC
     src/common/dataStructures/CSList.cpp
     src/common/dataStructures/KDTree.cpp
     src/common/dataStructures/List.cpp
-    src/common/dataStructures/Bintree.cpp
-    src/QMC/halton.cpp
+        src/QMC/halton.cpp
     src/QMC/scrambledhalton.cpp
     src/QMC/nied31.cpp
     src/QMC/faure.cpp
