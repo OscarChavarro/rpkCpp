@@ -27,10 +27,16 @@ corresponding transforms in OpenGL
 Matrix4x4
 rotateMatrix(float angle, Vector3D axis) {
     Matrix4x4 xf = globalIdentityMatrix;
-    double x, y, z, c, s, t;
+    float x;
+    float y;
+    float z;
+    float c;
+    float s;
+    float t;
 
     // Singularity test
-    if ((s = vectorNorm(axis)) < EPSILON ) {
+    s = vectorNorm(axis);
+    if ( s < EPSILON ) {
         //Error("Rotate", "Bad rotation axis");
         return xf;
     } else {
@@ -57,33 +63,34 @@ There is no check whether the transform really is a rotation.
 */
 void
 recoverRotationMatrix(Matrix4x4 xf, float *angle, Vector3D *axis) {
-    double c, s;
+    float c;
+    float s;
 
-    c = (xf.m[0][0] + xf.m[1][1] + xf.m[2][2] - 1.) * 0.5;
-    if ( c > 1. - EPSILON ) {
-        *angle = 0.;
-        vectorSet(*axis, 0., 0., 1.);
-    } else if ( c < -1. + EPSILON ) {
+    c = (xf.m[0][0] + xf.m[1][1] + xf.m[2][2] - 1.0f) * 0.5f;
+    if ( c > 1.0f - EPSILON ) {
+        *angle = 0.0f;
+        vectorSet(*axis, 0.0f, 0.0f, 1.0f);
+    } else if ( c < -1.0f + EPSILON ) {
         *angle = M_PI;
-        axis->x = sqrt((xf.m[0][0] + 1.) * 0.5);
-        axis->y = sqrt((xf.m[1][1] + 1.) * 0.5);
-        axis->z = sqrt((xf.m[2][2] + 1.) * 0.5);
+        axis->x = (float)std::sqrt((xf.m[0][0] + 1.0f) * 0.5f);
+        axis->y = (float)std::sqrt((xf.m[1][1] + 1.0f) * 0.5f);
+        axis->z = (float)std::sqrt((xf.m[2][2] + 1.0f) * 0.5f);
 
-        // Assume x positive, determine sign of y and z */
-        if ( xf.m[1][0] < 0. ) {
+        // Assume x positive, determine sign of y and z
+        if ( xf.m[1][0] < 0.0f ) {
             axis->y = -axis->y;
         }
-        if ( xf.m[2][0] < 0. ) {
+        if ( xf.m[2][0] < 0.0f ) {
             axis->z = -axis->z;
         }
     } else {
-        double r;
-        *angle = acos(c);
-        s = sqrt(1. - c * c);
-        r = 1. / (2. * s);
-        axis->x = (double) (xf.m[2][1] - xf.m[1][2]) * r;
-        axis->y = (double) (xf.m[0][2] - xf.m[2][0]) * r;
-        axis->z = (double) (xf.m[1][0] - xf.m[0][1]) * r;
+        float r;
+        *angle = (float)std::acos(c);
+        s = std::sqrt(1.0f - c * c);
+        r = 1.0f / (2.0f * s);
+        axis->x = (float) (xf.m[2][1] - xf.m[1][2]) * r;
+        axis->y = (float) (xf.m[0][2] - xf.m[2][0]) * r;
+        axis->z = (float) (xf.m[1][0] - xf.m[0][1]) * r;
     }
 }
 
@@ -92,7 +99,7 @@ xf(p) = xf2(xf1(p))
 */
 Matrix4x4
 transComposeMatrix(Matrix4x4 xf2, Matrix4x4 xf1) {
-    Matrix4x4 xf;
+    Matrix4x4 xf{};
 
     xf.m[0][0] = xf2.m[0][0] * xf1.m[0][0] + xf2.m[0][1] * xf1.m[1][0] + xf2.m[0][2] * xf1.m[2][0] +
                  xf2.m[0][3] * xf1.m[3][0];
@@ -163,14 +170,14 @@ lookAtMatrix(Vector3D eye, Vector3D centre, Vector3D up) {
 Matrix4x4
 perspectiveMatrix(float fov /*radians*/, float aspect, float near, float far) {
     Matrix4x4 xf = globalIdentityMatrix;
-    double f = 1. / tan(fov / 2.);
+    float f = 1.0f / std::tan(fov / 2.0f);
 
     xf.m[0][0] = f / aspect;
     xf.m[1][1] = f;
     xf.m[2][2] = (near + far) / (near - far);
     xf.m[2][3] = (2 * far * near) / (near - far);
-    xf.m[3][2] = -1.;
-    xf.m[3][3] = 0.;
+    xf.m[3][2] = -1.0f;
+    xf.m[3][3] = 0.0f;
 
     return xf;
 }

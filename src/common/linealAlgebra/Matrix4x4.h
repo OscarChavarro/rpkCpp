@@ -27,12 +27,12 @@ transformPoint3D(const Matrix4x4 trans, const Vector3D src, Vector3D &dst) {
 
 inline void
 transformPoint4D(const Matrix4x4 trans, const Vector4D src, Vector4D &dst) {
-    Vector4D _d_;
-    _d_.x = trans.m[0][0] * src.x + (trans).m[0][1] * src.y + trans.m[0][2] * src.z + trans.m[0][3] * src.w;
-    _d_.y = trans.m[1][0] * src.x + (trans).m[1][1] * src.y + trans.m[1][2] * src.z + trans.m[1][3] * src.w;
-    _d_.z = trans.m[2][0] * src.x + (trans).m[2][1] * src.y + trans.m[2][2] * src.z + trans.m[2][3] * src.w;
-    _d_.w = trans.m[3][0] * src.x + (trans).m[3][1] * src.y + trans.m[3][2] * src.z + trans.m[3][3] * src.w;
-    dst = _d_;
+    Vector4D d{};
+    d.x = trans.m[0][0] * src.x + (trans).m[0][1] * src.y + trans.m[0][2] * src.z + trans.m[0][3] * src.w;
+    d.y = trans.m[1][0] * src.x + (trans).m[1][1] * src.y + trans.m[1][2] * src.z + trans.m[1][3] * src.w;
+    d.z = trans.m[2][0] * src.x + (trans).m[2][1] * src.y + trans.m[2][2] * src.z + trans.m[2][3] * src.w;
+    d.w = trans.m[3][0] * src.x + (trans).m[3][1] * src.y + trans.m[3][2] * src.z + trans.m[3][3] * src.w;
+    dst = d;
 }
 
 extern Matrix4x4 transComposeMatrix(Matrix4x4 xf2, Matrix4x4 xf1);
