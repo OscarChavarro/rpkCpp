@@ -76,13 +76,13 @@ make_axes(double *u, double *v, double *w)
 {
     int i;
 
-    v[0] = v[1] = v[2] = 0.;
+    v[0] = v[1] = v[2] = 0.0;
     for ( i = 0; i < 3; i++ ) {
-        if ( w[i] < .6 && w[i] > -.6 ) {
+        if ( w[i] < 0.6 && w[i] > -0.6 ) {
             break;
         }
     }
-    v[i] = 1.;
+    v[i] = 1.0;
     floatCrossProduct(u, v, w);
     normalize(u);
     floatCrossProduct(v, w, u);
@@ -127,7 +127,7 @@ put_cspec()
             newav[i + 3] = vbuf[i];
         }
         newav[C_CNSS + 3] = nullptr;
-        if ((i = mgfHandle(MG_E_CSPEC, C_CNSS + 3, newav)) != MGF_OK ) {
+        if ( (i = mgfHandle(MG_E_CSPEC, C_CNSS + 3, newav)) != MGF_OK ) {
             return i;
         }
     }
@@ -1268,9 +1268,9 @@ mgfEntityPrism(int ac, char **av)            /* turn a prism into polygons */
         norm[0] += v3[0];
         norm[1] += v3[1];
         norm[2] += v3[2];
-        MGF_VERTEX_COPY(v1, v2);
+        mgfVertexCopy(v1, v2);
     }
-    if ( normalize(norm) == 0. ) {
+    if ( normalize(norm) == 0.0 ) {
         return MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
     }
 

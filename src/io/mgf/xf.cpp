@@ -229,7 +229,7 @@ void
 mgfTransformPoint(FVECT v1, FVECT v2)        /* transform a point by the current matrix */
 {
     if ( GLOBAL_mgf_xfContext == nullptr) {
-        MGF_VERTEX_COPY(v1, v2);
+        mgfVertexCopy(v1, v2);
         return;
     }
     multp3(v1, v2, GLOBAL_mgf_xfContext->xf.xfm);
@@ -239,7 +239,7 @@ void
 mgfTransformVector(FVECT v1, FVECT v2)        /* transform a vector using current matrix */
 {
     if ( GLOBAL_mgf_xfContext == nullptr) {
-        MGF_VERTEX_COPY(v1, v2);
+        mgfVertexCopy(v1, v2);
         return;
     }
     multv3(v1, v2, GLOBAL_mgf_xfContext->xf.xfm);

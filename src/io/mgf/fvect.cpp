@@ -13,7 +13,7 @@ normalize(double *v)
 {
     static double len;
 
-    len = DOT(v, v);
+    len = dotProduct(v, v);
 
     if ( len <= 0.0 ) {
         return 0.0;

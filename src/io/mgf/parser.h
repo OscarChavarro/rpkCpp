@@ -177,10 +177,29 @@ Definitions for 3-d vector manipulation functions
 
 typedef FLOAT FVECT[3];
 
-#define MGF_VERTEX_COPY(v1, v2) ((v1)[0]=(v2)[0],(v1)[1]=(v2)[1],(v1)[2]=(v2)[2])
-#define DOT(v1, v2) ((v1)[0]*(v2)[0]+(v1)[1]*(v2)[1]+(v1)[2]*(v2)[2])
-#define is0vect(v) (DOT(v,v) <= FLOAT_TINY*FLOAT_TINY)
-#define round0(x) if (x <= FLOAT_TINY && x >= -FLOAT_TINY) x = 0
+inline void
+mgfVertexCopy(double *v1, double *v2) {
+    v1[0] = v2[0];
+    v1[1] = v2[1];
+    v1[2] = v2[2];
+}
+
+inline double
+dotProduct(double *v1, double *v2) {
+    return v1[0] * v2[0] + v1[1] * v2[1] + v1[2] * v2[2];
+}
+
+inline bool
+is0vect(double *v) {
+    return dotProduct(v, v) <= FLOAT_TINY * FLOAT_TINY;
+}
+
+inline void
+round0(FLOAT &x) {
+    if ( x <= FLOAT_TINY && x >= -FLOAT_TINY) {
+        x = 0;
+    }
+}
 
 extern double normalize(FVECT);
 extern void floatCrossProduct(FVECT vres, FVECT v1, FVECT v2);
