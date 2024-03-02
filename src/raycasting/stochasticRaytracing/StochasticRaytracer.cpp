@@ -37,7 +37,7 @@ SR_GetScatteredRadiance(
     CScatterInfo *si;
 
     CPathNode newNode;
-    thisNode->Attach(&newNode);
+    thisNode->attach(&newNode);
 
     COLOR result;
     colorClear(result);
@@ -99,14 +99,14 @@ SR_GetScatteredRadiance(
 
                 // Surface sampling
                 if ( config->samplerConfig.surfaceSampler->Sample(
-                thisNode->Previous(),
+                        thisNode->previous(),
                          thisNode,
                          &newNode, x_1, x_2,
                          doRR,
                          si->flags)
                      && ((newNode.m_rayType != Environment) || (config->backgroundIndirect)) ) {
                     if ( newNode.m_rayType != Environment ) {
-                        newNode.AssignBsdfAndNormal();
+                        newNode.assignBsdfAndNormal();
                     }
 
                     // Frame coherent & correlated sampling
@@ -143,7 +143,7 @@ SR_GetScatteredRadiance(
         }
     }
 
-    thisNode->SetNext(nullptr);
+    thisNode->setNext(nullptr);
     return result;
 }
 
@@ -194,7 +194,7 @@ SR_GetDirectRadiance(
                 strat.sample(&x_1, &x_2);
 
                 if ( config->samplerConfig.neSampler->Sample(
-                        prevNode->Previous(),
+                        prevNode->previous(),
                         prevNode,
                         &lightNode,
                         x_1,
@@ -332,7 +332,7 @@ SR_GetRadiance(
 
         if ( doWeight ) {
             cl = config->nextEventSamples *
-                 config->samplerConfig.neSampler->EvalPDF(thisNode->Previous(), thisNode);
+                 config->samplerConfig.neSampler->EvalPDF(thisNode->previous(), thisNode);
             cl = MULTIPLE_IMPORTANCE_SAMPLING_FUNC(cl);
             cr = usedScatterSamples * thisNode->m_pdfFromPrev;
             cr = MULTIPLE_IMPORTANCE_SAMPLING_FUNC(cr);
@@ -340,7 +340,7 @@ SR_GetRadiance(
             weight = cr / (cr + cl);
         }
 
-        result = backgroundRadiance(GLOBAL_scene_background, &(thisNode->Previous()->m_hit.point),
+        result = backgroundRadiance(GLOBAL_scene_background, &(thisNode->previous()->m_hit.point),
                                     &(thisNode->m_inDirF), nullptr);
 
         colorScale((float)weight, result, result);
@@ -357,7 +357,7 @@ SR_GetRadiance(
                 if ( config->radMode == STORED_PHOTONMAP ) {
                     // Check if the distance to the previous point is big enough
                     // otherwise we need more scattering...
-                    float dist2 = vectorDist2(thisNode->m_hit.point, thisNode->Previous()->m_hit.point);
+                    float dist2 = vectorDist2(thisNode->m_hit.point, thisNode->previous()->m_hit.point);
 
                     if ( dist2 > PHOTON_MAP_MIN_DIST2 ) {
                         radiance = photonMapGetNodeGRadiance(thisNode);
@@ -412,7 +412,7 @@ SR_GetRadiance(
         // Emitted Light
         if ( (config->radMode == STORED_PHOTONMAP) && (GLOBAL_radiance_currentRadianceMethodHandle == &GLOBAL_photonMapMethods) ) {
             // Check if Le would contribute to a caustic
-            if ( (readout == READ_NOW) && !(config->siStorage.DoneThisBounce(thisNode->Previous())) ) {
+            if ( (readout == READ_NOW) && !(config->siStorage.DoneThisBounce(thisNode->previous())) ) {
                 // Caustic contribution:  (E...(D|G)...?L) with ? some specular bounce
                 edfFlags = 0;
             }
@@ -434,7 +434,7 @@ SR_GetRadiance(
             }
 
             if ( (config->reflectionSampling == PHOTONMAPSAMPLING) && (thisNode->m_depth > 1) ) {
-                if ( thisNode->Previous()->m_usedComponents & BSDF_SPECULAR_COMPONENT) {
+                if ( thisNode->previous()->m_usedComponents & BSDF_SPECULAR_COMPONENT) {
                     // Perfect Specular scatter, no weighting
                     doWeight = false;
                 }
@@ -442,7 +442,7 @@ SR_GetRadiance(
 
             if ( doWeight ) {
                 cl = config->nextEventSamples *
-                     config->samplerConfig.neSampler->EvalPDF(thisNode->Previous(),
+                     config->samplerConfig.neSampler->EvalPDF(thisNode->previous(),
                                                               thisNode);
                 cl = MULTIPLE_IMPORTANCE_SAMPLING_FUNC(cl);
                 cr = usedScatterSamples * thisNode->m_pdfFromPrev;
@@ -492,7 +492,7 @@ CalcPixel(int nx, int ny, SRCONFIG *config) {
     config->samplerConfig.pointSampler->Sample(nullptr, nullptr, &eyeNode, 0, 0);
     ((CPixelSampler *) config->samplerConfig.dirSampler)->SetPixel(nx, ny);
 
-    eyeNode.Attach(&pixelNode);
+    eyeNode.attach(&pixelNode);
 
     // Stratified sampling of the pixel
     for ( i = 0; i < config->samplesPerPixel; i++ ) {
@@ -500,7 +500,7 @@ CalcPixel(int nx, int ny, SRCONFIG *config) {
 
         if ( config->samplerConfig.dirSampler->Sample(nullptr, &eyeNode, &pixelNode, x1, x2)
              && ((pixelNode.m_rayType != Environment) || (config->backgroundDirect))) {
-            pixelNode.AssignBsdfAndNormal();
+            pixelNode.assignBsdfAndNormal();
 
             // Frame coherent & correlated sampling
             if ( GLOBAL_raytracing_state.doFrameCoherent || GLOBAL_raytracing_state.doCorrelatedSampling ) {

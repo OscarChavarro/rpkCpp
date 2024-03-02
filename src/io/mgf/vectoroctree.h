@@ -1,9 +1,7 @@
-/* vectoroctree.h: octrees containing vectors */
+#ifndef __VECTOR_OCTREE__
+#define __VECTOR_OCTREE__
 
-#ifndef _VECTOROCTREE_H_
-#define _VECTOROCTREE_H_
-
-#include "common/linealAlgebra/vectorMacros.h"
+#include "common/linealAlgebra/Vector3D.h"
 
 class VECTOROCTREE {
   public:

@@ -512,8 +512,8 @@ Returns a pointer to the normal vector if everything is OK. nullptr pointer if d
 Vector3D *
 patchNormal(Patch *patch, Vector3D *normal) {
     float norm;
-    Vector3Dd prev;
-    Vector3Dd cur;
+    Vector3D prev;
+    Vector3D cur;
 
     vectorSet(*normal, 0, 0, 0);
     vectorSubtract(*patch->vertex[patch->numberOfVertices - 1]->point,

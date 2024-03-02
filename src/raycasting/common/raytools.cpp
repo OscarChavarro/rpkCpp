@@ -169,7 +169,7 @@ eyeNodeVisible(
     float *pix_x,
     float *pix_y)
 {
-    Vector3Dd dir;
+    Vector3D dir;
     Ray ray;
     RayHit *hit;
     RayHit hitStore;

@@ -1,6 +1,7 @@
 #include <cstring>
 
 #include "java/util/ArrayList.txx"
+#include "common/linealAlgebra/vectorMacros.h"
 #include "common/error.h"
 #include "scene/scene.h"
 #include "scene/splitbsdf.h"
@@ -550,8 +551,12 @@ the cross product of succeeding edges: the signs are all equal for a convex poly
 */
 static int
 faceIsConvex(int numberOfVertices, Vertex **v, Vector3D *normal) {
-    Vector2Dd v2d[MAXIMUM_FACE_VERTICES + 1], p, c;
-    int i, index, sign;
+    Vector2D v2d[MAXIMUM_FACE_VERTICES + 1];
+    Vector2D p;
+    Vector2D c;
+    int i;
+    int index;
+    int sign;
 
     index = vector3DDominantCoord(normal);
     for ( i = 0; i < numberOfVertices; i++ ) {

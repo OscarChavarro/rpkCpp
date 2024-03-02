@@ -109,7 +109,7 @@ btdfEvalPdf(
 }
 
 /**
-Print the btdf data the to specified file pointer
+print the btdf data the to specified file pointer
 */
 void
 btdfPrint(FILE *out, BTDF *btdf) {

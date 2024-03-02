@@ -2,7 +2,6 @@
 Some general functions regarding edf,brdf,btdf,bsdf
 */
 
-#include "common/linealAlgebra/vectorMacros.h"
 #include "material/xxdf.h"
 
 /**

@@ -5,7 +5,7 @@ Command line options and defaults
 #include <cstring>
 
 #include "java/util/ArrayList.txx"
-#include "common/linealAlgebra/vectorMacros.h"
+#include "common/linealAlgebra/Vector3D.h"
 #include "common/color.h"
 #include "common/options.h"
 

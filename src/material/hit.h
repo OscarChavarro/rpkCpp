@@ -6,7 +6,8 @@ used as a parameter for BSDF/EDF queries
 #ifndef __HIT__
 #define __HIT__
 
-#include "common/linealAlgebra/vectorMacros.h"
+#include "common/linealAlgebra/Vector2Dd.h"
+#include "common/linealAlgebra/Vector3D.h"
 
 // TODO SITHMASTER: This is coupling hit with scene level classes :(
 class Geometry;

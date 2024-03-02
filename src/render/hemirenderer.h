@@ -3,11 +3,10 @@
  *   hemisphere. 
  */
 
-#ifndef _HEMIRENDERER_H_
-#define _HEMIRENDERER_H_
+#ifndef __HEMIRENDERER__
+#define __HEMIRENDERER__
 
 #include "common/color.h"
-#include "common/linealAlgebra/vectorMacros.h"
 #include "scene/spherical.h"
 
 typedef void (*CHRAcquireCallback)(Vector3D *vec, COORDSYS *coordsys,
@@ -52,4 +51,4 @@ protected:
 };
 
 
-#endif /* _HEMIRENDERER_H_ */
+#endif /* __HEMIRENDERER__ */

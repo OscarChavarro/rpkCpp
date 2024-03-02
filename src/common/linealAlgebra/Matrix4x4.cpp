@@ -1,7 +1,6 @@
 #include <cmath>
 
 #include "common/linealAlgebra/Matrix4x4.h"
-#include "common/linealAlgebra/vectorMacros.h"
 
 Matrix4x4 GLOBAL_matrix_identityTransform4x4 = {
     {

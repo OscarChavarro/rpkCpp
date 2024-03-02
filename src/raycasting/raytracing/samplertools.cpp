@@ -70,7 +70,7 @@ CSamplerConfig::traceNode(
         nextNode = new CPathNode;
     }
 
-    lastNode = nextNode->Previous();
+    lastNode = nextNode->previous();
 
     if ( lastNode == nullptr ) {
         // Fill in first node
@@ -93,7 +93,7 @@ CSamplerConfig::traceNode(
     } else {
         // In the middle of a path
         if ((lastNode->m_depth + 1) < maxDepth ) {
-            if ( !surfaceSampler->Sample(lastNode->Previous(), lastNode, nextNode,
+            if ( !surfaceSampler->Sample(lastNode->previous(), lastNode, nextNode,
                                          x1, x2,
                                          lastNode->m_depth >= minDepth,
                                          flags)) {
@@ -109,7 +109,7 @@ CSamplerConfig::traceNode(
     // We're sure that nextNode contains a new sampled point
     if ( nextNode->m_depth > 0 ) {
         // Lights and cam reside in vacuum
-        nextNode->AssignBsdfAndNormal();
+        nextNode->assignBsdfAndNormal();
     }
 
     return nextNode;
@@ -120,19 +120,19 @@ CSamplerConfig::tracePath(CPathNode *nextNode, BSDFFLAGS flags) {
     double x1;
     double x2;
 
-    if ( nextNode == nullptr || nextNode->Previous() == nullptr ) {
+    if ( nextNode == nullptr || nextNode->previous() == nullptr ) {
         getRand(0, &x1, &x2);
     } else {
-        getRand(nextNode->Previous()->m_depth + 1, &x1, &x2);
+        getRand(nextNode->previous()->m_depth + 1, &x1, &x2);
     }
 
     nextNode = traceNode(nextNode, x1, x2, flags);
 
     if ( nextNode != nullptr ) {
-        nextNode->EnsureNext();
+        nextNode->ensureNext();
 
         // Recursive call
-        tracePath(nextNode->Next(), flags);
+        tracePath(nextNode->next(), flags);
     }
 
     return nextNode;
@@ -168,8 +168,8 @@ pathNodeConnect(
     if ( pDirEl ) vectorCopy(dirEL, *pDirEl);
 
     // Always test the FOLLOW NEXT flags!
-    nodeEP = nodeX->Previous();
-    nodeLP = nodeY->Previous();
+    nodeEP = nodeX->previous();
+    nodeLP = nodeY->previous();
 
     if ( flags & CONNECT_EL ) {
         // pdf (E->L)

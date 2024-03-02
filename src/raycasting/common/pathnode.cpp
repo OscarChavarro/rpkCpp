@@ -30,12 +30,12 @@ void CPathNode::ReleaseAll(CPathNode *node) {
 
     while ( node ) {
         tmp = node;
-        node = node->Next();
+        node = node->next();
         delete tmp;
     }
 }
 
-void CPathNode::Print(FILE *out) {
+void CPathNode::print(FILE *out) {
     fprintf(out, "Pathnode at depth %i\n", m_depth);
     fprintf(out, "Pos : ");
     vector3DPrint(out, m_hit.point);
@@ -78,7 +78,7 @@ void CPathNode::Print(FILE *out) {
 CPathNode *CPathNode::GetMatchingNode() {
     BSDF *thisBsdf;
     int backhits;
-    CPathNode *tmpNode = Previous();
+    CPathNode *tmpNode = previous();
     CPathNode *matchedNode = nullptr;
 
     thisBsdf = m_useBsdf;
@@ -103,7 +103,7 @@ CPathNode *CPathNode::GetMatchingNode() {
         }
 
         matchedNode = tmpNode;
-        tmpNode = tmpNode->Previous();
+        tmpNode = tmpNode->previous();
     }
 
     if ( backhits == 0 ) {
@@ -114,11 +114,11 @@ CPathNode *CPathNode::GetMatchingNode() {
 }
 
 
-BSDF *CPathNode::GetPreviousBsdf() {
+BSDF *CPathNode::getPreviousBsdf() {
     CPathNode *matchedNode;
 
     if ( !(m_hit.flags & HIT_BACK)) {
-        logError("CPathNode::GetPreviousBsdf", "Last node not a back hit");
+        logError("CPathNode::getPreviousBsdf", "Last node not a back hit");
         return (m_inBsdf);  // Should not happen
     }
 
@@ -140,7 +140,7 @@ BSDF *CPathNode::GetPreviousBsdf() {
 }
 
 
-void CPathNode::AssignBsdfAndNormal() {
+void CPathNode::assignBsdfAndNormal() {
     Material *thisMaterial;
 
     if ( m_hit.patch == nullptr ) {
@@ -160,6 +160,6 @@ void CPathNode::AssignBsdfAndNormal() {
         m_outBsdf = m_useBsdf; // in filled in when creating this node
     } else // BACK HIT
     {
-        m_outBsdf = GetPreviousBsdf();
+        m_outBsdf = getPreviousBsdf();
     }
 }

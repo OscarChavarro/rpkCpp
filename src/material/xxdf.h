@@ -3,10 +3,11 @@
 #ifndef _XXDF_H_
 #define _XXDF_H_
 
-#include "common/linealAlgebra/vectorMacros.h"
+#include "common/linealAlgebra/Vector3D.h"
 
-/* Contributions to outgoing radiance are divided
-   into three components : */
+/**
+Contributions to outgoing radiance are divided into three components :
+*/
 
 #define DIFFUSE_COMPONENT 1
 #define GLOSSY_COMPONENT 2

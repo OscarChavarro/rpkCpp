@@ -4,6 +4,7 @@
 #include <cmath>
 #include <cstdio>
 
+#include "common/linealAlgebra/Vector2D.h"
 #include "IMAGE/imagecpp.h"
 #include "common/color.h"
 #include "scene/Camera.h"

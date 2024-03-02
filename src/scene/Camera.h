@@ -1,7 +1,7 @@
 #ifndef __CAMERA__
 #define __CAMERA__
 
-#include "common/linealAlgebra/vectorMacros.h"
+#include "common/linealAlgebra/Vector3D.h"
 #include "common/color.h"
 
 class CameraClippingPlane {

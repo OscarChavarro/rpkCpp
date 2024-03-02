@@ -179,7 +179,7 @@ HandlePath_X_0(BPCONFIG *config, CBiPath *path) {
         // Store the Bsdf and PDF evaluations that will be overwritten
         // by other values needed to compute the contribution
 
-        eyePrevNode = eyeEndNode->Previous(); // always != nullptr
+        eyePrevNode = eyeEndNode->previous(); // always != nullptr
 
         oldBsdfEval = eyeEndNode->m_bsdfEval;
         oldBsdfComp = eyeEndNode->m_bsdfComp;
@@ -308,8 +308,8 @@ ComputeNEFluxEstimate(
     // Store PDF and BSDF evals that will be overwritten
     eyeEndNode = path->m_eyeEndNode;
     lightEndNode = path->m_lightEndNode;
-    eyePrevNode = eyeEndNode->Previous();
-    lightPrevNode = lightEndNode->Previous();
+    eyePrevNode = eyeEndNode->previous();
+    lightPrevNode = lightEndNode->previous();
 
     oldBsdfL = lightEndNode->m_bsdfEval;
     oldBsdfCompL = lightEndNode->m_bsdfComp;
@@ -533,9 +533,9 @@ BPCombinePaths(BPCONFIG *config) {
     if ( config->lightPath ) {
         // Single light point get importance sampled, so compute
         // the pdf for it, in order to get correct weights.
-        if ( config->bcfg->sampleImportantLights && config->lightPath->Next()) {
+        if ( config->bcfg->sampleImportantLights && config->lightPath->next()) {
             config->pdfLNE =
-                    config->eyeConfig.neSampler->EvalPDF(lightPath->Next(),
+                    config->eyeConfig.neSampler->EvalPDF(lightPath->next(),
                                                          lightPath);
 
         } else {
@@ -592,19 +592,19 @@ BPCombinePaths(BPCONFIG *config) {
                 HandlePath_1_X(config, &path);
             }
 
-            if ( lightEndNode->Ends()) {
+            if ( lightEndNode->ends()) {
                 lightSubPathDone = true;
             } else {
                 lightSize++;
-                lightEndNode = lightEndNode->Next();
+                lightEndNode = lightEndNode->next();
             }
         }
 
-        if ( eyeEndNode->Ends() ) {
+        if ( eyeEndNode->ends() ) {
             eyeSubPathDone = true;
         } else {
             eyeSize++;
-            eyeEndNode = eyeEndNode->Next();
+            eyeEndNode = eyeEndNode->next();
         }
     }
 }
@@ -628,17 +628,17 @@ BPCalcPixel(int nx, int ny, BPCONFIG *config) {
     ((CPixelSampler *) config->eyeConfig.dirSampler)->SetPixel(nx, ny);
 
     // Provide a node for the pixel sampling
-    pixNode = config->eyePath->Next();
+    pixNode = config->eyePath->next();
 
     if ( pixNode == nullptr ) {
         pixNode = new CPathNode;
-        config->eyePath->Attach(pixNode);
+        config->eyePath->attach(pixNode);
     }
 
-    nextNode = pixNode->Next();
+    nextNode = pixNode->next();
     if ( nextNode == nullptr ) {
         nextNode = new CPathNode;
-        pixNode->Attach(nextNode);
+        pixNode->attach(nextNode);
     }
 
     config->nx = nx;
@@ -662,7 +662,7 @@ BPCalcPixel(int nx, int ny, BPCONFIG *config) {
 
             if ( config->eyeConfig.dirSampler->Sample(nullptr, config->eyePath,
                                                       pixNode, x_1, x_2)) {
-                pixNode->AssignBsdfAndNormal();
+                pixNode->assignBsdfAndNormal();
 
                 config->eyeConfig.tracePath(nextNode);
             }

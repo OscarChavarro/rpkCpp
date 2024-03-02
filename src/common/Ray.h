@@ -1,7 +1,7 @@
 #ifndef _RAY_H_
 #define _RAY_H_
 
-#include "common/linealAlgebra/vectorMacros.h"
+#include "common/linealAlgebra/Vector3D.h"
 
 class Ray {
   public:

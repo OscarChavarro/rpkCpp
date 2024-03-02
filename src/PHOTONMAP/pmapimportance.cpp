@@ -84,7 +84,7 @@ void HandlePotentialPath(PMAPCONFIG *config) {
         }
 
         // Next node
-        if ( currentNode->Ends()) {
+        if ( currentNode->ends()) {
             isLastNode = true;
         } else {
             colorProduct(currentNode->m_bsdfEval, accImportance, accImportance);
@@ -93,7 +93,7 @@ void HandlePotentialPath(PMAPCONFIG *config) {
                 DGBounces++;
             }
 
-            currentNode = currentNode->Next();
+            currentNode = currentNode->next();
         }
     }
 
@@ -128,8 +128,8 @@ static bool TracePotentialPath(PMAPCONFIG *config) {
     bool indirectImportance = false; // Can we store in the indirect importance map
 
     // New node
-    path->EnsureNext();
-    CPathNode *node = path->Next();
+    path->ensureNext();
+    CPathNode *node = path->next();
 
     // Keep tracing nodes until sampling fails, store importons along the way
 
@@ -141,7 +141,7 @@ static bool TracePotentialPath(PMAPCONFIG *config) {
     while ( scfg.traceNode(node, x_1, x_2,
                            (indirectImportance ? BSDF_SPECULAR_COMPONENT : BSDF_ALL_COMPONENTS))) {
         // Succesful trace
-        CPathNode *prev = node->Previous();
+        CPathNode *prev = node->previous();
 
         // Determine scatter type
         bool didDG = BounceDiffuseOrGlossy(prev);
@@ -168,8 +168,8 @@ static bool TracePotentialPath(PMAPCONFIG *config) {
         }
 
         // New node
-        node->EnsureNext();
-        node = node->Next();
+        node->ensureNext();
+        node = node->next();
         x_1 = drand48();
         x_2 = drand48();
     }

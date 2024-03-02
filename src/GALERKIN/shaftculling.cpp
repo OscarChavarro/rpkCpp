@@ -535,7 +535,7 @@ shaftPatchTest(Patch *patch, SHAFT *shaft) {
 
     for ( i = 0, plane = &shaft->plane[0]; i < shaft->planes; i++, plane++ ) {
         // Test patch against i-th plane of the shaft
-        Vector3Dd plane_normal;
+        Vector3D plane_normal;
         double e[MAXIMUM_VERTICES_PER_PATCH], tolerance;
         int in, out, side[MAXIMUM_VERTICES_PER_PATCH];
 

@@ -26,4 +26,13 @@ ABS(REAL A) {
     return A < 0.0 ? -A : A;
 }
 
+// Common to vector types
+#define X_NORMAL 0
+#define Y_NORMAL 1
+#define Z_NORMAL 2
+#define X_GREATER 0x01
+#define Y_GREATER 0x02
+#define Z_GREATER 0x04
+#define XYZ_EQUAL 0x08
+
 #endif

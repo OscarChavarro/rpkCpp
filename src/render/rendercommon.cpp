@@ -3,7 +3,6 @@ Rendering stuff independent of the graphics library being used
 */
 
 #include "common/mymath.h"
-#include "common/linealAlgebra/vectorMacros.h"
 #include "scene/scene.h"
 #include "scene/Camera.h"
 #include "skin/Geometry.h"
@@ -67,27 +66,27 @@ renderSetClusterColor(RGB *cluster_color) {
 }
 
 static void
-displayListsOption(void *value) {
+displayListsOption(void * /*value*/) {
     GLOBAL_render_renderOptions.useDisplayLists = true;
 }
 
 static void
-flatOption(void *value) {
+flatOption(void * /*value*/) {
     GLOBAL_render_renderOptions.smoothShading = false;
 }
 
 static void
-noCullingOption(void *value) {
+noCullingOption(void * /*value*/) {
     GLOBAL_render_renderOptions.backfaceCulling = false;
 }
 
 static void
-outlinesOption(void *value) {
+outlinesOption(void * /*value*/) {
     GLOBAL_render_renderOptions.drawOutlines = true;
 }
 
 static void
-traceOption(void *value) {
+traceOption(void * /*value*/) {
     GLOBAL_render_renderOptions.trace = true;
 }
 
@@ -164,16 +163,16 @@ renderGetNearFar(float *near, float *far) {
 
     if ( GLOBAL_render_renderOptions.drawCameras ) {
         Camera *cam = &GLOBAL_camera_alternateCamera;
-        float camlen = GLOBAL_render_renderOptions.cameraSize,
-                hsiz = camlen * cam->viewDistance * cam->pixelWidthTangent,
-                vsiz = camlen * cam->viewDistance * cam->pixelHeightTangent;
+        float camLen = GLOBAL_render_renderOptions.cameraSize;
+        float hSize = camLen * cam->viewDistance * cam->pixelWidthTangent;
+        float vSize = camLen * cam->viewDistance * cam->pixelHeightTangent;
         Vector3D c, P[5];
 
-        vectorComb2(1., cam->eyePosition, camlen * cam->viewDistance, cam->Z, c);
-        vectorComb3(c, hsiz, cam->X, vsiz, cam->Y, P[0]);
-        vectorComb3(c, hsiz, cam->X, -vsiz, cam->Y, P[1]);
-        vectorComb3(c, -hsiz, cam->X, -vsiz, cam->Y, P[2]);
-        vectorComb3(c, -hsiz, cam->X, vsiz, cam->Y, P[3]);
+        vectorComb2(1., cam->eyePosition, camLen * cam->viewDistance, cam->Z, c);
+        vectorComb3(c, hSize, cam->X, vSize, cam->Y, P[0]);
+        vectorComb3(c, hSize, cam->X, -vSize, cam->Y, P[1]);
+        vectorComb3(c, -hSize, cam->X, -vSize, cam->Y, P[2]);
+        vectorComb3(c, -hSize, cam->X, vSize, cam->Y, P[3]);
         P[4] = cam->eyePosition;
 
         for ( i = 0; i < 5; i++ ) {
@@ -189,13 +188,13 @@ renderGetNearFar(float *near, float *far) {
     }
 
     /* take 2% extra distance for near as well as far clipping plane */
-    *far += 0.02 * (*far);
-    *near -= 0.02 * (*near);
+    *far += 0.02f * (*far);
+    *near -= 0.02f * (*near);
     if ( *far < EPSILON ) {
         *far = GLOBAL_camera_mainCamera.viewDistance;
     }
     if ( *near < EPSILON ) {
-        *near = GLOBAL_camera_mainCamera.viewDistance / 100.;
+        *near = GLOBAL_camera_mainCamera.viewDistance / 100.0f;
     }
 }
 

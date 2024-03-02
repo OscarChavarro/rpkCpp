@@ -193,8 +193,8 @@ photonMapDoComputePixelFluxEstimate(PMAPCONFIG *config) {
 
     eyeEndNode = bp->m_eyeEndNode;
     lightEndNode = bp->m_lightEndNode;
-    eyePrevNode = eyeEndNode->Previous();
-    lightPrevNode = lightEndNode->Previous();
+    eyePrevNode = eyeEndNode->previous();
+    lightPrevNode = lightEndNode->previous();
 
     oldBsdfL = lightEndNode->m_bsdfEval;
     oldBsdfCompL = lightEndNode->m_bsdfComp;
@@ -411,10 +411,10 @@ photonMapHandlePath(PMAPCONFIG *config) {
 
         // Account for bsdf, node that for the first node, this accounts
         // for the emitted radiance.
-        if ( !(currentNode->Ends())) {
+        if ( !(currentNode->ends())) {
             colorProduct(currentNode->m_bsdfEval, accPower, accPower);
 
-            currentNode = currentNode->Next();
+            currentNode = currentNode->next();
             bp->m_lightSize++;
         } else {
             ldone = true;
@@ -444,17 +444,17 @@ photonMapTracePath(PMAPCONFIG *config, BSDFFLAGS bsdfFlags) {
 
     config->bipath.m_lightPath = path;  // In case no nodes were present
 
-    path->EnsureNext();
+    path->ensureNext();
 
     // Second node
-    CPathNode *node = path->Next();
+    CPathNode *node = path->next();
     x_1 = drand48(); // nrs[2] * RECIP;
     x_2 = drand48(); // nrs[3] * RECIP; // 4D Niederreiter...
 
     if ( config->lightConfig.traceNode(node, x_1, x_2, bsdfFlags)) {
         // Succesful trace...
-        node->EnsureNext();
-        config->lightConfig.tracePath(node->Next(), bsdfFlags);
+        node->ensureNext();
+        config->lightConfig.tracePath(node->next(), bsdfFlags);
     }
 }
 

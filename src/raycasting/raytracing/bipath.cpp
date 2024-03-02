@@ -39,7 +39,7 @@ COLOR CBiPath::EvalRadiance() {
     for ( i = 0; i < m_eyeSize; i++ ) {
         colorProduct(node->m_bsdfEval, col, col);
         factor *= node->m_G;
-        node = node->Next();
+        node = node->next();
     }
 
     node = m_lightPath;
@@ -47,7 +47,7 @@ COLOR CBiPath::EvalRadiance() {
     for ( i = 0; i < m_lightSize; i++ ) {
         colorProduct(node->m_bsdfEval, col, col);
         factor *= node->m_G;
-        node = node->Next();
+        node = node->next();
     }
 
     factor *= m_geomConnect; // Next event ray geometry factor
@@ -67,14 +67,14 @@ double CBiPath::EvalPDFAcc() {
 
     for ( i = 0; i < m_eyeSize; i++ ) {
         pdfAcc *= node->m_pdfFromPrev;
-        node = node->Next();
+        node = node->next();
     }
 
     node = m_lightPath;
 
     for ( i = 0; i < m_lightSize; i++ ) {
         pdfAcc *= node->m_pdfFromPrev;
-        node = node->Next();
+        node = node->next();
     }
 
     return pdfAcc;
@@ -143,7 +143,7 @@ double CBiPath::EvalPDFAndWeight(BP_BASECONFIG *bcfg, double *pPdf,
 
         if ( currentConnect == m_eyeSize + m_lightSize - 1 ) {
             // Account for light importance sampling pdf
-            tmpPdf = newPdf * m_pdfLNE / nextNode->Previous()->m_pdfFromPrev;
+            tmpPdf = newPdf * m_pdfLNE / nextNode->previous()->m_pdfFromPrev;
         } else {
             tmpPdf = newPdf;
         }
@@ -151,7 +151,7 @@ double CBiPath::EvalPDFAndWeight(BP_BASECONFIG *bcfg, double *pPdf,
         pdfSum += MULTIPLE_IMPORTANCE_SAMPLING_FUNC(c * tmpPdf);
 
         currentPdf = newPdf;
-        nextNode = nextNode->Previous();
+        nextNode = nextNode->previous();
     } /* while   (to the light) */
 
 
@@ -192,7 +192,7 @@ double CBiPath::EvalPDFAndWeight(BP_BASECONFIG *bcfg, double *pPdf,
         pdfSum += MULTIPLE_IMPORTANCE_SAMPLING_FUNC(c * tmpPdf);
 
         currentPdf = newPdf;
-        nextNode = nextNode->Previous();
+        nextNode = nextNode->previous();
     } /* while   (to the eye) */
 
     weight = weight / pdfSum;
@@ -221,14 +221,14 @@ double CBiPath::ComputeTotalGeomFactor() {
 
     for ( i = 0; i < m_eyeSize; i++ ) {
         factor *= node->m_G;
-        node = node->Next();
+        node = node->next();
     }
 
     node = m_lightPath;
 
     for ( i = 0; i < m_lightSize; i++ ) {
         factor *= node->m_G;
-        node = node->Next();
+        node = node->next();
     }
 
     factor *= m_geomConnect; // Next event ray geometry factor

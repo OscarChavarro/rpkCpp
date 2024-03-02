@@ -2,7 +2,6 @@
 Tool class to render data defined on the hemisphere
 */
 #include "render/hemirenderer.h"
-#include "common/linealAlgebra/vectorMacros.h"
 #include "common/color.h"
 #include "render/renderhook.h"
 #include "render/opengl.h"

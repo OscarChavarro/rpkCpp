@@ -134,7 +134,7 @@ COLOR CFlagChain::Compute(CBiPath *path) {
     for ( i = 0; i < lightSize; i++ ) {
         tmpCol = node->m_bsdfComp.Sum(m_chain[i]);
         colorProduct(tmpCol, result, result);
-        node = node->Next();
+        node = node->next();
     }
 
     node = path->m_eyePath;
@@ -142,7 +142,7 @@ COLOR CFlagChain::Compute(CBiPath *path) {
     for ( i = 0; i < eyeSize; i++ ) {
         tmpCol = node->m_bsdfComp.Sum(m_chain[m_length - 1 - i]);
         colorProduct(tmpCol, result, result);
-        node = node->Next();
+        node = node->next();
     }
 
     if ( m_subtract ) {

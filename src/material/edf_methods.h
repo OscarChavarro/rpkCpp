@@ -5,7 +5,8 @@
 
 #include <cstdio>
 
-#include "common/linealAlgebra/vectorMacros.h"
+#include "common/linealAlgebra/Float.h"
+#include "common/linealAlgebra/Vector3Dd.h"
 #include "common/color.h"
 #include "material/xxdf.h"
 #include "material/hit.h"

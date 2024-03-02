@@ -1,7 +1,6 @@
 #ifndef __PHOTON_MAP__
 #define __PHOTON_MAP__
 
-#include "common/linealAlgebra/vectorMacros.h"
 #include "common/color.h"
 #include "material/bsdf.h"
 #include "scene/spherical.h"

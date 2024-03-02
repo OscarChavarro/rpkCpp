@@ -1,14 +1,11 @@
-/* pathnode.H
- *
- * Class definition of pathnodes. These node are building blocks of paths.
- * and contain necessary information for raytracing-like algorithms
- *
- */
+/**
+Class definition of pathnodes. These node are building blocks of paths.
+and contain necessary information for raytracing-like algorithms
+*/
 
-#ifndef _PATHNODE_H_
-#define _PATHNODE_H_
+#ifndef __PATH_NODE__
+#define __PATH_NODE__
 
-#include "common/linealAlgebra/vectorMacros.h"
 #include "common/Ray.h"
 #include "common/color.h"
 #include "material/bsdf.h"
@@ -84,40 +81,35 @@ public:
     ~CPathNode();
 
     // Navigation in a path
-    CPathNode *Next() { return m_next; }
+    CPathNode *next() { return m_next; }
 
-    CPathNode *Previous() { return m_previous; }
+    CPathNode *previous() { return m_previous; }
 
-    void SetNext(CPathNode *node) { m_next = node; }
+    void setNext(CPathNode *node) { m_next = node; }
 
-    void SetPrevious(CPathNode *node) { m_previous = node; }
+    void setPrevious(CPathNode *node) { m_previous = node; }
 
-    void Attach(CPathNode *node) {
+    void attach(CPathNode *node) {
         m_next = node;
-        node->SetPrevious(this);
+        node->setPrevious(this);
     }
 
-    void Detach(CPathNode *node) {
-        m_next = nullptr;
-        node->SetPrevious(nullptr);
-    }
-
-    void EnsureNext() {
+    void ensureNext() {
         if ( m_next == nullptr ) {
-            Attach(new CPathNode);
+            attach(new CPathNode);
         }
     }
 
-    BSDF *GetPreviousBsdf(); // Searches backwards for matching node
-    void AssignBsdfAndNormal(); // Assigns outgoing bsdf for a filled node
+    BSDF *getPreviousBsdf(); // Searches backwards for matching node
+    void assignBsdfAndNormal(); // Assigns outgoing bsdf for a filled node
 
-    void Print(FILE *out);
+    void print(FILE *out);
 
-    bool Ends() { return ((m_rayType == Stops) || (m_rayType == Environment)); }
+    bool ends() const {
+        return (m_rayType == Stops) || (m_rayType == Environment);
+    }
 
-    // CLASS METHODS !!!!
-
-    // Delete all nodes, includind the supplied 'node'
+    // Delete all nodes, including the supplied 'node'
     static void ReleaseAll(CPathNode *node);
 
 protected:

@@ -1,4 +1,4 @@
-#include "common/linealAlgebra/vectorMacros.h"
+#include "common/linealAlgebra/Vector3D.h"
 
 void
 vector3DDestroy(Vector3D *vector) {
@@ -11,7 +11,7 @@ is used to turn the point-in-polygon test into a 2D problem.
 */
 int
 vector3DDominantCoord(Vector3D *v) {
-    Vector3Dd anorm;
+    Vector3D anorm;
     double indexValue;
 
     anorm.x = std::fabs(v->x);
@@ -20,9 +20,8 @@ vector3DDominantCoord(Vector3D *v) {
     indexValue = MAX(anorm.y, anorm.z);
     indexValue = MAX(anorm.x, indexValue);
 
-    return (indexValue == anorm.x ? X_NORMAL :
-            (indexValue == anorm.y ? Y_NORMAL : Z_NORMAL)
-           );
+    return indexValue == anorm.x ? X_NORMAL :
+            (indexValue == anorm.y ? Y_NORMAL : Z_NORMAL);
 }
 
 int

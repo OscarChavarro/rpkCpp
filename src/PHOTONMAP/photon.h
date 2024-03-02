@@ -1,13 +1,14 @@
-/* photon.H: data structur for individual photons */
+/**
+Data structure for individual photons
+*/
 
-#ifndef _PHOTON_H_
-#define _PHOTON_H_
+#ifndef __PHOTON__
+#define __PHOTON__
 
-#include "common/linealAlgebra/vectorMacros.h"
-#include "common/color.h"
-#include "scene/spherical.h"
 #include <cstring>
 
+#include "common/color.h"
+#include "scene/spherical.h"
 #include "PHOTONMAP/pmapoptions.h"
 
 // KD tree flags (currently not used)
