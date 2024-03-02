@@ -2,7 +2,6 @@
 #define __GALERKIN_ELEMENT__
 
 #include "raycasting/stochasticRaytracing/StochasticRadiosityElement.h"
-#include "common/dataStructures/stackmac.h"
 
 extern Matrix2x2 GLOBAL_stochasticRaytracing_quadUpTransform[4];
 extern Matrix2x2 GLOBAL_stochasticRaytracing_triangleUpTransform[4];
