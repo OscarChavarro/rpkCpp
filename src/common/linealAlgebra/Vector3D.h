@@ -2,7 +2,6 @@
 #define __Vector3D__
 
 #include <cstdio>
-#include <cstdlib>
 #include "common/linealAlgebra/Float.h"
 
 class Vector3D {
