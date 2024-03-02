@@ -15,7 +15,7 @@ class RayCaster {
     ScreenBuffer *screenBuffer;
     bool doDeleteScreen;
 
-    void clipUv(int numberOfVertices, double *u, double *v);
+    static void clipUv(int numberOfVertices, double *u, double *v);
 
     inline COLOR getRadianceAtPixel(int x, int y, Patch *patch, GETRADIANCE_FT getRadiance);
 

@@ -13,7 +13,6 @@ typedef unsigned long SGL_Z_VALUE;
 typedef int SGL_BOOLEAN;
 
 #define SGL_MAXIMUM_Z 4294967295U
-
 #define SGL_TRANSFORM_STACK_SIZE 4
 
 // TODO: Extend SGL_CONTEXT to support Element*
@@ -53,15 +52,15 @@ public:
     explicit SGL_CONTEXT(int width, int height);
     ~SGL_CONTEXT();
 
-    void sglClearZBuffer(SGL_Z_VALUE defZVal);
+    void sglClearZBuffer(SGL_Z_VALUE defZVal) const;
     void sglClear(SGL_PIXEL backgroundColor, SGL_Z_VALUE defZVal);
     void sglDepthTesting(SGL_BOOLEAN on);
     void sglClipping(SGL_BOOLEAN on);
-    void sglLoadMatrix(Matrix4x4 xf);
-    void sglMultiplyMatrix(Matrix4x4 xf);
+    void sglLoadMatrix(Matrix4x4 xf) const;
+    void sglMultiplyMatrix(Matrix4x4 xf) const;
     void sglSetColor(SGL_PIXEL col);
     void sglSetPatch(Patch *col);
-    void sglViewport(int x, int y, int width, int height);
+    void sglViewport(int x, int y, int viewPortWidth, int viewPortHeight);
     void sglPolygon(int numberOfVertices, Vector3D *vertices);
 };
 

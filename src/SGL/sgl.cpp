@@ -15,10 +15,24 @@ PolygonVertex *GLOBAL_sgl_polyDummy;
 SGL_CONTEXT *GLOBAL_sgl_currentContext{};
 
 /**
+Makes the specified context current, returns the previous current context
+*/
+SGL_CONTEXT *
+sglMakeCurrent(SGL_CONTEXT *context) {
+    SGL_CONTEXT *oldContext = GLOBAL_sgl_currentContext;
+    GLOBAL_sgl_currentContext = context;
+    return oldContext;
+}
+
+/**
 Creates, destroys an SGL rendering context. sglOpen() also makes the new context
 the current context
 */
-SGL_CONTEXT::SGL_CONTEXT(int width, int height) {
+SGL_CONTEXT::SGL_CONTEXT(int width, int height):
+    transformStack(),
+    elementBuffer(),
+    currentElement()
+{
     GLOBAL_sgl_currentContext = this;
 
     // Frame buffer
@@ -68,16 +82,6 @@ SGL_CONTEXT::~SGL_CONTEXT() {
 }
 
 /**
-Makes the specified context current, returns the previous current context
-*/
-SGL_CONTEXT *
-sglMakeCurrent(SGL_CONTEXT *context) {
-    SGL_CONTEXT *oldContext = GLOBAL_sgl_currentContext;
-    GLOBAL_sgl_currentContext = context;
-    return oldContext;
-}
-
-/**
 All the following operate on the current SGL context and behave very similar as
 the corresponding functions in OpenGL
 */
@@ -101,7 +105,7 @@ sglClearFrameBuffer(SGL_CONTEXT *sglContext, SGL_PIXEL backgroundColor) {
 Returns current sgl renderer
 */
 void
-SGL_CONTEXT::sglClearZBuffer(SGL_Z_VALUE defZVal) {
+SGL_CONTEXT::sglClearZBuffer(SGL_Z_VALUE defZVal) const {
     SGL_Z_VALUE *zVal;
     SGL_Z_VALUE *lzVal;
     int i;
@@ -146,12 +150,12 @@ SGL_CONTEXT::sglClipping(SGL_BOOLEAN on) {
 }
 
 void
-SGL_CONTEXT::sglLoadMatrix(Matrix4x4 xf) {
+SGL_CONTEXT::sglLoadMatrix(Matrix4x4 xf) const {
     *currentTransform = xf;
 }
 
 void
-SGL_CONTEXT::sglMultiplyMatrix(Matrix4x4 xf) {
+SGL_CONTEXT::sglMultiplyMatrix(Matrix4x4 xf) const {
     *currentTransform = transComposeMatrix(*currentTransform, xf);
 }
 
@@ -167,11 +171,11 @@ SGL_CONTEXT::sglSetPatch(Patch *patch) {
 }
 
 void
-SGL_CONTEXT::sglViewport(int x, int y, int width, int height) {
+SGL_CONTEXT::sglViewport(int x, int y, int viewPortWidth, int viewPortHeight) {
     vp_x = x;
     vp_y = y;
-    vp_width = width;
-    vp_height = height;
+    vp_width = viewPortWidth;
+    vp_height = viewPortHeight;
 }
 
 void
@@ -215,12 +219,9 @@ SGL_CONTEXT::sglPolygon(int numberOfVertices, Vector3D *vertices) {
 
     // Perspective divide and transformation to viewport and depth range
     for ( i = 0, pv = &pol.vertices[0]; i < pol.n; i++, pv++ ) {
-        pv->sx = (double)vp_x +
-                 (pv->sx / pv->sw + 1.0) * (double)vp_width * 0.5;
-        pv->sy = (double) vp_y +
-                 (pv->sy / pv->sw + 1.0) * (double)vp_height * 0.5;
-        pv->sz = (near + (pv->sz / pv->sw + 1.) * far * 0.5) *
-                 (double) SGL_MAXIMUM_Z;
+        pv->sx = (double)vp_x + (pv->sx / pv->sw + 1.0) * (double)vp_width * 0.5;
+        pv->sy = (double) vp_y + (pv->sy / pv->sw + 1.0) * (double)vp_height * 0.5;
+        pv->sz = (near + (pv->sz / pv->sw + 1.0) * far * 0.5) * (double) SGL_MAXIMUM_Z;
     }
 
     // Window

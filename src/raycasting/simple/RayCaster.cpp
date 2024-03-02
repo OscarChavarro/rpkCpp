@@ -61,7 +61,7 @@ Determines the radiance of the nearest patch visible through the pixel
 */
 inline COLOR
 RayCaster::getRadianceAtPixel(int x, int y, Patch *patch, GETRADIANCE_FT getRadiance) {
-    COLOR rad;
+    COLOR rad{};
     colorClear(rad);
     if ( patch != nullptr && getRadiance != nullptr ) {
         // Ray pointing from the eye through the center of the pixel.
@@ -114,9 +114,9 @@ RayCaster::render(GETRADIANCE_FT getRadiance, java::ArrayList<Patch *> *scenePat
         logFatal(-1, "RayCaster::render", "ID buffer size doesn't match screen size");
     }
 
-    // TODO: This is the main loop for ray-casting
-    for ( long y = 0; y < height; y++ ) {
-        for ( long x = 0; x < width; x++ ) {
+    // This is the main loop for ray-casting
+    for ( int y = 0; y < height; y++ ) {
+        for ( int x = 0; x < width; x++ ) {
             Patch *patch = idRenderer->getPatchAtPixel(x, y);
             COLOR rad = getRadianceAtPixel(x, y, patch, getRadiance);
             screenBuffer->add(x, y, rad);
@@ -179,7 +179,7 @@ rayCasterTerminate() {
     if ( globalRayCaster ) {
         delete globalRayCaster;
     }
-    globalRayCaster = 0;
+    globalRayCaster = nullptr;
 }
 
 static void
@@ -187,7 +187,7 @@ rayCasterDefaults() {
 }
 
 static void
-rayCasterParseHWRCastOptions(int *argc, char **argv) {
+rayCasterParseHWRCastOptions(int * /*argc*/, char ** /*argv*/) {
 }
 
 static void
@@ -195,21 +195,21 @@ rayCasterInitialize(java::ArrayList<Patch *> * /*lightPatches*/) {
 }
 
 static void
-rayCasterExecute(ImageOutputHandle *ip, java::ArrayList<Patch *> *scenePatches, java::ArrayList<Patch *> *lightPatches) {
-    if ( globalRayCaster ) {
+rayCasterExecute(ImageOutputHandle *ip, java::ArrayList<Patch *> *scenePatches, java::ArrayList<Patch *> * /*lightPatches*/) {
+    if ( globalRayCaster != nullptr ) {
         delete globalRayCaster;
     }
     globalRayCaster = new RayCaster(nullptr);
     globalRayCaster->render(nullptr, scenePatches);
-    if ( ip ) {
+    if ( globalRayCaster != nullptr && ip != nullptr ) {
         globalRayCaster->save(ip);
     }
 }
 #endif
 
 /**
-Ray-Casts the current Radiance solution. Output is displayed on the sceen
-and saved into the file with given name and file pointer. 'ispipe'
+Ray-Casts the current Radiance solution. Output is displayed on the screen
+and saved into the file with given name and file pointer. 'isPipe'
 reflects whether this file pointer is a pipe or not.
 */
 void
@@ -219,7 +219,7 @@ rayCast(char *fileName, FILE *fp, int isPipe) {
     if ( fp ) {
         img = createRadianceImageOutputHandle(fileName, fp, isPipe,
                                               GLOBAL_camera_mainCamera.xSize, GLOBAL_camera_mainCamera.ySize,
-                                              GLOBAL_statistics_referenceLuminance / 179.0);
+                                              (float)GLOBAL_statistics_referenceLuminance / 179.0f);
         if ( !img ) {
             return;
         }
