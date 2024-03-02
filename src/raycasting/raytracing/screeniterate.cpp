@@ -127,8 +127,8 @@ ScreenIterateProgressive(SCREENITERATECALLBACK callback, void *data) {
                 ystep_done = true;
             }
 
-            ymin = MIN(y0, ymin);
-            ymax = MAX(y1, ymax);
+            ymin = floatMin(y0, ymin);
+            ymax = floatMax(y1, ymax);
 
             x0 = 0;
             xsteps = 0;
@@ -156,7 +156,7 @@ ScreenIterateProgressive(SCREENITERATECALLBACK callback, void *data) {
                                                rgb + ymin * width);
                         }
 
-                        ymin = MAX(0, ymax - stepsize);
+                        ymin = floatMax(0, ymax - stepsize);
                     }
                 }
 

@@ -20,7 +20,7 @@ GetFalseMonochrome(float val) {
         val = (float)std::log(1.0 + val);
     }
 
-    tmp = MIN(val, max);
+    tmp = floatMin(val, max);
     tmp = (tmp / max);
 
     return tmp;
@@ -50,7 +50,7 @@ GetFalseColor(float val) {
         val = (float)std::log(1.0 + val);
     }
 
-    tmp = MIN(val, max);
+    tmp = floatMin(val, max);
 
     // Do some log scale ?
 
@@ -173,7 +173,7 @@ ComputeAcceptProb(float currentD, float requiredD) {
         }
     } else if ( GLOBAL_photonMap_state.acceptPdfType == TRANSCOSINE ) {
         // Translated cosine
-        double ratio = MIN(1.0, currentD / requiredD); // in [0,1]
+        double ratio = floatMin(1.0, currentD / requiredD); // in [0,1]
 
         return (0.5 * (1.0 + cos(ratio * M_PI)));
     } else {

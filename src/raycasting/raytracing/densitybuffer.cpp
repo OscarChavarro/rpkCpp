@@ -112,7 +112,7 @@ ScreenBuffer *CDensityBuffer::Reconstruct() {
     // For all samples -> compute pixel coverage
 
     // Kernel size. Now spread over 3 pixels
-    float h = 8 * MAX(m_screen->getPixXSize(), m_screen->getPixYSize())
+    float h = 8 * floatMax(m_screen->getPixXSize(), m_screen->getPixYSize())
               / sqrt((double) m_bcfg->samplesPerPixel);
 
     printf("h = %f\n", h);

@@ -174,7 +174,7 @@ galerkinElementReAllocCoefficients(GalerkinElement *element) {
     radiance = new COLOR[basisSize];
     clusterGalerkinClearCoefficients(radiance, basisSize);
     if ( element->radiance ) {
-        clusterGalerkinCopyCoefficients(radiance, element->radiance, MIN(element->basisSize, basisSize));
+        clusterGalerkinCopyCoefficients(radiance, element->radiance, floatMin(element->basisSize, basisSize));
         free(element->radiance);
     }
     element->radiance = radiance;
@@ -182,7 +182,8 @@ galerkinElementReAllocCoefficients(GalerkinElement *element) {
     receivedRadiance = new COLOR[basisSize];
     clusterGalerkinClearCoefficients(receivedRadiance, basisSize);
     if ( element->receivedRadiance ) {
-        clusterGalerkinCopyCoefficients(receivedRadiance, element->receivedRadiance, MIN(element->basisSize, basisSize));
+        clusterGalerkinCopyCoefficients(receivedRadiance, element->receivedRadiance,
+                                        floatMin(element->basisSize, basisSize));
         free(element->receivedRadiance);
     }
     element->receivedRadiance = receivedRadiance;
@@ -193,7 +194,7 @@ galerkinElementReAllocCoefficients(GalerkinElement *element) {
         if ( !isCluster(element)) {
             if ( element->unShotRadiance ) {
                 clusterGalerkinCopyCoefficients(unShotRadiance, element->unShotRadiance,
-                                                MIN(element->basisSize, basisSize));
+                                                floatMin(element->basisSize, basisSize));
                 free(element->unShotRadiance);
             } else if ( element->patch->surface ) {
                 unShotRadiance[0] = element->patch->radianceData->Ed;

@@ -214,9 +214,9 @@ Two vectors are equal if their components are equal within the given tolerance
 inline bool
 vectorEqual(const Vector3D &v, const Vector3D &w, const float eps) {
     return (
-            floatEqual(v.x, w.x, eps) &&
-            floatEqual(v.y, w.y, eps) &&
-            floatEqual(v.z, w.z, eps)
+            doubleEqual(v.x, w.x, eps) &&
+            doubleEqual(v.y, w.y, eps) &&
+            doubleEqual(v.z, w.z, eps)
     );
 }
 

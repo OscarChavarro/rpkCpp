@@ -150,7 +150,7 @@ void CImportanceMap::PhotonPrecomputeIrradiance(CIrrPhoton *photon) {
 
     // Abuse pot for tail enhancement
     pot = m_distances[0]; // Only valid since max heap is used in kdtree
-    m_totalMaxDistance = MAX(pot, m_totalMaxDistance);
+    m_totalMaxDistance = floatMax(pot, m_totalMaxDistance);
 
     ((CImporton *) photon)->PSetAll(imp, pot, diff);
     if ( imp > m_maxImp ) {

@@ -90,8 +90,8 @@ clusterInit(GalerkinElement *cluster) {
     // Compute equivalent blocker (or blocker complement) size for multi-resolution
     // visibility
     float *bbx = cluster->geom->bounds;
-    cluster->bsize = MAX((bbx[MAX_X] - bbx[MIN_X]), (bbx[MAX_Y] - bbx[MIN_Y]));
-    cluster->bsize = MAX(cluster->bsize, (bbx[MAX_Z] - bbx[MIN_Z]));
+    cluster->bsize = floatMax((bbx[MAX_X] - bbx[MIN_X]), (bbx[MAX_Y] - bbx[MIN_Y]));
+    cluster->bsize = floatMax(cluster->bsize, (bbx[MAX_Z] - bbx[MIN_Z]));
 }
 
 /**
@@ -373,8 +373,8 @@ doGatherRadiance(GalerkinElement *rcv, double area_factor, Interaction *link, CO
         colorAddScaled(rcvRad[0], (float)(area_factor * link->K.f), srcRad[0], rcvRad[0]);
     } else {
         int alpha, beta, a, b;
-        a = MIN(link->nrcv, rcv->basisSize);
-        b = MIN(link->nsrc, link->sourceElement->basisSize);
+        a = floatMin(link->nrcv, rcv->basisSize);
+        b = floatMin(link->nsrc, link->sourceElement->basisSize);
         for ( alpha = 0; alpha < a; alpha++ ) {
             for ( beta = 0; beta < b; beta++ ) {
                 colorAddScaled(rcvRad[alpha],

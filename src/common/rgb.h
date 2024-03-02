@@ -36,9 +36,9 @@ extern RGB GLOBAL_material_blue;
 
 inline int operator==(RGB rgb1, RGB rgb2)
 {
-    return(floatEqual(rgb1.r, rgb2.r, EPSILON) &&
-           floatEqual(rgb1.g, rgb2.g, EPSILON) &&
-           floatEqual(rgb1.b, rgb2.b, EPSILON));
+    return(doubleEqual(rgb1.r, rgb2.r, EPSILON) &&
+           doubleEqual(rgb1.g, rgb2.g, EPSILON) &&
+           doubleEqual(rgb1.b, rgb2.b, EPSILON));
 }
 
 /**
@@ -64,7 +64,7 @@ Maximum component
 */
 inline float
 RGBMAXCOMPONENT(RGB &color) {
-    return color.r > color.g ? MAX(color.r, color.b) : MAX(color.g, color.b);
+    return color.r > color.g ? floatMax(color.r, color.b) : floatMax(color.g, color.b);
 }
 
 #endif

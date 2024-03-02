@@ -78,7 +78,7 @@ constructShaft(float *ref1, float *ref2, SHAFT *shaft) {
             hasMinMax1[i] = 1;
         } else {
             shaft->extent[i] = shaft->ref2[i];
-            if ( !floatEqual(shaft->ref1[i], shaft->ref2[i], EPSILON)) {
+            if ( !doubleEqual(shaft->ref1[i], shaft->ref2[i], EPSILON)) {
                 hasMinMax2[i] = 1;
             }
         }
@@ -90,7 +90,7 @@ constructShaft(float *ref1, float *ref2, SHAFT *shaft) {
             hasMinMax1[i] = 1;
         } else {
             shaft->extent[i] = shaft->ref2[i];
-            if ( !floatEqual(shaft->ref1[i], shaft->ref2[i], EPSILON)) {
+            if ( !doubleEqual(shaft->ref1[i], shaft->ref2[i], EPSILON)) {
                 hasMinMax2[i] = 1;
             }
         }
@@ -264,7 +264,7 @@ compareShaftPlanes(SHAFTPLANE *p1, SHAFTPLANE *p2) {
     }
 
     // Compare plane constants
-    tolerance = fabs(MAX(p1->d, p2->d) * EPSILON);
+    tolerance = fabs(floatMax(p1->d, p2->d) * EPSILON);
     if ( p1->d < p2->d - tolerance ) {
         return -1;
     } else if ( p1->d > p2->d + tolerance ) {

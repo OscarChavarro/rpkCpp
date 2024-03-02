@@ -1,28 +1,33 @@
-#ifndef _RPK_FLOAT_H_
-#define _RPK_FLOAT_H_
+#ifndef __FLOAT__
+#define __FLOAT__
 
 #include <cmath>
 
 #define EPSILON 1e-6
 
-/**
-Tests whether two floating point numbers are equal within the given tolerance
-*/
-#define floatEqual(a, b, tolerance) (((a)-(b)) > -(tolerance) && ((a)-(b)) < (tolerance))
-
-#ifndef MAX
-    #define MAX(a, b) ((a) > (b) ? (a) : (b))
-#endif
-
-#ifndef MIN
-    #define MIN(a, b) ((a) < (b) ? (a) : (b))
-#endif
-
 // Yes, float or double makes a difference!
 #define REAL double
 
+/**
+Tests whether two floating point numbers are equal within the given tolerance
+*/
+inline bool
+doubleEqual(double a, double b, double tolerance) {
+    return (a - b) > -tolerance && (a - b) < tolerance;
+}
+
+inline float
+floatMax(float a, float b) {
+    return a > b ? a : b;
+}
+
+inline float
+floatMin(float a, float b) {
+    return a < b ? a : b;
+}
+
 inline REAL
-ABS(REAL A) {
+realAbs(REAL A) {
     return A < 0.0 ? -A : A;
 }
 

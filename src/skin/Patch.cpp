@@ -443,7 +443,7 @@ Patch::quadUv(Patch *patch, Vector3D *point, Vector2Dd *uv) {
         if ( (v >= 0.0) && (v <= 1.0) ) {
             b = DETERMINANT(AB, AD) - DETERMINANT(AM, AE);
             c = DETERMINANT (AM, AD);
-            u = ABS(b) < EPSILON ? -1 : c / b;
+            u = realAbs(b) < EPSILON ? -1 : c / b;
             isInside = ((u >= 0.0) && (u <= 1.0));
         }
     } else if ( std::fabs(DETERMINANT(BC, AD)) < EPSILON ) {
@@ -453,7 +453,7 @@ Patch::quadUv(Patch *patch, Vector3D *point, Vector2Dd *uv) {
             if ((u >= 0.0) && (u <= 1.0)) {
                 b = DETERMINANT(AD, AB) - DETERMINANT(AM, AE);
                 c = DETERMINANT (AM, AB);
-                v = ABS(b) < EPSILON ? -1 : c / b;
+                v = realAbs(b) < EPSILON ? -1 : c / b;
                 isInside = ((v >= 0.0) && (v <= 1.0));
             }
         } else {
@@ -474,7 +474,7 @@ Patch::quadUv(Patch *patch, Vector3D *point, Vector2Dd *uv) {
                 }
                 if ( (u >= 0.0) && (u <= 1.0) ) {
                     v = AD.u + u * AE.u;
-                    if ( ABS(v) < EPSILON ) {
+                    if ( realAbs(v) < EPSILON ) {
                         v = (AM.v - u * AB.v) / (AD.v + u * AE.v);
                     } else {
                         v = (AM.u - u * AB.u) / v;

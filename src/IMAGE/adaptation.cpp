@@ -69,8 +69,8 @@ patchFillLumArea(Patch *patch) {
     globalLumArea->luminance = brightness;
     globalLumArea->area = patch->area;
 
-    globalLumMin = MIN(globalLumMin, globalLumArea->luminance);
-    globalLumMax = MAX(globalLumMax, globalLumArea->luminance);
+    globalLumMin = floatMin(globalLumMin, globalLumArea->luminance);
+    globalLumMax = floatMax(globalLumMax, globalLumArea->luminance);
 
     globalLumArea++;
     globalNumEntries++;

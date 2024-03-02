@@ -92,7 +92,7 @@ void CKernel2D::Cover(const Vector2D &point, float scale, COLOR &col, ScreenBuff
 void CKernel2D::VarCover(const Vector2D &center, COLOR &col, ScreenBuffer *ref,
                          ScreenBuffer *dest, int totalSamples, int scaleSamples,
                          float baseSize) {
-    float screenScale = MAX(ref->getPixXSize(), ref->getPixYSize());
+    float screenScale = floatMax(ref->getPixXSize(), ref->getPixYSize());
     //float screenFactor = ref->GetPixXSize() * ref->GetPixYSize();
     float B = baseSize * screenScale; // what about the 8 ??
 
@@ -122,7 +122,7 @@ void CKernel2D::VarCover(const Vector2D &center, COLOR &col, ScreenBuffer *ref,
         printf("MaxRatio... h = %f\n", h / screenScale);
     }
 
-    h = MAX(1.0 * screenScale, h); // We want to cover at least one pixel...
+    h = floatMax(1.0 * screenScale, h); // We want to cover at least one pixel...
 
     SetH(h);
 

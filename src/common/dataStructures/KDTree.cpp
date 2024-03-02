@@ -511,8 +511,8 @@ KDTree::BQuery_rec(int index) {
 void
 KDTreeNode::findMinMaxDepth(int depth, int *minDepth, int *maxDepth) const {
     if ((loson == nullptr) && (hison == nullptr)) {
-        *maxDepth = MAX(*maxDepth, depth);
-        *minDepth = MIN(*minDepth, depth);
+        *maxDepth = floatMax(*maxDepth, depth);
+        *minDepth = floatMin(*minDepth, depth);
         //    printf("Min %i Max %i\n", *minDepth, *maxDepth);
     } else {
         if ( loson ) {

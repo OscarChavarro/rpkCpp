@@ -159,16 +159,16 @@ ScreenBuffer::getBiLinear(float x, float y) {
     if ( x < 0 ) {
         // Point on left side of pixel center
         x = -x;
-        nx1 = MAX(nx0 - 1, 0);
+        nx1 = floatMax(nx0 - 1, 0);
     } else {
-        nx1 = MIN(getHRes(), nx0 + 1);
+        nx1 = floatMin(getHRes(), nx0 + 1);
     }
 
     if ( y < 0 ) {
         y = -y;
-        ny1 = MAX(ny0 - 1, 0);
+        ny1 = floatMax(ny0 - 1, 0);
     } else {
-        ny1 = MIN(getVRes(), ny0 + 1);
+        ny1 = floatMin(getVRes(), ny0 + 1);
     }
 
     // u = 0 for nx0 and u = 1 for nx1, x inbetween. Not that

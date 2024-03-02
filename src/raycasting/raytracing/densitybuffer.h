@@ -99,13 +99,13 @@ protected:
     CDensityHitList m_hitGrid[DHA_XRES][DHA_YRES];
 
     inline int XIndex(float x) {
-        return (MIN((int) (DHA_XRES * (x - m_xmin) / (m_xmax - m_xmin)),
-                    DHA_XRES - 1));
+        return (floatMin((int) (DHA_XRES * (x - m_xmin) / (m_xmax - m_xmin)),
+                         DHA_XRES - 1));
     }
 
     inline int YIndex(float y) {
-        return (MIN((int) (DHA_YRES * (y - m_ymin) / (m_ymax - m_ymin)),
-                    DHA_YRES - 1));
+        return (floatMin((int) (DHA_YRES * (y - m_ymin) / (m_ymax - m_ymin)),
+                         DHA_YRES - 1));
     }
 
 
