@@ -527,7 +527,7 @@ galerkinElementToTopTransform(GalerkinElement *element, Matrix2x2 *xf) {
 
     *xf = *element->upTrans;
     while ( (element = element->parent) && element->upTrans ) {
-        PRECONCAT_TRANSFORM2D(*element->upTrans, *xf, *xf);
+        matrix2DPreConcatTransform(*element->upTrans, *xf, *xf);
     }
 
     return xf;

@@ -9,8 +9,6 @@ class Matrix4x4 {
     float m[4][4];
 };
 
-extern Matrix4x4 GLOBAL_matrix_identityTransform4x4;
-
 inline void
 set3X3Matrix(float m[4][4], float a, float b, float c, float d, float e, float f, float g, float h, float i) {
     m[0][0] = a; m[0][1] = b; m[0][2] = c;

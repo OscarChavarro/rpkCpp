@@ -9,6 +9,15 @@ Saves the result of a radiosity computation as a VRML file
 #include "skin/Patch.h"
 #include "io/writevrml.h"
 
+static Matrix4x4 globalIdentityMatrix = {
+    {
+        {1.0f, 0.0f, 0.0f, 0.0f},
+        {0.0f, 1.0f, 0.0f, 0.0f},
+        {0.0f, 0.0f, 1.0f, 0.0f},
+        {0.0f, 0.0f, 0.0f, 1.0f}
+    }
+};
+
 /**
 Compute a rotation that will rotate the current "up"-direction to the Y axis.
 Y-axis positions up in VRML2.0
@@ -28,7 +37,7 @@ transformModelVRML(Vector3D *modelRotationAxis, float *modelRotationAngle) {
     } else {
         vectorSet(*modelRotationAxis, 0., 1., 0.);
         *modelRotationAngle = 0.;
-        return GLOBAL_matrix_identityTransform4x4;
+        return globalIdentityMatrix;
     }
 }
 
@@ -55,7 +64,7 @@ writeVRMLViewPoint(FILE *fp, Matrix4x4 model_xf, Camera *cam, const char *viewPo
     transformPoint3D(model_xf, Z, Z);
 
     // Construct view orientation transform and recover axis and angle
-    viewTransform = GLOBAL_matrix_identityTransform4x4;
+    viewTransform = globalIdentityMatrix;
     set3X3Matrix(viewTransform.m,
                  X.x, Y.x, Z.x,
                  X.y, Y.y, Z.y,

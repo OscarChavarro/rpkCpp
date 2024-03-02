@@ -18,6 +18,7 @@ include_directories(src)
 set(MAIN_SRC
     src/common/errorshared.cpp
     src/common/mymath.cpp
+    src/common/linealAlgebra/Matrix2x2.cpp
     src/common/linealAlgebra/Vector3D.cpp
     src/common/linealAlgebra/Matrix4x4.cpp
     src/common/color.cpp
@@ -28,7 +29,7 @@ set(MAIN_SRC
     src/common/dataStructures/CSList.cpp
     src/common/dataStructures/KDTree.cpp
     src/common/dataStructures/List.cpp
-        src/QMC/halton.cpp
+    src/QMC/halton.cpp
     src/QMC/scrambledhalton.cpp
     src/QMC/nied31.cpp
     src/QMC/faure.cpp

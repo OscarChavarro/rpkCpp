@@ -14,6 +14,15 @@ PolygonVertex *GLOBAL_sgl_polyDummy;
 
 SGL_CONTEXT *GLOBAL_sgl_currentContext{};
 
+static Matrix4x4 globalIdentityMatrix = {
+    {
+        {1.0f, 0.0f, 0.0f, 0.0f},
+        {0.0f, 1.0f, 0.0f, 0.0f},
+        {0.0f, 0.0f, 1.0f, 0.0f},
+        {0.0f, 0.0f, 0.0f, 1.0f}
+    }
+};
+
 /**
 Makes the specified context current, returns the previous current context
 */
@@ -47,7 +56,7 @@ SGL_CONTEXT::SGL_CONTEXT(int width, int height):
 
     // Transform stack and current transform
     currentTransform = transformStack;
-    *currentTransform = GLOBAL_matrix_identityTransform4x4;
+    *currentTransform = globalIdentityMatrix;
 
     currentPixel = 0;
     currentPatch = nullptr;

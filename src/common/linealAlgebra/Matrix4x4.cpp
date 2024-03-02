@@ -2,7 +2,7 @@
 
 #include "common/linealAlgebra/Matrix4x4.h"
 
-Matrix4x4 GLOBAL_matrix_identityTransform4x4 = {
+static Matrix4x4 globalIdentityMatrix = {
     {
         {1.0f, 0.0f, 0.0f, 0.0f},
         {0.0f, 1.0f, 0.0f, 0.0f},
@@ -13,7 +13,7 @@ Matrix4x4 GLOBAL_matrix_identityTransform4x4 = {
 
 Matrix4x4
 translationMatrix(Vector3D t) {
-    Matrix4x4 xf = GLOBAL_matrix_identityTransform4x4;
+    Matrix4x4 xf = globalIdentityMatrix;
     xf.m[0][3] = t.x;
     xf.m[1][3] = t.y;
     xf.m[2][3] = t.z;
@@ -26,7 +26,7 @@ corresponding transforms in OpenGL
 */
 Matrix4x4
 rotateMatrix(float angle, Vector3D axis) {
-    Matrix4x4 xf = GLOBAL_matrix_identityTransform4x4;
+    Matrix4x4 xf = globalIdentityMatrix;
     double x, y, z, c, s, t;
 
     // Singularity test
@@ -141,28 +141,28 @@ towards the viewer)
 */
 Matrix4x4
 lookAtMatrix(Vector3D eye, Vector3D centre, Vector3D up) {
-    Matrix4x4 xf = GLOBAL_matrix_identityTransform4x4;
+    Matrix4x4 xf = globalIdentityMatrix;
     Vector3D s, X, Y, Z;
 
-    vectorSubtract(eye, centre, Z);    /* Z positions towards viewer */
+    vectorSubtract(eye, centre, Z); // Z positions towards viewer
     vectorNormalize(Z);
 
-    vectorCrossProduct(up, Z, X);        /* X positions right */
+    vectorCrossProduct(up, Z, X); // X positions right
     vectorNormalize(X);
 
-    vectorCrossProduct(Z, X, Y);        /* Y positions up */
-    set3X3Matrix(xf.m,            /* view orientation transform */
+    vectorCrossProduct(Z, X, Y); // Y positions up
+    set3X3Matrix(xf.m, // View orientation transform
                  X.x, X.y, X.z,
                  Y.x, Y.y, Y.z,
                  Z.x, Z.y, Z.z);
 
-    vectorScale(-1., eye, s);        /* translate eye to origin */
+    vectorScale(-1.0, eye, s); // Translate eye to origin
     return transComposeMatrix(xf, translationMatrix(s));
 }
 
 Matrix4x4
 perspectiveMatrix(float fov /*radians*/, float aspect, float near, float far) {
-    Matrix4x4 xf = GLOBAL_matrix_identityTransform4x4;
+    Matrix4x4 xf = globalIdentityMatrix;
     double f = 1. / tan(fov / 2.);
 
     xf.m[0][0] = f / aspect;
@@ -177,7 +177,7 @@ perspectiveMatrix(float fov /*radians*/, float aspect, float near, float far) {
 
 Matrix4x4
 orthogonalViewMatrix(float left, float right, float bottom, float top, float near, float far) {
-    Matrix4x4 xf = GLOBAL_matrix_identityTransform4x4;
+    Matrix4x4 xf = globalIdentityMatrix;
 
     xf.m[0][0] = 2.0f / (right - left);
     xf.m[0][3] = -(right + left) / (right - left);
