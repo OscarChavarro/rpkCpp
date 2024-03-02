@@ -80,7 +80,7 @@ updateDirectPotential(java::ArrayList<Patch *> *scenePatches) {
 
             if ( the_id > 0 && the_id <= maximumPatchId ) {
                 // Compute direction to center of pixel
-                vectorComb3(GLOBAL_camera_mainCamera.Z, xSample, GLOBAL_camera_mainCamera.X, ySample,
+                vectorComb3(GLOBAL_camera_mainCamera.Z, (float)xSample, GLOBAL_camera_mainCamera.X, ySample,
                             GLOBAL_camera_mainCamera.Y, pixDir);
 
                 // Delta_importance = (cosine of the angle between the direction to

@@ -30,15 +30,15 @@ Initialize tbl for at least nel elements
 int
 lookUpInit(LUTAB *tbl, int nel)
 {
-    static int hsiztab[] = {
+    static int hSizeTab[] = {
             31, 61, 127, 251, 509, 1021, 2039, 4093, 8191, 16381,
             32749, 65521, 131071, 262139, 524287, 1048573, 2097143,
             4194301, 8388593, 0
     };
     int *hsp;
 
-    nel += nel >> 1;            /* 66% occupancy */
-    for ( hsp = hsiztab; *hsp; hsp++ ) {
+    nel += nel >> 1; // 66% occupancy
+    for ( hsp = hSizeTab; *hsp; hsp++ ) {
         if ( *hsp > nel ) {
             break;
         }
@@ -76,15 +76,16 @@ int
 lookUpReAlloc(LUTAB *tbl, int nel) {
     int i;
     LUENT *le;
-    int oldtsiz;
-    LUENT *oldtabl;
+    int oldTSize;
+    LUENT *oldTable;
 
-    oldtabl = tbl->tabl;
-    oldtsiz = tbl->tsiz;
+    oldTable = tbl->tabl;
+    oldTSize = tbl->tsiz;
     i = tbl->ndel;
-    if ( !lookUpInit(tbl, nel)) {    /* no more memory! */
-        tbl->tabl = oldtabl;
-        tbl->tsiz = oldtsiz;
+    if ( !lookUpInit(tbl, nel) ) {
+        // No more memory!
+        tbl->tabl = oldTable;
+        tbl->tsiz = oldTSize;
         tbl->ndel = i;
         return 0;
     }
@@ -94,7 +95,7 @@ lookUpReAlloc(LUTAB *tbl, int nel) {
      * deleted entries and the system runs out of memory in a
      * recursive call to lu_find().
      */
-    for ( i = 0, le = oldtabl; i < oldtsiz; i++, le++ ) {
+    for ( i = 0, le = oldTable; i < oldTSize; i++, le++ ) {
         if ( le->key != nullptr) {
             if ( le->data != nullptr) {
                 *lookUpFind(tbl, le->key) = *le;
@@ -105,7 +106,7 @@ lookUpReAlloc(LUTAB *tbl, int nel) {
             }
         }
     }
-    free(oldtabl);
+    free(oldTable);
 
     return tbl->tsiz;
 }
@@ -116,7 +117,7 @@ Find a table entry
 LUENT *
 lookUpFind(LUTAB *tbl, char *key)
 {
-    long hval;
+    long hVal;
     int ndx;
     int i, n;
     LUENT *le;
@@ -126,19 +127,19 @@ lookUpFind(LUTAB *tbl, char *key)
         lookUpInit(tbl, 1);
     }
 
-    hval = (*tbl->hashf)(key);
+    hVal = (*tbl->hashf)(key);
 
     do {
-        ndx = hval % tbl->tsiz;
+        ndx = (int)(hVal % tbl->tsiz);
         le = &tbl->tabl[ndx];
         i = 0;
         n = -1;
         do {
             if ( le->key == nullptr ) {
-                le->hval = hval;
+                le->hval = hVal;
                 return le;
             }
-            if ( le->hval == hval &&
+            if ( le->hval == hVal &&
                  (tbl->keycmp == nullptr || (*tbl->keycmp)(le->key, key) == 0)) {
                 return le;
             }
