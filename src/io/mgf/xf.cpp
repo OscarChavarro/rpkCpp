@@ -266,6 +266,16 @@ xf_scale(double d)            /* scale a number by the current transform */
     return d * GLOBAL_mgf_xfContext->xf.sca;
 }
 
+inline void
+copyMat4(double (*m4a)[4], MAT4 m4b) {
+    memcpy((char *)m4a,(char *)m4b,sizeof(MAT4));
+}
+
+inline void
+setident4(double (*m4a)[4]) {
+    copyMat4(m4a, GLOBAL_mgf_m4Ident);
+}
+
 void
 multmat4(double (*m4a)[4], double (*m4b)[4],
          double (*m4c)[4])        /* multiply m4b X m4c and put into m4a */
@@ -281,7 +291,7 @@ multmat4(double (*m4a)[4], double (*m4b)[4],
         }
     }
 
-    copymat4(m4a, m4tmp);
+    copyMat4(m4a, m4tmp);
 }
 
 void

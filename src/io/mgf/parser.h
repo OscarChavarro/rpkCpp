@@ -1,6 +1,7 @@
 #ifndef MGF_MAJOR_VERSION_NUMBER
 
 #include <cstdio>
+#include <cstring>
 
 #include "common/mymath.h"
 
@@ -282,14 +283,10 @@ Definitions for hierarchical transformation handler
 
 typedef FLOAT MAT4[4][4];
 
-#define copymat4(m4a, m4b)    memcpy((char *)m4a,(char *)m4b,sizeof(MAT4))
-
 #define MAT4IDENT { {1.0, 0.0, 0.0, 0.0}, {0.0, 1.0, 0.0, 0.0}, \
                 {0.0, 0.0, 1.0, 0.0}, {0.0, 0.0, 0.0, 1.0} }
 
 extern MAT4 GLOBAL_mgf_m4Ident;
-
-#define setident4(m4) copymat4(m4, GLOBAL_mgf_m4Ident)
 
 // Regular transformation
 class XF {

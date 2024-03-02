@@ -1,6 +1,6 @@
-/*
- * Context handlers
- */
+/**
+Context handlers
+*/
 
 #include <cstdlib>
 #include <cstring>
@@ -9,6 +9,19 @@
 #include "io/mgf/parser.h"
 #include "io/mgf/lookup.h"
 #include "io/mgf/words.h"
+
+#define C1 3.741832e-16 /* W-m^2 */
+#define C2 1.4388e-2 /* m-K */
+
+inline double
+bbsp(double l, double t) {
+    return C1 / (l * l * l * l * l * (std::exp(C2 / (t * l)) - 1.0));
+}
+
+inline double
+bblm(double t) {
+    return C2 / 5.0 / t;
+}
 
 /* default context values */
 static MgfColorContext c_dfcolor = C_DEFCOLOR;
@@ -48,7 +61,7 @@ static MgfColorContext cie_zf = {1, C_CDSPEC | C_CSSPEC | C_CSXY | C_CSEFF,
                                  {65, 201, 679, 2074, 6456, 13856, 17471, 17721, 16692,
                           12876, 8130, 4652, 2720, 1582, 782, 422, 203, 87, 39, 21, 17,
                           11, 8, 3, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-                                 106770L, .147, .077, 54.363
+                                 106770L, 0.147, 0.077, 54.363
 };
 /* Derived CIE 1931 Primaries (imaginary) */
 static MgfColorContext cie_xp = {1, C_CDSPEC | C_CSSPEC | C_CSXY,
@@ -57,7 +70,7 @@ static MgfColorContext cie_xp = {1, C_CDSPEC | C_CSSPEC | C_CSXY,
                           -3100, -815, 1320, 3200, 4782, 5998, 6861, 7408, 7754,
                           7980, 8120, 8199, 8240, 8271, 8292, 8309, 8283, 8469,
                           8336, 8336, 8336, 8336, 8336, 8336},
-                                 127424L, 1., .0,
+                                 127424L, 1.0, 0.0,
 };
 static MgfColorContext cie_yp = {1, C_CDSPEC | C_CSSPEC | C_CSXY,
                                  {-451, -431, -431, -430, -427, -417, -399, -366, -312,
@@ -65,7 +78,7 @@ static MgfColorContext cie_yp = {1, C_CDSPEC | C_CSSPEC | C_CSXY,
                           3023, 1123, -473, -1704, -2572, -3127, -3474, -3704,
                           -3846, -3927, -3968, -3999, -4021, -4038, -4012, -4201,
                           -4066, -4066, -4066, -4066, -4066, -4066},
-                                 -23035L, .0, 1.,
+                                 -23035L, 0.0, 1.0,
 };
 static MgfColorContext cie_zp = {1, C_CDSPEC | C_CSSPEC | C_CSXY,
                                  {4051, 4054, 4052, 4053, 4054, 4056, 4059, 4064, 4071,
@@ -73,21 +86,23 @@ static MgfColorContext cie_zp = {1, C_CDSPEC | C_CSSPEC | C_CSXY,
                           -904, -918, -898, -884, -869, -863, -855, -855, -851,
                           -848, -847, -846, -846, -846, -845, -846, -843, -845,
                           -845, -845, -845, -845, -845},
-                                 36057L, .0, .0,
+                                 36057L, 0.0, 0.0,
 };
 
-static int setspectrum(MgfColorContext *clr, double wlmin, double wlmax, int ac, char **av);
+static int setSpectrum(MgfColorContext *clr, double wlmin, double wlmax, int ac, char **av);
 
 static int setbbtemp(MgfColorContext *clr, double tk);
 
-static void mixcolors(MgfColorContext *cres, double w1, MgfColorContext *c1, double w2, MgfColorContext *c2);
+static void mixColors(MgfColorContext *cres, double w1, MgfColorContext *c1, double w2, MgfColorContext *c2);
 
-
+/**
+Handle color entity
+*/
 int
-handleColorEntity(int ac, char **av)        /* handle color entity */
+handleColorEntity(int ac, char **av)
 {
     double w;
-    double wsum;
+    double wSum;
     int i;
     LUENT *lp;
 
@@ -135,12 +150,14 @@ handleColorEntity(int ac, char **av)        /* handle color entity */
                 GLOBAL_mgf_currentColor->clock = 0;
             }
             i = GLOBAL_mgf_currentColor->clock;
-            if ( ac == 3 ) {        /* use default template */
+            if ( ac == 3 ) {
+                // Use default template
                 *GLOBAL_mgf_currentColor = c_dfcolor;
                 GLOBAL_mgf_currentColor->clock = i + 1;
                 return MGF_OK;
             }
-            lp = lookUpFind(&clr_tab, av[3]);    /* lookup template */
+            lp = lookUpFind(&clr_tab, av[3]);
+            // Lookup template
             if ( lp == nullptr) {
                 return MGF_ERROR_OUT_OF_MEMORY;
             }
@@ -150,7 +167,8 @@ handleColorEntity(int ac, char **av)        /* handle color entity */
             *GLOBAL_mgf_currentColor = *(MgfColorContext *) lp->data;
             GLOBAL_mgf_currentColor->clock = i + 1;
             return MGF_OK;
-        case MG_E_CXY:        /* assign CIE XY value */
+        case MG_E_CXY:
+            // Assign CIE XY value
             if ( ac != 3 ) {
                 return MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
             }
@@ -166,32 +184,35 @@ handleColorEntity(int ac, char **av)        /* handle color entity */
             }
             GLOBAL_mgf_currentColor->clock++;
             return MGF_OK;
-        case MG_E_CSPEC:    /* assign spectral values */
+        case MG_E_CSPEC:
+            // Assign spectral values
             if ( ac < 5 ) {
                 return MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
             }
             if ( !isfltWords(av[1]) || !isfltWords(av[2])) {
                 return MGF_ERROR_ARGUMENT_TYPE;
             }
-            return setspectrum(GLOBAL_mgf_currentColor, atof(av[1]), atof(av[2]),
-                                ac - 3, av + 3);
+            return setSpectrum(GLOBAL_mgf_currentColor, atof(av[1]), atof(av[2]),
+                               ac - 3, av + 3);
         case MG_E_CCT:        /* assign black body spectrum */
             if ( ac != 2 ) {
                 return MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
             }
-            if ( !isfltWords(av[1])) {
+            if ( !isfltWords(av[1]) ) {
                 return MGF_ERROR_ARGUMENT_TYPE;
             }
             return setbbtemp(GLOBAL_mgf_currentColor, atof(av[1]));
-        case MG_E_CMIX:        /* mix colors */
+        case MG_E_CMIX:
+            // Mix colors
             if ( ac < 5 || (ac - 1) % 2 ) {
                 return MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
             }
             if ( !isfltWords(av[1])) {
                 return MGF_ERROR_ARGUMENT_TYPE;
             }
-            wsum = atof(av[1]);
-            if ((lp = lookUpFind(&clr_tab, av[2])) == nullptr) {
+            wSum = atof(av[1]);
+            lp = lookUpFind(&clr_tab, av[2]);
+            if ( lp == nullptr ) {
                 return MGF_ERROR_OUT_OF_MEMORY;
             }
             if ( lp->data == nullptr) {
@@ -199,21 +220,22 @@ handleColorEntity(int ac, char **av)        /* handle color entity */
             }
             *GLOBAL_mgf_currentColor = *(MgfColorContext *) lp->data;
             for ( i = 3; i < ac; i += 2 ) {
-                if ( !isfltWords(av[i])) {
+                if ( !isfltWords(av[i]) ) {
                     return MGF_ERROR_ARGUMENT_TYPE;
                 }
                 w = atof(av[i]);
-                if ((lp = lookUpFind(&clr_tab, av[i + 1])) == nullptr) {
+                lp = lookUpFind(&clr_tab, av[i + 1]);
+                if ( lp == nullptr ) {
                     return MGF_ERROR_OUT_OF_MEMORY;
                 }
-                if ( lp->data == nullptr) {
+                if ( lp->data == nullptr ) {
                     return MGF_ERROR_UNDEFINED_REFERENCE;
                 }
-                mixcolors(GLOBAL_mgf_currentColor, wsum, GLOBAL_mgf_currentColor,
+                mixColors(GLOBAL_mgf_currentColor, wSum, GLOBAL_mgf_currentColor,
                           w, (MgfColorContext *) lp->data);
-                wsum += w;
+                wSum += w;
             }
-            if ( wsum <= 0. ) {
+            if ( wSum <= 0.0 ) {
                 return MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
             }
             GLOBAL_mgf_currentColor->clock++;
@@ -222,34 +244,40 @@ handleColorEntity(int ac, char **av)        /* handle color entity */
     return MGF_ERROR_UNKNOWN_ENTITY;
 }
 
-
+/**
+Handle material entity
+*/
 int
-handleMaterialEntity(int ac, char **av)        /* handle material entity */
+handleMaterialEntity(int ac, char **av)
 {
     int i;
     LUENT *lp;
 
-    switch ( mgfEntity(av[0])) {
-        case MG_E_MATERIAL:    /* get/set material context */
+    switch ( mgfEntity(av[0]) ) {
+        case MG_E_MATERIAL:
+            // get/set material context
             if ( ac > 4 ) {
                 return MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
             }
-            if ( ac == 1 ) {        /* set unnamed material context */
+            if ( ac == 1 ) {
+                // Set unnamed material context
                 c_unmaterial = c_dfmaterial;
                 GLOBAL_mgf_currentMaterial = &c_unmaterial;
                 GLOBAL_mgf_currentMaterialName = nullptr;
                 return MGF_OK;
             }
-            if ( !isnameWords(av[1])) {
+            if ( !isnameWords(av[1]) ) {
                 return MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
             }
-            lp = lookUpFind(&mat_tab, av[1]);    /* lookup context */
-            if ( lp == nullptr) {
+            lp = lookUpFind(&mat_tab, av[1]);
+            // Lookup context
+            if ( lp == nullptr ) {
                 return MGF_ERROR_OUT_OF_MEMORY;
             }
             GLOBAL_mgf_currentMaterialName = lp->key;
             GLOBAL_mgf_currentMaterial = (MgfMaterialContext *) lp->data;
-            if ( ac == 2 ) {        /* reestablish previous context */
+            if ( ac == 2 ) {
+                // Re-establish previous context
                 if ( GLOBAL_mgf_currentMaterial == nullptr) {
                     return MGF_ERROR_UNDEFINED_REFERENCE;
                 }
@@ -258,7 +286,8 @@ handleMaterialEntity(int ac, char **av)        /* handle material entity */
             if ( av[2][0] != '=' || av[2][1] ) {
                 return MGF_ERROR_ARGUMENT_TYPE;
             }
-            if ( GLOBAL_mgf_currentMaterial == nullptr) {    /* create new material */
+            if ( GLOBAL_mgf_currentMaterial == nullptr ) {
+                // Create new material
                 lp->key = (char *) malloc(strlen(av[1]) + 1);
                 if ( lp->key == nullptr) {
                     return MGF_ERROR_OUT_OF_MEMORY;
@@ -273,36 +302,40 @@ handleMaterialEntity(int ac, char **av)        /* handle material entity */
                 GLOBAL_mgf_currentMaterial->clock = 0;
             }
             i = GLOBAL_mgf_currentMaterial->clock;
-            if ( ac == 3 ) {        /* use default template */
+            if ( ac == 3 ) {
+                // Use default template
                 *GLOBAL_mgf_currentMaterial = c_dfmaterial;
                 GLOBAL_mgf_currentMaterial->clock = i + 1;
                 return MGF_OK;
             }
-            lp = lookUpFind(&mat_tab, av[3]);    /* lookup template */
-            if ( lp == nullptr) {
+            lp = lookUpFind(&mat_tab, av[3]);
+            // Lookup template
+            if ( lp == nullptr ) {
                 return MGF_ERROR_OUT_OF_MEMORY;
             }
-            if ( lp->data == nullptr) {
+            if ( lp->data == nullptr ) {
                 return MGF_ERROR_UNDEFINED_REFERENCE;
             }
             *GLOBAL_mgf_currentMaterial = *(MgfMaterialContext *) lp->data;
             GLOBAL_mgf_currentMaterial->clock = i + 1;
             return MGF_OK;
-        case MG_E_IR:        /* set index of refraction */
+        case MG_E_IR:
+            // Set index of refraction
             if ( ac != 3 ) {
                 return MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
             }
-            if ( !isfltWords(av[1]) || !isfltWords(av[2])) {
+            if ( !isfltWords(av[1]) || !isfltWords(av[2]) ) {
                 return MGF_ERROR_ARGUMENT_TYPE;
             }
             GLOBAL_mgf_currentMaterial->nr = atof(av[1]);
             GLOBAL_mgf_currentMaterial->ni = atof(av[2]);
-            if ( GLOBAL_mgf_currentMaterial->nr <= FLOAT_TINY) {
+            if ( GLOBAL_mgf_currentMaterial->nr <= FLOAT_TINY ) {
                 return MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
             }
             GLOBAL_mgf_currentMaterial->clock++;
             return MGF_OK;
-        case MG_E_RD:        /* set diffuse reflectance */
+        case MG_E_RD:
+            // Set diffuse reflectance
             if ( ac != 2 ) {
                 return MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
             }
@@ -316,7 +349,8 @@ handleMaterialEntity(int ac, char **av)        /* handle material entity */
             GLOBAL_mgf_currentMaterial->rd_c = *GLOBAL_mgf_currentColor;
             GLOBAL_mgf_currentMaterial->clock++;
             return MGF_OK;
-        case MG_E_ED:        /* set diffuse emittance */
+        case MG_E_ED:
+            // Set diffuse emittance
             if ( ac != 2 ) {
                 return MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
             }
@@ -330,21 +364,23 @@ handleMaterialEntity(int ac, char **av)        /* handle material entity */
             GLOBAL_mgf_currentMaterial->ed_c = *GLOBAL_mgf_currentColor;
             GLOBAL_mgf_currentMaterial->clock++;
             return MGF_OK;
-        case MG_E_TD:        /* set diffuse transmittance */
+        case MG_E_TD:
+            // Set diffuse transmittance
             if ( ac != 2 ) {
                 return MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
             }
-            if ( !isfltWords(av[1])) {
+            if ( !isfltWords(av[1]) ) {
                 return MGF_ERROR_ARGUMENT_TYPE;
             }
             GLOBAL_mgf_currentMaterial->td = atof(av[1]);
-            if ( GLOBAL_mgf_currentMaterial->td < 0. || GLOBAL_mgf_currentMaterial->td > 1. ) {
+            if ( GLOBAL_mgf_currentMaterial->td < 0.0 || GLOBAL_mgf_currentMaterial->td > 1. ) {
                 return MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
             }
             GLOBAL_mgf_currentMaterial->td_c = *GLOBAL_mgf_currentColor;
             GLOBAL_mgf_currentMaterial->clock++;
             return MGF_OK;
-        case MG_E_RS:        /* set specular reflectance */
+        case MG_E_RS:
+            // Set specular reflectance
             if ( ac != 3 ) {
                 return MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
             }
@@ -353,14 +389,15 @@ handleMaterialEntity(int ac, char **av)        /* handle material entity */
             }
             GLOBAL_mgf_currentMaterial->rs = atof(av[1]);
             GLOBAL_mgf_currentMaterial->rs_a = atof(av[2]);
-            if ( GLOBAL_mgf_currentMaterial->rs < 0. || GLOBAL_mgf_currentMaterial->rs > 1. ||
-                 GLOBAL_mgf_currentMaterial->rs_a < 0. ) {
+            if ( GLOBAL_mgf_currentMaterial->rs < 0.0 || GLOBAL_mgf_currentMaterial->rs > 1. ||
+                 GLOBAL_mgf_currentMaterial->rs_a < 0.0 ) {
                 return MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
             }
             GLOBAL_mgf_currentMaterial->rs_c = *GLOBAL_mgf_currentColor;
             GLOBAL_mgf_currentMaterial->clock++;
             return MGF_OK;
-        case MG_E_TS:        /* set specular transmittance */
+        case MG_E_TS:
+            // Set specular transmittance
             if ( ac != 3 ) {
                 return MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
             }
@@ -376,11 +413,12 @@ handleMaterialEntity(int ac, char **av)        /* handle material entity */
             GLOBAL_mgf_currentMaterial->ts_c = *GLOBAL_mgf_currentColor;
             GLOBAL_mgf_currentMaterial->clock++;
             return MGF_OK;
-        case MG_E_SIDES:    /* set number of sides */
+        case MG_E_SIDES:
+            // Set number of sides
             if ( ac != 2 ) {
                 return MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
             }
-            if ( !isintWords(av[1])) {
+            if ( !isintWords(av[1]) ) {
                 return MGF_ERROR_ARGUMENT_TYPE;
             }
             i = atoi(av[1]);
@@ -397,33 +435,39 @@ handleMaterialEntity(int ac, char **av)        /* handle material entity */
     return MGF_ERROR_UNKNOWN_ENTITY;
 }
 
+/**
+Handle a vertex entity
+*/
 int
-handleVertexEntity(int ac, char **av)        /* handle a vertex entity */
+handleVertexEntity(int ac, char **av)
 {
-    /*	int	i; */
     LUENT *lp;
 
-    switch ( mgfEntity(av[0])) {
-        case MG_E_VERTEX:    /* get/set vertex context */
+    switch ( mgfEntity(av[0]) ) {
+        case MG_E_VERTEX:
+            // get/set vertex context
             if ( ac > 4 ) {
                 return MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
             }
-            if ( ac == 1 ) {        /* set unnamed vertex context */
+            if ( ac == 1 ) {
+                // Set unnamed vertex context
                 c_unvertex = c_dfvertex;
                 GLOBAL_mgf_currentVertex = &c_unvertex;
                 GLOBAL_mgf_currentVertexName = nullptr;
                 return MGF_OK;
             }
-            if ( !isnameWords(av[1])) {
+            if ( !isnameWords(av[1]) ) {
                 return MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
             }
-            lp = lookUpFind(&vtx_tab, av[1]);    /* lookup context */
-            if ( lp == nullptr) {
+            lp = lookUpFind(&vtx_tab, av[1]);
+            // Lookup context
+            if ( lp == nullptr ) {
                 return MGF_ERROR_OUT_OF_MEMORY;
             }
             GLOBAL_mgf_currentVertexName = lp->key;
             GLOBAL_mgf_currentVertex = (MgfVertexContext *) lp->data;
-            if ( ac == 2 ) {        /* reestablish previous context */
+            if ( ac == 2 ) {
+                // Re-establish previous context
                 if ( GLOBAL_mgf_currentVertex == nullptr) {
                     return MGF_ERROR_UNDEFINED_REFERENCE;
                 }
@@ -432,7 +476,8 @@ handleVertexEntity(int ac, char **av)        /* handle a vertex entity */
             if ( av[2][0] != '=' || av[2][1] ) {
                 return MGF_ERROR_ARGUMENT_TYPE;
             }
-            if ( GLOBAL_mgf_currentVertex == nullptr) {    /* create new vertex context */
+            if ( GLOBAL_mgf_currentVertex == nullptr) {
+                // Create new vertex context
                 GLOBAL_mgf_currentVertexName = (char *) malloc(strlen(av[1]) + 1);
                 if ( !GLOBAL_mgf_currentVertexName ) {
                     return MGF_ERROR_OUT_OF_MEMORY;
@@ -445,13 +490,13 @@ handleVertexEntity(int ac, char **av)        /* handle a vertex entity */
                 }
                 lp->data = (char *) GLOBAL_mgf_currentVertex;
             }
-            /* i = c_cvertex->clock; */
-            if ( ac == 3 ) {        /* use default template */
+            if ( ac == 3 ) {
+                // Use default template
                 *GLOBAL_mgf_currentVertex = c_dfvertex;
-                /* c_cvertex->clock = i + 1; */
                 return MGF_OK;
             }
-            lp = lookUpFind(&vtx_tab, av[3]);    /* lookup template */
+            lp = lookUpFind(&vtx_tab, av[3]);
+            // Lookup template
             if ( lp == nullptr) {
                 return MGF_ERROR_OUT_OF_MEMORY;
             }
@@ -459,10 +504,10 @@ handleVertexEntity(int ac, char **av)        /* handle a vertex entity */
                 return MGF_ERROR_UNDEFINED_REFERENCE;
             }
             *GLOBAL_mgf_currentVertex = *(MgfVertexContext *) lp->data;
-            /* c_cvertex->clock = i + 1; */
             GLOBAL_mgf_currentVertex->clock++;
             return MGF_OK;
-        case MG_E_POINT:    /* set point */
+        case MG_E_POINT:
+            // Set point
             if ( ac != 4 ) {
                 return MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
             }
@@ -474,7 +519,8 @@ handleVertexEntity(int ac, char **av)        /* handle a vertex entity */
             GLOBAL_mgf_currentVertex->p[2] = atof(av[3]);
             GLOBAL_mgf_currentVertex->clock++;
             return MGF_OK;
-        case MG_E_NORMAL:    /* set normal */
+        case MG_E_NORMAL:
+            // Set normal
             if ( ac != 4 ) {
                 return MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
             }
@@ -491,9 +537,11 @@ handleVertexEntity(int ac, char **av)        /* handle a vertex entity */
     return MGF_ERROR_UNKNOWN_ENTITY;
 }
 
-
+/**
+Empty context tables
+*/
 void
-clearContextTables()            /* empty context tables */
+clearContextTables()
 {
     c_uncolor = c_dfcolor;
     GLOBAL_mgf_currentColor = &c_uncolor;
@@ -508,32 +556,45 @@ clearContextTables()            /* empty context tables */
     lookUpDone(&vtx_tab);
 }
 
+/**
+Get a named vertex
+*/
 MgfVertexContext *
-getNamedVertex(char *name)            /* get a named vertex */
+getNamedVertex(char *name)
 {
-    LUENT *lp;
+    LUENT *lp = lookUpFind(&vtx_tab, name);
 
-    if ((lp = lookUpFind(&vtx_tab, name)) == nullptr) {
+    if ( lp == nullptr ) {
         return nullptr;
     }
-    return (MgfVertexContext *) lp->data;
+    return (MgfVertexContext *)lp->data;
 }
 
+/**
+Convert color representations
+*/
 void
-mgfContextFixColorRepresentation(MgfColorContext *clr, int fl)            /* convert color representations */
+mgfContextFixColorRepresentation(MgfColorContext *clr, int fl)
 {
-    double x, y, z;
+    double x;
+    double y;
+    double z;
     int i;
 
-    fl &= ~clr->flags;            /* ignore what's done */
-    if ( !fl ) {                /* everything's done! */
+    fl &= ~clr->flags; // Ignore what's done
+    if ( !fl ) {
+        // Everything's done!
         return;
     }
-    if ( !(clr->flags & (C_CSXY | C_CSSPEC))) {    /* nothing set! */
+    if ( !(clr->flags & (C_CSXY | C_CSSPEC)) ) {
+        // Nothing set!
         *clr = c_dfcolor;
     }
-    if ( fl & C_CSXY ) {        /* cspec -> cxy */
-        x = y = z = 0.;
+    if ( fl & C_CSXY ) {
+        // cspec -> cxy *
+        x = 0.0;
+        y = 0.0;
+        z = 0.0;
         for ( i = 0; i < C_CNSS; i++ ) {
             x += cie_xf.ssamp[i] * clr->ssamp[i];
             y += cie_yf.ssamp[i] * clr->ssamp[i];
@@ -546,15 +607,17 @@ mgfContextFixColorRepresentation(MgfColorContext *clr, int fl)            /* con
         clr->cx = x / z;
         clr->cy = y / z;
         clr->flags |= C_CSXY;
-    } else if ( fl & C_CSSPEC ) {    /* cxy -> cspec */
+    } else if ( fl & C_CSSPEC ) {
+        // cxy -> cspec
         x = clr->cx;
         y = clr->cy;
-        z = 1. - x - y;
+        z = 1.0 - x - y;
         clr->ssum = 0;
         for ( i = 0; i < C_CNSS; i++ ) {
             clr->ssamp[i] = x * cie_xp.ssamp[i] + y * cie_yp.ssamp[i]
-                            + z * cie_zp.ssamp[i] + .5;
-            if ( clr->ssamp[i] < 0 ) {        /* out of gamut! */
+                            + z * cie_zp.ssamp[i] + 0.5;
+            if ( clr->ssamp[i] < 0 ) {
+                // Out of gamut!
                 clr->ssamp[i] = 0;
             } else {
                 clr->ssum += clr->ssamp[i];
@@ -562,32 +625,38 @@ mgfContextFixColorRepresentation(MgfColorContext *clr, int fl)            /* con
         }
         clr->flags |= C_CSSPEC;
     }
-    if ( fl & C_CSEFF ) {        /* compute efficacy */
-        if ( clr->flags & C_CSSPEC ) {        /* from spectrum */
-            y = 0.;
+    if ( fl & C_CSEFF ) {
+        // Compute efficacy
+        if ( clr->flags & C_CSSPEC ) {
+            // From spectrum
+            y = 0.0;
             for ( i = 0; i < C_CNSS; i++ ) {
                 y += cie_yf.ssamp[i] * clr->ssamp[i];
             }
             clr->eff = C_CLPWM * y / clr->ssum;
-        } else /* clr->flags & C_CSXY */ {    /* from (x,y) */
+        } else {
+            // clr->flags & C_CSXY from (x,y)
             clr->eff = clr->cx * cie_xf.eff + clr->cy * cie_yf.eff +
-                       (1. - clr->cx - clr->cy) * cie_zf.eff;
+                       (1.0 - clr->cx - clr->cy) * cie_zf.eff;
         }
         clr->flags |= C_CSEFF;
     }
 }
 
 static int
-setspectrum(MgfColorContext *clr, double wlmin, double wlmax, int ac, char **av)    /* convert a spectrum */
+setSpectrum(MgfColorContext *clr, double wlmin, double wlmax, int ac, char **av)    /* convert a spectrum */
 {
     double scale;
     float va[C_CNSS];
     int i, pos;
     int n, imax;
     int wl;
-    double wl0, wlstep;
-    double boxpos, boxstep;
-    /* check getBoundingBox */
+    double wl0;
+    double wlstep;
+    double boxpos;
+    double boxstep;
+
+    // Check getBoundingBox
     if ( wlmax <= C_CMINWL || wlmax <= wlmin || wlmin >= C_CMAXWL ) {
         return MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
     }
@@ -601,7 +670,7 @@ setspectrum(MgfColorContext *clr, double wlmin, double wlmax, int ac, char **av)
         wlmax -= wlstep;
         ac--;
     }
-    imax = ac;            /* box filter if necessary */
+    imax = ac; // Box filter if necessary
     boxpos = 0;
     boxstep = 1;
     if ( wlstep < C_CWLI) {
@@ -610,12 +679,12 @@ setspectrum(MgfColorContext *clr, double wlmin, double wlmax, int ac, char **av)
         boxstep = wlstep / C_CWLI;
         wlstep = C_CWLI;
     }
-    scale = 0.;            /* get values and maximum */
+    scale = 0.0; // Get values and maximum
     pos = 0;
     for ( i = 0; i < imax; i++ ) {
-        va[i] = 0.;
+        va[i] = 0.0;
         n = 0;
-        while ( boxpos < i + .5 && pos < ac ) {
+        while ( boxpos < i + 0.5 && pos < ac ) {
             if ( !isfltWords(av[pos])) {
                 return MGF_ERROR_ARGUMENT_TYPE;
             }
@@ -624,7 +693,7 @@ setspectrum(MgfColorContext *clr, double wlmin, double wlmax, int ac, char **av)
             boxpos += boxstep;
         }
         if ( n > 1 ) {
-            va[i] /= (double) n;
+            va[i] /= (double)n;
         }
         if ( va[i] > scale ) {
             scale = va[i];
@@ -636,7 +705,7 @@ setspectrum(MgfColorContext *clr, double wlmin, double wlmax, int ac, char **av)
         return MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
     }
     scale = C_CMAXV / scale;
-    clr->ssum = 0;            /* convert to our spacing */
+    clr->ssum = 0; // Convert to our spacing
     wl0 = wlmin;
     pos = 0;
     for ( i = 0, wl = C_CMINWL; i < C_CNSS; i++, wl += C_CWLI) {
@@ -648,9 +717,10 @@ setspectrum(MgfColorContext *clr, double wlmin, double wlmax, int ac, char **av)
                 pos++;
             }
             if ( wl + FLOAT_TINY >= wl0 && wl - FLOAT_TINY <= wl0 ) {
-                clr->ssamp[i] = scale * va[pos] + .5;
-            } else {        /* interpolate if necessary */
-                clr->ssamp[i] = .5 + scale / wlstep *
+                clr->ssamp[i] = scale * va[pos] + 0.5;
+            } else {
+                // Interpolate if necessary
+                clr->ssamp[i] = 0.5 + scale / wlstep *
                                      (va[pos] * (wl0 + wlstep - wl) +
                                       va[pos + 1] * (wl - wl0));
             }
@@ -662,20 +732,28 @@ setspectrum(MgfColorContext *clr, double wlmin, double wlmax, int ac, char **av)
     return MGF_OK;
 }
 
+/**
+Mix two colors according to weights given
+*/
 static void
-mixcolors(MgfColorContext *cres, double w1, MgfColorContext *c1, double w2,
-          MgfColorContext *c2)    /* mix two colors according to weights given */
+mixColors(
+    MgfColorContext *cres,
+    double w1,
+    MgfColorContext *c1,
+    double w2,
+    MgfColorContext *c2)
 {
     double scale;
     float cmix[C_CNSS];
     int i;
 
-    if ((c1->flags | c2->flags) & C_CDSPEC ) {        /* spectral mixing */
+    if ( (c1->flags | c2->flags) & C_CDSPEC ) {
+        // Spectral mixing
         mgfContextFixColorRepresentation(c1, C_CSSPEC | C_CSEFF);
         mgfContextFixColorRepresentation(c2, C_CSSPEC | C_CSEFF);
         w1 /= c1->eff * (float) c1->ssum;
         w2 /= c2->eff * (float) c2->ssum;
-        scale = 0.;
+        scale = 0.0;
         for ( i = 0; i < C_CNSS; i++ ) {
             cmix[i] = w1 * c1->ssamp[i] + w2 * c2->ssamp[i];
             if ( cmix[i] > scale ) {
@@ -685,39 +763,39 @@ mixcolors(MgfColorContext *cres, double w1, MgfColorContext *c1, double w2,
         scale = C_CMAXV / scale;
         cres->ssum = 0;
         for ( i = 0; i < C_CNSS; i++ ) {
-            cres->ssum += cres->ssamp[i] = scale * cmix[i] + .5;
+            cres->ssum += cres->ssamp[i] = scale * cmix[i] + 0.5;
         }
         cres->flags = C_CDSPEC | C_CSSPEC;
-    } else {                    /* CIE xy mixing */
+    } else {
+        // CIE xy mixing
         mgfContextFixColorRepresentation(c1, C_CSXY);
         mgfContextFixColorRepresentation(c2, C_CSXY);
         scale = w1 / c1->cy + w2 / c2->cy;
-        if ( scale == 0. ) {
+        if ( scale == 0.0 ) {
             return;
         }
-        scale = 1. / scale;
+        scale = 1.0 / scale;
         cres->cx = (c1->cx * w1 / c1->cy + c2->cx * w2 / c2->cy) * scale;
         cres->cy = (w1 + w2) * scale;
         cres->flags = C_CDXY | C_CSXY;
     }
 }
 
-#define    C1        3.741832e-16    /* W-m^2 */
-#define C2        1.4388e-2    /* m-K */
-
-#define bbsp(l, t)    (C1/((l)*(l)*(l)*(l)*(l)*(exp(C2/((t)*(l)))-1.)))
-#define bblm(t)        (C2/5./(t))
-
+/**
+Set black body spectrum
+*/
 static int
-setbbtemp(MgfColorContext *clr, double tk)        /* set black body spectrum */
+setbbtemp(MgfColorContext *clr, double tk)
 {
-    double sf, wl;
+    double sf;
+    double wl;
     int i;
 
     if ( tk < 1000 ) {
         return MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
     }
-    wl = bblm(tk);            /* scalefactor based on peak */
+    wl = bblm(tk);
+    // Scale factor based on peak
     if ( wl < C_CMINWL * 1e-9 ) {
         wl = C_CMINWL * 1e-9;
     } else if ( wl > C_CMAXWL * 1e-9 ) {
@@ -727,14 +805,9 @@ setbbtemp(MgfColorContext *clr, double tk)        /* set black body spectrum */
     clr->ssum = 0;
     for ( i = 0; i < C_CNSS; i++ ) {
         wl = (C_CMINWL + i * C_CWLI) * 1e-9;
-        clr->ssum += clr->ssamp[i] = sf * bbsp(wl, tk) + .5;
+        clr->ssum += clr->ssamp[i] = sf * bbsp(wl, tk) + 0.5;
     }
     clr->flags = C_CDSPEC | C_CSSPEC;
     clr->clock++;
     return MGF_OK;
 }
-
-#undef    C1
-#undef    C2
-#undef    bbsp
-#undef    bblm
