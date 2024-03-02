@@ -600,31 +600,40 @@ stochasticJacobiElementShootRays(StochasticRadiosityElement *elem, int rays_this
     }
 }
 
+static void
+stochasticJacobiShootRaysRecursive(StochasticRadiosityElement *element, double rnd, long *rayCount, double *pCumulative) {
+    if ( element->regularSubElements == nullptr ) {
+        // Trivial case
+        double p = element->prob / globalSumOfProbabilities;
+        long rays_this_leaf =
+                (long) std::floor((*pCumulative + p) * (double) globalNumberOfRays + rnd) - *rayCount;
+
+        if ( rays_this_leaf > 0 ) {
+            stochasticJacobiElementShootRays(element, (int)rays_this_leaf);
+        }
+
+        *pCumulative += p;
+        *rayCount += rays_this_leaf;
+    } else {
+        // Recursive case
+        for ( int i = 0; i < 4; i++ ) {
+            stochasticJacobiShootRaysRecursive(element->regularSubElements[i], rnd, rayCount, pCumulative);
+        }
+    }
+}
+
 /**
 Fire off rays from the leaf elements, propagate radiance/importance
 */
 static void
 stochasticJacobiShootRays(java::ArrayList<Patch *> *scenePatches) {
     double rnd = drand48();
-    long ray_count = 0;
+    long rayCount = 0;
     double pCumulative = 0.0;
 
     // Loop over all leaf elements in the element hierarchy
     for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
-        REC_ForAllSurfaceLeafs(leaf, topLevelGalerkinElement(scenePatches->get(i)))
-                {
-                    double p = leaf->prob / globalSumOfProbabilities;
-                    long rays_this_leaf =
-                            (long) std::floor((pCumulative + p) * (double) globalNumberOfRays + rnd) - ray_count;
-
-                    if ( rays_this_leaf > 0 ) {
-                        stochasticJacobiElementShootRays(leaf, (int)rays_this_leaf);
-                    }
-
-                    pCumulative += p;
-                    ray_count += rays_this_leaf;
-                }
-        REC_EndForAllSurfaceLeafs;
+        stochasticJacobiShootRaysRecursive(topLevelGalerkinElement(scenePatches->get(i)), rnd, &rayCount, &pCumulative);
     }
 
     fprintf(stderr, "\n");

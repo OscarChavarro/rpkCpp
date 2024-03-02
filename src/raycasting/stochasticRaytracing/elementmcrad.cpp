@@ -35,7 +35,7 @@ Up-transforms for regular quadrilateral sub-elements:
    0 +---------+---------+
      0        0.5        1   (u)
 */
-Matrix2x2 GLOBAL_stochasticRaytracing_quadupxfm[4] = {
+Matrix2x2 GLOBAL_stochasticRaytracing_quadUpTransform[4] = {
     // South-west [0, 0.5] x [0, 0.5]
     {{{0.5, 0.0}, {0.0, 0.5}}, {0.0, 0.0}},
 
@@ -67,7 +67,7 @@ Up-transforms for triangular sub-elements:
   0 +---------+---------+
     0        0.5        1  (u)
 */
-Matrix2x2 GLOBAL_stochasticRaytracing_triupxfm[4] = {
+Matrix2x2 GLOBAL_stochasticRaytracing_triangleUpTransform[4] = {
     // Left: (0, 0), (0.5, 0), (0, 0.5)
     {{{0.5,  0.0}, {0.0, 0.5}},  {0.0, 0.0}},
 
@@ -465,10 +465,10 @@ monteCarloRadiosityElementNeighbour(StochasticRadiosityElement *elem, int edgeNu
 }
 
 Vertex *
-monteCarloRadiosityEdgeMidpointVertex(StochasticRadiosityElement *elem, int edgenr) {
+monteCarloRadiosityEdgeMidpointVertex(StochasticRadiosityElement *elem, int edgeNumber) {
     Vertex *v = nullptr,
-            *to = elem->vertex[(edgenr + 1) % elem->numberOfVertices];
-    StochasticRadiosityElement *neighbour = monteCarloRadiosityElementNeighbour(elem, edgenr);
+            *to = elem->vertex[(edgeNumber + 1) % elem->numberOfVertices];
+    StochasticRadiosityElement *neighbour = monteCarloRadiosityElementNeighbour(elem, edgeNumber);
 
     if ( neighbour && neighbour->regularSubElements ) {
         // Elem has a neighbour at the edge from 'from' to 'to'. This neighbouring
@@ -680,7 +680,7 @@ monteCarloRadiosityCreateSurfaceSubElement(
 
     elem->parent = parent;
     elem->childNumber = (char)childNumber;
-    elem->upTrans = elem->numberOfVertices == 3 ? &GLOBAL_stochasticRaytracing_triupxfm[childNumber] : &GLOBAL_stochasticRaytracing_quadupxfm[childNumber];
+    elem->upTrans = elem->numberOfVertices == 3 ? &GLOBAL_stochasticRaytracing_triangleUpTransform[childNumber] : &GLOBAL_stochasticRaytracing_quadUpTransform[childNumber];
 
     allocCoefficients(elem);
     stochasticRadiosityClearCoefficients(elem->rad, elem->basis);

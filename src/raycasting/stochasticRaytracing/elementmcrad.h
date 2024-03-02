@@ -6,6 +6,18 @@ Data associated with each Patch:
 */
 #include "raycasting/stochasticRaytracing/StochasticRadiosityElement.h"
 
+/**
+Maximum element hierarchy depth: logFatal errors in the macros below if
+the element hierarchy is deeper than this, but that is surely not a
+normal situation anyways!
+*/
+#define MAX_HIERARCHY_DEPTH 100
+
+#include "common/dataStructures/stackmac.h"
+
+extern Matrix2x2 GLOBAL_stochasticRaytracing_quadUpTransform[4];
+extern Matrix2x2 GLOBAL_stochasticRaytracing_triangleUpTransform[4];
+
 extern StochasticRadiosityElement *monteCarloRadiosityCreateToplevelSurfaceElement(Patch *patch);
 extern void monteCarloRadiosityDestroyToplevelSurfaceElement(StochasticRadiosityElement *elem);
 extern StochasticRadiosityElement *monteCarloRadiosityCreateClusterHierarchy(Geometry *world);
@@ -21,9 +33,7 @@ extern StochasticRadiosityElement *monteCarloRadiosityClusterChildContainingElem
 extern StochasticRadiosityElement **monteCarloRadiosityRegularSubdivideElement(StochasticRadiosityElement *element);
 extern StochasticRadiosityElement *monteCarloRadiosityRegularSubElementAtPoint(StochasticRadiosityElement *parent, double *u, double *v);
 extern StochasticRadiosityElement *monteCarloRadiosityRegularLeafElementAtPoint(StochasticRadiosityElement *top, double *u, double *v);
-extern Vertex *monteCarloRadiosityEdgeMidpointVertex(StochasticRadiosityElement *elem, int edgenr);
-extern Matrix2x2 GLOBAL_stochasticRaytracing_quadupxfm[4];
-extern Matrix2x2 GLOBAL_stochasticRaytracing_triupxfm[4];
+extern Vertex *monteCarloRadiosityEdgeMidpointVertex(StochasticRadiosityElement *elem, int edgeNumber);
 extern int monteCarloRadiosityElementIsTextured(StochasticRadiosityElement *elem);
 extern float monteCarloRadiosityElementScalarReflectance(StochasticRadiosityElement *elem);
 extern void pushRadiance(StochasticRadiosityElement *parent, StochasticRadiosityElement *child, COLOR *parent_rad, COLOR *child_rad);
@@ -44,15 +54,6 @@ elementTVertexElimination(
     StochasticRadiosityElement *elem,
     void (*do_triangle)(Vertex *, Vertex *, Vertex *),
     void (*do_quadrilateral)(Vertex *, Vertex *, Vertex *, Vertex *));
-
-/**
-Maximum element hierarchy depth: logFatal errors in the macros below if
-the element hierarchy is deeper than this, but that is surely not a
-normal situation anyways!
-*/
-#define MAX_HIERARCHY_DEPTH 100
-
-#include "common/dataStructures/stackmac.h"
 
 /**
 Iterates over all leaf elements in the surface element hierarchy with
@@ -78,7 +79,7 @@ Iterates over all leaf elements in the surface element hierarchy with
             goto _end_recurse_SL; \
         } \
     } else { \
-        StochasticRadiosityElement *leaf = _curel;
+        StochasticRadiosityElement *(leaf) = _curel;
 
 /**
 Do something with 'leaf'
