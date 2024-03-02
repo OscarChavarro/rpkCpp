@@ -626,7 +626,7 @@ galerkinElementVertices(GalerkinElement *elem, Vector3D *p, int n) {
         galerkinElementBounds(elem, vol);
 
         for ( int i = 0; i < n; i++ ) {
-            VECTORSET(p[i], vol[MIN_X], vol[MIN_Y], vol[MIN_Z]);
+            vectorSet(p[i], vol[MIN_X], vol[MIN_Y], vol[MIN_Z]);
         }
 
         return 8;
@@ -666,7 +666,7 @@ galerkinElementVertices(GalerkinElement *elem, Vector3D *p, int n) {
             if ( elem->upTrans ) transformPoint2D(topTrans, uv, uv);
             elem->patch->uniformPoint(uv.u, uv.v, &p[2]);
 
-            VECTORSET(p[3], 0.0, 0.0, 0.0);
+            vectorSet(p[3], 0.0, 0.0, 0.0);
         }
 
         return elem->patch->numberOfVertices;
@@ -683,7 +683,7 @@ galerkinElementMidPoint(GalerkinElement *elem) {
     if ( isCluster(elem)) {
         float *bbox = geomBounds(elem->geom);
 
-        VECTORSET(c,
+        vectorSet(c,
                   (bbox[MIN_X] + bbox[MAX_X]) / 2.0f,
                   (bbox[MIN_Y] + bbox[MAX_Y]) / 2.0f,
                   (bbox[MIN_Z] + bbox[MAX_Z]) / 2.0f);
@@ -694,11 +694,11 @@ galerkinElementMidPoint(GalerkinElement *elem) {
 
         numberOfVertices = galerkinElementVertices(elem, p, 4);
 
-        VECTORSET(c, 0.0, 0.0, 0.0);
+        vectorSet(c, 0.0, 0.0, 0.0);
         for ( i = 0; i < numberOfVertices; i++ ) {
-            VECTORADD(c, p[i], c);
+            vectorAdd(c, p[i], c);
         }
-        VECTORSCALE((1.0f / (float) numberOfVertices), c, c);
+        vectorScale((1.0f / (float) numberOfVertices), c, c);
     }
 
     return c;
@@ -819,8 +819,8 @@ galerkinElementDraw(GalerkinElement *element, int mode) {
         for ( i = 0; i < numberOfVertices; i++ ) {
             // Move the point a bit closer the eye point to avoid aliasing
             Vector3D d;
-            VECTORSUBTRACT(GLOBAL_camera_mainCamera.eyePosition, p[i], d);
-            VECTORSUMSCALED(p[i], 0.01, d, p[i]);
+            vectorSubtract(GLOBAL_camera_mainCamera.eyePosition, p[i], d);
+            vectorSumScaled(p[i], 0.01, d, p[i]);
         }
 
         openGlRenderSetColor(&GLOBAL_render_renderOptions.outline_color);
@@ -837,22 +837,22 @@ galerkinElementDraw(GalerkinElement *element, int mode) {
             if ( numberOfVertices == 3 ) {
                 Vector3D d, pt;
 
-                VECTORSUBTRACT(p[2], p[1], d);
+                vectorSubtract(p[2], p[1], d);
 
                 for ( i = 1; i < 4; i++ ) {
-                    VECTORSUMSCALED(p[1], i * 0.25, d, pt);
+                    vectorSumScaled(p[1], i * 0.25, d, pt);
                     openGlRenderLine(&p[0], &pt);
                 }
             } else if ( numberOfVertices == 4 ) {
                 Vector3D d1, d2, p1, p2;
 
-                VECTORSUBTRACT(p[1], p[0], d1);
-                VECTORSUBTRACT(p[3], p[2], d2);
+                    vectorSubtract(p[1], p[0], d1);
+                    vectorSubtract(p[3], p[2], d2);
 
 
                 for ( i = 0; i < 5; i++ ) {
-                    VECTORSUMSCALED(p[0], i * 0.25, d1, p1);
-                    VECTORSUMSCALED(p[2], (1.0 - i * 0.25), d2, p2);
+                    vectorSumScaled(p[0], i * 0.25, d1, p1);
+                    vectorSumScaled(p[2], (1.0 - i * 0.25), d2, p2);
                     openGlRenderLine(&p1, &p2);
                 }
             }

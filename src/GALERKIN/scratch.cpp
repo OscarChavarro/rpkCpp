@@ -41,7 +41,7 @@ scratchRenderElementPtr(GalerkinElement *elem) {
 
     // Backface culling test: only render the element if it is turned towards
     // the current eye point
-    if ( VECTORDOTPRODUCT(patch->normal, globalEyePoint) + patch->planeConstant < EPSILON ) {
+    if ( vectorDotProduct(patch->normal, globalEyePoint) + patch->planeConstant < EPSILON ) {
         return;
     }
 
@@ -71,7 +71,7 @@ scratchRenderElements(GalerkinElement *cluster, Vector3D eye) {
     SGL_CONTEXT *prev_sgl_context;
     int vp_size;
 
-    if ( cluster->id == GLOBAL_galerkin_state.lastClusterId && VECTOREQUAL(eye, GLOBAL_galerkin_state.lastEye, EPSILON)) {
+    if ( cluster->id == GLOBAL_galerkin_state.lastClusterId && vectorEqual(eye, GLOBAL_galerkin_state.lastEye, EPSILON)) {
         return bbx;
     } else {
         // Cache previously rendered cluster and eye point in order to
@@ -80,9 +80,9 @@ scratchRenderElements(GalerkinElement *cluster, Vector3D eye) {
         GLOBAL_galerkin_state.lastEye = eye;
     }
 
-    VECTORSUBTRACT(centre, eye, viewDirection);
-    VECTORNORMALIZE(viewDirection);
-    if ( fabs(VECTORDOTPRODUCT(up, viewDirection)) > 1. - EPSILON ) VECTORSET(up, 0., 1., 0.);
+    vectorSubtract(centre, eye, viewDirection);
+    vectorNormalize(viewDirection);
+    if ( fabs(vectorDotProduct(up, viewDirection)) > 1. - EPSILON ) vectorSet(up, 0., 1., 0.);
     lookAt = lookAtMatrix(eye, centre, up);
 
     boundsTransform(geomBounds(cluster->geom), &lookAt, bbx);

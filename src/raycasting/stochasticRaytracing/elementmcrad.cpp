@@ -103,7 +103,7 @@ createElement() {
     elem->imp = elem->unShotImp = elem->source_imp = 0.;
     elem->imp_ray_index = 0;
 
-    VECTORSET(elem->midpoint, 0., 0., 0.);
+    vectorSet(elem->midpoint, 0., 0., 0.);
     elem->vertex[0] = elem->vertex[1] = elem->vertex[2] = elem->vertex[3] = nullptr;
     elem->parent = nullptr;
     elem->regularSubElements = nullptr;
@@ -165,7 +165,7 @@ monteCarloRadiosityCreateCluster(Geometry *geom) {
     colorClear(elem->Ed);
 
     // elem->area will be computed from the sub-elements in the cluster later
-    VECTORSET(elem->midpoint,
+    vectorSet(elem->midpoint,
               (bounds[MIN_X] + bounds[MAX_X]) / 2.0f,
               (bounds[MIN_Y] + bounds[MAX_Y]) / 2.0f,
               (bounds[MIN_Z] + bounds[MAX_Z]) / 2.0f);
@@ -411,18 +411,18 @@ static Vertex *
 monteCarloRadiosityNewMidpointVertex(StochasticRadiosityElement *elem, Vertex *v1, Vertex *v2) {
     Vector3D coord, norm, texCoord, *p, *n, *t;
 
-    MIDPOINT(*(v1->point), *(v2->point), coord);
+    vectorMidPoint(*(v1->point), *(v2->point), coord);
     p = monteCarloRadiosityInstallCoordinate(&coord);
 
     if ( v1->normal && v2->normal ) {
-        MIDPOINT(*(v1->normal), *(v2->normal), norm);
+        vectorMidPoint(*(v1->normal), *(v2->normal), norm);
         n = monteCarloRadiosityInstallNormal(&norm);
     } else {
         n = &elem->patch->normal;
     }
 
     if ( v1->texCoord && v2->texCoord ) {
-        MIDPOINT(*(v1->texCoord), *(v2->texCoord), texCoord);
+        vectorMidPoint(*(v1->texCoord), *(v2->texCoord), texCoord);
         t = monteCarloRadiosityInstallTexCoord(&texCoord);
     } else {
         t = nullptr;
@@ -540,11 +540,11 @@ monteCarloRadiosityNewEdgeMidpointVertex(StochasticRadiosityElement *elem, int e
 static Vector3D
 galerkinElementMidpoint(StochasticRadiosityElement *elem) {
     int i;
-    VECTORSET(elem->midpoint, 0., 0., 0.);
+    vectorSet(elem->midpoint, 0., 0., 0.);
     for ( i = 0; i < elem->numberOfVertices; i++ ) {
-        VECTORADD(elem->midpoint, *elem->vertex[i]->point, elem->midpoint);
+        vectorAdd(elem->midpoint, *elem->vertex[i]->point, elem->midpoint);
     }
-    VECTORSCALEINVERSE((float) elem->numberOfVertices, elem->midpoint, elem->midpoint);
+    vectorScaleInverse((float) elem->numberOfVertices, elem->midpoint, elem->midpoint);
 
     return elem->midpoint;
 }

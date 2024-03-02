@@ -66,10 +66,10 @@ double CLightDirSampler::EvalPDF(CPathNode *thisNode, CPathNode *newNode,
     }
     /* -- more efficient with extra params ?? -- */
 
-    VECTORSUBTRACT(newNode->m_hit.point, thisNode->m_hit.point, outDir);
-    dist2 = VECTORNORM2(outDir);
+    vectorSubtract(newNode->m_hit.point, thisNode->m_hit.point, outDir);
+    dist2 = vectorNorm2(outDir);
     dist = sqrt(dist2);
-    VECTORSCALEINVERSE(dist, outDir, outDir);
+    vectorScaleInverse(dist, outDir, outDir);
 
     // EDF sampling
     edfEval(thisNode->m_hit.material->edf,
@@ -79,7 +79,7 @@ double CLightDirSampler::EvalPDF(CPathNode *thisNode, CPathNode *newNode,
         return 0.0;
     }  // Back face of a light does not radiate !
 
-    cosa = -VECTORDOTPRODUCT(outDir, newNode->m_normal);
+    cosa = -vectorDotProduct(outDir, newNode->m_normal);
 
     return pdfDir * cosa / dist2;
 }

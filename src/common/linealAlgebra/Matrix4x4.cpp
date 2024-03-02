@@ -31,12 +31,12 @@ rotateMatrix(float angle, Vector3D axis) {
     double x, y, z, c, s, t;
 
     // Singularity test
-    if ((s = VECTORNORM(axis)) < EPSILON ) {
+    if ((s = vectorNorm(axis)) < EPSILON ) {
         //Error("Rotate", "Bad rotation axis");
         return xf;
     } else {
         // normalize
-        VECTORSCALEINVERSE(s, axis, axis);
+        vectorScaleInverse(s, axis, axis);
     }
 
     x = axis.x;
@@ -63,7 +63,7 @@ recoverRotationMatrix(Matrix4x4 xf, float *angle, Vector3D *axis) {
     c = (xf.m[0][0] + xf.m[1][1] + xf.m[2][2] - 1.) * 0.5;
     if ( c > 1. - EPSILON ) {
         *angle = 0.;
-        VECTORSET(*axis, 0., 0., 1.);
+        vectorSet(*axis, 0., 0., 1.);
     } else if ( c < -1. + EPSILON ) {
         *angle = M_PI;
         axis->x = sqrt((xf.m[0][0] + 1.) * 0.5);
@@ -145,19 +145,19 @@ lookAtMatrix(Vector3D eye, Vector3D centre, Vector3D up) {
     Matrix4x4 xf = GLOBAL_matrix_identityTransform4x4;
     Vector3D s, X, Y, Z;
 
-    VECTORSUBTRACT(eye, centre, Z);    /* Z positions towards viewer */
-    VECTORNORMALIZE(Z);
+    vectorSubtract(eye, centre, Z);    /* Z positions towards viewer */
+    vectorNormalize(Z);
 
-    VECTORCROSSPRODUCT(up, Z, X);        /* X positions right */
-    VECTORNORMALIZE(X);
+    vectorCrossProduct(up, Z, X);        /* X positions right */
+    vectorNormalize(X);
 
-    VECTORCROSSPRODUCT(Z, X, Y);        /* Y positions up */
+    vectorCrossProduct(Z, X, Y);        /* Y positions up */
     set3X3Matrix(xf.m,            /* view orientation transform */
                  X.x, X.y, X.z,
                  Y.x, Y.y, Y.z,
                  Z.x, Z.y, Z.z);
 
-    VECTORSCALE(-1., eye, s);        /* translate eye to origin */
+    vectorScale(-1., eye, s);        /* translate eye to origin */
     return transComposeMatrix(xf, translationMatrix(s));
 }
 

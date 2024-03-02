@@ -20,8 +20,8 @@ vector3DDominantCoord(Vector3D *v) {
     indexValue = MAX(anorm.y, anorm.z);
     indexValue = MAX(anorm.x, indexValue);
 
-    return (indexValue == anorm.x ? XNORMAL :
-               (indexValue == anorm.y ? YNORMAL : ZNORMAL)
+    return (indexValue == anorm.x ? X_NORMAL :
+            (indexValue == anorm.y ? Y_NORMAL : Z_NORMAL)
            );
 }
 

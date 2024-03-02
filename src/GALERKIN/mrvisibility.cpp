@@ -51,7 +51,7 @@ geomMultiResolutionVisibility(
 
     /* Check ray/bounding volume intersection and compute feature size of
      * occluder. */
-    VECTORSUMSCALED(ray->pos, tmin, ray->dir, vtmp);
+    vectorSumScaled(ray->pos, tmin, ray->dir, vtmp);
     if ( outOfBounds(&vtmp, bbx)) {
         if ( !boundsIntersectingSegment(ray, bbx, &tmin, &tmax)) {
             return 1.;

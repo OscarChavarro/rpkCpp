@@ -98,7 +98,7 @@ mainComputeSomeSceneStats() {
     COLOR BP;
 
     colorSetMonochrome(one, 1.0f);
-    VECTORSET(zero, 0, 0, 0);
+    vectorSet(zero, 0, 0, 0);
 
     // Initialize
     colorClear(GLOBAL_statistics_totalEmittedPower);

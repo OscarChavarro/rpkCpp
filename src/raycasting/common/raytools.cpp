@@ -96,21 +96,21 @@ pathNodesVisible(CPathNode *node1, CPathNode *node2) {
         return false;
     }
 
-    VECTORSUBTRACT(node2->m_hit.point, node1->m_hit.point,
+    vectorSubtract(node2->m_hit.point, node1->m_hit.point,
                    dir);
 
-    dist2 = VECTORNORM2(dir);
+    dist2 = vectorNorm2(dir);
     dist = sqrt(dist2);
 
-    VECTORSCALEINVERSE((float)dist, dir, dir);
+    vectorScaleInverse((float) dist, dir, dir);
 
     dist = dist * (1 - EPSILON);
 
     ray.pos = node1->m_hit.point;
-    VECTORCOPY(dir, ray.dir);
+    vectorCopy(dir, ray.dir);
 
-    cosRay1 = VECTORDOTPRODUCT(dir, node1->m_normal);
-    cosRay2 = -VECTORDOTPRODUCT(dir, node2->m_normal);
+    cosRay1 = vectorDotProduct(dir, node1->m_normal);
+    cosRay2 = -vectorDotProduct(dir, node2->m_normal);
 
     doTest = false;
 
@@ -187,25 +187,25 @@ eyeNodeVisible(
 
     // Determines visibility between two nodes,
     // Returns visibility and direction from eye to light node (newDir_e)
-    VECTORSUBTRACT(node->m_hit.point, eyeNode->m_hit.point, dir);
+    vectorSubtract(node->m_hit.point, eyeNode->m_hit.point, dir);
 
-    dist2 = VECTORNORM2(dir);
+    dist2 = vectorNorm2(dir);
     dist = std::sqrt(dist2);
 
-    VECTORSCALEINVERSE(dist, dir, dir);
+    vectorScaleInverse(dist, dir, dir);
 
     // Determine which pixel is visible
 
-    z = VECTORDOTPRODUCT(dir, GLOBAL_camera_mainCamera.Z);
+    z = vectorDotProduct(dir, GLOBAL_camera_mainCamera.Z);
 
     visible = false;
 
     if ( z > 0.0 ) {
-        x = VECTORDOTPRODUCT(dir, GLOBAL_camera_mainCamera.X);
+        x = vectorDotProduct(dir, GLOBAL_camera_mainCamera.X);
         xz = x / z;
 
         if ( std::fabs(xz) < GLOBAL_camera_mainCamera.pixelWidthTangent ) {
-            y = VECTORDOTPRODUCT(dir, GLOBAL_camera_mainCamera.Y);
+            y = vectorDotProduct(dir, GLOBAL_camera_mainCamera.Y);
             yz = y / z;
 
             if ( std::fabs(yz) < GLOBAL_camera_mainCamera.pixelHeightTangent ) {
@@ -215,10 +215,10 @@ eyeNodeVisible(
                 dist = dist * (1 - EPSILON);
 
                 ray.pos = eyeNode->m_hit.point;
-                VECTORCOPY(dir, ray.dir);
+                vectorCopy(dir, ray.dir);
 
-                cosRayEye = VECTORDOTPRODUCT(dir, eyeNode->m_normal);
-                cosRayLight = -VECTORDOTPRODUCT(dir, node->m_normal);
+                cosRayEye = vectorDotProduct(dir, eyeNode->m_normal);
+                cosRayLight = -vectorDotProduct(dir, node->m_normal);
 
                 if ( (cosRayLight > 0) && (cosRayEye > 0) ) {
                     fDistance = (float) dist;

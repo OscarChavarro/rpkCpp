@@ -89,15 +89,15 @@ CUniformLightSampler::Sample(
     if ( light->hasZeroVertices()) {
         double pdf;
         Vector3D dir = edfSample(light->surface->material->edf, &(thisNode->m_hit), flags, x1, x2, nullptr, &pdf);
-        VECTORSUBTRACT(thisNode->m_hit.point, dir, point);   // fake hit at distance 1!
+        vectorSubtract(thisNode->m_hit.point, dir, point);   // fake hit at distance 1!
 
         hitInit(&newNode->m_hit, light, nullptr, &point, nullptr,
                 light->surface->material, 0.);
 
         // Fill in directions
-        VECTORSCALE(-1, dir, newNode->m_inDirT);
-        VECTORCOPY(dir, newNode->m_inDirF);
-        VECTORCOPY(dir, newNode->m_normal);
+        vectorScale(-1, dir, newNode->m_inDirT);
+        vectorCopy(dir, newNode->m_inDirF);
+        vectorCopy(dir, newNode->m_normal);
 
         pdfPoint = pdf;   // every direction corresponds to 1 point
     } else {
@@ -108,7 +108,7 @@ CUniformLightSampler::Sample(
         hitInit(&newNode->m_hit, light, nullptr, &point, &light->normal,
                 light->surface->material, 0.);
         hitShadingNormal(&newNode->m_hit, &newNode->m_hit.normal);
-        VECTORCOPY(newNode->m_hit.normal, newNode->m_normal);
+        vectorCopy(newNode->m_hit.normal, newNode->m_normal);
     }
 
     // inDir's not filled in
@@ -197,7 +197,7 @@ CImportantLightSampler::Sample(
         if ( thisNode->m_outBsdf == nullptr ) {
             Vector3D invNormal;
 
-            VECTORSCALE(-1, thisNode->m_normal, invNormal);
+            vectorScale(-1, thisNode->m_normal, invNormal);
 
             light = GLOBAL_lightList->sampleImportant(&thisNode->m_hit.point,
                                                       &invNormal, &x1, &pdfLight);
@@ -224,15 +224,15 @@ CImportantLightSampler::Sample(
     if ( light->hasZeroVertices() ) {
         double pdf;
         Vector3D dir = edfSample(light->surface->material->edf, nullptr, flags, x1, x2, nullptr, &pdf);
-        VECTORADD(thisNode->m_hit.point, dir, point);   // fake hit at distance 1!
+        vectorAdd(thisNode->m_hit.point, dir, point);   // fake hit at distance 1!
 
         hitInit(&newNode->m_hit, light, nullptr, &point, nullptr,
                 light->surface->material, 0.);
 
         // fill in directions
-        VECTORSCALE(-1, dir, newNode->m_inDirT);
-        VECTORCOPY(dir, newNode->m_inDirF);
-        VECTORCOPY(dir, newNode->m_normal);
+        vectorScale(-1, dir, newNode->m_inDirT);
+        vectorCopy(dir, newNode->m_inDirF);
+        vectorCopy(dir, newNode->m_normal);
 
         pdfPoint = pdf; // Every direction corresponds to 1 point
     } else {
@@ -246,7 +246,7 @@ CImportantLightSampler::Sample(
         hitInit(&newNode->m_hit, light, nullptr, &point, &light->normal,
                 light->surface->material, 0.0);
         hitShadingNormal(&newNode->m_hit, &newNode->m_hit.normal);
-        VECTORCOPY(newNode->m_hit.normal, newNode->m_normal);
+        vectorCopy(newNode->m_hit.normal, newNode->m_normal);
     }
 
     // outDir's, m_G not filled in yet (light direction sampler does this)

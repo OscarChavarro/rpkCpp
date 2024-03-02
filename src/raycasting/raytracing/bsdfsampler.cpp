@@ -65,7 +65,7 @@ bool CBsdfSampler::Sample(CPathNode *prevNode, CPathNode *thisNode,
     // Fill in probability for previous node
 
     if ( m_computeFromNextPdf && prevNode ) {
-        double cosI = VECTORDOTPRODUCT(thisNode->m_normal,
+        double cosI = vectorDotProduct(thisNode->m_normal,
                                        thisNode->m_inDirF);
         double pdfDirI, pdfRR;
 
@@ -103,10 +103,10 @@ double CBsdfSampler::EvalPDF(CPathNode *thisNode, CPathNode *newNode,
     }
 
     /* -- more efficient with extra params ?? -- */
-    VECTORSUBTRACT(newNode->m_hit.point, thisNode->m_hit.point, outDir);
-    dist2 = VECTORNORM2(outDir);
+    vectorSubtract(newNode->m_hit.point, thisNode->m_hit.point, outDir);
+    dist2 = vectorNorm2(outDir);
     dist = sqrt(dist2);
-    VECTORSCALEINVERSE(dist, outDir, outDir);
+    vectorScaleInverse(dist, outDir, outDir);
 
     // Beware : NOT RECIPROKE !!!!!!
     bsdfEvalPdf(thisNode->m_useBsdf,
@@ -116,7 +116,7 @@ double CBsdfSampler::EvalPDF(CPathNode *thisNode, CPathNode *newNode,
                 flags, &pdfDir, pdfRR);
 
     // To area measure
-    cosa = -VECTORDOTPRODUCT(outDir, newNode->m_normal);
+    cosa = -vectorDotProduct(outDir, newNode->m_normal);
 
     *pdf = pdfDir * cosa / dist2;
 
@@ -140,8 +140,8 @@ double CBsdfSampler::EvalPDFPrev(CPathNode *prevNode,
 
     /* -- more efficient with extra params ?? -- */
 
-    VECTORSUBTRACT(prevNode->m_hit.point, thisNode->m_hit.point, outDir);
-    VECTORNORMALIZE(outDir);
+    vectorSubtract(prevNode->m_hit.point, thisNode->m_hit.point, outDir);
+    vectorNormalize(outDir);
 
     // Beware : NOT RECIPROKE !!!!!!
     bsdfEvalPdf(thisNode->m_useBsdf,
@@ -152,7 +152,7 @@ double CBsdfSampler::EvalPDFPrev(CPathNode *prevNode,
 
     // To area measure
 
-    cosb = VECTORDOTPRODUCT(thisNode->m_inDirF, thisNode->m_normal);
+    cosb = vectorDotProduct(thisNode->m_inDirF, thisNode->m_normal);
 
     *pdf = pdfDir * thisNode->m_G / cosb;
 

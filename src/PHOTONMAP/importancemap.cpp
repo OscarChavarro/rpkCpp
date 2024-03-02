@@ -32,7 +32,7 @@ float CImportanceMap::ReconstructImp(Vector3D &pos, Vector3D &normal /*, IMPORTA
         // No bsdf eval : incoming importance !!!!!!
         importance = importon->Importance();
 
-        float cos_theta = VECTORDOTPRODUCT(dir, normal);
+        float cos_theta = vectorDotProduct(dir, normal);
         if ( cos_theta > 0.0 ) {
             result += importance;
         }

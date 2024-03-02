@@ -85,7 +85,7 @@ texturedScattererSample(Vector3D *in, Vector3D *normal, double x_1, double x_2, 
 
 static void
 texturedScattererEvalPdf(Vector3D *in, Vector3D *out, Vector3D *normal, double *pdf) {
-    *pdf = VECTORDOTPRODUCT(*normal, *out) / M_PI;
+    *pdf = vectorDotProduct(*normal, *out) / M_PI;
 }
 
 static COLOR
@@ -256,7 +256,7 @@ splitBsdfSample(
     *pdf = 0; // So we can return safely
     if ( !hitShadingNormal(hit, &normal) ) {
         logWarning("splitBsdfSample", "Couldn't determine shading normal");
-        VECTORSET(out, 0., 0., 1.);
+        vectorSet(out, 0., 0., 1.);
         return out;
     }
 

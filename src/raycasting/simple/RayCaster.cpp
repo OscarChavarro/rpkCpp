@@ -68,13 +68,13 @@ RayCaster::getRadianceAtPixel(int x, int y, Patch *patch, GETRADIANCE_FT getRadi
         Ray ray;
         ray.pos = GLOBAL_camera_mainCamera.eyePosition;
         ray.dir = screenBuffer->getPixelVector(x, y);
-        VECTORNORMALIZE(ray.dir);
+        vectorNormalize(ray.dir);
 
         // Find intersection point of ray with patch
         Vector3D point;
-        float dist = VECTORDOTPRODUCT(patch->normal, ray.dir);
-        dist = -(VECTORDOTPRODUCT(patch->normal, ray.pos) + patch->planeConstant) / dist;
-        VECTORSUMSCALED(ray.pos, dist, ray.dir, point);
+        float dist = vectorDotProduct(patch->normal, ray.dir);
+        dist = -(vectorDotProduct(patch->normal, ray.pos) + patch->planeConstant) / dist;
+        vectorSumScaled(ray.pos, dist, ray.dir, point);
 
         // Find surface coordinates of hit point on patch
         double u;

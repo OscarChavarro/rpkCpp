@@ -83,7 +83,7 @@ bool CSpecularSampler::Sample(CPathNode *prevNode, CPathNode *thisNode,
     // Fill in probability for previous node, normally not yet used
 
     if ( m_computeFromNextPdf && prevNode ) {
-        double cosI = VECTORDOTPRODUCT(thisNode->m_normal,
+        double cosI = vectorDotProduct(thisNode->m_normal,
                                        thisNode->m_inDirF);
         double pdfDirI, pdfRR;
 

@@ -354,7 +354,7 @@ initGalerkin(java::ArrayList<Patch *> *scenePatches) {
 
     // Global variables for scratch rendering
     GLOBAL_galerkin_state.lastClusterId = -1;
-    VECTORSET(GLOBAL_galerkin_state.lastEye, HUGE, HUGE, HUGE);
+    vectorSet(GLOBAL_galerkin_state.lastEye, HUGE, HUGE, HUGE);
 }
 
 static int

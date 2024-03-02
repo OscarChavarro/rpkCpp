@@ -103,15 +103,15 @@ disjunctElements(StochasticRadiosityElement *rcv, StochasticRadiosityElement *sr
 static float formfactor_estimate(StochasticRadiosityElement *rcv, StochasticRadiosityElement *src) {
     Vector3D D;
     double d, c1, c2, f, f2;
-    VECTORSUBTRACT(src->midpoint, rcv->midpoint, D);
-    d = VECTORNORM(D);
+    vectorSubtract(src->midpoint, rcv->midpoint, D);
+    d = vectorNorm(D);
     f = src->area / (M_PI * d * d + src->area);
     f2 = 2. * f;
-    c1 = rcv->isCluster ? 1. /*0.25*/ : fabs(VECTORDOTPRODUCT(D, rcv->patch->normal)) / d;
+    c1 = rcv->isCluster ? 1. /*0.25*/ : fabs(vectorDotProduct(D, rcv->patch->normal)) / d;
     if ( c1 < f2 ) {
         c1 = f2;
     }
-    c2 = src->isCluster ? 1. /*0.25*/ : fabs(VECTORDOTPRODUCT(D, src->patch->normal)) / d;
+    c2 = src->isCluster ? 1. /*0.25*/ : fabs(vectorDotProduct(D, src->patch->normal)) / d;
     if ( c2 < f2 ) {
         c2 = f2;
     }

@@ -14,12 +14,13 @@ bool CPixelSampler::Sample(CPathNode */*prevNode*/, CPathNode *thisNode,
     double xsample = (m_px + GLOBAL_camera_mainCamera.pixelWidth * x_1);
     double ysample = (m_py + GLOBAL_camera_mainCamera.pixelHeight * x_2);
 
-    VECTORCOMB3(GLOBAL_camera_mainCamera.Z, xsample, GLOBAL_camera_mainCamera.X, ysample, GLOBAL_camera_mainCamera.Y, dir);
-    double distPixel2 = VECTORNORM2(dir);
+    vectorComb3(GLOBAL_camera_mainCamera.Z, xsample, GLOBAL_camera_mainCamera.X, ysample, GLOBAL_camera_mainCamera.Y,
+                dir);
+    double distPixel2 = vectorNorm2(dir);
     double distPixel = sqrt(distPixel2);
-    VECTORSCALEINVERSE(distPixel, dir, dir);
+    vectorScaleInverse(distPixel, dir, dir);
 
-    double cosPixel = fabs(VECTORDOTPRODUCT(GLOBAL_camera_mainCamera.Z, dir));
+    double cosPixel = fabs(vectorDotProduct(GLOBAL_camera_mainCamera.Z, dir));
 
     double pdfDir = ((1. / (GLOBAL_camera_mainCamera.pixelWidth * GLOBAL_camera_mainCamera.pixelHeight)) * // 1 / Area pixel
                      (distPixel2 / cosPixel));  // spher. angle measure
@@ -73,14 +74,14 @@ double CPixelSampler::EvalPDF(CPathNode *thisNode, CPathNode *newNode,
 
     /* -- more efficient with extra params ?? -- */
 
-    VECTORSUBTRACT(newNode->m_hit.point, thisNode->m_hit.point, outDir);
-    dist2 = VECTORNORM2(outDir);
+    vectorSubtract(newNode->m_hit.point, thisNode->m_hit.point, outDir);
+    dist2 = vectorNorm2(outDir);
     dist = sqrt(dist2);
-    VECTORSCALEINVERSE(dist, outDir, outDir);
+    vectorScaleInverse(dist, outDir, outDir);
 
     // pdf = 1 / A_pixel transformed to area measure
 
-    cosa = VECTORDOTPRODUCT(thisNode->m_normal, outDir);
+    cosa = vectorDotProduct(thisNode->m_normal, outDir);
 
     // pdf = 1/Apix * (r^2 / cos(dir, eyeNormal) * (cos(dir, patchNormal) / d^2)
     //                 |__> to sper.angle           |__> to area on patch
@@ -89,7 +90,7 @@ double CPixelSampler::EvalPDF(CPathNode *thisNode, CPathNode *newNode,
     // of viewing ray to the pixel.
     pdf = 1.0 / (GLOBAL_camera_mainCamera.pixelHeight * GLOBAL_camera_mainCamera.pixelWidth * cosa * cosa * cosa);
 
-    cosb = -VECTORDOTPRODUCT(newNode->m_normal, outDir);
+    cosb = -vectorDotProduct(newNode->m_normal, outDir);
     pdf = pdf * cosb / dist2;
 
     return pdf;

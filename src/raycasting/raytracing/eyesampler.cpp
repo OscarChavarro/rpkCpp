@@ -30,7 +30,7 @@ bool CEyeSampler::Sample(CPathNode *prevNode, CPathNode *thisNode,
     hit->Z = GLOBAL_camera_mainCamera.Z;
     hit->flags |= HIT_NORMAL | HIT_SHADINGFRAME;
 
-    VECTORCOPY(newNode->m_hit.normal, newNode->m_normal);
+    vectorCopy(newNode->m_hit.normal, newNode->m_normal);
     newNode->m_G = 1.0;
 
     // outDir's not filled in

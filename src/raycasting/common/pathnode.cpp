@@ -47,16 +47,16 @@ void CPathNode::Print(FILE *out) {
         fprintf(out, "InF: ");
         vector3DPrint(out, m_inDirF);
         fprintf(out, "\n");
-        fprintf(out, "Cos in  %f\n", VECTORDOTPRODUCT(m_normal, m_inDirF));
-        fprintf(out, "GCos in %f\n", VECTORDOTPRODUCT(m_hit.patch->normal,
+        fprintf(out, "Cos in  %f\n", vectorDotProduct(m_normal, m_inDirF));
+        fprintf(out, "GCos in %f\n", vectorDotProduct(m_hit.patch->normal,
                                                       m_inDirF));
     }
     if ( m_next ) {
         fprintf(out, "OutF: ");
         vector3DPrint(out, m_next->m_inDirT);
         fprintf(out, "\n");
-        fprintf(out, "Cos out %f\n", VECTORDOTPRODUCT(m_normal, m_next->m_inDirT));
-        fprintf(out, "GCos out %f\n", VECTORDOTPRODUCT(m_hit.patch->normal,
+        fprintf(out, "Cos out %f\n", vectorDotProduct(m_normal, m_next->m_inDirT));
+        fprintf(out, "GCos out %f\n", vectorDotProduct(m_hit.patch->normal,
                                                        m_next->m_inDirT));
     }
 }
@@ -150,7 +150,7 @@ void CPathNode::AssignBsdfAndNormal() {
 
     thisMaterial = m_hit.patch->surface->material;
 
-    VECTORCOPY(m_hit.normal, m_normal); // Possible double format
+    vectorCopy(m_hit.normal, m_normal); // Possible double format
 
     // Assign bsdf's
 

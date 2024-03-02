@@ -92,7 +92,7 @@ CPhotonMap::CPhotonMap(int *estimate_nrp, bool doPrecomputeIrradiance) {
     m_totalPhotons = 0;
 
     m_grid = new CSampleGrid2D(2, 4);
-    VECTORSET(m_sampleLastPos, HUGE, HUGE, HUGE);
+    vectorSet(m_sampleLastPos, HUGE, HUGE, HUGE);
 
     m_photons = new CPhoton *[MAXIMUM_RECON_PHOTONS];
     m_distances = new float[MAXIMUM_RECON_PHOTONS];
@@ -122,7 +122,7 @@ CPhotonMap::ComputeCosines(Vector3D &normal) {
 
         for ( int i = 0; i < m_nrpFound; i++ ) {
             dir = m_photons[i]->Dir();
-            m_cosines[i] = VECTORDOTPRODUCT(dir, normal);
+            m_cosines[i] = vectorDotProduct(dir, normal);
             if ( m_cosines[i] > 0 ) {
                 m_nrpCosinePos++;
             }
@@ -468,7 +468,7 @@ CPhotonMap::Sample(
     COLOR col;
 
     // -- Epsilon in as a function of scene/camera measure ??
-    if ( !VECTOREQUAL(m_sampleLastPos, pos, 0.0001)) {
+    if ( !vectorEqual(m_sampleLastPos, pos, 0.0001)) {
         // Need a new grid
 
         m_grid->Init();

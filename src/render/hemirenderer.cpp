@@ -81,8 +81,8 @@ CHemisphereRenderer::Initialize(
 
             cb(&vec, &m_coordsys, curPhi, curTheta, cbData, &col, &dist);
 
-            VECTORSUMSCALED(m_center, dist, vec, m_renderData[index].point);
-            VECTORCOPY(vec, m_renderData[index].normal);
+            vectorSumScaled(m_center, dist, vec, m_renderData[index].point);
+            vectorCopy(vec, m_renderData[index].normal);
             m_renderData[index].rgb = col;
 
             curPhi += m_deltaPhi;
@@ -101,8 +101,8 @@ CHemisphereRenderer::Initialize(
 
     cb(&vec, &m_coordsys, curPhi, curTheta, cbData, &col, &dist);
 
-    VECTORSUMSCALED(m_center, dist, vec, m_top.point);
-    VECTORCOPY(vec, m_top.normal);
+    vectorSumScaled(m_center, dist, vec, m_top.point);
+    vectorCopy(vec, m_top.normal);
     m_top.rgb = col;
 }
 

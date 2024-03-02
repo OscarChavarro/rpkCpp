@@ -522,22 +522,22 @@ faceNormal(int numberOfVertices, Vertex **v, Vector3D *normal) {
     Vector3D n;
     int i;
 
-    VECTORSET(n, 0, 0, 0);
-    VECTORSUBTRACT(*(v[numberOfVertices - 1]->point), *(v[0]->point), cur);
+    vectorSet(n, 0, 0, 0);
+    vectorSubtract(*(v[numberOfVertices - 1]->point), *(v[0]->point), cur);
     for ( i = 0; i < numberOfVertices; i++ ) {
         prev = cur;
-        VECTORSUBTRACT(*(v[i]->point), *(v[0]->point), cur);
+        vectorSubtract(*(v[i]->point), *(v[0]->point), cur);
         n.x += (prev.y - cur.y) * (prev.z + cur.z);
         n.y += (prev.z - cur.z) * (prev.x + cur.x);
         n.z += (prev.x - cur.x) * (prev.y + cur.y);
     }
-    norm = VECTORNORM(n);
+    norm = vectorNorm(n);
 
     if ( norm < EPSILON ) {
         // Degenerate normal --> degenerate polygon
         return nullptr;
     }
-    VECTORSCALEINVERSE((float)norm, n, n);
+    vectorScaleInverse((float) norm, n, n);
     *normal = n;
 
     return normal;
@@ -555,7 +555,7 @@ faceIsConvex(int numberOfVertices, Vertex **v, Vector3D *normal) {
 
     index = vector3DDominantCoord(normal);
     for ( i = 0; i < numberOfVertices; i++ ) {
-	VECTORPROJECT(v2d[i], *(v[i]->point), index);
+        vectorProject(v2d[i], *(v[i]->point), index);
     }
 
     p.u = v2d[3].u - v2d[2].u;
@@ -709,14 +709,14 @@ doComplexFace(int n, Vertex **v, Vector3D *normal, Vertex **backv, Vector3D *bac
     Vector2D q[MAXIMUM_FACE_VERTICES + 1];
     Vector3D nn;
 
-    VECTORSET(center, 0.0, 0.0, 0.0);
-    for ( i = 0; i < n; i++ ) VECTORADD(center, *(v[i]->point), center);
-    VECTORSCALEINVERSE((float) n, center, center);
+    vectorSet(center, 0.0, 0.0, 0.0);
+    for ( i = 0; i < n; i++ ) vectorAdd(center, *(v[i]->point), center);
+    vectorScaleInverse((float) n, center, center);
 
-    maxD = VECTORDIST(center, *(v[0]->point));
+    maxD = vectorDist(center, *(v[0]->point));
     max = 0;
     for ( i = 1; i < n; i++ ) {
-        d = VECTORDIST(center, *(v[i]->point));
+        d = vectorDist(center, *(v[i]->point));
         if ( d > maxD ) {
             maxD = d;
             max = i;
@@ -733,12 +733,12 @@ doComplexFace(int n, Vertex **v, Vector3D *normal, Vertex **backv, Vector3D *bac
         p0 = n - 1;
     }
     p2 = (p1 + 1) % n;
-    VECTORTRIPLECROSSPRODUCT(*(v[p0]->point), *(v[p1]->point), *(v[p2]->point), *normal);
-    VECTORNORMALIZE(*normal);
+    vectorTripleCrossProduct(*(v[p0]->point), *(v[p1]->point), *(v[p2]->point), *normal);
+    vectorNormalize(*normal);
     index = vector3DDominantCoord(normal);
 
     for ( i = 0; i < n; i++ ) {
-	    VECTORPROJECT(q[i], *(v[i]->point), index);
+        vectorProject(q[i], *(v[i]->point), index);
     }
 
     corners = n;
@@ -768,10 +768,10 @@ doComplexFace(int n, Vertex **v, Vector3D *normal, Vertex **backv, Vector3D *bac
                 break;
             }
 
-            VECTORTRIPLECROSSPRODUCT(*(v[p0]->point), *(v[p1]->point), *(v[p2]->point), nn);
-            a = VECTORNORM(nn);
-            VECTORSCALEINVERSE((float)a, nn, nn);
-            d = VECTORDIST(nn, *normal);
+            vectorTripleCrossProduct(*(v[p0]->point), *(v[p1]->point), *(v[p2]->point), nn);
+            a = vectorNorm(nn);
+            vectorScaleInverse((float) a, nn, nn);
+            d = vectorDist(nn, *normal);
 
             good = true;
             if ( d <= 1.0 ) {
@@ -866,7 +866,7 @@ handleFaceEntity(int argc, char **argv) {
         doWarning("degenerate face");
         return MGF_OK; // Just ignore the generated face
     }
-    if ( !globalCurrentMaterial->sided ) VECTORSCALE(-1.0, normal, backNormal);
+    if ( !globalCurrentMaterial->sided ) vectorScale(-1.0, normal, backNormal);
 
     errcode = MGF_OK;
     if ( argc == 4 ) {

@@ -18,15 +18,15 @@ transformModelVRML(Vector3D *modelRotationAxis, float *modelRotationAngle) {
     Vector3D up_axis;
     double cosA;
 
-    VECTORSET(up_axis, 0.0, 1.0, 0.0);
-    cosA = VECTORDOTPRODUCT(GLOBAL_camera_mainCamera.upDirection, up_axis);
+    vectorSet(up_axis, 0.0, 1.0, 0.0);
+    cosA = vectorDotProduct(GLOBAL_camera_mainCamera.upDirection, up_axis);
     if ( cosA < 1. - EPSILON ) {
         *modelRotationAngle = (float)acos(cosA);
-        VECTORCROSSPRODUCT(GLOBAL_camera_mainCamera.upDirection, up_axis, *modelRotationAxis);
-        VECTORNORMALIZE(*modelRotationAxis);
+        vectorCrossProduct(GLOBAL_camera_mainCamera.upDirection, up_axis, *modelRotationAxis);
+        vectorNormalize(*modelRotationAxis);
         return rotateMatrix(*modelRotationAngle, *modelRotationAxis);
     } else {
-        VECTORSET(*modelRotationAxis, 0., 1., 0.);
+        vectorSet(*modelRotationAxis, 0., 1., 0.);
         *modelRotationAngle = 0.;
         return GLOBAL_matrix_identityTransform4x4;
     }
@@ -45,9 +45,9 @@ writeVRMLViewPoint(FILE *fp, Matrix4x4 model_xf, Camera *cam, const char *viewPo
     Matrix4x4 viewTransform{};
     float viewRotationAngle;
 
-    VECTORSCALE(1.0, cam->X, X); // cam->X positions right in window
-    VECTORSCALE(-1.0, cam->Y, Y); // cam->Y positions down in window, VRML wants y up
-    VECTORSCALE(-1.0, cam->Z, Z); // cam->Z positions away, VRML wants Z to point towards viewer
+    vectorScale(1.0, cam->X, X); // cam->X positions right in window
+    vectorScale(-1.0, cam->Y, Y); // cam->Y positions down in window, VRML wants y up
+    vectorScale(-1.0, cam->Z, Z); // cam->Z positions away, VRML wants Z to point towards viewer
 
     // Apply model transform
     transformPoint3D(model_xf, X, X);

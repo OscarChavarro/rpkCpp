@@ -223,7 +223,7 @@ stochasticJacobiPropagateRadianceClusterRecursive(
 {
     if ( currentElement != nullptr && !currentElement->isCluster ) {
         // Trivial case
-        double c = -dir * VECTORDOTPRODUCT(currentElement->patch->normal, ray->dir);
+        double c = -dir * vectorDotProduct(currentElement->patch->normal, ray->dir);
         if ( c > 0. ) {
             double aFraction = fraction * (c * currentElement->area / projectedArea);
             double w = aFraction / currentElement->area / (double) globalNumberOfRays;
@@ -269,7 +269,7 @@ stochasticJacobiReceiverProjectedAreaRecursive(
 {
     if ( currentElement != nullptr && !currentElement->isCluster ) {
         // Trivial case
-        double c = -dir * VECTORDOTPRODUCT(currentElement->patch->normal, ray->dir);
+        double c = -dir * vectorDotProduct(currentElement->patch->normal, ray->dir);
         if ( c > 0.0 ) {
             *area += c * currentElement->area;
         }

@@ -129,12 +129,12 @@ openGlRenderLine(Vector3D *x, Vector3D *y) {
     glBegin(GL_LINES);
 
     // Move the line a bit closer to the eye-point to avoid Z buffer artefacts
-    VECTORSUBTRACT(GLOBAL_camera_mainCamera.eyePosition, *x, dir);
-    VECTORSUMSCALED(*x, 0.01, dir, X);
+    vectorSubtract(GLOBAL_camera_mainCamera.eyePosition, *x, dir);
+    vectorSumScaled(*x, 0.01, dir, X);
     glVertex3fv((GLfloat *) &X);
 
-    VECTORSUBTRACT(GLOBAL_camera_mainCamera.eyePosition, *y, dir);
-    VECTORSUMSCALED(*y, 0.01, dir, Y);
+    vectorSubtract(GLOBAL_camera_mainCamera.eyePosition, *y, dir);
+    vectorSumScaled(*y, 0.01, dir, Y);
     glVertex3fv((GLfloat *) &Y);
 
     glEnd();
@@ -293,8 +293,8 @@ openGlRenderPatchOutline(Patch *patch) {
     glBegin(GL_LINE_LOOP);
     for ( i = 0; i < patch->numberOfVertices; i++ ) {
         // Move the outlines a bit closer to the eye-point to avoid Z buffer artefacts
-        VECTORSUBTRACT(GLOBAL_camera_mainCamera.eyePosition, *patch->vertex[i]->point, dir);
-        VECTORSUMSCALED(*patch->vertex[i]->point, 0.01, dir, tmp);
+        vectorSubtract(GLOBAL_camera_mainCamera.eyePosition, *patch->vertex[i]->point, dir);
+        vectorSumScaled(*patch->vertex[i]->point, 0.01, dir, tmp);
         glVertex3fv((GLfloat *) &tmp);
     }
     glEnd();
@@ -314,7 +314,7 @@ openGlRenderPatch(Patch *patch) {
     }
 
     if ( GLOBAL_render_renderOptions.drawOutlines &&
-         (VECTORDOTPRODUCT(patch->normal, GLOBAL_camera_mainCamera.eyePosition) + patch->planeConstant > EPSILON
+         (vectorDotProduct(patch->normal, GLOBAL_camera_mainCamera.eyePosition) + patch->planeConstant > EPSILON
           || GLOBAL_render_renderOptions.useDisplayLists)) {
         openGlRenderSetColor(&GLOBAL_render_renderOptions.outline_color);
         openGlRenderPatchOutline(patch);
@@ -364,13 +364,13 @@ openGlBoundsDistance2(Vector3D p, float *bounds) {
     Vector3D mid;
     Vector3D d;
 
-    VECTORSET(mid,
+    vectorSet(mid,
               0.5f * (bounds[MIN_X] + bounds[MAX_X]),
               0.5f * (bounds[MIN_Y] + bounds[MAX_Y]),
               0.5f * (bounds[MIN_Z] + bounds[MAX_Z]));
-    VECTORSUBTRACT(mid, p, d);
+    vectorSubtract(mid, p, d);
 
-    return VECTORNORM2(d);
+    return vectorNorm2(d);
 }
 
 /**
@@ -656,31 +656,31 @@ openGlRenderFrustum(Camera *cam) {
     int maxI = 12;
     int maxJ = (int)((float) maxI * height / width);
 
-    VECTORCOMB2(1.0, cam->eyePosition, cameraSize * cam->viewDistance, cam->Z, c);
+    vectorComb2(1.0, cam->eyePosition, cameraSize * cam->viewDistance, cam->Z, c);
 
     glDisable(GL_DEPTH_TEST);
 
     openGlRenderSetColor(&GLOBAL_render_renderOptions.camera_color);
 
     for ( i = 0; i <= maxI; i++ ) {
-        VECTORCOMB3(c, (-1.0f + 2.0f * ((float) i / (float) maxI)) * width, cam->X, -height, cam->Y, P);
-        VECTORCOMB3(c, (-1.0f + 2.0f * ((float) i / (float) maxI)) * width, cam->X, +height, cam->Y, Q);
+        vectorComb3(c, (-1.0f + 2.0f * ((float) i / (float) maxI)) * width, cam->X, -height, cam->Y, P);
+        vectorComb3(c, (-1.0f + 2.0f * ((float) i / (float) maxI)) * width, cam->X, +height, cam->Y, Q);
         openGlRenderLine(&P, &Q);
     }
 
     for ( j = 0; j <= maxJ; j++ ) {
-        VECTORCOMB3(c, -width, cam->X, (-1.0f + 2.0f * ((float) j / (float) maxJ)) * height, cam->Y, P);
-        VECTORCOMB3(c, +width, cam->X, (-1.0f + 2.0f * ((float) j / (float) maxJ)) * height, cam->Y, Q);
+        vectorComb3(c, -width, cam->X, (-1.0f + 2.0f * ((float) j / (float) maxJ)) * height, cam->Y, P);
+        vectorComb3(c, +width, cam->X, (-1.0f + 2.0f * ((float) j / (float) maxJ)) * height, cam->Y, Q);
         openGlRenderLine(&P, &Q);
     }
 
-    VECTORCOMB3(c, width, cam->X, -height, cam->Y, Q);
+    vectorComb3(c, width, cam->X, -height, cam->Y, Q);
     openGlRenderLine(&cam->eyePosition, &Q);
-    VECTORCOMB3(c, -width, cam->X, -height, cam->Y, Q);
+    vectorComb3(c, -width, cam->X, -height, cam->Y, Q);
     openGlRenderLine(&cam->eyePosition, &Q);
-    VECTORCOMB3(c, -width, cam->X, height, cam->Y, Q);
+    vectorComb3(c, -width, cam->X, height, cam->Y, Q);
     openGlRenderLine(&cam->eyePosition, &Q);
-    VECTORCOMB3(c, width, cam->X, height, cam->Y, Q);
+    vectorComb3(c, width, cam->X, height, cam->Y, Q);
     openGlRenderLine(&cam->eyePosition, &Q);
 
     glLineWidth(1);

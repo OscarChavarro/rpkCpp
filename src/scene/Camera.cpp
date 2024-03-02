@@ -152,15 +152,15 @@ cameraComputeClippingPlanes(Camera *camera) {
     Vector3D vscrn[4];
     int i;
 
-    VECTORCOMB3(camera->lookPosition, x, camera->X, -y, camera->Y, vscrn[0]); // Upper right corner: Y axis positions down!
-    VECTORCOMB3(camera->lookPosition, x, camera->X, y, camera->Y, vscrn[1]); // Lower right
-    VECTORCOMB3(camera->lookPosition, -x, camera->X, y, camera->Y, vscrn[2]); // Lower left
-    VECTORCOMB3(camera->lookPosition, -x, camera->X, -y, camera->Y, vscrn[3]); // Upper left
+    vectorComb3(camera->lookPosition, x, camera->X, -y, camera->Y, vscrn[0]); // Upper right corner: Y axis positions down!
+    vectorComb3(camera->lookPosition, x, camera->X, y, camera->Y, vscrn[1]); // Lower right
+    vectorComb3(camera->lookPosition, -x, camera->X, y, camera->Y, vscrn[2]); // Lower left
+    vectorComb3(camera->lookPosition, -x, camera->X, -y, camera->Y, vscrn[3]); // Upper left
 
     for ( i = 0; i < 4; i++ ) {
-        VECTORTRIPLECROSSPRODUCT(vscrn[(i + 1) % 4], camera->eyePosition, vscrn[i], camera->viewPlane[i].normal);
-        VECTORNORMALIZE(camera->viewPlane[i].normal);
-        camera->viewPlane[i].d = -VECTORDOTPRODUCT(camera->viewPlane[i].normal, camera->eyePosition);
+        vectorTripleCrossProduct(vscrn[(i + 1) % 4], camera->eyePosition, vscrn[i], camera->viewPlane[i].normal);
+        vectorNormalize(camera->viewPlane[i].normal);
+        camera->viewPlane[i].d = -vectorDotProduct(camera->viewPlane[i].normal, camera->eyePosition);
     }
 }
 
@@ -174,28 +174,28 @@ cameraComplete(Camera *camera) {
     float n;
 
     // Compute viewing direction ==> Z axis of eye coordinate system
-    VECTORSUBTRACT(camera->lookPosition, camera->eyePosition, camera->Z);
+    vectorSubtract(camera->lookPosition, camera->eyePosition, camera->Z);
 
     // Distance from virtual camera position to focus point
-    camera->viewDistance = VECTORNORM(camera->Z);
+    camera->viewDistance = vectorNorm(camera->Z);
     if ( camera->viewDistance < EPSILON ) {
         logError("SetCamera", "eye point and look-point coincide");
         return nullptr;
     }
-    VECTORSCALEINVERSE(camera->viewDistance, camera->Z, camera->Z);
+    vectorScaleInverse(camera->viewDistance, camera->Z, camera->Z);
 
     // GLOBAL_camera_mainCamera->X is a direction pointing to the right in the window
-    VECTORCROSSPRODUCT(camera->Z, camera->upDirection, camera->X);
-    n = VECTORNORM(camera->X);
+    vectorCrossProduct(camera->Z, camera->upDirection, camera->X);
+    n = vectorNorm(camera->X);
     if ( n < EPSILON ) {
         logError("SetCamera", "up-direction and viewing direction coincide");
         return nullptr;
     }
-    VECTORSCALEINVERSE(n, camera->X, camera->X);
+    vectorScaleInverse(n, camera->X, camera->X);
 
     // GLOBAL_camera_mainCamera->Y is a direction pointing down in the window
-    VECTORCROSSPRODUCT(camera->Z, camera->X, camera->Y);
-    VECTORNORMALIZE(camera->Y);
+    vectorCrossProduct(camera->Z, camera->X, camera->Y);
+    vectorNormalize(camera->Y);
 
     // Compute horizontal and vertical field of view angle from the specified one
     if ( camera->xSize < camera->ySize ) {
@@ -231,7 +231,7 @@ Only sets virtual camera position in 3D space
 Camera *
 cameraSetEyePosition(Camera *camera, float x, float y, float z) {
     Vector3D newEyePosition;
-    VECTORSET(newEyePosition, x, y, z);
+    vectorSet(newEyePosition, x, y, z);
     return cameraSet(camera, &newEyePosition, &camera->lookPosition, &camera->upDirection,
                      camera->fov, camera->xSize, camera->ySize, &camera->background);
 }
@@ -239,7 +239,7 @@ cameraSetEyePosition(Camera *camera, float x, float y, float z) {
 Camera *
 cameraSetLookPosition(Camera *camera, float x, float y, float z) {
     Vector3D newLookPosition;
-    VECTORSET(newLookPosition, x, y, z);
+    vectorSet(newLookPosition, x, y, z);
     return cameraSet(camera, &camera->eyePosition, &newLookPosition, &camera->upDirection,
                      camera->fov, camera->xSize, camera->ySize, &camera->background);
 }
@@ -247,7 +247,7 @@ cameraSetLookPosition(Camera *camera, float x, float y, float z) {
 Camera *
 cameraSetUpDirection(Camera *camera, float x, float y, float z) {
     Vector3D newUpDirection;
-    VECTORSET(newUpDirection, x, y, z);
+    vectorSet(newUpDirection, x, y, z);
     return cameraSet(camera, &camera->eyePosition, &camera->lookPosition, &newUpDirection,
                      camera->fov, camera->xSize, camera->ySize, &camera->background);
 }

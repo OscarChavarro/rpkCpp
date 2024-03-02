@@ -101,7 +101,7 @@ sampleLight(LIGHTSOURCETABLE *light, double light_selection_pdf) {
     hit = mcrShootRay(light->patch, &ray, &hitStore);
     if ( hit ) {
         double pdf = light_selection_pdf * point_selection_pdf * dir_selection_pdf;
-        double outcos = VECTORDOTPRODUCT(ray.dir, light->patch->normal);
+        double outcos = vectorDotProduct(ray.dir, light->patch->normal);
         COLOR rcvrad;
         COLOR Rd = topLevelGalerkinElement(hit->patch)->Rd;
         colorScale((float)(outcos / (M_PI * hit->patch->area * pdf * globalNumberOfSamples)), rad, rcvrad);

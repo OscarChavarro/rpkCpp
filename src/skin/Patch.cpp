@@ -58,17 +58,17 @@ Patch::getInterpolatedNormalAtUv(double u, double v) {
 
     switch ( numberOfVertices ) {
         case 3:
-            PINT(*v1, *v2, *v3, (float)u, (float)v, localNormal);
+            vectorPointInTriangle(*v1, *v2, *v3, (float) u, (float) v, localNormal);
             break;
         case 4:
             v4 = vertex[3]->normal;
-            PINQ(*v1, *v2, *v3, *v4, (float)u, (float)v, localNormal);
+            vectorPointInQuadrilateral(*v1, *v2, *v3, *v4, (float) u, (float) v, localNormal);
             break;
         default:
             logFatal(-1, "PatchNormalAtUV", "Invalid number of vertices %d", numberOfVertices);
     }
 
-    VECTORNORMALIZE(localNormal);
+    vectorNormalize(localNormal);
     return localNormal;
 }
 
@@ -208,26 +208,26 @@ Patch::randomWalkRadiosityPatchArea() {
             p1 = this->vertex[0]->point;
             p2 = this->vertex[1]->point;
             p3 = this->vertex[2]->point;
-            VECTORSUBTRACT(*p2, *p1, d1);
-            VECTORSUBTRACT(*p3, *p2, d2);
-            VECTORCROSSPRODUCT(d1, d2, cp1);
-            this->area = 0.5f * VECTORNORM(cp1);
+            vectorSubtract(*p2, *p1, d1);
+            vectorSubtract(*p3, *p2, d2);
+            vectorCrossProduct(d1, d2, cp1);
+            this->area = 0.5f * vectorNorm(cp1);
             break;
         case 4:
             p1 = this->vertex[0]->point;
             p2 = this->vertex[1]->point;
             p3 = this->vertex[2]->point;
             p4 = this->vertex[3]->point;
-            VECTORSUBTRACT(*p2, *p1, d1);
-            VECTORSUBTRACT(*p3, *p2, d2);
-            VECTORSUBTRACT(*p3, *p4, d3);
-            VECTORSUBTRACT(*p4, *p1, d4);
-            VECTORCROSSPRODUCT(d1, d4, cp1);
-            VECTORCROSSPRODUCT(d1, d3, cp2);
-            VECTORCROSSPRODUCT(d2, d4, cp3);
-            a = VECTORDOTPRODUCT(cp1, this->normal);
-            b = VECTORDOTPRODUCT(cp2, this->normal);
-            c = VECTORDOTPRODUCT(cp3, this->normal);
+            vectorSubtract(*p2, *p1, d1);
+            vectorSubtract(*p3, *p2, d2);
+            vectorSubtract(*p3, *p4, d3);
+            vectorSubtract(*p4, *p1, d4);
+            vectorCrossProduct(d1, d4, cp1);
+            vectorCrossProduct(d1, d3, cp2);
+            vectorCrossProduct(d2, d4, cp3);
+            a = vectorDotProduct(cp1, this->normal);
+            b = vectorDotProduct(cp2, this->normal);
+            c = vectorDotProduct(cp3, this->normal);
 
             this->area = a + 0.5f * (b + c);
             if ( this->area < 0.0 ) {
@@ -265,11 +265,11 @@ returns a pointer to p
 */
 Vector3D *
 Patch::computeMidpoint(Vector3D *p) {
-    VECTORSET(*p, 0, 0, 0);
+    vectorSet(*p, 0, 0, 0);
     for ( int i = 0; i < numberOfVertices; i++ ) {
-        VECTORADD(*p, *(vertex[i]->point), *p);
+        vectorAdd(*p, *(vertex[i]->point), *p);
     }
-    VECTORSCALEINVERSE((float)numberOfVertices, *p, *p);
+    vectorScaleInverse((float) numberOfVertices, *p, *p);
 
     return p;
 }
@@ -283,8 +283,8 @@ Patch::computeTolerance() {
     float localTolerance = 0.0f;
     for ( int i = 0; i < numberOfVertices; i++ ) {
         Vector3D *p = vertex[i]->point;
-        float e = (float)std::fabs(VECTORDOTPRODUCT(normal, *p) + planeConstant)
-                   + VECTORTOLERANCE(*p);
+        float e = (float)std::fabs(vectorDotProduct(normal, *p) + planeConstant)
+                  + vectorTolerance(*p);
         if ( e > localTolerance ) {
             localTolerance = e;
         }
@@ -311,7 +311,7 @@ Patch::triangleUv(Vector3D *point, Vector2Dd *uv) {
     // Project to 2D
     v = vertex;
     switch ( index ) {
-        case XNORMAL:
+        case X_NORMAL:
             u0 = (*v)->point->y;
             v0 = (*v)->point->z;
             V2Set(p0, point->y - u0, point->z - v0);
@@ -321,7 +321,7 @@ Patch::triangleUv(Vector3D *point, Vector2Dd *uv) {
             V2Set(p2, (*v)->point->y - u0, (*v)->point->z - v0);
             break;
 
-        case YNORMAL:
+        case Y_NORMAL:
             u0 = (*v)->point->x;
             v0 = (*v)->point->z;
             V2Set(p0, point->x - u0, point->z - v0);
@@ -331,7 +331,7 @@ Patch::triangleUv(Vector3D *point, Vector2Dd *uv) {
             V2Set(p2, (*v)->point->x - u0, (*v)->point->z - v0);
             break;
 
-        case ZNORMAL:
+        case Z_NORMAL:
             u0 = (*v)->point->x;
             v0 = (*v)->point->y;
             V2Set(p0, point->x - u0, point->y - v0);
@@ -397,7 +397,7 @@ Patch::quadUv(Patch *patch, Vector3D *point, Vector2Dd *uv) {
     // Projection on the plane that is most parallel to the facet
     p = patch->vertex;
     switch ( patch->index ) {
-        case XNORMAL: V2Set(A, (*p)->point->y, (*p)->point->z);
+        case X_NORMAL: V2Set(A, (*p)->point->y, (*p)->point->z);
             p++;
             V2Set(B, (*p)->point->y, (*p)->point->z);
             p++;
@@ -407,7 +407,7 @@ Patch::quadUv(Patch *patch, Vector3D *point, Vector2Dd *uv) {
             V2Set(M, point->y, point->z);
             break;
 
-        case YNORMAL: V2Set(A, (*p)->point->x, (*p)->point->z);
+        case Y_NORMAL: V2Set(A, (*p)->point->x, (*p)->point->z);
             p++;
             V2Set(B, (*p)->point->x, (*p)->point->z);
             p++;
@@ -417,7 +417,7 @@ Patch::quadUv(Patch *patch, Vector3D *point, Vector2Dd *uv) {
             V2Set(M, point->x, point->z);
             break;
 
-        case ZNORMAL: V2Set(A, (*p)->point->x, (*p)->point->y);
+        case Z_NORMAL: V2Set(A, (*p)->point->x, (*p)->point->y);
             p++;
             V2Set(B, (*p)->point->x, (*p)->point->y);
             p++;
@@ -515,22 +515,22 @@ patchNormal(Patch *patch, Vector3D *normal) {
     Vector3Dd prev;
     Vector3Dd cur;
 
-    VECTORSET(*normal, 0, 0, 0);
-    VECTORSUBTRACT(*patch->vertex[patch->numberOfVertices - 1]->point,
+    vectorSet(*normal, 0, 0, 0);
+    vectorSubtract(*patch->vertex[patch->numberOfVertices - 1]->point,
                    *patch->vertex[0]->point, cur);
     for ( int i = 0; i < patch->numberOfVertices; i++ ) {
         prev = cur;
-        VECTORSUBTRACT(*patch->vertex[i]->point, *patch->vertex[0]->point, cur);
+        vectorSubtract(*patch->vertex[i]->point, *patch->vertex[0]->point, cur);
         normal->x += (float)((prev.y - cur.y) * (prev.z + cur.z));
         normal->y += (float)((prev.z - cur.z) * (prev.x + cur.x));
         normal->z += (float)((prev.x - cur.x) * (prev.y + cur.y));
     }
 
-    if ( (norm = VECTORNORM(*normal)) < EPSILON ) {
+    if ((norm = vectorNorm(*normal)) < EPSILON ) {
         logWarning("patchNormal", "degenerate patch (id %d)", patch->id);
         return nullptr;
     }
-    VECTORSCALEINVERSE(norm, *normal, *normal);
+    vectorScaleInverse(norm, *normal, *normal);
 
     return normal;
 }
@@ -592,7 +592,7 @@ Patch::Patch(int inNumberOfVertices, Vertex *v1, Vertex *v2, Vertex *v3, Vertex 
     computeMidpoint(&midpoint);
 
     // Plane constant
-    planeConstant = -VECTORDOTPRODUCT(normal, midpoint);
+    planeConstant = -vectorDotProduct(normal, midpoint);
 
     // Plane tolerance
     tolerance = computeTolerance();
@@ -764,12 +764,12 @@ Patch::interpolatedFrameAtUv(
     if ( X && Y ) {
         double zz = std::sqrt(1 - Z->z * Z->z);
         if ( zz < EPSILON ) {
-            VECTORSET(*X, 1., 0., 0.);
+            vectorSet(*X, 1., 0., 0.);
         } else {
-            VECTORSET(*X, (float)(Z->y / zz), (float)(-Z->x / zz), 0.0f);
+            vectorSet(*X, (float) (Z->y / zz), (float) (-Z->x / zz), 0.0f);
         }
 
-        VECTORCROSSPRODUCT(*Z, *X, *Y); // *Y = (*Z) ^ (*X)
+        vectorCrossProduct(*Z, *X, *Y); // *Y = (*Z) ^ (*X)
     }
 }
 
@@ -784,7 +784,7 @@ Patch::textureCoordAtUv(double u, double v) {
     Vector3D *t2;
     Vector3D *t3;
     Vector3D texCoord;
-    VECTORSET(texCoord, 0.0, 0.0, 0.0);
+    vectorSet(texCoord, 0.0, 0.0, 0.0);
 
     t0 = vertex[0]->texCoord;
     t1 = vertex[1]->texCoord;
@@ -792,17 +792,17 @@ Patch::textureCoordAtUv(double u, double v) {
     switch ( numberOfVertices ) {
         case 3:
             if ( !t0 || !t1 || !t2 ) {
-                VECTORSET(texCoord, (float)u, (float)v, 0.0f);
+                vectorSet(texCoord, (float) u, (float) v, 0.0f);
             } else {
-                PINT(*t0, *t1, *t2,(float)u, (float)v, texCoord);
+                vectorPointInTriangle(*t0, *t1, *t2, (float) u, (float) v, texCoord);
             }
             break;
         case 4:
             t3 = vertex[3]->texCoord;
             if ( !t0 || !t1 || !t2 || !t3 ) {
-                VECTORSET(texCoord, (float)u, (float)v, 0.0f);
+                vectorSet(texCoord, (float) u, (float) v, 0.0f);
             } else {
-                PINQ(*t0, *t1, *t2, *t3, (float)u, (float)v, texCoord);
+                vectorPointInQuadrilateral(*t0, *t1, *t2, *t3, (float) u, (float) v, texCoord);
             }
             break;
         default:
@@ -836,7 +836,7 @@ Patch::intersect(
         return nullptr;
     }
 
-    dist = VECTORDOTPRODUCT(normal, ray->dir);
+    dist = vectorDotProduct(normal, ray->dir);
     if ( dist > EPSILON ) {
         // Back facing patch
         if ( !(hitFlags & HIT_BACK) ) {
@@ -856,7 +856,7 @@ Patch::intersect(
         return nullptr;
     }
 
-    dist = -(VECTORDOTPRODUCT(normal, ray->pos) + planeConstant) / dist;
+    dist = -(vectorDotProduct(normal, ray->pos) + planeConstant) / dist;
 
     if ( dist > *maximumDistance || dist < minimumDistance ) {
         // Intersection too far or too close
@@ -865,7 +865,7 @@ Patch::intersect(
 
     // Intersection point of ray with plane of patch
     hit.dist = dist;
-    VECTORSUMSCALED(ray->pos, dist, ray->dir, hit.point);
+    vectorSumScaled(ray->pos, dist, ray->dir, hit.point);
 
     // Test whether it lays inside or outside the patch
     if ( hitInPatch(&hit, this) ) {
@@ -960,10 +960,10 @@ Patch::pointBarycentricMapping(double u, double v, Vector3D *point) {
             v = 1.0 - v;
             // Warning("patchPoint", "(u,v) outside unit triangle");
         }
-        PINT(*v1, *v2, *v3, (float)u, (float)v, *point);
+        vectorPointInTriangle(*v1, *v2, *v3, (float) u, (float) v, *point);
     } else if ( numberOfVertices == 4 ) {
         v4 = vertex[3]->point;
-        PINQ(*v1, *v2, *v3, *v4, (float)u, (float)v, *point);
+            vectorPointInQuadrilateral(*v1, *v2, *v3, *v4, (float) u, (float) v, *point);
     } else {
         logFatal(4, "pointBarycentricMapping", "Can only handle triangular or quadrilateral patches");
     }

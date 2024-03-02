@@ -80,12 +80,14 @@ updateDirectPotential(java::ArrayList<Patch *> *scenePatches) {
 
             if ( the_id > 0 && the_id <= maximumPatchId ) {
                 // Compute direction to center of pixel
-                VECTORCOMB3(GLOBAL_camera_mainCamera.Z, xSample, GLOBAL_camera_mainCamera.X, ySample, GLOBAL_camera_mainCamera.Y, pixDir);
+                vectorComb3(GLOBAL_camera_mainCamera.Z, xSample, GLOBAL_camera_mainCamera.X, ySample,
+                            GLOBAL_camera_mainCamera.Y, pixDir);
 
                 // Delta_importance = (cosine of the angle between the direction to
                 // the pixel and the viewing direction, over the distance from the
                 // eye point to the pixel) squared, times area of the pixel
-                deltaImportance = VECTORDOTPRODUCT(GLOBAL_camera_mainCamera.Z, pixDir) / VECTORDOTPRODUCT(pixDir, pixDir);
+                deltaImportance = vectorDotProduct(GLOBAL_camera_mainCamera.Z, pixDir) /
+                                  vectorDotProduct(pixDir, pixDir);
                 deltaImportance *= deltaImportance * pixelArea;
 
                 newDirectImportance[the_id] += deltaImportance;

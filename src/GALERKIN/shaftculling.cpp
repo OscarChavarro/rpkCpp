@@ -78,7 +78,7 @@ constructShaft(float *ref1, float *ref2, SHAFT *shaft) {
             hasMinMax1[i] = 1;
         } else {
             shaft->extent[i] = shaft->ref2[i];
-            if ( !FLOATEQUAL(shaft->ref1[i], shaft->ref2[i], EPSILON)) {
+            if ( !floatEqual(shaft->ref1[i], shaft->ref2[i], EPSILON)) {
                 hasMinMax2[i] = 1;
             }
         }
@@ -90,7 +90,7 @@ constructShaft(float *ref1, float *ref2, SHAFT *shaft) {
             hasMinMax1[i] = 1;
         } else {
             shaft->extent[i] = shaft->ref2[i];
-            if ( !FLOATEQUAL(shaft->ref1[i], shaft->ref2[i], EPSILON)) {
+            if ( !floatEqual(shaft->ref1[i], shaft->ref2[i], EPSILON)) {
                 hasMinMax2[i] = 1;
             }
         }
@@ -157,10 +157,10 @@ testPolygonWrtPlane(POLYGON *poly, Vector3D *normal, double d) {
 
     out = in = false;
     for ( i = 0; i < poly->numberOfVertices; i++ ) {
-        double e = VECTORDOTPRODUCT(
+        double e = vectorDotProduct(
                 *normal,
                 poly->vertex[i]) + d,
-                tolerance = std::fabs(d) * EPSILON + VECTORTOLERANCE(poly->vertex[i]);
+                tolerance = std::fabs(d) * EPSILON + vectorTolerance(poly->vertex[i]);
         out |= (e > tolerance);
         in |= (e < -tolerance);
         if ( out && in ) {
@@ -180,8 +180,8 @@ verifyPolygonWrtPlane(POLYGON *poly, Vector3D *normal, double d, int side) {
     bool in = false;
 
     for ( int i = 0; i < poly->numberOfVertices; i++ ) {
-        double e = VECTORDOTPRODUCT(*normal, poly->vertex[i]) + d,
-                tolerance = fabs(d) * EPSILON + VECTORTOLERANCE(poly->vertex[i]);
+        double e = vectorDotProduct(*normal, poly->vertex[i]) + d,
+                tolerance = fabs(d) * EPSILON + vectorTolerance(poly->vertex[i]);
         out |= e > tolerance;
         if ( out && (side == INSIDE || side == COPLANAR) ) {
             return false;
@@ -223,8 +223,8 @@ if the point is on the plane within tolerance distance d*EPSILON
 */
 int
 testPointWrtPlane(Vector3D *p, Vector3D *normal, double d) {
-    double e, tolerance = fabs(d * EPSILON) + VECTORTOLERANCE(*p);
-    e = VECTORDOTPRODUCT(*normal, *p) + d;
+    double e, tolerance = fabs(d * EPSILON) + vectorTolerance(*p);
+    e = vectorDotProduct(*normal, *p) + d;
     if ( e < -tolerance ) {
         return INSIDE;
     }
@@ -322,7 +322,7 @@ constructPolygonToPolygonPlanes(POLYGON *p1, POLYGON *p2, SHAFT *shaft) {
     int maxPlanesPerEdge;
 
     // Test p2 wrt plane of p1
-    VECTORCOPY(p1->normal, normal); // Convert to double precision
+    vectorCopy(p1->normal, normal); // Convert to double precision
     switch ( testPolygonWrtPlane(p2, &normal, p1->planeConstant) ) {
         case INSIDE:
             // Polygon p2 is on the negative side of the plane of p1. The plane of p1 is
@@ -366,14 +366,14 @@ constructPolygonToPolygonPlanes(POLYGON *p1, POLYGON *p2, SHAFT *shaft) {
             other = &p2->vertex[j];
 
             // Compute normal and plane constant of the plane formed by cur, next and other
-            VECTORTRIPLECROSSPRODUCT(*cur, *next, *other, normal);
-            norm = VECTORNORM(normal);
+            vectorTripleCrossProduct(*cur, *next, *other, normal);
+            norm = vectorNorm(normal);
             if ( norm < EPSILON ) {
                 continue;
             }
             // Co-linear vertices, try next vertex on p2
-            VECTORSCALEINVERSE(norm, normal, normal);
-            d = -VECTORDOTPRODUCT(normal, *cur);
+            vectorScaleInverse(norm, normal, normal);
+            d = -vectorDotProduct(normal, *cur);
 
             // Test position of p1 w.r.t. the constructed plane. Skip the vertices
             // that were used to construct the plane
@@ -440,15 +440,15 @@ constructPolygonToPolygonShaft(POLYGON *p1, POLYGON *p2, SHAFT *shaft) {
     // Center positions of polygons define a line that is guaranteed to lay inside the shaft
     shaft->center1 = p1->vertex[0];
     for ( int i = 1; i < p1->numberOfVertices; i++ ) {
-        VECTORADD(shaft->center1, p1->vertex[i], shaft->center1);
+        vectorAdd(shaft->center1, p1->vertex[i], shaft->center1);
     }
-    VECTORSCALEINVERSE((float) p1->numberOfVertices, shaft->center1, shaft->center1);
+    vectorScaleInverse((float) p1->numberOfVertices, shaft->center1, shaft->center1);
 
     shaft->center2 = p2->vertex[0];
     for ( int i = 1; i < p2->numberOfVertices; i++ ) {
-        VECTORADD(shaft->center2, p2->vertex[i], shaft->center2);
+        vectorAdd(shaft->center2, p2->vertex[i], shaft->center2);
     }
-    VECTORSCALEINVERSE((float)p2->numberOfVertices, shaft->center2, shaft->center2);
+    vectorScaleInverse((float) p2->numberOfVertices, shaft->center2, shaft->center2);
 
     // Determine the shaft planes
     shaft->planes = 0;
@@ -530,7 +530,7 @@ shaftPatchTest(Patch *patch, SHAFT *shaft) {
         inAll[j] = true;
         tMin[j] = 0.0;  // Defines the segment of the edge that lays within the shaft
         tMax[j] = 1.0;
-        pTol[j] = VECTORTOLERANCE(*patch->vertex[j]->point); // Vertex tolerance
+        pTol[j] = vectorTolerance(*patch->vertex[j]->point); // Vertex tolerance
     }
 
     for ( i = 0, plane = &shaft->plane[0]; i < shaft->planes; i++, plane++ ) {
@@ -539,11 +539,11 @@ shaftPatchTest(Patch *patch, SHAFT *shaft) {
         double e[MAXIMUM_VERTICES_PER_PATCH], tolerance;
         int in, out, side[MAXIMUM_VERTICES_PER_PATCH];
 
-        VECTORSET(plane_normal, plane->n[0], plane->n[1], plane->n[2]);
+        vectorSet(plane_normal, plane->n[0], plane->n[1], plane->n[2]);
 
         in = out = false;
         for ( j = 0; j < patch->numberOfVertices; j++ ) {
-            e[j] = VECTORDOTPRODUCT(plane_normal, *patch->vertex[j]->point) + plane->d;
+            e[j] = vectorDotProduct(plane_normal, *patch->vertex[j]->point) + plane->d;
             tolerance = (float)(std::fabs(plane->d) * EPSILON + pTol[j]);
             side[j] = COPLANAR;
             if ( e[j] > tolerance ) {
@@ -642,7 +642,7 @@ shaftPatchTest(Patch *patch, SHAFT *shaft) {
     // the shaft intersects the patch, the patch cuts the shaft. If not,
     // the patch lays fully outside
     ray.pos = shaft->center1;
-    VECTORSUBTRACT(shaft->center2, shaft->center1, ray.dir);
+    vectorSubtract(shaft->center2, shaft->center1, ray.dir);
     dist = 1.0 - EPSILON;
     if ( patch->intersect(&ray, EPSILON, &dist, HIT_FRONT | HIT_BACK, &hitStore)) {
         shaft->cut = true;

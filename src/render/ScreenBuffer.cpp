@@ -358,7 +358,7 @@ Vector3D
 ScreenBuffer::getPixelVector(int nx, int ny, float xoff, float yoff) const {
     Vector2D pix = getPixelPoint(nx, ny, xoff, yoff);
     Vector3D dir;
-    VECTORCOMB3(m_cam.Z, pix.u, m_cam.X, pix.v, m_cam.Y, dir);
+    vectorComb3(m_cam.Z, pix.u, m_cam.X, pix.v, m_cam.Y, dir);
     return dir;
 }
 
@@ -389,15 +389,16 @@ computeFluxToRadFactor(int pix_x, int pix_y) {
     xsample = x + h * 0.5;  // pix_x, Pix_y indicate upper left
     ysample = y + v * 0.5;
 
-    VECTORCOMB3(GLOBAL_camera_mainCamera.Z, xsample, GLOBAL_camera_mainCamera.X, ysample, GLOBAL_camera_mainCamera.Y, dir);
-    distPixel2 = VECTORNORM2(dir);
+    vectorComb3(GLOBAL_camera_mainCamera.Z, xsample, GLOBAL_camera_mainCamera.X, ysample, GLOBAL_camera_mainCamera.Y,
+                dir);
+    distPixel2 = vectorNorm2(dir);
     distPixel = sqrt(distPixel2);
-    VECTORSCALEINVERSE(distPixel, dir, dir);
+    vectorScaleInverse(distPixel, dir, dir);
 
     factor = 1.0 / (h * v);
 
     factor *= distPixel2; // r(eye->pixel)^2
-    factor /= pow(VECTORDOTPRODUCT(dir, GLOBAL_camera_mainCamera.Z), 2);  // cos^2
+    factor /= pow(vectorDotProduct(dir, GLOBAL_camera_mainCamera.Z), 2);  // cos^2
 
     return factor;
 }

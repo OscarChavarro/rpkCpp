@@ -357,7 +357,7 @@ SR_GetRadiance(
                 if ( config->radMode == STORED_PHOTONMAP ) {
                     // Check if the distance to the previous point is big enough
                     // otherwise we need more scattering...
-                    float dist2 = VECTORDIST2(thisNode->m_hit.point, thisNode->Previous()->m_hit.point);
+                    float dist2 = vectorDist2(thisNode->m_hit.point, thisNode->Previous()->m_hit.point);
 
                     if ( dist2 > PHOTON_MAP_MIN_DIST2 ) {
                         radiance = photonMapGetNodeGRadiance(thisNode);

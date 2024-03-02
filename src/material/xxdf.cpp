@@ -33,10 +33,10 @@ idealReflectedDirection(Vector3D *in, Vector3D *normal) {
     double tmp;
     Vector3D result;
 
-    tmp = 2 * VECTORDOTPRODUCT(*normal, *in);
-    VECTORSCALE(tmp, *normal, result);
-    VECTORSUBTRACT(*in, result, result);
-    VECTORNORMALIZE(result);
+    tmp = 2 * vectorDotProduct(*normal, *in);
+    vectorScale(tmp, *normal, result);
+    vectorSubtract(*in, result, result);
+    vectorNormalize(result);
 
     return result;
 }
@@ -64,7 +64,7 @@ idealRefractedDirection(
     // Only real part of n for now
     refractionIndex = inIndex.nr / outIndex.nr;
 
-    Ci = -VECTORDOTPRODUCT(*in, *normal);
+    Ci = -vectorDotProduct(*in, *normal);
     Ct2 = 1 + refractionIndex * refractionIndex * (Ci * Ci - 1);
 
     if ( Ct2 < 0 ) {
@@ -77,11 +77,11 @@ idealRefractedDirection(
 
     normalScale = refractionIndex * Ci - Ct;
 
-    VECTORSCALE(refractionIndex, *in, result);
-    VECTORSUMSCALED(result, normalScale, *normal, result);
+    vectorScale(refractionIndex, *in, result);
+    vectorSumScaled(result, normalScale, *normal, result);
 
     // Normalise
-    VECTORNORMALIZE(result);
+    vectorNormalize(result);
 
     return result;
 }

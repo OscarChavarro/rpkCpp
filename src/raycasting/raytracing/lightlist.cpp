@@ -193,16 +193,16 @@ CLightList::computeOneLightImportanceReal(Patch *light,
 
         // Ray direction (but no ray is shot of course)
         Vector3D copy(point->x, point->y, point->z);
-	
-        VECTORSUBTRACT(lightPoint, copy, dir);
-        dist2 = VECTORNORM2(dir);
+
+        vectorSubtract(lightPoint, copy, dir);
+        dist2 = vectorNorm2(dir);
 
         // Check normals
 
         // Cosines have an addition dist length in them
 
-        cosRayLight = -VECTORDOTPRODUCT(dir, light_normal);
-        cosRayPatch = VECTORDOTPRODUCT(dir, *normal);
+        cosRayLight = -vectorDotProduct(dir, light_normal);
+        cosRayPatch = vectorDotProduct(dir, *normal);
 
         if ( cosRayLight > 0 && cosRayPatch > 0 ) {
             // Orientation of surfaces ok.
@@ -236,8 +236,8 @@ CLightList::computeOneLightImportance(Patch *light,
 
 void
 CLightList::computeLightImportance(Vector3D *point, Vector3D *normal) {
-    if ((VECTOREQUAL(*point, lastPoint, EPSILON)) &&
-        (VECTOREQUAL(*normal, lastNormal, EPSILON))) {
+    if ((vectorEqual(*point, lastPoint, EPSILON)) &&
+        (vectorEqual(*normal, lastNormal, EPSILON))) {
         return; // Still ok !!
     }
 

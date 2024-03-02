@@ -268,7 +268,7 @@ boundsBehindPlane(const float *bounds, Vector3D *norm, float d) {
         P.z = bounds[MIN_Z];
     }
 
-    return VECTORDOTPRODUCT(*norm, P) + d <= 0.;
+    return vectorDotProduct(*norm, P) + d <= 0.;
 }
 
 /**
@@ -281,14 +281,14 @@ boundsTransform(float *bbx, Matrix4x4 *xf, float *transbbx) {
     int i;
     float d;
 
-    VECTORSET(v[0], bbx[MIN_X], bbx[MIN_Y], bbx[MIN_Z]);
-    VECTORSET(v[1], bbx[MAX_X], bbx[MIN_Y], bbx[MIN_Z]);
-    VECTORSET(v[2], bbx[MIN_X], bbx[MAX_Y], bbx[MIN_Z]);
-    VECTORSET(v[3], bbx[MAX_X], bbx[MAX_Y], bbx[MIN_Z]);
-    VECTORSET(v[4], bbx[MIN_X], bbx[MIN_Y], bbx[MAX_Z]);
-    VECTORSET(v[5], bbx[MAX_X], bbx[MIN_Y], bbx[MAX_Z]);
-    VECTORSET(v[6], bbx[MIN_X], bbx[MAX_Y], bbx[MAX_Z]);
-    VECTORSET(v[7], bbx[MAX_X], bbx[MAX_Y], bbx[MAX_Z]);
+    vectorSet(v[0], bbx[MIN_X], bbx[MIN_Y], bbx[MIN_Z]);
+    vectorSet(v[1], bbx[MAX_X], bbx[MIN_Y], bbx[MIN_Z]);
+    vectorSet(v[2], bbx[MIN_X], bbx[MAX_Y], bbx[MIN_Z]);
+    vectorSet(v[3], bbx[MAX_X], bbx[MAX_Y], bbx[MIN_Z]);
+    vectorSet(v[4], bbx[MIN_X], bbx[MIN_Y], bbx[MAX_Z]);
+    vectorSet(v[5], bbx[MAX_X], bbx[MIN_Y], bbx[MAX_Z]);
+    vectorSet(v[6], bbx[MIN_X], bbx[MAX_Y], bbx[MAX_Z]);
+    vectorSet(v[7], bbx[MAX_X], bbx[MAX_Y], bbx[MAX_Z]);
 
     boundsInit(transbbx);
     for ( i = 0; i < 8; i++ ) {

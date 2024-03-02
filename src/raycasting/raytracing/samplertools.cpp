@@ -159,13 +159,13 @@ pathNodeConnect(
     Vector3D dirLE;
     Vector3D dirEL;
 
-    VECTORSUBTRACT(nodeY->m_hit.point, nodeX->m_hit.point, dirEL);
-    dist2 = VECTORNORM2(dirEL);
+    vectorSubtract(nodeY->m_hit.point, nodeX->m_hit.point, dirEL);
+    dist2 = vectorNorm2(dirEL);
     dist = sqrt(dist2);
-    VECTORSCALEINVERSE((float)dist, dirEL, dirEL);
-    VECTORSCALE(-1, dirEL, dirLE);
+    vectorScaleInverse((float) dist, dirEL, dirEL);
+    vectorScale(-1, dirEL, dirLE);
 
-    if ( pDirEl ) VECTORCOPY(dirEL, *pDirEl);
+    if ( pDirEl ) vectorCopy(dirEL, *pDirEl);
 
     // Always test the FOLLOW NEXT flags!
     nodeEP = nodeX->Previous();
@@ -292,8 +292,8 @@ pathNodeConnect(
     }
 
 
-    double cosA = -VECTORDOTPRODUCT(dirEL, nodeY->m_normal);
-    geom = std::fabs(cosA * VECTORDOTPRODUCT(nodeX->m_normal, dirEL) / dist2);
+    double cosA = -vectorDotProduct(dirEL, nodeY->m_normal);
+    geom = std::fabs(cosA * vectorDotProduct(nodeX->m_normal, dirEL) / dist2);
 
     // Geom is always positive !  Visibility checking cannot be done
     // by checking cos signs because materials can be refractive.

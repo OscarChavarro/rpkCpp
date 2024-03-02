@@ -8,7 +8,7 @@
 /**
 Tests whether two floating point numbers are equal within the given tolerance
 */
-#define FLOATEQUAL(a, b, tolerance) (((a)-(b)) > -(tolerance) && ((a)-(b)) < (tolerance))
+#define floatEqual(a, b, tolerance) (((a)-(b)) > -(tolerance) && ((a)-(b)) < (tolerance))
 
 #ifndef MAX
     #define MAX(a, b) ((a) > (b) ? (a) : (b))

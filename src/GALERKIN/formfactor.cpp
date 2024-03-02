@@ -17,8 +17,8 @@ isAtLeastPartlyInFront(Patch *P, Patch *Q) {
 
     for ( i = 0; i < P->numberOfVertices; i++ ) {
         Vector3D *vp = P->vertex[i]->point;
-        double ep = VECTORDOTPRODUCT(Q->normal, *vp) + Q->planeConstant,
-                tolp = Q->tolerance + VECTORTOLERANCE(*vp);
+        double ep = vectorDotProduct(Q->normal, *vp) + Q->planeConstant,
+                tolp = Q->tolerance + vectorTolerance(*vp);
         if ( ep > tolp ) {
             // P is at least partly in front of Q
             return true;
@@ -58,10 +58,10 @@ determineNodes(GalerkinElement *elem, CUBARULE **cr, Vector3D x[CUBAMAXNODES], G
         dy = vol[MAX_Y] - vol[MIN_Y];
         dz = vol[MAX_Z] - vol[MIN_Z];
         for ( k = 0; k < (*cr)->numberOfNodes; k++ ) {
-            VECTORSET(x[k],
-                      (float)(vol[MIN_X] + (*cr)->u[k] * dx),
-                      (float)(vol[MIN_Y] + (*cr)->v[k] * dy),
-                      (float)(vol[MIN_Z] + (*cr)->t[k] * dz));
+            vectorSet(x[k],
+                      (float) (vol[MIN_X] + (*cr)->u[k] * dx),
+                      (float) (vol[MIN_Y] + (*cr)->v[k] * dy),
+                      (float) (vol[MIN_Z] + (*cr)->t[k] * dz));
         }
     } else {
         // What cubature rule should be used over the element
@@ -125,9 +125,9 @@ pointKernelEval(
 
     // Trace the ray from source to receiver (y to x) to handle one-sided surfaces correctly
     ray.pos = *y;
-    VECTORSUBTRACT(*x, *y, ray.dir);
-    dist = VECTORNORM(ray.dir);
-    VECTORSCALEINVERSE((float)dist, ray.dir, ray.dir);
+    vectorSubtract(*x, *y, ray.dir);
+    dist = vectorNorm(ray.dir);
+    vectorScaleInverse((float) dist, ray.dir, ray.dir);
 
     // Don't allow too nearby nodes to interact
     if ( dist < EPSILON ) {
@@ -139,7 +139,7 @@ pointKernelEval(
     if ( isCluster(src) ) {
         cosQ = 0.25;
     } else {
-        cosQ = VECTORDOTPRODUCT(ray.dir, src->patch->normal);
+        cosQ = vectorDotProduct(ray.dir, src->patch->normal);
         if ( cosQ <= 0. ) {
             // Ray leaves behind the source
             return 0.0;
@@ -150,7 +150,7 @@ pointKernelEval(
     if ( isCluster(rcv) ) {
         cosP = 0.25;
     } else {
-        cosP = -VECTORDOTPRODUCT(ray.dir, rcv->patch->normal);
+        cosP = -vectorDotProduct(ray.dir, rcv->patch->normal);
         if ( cosP <= 0.0 ) {
             // Ray hits receiver from the back
             return 0.0;

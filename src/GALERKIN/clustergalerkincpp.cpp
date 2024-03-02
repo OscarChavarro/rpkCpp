@@ -189,12 +189,12 @@ accumulatePowerToSamplePoint(GalerkinElement *src) {
     Vector3D dir;
     COLOR rad;
 
-    VECTORSUBTRACT(globalSamplePoint, src->patch->midpoint, dir);
-    dist = VECTORNORM(dir);
+    vectorSubtract(globalSamplePoint, src->patch->midpoint, dir);
+    dist = vectorNorm(dir);
     if ( dist < EPSILON ) {
         srcOs = 1.0f;
     } else {
-        srcOs = VECTORDOTPRODUCT(dir, src->patch->normal) / dist;
+        srcOs = vectorDotProduct(dir, src->patch->normal) / dist;
     }
     if ( srcOs <= 0.0f ) {
         // Receiver point is behind the src
@@ -292,12 +292,12 @@ surfaceProjectedAreaToSamplePoint(GalerkinElement *rcv) {
     double dist;
     Vector3D dir;
 
-    VECTORSUBTRACT(globalSamplePoint, rcv->patch->midpoint, dir);
-    dist = VECTORNORM(dir);
+    vectorSubtract(globalSamplePoint, rcv->patch->midpoint, dir);
+    dist = vectorNorm(dir);
     if ( dist < EPSILON ) {
         rcvCos = 1.0;
     } else {
-        rcvCos = VECTORDOTPRODUCT(dir, rcv->patch->normal) / dist;
+        rcvCos = vectorDotProduct(dir, rcv->patch->normal) / dist;
     }
     if ( rcvCos <= 0.0 ) {
         // Sample point is behind the rcv

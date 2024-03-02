@@ -134,7 +134,7 @@ vertexCompareLocation(Vertex *v1, Vertex *v2) {
     /* two entities intersect if their tolerance region intersects, i.o.w. if
      * the distance between them is smaller than the sum of the two entity's
      * tolerances */
-    float tolerance = VECTORTOLERANCE(*v1->point) + VECTORTOLERANCE(*v2->point);
+    float tolerance = vectorTolerance(*v1->point) + vectorTolerance(*v2->point);
     return vectorCompareByDimensions(v1->point, v2->point, tolerance);
 }
 

@@ -230,7 +230,7 @@ photonMapDoComputePixelFluxEstimate(PMAPCONFIG *config) {
                             CONNECT_EL | CONNECT_LE,
                             BSDF_ALL_COMPONENTS, BSDF_ALL_COMPONENTS, &bp->m_dirEL);
 
-    VECTORSCALE(-1, bp->m_dirEL, bp->m_dirLE);
+    vectorScale(-1, bp->m_dirEL, bp->m_dirLE);
 
     // Evaluate radiance and pdf and weight
     f = bp->EvalRadiance();

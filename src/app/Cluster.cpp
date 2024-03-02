@@ -38,7 +38,7 @@ Cluster::Cluster(java::ArrayList<Patch *> *inPatches) {
         clusterAddPatch(inPatches->get(i));
     }
 
-    VECTORSET(boundingBoxCentroid,
+    vectorSet(boundingBoxCentroid,
               (boundingBox[MIN_X] + boundingBox[MAX_X]) * 0.5f,
               (boundingBox[MIN_Y] + boundingBox[MAX_Y]) * 0.5f,
               (boundingBox[MIN_Z] + boundingBox[MAX_Z]) * 0.5f);
@@ -62,7 +62,7 @@ void
 Cluster::commonBuild() {
     int i;
     boundsInit(boundingBox);
-    VECTORSET(boundingBoxCentroid, 0.0, 0.0, 0.0);
+    vectorSet(boundingBoxCentroid, 0.0, 0.0, 0.0);
 
     if ( patches == nullptr ) {
         patches = new java::ArrayList<Patch *>();
@@ -126,7 +126,7 @@ Cluster::clusterMovePatch(int parentIndex) {
     // centroid of the cluster
     Vector3D midPatch;
 
-    VECTORSET(midPatch,
+    vectorSet(midPatch,
               (patchBoundingBox[MIN_X] + patchBoundingBox[MAX_X]) / 2.0f,
               (patchBoundingBox[MIN_Y] + patchBoundingBox[MAX_Y]) / 2.0f,
               (patchBoundingBox[MIN_Z] + patchBoundingBox[MAX_Z]) / 2.0f);
@@ -189,7 +189,7 @@ Cluster::splitCluster() {
             delete children[i];
             children[i] = nullptr;
         } else {
-            VECTORSET(children[i]->boundingBoxCentroid,
+            vectorSet(children[i]->boundingBoxCentroid,
                       (children[i]->boundingBox[MIN_X] + children[i]->boundingBox[MAX_X]) * 0.5f,
                       (children[i]->boundingBox[MIN_Y] + children[i]->boundingBox[MAX_Y]) * 0.5f,
                       (children[i]->boundingBox[MIN_Z] + children[i]->boundingBox[MAX_Z]) * 0.5f);

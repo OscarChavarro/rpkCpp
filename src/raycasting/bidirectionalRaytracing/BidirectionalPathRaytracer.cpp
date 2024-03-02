@@ -345,7 +345,7 @@ ComputeNEFluxEstimate(
                             CONNECT_EL | CONNECT_LE | FILL_OTHER_PDF,
                             BSDF_ALL_COMPONENTS, BSDF_ALL_COMPONENTS, &path->m_dirEL);
 
-    VECTORSCALE(-1, path->m_dirEL, path->m_dirLE);
+    vectorScale(-1, path->m_dirEL, path->m_dirLE);
 
     // Evaluate radiance and pdf and weight
     if ( config->bcfg->useSpars ) {

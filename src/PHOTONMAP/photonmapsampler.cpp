@@ -190,7 +190,7 @@ static bool ChooseFresnelDirection(CPathNode *thisNode, CPathNode *newNode,
             F = 1.0;
             reflectedDir = idealReflectedDirection(&thisNode->m_inDirT,
                                                    &thisNode->m_normal);
-            cosi = VECTORDOTPRODUCT(thisNode->m_normal, thisNode->m_inDirF);
+            cosi = vectorDotProduct(thisNode->m_normal, thisNode->m_inDirF);
             if ( cosi < 0 ) {
                 logError("FresnelSample", "cosi < 0");
             }
@@ -209,14 +209,14 @@ static bool ChooseFresnelDirection(CPathNode *thisNode, CPathNode *newNode,
 
         // 4) cosines and fresnel formulas are computed
 
-        cosi = VECTORDOTPRODUCT(thisNode->m_normal, thisNode->m_inDirF);
+        cosi = vectorDotProduct(thisNode->m_normal, thisNode->m_inDirF);
 
         if ( cosi < 0 ) {
             logError("FresnelSample", "cosi < 0");
         }
 
         if ( !tir ) {
-            cost = -VECTORDOTPRODUCT(thisNode->m_normal, refractedDir);
+            cost = -vectorDotProduct(thisNode->m_normal, refractedDir);
 
             if ( cost < 0 ) {
                 logError("FresnelSample", "cost < 0");
@@ -318,7 +318,7 @@ bool CPhotonMapSampler::FresnelSample(CPathNode *prevNode,
     // -- No bsdf components yet here !!
 
     if ( doCosInverse ) {
-        float cosb = fabs(VECTORDOTPRODUCT(newNode->m_hit.normal,
+        float cosb = fabs(vectorDotProduct(newNode->m_hit.normal,
                                            newNode->m_inDirT));
         colorScaleInverse(cosb, scatteringColor, thisNode->m_bsdfEval);
     } else {

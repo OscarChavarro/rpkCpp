@@ -80,7 +80,7 @@ RayMatter::Matting() {
                 Ray ray;
                 ray.pos = GLOBAL_camera_mainCamera.eyePosition;
                 ray.dir = scrn->getPixelVector(x, y, xi1, xi2);
-                VECTORNORMALIZE(ray.dir);
+                vectorNormalize(ray.dir);
 
                 // check if hit
                 if ( findRayIntersection(&ray, nullptr, nullptr, nullptr) != nullptr ) {

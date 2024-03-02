@@ -193,8 +193,8 @@ renderTriangle(Vertex *v1, Vertex *v2, Vertex *v3) {
         int i;
         for ( i = 0; i < 3; i++ ) {
             Vector3D d;
-            VECTORSUBTRACT(GLOBAL_camera_mainCamera.eyePosition, vert[i], d);
-            VECTORSUMSCALED(vert[i], 0.01, d, vert[i]);
+            vectorSubtract(GLOBAL_camera_mainCamera.eyePosition, vert[i], d);
+            vectorSumScaled(vert[i], 0.01, d, vert[i]);
         }
 
         openGlRenderSetColor(&GLOBAL_render_renderOptions.outline_color);
@@ -223,8 +223,8 @@ renderQuadrilateral(Vertex *v1, Vertex *v2, Vertex *v3, Vertex *v4) {
         int i;
         for ( i = 0; i < 4; i++ ) {
             Vector3D d;
-            VECTORSUBTRACT(GLOBAL_camera_mainCamera.eyePosition, vert[i], d);
-            VECTORSUMSCALED(vert[i], 0.01, d, vert[i]);
+            vectorSubtract(GLOBAL_camera_mainCamera.eyePosition, vert[i], d);
+            vectorSumScaled(vert[i], 0.01, d, vert[i]);
         }
 
         openGlRenderSetColor(&GLOBAL_render_renderOptions.outline_color);
@@ -406,15 +406,15 @@ renderElementOutline(StochasticRadiosityElement *elem) {
     Vector3D vertices[4];
 
     // Test whether eye point is in front of the patch
-    if ( VECTORDOTPRODUCT(elem->patch->normal, GLOBAL_camera_mainCamera.eyePosition) + elem->patch->planeConstant < 0. ) {
+    if ( vectorDotProduct(elem->patch->normal, GLOBAL_camera_mainCamera.eyePosition) + elem->patch->planeConstant < 0. ) {
         return;
     }
 
     for ( int i = 0; i < elem->numberOfVertices; i++ ) {
         Vector3D d;
         vertices[i] = *(elem->vertex[i]->point);
-        VECTORSUBTRACT(GLOBAL_camera_mainCamera.eyePosition, vertices[i], d);
-        VECTORSUMSCALED(vertices[i], 0.0001, d, vertices[i]);
+        vectorSubtract(GLOBAL_camera_mainCamera.eyePosition, vertices[i], d);
+        vectorSumScaled(vertices[i], 0.0001, d, vertices[i]);
     }
 
     openGlRenderSetColor(&GLOBAL_render_renderOptions.outline_color);

@@ -140,17 +140,17 @@ renderGetNearFar(float *near, float *far) {
 
     geometryListBounds(GLOBAL_scene_geometries, bounds);
 
-    VECTORSET(b[0], bounds[MIN_X], bounds[MIN_Y], bounds[MIN_Z]);
-    VECTORSET(b[1], bounds[MAX_X], bounds[MAX_Y], bounds[MAX_Z]);
+    vectorSet(b[0], bounds[MIN_X], bounds[MIN_Y], bounds[MIN_Z]);
+    vectorSet(b[1], bounds[MAX_X], bounds[MAX_Y], bounds[MAX_Z]);
 
     *far = -HUGE;
     *near = HUGE;
     for ( i = 0; i <= 1; i++ ) {
         for ( j = 0; j <= 1; j++ ) {
             for ( k = 0; k <= 1; k++ ) {
-                VECTORSET(d, b[i].x, b[j].y, b[k].z);
-                VECTORSUBTRACT(d, GLOBAL_camera_mainCamera.eyePosition, d);
-                z = VECTORDOTPRODUCT(d, GLOBAL_camera_mainCamera.Z);
+                vectorSet(d, b[i].x, b[j].y, b[k].z);
+                vectorSubtract(d, GLOBAL_camera_mainCamera.eyePosition, d);
+                z = vectorDotProduct(d, GLOBAL_camera_mainCamera.Z);
 
                 if ( z > *far ) {
                     *far = z;
@@ -169,16 +169,16 @@ renderGetNearFar(float *near, float *far) {
                 vsiz = camlen * cam->viewDistance * cam->pixelHeightTangent;
         Vector3D c, P[5];
 
-        VECTORCOMB2(1., cam->eyePosition, camlen * cam->viewDistance, cam->Z, c);
-        VECTORCOMB3(c, hsiz, cam->X, vsiz, cam->Y, P[0]);
-        VECTORCOMB3(c, hsiz, cam->X, -vsiz, cam->Y, P[1]);
-        VECTORCOMB3(c, -hsiz, cam->X, -vsiz, cam->Y, P[2]);
-        VECTORCOMB3(c, -hsiz, cam->X, vsiz, cam->Y, P[3]);
+        vectorComb2(1., cam->eyePosition, camlen * cam->viewDistance, cam->Z, c);
+        vectorComb3(c, hsiz, cam->X, vsiz, cam->Y, P[0]);
+        vectorComb3(c, hsiz, cam->X, -vsiz, cam->Y, P[1]);
+        vectorComb3(c, -hsiz, cam->X, -vsiz, cam->Y, P[2]);
+        vectorComb3(c, -hsiz, cam->X, vsiz, cam->Y, P[3]);
         P[4] = cam->eyePosition;
 
         for ( i = 0; i < 5; i++ ) {
-            VECTORSUBTRACT(P[i], GLOBAL_camera_mainCamera.eyePosition, d);
-            z = VECTORDOTPRODUCT(d, GLOBAL_camera_mainCamera.Z);
+            vectorSubtract(P[i], GLOBAL_camera_mainCamera.eyePosition, d);
+            z = vectorDotProduct(d, GLOBAL_camera_mainCamera.Z);
             if ( z > *far ) {
                 *far = z;
             }
@@ -206,14 +206,14 @@ void
 renderBounds(BOUNDINGBOX bounds) {
     Vector3D p[8];
 
-    VECTORSET(p[0], bounds[MIN_X], bounds[MIN_Y], bounds[MIN_Z]);
-    VECTORSET(p[1], bounds[MAX_X], bounds[MIN_Y], bounds[MIN_Z]);
-    VECTORSET(p[2], bounds[MIN_X], bounds[MAX_Y], bounds[MIN_Z]);
-    VECTORSET(p[3], bounds[MAX_X], bounds[MAX_Y], bounds[MIN_Z]);
-    VECTORSET(p[4], bounds[MIN_X], bounds[MIN_Y], bounds[MAX_Z]);
-    VECTORSET(p[5], bounds[MAX_X], bounds[MIN_Y], bounds[MAX_Z]);
-    VECTORSET(p[6], bounds[MIN_X], bounds[MAX_Y], bounds[MAX_Z]);
-    VECTORSET(p[7], bounds[MAX_X], bounds[MAX_Y], bounds[MAX_Z]);
+    vectorSet(p[0], bounds[MIN_X], bounds[MIN_Y], bounds[MIN_Z]);
+    vectorSet(p[1], bounds[MAX_X], bounds[MIN_Y], bounds[MIN_Z]);
+    vectorSet(p[2], bounds[MIN_X], bounds[MAX_Y], bounds[MIN_Z]);
+    vectorSet(p[3], bounds[MAX_X], bounds[MAX_Y], bounds[MIN_Z]);
+    vectorSet(p[4], bounds[MIN_X], bounds[MIN_Y], bounds[MAX_Z]);
+    vectorSet(p[5], bounds[MAX_X], bounds[MIN_Y], bounds[MAX_Z]);
+    vectorSet(p[6], bounds[MIN_X], bounds[MAX_Y], bounds[MAX_Z]);
+    vectorSet(p[7], bounds[MAX_X], bounds[MAX_Y], bounds[MAX_Z]);
 
     openGlRenderLine(&p[0], &p[1]);
     openGlRenderLine(&p[1], &p[3]);

@@ -28,7 +28,7 @@ CSampler::SampleTransfer(CPathNode *thisNode,
             newNode->m_inDirT = *dir;
             newNode->m_inDirF = -(*dir);
             newNode->m_pdfFromPrev = pdfDir;
-            newNode->m_G = fabs(VECTORDOTPRODUCT(thisNode->m_hit.normal, newNode->m_inDirT));
+            newNode->m_G = fabs(vectorDotProduct(thisNode->m_hit.normal, newNode->m_inDirT));
             newNode->m_inBsdf = thisNode->m_outBsdf;
             newNode->m_useBsdf = nullptr;
             newNode->m_outBsdf = nullptr;
@@ -46,15 +46,15 @@ CSampler::SampleTransfer(CPathNode *thisNode,
 
     if ( hit->flags & HIT_BACK ) {
         // Back hit, invert normal (only happens when newNode->m_inBsdf != nullptr
-        VECTORSCALE(-1, newNode->m_hit.normal, newNode->m_hit.normal);
+        vectorScale(-1, newNode->m_hit.normal, newNode->m_hit.normal);
     }
 
-    VECTORCOPY(ray.dir, newNode->m_inDirT);
-    VECTORSCALE(-1, newNode->m_inDirT, newNode->m_inDirF);
+    vectorCopy(ray.dir, newNode->m_inDirT);
+    vectorScale(-1, newNode->m_inDirT, newNode->m_inDirF);
 
     // Check for shading normal vs. geometric normal errors
 
-    if ( VECTORDOTPRODUCT(newNode->m_hit.normal, newNode->m_inDirF) < 0 ) {
+    if ( vectorDotProduct(newNode->m_hit.normal, newNode->m_inDirF) < 0 ) {
         // Error("Sample", "Shading normal anomaly");
         return false;
     }
@@ -64,12 +64,12 @@ CSampler::SampleTransfer(CPathNode *thisNode,
     double cosa, cosb, dist2;
     Vector3D tmpVec;
 
-    cosa = fabs(VECTORDOTPRODUCT(thisNode->m_hit.normal,
+    cosa = fabs(vectorDotProduct(thisNode->m_hit.normal,
                                  newNode->m_inDirT));
-    cosb = fabs(VECTORDOTPRODUCT(newNode->m_hit.normal,
+    cosb = fabs(vectorDotProduct(newNode->m_hit.normal,
                                  newNode->m_inDirT));
-    VECTORSUBTRACT(newNode->m_hit.point, thisNode->m_hit.point, tmpVec);
-    dist2 = VECTORNORM2(tmpVec);
+    vectorSubtract(newNode->m_hit.point, thisNode->m_hit.point, tmpVec);
+    dist2 = vectorNorm2(tmpVec);
 
     if ( dist2 < EPSILON ) {
         /* Next node is useless, gives rise to
@@ -89,7 +89,7 @@ CSampler::SampleTransfer(CPathNode *thisNode,
 void
 CSurfaceSampler::DetermineRayType(CPathNode *thisNode,
                                        CPathNode *newNode, Vector3D *dir) {
-    double cosThisPatch = VECTORDOTPRODUCT(*dir, thisNode->m_normal);
+    double cosThisPatch = vectorDotProduct(*dir, thisNode->m_normal);
 
     if ( cosThisPatch < 0 ) {
         // Refraction !

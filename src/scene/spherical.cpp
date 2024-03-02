@@ -12,9 +12,9 @@ Creates a coordinate system on the patch P with Z direction along the normal
 void
 patchCoordSys(Patch *P, COORDSYS *coord) {
     coord->Z = P->normal;
-    VECTORSUBTRACT(*P->vertex[1]->point, *P->vertex[0]->point, coord->X);
-    VECTORNORMALIZE(coord->X);
-    VECTORCROSSPRODUCT(coord->Z, coord->X, coord->Y);
+    vectorSubtract(*P->vertex[1]->point, *P->vertex[0]->point, coord->X);
+    vectorNormalize(coord->X);
+    vectorCrossProduct(coord->Z, coord->X, coord->Y);
 }
 
 /**
@@ -37,7 +37,7 @@ vectorCoordSys(Vector3D *Z, COORDSYS *coord) {
         coord->X.z = 0.0;
     }
 
-    VECTORCROSSPRODUCT(coord->Z, coord->X, coord->Y);
+    vectorCrossProduct(coord->Z, coord->X, coord->Y);
 }
 
 /**
@@ -49,7 +49,7 @@ vectorToSphericalCoord(Vector3D *C, COORDSYS *coordSys, double *phi, double *the
     double x, y, z;
     Vector3D c;
 
-    z = VECTORDOTPRODUCT(*C, coordSys->Z);
+    z = vectorDotProduct(*C, coordSys->Z);
     if ( z > 1.0 ) {
         z = 1.0;
     }
@@ -60,10 +60,10 @@ vectorToSphericalCoord(Vector3D *C, COORDSYS *coordSys, double *phi, double *the
 
     *theta = acos(z);
 
-    VECTORSUMSCALED(*C, -z, coordSys->Z, c);
-    VECTORNORMALIZE(c);
-    x = VECTORDOTPRODUCT(c, coordSys->X);
-    y = VECTORDOTPRODUCT(c, coordSys->Y);
+    vectorSumScaled(*C, -z, coordSys->Z, c);
+    vectorNormalize(c);
+    x = vectorDotProduct(c, coordSys->X);
+    y = vectorDotProduct(c, coordSys->Y);
 
     if ( x > 1.0 ) {
         x = 1.0;
@@ -90,8 +90,8 @@ sphericalCoordToVector(
     float cos_theta = (float)std::cos(*theta);
     float sin_theta = (float)std::sin(*theta);
 
-    VECTORCOMB2(cos_phi, coordSys->X, sin_phi, coordSys->Y, CP);
-    VECTORCOMB2(cos_theta, coordSys->Z, sin_theta, CP, *C);
+    vectorComb2(cos_phi, coordSys->X, sin_phi, coordSys->Y, CP);
+    vectorComb2(cos_theta, coordSys->Z, sin_theta, CP, *C);
 }
 
 /**
@@ -108,10 +108,10 @@ sampleHemisphereCosTheta(COORDSYS *coord, double xi_1, double xi_2, double *pdf_
     float cos_theta = (float)std::sqrt(1.0 - xi_2);
     float sin_theta = (float)std::sqrt(xi_2);
 
-    VECTORCOMB2(cos_phi, coord->X,
+    vectorComb2(cos_phi, coord->X,
                 sin_phi, coord->Y,
                 dir);
-    VECTORCOMB2(sin_theta, dir,
+    vectorComb2(sin_theta, dir,
                 cos_theta, coord->Z,
                 dir);
 
@@ -134,10 +134,10 @@ sampleHemisphereCosNTheta(COORDSYS *coord, double n, double xi_1, double xi_2, d
     float cos_theta = (float)std::pow(xi_2, 1.0 / (n + 1));
     float sin_theta = (float)std::sqrt(1.0 - cos_theta * cos_theta);
 
-    VECTORCOMB2(cos_phi, coord->X,
+    vectorComb2(cos_phi, coord->X,
                 sin_phi, coord->Y,
                 dir);
-    VECTORCOMB2(sin_theta, dir,
+    vectorComb2(sin_theta, dir,
                 cos_theta, coord->Z,
                 dir);
 

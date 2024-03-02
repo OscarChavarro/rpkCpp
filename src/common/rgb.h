@@ -36,9 +36,9 @@ extern RGB GLOBAL_material_blue;
 
 inline int operator==(RGB rgb1, RGB rgb2)
 {
-    return(FLOATEQUAL(rgb1.r, rgb2.r, EPSILON) &&
-       FLOATEQUAL(rgb1.g, rgb2.g, EPSILON) &&
-       FLOATEQUAL(rgb1.b, rgb2.b, EPSILON));
+    return(floatEqual(rgb1.r, rgb2.r, EPSILON) &&
+           floatEqual(rgb1.g, rgb2.g, EPSILON) &&
+           floatEqual(rgb1.b, rgb2.b, EPSILON));
 }
 
 /**

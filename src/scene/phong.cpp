@@ -221,7 +221,7 @@ phongEdfEval(PHONG_EDF *edf, RayHit *hit, Vector3D *out, XXDFFLAGS flags, double
         return result;
     }
 
-    cosl = VECTORDOTPRODUCT(*out, normal);
+    cosl = vectorDotProduct(*out, normal);
 
     if ( cosl < 0.0 ) {
         return result;
@@ -299,12 +299,12 @@ phongBrdfEval(PHONG_BRDF *brdf, Vector3D *in, Vector3D *out, Vector3D *normal, X
     Vector3D idealReflected;
     XXDFFLAGS nonDiffuseFlag;
     Vector3D inrev;
-    VECTORSCALE(-1., *in, inrev);
+    vectorScale(-1., *in, inrev);
 
     colorClear(result);
 
     // kd + ks (idealReflected * out)^n
-    if ( VECTORDOTPRODUCT(*out, *normal) < 0 ) {
+    if ( vectorDotProduct(*out, *normal) < 0 ) {
         /* refracted ray ! */
         return result;
     }
@@ -321,7 +321,7 @@ phongBrdfEval(PHONG_BRDF *brdf, Vector3D *in, Vector3D *out, Vector3D *normal, X
 
     if ( (flags & nonDiffuseFlag) && (brdf->avgKs > 0.0)) {
         idealReflected = idealReflectedDirection(&inrev, normal);
-        dotProduct = VECTORDOTPRODUCT(idealReflected, *out);
+        dotProduct = vectorDotProduct(idealReflected, *out);
 
         if ( dotProduct > 0 ) {
             tmpFloat = (float) std::pow(dotProduct, brdf->Ns); // cos(a) ^ n
@@ -354,7 +354,7 @@ phongBrdfSample(
     COORDSYS coord;
     XXDFFLAGS nonDiffuseFlag;
     Vector3D inrev;
-    VECTORSCALE(-1.0, *in, inrev);
+    vectorScale(-1.0, *in, inrev);
 
     *pdf = 0;
 
@@ -402,7 +402,7 @@ phongBrdfSample(
         vectorCoordSys(normal, &coord);
         newDir = sampleHemisphereCosTheta(&coord, x_1, x_2, &diffPdf);
 
-        tmpFloat = VECTORDOTPRODUCT(idealDir, newDir);
+        tmpFloat = vectorDotProduct(idealDir, newDir);
 
         if ( tmpFloat > 0 ) {
             nonDiffPdf = (brdf->Ns + 1.0) * pow(tmpFloat,
@@ -418,7 +418,7 @@ phongBrdfSample(
         newDir = sampleHemisphereCosNTheta(&coord, brdf->Ns, x_1, x_2,
                                            &nonDiffPdf);
 
-        cos_theta = VECTORDOTPRODUCT(*normal, newDir);
+        cos_theta = vectorDotProduct(*normal, newDir);
         if ( cos_theta <= 0 ) {
             return newDir;
         }
@@ -459,20 +459,20 @@ phongBrdfEvalPdf(
     Vector3D inrev;
     Vector3D goodNormal;
 
-    VECTORSCALE(-1., *in, inrev);
+    vectorScale(-1., *in, inrev);
 
     *pdf = 0;
     *pdfRR = 0;
 
     // Ensure 'in' on the same side as 'normal'!
-    cos_in = VECTORDOTPRODUCT(*in, *normal);
+    cos_in = vectorDotProduct(*in, *normal);
     if ( cos_in >= 0 ) {
-        VECTORCOPY(*normal, goodNormal);
+        vectorCopy(*normal, goodNormal);
     } else {
-        VECTORSCALE(-1, *normal, goodNormal);
+        vectorScale(-1, *normal, goodNormal);
     }
 
-    cos_theta = VECTORDOTPRODUCT(goodNormal, *out);
+    cos_theta = vectorDotProduct(goodNormal, *out);
 
     if ( cos_theta < 0 ) {
         return;
@@ -515,7 +515,7 @@ phongBrdfEvalPdf(
     if ( avgKs > 0 ) {
         idealDir = idealReflectedDirection(&inrev, &goodNormal);
 
-        cos_alpha = VECTORDOTPRODUCT(idealDir, *out);
+        cos_alpha = vectorDotProduct(idealDir, *out);
 
         if ( cos_alpha > 0 ) {
             nonDiffPdf = (brdf->Ns + 1.0) * pow(cos_alpha,
@@ -548,7 +548,7 @@ phongBtdfEval(
     int IsReflection;
     XXDFFLAGS nonDiffuseFlag;
     Vector3D inrev;
-    VECTORSCALE(-1.0, *in, inrev);
+    vectorScale(-1.0, *in, inrev);
 
     /* Specular-like refraction can turn into reflection.
        So for refraction a complete sphere should be
@@ -564,7 +564,7 @@ phongBtdfEval(
 
         // Normal is pointing away from refracted direction
 
-        IsReflection = (VECTORDOTPRODUCT(*normal, *out) >= 0);
+        IsReflection = (vectorDotProduct(*normal, *out) >= 0);
 
         if ( !IsReflection ) {
             result = btdf->Kd;
@@ -584,7 +584,7 @@ phongBtdfEval(
         idealRefracted = idealRefractedDirection(&inrev, normal, inIndex,
                                                  outIndex, &totalIR);
 
-        dotProduct = VECTORDOTPRODUCT(idealRefracted, *out);
+        dotProduct = vectorDotProduct(idealRefracted, *out);
 
         if ( dotProduct > 0 ) {
             tmpFloat = (float) pow(dotProduct, btdf->Ns); // cos(a) ^ n
@@ -622,7 +622,7 @@ phongBtdfSample(
     float tmpFloat;
     XXDFFLAGS nonDiffuseFlag;
     Vector3D inrev;
-    VECTORSCALE(-1.0, *in, inrev);
+    vectorScale(-1.0, *in, inrev);
 
     *pdf = 0;
 
@@ -664,7 +664,7 @@ phongBtdfSample(
 
     idealDir = idealRefractedDirection(&inrev, normal, inIndex, outIndex,
                                        &totalIR);
-    VECTORSCALE(-1, *normal, invNormal);
+    vectorScale(-1, *normal, invNormal);
 
     if ( x_1 < (avgKd / scatteredPower)) {
         // Sample diffuse
@@ -674,7 +674,7 @@ phongBtdfSample(
 
         newDir = sampleHemisphereCosTheta(&coord, x_1, x_2, &diffPdf);
 
-        tmpFloat = VECTORDOTPRODUCT(idealDir, newDir);
+        tmpFloat = vectorDotProduct(idealDir, newDir);
 
         if ( tmpFloat > 0 ) {
             nonDiffPdf = (btdf->Ns + 1.0) * pow(tmpFloat,
@@ -690,7 +690,7 @@ phongBtdfSample(
         newDir = sampleHemisphereCosNTheta(&coord, btdf->Ns, x_1, x_2,
                                            &nonDiffPdf);
 
-        cos_theta = VECTORDOTPRODUCT(*normal, newDir);
+        cos_theta = vectorDotProduct(*normal, newDir);
         if ( cos_theta > 0 ) {
             diffPdf = cos_theta / M_PI;
         } else {
@@ -734,21 +734,21 @@ phongBtdfEvalPdf(
     int totalIR;
     Vector3D goodNormal;
     Vector3D inrev;
-    VECTORSCALE(-1.0, *in, inrev);
+    vectorScale(-1.0, *in, inrev);
 
     *pdf = 0;
     *pdfRR = 0;
 
     // Ensure 'in' on the same side as 'normal'!
 
-    cos_in = VECTORDOTPRODUCT(*in, *normal);
+    cos_in = vectorDotProduct(*in, *normal);
     if ( cos_in >= 0 ) {
-        VECTORCOPY(*normal, goodNormal);
+        vectorCopy(*normal, goodNormal);
     } else {
-        VECTORSCALE(-1, *normal, goodNormal);
+        vectorScale(-1, *normal, goodNormal);
     }
 
-    cos_theta = VECTORDOTPRODUCT(goodNormal, *out);
+    cos_theta = vectorDotProduct(goodNormal, *out);
 
     if ( flags & DIFFUSE_COMPONENT && (cos_theta < 0))  /* transmitted ray */
     {
@@ -793,7 +793,7 @@ phongBtdfEvalPdf(
                                                inIndex, &totalIR);
         }
 
-        cos_alpha = VECTORDOTPRODUCT(idealDir, *out);
+        cos_alpha = vectorDotProduct(idealDir, *out);
 
         nonDiffPdf = 0.0;
         if ( cos_alpha > 0 ) {

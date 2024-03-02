@@ -296,7 +296,7 @@ geomDiscretizationIntersect(
 
     if ( geometry->bounded ) {
         // Check ray/bounding volume intersection
-        VECTORSUMSCALED(ray->pos, minimumDistance, ray->dir, vTmp);
+        vectorSumScaled(ray->pos, minimumDistance, ray->dir, vTmp);
         if ( outOfBounds(&vTmp, geometry->bounds)) {
             nMaximumDistance = *maximumDistance;
             if ( !boundsIntersect(ray, geometry->bounds, minimumDistance, &nMaximumDistance)) {
