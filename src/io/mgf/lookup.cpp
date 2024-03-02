@@ -110,7 +110,9 @@ lookUpReAlloc(LUTAB *tbl, int nel) {
     return tbl->tsiz;
 }
 
-// find a table entry
+/**
+Find a table entry
+*/
 LUENT *
 lookUpFind(LUTAB *tbl, char *key)
 {
@@ -119,44 +121,44 @@ lookUpFind(LUTAB *tbl, char *key)
     int i, n;
     LUENT *le;
 
-    /* look up object */
+    // Look up object
     if ( tbl->tsiz <= 0 ) {
         lookUpInit(tbl, 1);
     }
 
     hval = (*tbl->hashf)(key);
 
-  tryagain:
-    ndx = hval % tbl->tsiz;
-    le = &tbl->tabl[ndx];
-    i = 0;
-    n = -1;
     do {
-        if ( le->key == nullptr) {
-            le->hval = hval;
-            return le;
-        }
-        if ( le->hval == hval &&
-             (tbl->keycmp == nullptr || (*tbl->keycmp)(le->key, key) == 0)) {
-            return le;
-        }
+        ndx = hval % tbl->tsiz;
+        le = &tbl->tabl[ndx];
+        i = 0;
+        n = -1;
+        do {
+            if ( le->key == nullptr ) {
+                le->hval = hval;
+                return le;
+            }
+            if ( le->hval == hval &&
+                 (tbl->keycmp == nullptr || (*tbl->keycmp)(le->key, key) == 0)) {
+                return le;
+            }
 
-        /* le = &tbl->tabl[(hval + (i*i)) % tbl->tsiz]; */
-        i++;
-        n += 2;
-        le += n;
-        if ((ndx += n) >= tbl->tsiz ) {    /* this happens rarely */
-            ndx = ndx % tbl->tsiz;
-            le = &tbl->tabl[ndx];
+            i++;
+            n += 2;
+            le += n;
+            if ( (ndx += n) >= tbl->tsiz ) {
+                // This happens rarely
+                ndx = ndx % tbl->tsiz;
+                le = &tbl->tabl[ndx];
+            }
         }
-    } while ( i < tbl->tsiz );
+        while ( i < tbl->tsiz );
 
-    if ( !lookUpReAlloc(tbl, tbl->tsiz - tbl->ndel + 1)) {
-        // table is full, reallocate
-        return nullptr;
-    }
-
-    goto tryagain; // should happen only once!
+        if ( !lookUpReAlloc(tbl, tbl->tsiz - tbl->ndel + 1)) {
+            // Table is full, reallocate
+            return nullptr;
+        }
+    } while ( true ); // Should happen only once!
 }
 
 /**

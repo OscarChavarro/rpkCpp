@@ -12,7 +12,10 @@ Routines for 4x4 homogeneous, rigid-body transformations
 
 #define d2r(a) ((M_PI/180.)*(a))
 
-#define checkarg(a, l) if ( av[i][(a)] || badarg(ac - i - 1, av + i + 1, (char *)(l))) goto done
+#define checkarg(a, l) if ( av[i][(a)] || badarg(ac - i - 1, av + i + 1, (char *)(l))) { \
+    finish(icnt, ret, xfmat, xfsca); \
+    return i; \
+}
 
 MAT4 GLOBAL_mgf_m4Ident = MAT4IDENT;
 
@@ -315,12 +318,26 @@ multp3(double *p3a, double *p3b, double (*m4)[4])        /* transform p3b by m4 
     p3a[2] += m4[3][2];
 }
 
+void
+finish(int icnt, XF *ret, MAT4 xfmat, double xfsca) {
+    while ( icnt-- > 0 ) {
+        multmat4(ret->xfm, ret->xfm, xfmat);
+        ret->sca *= xfsca;
+    }
+}
+
+/**
+Get transform specification
+*/
 int
-xf(XF *ret, int ac, char **av)            /* get transform specification */
+xf(XF *ret, int ac, char **av)
 {
-    MAT4 xfmat, m4;
-    double xfsca, dtmp;
-    int i, icnt;
+    MAT4 xfmat;
+    MAT4 m4;
+    double xfsca;
+    double dtmp;
+    int i;
+    int icnt;
 
     setident4(ret->xfm);
     ret->sca = 1.0;
@@ -330,19 +347,20 @@ xf(XF *ret, int ac, char **av)            /* get transform specification */
     xfsca = 1.0;
 
     for ( i = 0; i < ac && av[i][0] == '-'; i++ ) {
-
         setident4(m4);
 
         switch ( av[i][1] ) {
 
-            case 't':            /* translate */
+            case 't':
+                // Translate
                 checkarg(2, "fff");
                 m4[3][0] = atof(av[++i]);
                 m4[3][1] = atof(av[++i]);
                 m4[3][2] = atof(av[++i]);
                 break;
 
-            case 'r':            /* rotate */
+            case 'r':
+                // Rotate
                 switch ( av[i][2] ) {
                     case 'x':
                         checkarg(3, "f");
@@ -363,13 +381,21 @@ xf(XF *ret, int ac, char **av)            /* get transform specification */
                         m4[1][0] = -(m4[0][1] = sin(dtmp));
                         break;
                     default: {
-                        float x, y, z, a, c, s, t, A, B;
+                        float x;
+                        float y;
+                        float z;
+                        float a;
+                        float c;
+                        float s;
+                        float t;
+                        float A;
+                        float B;
                         checkarg(2, "ffff");
                         x = atof(av[++i]);
                         y = atof(av[++i]);
                         z = atof(av[++i]);
                         a = d2r(atof(av[++i]));
-                        s = sqrt(x * x + y * y + z * z);
+                        s = std::sqrt(x * x + y * y + z * z);
                         x /= s;
                         y /= s;
                         z /= s;
@@ -395,13 +421,15 @@ xf(XF *ret, int ac, char **av)            /* get transform specification */
                 }
                 break;
 
-            case 's':            /* scale */
+            case 's':
+                // Scale
                 switch ( av[i][2] ) {
                     case 'x':
                         checkarg(3, "f");
                         dtmp = atof(av[i + 1]);
                         if ( dtmp == 0.0 ) {
-                            goto done;
+                            finish(icnt, ret, xfmat, xfsca);
+                            return i;
                         }
                         m4[0][0] = dtmp;
                         break;
@@ -409,7 +437,8 @@ xf(XF *ret, int ac, char **av)            /* get transform specification */
                         checkarg(3, "f");
                         dtmp = atof(av[i + 1]);
                         if ( dtmp == 0.0 ) {
-                            goto done;
+                            finish(icnt, ret, xfmat, xfsca);
+                            return i;
                         }
                         m4[1][1] = dtmp;
                         break;
@@ -417,7 +446,8 @@ xf(XF *ret, int ac, char **av)            /* get transform specification */
                         checkarg(3, "f");
                         dtmp = atof(av[i + 1]);
                         if ( dtmp == 0.0 ) {
-                            goto done;
+                            finish(icnt, ret, xfmat, xfsca);
+                            return i;
                         }
                         m4[2][2] = dtmp;
                         break;
@@ -425,7 +455,8 @@ xf(XF *ret, int ac, char **av)            /* get transform specification */
                         checkarg(2, "f");
                         dtmp = atof(av[i + 1]);
                         if ( dtmp == 0.0 ) {
-                            goto done;
+                            finish(icnt, ret, xfmat, xfsca);
+                            return i;
                         }
                         xfsca *=
                         m4[0][0] =
@@ -436,7 +467,8 @@ xf(XF *ret, int ac, char **av)            /* get transform specification */
                 i++;
                 break;
 
-            case 'm':            /* mirror */
+            case 'm':
+                // Mirror
                 switch ( av[i][2] ) {
                     case 'x':
                         checkarg(3, "");
@@ -454,11 +486,13 @@ xf(XF *ret, int ac, char **av)            /* get transform specification */
                         m4[2][2] = -1.0;
                         break;
                     default:
-                        goto done;
+                        finish(icnt, ret, xfmat, xfsca);
+                        return i;
                 }
                 break;
 
-            case 'i':            /* iterate */
+            case 'i':
+                // Iterate
                 checkarg(2, "i");
                 while ( icnt-- > 0 ) {
                     multmat4(ret->xfm, ret->xfm, xfmat);
@@ -470,15 +504,13 @@ xf(XF *ret, int ac, char **av)            /* get transform specification */
                 continue;
 
             default:
-                goto done;
+                finish(icnt, ret, xfmat, xfsca);
+                return i;
 
         }
         multmat4(xfmat, xfmat, m4);
     }
-    done:
-    while ( icnt-- > 0 ) {
-        multmat4(ret->xfm, ret->xfm, xfmat);
-        ret->sca *= xfsca;
-    }
+
+    finish(icnt, ret, xfmat, xfsca);
     return i;
 }
