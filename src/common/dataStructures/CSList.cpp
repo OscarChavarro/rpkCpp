@@ -1,6 +1,6 @@
 #include "common/dataStructures/CSList.h"
 
-CISLink *CSList_Base::Remove() {
+CISLink *CircularListBase::Remove() {
     // Remove first element and return it
 
     if ( m_Last == nullptr ) {

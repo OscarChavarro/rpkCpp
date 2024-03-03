@@ -31,14 +31,14 @@ CLightList::CLightList(java::ArrayList<Patch *> *list, bool includeVirtualPatche
 
                 totalFlux += info.emittedFlux;
                 lightCount++;
-                Append(info);
+                append(info);
             }
         }
     }
 }
 
 CLightList::~CLightList() {
-    RemoveAll();
+    removeAll();
 }
 
 /**

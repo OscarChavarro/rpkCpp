@@ -97,7 +97,7 @@ KDTree::~KDTree() {
 }
 
 /**
-Add a point in the kd tree, this is always to the unbalanced part
+add a point in the kd tree, this is always to the unbalanced part
 */
 void
 KDTree::addPoint(void *data, short flags = 0) {

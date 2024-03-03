@@ -116,7 +116,7 @@ stochasticJacobiProbability(StochasticRadiosityElement *elem) {
 }
 
 /**
-Clear accumulators of all kinds of sample weights and contributions
+clear accumulators of all kinds of sample weights and contributions
 */
 static void
 stochasticJacobiElementClearAccumulators(StochasticRadiosityElement *elem) {

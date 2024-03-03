@@ -1,19 +1,16 @@
-/* CSList.H : C++ template for single linked lists 
- *
- * Implementation is based on Stroustrup 'The C++ Prog Language'
- * Section 8.3
- *
- * Intrusive (Data contains next field) and Non-intrusive lists
- * are possible. Iterators are available.
- */
+/**
+Implementation is based on Stroustrup 'The C++ Prog Language'
+Section 8.3
 
-#ifndef _CSLIST_H_
-#define _CSLIST_H_
+Intrusive (Data contains next field) and Non-intrusive lists
+are possible. Iterators are available.
+*/
+
+#ifndef __CSLIST__
+#define __CSLIST__
 
 #include <cstdlib>
 #include <cstdio>
-
-/*** Forward declarations ***/
 
 class CSList_Base_Iter;
 
@@ -23,63 +20,40 @@ class CISList_Iter;
 template<class T>
 class CTSList_Iter;
 
-
-/*** Definition of the links in the lists ***/
-
 class CISLink {
   public:
     CISLink *m_Next;
 
-    /*** Methods ***/
-
     CISLink() { m_Next = nullptr; }
-
     CISLink(CISLink *p) { m_Next = p; }
 };
-
-
-/* Class for a link in the non-intrusive list */
 
 template<class T>
 class CTSLink : public CISLink {
 public:
     T m_Data;
-
-    /*** Methods ***/
-
-    /* Use initialiser to avoid default construction & assignment */
     CTSLink(const T &data) : m_Data(data) {}
 };
 
 
-/*** Definition of the base list class ***/
-
-/* This class must not be used directly !
- * Use derived classes CSList and CTSList instead
- *
- * Implementation uses a circular list
- */
-
-class CSList_Base {
-private:
-
-    /* Pointer to last element in the (circular) list */
+class CircularListBase {
+  private:
     CISLink *m_Last;
 
     /*** Methods ***/
 
 public:
-    void Add(CISLink *link);
+    void add(CISLink *data);
     void Append(CISLink *link);
     CISLink *Remove();
-    void Clear() { m_Last = nullptr; }
-    CSList_Base() { m_Last = nullptr; }
+    void clear() { m_Last = nullptr; }
+    CircularListBase() { m_Last = nullptr; }
     friend class CSList_Base_Iter;
 };
 
 /* Implementation of base functions */
 inline void
-CSList_Base::Add(CISLink *data) {
+CircularListBase::add(CISLink *data) {
     // Add an element to the head of the list
 
     if ( m_Last != nullptr ) {
@@ -93,7 +67,7 @@ CSList_Base::Add(CISLink *data) {
 }
 
 inline void
-CSList_Base::Append(CISLink *data) {
+CircularListBase::Append(CISLink *data) {
     if ( m_Last != nullptr ) {
         data->m_Next = m_Last->m_Next;
         m_Last = m_Last->m_Next = data;
@@ -104,41 +78,41 @@ CSList_Base::Append(CISLink *data) {
 
 /*** Definition & Implementation of an intrusive list ***/
 template<class T>
-class CISList : private CSList_Base {
+class CircularList : private CircularListBase {
 public:
-    void Add(T *data) { CSList_Base::Add(data); }
-    void Clear() { CSList_Base::Clear(); }
+    void add(T *data) { CircularListBase::add(data); }
+    void clear() { CircularListBase::clear(); }
     friend class CISList_Iter<T>;
 };
 
 /*** Definition & Implementation of a non-intrusive list ***/
 template<class T>
-class CTSList : protected CSList_Base {
-public:
-    void Add(const T &data);
-    void Append(const T &data);
-    void RemoveAll();
-    void Clear() { CSList_Base::Clear(); }
+class CTSList : protected CircularListBase {
+  public:
+    void add(const T &data);
+    void append(const T &data);
+    void removeAll();
+    void clear() { CircularListBase::clear(); }
     friend class CTSList_Iter<T>;
 };
 
 template<class T>
-inline void CTSList<T>::Add(const T &data) {
-    CSList_Base::Add(new CTSLink<T>(data));
+inline void CTSList<T>::add(const T &data) {
+    CircularListBase::add(new CTSLink<T>(data));
 }
 
 template<class T>
-inline void CTSList<T>::Append(const T &data) {
-    CSList_Base::Append(new CTSLink<T>(data));
+inline void CTSList<T>::append(const T &data) {
+    CircularListBase::Append(new CTSLink<T>(data));
 }
 
 template<class T>
-inline void CTSList<T>::RemoveAll() {
-    CTSLink<T> *link = (CTSLink<T> *) CSList_Base::Remove();
+inline void CTSList<T>::removeAll() {
+    CTSLink<T> *link = (CTSLink<T> *) CircularListBase::Remove();
 
     while ( link != nullptr ) {
         delete link;
-        link = (CTSLink<T> *) CSList_Base::Remove();
+        link = (CTSLink<T> *) CircularListBase::Remove();
     }
 }
 
@@ -148,19 +122,19 @@ inline void CTSList<T>::RemoveAll() {
 class CSList_Base_Iter {
 private:
     CISLink *m_CurrentElement;
-    CSList_Base *m_CurrentList;
+    CircularListBase *m_CurrentList;
 public:
-    inline CSList_Base_Iter(CSList_Base &list);
+    inline CSList_Base_Iter(CircularListBase &list);
     inline CISLink *Next();
-    inline void Init(CSList_Base &list);
+    inline void Init(CircularListBase &list);
 };
 
-inline void CSList_Base_Iter::Init(CSList_Base &list) {
+inline void CSList_Base_Iter::Init(CircularListBase &list) {
     m_CurrentList = &list;
     m_CurrentElement = m_CurrentList->m_Last;
 }
 
-inline CSList_Base_Iter::CSList_Base_Iter(CSList_Base &list) {
+inline CSList_Base_Iter::CSList_Base_Iter(CircularListBase &list) {
     Init(list);
 }
 
@@ -180,7 +154,7 @@ template<class T>
 class CISList_Iter : private CSList_Base_Iter {
 public:
     T *Next() { return (T *) CSList_Base_Iter::Next(); }
-    void Init(CISList<T> &list) { CSList_Base_Iter::Init(list); }
+    void Init(CircularList<T> &list) { CSList_Base_Iter::Init(list); }
 };
 
 /* For the non-intrusive list */

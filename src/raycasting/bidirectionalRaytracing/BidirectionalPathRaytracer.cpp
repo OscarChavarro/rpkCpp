@@ -1047,8 +1047,8 @@ biDirPathTrace(ImageOutputHandle *ip, java::ArrayList<Patch *> * /*scenePatches*
         leSpar->init(sc);
         ldSpar->init(sc);
 
-        config.sparList->Add(leSpar);
-        config.sparList->Add(ldSpar);
+        config.sparList->add(leSpar);
+        config.sparList->add(ldSpar);
     }
 
     if ( GLOBAL_rayTracing_biDirectionalPath.saveSubsequentImages ) {

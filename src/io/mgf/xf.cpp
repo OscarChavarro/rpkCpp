@@ -15,7 +15,7 @@ char **GLOBAL_mgf_xfLastTransform; // End of transform argument list
 Transform vector v3b by m4 and put into v3a
 */
 static void
-multv3(double *v3a, double *v3b, double (*m4)[4])
+multv3(double *v3a, const double *v3b, double (*m4)[4])
 {
     globalM4Tmp[0][0] = v3b[0] * m4[0][0] + v3b[1] * m4[1][0] + v3b[2] * m4[2][0];
     globalM4Tmp[0][1] = v3b[0] * m4[0][1] + v3b[1] * m4[1][1] + v3b[2] * m4[2][1];
@@ -164,7 +164,7 @@ new_xf(int ac, char **av)
             ndim++;
             i++;
         } else {
-            n += strlen(av[i]) + 1;
+            n += (int)strlen(av[i]) + 1;
         }
     }
     if ( ndim > XF_MAXDIM ) {
@@ -184,7 +184,7 @@ new_xf(int ac, char **av)
     } else {
         spec->xarr = nullptr;
     }
-    spec->xac = ac + xf_argc;
+    spec->xac = (short)(ac + xf_argc);
 
     // And store new xf arguments
     if ( globalTransformArgumentListBeginning == nullptr || xf_av(spec) < globalTransformArgumentListBeginning ) {
@@ -212,7 +212,7 @@ new_xf(int ac, char **av)
                     spec->xarr->aarg[spec->xarr->ndim].arg,
                     "0");
             spec->xarr->aarg[spec->xarr->ndim].i = 0;
-            spec->xarr->aarg[spec->xarr->ndim++].n = atoi(av[i]);
+            spec->xarr->aarg[spec->xarr->ndim++].n = (short)strtol(av[i], nullptr, 10);
         } else {
             xf_av(spec)[i] = strcpy(cp, av[i]);
             cp += strlen(av[i]) + 1;
@@ -339,7 +339,7 @@ xf(XF *ret, int ac, char **av)
                         x = strtof(av[++i], nullptr);
                         y = strtof(av[++i], nullptr);
                         z = strtof(av[++i], nullptr);
-                        a = d2r(strtod(av[++i], nullptr));
+                        a = (float)d2r(strtod(av[++i], nullptr));
                         s = std::sqrt(x * x + y * y + z * z);
                         x /= s;
                         y /= s;
@@ -467,7 +467,7 @@ xf(XF *ret, int ac, char **av)
                     multmat4(ret->xfm, ret->xfm, xfmat);
                     ret->sca *= xfsca;
                 }
-                icnt = atoi(av[++i]);
+                icnt = (int)strtol(av[++i], nullptr, 10);
                 setident4(xfmat);
                 xfsca = 1.0;
                 continue;
@@ -556,7 +556,8 @@ handleTransformationEntity(int ac, char **av) {
     if ( spec->prev != nullptr) {
         multmat4(spec->xf.xfm, spec->xf.xfm, spec->prev->xf.xfm);
         spec->xf.sca *= spec->prev->xf.sca;
-        spec->rev ^= spec->prev->rev;
+        // spec->rev ^= spec->prev->rev;
+        spec->rev = static_cast<short>(spec->rev ^ spec->prev->rev);
     }
     spec->xid = comp_xfid(spec->xf.xfm); // Compute unique ID
     return MGF_OK;

@@ -240,7 +240,7 @@ CChainList::CChainList() {
 }
 
 CChainList::~CChainList() {
-    RemoveAll();
+    removeAll();
 }
 
 void CChainList::Add(CChainList *list) {
@@ -250,7 +250,7 @@ void CChainList::Add(CChainList *list) {
     CFlagChain *tmpChain;
 
     while ((tmpChain = iter.Next())) {
-        Add(*tmpChain);
+        add(*tmpChain);
     }
 }
 
@@ -266,7 +266,7 @@ void CChainList::Add(const CFlagChain &chain) {
     }
 
     m_count++;
-    Append(chain);
+    append(chain);
 }
 
 void CChainList::AddDisjunct(const CFlagChain &chain) {
@@ -291,7 +291,7 @@ void CChainList::AddDisjunct(const CFlagChain &chain) {
 
     if ( !found ) {
         m_count++;
-        Append(chain);
+        append(chain);
     }
 }
 
@@ -341,13 +341,13 @@ CChainList *CChainList::Simplify() {
             if ( ccomb ) {
                 c1 = ccomb; // Combined
             } else {
-                newList->Add(*c1);
+                newList->add(*c1);
                 c1 = c2;
             }
         }
 
         // Add final chain still in c1
-        newList->Add(*c1);
+        newList->add(*c1);
     }
 
     return newList;

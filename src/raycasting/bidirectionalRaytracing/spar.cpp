@@ -17,7 +17,7 @@ void
 CSpar::init(CSparConfig *config) {
     for ( int i = 0; i < MAXPATHGROUPS; i++ ) {
         m_contrib[i].Init(config->m_bcfg->maximumPathDepth);
-        m_sparList[i].RemoveAll();
+        m_sparList[i].removeAll();
     }
 }
 
@@ -67,7 +67,7 @@ CLeSpar::init(CSparConfig *sconfig) {
 
     if ( sconfig->m_bcfg->doWeighted ) {
         parseAndInit(LDGROUP, sconfig->m_bcfg->wleRegExp);
-        m_sparList[LDGROUP].Add(sconfig->m_ldSpar);
+        m_sparList[LDGROUP].add(sconfig->m_ldSpar);
     }
 }
 
@@ -90,7 +90,7 @@ CLDSpar::init(CSparConfig *sconfig) {
 
     if ( sconfig->m_bcfg->doWeighted ) {
         parseAndInit(LDGROUP, sconfig->m_bcfg->wldRegExp);
-        m_sparList[LDGROUP].Add(sconfig->m_leSpar);
+        m_sparList[LDGROUP].add(sconfig->m_leSpar);
     }
 }
 
