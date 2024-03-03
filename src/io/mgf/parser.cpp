@@ -13,27 +13,27 @@ Parse an mgf file, converting or discarding unsupported entities.
 /*
  * Global definitions of variables declared in parser.h
  */
-/* entity names */
 
+// Entity names
 char GLOBAL_mgf_entityNames[MGF_TOTAL_NUMBER_OF_ENTITIES][MGF_MAXIMUM_ENTITY_NAME_LENGTH] = MG_NAMELIST;
 
-/* Handler routines for each entity */
-
+// Handler routines for each entity
 int (*GLOBAL_mgf_handleCallbacks[MGF_TOTAL_NUMBER_OF_ENTITIES])(int argc, char **argv);
 
-/* Handler routine for unknown entities */
-
+// Handler routine for unknown entities
 int (*GLOBAL_mgf_unknownEntityHandleCallback)(int argc, char **argv) = mgfDefaultHandlerForUnknownEntities;
 
-unsigned GLOBAL_mgf_unknownEntitiesCounter;    /* count of unknown entities */
+// Count of unknown entities
+unsigned GLOBAL_mgf_unknownEntitiesCounter;
 
-/* error messages */
-
+// Error messages
 char *GLOBAL_mgf_errors[MGF_NUMBER_OF_ERRORS] = MG_ERROR_LIST;
 
-MgfReaderContext *GLOBAL_mgf_file;    /* current file context pointer */
+// Current file context pointer
+MgfReaderContext *GLOBAL_mgf_file;
 
-int GLOBAL_mgf_divisionsPerQuarterCircle = MGF_DEFAULT_NUMBER_OF_DIVISIONS;    /* number of divisions per quarter circle */
+// Number of divisions per quarter circle
+int GLOBAL_mgf_divisionsPerQuarterCircle = MGF_DEFAULT_NUMBER_OF_DIVISIONS;
 
 /**
 The idea with this parser is to compensate for any missing entries in
@@ -60,7 +60,7 @@ static int warpconends; // Hack for generating good normals
 Discard unneeded/unwanted entity
 */
 static int
-discardUnneededEntity(int /*ac*/, char ** /*av*/) {
+mgfDiscardUnNeededEntity(int /*ac*/, char ** /*av*/) {
     return MGF_OK;
 }
 
@@ -68,7 +68,7 @@ discardUnneededEntity(int /*ac*/, char ** /*av*/) {
 Compute u and v given w (normalized)
 */
 static void
-make_axes(double *u, double *v, double *w)
+mgfMakeAxes(double *u, double *v, double *w)
 {
     int i;
 
@@ -88,7 +88,7 @@ make_axes(double *u, double *v, double *w)
 Put out current xy chromaticities
 */
 static int
-put_cxy()
+mgfPutCxy()
 {
     static char xbuf[24];
     static char ybuf[24];
@@ -103,7 +103,7 @@ put_cxy()
 Put out current color spectrum
 */
 static int
-put_cspec()
+mgfPutCSpec()
 {
     char wl[2][6];
     char vbuf[C_CNSS][24];
@@ -134,12 +134,12 @@ put_cspec()
 Handle spectral color
 */
 static int
-e_cspec(int /*ac*/, char ** /*av*/) {
-    /* convert to xy chromaticity */
+mgfECSpec(int /*ac*/, char ** /*av*/) {
+    // Convert to xy chromaticity
     mgfContextFixColorRepresentation(GLOBAL_mgf_currentColor, C_CSXY);
-    /* if it's really their handler, use it */
+    // If it's really their handler, use it
     if ( GLOBAL_mgf_handleCallbacks[MG_E_CXY] != handleColorEntity ) {
-        return put_cxy();
+        return mgfPutCxy();
     }
     return MGF_OK;
 }
@@ -154,14 +154,14 @@ Contorted logic works as follows:
 5. if we have only xy results, handle it as c_spec() would
 */
 static int
-e_cmix(int /*ac*/, char ** /*av*/) {
-    if ( GLOBAL_mgf_handleCallbacks[MG_E_CSPEC] == e_cspec ) {
+mgfECmix(int /*ac*/, char ** /*av*/) {
+    if ( GLOBAL_mgf_handleCallbacks[MG_E_CSPEC] == mgfECSpec ) {
         mgfContextFixColorRepresentation(GLOBAL_mgf_currentColor, C_CSXY);
     } else if ( GLOBAL_mgf_currentColor->flags & C_CDSPEC ) {
-        return put_cspec();
+        return mgfPutCSpec();
     }
     if ( GLOBAL_mgf_handleCallbacks[MG_E_CXY] != handleColorEntity ) {
-        return put_cxy();
+        return mgfPutCxy();
     }
     return MGF_OK;
 }
@@ -170,7 +170,7 @@ e_cmix(int /*ac*/, char ** /*av*/) {
 Handle color temperature
 */
 static int
-e_cct(int /*ac*/, char ** /*av*/)
+mgfColorTemperature(int /*ac*/, char ** /*av*/)
 {
     /*
      * Logic is similar to e_cmix here.  Support handler has already
@@ -178,12 +178,12 @@ e_cct(int /*ac*/, char ** /*av*/)
      * if they support it, otherwise convert to xy chromaticity and
      * put it out if they handle it.
      */
-    if ( GLOBAL_mgf_handleCallbacks[MG_E_CSPEC] != e_cspec ) {
-        return put_cspec();
+    if ( GLOBAL_mgf_handleCallbacks[MG_E_CSPEC] != mgfECSpec ) {
+        return mgfPutCSpec();
     }
     mgfContextFixColorRepresentation(GLOBAL_mgf_currentColor, C_CSXY);
     if ( GLOBAL_mgf_handleCallbacks[MG_E_CXY] != handleColorEntity ) {
-        return put_cxy();
+        return mgfPutCxy();
     }
     return MGF_OK;
 }
@@ -199,7 +199,7 @@ mgfAlternativeInit(int (*handleCallbacks[MGF_TOTAL_NUMBER_OF_ENTITIES])(int, cha
 
     // Pick up slack
     if ( handleCallbacks[MG_E_IES] == nullptr) {
-        handleCallbacks[MG_E_IES] = discardUnneededEntity;
+        handleCallbacks[MG_E_IES] = mgfDiscardUnNeededEntity;
     }
     if ( handleCallbacks[MG_E_INCLUDE] == nullptr) {
         handleCallbacks[MG_E_INCLUDE] = handleIncludedFile;
@@ -247,15 +247,15 @@ mgfAlternativeInit(int (*handleCallbacks[MGF_TOTAL_NUMBER_OF_ENTITIES])(int, cha
     }
     if ( handleCallbacks[MG_E_COLOR] != nullptr) {
         if ( handleCallbacks[MG_E_CMIX] == nullptr) {
-            handleCallbacks[MG_E_CMIX] = e_cmix;
+            handleCallbacks[MG_E_CMIX] = mgfECmix;
             ineed |= 1L << MG_E_COLOR | 1L << MG_E_CXY | 1L << MG_E_CSPEC | 1L << MG_E_CMIX | 1L << MG_E_CCT;
         }
         if ( handleCallbacks[MG_E_CSPEC] == nullptr) {
-            handleCallbacks[MG_E_CSPEC] = e_cspec;
+            handleCallbacks[MG_E_CSPEC] = mgfECSpec;
             ineed |= 1L << MG_E_COLOR | 1L << MG_E_CXY | 1L << MG_E_CSPEC | 1L << MG_E_CMIX | 1L << MG_E_CCT;
         }
         if ( handleCallbacks[MG_E_CCT] == nullptr) {
-            handleCallbacks[MG_E_CCT] = e_cct;
+            handleCallbacks[MG_E_CCT] = mgfColorTemperature;
             ineed |= 1L << MG_E_COLOR | 1L << MG_E_CXY | 1L << MG_E_CSPEC | 1L << MG_E_CMIX | 1L << MG_E_CCT;
         }
     }
@@ -313,7 +313,7 @@ mgfAlternativeInit(int (*handleCallbacks[MGF_TOTAL_NUMBER_OF_ENTITIES])(int, cha
     // Discard remaining entities
     for ( i = 0; i < MGF_TOTAL_NUMBER_OF_ENTITIES; i++ ) {
         if ( handleCallbacks[i] == nullptr) {
-            handleCallbacks[i] = discardUnneededEntity;
+            handleCallbacks[i] = mgfDiscardUnNeededEntity;
         }
     }
 }
@@ -401,7 +401,7 @@ mgfOpen(MgfReaderContext *ctx, char *fn)
         return MGF_ERROR_CAN_NOT_OPEN_INPUT_FILE;
     }
 
-    ctx->prev = GLOBAL_mgf_file;        /* establish new context */
+    ctx->prev = GLOBAL_mgf_file; // Establish new context
     GLOBAL_mgf_file = ctx;
     return MGF_OK;
 }
@@ -414,8 +414,9 @@ mgfClose()
 {
     MgfReaderContext *ctx = GLOBAL_mgf_file;
 
-    GLOBAL_mgf_file = ctx->prev;        /* restore enclosing context */
-    if ( ctx->fp != stdin ) {        /* close file if it's a file */
+    GLOBAL_mgf_file = ctx->prev; // Restore enclosing context
+    if ( ctx->fp != stdin ) {
+        // Close file if it's a file
         closeFile(ctx->fp, ctx->isPipe);
     }
 }
@@ -484,20 +485,22 @@ mgfParseCurrentLine()
 {
     char abuf[MGF_MAXIMUM_INPUT_LINE_LENGTH];
     char *argv[MGF_MAXIMUM_ARGUMENT_COUNT];
-    /*	int	en; */
-    char *cp, *cp2, **ap;
-    /* copy line, removing escape chars */
+    char *cp;
+    char *cp2;
+    char **ap;
+
+    // Copy line, removing escape chars
     cp = abuf;
     cp2 = GLOBAL_mgf_file->inputLine;
-    while ((*cp++ = *cp2++)) {
+    while ( (*cp++ = *cp2++) ) {
         if ( cp2[0] == '\n' && cp2[-1] == '\\' ) {
             cp--;
         }
     }
     cp = abuf;
-    ap = argv;        /* break into words */
+    ap = argv; // Break into words
     for ( ;; ) {
-        while ( isspace(*cp)) {
+        while ( isspace(*cp) ) {
             *cp++ = '\0';
         }
         if ( !*cp ) {
@@ -507,14 +510,14 @@ mgfParseCurrentLine()
             return MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
         }
         *ap++ = cp;
-        while ( *++cp && !isspace(*cp)) {
-        }
+        while ( *++cp && !isspace(*cp) );
     }
     if ( ap == argv ) {
+        // No words in line
         return MGF_OK;
-    }        /* no words in line */
+    }
     *ap = nullptr;
-    /* else handle it */
+    // Else handle it
     return mgfHandle(-1, (int)(ap - argv), argv);
 }
 
@@ -538,15 +541,12 @@ Clear parser history
 void
 mgfClear()
 {
-    clearContextTables();            /* clear context tables */
-    while ( GLOBAL_mgf_file != nullptr) {        /* reset our file context */
+    clearContextTables(); // Clear context tables
+    while ( GLOBAL_mgf_file != nullptr) {
+        // Reset our file context
         mgfClose();
     }
 }
-
-/**
-The following routines handle unsupported entities
-*/
 
 int
 handleIncludedFile(int ac, char **av)
@@ -578,14 +578,16 @@ handleIncludedFile(int ac, char **av)
         }
     }
     do {
-        while ((rv = mgfReadNextLine()) > 0 ) {
+        rv = mgfReadNextLine();
+        while ( rv > 0 ) {
             if ( rv >= MGF_MAXIMUM_INPUT_LINE_LENGTH - 1 ) {
                 fprintf(stderr, "%s: %d: %s\n", ictx.fileName,
                         ictx.lineNumber, GLOBAL_mgf_errors[MGF_ERROR_LINE_TOO_LONG]);
                 mgfClose();
                 return MGF_ERROR_IN_INCLUDED_FILE;
             }
-            if ((rv = mgfParseCurrentLine()) != MGF_OK ) {
+            rv = mgfParseCurrentLine();
+            if ( rv != MGF_OK ) {
                 fprintf(stderr, "%s: %d: %s:\n%s", ictx.fileName,
                         ictx.lineNumber, GLOBAL_mgf_errors[rv],
                         ictx.inputLine);
@@ -594,7 +596,8 @@ handleIncludedFile(int ac, char **av)
             }
         }
         if ( ac > 2 ) {
-            if ((rv = mgfHandle(MG_E_XF, 1, xfarg)) != MGF_OK ) {
+            rv = mgfHandle(MG_E_XF, 1, xfarg);
+            if ( rv != MGF_OK ) {
                 mgfClose();
                 return rv;
             }
@@ -604,15 +607,20 @@ handleIncludedFile(int ac, char **av)
     return MGF_OK;
 }
 
+/**
+Replace face+holes with single contour
+*/
 int
-mgfEntityFaceWithHoles(int ac, char **av)            /* replace face+holes with single contour */
+mgfEntityFaceWithHoles(int ac, char **av)
 {
     char *newav[MGF_MAXIMUM_ARGUMENT_COUNT];
     int lastp = 0;
-    int i, j;
 
     newav[0] = GLOBAL_mgf_entityNames[MG_E_FACE];
+    int i;
     for ( i = 1; i < ac; i++ ) {
+        int j;
+
         if ( av[i][0] == '-' ) {
             if ( i < 4 ) {
                 return MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
@@ -628,14 +636,16 @@ mgfEntityFaceWithHoles(int ac, char **av)            /* replace face+holes with 
             if ( j - i < 3 ) {
                 return MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
             }
-            newav[i] = av[j];    /* connect hole loop */
+            newav[i] = av[j]; // Connect hole loop
         } else {
+            // Hole or perimeter vertex
             newav[i] = av[i];
         }
-    }    /* hole or perimeter vertex */
+    }
     if ( lastp ) {
+        // Finish seam to outside
         newav[i++] = av[lastp];
-    }        /* finish seam to outside */
+    }
     newav[i] = nullptr;
     return mgfHandle(MG_E_FACE, i, newav);
 }
@@ -664,17 +674,19 @@ mgfEntitySphere(int ac, char **av)
     if ( ac != 3 ) {
         return MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
     }
-    if ((cv = getNamedVertex(av[1])) == nullptr) {
+    cv = getNamedVertex(av[1]);
+    if ( cv == nullptr ) {
         return MGF_ERROR_UNDEFINED_REFERENCE;
     }
-    if ( !isFloatWords(av[2])) {
+    if ( !isFloatWords(av[2]) ) {
         return MGF_ERROR_ARGUMENT_TYPE;
     }
     rad = atof(av[2]);
 
     // Initialize
     warpconends = 1;
-    if ((rval = mgfHandle(MG_E_VERTEX, 3, v2ent)) != MGF_OK ) {
+    rval = mgfHandle(MG_E_VERTEX, 3, v2ent);
+    if ( rval != MGF_OK ) {
         return rval;
     }
     snprintf(p2x, 24, globalFloatFormat, cv->p[0]);
@@ -899,7 +911,7 @@ mgfEntityRing(int ac, char **av)
     }
 
     // Initialize
-    make_axes(u, v, cv->n);
+    mgfMakeAxes(u, v, cv->n);
     for ( j = 0; j < 3; j++ ) {
         snprintf(p3[j], 24, globalFloatFormat, cv->p[j] + maxRad * u[j]);
     }
@@ -1094,7 +1106,7 @@ mgfEntityCone(int ac, char **av)
             n2off = std::tan(d);
         }
     }
-    make_axes(u, v, w);
+    mgfMakeAxes(u, v, w);
     for ( j = 0; j < 3; j++ ) {
         snprintf(p3[j], 24, globalFloatFormat, cv2->p[j] + rad2 * u[j]);
         if ( n2off <= -FLOAT_HUGE) {
@@ -1365,6 +1377,7 @@ mgfEntityPrism(int ac, char **av)
     if ( rv != MGF_OK ) {
         return rv;
     }
+
     // Do bottom face
     if ( hasnorm != 0 ) {
         for ( i = 1; i < ac - 1; i++ ) {
