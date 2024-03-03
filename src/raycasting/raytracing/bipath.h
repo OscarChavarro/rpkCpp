@@ -43,11 +43,9 @@ public:
 
     // Evaluate weight/pdf for a bipath, taking into account other pdf's
     // depending on the config (bcfg).
-    double EvalPDFAndWeight(BP_BASECONFIG *bcfg, double *pPdf = nullptr,
-                            double *pWeight = nullptr);
+    float EvalPDFAndWeight(BP_BASECONFIG *bcfg, float *pPdf = nullptr,
+                            float *pWeight = nullptr);
 
-    // Product of geom factors
-    double ComputeTotalGeomFactor();
 };
 
-#endif /* _BIPATH_H_ */
+#endif

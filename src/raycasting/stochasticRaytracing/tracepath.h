@@ -10,21 +10,26 @@ Random walk generation
 /**
 Path node: contains all necessary data for computing the score afterwards
 */
-class PATHNODE {
+class PathNode {
   public:
     Patch *patch;
     double probability;
-    Vector3D inpoint, outpoint;
+    Vector3D inPoint;
+    Vector3D outpoint;
+
+    PathNode();
 };
 
 /**
-A full path, basically an array of 'numberOfNodes' PATHNODEs
+A full path, basically an array of 'numberOfNodes' path nodes
 */
 class PATH {
   public:
-    int nrnodes;
-    int nodesalloced;
-    PATHNODE *nodes;
+    int numberOfNodes;
+    int nodesAllocated;
+    PathNode *nodes;
+
+    PATH(): numberOfNodes(), nodesAllocated(), nodes() {}
 };
 
 extern void

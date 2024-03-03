@@ -200,7 +200,7 @@ stochasticRelaxationRadiosityElementUnShotImportance(StochasticRadiosityElement 
 }
 
 static void
-stochasticRelaxationRadiosityElementIncrementImportance(StochasticRadiosityElement *elem, double w) {
+stochasticRelaxationRadiosityElementIncrementImportance(StochasticRadiosityElement *elem, double /*w*/) {
     elem->imp += elem->received_imp;
     elem->unShotImp = elem->received_imp;
     elem->received_imp = 0.;
@@ -236,7 +236,7 @@ stochasticRelaxationRadiosityDoIncrementalImportanceIterations(java::ArrayList<P
         // proportional to the number of basis functions in the rad. approx. */
         double unshot_fraction = GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotYmp / GLOBAL_stochasticRaytracing_monteCarloRadiosityState.sourceYmp;
         long nr_rays = stochasticRelaxationRadiosityRandomRound(
-                unshot_fraction * (double) GLOBAL_stochasticRaytracing_monteCarloRadiosityState.initialNumberOfRays);
+                (float)unshot_fraction * (float) GLOBAL_stochasticRaytracing_monteCarloRadiosityState.initialNumberOfRays);
         if ( unshot_fraction < 0.01 ) {
             break;
         }
@@ -281,15 +281,15 @@ stochasticRelaxationRadiosityElementUpdateRadiance(StochasticRadiosityElement *e
             // Quality of new solution is so high that it must take over
             k = 0.0;
         }
-        elem->quality += quality; // Add quality
+        elem->quality += (float)quality; // Add quality
     }
 
     // Subtract source radiosity
     colorSubtract(elem->rad[0], elem->sourceRad, elem->rad[0]);
 
     // Combine with previous results
-    stochasticRadiosityScaleCoefficients(k, elem->rad, elem->basis);
-    stochasticRadiosityScaleCoefficients((1.0 - k), elem->receivedRad, elem->basis);
+    stochasticRadiosityScaleCoefficients((float)k, elem->rad, elem->basis);
+    stochasticRadiosityScaleCoefficients((1.0f - (float)k), elem->receivedRad, elem->basis);
     stochasticRadiosityAddCoefficients(elem->rad, elem->receivedRad, elem->basis);
 
     // Re-add source radiosity
@@ -330,7 +330,7 @@ stochasticRelaxationRadiosityElementImportance(StochasticRadiosityElement *elem)
 }
 
 static void
-stochasticRelaxationRadiosityElementUpdateImportance(StochasticRadiosityElement *elem, double w) {
+stochasticRelaxationRadiosityElementUpdateImportance(StochasticRadiosityElement *elem, double /*w*/) {
     double k = (double) GLOBAL_stochasticRaytracing_monteCarloRadiosityState.prevImportanceTracedRays / (double) GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceTracedRays;
 
     elem->imp = (float)(k * (elem->imp - elem->source_imp) + (1.0 - k) * elem->received_imp + elem->source_imp);
@@ -389,7 +389,7 @@ stochasticRelaxationRadiosityDoStep(java::ArrayList<Patch *> *scenePatches, java
         if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.doNonDiffuseFirstShot ) {
             doNonDiffuseFirstShot(scenePatches, lightPatches);
         }
-        int initial_nr_of_rays = GLOBAL_stochasticRaytracing_monteCarloRadiosityState.tracedRays;
+        int initial_nr_of_rays = (int)GLOBAL_stochasticRaytracing_monteCarloRadiosityState.tracedRays;
 
         if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceDriven ) {
             if ( !GLOBAL_stochasticRaytracing_monteCarloRadiosityState.incrementalUsesImportance ) {

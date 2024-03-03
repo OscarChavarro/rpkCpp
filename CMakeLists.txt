@@ -86,7 +86,6 @@ set(MAIN_SRC
     src/io/mgf/context.cpp
     src/io/FileUncompressWrapper.cpp
     src/io/writevrml.cpp
-    src/render/hemirenderer.cpp
     src/render/potential.cpp
     src/render/SoftIdsWrapper.cpp
     src/render/softids.cpp

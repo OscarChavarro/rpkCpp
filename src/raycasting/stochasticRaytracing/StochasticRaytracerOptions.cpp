@@ -30,24 +30,24 @@ stochasticRayTracerDefaults() {
     GLOBAL_raytracing_state.firstDGSamples = 36;
     GLOBAL_raytracing_state.separateSpecular = false;
 
-    GLOBAL_raytracing_state.reflectionSampling = BRDFSAMPLING;
+    GLOBAL_raytracing_state.reflectionSampling = BRDF_SAMPLING;
 
     GLOBAL_raytracing_state.minPathDepth = 5;
     GLOBAL_raytracing_state.maxPathDepth = 7;
 
     // Common
-    GLOBAL_raytracing_state.lastscreen = (ScreenBuffer *) 0;
+    GLOBAL_raytracing_state.lastscreen = nullptr;
 }
 
 
 /*** Enum Option types ***/
 
 static ENUMDESC radModeVals[] = {
-        {STORED_NONE,      "none",      2},
-        {STORED_DIRECT,    "direct",    2},
-        {STORED_INDIRECT,  "indirect",  2},
-        {STORED_PHOTONMAP, "photonmap", 2},
-        {0, nullptr,                       0}
+        {STORED_NONE,       "none",      2},
+        {STORED_DIRECT,     "direct",    2},
+        {STORED_INDIRECT,   "indirect",  2},
+        {STORED_PHOTON_MAP, "photonmap", 2},
+        {0,                 nullptr,     0}
 };
 MakeEnumOptTypeStruct(radModeTypeStruct, radModeVals);
 #define TradMode (&radModeTypeStruct)
@@ -62,9 +62,9 @@ MakeEnumOptTypeStruct(lightModeTypeStruct, lightModeVals);
 #define TlightMode (&lightModeTypeStruct)
 
 static ENUMDESC samplingModeVals[] = {
-        {BRDFSAMPLING,      "bsdf",      2},
-        {CLASSICALSAMPLING, "classical", 2},
-        {0, nullptr,                        0}
+        {BRDF_SAMPLING,      "bsdf",      2},
+        {CLASSICAL_SAMPLING, "classical", 2},
+        {0,                  nullptr,     0}
 };
 MakeEnumOptTypeStruct(samplingModeTypeStruct, samplingModeVals);
 #define TsamplingMode (&samplingModeTypeStruct)

@@ -1,7 +1,6 @@
 #include "common/error.h"
 #include "material/statistics.h"
 #include "PHOTONMAP/photonmap.h"
-#include "render/hemirenderer.h"
 
 bool
 ZeroAlbedo(BSDF *bsdf, RayHit *hit, BSDFFLAGS flags) {

@@ -26,7 +26,7 @@ StochasticRaytracingConfiguration::init(RTStochastic_State &state, java::ArrayLi
         if ( GLOBAL_radiance_currentRadianceMethodHandle == nullptr ) {
             logError("Stored Radiance", "No radiance method active, using no storage");
             radMode = STORED_NONE;
-        } else if ((radMode == STORED_PHOTONMAP) && (GLOBAL_radiance_currentRadianceMethodHandle != &GLOBAL_photonMapMethods)) {
+        } else if ((radMode == STORED_PHOTON_MAP) && (GLOBAL_radiance_currentRadianceMethodHandle != &GLOBAL_photonMapMethods)) {
             logError("Stored Radiance", "Photonmap method not active, using no storage");
             radMode = STORED_NONE;
         }
@@ -41,15 +41,15 @@ StochasticRaytracingConfiguration::init(RTStochastic_State &state, java::ArrayLi
 
     reflectionSampling = state.reflectionSampling;
 
-    if ( reflectionSampling == CLASSICALSAMPLING ) {
-        if ( radMode == STORED_INDIRECT || radMode == STORED_PHOTONMAP ) {
+    if ( reflectionSampling == CLASSICAL_SAMPLING ) {
+        if ( radMode == STORED_INDIRECT || radMode == STORED_PHOTON_MAP ) {
             logError("Classical raytracing",
                      "Incompatible with extended final gather, using storage directly");
             radMode = STORED_DIRECT;
         }
     }
 
-    if ( radMode == STORED_PHOTONMAP ) {
+    if ( radMode == STORED_PHOTON_MAP ) {
         logWarning("Photon map reflection Sampling",
                    "Make sure to use the same sampling (brdf,fresnel) as for photonmap construction");
     }
@@ -63,7 +63,7 @@ StochasticRaytracingConfiguration::init(RTStochastic_State &state, java::ArrayLi
 
     separateSpecular = state.separateSpecular;
 
-    if ( reflectionSampling == PHOTONMAPSAMPLING ) {
+    if ( reflectionSampling == PHOTON_MAP_SAMPLING ) {
         // radMode == STORED_PHOTONMAP)
         logWarning("Fresnel Specular Sampling",
                    "always uses separate specular");
@@ -86,13 +86,13 @@ StochasticRaytracingConfiguration::initDependentVars(java::ArrayList<Patch *> *l
     samplerConfig.dirSampler = new CPixelSampler;
 
     switch ( reflectionSampling ) {
-        case BRDFSAMPLING:
+        case BRDF_SAMPLING:
             samplerConfig.surfaceSampler = new CBsdfSampler;
             break;
-        case PHOTONMAPSAMPLING:
+        case PHOTON_MAP_SAMPLING:
             samplerConfig.surfaceSampler = new CPhotonMapSampler;
             break;
-        case CLASSICALSAMPLING:
+        case CLASSICAL_SAMPLING:
             samplerConfig.surfaceSampler = new CSpecularSampler;
             break;
         default:
@@ -137,7 +137,7 @@ StochasticRaytracingConfiguration::initDependentVars(java::ArrayList<Patch *> *l
             initialReadout = READ_NOW;
             break;
         case STORED_INDIRECT:
-        case STORED_PHOTONMAP:
+        case STORED_PHOTON_MAP:
             siStorage.flags = storeFlags;
             siStorage.nrSamplesBefore = firstDGSamples;
             siStorage.nrSamplesAfter = 0;
@@ -157,7 +157,7 @@ StochasticRaytracingConfiguration::initDependentVars(java::ArrayList<Patch *> *l
 
         // spec reflection
 
-        if ( reflectionSampling == CLASSICALSAMPLING ) {
+        if ( reflectionSampling == CLASSICAL_SAMPLING ) {
             flags = (BSDFFLAGS)(remainingFlags & (BRDF_SPECULAR_COMPONENT |
                                       BRDF_GLOSSY_COMPONENT)); // Glossy == Specular in classic
         } else {
@@ -173,7 +173,7 @@ StochasticRaytracingConfiguration::initDependentVars(java::ArrayList<Patch *> *l
         }
 
         // Spec transmission
-        if ( reflectionSampling == CLASSICALSAMPLING ) {
+        if ( reflectionSampling == CLASSICAL_SAMPLING ) {
             flags = (BSDFFLAGS)(remainingFlags & (BTDF_SPECULAR_COMPONENT |
                                       BTDF_GLOSSY_COMPONENT)); // Glossy == Specular in classic
         } else {
@@ -191,7 +191,7 @@ StochasticRaytracingConfiguration::initDependentVars(java::ArrayList<Patch *> *l
 
     // Glossy or diffuse with different firstDGSamples
 
-    if ( (reflectionSampling != CLASSICALSAMPLING) && (scatterSamples != firstDGSamples) ) {
+    if ((reflectionSampling != CLASSICAL_SAMPLING) && (scatterSamples != firstDGSamples) ) {
         BSDFFLAGS gdFlags = (BSDFFLAGS)(remainingFlags &
                              (BSDF_DIFFUSE_COMPONENT | BSDF_GLOSSY_COMPONENT));
         if ( gdFlags ) {
@@ -203,7 +203,7 @@ StochasticRaytracingConfiguration::initDependentVars(java::ArrayList<Patch *> *l
         }
     }
 
-    if ( reflectionSampling == CLASSICALSAMPLING ) {
+    if ( reflectionSampling == CLASSICAL_SAMPLING ) {
         // Classical: Diffuse, with no scattering
         BSDFFLAGS dFlags = (BSDFFLAGS)(remainingFlags & BSDF_DIFFUSE_COMPONENT);
 

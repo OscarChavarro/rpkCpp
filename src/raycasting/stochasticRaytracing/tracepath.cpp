@@ -14,12 +14,14 @@ Random walk generation
 static double (*globalBirthProbability)(Patch *);
 static double globalSumProbabilities;
 
+PathNode::PathNode(): patch(), probability(), inPoint(), outpoint() {};
+
 /**
 Initialises numberOfNodes, nodes allocated to zero and 'nodes' to the nullptr pointer
 */
 static void
 initPath(PATH *path) {
-    path->nrnodes = path->nodesalloced = 0;
+    path->numberOfNodes = path->nodesAllocated = 0;
     path->nodes = nullptr;
 }
 
@@ -28,35 +30,35 @@ Sets numberOfNodes to zero (forgets old path, but does not free the memory for t
 */
 static void
 clearPath(PATH *path) {
-    path->nrnodes = 0;
+    path->numberOfNodes = 0;
 }
 
 /**
 Adds a node to the path. Re-allocates more space for the nodes if necessary
 */
 static void
-pathAddNode(PATH *path, Patch *patch, double prob, Vector3D inpoint, Vector3D outpoint) {
-    PATHNODE *node;
+pathAddNode(PATH *path, Patch *patch, double prob, Vector3D inPoint, Vector3D outpoint) {
+    PathNode *node;
 
-    if ( path->nrnodes >= path->nodesalloced ) {
-        PATHNODE *newnodes = (PATHNODE *)malloc((path->nodesalloced + 20) * sizeof(PATHNODE));
-        if ( path->nodesalloced > 0 ) {
+    if ( path->numberOfNodes >= path->nodesAllocated ) {
+        PathNode *newNodes = (PathNode *)malloc((path->nodesAllocated + 20) * sizeof(PathNode));
+        if ( path->nodesAllocated > 0 ) {
             int i;
-            for ( i = 0; i < path->nrnodes; i++ ) {
-                newnodes[i] = path->nodes[i];
+            for ( i = 0; i < path->numberOfNodes; i++ ) {
+                newNodes[i] = path->nodes[i];
             }    /* copy nodes */
             free((char *) path->nodes);
         }
-        path->nodes = newnodes;
-        path->nodesalloced += 20;
+        path->nodes = newNodes;
+        path->nodesAllocated += 20;
     }
 
-    node = &path->nodes[path->nrnodes];
+    node = &path->nodes[path->numberOfNodes];
     node->patch = patch;
     node->probability = prob;
-    node->inpoint = inpoint;
+    node->inPoint = inPoint;
     node->outpoint = outpoint;
-    path->nrnodes++;
+    path->numberOfNodes++;
 }
 
 /**
@@ -67,7 +69,7 @@ freePathNodes(PATH *path) {
     if ( path->nodes ) {
         free((char *) path->nodes);
     }
-    path->nodesalloced = 0;
+    path->nodesAllocated = 0;
     path->nodes = nullptr;
 }
 
@@ -94,7 +96,7 @@ tracePath(
     Vector3D inPoint = {0.0, 0.0, 0.0};
     Vector3D outpoint = {0.0, 0.0, 0.0};
     Patch *P = origin;
-    double survProb;
+    double survivalProb;
     Ray ray;
     RayHit *hit;
     RayHit hitStore;
@@ -105,11 +107,11 @@ tracePath(
     do {
         GLOBAL_stochasticRaytracing_monteCarloRadiosityState.tracedRays++;
         ray = mcrGenerateLocalLine(P, sample4D(topLevelGalerkinElement(P)->ray_index++));
-        if ( path->nrnodes > 1 && GLOBAL_stochasticRaytracing_monteCarloRadiosityState.continuousRandomWalk ) {
+        if ( path->numberOfNodes > 1 && GLOBAL_stochasticRaytracing_monteCarloRadiosityState.continuousRandomWalk ) {
             // Scattered ray originates at point of incidence of previous ray
-            ray.pos = path->nodes[path->nrnodes - 1].inpoint;
+            ray.pos = path->nodes[path->numberOfNodes - 1].inPoint;
         }
-        path->nodes[path->nrnodes - 1].outpoint = ray.pos;
+        path->nodes[path->numberOfNodes - 1].outpoint = ray.pos;
 
         hit = mcrShootRay(P, &ray, &hitStore);
         if ( !hit ) {
@@ -118,9 +120,9 @@ tracePath(
         }
 
         P = hit->patch;
-        survProb = SurvivalProbability(P);
-        pathAddNode(path, P, survProb, hit->point, outpoint);
-    } while ( drand48() < survProb ); // Repeat until absorption
+        survivalProb = SurvivalProbability(P);
+        pathAddNode(path, P, survivalProb, hit->point, outpoint);
+    } while ( drand48() < survivalProb ); // Repeat until absorption
 
     return path;
 }
@@ -144,7 +146,7 @@ tracePaths(
     java::ArrayList<Patch *> *scenePatches)
 {
     double rnd;
-    double pCumul;
+    double pCumulative;
     long path_count;
     PATH path{};
 
@@ -167,16 +169,16 @@ tracePaths(
     initPath(&path);
     rnd = drand48();
     path_count = 0;
-    pCumul = 0.0;
+    pCumulative = 0.0;
     for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
         Patch *patch = scenePatches->get(i);
         double p = BirthProbability(patch) / globalSumProbabilities;
-        long paths_this_patch = (int) std::floor((pCumul + p) * (double) numberOfPaths + rnd) - path_count;
+        long paths_this_patch = (int) std::floor((pCumulative + p) * (double) numberOfPaths + rnd) - path_count;
         for ( int j = 0; j < paths_this_patch; j++ ) {
             tracePath(patch, p, SurvivalProbability, &path);
             ScorePath(&path, numberOfPaths, patchNormalisedBirthProbability);
         }
-        pCumul += p;
+        pCumulative += p;
         path_count += paths_this_patch;
     }
 

@@ -158,7 +158,7 @@ SR_GetDirectRadiance(
     colorClear(result);
     Vector3D dirEL;
 
-    if ( (readout == READ_NOW) && (config->radMode == STORED_PHOTONMAP) ) {
+    if ( (readout == READ_NOW) && (config->radMode == STORED_PHOTON_MAP) ) {
         return result;
     } // We're reading out D|G, specular not with direct light
 
@@ -224,8 +224,8 @@ SR_GetDirectRadiance(
                         while ( siCurrent < config->siOthersCount ) {
                             bool doSi = true;
 
-                            if ( (config->reflectionSampling == PHOTONMAPSAMPLING)
-                                || (config->reflectionSampling == CLASSICALSAMPLING) ) {
+                            if ( (config->reflectionSampling == PHOTON_MAP_SAMPLING)
+                                || (config->reflectionSampling == CLASSICAL_SAMPLING) ) {
                                 if ( si->flags & BSDF_SPECULAR_COMPONENT ) {
                                     // Perfect mirror reflection, no n.e.e.
                                     doSi = false;
@@ -246,7 +246,7 @@ SR_GetDirectRadiance(
 
                                 // Contribution of this sample (with Multiple Imp. S.)
 
-                                if ( config->reflectionSampling == CLASSICALSAMPLING ) {
+                                if ( config->reflectionSampling == CLASSICAL_SAMPLING ) {
                                     weight = 1.0;
                                 } else {
                                     // N direct * pdf  for the n.e.e.
@@ -322,7 +322,7 @@ SR_GetRadiance(
             doWeight = false;
         }
 
-        if ( config->reflectionSampling == CLASSICALSAMPLING ) {
+        if ( config->reflectionSampling == CLASSICAL_SAMPLING ) {
             doWeight = false;
         }
 
@@ -354,7 +354,7 @@ SR_GetRadiance(
         if ( (readout == READ_NOW) && (config->siStorage.flags != NO_COMPONENTS) ) {
             // Add the stored radiance being emitted from the patch
             if ( GLOBAL_radiance_currentRadianceMethodHandle == &GLOBAL_photonMapMethods ) {
-                if ( config->radMode == STORED_PHOTONMAP ) {
+                if ( config->radMode == STORED_PHOTON_MAP ) {
                     // Check if the distance to the previous point is big enough
                     // otherwise we need more scattering...
                     float dist2 = vectorDist2(thisNode->m_hit.point, thisNode->previous()->m_hit.point);
@@ -397,7 +397,7 @@ SR_GetRadiance(
         } // Done: Stored radiance, no self emitted light included!
 
         // Stored caustic maps
-        if ( (config->radMode == STORED_PHOTONMAP) && readout == SCATTER ) {
+        if ((config->radMode == STORED_PHOTON_MAP) && readout == SCATTER ) {
             radiance = photonMapGetNodeCRadiance(thisNode);
             colorAdd(result, radiance, result);
         }
@@ -410,7 +410,7 @@ SR_GetRadiance(
         colorAdd(result, radiance, result);
 
         // Emitted Light
-        if ( (config->radMode == STORED_PHOTONMAP) && (GLOBAL_radiance_currentRadianceMethodHandle == &GLOBAL_photonMapMethods) ) {
+        if ((config->radMode == STORED_PHOTON_MAP) && (GLOBAL_radiance_currentRadianceMethodHandle == &GLOBAL_photonMapMethods) ) {
             // Check if Le would contribute to a caustic
             if ( (readout == READ_NOW) && !(config->siStorage.DoneThisBounce(thisNode->previous())) ) {
                 // Caustic contribution:  (E...(D|G)...?L) with ? some specular bounce
@@ -429,11 +429,11 @@ SR_GetRadiance(
                 doWeight = false;
             }
 
-            if ( config->reflectionSampling == CLASSICALSAMPLING ) {
+            if ( config->reflectionSampling == CLASSICAL_SAMPLING ) {
                 doWeight = false;
             }
 
-            if ( (config->reflectionSampling == PHOTONMAPSAMPLING) && (thisNode->m_depth > 1) ) {
+            if ((config->reflectionSampling == PHOTON_MAP_SAMPLING) && (thisNode->m_depth > 1) ) {
                 if ( thisNode->previous()->m_usedComponents & BSDF_SPECULAR_COMPONENT) {
                     // Perfect Specular scatter, no weighting
                     doWeight = false;

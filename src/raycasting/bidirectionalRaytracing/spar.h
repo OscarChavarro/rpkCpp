@@ -17,8 +17,6 @@ Specification of the Stored Partial Radiance class
 #define DISJUNCTGROUP 0
 #define LDGROUP 1
 
-typedef int TPathGroupID;
-
 class CSpar;
 
 // Spar Config stores handy config params

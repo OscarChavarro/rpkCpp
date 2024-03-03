@@ -82,10 +82,14 @@ double CBiPath::EvalPDFAcc() {
 
 // Evaluate weight/pdf for a bipath, taking into account other pdf's
 // depending on the config (bcfg).
-double CBiPath::EvalPDFAndWeight(BP_BASECONFIG *bcfg, double *pPdf,
-                                 double *pWeight) {
+float CBiPath::EvalPDFAndWeight(BP_BASECONFIG *bcfg, float *pPdf,
+                                 float *pWeight) {
     int currentConnect;
-    double pdfAcc = 1.0, pdfSum, currentPdf, newPdf, c;
+    double pdfAcc = 1.0;
+    double pdfSum;
+    double currentPdf;
+    double newPdf;
+    double c;
     CPathNode *nextNode;
     double realPdf, tmpPdf, weight;
 
@@ -152,11 +156,9 @@ double CBiPath::EvalPDFAndWeight(BP_BASECONFIG *bcfg, double *pPdf,
 
         currentPdf = newPdf;
         nextNode = nextNode->previous();
-    } /* while   (to the light) */
-
+    }
 
     // To the eye
-
     nextNode = m_eyeEndNode;
     currentConnect = m_eyeSize;
     currentPdf = pdfAcc; // Start from actual path pdf
@@ -209,29 +211,5 @@ double CBiPath::EvalPDFAndWeight(BP_BASECONFIG *bcfg, double *pPdf,
         *pPdf = realPdf;
     }
 
-    return weight / realPdf;
-}
-
-double CBiPath::ComputeTotalGeomFactor() {
-    double factor = 1.0;
-    int i;
-    CPathNode *node;
-
-    node = m_eyePath;
-
-    for ( i = 0; i < m_eyeSize; i++ ) {
-        factor *= node->m_G;
-        node = node->next();
-    }
-
-    node = m_lightPath;
-
-    for ( i = 0; i < m_lightSize; i++ ) {
-        factor *= node->m_G;
-        node = node->next();
-    }
-
-    factor *= m_geomConnect; // Next event ray geometry factor
-
-    return factor;
+    return (float)weight / realPdf;
 }

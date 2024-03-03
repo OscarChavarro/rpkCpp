@@ -1,5 +1,5 @@
-#ifndef _BI_DIRECTIONAL_PATH__
-#define _BI_DIRECTIONAL_PATH__
+#ifndef __BI_DIRECTIONAL_PATH__
+#define __BI_DIRECTIONAL_PATH__
 
 #include "raycasting/common/Raytracer.h"
 
