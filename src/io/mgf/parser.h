@@ -159,12 +159,12 @@ extern int mgfEntityCone(int ac, char **av);
 extern int mgfEntityPrism(int ac, char **av);
 extern int mgfEntityFaceWithHoles(int ac, char **av);
 
-extern int isintWords(char *);
-extern int isintdWords(char *, char *);
-extern int isfltWords(char *);
-extern int isfltdWords(char *, char *);
-extern int isnameWords(char *);
-extern int badarg(int, char **, char *);
+extern int isIntWords(char *);
+extern int isIntDWords(char *, char *);
+extern int isFloatWords(char *);
+extern int isFloatDWords(char *, char *);
+extern int isNameWords(char *);
+extern int checkForBadArguments(int, char **, char *);
 extern int handleIncludedFile(int ac, char **av);
 
 /**
@@ -178,19 +178,19 @@ Definitions for 3-d vector manipulation functions
 typedef FLOAT FVECT[3];
 
 inline void
-mgfVertexCopy(double *v1, double *v2) {
-    v1[0] = v2[0];
-    v1[1] = v2[1];
-    v1[2] = v2[2];
+mgfVertexCopy(double *result, const double *source) {
+    result[0] = source[0];
+    result[1] = source[1];
+    result[2] = source[2];
 }
 
 inline double
-dotProduct(double *v1, double *v2) {
-    return v1[0] * v2[0] + v1[1] * v2[1] + v1[2] * v2[2];
+dotProduct(const double *a, const double *b) {
+    return a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
 }
 
 inline bool
-is0vect(double *v) {
+is0Vector(double *v) {
     return dotProduct(v, v) <= FLOAT_TINY * FLOAT_TINY;
 }
 
@@ -202,7 +202,7 @@ round0(FLOAT &x) {
 }
 
 extern double normalize(FVECT);
-extern void floatCrossProduct(FVECT vres, FVECT v1, FVECT v2);
+extern void floatCrossProduct(FVECT result, const FVECT a, const FVECT b);
 
 /**
 Definitions for context handling routines (materials, colors, vectors)

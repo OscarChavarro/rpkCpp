@@ -3,10 +3,10 @@
 
 #include "common/linealAlgebra/Vector3D.h"
 
-class VECTOROCTREE {
+class VectorOctreeNode {
   public:
     Vector3D *vector;
-    VECTOROCTREE *child[8];
+    VectorOctreeNode *child[8];
 };
 
 #endif

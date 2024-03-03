@@ -32,7 +32,7 @@ handleObject2Entity(int ac, char **av)
     if ( ac != 2 ) {
         return MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
     }
-    if ( !isnameWords(av[1])) {
+    if ( !isNameWords(av[1])) {
         return MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
     }
     if ( GLOBAL_mgf_objectNames >= globalObjectMaxName - 1 ) {

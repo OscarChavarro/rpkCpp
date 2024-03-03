@@ -6,7 +6,7 @@
 Check argument list against format string.
 */
 int
-badarg(int ac, char **av, char *fl) {
+checkForBadArguments(int ac, char **av, char *fl) {
     // check argument list
     int i;
 
@@ -25,12 +25,12 @@ badarg(int ac, char **av, char *fl) {
                 }
                 break;
             case 'i': // integer
-                if ( !isintdWords(*av, (char *)" \t\r\n")) {
+                if ( !isIntDWords(*av, (char *) " \t\r\n")) {
                     return i;
                 }
                 break;
             case 'f': // float
-                if ( !isfltdWords(*av, (char *)" \t\r\n")) {
+                if ( !isFloatDWords(*av, (char *) " \t\r\n")) {
                     return i;
                 }
                 break;

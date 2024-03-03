@@ -1,4 +1,4 @@
-#define MG_ERRLIST { \
+#define MG_ERROR_LIST { \
     (char *)"No error",	\
     (char *)"Unknown entity", \
     (char *)"Wrong number of arguments", \

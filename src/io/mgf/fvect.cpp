@@ -35,12 +35,12 @@ normalize(double *v)
 
 /**
 Cross product of two vectors
-vres = v1 X v2
+result = a X b
 */
 void
-floatCrossProduct(FVECT vres, FVECT v1, FVECT v2)
+floatCrossProduct(FVECT result, const FVECT a, const FVECT b)
 {
-    vres[0] = v1[1] * v2[2] - v1[2] * v2[1];
-    vres[1] = v1[2] * v2[0] - v1[0] * v2[2];
-    vres[2] = v1[0] * v2[1] - v1[1] * v2[0];
+    result[0] = a[1] * b[2] - a[2] * b[1];
+    result[1] = a[2] * b[0] - a[0] * b[2];
+    result[2] = a[0] * b[1] - a[1] * b[0];
 }

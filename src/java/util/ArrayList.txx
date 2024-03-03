@@ -1,4 +1,3 @@
-#include <cstdio>
 #include <cstdlib>
 
 #include "java/util/ArrayList.h"
@@ -45,8 +44,7 @@ ArrayList<T>::add(long int pos, T elem)
 template <class T> void
 ArrayList<T>::remove(long int pos)
 {
-    int i;
-    for ( i = pos; i < size()-1; i++ ) {
+    for ( long i = pos; i < size()-1; i++ ) {
         Data[i] = Data[i+1];
     }
     currentSize--;

@@ -19,8 +19,8 @@
 
 #define NUMBER_OF_SAMPLES 3
 
-static VECTOROCTREE *globalPointsOctree;
-static VECTOROCTREE *globalNormalsOctree;
+static VectorOctreeNode *globalPointsOctree;
+static VectorOctreeNode *globalNormalsOctree;
 
 // Elements for surface currently being created
 static java::ArrayList<Vector3D *> *globalCurrentPointList;
@@ -441,7 +441,7 @@ getVertex(char *name) {
     }
 
     theVertex = (Vertex *) (vp->client_data);
-    if ( !theVertex || vp->clock >= 1 || vp->xid != xf_xid(GLOBAL_mgf_xfContext) || is0vect(vp->n)) {
+    if ( !theVertex || vp->clock >= 1 || vp->xid != xf_xid(GLOBAL_mgf_xfContext) || is0Vector(vp->n)) {
         // New vertex, or updated vertex or same vertex, but other transform, or
         // vertex without normal: create a new Vertex
         FVECT vert;
@@ -451,7 +451,7 @@ getVertex(char *name) {
 
         mgfTransformPoint(vert, vp->p);
         thePoint = installPoint((float)vert[0], (float)vert[1], (float)vert[2]);
-        if ( is0vect(vp->n)) {
+        if ( is0Vector(vp->n)) {
             theNormal = nullptr;
         } else {
             mgfTransformVector(norm, vp->n);

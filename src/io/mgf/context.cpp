@@ -118,7 +118,7 @@ handleColorEntity(int ac, char **av)
                 GLOBAL_mgf_currentColor = &c_uncolor;
                 return MGF_OK;
             }
-            if ( !isnameWords(av[1])) {
+            if ( !isNameWords(av[1])) {
                 return MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
             }
             lp = lookUpFind(&clr_tab, av[1]); // Lookup context
@@ -172,7 +172,7 @@ handleColorEntity(int ac, char **av)
             if ( ac != 3 ) {
                 return MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
             }
-            if ( !isfltWords(av[1]) || !isfltWords(av[2])) {
+            if ( !isFloatWords(av[1]) || !isFloatWords(av[2])) {
                 return MGF_ERROR_ARGUMENT_TYPE;
             }
             GLOBAL_mgf_currentColor->cx = atof(av[1]);
@@ -189,7 +189,7 @@ handleColorEntity(int ac, char **av)
             if ( ac < 5 ) {
                 return MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
             }
-            if ( !isfltWords(av[1]) || !isfltWords(av[2])) {
+            if ( !isFloatWords(av[1]) || !isFloatWords(av[2])) {
                 return MGF_ERROR_ARGUMENT_TYPE;
             }
             return setSpectrum(GLOBAL_mgf_currentColor, atof(av[1]), atof(av[2]),
@@ -198,7 +198,7 @@ handleColorEntity(int ac, char **av)
             if ( ac != 2 ) {
                 return MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
             }
-            if ( !isfltWords(av[1]) ) {
+            if ( !isFloatWords(av[1]) ) {
                 return MGF_ERROR_ARGUMENT_TYPE;
             }
             return setbbtemp(GLOBAL_mgf_currentColor, atof(av[1]));
@@ -207,7 +207,7 @@ handleColorEntity(int ac, char **av)
             if ( ac < 5 || (ac - 1) % 2 ) {
                 return MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
             }
-            if ( !isfltWords(av[1])) {
+            if ( !isFloatWords(av[1])) {
                 return MGF_ERROR_ARGUMENT_TYPE;
             }
             wSum = atof(av[1]);
@@ -220,7 +220,7 @@ handleColorEntity(int ac, char **av)
             }
             *GLOBAL_mgf_currentColor = *(MgfColorContext *) lp->data;
             for ( i = 3; i < ac; i += 2 ) {
-                if ( !isfltWords(av[i]) ) {
+                if ( !isFloatWords(av[i]) ) {
                     return MGF_ERROR_ARGUMENT_TYPE;
                 }
                 w = atof(av[i]);
@@ -266,7 +266,7 @@ handleMaterialEntity(int ac, char **av)
                 GLOBAL_mgf_currentMaterialName = nullptr;
                 return MGF_OK;
             }
-            if ( !isnameWords(av[1]) ) {
+            if ( !isNameWords(av[1]) ) {
                 return MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
             }
             lp = lookUpFind(&mat_tab, av[1]);
@@ -324,7 +324,7 @@ handleMaterialEntity(int ac, char **av)
             if ( ac != 3 ) {
                 return MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
             }
-            if ( !isfltWords(av[1]) || !isfltWords(av[2]) ) {
+            if ( !isFloatWords(av[1]) || !isFloatWords(av[2]) ) {
                 return MGF_ERROR_ARGUMENT_TYPE;
             }
             GLOBAL_mgf_currentMaterial->nr = atof(av[1]);
@@ -339,7 +339,7 @@ handleMaterialEntity(int ac, char **av)
             if ( ac != 2 ) {
                 return MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
             }
-            if ( !isfltWords(av[1])) {
+            if ( !isFloatWords(av[1])) {
                 return MGF_ERROR_ARGUMENT_TYPE;
             }
             GLOBAL_mgf_currentMaterial->rd = atof(av[1]);
@@ -354,7 +354,7 @@ handleMaterialEntity(int ac, char **av)
             if ( ac != 2 ) {
                 return MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
             }
-            if ( !isfltWords(av[1])) {
+            if ( !isFloatWords(av[1])) {
                 return MGF_ERROR_ARGUMENT_TYPE;
             }
             GLOBAL_mgf_currentMaterial->ed = atof(av[1]);
@@ -369,7 +369,7 @@ handleMaterialEntity(int ac, char **av)
             if ( ac != 2 ) {
                 return MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
             }
-            if ( !isfltWords(av[1]) ) {
+            if ( !isFloatWords(av[1]) ) {
                 return MGF_ERROR_ARGUMENT_TYPE;
             }
             GLOBAL_mgf_currentMaterial->td = atof(av[1]);
@@ -384,7 +384,7 @@ handleMaterialEntity(int ac, char **av)
             if ( ac != 3 ) {
                 return MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
             }
-            if ( !isfltWords(av[1]) || !isfltWords(av[2])) {
+            if ( !isFloatWords(av[1]) || !isFloatWords(av[2])) {
                 return MGF_ERROR_ARGUMENT_TYPE;
             }
             GLOBAL_mgf_currentMaterial->rs = atof(av[1]);
@@ -401,7 +401,7 @@ handleMaterialEntity(int ac, char **av)
             if ( ac != 3 ) {
                 return MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
             }
-            if ( !isfltWords(av[1]) || !isfltWords(av[2])) {
+            if ( !isFloatWords(av[1]) || !isFloatWords(av[2])) {
                 return MGF_ERROR_ARGUMENT_TYPE;
             }
             GLOBAL_mgf_currentMaterial->ts = atof(av[1]);
@@ -418,7 +418,7 @@ handleMaterialEntity(int ac, char **av)
             if ( ac != 2 ) {
                 return MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
             }
-            if ( !isintWords(av[1]) ) {
+            if ( !isIntWords(av[1]) ) {
                 return MGF_ERROR_ARGUMENT_TYPE;
             }
             i = atoi(av[1]);
@@ -456,7 +456,7 @@ handleVertexEntity(int ac, char **av)
                 GLOBAL_mgf_currentVertexName = nullptr;
                 return MGF_OK;
             }
-            if ( !isnameWords(av[1]) ) {
+            if ( !isNameWords(av[1]) ) {
                 return MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
             }
             lp = lookUpFind(&vtx_tab, av[1]);
@@ -511,7 +511,7 @@ handleVertexEntity(int ac, char **av)
             if ( ac != 4 ) {
                 return MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
             }
-            if ( !isfltWords(av[1]) || !isfltWords(av[2]) || !isfltWords(av[3])) {
+            if ( !isFloatWords(av[1]) || !isFloatWords(av[2]) || !isFloatWords(av[3])) {
                 return MGF_ERROR_ARGUMENT_TYPE;
             }
             GLOBAL_mgf_currentVertex->p[0] = atof(av[1]);
@@ -524,7 +524,7 @@ handleVertexEntity(int ac, char **av)
             if ( ac != 4 ) {
                 return MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
             }
-            if ( !isfltWords(av[1]) || !isfltWords(av[2]) || !isfltWords(av[3])) {
+            if ( !isFloatWords(av[1]) || !isFloatWords(av[2]) || !isFloatWords(av[3])) {
                 return MGF_ERROR_ARGUMENT_TYPE;
             }
             GLOBAL_mgf_currentVertex->n[0] = atof(av[1]);
@@ -685,7 +685,7 @@ setSpectrum(MgfColorContext *clr, double wlmin, double wlmax, int ac, char **av)
         va[i] = 0.0;
         n = 0;
         while ( boxpos < i + 0.5 && pos < ac ) {
-            if ( !isfltWords(av[pos])) {
+            if ( !isFloatWords(av[pos])) {
                 return MGF_ERROR_ARGUMENT_TYPE;
             }
             va[i] += atof(av[pos++]);

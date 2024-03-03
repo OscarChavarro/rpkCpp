@@ -1,7 +1,5 @@
-/* brdf_methods.h: BRDF methods */
-
-#ifndef _BRDF_METHODS_H_
-#define _BRDF_METHODS_H_
+#ifndef __BRDF_METHODS__
+#define __BRDF_METHODS__
 
 #include <cstdio>
 
@@ -9,14 +7,16 @@
 #include "material/xxdf.h"
 #include "material/hit.h"
 
-/* BRDF methods: every kind of BRDF needs to have these functions
- * implemented. */
+/**
+BRDF methods: every kind of BRDF needs to have these functions
+implemented
+*/
 class BRDF_METHODS {
   public:
-    /* returns the reflectance */
+    // Returns the reflectance
     COLOR (*Reflectance)(void *data, XXDFFLAGS flags);
 
-    /* eval brdf */
+    // Eval brdf
     COLOR (*Eval)(void *data, Vector3D *in, Vector3D *out, Vector3D *normal, XXDFFLAGS flags);
 
     Vector3D (*Sample)(void *data, Vector3D *in,
@@ -28,18 +28,18 @@ class BRDF_METHODS {
                     Vector3D *out, Vector3D *normal,
                     XXDFFLAGS flags, double *pdf, double *pdfRR);
 
-    /* prints the BRDF data to the specified file */
+    // Prints the BRDF data to the specified file
     void (*Print)(FILE *out, void *data);
 
-    /* creates a duplicate of the BRDF data */
+    // Creates a duplicate of the BRDF data
     void *(*Duplicate)(void *data);
 
-    /* creates a BRDF editor widget (included in the material editor implemented
-     * in ui_material.c whenever appropriate). Returns the Widget, casted to a
-     * void * in order not to have to include all X window header files. */
+    // Creates a BRDF editor widget (included in the material editor implemented
+    // in ui_material.c whenever appropriate). Returns the Widget cast to a
+    // void * in order not to have to include all X window header files
     void *(*CreateEditor)(void *parent, void *data);
 
-    /* disposes of the BRDF data */
+    // Disposes of the BRDF data
     void (*Destroy)(void *data);
 };
 

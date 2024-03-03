@@ -6,57 +6,56 @@
 #include "IMAGE/imagec.h"
 
 /**
-TODO SITHMASTER: This should be converted on to the Raytracer interface for inheriting the current four
-raytracers: RayMatter, RayCaster, BidirectionalPathRaytracer and StochasticRaytracer.
+TODO: This should be converted on to the Raytracer interface for inheriting the current four
+ray-tracers: RayMatter, RayCaster, BidirectionalPathRaytracer and StochasticRaytracer.
 */
 
 class Raytracer {
   public:
-    /* short name for the raytracing method, for use as argument of
-     * -raytracing command line optoin. */
+    // Short name for the raytracing method, for use as argument of
+    // -raytracing command line option
     const char *shortName;
 
-    /* how short can the short name be abbreviated? */
+    // How short can the short name be abbreviated?
     int nameAbbrev;
 
-    /* full name of the raytracing method */
+    // Full name of the raytracing method
     const char *fullName;
 
-    /* function for setting default values etc... */
+    // Function for setting default values etc
     void (*Defaults)();
 
-    /* function for parsing method specific command line options */
+    // Function for parsing method specific command line options
     void (*ParseOptions)(int *argc, char **argv);
 
-    /* Initializes the current scene for raytracing computations.
-     *  Called when a new scene is loaded or when selecting a particular
-     * raytracing algorithm. */
+    // Initializes the current scene for raytracing computations.
+    // Called when a new scene is loaded or when selecting a particular
+    // raytracing algorithm
     void (*Initialize)(java::ArrayList<Patch *> *lightPatches);
 
-    /* Raytrace the current scene as seen with the current camera. If 'ip'
-     * is not a nullptr pointer, write the raytraced image using the image output
-     * handle pointerd to by 'ip' . */
+    // Raytrace the current scene as seen with the current camera. If 'ip'
+    // is not a nullptr pointer, write the ray-traced image using the image output
+    // handle pointed by 'ip'
     void (*Raytrace)(ImageOutputHandle *ip, java::ArrayList<Patch *> *scenePatches, java::ArrayList<Patch *> *lightPatches);
 
-    /* Redisplays last raytraced image. Returns FALSE if there is no
-     * previous raytraced image and TRUE there is. */
+    // Re-displays last ray-traced image. Returns FALSE if there is no
+    // previous ray-traced image and TRUE there is
     int (*Redisplay)();
 
-    /* Saves last raytraced image in the file describe dby the image output
-     * handle. */
+    // Saves last ray-traced image in the file describe dby the image output handle
     int (*SaveImage)(ImageOutputHandle *ip);
 
-    /* Interrupts raytracing */
+    // Interrupts raytracing
     void (*InterruptRayTracing)();
 
-    /* terminate raytracing computations */
+    // Terminate raytracing computations
     void (*Terminate)();
 };
 
 extern Raytracer *GLOBAL_raytracer_activeRaytracer;
-extern double GLOBAL_raytracer_totalTime; // statistics: raytracing time
-extern long GLOBAL_raytracer_rayCount; // statistics: number of rays traced
-extern long GLOBAL_raytracer_pixelCount; // statistics: number of pixels drawn
+extern double GLOBAL_raytracer_totalTime; // Statistics: raytracing time
+extern long GLOBAL_raytracer_rayCount; // Statistics: number of rays traced
+extern long GLOBAL_raytracer_pixelCount; // Statistics: number of pixels drawn
 
 extern void rayTrace(char *fileName, FILE *fp, int isPipe, Raytracer *activeRayTracer, java::ArrayList<Patch *> *scenePatches, java::ArrayList<Patch *> *lightPatches);
 

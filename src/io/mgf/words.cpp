@@ -11,7 +11,7 @@ Routines for recognizing and moving about words in strings.
 Skip integer in string
 */
 static char *
-iskipWords(char *s)
+isSkipWords(char *s)
 {
     while ( isspace(*s) ) {
         s++;
@@ -32,7 +32,7 @@ iskipWords(char *s)
 Skip float in string
 */
 static char *
-fskipWords(char *s)
+fileSkipWords(char *s)
 {
     char *cp;
 
@@ -57,7 +57,7 @@ fskipWords(char *s)
         return nullptr;
     }
     if ( *cp == 'e' || *cp == 'E' ) {
-        return iskipWords(cp + 1);
+        return isSkipWords(cp + 1);
     }
     return cp;
 }
@@ -66,11 +66,11 @@ fskipWords(char *s)
 Check integer format
 */
 int
-isintWords(char *s)
+isIntWords(char *s)
 {
     char *cp;
 
-    cp = iskipWords(s);
+    cp = isSkipWords(s);
     return cp != nullptr && *cp == '\0';
 }
 
@@ -78,11 +78,11 @@ isintWords(char *s)
 Check integer format with delimiter set
 */
 int
-isintdWords(char *s, char *ds)
+isIntDWords(char *s, char *ds)
 {
     char *cp;
 
-    cp = iskipWords(s);
+    cp = isSkipWords(s);
     return cp != nullptr && strchr(ds, *cp) != nullptr;
 }
 
@@ -90,11 +90,11 @@ isintdWords(char *s, char *ds)
 Check float format
 */
 int
-isfltWords(char *s)
+isFloatWords(char *s)
 {
     char *cp;
 
-    cp = fskipWords(s);
+    cp = fileSkipWords(s);
     return cp != nullptr && *cp == '\0';
 }
 
@@ -102,11 +102,11 @@ isfltWords(char *s)
 Check integer format with delimiter set
 */
 int
-isfltdWords(char *s, char *ds)
+isFloatDWords(char *s, char *ds)
 {
     char *cp;
 
-    cp = fskipWords(s);
+    cp = fileSkipWords(s);
     return cp != nullptr && strchr(ds, *cp) != nullptr;
 }
 
@@ -114,7 +114,7 @@ isfltdWords(char *s, char *ds)
 Check for legal identifier name
 */
 int
-isnameWords(char *s)
+isNameWords(char *s)
 {
     while ( *s == '_' ) {
         // skip leading underscores

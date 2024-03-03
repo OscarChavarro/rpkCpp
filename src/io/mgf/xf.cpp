@@ -110,7 +110,7 @@ d2r(double a) {
 
 static bool
 checkarg(int a, const char *l, int ac, char **av, int i) {
-    if ( av[i][(a)] || badarg(ac - i - 1, av + i + 1, (char *)(l)) ) {
+    if ( av[i][(a)] || checkForBadArguments(ac - i - 1, av + i + 1, (char *) (l)) ) {
         return false;
     }
     return true;

@@ -72,7 +72,7 @@ brdfSample(
         return brdf->methods->Sample(brdf->data, in, normal,
                                      doRussianRoulette, flags, x_1, x_2, pdf);
     } else {
-        Vector3D dummy = {0., 0., 0.};
+        Vector3D dummy = {0.0, 0.0, 0.0};
         *pdf = 0;
         return dummy;
     }
