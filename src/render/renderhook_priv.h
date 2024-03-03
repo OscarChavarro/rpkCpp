@@ -1,11 +1,11 @@
-#ifndef _RENDERHOOK_PRIV_H_
-#define _RENDERHOOK_PRIV_H_
+#ifndef __RENDER_HOOK_PRIV__
+#define __RENDER_HOOK_PRIV__
 
 #include "render/renderhook.h"
 
-class RENDERHOOK {
+class RenderHook {
 public:
-    RENDERHOOKFUNCTION func;
+    RenderHookFunction func;
     void *data;
 };
 
