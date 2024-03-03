@@ -1,31 +1,39 @@
-/* scrambledhalton.c: scrambled halton QMC sample sequence */
+/**
+Scrambled halton QMC sample sequence
+*/
 
 #include "QMC/scrambledhalton.h"
 
 #define MAX_DIM 10
 
-double *ScrambledHalton(unsigned nextn, int dim) {
-    int i, j, a, b, m;
-    static int priem[MAX_DIM] = {2, 3, 5, 7, 11, 13, 17, 19, 23, 29};
+double *
+scrambledHalton(unsigned nextN, int dim) {
+    int i;
+    int j;
+    int a;
+    int b;
+    int m;
+    static int prime[MAX_DIM] = {2, 3, 5, 7, 11, 13, 17, 19, 23, 29};
     static double sample[MAX_DIM];
-    double fi, bi, bp;
+    double fi;
+    double bi;
+    double bp;
 
     for ( i = 0; i < dim; i++ ) {
-        b = priem[i];  /* elke component gebruikt andere basis */
+        b = prime[i]; // Each component uses different base
         bi = 1.0 / b;
 
         fi = 0;
         bp = 1;
         m = 0;
-        for ( j = nextn; j > 0; j /= b ) {
+        for ( j = (int)nextN; j > 0; j /= b ) {
             bp = bp * bi;
-            a = j % b;  /* a is m-de cijfer uit b-aire voorstelling van nextn */
-            a = (a + m) % b; /* permutatie van a, methode van  Warnock */
+            a = j % b; // Variable "a" is m-th digit from b-ary representation of nextN
+            a = (a + m) % b; // Permutation of variable "a", Warnock's method
             fi = fi + a * bp;
             m += 1;
         }
         sample[i] = fi;
     }
-    nextn += 1;
     return sample;
 }

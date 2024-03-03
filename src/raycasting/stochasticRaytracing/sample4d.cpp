@@ -59,7 +59,7 @@ sample4D(unsigned seed) {
             xi[3] = Halton7((int)seed);
             break;
         case S4D_SCRAMHALTON:
-            xx = ScrambledHalton(seed, 4);
+            xx = scrambledHalton(seed, 4);
             xi[0] = xx[0];
             xi[1] = xx[1];
             xi[2] = xx[2];

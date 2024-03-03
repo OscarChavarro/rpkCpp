@@ -1,9 +1,9 @@
-/* halton.h: Halton quasi Monte Carlo sample generator */
+#ifndef __HALTON__
+#define __HALTON__
 
-#ifndef _HALTON_H_
-#define _HALTON_H_
-
-extern
-double Halton2(int i), Halton3(int i), Halton5(int i), Halton7(int i);
+extern double Halton2(int i);
+extern double Halton3(int i);
+extern double Halton5(int i);
+extern double Halton7(int i);
 
 #endif

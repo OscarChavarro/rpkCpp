@@ -13,17 +13,19 @@ Paul Heckbert 1985, Dec 1989
 #include "SGL/poly.h"
 
 #define SWAP(a, b, temp) { \
-    temp = a; a = b; b = temp; \
+    (temp) = (a); \
+    (a) = (b); \
+    (b) = temp; \
 }
 
 #define COORD(vert, i) ((double *)(vert))[i]
 
 #define CLIP_AND_SWAP(elem, sign, k, p, q, r) { \
-    polyClipToHalfSpace(p, q, &v->elem-(double *)v, sign, sign*k); \
-    if ( q->n == 0) { \
+    polyClipToHalfSpace((p), (q), &v->elem-(double *)v, (sign), (sign) * (k)); \
+    if ( (q)->n == 0) { \
         p1->n = 0; return POLY_CLIP_OUT; \
     } \
-    SWAP(p, q, r); \
+    SWAP((p), (q), (r)); \
 }
 
 /**
@@ -37,7 +39,7 @@ Otherwise, if the polygon is cut by the box, p1 is modified and
 POLY_CLIP_PARTIAL is returned.
 
 Given an n-gon as input, clipping against 6 planes could generate an
-(n+6)gon, so POLY_NMAX in poly.h must be big enough to allow that.
+(n+6)gon, so POLY_N_MAX in poly.h must be big enough to allow that.
 */
 int
 polyClipToBox(Polygon *p1, PolygonBox *box) {
@@ -60,7 +62,7 @@ polyClipToBox(Polygon *p1, PolygonBox *box) {
         exit(1);
     }
     if ( sizeof(PolygonVertex) / sizeof(double) > 32 ) {
-        fprintf(stderr, "Poly_vert structure too big; must be <=32 doubles\n");
+        fprintf(stderr, "Poly_vert structure too big; must be <= 32 doubles\n");
         exit(1);
     }
 
@@ -129,7 +131,7 @@ polyClipToBox(Polygon *p1, PolygonBox *box) {
 
     // If result ended up in p2 then copy it to p1
     if ( p == &p2 ) {
-        int n = sizeof(Polygon) - (MAXIMUM_SIDES_PER_POLYGON - p2.n) * sizeof(PolygonVertex);
+        int n = (int)(sizeof(Polygon) - (MAXIMUM_SIDES_PER_POLYGON - p2.n) * sizeof(PolygonVertex));
         memcpy(p1, &p2, n);
     }
     return POLY_CLIP_PARTIAL;

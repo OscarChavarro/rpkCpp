@@ -4,7 +4,7 @@
 #ifndef _NIED63_H_
 #define _NIED63_H_
 
-#ifdef _NIED31_H_
+#ifdef __NIED_31__
 #error "nied63.h and nied31.h cannot be included in the same source file"
 #endif
 

@@ -1,13 +1,14 @@
-/* niederreiter.c: 4D base-2 Niederreiter QMC series, ACM TOMS Algorithm 738, dec 94.
- *
- * See also:
- *
- * P. Bratley, B. Fox, H. Niederreiter, "Implementation and Tests of
- *	Low-Discrepancy Sequences", ACM Trans Mod Comp Sim Vol 2 Nr 3, 
- *	July  1992 p195
- *
- * Philippe.Bekaert@cs.kuleuven.ac.be, Thu Oct 23 1997
- */
+/**
+ 4D base-2 Niederreiter QMC series, ACM TOMS Algorithm 738, dec 94
+
+See also:
+
+P. Bratley, B. Fox, H. Niederreiter, "Implementation and Tests of
+Low-Discrepancy Sequences", ACM Trans Mod Comp Sim Vol 2 Nr 3,
+July  1992 p195
+
+Philippe.Bekaert@cs.kuleuven.ac.be, Thu Oct 23 1997
+*/
 
 static niedindex nied[DIMEN] = {0, 0, 0, 0}, count = 0;
 

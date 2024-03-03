@@ -1,13 +1,14 @@
-/* nied63.c: 63bit 4D base-2 Niederreiter QMC series, ACM TOMS Algorithm 738, dec 94.
- *
- * See also:
- *
- * P. Bratley, B. Fox, H. Niederreiter, "Implementation and Tests of
- *	Low-Discrepancy Sequences", ACM Trans Mod Comp Sim Vol 2 Nr 3, 
- *	July  1992 p195
- *
- * Philippe.Bekaert@cs.kuleuven.ac.be, Tue Nov 7 2000
- */
+/**
+63bit 4D base-2 Niederreiter QMC series, ACM TOMS Algorithm 738, dec 94.
+
+See also:
+
+P. Bratley, B. Fox, H. Niederreiter, "Implementation and Tests of
+Low-Discrepancy Sequences", ACM Trans Mod Comp Sim Vol 2 Nr 3,
+July  1992 p195
+
+Philippe.Bekaert@cs.kuleuven.ac.be, Tue Nov 7 2000
+*/
 
 #ifndef NOINT64
 /* all this makes no sense if you don't have 64-bit integers */
@@ -84,7 +85,7 @@ static unsigned long long cj[DIMEN][NBITS] = {
                 0x2c40002c40005c47uLL, 0x5ac0005ac00038c6uLL, 0x37c00037c00071c4uLL}
 };
 
-/* the implementation is the same for 31bit and 63bit sequences */
+// The implementation is the same for 31bit and 63bit sequences
 #include "QMC/niederreiter.inc"
 
 #endif

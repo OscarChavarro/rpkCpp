@@ -1,4 +1,6 @@
-/* sobol.h: Sobol QMC sequence */
+/**
+Sobol QMC sequence
+*/
 
 #ifndef __SOBOL__
 #define __SOBOL__

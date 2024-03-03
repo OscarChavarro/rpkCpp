@@ -38,7 +38,7 @@ nextSobol() {
 }
 
 // Translate n into Gray code
-#define GRAY(n) (n ^ (n>>1))
+#define GRAY(n) ((n) ^ ((n)>>1))
 
 double *
 sobol(int seed) {

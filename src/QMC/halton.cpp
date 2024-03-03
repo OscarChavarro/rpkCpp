@@ -1,21 +1,11 @@
-/* halton.c: Halton quasi Monte Carlo sample generator */
+/**
+Halton quasi Monte Carlo sample generator
+*/
 
 #include "QMC/halton.h"
 
-double Halton(int i, int base) {
-    double h = 0., f, factor;
-    f = factor = 1. / (double) base;
-
-    while ( i > 0 ) {
-        h += (double) (i % base) * factor;
-        i /= base;
-        factor *= f;
-    }
-
-    return h;
-}
-
-double Halton2(int i) {
+double
+Halton2(int i) {
     unsigned long h, f;
 
     h = i & 1;
@@ -43,7 +33,8 @@ double Halton2(int i) {
     return (double) h / (double) f;
 }
 
-double Halton3(int i) {
+double
+Halton3(int i) {
     unsigned long h, f;
     unsigned long j = i;
     i /= 3;
@@ -61,7 +52,8 @@ double Halton3(int i) {
     return (double) h / (double) f;
 }
 
-double Halton5(int i) {
+double
+Halton5(int i) {
     unsigned long h, f;
     unsigned long j = i;
     i /= 5;
@@ -79,7 +71,8 @@ double Halton5(int i) {
     return (double) h / (double) f;
 }
 
-double Halton7(int i) {
+double
+Halton7(int i) {
     unsigned long h, f;
     unsigned long j = i;
     i /= 7;

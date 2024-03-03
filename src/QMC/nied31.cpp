@@ -1,13 +1,14 @@
-/* nied31.c: 31bit 4D base-2 Niederreiter QMC series, ACM TOMS Algorithm 738, dec 94.
- *
- * See also:
- *
- * P. Bratley, B. Fox, H. Niederreiter, "Implementation and Tests of
- *	Low-Discrepancy Sequences", ACM Trans Mod Comp Sim Vol 2 Nr 3, 
- *	July  1992 p195
- *
- * Philippe.Bekaert@cs.kuleuven.ac.be, Thu Oct 23 1997
- */
+/**
+31bit 4D base-2 Niederreiter QMC series, ACM TOMS Algorithm 738, dec 94.
+
+See also:
+
+P. Bratley, B. Fox, H. Niederreiter, "Implementation and Tests of
+Low-Discrepancy Sequences", ACM Trans Mod Comp Sim Vol 2 Nr 3,
+July  1992 p195
+
+Philippe.Bekaert@cs.kuleuven.ac.be, Thu Oct 23 1997
+*/
 #include <cstdlib>
 #include <cstdio>
 
@@ -48,5 +49,5 @@ static unsigned cj[DIMEN][NBITS] = {
                 0x7007002c, 0x6206205a, 0x46046037}
 };
 
-/* the implementation is the same for 31bit and 63bit sequences */
+// The implementation is the same for 31bit and 63bit sequences
 #include "QMC/niederreiter.inc"
