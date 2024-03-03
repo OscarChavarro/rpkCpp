@@ -640,8 +640,11 @@ mgfEntityFaceWithHoles(int ac, char **av)            /* replace face+holes with 
     return mgfHandle(MG_E_FACE, i, newav);
 }
 
+/**
+Expand a sphere into cones
+*/
 int
-mgfEntitySphere(int ac, char **av)            /* expand a sphere into cones */
+mgfEntitySphere(int ac, char **av)
 {
     static char p2x[24];
     static char p2y[24];
@@ -668,7 +671,8 @@ mgfEntitySphere(int ac, char **av)            /* expand a sphere into cones */
         return MGF_ERROR_ARGUMENT_TYPE;
     }
     rad = atof(av[2]);
-    /* initialize */
+
+    // Initialize
     warpconends = 1;
     if ((rval = mgfHandle(MG_E_VERTEX, 3, v2ent)) != MGF_OK ) {
         return rval;
@@ -684,11 +688,11 @@ mgfEntitySphere(int ac, char **av)            /* expand a sphere into cones */
     r2[1] = '\0';
     for ( i = 1; i <= 2 * GLOBAL_mgf_divisionsPerQuarterCircle; i++ ) {
         theta = i * (M_PI / 2) / GLOBAL_mgf_divisionsPerQuarterCircle;
-        if ((rval = mgfHandle(MG_E_VERTEX, 4, v1ent)) != MGF_OK ) {
+        if ( (rval = mgfHandle(MG_E_VERTEX, 4, v1ent)) != MGF_OK ) {
             return rval;
         }
         snprintf(p2z, 24, globalFloatFormat, cv->p[2] + rad * std::cos(theta));
-        if ((rval = mgfHandle(MG_E_VERTEX, 2, v2ent)) != MGF_OK ) {
+        if ( (rval = mgfHandle(MG_E_VERTEX, 2, v2ent)) != MGF_OK ) {
             return rval;
         }
         if ((rval = mgfHandle(MG_E_POINT, 4, p2ent)) != MGF_OK ) {
@@ -704,8 +708,11 @@ mgfEntitySphere(int ac, char **av)            /* expand a sphere into cones */
     return MGF_OK;
 }
 
+/**
+Expand a torus into cones
+*/
 int
-mgfEntityTorus(int ac, char **av)            /* expand a torus into cones */
+mgfEntityTorus(int ac, char **av)
 {
     static char p2[3][24];
     static char r1[24];
@@ -715,22 +722,25 @@ mgfEntityTorus(int ac, char **av)            /* expand a torus into cones */
     static char *p2ent[5] = {GLOBAL_mgf_entityNames[MG_E_POINT], p2[0], p2[1], p2[2]};
     static char *conent[6] = {GLOBAL_mgf_entityNames[MGF_ERROR_CONE], (char *)"_tv1", r1, (char *)"_tv2", r2};
     MgfVertexContext *cv;
-    int i, j;
+    int i;
+    int j;
     int rval;
     int sgn;
-    double minrad, maxrad, avgrad;
+    double minrad;
+    double maxrad;
+    double avgrad;
     double theta;
 
     if ( ac != 4 ) {
         return MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
     }
-    if ((cv = getNamedVertex(av[1])) == nullptr) {
+    if ( (cv = getNamedVertex(av[1])) == nullptr ) {
         return MGF_ERROR_UNDEFINED_REFERENCE;
     }
-    if ( is0Vector(cv->n)) {
+    if ( is0Vector(cv->n) ) {
         return MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
     }
-    if ( !isFloatWords(av[2]) || !isFloatWords(av[3])) {
+    if ( !isFloatWords(av[2]) || !isFloatWords(av[3]) ) {
         return MGF_ERROR_ARGUMENT_TYPE;
     }
     minrad = atof(av[2]);
@@ -775,15 +785,18 @@ mgfEntityTorus(int ac, char **av)            /* expand a torus into cones */
             snprintf(p2[j], 24, globalFloatFormat, cv->p[j] +
                                    0.5 * sgn * (maxrad - minrad) * std::cos(theta) * cv->n[j]);
         }
-        if ((rval = mgfHandle(MG_E_VERTEX, 2, v2ent)) != MGF_OK ) {
+        rval = mgfHandle(MG_E_VERTEX, 2, v2ent);
+        if ( rval != MGF_OK ) {
             return rval;
         }
-        if ((rval = mgfHandle(MG_E_POINT, 4, p2ent)) != MGF_OK ) {
+        rval = mgfHandle(MG_E_POINT, 4, p2ent);
+        if ( rval != MGF_OK ) {
             return rval;
         }
         strcpy(r1, r2);
         snprintf(r2, 24, globalFloatFormat, avgrad + 0.5 * (maxrad - minrad) * std::sin(theta));
-        if ((rval = mgfHandle(MGF_ERROR_CONE, 5, conent)) != MGF_OK ) {
+        rval = mgfHandle(MGF_ERROR_CONE, 5, conent);
+        if ( rval != MGF_OK ) {
             return rval;
         }
     }
@@ -796,18 +809,22 @@ mgfEntityTorus(int ac, char **av)            /* expand a torus into cones */
             snprintf(p2[j], 24, globalFloatFormat, cv->p[j] +
                                    0.5 * sgn * (maxrad - minrad) * std::cos(theta) * cv->n[j]);
         }
-        if ( (rval = mgfHandle(MG_E_VERTEX, 4, v1ent)) != MGF_OK ) {
+        rval = mgfHandle(MG_E_VERTEX, 4, v1ent);
+        if ( rval != MGF_OK ) {
             return rval;
         }
-        if ( (rval = mgfHandle(MG_E_VERTEX, 2, v2ent)) != MGF_OK ) {
+        rval = mgfHandle(MG_E_VERTEX, 2, v2ent);
+        if ( rval != MGF_OK ) {
             return rval;
         }
-        if ( (rval = mgfHandle(MG_E_POINT, 4, p2ent)) != MGF_OK ) {
+        rval = mgfHandle(MG_E_POINT, 4, p2ent);
+        if ( rval != MGF_OK ) {
             return rval;
         }
         strcpy(r1, r2);
         snprintf(r2, 24, globalFloatFormat, -avgrad - .5 * (maxrad - minrad) * std::sin(theta));
-        if ((rval = mgfHandle(MGF_ERROR_CONE, 5, conent)) != MGF_OK ) {
+        rval = mgfHandle(MGF_ERROR_CONE, 5, conent);
+        if ( rval != MGF_OK ) {
             return rval;
         }
     }
@@ -886,10 +903,12 @@ mgfEntityRing(int ac, char **av)
     for ( j = 0; j < 3; j++ ) {
         snprintf(p3[j], 24, globalFloatFormat, cv->p[j] + maxRad * u[j]);
     }
-    if ( (rv = mgfHandle(MG_E_VERTEX, 3, v3ent)) != MGF_OK ) {
+    rv = mgfHandle(MG_E_VERTEX, 3, v3ent);
+    if ( rv != MGF_OK ) {
         return rv;
     }
-    if ( (rv = mgfHandle(MG_E_POINT, 4, p3ent)) != MGF_OK ) {
+    rv = mgfHandle(MG_E_POINT, 4, p3ent);
+    if ( rv != MGF_OK ) {
         return rv;
     }
 
@@ -897,15 +916,18 @@ mgfEntityRing(int ac, char **av)
         // TODO: Review floating point comparisons vs EPSILON
         // Closed
         v1ent[3] = av[1];
-        if ((rv = mgfHandle(MG_E_VERTEX, 4, v1ent)) != MGF_OK ) {
+        rv = mgfHandle(MG_E_VERTEX, 4, v1ent);
+        if ( rv != MGF_OK ) {
             return rv;
         }
-        if ((rv = mgfHandle(MG_E_NORMAL, 4, nzent)) != MGF_OK ) {
+        rv = mgfHandle(MG_E_NORMAL, 4, nzent);
+        if ( rv != MGF_OK ) {
             return rv;
         }
         for ( i = 1; i <= 4 * GLOBAL_mgf_divisionsPerQuarterCircle; i++ ) {
             theta = i * (M_PI / 2) / GLOBAL_mgf_divisionsPerQuarterCircle;
-            if ( (rv = mgfHandle(MG_E_VERTEX, 4, v2ent)) != MGF_OK ) {
+            rv = mgfHandle(MG_E_VERTEX, 4, v2ent);
+            if ( rv != MGF_OK ) {
                 return rv;
             }
             for ( j = 0; j < 3; j++ ) {
@@ -913,25 +935,30 @@ mgfEntityRing(int ac, char **av)
                                             maxRad * u[j] * std::cos(theta) +
                                             maxRad * v[j] * std::sin(theta));
             }
-            if ( (rv = mgfHandle(MG_E_VERTEX, 2, v3ent)) != MGF_OK ) {
+            rv = mgfHandle(MG_E_VERTEX, 2, v3ent);
+            if ( rv != MGF_OK ) {
                 return rv;
             }
-            if ( (rv = mgfHandle(MG_E_POINT, 4, p3ent)) != MGF_OK ) {
+            rv = mgfHandle(MG_E_POINT, 4, p3ent);
+            if ( rv != MGF_OK ) {
                 return rv;
             }
-            if ( (rv = mgfHandle(MG_E_FACE, 4, fent)) != MGF_OK ) {
+            rv = mgfHandle(MG_E_FACE, 4, fent);
+            if ( rv != MGF_OK ) {
                 return rv;
             }
         }
     } else {
         // Open
-        if ( (rv = mgfHandle(MG_E_VERTEX, 3, v4ent)) != MGF_OK ) {
+        rv = mgfHandle(MG_E_VERTEX, 3, v4ent);
+        if ( rv != MGF_OK ) {
             return rv;
         }
         for ( j = 0; j < 3; j++ ) {
             snprintf(p4[j], 24, globalFloatFormat, cv->p[j] + minRad * u[j]);
         }
-        if ( (rv = mgfHandle(MG_E_POINT, 4, p4ent)) != MGF_OK ) {
+        rv = mgfHandle(MG_E_POINT, 4, p4ent);
+        if ( rv != MGF_OK ) {
             return rv;
         }
         v1ent[3] = (char *)"_rv4";
@@ -1013,12 +1040,13 @@ mgfEntityCone(int ac, char **av)
     if ( ac != 5 ) {
         return MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
     }
-    if ( (cv1 = getNamedVertex(av[1])) == nullptr ||
-         (cv2 = getNamedVertex(av[3])) == nullptr) {
+    cv1 = getNamedVertex(av[1]);
+    cv2 = getNamedVertex(av[3]);
+    if ( cv1 == nullptr || cv2 == nullptr) {
         return MGF_ERROR_UNDEFINED_REFERENCE;
     }
     v1n = av[1];
-    if ( !isFloatWords(av[2]) || !isFloatWords(av[4])) {
+    if ( !isFloatWords(av[2]) || !isFloatWords(av[4]) ) {
         return MGF_ERROR_ARGUMENT_TYPE;
     }
     rad1 = atof(av[2]);
@@ -1051,12 +1079,13 @@ mgfEntityCone(int ac, char **av)
     for ( j = 0; j < 3; j++ ) {
         w[j] = cv1->p[j] - cv2->p[j];
     }
-    if ( (d = normalize(w)) == 0.0 ) {
+    d = normalize(w);
+    if ( d == 0.0 ) {
         // TODO: Review floating point comparisons vs EPSILON
         return MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
     }
     n1off = n2off = (rad2 - rad1) / d;
-    if ( warpconends ) {
+    if ( warpconends != 0 ) {
         // Hack for mgfEntitySphere and mgfEntityTorus
         d = std::atan(n2off) - (M_PI / 4) / GLOBAL_mgf_divisionsPerQuarterCircle;
         if ( d <= -M_PI / 2 + FLOAT_TINY) {
@@ -1074,30 +1103,36 @@ mgfEntityCone(int ac, char **av)
             snprintf(n3[j], 24, globalFloatFormat, u[j] + w[j] * n2off);
         }
     }
-    if ( (rv = mgfHandle(MG_E_VERTEX, 3, v3ent)) != MGF_OK ) {
+    rv = mgfHandle(MG_E_VERTEX, 3, v3ent);
+    if ( rv != MGF_OK ) {
         return rv;
     }
-    if ( (rv = mgfHandle(MG_E_POINT, 4, p3ent)) != MGF_OK ) {
+    rv = mgfHandle(MG_E_POINT, 4, p3ent);
+    if ( rv != MGF_OK ) {
         return rv;
     }
-    if ((rv = mgfHandle(MG_E_NORMAL, 4, n3ent)) != MGF_OK ) {
+    rv = mgfHandle(MG_E_NORMAL, 4, n3ent);
+    if ( rv != MGF_OK ) {
         return rv;
     }
     if ( rad1 == 0.0 ) { // TODO: Review floating point comparisons vs EPSILON
         // Triangles
         v1ent[3] = v1n;
-        if ( (rv = mgfHandle(MG_E_VERTEX, 4, v1ent)) != MGF_OK ) {
+        rv = mgfHandle(MG_E_VERTEX, 4, v1ent);
+        if ( rv != MGF_OK ) {
             return rv;
         }
         for ( j = 0; j < 3; j++ ) {
             snprintf(n4[j], 24, globalFloatFormat, w[j]);
         }
-        if ( (rv = mgfHandle(MG_E_NORMAL, 4, n4ent)) != MGF_OK ) {
+        rv = mgfHandle(MG_E_NORMAL, 4, n4ent);
+        if ( rv != MGF_OK ) {
             return rv;
         }
         for ( i = 1; i <= 4 * GLOBAL_mgf_divisionsPerQuarterCircle; i++ ) {
             theta = sgn * i * (M_PI / 2) / GLOBAL_mgf_divisionsPerQuarterCircle;
-            if ( (rv = mgfHandle(MG_E_VERTEX, 4, v2ent)) != MGF_OK ) {
+            rv = mgfHandle(MG_E_VERTEX, 4, v2ent);
+            if ( rv != MGF_OK ) {
                 return rv;
             }
             for ( j = 0; j < 3; j++ ) {
@@ -1107,17 +1142,20 @@ mgfEntityCone(int ac, char **av)
                     snprintf(n3[j], 24, globalFloatFormat, d + w[j] * n2off);
                 }
             }
-            if ( (rv = mgfHandle(MG_E_VERTEX, 2, v3ent)) != MGF_OK ) {
+            rv = mgfHandle(MG_E_VERTEX, 2, v3ent);
+            if ( rv != MGF_OK ) {
                 return rv;
             }
-            if ( (rv = mgfHandle(MG_E_POINT, 4, p3ent)) != MGF_OK ) {
+            rv = mgfHandle(MG_E_POINT, 4, p3ent);
+            if ( rv != MGF_OK ) {
                 return rv;
             }
-            if ( n2off > -FLOAT_HUGE &&
-                 (rv = mgfHandle(MG_E_NORMAL, 4, n3ent)) != MGF_OK ) {
+            rv = mgfHandle(MG_E_NORMAL, 4, n3ent);
+            if ( n2off > -FLOAT_HUGE && rv != MGF_OK ) {
                 return rv;
             }
-            if ( (rv = mgfHandle(MG_E_FACE, 4, fent)) != MGF_OK ) {
+            rv = mgfHandle(MG_E_FACE, 4, fent);
+            if ( rv != MGF_OK ) {
                 return rv;
             }
         }
@@ -1141,18 +1179,22 @@ mgfEntityCone(int ac, char **av)
                 snprintf(n4[j], 24, globalFloatFormat, u[j] + w[j] * n1off);
             }
         }
-        if ( (rv = mgfHandle(MG_E_VERTEX, 3, v4ent)) != MGF_OK ) {
+        rv = mgfHandle(MG_E_VERTEX, 3, v4ent);
+        if ( rv != MGF_OK ) {
             return rv;
         }
-        if ( (rv = mgfHandle(MG_E_POINT, 4, p4ent)) != MGF_OK ) {
+        rv = mgfHandle(MG_E_POINT, 4, p4ent);
+        if ( rv != MGF_OK ) {
             return rv;
         }
-        if ( (rv = mgfHandle(MG_E_NORMAL, 4, n4ent)) != MGF_OK ) {
+        rv = mgfHandle(MG_E_NORMAL, 4, n4ent);
+        if ( rv != MGF_OK ) {
             return rv;
         }
         for ( i = 1; i <= 4 * GLOBAL_mgf_divisionsPerQuarterCircle; i++ ) {
             theta = sgn * i * (M_PI / 2) / GLOBAL_mgf_divisionsPerQuarterCircle;
-            if ((rv = mgfHandle(MG_E_VERTEX, 4, v1ent)) != MGF_OK ) {
+            rv = mgfHandle(MG_E_VERTEX, 4, v1ent);
+            if ( rv != MGF_OK ) {
                 return rv;
             }
             rv = mgfHandle(MG_E_VERTEX, 4, v2ent);
@@ -1204,8 +1246,11 @@ mgfEntityCone(int ac, char **av)
     return MGF_OK;
 }
 
+/**
+Turn a prism into polygons
+*/
 int
-mgfEntityPrism(int ac, char **av)            /* turn a prism into polygons */
+mgfEntityPrism(int ac, char **av)
 {
     static char p[3][24];
     static char *vent[5] = {GLOBAL_mgf_entityNames[MG_E_VERTEX], nullptr, (char *)"="};
@@ -1229,23 +1274,25 @@ mgfEntityPrism(int ac, char **av)            /* turn a prism into polygons */
     if ( ac < 5 ) {
         return MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
     }
-    if ( !isFloatWords(av[ac - 1])) {
+    if ( !isFloatWords(av[ac - 1]) ) {
         return MGF_ERROR_ARGUMENT_TYPE;
     }
     length = atof(av[ac - 1]);
-    if ( length <= FLOAT_TINY && length >= -FLOAT_TINY) {
+    if ( length <= FLOAT_TINY && length >= -FLOAT_TINY ) {
         return MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
     }
 
     // Compute face normal
-    if ( (cv0 = getNamedVertex(av[1])) == nullptr) {
+    cv0 = getNamedVertex(av[1]);
+    if ( cv0 == nullptr ) {
         return MGF_ERROR_UNDEFINED_REFERENCE;
     }
     hasnorm = 0;
     norm[0] = norm[1] = norm[2] = 0.;
     v1[0] = v1[1] = v1[2] = 0.;
     for ( i = 2; i < ac - 1; i++ ) {
-        if ( (cv = getNamedVertex(av[i])) == nullptr) {
+        cv = getNamedVertex(av[i]);
+        if ( cv == nullptr) {
             return MGF_ERROR_UNDEFINED_REFERENCE;
         }
         hasnorm += !is0Vector(cv->n);
@@ -1267,14 +1314,16 @@ mgfEntityPrism(int ac, char **av)            /* turn a prism into polygons */
         snprintf(nvn[i - 1], MGF_MAXIMUM_ARGUMENT_COUNT, "_pv%d", i);
         vent[1] = nvn[i - 1];
         vent[3] = av[i];
-        if ( (rv = mgfHandle(MG_E_VERTEX, 4, vent)) != MGF_OK ) {
+        rv = mgfHandle(MG_E_VERTEX, 4, vent);
+        if ( rv != MGF_OK ) {
             return rv;
         }
         cv = getNamedVertex(av[i]);        /* checked above */
         for ( j = 0; j < 3; j++ ) {
             snprintf(p[j], 24, globalFloatFormat, cv->p[j] - length * norm[j]);
         }
-        if ( (rv = mgfHandle(MG_E_POINT, 4, pent)) != MGF_OK ) {
+        rv = mgfHandle(MG_E_POINT, 4, pent);
+        if ( rv != MGF_OK ) {
             return rv;
         }
     }
@@ -1288,7 +1337,8 @@ mgfEntityPrism(int ac, char **av)            /* turn a prism into polygons */
     for ( i = 1; i < ac - 1; i++ ) {
         newav[1] = nvn[i - 1];
         newav[2] = av[i];
-        if ( (rv = mgfHandle(MG_E_FACE, 5, newav)) != MGF_OK ) {
+        rv = mgfHandle(MG_E_FACE, 5, newav);
+        if ( rv != MGF_OK ) {
             return rv;
         }
         newav[3] = newav[2];
@@ -1300,27 +1350,32 @@ mgfEntityPrism(int ac, char **av)            /* turn a prism into polygons */
         if ( hasnorm ) {
             // Zero normals
             vent[1] = nvn[i - 1];
-            if ( (rv = mgfHandle(MG_E_VERTEX, 2, vent)) != MGF_OK ) {
+            rv = mgfHandle(MG_E_VERTEX, 2, vent);
+            if ( rv != MGF_OK ) {
                 return rv;
             }
-            if ( (rv = mgfHandle(MG_E_NORMAL, 4, znorm)) != MGF_OK ) {
+            rv = mgfHandle(MG_E_NORMAL, 4, znorm);
+            if ( rv != MGF_OK ) {
                 return rv;
             }
         }
         newav[ac - 1 - i] = nvn[i - 1]; // Reverse
     }
-    if ( (rv = mgfHandle(MG_E_FACE, ac - 1, newav)) != MGF_OK ) {
+    rv = mgfHandle(MG_E_FACE, ac - 1, newav);
+    if ( rv != MGF_OK ) {
         return rv;
     }
     // Do bottom face
-    if ( hasnorm ) {
+    if ( hasnorm != 0 ) {
         for ( i = 1; i < ac - 1; i++ ) {
             vent[1] = nvn[i - 1];
             vent[3] = av[i];
-            if ( (rv = mgfHandle(MG_E_VERTEX, 4, vent)) != MGF_OK ) {
+            rv = mgfHandle(MG_E_VERTEX, 4, vent);
+            if ( rv != MGF_OK ) {
                 return rv;
             }
-            if ( (rv = mgfHandle(MG_E_NORMAL, 4, znorm)) != MGF_OK ) {
+            rv = mgfHandle(MG_E_NORMAL, 4, znorm);
+            if ( rv != MGF_OK ) {
                 return rv;
             }
             newav[i] = nvn[i - 1];
@@ -1331,7 +1386,8 @@ mgfEntityPrism(int ac, char **av)            /* turn a prism into polygons */
         }
     }
     newav[i] = nullptr;
-    if ( (rv = mgfHandle(MG_E_FACE, i, newav)) != MGF_OK ) {
+    rv = mgfHandle(MG_E_FACE, i, newav);
+    if ( rv != MGF_OK ) {
         return rv;
     }
     return MGF_OK;
