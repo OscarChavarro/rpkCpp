@@ -24,9 +24,9 @@ extern Vertex *monteCarloRadiosityEdgeMidpointVertex(StochasticRadiosityElement 
 extern int monteCarloRadiosityElementIsTextured(StochasticRadiosityElement *elem);
 extern float monteCarloRadiosityElementScalarReflectance(StochasticRadiosityElement *elem);
 extern void pushRadiance(StochasticRadiosityElement *parent, StochasticRadiosityElement *child, COLOR *parent_rad, COLOR *child_rad);
-extern void pushImportance(StochasticRadiosityElement *parent, StochasticRadiosityElement *child, float *parent_imp, float *child_imp);
+extern void pushImportance(StochasticRadiosityElement *parent, StochasticRadiosityElement *child, const float *parent_imp, float *child_imp);
 extern void pullRadiance(StochasticRadiosityElement *parent, StochasticRadiosityElement *child, COLOR *parent_rad, COLOR *child_rad);
-extern void pullImportance(StochasticRadiosityElement *parent, StochasticRadiosityElement *child, float *parent_imp, float *child_imp);
+extern void pullImportance(StochasticRadiosityElement *parent, StochasticRadiosityElement *child, float *parent_imp, const float *child_imp);
 extern COLOR elementDisplayRadiance(StochasticRadiosityElement *elem);
 extern COLOR elementDisplayRadianceAtPoint(StochasticRadiosityElement *elem, double u, double v);
 extern void mcrRenderElement(StochasticRadiosityElement *elem);

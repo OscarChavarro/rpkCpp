@@ -11,19 +11,19 @@ Non diffuse first shot
 #include "raycasting/stochasticRaytracing/mcradP.h"
 #include "scene/scene.h"
 
-class LIGHTSOURCETABLE {
+class LightSourceTable {
   public:
     Patch *patch;
     double flux;
 };
 
-static LIGHTSOURCETABLE *globalLights;
+static LightSourceTable *globalLights;
 static int globalNumberOfLights;
 static int globalNumberOfSamples;
 static double globalTotalFlux;
 
 static void
-initLight(LIGHTSOURCETABLE *light, Patch *l, double flux) {
+initLight(LightSourceTable *light, Patch *l, double flux) {
     light->patch = l;
     light->flux = flux;
 }
@@ -32,7 +32,7 @@ static void
 makeLightSourceTable(java::ArrayList<Patch *> *scenePatches, java::ArrayList<Patch *> *lightPatches) {
     globalTotalFlux = 0.0;
     globalNumberOfLights = GLOBAL_statistics_numberOfLightSources;
-    globalLights = (LIGHTSOURCETABLE *)malloc(globalNumberOfLights * sizeof(LIGHTSOURCETABLE));
+    globalLights = (LightSourceTable *)malloc(globalNumberOfLights * sizeof(LightSourceTable));
 
     for ( int i = 0; lightPatches != nullptr && i < lightPatches->size(); i++ ) {
         Patch *light = lightPatches->get(i);
@@ -90,7 +90,7 @@ sampleLightRay(Patch *patch, COLOR *emitted_rad, double *point_selection_pdf, do
 }
 
 static void
-sampleLight(LIGHTSOURCETABLE *light, double light_selection_pdf) {
+sampleLight(LightSourceTable *light, double light_selection_pdf) {
     COLOR rad;
     double point_selection_pdf, dir_selection_pdf;
     Ray ray = sampleLightRay(light->patch, &rad, &point_selection_pdf, &dir_selection_pdf);
@@ -101,14 +101,14 @@ sampleLight(LIGHTSOURCETABLE *light, double light_selection_pdf) {
     hit = mcrShootRay(light->patch, &ray, &hitStore);
     if ( hit ) {
         double pdf = light_selection_pdf * point_selection_pdf * dir_selection_pdf;
-        double outcos = vectorDotProduct(ray.dir, light->patch->normal);
-        COLOR rcvrad;
+        double outCos = vectorDotProduct(ray.dir, light->patch->normal);
+        COLOR receivedRadiosity;
         COLOR Rd = topLevelGalerkinElement(hit->patch)->Rd;
-        colorScale((float)(outcos / (M_PI * hit->patch->area * pdf * globalNumberOfSamples)), rad, rcvrad);
-        colorProduct(Rd, rcvrad, rcvrad);
-        colorAdd(getTopLevelPatchRad(hit->patch)[0], rcvrad, getTopLevelPatchRad(hit->patch)[0]);
-        colorAdd(getTopLevelPatchUnShotRad(hit->patch)[0], rcvrad, getTopLevelPatchUnShotRad(hit->patch)[0]);
-        colorAdd(topLevelGalerkinElement(hit->patch)->sourceRad, rcvrad, topLevelGalerkinElement(hit->patch)->sourceRad);
+        colorScale((float)(outCos / (M_PI * hit->patch->area * pdf * globalNumberOfSamples)), rad, receivedRadiosity);
+        colorProduct(Rd, receivedRadiosity, receivedRadiosity);
+        colorAdd(getTopLevelPatchRad(hit->patch)[0], receivedRadiosity, getTopLevelPatchRad(hit->patch)[0]);
+        colorAdd(getTopLevelPatchUnShotRad(hit->patch)[0], receivedRadiosity, getTopLevelPatchUnShotRad(hit->patch)[0]);
+        colorAdd(topLevelGalerkinElement(hit->patch)->sourceRad, receivedRadiosity, topLevelGalerkinElement(hit->patch)->sourceRad);
     }
 }
 

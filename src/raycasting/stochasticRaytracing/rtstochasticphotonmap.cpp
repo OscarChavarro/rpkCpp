@@ -8,15 +8,13 @@
 #include "raycasting/raytracing/lightsampler.h"
 #include "raycasting/stochasticRaytracing/rtstochasticphotonmap.h"
 
-CSeed CSeedConfig::m_xorseed;
+CSeed CSeedConfig::xOrSeed;
 
 void
-SRCONFIG::init(RTStochastic_State &state, java::ArrayList<Patch *> *lightList) {
+StochasticRaytracingConfiguration::init(RTStochastic_State &state, java::ArrayList<Patch *> *lightList) {
     // Copy state options
 
     samplesPerPixel = state.samplesPerPixel;
-
-    baseSeed = state.baseSeed;
 
     radMode = state.radMode;
 
@@ -82,7 +80,7 @@ SRCONFIG::init(RTStochastic_State &state, java::ArrayList<Patch *> *lightList) {
 }
 
 void
-SRCONFIG::initDependentVars(java::ArrayList<Patch *> *lightList) {
+StochasticRaytracingConfiguration::initDependentVars(java::ArrayList<Patch *> *lightList) {
     // Sampler configuration
     samplerConfig.pointSampler = new CEyeSampler;
     samplerConfig.dirSampler = new CPixelSampler;
@@ -160,12 +158,11 @@ SRCONFIG::initDependentVars(java::ArrayList<Patch *> *lightList) {
         // spec reflection
 
         if ( reflectionSampling == CLASSICALSAMPLING ) {
-            flags = remainingFlags & (BRDF_SPECULAR_COMPONENT |
-                                      BRDF_GLOSSY_COMPONENT); // Glossy == Specular in classic
+            flags = (BSDFFLAGS)(remainingFlags & (BRDF_SPECULAR_COMPONENT |
+                                      BRDF_GLOSSY_COMPONENT)); // Glossy == Specular in classic
         } else {
-            flags = remainingFlags & BRDF_SPECULAR_COMPONENT;
+            flags = (BSDFFLAGS)(remainingFlags & BRDF_SPECULAR_COMPONENT);
         }
-
 
         if ( flags ) {
             siOthers[siIndex].flags = flags;
@@ -175,13 +172,12 @@ SRCONFIG::initDependentVars(java::ArrayList<Patch *> *lightList) {
             remainingFlags &= ~flags;
         }
 
-        // spec transmission
-
+        // Spec transmission
         if ( reflectionSampling == CLASSICALSAMPLING ) {
-            flags = remainingFlags & (BTDF_SPECULAR_COMPONENT |
-                                      BTDF_GLOSSY_COMPONENT); // Glossy == Specular in classic
+            flags = (BSDFFLAGS)(remainingFlags & (BTDF_SPECULAR_COMPONENT |
+                                      BTDF_GLOSSY_COMPONENT)); // Glossy == Specular in classic
         } else {
-            flags = remainingFlags & BTDF_SPECULAR_COMPONENT;
+            flags = (BSDFFLAGS)(remainingFlags & BTDF_SPECULAR_COMPONENT);
         }
 
         if ( flags ) {
@@ -196,7 +192,7 @@ SRCONFIG::initDependentVars(java::ArrayList<Patch *> *lightList) {
     // Glossy or diffuse with different firstDGSamples
 
     if ( (reflectionSampling != CLASSICALSAMPLING) && (scatterSamples != firstDGSamples) ) {
-        BSDFFLAGS gdFlags = (remainingFlags &
+        BSDFFLAGS gdFlags = (BSDFFLAGS)(remainingFlags &
                              (BSDF_DIFFUSE_COMPONENT | BSDF_GLOSSY_COMPONENT));
         if ( gdFlags ) {
             siOthers[siIndex].flags = gdFlags;
@@ -209,7 +205,7 @@ SRCONFIG::initDependentVars(java::ArrayList<Patch *> *lightList) {
 
     if ( reflectionSampling == CLASSICALSAMPLING ) {
         // Classical: Diffuse, with no scattering
-        BSDFFLAGS dFlags = (remainingFlags & BSDF_DIFFUSE_COMPONENT);
+        BSDFFLAGS dFlags = (BSDFFLAGS)(remainingFlags & BSDF_DIFFUSE_COMPONENT);
 
         if ( dFlags ) {
             siOthers[siIndex].flags = dFlags;

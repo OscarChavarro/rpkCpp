@@ -138,7 +138,8 @@ tracePaths(
     long numberOfPaths,
     double (*BirthProbability)(Patch *P),
     double (*SurvivalProbability)(Patch *P),
-    void (*ScorePath)(PATH *, long nr_paths, double (*birth_prob)(Patch *)),
+    void (*ScorePath)(PATH *, long nr_paths,
+    double (*birth_prob)(Patch *)),
     void (*Update)(Patch *P, double w),
     java::ArrayList<Patch *> *scenePatches)
 {

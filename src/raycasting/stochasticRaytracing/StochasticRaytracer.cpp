@@ -22,16 +22,16 @@ RTStochastic_State GLOBAL_raytracing_state;
 // Forward declaration
 COLOR
 SR_GetRadiance(
-    CPathNode *thisNode,
-    SRCONFIG *config,
-    SRREADOUT readout,
-    int usedScatterSamples);
+        CPathNode *thisNode,
+        StochasticRaytracingConfiguration *config,
+        StorageReadout readout,
+        int usedScatterSamples);
 
 COLOR
 SR_GetScatteredRadiance(
-    CPathNode *thisNode,
-    SRCONFIG *config,
-    SRREADOUT readout)
+        CPathNode *thisNode,
+        StochasticRaytracingConfiguration *config,
+        StorageReadout readout)
 {
     int siCurrent; // What scatter block are we handling
     CScatterInfo *si;
@@ -149,9 +149,9 @@ SR_GetScatteredRadiance(
 
 COLOR
 SR_GetDirectRadiance(
-    CPathNode *prevNode,
-    SRCONFIG *config,
-    SRREADOUT readout)
+        CPathNode *prevNode,
+        StochasticRaytracingConfiguration *config,
+        StorageReadout readout)
 {
     COLOR result;
     COLOR radiance;
@@ -301,10 +301,10 @@ SR_GetDirectRadiance(
 
 COLOR
 SR_GetRadiance(
-    CPathNode *thisNode,
-    SRCONFIG *config,
-    SRREADOUT readout,
-    int usedScatterSamples)
+        CPathNode *thisNode,
+        StochasticRaytracingConfiguration *config,
+        StorageReadout readout,
+        int usedScatterSamples)
 {
     COLOR result;
     COLOR radiance;
@@ -466,7 +466,7 @@ SR_GetRadiance(
 }
 
 static COLOR
-CalcPixel(int nx, int ny, SRCONFIG *config) {
+CalcPixel(int nx, int ny, StochasticRaytracingConfiguration *config) {
     int i;
     CPathNode eyeNode, pixelNode;
     double x1;
@@ -553,7 +553,7 @@ RTStochastic_Trace(
     java::ArrayList<Patch *> * /*scenePatches*/,
     java::ArrayList<Patch *> *lightPatches)
 {
-    SRCONFIG config(GLOBAL_raytracing_state, lightPatches); // config filled in by constructor
+    StochasticRaytracingConfiguration config(GLOBAL_raytracing_state, lightPatches); // config filled in by constructor
 
     // Frame Coherent sampling : init fixed seed
     if ( GLOBAL_raytracing_state.doFrameCoherent ) {

@@ -1,15 +1,17 @@
-#ifndef __RPK_RTSTOCHASTICPHOTONMAP__
-#define __RPK_RTSTOCHASTICPHOTONMAP__
+#ifndef __RT_STOCHASTIC_PHOTON_MAP__
+#define __RT_STOCHASTIC_PHOTON_MAP__
 
 #include "java/util/ArrayList.h"
 #include "raycasting/raytracing/samplertools.h"
 #include "raycasting/stochasticRaytracing/StochasticRaytracerOptions.h"
 
-/*** SEED Configuration class ***/
+/**
+SEED Configuration class
+*/
 class CSeed {
-private:
+  private:
     unsigned short m_seed[3];
-public:
+  public:
     unsigned short *GetSeed() { return m_seed; }
 
     void SetSeed(CSeed seed) {
@@ -19,7 +21,7 @@ public:
         m_seed[2] = s[2];
     }
 
-    void SetSeed(unsigned short seed16v[3]) {
+    void SetSeed(const unsigned short seed16v[3]) {
         m_seed[0] = seed16v[0];
         m_seed[1] = seed16v[1];
         m_seed[2] = seed16v[2];
@@ -31,8 +33,8 @@ public:
         m_seed[2] = s2;
     }
 
-    void XORSeed(CSeed xorseed) {
-        unsigned short *s = xorseed.GetSeed();
+    void XORSeed(CSeed xOrSeed) {
+        unsigned short *s = xOrSeed.GetSeed();
         m_seed[0] ^= s[0];
         m_seed[1] ^= s[1];
         m_seed[2] ^= s[2];
@@ -42,14 +44,14 @@ public:
 class CSeedConfig {
 private:
     CSeed *m_seeds;
-    static CSeed m_xorseed;
+    static CSeed xOrSeed;
 
 public:
 
     // Constructor
     CSeedConfig() {
-        m_xorseed.SetSeed(0xF0, 0x65, 0xDE);
-        m_seeds = 0;
+        xOrSeed.SetSeed(0xF0, 0x65, 0xDE);
+        m_seeds = nullptr;
     }
 
     void Clear() {
@@ -58,9 +60,9 @@ public:
         }
     }
 
-    void Init(int maxdepth) {
+    void Init(int maxDepth) {
         Clear();
-        m_seeds = new CSeed[maxdepth];
+        m_seeds = new CSeed[maxDepth];
     }
 
     ~CSeedConfig() {
@@ -74,13 +76,13 @@ public:
         m_seeds[depth].SetSeed(seed48(m_seeds[depth].GetSeed()));
 
         //Generate a new seed, dependent on the current seed
-        CSeed tmpSeed;
+        CSeed tmpSeed{};
 
         tmpSeed.SetSeed(m_seeds[depth]);
         // Fixed xor should do the trick. Note that you can not use
         // the random number generator itself to generate new seeds,
         // because the supplied random numbers *are* the (truncated) seeds
-        tmpSeed.XORSeed(m_xorseed);
+        tmpSeed.XORSeed(xOrSeed);
         // Set the new seed and drand48 once, to be sure
         seed48(tmpSeed.GetSeed());
         drand48();
@@ -110,24 +112,25 @@ public:
     // Some utility functions
 
     // Were 'flags' last used in the bounce in 'node'
-    bool DoneThisBounce(CPathNode *node) { return (node->m_usedComponents == flags); }
-
-    // Were 'flags' used at some point in the path
-    bool DoneSomeBounce(CPathNode *node) {
-        return (((node->m_accUsedComponents | node->m_usedComponents) & flags) == flags);
+    bool
+    DoneThisBounce(const CPathNode *node) const {
+        return (node->m_usedComponents == flags);
     }
 
     // Were 'flags' used at some previous point in the path
-    bool DoneSomePreviousBounce(CPathNode *node) { return ((node->m_accUsedComponents & flags) == flags); }
+    bool
+    DoneSomePreviousBounce(CPathNode *node) const {
+        return ((node->m_accUsedComponents & flags) == flags);
+    }
 };
 
 // Next enum is needed to track readout of storage.
-enum SRREADOUT {
-    SCATTER, READ_NOW
+enum StorageReadout {
+    SCATTER,
+    READ_NOW
 };
 
-/*** Stochastic raytracing configuration structure ***/
-class SRCONFIG {
+class StochasticRaytracingConfiguration {
 public:
     // *** user options
 
@@ -154,7 +157,6 @@ public:
     // *** all variables must not change during raytracing...
     CSamplerConfig samplerConfig;
     CSeedConfig seedConfig;
-    long baseSeed;
 
     // Scatter info blocks
 
@@ -167,19 +169,57 @@ public:
     CScatterInfo siOthers[BSDFCOMPONENTS];
     int siOthersCount;
 
-    SRREADOUT initialReadout;
+    StorageReadout initialReadout;
 
 public:
     void init(RTStochastic_State &state, java::ArrayList<Patch *> *lightList);
 
     // Constructors
-    SRCONFIG() {}
+    StochasticRaytracingConfiguration():
+        samplesPerPixel(),
+        nextEventSamples(),
+        lightMode(),
+        radMode(),
+        scatterSamples(),
+        firstDGSamples(),
+        reflectionSampling(),
+        separateSpecular(),
+        backgroundIndirect(),
+        backgroundDirect(),
+        backgroundSampling(),
+        screen(),
+        samplerConfig(),
+        seedConfig(),
+        siStorage(),
+        siOthers(),
+        siOthersCount(),
+        initialReadout()
+    {}
 
-    SRCONFIG(RTStochastic_State &state, java::ArrayList<Patch *> *lightList) {
+    StochasticRaytracingConfiguration(RTStochastic_State &state, java::ArrayList<Patch *> *lightList):
+            samplesPerPixel(),
+            nextEventSamples(),
+            lightMode(),
+            radMode(),
+            scatterSamples(),
+            firstDGSamples(),
+            reflectionSampling(),
+            separateSpecular(),
+            backgroundIndirect(),
+            backgroundDirect(),
+            backgroundSampling(),
+            screen(),
+            samplerConfig(),
+            seedConfig(),
+            siStorage(),
+            siOthers(),
+            siOthersCount(),
+            initialReadout()
+        {
         init(state, lightList);
     }
 
-    ~SRCONFIG(){
+    ~StochasticRaytracingConfiguration() {
         samplerConfig.releaseVars();
     };
 

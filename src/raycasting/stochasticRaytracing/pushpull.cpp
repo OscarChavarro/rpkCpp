@@ -24,7 +24,7 @@ pushRadiance(StochasticRadiosityElement *parent, StochasticRadiosityElement *chi
 }
 
 void
-pushImportance(StochasticRadiosityElement *parent, StochasticRadiosityElement *child, float *parent_imp, float *child_imp) {
+pushImportance(StochasticRadiosityElement * /*parent*/, StochasticRadiosityElement * /*child*/, const float *parent_imp, float *child_imp) {
     *child_imp += *parent_imp;
 }
 
@@ -43,6 +43,6 @@ pullRadiance(StochasticRadiosityElement *parent, StochasticRadiosityElement *chi
 }
 
 void
-pullImportance(StochasticRadiosityElement *parent, StochasticRadiosityElement *child, float *parent_imp, float *child_imp) {
+pullImportance(StochasticRadiosityElement *parent, StochasticRadiosityElement *child, float *parent_imp, const float *child_imp) {
     *parent_imp += child->area / parent->area * (*child_imp);
 }

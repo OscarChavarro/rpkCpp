@@ -53,10 +53,10 @@ sample4D(unsigned seed) {
             xi[3] = drand48();
             break;
         case S4D_HALTON:
-            xi[0] = Halton2(seed);
-            xi[1] = Halton3(seed);
-            xi[2] = Halton5(seed);
-            xi[3] = Halton7(seed);
+            xi[0] = Halton2((int)seed);
+            xi[1] = Halton3((int)seed);
+            xi[2] = Halton5((int)seed);
+            xi[3] = Halton7((int)seed);
             break;
         case S4D_SCRAMHALTON:
             xx = ScrambledHalton(seed, 4);
@@ -66,7 +66,7 @@ sample4D(unsigned seed) {
             xi[3] = xx[3];
             break;
         case S4D_SOBOL:
-            xx = sobol(seed);
+            xx = sobol((int)seed);
             xi[0] = xx[0];
             xi[1] = xx[1];
             xi[2] = xx[2];
@@ -74,7 +74,7 @@ sample4D(unsigned seed) {
             break;
         case S4D_FAURE:
         case S4D_GFAURE:
-            xx = Faure(seed);
+            xx = Faure((int)seed);
             xi[0] = xx[0];
             xi[1] = xx[1];
             xi[2] = xx[2];
@@ -98,7 +98,7 @@ sample4D(unsigned seed) {
 The following routines are safe with Sample4D(), which calls only
 31-bit sequences (including 31-bit Niederreiter sequence). If
 you are looking for such a routine to use directly in conjunction
-with the routined Nied() or NextNiedInRange(), you should use
+with the routine Nied() or NextNiedInRange(), you should use
 the foldSample() routine in niederreiter.h instead.
 Nied() and NextNiedInRange() are 63-bit unless compiled without
 'unsigned long long' support
@@ -110,8 +110,8 @@ foldSampleU(unsigned *xi1, unsigned *xi2) {
 
 void
 foldSampleF(double *xi1, double *xi2) {
-    unsigned zeta1 = (*xi1 * RECIP1);
-    unsigned zeta2 = (*xi2 * RECIP1);
+    unsigned zeta1 = (unsigned)(*xi1 * RECIP1);
+    unsigned zeta2 = (unsigned)(*xi2 * RECIP1);
     foldSampleU(&zeta1, &zeta2);
     *xi1 = (double) zeta1 * RECIP;
     *xi2 = (double) zeta2 * RECIP;
