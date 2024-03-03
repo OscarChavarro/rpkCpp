@@ -66,7 +66,7 @@ scratchRenderElements(GalerkinElement *cluster, Vector3D eye) {
     Vector3D centre = galerkinElementMidPoint(cluster);
     Vector3D up = {0.0, 0.0, 1.0};
     Vector3D viewDirection;
-    static BOUNDINGBOX bbx;
+    static BoundingBox bbx;
     Matrix4x4 lookAt{};
     SGL_CONTEXT *prev_sgl_context;
     int vp_size;

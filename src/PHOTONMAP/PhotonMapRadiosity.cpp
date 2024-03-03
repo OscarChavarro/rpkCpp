@@ -60,11 +60,6 @@ photonMapCreatePatchData(Patch *patch) {
 }
 
 static void
-photonMapPrintPatchData(FILE *out, Patch * /*patch*/) {
-    fprintf(out, "No data\n");
-}
-
-static void
 photonMapDestroyPatchData(Patch *patch) {
     patch->radianceData = nullptr;
 }
@@ -743,7 +738,6 @@ RADIANCEMETHOD GLOBAL_photonMapMethods = {
     photonMapTerminate,
     photonMapGetRadiance,
     photonMapCreatePatchData,
-    photonMapPrintPatchData,
     photonMapDestroyPatchData,
     photonMapGetStats,
     photonMapRenderScreen,

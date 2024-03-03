@@ -23,7 +23,7 @@ class RayHit {
     Geometry *geom; // geometry that was hit
     Patch *patch; // patch that was hit
     Vector3D point; // intersection point
-    Vector3D gnormal; // geometric normal
+    Vector3D geometricNormal;
     Material *material; // material of hit surface
     Vector3D normal; // shading normal
     Vector3D texCoord; // texture coordinate
@@ -34,8 +34,8 @@ class RayHit {
     float dist; // distance to ray origin: always computed
     unsigned int flags; // flags indicating which of the above fields have been filled in
 
-    RayHit(): geom(), patch(), point(), gnormal(), material(),
-    normal(), texCoord(), X(), Y(), Z(), uv(), dist(), flags()
+    RayHit(): geom(), patch(), point(), geometricNormal(), material(),
+              normal(), texCoord(), X(), Y(), Z(), uv(), dist(), flags()
     {};
 };
 

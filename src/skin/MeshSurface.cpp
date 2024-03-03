@@ -1,5 +1,3 @@
-#include <cstdlib>
-
 #include "java/util/ArrayList.txx"
 #include "material/statistics.h"
 #include "skin/Patch.h"
@@ -8,7 +6,7 @@
 // Static counter that is increased each time a surface is created for making unique MeshSurface ids
 static int globalNextSurfaceId = 0;
 
-MeshSurface::MeshSurface(): id(), vertices(), positions(), normals(), texCoords(), faces(), material() {
+MeshSurface::MeshSurface(): id(), vertices(), positions(), normals(), faces(), material() {
 }
 
 /**
@@ -88,7 +86,6 @@ surfaceCreate(
     surface->positions = points;
     surface->normals = normals;
     surface->vertices = vertices;
-    surface->texCoords = texCoords;
     surface->faces = faces;
 
     globalColorFlags = flags;

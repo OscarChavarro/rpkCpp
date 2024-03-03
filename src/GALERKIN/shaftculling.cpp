@@ -703,7 +703,7 @@ shaftCullPatchList(java::ArrayList<Patch *> *patchList, SHAFT *shaft) {
 
         if ( patch->boundingBox == nullptr ) {
             // Compute getBoundingBox
-            BOUNDINGBOX bounds;
+            BoundingBox bounds;
             patch->patchBounds(bounds);
         }
         boundingBoxSide = shaftBoxTest(patch->boundingBox, shaft);

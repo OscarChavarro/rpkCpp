@@ -1,10 +1,10 @@
+#include "common/error.h"
 #include "skin/Patch.h"
 #include "material/hit.h"
-#include "common/error.h"
 
 /**
 Checks whether or not the hit record is properly initialised, that
-means that at least 'patch' or 'geom' plus 'point', 'gnormal', 'material'
+means that at least 'patch' or 'geom' plus 'point', 'geometricNormal', 'material'
 and 'dist' are initialised. Returns TRUE if the structure is properly
 initialised and FALSE if not
 */
@@ -47,7 +47,7 @@ hitInit(
         hit->flags |= HIT_POINT;
     }
     if ( gNormal ) {
-        hit->gnormal = *gNormal;
+        hit->geometricNormal = *gNormal;
         hit->flags |= HIT_GNORMAL;
     }
     hit->material = material;

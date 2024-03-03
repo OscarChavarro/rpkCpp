@@ -92,7 +92,7 @@ linkInvolvingClusters(LINK *link) {
 
 static int
 disjunctElements(StochasticRadiosityElement *rcv, StochasticRadiosityElement *src) {
-    BOUNDINGBOX rcvbounds, srcbounds;
+    BoundingBox rcvbounds, srcbounds;
     monteCarloRadiosityElementBounds(rcv, rcvbounds);
     monteCarloRadiosityElementBounds(src, srcbounds);
     return disjunctBounds(rcvbounds, srcbounds);
@@ -147,7 +147,7 @@ static int LowPowerLink(LINK *link) {
 static REFINE_ACTION SubdivideLargest(LINK *link) {
     StochasticRadiosityElement *rcv = link->rcv;
     StochasticRadiosityElement *src = link->src;
-    if ( rcv->area < GLOBAL_stochasticRaytracing_hierarchy.minarea && src->area < GLOBAL_stochasticRaytracing_hierarchy.minarea ) {
+    if ( rcv->area < GLOBAL_stochasticRaytracing_hierarchy.minimumArea && src->area < GLOBAL_stochasticRaytracing_hierarchy.minimumArea ) {
         return dontRefine;
     } else {
         return (rcv->area > src->area) ? subdivideReceiver : subdivideSource;

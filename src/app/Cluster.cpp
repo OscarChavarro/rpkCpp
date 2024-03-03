@@ -81,7 +81,7 @@ determined)
 */
 void
 Cluster::clusterAddPatch(Patch *patch) {
-    BOUNDINGBOX patchBoundingBox;
+    BoundingBox patchBoundingBox;
 
     if ( patch != nullptr ) {
         patches->add(0, patch);

@@ -8,7 +8,7 @@
 A bounding box is represented as a n array of 6 floating point numbers.
 The meaning of the numbers is given by the constants MIN_X ... below
 */
-typedef float BOUNDINGBOX[6];
+typedef float BoundingBox[6];
 
 /**
  * the following defines must obey the following rules:
@@ -43,13 +43,12 @@ disjunctBounds(float *b1, float *b2) {
 
 extern float *boundsCreate();
 extern float *boundsCopy(const float *from, float *to);
-extern void boundsDestroy(float *bounds);
 extern float *boundsInit(float *bounds);
 extern float *boundsEnlarge(float *bounds, float *extra);
 extern float *boundsEnlargePoint(float *bounds, Vector3D *point);
 extern int boundsIntersect(Ray *ray, float *bounds, float minimumDistance, float *maximumDistance);
 extern int boundsBehindPlane(const float *bounds, Vector3D *norm, float d);
-extern float *boundsTransform(float *bbx, Matrix4x4 *xf, float *transbbx);
+extern float *boundsTransform(float *bbx, Matrix4x4 *xf, float *transBoundingBox);
 extern int boundsIntersectingSegment(Ray *ray, const float *bounds, float *tMin, float *tMax);
 
 #endif

@@ -36,7 +36,7 @@ enum GeometryClassId {
 class Geometry {
   public:
     int id; // Unique ID number
-    BOUNDINGBOX bounds;
+    BoundingBox bounds;
     Element *radianceData; // Data specific to the radiance algorithm being used
     int displayListId; // Display list ID for faster hardware rendering - initialised to -1
     int itemCount;

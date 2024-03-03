@@ -4,15 +4,15 @@
 #include "raycasting/stochasticRaytracing/mcradP.h"
 #include "raycasting/stochasticRaytracing/hierarchy.h"
 
-ELEM_HIER_STATE GLOBAL_stochasticRaytracing_hierarchy;
+ElementHierarchyState GLOBAL_stochasticRaytracing_hierarchy;
 
 void
 elementHierarchyDefaults() {
     GLOBAL_stochasticRaytracing_hierarchy.epsilon = DEFAULT_EH_EPSILON;
-    GLOBAL_stochasticRaytracing_hierarchy.minarea = DEFAULT_EH_MINAREA;
+    GLOBAL_stochasticRaytracing_hierarchy.minimumArea = DEFAULT_EH_MINIMUM_AREA;
     GLOBAL_stochasticRaytracing_hierarchy.do_h_meshing = DEFAULT_EH_HIERARCHICAL_MESHING;
     GLOBAL_stochasticRaytracing_hierarchy.clustering = DEFAULT_EH_CLUSTERING;
-    GLOBAL_stochasticRaytracing_hierarchy.tvertex_elimination = DEFAULT_EH_TVERTEX_ELIMINATION;
+    GLOBAL_stochasticRaytracing_hierarchy.tvertex_elimination = DEFAULT_EH_T_VERTEX_ELIMINATION;
     GLOBAL_stochasticRaytracing_hierarchy.oracle = powerOracle;
     GLOBAL_stochasticRaytracing_hierarchy.nr_elements = 0;
     GLOBAL_stochasticRaytracing_hierarchy.nr_clusters = 0;

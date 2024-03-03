@@ -258,11 +258,6 @@ createPatchData(Patch *patch) {
 }
 
 static void
-printPatchData(FILE *out, Patch *patch) {
-    galerkinElementPrint(out, (GalerkinElement *) patch->radianceData);
-}
-
-static void
 destroyPatchData(Patch *patch) {
     galerkinElementDestroyTopLevel((GalerkinElement *) patch->radianceData);
     patch->radianceData = nullptr;
@@ -651,7 +646,6 @@ RADIANCEMETHOD GLOBAL_galerkin_radiosity = {
     terminateGalerkin,
     getRadiance,
     createPatchData,
-    printPatchData,
     destroyPatchData,
     getGalerkinStats,
     galerkinRender,

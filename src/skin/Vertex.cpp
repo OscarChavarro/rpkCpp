@@ -4,6 +4,12 @@
 
 static unsigned int vertex_compare_flags = VERTEX_COMPARE_LOCATION | VERTEX_COMPARE_NORMAL | VERTEX_COMPARE_TEXTURE_COORDINATE;
 
+Vertex::Vertex(): id(), point(), normal(),
+texCoord(), color(), radiance_data(), back(), patches(),
+tmp()
+{
+}
+
 Vertex::~Vertex() {
     if ( patches ) {
         // TODO: Check if should delete all content
@@ -121,54 +127,7 @@ patchComputeVertexColors(Patch *patch) {
 
 unsigned
 vertexSetCompareFlags(unsigned flags) {
-    unsigned oldflags = vertex_compare_flags;
+    unsigned oldFlags = vertex_compare_flags;
     vertex_compare_flags = flags;
-    return oldflags;
-}
-
-/**
-This routine only compares the location of the two vertices
-*/
-int
-vertexCompareLocation(Vertex *v1, Vertex *v2) {
-    /* two entities intersect if their tolerance region intersects, i.o.w. if
-     * the distance between them is smaller than the sum of the two entity's
-     * tolerances */
-    float tolerance = vectorTolerance(*v1->point) + vectorTolerance(*v2->point);
-    return vectorCompareByDimensions(v1->point, v2->point, tolerance);
-}
-
-/**
-This routine only compares the normal of the two vertices
-*/
-int
-vertexCompareNormal(Vertex *v1, Vertex *v2) {
-    int code = vectorCompareByDimensions(v1->normal, v2->normal, EPSILON);
-
-    if ( code == XYZ_EQUAL && !(vertex_compare_flags & VERTEX_COMPARE_NO_NORMAL_IS_EQUAL_NORMAL)) {
-        if ( v1->normal->x == 0. && v1->normal->y == 0. && v1->normal->z == 0. ) {
-            return 0;
-        }
-    }
-    return code; // no valid normal => not the same vertex
-}
-
-/**
-This routine only compares the texture coordinates of the two vertices
-*/
-int
-vertexCompareTexCoord(Vertex *v1, Vertex *v2) {
-    if ( !v1->texCoord ) {
-        if ( !v2->texCoord ) {
-            return XYZ_EQUAL;
-        } else {
-            return 0;
-        } // no coordinate == smaller than any coordinate
-    } else {
-        if ( !v2->texCoord ) {
-            return X_GREATER + Y_GREATER + Z_GREATER;
-        } else {
-            return vectorCompareByDimensions(v1->texCoord, v2->texCoord, EPSILON);
-        }
-    }
+    return oldFlags;
 }

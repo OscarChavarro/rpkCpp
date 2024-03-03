@@ -22,6 +22,7 @@ class Vertex {
                 assume the contents of this storage remain unchanged after leaving
 		control to the user. */
 
+    Vertex();
     virtual ~Vertex();
 };
 
@@ -58,10 +59,8 @@ Vector3D.h
 #define VERTEX_COMPARE_LOCATION 0x01
 #define VERTEX_COMPARE_NORMAL 0x02
 #define VERTEX_COMPARE_TEXTURE_COORDINATE 0x04
-#define VERTEX_COMPARE_NO_NORMAL_IS_EQUAL_NORMAL 0x80
 
 extern unsigned vertexSetCompareFlags(unsigned flags);
-extern int vertexCompareLocation(Vertex *v1, Vertex *v2);
 
 #include "skin/Patch.h"
 #include "skin/Element.h"

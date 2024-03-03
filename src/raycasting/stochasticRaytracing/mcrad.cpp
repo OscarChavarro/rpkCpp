@@ -98,7 +98,7 @@ static CommandLineOptionDescription srrOptions[] = {
      "-srr-clustering <mode>      : \"none\", \"isotropic\", \"oriented\""},
     {"-srr-epsilon", 7, Tfloat, &GLOBAL_stochasticRaytracing_hierarchy.epsilon,            DEFAULT_ACTION,
      "-srr-epsilon <float>        : link power threshold (relative w.r.t. max. selfemitted power)"},
-    {"-srr-minarea", 7, Tfloat, &GLOBAL_stochasticRaytracing_hierarchy.minarea,            DEFAULT_ACTION,
+    {"-srr-minarea", 7, Tfloat, &GLOBAL_stochasticRaytracing_hierarchy.minimumArea, DEFAULT_ACTION,
      "-srr-minarea <float>        : minimal element area (relative w.r.t. total area)"},
     {"-srr-display", 7, TshowWhat, &GLOBAL_stochasticRaytracing_monteCarloRadiosityState.show,                                        DEFAULT_ACTION,
      "-srr-display <what>         : \"total-radiance\", \"indirect-radiance\", \"weighting-gain\", \"importance\""},
@@ -196,11 +196,6 @@ Element *
 monteCarloRadiosityCreatePatchData(Patch *patch) {
     patch->radianceData = monteCarloRadiosityCreateToplevelSurfaceElement(patch);
     return patch->radianceData;
-}
-
-void
-monteCarloRadiosityPrintPatchData(FILE *out, Patch *patch) {
-    monteCarloRadiosityPrintElement(out, topLevelGalerkinElement(patch));
 }
 
 void

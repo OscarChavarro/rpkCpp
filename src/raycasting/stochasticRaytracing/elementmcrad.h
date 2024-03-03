@@ -10,7 +10,6 @@ extern StochasticRadiosityElement *monteCarloRadiosityCreateToplevelSurfaceEleme
 extern void monteCarloRadiosityDestroyToplevelSurfaceElement(StochasticRadiosityElement *elem);
 extern StochasticRadiosityElement *monteCarloRadiosityCreateClusterHierarchy(Geometry *world);
 extern void monteCarloRadiosityDestroyClusterHierarchy(StochasticRadiosityElement *top);
-extern void monteCarloRadiosityPrintElement(FILE *out, StochasticRadiosityElement *elem);
 extern void monteCarloRadiosityForAllLeafElements(StochasticRadiosityElement *top, void (*func)(StochasticRadiosityElement *));
 extern void monteCarloRadiosityForAllSurfaceLeafs(StochasticRadiosityElement *top, void (*func)(StochasticRadiosityElement *));
 extern int monteCarloRadiosityForAllChildrenElements(StochasticRadiosityElement *top, void (*func)(StochasticRadiosityElement *));

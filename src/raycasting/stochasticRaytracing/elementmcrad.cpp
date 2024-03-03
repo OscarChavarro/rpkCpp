@@ -857,56 +857,6 @@ monteCarloRadiosityDestroyClusterHierarchy(StochasticRadiosityElement *top) {
     monteCarloRadiosityDestroyElement(top);
 }
 
-static void
-monteCarloRadiosityTestPrintVertex(FILE *out, int i, Vertex *v) {
-    fprintf(out, "vertex[%d]: %s", i, v ? "" : "(nil)");
-    if ( v ) {
-        vertexPrint(out, v);
-    }
-    fprintf(out, "\n");
-}
-
-void
-monteCarloRadiosityPrintElement(FILE *out, StochasticRadiosityElement *elem) {
-    fprintf(out, "Element id %d:\n", elem->id);
-    fprintf(out, "Vertices: ");
-    monteCarloRadiosityTestPrintVertex(out, 0, elem->vertex[0]);
-    monteCarloRadiosityTestPrintVertex(out, 1, elem->vertex[1]);
-    monteCarloRadiosityTestPrintVertex(out, 2, elem->vertex[2]);
-    monteCarloRadiosityTestPrintVertex(out, 3, elem->vertex[3]);
-    printBasis(elem->basis);
-
-    if ( !elem->isCluster ) {
-        int nbits;
-        niedindex msb1, rmsb2;
-        fprintf(out, "Surface element: material '%s', reflectosity = %g, self-emitted luminosity = %g\n",
-                elem->patch->surface->material->name,
-                colorGray(elem->Rd),
-                colorLuminance(elem->Ed));
-        monteCarloRadiosityElementRange(elem, &nbits, &msb1, &rmsb2);
-        fprintf(out, "Element range: %d bits, msb1 = %016llx, rmsb2 = %016llx\n", nbits, msb1, rmsb2);
-    }
-    fprintf(out, "rad = ");
-    stochasticRaytracingPrintCoefficients(out, elem->rad, elem->basis);
-    fprintf(out, ", luminosity = %g\n", colorLuminance(elem->rad[0]) * M_PI);
-
-    fprintf(out, "un-shot rad = ");
-    stochasticRaytracingPrintCoefficients(out, elem->unShotRad, elem->basis);
-    fprintf(out, ", luminosity = %g\n", colorLuminance(elem->unShotRad[0]) * M_PI);
-    fprintf(out, "received rad = ");
-    stochasticRaytracingPrintCoefficients(out, elem->receivedRad, elem->basis);
-    fprintf(out, ", luminosity = %g\n", colorLuminance(elem->receivedRad[0]) * M_PI);
-    fprintf(out, "source rad = ");
-    elem->sourceRad.print(out);
-    fprintf(out, ", luminosity = %g\n", colorLuminance(elem->sourceRad) * M_PI);
-    fprintf(out, "ray index = %d\n", (unsigned) elem->ray_index);
-    fprintf(out, "imp = %g, un-shot_imp = %g, received_imp = %g, source_imp = %g\n",
-            elem->imp, elem->unShotImp, elem->received_imp, elem->source_imp);
-    fprintf(out, "importance ray index = %d\n", (unsigned) elem->imp_ray_index);
-    fprintf(out, "prob = %g, quality factor = %g\nng = %g\n",
-            elem->prob, elem->quality, elem->ng);
-}
-
 /**
 Returns true if there are children elements and false if top is nullptr or a leaf element
 */

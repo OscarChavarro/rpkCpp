@@ -31,7 +31,7 @@ Compound::discretizationIntersect(
     float minimumDistance,
     float *maximumDistance,
     int hitFlags,
-    RayHit *hitStore)
+    RayHit *hitStore) const
 {
     RayHit * result = geometryListDiscretizationIntersect(
             children, ray, minimumDistance, maximumDistance, hitFlags, hitStore);

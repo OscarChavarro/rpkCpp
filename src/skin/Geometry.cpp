@@ -20,7 +20,8 @@ Geometry::Geometry():
     className(),
     surfaceData(),
     compoundData(),
-    patchSetData()
+    patchSetData(),
+    isDuplicate()
 {
     className = GeometryClassId::UNDEFINED;
 }
@@ -323,10 +324,12 @@ Geometry::geomCountItems() {
 
     if ( geomIsAggregate(this) ) {
         java::ArrayList<Geometry *> *geometryList = geomPrimListCopy(this);
-        for ( int i = 0; geometryList != nullptr && i < geometryList->size(); i++ ) {
-            count += geometryList->get(i)->geomCountItems();
+        if ( geometryList != nullptr ) {
+            for ( int i = 0; i < geometryList->size(); i++ ) {
+                count += geometryList->get(i)->geomCountItems();
+            }
+            delete geometryList;
         }
-        delete geometryList;
     } else {
         count = 0;
 

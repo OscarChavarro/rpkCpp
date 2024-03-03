@@ -126,7 +126,7 @@ GLOBAL_camera_mainCamera
 */
 void
 renderGetNearFar(float *near, float *far) {
-    BOUNDINGBOX bounds;
+    BoundingBox bounds;
     Vector3D b[2], d;
     int i, j, k;
     float z;
@@ -202,7 +202,7 @@ renderGetNearFar(float *near, float *far) {
 Renders a bounding box
 */
 void
-renderBounds(BOUNDINGBOX bounds) {
+renderBounds(BoundingBox bounds) {
     Vector3D p[8];
 
     vectorSet(p[0], bounds[MIN_X], bounds[MIN_Y], bounds[MIN_Z]);

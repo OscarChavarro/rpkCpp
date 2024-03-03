@@ -56,8 +56,8 @@ hierarchicRefinementCull(java::ArrayList<Geometry *> **candidatesList, Interacti
                                                        galerkinElementPolygon(link->sourceElement, &srcPolygon),
                                                        &shaft);
         } else {
-            BOUNDINGBOX srcBounds;
-            BOUNDINGBOX rcvBounds;
+            BoundingBox srcBounds;
+            BoundingBox rcvBounds;
             the_shaft = constructShaft(galerkinElementBounds(link->receiverElement, rcvBounds),
                                        galerkinElementBounds(link->sourceElement, srcBounds), &shaft);
         }

@@ -22,7 +22,7 @@ filled in 'bounding box' and a pointer to it returned
 */
 float *
 patchListBounds(java::ArrayList<Patch *> *patchList, float *boundingBox) {
-    BOUNDINGBOX b;
+    BoundingBox b;
 
     boundsInit(boundingBox);
     for ( int i = 0; patchList != nullptr && i < patchList->size(); i++ ) {

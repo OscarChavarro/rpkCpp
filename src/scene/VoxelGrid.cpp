@@ -56,7 +56,7 @@ VoxelGrid::putItemInsideVoxelGrid(VoxelData *item, const float *itemBounds) {
     short c;
 
     // Enlarge the boundaries by a small amount in all directions
-    BOUNDINGBOX boundaries;
+    BoundingBox boundaries;
     float xExtent = (boundingBox[MAX_X] - boundingBox[MIN_X]) * 1e-4f;
     float yExtent = (boundingBox[MAX_Y] - boundingBox[MIN_Y]) * 1e-4f;
     float zExtent = (boundingBox[MAX_Z] - boundingBox[MIN_Z]) * 1e-4f;
@@ -131,7 +131,7 @@ VoxelGrid::putItemInsideVoxelGrid(VoxelData *item, const float *itemBounds) {
 
 void
 VoxelGrid::putPatchInsideVoxelGrid(Patch *patch) {
-    BOUNDINGBOX localBounds;
+    BoundingBox localBounds;
     putItemInsideVoxelGrid(new VoxelData(patch, PATCH_MASK),
                            patch->boundingBox ? patch->boundingBox : patch->patchBounds(localBounds));
 }

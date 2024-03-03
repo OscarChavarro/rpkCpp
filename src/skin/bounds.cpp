@@ -17,7 +17,7 @@ float *
 boundsCreate() {
     float *bounds;
 
-    bounds = (float *)malloc(sizeof(BOUNDINGBOX));
+    bounds = (float *)malloc(sizeof(BoundingBox));
     return bounds;
 }
 
@@ -66,22 +66,22 @@ boundsCopy(const float *from, float *to) {
 
 /**
 Check for intersection between bounding box and the given ray.
-If there is an intersection between mindist and *maxdist along
-the ray, *maxdist is replaced with the distance to the point of
+If there is an intersection between minimum distance and *maximum distance along
+the ray, *maximum distance is replaced with the distance to the point of
 intersection, and true is returned.  Otherwise, false is returned.
 
 If this routine is used to check for intersection with a volume
 rather than a "hollow" box, one should first determine if
-(ray->pos + mindist * ray->dir) is inside the bounding volume, and
+(ray->pos + minimum distance * ray->dir) is inside the bounding volume, and
 call boundsIntersect() only if it is not.
 
-This routine was taken from rayshade [PhB].
+This routine was taken from ray-shade [PhB].
 */
 
 /**
 This routine computes the segment of intersection of the ray and the bounding box.
-On input, tmin and tmax contain minimum and maximum allowed distance to the ray 
-origin. On output, tmin and tmin contain the distance to the eye origin of
+On input, tMin and tMax contain minimum and maximum allowed distance to the ray
+origin. On output, tMin and tMin contain the distance to the eye origin of
 the intersection positions of the ray with the bounding box.
 If there are no intersection in the given interval, false is returned. If there
 are intersections, true is returned.
@@ -143,12 +143,12 @@ boundsIntersectingSegment(Ray *ray, const float *bounds, float *tMin, float *tMa
         }
         t = (bounds[MAX_Y] - pos) / dir;
         if ( t >= *tMin ) {
-            if ( t > *tMax * (1. + EPSILON)) {
+            if ( t > *tMax * (1.0 + EPSILON)) {
                 return false;
             }
             *tMin = t;
         }
-    } else if ( dir > 0. ) {
+    } else if ( dir > 0.0 ) {
         t = (bounds[MAX_Y] - pos) / dir;
         if ( t < *tMin ) {
             return false;
@@ -180,12 +180,12 @@ boundsIntersectingSegment(Ray *ray, const float *bounds, float *tMin, float *tMa
         }
         t = (bounds[MAX_Z] - pos) / dir;
         if ( t >= *tMin ) {
-            if ( t > *tMax * (1. + EPSILON)) {
+            if ( t > *tMax * (1.0 + EPSILON)) {
                 return false;
             }
             *tMin = t;
         }
-    } else if ( dir > 0. ) {
+    } else if ( dir > 0.0 ) {
         t = (bounds[MAX_Z] - pos) / dir;
         if ( t < *tMin ) {
             return false;
@@ -204,8 +204,8 @@ boundsIntersectingSegment(Ray *ray, const float *bounds, float *tMin, float *tMa
         return false;
     }
 
-    // If *tmin == mindist, then there was no "near"
-    // intersection farther than EPSILON away.
+    // If *tMin == minDist, then there was no "near"
+    // intersection farther than EPSILON away
     if ( *tMin == minimumDistance ) {
         if ( *tMax < maximumDistance ) {
             return true;
@@ -220,13 +220,9 @@ boundsIntersectingSegment(Ray *ray, const float *bounds, float *tMin, float *tMa
 
 int
 boundsIntersect(Ray *ray, float *bounds, float minimumDistance, float *maximumDistance) {
-    float tMin;
-    float tMax;
-    int hit;
-
-    tMin = minimumDistance;
-    tMax = *maximumDistance;
-    hit = boundsIntersectingSegment(ray, bounds, &tMin, &tMax);
+    float tMin = minimumDistance;
+    float tMax = *maximumDistance;
+    int hit = boundsIntersectingSegment(ray, bounds, &tMin, &tMax);
     if ( hit ) {
         // Reduce maximumDistance
         if ( tMin == minimumDistance ) {
@@ -273,13 +269,11 @@ boundsBehindPlane(const float *bounds, Vector3D *norm, float d) {
 
 /**
 Computes bounding box after transforming bbx with xf. Result is filled
-in transbbx and a pointer to transbbx returned
+in transBoundingBox and a pointer to transBoundingBox returned
 */
 float *
-boundsTransform(float *bbx, Matrix4x4 *xf, float *transbbx) {
+boundsTransform(float *bbx, Matrix4x4 *xf, float *transBoundingBox) {
     Vector3D v[8];
-    int i;
-    float d;
 
     vectorSet(v[0], bbx[MIN_X], bbx[MIN_Y], bbx[MIN_Z]);
     vectorSet(v[1], bbx[MAX_X], bbx[MIN_Y], bbx[MIN_Z]);
@@ -290,21 +284,22 @@ boundsTransform(float *bbx, Matrix4x4 *xf, float *transbbx) {
     vectorSet(v[6], bbx[MIN_X], bbx[MAX_Y], bbx[MAX_Z]);
     vectorSet(v[7], bbx[MAX_X], bbx[MAX_Y], bbx[MAX_Z]);
 
-    boundsInit(transbbx);
-    for ( i = 0; i < 8; i++ ) {
+    boundsInit(transBoundingBox);
+    for ( int i = 0; i < 8; i++ ) {
         transformPoint3D(*xf, v[i], v[i]);
-        boundsEnlargePoint(transbbx, &v[i]);
+        boundsEnlargePoint(transBoundingBox, &v[i]);
     }
 
-    d = (transbbx[MAX_X] - transbbx[MIN_X]) * (float)EPSILON;
-    transbbx[MIN_X] -= d;
-    transbbx[MAX_X] += d;
-    d = (transbbx[MAX_Y] - transbbx[MIN_Y]) * (float)EPSILON;
-    transbbx[MIN_Y] -= d;
-    transbbx[MAX_Y] += d;
-    d = (transbbx[MAX_Z] - transbbx[MIN_Z]) * (float)EPSILON;
-    transbbx[MIN_Z] -= d;
-    transbbx[MAX_Z] += d;
+    float d;
+    d = (transBoundingBox[MAX_X] - transBoundingBox[MIN_X]) * (float)EPSILON;
+    transBoundingBox[MIN_X] -= d;
+    transBoundingBox[MAX_X] += d;
+    d = (transBoundingBox[MAX_Y] - transBoundingBox[MIN_Y]) * (float)EPSILON;
+    transBoundingBox[MIN_Y] -= d;
+    transBoundingBox[MAX_Y] += d;
+    d = (transBoundingBox[MAX_Z] - transBoundingBox[MIN_Z]) * (float)EPSILON;
+    transBoundingBox[MIN_Z] -= d;
+    transBoundingBox[MAX_Z] += d;
 
-    return transbbx;
+    return transBoundingBox;
 }

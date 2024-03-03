@@ -23,10 +23,10 @@ CPhotonMapSampler::ChooseComponent(BSDFFLAGS flags1, BSDFFLAGS flags2,
 
     // Choose between flags1 or flags2 scattering
 
-    col = bsdfScatteredPower(bsdf, hit, &hit->gnormal, flags1);
+    col = bsdfScatteredPower(bsdf, hit, &hit->geometricNormal, flags1);
     power1 = colorAverage(col);
 
-    col = bsdfScatteredPower(bsdf, hit, &hit->gnormal, flags2);
+    col = bsdfScatteredPower(bsdf, hit, &hit->geometricNormal, flags2);
     power2 = colorAverage(col);
 
     totalPower = power1 + power2;

@@ -31,9 +31,6 @@ class MeshSurface : public Geometry {
     // A list of normals at the vertices of the patches
     java::ArrayList<Vector3D *> *normals;
 
-    // A list of texture coordinates of the vertices of the patches (not used)
-    java::ArrayList<Vector3D *> *texCoords;
-
     /**
     The patches making up the MeshSurface. Each patch contains pointers to three
     or four vertices in the 'vertices' list of the MeshSurface. Different patches

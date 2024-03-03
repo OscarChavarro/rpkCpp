@@ -622,7 +622,7 @@ cluster element (8 vertices). The number of vertices is returned
 int
 galerkinElementVertices(GalerkinElement *elem, Vector3D *p, int n) {
     if ( isCluster(elem) ) {
-        BOUNDINGBOX vol;
+        BoundingBox vol;
 
         galerkinElementBounds(elem, vol);
 

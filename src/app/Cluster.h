@@ -8,7 +8,7 @@ class Cluster {
 private:
     java::ArrayList<Patch *> *patches;
     Cluster *children[8]{}; // Clusters form an octree
-    BOUNDINGBOX boundingBox{}; // Bounding box for the cluster
+    BoundingBox boundingBox{}; // Bounding box for the cluster
     Vector3D boundingBoxCentroid; // Mid-point of the bounding box
 
     Cluster();

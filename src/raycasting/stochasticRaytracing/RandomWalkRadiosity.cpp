@@ -8,11 +8,6 @@
 #include "raycasting/stochasticRaytracing/stochjacobi.h"
 
 static void
-randomWalkRadiosityPrintPatchData(FILE *out, Patch *patch) {
-    monteCarloRadiosityPrintElement(out, topLevelGalerkinElement(patch));
-}
-
-static void
 randomWalkRadiosityInit(java::ArrayList<Patch *> * /*scenePatches*/) {
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.method = RANDOM_WALK_RADIOSITY_METHOD;
     monteCarloRadiosityInit();
@@ -439,7 +434,6 @@ RADIANCEMETHOD GLOBAL_stochasticRaytracing_randomWalkRadiosity = {
     randomWalkRadiosityTerminate,
     monteCarloRadiosityGetRadiance,
     monteCarloRadiosityCreatePatchData,
-    randomWalkRadiosityPrintPatchData,
     monteCarloRadiosityDestroyPatchData,
     randomWalkRadiosityGetStats,
     nullptr,

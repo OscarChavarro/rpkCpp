@@ -6,7 +6,7 @@
 #include "skin/bounds.h"
 #include "skin/Geometry.h"
 
-extern void renderBounds(BOUNDINGBOX bounds);
+extern void renderBounds(BoundingBox bounds);
 extern void renderBoundingBoxHierarchy();
 extern void renderClusterHierarchy(java::ArrayList<Geometry *> *clusteredGeometryList);
 extern void renderSetBackfaceCulling(char truefalse);

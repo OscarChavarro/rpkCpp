@@ -55,9 +55,6 @@ class RADIANCEMETHOD {
     // Allocates memory for the radiance data for the given patch. Fills in the pointer in patch->radianceData
     Element *(*CreatePatchData)(Patch *patch);
 
-    // Print radiance data for the patch to file out
-    void (*PrintPatchData)(FILE *out, Patch *patch);
-
     // Destroys the radiance data for the patch. Clears the patch->radianceData pointer
     void (*DestroyPatchData)(Patch *patch);
 

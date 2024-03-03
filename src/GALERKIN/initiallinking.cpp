@@ -10,7 +10,7 @@
 static GalerkinElement *globalElement; // The element for which initial links are to be created
 static GalerkinRole globalRole; // The role of that element: SOURCE or RECEIVER
 static Patch *globalPatch; // The patch for the element is the toplevel element
-static BOUNDINGBOX globalPatchBoundingBox; // Bounding box for that patch
+static BoundingBox globalPatchBoundingBox; // Bounding box for that patch
 static java::ArrayList<Geometry *> *globalCandidateList; // Candidate list for shaft culling
 
 static void
@@ -50,7 +50,7 @@ createInitialLink(Patch *patch) {
                                                        galerkinElementPolygon(src, &srcPolygon),
                                                        &shaft);
         } else {
-            BOUNDINGBOX bbox;
+            BoundingBox bbox;
             the_shaft = constructShaft(globalPatchBoundingBox, patch->patchBounds(bbox), &shaft);
         }
 

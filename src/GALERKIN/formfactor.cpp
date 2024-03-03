@@ -48,7 +48,7 @@ determineNodes(GalerkinElement *elem, CUBARULE **cr, Vector3D x[CUBAMAXNODES], G
     int k;
 
     if ( isCluster(elem) ) {
-        BOUNDINGBOX vol;
+        BoundingBox vol;
         double dx, dy, dz;
 
         *cr = GLOBAL_galerkin_state.clusterRule;
@@ -451,8 +451,8 @@ areaToAreaFormFactor(
     int l;
 
     if ( isCluster(rcv) || isCluster(src) ) {
-        BOUNDINGBOX rcvBounds;
-        BOUNDINGBOX srcBounds;
+        BoundingBox rcvBounds;
+        BoundingBox srcBounds;
         galerkinElementBounds(rcv, rcvBounds);
         galerkinElementBounds(src, srcBounds);
 

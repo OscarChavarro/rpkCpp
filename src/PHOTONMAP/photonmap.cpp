@@ -5,7 +5,7 @@
 
 bool
 ZeroAlbedo(BSDF *bsdf, RayHit *hit, BSDFFLAGS flags) {
-    COLOR col = bsdfScatteredPower(bsdf, hit, &hit->gnormal, flags);
+    COLOR col = bsdfScatteredPower(bsdf, hit, &hit->geometricNormal, flags);
     return (colorAverage(col) < EPSILON);
 }
 
@@ -355,9 +355,9 @@ CPhotonMap::Reconstruct(RayHit *hit, Vector3D &outDir,
 
     COLOR diffuseAlbedo, glossyAlbedo;
 
-    diffuseAlbedo = bsdfScatteredPower(bsdf, hit, &hit->gnormal, BRDF_DIFFUSE_COMPONENT);
+    diffuseAlbedo = bsdfScatteredPower(bsdf, hit, &hit->geometricNormal, BRDF_DIFFUSE_COMPONENT);
     // -- TODO Irradiance pre-computation for diffuse transmission
-    glossyAlbedo = bsdfScatteredPower(bsdf, hit, &hit->gnormal, BTDF_DIFFUSE_COMPONENT | BSDF_GLOSSY_COMPONENT);
+    glossyAlbedo = bsdfScatteredPower(bsdf, hit, &hit->geometricNormal, BTDF_DIFFUSE_COMPONENT | BSDF_GLOSSY_COMPONENT);
 
     CheckNBalance();
 
@@ -433,7 +433,7 @@ CPhotonMap::GetCurrentDensity(RayHit &hit, int nrPhotons) {
     // Construct density estimate
     maxDistance = m_distances[0]; // Only valid since max heap is used in kdtree
 
-    ComputeCosines(hit.gnormal); // -- shading normal ?
+    ComputeCosines(hit.geometricNormal); // -- shading normal ?
 
     if ( m_nrpCosinePos <= 3 ) {
         return 0.0;

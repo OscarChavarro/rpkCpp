@@ -13,7 +13,7 @@ class VoxelGrid {
     Vector3D voxelSize;
     java::ArrayList<VoxelData *> **volumeListsOfItems; // 3D array of item lists
     void **gridItemPool;
-    BOUNDINGBOX boundingBox;
+    BoundingBox boundingBox;
 
     inline float
     voxel2x(const float px) {

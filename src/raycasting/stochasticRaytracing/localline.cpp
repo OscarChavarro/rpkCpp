@@ -9,8 +9,8 @@ Generate and trace a local line
 
 /**
 Constructs a ray with uniformly chosen origin on patch and cosine distributed
-direction w.r.t. patch normal. Origin and direction are uniquely determined by
-the 4-dimensional sample vector xi
+direction with respect to patch normal. Origin and direction are uniquely determined
+by the 4-dimensional sample vector xi
 */
 Ray
 mcrGenerateLocalLine(Patch *patch, double *xi) {
