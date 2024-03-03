@@ -113,7 +113,7 @@ splitBsdfScatteredPower(SPLIT_BSDF *bsdf, RayHit *hit, Vector3D *in, BSDFFLAGS f
 }
 
 static void
-splitBsdfIndexOfRefraction(SPLIT_BSDF *bsdf, REFRACTIONINDEX *index) {
+splitBsdfIndexOfRefraction(SPLIT_BSDF *bsdf, RefractionIndex *index) {
     btdfIndexOfRefraction(bsdf->btdf, index);
 }
 
@@ -152,7 +152,7 @@ splitBsdfEval(
     }
 
     if ( bsdf->btdf ) {
-        REFRACTIONINDEX inIndex, outIndex;
+        RefractionIndex inIndex, outIndex;
         COLOR refractionCol;
         bsdfIndexOfRefraction(inBsdf, &inIndex);
         bsdfIndexOfRefraction(outBsdf, &outIndex);
@@ -245,8 +245,8 @@ splitBsdfSample(
     double Pscattering;
     double p;
     double pRR;
-    REFRACTIONINDEX inIndex;
-    REFRACTIONINDEX outIndex;
+    RefractionIndex inIndex;
+    RefractionIndex outIndex;
     XXDFFLAGS brdfFlags;
     XXDFFLAGS btdfFlags;
     Vector3D normal;
@@ -355,8 +355,8 @@ splitBsdfEvalPdf(
     double pScattering;
     double p;
     double pRR;
-    REFRACTIONINDEX inIndex{};
-    REFRACTIONINDEX outIndex{};
+    RefractionIndex inIndex{};
+    RefractionIndex outIndex{};
     XXDFFLAGS brdfFlags;
     XXDFFLAGS btdfFlags;
     Vector3D normal;
@@ -406,7 +406,7 @@ splitBsdfIsTextured(SPLIT_BSDF *bsdf) {
 BSDF_METHODS GLOBAL_scene_splitBsdfMethods = {
     (COLOR (*)(void *data, RayHit *hit, Vector3D *in, BSDFFLAGS flags)) splitBsdfScatteredPower,
     (int (*)(void *)) splitBsdfIsTextured,
-    (void (*)(void *data, REFRACTIONINDEX *index)) splitBsdfIndexOfRefraction,
+    (void (*)(void *data, RefractionIndex *index)) splitBsdfIndexOfRefraction,
     (COLOR (*)(void *data, RayHit *hit, void *inBsdf, void *outBsdf, Vector3D *in, Vector3D *out,
     BSDFFLAGS flags)) splitBsdfEval,
     (Vector3D (*)(void *data, RayHit *hit, void *inBsdf, void *outBsdf, Vector3D *in,

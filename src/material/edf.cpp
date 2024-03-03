@@ -17,18 +17,6 @@ edfCreate(void *data, EDF_METHODS *methods) {
 }
 
 /**
-Disposes of the memory occupied by the EDF instance
-*/
-void
-edfDestroy(EDF *edf) {
-    if ( !edf ) {
-        return;
-    }
-    edf->methods->Destroy(edf->data);
-    free(edf);
-}
-
-/**
 Returns the emittance (self-emitted radiant exitance) [W/m^2] of the EDF
 */
 COLOR

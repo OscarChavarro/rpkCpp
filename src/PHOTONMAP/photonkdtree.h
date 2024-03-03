@@ -3,15 +3,15 @@
  * specific additions
  */
 
-#ifndef _PHOTONKDTREE_H_
-#define _PHOTONKDTREE_H_
+#ifndef __PHOTON_K_D_TREE__
+#define __PHOTON_K_D_TREE__
 
 #include "common/dataStructures/KDTree.h"
 #include "PHOTONMAP/photon.h"
 
 class CPhotonkdtree : public KDTree {
 public:
-    CPhotonkdtree(int dataSize, bool CopyData = true)
+    explicit CPhotonkdtree(int dataSize, bool CopyData = true)
             : KDTree(dataSize, CopyData) {};
 
     // NormalPhotonQuery : find the nearest photon with a similar normal constraint
@@ -20,7 +20,7 @@ public:
                                           float threshold, float maxR2);
 
 protected:
-    void NormalBQuery_rec(const int index);
+    void NormalBQuery_rec(int index);
 };
 
-#endif /* _PHOTONKDTREE_H_ */
+#endif

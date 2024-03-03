@@ -43,7 +43,7 @@ bool CSpecularSampler::Sample(CPathNode *prevNode, CPathNode *thisNode,
         // REFRACT
 
         int dummyInt;
-        REFRACTIONINDEX inIndex, outIndex;
+        RefractionIndex inIndex, outIndex;
 
         reflect = false;
         pdfDir *= avgTransmittance / avgScattering;

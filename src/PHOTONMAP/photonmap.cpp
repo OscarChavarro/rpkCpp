@@ -72,7 +72,9 @@ GetFalseColor(float val) {
     return col;
 }
 
-CPhotonMap::CPhotonMap(int *estimate_nrp, bool doPrecomputeIrradiance) {
+CPhotonMap::CPhotonMap(int *estimate_nrp, bool doPrecomputeIrradiance):
+    m_sample_nrp(), m_nrpCosinePos()
+{
     m_balanced = true;
     m_doBalancing = false;
 
@@ -146,8 +148,7 @@ void CPhotonMap::DoAddPhoton(CPhoton &photon, Vector3D &normal,
 }
 
 bool
-CPhotonMap::AddPhoton(CPhoton &photon, Vector3D &normal,
-                           short flags) {
+CPhotonMap::AddPhoton(CPhoton &photon, Vector3D &normal, short flags) {
     drand48(); // Just to keep in sync with density controlled storage
 
     DoAddPhoton(photon, normal, flags);
@@ -260,8 +261,8 @@ CPhotonMap::GetMaxR2() {
      */
     const double radfraction = 0.03;
 
-    double maxr2 = (*m_estimate_nrp * GLOBAL_statistics_totalArea /
-                    (M_PI * m_totalPaths * radfraction));
+    double maxr2 = ((double)*m_estimate_nrp * GLOBAL_statistics_totalArea /
+                    (M_PI * (double)m_totalPaths * radfraction));
 
     return maxr2;
 }
@@ -291,7 +292,7 @@ CPhotonMap::PhotonPrecomputeIrradiance(CIrrPhoton *photon) {
         // Now we have incoming radiance integrated over area estimate,
         // so we convert it to irradiance, maxDistance is already squared
         // An extra factor PI is added, that accounts for Albedo -> diffuse brdf...
-        float factor = (float)(1.0f / (M_PI * M_PI * maxDistance * m_totalPaths));
+        float factor = (float)(1.0f / ((float)M_PI * (float)M_PI * maxDistance * (float)m_totalPaths));
         colorScale(factor, irradiance, irradiance);
     }
 
@@ -403,7 +404,7 @@ CPhotonMap::Reconstruct(RayHit *hit, Vector3D &outDir,
     // Now we have a radiance integrated over area estimate,
     // so we convert it to radiance, maxDistance is already squared
 
-    factor = 1.0f / (float)(M_PI * maxDistance * m_totalPaths);
+    factor = 1.0f / ((float)M_PI * maxDistance * (float)m_totalPaths);
 
     colorScale(factor, result, result);
 
@@ -486,7 +487,7 @@ CPhotonMap::Sample(
 
             col = m_photons[i]->Power();
 
-            m_grid->Add(pr, ps, colorAverage(col) / m_nrPhotons);
+            m_grid->Add(pr, ps, colorAverage(col) / (float)m_nrPhotons);
         }
 
         m_grid->EnsureNonZeroEntries();

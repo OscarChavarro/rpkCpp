@@ -21,7 +21,7 @@ class BSDF_METHODS {
     int (*IsTextured)(void *data);
 
     // Returns the index of refraction
-    void (*IndexOfRefraction)(void *data, REFRACTIONINDEX *index);
+    void (*IndexOfRefraction)(void *data, RefractionIndex *index);
 
     // void *incomingBsdf should be BSDF *incomingBsdf
     COLOR (*Eval)(void *data, RayHit *hit, void *inBsdf, void *outBsdf, Vector3D *in, Vector3D *out, BSDFFLAGS flags);

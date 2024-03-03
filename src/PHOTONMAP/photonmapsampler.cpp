@@ -13,11 +13,6 @@ CPhotonMapSampler::CPhotonMapSampler() {
     m_photonMap = nullptr;
 }
 
-void CPhotonMapSampler::SetPhotonMap(CPhotonMap *map) {
-    m_photonMap = map;
-}
-
-
 // Returns true a component was chosen, false if absorbed
 bool CPhotonMapSampler::ChooseComponent(BSDFFLAGS flags1, BSDFFLAGS flags2,
                                         BSDF *bsdf, RayHit *hit, bool doRR,
@@ -130,8 +125,8 @@ bool CPhotonMapSampler::Sample(CPathNode *prevNode, CPathNode *thisNode,
 
 // Utility functions
 
-static REFRACTIONINDEX BsdfGeometricIOR(BSDF *bsdf) {
-    REFRACTIONINDEX nc;
+static RefractionIndex BsdfGeometricIOR(BSDF *bsdf) {
+    RefractionIndex nc;
 
     bsdfIndexOfRefraction(bsdf, &nc);
 
@@ -151,7 +146,7 @@ static bool ChooseFresnelDirection(CPathNode *thisNode, CPathNode *newNode,
                                    Vector3D *dir, double *pdfDir,
                                    COLOR *scatteringColor, bool *doCosInverse) {
     // Index of refractions are taken
-    REFRACTIONINDEX nc_in, nc_out; // IOR
+    RefractionIndex nc_in, nc_out; // IOR
 
     nc_in = BsdfGeometricIOR(thisNode->m_inBsdf);
     nc_out = BsdfGeometricIOR(thisNode->m_outBsdf);

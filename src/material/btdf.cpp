@@ -36,7 +36,7 @@ btdfTransmittance(BTDF *btdf, XXDFFLAGS flags) {
 Returns the index of refraction of the BTDF
 */
 void
-btdfIndexOfRefraction(BTDF *btdf, REFRACTIONINDEX *index) {
+btdfIndexOfRefraction(BTDF *btdf, RefractionIndex *index) {
     if ( btdf && btdf->methods->IndexOfRefraction ) {
         btdf->methods->IndexOfRefraction(btdf->data, index);
     } else {
@@ -47,13 +47,13 @@ btdfIndexOfRefraction(BTDF *btdf, REFRACTIONINDEX *index) {
 
 COLOR
 btdfEval(
-    BTDF *btdf,
-    REFRACTIONINDEX inIndex,
-    REFRACTIONINDEX outIndex,
-    Vector3D *in,
-    Vector3D *out,
-    Vector3D *normal,
-    XXDFFLAGS flags)
+        BTDF *btdf,
+        RefractionIndex inIndex,
+        RefractionIndex outIndex,
+        Vector3D *in,
+        Vector3D *out,
+        Vector3D *normal,
+        XXDFFLAGS flags)
 {
     if ( btdf && btdf->methods->Eval ) {
         return btdf->methods->Eval(btdf->data, inIndex, outIndex, in, out, normal, flags);
@@ -66,16 +66,16 @@ btdfEval(
 
 Vector3D
 btdfSample(
-    BTDF *btdf,
-    REFRACTIONINDEX inIndex,
-    REFRACTIONINDEX outIndex,
-    Vector3D *in,
-    Vector3D *normal,
-    int doRussianRoulette,
-    XXDFFLAGS flags,
-    double x1,
-    double x2,
-    double *pdf)
+        BTDF *btdf,
+        RefractionIndex inIndex,
+        RefractionIndex outIndex,
+        Vector3D *in,
+        Vector3D *normal,
+        int doRussianRoulette,
+        XXDFFLAGS flags,
+        double x1,
+        double x2,
+        double *pdf)
 {
     if ( btdf && btdf->methods->Sample ) {
         return btdf->methods->Sample(btdf->data, inIndex, outIndex, in, normal,
@@ -89,15 +89,15 @@ btdfSample(
 
 void
 btdfEvalPdf(
-    BTDF *btdf,
-    REFRACTIONINDEX inIndex,
-    REFRACTIONINDEX outIndex,
-    Vector3D *in,
-    Vector3D *out,
-    Vector3D *normal,
-    XXDFFLAGS flags,
-    double *pdf,
-    double *pdfRR)
+        BTDF *btdf,
+        RefractionIndex inIndex,
+        RefractionIndex outIndex,
+        Vector3D *in,
+        Vector3D *out,
+        Vector3D *normal,
+        XXDFFLAGS flags,
+        double *pdf,
+        double *pdfRR)
 {
     if ( btdf && btdf->methods->EvalPdf ) {
         btdf->methods->EvalPdf(

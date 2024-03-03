@@ -33,6 +33,10 @@ class RayHit {
     Vector2Dd uv; // Bi-linear/barycentric parameters of hit
     float dist; // distance to ray origin: always computed
     unsigned int flags; // flags indicating which of the above fields have been filled in
+
+    RayHit(): geom(), patch(), point(), gnormal(), material(),
+    normal(), texCoord(), X(), Y(), Z(), uv(), dist(), flags()
+    {};
 };
 
 /**

@@ -34,8 +34,6 @@ protected:
 public:
     CPhotonMapSampler();
 
-    void SetPhotonMap(CPhotonMap *map);
-
     // Sample : newNode gets filled, others may change
     //   Return true if the node was filled in, false if path Ends
     //   If path ends (absorption) the type of thisNode is adjusted to 'Ends'

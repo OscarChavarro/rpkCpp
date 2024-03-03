@@ -197,7 +197,7 @@ phongTransmittance(PHONG_BTDF *btdf, XXDFFLAGS flags) {
 Refraction index
 */
 static void
-phongIndexOfRefraction(PHONG_BTDF *btdf, REFRACTIONINDEX *index) {
+phongIndexOfRefraction(PHONG_BTDF *btdf, RefractionIndex *index) {
     index->nr = btdf->refrIndex.nr;
     index->ni = btdf->refrIndex.ni;
 }
@@ -532,13 +532,13 @@ Btdf evaluations
 */
 static COLOR
 phongBtdfEval(
-    PHONG_BTDF *btdf,
-    REFRACTIONINDEX inIndex,
-    REFRACTIONINDEX outIndex,
-    Vector3D *in,
-    Vector3D *out,
-    Vector3D *normal,
-    XXDFFLAGS flags)
+        PHONG_BTDF *btdf,
+        RefractionIndex inIndex,
+        RefractionIndex outIndex,
+        Vector3D *in,
+        Vector3D *out,
+        Vector3D *normal,
+        XXDFFLAGS flags)
 {
     COLOR result;
     float tmpFloat;
@@ -598,16 +598,16 @@ phongBtdfEval(
 
 static Vector3D
 phongBtdfSample(
-    PHONG_BTDF *btdf,
-    REFRACTIONINDEX inIndex,
-    REFRACTIONINDEX outIndex,
-    Vector3D *in,
-    Vector3D *normal,
-    int doRussianRoulette,
-    XXDFFLAGS flags,
-    double x_1,
-    double x_2,
-    double *pdf)
+        PHONG_BTDF *btdf,
+        RefractionIndex inIndex,
+        RefractionIndex outIndex,
+        Vector3D *in,
+        Vector3D *normal,
+        int doRussianRoulette,
+        XXDFFLAGS flags,
+        double x_1,
+        double x_2,
+        double *pdf)
 {
     Vector3D newDir = {0.0, 0.0, 0.0};
     int totalIR;
@@ -711,15 +711,15 @@ phongBtdfSample(
 
 static void
 phongBtdfEvalPdf(
-    PHONG_BTDF *btdf,
-    REFRACTIONINDEX inIndex,
-    REFRACTIONINDEX outIndex,
-    Vector3D *in,
-    Vector3D *out,
-    Vector3D *normal,
-    XXDFFLAGS flags,
-    double *pdf,
-    double *pdfRR)
+        PHONG_BTDF *btdf,
+        RefractionIndex inIndex,
+        RefractionIndex outIndex,
+        Vector3D *in,
+        Vector3D *out,
+        Vector3D *normal,
+        XXDFFLAGS flags,
+        double *pdf,
+        double *pdfRR)
 {
     double cos_theta;
     double cos_alpha;
@@ -827,13 +827,13 @@ BRDF_METHODS GLOBAL_scene_phongBrdfMethods = {
 
 BTDF_METHODS GLOBAL_scene_phongBtdfMethods = {
     (COLOR (*)(void *, XXDFFLAGS)) phongTransmittance,
-    reinterpret_cast<void (*)(void *, REFRACTIONINDEX *)>((void (*)()) phongIndexOfRefraction),
-    (COLOR (*)(void *, REFRACTIONINDEX, REFRACTIONINDEX, Vector3D *, Vector3D *, Vector3D *,
-    XXDFFLAGS)) phongBtdfEval,
-    (Vector3D (*)(void *, REFRACTIONINDEX, REFRACTIONINDEX, Vector3D *,
-    Vector3D *, int, XXDFFLAGS, double, double,
-    double *)) phongBtdfSample,
-    (void (*)(void *, REFRACTIONINDEX, REFRACTIONINDEX, Vector3D *,
-    Vector3D *, Vector3D *, XXDFFLAGS, double *, double *)) phongBtdfEvalPdf,
+    reinterpret_cast<void (*)(void *, RefractionIndex *)>((void (*)()) phongIndexOfRefraction),
+    (COLOR (*)(void *, RefractionIndex, RefractionIndex, Vector3D *, Vector3D *, Vector3D *,
+               XXDFFLAGS)) phongBtdfEval,
+    (Vector3D (*)(void *, RefractionIndex, RefractionIndex, Vector3D *,
+                  Vector3D *, int, XXDFFLAGS, double, double,
+                  double *)) phongBtdfSample,
+    (void (*)(void *, RefractionIndex, RefractionIndex, Vector3D *,
+              Vector3D *, Vector3D *, XXDFFLAGS, double *, double *)) phongBtdfEvalPdf,
     (void (*)(FILE *, void *)) phongBtdfPrint
 };

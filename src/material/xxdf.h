@@ -1,7 +1,9 @@
-/* xxdf.h : General definitions for edf,brdf,btdf, ... */
+/**
+General definitions for edf, brdf, btdf, etc.
+*/
 
-#ifndef _XXDF_H_
-#define _XXDF_H_
+#ifndef __XXDF__
+#define __XXDF__
 
 #include "common/linealAlgebra/Vector3D.h"
 
@@ -15,7 +17,7 @@ Contributions to outgoing radiance are divided into three components :
 
 /* Convert index to component value */
 
-#define XXDFCOMPONENTS 3  /* There are three components */
+#define XXDF_COMPONENTS 3  /* There are three components */
 
 #define NO_COMPONENTS 0
 #define ALL_COMPONENTS (DIFFUSE_COMPONENT|GLOSSY_COMPONENT|SPECULAR_COMPONENT)
@@ -35,7 +37,6 @@ typedef char XXDFFLAGS;
 #define BSDF_GLOSSY_COMPONENT (BTDF_GLOSSY_COMPONENT|BRDF_GLOSSY_COMPONENT)
 #define BSDF_SPECULAR_COMPONENT (BTDF_SPECULAR_COMPONENT|BRDF_SPECULAR_COMPONENT)
 
-
 #define BRDF_DIFFUSE_INDEX 0
 #define BRDF_GLOSSY_INDEX 1
 #define BRDF_SPECULAR_INDEX 2  /* log2 of COMPONENTS */
@@ -53,36 +54,30 @@ typedef char XXDFFLAGS;
 #define BSDF_ALL_COMPONENTS (BRDF_DIFFUSE_COMPONENT|BRDF_GLOSSY_COMPONENT|BRDF_SPECULAR_COMPONENT|BTDF_DIFFUSE_COMPONENT|BTDF_GLOSSY_COMPONENT|BTDF_SPECULAR_COMPONENT)
 
 /* converts BSDFFLAGS to XXDFFLAGS */
-#define GETBRDFFLAGS(bsflags) (bsflags & ALL_COMPONENTS)
-#define GETBTDFFLAGS(bsflags) ((bsflags >> XXDFCOMPONENTS) & ALL_COMPONENTS)
+#define GETBRDFFLAGS(bsflags) ((bsflags) & ALL_COMPONENTS)
+#define GETBTDFFLAGS(bsflags) (((bsflags) >> XXDF_COMPONENTS) & ALL_COMPONENTS)
 
 /* converts XXDFFLAGS to BSDFFLAGS */
-#define SETBRDFFLAGS(xxflags) (xxflags & ALL_COMPONENTS)
-#define SETBTDFFLAGS(xxflags) ((xxflags & ALL_COMPONENTS) << XXDFCOMPONENTS)
+#define SETBRDFFLAGS(xxflags) ((xxflags) & ALL_COMPONENTS)
+#define SETBTDFFLAGS(xxflags) (((xxflags) & ALL_COMPONENTS) << XXDF_COMPONENTS)
 
 typedef char BSDFFLAGS;
 
-/* Refraction index */
-
-class REFRACTIONINDEX {
+class RefractionIndex {
   public:
     float nr;
     float ni;
 };
 
-/* Compute an approximate Geometric IOR from a complex IOR (cfr. Gr.Gems II, p289) */
-extern float complexToGeometricRefractionIndex(REFRACTIONINDEX nc);
-
-/* Calculate the ideal reflected ray direction (independent of the brdf) */
+extern float complexToGeometricRefractionIndex(RefractionIndex nc);
 extern Vector3D idealReflectedDirection(Vector3D *in, Vector3D *normal);
 
-/* Calculate the perfect refracted ray direction.
- * Sets totalInternalReflection to TRUE or FALSE accordingly.
- */
-
-extern Vector3D idealRefractedDirection(Vector3D *in, Vector3D *normal,
-                                        REFRACTIONINDEX inIndex,
-                                        REFRACTIONINDEX outIndex,
-                                        int *totalInternalReflection);
+extern Vector3D
+idealRefractedDirection(
+        Vector3D *in,
+        Vector3D *normal,
+        RefractionIndex inIndex,
+        RefractionIndex outIndex,
+        int *totalInternalReflection);
 
 #endif

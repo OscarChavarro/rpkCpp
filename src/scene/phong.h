@@ -34,7 +34,7 @@ class PHONG_BTDF {
     float avgKd;
     float avgKs;
     float Ns;
-    REFRACTIONINDEX refrIndex;
+    RefractionIndex refrIndex;
 };
 
 /* Define the phong exponent making the difference

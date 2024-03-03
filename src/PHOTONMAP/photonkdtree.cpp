@@ -1,19 +1,21 @@
-/*
- * photonkdtree.C : implementation of specific kdtree for photonmaps
- */
+/**
+Implementation of specific kdtree for photonmaps
+*/
 
 #include "PHOTONMAP/photonkdtree.h"
 
-class Cnormalquery {
+class NormalQuery {
 public:
     CIrrPhoton *photon;
     float *point;
     Vector3D normal;
     float threshold;
-    float maxdist;
+    float maximumDistance;
+
+    NormalQuery(): photon(), point(), normal(), threshold(), maximumDistance() {};
 };
 
-static Cnormalquery qdat_s;
+static NormalQuery qdat_s;
 
 // Distance calculation COPY FROM kdtree.C !
 inline static float SqrDistance3D(float *a, float *b) {
@@ -21,7 +23,6 @@ inline static float SqrDistance3D(float *a, float *b) {
 
     tmp = *(a++) - *(b++);
     result = tmp * tmp;
-    //  result = *ptmp++
 
     tmp = *(a++) - *(b++);
     result += tmp * tmp;
@@ -32,8 +33,8 @@ inline static float SqrDistance3D(float *a, float *b) {
     return result;
 }
 
-
-void CPhotonkdtree::NormalBQuery_rec(const int index) {
+void
+CPhotonkdtree::NormalBQuery_rec(const int index) {
     const BalancedKDTreeNode &node = m_broot[index];
     int discr = node.Discriminator();
 
@@ -63,7 +64,7 @@ void CPhotonkdtree::NormalBQuery_rec(const int index) {
         }
 
         dist *= dist; // Square distance to the separator plane
-        if ((farIndex < m_numBalanced) && (dist < qdat_s.maxdist)) {
+        if ((farIndex < m_numBalanced) && (dist < qdat_s.maximumDistance)) {
             // Discriminator line closer than maxdist : nearer positions can lie
             // on the far side. Or there are still not enough nodes found
             NormalBQuery_rec(farIndex);
@@ -74,29 +75,32 @@ void CPhotonkdtree::NormalBQuery_rec(const int index) {
     {
         dist = SqrDistance3D((float *) node.m_data, qdat_s.point);
 
-        if ( dist < qdat_s.maxdist ) {
+        if ( dist < qdat_s.maximumDistance ) {
             // Normal constraint
 
             if ((((CIrrPhoton *) node.m_data)->Normal() & qdat_s.normal)
                 > qdat_s.threshold ) {
                 // Replace point if distance < maxdist AND normal is similar
-                qdat_s.maxdist = dist;
+                qdat_s.maximumDistance = dist;
                 qdat_s.photon = (CIrrPhoton *) node.m_data;
             }
         }
     }
 }
 
-
-CIrrPhoton *CPhotonkdtree::NormalPhotonQuery(Vector3D *pos, Vector3D *normal,
-                                             float threshold, float maxR2) {
+CIrrPhoton *
+CPhotonkdtree::NormalPhotonQuery(
+    Vector3D *pos,
+    Vector3D *normal,
+    float threshold,
+    float maxR2)
+{
     // Fill qdat_s
-
     qdat_s.photon = nullptr;
     qdat_s.normal = *normal;
     qdat_s.point = (float *) pos;
     qdat_s.threshold = threshold;
-    qdat_s.maxdist = maxR2;
+    qdat_s.maximumDistance = maxR2;
 
     if ( m_broot && (m_numNodes > 0) && (m_numUnbalanced == 0)) {
         // Find the best photon

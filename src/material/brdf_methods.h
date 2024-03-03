@@ -30,17 +30,6 @@ class BRDF_METHODS {
 
     // Prints the BRDF data to the specified file
     void (*Print)(FILE *out, void *data);
-
-    // Creates a duplicate of the BRDF data
-    void *(*Duplicate)(void *data);
-
-    // Creates a BRDF editor widget (included in the material editor implemented
-    // in ui_material.c whenever appropriate). Returns the Widget cast to a
-    // void * in order not to have to include all X window header files
-    void *(*CreateEditor)(void *parent, void *data);
-
-    // Disposes of the BRDF data
-    void (*Destroy)(void *data);
 };
 
 #endif

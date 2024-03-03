@@ -1,5 +1,5 @@
 /**
-Some general functions regarding edf,brdf,btdf,bsdf
+Some general functions regarding edf, brdf, btdf, bsdf
 */
 
 #include "material/xxdf.h"
@@ -8,20 +8,20 @@ Some general functions regarding edf,brdf,btdf,bsdf
 Compute an approximate Geometric IOR from a complex IOR (cfr. Gr.Gems II, p289)
 */
 float
-complexToGeometricRefractionIndex(REFRACTIONINDEX nc) {
+complexToGeometricRefractionIndex(RefractionIndex nc) {
     float sqrtF;
     float f1;
     float f2;
 
-    f1 = (nc.nr - 1.0);
+    f1 = (nc.nr - 1.0f);
     f1 = f1 * f1 + nc.ni * nc.ni;
 
-    f2 = (nc.nr + 1.0);
+    f2 = (nc.nr + 1.0f);
     f2 = f2 * f2 + nc.ni * nc.ni;
 
     sqrtF = std::sqrt(f1 / f2);
 
-    return (1.0 + sqrtF) / (1.0 - sqrtF);
+    return (1.0f + sqrtF) / (1.0f - sqrtF);
 }
 
 /**
@@ -33,7 +33,7 @@ idealReflectedDirection(Vector3D *in, Vector3D *normal) {
     Vector3D result;
 
     tmp = 2 * vectorDotProduct(*normal, *in);
-    vectorScale(tmp, *normal, result);
+    vectorScale((float)tmp, *normal, result);
     vectorSubtract(*in, result, result);
     vectorNormalize(result);
 
@@ -47,11 +47,11 @@ Cfr. An Introduction to Global_Raytracer_activeRaytracer (Glassner)
 */
 Vector3D
 idealRefractedDirection(
-    Vector3D *in,
-    Vector3D *normal,
-    REFRACTIONINDEX inIndex,
-    REFRACTIONINDEX outIndex,
-    int *totalInternalReflection)
+        Vector3D *in,
+        Vector3D *normal,
+        RefractionIndex inIndex,
+        RefractionIndex outIndex,
+        int *totalInternalReflection)
 {
     double Ci;
     double Ct;
@@ -76,7 +76,7 @@ idealRefractedDirection(
 
     normalScale = refractionIndex * Ci - Ct;
 
-    vectorScale(refractionIndex, *in, result);
+    vectorScale((float)refractionIndex, *in, result);
     vectorSumScaled(result, normalScale, *normal, result);
 
     // Normalise

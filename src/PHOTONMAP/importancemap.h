@@ -24,7 +24,7 @@ public:
     // Override some photonmap functions
 
     virtual bool AddPhoton(CPhoton &photon, Vector3D &normal,
-                           short flags = 0);
+                           short flags);
 
     virtual void PhotonPrecomputeIrradiance(CIrrPhoton *photon);
 

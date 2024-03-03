@@ -1,15 +1,18 @@
-/* 
- * Implementation of the special importance map functions
- */
+/**
+Implementation of the special importance map functions
+*/
 
 #include "material/statistics.h"
 #include "PHOTONMAP/pmapoptions.h"
 #include "PHOTONMAP/importancemap.h"
 #include "common/error.h"
 
-bool CImportanceMap::AddPhoton(CPhoton &photon, Vector3D &normal,
-                               short flags) {
-
+bool
+CImportanceMap::AddPhoton(
+    CPhoton &photon,
+    Vector3D &normal,
+    short flags)
+{
     return CPhotonMap::AddPhoton(photon, normal, flags);
 }
 

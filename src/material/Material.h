@@ -1,5 +1,5 @@
-#ifndef _MATERIAL_H_
-#define _MATERIAL_H_
+#ifndef __MATERIAL__
+#define __MATERIAL__
 
 #include <cstdio>
 

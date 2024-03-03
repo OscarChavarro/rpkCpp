@@ -1,7 +1,3 @@
-/*
- * photon.C : photon implementation
- */
-
 #include "PHOTONMAP/photon.h"
 #include "common/error.h"
 

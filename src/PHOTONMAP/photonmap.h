@@ -95,14 +95,14 @@ public:
 
     // Adding photons, returns if photon was added
 
-    virtual bool AddPhoton(CPhoton &photon, Vector3D &normal, short flags = 0);
+    virtual bool AddPhoton(CPhoton &photon, Vector3D &normal, short flags);
 
     bool DC_AddPhoton(CPhoton &photon, RayHit &hit,
                       float requiredD, short flags = 0);
 
-    void Redistribute(CPhoton &photon, float acceptProb, short flags = 0);
+    void Redistribute(CPhoton &photon, float acceptProb, short flags);
 
-    // Get a maximum radius^2 for locating nearest photons
+    // Get a maximum radius^2 for locating the nearest photons
     virtual double GetMaxR2();
 
     // Precompute irradiance

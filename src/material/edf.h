@@ -17,7 +17,6 @@ class EDF {
 };
 
 extern EDF *edfCreate(void *data, EDF_METHODS *methods);
-extern void edfDestroy(EDF *edf);
 extern COLOR edfEmittance(EDF *edf, RayHit *hit, XXDFFLAGS flags);
 extern int edfIsTextured(EDF *edf);
 

@@ -16,18 +16,6 @@ bsdfCreate(void *data, BSDF_METHODS *methods) {
 }
 
 /**
-Disposes of the memory occupied by the BSDF instance
-*/
-void
-bsdfDestroy(BSDF *bsdf) {
-    if ( bsdf == nullptr ) {
-        return;
-    }
-    bsdf->methods->Destroy(bsdf->data);
-    free(bsdf);
-}
-
-/**
 Returns the scattered power of the BSDF, depending on the flags
 */
 COLOR
@@ -75,7 +63,7 @@ bsdfShadingFrame(BSDF *bsdf, RayHit *hit, Vector3D *X, Vector3D *Y, Vector3D *Z)
 Returns the index of refraction of the BSDF
 */
 void
-bsdfIndexOfRefraction(BSDF *bsdf, REFRACTIONINDEX *index) {
+bsdfIndexOfRefraction(BSDF *bsdf, RefractionIndex *index) {
     if ( bsdf && bsdf->methods->IndexOfRefraction ) {
         bsdf->methods->IndexOfRefraction(bsdf->data, index);
     } else {

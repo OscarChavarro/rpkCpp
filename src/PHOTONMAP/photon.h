@@ -65,11 +65,9 @@ public:
     Vector3D m_normal;
     COLOR m_irradiance;
 public:
-    inline Vector3D Normal() { return m_normal; }
+    inline Vector3D Normal() const { return m_normal; }
 
     inline void SetNormal(const Vector3D &normal) { m_normal = normal; }
-
-    inline COLOR Irradiance() { return m_irradiance; }
 
     inline void SetIrradiance(const COLOR &irr) { m_irradiance = irr; }
 
@@ -78,7 +76,6 @@ public:
         memcpy((char *) this, (char *) &photon, sizeof(CPhoton));
     }
 };
-
 
 // CImporton: identical to CIrrPhoton, but with some extra functions
 

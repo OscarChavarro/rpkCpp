@@ -21,9 +21,6 @@ class BSDF {
 };
 
 extern BSDF *bsdfCreate(void *data, BSDF_METHODS *methods);
-extern void bsdfDestroy(BSDF *bsdf);
-
-// SCATTERED POWER
 
 extern COLOR bsdfScatteredPower(BSDF *bsdf, RayHit *hit, Vector3D *dir, BSDFFLAGS flags);
 
@@ -53,7 +50,7 @@ bsdfSpecularTransmittance(BSDF *bsdf, RayHit *hit, Vector3D *dir) {
     return bsdfTransmittance((bsdf), hit, dir, SPECULAR_COMPONENT);
 }
 
-extern void bsdfIndexOfRefraction(BSDF *bsdf, REFRACTIONINDEX *index);
+extern void bsdfIndexOfRefraction(BSDF *bsdf, RefractionIndex *index);
 extern int bsdfShadingFrame(BSDF *bsdf, RayHit *hit, Vector3D *X, Vector3D *Y, Vector3D *Z);
 
 /**
