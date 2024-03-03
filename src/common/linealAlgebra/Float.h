@@ -16,6 +16,11 @@ doubleEqual(double a, double b, double tolerance) {
     return (a - b) > -tolerance && (a - b) < tolerance;
 }
 
+inline unsigned long
+unsignedLongMax(unsigned long a, unsigned long b) {
+    return a > b ? a : b;
+}
+
 inline float
 floatMax(float a, float b) {
     return a > b ? a : b;
@@ -23,6 +28,16 @@ floatMax(float a, float b) {
 
 inline float
 floatMin(float a, float b) {
+    return a < b ? a : b;
+}
+
+inline int
+intMin(int a, int b) {
+    return a < b ? a : b;
+}
+
+inline char
+charMin(char a, char b) {
     return a < b ? a : b;
 }
 

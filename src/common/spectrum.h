@@ -163,15 +163,6 @@ minSpectrum(SPECTRUM &spec1, SPECTRUM &spec2, SPECTRUM &result) {
     *_r = *_s < *_t ? *_s : *_t;
 }
 
-inline void
-clipSpectrumPositive(SPECTRUM &spec, SPECTRUM &result) {
-    const float *_s = spec;
-    float *_r = result;
-    *_r++ = *_s > 0.0f ? *_s : 0.0f; _s++;
-    *_r++ = *_s > 0.0f ? *_s : 0.0f; _s++;
-    *_r = *_s > 0.0f ? *_s : 0.0f;
-}
-
 inline float
 spectrumAverage(SPECTRUM &s) {
     return (s[0] + s[1] + s[2]) / 3.0f;

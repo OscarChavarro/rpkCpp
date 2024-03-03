@@ -106,11 +106,6 @@ colorMinimum(COLOR &s, COLOR &t, COLOR &r) {
     minSpectrum(s.spec, t.spec, r.spec);
 }
 
-inline void
-colorClipPositive(COLOR &s, COLOR &r) {
-    clipSpectrumPositive(s.spec, r.spec);
-}
-
 inline float
 colorAverage(COLOR &s) {
     return spectrumAverage(s.spec);

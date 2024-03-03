@@ -2,7 +2,6 @@
 Tumblin/Rushmeier/Ward/Ferwerda tone maps (Jan Prikryl)
 */
 
-#include "common/error.h"
 #include "common/rgb.h"
 #include "common/color.h"
 #include "common/cie.h"
@@ -15,7 +14,7 @@ REFERENCES:
 J. Tumblin, H.E. Rushmeier. Tone Reproduction for Realistic Images,
 IEEE Computer Graphics and Applications, 13:6, 1993, pp. 42-48.
 
-G. Ward. A Contrast-Based Scalefactor for Luminance Display, Graphics
+G. Ward. A Contrast-Based Scale factor for Luminance Display, Graphics
 Gems IV, Academic Press, 1994, pp. 415-421.
 
 J. Tumblin, J.K. Hodgins, B.K. Guenter. Two Methods for Display of High
@@ -53,7 +52,7 @@ stevensGamma(float lum) {
     if ( lum > 100.0 ) {
         return 2.655;
     } else {
-        return 1.855 + 0.4 * log10(lum + 2.3e-5);
+        return 1.855f + 0.4f * std::log10(lum + 2.3e-5f);
     }
 }
 
@@ -63,12 +62,12 @@ photopicOperator(float logLa) {
     if ( logLa <= -2.6 ) {
         r = -0.72;
     } else if ( logLa >= 1.9 ) {
-        r = logLa - 1.255;
+        r = logLa - 1.255f;
     } else {
-        r = pow(0.249 * logLa + 0.65, 2.7) - 0.72;
+        r = std::pow(0.249f * logLa + 0.65f, 2.7f) - 0.72f;
     }
 
-    return std::pow(10.0, r);
+    return std::pow(10.0f, r);
 }
 
 static float
@@ -77,12 +76,12 @@ scotopicOperator(float logLa) {
     if ( logLa <= -3.94 ) {
         r = -2.86;
     } else if ( logLa >= -1.44 ) {
-        r = logLa - 0.395;
+        r = logLa - 0.395f;
     } else {
-        r = pow(0.405 * logLa + 1.6, 2.18) - 2.86;
+        r = std::pow(0.405f * logLa + 1.6f, 2.18f) - 2.86f;
     }
 
-    return pow(10.0, r);
+    return std::pow(10.0f, r);
 }
 
 static float
@@ -92,7 +91,7 @@ mesopicScaleFactor(float logLwa) {
     } else if ( logLwa > 0.8 ) {
         return 0.0;
     } else {
-        return (0.8 - logLwa) / 3.3;
+        return (0.8f - logLwa) / 3.3f;
     }
 }
 
@@ -113,50 +112,49 @@ trwfInit() {
     float gwd;
 
     // Tumblin & Rushmeier
-    _ldaTumb = ldmax / sqrt(cmax);
+    _ldaTumb = ldmax / std::sqrt(cmax);
 
     {
-        float l10 = log10(TMO_CANDELA_LAMBERT(lwa));
-        alpharw = 0.4 * l10 + 2.92;
-        betarw = -0.4 * (l10 * l10) - 2.584 * l10 + 2.0208;
+        float l10 = std::log10(tmoCandelaLambert(lwa));
+        alpharw = 0.4f * l10 + 2.92f;
+        betarw = -0.4f * (l10 * l10) - 2.584f * l10 + 2.0208f;
     }
 
     {
-        float l10 = log10(TMO_CANDELA_LAMBERT(_ldaTumb));
-        alphad = 0.4 * l10 + 2.92;
-        betad = -0.4 * (l10 * l10) - 2.584 * l10 + 2.0208;
+        float l10 = std::log10(tmoCandelaLambert(_ldaTumb));
+        alphad = 0.4f * l10 + 2.92f;
+        betad = -0.4f * (l10 * l10) - 2.584f * l10 + 2.0208f;
     }
 
     lrwexponent = alpharw / alphad;
-    lrwm_comp = pow(10.0, (betarw - betad) / alphad);
-    lrwm_disp = lrwm_comp / (TMO_CANDELA_LAMBERT(ldmax));
-    invcmax = 1.0 / cmax;
+    lrwm_comp = std::pow(10.0f, (betarw - betad) / alphad);
+    lrwm_disp = lrwm_comp / (tmoCandelaLambert(ldmax));
+    invcmax = 1.0f / cmax;
 
     // Ward
-    _ldaWard = ldmax / 2.0;
+    _ldaWard = ldmax / 2.0f;
     {
-        double p1 = pow(_ldaWard, 0.4);
-        double p2 = pow(lwa, 0.4);
-        double p3 = (1.219 + p1) / (1.219 + p2);
-
-        m_comp = pow(p3, 2.5);
+        float p1 = std::pow(_ldaWard, 0.4f);
+        float p2 = std::pow(lwa, 0.4f);
+        float p3 = (1.219f + p1) / (1.219f + p2);
+        m_comp = std::pow(p3, 2.5f);
     }
 
     m_disp = m_comp / ldmax;
 
     // Ferwerda
-    f_msf = mesopicScaleFactor(log10(lwa));
-    f_sm_comp = scotopicOperator(log10(_ldaWard)) /
-                scotopicOperator(log10(lwa));
-    f_pm_comp = photopicOperator(log10(_ldaWard)) /
-                photopicOperator(log10(lwa));
+    f_msf = mesopicScaleFactor(std::log10(lwa));
+    f_sm_comp = scotopicOperator(std::log10(_ldaWard)) /
+                scotopicOperator(std::log10(lwa));
+    f_pm_comp = photopicOperator(std::log10(_ldaWard)) /
+                photopicOperator(std::log10(lwa));
     f_sm_disp = f_sm_comp / ldmax;
     f_pm_disp = f_pm_comp / ldmax;
 
     // Revised Tumblin & Rushmeier
     g = stevensGamma(lwa) / stevensGamma(_ldaTumb);
-    gwd = stevensGamma(lwa) / (1.855 + 0.4 * log(_ldaTumb));
-    r_comp = pow(sqrt(cmax), gwd - 1) * _ldaTumb;
+    gwd = stevensGamma(lwa) / (1.855f + 0.4f * std::log(_ldaTumb));
+    r_comp = std::pow(std::sqrt(cmax), gwd - 1) * _ldaTumb;
     r_disp = r_comp / ldmax;
 }
 
@@ -172,11 +170,11 @@ trwfScaleForComputations(COLOR radiance) {
     rwl = colorLuminance(radiance);
 
     if ( rwl > 0.0 ) {
-        float m = TMO_LAMBERT_CANDELA(
-                (pow(TMO_CANDELA_LAMBERT(rwl), lrwexponent) * lrwm_comp));
-        scale = m > 0.0 ? m / rwl : 0.0;
+        float m = tmoLambertCandela(
+                (std::pow(tmoCandelaLambert(rwl), lrwexponent) * lrwm_comp));
+        scale = m > 0.0f ? m / rwl : 0.0f;
     } else {
-        scale = 0.0;
+        scale = 0.0f;
     }
 
     colorScale(scale, radiance, radiance);
@@ -192,13 +190,13 @@ trwfScaleForDisplay(COLOR radiance) {
     rwl = M_PI * colorLuminance(radiance);
 
     getLuminousEfficacy(&eff);
-    colorScale(eff * M_PI, radiance, radiance);
+    colorScale(eff * (float)M_PI, radiance, radiance);
 
     if ( rwl > 0.0 ) {
-        float m = (pow(TMO_CANDELA_LAMBERT(rwl), lrwexponent) * lrwm_disp - invcmax);
-        scale = m > 0.0 ? m / rwl : 0.0;
+        float m = (std::pow(tmoCandelaLambert(rwl), lrwexponent) * lrwm_disp - invcmax);
+        scale = m > 0.0f ? m / rwl : 0.0f;
     } else {
-        scale = 0.0;
+        scale = 0.0f;
     }
 
     colorScale(scale, radiance, radiance);
@@ -257,7 +255,7 @@ revisedTRScaleForComputations(COLOR radiance) {
     rwl = colorLuminance(radiance);
 
     if ( rwl > 0.0 ) {
-        scale = r_comp * pow(rwl / _lwa, g) / rwl;
+        scale = r_comp * std::pow(rwl / _lwa, g) / rwl;
     } else {
         scale = 0.0;
     }
@@ -275,10 +273,10 @@ revisedTRScaleForDisplay(COLOR radiance) {
     rwl = M_PI * colorLuminance(radiance);
 
     getLuminousEfficacy(&eff);
-    colorScale(eff * M_PI, radiance, radiance);
+    colorScale(eff * (float)M_PI, radiance, radiance);
 
     if ( rwl > 0.0 ) {
-        scale = r_disp * (float)pow(rwl / _lwa, g) / rwl;
+        scale = r_disp * std::pow(rwl / _lwa, g) / rwl;
     } else {
         scale = 0.0f;
     }
@@ -303,7 +301,7 @@ TONEMAP GLOBAL_toneMap_revisedTumblinRushmeier = {
 
 static COLOR
 ferwerdaScaleForComputations(COLOR radiance) {
-    RGB p;
+    RGB p{};
     float sl;
     float eff;
 
@@ -328,7 +326,7 @@ ferwerdaScaleForComputations(COLOR radiance) {
 
 static COLOR
 ferwerdaScaleForDisplay(COLOR radiance) {
-    RGB p;
+    RGB p{};
     float sl;
     float eff;
 

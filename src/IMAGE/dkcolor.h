@@ -25,12 +25,6 @@ typedef float COLOR[3];        /* red, green, blue (or X,Y,Z) */
 
 typedef float COLORMAT[3][3];  /* color coordinate conversion matrix */
 
-#define  copycolr(c1, c2)        (c1[0]=c2[0],c1[1]=c2[1],                                 c1[2]=c2[2],c1[3]=c2[3])
-
-#define  colval(col, pri)        ((col)[pri])
-
-#define  copycolor(c1, c2)       ((c1)[0]=(c2)[0],(c1)[1]=(c2)[1],(c1)[2]=(c2)[2])
-
 #define  CIE_x_r                0.640           /* nominal CRT primaries */
 #define  CIE_y_r                0.330
 #define  CIE_x_g                0.290
@@ -40,10 +34,10 @@ typedef float COLORMAT[3][3];  /* color coordinate conversion matrix */
 #define  CIE_x_w                0.3333          /* use true white */
 #define  CIE_y_w                0.3333
 
-#define CIE_D           (       CIE_x_r*(CIE_y_g - CIE_y_b) +                                 CIE_x_g*(CIE_y_b - CIE_y_r) +                                 CIE_x_b*(CIE_y_r - CIE_y_g)     )
-#define CIE_C_rD        ( (1./CIE_y_w) *                                 ( CIE_x_w*(CIE_y_g - CIE_y_b) -                                   CIE_y_w*(CIE_x_g - CIE_x_b) +                                   CIE_x_g*CIE_y_b - CIE_x_b*CIE_y_g     ) )
-#define CIE_C_gD        ( (1./CIE_y_w) *                                 ( CIE_x_w*(CIE_y_b - CIE_y_r) -                                   CIE_y_w*(CIE_x_b - CIE_x_r) -                                   CIE_x_r*CIE_y_b + CIE_x_b*CIE_y_r     ) )
-#define CIE_C_bD        ( (1./CIE_y_w) *                                 ( CIE_x_w*(CIE_y_r - CIE_y_g) -                                   CIE_y_w*(CIE_x_r - CIE_x_g) +                                   CIE_x_r*CIE_y_g - CIE_x_g*CIE_y_r     ) )
+#define CIE_D           ( CIE_x_r*(CIE_y_g - CIE_y_b) +                                 CIE_x_g*(CIE_y_b - CIE_y_r) +                                 CIE_x_b*(CIE_y_r - CIE_y_g)     )
+#define CIE_C_rD        ( (1.0/CIE_y_w) *                                 ( CIE_x_w*(CIE_y_g - CIE_y_b) -                                   CIE_y_w*(CIE_x_g - CIE_x_b) +                                   CIE_x_g*CIE_y_b - CIE_x_b*CIE_y_g     ) )
+#define CIE_C_gD        ( (1.0/CIE_y_w) *                                 ( CIE_x_w*(CIE_y_b - CIE_y_r) -                                   CIE_y_w*(CIE_x_b - CIE_x_r) -                                   CIE_x_r*CIE_y_b + CIE_x_b*CIE_y_r     ) )
+#define CIE_C_bD        ( (1.0/CIE_y_w) *                                 ( CIE_x_w*(CIE_y_r - CIE_y_g) -                                   CIE_y_w*(CIE_x_r - CIE_x_g) +                                   CIE_x_r*CIE_y_g - CIE_x_g*CIE_y_r     ) )
 
 #define CIE_rf          (CIE_y_r*CIE_C_rD/CIE_D)
 #define CIE_gf          (CIE_y_g*CIE_C_gD/CIE_D)
@@ -67,8 +61,5 @@ extern COLORMAT GLOBAL_xyz2RgbMat; // XYZ to RGB conversion matrix
 
 char *tempbuffer(unsigned int len);                /* get a temporary buffer */
 int fwritecolrs(COLR *scanline, int len, FILE *fp); /* write out a colr scanline */
-int freadcolrs(COLR *scanline, int len, FILE *fp); /* read in an encoded colr scanline */
-int oldreadcolrs(COLR *scanline, int len, FILE *fp); /* read in an old colr scanline */
 int fwritescan(COLOR *scanline, int len, FILE *fp); /* write out a scanline */
 int setcolr(COLR clr, double r, double g, double b); /* assign a short color value */
-int colr_color(COLOR col, COLR clr); /* convert short to float color */

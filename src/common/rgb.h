@@ -29,10 +29,7 @@ class RGB {
 
 extern RGB GLOBAL_material_black;
 extern RGB GLOBAL_material_white;
-extern RGB GLOBAL_material_green;
 extern RGB GLOBAL_material_yellow;
-extern RGB GLOBAL_material_red;
-extern RGB GLOBAL_material_blue;
 
 inline int operator==(RGB rgb1, RGB rgb2)
 {

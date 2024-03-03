@@ -18,7 +18,7 @@ vector3DDominantCoord(Vector3D *v) {
     anorm.y = std::fabs(v->y);
     anorm.z = std::fabs(v->z);
     indexValue = floatMax(anorm.y, anorm.z);
-    indexValue = floatMax(anorm.x, indexValue);
+    indexValue = floatMax(anorm.x, (float)indexValue);
 
     return indexValue == anorm.x ? X_NORMAL :
             (indexValue == anorm.y ? Y_NORMAL : Z_NORMAL);

@@ -9,6 +9,7 @@ PPMOutputHandle::PPMOutputHandle(FILE *_fp, int w, int h) {
     }
 }
 
-int PPMOutputHandle::writeDisplayRGB(unsigned char *rgb) {
-    return fp ? fwrite(rgb, 3, width, fp) : 0;
+int
+PPMOutputHandle::writeDisplayRGB(unsigned char *rgb) {
+    return fp ? (int)fwrite(rgb, 3, width, fp) : 0;
 }

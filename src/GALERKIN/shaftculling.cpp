@@ -18,7 +18,13 @@ Some constants describing the position of some item with respect to a plane or a
 Default strategy is "overlap open", which was
 the most efficient strategy in the tests I did
 */
-static SHAFTCULLSTRATEGY strategy = OVERLAP_OPEN;
+static ShaftCullStrategy strategy = OVERLAP_OPEN;
+
+SHAFT::SHAFT():
+        ref1(), ref2(), extent(), plane(), planes(), omit(), numberOfGeometriesToOmit(), dontOpen(), numberOfGeometriesToNotOpen(),
+        center1(), center2(), cut() {
+
+}
 
 /**
 Marks a geometry as to be omitted during shaft culling: it will not be added to the
@@ -26,7 +32,7 @@ candidate list, even if the geometry overlaps or is inside the shaft
 */
 void
 setShaftOmit(SHAFT *shaft, Patch *geom) {
-    shaft->omit[shaft->nromit++] = geom;
+    shaft->omit[shaft->numberOfGeometriesToOmit++] = geom;
 }
 
 /**
@@ -34,7 +40,7 @@ Marks a geometry as one not to be opened during shaft culling
 */
 void
 setShaftDontOpen(SHAFT *shaft, Geometry *geom) {
-    shaft->dontOpen[shaft->nrdontopen++] = geom;
+    shaft->dontOpen[shaft->numberOfGeometriesToNotOpen++] = geom;
 }
 
 /**
@@ -48,9 +54,9 @@ constructShaft(float *ref1, float *ref2, SHAFT *shaft) {
     int j;
     int hasMinMax1[6];
     int hasMinMax2[6];
-    SHAFTPLANE *plane;
+    ShaftPlane *plane;
 
-    shaft->nromit = shaft->nrdontopen = 0;
+    shaft->numberOfGeometriesToOmit = shaft->numberOfGeometriesToNotOpen = 0;
     shaft->cut = false;
 
     shaft->ref1 = ref1;
@@ -240,7 +246,7 @@ if not (can be used for sorting the planes. It is assumed that the plane normals
 are normalized!
 */
 static int
-compareShaftPlanes(SHAFTPLANE *p1, SHAFTPLANE *p2) {
+compareShaftPlanes(ShaftPlane *p1, ShaftPlane *p2) {
     double tolerance;
 
     // Compare components of plane normal (normalized vector, so components
@@ -278,8 +284,8 @@ Plane is a pointer to the shaft plane defined in shaft. This routine will return
 true if the plane differs from all previous defined planes
 */
 static int
-uniqueShaftPlane(SHAFT *shaft, SHAFTPLANE *plane) {
-    SHAFTPLANE *ref;
+uniqueShaftPlane(SHAFT *shaft, ShaftPlane *plane) {
+    ShaftPlane *ref;
 
     for ( ref = &shaft->plane[0]; ref != plane; ref++ ) {
         if ( compareShaftPlanes(ref, plane) == 0 ) {
@@ -293,7 +299,7 @@ uniqueShaftPlane(SHAFT *shaft, SHAFTPLANE *plane) {
 Fills in normal and plane constant, as will as the coord_offset parameters
 */
 static void
-fillInPlane(SHAFTPLANE *plane, float nx, float ny, float nz, float d) {
+fillInPlane(ShaftPlane *plane, float nx, float ny, float nz, float d) {
     plane->n[0] = nx;
     plane->n[1] = ny;
     plane->n[2] = nz;
@@ -309,7 +315,7 @@ Construct the planes determining the shaft that use edges of p1 and vertices of 
 */
 static void
 constructPolygonToPolygonPlanes(POLYGON *p1, POLYGON *p2, SHAFT *shaft) {
-    SHAFTPLANE *plane = &shaft->plane[shaft->planes];
+    ShaftPlane *plane = &shaft->plane[shaft->planes];
     Vector3D *cur, *next, *other;
     Vector3D normal;
     float d;
@@ -433,8 +439,8 @@ constructPolygonToPolygonShaft(POLYGON *p1, POLYGON *p2, SHAFT *shaft) {
     shaft->omit[1] = nullptr;
     shaft->dontOpen[0] = nullptr;
     shaft->dontOpen[1] = nullptr;
-    shaft->nromit = 0;
-    shaft->nrdontopen = 0;
+    shaft->numberOfGeometriesToOmit = 0;
+    shaft->numberOfGeometriesToNotOpen = 0;
     shaft->cut = false;
 
     // Center positions of polygons define a line that is guaranteed to lay inside the shaft
@@ -465,7 +471,7 @@ is inside the shaft, OVERLAP if it overlaps, OUTSIDE if it is outside the shaft
 int
 shaftBoxTest(float *bounds, SHAFT *shaft) {
     int i;
-    SHAFTPLANE *plane;
+    ShaftPlane *plane;
 
     // Test against extent box
     if ( disjunctBounds(bounds, shaft->extent)) {
@@ -516,7 +522,7 @@ shaftPatchTest(Patch *patch, SHAFT *shaft) {
     int j;
     int someOut;
     int inAll[MAXIMUM_VERTICES_PER_PATCH];
-    SHAFTPLANE *plane;
+    ShaftPlane *plane;
     double tMin[MAXIMUM_VERTICES_PER_PATCH];
     double tMax[MAXIMUM_VERTICES_PER_PATCH];
     double pTol[MAXIMUM_VERTICES_PER_PATCH];
@@ -657,7 +663,7 @@ Returns true if the geometry is not to be enclosed in the shaft
 */
 static int
 patchIsOnOmitSet(SHAFT *shaft, Patch *geometry) {
-    for ( int i = 0; i < shaft->nromit; i++ ) {
+    for ( int i = 0; i < shaft->numberOfGeometriesToOmit; i++ ) {
         if ( shaft->omit[i] == geometry ) {
             return true;
         }
@@ -670,7 +676,7 @@ Returns true if the geometry is not to be opened during shaft culling
 */
 static int
 dontOpen(SHAFT *shaft, Geometry *geom) {
-    for ( int i = 0; i < shaft->nrdontopen; i++ ) {
+    for ( int i = 0; i < shaft->numberOfGeometriesToNotOpen; i++ ) {
         if ( shaft->dontOpen[i] == geom ) {
             return true;
         }

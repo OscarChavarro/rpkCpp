@@ -368,7 +368,7 @@ optionsLookupOption(char *s, CommandLineOptionDescription *options) {
     CommandLineOptionDescription *opt = options;
     while ( opt->name ) {
         if ( strncmp(s, opt->name,
-                     floatMax(opt->abbreviationLength > 0 ? opt->abbreviationLength : strlen(opt->name), strlen(s))) ==
+             unsignedLongMax(opt->abbreviationLength > 0 ? opt->abbreviationLength : strlen(opt->name), strlen(s))) ==
              0 ) {
             return opt;
         }

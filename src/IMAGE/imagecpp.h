@@ -11,32 +11,34 @@ protected:
     int width;
     int height;
 
-  void init(const char *_name, int _width, int _height)
-  {
-    drivername = _name;
-    width = _width;
-    height = _height;
-    gamma[0] = gamma[1] = gamma[2] = 1.;
-  }
+    void init(const char *_name, int _width, int _height) {
+        drivername = _name;
+        width = _width;
+        height = _height;
+        gamma[0] = gamma[1] = gamma[2] = 1.;
+    }
 
 public:
-  virtual ~ImageOutputHandle() {};
+    ImageOutputHandle();
 
-  /* image file output driver name */
-  const char *drivername;
+    virtual ~ImageOutputHandle() {};
 
-  /* gamma correction factors for red, green and blue  used by default  */
-  /* WriteRadianceRGB() */
-  float gamma[3];
+    /* image file output driver name */
+    const char *drivername;
 
-  /* writes a scanline of gamma-corrected display RGB pixels */
-  /* returns the number of pixels written. */
-  virtual int writeDisplayRGB(unsigned char *rgb);
-  virtual int writeDisplayRGB(float *rgbflt);
+    /* gamma correction factors for red, green and blue  used by default  */
+    /* WriteRadianceRGB() */
+    float gamma[3];
 
-  /* writes a scanline of raw radiance data */
-  /* returns the number of pixels written. */
-  virtual int writeRadianceRGB(float *rgbrad);	/* RGB radiance data */
+    /* writes a scanline of gamma-corrected display RGB pixels */
+    /* returns the number of pixels written. */
+    virtual int writeDisplayRGB(unsigned char *rgb);
+
+    virtual int writeDisplayRGB(float *rgbflt);
+
+    /* writes a scanline of raw radiance data */
+    /* returns the number of pixels written. */
+    virtual int writeRadianceRGB(float *rgbrad);    /* RGB radiance data */
 };
 
 #include <cstdio>

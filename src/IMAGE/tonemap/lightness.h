@@ -1,7 +1,5 @@
-/* lightness.h: lightness tone map */
-
-#ifndef _TM_LIGHTNESS_H_
-#define _TM_LIGHTNESS_H_
+#ifndef __TONE_MAP_LIGHTNESS__
+#define __TONE_MAP_LIGHTNESS__
 
 #include "IMAGE/tonemap/tonemapping.h"
 

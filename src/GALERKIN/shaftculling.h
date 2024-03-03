@@ -12,14 +12,14 @@ References:
 #include "java/util/ArrayList.h"
 #include "scene/polygon.h"
 
-class SHAFTPLANE {
+class ShaftPlane {
   public:
     float n[3];
     float d;
     int coord_offset[3]; // Coord. offset for nearest corner in box-plane tests
 };
 
-#define SHAFTMAXPLANES 16 // Max. 16 planes in plane-set: maximum 8 for a
+#define SHAFT_MAX_PLANES 16 // Max. 16 planes in plane-set: maximum 8 for a
     // box-to-box shaft, maximum 2 times the total nr of vertices for a
     // patch-to-patch shaft
 
@@ -30,12 +30,12 @@ class SHAFT {
     float *ref1; // Bounding boxes of the reference volumeListsOfItems and the whole shaft
     float *ref2;
     float extent[6];
-    SHAFTPLANE plane[SHAFTMAXPLANES];
+    ShaftPlane plane[SHAFT_MAX_PLANES];
     int planes;  // Number of planes in plane-set
     Patch *omit[2]; // Geometries to be ignored during shaft culling. max. 2!
-    int nromit; // Number of geometries to be ignored
+    int numberOfGeometriesToOmit;
     Geometry *dontOpen[2]; // Geometries not to be opened during shaft culling. max. 2!
-    int nrdontopen; // Number of geometries not to be opened
+    int numberOfGeometriesToNotOpen;
     Vector3D center1; // The line segment from center1 to center2 is guaranteed
 				      // to lay within the shaft
     Vector3D center2;
@@ -45,10 +45,11 @@ class SHAFT {
              // one occluder.
 			 //	As soon as such a situation is detected, shaft culling ends and the
              //	occluder in question is the first patch in the returned candidate list.
-             //	The candidate list does not contain all occluders!
+             //	The candidate list does not contain all occluder!
+    SHAFT();
 };
 
-enum SHAFTCULLSTRATEGY {
+enum ShaftCullStrategy {
     KEEP_CLOSED,
     OVERLAP_OPEN,
     ALWAYS_OPEN

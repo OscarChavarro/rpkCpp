@@ -222,7 +222,7 @@ choosePotentialShootingPatch(java::ArrayList<Patch *> *scenePatches) {
 
     for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
         Patch *patch = scenePatches->get(i);
-        float imp = patch->area * fabs(UN_SHOT_POTENTIAL(patch));
+        float imp = patch->area * std::fabs(UN_SHOT_POTENTIAL(patch));
 
         if ( imp > maximumImportance ) {
             shootingPatch = patch;

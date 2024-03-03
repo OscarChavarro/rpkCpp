@@ -23,9 +23,9 @@ static float Lightness(float luminance) {
         return 0.0f;
     }
 
-    relative_luminance = luminance / GLOBAL_statistics_referenceLuminance;
+    relative_luminance = luminance / (float)GLOBAL_statistics_referenceLuminance;
     if ( relative_luminance > 0.008856 ) {
-        return (float)(1.16f * (float)pow(relative_luminance, 0.33f) - 0.16f);
+        return (float)(1.16f * (float)std::pow(relative_luminance, 0.33f) - 0.16f);
     } else {
         return 9.033f * relative_luminance;
     }
@@ -44,8 +44,8 @@ static COLOR ScaleForDisplay(COLOR radiance) {
         return radiance;
     }
 
-    /* multiply by WHTEFFICACY to convert W/m^2sr to nits
-     * (reference luuminance is also in nits) */
+    // Multiply by WHITE EFFICACY to convert W/m^2sr to nits
+    // (reference luminance is also in nits)
     scale_factor = Lightness(WHITE_EFFICACY * max);
     if ( scale_factor == 0. ) {
         return radiance;

@@ -122,7 +122,7 @@ geomLink(Geometry *geom) {
     }
 
     // If the geometry is bounded, do shaft culling, reducing the candidate list
-    // which contains the possible occluders between a pair of patches for which
+    // which contains the possible occluder between a pair of patches for which
     // an initial link will need to be created
     if ( geom->bounded && oldCandidateList ) {
         constructShaft(globalPatchBoundingBox, geomBounds(geom), &shaft);
@@ -204,15 +204,17 @@ createInitialLinkWithTopCluster(GalerkinElement *elem, GalerkinRole role) {
     }
 
     // Assume no light transport (overlapping receiver and source)
-    if ( rcv != nullptr && src != nullptr && rcv->basisSize * src->basisSize == 1 ) {
-        K.f = 0.0;
-    } else {
-        K.p = ff;
-        for ( i = 0; i < rcv->basisSize * src->basisSize; i++ ) {
-            K.p[i] = 0.0;
+    if ( rcv != nullptr && src != nullptr ) {
+        if ( rcv->basisSize * src->basisSize == 1 ) {
+            K.f = 0.0;
+        } else {
+            K.p = ff;
+            for ( i = 0; i < rcv->basisSize * src->basisSize; i++ ) {
+                K.p[i] = 0.0;
+            }
         }
+        deltaK.f = HUGE; // HUGE error on the form factor
     }
-    deltaK.f = HUGE; // HUGE error on the form factor
 
     link = new Interaction(
         rcv,

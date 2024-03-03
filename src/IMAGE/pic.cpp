@@ -1,5 +1,4 @@
 #include "IMAGE/pic.h"
-// this file defines COLOR; may interfere with rpk's COLOR!
 #include "IMAGE/dkcolor.h"
 
 PicOutputHandle::

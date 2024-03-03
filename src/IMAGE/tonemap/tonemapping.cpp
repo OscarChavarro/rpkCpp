@@ -181,7 +181,7 @@ toneMapDefaults() {
     EndForAll;
 
     GLOBAL_toneMap_options.brightness_adjust = 0.;
-    GLOBAL_toneMap_options.pow_bright_adjust = pow(2., GLOBAL_toneMap_options.brightness_adjust);
+    GLOBAL_toneMap_options.pow_bright_adjust = std::pow(2.0f, GLOBAL_toneMap_options.brightness_adjust);
 
     GLOBAL_toneMap_options.statadapt = TMA_MEDIAN;
     GLOBAL_toneMap_options.lwa = DEFAULT_TM_LWA;

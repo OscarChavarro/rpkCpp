@@ -116,22 +116,24 @@ toneMapScaleForDisplay(COLOR &radiance) {
  * Gamma correction is performed in render.c. */
 extern RGB *radianceToRgb(COLOR color, RGB *rgb);
 
-/* ---------------------------------------------------------------------------
-  `TMO_CANDELA_LAMBERT'
+/**
+Transforms luminance from cd/m^2 to lamberts. Luminance in lamberts
+is needed for example by algorithms that are based on experiments of
+Stevens and Stevens (original Tumblin-Rushmeier tone operator). The
+transformation rule comes from Glassner's book, table 13.3, seems to
+be OK.
+*/
+inline float
+tmoCandelaLambert(float a) {
+    return a * (float)M_PI * 1e-4f;
+}
 
-  Transforms luminance from cd/m^2 to lamberts. Luminance in lamberts
-  is needed for example by algorithms that are based on experiments of
-  Stevens and Stevens (original Tumblin-Rushmeier tone operator). The
-  transformation rule comes from Glassner's book, table 13.3, seems to
-  be OK.
-  ------------------------------------------------------------------------- */
-#define TMO_CANDELA_LAMBERT(_a) ((_a) * M_PI * 1e-4)
-
-/* ---------------------------------------------------------------------------
-  `TMO_LAMBERT_CANDELA'
-
-  Transforms luminance from lamberts to cd/m^2 to lamberts.
-  ------------------------------------------------------------------------- */
-#define TMO_LAMBERT_CANDELA(_a) ((_a) / (M_PI * 1e-4))
+/**
+Transforms luminance from lamberts to cd/m^2 to lamberts.
+*/
+inline float
+tmoLambertCandela(float a) {
+    return a / ((float)M_PI * 1e-4f);
+}
 
 #endif

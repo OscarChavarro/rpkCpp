@@ -40,6 +40,9 @@ RGB x LOGLUV TIFF MACROS
 #define PRE_TIFF_GENERAL_HANDLE(_func) \
     logError(_func, "TIFF support has not been compiled in")
 
+ImageOutputHandle::ImageOutputHandle(): width(), height(), drivername(), gamma() {
+}
+
 /**
 DEFAULT IMPLEMENTATIONS
 */
@@ -53,10 +56,11 @@ ImageOutputHandle::writeDisplayRGB(unsigned char * /*x*/) {
     return 0;
 }
 
-#define GAMMACORRECT(rgb, gamma) { \
-  (rgb).r = (gamma)[0] == 1. ? (rgb).r : pow((rgb).r, 1./(gamma)[0]); \
-  (rgb).g = (gamma)[1] == 1. ? (rgb).g : pow((rgb).g, 1./(gamma)[1]); \
-  (rgb).b = (gamma)[2] == 1. ? (rgb).b : pow((rgb).b, 1./(gamma)[2]); \
+inline void
+gammaCorrect(RGB &rgb, const float gamma[3]) {
+  rgb.r = gamma[0] == 1.0 ? rgb.r : std::pow(rgb.r, 1.0f / gamma[0]);
+  rgb.g = gamma[1] == 1.0 ? rgb.g : std::pow(rgb.g, 1.0f / gamma[1]);
+  rgb.b = gamma[2] == 1.0 ? rgb.b : std::pow(rgb.b, 1.0f / gamma[2]);
 }
 
 int
@@ -67,7 +71,7 @@ ImageOutputHandle::writeDisplayRGB(float *rgbflt) {
         RGB disprgb = *(RGB *) (&rgbflt[3 * i]);
         // radianceToRgb(*(COLOR *)&rgbflt[3*i], &disprgb);
         // apply gamma correction
-        GAMMACORRECT(disprgb, gamma);
+        gammaCorrect(disprgb, gamma);
         // convert float to byte representation
         rgb[3 * i] = (unsigned char) (disprgb.r * 255.);
         rgb[3 * i + 1] = (unsigned char) (disprgb.g * 255.);
@@ -86,10 +90,10 @@ ImageOutputHandle::writeRadianceRGB(float *rgbrad) {
     unsigned char *rgb = new unsigned char[3 * width];
     for ( int i = 0; i < width; i++ ) {
         // Convert RGB radiance to display RGB
-        RGB disprgb;
+        RGB disprgb{};
         radianceToRgb(*(COLOR *) &rgbrad[3 * i], &disprgb);
         // Apply gamma correction
-        GAMMACORRECT(disprgb, gamma);
+        gammaCorrect(disprgb, gamma);
         // Convert float to byte representation
         rgb[3 * i] = (unsigned char) (disprgb.r * 255.);
         rgb[3 * i + 1] = (unsigned char) (disprgb.g * 255.);

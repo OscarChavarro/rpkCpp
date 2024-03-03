@@ -12,7 +12,7 @@ Estimate static adaptation for tone mapping
 Stores luminance-area pairs for median area-weighted luminance
 selection.
 */
-class LUMAREA {
+class LuminanceArea {
   public:
     float luminance;
     float area;
@@ -34,15 +34,15 @@ initRadianceEstimate(Patch *patch) {
 
 static int globalNumEntries;
 static double globalLogAreaLum;
-static LUMAREA *globalLumArea;
+static LuminanceArea *globalLumArea;
 static float globalLumMin = HUGE;
 static float globalLumMax = 0.0;
 static COLOR (*PatchRadianceEstimate)(Patch *globalP) = initRadianceEstimate;
 
 static int
 adaptationLumAreaComp(const void *la1, const void *la2) {
-    float l1 = ((LUMAREA *) la1)->luminance;
-    float l2 = ((LUMAREA *) la2)->luminance;
+    float l1 = ((LuminanceArea *) la1)->luminance;
+    float l2 = ((LuminanceArea *) la2)->luminance;
     return l1 > l2 ? 1 : l1 == l2 ? 0 : -1;
 }
 
@@ -81,11 +81,11 @@ Computes the static adaptation luminance value choosing the median value
 of area-weighted luminance values. Needs correct value of "GLOBAL_statistics_totalArea".
 */
 static float
-meanAreaWeightedLuminance(LUMAREA *pairs, int numPairs) {
+meanAreaWeightedLuminance(LuminanceArea *pairs, int numPairs) {
     float areaMax = GLOBAL_statistics_totalArea / 2.0f;
     float areaCnt = 0.0;
 
-    qsort((void *) pairs, numPairs, sizeof(LUMAREA), (QSORT_CALLBACK_TYPE) adaptationLumAreaComp);
+    qsort((void *) pairs, numPairs, sizeof(LuminanceArea), (QSORT_CALLBACK_TYPE) adaptationLumAreaComp);
 
     while ( areaCnt < areaMax ) {
         areaCnt += pairs->area;
@@ -121,7 +121,7 @@ estimateSceneAdaptation(COLOR (*patch_radiance)(Patch *), java::ArrayList<Patch 
         }
         case TMA_MEDIAN: {
             // Static adaptation inspired by Tumblin[1999]
-            LUMAREA *la = (LUMAREA *)malloc(GLOBAL_statistics_numberOfPatches * sizeof(LUMAREA));
+            LuminanceArea *la = (LuminanceArea *)malloc(GLOBAL_statistics_numberOfPatches * sizeof(LuminanceArea));
 
             globalLumArea = la;
             for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {

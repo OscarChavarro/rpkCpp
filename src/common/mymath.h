@@ -1,9 +1,8 @@
-#ifndef _MYMATH_H_INCLUDED_
-#define _MYMATH_H_INCLUDED_
+#ifndef __MYMATH__
+#define __MYMATH__
 
 #include <cmath>
 
-//#define QSORT_CALLBACK_TYPE __compar_fn_t
 #define QSORT_CALLBACK_TYPE int (*)(const void *, const void *)
 
 #ifndef HUGE

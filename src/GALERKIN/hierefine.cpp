@@ -341,8 +341,8 @@ hierarchicRefinementComputeLightTransport(Interaction *link) {
 
     // Update the number of effectively used radiance coefficients on the
     // receiver element
-    a = floatMin(link->nrcv, link->receiverElement->basisSize);
-    b = floatMin(link->nsrc, link->sourceElement->basisSize);
+    a = intMin(link->nrcv, link->receiverElement->basisSize);
+    b = intMin(link->nsrc, link->sourceElement->basisSize);
     if ( a > link->receiverElement->basisUsed ) {
         link->receiverElement->basisUsed = (char)a;
     }

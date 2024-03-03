@@ -66,10 +66,13 @@ geomMultiResolutionVisibility(
     }
 
     if ( fsize < minimumFeatureSize ) {
-        double kappa, vol;
+        double kappa = 0.0;
+        double vol;
         vol = (bbx[MAX_X] - bbx[MIN_X] + EPSILON) * (bbx[MAX_Y] - bbx[MIN_Y] + EPSILON) *
               (bbx[MAX_Z] - bbx[MIN_Z] + EPSILON);
-        kappa = cluster->area / (4.0 * vol);
+        if ( cluster != nullptr ) {
+            kappa = cluster->area / (4.0 * vol);
+        }
         return std::exp(-kappa * (tmax - tmin));
     } else {
         if ( geomIsAggregate(geom) ) {
