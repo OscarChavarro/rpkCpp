@@ -11,16 +11,14 @@ per stratum ! If the number of samples does not fit a
 2D grid, some samples are taken randomly over the
 complete unit square
 */
-
-class CStrat2D {
+class StratifiedSampling2D {
     int xMaxStratum;
     int yMaxStratum;
     int xStratum;
     int yStratum;
 
 public:
-    CStrat2D(int nrSamples);
-
+    explicit StratifiedSampling2D(int nrSamples);
     void sample(double *x1, double *x2);
 };
 

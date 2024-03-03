@@ -3,14 +3,14 @@
 
 #include "shared/stratification.h"
 
-CStrat2D::CStrat2D(int nrSamples) {
+StratifiedSampling2D::StratifiedSampling2D(int nrSamples): xMaxStratum(), yMaxStratum() {
     getNumberOfDivisions(nrSamples, &xMaxStratum, &yMaxStratum);
     xStratum = 0;
     yStratum = 0;
 }
 
 void
-CStrat2D::sample(double *x1, double *x2) {
+StratifiedSampling2D::sample(double *x1, double *x2) {
     if ( yStratum < yMaxStratum ) {
         *x1 = ((xStratum + drand48()) / (double) xMaxStratum);
         *x2 = ((yStratum + drand48()) / (double) yMaxStratum);

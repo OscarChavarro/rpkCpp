@@ -90,7 +90,7 @@ SR_GetScatteredRadiance(
             double x_1;
             double x_2;
             double factor;
-            CStrat2D strat(nrSamples);
+            StratifiedSampling2D strat(nrSamples);
             COLOR radiance;
             bool doRR = thisNode->m_depth >= config->samplerConfig.minDepth;
 
@@ -187,7 +187,7 @@ SR_GetDirectRadiance(
 
 
         while ( lightsToDo ) {
-            CStrat2D strat(config->nextEventSamples);
+            StratifiedSampling2D strat(config->nextEventSamples);
 
             for ( i = 0; i < config->nextEventSamples; i++ ) {
                 // Light sampling
@@ -472,7 +472,7 @@ CalcPixel(int nx, int ny, StochasticRaytracingConfiguration *config) {
     double x1;
     double x2;
     COLOR col, result;
-    CStrat2D strat(config->samplesPerPixel);
+    StratifiedSampling2D strat(config->samplesPerPixel);
 
     colorClear(result);
 

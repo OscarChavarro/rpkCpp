@@ -635,7 +635,7 @@ bpCalcPixel(int nx, int ny, BPCONFIG *config) {
     int i;
     double x_1, x_2;
     COLOR result;
-    CStrat2D strat(config->bcfg->samplesPerPixel);
+    StratifiedSampling2D strat(config->bcfg->samplesPerPixel);
     CPathNode *pixNode, *nextNode;
 
     colorClear(result);
