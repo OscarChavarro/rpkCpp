@@ -211,7 +211,7 @@ Definitions for context handling routines (materials, colors, vectors)
 #define C_CMINWL 380 // Minimum wavelength
 #define C_CMAXWL 780 // Maximum wavelength
 #define C_CNSS 41 // Number of spectral samples
-#define C_CWLI ((C_CMAXWL-C_CMINWL)/(C_CNSS-1))
+#define C_CWLI ((float)(C_CMAXWL-C_CMINWL) / (float)(C_CNSS-1))
 #define C_CMAXV 10000 // Nominal maximum sample value
 #define C_CLPWM (683.0/C_CMAXV) // Peak lumens/watt multiplier
 #define C_CSSPEC 01 // Flag if spectrum is set

@@ -687,7 +687,7 @@ mgfEntitySphere(int ac, char **av)
     if ( !isFloatWords(av[2]) ) {
         return MGF_ERROR_ARGUMENT_TYPE;
     }
-    rad = atof(av[2]);
+    rad = strtod(av[2], nullptr);
 
     // Initialize
     warpconends = 1;
@@ -761,9 +761,9 @@ mgfEntityTorus(int ac, char **av)
     if ( !isFloatWords(av[2]) || !isFloatWords(av[3]) ) {
         return MGF_ERROR_ARGUMENT_TYPE;
     }
-    minrad = atof(av[2]);
+    minrad = strtod(av[2], nullptr);
     round0(minrad);
-    maxrad = atof(av[3]);
+    maxrad = strtod(av[3], nullptr);
 
     // Check orientation
     if ( minrad > 0.0 ) {
@@ -909,9 +909,9 @@ mgfEntityRing(int ac, char **av)
     if ( !isFloatWords(av[2]) || !isFloatWords(av[3]) ) {
         return MGF_ERROR_ARGUMENT_TYPE;
     }
-    minRad = atof(av[2]);
+    minRad = strtod(av[2], nullptr);
     round0(minRad);
-    maxRad = atof(av[3]);
+    maxRad = strtod(av[3], nullptr);
     if ( minRad < 0. || maxRad <= minRad ) {
         return MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
     }
@@ -1067,9 +1067,9 @@ mgfEntityCone(int ac, char **av)
     if ( !isFloatWords(av[2]) || !isFloatWords(av[4]) ) {
         return MGF_ERROR_ARGUMENT_TYPE;
     }
-    rad1 = atof(av[2]);
+    rad1 = strtod(av[2], nullptr);
     round0(rad1);
-    rad2 = atof(av[4]);
+    rad2 = strtod(av[4], nullptr);
     round0(rad2);
     if ( rad1 == 0.0 ) {
         if ( rad2 == 0.0 ) {
@@ -1295,7 +1295,7 @@ mgfEntityPrism(int ac, char **av)
     if ( !isFloatWords(av[ac - 1]) ) {
         return MGF_ERROR_ARGUMENT_TYPE;
     }
-    length = atof(av[ac - 1]);
+    length = strtod(av[ac - 1], nullptr);
     if ( length <= FLOAT_TINY && length >= -FLOAT_TINY ) {
         return MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
     }

@@ -6,7 +6,7 @@ Definitions for polygon package
 #define POLY_HDR
 
 #include "common/mymath.h"
-#include "sgl.h"
+#include "SGL/sgl.h"
 
 // Note that poly_clip, given an n-gon as input, might output an (n+6)gon
 #define MAXIMUM_SIDES_PER_POLYGON 10

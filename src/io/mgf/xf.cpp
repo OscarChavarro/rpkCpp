@@ -286,9 +286,9 @@ xf(XF *ret, int ac, char **av)
                     finish(icnt, ret, xfmat, xfsca);
                     return i;
                 }
-                m4[3][0] = atof(av[++i]);
-                m4[3][1] = atof(av[++i]);
-                m4[3][2] = atof(av[++i]);
+                m4[3][0] = strtod(av[++i], nullptr);
+                m4[3][1] = strtod(av[++i], nullptr);
+                m4[3][2] = strtod(av[++i], nullptr);
                 break;
 
             case 'r':
@@ -299,7 +299,7 @@ xf(XF *ret, int ac, char **av)
                             finish(icnt, ret, xfmat, xfsca);
                             return i;
                         }
-                        dtmp = d2r(atof(av[++i]));
+                        dtmp = d2r(strtod(av[++i], nullptr));
                         m4[1][1] = m4[2][2] = std::cos(dtmp);
                         m4[2][1] = -(m4[1][2] = std::sin(dtmp));
                         break;
@@ -308,7 +308,7 @@ xf(XF *ret, int ac, char **av)
                             finish(icnt, ret, xfmat, xfsca);
                             return i;
                         }
-                        dtmp = d2r(atof(av[++i]));
+                        dtmp = d2r(strtod(av[++i], nullptr));
                         m4[0][0] = m4[2][2] = std::cos(dtmp);
                         m4[0][2] = -(m4[2][0] = std::sin(dtmp));
                         break;
@@ -317,7 +317,7 @@ xf(XF *ret, int ac, char **av)
                             finish(icnt, ret, xfmat, xfsca);
                             return i;
                         }
-                        dtmp = d2r(atof(av[++i]));
+                        dtmp = d2r(strtod(av[++i], nullptr));
                         m4[0][0] = m4[1][1] = std::cos(dtmp);
                         m4[1][0] = -(m4[0][1] = std::sin(dtmp));
                         break;
@@ -336,10 +336,10 @@ xf(XF *ret, int ac, char **av)
                             finish(icnt, ret, xfmat, xfsca);
                             return i;
                         }
-                        x = atof(av[++i]);
-                        y = atof(av[++i]);
-                        z = atof(av[++i]);
-                        a = d2r(atof(av[++i]));
+                        x = strtof(av[++i], nullptr);
+                        y = strtof(av[++i], nullptr);
+                        z = strtof(av[++i], nullptr);
+                        a = d2r(strtod(av[++i], nullptr));
                         s = std::sqrt(x * x + y * y + z * z);
                         x /= s;
                         y /= s;
@@ -374,7 +374,7 @@ xf(XF *ret, int ac, char **av)
                             finish(icnt, ret, xfmat, xfsca);
                             return i;
                         }
-                        dtmp = atof(av[i + 1]);
+                        dtmp = strtod(av[i + 1], nullptr);
                         if ( dtmp == 0.0 ) {
                             finish(icnt, ret, xfmat, xfsca);
                             return i;
@@ -386,7 +386,7 @@ xf(XF *ret, int ac, char **av)
                             finish(icnt, ret, xfmat, xfsca);
                             return i;
                         }
-                        dtmp = atof(av[i + 1]);
+                        dtmp = strtod(av[i + 1], nullptr);
                         if ( dtmp == 0.0 ) {
                             finish(icnt, ret, xfmat, xfsca);
                             return i;
@@ -398,7 +398,7 @@ xf(XF *ret, int ac, char **av)
                             finish(icnt, ret, xfmat, xfsca);
                             return i;
                         }
-                        dtmp = atof(av[i + 1]);
+                        dtmp = strtod(av[i + 1], nullptr);
                         if ( dtmp == 0.0 ) {
                             finish(icnt, ret, xfmat, xfsca);
                             return i;
@@ -410,7 +410,7 @@ xf(XF *ret, int ac, char **av)
                             finish(icnt, ret, xfmat, xfsca);
                             return i;
                         }
-                        dtmp = atof(av[i + 1]);
+                        dtmp = strtod(av[i + 1], nullptr);
                         if ( dtmp == 0.0 ) {
                             finish(icnt, ret, xfmat, xfsca);
                             return i;
