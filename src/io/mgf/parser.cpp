@@ -51,20 +51,16 @@ noted in some fashion, and we therefore keep another array of
 parallel support handlers to assist in this effort.
 */
 
-/* temporary settings for testing */
-#define e_ies e_any_toss
-
-/* alternate handler support functions */
-
+// Alternate handler support functions
 static int (*e_supp[MGF_TOTAL_NUMBER_OF_ENTITIES])(int argc, char **argv);
-static char FLTFMT[] = "%.12g";
-static int warpconends; // hack for generating good normals
+static char globalFloatFormat[] = "%.12g";
+static int warpconends; // Hack for generating good normals
 
 /**
 Discard unneeded/unwanted entity
 */
 static int
-e_any_toss(int /*ac*/, char ** /*av*/) {
+discardUnneededEntity(int /*ac*/, char ** /*av*/) {
     return MGF_OK;
 }
 
@@ -203,7 +199,7 @@ mgfAlternativeInit(int (*handleCallbacks[MGF_TOTAL_NUMBER_OF_ENTITIES])(int, cha
 
     // Pick up slack
     if ( handleCallbacks[MG_E_IES] == nullptr) {
-        handleCallbacks[MG_E_IES] = e_ies;
+        handleCallbacks[MG_E_IES] = discardUnneededEntity;
     }
     if ( handleCallbacks[MG_E_INCLUDE] == nullptr) {
         handleCallbacks[MG_E_INCLUDE] = handleIncludedFile;
@@ -317,7 +313,7 @@ mgfAlternativeInit(int (*handleCallbacks[MGF_TOTAL_NUMBER_OF_ENTITIES])(int, cha
     // Discard remaining entities
     for ( i = 0; i < MGF_TOTAL_NUMBER_OF_ENTITIES; i++ ) {
         if ( handleCallbacks[i] == nullptr) {
-            handleCallbacks[i] = e_any_toss;
+            handleCallbacks[i] = discardUnneededEntity;
         }
     }
 }
@@ -470,7 +466,7 @@ mgfReadNextLine()
                    MGF_MAXIMUM_INPUT_LINE_LENGTH - len, GLOBAL_mgf_file->fp) == nullptr) {
             return len;
         }
-        len += strlen(GLOBAL_mgf_file->inputLine + len);
+        len += (int)strlen(GLOBAL_mgf_file->inputLine + len);
         if ( len >= MGF_MAXIMUM_INPUT_LINE_LENGTH - 1 ) {
             return len;
         }
@@ -519,44 +515,17 @@ mgfParseCurrentLine()
     }        /* no words in line */
     *ap = nullptr;
     /* else handle it */
-    return mgfHandle(-1, ap - argv, argv);
+    return mgfHandle(-1, (int)(ap - argv), argv);
 }
 
 /**
-Load an mgf file
+Default handler for unknown entities
 */
 int
-mgfLoad(char *fn)
+mgfDefaultHandlerForUnknownEntities(int /*ac*/, char **av)
 {
-    MgfReaderContext mgfReaderContext;
-    int nbr;
-
-    int rval = mgfOpen(&mgfReaderContext, fn);
-    if ( rval != MGF_OK ) {
-        fprintf(stderr, "%s: %s\n", fn, GLOBAL_mgf_errors[rval]);
-        return rval;
-    }
-    while ((nbr = mgfReadNextLine()) > 0 ) {    /* parse each line */
-        if ( nbr >= MGF_MAXIMUM_INPUT_LINE_LENGTH - 1 ) {
-            fprintf(stderr, "%s: %d: %s\n", mgfReaderContext.fileName,
-                    mgfReaderContext.lineNumber, GLOBAL_mgf_errors[rval = MGF_ERROR_LINE_TOO_LONG]);
-            break;
-        }
-        if ( (rval = mgfParseCurrentLine()) != MGF_OK ) {
-            fprintf(stderr, "%s: %d: %s:\n%s", mgfReaderContext.fileName,
-                    mgfReaderContext.lineNumber, GLOBAL_mgf_errors[rval],
-                    mgfReaderContext.inputLine);
-            break;
-        }
-    }
-    mgfClose();
-    return rval;
-}
-
-int
-mgfDefaultHandlerForUnknownEntities(int /*ac*/, char **av)        /* default handler for unknown entities */
-{
-    if ( GLOBAL_mgf_unknownEntitiesCounter++ == 0 ) {        /* report first incident */
+    if ( GLOBAL_mgf_unknownEntitiesCounter++ == 0 ) {
+        // Report first incident
         fprintf(stderr, "%s: %d: %s: %s\n", GLOBAL_mgf_file->fileName,
                 GLOBAL_mgf_file->lineNumber, GLOBAL_mgf_errors[MGF_ERROR_UNKNOWN_ENTITY], av[0]);
     }
@@ -704,9 +673,9 @@ mgfEntitySphere(int ac, char **av)            /* expand a sphere into cones */
     if ((rval = mgfHandle(MG_E_VERTEX, 3, v2ent)) != MGF_OK ) {
         return rval;
     }
-    snprintf(p2x, 24, FLTFMT, cv->p[0]);
-    snprintf(p2y, 24, FLTFMT, cv->p[1]);
-    snprintf(p2z, 24, FLTFMT, cv->p[2] + rad);
+    snprintf(p2x, 24, globalFloatFormat, cv->p[0]);
+    snprintf(p2y, 24, globalFloatFormat, cv->p[1]);
+    snprintf(p2z, 24, globalFloatFormat, cv->p[2] + rad);
     rval = mgfHandle(MG_E_POINT, 4, p2ent);
     if ( rval != MGF_OK ) {
         return rval;
@@ -718,7 +687,7 @@ mgfEntitySphere(int ac, char **av)            /* expand a sphere into cones */
         if ((rval = mgfHandle(MG_E_VERTEX, 4, v1ent)) != MGF_OK ) {
             return rval;
         }
-        snprintf(p2z, 24, FLTFMT, cv->p[2] + rad * std::cos(theta));
+        snprintf(p2z, 24, globalFloatFormat, cv->p[2] + rad * std::cos(theta));
         if ((rval = mgfHandle(MG_E_VERTEX, 2, v2ent)) != MGF_OK ) {
             return rval;
         }
@@ -726,7 +695,7 @@ mgfEntitySphere(int ac, char **av)            /* expand a sphere into cones */
             return rval;
         }
         strcpy(r1, r2);
-        snprintf(r2, 24, FLTFMT, rad * std::sin(theta));
+        snprintf(r2, 24, globalFloatFormat, rad * std::sin(theta));
         if ((rval = mgfHandle(MGF_ERROR_CONE, 5, conent)) != MGF_OK ) {
             return rval;
         }
@@ -767,14 +736,11 @@ mgfEntityTorus(int ac, char **av)            /* expand a torus into cones */
     minrad = atof(av[2]);
     round0(minrad);
     maxrad = atof(av[3]);
+
     // Check orientation
     if ( minrad > 0.0 ) {
         sgn = 1;
     } else if ( minrad < 0.0 ) {
-        sgn = -1;
-    } else if ( maxrad > 0.0 ) {
-        sgn = 1;
-    } else if ( maxrad < 0.0 ) {
         sgn = -1;
     } else {
         return MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
@@ -787,7 +753,7 @@ mgfEntityTorus(int ac, char **av)            /* expand a torus into cones */
     warpconends = 1;
     v2ent[3] = av[1];
     for ( j = 0; j < 3; j++ ) {
-        snprintf(p2[j], 24, FLTFMT, cv->p[j] + 0.5 * sgn * (maxrad - minrad) * cv->n[j]);
+        snprintf(p2[j], 24, globalFloatFormat, cv->p[j] + 0.5 * sgn * (maxrad - minrad) * cv->n[j]);
     }
     rval = mgfHandle(MG_E_VERTEX, 4, v2ent);
     if ( rval != MGF_OK ) {
@@ -797,7 +763,7 @@ mgfEntityTorus(int ac, char **av)            /* expand a torus into cones */
     if ( rval != MGF_OK ) {
         return rval;
     }
-    snprintf(r2, 24, FLTFMT, avgrad = 0.5 * (minrad + maxrad));
+    snprintf(r2, 24, globalFloatFormat, avgrad = 0.5 * (minrad + maxrad));
 
     // Run outer section
     for ( i = 1; i <= 2 * GLOBAL_mgf_divisionsPerQuarterCircle; i++ ) {
@@ -806,7 +772,7 @@ mgfEntityTorus(int ac, char **av)            /* expand a torus into cones */
             return rval;
         }
         for ( j = 0; j < 3; j++ ) {
-            snprintf(p2[j], 24, FLTFMT, cv->p[j] +
+            snprintf(p2[j], 24, globalFloatFormat, cv->p[j] +
                                    0.5 * sgn * (maxrad - minrad) * std::cos(theta) * cv->n[j]);
         }
         if ((rval = mgfHandle(MG_E_VERTEX, 2, v2ent)) != MGF_OK ) {
@@ -816,18 +782,18 @@ mgfEntityTorus(int ac, char **av)            /* expand a torus into cones */
             return rval;
         }
         strcpy(r1, r2);
-        snprintf(r2, 24, FLTFMT, avgrad + 0.5 * (maxrad - minrad) * std::sin(theta));
+        snprintf(r2, 24, globalFloatFormat, avgrad + 0.5 * (maxrad - minrad) * std::sin(theta));
         if ((rval = mgfHandle(MGF_ERROR_CONE, 5, conent)) != MGF_OK ) {
             return rval;
         }
     }
 
     // Run inner section
-    snprintf(r2, 24, FLTFMT, -0.5 * (minrad + maxrad));
+    snprintf(r2, 24, globalFloatFormat, -0.5 * (minrad + maxrad));
     for ( ; i <= 4 * GLOBAL_mgf_divisionsPerQuarterCircle; i++ ) {
         theta = i * (M_PI / 2) / GLOBAL_mgf_divisionsPerQuarterCircle;
         for ( j = 0; j < 3; j++ ) {
-            snprintf(p2[j], 24, FLTFMT, cv->p[j] +
+            snprintf(p2[j], 24, globalFloatFormat, cv->p[j] +
                                    0.5 * sgn * (maxrad - minrad) * std::cos(theta) * cv->n[j]);
         }
         if ( (rval = mgfHandle(MG_E_VERTEX, 4, v1ent)) != MGF_OK ) {
@@ -840,7 +806,7 @@ mgfEntityTorus(int ac, char **av)            /* expand a torus into cones */
             return rval;
         }
         strcpy(r1, r2);
-        snprintf(r2, 24, FLTFMT, -avgrad - .5 * (maxrad - minrad) * std::sin(theta));
+        snprintf(r2, 24, globalFloatFormat, -avgrad - .5 * (maxrad - minrad) * std::sin(theta));
         if ((rval = mgfHandle(MGF_ERROR_CONE, 5, conent)) != MGF_OK ) {
             return rval;
         }
@@ -918,7 +884,7 @@ mgfEntityRing(int ac, char **av)
     // Initialize
     make_axes(u, v, cv->n);
     for ( j = 0; j < 3; j++ ) {
-        snprintf(p3[j], 24, FLTFMT, cv->p[j] + maxRad * u[j]);
+        snprintf(p3[j], 24, globalFloatFormat, cv->p[j] + maxRad * u[j]);
     }
     if ( (rv = mgfHandle(MG_E_VERTEX, 3, v3ent)) != MGF_OK ) {
         return rv;
@@ -943,7 +909,7 @@ mgfEntityRing(int ac, char **av)
                 return rv;
             }
             for ( j = 0; j < 3; j++ ) {
-                snprintf(p3[j], 24, FLTFMT, cv->p[j] +
+                snprintf(p3[j], 24, globalFloatFormat, cv->p[j] +
                                             maxRad * u[j] * std::cos(theta) +
                                             maxRad * v[j] * std::sin(theta));
             }
@@ -963,7 +929,7 @@ mgfEntityRing(int ac, char **av)
             return rv;
         }
         for ( j = 0; j < 3; j++ ) {
-            snprintf(p4[j], 24, FLTFMT, cv->p[j] + minRad * u[j]);
+            snprintf(p4[j], 24, globalFloatFormat, cv->p[j] + minRad * u[j]);
         }
         if ( (rv = mgfHandle(MG_E_POINT, 4, p4ent)) != MGF_OK ) {
             return rv;
@@ -981,8 +947,8 @@ mgfEntityRing(int ac, char **av)
             }
             for ( j = 0; j < 3; j++ ) {
                 d = u[j] * std::cos(theta) + v[j] * std::sin(theta);
-                snprintf(p3[j], 24, FLTFMT, cv->p[j] + maxRad * d);
-                snprintf(p4[j], 24, FLTFMT, cv->p[j] + minRad * d);
+                snprintf(p3[j], 24, globalFloatFormat, cv->p[j] + maxRad * d);
+                snprintf(p4[j], 24, globalFloatFormat, cv->p[j] + minRad * d);
             }
             rv = mgfHandle(MG_E_VERTEX, 2, v3ent);
             if ( rv != MGF_OK ) {
@@ -1101,11 +1067,11 @@ mgfEntityCone(int ac, char **av)
     }
     make_axes(u, v, w);
     for ( j = 0; j < 3; j++ ) {
-        snprintf(p3[j], 24, FLTFMT, cv2->p[j] + rad2 * u[j]);
+        snprintf(p3[j], 24, globalFloatFormat, cv2->p[j] + rad2 * u[j]);
         if ( n2off <= -FLOAT_HUGE) {
-            snprintf(n3[j], 24, FLTFMT, -w[j]);
+            snprintf(n3[j], 24, globalFloatFormat, -w[j]);
         } else {
-            snprintf(n3[j], 24, FLTFMT, u[j] + w[j] * n2off);
+            snprintf(n3[j], 24, globalFloatFormat, u[j] + w[j] * n2off);
         }
     }
     if ( (rv = mgfHandle(MG_E_VERTEX, 3, v3ent)) != MGF_OK ) {
@@ -1124,7 +1090,7 @@ mgfEntityCone(int ac, char **av)
             return rv;
         }
         for ( j = 0; j < 3; j++ ) {
-            snprintf(n4[j], 24, FLTFMT, w[j]);
+            snprintf(n4[j], 24, globalFloatFormat, w[j]);
         }
         if ( (rv = mgfHandle(MG_E_NORMAL, 4, n4ent)) != MGF_OK ) {
             return rv;
@@ -1136,9 +1102,9 @@ mgfEntityCone(int ac, char **av)
             }
             for ( j = 0; j < 3; j++ ) {
                 d = u[j] * std::cos(theta) + v[j] * std::sin(theta);
-                snprintf(p3[j], 24, FLTFMT, cv2->p[j] + rad2 * d);
+                snprintf(p3[j], 24, globalFloatFormat, cv2->p[j] + rad2 * d);
                 if ( n2off > -FLOAT_HUGE) {
-                    snprintf(n3[j], 24, FLTFMT, d + w[j] * n2off);
+                    snprintf(n3[j], 24, globalFloatFormat, d + w[j] * n2off);
                 }
             }
             if ( (rv = mgfHandle(MG_E_VERTEX, 2, v3ent)) != MGF_OK ) {
@@ -1168,11 +1134,11 @@ mgfEntityCone(int ac, char **av)
             }
         }
         for ( j = 0; j < 3; j++ ) {
-            snprintf(p4[j], 24, FLTFMT, cv1->p[j] + rad1 * u[j]);
+            snprintf(p4[j], 24, globalFloatFormat, cv1->p[j] + rad1 * u[j]);
             if ( n1off >= FLOAT_HUGE) {
-                snprintf(n4[j], 24, FLTFMT, w[j]);
+                snprintf(n4[j], 24, globalFloatFormat, w[j]);
             } else {
-                snprintf(n4[j], 24, FLTFMT, u[j] + w[j] * n1off);
+                snprintf(n4[j], 24, globalFloatFormat, u[j] + w[j] * n1off);
             }
         }
         if ( (rv = mgfHandle(MG_E_VERTEX, 3, v4ent)) != MGF_OK ) {
@@ -1195,13 +1161,13 @@ mgfEntityCone(int ac, char **av)
             }
             for ( j = 0; j < 3; j++ ) {
                 d = u[j] * std::cos(theta) + v[j] * std::sin(theta);
-                snprintf(p3[j], 24, FLTFMT, cv2->p[j] + rad2 * d);
+                snprintf(p3[j], 24, globalFloatFormat, cv2->p[j] + rad2 * d);
                 if ( n2off > -FLOAT_HUGE) {
-                    snprintf(n3[j], 24, FLTFMT, d + w[j] * n2off);
+                    snprintf(n3[j], 24, globalFloatFormat, d + w[j] * n2off);
                 }
-                snprintf(p4[j], 24, FLTFMT, cv1->p[j] + rad1 * d);
+                snprintf(p4[j], 24, globalFloatFormat, cv1->p[j] + rad1 * d);
                 if ( n1off < FLOAT_HUGE) {
-                    snprintf(n4[j], 24, FLTFMT, d + w[j] * n1off);
+                    snprintf(n4[j], 24, globalFloatFormat, d + w[j] * n1off);
                 }
             }
             rv = mgfHandle(MG_E_VERTEX, 2, v3ent);
@@ -1306,7 +1272,7 @@ mgfEntityPrism(int ac, char **av)            /* turn a prism into polygons */
         }
         cv = getNamedVertex(av[i]);        /* checked above */
         for ( j = 0; j < 3; j++ ) {
-            snprintf(p[j], 24, FLTFMT, cv->p[j] - length * norm[j]);
+            snprintf(p[j], 24, globalFloatFormat, cv->p[j] - length * norm[j]);
         }
         if ( (rv = mgfHandle(MG_E_POINT, 4, pent)) != MGF_OK ) {
             return rv;

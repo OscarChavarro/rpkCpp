@@ -1,6 +1,7 @@
 #include <cctype>
 
 #include "io/mgf/words.h"
+#include "io/mgf/badarg.h"
 
 /**
 Check argument list against format string.

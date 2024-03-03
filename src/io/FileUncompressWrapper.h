@@ -1,5 +1,5 @@
-#ifndef _RPK_FILE_H_
-#define _RPK_FILE_H_
+#ifndef __FILE_UNCOMPRESS_WRAPPER_
+#define __FILE_UNCOMPRESS_WRAPPER_
 
 #include <cstdio>
 
