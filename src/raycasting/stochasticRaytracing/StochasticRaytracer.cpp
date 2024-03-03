@@ -397,7 +397,7 @@ SR_GetRadiance(
         } // Done: Stored radiance, no self emitted light included!
 
         // Stored caustic maps
-        if ((config->radMode == STORED_PHOTON_MAP) && readout == SCATTER ) {
+        if ( (config->radMode == STORED_PHOTON_MAP) && readout == SCATTER ) {
             radiance = photonMapGetNodeCRadiance(thisNode);
             colorAdd(result, radiance, result);
         }

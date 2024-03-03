@@ -54,15 +54,15 @@ protected:
     int DoQuery(Vector3D *pos, int nrPhotons, float maxradius,
                 short excludeFlags = 0) {
         m_cosinesOk = false;
-        return m_kdtree->Query((float *) pos, nrPhotons,
+        return m_kdtree->query((float *) pos, nrPhotons,
                                m_photons, m_distances, maxradius,
                                excludeFlags);
     }
 
     int DoQuery(Vector3D *pos) {
         m_cosinesOk = false;
-        return m_kdtree->Query((float *) pos, *m_estimate_nrp /*pmapstate.reconPhotons*/,
-                               m_photons, m_distances, (float)GetMaxR2());
+        return m_kdtree->query((float *) pos, *m_estimate_nrp /*pmapstate.reconPhotons*/,
+                               m_photons, m_distances, (float) GetMaxR2());
     }
 
     CIrrPhoton *DoIrradianceQuery(Vector3D *pos, Vector3D *normal,

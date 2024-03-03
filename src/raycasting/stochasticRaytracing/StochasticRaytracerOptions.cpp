@@ -62,9 +62,9 @@ MakeEnumOptTypeStruct(lightModeTypeStruct, lightModeVals);
 #define TlightMode (&lightModeTypeStruct)
 
 static ENUMDESC samplingModeVals[] = {
-        {BRDF_SAMPLING,      "bsdf",      2},
-        {CLASSICAL_SAMPLING, "classical", 2},
-        {0,                  nullptr,     0}
+    {BRDF_SAMPLING, "bsdf", 2},
+    {CLASSICAL_SAMPLING, "classical", 2},
+    {0, nullptr, 0}
 };
 MakeEnumOptTypeStruct(samplingModeTypeStruct, samplingModeVals);
 #define TsamplingMode (&samplingModeTypeStruct)

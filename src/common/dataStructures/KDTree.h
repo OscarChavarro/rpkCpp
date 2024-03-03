@@ -5,9 +5,9 @@ Creation :
 
 KDTree( int dimension, int dataSize, bool CopyData = true )
 
-  dimension : the dimension k of the kdtree
-  dataSize : size of the datablocks that are stored in the tree.
-    The first k entries of the datablock must be floats. These
+  dimension : the dimension k of the kd tree
+  dataSize : size of the data blocks that are stored in the tree.
+    The first k entries of the data block must be floats. These
     are the coordinates of this point in the kd space
   CopyData : boolean indicating if data must be copied.
 
@@ -19,12 +19,12 @@ Destruction :
 
 virtual KDTree void )
 
-  Destroys kdtree and nodes. Data is freed only when
+  Destroys kd tree and nodes. Data is freed only when
   copy data was true.
  
 Interrogation :
 
-virtual int Query(const float *point, int N, void *results, 
+virtual int query(const float *point, int N, void *results,
 	     float *distances = nullptr, float radius = HUGE)
 
  Gives a maximum of N positions that are closest to the query point
@@ -48,16 +48,11 @@ Ref : - Bentley, J.L. (1975) Multidimensional search trees used for
         p. 209-226
 */
 
-
 #ifndef __K_D_TREE__
 #define __K_D_TREE__
 
 #include "common/mymath.h"
 #include "common/linealAlgebra/Float.h"
-
-/*
-** KD node
-*/
 
 // Not HUGE, since we need to square it
 #define KD_MAX_RADIUS 1e10
@@ -85,20 +80,20 @@ class KDTreeNode {
     }
 };
 
-// Node for a balanced kdtree, nodes are placed in arrays
+// Node for a balanced kd tree, nodes are placed in arrays
 // and no loson, hison pointers are necessary
 class BalancedKDTreeNode {
   public:
     void *m_data;
     int m_flags;
 
-    inline void Copy(const KDTreeNode &kdnode) {
-        m_data = kdnode.m_data;
-        m_flags = kdnode.flags();
+    inline void Copy(const KDTreeNode &kdNode) {
+        m_data = kdNode.m_data;
+        m_flags = kdNode.flags();
     }
 
     inline int Discriminator() const {
-	return (m_flags & 0xF);
+	    return (m_flags & 0xF);
     }
 
     inline void SetDiscriminator(int discr) {
@@ -119,11 +114,11 @@ class KDTree {
     static float *s_distances;
 
   private:
-    void *AssignData(void *data) const;
+    void *assignData(void *data) const;
 
     void deleteNodes(KDTreeNode *node, bool deleteData);
     void deleteBNodes(bool deleteData);
-    void Query_rec(const KDTreeNode *node); // Unbalanced part
+    void queryRec(const KDTreeNode *node); // Unbalanced part
     void BQuery_rec(int node); // Balanced part
 
   public:
@@ -133,13 +128,11 @@ class KDTree {
     // Add a point in the kd tree, this is always to the unbalanced part
     void addPoint(void *data, short flags);
 
-    // Query the kd tree : both balanced and unbalanced parts taken into
-    // account !  (The balanced part is searched first)
-    int Query(const float *point, int N, void *results,
-                      float *distances = nullptr, float radius = KD_MAX_RADIUS,
-                      short excludeFlags = 0);
 
-    // Iterate nodes : iterate all nodes (only for balanced ?!)
+    int query(const float *point, int N, void *results,
+              float *distances = nullptr, float radius = KD_MAX_RADIUS,
+              short excludeFlags = 0);
+
     void iterateNodes(void (*callBack)(void *, void *), void *data);
 
     // Balance the tree, it is possible that a part is already balanced!!

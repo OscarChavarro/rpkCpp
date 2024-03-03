@@ -64,6 +64,7 @@ public:
     //protected:
     Vector3D m_normal;
     COLOR m_irradiance;
+
 public:
     inline Vector3D Normal() const { return m_normal; }
 

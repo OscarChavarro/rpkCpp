@@ -99,7 +99,7 @@ CPhotonMap::CPhotonMap(int *estimate_nrp, bool doPrecomputeIrradiance):
     m_distances = new float[MAXIMUM_RECON_PHOTONS];
     m_cosines = new float[MAXIMUM_RECON_PHOTONS];
 
-    m_nrpFound = 0;  // no valid photons in array
+    m_nrpFound = 0;  // No valid photons in array
     m_cosinesOk = true;
 }
 

@@ -18,7 +18,7 @@ public:
 static NormalQuery qdat_s;
 
 // Distance calculation COPY FROM kdtree.C !
-inline static float SqrDistance3D(float *a, float *b) {
+inline static float sqrDistance3D(float *a, float *b) {
     float result, tmp;
 
     tmp = *(a++) - *(b++);
@@ -73,7 +73,7 @@ CPhotonkdtree::NormalBQuery_rec(const int index) {
 
     // if(!(node->m_flags & qdat_s.excludeFlags))
     {
-        dist = SqrDistance3D((float *) node.m_data, qdat_s.point);
+        dist = sqrDistance3D((float *) node.m_data, qdat_s.point);
 
         if ( dist < qdat_s.maximumDistance ) {
             // Normal constraint
