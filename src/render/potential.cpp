@@ -73,9 +73,11 @@ updateDirectPotential(java::ArrayList<Patch *> *scenePatches) {
     v = 2.0f * (float)std::tan(GLOBAL_camera_mainCamera.verticalFov * (float)M_PI / 180.0f) / (float)y;
     pixelArea = h * v;
 
-    for ( j = y - 1, ySample = -v * (float) (y - 1) / 2.0f; j >= 0; j--, ySample += v ) {
+    for ( j = y - 1, ySample = -v * (float) (y - 1) / 2.0f;
+          j >= 0;
+          j--, ySample += v ) {
         id = ids + j * x;
-        for ( long i = 0, xSample = -h * (float) (x - 1) / 2.0f; i < x; i++, id++, xSample += h ) {
+        for ( long i = 0, xSample = (long)(-h * (float) (x - 1) / 2.0f); i < x; i++, id++, xSample += (long)h ) {
             unsigned long the_id = (*id) & 0xffffff;
 
             if ( the_id > 0 && the_id <= maximumPatchId ) {

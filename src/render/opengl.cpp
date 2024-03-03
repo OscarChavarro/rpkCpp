@@ -189,33 +189,6 @@ openGlRenderPolygonGouraud(int numberOfVertices, Vector3D *vertices, RGB *vertic
     glEnd();
 }
 
-/**
-Start a strip
-*/
-void
-openGlRenderBeginTriangleStrip() {
-    glBegin(GL_TRIANGLE_STRIP);
-}
-
-/**
-Supply the next point (one at a time)
-*/
-void
-openGlRenderNextTrianglePoint(Vector3D *point, RGB *col) {
-    if ( col ) {
-        openGlRenderSetColor(col);
-    }
-    glVertex3fv((float *) point);
-}
-
-/**
-End a strip
-*/
-void
-openGlRenderEndTriangleStrip() {
-    glEnd();
-}
-
 void
 openGlRenderPatchFlat(Patch *patch) {
     openGlRenderSetColor(&patch->color);
@@ -360,7 +333,7 @@ openGlViewCullBounds(float *bounds) {
 Squared distance to midpoint (avoid taking square root)
 */
 static float
-openGlBoundsDistance2(Vector3D p, float *bounds) {
+openGlBoundsDistance2(Vector3D p, const float *bounds) {
     Vector3D mid;
     Vector3D d;
 
@@ -597,7 +570,7 @@ openGlRenderPixels(int x, int y, int width, int height, RGB *rgb) {
     int rowLength;
 
     // Length of one row of RGBA image data rounded up to a multiple of 8
-    rowLength = (4 * width * sizeof(GLubyte) + 7) & ~7;
+    rowLength = (int)((4 * width * sizeof(GLubyte) + 7) & ~7);
     GLubyte *c = new GLubyte[height * rowLength + 8];
 
     for ( int j = 0; j < height; j++ ) {
