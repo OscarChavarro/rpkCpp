@@ -152,7 +152,7 @@ public:
     }
 
     void Balance() {
-        m_kdtree->Balance();
+        m_kdtree->balance();
     }
 
     void CheckNBalance() {

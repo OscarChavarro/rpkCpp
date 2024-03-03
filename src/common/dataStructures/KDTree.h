@@ -51,9 +51,6 @@ Ref : - Bentley, J.L. (1975) Multidimensional search trees used for
 #ifndef __K_D_TREE__
 #define __K_D_TREE__
 
-#include "common/mymath.h"
-#include "common/linealAlgebra/Float.h"
-
 // Not HUGE, since we need to square it
 #define KD_MAX_RADIUS 1e10
 
@@ -80,23 +77,25 @@ class KDTreeNode {
     }
 };
 
-// Node for a balanced kd tree, nodes are placed in arrays
-// and no loson, hison pointers are necessary
+/**
+Node for a balanced kd tree, nodes are placed in arrays
+and no loson, hison pointers are necessary
+*/
 class BalancedKDTreeNode {
   public:
     void *m_data;
     int m_flags;
 
-    inline void Copy(const KDTreeNode &kdNode) {
+    inline void copy(const KDTreeNode &kdNode) {
         m_data = kdNode.m_data;
         m_flags = kdNode.flags();
     }
 
-    inline int Discriminator() const {
+    inline int discriminator() const {
 	    return (m_flags & 0xF);
     }
 
-    inline void SetDiscriminator(int discr) {
+    inline void setDiscriminator(int discr) {
 	    m_flags = (m_flags & 0xFFF0) | discr;
     }
 };
@@ -125,21 +124,27 @@ class KDTree {
     explicit KDTree(int dataSize, bool CopyData = true);
     virtual ~KDTree();
 
-    // Add a point in the kd tree, this is always to the unbalanced part
     void addPoint(void *data, short flags);
 
-
-    int query(const float *point, int N, void *results,
-              float *distances = nullptr, float radius = KD_MAX_RADIUS,
-              short excludeFlags = 0);
+    int
+    query(
+        const float *point,
+        int N,
+        void *results,
+        float *distances = nullptr,
+        float radius = KD_MAX_RADIUS,
+        short excludeFlags = 0);
 
     void iterateNodes(void (*callBack)(void *, void *), void *data);
+    void balance();
 
-    // Balance the tree, it is possible that a part is already balanced!!
-    void Balance();
-
-    void Balance_rec(BalancedKDTreeNode broot[], BalancedKDTreeNode dest[], int destIndex,
-                             int low, int high);
+    void
+    balanceRec(
+        BalancedKDTreeNode broot[],
+        BalancedKDTreeNode dest[],
+        int destIndex,
+        int low,
+        int high);
 };
 
 #endif

@@ -36,7 +36,7 @@ inline static float sqrDistance3D(float *a, float *b) {
 void
 CPhotonkdtree::NormalBQuery_rec(const int index) {
     const BalancedKDTreeNode &node = m_broot[index];
-    int discr = node.Discriminator();
+    int discr = node.discriminator();
 
     float dist;
     int nearIndex, farIndex;

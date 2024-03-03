@@ -1,8 +1,9 @@
 #include <cstdio>
 #include <cstring>
 
-#include "common/dataStructures/KDTree.h"
 #include "common/error.h"
+#include "common/linealAlgebra/Float.h"
+#include "common/dataStructures/KDTree.h"
 
 #define E_SWAP(a, b) bkdswap(broot, (a), (b))
 #define E_VAL(index) bkdval(broot, (index), discr)
@@ -10,8 +11,8 @@
 // KD Tree with one data element per node
 float *KDTree::s_distances = nullptr;
 
-class Ckdquery {
-public:
+class KDQuery {
+  public:
     float *point;
     int wantedN;
     int foundN;
@@ -32,7 +33,7 @@ public:
 
 };
 
-static Ckdquery GLOBAL_qdatS;
+static KDQuery GLOBAL_qDatS;
 
 KDTree::KDTree(int dataSize, bool CopyData) {
     m_dataSize = dataSize;
@@ -92,6 +93,9 @@ KDTree::~KDTree() {
     deleteBNodes(m_CopyData);
 }
 
+/**
+Add a point in the kd tree, this is always to the unbalanced part
+*/
 void
 KDTree::addPoint(void *data, short flags = 0) {
     // Add the point to the unbalanced part
@@ -133,11 +137,11 @@ KDTree::addPoint(void *data, short flags = 0) {
         float dx;
         float dy;
         float dz;
-        float *pdata = (float *) (parent->m_data);
+        float *customNodeData = (float *) (parent->m_data);
 
-        dx = std::fabs(newPoint[0] - pdata[0]);
-        dy = std::fabs(newPoint[1] - pdata[1]);
-        dz = std::fabs(newPoint[2] - pdata[2]);
+        dx = std::fabs(newPoint[0] - customNodeData[0]);
+        dy = std::fabs(newPoint[1] - customNodeData[1]);
+        dz = std::fabs(newPoint[2] - customNodeData[2]);
 
         if ( dx > dy ) {
             if ( dx > dz ) {
@@ -156,7 +160,7 @@ KDTree::addPoint(void *data, short flags = 0) {
         parent->setDiscriminator(discriminator);
 
         // Choose correct side
-        if ( newPoint[discriminator] <= pdata[discriminator] ) {
+        if ( newPoint[discriminator] <= customNodeData[discriminator] ) {
             parent->loson = newNode;
         } else {
             parent->hison = newNode;
@@ -196,7 +200,7 @@ KDTree::iterateNodes(void (*callBack)(void *, void *), void *data) {
 }
 
 /**
-query the kd tree : both balanced and unbalanced parts taken into
+Query the kd tree : both balanced and unbalanced parts taken into
 account ! (The balanced part is searched first)
 */
 int
@@ -222,15 +226,15 @@ KDTree::query(
     }
 
     // Fill in static class data
-    GLOBAL_qdatS.point = (float *) point;
-    GLOBAL_qdatS.wantedN = N;
-    GLOBAL_qdatS.foundN = 0;
-    GLOBAL_qdatS.results = (float **) results;
-    GLOBAL_qdatS.distances = usedDistances;
-    GLOBAL_qdatS.maximumDistance = radius;
-    GLOBAL_qdatS.sqrRadius = radius;
-    GLOBAL_qdatS.excludeFlags = excludeFlags;
-    GLOBAL_qdatS.notFilled = true;
+    GLOBAL_qDatS.point = (float *) point;
+    GLOBAL_qDatS.wantedN = N;
+    GLOBAL_qDatS.foundN = 0;
+    GLOBAL_qDatS.results = (float **) results;
+    GLOBAL_qDatS.distances = usedDistances;
+    GLOBAL_qDatS.maximumDistance = radius;
+    GLOBAL_qDatS.sqrRadius = radius;
+    GLOBAL_qDatS.excludeFlags = excludeFlags;
+    GLOBAL_qDatS.notFilled = true;
 
     // First query balanced part
     if ( m_broot != nullptr ) {
@@ -243,7 +247,7 @@ KDTree::query(
         queryRec(m_root);
     }
 
-    numberFound = GLOBAL_qdatS.foundN;
+    numberFound = GLOBAL_qDatS.foundN;
 
     return (numberFound);
 }
@@ -269,7 +273,7 @@ sqrDistance3D(float *a, float *b) {
 }
 
 /**
-Max heap stuff, using static qdat_s  (fastest !!)
+Max heap stuff, using static GLOBAL_qDatS (fastest !!)
 Adapted from patched POVRAY (megasrc), who took it from Sejwick
 */
 inline static void
@@ -281,18 +285,18 @@ fixUp() {
     float tmpDist;
     float *tmpData;
 
-    son = GLOBAL_qdatS.foundN;
+    son = GLOBAL_qDatS.foundN;
     parent = (son - 1) >> 1;  // Root of tree == index 0 so parent = any son - 1 / 2
 
-    while ( (son > 0) && GLOBAL_qdatS.distances[parent] < GLOBAL_qdatS.distances[son] ) {
-        tmpDist = GLOBAL_qdatS.distances[parent];
-        tmpData = GLOBAL_qdatS.results[parent];
+    while ((son > 0) && GLOBAL_qDatS.distances[parent] < GLOBAL_qDatS.distances[son] ) {
+        tmpDist = GLOBAL_qDatS.distances[parent];
+        tmpData = GLOBAL_qDatS.results[parent];
 
-        GLOBAL_qdatS.distances[parent] = GLOBAL_qdatS.distances[son];
-        GLOBAL_qdatS.results[parent] = GLOBAL_qdatS.results[son];
+        GLOBAL_qDatS.distances[parent] = GLOBAL_qDatS.distances[son];
+        GLOBAL_qDatS.results[parent] = GLOBAL_qDatS.results[son];
 
-        GLOBAL_qdatS.distances[son] = tmpDist;
-        GLOBAL_qdatS.results[son] = tmpData;
+        GLOBAL_qDatS.distances[son] = tmpDist;
+        GLOBAL_qDatS.results[son] = tmpData;
 
         son = parent;
         parent = (son - 1) >> 1;
@@ -301,15 +305,15 @@ fixUp() {
 
 inline static void
 mhInsert(float *data, float dist) {
-    GLOBAL_qdatS.distances[GLOBAL_qdatS.foundN] = dist;
-    GLOBAL_qdatS.results[GLOBAL_qdatS.foundN] = data;
+    GLOBAL_qDatS.distances[GLOBAL_qDatS.foundN] = dist;
+    GLOBAL_qDatS.results[GLOBAL_qDatS.foundN] = data;
 
     fixUp();
 
     // If all the photons are filled, we can use the actual maximum distance
-    if ( ++GLOBAL_qdatS.foundN == GLOBAL_qdatS.wantedN ) {
-        GLOBAL_qdatS.maximumDistance = GLOBAL_qdatS.distances[0];
-        GLOBAL_qdatS.notFilled = false;
+    if ( ++GLOBAL_qDatS.foundN == GLOBAL_qDatS.wantedN ) {
+        GLOBAL_qDatS.maximumDistance = GLOBAL_qDatS.distances[0];
+        GLOBAL_qDatS.notFilled = false;
     }
 }
 
@@ -317,36 +321,36 @@ inline static void
 fixDown() {
     // Ripple the top node, which may not be max anymore downwards
     // There are qdat_s.foundN nodes in the tree, starting at index 0
-
-    int son, parent, max;
+    int son;
+    int parent;
     float tmpDist;
     float *tmpData;
 
-    max = GLOBAL_qdatS.foundN;
+    int max = GLOBAL_qDatS.foundN;
 
     parent = 0;
     son = 1;
 
     while ( son < max ) {
-        if ( GLOBAL_qdatS.distances[son] <= GLOBAL_qdatS.distances[parent] ) {
-            if ((++son >= max) || GLOBAL_qdatS.distances[son] <= GLOBAL_qdatS.distances[parent] ) {
+        if ( GLOBAL_qDatS.distances[son] <= GLOBAL_qDatS.distances[parent] ) {
+            if ((++son >= max) || GLOBAL_qDatS.distances[son] <= GLOBAL_qDatS.distances[parent] ) {
                 return; // Node in place, left son and right son smaller
             }
         } else {
-            if ((son + 1 < max) && GLOBAL_qdatS.distances[son + 1] > GLOBAL_qdatS.distances[son] ) {
+            if ((son + 1 < max) && GLOBAL_qDatS.distances[son + 1] > GLOBAL_qDatS.distances[son] ) {
                 son++; // Take maximum of the two sons
             }
         }
 
         // Swap because son > parent
-        tmpDist = GLOBAL_qdatS.distances[parent];
-        tmpData = GLOBAL_qdatS.results[parent];
+        tmpDist = GLOBAL_qDatS.distances[parent];
+        tmpData = GLOBAL_qDatS.results[parent];
 
-        GLOBAL_qdatS.distances[parent] = GLOBAL_qdatS.distances[son];
-        GLOBAL_qdatS.results[parent] = GLOBAL_qdatS.results[son];
+        GLOBAL_qDatS.distances[parent] = GLOBAL_qDatS.distances[son];
+        GLOBAL_qDatS.results[parent] = GLOBAL_qDatS.results[son];
 
-        GLOBAL_qdatS.distances[son] = tmpDist;
-        GLOBAL_qdatS.results[son] = tmpData;
+        GLOBAL_qDatS.distances[son] = tmpDist;
+        GLOBAL_qDatS.results[son] = tmpData;
 
         parent = son;
         son = (parent << 1) + 1;
@@ -358,15 +362,17 @@ mhReplaceMax(float *data, float dist) {
     // Top = maximum element. Replace it with new and ripple down
     // The heap is full (foundN == wantedN), but this is not required
 
-    *GLOBAL_qdatS.distances = dist; // Top
-    *GLOBAL_qdatS.results = data;
+    *GLOBAL_qDatS.distances = dist; // Top
+    *GLOBAL_qDatS.results = data;
 
     fixDown();
 
-    GLOBAL_qdatS.maximumDistance = *GLOBAL_qdatS.distances; // Max = top of heap
+    GLOBAL_qDatS.maximumDistance = *GLOBAL_qDatS.distances; // Max = top of heap
 }
 
-// Query_rec for the unbalanced kdtree part
+/**
+Query_rec for the unbalanced kd tree part
+*/
 void
 KDTree::queryRec(const KDTreeNode *node) {
     int discriminator = node->discriminator();
@@ -374,10 +380,10 @@ KDTree::queryRec(const KDTreeNode *node) {
     KDTreeNode *nearNode;
     KDTreeNode *farNode;
 
-    dist = sqrDistance3D((float *) node->m_data, GLOBAL_qdatS.point);
+    dist = sqrDistance3D((float *) node->m_data, GLOBAL_qDatS.point);
 
-    if ( dist < GLOBAL_qdatS.maximumDistance ) {
-        if ( GLOBAL_qdatS.notFilled ) {
+    if ( dist < GLOBAL_qDatS.maximumDistance ) {
+        if ( GLOBAL_qDatS.notFilled ) {
             // Add this point anyway, because we haven't got enough positions yet.
             // We have to check for the radius only here, since if N positions
             // are added, maximumDistance <= radius
@@ -389,7 +395,7 @@ KDTree::queryRec(const KDTreeNode *node) {
     }
 
     // Reuse dist
-    dist = ((float *) node->m_data)[discriminator] - GLOBAL_qdatS.point[discriminator];
+    dist = ((float *) node->m_data)[discriminator] - GLOBAL_qDatS.point[discriminator];
 
     if ( dist >= 0.0 ) {
         nearNode = node->loson;
@@ -405,20 +411,22 @@ KDTree::queryRec(const KDTreeNode *node) {
     }
 
     dist *= dist; // Square distance to the separator plane
-    if ( (farNode) && (((GLOBAL_qdatS.foundN < GLOBAL_qdatS.wantedN) &&
-                       (dist < GLOBAL_qdatS.sqrRadius)) ||
-                      (dist < GLOBAL_qdatS.maximumDistance))) {
+    if ( (farNode) && (((GLOBAL_qDatS.foundN < GLOBAL_qDatS.wantedN) &&
+                        (dist < GLOBAL_qDatS.sqrRadius)) ||
+                       (dist < GLOBAL_qDatS.maximumDistance))) {
         // Discriminator line closer than maximumDistance : nearer positions can lie
         // on the far side. Or there are still not enough nodes found
         queryRec(farNode);
     }
 }
 
-// Query_rec for the unbalanced kd tree part
+/**
+Query_rec for the unbalanced kd tree part
+*/
 void
 KDTree::BQuery_rec(int index) {
     const BalancedKDTreeNode &node = m_broot[index];
-    int discr = node.Discriminator();
+    int discr = node.discriminator();
     float dist;
     int nearIndex;
     int farIndex;
@@ -427,14 +435,14 @@ KDTree::BQuery_rec(int index) {
 
     // Test discr (reuse dist)
     if ( index < m_firstLeaf ) {
-        dist = ((float *) node.m_data)[discr] - GLOBAL_qdatS.point[discr];
+        dist = ((float *) node.m_data)[discr] - GLOBAL_qDatS.point[discr];
 
         if ( dist >= 0.0 ) {
             nearIndex = (index << 1) + 1; //node->loson;
             farIndex = nearIndex + 1; //node->hison;
         } else {
-            farIndex = (index << 1) + 1;//node->loson;
-            nearIndex = farIndex + 1;//node->hison;
+            farIndex = (index << 1) + 1; //node->loson;
+            nearIndex = farIndex + 1; //node->hison;
         }
 
         // Always call near node recursively
@@ -443,19 +451,19 @@ KDTree::BQuery_rec(int index) {
         }
 
         dist *= dist; // Square distance to the separator plane
-        if ((farIndex < m_numBalanced) && (((GLOBAL_qdatS.notFilled) && // qdat_s.foundN < qdat_s.wantedN
-                                            (dist < GLOBAL_qdatS.sqrRadius)) ||
-                                           (dist < GLOBAL_qdatS.maximumDistance))) {
+        if ((farIndex < m_numBalanced) && (((GLOBAL_qDatS.notFilled) && // qdat_s.foundN < qdat_s.wantedN
+                                            (dist < GLOBAL_qDatS.sqrRadius)) ||
+                                           (dist < GLOBAL_qDatS.maximumDistance))) {
             // Discriminator line closer than maximumDistance : nearer positions can lie
             // on the far side. Or there are still not enough nodes found
             BQuery_rec(farIndex);
         }
     }
 
-    dist = sqrDistance3D((float *)node.m_data, GLOBAL_qdatS.point);
+    dist = sqrDistance3D((float *)node.m_data, GLOBAL_qDatS.point);
 
-    if ( dist < GLOBAL_qdatS.maximumDistance ) {
-        if ( GLOBAL_qdatS.notFilled ) {
+    if ( dist < GLOBAL_qDatS.maximumDistance ) {
+        if ( GLOBAL_qDatS.notFilled ) {
             // Add this point anyway, because we haven't got enough positions yet.
             // We have to check for the radius only here, since if N positions
             // are added, maximumDistance <= radius
@@ -496,12 +504,12 @@ bkdswap(BalancedKDTreeNode root[], int a, int b) {
 
 static inline float
 bkdval(BalancedKDTreeNode root[], int index, int discr) {
-    return (((float *) root[index].m_data)[discr]);
+    return ((float *)root[index].m_data)[discr];
 }
 
 int
 getBalancedMedian(int low, int high) {
-    int N = high - low + 1;  // high inclusive
+    int N = high - low + 1;  // High inclusive
 
     if ( N <= 1 ) {
         return low;
@@ -531,7 +539,9 @@ getBalancedMedian(int low, int high) {
     return low + left; //+1;
 }
 
-// quick_select: return index of median element
+/**
+Return index of median element
+*/
 static int
 quickSelect(BalancedKDTreeNode broot[], int low, int high, int discr) {
     int median;
@@ -605,16 +615,16 @@ quickSelect(BalancedKDTreeNode broot[], int low, int high, int discr) {
 Balance the kd tree
 */
 static void
-CopyUnbalanced_rec(KDTreeNode *node, BalancedKDTreeNode *broot, int *pindex) {
+copyUnbalancedRec(KDTreeNode *node, BalancedKDTreeNode *broot, int *pindex) {
     if ( node ) {
-        broot[(*pindex)++].Copy(*node);
-        CopyUnbalanced_rec(node->loson, broot, pindex);
-        CopyUnbalanced_rec(node->hison, broot, pindex);
+        broot[(*pindex)++].copy(*node);
+        copyUnbalancedRec(node->loson, broot, pindex);
+        copyUnbalancedRec(node->hison, broot, pindex);
     }
 }
 
 static int
-BestDiscriminator(BalancedKDTreeNode broot[], int low, int high) {
+bestDiscriminator(BalancedKDTreeNode broot[], int low, int high) {
     float bmin[3] = {HUGE, HUGE, HUGE};
     float bmax[3] = {-HUGE, -HUGE, -HUGE};
     float tmp;
@@ -663,10 +673,10 @@ BestDiscriminator(BalancedKDTreeNode broot[], int low, int high) {
 }
 
 /**
-Balance the tree recursively
+balance the tree recursively
 */
 void
-KDTree::Balance_rec(
+KDTree::balanceRec(
     BalancedKDTreeNode broot[],
     BalancedKDTreeNode dest[],
     int destIndex,
@@ -676,32 +686,37 @@ KDTree::Balance_rec(
     if ( low == high ) {
         // Put it in dest
         dest[destIndex] = broot[low];
-        dest[destIndex].SetDiscriminator(0); // don't care...
+        dest[destIndex].setDiscriminator(0); // Don't care
         return;
     }
 
-    int discr = BestDiscriminator(broot, low, high);
+    int discr = bestDiscriminator(broot, low, high);
     // Find the balance median element
     int median = quickSelect(broot, low, high, discr);
 
     // Put it in dest
     dest[destIndex] = broot[median];
-    dest[destIndex].SetDiscriminator(discr);
+    dest[destIndex].setDiscriminator(discr);
 
     // Recurse low and high array
     if ( low < median ) {
-        Balance_rec(broot, dest, (destIndex << 1) + 1, low, median - 1);
-    }  // High inclusive!
+        // High inclusive!
+        balanceRec(broot, dest, (destIndex << 1) + 1, low, median - 1);
+    }
     if ( high > median )
-        Balance_rec(broot, dest, (destIndex << 1) + 2, median + 1, high);  // High inclusive!
+        balanceRec(broot, dest, (destIndex << 1) + 2, median + 1, high);  // High inclusive!
 }
 
+/**
+Balance the tree, it is possible that a part is already balanced!
+*/
 void
-KDTree::Balance() {
+KDTree::balance() {
     // Make an unsorted BalancedKDTreeNode array pointing to the nodes
     if ( m_numUnbalanced == 0 ) {
+        // No balancing needed.
         return;
-    } // No balancing needed.
+    }
 
     fprintf(stderr, "Balancing kd-tree: %i nodes...\n", m_numNodes);
 
@@ -718,10 +733,9 @@ KDTree::Balance() {
     }
 
     // Copy unbalanced
-    CopyUnbalanced_rec(m_root, broot, &index);
+    copyUnbalancedRec(m_root, broot, &index);
 
     // Clear old balanced and unbalanced part (but no data delete)
-
     deleteNodes(m_root, false);
     m_root = nullptr;
     m_numUnbalanced = 0;
@@ -735,7 +749,7 @@ KDTree::Balance() {
     dest[m_numNodes].m_flags = 64;
 
     // Now balance the tree recursively
-    Balance_rec(broot, dest, 0, 0, m_numNodes - 1);  // High inclusive!
+    balanceRec(broot, dest, 0, 0, m_numNodes - 1);  // High inclusive!
 
     m_broot = dest;
     delete[] broot;
