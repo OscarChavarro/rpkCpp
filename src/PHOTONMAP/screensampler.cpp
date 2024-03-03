@@ -4,10 +4,16 @@
 #include "raycasting/common/raytools.h"
 #include "scene/Camera.h"
 
-bool CScreenSampler::Sample(CPathNode */*prevNode*/,
-                            CPathNode *thisNode,
-                            CPathNode *newNode, double x_1, double x_2,
-                            bool /* doRR */, BSDFFLAGS /* flags */) {
+bool
+CScreenSampler::Sample(
+    CPathNode */*prevNode*/,
+    CPathNode *thisNode,
+    CPathNode *newNode,
+    double x_1,
+    double x_2,
+    bool /* doRR */,
+    BSDFFLAGS /* flags */)
+{
     Vector3D dir;
 
     // Precond: thisNode == eye, prevNode == nullptr, SetPixel called

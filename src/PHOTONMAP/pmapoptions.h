@@ -98,7 +98,9 @@ class CPmapState
     int c_iteration_nr;
     int i_iteration_nr;
 
-    long total_cpaths, total_gpaths, total_ipaths;
+    long total_cpaths;
+    long total_gpaths;
+    long total_ipaths;
 
     int runstop_nr; /* Number of 'external iterations'. This is
 		     different from currentIteration only when

@@ -184,7 +184,7 @@ ComputeAcceptProb(float currentD, float requiredD) {
 }
 
 void
-CPhotonMap::Redistribute(CPhoton &photon, float acceptProb, short flags) {
+CPhotonMap::Redistribute(CPhoton &photon) {
     // Redistribute this photon over the nearest neighbours
     // m_distances, m_photons and m_cosines should be filled correctly!
     // only photons are used for which direction * normal > 0
@@ -237,7 +237,7 @@ CPhotonMap::DC_AddPhoton(
     } else {
         // Redistribute power over neighbours or ignore
         stored = false;
-        Redistribute(photon, (float)acceptProb, flags);
+        Redistribute(photon);
     }
 
     m_totalPhotons++; // All photons including non stored photons
@@ -257,12 +257,12 @@ CPhotonMap::GetMaxR2() {
      * of ambient radiance). R_all is the radius including all photons.
      * R_all^2 / N_all is approximated by GLOBAL_statistics_totalArea / M_PI * m_totalPaths
      * (This is an over estimation, which is ok for a maxr estimate)
-     * BRDF evals are approximated by 1.
+     * BRDF eval are approximated by 1.
      */
-    const double radfraction = 0.03;
+    const double radFraction = 0.03;
 
     double maxr2 = ((double)*m_estimate_nrp * GLOBAL_statistics_totalArea /
-                    (M_PI * (double)m_totalPaths * radfraction));
+                    (M_PI * (double)m_totalPaths * radFraction));
 
     return maxr2;
 }
@@ -347,7 +347,7 @@ COLOR
 CPhotonMap::Reconstruct(RayHit *hit, Vector3D &outDir,
                               BSDF *bsdf, BSDF *inBsdf, BSDF *outBsdf) {
     // Find the nearest photons
-    float maxDistance = 0.0;
+    float maxDistance;
     COLOR result, eval, power, col;
     float factor;
 
@@ -418,7 +418,7 @@ CPhotonMap::GetCurrentDensity(RayHit &hit, int nrPhotons) {
         nrPhotons = *m_estimate_nrp;
     }
 
-    float maxDistance = 0.0;
+    float maxDistance;
 
     if ( nrPhotons == 0 ) {
         return 0.0;
@@ -450,7 +450,7 @@ CPhotonMap::GetDensityColor(RayHit &hit) {
     float density;
     COLOR result;
 
-    density = GetCurrentDensity(hit);
+    density = GetCurrentDensity(hit, 0);
 
     result = GetFalseColor(density);
 

@@ -26,10 +26,10 @@
 #include "PHOTONMAP/pmapconfig.h"
 #include "PHOTONMAP/pmapimportance.h"
 
-PMAPCONFIG GLOBAL_photonMap_config;
+PhotonMapConfig GLOBAL_photonMap_config;
 
 // To adjust photonMapGetRadiance returns
-static bool s_doingLocalRaycast = false;
+static bool globalDoingLocalRayCasting = false;
 
 #define STRING_LENGTH 1000
 
@@ -60,7 +60,7 @@ photonMapCreatePatchData(Patch *patch) {
 }
 
 static void
-photonMapPrintPatchData(FILE *out, Patch *patch) {
+photonMapPrintPatchData(FILE *out, Patch * /*patch*/) {
     fprintf(out, "No data\n");
 }
 
@@ -169,8 +169,8 @@ photonMapInitPmap(java::ArrayList<Patch *> * /*scenePatches*/) {
 Adapted from bidirpath, this is a bit overkill for here
 */
 static COLOR
-photonMapDoComputePixelFluxEstimate(PMAPCONFIG *config) {
-    CBiPath *bp = &config->bipath;
+photonMapDoComputePixelFluxEstimate(PhotonMapConfig *config) {
+    CBiPath *bp = &config->biPath;
     CPathNode *eyePrevNode;
     CPathNode *lightPrevNode;
     COLOR oldBsdfL;
@@ -235,7 +235,7 @@ photonMapDoComputePixelFluxEstimate(PMAPCONFIG *config) {
     // Evaluate radiance and pdf and weight
     f = bp->EvalRadiance();
 
-    double factor = 1.0 / bp->EvalPDFAcc();
+    float factor = 1.0f / (float)bp->EvalPDFAcc();
 
     colorScale(factor, f, f); // Flux estimate
 
@@ -271,11 +271,11 @@ particle tracing, although constructing global & caustic together
 does not give correct display
 */
 void
-photonMapDoScreenNEE(PMAPCONFIG *config) {
+photonMapDoScreenNEE(PhotonMapConfig *config) {
     int nx, ny;
     float pix_x, pix_y;
     COLOR f;
-    CBiPath *bp = &config->bipath;
+    CBiPath *bp = &config->biPath;
 
     if ( config->currentMap == config->importanceMap ) {
         return;
@@ -357,12 +357,11 @@ photonMapDoPhotonStore(CPathNode *node, COLOR power) {
 Handle one path : store at all end positions and for testing, connect to the eye
 */
 void
-photonMapHandlePath(PMAPCONFIG *config) {
+photonMapHandlePath(PhotonMapConfig *config) {
     bool ldone;
-    CBiPath *bp = &config->bipath;
+    CBiPath *bp = &config->biPath;
     COLOR accPower;
     float factor;
-
 
     // Iterate over all light nodes
 
@@ -379,11 +378,10 @@ photonMapHandlePath(PMAPCONFIG *config) {
     while ( !ldone ) {
         // Adjust accPower
 
-        factor = currentNode->m_G / currentNode->m_pdfFromPrev;
+        factor = (float)(currentNode->m_G / currentNode->m_pdfFromPrev);
         colorScale(factor, accPower, accPower);
 
         // Store photon, but not emitted light
-
         if ( config->currentMap == config->globalMap ) {
             if ( bp->m_lightSize > 1 ) {
                 // Store
@@ -423,15 +421,15 @@ photonMapHandlePath(PMAPCONFIG *config) {
 }
 
 static void
-photonMapTracePath(PMAPCONFIG *config, BSDFFLAGS bsdfFlags) {
-    config->bipath.m_eyePath = config->eyeConfig.tracePath(config->bipath.m_eyePath);
+photonMapTracePath(PhotonMapConfig *config, BSDFFLAGS bsdfFlags) {
+    config->biPath.m_eyePath = config->eyeConfig.tracePath(config->biPath.m_eyePath);
 
     // Use qmc for light sampling
 
     double x_1, x_2;
     // unsigned *nrs = Nied31(pmapQMCseed_s++);
 
-    CPathNode *path = config->bipath.m_lightPath;
+    CPathNode *path = config->biPath.m_lightPath;
 
     // First node
     x_1 = drand48(); //nrs[0] * RECIP;
@@ -442,7 +440,7 @@ photonMapTracePath(PMAPCONFIG *config, BSDFFLAGS bsdfFlags) {
         return;
     }
 
-    config->bipath.m_lightPath = path;  // In case no nodes were present
+    config->biPath.m_lightPath = path;  // In case no nodes were present
 
     path->ensureNext();
 
@@ -476,7 +474,7 @@ photonMapBRRealIteration() {
     fprintf(stderr, "GLOBAL_photonMapMethods Iteration %li\n", (long) GLOBAL_photonMap_state.iteration_nr);
 
     if ((GLOBAL_photonMap_state.iteration_nr > 1) && (GLOBAL_photonMap_state.doGlobalMap || GLOBAL_photonMap_state.doCausticMap)) {
-        float scaleFactor = (GLOBAL_photonMap_state.iteration_nr - 1.0) / (float) GLOBAL_photonMap_state.iteration_nr;
+        float scaleFactor = ((float)GLOBAL_photonMap_state.iteration_nr - 1.0f) / (float) GLOBAL_photonMap_state.iteration_nr;
         GLOBAL_photonMap_config.screen->scaleRadiance(scaleFactor);
     }
 
@@ -487,7 +485,7 @@ photonMapBRRealIteration() {
         GLOBAL_photonMap_config.currentMap->SetTotalPaths(GLOBAL_photonMap_state.total_ipaths);
         GLOBAL_photonMap_config.importanceCMap->SetTotalPaths(GLOBAL_photonMap_state.total_ipaths);
 
-        TracePotentialPaths(GLOBAL_photonMap_state.ipaths_per_iteration);
+        tracePotentialPaths((int) GLOBAL_photonMap_state.ipaths_per_iteration);
 
         fprintf(stderr, "Total potential paths : %li, Total rays %li\n",
                 GLOBAL_photonMap_state.total_ipaths,
@@ -504,7 +502,7 @@ photonMapBRRealIteration() {
         // Set correct importance map: indirect importance
         GLOBAL_photonMap_config.currentImpMap = GLOBAL_photonMap_config.importanceMap;
 
-        photonMapTracePaths(GLOBAL_photonMap_state.gpaths_per_iteration);
+        photonMapTracePaths((int)GLOBAL_photonMap_state.gpaths_per_iteration);
 
         fprintf(stderr, "Global map: ");
         GLOBAL_photonMap_config.globalMap->PrintStats(stderr);
@@ -520,7 +518,7 @@ photonMapBRRealIteration() {
         // Set correct importance map: direct importance
         GLOBAL_photonMap_config.currentImpMap = GLOBAL_photonMap_config.importanceCMap;
 
-        photonMapTracePaths(GLOBAL_photonMap_state.cpaths_per_iteration, BSDF_SPECULAR_COMPONENT);
+        photonMapTracePaths((int)GLOBAL_photonMap_state.cpaths_per_iteration, BSDF_SPECULAR_COMPONENT);
 
         fprintf(stderr, "Caustic map: ");
         GLOBAL_photonMap_config.causticMap->PrintStats(stderr);
@@ -534,7 +532,7 @@ colors are used for hardware rendering if the default hardware rendering
 method is not superceeded in this file
 */
 static int
-photonMapDoStep(java::ArrayList<Patch *> *scenePatches, java::ArrayList<Patch *> * /*lightPatches*/) {
+photonMapDoStep(java::ArrayList<Patch *> * /*scenePatches*/, java::ArrayList<Patch *> * /*lightPatches*/) {
     GLOBAL_photonMap_state.wake_up = false;
     GLOBAL_photonMap_state.lastclock = clock();
 
@@ -630,7 +628,7 @@ photonMapGetRadiance(Patch *patch,
 
     RADRETURN_OPTION radreturn = GLOBAL_RADIANCE;
 
-    if ( s_doingLocalRaycast ) {
+    if ( globalDoingLocalRayCasting ) {
         radreturn = GLOBAL_photonMap_state.radianceReturn;
     }
 

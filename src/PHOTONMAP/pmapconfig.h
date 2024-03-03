@@ -1,8 +1,9 @@
-// GLOBAL_photonMap_config.H : class for Photon map configuration
-/* photon map configuration structure, used during construction */
+/**
+Photon map configuration structure, used during construction
+*/
 
-#ifndef _PMAPCONFIG_H_
-#define _PMAPCONFIG_H_
+#ifndef __PHOTON_MAP_CONFIG__
+#define __PHOTON_MAP_CONFIG__
 
 #include "render/ScreenBuffer.h"
 #include "raycasting/raytracing/bipath.h"
@@ -10,11 +11,11 @@
 #include "PHOTONMAP/photonmap.h"
 #include "PHOTONMAP/importancemap.h"
 
-class PMAPCONFIG {
-public:
+class PhotonMapConfig {
+  public:
     CSamplerConfig lightConfig;
     CSamplerConfig eyeConfig;
-    CBiPath bipath;
+    CBiPath biPath;
 
     CImportanceMap *importanceMap;
     CImportanceMap *importanceCMap;
@@ -26,12 +27,14 @@ public:
 
     ScreenBuffer *screen;
 
-    PMAPCONFIG() {
+    PhotonMapConfig(): lightConfig(), eyeConfig(), biPath(),
+                       importanceMap(), importanceCMap(), globalMap(),
+                       causticMap(), currentMap(), currentImpMap(), screen() {
         screen = nullptr;
         currentMap = nullptr;
     }
 };
 
-extern PMAPCONFIG GLOBAL_photonMap_config;
+extern PhotonMapConfig GLOBAL_photonMap_config;
 
 #endif

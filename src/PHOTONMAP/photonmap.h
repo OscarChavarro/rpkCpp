@@ -62,7 +62,7 @@ protected:
     int DoQuery(Vector3D *pos) {
         m_cosinesOk = false;
         return m_kdtree->Query((float *) pos, *m_estimate_nrp /*pmapstate.reconPhotons*/,
-                               m_photons, m_distances, GetMaxR2());
+                               m_photons, m_distances, (float)GetMaxR2());
     }
 
     CIrrPhoton *DoIrradianceQuery(Vector3D *pos, Vector3D *normal,
@@ -79,7 +79,7 @@ protected:
 public:
     // Constructor
 
-    CPhotonMap(int *estimate_nrp, bool doPrecomputeIrradiance = false);
+    explicit CPhotonMap(int *estimate_nrp, bool doPrecomputeIrradiance = false);
 
     // Destructor
 
@@ -100,7 +100,7 @@ public:
     bool DC_AddPhoton(CPhoton &photon, RayHit &hit,
                       float requiredD, short flags = 0);
 
-    void Redistribute(CPhoton &photon, float acceptProb, short flags);
+    void Redistribute(CPhoton &photon);
 
     // Get a maximum radius^2 for locating the nearest photons
     virtual double GetMaxR2();
@@ -119,7 +119,7 @@ public:
                                COLOR &diffuseAlbedo,
                                COLOR *result);
 
-    virtual float GetCurrentDensity(RayHit &hit, int nrPhotons = 0);
+    virtual float GetCurrentDensity(RayHit &hit, int nrPhotons);
 
     // Return a color coded density of the photonmap
     virtual COLOR GetDensityColor(RayHit &hit);
@@ -139,15 +139,13 @@ public:
     double Sample(Vector3D &pos, double *r, double *s, COORDSYS *coord,
                   BSDFFLAGS flag, float n = 1);
 
-    float GetGridValue(double phi, double theta);
-
     // Utility functions
 
-    void PrintStats(FILE *fp) {
+    void PrintStats(FILE *fp) const {
         fprintf(fp, "%i stored photons\n", m_nrPhotons);
     }
 
-    void getStats(char *p, int n) {
+    void getStats(char *p, int n) const {
         snprintf(p, n,
                 "%i stored photons, %i total, %li paths\n",
                 m_nrPhotons, m_totalPhotons, m_totalPaths);

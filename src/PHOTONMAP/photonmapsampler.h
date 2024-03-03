@@ -17,8 +17,8 @@ protected:
     CPhotonMap *m_photonMap; // To be used for importance sampling
 
     bool FresnelSample(CPathNode *prevNode, CPathNode *thisNode,
-                       CPathNode *newNode, double x_1, double x_2,
-                       bool doRR, BSDFFLAGS flags);
+                       CPathNode *newNode, double x_2,
+                       BSDFFLAGS flags);
 
     bool GDSample(CPathNode *prevNode, CPathNode *thisNode,
                   CPathNode *newNode, double x_1, double x_2,
@@ -27,7 +27,7 @@ protected:
     // Randomly choose between 2 scattering components, using
     // scatteredpower as probabilities.
     // Returns true a component was chosen, false if absorbed
-    bool ChooseComponent(BSDFFLAGS flags1, BSDFFLAGS flags2,
+    static bool ChooseComponent(BSDFFLAGS flags1, BSDFFLAGS flags2,
                          BSDF *bsdf, RayHit *hit, bool doRR,
                          double *x, float *pdf, bool *chose1);
 

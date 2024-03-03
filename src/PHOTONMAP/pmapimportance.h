@@ -1,12 +1,6 @@
-/* pmapimportance.H : Importon tracing */
+#ifndef __PHOTON_MAP_IMPORTANCE__
+#define __PHOTON_MAP_IMPORTANCE__
 
-#ifndef _PMAPIMPORTANCE_H_
-#define _PMAPIMPORTANCE_H_
-
-#include "raycasting/common/pathnode.h"
-
-#include "PHOTONMAP/photonmap.h"
-
-void TracePotentialPaths(int nrPaths);
+void tracePotentialPaths(int nrPaths);
 
 #endif

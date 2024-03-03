@@ -33,7 +33,16 @@ photonMapParseOptions(int *argc, char **argv) {
     parseOptions(globalPhotonMapOptions, argc, argv);
 }
 
-CPmapState::CPmapState() {
+CPmapState::CPmapState():
+    doGlobalMap(), gpaths_per_iteration(), precomputeGIrradiance(), doCausticMap(), cpaths_per_iteration(),
+    renderImage(), reconGPhotons(), reconCPhotons(), reconIPhotons(), distribPhotons(), doStats(), balanceKDTree(),
+    usePhotonMapSampler(), densityControl(), importanceOption(), acceptPdfType(), constantRD(), minimumImpRD(),
+    doImportanceMap(), ipaths_per_iteration(), cImpScale(), gImpScale(), cornerScatter(), gThreshold(),
+    falseColMax(), falseColLog(), falseColMono(), radianceReturn(), returnCImportance(), minimumLightPathDepth(),
+    maximumLightPathDepth(), maxCombinedLength(), iteration_nr(), g_iteration_nr(), c_iteration_nr(),
+    i_iteration_nr(), total_cpaths(), total_gpaths(), total_ipaths(), runstop_nr(), total_rays(),
+    cpu_secs(), lastclock(), wake_up(), rcScreen()
+{
     // One time state initialisations
     rcScreen = nullptr;
 

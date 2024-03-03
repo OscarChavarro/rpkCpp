@@ -14,7 +14,8 @@ CPhotonMapSampler::CPhotonMapSampler() {
 }
 
 // Returns true a component was chosen, false if absorbed
-bool CPhotonMapSampler::ChooseComponent(BSDFFLAGS flags1, BSDFFLAGS flags2,
+bool
+CPhotonMapSampler::ChooseComponent(BSDFFLAGS flags1, BSDFFLAGS flags2,
                                         BSDF *bsdf, RayHit *hit, bool doRR,
                                         double *x, float *pdf, bool *chose1) {
     COLOR col;
@@ -79,9 +80,15 @@ bool CPhotonMapSampler::Sample(CPathNode *prevNode, CPathNode *thisNode,
     } else {
         sFlagMask = flags;
     }
-
-    if ( !ChooseComponent(sFLAGS & sFlagMask, gdFLAGS & flags, bsdf, &thisNode->m_hit,
-                          doRR, &x_2, &pdfChoice, &sChosen)) {
+    if ( !ChooseComponent(
+            (BSDFFLAGS)(sFLAGS & sFlagMask),
+            (BSDFFLAGS)(gdFLAGS & flags),
+            bsdf,
+            &thisNode->m_hit,
+            doRR,
+            &x_2,
+            &pdfChoice,
+            &sChosen) ) {
         return false; // Absorbed
     }
 
@@ -90,10 +97,9 @@ bool CPhotonMapSampler::Sample(CPathNode *prevNode, CPathNode *thisNode,
     bool ok;
 
     if ( sChosen ) {
-        ok = FresnelSample(prevNode, thisNode, newNode, x_1, x_2,
-                           false, flags);
+        ok = FresnelSample(prevNode, thisNode, newNode, x_2, flags);
     } else {
-        flags = gdFLAGS & flags;
+        flags = (BSDFFLAGS)(gdFLAGS & flags);
         ok = GDSample(prevNode, thisNode, newNode, x_1, x_2,
                       false, flags);
     }
@@ -104,7 +110,7 @@ bool CPhotonMapSampler::Sample(CPathNode *prevNode, CPathNode *thisNode,
 
         // Component propagation
 
-        newNode->m_accUsedComponents = (thisNode->m_accUsedComponents |
+        newNode->m_accUsedComponents = (BSDFFLAGS)(thisNode->m_accUsedComponents |
                                         thisNode->m_usedComponents);
     }
 
@@ -126,7 +132,7 @@ bool CPhotonMapSampler::Sample(CPathNode *prevNode, CPathNode *thisNode,
 // Utility functions
 
 static RefractionIndex BsdfGeometricIOR(BSDF *bsdf) {
-    RefractionIndex nc;
+    RefractionIndex nc{};
 
     bsdfIndexOfRefraction(bsdf, &nc);
 
@@ -141,12 +147,19 @@ static RefractionIndex BsdfGeometricIOR(BSDF *bsdf) {
 }
 
 
-static bool ChooseFresnelDirection(CPathNode *thisNode, CPathNode *newNode,
-                                   BSDFFLAGS flags, double x_1, double x_2,
-                                   Vector3D *dir, double *pdfDir,
-                                   COLOR *scatteringColor, bool *doCosInverse) {
+static bool
+ChooseFresnelDirection(
+    CPathNode *thisNode,
+    BSDFFLAGS flags,
+    double x_2,
+    Vector3D *dir,
+    double *pdfDir,
+    COLOR *scatteringColor,
+    bool *doCosInverse)
+{
     // Index of refractions are taken
-    RefractionIndex nc_in, nc_out; // IOR
+    RefractionIndex nc_in{};
+    RefractionIndex nc_out{}; // IOR
 
     nc_in = BsdfGeometricIOR(thisNode->m_inBsdf);
     nc_out = BsdfGeometricIOR(thisNode->m_outBsdf);
@@ -224,13 +237,13 @@ static bool ChooseFresnelDirection(CPathNode *thisNode, CPathNode *newNode,
             rpar = (nt * cosi - ni * cost) / (nt * cosi + ni * cost); // Parallel
             rper = (ni * cosi - nt * cost) / (ni * cosi + nt * cost); // Perpendicular
 
-            F = 0.5 * (rpar * rpar + rper * rper);
+            F = 0.5f * (rpar * rpar + rper * rper);
         } else {
             F = 0;  // All in refracted dir, which == reflected dir
         }
     }
 
-    float T = 1. - F;
+    float T = 1.0f - F;
     bool reflected;
 
     // choose reflection or refraction
@@ -285,16 +298,20 @@ static bool ChooseFresnelDirection(CPathNode *thisNode, CPathNode *newNode,
     return true;
 }
 
-bool CPhotonMapSampler::FresnelSample(CPathNode *prevNode,
-                                      CPathNode *thisNode,
-                                      CPathNode *newNode, double x_1, double x_2,
-                                      bool doRR, BSDFFLAGS flags) {
+bool
+CPhotonMapSampler::FresnelSample(
+    CPathNode *prevNode,
+    CPathNode *thisNode,
+    CPathNode *newNode,
+    double x_2,
+    BSDFFLAGS flags)
+{
     Vector3D dir;
     double pdfDir;
     bool doCosInverse;
     COLOR scatteringColor;
 
-    if ( !ChooseFresnelDirection(thisNode, newNode, flags, x_1, x_2, &dir, &pdfDir,
+    if ( !ChooseFresnelDirection(thisNode, flags, x_2, &dir, &pdfDir,
                                  &scatteringColor, &doCosInverse)) {
         return false;
     }
