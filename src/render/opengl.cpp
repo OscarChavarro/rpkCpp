@@ -21,8 +21,6 @@ public:
 
 static int globalDisplayListId = -1;
 static int globalOpenGlInitialized = false;
-static GLubyte *globalBackground = nullptr;
-static GLuint globalBackgroundTex = 0;
 
 /**
 Re-renders last ray-traced image if any, Returns TRUE if there is one,
@@ -50,11 +48,6 @@ openGlRenderSetCamera() {
 
     // Use the full viewport
     glViewport(0, 0, GLOBAL_camera_mainCamera.xSize, GLOBAL_camera_mainCamera.ySize);
-
-    // Draw background when needed
-    if ( GLOBAL_render_renderOptions.useBackground && globalBackground ) {
-        openGlRenderBackground(&GLOBAL_camera_mainCamera);
-    }
 
     // Determine distance to front- and back-clipping plane
     renderGetNearFar(&GLOBAL_camera_mainCamera.near, &GLOBAL_camera_mainCamera.far);
@@ -666,51 +659,6 @@ Renders alternate camera, virtual screen etc ... for didactic pictures etc
 void
 openGlRenderCameras() {
     openGlRenderFrustum(&GLOBAL_camera_alternateCamera);
-}
-
-/**
-Display background, no Z-buffer, fill whole screen
-*/
-void
-openGlRenderBackground(Camera *camera) {
-    // Turn off Z-buffer
-    glDisable(GL_DEPTH_TEST);
-
-    // Push matrix and create bogus camera
-    glMatrixMode(GL_MODELVIEW);
-    glPushMatrix();
-    glLoadIdentity();
-
-    glMatrixMode(GL_PROJECTION);
-    glPushMatrix();
-    glLoadIdentity();
-    gluOrtho2D(0, camera->xSize, 0, camera->ySize);
-
-    // Draw background (as texture)
-    glEnable(GL_TEXTURE_2D);
-    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
-    glBindTexture(GL_TEXTURE_2D, globalBackgroundTex);
-    glBegin(GL_QUADS);
-    glTexCoord2f(0.0f, 1.0f);
-    glVertex3f(0.0f, 0.0f, 0.0f);
-    glTexCoord2f(1.0f, 1.0f);
-    glVertex3f((float)camera->xSize, 0.0f, 0.0f);
-    glTexCoord2f(1.0f, 0.0f);
-    glVertex3f((float)camera->xSize, (float)camera->ySize, 0.0f);
-    glTexCoord2f(0.0f, 0.0f);
-    glVertex3f(0.0f, (float)camera->ySize, 0.0f);
-    glEnd();
-    glDisable(GL_TEXTURE_2D);
-
-    // Pop matrix
-    glMatrixMode(GL_PROJECTION);
-    glPopMatrix();
-
-    glMatrixMode(GL_MODELVIEW);
-    glPopMatrix();
-
-    // Enable Z-buffer back
-    glEnable(GL_DEPTH_TEST);
 }
 
 /**

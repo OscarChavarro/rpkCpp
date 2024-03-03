@@ -45,12 +45,12 @@ class ScreenBuffer {
     float getScreenYMax() const;
     float getPixXSize() const;
     float getPixYSize() const;
-    Vector2D getPixelPoint(int nx, int ny, float xoff = 0.5, float yoff = 0.5) const;
+    Vector2D getPixelPoint(int nx, int ny, float xOffset = 0.5, float yOffset = 0.5) const;
     Vector2D getPixelCenter(int nx, int ny) const;
     int getNx(float x) const;
     int getNy(float y) const;
     void getPixel(float x, float y, int *nx, int *ny) const;
-    Vector3D getPixelVector(int nx, int ny, float xoff = 0.5, float yoff = 0.5) const;
+    Vector3D getPixelVector(int nx, int ny, float xOffset = 0.5, float yOffset = 0.5) const;
     int getHRes() const;
     int getVRes() const;
     COLOR get(int x, int y);
@@ -70,6 +70,6 @@ class ScreenBuffer {
     void syncLine(int lineNumber);
 };
 
-extern float computeFluxToRadFactor(int pix_x, int pix_y);
+extern float computeFluxToRadFactor(int pixX, int pixY);
 
 #endif

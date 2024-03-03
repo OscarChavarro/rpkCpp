@@ -875,8 +875,8 @@ doBptDensityEstimation(BPCONFIG *config) {
 
     config->deStoreHits = false;
 
-    int nrIterations = (int) floor(log(GLOBAL_rayTracing_biDirectionalPath.basecfg.samplesPerPixel) / (log(2)));
-    int maxSamples = (int) pow(2.0, nrIterations);
+    int nrIterations = (int)std::floor(log(GLOBAL_rayTracing_biDirectionalPath.basecfg.samplesPerPixel) / (log(2)));
+    int maxSamples = (int)std::pow(2.0, nrIterations);
 
     printf("Doing %i iterations, thus %i samples per pixel\n", nrIterations,
            maxSamples);

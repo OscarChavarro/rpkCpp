@@ -26,6 +26,11 @@ floatMax(float a, float b) {
     return a > b ? a : b;
 }
 
+inline int
+intMax(int a, int b) {
+    return a > b ? a : b;
+}
+
 inline float
 floatMin(float a, float b) {
     return a < b ? a : b;

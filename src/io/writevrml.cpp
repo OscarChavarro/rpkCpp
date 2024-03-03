@@ -30,7 +30,7 @@ transformModelVRML(Vector3D *modelRotationAxis, float *modelRotationAngle) {
     vectorSet(up_axis, 0.0, 1.0, 0.0);
     cosA = vectorDotProduct(GLOBAL_camera_mainCamera.upDirection, up_axis);
     if ( cosA < 1. - EPSILON ) {
-        *modelRotationAngle = (float)acos(cosA);
+        *modelRotationAngle = (float)std::acos(cosA);
         vectorCrossProduct(GLOBAL_camera_mainCamera.upDirection, up_axis, *modelRotationAxis);
         vectorNormalize(*modelRotationAxis);
         return rotateMatrix(*modelRotationAngle, *modelRotationAxis);

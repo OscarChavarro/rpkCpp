@@ -5,19 +5,19 @@ Sobol QMC sequence
 #include "common/mymath.h"
 #include "QMC/sobol.h"
 
-#define MAXDIM 5
+#define MAX_DIM 5
 #define VMAX 30
 
 static int dim;
 static int nextn;
-static int x[MAXDIM];
-static int v[MAXDIM][VMAX];
+static int x[MAX_DIM];
+static int v[MAX_DIM][VMAX];
 static int skip;
 static double RECIPD;
 
 double *
 nextSobol() {
-    static double xx[MAXDIM];
+    static double xx[MAX_DIM];
     int c;
     int i;
     int save;
@@ -42,7 +42,7 @@ nextSobol() {
 
 double *
 sobol(int seed) {
-    static double xx[MAXDIM];
+    static double xx[MAX_DIM];
     int c;
     int gray;
 
@@ -72,12 +72,12 @@ initSobol(int idim) {
     int k;
     int m;
     int save;
-    int d[MAXDIM];
-    int POLY[MAXDIM];
+    int d[MAX_DIM];
+    int POLY[MAX_DIM];
 
     nextn = 0;
     dim = idim;
-    RECIPD = 1. / pow(2.0, VMAX);
+    RECIPD = 1.0 / std::pow(2.0, VMAX);
 
     // Primitieve veeltermen inlezen
     POLY[0] = 3;

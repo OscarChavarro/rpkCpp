@@ -300,8 +300,8 @@ xf(XF *ret, int ac, char **av)
                             return i;
                         }
                         dtmp = d2r(atof(av[++i]));
-                        m4[1][1] = m4[2][2] = cos(dtmp);
-                        m4[2][1] = -(m4[1][2] = sin(dtmp));
+                        m4[1][1] = m4[2][2] = std::cos(dtmp);
+                        m4[2][1] = -(m4[1][2] = std::sin(dtmp));
                         break;
                     case 'y':
                         if ( !checkarg(3, "f", ac, av, i) ) {
@@ -309,8 +309,8 @@ xf(XF *ret, int ac, char **av)
                             return i;
                         }
                         dtmp = d2r(atof(av[++i]));
-                        m4[0][0] = m4[2][2] = cos(dtmp);
-                        m4[0][2] = -(m4[2][0] = sin(dtmp));
+                        m4[0][0] = m4[2][2] = std::cos(dtmp);
+                        m4[0][2] = -(m4[2][0] = std::sin(dtmp));
                         break;
                     case 'z':
                         if ( !checkarg(3, "f", ac, av, i) ) {
@@ -318,8 +318,8 @@ xf(XF *ret, int ac, char **av)
                             return i;
                         }
                         dtmp = d2r(atof(av[++i]));
-                        m4[0][0] = m4[1][1] = cos(dtmp);
-                        m4[1][0] = -(m4[0][1] = sin(dtmp));
+                        m4[0][0] = m4[1][1] = std::cos(dtmp);
+                        m4[1][0] = -(m4[0][1] = std::sin(dtmp));
                         break;
                     default: {
                         float x;
@@ -344,8 +344,8 @@ xf(XF *ret, int ac, char **av)
                         x /= s;
                         y /= s;
                         z /= s;
-                        c = cos(a);
-                        s = sin(a);
+                        c = std::cos(a);
+                        s = std::sin(a);
                         t = 1 - c;
                         m4[0][0] = t * x * x + c;
                         m4[1][1] = t * y * y + c;

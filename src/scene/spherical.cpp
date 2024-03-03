@@ -58,7 +58,7 @@ vectorToSphericalCoord(Vector3D *C, COORDSYS *coordSys, double *phi, double *the
         z = -1.0;
     }
 
-    *theta = acos(z);
+    *theta = std::acos(z);
 
     vectorSumScaled(*C, -z, coordSys->Z, c);
     vectorNormalize(c);
@@ -71,27 +71,9 @@ vectorToSphericalCoord(Vector3D *C, COORDSYS *coordSys, double *phi, double *the
     // Sometimes numerical errors cause this
     if ( x < -1.0 )
         x = -1.0;
-    *phi = acos(x);
+    *phi = std::acos(x);
     if ( y < 0. )
         *phi = 2. * M_PI - *phi;
-}
-
-void
-sphericalCoordToVector(
-    COORDSYS *coordSys,
-    const double *phi,
-    const double *theta,
-    Vector3D *C)
-{
-    Vector3D CP;
-
-    float cos_phi = (float)std::cos(*phi);
-    float sin_phi = (float)std::sin(*phi);
-    float cos_theta = (float)std::cos(*theta);
-    float sin_theta = (float)std::sin(*theta);
-
-    vectorComb2(cos_phi, coordSys->X, sin_phi, coordSys->Y, CP);
-    vectorComb2(cos_theta, coordSys->Z, sin_theta, CP, *C);
 }
 
 /**
@@ -141,7 +123,7 @@ sampleHemisphereCosNTheta(COORDSYS *coord, double n, double xi_1, double xi_2, d
                 cos_theta, coord->Z,
                 dir);
 
-    *pdf_value = (n + 1.0) * pow(cos_theta, n) / (2.0 * M_PI);
+    *pdf_value = (n + 1.0) * std::pow(cos_theta, n) / (2.0 * M_PI);
 
     return dir;
 }

@@ -1,42 +1,48 @@
-/*
+/**
 Faure's QMC sequences
 */
 
 #include "common/mymath.h"
 #include "QMC/faure.h"
 
-#define MAXDIM 10
-#define PRDIM 30
-#define MAXSEED 2147483647
+#define MAX_DIM 10
+#define PR_DIM 30
+#define MAX_SEED 2147483647
 
-static int ix[MAXDIM][PRDIM];  /* PR-delige voorstelling van x */
-static int dim, PR, priem[MAXDIM] = {2, 3, 5, 5, 7, 7, 11, 11, 11, 11};
-/* priem[s] is 1e priemgetal >s*/
-static int nextn, skip, ndigits;
-static int C[MAXDIM][PRDIM][PRDIM];  /* generator matrix */
+static int globalIx[MAX_DIM][PR_DIM];  // PR part presentation of x
+static int globalDim;
+static int globalPR;
+static int globalPrime[MAX_DIM] = {2, 3, 5, 5, 7, 7, 11, 11, 11, 11};
 
-static int setFaureC() {
-    int i, j, k;
+// diameter[s] is 1e diameter >s
+static int globalNextN;
+static int globalSkip;
+static int globalNDigits;
+static int C[MAX_DIM][PR_DIM][PR_DIM]; // generator matrix
 
-    /* eerst C[0][][] opstellen (getransponeerde Pascal matrix) */
-    for ( j = 0; j < ndigits; j++ ) {
-        for ( k = j; k < ndigits; k++ ) {
-            if ( j == 0 ) {
-                C[0][j][k] = 1;
-            } else if ( j == k ) {
+static int
+setFaureC() {
+    int i;
+    int j;
+    int k;
+
+    // First set up C[0][][] (transposed Pascal matrix)
+    for ( j = 0; j < globalNDigits; j++ ) {
+        for ( k = j; k < globalNDigits; k++ ) {
+            if ( j == 0 || j == k ) {
                 C[0][j][k] = 1;
             } else {
-                C[0][j][k] = (C[0][j][k - 1] + C[0][j - 1][k - 1]) % PR;
+                C[0][j][k] = (C[0][j][k - 1] + C[0][j - 1][k - 1]) % globalPR;
             }
         }
     }
 
-    /* C[0][][] gebruiken om C[i][][] op te stellen.
-     * C[0] wordt overschreven als i=0 ====> wordt eenheidsmatrix */
-    for ( i = dim - 1; i >= 0; i-- ) {
-        for ( j = 0; j < ndigits; j++ ) {
-            for ( k = j; k < ndigits; k++ ) {
-                C[i][j][k] = (C[0][j][k] * (int) pow(i, k - j)) % PR;
+    // Use C[0][][] to compose C[i][][]
+    // C[0] is overwritten if i=0 -> becomes unit matrix
+    for ( i = globalDim - 1; i >= 0; i-- ) {
+        for ( j = 0; j < globalNDigits; j++ ) {
+            for ( k = j; k < globalNDigits; k++ ) {
+                C[i][j][k] = (C[0][j][k] * (int)std::pow(i, k - j)) % globalPR;
             }
         }
     }
@@ -44,34 +50,38 @@ static int setFaureC() {
     return 0;
 }
 
-static int setGFaureC() {
-    int i, j, k;
-    unsigned P[PRDIM][PRDIM];
+static int
+setGFaureC() {
+    int i;
+    int j;
+    int k;
+    unsigned P[PR_DIM][PR_DIM];
 
-    /* Pascal matrix */
-    for ( j = 0; j < ndigits; j++ ) {
+    // Pascal matrix
+    for ( j = 0; j < globalNDigits; j++ ) {
         P[j][0] = 1;
         P[j][j] = 1;
     }
-    for ( j = 1; j < ndigits; j++ ) {
+    for ( j = 1; j < globalNDigits; j++ ) {
         for ( k = 1; k < j; k++ ) {
-            P[j][k] = (P[j - 1][k - 1] + P[j - 1][k]) % PR;
+            P[j][k] = (P[j - 1][k - 1] + P[j - 1][k]) % globalPR;
         }
-        for ( k = j + 1; k < ndigits; k++ ) {
+        for ( k = j + 1; k < globalNDigits; k++ ) {
             P[j][k] = 0;
         }
     }
 
-    /* [Tezuka95, p179-180] */
-    for ( i = 0; i < dim; i++ ) {
-        /* compute C[i] */
-        int m, j;
-        for ( m = 0; m < ndigits; m++ ) {
-            for ( j = 0; j < ndigits; j++ ) {
-                int q, Q = m < j ? m : j;
-                C[i][m][j] = 0;
+    // [Tezuka95, p179-180]
+    for ( i = 0; i < globalDim; i++ ) {
+        // Compute C[i]
+        int m;
+        int n;
+        for ( m = 0; m < globalNDigits; m++ ) {
+            for ( n = 0; n < globalNDigits; n++ ) {
+                int q, Q = m < n ? m : n;
+                C[i][m][n] = 0;
                 for ( q = 0; q <= Q; q++ ) {
-                    C[i][m][j] = (C[i][m][j] + P[m][q] * P[j][q] * (int) pow(i, m + j - 2 * q)) % PR;
+                    C[i][m][n] = (int)(C[i][m][n] + P[m][q] * P[n][q] * (int)std::pow(i, m + n - 2 * q)) % globalPR;
                 }
             }
         }
@@ -80,88 +90,115 @@ static int setGFaureC() {
     return 0;
 }
 
-double *NextFaure() {
-    int i, j, k, save;
-    static double x[MAXDIM];
+/**
+If NO_GRAY is defined, you can't mix NextFaure() and Faure() calls,
+but faure() will be faster because it doesn't need to convert to
+seed to it's Gray code
+*/
+static double *
+nextFaure() {
+    int i;
+    int j;
+    int k;
+    int save;
+    static double x[MAX_DIM];
     double xx;
 
-    save = nextn;
+    save = globalNextN;
     k = 1;
-    while ((save % PR) == (PR - 1)) {
+    while ((save % globalPR) == (globalPR - 1)) {
         k = k + 1;
-        save = save / PR;
+        save = save / globalPR;
     }
-    for ( i = 0; i < dim; i++ ) {
+    for ( i = 0; i < globalDim; i++ ) {
         xx = 0;
-        for ( j = ndigits - 1; j >= 0; j-- ) {
-            ix[i][j] = (ix[i][j] + C[i][j][k - 1]) % PR;
-            xx = xx / PR + ix[i][j];
+        for ( j = globalNDigits - 1; j >= 0; j-- ) {
+            globalIx[i][j] = (globalIx[i][j] + C[i][j][k - 1]) % globalPR;
+            xx = xx / globalPR + globalIx[i][j];
         }
-        x[i] = xx / PR;
+        x[i] = xx / globalPR;
     }
-    nextn += 1;
+    globalNextN += 1;
     return x;
 }
 
-double *Faure(int seed) {
-    int i, j, k, save;
-    static double x[MAXDIM];
+/**
+Return sample with given index
+*/
+double *
+faure(int seed) {
+    int i;
+    int j;
+    int k;
+    int save;
+    static double x[MAX_DIM];
     double xx;
 
-    nextn = seed + skip + 1;
-    for ( i = 0; i < dim; i++ ) {
+    globalNextN = seed + globalSkip + 1;
+    for ( i = 0; i < globalDim; i++ ) {
         xx = 0;
-        for ( j = ndigits - 1; j >= 0; j-- ) {
-            save = nextn;
-            ix[i][j] = 0;
-            for ( k = 0; k < ndigits; k++ ) {
-                ix[i][j] = (ix[i][j] + C[i][j][k] * save) % PR;
-                save /= PR;
+        for ( j = globalNDigits - 1; j >= 0; j-- ) {
+            save = globalNextN;
+            globalIx[i][j] = 0;
+            for ( k = 0; k < globalNDigits; k++ ) {
+                globalIx[i][j] = (globalIx[i][j] + C[i][j][k] * save) % globalPR;
+                save /= globalPR;
             }
-            xx = xx / PR + ix[i][j];
+            xx = xx / globalPR + globalIx[i][j];
         }
-        x[i] = xx / PR;
+        x[i] = xx / globalPR;
     }
     return x;
 }
 
-void InitFaure(int idim) {
-    int i, j;
+/**
+Initialize for Original Faure sequence
+*/
+void
+initFaure(int iDim) {
+    int i;
+    int j;
 
-    dim = idim;
-    nextn = 0;
-    PR = priem[dim - 1];
-    ndigits = log((double) MAXSEED) / log((double) PR) + 1;
+    globalDim = iDim;
+    globalNextN = 0;
+    globalPR = globalPrime[globalDim - 1];
+    globalNDigits = (int)(std::log((double) MAX_SEED) / std::log((double) globalPR) + 1);
     setFaureC();
-    for ( i = 0; i < dim; i++ ) {
-        for ( j = 0; j < ndigits; j++ ) {
-            ix[i][j] = 0;
+    for ( i = 0; i < globalDim; i++ ) {
+        for ( j = 0; j < globalNDigits; j++ ) {
+            globalIx[i][j] = 0;
         }
     }
 
-    skip = pow(PR, 4) - 1;
-    for ( i = 1; i <= skip; i++ ) {
-        NextFaure();
-    } /* warm-up */
+    globalSkip = (int)std::pow(globalPR, 4) - 1;
+    for ( i = 1; i <= globalSkip; i++ ) {
+        // Warm up
+        nextFaure();
+    }
 }
 
-void InitGFaure(int idim) {
-    int i, j;
+/**
+Initialize for generalized Faure sequence
+*/
+void
+initGFaure(int iDim) {
+    int i;
+    int j;
 
-    dim = idim;
-    nextn = 0;
-    PR = priem[dim - 1];
-    ndigits = log((double) MAXSEED) / log((double) PR) + 1;
+    globalDim = iDim;
+    globalNextN = 0;
+    globalPR = globalPrime[globalDim - 1];
+    globalNDigits = (int)(std::log((double) MAX_SEED) / std::log((double) globalPR) + 1);
     setGFaureC();
-    for ( i = 0; i < dim; i++ ) {
-        for ( j = 0; j < ndigits; j++ ) {
-            ix[i][j] = 0;
+    for ( i = 0; i < globalDim; i++ ) {
+        for ( j = 0; j < globalNDigits; j++ ) {
+            globalIx[i][j] = 0;
         }
     }
 
-    skip = pow(PR, 4) - 1;
-    for ( i = 1; i <= skip; i++ ) {
-        NextFaure();
-    } /* warm-up */
+    globalSkip = (int)(std::pow(globalPR, 4) - 1);
+    for ( i = 1; i <= globalSkip; i++ ) {
+        // Warm up
+        nextFaure();
+    }
 }
-

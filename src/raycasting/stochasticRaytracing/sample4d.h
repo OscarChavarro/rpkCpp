@@ -20,7 +20,7 @@ enum SEQ4D {
 ((seq) == S4D_HALTON) ? "Halton" : (\
 ((seq) == S4D_SCRAMHALTON) ? "ScramHalton" : (\
 ((seq) == S4D_SOBOL) ? "sobol" : (\
-((seq) == S4D_FAURE) ? "Faure" : (\
+((seq) == S4D_FAURE) ? "faure" : (\
 ((seq) == S4D_GFAURE) ? "GFaure" : (\
 ((seq) == S4D_NIEDERREITER) ? "Nied" : "Unknown"\
 )))))))

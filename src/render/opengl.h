@@ -7,7 +7,6 @@
 extern int openGlRenderInitialized();
 extern void openGlRenderCameras();
 extern void openGlRenderSetLineWidth(float width);
-extern void openGlRenderBackground(Camera *camera);
 extern void openGlRenderLine(Vector3D *x, Vector3D *y);
 extern void openGlRenderSetColor(RGB *rgb);
 extern void openGlRenderWorldOctree(void (*render_patch)(Patch *));

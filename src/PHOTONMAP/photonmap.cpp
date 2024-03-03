@@ -175,7 +175,7 @@ ComputeAcceptProb(float currentD, float requiredD) {
         // Translated cosine
         double ratio = floatMin(1.0, currentD / requiredD); // in [0,1]
 
-        return (0.5 * (1.0 + cos(ratio * M_PI)));
+        return (0.5 * (1.0 + std::cos(ratio * M_PI)));
     } else {
         logError("ComputeAcceptProb", "Unknown accept pdf type");
         return 0.0;

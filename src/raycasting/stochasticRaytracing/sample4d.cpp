@@ -25,10 +25,10 @@ setSequence4D(SEQ4D sequence) {
             initSobol(4);
             break;
         case S4D_FAURE:
-            InitFaure(4);
+            initFaure(4);
             break;
         case S4D_GFAURE:
-            InitGFaure(4);
+            initGFaure(4);
             break;
         default:
             break;
@@ -74,7 +74,7 @@ sample4D(unsigned seed) {
             break;
         case S4D_FAURE:
         case S4D_GFAURE:
-            xx = Faure((int)seed);
+            xx = faure((int) seed);
             xi[0] = xx[0];
             xi[1] = xx[1];
             xi[2] = xx[2];

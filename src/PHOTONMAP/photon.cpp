@@ -3,7 +3,8 @@
 
 void CPhoton::FindRS(double *r, double *s, COORDSYS *coord,
                      BSDFFLAGS flag, float n) {
-    double phi, theta;
+    double phi;
+    double theta;
 
     // Determine angles
 
@@ -13,11 +14,11 @@ void CPhoton::FindRS(double *r, double *s, COORDSYS *coord,
 
     if ( flag == BRDF_DIFFUSE_COMPONENT ) {
         *s = phi / (2 * M_PI);
-        double tmp = cos(theta);
+        double tmp = std::cos(theta);
         *r = -tmp * tmp + 1;
     } else if ( flag == BRDF_GLOSSY_COMPONENT ) {
         *s = phi / (2 * M_PI);
-        *r = pow(cos(theta), n + 1);
+        *r = std::pow(std::cos(theta), n + 1);
     } else {
         logError("CPhoton::FindRS", "Component %i not implemented yet", flag);
     }

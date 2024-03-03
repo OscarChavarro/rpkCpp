@@ -159,19 +159,19 @@ ScreenBuffer::getBiLinear(float x, float y) {
     if ( x < 0 ) {
         // Point on left side of pixel center
         x = -x;
-        nx1 = floatMax(nx0 - 1, 0);
+        nx1 = intMax(nx0 - 1, 0);
     } else {
-        nx1 = floatMin(getHRes(), nx0 + 1);
+        nx1 = intMin(getHRes(), nx0 + 1);
     }
 
     if ( y < 0 ) {
         y = -y;
-        ny1 = floatMax(ny0 - 1, 0);
+        ny1 = intMax(ny0 - 1, 0);
     } else {
-        ny1 = floatMin(getVRes(), ny0 + 1);
+        ny1 = intMin(getVRes(), ny0 + 1);
     }
 
-    // u = 0 for nx0 and u = 1 for nx1, x inbetween. Not that
+    // u = 0 for nx0 and u = 1 for nx1, x in-between. Not that
     // nx0 and nx1 may be the same (at border of image). Same for ny
 
     COLOR c0 = get(nx0, ny0); // Separate vars, since interpolation is a macro...
@@ -215,12 +215,12 @@ ScreenBuffer::writeFile(ImageOutputHandle *ip) {
 
     fprintf(stderr, "Writing %s file ... ", ip->drivername);
 
-    ip->gamma[0] = GLOBAL_toneMap_options.gamma.r;    // for default radiance -> display RGB
+    ip->gamma[0] = GLOBAL_toneMap_options.gamma.r; // For default radiance -> display RGB
     ip->gamma[1] = GLOBAL_toneMap_options.gamma.g;
     ip->gamma[2] = GLOBAL_toneMap_options.gamma.b;
-    for ( int i = m_cam.ySize - 1; i >= 0; i-- )    // write scanlines
-    {
-        if ( !isRgbImage()) {
+    for ( int i = m_cam.ySize - 1; i >= 0; i-- ) {
+        // Write scan lines
+        if ( !isRgbImage() ) {
             ip->writeRadianceRGB((float *) &m_Radiance[i * m_cam.xSize]);
         } else {
             ip->writeDisplayRGB((float *) &m_Radiance[i * m_cam.xSize]);
@@ -232,21 +232,21 @@ ScreenBuffer::writeFile(ImageOutputHandle *ip) {
 
 void
 ScreenBuffer::writeFile(char *filename) {
-    int ispipe;
-    FILE *fp = openFile(filename, "w", &ispipe);
+    int isPipe;
+    FILE *fp = openFile(filename, "w", &isPipe);
     if ( !fp ) {
         return;
     }
 
     ImageOutputHandle *ip =
-            createRadianceImageOutputHandle(filename, fp, ispipe,
+            createRadianceImageOutputHandle(filename, fp, isPipe,
                                             m_cam.xSize, m_cam.ySize,
                                             (float) GLOBAL_statistics_referenceLuminance / 179.0f);
 
     writeFile(ip);
 
     // DeleteImageOutputHandle(ip);
-    closeFile(fp, ispipe);
+    closeFile(fp, isPipe);
 }
 
 void
@@ -324,9 +324,9 @@ ScreenBuffer::getPixYSize() const {
 }
 
 Vector2D
-ScreenBuffer::getPixelPoint(int nx, int ny, float xoff, float yoff) const {
-    return {getScreenXMin() + ((float) nx + xoff) * getPixXSize(),
-            getScreenYMin() + ((float) ny + yoff) * getPixYSize()};
+ScreenBuffer::getPixelPoint(int nx, int ny, float xOffset, float yOffset) const {
+    return {getScreenXMin() + ((float) nx + xOffset) * getPixXSize(),
+            getScreenYMin() + ((float) ny + yOffset) * getPixYSize()};
 }
 
 Vector2D
@@ -355,8 +355,8 @@ Un-normalized vector pointing from the eye point to the
 point with given fractional pixel coordinates
 */
 Vector3D
-ScreenBuffer::getPixelVector(int nx, int ny, float xoff, float yoff) const {
-    Vector2D pix = getPixelPoint(nx, ny, xoff, yoff);
+ScreenBuffer::getPixelVector(int nx, int ny, float xOffset, float yOffset) const {
+    Vector2D pix = getPixelPoint(nx, ny, xOffset, yOffset);
     Vector3D dir;
     vectorComb3(m_cam.Z, pix.u, m_cam.X, pix.v, m_cam.Y, dir);
     return dir;
@@ -376,29 +376,34 @@ ScreenBuffer::getVRes() const {
 }
 
 float
-computeFluxToRadFactor(int pix_x, int pix_y) {
-    double x, y, xsample, ysample;
+computeFluxToRadFactor(int pixX, int pixY) {
+    double x;
+    double y;
+    double xSample;
+    double ySample;
     Vector3D dir;
-    double distPixel2, distPixel, factor;
+    double distPixel2;
+    double distPixel;
+    double factor;
     double h = GLOBAL_camera_mainCamera.pixelWidth;
     double v = GLOBAL_camera_mainCamera.pixelHeight;
 
-    x = -h * GLOBAL_camera_mainCamera.xSize / 2.0 + pix_x * h;
-    y = -v * GLOBAL_camera_mainCamera.ySize / 2.0 + pix_y * v;
+    x = -h * GLOBAL_camera_mainCamera.xSize / 2.0 + pixX * h;
+    y = -v * GLOBAL_camera_mainCamera.ySize / 2.0 + pixY * v;
 
-    xsample = x + h * 0.5;  // pix_x, Pix_y indicate upper left
-    ysample = y + v * 0.5;
+    xSample = x + h * 0.5;  // (pixX, pixY) indicate upper left
+    ySample = y + v * 0.5;
 
-    vectorComb3(GLOBAL_camera_mainCamera.Z, xsample, GLOBAL_camera_mainCamera.X, ysample, GLOBAL_camera_mainCamera.Y,
+    vectorComb3(GLOBAL_camera_mainCamera.Z, (float)xSample, GLOBAL_camera_mainCamera.X, (float)ySample, GLOBAL_camera_mainCamera.Y,
                 dir);
     distPixel2 = vectorNorm2(dir);
     distPixel = sqrt(distPixel2);
-    vectorScaleInverse(distPixel, dir, dir);
+    vectorScaleInverse((float)distPixel, dir, dir);
 
     factor = 1.0 / (h * v);
 
     factor *= distPixel2; // r(eye->pixel)^2
-    factor /= pow(vectorDotProduct(dir, GLOBAL_camera_mainCamera.Z), 2);  // cos^2
+    factor /= std::pow(vectorDotProduct(dir, GLOBAL_camera_mainCamera.Z), 2);  // cos^2
 
-    return factor;
+    return (float)factor;
 }

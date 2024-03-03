@@ -1,8 +1,8 @@
-/*
- * densitykernel.C : Density kernel functions
- * Many routines borrowed from Density Estimation master thesis by
- * Olivier Ceulemans.
- */
+/**
+Density kernel functions
+Many routines borrowed from Density Estimation master thesis by
+Olivier Ceulemans.
+*/
 
 #include "common/mymath.h"
 #include "raycasting/raytracing/densitykernel.h"
@@ -100,7 +100,7 @@ void CKernel2D::VarCover(const Vector2D &center, COLOR &col, ScreenBuffer *ref,
     // scaleSamples is normally total samples per pixel, while
     // totalSamples is the total number of samples for the CURRENT
     // number of samples per pixel
-    float Bn = B * (pow((double) scaleSamples, (-1.5 / 5.0)));
+    float Bn = B * (std::pow((double) scaleSamples, (-1.5 / 5.0)));
 
     float h;
 

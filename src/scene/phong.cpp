@@ -59,7 +59,7 @@ phongEdfCreate(COLOR *Kd, COLOR *Ks, double Ns) {
     if ( !colorNull(edf->Ks) ) {
         logWarning("phongEdfCreate", "Non-diffuse light sources not yet implemented");
     }
-    edf->Ns = Ns;
+    edf->Ns = (float)Ns;
     return edf;
 }
 
@@ -70,7 +70,7 @@ phongBrdfCreate(COLOR *Kd, COLOR *Ks, double Ns) {
     brdf->avgKd = colorAverage(brdf->Kd);
     brdf->Ks = *Ks;
     brdf->avgKs = colorAverage(brdf->Ks);
-    brdf->Ns = Ns;
+    brdf->Ns = (float)Ns;
     return brdf;
 }
 
@@ -324,7 +324,7 @@ phongBrdfEval(PHONG_BRDF *brdf, Vector3D *in, Vector3D *out, Vector3D *normal, X
         dotProduct = vectorDotProduct(idealReflected, *out);
 
         if ( dotProduct > 0 ) {
-            tmpFloat = (float) std::pow(dotProduct, brdf->Ns); // cos(a) ^ n
+            tmpFloat = (float)std::pow(dotProduct, brdf->Ns); // cos(a) ^ n
             tmpFloat *= (brdf->Ns + 2.0f) / (2.0f * (float)M_PI); // Ks -> ks
             colorAddScaled(result, tmpFloat, brdf->Ks, result);
         }
@@ -349,7 +349,9 @@ phongBrdfSample(
 {
     Vector3D newDir = {0., 0., 0.}, idealDir;
     double cos_theta, diffPdf, nonDiffPdf;
-    double scatteredPower, avgKd, avgKs;
+    double scatteredPower;
+    double avgKd;
+    double avgKs;
     float tmpFloat;
     COORDSYS coord;
     XXDFFLAGS nonDiffuseFlag;
@@ -395,7 +397,7 @@ phongBrdfSample(
 
     idealDir = idealReflectedDirection(&inrev, normal);
 
-    if ( x_1 < (avgKd / scatteredPower)) {
+    if ( x_1 < (avgKd / scatteredPower) ) {
         // Sample diffuse
         x_1 = x_1 / (avgKd / scatteredPower);
 
@@ -405,7 +407,7 @@ phongBrdfSample(
         tmpFloat = vectorDotProduct(idealDir, newDir);
 
         if ( tmpFloat > 0 ) {
-            nonDiffPdf = (brdf->Ns + 1.0) * pow(tmpFloat,
+            nonDiffPdf = (brdf->Ns + 1.0) * std::pow(tmpFloat,
                                                 brdf->Ns) / (2.0 * M_PI);
         } else {
             nonDiffPdf = 0;
@@ -518,7 +520,7 @@ phongBrdfEvalPdf(
         cos_alpha = vectorDotProduct(idealDir, *out);
 
         if ( cos_alpha > 0 ) {
-            nonDiffPdf = (brdf->Ns + 1.0) * pow(cos_alpha,
+            nonDiffPdf = (brdf->Ns + 1.0) * std::pow(cos_alpha,
                                                 brdf->Ns) / (2.0 * M_PI);
         }
     }
@@ -587,7 +589,7 @@ phongBtdfEval(
         dotProduct = vectorDotProduct(idealRefracted, *out);
 
         if ( dotProduct > 0 ) {
-            tmpFloat = (float) pow(dotProduct, btdf->Ns); // cos(a) ^ n
+            tmpFloat = (float)std::pow(dotProduct, btdf->Ns); // cos(a) ^ n
             tmpFloat *= (btdf->Ns + 2.0f) / (2.0f * (float)M_PI); // Ks -> ks
             colorAddScaled(result, tmpFloat, btdf->Ks, result);
         }
@@ -666,7 +668,7 @@ phongBtdfSample(
                                        &totalIR);
     vectorScale(-1, *normal, invNormal);
 
-    if ( x_1 < (avgKd / scatteredPower)) {
+    if ( x_1 < (avgKd / scatteredPower) ) {
         // Sample diffuse
         x_1 = x_1 / (avgKd / scatteredPower);
 
@@ -677,7 +679,7 @@ phongBtdfSample(
         tmpFloat = vectorDotProduct(idealDir, newDir);
 
         if ( tmpFloat > 0 ) {
-            nonDiffPdf = (btdf->Ns + 1.0) * pow(tmpFloat,
+            nonDiffPdf = (btdf->Ns + 1.0) * std::pow(tmpFloat,
                                                 btdf->Ns) / (2.0 * M_PI);
         } else {
             nonDiffPdf = 0;
@@ -797,7 +799,7 @@ phongBtdfEvalPdf(
 
         nonDiffPdf = 0.0;
         if ( cos_alpha > 0 ) {
-            nonDiffPdf = (btdf->Ns + 1.0) * pow(cos_alpha, btdf->Ns) / (2.0 * M_PI);
+            nonDiffPdf = (btdf->Ns + 1.0) * std::pow(cos_alpha, btdf->Ns) / (2.0 * M_PI);
         }
     }
 
