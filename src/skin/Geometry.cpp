@@ -323,21 +323,16 @@ Geometry::geomCountItems() {
     int count = 0;
 
     if ( geomIsAggregate(this) ) {
-        java::ArrayList<Geometry *> *geometryList = geomPrimListCopy(this);
-        if ( geometryList != nullptr ) {
-            for ( int i = 0; i < geometryList->size(); i++ ) {
-                count += geometryList->get(i)->geomCountItems();
+        if ( this->compoundData != nullptr && this->compoundData->children != nullptr ) {
+            for ( int i = 0; i < this->compoundData->children->size(); i++ ) {
+                count += this->compoundData->children->get(i)->geomCountItems();
             }
-            delete geometryList;
         }
     } else {
-        count = 0;
-
         java::ArrayList<Patch *> * list = geomPatchArrayListReference(this);
         if ( list != nullptr ) {
             count = (int)list->size();
         }
-        //delete list;
     }
 
     return this->itemCount = count;

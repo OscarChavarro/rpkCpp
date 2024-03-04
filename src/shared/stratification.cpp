@@ -1,6 +1,4 @@
-#include <cmath>
-#include <cstdlib>
-
+#include "common/mymath.h"
 #include "shared/stratification.h"
 
 StratifiedSampling2D::StratifiedSampling2D(int nrSamples): xMaxStratum(), yMaxStratum() {
