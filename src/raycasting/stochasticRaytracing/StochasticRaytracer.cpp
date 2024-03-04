@@ -601,11 +601,6 @@ RTStochastic_SaveImage(ImageOutputHandle *ip) {
 }
 
 static void
-RTStochastic_Interrupt() {
-    GLOBAL_rayCasting_interruptRaytracing = true;
-}
-
-static void
 RTStochastic_Init(java::ArrayList<Patch *> *lightPatches) {
     // mainInit the light list
     if ( GLOBAL_lightList ) {
@@ -634,6 +629,5 @@ GLOBAL_raytracing_stochasticMethod =
     RTStochastic_Trace,
     RTStochastic_Redisplay,
     RTStochastic_SaveImage,
-    RTStochastic_Interrupt,
     RTStochastic_Terminate
 };

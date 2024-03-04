@@ -14,6 +14,4 @@ extern RayHit *findRayIntersection(Ray *ray, Patch *patch, BSDF *currentBsdf, Ra
 extern bool pathNodesVisible(SimpleRaytracingPathNode *node1, SimpleRaytracingPathNode *node2);
 extern bool eyeNodeVisible(SimpleRaytracingPathNode *eyeNode, SimpleRaytracingPathNode *node, float *pix_x, float *pix_y);
 
-extern bool GLOBAL_rayCasting_interruptRaytracing;
-
 #endif

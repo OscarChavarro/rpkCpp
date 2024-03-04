@@ -45,9 +45,6 @@ class Raytracer {
     // Saves last ray-traced image in the file describe dby the image output handle
     int (*SaveImage)(ImageOutputHandle *ip);
 
-    // Interrupts raytracing
-    void (*InterruptRayTracing)();
-
     // Terminate raytracing computations
     void (*Terminate)();
 };

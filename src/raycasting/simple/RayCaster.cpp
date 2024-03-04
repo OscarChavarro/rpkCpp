@@ -171,10 +171,6 @@ rayCasterSaveImage(ImageOutputHandle *ip) {
 }
 
 static void
-rayCasterInterrupt() {
-}
-
-static void
 rayCasterTerminate() {
     if ( globalRayCaster ) {
         delete globalRayCaster;
@@ -248,7 +244,6 @@ Raytracer GLOBAL_rayCasting_RayCasting = {
     rayCasterExecute,
     rayCasterRedisplay,
     rayCasterSaveImage,
-    rayCasterInterrupt,
     rayCasterTerminate
 };
 #endif

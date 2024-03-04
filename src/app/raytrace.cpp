@@ -103,7 +103,6 @@ This routine sets the current raytracing method to be used
 void
 mainSetRayTracingMethod(Raytracer *newMethod) {
     if ( GLOBAL_raytracer_activeRaytracer ) {
-        GLOBAL_raytracer_activeRaytracer->InterruptRayTracing();
         GLOBAL_raytracer_activeRaytracer->Terminate();
     }
 

@@ -8,7 +8,6 @@
 class RayMatter {
   private:
     ScreenBuffer *scrn;
-    bool interrupt_requested;
     bool doDeleteScreen;
     pixelFilter *Filter;
 
@@ -20,7 +19,6 @@ class RayMatter {
     void Matting();
     void display();
     void save(ImageOutputHandle *ip);
-    void interrupt();
 };
 
 extern Raytracer GLOBAL_rayCasting_RayMatting;

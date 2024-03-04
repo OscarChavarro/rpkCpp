@@ -19,7 +19,6 @@ RayMatter::RayMatter(ScreenBuffer *screen) {
     }
 
     Filter = nullptr;
-    interrupt_requested = false;
     scrn->setRgbImage(true);
 }
 
@@ -55,7 +54,6 @@ RayMatter::CheckFilter() {
 void
 RayMatter::Matting() {
     clock_t t = clock();
-    interrupt_requested = false;
     COLOR matte;
 
     CheckFilter();
@@ -79,7 +77,7 @@ RayMatter::Matting() {
                 // generate ray
                 Ray ray;
                 ray.pos = GLOBAL_camera_mainCamera.eyePosition;
-                ray.dir = scrn->getPixelVector(x, y, xi1, xi2);
+                ray.dir = scrn->getPixelVector((int)x, (int)y, (float)xi1, (float)xi2);
                 vectorNormalize(ray.dir);
 
                 // check if hit
@@ -89,19 +87,16 @@ RayMatter::Matting() {
             }
 
             // add matte value to screenbuffer
-            float value = (hits / GLOBAL_rayCasting_rayMatterState.samplesPerPixel);
+            float value = (hits / (float)GLOBAL_rayCasting_rayMatterState.samplesPerPixel);
             if ( value > 1.0 ) {
                 value = 1.0;
             }
 
             colorSet(matte, value, value, value);
-            scrn->add(x, y, matte);
+            scrn->add((int)x, (int)y, matte);
         }
 
-        scrn->renderScanline(y);
-        if ( interrupt_requested ) {
-            break;
-        }
+        scrn->renderScanline((int)y);
     }
 
     GLOBAL_raytracer_totalTime = (float) (clock() - t) / (float) CLOCKS_PER_SEC;
@@ -116,11 +111,6 @@ RayMatter::display() {
 void
 RayMatter::save(ImageOutputHandle *ip) {
     scrn->writeFile(ip);
-}
-
-void
-RayMatter::interrupt() {
-    interrupt_requested = true;
 }
 
 static RayMatter *rm = nullptr;
@@ -162,13 +152,6 @@ SaveImage(ImageOutputHandle *ip) {
 }
 
 static void
-Interrupt() {
-    if ( rm ) {
-        rm->interrupt();
-    }
-}
-
-static void
 Terminate() {
     if ( rm ) {
         delete rm;
@@ -190,6 +173,5 @@ Raytracer GLOBAL_rayCasting_RayMatting = {
     IRayMatte,
     Redisplay,
     SaveImage,
-    Interrupt,
     Terminate
 };

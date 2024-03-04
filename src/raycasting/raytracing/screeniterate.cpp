@@ -29,8 +29,6 @@ screenIterateUpdateCpuSecs() {
 // ScreenIterateInit : initialise statistics and timers
 void
 ScreenIterateInit() {
-    GLOBAL_rayCasting_interruptRaytracing = false;
-
 #ifndef NO_EVENT_TIMER
     iState.wake_up = 0;
 #endif
@@ -58,10 +56,9 @@ ScreenIterateSequential(SCREENITERATECALLBACK callback, void *data) {
     height = GLOBAL_camera_mainCamera.ySize;
     rgb = new RGB[width];
 
-    /* shoot rays through all the pixels */
-
-    for ( j = 0; j < height && !GLOBAL_rayCasting_interruptRaytracing; j++ ) {
-        for ( i = 0; i < width && !GLOBAL_rayCasting_interruptRaytracing; i++ ) {
+    // Shoot rays through all the pixels
+    for ( j = 0; j < height; j++ ) {
+        for ( i = 0; i < width; i++ ) {
             col = callback(i, j, data);
             radianceToRgb(col, &rgb[i]);
             GLOBAL_raytracer_pixelCount++;
@@ -120,12 +117,12 @@ ScreenIterateProgressive(SCREENITERATECALLBACK callback, void *data) {
     ymin = height + 1;
     ymax = -1;
 
-    while ((stepsize > 0) && (!GLOBAL_rayCasting_interruptRaytracing)) {
+    while ( stepsize > 0 ) {
         y0 = 0;
         ysteps = 0;
         ystep_done = false;
 
-        while ( !ystep_done && (!GLOBAL_rayCasting_interruptRaytracing)) {
+        while ( !ystep_done ) {
             y1 = y0 + stepsize;
             if ( y1 >= height ) {
                 y1 = height;
@@ -139,7 +136,7 @@ ScreenIterateProgressive(SCREENITERATECALLBACK callback, void *data) {
             xsteps = 0;
             xstep_done = false;
 
-            while ( !xstep_done && (!GLOBAL_rayCasting_interruptRaytracing)) {
+            while ( !xstep_done ) {
                 x1 = x0 + stepsize;
 
                 if ( x1 >= width ) {

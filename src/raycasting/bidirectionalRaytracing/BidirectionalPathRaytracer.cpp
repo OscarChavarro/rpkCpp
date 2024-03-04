@@ -886,7 +886,7 @@ doBptDensityEstimation(BPCONFIG *config) {
     int oldTotalSPP = oldSPP;
     int newTotalSPP = oldTotalSPP + newSPP;
 
-    for ( int i = 1; i <= nrIterations && !GLOBAL_rayCasting_interruptRaytracing; i++ ) {
+    for ( int i = 1; i <= nrIterations; i++ ) {
         printf("Doing run with %i samples, %i samples already done\n", newSPP,
                oldTotalSPP);
 
@@ -949,14 +949,6 @@ doBptDensityEstimation(BPCONFIG *config) {
         newSPP = newSPP * 2;
         oldTotalSPP = newTotalSPP;
         newTotalSPP = oldTotalSPP + newSPP;
-    }
-
-    if ( GLOBAL_rayCasting_interruptRaytracing ) {
-        if ( config->ref2 ) {
-            config->screen->merge(config->ref, config->ref2);
-        } else {
-            config->screen->copy(config->ref);  // Interrupt, use last reference image
-        }
     }
 
     delete config->dest;
@@ -1117,11 +1109,6 @@ biDirPathSaveImage(ImageOutputHandle *ip) {
 }
 
 static void
-biDirPathInterrupt() {
-    GLOBAL_rayCasting_interruptRaytracing = true;
-}
-
-static void
 biDirPathInit(java::ArrayList<Patch *> *lightPatches) {
     // mainInit the light list
     if ( GLOBAL_lightList ) {
@@ -1149,6 +1136,5 @@ GLOBAL_raytracing_biDirectionalPathMethod = {
     biDirPathTrace,
     biDirPathReDisplay,
     biDirPathSaveImage,
-    biDirPathInterrupt,
     biDirPathTerminate
 };
