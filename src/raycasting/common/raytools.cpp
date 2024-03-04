@@ -192,7 +192,7 @@ eyeNodeVisible(
     dist2 = vectorNorm2(dir);
     dist = std::sqrt(dist2);
 
-    vectorScaleInverse(dist, dir, dir);
+    vectorScaleInverse((float)dist, dir, dir);
 
     // Determine which pixel is visible
 

@@ -560,8 +560,6 @@ RTStochastic_Trace(
         srand48(GLOBAL_raytracing_state.baseSeed);
     }
 
-    SimpleRaytracingPathNode::m_dmaxsize = 0; // No need for derivative structures
-
     if ( !GLOBAL_raytracing_state.progressiveTracing ) {
         ScreenIterateSequential((COLOR(*)(int, int, void *))CalcPixel, &config);
     } else {

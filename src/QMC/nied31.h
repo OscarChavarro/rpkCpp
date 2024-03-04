@@ -5,7 +5,7 @@ Niederreiter QMC sample series (dimension 4, base 2, 31 bits, skip 4096)
 #ifndef __NIED_31__
 #define __NIED_31__
 
-#ifdef _NIED63_H_
+#ifdef __NIED63__
     #error "nied63.h and nied31.h cannot be included in the same source file"
 #endif
 

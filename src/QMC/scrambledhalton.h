@@ -1,9 +1,9 @@
-/*
-scrambled Halton QMC sequence
+/**
+Scrambled Halton QMC sequence
 */
 
-#ifndef _SCRAMBLED_HALTON_H_
-#define _SCRAMBLED_HALTON_H_
+#ifndef __SCRAMBLED_HALTON__
+#define __SCRAMBLED_HALTON__
 
 double *scrambledHalton(unsigned nextN, int dim);
 

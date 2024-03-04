@@ -30,7 +30,7 @@ public:
 
 class NormalFilter : public pixelFilter {
 public:
-    NormalFilter(double s = .70710678, double d = 2.0);
+    explicit NormalFilter(double s = 0.70710678, double d = 2.0);
 
     ~NormalFilter();
 

@@ -1,8 +1,7 @@
-/* pathnode.C
- *
- * Class implementation of pathnodes. These node are building blocks of paths.
- * and contain necessary information for raytracing-like algorithms
- */
+/**
+Class implementation of pathnodes. These node are building blocks of paths.
+and contain necessary information for raytracing-like algorithms
+*/
 
 #include <cstdio>
 
@@ -10,22 +9,24 @@
 #include "scene/scene.h"
 #include "raycasting/common/pathnode.h"
 
-/* PathNode functions */
-
-int SimpleRaytracingPathNode::m_dmaxsize = 0;
-
-SimpleRaytracingPathNode::SimpleRaytracingPathNode() {
+SimpleRaytracingPathNode::SimpleRaytracingPathNode():
+    m_G(), m_pdfFromPrev(), m_pdfFromNext(), m_rrPdfFromNext(), m_rracc(),
+    m_usedComponents(), m_accUsedComponents(), m_useBsdf(), m_inBsdf(), m_outBsdf(),
+    m_rayType(), m_depth()
+{
     m_next = nullptr;
     m_previous = nullptr;
 
 }
 
-
 SimpleRaytracingPathNode::~SimpleRaytracingPathNode() {
 }
 
-// Delete all nodes, includind the supplied 'node'
-void SimpleRaytracingPathNode::ReleaseAll(SimpleRaytracingPathNode *node) {
+/**
+Delete all nodes, including the supplied 'node'
+*/
+void
+SimpleRaytracingPathNode::ReleaseAll(SimpleRaytracingPathNode *node) {
     SimpleRaytracingPathNode *tmp;
 
     while ( node ) {
@@ -35,7 +36,8 @@ void SimpleRaytracingPathNode::ReleaseAll(SimpleRaytracingPathNode *node) {
     }
 }
 
-void SimpleRaytracingPathNode::print(FILE *out) {
+void
+SimpleRaytracingPathNode::print(FILE *out) {
     fprintf(out, "Pathnode at depth %i\n", m_depth);
     fprintf(out, "Pos : ");
     vector3DPrint(out, m_hit.point);
@@ -61,7 +63,6 @@ void SimpleRaytracingPathNode::print(FILE *out) {
     }
 }
 
-/******************************************************************/
 /* GetPreviousBsdf
  *
  * Searches back in the path to find the bsdf on the outside
@@ -69,13 +70,13 @@ void SimpleRaytracingPathNode::print(FILE *out) {
  * a back hit -> Leaving ray-type. If not, the current bsdf
  * is returned and an error is reported
  */
-/******************************************************************/
 
 /* Helper routine, searches the corresponding 'Enters'
  * node for this node
  */
 
-SimpleRaytracingPathNode *SimpleRaytracingPathNode::GetMatchingNode() {
+SimpleRaytracingPathNode *
+SimpleRaytracingPathNode::GetMatchingNode() {
     BSDF *thisBsdf;
     int backhits;
     SimpleRaytracingPathNode *tmpNode = previous();
@@ -113,8 +114,8 @@ SimpleRaytracingPathNode *SimpleRaytracingPathNode::GetMatchingNode() {
     }
 }
 
-
-BSDF *SimpleRaytracingPathNode::getPreviousBsdf() {
+BSDF *
+SimpleRaytracingPathNode::getPreviousBsdf() {
     SimpleRaytracingPathNode *matchedNode;
 
     if ( !(m_hit.flags & HIT_BACK)) {
@@ -128,7 +129,6 @@ BSDF *SimpleRaytracingPathNode::getPreviousBsdf() {
     }
 
     // Find the corresponding ray that enters the material
-
     matchedNode = GetMatchingNode();
 
     if ( matchedNode == nullptr ) {
@@ -139,8 +139,8 @@ BSDF *SimpleRaytracingPathNode::getPreviousBsdf() {
     return matchedNode->m_inBsdf;
 }
 
-
-void SimpleRaytracingPathNode::assignBsdfAndNormal() {
+void
+SimpleRaytracingPathNode::assignBsdfAndNormal() {
     Material *thisMaterial;
 
     if ( m_hit.patch == nullptr ) {
@@ -153,13 +153,12 @@ void SimpleRaytracingPathNode::assignBsdfAndNormal() {
     vectorCopy(m_hit.normal, m_normal); // Possible double format
 
     // Assign bsdf's
-
     m_useBsdf = thisMaterial->bsdf;
 
     if ( m_hit.flags & HIT_FRONT ) {
-        m_outBsdf = m_useBsdf; // in filled in when creating this node
-    } else // BACK HIT
-    {
+        m_outBsdf = m_useBsdf; // In filled in when creating this node
+    } else {
+        // BACK HIT
         m_outBsdf = getPreviousBsdf();
     }
 }

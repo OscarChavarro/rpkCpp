@@ -127,8 +127,6 @@ tracePotentialPaths(int nrPaths) {
     GLOBAL_photonMap_config.eyeConfig.maxDepth = 7; // Maximum of 4 specular bounces
     GLOBAL_photonMap_config.eyeConfig.minDepth = 3;
 
-    SimpleRaytracingPathNode::m_dmaxsize = 0; // No need for derivative structures
-
     for ( i = 0; i < nrPaths; i++ ) {
         TracePotentialPath(&GLOBAL_photonMap_config);
     }

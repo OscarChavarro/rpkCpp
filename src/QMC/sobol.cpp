@@ -24,7 +24,7 @@ nextSobol() {
 
     c = 1;
     save = nextn;
-    while ((save % 2) == 1 ) {
+    while ( (save % 2) == 1 ) {
         c += 1;
         save = save / 2;
     }
@@ -79,27 +79,26 @@ initSobol(int idim) {
     dim = idim;
     RECIPD = 1.0 / std::pow(2.0, VMAX);
 
-    // Primitieve veeltermen inlezen
+    // Reading primitive polynomials
     POLY[0] = 3;
-    d[0] = 1;  // x + 1
+    d[0] = 1; // x + 1
     POLY[1] = 7;
-    d[1] = 2;  // x^2 + x + 1
+    d[1] = 2; // x^2 + x + 1
     POLY[2] = 11;
-    d[2] = 3;  // x^3 + x + 1
+    d[2] = 3; // x^3 + x + 1
     POLY[3] = 19;
-    d[3] = 4;  // x^4 + x  + 1
+    d[3] = 4; // x^4 + x  + 1
     POLY[4] = 37;
-    d[4] = 5;  // x^5 + x^2 + 1
+    d[4] = 5; // x^5 + x^2 + 1
 
-    // beginwaarden v inlezen
-    // alle beginwaarden 1 --> begin van sequentie waardeloos!
+    // Initial values v read in all initial values 1 --> start of sequence worthless!
     for ( i = 0; i < dim; i++ ) {
         for ( j = 0; j < d[i]; j++ ) {
             v[i][j] = 1;
         }
     }
 
-    // Rest van v berekenen
+    // Calculate remainder of v
     for ( i = 0; i < dim; i++ ) {
         for ( j = d[i]; j < VMAX; j++ ) {
             v[i][j] = v[i][j - d[i]];
@@ -116,9 +115,9 @@ initSobol(int idim) {
     for ( i = 0; i < dim; i++ ) {
         x[i] = 0;
     }
-    skip = (int)std::pow(2, 6); // niet deterministisch!
+    skip = (int)std::pow(2, 6); // Not deterministic!
     for ( i = 1; i <= skip; i++ ) {
+        // Discard the beginning of the sequence because the initial values are the same
         nextSobol();
     }
-    // Begin van sequentie weggooien want gelijke beginwaarden
 }

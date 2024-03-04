@@ -34,11 +34,7 @@ enum PATHRAYTYPE {
 
 
 class SimpleRaytracingPathNode {
-public:
-    static int m_dmaxsize;
-
-
-public:
+  public:
     RayHit m_hit;
     Vector3D m_inDirT; // towards the patch
     Vector3D m_inDirF; // from the patch

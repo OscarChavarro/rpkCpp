@@ -54,16 +54,6 @@ class CBsdfComp {
 
         return result;
     }
-
-    void Print() {
-        printf("D R %6g G %6g S %6g T R %6g G %6g S %6g\n",
-               colorAverage(comp[BRDF_DIFFUSE_INDEX]),
-               colorAverage(comp[BRDF_GLOSSY_INDEX]),
-               colorAverage(comp[BRDF_SPECULAR_INDEX]),
-               colorAverage(comp[BTDF_DIFFUSE_INDEX]),
-               colorAverage(comp[BTDF_GLOSSY_INDEX]),
-               colorAverage(comp[BTDF_SPECULAR_INDEX]));
-    }
 };
 
 #endif
