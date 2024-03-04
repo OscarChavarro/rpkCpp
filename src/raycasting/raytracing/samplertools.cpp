@@ -144,7 +144,7 @@ pathNodeConnect(
         SimpleRaytracingPathNode *nodeY,
         CSamplerConfig *eyeConfig,
         CSamplerConfig *lightConfig,
-        CONNECTFLAGS flags,
+        CONNECT_FLAGS flags,
         BSDFFLAGS bsdfFlagsE,
         BSDFFLAGS bsdfFlagsL,
         Vector3D *pDirEl)

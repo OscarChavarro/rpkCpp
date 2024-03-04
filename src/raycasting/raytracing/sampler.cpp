@@ -96,8 +96,11 @@ Sampler::SampleTransfer(
 }
 
 void
-CSurfaceSampler::DetermineRayType(SimpleRaytracingPathNode *thisNode,
-                                  SimpleRaytracingPathNode *newNode, Vector3D *dir) {
+CSurfaceSampler::DetermineRayType(
+    SimpleRaytracingPathNode *thisNode,
+    SimpleRaytracingPathNode *newNode,
+    Vector3D *dir)
+{
     double cosThisPatch = vectorDotProduct(*dir, thisNode->m_normal);
 
     if ( cosThisPatch < 0 ) {

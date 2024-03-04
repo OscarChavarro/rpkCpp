@@ -27,7 +27,8 @@ public:
     Sampler() {}
     virtual ~Sampler() {}
 
-    virtual bool Sample(
+    virtual bool
+    Sample(
         SimpleRaytracingPathNode *prevNode,
         SimpleRaytracingPathNode *thisNode,
         SimpleRaytracingPathNode *newNode,
@@ -78,7 +79,7 @@ protected:
     bool m_computeFromNextPdf;
     bool m_computeBsdfComponents;
 
-    void DetermineRayType(SimpleRaytracingPathNode *thisNode, SimpleRaytracingPathNode *newNode, Vector3D *dir);
+    static void DetermineRayType(SimpleRaytracingPathNode *thisNode, SimpleRaytracingPathNode *newNode, Vector3D *dir);
 
 public:
     CSurfaceSampler() {
@@ -93,7 +94,7 @@ public:
     inline COLOR DoBsdfEval(BSDF *bsdf, RayHit *hit, BSDF *inBsdf,
                             BSDF *outBsdf, Vector3D *in, Vector3D *out,
                             BSDFFLAGS flags,
-                            CBsdfComp *bsdfComp) const {
+                            BsdfComp *bsdfComp) const {
         if ( m_computeBsdfComponents ) {
             return (bsdfEvalComponents(bsdf, hit, inBsdf, outBsdf,
                                        in, out, flags, *bsdfComp));
@@ -113,9 +114,13 @@ public:
 
     // EvalPDF : returns pdf INCLUDING russian roulette. Separate
     // components can be obtained through pdf and pdfRR params
-    virtual double EvalPDF(SimpleRaytracingPathNode *thisNode, SimpleRaytracingPathNode *newNode,
-                           BSDFFLAGS flags, double *pdf = nullptr,
-                           double *pdfRR = nullptr) = 0;
+    virtual double
+    EvalPDF(
+        SimpleRaytracingPathNode *thisNode,
+        SimpleRaytracingPathNode *newNode,
+        BSDFFLAGS flags,
+        double *pdf = nullptr,
+        double *pdfRR = nullptr) = 0;
 
     // Use this for calculating f.i. eyeEndNode->Previous pdf(Next).
     // The newNode is calculated, thisNode should be and end node connecting

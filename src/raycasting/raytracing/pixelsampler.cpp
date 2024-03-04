@@ -4,26 +4,26 @@
 #include "raycasting/raytracing/pixelsampler.h"
 
 bool CPixelSampler::Sample(SimpleRaytracingPathNode */*prevNode*/, SimpleRaytracingPathNode *thisNode,
-                           SimpleRaytracingPathNode *newNode, double x_1, double x_2,
+                           SimpleRaytracingPathNode *newNode, double x1, double x2,
                            bool /* doRR */, BSDFFLAGS /* flags */) {
     Vector3D dir;
 
-    // Precond: thisNode == eye, prevNode == nullptr, SetPixel called
+    // Pre-condition: thisNode == eye, prevNode == nullptr, SetPixel called
 
     // Sample direction
-    double xsample = (m_px + GLOBAL_camera_mainCamera.pixelWidth * x_1);
-    double ysample = (m_py + GLOBAL_camera_mainCamera.pixelHeight * x_2);
+    double xSample = (m_px + GLOBAL_camera_mainCamera.pixelWidth * x1);
+    double ySample = (m_py + GLOBAL_camera_mainCamera.pixelHeight * x2);
 
-    vectorComb3(GLOBAL_camera_mainCamera.Z, xsample, GLOBAL_camera_mainCamera.X, ysample, GLOBAL_camera_mainCamera.Y,
+    vectorComb3(GLOBAL_camera_mainCamera.Z, (float)xSample, GLOBAL_camera_mainCamera.X, (float)ySample, GLOBAL_camera_mainCamera.Y,
                 dir);
     double distPixel2 = vectorNorm2(dir);
     double distPixel = sqrt(distPixel2);
-    vectorScaleInverse(distPixel, dir, dir);
+    vectorScaleInverse((float)distPixel, dir, dir);
 
     double cosPixel = fabs(vectorDotProduct(GLOBAL_camera_mainCamera.Z, dir));
 
     double pdfDir = ((1. / (GLOBAL_camera_mainCamera.pixelWidth * GLOBAL_camera_mainCamera.pixelHeight)) * // 1 / Area pixel
-                     (distPixel2 / cosPixel));  // spher. angle measure
+                     (distPixel2 / cosPixel));  // Spherical angle measure
 
     // Determine ray type
     thisNode->m_rayType = Starts;
@@ -46,8 +46,7 @@ bool CPixelSampler::Sample(SimpleRaytracingPathNode */*prevNode*/, SimpleRaytrac
 
     // Component propagation
     thisNode->m_usedComponents = NO_COMPONENTS; // the eye...
-    newNode->m_accUsedComponents = (thisNode->m_accUsedComponents |
-                                    thisNode->m_usedComponents);
+    newNode->m_accUsedComponents = static_cast<BSDFFLAGS>(thisNode->m_accUsedComponents | thisNode->m_usedComponents);
 
     newNode->m_rracc = thisNode->m_rracc; // No russian roulette
 
@@ -55,21 +54,22 @@ bool CPixelSampler::Sample(SimpleRaytracingPathNode */*prevNode*/, SimpleRaytrac
 }
 
 void CPixelSampler::SetPixel(int nx, int ny, Camera *cam) {
-    m_nx = nx;
-    m_ny = ny;
-
     if ( cam == nullptr ) {
         cam = &GLOBAL_camera_mainCamera;
     } // Primary camera
 
-    m_px = -cam->pixelWidth * cam->xSize / 2.0 + nx * cam->pixelWidth;
-    m_py = -cam->pixelHeight * cam->ySize / 2.0 + ny * cam->pixelHeight;
+    m_px = -cam->pixelWidth * (double)cam->xSize / 2.0 + (double)nx * cam->pixelWidth;
+    m_py = -cam->pixelHeight * (double)cam->ySize / 2.0 + (double)ny * cam->pixelHeight;
 }
 
 double CPixelSampler::EvalPDF(SimpleRaytracingPathNode *thisNode, SimpleRaytracingPathNode *newNode,
                               BSDFFLAGS /*flags*/, double * /*pdf*/,
                               double * /*pdfRR*/) {
-    double dist2, dist, cosa, cosb, pdf;
+    double dist2;
+    double dist;
+    double cosA;
+    double cosB;
+    double pdf;
     Vector3D outDir;
 
     /* -- more efficient with extra params ?? -- */
@@ -77,21 +77,21 @@ double CPixelSampler::EvalPDF(SimpleRaytracingPathNode *thisNode, SimpleRaytraci
     vectorSubtract(newNode->m_hit.point, thisNode->m_hit.point, outDir);
     dist2 = vectorNorm2(outDir);
     dist = sqrt(dist2);
-    vectorScaleInverse(dist, outDir, outDir);
+    vectorScaleInverse((float)dist, outDir, outDir);
 
     // pdf = 1 / A_pixel transformed to area measure
 
-    cosa = vectorDotProduct(thisNode->m_normal, outDir);
+    cosA = vectorDotProduct(thisNode->m_normal, outDir);
 
-    // pdf = 1/Apix * (r^2 / cos(dir, eyeNormal) * (cos(dir, patchNormal) / d^2)
-    //                 |__> to sper.angle           |__> to area on patch
+    // pdf = 1/APixel * (r^2 / cos(dir, eyeNormal) * (cos(dir, patchNormal) / d^2)
+    //                 |__> to spherical.angle           |__> to area on patch
 
     // Three cosines : r^2 / cos = 1 / cos^3 since r is length
     // of viewing ray to the pixel.
-    pdf = 1.0 / (GLOBAL_camera_mainCamera.pixelHeight * GLOBAL_camera_mainCamera.pixelWidth * cosa * cosa * cosa);
+    pdf = 1.0 / (GLOBAL_camera_mainCamera.pixelHeight * GLOBAL_camera_mainCamera.pixelWidth * cosA * cosA * cosA);
 
-    cosb = -vectorDotProduct(newNode->m_normal, outDir);
-    pdf = pdf * cosb / dist2;
+    cosB = -vectorDotProduct(newNode->m_normal, outDir);
+    pdf = pdf * cosB / dist2;
 
     return pdf;
 }

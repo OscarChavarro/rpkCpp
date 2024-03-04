@@ -182,7 +182,7 @@ handlePathX0(BPCONFIG *config, CBiPath *path) {
     COLOR oldBsdfEval;
     COLOR f;
     COLOR frad;
-    CBsdfComp oldBsdfComp;
+    BsdfComp oldBsdfComp;
     float factor;
     double pdfLNE;
     double oldPdfLNE;
@@ -317,8 +317,8 @@ computeNeFluxEstimate(
     SimpleRaytracingPathNode *lightPrevNode;
     COLOR oldBsdfL;
     COLOR oldBsdfE;
-    CBsdfComp oldBsdfCompL;
-    CBsdfComp oldBsdfCompE;
+    BsdfComp oldBsdfCompL;
+    BsdfComp oldBsdfCompE;
     double oldPdfL;
     double oldPdfE;
     double oldRRPdfL;

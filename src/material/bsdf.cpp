@@ -119,7 +119,7 @@ bsdfEvalComponents(
     colorClear(empty);
     colorClear(result);
 
-    for ( int i = 0; i < BSDFCOMPONENTS; i++ ) {
+    for ( int i = 0; i < BSDF_COMPONENTS; i++ ) {
         thisFlag = BSDF_INDEXTOCOMP(i);
 
         if ( flags & thisFlag ) {

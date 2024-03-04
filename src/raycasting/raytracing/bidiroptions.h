@@ -47,8 +47,6 @@ class BP_BASECONFIG {
 
     int doWeighted; /* Use weighted multipass method for
 		     a part of le and ld transport */
-    int doWLe;
-    int doWLD;
     char wleRegExp[MAX_REGEXP_SIZE];
     char wldRegExp[MAX_REGEXP_SIZE];
 

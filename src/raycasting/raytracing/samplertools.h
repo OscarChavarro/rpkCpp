@@ -3,8 +3,8 @@ A configuration structure, that determines the sampling
 procedure of a monte carlo ray tracing like algorithm
 */
 
-#ifndef __SAMPLERTOOLS__
-#define __SAMPLERTOOLS__
+#ifndef __SAMPLER_TOOLS__
+#define __SAMPLER_TOOLS__
 
 #include "raycasting/raytracing/sampler.h"
 #include "raycasting/raytracing/pixelsampler.h"
@@ -60,9 +60,12 @@ public:
         }
     }
 
-    void init(bool useQMC = false, int maxd = 0);
+    void init(bool useQMC = false, int maxD = 0);
 
-    CSamplerConfig() {
+    CSamplerConfig():
+        pointSampler(), dirSampler(), surfaceSampler(), neSampler(), m_useQMC(), m_qmcDepth(), m_qmcSeed(),
+        minDepth(), maxDepth()
+    {
         clearVars();
         init();
     }
@@ -116,8 +119,8 @@ path nodes.
 IN : 2 nodes are needed. nodeE and nodeL are going to be connected
      Visibility is NOT checked !
 
-     nodeE must be the node in an EYE subpath
-     nodeL must be the node in a LIGHT subpath
+     nodeE must be the node in an EYE sub-path
+     nodeL must be the node in a LIGHT sub-path
 
      config determines the samplers used to generate the paths.
      These samplers are needed for pdf evaluations
@@ -125,9 +128,9 @@ IN : 2 nodes are needed. nodeE and nodeL are going to be connected
      Flags determine what needs to be computed. See the flag definitions
 
 OUT : geom factor is returned (not filled in cause it would overwrite
-      other geom's !)
+      other geometries !)
 */
-typedef int CONNECTFLAGS;
+typedef int CONNECT_FLAGS;
 
 #define CONNECT_EL 0x01  // Compute pdf(E->L) and bsdf(EP -> E -> L)
 #define CONNECT_LE 0x02  // Compute pdf(L->E) and bsdf(LP -> L -> E)
@@ -143,7 +146,7 @@ pathNodeConnect(
         SimpleRaytracingPathNode *nodeY,
         CSamplerConfig *eyeConfig,
         CSamplerConfig *lightConfig,
-        CONNECTFLAGS flags,
+        CONNECT_FLAGS flags,
         BSDFFLAGS bsdfFlagsE = BSDF_ALL_COMPONENTS,
         BSDFFLAGS bsdfFlagsL = BSDF_ALL_COMPONENTS,
         Vector3D *pDirEl = nullptr);

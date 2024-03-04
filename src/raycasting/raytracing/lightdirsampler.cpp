@@ -5,10 +5,20 @@
 #include "material/edf.h"
 #include "raycasting/raytracing/lightdirsampler.h"
 
-bool CLightDirSampler::Sample(SimpleRaytracingPathNode */*prevNode*/, SimpleRaytracingPathNode *thisNode,
-                              SimpleRaytracingPathNode *newNode, double x_1, double x_2,
-                              bool /* doRR */, BSDFFLAGS /* flags */) {
-    double pdfDir; //, cosPatch, cosLight, dist2;
+/**
+Sample : newNode gets filled, others may change
+*/
+bool
+CLightDirSampler::Sample(
+    SimpleRaytracingPathNode */*prevNode*/,
+    SimpleRaytracingPathNode *thisNode,
+    SimpleRaytracingPathNode *newNode,
+    double x1,
+    double x2,
+    bool /* doRR */,
+    BSDFFLAGS /* flags */)
+{
+    double pdfDir;
 
     if ( !thisNode->m_hit.material->edf ) {
         logError("CLightDirSampler::sample", "No EDF");
@@ -18,7 +28,7 @@ bool CLightDirSampler::Sample(SimpleRaytracingPathNode */*prevNode*/, SimpleRayt
     // Sample a light direction
     Vector3D dir = edfSample(thisNode->m_hit.material->edf,
                              &thisNode->m_hit, DIFFUSE_COMPONENT,
-                             x_1, x_2, &thisNode->m_bsdfEval,
+                             x1, x2, &thisNode->m_bsdfEval,
                              &pdfDir);
 
     if ( pdfDir < EPSILON ) {
@@ -46,7 +56,7 @@ bool CLightDirSampler::Sample(SimpleRaytracingPathNode */*prevNode*/, SimpleRayt
 
     // Component propagation
     thisNode->m_usedComponents = NO_COMPONENTS; // the light...
-    newNode->m_accUsedComponents = (thisNode->m_accUsedComponents |
+    newNode->m_accUsedComponents = static_cast<BSDFFLAGS>(thisNode->m_accUsedComponents |
                                     thisNode->m_usedComponents);
 
     newNode->m_rracc = thisNode->m_rracc;
@@ -54,10 +64,18 @@ bool CLightDirSampler::Sample(SimpleRaytracingPathNode */*prevNode*/, SimpleRayt
     return true;
 }
 
-double CLightDirSampler::EvalPDF(SimpleRaytracingPathNode *thisNode, SimpleRaytracingPathNode *newNode,
-                                 BSDFFLAGS /*flags*/, double * /*pdf*/,
-                                 double * /*pdfRR*/) {
-    double pdfDir, cosa, dist, dist2;
+double
+CLightDirSampler::EvalPDF(
+    SimpleRaytracingPathNode *thisNode,
+    SimpleRaytracingPathNode *newNode,
+    BSDFFLAGS /*flags*/,
+    double * /*pdf*/,
+    double * /*pdfRR*/)
+{
+    double pdfDir;
+    double cosa;
+    double dist;
+    double dist2;
     Vector3D outDir;
 
     if ( !thisNode->m_hit.material->edf ) {
@@ -69,7 +87,7 @@ double CLightDirSampler::EvalPDF(SimpleRaytracingPathNode *thisNode, SimpleRaytr
     vectorSubtract(newNode->m_hit.point, thisNode->m_hit.point, outDir);
     dist2 = vectorNorm2(outDir);
     dist = sqrt(dist2);
-    vectorScaleInverse(dist, outDir, outDir);
+    vectorScaleInverse((float)dist, outDir, outDir);
 
     // EDF sampling
     edfEval(thisNode->m_hit.material->edf,

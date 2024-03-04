@@ -30,15 +30,19 @@ public:
     // components, a scattermode is chosen randomly !!
 
     virtual bool Sample(SimpleRaytracingPathNode *prevNode, SimpleRaytracingPathNode *thisNode,
-                        SimpleRaytracingPathNode *newNode, double x_1, double x_2,
+                        SimpleRaytracingPathNode *newNode, double x1, double x2,
                         bool doRR, BSDFFLAGS flags);
 
-    // Use this for a N.E.E. : connecting a light node with an eye node
+    // Use this for N.E.E. : connecting a light node with an eye node
 
-    // Return value should be multiplied by infinity !!
-    virtual double EvalPDF(SimpleRaytracingPathNode *thisNode, SimpleRaytracingPathNode *newNode,
-                           BSDFFLAGS flags, double *pdf = nullptr,
-                           double *pdfRR = nullptr);
+    // Return value should be multiplied by infinity!
+    virtual double
+    EvalPDF(
+        SimpleRaytracingPathNode *thisNode,
+        SimpleRaytracingPathNode *newNode,
+        BSDFFLAGS flags,
+        double *pdf = nullptr,
+        double *pdfRR = nullptr);
 
     // Use this for calculating f.i. eyeEndNode->Previous pdf(Next).
     // The newNode is calculated, thisNode should be and end node connecting

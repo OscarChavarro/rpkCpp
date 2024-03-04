@@ -4,7 +4,7 @@
 #include "raycasting/raytracing/specularsampler.h"
 
 bool CSpecularSampler::Sample(SimpleRaytracingPathNode *prevNode, SimpleRaytracingPathNode *thisNode,
-                              SimpleRaytracingPathNode *newNode, double x_1, double x_2,
+                              SimpleRaytracingPathNode *newNode, double x1, double x2,
                               bool doRR, BSDFFLAGS flags) {
     Vector3D dir;
     double pdfDir = 1.0;
@@ -31,7 +31,7 @@ bool CSpecularSampler::Sample(SimpleRaytracingPathNode *prevNode, SimpleRaytraci
     }
 
     // Just using one of the random numbers for scatter mode choice
-    if ( x_1 * avgScattering < avgReflectance ) {
+    if ( x1 * avgScattering < avgReflectance ) {
         // REFLECT
 
         reflect = true;

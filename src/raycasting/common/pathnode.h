@@ -49,7 +49,7 @@ class SimpleRaytracingPathNode {
     double m_rracc; // Accumulated russian roulette factors
 
     COLOR m_bsdfEval;
-    CBsdfComp m_bsdfComp;
+    BsdfComp m_bsdfComp;
 
     BSDFFLAGS m_usedComponents; // Components used for scattering in this
     // node. For full bsdf sampling, these are all components, independent

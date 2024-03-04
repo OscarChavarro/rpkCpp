@@ -34,11 +34,6 @@ bool CUniformLightSampler::ActivateNextUnit() {
     return (currentPatch != nullptr);
 }
 
-void CUniformLightSampler::DeactivateUnits() {
-    unitsActive = false;
-    currentPatch = nullptr;
-}
-
 bool
 CUniformLightSampler::Sample(
         SimpleRaytracingPathNode */*prevNode*/,

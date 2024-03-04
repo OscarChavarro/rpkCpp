@@ -2,20 +2,12 @@
 Some bsdf component stuff.
 */
 
-#ifndef _BSDFCOMP_H_
-#define _BSDFCOMP_H_
+#ifndef __BSDFCOMP__
+#define __BSDFCOMP__
 
-class CBsdfComp {
+class BsdfComp {
   public:
-
-    // Only storage is this !
-    COLOR comp[BSDFCOMPONENTS];
-
-    // Methods
-
-    // Default constructor/destructor
-
-    // Element access
+    COLOR comp[BSDF_COMPONENTS];
 
     inline COLOR &operator[](int index) {
         return comp[index];
@@ -26,7 +18,7 @@ class CBsdfComp {
     inline operator COLOR *() { return comp; }
 
     void Clear(const BSDFFLAGS flags = BSDF_ALL_COMPONENTS) {
-        for ( int i = 0; i < BSDFCOMPONENTS; i++ ) {
+        for ( int i = 0; i < BSDF_COMPONENTS; i++ ) {
             if ( flags & (BSDF_INDEXTOCOMP(i)) ) {
                 colorClear(comp[i]);
             }
@@ -34,7 +26,7 @@ class CBsdfComp {
     }
 
     void Fill(const COLOR col, const BSDFFLAGS flags = BSDF_ALL_COMPONENTS) {
-        for ( int i = 0; i < BSDFCOMPONENTS; i++ ) {
+        for ( int i = 0; i < BSDF_COMPONENTS; i++ ) {
             if ( flags & (BSDF_INDEXTOCOMP(i)) ) {
                 comp[i] = col;
             }
@@ -46,7 +38,7 @@ class CBsdfComp {
 
         colorClear(result);
 
-        for ( int i = 0; i < BSDFCOMPONENTS; i++ ) {
+        for ( int i = 0; i < BSDF_COMPONENTS; i++ ) {
             if ( flags & (BSDF_INDEXTOCOMP(i))) {
                 colorAdd(result, comp[i], result);
             }

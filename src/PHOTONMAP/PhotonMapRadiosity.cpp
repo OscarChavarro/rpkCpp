@@ -169,8 +169,8 @@ photonMapDoComputePixelFluxEstimate(PhotonMapConfig *config) {
     SimpleRaytracingPathNode *lightPrevNode;
     COLOR oldBsdfL;
     COLOR oldBsdfE;
-    CBsdfComp oldBsdfCompL;
-    CBsdfComp oldBsdfCompE;
+    BsdfComp oldBsdfCompL;
+    BsdfComp oldBsdfCompE;
     double oldPdfL;
     double oldPdfE;
     double oldRRPdfL;

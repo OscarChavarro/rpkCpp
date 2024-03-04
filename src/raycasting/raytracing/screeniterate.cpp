@@ -92,13 +92,18 @@ FillRect(int x0, int y0, int x1, int y1, RGB col, RGB *rgb) {
 
 void
 ScreenIterateProgressive(SCREENITERATECALLBACK callback, void *data) {
-    int i, width, height;
+    int i;
+    int width;
+    int height;
     COLOR col;
-    RGB pixelRGB;
+    RGB pixelRGB{};
     RGB *rgb;
     int x0, y0, x1, y1, stepsize, xsteps, ysteps;
-    int xstep_done, ystep_done, skip;
-    int ymin, ymax;
+    int xstep_done;
+    int ystep_done;
+    int skip;
+    int ymin;
+    int ymax;
 
     ScreenIterateInit();
 
@@ -127,8 +132,8 @@ ScreenIterateProgressive(SCREENITERATECALLBACK callback, void *data) {
                 ystep_done = true;
             }
 
-            ymin = floatMin(y0, ymin);
-            ymax = floatMax(y1, ymax);
+            ymin = intMin(y0, ymin);
+            ymax = intMax(y1, ymax);
 
             x0 = 0;
             xsteps = 0;
@@ -156,7 +161,7 @@ ScreenIterateProgressive(SCREENITERATECALLBACK callback, void *data) {
                                                rgb + ymin * width);
                         }
 
-                        ymin = floatMax(0, ymax - stepsize);
+                        ymin = intMax(0, ymax - stepsize);
                     }
                 }
 

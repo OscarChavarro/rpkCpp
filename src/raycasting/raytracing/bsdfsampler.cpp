@@ -55,7 +55,7 @@ bool CBsdfSampler::Sample(SimpleRaytracingPathNode *prevNode, SimpleRaytracingPa
 
     // Accumulate scattering components
     thisNode->m_usedComponents = flags;
-    newNode->m_accUsedComponents = (thisNode->m_accUsedComponents |
+    newNode->m_accUsedComponents = static_cast<BSDFFLAGS>(thisNode->m_accUsedComponents |
                                     thisNode->m_usedComponents);
 
 
@@ -90,9 +90,20 @@ bool CBsdfSampler::Sample(SimpleRaytracingPathNode *prevNode, SimpleRaytracingPa
     return true; // Node filled in
 }
 
-double CBsdfSampler::EvalPDF(SimpleRaytracingPathNode *thisNode, SimpleRaytracingPathNode *newNode,
-                             BSDFFLAGS flags, double *pdf, double *pdfRR) {
-    double pdfDir, dist2, dist, cosa, pdfH, pdfRRH;
+double
+CBsdfSampler::EvalPDF(
+    SimpleRaytracingPathNode *thisNode,
+    SimpleRaytracingPathNode *newNode,
+    BSDFFLAGS flags,
+    double *pdf,
+    double *pdfRR)
+{
+    double pdfDir;
+    double dist2;
+    double dist;
+    double cosa;
+    double pdfH;
+    double pdfRRH;
     Vector3D outDir;
 
     if ( pdf == nullptr ) {
@@ -106,7 +117,7 @@ double CBsdfSampler::EvalPDF(SimpleRaytracingPathNode *thisNode, SimpleRaytracin
     vectorSubtract(newNode->m_hit.point, thisNode->m_hit.point, outDir);
     dist2 = vectorNorm2(outDir);
     dist = sqrt(dist2);
-    vectorScaleInverse(dist, outDir, outDir);
+    vectorScaleInverse((float)dist, outDir, outDir);
 
     // Beware : NOT RECIPROKE !!!!!!
     bsdfEvalPdf(thisNode->m_useBsdf,

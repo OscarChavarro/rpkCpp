@@ -31,9 +31,6 @@ public:
 
     void Init();
 
-    // ReleasePaths: release all nodes from eye and light path
-    void ReleasePaths();
-
     // Some interesting methods, only to be called for
     // valid bidirectional paths
     COLOR EvalRadiance();

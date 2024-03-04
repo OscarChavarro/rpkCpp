@@ -17,13 +17,6 @@ void CBiPath::Init() {
     m_eyeSize = m_lightSize = 0;
 }
 
-// ReleasePaths: release all nodes from eye and light path
-void CBiPath::ReleasePaths() {
-    SimpleRaytracingPathNode::ReleaseAll(m_lightPath);
-    SimpleRaytracingPathNode::ReleaseAll(m_eyePath);
-    Init();
-}
-
 // Evaluate the radiance contribution of a bipath. Only Function
 // evaluation, no pdf involved
 COLOR CBiPath::EvalRadiance() {
@@ -52,7 +45,7 @@ COLOR CBiPath::EvalRadiance() {
 
     factor *= m_geomConnect; // Next event ray geometry factor
 
-    colorScale(factor, col, col);
+    colorScale((float)factor, col, col);
 
     return col;
 }
@@ -85,7 +78,7 @@ double CBiPath::EvalPDFAcc() {
 float CBiPath::EvalPDFAndWeight(BP_BASECONFIG *bcfg, float *pPdf,
                                  float *pWeight) {
     int currentConnect;
-    double pdfAcc = 1.0;
+    double pdfAcc;
     double pdfSum;
     double currentPdf;
     double newPdf;
@@ -107,7 +100,7 @@ float CBiPath::EvalPDFAndWeight(BP_BASECONFIG *bcfg, float *pPdf,
     currentPdf = pdfAcc; // Basis for subsequent pdf computations
 
     if ( m_eyeSize == 1 ) {
-        c = bcfg->totalSamples; // N.E. to the eye
+        c = (double)bcfg->totalSamples; // N.E. to the eye
     } else {
         c = bcfg->samplesPerPixel;
     }
@@ -140,7 +133,7 @@ float CBiPath::EvalPDFAndWeight(BP_BASECONFIG *bcfg, float *pPdf,
         }
 
         if ( currentConnect == 1 ) {
-            c = bcfg->totalSamples; // N.E. to the eye
+            c = (double)bcfg->totalSamples; // N.E. to the eye
         } else {
             c = bcfg->samplesPerPixel;
         }
@@ -177,7 +170,7 @@ float CBiPath::EvalPDFAndWeight(BP_BASECONFIG *bcfg, float *pPdf,
         }
 
         if ( currentConnect == 1 ) {
-            c = bcfg->totalSamples; // N.E. to the eye
+            c = (double)bcfg->totalSamples; // N.E. to the eye
         } else {
             c = bcfg->samplesPerPixel;
         }
@@ -204,12 +197,12 @@ float CBiPath::EvalPDFAndWeight(BP_BASECONFIG *bcfg, float *pPdf,
     PNAN(weight);
 
     if ( pWeight ) {
-        *pWeight = weight;
+        *pWeight = (float)weight;
     }
 
     if ( pPdf ) {
-        *pPdf = realPdf;
+        *pPdf = (float)realPdf;
     }
 
-    return (float)weight / realPdf;
+    return (float)(weight / realPdf);
 }

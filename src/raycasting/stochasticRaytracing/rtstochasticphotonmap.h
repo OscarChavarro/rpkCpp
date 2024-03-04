@@ -166,7 +166,7 @@ public:
     CScatterInfo siStorage;
 
     // Maximum 1 scattering block per component
-    CScatterInfo siOthers[BSDFCOMPONENTS];
+    CScatterInfo siOthers[BSDF_COMPONENTS];
     int siOthersCount;
 
     StorageReadout initialReadout;

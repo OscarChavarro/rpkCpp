@@ -22,8 +22,6 @@ public:
 
     virtual bool ActivateNextUnit();
 
-    virtual void DeactivateUnits();
-
     // Sample : newNode gets filled, others may change
     virtual bool
     Sample(
@@ -61,9 +59,6 @@ public:
             BSDFFLAGS flags,
             double *pdf,
             double *pdfRR);
-
-protected:
-    Vector3D lastPoint, lastNormal;
 };
 
 #endif

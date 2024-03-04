@@ -18,9 +18,13 @@ public:
                         bool doRR, BSDFFLAGS flags);
 
     // Use this for a N.E.E. : connecting a light node with an eye node
-    virtual double EvalPDF(SimpleRaytracingPathNode *thisNode, SimpleRaytracingPathNode *newNode,
-                           BSDFFLAGS flags, double *pdf = nullptr,
-                           double *pdfRR = nullptr);
+    virtual double
+    EvalPDF(
+        SimpleRaytracingPathNode *thisNode,
+        SimpleRaytracingPathNode *newNode,
+        BSDFFLAGS flags,
+        double *pdf = nullptr,
+        double *pdfRR = nullptr);
 
     // Use this for calculating f.i. eyeEndNode->Previous pdf(Next).
     // The newNode is calculated, thisNode should be and end node connecting
