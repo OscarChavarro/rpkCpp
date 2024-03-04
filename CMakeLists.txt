@@ -21,14 +21,15 @@ set(MAIN_SRC
     src/common/linealAlgebra/Matrix2x2.cpp
     src/common/linealAlgebra/Vector3D.cpp
     src/common/linealAlgebra/Matrix4x4.cpp
+    src/common/dataStructures/CSList.cpp
+    src/common/dataStructures/KDTree.cpp
+    src/common/dataStructures/List.cpp
     src/common/color.cpp
     src/common/options.cpp
     src/common/cie.cpp
     src/common/RenderOptions.cpp
     src/common/cubature.cpp
-    src/common/dataStructures/CSList.cpp
-    src/common/dataStructures/KDTree.cpp
-    src/common/dataStructures/List.cpp
+    src/common/stratification.cpp
     src/QMC/halton.cpp
     src/QMC/scrambledhalton.cpp
     src/QMC/nied31.cpp
@@ -73,7 +74,6 @@ set(MAIN_SRC
     src/IMAGE/tonemap/tonemapping.cpp
     src/IMAGE/tonemap/trwf.cpp
     src/IMAGE/adaptation.cpp
-    src/shared/stratification.cpp
     src/io/mgf/readmgf.cpp
     src/io/mgf/object.cpp
     src/io/mgf/lookup.cpp

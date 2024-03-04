@@ -1,7 +1,7 @@
 #include <cstring>
 
 #include "common/error.h"
-#include "shared/stratification.h"
+#include "common/stratification.h"
 #include "raycasting/common/raytools.h"
 #include "raycasting/raytracing/eyesampler.h"
 #include "raycasting/raytracing/lightsampler.h"
