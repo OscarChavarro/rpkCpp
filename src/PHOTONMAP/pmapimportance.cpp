@@ -11,7 +11,7 @@ Importon tracing
 Store a importon/poton. Some acceptance tests are performed first
 **/
 static bool
-HasDiffuseOrGlossy(CPathNode *node) {
+HasDiffuseOrGlossy(SimpleRaytracingPathNode *node) {
     if ( node->m_hit.patch->surface->material ) {
         BSDF *bsdf = node->m_hit.patch->surface->material->bsdf;
         return !ZeroAlbedo(bsdf, &node->m_hit,
@@ -22,12 +22,12 @@ HasDiffuseOrGlossy(CPathNode *node) {
 }
 
 static bool
-BounceDiffuseOrGlossy(CPathNode *node) {
+BounceDiffuseOrGlossy(SimpleRaytracingPathNode *node) {
     return node->m_usedComponents & (BSDF_DIFFUSE_COMPONENT | BSDF_GLOSSY_COMPONENT);
 }
 
 static bool
-DoImportanceStore(CImportanceMap *map, CPathNode *node, COLOR importance) {
+DoImportanceStore(CImportanceMap *map, SimpleRaytracingPathNode *node, COLOR importance) {
     if ( HasDiffuseOrGlossy(node)) {
         float importanceF = colorAverage(importance);
         float potentialF = 1.0; // COLORAVERAGE(potential)*Ax;
@@ -47,7 +47,7 @@ DoImportanceStore(CImportanceMap *map, CPathNode *node, COLOR importance) {
 // Returns whether a valid potential path was returned.
 static bool
 TracePotentialPath(PhotonMapConfig *config) {
-    CPathNode *path = config->biPath.m_eyePath;
+    SimpleRaytracingPathNode *path = config->biPath.m_eyePath;
     CSamplerConfig &scfg = config->eyeConfig;
 
     // Eye node
@@ -68,7 +68,7 @@ TracePotentialPath(PhotonMapConfig *config) {
 
     // New node
     path->ensureNext();
-    CPathNode *node = path->next();
+    SimpleRaytracingPathNode *node = path->next();
 
     // Keep tracing nodes until sampling fails, store importons along the way
 
@@ -85,7 +85,7 @@ TracePotentialPath(PhotonMapConfig *config) {
                 (BSDFFLAGS)((indirectImportance ? BSDF_SPECULAR_COMPONENT : BSDF_ALL_COMPONENTS))
             ) ) {
         // Successful trace
-        CPathNode *prev = node->previous();
+        SimpleRaytracingPathNode *prev = node->previous();
 
         // Determine scatter type
         bool didDG = BounceDiffuseOrGlossy(prev);
@@ -127,7 +127,7 @@ tracePotentialPaths(int nrPaths) {
     GLOBAL_photonMap_config.eyeConfig.maxDepth = 7; // Maximum of 4 specular bounces
     GLOBAL_photonMap_config.eyeConfig.minDepth = 3;
 
-    CPathNode::m_dmaxsize = 0; // No need for derivative structures
+    SimpleRaytracingPathNode::m_dmaxsize = 0; // No need for derivative structures
 
     for ( i = 0; i < nrPaths; i++ ) {
         TracePotentialPath(&GLOBAL_photonMap_config);

@@ -40,8 +40,8 @@ class BPCONFIG {
     CDensityBuffer *dBuffer2;
     float xSample;
     float ySample;
-    CPathNode *eyePath;
-    CPathNode *lightPath;
+    SimpleRaytracingPathNode *eyePath;
+    SimpleRaytracingPathNode *lightPath;
 
     // SPaR configuration
     CSparConfig sparConfig;
@@ -192,8 +192,8 @@ handlePathX0(BPCONFIG *config, CBiPath *path) {
     double oldRRPDFDirEval;
     float pdf = 1.0f;
     float weight = 1.0;
-    CPathNode *eyePrevNode;
-    CPathNode*eyeEndNode;
+    SimpleRaytracingPathNode *eyePrevNode;
+    SimpleRaytracingPathNode*eyeEndNode;
 
     if ( path->m_eyeSize > config->bcfg->maximumPathDepth ) {
         return;
@@ -313,8 +313,8 @@ computeNeFluxEstimate(
     float *pWeight = nullptr,
     COLOR *frad = nullptr)
 {
-    CPathNode *eyePrevNode;
-    CPathNode *lightPrevNode;
+    SimpleRaytracingPathNode *eyePrevNode;
+    SimpleRaytracingPathNode *lightPrevNode;
     COLOR oldBsdfL;
     COLOR oldBsdfE;
     CBsdfComp oldBsdfCompL;
@@ -328,8 +328,8 @@ computeNeFluxEstimate(
     double oldRRPdfLP = 0.0;
     double oldRRPdfEP = 0.0;
     COLOR f;
-    CPathNode *eyeEndNode;
-    CPathNode *lightEndNode;
+    SimpleRaytracingPathNode *eyeEndNode;
+    SimpleRaytracingPathNode *lightEndNode;
 
     // Store PDF and BSDF evals that will be overwritten
     eyeEndNode = path->m_eyeEndNode;
@@ -422,9 +422,9 @@ handlePathXx(BPCONFIG *config, CBiPath *path) {
     float pdf;
     float weight;
     bool doLNE;
-    CPathNode newLightNode;
-    CPathNode *oldLightPath = nullptr;
-    CPathNode *oldLightEndNode = nullptr;
+    SimpleRaytracingPathNode newLightNode;
+    SimpleRaytracingPathNode *oldLightPath = nullptr;
+    SimpleRaytracingPathNode *oldLightEndNode = nullptr;
     int oldLightSize = 0;
 
     if ( (path->m_eyeSize + path->m_lightSize) > config->bcfg->maximumPathDepth ) {
@@ -541,10 +541,10 @@ bpCombinePaths(BPCONFIG *config) {
     int lightSize;
     bool eyeSubPathDone;
     bool lightSubPathDone;
-    CPathNode *eyeEndNode;
-    CPathNode *lightEndNode;
-    CPathNode *eyePath;
-    CPathNode *lightPath;
+    SimpleRaytracingPathNode *eyeEndNode;
+    SimpleRaytracingPathNode *lightEndNode;
+    SimpleRaytracingPathNode *eyePath;
+    SimpleRaytracingPathNode *lightPath;
     CBiPath path;
 
     eyePath = config->eyePath;
@@ -636,13 +636,13 @@ bpCalcPixel(int nx, int ny, BPCONFIG *config) {
     double x_1, x_2;
     COLOR result;
     StratifiedSampling2D strat(config->bcfg->samplesPerPixel);
-    CPathNode *pixNode, *nextNode;
+    SimpleRaytracingPathNode *pixNode, *nextNode;
 
     colorClear(result);
 
     // We sample the eye here since it's always the same point
     if ( config->eyePath == nullptr ) {
-        config->eyePath = new CPathNode;
+        config->eyePath = new SimpleRaytracingPathNode;
     }
 
     config->eyeConfig.pointSampler->Sample(nullptr, nullptr, config->eyePath, 0, 0);
@@ -652,13 +652,13 @@ bpCalcPixel(int nx, int ny, BPCONFIG *config) {
     pixNode = config->eyePath->next();
 
     if ( pixNode == nullptr ) {
-        pixNode = new CPathNode;
+        pixNode = new SimpleRaytracingPathNode;
         config->eyePath->attach(pixNode);
     }
 
     nextNode = pixNode->next();
     if ( nextNode == nullptr ) {
-        nextNode = new CPathNode;
+        nextNode = new SimpleRaytracingPathNode;
         pixNode->attach(nextNode);
     }
 

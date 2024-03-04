@@ -90,8 +90,8 @@ public:
     //   if sampling ok: nextNode or a newly allocated node if nextNode == nullptr
     //   if sampling fails: nullptr
 
-    CPathNode *
-    traceNode(CPathNode *nextNode,
+    SimpleRaytracingPathNode *
+    traceNode(SimpleRaytracingPathNode *nextNode,
               double x1, double x2,
               BSDFFLAGS flags) const;
 
@@ -100,8 +100,8 @@ public:
     // for sampling individual nodes.
     // The first filled in node is returned (==nextNode if nextNode != nullptr)
 
-    CPathNode *
-    tracePath(CPathNode *nextNode, BSDFFLAGS flags = BSDF_ALL_COMPONENTS);
+    SimpleRaytracingPathNode *
+    tracePath(SimpleRaytracingPathNode *nextNode, BSDFFLAGS flags = BSDF_ALL_COMPONENTS);
 
 
     // Generate two random numbers. Depth needed for QMC sampling
@@ -139,13 +139,13 @@ typedef int CONNECTFLAGS;
 
 double
 pathNodeConnect(
-    CPathNode *nodeX,
-    CPathNode *nodeY,
-    CSamplerConfig *eyeConfig,
-    CSamplerConfig *lightConfig,
-    CONNECTFLAGS flags,
-    BSDFFLAGS bsdfFlagsE = BSDF_ALL_COMPONENTS,
-    BSDFFLAGS bsdfFlagsL = BSDF_ALL_COMPONENTS,
-    Vector3D *pDirEl = nullptr);
+        SimpleRaytracingPathNode *nodeX,
+        SimpleRaytracingPathNode *nodeY,
+        CSamplerConfig *eyeConfig,
+        CSamplerConfig *lightConfig,
+        CONNECTFLAGS flags,
+        BSDFFLAGS bsdfFlagsE = BSDF_ALL_COMPONENTS,
+        BSDFFLAGS bsdfFlagsL = BSDF_ALL_COMPONENTS,
+        Vector3D *pDirEl = nullptr);
 
 #endif

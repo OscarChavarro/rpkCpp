@@ -41,13 +41,13 @@ void CUniformLightSampler::DeactivateUnits() {
 
 bool
 CUniformLightSampler::Sample(
-    CPathNode */*prevNode*/,
-    CPathNode *thisNode,
-    CPathNode *newNode,
-    double x1,
-    double x2,
-    bool /* doRR */,
-    BSDFFLAGS flags)
+        SimpleRaytracingPathNode */*prevNode*/,
+        SimpleRaytracingPathNode *thisNode,
+        SimpleRaytracingPathNode *newNode,
+        double x1,
+        double x2,
+        bool /* doRR */,
+        BSDFFLAGS flags)
 {
     double pdfLight;
     double pdfPoint;
@@ -124,10 +124,10 @@ CUniformLightSampler::Sample(
 
 double
 CUniformLightSampler::EvalPDF(
-    CPathNode */*thisNode*/,
-    CPathNode *newNode,
-    BSDFFLAGS /*flags*/, double * /*pdf*/,
-    double * /*pdfRR*/)
+        SimpleRaytracingPathNode */*thisNode*/,
+        SimpleRaytracingPathNode *newNode,
+        BSDFFLAGS /*flags*/, double * /*pdf*/,
+        double * /*pdfRR*/)
 {
     double pdf;
     double pdfdir;
@@ -168,13 +168,13 @@ Important light sampler : attach weights to each lamp
 */
 bool
 CImportantLightSampler::Sample(
-    CPathNode */*prevNode*/,
-    CPathNode *thisNode,
-    CPathNode *newNode,
-    double x1,
-    double x2,
-    bool /* doRR */,
-    BSDFFLAGS flags)
+        SimpleRaytracingPathNode */*prevNode*/,
+        SimpleRaytracingPathNode *thisNode,
+        SimpleRaytracingPathNode *newNode,
+        double x1,
+        double x2,
+        bool /* doRR */,
+        BSDFFLAGS flags)
 {
     double pdfLight, pdfPoint;
     Patch *light;
@@ -258,10 +258,10 @@ CImportantLightSampler::Sample(
 
 double
 CImportantLightSampler::EvalPDF(
-    CPathNode *thisNode,
-    CPathNode *newNode,
-    BSDFFLAGS /*flags*/, double * /*pdf*/,
-    double * /*pdfRR*/)
+        SimpleRaytracingPathNode *thisNode,
+        SimpleRaytracingPathNode *newNode,
+        BSDFFLAGS /*flags*/, double * /*pdf*/,
+        double * /*pdfRR*/)
 {
     double pdf;
     double pdfdir;

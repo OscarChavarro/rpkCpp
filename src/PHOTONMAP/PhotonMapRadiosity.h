@@ -8,7 +8,7 @@
 
 extern RADIANCEMETHOD GLOBAL_photonMapMethods;
 
-COLOR photonMapGetNodeGRadiance(CPathNode *node);
-COLOR photonMapGetNodeCRadiance(CPathNode *node);
+COLOR photonMapGetNodeGRadiance(SimpleRaytracingPathNode *node);
+COLOR photonMapGetNodeCRadiance(SimpleRaytracingPathNode *node);
 
 #endif

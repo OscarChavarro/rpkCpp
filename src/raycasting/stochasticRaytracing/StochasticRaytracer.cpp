@@ -22,21 +22,21 @@ RTStochastic_State GLOBAL_raytracing_state;
 // Forward declaration
 COLOR
 SR_GetRadiance(
-        CPathNode *thisNode,
+        SimpleRaytracingPathNode *thisNode,
         StochasticRaytracingConfiguration *config,
         StorageReadout readout,
         int usedScatterSamples);
 
 COLOR
 SR_GetScatteredRadiance(
-        CPathNode *thisNode,
+        SimpleRaytracingPathNode *thisNode,
         StochasticRaytracingConfiguration *config,
         StorageReadout readout)
 {
     int siCurrent; // What scatter block are we handling
     CScatterInfo *si;
 
-    CPathNode newNode;
+    SimpleRaytracingPathNode newNode;
     thisNode->attach(&newNode);
 
     COLOR result;
@@ -149,7 +149,7 @@ SR_GetScatteredRadiance(
 
 COLOR
 SR_GetDirectRadiance(
-        CPathNode *prevNode,
+        SimpleRaytracingPathNode *prevNode,
         StochasticRaytracingConfiguration *config,
         StorageReadout readout)
 {
@@ -170,7 +170,7 @@ SR_GetDirectRadiance(
         (config->nextEventSamples > 0) &&
         (prevNode->m_depth + 1 < config->samplerConfig.maxDepth) ) {
         int i;
-        CPathNode lightNode;
+        SimpleRaytracingPathNode lightNode;
         double x_1;
         double x_2;
         double geom;
@@ -301,7 +301,7 @@ SR_GetDirectRadiance(
 
 COLOR
 SR_GetRadiance(
-        CPathNode *thisNode,
+        SimpleRaytracingPathNode *thisNode,
         StochasticRaytracingConfiguration *config,
         StorageReadout readout,
         int usedScatterSamples)
@@ -468,7 +468,7 @@ SR_GetRadiance(
 static COLOR
 CalcPixel(int nx, int ny, StochasticRaytracingConfiguration *config) {
     int i;
-    CPathNode eyeNode, pixelNode;
+    SimpleRaytracingPathNode eyeNode, pixelNode;
     double x1;
     double x2;
     COLOR col, result;
@@ -560,7 +560,7 @@ RTStochastic_Trace(
         srand48(GLOBAL_raytracing_state.baseSeed);
     }
 
-    CPathNode::m_dmaxsize = 0; // No need for derivative structures
+    SimpleRaytracingPathNode::m_dmaxsize = 0; // No need for derivative structures
 
     if ( !GLOBAL_raytracing_state.progressiveTracing ) {
         ScreenIterateSequential((COLOR(*)(int, int, void *))CalcPixel, &config);

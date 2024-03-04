@@ -33,7 +33,7 @@ enum PATHRAYTYPE {
 // -- pathnode and spearate connections
 
 
-class CPathNode {
+class SimpleRaytracingPathNode {
 public:
     static int m_dmaxsize;
 
@@ -70,33 +70,33 @@ public:
     int m_depth; // First node in a path has depth 0
 
 protected:
-    CPathNode *m_next;
-    CPathNode *m_previous;
+    SimpleRaytracingPathNode *m_next;
+    SimpleRaytracingPathNode *m_previous;
 
     // friend CPath;
     // methods
 public:
-    CPathNode();
+    SimpleRaytracingPathNode();
 
-    ~CPathNode();
+    ~SimpleRaytracingPathNode();
 
     // Navigation in a path
-    CPathNode *next() { return m_next; }
+    SimpleRaytracingPathNode *next() { return m_next; }
 
-    CPathNode *previous() { return m_previous; }
+    SimpleRaytracingPathNode *previous() { return m_previous; }
 
-    void setNext(CPathNode *node) { m_next = node; }
+    void setNext(SimpleRaytracingPathNode *node) { m_next = node; }
 
-    void setPrevious(CPathNode *node) { m_previous = node; }
+    void setPrevious(SimpleRaytracingPathNode *node) { m_previous = node; }
 
-    void attach(CPathNode *node) {
+    void attach(SimpleRaytracingPathNode *node) {
         m_next = node;
         node->setPrevious(this);
     }
 
     void ensureNext() {
         if ( m_next == nullptr ) {
-            attach(new CPathNode);
+            attach(new SimpleRaytracingPathNode);
         }
     }
 
@@ -110,10 +110,10 @@ public:
     }
 
     // Delete all nodes, including the supplied 'node'
-    static void ReleaseAll(CPathNode *node);
+    static void ReleaseAll(SimpleRaytracingPathNode *node);
 
 protected:
-    CPathNode *GetMatchingNode();
+    SimpleRaytracingPathNode *GetMatchingNode();
 };
 
 #endif

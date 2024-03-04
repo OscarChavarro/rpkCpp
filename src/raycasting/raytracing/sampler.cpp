@@ -4,9 +4,9 @@
 #include "raycasting/raytracing/sampler.h"
 
 bool
-CSampler::SampleTransfer(CPathNode *thisNode,
-                              CPathNode *newNode, Vector3D *dir,
-                              double pdfDir) {
+CSampler::SampleTransfer(SimpleRaytracingPathNode *thisNode,
+                         SimpleRaytracingPathNode *newNode, Vector3D *dir,
+                         double pdfDir) {
     Ray ray;
     RayHit *hit;
 
@@ -87,8 +87,8 @@ CSampler::SampleTransfer(CPathNode *thisNode,
 }
 
 void
-CSurfaceSampler::DetermineRayType(CPathNode *thisNode,
-                                       CPathNode *newNode, Vector3D *dir) {
+CSurfaceSampler::DetermineRayType(SimpleRaytracingPathNode *thisNode,
+                                  SimpleRaytracingPathNode *newNode, Vector3D *dir) {
     double cosThisPatch = vectorDotProduct(*dir, thisNode->m_normal);
 
     if ( cosThisPatch < 0 ) {

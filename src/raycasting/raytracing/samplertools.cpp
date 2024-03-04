@@ -57,17 +57,17 @@ RETURNS:
   if sampling ok: nextNode or a newly allocated node if nextNode == nullptr
   if sampling fails: nullptr
 */
-CPathNode *
+SimpleRaytracingPathNode *
 CSamplerConfig::traceNode(
-    CPathNode *nextNode,
-    double x1,
-    double x2,
-    BSDFFLAGS flags) const
+        SimpleRaytracingPathNode *nextNode,
+        double x1,
+        double x2,
+        BSDFFLAGS flags) const
 {
-    CPathNode *lastNode;
+    SimpleRaytracingPathNode *lastNode;
 
     if ( nextNode == nullptr ) {
-        nextNode = new CPathNode;
+        nextNode = new SimpleRaytracingPathNode;
     }
 
     lastNode = nextNode->previous();
@@ -115,8 +115,8 @@ CSamplerConfig::traceNode(
     return nextNode;
 }
 
-CPathNode *
-CSamplerConfig::tracePath(CPathNode *nextNode, BSDFFLAGS flags) {
+SimpleRaytracingPathNode *
+CSamplerConfig::tracePath(SimpleRaytracingPathNode *nextNode, BSDFFLAGS flags) {
     double x1;
     double x2;
 
@@ -140,17 +140,17 @@ CSamplerConfig::tracePath(CPathNode *nextNode, BSDFFLAGS flags) {
 
 double
 pathNodeConnect(
-    CPathNode *nodeX,
-    CPathNode *nodeY,
-    CSamplerConfig *eyeConfig,
-    CSamplerConfig *lightConfig,
-    CONNECTFLAGS flags,
-    BSDFFLAGS bsdfFlagsE,
-    BSDFFLAGS bsdfFlagsL,
-    Vector3D *pDirEl)
+        SimpleRaytracingPathNode *nodeX,
+        SimpleRaytracingPathNode *nodeY,
+        CSamplerConfig *eyeConfig,
+        CSamplerConfig *lightConfig,
+        CONNECTFLAGS flags,
+        BSDFFLAGS bsdfFlagsE,
+        BSDFFLAGS bsdfFlagsL,
+        Vector3D *pDirEl)
 {
-    CPathNode *nodeEP; // previous nodes
-    CPathNode *nodeLP;
+    SimpleRaytracingPathNode *nodeEP; // previous nodes
+    SimpleRaytracingPathNode *nodeLP;
     double pdf;
     double pdfRR;
     double dist2;

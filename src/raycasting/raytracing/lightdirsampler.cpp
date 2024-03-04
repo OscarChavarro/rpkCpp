@@ -5,8 +5,8 @@
 #include "material/edf.h"
 #include "raycasting/raytracing/lightdirsampler.h"
 
-bool CLightDirSampler::Sample(CPathNode */*prevNode*/, CPathNode *thisNode,
-                              CPathNode *newNode, double x_1, double x_2,
+bool CLightDirSampler::Sample(SimpleRaytracingPathNode */*prevNode*/, SimpleRaytracingPathNode *thisNode,
+                              SimpleRaytracingPathNode *newNode, double x_1, double x_2,
                               bool /* doRR */, BSDFFLAGS /* flags */) {
     double pdfDir; //, cosPatch, cosLight, dist2;
 
@@ -54,7 +54,7 @@ bool CLightDirSampler::Sample(CPathNode */*prevNode*/, CPathNode *thisNode,
     return true;
 }
 
-double CLightDirSampler::EvalPDF(CPathNode *thisNode, CPathNode *newNode,
+double CLightDirSampler::EvalPDF(SimpleRaytracingPathNode *thisNode, SimpleRaytracingPathNode *newNode,
                                  BSDFFLAGS /*flags*/, double * /*pdf*/,
                                  double * /*pdfRR*/) {
     double pdfDir, cosa, dist, dist2;

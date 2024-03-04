@@ -11,12 +11,12 @@
 
 class CBiPath {
 public:
-    CPathNode *m_eyePath;
-    CPathNode *m_eyeEndNode;
+    SimpleRaytracingPathNode *m_eyePath;
+    SimpleRaytracingPathNode *m_eyeEndNode;
     int m_eyeSize;
 
-    CPathNode *m_lightPath;
-    CPathNode *m_lightEndNode;
+    SimpleRaytracingPathNode *m_lightPath;
+    SimpleRaytracingPathNode *m_lightEndNode;
     int m_lightSize;
 
     double m_pdfLNE; // pdf for sampling the light point separately

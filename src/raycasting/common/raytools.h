@@ -11,8 +11,8 @@ Some utility routines for ray intersections and for statistics
 #include "raycasting/common/pathnode.h"
 
 extern RayHit *findRayIntersection(Ray *ray, Patch *patch, BSDF *currentBsdf, RayHit *hitStore);
-extern bool pathNodesVisible(CPathNode *node1, CPathNode *node2);
-extern bool eyeNodeVisible(CPathNode *eyeNode, CPathNode *node, float *pix_x, float *pix_y);
+extern bool pathNodesVisible(SimpleRaytracingPathNode *node1, SimpleRaytracingPathNode *node2);
+extern bool eyeNodeVisible(SimpleRaytracingPathNode *eyeNode, SimpleRaytracingPathNode *node, float *pix_x, float *pix_y);
 
 extern bool GLOBAL_rayCasting_interruptRaytracing;
 

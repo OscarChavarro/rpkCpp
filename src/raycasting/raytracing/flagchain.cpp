@@ -127,7 +127,7 @@ CFlagChain::compute(CBiPath *path) const {
     int eyeSize = path->m_eyeSize;
     int lightSize = path->m_lightSize;
 
-    CPathNode *node;
+    SimpleRaytracingPathNode *node;
 
     if ( lightSize + eyeSize != length ) {
         logError("FlagChain::Compute", "Wrong path length");

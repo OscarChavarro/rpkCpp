@@ -61,8 +61,8 @@ CPhotonMapSampler::ChooseComponent(BSDFFLAGS flags1, BSDFFLAGS flags2,
     return true;
 }
 
-bool CPhotonMapSampler::Sample(CPathNode *prevNode, CPathNode *thisNode,
-                               CPathNode *newNode, double x_1, double x_2,
+bool CPhotonMapSampler::Sample(SimpleRaytracingPathNode *prevNode, SimpleRaytracingPathNode *thisNode,
+                               SimpleRaytracingPathNode *newNode, double x_1, double x_2,
                                bool doRR, BSDFFLAGS flags) {
     BSDF *bsdf = thisNode->m_useBsdf;
     bool sChosen;
@@ -149,7 +149,7 @@ static RefractionIndex BsdfGeometricIOR(BSDF *bsdf) {
 
 static bool
 ChooseFresnelDirection(
-    CPathNode *thisNode,
+    SimpleRaytracingPathNode *thisNode,
     BSDFFLAGS flags,
     double x_2,
     Vector3D *dir,
@@ -299,9 +299,9 @@ ChooseFresnelDirection(
 
 bool
 CPhotonMapSampler::FresnelSample(
-    CPathNode *prevNode,
-    CPathNode *thisNode,
-    CPathNode *newNode,
+    SimpleRaytracingPathNode *prevNode,
+    SimpleRaytracingPathNode *thisNode,
+    SimpleRaytracingPathNode *newNode,
     double x_2,
     BSDFFLAGS flags)
 {
@@ -354,8 +354,8 @@ CPhotonMapSampler::FresnelSample(
 }
 
 
-bool CPhotonMapSampler::GDSample(CPathNode *prevNode, CPathNode *thisNode,
-                                 CPathNode *newNode, double x_1, double x_2,
+bool CPhotonMapSampler::GDSample(SimpleRaytracingPathNode *prevNode, SimpleRaytracingPathNode *thisNode,
+                                 SimpleRaytracingPathNode *newNode, double x_1, double x_2,
                                  bool doRR, BSDFFLAGS flags) {
     bool ok;
 

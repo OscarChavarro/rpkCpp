@@ -12,21 +12,21 @@
 
 /* PathNode functions */
 
-int CPathNode::m_dmaxsize = 0;
+int SimpleRaytracingPathNode::m_dmaxsize = 0;
 
-CPathNode::CPathNode() {
+SimpleRaytracingPathNode::SimpleRaytracingPathNode() {
     m_next = nullptr;
     m_previous = nullptr;
 
 }
 
 
-CPathNode::~CPathNode() {
+SimpleRaytracingPathNode::~SimpleRaytracingPathNode() {
 }
 
 // Delete all nodes, includind the supplied 'node'
-void CPathNode::ReleaseAll(CPathNode *node) {
-    CPathNode *tmp;
+void SimpleRaytracingPathNode::ReleaseAll(SimpleRaytracingPathNode *node) {
+    SimpleRaytracingPathNode *tmp;
 
     while ( node ) {
         tmp = node;
@@ -35,7 +35,7 @@ void CPathNode::ReleaseAll(CPathNode *node) {
     }
 }
 
-void CPathNode::print(FILE *out) {
+void SimpleRaytracingPathNode::print(FILE *out) {
     fprintf(out, "Pathnode at depth %i\n", m_depth);
     fprintf(out, "Pos : ");
     vector3DPrint(out, m_hit.point);
@@ -75,11 +75,11 @@ void CPathNode::print(FILE *out) {
  * node for this node
  */
 
-CPathNode *CPathNode::GetMatchingNode() {
+SimpleRaytracingPathNode *SimpleRaytracingPathNode::GetMatchingNode() {
     BSDF *thisBsdf;
     int backhits;
-    CPathNode *tmpNode = previous();
-    CPathNode *matchedNode = nullptr;
+    SimpleRaytracingPathNode *tmpNode = previous();
+    SimpleRaytracingPathNode *matchedNode = nullptr;
 
     thisBsdf = m_useBsdf;
     backhits = 1;
@@ -114,8 +114,8 @@ CPathNode *CPathNode::GetMatchingNode() {
 }
 
 
-BSDF *CPathNode::getPreviousBsdf() {
-    CPathNode *matchedNode;
+BSDF *SimpleRaytracingPathNode::getPreviousBsdf() {
+    SimpleRaytracingPathNode *matchedNode;
 
     if ( !(m_hit.flags & HIT_BACK)) {
         logError("CPathNode::getPreviousBsdf", "Last node not a back hit");
@@ -140,7 +140,7 @@ BSDF *CPathNode::getPreviousBsdf() {
 }
 
 
-void CPathNode::assignBsdfAndNormal() {
+void SimpleRaytracingPathNode::assignBsdfAndNormal() {
     Material *thisMaterial;
 
     if ( m_hit.patch == nullptr ) {

@@ -29,14 +29,14 @@ public:
     // reflected/refracted. If there are both reflective AND refractive
     // components, a scattermode is chosen randomly !!
 
-    virtual bool Sample(CPathNode *prevNode, CPathNode *thisNode,
-                        CPathNode *newNode, double x_1, double x_2,
+    virtual bool Sample(SimpleRaytracingPathNode *prevNode, SimpleRaytracingPathNode *thisNode,
+                        SimpleRaytracingPathNode *newNode, double x_1, double x_2,
                         bool doRR, BSDFFLAGS flags);
 
     // Use this for a N.E.E. : connecting a light node with an eye node
 
     // Return value should be multiplied by infinity !!
-    virtual double EvalPDF(CPathNode *thisNode, CPathNode *newNode,
+    virtual double EvalPDF(SimpleRaytracingPathNode *thisNode, SimpleRaytracingPathNode *newNode,
                            BSDFFLAGS flags, double *pdf = nullptr,
                            double *pdfRR = nullptr);
 
@@ -45,9 +45,9 @@ public:
     // to another sub path end node. prevNode is that other subpath
     // endNode.
     // Return value should be multiplied by infinity !!
-    virtual double EvalPDFPrev(CPathNode *prevNode,
-                               CPathNode *thisNode,
-                               CPathNode *newNode,
+    virtual double EvalPDFPrev(SimpleRaytracingPathNode *prevNode,
+                               SimpleRaytracingPathNode *thisNode,
+                               SimpleRaytracingPathNode *newNode,
                                BSDFFLAGS flags,
                                double *pdf, double *pdfRR);
 

@@ -19,8 +19,8 @@ void CBiPath::Init() {
 
 // ReleasePaths: release all nodes from eye and light path
 void CBiPath::ReleasePaths() {
-    CPathNode::ReleaseAll(m_lightPath);
-    CPathNode::ReleaseAll(m_eyePath);
+    SimpleRaytracingPathNode::ReleaseAll(m_lightPath);
+    SimpleRaytracingPathNode::ReleaseAll(m_eyePath);
     Init();
 }
 
@@ -29,7 +29,7 @@ void CBiPath::ReleasePaths() {
 COLOR CBiPath::EvalRadiance() {
     COLOR col;
     double factor = 1.0;
-    CPathNode *node;
+    SimpleRaytracingPathNode *node;
     int i;
 
     colorSetMonochrome(col, 1.0);
@@ -59,7 +59,7 @@ COLOR CBiPath::EvalRadiance() {
 
 // Evaluate accumulated PDF of a bipath (no weighting)
 double CBiPath::EvalPDFAcc() {
-    CPathNode *node;
+    SimpleRaytracingPathNode *node;
     double pdfAcc = 1.0;
     int i;
 
@@ -90,7 +90,7 @@ float CBiPath::EvalPDFAndWeight(BP_BASECONFIG *bcfg, float *pPdf,
     double currentPdf;
     double newPdf;
     double c;
-    CPathNode *nextNode;
+    SimpleRaytracingPathNode *nextNode;
     double realPdf, tmpPdf, weight;
 
     // First we compute the pdf for generating this path

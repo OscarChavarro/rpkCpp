@@ -76,7 +76,7 @@ findRayIntersection(
 pathNodesVisible : send a shadow ray
 */
 bool
-pathNodesVisible(CPathNode *node1, CPathNode *node2) {
+pathNodesVisible(SimpleRaytracingPathNode *node1, SimpleRaytracingPathNode *node2) {
     Vector3D dir;
     Ray ray;
     RayHit *hit;
@@ -164,10 +164,10 @@ Can the eye see the node ?  If so, pix_x and pix_y are filled in
 */
 bool
 eyeNodeVisible(
-    CPathNode *eyeNode,
-    CPathNode *node,
-    float *pix_x,
-    float *pix_y)
+        SimpleRaytracingPathNode *eyeNode,
+        SimpleRaytracingPathNode *node,
+        float *pix_x,
+        float *pix_y)
 {
     Vector3D dir;
     Ray ray;

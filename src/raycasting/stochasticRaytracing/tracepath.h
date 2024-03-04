@@ -10,14 +10,14 @@ Random walk generation
 /**
 Path node: contains all necessary data for computing the score afterwards
 */
-class PathNode {
+class StochasticRaytracingPathNode {
   public:
     Patch *patch;
     double probability;
     Vector3D inPoint;
     Vector3D outpoint;
 
-    PathNode();
+    StochasticRaytracingPathNode();
 };
 
 /**
@@ -27,7 +27,7 @@ class PATH {
   public:
     int numberOfNodes;
     int nodesAllocated;
-    PathNode *nodes;
+    StochasticRaytracingPathNode *nodes;
 
     PATH(): numberOfNodes(), nodesAllocated(), nodes() {}
 };

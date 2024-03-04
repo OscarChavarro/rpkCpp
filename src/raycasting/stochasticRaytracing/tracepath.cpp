@@ -14,7 +14,7 @@ Random walk generation
 static double (*globalBirthProbability)(Patch *);
 static double globalSumProbabilities;
 
-PathNode::PathNode(): patch(), probability(), inPoint(), outpoint() {};
+StochasticRaytracingPathNode::StochasticRaytracingPathNode(): patch(), probability(), inPoint(), outpoint() {};
 
 /**
 Initialises numberOfNodes, nodes allocated to zero and 'nodes' to the nullptr pointer
@@ -38,10 +38,10 @@ Adds a node to the path. Re-allocates more space for the nodes if necessary
 */
 static void
 pathAddNode(PATH *path, Patch *patch, double prob, Vector3D inPoint, Vector3D outpoint) {
-    PathNode *node;
+    StochasticRaytracingPathNode *node;
 
     if ( path->numberOfNodes >= path->nodesAllocated ) {
-        PathNode *newNodes = (PathNode *)malloc((path->nodesAllocated + 20) * sizeof(PathNode));
+        StochasticRaytracingPathNode *newNodes = (StochasticRaytracingPathNode *)malloc((path->nodesAllocated + 20) * sizeof(StochasticRaytracingPathNode));
         if ( path->nodesAllocated > 0 ) {
             int i;
             for ( i = 0; i < path->numberOfNodes; i++ ) {

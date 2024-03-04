@@ -27,18 +27,18 @@ public:
     // Sample : newNode gets filled, others may change
     virtual bool
     Sample(
-        CPathNode *prevNode,
-        CPathNode *thisNode,
-        CPathNode *newNode,
-        double x1,
-        double x2,
-        bool doRR,
-        BSDFFLAGS flags);
+            SimpleRaytracingPathNode *prevNode,
+            SimpleRaytracingPathNode *thisNode,
+            SimpleRaytracingPathNode *newNode,
+            double x1,
+            double x2,
+            bool doRR,
+            BSDFFLAGS flags);
 
     virtual double
-    EvalPDF(CPathNode *thisNode, CPathNode *newNode,
-                           BSDFFLAGS flags,
-                           double *pdf, double *pdfRR);
+    EvalPDF(SimpleRaytracingPathNode *thisNode, SimpleRaytracingPathNode *newNode,
+            BSDFFLAGS flags,
+            double *pdf, double *pdfRR);
 };
 
 class CImportantLightSampler : public CNextEventSampler {
@@ -46,21 +46,21 @@ public:
     // Sample : newNode gets filled, others may change
     virtual bool
     Sample(
-        CPathNode *prevNode,
-        CPathNode *thisNode,
-        CPathNode *newNode,
-        double x1,
-        double x2,
-        bool doRR,
-        BSDFFLAGS flags);
+            SimpleRaytracingPathNode *prevNode,
+            SimpleRaytracingPathNode *thisNode,
+            SimpleRaytracingPathNode *newNode,
+            double x1,
+            double x2,
+            bool doRR,
+            BSDFFLAGS flags);
 
     virtual double
     EvalPDF(
-        CPathNode *thisNode,
-        CPathNode *newNode,
-        BSDFFLAGS flags,
-        double *pdf,
-        double *pdfRR);
+            SimpleRaytracingPathNode *thisNode,
+            SimpleRaytracingPathNode *newNode,
+            BSDFFLAGS flags,
+            double *pdf,
+            double *pdfRR);
 
 protected:
     Vector3D lastPoint, lastNormal;

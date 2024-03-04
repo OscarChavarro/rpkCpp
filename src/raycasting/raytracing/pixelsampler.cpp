@@ -3,8 +3,8 @@
 #include "raycasting/common/raytools.h"
 #include "raycasting/raytracing/pixelsampler.h"
 
-bool CPixelSampler::Sample(CPathNode */*prevNode*/, CPathNode *thisNode,
-                           CPathNode *newNode, double x_1, double x_2,
+bool CPixelSampler::Sample(SimpleRaytracingPathNode */*prevNode*/, SimpleRaytracingPathNode *thisNode,
+                           SimpleRaytracingPathNode *newNode, double x_1, double x_2,
                            bool /* doRR */, BSDFFLAGS /* flags */) {
     Vector3D dir;
 
@@ -66,7 +66,7 @@ void CPixelSampler::SetPixel(int nx, int ny, Camera *cam) {
     m_py = -cam->pixelHeight * cam->ySize / 2.0 + ny * cam->pixelHeight;
 }
 
-double CPixelSampler::EvalPDF(CPathNode *thisNode, CPathNode *newNode,
+double CPixelSampler::EvalPDF(SimpleRaytracingPathNode *thisNode, SimpleRaytracingPathNode *newNode,
                               BSDFFLAGS /*flags*/, double * /*pdf*/,
                               double * /*pdfRR*/) {
     double dist2, dist, cosa, cosb, pdf;

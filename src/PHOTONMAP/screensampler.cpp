@@ -6,9 +6,9 @@
 
 bool
 CScreenSampler::Sample(
-    CPathNode */*prevNode*/,
-    CPathNode *thisNode,
-    CPathNode *newNode,
+    SimpleRaytracingPathNode */*prevNode*/,
+    SimpleRaytracingPathNode *thisNode,
+    SimpleRaytracingPathNode *newNode,
     double x_1,
     double x_2,
     bool /* doRR */,
@@ -60,7 +60,7 @@ CScreenSampler::Sample(
     return true;
 }
 
-double CScreenSampler::EvalPDF(CPathNode *thisNode, CPathNode *newNode,
+double CScreenSampler::EvalPDF(SimpleRaytracingPathNode *thisNode, SimpleRaytracingPathNode *newNode,
                                BSDFFLAGS /*flags*/, double * /*pdf*/,
                                double * /*pdfRR*/) {
     double dist2, dist, cosa, cosb, pdf;

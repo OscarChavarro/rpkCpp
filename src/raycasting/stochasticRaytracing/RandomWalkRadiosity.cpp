@@ -102,7 +102,7 @@ randomWalkRadiosityScoreWeight(PATH *path, int n) {
         case RW_LAST_BUT_NTH:
             if ( n == t - 1 ) {
                 int i = path->numberOfNodes - 1;
-                PathNode *node = &path->nodes[i];
+                StochasticRaytracingPathNode *node = &path->nodes[i];
                 w = 1. / (1. - node->probability);    /* absorption prob of the last node */
                 for ( i--, node--; i >= n; i--, node-- ) {
                     w /= node->probability;
@@ -128,7 +128,7 @@ static void
 randomWalkRadiosityShootingScore(PATH *path, long nr_paths, double (* /*birthProb*/)(Patch *)) {
     COLOR accum_pow;
     int n;
-    PathNode *node = &path->nodes[0];
+    StochasticRaytracingPathNode *node = &path->nodes[0];
 
     /* path->nodes[0].probability is birth probability of the path */
     colorScale((float)(node->patch->area / node->probability), topLevelGalerkinElement(node->patch)->sourceRad, accum_pow);
@@ -263,7 +263,7 @@ static void
 randomWalkRadiosityCollisionGatheringScore(PATH *path, long /*nr_paths*/, double (* /*birthProb*/)(Patch *)) {
     COLOR accum_rad;
     int n;
-    PathNode *node = &path->nodes[path->numberOfNodes - 1];
+    StochasticRaytracingPathNode *node = &path->nodes[path->numberOfNodes - 1];
     accum_rad = topLevelGalerkinElement(node->patch)->sourceRad;
     for ( n = path->numberOfNodes - 2, node--; n >= 0; n--, node-- ) {
         double uin = 0., vin = 0., uout = 0., vout = 0., r = 1.;

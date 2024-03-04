@@ -113,13 +113,13 @@ public:
 
     // Were 'flags' last used in the bounce in 'node'
     bool
-    DoneThisBounce(const CPathNode *node) const {
+    DoneThisBounce(const SimpleRaytracingPathNode *node) const {
         return (node->m_usedComponents == flags);
     }
 
     // Were 'flags' used at some previous point in the path
     bool
-    DoneSomePreviousBounce(CPathNode *node) const {
+    DoneSomePreviousBounce(SimpleRaytracingPathNode *node) const {
         return ((node->m_accUsedComponents & flags) == flags);
     }
 };

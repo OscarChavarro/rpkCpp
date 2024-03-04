@@ -5,8 +5,8 @@
 #include "raycasting/common/raytools.h"
 #include "raycasting/raytracing/bsdfsampler.h"
 
-bool CBsdfSampler::Sample(CPathNode *prevNode, CPathNode *thisNode,
-                          CPathNode *newNode, double x_1, double x_2,
+bool CBsdfSampler::Sample(SimpleRaytracingPathNode *prevNode, SimpleRaytracingPathNode *thisNode,
+                          SimpleRaytracingPathNode *newNode, double x_1, double x_2,
                           bool doRR, BSDFFLAGS flags) {
     double pdfDir;
 
@@ -90,7 +90,7 @@ bool CBsdfSampler::Sample(CPathNode *prevNode, CPathNode *thisNode,
     return true; // Node filled in
 }
 
-double CBsdfSampler::EvalPDF(CPathNode *thisNode, CPathNode *newNode,
+double CBsdfSampler::EvalPDF(SimpleRaytracingPathNode *thisNode, SimpleRaytracingPathNode *newNode,
                              BSDFFLAGS flags, double *pdf, double *pdfRR) {
     double pdfDir, dist2, dist, cosa, pdfH, pdfRRH;
     Vector3D outDir;
@@ -124,8 +124,8 @@ double CBsdfSampler::EvalPDF(CPathNode *thisNode, CPathNode *newNode,
 }
 
 
-double CBsdfSampler::EvalPDFPrev(CPathNode *prevNode,
-                                 CPathNode *thisNode, CPathNode */*newNode*/,
+double CBsdfSampler::EvalPDFPrev(SimpleRaytracingPathNode *prevNode,
+                                 SimpleRaytracingPathNode *thisNode, SimpleRaytracingPathNode */*newNode*/,
                                  BSDFFLAGS flags,
                                  double *pdf, double *pdfRR) {
     double pdfDir, cosb, pdfH, pdfRRH;

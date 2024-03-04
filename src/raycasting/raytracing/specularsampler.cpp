@@ -3,8 +3,8 @@
 #include "raycasting/common/raytools.h"
 #include "raycasting/raytracing/specularsampler.h"
 
-bool CSpecularSampler::Sample(CPathNode *prevNode, CPathNode *thisNode,
-                              CPathNode *newNode, double x_1, double x_2,
+bool CSpecularSampler::Sample(SimpleRaytracingPathNode *prevNode, SimpleRaytracingPathNode *thisNode,
+                              SimpleRaytracingPathNode *newNode, double x_1, double x_2,
                               bool doRR, BSDFFLAGS flags) {
     Vector3D dir;
     double pdfDir = 1.0;
@@ -101,7 +101,7 @@ bool CSpecularSampler::Sample(CPathNode *prevNode, CPathNode *thisNode,
 }
 
 
-double CSpecularSampler::EvalPDF(CPathNode *thisNode, CPathNode *newNode,
+double CSpecularSampler::EvalPDF(SimpleRaytracingPathNode *thisNode, SimpleRaytracingPathNode *newNode,
                                  BSDFFLAGS flags, double *pdf, double *pdfRR) {
     if ( pdf ) {
         *pdf = 0;
@@ -114,8 +114,8 @@ double CSpecularSampler::EvalPDF(CPathNode *thisNode, CPathNode *newNode,
 }
 
 
-double CSpecularSampler::EvalPDFPrev(CPathNode *prevNode,
-                                     CPathNode *thisNode, CPathNode */*newNode*/,
+double CSpecularSampler::EvalPDFPrev(SimpleRaytracingPathNode *prevNode,
+                                     SimpleRaytracingPathNode *thisNode, SimpleRaytracingPathNode */*newNode*/,
                                      BSDFFLAGS flags,
                                      double *pdf, double *pdfRR) {
     *pdf = 0.;

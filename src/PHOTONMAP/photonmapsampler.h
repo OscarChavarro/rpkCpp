@@ -15,12 +15,12 @@ class CPhotonMapSampler : public CBsdfSampler {
 protected:
     CPhotonMap *m_photonMap; // To be used for importance sampling
 
-    bool FresnelSample(CPathNode *prevNode, CPathNode *thisNode,
-                       CPathNode *newNode, double x_2,
+    bool FresnelSample(SimpleRaytracingPathNode *prevNode, SimpleRaytracingPathNode *thisNode,
+                       SimpleRaytracingPathNode *newNode, double x_2,
                        BSDFFLAGS flags);
 
-    bool GDSample(CPathNode *prevNode, CPathNode *thisNode,
-                  CPathNode *newNode, double x_1, double x_2,
+    bool GDSample(SimpleRaytracingPathNode *prevNode, SimpleRaytracingPathNode *thisNode,
+                  SimpleRaytracingPathNode *newNode, double x_1, double x_2,
                   bool doRR, BSDFFLAGS flags);
 
     // Randomly choose between 2 scattering components, using
@@ -37,8 +37,8 @@ public:
     //   Return true if the node was filled in, false if path Ends
     //   When path ends (absorption) the type of thisNode is adjusted to 'Ends'
 
-    virtual bool Sample(CPathNode *prevNode, CPathNode *thisNode,
-                        CPathNode *newNode, double x_1, double x_2,
+    virtual bool Sample(SimpleRaytracingPathNode *prevNode, SimpleRaytracingPathNode *thisNode,
+                        SimpleRaytracingPathNode *newNode, double x_1, double x_2,
                         bool doRR, BSDFFLAGS flags);
 
     //   virtual double EvalPDF(CPathNode *thisNode, CPathNode *newNode,

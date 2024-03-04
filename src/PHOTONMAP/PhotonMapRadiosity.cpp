@@ -166,8 +166,8 @@ Adapted from bidirpath, this is a bit overkill for here
 static COLOR
 photonMapDoComputePixelFluxEstimate(PhotonMapConfig *config) {
     CBiPath *bp = &config->biPath;
-    CPathNode *eyePrevNode;
-    CPathNode *lightPrevNode;
+    SimpleRaytracingPathNode *eyePrevNode;
+    SimpleRaytracingPathNode *lightPrevNode;
     COLOR oldBsdfL;
     COLOR oldBsdfE;
     CBsdfComp oldBsdfCompL;
@@ -181,8 +181,8 @@ photonMapDoComputePixelFluxEstimate(PhotonMapConfig *config) {
     double oldRRPdfLP = 0.0;
     double oldRRPdfEP = 0.0;
     COLOR f;
-    CPathNode *eyeEndNode;
-    CPathNode *lightEndNode;
+    SimpleRaytracingPathNode *eyeEndNode;
+    SimpleRaytracingPathNode *lightEndNode;
 
     // Store PDF and BSDF evals that will be overwritten
 
@@ -306,7 +306,7 @@ photonMapDoScreenNEE(PhotonMapConfig *config) {
 Store a photon. Some acceptance tests are performed first
 */
 bool
-photonMapDoPhotonStore(CPathNode *node, COLOR power) {
+photonMapDoPhotonStore(SimpleRaytracingPathNode *node, COLOR power) {
     //float scatteredPower;
     //COLOR col;
     BSDF *bsdf;
@@ -361,7 +361,7 @@ photonMapHandlePath(PhotonMapConfig *config) {
     // Iterate over all light nodes
 
     bp->m_lightSize = 1;
-    CPathNode *currentNode = bp->m_lightPath;
+    SimpleRaytracingPathNode *currentNode = bp->m_lightPath;
 
     bp->m_eyeSize = 1;
     bp->m_eyeEndNode = bp->m_eyePath;
@@ -424,7 +424,7 @@ photonMapTracePath(PhotonMapConfig *config, BSDFFLAGS bsdfFlags) {
     double x_1, x_2;
     // unsigned *nrs = Nied31(pmapQMCseed_s++);
 
-    CPathNode *path = config->biPath.m_lightPath;
+    SimpleRaytracingPathNode *path = config->biPath.m_lightPath;
 
     // First node
     x_1 = drand48(); //nrs[0] * RECIP;
@@ -440,7 +440,7 @@ photonMapTracePath(PhotonMapConfig *config, BSDFFLAGS bsdfFlags) {
     path->ensureNext();
 
     // Second node
-    CPathNode *node = path->next();
+    SimpleRaytracingPathNode *node = path->next();
     x_1 = drand48(); // nrs[2] * RECIP;
     x_2 = drand48(); // nrs[3] * RECIP; // 4D Niederreiter...
 
@@ -577,7 +577,7 @@ photonMapTerminate(java::ArrayList<Patch *> * /*scenePatches*/) {
 Returns the radiance emitted in the node related direction
 */
 COLOR
-photonMapGetNodeGRadiance(CPathNode *node) {
+photonMapGetNodeGRadiance(SimpleRaytracingPathNode *node) {
     COLOR col;
 
     GLOBAL_photonMap_config.globalMap->DoBalancing(GLOBAL_photonMap_state.balanceKDTree);
@@ -591,7 +591,7 @@ photonMapGetNodeGRadiance(CPathNode *node) {
 Returns the radiance emitted in the node related direction
 */
 COLOR
-photonMapGetNodeCRadiance(CPathNode *node) {
+photonMapGetNodeCRadiance(SimpleRaytracingPathNode *node) {
     COLOR col;
 
     GLOBAL_photonMap_config.causticMap->DoBalancing(GLOBAL_photonMap_state.balanceKDTree);
