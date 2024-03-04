@@ -172,7 +172,7 @@ Handle color temperature
 static int
 mgfColorTemperature(int /*ac*/, char ** /*av*/)
 {
-    // Logic is similar to e_cmix here. Support handler has already
+    // Logic is similar to mgfECmix here.  Support handler has already
     // converted temperature to spectral color.  Put it out as such
     // if they support it, otherwise convert to xy chromaticity and
     // put it out if they handle it
@@ -327,13 +327,14 @@ mgfEntity(char *name)
 
     if ( !ent_tab.tsiz ) {
         // Initialize hash table
-        if ( !lookUpInit(&ent_tab, MGF_TOTAL_NUMBER_OF_ENTITIES) ) {
-            // What to do?
+        if ( !lookUpInit(&ent_tab, MGF_TOTAL_NUMBER_OF_ENTITIES)) {
             return -1;
         }
+
+        // What to do?
         for ( cp = GLOBAL_mgf_entityNames[MGF_TOTAL_NUMBER_OF_ENTITIES - 1];
-            cp >= GLOBAL_mgf_entityNames[0];
-            cp -= sizeof(GLOBAL_mgf_entityNames[0]) ) {
+              cp >= GLOBAL_mgf_entityNames[0];
+              cp -= sizeof(GLOBAL_mgf_entityNames[0]) ) {
             lookUpFind(&ent_tab, cp)->key = cp;
         }
     }
@@ -392,7 +393,7 @@ mgfOpen(MgfReaderContext *ctx, char *fn)
     }
 
     // Get name relative to this context
-    if ( GLOBAL_mgf_file != nullptr && (cp = strrchr(GLOBAL_mgf_file->fileName, '/')) != nullptr ) {
+    if ( GLOBAL_mgf_file != nullptr && (cp = strrchr(GLOBAL_mgf_file->fileName, '/')) != nullptr) {
         strcpy(ctx->fileName, GLOBAL_mgf_file->fileName);
         strcpy(ctx->fileName + (cp - GLOBAL_mgf_file->fileName + 1), fn);
     } else {
@@ -453,7 +454,7 @@ mgfGoToFilePosition(MgdReaderFilePosition *pos)
         // Cannot seek on standard input
         return MGF_ERROR_FILE_SEEK_ERROR;
     }
-    if ( fseek(GLOBAL_mgf_file->fp, pos->offset, 0) == EOF ) {
+    if ( fseek(GLOBAL_mgf_file->fp, pos->offset, 0) == EOF) {
         return MGF_ERROR_FILE_SEEK_ERROR;
     }
     GLOBAL_mgf_file->lineNumber = pos->lineno;
@@ -498,7 +499,7 @@ mgfParseCurrentLine()
     // Copy line, removing escape chars
     cp = abuf;
     cp2 = GLOBAL_mgf_file->inputLine;
-    while ( (*cp++ = *cp2++) ) {
+    while ((*cp++ = *cp2++)) {
         if ( cp2[0] == '\n' && cp2[-1] == '\\' ) {
             cp--;
         }
@@ -506,7 +507,7 @@ mgfParseCurrentLine()
     cp = abuf;
     ap = argv; // Break into words
     for ( ;; ) {
-        while ( isspace(*cp) ) {
+        while ( isspace(*cp)) {
             *cp++ = '\0';
         }
         if ( !*cp ) {
@@ -584,8 +585,7 @@ handleIncludedFile(int ac, char **av)
         }
     }
     do {
-        rv = mgfReadNextLine();
-        while ( rv > 0 ) {
+        while ( (rv = mgfReadNextLine()) > 0 ) {
             if ( rv >= MGF_MAXIMUM_INPUT_LINE_LENGTH - 1 ) {
                 fprintf(stderr, "%s: %d: %s\n", ictx.fileName,
                         ictx.lineNumber, GLOBAL_mgf_errors[MGF_ERROR_LINE_TOO_LONG]);
@@ -681,10 +681,10 @@ mgfEntitySphere(int ac, char **av)
         return MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
     }
     cv = getNamedVertex(av[1]);
-    if ( cv == nullptr ) {
+    if ( cv == nullptr) {
         return MGF_ERROR_UNDEFINED_REFERENCE;
     }
-    if ( !isFloatWords(av[2]) ) {
+    if ( !isFloatWords(av[2])) {
         return MGF_ERROR_ARGUMENT_TYPE;
     }
     rad = strtod(av[2], nullptr);
