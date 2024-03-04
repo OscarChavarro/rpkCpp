@@ -16,29 +16,28 @@ A chain list is a set of scattering modes
 #include "raycasting/raytracing/bipath.h"
 
 class CFlagChain {
-public:
+  public:
     BSDFFLAGS *chain;
     int length;
     bool subtract;
 
-    void init(int length, bool subtract = false);
+    void init(int paramLength, bool paramSubtract = false);
 
-    CFlagChain(int length = 0, bool subtract = false);
+    explicit CFlagChain(int paramLength = 0, bool paramSubtract = false);
 
     CFlagChain(const CFlagChain &c); // Copy constructor
     ~CFlagChain();
 
     // Array access operator
-    inline BSDFFLAGS &operator[](const int index) {
+    inline BSDFFLAGS &operator[](const int index) const {
         return chain[index];
     }
 
-    COLOR compute(CBiPath *path);
-    void print();
+    COLOR compute(CBiPath *path) const;
 };
 
 
-// Compare two flagchains
+// Compare two flag chains
 bool FlagChainCompare(const CFlagChain *c1,
                       const CFlagChain *c2);
 
@@ -52,7 +51,7 @@ CFlagChain *FlagChainCombine(const CFlagChain *chain1,
 // Chains in the list are of fixed length !
 
 class CChainList : private CTSList<CFlagChain> {
-public:
+  public:
     int length;
     int count;
 
@@ -61,7 +60,6 @@ public:
     void add(const CFlagChain &chain);
     void add(CChainList *list);
     void addDisjunct(const CFlagChain &chain);
-    void print();
     COLOR compute(CBiPath *path);
     CChainList *simplify();
 };
@@ -72,24 +70,20 @@ typedef CTSList_Iter<CFlagChain> CFlagChainIter;
 
 // An array of chain lists indexed by length
 class CContribHandler {
-public:
+  public:
     CChainList *array;
     int maxLength;
 
-    // Methods
-
     CContribHandler();
-
-    virtual void init(int maxLength);
+    virtual void init(int paramMaxLength);
     virtual ~CContribHandler();
     virtual void addRegExp(char *regExp);
     virtual COLOR compute(CBiPath *path);
-    virtual void print();
 
-protected:
+  protected:
     virtual void doRegExp(char *regExp, bool subtract);
     void doSyntaxError(const char *errString);
-    bool getFlags(char *regExp, int *pos, BSDFFLAGS *flags);
+    bool getFlags(const char *regExp, int *pos, BSDFFLAGS *flags);
     bool getToken(char *regExp, int *pos, char *token, BSDFFLAGS *flags);
     void doRegExpGeneral(char *regExp, bool subtract);
 };

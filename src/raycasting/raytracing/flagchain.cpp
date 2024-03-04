@@ -5,39 +5,41 @@
 #include "raycasting/raytracing/flagchain.h"
 
 void
-CFlagChain::init(const int length, bool const subtract) {
+CFlagChain::init(const int paramLength, bool const paramSubtract) {
     if ( chain ) {
         delete[] chain;
     }
 
-    if ( length > 0 ) {
-        chain = new BSDFFLAGS[length];
+    if ( paramLength > 0 ) {
+        chain = new BSDFFLAGS[paramLength];
     } else {
         chain = nullptr;
     }
 
-    this->length = length;
-    this->subtract = subtract;
+    this->length = paramLength;
+    this->subtract = paramSubtract;
 
-    for ( int i = 0; i < length; i++ ) {
+    for ( int i = 0; i < paramLength; i++ ) {
         if ( chain != nullptr ) {
             chain[i] = 0;
         }
     }
 }
 
-CFlagChain::CFlagChain(const int length, const bool subtract) {
+CFlagChain::CFlagChain(const int paramLength, const bool paramSubtract): length(), subtract() {
     chain = nullptr;
 
-    init(length, subtract);
+    init(paramLength, paramSubtract);
 }
 
-CFlagChain::CFlagChain(const CFlagChain &c) {
+CFlagChain::CFlagChain(const CFlagChain &c): length(), subtract() {
     chain = nullptr;
     init(c.length, c.subtract);
 
     for ( int i = 0; i < length; i++ ) {
-        chain[i] = c.chain[i];
+        if ( chain != nullptr ) {
+            chain[i] = c.chain[i];
+        }
     }
 }
 
@@ -79,23 +81,21 @@ CFlagChain *
 FlagChainCombine(const CFlagChain *c1,
                              const CFlagChain *c2) {
     // Determine if combinable
-
     int nrDifferent = 0;
-    int diffIndex = 0, i;
+    int diffIndex = 0;
 
     if ( (c1->length != c2->length) || (c1->subtract != c2->subtract) ) {
         return nullptr;
     }
 
-    for ( i = 0; (i < c1->length) && (nrDifferent <= 1); i++ ) {
+    for ( int i = 0; (i < c1->length) && (nrDifferent <= 1); i++ ) {
         if ( c1->chain[i] != c2->chain[i] ) {
             nrDifferent++;
             diffIndex = i;
         }
     }
 
-    // combine into new chain
-
+    // Combine into new chain
     if ( nrDifferent == 0 ) {
         // flag chains identical - maybe dangerous if someone wants to
         // count one contribution twice...
@@ -104,16 +104,14 @@ FlagChainCombine(const CFlagChain *c1,
 
     if ( nrDifferent == 1 ) {
         // Combinable !
+        CFlagChain *newFlagChain = new CFlagChain(*c1);
 
-        CFlagChain *cnew = new CFlagChain(*c1);
+        newFlagChain->chain[diffIndex] = c1->chain[diffIndex] | c2->chain[diffIndex];
 
-        cnew->chain[diffIndex] = c1->chain[diffIndex] | c2->chain[diffIndex];
-
-        return cnew;
+        return newFlagChain;
     }
 
     // Not combinable
-
     return nullptr;
 }
 
@@ -122,7 +120,7 @@ Compute : calculate the product of bsdf components defined
 by the chain. Eye and light node ARE INCLUDED
 */
 COLOR
-CFlagChain::compute(CBiPath *path) {
+CFlagChain::compute(CBiPath *path) const {
     COLOR result, tmpCol;
     colorSetMonochrome(result, 1.0);
     int i;
@@ -136,8 +134,7 @@ CFlagChain::compute(CBiPath *path) {
         return result;
     }
 
-    // Flagchain start at the lightnode and end at the eyenode
-
+    // Flag chain start at the light node and end at the eye node
     node = path->m_lightPath;
 
     for ( i = 0; i < lightSize; i++ ) {
@@ -161,89 +158,6 @@ CFlagChain::compute(CBiPath *path) {
     return result;
 }
 
-
-void
-CFlagChain::print() {
-    if ( subtract ) {
-        printf("-");
-    }
-
-    for ( int i = 0; i < length; i++ ) {
-        XXDFFLAGS brdfFlags, btdfFlags;
-        bool line = false;
-
-        brdfFlags = GETBRDFFLAGS(chain[i]);
-        btdfFlags = GETBTDFFLAGS(chain[i]);
-
-
-        printf("(");
-
-        if ( brdfFlags == ALL_COMPONENTS) {
-            if ( line ) {
-                printf("|");
-            }
-            printf("XR");
-            line = true;
-        } else {
-            if ( brdfFlags & DIFFUSE_COMPONENT ) {
-                if ( line ) {
-                    printf("|");
-                }
-                printf("DR");
-                line = true;
-            }
-            if ( brdfFlags & GLOSSY_COMPONENT ) {
-                if ( line ) {
-                    printf("|");
-                }
-                printf("GR");
-                line = true;
-            }
-            if ( brdfFlags & SPECULAR_COMPONENT ) {
-                if ( line ) {
-                    printf("|");
-                }
-                printf("SR");
-                line = true;
-            }
-        }
-
-        if ( btdfFlags == ALL_COMPONENTS) {
-            if ( line ) {
-                printf("|");
-            }
-            printf("XT");
-            line = true;
-        } else {
-            if ( btdfFlags & DIFFUSE_COMPONENT ) {
-                if ( line ) {
-                    printf("|");
-                }
-                printf("DT");
-                line = true;
-            }
-            if ( btdfFlags & GLOSSY_COMPONENT ) {
-                if ( line ) {
-                    printf("|");
-                }
-                printf("GT");
-                line = true;
-            }
-            if ( btdfFlags & SPECULAR_COMPONENT ) {
-                if ( line ) {
-                    printf("|");
-                }
-                printf("ST");
-                line = true;
-            }
-        }
-        printf(")");
-    }
-}
-
-
-/********* Chain List ***********/
-
 CChainList::CChainList() {
     count = 0;
     length = 0;
@@ -255,8 +169,7 @@ CChainList::~CChainList() {
 
 void
 CChainList::add(CChainList *list) {
-    // add all chains in 'list'
-
+    // Add all chains in 'list'
     CFlagChainIter iter(*list);
     CFlagChain *tmpChain;
 
@@ -269,7 +182,7 @@ void
 CChainList::add(const CFlagChain &chain) {
     if ( count > 0 ) {
         if ( chain.length != length ) {
-            logError("CChainList::add", "Wrong length flagchain inserted!");
+            logError("CChainList::add", "Wrong length flag chain inserted!");
             return;
         }
     } else {
@@ -285,14 +198,13 @@ void
 CChainList::addDisjunct(const CFlagChain &chain) {
     if ( count > 0 ) {
         if ( chain.length != length ) {
-            logError("CChainList::add", "Wrong length flagchain inserted!");
+            logError("CChainList::add", "Wrong length flag chain inserted!");
             return;
         }
     } else {
         // first element
         length = chain.length;
     }
-
 
     CFlagChainIter iter(*this);
     CFlagChain *tmpChain;
@@ -308,21 +220,6 @@ CChainList::addDisjunct(const CFlagChain &chain) {
     }
 }
 
-void
-CChainList::print() {
-    CFlagChainIter iter(*this);
-    CFlagChain *chain;
-
-    printf("Chainlist, length %i, entries %i\n", length, count);
-
-    while ( (chain = iter.nextOnSequence()) != nullptr ) {
-        printf("  ");
-        chain->print();
-        printf("\n");
-    }
-}
-
-
 COLOR
 CChainList::compute(CBiPath *path) {
     COLOR result, tmpCol;
@@ -332,13 +229,13 @@ CChainList::compute(CBiPath *path) {
     CFlagChainIter iter(*this);
     CFlagChain *chain;
 
-    while ((chain = iter.nextOnSequence())) {
+    while ( (chain = iter.nextOnSequence()) != nullptr ) {
         tmpCol = chain->compute(path);
 
         colorAdd(tmpCol, result, result);
     }
 
-    return (result);
+    return result;
 }
 
 /**
@@ -348,26 +245,27 @@ single entry! (So in fact no equal entries is advisable)
 */
 CChainList *
 CChainList::simplify() {
-    // Try a simple simplifaction scheme, just comparing pair wise chains
-
+    // Try a simple simplification scheme, just comparing pair wise chains
     CChainList *newList = new CChainList;
-    CFlagChain *c1, *c2, *ccomb;
+    CFlagChain *c1;
+    CFlagChain *c2;
+    CFlagChain *cCombined;
     CFlagChainIter iter(*this);
 
     c1 = iter.nextOnSequence();
 
     if ( c1 ) {
-        while ((c2 = iter.nextOnSequence())) {
-            ccomb = FlagChainCombine(c1, c2);
-            if ( ccomb ) {
-                c1 = ccomb; // Combined
+        while ( (c2 = iter.nextOnSequence()) != nullptr ) {
+            cCombined = FlagChainCombine(c1, c2);
+            if ( cCombined ) {
+                c1 = cCombined; // Combined
             } else {
                 newList->add(*c1);
                 c1 = c2;
             }
         }
 
-        // add final chain still in c1
+        // Add final chain still in c1
         newList->add(*c1);
     }
 
@@ -380,15 +278,15 @@ CContribHandler::CContribHandler() {
 }
 
 void
-CContribHandler::init(int maxLength) {
-    maxLength = maxLength;
+CContribHandler::init(int paramMaxLength) {
+    this->maxLength = paramMaxLength;
 
     if ( array ) {
         delete[] array;
     }
 
-    // For each length we need a chainlist
-    array = new CChainList[maxLength + 1]; // 0 <= length <= maxlength !!
+    // For each length we need a chain list
+    array = new CChainList[paramMaxLength + 1]; // 0 <= length <= maxlength !!
 }
 
 CContribHandler::~CContribHandler() {
@@ -413,32 +311,14 @@ CContribHandler::compute(CBiPath *path) {
 }
 
 void
-CContribHandler::print() {
-    int i;
-
-    printf("ContribHandler\n");
-
-    for ( i = 0; i <= maxLength; i++ ) {
-        printf("Length %i\n", i);
-        printf("=============\n");
-
-        array[i].print();
-
-        printf("=============\n");
-    }
-}
-
-void
 CContribHandler::doRegExp(char *regExp, bool subtract) {
-
     doRegExpGeneral(regExp, subtract);
-    return;
 }
 
 /**
 add a group of paths
 regExp indicates the regular expression covered by the sampling strategy
-The class of covered paths covered by the contribhandler is : (regSPaR)(regPath)
+The class of covered paths covered by the contrib handler is : (regSPaR)(regPath)
 regSPar is not needed here. The regExp must ensure disjunct paths!
 */
 void
@@ -452,12 +332,12 @@ CContribHandler::addRegExp(char *regExp) {
 
 void
 CContribHandler::doSyntaxError(const char *errString) {
-    logError("Flagchain Syntax Error", errString);
+    logError("Flag chain Syntax Error", errString);
     init(maxLength);
 }
 
 bool
-CContribHandler::getFlags(char *regExp, int *pos, BSDFFLAGS *flags) {
+CContribHandler::getFlags(const char *regExp, int *pos, BSDFFLAGS *flags) {
     char c;
     int p = *pos;
 
@@ -550,7 +430,7 @@ CContribHandler::getFlags(char *regExp, int *pos, BSDFFLAGS *flags) {
                 *flags = BSDF_ALL_COMPONENTS;
                 break;
             case '|':
-                break;  // Do Nothing cause we don't support other operators
+                break;  // Do Nothing because we don't support other operators
             default:
                 doSyntaxError("getFlags: Unexpected character in token");
                 return false;
@@ -745,6 +625,6 @@ CContribHandler::doRegExpGeneral(char *regExp, bool subtract) {
             }
         }
 
-        array[length].add(tmpList.simplify()); // add all chains
+        array[length].add(tmpList.simplify()); // Add all chains
     }
 }

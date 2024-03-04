@@ -76,7 +76,7 @@ template<class T>
 class CTSList : protected CircularListBase {
   public:
     virtual ~CTSList();
-    void add(const T &data);
+    virtual void add(const T &data);
     void append(const T &data);
     void removeAll();
     void clear();
