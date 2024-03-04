@@ -114,7 +114,7 @@ mainSetRayTracingMethod(Raytracer *newMethod) {
 }
 
 void
-batchSaveRaytracingImage(const char *fileName, FILE *fp, int isPipe, java::ArrayList<Patch *> *scenePatches) {
+batchSaveRaytracingImage(const char *fileName, FILE *fp, int isPipe, java::ArrayList<Patch *> * /*scenePatches*/) {
     ImageOutputHandle *img = nullptr;
     clock_t t;
 

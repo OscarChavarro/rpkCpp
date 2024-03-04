@@ -94,7 +94,7 @@ class CLightList_Iter {
 
     Patch *
     First(CLightList &list) {
-        m_iter.Init(list);
+        m_iter.init(list);
 
         CLightInfo *li = m_iter.Next();
         if ( li != nullptr ) {
