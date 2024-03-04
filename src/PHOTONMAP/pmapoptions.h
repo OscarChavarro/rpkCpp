@@ -8,12 +8,6 @@
 
 const int MAXIMUM_RECON_PHOTONS = 400;
 
-enum PMAP_TYPE {
-    GLOBAL_MAP,
-    CAUSTIC_MAP,
-    IMPORTANCE_MAP
-};
-
 enum RADRETURN_OPTION {
     GLOBAL_DENSITY,
     CAUSTIC_DENSITY,
@@ -125,6 +119,5 @@ class CPmapState
 extern CPmapState GLOBAL_photonMap_state;
 
 extern void photonMapParseOptions(int *argc, char **argv);
-extern void photonMapPrintOptions(FILE *fp);
 
 #endif

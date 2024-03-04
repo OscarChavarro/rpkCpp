@@ -29,7 +29,6 @@ public:
     char drawCameras; // True for drawing alternate viewpoints
     char renderRayTracedImage; // For freezing ray-traced image on the screen when appropriate
     char trace; // High-dynamic range ray-traced tiff
-    char useBackground; // Use background image when rendering
 };
 
 extern RenderOptions GLOBAL_render_renderOptions;

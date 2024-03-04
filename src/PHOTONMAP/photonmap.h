@@ -42,7 +42,7 @@ protected:
     int m_nrpFound; // Number of photons in the array
     int m_nrpCosinePos; /* Number of photons in the array that have
 			direction * normal > 0, where normal is
-			the a supplied reconstruction normal. */
+			the supplied reconstruction normal. */
 
     CPhoton **m_photons;
     float *m_distances;

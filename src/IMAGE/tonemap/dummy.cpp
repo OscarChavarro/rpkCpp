@@ -24,10 +24,8 @@ static COLOR dummyScaleForDisplay(COLOR radiance) {
 TONEMAP GLOBAL_toneMap_dummy = {
     "Dummy",
     "Dummy",
-    "dummyButton",
     3,
     dummyDefaults,
-    nullptr,
     nullptr,
     dummyInit,
     dummyTerminate,

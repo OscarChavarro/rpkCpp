@@ -107,15 +107,3 @@ btdfEvalPdf(
         *pdf = 0;
     }
 }
-
-/**
-print the btdf data the to specified file pointer
-*/
-void
-btdfPrint(FILE *out, BTDF *btdf) {
-    if ( !btdf ) {
-        fprintf(out, "(NULL BTDF)\n");
-    } else {
-        btdf->methods->Print(out, btdf->data);
-    }
-}

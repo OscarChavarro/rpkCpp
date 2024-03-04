@@ -58,10 +58,8 @@ static COLOR ScaleForDisplay(COLOR radiance) {
 TONEMAP GLOBAL_toneMap_lightness = {
     "Lightness Mapping",
     "Lightness",
-    "tmoLightnessButton",
     3,
     lightnessDefaults,
-    nullptr,
     nullptr,
     lightnessInit,
     lightnessTerminate,

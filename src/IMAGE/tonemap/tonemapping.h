@@ -4,37 +4,36 @@
 #include "java/util/ArrayList.h"
 #include "IMAGE/adaptation.h"
 
-/* Most of the functions have similar meaning as for a radiance or ray-tracing method */
+/**
+Most of the functions have similar meaning as for a radiance or ray-tracing method
+*/
 class TONEMAP {
   public:
-    const char *name,        /* full name */
-    *shortName,    /* short name useable as option argument */
-    *buttonName;    /* UI button name, determines button resources */
-    int abbrev;        /* minimal abbreviation of short name in option arg. */
+    const char *name; // Full name
+    const char *shortName; // Short name usable as option argument
+    int abbrev; // Minimal abbreviation of short name in option argument
 
-    void (*Defaults)();                /* sets defaults */
-    void (*ParseOptions)(int *argc, char **argv);        /* optional */
-    void (*PrintOptions)(FILE *fp);            /* optional */
+    void (*Defaults)(); // Sets defaults
+    void (*ParseOptions)(int *argc, char **argv); // Optional
+    void (*Init)(); // Initialises
+    void (*Terminate)(); // Terminates
 
-    void (*Init)();                    /* initialises */
-    void (*Terminate)();                /* terminates */
+    /**
+    `TonemapReverseScaleForComputations'
 
-    /* ---------------------------------------------------------------------------
-      `TonemapReverseScaleForComputations'
-
-      Knowing the display luminance "dl" this function determines the
-      correct scaling value that transforms display luminance back into
-      the real world luminance.
-      ------------------------------------------------------------------------- */
+    Knowing the display luminance "dl" this function determines the
+    correct scaling value that transforms display luminance back into
+    the real world luminance.
+    */
     COLOR (*ScaleForComputations)(COLOR radiance);
 
-    /* ---------------------------------------------------------------------------
-      `toneMapScaleForDisplay'
+    /**
+    `toneMapScaleForDisplay'
 
-      Full tonemapping to display values. Transforms real world luminance of
-      colour specified by "radiance" into corresponding display input
-      values. The result has to be clipped to <0,1> afterwards.
-      ------------------------------------------------------------------------- */
+    Full tone mapping to display values. Transforms real world luminance of
+    colour specified by "radiance" into corresponding display input
+    values. The result has to be clipped to <0,1> afterwards.
+    */
     COLOR (*ScaleForDisplay)(COLOR radiance);
 };
 

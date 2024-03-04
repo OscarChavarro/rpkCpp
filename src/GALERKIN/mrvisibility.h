@@ -1,8 +1,10 @@
-/* mrvisibility.h: Multi-Resolution Visibility ala Sillion & Drettakis, "Multi-Resolution
- * Control of Visibility Error", SIGGRAPH '95 p145 */
+/**
+Multi-Resolution Visibility ala Sillion & Drettakis, "Multi-Resolution
+Control of Visibility Error", SIGGRAPH '95 p145
+*/
 
-#ifndef _MRVISIBILITY_H_
-#define _MRVISIBILITY_H_
+#ifndef __MR_VISIBILITY__
+#define __MR_VISIBILITY__
 
 #include "common/Ray.h"
 

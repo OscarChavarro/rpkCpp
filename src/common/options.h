@@ -97,7 +97,7 @@ static CommandLineOptions enumTypeStructName = { \
   (int (*)(void *, void *))optionsEnumGet, \
   (void (*)(FILE *, void *, void *))optionsEnumPrint, \
   (void *)&GLOBAL_options_dummyVal, \
-  (void *)enumvaltab \
+  (void *)(enumvaltab) \
 }
 
 // n string options: let the nstringTypeStruct.data field point to a maximum string length
@@ -117,7 +117,7 @@ static CommandLineOptions nstringTypeStructName = { \
   (int (*)(void *, void *))optionsStringGet, \
   (void (*)(FILE *, void *, void *))optionsStringPrint, \
   (void *)&GLOBAL_option_dummyVal, \
-  (void *)n \
+  (void *)(n) \
 }
 
 extern void deleteOptionsMemory();

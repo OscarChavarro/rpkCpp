@@ -20,16 +20,6 @@ enum SAMPLING_MODE {
     SAMPLE_ABSORPTION
 };
 
-void
-splitBsdfPrint(FILE *out, SPLIT_BSDF *bsdf) {
-    fprintf(out, "Split Bsdf :\n  ");
-    brdfPrint(out, bsdf->brdf);
-    fprintf(out, "  ");
-    btdfPrint(out, bsdf->btdf);
-    fprintf(out, "  ");
-    printTexture(out, bsdf->texture);
-}
-
 SPLIT_BSDF *
 splitBsdfCreate(
     BRDF *brdf,
@@ -43,11 +33,6 @@ splitBsdfCreate(
     bsdf->texture = texture;
 
     return bsdf;
-}
-
-static void
-splitBsdfDestroy(SPLIT_BSDF *bsdf) {
-    free(bsdf);
 }
 
 static COLOR
@@ -417,7 +402,5 @@ BSDF_METHODS GLOBAL_scene_splitBsdfMethods = {
     Vector3D *in, Vector3D *out,
     BSDFFLAGS flags,
     double *pdf, double *pdfRR)) splitBsdfEvalPdf,
-    nullptr,
-    (void (*)(FILE *out, void *data)) splitBsdfPrint,
-    (void (*)(void *data)) splitBsdfDestroy
+    nullptr
 };

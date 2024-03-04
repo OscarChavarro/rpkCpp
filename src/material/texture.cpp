@@ -5,15 +5,6 @@ rgbSetMonochrome(RGB rgb, float val) {
     setRGB(rgb, val, val, val);
 }
 
-void
-printTexture(FILE *out, TEXTURE *t) {
-    if ( !t ) {
-        fprintf(out, "(NULL TEXTURE)");
-    } else {
-        fprintf(out, "%dx%dx%d texture", t->width, t->height, t->channels);
-    }
-}
-
 COLOR
 evalTextureColor(TEXTURE *texture, float u, float v) {
     RGB rgb00{};

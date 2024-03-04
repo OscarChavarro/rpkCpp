@@ -7,7 +7,6 @@ Intrusive (Data contains next field) and Non-intrusive lists are possible. Itera
 #ifndef __CIRCULAR_LISTS__
 #define __CIRCULAR_LISTS__
 
-template<class T> class CISList_Iter;
 template<class T> class CTSList_Iter;
 
 class CISLink {
@@ -54,25 +53,6 @@ CTSLink<T>::CTSLink(const T &data) : data(data) {
 }
 
 template<class T>
-class CircularList : private CircularListBase {
-public:
-    void add(T *data);
-    void clear();
-
-    friend class CISList_Iter<T>;
-};
-
-template<class T> inline void
-CircularList<T>::add(T *data) {
-    CircularListBase::add(data);
-}
-
-template<class T> inline void
-CircularList<T>::clear() {
-    CircularListBase::clear();
-}
-
-template<class T>
 class CTSList : protected CircularListBase {
   public:
     virtual ~CTSList();
@@ -111,26 +91,6 @@ inline void CTSList<T>::removeAll() {
 template<class T>
 inline void CTSList<T>::clear() {
     CircularListBase::clear();
-}
-
-/**
-For the intrusive list
-*/
-template<class T>
-class CISList_Iter : private CircularListBaseIterator {
-public:
-    T *next();
-    void Init(CircularList<T> &list);
-};
-
-template<class T> inline T*
-CISList_Iter<T>::next() {
-    return (T *) CircularListBaseIterator::next();
-}
-
-template<class T> inline void
-CISList_Iter<T>::Init(CircularList<T> &list) {
-    CircularListBaseIterator::init(list);
 }
 
 /**

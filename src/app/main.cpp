@@ -193,7 +193,6 @@ mainRenderingDefaults() {
     GLOBAL_render_renderOptions.lineWidth = 1.0;
     GLOBAL_render_renderOptions.camera_color = GLOBAL_material_yellow;
     GLOBAL_render_renderOptions.renderRayTracedImage = false;
-    GLOBAL_render_renderOptions.useBackground = true;
 }
 
 /**
@@ -329,8 +328,6 @@ mainReadFile(char *filename) {
     } else {
         *globalCurrentDirectory = '\0';
     }
-
-    logErrorReset();
 
     // Terminate any active radiance or raytracing methods
     fprintf(stderr, "Terminating current radiance/raytracing method ... \n");

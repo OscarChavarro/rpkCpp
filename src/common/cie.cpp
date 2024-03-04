@@ -162,7 +162,8 @@ transformColorFromXYZ2RGB(float *xyz, float *rgb) {
 }
 
 /**
-Returns TRUE if the color was desaturated during gamut clipping
+Returns TRUE if the color was desaturated during clipping against the
+monitor gamut
 */
 int
 clipGamut(float *rgb) {

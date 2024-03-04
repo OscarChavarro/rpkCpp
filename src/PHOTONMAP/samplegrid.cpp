@@ -1,10 +1,8 @@
-#include <cstdio>
-
 #include "common/linealAlgebra/Float.h"
 #include "PHOTONMAP/samplegrid.h"
 #include "PHOTONMAP/discretesampling.h"
 
-CSampleGrid2D::CSampleGrid2D(int xsections, int ysections) {
+CSampleGrid2D::CSampleGrid2D(int xsections, int ysections): m_totalSum() {
     m_xsections = xsections;
     m_ysections = ysections;
 
@@ -29,31 +27,8 @@ void CSampleGrid2D::Init() {
     m_totalSum = 0.0;
 }
 
-
-void CSampleGrid2D::Print() {
-    int i, j, index;
-    double ysum, totalsum;
-
-    index = 0;
-    printf("Grid size %i %i\n", m_xsections, m_ysections);
-
-    totalsum = 0.0;
-
-    for ( i = 0; i < m_xsections; i++ ) {
-        ysum = 0;
-        for ( j = 0; j < m_ysections; j++ ) {
-            printf("  Val %i %i, %g\n", i, j, m_values[index]);
-            ysum += m_values[index];
-            totalsum += m_values[index];
-            index++;
-        }
-        printf("Sum %i, %g, summed %g\n", i, m_ysums[i], ysum);
-    }
-
-    printf("Total sum: %g, summed %g\n", m_totalSum, totalsum);
-}
-
-void CSampleGrid2D::Add(double x, double y, double value) {
+void
+CSampleGrid2D::Add(double x, double y, double value) {
     // Precondition: 0 <= x < 1 en 0 <= y < 1
 
     int xindex, yindex;

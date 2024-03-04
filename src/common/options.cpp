@@ -111,7 +111,10 @@ static int
 optionsGetString(char **s, void * /*data*/) {
     unsigned long n = strlen(*globalCurrentArgumentValue) + 1;
     *s = new char[n];
-    globalStringsToDelete->add(*s);
+
+    if ( globalStringsToDelete != nullptr ) {
+        globalStringsToDelete->add(*s);
+    }
     snprintf(*s, n, "%s", *globalCurrentArgumentValue);
     return true;
 }

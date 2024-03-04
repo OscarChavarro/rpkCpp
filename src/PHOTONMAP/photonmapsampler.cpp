@@ -1,6 +1,6 @@
-/* photonmapsampler.C: This is a hack to get fresnel factors
- * for perfect specular reflection and refraction
- */
+/**
+This is a hack to get fresnel factors for perfect specular reflection and refraction
+*/
 
 #include <cmath>
 
@@ -274,7 +274,6 @@ ChooseFresnelDirection(
     } else {
         reflected = true;
         *dir = reflectedDir;
-        x_2 = (x_2 - (T / sum)) / (F / sum);
         *pdfDir = F / sum;
     }
 

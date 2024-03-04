@@ -95,15 +95,3 @@ brdfEvalPdf(
         *pdf = 0;
     }
 }
-
-/**
-printRegularHierarchy the brdf data the to specified file pointer
-*/
-void
-brdfPrint(FILE *out, BRDF *brdf) {
-    if ( !brdf ) {
-        fprintf(out, "(NULL BRDF)\n");
-    } else {
-        brdf->methods->Print(out, brdf->data);
-    }
-}

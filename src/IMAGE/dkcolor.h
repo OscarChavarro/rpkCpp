@@ -1,13 +1,12 @@
-/*
- *  color.h - header for routines using pixel color values.
- *
- *     12/31/85
- *
- *  Two color representations are used, one for calculation and
- *  another for storage.  Calculation is done with three floats
- *  for speed.  Stored color values use 4 bytes which contain
- *  three single byte mantissas and a common exponent.
- */
+/**
+Routines using pixel color values.
+     12/31/85
+
+Two color representations are used, one for calculation and
+another for storage.  Calculation is done with three floats
+for speed.  Stored color values use 4 bytes which contain
+three single byte mantissas and a common exponent.
+*/
 
 #include <cstdio>
 
@@ -23,7 +22,7 @@ typedef BYTE COLR[4];          /* red, green, blue (or X,Y,Z), exponent */
 
 typedef float COLOR[3];        /* red, green, blue (or X,Y,Z) */
 
-typedef float COLORMAT[3][3];  /* color coordinate conversion matrix */
+typedef float COLOR_MATRIX[3][3];  /* color coordinate conversion matrix */
 
 #define  CIE_x_r                0.640           /* nominal CRT primaries */
 #define  CIE_y_r                0.330
@@ -51,13 +50,13 @@ typedef float COLORMAT[3][3];  /* color coordinate conversion matrix */
 #define WHITE_EFFICACY 179.0 /* uniform white light */
 
 /**
- * Conversions to and from XYZ space generally don't apply WHTEFFICACY.
+ * Conversions to and from XYZ space generally don't apply WHITE_EFFICACY.
  * If you need Y to be luminance (cd/m^2), this must be applied when
  * converting from radiance (watts/sr/m^2).
  */
 
-extern COLORMAT GLOBAL_rgb2XyzMat; // RGB to XYZ conversion matrix
-extern COLORMAT GLOBAL_xyz2RgbMat; // XYZ to RGB conversion matrix
+extern COLOR_MATRIX GLOBAL_rgb2XyzMat; // RGB to XYZ conversion matrix
+extern COLOR_MATRIX GLOBAL_xyz2RgbMat; // XYZ to RGB conversion matrix
 
 char *tempbuffer(unsigned int len);                /* get a temporary buffer */
 int fwritecolrs(COLR *scanline, int len, FILE *fp); /* write out a colr scanline */

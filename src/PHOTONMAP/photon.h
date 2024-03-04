@@ -18,11 +18,11 @@ const short CAUSTIC_LIGHT_PHOTON = 0x20; // Lower 4 bits reserved for kd tree
 const short NO_IMPSAMP_PHOTON = DIRECT_LIGHT_PHOTON | CAUSTIC_LIGHT_PHOTON;
 
 
-// Non compact photon representation
+// Non-compact photon representation
 
 class CPhoton {
 protected:
-    Vector3D m_pos;  // Position: 3 floats, MUST COME FIRST for kdtree storage
+    Vector3D m_pos;  // Position: 3 floats, MUST COME FIRST for kd tree storage
     COLOR m_power;  // Power represented by this photon
     //  float m_dcWeight; // Weight for density control
     Vector3D m_dir;  // Direction
@@ -82,13 +82,13 @@ public:
 
 class CImporton : public CIrrPhoton {
 public:
-    inline void SetAll(float imp, float pot, float foot) {
+    inline void SetAll(float imp, float /*pot*/, float /*foot*/) {
         // Abuse m_power for importance estimates.
         // -- AT LEAST 3 COLOR components needed!  Watch out with compact photon repr.
         ((float *) m_power.spec)[USE_IMPORTANCE] = imp;
     }
 
-    inline void PSetAll(float imp, float pot, float foot) {
+    inline void PSetAll(float imp, float /*pot*/, float /*foot*/) {
         // Abuse m_power for importance estimates.
         // -- AT LEAST 3 COLOR components needed!  Watch out with compact photon repr.
         ((float *) m_irradiance.spec)[USE_IMPORTANCE] = imp;

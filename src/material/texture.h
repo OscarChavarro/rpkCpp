@@ -11,7 +11,6 @@ class TEXTURE {
     unsigned char *data; // First bytes correspond to bottom-left pixel (as in OpenGL)
 };
 
-extern void printTexture(FILE *out, TEXTURE *t);
 extern COLOR evalTextureColor(TEXTURE *texture, float u, float v);
 
 #endif

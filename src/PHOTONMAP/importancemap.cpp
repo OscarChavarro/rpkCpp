@@ -18,8 +18,9 @@ CImportanceMap::AddPhoton(
 
 // Reconstruct
 float CImportanceMap::ReconstructImp(Vector3D &pos, Vector3D &normal /*, IMPORTANCE_OPTION option */) {
-    float maxDistance = 0.0;
-    float result = 0., importance;
+    float maxDistance;
+    float result = 0.0;
+    float importance;
     float factor;
 
     // Nearest photons must be found beforehand!
@@ -48,7 +49,7 @@ float CImportanceMap::ReconstructImp(Vector3D &pos, Vector3D &normal /*, IMPORTA
         return 0;
     }
 
-    factor = 1.0 / (M_PI * maxDistance * m_totalPaths);
+    factor = 1.0f / ((float)M_PI * maxDistance * (float)m_totalPaths);
     result *= factor;
 
     return result;
@@ -99,7 +100,6 @@ float CImportanceMap::GetRequiredDensity(Vector3D &pos, Vector3D &normal) {
                 default:
                     logError("CImportanceMap::GetRequiredDensity", "Unsupported importance option");
                     return 0;
-                    break;
             }
         } else
             density = 0;
@@ -120,7 +120,6 @@ float CImportanceMap::GetRequiredDensity(Vector3D &pos, Vector3D &normal) {
             default:
                 logError("CImportanceMap::GetRequiredDensity", "Unsupported importance option");
                 return 0;
-                break;
         }
     }
 
@@ -180,14 +179,8 @@ void CImportanceMap::PrecomputeIrradiance() {
 
     CPhotonMap::PrecomputeIrradiance();
 
-    // fprintf(stderr, "MaxImp %g, MaxDiff %g\n", m_maxImp, m_maxDiff);
-
-    m_avgImp /= m_nrPhotons;
-
-    m_totalMaxDistance *= 20.0 / *m_estimate_nrp;
-
-    // fprintf(stderr, "MaxImp %g, MaxDiff %g\n", m_maxImp, m_maxDiff);
-    // fprintf(stderr, "AvgImp %g, AvgDiff %g\n", m_avgImp, m_avgDiff);
+    m_avgImp /= (float)m_nrPhotons;
+    m_totalMaxDistance *= 20.0f / (float)*m_estimate_nrp;
 }
 
 

@@ -88,36 +88,6 @@ phongBtdfCreate(COLOR *Kd, COLOR *Ks, float Ns, float nr, float ni) {
 }
 
 /**
-Prints data for Phong-type edf, ... to the file pointed to by 'out'
-*/
-static void
-phongEdfPrint(FILE *out, PHONG_EDF *edf) {
-    fprintf(out, "Phong Edf: Kd = ");
-    edf->Kd.print(out);
-    fprintf(out, ", Ks = ");
-    edf->Ks.print(out);
-    fprintf(out, ", Ns = %g\n", edf->Ns);
-}
-
-static void
-phongBrdfPrint(FILE *out, PHONG_BRDF *brdf) {
-    fprintf(out, "Phong Brdf: Kd = ");
-    brdf->Kd.print(out);
-    fprintf(out, ", Ks = ");
-    brdf->Ks.print(out);
-    fprintf(out, ", Ns = %g\n", brdf->Ns);
-}
-
-static void
-phongBtdfPrint(FILE *out, PHONG_BTDF *btdf) {
-    fprintf(out, "Phong Btdf: Kd = ");
-    btdf->Kd.print(out);
-    fprintf(out, ", Ks = ");
-    btdf->Ks.print(out);
-    fprintf(out, ", Ns = %g, nr=%g, ni=%g\n", btdf->Ns, btdf->refrIndex.nr, btdf->refrIndex.ni);
-}
-
-/**
 Returns emittance, reflectance, transmittance
 */
 static COLOR
@@ -813,8 +783,7 @@ EDF_METHODS GLOBAL_scene_phongEdfMethods = {
     nullptr, // Not textured
     (COLOR (*)(void *, RayHit *, Vector3D *, XXDFFLAGS, double *)) phongEdfEval,
     (Vector3D (*)(void *, RayHit *, XXDFFLAGS, double, double, COLOR *, double *)) phongEdfSample,
-    nullptr,
-    (void (*)(FILE *, void *)) phongEdfPrint
+    nullptr
 };
 
 BRDF_METHODS GLOBAL_scene_phongBrdfMethods = {
@@ -823,8 +792,7 @@ BRDF_METHODS GLOBAL_scene_phongBrdfMethods = {
     (Vector3D (*)(void *, Vector3D *, Vector3D *, int, XXDFFLAGS, double, double,
     double *)) phongBrdfSample,
     (void (*)(void *, Vector3D *, Vector3D *, Vector3D *,
-    XXDFFLAGS, double *, double *)) phongBrdfEvalPdf,
-    (void (*)(FILE *, void *)) phongBrdfPrint
+    XXDFFLAGS, double *, double *)) phongBrdfEvalPdf
 };
 
 BTDF_METHODS GLOBAL_scene_phongBtdfMethods = {
@@ -836,6 +804,5 @@ BTDF_METHODS GLOBAL_scene_phongBtdfMethods = {
                   Vector3D *, int, XXDFFLAGS, double, double,
                   double *)) phongBtdfSample,
     (void (*)(void *, RefractionIndex, RefractionIndex, Vector3D *,
-              Vector3D *, Vector3D *, XXDFFLAGS, double *, double *)) phongBtdfEvalPdf,
-    (void (*)(FILE *, void *)) phongBtdfPrint
+              Vector3D *, Vector3D *, XXDFFLAGS, double *, double *)) phongBtdfEvalPdf
 };

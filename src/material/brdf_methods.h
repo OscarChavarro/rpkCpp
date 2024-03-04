@@ -27,9 +27,6 @@ class BRDF_METHODS {
     void (*EvalPdf)(void *data, Vector3D *in,
                     Vector3D *out, Vector3D *normal,
                     XXDFFLAGS flags, double *pdf, double *pdfRR);
-
-    // Prints the BRDF data to the specified file
-    void (*Print)(FILE *out, void *data);
 };
 
 #endif

@@ -1,4 +1,6 @@
-/* image.H: interface for writing image data in different file formats. */
+/**
+Interface for writing image data in different file formats
+*/
 
 #ifndef _IMAGE_H_
 #define _IMAGE_H_

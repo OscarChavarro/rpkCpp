@@ -1,5 +1,5 @@
-#ifndef _RPK_PIC_H_
-#define _RPK_PIC_H_
+#ifndef __PIC_H__
+#define __PIC_H__
 
 #include "IMAGE/imagecpp.h"
 

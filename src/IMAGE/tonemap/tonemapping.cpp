@@ -78,7 +78,7 @@ toneMappingMethodOption(void *value) {
 }
 
 static void
-brightnessAdjustOption(void *val) {
+brightnessAdjustOption(void * /*val*/) {
     GLOBAL_toneMap_options.pow_bright_adjust = (float)std::pow(2.0, GLOBAL_toneMap_options.brightness_adjust);
 }
 

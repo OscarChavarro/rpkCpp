@@ -43,12 +43,6 @@ class BSDF_METHODS {
     // Constructs shading frame at hit point. Returns TRUE if successful and
     // FALSE if not. X and Y may be null pointers
     int (*ShadingFrame)(void *data, RayHit *hit, Vector3D *X, Vector3D *Y, Vector3D *Z);
-
-    // Prints the BSDF data to the specified file
-    void (*Print)(FILE *out, void *data);
-
-    // Disposes of the BSDF data
-    void (*Destroy)(void *data);
 };
 
 #endif

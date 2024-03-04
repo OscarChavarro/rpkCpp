@@ -14,7 +14,6 @@ class BRDF {
 };
 
 extern BRDF *brdfCreate(void *data, BRDF_METHODS *methods);
-extern void brdfPrint(FILE *out, BRDF *brdf);
 extern COLOR brdfReflectance(BRDF *brdf, XXDFFLAGS flags);
 
 /**

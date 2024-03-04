@@ -41,7 +41,6 @@ class Interaction {
 
 extern Interaction *interactionDuplicate(Interaction *interaction);
 extern void interactionDestroy(Interaction *interaction);
-extern void interactionPrint(FILE *out, Interaction *link);
 extern int getNumberOfInteractions();
 extern int getNumberOfClusterToClusterInteractions();
 extern int getNumberOfClusterToSurfaceInteractions();

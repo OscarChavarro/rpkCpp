@@ -1,5 +1,5 @@
-#ifndef __MYMATH__
-#define __MYMATH__
+#ifndef __MY_MATH__
+#define __MY_MATH__
 
 #include <cmath>
 
@@ -9,6 +9,6 @@
     #define HUGE 1e30
 #endif
 
-extern int fcmp(const float *x, const float *y);
+extern int floatCompare(const float *x, const float *y);
 
 #endif

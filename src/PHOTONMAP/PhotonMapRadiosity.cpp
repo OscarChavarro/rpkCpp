@@ -621,13 +621,13 @@ photonMapGetRadiance(Patch *patch,
         return col;
     }
 
-    RADRETURN_OPTION radreturn = GLOBAL_RADIANCE;
+    RADRETURN_OPTION radiosityReturn = GLOBAL_RADIANCE;
 
     if ( globalDoingLocalRayCasting ) {
-        radreturn = GLOBAL_photonMap_state.radianceReturn;
+        radiosityReturn = GLOBAL_photonMap_state.radianceReturn;
     }
 
-    switch ( radreturn ) {
+    switch ( radiosityReturn ) {
         case GLOBAL_DENSITY:
             col = GLOBAL_photonMap_config.globalMap->GetDensityColor(hit);
             break;

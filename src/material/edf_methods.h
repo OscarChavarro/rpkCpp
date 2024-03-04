@@ -26,9 +26,6 @@ class EDF_METHODS {
     // Computes shading frame at hit point. Returns TRUE if successful and
     // FALSE if not. X and Y may be null pointers
     int (*ShadingFrame)(void *data, RayHit *hit, Vector3D *X, Vector3D *Y, Vector3D *Z);
-
-    // Prints the EDF data to the specified file
-    void (*Print)(FILE *out, void *data);
 };
 
 #endif

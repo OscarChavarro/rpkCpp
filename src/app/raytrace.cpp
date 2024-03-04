@@ -50,8 +50,8 @@ mainRayTracingOption(void *value) {
 }
 
 static CommandLineOptionDescription globalRaytracingOptions[] = {
-        {"-raytracing-method", 4, Tstring,  nullptr, mainRayTracingOption, globalRaytracingMethodsString},
-        {nullptr, 0, TYPELESS, nullptr, DEFAULT_ACTION, nullptr}
+    {"-raytracing-method", 4, Tstring,  nullptr, mainRayTracingOption, globalRaytracingMethodsString},
+    {nullptr, 0, TYPELESS, nullptr, DEFAULT_ACTION, nullptr}
 };
 
 static void
@@ -115,37 +115,32 @@ mainSetRayTracingMethod(Raytracer *newMethod) {
 
 void
 batchSaveRaytracingImage(const char *fileName, FILE *fp, int isPipe, java::ArrayList<Patch *> * /*scenePatches*/) {
-    ImageOutputHandle *img = nullptr;
     clock_t t;
 
-    if ( !fp ) {
+    if ( fp == nullptr ) {
         return;
     }
 
     t = clock();
 
-    if ( fp ) {
-        img = createRadianceImageOutputHandle(
-                (char *) fileName,
-                fp,
-                isPipe,
-                GLOBAL_camera_mainCamera.xSize,
-                GLOBAL_camera_mainCamera.ySize,
-                (float)GLOBAL_statistics_referenceLuminance / 179.0f);
-        if ( !img ) {
-            return;
-        }
+    ImageOutputHandle *img = createRadianceImageOutputHandle(
+        (char *) fileName,
+        fp,
+        isPipe,
+        GLOBAL_camera_mainCamera.xSize,
+        GLOBAL_camera_mainCamera.ySize,
+        (float)GLOBAL_statistics_referenceLuminance / 179.0f);
+    if ( !img ) {
+        return;
     }
 
     if ( !GLOBAL_raytracer_activeRaytracer ) {
         logWarning(nullptr, "No ray tracing method active");
     } else if ( !GLOBAL_raytracer_activeRaytracer->SaveImage || !GLOBAL_raytracer_activeRaytracer->SaveImage(img)) {
-            logWarning(nullptr, "No previous %s image available", GLOBAL_raytracer_activeRaytracer->fullName);
-        }
-
-    if ( img != nullptr ) {
-        deleteImageOutputHandle(img);
+        logWarning(nullptr, "No previous %s image available", GLOBAL_raytracer_activeRaytracer->fullName);
     }
+
+    deleteImageOutputHandle(img);
 
     fprintf(stdout, "Raytrace save image: %g secs.\n", (float) (clock() - t) / (float) CLOCKS_PER_SEC);
 }

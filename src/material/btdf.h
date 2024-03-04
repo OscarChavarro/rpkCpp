@@ -19,7 +19,6 @@ class BTDF {
 };
 
 extern BTDF *btdfCreate(void *data, BTDF_METHODS *methods);
-extern void btdfPrint(FILE *out, BTDF *btdf);
 extern COLOR btdfTransmittance(BTDF *btdf, XXDFFLAGS flags);
 extern void btdfIndexOfRefraction(BTDF *btdf, RefractionIndex *index);
 

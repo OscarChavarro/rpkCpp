@@ -1,5 +1,5 @@
-#ifndef __FILE_UNCOMPRESS_WRAPPER_
-#define __FILE_UNCOMPRESS_WRAPPER_
+#ifndef __FILE_UNCOMPRESS_WRAPPER__
+#define __FILE_UNCOMPRESS_WRAPPER__
 
 #include <cstdio>
 

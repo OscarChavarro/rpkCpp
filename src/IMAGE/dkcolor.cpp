@@ -37,7 +37,7 @@ fwritecolrs(COLR *scanline, int len, FILE *fp)/* write out a colr scanline */
     int c2;
 
     if ( len < MINIMUM_SCAN_LINE_LENGTH || len > MAXIMUM_SCAN_LINE_LENGTH ) {      /* OOBs, write out flat */
-        return (fwrite((char *) scanline, sizeof(COLR), len, fp) - len);
+        return (int)(fwrite((char *) scanline, sizeof(COLR), len, fp) - len);
     }
     /* put magic header */
     putc(2, fp);

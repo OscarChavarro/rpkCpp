@@ -93,7 +93,6 @@ extern int galerkinElementGetNumberOfSurfaceElements();
 extern GalerkinElement *galerkinElementCreateTopLevel(Patch *patch);
 extern GalerkinElement *galerkinElementCreateCluster(Geometry *geometry);
 extern GalerkinElement **galerkinElementRegularSubDivide(GalerkinElement *element);
-extern void galerkinElementPrint(FILE *out, GalerkinElement *element);
 extern void galerkinElementPrintId(FILE *out, GalerkinElement *elem);
 extern void galerkinElementDestroyTopLevel(GalerkinElement *element);
 extern void galerkinElementDestroyCluster(GalerkinElement *element);

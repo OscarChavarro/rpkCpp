@@ -206,10 +206,8 @@ trwfScaleForDisplay(COLOR radiance) {
 TONEMAP GLOBAL_toneMap_tumblinRushmeier = {
     "Tumblin/Rushmeier's Mapping",
     "TumblinRushmeier",
-    "tmoTmblRushButton",
     3,
     trwfDefaults,
-    nullptr,
     nullptr,
     trwfInit,
     trwfTerminate,
@@ -236,10 +234,8 @@ wardScaleForDisplay(COLOR radiance) {
 TONEMAP GLOBAL_toneMap_ward = {
     "Ward's Mapping",
     "Ward",
-    "tmoWardButton",
     3,
     trwfDefaults,
-    nullptr,
     nullptr,
     trwfInit,
     trwfTerminate,
@@ -288,10 +284,8 @@ revisedTRScaleForDisplay(COLOR radiance) {
 TONEMAP GLOBAL_toneMap_revisedTumblinRushmeier = {
     "Revised Tumblin/Rushmeier's Mapping",
     "RevisedTR",
-    "tmoRevisedTmblRushButton",
     3,
     trwfDefaults,
-    nullptr,
     nullptr,
     trwfInit,
     trwfTerminate,
@@ -350,9 +344,10 @@ ferwerdaScaleForDisplay(COLOR radiance) {
 }
 
 TONEMAP GLOBAL_toneMap_ferwerda = {
-    "Partial Ferwerda's Mapping", "Ferwerda", "tmoFerwerdaButton", 3,
+    "Partial Ferwerda's Mapping",
+    "Ferwerda",
+    3,
     trwfDefaults,
-    nullptr,
     nullptr,
     trwfInit,
     trwfTerminate,

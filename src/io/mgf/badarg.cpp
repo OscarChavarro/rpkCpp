@@ -8,14 +8,12 @@ Check argument list against format string.
 */
 int
 checkForBadArguments(int ac, char **av, char *fl) {
-    // check argument list
-    int i;
-
+    // Check argument list
     if ( fl == nullptr ) {
-	// no arguments?
+	    // No arguments?
         fl = (char *)"";
     }
-    for ( i = 1; *fl; i++, av++, fl++ ) {
+    for ( int i = 1; *fl; i++, av++, fl++ ) {
         if ( i > ac || *av == nullptr ) {
             return -1;
         }
