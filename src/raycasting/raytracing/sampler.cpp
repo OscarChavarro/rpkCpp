@@ -3,10 +3,23 @@
 #include "raycasting/common/raytools.h"
 #include "raycasting/raytracing/sampler.h"
 
+/**
+Sample transfer generates a new point on a surface by ray tracing
+given a certain direction and the pdf for that direction
+The medium the ray is traveling through must be known and
+is given by newNode->m_inBsdf.
+The function fills in newNode: hit, normal, directions, pdf (area)
+         geometry factor and depth  (rayType is untocuhed)
+It returns false if no point was found when tracing a ray
+or if a shading normal anomaly occurs
+*/
 bool
-CSampler::SampleTransfer(SimpleRaytracingPathNode *thisNode,
-                         SimpleRaytracingPathNode *newNode, Vector3D *dir,
-                         double pdfDir) {
+Sampler::SampleTransfer(
+    SimpleRaytracingPathNode *thisNode,
+    SimpleRaytracingPathNode *newNode,
+    Vector3D *dir,
+    double pdfDir)
+{
     Ray ray;
     RayHit *hit;
 
@@ -14,10 +27,8 @@ CSampler::SampleTransfer(SimpleRaytracingPathNode *thisNode,
     ray.dir = *dir;
 
     // Fill in depth
-
     newNode->m_depth = thisNode->m_depth + 1;
     newNode->m_rayType = Stops;
-
     hit = findRayIntersection(&ray, thisNode->m_hit.patch,
                               newNode->m_inBsdf, &newNode->m_hit);
 
@@ -36,11 +47,9 @@ CSampler::SampleTransfer(SimpleRaytracingPathNode *thisNode,
             newNode->m_hit.flags |= HIT_FRONT;
 
             return true;
-        }
-
+        } else {
             // if no background is present
-        else {
-            return (false);
+            return false;
         }
     }
 

@@ -1,63 +1,59 @@
-/* sampler.H
- *
- * generic class for samplers. Samplers operate on 
- * pathnodes and have to possible actions :
- *   - sample : fill in a new path node and evaluate bsdf's and pdf's
- *              where necessary.
- *   - connect : connect to subpaths and evaluate the necessary
- *               bsdf's and pdf's.
- */
+/**
+Generic class for samplers. Samplers operate on
+path nodes and have to possible actions :
+  - sample : fill in a new path node and evaluate bsdf's and pdf's
+             where necessary.
+  - connect : connect to sub-paths and evaluate the necessary
+              bsdf's and pdf's.
+*/
 
-#ifndef _SAMPLER_H_
-#define _SAMPLER_H_
-
-#include <cstdio>
+#ifndef __SAMPLER__
+#define __SAMPLER__
 
 #include "raycasting/common/pathnode.h"
 
-// There exists no implementation of this baseclass
-
-class CSampler {
-protected:
-
-    // Sample transfer generates a new point on a surface by ray tracing
-    // given a certain direction and the pdf for that direction
-    // The medium the ray is traveling through must be known and
-    // is given by newNode->m_inBsdf.
-    // The function fills in newNode: hit, normal, directions, pdf (area)
-    //          geometry factor and depth  (rayType is untocuhed)
-    // It returns false if no point was found when tracing a ray
-    // or if a shading normal anomaly occurs
-    virtual bool SampleTransfer(SimpleRaytracingPathNode *thisNode, SimpleRaytracingPathNode *newNode,
-                                Vector3D *dir, double pdfDir);
+class Sampler {
+  protected:
+    virtual bool SampleTransfer(
+        SimpleRaytracingPathNode *thisNode,
+        SimpleRaytracingPathNode *newNode,
+        Vector3D *dir,
+        double pdfDir);
 
 public:
     // Sample : newNode gets filled, others may change
     //   Return true if the node was filled in, false if path Ends
-    //   If path ends (absorption) the type of thisNode is adjusted to 'Ends'
-    CSampler() {}
-    virtual ~CSampler() {}
+    //   When path ends (absorption) the type of thisNode is adjusted to 'Ends'
+    Sampler() {}
+    virtual ~Sampler() {}
 
-    virtual bool Sample(SimpleRaytracingPathNode *prevNode, SimpleRaytracingPathNode *thisNode,
-                        SimpleRaytracingPathNode *newNode, double x_1, double x_2,
-                        bool doRR = false,
-                        BSDFFLAGS flags = BSDF_ALL_COMPONENTS) = 0;
+    virtual bool Sample(
+        SimpleRaytracingPathNode *prevNode,
+        SimpleRaytracingPathNode *thisNode,
+        SimpleRaytracingPathNode *newNode,
+        double x1,
+        double x2,
+        bool doRR = false,
+        BSDFFLAGS flags = BSDF_ALL_COMPONENTS) = 0;
 
-    virtual double EvalPDF(SimpleRaytracingPathNode *thisNode, SimpleRaytracingPathNode *newNode,
-                           BSDFFLAGS flags = BSDF_ALL_COMPONENTS,
-                           double *pdf = nullptr, double *pdfRR = nullptr) = 0;
+    virtual double EvalPDF(
+        SimpleRaytracingPathNode *thisNode,
+        SimpleRaytracingPathNode *newNode,
+        BSDFFLAGS flags = BSDF_ALL_COMPONENTS,
+        double *pdf = nullptr,
+        double *pdfRR = nullptr) = 0;
 };
 
+/**
+Next event samplers provide a few functions to
+enumerate different 'next event units' (e.g. light sources
+or cameras). This allows to sample all units separately,
+f.i. if you want to sample all light sources.
 
-// Next event samplers provide a few functions to
-// enumerate different 'next event units' (e.g. lightsources
-// or cameras). This allows to sample all units separately,
-// f.i. if you want to sample all lightsources.
-
-// The interface is very simple. I just wanted to be able
-// to sample all lightsources.
-
-class CNextEventSampler : public CSampler {
+The interface is very simple. I just wanted to be able
+to sample all light sources.
+*/
+class CNextEventSampler : public Sampler {
 public:
     // Setting units causes sampling of the activated unit
     // instead of over all units.
@@ -68,9 +64,6 @@ public:
     // If no next unit is available:
     //   Returns false and unsets units
     virtual bool ActivateNextUnit() { return false; }
-
-    // Deactivate units, sampling now over all units
-    virtual void DeactivateUnits() {}
 };
 
 
@@ -80,7 +73,7 @@ public:
  * and evaluated.
  */
 
-class CSurfaceSampler : public CSampler {
+class CSurfaceSampler : public Sampler {
 protected:
     bool m_computeFromNextPdf;
     bool m_computeBsdfComponents;
@@ -94,13 +87,13 @@ public:
     }
 
     // DoBsdfEval : this just evaluates the bsdf but depending on
-    // 'm_computeBsdfComponents' uses BsdfEval or BsdfEvalComponents
+    // m_computeBsdfComponents uses BsdfEval or BsdfEvalComponents
     // Introduced to share code
 
     inline COLOR DoBsdfEval(BSDF *bsdf, RayHit *hit, BSDF *inBsdf,
                             BSDF *outBsdf, Vector3D *in, Vector3D *out,
                             BSDFFLAGS flags,
-                            CBsdfComp *bsdfComp) {
+                            CBsdfComp *bsdfComp) const {
         if ( m_computeBsdfComponents ) {
             return (bsdfEvalComponents(bsdf, hit, inBsdf, outBsdf,
                                        in, out, flags, *bsdfComp));
@@ -113,7 +106,7 @@ public:
 
     // Sample : newNode gets filled, others may change
     //   Return true if the node was filled in, false if path Ends
-    //   If path ends (absorption) the type of thisNode is adjusted to 'Ends'
+    //   When path ends (absorption) the type of thisNode is adjusted to 'Ends'
     virtual bool Sample(SimpleRaytracingPathNode *prevNode, SimpleRaytracingPathNode *thisNode,
                         SimpleRaytracingPathNode *newNode, double x_1, double x_2,
                         bool doRR, BSDFFLAGS flags) = 0;
@@ -126,19 +119,20 @@ public:
 
     // Use this for calculating f.i. eyeEndNode->Previous pdf(Next).
     // The newNode is calculated, thisNode should be and end node connecting
-    // to another sub path end node. prevNode is that other subpath
+    // to another sub path end node. prevNode is that other sub-path
     // endNode.
-    virtual double EvalPDFPrev(SimpleRaytracingPathNode *prevNode,
-                               SimpleRaytracingPathNode *thisNode,
-                               SimpleRaytracingPathNode *newNode,
-                               BSDFFLAGS flags,
-                               double *pdf, double *pdfRR) = 0;
-    // Configure
+    virtual double
+    EvalPDFPrev(
+        SimpleRaytracingPathNode *prevNode,
+        SimpleRaytracingPathNode *thisNode,
+        SimpleRaytracingPathNode *newNode,
+        BSDFFLAGS flags,
+        double *pdf,
+        double *pdfRR) = 0;
 
     // bool computeFromNextPdf : if true the surface sampler will
     //   compute pdfFromNext in the prevNode. This is needed for
     //   bidirectional algorithm's
-
     void SetComputeFromNextPdf(bool computeFromNextPdf) { m_computeFromNextPdf = computeFromNextPdf; }
 
     void SetComputeBsdfComponents(bool computeBsdfComponents) { m_computeBsdfComponents = computeBsdfComponents; }

@@ -5,8 +5,8 @@ Specular materials are treated as Fresnel reflectors/refractors.
 NO DIFFUSE OR GLOSSY TRANSMITTING SURFACES SUPPORTED YET!
 */
 
-#ifndef _PHOTONMAPSAMPLER_H_
-#define _PHOTONMAPSAMPLER_H_
+#ifndef __PHOTON_MAP_SAMPLER__
+#define __PHOTON_MAP_SAMPLER__
 
 #include "raycasting/raytracing/bsdfsampler.h"
 #include "PHOTONMAP/photonmap.h"
@@ -52,4 +52,4 @@ public:
 
 };
 
-#endif // _PHOTONMAPSAMPLER_H_
+#endif // __PHOTON_MAP_SAMPLER__

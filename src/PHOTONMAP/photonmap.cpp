@@ -171,7 +171,7 @@ ComputeAcceptProb(float currentD, float requiredD) {
         } else {
             return 1.0;
         }
-    } else if ( GLOBAL_photonMap_state.acceptPdfType == TRANSCOSINE ) {
+    } else if ( GLOBAL_photonMap_state.acceptPdfType == TRANS_COSINE ) {
         // Translated cosine
         double ratio = floatMin(1.0, currentD / requiredD); // in [0,1]
 

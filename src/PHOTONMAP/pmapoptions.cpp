@@ -1,19 +1,19 @@
 #include "common/options.h"
 #include "PHOTONMAP/pmapoptions.h"
 
-CPmapState GLOBAL_photonMap_state;
+PhotonMapState GLOBAL_photonMap_state;
 
 // Command line options
 static CommandLineOptionDescription globalPhotonMapOptions[] = {
     {"-pmap-do-global",       9,  Tbool,    &GLOBAL_photonMap_state.doGlobalMap,           DEFAULT_ACTION,
 "-pmap-do-global <true|false> : Trace photons for the global map"},
-    {"-pmap-global-paths",    9,  Tint,     &GLOBAL_photonMap_state.gpaths_per_iteration,  DEFAULT_ACTION,
+    {"-pmap-global-paths",    9,  Tint,     &GLOBAL_photonMap_state.gPathsPerIteration, DEFAULT_ACTION,
 "-pmap-global-paths <number> : Number of paths per iteration for the global map"},
     {"-pmap-g-preirradiance", 11, Tbool,    &GLOBAL_photonMap_state.precomputeGIrradiance, DEFAULT_ACTION,
 "-pmap-g-preirradiance <true|false> : Use irradiance precomputation for global map"},
     {"-pmap-do-caustic",      9,  Tbool,    &GLOBAL_photonMap_state.doCausticMap,          DEFAULT_ACTION,
 "-pmap-do-caustic <true|false> : Trace photons for the caustic map"},
-    {"-pmap-caustic-paths",   9,  Tint,     &GLOBAL_photonMap_state.cpaths_per_iteration,  DEFAULT_ACTION,
+    {"-pmap-caustic-paths",   9,  Tint,     &GLOBAL_photonMap_state.cPathsPerIteration, DEFAULT_ACTION,
 "-pmap-caustic-paths <number> : Number of paths per iteration for the caustic map"},
     {"-pmap-render-hits",     9,  Tsettrue, &GLOBAL_photonMap_state.renderImage,           DEFAULT_ACTION,
 "-pmap-render-hits: Show photon hits on screen"},
@@ -33,31 +33,28 @@ photonMapParseOptions(int *argc, char **argv) {
     parseOptions(globalPhotonMapOptions, argc, argv);
 }
 
-CPmapState::CPmapState():
-    doGlobalMap(), gpaths_per_iteration(), precomputeGIrradiance(), doCausticMap(), cpaths_per_iteration(),
-    renderImage(), reconGPhotons(), reconCPhotons(), reconIPhotons(), distribPhotons(), doStats(), balanceKDTree(),
-    usePhotonMapSampler(), densityControl(), importanceOption(), acceptPdfType(), constantRD(), minimumImpRD(),
-    doImportanceMap(), ipaths_per_iteration(), cImpScale(), gImpScale(), cornerScatter(), gThreshold(),
-    falseColMax(), falseColLog(), falseColMono(), radianceReturn(), returnCImportance(), minimumLightPathDepth(),
-    maximumLightPathDepth(), maxCombinedLength(), iteration_nr(), g_iteration_nr(), c_iteration_nr(),
-    i_iteration_nr(), total_cpaths(), total_gpaths(), total_ipaths(), runstop_nr(), total_rays(),
-    cpu_secs(), lastclock(), wake_up(), rcScreen()
+PhotonMapState::PhotonMapState():
+        doGlobalMap(), gPathsPerIteration(), precomputeGIrradiance(), doCausticMap(), cPathsPerIteration(),
+        renderImage(), reconGPhotons(), reconCPhotons(), reconIPhotons(), distribPhotons(), balanceKDTree(),
+        usePhotonMapSampler(), densityControl(), importanceOption(), acceptPdfType(), constantRD(), minimumImpRD(),
+        doImportanceMap(), iPathsPerIteration(), cImpScale(), gImpScale(), gThreshold(),
+        falseColMax(), falseColLog(), falseColMono(), radianceReturn(), minimumLightPathDepth(),
+        maximumLightPathDepth(), iterationNumber(), gIterationNumber(), cIterationNumber(),
+        i_iteration_nr(), totalCPaths(), totalGPaths(), totalIPaths(), runStopNumber(),
+        cpuSecs(), lastClock()
 {
-    // One time state initialisations
-    rcScreen = nullptr;
-
     // Set other defaults, that can be reset multiple times
-    Defaults();
+    defaults();
 }
 
 void
-CPmapState::Defaults() {
+PhotonMapState::defaults() {
     // This is the only place where default values may be given...
     doCausticMap = true;
-    cpaths_per_iteration = 20000;
+    cPathsPerIteration = 20000;
 
     doGlobalMap = true;
-    gpaths_per_iteration = 10000;
+    gPathsPerIteration = 10000;
     precomputeGIrradiance = true;
 
     renderImage = false;
@@ -77,14 +74,13 @@ CPmapState::Defaults() {
 
     minimumImpRD = 1;
     doImportanceMap = true;
-    ipaths_per_iteration = 10000;
+    iPathsPerIteration = 10000;
 
     importanceOption = USE_IMPORTANCE;
 
     cImpScale = 25.0;
     gImpScale = 1.0;
 
-    cornerScatter = true;
     gThreshold = 1000;
 
     falseColMax = 10000;
@@ -95,7 +91,4 @@ CPmapState::Defaults() {
 
     minimumLightPathDepth = 0;
     maximumLightPathDepth = 7;
-    maxCombinedLength = 7;
-
-    doStats = false;
 }

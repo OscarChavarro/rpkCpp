@@ -3,18 +3,17 @@
 
 #include <ctime>
 
-#include "common/color.h"
 #include "render/ScreenBuffer.h"
 
 const int MAXIMUM_RECON_PHOTONS = 400;
 
-enum RADRETURN_OPTION {
+enum RAD_RETURN_OPTION {
     GLOBAL_DENSITY,
     CAUSTIC_DENSITY,
-    REC_CDENSITY,
-    REC_GDENSITY,
-    IMPORTANCE_CDENSITY,
-    IMPORTANCE_GDENSITY,
+    REC_C_DENSITY,
+    REC_G_DENSITY,
+    IMPORTANCE_C_DENSITY,
+    IMPORTANCE_G_DENSITY,
     GLOBAL_RADIANCE,
     CAUSTIC_RADIANCE
 };
@@ -29,94 +28,61 @@ enum IMPORTANCE_OPTION {
     USE_IMPORTANCE = 0
 };
 
-enum DC_ACCEPTPDFTYPE {
+enum DC_ACCEPT_PDF_TYPE {
     STEP,
-    TRANSCOSINE
+    TRANS_COSINE
 };
 
 // Photon map options
-
-class CPmapState
+class PhotonMapState
 {
   public:
     int doGlobalMap;
-    long gpaths_per_iteration;
+    long gPathsPerIteration;
     int precomputeGIrradiance;
-
     int doCausticMap;
-    long cpaths_per_iteration;
-
+    long cPathsPerIteration;
     int renderImage;
-
     int reconGPhotons;
     int reconCPhotons;
     int reconIPhotons;
     int distribPhotons;
-
-    int doStats;
-
     int balanceKDTree;
-
     int usePhotonMapSampler;
-
     DENSITY_CONTROL_OPTION densityControl;
     IMPORTANCE_OPTION importanceOption;
-
-    DC_ACCEPTPDFTYPE acceptPdfType;
-
+    DC_ACCEPT_PDF_TYPE acceptPdfType;
     float constantRD;
-
     float minimumImpRD;
     int doImportanceMap;
-    long ipaths_per_iteration;
-
+    long iPathsPerIteration;
     float cImpScale;
     float gImpScale;
-
-    int cornerScatter;
     float gThreshold;
-
     float falseColMax;
     int falseColLog;
     int falseColMono;
-
-    RADRETURN_OPTION radianceReturn;
-    int returnCImportance;
+    RAD_RETURN_OPTION radianceReturn;
     int minimumLightPathDepth;
     int maximumLightPathDepth;
-    int maxCombinedLength;
-
-    // Other (changing) state options
-    int iteration_nr;
-    int g_iteration_nr;
-    int c_iteration_nr;
+    int iterationNumber;
+    int gIterationNumber;
+    int cIterationNumber;
     int i_iteration_nr;
+    long totalCPaths;
+    long totalGPaths;
+    long totalIPaths;
+    int runStopNumber; // Number of 'external iterations'. This is
+		     // different from currentIteration only when
+		     // statistics are gathered
+    float cpuSecs; // For counting computing times
+    clock_t lastClock;
 
-    long total_cpaths;
-    long total_gpaths;
-    long total_ipaths;
-
-    int runstop_nr; /* Number of 'external iterations'. This is
-		     different from currentIteration only when
-		     statistics are gathered. */
-    long total_rays;
-
-    float cpu_secs;    /* for counting computing times */
-    clock_t lastclock;    /* " */
-    int wake_up;        /* check this value at safe positions during the
-			 * computations in order to react on user input
-			 * if there is any (call CheckForEvents()) */
-
-    ScreenBuffer *rcScreen;
-
-    // Methods
-
-    CPmapState();
-
-    virtual void Defaults();
+    PhotonMapState();
+    virtual void defaults();
 };
 
-extern CPmapState GLOBAL_photonMap_state;
+extern PhotonMapState GLOBAL_photonMap_state;
 
 extern void photonMapParseOptions(int *argc, char **argv);
 

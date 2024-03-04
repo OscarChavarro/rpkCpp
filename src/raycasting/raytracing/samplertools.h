@@ -11,8 +11,8 @@ procedure of a monte carlo ray tracing like algorithm
 
 class CSamplerConfig {
 public:
-    CSampler *pointSampler;  // Samples first point
-    CSampler *dirSampler; // Samples first direction
+    Sampler *pointSampler;  // Samples first point
+    Sampler *dirSampler; // Samples first direction
     CSurfaceSampler *surfaceSampler; // Samples on surfaces
     CNextEventSampler *neSampler; // Samples last point separately for next event
 

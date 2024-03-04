@@ -4,34 +4,37 @@
 #include "raycasting/common/raytools.h"
 #include "scene/Camera.h"
 
+/**
+newNode gets filled, others may change
+*/
 bool
-CScreenSampler::Sample(
+ScreenSampler::Sample(
     SimpleRaytracingPathNode */*prevNode*/,
     SimpleRaytracingPathNode *thisNode,
     SimpleRaytracingPathNode *newNode,
-    double x_1,
-    double x_2,
+    double x1,
+    double x2,
     bool /* doRR */,
     BSDFFLAGS /* flags */)
 {
     Vector3D dir;
 
-    // Precond: thisNode == eye, prevNode == nullptr, SetPixel called
+    // Pre-condition: thisNode == eye, prevNode == nullptr, SetPixel called
 
     // Sample direction
-    double xsample = (GLOBAL_camera_mainCamera.pixelWidth * GLOBAL_camera_mainCamera.xSize * (-0.5 + x_1));
-    double ysample = (GLOBAL_camera_mainCamera.pixelHeight * GLOBAL_camera_mainCamera.ySize * (-0.5 + x_2));
+    double xSample = (double)(GLOBAL_camera_mainCamera.pixelWidth * (double)GLOBAL_camera_mainCamera.xSize * (-0.5 + x1));
+    double ySample = (double)(GLOBAL_camera_mainCamera.pixelHeight * (double)GLOBAL_camera_mainCamera.ySize * (-0.5 + x2));
 
-    vectorComb3(GLOBAL_camera_mainCamera.Z, xsample, GLOBAL_camera_mainCamera.X, ysample, GLOBAL_camera_mainCamera.Y,
+    vectorComb3(GLOBAL_camera_mainCamera.Z, (float)xSample, GLOBAL_camera_mainCamera.X, (float)ySample, GLOBAL_camera_mainCamera.Y,
                 dir);
     double distScreen2 = vectorNorm2(dir);
     double distScreen = sqrt(distScreen2);
-    vectorScaleInverse(distScreen, dir, dir);
+    vectorScaleInverse((float)distScreen, dir, dir);
 
     double cosScreen = fabs(vectorDotProduct(GLOBAL_camera_mainCamera.Z, dir));
 
-    double pdfDir = ((1. / (GLOBAL_camera_mainCamera.pixelWidth * GLOBAL_camera_mainCamera.xSize *
-                            GLOBAL_camera_mainCamera.pixelHeight * GLOBAL_camera_mainCamera.ySize)) * // 1 / Area pixel
+    double pdfDir = ((1. / (GLOBAL_camera_mainCamera.pixelWidth * (float)GLOBAL_camera_mainCamera.xSize *
+                            GLOBAL_camera_mainCamera.pixelHeight * (float)GLOBAL_camera_mainCamera.ySize)) * // 1 / Area pixel
                      (distScreen2 / cosScreen));  // spher. angle measure
 
     // Determine ray type
@@ -54,39 +57,46 @@ CScreenSampler::Sample(
     thisNode->m_bsdfComp.Fill(thisNode->m_bsdfEval, BRDF_DIFFUSE_COMPONENT);
 
     // Component propagation
-    thisNode->m_usedComponents = NO_COMPONENTS; // the eye...
-    newNode->m_accUsedComponents = (thisNode->m_accUsedComponents |
-                                    thisNode->m_usedComponents);
+    thisNode->m_usedComponents = NO_COMPONENTS; // The eye...
+    newNode->m_accUsedComponents = static_cast<BSDFFLAGS>(thisNode->m_accUsedComponents | thisNode->m_usedComponents);
     return true;
 }
 
-double CScreenSampler::EvalPDF(SimpleRaytracingPathNode *thisNode, SimpleRaytracingPathNode *newNode,
-                               BSDFFLAGS /*flags*/, double * /*pdf*/,
-                               double * /*pdfRR*/) {
-    double dist2, dist, cosa, cosb, pdf;
+double
+ScreenSampler::EvalPDF(
+    SimpleRaytracingPathNode *thisNode,
+    SimpleRaytracingPathNode *newNode,
+    BSDFFLAGS /*flags*/,
+    double * /*pdf*/,
+    double * /*pdfRR*/)
+{
+    double dist2;
+    double dist;
+    double cosA;
+    double cosB;
+    double pdf;
     Vector3D outDir;
 
-    /* -- more efficient with extra params ?? -- */
-
+    // More efficient with extra params?
     vectorSubtract(newNode->m_hit.point, thisNode->m_hit.point, outDir);
     dist2 = vectorNorm2(outDir);
     dist = sqrt(dist2);
-    vectorScaleInverse(dist, outDir, outDir);
+    vectorScaleInverse((float)dist, outDir, outDir);
 
     // pdf = 1 / A_screen transformed to area measure
 
-    cosa = vectorDotProduct(thisNode->m_normal, outDir);
+    cosA = vectorDotProduct(thisNode->m_normal, outDir);
 
     // pdf = 1/Apix * (r^2 / cos(dir, eyeNormal) * (cos(dir, patchNormal) / d^2)
     //                 |__> to sper.angle           |__> to area on patch
 
     // Three cosines : r^2 / cos = 1 / cos^3 since r is length
     // of viewing ray to the screen.
-    pdf = 1.0 / (GLOBAL_camera_mainCamera.pixelHeight * GLOBAL_camera_mainCamera.ySize * GLOBAL_camera_mainCamera.pixelWidth *
-                 GLOBAL_camera_mainCamera.xSize * cosa * cosa * cosa);
+    pdf = 1.0 / (GLOBAL_camera_mainCamera.pixelHeight * (float)GLOBAL_camera_mainCamera.ySize * GLOBAL_camera_mainCamera.pixelWidth *
+                 (float)GLOBAL_camera_mainCamera.xSize * cosA * cosA * cosA);
 
-    cosb = -vectorDotProduct(newNode->m_normal, outDir);
-    pdf = pdf * cosb / dist2;
+    cosB = -vectorDotProduct(newNode->m_normal, outDir);
+    pdf = pdf * cosB / dist2;
 
     return pdf;
 }

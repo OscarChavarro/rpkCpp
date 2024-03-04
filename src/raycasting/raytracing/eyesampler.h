@@ -7,7 +7,7 @@ Just fills in the eye point in the node
 
 #include "raycasting/raytracing/sampler.h"
 
-class CEyeSampler : public CSampler {
+class CEyeSampler : public Sampler {
 public:
     // Sample : newNode gets filled, others may change
     virtual bool Sample(SimpleRaytracingPathNode *prevNode, SimpleRaytracingPathNode *thisNode,

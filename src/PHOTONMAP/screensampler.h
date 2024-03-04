@@ -1,37 +1,31 @@
-/* screensampler.H
- *
- * samples a random point on the viewscreen and traces the viewing ray. 
- */
+/**
+Samples a random point on the viewscreen and traces the viewing ray.
+*/
 
-#ifndef _SCREENSAMPLER_H_
-#define _SCREENSAMPLER_H_
+#ifndef __SCREEN_SAMPLER__
+#define __SCREEN_SAMPLER__
 
 #include "raycasting/raytracing/sampler.h"
 
-class CScreenSampler : public CSampler {
+class ScreenSampler : public Sampler {
 public:
-    // Sample : newNode gets filled, others may change
-    virtual bool
+    bool
     Sample(
-            SimpleRaytracingPathNode *prevNode,
-            SimpleRaytracingPathNode *thisNode,
-            SimpleRaytracingPathNode *newNode,
-            double x_1,
-            double x_2,
-            bool doRR = false,
-            BSDFFLAGS flags = BSDF_ALL_COMPONENTS);
+        SimpleRaytracingPathNode *prevNode,
+        SimpleRaytracingPathNode *thisNode,
+        SimpleRaytracingPathNode *newNode,
+        double x1,
+        double x2,
+        bool doRR = false,
+        BSDFFLAGS flags = BSDF_ALL_COMPONENTS);
 
     virtual double
     EvalPDF(
-            SimpleRaytracingPathNode *thisNode,
-            SimpleRaytracingPathNode *newNode,
-            BSDFFLAGS flags = BSDF_ALL_COMPONENTS,
-            double *pdf = nullptr,
-            double *pdfRR = nullptr);
-
-  protected:
-    double m_h;
-    double m_v;
+        SimpleRaytracingPathNode *thisNode,
+        SimpleRaytracingPathNode *newNode,
+        BSDFFLAGS flags = BSDF_ALL_COMPONENTS,
+        double *pdf = nullptr,
+        double *pdfRR = nullptr);
 };
 
 #endif

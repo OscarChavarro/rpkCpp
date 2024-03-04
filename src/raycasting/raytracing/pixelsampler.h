@@ -9,7 +9,7 @@
 #include "scene/Camera.h"
 #include "raycasting/raytracing/sampler.h"
 
-class CPixelSampler : public CSampler {
+class CPixelSampler : public Sampler {
 public:
     // Sample : newNode gets filled, others may change
     virtual bool Sample(SimpleRaytracingPathNode *prevNode, SimpleRaytracingPathNode *thisNode,
