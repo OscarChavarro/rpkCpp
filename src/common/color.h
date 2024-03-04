@@ -131,15 +131,6 @@ colorInterpolateBilinear(COLOR &c0, COLOR &c1, COLOR &c2, COLOR &c3, float u, fl
     spectrumInterpolateBilinear(c0.spec, c1.spec, c2.spec, c3.spec, u, v, c.spec);
 }
 
-inline void
-printCoefficients(FILE *fileDescriptor, COLOR *c, char n) {
-    c[0].print(fileDescriptor);
-    for ( int i = 1; i < n; i++ ) {
-        fprintf(fileDescriptor, ", ");
-        (c)[i].print(fileDescriptor);
-    }
-}
-
 extern RGB *convertColorToRGB(COLOR col, RGB *rgb);
 extern COLOR *convertRGBToColor(RGB rgb, COLOR *col);
 

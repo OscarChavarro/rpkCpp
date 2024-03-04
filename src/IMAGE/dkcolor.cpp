@@ -14,7 +14,7 @@ Routines for color calculations. 10/10/85
 Get a temporary buffer
 */
 char *
-tempbuffer(unsigned int len)
+dkColorTempBuffer(unsigned int len)
 {
     static char *tempbuf = nullptr;
     static unsigned tempbuflen = 0;
@@ -30,8 +30,11 @@ tempbuffer(unsigned int len)
     return (tempbuf);
 }
 
+/**
+Write out a colr scanline
+*/
 int
-fwritecolrs(COLR *scanline, int len, FILE *fp)/* write out a colr scanline */
+dkColorWriteColrs(COLR *scanline, int len, FILE *fp)/* write out a colr scanline */
 {
     int i, j, beg, cnt = 0;
     int c2;
@@ -90,30 +93,33 @@ fwritecolrs(COLR *scanline, int len, FILE *fp)/* write out a colr scanline */
 Write out a scanline
 */
 int
-fwritescan(COLOR *scanline, int len, FILE *fp)
+dkColorWriteScan(COLOR *scanline, int len, FILE *fp)
 {
     COLR *clrscan;
     int n;
     COLR *sp;
     // get scanline buffer
-    if ((sp = (COLR *) tempbuffer(len * sizeof(COLR))) == nullptr) {
+    if ((sp = (COLR *) dkColorTempBuffer(len * sizeof(COLR))) == nullptr) {
         return (-1);
     }
     clrscan = sp;
     // Convert scanline
     n = len;
     while ( n-- > 0 ) {
-        setcolr(sp[0], scanline[0][RED_],
-                scanline[0][GRN],
-                scanline[0][BLU]);
+        dkColorSetColr(sp[0], scanline[0][RED],
+                       scanline[0][GREEN],
+                       scanline[0][BLUE]);
         scanline++;
         sp++;
     }
-    return (fwritecolrs(clrscan, len, fp));
+    return (dkColorWriteColrs(clrscan, len, fp));
 }
 
-int
-setcolr(COLR clr, double r, double g, double b)   /* assign a short color value */
+/**
+Assign a short color value
+*/
+void
+dkColorSetColr(COLR clr, double r, double g, double b)
 {
     double d;
     int e;
@@ -124,16 +130,15 @@ setcolr(COLR clr, double r, double g, double b)   /* assign a short color value 
     }
 
     if ( d <= 1e-32 ) {
-        clr[RED_] = clr[GRN] = clr[BLU] = 0;
+        clr[RED] = clr[GREEN] = clr[BLUE] = 0;
         clr[EXP] = 0;
-        return (0);
+        return;
     }
 
     d = frexp(d, &e) * 255.9999 / d;
 
-    clr[RED_] = (unsigned char) (r * d);
-    clr[GRN] = (unsigned char) (g * d);
-    clr[BLU] = (unsigned char) (b * d);
-    clr[EXP] = e + COLXS;
-    return (0);
+    clr[RED] = (unsigned char) (r * d);
+    clr[GREEN] = (unsigned char) (g * d);
+    clr[BLUE] = (unsigned char) (b * d);
+    clr[EXP] = e + COL_XS;
 }

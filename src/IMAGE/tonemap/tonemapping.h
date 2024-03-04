@@ -98,21 +98,19 @@ toneMappingGammaCorrection(RGB &rgb) {
   (rgb).b = GLOBAL_toneMap_options.gammatab[2][GAMMATAB_ENTRY((rgb).b)];
 }
 
-/* shortcuts */
-#define TonemapScaleForComputations(radiance)  (tmopts.ToneMap->ScaleForComputations(radiance))
-
 inline COLOR
 toneMapScaleForDisplay(COLOR &radiance) {
     return GLOBAL_toneMap_options.ToneMap->ScaleForDisplay(radiance);
 }
 
-/* Does most to convert radiance to display RGB color
- * 1) radiance compression: from the high dynamic range in reality to
- *    the limited range of the computer screen.
- * 2) colormodel conversion from the color model used for the computations to
- *    an RGB triplet for display on the screen
- * 3) clipping of RGB values to the range [0,1].
- * Gamma correction is performed in render.c. */
+/**
+Does most to convert radiance to display RGB color
+1) radiance compression: from the high dynamic range in reality to
+   the limited range of the computer screen.
+2) colormodel conversion from the color model used for the computations to
+   an RGB triplet for display on the screen
+3) clipping of RGB values to the range [0,1].
+*/
 extern RGB *radianceToRgb(COLOR color, RGB *rgb);
 
 /**

@@ -29,17 +29,17 @@ boundsInit(float *bounds) {
 }
 
 /**
-Enlarge getBoundingBox with extra
+Enlarge getBoundingBox with input
 */
 float *
-boundsEnlarge(float *bounds, float *extra) {
-    setIfLess(bounds[MIN_X], extra[MIN_X]);
-    setIfLess(bounds[MIN_Y], extra[MIN_Y]);
-    setIfLess(bounds[MIN_Z], extra[MIN_Z]);
-    setIfGreater(bounds[MAX_X], extra[MAX_X]);
-    setIfGreater(bounds[MAX_Y], extra[MAX_Y]);
-    setIfGreater(bounds[MAX_Z], extra[MAX_Z]);
-    return bounds;
+boundsEnlarge(float *output, float *input) {
+    setIfLess(output[MIN_X], input[MIN_X]);
+    setIfLess(output[MIN_Y], input[MIN_Y]);
+    setIfLess(output[MIN_Z], input[MIN_Z]);
+    setIfGreater(output[MAX_X], input[MAX_X]);
+    setIfGreater(output[MAX_Y], input[MAX_Y]);
+    setIfGreater(output[MAX_Z], input[MAX_Z]);
+    return output;
 }
 
 float *

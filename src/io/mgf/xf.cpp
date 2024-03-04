@@ -556,7 +556,6 @@ handleTransformationEntity(int ac, char **av) {
     if ( spec->prev != nullptr) {
         multmat4(spec->xf.xfm, spec->xf.xfm, spec->prev->xf.xfm);
         spec->xf.sca *= spec->prev->xf.sca;
-        // spec->rev ^= spec->prev->rev;
         spec->rev = static_cast<short>(spec->rev ^ spec->prev->rev);
     }
     spec->xid = comp_xfid(spec->xf.xfm); // Compute unique ID

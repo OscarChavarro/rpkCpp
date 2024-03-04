@@ -44,7 +44,7 @@ disjunctBounds(float *b1, float *b2) {
 extern float *boundsCreate();
 extern float *boundsCopy(const float *from, float *to);
 extern float *boundsInit(float *bounds);
-extern float *boundsEnlarge(float *bounds, float *extra);
+extern float *boundsEnlarge(float *output, float *input);
 extern float *boundsEnlargePoint(float *bounds, Vector3D *point);
 extern int boundsIntersect(Ray *ray, float *bounds, float minimumDistance, float *maximumDistance);
 extern int boundsBehindPlane(const float *bounds, Vector3D *norm, float d);

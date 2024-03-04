@@ -11,7 +11,8 @@ CKernel2D::CKernel2D() {
     Init(1.0, 1.0);
 }
 
-void CKernel2D::Init(float h, float w) {
+void
+CKernel2D::Init(float h, float w) {
     m_h = h;
     m_weight = w;
 
@@ -19,24 +20,25 @@ void CKernel2D::Init(float h, float w) {
     m_h2inv = 1 / m_h2;
 }
 
-void CKernel2D::SetH(const float newh) {
-    Init(newh, m_weight);
+/**
+Change kernel width.
+IN:   The new kernel width, newH.
+PRE:  newH > 0.0f
+POST: The kernel size is newH.
+*/
+void
+CKernel2D::SetH(const float newH) {
+    Init(newH, m_weight);
 }
 
-bool CKernel2D::IsInside(const Vector2D &point, const Vector2D &center) {
-    Vector2D d;
-    float f;
-
-    // Use square norm, faster...
-    vector2DDifference(point, center, d);
-    f = vector2DNorm2(d);
-
-    return (f < m_h2);
-}
-
-
-float CKernel2D::Evaluate(const Vector2D &point,
-                          const Vector2D &center) {
+/**
+Evaluate the kernel
+IN:  The position of a 2D point.
+     The position of the center of the kernel.
+OUT: The value of the kernel at the point. (a positive number or 0.0f)
+*/
+float
+CKernel2D::Evaluate(const Vector2D &point, const Vector2D &center) const {
     Vector2D aux;
     float tp;
 
@@ -56,7 +58,13 @@ float CKernel2D::Evaluate(const Vector2D &point,
     }
 }
 
-void CKernel2D::Cover(const Vector2D &point, float scale, COLOR &col, ScreenBuffer *screen) {
+/**
+Cover the affected pixels of a screen buffer with the kernel
+IN: The screen buffer to cover.
+OUT: /
+*/
+void
+CKernel2D::Cover(const Vector2D &point, float scale, COLOR &col, ScreenBuffer *screen) const {
     // For each neighbourhood pixel : eval kernel and add contrib
 
     int nx_min, nx_max, ny_min, ny_max, nx, ny;
@@ -87,11 +95,19 @@ void CKernel2D::Cover(const Vector2D &point, float scale, COLOR &col, ScreenBuff
     }
 }
 
-
-// Add one hit/splat with a size dependend on a reference estimate
-void CKernel2D::VarCover(const Vector2D &center, COLOR &col, ScreenBuffer *ref,
-                         ScreenBuffer *dest, int totalSamples, int scaleSamples,
-                         float baseSize) {
+/**
+Add one hit/splat with a size dependend on a reference estimate
+*/
+void
+CKernel2D::VarCover(
+    const Vector2D &center,
+    COLOR &col,
+    ScreenBuffer *ref,
+    ScreenBuffer *dest,
+    int totalSamples,
+    int scaleSamples,
+    float baseSize)
+{
     float screenScale = floatMax(ref->getPixXSize(), ref->getPixYSize());
     //float screenFactor = ref->GetPixXSize() * ref->GetPixYSize();
     float B = baseSize * screenScale; // what about the 8 ??
@@ -100,7 +116,7 @@ void CKernel2D::VarCover(const Vector2D &center, COLOR &col, ScreenBuffer *ref,
     // scaleSamples is normally total samples per pixel, while
     // totalSamples is the total number of samples for the CURRENT
     // number of samples per pixel
-    float Bn = B * (std::pow((double) scaleSamples, (-1.5 / 5.0)));
+    float Bn = (float)(B * (std::pow((double) scaleSamples, (-1.5 / 5.0))));
 
     float h;
 
@@ -113,7 +129,7 @@ void CKernel2D::VarCover(const Vector2D &center, COLOR &col, ScreenBuffer *ref,
     float avgG = colorAverage(col);
 
     if ( avgFe > EPSILON ) {
-        h = Bn * sqrt(avgG / avgFe);
+        h = (float)(Bn * std::sqrt(avgG / avgFe));
         // printf("fe %f G %f, h = %f\n", avgFe, avgG, h/screenScale);
     } else {
         const float maxRatio = 20; // ???
@@ -122,10 +138,10 @@ void CKernel2D::VarCover(const Vector2D &center, COLOR &col, ScreenBuffer *ref,
         printf("MaxRatio... h = %f\n", h / screenScale);
     }
 
-    h = floatMax(1.0 * screenScale, h); // We want to cover at least one pixel...
+    h = floatMax(1.0f * screenScale, h); // We want to cover at least one pixel...
 
     SetH(h);
 
     // h determined, now splat the fucker
-    Cover(center, 1.0 / totalSamples, col, dest);
+    Cover(center, 1.0f / (float)totalSamples, col, dest);
 }

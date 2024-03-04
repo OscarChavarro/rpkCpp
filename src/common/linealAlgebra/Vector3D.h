@@ -205,7 +205,7 @@ Tolerance value for e.g. a vertex position
 */
 inline float
 vectorTolerance(const Vector3D v) {
-    return EPSILON * (fabs(v.x) + fabs(v.y) + fabs(v.z));
+    return EPSILON * (std::fabs(v.x) + std::fabs(v.y) + std::fabs(v.z));
 }
 
 /**

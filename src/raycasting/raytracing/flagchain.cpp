@@ -97,17 +97,15 @@ FlagChainCombine(const CFlagChain *c1,
 
     // Combine into new chain
     if ( nrDifferent == 0 ) {
-        // flag chains identical - maybe dangerous if someone wants to
+        // Flag chains identical - maybe dangerous if someone wants to
         // count one contribution twice...
         return new CFlagChain(*c1);
     }
 
     if ( nrDifferent == 1 ) {
-        // Combinable !
+        // Combinable
         CFlagChain *newFlagChain = new CFlagChain(*c1);
-
-        newFlagChain->chain[diffIndex] = c1->chain[diffIndex] | c2->chain[diffIndex];
-
+        newFlagChain->chain[diffIndex] = static_cast<BSDFFLAGS>(c1->chain[diffIndex] | c2->chain[diffIndex]);
         return newFlagChain;
     }
 

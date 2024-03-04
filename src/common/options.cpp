@@ -68,8 +68,9 @@ optionsConsumeArgument() {
 Scans the current argument value for a value of given format
 */
 static bool
-optionsGetArgumentIntValue(const char *format, int *res) {
-    return (sscanf(*globalCurrentArgumentValue, format, res) == 1);
+optionsGetArgumentIntValue(int *res) {
+    *res = (int)strtol(*globalCurrentArgumentValue, nullptr, 10);
+    return *res == 1;
 }
 
 /**
@@ -85,7 +86,7 @@ Integer option values
 */
 static int
 optionsGetInt(int *n, void * /*data*/) {
-    if ( !optionsGetArgumentIntValue("%d", n)) {
+    if ( !optionsGetArgumentIntValue(n)) {
         fprintf(stderr, "'%s' is not a valid integer value\n", *globalCurrentArgumentValue);
         return false;
     }

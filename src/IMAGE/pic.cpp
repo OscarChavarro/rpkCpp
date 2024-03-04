@@ -27,7 +27,7 @@ writeRadianceRGB(float *rgbrad) {
     int result = 0;
 
     if ( pic ) {
-        result = fwritescan((COLOR *) rgbrad, width, pic);
+        result = dkColorWriteScan((COLOR *) rgbrad, width, pic);
     }
 
     if ( result ) {
