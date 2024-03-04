@@ -7,12 +7,12 @@
 
 class RayMatter {
   private:
-    ScreenBuffer *scrn;
+    ScreenBuffer *screenBuffer;
     bool doDeleteScreen;
     pixelFilter *Filter;
 
   public:
-    RayMatter(ScreenBuffer *screen);
+    explicit RayMatter(ScreenBuffer *screen);
     virtual ~RayMatter();
 
     void CheckFilter();

@@ -11,20 +11,20 @@ Original version by Vincent Masselus adapted by Pieter Peers (2001-06-01)
 
 RayMatter::RayMatter(ScreenBuffer *screen) {
     if ( screen == nullptr ) {
-        scrn = new ScreenBuffer(nullptr);
+        screenBuffer = new ScreenBuffer(nullptr);
         doDeleteScreen = false;
     } else {
-        scrn = screen;
+        screenBuffer = screen;
         doDeleteScreen = false;
     }
 
     Filter = nullptr;
-    scrn->setRgbImage(true);
+    screenBuffer->setRgbImage(true);
 }
 
 RayMatter::~RayMatter() {
     if ( doDeleteScreen ) {
-        delete scrn;
+        delete screenBuffer;
     }
     if ( Filter != nullptr ) {
         delete Filter;
@@ -77,7 +77,7 @@ RayMatter::Matting() {
                 // generate ray
                 Ray ray;
                 ray.pos = GLOBAL_camera_mainCamera.eyePosition;
-                ray.dir = scrn->getPixelVector((int)x, (int)y, (float)xi1, (float)xi2);
+                ray.dir = screenBuffer->getPixelVector((int)x, (int)y, (float)xi1, (float)xi2);
                 vectorNormalize(ray.dir);
 
                 // check if hit
@@ -93,10 +93,10 @@ RayMatter::Matting() {
             }
 
             colorSet(matte, value, value, value);
-            scrn->add((int)x, (int)y, matte);
+            screenBuffer->add((int)x, (int)y, matte);
         }
 
-        scrn->renderScanline((int)y);
+        screenBuffer->renderScanline((int)y);
     }
 
     GLOBAL_raytracer_totalTime = (float) (clock() - t) / (float) CLOCKS_PER_SEC;
@@ -105,25 +105,25 @@ RayMatter::Matting() {
 
 void
 RayMatter::display() {
-    scrn->render();
+    screenBuffer->render();
 }
 
 void
 RayMatter::save(ImageOutputHandle *ip) {
-    scrn->writeFile(ip);
+    screenBuffer->writeFile(ip);
 }
 
 static RayMatter *rm = nullptr;
 RayMattingState GLOBAL_rayCasting_rayMatterState;
 
 static void
-IRayMatte(ImageOutputHandle *ip, java::ArrayList<Patch *> *scenePatches, java::ArrayList<Patch *> *lightPatches) {
+IRayMatte(ImageOutputHandle *ip, java::ArrayList<Patch *> * /*scenePatches*/, java::ArrayList<Patch *> * /*lightPatches*/) {
     if ( rm ) {
         delete rm;
     }
     rm = new RayMatter(nullptr);
     rm->Matting();
-    if ( ip ) {
+    if ( ip && rm != nullptr ) {
         rm->save(ip);
     }
 }

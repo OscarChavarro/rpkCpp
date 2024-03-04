@@ -90,12 +90,12 @@ SR_GetScatteredRadiance(
             double x_1;
             double x_2;
             double factor;
-            StratifiedSampling2D strat(nrSamples);
+            StratifiedSampling2D stratified(nrSamples);
             COLOR radiance;
             bool doRR = thisNode->m_depth >= config->samplerConfig.minDepth;
 
             for ( i = 0; i < nrSamples; i++ ) {
-                strat.sample(&x_1, &x_2);
+                stratified.sample(&x_1, &x_2);
 
                 // Surface sampling
                 if ( config->samplerConfig.surfaceSampler->Sample(
@@ -187,11 +187,11 @@ SR_GetDirectRadiance(
 
 
         while ( lightsToDo ) {
-            StratifiedSampling2D strat(config->nextEventSamples);
+            StratifiedSampling2D stratified(config->nextEventSamples);
 
             for ( i = 0; i < config->nextEventSamples; i++ ) {
                 // Light sampling
-                strat.sample(&x_1, &x_2);
+                stratified.sample(&x_1, &x_2);
 
                 if ( config->samplerConfig.neSampler->Sample(
                         prevNode->previous(),
@@ -472,7 +472,7 @@ CalcPixel(int nx, int ny, StochasticRaytracingConfiguration *config) {
     double x1;
     double x2;
     COLOR col, result;
-    StratifiedSampling2D strat(config->samplesPerPixel);
+    StratifiedSampling2D stratified(config->samplesPerPixel);
 
     colorClear(result);
 
@@ -496,7 +496,7 @@ CalcPixel(int nx, int ny, StochasticRaytracingConfiguration *config) {
 
     // Stratified sampling of the pixel
     for ( i = 0; i < config->samplesPerPixel; i++ ) {
-        strat.sample(&x1, &x2);
+        stratified.sample(&x1, &x2);
 
         if ( config->samplerConfig.dirSampler->Sample(nullptr, &eyeNode, &pixelNode, x1, x2)
              && ((pixelNode.m_rayType != Environment) || (config->backgroundDirect))) {

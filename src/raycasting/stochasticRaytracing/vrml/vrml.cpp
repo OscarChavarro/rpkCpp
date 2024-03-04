@@ -1,4 +1,6 @@
-/* vrml.c: saves "illuminated" model in the VRML'97 file */
+/**
+Saves "illuminated" model in the VRML'97 file
+*/
 
 #include <cstring>
 
@@ -12,8 +14,10 @@
 #include "raycasting/stochasticRaytracing/hierarchy.h"
 #include "raycasting/stochasticRaytracing/vrml/vrml.h"
 
-#define FACES_PER_SET 1000  /* keeps all arrays smaller than 30k els */
-static int vid, nwrit, matidx;
+// Keeps all arrays smaller than 30k els
+#define FACES_PER_SET 1000
+static int vid;
+static int nwrit;
 static int nrcoords, nrcolors, nrcoordindices, pass;
 static FILE *vrmlfp;
 
@@ -426,10 +430,7 @@ resetMaterialData() {
 void
 mcrWriteVrml(FILE *fp) {
     initIdTransTabs();
-
-    matidx = 0;
     resetMaterialData();
-
     mcrWriteVrmlHeader(fp);
 
     vrmlfp = fp;

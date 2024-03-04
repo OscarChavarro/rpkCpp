@@ -4,12 +4,11 @@
 #include "scene/Camera.h"
 #include "IMAGE/tonemap/tonemapping.h"
 #include "render/opengl.h"
-#include "raycasting/common/raytools.h"
 #include "raycasting/common/Raytracer.h"
 #include "raycasting/raytracing/screeniterate.h"
 
-/* Different functions need to sync with the timer */
-#define WAKE_UP_RENDER  ((unsigned char)1<<1)
+// Different functions need to sync with the timer
+#define WAKE_UP_RENDER ((unsigned char)1<<1)
 
 class SCREENITERATESTATE {
   public:
