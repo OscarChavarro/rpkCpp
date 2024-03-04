@@ -273,7 +273,7 @@ static void
 monteCarloRadiosityUpdateImportance(StochasticRadiosityElement *elem) {
     if ( !monteCarloRadiosityForAllChildrenElements(elem, monteCarloRadiosityUpdateImportance)) {
         // Leaf element
-        float delta_imp = (elem->patch->isVisible() ? 1.0 : 0.0) - elem->source_imp;
+        float delta_imp = (float)(elem->patch->isVisible() ? 1.0 : 0.0) - elem->source_imp;
         elem->imp += delta_imp;
         elem->source_imp += delta_imp;
         elem->unShotImp += delta_imp;
@@ -364,7 +364,7 @@ monteCarloRadiosityDetermineAreaFraction(java::ArrayList<Patch *> *scenePatches)
     for ( i = nrpatchids - 1, cumul = 0.; i >= 0 && cumul < GLOBAL_statistics_totalArea * 0.1; i-- ) {
         cumul += areas[i];
     }
-    areafrac = (i >= 0 && areas[i] > 0.) ? GLOBAL_statistics_totalArea / areas[i] : GLOBAL_statistics_numberOfPatches;
+    areafrac = (i >= 0 && areas[i] > 0.) ? GLOBAL_statistics_totalArea / areas[i] : (float)GLOBAL_statistics_numberOfPatches;
 
     free(areas);
 
@@ -484,10 +484,10 @@ monteCarloRadiosityInterpolatedReflectanceAtPoint(StochasticRadiosityElement *le
     colorClear(rd);
     switch ( leaf->numberOfVertices ) {
         case 3:
-            colorInterpolateBarycentric(vrd[0], vrd[1], vrd[2], u, v, rd);
+            colorInterpolateBarycentric(vrd[0], vrd[1], vrd[2], (float)u, (float)v, rd);
             break;
         case 4:
-            colorInterpolateBilinear(vrd[0], vrd[1], vrd[2], vrd[3], u, v, rd);
+            colorInterpolateBilinear(vrd[0], vrd[1], vrd[2], vrd[3], (float)u, (float)v, rd);
             break;
         default:
             logFatal(-1, "monteCarloRadiosityInterpolatedReflectanceAtPoint", "Invalid nr of vertices %d", leaf->numberOfVertices);
@@ -500,7 +500,7 @@ Returns the radiance emitted from the patch at the point with parameters
 (u,v) into the direction 'dir'
 */
 COLOR
-monteCarloRadiosityGetRadiance(Patch *patch, double u, double v, Vector3D dir) {
+monteCarloRadiosityGetRadiance(Patch *patch, double u, double v, Vector3D /*dir*/) {
     COLOR TrueRdAtPoint = monteCarloRadiosityDiffuseReflectanceAtPoint(patch, u, v);
     StochasticRadiosityElement *leaf = monteCarloRadiosityRegularLeafElementAtPoint(topLevelGalerkinElement(patch), &u, &v);
     COLOR UsedRdAtPoint = GLOBAL_render_renderOptions.smoothShading ? monteCarloRadiosityInterpolatedReflectanceAtPoint(leaf, u, v) : leaf->Rd;

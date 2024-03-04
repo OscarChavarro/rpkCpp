@@ -69,16 +69,3 @@ reAllocCoefficients(StochasticRadiosityElement *elem) {
         allocCoefficients(elem);
     }
 }
-
-void
-stochasticRaytracingPrintCoefficients(FILE *fp, COLOR *c, GalerkinBasis *galerkinBasis) {
-    int i;
-
-    if ( galerkinBasis->size > 0 ) {
-        c[0].print(fp);
-    }
-    for ( i = 1; i < galerkinBasis->size; i++) {
-        fprintf(fp, ", ");
-        (c)[i].print(fp);
-    }
-}

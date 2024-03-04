@@ -1,12 +1,14 @@
-/* basistri: orthonormal basis for the standard triangle (0,0),(1,0),(0,1). */
+/**
+Orthonormal basis for the standard triangle (0, 0), (1, 0), (0, 1)
+*/
 
 #include "raycasting/stochasticRaytracing/basismcrad.h"
 
-static double tm0(double u, double v) {
-    return 1.000000000000000;
+static double tm0(double /*u*/, double /*v*/) {
+    return 1.0;
 }
 
-static double tm1(double u, double v) {
+static double tm1(double u, double /*v*/) {
     return -1.414213562373095 * 1 + 4.242640687119287 * u;
 }
 

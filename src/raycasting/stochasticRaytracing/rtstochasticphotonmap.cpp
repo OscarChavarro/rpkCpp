@@ -27,7 +27,7 @@ StochasticRaytracingConfiguration::init(RTStochastic_State &state, java::ArrayLi
             logError("Stored Radiance", "No radiance method active, using no storage");
             radMode = STORED_NONE;
         } else if ((radMode == STORED_PHOTON_MAP) && (GLOBAL_radiance_currentRadianceMethodHandle != &GLOBAL_photonMapMethods)) {
-            logError("Stored Radiance", "Photonmap method not active, using no storage");
+            logError("Stored Radiance", "Photon map method not active, using no storage");
             radMode = STORED_NONE;
         }
     }
@@ -51,7 +51,7 @@ StochasticRaytracingConfiguration::init(RTStochastic_State &state, java::ArrayLi
 
     if ( radMode == STORED_PHOTON_MAP ) {
         logWarning("Photon map reflection Sampling",
-                   "Make sure to use the same sampling (brdf,fresnel) as for photonmap construction");
+                   "Make sure to use the same sampling (brdf, fresnel) as for photon map construction");
     }
 
     scatterSamples = state.scatterSamples;
@@ -169,7 +169,7 @@ StochasticRaytracingConfiguration::initDependentVars(java::ArrayList<Patch *> *l
             siOthers[siIndex].nrSamplesBefore = scatterSamples;
             siOthers[siIndex].nrSamplesAfter = scatterSamples;
             siIndex++;
-            remainingFlags &= ~flags;
+            remainingFlags = static_cast<BSDFFLAGS>(remainingFlags & ~flags);
         }
 
         // Spec transmission
@@ -185,7 +185,7 @@ StochasticRaytracingConfiguration::initDependentVars(java::ArrayList<Patch *> *l
             siOthers[siIndex].nrSamplesBefore = scatterSamples;
             siOthers[siIndex].nrSamplesAfter = scatterSamples;
             siIndex++;
-            remainingFlags &= ~flags;
+            remainingFlags = static_cast<BSDFFLAGS>(remainingFlags & ~flags);
         }
     }
 
@@ -199,7 +199,7 @@ StochasticRaytracingConfiguration::initDependentVars(java::ArrayList<Patch *> *l
             siOthers[siIndex].nrSamplesBefore = firstDGSamples;
             siOthers[siIndex].nrSamplesAfter = scatterSamples;
             siIndex++;
-            remainingFlags &= ~gdFlags;
+            remainingFlags = static_cast<BSDFFLAGS>(remainingFlags & ~gdFlags);
         }
     }
 
@@ -212,7 +212,7 @@ StochasticRaytracingConfiguration::initDependentVars(java::ArrayList<Patch *> *l
             siOthers[siIndex].nrSamplesBefore = 0;
             siOthers[siIndex].nrSamplesAfter = 0;
             siIndex++;
-            remainingFlags &= ~dFlags;
+            remainingFlags = static_cast<BSDFFLAGS>(remainingFlags & ~dFlags);
         }
     }
 

@@ -804,8 +804,8 @@ monteCarloRadiosityDestroyElement(StochasticRadiosityElement *elem) {
     GLOBAL_stochasticRaytracing_hierarchy.nr_elements--;
 
     if ( elem->irregularSubElements ) {
-        for ( int i = 0; elem->irregularSubElements != nullptr && i < elem->irregularSubElements->size(); i++ ) {
-            delete elem->irregularSubElements->get(i);
+        for ( int j = 0; elem->irregularSubElements != nullptr && j < elem->irregularSubElements->size(); j++ ) {
+            delete elem->irregularSubElements->get(j);
         }
         delete elem->irregularSubElements;
         elem->irregularSubElements = nullptr;

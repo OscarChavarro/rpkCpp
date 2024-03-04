@@ -16,13 +16,13 @@ Special refinement action used to indicate that a link is admissible
 */
 static LINK *
 dontRefine(
-        LINK *link,
-        StochasticRadiosityElement *rcvtop,
-        double *ur,
-        double *vr,
-        StochasticRadiosityElement *srctop,
-        double *us,
-        double *vs)
+    LINK *link,
+    StochasticRadiosityElement * /*rcvtop*/,
+    double * /*ur*/,
+    double * /*vr*/,
+    StochasticRadiosityElement * /*srctop*/,
+    double * /*us*/,
+    double * /*vs*/)
 {
     // Doesn't do anything
     return link;
@@ -37,9 +37,9 @@ subdivideReceiver(
         StochasticRadiosityElement *rcvtop,
         double *ur,
         double *vr,
-        StochasticRadiosityElement *srctop,
-        double *us,
-        double *vs)
+        StochasticRadiosityElement * /*srctop*/,
+        double * /*us*/,
+        double * /*vs*/)
 {
     StochasticRadiosityElement *rcv = link->rcv;
     if ( rcv->isCluster ) {
@@ -60,9 +60,9 @@ Refinement action 3: subdivide the source using regular quadtree subdivision
 static LINK *
 subdivideSource(
         LINK *link,
-        StochasticRadiosityElement *rcvtop,
-        double *ur,
-        double *vr,
+        StochasticRadiosityElement * /*rcvtop*/,
+        double * /*ur*/,
+        double * /*vr*/,
         StochasticRadiosityElement *srctop,
         double *us,
         double *vs)
@@ -98,9 +98,12 @@ disjunctElements(StochasticRadiosityElement *rcv, StochasticRadiosityElement *sr
     return disjunctBounds(rcvbounds, srcbounds);
 }
 
-/* Cheap form factor estimate to drive hierarchical refinement 
- * as in Hanrahan SIGGRAPH'91. */
-static float formfactor_estimate(StochasticRadiosityElement *rcv, StochasticRadiosityElement *src) {
+/**
+Cheap form factor estimate to drive hierarchical refinement
+as in Hanrahan SIGGRAPH'91
+*/
+static float
+formFactorEstimate(StochasticRadiosityElement *rcv, StochasticRadiosityElement *src) {
     Vector3D D;
     double d, c1, c2, f, f2;
     vectorSubtract(src->midpoint, rcv->midpoint, D);
@@ -115,14 +118,14 @@ static float formfactor_estimate(StochasticRadiosityElement *rcv, StochasticRadi
     if ( c2 < f2 ) {
         c2 = f2;
     }
-    return f * c1 * c2;
+    return (float)(f * c1 * c2);
 }
 
 static int LowPowerLink(LINK *link) {
     StochasticRadiosityElement *rcv = link->rcv;
     StochasticRadiosityElement *src = link->src;
     COLOR rhosrcrad;
-    float ff = formfactor_estimate(rcv, src);
+    float ff = formFactorEstimate(rcv, src);
     float threshold, propagated_power;
 
     /* compute receiver reflectance times source radiosity */
@@ -144,7 +147,7 @@ static int LowPowerLink(LINK *link) {
     return (propagated_power < threshold);
 }
 
-static REFINE_ACTION SubdivideLargest(LINK *link) {
+static REFINE_ACTION subDivideLargest(LINK *link) {
     StochasticRadiosityElement *rcv = link->rcv;
     StochasticRadiosityElement *src = link->src;
     if ( rcv->area < GLOBAL_stochasticRaytracing_hierarchy.minimumArea && src->area < GLOBAL_stochasticRaytracing_hierarchy.minimumArea ) {
@@ -160,14 +163,14 @@ a la Smits'92 if GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importance
 */
 REFINE_ACTION
 powerOracle(LINK *link) {
-    if ( selfLink(link)) {
+    if ( selfLink(link) ) {
         return subdivideReceiver;
-    } else if ( linkInvolvingClusters(link) && !disjunctElements(link->rcv, link->src)) {
-        return SubdivideLargest(link);
-    } else if ( LowPowerLink(link)) {
+    } else if ( linkInvolvingClusters(link) && !disjunctElements(link->rcv, link->src) ) {
+        return subDivideLargest(link);
+    } else if ( LowPowerLink(link) ) {
         return dontRefine;
     } else {
-        return SubdivideLargest(link);
+        return subDivideLargest(link);
     }
 }
 
@@ -181,7 +184,7 @@ given toplevel surface elements is returned
 LINK
 topLink(StochasticRadiosityElement *rcvtop, StochasticRadiosityElement *srctop) {
     StochasticRadiosityElement *rcv, *src;
-    LINK link;
+    LINK link{};
 
     if ( GLOBAL_stochasticRaytracing_hierarchy.do_h_meshing && GLOBAL_stochasticRaytracing_hierarchy.clustering != NO_CLUSTERING ) {
         src = rcv = GLOBAL_stochasticRaytracing_hierarchy.topCluster;

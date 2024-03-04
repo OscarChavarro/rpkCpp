@@ -64,23 +64,6 @@ static GalerkinBasis MakeBasis(ElementType et, APPROX_TYPE at) {
 }
 
 /**
-Prints info about basis
-*/
-void
-printBasis(GalerkinBasis *basis) {
-    int i;
-    double u = 0.5;
-    double v = 0.5;
-
-    fprintf(stderr, "%s, size=%d, samples at (%g,%g): ",
-            basis->description, basis->size, u, v);
-    for ( i = 0; i < basis->size; i++ ) {
-        fprintf(stderr, "%g ", basis->function[i](u, v));
-    }
-    fprintf(stderr, "\n");
-}
-
-/**
 Computes the filter coefficients for push-pull operations between a
 parent and child with given basis and nr of basis functions. 'upxfm' is
 the transform to be used to find the point on the parent corresponding
