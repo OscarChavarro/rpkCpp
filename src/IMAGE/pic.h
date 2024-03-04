@@ -4,22 +4,20 @@
 #include "IMAGE/imagecpp.h"
 
 /**
- *	(Simple) High dynamic range PIC output handle.
- *
- *	Olaf Appeltants, March 2000
- */
+High dynamic range PIC output handle.
+
+Olaf Appeltants, March 2000
+*/
 class PicOutputHandle : public ImageOutputHandle {
-protected:
+  protected:
     FILE *pic;
 
     void writeHeader();
 
-public:
+  public:
     PicOutputHandle(char *filename, int w, int h);
-
     ~PicOutputHandle();
-
-    int writeRadianceRGB(float *rgbrad);
+    int writeRadianceRGB(float *rgbRadiance);
 };
 
 #endif

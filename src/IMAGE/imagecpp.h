@@ -36,11 +36,11 @@ public:
     /* returns the number of pixels written. */
     virtual int writeDisplayRGB(unsigned char *rgb);
 
-    virtual int writeDisplayRGB(float *rgbflt);
+    virtual int writeDisplayRGB(float *rgbFloatArray);
 
     /* writes a scanline of raw radiance data */
     /* returns the number of pixels written. */
-    virtual int writeRadianceRGB(float *rgbrad);    /* RGB radiance data */
+    virtual int writeRadianceRGB(float *rgbRadiance);    /* RGB radiance data */
 };
 
 #include <cstdio>

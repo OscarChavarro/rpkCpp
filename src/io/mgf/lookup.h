@@ -1,4 +1,4 @@
-/*
+/**
 Header file for general associative table lookup routines
 */
 

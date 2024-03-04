@@ -1,11 +1,11 @@
 #include "IMAGE/pic.h"
 #include "IMAGE/dkcolor.h"
 
-PicOutputHandle::
-PicOutputHandle(char *filename, int w, int h) {
+PicOutputHandle::PicOutputHandle(char *filename, int w, int h) {
     ImageOutputHandle::init("high dynamic range PIC", w, h);
 
-    if ((pic = fopen(filename, "wb")) == nullptr ) {
+    pic = fopen(filename, "wb");
+    if ( pic == nullptr ) {
         fprintf(stderr, "Can't open PIC output");
         return;
     }
@@ -13,33 +13,35 @@ PicOutputHandle(char *filename, int w, int h) {
     writeHeader();
 }
 
-PicOutputHandle::
-~PicOutputHandle() {
+PicOutputHandle::~PicOutputHandle() {
     if ( pic ) {
         fclose(pic);
     }
     pic = nullptr;
 }
 
-// writes scanline of high-dynamic range radiance data in RGB format
-int PicOutputHandle::
-writeRadianceRGB(float *rgbrad) {
+/**
+Writes scanline of high-dynamic range radiance data in RGB format
+*/
+int
+PicOutputHandle::writeRadianceRGB(float *rgbRadiance) {
     int result = 0;
 
     if ( pic ) {
-        result = dkColorWriteScan((COLOR *) rgbrad, width, pic);
+        result = dkColorWriteScan((COLOR *) rgbRadiance, width, pic);
     }
 
     if ( result ) {
         return width;
     } else {
+        // We don't know how many pixels were actually written
         return 0;
-    } // We don't know how many pixels were actually written
+    }
 }
 
-void PicOutputHandle::
-writeHeader() {
-    // simple RADIANCE header
+void
+PicOutputHandle::writeHeader() {
+    // Simple RADIANCE header
     fprintf(pic, "#?RADIANCE\n");
     fprintf(pic, "#RPK PicOutputHandler (compiled %s)\n", __DATE__);
     fprintf(pic, "FORMAT=32-bit_rle_rgbe\n");
