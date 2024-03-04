@@ -1,5 +1,5 @@
-#ifndef __SCREENBUFFER__
-#define __SCREENBUFFER__
+#ifndef __SCREEN_BUFFER__
+#define __SCREEN_BUFFER__
 
 #include <cmath>
 #include <cstdio>
@@ -10,7 +10,7 @@
 #include "scene/Camera.h"
 
 /**
-Class for storing pixel radiances/fluxes
+Class for storing pixel radiance/fluxes
 and an associated RGB framebuffer
 
 12/10/99 : The screen buffer has now a GLOBAL_camera_mainCamera variable that states

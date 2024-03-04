@@ -11,7 +11,7 @@ class Soft_ID_Renderer {
     void init(java::ArrayList<Patch *> *scenePatches); // Also performs the actual ID rendering
   public:
     explicit Soft_ID_Renderer(java::ArrayList<Patch *> *scenePatches) {
-        sgl = 0;
+        sgl = nullptr;
         init(scenePatches);
     }
 

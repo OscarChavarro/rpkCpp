@@ -26,8 +26,6 @@ public:
      * the full sphere of the background radiance */
     COLOR (*Power)(void *data, Vector3D *position);
 
-    void (*Print)(FILE *out, void *data);
-
     void (*Destroy)(void *data);
 };
 

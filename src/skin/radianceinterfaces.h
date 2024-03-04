@@ -68,7 +68,7 @@ class RADIANCEMETHOD {
     void (*renderScene)(java::ArrayList<Patch *> *scenePatches);
 
     // If defined, this routine will save the current model in VRML format.
-    // If not defined, the default method implemented in writevrml.[ch] will
+    // If not defined, the default method implemented in write vrml.[ch] will
     // be used
     void (*writeVRML)(FILE *fp);
 };

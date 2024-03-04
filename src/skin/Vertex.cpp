@@ -52,40 +52,6 @@ vertexDestroy(Vertex *vertex) {
 }
 
 /**
-Prints the vertex data to the file 'out'
-*/
-void
-vertexPrint(FILE *out, Vertex *vertex) {
-    fprintf(out, "ID %d: (", vertex->id);
-    vector3DPrint(out, *(vertex->point));
-    fprintf(out, ")");
-    if ( vertex->normal ) {
-        fprintf(out, "/(");
-        vector3DPrint(out, *(vertex->normal));
-        fprintf(out, ")");
-    } else {
-        fprintf(out, "/(no normal)");
-    }
-    if ( vertex->texCoord ) {
-        fprintf(out, "/(");
-        vector3DPrint(out, *(vertex->texCoord));
-        fprintf(out, ")");
-    } else {
-        fprintf(out, "/(no texCoord)");
-    }
-    fprintf(out, " color = (");
-    printRGB(out, vertex->color);
-    fprintf(out, "),");
-
-    fprintf(out, "patches: ");
-    for ( int i = 0; vertex->patches != nullptr && i < vertex->patches->size(); i++ ) {
-        vertex->patches->get(i)->patchPrintId(out);
-    }
-
-    fprintf(out, "\n");
-}
-
-/**
 Averages the color of each patch sharing the vertex and assign the 
 resulting color to the vertex
 */

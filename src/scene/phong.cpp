@@ -82,8 +82,8 @@ phongBtdfCreate(COLOR *Kd, COLOR *Ks, float Ns, float nr, float ni) {
     btdf->Ks = *Ks;
     btdf->avgKs = colorAverage(btdf->Ks);
     btdf->Ns = Ns;
-    btdf->refrIndex.nr = nr;
-    btdf->refrIndex.ni = ni;
+    btdf->refractionIndex.nr = nr;
+    btdf->refractionIndex.ni = ni;
     return btdf;
 }
 
@@ -168,8 +168,8 @@ Refraction index
 */
 static void
 phongIndexOfRefraction(PHONG_BTDF *btdf, RefractionIndex *index) {
-    index->nr = btdf->refrIndex.nr;
-    index->ni = btdf->refrIndex.ni;
+    index->nr = btdf->refractionIndex.nr;
+    index->ni = btdf->refractionIndex.ni;
 }
 
 /**

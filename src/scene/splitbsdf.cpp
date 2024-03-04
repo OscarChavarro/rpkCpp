@@ -54,7 +54,7 @@ splitBsdfEvalTexture(TEXTURE *texture, RayHit *hit) {
 }
 
 static double
-texturedScattererEval(Vector3D *in, Vector3D *out, Vector3D *normal) {
+texturedScattererEval(Vector3D * /*in*/, Vector3D * /*out*/, Vector3D * /*normal*/) {
     return (1.0 / M_PI);
 }
 
@@ -62,19 +62,19 @@ texturedScattererEval(Vector3D *in, Vector3D *out, Vector3D *normal) {
 Albedo is assumed to be 1
 */
 static Vector3D
-texturedScattererSample(Vector3D *in, Vector3D *normal, double x_1, double x_2, double *pdf) {
+texturedScattererSample(Vector3D * /*in*/, Vector3D *normal, double x_1, double x_2, double *pdf) {
     COORDSYS coord;
     vectorCoordSys(normal, &coord);
     return sampleHemisphereCosTheta(&coord, x_1, x_2, pdf);
 }
 
 static void
-texturedScattererEvalPdf(Vector3D *in, Vector3D *out, Vector3D *normal, double *pdf) {
+texturedScattererEvalPdf(Vector3D * /*in*/, Vector3D *out, Vector3D *normal, double *pdf) {
     *pdf = vectorDotProduct(*normal, *out) / M_PI;
 }
 
 static COLOR
-splitBsdfScatteredPower(SPLIT_BSDF *bsdf, RayHit *hit, Vector3D *in, BSDFFLAGS flags) {
+splitBsdfScatteredPower(SPLIT_BSDF *bsdf, RayHit *hit, Vector3D * /*in*/, BSDFFLAGS flags) {
     COLOR albedo;
     colorClear(albedo);
 
@@ -124,7 +124,7 @@ splitBsdfEval(
     if ( bsdf->texture && (flags & TEXTURED_COMPONENT)) {
         double textureBsdf = texturedScattererEval(in, out, &normal);
         COLOR textureCol = splitBsdfEvalTexture(bsdf->texture, hit);
-        colorAddScaled(result, textureBsdf, textureCol, result);
+        colorAddScaled(result, (float)textureBsdf, textureCol, result);
         flags &= ~TEXTURED_COMPONENT;
     }
 
@@ -137,7 +137,8 @@ splitBsdfEval(
     }
 
     if ( bsdf->btdf ) {
-        RefractionIndex inIndex, outIndex;
+        RefractionIndex inIndex{};
+        RefractionIndex outIndex{};
         COLOR refractionCol;
         bsdfIndexOfRefraction(inBsdf, &inIndex);
         bsdfIndexOfRefraction(outBsdf, &outIndex);
@@ -230,8 +231,8 @@ splitBsdfSample(
     double Pscattering;
     double p;
     double pRR;
-    RefractionIndex inIndex;
-    RefractionIndex outIndex;
+    RefractionIndex inIndex{};
+    RefractionIndex outIndex{};
     XXDFFLAGS brdfFlags;
     XXDFFLAGS btdfFlags;
     Vector3D normal;
@@ -293,7 +294,6 @@ splitBsdfSample(
         case SAMPLE_ABSORPTION:
             *pdf = 0;
             return out;
-            break;
         default:
             logFatal(-1, "splitBsdfSample", "Impossible sampling mode %d", mode);
     }

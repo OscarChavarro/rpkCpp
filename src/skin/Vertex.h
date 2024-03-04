@@ -28,7 +28,6 @@ class Vertex {
 
 extern Vertex *vertexCreate(Vector3D *point, Vector3D *normal, Vector3D *texCoord, java::ArrayList<Patch *> *patches);
 extern void vertexDestroy(Vertex *vertex);
-extern void vertexPrint(FILE *out, Vertex *vertex);
 extern void computeVertexColor(Vertex *vertex);
 extern void patchComputeVertexColors(Patch *patch);
 

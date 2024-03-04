@@ -17,6 +17,11 @@ class PHONG_BRDF {
     float avgKd;
     float avgKs;
     float Ns;
+
+    PHONG_BRDF():
+        Kd(), Ks(), avgKd(), avgKs(), Ns()
+    {
+    }
 };
 
 class PHONG_EDF {
@@ -25,6 +30,11 @@ class PHONG_EDF {
     COLOR kd;
     COLOR Ks;
     float Ns;
+
+    PHONG_EDF():
+        Kd(), kd(), Ks(), Ns()
+    {
+    }
 };
 
 class PHONG_BTDF {
@@ -34,7 +44,12 @@ class PHONG_BTDF {
     float avgKd;
     float avgKs;
     float Ns;
-    RefractionIndex refrIndex;
+    RefractionIndex refractionIndex;
+
+    PHONG_BTDF():
+        Kd(), Ks(), avgKd(), avgKs(), Ns(), refractionIndex()
+    {
+    }
 };
 
 /* Define the phong exponent making the difference

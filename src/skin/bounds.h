@@ -24,7 +24,7 @@ typedef float BoundingBox[6];
 #define MAX_Z 5
 
 inline bool
-outOfBounds(Vector3D *p, float * bounds) {
+outOfBounds(Vector3D *p, const float * bounds) {
     return p->x < bounds[MIN_X] || p->x > bounds[MAX_X] ||
            p->y < bounds[MIN_Y] || p->y > bounds[MAX_Y] ||
            p->z < bounds[MIN_Z] || p->z > bounds[MAX_Z];
@@ -34,7 +34,7 @@ outOfBounds(Vector3D *p, float * bounds) {
 true if the two given bounding boxes are disjunct
 */
 inline bool
-disjunctBounds(float *b1, float *b2) {
+disjunctBounds(const float *b1, const float *b2) {
     return
         (b1[MIN_X] > b2[MAX_X]) || (b2[MIN_X] > b1[MAX_X]) ||
         (b1[MIN_Y] > b2[MAX_Y]) || (b2[MIN_Y] > b1[MAX_Y]) ||

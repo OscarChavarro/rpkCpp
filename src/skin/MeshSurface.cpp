@@ -71,7 +71,7 @@ surfaceCreate(
     Material *material,
     java::ArrayList<Vector3D *> *points,
     java::ArrayList<Vector3D *> *normals,
-    java::ArrayList<Vector3D *> *texCoords, // Note this is not being used!
+    java::ArrayList<Vector3D *> * /*texCoords*/,
     java::ArrayList<Vertex *> *vertices,
     java::ArrayList<Patch *> *faces,
     enum MaterialColorFlags flags)

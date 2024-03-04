@@ -7,7 +7,7 @@
 class PatchSet : public Geometry {
   public:
     java::ArrayList<Patch *> *patchList;
-    PatchSet(java::ArrayList<Patch *> *input);
+    explicit PatchSet(java::ArrayList<Patch *> *input);
     virtual ~PatchSet();
 };
 

@@ -18,7 +18,4 @@ extern BSDF_METHODS GLOBAL_scene_splitBsdfMethods;
 extern SPLIT_BSDF *
 splitBsdfCreate(BRDF *brdf, BTDF *btdf, TEXTURE *texture);
 
-extern void
-splitBsdfPrint(FILE *out, SPLIT_BSDF *bsdf);
-
 #endif
