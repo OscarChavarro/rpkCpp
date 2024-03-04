@@ -52,9 +52,9 @@ CLightList::sample(double *x1, double *pdf) {
     double rnd = *x1 * totalFlux;
     double currentSum;
 
-    info = iterator.Next();
+    info = iterator.nextOnSequence();
     while ( (info != nullptr) && (info->light->hasZeroVertices()) && (!includeVirtual) ) {
-        info = iterator.Next();
+        info = iterator.nextOnSequence();
     }
 
     if ( info == nullptr ) {
@@ -66,9 +66,9 @@ CLightList::sample(double *x1, double *pdf) {
 
     while ( (rnd > currentSum) && (info != nullptr) ) {
         lastInfo = info;
-        info = iterator.Next();
+        info = iterator.nextOnSequence();
         while ((info != nullptr) && (info->light->hasZeroVertices()) && (!includeVirtual)) {
-            info = iterator.Next();
+            info = iterator.nextOnSequence();
         }
 
         if ( info != nullptr ) {
@@ -249,9 +249,9 @@ CLightList::computeLightImportance(Vector3D *point, Vector3D *normal) {
     totalImp = 0.0;
 
     // next
-    info = iterator.Next();
+    info = iterator.nextOnSequence();
     while ((info != nullptr) && (info->light->hasZeroVertices()) && (!includeVirtual)) {
-        info = iterator.Next();
+        info = iterator.nextOnSequence();
     }
 
     while ( info ) {
@@ -261,9 +261,9 @@ CLightList::computeLightImportance(Vector3D *point, Vector3D *normal) {
         info->importance = (float)imp;
 
         // next
-        info = iterator.Next();
+        info = iterator.nextOnSequence();
         while ( (info != nullptr) && (info->light->hasZeroVertices()) && (!includeVirtual) ) {
-            info = iterator.Next();
+            info = iterator.nextOnSequence();
         }
     }
 }
@@ -285,9 +285,9 @@ CLightList::sampleImportant(Vector3D *point, Vector3D *normal, double *x1, doubl
     rnd = *x1 * totalImp;
 
     // Next
-    info = iterator.Next();
+    info = iterator.nextOnSequence();
     while ((info != nullptr) && (info->light->hasZeroVertices()) && (!includeVirtual)) {
-        info = iterator.Next();
+        info = iterator.nextOnSequence();
     }
 
     if ( info == nullptr ) {
@@ -301,9 +301,9 @@ CLightList::sampleImportant(Vector3D *point, Vector3D *normal, double *x1, doubl
         lastInfo = info;
 
         // next
-        info = iterator.Next();
+        info = iterator.nextOnSequence();
         while ( info != nullptr && info->light->hasZeroVertices() && !includeVirtual ) {
-            info = iterator.Next();
+            info = iterator.nextOnSequence();
         }
 
         if ( info != nullptr ) {
@@ -335,7 +335,7 @@ CLightList::evalPdfImportant(Patch *light, Vector3D */*lightPoint*/,
 
     // Search the light in the list :-(
 
-    while ( (info = iterator.Next()) && info->light != light ) {
+    while ((info = iterator.nextOnSequence()) && info->light != light ) {
     }
 
     if ( info == nullptr ) {

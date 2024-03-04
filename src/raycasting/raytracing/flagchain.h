@@ -2,12 +2,12 @@
 Classes and routines for chains of bsdf scattering modes
 and operations with the chains on paths
 
-A flagchain corresponds to a scatteringmode
-A chainlist is a set of scattering modes
+A flag chain corresponds to a scattering mode
+A chain list is a set of scattering modes
 */
 
-#ifndef _FLAGCHAIN_H_
-#define _FLAGCHAIN_H_
+#ifndef __FLAG_CHAIN__
+#define __FLAG_CHAIN__
 
 #include "common/dataStructures/CSList.h"
 #include "common/color.h"
@@ -15,35 +15,26 @@ A chainlist is a set of scattering modes
 #include "raycasting/common/pathnode.h"
 #include "raycasting/raytracing/bipath.h"
 
-// FlagChain class
-
 class CFlagChain {
 public:
-    BSDFFLAGS *m_chain;
-    int m_length;
-    bool m_subtract;
+    BSDFFLAGS *chain;
+    int length;
+    bool subtract;
 
-    // Methods
+    void init(int length, bool subtract = false);
 
-    void Init(const int length, const bool subtract = false);
-
-    CFlagChain(const int length = 0, const bool subtract = false);
+    CFlagChain(int length = 0, bool subtract = false);
 
     CFlagChain(const CFlagChain &c); // Copy constructor
     ~CFlagChain();
 
     // Array access operator
-
     inline BSDFFLAGS &operator[](const int index) {
-        return m_chain[index];
+        return chain[index];
     }
 
-    // Compute : calculate the product of bsdf components defined
-    //   by the chain. Eye and light node ARE INCLUDED
-
-    COLOR Compute(CBiPath *path);
-
-    void Print();
+    COLOR compute(CBiPath *path);
+    void print();
 };
 
 
@@ -62,84 +53,45 @@ CFlagChain *FlagChainCombine(const CFlagChain *chain1,
 
 class CChainList : private CTSList<CFlagChain> {
 public:
-    int m_length, m_count;
+    int length;
+    int count;
 
     CChainList();
-
     ~CChainList();
-
-    void Add(const CFlagChain &chain);
-
-    void Add(CChainList *list);
-
-    void AddDisjunct(const CFlagChain &chain);
-
-    void Print();
-
-    COLOR Compute(CBiPath *path);
-
-    // Simplify the chainlist returning the equivalent
-    // simplified chainlist. Equal entries MAY be reduced to a
-    // single entry! (So in fact no equal entries is advisable)
-    CChainList *Simplify();
+    void add(const CFlagChain &chain);
+    void add(CChainList *list);
+    void addDisjunct(const CFlagChain &chain);
+    void print();
+    COLOR compute(CBiPath *path);
+    CChainList *simplify();
 };
 
 // iterator
 
 typedef CTSList_Iter<CFlagChain> CFlagChainIter;
 
-
-
-// An array of chainlists indexed by length
-
+// An array of chain lists indexed by length
 class CContribHandler {
 public:
-    CChainList *m_array;
-    int m_maxLength;
+    CChainList *array;
+    int maxLength;
 
     // Methods
 
     CContribHandler();
 
-    virtual void Init(int maxLength);
-
+    virtual void init(int maxLength);
     virtual ~CContribHandler();
-
-    // Add a group of paths
-    // regExp indicates the regular expression covered by the sampling strategy
-    // The class of covered paths covered by the contribhandler is : (regSPaR)(regPath)
-    // regSPar is not needed here. The regExp must ensure disjunct paths !
-
-    virtual void AddRegExp(char *regExp);
-
-    // Same but path contribs are SUBTRACTED !!
-    virtual void SubRegExp(char *regExp);
-
-    virtual COLOR Compute(CBiPath *path);
-
-    virtual void Print();
+    virtual void addRegExp(char *regExp);
+    virtual COLOR compute(CBiPath *path);
+    virtual void print();
 
 protected:
-    virtual void DoRegExp(char *regExp, bool subtract);
-
-    void DoSyntaxError(const char *errString);
-
-    bool GetFlags(char *regExp, int *pos, BSDFFLAGS *flags);
-
-    bool GetToken(char *regExp, int *pos, char *token, BSDFFLAGS *flags);
-
-    void DoRegExp_General(char *regExp, bool subtract);
-
-    // Several hard coded regexp pairs (A = Any = *, M = Many = +, X = all components)
-    // For the eye and readout nodes (first vertex of eye and light path)
-    // ALL components are included by default.
-    void DoRegExp_EX(bool subtract); // Eval : "(EX)" just raycasting readout
-    void DoRegExp_DREX(bool subtract); // Eval : "(DR)(EX)" direct diffuse
-    void DoRegExp_XA(bool subtract); // Eval : "(X)*"
-    void DoRegExp_GRXA(bool subtract); // Eval : "(GR|SR|XT)(X)*" (complements LD*)
-    void DoRegExp_DRGRXA(bool subtract); // Eval : "(DR)(GR|SR|XT)(X)*"
-    void DoRegExp_SMDR(bool subtract); // Eval : "(SR|ST)+(DR)"
-    void DoRegExp_DRSMDR(bool subtract); // Eval : "(DR)(SR|ST)+(DR)"
+    virtual void doRegExp(char *regExp, bool subtract);
+    void doSyntaxError(const char *errString);
+    bool getFlags(char *regExp, int *pos, BSDFFLAGS *flags);
+    bool getToken(char *regExp, int *pos, char *token, BSDFFLAGS *flags);
+    void doRegExpGeneral(char *regExp, bool subtract);
 };
 
-#endif /* _FLAGCHAIN_H_ */
+#endif

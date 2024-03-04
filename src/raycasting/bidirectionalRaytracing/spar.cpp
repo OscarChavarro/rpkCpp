@@ -16,7 +16,7 @@ CSpar::~CSpar() {
 void
 CSpar::init(CSparConfig *config) {
     for ( int i = 0; i < MAXPATHGROUPS; i++ ) {
-        m_contrib[i].Init(config->m_bcfg->maximumPathDepth);
+        m_contrib[i].init(config->m_bcfg->maximumPathDepth);
         m_sparList[i].removeAll();
     }
 }
@@ -32,7 +32,7 @@ CSpar::parseAndInit(int group, char *regExp) {
             tmpChar = regExp[endPos];
             regExp[endPos] = '\0';
 
-            m_contrib[group].AddRegExp(regExp + beginPos);
+            m_contrib[group].addRegExp(regExp + beginPos);
 
             regExp[endPos] = tmpChar; // Restore
             beginPos = endPos + 1; // Begin next regexp
@@ -43,7 +43,7 @@ CSpar::parseAndInit(int group, char *regExp) {
 
     // Still parse last regexp in list
     if ( beginPos != endPos ) {
-        m_contrib[group].AddRegExp(regExp + beginPos);
+        m_contrib[group].addRegExp(regExp + beginPos);
     }
 }
 
@@ -108,7 +108,7 @@ CSparList::handlePath(
     colorClear(*fbpt);
     colorClear(*frad);
 
-    while ( (pspar = iter.Next()) ) {
+    while ( (pspar = iter.nextOnSequence()) ) {
         col = (*pspar)->handlePath(sconfig, path);
 
         if ( *pspar == sconfig->m_leSpar ) {

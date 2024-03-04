@@ -9,19 +9,19 @@ CISLink *CircularListBase::Remove() {
         return nullptr;
     }
 
-    CISLink *first = last->next;
+    CISLink *first = last->nextLink;
 
     if ( first == last ) {
         last = nullptr;
     } else {
-        last->next = first->next;
+        last->nextLink = first->nextLink;
     }
 
     return first;
 }
 
 CISLink::CISLink() {
-    next = nullptr;
+    nextLink = nullptr;
 }
 
 CircularListBase::CircularListBase() {
@@ -38,21 +38,21 @@ CircularListBase::add(CISLink *data) {
     // Add an element to the head of the list
     if ( last != nullptr ) {
         // Not empty
-        data->next = last->next;
+        data->nextLink = last->nextLink;
     } else {
         last = data;
     }
 
-    last->next = data;
+    last->nextLink = data;
 }
 
 void
 CircularListBase::append(CISLink *data) {
     if ( last != nullptr ) {
-        data->next = last->next;
-        last = last->next = data;
+        data->nextLink = last->nextLink;
+        last = last->nextLink = data;
     } else {
-        last = data->next = data;
+        last = data->nextLink = data;
     }
 }
 
@@ -67,7 +67,7 @@ void CircularListBaseIterator::init(CircularListBase &list) {
 
 CISLink *CircularListBaseIterator::next() {
     CISLink *ret = (currentElement ?
-                    (currentElement = currentElement->next) :
+                    (currentElement = currentElement->nextLink) :
                     nullptr);
     if ( currentElement == currentList->last ) {
         currentElement = nullptr;

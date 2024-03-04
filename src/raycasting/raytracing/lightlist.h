@@ -88,15 +88,15 @@ protected:
 
 class CLightList_Iter {
   private:
-    CTSList_Iter<CLightInfo> m_iter;
+    CTSList_Iter<CLightInfo> iterator;
   public:
-    explicit CLightList_Iter(CLightList &list) : m_iter(list) {}
+    explicit CLightList_Iter(CLightList &list) : iterator(list) {}
 
     Patch *
     First(CLightList &list) {
-        m_iter.init(list);
+        iterator.init(list);
 
-        CLightInfo *li = m_iter.Next();
+        CLightInfo *li = iterator.nextOnSequence();
         if ( li != nullptr ) {
             return li->light;
         } else {
@@ -106,7 +106,7 @@ class CLightList_Iter {
 
     Patch *
     Next() {
-        CLightInfo *li = m_iter.Next();
+        CLightInfo *li = iterator.nextOnSequence();
         if ( li ) {
             return li->light;
         } else {

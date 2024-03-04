@@ -26,6 +26,18 @@ class KDQuery {
     float sqrRadius;
     short excludeFlags;
 
+    KDQuery():
+        point(),
+        wantedN(),
+        foundN(),
+        notFilled(),
+        results(),
+        distances(),
+        maximumDistance(),
+        sqrRadius(),
+        excludeFlags()
+    {}
+
     void print() const {
         printf("Point X %g, Y %g, Z %g\n", point[0], point[1], point[2]);
         printf("Wanted N: %i, found N: %i\n", wantedN, foundN);
@@ -33,7 +45,6 @@ class KDQuery {
         printf("sqrRadius %g\n", sqrRadius);
         printf("excludeFlags %x\n", (int) excludeFlags);
     }
-
 };
 
 static KDQuery GLOBAL_qDatS;
@@ -291,7 +302,7 @@ fixUp() {
     son = GLOBAL_qDatS.foundN;
     parent = (son - 1) >> 1;  // Root of tree == index 0 so parent = any son - 1 / 2
 
-    while ((son > 0) && GLOBAL_qDatS.distances[parent] < GLOBAL_qDatS.distances[son] ) {
+    while ( (son > 0) && GLOBAL_qDatS.distances[parent] < GLOBAL_qDatS.distances[son] ) {
         tmpDist = GLOBAL_qDatS.distances[parent];
         tmpData = GLOBAL_qDatS.results[parent];
 

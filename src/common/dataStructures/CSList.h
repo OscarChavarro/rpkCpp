@@ -12,7 +12,7 @@ template<class T> class CTSList_Iter;
 
 class CISLink {
   public:
-    CISLink *next;
+    CISLink *nextLink;
 
     CISLink();
 };
@@ -140,7 +140,7 @@ template<class T>
 class CTSList_Iter : private CircularListBaseIterator {
 public:
     explicit CTSList_Iter(CTSList<T> &list);
-    inline T *Next();
+    inline T *nextOnSequence();
     inline void init(CTSList<T> &list);
 };
 
@@ -149,7 +149,7 @@ CTSList_Iter<T>::CTSList_Iter(CTSList<T> &list) : CircularListBaseIterator(list)
 }
 
 template<class T>
-inline T *CTSList_Iter<T>::Next() {
+inline T *CTSList_Iter<T>::nextOnSequence() {
     CTSLink<T> *link = (CTSLink<T> *) CircularListBaseIterator::next();
     return (link ? &link->data : nullptr);
 }
