@@ -1,5 +1,5 @@
-#ifndef RPK_RAYTRACE_H
-#define RPK_RAYTRACE_H
+#ifndef __RAYTRACE__
+#define __RAYTRACE__
 
 #include <cstdio>
 

@@ -2,8 +2,8 @@
 Definitions for polygon package
 */
 
-#ifndef POLY_HDR
-#define POLY_HDR
+#ifndef __POLY_HDR__
+#define __POLY_HDR__
 
 #include "common/mymath.h"
 #include "SGL/sgl.h"
@@ -22,7 +22,7 @@ class PolygonVertex {
     double z;
     double u; // Texture position (sometimes homogeneous)
     double v;
-    double q;
+    //double q;
     double r; // (red,green,blue) color
     double g;
     double b;

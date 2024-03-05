@@ -1,5 +1,5 @@
-#ifndef _RPK_TONE_MAPPING_
-#define _RPK_TONE_MAPPING_
+#ifndef __TONE_MAPPING__
+#define __TONE_MAPPING__
 
 #include "java/util/ArrayList.h"
 #include "IMAGE/adaptation.h"
@@ -19,32 +19,29 @@ class TONEMAP {
     void (*Terminate)(); // Terminates
 
     /**
-    `TonemapReverseScaleForComputations'
-
     Knowing the display luminance "dl" this function determines the
     correct scaling value that transforms display luminance back into
     the real world luminance.
     */
-    COLOR (*ScaleForComputations)(COLOR radiance);
+    COLOR (*scaleForComputations)(COLOR radiance);
 
     /**
-    `toneMapScaleForDisplay'
-
     Full tone mapping to display values. Transforms real world luminance of
     colour specified by "radiance" into corresponding display input
     values. The result has to be clipped to <0,1> afterwards.
     */
-    COLOR (*ScaleForDisplay)(COLOR radiance);
+    COLOR (*scaleForDisplay)(COLOR radiance);
 };
 
-/* available tone mapping operators (nullptr terminated array) */
+// Available tone mapping operators (nullptr terminated array)
 extern TONEMAP *GLOBAL_toneMap_availableToneMaps[];
 
-/* iterates over all available tone maps */
-#define ForAllAvailableToneMaps(map)  {{    \
+// Iterates over all available tone maps
+#define ForAllAvailableToneMaps(map) { \
+{ \
   TONEMAP **mapp;                \
-  for (mapp=GLOBAL_toneMap_availableToneMaps; *mapp; mapp++) { \
-    TONEMAP *map = *mapp;
+  for ( mapp = GLOBAL_toneMap_availableToneMaps; *mapp; mapp++) { \
+    TONEMAP *(map) = *mapp;
 
 #ifndef EndForAll
 #define EndForAll }}}
@@ -100,7 +97,7 @@ toneMappingGammaCorrection(RGB &rgb) {
 
 inline COLOR
 toneMapScaleForDisplay(COLOR &radiance) {
-    return GLOBAL_toneMap_options.ToneMap->ScaleForDisplay(radiance);
+    return GLOBAL_toneMap_options.ToneMap->scaleForDisplay(radiance);
 }
 
 /**
