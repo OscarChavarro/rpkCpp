@@ -2,8 +2,8 @@
 Interface for writing image data in different file formats
 */
 
-#ifndef _IMAGE_H_
-#define _IMAGE_H_
+#ifndef __IMAGE_CPP__
+#define __IMAGE_CPP__
 
 #define IS_TIFF_LOGLUV_EXT(_ext) \
     (!strncasecmp(_ext,"logluv",6))

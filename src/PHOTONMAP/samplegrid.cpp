@@ -80,11 +80,11 @@ void CSampleGrid2D::Sample(double *x, double *y, double *pdf) {
 
     // Choose x row
 
-    xindex = DSampleDiscrete(m_ysums, m_totalSum, x, &xpdf);
+    xindex = discreteSample(m_ysums, m_totalSum, x, &xpdf);
 
     // Choose y column
 
-    yindex = DSampleDiscrete(m_values + xindex * m_ysections, m_ysums[xindex], y, &ypdf);
+    yindex = discreteSample(m_values + xindex * m_ysections, m_ysums[xindex], y, &ypdf);
 
     *pdf = xpdf * ypdf;
 

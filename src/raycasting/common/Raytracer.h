@@ -1,5 +1,5 @@
-#ifndef _RAYTRACE_H_
-#define _RAYTRACE_H_
+#ifndef __RAYTRACE__
+#define __RAYTRACE__
 
 #include "java/util/ArrayList.h"
 #include "skin/Patch.h"

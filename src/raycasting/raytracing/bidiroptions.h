@@ -2,8 +2,8 @@
 Encapsulates option handling for bidirectional path tracing
 */
 
-#ifndef _BIDIROPTIONS_H_
-#define _BIDIROPTIONS_H_
+#ifndef __BI_DIR_OPTIONS__
+#define __BI_DIR_OPTIONS__
 
 #include "render/ScreenBuffer.h"
 

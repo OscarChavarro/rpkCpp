@@ -2,8 +2,8 @@
 Representation of RGB color triples that can be displayed on the screen
 */
 
-#ifndef _RPK_RGB_H_
-#define _RPK_RGB_H_
+#ifndef __RGB__
+#define __RGB__
 
 #include <cstdio>
 

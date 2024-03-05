@@ -1,6 +1,6 @@
-#ifndef _SAMPLING_H_
-#define _SAMPLING_H_
+#ifndef __SAMPLING__
+#define __SAMPLING__
 
-int DSampleDiscrete(const double probabilities[], double total, double *x_1, double *pdf);
+int discreteSample(const double probabilities[], double total, double *x1, double *pdf);
 
 #endif

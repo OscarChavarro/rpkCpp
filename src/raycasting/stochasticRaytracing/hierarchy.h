@@ -2,8 +2,8 @@
 Hierarchical refinement stuff (includes Jan's elementP.h)
 */
 
-#ifndef _RENDERPARK_ELEMENTP_H_
-#define _RENDERPARK_ELEMENTP_H_
+#ifndef __ELEMENT_HIERARCHY__
+#define __ELEMENT_HIERARCHY__
 
 #include "java/util/ArrayList.h"
 #include "raycasting/stochasticRaytracing/StochasticRadiosityElement.h"

@@ -1,12 +1,12 @@
-/*
- * screeniterate.H : iterates over all pixels of the screen calling
- *   a callback function. This function should return the color for
- *   that pixel. This color is transformed into RGB and displayed.
- *   Several functions are provided for different iterating schemes
- */
+/**
+Iterates over all pixels of the screen calling
+a callback function. This function should return the color for
+that pixel. This color is transformed into RGB and displayed.
+Several functions are provided for different iterating schemes
+*/
 
-#ifndef _SCREENITERATE_H_
-#define _SCREENITERATE_H_
+#ifndef __SCREEN_ITERATE__
+#define __SCREEN_ITERATE__
 
 #include "common/color.h"
 

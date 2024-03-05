@@ -2,8 +2,8 @@
 Just fills in the eye point in the node
 */
 
-#ifndef _EYESAMPLER_H_
-#define _EYESAMPLER_H_
+#ifndef _EYE_SAMPLER__
+#define _EYE_SAMPLER__
 
 #include "raycasting/raytracing/sampler.h"
 

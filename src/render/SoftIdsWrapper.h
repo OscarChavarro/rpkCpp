@@ -1,5 +1,5 @@
-#ifndef _CXX_SOFTIDS_H_
-#define _CXX_SOFTIDS_H_
+#ifndef _SOFT_IDS_WRAPPER__
+#define _SOFT_IDS_WRAPPER__
 
 #include "java/util/ArrayList.h"
 #include "render/softids.h"

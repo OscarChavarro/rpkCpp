@@ -1,5 +1,5 @@
-#ifndef _PIXELFILTER_H_
-#define _PIXELFILTER_H_
+#ifndef __PIXEL_FILTER__
+#define __PIXEL_FILTER__
 
 class pixelFilter {
 public:
@@ -40,4 +40,4 @@ public:
     double dist;
 };
 
-#endif /* _PIXELFILTER_H_ */
+#endif /* __PIXEL_FILTER__ */

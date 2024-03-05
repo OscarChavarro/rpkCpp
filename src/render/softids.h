@@ -3,8 +3,8 @@ Software ID rendering: because hardware ID rendering is tricky
 due to frame buffer formats, etc.
 */
 
-#ifndef _RPK_SOFTIDS_H_
-#define _RPK_SOFTIDS_H_
+#ifndef __SOFT_IDS__
+#define __SOFT_IDS__
 
 #include "java/util/ArrayList.h"
 #include "SGL/sgl.h"

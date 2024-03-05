@@ -34,7 +34,7 @@ CDensityHit CDensityHitList::operator[](int i) {
         m_cacheLowerLimit = 0;
     }
 
-    // Wanted ponit is beyond m_cacheCurrent
+    // Wanted point is beyond m_cacheCurrent
     while ( i >= m_cacheLowerLimit + DHL_ARRAYSIZE ) {
         m_cacheCurrent = m_cacheCurrent->m_next;
         m_cacheLowerLimit += DHL_ARRAYSIZE;
@@ -101,7 +101,7 @@ void CDensityBuffer::Add(float x, float y, COLOR col, float pdf, float w) {
     if ( colorAverage(col) > EPSILON ) {
         colorScale(factor, col, tmpCol); // Undo part of flux to rad factor
 
-        CDensityHit hit(x, y, tmpCol, pdf, w);
+        CDensityHit hit(x, y, tmpCol);
 
         m_hitGrid[XIndex(x)][YIndex(y)].Add(hit);
     }

@@ -1,5 +1,5 @@
-#ifndef _POLYGON_H_
-#define _POLYGON_H_
+#ifndef __POLYGON__
+#define __POLYGON__
 
 #include "skin/bounds.h"
 #include "skin/Patch.h"

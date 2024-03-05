@@ -1,5 +1,5 @@
-#ifndef _PPM_H_
-#define _PPM_H_
+#ifndef __PPM__
+#define __PPM__
 
 #include "IMAGE/imagecpp.h"
 

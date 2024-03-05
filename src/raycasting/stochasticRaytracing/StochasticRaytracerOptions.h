@@ -2,8 +2,8 @@
 Options and global state vars for stochastic raytracing
 */
 
-#ifndef _RTSOPTIONS_H_
-#define _RTSOPTIONS_H_
+#ifndef __STOCHASTIC_RAYTRACER_OPTIONS__
+#define __STOCHASTIC_RAYTRACER_OPTIONS__
 
 #include "render/ScreenBuffer.h"
 

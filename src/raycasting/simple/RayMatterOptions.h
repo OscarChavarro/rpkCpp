@@ -2,8 +2,8 @@
 Options and global state vars for ray matting
 */
 
-#ifndef _RMOPTIONS_H_
-#define _RMOPTIONS_H_
+#ifndef __RAY_MATTER_OPTIONS__
+#define __RAY_MATTER_OPTIONS__
 
 #include "render/ScreenBuffer.h"
 

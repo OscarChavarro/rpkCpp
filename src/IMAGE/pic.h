@@ -1,5 +1,5 @@
-#ifndef __PIC_H__
-#define __PIC_H__
+#ifndef __PIC_CPP__
+#define __PIC_CPP__
 
 #include "IMAGE/imagecpp.h"
 

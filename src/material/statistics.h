@@ -1,5 +1,5 @@
-#ifndef _STATISTICS_H_
-#define _STATISTICS_H_
+#ifndef __STATISTICS__
+#define __STATISTICS__
 
 #include "common/color.h"
 

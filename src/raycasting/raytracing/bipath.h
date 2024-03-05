@@ -1,10 +1,9 @@
-/* 
- * bipath.C: BiPath class. Just stores eyePath and lightPath, lengths and 
- * endnodes 
- */
+/**
+Stores eyePath and lightPath, lengths and end nodes
+*/
 
-#ifndef _BIPATH_H_
-#define _BIPATH_H_
+#ifndef __BI_PATH__
+#define __BI_PATH__
 
 #include "raycasting/raytracing/bidiroptions.h"
 #include "raycasting/common/pathnode.h"

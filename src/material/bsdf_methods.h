@@ -1,9 +1,5 @@
-/* bsdf_methods.h: BSDF methods */
-
-#ifndef _BSDF_METHODS_H_
-#define _BSDF_METHODS_H_
-
-#include <cstdio>
+#ifndef __BSDF_METHODS__
+#define __BSDF_METHODS__
 
 #include "common/color.h"
 #include "material/xxdf.h"

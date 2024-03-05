@@ -1,10 +1,9 @@
-/* bsdfsampler.H
- *
- * pathnode sampler using bsdf sampling
- */
+/**
+Path node sampler using bsdf sampling
+*/
 
-#ifndef _BSDFSAMPLER_H_
-#define _BSDFSAMPLER_H_
+#ifndef __BSDF_SAMPLER__
+#define __BSDF_SAMPLER__
 
 #include "raycasting/raytracing/sampler.h"
 
@@ -38,4 +37,4 @@ public:
 
 };
 
-#endif // _BSDFSAMPLER_H_
+#endif // __BSDF_SAMPLER__

@@ -454,8 +454,8 @@ VoxelGrid::gridIntersect(
     do {
         java::ArrayList<VoxelData *> *list = volumeListsOfItems[cellIndexAddress(g[0], g[1], g[2])];
         if ( list != nullptr ) {
-            RayHit *h;
-            if ((h = voxelIntersect(list, ray, counter, t0, maximumDistance, hitFlags, hitStore))) {
+            RayHit *h = voxelIntersect(list, ray, counter, t0, maximumDistance, hitFlags, hitStore);
+            if ( h != nullptr ) {
                 hit = h;
             }
         }

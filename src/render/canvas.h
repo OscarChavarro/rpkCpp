@@ -1,5 +1,5 @@
-#ifndef _CANVAS_H_INCLUDED_
-#define _CANVAS_H_INCLUDED_
+#ifndef __CANVAS__
+#define __CANVAS__
 
 #include "java/util/ArrayList.h"
 #include "skin/Patch.h"

@@ -1,21 +1,19 @@
-/* specularsampler.H
- *
- * pathnode sampler using PERFECT SPECULAR reflection/refraction only
- *
- * ***** BEWARE ***** 
- * This is a 'dirac' sampler, meaning that the pdf
- * for generating the outgoing direction is infinite (dirac)
- * You CANNOT use these samplers together with other samplers
- * for multiple importance sampling !!
- *
- * All pdf evaluations should be multiplied by infinity...
- *
- * I currently use it only in rtstochastic.C for classical raytracing
- *
- */
+/**
+Path node sampler using PERFECT SPECULAR reflection/refraction only
 
-#ifndef _SPECULARSAMPLER_H_
-#define _SPECULARSAMPLER_H_
+BEWARE
+This is a 'dirac' sampler, meaning that the pdf
+for generating the outgoing direction is infinite (dirac)
+You CANNOT use these samplers together with other samplers
+for multiple importance sampling!
+
+All pdf evaluations should be multiplied by infinity.
+
+I currently use it only in rtstochastic.cpp for classical raytracing
+*/
+
+#ifndef __SPECULAR_SAMPLER__
+#define __SPECULAR_SAMPLER__
 
 #include "raycasting/raytracing/sampler.h"
 
@@ -58,4 +56,4 @@ public:
 
 };
 
-#endif // _SPECULARSAMPLER_H_
+#endif // __SPECULAR_SAMPLER__

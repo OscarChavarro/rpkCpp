@@ -1,34 +1,36 @@
-/*
- * densitybuffer.H : Density estimation on screen
- */
+/**
+Density estimation on screen
+*/
 
-#ifndef _DENSITYBUFFER_H_
-#define _DENSITYBUFFER_H_
+#ifndef __DENSITY_BUFFER__
+#define __DENSITY_BUFFER__
 
 #include "common/linealAlgebra/Vector2D.h"
 #include "common/color.h"
 #include "render/ScreenBuffer.h"
 #include "raycasting/raytracing/bidiroptions.h"
 
-//*********************************************************************
-// Class CDensityBuffer : class for storing sample hits on screen
-// New samples are added with 'Add'. 'Reconstruct' reconstructs
-// an approximation to the sampled function into a screen buffer
-
+/**
+Class CDensityBuffer : class for storing sample hits on screen
+New samples are added with 'Add'. 'Reconstruct' reconstructs
+an approximation to the sampled function into a screen buffer
+*/
 class CDensityHit {
 public:
-    float m_x, m_y;  // Screen/Polygon Coordinates
+    float m_x; // Screen/Polygon Coordinates
+    float m_y;
     COLOR m_color;  // Estimate of the function, NOT divided by number of samples
-    // float m_pdf;
-    // float m_weight; // Weight (=1 for single importance sampling)
 
-    inline void Init(float x, float y, COLOR col, float pdf, float w = 1.0) {
+    inline void Init(float x, float y, COLOR col) {
         m_x = x;
         m_y = y;
-        m_color = col; /*m_pdf = pdf, m_weight = w;*/ }
+        m_color = col;
+    }
 
     CDensityHit() {}
-    CDensityHit(float x, float y, COLOR col, float pdf, float w = 1.0) { Init(x, y, col, pdf, w); }
+    CDensityHit(float x, float y, COLOR col) {
+        Init(x, y, col);
+    }
 };
 
 class CDensityHitArray {

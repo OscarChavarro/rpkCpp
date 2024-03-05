@@ -1,5 +1,5 @@
-#ifndef _TRANSFORM_H_
-#define _TRANSFORM_H_
+#ifndef __MATRIX4X4__
+#define __MATRIX4X4__
 
 #include "common/linealAlgebra/Vector4D.h"
 #include "common/linealAlgebra/Vector3D.h"

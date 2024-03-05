@@ -1,5 +1,5 @@
-#ifndef _PMAP_H_
-#define _PMAP_H_
+#ifndef __PHOTON_MAP_RADIOSITY_
+#define __PHOTON_MAP_RADIOSITY_
 
 #include "java/util/ArrayList.h"
 #include "skin/radianceinterfaces.h"
