@@ -56,18 +56,14 @@ hierarchicRefinementCull(
         if ( GLOBAL_galerkin_state.exact_visibility && !isCluster(link->receiverElement) && !isCluster(link->sourceElement)) {
             POLYGON rcvPolygon;
             POLYGON srcPolygon;
-            the_shaft = constructPolygonToPolygonShaft(
-            galerkinElementPolygon(
-                link->receiverElement, &rcvPolygon),
-                galerkinElementPolygon(link->sourceElement, &srcPolygon),
-                &shaft);
+            the_shaft = constructPolygonToPolygonShaft(galerkinElementPolygon(link->receiverElement, &rcvPolygon),
+                                                       galerkinElementPolygon(link->sourceElement, &srcPolygon),
+                                                       &shaft);
         } else {
             BoundingBox srcBounds;
             BoundingBox rcvBounds;
-            the_shaft = constructShaft(
-            galerkinElementBounds(link->receiverElement, rcvBounds),
-            galerkinElementBounds(link->sourceElement, srcBounds),
-            &shaft);
+            the_shaft = constructShaft(galerkinElementBounds(link->receiverElement, rcvBounds),
+                                       galerkinElementBounds(link->sourceElement, srcBounds), &shaft);
         }
         if ( !the_shaft ) {
             logError("hierarchicRefinementCull", "Couldn't construct shaft");
@@ -240,20 +236,18 @@ this operation is quite expensive and should be avoided when not strictly
 necessary
 */
 static double
-sourceClusterRadianceVariationError(
-    Interaction *link,
-    COLOR rcvRho,
-    double rcv_area)
-{
+sourceClusterRadianceVariationError(Interaction *link, COLOR rcvRho, double rcv_area) {
     Vector3D rcVertices[8];
     int numberOfRcVertices;
     COLOR minimumSrcRad;
     COLOR maximumSrcRad;
     COLOR error;
+    double K;
 
-    double K = (link->nsrc == 1 && link->nrcv == 1) ? link->K.f : link->K.p[0];
-    if ( K == 0.0 || colorNull(rcvRho) || colorNull(link->sourceElement->radiance[0]) ) {
-        // Receiver reflectivity or coupling coefficient or source radiance is zero
+    K = (link->nsrc == 1 && link->nrcv == 1) ? link->K.f : link->K.p[0];
+    if ( K == 0. || colorNull(rcvRho) || colorNull(link->sourceElement->radiance[0])) {
+        /* receiver reflectivity or coupling coefficient or source radiance
+         * is zero */
         return 0.0;
     }
 
@@ -309,11 +303,8 @@ hierarchicRefinementEvaluateInteraction(Interaction *link) {
     threshold = hierarchicRefinementLinkErrorThreshold(link, rcv_area);
     error = hierarchicRefinementApproximationError(link, srcRho, rcvRho, rcv_area);
 
-    if ( isCluster(link->sourceElement) &&
-         error < threshold &&
-         GLOBAL_galerkin_state.clusteringStrategy != ISOTROPIC ) {
+    if ( isCluster(link->sourceElement) && error < threshold && GLOBAL_galerkin_state.clusteringStrategy != ISOTROPIC )
         error += sourceClusterRadianceVariationError(link, rcvRho, rcv_area);
-    }
 
     // Minimal element area for which subdivision is allowed
     min_area = GLOBAL_statistics_totalArea * GLOBAL_galerkin_state.relMinElemArea;
@@ -352,10 +343,15 @@ once for all accumulated received radiance during push-pull
 */
 static void
 hierarchicRefinementComputeLightTransport(Interaction *link) {
+    int alpha;
+    int beta;
+    int a;
+    int b;
+
     // Update the number of effectively used radiance coefficients on the
     // receiver element
-    int a = intMin(link->nrcv, link->receiverElement->basisSize);
-    int b = intMin(link->nsrc, link->sourceElement->basisSize);
+    a = intMin(link->nrcv, link->receiverElement->basisSize);
+    b = intMin(link->nsrc, link->sourceElement->basisSize);
     if ( a > link->receiverElement->basisUsed ) {
         link->receiverElement->basisUsed = (char)a;
     }
@@ -384,8 +380,8 @@ hierarchicRefinementComputeLightTransport(Interaction *link) {
         if ( link->nrcv == 1 && link->nsrc == 1 ) {
             colorAddScaled(rcvRad[0], link->K.f, srcRad[0], rcvRad[0]);
         } else {
-            for ( int alpha = 0; alpha < a; alpha++ ) {
-                for ( int beta = 0; beta < b; beta++ ) {
+            for ( alpha = 0; alpha < a; alpha++ ) {
+                for ( beta = 0; beta < b; beta++ ) {
                     colorAddScaled(
                      rcvRad[alpha],
                      link->K.p[alpha * link->nsrc + beta],
@@ -483,7 +479,6 @@ the passed interaction is always replaced by lower level interactions
 static void
 hierarchicRefinementRegularSubdivideSource(java::ArrayList<Geometry *> **candidatesList, Interaction *link, bool isClusteredGeometry) {
     java::ArrayList<Geometry *> *backup = *candidatesList;
-
     hierarchicRefinementCull(candidatesList, link, isClusteredGeometry);
     GalerkinElement *src = link->sourceElement;
     GalerkinElement *rcv = link->receiverElement;
@@ -657,14 +652,15 @@ refineRecursive(java::ArrayList<Geometry *> **candidatesList, Interaction *link)
 /**
 Candidate occluder list for a pair of patches, note it is changed inside the methods!
 */
-static void
-refineInteraction(Interaction *link, java::ArrayList<Geometry *> **candidateOccludersList) {
-    if ( GLOBAL_galerkin_state.exact_visibility && link->vis == 255 ) {
-        *candidateOccludersList = nullptr;
-    }
+void
+refineInteraction(Interaction *link) {
+    java::ArrayList<Geometry *> *candidateOccludersList = GLOBAL_scene_clusteredGeometries;
 
+    if ( GLOBAL_galerkin_state.exact_visibility && link->vis == 255 ) {
+        candidateOccludersList = nullptr;
+    }
     // We know for sure that there is full visibility
-    if ( refineRecursive(candidateOccludersList, link) ) {
+    if ( refineRecursive(&candidateOccludersList, link) ) {
         if ( GLOBAL_galerkin_state.iteration_method == SOUTH_WELL ) {
             link->sourceElement->interactions = InteractionListRemove(link->sourceElement->interactions, link);
         } else {
@@ -696,11 +692,11 @@ refineInteractions(GalerkinElement *top) {
 
     // Iterate over the interactions. Interactions that are refined are removed from the
     // list in refineInteraction(). This algorithm allows the current element to be deleted
-    // by calling the function after updating the window
+    // by calling the function after updating the window.
     InteractionListNode *window = top->interactions;
     while ( window != nullptr ) {
         Interaction *element = window->interaction;
         window = window->next;
-        refineInteraction(element, &GLOBAL_scene_clusteredGeometries);
+        refineInteraction(element);
     }
 }
