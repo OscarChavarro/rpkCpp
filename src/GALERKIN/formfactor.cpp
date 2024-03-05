@@ -180,7 +180,7 @@ pointKernelEval(
     } else if ( cacheHit(&ray, &distance, &hitStore) ) {
         *vis = 0.0;
     } else {
-        float min_feature_size = 2.0f * (float)std::sqrt(GLOBAL_statistics_totalArea * GLOBAL_galerkin_state.relMinElemArea / M_PI);
+        float min_feature_size = 2.0f * (float)std::sqrt(GLOBAL_statistics.totalArea * GLOBAL_galerkin_state.relMinElemArea / M_PI);
         *vis = geomListMultiResolutionVisibility(geometryShadowList, &ray, distance, src->bsize, min_feature_size);
     }
 

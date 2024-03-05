@@ -361,10 +361,10 @@ monteCarloRadiosityDetermineAreaFraction(java::ArrayList<Patch *> *scenePatches)
           (QSORT_CALLBACK_TYPE) floatCompare);
 
     // Find the patch such that 10% of the total surface area is filled by smaller patches
-    for ( i = nrpatchids - 1, cumul = 0.; i >= 0 && cumul < GLOBAL_statistics_totalArea * 0.1; i-- ) {
+    for ( i = nrpatchids - 1, cumul = 0.; i >= 0 && cumul < GLOBAL_statistics.totalArea * 0.1; i-- ) {
         cumul += areas[i];
     }
-    areafrac = (i >= 0 && areas[i] > 0.) ? GLOBAL_statistics_totalArea / areas[i] : (float)GLOBAL_statistics_numberOfPatches;
+    areafrac = (i >= 0 && areas[i] > 0.) ? GLOBAL_statistics.totalArea / areas[i] : (float)GLOBAL_statistics_numberOfPatches;
 
     free(areas);
 

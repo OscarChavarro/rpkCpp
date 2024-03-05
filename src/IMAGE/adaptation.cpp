@@ -82,7 +82,7 @@ of area-weighted luminance values. Needs correct value of "GLOBAL_statistics_tot
 */
 static float
 meanAreaWeightedLuminance(LuminanceArea *pairs, int numPairs) {
-    float areaMax = GLOBAL_statistics_totalArea / 2.0f;
+    float areaMax = GLOBAL_statistics.totalArea / 2.0f;
     float areaCnt = 0.0;
 
     qsort((void *) pairs, numPairs, sizeof(LuminanceArea), (QSORT_CALLBACK_TYPE) adaptationLumAreaComp);
@@ -116,7 +116,7 @@ estimateSceneAdaptation(COLOR (*patch_radiance)(Patch *), java::ArrayList<Patch 
             for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
                 patchComputeLogAreaLum(scenePatches->get(i));
             }
-            GLOBAL_toneMap_options.realWorldAdaptionLuminance = (float)std::exp(globalLogAreaLum / GLOBAL_statistics_totalArea + 0.84);
+            GLOBAL_toneMap_options.realWorldAdaptionLuminance = (float)std::exp(globalLogAreaLum / GLOBAL_statistics.totalArea + 0.84);
             break;
         }
         case TMA_MEDIAN: {

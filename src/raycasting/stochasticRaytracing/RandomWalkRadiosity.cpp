@@ -21,7 +21,7 @@ randomWalkRadiosityPrintStats() {
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalFlux.print(stderr);
     if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceDriven ) {
         fprintf(stderr, "\ntotal importance rays = %ld, total importance = %g, GLOBAL_statistics_totalArea = %g",
-                GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceTracedRays, GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalYmp, GLOBAL_statistics_totalArea);
+                GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceTracedRays, GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalYmp, GLOBAL_statistics.totalArea);
     }
     fprintf(stderr, "\n");
 }

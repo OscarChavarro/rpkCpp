@@ -317,7 +317,7 @@ hierarchicRefinementEvaluateInteraction(
         error += sourceClusterRadianceVariationError(link, rcvRho, rcv_area);
 
     // Minimal element area for which subdivision is allowed
-    min_area = GLOBAL_statistics_totalArea * state->relMinElemArea;
+    min_area = GLOBAL_statistics.totalArea * state->relMinElemArea;
 
     code = ACCURATE_ENOUGH;
     if ( error > threshold ) {

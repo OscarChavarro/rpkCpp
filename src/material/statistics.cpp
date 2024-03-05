@@ -20,3 +20,5 @@ COLOR GLOBAL_statistics_estimatedAverageRadiance;
 COLOR GLOBAL_statistics_averageReflectivity;
 COLOR GLOBAL_statistics_maxSelfEmittedRadiance;
 COLOR GLOBAL_statistics_maxSelfEmittedPower;
+
+Statistics GLOBAL_statistics;

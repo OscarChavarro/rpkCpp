@@ -163,7 +163,7 @@ doPropagate(Patch *shooting_patch, java::ArrayList<Patch *> *scenePatches) {
         for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
             patchUpdateRadianceAndPotential(scenePatches->get(i));
         }
-        colorScale(1.0f / GLOBAL_statistics_totalArea, GLOBAL_galerkin_state.ambient_radiance,
+        colorScale(1.0f / GLOBAL_statistics.totalArea, GLOBAL_galerkin_state.ambient_radiance,
                    GLOBAL_galerkin_state.ambient_radiance);
     }
 

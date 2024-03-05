@@ -260,7 +260,7 @@ CPhotonMap::GetMaxR2() {
      */
     const double radFraction = 0.03;
 
-    double maxr2 = ((double)*m_estimate_nrp * GLOBAL_statistics_totalArea /
+    double maxr2 = ((double)*m_estimate_nrp * GLOBAL_statistics.totalArea /
                     (M_PI * (double)m_totalPaths * radFraction));
 
     return maxr2;

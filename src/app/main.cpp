@@ -23,7 +23,7 @@
 #endif
 
 // Mgf defaults
-#define DEFAULT_NQCDIVS 4
+#define DEFAULT_NUMBER_OF_QUARTIC_DIVISIONS 4
 #define DEFAULT_FORCE_ONESIDEDNESS true
 #define DEFAULT_MONOCHROME false
 
@@ -80,7 +80,7 @@ mainPatchAccumulateStats(Patch *patch) {
     COLOR R = patch->averageNormalAlbedo(BSDF_ALL_COMPONENTS);
     COLOR power;
 
-    GLOBAL_statistics_totalArea += patch->area;
+    GLOBAL_statistics.totalArea += patch->area;
     colorScale(patch->area, E, power);
     colorAdd(GLOBAL_statistics_totalEmittedPower, power, GLOBAL_statistics_totalEmittedPower);
     colorAddScaled(GLOBAL_statistics_averageReflectivity, patch->area, R, GLOBAL_statistics_averageReflectivity);
@@ -105,17 +105,17 @@ mainComputeSomeSceneStats() {
     colorClear(GLOBAL_statistics_averageReflectivity);
     colorClear(GLOBAL_statistics_maxSelfEmittedRadiance);
     colorClear(GLOBAL_statistics_maxSelfEmittedPower);
-    GLOBAL_statistics_totalArea = 0.;
+    GLOBAL_statistics.totalArea = 0.0;
 
     // Accumulate
-    for ( int i = 0; globalAppScenePatches != nullptr && i < globalAppScenePatches->size(); i++ ) {
+    for ( int i = 0; i < globalAppScenePatches->size(); i++ ) {
         mainPatchAccumulateStats(globalAppScenePatches->get(i));
     }
 
     // Averages
-    colorScaleInverse(GLOBAL_statistics_totalArea, GLOBAL_statistics_averageReflectivity, GLOBAL_statistics_averageReflectivity);
+    colorScaleInverse(GLOBAL_statistics.totalArea, GLOBAL_statistics_averageReflectivity, GLOBAL_statistics_averageReflectivity);
     colorSubtract(one, GLOBAL_statistics_averageReflectivity, average_absorption);
-    colorScaleInverse(M_PI * GLOBAL_statistics_totalArea, GLOBAL_statistics_totalEmittedPower, GLOBAL_statistics_estimatedAverageRadiance);
+    colorScaleInverse(M_PI * GLOBAL_statistics.totalArea, GLOBAL_statistics_totalEmittedPower, GLOBAL_statistics_estimatedAverageRadiance);
 
     // Include background radiation
     BP = backgroundPower(GLOBAL_scene_background, &zero);
@@ -162,7 +162,7 @@ mainBuildLightSourcePatchList() {
     GLOBAL_app_lightSourcePatches = new java::ArrayList<Patch *>();
     GLOBAL_statistics_numberOfLightSources = 0;
 
-    for ( int i = 0; globalAppScenePatches != nullptr && i < globalAppScenePatches->size(); i++ ) {
+    for ( int i = 0; i < globalAppScenePatches->size(); i++ ) {
         mainAddPatchToLightSourceListIfLightSource(globalAppScenePatches->get(i));
     }
 
@@ -205,7 +205,7 @@ mainInit() {
 
     GLOBAL_fileOptions_monochrome = DEFAULT_MONOCHROME;
     GLOBAL_fileOptions_forceOneSidedSurfaces = DEFAULT_FORCE_ONESIDEDNESS;
-    GLOBAL_fileOptions_numberOfQuarterCircleDivisions = DEFAULT_NQCDIVS;
+    GLOBAL_fileOptions_numberOfQuarterCircleDivisions = DEFAULT_NUMBER_OF_QUARTIC_DIVISIONS;
 
     mainRenderingDefaults();
     toneMapDefaults();
@@ -391,7 +391,6 @@ mainReadFile(char *filename) {
     #endif
 
     delete globalAppScenePatches;
-    globalAppScenePatches = nullptr;
 
     if ( GLOBAL_scene_clusteredWorldGeom ) {
         geomDestroy(GLOBAL_scene_clusteredWorldGeom);
@@ -505,7 +504,7 @@ mainReadFile(char *filename) {
            colorGray(GLOBAL_statistics_maxSelfEmittedRadiance),
            colorGray(GLOBAL_statistics_maxSelfEmittedPower),
            GLOBAL_toneMap_options.realWorldAdaptionLuminance,
-           GLOBAL_statistics_totalArea);
+           GLOBAL_statistics.totalArea);
 
     // Initialize radiance for the freshly loaded scene
     if ( oRadiance != nullptr ) {

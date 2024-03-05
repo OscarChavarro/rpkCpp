@@ -446,7 +446,7 @@ getGalerkinStats() {
     p += n;
     snprintf(p, STRING_LENGTH, "CPU time: %g secs.\n%n", GLOBAL_galerkin_state.cpu_secs, &n);
     p += n;
-    snprintf(p, STRING_LENGTH, "Minimum element area: %g m^2\n%n", GLOBAL_statistics_totalArea * (double) GLOBAL_galerkin_state.relMinElemArea, &n);
+    snprintf(p, STRING_LENGTH, "Minimum element area: %g m^2\n%n", GLOBAL_statistics.totalArea * (double) GLOBAL_galerkin_state.relMinElemArea, &n);
     p += n;
     snprintf(p, STRING_LENGTH, "Link error threshold: %g %s\n\n%n",
             (double) (GLOBAL_galerkin_state.errorNorm == RADIANCE_ERROR ?
