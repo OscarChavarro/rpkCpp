@@ -55,7 +55,7 @@ static COLOR ScaleForDisplay(COLOR radiance) {
     return radiance;
 }
 
-TONEMAP GLOBAL_toneMap_lightness = {
+ToneMap GLOBAL_toneMap_lightness = {
     "Lightness Mapping",
     "Lightness",
     3,

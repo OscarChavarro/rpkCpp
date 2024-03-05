@@ -7,9 +7,9 @@ Tumblin/Rushmeier/Ward/Ferwerda tone maps (Jan Prikryl)
 
 #include "IMAGE/tonemap/tonemapping.h"
 
-extern TONEMAP GLOBAL_toneMap_tumblinRushmeier;
-extern TONEMAP GLOBAL_toneMap_ward;
-extern TONEMAP GLOBAL_toneMap_revisedTumblinRushmeier;
-extern TONEMAP GLOBAL_toneMap_ferwerda;
+extern ToneMap GLOBAL_toneMap_tumblinRushmeier;
+extern ToneMap GLOBAL_toneMap_ward;
+extern ToneMap GLOBAL_toneMap_revisedTumblinRushmeier;
+extern ToneMap GLOBAL_toneMap_ferwerda;
 
 #endif

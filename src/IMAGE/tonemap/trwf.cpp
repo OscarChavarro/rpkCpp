@@ -101,9 +101,9 @@ trwfDefaults() {
 
 static void
 trwfInit() {
-    float lwa = _lwa = GLOBAL_toneMap_options.lwa;
-    float ldmax = GLOBAL_toneMap_options.ldm;
-    float cmax = GLOBAL_toneMap_options.cmax;
+    float lwa = _lwa = GLOBAL_toneMap_options.realWorldAdaptionLuminance;
+    float ldmax = GLOBAL_toneMap_options.maximumDisplayLuminance;
+    float cmax = GLOBAL_toneMap_options.maximumDisplayContrast;
 
     float alpharw;
     float betarw;
@@ -203,7 +203,7 @@ trwfScaleForDisplay(COLOR radiance) {
     return radiance;
 }
 
-TONEMAP GLOBAL_toneMap_tumblinRushmeier = {
+ToneMap GLOBAL_toneMap_tumblinRushmeier = {
     "Tumblin/Rushmeier's Mapping",
     "TumblinRushmeier",
     3,
@@ -231,7 +231,7 @@ wardScaleForDisplay(COLOR radiance) {
     return radiance;
 }
 
-TONEMAP GLOBAL_toneMap_ward = {
+ToneMap GLOBAL_toneMap_ward = {
     "Ward's Mapping",
     "Ward",
     3,
@@ -281,7 +281,7 @@ revisedTRScaleForDisplay(COLOR radiance) {
     return radiance;
 }
 
-TONEMAP GLOBAL_toneMap_revisedTumblinRushmeier = {
+ToneMap GLOBAL_toneMap_revisedTumblinRushmeier = {
     "Revised Tumblin/Rushmeier's Mapping",
     "RevisedTR",
     3,
@@ -343,7 +343,7 @@ ferwerdaScaleForDisplay(COLOR radiance) {
     return radiance;
 }
 
-TONEMAP GLOBAL_toneMap_ferwerda = {
+ToneMap GLOBAL_toneMap_ferwerda = {
     "Partial Ferwerda's Mapping",
     "Ferwerda",
     3,

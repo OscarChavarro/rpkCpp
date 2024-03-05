@@ -15,7 +15,7 @@
 #define DEFAULT_TM_LDMAX 100.0
 #define DEFAULT_TM_CMAX 50.0
 
-TONEMAP *GLOBAL_toneMap_availableToneMaps[] = {
+ToneMap *GLOBAL_toneMap_availableToneMaps[] = {
     &GLOBAL_toneMap_lightness,
     &GLOBAL_toneMap_tumblinRushmeier,
     &GLOBAL_toneMap_ward,
@@ -25,7 +25,7 @@ TONEMAP *GLOBAL_toneMap_availableToneMaps[] = {
 };
 
 // Tone mapping context
-TONEMAPPINGCONTEXT GLOBAL_toneMap_options;
+ToneMappingContext GLOBAL_toneMap_options;
 
 // Composes explanation for -tonemapping command line option
 #define STRING_SIZE 1000
@@ -45,34 +45,32 @@ makeToneMappingMethodsString() {
     snprintf(str, 1000, "\tmethods: %n", &n);
     str += n;
 
-    ForAllAvailableToneMaps(method)
-                {
-                    if ( !first ) {
-                        snprintf(str, STRING_SIZE, "\t         %n", &n);
-                        str += n;
-                    }
-                    first = false;
-                    snprintf(str, STRING_SIZE, "%-20.20s %s%s\n%n",
-                            method->shortName, method->name,
-                            GLOBAL_toneMap_options.ToneMap == method ? " (default)" : "", &n);
-                    str += n;
-                }
-    EndForAll;
-    *(str - 1) = '\0';    /* discard last newline character */
+    for ( ToneMap **toneMap = GLOBAL_toneMap_availableToneMaps; *toneMap != nullptr; toneMap++) {
+        ToneMap *method = *toneMap;
+        if ( !first ) {
+            snprintf(str, STRING_SIZE, "\t         %n", &n);
+            str += n;
+        }
+        first = false;
+        snprintf(str, STRING_SIZE, "%-20.20s %s%s\n%n",
+                method->shortName, method->name,
+                GLOBAL_toneMap_options.ToneMap == method ? " (default)" : "", &n);
+        str += n;
+    }
+    *(str - 1) = '\0'; // Discard last newline character
 }
 
 static void
 toneMappingMethodOption(void *value) {
     char *name = *(char **) value;
 
-    ForAllAvailableToneMaps(method)
-                {
-                    if ( strncasecmp(name, method->shortName, method->abbrev) == 0 ) {
-                        setToneMap(method);
-                        return;
-                    }
-                }
-    EndForAll;
+    for ( ToneMap **toneMap = GLOBAL_toneMap_availableToneMaps; *toneMap != nullptr; toneMap++) {
+        ToneMap *method = *toneMap;
+        if ( strncasecmp(name, method->shortName, method->abbrev) == 0 ) {
+            setToneMap(method);
+            return;
+        }
+    }
 
     logError(nullptr, "Invalid tone mapping method name '%s'", name);
 }
@@ -112,9 +110,9 @@ toneMappingCommandLineOptionDescAdaptMethodOption(void *value) {
     char *name = *(char **) value;
 
     if ( strncasecmp(name, "average", 2) == 0 ) {
-        GLOBAL_toneMap_options.statadapt = TMA_AVERAGE;
+        GLOBAL_toneMap_options.staticAdaptationMethod = TMA_AVERAGE;
     } else if ( strncasecmp(name, "median", 2) == 0 ) {
-        GLOBAL_toneMap_options.statadapt = TMA_MEDIAN;
+        GLOBAL_toneMap_options.staticAdaptationMethod = TMA_MEDIAN;
     } else {
         logError(nullptr,
                  "Invalid adaptation estimate method '%s'",
@@ -140,13 +138,13 @@ static CommandLineOptionDescription globalToneMappingOptions[] = {
     "-adapt <method>  \t: adaptation estimation method\n"
     "\tmethods: \"average\", \"median\""},
 {"-lwa",               3, Tfloat,
-    &GLOBAL_toneMap_options.lwa,   DEFAULT_ACTION,
+    &GLOBAL_toneMap_options.realWorldAdaptionLuminance, DEFAULT_ACTION,
     "-lwa <float>\t\t: real world adaptation luminance"},
 {"-ldmax",             5, Tfloat,
-    &GLOBAL_toneMap_options.ldm,   DEFAULT_ACTION,
+    &GLOBAL_toneMap_options.maximumDisplayLuminance, DEFAULT_ACTION,
     "-ldmax <float>\t\t: maximum diaply luminance"},
 {"-cmax",              4, Tfloat,
-    &GLOBAL_toneMap_options.cmax,  DEFAULT_ACTION,
+    &GLOBAL_toneMap_options.maximumDisplayContrast, DEFAULT_ACTION,
     "-cmax <float>\t\t: maximum displayable contrast"},
 {"-gamma",             4, Tfloat,
     nullptr, gammaOption,
@@ -174,19 +172,18 @@ rayCasterDefaults and option handling
 */
 void
 toneMapDefaults() {
-    ForAllAvailableToneMaps(map)
-                {
-                    map->Defaults();
-                }
-    EndForAll;
+    for ( ToneMap **toneMap = GLOBAL_toneMap_availableToneMaps; *toneMap != nullptr; toneMap++) {
+        ToneMap *map = *toneMap;
+        map->Defaults();
+    }
 
     GLOBAL_toneMap_options.brightness_adjust = 0.;
     GLOBAL_toneMap_options.pow_bright_adjust = std::pow(2.0f, GLOBAL_toneMap_options.brightness_adjust);
 
-    GLOBAL_toneMap_options.statadapt = TMA_MEDIAN;
-    GLOBAL_toneMap_options.lwa = DEFAULT_TM_LWA;
-    GLOBAL_toneMap_options.ldm = DEFAULT_TM_LDMAX;
-    GLOBAL_toneMap_options.cmax = DEFAULT_TM_CMAX;
+    GLOBAL_toneMap_options.staticAdaptationMethod = TMA_MEDIAN;
+    GLOBAL_toneMap_options.realWorldAdaptionLuminance = DEFAULT_TM_LWA;
+    GLOBAL_toneMap_options.maximumDisplayLuminance = DEFAULT_TM_LDMAX;
+    GLOBAL_toneMap_options.maximumDisplayContrast = DEFAULT_TM_CMAX;
 
     globalRxy[0] = GLOBAL_toneMap_options.xr = 0.640;
     globalRxy[1] = GLOBAL_toneMap_options.yr = 0.330;
@@ -214,20 +211,19 @@ parseToneMapOptions(int *argc, char **argv) {
     parseOptions(globalToneMappingOptions, argc, argv);
     recomputeGammaTables(GLOBAL_toneMap_options.gamma);
 
-    ForAllAvailableToneMaps(map)
-                {
-                    if ( map->ParseOptions ) {
-                        map->ParseOptions(argc, argv);
-                    }
-                }
-    EndForAll;
+    for ( ToneMap **toneMap = GLOBAL_toneMap_availableToneMaps; *toneMap != nullptr; toneMap++) {
+        ToneMap *map = *toneMap;
+        if ( map->ParseOptions ) {
+            map->ParseOptions(argc, argv);
+        }
+    }
 }
 
 /**
 Makes map the current tone mapping operator + initialises
 */
 void
-setToneMap(TONEMAP *map) {
+setToneMap(ToneMap *map) {
     GLOBAL_toneMap_options.ToneMap->Terminate();
     GLOBAL_toneMap_options.ToneMap = map ? map : &GLOBAL_toneMap_dummy;
     GLOBAL_toneMap_options.ToneMap->Init();
@@ -248,8 +244,8 @@ recomputeGammaTable(int index, double gamma) {
     if ( gamma <= EPSILON ) {
         gamma = 1.;
     }
-    for ( i = 0; i <= (1 << GAMMATAB_BITS); i++ ) {
-        GLOBAL_toneMap_options.gammatab[index][i] = (float)std::pow((double) i / (double) (1 << GAMMATAB_BITS), 1. / gamma);
+    for ( i = 0; i <= (1 << GAMMA_TAB_BITS); i++ ) {
+        GLOBAL_toneMap_options.gammaTab[index][i] = (float)std::pow((double) i / (double) (1 << GAMMA_TAB_BITS), 1. / gamma);
     }
 }
 

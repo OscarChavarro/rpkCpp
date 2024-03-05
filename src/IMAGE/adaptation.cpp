@@ -107,7 +107,7 @@ static void
 estimateSceneAdaptation(COLOR (*patch_radiance)(Patch *), java::ArrayList<Patch *> *scenePatches) {
     PatchRadianceEstimate = patch_radiance;
 
-    switch ( GLOBAL_toneMap_options.statadapt ) {
+    switch ( GLOBAL_toneMap_options.staticAdaptationMethod ) {
         case TMA_NONE:
             break;
         case TMA_AVERAGE: {
@@ -116,7 +116,7 @@ estimateSceneAdaptation(COLOR (*patch_radiance)(Patch *), java::ArrayList<Patch 
             for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
                 patchComputeLogAreaLum(scenePatches->get(i));
             }
-            GLOBAL_toneMap_options.lwa = (float)std::exp(globalLogAreaLum / GLOBAL_statistics_totalArea + 0.84);
+            GLOBAL_toneMap_options.realWorldAdaptionLuminance = (float)std::exp(globalLogAreaLum / GLOBAL_statistics_totalArea + 0.84);
             break;
         }
         case TMA_MEDIAN: {
@@ -127,13 +127,13 @@ estimateSceneAdaptation(COLOR (*patch_radiance)(Patch *), java::ArrayList<Patch 
             for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
                 patchFillLumArea(scenePatches->get(i));
             }
-            GLOBAL_toneMap_options.lwa = meanAreaWeightedLuminance(la, GLOBAL_statistics_numberOfPatches);
+            GLOBAL_toneMap_options.realWorldAdaptionLuminance = meanAreaWeightedLuminance(la, GLOBAL_statistics_numberOfPatches);
 
             free(la);
             break;
         }
         default:
-            logError("mainComputeSomeSceneStats", "unknown static adaptation method %d", GLOBAL_toneMap_options.statadapt);
+            logError("mainComputeSomeSceneStats", "unknown static adaptation method %d", GLOBAL_toneMap_options.staticAdaptationMethod);
     }
 }
 

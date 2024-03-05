@@ -504,7 +504,7 @@ mainReadFile(char *filename) {
            colorGray(GLOBAL_statistics_averageReflectivity),
            colorGray(GLOBAL_statistics_maxSelfEmittedRadiance),
            colorGray(GLOBAL_statistics_maxSelfEmittedPower),
-           GLOBAL_toneMap_options.lwa,
+           GLOBAL_toneMap_options.realWorldAdaptionLuminance,
            GLOBAL_statistics_totalArea);
 
     // Initialize radiance for the freshly loaded scene

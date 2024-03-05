@@ -21,7 +21,7 @@ static COLOR dummyScaleForDisplay(COLOR radiance) {
     return radiance;
 }
 
-TONEMAP GLOBAL_toneMap_dummy = {
+ToneMap GLOBAL_toneMap_dummy = {
     "Dummy",
     "Dummy",
     3,

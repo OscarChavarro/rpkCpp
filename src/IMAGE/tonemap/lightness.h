@@ -3,6 +3,6 @@
 
 #include "IMAGE/tonemap/tonemapping.h"
 
-extern TONEMAP GLOBAL_toneMap_lightness;
+extern ToneMap GLOBAL_toneMap_lightness;
 
 #endif
