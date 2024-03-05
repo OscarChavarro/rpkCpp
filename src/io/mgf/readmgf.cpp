@@ -1,5 +1,3 @@
-#include <cstring>
-
 #include "java/util/ArrayList.txx"
 #include "common/linealAlgebra/vectorMacros.h"
 #include "common/error.h"
@@ -34,11 +32,9 @@ static Material *globalCurrentMaterial;
 static java::ArrayList<Geometry *> *globalGeometryStack[MAXIMUM_GEOMETRY_STACK_DEPTH];
 static java::ArrayList<Geometry *> **globalGeometryStackPtr;
 
-static int globalInComplex = false; // true if reading a sphere, torus or other unsupported
-static int globalInSurface = false; // true if busy creating a new surface
-static int globalAllSurfacesSided = false; // when set to true, all surfaces will be considered one-sided
-
-void freeLists();
+static int globalInComplex = false; // True if reading a sphere, torus or other unsupported
+static int globalInSurface = false; // True if busy creating a new surface
+static int globalAllSurfacesSided = false; // When set to true, all surfaces will be considered one-sided
 
 static void
 doError(const char *errmsg) {
@@ -54,7 +50,7 @@ static void
 pushCurrentGeometryList() {
     if ( globalGeometryStackPtr - globalGeometryStack >= MAXIMUM_GEOMETRY_STACK_DEPTH ) {
         doError(
-                "Objects are nested too deep for this program. Recompile with larger MAXIMUM_GEOMETRY_STACK_DEPTH constant in readmgf.cpp");
+                "Objects are nested too deep for this program. Recompile with larger MAXIMUM_GEOMETRY_STACK_DEPTH constant in read mgf");
         return;
     } else {
         *globalGeometryStackPtr = globalCurrentGeometryList;
@@ -76,7 +72,7 @@ popCurrentGeometryList() {
 }
 
 /**
-Returns squared distance between the two FVECTs
+Returns squared distance between the two vectors
 */
 static double
 distanceSquared(FVECT *v1, FVECT *v2) {
@@ -254,7 +250,7 @@ mgfGetColor(MgfColorContext *cin, float intensity, COLOR *colorOut) {
     colorSet(*colorOut, rgb[0], rgb[1], rgb[2]);
 }
 
-float
+static float
 colorMax(COLOR col) {
     // We should check every wavelength in the visible spectrum, but
     // as a first approximation, only the three RGB primary colors
@@ -423,7 +419,7 @@ installNormal(float x, float y, float z) {
 }
 
 static Vertex *
-installVertex(Vector3D *coord, Vector3D *norm, char *name) {
+installVertex(Vector3D *coord, Vector3D *norm) {
     java::ArrayList<Patch *> *newPatchList = new java::ArrayList<Patch *>();
     Vertex *v = vertexCreate(coord, norm, nullptr, newPatchList);
     globalCurrentVertexList->add(v);
@@ -457,7 +453,7 @@ getVertex(char *name) {
             mgfTransformVector(norm, vp->n);
             theNormal = installNormal((float)norm[0], (float)norm[1], (float)norm[2]);
         }
-        theVertex = installVertex(thePoint, theNormal, name);
+        theVertex = installVertex(thePoint, theNormal);
         vp->client_data = (void *) theVertex;
         vp->xid = xf_xid(GLOBAL_mgf_xfContext);
     }
@@ -471,7 +467,7 @@ Create a vertex with given name, but with reversed normal as
 the given vertex. For back-faces of two-sided surfaces
 */
 static Vertex *
-getBackFaceVertex(Vertex *v, char *name) {
+getBackFaceVertex(Vertex *v) {
     Vertex *back = v->back;
 
     if ( !back ) {
@@ -483,7 +479,7 @@ getBackFaceVertex(Vertex *v, char *name) {
             the_normal = installNormal(-the_normal->x, -the_normal->y, -the_normal->z);
         }
 
-        back = v->back = installVertex(the_point, the_normal, name);
+        back = v->back = installVertex(the_point, the_normal);
         back->back = v;
     }
 
@@ -491,11 +487,11 @@ getBackFaceVertex(Vertex *v, char *name) {
 }
 
 static Patch *
-newFace(Vertex *v1, Vertex *v2, Vertex *v3, Vertex *v4, Vector3D *normal) {
+newFace(Vertex *v1, Vertex *v2, Vertex *v3, Vertex *v4) {
     Patch *theFace;
     int numberOfVertices = v4 ? 4 : 3;
 
-    if ( v1 == nullptr || v2 == nullptr || v3 == nullptr || (numberOfVertices == 4 && v4 == nullptr) ) {
+    if ( v1 == nullptr || v2 == nullptr || v3 == nullptr ) {
         return nullptr;
     }
 
@@ -505,9 +501,7 @@ newFace(Vertex *v1, Vertex *v2, Vertex *v3, Vertex *v4, Vector3D *normal) {
         theFace = new Patch(numberOfVertices, v1, v2, v3, v4);
     }
 
-    if ( theFace != nullptr ) {
-        globalCurrentFaceList->add(0, theFace);
-    }
+    globalCurrentFaceList->add(0, theFace);
 
     return theFace;
 }
@@ -574,7 +568,7 @@ faceIsConvex(int numberOfVertices, Vertex **v, Vector3D *normal) {
         p.v = c.v;
         c.u = v2d[i].u - v2d[i - 1].u;
         c.v = v2d[i].v - v2d[i - 1].v;
-        if (((p.u * c.v > c.u * p.v) ? 1 : -1) != sign ) {
+        if ( ((p.u * c.v > c.u * p.v) ? 1 : -1) != sign ) {
             return false;
         }
     }
@@ -629,11 +623,11 @@ Returns true if the 2D segments p1-p2 and p3-p4 intersect
 static int
 segmentsIntersect2D(Vector2D *p1, Vector2D *p2, Vector2D *p3, Vector2D *p4) {
     double a, b, c, du, dv, r1, r2, r3, r4;
-    int colinear = false;
+    int coLinear = false;
 
     // From Graphics Gems II, Mukesh Prasad, Intersection of Line Segments, p7
-    du = fabs(p2->u - p1->u);
-    dv = fabs(p2->v - p1->v);
+    du = std::fabs(p2->u - p1->u);
+    dv = std::fabs(p2->v - p1->v);
     if ( du > EPSILON || dv > EPSILON ) {
         if ( dv > du ) {
             a = 1.0;
@@ -649,15 +643,15 @@ segmentsIntersect2D(Vector2D *p1, Vector2D *p2, Vector2D *p3, Vector2D *p4) {
         r4 = a * p4->u + b * p4->v + c;
 
         if ( fabs(r3) < EPSILON && fabs(r4) < EPSILON ) {
-            colinear = true;
+            coLinear = true;
         } else if ((r3 > -EPSILON && r4 > -EPSILON) || (r3 < EPSILON && r4 < EPSILON)) {
             return false;
         }
     }
 
-    if ( !colinear ) {
-        du = fabs(p4->u - p3->u);
-        dv = fabs(p4->v - p3->v);
+    if ( !coLinear ) {
+        du = std::fabs(p4->u - p3->u);
+        dv = std::fabs(p4->v - p3->v);
         if ( du > EPSILON || dv > EPSILON ) {
             if ( dv > du ) {
                 a = 1.0;
@@ -673,29 +667,29 @@ segmentsIntersect2D(Vector2D *p1, Vector2D *p2, Vector2D *p3, Vector2D *p4) {
             r2 = a * p2->u + b * p2->v + c;
 
             if ( fabs(r1) < EPSILON && fabs(r2) < EPSILON ) {
-                colinear = true;
+                coLinear = true;
             } else if ((r1 > -EPSILON && r2 > -EPSILON) || (r1 < EPSILON && r2 < EPSILON)) {
                 return false;
             }
         }
     }
 
-    if ( !colinear ) {
+    if ( !coLinear ) {
         return true;
     }
 
     return false; // Co-linear segments never intersect: do as if they are always
-		 // a bit apart from each other
+		          // a bit apart from each other
 }
 
 /**
-Handles concave faces and faces with >4 vertices. This routine started as an
-ANSI-C version of mgflib/face2tri.C, but I changed it a lot to make it more robust.
+Handles concave faces and faces with > 4 vertices. This routine started as an
+ANSI-C version of face2tri, but I changed it a lot to make it more robust.
 Inspiration comes from Burger and Gillis, Interactive Computer Graphics and
 the (indispensable) Graphics Gems books
 */
-static int
-doComplexFace(int n, Vertex **v, Vector3D *normal, Vertex **backv, Vector3D *backnormal) {
+static void
+doComplexFace(int n, Vertex **v, Vector3D *normal, Vertex **backv) {
     int i;
     int j;
     int max;
@@ -803,25 +797,24 @@ doComplexFace(int n, Vertex **v, Vector3D *normal, Vertex **backv, Vector3D *bac
 
         if ( p0 == start ) {
             doError("misbuilt polygonal face");
-            return MGF_OK; // Don't stop parsing the input however
+            return; // Don't stop parsing the input however
         }
 
         if ( std::fabs(a) > EPSILON ) {
             // Avoid degenerate faces
-            Patch *face, *twin;
-            face = newFace(v[p0], v[p1], v[p2], nullptr, normal);
-            if ( !globalCurrentMaterial->sided ) {
-                twin = newFace(backv[p2], backv[p1], backv[p0], nullptr, backnormal);
+            Patch *face = newFace(v[p0], v[p1], v[p2], nullptr);
+            if ( !globalCurrentMaterial->sided && face != nullptr ) {
+                Patch *twin = newFace(backv[p2], backv[p1], backv[p0], nullptr);
                 face->twin = twin;
-                twin->twin = face;
+                if ( twin != nullptr ) {
+                    twin->twin = face;
+                }
             }
         }
 
         out[p1] = true;
         corners--;
     }
-
-    return MGF_OK;
 }
 
 static int
@@ -842,7 +835,7 @@ handleFaceEntity(int argc, char **argv) {
 
     if ( argc - 1 > MAXIMUM_FACE_VERTICES ) {
         doWarning(
-                "too many vertices in face. Recompile the program with larger MAXIMUM_FACE_VERTICES constant in readmgf.c");
+                "too many vertices in face. Recompile the program with larger MAXIMUM_FACE_VERTICES constant in read mgf");
         return MGF_OK; // No reason to stop parsing the input
     }
 
@@ -864,7 +857,7 @@ handleFaceEntity(int argc, char **argv) {
         }
         backV[i] = nullptr;
         if ( !globalCurrentMaterial->sided )
-            backV[i] = getBackFaceVertex(v[i], argv[i + 1]);
+            backV[i] = getBackFaceVertex(v[i]);
     }
 
     if ( !faceNormal(argc - 1, v, &normal)) {
@@ -876,27 +869,33 @@ handleFaceEntity(int argc, char **argv) {
     errcode = MGF_OK;
     if ( argc == 4 ) {
         // Triangles
-        face = newFace(v[0], v[1], v[2], nullptr, &normal);
-        if ( !globalCurrentMaterial->sided ) {
-            twin = newFace(backV[2], backV[1], backV[0], nullptr, &backNormal);
+        face = newFace(v[0], v[1], v[2], nullptr);
+        if ( !globalCurrentMaterial->sided && face != nullptr ) {
+            twin = newFace(backV[2], backV[1], backV[0], nullptr);
             face->twin = twin;
-            twin->twin = face;
+            if ( twin != nullptr ) {
+                twin->twin = face;
+            }
         }
     } else if ( argc == 5 ) {
         // Quadrilaterals
         if ( globalInComplex || faceIsConvex(argc - 1, v, &normal)) {
-            face = newFace(v[0], v[1], v[2], v[3], &normal);
-            if ( !globalCurrentMaterial->sided ) {
-                twin = newFace(backV[3], backV[2], backV[1], backV[0], &backNormal);
+            face = newFace(v[0], v[1], v[2], v[3]);
+            if ( !globalCurrentMaterial->sided && face != nullptr ) {
+                twin = newFace(backV[3], backV[2], backV[1], backV[0]);
                 face->twin = twin;
-                twin->twin = face;
+                if ( twin != nullptr ) {
+                    twin->twin = face;
+                }
             }
         } else {
-            errcode = doComplexFace(argc - 1, v, &normal, backV, &backNormal);
+            doComplexFace(argc - 1, v, &normal, backV);
+            errcode = MGF_OK;
         }
     } else {
         // More than 4 vertices
-        errcode = doComplexFace(argc - 1, v, &normal, backV, &backNormal);
+        doComplexFace(argc - 1, v, &normal, backV);
+        errcode = MGF_OK;
     }
 
     return errcode;
@@ -921,7 +920,7 @@ handleFaceWithHolesEntity(int argc, char **argv) {
 
     if ( argc - 1 > MAXIMUM_FACE_VERTICES ) {
         doWarning(
-                "too many vertices in face. Recompile the program with larger MAXIMUM_FACE_VERTICES constant in readmgf.c");
+                "too many vertices in face. Recompile the program with larger MAXIMUM_FACE_VERTICES constant in read mgf");
         return MGF_OK; // No reason to stop parsing the input
     }
 
@@ -1013,7 +1012,7 @@ handleFaceWithHolesEntity(int argc, char **argv) {
         // Create num+2 extra vertices in new contour
         if ( numberOfVerticesInNewContour + num + 2 > MAXIMUM_FACE_VERTICES ) {
             doWarning(
-                    "too many vertices in face. Recompile the program with larger MAXIMUM_FACE_VERTICES constant in readmgf.c");
+                    "too many vertices in face. Recompile the program with larger MAXIMUM_FACE_VERTICES constant in read mgf");
             return MGF_OK; // No reason to stop parsing the input
         }
 
@@ -1133,7 +1132,7 @@ handleObjectEntity(int argc, char **argv) {
 }
 
 static int
-handleUnknownEntity(int argc, char **argv) {
+handleUnknownEntity(int /*argc*/, char ** /*argv*/) {
     doWarning("unknown entity");
 
     return MGF_OK;
@@ -1170,15 +1169,35 @@ initMgf() {
     mgfAlternativeInit(GLOBAL_mgf_handleCallbacks);
 }
 
+static void
+freeLists() {
+    if ( globalCurrentPointList != nullptr ) {
+        delete globalCurrentPointList;
+        globalCurrentPointList = nullptr;
+    }
+
+    if ( globalCurrentNormalList != nullptr ) {
+        delete globalCurrentNormalList;
+        globalCurrentNormalList = nullptr;
+    }
+
+    if ( globalCurrentVertexList != nullptr ) {
+        delete globalCurrentVertexList;
+        globalCurrentVertexList = nullptr;
+    }
+
+    if ( globalCurrentFaceList != nullptr ) {
+        delete globalCurrentFaceList;
+        globalCurrentFaceList = nullptr;
+    }
+}
+
 /**
 Reads in an mgf file. The result is that the global variables
 GLOBAL_scene_world and GLOBAL_scene_materials are filled in.
 */
 void
 readMgf(char *filename) {
-    MgfReaderContext mgfReaderContext{};
-    int status{};
-
     mgfSetNrQuartCircDivs(GLOBAL_fileOptions_numberOfQuarterCircleDivisions);
     mgfSetIgnoreSidedness(GLOBAL_fileOptions_forceOneSidedSurfaces);
     mgfSetMonochrome(GLOBAL_fileOptions_monochrome);
@@ -1201,6 +1220,8 @@ readMgf(char *filename) {
 
     newSurface();
 
+    MgfReaderContext mgfReaderContext{};
+    int status;
     if ( filename[0] == '#' ) {
         status = mgfOpen(&mgfReaderContext, nullptr);
     } else {
@@ -1222,7 +1243,7 @@ readMgf(char *filename) {
     if ( globalInSurface ) {
         surfaceDone();
     }
-    GLOBAL_scene_geometries = (globalCurrentGeometryList);
+    GLOBAL_scene_geometries = globalCurrentGeometryList;
 
     if ( globalPointsOctree != nullptr) {
         free(globalPointsOctree);
@@ -1254,29 +1275,6 @@ mgfFreeMemory() {
     }
     delete globalCurrentGeometryList;
     globalCurrentGeometryList = nullptr;
-    GLOBAL_scene_geometries = nullptr;
 
     freeLists();
-}
-
-void freeLists() {
-    if ( globalCurrentPointList != nullptr ) {
-        delete globalCurrentPointList;
-        globalCurrentPointList = nullptr;
-    }
-
-    if ( globalCurrentNormalList != nullptr ) {
-        delete globalCurrentNormalList;
-        globalCurrentNormalList = nullptr;
-    }
-
-    if ( globalCurrentVertexList != nullptr ) {
-        delete globalCurrentVertexList;
-        globalCurrentVertexList = nullptr;
-    }
-
-    if ( globalCurrentFaceList != nullptr ) {
-        delete globalCurrentFaceList;
-        globalCurrentFaceList = nullptr;
-    }
 }
