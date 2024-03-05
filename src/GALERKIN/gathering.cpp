@@ -6,6 +6,7 @@ Jocabi or Gauss-Seidel Galerkin radiosity
 #include "scene/Camera.h"
 #include "render/potential.h"
 #include "material/statistics.h"
+#include "GALERKIN/hierefine.h"
 #include "GALERKIN/galerkinP.h"
 
 /**
@@ -17,7 +18,7 @@ interactions with light sources are created. See Holschuch, EGRW '94
 */
 static void
 patchLazyCreateInteractions(Patch *patch) {
-    GalerkinElement *topLevelElement = topLevelGalerkinElement(patch);
+    GalerkinElement *topLevelElement = patchGalerkinElement(patch);
 
     if ( !colorNull(topLevelElement->radiance[0]) && !(topLevelElement->flags & INTERACTIONS_CREATED)) {
         createInitialLinks(topLevelElement, SOURCE);
@@ -31,7 +32,7 @@ hierarchical representation consistent and computes a new color for the patch
 */
 static void
 patchUpdateRadiance(Patch *patch) {
-    GalerkinElement *topLevelElement = topLevelGalerkinElement(patch);
+    GalerkinElement *topLevelElement = patchGalerkinElement(patch);
     basisGalerkinPushPullRadiance(topLevelElement);
     patchRecomputeColor(patch);
 }
@@ -44,7 +45,7 @@ Gauss-Seidel iterations
 */
 static void
 patchGather(Patch *patch) {
-    GalerkinElement *topLevelElement = topLevelGalerkinElement(patch);
+    GalerkinElement *topLevelElement = patchGalerkinElement(patch);
 
     /* don't gather to patches without importance. This optimisation can not
      * be combined with lazy linking based on radiance. */
@@ -131,7 +132,7 @@ gatheringPushPullPotential(GalerkinElement *elem, float down) {
 
 static void
 patchUpdatePotential(Patch *patch) {
-    GalerkinElement *topLevelElement = topLevelGalerkinElement(patch);
+    GalerkinElement *topLevelElement = patchGalerkinElement(patch);
     gatheringPushPullPotential(topLevelElement, 0.0f);
 }
 

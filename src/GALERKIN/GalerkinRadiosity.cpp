@@ -401,7 +401,7 @@ getRadiance(Patch *patch, double u, double v, Vector3D /*dir*/) {
         patch->biLinearToUniform(&u, &v);
     }
 
-    GalerkinElement *topLevelElement = topLevelGalerkinElement(patch);
+    GalerkinElement *topLevelElement = patchGalerkinElement(patch);
     leaf = galerkinElementRegularLeafAtPoint(topLevelElement, &u, &v);
 
     rad = basisGalerkinRadianceAtPoint(leaf, leaf->radiance, u, v);
@@ -473,7 +473,7 @@ renderElementHierarchy(GalerkinElement *elem) {
 
 static void
 galerkinRenderPatch(Patch *patch) {
-    GalerkinElement *topLevelElement = topLevelGalerkinElement(patch);
+    GalerkinElement *topLevelElement = patchGalerkinElement(patch);
     renderElementHierarchy(topLevelElement);
 }
 

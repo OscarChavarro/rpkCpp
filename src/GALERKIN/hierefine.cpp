@@ -10,6 +10,7 @@ Hierarchical refinement
 #include "GALERKIN/formfactor.h"
 #include "GALERKIN/shaftculling.h"
 #include "GALERKIN/clustergalerkincpp.h"
+#include "GALERKIN/hierefine.h"
 
 /**
 Shaft culling stuff for hierarchical refinement
@@ -237,21 +238,19 @@ necessary
 */
 static double
 sourceClusterRadianceVariationError(Interaction *link, COLOR rcvRho, double rcv_area) {
-    Vector3D rcVertices[8];
-    int numberOfRcVertices;
-    COLOR minimumSrcRad;
-    COLOR maximumSrcRad;
-    COLOR error;
-    double K;
-
-    K = (link->nsrc == 1 && link->nrcv == 1) ? link->K.f : link->K.p[0];
+    double K = (link->nsrc == 1 && link->nrcv == 1) ? link->K.f : link->K.p[0];
     if ( K == 0. || colorNull(rcvRho) || colorNull(link->sourceElement->radiance[0])) {
-        /* receiver reflectivity or coupling coefficient or source radiance
-         * is zero */
+        // Receiver reflectivity or coupling coefficient or source radiance
+        // is zero
         return 0.0;
     }
 
-    numberOfRcVertices = galerkinElementVertices(link->receiverElement, rcVertices, 8);
+    Vector3D rcVertices[8];
+    int numberOfRcVertices = galerkinElementVertices(link->receiverElement, rcVertices, 8);
+
+    COLOR minimumSrcRad;
+    COLOR maximumSrcRad;
+    COLOR error;
 
     colorSetMonochrome(minimumSrcRad, HUGE);
     colorSetMonochrome(maximumSrcRad, -HUGE);
@@ -428,7 +427,12 @@ is not zero, the data is filled in the INTERACTION pointed to by 'link'
 and true is returned. If the elements don't interact, false is returned
 */
 static int
-hierarchicRefinementCreateSubdivisionLink(java::ArrayList<Geometry *> *candidatesList, GalerkinElement *rcv, GalerkinElement *src, Interaction *link) {
+hierarchicRefinementCreateSubdivisionLink(
+    java::ArrayList<Geometry *> *candidatesList,
+    GalerkinElement *rcv,
+    GalerkinElement *src,
+    Interaction *link)
+{
     link->receiverElement = rcv;
     link->sourceElement = src;
 
@@ -477,7 +481,11 @@ iteration method being used. This routine always returns true indicating that
 the passed interaction is always replaced by lower level interactions
 */
 static void
-hierarchicRefinementRegularSubdivideSource(java::ArrayList<Geometry *> **candidatesList, Interaction *link, bool isClusteredGeometry) {
+hierarchicRefinementRegularSubdivideSource(
+    java::ArrayList<Geometry *> **candidatesList,
+    Interaction *link,
+    bool isClusteredGeometry)
+{
     java::ArrayList<Geometry *> *backup = *candidatesList;
     hierarchicRefinementCull(candidatesList, link, isClusteredGeometry);
     GalerkinElement *src = link->sourceElement;
@@ -505,7 +513,11 @@ hierarchicRefinementRegularSubdivideSource(java::ArrayList<Geometry *> **candida
 Same, but subdivides the receiver element
 */
 static void
-hierarchicRefinementRegularSubdivideReceiver(java::ArrayList<Geometry *> **candidatesList, Interaction *link, bool isClusteredGeometry) {
+hierarchicRefinementRegularSubdivideReceiver(
+    java::ArrayList<Geometry *> **candidatesList,
+    Interaction *link,
+    bool isClusteredGeometry)
+{
     java::ArrayList<Geometry *> *backup = *candidatesList;
     hierarchicRefinementCull(candidatesList, link, isClusteredGeometry);
     GalerkinElement *src = link->sourceElement;
@@ -652,15 +664,15 @@ refineRecursive(java::ArrayList<Geometry *> **candidatesList, Interaction *link)
 /**
 Candidate occluder list for a pair of patches, note it is changed inside the methods!
 */
-void
+static void
 refineInteraction(Interaction *link) {
-    java::ArrayList<Geometry *> *candidateOccludersList = GLOBAL_scene_clusteredGeometries;
+    java::ArrayList<Geometry *> *candidateOccluderList = GLOBAL_scene_clusteredGeometries;
 
     if ( GLOBAL_galerkin_state.exact_visibility && link->vis == 255 ) {
-        candidateOccludersList = nullptr;
+        candidateOccluderList = nullptr;
     }
     // We know for sure that there is full visibility
-    if ( refineRecursive(&candidateOccludersList, link) ) {
+    if ( refineRecursive(&candidateOccluderList, link) ) {
         if ( GLOBAL_galerkin_state.iteration_method == SOUTH_WELL ) {
             link->sourceElement->interactions = InteractionListRemove(link->sourceElement->interactions, link);
         } else {

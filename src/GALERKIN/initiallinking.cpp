@@ -26,7 +26,7 @@ createInitialLink(Patch *patch) {
         return;
     }
 
-    GalerkinElement *topLevelElement = topLevelGalerkinElement(patch);
+    GalerkinElement *topLevelElement = patchGalerkinElement(patch);
     switch ( globalRole ) {
         case SOURCE:
             rcv = topLevelElement;

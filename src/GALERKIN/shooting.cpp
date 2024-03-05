@@ -5,10 +5,10 @@ Southwell Galerkin radiosity (progressive refinement radiosity)
 #include "java/util/ArrayList.txx"
 #include "material/statistics.h"
 #include "render/potential.h"
+#include "render/opengl.h"
 #include "GALERKIN/clustergalerkincpp.h"
 #include "GALERKIN/galerkinP.h"
-#include "render/opengl.h"
-
+#include "GALERKIN/hierefine.h"
 /**
 Returns the patch with highest un-shot power, weighted with indirect
 importance if importance-driven (see Bekaert&Willems, "Importance-driven
@@ -74,7 +74,7 @@ at all levels of the element hierarchy for the patch
 */
 static void
 patchPropagateUnShotRadianceAndPotential(Patch *patch) {
-    GalerkinElement *topLevelElement = topLevelGalerkinElement(patch);
+    GalerkinElement *topLevelElement = patchGalerkinElement(patch);
 
     if ( !(topLevelElement->flags & INTERACTIONS_CREATED) ) {
         if ( GLOBAL_galerkin_state.clustered ) {
@@ -135,7 +135,7 @@ shootingPushPullPotential(GalerkinElement *elem, float down) {
 
 static void
 patchUpdateRadianceAndPotential(Patch *patch) {
-    GalerkinElement *topLevelElement = topLevelGalerkinElement(patch);
+    GalerkinElement *topLevelElement = patchGalerkinElement(patch);
     if ( GLOBAL_galerkin_state.importance_driven ) {
         shootingPushPullPotential(topLevelElement, 0.0f);
     }
@@ -274,7 +274,7 @@ reallyDoShootingStep(java::ArrayList<Patch *> *scenePatches) {
             updateDirectPotential(scenePatches);
             for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
                 Patch *patch = scenePatches->get(i);
-                GalerkinElement *topLevelElement = topLevelGalerkinElement(patch);
+                GalerkinElement *topLevelElement = patchGalerkinElement(patch);
                 float potential_increment = patch->directPotential - topLevelElement->directPotential;
                 shootingUpdateDirectPotential(topLevelElement, potential_increment);
             }

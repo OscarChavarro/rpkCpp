@@ -14,13 +14,19 @@ Galerkin Radiosity "private" declarations
 The Galerkin specific data for a patch is its toplevel element
 */
 
-#define RADIANCE(patch) ((GalerkinElement *)((patch)->radianceData))->radiance[0]
+inline COLOR&
+RADIANCE(Patch *patch) {
+    return ((GalerkinElement *)(patch->radianceData))->radiance[0];
+}
+
 #define UN_SHOT_RADIANCE(patch) ((GalerkinElement *)((patch)->radianceData))->unShotRadiance[0]
+
 #define POTENTIAL(patch) ((GalerkinElement *)((patch)->radianceData))->potential
+
 #define UN_SHOT_POTENTIAL(patch) ((GalerkinElement *)((patch)->radianceData))->unShotPotential
 
 inline GalerkinElement*
-topLevelGalerkinElement(Patch *patch) {
+patchGalerkinElement(Patch *patch) {
     if ( patch == nullptr ) {
         fprintf(stderr, "Fatal: Trying to access as GalerkinElement on a null Patch\n");
         exit(1);
@@ -183,9 +189,6 @@ extern int doClusteredGatheringIteration(java::ArrayList<Patch *> *scenePatches)
 // In initial linking.cpp
 extern void createInitialLinks(GalerkinElement *top, GalerkinRole role);
 extern void createInitialLinkWithTopCluster(GalerkinElement *elem, GalerkinRole role);
-
-// In hie refine.cpp
-extern void refineInteractions(GalerkinElement *top);
 
 // In basis galerkin.cpp
 extern void basisGalerkinPushPullRadiance(GalerkinElement *top);
