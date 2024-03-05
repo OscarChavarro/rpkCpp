@@ -451,9 +451,9 @@ getGalerkinStats() {
     snprintf(p, STRING_LENGTH, "Link error threshold: %g %s\n\n%n",
             (double) (GLOBAL_galerkin_state.errorNorm == RADIANCE_ERROR ?
                       M_PI * (GLOBAL_galerkin_state.relLinkErrorThreshold *
-                              colorLuminance(GLOBAL_statistics_maxSelfEmittedRadiance)) :
+                              colorLuminance(GLOBAL_statistics.maxSelfEmittedRadiance)) :
                       GLOBAL_galerkin_state.relLinkErrorThreshold *
-                      colorLuminance(GLOBAL_statistics_maxSelfEmittedPower)),
+                      colorLuminance(GLOBAL_statistics.maxSelfEmittedPower)),
             (GLOBAL_galerkin_state.errorNorm == RADIANCE_ERROR ? "lux" : "lumen"),
             &n);
 

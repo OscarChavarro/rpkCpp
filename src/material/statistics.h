@@ -6,6 +6,10 @@
 class Statistics {
   public:
     float totalArea;
+    COLOR maxSelfEmittedRadiance;
+    COLOR maxSelfEmittedPower;
+
+    Statistics();
 };
 
 // General statistics about the current scene
@@ -26,8 +30,6 @@ extern double GLOBAL_statistics_referenceLuminance;
 extern COLOR GLOBAL_statistics_totalEmittedPower;
 extern COLOR GLOBAL_statistics_estimatedAverageRadiance;
 extern COLOR GLOBAL_statistics_averageReflectivity;
-extern COLOR GLOBAL_statistics_maxSelfEmittedRadiance;
-extern COLOR GLOBAL_statistics_maxSelfEmittedPower;
 
 extern Statistics GLOBAL_statistics;
 
