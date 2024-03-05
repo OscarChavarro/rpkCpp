@@ -15,7 +15,7 @@ Hierarchical refinement
 Shaft culling stuff for hierarchical refinement
 */
 
-static bool refineRecursive(java::ArrayList<Geometry *> **candidatesList, Interaction *link, GalerkinState state);
+static bool refineRecursive(java::ArrayList<Geometry *> **candidatesList, Interaction *link);
 
 /**
 Evaluates the interaction and returns a code telling whether it is accurate enough
@@ -42,19 +42,18 @@ static void
 hierarchicRefinementCull(
     java::ArrayList<Geometry *> **candidatesList,
     Interaction *link,
-    bool isClusteredGeometry,
-    GalerkinState state)
+    bool isClusteredGeometry)
 {
     if ( *candidatesList == nullptr ) {
         return;
     }
 
-    if ( state.shaftCullMode == DO_SHAFT_CULLING_FOR_REFINEMENT ||
-            state.shaftCullMode == ALWAYS_DO_SHAFT_CULLING ) {
+    if ( GLOBAL_galerkin_state.shaftCullMode == DO_SHAFT_CULLING_FOR_REFINEMENT ||
+         GLOBAL_galerkin_state.shaftCullMode == ALWAYS_DO_SHAFT_CULLING ) {
         SHAFT shaft;
         SHAFT *the_shaft;
 
-        if ( state.exact_visibility && !isCluster(link->receiverElement) && !isCluster(link->sourceElement)) {
+        if ( GLOBAL_galerkin_state.exact_visibility && !isCluster(link->receiverElement) && !isCluster(link->sourceElement)) {
             POLYGON rcvPolygon;
             POLYGON srcPolygon;
             the_shaft = constructPolygonToPolygonShaft(
@@ -104,9 +103,9 @@ Destroys the current geometryCandidatesList and restores the previous one (passe
 an argument)
 */
 static void
-hierarchicRefinementUnCull(java::ArrayList<Geometry *> **candidatesList, GalerkinState state) {
-    if ( state.shaftCullMode == DO_SHAFT_CULLING_FOR_REFINEMENT ||
-         state.shaftCullMode == ALWAYS_DO_SHAFT_CULLING ) {
+hierarchicRefinementUnCull(java::ArrayList<Geometry *> **candidatesList) {
+    if ( GLOBAL_galerkin_state.shaftCullMode == DO_SHAFT_CULLING_FOR_REFINEMENT ||
+         GLOBAL_galerkin_state.shaftCullMode == ALWAYS_DO_SHAFT_CULLING ) {
         freeCandidateList(*candidatesList);
     }
 }
@@ -131,15 +130,15 @@ estimation of some error terms if it turns out that they are not necessary
 anymore
 */
 static double
-hierarchicRefinementLinkErrorThreshold(Interaction *link, double rcv_area, GalerkinState state) {
+hierarchicRefinementLinkErrorThreshold(Interaction *link, double rcv_area) {
     double threshold = 0.0;
 
-    switch ( state.errorNorm ) {
+    switch ( GLOBAL_galerkin_state.errorNorm ) {
         case RADIANCE_ERROR:
-            threshold = hierarchicRefinementColorToError(GLOBAL_statistics_maxSelfEmittedRadiance) * state.relLinkErrorThreshold;
+            threshold = hierarchicRefinementColorToError(GLOBAL_statistics_maxSelfEmittedRadiance) * GLOBAL_galerkin_state.relLinkErrorThreshold;
             break;
         case POWER_ERROR:
-            threshold = hierarchicRefinementColorToError(GLOBAL_statistics_maxSelfEmittedPower) * state.relLinkErrorThreshold / (M_PI * rcv_area);
+            threshold = hierarchicRefinementColorToError(GLOBAL_statistics_maxSelfEmittedPower) * GLOBAL_galerkin_state.relLinkErrorThreshold / (M_PI * rcv_area);
             break;
         default:
             logFatal(2, "hierarchicRefinementEvaluateInteraction", "Invalid error norm");
@@ -151,9 +150,9 @@ hierarchicRefinementLinkErrorThreshold(Interaction *link, double rcv_area, Galer
     // of the maximum direct potential. This way, about an equal precision is
     // obtained in the visible parts of the scene if importance is used
     // instead of weighting the error, we weight the threshold with the inverse
-    if ( state.importance_driven &&
-         (state.iteration_method == JACOBI ||
-                 state.iteration_method == GAUSS_SEIDEL)) {
+    if ( GLOBAL_galerkin_state.importance_driven &&
+         (GLOBAL_galerkin_state.iteration_method == JACOBI ||
+          GLOBAL_galerkin_state.iteration_method == GAUSS_SEIDEL)) {
         threshold /= 2.0 * link->receiverElement->potential / GLOBAL_statistics_maxDirectPotential;
     }
 
@@ -170,19 +169,18 @@ hierarchicRefinementApproximationError(
     Interaction *link,
     COLOR srcRho,
     COLOR rcvRho,
-    double /*rcvArea*/,
-    GalerkinState state)
+    double /*rcvArea*/)
 {
     COLOR error;
     COLOR srcRad;
     double approxError = 0.0;
     double approxError2;
 
-    switch ( state.iteration_method ) {
+    switch ( GLOBAL_galerkin_state.iteration_method ) {
         case GAUSS_SEIDEL:
         case JACOBI:
             if ( isCluster(link->sourceElement) && link->sourceElement != link->receiverElement ) {
-                srcRad = maxClusterRadiance(link->sourceElement);
+                srcRad = maxClusterRadiance(link->sourceElement); /* sourceClusterRadiance(link); */
             } else {
                 srcRad = link->sourceElement->radiance[0];
             }
@@ -203,7 +201,7 @@ hierarchicRefinementApproximationError(
             colorAbs(error, error);
             approxError = hierarchicRefinementColorToError(error);
 
-            if ( state.importance_driven && isCluster(link->receiverElement) ) {
+            if ( GLOBAL_galerkin_state.importance_driven && isCluster(link->receiverElement) ) {
                 // Make sure the link is also suited for transport of un-shot potential
                 // from source to receiver. Note that it makes no sense to
                 // subdivide receiver patches (potential is only used to help
@@ -212,7 +210,7 @@ hierarchicRefinementApproximationError(
 
                 // Compare potential error w.r.t. maximum direct potential or importance
                 // instead of self-emitted radiance or power
-                switch ( state.errorNorm ) {
+                switch ( GLOBAL_galerkin_state.errorNorm ) {
                     case RADIANCE_ERROR:
                         approxError2 *= hierarchicRefinementColorToError(GLOBAL_statistics_maxSelfEmittedRadiance) / GLOBAL_statistics_maxDirectPotential;
                         break;
@@ -277,7 +275,7 @@ sourceClusterRadianceVariationError(
 }
 
 static INTERACTION_EVALUATION_CODE
-hierarchicRefinementEvaluateInteraction(Interaction *link, GalerkinState state) {
+hierarchicRefinementEvaluateInteraction(Interaction *link) {
     COLOR srcRho;
     COLOR rcvRho;
     double error;
@@ -286,7 +284,7 @@ hierarchicRefinementEvaluateInteraction(Interaction *link, GalerkinState state) 
     double min_area;
     INTERACTION_EVALUATION_CODE code;
 
-    if ( !state.hierarchical ) {
+    if ( !GLOBAL_galerkin_state.hierarchical ) {
         // Simply don't refine
         return ACCURATE_ENOUGH;
     }
@@ -308,23 +306,23 @@ hierarchicRefinementEvaluateInteraction(Interaction *link, GalerkinState state) 
         srcRho = link->sourceElement->patch->radianceData->Rd;
 
     // Determine error estimate and error threshold
-    threshold = hierarchicRefinementLinkErrorThreshold(link, rcv_area, state);
-    error = hierarchicRefinementApproximationError(link, srcRho, rcvRho, rcv_area, state);
+    threshold = hierarchicRefinementLinkErrorThreshold(link, rcv_area);
+    error = hierarchicRefinementApproximationError(link, srcRho, rcvRho, rcv_area);
 
     if ( isCluster(link->sourceElement) &&
          error < threshold &&
-         state.clusteringStrategy != ISOTROPIC ) {
+         GLOBAL_galerkin_state.clusteringStrategy != ISOTROPIC ) {
         error += sourceClusterRadianceVariationError(link, rcvRho, rcv_area);
     }
 
     // Minimal element area for which subdivision is allowed
-    min_area = GLOBAL_statistics_totalArea * state.relMinElemArea;
+    min_area = GLOBAL_statistics_totalArea * GLOBAL_galerkin_state.relMinElemArea;
 
     code = ACCURATE_ENOUGH;
     if ( error > threshold ) {
         // A very simple but robust subdivision strategy: subdivide the
         // largest of the two elements in order to reduce the error
-        if ( !(isCluster(link->sourceElement) && (link->sourceElement->flags & IS_LIGHT_SOURCE) ) &&
+        if ( (!(isCluster(link->sourceElement) && (link->sourceElement->flags & IS_LIGHT_SOURCE)) ) &&
             (rcv_area > link->sourceElement->area) ) {
             if ( rcv_area > min_area ) {
                 if ( isCluster(link->receiverElement) ) {
@@ -353,7 +351,7 @@ accurate enough for doing so. Renormalisation and reflection and such is done
 once for all accumulated received radiance during push-pull
 */
 static void
-hierarchicRefinementComputeLightTransport(Interaction *link, GalerkinState state) {
+hierarchicRefinementComputeLightTransport(Interaction *link) {
     // Update the number of effectively used radiance coefficients on the
     // receiver element
     int a = intMin(link->nrcv, link->receiverElement->basisSize);
@@ -367,7 +365,7 @@ hierarchicRefinementComputeLightTransport(Interaction *link, GalerkinState state
 
     COLOR *srcRad;
     COLOR *rcvRad;
-    if ( state.iteration_method == SOUTH_WELL ) {
+    if ( GLOBAL_galerkin_state.iteration_method == SOUTH_WELL ) {
         srcRad = link->sourceElement->unShotRadiance;
     } else {
         srcRad = link->sourceElement->radiance;
@@ -398,19 +396,20 @@ hierarchicRefinementComputeLightTransport(Interaction *link, GalerkinState state
         }
     }
 
-    if ( state.importance_driven ) {
+    if ( GLOBAL_galerkin_state.importance_driven ) {
         float K = ((link->nrcv == 1 && link->nsrc == 1) ? link->K.f : link->K.p[0]);
         COLOR rcvRho;
         COLOR srcRho;
 
-        if ( state.iteration_method == GAUSS_SEIDEL || state.iteration_method == JACOBI ) {
+        if ( GLOBAL_galerkin_state.iteration_method == GAUSS_SEIDEL ||
+             GLOBAL_galerkin_state.iteration_method == JACOBI ) {
             if ( isCluster(link->receiverElement)) {
                 colorSetMonochrome(rcvRho, 1.0f);
             } else {
                 rcvRho = link->receiverElement->patch->radianceData->Rd;
             }
             link->sourceElement->receivedPotential += (float)(K * hierarchicRefinementColorToError(rcvRho) * link->receiverElement->potential);
-        } else if ( state.iteration_method == SOUTH_WELL ) {
+        } else if ( GLOBAL_galerkin_state.iteration_method == SOUTH_WELL ) {
             if ( isCluster(link->sourceElement)) {
                 colorSetMonochrome(srcRho, 1.0f);
             } else {
@@ -464,10 +463,10 @@ Duplicates the INTERACTION data and stores it with the receivers interactions
 if doing gathering and with the source for shooting
 */
 static void
-hierarchicRefinementStoreInteraction(Interaction *link, GalerkinState state) {
+hierarchicRefinementStoreInteraction(Interaction *link) {
     GalerkinElement *src = link->sourceElement, *rcv = link->receiverElement;
 
-    if ( state.iteration_method == SOUTH_WELL ) {
+    if ( GLOBAL_galerkin_state.iteration_method == SOUTH_WELL ) {
         src->interactions = InteractionListAdd(src->interactions, interactionDuplicate(link));
     } else {
         rcv->interactions = InteractionListAdd(rcv->interactions, interactionDuplicate(link));
@@ -482,15 +481,10 @@ iteration method being used. This routine always returns true indicating that
 the passed interaction is always replaced by lower level interactions
 */
 static void
-hierarchicRefinementRegularSubdivideSource(
-    java::ArrayList<Geometry *> **candidatesList,
-    Interaction *link,
-    bool isClusteredGeometry,
-    GalerkinState state)
-{
+hierarchicRefinementRegularSubdivideSource(java::ArrayList<Geometry *> **candidatesList, Interaction *link, bool isClusteredGeometry) {
     java::ArrayList<Geometry *> *backup = *candidatesList;
 
-    hierarchicRefinementCull(candidatesList, link, isClusteredGeometry, state);
+    hierarchicRefinementCull(candidatesList, link, isClusteredGeometry);
     GalerkinElement *src = link->sourceElement;
     GalerkinElement *rcv = link->receiverElement;
 
@@ -502,13 +496,13 @@ hierarchicRefinementRegularSubdivideSource(
         subInteraction.K.p = formFactors; // Temporary storage for the form factors
 
         if ( hierarchicRefinementCreateSubdivisionLink(*candidatesList, rcv, child, &subInteraction) ) {
-            if ( !refineRecursive(candidatesList, &subInteraction, state) ) {
-                hierarchicRefinementStoreInteraction(&subInteraction, state);
+            if ( !refineRecursive(candidatesList, &subInteraction) ) {
+                hierarchicRefinementStoreInteraction(&subInteraction);
             }
         }
     }
 
-    hierarchicRefinementUnCull(candidatesList, state);
+    hierarchicRefinementUnCull(candidatesList);
     *candidatesList = backup;
 }
 
@@ -516,14 +510,9 @@ hierarchicRefinementRegularSubdivideSource(
 Same, but subdivides the receiver element
 */
 static void
-hierarchicRefinementRegularSubdivideReceiver(
-    java::ArrayList<Geometry *> **candidatesList,
-    Interaction *link,
-    bool isClusteredGeometry,
-    GalerkinState state)
-{
+hierarchicRefinementRegularSubdivideReceiver(java::ArrayList<Geometry *> **candidatesList, Interaction *link, bool isClusteredGeometry) {
     java::ArrayList<Geometry *> *backup = *candidatesList;
-    hierarchicRefinementCull(candidatesList, link, isClusteredGeometry, state);
+    hierarchicRefinementCull(candidatesList, link, isClusteredGeometry);
     GalerkinElement *src = link->sourceElement;
     GalerkinElement *rcv = link->receiverElement;
 
@@ -535,13 +524,13 @@ hierarchicRefinementRegularSubdivideReceiver(
         subInteraction.K.p = ff;
 
         if ( hierarchicRefinementCreateSubdivisionLink(*candidatesList, child, src, &subInteraction) ) {
-            if ( !refineRecursive(candidatesList, &subInteraction, state) ) {
-                hierarchicRefinementStoreInteraction(&subInteraction, state);
+            if ( !refineRecursive(candidatesList, &subInteraction) ) {
+                hierarchicRefinementStoreInteraction(&subInteraction);
             }
         }
     }
 
-    hierarchicRefinementUnCull(candidatesList, state);
+    hierarchicRefinementUnCull(candidatesList);
     *candidatesList = backup;
 }
 
@@ -553,11 +542,10 @@ static void
 hierarchicRefinementSubdivideSourceCluster(
     java::ArrayList<Geometry *> **candidatesList,
     Interaction *link,
-    bool isClusteredGeometry,
-    GalerkinState state)
+    bool isClusteredGeometry)
 {
     java::ArrayList<Geometry *> *backup = *candidatesList;
-    hierarchicRefinementCull(candidatesList, link, isClusteredGeometry, state);
+    hierarchicRefinementCull(candidatesList, link, isClusteredGeometry);
     GalerkinElement *src = link->sourceElement, *rcv = link->receiverElement;
 
     for ( int i = 0; src->irregularSubElements != nullptr && i < src->irregularSubElements->size(); i++ ) {
@@ -576,13 +564,13 @@ hierarchicRefinementSubdivideSourceCluster(
         }
 
         if ( hierarchicRefinementCreateSubdivisionLink(*candidatesList, rcv, child, &subInteraction)) {
-            if ( !refineRecursive(candidatesList, &subInteraction, state) ) {
-                hierarchicRefinementStoreInteraction(&subInteraction, state);
+            if ( !refineRecursive(candidatesList, &subInteraction) ) {
+                hierarchicRefinementStoreInteraction(&subInteraction);
             }
         }
     }
 
-    hierarchicRefinementUnCull(candidatesList, state);
+    hierarchicRefinementUnCull(candidatesList);
     *candidatesList = backup;
 }
 
@@ -594,11 +582,10 @@ static void
 hierarchicRefinementSubdivideReceiverCluster(
     java::ArrayList<Geometry *> **candidatesList,
     Interaction *link,
-    bool isClusteredGeometry,
-    GalerkinState state)
+    bool isClusteredGeometry)
 {
     java::ArrayList<Geometry *> *backup = *candidatesList;
-    hierarchicRefinementCull(candidatesList, link, isClusteredGeometry, state);
+    hierarchicRefinementCull(candidatesList, link, isClusteredGeometry);
     GalerkinElement *src = link->sourceElement;
     GalerkinElement *rcv = link->receiverElement;
 
@@ -618,13 +605,13 @@ hierarchicRefinementSubdivideReceiverCluster(
         }
 
         if ( hierarchicRefinementCreateSubdivisionLink(*candidatesList, child, src, &subInteraction)) {
-            if ( !refineRecursive(candidatesList, &subInteraction, state) ) {
-                hierarchicRefinementStoreInteraction(&subInteraction, state);
+            if ( !refineRecursive(candidatesList, &subInteraction) ) {
+                hierarchicRefinementStoreInteraction(&subInteraction);
             }
         }
     }
 
-    hierarchicRefinementUnCull(candidatesList, state);
+    hierarchicRefinementUnCull(candidatesList);
     *candidatesList = backup;
 }
 
@@ -635,29 +622,29 @@ if the interaction was not refined and is to be retained. If the interaction
 does not need to be refined, light transport over the interaction is computed
 */
 static bool
-refineRecursive(java::ArrayList<Geometry *> **candidatesList, Interaction *link, GalerkinState state) {
+refineRecursive(java::ArrayList<Geometry *> **candidatesList, Interaction *link) {
     bool refined = false;
 
     bool isClusteredGeometry = (*candidatesList == GLOBAL_scene_clusteredGeometries);
-    switch ( hierarchicRefinementEvaluateInteraction(link, state) ) {
+    switch ( hierarchicRefinementEvaluateInteraction(link) ) {
         case ACCURATE_ENOUGH:
-            hierarchicRefinementComputeLightTransport(link, state);
+            hierarchicRefinementComputeLightTransport(link);
             refined = false;
             break;
         case REGULAR_SUBDIVIDE_SOURCE:
-            hierarchicRefinementRegularSubdivideSource(candidatesList, link, isClusteredGeometry, state);
+            hierarchicRefinementRegularSubdivideSource(candidatesList, link, isClusteredGeometry);
             refined = true;
             break;
         case REGULAR_SUBDIVIDE_RECEIVER:
-            hierarchicRefinementRegularSubdivideReceiver(candidatesList, link, isClusteredGeometry, state);
+            hierarchicRefinementRegularSubdivideReceiver(candidatesList, link, isClusteredGeometry);
             refined = true;
             break;
         case SUBDIVIDE_SOURCE_CLUSTER:
-            hierarchicRefinementSubdivideSourceCluster(candidatesList, link, isClusteredGeometry, state);
+            hierarchicRefinementSubdivideSourceCluster(candidatesList, link, isClusteredGeometry);
             refined = true;
             break;
         case SUBDIVIDE_RECEIVER_CLUSTER:
-            hierarchicRefinementSubdivideReceiverCluster(candidatesList, link, isClusteredGeometry, state);
+            hierarchicRefinementSubdivideReceiverCluster(candidatesList, link, isClusteredGeometry);
             refined = true;
             break;
         default:
@@ -671,14 +658,14 @@ refineRecursive(java::ArrayList<Geometry *> **candidatesList, Interaction *link,
 Candidate occluder list for a pair of patches, note it is changed inside the methods!
 */
 static void
-refineInteraction(Interaction *link, GalerkinState state, java::ArrayList<Geometry *> **candidateOccludersList) {
-    if ( state.exact_visibility && link->vis == 255 ) {
+refineInteraction(Interaction *link, java::ArrayList<Geometry *> **candidateOccludersList) {
+    if ( GLOBAL_galerkin_state.exact_visibility && link->vis == 255 ) {
         *candidateOccludersList = nullptr;
     }
 
     // We know for sure that there is full visibility
-    if ( refineRecursive(candidateOccludersList, link, state) ) {
-        if ( state.iteration_method == SOUTH_WELL ) {
+    if ( refineRecursive(candidateOccludersList, link) ) {
+        if ( GLOBAL_galerkin_state.iteration_method == SOUTH_WELL ) {
             link->sourceElement->interactions = InteractionListRemove(link->sourceElement->interactions, link);
         } else {
             link->receiverElement->interactions = InteractionListRemove(link->receiverElement->interactions, link);
@@ -692,18 +679,18 @@ Refines and computes light transport over all interactions of the given
 toplevel element
 */
 void
-refineInteractions(GalerkinElement *top, GalerkinState state, java::ArrayList<Geometry *> **candidateOccludersList) {
+refineInteractions(GalerkinElement *top) {
     // Interactions will only be replaced by lower level interactions. We try refinement
     // beginning at the lowest levels in the hierarchy and working upwards to
     // prevent already refined interactions from being tested for refinement
     // again
     for ( int i = 0; top->irregularSubElements != nullptr && i < top->irregularSubElements->size(); i++ ) {
-        refineInteractions(top->irregularSubElements->get(i), state, candidateOccludersList);
+        refineInteractions(top->irregularSubElements->get(i));
     }
 
     if ( top->regularSubElements != nullptr ) {
         for ( int i = 0; i < 4; i++ ) {
-            refineInteractions(top->regularSubElements[i], state, candidateOccludersList);
+            refineInteractions(top->regularSubElements[i]);
         }
     }
 
@@ -714,6 +701,6 @@ refineInteractions(GalerkinElement *top, GalerkinState state, java::ArrayList<Ge
     while ( window != nullptr ) {
         Interaction *element = window->interaction;
         window = window->next;
-        refineInteraction(element, state, candidateOccludersList);
+        refineInteraction(element, &GLOBAL_scene_clusteredGeometries);
     }
 }

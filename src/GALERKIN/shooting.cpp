@@ -8,7 +8,6 @@ Southwell Galerkin radiosity (progressive refinement radiosity)
 #include "GALERKIN/clustergalerkincpp.h"
 #include "GALERKIN/galerkinP.h"
 #include "render/opengl.h"
-#include "scene/scene.h"
 
 /**
 Returns the patch with highest un-shot power, weighted with indirect
@@ -88,7 +87,7 @@ patchPropagateUnShotRadianceAndPotential(Patch *patch) {
 
     // Recursively refines the interactions of the shooting patch
     // and computes radiance and potential transport
-    refineInteractions(topLevelElement, GLOBAL_galerkin_state, &GLOBAL_scene_clusteredGeometries);
+    refineInteractions(topLevelElement);
 
     // Clear the un-shot radiance at all levels
     clearUnShotRadianceAndPotential(topLevelElement);

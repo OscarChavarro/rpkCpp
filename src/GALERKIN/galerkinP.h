@@ -185,7 +185,7 @@ extern void createInitialLinks(GalerkinElement *top, GalerkinRole role);
 extern void createInitialLinkWithTopCluster(GalerkinElement *elem, GalerkinRole role);
 
 // In hie refine.cpp
-extern void refineInteractions(GalerkinElement *top, GalerkinState state, java::ArrayList<Geometry *> **candidateOccludersList);
+extern void refineInteractions(GalerkinElement *top);
 
 // In basis galerkin.cpp
 extern void basisGalerkinPushPullRadiance(GalerkinElement *top);

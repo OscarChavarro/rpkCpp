@@ -7,7 +7,6 @@ Jocabi or Gauss-Seidel Galerkin radiosity
 #include "render/potential.h"
 #include "material/statistics.h"
 #include "GALERKIN/galerkinP.h"
-#include "scene/scene.h"
 
 /**
 Lazy linking: delay creating the initial links for a patch until it has
@@ -47,16 +46,16 @@ static void
 patchGather(Patch *patch) {
     GalerkinElement *topLevelElement = topLevelGalerkinElement(patch);
 
-    // Don't gather to patches without importance. This optimisation can not
-    // be combined with lazy linking based on radiance
+    /* don't gather to patches without importance. This optimisation can not
+     * be combined with lazy linking based on radiance. */
     if ( GLOBAL_galerkin_state.importance_driven &&
          topLevelElement->potential < GLOBAL_statistics_maxDirectPotential * EPSILON ) {
         return;
     }
 
-    // The form factors have been computed and stored with the source patch
-    // already before when doing non-importance-driven Jacobi iterations with lazy
-    // linking
+    /* the form factors have been computed and stored with the source patch
+     * already before when doing non-importance-driven Jacobi iterations with lazy
+     * linking. */
     if ( GLOBAL_galerkin_state.iteration_method == GAUSS_SEIDEL || !GLOBAL_galerkin_state.lazy_linking ||
          GLOBAL_galerkin_state.importance_driven ) {
         if ( !(topLevelElement->flags & INTERACTIONS_CREATED)) {
@@ -65,13 +64,13 @@ patchGather(Patch *patch) {
         }
     }
 
-    // Refine the interactions and compute light transport at the leaves
-    refineInteractions(topLevelElement, GLOBAL_galerkin_state, &GLOBAL_scene_clusteredGeometries);
+    /* Refine the interactions and compute light transport at the leaves */
+    refineInteractions(topLevelElement);
 
-    // Immediately convert received radiance into radiance, make the representation
-    // consistent and recompute the color of the patch when doing Gauss-Seidel.
-    // The new radiance values are immediately used in subsequent steps of
-    // the current iteration
+    /* Immediately convert received radiance into radiance, make the representation
+     * consistent and recompute the color of the patch when doing Gauss-Seidel.
+     * The new radiance values are immediately used in subsequent steps of
+     * the current iteration. */
     if ( GLOBAL_galerkin_state.iteration_method == GAUSS_SEIDEL ) {
         patchUpdateRadiance(patch);
     }
@@ -232,7 +231,7 @@ doClusteredGatheringIteration(java::ArrayList<Patch*> *scenePatches) {
     userErrorThreshold = GLOBAL_galerkin_state.relLinkErrorThreshold;
 
     // Refines and computes light transport over the refined links
-    refineInteractions(GLOBAL_galerkin_state.topCluster, GLOBAL_galerkin_state, &GLOBAL_scene_clusteredGeometries);
+    refineInteractions(GLOBAL_galerkin_state.topCluster);
 
     GLOBAL_galerkin_state.relLinkErrorThreshold = (float)userErrorThreshold;
 
