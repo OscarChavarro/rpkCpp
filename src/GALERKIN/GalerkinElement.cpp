@@ -350,11 +350,11 @@ galerkinElementRegularSubDivide(GalerkinElement *element) {
 
 static void
 galerkinElementDestroy(GalerkinElement *element) {
-    for ( INTERACTIONLIST *window = element->interactions; window != nullptr; window = window->next ) {
+    for ( InteractionListNode *window = element->interactions; window != nullptr; window = window->next ) {
         interactionDestroy(window->interaction);
     }
 
-    InteractionListDestroy(element->interactions);
+    listDestroy((LIST *)element->interactions);
 
     if ( element->radiance ) {
         delete[] element->radiance;

@@ -7,7 +7,7 @@
 Adds an element in front of the list, returns a pointer to the new list
 */
 LIST *
-ListAdd(LIST *list, void *element) {
+listAdd(LIST *list, void *element) {
     if ( element == nullptr ) {
         return list;
     }
@@ -23,43 +23,36 @@ ListAdd(LIST *list, void *element) {
 Removes an element from the list. Returns a pointer to the updated list
 */
 LIST *
-ListRemove(LIST *list, void *pelement) {
-    LIST *p, *q;
+listRemove(LIST *list, void *element) {
+    LIST *p;
+    LIST *q;
 
-    if ( !list ) {
+    if ( list == nullptr ) {
         logError("ListRemove", "attempt to remove an element from an empty list");
         return list;
     }
 
-    if ( pelement == list->pelement ) {
+    if ( element == list->pelement ) {
         p = list->next;
         free(list);
         return p;
     }
 
-    /* chasing pointers: */
     q = list;
     p = list->next;
-    while ( p && p->pelement != pelement ) {
+    while ( p && p->pelement != element ) {
         q = p;
         p = p->next;
     }
 
-    /* als p de nullptr pointer is komt het te verwijderen element niet in de lijst
-     * voor: fout */
     if ( !p ) {
         logError("ListRemove", "attempt to remove a nonexisting element from a list");
         return list;
-    }
-
-        /* in het andere geval is p een wijzer naar de lijst-cel die eruit gehaald moet
-         * worden */
-    else {
+    } else {
         q->next = p->next;
         free(p);
     }
 
-    /* geef een (ongewijzigde) wijzer naar de gewijzigde lijst terug */
     return list;
 }
 
@@ -67,7 +60,7 @@ ListRemove(LIST *list, void *pelement) {
 Destroys a listWindow. Does not destroy the elements
 */
 void
-ListDestroy(LIST *listWindow) {
+listDestroy(LIST *listWindow) {
     while ( listWindow != nullptr ) {
         LIST *listNode = listWindow->next;
         free(listWindow);

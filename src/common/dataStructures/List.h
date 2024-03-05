@@ -7,12 +7,8 @@ class LIST {
     LIST *next;
 };
 
-#ifndef EndForAll
-#define EndForAll }}}
-#endif
-
-extern LIST *ListAdd(LIST *list, void *element);
-extern LIST *ListRemove(LIST *list, void *pelement);
-extern void ListDestroy(LIST *list);
+extern LIST *listAdd(LIST *list, void *element);
+extern LIST *listRemove(LIST *list, void *element);
+extern void listDestroy(LIST *list);
 
 #endif

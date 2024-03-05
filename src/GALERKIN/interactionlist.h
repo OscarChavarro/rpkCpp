@@ -6,19 +6,16 @@
 
 class Interaction;
 
-class INTERACTIONLIST {
+class InteractionListNode {
   public:
     Interaction *interaction;
-    INTERACTIONLIST *next;
+    InteractionListNode *next;
 };
 
-#define InteractionListAdd(interactionlist, interaction) \
-        (INTERACTIONLIST *)ListAdd((LIST *)(interactionlist), (void *)(interaction))
+#define InteractionListAdd(interactionList, interaction) \
+    (InteractionListNode *)listAdd((LIST *)(interactionList), (void *)(interaction))
 
-#define InteractionListRemove(interactionlist, interaction) \
-        (INTERACTIONLIST *)ListRemove((LIST *)(interactionlist), (void *)(interaction))
-
-#define InteractionListDestroy(interactionlist) \
-        ListDestroy((LIST *)(interactionlist))
+#define InteractionListRemove(interactionList, interaction) \
+    (InteractionListNode *)listRemove((LIST *)(interactionList), (void *)(interaction))
 
 #endif
