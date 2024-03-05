@@ -682,7 +682,7 @@ refineInteractions(GalerkinElement *top) {
     // Iterate over the interactions. Interactions that are refined are removed from the
     // list in RefineInteraction(). This algorithm allows the current element to be deleted
     // by calling the function after updating the window.
-    INTERACTIONLIST *window = top->interactions;
+    InteractionListNode *window = top->interactions;
     while ( window != nullptr ) {
         Interaction *element = window->interaction;
         window = window->next;
