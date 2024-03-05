@@ -53,8 +53,8 @@ makeToneMappingMethodsString() {
         }
         first = false;
         snprintf(str, STRING_SIZE, "%-20.20s %s%s\n%n",
-                method->shortName, method->name,
-                GLOBAL_toneMap_options.ToneMap == method ? " (default)" : "", &n);
+                 method->shortName, method->name,
+                 GLOBAL_toneMap_options.toneMap == method ? " (default)" : "", &n);
         str += n;
     }
     *(str - 1) = '\0'; // Discard last newline character
@@ -200,8 +200,8 @@ toneMapDefaults() {
 
     setRGB(GLOBAL_toneMap_options.gamma, DEFAULT_GAMMA, DEFAULT_GAMMA, DEFAULT_GAMMA);
     recomputeGammaTables(GLOBAL_toneMap_options.gamma);
-    GLOBAL_toneMap_options.ToneMap = &GLOBAL_toneMap_lightness;
-    GLOBAL_toneMap_options.ToneMap->Init();
+    GLOBAL_toneMap_options.toneMap = &GLOBAL_toneMap_lightness;
+    GLOBAL_toneMap_options.toneMap->Init();
 
     makeToneMappingMethodsString();
 }
@@ -224,9 +224,9 @@ Makes map the current tone mapping operator + initialises
 */
 void
 setToneMap(ToneMap *map) {
-    GLOBAL_toneMap_options.ToneMap->Terminate();
-    GLOBAL_toneMap_options.ToneMap = map ? map : &GLOBAL_toneMap_dummy;
-    GLOBAL_toneMap_options.ToneMap->Init();
+    GLOBAL_toneMap_options.toneMap->Terminate();
+    GLOBAL_toneMap_options.toneMap = map ? map : &GLOBAL_toneMap_dummy;
+    GLOBAL_toneMap_options.toneMap->Init();
 }
 
 /**
@@ -235,7 +235,7 @@ Initialises tone mapping, e.g. for a new scene
 void
 initToneMapping(java::ArrayList<Patch *> *scenePatches) {
     initSceneAdaptation(scenePatches);
-    setToneMap(GLOBAL_toneMap_options.ToneMap);
+    setToneMap(GLOBAL_toneMap_options.toneMap);
 }
 
 void

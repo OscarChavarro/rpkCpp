@@ -56,7 +56,7 @@ class ToneMappingContext {
     float pow_bright_adjust; // pow(2, brightness_adjust)
 
     // Variable / non-linear radiance rescaling
-    ToneMap *ToneMap; // Current tone mapping operator
+    ToneMap *toneMap; // Current tone mapping operator
     TMA_METHOD staticAdaptationMethod;
     float realWorldAdaptionLuminance;
     float maximumDisplayLuminance;
@@ -91,7 +91,7 @@ toneMappingGammaCorrection(RGB &rgb) {
 
 inline COLOR
 toneMapScaleForDisplay(COLOR &radiance) {
-    return GLOBAL_toneMap_options.ToneMap->scaleForDisplay(radiance);
+    return GLOBAL_toneMap_options.toneMap->scaleForDisplay(radiance);
 }
 
 /**
