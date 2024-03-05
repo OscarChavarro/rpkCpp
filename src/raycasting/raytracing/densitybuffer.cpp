@@ -2,12 +2,10 @@
 #include "raycasting/raytracing/densitybuffer.h"
 #include "raycasting/raytracing/densitykernel.h"
 
-// Implementation CDensityHitList
+const int DHL_ARRAY_SIZE = 20;
 
-const int DHL_ARRAYSIZE = 20;
-
-CDensityHitList::CDensityHitList() {
-    m_first = new CDensityHitArray(DHL_ARRAYSIZE);
+CDensityHitList::CDensityHitList(): m_cacheLowerLimit() {
+    m_first = new CDensityHitArray(DHL_ARRAY_SIZE);
     m_last = m_first;
     m_cacheCurrent = nullptr;
 
@@ -19,7 +17,7 @@ CDensityHitList::~CDensityHitList() {
 
     while ( m_first ) {
         tmpDA = m_first;
-        m_first = m_first->m_next;
+        m_first = m_first->next;
         delete tmpDA;
     }
 }
@@ -35,9 +33,9 @@ CDensityHit CDensityHitList::operator[](int i) {
     }
 
     // Wanted point is beyond m_cacheCurrent
-    while ( i >= m_cacheLowerLimit + DHL_ARRAYSIZE ) {
-        m_cacheCurrent = m_cacheCurrent->m_next;
-        m_cacheLowerLimit += DHL_ARRAYSIZE;
+    while ( i >= m_cacheLowerLimit + DHL_ARRAY_SIZE ) {
+        m_cacheCurrent = m_cacheCurrent->next;
+        m_cacheLowerLimit += DHL_ARRAY_SIZE;
     }
 
     // Wanted point is in current cache block
@@ -45,12 +43,12 @@ CDensityHit CDensityHitList::operator[](int i) {
     return ((*m_cacheCurrent)[i - m_cacheLowerLimit]);
 }
 
-void CDensityHitList::Add(CDensityHit &hit) {
+void CDensityHitList::add(CDensityHit &hit) {
     if ( !m_last->Add(hit)) {
         // New array needed
 
-        m_last->m_next = new CDensityHitArray(DHL_ARRAYSIZE);
-        m_last = m_last->m_next;
+        m_last->next = new CDensityHitArray(DHL_ARRAY_SIZE);
+        m_last = m_last->next;
 
         m_last->Add(hit); // Supposed not to fail
     }
@@ -62,121 +60,113 @@ void CDensityHitList::Add(CDensityHit &hit) {
 
 // CDensityBuffer implementation
 
-CDensityBuffer::CDensityBuffer(ScreenBuffer *screen, BP_BASECONFIG *bcfg) {
-    m_screen = screen;
-    m_bcfg = bcfg;
+CDensityBuffer::CDensityBuffer(ScreenBuffer *screen, BP_BASECONFIG *paramBaseConfig) {
+    screenBuffer = screen;
+    baseConfig = paramBaseConfig;
 
-    m_xmin = m_screen->getScreenXMin();
-    m_xmax = m_screen->getScreenXMax();
-    m_ymin = m_screen->getScreenYMin();
-    m_ymax = m_screen->getScreenYMax();
+    xMinimum = screenBuffer->getScreenXMin();
+    xMaximum = screenBuffer->getScreenXMax();
+    yMinimum = screenBuffer->getScreenYMin();
+    yMaximum = screenBuffer->getScreenYMax();
 
     printf("Density Buffer :\nXmin %f, Ymin %f, Xmax %f, Ymax %f\n",
-           m_xmin, m_ymin, m_xmax, m_ymax);
+           xMinimum, yMinimum, xMaximum, yMaximum);
 
 }
 
 CDensityBuffer::~CDensityBuffer() {
-    /*
-      int i,j;
-
-
-      for(i= 0; i < DHA_XRES; i++)
-      {
-        for(j = 0; j < DHA_YRES; j++)
-      {
-      printf("X %i, Y %i, Samples %i\n", i,j, m_hitGrid[i][j].StoredHits());
-      }
-    }
-    */
 }
 
-void CDensityBuffer::Add(float x, float y, COLOR col, float pdf, float w) {
-    float factor = m_screen->getPixXSize() * m_screen->getPixYSize()
-                   * (float) m_bcfg->totalSamples;
+/**
+Add a hit
+*/
+void
+CDensityBuffer::add(float x, float y, COLOR col) {
+    float factor = screenBuffer->getPixXSize() * screenBuffer->getPixYSize()
+                   * (float) baseConfig->totalSamples;
     COLOR tmpCol;
-
-    // printf("Hit %f %f Index %i %i\n",hit.m_x, hit.m_y, XIndex(x), XIndex(y));
 
     if ( colorAverage(col) > EPSILON ) {
         colorScale(factor, col, tmpCol); // Undo part of flux to rad factor
 
         CDensityHit hit(x, y, tmpCol);
 
-        m_hitGrid[XIndex(x)][YIndex(y)].Add(hit);
+        hitGrid[xIndex(x)][yIndex(y)].add(hit);
     }
 }
 
-
-ScreenBuffer *CDensityBuffer::Reconstruct() {
+/**
+Reconstruct the internal screen buffer using constant kernel width
+*/
+ScreenBuffer *
+CDensityBuffer::reconstruct() {
     // For all samples -> compute pixel coverage
 
     // Kernel size. Now spread over 3 pixels
-    float h = 8 * floatMax(m_screen->getPixXSize(), m_screen->getPixYSize())
-              / sqrt((double) m_bcfg->samplesPerPixel);
+    float h = 8.0f * floatMax(screenBuffer->getPixXSize(), screenBuffer->getPixYSize())
+              / std::sqrt((float)baseConfig->samplesPerPixel);
 
     printf("h = %f\n", h);
 
-    m_screen->scaleRadiance(0.0); // Hack !!
+    screenBuffer->scaleRadiance(0.0); // Hack!
 
-    int i, j, k, maxk;
-
+    int i;
+    int j;
+    int k;
+    int maxK;
     CDensityHit hit;
     CKernel2D kernel;
     Vector2D center;
 
     kernel.SetH(h);
 
+    for ( i = 0; i < DHA_X_RES; i++ ) {
+        for ( j = 0; j < DHA_Y_RES; j++ ) {
+            maxK = hitGrid[i][j].storedHits();
 
-    for ( i = 0; i < DHA_XRES; i++ ) {
-        for ( j = 0; j < DHA_YRES; j++ ) {
-            // printf("X %i, Y %i, Samples %i\n", i,j, m_hitGrid[i][j].StoredHits());
-
-            maxk = m_hitGrid[i][j].StoredHits();
-
-            for ( k = 0; k < maxk; k++ ) {
-                hit = (m_hitGrid[i][j])[k];
+            for ( k = 0; k < maxK; k++ ) {
+                hit = (hitGrid[i][j])[k];
 
                 center.u = hit.m_x;
                 center.v = hit.m_y;
 
-                kernel.Cover(center, 1.0 / m_bcfg->totalSamples, hit.m_color, m_screen);
+                kernel.Cover(center, 1.0f / (float)baseConfig->totalSamples, hit.color, screenBuffer);
             }
         }
     }
 
-    return m_screen;
+    return screenBuffer;
 }
 
 
-ScreenBuffer *CDensityBuffer::ReconstructVariable(ScreenBuffer *dest,
-                                                  float baseSize) {
+ScreenBuffer *
+CDensityBuffer::reconstructVariable(ScreenBuffer *dest, float baseSize) {
     // For all samples -> compute pixel coverage
 
     // Base Kernel size. Now spread over a number of pixels
 
-    dest->scaleRadiance(0.0); // Hack !!
+    dest->scaleRadiance(0.0); // Hack!
 
-    int i, j, k, maxk;
-
+    int i;
+    int j;
+    int k;
+    int maxK;
     CDensityHit hit;
     CKernel2D kernel;
     Vector2D center;
 
-    for ( i = 0; i < DHA_XRES; i++ ) {
-        for ( j = 0; j < DHA_YRES; j++ ) {
-            // printf("X %i, Y %i, Samples %i\n", i,j, m_hitGrid[i][j].StoredHits());
+    for ( i = 0; i < DHA_X_RES; i++ ) {
+        for ( j = 0; j < DHA_Y_RES; j++ ) {
+            maxK = hitGrid[i][j].storedHits();
 
-            maxk = m_hitGrid[i][j].StoredHits();
-
-            for ( k = 0; k < maxk; k++ ) {
-                hit = (m_hitGrid[i][j])[k];
+            for ( k = 0; k < maxK; k++ ) {
+                hit = (hitGrid[i][j])[k];
 
                 center.u = hit.m_x;
                 center.v = hit.m_y;
 
-                kernel.VarCover(center, hit.m_color, m_screen, dest, m_bcfg->totalSamples,
-                                m_bcfg->samplesPerPixel, baseSize);
+                kernel.VarCover(center, hit.color, screenBuffer, dest, (int)baseConfig->totalSamples,
+                                baseConfig->samplesPerPixel, baseSize);
             }
         }
     }

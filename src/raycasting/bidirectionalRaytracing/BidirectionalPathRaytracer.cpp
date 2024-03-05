@@ -116,8 +116,6 @@ addWithSpikeCheck(
     float pix_x,
     float pix_y,
     COLOR f,
-    float pdf,
-    float weight,
     bool radSample = false)
 {
     if ( config->bcfg->doDensityEstimation ) {
@@ -138,10 +136,9 @@ addWithSpikeCheck(
         }
 
         if ( config->deStoreHits && db ) {
-            db->Add(pix_x, pix_y, f, pdf, weight);
+            db->add(pix_x, pix_y, f);
         } else {
             // Now splat directly into the dest screen
-
             Vector2D center;
             COLOR g;
 
@@ -284,14 +281,14 @@ handlePathX0(BPCONFIG *config, CBiPath *path) {
         if ( config->bcfg->useSpars ) {
             colorScale(factor, frad, frad);
             addWithSpikeCheck(config, path, config->nx, config->ny,
-                              config->xSample, config->ySample, frad, pdf, weight, true);
+                              config->xSample, config->ySample, frad, true);
             colorScale(factor, f, f);
             addWithSpikeCheck(config, path, config->nx, config->ny,
-                              config->xSample, config->ySample, f, pdf, weight, false);
+                              config->xSample, config->ySample, f, false);
         } else {
             colorScale(factor, f, f);
             addWithSpikeCheck(config, path, config->nx, config->ny,
-                              config->xSample, config->ySample, f, pdf, weight);
+                              config->xSample, config->ySample, f);
         }
 
         // Restore the Brdf and PDF evaluations
@@ -474,12 +471,12 @@ handlePathXx(BPCONFIG *config, CBiPath *path) {
         float factor = (float)config->fluxToRadFactor / (float)config->bcfg->samplesPerPixel;
         colorScale(factor, f, f);
         addWithSpikeCheck(config, path, config->nx, config->ny,
-                          config->xSample, config->ySample, f, pdf, weight);
+                          config->xSample, config->ySample, f);
 
         if ( config->bcfg->useSpars ) {
             colorScale(factor, frad, frad);
             addWithSpikeCheck(config, path, config->nx, config->ny,
-                              config->xSample, config->ySample, frad, pdf, weight, true);
+                              config->xSample, config->ySample, frad, true);
         }
     }
 
@@ -523,11 +520,11 @@ handlePath1X(BPCONFIG *config, CBiPath *path) {
         float factor = (computeFluxToRadFactor(nx, ny) / (float) config->bcfg->totalSamples);
         colorScale(factor, f, f);
 
-        addWithSpikeCheck(config, path, nx, ny, pix_x, pix_y, f, pdf, weight);
+        addWithSpikeCheck(config, path, nx, ny, pix_x, pix_y, f);
 
         if ( config->bcfg->useSpars ) {
             colorScale(factor, frad, frad);
-            addWithSpikeCheck(config, path, nx, ny, pix_x, pix_y, frad, pdf, weight, true);
+            addWithSpikeCheck(config, path, nx, ny, pix_x, pix_y, frad, true);
         }
     }
 
@@ -837,23 +834,23 @@ doBptDensityEstimation(BPCONFIG *config) {
 
     // Density estimation
 
-    config->dBuffer->Reconstruct(); // Estimates ref with fixed kernel width
+    config->dBuffer->reconstruct(); // Estimates ref with fixed kernel width
     config->ref->render();
     //  config->ref->WriteFile("./firstreffix.ppm.gz");
 
     if ( config->dBuffer2 ) {
-        config->dBuffer2->Reconstruct(); // Estimates ref with fixed kernel width
+        config->dBuffer2->reconstruct(); // Estimates ref with fixed kernel width
         config->ref2->render();
         //    config->ref2->WriteFile("./firstref2fix.ppm.gz");
     }
 
     // Now reconstruct the hits using variable kernels
-    config->dBuffer->ReconstructVariable(config->dest, 5.0);
+    config->dBuffer->reconstructVariable(config->dest, 5.0);
     config->dest->render();
     //  config->dest->WriteFile("./firstrefvar.ppm.gz");
 
     if ( config->dBuffer2 ) {
-        config->dBuffer2->ReconstructVariable(config->dest2, 1.5);
+        config->dBuffer2->reconstructVariable(config->dest2, 1.5);
         config->dest2->render();
         //    config->dest2->WriteFile("./firstref2var.ppm.gz");
     }

@@ -12,61 +12,62 @@ Density estimation on screen
 
 /**
 Class CDensityBuffer : class for storing sample hits on screen
-New samples are added with 'Add'. 'Reconstruct' reconstructs
+New samples are added with 'Add'. 'reconstruct' reconstructs
 an approximation to the sampled function into a screen buffer
 */
 class CDensityHit {
 public:
     float m_x; // Screen/Polygon Coordinates
     float m_y;
-    COLOR m_color;  // Estimate of the function, NOT divided by number of samples
+    COLOR color; // Estimate of the function, NOT divided by number of samples
 
-    inline void Init(float x, float y, COLOR col) {
+    inline void
+    init(float x, float y, COLOR col) {
         m_x = x;
         m_y = y;
-        m_color = col;
+        color = col;
     }
 
-    CDensityHit() {}
-    CDensityHit(float x, float y, COLOR col) {
-        Init(x, y, col);
+    CDensityHit(): m_x(), m_y() {}
+    CDensityHit(float x, float y, COLOR col): m_x(), m_y() {
+        init(x, y, col);
     }
 };
 
 class CDensityHitArray {
 protected:
-    CDensityHit *m_hits;
-    int m_maxHits;
-    int m_numHits;
+    CDensityHit *hits;
+    int maxHits;
+    int numHits;
 
-    CDensityHitArray *m_next;
+    CDensityHitArray *next;
 
 public:
-    CDensityHitArray(int maxHits) {
-        m_numHits = 0;
-        m_maxHits = maxHits;
-        m_hits = new CDensityHit[maxHits];
-        m_next = nullptr;
+    explicit CDensityHitArray(int paramMaxHits) {
+        numHits = 0;
+        maxHits = paramMaxHits;
+        hits = new CDensityHit[paramMaxHits];
+        next = nullptr;
     }
 
-    ~CDensityHitArray() { delete[] m_hits; }
+    ~CDensityHitArray() { delete[] hits; }
 
     bool Add(CDensityHit &hit) {
-        if ( m_numHits < m_maxHits ) {
-            m_hits[m_numHits++] = hit;
+        if ( numHits < maxHits ) {
+            hits[numHits++] = hit;
             return true;
         } else {
             return false;
         }
     }
 
-    CDensityHit operator[](int i) { return m_hits[i]; }
+    CDensityHit operator[](int i) { return hits[i]; }
 
     friend class CDensityHitList;
 };
 
 class CDensityHitList {
-protected:
+  protected:
     CDensityHitArray *m_first;
     CDensityHitArray *m_last;
     int m_numHits;
@@ -74,55 +75,47 @@ protected:
     int m_cacheLowerLimit;
     CDensityHitArray *m_cacheCurrent;
 
-public:
+  public:
     CDensityHitList();
-
     ~CDensityHitList();
-
-    void Add(CDensityHit &hit);
-
-    int StoredHits() { return m_numHits; }
-
+    void add(CDensityHit &hit);
+    int storedHits() const { return m_numHits; }
     CDensityHit operator[](int i);
 };
 
-
-const int DHA_XRES = 50;
-const int DHA_YRES = 50;  // Subdivide imageplane for efficient hit searches
-
+const int DHA_X_RES = 50;
+const int DHA_Y_RES = 50;  // Subdivide image plane for efficient hit searches
 
 class CDensityBuffer {
-protected:
+  protected:
     // A matching screen buffer is kept. This one will be filled in
     // by density estimation...
-    ScreenBuffer *m_screen;
-    BP_BASECONFIG *m_bcfg;
-    float m_xmin, m_xmax, m_ymin, m_ymax; // Copy from m_screen...
-    CDensityHitList m_hitGrid[DHA_XRES][DHA_YRES];
+    ScreenBuffer *screenBuffer;
+    BP_BASECONFIG *baseConfig;
+    float xMinimum; // Copy from screenBuffer
+    float xMaximum;
+    float yMinimum;
+    float yMaximum;
+    CDensityHitList hitGrid[DHA_X_RES][DHA_Y_RES];
 
-    inline int XIndex(float x) {
-        return (floatMin((int) (DHA_XRES * (x - m_xmin) / (m_xmax - m_xmin)),
-                         DHA_XRES - 1));
+    inline int xIndex(float x) const {
+        return intMin(
+            (int)(DHA_X_RES * (x - xMinimum) / (xMaximum - xMinimum)),
+             DHA_X_RES - 1);
     }
 
-    inline int YIndex(float y) {
-        return (floatMin((int) (DHA_YRES * (y - m_ymin) / (m_ymax - m_ymin)),
-                         DHA_YRES - 1));
+    inline int yIndex(float y) const {
+        return intMin(
+            (int)(DHA_Y_RES * (y - yMinimum) / (yMaximum - yMinimum)),
+            DHA_Y_RES - 1);
     }
 
-
-public:
-    CDensityBuffer(ScreenBuffer *screen, BP_BASECONFIG *bcfg);
-
+  public:
+    CDensityBuffer(ScreenBuffer *screen, BP_BASECONFIG *paramBaseConfig);
     ~CDensityBuffer();
-
-    // Add a hit
-    void Add(float x, float y, COLOR col, float pdf, float w = 1.0);
-
-    // Reconstruct the internal screen buffer using constant kernel width
-    ScreenBuffer *Reconstruct();
-
-    ScreenBuffer *ReconstructVariable(ScreenBuffer *dest, float baseSize = 4.0);
+    void add(float x, float y, COLOR col);
+    ScreenBuffer *reconstruct();
+    ScreenBuffer *reconstructVariable(ScreenBuffer *dest, float baseSize = 4.0);
 };
 
 #endif
