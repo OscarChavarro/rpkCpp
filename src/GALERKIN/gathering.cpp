@@ -65,13 +65,13 @@ patchGather(Patch *patch) {
         }
     }
 
-    /* Refine the interactions and compute light transport at the leaves */
-    refineInteractions(topLevelElement);
+    // Refine the interactions and compute light transport at the leaves
+    refineInteractions(topLevelElement, &GLOBAL_galerkin_state);
 
-    /* Immediately convert received radiance into radiance, make the representation
-     * consistent and recompute the color of the patch when doing Gauss-Seidel.
-     * The new radiance values are immediately used in subsequent steps of
-     * the current iteration. */
+    // Immediately convert received radiance into radiance, make the representation
+    // consistent and recompute the color of the patch when doing Gauss-Seidel.
+    // The new radiance values are immediately used in subsequent steps of
+    // the current iteration
     if ( GLOBAL_galerkin_state.iteration_method == GAUSS_SEIDEL ) {
         patchUpdateRadiance(patch);
     }
@@ -232,7 +232,7 @@ doClusteredGatheringIteration(java::ArrayList<Patch*> *scenePatches) {
     userErrorThreshold = GLOBAL_galerkin_state.relLinkErrorThreshold;
 
     // Refines and computes light transport over the refined links
-    refineInteractions(GLOBAL_galerkin_state.topCluster);
+    refineInteractions(GLOBAL_galerkin_state.topCluster, &GLOBAL_galerkin_state);
 
     GLOBAL_galerkin_state.relLinkErrorThreshold = (float)userErrorThreshold;
 
