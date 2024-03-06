@@ -230,7 +230,7 @@ galerkinElementCreate() {
     newElement->potential = 0.0f;
     newElement->receivedPotential = 0.0f;
     newElement->unShotPotential = 0.0f;
-    newElement->interactions = nullptr; // New list
+    newElement->interactions = nullptr;
     newElement->patch = nullptr;
     newElement->geom = nullptr;
     newElement->parent = nullptr;
@@ -350,11 +350,10 @@ galerkinElementRegularSubDivide(GalerkinElement *element) {
 
 static void
 galerkinElementDestroy(GalerkinElement *element) {
-    for ( InteractionListNode *window = element->interactions; window != nullptr; window = window->next ) {
-        interactionDestroy(window->interaction);
+    for ( int i = 0; element->interactions != nullptr && i < element->interactions->size(); i++ ) {
+        interactionDestroy(element->interactions->get(i));
     }
-
-    listDestroy((LIST *)element->interactions);
+    delete element->interactions;
 
     if ( element->radiance ) {
         delete[] element->radiance;
