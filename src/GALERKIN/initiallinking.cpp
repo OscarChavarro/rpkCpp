@@ -1,4 +1,3 @@
-#include "java/util/ArrayList.txx"
 #include "common/error.h"
 #include "skin/Geometry.h"
 #include "scene/scene.h"
@@ -102,19 +101,9 @@ createInitialLink(Patch *patch) {
         // Store interactions with the source patch for the progressive radiosity method
         // and with the receiving patch for gathering methods
         if ( GLOBAL_galerkin_state.iteration_method == SOUTH_WELL ) {
-            if ( src != nullptr ) {
-                if ( src->interactions == nullptr ) {
-                    src->interactions = new java::ArrayList<Interaction *>();
-                }
-                src->interactions->add(interactionDuplicate(&link));
-            }
+            src->interactions = InteractionListAdd(src->interactions, interactionDuplicate(&link));
         } else {
-            if ( rcv != nullptr ) {
-                if ( rcv->interactions == nullptr ) {
-                    rcv->interactions = new java::ArrayList<Interaction *>();
-                }
-                rcv->interactions->add(interactionDuplicate(&link));
-            }
+            rcv->interactions = InteractionListAdd(rcv->interactions, interactionDuplicate(&link));
         }
     }
 }
@@ -241,14 +230,8 @@ createInitialLinkWithTopCluster(GalerkinElement *elem, GalerkinRole role) {
     // Store interactions with the source patch for the progressive radiosity method
     // and with the receiving patch for gathering methods
     if ( GLOBAL_galerkin_state.iteration_method == SOUTH_WELL ) {
-        if ( src->interactions == nullptr ) {
-            src->interactions = new java::ArrayList<Interaction *>();
-        }
-        src->interactions->add(link);
+        src->interactions = InteractionListAdd(src->interactions, link);
     } else {
-        if ( rcv->interactions == nullptr ) {
-            rcv->interactions = new java::ArrayList<Interaction *>();
-        }
-        rcv->interactions->add(link);
+        rcv->interactions = InteractionListAdd(rcv->interactions, link);
     }
 }

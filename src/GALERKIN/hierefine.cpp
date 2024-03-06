@@ -473,19 +473,9 @@ hierarchicRefinementStoreInteraction(Interaction *link, GalerkinState *state) {
     GalerkinElement *src = link->sourceElement, *rcv = link->receiverElement;
 
     if ( state->iteration_method == SOUTH_WELL ) {
-        if ( src != nullptr ) {
-            if ( src->interactions == nullptr ) {
-                src->interactions = new java::ArrayList<Interaction *>();
-            }
-            src->interactions->add(interactionDuplicate(link));
-        }
+        src->interactions = InteractionListAdd(src->interactions, interactionDuplicate(link));
     } else {
-        if ( rcv != nullptr ) {
-            if ( rcv->interactions == nullptr ) {
-                rcv->interactions = new java::ArrayList<Interaction *>();
-            }
-            rcv->interactions->add(interactionDuplicate(link));
-        }
+        rcv->interactions = InteractionListAdd(rcv->interactions, interactionDuplicate(link));
     }
 }
 
@@ -705,19 +695,9 @@ removeRefinedInteractions(const GalerkinState *state, java::ArrayList<Interactio
     for ( int i = 0; i < interactionsToRemove->size(); i++ ) {
         Interaction *interaction = interactionsToRemove->get(i);
         if ( state->iteration_method == SOUTH_WELL ) {
-            if ( interaction->sourceElement != nullptr ) {
-                if ( interaction->sourceElement->interactions == nullptr ) {
-                    interaction->sourceElement->interactions = new java::ArrayList<Interaction *>();
-                }
-                interaction->sourceElement->interactions->add(interaction);
-            }
+            interaction->sourceElement->interactions = InteractionListRemove(interaction->sourceElement->interactions, interaction);
         } else {
-            if ( interaction->receiverElement != nullptr ) {
-                if ( interaction->receiverElement->interactions == nullptr ) {
-                    interaction->receiverElement->interactions = new java::ArrayList<Interaction *>();
-                }
-                interaction->receiverElement->interactions->add(interaction);
-            }
+            interaction->receiverElement->interactions = InteractionListRemove(interaction->receiverElement->interactions, interaction);
         }
         interactionDestroy(interaction);
     }
@@ -746,8 +726,8 @@ refineInteractions(GalerkinElement *parentElement, GalerkinState *state) {
     // Iterate over the interactions. Interactions that are refined are removed from the list
     java::ArrayList<Interaction *> *interactionsToRemove = new java::ArrayList<Interaction *>();
 
-    for ( int i = 0; parentElement->interactions != nullptr && i < parentElement->interactions->size(); i++ ) {
-        Interaction *interaction = parentElement->interactions->get(i);
+    for ( InteractionListNode *window = parentElement->interactions; window != nullptr; window = window->next ) {
+        Interaction *interaction = window->interaction;
         if ( refineInteraction(interaction, state) ) {
             interactionsToRemove->add(interaction);
         }
