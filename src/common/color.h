@@ -127,7 +127,7 @@ colorInterpolateBarycentric(COLOR &c0, COLOR &c1, COLOR &c2, float u, float v, C
 }
 
 inline void
-colorInterpolateBilinear(COLOR &c0, COLOR &c1, COLOR &c2, COLOR &c3, float u, float v, COLOR &c) {
+colorInterpolateBiLinear(COLOR &c0, COLOR &c1, COLOR &c2, COLOR &c3, float u, float v, COLOR &c) {
     spectrumInterpolateBilinear(c0.spec, c1.spec, c2.spec, c3.spec, u, v, c.spec);
 }
 

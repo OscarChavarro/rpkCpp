@@ -46,7 +46,7 @@ listRemove(LIST *list, void *element) {
     }
 
     if ( !p ) {
-        logError("ListRemove", "attempt to remove a nonexisting element from a list");
+        logError("ListRemove", "attempt to remove a non existing element from a list");
         return list;
     } else {
         q->next = p->next;

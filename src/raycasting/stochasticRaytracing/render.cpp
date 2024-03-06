@@ -511,7 +511,7 @@ elementDisplayRadianceAtPoint(StochasticRadiosityElement *elem, double u, double
                     colorInterpolateBarycentric(rad[0], rad[1], rad[2], (float)u, (float)v, radiance);
                     break;
                 case 4:
-                    colorInterpolateBilinear(rad[0], rad[1], rad[2], rad[3], (float)u, (float)v, radiance);
+                    colorInterpolateBiLinear(rad[0], rad[1], rad[2], rad[3], (float) u, (float) v, radiance);
                     break;
                 default:
                     logFatal(-1, "elementDisplayRadianceAtPoint",

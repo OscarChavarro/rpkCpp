@@ -105,10 +105,10 @@ class KDTree {
     int m_numNodes;
     long m_dataSize;
     int m_numUnbalanced;
-    KDTreeNode *m_root;  // Start of non balanced part of the kdtree
+    KDTreeNode *m_root;  // Start of non balanced part of the kd tree
     int m_numBalanced;
     int m_firstLeaf; // (numBalanced+1) / 2 : index of first leaf element
-    BalancedKDTreeNode *m_broot; // Start of balanced part of the kdtree
+    BalancedKDTreeNode *m_broot; // Start of balanced part of the kd tree
     bool m_CopyData;
     static float *s_distances;
 

@@ -135,8 +135,8 @@ randomWalkRadiosityShootingScore(PATH *path, long nr_paths, double (* /*birthPro
     for ( n = 1, node++; n < path->numberOfNodes; n++, node++ ) {
         double uin = 0.0;
         double vin = 0.0;
-        double uout = 0.0;
-        double vout = 0.0;
+        double uOut = 0.0;
+        double vOut = 0.0;
         double r = 1.0;
         double w;
         int i;
@@ -149,7 +149,7 @@ randomWalkRadiosityShootingScore(PATH *path, long nr_paths, double (* /*birthPro
             r = 0.;
             if ( n < path->numberOfNodes - 1 ) {
                 // Not continuous random walk and not node of absorption
-                P->uniformUv(&node->outpoint, &uout, &vout);
+                P->uniformUv(&node->outpoint, &uOut, &vOut);
             }
         }
 
@@ -160,7 +160,7 @@ randomWalkRadiosityShootingScore(PATH *path, long nr_paths, double (* /*birthPro
             colorAddScaled(getTopLevelPatchReceivedRad(P)[i], (float)(w * dual / (double) nr_paths), accum_pow, getTopLevelPatchReceivedRad(P)[i]);
 
             if ( !GLOBAL_stochasticRaytracing_monteCarloRadiosityState.continuousRandomWalk ) {
-                double basf = getTopLevelPatchBasis(P)->function[i](uout, vout);
+                double basf = getTopLevelPatchBasis(P)->function[i](uOut, vOut);
                 r += dual * P->area * basf;
             }
         }
@@ -265,13 +265,17 @@ randomWalkRadiosityCollisionGatheringScore(PATH *path, long /*nr_paths*/, double
     StochasticRaytracingPathNode *node = &path->nodes[path->numberOfNodes - 1];
     accum_rad = topLevelGalerkinElement(node->patch)->sourceRad;
     for ( n = path->numberOfNodes - 2, node--; n >= 0; n--, node-- ) {
-        double uin = 0., vin = 0., uout = 0., vout = 0., r = 1.;
+        double uin = 0.0;
+        double vin = 0.0;
+        double uOut = 0.0;
+        double vOut = 0.0;
+        double r = 1.0;
         int i;
         Patch *P = node->patch;
         COLOR Rd = topLevelGalerkinElement(P)->Rd;
         colorProduct(Rd, accum_rad, accum_rad);
 
-        P->uniformUv(&node->outpoint, &uout, &vout);
+        P->uniformUv(&node->outpoint, &uOut, &vOut);
         if ( !GLOBAL_stochasticRaytracing_monteCarloRadiosityState.continuousRandomWalk ) {
             r = 0.;
             if ( n > 0 ) {
@@ -281,7 +285,7 @@ randomWalkRadiosityCollisionGatheringScore(PATH *path, long /*nr_paths*/, double
         }
 
         for ( i = 0; i < getTopLevelPatchBasis(P)->size; i++ ) {
-            double dual = getTopLevelPatchBasis(P)->dualFunction[i](uout, vout);    /* = dual basis f * area */
+            double dual = getTopLevelPatchBasis(P)->dualFunction[i](uOut, vOut);    /* = dual basis f * area */
             colorAddScaled(getTopLevelPatchReceivedRad(P)[i], (float)dual, accum_rad, getTopLevelPatchReceivedRad(P)[i]);
 
             if ( !GLOBAL_stochasticRaytracing_monteCarloRadiosityState.continuousRandomWalk ) {

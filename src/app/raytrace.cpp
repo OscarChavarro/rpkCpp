@@ -34,8 +34,8 @@ static void
 mainRayTracingOption(void *value) {
     char *name = *(char **) value;
 
-    for ( Raytracer **methodpp = globalRayTracingMethods; *methodpp; methodpp++ ) {
-        Raytracer *method = *methodpp;
+    for ( Raytracer **window = globalRayTracingMethods; *window; window++ ) {
+        Raytracer *method = *window;
         if ( strncasecmp(name, method->shortName, method->nameAbbrev) == 0 ) {
             mainSetRayTracingMethod(method);
             return;
@@ -65,9 +65,8 @@ mainMakeRaytracingMethodsString() {
              !GLOBAL_raytracer_activeRaytracer ? " (default)" : "", &n);
     str += n;
 
-    Raytracer **methodpp;
-    for ( methodpp = globalRayTracingMethods; *methodpp; methodpp++ ) {
-        Raytracer *method = *methodpp;
+    for ( Raytracer **window = globalRayTracingMethods; *window; window++ ) {
+        Raytracer *method = *window;
         snprintf(str, STRING_SIZE, "\t         %-20.20s %s%s\n%n",
                  method->shortName, method->fullName,
                  GLOBAL_raytracer_activeRaytracer == method ? " (default)" : "", &n);
@@ -78,8 +77,8 @@ mainMakeRaytracingMethodsString() {
 
 void
 mainRayTracingDefaults() {
-    for ( Raytracer **methodpp = globalRayTracingMethods; *methodpp; methodpp++ ) {
-        Raytracer *method = *methodpp;
+    for ( Raytracer **window = globalRayTracingMethods; *window; window++ ) {
+        Raytracer *method = *window;
         method->Defaults();
         if ( strncasecmp(DEFAULT_RAYTRACING_METHOD, method->shortName, method->nameAbbrev) == 0 ) {
             mainSetRayTracingMethod(method);
@@ -91,8 +90,8 @@ mainRayTracingDefaults() {
 void
 mainParseRayTracingOptions(int *argc, char **argv) {
     parseOptions(globalRaytracingOptions, argc, argv);
-    for ( Raytracer **methodpp = globalRayTracingMethods; *methodpp; methodpp++ ) {
-        Raytracer *method = *methodpp;
+    for ( Raytracer **window = globalRayTracingMethods; *window; window++ ) {
+        Raytracer *method = *window;
         method->ParseOptions(argc, argv);
     }
 }

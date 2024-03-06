@@ -51,7 +51,7 @@ static CommandLineOptionDescription batchOptions[] = {
 Saves a RGB image in the front buffer
 */
 static void
-openGlSaveScreen(char *fileName, FILE *fp, int isPipe, java::ArrayList<Patch *> *scenePatches) {
+openGlSaveScreen(char *fileName, FILE *fp, int isPipe) {
     ImageOutputHandle *img;
     long j, x = GLOBAL_camera_mainCamera.xSize, y = GLOBAL_camera_mainCamera.ySize;
     GLubyte *screen;
@@ -131,7 +131,7 @@ batchSaveRadianceImage(const char *fileName, FILE *fp, int isPipe, java::ArrayLi
 
     t = clock();
 
-    openGlSaveScreen((char *) fileName, fp, isPipe, scenePatches);
+    openGlSaveScreen((char *) fileName, fp, isPipe);
 
     fprintf(stdout, "%g secs.\n", (float) (clock() - t) / (float) CLOCKS_PER_SEC);
     canvasPullMode();
