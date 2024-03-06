@@ -173,7 +173,6 @@ hierarchicRefinementApproximationError(
     Interaction *link,
     COLOR srcRho,
     COLOR rcvRho,
-    double /*rcvArea*/,
     GalerkinState *state)
 {
     COLOR error;
@@ -185,7 +184,7 @@ hierarchicRefinementApproximationError(
         case GAUSS_SEIDEL:
         case JACOBI:
             if ( isCluster(link->sourceElement) && link->sourceElement != link->receiverElement ) {
-                srcRad = maxClusterRadiance(link->sourceElement); /* sourceClusterRadiance(link); */
+                srcRad = maxClusterRadiance(link->sourceElement);
             } else {
                 srcRad = link->sourceElement->radiance[0];
             }
@@ -311,7 +310,7 @@ hierarchicRefinementEvaluateInteraction(
 
     // Determine error estimate and error threshold
     threshold = hierarchicRefinementLinkErrorThreshold(link, rcv_area, state);
-    error = hierarchicRefinementApproximationError(link, srcRho, rcvRho, rcv_area, state);
+    error = hierarchicRefinementApproximationError(link, srcRho, rcvRho, state);
 
     if ( isCluster(link->sourceElement) && error < threshold && state->clusteringStrategy != ISOTROPIC )
         error += sourceClusterRadianceVariationError(link, rcvRho, rcv_area);
@@ -407,7 +406,7 @@ hierarchicRefinementComputeLightTransport(
 
         if ( state->iteration_method == GAUSS_SEIDEL ||
              state->iteration_method == JACOBI ) {
-            if ( isCluster(link->receiverElement)) {
+            if ( isCluster(link->receiverElement) ) {
                 colorSetMonochrome(rcvRho, 1.0f);
             } else {
                 rcvRho = link->receiverElement->patch->radianceData->Rd;
@@ -458,11 +457,9 @@ hierarchicRefinementCreateSubdivisionLink(
         link->nsrc = src->basisSize;
     }
 
-    java::ArrayList<Geometry *> *geometryCandidateList = candidatesList;
     bool isSceneGeometry = (candidatesList == GLOBAL_scene_geometries);
     bool isClusteredGeometry = (candidatesList == GLOBAL_scene_clusteredGeometries);
-    areaToAreaFormFactor(link, geometryCandidateList, isSceneGeometry, isClusteredGeometry);
-    //delete geometryCandidateList;
+    areaToAreaFormFactor(link, candidatesList, isSceneGeometry, isClusteredGeometry);
 
     return link->vis != 0;
 }
@@ -645,7 +642,8 @@ static bool
 refineRecursive(
     java::ArrayList<Geometry *> **candidatesList,
     Interaction *link,
-    GalerkinState *state) {
+    GalerkinState *state)
+{
     bool refined = false;
 
     bool isClusteredGeometry = (*candidatesList == GLOBAL_scene_clusteredGeometries);
@@ -680,21 +678,28 @@ refineRecursive(
 /**
 Candidate occluder list for a pair of patches, note it is changed inside the methods!
 */
-static void
+static bool
 refineInteraction(Interaction *link, GalerkinState *state) {
     java::ArrayList<Geometry *> *candidateOccluderList = GLOBAL_scene_clusteredGeometries;
 
     if ( state->exact_visibility && link->vis == 255 ) {
         candidateOccluderList = nullptr;
     }
+
     // We know for sure that there is full visibility
-    if ( refineRecursive(&candidateOccluderList, link, state) ) {
+    return refineRecursive(&candidateOccluderList, link, state);
+}
+
+static void
+removeRefinedInteractions(const GalerkinState *state, java::ArrayList<Interaction *> *interactionsToRemove) {
+    for ( int i = 0; i < interactionsToRemove->size(); i++ ) {
+        Interaction *interaction = interactionsToRemove->get(i);
         if ( state->iteration_method == SOUTH_WELL ) {
-            link->sourceElement->interactions = InteractionListRemove(link->sourceElement->interactions, link);
+            interaction->sourceElement->interactions = InteractionListRemove(interaction->sourceElement->interactions, interaction);
         } else {
-            link->receiverElement->interactions = InteractionListRemove(link->receiverElement->interactions, link);
+            interaction->receiverElement->interactions = InteractionListRemove(interaction->receiverElement->interactions, interaction);
         }
-        interactionDestroy(link);
+        interactionDestroy(interaction);
     }
 }
 
@@ -718,13 +723,15 @@ refineInteractions(GalerkinElement *parentElement, GalerkinState *state) {
         }
     }
 
-    // Iterate over the interactions. Interactions that are refined are removed from the
-    // list in refineInteraction(). This algorithm allows the current element to be deleted
-    // by calling the function after updating the window.
-    InteractionListNode *window = parentElement->interactions;
-    while ( window != nullptr ) {
-        Interaction *element = window->interaction;
-        window = window->next;
-        refineInteraction(element, state);
+    // Iterate over the interactions. Interactions that are refined are removed from the list
+    java::ArrayList<Interaction *> *interactionsToRemove = new java::ArrayList<Interaction *>();
+
+    for ( InteractionListNode *window = parentElement->interactions; window != nullptr; window = window->next ) {
+        Interaction *interaction = window->interaction;
+        if ( refineInteraction(interaction, state) ) {
+            interactionsToRemove->add(interaction);
+        }
     }
+    removeRefinedInteractions(state, interactionsToRemove);
+    delete interactionsToRemove;
 }
