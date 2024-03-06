@@ -232,7 +232,7 @@ hierarchyRefine(
         link->src = srcTop;
     } else {
         REFINE_ACTION action;
-        while ((action = evaluate_link(link)) != dontRefine ) {
+        while ( (action = evaluate_link(link)) != dontRefine ) {
             link = action(link, rcvTop, ur, vr, srcTop, us, vs);
         }
     }

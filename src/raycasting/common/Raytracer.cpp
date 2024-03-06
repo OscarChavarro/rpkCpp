@@ -18,7 +18,7 @@ rayTrace(char *fileName, FILE *fp, int isPipe, Raytracer *activeRayTracer, java:
     if ( fp != nullptr ) {
         img = createRadianceImageOutputHandle(fileName, fp, isPipe,
                                               GLOBAL_camera_mainCamera.xSize, GLOBAL_camera_mainCamera.ySize,
-                                              (float) (GLOBAL_statistics_referenceLuminance / 179.0));
+                                              (float) (GLOBAL_statistics.referenceLuminance / 179.0));
         if ( img == nullptr ) {
             return;
         }

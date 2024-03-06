@@ -29,7 +29,7 @@ Vertex *
 vertexCreate(Vector3D *point, Vector3D *normal, Vector3D *texCoord, java::ArrayList<Patch *> *patches) {
     Vertex *v = new Vertex();
 
-    v->id = GLOBAL_statistics_numberOfVertices++;
+    v->id = GLOBAL_statistics.numberOfVertices++;
     v->point = point;
     v->normal = normal;
     v->texCoord = texCoord;
@@ -48,7 +48,7 @@ normal vector, neither the patches sharing the vertex
 void
 vertexDestroy(Vertex *vertex) {
     delete vertex;
-    GLOBAL_statistics_numberOfVertices--;
+    GLOBAL_statistics.numberOfVertices--;
 }
 
 /**

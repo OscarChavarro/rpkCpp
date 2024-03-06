@@ -562,7 +562,7 @@ Patch::Patch(int inNumberOfVertices, Vertex *v1, Vertex *v2, Vertex *v3, Vertex 
         exit(2);
     }
 
-    GLOBAL_statistics_numberOfElements++;
+    GLOBAL_statistics.numberOfElements++;
     twin = nullptr;
     id = globalPatchId;
     globalPatchId++;
@@ -580,7 +580,7 @@ Patch::Patch(int inNumberOfVertices, Vertex *v1, Vertex *v2, Vertex *v3, Vertex 
 
     // Compute normal
     if ( !patchNormal(this, &normal) ) {
-        GLOBAL_statistics_numberOfElements--;
+        GLOBAL_statistics.numberOfElements--;
         logError("Patch::Patch", "Error computing patch normal");
         exit(3);
     }

@@ -157,7 +157,7 @@ hierarchicRefinementLinkErrorThreshold(
     if ( state->importance_driven &&
          (state->iteration_method == JACOBI ||
           state->iteration_method == GAUSS_SEIDEL)) {
-        threshold /= 2.0 * link->receiverElement->potential / GLOBAL_statistics_maxDirectPotential;
+        threshold /= 2.0 * link->receiverElement->potential / GLOBAL_statistics.maxDirectPotential;
     }
 
     return threshold;
@@ -216,11 +216,11 @@ hierarchicRefinementApproximationError(
                 // instead of self-emitted radiance or power
                 switch ( state->errorNorm ) {
                     case RADIANCE_ERROR:
-                        approxError2 *= hierarchicRefinementColorToError(GLOBAL_statistics.maxSelfEmittedRadiance) / GLOBAL_statistics_maxDirectPotential;
+                        approxError2 *= hierarchicRefinementColorToError(GLOBAL_statistics.maxSelfEmittedRadiance) / GLOBAL_statistics.maxDirectPotential;
                         break;
                     case POWER_ERROR:
                         approxError2 *=
-                                hierarchicRefinementColorToError(GLOBAL_statistics.maxSelfEmittedPower) / M_PI / GLOBAL_statistics_maxDirectImportance;
+                                hierarchicRefinementColorToError(GLOBAL_statistics.maxSelfEmittedPower) / M_PI / GLOBAL_statistics.maxDirectImportance;
                         break;
                 }
                 if ( approxError2 > approxError ) {

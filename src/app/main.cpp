@@ -82,8 +82,8 @@ mainPatchAccumulateStats(Patch *patch) {
 
     GLOBAL_statistics.totalArea += patch->area;
     colorScale(patch->area, E, power);
-    colorAdd(GLOBAL_statistics_totalEmittedPower, power, GLOBAL_statistics_totalEmittedPower);
-    colorAddScaled(GLOBAL_statistics_averageReflectivity, patch->area, R, GLOBAL_statistics_averageReflectivity);
+    colorAdd(GLOBAL_statistics.totalEmittedPower, power, GLOBAL_statistics.totalEmittedPower);
+    colorAddScaled(GLOBAL_statistics.averageReflectivity, patch->area, R, GLOBAL_statistics.averageReflectivity);
     // Convert radiant exitance to exitant radiance
     colorScale((1.0 / (float)M_PI), E, E);
     colorMaximum(E, GLOBAL_statistics.maxSelfEmittedRadiance, GLOBAL_statistics.maxSelfEmittedRadiance);
@@ -101,8 +101,8 @@ mainComputeSomeSceneStats() {
     vectorSet(zero, 0, 0, 0);
 
     // Initialize
-    colorClear(GLOBAL_statistics_totalEmittedPower);
-    colorClear(GLOBAL_statistics_averageReflectivity);
+    colorClear(GLOBAL_statistics.totalEmittedPower);
+    colorClear(GLOBAL_statistics.averageReflectivity);
     colorClear(GLOBAL_statistics.maxSelfEmittedRadiance);
     colorClear(GLOBAL_statistics.maxSelfEmittedPower);
     GLOBAL_statistics.totalArea = 0.0;
@@ -113,20 +113,23 @@ mainComputeSomeSceneStats() {
     }
 
     // Averages
-    colorScaleInverse(GLOBAL_statistics.totalArea, GLOBAL_statistics_averageReflectivity, GLOBAL_statistics_averageReflectivity);
-    colorSubtract(one, GLOBAL_statistics_averageReflectivity, average_absorption);
-    colorScaleInverse(M_PI * GLOBAL_statistics.totalArea, GLOBAL_statistics_totalEmittedPower, GLOBAL_statistics_estimatedAverageRadiance);
+    colorScaleInverse(GLOBAL_statistics.totalArea, GLOBAL_statistics.averageReflectivity, GLOBAL_statistics.averageReflectivity);
+    colorSubtract(one, GLOBAL_statistics.averageReflectivity, average_absorption);
+    colorScaleInverse(M_PI * GLOBAL_statistics.totalArea, GLOBAL_statistics.totalEmittedPower, GLOBAL_statistics.estimatedAverageRadiance);
 
     // Include background radiation
     BP = backgroundPower(GLOBAL_scene_background, &zero);
     colorScale(1.0 / (4.0 * (double)M_PI), BP, BP);
-    colorAdd(GLOBAL_statistics_totalEmittedPower, BP, GLOBAL_statistics_totalEmittedPower);
-    colorAdd(GLOBAL_statistics_estimatedAverageRadiance, BP, GLOBAL_statistics_estimatedAverageRadiance);
+    colorAdd(GLOBAL_statistics.totalEmittedPower, BP, GLOBAL_statistics.totalEmittedPower);
+    colorAdd(GLOBAL_statistics.estimatedAverageRadiance, BP, GLOBAL_statistics.estimatedAverageRadiance);
 
-    colorDivide(GLOBAL_statistics_estimatedAverageRadiance, average_absorption,
-                GLOBAL_statistics_estimatedAverageRadiance);
+    colorDivide(GLOBAL_statistics.estimatedAverageRadiance, average_absorption,
+                GLOBAL_statistics.estimatedAverageRadiance);
 
-    GLOBAL_statistics_totalDirectPotential = GLOBAL_statistics_maxDirectPotential = GLOBAL_statistics_averageDirectPotential = GLOBAL_statistics_maxDirectImportance = 0.;
+    GLOBAL_statistics.totalDirectPotential = 0.0;
+    GLOBAL_statistics.maxDirectPotential = 0.0;
+    GLOBAL_statistics.averageDirectPotential = 0.0;
+    GLOBAL_statistics.maxDirectImportance = 0.0;
 }
 
 /**
@@ -150,7 +153,7 @@ mainAddPatchToLightSourceListIfLightSource(Patch *patch) {
          && patch->surface->material != nullptr
          && patch->surface->material->edf != nullptr ) {
         GLOBAL_app_lightSourcePatches->add(0, patch);
-        GLOBAL_statistics_numberOfLightSources++;
+        GLOBAL_statistics.numberOfLightSources++;
     }
 }
 
@@ -160,14 +163,14 @@ Build the global light source patch list
 static void
 mainBuildLightSourcePatchList() {
     GLOBAL_app_lightSourcePatches = new java::ArrayList<Patch *>();
-    GLOBAL_statistics_numberOfLightSources = 0;
+    GLOBAL_statistics.numberOfLightSources = 0;
 
     for ( int i = 0; i < globalAppScenePatches->size(); i++ ) {
         mainAddPatchToLightSourceListIfLightSource(globalAppScenePatches->get(i));
     }
 
     mainAddBackgroundToLightSourceList();
-    GLOBAL_statistics_numberOfLightSources++;
+    GLOBAL_statistics.numberOfLightSources++;
 }
 
 static void
@@ -472,10 +475,10 @@ mainReadFile(char *filename) {
     fprintf(stderr, "Computing some scene statistics ... ");
     fflush(stderr);
 
-    GLOBAL_statistics_numberOfPatches = GLOBAL_statistics_numberOfElements;
+    GLOBAL_statistics.numberOfPatches = GLOBAL_statistics.numberOfElements;
     mainComputeSomeSceneStats();
-    GLOBAL_statistics_referenceLuminance = 5.42 * ((1. - colorGray(GLOBAL_statistics_averageReflectivity)) *
-            colorLuminance(GLOBAL_statistics_estimatedAverageRadiance));
+    GLOBAL_statistics.referenceLuminance = 5.42 * ((1. - colorGray(GLOBAL_statistics.averageReflectivity)) *
+            colorLuminance(GLOBAL_statistics.estimatedAverageRadiance));
 
     t = clock();
     fprintf(stderr, "%g secs.\n", (float) (t - last) / (float) CLOCKS_PER_SEC);
@@ -491,16 +494,16 @@ mainReadFile(char *filename) {
     fprintf(stderr, "%g secs.\n", (float) (t - last) / (float) CLOCKS_PER_SEC);
     last = t;
 
-    printf("\nStats: GLOBAL_statistics_totalEmittedPower ................: %f W\n"
-           "       GLOBAL_statistics_estimatedAverageRadiance .........: %f W/sr\n"
+    printf("\nStats: GLOBAL_statistics.totalEmittedPower ................: %f W\n"
+           "       GLOBAL_statistics.estimatedAverageRadiance .........: %f W/sr\n"
            "       GLOBAL_statistics_averageReflectivity ..............: %f\n"
            "       GLOBAL_statistics.maxSelfEmittedRadiance ...........: %f W/sr\n"
            "       GLOBAL_statistics.maxSelfEmittedPower ..............: %f W\n"
            "       GLOBAL_toneMap_options.lwa (adaptationLuminance) ...: %f cd/m2\n"
            "       GLOBAL_statistics_totalArea ........................: %f m2\n",
-           colorGray(GLOBAL_statistics_totalEmittedPower),
-           colorGray(GLOBAL_statistics_estimatedAverageRadiance),
-           colorGray(GLOBAL_statistics_averageReflectivity),
+           colorGray(GLOBAL_statistics.totalEmittedPower),
+           colorGray(GLOBAL_statistics.estimatedAverageRadiance),
+           colorGray(GLOBAL_statistics.averageReflectivity),
            colorGray(GLOBAL_statistics.maxSelfEmittedRadiance),
            colorGray(GLOBAL_statistics.maxSelfEmittedPower),
            GLOBAL_toneMap_options.realWorldAdaptionLuminance,

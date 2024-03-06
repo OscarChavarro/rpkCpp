@@ -31,7 +31,7 @@ initLight(LightSourceTable *light, Patch *l, double flux) {
 static void
 makeLightSourceTable(java::ArrayList<Patch *> *scenePatches, java::ArrayList<Patch *> *lightPatches) {
     globalTotalFlux = 0.0;
-    globalNumberOfLights = GLOBAL_statistics_numberOfLightSources;
+    globalNumberOfLights = GLOBAL_statistics.numberOfLightSources;
     globalLights = (LightSourceTable *)malloc(globalNumberOfLights * sizeof(LightSourceTable));
 
     for ( int i = 0; lightPatches != nullptr && i < lightPatches->size(); i++ ) {

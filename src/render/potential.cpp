@@ -103,24 +103,24 @@ updateDirectPotential(java::ArrayList<Patch *> *scenePatches) {
         logWarning(nullptr, "%d lost pixels", lostPixels);
     }
 
-    GLOBAL_statistics_averageDirectPotential = GLOBAL_statistics_totalDirectPotential =
-    GLOBAL_statistics_maxDirectPotential = GLOBAL_statistics_maxDirectImportance = 0.;
+    GLOBAL_statistics.averageDirectPotential = GLOBAL_statistics.totalDirectPotential =
+    GLOBAL_statistics.maxDirectPotential = GLOBAL_statistics.maxDirectImportance = 0.;
     for ( unsigned long i = 1; i <= maximumPatchId; i++ ) {
         Patch *patch = id2patch[i];
 
         patch->directPotential = newDirectImportance[i] / patch->area;
 
-        if ( patch->directPotential > GLOBAL_statistics_maxDirectPotential ) {
-            GLOBAL_statistics_maxDirectPotential = patch->directPotential;
+        if ( patch->directPotential > GLOBAL_statistics.maxDirectPotential ) {
+            GLOBAL_statistics.maxDirectPotential = patch->directPotential;
         }
-        GLOBAL_statistics_totalDirectPotential += newDirectImportance[i];
-        GLOBAL_statistics_averageDirectPotential += newDirectImportance[i];
+        GLOBAL_statistics.totalDirectPotential += newDirectImportance[i];
+        GLOBAL_statistics.averageDirectPotential += newDirectImportance[i];
 
-        if ( newDirectImportance[i] > GLOBAL_statistics_maxDirectImportance ) {
-            GLOBAL_statistics_maxDirectImportance = newDirectImportance[i];
+        if ( newDirectImportance[i] > GLOBAL_statistics.maxDirectImportance ) {
+            GLOBAL_statistics.maxDirectImportance = newDirectImportance[i];
         }
     }
-    GLOBAL_statistics_averageDirectPotential /= GLOBAL_statistics.totalArea;
+    GLOBAL_statistics.averageDirectPotential /= GLOBAL_statistics.totalArea;
 
     free((char *) newDirectImportance);
     free((char *) id2patch);

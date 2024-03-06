@@ -27,7 +27,7 @@ initRadianceEstimate(Patch *patch) {
     COLOR R = patch->averageNormalAlbedo(BSDF_ALL_COMPONENTS);
     COLOR radiance;
 
-    colorProduct(R, GLOBAL_statistics_estimatedAverageRadiance, radiance);
+    colorProduct(R, GLOBAL_statistics.estimatedAverageRadiance, radiance);
     colorAddScaled(radiance, (1.0 / M_PI), E, radiance);
     return radiance;
 }
@@ -121,13 +121,13 @@ estimateSceneAdaptation(COLOR (*patch_radiance)(Patch *), java::ArrayList<Patch 
         }
         case TMA_MEDIAN: {
             // Static adaptation inspired by Tumblin[1999]
-            LuminanceArea *la = (LuminanceArea *)malloc(GLOBAL_statistics_numberOfPatches * sizeof(LuminanceArea));
+            LuminanceArea *la = (LuminanceArea *)malloc(GLOBAL_statistics.numberOfPatches * sizeof(LuminanceArea));
 
             globalLumArea = la;
             for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
                 patchFillLumArea(scenePatches->get(i));
             }
-            GLOBAL_toneMap_options.realWorldAdaptionLuminance = meanAreaWeightedLuminance(la, GLOBAL_statistics_numberOfPatches);
+            GLOBAL_toneMap_options.realWorldAdaptionLuminance = meanAreaWeightedLuminance(la, GLOBAL_statistics.numberOfPatches);
 
             free(la);
             break;

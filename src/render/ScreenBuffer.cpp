@@ -241,7 +241,7 @@ ScreenBuffer::writeFile(char *filename) {
     ImageOutputHandle *ip =
             createRadianceImageOutputHandle(filename, fp, isPipe,
                                             m_cam.xSize, m_cam.ySize,
-                                            (float) GLOBAL_statistics_referenceLuminance / 179.0f);
+                                            (float) GLOBAL_statistics.referenceLuminance / 179.0f);
 
     writeFile(ip);
 

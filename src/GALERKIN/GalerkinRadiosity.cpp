@@ -326,11 +326,11 @@ initGalerkin(java::ArrayList<Patch *> *scenePatches) {
 
     basisGalerkinInitBasis();
 
-    GLOBAL_galerkin_state.constant_radiance = GLOBAL_statistics_estimatedAverageRadiance;
+    GLOBAL_galerkin_state.constant_radiance = GLOBAL_statistics.estimatedAverageRadiance;
     if ( GLOBAL_galerkin_state.use_constant_radiance ) {
         colorClear(GLOBAL_galerkin_state.ambient_radiance);
     } else {
-        GLOBAL_galerkin_state.ambient_radiance = GLOBAL_statistics_estimatedAverageRadiance;
+        GLOBAL_galerkin_state.ambient_radiance = GLOBAL_statistics.estimatedAverageRadiance;
     }
 
     for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {

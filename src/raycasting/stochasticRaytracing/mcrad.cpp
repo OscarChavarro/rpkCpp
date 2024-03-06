@@ -364,7 +364,7 @@ monteCarloRadiosityDetermineAreaFraction(java::ArrayList<Patch *> *scenePatches)
     for ( i = nrpatchids - 1, cumul = 0.; i >= 0 && cumul < GLOBAL_statistics.totalArea * 0.1; i-- ) {
         cumul += areas[i];
     }
-    areafrac = (i >= 0 && areas[i] > 0.) ? GLOBAL_statistics.totalArea / areas[i] : (float)GLOBAL_statistics_numberOfPatches;
+    areafrac = (i >= 0 && areas[i] > 0.) ? GLOBAL_statistics.totalArea / areas[i] : (float)GLOBAL_statistics.numberOfPatches;
 
     free(areas);
 

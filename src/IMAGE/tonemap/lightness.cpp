@@ -19,11 +19,11 @@ static void lightnessTerminate() {
 static float Lightness(float luminance) {
     float relative_luminance;
 
-    if ( GLOBAL_statistics_referenceLuminance == 0.0 ) {
+    if ( GLOBAL_statistics.referenceLuminance == 0.0 ) {
         return 0.0f;
     }
 
-    relative_luminance = luminance / (float)GLOBAL_statistics_referenceLuminance;
+    relative_luminance = luminance / (float)GLOBAL_statistics.referenceLuminance;
     if ( relative_luminance > 0.008856 ) {
         return (float)(1.16f * (float)std::pow(relative_luminance, 0.33f) - 0.16f);
     } else {

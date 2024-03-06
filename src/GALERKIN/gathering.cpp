@@ -47,16 +47,16 @@ static void
 patchGather(Patch *patch) {
     GalerkinElement *topLevelElement = patchGalerkinElement(patch);
 
-    /* don't gather to patches without importance. This optimisation can not
-     * be combined with lazy linking based on radiance. */
+    // Don't gather to patches without importance. This optimisation can not
+    // be combined with lazy linking based on radiance. */
     if ( GLOBAL_galerkin_state.importance_driven &&
-         topLevelElement->potential < GLOBAL_statistics_maxDirectPotential * EPSILON ) {
+         topLevelElement->potential < GLOBAL_statistics.maxDirectPotential * EPSILON ) {
         return;
     }
 
-    /* the form factors have been computed and stored with the source patch
-     * already before when doing non-importance-driven Jacobi iterations with lazy
-     * linking. */
+    // The form factors have been computed and stored with the source patch
+    // already before when doing non-importance-driven Jacobi iterations with lazy
+    // linking
     if ( GLOBAL_galerkin_state.iteration_method == GAUSS_SEIDEL || !GLOBAL_galerkin_state.lazy_linking ||
          GLOBAL_galerkin_state.importance_driven ) {
         if ( !(topLevelElement->flags & INTERACTIONS_CREATED)) {

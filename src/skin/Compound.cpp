@@ -10,7 +10,7 @@ Actually, it just counts the number of compounds in the scene and
 returns the geometry list
 */
 Compound::Compound(java::ArrayList<Geometry *> *geometryList) {
-    GLOBAL_statistics_numberOfCompounds++;
+    GLOBAL_statistics.numberOfCompounds++;
     children = geometryList;
 }
 

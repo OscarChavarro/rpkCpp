@@ -66,10 +66,10 @@ shadowTestDiscretization(
 {
     RayHit *hit;
 
-    GLOBAL_statistics_numberOfShadowRays++;
+    GLOBAL_statistics.numberOfShadowRays++;
     hit = cacheHit(ray, &dist, hitStore);
     if ( hit != nullptr ) {
-        GLOBAL_statistics_numberOfShadowCacheHits++;
+        GLOBAL_statistics.numberOfShadowCacheHits++;
     } else {
         if ( !isClusteredGeometry && !isSceneGeometry ) {
             hit = geometryListDiscretizationIntersect(geometrySceneList, ray, EPSILON * dist, &dist,

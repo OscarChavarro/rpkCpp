@@ -8,29 +8,28 @@ class Statistics {
     float totalArea;
     COLOR maxSelfEmittedRadiance;
     COLOR maxSelfEmittedPower;
+    int numberOfGeometries;
+    int numberOfCompounds;
+    int numberOfSurfaces;
+    int numberOfVertices;
+    int numberOfPatches;
+    int numberOfElements;
+    int numberOfLightSources;
+    int numberOfShadowRays;
+    int numberOfShadowCacheHits;
+    double averageDirectPotential;
+    double maxDirectPotential;
+    double maxDirectImportance; // Potential times area
+    double totalDirectPotential;
+    double referenceLuminance;
+    COLOR totalEmittedPower;
+    COLOR estimatedAverageRadiance;
+    COLOR averageReflectivity;
 
     Statistics();
 };
 
 // General statistics about the current scene
-extern int GLOBAL_statistics_numberOfGeometries;
-extern int GLOBAL_statistics_numberOfCompounds;
-extern int GLOBAL_statistics_numberOfSurfaces;
-extern int GLOBAL_statistics_numberOfVertices;
-extern int GLOBAL_statistics_numberOfPatches;
-extern int GLOBAL_statistics_numberOfElements;
-extern int GLOBAL_statistics_numberOfLightSources;
-extern int GLOBAL_statistics_numberOfShadowRays;
-extern int GLOBAL_statistics_numberOfShadowCacheHits;
-extern double GLOBAL_statistics_averageDirectPotential;
-extern double GLOBAL_statistics_maxDirectPotential;
-extern double GLOBAL_statistics_maxDirectImportance; // potential times area
-extern double GLOBAL_statistics_totalDirectPotential;
-extern double GLOBAL_statistics_referenceLuminance;
-extern COLOR GLOBAL_statistics_totalEmittedPower;
-extern COLOR GLOBAL_statistics_estimatedAverageRadiance;
-extern COLOR GLOBAL_statistics_averageReflectivity;
-
 extern Statistics GLOBAL_statistics;
 
 #endif

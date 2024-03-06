@@ -128,7 +128,7 @@ batchSaveRaytracingImage(const char *fileName, FILE *fp, int isPipe, java::Array
         isPipe,
         GLOBAL_camera_mainCamera.xSize,
         GLOBAL_camera_mainCamera.ySize,
-        (float)GLOBAL_statistics_referenceLuminance / 179.0f);
+        (float)GLOBAL_statistics.referenceLuminance / 179.0f);
     if ( !img ) {
         return;
     }

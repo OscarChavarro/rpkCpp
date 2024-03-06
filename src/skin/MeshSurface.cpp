@@ -76,7 +76,7 @@ surfaceCreate(
     java::ArrayList<Patch *> *faces,
     enum MaterialColorFlags flags)
 {
-    GLOBAL_statistics_numberOfSurfaces++;
+    GLOBAL_statistics.numberOfSurfaces++;
 
     MeshSurface *surface;
 

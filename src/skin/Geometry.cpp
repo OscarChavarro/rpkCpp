@@ -99,7 +99,7 @@ geomCreateBase(
     GeometryClassId className)
 {
     Geometry *newGeometry = new Geometry();
-    GLOBAL_statistics_numberOfGeometries++;
+    GLOBAL_statistics.numberOfGeometries++;
     newGeometry->id = globalCurrentMaxId++;
     newGeometry->surfaceData = surfaceData;
     newGeometry->compoundData = compoundData;
@@ -185,7 +185,7 @@ geomDestroy(Geometry *geometry) {
         return;
     }
     delete geometry;
-    GLOBAL_statistics_numberOfGeometries--;
+    GLOBAL_statistics.numberOfGeometries--;
 }
 
 /**
@@ -248,7 +248,7 @@ geomDuplicate(Geometry *geometry) {
     }
 
     Geometry *newGeometry = new Geometry();
-    GLOBAL_statistics_numberOfGeometries++;
+    GLOBAL_statistics.numberOfGeometries++;
     *newGeometry = *geometry;
     newGeometry->surfaceData = geometry->surfaceData;
     newGeometry->compoundData = geometry->compoundData;
