@@ -49,6 +49,11 @@ SGL_CONTEXT::SGL_CONTEXT(int width, int height):
     this->height = height;
     frameBuffer = new SGL_PIXEL[width * height];
     patchBuffer = new Patch *[width * height];
+
+    for ( int i = 0; i < width * height; i++ ) {
+        patchBuffer[i] = nullptr;
+    }
+
     pixelData = PixelContent::PIXEL;
 
     // No Z buffer

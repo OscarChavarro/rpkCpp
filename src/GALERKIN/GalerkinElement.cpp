@@ -386,7 +386,7 @@ galerkinElementDestroyTopLevel(GalerkinElement *element) {
     }
 
     if ( element->irregularSubElements != nullptr ) {
-        for ( int i = 0; element->irregularSubElements != nullptr && i < element->irregularSubElements->size(); i++ ) {
+        for ( int i = 0; i < element->irregularSubElements->size(); i++ ) {
             galerkinElementDestroyTopLevel(element->irregularSubElements->get(i));
         }
         delete element->irregularSubElements;

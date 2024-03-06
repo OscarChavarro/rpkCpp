@@ -118,8 +118,10 @@ RayCaster::render(GETRADIANCE_FT getRadiance, java::ArrayList<Patch *> *scenePat
     for ( int y = 0; y < height; y++ ) {
         for ( int x = 0; x < width; x++ ) {
             Patch *patch = idRenderer->getPatchAtPixel(x, y);
-            COLOR rad = getRadianceAtPixel(x, y, patch, getRadiance);
-            screenBuffer->add(x, y, rad);
+            if ( patch != nullptr ) {
+                COLOR rad = getRadianceAtPixel(x, y, patch, getRadiance);
+                screenBuffer->add(x, y, rad);
+            }
         }
 
         screenBuffer->renderScanline(y);
@@ -213,17 +215,22 @@ rayCast(char *fileName, FILE *fp, int isPipe) {
     ImageOutputHandle *img = nullptr;
 
     if ( fp ) {
-        img = createRadianceImageOutputHandle(fileName, fp, isPipe,
-                                              GLOBAL_camera_mainCamera.xSize, GLOBAL_camera_mainCamera.ySize,
-                                              (float)GLOBAL_statistics_referenceLuminance / 179.0f);
-        if ( !img ) {
+        img = createRadianceImageOutputHandle(
+            fileName,
+            fp,
+            isPipe,
+            GLOBAL_camera_mainCamera.xSize,
+            GLOBAL_camera_mainCamera.ySize,
+            (float)GLOBAL_statistics_referenceLuminance / 179.0f);
+
+        if ( img == nullptr ) {
             return;
         }
     }
 
     RayCaster *rc = new RayCaster(nullptr);
     rc->render(nullptr, nullptr);
-    if ( img ) {
+    if ( img != nullptr ) {
         rc->save(img);
     }
     delete rc;

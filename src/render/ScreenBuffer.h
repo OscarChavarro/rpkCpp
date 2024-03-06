@@ -24,15 +24,15 @@ class ScreenBuffer {
   private:
     COLOR *m_Radiance;
     RGB *m_RGB;
-    Camera m_cam; /* GLOBAL_camera_mainCamera used (copied, no pointer!) */
+    Camera m_cam; // GLOBAL_camera_mainCamera used (copied, no pointer!)
 
     bool m_Synced;
     float m_Factor;
     float m_AddFactor;
-    bool m_RGBImage; /* Indicates an RGB image (=no radiance conversion!) */
+    bool m_RGBImage; // Indicates an RGB image ( = no radiance conversion!)
 
   public:
-    explicit ScreenBuffer(Camera *cam); /* Also calls mainInit() */
+    explicit ScreenBuffer(Camera *cam); // Also calls mainInit()
     ~ScreenBuffer();
     void init(Camera *cam = nullptr);
     void setRgbImage(bool isRGB);
