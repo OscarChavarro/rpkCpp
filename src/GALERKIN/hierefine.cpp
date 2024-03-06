@@ -139,10 +139,10 @@ hierarchicRefinementLinkErrorThreshold(
 
     switch ( state->errorNorm ) {
         case RADIANCE_ERROR:
-            threshold = hierarchicRefinementColorToError(GLOBAL_statistics_maxSelfEmittedRadiance) * state->relLinkErrorThreshold;
+            threshold = hierarchicRefinementColorToError(GLOBAL_statistics.maxSelfEmittedRadiance) * state->relLinkErrorThreshold;
             break;
         case POWER_ERROR:
-            threshold = hierarchicRefinementColorToError(GLOBAL_statistics_maxSelfEmittedPower) * state->relLinkErrorThreshold / (M_PI * rcv_area);
+            threshold = hierarchicRefinementColorToError(GLOBAL_statistics.maxSelfEmittedPower) * state->relLinkErrorThreshold / (M_PI * rcv_area);
             break;
         default:
             logFatal(2, "hierarchicRefinementEvaluateInteraction", "Invalid error norm");
@@ -216,11 +216,11 @@ hierarchicRefinementApproximationError(
                 // instead of self-emitted radiance or power
                 switch ( state->errorNorm ) {
                     case RADIANCE_ERROR:
-                        approxError2 *= hierarchicRefinementColorToError(GLOBAL_statistics_maxSelfEmittedRadiance) / GLOBAL_statistics_maxDirectPotential;
+                        approxError2 *= hierarchicRefinementColorToError(GLOBAL_statistics.maxSelfEmittedRadiance) / GLOBAL_statistics_maxDirectPotential;
                         break;
                     case POWER_ERROR:
                         approxError2 *=
-                                hierarchicRefinementColorToError(GLOBAL_statistics_maxSelfEmittedPower) / M_PI / GLOBAL_statistics_maxDirectImportance;
+                                hierarchicRefinementColorToError(GLOBAL_statistics.maxSelfEmittedPower) / M_PI / GLOBAL_statistics_maxDirectImportance;
                         break;
                 }
                 if ( approxError2 > approxError ) {

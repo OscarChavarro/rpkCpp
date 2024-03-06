@@ -110,18 +110,22 @@ formFactorEstimate(StochasticRadiosityElement *rcv, StochasticRadiosityElement *
     d = vectorNorm(D);
     f = src->area / (M_PI * d * d + src->area);
     f2 = 2. * f;
-    c1 = rcv->isCluster ? 1. /*0.25*/ : fabs(vectorDotProduct(D, rcv->patch->normal)) / d;
+    c1 = rcv->isCluster ? 1. /*0.25*/ : std::fabs(vectorDotProduct(D, rcv->patch->normal)) / d;
     if ( c1 < f2 ) {
         c1 = f2;
     }
-    c2 = src->isCluster ? 1. /*0.25*/ : fabs(vectorDotProduct(D, src->patch->normal)) / d;
+    c2 = src->isCluster ? 1. /*0.25*/ : std::fabs(vectorDotProduct(D, src->patch->normal)) / d;
     if ( c2 < f2 ) {
         c2 = f2;
     }
     return (float)(f * c1 * c2);
 }
 
-static int LowPowerLink(LINK *link) {
+static int
+LowPowerLink(
+    LINK *link,
+    Statistics *statistics)
+{
     StochasticRadiosityElement *rcv = link->rcv;
     StochasticRadiosityElement *src = link->src;
     COLOR rhosrcrad;
@@ -135,7 +139,7 @@ static int LowPowerLink(LINK *link) {
         colorProduct(Rd, rhosrcrad, rhosrcrad);
     }
 
-    threshold = GLOBAL_stochasticRaytracing_hierarchy.epsilon * colorMaximumComponent(GLOBAL_statistics_maxSelfEmittedPower);
+    threshold = GLOBAL_stochasticRaytracing_hierarchy.epsilon * colorMaximumComponent(statistics->maxSelfEmittedPower);
     propagated_power = rcv->area * ff * colorMaximumComponent(rhosrcrad);
     if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceDriven ) {
         propagated_power *= rcv->imp;
@@ -167,7 +171,7 @@ powerOracle(LINK *link) {
         return subdivideReceiver;
     } else if ( linkInvolvingClusters(link) && !disjunctElements(link->rcv, link->src) ) {
         return subDivideLargest(link);
-    } else if ( LowPowerLink(link) ) {
+    } else if ( LowPowerLink(link, &GLOBAL_statistics) ) {
         return dontRefine;
     } else {
         return subDivideLargest(link);
