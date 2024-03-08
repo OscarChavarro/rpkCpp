@@ -159,7 +159,7 @@ GalerkinElement::GalerkinElement(Patch *parameterPatch): GalerkinElement() {
     }
 
     patch->radianceData = this;
-    reAllocCoefficients();
+    galerkinElementReAllocCoefficients(this);
 }
 
 /**
@@ -170,7 +170,7 @@ GalerkinElement::GalerkinElement(Geometry *parameterGeometry): GalerkinElement()
     geom = parameterGeometry;
     area = 0.0; // Needs to be computed after the whole cluster hierarchy has been constructed
     flags |= IS_CLUSTER;
-    reAllocCoefficients();
+    galerkinElementReAllocCoefficients(this);
 
     colorSetMonochrome(Rd, 1.0);
 
@@ -244,13 +244,13 @@ Re-allocates storage for the coefficients to represent radiance, received radian
 and un-shot radiance on the element
 */
 void
-GalerkinElement::reAllocCoefficients() {
-    COLOR *defaultRadiance = nullptr;
-    COLOR *defaultReceivedRadiance = nullptr;
-    COLOR *defaultUnShotRadiance{};
-    char defaultBasisSize = 0;
+galerkinElementReAllocCoefficients(GalerkinElement *element) {
+    COLOR *radiance;
+    COLOR *receivedRadiance;
+    COLOR *unShotRadiance;
+    char basisSize = 0;
 
-    if ( isCluster() ) {
+    if ( element->isCluster() ) {
         // We always use a constant basis on cluster elements
         basisSize = 1;
     } else {
@@ -274,44 +274,44 @@ GalerkinElement::reAllocCoefficients() {
 
     radiance = new COLOR[basisSize];
     clusterGalerkinClearCoefficients(radiance, basisSize);
-    if ( radiance ) {
-        clusterGalerkinCopyCoefficients(radiance, radiance, charMin(basisSize, basisSize));
-        delete radiance;
+    if ( element->radiance ) {
+        clusterGalerkinCopyCoefficients(radiance, element->radiance, charMin(element->basisSize, basisSize));
+        delete element->radiance;
     }
-    radiance = defaultRadiance;
+    element->radiance = radiance;
 
     receivedRadiance = new COLOR[basisSize];
     clusterGalerkinClearCoefficients(receivedRadiance, basisSize);
-    if ( receivedRadiance ) {
-        clusterGalerkinCopyCoefficients(receivedRadiance, receivedRadiance,
-                                        charMin(basisSize, basisSize));
-        delete receivedRadiance;
+    if ( element->receivedRadiance ) {
+        clusterGalerkinCopyCoefficients(receivedRadiance, element->receivedRadiance,
+                                        charMin(element->basisSize, basisSize));
+        delete element->receivedRadiance;
     }
-    receivedRadiance = defaultReceivedRadiance;
+    element->receivedRadiance = receivedRadiance;
 
     if ( GLOBAL_galerkin_state.iteration_method == SOUTH_WELL ) {
         unShotRadiance = new COLOR[basisSize];
         clusterGalerkinClearCoefficients(unShotRadiance, basisSize);
-        if ( !isCluster() ) {
-            if ( unShotRadiance ) {
-                clusterGalerkinCopyCoefficients(unShotRadiance, unShotRadiance,
-                                                charMin(basisSize, basisSize));
-                delete unShotRadiance;
-            } else if ( patch->surface ) {
-                unShotRadiance[0] = patch->radianceData->Ed;
+        if ( !element->isCluster() ) {
+            if ( element->unShotRadiance ) {
+                clusterGalerkinCopyCoefficients(unShotRadiance, element->unShotRadiance,
+                                                charMin(element->basisSize, basisSize));
+                delete element->unShotRadiance;
+            } else if ( element->patch->surface ) {
+                unShotRadiance[0] = element->patch->radianceData->Ed;
             }
         }
-        unShotRadiance = defaultUnShotRadiance;
+        element->unShotRadiance = unShotRadiance;
     } else {
-        if ( unShotRadiance ) {
-            delete unShotRadiance;
+        if ( element->unShotRadiance ) {
+            delete element->unShotRadiance;
         }
-        unShotRadiance = nullptr;
+        element->unShotRadiance = nullptr;
     }
 
-    basisSize = defaultBasisSize;
-    if ( basisUsed > basisSize ) {
-        basisUsed = basisSize;
+    element->basisSize = basisSize;
+    if ( element->basisUsed > element->basisSize ) {
+        element->basisUsed = element->basisSize;
     }
 }
 
@@ -343,7 +343,7 @@ GalerkinElement::regularSubDivide() {
         subElement[i]->area = 0.25f * area;  /* we always use a uniform mapping */
         subElement[i]->bsize = 2.0f * (float)std::sqrt(subElement[i]->area / M_PI);
         subElement[i]->childNumber = (char)i;
-        subElement[i]->reAllocCoefficients();
+        galerkinElementReAllocCoefficients(subElement[i]);
 
         basisGalerkinPush(this, radiance, subElement[i], subElement[i]->radiance);
 
@@ -361,7 +361,7 @@ GalerkinElement::regularSubDivide() {
         subElement[i]->Ed = Ed;
 
         openGlRenderSetColor(&GLOBAL_render_renderOptions.outline_color);
-        subElement[i]->drawOutline();
+        galerkinElementDrawOutline(subElement[i]);
     }
 
     regularSubElements = subElement;
@@ -482,11 +482,14 @@ point on the leaf element. 'element' is a surface element, not a cluster
 */
 GalerkinElement *
 GalerkinElement::regularLeafAtPoint(double *u, double *v) {
-    // Find leaf element of 'element' at (u, v)
-    GalerkinElement *leaf = this;
+    GalerkinElement *leaf;
+
+    /* find leaf element of 'element' at (u,v) */
+    leaf = this;
     while ( leaf->regularSubElements ) {
         leaf = leaf->regularSubElementAtPoint(u, v);
     }
+
     return leaf;
 }
 
@@ -741,15 +744,15 @@ galerkinElementDraw(GalerkinElement *element, int mode) {
 Draws element outline in the current outline color
 */
 void
-GalerkinElement::drawOutline() {
-    galerkinElementDraw(this, OUTLINE);
+galerkinElementDrawOutline(GalerkinElement *element) {
+    galerkinElementDraw(element, OUTLINE);
 }
 
 /**
 Renders a surface element flat shaded based on its radiance
 */
 void
-GalerkinElement::render() {
+galerkinElementRender(GalerkinElement *element) {
     int renderCode = 0;
 
     if ( GLOBAL_render_renderOptions.drawOutlines ) {
@@ -762,7 +765,7 @@ GalerkinElement::render() {
         renderCode |= FLAT;
     }
 
-    galerkinElementDraw(this, renderCode);
+    galerkinElementDraw(element, renderCode);
 }
 
 /**

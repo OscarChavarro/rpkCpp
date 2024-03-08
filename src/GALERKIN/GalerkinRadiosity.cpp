@@ -463,7 +463,7 @@ getGalerkinStats() {
 static void
 renderElementHierarchy(GalerkinElement *elem) {
     if ( !elem->regularSubElements ) {
-        elem->render();
+        galerkinElementRender(elem);
     } else if ( elem->regularSubElements != nullptr ) {
         for ( int i = 0; i < 4; i++ ) {
             renderElementHierarchy((elem)->regularSubElements[i]);
