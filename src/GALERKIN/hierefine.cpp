@@ -500,7 +500,7 @@ hierarchicRefinementRegularSubdivideSource(
     GalerkinElement *src = link->sourceElement;
     GalerkinElement *rcv = link->receiverElement;
 
-    galerkinElementRegularSubDivide(src);
+    src->regularSubDivide();
     for ( int i = 0; i < 4; i++ ) {
         GalerkinElement *child = src->regularSubElements[i];
         Interaction subInteraction{};
@@ -533,7 +533,7 @@ hierarchicRefinementRegularSubdivideReceiver(
     GalerkinElement *src = link->sourceElement;
     GalerkinElement *rcv = link->receiverElement;
 
-    galerkinElementRegularSubDivide(rcv);
+    rcv->regularSubDivide();
     for ( int i = 0; i < 4; i++ ) {
         Interaction subInteraction{};
         float ff[MAX_BASIS_SIZE * MAX_BASIS_SIZE];

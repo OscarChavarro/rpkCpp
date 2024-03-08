@@ -302,49 +302,49 @@ Regularly subdivides the given element. A pointer to an array of
 Only applicable to surface elements.
 */
 GalerkinElement **
-galerkinElementRegularSubDivide(GalerkinElement *element) {
-    if ( element->isCluster() ) {
+GalerkinElement::regularSubDivide() {
+    if ( isCluster() ) {
         logFatal(-1, "galerkinElementRegularSubDivide", "Cannot regularly subdivide cluster elements");
         return nullptr;
     }
 
-    if ( element->regularSubElements != nullptr ) {
-        return element->regularSubElements;
+    if ( regularSubElements != nullptr ) {
+        return regularSubElements;
     }
 
     GalerkinElement **subElement = new GalerkinElement *[4];
 
     for ( int i = 0; i < 4; i++ ) {
         subElement[i] = galerkinElementCreate();
-        subElement[i]->patch = element->patch;
-        subElement[i]->parent = element;
+        subElement[i]->patch = patch;
+        subElement[i]->parent = this;
         subElement[i]->upTrans =
-                element->patch->numberOfVertices == 3 ? &GLOBAL_galerkin_TriangularUpTransformMatrix[i] : &GLOBAL_galerkin_QuadUpTransformMatrix[i];
-        subElement[i]->area = 0.25f * element->area;  /* we always use a uniform mapping */
+                patch->numberOfVertices == 3 ? &GLOBAL_galerkin_TriangularUpTransformMatrix[i] : &GLOBAL_galerkin_QuadUpTransformMatrix[i];
+        subElement[i]->area = 0.25f * area;  /* we always use a uniform mapping */
         subElement[i]->bsize = 2.0f * (float)std::sqrt(subElement[i]->area / M_PI);
         subElement[i]->childNumber = (char)i;
         galerkinElementReAllocCoefficients(subElement[i]);
 
-        basisGalerkinPush(element, element->radiance, subElement[i], subElement[i]->radiance);
+        basisGalerkinPush(this, radiance, subElement[i], subElement[i]->radiance);
 
-        subElement[i]->potential = element->potential;
-        subElement[i]->directPotential = element->directPotential;
+        subElement[i]->potential = potential;
+        subElement[i]->directPotential = directPotential;
 
         if ( GLOBAL_galerkin_state.iteration_method == SOUTH_WELL ) {
-            basisGalerkinPush(element, element->unShotRadiance, subElement[i], subElement[i]->unShotRadiance);
-            subElement[i]->unShotPotential = element->unShotPotential;
+            basisGalerkinPush(this, unShotRadiance, subElement[i], subElement[i]->unShotRadiance);
+            subElement[i]->unShotPotential = unShotPotential;
         }
 
-        subElement[i]->flags |= (element->flags & IS_LIGHT_SOURCE);
+        subElement[i]->flags |= (flags & IS_LIGHT_SOURCE);
 
-        subElement[i]->Rd = element->Rd;
-        subElement[i]->Ed = element->Ed;
+        subElement[i]->Rd = Rd;
+        subElement[i]->Ed = Ed;
 
         openGlRenderSetColor(&GLOBAL_render_renderOptions.outline_color);
         galerkinElementDrawOutline(subElement[i]);
     }
 
-    element->regularSubElements = subElement;
+    regularSubElements = subElement;
     return subElement;
 }
 
@@ -407,15 +407,15 @@ galerkinElementDestroyCluster(GalerkinElement *element) {
 Prints the patch id and the child numbers of the element and its parents
 */
 void
-galerkinElementPrintId(FILE *out, GalerkinElement *element) {
-    if ( element->isCluster() ) {
-        fprintf(out, "geom %d cluster", element->geom->id);
+GalerkinElement::elementPrintId(FILE *out) {
+    if ( isCluster() ) {
+        fprintf(out, "geom %d cluster", geom->id);
     } else {
-        if ( element->upTrans ) {
-            galerkinElementPrintId(out, element->parent);
-            fprintf(out, "%d", element->childNumber + 1);
+        if ( upTrans ) {
+            elementPrintId(out);
+            fprintf(out, "%d", childNumber + 1);
         } else {
-            fprintf(out, "patch %d element ", element->patch->id);
+            fprintf(out, "patch %d element ", patch->id);
         }
     }
 }

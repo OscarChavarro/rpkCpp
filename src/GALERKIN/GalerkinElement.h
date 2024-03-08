@@ -66,10 +66,12 @@ class GalerkinElement : public Element {
     ~GalerkinElement();
 
     inline bool
-    isCluster() {
+    isCluster() const {
         return flags & IS_CLUSTER;
     }
 
+    GalerkinElement **regularSubDivide();
+    void elementPrintId(FILE *out);
 };
 
 /**
@@ -88,8 +90,6 @@ extern int galerkinElementGetNumberOfSurfaceElements();
 extern GalerkinElement *galerkinElementCreateTopLevel(Patch *patch);
 extern GalerkinElement *galerkinElementCreateCluster(Geometry *geometry);
 
-extern GalerkinElement **galerkinElementRegularSubDivide(GalerkinElement *element);
-extern void galerkinElementPrintId(FILE *out, GalerkinElement *element);
 extern void galerkinElementDestroyTopLevel(GalerkinElement *element);
 extern void galerkinElementDestroyCluster(GalerkinElement *element);
 extern Matrix2x2 *galerkinElementToTopTransform(GalerkinElement *element, Matrix2x2 *xf);
