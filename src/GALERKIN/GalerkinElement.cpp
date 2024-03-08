@@ -211,14 +211,6 @@ GalerkinElement::~GalerkinElement() {
     if ( isCluster() ) {
         globalNumberOfClusters--;
     }
-
-    if ( irregularSubElements != nullptr ) {
-        delete irregularSubElements;
-    }
-
-    if ( interactions != nullptr ) {
-        delete interactions;
-    }
 }
 
 /**
@@ -502,7 +494,7 @@ GalerkinElement::vertices(Vector3D *p, int n) {
     if ( isCluster() ) {
         BoundingBox vol;
 
-        galerkinElementBounds(this, vol);
+        bounds(vol);
 
         for ( int i = 0; i < n; i++ ) {
             vectorSet(p[i], vol[MIN_X], vol[MIN_Y], vol[MIN_Z]);
@@ -591,15 +583,15 @@ galerkinElementMidPoint(GalerkinElement *element) {
 Computes a bounding box for the element
 */
 float *
-galerkinElementBounds(GalerkinElement *element, float *bounds) {
-    if ( element->isCluster() ) {
-        boundsCopy(geomBounds(element->geom), bounds);
+GalerkinElement::bounds(float *bounds) {
+    if ( isCluster() ) {
+        boundsCopy(geomBounds(geom), bounds);
     } else {
         Vector3D p[4];
         int i;
         int numberOfVertices;
 
-        numberOfVertices = element->vertices(p, 4);
+        numberOfVertices = vertices(p, 4);
 
         boundsInit(bounds);
         for ( i = 0; i < numberOfVertices; i++ ) {

@@ -84,6 +84,7 @@ public:
     void drawOutline();
     void render();
     int vertices(Vector3D *p, int n);
+    float *bounds(float *bounds);
 };
 
 /**
@@ -100,7 +101,6 @@ extern int galerkinElementGetNumberOfClusters();
 extern int galerkinElementGetNumberOfSurfaceElements();
 
 extern void galerkinElementReAllocCoefficients(GalerkinElement *element);
-extern float *galerkinElementBounds(GalerkinElement *element, float *bounds);
 extern Vector3D galerkinElementMidPoint(GalerkinElement *element);
 extern POLYGON *galerkinElementPolygon(GalerkinElement *element, POLYGON *polygon);
 extern void galerkinElementForAllLeafElements(GalerkinElement *element, void (*func)(GalerkinElement *));

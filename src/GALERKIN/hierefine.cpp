@@ -64,8 +64,8 @@ hierarchicRefinementCull(
         } else {
             BoundingBox srcBounds;
             BoundingBox rcvBounds;
-            the_shaft = constructShaft(galerkinElementBounds(link->receiverElement, rcvBounds),
-                                       galerkinElementBounds(link->sourceElement, srcBounds), &shaft);
+            the_shaft = constructShaft(link->receiverElement->bounds(rcvBounds),
+                                       link->sourceElement->bounds(srcBounds), &shaft);
         }
         if ( !the_shaft ) {
             logError("hierarchicRefinementCull", "Couldn't construct shaft");

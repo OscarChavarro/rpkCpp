@@ -53,7 +53,7 @@ determineNodes(GalerkinElement *element, CUBARULE **cr, Vector3D x[CUBAMAXNODES]
 
         *cr = GLOBAL_galerkin_state.clusterRule;
 
-        galerkinElementBounds(element, vol);
+        element->bounds(vol);
         dx = vol[MAX_X] - vol[MIN_X];
         dy = vol[MAX_Y] - vol[MIN_Y];
         dz = vol[MAX_Z] - vol[MIN_Z];
@@ -453,8 +453,8 @@ areaToAreaFormFactor(
     if ( rcv->isCluster() || src->isCluster() ) {
         BoundingBox rcvBounds;
         BoundingBox srcBounds;
-        galerkinElementBounds(rcv, rcvBounds);
-        galerkinElementBounds(src, srcBounds);
+        rcv->bounds(rcvBounds);
+        src->bounds(srcBounds);
 
         // Do not allow interactions between a pair of overlapping source and receiver
         if ( !disjunctBounds(rcvBounds, srcBounds) ) {
