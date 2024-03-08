@@ -66,6 +66,8 @@ namespace java {
 
         void remove(long int pos);
 
+        void remove(T data);
+
         void set(long int pos, T elem) {
             Data[pos] = elem;
         };

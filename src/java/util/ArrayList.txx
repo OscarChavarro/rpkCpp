@@ -50,4 +50,21 @@ ArrayList<T>::remove(long int pos)
     currentSize--;
 }
 
+template <class T> void
+ArrayList<T>::remove(T data)
+{
+    bool shouldRemove = false;
+    long int i;
+    for ( i = 0; i < size(); i++ ) {
+        if ( Data[i] == data ) {
+            shouldRemove = true;
+            break;
+        }
+    }
+
+    if ( shouldRemove ) {
+        remove(i);
+    }
+}
+
 }

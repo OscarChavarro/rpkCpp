@@ -470,12 +470,14 @@ if doing gathering and with the source for shooting
 */
 static void
 hierarchicRefinementStoreInteraction(Interaction *link, GalerkinState *state) {
-    GalerkinElement *src = link->sourceElement, *rcv = link->receiverElement;
+    GalerkinElement *src = link->sourceElement;
+    GalerkinElement *rcv = link->receiverElement;
+    Interaction *newLink = interactionDuplicate(link);
 
     if ( state->iteration_method == SOUTH_WELL ) {
-        src->interactions = InteractionListAdd(src->interactions, interactionDuplicate(link));
+        src->interactions->add(newLink);
     } else {
-        rcv->interactions = InteractionListAdd(rcv->interactions, interactionDuplicate(link));
+        rcv->interactions->add(newLink);
     }
 }
 
@@ -483,8 +485,8 @@ hierarchicRefinementStoreInteraction(Interaction *link, GalerkinState *state) {
 Subdivides the source element, creates sub-interactions and refines. If the
 sub-interactions do not need to be refined any further, they are added to
 either the sources, either the receivers interaction list, depending on the
-iteration method being used. This routine always returns true indicating that
-the passed interaction is always replaced by lower level interactions
+iteration method being used. This routine always replaces interaction with
+lower level sub-interactions
 */
 static void
 hierarchicRefinementRegularSubdivideSource(
@@ -695,9 +697,9 @@ removeRefinedInteractions(const GalerkinState *state, java::ArrayList<Interactio
     for ( int i = 0; i < interactionsToRemove->size(); i++ ) {
         Interaction *interaction = interactionsToRemove->get(i);
         if ( state->iteration_method == SOUTH_WELL ) {
-            interaction->sourceElement->interactions = InteractionListRemove(interaction->sourceElement->interactions, interaction);
+            interaction->sourceElement->interactions->remove(interaction);
         } else {
-            interaction->receiverElement->interactions = InteractionListRemove(interaction->receiverElement->interactions, interaction);
+            interaction->receiverElement->interactions->remove(interaction);
         }
         interactionDestroy(interaction);
     }
@@ -726,8 +728,8 @@ refineInteractions(GalerkinElement *parentElement, GalerkinState *state) {
     // Iterate over the interactions. Interactions that are refined are removed from the list
     java::ArrayList<Interaction *> *interactionsToRemove = new java::ArrayList<Interaction *>();
 
-    for ( InteractionListNode *window = parentElement->interactions; window != nullptr; window = window->next ) {
-        Interaction *interaction = window->interaction;
+    for ( int i = 0; parentElement->interactions != nullptr && i < parentElement->interactions->size(); i++ ) {
+        Interaction *interaction = parentElement->interactions->get(i);
         if ( refineInteraction(interaction, state) ) {
             interactionsToRemove->add(interaction);
         }

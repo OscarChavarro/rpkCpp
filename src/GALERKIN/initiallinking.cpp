@@ -1,3 +1,4 @@
+#include "java/util/ArrayList.txx"
 #include "common/error.h"
 #include "skin/Geometry.h"
 #include "scene/scene.h"
@@ -41,7 +42,8 @@ createInitialLink(Patch *patch) {
     }
 
     if ( (GLOBAL_galerkin_state.exact_visibility || GLOBAL_galerkin_state.shaftCullMode == ALWAYS_DO_SHAFT_CULLING) && oldCandidateList ) {
-        SHAFT shaft, *the_shaft;
+        SHAFT shaft;
+        SHAFT *the_shaft;
 
         if ( GLOBAL_galerkin_state.exact_visibility ) {
             POLYGON rcvPolygon;
@@ -98,12 +100,13 @@ createInitialLink(Patch *patch) {
     }
 
     if ( link.vis > 0 ) {
+        Interaction *newLink = interactionDuplicate(&link);
         // Store interactions with the source patch for the progressive radiosity method
         // and with the receiving patch for gathering methods
         if ( GLOBAL_galerkin_state.iteration_method == SOUTH_WELL ) {
-            src->interactions = InteractionListAdd(src->interactions, interactionDuplicate(&link));
+            src->interactions->add(newLink);
         } else {
-            rcv->interactions = InteractionListAdd(rcv->interactions, interactionDuplicate(&link));
+            rcv->interactions->add(newLink);
         }
     }
 }
@@ -117,7 +120,7 @@ geomLink(Geometry *geom) {
     java::ArrayList<Geometry *> *oldCandidateList = globalCandidateList;
 
     // Immediately return if the Geometry is bounded and behind the plane of the patch for which interactions are created
-    if ( geom->bounded && boundsBehindPlane(geomBounds(geom), &globalPatch->normal, globalPatch->planeConstant)) {
+    if ( geom->bounded && boundsBehindPlane(geomBounds(geom), &globalPatch->normal, globalPatch->planeConstant) ) {
         return;
     }
 
@@ -184,7 +187,7 @@ void
 createInitialLinkWithTopCluster(GalerkinElement *elem, GalerkinRole role) {
     GalerkinElement *rcv = nullptr;
     GalerkinElement *src = nullptr;
-    Interaction *link;
+    Interaction *newLink;
     FloatOrPointer K;
     FloatOrPointer deltaK;
     float ff[MAX_BASIS_SIZE * MAX_BASIS_SIZE];
@@ -216,7 +219,7 @@ createInitialLinkWithTopCluster(GalerkinElement *elem, GalerkinRole role) {
         deltaK.f = HUGE; // HUGE error on the form factor
     }
 
-    link = new Interaction(
+    newLink = new Interaction(
         rcv,
         src,
         K,
@@ -230,8 +233,8 @@ createInitialLinkWithTopCluster(GalerkinElement *elem, GalerkinRole role) {
     // Store interactions with the source patch for the progressive radiosity method
     // and with the receiving patch for gathering methods
     if ( GLOBAL_galerkin_state.iteration_method == SOUTH_WELL ) {
-        src->interactions = InteractionListAdd(src->interactions, link);
+        src->interactions->add(newLink);
     } else {
-        rcv->interactions = InteractionListAdd(rcv->interactions, link);
+        rcv->interactions->add(newLink);
     }
 }

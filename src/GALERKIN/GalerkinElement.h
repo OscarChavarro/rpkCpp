@@ -6,11 +6,9 @@ Galerkin finite elements: one structure for both surface and cluster elements
 #define __GALERKIN_ELEMENT__
 
 #include "java/util/ArrayList.h"
-#include "GALERKIN/interactionlist.h"
+#include "GALERKIN/Interaction.h"
 #include "common/linealAlgebra/Matrix2x2.h"
 #include "scene/polygon.h"
-
-class InteractionListNode;
 
 /**
 The Galerkin radiosity specific data to be kept with every surface or
@@ -30,10 +28,9 @@ class GalerkinElement : public Element {
     float receivedPotential; // Potential received during the last iteration
     float unShotPotential; // Un-shot potential (progressive refinement radiosity)
     float directPotential;
-    InteractionListNode *interactions; /* Links with other patches: when using
-			 a shooting algorithm, the links are kept
-			 with the source element. When doing gathering,
-			 the links are kept with the receiver element. */
+    java::ArrayList<Interaction *> *interactions; // Links with other patches: when using
+			 // a shooting algorithm, the links are kept with the source element. When doing gathering,
+			 // the links are kept with the receiver element
     GalerkinElement *parent; /* Parent element in a hierarchy, or
 			 a nullptr pointer if there is no parent. */
     GalerkinElement **regularSubElements; /* A nullptr pointer if there are no
