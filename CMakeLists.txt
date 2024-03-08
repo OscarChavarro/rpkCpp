@@ -23,7 +23,6 @@ set(MAIN_SRC
     src/common/linealAlgebra/Matrix4x4.cpp
     src/common/dataStructures/CSList.cpp
     src/common/dataStructures/KDTree.cpp
-    src/common/dataStructures/List.cpp
     src/common/color.cpp
     src/common/options.cpp
     src/common/cie.cpp
