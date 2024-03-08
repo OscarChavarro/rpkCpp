@@ -16,7 +16,7 @@ class Element {
     COLOR Ed; // Diffuse emittance radiance
     COLOR Rd; // Reflectance
     Patch *patch;
-    Geometry *geom;
+    Geometry *geometry;
     ElementTypes className;
     COLOR *radiance; // Total radiance on the element as computed so far
     COLOR *receivedRadiance; // Radiance received during iteration
@@ -27,7 +27,7 @@ class Element {
         Ed(),
         Rd(),
         patch(),
-        geom(),
+        geometry(),
         className(),
         radiance(),
         receivedRadiance(),

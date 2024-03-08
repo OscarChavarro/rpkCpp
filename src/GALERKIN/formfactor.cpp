@@ -521,8 +521,8 @@ areaToAreaFormFactor(
                              rcv->isCluster() ? nullptr : rcv->patch->twin,
                              src->isCluster() ? nullptr : src->patch,
                              src->isCluster() ? nullptr : src->patch->twin);
-        geomDontIntersect(rcv->isCluster() ? rcv->geom : nullptr,
-                          src->isCluster() ? src->geom : nullptr);
+        geomDontIntersect(rcv->isCluster() ? rcv->geometry : nullptr,
+                          src->isCluster() ? src->geometry : nullptr);
 
         maxkval = 0.0; // Compute maximum un-occluded kernel value
         maxptff = 0.0; // Maximum un-occluded point-on-receiver to source form factor

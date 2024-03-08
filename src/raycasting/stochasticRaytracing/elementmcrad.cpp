@@ -154,11 +154,11 @@ monteCarloRadiosityCreateToplevelSurfaceElement(Patch *patch) {
 }
 
 static StochasticRadiosityElement *
-monteCarloRadiosityCreateCluster(Geometry *geom) {
+monteCarloRadiosityCreateCluster(Geometry *geometry) {
     StochasticRadiosityElement *elem = createElement();
-    float *bounds = geom->bounds;
+    float *bounds = geometry->bounds;
 
-    elem->geom = geom;
+    elem->geometry = geometry;
     elem->isCluster = true;
 
     colorSetMonochrome(elem->Rd, 1.0);
@@ -226,16 +226,16 @@ monteCarloRadiosityInitClusterPull(StochasticRadiosityElement *parent, Stochasti
 
 static void
 monteCarloRadiosityCreateClusterChildren(StochasticRadiosityElement *parent) {
-    Geometry *geom = parent->geom;
+    Geometry *geometry = parent->geometry;
 
-    if ( geomIsAggregate(geom) ) {
-        java::ArrayList<Geometry *> *geometryList = geomPrimListCopy(geom);
+    if ( geomIsAggregate(geometry) ) {
+        java::ArrayList<Geometry *> *geometryList = geomPrimListCopy(geometry);
         for ( int i = 0; geometryList != nullptr && i < geometryList->size(); i++ ) {
             monteCarloRadiosityCreateClusterChild(geometryList->get(i), parent);
         }
         delete geometryList;
     } else {
-        java::ArrayList<Patch *> *patchList = geomPatchArrayListReference(geom);
+        java::ArrayList<Patch *> *patchList = geomPatchArrayListReference(geometry);
         for ( int i = 0; patchList != nullptr && i < patchList->size(); i++ ) {
             monteCarloRadiosityCreateSurfaceElementChild(patchList->get(i), parent);
         }
@@ -943,7 +943,7 @@ Computes and fills in a bounding box for the element
 float *
 monteCarloRadiosityElementBounds(StochasticRadiosityElement *elem, float *bounds) {
     if ( elem->isCluster ) {
-        boundsCopy(elem->geom->bounds, bounds);
+        boundsCopy(elem->geometry->bounds, bounds);
     } else if ( !elem->upTrans ) {
             elem->patch->patchBounds(bounds);
     } else {

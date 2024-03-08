@@ -63,7 +63,7 @@ into the virtual screen
 */
 float *
 scratchRenderElements(GalerkinElement *cluster, Vector3D eye) {
-    Vector3D centre = galerkinElementMidPoint(cluster);
+    Vector3D centre = cluster->midPoint();
     Vector3D up = {0.0, 0.0, 1.0};
     Vector3D viewDirection;
     static BoundingBox bbx;
@@ -85,7 +85,7 @@ scratchRenderElements(GalerkinElement *cluster, Vector3D eye) {
     if ( std::fabs(vectorDotProduct(up, viewDirection)) > 1. - EPSILON ) vectorSet(up, 0., 1., 0.);
     lookAt = lookAtMatrix(eye, centre, up);
 
-    boundsTransform(geomBounds(cluster->geom), &lookAt, bbx);
+    boundsTransform(geomBounds(cluster->geometry), &lookAt, bbx);
 
     prev_sgl_context = sglMakeCurrent(GLOBAL_galerkin_state.scratch);
     GLOBAL_sgl_currentContext->sglLoadMatrix(orthogonalViewMatrix(bbx[MIN_X], bbx[MAX_X], bbx[MIN_Y], bbx[MAX_Y], -bbx[MAX_Z], -bbx[MIN_Z]));

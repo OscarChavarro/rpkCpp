@@ -89,7 +89,7 @@ clusterInit(GalerkinElement *cluster) {
 
     // Compute equivalent blocker (or blocker complement) size for multi-resolution
     // visibility
-    float *bbx = cluster->geom->bounds;
+    float *bbx = cluster->geometry->bounds;
     cluster->bsize = floatMax((bbx[MAX_X] - bbx[MIN_X]), (bbx[MAX_Y] - bbx[MIN_Y]));
     cluster->bsize = floatMax(cluster->bsize, (bbx[MAX_Z] - bbx[MIN_Z]));
 }
@@ -237,7 +237,7 @@ clusterRadianceToSamplePoint(GalerkinElement *src, Vector3D sample) {
         }
 
         case Z_VISIBILITY:
-            if ( !src->isCluster() || !outOfBounds(&sample, src->geom->bounds) ) {
+            if ( !src->isCluster() || !outOfBounds(&sample, src->geometry->bounds) ) {
                 return src->radiance[0];
             } else {
                 double areaFactor;
@@ -279,7 +279,7 @@ sourceClusterRadiance(Interaction *link) {
     }
 
     // Take a sample point on the receiver
-    return clusterRadianceToSamplePoint(src, galerkinElementMidPoint(rcv));
+    return clusterRadianceToSamplePoint(src, rcv->midPoint());
 }
 
 /**
@@ -329,15 +329,15 @@ receiverClusterArea(Interaction *link) {
             return rcv->area;
 
         case ORIENTED: {
-            globalSamplePoint = galerkinElementMidPoint(src);
-            globalProjectedArea = 0.;
+            globalSamplePoint = src->midPoint();
+            globalProjectedArea = 0.0;
             iterateOverSurfaceElementsInCluster(rcv, accumulateProjectedAreaToSamplePoint);
             return globalProjectedArea;
         }
 
         case Z_VISIBILITY:
-            globalSamplePoint = galerkinElementMidPoint(src);
-            if ( !outOfBounds(&globalSamplePoint, rcv->geom->bounds)) {
+            globalSamplePoint = src->midPoint();
+            if ( !outOfBounds(&globalSamplePoint, rcv->geometry->bounds)) {
                 return rcv->area;
             } else {
                 float *bbx = scratchRenderElements(rcv, globalSamplePoint);
@@ -443,7 +443,7 @@ clusterGatherRadiance(Interaction *link, COLOR *srcRad) {
 
     globalPSourceRad = srcRad;
     globalTheLink = link;
-    globalSamplePoint = galerkinElementMidPoint(src);
+    globalSamplePoint = src->midPoint();
 
     switch ( GLOBAL_galerkin_state.clusteringStrategy ) {
         case ISOTROPIC:
@@ -453,7 +453,7 @@ clusterGatherRadiance(Interaction *link, COLOR *srcRad) {
             iterateOverSurfaceElementsInCluster(rcv, orientedSurfaceGatherRadiance);
             break;
         case Z_VISIBILITY:
-            if ( !outOfBounds(&globalSamplePoint, rcv->geom->bounds)) {
+            if ( !outOfBounds(&globalSamplePoint, rcv->geometry->bounds)) {
                 iterateOverSurfaceElementsInCluster(rcv, orientedSurfaceGatherRadiance);
             } else {
                 float *bbx = scratchRenderElements(rcv, globalSamplePoint);

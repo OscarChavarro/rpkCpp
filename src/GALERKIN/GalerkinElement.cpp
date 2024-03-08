@@ -123,7 +123,7 @@ GalerkinElement::GalerkinElement():
     receivedPotential = 0.0f;
     unShotPotential = 0.0f;
     patch = nullptr;
-    geom = nullptr;
+    geometry = nullptr;
     parent = nullptr;
     regularSubElements = nullptr;
     irregularSubElements = nullptr; // New list
@@ -167,7 +167,7 @@ Creates a cluster element for the given geometry
 The average projected area still needs to be determined
 */
 GalerkinElement::GalerkinElement(Geometry *parameterGeometry): GalerkinElement() {
-    geom = parameterGeometry;
+    geometry = parameterGeometry;
     area = 0.0; // Needs to be computed after the whole cluster hierarchy has been constructed
     flags |= IS_CLUSTER;
     galerkinElementReAllocCoefficients(this);
@@ -366,7 +366,7 @@ Prints the patch id and the child numbers of the element and its parents
 void
 GalerkinElement::elementPrintId(FILE *out) {
     if ( isCluster() ) {
-        fprintf(out, "geom %d cluster", geom->id);
+        fprintf(out, "geom %d cluster", geometry->id);
     } else {
         if ( upTrans ) {
             elementPrintId(out);
@@ -552,25 +552,22 @@ GalerkinElement::vertices(Vector3D *p, int n) {
 Computes the midpoint of the element
 */
 Vector3D
-galerkinElementMidPoint(GalerkinElement *element) {
+GalerkinElement::midPoint() {
     Vector3D c;
 
-    if ( element->isCluster() ) {
-        float *bbox = geomBounds(element->geom);
+    if ( isCluster() ) {
+        float *boundingBox = geomBounds(geometry);
 
         vectorSet(c,
-                  (bbox[MIN_X] + bbox[MAX_X]) / 2.0f,
-                  (bbox[MIN_Y] + bbox[MAX_Y]) / 2.0f,
-                  (bbox[MIN_Z] + bbox[MAX_Z]) / 2.0f);
+                  (boundingBox[MIN_X] + boundingBox[MAX_X]) / 2.0f,
+                  (boundingBox[MIN_Y] + boundingBox[MAX_Y]) / 2.0f,
+                  (boundingBox[MIN_Z] + boundingBox[MAX_Z]) / 2.0f);
     } else {
         Vector3D p[8];
-        int i;
-        int numberOfVertices;
-
-        numberOfVertices = element->vertices(p, 4);
+        int numberOfVertices = vertices(p, 4);
 
         vectorSet(c, 0.0, 0.0, 0.0);
-        for ( i = 0; i < numberOfVertices; i++ ) {
+        for ( int i = 0; i < numberOfVertices; i++ ) {
             vectorAdd(c, p[i], c);
         }
         vectorScale((1.0f / (float) numberOfVertices), c, c);
@@ -585,7 +582,7 @@ Computes a bounding box for the element
 float *
 GalerkinElement::bounds(float *bounds) {
     if ( isCluster() ) {
-        boundsCopy(geomBounds(geom), bounds);
+        boundsCopy(geomBounds(geometry), bounds);
     } else {
         Vector3D p[4];
         int i;
@@ -607,16 +604,16 @@ Computes a polygon description for shaft culling for the surface
 element. Cannot be used for clusters
 */
 POLYGON *
-galerkinElementPolygon(GalerkinElement *element, POLYGON *polygon) {
-    if ( element->isCluster() ) {
+GalerkinElement::polygon(POLYGON *polygon) {
+    if ( isCluster() ) {
         logFatal(-1, "galerkinElementPolygon", "Cannot use this function for cluster elements");
         return nullptr;
     }
 
-    polygon->normal = element->patch->normal;
-    polygon->planeConstant = element->patch->planeConstant;
-    polygon->index = (unsigned char)element->patch->index;
-    polygon->numberOfVertices = element->vertices(polygon->vertex, polygon->numberOfVertices);
+    polygon->normal = patch->normal;
+    polygon->planeConstant = patch->planeConstant;
+    polygon->index = (unsigned char)patch->index;
+    polygon->numberOfVertices = vertices(polygon->vertex, polygon->numberOfVertices);
 
     boundsInit(polygon->bounds);
     for ( int i = 0; i < polygon->numberOfVertices; i++ ) {
@@ -633,7 +630,7 @@ galerkinElementDraw(GalerkinElement *element, int mode) {
 
     if ( element->isCluster() ) {
         if ( mode & OUTLINE || mode & STRONG ) {
-            renderBounds(geomBounds(element->geom));
+            renderBounds(geomBounds(element->geometry));
         }
         return;
     }

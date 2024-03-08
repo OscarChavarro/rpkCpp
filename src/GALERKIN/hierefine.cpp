@@ -58,9 +58,10 @@ hierarchicRefinementCull(
         if ( state->exact_visibility && !link->receiverElement->isCluster() && !link->sourceElement->isCluster() ) {
             POLYGON rcvPolygon;
             POLYGON srcPolygon;
-            the_shaft = constructPolygonToPolygonShaft(galerkinElementPolygon(link->receiverElement, &rcvPolygon),
-                                                       galerkinElementPolygon(link->sourceElement, &srcPolygon),
-                                                       &shaft);
+            the_shaft = constructPolygonToPolygonShaft(
+                link->receiverElement->polygon(&rcvPolygon),
+               link->sourceElement->polygon(&srcPolygon),
+               &shaft);
         } else {
             BoundingBox srcBounds;
             BoundingBox rcvBounds;
@@ -73,13 +74,13 @@ hierarchicRefinementCull(
         }
 
         if ( link->receiverElement->isCluster() ) {
-            setShaftDontOpen(&shaft, link->receiverElement->geom);
+            setShaftDontOpen(&shaft, link->receiverElement->geometry);
         } else {
             setShaftOmit(&shaft, link->receiverElement->patch);
         }
 
         if ( link->sourceElement->isCluster() ) {
-            setShaftDontOpen(&shaft, link->sourceElement->geom);
+            setShaftDontOpen(&shaft, link->sourceElement->geometry);
         } else {
             setShaftOmit(&shaft, link->sourceElement->patch);
         }
@@ -574,8 +575,8 @@ hierarchicRefinementSubdivideSourceCluster(
 
         if ( !childElement->isCluster() ) {
             Patch *the_patch = childElement->patch;
-            if ( (rcv->isCluster() &&
-                 boundsBehindPlane(geomBounds(rcv->geom), &the_patch->normal, the_patch->planeConstant)) ||
+            if ((rcv->isCluster() &&
+                 boundsBehindPlane(geomBounds(rcv->geometry), &the_patch->normal, the_patch->planeConstant)) ||
                 (!rcv->isCluster() && !facing(rcv->patch, the_patch)) ) {
                 continue;
             }
@@ -616,8 +617,8 @@ hierarchicRefinementSubdivideReceiverCluster(
 
         if ( !child->isCluster() ) {
             Patch *the_patch = child->patch;
-            if ( (src->isCluster() &&
-                 boundsBehindPlane(geomBounds(src->geom), &the_patch->normal, the_patch->planeConstant)) ||
+            if ((src->isCluster() &&
+                 boundsBehindPlane(geomBounds(src->geometry), &the_patch->normal, the_patch->planeConstant)) ||
                 (!src->isCluster() && !facing(src->patch, the_patch)) ) {
                 continue;
             }
