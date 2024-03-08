@@ -21,16 +21,6 @@ and no up trans
 */
 class GalerkinElement : public Element {
   public:
-    COLOR *radiance; // Total radiance on the element as computed so far
-    COLOR *receivedRadiance; // Radiance received during iteration
-    COLOR *unShotRadiance; // For progressive refinement radiosity
-    float potential; // Total potential of the element
-    float receivedPotential; // Potential received during the last iteration
-    float unShotPotential; // Un-shot potential (progressive refinement radiosity)
-    float directPotential;
-    java::ArrayList<Interaction *> *interactions; // Links with other patches: when using
-			 // a shooting algorithm, the links are kept with the source element. When doing gathering,
-			 // the links are kept with the receiver element
     GalerkinElement *parent; /* Parent element in a hierarchy, or
 			 a nullptr pointer if there is no parent. */
     GalerkinElement **regularSubElements; /* A nullptr pointer if there are no
@@ -45,6 +35,14 @@ class GalerkinElement : public Element {
 			 a patch. */
     float area; /* area of a surface element or sum of the areas
 			 of the surfaces in a cluster element */
+
+    float potential; // Total potential of the element
+    float receivedPotential; // Potential received during the last iteration
+    float unShotPotential; // Un-shot potential (progressive refinement radiosity)
+    float directPotential;
+    java::ArrayList<Interaction *> *interactions; // Links with other patches: when using
+			 // a shooting algorithm, the links are kept with the source element. When doing gathering,
+			 // the links are kept with the receiver element
     float minimumArea; /* equal to area for a surface element or the area
 			 of the smallest surface element in a cluster */
     float bsize; // Equivalent blocker size for multi-resolution visibility
@@ -87,22 +85,24 @@ extern Matrix2x2 GLOBAL_galerkin_TriangularUpTransformMatrix[4];
 extern int galerkinElementGetNumberOfElements();
 extern int galerkinElementGetNumberOfClusters();
 extern int galerkinElementGetNumberOfSurfaceElements();
+
 extern GalerkinElement *galerkinElementCreateTopLevel(Patch *patch);
 extern GalerkinElement *galerkinElementCreateCluster(Geometry *geometry);
+
 extern GalerkinElement **galerkinElementRegularSubDivide(GalerkinElement *element);
-extern void galerkinElementPrintId(FILE *out, GalerkinElement *elem);
+extern void galerkinElementPrintId(FILE *out, GalerkinElement *element);
 extern void galerkinElementDestroyTopLevel(GalerkinElement *element);
 extern void galerkinElementDestroyCluster(GalerkinElement *element);
 extern Matrix2x2 *galerkinElementToTopTransform(GalerkinElement *element, Matrix2x2 *xf);
-extern GalerkinElement *galerkinElementRegularSubElementAtPoint(GalerkinElement *parent, double *u, double *v);
-extern GalerkinElement *galerkinElementRegularLeafAtPoint(GalerkinElement *top, double *u, double *v);
-extern void galerkinElementDrawOutline(GalerkinElement *elem);
-extern void galerkinElementRender(GalerkinElement *elem);
+extern GalerkinElement *galerkinElementRegularSubElementAtPoint(GalerkinElement *element, double *u, double *v);
+extern GalerkinElement *galerkinElementRegularLeafAtPoint(GalerkinElement *element, double *u, double *v);
+extern void galerkinElementDrawOutline(GalerkinElement *element);
+extern void galerkinElementRender(GalerkinElement *element);
 extern void galerkinElementReAllocCoefficients(GalerkinElement *element);
-extern int galerkinElementVertices(GalerkinElement *elem, Vector3D *p, int n);
-extern float *galerkinElementBounds(GalerkinElement *elem, float *bounds);
-extern Vector3D galerkinElementMidPoint(GalerkinElement *elem);
-extern POLYGON *galerkinElementPolygon(GalerkinElement *elem, POLYGON *polygon);
-extern void forAllLeafElements(GalerkinElement *top, void (*func)(GalerkinElement *));
+extern int galerkinElementVertices(GalerkinElement *element, Vector3D *p, int n);
+extern float *galerkinElementBounds(GalerkinElement *element, float *bounds);
+extern Vector3D galerkinElementMidPoint(GalerkinElement *element);
+extern POLYGON *galerkinElementPolygon(GalerkinElement *element, POLYGON *polygon);
+extern void galerkinElementForAllLeafElements(GalerkinElement *element, void (*func)(GalerkinElement *));
 
 #endif

@@ -359,10 +359,10 @@ randomWalkRadiosityDoGatheringIteration(java::ArrayList<Patch *> *scenePatches) 
 
 static void
 randomWalkRadiosityUpdateSourceIllumination(StochasticRadiosityElement *elem, double /*w*/) {
-    stochasticRadiosityCopyCoefficients(elem->rad, elem->receivedRad, elem->basis);
-    elem->sourceRad = elem->receivedRad[0];
-    stochasticRadiosityClearCoefficients(elem->unShotRad, elem->basis);
-    stochasticRadiosityClearCoefficients(elem->receivedRad, elem->basis);
+    stochasticRadiosityCopyCoefficients(elem->radiance, elem->receivedRadiance, elem->basis);
+    elem->sourceRad = elem->receivedRadiance[0];
+    stochasticRadiosityClearCoefficients(elem->unShotRadiance, elem->basis);
+    stochasticRadiosityClearCoefficients(elem->receivedRadiance, elem->basis);
 }
 
 static void

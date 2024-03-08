@@ -16,9 +16,9 @@ initCoefficients(StochasticRadiosityElement *elem) {
         globalCoefficientPoolsInitialized = true;
     }
 
-    elem->rad = nullptr;
-    elem->unShotRad = nullptr;
-    elem->receivedRad = nullptr;
+    elem->radiance = nullptr;
+    elem->unShotRadiance = nullptr;
+    elem->receivedRadiance = nullptr;
     elem->basis = &GLOBAL_stochasticRadiosity_dummyBasis;
 }
 
@@ -27,10 +27,10 @@ Disposes previously allocated coefficients
 */
 void
 disposeCoefficients(StochasticRadiosityElement *elem) {
-    if ( elem->basis && elem->basis != &GLOBAL_stochasticRadiosity_dummyBasis && elem->rad ) {
-        free(elem->rad);
-        free(elem->unShotRad);
-        free(elem->receivedRad);
+    if ( elem->basis && elem->basis != &GLOBAL_stochasticRadiosity_dummyBasis && elem->radiance ) {
+        free(elem->radiance);
+        free(elem->unShotRadiance);
+        free(elem->receivedRadiance);
     }
     initCoefficients(elem);
 }
@@ -52,9 +52,9 @@ void
 allocCoefficients(StochasticRadiosityElement *elem) {
     disposeCoefficients(elem);
     elem->basis = ActualBasis(elem);
-    elem->rad = (COLOR *)malloc(elem->basis->size * sizeof(COLOR));
-    elem->unShotRad = (COLOR *)malloc(elem->basis->size * sizeof(COLOR));
-    elem->receivedRad = (COLOR *)malloc(elem->basis->size * sizeof(COLOR));
+    elem->radiance = (COLOR *)malloc(elem->basis->size * sizeof(COLOR));
+    elem->unShotRadiance = (COLOR *)malloc(elem->basis->size * sizeof(COLOR));
+    elem->receivedRadiance = (COLOR *)malloc(elem->basis->size * sizeof(COLOR));
 }
 
 /**

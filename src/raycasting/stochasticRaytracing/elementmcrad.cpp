@@ -142,9 +142,9 @@ monteCarloRadiosityCreateToplevelSurfaceElement(Patch *patch) {
     }
 
     allocCoefficients(elem); // May need reallocation before the start of the computations
-    stochasticRadiosityClearCoefficients(elem->rad, elem->basis);
-    stochasticRadiosityClearCoefficients(elem->unShotRad, elem->basis);
-    stochasticRadiosityClearCoefficients(elem->receivedRad, elem->basis);
+    stochasticRadiosityClearCoefficients(elem->radiance, elem->basis);
+    stochasticRadiosityClearCoefficients(elem->unShotRadiance, elem->basis);
+    stochasticRadiosityClearCoefficients(elem->receivedRadiance, elem->basis);
 
     elem->Ed = patch->averageEmittance(DIFFUSE_COMPONENT);
     colorScaleInverse(M_PI, elem->Ed, elem->Ed);
@@ -171,9 +171,9 @@ monteCarloRadiosityCreateCluster(Geometry *geom) {
               (bounds[MIN_Z] + bounds[MAX_Z]) / 2.0f);
 
     allocCoefficients(elem); // Always constant approx. so no need to delay allocating the coefficients
-    stochasticRadiosityClearCoefficients(elem->rad, elem->basis);
-    stochasticRadiosityClearCoefficients(elem->unShotRad, elem->basis);
-    stochasticRadiosityClearCoefficients(elem->receivedRad, elem->basis);
+    stochasticRadiosityClearCoefficients(elem->radiance, elem->basis);
+    stochasticRadiosityClearCoefficients(elem->unShotRadiance, elem->basis);
+    stochasticRadiosityClearCoefficients(elem->receivedRadiance, elem->basis);
     elem->imp = 0.0;
     elem->unShotImp = 0.0;
     elem->received_imp = 0.0;
@@ -212,9 +212,9 @@ Initialises parent cluster radiance/importance/area for child voxelData
 static void
 monteCarloRadiosityInitClusterPull(StochasticRadiosityElement *parent, StochasticRadiosityElement *child) {
     parent->area += child->area;
-    pullRadiance(parent, child, parent->rad, child->rad);
-    pullRadiance(parent, child, parent->unShotRad, child->unShotRad);
-    pullRadiance(parent, child, parent->receivedRad, child->receivedRad);
+    pullRadiance(parent, child, parent->radiance, child->radiance);
+    pullRadiance(parent, child, parent->unShotRadiance, child->unShotRadiance);
+    pullRadiance(parent, child, parent->receivedRadiance, child->receivedRadiance);
     pullImportance(parent, child, &parent->imp, &child->imp);
     pullImportance(parent, child, &parent->unShotImp, &child->unShotImp);
     pullImportance(parent, child, &parent->received_imp, &child->received_imp);
@@ -632,8 +632,8 @@ Initial push operation for surface sub-elements
 static void
 monteCarloRadiosityInitSurfacePush(StochasticRadiosityElement *parent, StochasticRadiosityElement *child) {
     child->sourceRad = parent->sourceRad;
-    pushRadiance(parent, child, parent->rad, child->rad);
-    pushRadiance(parent, child, parent->unShotRad, child->unShotRad);
+    pushRadiance(parent, child, parent->radiance, child->radiance);
+    pushRadiance(parent, child, parent->unShotRadiance, child->unShotRadiance);
     pushImportance(parent, child, &parent->imp, &child->imp);
     pushImportance(parent, child, &parent->source_imp, &child->source_imp);
     pushImportance(parent, child, &parent->unShotImp, &child->unShotImp);
@@ -683,9 +683,9 @@ monteCarloRadiosityCreateSurfaceSubElement(
     elem->upTrans = elem->numberOfVertices == 3 ? &GLOBAL_stochasticRaytracing_triangleUpTransform[childNumber] : &GLOBAL_stochasticRaytracing_quadUpTransform[childNumber];
 
     allocCoefficients(elem);
-    stochasticRadiosityClearCoefficients(elem->rad, elem->basis);
-    stochasticRadiosityClearCoefficients(elem->unShotRad, elem->basis);
-    stochasticRadiosityClearCoefficients(elem->receivedRad, elem->basis);
+    stochasticRadiosityClearCoefficients(elem->radiance, elem->basis);
+    stochasticRadiosityClearCoefficients(elem->unShotRadiance, elem->basis);
+    stochasticRadiosityClearCoefficients(elem->receivedRadiance, elem->basis);
     elem->imp = elem->unShotImp = elem->received_imp = 0.;
     monteCarloRadiosityInitSurfacePush(parent, elem);
 

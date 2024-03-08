@@ -17,9 +17,6 @@ static int globalNumberOfElements = 0;
 static int globalNumberOfClusters = 0;
 
 GalerkinElement::GalerkinElement():
-    radiance(),
-    receivedRadiance(),
-    unShotRadiance(),
     potential(),
     receivedPotential(),
     unShotPotential(),
@@ -410,15 +407,15 @@ galerkinElementDestroyCluster(GalerkinElement *element) {
 Prints the patch id and the child numbers of the element and its parents
 */
 void
-galerkinElementPrintId(FILE *out, GalerkinElement *elem) {
-    if ( isCluster(elem)) {
-        fprintf(out, "geom %d cluster", elem->geom->id);
+galerkinElementPrintId(FILE *out, GalerkinElement *element) {
+    if ( isCluster(element)) {
+        fprintf(out, "geom %d cluster", element->geom->id);
     } else {
-        if ( elem->upTrans ) {
-            galerkinElementPrintId(out, elem->parent);
-            fprintf(out, "%d", elem->childNumber + 1);
+        if ( element->upTrans ) {
+            galerkinElementPrintId(out, element->parent);
+            fprintf(out, "%d", element->childNumber + 1);
         } else {
-            fprintf(out, "patch %d element ", elem->patch->id);
+            fprintf(out, "patch %d element ", element->patch->id);
         }
     }
 }
@@ -449,37 +446,37 @@ galerkinElementToTopTransform(GalerkinElement *element, Matrix2x2 *xf) {
 }
 
 /**
-Determines the regular sub-element at point (u,v) of the given parent
-element. Returns the parent element itself if there are no regular sub-elements.
+Determines the regular sub-element at point (u,v) of the given element
+element. Returns the element element itself if there are no regular sub-elements.
 The point is transformed to the corresponding point on the sub-element
 */
 GalerkinElement *
-galerkinElementRegularSubElementAtPoint(GalerkinElement *parent, double *u, double *v) {
+galerkinElementRegularSubElementAtPoint(GalerkinElement *element, double *u, double *v) {
     GalerkinElement *child = nullptr;
     double _u = *u;
     double _v = *v;
 
-    if ( isCluster(parent) || !parent->regularSubElements ) {
-        return parent;
+    if ( isCluster(element) || !element->regularSubElements ) {
+        return element;
     }
 
     // Have a look at the drawings above to understand what is done exactly
-    switch ( parent->patch->numberOfVertices ) {
+    switch ( element->patch->numberOfVertices ) {
         case 3:
             if ( _u + _v <= 0.5 ) {
-                child = parent->regularSubElements[0];
+                child = element->regularSubElements[0];
                 *u = _u * 2.;
                 *v = _v * 2.;
             } else if ( _u > 0.5 ) {
-                child = parent->regularSubElements[1];
+                child = element->regularSubElements[1];
                 *u = (_u - 0.5) * 2.;
                 *v = _v * 2.;
             } else if ( _v > 0.5 ) {
-                child = parent->regularSubElements[2];
+                child = element->regularSubElements[2];
                 *u = _u * 2.;
                 *v = (_v - 0.5) * 2.;
             } else {
-                child = parent->regularSubElements[3];
+                child = element->regularSubElements[3];
                 *u = (0.5 - _u) * 2.;
                 *v = (0.5 - _v) * 2.;
             }
@@ -487,19 +484,19 @@ galerkinElementRegularSubElementAtPoint(GalerkinElement *parent, double *u, doub
         case 4:
             if ( _v <= 0.5 ) {
                 if ( _u < 0.5 ) {
-                    child = parent->regularSubElements[0];
+                    child = element->regularSubElements[0];
                     *u = _u * 2.;
                 } else {
-                    child = parent->regularSubElements[1];
+                    child = element->regularSubElements[1];
                     *u = (_u - 0.5) * 2.;
                 }
                 *v = _v * 2.;
             } else {
                 if ( _u < 0.5 ) {
-                    child = parent->regularSubElements[2];
+                    child = element->regularSubElements[2];
                     *u = _u * 2.;
                 } else {
-                    child = parent->regularSubElements[3];
+                    child = element->regularSubElements[3];
                     *u = (_u - 0.5) * 2.;
                 }
                 *v = (_v - 0.5) * 2.;
@@ -513,16 +510,16 @@ galerkinElementRegularSubElementAtPoint(GalerkinElement *parent, double *u, doub
 }
 
 /**
-Returns the leaf regular sub-element of 'top' at the point (u,v) (uniform
+Returns the leaf regular sub-element of 'element' at the point (u,v) (uniform
 coordinates!). (u,v) is transformed to the coordinates of the corresponding
-point on the leaf element. 'top' is a surface element, not a cluster
+point on the leaf element. 'element' is a surface element, not a cluster
 */
 GalerkinElement *
-galerkinElementRegularLeafAtPoint(GalerkinElement *top, double *u, double *v) {
+galerkinElementRegularLeafAtPoint(GalerkinElement *element, double *u, double *v) {
     GalerkinElement *leaf;
 
-    /* find leaf element of 'top' at (u,v) */
-    leaf = top;
+    /* find leaf element of 'element' at (u,v) */
+    leaf = element;
     while ( leaf->regularSubElements ) {
         leaf = galerkinElementRegularSubElementAtPoint(leaf, u, v);
     }
@@ -535,11 +532,11 @@ Computes the vertices of a surface element (3 or 4 vertices) or
 cluster element (8 vertices). The number of vertices is returned
 */
 int
-galerkinElementVertices(GalerkinElement *elem, Vector3D *p, int n) {
-    if ( isCluster(elem) ) {
+galerkinElementVertices(GalerkinElement *element, Vector3D *p, int n) {
+    if ( isCluster(element) ) {
         BoundingBox vol;
 
-        galerkinElementBounds(elem, vol);
+        galerkinElementBounds(element, vol);
 
         for ( int i = 0; i < n; i++ ) {
             vectorSet(p[i], vol[MIN_X], vol[MIN_Y], vol[MIN_Z]);
@@ -550,42 +547,42 @@ galerkinElementVertices(GalerkinElement *elem, Vector3D *p, int n) {
         Matrix2x2 topTrans{};
         Vector2D uv;
 
-        if ( elem->upTrans ) {
-            galerkinElementToTopTransform(elem, &topTrans);
+        if ( element->upTrans ) {
+            galerkinElementToTopTransform(element, &topTrans);
         }
 
         uv.u = 0.0;
         uv.v = 0.0;
-        if ( elem->upTrans ) {
+        if ( element->upTrans ) {
             transformPoint2D(topTrans, uv, uv);
         }
-        elem->patch->uniformPoint(uv.u, uv.v, &p[0]);
+        element->patch->uniformPoint(uv.u, uv.v, &p[0]);
 
         uv.u = 1.0;
         uv.v = 0.0;
-        if ( elem->upTrans ) transformPoint2D(topTrans, uv, uv);
-        elem->patch->uniformPoint(uv.u, uv.v, &p[1]);
+        if ( element->upTrans ) transformPoint2D(topTrans, uv, uv);
+        element->patch->uniformPoint(uv.u, uv.v, &p[1]);
 
-        if ( elem->patch->numberOfVertices == 4 ) {
+        if ( element->patch->numberOfVertices == 4 ) {
             uv.u = 1.0;
             uv.v = 1.0;
-            if ( elem->upTrans ) transformPoint2D(topTrans, uv, uv);
-            elem->patch->uniformPoint(uv.u, uv.v, &p[2]);
+            if ( element->upTrans ) transformPoint2D(topTrans, uv, uv);
+            element->patch->uniformPoint(uv.u, uv.v, &p[2]);
 
             uv.u = 0.0;
             uv.v = 1.0;
-            if ( elem->upTrans ) transformPoint2D(topTrans, uv, uv);
-            elem->patch->uniformPoint(uv.u, uv.v, &p[3]);
+            if ( element->upTrans ) transformPoint2D(topTrans, uv, uv);
+            element->patch->uniformPoint(uv.u, uv.v, &p[3]);
         } else {
             uv.u = 0.0;
             uv.v = 1.0;
-            if ( elem->upTrans ) transformPoint2D(topTrans, uv, uv);
-            elem->patch->uniformPoint(uv.u, uv.v, &p[2]);
+            if ( element->upTrans ) transformPoint2D(topTrans, uv, uv);
+            element->patch->uniformPoint(uv.u, uv.v, &p[2]);
 
             vectorSet(p[3], 0.0, 0.0, 0.0);
         }
 
-        return elem->patch->numberOfVertices;
+        return element->patch->numberOfVertices;
     }
 }
 
@@ -593,11 +590,11 @@ galerkinElementVertices(GalerkinElement *elem, Vector3D *p, int n) {
 Computes the midpoint of the element
 */
 Vector3D
-galerkinElementMidPoint(GalerkinElement *elem) {
+galerkinElementMidPoint(GalerkinElement *element) {
     Vector3D c;
 
-    if ( isCluster(elem)) {
-        float *bbox = geomBounds(elem->geom);
+    if ( isCluster(element)) {
+        float *bbox = geomBounds(element->geom);
 
         vectorSet(c,
                   (bbox[MIN_X] + bbox[MAX_X]) / 2.0f,
@@ -608,7 +605,7 @@ galerkinElementMidPoint(GalerkinElement *elem) {
         int i;
         int numberOfVertices;
 
-        numberOfVertices = galerkinElementVertices(elem, p, 4);
+        numberOfVertices = galerkinElementVertices(element, p, 4);
 
         vectorSet(c, 0.0, 0.0, 0.0);
         for ( i = 0; i < numberOfVertices; i++ ) {
@@ -624,15 +621,15 @@ galerkinElementMidPoint(GalerkinElement *elem) {
 Computes a bounding box for the element
 */
 float *
-galerkinElementBounds(GalerkinElement *elem, float *bounds) {
-    if ( isCluster(elem)) {
-        boundsCopy(geomBounds(elem->geom), bounds);
+galerkinElementBounds(GalerkinElement *element, float *bounds) {
+    if ( isCluster(element)) {
+        boundsCopy(geomBounds(element->geom), bounds);
     } else {
         Vector3D p[4];
         int i;
         int numberOfVertices;
 
-        numberOfVertices = galerkinElementVertices(elem, p, 4);
+        numberOfVertices = galerkinElementVertices(element, p, 4);
 
         boundsInit(bounds);
         for ( i = 0; i < numberOfVertices; i++ ) {
@@ -648,16 +645,16 @@ Computes a polygon description for shaft culling for the surface
 element. Cannot be used for clusters
 */
 POLYGON *
-galerkinElementPolygon(GalerkinElement *elem, POLYGON *polygon) {
-    if ( isCluster(elem) ) {
+galerkinElementPolygon(GalerkinElement *element, POLYGON *polygon) {
+    if ( isCluster(element) ) {
         logFatal(-1, "galerkinElementPolygon", "Cannot use this function for cluster elements");
         return nullptr;
     }
 
-    polygon->normal = elem->patch->normal;
-    polygon->planeConstant = elem->patch->planeConstant;
-    polygon->index = (unsigned char)elem->patch->index;
-    polygon->numberOfVertices = galerkinElementVertices(elem, polygon->vertex, polygon->numberOfVertices);
+    polygon->normal = element->patch->normal;
+    polygon->planeConstant = element->patch->planeConstant;
+    polygon->index = (unsigned char)element->patch->index;
+    polygon->numberOfVertices = galerkinElementVertices(element, polygon->vertex, polygon->numberOfVertices);
 
     boundsInit(polygon->bounds);
     for ( int i = 0; i < polygon->numberOfVertices; i++ ) {
@@ -780,15 +777,15 @@ galerkinElementDraw(GalerkinElement *element, int mode) {
 Draws element outline in the current outline color
 */
 void
-galerkinElementDrawOutline(GalerkinElement *elem) {
-    galerkinElementDraw(elem, OUTLINE);
+galerkinElementDrawOutline(GalerkinElement *element) {
+    galerkinElementDraw(element, OUTLINE);
 }
 
 /**
 Renders a surface element flat shaded based on its radiance
 */
 void
-galerkinElementRender(GalerkinElement *elem) {
+galerkinElementRender(GalerkinElement *element) {
     int renderCode = 0;
 
     if ( GLOBAL_render_renderOptions.drawOutlines ) {
@@ -801,25 +798,25 @@ galerkinElementRender(GalerkinElement *elem) {
         renderCode |= FLAT;
     }
 
-    galerkinElementDraw(elem, renderCode);
+    galerkinElementDraw(element, renderCode);
 }
 
 /**
-Call func for each leaf element of top
+Call func for each leaf element of element
 */
 void
-forAllLeafElements(GalerkinElement *top, void (*func)(GalerkinElement *)) {
-    for ( int i = 0; top->irregularSubElements != nullptr && i < top->irregularSubElements->size(); i++ ) {
-        forAllLeafElements(top->irregularSubElements->get(i), func);
+galerkinElementForAllLeafElements(GalerkinElement *element, void (*func)(GalerkinElement *)) {
+    for ( int i = 0; element->irregularSubElements != nullptr && i < element->irregularSubElements->size(); i++ ) {
+        galerkinElementForAllLeafElements(element->irregularSubElements->get(i), func);
     }
 
-    if ( top->regularSubElements != nullptr ) {
+    if ( element->regularSubElements != nullptr ) {
         for ( int i = 0; i < 4; i++ ) {
-            forAllLeafElements(top->regularSubElements[i], func);
+            galerkinElementForAllLeafElements(element->regularSubElements[i], func);
         }
     }
 
-    if ( !top->irregularSubElements && !top->regularSubElements ) {
-        func(top);
+    if ( !element->irregularSubElements && !element->regularSubElements ) {
+        func(element);
     }
 }

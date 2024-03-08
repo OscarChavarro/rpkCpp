@@ -133,7 +133,7 @@ LowPowerLink(
     float threshold, propagated_power;
 
     /* compute receiver reflectance times source radiosity */
-    colorScale(M_PI, src->rad[0], rhosrcrad);
+    colorScale(M_PI, src->radiance[0], rhosrcrad);
     if ( !rcv->isCluster ) {
         COLOR Rd = topLevelGalerkinElement(rcv->patch)->Rd;
         colorProduct(Rd, rhosrcrad, rhosrcrad);

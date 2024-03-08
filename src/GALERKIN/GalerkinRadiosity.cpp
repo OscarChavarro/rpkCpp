@@ -519,7 +519,7 @@ static void
 galerkinWriteCoords() {
     globalNumberOfWrites = globalVertexId = 0;
     fprintf(globalVrmlFileDescriptor, "\tcoord Coordinate {\n\t  point [ ");
-    forAllLeafElements(GLOBAL_galerkin_state.topCluster, galerkinWriteVertexCoords);
+    galerkinElementForAllLeafElements(GLOBAL_galerkin_state.topCluster, galerkinWriteVertexCoords);
     fprintf(globalVrmlFileDescriptor, " ] ");
     fprintf(globalVrmlFileDescriptor, "\n\t}\n");
 }
@@ -575,7 +575,7 @@ static void
 galerkinWriteVertexColors() {
     globalVertexId = globalNumberOfWrites = 0;
     fprintf(globalVrmlFileDescriptor, "\tcolor Color {\n\t  color [ ");
-    forAllLeafElements(GLOBAL_galerkin_state.topCluster, galerkinWriteVertexColors);
+    galerkinElementForAllLeafElements(GLOBAL_galerkin_state.topCluster, galerkinWriteVertexColors);
     fprintf(globalVrmlFileDescriptor, " ] ");
     fprintf(globalVrmlFileDescriptor, "\n\t}\n");
 }
@@ -611,7 +611,7 @@ static void
 galerkinWriteCoordIndices() {
     globalVertexId = globalNumberOfWrites = 0;
     fprintf(globalVrmlFileDescriptor, "\tcoordIndex [ ");
-    forAllLeafElements(GLOBAL_galerkin_state.topCluster, galerkinWriteCoordIndices);
+    galerkinElementForAllLeafElements(GLOBAL_galerkin_state.topCluster, galerkinWriteCoordIndices);
     fprintf(globalVrmlFileDescriptor, " ]\n");
 }
 

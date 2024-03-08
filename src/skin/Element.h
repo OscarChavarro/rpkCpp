@@ -18,8 +18,21 @@ class Element {
     Patch *patch;
     Geometry *geom;
     ElementTypes className;
+    COLOR *radiance; // Total radiance on the element as computed so far
+    COLOR *receivedRadiance; // Radiance received during iteration
+    COLOR *unShotRadiance; // For progressive refinement radiosity
 
-    Element(): id(), Ed(), Rd(), patch(), geom(), className() {}
+    Element():
+        id(),
+        Ed(),
+        Rd(),
+        patch(),
+        geom(),
+        className(),
+        radiance(),
+        receivedRadiance(),
+        unShotRadiance()
+    {}
     virtual ~Element() {};
 };
 

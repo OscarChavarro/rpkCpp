@@ -102,7 +102,7 @@ stochasticJacobiProbability(StochasticRadiosityElement *elem) {
         if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.radianceDriven ) {
             // Received-radiance weighted importance transport
             COLOR received_radiance;
-            colorSubtract(elem->rad[0], elem->sourceRad, received_radiance);
+            colorSubtract(elem->radiance[0], elem->sourceRad, received_radiance);
             prob2 *= colorSumAbsComponents(received_radiance);
         }
 
@@ -121,7 +121,7 @@ clear accumulators of all kinds of sample weights and contributions
 static void
 stochasticJacobiElementClearAccumulators(StochasticRadiosityElement *elem) {
     if ( globalGetRadianceCallback ) {
-        stochasticRadiosityClearCoefficients(elem->receivedRad, elem->basis);
+        stochasticRadiosityClearCoefficients(elem->receivedRadiance, elem->basis);
     }
     if ( globalGetImportanceCallback ) {
         elem->received_imp = 0.0;
@@ -193,7 +193,7 @@ stochasticJacobiPropagateRadianceToSurface(
     for ( int i = 0; i < rcv->basis->size; i++ ) {
         double dual = rcv->basis->dualFunction[i](ur, vr) / rcv->area;
         double w = dual * fraction / (double) globalNumberOfRays;
-        colorAddScaled(rcv->receivedRad[i], (float)w, rayPower, rcv->receivedRad[i]);
+        colorAddScaled(rcv->receivedRadiance[i], (float)w, rayPower, rcv->receivedRadiance[i]);
     }
 }
 
@@ -206,7 +206,7 @@ stochasticJacobiPropagateRadianceToClusterIsotropic(
     double /*weight*/)
 {
     double w = fraction / cluster->area / (double) globalNumberOfRays;
-    colorAddScaled(cluster->receivedRad[0], (float)w, rayPower, cluster->receivedRad[0]);
+    colorAddScaled(cluster->receivedRadiance[0], (float)w, rayPower, cluster->receivedRadiance[0]);
 }
 
 /**
@@ -227,7 +227,7 @@ stochasticJacobiPropagateRadianceClusterRecursive(
         if ( c > 0. ) {
             double aFraction = fraction * (c * currentElement->area / projectedArea);
             double w = aFraction / currentElement->area / (double) globalNumberOfRays;
-            colorAddScaled(currentElement->receivedRad[0], (float)w, rayPower, currentElement->receivedRad[0]);
+            colorAddScaled(currentElement->receivedRadiance[0], (float)w, rayPower, currentElement->receivedRadiance[0]);
         }
     } else {
         // Recursive case
@@ -648,17 +648,17 @@ stochasticJacobiUpdateElement(StochasticRadiosityElement *elem) {
     if ( globalGetRadianceCallback ) {
         if ( globalDoControlVariate ) {
             // Add constant radiosity contribution to received flux
-            colorAdd(elem->receivedRad[0], GLOBAL_stochasticRaytracing_monteCarloRadiosityState.controlRadiance, elem->receivedRad[0]);
+            colorAdd(elem->receivedRadiance[0], GLOBAL_stochasticRaytracing_monteCarloRadiosityState.controlRadiance, elem->receivedRadiance[0]);
         }
         // Multiply with reflectivity on leaf elements only
-        stochasticRadiosityMultiplyCoefficients(elem->Rd, elem->receivedRad, elem->basis);
+        stochasticRadiosityMultiplyCoefficients(elem->Rd, elem->receivedRadiance, elem->basis);
     }
 
     globalReflectCallback(elem, (double) globalNumberOfRays / globalSumOfProbabilities);
 
-    colorAddScaled(GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotFlux, M_PI * elem->area, elem->unShotRad[0], GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotFlux);
-    colorAddScaled(GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalFlux, M_PI * elem->area, elem->rad[0], GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalFlux);
-    colorAddScaled(GLOBAL_stochasticRaytracing_monteCarloRadiosityState.indirectImportanceWeightedUnShotFlux, M_PI * elem->area * (elem->imp - elem->source_imp), elem->unShotRad[0],
+    colorAddScaled(GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotFlux, M_PI * elem->area, elem->unShotRadiance[0], GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotFlux);
+    colorAddScaled(GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalFlux, M_PI * elem->area, elem->radiance[0], GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalFlux);
+    colorAddScaled(GLOBAL_stochasticRaytracing_monteCarloRadiosityState.indirectImportanceWeightedUnShotFlux, M_PI * elem->area * (elem->imp - elem->source_imp), elem->unShotRadiance[0],
                    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.indirectImportanceWeightedUnShotFlux);
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotYmp += elem->area * fabs(elem->unShotImp);
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalYmp += elem->area * elem->imp;
@@ -672,12 +672,12 @@ stochasticJacobiPush(StochasticRadiosityElement *parent, StochasticRadiosityElem
 
         if ( parent->isCluster && !child->isCluster ) {
             // Multiply with reflectance (See PropagateRadianceToClusterIsotropic() above)
-            COLOR rad = parent->receivedRad[0];
+            COLOR rad = parent->receivedRadiance[0];
             Rd = child->Rd;
             colorProduct(Rd, rad, rad);
-            pushRadiance(parent, child, &rad, child->receivedRad);
+            pushRadiance(parent, child, &rad, child->receivedRadiance);
         } else
-            pushRadiance(parent, child, parent->receivedRad, child->receivedRad);
+            pushRadiance(parent, child, parent->receivedRadiance, child->receivedRadiance);
     }
 
     if ( globalGetImportanceCallback ) {
@@ -688,8 +688,8 @@ stochasticJacobiPush(StochasticRadiosityElement *parent, StochasticRadiosityElem
 static void
 stochasticJacobiPull(StochasticRadiosityElement *parent, StochasticRadiosityElement *child) {
     if ( globalGetRadianceCallback ) {
-        pullRadiance(parent, child, parent->rad, child->rad);
-        pullRadiance(parent, child, parent->unShotRad, child->unShotRad);
+        pullRadiance(parent, child, parent->radiance, child->radiance);
+        pullRadiance(parent, child, parent->unShotRadiance, child->unShotRadiance);
     }
     if ( globalGetImportanceCallback ) {
         pullImportance(parent, child, &parent->imp, &child->imp);
@@ -703,8 +703,8 @@ Clears everything to be pulled from children elements to zero
 static void
 stochasticJacobiClearElement(StochasticRadiosityElement *parent) {
     if ( globalGetRadianceCallback ) {
-        stochasticRadiosityClearCoefficients(parent->rad, parent->basis);
-        stochasticRadiosityClearCoefficients(parent->unShotRad, parent->basis);
+        stochasticRadiosityClearCoefficients(parent->radiance, parent->basis);
+        stochasticRadiosityClearCoefficients(parent->unShotRadiance, parent->basis);
     }
     if ( globalGetImportanceCallback ) {
         parent->imp = parent->unShotImp = 0.;
