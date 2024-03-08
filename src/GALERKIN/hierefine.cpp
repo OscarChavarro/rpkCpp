@@ -253,7 +253,7 @@ sourceClusterRadianceVariationError(Interaction *link, COLOR rcvRho, double rcv_
     }
 
     Vector3D rcVertices[8];
-    int numberOfRcVertices = galerkinElementVertices(link->receiverElement, rcVertices, 8);
+    int numberOfRcVertices = link->receiverElement->vertices(rcVertices, 8);
 
     COLOR minimumSrcRad;
     COLOR maximumSrcRad;

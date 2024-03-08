@@ -81,6 +81,9 @@ public:
     void elementPrintId(FILE *out);
     Matrix2x2 *topTransform(Matrix2x2 *xf);
     GalerkinElement *regularLeafAtPoint(double *u, double *v);
+    void drawOutline();
+    void render();
+    int vertices(Vector3D *p, int n);
 };
 
 /**
@@ -96,10 +99,7 @@ extern int galerkinElementGetNumberOfElements();
 extern int galerkinElementGetNumberOfClusters();
 extern int galerkinElementGetNumberOfSurfaceElements();
 
-extern void galerkinElementDrawOutline(GalerkinElement *element);
-extern void galerkinElementRender(GalerkinElement *element);
 extern void galerkinElementReAllocCoefficients(GalerkinElement *element);
-extern int galerkinElementVertices(GalerkinElement *element, Vector3D *p, int n);
 extern float *galerkinElementBounds(GalerkinElement *element, float *bounds);
 extern Vector3D galerkinElementMidPoint(GalerkinElement *element);
 extern POLYGON *galerkinElementPolygon(GalerkinElement *element, POLYGON *polygon);

@@ -361,7 +361,7 @@ GalerkinElement::regularSubDivide() {
         subElement[i]->Ed = Ed;
 
         openGlRenderSetColor(&GLOBAL_render_renderOptions.outline_color);
-        galerkinElementDrawOutline(subElement[i]);
+        subElement[i]->drawOutline();
     }
 
     regularSubElements = subElement;
@@ -498,11 +498,11 @@ Computes the vertices of a surface element (3 or 4 vertices) or
 cluster element (8 vertices). The number of vertices is returned
 */
 int
-galerkinElementVertices(GalerkinElement *element, Vector3D *p, int n) {
-    if ( element->isCluster() ) {
+GalerkinElement::vertices(Vector3D *p, int n) {
+    if ( isCluster() ) {
         BoundingBox vol;
 
-        galerkinElementBounds(element, vol);
+        galerkinElementBounds(this, vol);
 
         for ( int i = 0; i < n; i++ ) {
             vectorSet(p[i], vol[MIN_X], vol[MIN_Y], vol[MIN_Z]);
@@ -513,42 +513,46 @@ galerkinElementVertices(GalerkinElement *element, Vector3D *p, int n) {
         Matrix2x2 topTrans{};
         Vector2D uv;
 
-        if ( element->upTrans ) {
-            element->topTransform(&topTrans);
+        if ( upTrans ) {
+            topTransform(&topTrans);
         }
 
         uv.u = 0.0;
         uv.v = 0.0;
-        if ( element->upTrans ) {
+        if ( upTrans ) {
             transformPoint2D(topTrans, uv, uv);
         }
-        element->patch->uniformPoint(uv.u, uv.v, &p[0]);
+        patch->uniformPoint(uv.u, uv.v, &p[0]);
 
         uv.u = 1.0;
         uv.v = 0.0;
-        if ( element->upTrans ) transformPoint2D(topTrans, uv, uv);
-        element->patch->uniformPoint(uv.u, uv.v, &p[1]);
+        if ( upTrans ) transformPoint2D(topTrans, uv, uv);
+        patch->uniformPoint(uv.u, uv.v, &p[1]);
 
-        if ( element->patch->numberOfVertices == 4 ) {
+        if ( patch->numberOfVertices == 4 ) {
             uv.u = 1.0;
             uv.v = 1.0;
-            if ( element->upTrans ) transformPoint2D(topTrans, uv, uv);
-            element->patch->uniformPoint(uv.u, uv.v, &p[2]);
+            if ( upTrans ) transformPoint2D(topTrans, uv, uv);
+            patch->uniformPoint(uv.u, uv.v, &p[2]);
 
             uv.u = 0.0;
             uv.v = 1.0;
-            if ( element->upTrans ) transformPoint2D(topTrans, uv, uv);
-            element->patch->uniformPoint(uv.u, uv.v, &p[3]);
+            if ( upTrans ) {
+                transformPoint2D(topTrans, uv, uv);
+            }
+            patch->uniformPoint(uv.u, uv.v, &p[3]);
         } else {
             uv.u = 0.0;
             uv.v = 1.0;
-            if ( element->upTrans ) transformPoint2D(topTrans, uv, uv);
-            element->patch->uniformPoint(uv.u, uv.v, &p[2]);
+            if ( upTrans ) {
+                transformPoint2D(topTrans, uv, uv);
+            }
+            patch->uniformPoint(uv.u, uv.v, &p[2]);
 
             vectorSet(p[3], 0.0, 0.0, 0.0);
         }
 
-        return element->patch->numberOfVertices;
+        return patch->numberOfVertices;
     }
 }
 
@@ -571,7 +575,7 @@ galerkinElementMidPoint(GalerkinElement *element) {
         int i;
         int numberOfVertices;
 
-        numberOfVertices = galerkinElementVertices(element, p, 4);
+        numberOfVertices = element->vertices(p, 4);
 
         vectorSet(c, 0.0, 0.0, 0.0);
         for ( i = 0; i < numberOfVertices; i++ ) {
@@ -595,7 +599,7 @@ galerkinElementBounds(GalerkinElement *element, float *bounds) {
         int i;
         int numberOfVertices;
 
-        numberOfVertices = galerkinElementVertices(element, p, 4);
+        numberOfVertices = element->vertices(p, 4);
 
         boundsInit(bounds);
         for ( i = 0; i < numberOfVertices; i++ ) {
@@ -620,7 +624,7 @@ galerkinElementPolygon(GalerkinElement *element, POLYGON *polygon) {
     polygon->normal = element->patch->normal;
     polygon->planeConstant = element->patch->planeConstant;
     polygon->index = (unsigned char)element->patch->index;
-    polygon->numberOfVertices = galerkinElementVertices(element, polygon->vertex, polygon->numberOfVertices);
+    polygon->numberOfVertices = element->vertices(polygon->vertex, polygon->numberOfVertices);
 
     boundsInit(polygon->bounds);
     for ( int i = 0; i < polygon->numberOfVertices; i++ ) {
@@ -642,7 +646,7 @@ galerkinElementDraw(GalerkinElement *element, int mode) {
         return;
     }
 
-    numberOfVertices = galerkinElementVertices(element, p, 4);
+    numberOfVertices = element->vertices(p, 4);
 
     if ( mode & FLAT ) {
         RGB color{};
@@ -715,7 +719,7 @@ galerkinElementDraw(GalerkinElement *element, int mode) {
         if ( mode & STRONG ) {
             if ( numberOfVertices == 3 ) {
                 Vector3D d;
-		Vector3D pt;
+                Vector3D pt;
 
                 vectorSubtract(p[2], p[1], d);
 
@@ -724,11 +728,13 @@ galerkinElementDraw(GalerkinElement *element, int mode) {
                     openGlRenderLine(&p[0], &pt);
                 }
             } else if ( numberOfVertices == 4 ) {
-                Vector3D d1, d2, p1, p2;
+                Vector3D d1;
+                Vector3D d2;
+                Vector3D p1;
+                Vector3D p2;
 
-                    vectorSubtract(p[1], p[0], d1);
-                    vectorSubtract(p[3], p[2], d2);
-
+                vectorSubtract(p[1], p[0], d1);
+                vectorSubtract(p[3], p[2], d2);
 
                 for ( i = 0; i < 5; i++ ) {
                     vectorSumScaled(p[0], i * 0.25, d1, p1);
@@ -744,15 +750,15 @@ galerkinElementDraw(GalerkinElement *element, int mode) {
 Draws element outline in the current outline color
 */
 void
-galerkinElementDrawOutline(GalerkinElement *element) {
-    galerkinElementDraw(element, OUTLINE);
+GalerkinElement::drawOutline() {
+    galerkinElementDraw(this, OUTLINE);
 }
 
 /**
 Renders a surface element flat shaded based on its radiance
 */
 void
-galerkinElementRender(GalerkinElement *element) {
+GalerkinElement::render() {
     int renderCode = 0;
 
     if ( GLOBAL_render_renderOptions.drawOutlines ) {
@@ -765,7 +771,7 @@ galerkinElementRender(GalerkinElement *element) {
         renderCode |= FLAT;
     }
 
-    galerkinElementDraw(element, renderCode);
+    galerkinElementDraw(this, renderCode);
 }
 
 /**

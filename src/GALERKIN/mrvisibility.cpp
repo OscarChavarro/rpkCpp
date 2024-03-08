@@ -131,8 +131,8 @@ blockerInit() {
     globalSglContext = new SGL_CONTEXT(FRAME_BUFFER_SIDE_LENGTH_IN_PIXELS, FRAME_BUFFER_SIDE_LENGTH_IN_PIXELS);
     GLOBAL_sgl_currentContext->sglDepthTesting(true);
 
-    globalBuffer1 = (unsigned char *)malloc(FRAME_BUFFER_SIDE_LENGTH_IN_PIXELS * FRAME_BUFFER_SIDE_LENGTH_IN_PIXELS);
-    globalBuffer2 = (unsigned char *)malloc(FRAME_BUFFER_SIDE_LENGTH_IN_PIXELS * FRAME_BUFFER_SIDE_LENGTH_IN_PIXELS);
+    globalBuffer1 = new unsigned char [FRAME_BUFFER_SIDE_LENGTH_IN_PIXELS * FRAME_BUFFER_SIDE_LENGTH_IN_PIXELS];
+    globalBuffer2 = new unsigned char [FRAME_BUFFER_SIDE_LENGTH_IN_PIXELS * FRAME_BUFFER_SIDE_LENGTH_IN_PIXELS];
 }
 
 /**
@@ -140,8 +140,7 @@ Destroys the sgl context created by blockerInit()
 */
 void
 blockerTerminate() {
-    free((char *) globalBuffer2);
-    free((char *) globalBuffer1);
-
+    delete[] globalBuffer2;
+    delete[] globalBuffer1;
     delete globalSglContext;
 }
