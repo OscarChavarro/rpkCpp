@@ -97,37 +97,37 @@ Makes the representation of potential consistent after an iteration
 (potential is always propagated using Jacobi iterations)
 */
 static float
-gatheringPushPullPotential(GalerkinElement *elem, float down) {
+gatheringPushPullPotential(GalerkinElement *element, float down) {
     float up;
 
-    down += elem->receivedPotential / elem->area;
-    elem->receivedPotential = 0.0f;
+    down += element->receivedPotential / element->area;
+    element->receivedPotential = 0.0f;
 
     up = 0.0;
 
-    if ( !elem->regularSubElements && !elem->irregularSubElements ) {
-        up = down + elem->patch->directPotential;
+    if ( !element->regularSubElements && !element->irregularSubElements ) {
+        up = down + element->patch->directPotential;
     }
 
-    if ( elem->regularSubElements ) {
+    if ( element->regularSubElements ) {
         int i;
         for ( i = 0; i < 4; i++ ) {
-            up += 0.25f * gatheringPushPullPotential(elem->regularSubElements[i], down);
+            up += 0.25f * gatheringPushPullPotential(element->regularSubElements[i], down);
         }
     }
 
-    if ( elem->irregularSubElements ) {
-        for ( int i = 0; elem->irregularSubElements != nullptr && i < elem->irregularSubElements->size(); i++ ) {
-            GalerkinElement *subElement = elem->irregularSubElements->get(i);
-            if ( !isCluster(elem) ) {
+    if ( element->irregularSubElements ) {
+        for ( int i = 0; element->irregularSubElements != nullptr && i < element->irregularSubElements->size(); i++ ) {
+            GalerkinElement *subElement = element->irregularSubElements->get(i);
+            if ( !element->isCluster() ) {
                 // Don't push to irregular surface sub-elements
                 down = 0.0;
             }
-            up += subElement->area / elem->area * gatheringPushPullPotential(subElement, down);
+            up += subElement->area / element->area * gatheringPushPullPotential(subElement, down);
         }
     }
 
-    return (elem->potential = up);
+    return (element->potential = up);
 }
 
 static void

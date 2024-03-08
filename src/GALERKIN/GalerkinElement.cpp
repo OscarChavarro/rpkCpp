@@ -153,7 +153,7 @@ galerkinElementReAllocCoefficients(GalerkinElement *element) {
     COLOR *unShotRadiance;
     char basisSize = 0;
 
-    if ( isCluster(element) ) {
+    if ( element->isCluster() ) {
         // We always use a constant basis on cluster elements
         basisSize = 1;
     } else {
@@ -195,7 +195,7 @@ galerkinElementReAllocCoefficients(GalerkinElement *element) {
     if ( GLOBAL_galerkin_state.iteration_method == SOUTH_WELL ) {
         unShotRadiance = new COLOR[basisSize];
         clusterGalerkinClearCoefficients(unShotRadiance, basisSize);
-        if ( !isCluster(element)) {
+        if ( !element->isCluster() ) {
             if ( element->unShotRadiance ) {
                 clusterGalerkinCopyCoefficients(unShotRadiance, element->unShotRadiance,
                                                 charMin(element->basisSize, basisSize));
@@ -306,7 +306,7 @@ Only applicable to surface elements.
 */
 GalerkinElement **
 galerkinElementRegularSubDivide(GalerkinElement *element) {
-    if ( isCluster(element) ) {
+    if ( element->isCluster() ) {
         logFatal(-1, "galerkinElementRegularSubDivide", "Cannot regularly subdivide cluster elements");
         return nullptr;
     }
@@ -410,15 +410,15 @@ galerkinElementDestroyCluster(GalerkinElement *element) {
 Prints the patch id and the child numbers of the element and its parents
 */
 void
-galerkinElementPrintId(FILE *out, GalerkinElement *elem) {
-    if ( isCluster(elem)) {
-        fprintf(out, "geom %d cluster", elem->geom->id);
+galerkinElementPrintId(FILE *out, GalerkinElement *element) {
+    if ( element->isCluster() ) {
+        fprintf(out, "geom %d cluster", element->geom->id);
     } else {
-        if ( elem->upTrans ) {
-            galerkinElementPrintId(out, elem->parent);
-            fprintf(out, "%d", elem->childNumber + 1);
+        if ( element->upTrans ) {
+            galerkinElementPrintId(out, element->parent);
+            fprintf(out, "%d", element->childNumber + 1);
         } else {
-            fprintf(out, "patch %d element ", elem->patch->id);
+            fprintf(out, "patch %d element ", element->patch->id);
         }
     }
 }
@@ -454,62 +454,62 @@ element. Returns the parent element itself if there are no regular sub-elements.
 The point is transformed to the corresponding point on the sub-element
 */
 GalerkinElement *
-galerkinElementRegularSubElementAtPoint(GalerkinElement *parent, double *u, double *v) {
-    GalerkinElement *child = nullptr;
+galerkinElementRegularSubElementAtPoint(GalerkinElement *parentElement, double *u, double *v) {
+    GalerkinElement *childElement = nullptr;
     double _u = *u;
     double _v = *v;
 
-    if ( isCluster(parent) || !parent->regularSubElements ) {
-        return parent;
+    if ( parentElement->isCluster() || !parentElement->regularSubElements ) {
+        return parentElement;
     }
 
     // Have a look at the drawings above to understand what is done exactly
-    switch ( parent->patch->numberOfVertices ) {
+    switch ( parentElement->patch->numberOfVertices ) {
         case 3:
             if ( _u + _v <= 0.5 ) {
-                child = parent->regularSubElements[0];
-                *u = _u * 2.;
-                *v = _v * 2.;
+                childElement = parentElement->regularSubElements[0];
+                *u = _u * 2.0;
+                *v = _v * 2.0;
             } else if ( _u > 0.5 ) {
-                child = parent->regularSubElements[1];
-                *u = (_u - 0.5) * 2.;
-                *v = _v * 2.;
+                childElement = parentElement->regularSubElements[1];
+                *u = (_u - 0.5) * 2.0;
+                *v = _v * 2.0;
             } else if ( _v > 0.5 ) {
-                child = parent->regularSubElements[2];
-                *u = _u * 2.;
-                *v = (_v - 0.5) * 2.;
+                childElement = parentElement->regularSubElements[2];
+                *u = _u * 2.0;
+                *v = (_v - 0.5) * 2.0;
             } else {
-                child = parent->regularSubElements[3];
-                *u = (0.5 - _u) * 2.;
-                *v = (0.5 - _v) * 2.;
+                childElement = parentElement->regularSubElements[3];
+                *u = (0.5 - _u) * 2.0;
+                *v = (0.5 - _v) * 2.0;
             }
             break;
         case 4:
             if ( _v <= 0.5 ) {
                 if ( _u < 0.5 ) {
-                    child = parent->regularSubElements[0];
-                    *u = _u * 2.;
+                    childElement = parentElement->regularSubElements[0];
+                    *u = _u * 2.0;
                 } else {
-                    child = parent->regularSubElements[1];
-                    *u = (_u - 0.5) * 2.;
+                    childElement = parentElement->regularSubElements[1];
+                    *u = (_u - 0.5) * 2.0;
                 }
-                *v = _v * 2.;
+                *v = _v * 2.0;
             } else {
                 if ( _u < 0.5 ) {
-                    child = parent->regularSubElements[2];
-                    *u = _u * 2.;
+                    childElement = parentElement->regularSubElements[2];
+                    *u = _u * 2.0;
                 } else {
-                    child = parent->regularSubElements[3];
-                    *u = (_u - 0.5) * 2.;
+                    childElement = parentElement->regularSubElements[3];
+                    *u = (_u - 0.5) * 2.0;
                 }
-                *v = (_v - 0.5) * 2.;
+                *v = (_v - 0.5) * 2.0;
             }
             break;
         default:
             logFatal(-1, "galerkinElementRegularSubElementAtPoint", "Can handle only triangular or quadrilateral elements");
     }
 
-    return child;
+    return childElement;
 }
 
 /**
@@ -535,11 +535,11 @@ Computes the vertices of a surface element (3 or 4 vertices) or
 cluster element (8 vertices). The number of vertices is returned
 */
 int
-galerkinElementVertices(GalerkinElement *elem, Vector3D *p, int n) {
-    if ( isCluster(elem) ) {
+galerkinElementVertices(GalerkinElement *element, Vector3D *p, int n) {
+    if ( element->isCluster() ) {
         BoundingBox vol;
 
-        galerkinElementBounds(elem, vol);
+        galerkinElementBounds(element, vol);
 
         for ( int i = 0; i < n; i++ ) {
             vectorSet(p[i], vol[MIN_X], vol[MIN_Y], vol[MIN_Z]);
@@ -550,42 +550,42 @@ galerkinElementVertices(GalerkinElement *elem, Vector3D *p, int n) {
         Matrix2x2 topTrans{};
         Vector2D uv;
 
-        if ( elem->upTrans ) {
-            galerkinElementToTopTransform(elem, &topTrans);
+        if ( element->upTrans ) {
+            galerkinElementToTopTransform(element, &topTrans);
         }
 
         uv.u = 0.0;
         uv.v = 0.0;
-        if ( elem->upTrans ) {
+        if ( element->upTrans ) {
             transformPoint2D(topTrans, uv, uv);
         }
-        elem->patch->uniformPoint(uv.u, uv.v, &p[0]);
+        element->patch->uniformPoint(uv.u, uv.v, &p[0]);
 
         uv.u = 1.0;
         uv.v = 0.0;
-        if ( elem->upTrans ) transformPoint2D(topTrans, uv, uv);
-        elem->patch->uniformPoint(uv.u, uv.v, &p[1]);
+        if ( element->upTrans ) transformPoint2D(topTrans, uv, uv);
+        element->patch->uniformPoint(uv.u, uv.v, &p[1]);
 
-        if ( elem->patch->numberOfVertices == 4 ) {
+        if ( element->patch->numberOfVertices == 4 ) {
             uv.u = 1.0;
             uv.v = 1.0;
-            if ( elem->upTrans ) transformPoint2D(topTrans, uv, uv);
-            elem->patch->uniformPoint(uv.u, uv.v, &p[2]);
+            if ( element->upTrans ) transformPoint2D(topTrans, uv, uv);
+            element->patch->uniformPoint(uv.u, uv.v, &p[2]);
 
             uv.u = 0.0;
             uv.v = 1.0;
-            if ( elem->upTrans ) transformPoint2D(topTrans, uv, uv);
-            elem->patch->uniformPoint(uv.u, uv.v, &p[3]);
+            if ( element->upTrans ) transformPoint2D(topTrans, uv, uv);
+            element->patch->uniformPoint(uv.u, uv.v, &p[3]);
         } else {
             uv.u = 0.0;
             uv.v = 1.0;
-            if ( elem->upTrans ) transformPoint2D(topTrans, uv, uv);
-            elem->patch->uniformPoint(uv.u, uv.v, &p[2]);
+            if ( element->upTrans ) transformPoint2D(topTrans, uv, uv);
+            element->patch->uniformPoint(uv.u, uv.v, &p[2]);
 
             vectorSet(p[3], 0.0, 0.0, 0.0);
         }
 
-        return elem->patch->numberOfVertices;
+        return element->patch->numberOfVertices;
     }
 }
 
@@ -593,11 +593,11 @@ galerkinElementVertices(GalerkinElement *elem, Vector3D *p, int n) {
 Computes the midpoint of the element
 */
 Vector3D
-galerkinElementMidPoint(GalerkinElement *elem) {
+galerkinElementMidPoint(GalerkinElement *element) {
     Vector3D c;
 
-    if ( isCluster(elem)) {
-        float *bbox = geomBounds(elem->geom);
+    if ( element->isCluster() ) {
+        float *bbox = geomBounds(element->geom);
 
         vectorSet(c,
                   (bbox[MIN_X] + bbox[MAX_X]) / 2.0f,
@@ -608,7 +608,7 @@ galerkinElementMidPoint(GalerkinElement *elem) {
         int i;
         int numberOfVertices;
 
-        numberOfVertices = galerkinElementVertices(elem, p, 4);
+        numberOfVertices = galerkinElementVertices(element, p, 4);
 
         vectorSet(c, 0.0, 0.0, 0.0);
         for ( i = 0; i < numberOfVertices; i++ ) {
@@ -624,15 +624,15 @@ galerkinElementMidPoint(GalerkinElement *elem) {
 Computes a bounding box for the element
 */
 float *
-galerkinElementBounds(GalerkinElement *elem, float *bounds) {
-    if ( isCluster(elem)) {
-        boundsCopy(geomBounds(elem->geom), bounds);
+galerkinElementBounds(GalerkinElement *element, float *bounds) {
+    if ( element->isCluster() ) {
+        boundsCopy(geomBounds(element->geom), bounds);
     } else {
         Vector3D p[4];
         int i;
         int numberOfVertices;
 
-        numberOfVertices = galerkinElementVertices(elem, p, 4);
+        numberOfVertices = galerkinElementVertices(element, p, 4);
 
         boundsInit(bounds);
         for ( i = 0; i < numberOfVertices; i++ ) {
@@ -648,16 +648,16 @@ Computes a polygon description for shaft culling for the surface
 element. Cannot be used for clusters
 */
 POLYGON *
-galerkinElementPolygon(GalerkinElement *elem, POLYGON *polygon) {
-    if ( isCluster(elem) ) {
+galerkinElementPolygon(GalerkinElement *element, POLYGON *polygon) {
+    if ( element->isCluster() ) {
         logFatal(-1, "galerkinElementPolygon", "Cannot use this function for cluster elements");
         return nullptr;
     }
 
-    polygon->normal = elem->patch->normal;
-    polygon->planeConstant = elem->patch->planeConstant;
-    polygon->index = (unsigned char)elem->patch->index;
-    polygon->numberOfVertices = galerkinElementVertices(elem, polygon->vertex, polygon->numberOfVertices);
+    polygon->normal = element->patch->normal;
+    polygon->planeConstant = element->patch->planeConstant;
+    polygon->index = (unsigned char)element->patch->index;
+    polygon->numberOfVertices = galerkinElementVertices(element, polygon->vertex, polygon->numberOfVertices);
 
     boundsInit(polygon->bounds);
     for ( int i = 0; i < polygon->numberOfVertices; i++ ) {
@@ -672,7 +672,7 @@ galerkinElementDraw(GalerkinElement *element, int mode) {
     Vector3D p[4];
     int numberOfVertices;
 
-    if ( isCluster(element) ) {
+    if ( element->isCluster() ) {
         if ( mode & OUTLINE || mode & STRONG ) {
             renderBounds(geomBounds(element->geom));
         }
@@ -725,7 +725,7 @@ galerkinElementDraw(GalerkinElement *element, int mode) {
             radianceToRgb(vertRadiosity[i], &vertColor[i]);
         }
 
-            openGlRenderPolygonGouraud(numberOfVertices, p, vertColor);
+        openGlRenderPolygonGouraud(numberOfVertices, p, vertColor);
     }
 
     // Modifies the positions, that's why it comes last

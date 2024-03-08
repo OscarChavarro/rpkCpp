@@ -10,6 +10,15 @@ Galerkin finite elements: one structure for both surface and cluster elements
 #include "common/linealAlgebra/Matrix2x2.h"
 #include "scene/polygon.h"
 
+// Set when all interactions have been created for a toplevel element
+#define INTERACTIONS_CREATED 0x01
+
+// If set, indicates that the element is a cluster element. If not set, the element is a surface element
+#define IS_CLUSTER 0x10
+
+// If the element is or contains surfaces emitting light spontaneously
+#define IS_LIGHT_SOURCE 0x20
+
 /**
 The Galerkin radiosity specific data to be kept with every surface or
 cluster element. A flag indicates whether a given element is a cluster or
@@ -57,23 +66,13 @@ class GalerkinElement : public Element {
 
     GalerkinElement();
     ~GalerkinElement();
+
+    inline bool
+    isCluster() {
+        return flags & IS_CLUSTER;
+    }
+
 };
-
-// Element flags
-
-// Set when all interactions have been created for a toplevel element
-#define INTERACTIONS_CREATED 0x01
-
-// If set, indicates that the element is a cluster element. If not set, the element is a surface element
-#define IS_CLUSTER 0x10
-
-// If the element is or contains surfaces emitting light spontaneously
-#define IS_LIGHT_SOURCE 0x20
-
-inline bool
-isCluster(GalerkinElement *element) {
-    return element->flags & IS_CLUSTER;
-}
 
 /**
 Position and orientation of the regular sub-elements is fully
@@ -90,19 +89,19 @@ extern int galerkinElementGetNumberOfSurfaceElements();
 extern GalerkinElement *galerkinElementCreateTopLevel(Patch *patch);
 extern GalerkinElement *galerkinElementCreateCluster(Geometry *geometry);
 extern GalerkinElement **galerkinElementRegularSubDivide(GalerkinElement *element);
-extern void galerkinElementPrintId(FILE *out, GalerkinElement *elem);
+extern void galerkinElementPrintId(FILE *out, GalerkinElement *element);
 extern void galerkinElementDestroyTopLevel(GalerkinElement *element);
 extern void galerkinElementDestroyCluster(GalerkinElement *element);
 extern Matrix2x2 *galerkinElementToTopTransform(GalerkinElement *element, Matrix2x2 *xf);
-extern GalerkinElement *galerkinElementRegularSubElementAtPoint(GalerkinElement *parent, double *u, double *v);
+extern GalerkinElement *galerkinElementRegularSubElementAtPoint(GalerkinElement *parentElement, double *u, double *v);
 extern GalerkinElement *galerkinElementRegularLeafAtPoint(GalerkinElement *top, double *u, double *v);
 extern void galerkinElementDrawOutline(GalerkinElement *elem);
 extern void galerkinElementRender(GalerkinElement *elem);
 extern void galerkinElementReAllocCoefficients(GalerkinElement *element);
-extern int galerkinElementVertices(GalerkinElement *elem, Vector3D *p, int n);
-extern float *galerkinElementBounds(GalerkinElement *elem, float *bounds);
-extern Vector3D galerkinElementMidPoint(GalerkinElement *elem);
-extern POLYGON *galerkinElementPolygon(GalerkinElement *elem, POLYGON *polygon);
+extern int galerkinElementVertices(GalerkinElement *element, Vector3D *p, int n);
+extern float *galerkinElementBounds(GalerkinElement *element, float *bounds);
+extern Vector3D galerkinElementMidPoint(GalerkinElement *element);
+extern POLYGON *galerkinElementPolygon(GalerkinElement *element, POLYGON *polygon);
 extern void forAllLeafElements(GalerkinElement *top, void (*func)(GalerkinElement *));
 
 #endif

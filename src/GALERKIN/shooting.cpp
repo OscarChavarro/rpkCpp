@@ -98,38 +98,38 @@ Makes the hierarchical representation of potential consistent over all
 all levels
 */
 static float
-shootingPushPullPotential(GalerkinElement *elem, float down) {
+shootingPushPullPotential(GalerkinElement *element, float down) {
     float up;
     int i;
 
-    down += elem->receivedPotential / elem->area;
-    elem->receivedPotential = 0.0f;
+    down += element->receivedPotential / element->area;
+    element->receivedPotential = 0.0f;
 
     up = 0.0f;
 
-    if ( !elem->regularSubElements && !elem->irregularSubElements ) {
+    if ( !element->regularSubElements && !element->irregularSubElements ) {
         up = down;
     }
 
-    if ( elem->regularSubElements ) {
+    if ( element->regularSubElements ) {
         for ( i = 0; i < 4; i++ ) {
-            up += 0.25f * shootingPushPullPotential(elem->regularSubElements[i], down);
+            up += 0.25f * shootingPushPullPotential(element->regularSubElements[i], down);
         }
     }
 
-    if ( elem->irregularSubElements ) {
-        for ( int j = 0; elem->irregularSubElements != nullptr && j < elem->irregularSubElements->size(); j++ ) {
-            GalerkinElement *subElement = elem->irregularSubElements->get(j);
-            if ( !isCluster(elem) ) {
+    if ( element->irregularSubElements ) {
+        for ( int j = 0; element->irregularSubElements != nullptr && j < element->irregularSubElements->size(); j++ ) {
+            GalerkinElement *subElement = element->irregularSubElements->get(j);
+            if ( !element->isCluster() ) {
                 down = 0.0;
             }
             // Don't push to irregular surface sub-elements
-            up += subElement->area / elem->area * shootingPushPullPotential(subElement, down);
+            up += subElement->area / element->area * shootingPushPullPotential(subElement, down);
         }
     }
 
-    elem->potential += up;
-    elem->unShotPotential += up;
+    element->potential += up;
+    element->unShotPotential += up;
     return up;
 }
 
@@ -196,18 +196,18 @@ Recomputes the potential and un-shot potential of the cluster and its sub-cluste
 based on the potential of the contained patches
 */
 static void
-clusterUpdatePotential(GalerkinElement *cluster) {
-    if ( isCluster(cluster) ) {
-        cluster->potential = 0.0f;
-        cluster->unShotPotential = 0.0f;
-        for ( int i = 0; cluster->irregularSubElements != nullptr && i < cluster->irregularSubElements->size(); i++ ) {
-            GalerkinElement *subCluster = cluster->irregularSubElements->get(i);
+clusterUpdatePotential(GalerkinElement *clusterElement) {
+    if ( clusterElement->isCluster() ) {
+        clusterElement->potential = 0.0f;
+        clusterElement->unShotPotential = 0.0f;
+        for ( int i = 0; clusterElement->irregularSubElements != nullptr && i < clusterElement->irregularSubElements->size(); i++ ) {
+            GalerkinElement *subCluster = clusterElement->irregularSubElements->get(i);
             clusterUpdatePotential(subCluster);
-            cluster->potential += subCluster->area * subCluster->potential;
-            cluster->unShotPotential += subCluster->area * subCluster->unShotPotential;
+            clusterElement->potential += subCluster->area * subCluster->potential;
+            clusterElement->unShotPotential += subCluster->area * subCluster->unShotPotential;
         }
-        cluster->potential /= cluster->area;
-        cluster->unShotPotential /= cluster->area;
+        clusterElement->potential /= clusterElement->area;
+        clusterElement->unShotPotential /= clusterElement->area;
     }
 }
 

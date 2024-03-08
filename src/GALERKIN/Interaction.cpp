@@ -75,14 +75,14 @@ Interaction::Interaction(
     this->deltaK.f = deltaK.f;
 
     globalTotalInteractions++;
-    if ( isCluster(rcv) ) {
-        if ( isCluster(src) ) {
+    if ( rcv->isCluster() ) {
+        if ( src->isCluster() ) {
             globalCCInteractions++;
         } else {
             globalSCInteractions++;
         }
     } else {
-        if ( isCluster(src) ) {
+        if ( src->isCluster() ) {
             globalCSInteractions++;
         } else {
             globalSSInteractions++;
@@ -116,14 +116,14 @@ interactionDestroy(Interaction *interaction) {
     delete interaction;
 
     globalTotalInteractions--;
-    if ( isCluster(rcv) ) {
-        if ( isCluster(src) ) {
+    if ( rcv->isCluster() ) {
+        if ( src->isCluster() ) {
             globalCCInteractions--;
         } else {
             globalSCInteractions--;
         }
     } else {
-        if ( isCluster(src) ) {
+        if ( src->isCluster() ) {
             globalCSInteractions--;
         } else {
             globalSSInteractions--;
