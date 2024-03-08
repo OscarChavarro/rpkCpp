@@ -259,7 +259,7 @@ createPatchData(Patch *patch) {
 
 static void
 destroyPatchData(Patch *patch) {
-    galerkinElementDestroyTopLevel((GalerkinElement *) patch->radianceData);
+    ((GalerkinElement *) patch->radianceData)->destroy();
     patch->radianceData = nullptr;
 }
 

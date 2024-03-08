@@ -14,13 +14,16 @@ This is a full rewrite with the following features:
 - Motif GUI removed in favor of basic command line only basic algorithms.
 - Code syntax and format modernized.
 - Code compiling without warnings on modern C++ compilers.
-- Most smells from SonarLint and ctidy-lang cleaned.
+- Some clean code ideas applied
+  - Most smells from SonarLint/clang-tidy cleaned.
+  - Variable names refactor to be self-explanatory.
+  - Removing redundant comments from code that is self-explanatory.
 - Reorganization in to new packages structure for clarity at software architecture level.
 - Memory leak free after valgrind analysis.
 - Use of global variables set to a minimum possible, replaced by parameters.
 - Lots of dead code removal.
 - Lots of reworkings on moving #define macros to inline functions, functions to
-  class methods, revisited in-code comments documentation, standarized naming style and
+  class methods, revisited in-code comments documentation, standard naming style and
   much more.
 - References to papers and books on code has been downloaded to ./doc folder to ease the
   algorithm study process.

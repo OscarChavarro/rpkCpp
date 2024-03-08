@@ -79,7 +79,7 @@ determineNodes(GalerkinElement *element, CUBARULE **cr, Vector3D x[CUBAMAXNODES]
         /* compute the transform relating positions on the element to positions on
          * the patch to which it belongs. */
         if ( element->upTrans ) {
-            galerkinElementToTopTransform(element, &topTransform);
+            element->topTransform(&topTransform);
         }
 
         /* compute the positions x[k] corresponding to the nodes of the cubature rule

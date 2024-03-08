@@ -64,6 +64,7 @@ class GalerkinElement : public Element {
 
     GalerkinElement();
     ~GalerkinElement();
+    void destroy();
 
     inline bool
     isCluster() const {
@@ -72,6 +73,7 @@ class GalerkinElement : public Element {
 
     GalerkinElement **regularSubDivide();
     void elementPrintId(FILE *out);
+    Matrix2x2 *topTransform(Matrix2x2 *xf);
 };
 
 /**
@@ -90,10 +92,7 @@ extern int galerkinElementGetNumberOfSurfaceElements();
 extern GalerkinElement *galerkinElementCreateTopLevel(Patch *patch);
 extern GalerkinElement *galerkinElementCreateCluster(Geometry *geometry);
 
-extern void galerkinElementDestroyTopLevel(GalerkinElement *element);
 extern void galerkinElementDestroyCluster(GalerkinElement *element);
-extern Matrix2x2 *galerkinElementToTopTransform(GalerkinElement *element, Matrix2x2 *xf);
-extern GalerkinElement *galerkinElementRegularSubElementAtPoint(GalerkinElement *element, double *u, double *v);
 extern GalerkinElement *galerkinElementRegularLeafAtPoint(GalerkinElement *element, double *u, double *v);
 extern void galerkinElementDrawOutline(GalerkinElement *element);
 extern void galerkinElementRender(GalerkinElement *element);
@@ -103,5 +102,7 @@ extern float *galerkinElementBounds(GalerkinElement *element, float *bounds);
 extern Vector3D galerkinElementMidPoint(GalerkinElement *element);
 extern POLYGON *galerkinElementPolygon(GalerkinElement *element, POLYGON *polygon);
 extern void galerkinElementForAllLeafElements(GalerkinElement *element, void (*func)(GalerkinElement *));
+
+extern GalerkinElement *galerkinElementRegularSubElementAtPoint(GalerkinElement *element, double *u, double *v);
 
 #endif

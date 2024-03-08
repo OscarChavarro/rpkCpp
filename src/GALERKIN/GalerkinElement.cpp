@@ -16,6 +16,9 @@
 static int globalNumberOfElements = 0;
 static int globalNumberOfClusters = 0;
 
+/**
+Private inner constructor, Use either galerkinElementCreateTopLevel() or CreateRegularSubElement()
+*/
 GalerkinElement::GalerkinElement():
     parent(),
     regularSubElements(),
@@ -38,6 +41,33 @@ GalerkinElement::GalerkinElement():
     className = ElementTypes::ELEMENT_GALERKIN;
     irregularSubElements = new java::ArrayList<GalerkinElement *>();
     interactions = new java::ArrayList<Interaction *>();
+
+    colorClear(Ed);
+    colorClear(Rd);
+    id = globalNumberOfElements + 1; // Let the IDs start from 1, not 0
+    radiance = nullptr;
+    receivedRadiance = nullptr;
+    unShotRadiance = nullptr;
+    potential = 0.0f;
+    receivedPotential = 0.0f;
+    unShotPotential = 0.0f;
+    patch = nullptr;
+    geom = nullptr;
+    parent = nullptr;
+    regularSubElements = nullptr;
+    irregularSubElements = nullptr; // New list
+    upTrans = nullptr;
+    area = 0.0;
+    flags = 0x00;
+    childNumber = -1; // Means: "not a regular sub-element"
+    basisSize = 0;
+    basisUsed = 0;
+    numberOfPatches = 1; // Correct for surface elements, it will be computed later for clusters
+    minimumArea = HUGE;
+    tmp = 0;
+    bsize = 0.0; // Correct eq. blocker size will be computer later on
+
+    globalNumberOfElements++;
 }
 
 GalerkinElement::~GalerkinElement() {
@@ -216,47 +246,11 @@ galerkinElementReAllocCoefficients(GalerkinElement *element) {
 }
 
 /**
-Use either galerkinElementCreateTopLevel() or CreateRegularSubElement()
-*/
-static GalerkinElement *
-galerkinElementCreate() {
-    GalerkinElement *newElement = new GalerkinElement();
-
-    colorClear(newElement->Ed);
-    colorClear(newElement->Rd);
-    newElement->id = globalNumberOfElements + 1; // Let the IDs start from 1, not 0
-    newElement->radiance = nullptr;
-    newElement->receivedRadiance = nullptr;
-    newElement->unShotRadiance = nullptr;
-    newElement->potential = 0.0f;
-    newElement->receivedPotential = 0.0f;
-    newElement->unShotPotential = 0.0f;
-    newElement->patch = nullptr;
-    newElement->geom = nullptr;
-    newElement->parent = nullptr;
-    newElement->regularSubElements = nullptr;
-    newElement->irregularSubElements = nullptr; // New list
-    newElement->upTrans = nullptr;
-    newElement->area = 0.0;
-    newElement->flags = 0x00;
-    newElement->childNumber = -1; // Means: "not a regular sub-element"
-    newElement->basisSize = 0;
-    newElement->basisUsed = 0;
-    newElement->numberOfPatches = 1; // Correct for surface elements, it will be computed later for clusters
-    newElement->minimumArea = HUGE;
-    newElement->tmp = 0;
-    newElement->bsize = 0.0; // Correct eq. blocker size will be computer later on
-
-    globalNumberOfElements++;
-    return newElement;
-}
-
-/**
 Creates the toplevel element for the patch
 */
 GalerkinElement *
 galerkinElementCreateTopLevel(Patch *patch) {
-    GalerkinElement *element = galerkinElementCreate();
+    GalerkinElement *element = new GalerkinElement();
     element->patch = patch;
     element->minimumArea = element->area = patch->area;
     element->bsize = 2.0f * (float)std::sqrt(element->area / M_PI);
@@ -282,7 +276,7 @@ The average projected area still needs to be determined
 */
 GalerkinElement *
 galerkinElementCreateCluster(Geometry *geometry) {
-    GalerkinElement *element = galerkinElementCreate();
+    GalerkinElement *element = new GalerkinElement();
     element->geom = geometry;
     element->area = 0.0; // Needs to be computed after the whole cluster hierarchy has been constructed
     element->flags |= IS_CLUSTER;
@@ -315,7 +309,7 @@ GalerkinElement::regularSubDivide() {
     GalerkinElement **subElement = new GalerkinElement *[4];
 
     for ( int i = 0; i < 4; i++ ) {
-        subElement[i] = galerkinElementCreate();
+        subElement[i] = new GalerkinElement();
         subElement[i]->patch = patch;
         subElement[i]->parent = this;
         subElement[i]->upTrans =
@@ -372,26 +366,22 @@ galerkinElementDestroy(GalerkinElement *element) {
 Destroys the toplevel surface element and it's sub-elements (recursive)
 */
 void
-galerkinElementDestroyTopLevel(GalerkinElement *element) {
-    if ( element == nullptr ) {
-        return;
-    }
-
-    if ( element->regularSubElements != nullptr ) {
+GalerkinElement::destroy() {
+    if ( regularSubElements != nullptr ) {
         for ( int i = 0; i < 4; i++) {
-            galerkinElementDestroyTopLevel((element)->regularSubElements[i]);
+            regularSubElements[i]->destroy();
         }
-        free(element->regularSubElements);
+        free(regularSubElements);
     }
 
-    if ( element->irregularSubElements != nullptr ) {
-        for ( int i = 0; i < element->irregularSubElements->size(); i++ ) {
-            galerkinElementDestroyTopLevel(element->irregularSubElements->get(i));
+    if ( irregularSubElements != nullptr ) {
+        for ( int i = 0; i < irregularSubElements->size(); i++ ) {
+            irregularSubElements->get(i)->destroy();
         }
-        delete element->irregularSubElements;
+        delete irregularSubElements;
     }
 
-    galerkinElementDestroy(element);
+    galerkinElementDestroy(this);
 }
 
 /**
@@ -431,15 +421,16 @@ element). In the other case, the composed transform is filled in in xf and
 xf (pointer to the transform) is returned
 */
 Matrix2x2 *
-galerkinElementToTopTransform(GalerkinElement *element, Matrix2x2 *xf) {
+GalerkinElement::topTransform(Matrix2x2 *xf) {
     // Top level element: no transform necessary to transform to top
-    if ( !element->upTrans ) {
+    if ( !upTrans ) {
         return nullptr;
     }
 
-    *xf = *element->upTrans;
-    while ( (element = element->parent) && element->upTrans ) {
-        matrix2DPreConcatTransform(*element->upTrans, *xf, *xf);
+    GalerkinElement *window = this;
+    *xf = *window->upTrans;
+    while ( (window = window->parent) && window->upTrans ) {
+        matrix2DPreConcatTransform(*window->upTrans, *xf, *xf);
     }
 
     return xf;
@@ -548,7 +539,7 @@ galerkinElementVertices(GalerkinElement *element, Vector3D *p, int n) {
         Vector2D uv;
 
         if ( element->upTrans ) {
-            galerkinElementToTopTransform(element, &topTrans);
+            element->topTransform(&topTrans);
         }
 
         uv.u = 0.0;
