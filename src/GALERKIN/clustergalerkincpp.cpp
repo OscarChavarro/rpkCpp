@@ -150,15 +150,15 @@ galerkinCreateClusterHierarchy(Geometry *geom) {
 Disposes of the cluster hierarchy
 */
 void
-galerkinDestroyClusterHierarchy(GalerkinElement *cluster) {
-    if ( !cluster || !isCluster(cluster)) {
+galerkinDestroyClusterHierarchy(GalerkinElement *clusterElement) {
+    if ( !clusterElement || !clusterElement->isCluster() ) {
         return;
     }
 
-    for ( int i = 0; cluster->irregularSubElements != nullptr && i < cluster->irregularSubElements->size(); i++ ) {
-        galerkinDestroyClusterHierarchy(cluster->irregularSubElements->get(i));
+    for ( int i = 0; clusterElement->irregularSubElements != nullptr && i < clusterElement->irregularSubElements->size(); i++ ) {
+        galerkinDestroyClusterHierarchy(clusterElement->irregularSubElements->get(i));
     }
-    galerkinElementDestroyCluster(cluster);
+    galerkinElementDestroyCluster(clusterElement);
 }
 
 /**
@@ -166,7 +166,7 @@ Executes func for every surface element in the cluster
 */
 void
 iterateOverSurfaceElementsInCluster(GalerkinElement *galerkinElement, void (*func)(GalerkinElement *elem)) {
-    if ( !isCluster(galerkinElement) ) {
+    if ( !galerkinElement->isCluster() ) {
         func(galerkinElement);
     } else {
         for ( int i = 0; galerkinElement->irregularSubElements != nullptr && i < galerkinElement->irregularSubElements->size(); i++ ) {
@@ -237,7 +237,7 @@ clusterRadianceToSamplePoint(GalerkinElement *src, Vector3D sample) {
         }
 
         case Z_VISIBILITY:
-            if ( !isCluster(src) || !outOfBounds(&sample, src->geom->bounds)) {
+            if ( !src->isCluster() || !outOfBounds(&sample, src->geom->bounds) ) {
                 return src->radiance[0];
             } else {
                 double areaFactor;
@@ -274,7 +274,7 @@ COLOR
 sourceClusterRadiance(Interaction *link) {
     GalerkinElement *src = link->sourceElement, *rcv = link->receiverElement;
 
-    if ( !isCluster(src) || src == rcv ) {
+    if ( !src->isCluster() || src == rcv ) {
         logFatal(-1, "sourceClusterRadiance", "Source and receiver are the same or receiver is not a cluster");
     }
 
@@ -320,7 +320,7 @@ double
 receiverClusterArea(Interaction *link) {
     GalerkinElement *src = link->sourceElement, *rcv = link->receiverElement;
 
-    if ( !isCluster(rcv) || src == rcv ) {
+    if ( !rcv->isCluster() || src == rcv ) {
         return rcv->area;
     }
 
@@ -436,7 +436,7 @@ void
 clusterGatherRadiance(Interaction *link, COLOR *srcRad) {
     GalerkinElement *src = link->sourceElement, *rcv = link->receiverElement;
 
-    if ( !isCluster(rcv) || src == rcv ) {
+    if ( !rcv->isCluster() || src == rcv ) {
         logFatal(-1, "clusterGatherRadiance", "Source and receiver are the same or receiver is not a cluster");
         return;
     }

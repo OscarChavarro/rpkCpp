@@ -55,7 +55,7 @@ hierarchicRefinementCull(
         SHAFT shaft;
         SHAFT *the_shaft;
 
-        if ( state->exact_visibility && !isCluster(link->receiverElement) && !isCluster(link->sourceElement)) {
+        if ( state->exact_visibility && !link->receiverElement->isCluster() && !link->sourceElement->isCluster() ) {
             POLYGON rcvPolygon;
             POLYGON srcPolygon;
             the_shaft = constructPolygonToPolygonShaft(galerkinElementPolygon(link->receiverElement, &rcvPolygon),
@@ -72,13 +72,13 @@ hierarchicRefinementCull(
             return;
         }
 
-        if ( isCluster(link->receiverElement) ) {
+        if ( link->receiverElement->isCluster() ) {
             setShaftDontOpen(&shaft, link->receiverElement->geom);
         } else {
             setShaftOmit(&shaft, link->receiverElement->patch);
         }
 
-        if ( isCluster(link->sourceElement) ) {
+        if ( link->sourceElement->isCluster() ) {
             setShaftDontOpen(&shaft, link->sourceElement->geom);
         } else {
             setShaftOmit(&shaft, link->sourceElement->patch);
@@ -183,7 +183,7 @@ hierarchicRefinementApproximationError(
     switch ( state->iteration_method ) {
         case GAUSS_SEIDEL:
         case JACOBI:
-            if ( isCluster(link->sourceElement) && link->sourceElement != link->receiverElement ) {
+            if ( link->sourceElement->isCluster() && link->sourceElement != link->receiverElement ) {
                 srcRad = maxClusterRadiance(link->sourceElement);
             } else {
                 srcRad = link->sourceElement->radiance[0];
@@ -195,7 +195,7 @@ hierarchicRefinementApproximationError(
             break;
 
         case SOUTH_WELL:
-            if ( isCluster(link->sourceElement) && link->sourceElement != link->receiverElement ) {
+            if ( link->sourceElement->isCluster() && link->sourceElement != link->receiverElement ) {
                 srcRad = sourceClusterRadiance(link); // Returns un-shot radiance for shooting
             } else {
                 srcRad = link->sourceElement->unShotRadiance[0];
@@ -205,7 +205,7 @@ hierarchicRefinementApproximationError(
             colorAbs(error, error);
             approxError = hierarchicRefinementColorToError(error);
 
-            if ( state->importance_driven && isCluster(link->receiverElement) ) {
+            if ( state->importance_driven && link->receiverElement->isCluster() ) {
                 // Make sure the link is also suited for transport of un-shot potential
                 // from source to receiver. Note that it makes no sense to
                 // subdivide receiver patches (potential is only used to help
@@ -294,7 +294,7 @@ hierarchicRefinementEvaluateInteraction(
 
     // Determine receiver area (projected visible area for a receiver cluster)
     // and reflectivity
-    if ( isCluster(link->receiverElement) ) {
+    if ( link->receiverElement->isCluster() ) {
         colorSetMonochrome(rcvRho, 1.0);
         rcv_area = receiverClusterArea(link);
     } else {
@@ -303,7 +303,7 @@ hierarchicRefinementEvaluateInteraction(
     }
 
     // Determine source reflectivity
-    if ( isCluster(link->sourceElement)) {
+    if ( link->sourceElement->isCluster() ) {
         colorSetMonochrome(srcRho, 1.0f);
     } else
         srcRho = link->sourceElement->patch->radianceData->Rd;
@@ -312,7 +312,7 @@ hierarchicRefinementEvaluateInteraction(
     threshold = hierarchicRefinementLinkErrorThreshold(link, rcv_area, state);
     error = hierarchicRefinementApproximationError(link, srcRho, rcvRho, state);
 
-    if ( isCluster(link->sourceElement) && error < threshold && state->clusteringStrategy != ISOTROPIC )
+    if ( link->sourceElement->isCluster() && error < threshold && state->clusteringStrategy != ISOTROPIC )
         error += sourceClusterRadianceVariationError(link, rcvRho, rcv_area);
 
     // Minimal element area for which subdivision is allowed
@@ -322,17 +322,17 @@ hierarchicRefinementEvaluateInteraction(
     if ( error > threshold ) {
         // A very simple but robust subdivision strategy: subdivide the
         // largest of the two elements in order to reduce the error
-        if ( (!(isCluster(link->sourceElement) && (link->sourceElement->flags & IS_LIGHT_SOURCE)) ) &&
+        if ( (!(link->sourceElement->isCluster() && (link->sourceElement->flags & IS_LIGHT_SOURCE)) ) &&
             (rcv_area > link->sourceElement->area) ) {
             if ( rcv_area > min_area ) {
-                if ( isCluster(link->receiverElement) ) {
+                if ( link->receiverElement->isCluster() ) {
                     code = SUBDIVIDE_RECEIVER_CLUSTER;
                 } else {
                     code = REGULAR_SUBDIVIDE_RECEIVER;
                 }
             }
         } else {
-            if ( isCluster(link->sourceElement) ) {
+            if ( link->sourceElement->isCluster() ) {
                 code = SUBDIVIDE_SOURCE_CLUSTER;
             } else if ( link->sourceElement->area > min_area ) {
                 code = REGULAR_SUBDIVIDE_SOURCE;
@@ -375,12 +375,12 @@ hierarchicRefinementComputeLightTransport(
     }
 
     COLOR linkClusterRad;
-    if ( isCluster(link->sourceElement) && link->sourceElement != link->receiverElement ) {
+    if ( link->sourceElement->isCluster() && link->sourceElement != link->receiverElement ) {
         linkClusterRad = sourceClusterRadiance(link);
         srcRad = &linkClusterRad;
     }
 
-    if ( isCluster(link->receiverElement) && link->sourceElement != link->receiverElement ) {
+    if ( link->receiverElement->isCluster() && link->sourceElement != link->receiverElement ) {
         clusterGatherRadiance(link, srcRad);
     } else {
         rcvRad = link->receiverElement->receivedRadiance;
@@ -406,14 +406,14 @@ hierarchicRefinementComputeLightTransport(
 
         if ( state->iteration_method == GAUSS_SEIDEL ||
              state->iteration_method == JACOBI ) {
-            if ( isCluster(link->receiverElement) ) {
+            if ( link->receiverElement->isCluster() ) {
                 colorSetMonochrome(rcvRho, 1.0f);
             } else {
                 rcvRho = link->receiverElement->patch->radianceData->Rd;
             }
             link->sourceElement->receivedPotential += (float)(K * hierarchicRefinementColorToError(rcvRho) * link->receiverElement->potential);
         } else if ( state->iteration_method == SOUTH_WELL ) {
-            if ( isCluster(link->sourceElement)) {
+            if ( link->sourceElement->isCluster() ) {
                 colorSetMonochrome(srcRho, 1.0f);
             } else {
                 srcRho = link->sourceElement->patch->radianceData->Rd;
@@ -445,13 +445,13 @@ hierarchicRefinementCreateSubdivisionLink(
     link->sourceElement = src;
 
     // Always a constant approximation on cluster elements
-    if ( isCluster(link->receiverElement) ) {
+    if ( link->receiverElement->isCluster() ) {
         link->nrcv = 1;
     } else {
         link->nrcv = rcv->basisSize;
     }
 
-    if ( isCluster(link->sourceElement) ) {
+    if ( link->sourceElement->isCluster() ) {
         link->nsrc = 1;
     } else {
         link->nsrc = src->basisSize;
@@ -567,21 +567,21 @@ hierarchicRefinementSubdivideSourceCluster(
     GalerkinElement *src = link->sourceElement, *rcv = link->receiverElement;
 
     for ( int i = 0; src->irregularSubElements != nullptr && i < src->irregularSubElements->size(); i++ ) {
-        GalerkinElement *child = src->irregularSubElements->get(i);
+        GalerkinElement *childElement = src->irregularSubElements->get(i);
         Interaction subInteraction{};
         float ff[MAX_BASIS_SIZE * MAX_BASIS_SIZE];
         subInteraction.K.p = ff; // Temporary storage for the form-factors
 
-        if ( !isCluster(child)) {
-            Patch *the_patch = child->patch;
-            if ( (isCluster(rcv) &&
+        if ( !childElement->isCluster() ) {
+            Patch *the_patch = childElement->patch;
+            if ( (rcv->isCluster() &&
                  boundsBehindPlane(geomBounds(rcv->geom), &the_patch->normal, the_patch->planeConstant)) ||
-                (!isCluster(rcv) && !facing(rcv->patch, the_patch)) ) {
+                (!rcv->isCluster() && !facing(rcv->patch, the_patch)) ) {
                 continue;
             }
         }
 
-        if ( hierarchicRefinementCreateSubdivisionLink(*candidatesList, rcv, child, &subInteraction)) {
+        if ( hierarchicRefinementCreateSubdivisionLink(*candidatesList, rcv, childElement, &subInteraction)) {
             if ( !refineRecursive(candidatesList, &subInteraction, state) ) {
                 hierarchicRefinementStoreInteraction(&subInteraction, state);
             }
@@ -614,11 +614,11 @@ hierarchicRefinementSubdivideReceiverCluster(
         float formFactor[MAX_BASIS_SIZE * MAX_BASIS_SIZE];
         subInteraction.K.p = formFactor;
 
-        if ( !isCluster(child) ) {
+        if ( !child->isCluster() ) {
             Patch *the_patch = child->patch;
-            if ( (isCluster(src) &&
+            if ( (src->isCluster() &&
                  boundsBehindPlane(geomBounds(src->geom), &the_patch->normal, the_patch->planeConstant)) ||
-                (!isCluster(src) && !facing(src->patch, the_patch)) ) {
+                (!src->isCluster() && !facing(src->patch, the_patch)) ) {
                 continue;
             }
         }

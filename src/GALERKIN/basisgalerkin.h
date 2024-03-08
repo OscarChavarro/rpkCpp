@@ -41,7 +41,7 @@ basisGalerkinRadianceAtPoint(
 
 extern void
 basisGalerkinPush(
-    GalerkinElement *parent,
+    GalerkinElement *element,
     COLOR *parent_coefficients,
     GalerkinElement *child,
     COLOR *child_coefficients);

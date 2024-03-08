@@ -43,17 +43,17 @@ of the cubature rule on the element. The role (RECEIVER or SOURCE) is only
 relevant for surface elements
 */
 static void
-determineNodes(GalerkinElement *elem, CUBARULE **cr, Vector3D x[CUBAMAXNODES], GalerkinRole role) {
-    Matrix2x2 topxf{};
+determineNodes(GalerkinElement *element, CUBARULE **cr, Vector3D x[CUBAMAXNODES], GalerkinRole role) {
+    Matrix2x2 topTransform{};
     int k;
 
-    if ( isCluster(elem) ) {
+    if ( element->isCluster() ) {
         BoundingBox vol;
         double dx, dy, dz;
 
         *cr = GLOBAL_galerkin_state.clusterRule;
 
-        galerkinElementBounds(elem, vol);
+        galerkinElementBounds(element, vol);
         dx = vol[MAX_X] - vol[MIN_X];
         dy = vol[MAX_Y] - vol[MIN_Y];
         dz = vol[MAX_Z] - vol[MIN_Z];
@@ -65,7 +65,7 @@ determineNodes(GalerkinElement *elem, CUBARULE **cr, Vector3D x[CUBAMAXNODES], G
         }
     } else {
         // What cubature rule should be used over the element
-        switch ( elem->patch->numberOfVertices ) {
+        switch ( element->patch->numberOfVertices ) {
             case 3:
                 *cr = role == RECEIVER ? GLOBAL_galerkin_state.rcv3rule : GLOBAL_galerkin_state.src3rule;
                 break;
@@ -78,8 +78,8 @@ determineNodes(GalerkinElement *elem, CUBARULE **cr, Vector3D x[CUBAMAXNODES], G
 
         /* compute the transform relating positions on the element to positions on
          * the patch to which it belongs. */
-        if ( elem->upTrans ) {
-            galerkinElementToTopTransform(elem, &topxf);
+        if ( element->upTrans ) {
+            galerkinElementToTopTransform(element, &topTransform);
         }
 
         /* compute the positions x[k] corresponding to the nodes of the cubature rule
@@ -88,8 +88,8 @@ determineNodes(GalerkinElement *elem, CUBARULE **cr, Vector3D x[CUBAMAXNODES], G
             Vector2D node;
             node.u = (float)(*cr)->u[k];
             node.v = (float)(*cr)->v[k];
-            if ( elem->upTrans ) transformPoint2D(topxf, node, node);
-            elem->patch->uniformPoint(node.u, node.v, &x[k]);
+            if ( element->upTrans ) transformPoint2D(topTransform, node, node);
+            element->patch->uniformPoint(node.u, node.v, &x[k]);
         }
     }
 }
@@ -136,7 +136,7 @@ pointKernelEval(
     }
 
     // Emitter factor times scale, see Sillion, "A Unified Hierarchical ...", IEEE TVCG Vol 1 nr 3, sept 1995
-    if ( isCluster(src) ) {
+    if ( src->isCluster() ) {
         cosQ = 0.25;
     } else {
         cosQ = vectorDotProduct(ray.dir, src->patch->normal);
@@ -147,7 +147,7 @@ pointKernelEval(
     }
 
     // Receiver factor times scale
-    if ( isCluster(rcv) ) {
+    if ( rcv->isCluster() ) {
         cosP = 0.25;
     } else {
         cosP = -vectorDotProduct(ray.dir, rcv->patch->normal);
@@ -221,14 +221,14 @@ doHigherOrderAreaToAreaFormFactor(
                     src->unShotRadiance : src->radiance;
 
     // Receiver and source basis description
-    if ( isCluster(rcv) ) {
+    if ( rcv->isCluster() ) {
         // No basis description for clusters: we always use a constant approximation on clusters
         rcvbasis = nullptr;
     } else {
         rcvbasis = (rcv->patch->numberOfVertices == 3 ? &GLOBAL_galerkin_triBasis : &GLOBAL_galerkin_quadBasis);
     }
 
-    if ( isCluster(src) ) {
+    if ( src->isCluster() ) {
         srcbasis = nullptr;
     } else {
         srcbasis = (src->patch->numberOfVertices == 3 ? &GLOBAL_galerkin_triBasis : &GLOBAL_galerkin_quadBasis);
@@ -237,7 +237,7 @@ doHigherOrderAreaToAreaFormFactor(
     // Determine basis function values \phi_{i,\alpha}(x_k) at sample positions on the
     // receiver patch for all basis functions \alpha
     for ( k = 0; k < crrcv->numberOfNodes; k++ ) {
-        if ( isCluster(rcv)) {
+        if ( rcv->isCluster() ) {
             // Constant approximation on clusters
             if ( link->nrcv != 1 ) {
                 logFatal(-1, "doHigherOrderAreaToAreaFormFactor",
@@ -256,7 +256,7 @@ doHigherOrderAreaToAreaFormFactor(
     Gmax = -HUGE;
     for ( beta = 0; beta < link->nsrc; beta++ ) {
         // Determine basis function values \phi_{j,\beta}(x_l) at sample positions on the source patch
-        if ( isCluster(src) ) {
+        if ( src->isCluster() ) {
             if ( beta > 0 ) {
                 logFatal(-1, "doHigherOrderAreaToAreaFormFactor",
                          "non-constant approximation on source cluster is not possible");
@@ -450,7 +450,7 @@ areaToAreaFormFactor(
     int k;
     int l;
 
-    if ( isCluster(rcv) || isCluster(src) ) {
+    if ( rcv->isCluster() || src->isCluster() ) {
         BoundingBox rcvBounds;
         BoundingBox srcBounds;
         galerkinElementBounds(rcv, rcvBounds);
@@ -517,12 +517,12 @@ areaToAreaFormFactor(
         initShadowCache();
 
         // Mark the patches in order to avoid immediate self-intersections
-        Patch::dontIntersect(4, isCluster(rcv) ? nullptr : rcv->patch,
-                             isCluster(rcv) ? nullptr : rcv->patch->twin,
-                             isCluster(src) ? nullptr : src->patch,
-                             isCluster(src) ? nullptr : src->patch->twin);
-        geomDontIntersect(isCluster(rcv) ? rcv->geom : nullptr,
-                          isCluster(src) ? src->geom : nullptr);
+        Patch::dontIntersect(4, rcv->isCluster() ? nullptr : rcv->patch,
+                             rcv->isCluster() ? nullptr : rcv->patch->twin,
+                             src->isCluster() ? nullptr : src->patch,
+                             src->isCluster() ? nullptr : src->patch->twin);
+        geomDontIntersect(rcv->isCluster() ? rcv->geom : nullptr,
+                          src->isCluster() ? src->geom : nullptr);
 
         maxkval = 0.0; // Compute maximum un-occluded kernel value
         maxptff = 0.0; // Maximum un-occluded point-on-receiver to source form factor
@@ -565,19 +565,17 @@ areaToAreaFormFactor(
     GLOBAL_galerkin_state.formFactorLastRcv = rcv;
     GLOBAL_galerkin_state.formFactorLastSrc = src;
 
-    if ( GLOBAL_galerkin_state.clusteringStrategy == ISOTROPIC &&
-         (isCluster(rcv) || isCluster(src))) {
+    if ( GLOBAL_galerkin_state.clusteringStrategy == ISOTROPIC && (rcv->isCluster() || src->isCluster()) ) {
         link->deltaK.f = (float)(maxkval * src->area);
     }
 
     // Returns the visibility: basically the fraction of rays that did not hit an occluder
-    link->vis = (unsigned) (255.0 * (double) viscount /
-                            (double) (crrcv->numberOfNodes * crsrc->numberOfNodes));
+    link->vis = (unsigned) (255.0 * (double) viscount / (double) (crrcv->numberOfNodes * crsrc->numberOfNodes));
 
     if ( GLOBAL_galerkin_state.exact_visibility && geometryShadowList != nullptr && link->vis == 255 ) {
+        // Not full visibility, we missed the shadow!
         link->vis = 254;
     }
-    // Not full visibility, we missed the shadow!
 
     return link->vis;
 }

@@ -10,6 +10,15 @@ Galerkin finite elements: one structure for both surface and cluster elements
 #include "common/linealAlgebra/Matrix2x2.h"
 #include "scene/polygon.h"
 
+// Set when all interactions have been created for a toplevel element
+#define INTERACTIONS_CREATED 0x01
+
+// If set, indicates that the element is a cluster element. If not set, the element is a surface element
+#define IS_CLUSTER 0x10
+
+// If the element is or contains surfaces emitting light spontaneously
+#define IS_LIGHT_SOURCE 0x20
+
 /**
 The Galerkin radiosity specific data to be kept with every surface or
 cluster element. A flag indicates whether a given element is a cluster or
@@ -55,23 +64,13 @@ class GalerkinElement : public Element {
 
     GalerkinElement();
     ~GalerkinElement();
+
+    inline bool
+    isCluster() {
+        return flags & IS_CLUSTER;
+    }
+
 };
-
-// Element flags
-
-// Set when all interactions have been created for a toplevel element
-#define INTERACTIONS_CREATED 0x01
-
-// If set, indicates that the element is a cluster element. If not set, the element is a surface element
-#define IS_CLUSTER 0x10
-
-// If the element is or contains surfaces emitting light spontaneously
-#define IS_LIGHT_SOURCE 0x20
-
-inline bool
-isCluster(GalerkinElement *element) {
-    return element->flags & IS_CLUSTER;
-}
 
 /**
 Position and orientation of the regular sub-elements is fully
