@@ -402,7 +402,7 @@ getRadiance(Patch *patch, double u, double v, Vector3D /*dir*/) {
     }
 
     GalerkinElement *topLevelElement = patchGalerkinElement(patch);
-    leaf = galerkinElementRegularLeafAtPoint(topLevelElement, &u, &v);
+    leaf = topLevelElement->regularLeafAtPoint(&u, &v);
 
     rad = basisGalerkinRadianceAtPoint(leaf, leaf->radiance, u, v);
 

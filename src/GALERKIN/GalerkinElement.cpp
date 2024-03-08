@@ -417,32 +417,32 @@ element. Returns the element element itself if there are no regular sub-elements
 The point is transformed to the corresponding point on the sub-element
 */
 GalerkinElement *
-galerkinElementRegularSubElementAtPoint(GalerkinElement *parentElement, double *u, double *v) {
+GalerkinElement::regularSubElementAtPoint(double *u, double *v) {
     GalerkinElement *childElement = nullptr;
     double _u = *u;
     double _v = *v;
 
-    if ( parentElement->isCluster() || !parentElement->regularSubElements ) {
-        return parentElement;
+    if ( isCluster() || !regularSubElements ) {
+        return this;
     }
 
     // Have a look at the drawings above to understand what is done exactly
-    switch ( parentElement->patch->numberOfVertices ) {
+    switch ( patch->numberOfVertices ) {
         case 3:
             if ( _u + _v <= 0.5 ) {
-                childElement = parentElement->regularSubElements[0];
+                childElement = regularSubElements[0];
                 *u = _u * 2.0;
                 *v = _v * 2.0;
             } else if ( _u > 0.5 ) {
-                childElement = parentElement->regularSubElements[1];
+                childElement = regularSubElements[1];
                 *u = (_u - 0.5) * 2.0;
                 *v = _v * 2.0;
             } else if ( _v > 0.5 ) {
-                childElement = parentElement->regularSubElements[2];
+                childElement = regularSubElements[2];
                 *u = _u * 2.0;
                 *v = (_v - 0.5) * 2.0;
             } else {
-                childElement = parentElement->regularSubElements[3];
+                childElement = regularSubElements[3];
                 *u = (0.5 - _u) * 2.0;
                 *v = (0.5 - _v) * 2.0;
             }
@@ -450,19 +450,19 @@ galerkinElementRegularSubElementAtPoint(GalerkinElement *parentElement, double *
         case 4:
             if ( _v <= 0.5 ) {
                 if ( _u < 0.5 ) {
-                    childElement = parentElement->regularSubElements[0];
+                    childElement = regularSubElements[0];
                     *u = _u * 2.0;
                 } else {
-                    childElement = parentElement->regularSubElements[1];
+                    childElement = regularSubElements[1];
                     *u = (_u - 0.5) * 2.0;
                 }
                 *v = _v * 2.0;
             } else {
                 if ( _u < 0.5 ) {
-                    childElement = parentElement->regularSubElements[2];
+                    childElement = regularSubElements[2];
                     *u = _u * 2.0;
                 } else {
-                    childElement = parentElement->regularSubElements[3];
+                    childElement = regularSubElements[3];
                     *u = (_u - 0.5) * 2.0;
                 }
                 *v = (_v - 0.5) * 2.0;
@@ -481,13 +481,13 @@ coordinates!). (u,v) is transformed to the coordinates of the corresponding
 point on the leaf element. 'element' is a surface element, not a cluster
 */
 GalerkinElement *
-galerkinElementRegularLeafAtPoint(GalerkinElement *element, double *u, double *v) {
+GalerkinElement::regularLeafAtPoint(double *u, double *v) {
     GalerkinElement *leaf;
 
     /* find leaf element of 'element' at (u,v) */
-    leaf = element;
+    leaf = this;
     while ( leaf->regularSubElements ) {
-        leaf = galerkinElementRegularSubElementAtPoint(leaf, u, v);
+        leaf = leaf->regularSubElementAtPoint(u, v);
     }
 
     return leaf;

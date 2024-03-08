@@ -32,7 +32,9 @@ class GalerkinElement : public Element {
   private:
     GalerkinElement();
 
-  public:
+    GalerkinElement *regularSubElementAtPoint(double *u, double *v);
+
+public:
     GalerkinElement *parent; /* Parent element in a hierarchy, or
 			 a nullptr pointer if there is no parent. */
     GalerkinElement **regularSubElements; /* A nullptr pointer if there are no
@@ -78,6 +80,7 @@ class GalerkinElement : public Element {
     GalerkinElement **regularSubDivide();
     void elementPrintId(FILE *out);
     Matrix2x2 *topTransform(Matrix2x2 *xf);
+    GalerkinElement *regularLeafAtPoint(double *u, double *v);
 };
 
 /**
@@ -93,7 +96,6 @@ extern int galerkinElementGetNumberOfElements();
 extern int galerkinElementGetNumberOfClusters();
 extern int galerkinElementGetNumberOfSurfaceElements();
 
-extern GalerkinElement *galerkinElementRegularLeafAtPoint(GalerkinElement *element, double *u, double *v);
 extern void galerkinElementDrawOutline(GalerkinElement *element);
 extern void galerkinElementRender(GalerkinElement *element);
 extern void galerkinElementReAllocCoefficients(GalerkinElement *element);
@@ -102,7 +104,5 @@ extern float *galerkinElementBounds(GalerkinElement *element, float *bounds);
 extern Vector3D galerkinElementMidPoint(GalerkinElement *element);
 extern POLYGON *galerkinElementPolygon(GalerkinElement *element, POLYGON *polygon);
 extern void galerkinElementForAllLeafElements(GalerkinElement *element, void (*func)(GalerkinElement *));
-
-extern GalerkinElement *galerkinElementRegularSubElementAtPoint(GalerkinElement *element, double *u, double *v);
 
 #endif
