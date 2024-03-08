@@ -107,7 +107,7 @@ galerkinDoCreateClusterHierarchy(Geometry *parentGeometry) {
     }
 
     // Create a cluster for the parentGeometry
-    GalerkinElement *cluster = galerkinElementCreateCluster(parentGeometry);
+    GalerkinElement *cluster = new GalerkinElement(parentGeometry);
     parentGeometry->radianceData = cluster;
 
     // Recursively creates list of sub-clusters
@@ -158,7 +158,7 @@ galerkinDestroyClusterHierarchy(GalerkinElement *clusterElement) {
     for ( int i = 0; clusterElement->irregularSubElements != nullptr && i < clusterElement->irregularSubElements->size(); i++ ) {
         galerkinDestroyClusterHierarchy(clusterElement->irregularSubElements->get(i));
     }
-    galerkinElementDestroyCluster(clusterElement);
+    galerkinElementDestroy(clusterElement);
 }
 
 /**

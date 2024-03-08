@@ -248,45 +248,38 @@ galerkinElementReAllocCoefficients(GalerkinElement *element) {
 /**
 Creates the toplevel element for the patch
 */
-GalerkinElement *
-galerkinElementCreateTopLevel(Patch *patch) {
-    GalerkinElement *element = new GalerkinElement();
-    element->patch = patch;
-    element->minimumArea = element->area = patch->area;
-    element->bsize = 2.0f * (float)std::sqrt(element->area / M_PI);
-    element->directPotential = patch->directPotential;
+GalerkinElement::GalerkinElement(Patch *parameterPatch): GalerkinElement() {
+    patch = parameterPatch;
+    minimumArea = area = patch->area;
+    bsize = 2.0f * (float)std::sqrt(area / M_PI);
+    directPotential = patch->directPotential;
 
-    element->Rd = patch->averageNormalAlbedo(BRDF_DIFFUSE_COMPONENT);
+    Rd = patch->averageNormalAlbedo(BRDF_DIFFUSE_COMPONENT);
     if ( patch->surface && patch->surface->material &&
          patch->surface->material->edf ) {
-        element->flags |= IS_LIGHT_SOURCE;
-        element->Ed = patch->averageEmittance(DIFFUSE_COMPONENT);
-        colorScaleInverse(M_PI, element->Ed, element->Ed);
+        flags |= IS_LIGHT_SOURCE;
+        Ed = patch->averageEmittance(DIFFUSE_COMPONENT);
+        colorScaleInverse(M_PI, Ed, Ed);
     }
 
-    patch->radianceData = element;
-    galerkinElementReAllocCoefficients(element);
-
-    return element;
+    patch->radianceData = this;
+    galerkinElementReAllocCoefficients(this);
 }
 
 /**
 Creates a cluster element for the given geometry
 The average projected area still needs to be determined
 */
-GalerkinElement *
-galerkinElementCreateCluster(Geometry *geometry) {
-    GalerkinElement *element = new GalerkinElement();
-    element->geom = geometry;
-    element->area = 0.0; // Needs to be computed after the whole cluster hierarchy has been constructed
-    element->flags |= IS_CLUSTER;
-    galerkinElementReAllocCoefficients(element);
+GalerkinElement::GalerkinElement(Geometry *parameterGeometry): GalerkinElement() {
+    geom = parameterGeometry;
+    area = 0.0; // Needs to be computed after the whole cluster hierarchy has been constructed
+    flags |= IS_CLUSTER;
+    galerkinElementReAllocCoefficients(this);
 
-    colorSetMonochrome(element->Rd, 1.);
+    colorSetMonochrome(Rd, 1.0);
 
     // Whether the cluster contains light sources or not is also determined after the hierarchy is constructed
     globalNumberOfClusters++;
-    return element;
 }
 
 /**
@@ -342,7 +335,7 @@ GalerkinElement::regularSubDivide() {
     return subElement;
 }
 
-static void
+void
 galerkinElementDestroy(GalerkinElement *element) {
     for ( int i = 0; element->interactions != nullptr && i < element->interactions->size(); i++ ) {
         interactionDestroy(element->interactions->get(i));
@@ -360,6 +353,9 @@ galerkinElementDestroy(GalerkinElement *element) {
     }
     delete element;
     globalNumberOfElements--;
+    if ( element->isCluster() ) {
+        globalNumberOfClusters--;
+    }
 }
 
 /**
@@ -382,15 +378,6 @@ GalerkinElement::destroy() {
     }
 
     galerkinElementDestroy(this);
-}
-
-/**
-Destroys the cluster element, not recursive
-*/
-void
-galerkinElementDestroyCluster(GalerkinElement *element) {
-    galerkinElementDestroy(element);
-    globalNumberOfClusters--;
 }
 
 /**

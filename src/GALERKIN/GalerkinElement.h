@@ -29,6 +29,9 @@ a pointer to the Patch to which is belongs, they have only irregular sub-element
 and no up trans
 */
 class GalerkinElement : public Element {
+  private:
+    GalerkinElement();
+
   public:
     GalerkinElement *parent; /* Parent element in a hierarchy, or
 			 a nullptr pointer if there is no parent. */
@@ -62,7 +65,9 @@ class GalerkinElement : public Element {
     char basisUsed; // Number of coefficients effectively used (<=basis_size)
     unsigned char flags; // Various flags, see below
 
-    GalerkinElement();
+    explicit GalerkinElement(Patch *patch);
+    explicit GalerkinElement(Geometry *parameterGeometry);
+
     ~GalerkinElement();
     void destroy();
 
@@ -89,10 +94,7 @@ extern int galerkinElementGetNumberOfElements();
 extern int galerkinElementGetNumberOfClusters();
 extern int galerkinElementGetNumberOfSurfaceElements();
 
-extern GalerkinElement *galerkinElementCreateTopLevel(Patch *patch);
-extern GalerkinElement *galerkinElementCreateCluster(Geometry *geometry);
-
-extern void galerkinElementDestroyCluster(GalerkinElement *element);
+extern void galerkinElementDestroy(GalerkinElement *element);
 extern GalerkinElement *galerkinElementRegularLeafAtPoint(GalerkinElement *element, double *u, double *v);
 extern void galerkinElementDrawOutline(GalerkinElement *element);
 extern void galerkinElementRender(GalerkinElement *element);
