@@ -158,7 +158,7 @@ galerkinDestroyClusterHierarchy(GalerkinElement *clusterElement) {
     for ( int i = 0; clusterElement->irregularSubElements != nullptr && i < clusterElement->irregularSubElements->size(); i++ ) {
         galerkinDestroyClusterHierarchy(clusterElement->irregularSubElements->get(i));
     }
-    galerkinElementDestroy(clusterElement);
+    delete clusterElement;
 }
 
 /**

@@ -69,7 +69,6 @@ class GalerkinElement : public Element {
     explicit GalerkinElement(Geometry *parameterGeometry);
 
     ~GalerkinElement();
-    void destroy();
 
     inline bool
     isCluster() const {
@@ -94,7 +93,6 @@ extern int galerkinElementGetNumberOfElements();
 extern int galerkinElementGetNumberOfClusters();
 extern int galerkinElementGetNumberOfSurfaceElements();
 
-extern void galerkinElementDestroy(GalerkinElement *element);
 extern GalerkinElement *galerkinElementRegularLeafAtPoint(GalerkinElement *element, double *u, double *v);
 extern void galerkinElementDrawOutline(GalerkinElement *element);
 extern void galerkinElementRender(GalerkinElement *element);

@@ -17,70 +17,6 @@ static int globalNumberOfElements = 0;
 static int globalNumberOfClusters = 0;
 
 /**
-Private inner constructor, Use either galerkinElementCreateTopLevel() or CreateRegularSubElement()
-*/
-GalerkinElement::GalerkinElement():
-    parent(),
-    regularSubElements(),
-    irregularSubElements(),
-    upTrans(),
-    area(),
-    potential(),
-    receivedPotential(),
-    unShotPotential(),
-    directPotential(),
-    minimumArea(),
-    bsize(),
-    numberOfPatches(),
-    tmp(),
-    childNumber(),
-    basisSize(),
-    basisUsed(),
-    flags()
-{
-    className = ElementTypes::ELEMENT_GALERKIN;
-    irregularSubElements = new java::ArrayList<GalerkinElement *>();
-    interactions = new java::ArrayList<Interaction *>();
-
-    colorClear(Ed);
-    colorClear(Rd);
-    id = globalNumberOfElements + 1; // Let the IDs start from 1, not 0
-    radiance = nullptr;
-    receivedRadiance = nullptr;
-    unShotRadiance = nullptr;
-    potential = 0.0f;
-    receivedPotential = 0.0f;
-    unShotPotential = 0.0f;
-    patch = nullptr;
-    geom = nullptr;
-    parent = nullptr;
-    regularSubElements = nullptr;
-    irregularSubElements = nullptr; // New list
-    upTrans = nullptr;
-    area = 0.0;
-    flags = 0x00;
-    childNumber = -1; // Means: "not a regular sub-element"
-    basisSize = 0;
-    basisUsed = 0;
-    numberOfPatches = 1; // Correct for surface elements, it will be computed later for clusters
-    minimumArea = HUGE;
-    tmp = 0;
-    bsize = 0.0; // Correct eq. blocker size will be computer later on
-
-    globalNumberOfElements++;
-}
-
-GalerkinElement::~GalerkinElement() {
-    if ( irregularSubElements != nullptr ) {
-        delete irregularSubElements;
-    }
-
-    if ( interactions != nullptr ) {
-        delete interactions;
-    }
-}
-
-/**
 Orientation and position of regular sub-elements is fully determined by the
 following transformations. A uniform mapping of parameter domain to the
 elements is supposed (i.o.w. use uniformPoint() to map (u,v) coordinates
@@ -152,6 +88,140 @@ Matrix2x2 GLOBAL_galerkin_TriangularUpTransformMatrix[4] = {
 };
 
 /**
+Private inner constructor, Use either galerkinElementCreateTopLevel() or CreateRegularSubElement()
+*/
+GalerkinElement::GalerkinElement():
+        parent(),
+        regularSubElements(),
+        irregularSubElements(),
+        upTrans(),
+        area(),
+        potential(),
+        receivedPotential(),
+        unShotPotential(),
+        directPotential(),
+        minimumArea(),
+        bsize(),
+        numberOfPatches(),
+        tmp(),
+        childNumber(),
+        basisSize(),
+        basisUsed(),
+        flags()
+{
+    className = ElementTypes::ELEMENT_GALERKIN;
+    irregularSubElements = new java::ArrayList<GalerkinElement *>();
+    interactions = new java::ArrayList<Interaction *>();
+
+    colorClear(Ed);
+    colorClear(Rd);
+    id = globalNumberOfElements + 1; // Let the IDs start from 1, not 0
+    radiance = nullptr;
+    receivedRadiance = nullptr;
+    unShotRadiance = nullptr;
+    potential = 0.0f;
+    receivedPotential = 0.0f;
+    unShotPotential = 0.0f;
+    patch = nullptr;
+    geom = nullptr;
+    parent = nullptr;
+    regularSubElements = nullptr;
+    irregularSubElements = nullptr; // New list
+    upTrans = nullptr;
+    area = 0.0;
+    flags = 0x00;
+    childNumber = -1; // Means: "not a regular sub-element"
+    basisSize = 0;
+    basisUsed = 0;
+    numberOfPatches = 1; // Correct for surface elements, it will be computed later for clusters
+    minimumArea = HUGE;
+    tmp = 0;
+    bsize = 0.0; // Correct eq. blocker size will be computer later on
+
+    globalNumberOfElements++;
+}
+
+/**
+Creates the toplevel element for the patch
+*/
+GalerkinElement::GalerkinElement(Patch *parameterPatch): GalerkinElement() {
+    patch = parameterPatch;
+    minimumArea = area = patch->area;
+    bsize = 2.0f * (float)std::sqrt(area / M_PI);
+    directPotential = patch->directPotential;
+
+    Rd = patch->averageNormalAlbedo(BRDF_DIFFUSE_COMPONENT);
+    if ( patch->surface && patch->surface->material &&
+         patch->surface->material->edf ) {
+        flags |= IS_LIGHT_SOURCE;
+        Ed = patch->averageEmittance(DIFFUSE_COMPONENT);
+        colorScaleInverse(M_PI, Ed, Ed);
+    }
+
+    patch->radianceData = this;
+    galerkinElementReAllocCoefficients(this);
+}
+
+/**
+Creates a cluster element for the given geometry
+The average projected area still needs to be determined
+*/
+GalerkinElement::GalerkinElement(Geometry *parameterGeometry): GalerkinElement() {
+    geom = parameterGeometry;
+    area = 0.0; // Needs to be computed after the whole cluster hierarchy has been constructed
+    flags |= IS_CLUSTER;
+    galerkinElementReAllocCoefficients(this);
+
+    colorSetMonochrome(Rd, 1.0);
+
+    // Whether the cluster contains light sources or not is also determined after the hierarchy is constructed
+    globalNumberOfClusters++;
+}
+
+GalerkinElement::~GalerkinElement() {
+    if ( regularSubElements != nullptr ) {
+        for ( int i = 0; i < 4; i++) {
+            delete regularSubElements[i];
+        }
+        delete regularSubElements;
+    }
+
+    if ( irregularSubElements != nullptr ) {
+        for ( int i = 0; i < irregularSubElements->size(); i++ ) {
+            delete irregularSubElements->get(i);
+        }
+        delete irregularSubElements;
+    }
+
+    for ( int i = 0; interactions != nullptr && i < interactions->size(); i++ ) {
+        interactionDestroy(interactions->get(i));
+    }
+    delete interactions;
+
+    if ( radiance ) {
+        delete[] radiance;
+    }
+    if ( receivedRadiance ) {
+        delete[] receivedRadiance;
+    }
+    if ( unShotRadiance ) {
+        delete[] unShotRadiance;
+    }
+    globalNumberOfElements--;
+    if ( isCluster() ) {
+        globalNumberOfClusters--;
+    }
+
+    if ( irregularSubElements != nullptr ) {
+        delete irregularSubElements;
+    }
+
+    if ( interactions != nullptr ) {
+        delete interactions;
+    }
+}
+
+/**
 Returns the total number of elements in use
 */
 int
@@ -206,7 +276,7 @@ galerkinElementReAllocCoefficients(GalerkinElement *element) {
     clusterGalerkinClearCoefficients(radiance, basisSize);
     if ( element->radiance ) {
         clusterGalerkinCopyCoefficients(radiance, element->radiance, charMin(element->basisSize, basisSize));
-        free(element->radiance);
+        delete element->radiance;
     }
     element->radiance = radiance;
 
@@ -215,7 +285,7 @@ galerkinElementReAllocCoefficients(GalerkinElement *element) {
     if ( element->receivedRadiance ) {
         clusterGalerkinCopyCoefficients(receivedRadiance, element->receivedRadiance,
                                         charMin(element->basisSize, basisSize));
-        free(element->receivedRadiance);
+        delete element->receivedRadiance;
     }
     element->receivedRadiance = receivedRadiance;
 
@@ -226,7 +296,7 @@ galerkinElementReAllocCoefficients(GalerkinElement *element) {
             if ( element->unShotRadiance ) {
                 clusterGalerkinCopyCoefficients(unShotRadiance, element->unShotRadiance,
                                                 charMin(element->basisSize, basisSize));
-                free(element->unShotRadiance);
+                delete element->unShotRadiance;
             } else if ( element->patch->surface ) {
                 unShotRadiance[0] = element->patch->radianceData->Ed;
             }
@@ -234,7 +304,7 @@ galerkinElementReAllocCoefficients(GalerkinElement *element) {
         element->unShotRadiance = unShotRadiance;
     } else {
         if ( element->unShotRadiance ) {
-            free(element->unShotRadiance);
+            delete element->unShotRadiance;
         }
         element->unShotRadiance = nullptr;
     }
@@ -243,43 +313,6 @@ galerkinElementReAllocCoefficients(GalerkinElement *element) {
     if ( element->basisUsed > element->basisSize ) {
         element->basisUsed = element->basisSize;
     }
-}
-
-/**
-Creates the toplevel element for the patch
-*/
-GalerkinElement::GalerkinElement(Patch *parameterPatch): GalerkinElement() {
-    patch = parameterPatch;
-    minimumArea = area = patch->area;
-    bsize = 2.0f * (float)std::sqrt(area / M_PI);
-    directPotential = patch->directPotential;
-
-    Rd = patch->averageNormalAlbedo(BRDF_DIFFUSE_COMPONENT);
-    if ( patch->surface && patch->surface->material &&
-         patch->surface->material->edf ) {
-        flags |= IS_LIGHT_SOURCE;
-        Ed = patch->averageEmittance(DIFFUSE_COMPONENT);
-        colorScaleInverse(M_PI, Ed, Ed);
-    }
-
-    patch->radianceData = this;
-    galerkinElementReAllocCoefficients(this);
-}
-
-/**
-Creates a cluster element for the given geometry
-The average projected area still needs to be determined
-*/
-GalerkinElement::GalerkinElement(Geometry *parameterGeometry): GalerkinElement() {
-    geom = parameterGeometry;
-    area = 0.0; // Needs to be computed after the whole cluster hierarchy has been constructed
-    flags |= IS_CLUSTER;
-    galerkinElementReAllocCoefficients(this);
-
-    colorSetMonochrome(Rd, 1.0);
-
-    // Whether the cluster contains light sources or not is also determined after the hierarchy is constructed
-    globalNumberOfClusters++;
 }
 
 /**
@@ -333,51 +366,6 @@ GalerkinElement::regularSubDivide() {
 
     regularSubElements = subElement;
     return subElement;
-}
-
-void
-galerkinElementDestroy(GalerkinElement *element) {
-    for ( int i = 0; element->interactions != nullptr && i < element->interactions->size(); i++ ) {
-        interactionDestroy(element->interactions->get(i));
-    }
-    delete element->interactions;
-
-    if ( element->radiance ) {
-        delete[] element->radiance;
-    }
-    if ( element->receivedRadiance ) {
-        delete[] element->receivedRadiance;
-    }
-    if ( element->unShotRadiance ) {
-        delete[] element->unShotRadiance;
-    }
-    delete element;
-    globalNumberOfElements--;
-    if ( element->isCluster() ) {
-        globalNumberOfClusters--;
-    }
-}
-
-/**
-Destroys the toplevel surface element and it's sub-elements (recursive)
-*/
-void
-GalerkinElement::destroy() {
-    if ( regularSubElements != nullptr ) {
-        for ( int i = 0; i < 4; i++) {
-            regularSubElements[i]->destroy();
-        }
-        free(regularSubElements);
-    }
-
-    if ( irregularSubElements != nullptr ) {
-        for ( int i = 0; i < irregularSubElements->size(); i++ ) {
-            irregularSubElements->get(i)->destroy();
-        }
-        delete irregularSubElements;
-    }
-
-    galerkinElementDestroy(this);
 }
 
 /**
