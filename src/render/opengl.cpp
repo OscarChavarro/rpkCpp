@@ -312,10 +312,10 @@ openGlRenderOctreeLeaf(Geometry *geom, void (*render_patch)(Patch *)) {
 }
 
 static int
-openGlViewCullBounds(float *bounds) {
+openGlViewCullBounds(BoundingBox *bounds) {
     for ( int i = 0; i < NUMBER_OF_VIEW_PLANES; i++ ) {
-        if ( boundsBehindPlane(bounds, &GLOBAL_camera_mainCamera.viewPlane[i].normal,
-                               GLOBAL_camera_mainCamera.viewPlane[i].d)) {
+        if ( bounds->behindPlane(&GLOBAL_camera_mainCamera.viewPlane[i].normal,
+                         GLOBAL_camera_mainCamera.viewPlane[i].d)) {
             return true;
         }
     }
@@ -370,7 +370,7 @@ openGlRenderOctreeNonLeaf(Geometry *geometry, void (*render_patch)(Patch *)) {
 
     // cull the non-leaf octree children geoms
     for ( i = 0; i < n; i++ ) {
-        if ( openGlViewCullBounds(octree_children[i].geom->bounds.coordinates) ) {
+        if ( openGlViewCullBounds(&octree_children[i].geom->bounds) ) {
             octree_children[i].geom = nullptr; // culled
             octree_children[i].dist = HUGE;
         } else {

@@ -120,7 +120,7 @@ geomLink(Geometry *geom) {
     java::ArrayList<Geometry *> *oldCandidateList = globalCandidateList;
 
     // Immediately return if the Geometry is bounded and behind the plane of the patch for which interactions are created
-    if ( geom->bounded && boundsBehindPlane(geomBounds(geom).coordinates, &globalPatch->normal, globalPatch->planeConstant) ) {
+    if ( geom->bounded && geomBounds(geom).behindPlane(&globalPatch->normal, globalPatch->planeConstant) ) {
         return;
     }
 

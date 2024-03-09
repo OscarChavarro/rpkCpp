@@ -575,8 +575,7 @@ hierarchicRefinementSubdivideSourceCluster(
 
         if ( !childElement->isCluster() ) {
             Patch *the_patch = childElement->patch;
-            if ((rcv->isCluster() &&
-                 boundsBehindPlane(geomBounds(rcv->geometry).coordinates, &the_patch->normal, the_patch->planeConstant)) ||
+            if ( (rcv->isCluster() && geomBounds(rcv->geometry).behindPlane(&the_patch->normal, the_patch->planeConstant)) ||
                 (!rcv->isCluster() && !facing(rcv->patch, the_patch)) ) {
                 continue;
             }
@@ -617,8 +616,7 @@ hierarchicRefinementSubdivideReceiverCluster(
 
         if ( !child->isCluster() ) {
             Patch *the_patch = child->patch;
-            if ((src->isCluster() &&
-                 boundsBehindPlane(geomBounds(src->geometry).coordinates, &the_patch->normal, the_patch->planeConstant)) ||
+            if ( (src->isCluster() && geomBounds(src->geometry).behindPlane(&the_patch->normal, the_patch->planeConstant)) ||
                 (!src->isCluster() && !facing(src->patch, the_patch)) ) {
                 continue;
             }
