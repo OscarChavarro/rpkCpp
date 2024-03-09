@@ -930,29 +930,6 @@ stochasticRadiosityElementTraverseChildrenElements(StochasticRadiosityElement *t
         }
 }
 
-void
-stochasticRadiosityElementTraverseLeafElements(StochasticRadiosityElement *top, void (*traversalCallbackFunction)(StochasticRadiosityElement *)) {
-    if ( top == nullptr ) {
-        return;
-    }
-
-    if ( top->isCluster() ) {
-        for ( int i = 0; top->irregularSubElements != nullptr && i < top->irregularSubElements->size(); i++ ) {
-            stochasticRadiosityElementTraverseLeafElements(
-                    (StochasticRadiosityElement *) top->irregularSubElements->get(i), traversalCallbackFunction);
-        }
-    } else if ( top->regularSubElements != nullptr ) {
-        if ( top->regularSubElements != nullptr ) {
-            for ( int i = 0; i < 4; i++ ) {
-                stochasticRadiosityElementTraverseLeafElements(
-                        (StochasticRadiosityElement *) top->regularSubElements[i], traversalCallbackFunction);
-            }
-        }
-    } else {
-        traversalCallbackFunction(top);
-    }
-}
-
 static void
 monteCarloRadiosityForAllSurfaceLeafsRecursive(
         StochasticRadiosityElement *element,

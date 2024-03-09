@@ -28,10 +28,11 @@ static void (*elemfunc)(StochasticRadiosityElement *);
 static int leaf_element_count;
 
 static void
-countAndCall(StochasticRadiosityElement *elem) {
+countAndCall(Element *element) {
+    StochasticRadiosityElement *stochasticRadiosityElement = (StochasticRadiosityElement *)element;
     if ( leaf_element_count >= pass * FACES_PER_SET &&
          leaf_element_count < (pass + 1) * FACES_PER_SET ) {
-        elemfunc(elem);
+        elemfunc(stochasticRadiosityElement);
     }
     leaf_element_count++;
 }
@@ -42,7 +43,9 @@ geometryIterateLeafElements(Geometry *geom, void (*func)(StochasticRadiosityElem
     elemfunc = func;
     leaf_element_count = 0;
     for ( int i = 0; patchList != nullptr && i < patchList->size(); i++ ) {
-        stochasticRadiosityElementTraverseLeafElements(topLevelGalerkinElement(patchList->get(i)), countAndCall);
+        if ( topLevelGalerkinElement(patchList->get(i)) != nullptr ) {
+            topLevelGalerkinElement(patchList->get(i))->traverseClusterLeafElements(countAndCall);
+        }
     }
 }
 

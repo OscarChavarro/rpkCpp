@@ -55,6 +55,8 @@ class Element {
     Matrix2x2 *topTransform(Matrix2x2 *xf);
     bool isLeaf() const;
     Element *childContainingElement(Element *descendant);
+    void traverseAllLeafElements(void (*traversalCallbackFunction)(Element *));
+    void traverseClusterLeafElements(void (*traversalCallbackFunction)(Element *));
 };
 
 #endif

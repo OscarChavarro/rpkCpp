@@ -55,7 +55,6 @@ public:
     float *bounds(float *bounds);
     Vector3D midPoint();
     POLYGON *polygon(POLYGON *polygon);
-    void traverseLeafElements(void (*func)(GalerkinElement *));
     void reAllocCoefficients();
 };
 

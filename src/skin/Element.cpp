@@ -67,3 +67,44 @@ Element::childContainingElement(Element *descendant) {
     }
     return descendant;
 }
+
+/**
+Call traversalCallbackFunction for each leaf element of element
+*/
+void
+Element::traverseAllLeafElements(void (*traversalCallbackFunction)(Element *)) {
+    for ( int i = 0; irregularSubElements != nullptr && i < irregularSubElements->size(); i++ ) {
+        irregularSubElements->get(i)->traverseAllLeafElements(traversalCallbackFunction);
+    }
+
+    if ( regularSubElements != nullptr ) {
+        for ( int i = 0; i < 4; i++ ) {
+            regularSubElements[i]->traverseAllLeafElements(traversalCallbackFunction);
+        }
+    }
+
+    if ( !irregularSubElements && !regularSubElements ) {
+        traversalCallbackFunction(this);
+    }
+}
+
+void
+Element::traverseClusterLeafElements(void (*traversalCallbackFunction)(Element *)) {
+    if ( isCluster() ) {
+        for ( int i = 0; irregularSubElements != nullptr && i < irregularSubElements->size(); i++ ) {
+            if ( irregularSubElements->get(i) != nullptr ) {
+                irregularSubElements->get(i)->traverseClusterLeafElements(traversalCallbackFunction);
+            }
+        }
+    } else if ( regularSubElements != nullptr ) {
+        if ( regularSubElements != nullptr ) {
+            for ( int i = 0; i < 4; i++ ) {
+                if ( regularSubElements[i] != nullptr ) {
+                    regularSubElements[i]->traverseClusterLeafElements(traversalCallbackFunction);
+                }
+            }
+        }
+    } else {
+        traversalCallbackFunction(this);
+    }
+}

@@ -60,11 +60,10 @@ stochasticRelaxationRadiosityRandomRound(float x) {
 
 static void
 stochasticRelaxationRadiosityRecomputeDisplayColors(java::ArrayList<Patch *> *scenePatches) {
-    if ( GLOBAL_stochasticRaytracing_hierarchy.topCluster ) {
-        stochasticRadiosityElementTraverseLeafElements(GLOBAL_stochasticRaytracing_hierarchy.topCluster,
-                                                       stochasticRadiosityElementComputeNewVertexColors);
-        stochasticRadiosityElementTraverseLeafElements(GLOBAL_stochasticRaytracing_hierarchy.topCluster,
-                                                       stochasticRadiosityElementAdjustTVertexColors);
+    StochasticRadiosityElement *topElement = GLOBAL_stochasticRaytracing_hierarchy.topCluster;
+    if ( topElement != nullptr ) {
+        topElement->traverseClusterLeafElements(stochasticRadiosityElementComputeNewVertexColors);
+        topElement->traverseClusterLeafElements(stochasticRadiosityElementAdjustTVertexColors);
     } else {
         for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
             monteCarloRadiosityPatchComputeNewColor(scenePatches->get(i));

@@ -506,11 +506,11 @@ galerkinWriteVertexCoord(Vector3D *p) {
 }
 
 static void
-galerkinWriteVertexCoords(GalerkinElement *elem) {
+galerkinWriteVertexCoords(Element *element) {
+    GalerkinElement *galerkinElement = (GalerkinElement *)element;
     Vector3D v[8];
-    int i;
-    int numberOfVertices = elem->vertices(v, 8);
-    for ( i = 0; i < numberOfVertices; i++ ) {
+    int numberOfVertices = galerkinElement->vertices(v, 8);
+    for ( int i = 0; i < numberOfVertices; i++ ) {
         galerkinWriteVertexCoord(&v[i]);
     }
 }
@@ -519,7 +519,7 @@ static void
 galerkinWriteCoords() {
     globalNumberOfWrites = globalVertexId = 0;
     fprintf(globalVrmlFileDescriptor, "\tcoord Coordinate {\n\t  point [ ");
-    GLOBAL_galerkin_state.topCluster->traverseLeafElements(galerkinWriteVertexCoords);
+    GLOBAL_galerkin_state.topCluster->traverseAllLeafElements(galerkinWriteVertexCoords);
     fprintf(globalVrmlFileDescriptor, " ] ");
     fprintf(globalVrmlFileDescriptor, "\n\t}\n");
 }
@@ -539,32 +539,33 @@ galerkinWriteVertexColor(RGB *color) {
 }
 
 static void
-galerkinWriteVertexColors(GalerkinElement *element) {
+galerkinWriteVertexColors(Element *element) {
+    GalerkinElement *galerkinElement = (GalerkinElement *)element;
     COLOR vertexRadiosity[4];
     int i;
 
-    if ( element->patch->numberOfVertices == 3 ) {
-        vertexRadiosity[0] = basisGalerkinRadianceAtPoint(element, element->radiance, 0., 0.);
-        vertexRadiosity[1] = basisGalerkinRadianceAtPoint(element, element->radiance, 1., 0.);
-        vertexRadiosity[2] = basisGalerkinRadianceAtPoint(element, element->radiance, 0., 1.);
+    if ( galerkinElement->patch->numberOfVertices == 3 ) {
+        vertexRadiosity[0] = basisGalerkinRadianceAtPoint(galerkinElement, galerkinElement->radiance, 0.0, 0.0);
+        vertexRadiosity[1] = basisGalerkinRadianceAtPoint(galerkinElement, galerkinElement->radiance, 1.0, 0.0);
+        vertexRadiosity[2] = basisGalerkinRadianceAtPoint(galerkinElement, galerkinElement->radiance, 0.0, 1.0);
     } else {
-        vertexRadiosity[0] = basisGalerkinRadianceAtPoint(element, element->radiance, 0., 0.);
-        vertexRadiosity[1] = basisGalerkinRadianceAtPoint(element, element->radiance, 1., 0.);
-        vertexRadiosity[2] = basisGalerkinRadianceAtPoint(element, element->radiance, 1., 1.);
-        vertexRadiosity[3] = basisGalerkinRadianceAtPoint(element, element->radiance, 0., 1.);
+        vertexRadiosity[0] = basisGalerkinRadianceAtPoint(galerkinElement, galerkinElement->radiance, 0.0, 0.0);
+        vertexRadiosity[1] = basisGalerkinRadianceAtPoint(galerkinElement, galerkinElement->radiance, 1.0, 0.0);
+        vertexRadiosity[2] = basisGalerkinRadianceAtPoint(galerkinElement, galerkinElement->radiance, 1.0, 1.0);
+        vertexRadiosity[3] = basisGalerkinRadianceAtPoint(galerkinElement, galerkinElement->radiance, 0.0, 1.0);
     }
 
     if ( GLOBAL_galerkin_state.use_ambient_radiance ) {
-        COLOR reflectivity = element->patch->radianceData->Rd;
+        COLOR reflectivity = galerkinElement->patch->radianceData->Rd;
         COLOR ambient;
 
         colorProduct(reflectivity, GLOBAL_galerkin_state.ambient_radiance, ambient);
-        for ( i = 0; i < element->patch->numberOfVertices; i++ ) {
+        for ( i = 0; i < galerkinElement->patch->numberOfVertices; i++ ) {
             colorAdd(vertexRadiosity[i], ambient, vertexRadiosity[i]);
         }
     }
 
-    for ( i = 0; i < element->patch->numberOfVertices; i++ ) {
+    for ( i = 0; i < galerkinElement->patch->numberOfVertices; i++ ) {
         RGB col{};
         radianceToRgb(vertexRadiosity[i], &col);
         galerkinWriteVertexColor(&col);
@@ -572,10 +573,10 @@ galerkinWriteVertexColors(GalerkinElement *element) {
 }
 
 static void
-galerkinWriteVertexColors() {
+galerkinWriteVertexColorsTopCluster() {
     globalVertexId = globalNumberOfWrites = 0;
     fprintf(globalVrmlFileDescriptor, "\tcolor Color {\n\t  color [ ");
-    GLOBAL_galerkin_state.topCluster->traverseLeafElements(galerkinWriteVertexColors);
+    GLOBAL_galerkin_state.topCluster->traverseAllLeafElements(galerkinWriteVertexColors);
     fprintf(globalVrmlFileDescriptor, " ] ");
     fprintf(globalVrmlFileDescriptor, "\n\t}\n");
 }
@@ -586,7 +587,7 @@ galerkinWriteColors() {
         logWarning(nullptr, "I assume you want a smooth shaded model ...");
     }
     fprintf(globalVrmlFileDescriptor, "\tcolorPerVertex %s\n", "TRUE");
-    galerkinWriteVertexColors();
+    galerkinWriteVertexColorsTopCluster();
 }
 
 static void
@@ -599,19 +600,19 @@ galerkinWriteCoordIndex(int index) {
 }
 
 static void
-galerkinWriteCoordIndices(GalerkinElement *elem) {
-    int i;
-    for ( i = 0; i < elem->patch->numberOfVertices; i++ ) {
+galerkinWriteCoordIndices(Element *element) {
+    GalerkinElement *galerkinElement = (GalerkinElement *)element;
+    for ( int i = 0; i < galerkinElement->patch->numberOfVertices; i++ ) {
         galerkinWriteCoordIndex(globalVertexId++);
     }
     galerkinWriteCoordIndex(-1);
 }
 
 static void
-galerkinWriteCoordIndices() {
+galerkinWriteCoordIndicesTopCluster() {
     globalVertexId = globalNumberOfWrites = 0;
     fprintf(globalVrmlFileDescriptor, "\tcoordIndex [ ");
-    GLOBAL_galerkin_state.topCluster->traverseLeafElements(galerkinWriteCoordIndices);
+    GLOBAL_galerkin_state.topCluster->traverseAllLeafElements(galerkinWriteCoordIndices);
     fprintf(globalVrmlFileDescriptor, " ]\n");
 }
 
@@ -622,7 +623,7 @@ galerkinWriteVRML(FILE *fp) {
     globalVrmlFileDescriptor = fp;
     galerkinWriteCoords();
     galerkinWriteColors();
-    galerkinWriteCoordIndices();
+    galerkinWriteCoordIndicesTopCluster();
 
     writeVRMLTrailer(fp);
 }

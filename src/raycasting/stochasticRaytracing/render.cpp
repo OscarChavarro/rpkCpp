@@ -116,29 +116,31 @@ vertexColor(Vertex *v) {
 Compute new vertex colors
 */
 void
-stochasticRadiosityElementComputeNewVertexColors(StochasticRadiosityElement *elem) {
-    vertexColor(elem->vertices[0]);
-    vertexColor(elem->vertices[1]);
-    vertexColor(elem->vertices[2]);
-    if ( elem->numberOfVertices > 3 ) {
-        vertexColor(elem->vertices[3]);
+stochasticRadiosityElementComputeNewVertexColors(Element *element) {
+    StochasticRadiosityElement *stochasticRadiosityElement = (StochasticRadiosityElement *)element;
+    vertexColor(stochasticRadiosityElement->vertices[0]);
+    vertexColor(stochasticRadiosityElement->vertices[1]);
+    vertexColor(stochasticRadiosityElement->vertices[2]);
+    if ( stochasticRadiosityElement->numberOfVertices > 3 ) {
+        vertexColor(stochasticRadiosityElement->vertices[3]);
     }
 }
 
 void
-stochasticRadiosityElementAdjustTVertexColors(StochasticRadiosityElement *elem) {
+stochasticRadiosityElementAdjustTVertexColors(Element *element) {
+    StochasticRadiosityElement *stochasticRadiosityElement = (StochasticRadiosityElement *)element;
     Vertex *m[4];
     int i, n;
-    for ( i = 0, n = 0; i < elem->numberOfVertices; i++ ) {
-        m[i] = stochasticRadiosityElementEdgeMidpointVertex(elem, i);
+    for ( i = 0, n = 0; i < stochasticRadiosityElement->numberOfVertices; i++ ) {
+        m[i] = stochasticRadiosityElementEdgeMidpointVertex(stochasticRadiosityElement, i);
         if ( m[i] ) {
             n++;
         }
     }
 
     if ( n > 0 ) {
-        RGB color = stochasticRadiosityElementColor(elem);
-        for ( i = 0; i < elem->numberOfVertices; i++ ) {
+        RGB color = stochasticRadiosityElementColor(stochasticRadiosityElement);
+        for ( i = 0; i < stochasticRadiosityElement->numberOfVertices; i++ ) {
             if ( m[i] ) {
                 m[i]->color.r = (float)(m[i]->color.r + color.r) * 0.5f;
                 m[i]->color.g = (float)(m[i]->color.g + color.g) * 0.5f;

@@ -48,7 +48,6 @@ extern void stochasticRadiosityElementDestroy(StochasticRadiosityElement *elem);
 extern void stochasticRadiosityElementDestroyClusterHierarchy(StochasticRadiosityElement *top);
 
 // Traversals
-extern void stochasticRadiosityElementTraverseLeafElements(StochasticRadiosityElement *top, void (*traversalCallbackFunction)(StochasticRadiosityElement *));
 extern void stochasticRadiosityElementTraverseSurfaceLeafs(StochasticRadiosityElement *top, void (*func)(StochasticRadiosityElement *));
 extern int stochasticRadiosityElementTraverseChildrenElements(StochasticRadiosityElement *top, void (*func)(StochasticRadiosityElement *));
 
@@ -76,8 +75,8 @@ extern COLOR stochasticRadiosityElementDisplayRadiance(StochasticRadiosityElemen
 extern COLOR stochasticRadiosityElementDisplayRadianceAtPoint(StochasticRadiosityElement *elem, double u, double v);
 extern void stochasticRadiosityElementRender(StochasticRadiosityElement *elem);
 extern void stochasticRadiosityElementRenderOutline(StochasticRadiosityElement *elem);
-extern void stochasticRadiosityElementComputeNewVertexColors(StochasticRadiosityElement *elem);
-extern void stochasticRadiosityElementAdjustTVertexColors(StochasticRadiosityElement *elem);
+extern void stochasticRadiosityElementComputeNewVertexColors(Element *element);
+extern void stochasticRadiosityElementAdjustTVertexColors(Element *element);
 extern RGB stochasticRadiosityElementColor(StochasticRadiosityElement *element);
 
 extern void
