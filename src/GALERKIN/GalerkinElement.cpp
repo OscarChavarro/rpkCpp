@@ -521,7 +521,7 @@ GalerkinElement::midPoint() {
 /**
 Computes a bounding box for the element
 */
-float *
+BoundingBox *
 GalerkinElement::bounds(BoundingBox *boundingBox) {
     if ( isCluster() ) {
         boundsCopy(geomBounds(geometry).coordinates, boundingBox->coordinates);
@@ -537,7 +537,7 @@ GalerkinElement::bounds(BoundingBox *boundingBox) {
         }
     }
 
-    return boundingBox->coordinates;
+    return boundingBox;
 }
 
 /**

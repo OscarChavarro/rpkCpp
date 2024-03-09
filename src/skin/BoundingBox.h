@@ -32,22 +32,22 @@ class BoundingBox {
                p->z < coordinates[MIN_Z] || p->z > coordinates[MAX_Z];
     }
 
+    /**
+    True if the two given bounding boxes are disjoint
+    */
+    inline bool
+    disjointToOtherBoundingBox(const BoundingBox *other) {
+        return
+            (coordinates[MIN_X] > other->coordinates[MAX_X]) || (other->coordinates[MIN_X] > coordinates[MAX_X]) ||
+            (coordinates[MIN_Y] > other->coordinates[MAX_Y]) || (other->coordinates[MIN_Y] > coordinates[MAX_Y]) ||
+            (coordinates[MIN_Z] > other->coordinates[MAX_Z]) || (other->coordinates[MIN_Z] > coordinates[MAX_Z]);
+    }
+
     bool intersect(Ray *ray, float minimumDistance, float *maximumDistance) const;
     bool intersectingSegment(Ray *ray, float *tMin, float *tMax) const;
     bool behindPlane(Vector3D *norm, float d) const;
     void enlarge(const BoundingBox *other);
 };
-
-/**
-True if the two given bounding boxes are disjoint
-*/
-inline bool
-disjointBounds(const float *b1, const float *b2) {
-    return
-        (b1[MIN_X] > b2[MAX_X]) || (b2[MIN_X] > b1[MAX_X]) ||
-        (b1[MIN_Y] > b2[MAX_Y]) || (b2[MIN_Y] > b1[MAX_Y]) ||
-        (b1[MIN_Z] > b2[MAX_Z]) || (b2[MIN_Z] > b1[MAX_Z]);
-}
 
 extern float *boundsCopy(const float *from, float *to);
 extern float *boundsEnlargePoint(float *bounds, Vector3D *point);

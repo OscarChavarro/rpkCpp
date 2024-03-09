@@ -49,7 +49,7 @@ structure. This structure will be filled in and the pointer returned if successf
 nullptr is returned if something goes wrong
 */
 SHAFT *
-constructShaft(float *ref1, float *ref2, SHAFT *shaft) {
+constructShaft(BoundingBox *ref1, BoundingBox *ref2, SHAFT *shaft) {
     int i;
     int j;
     int hasMinMax1[6];
@@ -64,13 +64,13 @@ constructShaft(float *ref1, float *ref2, SHAFT *shaft) {
 
     // Midpoints of the reference boxes define a line that is guaranteed
     // to lay within the shaft
-    shaft->center1.x = 0.5f * (ref1[MIN_X] + ref1[MAX_X]);
-    shaft->center1.y = 0.5f * (ref1[MIN_Y] + ref1[MAX_Y]);
-    shaft->center1.z = 0.5f * (ref1[MIN_Z] + ref1[MAX_Z]);
+    shaft->center1.x = 0.5f * (ref1->coordinates[MIN_X] + ref1->coordinates[MAX_X]);
+    shaft->center1.y = 0.5f * (ref1->coordinates[MIN_Y] + ref1->coordinates[MAX_Y]);
+    shaft->center1.z = 0.5f * (ref1->coordinates[MIN_Z] + ref1->coordinates[MAX_Z]);
 
-    shaft->center2.x = 0.5f * (ref2[MIN_X] + ref2[MAX_X]);
-    shaft->center2.y = 0.5f * (ref2[MIN_Y] + ref2[MAX_Y]);
-    shaft->center2.z = 0.5f * (ref2[MIN_Z] + ref2[MAX_Z]);
+    shaft->center2.x = 0.5f * (ref2->coordinates[MIN_X] + ref2->coordinates[MAX_X]);
+    shaft->center2.y = 0.5f * (ref2->coordinates[MIN_Y] + ref2->coordinates[MAX_Y]);
+    shaft->center2.z = 0.5f * (ref2->coordinates[MIN_Z] + ref2->coordinates[MAX_Z]);
 
     for ( i = 0; i < 6; i++ ) {
         hasMinMax1[i] = hasMinMax2[i] = 0;
@@ -79,24 +79,24 @@ constructShaft(float *ref1, float *ref2, SHAFT *shaft) {
     // Create extent box of both volumeListsOfItems and keep track which coordinates of which
     // box become the minimum or maximum
     for ( i = MIN_X; i <= MIN_Z; i++ ) {
-        if ( shaft->ref1[i] < shaft->ref2[i] ) {
-            shaft->boundingBox.coordinates[i] = shaft->ref1[i];
+        if ( shaft->ref1->coordinates[i] < shaft->ref2->coordinates[i] ) {
+            shaft->boundingBox.coordinates[i] = shaft->ref1->coordinates[i];
             hasMinMax1[i] = 1;
         } else {
-            shaft->boundingBox.coordinates[i] = shaft->ref2[i];
-            if ( !doubleEqual(shaft->ref1[i], shaft->ref2[i], EPSILON)) {
+            shaft->boundingBox.coordinates[i] = shaft->ref2->coordinates[i];
+            if ( !doubleEqual(shaft->ref1->coordinates[i], shaft->ref2->coordinates[i], EPSILON) ) {
                 hasMinMax2[i] = 1;
             }
         }
     }
 
     for ( i = MAX_X; i <= MAX_Z; i++ ) {
-        if ( shaft->ref1[i] > shaft->ref2[i] ) {
-            shaft->boundingBox.coordinates[i] = shaft->ref1[i];
+        if ( shaft->ref1->coordinates[i] > shaft->ref2->coordinates[i] ) {
+            shaft->boundingBox.coordinates[i] = shaft->ref1->coordinates[i];
             hasMinMax1[i] = 1;
         } else {
-            shaft->boundingBox.coordinates[i] = shaft->ref2[i];
-            if ( !doubleEqual(shaft->ref1[i], shaft->ref2[i], EPSILON)) {
+            shaft->boundingBox.coordinates[i] = shaft->ref2->coordinates[i];
+            if ( !doubleEqual(shaft->ref1->coordinates[i], shaft->ref2->coordinates[i], EPSILON)) {
                 hasMinMax2[i] = 1;
             }
         }
@@ -117,10 +117,10 @@ constructShaft(float *ref1, float *ref2, SHAFT *shaft) {
                 continue;
             }
 
-            u1 = shaft->ref1[i]; // Coords. defining the plane
-            v1 = shaft->ref1[j];
-            u2 = shaft->ref2[i];
-            v2 = shaft->ref2[j];
+            u1 = shaft->ref1->coordinates[i]; // Coords. defining the plane
+            v1 = shaft->ref1->coordinates[j];
+            u2 = shaft->ref2->coordinates[i];
+            v2 = shaft->ref2->coordinates[j];
 
             if ((i <= MIN_Z && j <= MIN_Z) || (i >= MAX_X && j >= MAX_X)) {
                 du = v2 - v1;
@@ -468,30 +468,30 @@ constructPolygonToPolygonShaft(POLYGON *p1, POLYGON *p2, SHAFT *shaft) {
 Tests a bounding volume against the shaft: returns INSIDE if the bounding volume
 is inside the shaft, OVERLAP if it overlaps, OUTSIDE if it is outside the shaft
 */
-int
-shaftBoxTest(float *bounds, SHAFT *shaft) {
+static int
+shaftBoxTest(BoundingBox *bounds, SHAFT *shaft) {
     int i;
     ShaftPlane *plane;
 
     // Test against extent box
-    if ( disjointBounds(bounds, shaft->boundingBox.coordinates)) {
+    if ( bounds->disjointToOtherBoundingBox(&shaft->boundingBox) ) {
         return OUTSIDE;
     }
 
     // Test against plane set: if nearest corner of the bounding box is on or
     // outside any shaft plane, the object is outside the shaft
     for ( i = 0, plane = &shaft->plane[0]; i < shaft->planes; i++, plane++ ) {
-        if ( plane->n[0] * bounds[plane->coord_offset[0]] +
-             plane->n[1] * bounds[plane->coord_offset[1]] +
-             plane->n[2] * bounds[plane->coord_offset[2]] +
+        if ( plane->n[0] * bounds->coordinates[plane->coord_offset[0]] +
+             plane->n[1] * bounds->coordinates[plane->coord_offset[1]] +
+             plane->n[2] * bounds->coordinates[plane->coord_offset[2]] +
              plane->d > -fabs(plane->d * EPSILON)) {
             return OUTSIDE;
         }
     }
 
     // Test against reference volumeListsOfItems
-    if ( (shaft->ref1 && !disjointBounds(bounds, shaft->ref1)) ||
-         (shaft->ref2 && !disjointBounds(bounds, shaft->ref2)) ) {
+    if ((shaft->ref1 && !bounds->disjointToOtherBoundingBox(shaft->ref1)) ||
+        (shaft->ref2 && !bounds->disjointToOtherBoundingBox(shaft->ref2)) ) {
         return OVERLAP;
     }
 
@@ -499,9 +499,9 @@ shaftBoxTest(float *bounds, SHAFT *shaft) {
     // shaft. If the farthest corner of the bounding box is outside any shaft-plane, it
     // overlaps the shaft, otherwise it is inside the shaft
     for ( i = 0, plane = &shaft->plane[0]; i < shaft->planes; i++, plane++ ) {
-        if ( plane->n[0] * bounds[(plane->coord_offset[0] + 3) % 6] +
-             plane->n[1] * bounds[(plane->coord_offset[1] + 3) % 6] +
-             plane->n[2] * bounds[(plane->coord_offset[2] + 3) % 6] +
+        if ( plane->n[0] * bounds->coordinates[(plane->coord_offset[0] + 3) % 6] +
+             plane->n[1] * bounds->coordinates[(plane->coord_offset[1] + 3) % 6] +
+             plane->n[2] * bounds->coordinates[(plane->coord_offset[2] + 3) % 6] +
              plane->d > fabs(plane->d * EPSILON)) {
             return OVERLAP;
         }
@@ -706,7 +706,7 @@ shaftCullPatchList(java::ArrayList<Patch *> *patchList, SHAFT *shaft) {
             BoundingBox bounds;
             patch->patchBounds(&bounds);
         }
-        boundingBoxSide = shaftBoxTest(patch->boundingBox->coordinates, shaft);
+        boundingBoxSide = shaftBoxTest(patch->boundingBox, shaft);
         if ( boundingBoxSide != OUTSIDE ) {
             // Patch bounding box is inside the shaft, or overlaps with it. If it
             // overlaps, do a more expensive, but definitive, test to see whether
@@ -780,7 +780,7 @@ shaftCullGeometry(Geometry *geometry, SHAFT *shaft, java::ArrayList<Geometry *> 
     }
 
     // Unbounded geoms always overlap the shaft
-    switch ( geometry->bounded ? shaftBoxTest(geometry->boundingBox.coordinates, shaft) : OVERLAP ) {
+    switch ( geometry->bounded ? shaftBoxTest(&geometry->boundingBox, shaft) : OVERLAP ) {
         case INSIDE:
             if ( strategy == ALWAYS_OPEN && !dontOpen(shaft, geometry) ) {
                 shaftCullOpen(geometry, shaft, candidateList);

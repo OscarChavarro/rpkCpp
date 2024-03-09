@@ -459,7 +459,7 @@ areaToAreaFormFactor(
         src->bounds(&srcBounds);
 
         // Do not allow interactions between a pair of overlapping source and receiver
-        if ( !disjointBounds(rcvBounds.coordinates, srcBounds.coordinates) ) {
+        if ( !rcvBounds.disjointToOtherBoundingBox(&srcBounds) ) {
             // Take 0 as form factor
             if ( link->nrcv == 1 && link->nsrc == 1 ) {
                 link->K.f = 0.0;

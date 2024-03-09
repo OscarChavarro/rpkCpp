@@ -27,8 +27,8 @@ class ShaftPlane {
 // and on the negative side of the planes
 class SHAFT {
   public:
-    float *ref1; // Bounding boxes of the reference volumeListsOfItems and the whole shaft
-    float *ref2;
+    BoundingBox *ref1; // Bounding boxes of the reference volumeListsOfItems and the whole shaft
+    BoundingBox *ref2;
     BoundingBox boundingBox;
     ShaftPlane plane[SHAFT_MAX_PLANES];
     int planes;  // Number of planes in plane-set
@@ -55,7 +55,7 @@ enum ShaftCullStrategy {
     ALWAYS_OPEN
 };
 
-extern SHAFT *constructShaft(float *ref1, float *ref2, SHAFT *shaft);
+extern SHAFT *constructShaft(BoundingBox *ref1, BoundingBox *ref2, SHAFT *shaft);
 extern SHAFT *constructPolygonToPolygonShaft(POLYGON *p1, POLYGON *p2, SHAFT *shaft);
 extern void setShaftOmit(SHAFT *shaft, Patch *geom);
 extern void setShaftDontOpen(SHAFT *shaft, Geometry *geom);

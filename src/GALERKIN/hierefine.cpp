@@ -53,22 +53,22 @@ hierarchicRefinementCull(
     if ( state->shaftCullMode == DO_SHAFT_CULLING_FOR_REFINEMENT ||
             state->shaftCullMode == ALWAYS_DO_SHAFT_CULLING ) {
         SHAFT shaft;
-        SHAFT *the_shaft;
+        SHAFT *theShaft;
 
         if ( state->exact_visibility && !link->receiverElement->isCluster() && !link->sourceElement->isCluster() ) {
             POLYGON rcvPolygon;
             POLYGON srcPolygon;
-            the_shaft = constructPolygonToPolygonShaft(
+            theShaft = constructPolygonToPolygonShaft(
                 link->receiverElement->polygon(&rcvPolygon),
                link->sourceElement->polygon(&srcPolygon),
                &shaft);
         } else {
             BoundingBox srcBounds;
             BoundingBox rcvBounds;
-            the_shaft = constructShaft(link->receiverElement->bounds(&rcvBounds),
-                                       link->sourceElement->bounds(&srcBounds), &shaft);
+            theShaft = constructShaft(link->receiverElement->bounds(&rcvBounds),
+                                      link->sourceElement->bounds(&srcBounds), &shaft);
         }
-        if ( !the_shaft ) {
+        if ( !theShaft ) {
             logError("hierarchicRefinementCull", "Couldn't construct shaft");
             return;
         }

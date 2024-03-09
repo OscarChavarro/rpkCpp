@@ -97,7 +97,7 @@ disjointElements(StochasticRadiosityElement *rcv, StochasticRadiosityElement *sr
 
     stochasticRadiosityElementBounds(rcv, &receiveBounds);
     stochasticRadiosityElementBounds(src, &sourceBounds);
-    return disjointBounds(receiveBounds.coordinates, sourceBounds.coordinates);
+    return receiveBounds.disjointToOtherBoundingBox(&sourceBounds);
 }
 
 /**
