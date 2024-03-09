@@ -11,27 +11,26 @@ BoundingBox::BoundingBox(): coordinates() {
 }
 
 static void inline
-setIfLess(float &a, float &b) {
+setIfLess(float &a, const float &b) {
     a = a < b ? a : b;
 }
 
 static void inline
-setIfGreater(float &a, float &b) {
+setIfGreater(float &a, const float &b) {
     a = a > b ? a : b;
 }
 
 /**
-Enlarge getBoundingBox with input
+Enlarge BoundingBox with other
 */
-float *
-boundsEnlarge(float *output, float *input) {
-    setIfLess(output[MIN_X], input[MIN_X]);
-    setIfLess(output[MIN_Y], input[MIN_Y]);
-    setIfLess(output[MIN_Z], input[MIN_Z]);
-    setIfGreater(output[MAX_X], input[MAX_X]);
-    setIfGreater(output[MAX_Y], input[MAX_Y]);
-    setIfGreater(output[MAX_Z], input[MAX_Z]);
-    return output;
+void
+BoundingBox::enlarge(const BoundingBox *other) {
+    setIfLess(coordinates[MIN_X], other->coordinates[MIN_X]);
+    setIfLess(coordinates[MIN_Y], other->coordinates[MIN_Y]);
+    setIfLess(coordinates[MIN_Z], other->coordinates[MIN_Z]);
+    setIfGreater(coordinates[MAX_X], other->coordinates[MAX_X]);
+    setIfGreater(coordinates[MAX_Y], other->coordinates[MAX_Y]);
+    setIfGreater(coordinates[MAX_Z], other->coordinates[MAX_Z]);
 }
 
 float *

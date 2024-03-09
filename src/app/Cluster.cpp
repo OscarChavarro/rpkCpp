@@ -83,9 +83,8 @@ Cluster::clusterAddPatch(Patch *patch) {
 
     if ( patch != nullptr ) {
         patches->add(0, patch);
-        boundsEnlarge(
-            boundingBox.coordinates,
-            patch->boundingBox != nullptr ? patch->boundingBox->coordinates : patch->patchBounds(patchBoundingBox.coordinates));
+        boundingBox.enlarge(
+                patch->boundingBox != nullptr ? patch->boundingBox : patch->patchBounds(&patchBoundingBox));
     }
 }
 
@@ -108,13 +107,13 @@ Cluster::clusterMovePatch(int parentIndex) {
     // All patches that were added to the top cluster, which is being split now,
     // have a bounding box computed for them
     Patch *patch = patches->get(parentIndex);
-    float *patchBoundingBox = patch->boundingBox->coordinates;
+    BoundingBox *patchBoundingBox = patch->boundingBox;
 
     // If the patch is larger than an octant, don´t move current patch from parent to sub-cluster
     float smallestBoxDimension = 10 * EPSILON;
-    float dx = patchBoundingBox[MAX_X] - patchBoundingBox[MIN_X];
-    float dy = patchBoundingBox[MAX_Y] - patchBoundingBox[MIN_Y];
-    float dz = patchBoundingBox[MAX_Z] - patchBoundingBox[MIN_Z];
+    float dx = patchBoundingBox->coordinates[MAX_X] - patchBoundingBox->coordinates[MIN_X];
+    float dy = patchBoundingBox->coordinates[MAX_Y] - patchBoundingBox->coordinates[MIN_Y];
+    float dz = patchBoundingBox->coordinates[MAX_Z] - patchBoundingBox->coordinates[MIN_Z];
 
     if ((dx > smallestBoxDimension && dx > (boundingBox.coordinates[MAX_X] - boundingBox.coordinates[MIN_X]) * 0.5) ||
         (dy > smallestBoxDimension && dy > (boundingBox.coordinates[MAX_Y] - boundingBox.coordinates[MIN_Y]) * 0.5) ||
@@ -127,9 +126,9 @@ Cluster::clusterMovePatch(int parentIndex) {
     Vector3D midPatch;
 
     vectorSet(midPatch,
-              (patchBoundingBox[MIN_X] + patchBoundingBox[MAX_X]) / 2.0f,
-              (patchBoundingBox[MIN_Y] + patchBoundingBox[MAX_Y]) / 2.0f,
-              (patchBoundingBox[MIN_Z] + patchBoundingBox[MAX_Z]) / 2.0f);
+              (patchBoundingBox->coordinates[MIN_X] + patchBoundingBox->coordinates[MAX_X]) / 2.0f,
+              (patchBoundingBox->coordinates[MIN_Y] + patchBoundingBox->coordinates[MAX_Y]) / 2.0f,
+              (patchBoundingBox->coordinates[MIN_Z] + patchBoundingBox->coordinates[MAX_Z]) / 2.0f);
     // Note: comparator values assumed: X_GREATER, Y_GREATER and Z_GREATER, combined will give
     // an integer number from 0 to 7, or 8 if all are equal
     int selectedChildClusterIndex = vectorCompareByDimensions(&boundingBoxCentroid, &midPatch, EPSILON);
@@ -146,7 +145,7 @@ Cluster::clusterMovePatch(int parentIndex) {
     selectedChildCluster->patches->add(patch);
 
     // Enlarge the bounding box the of sub-cluster
-    boundsEnlarge(selectedChildCluster->boundingBox.coordinates, patchBoundingBox);
+    selectedChildCluster->boundingBox.enlarge(patchBoundingBox);
 
     // Current patch was moved to the sub-cluster
     return true;

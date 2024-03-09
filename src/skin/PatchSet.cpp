@@ -20,13 +20,13 @@ PatchSet::~PatchSet() {
 Computes a bounding box for the given list of patches. The bounding box is
 filled in 'bounding box' and a pointer to it returned
 */
-float *
-patchListBounds(java::ArrayList<Patch *> *patchList, float *boundingBox) {
+BoundingBox *
+patchListBounds(java::ArrayList<Patch *> *patchList, BoundingBox *boundingBox) {
     BoundingBox b;
 
     for ( int i = 0; patchList != nullptr && i < patchList->size(); i++ ) {
-        patchList->get(i)->patchBounds(b.coordinates);
-        boundsEnlarge(boundingBox, b.coordinates);
+        patchList->get(i)->patchBounds(&b);
+        boundingBox->enlarge(&b);
     }
 
     return boundingBox;

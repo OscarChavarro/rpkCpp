@@ -29,7 +29,7 @@ class SHAFT {
   public:
     float *ref1; // Bounding boxes of the reference volumeListsOfItems and the whole shaft
     float *ref2;
-    float extent[6];
+    BoundingBox boundingBox;
     ShaftPlane plane[SHAFT_MAX_PLANES];
     int planes;  // Number of planes in plane-set
     Patch *omit[2]; // Geometries to be ignored during shaft culling. max. 2!

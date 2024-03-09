@@ -9,19 +9,19 @@ Geometry *GLOBAL_geom_excludedGeom2 = nullptr;
 static int globalCurrentMaxId = 0;
 
 Geometry::Geometry():
-    id(),
-    bounds(),
-    radianceData(),
-    displayListId(),
-    itemCount(),
-    bounded(),
-    shaftCullGeometry(),
-    omit(),
-    className(),
-    surfaceData(),
-    compoundData(),
-    patchSetData(),
-    isDuplicate()
+        id(),
+        boundingBox(),
+        radianceData(),
+        displayListId(),
+        itemCount(),
+        bounded(),
+        shaftCullGeometry(),
+        omit(),
+        className(),
+        surfaceData(),
+        compoundData(),
+        patchSetData(),
+        isDuplicate()
 {
     className = GeometryClassId::UNDEFINED;
 }
@@ -108,15 +108,15 @@ geomCreateBase(
     newGeometry->isDuplicate = false;
 
     if ( className == GeometryClassId::SURFACE_MESH ) {
-        surfaceBounds(surfaceData, newGeometry->bounds.coordinates);
+        surfaceBounds(surfaceData, &newGeometry->boundingBox);
     } else if ( className == GeometryClassId::COMPOUND ) {
-        geometryListBounds(compoundData->children, newGeometry->bounds.coordinates);
+        geometryListBounds(compoundData->children, &newGeometry->boundingBox);
     } else /* if ( className == GeometryClassId::PATCH_SET ) */ {
-        patchListBounds(patchSetData->patchList, newGeometry->bounds.coordinates);
+        patchListBounds(patchSetData->patchList, &newGeometry->boundingBox);
     }
 
     // Enlarge bounding box a tiny bit for more conservative bounding box culling
-    boundsEnlargeTinyBit(newGeometry->bounds.coordinates);
+    boundsEnlargeTinyBit(newGeometry->boundingBox.coordinates);
     newGeometry->bounded = true;
     newGeometry->shaftCullGeometry = false;
     newGeometry->radianceData = nullptr;
@@ -173,7 +173,7 @@ This function returns a bounding box for the geometry
 */
 BoundingBox &
 geomBounds(Geometry *geometry) {
-    return geometry->bounds;
+    return geometry->boundingBox;
 }
 
 /**
@@ -298,9 +298,9 @@ geomDiscretizationIntersect(
     if ( geometry->bounded ) {
         // Check ray/bounding volume intersection
         vectorSumScaled(ray->pos, minimumDistance, ray->dir, vTmp);
-        if ( geometry->bounds.outOfBounds(&vTmp) ) {
+        if ( geometry->boundingBox.outOfBounds(&vTmp) ) {
             nMaximumDistance = *maximumDistance;
-            if ( !geometry->bounds.intersect(ray, minimumDistance, &nMaximumDistance) ) {
+            if ( !geometry->boundingBox.intersect(ray, minimumDistance, &nMaximumDistance) ) {
                 return nullptr;
             }
         }
@@ -366,9 +366,9 @@ geometryListDiscretizationIntersect(
 This function computes a bounding box for a list of geometries
 */
 float *
-geometryListBounds(java::ArrayList<Geometry *> *geometryList, float *boundingBox) {
+geometryListBounds(java::ArrayList<Geometry *> *geometryList, BoundingBox *boundingBox) {
     for ( int i = 0; geometryList != nullptr && i < geometryList->size(); i++ ) {
-        boundsEnlarge(boundingBox, geometryList->get(i)->bounds.coordinates);
+        boundingBox->enlarge(&geometryList->get(i)->boundingBox);
     }
-    return boundingBox;
+    return boundingBox->coordinates;
 }

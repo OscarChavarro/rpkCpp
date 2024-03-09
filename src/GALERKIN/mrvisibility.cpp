@@ -46,10 +46,9 @@ geomMultiResolutionVisibility(
     fSize = HUGE;
     tMinimum = rcvDist * ((float)EPSILON);
     tMaximum = rcvDist;
-    BoundingBox *boundingBox = &geom->bounds;
+    BoundingBox *boundingBox = &geom->boundingBox;
 
-    /* Check ray/bounding volume intersection and compute feature size of
-     * occluder. */
+    // Check ray/bounding volume intersection and compute feature size of occluder
     vectorSumScaled(ray->pos, tMinimum, ray->dir, vectorTmp);
     if ( boundingBox->outOfBounds(&vectorTmp) ) {
         if ( !boundingBox->intersectingSegment(ray, &tMinimum, &tMaximum) ) {

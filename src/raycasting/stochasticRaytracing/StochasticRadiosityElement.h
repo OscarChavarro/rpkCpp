@@ -54,7 +54,7 @@ stochasticRadiosityElementRange(
     int *numberOfBits,
     niedindex *mostSignificantBits1,
     niedindex *rMostSignificantBits2);
-extern float *stochasticRadiosityElementBounds(StochasticRadiosityElement *elem, float *bounds);
+extern float *stochasticRadiosityElementBounds(StochasticRadiosityElement *elem, BoundingBox *boundingBox);
 extern StochasticRadiosityElement **stochasticRadiosityElementRegularSubdivideElement(StochasticRadiosityElement *element);
 extern StochasticRadiosityElement *stochasticRadiosityElementRegularSubElementAtPoint(StochasticRadiosityElement *parent, double *u, double *v);
 extern StochasticRadiosityElement *stochasticRadiosityElementRegularLeafElementAtPoint(StochasticRadiosityElement *top, double *u, double *v);

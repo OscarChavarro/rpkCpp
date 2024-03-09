@@ -43,27 +43,27 @@ createInitialLink(Patch *patch) {
 
     if ( (GLOBAL_galerkin_state.exact_visibility || GLOBAL_galerkin_state.shaftCullMode == ALWAYS_DO_SHAFT_CULLING) && oldCandidateList ) {
         SHAFT shaft;
-        SHAFT *the_shaft;
+        SHAFT *theShaft;
 
         if ( GLOBAL_galerkin_state.exact_visibility ) {
             POLYGON rcvPolygon;
             POLYGON srcPolygon;
-            the_shaft = constructPolygonToPolygonShaft(rcv->polygon(&rcvPolygon),
-                                                       src->polygon(&srcPolygon),
-                                                       &shaft);
+            theShaft = constructPolygonToPolygonShaft(rcv->polygon(&rcvPolygon),
+                                                      src->polygon(&srcPolygon),
+                                                      &shaft);
         } else {
             BoundingBox bbox;
-            the_shaft = constructShaft(globalPatchBoundingBox.coordinates, patch->patchBounds(bbox.coordinates), &shaft);
+            theShaft = constructShaft(globalPatchBoundingBox.coordinates, patch->patchBounds(&bbox)->coordinates, &shaft);
         }
 
-        if ( the_shaft ) {
+        if ( theShaft != nullptr ) {
             setShaftOmit(&shaft, globalPatch);
             setShaftOmit(&shaft, patch);
             java::ArrayList<Geometry*> *arr = new java::ArrayList<Geometry*>();
-            doShaftCulling(oldCandidateList, the_shaft, globalCandidateList);
+            doShaftCulling(oldCandidateList, theShaft, globalCandidateList);
             globalCandidateList = arr;
 
-            if ( the_shaft->cut == true ) {
+            if ( theShaft->cut == true ) {
                 // One patch causes full occlusion
                 freeCandidateList(globalCandidateList);
                 globalCandidateList = oldCandidateList;
@@ -171,7 +171,7 @@ createInitialLinks(GalerkinElement *top, GalerkinRole role) {
     globalElement = top;
     globalRole = role;
     globalPatch = top->patch;
-    globalPatch->patchBounds(globalPatchBoundingBox.coordinates);
+    globalPatch->patchBounds(&globalPatchBoundingBox);
     globalCandidateList = GLOBAL_scene_clusteredGeometries;
 
     for ( int i = 0; GLOBAL_scene_geometries != nullptr && i < GLOBAL_scene_geometries->size(); i++ ) {

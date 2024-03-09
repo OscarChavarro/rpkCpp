@@ -137,7 +137,7 @@ renderGetNearFar(float *near, float *far) {
         return;
     }
 
-    geometryListBounds(GLOBAL_scene_geometries, bounds.coordinates);
+    geometryListBounds(GLOBAL_scene_geometries, &bounds);
 
     vectorSet(b[0], bounds.coordinates[MIN_X], bounds.coordinates[MIN_Y], bounds.coordinates[MIN_Z]);
     vectorSet(b[1], bounds.coordinates[MAX_X], bounds.coordinates[MAX_Y], bounds.coordinates[MAX_Z]);

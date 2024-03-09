@@ -35,6 +35,7 @@ class BoundingBox {
     bool intersect(Ray *ray, float minimumDistance, float *maximumDistance) const;
     bool intersectingSegment(Ray *ray, float *tMin, float *tMax) const;
     bool behindPlane(Vector3D *norm, float d) const;
+    void enlarge(const BoundingBox *other);
 };
 
 /**
@@ -49,7 +50,6 @@ disjointBounds(const float *b1, const float *b2) {
 }
 
 extern float *boundsCopy(const float *from, float *to);
-extern float *boundsEnlarge(float *output, float *input);
 extern float *boundsEnlargePoint(float *bounds, Vector3D *point);
 extern float *boundsTransform(float *bbx, Matrix4x4 *xf, float *transBoundingBox);
 

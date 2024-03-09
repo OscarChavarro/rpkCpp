@@ -93,8 +93,7 @@ public:
     }
 
     int hasZeroVertices() const;
-    float *patchBounds(float *bounds);
-    void patchPrintId(FILE *out) const;
+    BoundingBox *patchBounds(BoundingBox *bounds);
     RayHit *intersect(Ray *ray, float minimumDistance, float *maximumDistance, int hitFlags, RayHit *hitStore);
     Vector3D *pointBarycentricMapping(double u, double v, Vector3D *point);
     Vector3D *uniformPoint(double u, double v, Vector3D *point);

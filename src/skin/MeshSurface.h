@@ -73,7 +73,7 @@ geomGetSurface(Geometry *geom) {
 }
 
 extern float *
-surfaceBounds(MeshSurface *surf, float *boundingBox);
+surfaceBounds(MeshSurface *surf, BoundingBox *boundingBox);
 
 RayHit *
 surfaceDiscretizationIntersect(

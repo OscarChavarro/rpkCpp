@@ -202,7 +202,7 @@ StochasticRadiosityElement::~StochasticRadiosityElement() {
 static StochasticRadiosityElement *
 monteCarloRadiosityCreateCluster(Geometry *geometry) {
     StochasticRadiosityElement *elem = createElement();
-    float *bounds = geometry->bounds.coordinates;
+    float *bounds = geometry->boundingBox.coordinates;
 
     elem->geometry = geometry;
     elem->flags = IS_CLUSTER_MASK;
@@ -908,18 +908,18 @@ stochasticRadiosityElementDestroyClusterHierarchy(StochasticRadiosityElement *to
 Computes and fills in a bounding box for the element
 */
 float *
-stochasticRadiosityElementBounds(StochasticRadiosityElement *elem, float *bounds) {
+stochasticRadiosityElementBounds(StochasticRadiosityElement *elem, BoundingBox *boundingBox) {
     if ( elem->isCluster() ) {
-        boundsCopy(elem->geometry->bounds.coordinates, bounds);
+        boundsCopy(elem->geometry->boundingBox.coordinates, boundingBox->coordinates);
     } else if ( !elem->upTrans ) {
-            elem->patch->patchBounds(bounds);
+            elem->patch->patchBounds(boundingBox);
         } else {
             for ( int i = 0; i < elem->numberOfVertices; i++ ) {
                 Vertex *v = elem->vertices[i];
-                boundsEnlargePoint(bounds, v->point);
+                boundsEnlargePoint(boundingBox->coordinates, v->point);
             }
         }
-    return bounds;
+    return boundingBox->coordinates;
 }
 
 static inline bool

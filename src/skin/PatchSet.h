@@ -11,7 +11,8 @@ class PatchSet : public Geometry {
     virtual ~PatchSet();
 };
 
-extern float *patchListBounds(java::ArrayList<Patch *> *patchList, float *boundingBox);
+extern BoundingBox *
+patchListBounds(java::ArrayList<Patch *> *patchList, BoundingBox *boundingBox);
 
 extern RayHit *
 patchListIntersect(

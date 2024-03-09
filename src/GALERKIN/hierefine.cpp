@@ -65,8 +65,8 @@ hierarchicRefinementCull(
         } else {
             BoundingBox srcBounds;
             BoundingBox rcvBounds;
-            the_shaft = constructShaft(link->receiverElement->bounds(rcvBounds.coordinates),
-                                       link->sourceElement->bounds(srcBounds.coordinates), &shaft);
+            the_shaft = constructShaft(link->receiverElement->bounds(&rcvBounds),
+                                       link->sourceElement->bounds(&srcBounds), &shaft);
         }
         if ( !the_shaft ) {
             logError("hierarchicRefinementCull", "Couldn't construct shaft");

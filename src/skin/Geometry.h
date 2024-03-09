@@ -36,7 +36,7 @@ enum GeometryClassId {
 class Geometry {
   public:
     int id; // Unique ID number
-    BoundingBox bounds;
+    BoundingBox boundingBox;
     Element *radianceData; // Data specific to the radiance algorithm being used
     int displayListId; // Display list ID for faster hardware rendering - initialised to -1
     int itemCount;
@@ -82,7 +82,7 @@ geomDiscretizationIntersect(
     int hitFlags,
     RayHit *hitStore);
 
-extern float *geometryListBounds(java::ArrayList<Geometry *> *geometryList, float *boundingBox);
+extern float *geometryListBounds(java::ArrayList<Geometry *> *geometryList, BoundingBox *boundingBox);
 
 extern RayHit *
 geometryListDiscretizationIntersect(

@@ -21,7 +21,7 @@ the most efficient strategy in the tests I did
 static ShaftCullStrategy strategy = OVERLAP_OPEN;
 
 SHAFT::SHAFT():
-        ref1(), ref2(), extent(), plane(), planes(), omit(), numberOfGeometriesToOmit(), dontOpen(), numberOfGeometriesToNotOpen(),
+        ref1(), ref2(), boundingBox(), plane(), planes(), omit(), numberOfGeometriesToOmit(), dontOpen(), numberOfGeometriesToNotOpen(),
         center1(), center2(), cut() {
 
 }
@@ -80,10 +80,10 @@ constructShaft(float *ref1, float *ref2, SHAFT *shaft) {
     // box become the minimum or maximum
     for ( i = MIN_X; i <= MIN_Z; i++ ) {
         if ( shaft->ref1[i] < shaft->ref2[i] ) {
-            shaft->extent[i] = shaft->ref1[i];
+            shaft->boundingBox.coordinates[i] = shaft->ref1[i];
             hasMinMax1[i] = 1;
         } else {
-            shaft->extent[i] = shaft->ref2[i];
+            shaft->boundingBox.coordinates[i] = shaft->ref2[i];
             if ( !doubleEqual(shaft->ref1[i], shaft->ref2[i], EPSILON)) {
                 hasMinMax2[i] = 1;
             }
@@ -92,10 +92,10 @@ constructShaft(float *ref1, float *ref2, SHAFT *shaft) {
 
     for ( i = MAX_X; i <= MAX_Z; i++ ) {
         if ( shaft->ref1[i] > shaft->ref2[i] ) {
-            shaft->extent[i] = shaft->ref1[i];
+            shaft->boundingBox.coordinates[i] = shaft->ref1[i];
             hasMinMax1[i] = 1;
         } else {
-            shaft->extent[i] = shaft->ref2[i];
+            shaft->boundingBox.coordinates[i] = shaft->ref2[i];
             if ( !doubleEqual(shaft->ref1[i], shaft->ref2[i], EPSILON)) {
                 hasMinMax2[i] = 1;
             }
@@ -431,8 +431,8 @@ constructPolygonToPolygonShaft(POLYGON *p1, POLYGON *p2, SHAFT *shaft) {
     shaft->ref1 = shaft->ref2 = nullptr;
 
     // Shaft extent = bounding box containing the bounding boxes of the patches
-    boundsCopy(p1->bounds.coordinates, shaft->extent);
-    boundsEnlarge(shaft->extent, p2->bounds.coordinates);
+    boundsCopy(p1->bounds.coordinates, shaft->boundingBox.coordinates);
+    shaft->boundingBox.enlarge(&p2->bounds);
 
     // Nothing (yet) to omit
     shaft->omit[0] = nullptr;
@@ -474,7 +474,7 @@ shaftBoxTest(float *bounds, SHAFT *shaft) {
     ShaftPlane *plane;
 
     // Test against extent box
-    if ( disjointBounds(bounds, shaft->extent)) {
+    if ( disjointBounds(bounds, shaft->boundingBox.coordinates)) {
         return OUTSIDE;
     }
 
@@ -490,8 +490,8 @@ shaftBoxTest(float *bounds, SHAFT *shaft) {
     }
 
     // Test against reference volumeListsOfItems
-    if ((shaft->ref1 && !disjointBounds(bounds, shaft->ref1)) ||
-        (shaft->ref2 && !disjointBounds(bounds, shaft->ref2)) ) {
+    if ( (shaft->ref1 && !disjointBounds(bounds, shaft->ref1)) ||
+         (shaft->ref2 && !disjointBounds(bounds, shaft->ref2)) ) {
         return OVERLAP;
     }
 
@@ -704,7 +704,7 @@ shaftCullPatchList(java::ArrayList<Patch *> *patchList, SHAFT *shaft) {
         if ( patch->boundingBox == nullptr ) {
             // Compute getBoundingBox
             BoundingBox bounds;
-            patch->patchBounds(bounds.coordinates);
+            patch->patchBounds(&bounds);
         }
         boundingBoxSide = shaftBoxTest(patch->boundingBox->coordinates, shaft);
         if ( boundingBoxSide != OUTSIDE ) {
@@ -780,7 +780,7 @@ shaftCullGeometry(Geometry *geometry, SHAFT *shaft, java::ArrayList<Geometry *> 
     }
 
     // Unbounded geoms always overlap the shaft
-    switch ( geometry->bounded ? shaftBoxTest(geometry->bounds.coordinates, shaft) : OVERLAP ) {
+    switch ( geometry->bounded ? shaftBoxTest(geometry->boundingBox.coordinates, shaft) : OVERLAP ) {
         case INSIDE:
             if ( strategy == ALWAYS_OPEN && !dontOpen(shaft, geometry) ) {
                 shaftCullOpen(geometry, shaft, candidateList);

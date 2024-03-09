@@ -48,22 +48,22 @@ determineNodes(GalerkinElement *element, CUBARULE **cr, Vector3D x[CUBAMAXNODES]
     int k;
 
     if ( element->isCluster() ) {
-        BoundingBox vol;
+        BoundingBox boundingBox;
         double dx;
         double dy;
         double dz;
 
         *cr = GLOBAL_galerkin_state.clusterRule;
 
-        element->bounds(vol.coordinates);
-        dx = vol.coordinates[MAX_X] - vol.coordinates[MIN_X];
-        dy = vol.coordinates[MAX_Y] - vol.coordinates[MIN_Y];
-        dz = vol.coordinates[MAX_Z] - vol.coordinates[MIN_Z];
+        element->bounds(&boundingBox);
+        dx = boundingBox.coordinates[MAX_X] - boundingBox.coordinates[MIN_X];
+        dy = boundingBox.coordinates[MAX_Y] - boundingBox.coordinates[MIN_Y];
+        dz = boundingBox.coordinates[MAX_Z] - boundingBox.coordinates[MIN_Z];
         for ( k = 0; k < (*cr)->numberOfNodes; k++ ) {
             vectorSet(x[k],
-                      (float) (vol.coordinates[MIN_X] + (*cr)->u[k] * dx),
-                      (float) (vol.coordinates[MIN_Y] + (*cr)->v[k] * dy),
-                      (float) (vol.coordinates[MIN_Z] + (*cr)->t[k] * dz));
+                      (float) (boundingBox.coordinates[MIN_X] + (*cr)->u[k] * dx),
+                      (float) (boundingBox.coordinates[MIN_Y] + (*cr)->v[k] * dy),
+                      (float) (boundingBox.coordinates[MIN_Z] + (*cr)->t[k] * dz));
         }
     } else {
         // What cubature rule should be used over the element
@@ -455,8 +455,8 @@ areaToAreaFormFactor(
     if ( rcv->isCluster() || src->isCluster() ) {
         BoundingBox rcvBounds;
         BoundingBox srcBounds;
-        rcv->bounds(rcvBounds.coordinates);
-        src->bounds(srcBounds.coordinates);
+        rcv->bounds(&rcvBounds);
+        src->bounds(&srcBounds);
 
         // Do not allow interactions between a pair of overlapping source and receiver
         if ( !disjointBounds(rcvBounds.coordinates, srcBounds.coordinates) ) {

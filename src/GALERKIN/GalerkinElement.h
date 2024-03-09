@@ -52,7 +52,7 @@ public:
     void drawOutline();
     void render();
     int vertices(Vector3D *p, int n);
-    float *bounds(float *bounds);
+    float *bounds(BoundingBox *boundingBox);
     Vector3D midPoint();
     POLYGON *polygon(POLYGON *polygon);
     void reAllocCoefficients();

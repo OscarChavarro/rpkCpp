@@ -436,12 +436,12 @@ cluster element (8 vertices). The number of vertices is returned
 int
 GalerkinElement::vertices(Vector3D *p, int n) {
     if ( isCluster() ) {
-        BoundingBox vol;
+        BoundingBox boundingBox;
 
-        bounds(vol.coordinates);
+        bounds(&boundingBox);
 
         for ( int i = 0; i < n; i++ ) {
-            vectorSet(p[i], vol.coordinates[MIN_X], vol.coordinates[MIN_Y], vol.coordinates[MIN_Z]);
+            vectorSet(p[i], boundingBox.coordinates[MIN_X], boundingBox.coordinates[MIN_Y], boundingBox.coordinates[MIN_Z]);
         }
 
         return 8;
@@ -522,9 +522,9 @@ GalerkinElement::midPoint() {
 Computes a bounding box for the element
 */
 float *
-GalerkinElement::bounds(float *bounds) {
+GalerkinElement::bounds(BoundingBox *boundingBox) {
     if ( isCluster() ) {
-        boundsCopy(geomBounds(geometry).coordinates, bounds);
+        boundsCopy(geomBounds(geometry).coordinates, boundingBox->coordinates);
     } else {
         Vector3D p[4];
         int i;
@@ -533,11 +533,11 @@ GalerkinElement::bounds(float *bounds) {
         numberOfVertices = vertices(p, 4);
 
         for ( i = 0; i < numberOfVertices; i++ ) {
-            boundsEnlargePoint(bounds, &p[i]);
+            boundsEnlargePoint(boundingBox->coordinates, &p[i]);
         }
     }
 
-    return bounds;
+    return boundingBox->coordinates;
 }
 
 /**

@@ -618,8 +618,8 @@ Patch::Patch(int inNumberOfVertices, Vertex *v1, Vertex *v2, Vertex *v3, Vertex 
 Computes a bounding box for the patch. fills it in 'getBoundingBox' and returns
 a pointer to 'getBoundingBox'
 */
-float *
-Patch::patchBounds(float *bounds) {
+BoundingBox *
+Patch::patchBounds(BoundingBox *bounds) {
     if ( !boundingBox ) {
         boundingBox = new BoundingBox();
         for ( int i = 0; i < numberOfVertices; i++ ) {
@@ -627,7 +627,7 @@ Patch::patchBounds(float *bounds) {
         }
     }
 
-    boundsCopy(boundingBox->coordinates, bounds);
+    boundsCopy(boundingBox->coordinates, bounds->coordinates);
 
     return bounds;
 }
@@ -699,11 +699,6 @@ Patch::averageEmittance(XXDFFLAGS components) {
     colorScaleInverse((float) numberOfSamples, emittance, emittance);
 
     return emittance;
-}
-
-void
-Patch::patchPrintId(FILE *out) const {
-    fprintf(out, "%d ", id);
 }
 
 /**

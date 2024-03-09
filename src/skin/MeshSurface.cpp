@@ -120,8 +120,8 @@ is filled in bounding box and a pointer to the filled in bounding box
 returned
 */
 float *
-surfaceBounds(MeshSurface *surf, float *boundingBox) {
-    return patchListBounds(surf->faces, boundingBox);
+surfaceBounds(MeshSurface *surf, BoundingBox *boundingBox) {
+    return patchListBounds(surf->faces, boundingBox)->coordinates;
 }
 
 /**
