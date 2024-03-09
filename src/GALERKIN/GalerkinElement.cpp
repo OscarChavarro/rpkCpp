@@ -91,7 +91,6 @@ Matrix2x2 GLOBAL_galerkin_TriangularUpTransformMatrix[4] = {
 Private inner constructor, Use either galerkinElementCreateTopLevel() or CreateRegularSubElement()
 */
 GalerkinElement::GalerkinElement():
-    irregularSubElements(),
     potential(),
     receivedPotential(),
     unShotPotential(),
@@ -106,7 +105,7 @@ GalerkinElement::GalerkinElement():
     flags()
 {
     className = ElementTypes::ELEMENT_GALERKIN;
-    irregularSubElements = new java::ArrayList<GalerkinElement *>();
+    irregularSubElements = new java::ArrayList<Element *>();
     interactions = new java::ArrayList<Interaction *>();
 
     colorClear(Ed);
@@ -759,7 +758,7 @@ Call func for each leaf element of element
 void
 GalerkinElement::traverseLeafElements(void (*func)(GalerkinElement *)) {
     for ( int i = 0; irregularSubElements != nullptr && i < irregularSubElements->size(); i++ ) {
-        irregularSubElements->get(i)->traverseLeafElements(func);
+        ((GalerkinElement *)irregularSubElements->get(i))->traverseLeafElements(func);
     }
 
     if ( regularSubElements != nullptr ) {

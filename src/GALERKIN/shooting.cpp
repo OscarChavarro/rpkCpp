@@ -60,7 +60,7 @@ clearUnShotRadianceAndPotential(GalerkinElement *elem) {
     }
 
     for ( int i = 0; elem->irregularSubElements != nullptr && i < elem->irregularSubElements->size(); i++ ) {
-        clearUnShotRadianceAndPotential(elem->irregularSubElements->get(i));
+        clearUnShotRadianceAndPotential((GalerkinElement *)elem->irregularSubElements->get(i));
     }
 
     clusterGalerkinClearCoefficients(elem->unShotRadiance, elem->basisSize);
@@ -119,7 +119,7 @@ shootingPushPullPotential(GalerkinElement *element, float down) {
 
     if ( element->irregularSubElements ) {
         for ( int j = 0; element->irregularSubElements != nullptr && j < element->irregularSubElements->size(); j++ ) {
-            GalerkinElement *subElement = element->irregularSubElements->get(j);
+            GalerkinElement *subElement = (GalerkinElement *)element->irregularSubElements->get(j);
             if ( !element->isCluster() ) {
                 down = 0.0;
             }
@@ -201,7 +201,7 @@ clusterUpdatePotential(GalerkinElement *clusterElement) {
         clusterElement->potential = 0.0f;
         clusterElement->unShotPotential = 0.0f;
         for ( int i = 0; clusterElement->irregularSubElements != nullptr && i < clusterElement->irregularSubElements->size(); i++ ) {
-            GalerkinElement *subCluster = clusterElement->irregularSubElements->get(i);
+            GalerkinElement *subCluster = (GalerkinElement *)clusterElement->irregularSubElements->get(i);
             clusterUpdatePotential(subCluster);
             clusterElement->potential += subCluster->area * subCluster->potential;
             clusterElement->unShotPotential += subCluster->area * subCluster->unShotPotential;

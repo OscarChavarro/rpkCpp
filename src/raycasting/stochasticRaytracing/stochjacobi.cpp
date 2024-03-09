@@ -233,7 +233,7 @@ stochasticJacobiPropagateRadianceClusterRecursive(
         // Recursive case
         for ( int i = 0; currentElement->irregularSubElements != nullptr && i < currentElement->irregularSubElements->size(); i++ ) {
             stochasticJacobiPropagateRadianceClusterRecursive(
-                currentElement->irregularSubElements->get(i),
+                (StochasticRadiosityElement *)currentElement->irregularSubElements->get(i),
                 rayPower,
                 ray,
                 dir,
@@ -278,7 +278,7 @@ stochasticJacobiReceiverProjectedAreaRecursive(
         for ( int i = 0; currentElement->irregularSubElements != nullptr &&
                  i < currentElement->irregularSubElements->size(); i++ ) {
             stochasticJacobiReceiverProjectedAreaRecursive(
-                currentElement->irregularSubElements->get(i),
+                (StochasticRadiosityElement *)currentElement->irregularSubElements->get(i),
                 ray,
                 dir,
                 area);

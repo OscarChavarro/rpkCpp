@@ -190,7 +190,7 @@ monteCarloRadiosityCreateSurfaceElementChild(Patch *patch, StochasticRadiosityEl
 
     elem->className = ElementTypes::ELEMENT_STOCHASTIC_RADIOSITY;
     if ( parent->irregularSubElements == nullptr ) {
-        parent->irregularSubElements = new java::ArrayList<StochasticRadiosityElement *>();
+        parent->irregularSubElements = new java::ArrayList<Element *>();
     }
     parent->irregularSubElements->add(0, elem);
 }
@@ -201,7 +201,7 @@ monteCarloRadiosityCreateClusterChild(Geometry *geom, StochasticRadiosityElement
     subCluster->parent = parent;
     subCluster->className = ElementTypes::ELEMENT_STOCHASTIC_RADIOSITY;
     if ( parent->irregularSubElements == nullptr ) {
-        parent->irregularSubElements = new java::ArrayList<StochasticRadiosityElement *>();
+        parent->irregularSubElements = new java::ArrayList<Element *>();
     }
     parent->irregularSubElements->add(0, subCluster);
 }
@@ -242,7 +242,7 @@ monteCarloRadiosityCreateClusterChildren(StochasticRadiosityElement *parent) {
     }
 
     for ( int i = 0; parent->irregularSubElements != nullptr && i < parent->irregularSubElements->size(); i++ ) {
-        monteCarloRadiosityInitClusterPull(parent, parent->irregularSubElements->get(i));
+        monteCarloRadiosityInitClusterPull(parent, (StochasticRadiosityElement *)parent->irregularSubElements->get(i));
     }
     colorScaleInverse(parent->area, parent->Ed, parent->Ed);
 }
@@ -849,7 +849,7 @@ monteCarloRadiosityDestroyClusterHierarchy(StochasticRadiosityElement *top) {
         return;
     }
     for ( int i = 0; top->irregularSubElements != nullptr && i < top->irregularSubElements->size(); i++ ) {
-        StochasticRadiosityElement *element = top->irregularSubElements->get(i);
+        StochasticRadiosityElement *element = (StochasticRadiosityElement *)top->irregularSubElements->get(i);
         if ( element->isCluster ) {
             monteCarloRadiosityDestroyClusterHierarchy(element);
         }
@@ -868,7 +868,7 @@ monteCarloRadiosityForAllChildrenElements(StochasticRadiosityElement *top, void 
 
     if ( top->isCluster ) {
         for ( int i = 0; top->irregularSubElements != nullptr && i < top->irregularSubElements->size(); i++ ) {
-            func(top->irregularSubElements->get(i));
+            func((StochasticRadiosityElement *)top->irregularSubElements->get(i));
         }
         return true;
     } else if ( top->regularSubElements ) {
@@ -892,7 +892,7 @@ monteCarloRadiosityForAllLeafElements(StochasticRadiosityElement *top, void (*fu
 
     if ( top->isCluster ) {
         for ( int i = 0; top->irregularSubElements != nullptr && i < top->irregularSubElements->size(); i++ ) {
-            monteCarloRadiosityForAllLeafElements(top->irregularSubElements->get(i), func);
+            monteCarloRadiosityForAllLeafElements((StochasticRadiosityElement *)top->irregularSubElements->get(i), func);
         }
     } else if ( top->regularSubElements ) {
         if ( top->regularSubElements != nullptr ) {

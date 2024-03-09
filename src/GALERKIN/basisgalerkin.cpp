@@ -114,7 +114,7 @@ basisGalerkinPushPullRadianceRecursive(GalerkinElement *element, COLOR *Bdown, C
     if ( element->irregularSubElements ) {
         // A cluster or irregularly subdivided surface element
         for ( int i = 0; element->irregularSubElements != nullptr && i < element->irregularSubElements->size(); i++ ) {
-            GalerkinElement *subElement = element->irregularSubElements->get(i);
+            GalerkinElement *subElement = (GalerkinElement *)element->irregularSubElements->get(i);
             COLOR Btmp[MAX_BASIS_SIZE];
             COLOR Bdown2[MAX_BASIS_SIZE];
             COLOR Bup2[MAX_BASIS_SIZE];

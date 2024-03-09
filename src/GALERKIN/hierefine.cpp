@@ -568,7 +568,7 @@ hierarchicRefinementSubdivideSourceCluster(
     GalerkinElement *src = link->sourceElement, *rcv = link->receiverElement;
 
     for ( int i = 0; src->irregularSubElements != nullptr && i < src->irregularSubElements->size(); i++ ) {
-        GalerkinElement *childElement = src->irregularSubElements->get(i);
+        GalerkinElement *childElement = (GalerkinElement *)src->irregularSubElements->get(i);
         Interaction subInteraction{};
         float ff[MAX_BASIS_SIZE * MAX_BASIS_SIZE];
         subInteraction.K.p = ff; // Temporary storage for the form-factors
@@ -610,7 +610,7 @@ hierarchicRefinementSubdivideReceiverCluster(
     GalerkinElement *rcv = link->receiverElement;
 
     for ( int i = 0; rcv->irregularSubElements != nullptr && i < rcv->irregularSubElements->size(); i++ ) {
-        GalerkinElement *child = rcv->irregularSubElements->get(i);
+        GalerkinElement *child = (GalerkinElement *)rcv->irregularSubElements->get(i);
         Interaction subInteraction{};
         float formFactor[MAX_BASIS_SIZE * MAX_BASIS_SIZE];
         subInteraction.K.p = formFactor;
@@ -717,7 +717,7 @@ refineInteractions(GalerkinElement *parentElement, GalerkinState *state) {
     // prevent already refined interactions from being tested for refinement
     // again
     for ( int i = 0; parentElement->irregularSubElements != nullptr && i < parentElement->irregularSubElements->size(); i++ ) {
-        refineInteractions(parentElement->irregularSubElements->get(i), state);
+        refineInteractions((GalerkinElement *)parentElement->irregularSubElements->get(i), state);
     }
 
     if ( parentElement->regularSubElements != nullptr ) {

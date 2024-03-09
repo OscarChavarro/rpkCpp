@@ -29,7 +29,7 @@ geomAddClusterChild(Geometry *geom, GalerkinElement *parent_cluster) {
     GalerkinElement *cluster = galerkinDoCreateClusterHierarchy(geom);
 
     if ( parent_cluster->irregularSubElements == nullptr ) {
-        parent_cluster->irregularSubElements = new java::ArrayList<GalerkinElement *>();
+        parent_cluster->irregularSubElements = new java::ArrayList<Element *>();
     }
     parent_cluster->irregularSubElements->add(0, cluster);
     cluster->parent = parent_cluster;
@@ -44,7 +44,7 @@ patchAddClusterChild(Patch *patch, GalerkinElement *cluster) {
     GalerkinElement *surfaceElement = (GalerkinElement *)patch->radianceData;
 
     if ( cluster->irregularSubElements == nullptr ) {
-        cluster->irregularSubElements = new java::ArrayList<GalerkinElement *>();
+        cluster->irregularSubElements = new java::ArrayList<Element *>();
     }
     cluster->irregularSubElements->add(0, surfaceElement);
     surfaceElement->parent = cluster;
@@ -63,7 +63,7 @@ clusterInit(GalerkinElement *cluster) {
     cluster->minimumArea = HUGE;
     clusterGalerkinClearCoefficients(cluster->radiance, cluster->basisSize);
     for ( int i = 0; cluster->irregularSubElements != nullptr && i< cluster->irregularSubElements->size(); i++ ) {
-        GalerkinElement *subCluster = cluster->irregularSubElements->get(i);
+        GalerkinElement *subCluster = (GalerkinElement *)cluster->irregularSubElements->get(i);
         cluster->area += subCluster->area;
         cluster->numberOfPatches += subCluster->numberOfPatches;
         colorAddScaled(cluster->radiance[0], subCluster->area, subCluster->radiance[0], cluster->radiance[0]);
@@ -80,7 +80,7 @@ clusterInit(GalerkinElement *cluster) {
     if ( GLOBAL_galerkin_state.iteration_method == SOUTH_WELL ) {
         clusterGalerkinClearCoefficients(cluster->unShotRadiance, cluster->basisSize);
         for ( int i = 0; cluster->irregularSubElements != nullptr && i < cluster->irregularSubElements->size(); i++ ) {
-            GalerkinElement *subCluster = cluster->irregularSubElements->get(i);
+            GalerkinElement *subCluster = (GalerkinElement *)cluster->irregularSubElements->get(i);
             colorAddScaled(cluster->unShotRadiance[0], subCluster->area, subCluster->unShotRadiance[0],
                            cluster->unShotRadiance[0]);
         }
@@ -156,7 +156,7 @@ galerkinDestroyClusterHierarchy(GalerkinElement *clusterElement) {
     }
 
     for ( int i = 0; clusterElement->irregularSubElements != nullptr && i < clusterElement->irregularSubElements->size(); i++ ) {
-        galerkinDestroyClusterHierarchy(clusterElement->irregularSubElements->get(i));
+        galerkinDestroyClusterHierarchy((GalerkinElement *)clusterElement->irregularSubElements->get(i));
     }
     delete clusterElement;
 }
@@ -170,7 +170,7 @@ iterateOverSurfaceElementsInCluster(GalerkinElement *galerkinElement, void (*fun
         func(galerkinElement);
     } else {
         for ( int i = 0; galerkinElement->irregularSubElements != nullptr && i < galerkinElement->irregularSubElements->size(); i++ ) {
-            GalerkinElement *subCluster = galerkinElement->irregularSubElements->get(i);
+            GalerkinElement *subCluster = (GalerkinElement *)galerkinElement->irregularSubElements->get(i);
             iterateOverSurfaceElementsInCluster(subCluster, func);
         }
     }

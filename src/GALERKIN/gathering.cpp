@@ -118,7 +118,7 @@ gatheringPushPullPotential(GalerkinElement *element, float down) {
 
     if ( element->irregularSubElements ) {
         for ( int i = 0; element->irregularSubElements != nullptr && i < element->irregularSubElements->size(); i++ ) {
-            GalerkinElement *subElement = element->irregularSubElements->get(i);
+            GalerkinElement *subElement = (GalerkinElement *)element->irregularSubElements->get(i);
             if ( !element->isCluster() ) {
                 // Don't push to irregular surface sub-elements
                 down = 0.0;
@@ -145,7 +145,7 @@ gatheringClusterUpdatePotential(GalerkinElement *cluster) {
     if ( cluster->flags & IS_CLUSTER ) {
         cluster->potential = 0.0;
         for ( int i = 0; cluster->irregularSubElements != nullptr && i < cluster->irregularSubElements->size(); i++ ) {
-            GalerkinElement *subCluster = cluster->irregularSubElements->get(i);
+            GalerkinElement *subCluster = (GalerkinElement *)cluster->irregularSubElements->get(i);
             cluster->potential += subCluster->area * gatheringClusterUpdatePotential(subCluster);
         }
         cluster->potential /= cluster->area;

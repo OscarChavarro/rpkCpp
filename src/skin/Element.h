@@ -27,7 +27,7 @@ class Element {
     Element **regularSubElements; // For surface elements with regular quadtree subdivision
         // A nullptr pointer if there are no regular sub-elements, or an array containing
         // exactly 4 pointers to the sub-elements
-
+        java::ArrayList<Element *> *irregularSubElements; // Hierarchy of clusters
     Matrix2x2 *upTrans; // Relates surface element (u,v) coordinates to patch (u,v) coordinates,
     // if non-null, transforms (u,v) coordinates on a sub-element to the (u,v) coordinates
     // of the same point on the parent surface element. It is nullptr if the element is a
@@ -46,6 +46,7 @@ class Element {
         unShotRadiance(),
         parent(),
         regularSubElements(),
+        irregularSubElements(),
         upTrans(),
         area()
     {}

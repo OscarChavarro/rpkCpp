@@ -34,8 +34,6 @@ class GalerkinElement : public Element {
     GalerkinElement *regularSubElementAtPoint(double *u, double *v);
 
 public:
-    java::ArrayList<GalerkinElement *> *irregularSubElements; // Hierarchy of clusters
-
     float potential; // Total potential of the element
     float receivedPotential; // Potential received during the last iteration
     float unShotPotential; // Un-shot potential (progressive refinement radiosity)
