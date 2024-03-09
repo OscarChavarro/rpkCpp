@@ -1,6 +1,7 @@
 #ifndef __ELEMENT__
 #define __ELEMENT__
 
+#include "common/linealAlgebra/Matrix2x2.h"
 #include "common/color.h"
 #include "skin/Patch.h"
 #include "skin/Geometry.h"
@@ -21,6 +22,13 @@ class Element {
     COLOR *radiance; // Total radiance on the element as computed so far
     COLOR *receivedRadiance; // Radiance received during iteration
     COLOR *unShotRadiance; // For progressive refinement radiosity
+    Element *parent; // Parent element in a hierarchy, or
+        // nullptr pointer if there is no parent
+    Matrix2x2 *upTrans; // Relates surface element (u,v) coordinates to patch (u,v) coordinates,
+    // if non-null, transforms (u,v) coordinates on a sub-element to the (u,v) coordinates
+    // of the same point on the parent surface element. It is nullptr if the element is a
+    // toplevel element for a patch or a cluster element. If non-null it is a sub-element on a patch
+    float area; // Area of all surfaces contained in the element
 
     Element():
         id(),

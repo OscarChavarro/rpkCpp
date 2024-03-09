@@ -91,11 +91,8 @@ Matrix2x2 GLOBAL_galerkin_TriangularUpTransformMatrix[4] = {
 Private inner constructor, Use either galerkinElementCreateTopLevel() or CreateRegularSubElement()
 */
 GalerkinElement::GalerkinElement():
-        parent(),
         regularSubElements(),
         irregularSubElements(),
-        upTrans(),
-        area(),
         potential(),
         receivedPotential(),
         unShotPotential(),
@@ -391,7 +388,7 @@ GalerkinElement::topTransform(Matrix2x2 *xf) {
         return nullptr;
     }
 
-    GalerkinElement *window = this;
+    Element *window = this;
     *xf = *window->upTrans;
     while ( (window = window->parent) && window->upTrans ) {
         matrix2DPreConcatTransform(*window->upTrans, *xf, *xf);

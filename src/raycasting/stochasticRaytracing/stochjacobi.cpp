@@ -144,7 +144,7 @@ stochasticJacobiElementSetup(StochasticRadiosityElement *elem) {
     if ( elem->parent ) {
         // The probability of sampling a non-leaf element is the sum of the
         // probabilities of sampling the sub-elements
-        elem->parent->prob += elem->prob;
+        ((StochasticRadiosityElement *)elem->parent)->prob += elem->prob;
     }
 
     stochasticJacobiElementClearAccumulators(elem);
@@ -571,8 +571,8 @@ stochasticJacobiElementShootRay(
 
 static void
 stochasticJacobiInitPushRayIndex(StochasticRadiosityElement *elem) {
-    elem->ray_index = elem->parent->ray_index;
-    elem->imp_ray_index = elem->parent->imp_ray_index;
+    elem->ray_index = ((StochasticRadiosityElement *)elem->parent)->ray_index;
+    elem->imp_ray_index = ((StochasticRadiosityElement *)elem->parent)->imp_ray_index;
     monteCarloRadiosityForAllChildrenElements(elem, stochasticJacobiInitPushRayIndex);
 }
 
@@ -715,7 +715,7 @@ static void stochasticJacobiPushUpdatePull(StochasticRadiosityElement *elem);
 
 static void
 stochasticJacobiPushUpdatePullChild(StochasticRadiosityElement *child) {
-    StochasticRadiosityElement *parent = child->parent;
+    StochasticRadiosityElement *parent = (StochasticRadiosityElement *)child->parent;
     stochasticJacobiPush(parent, child);
     stochasticJacobiPushUpdatePull(child);
     stochasticJacobiPull(parent, child);
@@ -737,7 +737,7 @@ stochasticJacobiPullRdEd(StochasticRadiosityElement *elem);
 
 static void
 stochasticJacobiPullRdEdFromChild(StochasticRadiosityElement *child) {
-    StochasticRadiosityElement *parent = child->parent;
+    StochasticRadiosityElement *parent = (StochasticRadiosityElement *)child->parent;
 
     stochasticJacobiPullRdEd(child);
 

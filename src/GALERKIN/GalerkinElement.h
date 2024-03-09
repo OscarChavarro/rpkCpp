@@ -7,7 +7,6 @@ Galerkin finite elements: one structure for both surface and cluster elements
 
 #include "java/util/ArrayList.h"
 #include "GALERKIN/Interaction.h"
-#include "common/linealAlgebra/Matrix2x2.h"
 #include "scene/polygon.h"
 
 // Set when all interactions have been created for a toplevel element
@@ -35,20 +34,10 @@ class GalerkinElement : public Element {
     GalerkinElement *regularSubElementAtPoint(double *u, double *v);
 
 public:
-    GalerkinElement *parent; /* Parent element in a hierarchy, or
-			 a nullptr pointer if there is no parent. */
-    GalerkinElement **regularSubElements; /* A nullptr pointer if there are no
-			 regular sub-elements, or an array containing
-			 exactly 4 pointers to the sub-elements */
-    java::ArrayList<GalerkinElement *> *irregularSubElements;
-    Matrix2x2 *upTrans; /* if non-null, transforms (u,v) coordinates on
-			 a sub-element to the (u,v) coordinates of the
-			 same point on the parent surface element. It is nullptr
-			 if the element is a toplevel element for a patch or
-			 a cluster element. If non-null it is a sub-element on
-			 a patch. */
-    float area; /* area of a surface element or sum of the areas
-			 of the surfaces in a cluster element */
+    GalerkinElement **regularSubElements; // For surface elements with regular quadtree subdivision
+        // A nullptr pointer if there are no regular sub-elements, or an array containing
+        // exactly 4 pointers to the sub-elements
+    java::ArrayList<GalerkinElement *> *irregularSubElements; // Hierarchy of clusters
 
     float potential; // Total potential of the element
     float receivedPotential; // Potential received during the last iteration

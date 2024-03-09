@@ -289,7 +289,7 @@ monteCarloRadiosityElementRange(StochasticRadiosityElement *elem, int *nbits, ni
         nb++;
         b1 = (b1 << 1) | (niedindex) (elem->childNumber & 1);
         b2 = (b2 >> 1) | ((niedindex) (elem->childNumber & 2) << (NBITS - 2));
-        elem = elem->parent;
+        elem = (StochasticRadiosityElement *)elem->parent;
     }
 
     *nbits = nb;
@@ -959,7 +959,7 @@ monteCarloRadiosityElementBounds(StochasticRadiosityElement *elem, float *bounds
 StochasticRadiosityElement *
 monteCarloRadiosityClusterChildContainingElement(StochasticRadiosityElement *parent, StochasticRadiosityElement *descendant) {
     while ( descendant && descendant->parent != parent ) {
-        descendant = descendant->parent;
+        descendant = (StochasticRadiosityElement *)descendant->parent;
     }
     if ( !descendant ) {
         logFatal(-1, "monteCarloRadiosityClusterChildContainingElement", "descendant is not a descendant of parent");

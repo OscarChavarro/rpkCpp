@@ -6,18 +6,14 @@ Monte Carlo radiosity element type
 #define __STOCHASTIC_RADIOSITY_ELEMENT__
 
 #include "java/util/ArrayList.h"
-#include "common/linealAlgebra/Matrix2x2.h"
 #include "skin/Element.h"
 #include "QMC/niederreiter.h"
 #include "raycasting/stochasticRaytracing/basismcrad.h"
 
 class StochasticRadiosityElement : public Element {
   public:
-    StochasticRadiosityElement *parent; // Parent element in hierarchy
-    StochasticRadiosityElement **regularSubElements; // For surface elements with regular quadtree subdivision
-    java::ArrayList<StochasticRadiosityElement *> *irregularSubElements; // Hierarchy of clusters
-    Matrix2x2 *upTrans; // Relates surface element (u,v) coordinates to patch (u,v) coordinates
-    float area; // Area of all surfaces contained in the element
+    StochasticRadiosityElement **regularSubElements;
+    java::ArrayList<StochasticRadiosityElement *> *irregularSubElements;
 
     niedindex ray_index; // Incremented each time a ray is shot from the elem
     float quality; // For merging the result of multiple iterations

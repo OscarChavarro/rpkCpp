@@ -253,7 +253,7 @@ Routines below update/re-initialise importance after a viewing change
 */
 static void
 monteCarloRadiosityPullImportances(StochasticRadiosityElement *child) {
-    StochasticRadiosityElement *parent = child->parent;
+    StochasticRadiosityElement *parent = (StochasticRadiosityElement *)child->parent;
     pullImportance(parent, child, &parent->imp, &child->imp);
     pullImportance(parent, child, &parent->source_imp, &child->source_imp);
     pullImportance(parent, child, &parent->unShotImp, &child->unShotImp);
