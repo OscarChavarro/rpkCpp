@@ -85,7 +85,7 @@ distribution
 static double
 stochasticRelaxationRadiosityQualityFactor(StochasticRadiosityElement *elem, double w) {
     if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceDriven ) {
-        return w * elem->imp;
+        return w * elem->importance;
     }
     return w / monteCarloRadiosityElementScalarReflectance(elem);
 }
@@ -196,14 +196,14 @@ stochasticRelaxationRadiosityDoIncrementalRadianceIterations(java::ArrayList<Pat
 
 static float
 stochasticRelaxationRadiosityElementUnShotImportance(StochasticRadiosityElement *elem) {
-    return elem->unShotImp;
+    return elem->unShotImportance;
 }
 
 static void
 stochasticRelaxationRadiosityElementIncrementImportance(StochasticRadiosityElement *elem, double /*w*/) {
-    elem->imp += elem->received_imp;
-    elem->unShotImp = elem->received_imp;
-    elem->received_imp = 0.;
+    elem->importance += elem->receivedImportance;
+    elem->unShotImportance = elem->receivedImportance;
+    elem->receivedImportance = 0.;
 }
 
 static void
@@ -326,15 +326,15 @@ stochasticRelaxationRadiosityDoRegularRadianceIteration(java::ArrayList<Patch *>
 
 static float
 stochasticRelaxationRadiosityElementImportance(StochasticRadiosityElement *elem) {
-    return elem->imp;
+    return elem->importance;
 }
 
 static void
 stochasticRelaxationRadiosityElementUpdateImportance(StochasticRadiosityElement *elem, double /*w*/) {
     double k = (double) GLOBAL_stochasticRaytracing_monteCarloRadiosityState.prevImportanceTracedRays / (double) GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceTracedRays;
 
-    elem->imp = (float)(k * (elem->imp - elem->source_imp) + (1.0 - k) * elem->received_imp + elem->source_imp);
-    elem->unShotImp = elem->received_imp = 0.0;
+    elem->importance = (float)(k * (elem->importance - elem->sourceImportance) + (1.0 - k) * elem->receivedImportance + elem->sourceImportance);
+    elem->unShotImportance = elem->receivedImportance = 0.0;
 }
 
 static void

@@ -19,7 +19,7 @@ elementColor(StochasticRadiosityElement *element) {
             radianceToRgb(elementDisplayRadiance(element), &color);
             break;
         case SHOW_IMPORTANCE: {
-            float gray = element->imp > 1.0 ? 1.0f : element->imp < 0.0 ? 0.0f : element->imp;
+            float gray = element->importance > 1.0 ? 1.0f : element->importance < 0.0 ? 0.0f : element->importance;
             setRGB(color, gray, gray, gray);
             break;
         }
@@ -101,7 +101,7 @@ vertexImportance(Vertex *v) {
         }
         StochasticRadiosityElement *element = (StochasticRadiosityElement *)genericElement;
         if ( !element->regularSubElements ) {
-            imp += element->imp;
+            imp += element->importance;
             count++;
         }
     }
@@ -145,11 +145,11 @@ Compute new vertex colors
 */
 void
 elementComputeNewVertexColors(StochasticRadiosityElement *elem) {
-    vertexColor(elem->vertex[0]);
-    vertexColor(elem->vertex[1]);
-    vertexColor(elem->vertex[2]);
+    vertexColor(elem->vertices[0]);
+    vertexColor(elem->vertices[1]);
+    vertexColor(elem->vertices[2]);
     if ( elem->numberOfVertices > 3 ) {
-        vertexColor(elem->vertex[3]);
+        vertexColor(elem->vertices[3]);
     }
 }
 
@@ -395,9 +395,9 @@ elementTVertexElimination(
     }
 
     if ( elem->numberOfVertices == 3 ) {
-        triangleTVertexElimination(elem->vertex, m, n, do_triangle);
+        triangleTVertexElimination(elem->vertices, m, n, do_triangle);
     } else {
-        quadrilateralTVertexElimination(elem->vertex, m, n, do_triangle, do_quadrilateral);
+        quadrilateralTVertexElimination(elem->vertices, m, n, do_triangle, do_quadrilateral);
     }
 }
 
@@ -412,7 +412,7 @@ renderElementOutline(StochasticRadiosityElement *elem) {
 
     for ( int i = 0; i < elem->numberOfVertices; i++ ) {
         Vector3D d;
-        vertices[i] = *(elem->vertex[i]->point);
+        vertices[i] = *(elem->vertices[i]->point);
         vectorSubtract(GLOBAL_camera_mainCamera.eyePosition, vertices[i], d);
         vectorSumScaled(vertices[i], 0.0001, d, vertices[i]);
     }
@@ -443,27 +443,27 @@ mcrRenderElement(StochasticRadiosityElement *elem) {
         }
 
         if ( elem->numberOfVertices == 3 ) {
-            renderTriangularElement(elem->vertex, m, n);
+            renderTriangularElement(elem->vertices, m, n);
         } else {
-            renderQuadrilateralElement(elem->vertex, m, n);
+            renderQuadrilateralElement(elem->vertices, m, n);
         }
         return;
     }
 
-    vertices[0] = *(elem->vertex[0]->point);
-    vertices[1] = *(elem->vertex[1]->point);
-    vertices[2] = *(elem->vertex[2]->point);
+    vertices[0] = *(elem->vertices[0]->point);
+    vertices[1] = *(elem->vertices[1]->point);
+    vertices[2] = *(elem->vertices[2]->point);
     if ( elem->numberOfVertices > 3 ) {
-        vertices[3] = *(elem->vertex[3]->point);
+        vertices[3] = *(elem->vertices[3]->point);
     }
 
     if ( GLOBAL_render_renderOptions.smoothShading ) {
         RGB vertexColors[4];
-        vertexColors[0] = elem->vertex[0]->color;
-        vertexColors[1] = elem->vertex[1]->color;
-        vertexColors[2] = elem->vertex[2]->color;
+        vertexColors[0] = elem->vertices[0]->color;
+        vertexColors[1] = elem->vertices[1]->color;
+        vertexColors[2] = elem->vertices[2]->color;
         if ( elem->numberOfVertices > 3 ) {
-            vertexColors[3] = elem->vertex[3]->color;
+            vertexColors[3] = elem->vertices[3]->color;
         }
 
         openGlRenderPolygonGouraud(elem->numberOfVertices, vertices, vertexColors);
@@ -504,7 +504,7 @@ elementDisplayRadianceAtPoint(StochasticRadiosityElement *elem, double u, double
             int i;
             COLOR rad[4];
             for ( i = 0; i < elem->numberOfVertices; i++ ) {
-                rad[i] = vertexRadiance(elem->vertex[i]);
+                rad[i] = vertexRadiance(elem->vertices[i]);
             }
             switch ( elem->numberOfVertices ) {
                 case 3:

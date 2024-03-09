@@ -12,7 +12,7 @@ regularChild(StochasticRadiosityElement *child) {
 
 void
 pushRadiance(StochasticRadiosityElement *parent, StochasticRadiosityElement *child, COLOR *parent_rad, COLOR *child_rad) {
-    if ( parent->isCluster || child->basis->size == 1 ) {
+    if ( parent->isClusterFlag || child->basis->size == 1 ) {
         colorAdd(child_rad[0], parent_rad[0], child_rad[0]);
     } else if ( regularChild(child) && child->basis == parent->basis ) {
             filterColorDown(parent_rad, &(*child->basis->regular_filter)[child->childNumber], child_rad,
@@ -31,7 +31,7 @@ pushImportance(StochasticRadiosityElement * /*parent*/, StochasticRadiosityEleme
 void
 pullRadiance(StochasticRadiosityElement *parent, StochasticRadiosityElement *child, COLOR *parent_rad, COLOR *child_rad) {
     float areafactor = child->area / parent->area;
-    if ( parent->isCluster || child->basis->size == 1 ) {
+    if ( parent->isClusterFlag || child->basis->size == 1 ) {
         colorAddScaled(parent_rad[0], areafactor, child_rad[0], parent_rad[0]);
     } else if ( regularChild(child) && child->basis == parent->basis ) {
             filterColorUp(child_rad, &(*child->basis->regular_filter)[child->childNumber],

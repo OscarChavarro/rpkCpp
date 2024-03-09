@@ -43,7 +43,7 @@ public:
 			 // the links are kept with the receiver element
     float minimumArea; /* equal to area for a surface element or the area
 			 of the smallest surface element in a cluster */
-    float bsize; // Equivalent blocker size for multi-resolution visibility
+    float blockerSize; // Equivalent blocker size for multi-resolution visibility
     int numberOfPatches; // Number of patches in a cluster
     int tmp; // For occasional use
     char childNumber; // Rang nr of regular sub-element in parent

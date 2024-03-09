@@ -61,7 +61,7 @@ geomMultiResolutionVisibility(
         if ( cluster ) {
             /* Compute feature size using equivalent blocker size of the occluder */
             t = (tmin + tmax) / 2.0f;    /* put the centre of the equivalent blocker halfway tmin and tmax */
-            fsize = srcSize + rcvdist / t * (cluster->bsize - srcSize);
+            fsize = srcSize + rcvdist / t * (cluster->blockerSize - srcSize);
         }
     }
 

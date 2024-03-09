@@ -240,12 +240,12 @@ monteCarloRadiosityInitPatch(Patch *P) {
     getTopLevelPatchRad(P)[0] = getTopLevelPatchUnShotRad(P)[0] = topLevelGalerkinElement(P)->sourceRad = Ed;
     colorClear(getTopLevelPatchReceivedRad(P)[0]);
 
-    topLevelGalerkinElement(P)->ray_index = P->id * 11;
+    topLevelGalerkinElement(P)->rayIndex = P->id * 11;
     topLevelGalerkinElement(P)->quality = 0.;
     topLevelGalerkinElement(P)->ng = 0;
 
-    topLevelGalerkinElement(P)->imp = topLevelGalerkinElement(P)->unShotImp = topLevelGalerkinElement(P)->received_imp = topLevelGalerkinElement(
-            P)->source_imp = 0.;
+    topLevelGalerkinElement(P)->importance = topLevelGalerkinElement(P)->unShotImportance = topLevelGalerkinElement(P)->receivedImportance = topLevelGalerkinElement(
+            P)->sourceImportance = 0.;
 }
 
 /**
@@ -254,16 +254,16 @@ Routines below update/re-initialise importance after a viewing change
 static void
 monteCarloRadiosityPullImportances(StochasticRadiosityElement *child) {
     StochasticRadiosityElement *parent = (StochasticRadiosityElement *)child->parent;
-    pullImportance(parent, child, &parent->imp, &child->imp);
-    pullImportance(parent, child, &parent->source_imp, &child->source_imp);
-    pullImportance(parent, child, &parent->unShotImp, &child->unShotImp);
+    pullImportance(parent, child, &parent->importance, &child->importance);
+    pullImportance(parent, child, &parent->sourceImportance, &child->sourceImportance);
+    pullImportance(parent, child, &parent->unShotImportance, &child->unShotImportance);
 }
 
 static void
 monteCarloRadiosityAccumulateImportances(StochasticRadiosityElement *elem) {
-    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalYmp += elem->area * elem->imp;
-    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.sourceYmp += elem->area * elem->source_imp;
-    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotYmp += elem->area * fabs(elem->unShotImp);
+    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalYmp += elem->area * elem->importance;
+    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.sourceYmp += elem->area * elem->sourceImportance;
+    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotYmp += elem->area * fabs(elem->unShotImportance);
 }
 
 /**
@@ -273,14 +273,14 @@ static void
 monteCarloRadiosityUpdateImportance(StochasticRadiosityElement *elem) {
     if ( !monteCarloRadiosityForAllChildrenElements(elem, monteCarloRadiosityUpdateImportance)) {
         // Leaf element
-        float delta_imp = (float)(elem->patch->isVisible() ? 1.0 : 0.0) - elem->source_imp;
-        elem->imp += delta_imp;
-        elem->source_imp += delta_imp;
-        elem->unShotImp += delta_imp;
+        float delta_imp = (float)(elem->patch->isVisible() ? 1.0 : 0.0) - elem->sourceImportance;
+        elem->importance += delta_imp;
+        elem->sourceImportance += delta_imp;
+        elem->unShotImportance += delta_imp;
         monteCarloRadiosityAccumulateImportances(elem);
     } else {
         // Not a leaf element: clear & pull importance
-        elem->imp = elem->source_imp = elem->unShotImp = 0.0;
+        elem->importance = elem->sourceImportance = elem->unShotImportance = 0.0;
         monteCarloRadiosityForAllChildrenElements(elem, monteCarloRadiosityPullImportances);
     }
 }
@@ -292,11 +292,11 @@ static void
 monteCarloRadiosityReInitImportance(StochasticRadiosityElement *elem) {
     if ( !monteCarloRadiosityForAllChildrenElements(elem, monteCarloRadiosityReInitImportance)) {
         // Leaf element
-        elem->imp = elem->source_imp = elem->unShotImp = (elem->patch->isVisible()) ? 1.0 : 0.0;
+        elem->importance = elem->sourceImportance = elem->unShotImportance = (elem->patch->isVisible()) ? 1.0 : 0.0;
         monteCarloRadiosityAccumulateImportances(elem);
     } else {
         // Not a leaf element: clear & pull importance
-        elem->imp = elem->source_imp = elem->unShotImp = 0.0;
+        elem->importance = elem->sourceImportance = elem->unShotImportance = 0.0;
         monteCarloRadiosityForAllChildrenElements(elem, monteCarloRadiosityPullImportances);
     }
 }
@@ -414,13 +414,13 @@ monteCarloRadiosityReInit(java::ArrayList<Patch *> *scenePatches) {
         colorAddScaled(GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotFlux, M_PI * patch->area, getTopLevelPatchUnShotRad(patch)[0], GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotFlux);
         colorAddScaled(GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalFlux, M_PI * patch->area, getTopLevelPatchRad(patch)[0], GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalFlux);
         colorAddScaled(GLOBAL_stochasticRaytracing_monteCarloRadiosityState.indirectImportanceWeightedUnShotFlux, M_PI * patch->area * (topLevelGalerkinElement(
-                               patch)->imp -
-                                                                                                                                        topLevelGalerkinElement(patch)->source_imp), getTopLevelPatchUnShotRad(patch)[0],
+                               patch)->importance -
+                                                                                                                                        topLevelGalerkinElement(patch)->sourceImportance), getTopLevelPatchUnShotRad(patch)[0],
                        GLOBAL_stochasticRaytracing_monteCarloRadiosityState.indirectImportanceWeightedUnShotFlux);
         GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotYmp += patch->area * fabs(
-                topLevelGalerkinElement(patch)->unShotImp);
-        GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalYmp += patch->area * topLevelGalerkinElement(patch)->imp;
-        GLOBAL_stochasticRaytracing_monteCarloRadiosityState.sourceYmp += patch->area * topLevelGalerkinElement(patch)->source_imp;
+                topLevelGalerkinElement(patch)->unShotImportance);
+        GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalYmp += patch->area * topLevelGalerkinElement(patch)->importance;
+        GLOBAL_stochasticRaytracing_monteCarloRadiosityState.sourceYmp += patch->area * topLevelGalerkinElement(patch)->sourceImportance;
         monteCarloRadiosityPatchComputeNewColor(patch);
     }
 
@@ -476,7 +476,7 @@ monteCarloRadiosityInterpolatedReflectanceAtPoint(StochasticRadiosityElement *le
     if ( leaf != cachedleaf ) {
         int i;
         for ( i = 0; i < leaf->numberOfVertices; i++ ) {
-            vrd[i] = vertexReflectance(leaf->vertex[i]);
+            vrd[i] = vertexReflectance(leaf->vertices[i]);
         }
     }
     cachedleaf = leaf;

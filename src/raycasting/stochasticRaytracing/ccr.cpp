@@ -28,7 +28,7 @@ initialControlRadiosityRecursive(
         float weightedArea = element->area;
         if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceDriven &&
              GLOBAL_stochasticRaytracing_monteCarloRadiosityState.method != RANDOM_WALK_RADIOSITY_METHOD ) {
-            weightedArea *= (element->imp - element->source_imp); // Multiply with received importance
+            weightedArea *= (element->importance - element->sourceImportance); // Multiply with received importance
         }
         // factor M_PI is omitted everywhere
         colorAddScaled(*totalFluxColor, /* M_PI* */ weightedArea, rad, *totalFluxColor);
@@ -143,7 +143,7 @@ refineControlRadiosityRecursive(
         if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceDriven &&
              GLOBAL_stochasticRaytracing_monteCarloRadiosityState.method !=
              RANDOM_WALK_RADIOSITY_METHOD ) {
-            weightedArea *= (element->imp - element->source_imp); /* multiply with received importance */
+            weightedArea *= (element->importance - element->sourceImportance); /* multiply with received importance */
         }
         for ( int i = 0; i <= NUMBER_OF_INTERVALS; i++ ) {
             COLOR t;

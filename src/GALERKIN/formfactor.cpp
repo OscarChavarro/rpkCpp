@@ -181,7 +181,7 @@ pointKernelEval(
         *vis = 0.0;
     } else {
         float min_feature_size = 2.0f * (float)std::sqrt(GLOBAL_statistics.totalArea * GLOBAL_galerkin_state.relMinElemArea / M_PI);
-        *vis = geomListMultiResolutionVisibility(geometryShadowList, &ray, distance, src->bsize, min_feature_size);
+        *vis = geomListMultiResolutionVisibility(geometryShadowList, &ray, distance, src->blockerSize, min_feature_size);
     }
 
     return formFactor;

@@ -42,7 +42,7 @@ subdivideReceiver(
         double * /*vs*/)
 {
     StochasticRadiosityElement *rcv = link->rcv;
-    if ( rcv->isCluster ) {
+    if ( rcv->isClusterFlag ) {
         rcv = monteCarloRadiosityClusterChildContainingElement(rcv, rcvtop);
     } else {
         if ( !rcv->regularSubElements ) {
@@ -68,7 +68,7 @@ subdivideSource(
         double *vs)
 {
     StochasticRadiosityElement *src = link->src;
-    if ( src->isCluster ) {
+    if ( src->isClusterFlag ) {
         src = monteCarloRadiosityClusterChildContainingElement(src, srctop);
     } else {
         if ( !src->regularSubElements ) {
@@ -87,7 +87,7 @@ selfLink(LINK *link) {
 
 static int
 linkInvolvingClusters(LINK *link) {
-    return (link->rcv->isCluster || link->src->isCluster);
+    return (link->rcv->isClusterFlag || link->src->isClusterFlag);
 }
 
 static int
@@ -106,15 +106,15 @@ static float
 formFactorEstimate(StochasticRadiosityElement *rcv, StochasticRadiosityElement *src) {
     Vector3D D;
     double d, c1, c2, f, f2;
-    vectorSubtract(src->midpoint, rcv->midpoint, D);
+    vectorSubtract(src->midPoint, rcv->midPoint, D);
     d = vectorNorm(D);
     f = src->area / (M_PI * d * d + src->area);
     f2 = 2. * f;
-    c1 = rcv->isCluster ? 1. /*0.25*/ : std::fabs(vectorDotProduct(D, rcv->patch->normal)) / d;
+    c1 = rcv->isClusterFlag ? 1. /*0.25*/ : std::fabs(vectorDotProduct(D, rcv->patch->normal)) / d;
     if ( c1 < f2 ) {
         c1 = f2;
     }
-    c2 = src->isCluster ? 1. /*0.25*/ : std::fabs(vectorDotProduct(D, src->patch->normal)) / d;
+    c2 = src->isClusterFlag ? 1. /*0.25*/ : std::fabs(vectorDotProduct(D, src->patch->normal)) / d;
     if ( c2 < f2 ) {
         c2 = f2;
     }
@@ -134,7 +134,7 @@ LowPowerLink(
 
     /* compute receiver reflectance times source radiosity */
     colorScale(M_PI, src->radiance[0], rhosrcrad);
-    if ( !rcv->isCluster ) {
+    if ( !rcv->isClusterFlag ) {
         COLOR Rd = topLevelGalerkinElement(rcv->patch)->Rd;
         colorProduct(Rd, rhosrcrad, rhosrcrad);
     }
@@ -142,8 +142,8 @@ LowPowerLink(
     threshold = GLOBAL_stochasticRaytracing_hierarchy.epsilon * colorMaximumComponent(statistics->maxSelfEmittedPower);
     propagated_power = rcv->area * ff * colorMaximumComponent(rhosrcrad);
     if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceDriven ) {
-        propagated_power *= rcv->imp;
-        if ( !rcv->isCluster ) {
+        propagated_power *= rcv->importance;
+        if ( !rcv->isClusterFlag ) {
             propagated_power *= monteCarloRadiosityElementScalarReflectance(rcv);
         }
     }

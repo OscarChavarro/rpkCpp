@@ -18,7 +18,6 @@ class Element {
     COLOR Rd; // Reflectance
     Patch *patch;
     Geometry *geometry;
-    ElementTypes className;
     COLOR *radiance; // Total radiance on the element as computed so far
     COLOR *receivedRadiance; // Radiance received during iteration
     COLOR *unShotRadiance; // For progressive refinement radiosity
@@ -27,12 +26,13 @@ class Element {
     Element **regularSubElements; // For surface elements with regular quadtree subdivision
         // A nullptr pointer if there are no regular sub-elements, or an array containing
         // exactly 4 pointers to the sub-elements
-        java::ArrayList<Element *> *irregularSubElements; // Hierarchy of clusters
+    java::ArrayList<Element *> *irregularSubElements; // Hierarchy of clusters
     Matrix2x2 *upTrans; // Relates surface element (u,v) coordinates to patch (u,v) coordinates,
     // if non-null, transforms (u,v) coordinates on a sub-element to the (u,v) coordinates
     // of the same point on the parent surface element. It is nullptr if the element is a
     // toplevel element for a patch or a cluster element. If non-null it is a sub-element on a patch
     float area; // Area of all surfaces contained in the element
+    ElementTypes className;
 
     Element():
         id(),
@@ -40,7 +40,6 @@ class Element {
         Rd(),
         patch(),
         geometry(),
-        className(),
         radiance(),
         receivedRadiance(),
         unShotRadiance(),
@@ -48,7 +47,8 @@ class Element {
         regularSubElements(),
         irregularSubElements(),
         upTrans(),
-        area()
+        area(),
+        className()
     {}
     virtual ~Element() {};
 };

@@ -106,7 +106,7 @@ tracePath(
     pathAddNode(path, origin, birth_prob, inPoint, outpoint);
     do {
         GLOBAL_stochasticRaytracing_monteCarloRadiosityState.tracedRays++;
-        ray = mcrGenerateLocalLine(P, sample4D(topLevelGalerkinElement(P)->ray_index++));
+        ray = mcrGenerateLocalLine(P, sample4D(topLevelGalerkinElement(P)->rayIndex++));
         if ( path->numberOfNodes > 1 && GLOBAL_stochasticRaytracing_monteCarloRadiosityState.continuousRandomWalk ) {
             // Scattered ray originates at point of incidence of previous ray
             ray.pos = path->nodes[path->numberOfNodes - 1].inPoint;

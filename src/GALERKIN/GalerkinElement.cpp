@@ -96,7 +96,7 @@ GalerkinElement::GalerkinElement():
     unShotPotential(),
     directPotential(),
     minimumArea(),
-    bsize(),
+    blockerSize(),
     numberOfPatches(),
     tmp(),
     childNumber(),
@@ -131,7 +131,7 @@ GalerkinElement::GalerkinElement():
     numberOfPatches = 1; // Correct for surface elements, it will be computed later for clusters
     minimumArea = HUGE;
     tmp = 0;
-    bsize = 0.0; // Correct eq. blocker size will be computer later on
+    blockerSize = 0.0; // Correct eq. blocker size will be computer later on
 
     globalNumberOfElements++;
 }
@@ -142,7 +142,7 @@ Creates the toplevel element for the patch
 GalerkinElement::GalerkinElement(Patch *parameterPatch): GalerkinElement() {
     patch = parameterPatch;
     minimumArea = area = patch->area;
-    bsize = 2.0f * (float)std::sqrt(area / M_PI);
+    blockerSize = 2.0f * (float)std::sqrt(area / M_PI);
     directPotential = patch->directPotential;
 
     Rd = patch->averageNormalAlbedo(BRDF_DIFFUSE_COMPONENT);
@@ -325,7 +325,7 @@ GalerkinElement::regularSubDivide() {
         subElement[i]->upTrans =
                 patch->numberOfVertices == 3 ? &GLOBAL_galerkin_TriangularUpTransformMatrix[i] : &GLOBAL_galerkin_QuadUpTransformMatrix[i];
         subElement[i]->area = 0.25f * area;  /* we always use a uniform mapping */
-        subElement[i]->bsize = 2.0f * (float)std::sqrt(subElement[i]->area / M_PI);
+        subElement[i]->blockerSize = 2.0f * (float)std::sqrt(subElement[i]->area / M_PI);
         subElement[i]->childNumber = (char)i;
         subElement[i]->reAllocCoefficients();
 

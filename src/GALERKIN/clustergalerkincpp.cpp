@@ -90,8 +90,8 @@ clusterInit(GalerkinElement *cluster) {
     // Compute equivalent blocker (or blocker complement) size for multi-resolution
     // visibility
     float *bbx = cluster->geometry->bounds;
-    cluster->bsize = floatMax((bbx[MAX_X] - bbx[MIN_X]), (bbx[MAX_Y] - bbx[MIN_Y]));
-    cluster->bsize = floatMax(cluster->bsize, (bbx[MAX_Z] - bbx[MIN_Z]));
+    cluster->blockerSize = floatMax((bbx[MAX_X] - bbx[MIN_X]), (bbx[MAX_Y] - bbx[MIN_Y]));
+    cluster->blockerSize = floatMax(cluster->blockerSize, (bbx[MAX_Z] - bbx[MIN_Z]));
 }
 
 /**
