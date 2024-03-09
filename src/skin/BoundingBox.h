@@ -47,9 +47,9 @@ class BoundingBox {
     bool intersectingSegment(Ray *ray, float *tMin, float *tMax) const;
     bool behindPlane(Vector3D *norm, float d) const;
     void enlarge(const BoundingBox *other);
+    void copyFrom(const BoundingBox *from);
 };
 
-extern float *boundsCopy(const float *from, float *to);
 extern float *boundsEnlargePoint(float *bounds, Vector3D *point);
 extern float *boundsTransform(float *bbx, Matrix4x4 *xf, float *transBoundingBox);
 

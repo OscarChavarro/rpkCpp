@@ -524,15 +524,14 @@ Computes a bounding box for the element
 BoundingBox *
 GalerkinElement::bounds(BoundingBox *boundingBox) {
     if ( isCluster() ) {
-        boundsCopy(geomBounds(geometry).coordinates, boundingBox->coordinates);
+        boundingBox->copyFrom(&geomBounds(geometry));
     } else {
         Vector3D p[4];
-        int i;
         int numberOfVertices;
 
         numberOfVertices = vertices(p, 4);
 
-        for ( i = 0; i < numberOfVertices; i++ ) {
+        for ( int i = 0; i < numberOfVertices; i++ ) {
             boundsEnlargePoint(boundingBox->coordinates, &p[i]);
         }
     }

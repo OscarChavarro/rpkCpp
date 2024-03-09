@@ -44,7 +44,7 @@ VoxelGrid::isSmall(const float *boundsArr) const {
 }
 
 void
-VoxelGrid::putItemInsideVoxelGrid(VoxelData *item, const float *itemBounds) {
+VoxelGrid::putItemInsideVoxelGrid(VoxelData *item, const BoundingBox *itemBounds) {
     short minA;
     short minB;
     short minC;
@@ -60,7 +60,7 @@ VoxelGrid::putItemInsideVoxelGrid(VoxelData *item, const float *itemBounds) {
     float xExtent = (boundingBox.coordinates[MAX_X] - boundingBox.coordinates[MIN_X]) * 1e-4f;
     float yExtent = (boundingBox.coordinates[MAX_Y] - boundingBox.coordinates[MIN_Y]) * 1e-4f;
     float zExtent = (boundingBox.coordinates[MAX_Z] - boundingBox.coordinates[MIN_Z]) * 1e-4f;
-    boundsCopy(itemBounds, boundaries.coordinates);
+    boundaries.copyFrom(itemBounds);
     boundaries.coordinates[MIN_X] -= xExtent;
     boundaries.coordinates[MAX_X] += xExtent;
     boundaries.coordinates[MIN_Y] -= yExtent;
@@ -134,17 +134,17 @@ VoxelGrid::putPatchInsideVoxelGrid(Patch *patch) {
     BoundingBox localBounds;
     putItemInsideVoxelGrid(
         new VoxelData(patch, PATCH_MASK),
-       patch->boundingBox != nullptr ? patch->boundingBox->coordinates : patch->patchBounds(&localBounds)->coordinates);
+       patch->boundingBox != nullptr ? patch->boundingBox : patch->patchBounds(&localBounds));
 }
 
 void
 VoxelGrid::putSubGeometryInsideVoxelGrid(Geometry *geometry) {
     if ( isSmall(geometry->boundingBox.coordinates) ) {
         if ( geometry->itemCount < 10 ) {
-            putItemInsideVoxelGrid(new VoxelData(geometry, GEOM_MASK), geometry->boundingBox.coordinates);
+            putItemInsideVoxelGrid(new VoxelData(geometry, GEOM_MASK), &geometry->boundingBox);
         } else {
             VoxelGrid *subgrid = new VoxelGrid(geometry);
-            putItemInsideVoxelGrid(new VoxelData(subgrid, GRID_MASK), subgrid->boundingBox.coordinates);
+            putItemInsideVoxelGrid(new VoxelData(subgrid, GRID_MASK), &subgrid->boundingBox);
         }
     } else {
         if ( geomIsAggregate(geometry) ) {
@@ -178,7 +178,7 @@ VoxelGrid::putGeometryInsideVoxelGrid(Geometry *geometry, const short na, const 
     xExtension = (geometry->boundingBox.coordinates[MAX_X] - geometry->boundingBox.coordinates[MIN_X]) * 1e-4f;
     yExtension = (geometry->boundingBox.coordinates[MAX_Y] - geometry->boundingBox.coordinates[MIN_Y]) * 1e-4f;
     zExtension = (geometry->boundingBox.coordinates[MAX_Z] - geometry->boundingBox.coordinates[MIN_Z]) * 1e-4f;
-    boundsCopy(geometry->boundingBox.coordinates, boundingBox.coordinates);
+    boundingBox.copyFrom(&geometry->boundingBox);
     boundingBox.coordinates[MIN_X] -= xExtension;
     boundingBox.coordinates[MAX_X] += xExtension;
     boundingBox.coordinates[MIN_Y] -= yExtension;

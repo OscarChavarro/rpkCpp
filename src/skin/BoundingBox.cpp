@@ -44,15 +44,14 @@ boundsEnlargePoint(float *bounds, Vector3D *point) {
     return bounds;
 }
 
-float *
-boundsCopy(const float *from, float *to) {
-    to[MIN_X] = from[MIN_X];
-    to[MIN_Y] = from[MIN_Y];
-    to[MIN_Z] = from[MIN_Z];
-    to[MAX_X] = from[MAX_X];
-    to[MAX_Y] = from[MAX_Y];
-    to[MAX_Z] = from[MAX_Z];
-    return to;
+void
+BoundingBox::copyFrom(const BoundingBox *from) {
+    coordinates[MIN_X] = from->coordinates[MIN_X];
+    coordinates[MIN_Y] = from->coordinates[MIN_Y];
+    coordinates[MIN_Z] = from->coordinates[MIN_Z];
+    coordinates[MAX_X] = from->coordinates[MAX_X];
+    coordinates[MAX_Y] = from->coordinates[MAX_Y];
+    coordinates[MAX_Z] = from->coordinates[MAX_Z];
 }
 
 /**

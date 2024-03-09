@@ -627,7 +627,7 @@ Patch::patchBounds(BoundingBox *bounds) {
         }
     }
 
-    boundsCopy(boundingBox->coordinates, bounds->coordinates);
+    bounds->copyFrom(boundingBox);
 
     return bounds;
 }

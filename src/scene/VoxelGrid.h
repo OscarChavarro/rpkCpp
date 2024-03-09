@@ -77,7 +77,7 @@ class VoxelGrid {
         /*OUT*/ float *t0,
         Vector3D *position);
 
-    void putItemInsideVoxelGrid(VoxelData *item, const float *itemBounds);
+    void putItemInsideVoxelGrid(VoxelData *item, const BoundingBox *itemBounds);
 
     void putPatchInsideVoxelGrid(Patch *patch);
 

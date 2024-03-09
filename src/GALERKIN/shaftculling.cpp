@@ -431,7 +431,7 @@ constructPolygonToPolygonShaft(POLYGON *p1, POLYGON *p2, SHAFT *shaft) {
     shaft->ref1 = shaft->ref2 = nullptr;
 
     // Shaft extent = bounding box containing the bounding boxes of the patches
-    boundsCopy(p1->bounds.coordinates, shaft->boundingBox.coordinates);
+    shaft->boundingBox.copyFrom(&p1->bounds);
     shaft->boundingBox.enlarge(&p2->bounds);
 
     // Nothing (yet) to omit

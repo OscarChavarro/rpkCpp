@@ -910,7 +910,7 @@ Computes and fills in a bounding box for the element
 float *
 stochasticRadiosityElementBounds(StochasticRadiosityElement *elem, BoundingBox *boundingBox) {
     if ( elem->isCluster() ) {
-        boundsCopy(elem->geometry->boundingBox.coordinates, boundingBox->coordinates);
+        boundingBox->copyFrom(&elem->geometry->boundingBox);
     } else if ( !elem->upTrans ) {
             elem->patch->patchBounds(boundingBox);
         } else {
