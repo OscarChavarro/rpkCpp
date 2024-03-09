@@ -367,7 +367,6 @@ This function computes a bounding box for a list of geometries
 */
 float *
 geometryListBounds(java::ArrayList<Geometry *> *geometryList, float *boundingBox) {
-    boundsInit(boundingBox);
     for ( int i = 0; geometryList != nullptr && i < geometryList->size(); i++ ) {
         boundsEnlarge(boundingBox, geometryList->get(i)->bounds.coordinates);
     }

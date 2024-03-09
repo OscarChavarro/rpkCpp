@@ -532,7 +532,6 @@ GalerkinElement::bounds(float *bounds) {
 
         numberOfVertices = vertices(p, 4);
 
-        boundsInit(bounds);
         for ( i = 0; i < numberOfVertices; i++ ) {
             boundsEnlargePoint(bounds, &p[i]);
         }
@@ -557,7 +556,6 @@ GalerkinElement::polygon(POLYGON *polygon) {
     polygon->index = (unsigned char)patch->index;
     polygon->numberOfVertices = vertices(polygon->vertex, polygon->numberOfVertices);
 
-    boundsInit(polygon->bounds.coordinates);
     for ( int i = 0; i < polygon->numberOfVertices; i++ ) {
         boundsEnlargePoint(polygon->bounds.coordinates, &polygon->vertex[i]);
     }

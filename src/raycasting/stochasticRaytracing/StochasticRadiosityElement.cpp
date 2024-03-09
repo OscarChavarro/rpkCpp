@@ -914,7 +914,6 @@ stochasticRadiosityElementBounds(StochasticRadiosityElement *elem, float *bounds
     } else if ( !elem->upTrans ) {
             elem->patch->patchBounds(bounds);
         } else {
-            boundsInit(bounds);
             for ( int i = 0; i < elem->numberOfVertices; i++ ) {
                 Vertex *v = elem->vertices[i];
                 boundsEnlargePoint(bounds, v->point);

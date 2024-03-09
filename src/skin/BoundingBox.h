@@ -48,9 +48,7 @@ disjointBounds(const float *b1, const float *b2) {
         (b1[MIN_Z] > b2[MAX_Z]) || (b2[MIN_Z] > b1[MAX_Z]);
 }
 
-extern float *boundsCreate();
 extern float *boundsCopy(const float *from, float *to);
-extern float *boundsInit(float *bounds);
 extern float *boundsEnlarge(float *output, float *input);
 extern float *boundsEnlargePoint(float *bounds, Vector3D *point);
 extern float *boundsTransform(float *bbx, Matrix4x4 *xf, float *transBoundingBox);

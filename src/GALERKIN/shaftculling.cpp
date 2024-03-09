@@ -706,7 +706,7 @@ shaftCullPatchList(java::ArrayList<Patch *> *patchList, SHAFT *shaft) {
             BoundingBox bounds;
             patch->patchBounds(bounds.coordinates);
         }
-        boundingBoxSide = shaftBoxTest(patch->boundingBox, shaft);
+        boundingBoxSide = shaftBoxTest(patch->boundingBox->coordinates, shaft);
         if ( boundingBoxSide != OUTSIDE ) {
             // Patch bounding box is inside the shaft, or overlaps with it. If it
             // overlaps, do a more expensive, but definitive, test to see whether

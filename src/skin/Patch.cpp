@@ -621,14 +621,13 @@ a pointer to 'getBoundingBox'
 float *
 Patch::patchBounds(float *bounds) {
     if ( !boundingBox ) {
-        boundingBox = boundsCreate();
-        boundsInit(boundingBox);
+        boundingBox = new BoundingBox();
         for ( int i = 0; i < numberOfVertices; i++ ) {
-            boundsEnlargePoint(boundingBox, vertex[i]->point);
+            boundsEnlargePoint(boundingBox->coordinates, vertex[i]->point);
         }
     }
 
-    boundsCopy(boundingBox, bounds);
+    boundsCopy(boundingBox->coordinates, bounds);
 
     return bounds;
 }

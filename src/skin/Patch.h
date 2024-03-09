@@ -51,7 +51,7 @@ public:
     Patch *twin; // Twin face (for double-sided surfaces)
     Vertex *vertex[MAXIMUM_VERTICES_PER_PATCH]; // Pointers to the vertices
     char numberOfVertices; // Number of vertices: 3 or 4
-    float *boundingBox;
+    BoundingBox *boundingBox;
     Vector3D normal;
     float planeConstant;
     float tolerance; // Plane tolerance

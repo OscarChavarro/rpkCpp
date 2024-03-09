@@ -24,7 +24,6 @@ float *
 patchListBounds(java::ArrayList<Patch *> *patchList, float *boundingBox) {
     BoundingBox b;
 
-    boundsInit(boundingBox);
     for ( int i = 0; patchList != nullptr && i < patchList->size(); i++ ) {
         patchList->get(i)->patchBounds(b.coordinates);
         boundsEnlarge(boundingBox, b.coordinates);

@@ -1,9 +1,12 @@
-#include <cstdlib>
-
-#include "common/mymath.h"
 #include "skin/BoundingBox.h"
 
 BoundingBox::BoundingBox(): coordinates() {
+    coordinates[MIN_X] = HUGE;
+    coordinates[MIN_Y] = HUGE;
+    coordinates[MIN_Z] = HUGE;
+    coordinates[MAX_X] = -HUGE;
+    coordinates[MAX_Y] = -HUGE;
+    coordinates[MAX_Z] = -HUGE;
 }
 
 static void inline
@@ -14,21 +17,6 @@ setIfLess(float &a, float &b) {
 static void inline
 setIfGreater(float &a, float &b) {
     a = a > b ? a : b;
-}
-
-float *
-boundsCreate() {
-    float *bounds;
-
-    bounds = (float *)malloc(sizeof(BoundingBox));
-    return bounds;
-}
-
-float *
-boundsInit(float *bounds) {
-    bounds[MIN_X] = bounds[MIN_Y] = bounds[MIN_Z] = HUGE;
-    bounds[MAX_X] = bounds[MAX_Y] = bounds[MAX_Z] = -HUGE;
-    return bounds;
 }
 
 /**
@@ -287,7 +275,6 @@ boundsTransform(float *bbx, Matrix4x4 *xf, float *transBoundingBox) {
     vectorSet(v[6], bbx[MIN_X], bbx[MAX_Y], bbx[MAX_Z]);
     vectorSet(v[7], bbx[MAX_X], bbx[MAX_Y], bbx[MAX_Z]);
 
-    boundsInit(transBoundingBox);
     for ( int i = 0; i < 8; i++ ) {
         transformPoint3D(*xf, v[i], v[i]);
         boundsEnlargePoint(transBoundingBox, &v[i]);
