@@ -16,7 +16,7 @@ disposeCoefficients(StochasticRadiosityElement *elem) {
 /* determines basis based on element type and currently desired approximation */
 static GalerkinBasis *
 ActualBasis(StochasticRadiosityElement *elem) {
-    if ( elem->isClusterFlag ) {
+    if ( elem->isCluster() ) {
         return &GLOBAL_stochasticRadiosity_clusterBasis;
     } else {
         return &GLOBAL_stochasticRadiosity_basis[NR_VERTICES(elem) == 3 ? ET_TRIANGLE : ET_QUAD][GLOBAL_stochasticRaytracing_monteCarloRadiosityState.approximationOrderType];

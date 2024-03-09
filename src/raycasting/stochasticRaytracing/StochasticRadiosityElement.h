@@ -31,7 +31,6 @@ class StochasticRadiosityElement : public Element {
     Vertex *vertices[4]; // Up to 4 vertex pointers for surface elements
     signed char childNumber; // -1 for clusters or toplevel surface elements, 0..3 for regular surface sub-elements
     char numberOfVertices; // Number of surface element vertices
-    bool isClusterFlag; // Whether it is a cluster or not
 
     StochasticRadiosityElement();
     ~StochasticRadiosityElement();

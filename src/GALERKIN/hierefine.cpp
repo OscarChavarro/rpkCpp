@@ -323,7 +323,7 @@ hierarchicRefinementEvaluateInteraction(
     if ( error > threshold ) {
         // A very simple but robust subdivision strategy: subdivide the
         // largest of the two elements in order to reduce the error
-        if ( (!(link->sourceElement->isCluster() && (link->sourceElement->flags & IS_LIGHT_SOURCE)) ) &&
+        if ((!(link->sourceElement->isCluster() && (link->sourceElement->flags & IS_LIGHT_SOURCE_MASK)) ) &&
             (rcv_area > link->sourceElement->area) ) {
             if ( rcv_area > min_area ) {
                 if ( link->receiverElement->isCluster() ) {

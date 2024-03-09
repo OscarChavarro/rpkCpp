@@ -101,8 +101,7 @@ GalerkinElement::GalerkinElement():
     tmp(),
     childNumber(),
     basisSize(),
-    basisUsed(),
-    flags()
+    basisUsed()
 {
     className = ElementTypes::ELEMENT_GALERKIN;
     irregularSubElements = new java::ArrayList<Element *>();
@@ -124,7 +123,6 @@ GalerkinElement::GalerkinElement():
     irregularSubElements = nullptr; // New list
     upTrans = nullptr;
     area = 0.0;
-    flags = 0x00;
     childNumber = -1; // Means: "not a regular sub-element"
     basisSize = 0;
     basisUsed = 0;
@@ -148,7 +146,7 @@ GalerkinElement::GalerkinElement(Patch *parameterPatch): GalerkinElement() {
     Rd = patch->averageNormalAlbedo(BRDF_DIFFUSE_COMPONENT);
     if ( patch->surface && patch->surface->material &&
          patch->surface->material->edf ) {
-        flags |= IS_LIGHT_SOURCE;
+        flags |= IS_LIGHT_SOURCE_MASK;
         Ed = patch->averageEmittance(DIFFUSE_COMPONENT);
         colorScaleInverse(M_PI, Ed, Ed);
     }
@@ -164,7 +162,7 @@ The average projected area still needs to be determined
 GalerkinElement::GalerkinElement(Geometry *parameterGeometry): GalerkinElement() {
     geometry = parameterGeometry;
     area = 0.0; // Needs to be computed after the whole cluster hierarchy has been constructed
-    flags |= IS_CLUSTER;
+    flags |= IS_CLUSTER_MASK;
     reAllocCoefficients();
 
     colorSetMonochrome(Rd, 1.0);
@@ -339,7 +337,7 @@ GalerkinElement::regularSubDivide() {
             subElement[i]->unShotPotential = unShotPotential;
         }
 
-        subElement[i]->flags |= (flags & IS_LIGHT_SOURCE);
+        subElement[i]->flags |= (flags & IS_LIGHT_SOURCE_MASK);
 
         subElement[i]->Rd = Rd;
         subElement[i]->Ed = Ed;

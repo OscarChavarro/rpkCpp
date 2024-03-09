@@ -164,7 +164,7 @@ source element when doing shooting
 */
 void
 createInitialLinks(GalerkinElement *top, GalerkinRole role) {
-    if ( top->flags & IS_CLUSTER ) {
+    if ( top->flags & IS_CLUSTER_MASK ) {
         logFatal(-1, "createInitialLinks", "cannot use this routine for cluster elements");
     }
 

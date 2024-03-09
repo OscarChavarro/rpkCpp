@@ -126,8 +126,7 @@ StochasticRadiosityElement::StochasticRadiosityElement():
     importanceRayIndex(),
     vertices(),
     childNumber(),
-    numberOfVertices(),
-    isClusterFlag()
+    numberOfVertices()
 {
     className = ElementTypes::ELEMENT_STOCHASTIC_RADIOSITY;
 }
@@ -162,7 +161,7 @@ createElement() {
     elem->upTrans = nullptr;
     elem->childNumber = -1;
     elem->numberOfVertices = 0;
-    elem->isClusterFlag = false;
+    elem->flags = 0x00;
 
     GLOBAL_stochasticRaytracing_hierarchy.nr_elements++;
 
@@ -174,7 +173,7 @@ stochasticRadiosityElementCreateFromPatch(Patch *patch) {
     int i;
     StochasticRadiosityElement *elem = createElement();
     elem->patch = patch;
-    elem->isClusterFlag = false;
+    elem->flags = 0x00;
     elem->area = patch->area;
     elem->midPoint = patch->midpoint;
     elem->numberOfVertices = patch->numberOfVertices;
@@ -205,7 +204,7 @@ monteCarloRadiosityCreateCluster(Geometry *geometry) {
     float *bounds = geometry->bounds;
 
     elem->geometry = geometry;
-    elem->isClusterFlag = true;
+    elem->flags = IS_CLUSTER_MASK;
 
     colorSetMonochrome(elem->Rd, 1.0);
     colorClear(elem->Ed);
@@ -359,7 +358,7 @@ stochasticRadiosityElementRegularSubElementAtPoint(StochasticRadiosityElement *p
     StochasticRadiosityElement *child = nullptr;
     double _u = *u, _v = *v;
 
-    if ( parent->isClusterFlag || !parent->regularSubElements ) {
+    if ( parent->isCluster() || !parent->regularSubElements ) {
         return nullptr;
     }
 
@@ -607,7 +606,7 @@ Only for surface elements
 int
 stochasticRadiosityElementIsTextured(StochasticRadiosityElement *elem) {
     Material *mat;
-    if ( elem->isClusterFlag ) {
+    if ( elem->isCluster() ) {
         logFatal(-1, "stochasticRadiosityElementIsTextured", "this routine should not be called for cluster elements");
         return false;
     }
@@ -622,7 +621,7 @@ float
 stochasticRadiosityElementScalarReflectance(StochasticRadiosityElement *elem) {
     float rd;
 
-    if ( elem->isClusterFlag ) {
+    if ( elem->isCluster() ) {
         return 1.0;
     }
 
@@ -814,7 +813,7 @@ stochasticRadiosityElementRegularSubdivideElement(StochasticRadiosityElement *el
         return (StochasticRadiosityElement **)element->regularSubElements;
     }
 
-    if ( element->isClusterFlag ) {
+    if ( element->isCluster() ) {
         logFatal(-1, "galerkinElementRegularSubDivide", "Cannot regularly subdivide cluster elements");
         return nullptr;
     }
@@ -845,7 +844,7 @@ stochasticRadiosityElementRegularSubdivideElement(StochasticRadiosityElement *el
 
 static void
 monteCarloRadiosityDestroyElement(StochasticRadiosityElement *elem) {
-    if ( elem->isClusterFlag ) {
+    if ( elem->isCluster() ) {
         GLOBAL_stochasticRaytracing_hierarchy.nr_clusters--;
     }
     GLOBAL_stochasticRaytracing_hierarchy.nr_elements--;
@@ -892,12 +891,12 @@ stochasticRadiosityElementDestroy(StochasticRadiosityElement *elem) {
 
 void
 stochasticRadiosityElementDestroyClusterHierarchy(StochasticRadiosityElement *top) {
-    if ( top == nullptr || !top->isClusterFlag ) {
+    if ( top == nullptr || !top->isCluster() ) {
         return;
     }
     for ( int i = 0; top->irregularSubElements != nullptr && i < top->irregularSubElements->size(); i++ ) {
         StochasticRadiosityElement *element = (StochasticRadiosityElement *)top->irregularSubElements->get(i);
-        if ( element->isClusterFlag ) {
+        if ( element->isCluster() ) {
             stochasticRadiosityElementDestroyClusterHierarchy(element);
         }
     }
@@ -913,7 +912,7 @@ stochasticRadiosityElementTraverseChildrenElements(StochasticRadiosityElement *t
         return false;
     }
 
-    if ( top->isClusterFlag ) {
+    if ( top->isCluster() ) {
         for ( int i = 0; top->irregularSubElements != nullptr && i < top->irregularSubElements->size(); i++ ) {
             func((StochasticRadiosityElement *)top->irregularSubElements->get(i));
         }
@@ -937,7 +936,7 @@ stochasticRadiosityElementTraverseLeafElements(StochasticRadiosityElement *top, 
         return;
     }
 
-    if ( top->isClusterFlag ) {
+    if ( top->isCluster() ) {
         for ( int i = 0; top->irregularSubElements != nullptr && i < top->irregularSubElements->size(); i++ ) {
             stochasticRadiosityElementTraverseLeafElements(
                     (StochasticRadiosityElement *) top->irregularSubElements->get(i), traversalCallbackFunction);
@@ -983,7 +982,7 @@ Computes and fills in a bounding box for the element
 */
 float *
 stochasticRadiosityElementBounds(StochasticRadiosityElement *elem, float *bounds) {
-    if ( elem->isClusterFlag ) {
+    if ( elem->isCluster() ) {
         boundsCopy(elem->geometry->bounds, bounds);
     } else if ( !elem->upTrans ) {
             elem->patch->patchBounds(bounds);
@@ -1004,7 +1003,7 @@ regularChild(StochasticRadiosityElement *child) {
 
 void
 stochasticRadiosityElementPushRadiance(StochasticRadiosityElement *parent, StochasticRadiosityElement *child, COLOR *parent_rad, COLOR *child_rad) {
-    if ( parent->isClusterFlag || child->basis->size == 1 ) {
+    if ( parent->isCluster() || child->basis->size == 1 ) {
         colorAdd(child_rad[0], parent_rad[0], child_rad[0]);
     } else if ( regularChild(child) && child->basis == parent->basis ) {
         filterColorDown(parent_rad, &(*child->basis->regular_filter)[child->childNumber], child_rad,
@@ -1023,7 +1022,7 @@ stochasticRadiosityElementPushImportance(const float *parentImportance, float *c
 void
 stochasticRadiosityElementPullRadiance(StochasticRadiosityElement *parent, StochasticRadiosityElement *child, COLOR *parent_rad, COLOR *child_rad) {
     float areaFactor = child->area / parent->area;
-    if ( parent->isClusterFlag || child->basis->size == 1 ) {
+    if ( parent->isCluster() || child->basis->size == 1 ) {
         colorAddScaled(parent_rad[0], areaFactor, child_rad[0], parent_rad[0]);
     } else if ( regularChild(child) && child->basis == parent->basis ) {
         filterColorUp(child_rad, &(*child->basis->regular_filter)[child->childNumber],

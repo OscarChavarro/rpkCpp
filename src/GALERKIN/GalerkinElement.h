@@ -9,15 +9,6 @@ Galerkin finite elements: one structure for both surface and cluster elements
 #include "GALERKIN/Interaction.h"
 #include "scene/polygon.h"
 
-// Set when all interactions have been created for a toplevel element
-#define INTERACTIONS_CREATED 0x01
-
-// If set, indicates that the element is a cluster element. If not set, the element is a surface element
-#define IS_CLUSTER 0x10
-
-// If the element is or contains surfaces emitting light spontaneously
-#define IS_LIGHT_SOURCE 0x20
-
 /**
 The Galerkin radiosity specific data to be kept with every surface or
 cluster element. A flag indicates whether a given element is a cluster or
@@ -50,17 +41,11 @@ public:
     char childNumber; // Rang nr of regular sub-element in parent
     char basisSize; // Number of coefficients to represent radiance
     char basisUsed; // Number of coefficients effectively used (<=basis_size)
-    unsigned char flags; // Various flags, see below
 
     explicit GalerkinElement(Patch *patch);
     explicit GalerkinElement(Geometry *parameterGeometry);
 
     ~GalerkinElement();
-
-    inline bool
-    isCluster() const {
-        return flags & IS_CLUSTER;
-    }
 
     GalerkinElement **regularSubDivide();
     GalerkinElement *regularLeafAtPoint(double *u, double *v);

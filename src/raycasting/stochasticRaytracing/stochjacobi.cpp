@@ -58,14 +58,14 @@ stochasticJacobiPrintMessage(long nr_rays) {
         fprintf(stderr, "combined ");
     }
     if ( globalGetRadianceCallback ) {
-        fprintf(stderr, "%sradiance ",
+        fprintf(stderr, "%s radiance ",
                 GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceDriven ? "importance-driven " : "");
     }
     if ( globalGetRadianceCallback && globalGetImportanceCallback ) {
         fprintf(stderr, "and ");
     }
     if ( globalGetImportanceCallback ) {
-        fprintf(stderr, "%simportance ",
+        fprintf(stderr, "%s importance ",
                 GLOBAL_stochasticRaytracing_monteCarloRadiosityState.radianceDriven ? "radiance-driven " : "");
     }
     fprintf(stderr, "propagation");
@@ -97,7 +97,7 @@ stochasticJacobiProbability(StochasticRadiosityElement *elem) {
     }
 
     if ( globalGetImportanceCallback && GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceDriven ) {
-        double prob2 = elem->area * fabs(globalGetImportanceCallback(elem)) *
+        double prob2 = elem->area * std::fabs(globalGetImportanceCallback(elem)) *
                 stochasticRadiosityElementScalarReflectance(elem);
 
         if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.radianceDriven ) {
@@ -222,7 +222,7 @@ stochasticJacobiPropagateRadianceClusterRecursive(
     double projectedArea,
     double fraction)
 {
-    if ( currentElement != nullptr && !currentElement->isClusterFlag ) {
+    if ( currentElement != nullptr && !currentElement->isCluster() ) {
         // Trivial case
         double c = -dir * vectorDotProduct(currentElement->patch->normal, ray->dir);
         if ( c > 0. ) {
@@ -232,7 +232,7 @@ stochasticJacobiPropagateRadianceClusterRecursive(
         }
     } else {
         // Recursive case
-        for ( int i = 0; currentElement->irregularSubElements != nullptr && i < currentElement->irregularSubElements->size(); i++ ) {
+        for ( int i = 0; currentElement != nullptr && currentElement->irregularSubElements != nullptr && i < currentElement->irregularSubElements->size(); i++ ) {
             stochasticJacobiPropagateRadianceClusterRecursive(
                 (StochasticRadiosityElement *)currentElement->irregularSubElements->get(i),
                 rayPower,
@@ -268,7 +268,7 @@ stochasticJacobiReceiverProjectedAreaRecursive(
     float dir,
     double *area)
 {
-    if ( currentElement != nullptr && !currentElement->isClusterFlag ) {
+    if ( currentElement != nullptr && !currentElement->isCluster() ) {
         // Trivial case
         double c = -dir * vectorDotProduct(currentElement->patch->normal, ray->dir);
         if ( c > 0.0 ) {
@@ -276,7 +276,7 @@ stochasticJacobiReceiverProjectedAreaRecursive(
         }
     } else {
         // Recursive case
-        for ( int i = 0; currentElement->irregularSubElements != nullptr &&
+        for ( int i = 0; currentElement != nullptr && currentElement->irregularSubElements != nullptr &&
                  i < currentElement->irregularSubElements->size(); i++ ) {
             stochasticJacobiReceiverProjectedAreaRecursive(
                 (StochasticRadiosityElement *)currentElement->irregularSubElements->get(i),
@@ -335,7 +335,7 @@ stochasticJacobiPropagateRadiance(
     }
     colorScale((float)weight, rad, rayPower);
 
-    if ( !rcv->isClusterFlag ) {
+    if ( !rcv->isCluster() ) {
         stochasticJacobiPropagateRadianceToSurface(rcv, ur, vr, rayPower, src, fraction, weight);
     } else {
         switch ( GLOBAL_stochasticRaytracing_hierarchy.clustering ) {
@@ -476,9 +476,9 @@ stochasticJacobiRefineAndPropagate(
 static double *
 stochasticJacobiNextSample(
     StochasticRadiosityElement *elem,
-    int nmsb,
-    niedindex msb1,
-    niedindex rmsb2,
+    int nMostSignificantBit,
+    niedindex mostSignificantBit1,
+    niedindex rMostSignificantBit2,
     double *zeta)
 {
     niedindex *xi;
@@ -487,7 +487,7 @@ stochasticJacobiNextSample(
     // Use different ray index for propagating importance and radiance
     niedindex *ray_index = globalGetRadianceCallback ? &elem->rayIndex : &elem->importanceRayIndex;
 
-    xi = NextNiedInRange(ray_index, +1, nmsb, msb1, rmsb2);
+    xi = NextNiedInRange(ray_index, +1, nMostSignificantBit, mostSignificantBit1, rMostSignificantBit2);
 
     (*ray_index)++;
     u = (xi[0] & ~3) | 1; // Avoid positions on sub-element boundaries
@@ -540,9 +540,9 @@ hit patch (and back for bidirectional transfers)
 static void
 stochasticJacobiElementShootRay(
     StochasticRadiosityElement *src,
-    int nmsb,
-    niedindex msb1,
-    niedindex rmsb2)
+    int nMostSignificantBit,
+    niedindex mostSignificantBit1,
+    niedindex rMostSignificantBit2)
 {
     if ( globalGetRadianceCallback != nullptr ) {
         GLOBAL_stochasticRaytracing_monteCarloRadiosityState.tracedRays++;
@@ -554,7 +554,7 @@ stochasticJacobiElementShootRay(
 
     double zeta[4];
     Ray ray = mcrGenerateLocalLine(src->patch,
-                               stochasticJacobiNextSample(src, nmsb, msb1, rmsb2, zeta));
+                               stochasticJacobiNextSample(src, nMostSignificantBit, mostSignificantBit1, rMostSignificantBit2, zeta));
 
     RayHit hitStore;
     RayHit *hit = mcrShootRay(src->patch, &ray, &hitStore);
@@ -584,15 +584,15 @@ static void
 stochasticJacobiElementShootRays(StochasticRadiosityElement *elem, int rays_this_elem) {
     int i;
     int sampleRange; // Determines a range in which to generate a sample
-    niedindex msb1; // See monteCarloRadiosityElementRange() and NextSample()
-    niedindex rmsb2;
+    niedindex mostSignificantBit1; // See monteCarloRadiosityElementRange() and NextSample()
+    niedindex rMostSignificantBit2;
 
     // Sample number range for 4D Niederreiter sequence
-    stochasticRadiosityElementRange(elem, &sampleRange, &msb1, &rmsb2);
+    stochasticRadiosityElementRange(elem, &sampleRange, &mostSignificantBit1, &rMostSignificantBit2);
 
     // Shoot the rays
     for ( i = 0; i < rays_this_elem; i++ ) {
-        stochasticJacobiElementShootRay(elem, sampleRange, msb1, rmsb2);
+        stochasticJacobiElementShootRay(elem, sampleRange, mostSignificantBit1, rMostSignificantBit2);
     }
 
     if ( !elem->isLeaf() ) {
@@ -661,7 +661,7 @@ stochasticJacobiUpdateElement(StochasticRadiosityElement *elem) {
     colorAddScaled(GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalFlux, M_PI * elem->area, elem->radiance[0], GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalFlux);
     colorAddScaled(GLOBAL_stochasticRaytracing_monteCarloRadiosityState.indirectImportanceWeightedUnShotFlux, M_PI * elem->area * (elem->importance - elem->sourceImportance), elem->unShotRadiance[0],
                    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.indirectImportanceWeightedUnShotFlux);
-    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotYmp += elem->area * fabs(elem->unShotImportance);
+    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotYmp += (float)(elem->area * std::fabs(elem->unShotImportance));
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalYmp += elem->area * elem->importance;
 }
 
@@ -671,7 +671,7 @@ stochasticJacobiPush(StochasticRadiosityElement *parent, StochasticRadiosityElem
         COLOR Rd;
         colorClear(Rd);
 
-        if ( parent->isClusterFlag && !child->isClusterFlag ) {
+        if ( parent->isCluster() && !child->isCluster() ) {
             // Multiply with reflectance (See PropagateRadianceToClusterIsotropic() above)
             COLOR rad = parent->receivedRadiance[0];
             Rd = child->Rd;
@@ -744,13 +744,13 @@ stochasticJacobiPullRdEdFromChild(StochasticRadiosityElement *child) {
 
     colorAddScaled(parent->Ed, child->area / parent->area, child->Ed, parent->Ed);
     colorAddScaled(parent->Rd, child->area / parent->area, child->Rd, parent->Rd);
-    if ( parent->isClusterFlag )
-        colorSetMonochrome(parent->Rd, 1.);
+    if ( parent->isCluster() )
+        colorSetMonochrome(parent->Rd, 1.0);
 }
 
 static void
 stochasticJacobiPullRdEd(StochasticRadiosityElement *elem) {
-    if ( elem->isLeaf() || (!elem->isClusterFlag && !stochasticRadiosityElementIsTextured(elem)) ) {
+    if ( elem->isLeaf() || (!elem->isCluster() && !stochasticRadiosityElementIsTextured(elem)) ) {
         return;
     }
 

@@ -76,13 +76,13 @@ static void
 patchPropagateUnShotRadianceAndPotential(Patch *patch) {
     GalerkinElement *topLevelElement = patchGalerkinElement(patch);
 
-    if ( !(topLevelElement->flags & INTERACTIONS_CREATED) ) {
+    if ( !(topLevelElement->flags & INTERACTIONS_CREATED_MASK) ) {
         if ( GLOBAL_galerkin_state.clustered ) {
             createInitialLinkWithTopCluster(topLevelElement, SOURCE);
         } else {
             createInitialLinks(topLevelElement, SOURCE);
         }
-        topLevelElement->flags |= INTERACTIONS_CREATED;
+        topLevelElement->flags |= INTERACTIONS_CREATED_MASK;
     }
 
     // Recursively refines the interactions of the shooting patch

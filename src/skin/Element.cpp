@@ -17,6 +17,7 @@ Element::Element():
     area(),
     className()
 {
+    flags = 0x0;
 }
 
 /**

@@ -11,6 +11,15 @@ enum ElementTypes {
     ELEMENT_STOCHASTIC_RADIOSITY
 };
 
+// If set, indicates that the element is a cluster element. If not set, the element is a surface element
+#define IS_CLUSTER_MASK 0x01
+
+// If the element is or contains surfaces emitting light spontaneously
+#define IS_LIGHT_SOURCE_MASK 0x02
+
+// Set when all interactions have been created for a toplevel element
+#define INTERACTIONS_CREATED_MASK 0x04
+
 class Element {
   public:
     int id; // Unique ID number for the element
@@ -33,9 +42,16 @@ class Element {
     // toplevel element for a patch or a cluster element. If non-null it is a sub-element on a patch
     float area; // Area of all surfaces contained in the element
     ElementTypes className;
+    unsigned char flags;
 
     Element();
     virtual ~Element() {};
+
+    inline bool
+    isCluster() const {
+        return flags & IS_CLUSTER_MASK;
+    }
+
     Matrix2x2 *topTransform(Matrix2x2 *xf);
     bool isLeaf() const;
     Element *childContainingElement(Element *descendant);

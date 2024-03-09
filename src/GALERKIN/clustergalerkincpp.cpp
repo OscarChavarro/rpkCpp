@@ -70,7 +70,7 @@ clusterInit(GalerkinElement *cluster) {
         if ( subCluster->minimumArea < cluster->minimumArea ) {
             cluster->minimumArea = subCluster->minimumArea;
         }
-        cluster->flags |= (subCluster->flags & IS_LIGHT_SOURCE);
+        cluster->flags |= (subCluster->flags & IS_LIGHT_SOURCE_MASK);
         colorAddScaled(cluster->Ed, subCluster->area, subCluster->Ed, cluster->Ed);
     }
     colorScale((1.0f / cluster->area), cluster->radiance[0], cluster->radiance[0]);
