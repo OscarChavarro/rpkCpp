@@ -251,7 +251,8 @@ monteCarloRadiosityInitPatch(Patch *P) {
 Routines below update/re-initialise importance after a viewing change
 */
 static void
-monteCarloRadiosityPullImportances(StochasticRadiosityElement *child) {
+monteCarloRadiosityPullImportances(Element *element) {
+    StochasticRadiosityElement *child = (StochasticRadiosityElement *)element;
     StochasticRadiosityElement *parent = (StochasticRadiosityElement *)child->parent;
     stochasticRadiosityElementPullImportance(parent, child, &parent->importance, &child->importance);
     stochasticRadiosityElementPullImportance(parent, child, &parent->sourceImportance, &child->sourceImportance);
@@ -262,25 +263,31 @@ static void
 monteCarloRadiosityAccumulateImportances(StochasticRadiosityElement *elem) {
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalYmp += elem->area * elem->importance;
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.sourceYmp += elem->area * elem->sourceImportance;
-    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotYmp += elem->area * fabs(elem->unShotImportance);
+    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotYmp += elem->area * std::fabs(elem->unShotImportance);
 }
 
 /**
 Update importance in the element hierarchy starting with the top cluster
 */
 static void
-monteCarloRadiosityUpdateImportance(StochasticRadiosityElement *elem) {
-    if ( !stochasticRadiosityElementTraverseChildrenElements(elem, monteCarloRadiosityUpdateImportance)) {
+monteCarloRadiosityUpdateImportance(Element *element) {
+    StochasticRadiosityElement *stochasticRadiosityElement = (StochasticRadiosityElement *)element;
+
+    if ( stochasticRadiosityElement == nullptr ) {
+        return;
+    }
+
+    if ( !stochasticRadiosityElement->traverseAllChildren(monteCarloRadiosityUpdateImportance) ) {
         // Leaf element
-        float delta_imp = (float)(elem->patch->isVisible() ? 1.0 : 0.0) - elem->sourceImportance;
-        elem->importance += delta_imp;
-        elem->sourceImportance += delta_imp;
-        elem->unShotImportance += delta_imp;
-        monteCarloRadiosityAccumulateImportances(elem);
+        float delta_imp = (float)(stochasticRadiosityElement->patch->isVisible() ? 1.0 : 0.0) - stochasticRadiosityElement->sourceImportance;
+        stochasticRadiosityElement->importance += delta_imp;
+        stochasticRadiosityElement->sourceImportance += delta_imp;
+        stochasticRadiosityElement->unShotImportance += delta_imp;
+        monteCarloRadiosityAccumulateImportances(stochasticRadiosityElement);
     } else {
         // Not a leaf element: clear & pull importance
-        elem->importance = elem->sourceImportance = elem->unShotImportance = 0.0;
-        stochasticRadiosityElementTraverseChildrenElements(elem, monteCarloRadiosityPullImportances);
+        stochasticRadiosityElement->importance = stochasticRadiosityElement->sourceImportance = stochasticRadiosityElement->unShotImportance = 0.0;
+        stochasticRadiosityElement->traverseAllChildren(monteCarloRadiosityPullImportances);
     }
 }
 
@@ -288,15 +295,23 @@ monteCarloRadiosityUpdateImportance(StochasticRadiosityElement *elem) {
 Re-init importance in the element hierarchy starting with the top cluster
 */
 static void
-monteCarloRadiosityReInitImportance(StochasticRadiosityElement *elem) {
-    if ( !stochasticRadiosityElementTraverseChildrenElements(elem, monteCarloRadiosityReInitImportance)) {
+monteCarloRadiosityReInitImportance(Element *element) {
+    StochasticRadiosityElement *stochasticRadiosityElement = (StochasticRadiosityElement *)element;
+
+    if ( stochasticRadiosityElement == nullptr ) {
+        return;
+    }
+
+    if ( !stochasticRadiosityElement->traverseAllChildren(monteCarloRadiosityReInitImportance) ) {
         // Leaf element
-        elem->importance = elem->sourceImportance = elem->unShotImportance = (elem->patch->isVisible()) ? 1.0 : 0.0;
-        monteCarloRadiosityAccumulateImportances(elem);
+        stochasticRadiosityElement->importance = (stochasticRadiosityElement->patch->isVisible()) ? 1.0 : 0.0;
+        stochasticRadiosityElement->sourceImportance = stochasticRadiosityElement->importance;
+        stochasticRadiosityElement->unShotImportance = stochasticRadiosityElement->importance;
+        monteCarloRadiosityAccumulateImportances(stochasticRadiosityElement);
     } else {
         // Not a leaf element: clear & pull importance
-        elem->importance = elem->sourceImportance = elem->unShotImportance = 0.0;
-        stochasticRadiosityElementTraverseChildrenElements(elem, monteCarloRadiosityPullImportances);
+        stochasticRadiosityElement->importance = stochasticRadiosityElement->sourceImportance = stochasticRadiosityElement->unShotImportance = 0.0;
+        stochasticRadiosityElement->traverseAllChildren(monteCarloRadiosityPullImportances);
     }
 }
 
@@ -416,7 +431,7 @@ monteCarloRadiosityReInit(java::ArrayList<Patch *> *scenePatches) {
                                patch)->importance -
                                                                                                                                         topLevelGalerkinElement(patch)->sourceImportance), getTopLevelPatchUnShotRad(patch)[0],
                        GLOBAL_stochasticRaytracing_monteCarloRadiosityState.indirectImportanceWeightedUnShotFlux);
-        GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotYmp += patch->area * fabs(
+        GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotYmp += patch->area * std::fabs(
                 topLevelGalerkinElement(patch)->unShotImportance);
         GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalYmp += patch->area * topLevelGalerkinElement(patch)->importance;
         GLOBAL_stochasticRaytracing_monteCarloRadiosityState.sourceYmp += patch->area * topLevelGalerkinElement(patch)->sourceImportance;

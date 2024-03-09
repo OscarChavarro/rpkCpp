@@ -47,9 +47,6 @@ extern StochasticRadiosityElement *stochasticRadiosityElementCreateFromGeometry(
 extern void stochasticRadiosityElementDestroy(StochasticRadiosityElement *elem);
 extern void stochasticRadiosityElementDestroyClusterHierarchy(StochasticRadiosityElement *top);
 
-// Traversals
-extern int stochasticRadiosityElementTraverseChildrenElements(StochasticRadiosityElement *top, void (*func)(StochasticRadiosityElement *));
-
 // Standard methods
 extern void
 stochasticRadiosityElementRange(

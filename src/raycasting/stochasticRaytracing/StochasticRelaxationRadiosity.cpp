@@ -368,9 +368,15 @@ rays except radiosity and importance needs to be reset to zero. This is
 required for some of the experimental stuff to work
 */
 static void
-stochasticRelaxationRadiosityElementDiscardIncremental(StochasticRadiosityElement *elem) {
-    elem->quality = 0.0;
-    stochasticRadiosityElementTraverseChildrenElements(elem, stochasticRelaxationRadiosityElementDiscardIncremental);
+stochasticRelaxationRadiosityElementDiscardIncremental(Element *element) {
+    StochasticRadiosityElement *stochasticRadiosityElement = (StochasticRadiosityElement *)element;
+
+    if ( stochasticRadiosityElement == nullptr ) {
+        return;
+    }
+
+    stochasticRadiosityElement->quality = 0.0;
+    stochasticRadiosityElement->traverseAllChildren(stochasticRelaxationRadiosityElementDiscardIncremental);
 }
 
 static void

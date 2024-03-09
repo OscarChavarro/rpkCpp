@@ -58,6 +58,7 @@ class Element {
     void traverseAllLeafElements(void (*traversalCallbackFunction)(Element *));
     void traverseClusterLeafElements(void (*traversalCallbackFunction)(Element *));
     void traverseQuadTreeLeafs(void (*traversalCallbackFunction)(Element *));
+    bool traverseAllChildren(void (*traversalCallbackFunction)(Element *));
 };
 
 #endif

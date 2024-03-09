@@ -122,3 +122,30 @@ Element::traverseQuadTreeLeafs(void (*traversalCallbackFunction)(Element *))
         }
     }
 }
+
+/**
+Returns true if there are children elements and false if top is nullptr or a leaf element
+*/
+bool
+Element::traverseAllChildren(void (*traversalCallbackFunction)(Element *)) {
+    if ( isCluster() ) {
+        for ( int i = 0; irregularSubElements != nullptr && i < irregularSubElements->size(); i++ ) {
+            if ( irregularSubElements != nullptr ) {
+                traversalCallbackFunction(irregularSubElements->get(i));
+            }
+        }
+        return true;
+    } else if ( regularSubElements ) {
+        if ( regularSubElements != nullptr ) {
+            for ( int i = 0; i < 4; i++ ) {
+                if ( regularSubElements[i] != nullptr ) {
+                    traversalCallbackFunction(regularSubElements[i]);
+                }
+            }
+        }
+        return true;
+    } else {
+        // Leaf element
+        return false;
+    }
+}

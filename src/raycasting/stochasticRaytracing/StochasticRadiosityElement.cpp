@@ -903,33 +903,6 @@ stochasticRadiosityElementDestroyClusterHierarchy(StochasticRadiosityElement *to
 }
 
 /**
-Returns true if there are children elements and false if top is nullptr or a leaf element
-*/
-int
-stochasticRadiosityElementTraverseChildrenElements(StochasticRadiosityElement *top, void (*func)(StochasticRadiosityElement *)) {
-    if ( !top ) {
-        return false;
-    }
-
-    if ( top->isCluster() ) {
-        for ( int i = 0; top->irregularSubElements != nullptr && i < top->irregularSubElements->size(); i++ ) {
-            func((StochasticRadiosityElement *)top->irregularSubElements->get(i));
-        }
-        return true;
-    } else if ( top->regularSubElements ) {
-            if ( top->regularSubElements != nullptr ) {
-                for ( int i = 0; i < 4; i++ ) {
-                    func((StochasticRadiosityElement *)top->regularSubElements[i]);
-                }
-            }
-            return true;
-        } else {
-            // Leaf element
-            return false;
-        }
-}
-
-/**
 Computes and fills in a bounding box for the element
 */
 float *
