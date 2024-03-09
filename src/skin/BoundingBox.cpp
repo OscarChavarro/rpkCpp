@@ -1,7 +1,7 @@
 #include <cstdlib>
 
 #include "common/mymath.h"
-#include "skin/bounds.h"
+#include "skin/BoundingBox.h"
 
 BoundingBox::BoundingBox(): coordinates() {
 }

@@ -1,25 +1,14 @@
-#ifndef __BOUNDS__
-#define __BOUNDS__
+#ifndef __BOUNDING_BOX__
+#define __BOUNDING_BOX__
 
 #include "common/linealAlgebra/Matrix4x4.h"
 #include "common/Ray.h"
 
 /**
-A bounding box is represented as an array of 6 floating point numbers.
-The meaning of the numbers is given by the constants MIN_X ... below
+The following defines must obey the following rules:
+1. (MIN_X + 3) = MAX_X and (MAX_X + 3) = MIN_X and same for MIN_Y, ...
+2. MIN_X + 1 = MIN_Y, MIN_Y + 1 = MIN_Z and MAX_X + 1 = MAX_Y, MAX_Y+1 = MAX_Z
 */
-class BoundingBox {
-  public:
-    float coordinates[6];
-    BoundingBox();
-};
-
-/**
- * the following defines must obey the following rules:
- * 1) DIR_X = (MIN_X) and DIR_X = (MAX_X) and same for DIR_Y, DIR_Z 
- * 2) (MIN_X + 3) = MAX_X and (MAX_X + 3) = MIN_X and same for MIN_Y, ...
- * 3) MIN_X + 1 = MIN_Y, MIN_Y + 1 = MIN_Z and MAX_X + 1 = MAX_Y, MAX_Y+1 = MAX_Z 
- */
 #define MIN_X 0
 #define MIN_Y 1
 #define MIN_Z 2
@@ -27,12 +16,22 @@ class BoundingBox {
 #define MAX_Y 4
 #define MAX_Z 5
 
-inline bool
-outOfBounds(Vector3D *p, const float * bounds) {
-    return p->x < bounds[MIN_X] || p->x > bounds[MAX_X] ||
-           p->y < bounds[MIN_Y] || p->y > bounds[MAX_Y] ||
-           p->z < bounds[MIN_Z] || p->z > bounds[MAX_Z];
-}
+/**
+A bounding box is represented as an array of 6 floating point numbers.
+The meaning of the numbers is given by the constants MIN_X
+*/
+class BoundingBox {
+  public:
+    float coordinates[6];
+    BoundingBox();
+
+    inline bool
+    outOfBounds(Vector3D *p) const {
+        return p->x < coordinates[MIN_X] || p->x > coordinates[MAX_X] ||
+               p->y < coordinates[MIN_Y] || p->y > coordinates[MAX_Y] ||
+               p->z < coordinates[MIN_Z] || p->z > coordinates[MAX_Z];
+    }
+};
 
 /**
 true if the two given bounding boxes are disjunct

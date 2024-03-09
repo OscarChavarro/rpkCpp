@@ -32,7 +32,6 @@ geomMultiResolutionVisibility(
     float tMaximum;
     float t;
     float fSize;
-    float *bbx;
     GalerkinElement *cluster = (GalerkinElement *) (geom->radianceData);
     RayHit hitStore;
 
@@ -47,13 +46,13 @@ geomMultiResolutionVisibility(
     fSize = HUGE;
     tMinimum = rcvDist * ((float)EPSILON);
     tMaximum = rcvDist;
-    bbx = geom->bounds.coordinates;
+    BoundingBox *boundingBox = &geom->bounds;
 
     /* Check ray/bounding volume intersection and compute feature size of
      * occluder. */
     vectorSumScaled(ray->pos, tMinimum, ray->dir, vectorTmp);
-    if ( outOfBounds(&vectorTmp, bbx)) {
-        if ( !boundsIntersectingSegment(ray, bbx, &tMinimum, &tMaximum) ) {
+    if ( boundingBox->outOfBounds(&vectorTmp) ) {
+        if ( !boundsIntersectingSegment(ray, boundingBox->coordinates, &tMinimum, &tMaximum) ) {
             // Ray doesn't intersect the bounding box of the Geometry within
 		    // distance interval tMinimum ... tMaximum
             return 1.0;
@@ -69,8 +68,8 @@ geomMultiResolutionVisibility(
     if ( fSize < minimumFeatureSize ) {
         double kappa = 0.0;
         double vol;
-        vol = (bbx[MAX_X] - bbx[MIN_X] + EPSILON) * (bbx[MAX_Y] - bbx[MIN_Y] + EPSILON) *
-              (bbx[MAX_Z] - bbx[MIN_Z] + EPSILON);
+        vol = (boundingBox->coordinates[MAX_X] - boundingBox->coordinates[MIN_X] + EPSILON) * (boundingBox->coordinates[MAX_Y] - boundingBox->coordinates[MIN_Y] + EPSILON) *
+              (boundingBox->coordinates[MAX_Z] - boundingBox->coordinates[MIN_Z] + EPSILON);
         if ( cluster != nullptr ) {
             kappa = cluster->area / (4.0 * vol);
         }

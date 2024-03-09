@@ -48,7 +48,7 @@ set(MAIN_SRC
     src/skin/Compound.cpp
     src/skin/Geometry.cpp
     src/skin/Patch.cpp
-    src/skin/bounds.cpp
+    src/skin/BoundingBox.cpp
     src/skin/MeshSurface.cpp
     src/skin/Vertex.cpp
     src/skin/Jacobian.cpp

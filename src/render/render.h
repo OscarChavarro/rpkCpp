@@ -3,7 +3,7 @@
 
 #include "java/util/ArrayList.h"
 #include "common/RenderOptions.h"
-#include "skin/bounds.h"
+#include "skin/BoundingBox.h"
 #include "skin/Geometry.h"
 
 extern void renderBounds(BoundingBox bounds);

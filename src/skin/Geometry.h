@@ -3,7 +3,7 @@
 
 #include "java/util/ArrayList.h"
 #include "material/hit.h"
-#include "skin/bounds.h"
+#include "skin/BoundingBox.h"
 
 /**
 Currently, there are three types of geometries:

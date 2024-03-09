@@ -1,7 +1,7 @@
 #ifndef __POLYGON__
 #define __POLYGON__
 
-#include "skin/bounds.h"
+#include "skin/BoundingBox.h"
 #include "skin/Patch.h"
 
 /**

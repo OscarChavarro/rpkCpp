@@ -75,7 +75,7 @@ class VoxelGrid {
         float minimumDistance,
         float maximumDistance,
         /*OUT*/ float *t0,
-        Vector3D *P);
+        Vector3D *position);
 
     void putItemInsideVoxelGrid(VoxelData *item, const float *itemBounds);
 

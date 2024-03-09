@@ -238,16 +238,16 @@ VoxelGrid::gridBoundsIntersect(
     float minimumDistance,
     float maximumDistance,
     /*OUT*/ float *t0,
-    Vector3D *P)
+    Vector3D *position)
 {
     *t0 = minimumDistance;
-    vectorSumScaled(ray->pos, *t0, ray->dir, *P);
-    if ( outOfBounds(P, boundingBox.coordinates) ) {
+    vectorSumScaled(ray->pos, *t0, ray->dir, *position);
+    if ( boundingBox.outOfBounds(position) ) {
         *t0 = maximumDistance;
         if ( !boundsIntersect(ray, boundingBox.coordinates, minimumDistance, t0)) {
             return false;
         }
-        vectorSumScaled(ray->pos, *t0, ray->dir, *P);
+        vectorSumScaled(ray->pos, *t0, ray->dir, *position);
     } else {
     }
 
