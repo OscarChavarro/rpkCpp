@@ -353,49 +353,6 @@ GalerkinElement::regularSubDivide() {
 }
 
 /**
-Prints the patch id and the child numbers of the element and its parents
-*/
-void
-GalerkinElement::elementPrintId(FILE *out) {
-    if ( isCluster() ) {
-        fprintf(out, "geom %d cluster", geometry->id);
-    } else {
-        if ( upTrans ) {
-            elementPrintId(out);
-            fprintf(out, "%d", childNumber + 1);
-        } else {
-            fprintf(out, "patch %d element ", patch->id);
-        }
-    }
-}
-
-/**
-Computes the transform relating a surface element to the toplevel element
-in the patch hierarchy by concatenating the up-transforms of the element
-and all parent elements. If the element is a toplevel element,
-(Matrix4x4 *)nullptr is
-returned and nothing is filled in in xf (no transform is necessary
-to transform positions on the element to the corresponding point on the toplevel
-element). In the other case, the composed transform is filled in in xf and
-xf (pointer to the transform) is returned
-*/
-Matrix2x2 *
-GalerkinElement::topTransform(Matrix2x2 *xf) {
-    // Top level element: no transform necessary to transform to top
-    if ( !upTrans ) {
-        return nullptr;
-    }
-
-    Element *window = this;
-    *xf = *window->upTrans;
-    while ( (window = window->parent) && window->upTrans ) {
-        matrix2DPreConcatTransform(*window->upTrans, *xf, *xf);
-    }
-
-    return xf;
-}
-
-/**
 Determines the regular sub-element at point (u,v) of the given element
 element. Returns the element element itself if there are no regular sub-elements.
 The point is transformed to the corresponding point on the sub-element
@@ -612,31 +569,31 @@ GalerkinElement::polygon(POLYGON *polygon) {
     return polygon;
 }
 
-static void
-galerkinElementDraw(GalerkinElement *element, int mode) {
+void
+GalerkinElement::draw(int mode) {
     Vector3D p[4];
     int numberOfVertices;
 
-    if ( element->isCluster() ) {
+    if ( isCluster() ) {
         if ( mode & OUTLINE || mode & STRONG ) {
-            renderBounds(geomBounds(element->geometry));
+            renderBounds(geomBounds(geometry));
         }
         return;
     }
 
-    numberOfVertices = element->vertices(p, 4);
+    numberOfVertices = vertices(p, 4);
 
     if ( mode & FLAT ) {
         RGB color{};
-        COLOR rho = element->patch->radianceData->Rd;
+        COLOR rho = patch->radianceData->Rd;
 
         if ( GLOBAL_galerkin_state.use_ambient_radiance ) {
             COLOR rad_vis;
             colorProduct(rho, GLOBAL_galerkin_state.ambient_radiance, rad_vis);
-            colorAdd(rad_vis, element->radiance[0], rad_vis);
+            colorAdd(rad_vis, radiance[0], rad_vis);
             radianceToRgb(rad_vis, &color);
         } else {
-            radianceToRgb(element->radiance[0], &color);
+            radianceToRgb(radiance[0], &color);
         }
         openGlRenderSetColor(&color);
         openGlRenderPolygonFlat(numberOfVertices, p);
@@ -646,18 +603,18 @@ galerkinElementDraw(GalerkinElement *element, int mode) {
         int i;
 
         if ( numberOfVertices == 3 ) {
-            vertRadiosity[0] = basisGalerkinRadianceAtPoint(element, element->radiance, 0.0, 0.0);
-            vertRadiosity[1] = basisGalerkinRadianceAtPoint(element, element->radiance, 1.0, 0.0);
-            vertRadiosity[2] = basisGalerkinRadianceAtPoint(element, element->radiance, 0.0, 1.0);
+            vertRadiosity[0] = basisGalerkinRadianceAtPoint(this, radiance, 0.0, 0.0);
+            vertRadiosity[1] = basisGalerkinRadianceAtPoint(this, radiance, 1.0, 0.0);
+            vertRadiosity[2] = basisGalerkinRadianceAtPoint(this, radiance, 0.0, 1.0);
         } else {
-            vertRadiosity[0] = basisGalerkinRadianceAtPoint(element, element->radiance, 0.0, 0.0);
-            vertRadiosity[1] = basisGalerkinRadianceAtPoint(element, element->radiance, 1.0, 0.0);
-            vertRadiosity[2] = basisGalerkinRadianceAtPoint(element, element->radiance, 1.0, 1.0);
-            vertRadiosity[3] = basisGalerkinRadianceAtPoint(element, element->radiance, 0.0, 1.0);
+            vertRadiosity[0] = basisGalerkinRadianceAtPoint(this, radiance, 0.0, 0.0);
+            vertRadiosity[1] = basisGalerkinRadianceAtPoint(this, radiance, 1.0, 0.0);
+            vertRadiosity[2] = basisGalerkinRadianceAtPoint(this, radiance, 1.0, 1.0);
+            vertRadiosity[3] = basisGalerkinRadianceAtPoint(this, radiance, 0.0, 1.0);
         }
 
         if ( GLOBAL_galerkin_state.use_ambient_radiance ) {
-            COLOR reflectivity = element->patch->radianceData->Rd;
+            COLOR reflectivity = patch->radianceData->Rd;
             COLOR ambient;
 
             colorProduct(reflectivity, GLOBAL_galerkin_state.ambient_radiance, ambient);
@@ -729,7 +686,7 @@ Draws element outline in the current outline color
 */
 void
 GalerkinElement::drawOutline() {
-    galerkinElementDraw(this, OUTLINE);
+    draw(OUTLINE);
 }
 
 /**
@@ -749,7 +706,7 @@ GalerkinElement::render() {
         renderCode |= FLAT;
     }
 
-    galerkinElementDraw(this, renderCode);
+    draw(renderCode);
 }
 
 /**

@@ -32,6 +32,7 @@ class GalerkinElement : public Element {
     GalerkinElement();
 
     GalerkinElement *regularSubElementAtPoint(double *u, double *v);
+    void draw(int mode);
 
 public:
     float potential; // Total potential of the element
@@ -62,8 +63,6 @@ public:
     }
 
     GalerkinElement **regularSubDivide();
-    void elementPrintId(FILE *out);
-    Matrix2x2 *topTransform(Matrix2x2 *xf);
     GalerkinElement *regularLeafAtPoint(double *u, double *v);
     void drawOutline();
     void render();

@@ -34,23 +34,9 @@ class Element {
     float area; // Area of all surfaces contained in the element
     ElementTypes className;
 
-    Element():
-        id(),
-        Ed(),
-        Rd(),
-        patch(),
-        geometry(),
-        radiance(),
-        receivedRadiance(),
-        unShotRadiance(),
-        parent(),
-        regularSubElements(),
-        irregularSubElements(),
-        upTrans(),
-        area(),
-        className()
-    {}
+    Element();
     virtual ~Element() {};
+    Matrix2x2 *topTransform(Matrix2x2 *xf);
 };
 
 #endif

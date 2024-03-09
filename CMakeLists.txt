@@ -52,6 +52,7 @@ set(MAIN_SRC
     src/skin/MeshSurface.cpp
     src/skin/Vertex.cpp
     src/skin/Jacobian.cpp
+    src/skin/Element.cpp
     src/SGL/poly_clip.cpp
     src/SGL/poly_scan_z.cpp
     src/SGL/sgl.cpp
