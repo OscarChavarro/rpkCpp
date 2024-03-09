@@ -13,10 +13,13 @@ and contain necessary information for raytracing-like algorithms
 // -- For evaluation of bi paths, should change!
 #include "raycasting/common/bsdfcomp.h"
 
-
-// Macro determining the heuristic used for weighting
-#define MULTIPLE_IMPORTANCE_SAMPLING_FUNC(a) ((a)*(a))
-
+/**
+Heuristic for multiple Importance sampling / weighting
+*/
+inline double
+multipleImportanceSampling(double a) {
+    return a * a;
+}
 
 // Type definitions used in CPathNode
 

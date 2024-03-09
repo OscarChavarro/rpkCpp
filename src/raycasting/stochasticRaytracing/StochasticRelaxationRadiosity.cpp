@@ -61,10 +61,10 @@ stochasticRelaxationRadiosityRandomRound(float x) {
 static void
 stochasticRelaxationRadiosityRecomputeDisplayColors(java::ArrayList<Patch *> *scenePatches) {
     if ( GLOBAL_stochasticRaytracing_hierarchy.topCluster ) {
-        monteCarloRadiosityForAllLeafElements(GLOBAL_stochasticRaytracing_hierarchy.topCluster,
-                                              elementComputeNewVertexColors);
-        monteCarloRadiosityForAllLeafElements(GLOBAL_stochasticRaytracing_hierarchy.topCluster,
-                                              elementAdjustTVertexColors);
+        stochasticRadiosityElementTraverseLeafElements(GLOBAL_stochasticRaytracing_hierarchy.topCluster,
+                                                       stochasticRadiosityElementComputeNewVertexColors);
+        stochasticRadiosityElementTraverseLeafElements(GLOBAL_stochasticRaytracing_hierarchy.topCluster,
+                                                       stochasticRadiosityElementAdjustTVertexColors);
     } else {
         for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
             monteCarloRadiosityPatchComputeNewColor(scenePatches->get(i));
@@ -87,7 +87,7 @@ stochasticRelaxationRadiosityQualityFactor(StochasticRadiosityElement *elem, dou
     if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceDriven ) {
         return w * elem->importance;
     }
-    return w / monteCarloRadiosityElementScalarReflectance(elem);
+    return w / stochasticRadiosityElementScalarReflectance(elem);
 }
 
 static COLOR *
@@ -370,7 +370,7 @@ required for some of the experimental stuff to work
 static void
 stochasticRelaxationRadiosityElementDiscardIncremental(StochasticRadiosityElement *elem) {
     elem->quality = 0.0;
-    monteCarloRadiosityForAllChildrenElements(elem, stochasticRelaxationRadiosityElementDiscardIncremental);
+    stochasticRadiosityElementTraverseChildrenElements(elem, stochasticRelaxationRadiosityElementDiscardIncremental);
 }
 
 static void
@@ -440,7 +440,7 @@ stochasticRelaxationRadiosityDoStep(java::ArrayList<Patch *> *scenePatches, java
 static void
 stochasticRelaxationRadiosityRenderPatch(Patch *patch) {
     if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.inited ) {
-        monteCarloRadiosityForAllSurfaceLeafs(topLevelGalerkinElement(patch), mcrRenderElement);
+        stochasticRadiosityElementTraverseSurfaceLeafs(topLevelGalerkinElement(patch), stochasticRadiosityElementRender);
     } else {
         openGlRenderPatch(patch);
     }

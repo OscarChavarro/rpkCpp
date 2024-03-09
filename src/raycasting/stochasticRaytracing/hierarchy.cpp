@@ -25,21 +25,21 @@ elementHierarchyInit() {
     GLOBAL_stochasticRaytracing_hierarchy.normals = new java::ArrayList<Vector3D *>();
     GLOBAL_stochasticRaytracing_hierarchy.texCoords = new java::ArrayList<Vector3D *>();
     GLOBAL_stochasticRaytracing_hierarchy.vertices = new java::ArrayList<Vertex *>();
-    GLOBAL_stochasticRaytracing_hierarchy.topCluster = monteCarloRadiosityCreateClusterHierarchy(
+    GLOBAL_stochasticRaytracing_hierarchy.topCluster = stochasticRadiosityElementCreateFromGeometry(
             GLOBAL_scene_clusteredWorldGeom);
 }
 
 void
 elementHierarchyTerminate(java::ArrayList<Patch *> *scenePatches) {
     // Destroy clusters
-    monteCarloRadiosityDestroyClusterHierarchy(GLOBAL_stochasticRaytracing_hierarchy.topCluster);
+    stochasticRadiosityElementDestroyClusterHierarchy(GLOBAL_stochasticRaytracing_hierarchy.topCluster);
     GLOBAL_stochasticRaytracing_hierarchy.topCluster = nullptr;
 
     // Destroy surface elements
     for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
         Patch *patch = scenePatches->get(i);
         // Need to be destroyed before destroying the automatically created vertices
-        monteCarloRadiosityDestroyToplevelSurfaceElement(topLevelGalerkinElement(patch));
+        stochasticRadiosityElementDestroy(topLevelGalerkinElement(patch));
         patch->radianceData = nullptr; // Prevents destroying a 2nd time later
     }
 

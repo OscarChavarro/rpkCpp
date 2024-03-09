@@ -147,7 +147,6 @@ set(MAIN_SRC
     src/raycasting/stochasticRaytracing/StochasticRaytracer.cpp
     src/raycasting/stochasticRaytracing/StochasticRaytracerOptions.cpp
     src/raycasting/stochasticRaytracing/StochasticRadiosityElement.cpp
-    src/raycasting/stochasticRaytracing/elementmcrad.cpp
     src/raycasting/stochasticRaytracing/hierarchy.cpp
     src/raycasting/stochasticRaytracing/StochasticRelaxationRadiosity.cpp
     src/raycasting/stochasticRaytracing/render.cpp

@@ -7,9 +7,6 @@
 #include "raycasting/raytracing/screeniterate.h"
 #include "raycasting/stochasticRaytracing/rtstochasticphotonmap.h"
 
-// Heuristic for Multiple Importance sampling
-#define MULTIPLE_IMPORTANCE_SAMPLING_FUNC(a) ((a)*(a))
-
 // Heuristic minimum distance threshold for photon map readouts
 // should be tuned and dependent on scene size, ...
 const float PHOTON_MAP_MIN_DIST = 0.02;
@@ -250,7 +247,7 @@ SR_GetDirectRadiance(
                                     weight = 1.0;
                                 } else {
                                     // N direct * pdf  for the n.e.e.
-                                    cl = MULTIPLE_IMPORTANCE_SAMPLING_FUNC(config->nextEventSamples * lightNode.m_pdfFromPrev);
+                                    cl = multipleImportanceSampling(config->nextEventSamples * lightNode.m_pdfFromPrev);
 
                                     // N scatter * pdf  for possible scattering
                                     if ( si->DoneSomePreviousBounce(prevNode)) {
@@ -259,11 +256,11 @@ SR_GetDirectRadiance(
                                         nrs = si->nrSamplesBefore;
                                     }
 
-                                    cr = MULTIPLE_IMPORTANCE_SAMPLING_FUNC(nrs * lightNode.m_pdfFromNext);
+                                    cr = multipleImportanceSampling(nrs * lightNode.m_pdfFromNext);
 
                                     // Are we deep enough to do russian roulette
                                     if ( lightNode.m_depth >= config->samplerConfig.minDepth ) {
-                                        cr *= MULTIPLE_IMPORTANCE_SAMPLING_FUNC(lightNode.m_rrPdfFromNext);
+                                        cr *= multipleImportanceSampling(lightNode.m_rrPdfFromNext);
                                     }
 
                                     weight = cl / (cl + cr);
@@ -333,9 +330,9 @@ SR_GetRadiance(
         if ( doWeight ) {
             cl = config->nextEventSamples *
                  config->samplerConfig.neSampler->EvalPDF(thisNode->previous(), thisNode);
-            cl = MULTIPLE_IMPORTANCE_SAMPLING_FUNC(cl);
+            cl = multipleImportanceSampling(cl);
             cr = usedScatterSamples * thisNode->m_pdfFromPrev;
-            cr = MULTIPLE_IMPORTANCE_SAMPLING_FUNC(cr);
+            cr = multipleImportanceSampling(cr);
 
             weight = cr / (cr + cl);
         }
@@ -444,9 +441,9 @@ SR_GetRadiance(
                 cl = config->nextEventSamples *
                      config->samplerConfig.neSampler->EvalPDF(thisNode->previous(),
                                                               thisNode);
-                cl = MULTIPLE_IMPORTANCE_SAMPLING_FUNC(cl);
+                cl = multipleImportanceSampling(cl);
                 cr = usedScatterSamples * thisNode->m_pdfFromPrev;
-                cr = MULTIPLE_IMPORTANCE_SAMPLING_FUNC(cr);
+                cr = multipleImportanceSampling(cr);
 
                 weight = cr / (cr + cl);
             } else {

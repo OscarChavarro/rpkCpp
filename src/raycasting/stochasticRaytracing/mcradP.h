@@ -5,7 +5,7 @@
 
 #include "java/util/ArrayList.h"
 #include "raycasting/stochasticRaytracing/sample4d.h"
-#include "raycasting/stochasticRaytracing/elementmcrad.h"
+#include "raycasting/stochasticRaytracing/StochasticRadiosityElement.h"
 #include "raycasting/stochasticRaytracing/coefficientsmcrad.h"
 
 /**

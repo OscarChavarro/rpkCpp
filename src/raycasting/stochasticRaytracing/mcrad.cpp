@@ -16,7 +16,6 @@ Monte Carlo Radiosity: common code for stochastic relaxation and random walks
 #include "render/render.h"
 #include "raycasting/stochasticRaytracing/hierarchy.h"
 #include "raycasting/stochasticRaytracing/mcradP.h"
-#include "raycasting/stochasticRaytracing/elementmcrad.h"
 
 STATE GLOBAL_stochasticRaytracing_monteCarloRadiosityState;
 
@@ -194,14 +193,14 @@ monteCarloRadiosityUpdateCpuSecs() {
 
 Element *
 monteCarloRadiosityCreatePatchData(Patch *patch) {
-    patch->radianceData = monteCarloRadiosityCreateToplevelSurfaceElement(patch);
+    patch->radianceData = stochasticRadiosityElementCreateFromPatch(patch);
     return patch->radianceData;
 }
 
 void
 monteCarloRadiosityDestroyPatchData(Patch *patch) {
     if ( patch->radianceData ) {
-        monteCarloRadiosityDestroyToplevelSurfaceElement(topLevelGalerkinElement(patch));
+        stochasticRadiosityElementDestroy(topLevelGalerkinElement(patch));
     }
     patch->radianceData = nullptr;
 }
@@ -212,7 +211,7 @@ in the current random walk radiosity implementation
 */
 void
 monteCarloRadiosityPatchComputeNewColor(Patch *patch) {
-    patch->color = elementColor(topLevelGalerkinElement(patch));
+    patch->color = stochasticRadiosityElementColor(topLevelGalerkinElement(patch));
     patchComputeVertexColors(patch);
 }
 
@@ -254,9 +253,9 @@ Routines below update/re-initialise importance after a viewing change
 static void
 monteCarloRadiosityPullImportances(StochasticRadiosityElement *child) {
     StochasticRadiosityElement *parent = (StochasticRadiosityElement *)child->parent;
-    pullImportance(parent, child, &parent->importance, &child->importance);
-    pullImportance(parent, child, &parent->sourceImportance, &child->sourceImportance);
-    pullImportance(parent, child, &parent->unShotImportance, &child->unShotImportance);
+    stochasticRadiosityElementPullImportance(parent, child, &parent->importance, &child->importance);
+    stochasticRadiosityElementPullImportance(parent, child, &parent->sourceImportance, &child->sourceImportance);
+    stochasticRadiosityElementPullImportance(parent, child, &parent->unShotImportance, &child->unShotImportance);
 }
 
 static void
@@ -271,7 +270,7 @@ Update importance in the element hierarchy starting with the top cluster
 */
 static void
 monteCarloRadiosityUpdateImportance(StochasticRadiosityElement *elem) {
-    if ( !monteCarloRadiosityForAllChildrenElements(elem, monteCarloRadiosityUpdateImportance)) {
+    if ( !stochasticRadiosityElementTraverseChildrenElements(elem, monteCarloRadiosityUpdateImportance)) {
         // Leaf element
         float delta_imp = (float)(elem->patch->isVisible() ? 1.0 : 0.0) - elem->sourceImportance;
         elem->importance += delta_imp;
@@ -281,7 +280,7 @@ monteCarloRadiosityUpdateImportance(StochasticRadiosityElement *elem) {
     } else {
         // Not a leaf element: clear & pull importance
         elem->importance = elem->sourceImportance = elem->unShotImportance = 0.0;
-        monteCarloRadiosityForAllChildrenElements(elem, monteCarloRadiosityPullImportances);
+        stochasticRadiosityElementTraverseChildrenElements(elem, monteCarloRadiosityPullImportances);
     }
 }
 
@@ -290,14 +289,14 @@ Re-init importance in the element hierarchy starting with the top cluster
 */
 static void
 monteCarloRadiosityReInitImportance(StochasticRadiosityElement *elem) {
-    if ( !monteCarloRadiosityForAllChildrenElements(elem, monteCarloRadiosityReInitImportance)) {
+    if ( !stochasticRadiosityElementTraverseChildrenElements(elem, monteCarloRadiosityReInitImportance)) {
         // Leaf element
         elem->importance = elem->sourceImportance = elem->unShotImportance = (elem->patch->isVisible()) ? 1.0 : 0.0;
         monteCarloRadiosityAccumulateImportances(elem);
     } else {
         // Not a leaf element: clear & pull importance
         elem->importance = elem->sourceImportance = elem->unShotImportance = 0.0;
-        monteCarloRadiosityForAllChildrenElements(elem, monteCarloRadiosityPullImportances);
+        stochasticRadiosityElementTraverseChildrenElements(elem, monteCarloRadiosityPullImportances);
     }
 }
 
@@ -469,6 +468,31 @@ monteCarloRadiosityDiffuseReflectanceAtPoint(Patch *patch, double u, double v) {
 }
 
 static COLOR
+vertexReflectance(Vertex *v) {
+    int count = 0;
+    COLOR rd;
+
+    colorClear(rd);
+    for ( int i = 0; v->radiance_data != nullptr && i < v->radiance_data->size(); i++ ) {
+        Element *genericElement = v->radiance_data->get(i);
+        if ( genericElement->className != ElementTypes::ELEMENT_STOCHASTIC_RADIOSITY ) {
+            continue;
+        }
+        StochasticRadiosityElement *element = (StochasticRadiosityElement *)genericElement;
+        if ( !element->regularSubElements ) {
+            colorAdd(rd, element->Rd, rd);
+            count++;
+        }
+    }
+
+    if ( count > 0 ) {
+        colorScaleInverse((float) count, rd, rd);
+    }
+
+    return rd;
+}
+
+static COLOR
 monteCarloRadiosityInterpolatedReflectanceAtPoint(StochasticRadiosityElement *leaf, double u, double v) {
     static StochasticRadiosityElement *cachedleaf = nullptr;
     static COLOR vrd[4], rd;
@@ -502,9 +526,10 @@ Returns the radiance emitted from the patch at the point with parameters
 COLOR
 monteCarloRadiosityGetRadiance(Patch *patch, double u, double v, Vector3D /*dir*/) {
     COLOR TrueRdAtPoint = monteCarloRadiosityDiffuseReflectanceAtPoint(patch, u, v);
-    StochasticRadiosityElement *leaf = monteCarloRadiosityRegularLeafElementAtPoint(topLevelGalerkinElement(patch), &u, &v);
+    StochasticRadiosityElement *leaf = stochasticRadiosityElementRegularLeafElementAtPoint(
+            topLevelGalerkinElement(patch), &u, &v);
     COLOR UsedRdAtPoint = GLOBAL_render_renderOptions.smoothShading ? monteCarloRadiosityInterpolatedReflectanceAtPoint(leaf, u, v) : leaf->Rd;
-    COLOR rad = elementDisplayRadianceAtPoint(leaf, u, v);
+    COLOR rad = stochasticRadiosityElementDisplayRadianceAtPoint(leaf, u, v);
     COLOR source_rad;
     colorClear(source_rad);
 
@@ -536,5 +561,5 @@ Returns scalar reflectance, for importance propagation
 */
 float
 monteCarloRadiosityScalarReflectance(Patch *P) {
-    return monteCarloRadiosityElementScalarReflectance(topLevelGalerkinElement(P));
+    return stochasticRadiosityElementScalarReflectance(topLevelGalerkinElement(P));
 }

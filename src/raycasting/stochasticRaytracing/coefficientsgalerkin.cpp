@@ -1,27 +1,5 @@
 #include "raycasting/stochasticRaytracing/mcradP.h"
 
-static int globalCoefficientPoolsInitialized = false;
-
-static void
-initCoefficientPools() {
-}
-
-/**
-Basically sets rad to nullptr
-*/
-void
-initCoefficients(StochasticRadiosityElement *elem) {
-    if ( !globalCoefficientPoolsInitialized ) {
-        initCoefficientPools();
-        globalCoefficientPoolsInitialized = true;
-    }
-
-    elem->radiance = nullptr;
-    elem->unShotRadiance = nullptr;
-    elem->receivedRadiance = nullptr;
-    elem->basis = &GLOBAL_stochasticRadiosity_dummyBasis;
-}
-
 /**
 Disposes previously allocated coefficients
 */

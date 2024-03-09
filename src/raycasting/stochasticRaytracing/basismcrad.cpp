@@ -2,7 +2,7 @@
 
 #include "common/error.h"
 #include "common/cubature.h"
-#include "raycasting/stochasticRaytracing/elementmcrad.h"
+#include "raycasting/stochasticRaytracing/StochasticRadiosityElement.h"
 #include "raycasting/stochasticRaytracing/basismcrad.h"
 
 GalerkinBasis GLOBAL_stochasticRadiosity_basis[NR_ELEMENT_TYPES][NR_APPROX_TYPES];

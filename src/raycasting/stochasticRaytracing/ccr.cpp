@@ -2,7 +2,6 @@
 Determination of constant control radiosity value
 */
 
-#include "raycasting/stochasticRaytracing/elementmcrad.h"
 #include "raycasting/stochasticRaytracing/mcradP.h"
 #include "raycasting/stochasticRaytracing/ccr.h"
 

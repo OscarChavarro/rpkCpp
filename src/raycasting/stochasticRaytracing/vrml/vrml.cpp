@@ -42,7 +42,7 @@ geometryIterateLeafElements(Geometry *geom, void (*func)(StochasticRadiosityElem
     elemfunc = func;
     leaf_element_count = 0;
     for ( int i = 0; patchList != nullptr && i < patchList->size(); i++ ) {
-        monteCarloRadiosityForAllLeafElements(topLevelGalerkinElement(patchList->get(i)), countAndCall);
+        stochasticRadiosityElementTraverseLeafElements(topLevelGalerkinElement(patchList->get(i)), countAndCall);
     }
 }
 
@@ -71,7 +71,7 @@ With T-vertex elimination
 */
 static void
 resetVertexIds(StochasticRadiosityElement *elem) {
-    elementTVertexElimination(elem, triangleResetVertexIds, quadResetVertexIds);
+    stochasticRadiosityElementTVertexElimination(elem, triangleResetVertexIds, quadResetVertexIds);
 }
 
 static void
@@ -108,7 +108,7 @@ quadWriteVertexCoords(Vertex *v1, Vertex *v2, Vertex *v3, Vertex *v4) {
 
 static void
 writeVertexCoords(StochasticRadiosityElement *elem) {
-    elementTVertexElimination(elem, triangleWriteVertexCoords, quadWriteVertexCoords);
+    stochasticRadiosityElementTVertexElimination(elem, triangleWriteVertexCoords, quadWriteVertexCoords);
 }
 
 static void
@@ -158,7 +158,7 @@ quadWriteVertexColors(Vertex *v1, Vertex *v2, Vertex *v3, Vertex *v4) {
 
 static void
 elementWriteVertexColors(StochasticRadiosityElement *elem) {
-    elementTVertexElimination(elem, triangleWriteVertexColors, quadWriteVertexColors);
+    stochasticRadiosityElementTVertexElimination(elem, triangleWriteVertexColors, quadWriteVertexColors);
 }
 
 static void
@@ -202,7 +202,7 @@ quadWriteVertexCoordIndices(Vertex *v1, Vertex *v2, Vertex *v3, Vertex *v4) {
 
 static void
 elementWriteCoordIndices(StochasticRadiosityElement *elem) {
-    elementTVertexElimination(elem, triangleWriteVertexCoordIndices, quadWriteVertexCoordIndices);
+    stochasticRadiosityElementTVertexElimination(elem, triangleWriteVertexCoordIndices, quadWriteVertexCoordIndices);
 }
 
 static void

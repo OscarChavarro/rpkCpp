@@ -97,7 +97,8 @@ stochasticJacobiProbability(StochasticRadiosityElement *elem) {
     }
 
     if ( globalGetImportanceCallback && GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceDriven ) {
-        double prob2 = elem->area * fabs(globalGetImportanceCallback(elem)) * monteCarloRadiosityElementScalarReflectance(elem);
+        double prob2 = elem->area * fabs(globalGetImportanceCallback(elem)) *
+                stochasticRadiosityElementScalarReflectance(elem);
 
         if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.radianceDriven ) {
             // Received-radiance weighted importance transport
@@ -135,7 +136,7 @@ sampling probabilities at leaf elements
 static void
 stochasticJacobiElementSetup(StochasticRadiosityElement *elem) {
     elem->samplingProbability = 0.0;
-    if ( !monteCarloRadiosityForAllChildrenElements(elem, stochasticJacobiElementSetup)) {
+    if ( !stochasticRadiosityElementTraverseChildrenElements(elem, stochasticJacobiElementSetup)) {
         // Elem is a leaf element. We need to compute the sum of the un-normalized
         // sampling "probabilities" at the leaf elements
         elem->samplingProbability = (float)stochasticJacobiProbability(elem);
@@ -374,7 +375,7 @@ stochasticJacobiPropagateImportance(
     float /*dir*/)
 {
     double w = globalSumOfProbabilities / (src_prob + rcv_prob) / rcv->area / (double) globalNumberOfRays;
-    rcv->receivedImportance += (float)(w * monteCarloRadiosityElementScalarReflectance(src) * globalGetImportanceCallback(src));
+    rcv->receivedImportance += (float)(w * stochasticRadiosityElementScalarReflectance(src) * globalGetImportanceCallback(src));
 
     if ( GLOBAL_stochasticRaytracing_hierarchy.do_h_meshing || GLOBAL_stochasticRaytracing_hierarchy.clustering != NO_CLUSTERING ) {
         logFatal(-1, "Propagate", "Importance propagation not implemented in combination with hierarchical refinement");
@@ -446,12 +447,12 @@ stochasticJacobiRefineAndPropagate(
     double src_prob;
     double us = up;
     double vs = vp;
-    StochasticRadiosityElement *src = monteCarloRadiosityRegularLeafElementAtPoint(P, &us, &vs);
+    StochasticRadiosityElement *src = stochasticRadiosityElementRegularLeafElementAtPoint(P, &us, &vs);
     src_prob = (double) src->samplingProbability / (double) src->area;
     if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.bidirectionalTransfers ) {
         double rcv_prob;
         double ur = uq, vr = vq;
-        StochasticRadiosityElement *rcv = monteCarloRadiosityRegularLeafElementAtPoint(Q, &ur, &vr);
+        StochasticRadiosityElement *rcv = stochasticRadiosityElementRegularLeafElementAtPoint(Q, &ur, &vr);
         rcv_prob = (double) rcv->samplingProbability / (double) rcv->area;
 
         if ( globalGetRadianceCallback ) {
@@ -573,7 +574,7 @@ static void
 stochasticJacobiInitPushRayIndex(StochasticRadiosityElement *elem) {
     elem->rayIndex = ((StochasticRadiosityElement *)elem->parent)->rayIndex;
     elem->importanceRayIndex = ((StochasticRadiosityElement *)elem->parent)->importanceRayIndex;
-    monteCarloRadiosityForAllChildrenElements(elem, stochasticJacobiInitPushRayIndex);
+    stochasticRadiosityElementTraverseChildrenElements(elem, stochasticJacobiInitPushRayIndex);
 }
 
 /**
@@ -587,16 +588,16 @@ stochasticJacobiElementShootRays(StochasticRadiosityElement *elem, int rays_this
     niedindex rmsb2;
 
     // Sample number range for 4D Niederreiter sequence
-    monteCarloRadiosityElementRange(elem, &sampleRange, &msb1, &rmsb2);
+    stochasticRadiosityElementRange(elem, &sampleRange, &msb1, &rmsb2);
 
     // Shoot the rays
     for ( i = 0; i < rays_this_elem; i++ ) {
         stochasticJacobiElementShootRay(elem, sampleRange, msb1, rmsb2);
     }
 
-    if ( !monteCarloRadiosityElementIsLeaf(elem)) {
+    if ( !stochasticRadiosityElementIsLeaf(elem)) {
         // Source got subdivided while shooting the rays
-        monteCarloRadiosityForAllChildrenElements(elem, stochasticJacobiInitPushRayIndex);
+        stochasticRadiosityElementTraverseChildrenElements(elem, stochasticJacobiInitPushRayIndex);
     }
 }
 
@@ -675,25 +676,25 @@ stochasticJacobiPush(StochasticRadiosityElement *parent, StochasticRadiosityElem
             COLOR rad = parent->receivedRadiance[0];
             Rd = child->Rd;
             colorProduct(Rd, rad, rad);
-            pushRadiance(parent, child, &rad, child->receivedRadiance);
+            stochasticRadiosityElementPushRadiance(parent, child, &rad, child->receivedRadiance);
         } else
-            pushRadiance(parent, child, parent->receivedRadiance, child->receivedRadiance);
+            stochasticRadiosityElementPushRadiance(parent, child, parent->receivedRadiance, child->receivedRadiance);
     }
 
     if ( globalGetImportanceCallback ) {
-        pushImportance(parent, child, &parent->receivedImportance, &child->receivedImportance);
+        stochasticRadiosityElementPushImportance(parent, child, &parent->receivedImportance, &child->receivedImportance);
     }
 }
 
 static void
 stochasticJacobiPull(StochasticRadiosityElement *parent, StochasticRadiosityElement *child) {
     if ( globalGetRadianceCallback ) {
-        pullRadiance(parent, child, parent->radiance, child->radiance);
-        pullRadiance(parent, child, parent->unShotRadiance, child->unShotRadiance);
+        stochasticRadiosityElementPullRadiance(parent, child, parent->radiance, child->radiance);
+        stochasticRadiosityElementPullRadiance(parent, child, parent->unShotRadiance, child->unShotRadiance);
     }
     if ( globalGetImportanceCallback ) {
-        pullImportance(parent, child, &parent->importance, &child->importance);
-        pullImportance(parent, child, &parent->unShotImportance, &child->unShotImportance);
+        stochasticRadiosityElementPullImportance(parent, child, &parent->importance, &child->importance);
+        stochasticRadiosityElementPullImportance(parent, child, &parent->unShotImportance, &child->unShotImportance);
     }
 }
 
@@ -723,12 +724,12 @@ stochasticJacobiPushUpdatePullChild(StochasticRadiosityElement *child) {
 
 static void
 stochasticJacobiPushUpdatePull(StochasticRadiosityElement *elem) {
-    if ( monteCarloRadiosityElementIsLeaf(elem)) {
+    if ( stochasticRadiosityElementIsLeaf(elem)) {
         stochasticJacobiUpdateElement(elem);
     } else {
         // Not a leaf element
         stochasticJacobiClearElement(elem);
-        monteCarloRadiosityForAllChildrenElements(elem, stochasticJacobiPushUpdatePullChild);
+        stochasticRadiosityElementTraverseChildrenElements(elem, stochasticJacobiPushUpdatePullChild);
     }
 }
 
@@ -749,13 +750,13 @@ stochasticJacobiPullRdEdFromChild(StochasticRadiosityElement *child) {
 
 static void
 stochasticJacobiPullRdEd(StochasticRadiosityElement *elem) {
-    if ( monteCarloRadiosityElementIsLeaf(elem) || (!elem->isClusterFlag && !monteCarloRadiosityElementIsTextured(elem))) {
+    if ( stochasticRadiosityElementIsLeaf(elem) || (!elem->isClusterFlag && !stochasticRadiosityElementIsTextured(elem))) {
         return;
     }
 
     colorClear(elem->Ed);
     colorClear(elem->Rd);
-    monteCarloRadiosityForAllChildrenElements(elem, stochasticJacobiPullRdEdFromChild);
+    stochasticRadiosityElementTraverseChildrenElements(elem, stochasticJacobiPullRdEdFromChild);
 }
 
 static void

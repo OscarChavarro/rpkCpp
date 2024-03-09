@@ -43,12 +43,12 @@ subdivideReceiver(
 {
     StochasticRadiosityElement *rcv = link->rcv;
     if ( rcv->isClusterFlag ) {
-        rcv = monteCarloRadiosityClusterChildContainingElement(rcv, rcvtop);
+        rcv = stochasticRadiosityElementChildContainingElement(rcv, rcvtop);
     } else {
         if ( !rcv->regularSubElements ) {
-            monteCarloRadiosityRegularSubdivideElement(rcv);
+            stochasticRadiosityElementRegularSubdivideElement(rcv);
         }
-        rcv = monteCarloRadiosityRegularSubElementAtPoint(rcv, ur, vr);
+        rcv = stochasticRadiosityElementRegularSubElementAtPoint(rcv, ur, vr);
     }
     link->rcv = rcv;
     return link;
@@ -69,12 +69,12 @@ subdivideSource(
 {
     StochasticRadiosityElement *src = link->src;
     if ( src->isClusterFlag ) {
-        src = monteCarloRadiosityClusterChildContainingElement(src, srctop);
+        src = stochasticRadiosityElementChildContainingElement(src, srctop);
     } else {
         if ( !src->regularSubElements ) {
-            monteCarloRadiosityRegularSubdivideElement(src);
+            stochasticRadiosityElementRegularSubdivideElement(src);
         }
-        src = monteCarloRadiosityRegularSubElementAtPoint(src, us, vs);
+        src = stochasticRadiosityElementRegularSubElementAtPoint(src, us, vs);
     }
     link->src = src;
     return link;
@@ -93,8 +93,8 @@ linkInvolvingClusters(LINK *link) {
 static int
 disjunctElements(StochasticRadiosityElement *rcv, StochasticRadiosityElement *src) {
     BoundingBox rcvbounds, srcbounds;
-    monteCarloRadiosityElementBounds(rcv, rcvbounds);
-    monteCarloRadiosityElementBounds(src, srcbounds);
+    stochasticRadiosityElementBounds(rcv, rcvbounds);
+    stochasticRadiosityElementBounds(src, srcbounds);
     return disjunctBounds(rcvbounds, srcbounds);
 }
 
@@ -144,7 +144,7 @@ LowPowerLink(
     if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceDriven ) {
         propagated_power *= rcv->importance;
         if ( !rcv->isClusterFlag ) {
-            propagated_power *= monteCarloRadiosityElementScalarReflectance(rcv);
+            propagated_power *= stochasticRadiosityElementScalarReflectance(rcv);
         }
     }
 
