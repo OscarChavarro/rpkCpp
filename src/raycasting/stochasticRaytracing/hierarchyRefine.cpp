@@ -43,7 +43,7 @@ subdivideReceiver(
 {
     StochasticRadiosityElement *rcv = link->rcv;
     if ( rcv->isClusterFlag ) {
-        rcv = stochasticRadiosityElementChildContainingElement(rcv, rcvtop);
+        rcv = (StochasticRadiosityElement *)rcv->childContainingElement(rcvtop);
     } else {
         if ( !rcv->regularSubElements ) {
             stochasticRadiosityElementRegularSubdivideElement(rcv);
@@ -63,13 +63,13 @@ subdivideSource(
         StochasticRadiosityElement * /*rcvtop*/,
         double * /*ur*/,
         double * /*vr*/,
-        StochasticRadiosityElement *srctop,
+        StochasticRadiosityElement *srcTop,
         double *us,
         double *vs)
 {
     StochasticRadiosityElement *src = link->src;
     if ( src->isClusterFlag ) {
-        src = stochasticRadiosityElementChildContainingElement(src, srctop);
+        src = (StochasticRadiosityElement *)src->childContainingElement(srcTop);
     } else {
         if ( !src->regularSubElements ) {
             stochasticRadiosityElementRegularSubdivideElement(src);

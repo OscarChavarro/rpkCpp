@@ -40,20 +40,27 @@ class StochasticRadiosityElement : public Element {
 extern Matrix2x2 GLOBAL_stochasticRaytracing_quadUpTransform[4];
 extern Matrix2x2 GLOBAL_stochasticRaytracing_triangleUpTransform[4];
 
+// Constructors
 extern StochasticRadiosityElement *stochasticRadiosityElementCreateFromPatch(Patch *patch);
 extern StochasticRadiosityElement *stochasticRadiosityElementCreateFromGeometry(Geometry *world);
 
+// Destructors
 extern void stochasticRadiosityElementDestroy(StochasticRadiosityElement *elem);
 extern void stochasticRadiosityElementDestroyClusterHierarchy(StochasticRadiosityElement *top);
 
-extern void stochasticRadiosityElementTraverseLeafElements(StochasticRadiosityElement *top, void (*func)(StochasticRadiosityElement *));
+// Traversals
+extern void stochasticRadiosityElementTraverseLeafElements(StochasticRadiosityElement *top, void (*traversalCallbackFunction)(StochasticRadiosityElement *));
 extern void stochasticRadiosityElementTraverseSurfaceLeafs(StochasticRadiosityElement *top, void (*func)(StochasticRadiosityElement *));
 extern int stochasticRadiosityElementTraverseChildrenElements(StochasticRadiosityElement *top, void (*func)(StochasticRadiosityElement *));
 
-extern int stochasticRadiosityElementIsLeaf(StochasticRadiosityElement *elem);
-extern void stochasticRadiosityElementRange(StochasticRadiosityElement *elem, int *nbits, niedindex *msb1, niedindex *rmsb2);
+// Standard methods
+extern void
+stochasticRadiosityElementRange(
+    StochasticRadiosityElement *elem,
+    int *numberOfBits,
+    niedindex *mostSignificantBits1,
+    niedindex *rMostSignificantBits2);
 extern float *stochasticRadiosityElementBounds(StochasticRadiosityElement *elem, float *bounds);
-extern StochasticRadiosityElement *stochasticRadiosityElementChildContainingElement(StochasticRadiosityElement *parent, StochasticRadiosityElement *descendant);
 extern StochasticRadiosityElement **stochasticRadiosityElementRegularSubdivideElement(StochasticRadiosityElement *element);
 extern StochasticRadiosityElement *stochasticRadiosityElementRegularSubElementAtPoint(StochasticRadiosityElement *parent, double *u, double *v);
 extern StochasticRadiosityElement *stochasticRadiosityElementRegularLeafElementAtPoint(StochasticRadiosityElement *top, double *u, double *v);
@@ -61,9 +68,11 @@ extern Vertex *stochasticRadiosityElementEdgeMidpointVertex(StochasticRadiosityE
 extern int stochasticRadiosityElementIsTextured(StochasticRadiosityElement *elem);
 extern float stochasticRadiosityElementScalarReflectance(StochasticRadiosityElement *elem);
 extern void stochasticRadiosityElementPushRadiance(StochasticRadiosityElement *parent, StochasticRadiosityElement *child, COLOR *parent_rad, COLOR *child_rad);
-extern void stochasticRadiosityElementPushImportance(StochasticRadiosityElement *parent, StochasticRadiosityElement *child, const float *parent_imp, float *child_imp);
+extern void stochasticRadiosityElementPushImportance(const float *parentImportance, float *childImportance);
 extern void stochasticRadiosityElementPullRadiance(StochasticRadiosityElement *parent, StochasticRadiosityElement *child, COLOR *parent_rad, COLOR *child_rad);
 extern void stochasticRadiosityElementPullImportance(StochasticRadiosityElement *parent, StochasticRadiosityElement *child, float *parent_imp, const float *child_imp);
+
+// In render.cpp
 extern COLOR stochasticRadiosityElementDisplayRadiance(StochasticRadiosityElement *elem);
 extern COLOR stochasticRadiosityElementDisplayRadianceAtPoint(StochasticRadiosityElement *elem, double u, double v);
 extern void stochasticRadiosityElementRender(StochasticRadiosityElement *elem);

@@ -114,23 +114,23 @@ initCoefficients(StochasticRadiosityElement *elem) {
 }
 
 StochasticRadiosityElement::StochasticRadiosityElement():
-        rayIndex(),
-        quality(),
-        samplingProbability(),
-        ng(),
-        basis(),
-        importance(),
-        unShotImportance(),
-        receivedImportance(),
-        sourceImportance(),
-        importanceRayIndex(),
-        vertices(),
-        childNumber(),
-        numberOfVertices(),
-        isClusterFlag()
+    rayIndex(),
+    quality(),
+    samplingProbability(),
+    ng(),
+    basis(),
+    importance(),
+    unShotImportance(),
+    receivedImportance(),
+    sourceImportance(),
+    importanceRayIndex(),
+    vertices(),
+    childNumber(),
+    numberOfVertices(),
+    isClusterFlag()
 {
     className = ElementTypes::ELEMENT_STOCHASTIC_RADIOSITY;
-};
+}
 
 static StochasticRadiosityElement *
 createElement() {
@@ -140,7 +140,7 @@ createElement() {
     elem->patch = nullptr;
     elem->id = (int)id;
     id++;
-    elem->area = 0.;
+    elem->area = 0.0;
     initCoefficients(elem); // Allocation of the coefficients is left until just before the first iteration
     // in monteCarloRadiosityReInit()
 
@@ -311,10 +311,10 @@ stochasticRadiosityElementCreateFromGeometry(Geometry *world) {
 }
 
 /**
-Determine the (u,v) coordinate range of the element w.r.t. the patch to
+Determine the (u, v) coordinate range of the element w.r.t. the patch to
 which it belongs when using regular quadtree subdivision in
 order to efficiently generate samples with NextNiedInRange()
-in niederreiter.c. NextNiedInRange() creates a sample on a quadrilateral
+in niederreiter.inc. NextNiedInRange() creates a sample on a quadrilateral
 subdomain, called a "dyadic box" in QMC literature. All samples in
 such a dyadic box have the same most significant bits. This routine
 basically computes what these most significant bits are. The computation
@@ -324,9 +324,15 @@ sample needs to be "folded" into the triangle. FoldSample() in sample4d.c
 does this
 */
 void
-stochasticRadiosityElementRange(StochasticRadiosityElement *elem, int *nbits, niedindex *msb1, niedindex *rmsb2) {
+stochasticRadiosityElementRange(
+    StochasticRadiosityElement *elem,
+    int *numberOfBits,
+    niedindex *mostSignificantBits1,
+    niedindex *rMostSignificantBits2)
+{
     int nb;
-    niedindex b1, b2;
+    niedindex b1;
+    niedindex b2;
 
     nb = 0;
     b1 = 0;
@@ -338,9 +344,9 @@ stochasticRadiosityElementRange(StochasticRadiosityElement *elem, int *nbits, ni
         elem = (StochasticRadiosityElement *)elem->parent;
     }
 
-    *nbits = nb;
-    *msb1 = b1;
-    *rmsb2 = b2;
+    *numberOfBits = nb;
+    *mostSignificantBits1 = b1;
+    *rMostSignificantBits2 = b2;
 }
 
 /**
@@ -680,9 +686,9 @@ monteCarloRadiosityInitSurfacePush(StochasticRadiosityElement *parent, Stochasti
     child->sourceRad = parent->sourceRad;
     stochasticRadiosityElementPushRadiance(parent, child, parent->radiance, child->radiance);
     stochasticRadiosityElementPushRadiance(parent, child, parent->unShotRadiance, child->unShotRadiance);
-    stochasticRadiosityElementPushImportance(parent, child, &parent->importance, &child->importance);
-    stochasticRadiosityElementPushImportance(parent, child, &parent->sourceImportance, &child->sourceImportance);
-    stochasticRadiosityElementPushImportance(parent, child, &parent->unShotImportance, &child->unShotImportance);
+    stochasticRadiosityElementPushImportance(&parent->importance, &child->importance);
+    stochasticRadiosityElementPushImportance(&parent->sourceImportance, &child->sourceImportance);
+    stochasticRadiosityElementPushImportance(&parent->unShotImportance, &child->unShotImportance);
     child->rayIndex = parent->rayIndex;
     child->quality = parent->quality;
     child->samplingProbability = parent->samplingProbability * child->area / parent->area;
@@ -839,11 +845,6 @@ stochasticRadiosityElementRegularSubdivideElement(StochasticRadiosityElement *el
 
 static void
 monteCarloRadiosityDestroyElement(StochasticRadiosityElement *elem) {
-    int i;
-    if ( elem == nullptr ) {
-        return;
-    }
-
     if ( elem->isClusterFlag ) {
         GLOBAL_stochasticRaytracing_hierarchy.nr_clusters--;
     }
@@ -860,7 +861,7 @@ monteCarloRadiosityDestroyElement(StochasticRadiosityElement *elem) {
     if ( elem->regularSubElements ) {
         delete[] elem->regularSubElements;
     }
-    for ( i = 0; i < elem->numberOfVertices; i++ ) {
+    for ( int i = 0; i < elem->numberOfVertices; i++ ) {
         for ( int j = 0; elem->vertices[i]->radiance_data != nullptr && j < elem->vertices[i]->radiance_data->size(); j++ ) {
             delete elem->vertices[i]->radiance_data->get(j);
         }
@@ -931,26 +932,26 @@ stochasticRadiosityElementTraverseChildrenElements(StochasticRadiosityElement *t
 }
 
 void
-stochasticRadiosityElementTraverseLeafElements(StochasticRadiosityElement *top, void (*func)(StochasticRadiosityElement *)) {
-    if ( !top ) {
+stochasticRadiosityElementTraverseLeafElements(StochasticRadiosityElement *top, void (*traversalCallbackFunction)(StochasticRadiosityElement *)) {
+    if ( top == nullptr ) {
         return;
     }
 
     if ( top->isClusterFlag ) {
         for ( int i = 0; top->irregularSubElements != nullptr && i < top->irregularSubElements->size(); i++ ) {
             stochasticRadiosityElementTraverseLeafElements(
-                    (StochasticRadiosityElement *) top->irregularSubElements->get(i), func);
+                    (StochasticRadiosityElement *) top->irregularSubElements->get(i), traversalCallbackFunction);
         }
-    } else if ( top->regularSubElements ) {
-            if ( top->regularSubElements != nullptr ) {
-                for ( int i = 0; i < 4; i++ ) {
-                    stochasticRadiosityElementTraverseLeafElements(
-                            (StochasticRadiosityElement *) top->regularSubElements[i], func);
-                }
+    } else if ( top->regularSubElements != nullptr ) {
+        if ( top->regularSubElements != nullptr ) {
+            for ( int i = 0; i < 4; i++ ) {
+                stochasticRadiosityElementTraverseLeafElements(
+                        (StochasticRadiosityElement *) top->regularSubElements[i], traversalCallbackFunction);
             }
-        } else {
-            func(top);
         }
+    } else {
+        traversalCallbackFunction(top);
+    }
 }
 
 static void
@@ -978,14 +979,6 @@ stochasticRadiosityElementTraverseSurfaceLeafs(
 }
 
 /**
-Returns true if elem is a leaf element
-*/
-int
-stochasticRadiosityElementIsLeaf(StochasticRadiosityElement *elem) {
-    return (!elem->regularSubElements && !elem->irregularSubElements);
-}
-
-/**
 Computes and fills in a bounding box for the element
 */
 float *
@@ -1004,13 +997,44 @@ stochasticRadiosityElementBounds(StochasticRadiosityElement *elem, float *bounds
     return bounds;
 }
 
-StochasticRadiosityElement *
-stochasticRadiosityElementChildContainingElement(StochasticRadiosityElement *parent, StochasticRadiosityElement *descendant) {
-    while ( descendant && descendant->parent != parent ) {
-        descendant = (StochasticRadiosityElement *)descendant->parent;
+static inline bool
+regularChild(StochasticRadiosityElement *child) {
+    return (child->childNumber >= 0 && child->childNumber <= 3);
+}
+
+void
+stochasticRadiosityElementPushRadiance(StochasticRadiosityElement *parent, StochasticRadiosityElement *child, COLOR *parent_rad, COLOR *child_rad) {
+    if ( parent->isClusterFlag || child->basis->size == 1 ) {
+        colorAdd(child_rad[0], parent_rad[0], child_rad[0]);
+    } else if ( regularChild(child) && child->basis == parent->basis ) {
+        filterColorDown(parent_rad, &(*child->basis->regular_filter)[child->childNumber], child_rad,
+                        child->basis->size);
+    } else {
+        logFatal(-1, "stochasticRadiosityElementPushRadiance",
+                 "Not implemented for higher order approximations on irregular child elements or for different parent and child basis");
     }
-    if ( !descendant ) {
-        logFatal(-1, "stochasticRadiosityElementChildContainingElement", "descendant is not a descendant of parent");
+}
+
+void
+stochasticRadiosityElementPushImportance(const float *parentImportance, float *childImportance) {
+    *childImportance += *parentImportance;
+}
+
+void
+stochasticRadiosityElementPullRadiance(StochasticRadiosityElement *parent, StochasticRadiosityElement *child, COLOR *parent_rad, COLOR *child_rad) {
+    float areaFactor = child->area / parent->area;
+    if ( parent->isClusterFlag || child->basis->size == 1 ) {
+        colorAddScaled(parent_rad[0], areaFactor, child_rad[0], parent_rad[0]);
+    } else if ( regularChild(child) && child->basis == parent->basis ) {
+        filterColorUp(child_rad, &(*child->basis->regular_filter)[child->childNumber],
+                      parent_rad, child->basis->size, areaFactor);
+    } else {
+        logFatal(-1, "stochasticRadiosityElementPullRadiance",
+                 "Not implemented for higher order approximations on irregular child elements or for different parent and child basis");
     }
-    return descendant;
+}
+
+void
+stochasticRadiosityElementPullImportance(StochasticRadiosityElement *parent, StochasticRadiosityElement *child, float *parent_imp, const float *child_imp) {
+    *parent_imp += child->area / parent->area * (*child_imp);
 }

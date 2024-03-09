@@ -595,7 +595,7 @@ stochasticJacobiElementShootRays(StochasticRadiosityElement *elem, int rays_this
         stochasticJacobiElementShootRay(elem, sampleRange, msb1, rmsb2);
     }
 
-    if ( !stochasticRadiosityElementIsLeaf(elem)) {
+    if ( !elem->isLeaf() ) {
         // Source got subdivided while shooting the rays
         stochasticRadiosityElementTraverseChildrenElements(elem, stochasticJacobiInitPushRayIndex);
     }
@@ -682,7 +682,7 @@ stochasticJacobiPush(StochasticRadiosityElement *parent, StochasticRadiosityElem
     }
 
     if ( globalGetImportanceCallback ) {
-        stochasticRadiosityElementPushImportance(parent, child, &parent->receivedImportance, &child->receivedImportance);
+        stochasticRadiosityElementPushImportance(&parent->receivedImportance, &child->receivedImportance);
     }
 }
 
@@ -724,7 +724,7 @@ stochasticJacobiPushUpdatePullChild(StochasticRadiosityElement *child) {
 
 static void
 stochasticJacobiPushUpdatePull(StochasticRadiosityElement *elem) {
-    if ( stochasticRadiosityElementIsLeaf(elem)) {
+    if ( elem->isLeaf() ) {
         stochasticJacobiUpdateElement(elem);
     } else {
         // Not a leaf element
@@ -750,7 +750,7 @@ stochasticJacobiPullRdEdFromChild(StochasticRadiosityElement *child) {
 
 static void
 stochasticJacobiPullRdEd(StochasticRadiosityElement *elem) {
-    if ( stochasticRadiosityElementIsLeaf(elem) || (!elem->isClusterFlag && !stochasticRadiosityElementIsTextured(elem))) {
+    if ( elem->isLeaf() || (!elem->isClusterFlag && !stochasticRadiosityElementIsTextured(elem)) ) {
         return;
     }
 

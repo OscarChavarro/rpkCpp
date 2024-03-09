@@ -1,3 +1,4 @@
+#include "common/error.h"
 #include "skin/Element.h"
 
 Element::Element():
@@ -37,9 +38,31 @@ Element::topTransform(Matrix2x2 *xf) {
 
     Element *window = this;
     *xf = *window->upTrans;
-    while ( (window = window->parent) && window->upTrans ) {
-        matrix2DPreConcatTransform(*window->upTrans, *xf, *xf);
-    }
+    do {
+        window = window->parent;
+        if ( window != nullptr && window->upTrans != nullptr ) {
+            matrix2DPreConcatTransform(*window->upTrans, *xf, *xf);
+        }
+    } while ( window != nullptr && window->upTrans );
 
     return xf;
+}
+
+/**
+Returns true if elem is a leaf element
+*/
+bool
+Element::isLeaf() const {
+    return regularSubElements == nullptr && (irregularSubElements == nullptr || irregularSubElements->size() == 0);
+}
+
+Element *
+Element::childContainingElement(Element *descendant) {
+    while ( descendant != nullptr && descendant->parent != this ) {
+        descendant = descendant->parent;
+    }
+    if ( descendant == nullptr ) {
+        logFatal(-1, "Element::childContainingElement", "descendant is not a descendant of parent");
+    }
+    return descendant;
 }

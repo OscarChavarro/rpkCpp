@@ -162,7 +162,6 @@ set(MAIN_SRC
     src/raycasting/stochasticRaytracing/sample4d.cpp
     src/raycasting/stochasticRaytracing/vrml/vrml.cpp
     src/raycasting/stochasticRaytracing/mcrad.cpp
-    src/raycasting/stochasticRaytracing/pushpull.cpp
     src/raycasting/stochasticRaytracing/tracepath.cpp
     src/raycasting/stochasticRaytracing/rtstochasticphotonmap.cpp
     src/raycasting/stochasticRaytracing/hierarchyRefine.cpp
