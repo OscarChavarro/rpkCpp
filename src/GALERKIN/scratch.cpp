@@ -85,7 +85,7 @@ scratchRenderElements(GalerkinElement *cluster, Vector3D eye) {
     if ( std::fabs(vectorDotProduct(up, viewDirection)) > 1. - EPSILON ) vectorSet(up, 0.0, 1.0, 0.0);
     lookAt = lookAtMatrix(eye, centre, up);
 
-    boundsTransform(geomBounds(cluster->geometry).coordinates, &lookAt, &bbx);
+    geomBounds(cluster->geometry).transformTo(&lookAt, &bbx);
 
     prev_sgl_context = sglMakeCurrent(GLOBAL_galerkin_state.scratch);
     GLOBAL_sgl_currentContext->sglLoadMatrix(

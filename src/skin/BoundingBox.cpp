@@ -257,35 +257,35 @@ BoundingBox::behindPlane(Vector3D *norm, float d) const {
 }
 
 /**
-Computes bounding box after transforming bbx with xf. Result is filled
-in transBoundingBox->coordinates and a pointer to transBoundingBox->coordinates returned
+Computes bounding box after transforming this with coordinates after applying transform.
+Result is filled in transBoundingBox->coordinates
 */
 void
-boundsTransform(float *bbx, Matrix4x4 *xf, BoundingBox *transBoundingBox) {
+BoundingBox::transformTo(Matrix4x4 *transform, BoundingBox *transformedBoundingBox) {
     Vector3D v[8];
 
-    vectorSet(v[0], bbx[MIN_X], bbx[MIN_Y], bbx[MIN_Z]);
-    vectorSet(v[1], bbx[MAX_X], bbx[MIN_Y], bbx[MIN_Z]);
-    vectorSet(v[2], bbx[MIN_X], bbx[MAX_Y], bbx[MIN_Z]);
-    vectorSet(v[3], bbx[MAX_X], bbx[MAX_Y], bbx[MIN_Z]);
-    vectorSet(v[4], bbx[MIN_X], bbx[MIN_Y], bbx[MAX_Z]);
-    vectorSet(v[5], bbx[MAX_X], bbx[MIN_Y], bbx[MAX_Z]);
-    vectorSet(v[6], bbx[MIN_X], bbx[MAX_Y], bbx[MAX_Z]);
-    vectorSet(v[7], bbx[MAX_X], bbx[MAX_Y], bbx[MAX_Z]);
+    vectorSet(v[0], coordinates[MIN_X], coordinates[MIN_Y], coordinates[MIN_Z]);
+    vectorSet(v[1], coordinates[MAX_X], coordinates[MIN_Y], coordinates[MIN_Z]);
+    vectorSet(v[2], coordinates[MIN_X], coordinates[MAX_Y], coordinates[MIN_Z]);
+    vectorSet(v[3], coordinates[MAX_X], coordinates[MAX_Y], coordinates[MIN_Z]);
+    vectorSet(v[4], coordinates[MIN_X], coordinates[MIN_Y], coordinates[MAX_Z]);
+    vectorSet(v[5], coordinates[MAX_X], coordinates[MIN_Y], coordinates[MAX_Z]);
+    vectorSet(v[6], coordinates[MIN_X], coordinates[MAX_Y], coordinates[MAX_Z]);
+    vectorSet(v[7], coordinates[MAX_X], coordinates[MAX_Y], coordinates[MAX_Z]);
 
     for ( int i = 0; i < 8; i++ ) {
-        transformPoint3D(*xf, v[i], v[i]);
-        transBoundingBox->enlargeToIncludePoint(&v[i]);
+        transformPoint3D(*transform, v[i], v[i]);
+        transformedBoundingBox->enlargeToIncludePoint(&v[i]);
     }
 
     float d;
-    d = (transBoundingBox->coordinates[MAX_X] - transBoundingBox->coordinates[MIN_X]) * (float)EPSILON;
-    transBoundingBox->coordinates[MIN_X] -= d;
-    transBoundingBox->coordinates[MAX_X] += d;
-    d = (transBoundingBox->coordinates[MAX_Y] - transBoundingBox->coordinates[MIN_Y]) * (float)EPSILON;
-    transBoundingBox->coordinates[MIN_Y] -= d;
-    transBoundingBox->coordinates[MAX_Y] += d;
-    d = (transBoundingBox->coordinates[MAX_Z] - transBoundingBox->coordinates[MIN_Z]) * (float)EPSILON;
-    transBoundingBox->coordinates[MIN_Z] -= d;
-    transBoundingBox->coordinates[MAX_Z] += d;
+    d = (transformedBoundingBox->coordinates[MAX_X] - transformedBoundingBox->coordinates[MIN_X]) * (float)EPSILON;
+    transformedBoundingBox->coordinates[MIN_X] -= d;
+    transformedBoundingBox->coordinates[MAX_X] += d;
+    d = (transformedBoundingBox->coordinates[MAX_Y] - transformedBoundingBox->coordinates[MIN_Y]) * (float)EPSILON;
+    transformedBoundingBox->coordinates[MIN_Y] -= d;
+    transformedBoundingBox->coordinates[MAX_Y] += d;
+    d = (transformedBoundingBox->coordinates[MAX_Z] - transformedBoundingBox->coordinates[MIN_Z]) * (float)EPSILON;
+    transformedBoundingBox->coordinates[MIN_Z] -= d;
+    transformedBoundingBox->coordinates[MAX_Z] += d;
 }

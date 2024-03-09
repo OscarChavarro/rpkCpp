@@ -46,11 +46,10 @@ class BoundingBox {
     bool intersect(Ray *ray, float minimumDistance, float *maximumDistance) const;
     bool intersectingSegment(Ray *ray, float *tMin, float *tMax) const;
     bool behindPlane(Vector3D *norm, float d) const;
-    void enlarge(const BoundingBox *other);
     void copyFrom(const BoundingBox *other);
+    void enlarge(const BoundingBox *other);
     void enlargeToIncludePoint(const Vector3D *point);
+    void transformTo(Matrix4x4 *transform, BoundingBox *transformedBoundingBox);
 };
-
-extern void boundsTransform(float *bbx, Matrix4x4 *xf, BoundingBox *transBoundingBox);
 
 #endif
