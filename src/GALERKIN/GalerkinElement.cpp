@@ -159,7 +159,7 @@ GalerkinElement::GalerkinElement(Patch *parameterPatch): GalerkinElement() {
     }
 
     patch->radianceData = this;
-    galerkinElementReAllocCoefficients(this);
+    reAllocCoefficients();
 }
 
 /**
@@ -170,7 +170,7 @@ GalerkinElement::GalerkinElement(Geometry *parameterGeometry): GalerkinElement()
     geometry = parameterGeometry;
     area = 0.0; // Needs to be computed after the whole cluster hierarchy has been constructed
     flags |= IS_CLUSTER;
-    galerkinElementReAllocCoefficients(this);
+    reAllocCoefficients();
 
     colorSetMonochrome(Rd, 1.0);
 
@@ -236,74 +236,71 @@ Re-allocates storage for the coefficients to represent radiance, received radian
 and un-shot radiance on the element
 */
 void
-galerkinElementReAllocCoefficients(GalerkinElement *element) {
-    COLOR *radiance;
-    COLOR *receivedRadiance;
-    COLOR *unShotRadiance;
-    char basisSize = 0;
+GalerkinElement::reAllocCoefficients() {
+    char localBasisSize = 0;
 
-    if ( element->isCluster() ) {
+    if ( isCluster() ) {
         // We always use a constant basis on cluster elements
-        basisSize = 1;
+        localBasisSize = 1;
     } else {
         switch ( GLOBAL_galerkin_state.basisType ) {
             case CONSTANT:
-                basisSize = 1;
+                localBasisSize = 1;
                 break;
             case LINEAR:
-                basisSize = 3;
+                localBasisSize = 3;
                 break;
             case QUADRATIC:
-                basisSize = 6;
+                localBasisSize = 6;
                 break;
             case CUBIC:
-                basisSize = 10;
+                localBasisSize = 10;
                 break;
             default:
                 logFatal(-1, "galerkinElementReAllocCoefficients", "Invalid basis type %d", GLOBAL_galerkin_state.basisType);
         }
     }
 
-    radiance = new COLOR[basisSize];
-    clusterGalerkinClearCoefficients(radiance, basisSize);
-    if ( element->radiance ) {
-        clusterGalerkinCopyCoefficients(radiance, element->radiance, charMin(element->basisSize, basisSize));
-        delete element->radiance;
+    COLOR *defaultRadiance = new COLOR[localBasisSize];
+    clusterGalerkinClearCoefficients(defaultRadiance, localBasisSize);
+    if ( radiance ) {
+        clusterGalerkinCopyCoefficients(defaultRadiance, radiance, charMin(basisSize, localBasisSize));
+        delete radiance;
     }
-    element->radiance = radiance;
+    radiance = defaultRadiance;
 
-    receivedRadiance = new COLOR[basisSize];
-    clusterGalerkinClearCoefficients(receivedRadiance, basisSize);
-    if ( element->receivedRadiance ) {
-        clusterGalerkinCopyCoefficients(receivedRadiance, element->receivedRadiance,
-                                        charMin(element->basisSize, basisSize));
-        delete element->receivedRadiance;
+    COLOR *defaultReceivedRadiance = new COLOR[localBasisSize];
+    clusterGalerkinClearCoefficients(defaultReceivedRadiance, localBasisSize);
+    if ( receivedRadiance ) {
+        clusterGalerkinCopyCoefficients(defaultReceivedRadiance, receivedRadiance,
+                                        charMin(basisSize, localBasisSize));
+        delete receivedRadiance;
     }
-    element->receivedRadiance = receivedRadiance;
+    receivedRadiance = defaultReceivedRadiance;
 
     if ( GLOBAL_galerkin_state.iteration_method == SOUTH_WELL ) {
-        unShotRadiance = new COLOR[basisSize];
-        clusterGalerkinClearCoefficients(unShotRadiance, basisSize);
-        if ( !element->isCluster() ) {
-            if ( element->unShotRadiance ) {
-                clusterGalerkinCopyCoefficients(unShotRadiance, element->unShotRadiance,
-                                                charMin(element->basisSize, basisSize));
-                delete element->unShotRadiance;
-            } else if ( element->patch->surface ) {
-                unShotRadiance[0] = element->patch->radianceData->Ed;
+        COLOR *defaultUnShotRadiance = new COLOR[localBasisSize];
+        clusterGalerkinClearCoefficients(defaultUnShotRadiance, localBasisSize);
+        if ( !isCluster() ) {
+            if ( unShotRadiance ) {
+                clusterGalerkinCopyCoefficients(defaultUnShotRadiance, unShotRadiance,
+                                                charMin(basisSize, localBasisSize));
+                delete unShotRadiance;
+            } else if ( patch->surface ) {
+                    defaultUnShotRadiance[0] = patch->radianceData->Ed;
             }
         }
-        element->unShotRadiance = unShotRadiance;
+        unShotRadiance = defaultUnShotRadiance;
     } else {
-        if ( element->unShotRadiance ) {
-            delete element->unShotRadiance;
+        if ( unShotRadiance ) {
+            delete unShotRadiance;
         }
-        element->unShotRadiance = nullptr;
+        unShotRadiance = nullptr;
     }
 
-    element->basisSize = basisSize;
-    if ( element->basisUsed > element->basisSize ) {
-        element->basisUsed = element->basisSize;
+    basisSize = localBasisSize;
+    if ( basisUsed > basisSize ) {
+        basisUsed = basisSize;
     }
 }
 
@@ -335,7 +332,7 @@ GalerkinElement::regularSubDivide() {
         subElement[i]->area = 0.25f * area;  /* we always use a uniform mapping */
         subElement[i]->bsize = 2.0f * (float)std::sqrt(subElement[i]->area / M_PI);
         subElement[i]->childNumber = (char)i;
-        galerkinElementReAllocCoefficients(subElement[i]);
+        subElement[i]->reAllocCoefficients();
 
         basisGalerkinPush(this, radiance, subElement[i], subElement[i]->radiance);
 
@@ -474,14 +471,11 @@ point on the leaf element. 'element' is a surface element, not a cluster
 */
 GalerkinElement *
 GalerkinElement::regularLeafAtPoint(double *u, double *v) {
-    GalerkinElement *leaf;
-
-    /* find leaf element of 'element' at (u,v) */
-    leaf = this;
+    // Find leaf element of 'element' at (u, v)
+    GalerkinElement *leaf = this;
     while ( leaf->regularSubElements ) {
         leaf = leaf->regularSubElementAtPoint(u, v);
     }
-
     return leaf;
 }
 

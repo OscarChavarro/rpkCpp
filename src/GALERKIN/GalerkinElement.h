@@ -88,6 +88,7 @@ public:
     Vector3D midPoint();
     POLYGON *polygon(POLYGON *polygon);
     void traverseLeafElements(void (*func)(GalerkinElement *));
+    void reAllocCoefficients();
 };
 
 /**
@@ -102,7 +103,5 @@ extern Matrix2x2 GLOBAL_galerkin_TriangularUpTransformMatrix[4];
 extern int galerkinElementGetNumberOfElements();
 extern int galerkinElementGetNumberOfClusters();
 extern int galerkinElementGetNumberOfSurfaceElements();
-
-extern void galerkinElementReAllocCoefficients(GalerkinElement *element);
 
 #endif
