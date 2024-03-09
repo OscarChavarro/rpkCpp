@@ -403,53 +403,54 @@ stochasticRadiosityElementRenderOutline(StochasticRadiosityElement *elem) {
 }
 
 void
-stochasticRadiosityElementRender(StochasticRadiosityElement *elem) {
+stochasticRadiosityElementRender(Element *element) {
+    StochasticRadiosityElement *stochasticRadiosityElement = (StochasticRadiosityElement *)element;
     Vector3D vertices[4];
 
     if ( GLOBAL_render_renderOptions.smoothShading && GLOBAL_stochasticRaytracing_hierarchy.tvertex_elimination ) {
         Vertex *m[4];
         int i, n;
-        for ( i = 0, n = 0; i < elem->numberOfVertices; i++ ) {
-            m[i] = stochasticRadiosityElementEdgeMidpointVertex(elem, i);
+        for ( i = 0, n = 0; i < stochasticRadiosityElement->numberOfVertices; i++ ) {
+            m[i] = stochasticRadiosityElementEdgeMidpointVertex(stochasticRadiosityElement, i);
             if ( m[i] ) {
                 n++;
             }
         }
 
-        if ( elem->numberOfVertices == 3 ) {
-            renderTriangularElement(elem->vertices, m, n);
+        if ( stochasticRadiosityElement->numberOfVertices == 3 ) {
+            renderTriangularElement(stochasticRadiosityElement->vertices, m, n);
         } else {
-            renderQuadrilateralElement(elem->vertices, m, n);
+            renderQuadrilateralElement(stochasticRadiosityElement->vertices, m, n);
         }
         return;
     }
 
-    vertices[0] = *(elem->vertices[0]->point);
-    vertices[1] = *(elem->vertices[1]->point);
-    vertices[2] = *(elem->vertices[2]->point);
-    if ( elem->numberOfVertices > 3 ) {
-        vertices[3] = *(elem->vertices[3]->point);
+    vertices[0] = *(stochasticRadiosityElement->vertices[0]->point);
+    vertices[1] = *(stochasticRadiosityElement->vertices[1]->point);
+    vertices[2] = *(stochasticRadiosityElement->vertices[2]->point);
+    if ( stochasticRadiosityElement->numberOfVertices > 3 ) {
+        vertices[3] = *(stochasticRadiosityElement->vertices[3]->point);
     }
 
     if ( GLOBAL_render_renderOptions.smoothShading ) {
         RGB vertexColors[4];
-        vertexColors[0] = elem->vertices[0]->color;
-        vertexColors[1] = elem->vertices[1]->color;
-        vertexColors[2] = elem->vertices[2]->color;
-        if ( elem->numberOfVertices > 3 ) {
-            vertexColors[3] = elem->vertices[3]->color;
+        vertexColors[0] = stochasticRadiosityElement->vertices[0]->color;
+        vertexColors[1] = stochasticRadiosityElement->vertices[1]->color;
+        vertexColors[2] = stochasticRadiosityElement->vertices[2]->color;
+        if ( stochasticRadiosityElement->numberOfVertices > 3 ) {
+            vertexColors[3] = stochasticRadiosityElement->vertices[3]->color;
         }
 
-        openGlRenderPolygonGouraud(elem->numberOfVertices, vertices, vertexColors);
+        openGlRenderPolygonGouraud(stochasticRadiosityElement->numberOfVertices, vertices, vertexColors);
     } else {
-        RGB color = stochasticRadiosityElementColor(elem);
+        RGB color = stochasticRadiosityElementColor(stochasticRadiosityElement);
 
         openGlRenderSetColor(&color);
-        openGlRenderPolygonFlat(elem->numberOfVertices, vertices);
+        openGlRenderPolygonFlat(stochasticRadiosityElement->numberOfVertices, vertices);
     }
 
     if ( GLOBAL_render_renderOptions.drawOutlines )
-        stochasticRadiosityElementRenderOutline(elem);
+        stochasticRadiosityElementRenderOutline(stochasticRadiosityElement);
 }
 
 COLOR

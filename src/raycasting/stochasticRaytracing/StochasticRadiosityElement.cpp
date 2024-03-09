@@ -197,7 +197,6 @@ stochasticRadiosityElementCreateFromPatch(Patch *patch) {
 StochasticRadiosityElement::~StochasticRadiosityElement() {
 }
 
-
 static StochasticRadiosityElement *
 monteCarloRadiosityCreateCluster(Geometry *geometry) {
     StochasticRadiosityElement *elem = createElement();
@@ -928,30 +927,6 @@ stochasticRadiosityElementTraverseChildrenElements(StochasticRadiosityElement *t
             // Leaf element
             return false;
         }
-}
-
-static void
-monteCarloRadiosityForAllSurfaceLeafsRecursive(
-        StochasticRadiosityElement *element,
-        void (*func)(StochasticRadiosityElement *))
-{
-    if ( element->regularSubElements == nullptr ) {
-        // Trivial case
-        func(element);
-    } else {
-        // Recursive case
-        for ( int i = 0; i < 4; i++ ) {
-            monteCarloRadiosityForAllSurfaceLeafsRecursive((StochasticRadiosityElement *)element->regularSubElements[i], func);
-        }
-    }
-}
-
-void
-stochasticRadiosityElementTraverseSurfaceLeafs(
-        StochasticRadiosityElement *top,
-        void (*func)(StochasticRadiosityElement *))
-{
-    monteCarloRadiosityForAllSurfaceLeafsRecursive(top, func);
 }
 
 /**

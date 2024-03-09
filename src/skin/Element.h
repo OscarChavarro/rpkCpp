@@ -57,6 +57,7 @@ class Element {
     Element *childContainingElement(Element *descendant);
     void traverseAllLeafElements(void (*traversalCallbackFunction)(Element *));
     void traverseClusterLeafElements(void (*traversalCallbackFunction)(Element *));
+    void traverseQuadTreeLeafs(void (*traversalCallbackFunction)(Element *));
 };
 
 #endif

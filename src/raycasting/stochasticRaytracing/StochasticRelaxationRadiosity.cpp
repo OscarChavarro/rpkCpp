@@ -10,6 +10,7 @@ Stochastic Relaxation Radiosity (currently only stochastic Jacobi)
 #include "raycasting/stochasticRaytracing/mcradP.h"
 #include "raycasting/stochasticRaytracing/hierarchy.h"
 #include "raycasting/stochasticRaytracing/stochjacobi.h"
+#include "raycasting/stochasticRaytracing/StochasticRadiosityElement.h"
 #include "raycasting/common/Raytracer.h"
 #include "render/opengl.h"
 #include "scene/scene.h"
@@ -439,11 +440,11 @@ stochasticRelaxationRadiosityDoStep(java::ArrayList<Patch *> *scenePatches, java
 static void
 stochasticRelaxationRadiosityRenderPatch(Patch *patch) {
     if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.inited ) {
-        stochasticRadiosityElementTraverseSurfaceLeafs(topLevelGalerkinElement(patch), stochasticRadiosityElementRender);
+        topLevelGalerkinElement(patch)->traverseQuadTreeLeafs(stochasticRadiosityElementRender);
     } else {
+        // Not yet initialized
         openGlRenderPatch(patch);
     }
-    // Not yet initialized
 }
 
 static void
