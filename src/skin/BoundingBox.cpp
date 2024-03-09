@@ -33,25 +33,24 @@ BoundingBox::enlarge(const BoundingBox *other) {
     setIfGreater(coordinates[MAX_Z], other->coordinates[MAX_Z]);
 }
 
-float *
-boundsEnlargePoint(float *bounds, Vector3D *point) {
-    setIfLess(bounds[MIN_X], point->x);
-    setIfLess(bounds[MIN_Y], point->y);
-    setIfLess(bounds[MIN_Z], point->z);
-    setIfGreater(bounds[MAX_X], point->x);
-    setIfGreater(bounds[MAX_Y], point->y);
-    setIfGreater(bounds[MAX_Z], point->z);
-    return bounds;
+void
+BoundingBox::enlargeToIncludePoint(const Vector3D *point) {
+    setIfLess(coordinates[MIN_X], point->x);
+    setIfLess(coordinates[MIN_Y], point->y);
+    setIfLess(coordinates[MIN_Z], point->z);
+    setIfGreater(coordinates[MAX_X], point->x);
+    setIfGreater(coordinates[MAX_Y], point->y);
+    setIfGreater(coordinates[MAX_Z], point->z);
 }
 
 void
-BoundingBox::copyFrom(const BoundingBox *from) {
-    coordinates[MIN_X] = from->coordinates[MIN_X];
-    coordinates[MIN_Y] = from->coordinates[MIN_Y];
-    coordinates[MIN_Z] = from->coordinates[MIN_Z];
-    coordinates[MAX_X] = from->coordinates[MAX_X];
-    coordinates[MAX_Y] = from->coordinates[MAX_Y];
-    coordinates[MAX_Z] = from->coordinates[MAX_Z];
+BoundingBox::copyFrom(const BoundingBox *other) {
+    coordinates[MIN_X] = other->coordinates[MIN_X];
+    coordinates[MIN_Y] = other->coordinates[MIN_Y];
+    coordinates[MIN_Z] = other->coordinates[MIN_Z];
+    coordinates[MAX_X] = other->coordinates[MAX_X];
+    coordinates[MAX_Y] = other->coordinates[MAX_Y];
+    coordinates[MAX_Z] = other->coordinates[MAX_Z];
 }
 
 /**
@@ -259,10 +258,10 @@ BoundingBox::behindPlane(Vector3D *norm, float d) const {
 
 /**
 Computes bounding box after transforming bbx with xf. Result is filled
-in transBoundingBox and a pointer to transBoundingBox returned
+in transBoundingBox->coordinates and a pointer to transBoundingBox->coordinates returned
 */
-float *
-boundsTransform(float *bbx, Matrix4x4 *xf, float *transBoundingBox) {
+void
+boundsTransform(float *bbx, Matrix4x4 *xf, BoundingBox *transBoundingBox) {
     Vector3D v[8];
 
     vectorSet(v[0], bbx[MIN_X], bbx[MIN_Y], bbx[MIN_Z]);
@@ -276,19 +275,17 @@ boundsTransform(float *bbx, Matrix4x4 *xf, float *transBoundingBox) {
 
     for ( int i = 0; i < 8; i++ ) {
         transformPoint3D(*xf, v[i], v[i]);
-        boundsEnlargePoint(transBoundingBox, &v[i]);
+        transBoundingBox->enlargeToIncludePoint(&v[i]);
     }
 
     float d;
-    d = (transBoundingBox[MAX_X] - transBoundingBox[MIN_X]) * (float)EPSILON;
-    transBoundingBox[MIN_X] -= d;
-    transBoundingBox[MAX_X] += d;
-    d = (transBoundingBox[MAX_Y] - transBoundingBox[MIN_Y]) * (float)EPSILON;
-    transBoundingBox[MIN_Y] -= d;
-    transBoundingBox[MAX_Y] += d;
-    d = (transBoundingBox[MAX_Z] - transBoundingBox[MIN_Z]) * (float)EPSILON;
-    transBoundingBox[MIN_Z] -= d;
-    transBoundingBox[MAX_Z] += d;
-
-    return transBoundingBox;
+    d = (transBoundingBox->coordinates[MAX_X] - transBoundingBox->coordinates[MIN_X]) * (float)EPSILON;
+    transBoundingBox->coordinates[MIN_X] -= d;
+    transBoundingBox->coordinates[MAX_X] += d;
+    d = (transBoundingBox->coordinates[MAX_Y] - transBoundingBox->coordinates[MIN_Y]) * (float)EPSILON;
+    transBoundingBox->coordinates[MIN_Y] -= d;
+    transBoundingBox->coordinates[MAX_Y] += d;
+    d = (transBoundingBox->coordinates[MAX_Z] - transBoundingBox->coordinates[MIN_Z]) * (float)EPSILON;
+    transBoundingBox->coordinates[MIN_Z] -= d;
+    transBoundingBox->coordinates[MAX_Z] += d;
 }

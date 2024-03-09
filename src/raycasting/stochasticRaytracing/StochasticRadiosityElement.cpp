@@ -916,7 +916,7 @@ stochasticRadiosityElementBounds(StochasticRadiosityElement *elem, BoundingBox *
         } else {
             for ( int i = 0; i < elem->numberOfVertices; i++ ) {
                 Vertex *v = elem->vertices[i];
-                boundsEnlargePoint(boundingBox->coordinates, v->point);
+                boundingBox->enlargeToIncludePoint(v->point);
             }
         }
     return boundingBox->coordinates;

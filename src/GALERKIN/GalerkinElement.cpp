@@ -532,7 +532,7 @@ GalerkinElement::bounds(BoundingBox *boundingBox) {
         numberOfVertices = vertices(p, 4);
 
         for ( int i = 0; i < numberOfVertices; i++ ) {
-            boundsEnlargePoint(boundingBox->coordinates, &p[i]);
+            boundingBox->enlargeToIncludePoint(&p[i]);
         }
     }
 
@@ -556,7 +556,7 @@ GalerkinElement::polygon(POLYGON *polygon) {
     polygon->numberOfVertices = vertices(polygon->vertex, polygon->numberOfVertices);
 
     for ( int i = 0; i < polygon->numberOfVertices; i++ ) {
-        boundsEnlargePoint(polygon->bounds.coordinates, &polygon->vertex[i]);
+        polygon->bounds.enlargeToIncludePoint(&polygon->vertex[i]);
     }
 
     return polygon;

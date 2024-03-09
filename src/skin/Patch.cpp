@@ -623,7 +623,7 @@ Patch::patchBounds(BoundingBox *bounds) {
     if ( !boundingBox ) {
         boundingBox = new BoundingBox();
         for ( int i = 0; i < numberOfVertices; i++ ) {
-            boundsEnlargePoint(boundingBox->coordinates, vertex[i]->point);
+            boundingBox->enlargeToIncludePoint(vertex[i]->point);
         }
     }
 
