@@ -59,7 +59,7 @@ class CChainList : private CTSList<CFlagChain> {
     ~CChainList();
     void add(const CFlagChain &chain);
     void add(CChainList *list);
-    void addDisjunct(const CFlagChain &chain);
+    void addDisjoint(const CFlagChain &chain);
     COLOR compute(CBiPath *path);
     CChainList *simplify();
 };

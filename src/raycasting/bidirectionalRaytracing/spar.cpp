@@ -4,8 +4,8 @@
 #include "raycasting/bidirectionalRaytracing/spar.h"
 
 CSpar::CSpar() {
-    m_contrib = new CContribHandler[MAXPATHGROUPS];
-    m_sparList = new CSparList[MAXPATHGROUPS];
+    m_contrib = new CContribHandler[MAX_PATH_GROUPS];
+    m_sparList = new CSparList[MAX_PATH_GROUPS];
 }
 
 CSpar::~CSpar() {
@@ -15,7 +15,7 @@ CSpar::~CSpar() {
 
 void
 CSpar::init(CSparConfig *config) {
-    for ( int i = 0; i < MAXPATHGROUPS; i++ ) {
+    for ( int i = 0; i < MAX_PATH_GROUPS; i++ ) {
         m_contrib[i].init(config->m_bcfg->maximumPathDepth);
         m_sparList[i].removeAll();
     }
@@ -60,14 +60,14 @@ void
 CLeSpar::init(CSparConfig *sconfig) {
     CSpar::init(sconfig);
 
-    // Disjunct path group for BPT
+    // Disjoint path group for BPT
     if ( sconfig->m_bcfg->doLe ) {
-        parseAndInit(DISJUNCTGROUP, sconfig->m_bcfg->leRegExp);
+        parseAndInit(DISJOINT_GROUP, sconfig->m_bcfg->leRegExp);
     }
 
     if ( sconfig->m_bcfg->doWeighted ) {
-        parseAndInit(LDGROUP, sconfig->m_bcfg->wleRegExp);
-        m_sparList[LDGROUP].add(sconfig->m_ldSpar);
+        parseAndInit(LD_GROUP, sconfig->m_bcfg->wleRegExp);
+        m_sparList[LD_GROUP].add(sconfig->m_ldSpar);
     }
 }
 
@@ -85,12 +85,12 @@ CLDSpar::init(CSparConfig *sconfig) {
 
     // Overlap group
     if ( sconfig->m_bcfg->doLD ) {
-        parseAndInit(DISJUNCTGROUP, sconfig->m_bcfg->ldRegExp);
+        parseAndInit(DISJOINT_GROUP, sconfig->m_bcfg->ldRegExp);
     }
 
     if ( sconfig->m_bcfg->doWeighted ) {
-        parseAndInit(LDGROUP, sconfig->m_bcfg->wldRegExp);
-        m_sparList[LDGROUP].add(sconfig->m_leSpar);
+        parseAndInit(LD_GROUP, sconfig->m_bcfg->wldRegExp);
+        m_sparList[LD_GROUP].add(sconfig->m_leSpar);
     }
 }
 

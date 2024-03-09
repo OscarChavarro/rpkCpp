@@ -52,7 +52,7 @@ geomMultiResolutionVisibility(
      * occluder. */
     vectorSumScaled(ray->pos, tMinimum, ray->dir, vectorTmp);
     if ( boundingBox->outOfBounds(&vectorTmp) ) {
-        if ( !boundsIntersectingSegment(ray, boundingBox->coordinates, &tMinimum, &tMaximum) ) {
+        if ( !boundingBox->intersectingSegment(ray, &tMinimum, &tMaximum) ) {
             // Ray doesn't intersect the bounding box of the Geometry within
 		    // distance interval tMinimum ... tMaximum
             return 1.0;

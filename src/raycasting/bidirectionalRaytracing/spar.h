@@ -10,12 +10,12 @@ Specification of the Stored Partial Radiance class
 #include "raycasting/raytracing/bipath.h"
 #include "raycasting/raytracing/flagchain.h"
 
-#define MAXPATHGROUPS 2
+#define MAX_PATH_GROUPS 2
 
 // Some global path groups
 
-#define DISJUNCTGROUP 0
-#define LDGROUP 1
+#define DISJOINT_GROUP 0
+#define LD_GROUP 1
 
 class CSpar;
 

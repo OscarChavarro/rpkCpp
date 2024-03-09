@@ -31,13 +31,16 @@ class BoundingBox {
                p->y < coordinates[MIN_Y] || p->y > coordinates[MAX_Y] ||
                p->z < coordinates[MIN_Z] || p->z > coordinates[MAX_Z];
     }
+
+    bool intersect(Ray *ray, float minimumDistance, float *maximumDistance) const;
+    bool intersectingSegment(Ray *ray, float *tMin, float *tMax) const;
 };
 
 /**
-true if the two given bounding boxes are disjunct
+True if the two given bounding boxes are disjoint
 */
 inline bool
-disjunctBounds(const float *b1, const float *b2) {
+disjointBounds(const float *b1, const float *b2) {
     return
         (b1[MIN_X] > b2[MAX_X]) || (b2[MIN_X] > b1[MAX_X]) ||
         (b1[MIN_Y] > b2[MAX_Y]) || (b2[MIN_Y] > b1[MAX_Y]) ||
@@ -49,9 +52,7 @@ extern float *boundsCopy(const float *from, float *to);
 extern float *boundsInit(float *bounds);
 extern float *boundsEnlarge(float *output, float *input);
 extern float *boundsEnlargePoint(float *bounds, Vector3D *point);
-extern int boundsIntersect(Ray *ray, float *bounds, float minimumDistance, float *maximumDistance);
 extern int boundsBehindPlane(const float *bounds, Vector3D *norm, float d);
 extern float *boundsTransform(float *bbx, Matrix4x4 *xf, float *transBoundingBox);
-extern int boundsIntersectingSegment(Ray *ray, const float *bounds, float *tMin, float *tMax);
 
 #endif

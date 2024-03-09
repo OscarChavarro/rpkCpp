@@ -76,7 +76,7 @@ intersection, and true is returned.  Otherwise, false is returned.
 If this routine is used to check for intersection with a volume
 rather than a "hollow" box, one should first determine if
 (ray->pos + minimum distance * ray->dir) is inside the bounding volume, and
-call boundsIntersect() only if it is not.
+call intersect() only if it is not.
 
 This routine was taken from ray-shade [PhB].
 */
@@ -89,8 +89,8 @@ the intersection positions of the ray with the bounding box.
 If there are no intersection in the given interval, false is returned. If there
 are intersections, true is returned.
 */
-int
-boundsIntersectingSegment(Ray *ray, const float *bounds, float *tMin, float *tMax) {
+bool
+BoundingBox::intersectingSegment(Ray *ray, float *tMin, float *tMax) const {
     float t;
 
     float minimumDistance = *tMin;
@@ -100,14 +100,14 @@ boundsIntersectingSegment(Ray *ray, const float *bounds, float *tMin, float *tMa
     float pos = ray->pos.x;
 
     if ( dir < 0 ) {
-        t = (bounds[MIN_X] - pos) / dir;
+        t = (coordinates[MIN_X] - pos) / dir;
         if ( t < *tMin ) {
             return false;
         }
         if ( t <= *tMax ) {
             *tMax = t;
         }
-        t = (bounds[MAX_X] - pos) / dir;
+        t = (coordinates[MAX_X] - pos) / dir;
         if ( t >= *tMin ) {
             if ( t > *tMax * (1. + EPSILON)) {
                 return false;
@@ -115,21 +115,21 @@ boundsIntersectingSegment(Ray *ray, const float *bounds, float *tMin, float *tMa
             *tMin = t;
         }
     } else if ( dir > 0.0 ) {
-        t = (bounds[MAX_X] - pos) / dir;
+        t = (coordinates[MAX_X] - pos) / dir;
         if ( t < *tMin ) {
             return false;
         }
         if ( t <= *tMax ) {
             *tMax = t;
         }
-        t = (bounds[MIN_X] - pos) / dir;
+        t = (coordinates[MIN_X] - pos) / dir;
         if ( t >= *tMin ) {
             if ( t > *tMax * (1.0 + EPSILON)) {
                 return false;
             }
             *tMin = t;
         }
-    } else if ( pos < bounds[MIN_X] || pos > bounds[MAX_X] ) {
+    } else if ( pos < coordinates[MIN_X] || pos > coordinates[MAX_X] ) {
         return false;
     }
 
@@ -137,14 +137,14 @@ boundsIntersectingSegment(Ray *ray, const float *bounds, float *tMin, float *tMa
     pos = ray->pos.y;
 
     if ( dir < 0 ) {
-        t = (bounds[MIN_Y] - pos) / dir;
+        t = (coordinates[MIN_Y] - pos) / dir;
         if ( t < *tMin ) {
             return false;
         }
         if ( t <= *tMax ) {
             *tMax = t;
         }
-        t = (bounds[MAX_Y] - pos) / dir;
+        t = (coordinates[MAX_Y] - pos) / dir;
         if ( t >= *tMin ) {
             if ( t > *tMax * (1.0 + EPSILON)) {
                 return false;
@@ -152,21 +152,21 @@ boundsIntersectingSegment(Ray *ray, const float *bounds, float *tMin, float *tMa
             *tMin = t;
         }
     } else if ( dir > 0.0 ) {
-        t = (bounds[MAX_Y] - pos) / dir;
+        t = (coordinates[MAX_Y] - pos) / dir;
         if ( t < *tMin ) {
             return false;
         }
         if ( t <= *tMax ) {
             *tMax = t;
         }
-        t = (bounds[MIN_Y] - pos) / dir;
+        t = (coordinates[MIN_Y] - pos) / dir;
         if ( t >= *tMin ) {
             if ( t > *tMax * (1. + EPSILON)) {
                 return false;
             }
             *tMin = t;
         }
-    } else if ( pos < bounds[MIN_Y] || pos > bounds[MAX_Y] ) {
+    } else if ( pos < coordinates[MIN_Y] || pos > coordinates[MAX_Y] ) {
         return false;
     }
 
@@ -174,14 +174,14 @@ boundsIntersectingSegment(Ray *ray, const float *bounds, float *tMin, float *tMa
     pos = ray->pos.z;
 
     if ( dir < 0 ) {
-        t = (bounds[MIN_Z] - pos) / dir;
+        t = (coordinates[MIN_Z] - pos) / dir;
         if ( t < *tMin ) {
             return false;
         }
         if ( t <= *tMax ) {
             *tMax = t;
         }
-        t = (bounds[MAX_Z] - pos) / dir;
+        t = (coordinates[MAX_Z] - pos) / dir;
         if ( t >= *tMin ) {
             if ( t > *tMax * (1.0 + EPSILON)) {
                 return false;
@@ -189,21 +189,21 @@ boundsIntersectingSegment(Ray *ray, const float *bounds, float *tMin, float *tMa
             *tMin = t;
         }
     } else if ( dir > 0.0 ) {
-        t = (bounds[MAX_Z] - pos) / dir;
+        t = (coordinates[MAX_Z] - pos) / dir;
         if ( t < *tMin ) {
             return false;
         }
         if ( t <= *tMax ) {
             *tMax = t;
         }
-        t = (bounds[MIN_Z] - pos) / dir;
+        t = (coordinates[MIN_Z] - pos) / dir;
         if ( t >= *tMin ) {
-            if ( t > *tMax * (1. + EPSILON)) {
+            if ( t > *tMax * (1.0 + EPSILON)) {
                 return false;
             }
             *tMin = t;
         }
-    } else if ( pos < bounds[MIN_Z] || pos > bounds[MAX_Z] ) {
+    } else if ( pos < coordinates[MIN_Z] || pos > coordinates[MAX_Z] ) {
         return false;
     }
 
@@ -221,11 +221,11 @@ boundsIntersectingSegment(Ray *ray, const float *bounds, float *tMin, float *tMa
     return false; // Hit, but not closer than maximumDistance
 }
 
-int
-boundsIntersect(Ray *ray, float *bounds, float minimumDistance, float *maximumDistance) {
+bool
+BoundingBox::intersect(Ray *ray, float minimumDistance, float *maximumDistance) const {
     float tMin = minimumDistance;
     float tMax = *maximumDistance;
-    int hit = boundsIntersectingSegment(ray, bounds, &tMin, &tMax);
+    int hit = intersectingSegment(ray, &tMin, &tMax);
     if ( hit ) {
         // Reduce maximumDistance
         if ( tMin == minimumDistance ) {

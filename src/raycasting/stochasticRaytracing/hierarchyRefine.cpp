@@ -91,13 +91,13 @@ linkInvolvingClusters(LINK *link) {
 }
 
 static int
-disjunctElements(StochasticRadiosityElement *rcv, StochasticRadiosityElement *src) {
+disjointElements(StochasticRadiosityElement *rcv, StochasticRadiosityElement *src) {
     BoundingBox receiveBounds{};
     BoundingBox sourceBounds{};
 
     stochasticRadiosityElementBounds(rcv, receiveBounds.coordinates);
     stochasticRadiosityElementBounds(src, sourceBounds.coordinates);
-    return disjunctBounds(receiveBounds.coordinates, sourceBounds.coordinates);
+    return disjointBounds(receiveBounds.coordinates, sourceBounds.coordinates);
 }
 
 /**
@@ -171,7 +171,7 @@ REFINE_ACTION
 powerOracle(LINK *link) {
     if ( selfLink(link) ) {
         return subdivideReceiver;
-    } else if ( linkInvolvingClusters(link) && !disjunctElements(link->rcv, link->src) ) {
+    } else if ( linkInvolvingClusters(link) && !disjointElements(link->rcv, link->src) ) {
         return subDivideLargest(link);
     } else if ( LowPowerLink(link, &GLOBAL_statistics) ) {
         return dontRefine;

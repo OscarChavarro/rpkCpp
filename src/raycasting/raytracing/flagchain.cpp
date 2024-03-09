@@ -193,7 +193,7 @@ CChainList::add(const CFlagChain &chain) {
 }
 
 void
-CChainList::addDisjunct(const CFlagChain &chain) {
+CChainList::addDisjoint(const CFlagChain &chain) {
     if ( count > 0 ) {
         if ( chain.length != length ) {
             logError("CChainList::add", "Wrong length flag chain inserted!");
@@ -317,7 +317,7 @@ CContribHandler::doRegExp(char *regExp, bool subtract) {
 add a group of paths
 regExp indicates the regular expression covered by the sampling strategy
 The class of covered paths covered by the contrib handler is : (regSPaR)(regPath)
-regSPar is not needed here. The regExp must ensure disjunct paths!
+regSPar is not needed here. The regExp must ensure disjoint paths!
 */
 void
 CContribHandler::addRegExp(char *regExp) {
@@ -616,7 +616,7 @@ CContribHandler::doRegExpGeneral(char *regExp, bool subtract) {
             }
 
             iterationsDone = nextIterationsDone;
-            tmpList.addDisjunct(c);
+            tmpList.addDisjoint(c);
 
             if ( iteratorCount == 0 ) {
                 done = true;
