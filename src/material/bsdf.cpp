@@ -156,7 +156,7 @@ bsdfSample(
         return bsdf->methods->Sample(bsdf->data, hit, inBsdf, outBsdf, in,
                                      doRussianRoulette, flags, x_1, x_2, pdf);
     } else {
-        Vector3D dummy = {0., 0., 0.};
+        Vector3D dummy = {0.0, 0.0, 0.0};
         *pdf = 0;
         return dummy;
     }

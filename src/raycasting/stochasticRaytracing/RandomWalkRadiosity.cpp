@@ -82,39 +82,43 @@ randomWalkRadiosityReduceSource(java::ArrayList<Patch *> *scenePatches) {
 
 static double
 randomWalkRadiosityScoreWeight(PATH *path, int n) {
-    double w = 0.;
+    double w = 0.0;
     int t = path->numberOfNodes - ((GLOBAL_stochasticRaytracing_monteCarloRadiosityState.randomWalkNumLast > 0) ? GLOBAL_stochasticRaytracing_monteCarloRadiosityState.randomWalkNumLast : 1);
 
     switch ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.randomWalkEstimatorKind ) {
         case RW_COLLISION:
-            w = 1.;
+            w = 1.0;
             break;
         case RW_ABSORPTION:
-            if ( n == path->numberOfNodes - 1 ) {    /* last node */
-                w = 1. / (1. - path->nodes[n].probability);
+            if ( n == path->numberOfNodes - 1 ) {
+                // Last node
+                w = 1.0 / (1.0 - path->nodes[n].probability);
             }
             break;
         case RW_SURVIVAL:
-            if ( n < path->numberOfNodes - 1 ) {    /* not last node */
-                w = 1. / path->nodes[n].probability;
+            if ( n < path->numberOfNodes - 1 ) {
+                // Not last node
+                w = 1.0 / path->nodes[n].probability;
             }
             break;
         case RW_LAST_BUT_NTH:
             if ( n == t - 1 ) {
                 int i = path->numberOfNodes - 1;
                 StochasticRaytracingPathNode *node = &path->nodes[i];
-                w = 1. / (1. - node->probability);    /* absorption prob of the last node */
+                w = 1.0 / (1.0 - node->probability);
+                // Absorption prob of the last node
                 for ( i--, node--; i >= n; i--, node-- ) {
+                    // Survival prob of n...numberOfNodes-2th node
                     w /= node->probability;
-                }       /* survival prob of n...numberOfNodes-2th node */
+                }
             }
             break;
         case RW_N_LAST:
             if ( n == t ) {
-                /* 1/absorption probability of the last path node */
-                w = 1. / (1. - path->nodes[path->numberOfNodes - 1].probability);
+                // 1/absorption probability of the last path node
+                w = 1.0 / (1.0 - path->nodes[path->numberOfNodes - 1].probability);
             } else if ( n > t ) {
-                w = 1.;
+                w = 1.0;
             }
             break;
         default:
@@ -126,12 +130,12 @@ randomWalkRadiosityScoreWeight(PATH *path, int n) {
 
 static void
 randomWalkRadiosityShootingScore(PATH *path, long nr_paths, double (* /*birthProb*/)(Patch *)) {
-    COLOR accum_pow;
+    COLOR accumPow;
     int n;
     StochasticRaytracingPathNode *node = &path->nodes[0];
 
     /* path->nodes[0].probability is birth probability of the path */
-    colorScale((float)(node->patch->area / node->probability), topLevelGalerkinElement(node->patch)->sourceRad, accum_pow);
+    colorScale((float)(node->patch->area / node->probability), topLevelGalerkinElement(node->patch)->sourceRad, accumPow);
     for ( n = 1, node++; n < path->numberOfNodes; n++, node++ ) {
         double uin = 0.0;
         double vin = 0.0;
@@ -142,11 +146,11 @@ randomWalkRadiosityShootingScore(PATH *path, long nr_paths, double (* /*birthPro
         int i;
         Patch *P = node->patch;
         COLOR Rd = topLevelGalerkinElement(P)->Rd;
-        colorProduct(accum_pow, Rd, accum_pow);
+        colorProduct(accumPow, Rd, accumPow);
 
         P->uniformUv(&node->inPoint, &uin, &vin);
         if ( !GLOBAL_stochasticRaytracing_monteCarloRadiosityState.continuousRandomWalk ) {
-            r = 0.;
+            r = 0.0;
             if ( n < path->numberOfNodes - 1 ) {
                 // Not continuous random walk and not node of absorption
                 P->uniformUv(&node->outpoint, &uOut, &vOut);
@@ -157,7 +161,7 @@ randomWalkRadiosityShootingScore(PATH *path, long nr_paths, double (* /*birthPro
 
         for ( i = 0; i < getTopLevelPatchBasis(P)->size; i++ ) {
             double dual = getTopLevelPatchBasis(P)->dualFunction[i](uin, vin) / P->area;
-            colorAddScaled(getTopLevelPatchReceivedRad(P)[i], (float)(w * dual / (double) nr_paths), accum_pow, getTopLevelPatchReceivedRad(P)[i]);
+            colorAddScaled(getTopLevelPatchReceivedRad(P)[i], (float)(w * dual / (double) nr_paths), accumPow, getTopLevelPatchReceivedRad(P)[i]);
 
             if ( !GLOBAL_stochasticRaytracing_monteCarloRadiosityState.continuousRandomWalk ) {
                 double basf = getTopLevelPatchBasis(P)->function[i](uOut, vOut);
@@ -165,7 +169,7 @@ randomWalkRadiosityShootingScore(PATH *path, long nr_paths, double (* /*birthPro
             }
         }
 
-        colorScale((float)(r / node->probability), accum_pow, accum_pow);
+        colorScale((float)(r / node->probability), accumPow, accumPow);
     }
 }
 
@@ -277,7 +281,7 @@ randomWalkRadiosityCollisionGatheringScore(PATH *path, long /*nr_paths*/, double
 
         P->uniformUv(&node->outpoint, &uOut, &vOut);
         if ( !GLOBAL_stochasticRaytracing_monteCarloRadiosityState.continuousRandomWalk ) {
-            r = 0.;
+            r = 0.0;
             if ( n > 0 ) {
                 // Not continuous random walk and not birth node
                 P->uniformUv(&node->inPoint, &uin, &vin);

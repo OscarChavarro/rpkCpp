@@ -109,9 +109,9 @@ divideSpectrum(SPECTRUM &spec1, SPECTRUM &spec2, SPECTRUM &result) {
     const float *_s1 = spec1;
     const float *_s2 = spec2;
     float *_r = result;
-    *_r++ = (*_s2 != 0.) ? *_s1 / *_s2 : *_s1; _s1++; _s2++;
-    *_r++ = (*_s2 != 0.) ? *_s1 / *_s2 : *_s1; _s1++; _s2++;
-    *_r   = (*_s2 != 0.) ? *_s1 / *_s2 : *_s1;
+    *_r++ = (*_s2 != 0.0) ? *_s1 / *_s2 : *_s1; _s1++; _s2++;
+    *_r++ = (*_s2 != 0.0) ? *_s1 / *_s2 : *_s1; _s1++; _s2++;
+    *_r   = (*_s2 != 0.0) ? *_s1 / *_s2 : *_s1;
 }
 
 inline void

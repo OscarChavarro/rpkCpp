@@ -228,23 +228,24 @@ monteCarloRadiosityInit() {
 Initialises patch data
 */
 static void
-monteCarloRadiosityInitPatch(Patch *P) {
-    COLOR Ed = topLevelGalerkinElement(P)->Ed;
+monteCarloRadiosityInitPatch(Patch *patch) {
+    COLOR Ed = topLevelGalerkinElement(patch)->Ed;
 
-    reAllocCoefficients(topLevelGalerkinElement(P));
-    stochasticRadiosityClearCoefficients(getTopLevelPatchRad(P), getTopLevelPatchBasis(P));
-    stochasticRadiosityClearCoefficients(getTopLevelPatchUnShotRad(P), getTopLevelPatchBasis(P));
-    stochasticRadiosityClearCoefficients(getTopLevelPatchReceivedRad(P), getTopLevelPatchBasis(P));
+    reAllocCoefficients(topLevelGalerkinElement(patch));
+    stochasticRadiosityClearCoefficients(getTopLevelPatchRad(patch), getTopLevelPatchBasis(patch));
+    stochasticRadiosityClearCoefficients(getTopLevelPatchUnShotRad(patch), getTopLevelPatchBasis(patch));
+    stochasticRadiosityClearCoefficients(getTopLevelPatchReceivedRad(patch), getTopLevelPatchBasis(patch));
 
-    getTopLevelPatchRad(P)[0] = getTopLevelPatchUnShotRad(P)[0] = topLevelGalerkinElement(P)->sourceRad = Ed;
-    colorClear(getTopLevelPatchReceivedRad(P)[0]);
+    getTopLevelPatchRad(patch)[0] = getTopLevelPatchUnShotRad(patch)[0] = topLevelGalerkinElement(patch)->sourceRad = Ed;
+    colorClear(getTopLevelPatchReceivedRad(patch)[0]);
 
-    topLevelGalerkinElement(P)->rayIndex = P->id * 11;
-    topLevelGalerkinElement(P)->quality = 0.;
-    topLevelGalerkinElement(P)->ng = 0;
-
-    topLevelGalerkinElement(P)->importance = topLevelGalerkinElement(P)->unShotImportance = topLevelGalerkinElement(P)->receivedImportance = topLevelGalerkinElement(
-            P)->sourceImportance = 0.;
+    topLevelGalerkinElement(patch)->rayIndex = patch->id * 11;
+    topLevelGalerkinElement(patch)->quality = 0.0;
+    topLevelGalerkinElement(patch)->ng = 0;
+    topLevelGalerkinElement(patch)->importance = 0.0;
+    topLevelGalerkinElement(patch)->unShotImportance = 0.0;
+    topLevelGalerkinElement(patch)->receivedImportance = 0.0;
+    topLevelGalerkinElement(patch)->sourceImportance = 0.0;
 }
 
 /**
@@ -321,7 +322,9 @@ monteCarloRadiosityUpdateViewImportance(java::ArrayList<Patch *> *scenePatches) 
 
     updateDirectVisibility(scenePatches);
 
-    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.sourceYmp = GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotYmp = GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalYmp = 0.;
+    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.sourceYmp = 0.0;
+    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotYmp = 0.0;
+    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalYmp = 0.0;
     monteCarloRadiosityUpdateImportance(GLOBAL_stochasticRaytracing_hierarchy.topCluster);
 
     if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotYmp < GLOBAL_stochasticRaytracing_monteCarloRadiosityState.sourceYmp ) {
@@ -332,7 +335,9 @@ monteCarloRadiosityUpdateViewImportance(java::ArrayList<Patch *> *scenePatches) 
         GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceUpdatedFromScratch = true;
 
         // Re-compute from scratch
-        GLOBAL_stochasticRaytracing_monteCarloRadiosityState.sourceYmp = GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotYmp = GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalYmp = 0.;
+        GLOBAL_stochasticRaytracing_monteCarloRadiosityState.sourceYmp = 0.0;
+        GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotYmp = 0.0;
+        GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalYmp = 0.0;
         monteCarloRadiosityReInitImportance(GLOBAL_stochasticRaytracing_hierarchy.topCluster);
     }
 
@@ -349,8 +354,8 @@ static double
 monteCarloRadiosityDetermineAreaFraction(java::ArrayList<Patch *> *scenePatches) {
     float *areas;
     float cumul;
-    float areafrac;
-    int nrpatchids = Patch::getNextId();
+    float areaFrac;
+    int numberOfPatchIds = Patch::getNextId();
     int i;
 
     if ( GLOBAL_scene_geometries == nullptr || GLOBAL_scene_geometries->size() == 0 ) {
@@ -359,30 +364,30 @@ monteCarloRadiosityDetermineAreaFraction(java::ArrayList<Patch *> *scenePatches)
     }
 
     // Build a table of patch areas
-    areas = (float *)malloc(nrpatchids * sizeof(float));
-    for ( i = 0; i < nrpatchids; i++ ) {
-        areas[i] = 0.;
+    areas = (float *)malloc(numberOfPatchIds * sizeof(float));
+    for ( i = 0; i < numberOfPatchIds; i++ ) {
+        areas[i] = 0.0;
     }
     for ( i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
         Patch *patch = scenePatches->get(i);
         areas[patch->id] = patch->area;
     }
 
-    /* sort the table to decreasing areas */
+    // Sort the table to decreasing areas
     qsort((void *) areas,
-          nrpatchids,
-          sizeof(float),
-          (QSORT_CALLBACK_TYPE) floatCompare);
+        numberOfPatchIds,
+        sizeof(float),
+        (QSORT_CALLBACK_TYPE) floatCompare);
 
     // Find the patch such that 10% of the total surface area is filled by smaller patches
-    for ( i = nrpatchids - 1, cumul = 0.; i >= 0 && cumul < GLOBAL_statistics.totalArea * 0.1; i-- ) {
+    for ( i = numberOfPatchIds - 1, cumul = 0.0; i >= 0 && cumul < GLOBAL_statistics.totalArea * 0.1; i-- ) {
         cumul += areas[i];
     }
-    areafrac = (i >= 0 && areas[i] > 0.) ? GLOBAL_statistics.totalArea / areas[i] : (float)GLOBAL_statistics.numberOfPatches;
+    areaFrac = (i >= 0 && areas[i] > 0.0) ? GLOBAL_statistics.totalArea / areas[i] : (float)GLOBAL_statistics.numberOfPatches;
 
     free(areas);
 
-    return areafrac;
+    return areaFrac;
 }
 
 /**
@@ -390,8 +395,8 @@ Determines elementary ray power for the initial incremental iterations
 */
 static void
 monteCarloRadiosityDetermineInitialNrRays(java::ArrayList<Patch *> *scenePatches) {
-    double areafrac = monteCarloRadiosityDetermineAreaFraction(scenePatches);
-    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.initialNumberOfRays = (long) ((double) GLOBAL_stochasticRaytracing_monteCarloRadiosityState.rayUnitsPerIt * areafrac);
+    double areaFrac = monteCarloRadiosityDetermineAreaFraction(scenePatches);
+    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.initialNumberOfRays = (long) ((double) GLOBAL_stochasticRaytracing_monteCarloRadiosityState.rayUnitsPerIt * areaFrac);
 }
 
 /**
@@ -408,7 +413,7 @@ monteCarloRadiosityReInit(java::ArrayList<Patch *> *scenePatches) {
     setSequence4D(GLOBAL_stochasticRaytracing_monteCarloRadiosityState.sequence);
 
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.inited = true;
-    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.cpuSeconds = 0.;
+    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.cpuSeconds = 0.0;
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.lastClock = clock();
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.currentIteration = 0;
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.tracedRays = GLOBAL_stochasticRaytracing_monteCarloRadiosityState.prevTracedRays = GLOBAL_stochasticRaytracing_monteCarloRadiosityState.numberOfMisses = 0;
@@ -418,21 +423,29 @@ monteCarloRadiosityReInit(java::ArrayList<Patch *> *scenePatches) {
     colorClear(GLOBAL_stochasticRaytracing_monteCarloRadiosityState.controlRadiance);
 
     colorClear(GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotFlux);
-    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotYmp = 0.;
+    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotYmp = 0.0;
     colorClear(GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalFlux);
-    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalYmp = 0.;
+    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalYmp = 0.0;
     colorClear(GLOBAL_stochasticRaytracing_monteCarloRadiosityState.indirectImportanceWeightedUnShotFlux);
     for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
         Patch *patch = scenePatches->get(i);
         monteCarloRadiosityInitPatch(patch);
-        colorAddScaled(GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotFlux, M_PI * patch->area, getTopLevelPatchUnShotRad(patch)[0], GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotFlux);
-        colorAddScaled(GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalFlux, M_PI * patch->area, getTopLevelPatchRad(patch)[0], GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalFlux);
-        colorAddScaled(GLOBAL_stochasticRaytracing_monteCarloRadiosityState.indirectImportanceWeightedUnShotFlux, M_PI * patch->area * (topLevelGalerkinElement(
-                               patch)->importance -
-                                                                                                                                        topLevelGalerkinElement(patch)->sourceImportance), getTopLevelPatchUnShotRad(patch)[0],
-                       GLOBAL_stochasticRaytracing_monteCarloRadiosityState.indirectImportanceWeightedUnShotFlux);
-        GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotYmp += patch->area * std::fabs(
-                topLevelGalerkinElement(patch)->unShotImportance);
+        colorAddScaled(
+            GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotFlux,
+            M_PI * patch->area,
+            getTopLevelPatchUnShotRad(patch)[0],
+            GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotFlux);
+        colorAddScaled(
+            GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalFlux,
+            M_PI * patch->area,
+            getTopLevelPatchRad(patch)[0],
+            GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalFlux);
+        colorAddScaled(
+            GLOBAL_stochasticRaytracing_monteCarloRadiosityState.indirectImportanceWeightedUnShotFlux,
+            M_PI * patch->area * (topLevelGalerkinElement(patch)->importance - topLevelGalerkinElement(patch)->sourceImportance),
+            getTopLevelPatchUnShotRad(patch)[0],
+            GLOBAL_stochasticRaytracing_monteCarloRadiosityState.indirectImportanceWeightedUnShotFlux);
+        GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotYmp += patch->area * std::fabs(topLevelGalerkinElement(patch)->unShotImportance);
         GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalYmp += patch->area * topLevelGalerkinElement(patch)->importance;
         GLOBAL_stochasticRaytracing_monteCarloRadiosityState.sourceYmp += patch->area * topLevelGalerkinElement(patch)->sourceImportance;
         monteCarloRadiosityPatchComputeNewColor(patch);
@@ -475,7 +488,7 @@ monteCarloRadiosityDiffuseReflectanceAtPoint(Patch *patch, double u, double v) {
     RayHit hit;
     Vector3D point;
     patch->uniformPoint(u, v, &point);
-    hitInit(&hit, patch, nullptr, &point, &patch->normal, patch->surface->material, 0.);
+    hitInit(&hit, patch, nullptr, &point, &patch->normal, patch->surface->material, 0.0);
     hit.uv.u = u;
     hit.uv.v = v;
     hit.flags |= HIT_UV;

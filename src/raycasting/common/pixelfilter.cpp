@@ -24,17 +24,17 @@ TentFilter::TentFilter() {};
 TentFilter::~TentFilter() {};
 
 void TentFilter::sample(double *xi1, double *xi2) {
-    double x = fabs(2 * (*xi1) - 1.);
-    double sx = *xi1 < .5 ? -1 : +1;
-    double y = fabs(2 * (*xi2) - 1.);
-    double sy = *xi2 < .5 ? -1 : +1;
+    double x = fabs(2 * (*xi1) - 1.0);
+    double sx = *xi1 < 0.5 ? -1 : +1;
+    double y = fabs(2 * (*xi2) - 1.0);
+    double sy = *xi2 < 0.5 ? -1 : +1;
 
     if ( x > y ) {
-        *xi1 = (sx * sqrt(x)) + .5;
-        *xi2 = (*xi1 * y) + .5;
+        *xi1 = (sx * sqrt(x)) + 0.5;
+        *xi2 = (*xi1 * y) + 0.5;
     } else {
-        *xi2 = (sy * sqrt(y)) + .5;
-        *xi1 = (*xi2 * x) + .5;
+        *xi2 = (sy * sqrt(y)) + 0.5;
+        *xi1 = (*xi2 * x) + 0.5;
     }
 }
 

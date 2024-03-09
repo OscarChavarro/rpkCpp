@@ -203,7 +203,7 @@ static void
 stochasticRelaxationRadiosityElementIncrementImportance(StochasticRadiosityElement *elem, double /*w*/) {
     elem->importance += elem->receivedImportance;
     elem->unShotImportance = elem->receivedImportance;
-    elem->receivedImportance = 0.;
+    elem->receivedImportance = 0.0;
 }
 
 static void

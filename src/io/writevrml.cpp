@@ -29,14 +29,14 @@ transformModelVRML(Vector3D *modelRotationAxis, float *modelRotationAngle) {
 
     vectorSet(up_axis, 0.0, 1.0, 0.0);
     cosA = vectorDotProduct(GLOBAL_camera_mainCamera.upDirection, up_axis);
-    if ( cosA < 1. - EPSILON ) {
+    if ( cosA < 1.0 - EPSILON ) {
         *modelRotationAngle = (float)std::acos(cosA);
         vectorCrossProduct(GLOBAL_camera_mainCamera.upDirection, up_axis, *modelRotationAxis);
         vectorNormalize(*modelRotationAxis);
         return rotateMatrix(*modelRotationAngle, *modelRotationAxis);
     } else {
-        vectorSet(*modelRotationAxis, 0., 1., 0.);
-        *modelRotationAngle = 0.;
+        vectorSet(*modelRotationAxis, 0.0, 1.0, 0.0);
+        *modelRotationAngle = 0.0;
         return globalIdentityMatrix;
     }
 }
@@ -78,7 +78,7 @@ writeVRMLViewPoint(FILE *fp, Matrix4x4 model_xf, Camera *cam, const char *viewPo
             "Viewpoint {\n  position %g %g %g\n  orientation %g %g %g %g\n  fieldOfView %g\n  description \"%s\"\n}\n\n",
             eyePosition.x, eyePosition.y, eyePosition.z,
             viewRotationAxis.x, viewRotationAxis.y, viewRotationAxis.z, viewRotationAngle,
-            (double) (2. * cam->fov * M_PI / 180.),
+            (double) (2.0 * cam->fov * M_PI / 180.0),
             viewPointName);
 }
 

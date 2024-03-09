@@ -179,11 +179,11 @@ static COLOR
 phongEdfEval(PHONG_EDF *edf, RayHit *hit, Vector3D *out, XXDFFLAGS flags, double *pdf) {
     Vector3D normal;
     COLOR result;
-    double cosl;
+    double cosL;
 
     colorClear(result);
     if ( pdf ) {
-        *pdf = 0.;
+        *pdf = 0.0;
     }
 
     if ( !hitShadingNormal(hit, &normal) ) {
@@ -191,9 +191,9 @@ phongEdfEval(PHONG_EDF *edf, RayHit *hit, Vector3D *out, XXDFFLAGS flags, double
         return result;
     }
 
-    cosl = vectorDotProduct(*out, normal);
+    cosL = vectorDotProduct(*out, normal);
 
-    if ( cosl < 0.0 ) {
+    if ( cosL < 0.0 ) {
         return result;
     } // Back face of a light does not radiate
 
@@ -203,7 +203,7 @@ phongEdfEval(PHONG_EDF *edf, RayHit *hit, Vector3D *out, XXDFFLAGS flags, double
         // Divide by PI to turn radiant exitance [W/m^2] into exitant radiance [W/m^2 sr]
         colorAdd(result, edf->kd, result);
         if ( pdf ) {
-            *pdf = cosl / M_PI;
+            *pdf = cosL / M_PI;
         }
     }
 
@@ -227,12 +227,12 @@ phongEdfSample(
     COLOR *selfEmittedRadiance,
     double *pdf)
 {
-    Vector3D dir = {0., 0., 1.};
+    Vector3D dir = {0.0, 0.0, 1.0};
     if ( selfEmittedRadiance ) {
         colorClear(*selfEmittedRadiance);
     }
     if ( pdf ) {
-        *pdf = 0.;
+        *pdf = 0.0;
     }
 
     if ( flags & DIFFUSE_COMPONENT ) {
@@ -268,8 +268,8 @@ phongBrdfEval(PHONG_BRDF *brdf, Vector3D *in, Vector3D *out, Vector3D *normal, X
     float dotProduct;
     Vector3D idealReflected;
     XXDFFLAGS nonDiffuseFlag;
-    Vector3D inrev;
-    vectorScale(-1., *in, inrev);
+    Vector3D inRev;
+    vectorScale(-1.0, *in, inRev);
 
     colorClear(result);
 
@@ -279,7 +279,7 @@ phongBrdfEval(PHONG_BRDF *brdf, Vector3D *in, Vector3D *out, Vector3D *normal, X
         return result;
     }
 
-    if ( (flags & DIFFUSE_COMPONENT) && (brdf->avgKd > 0.0)) {
+    if ( (flags & DIFFUSE_COMPONENT) && (brdf->avgKd > 0.0) ) {
         colorAddScaled(result, M_1_PI, brdf->Kd, result);
     }
 
@@ -289,8 +289,8 @@ phongBrdfEval(PHONG_BRDF *brdf, Vector3D *in, Vector3D *out, Vector3D *normal, X
         nonDiffuseFlag = GLOSSY_COMPONENT;
     }
 
-    if ( (flags & nonDiffuseFlag) && (brdf->avgKs > 0.0)) {
-        idealReflected = idealReflectedDirection(&inrev, normal);
+    if ( (flags & nonDiffuseFlag) && (brdf->avgKs > 0.0) ) {
+        idealReflected = idealReflectedDirection(&inRev, normal);
         dotProduct = vectorDotProduct(idealReflected, *out);
 
         if ( dotProduct > 0 ) {
@@ -317,16 +317,18 @@ phongBrdfSample(
     double x_2,
     double *pdf)
 {
-    Vector3D newDir = {0., 0., 0.}, idealDir;
-    double cos_theta, diffPdf, nonDiffPdf;
+    Vector3D newDir = {0.0, 0.0, 0.0}, idealDir;
+    double cosTheta;
+    double diffPdf;
+    double nonDiffPdf;
     double scatteredPower;
     double avgKd;
     double avgKs;
     float tmpFloat;
     COORDSYS coord;
     XXDFFLAGS nonDiffuseFlag;
-    Vector3D inrev;
-    vectorScale(-1.0, *in, inrev);
+    Vector3D inRev;
+    vectorScale(-1.0, *in, inRev);
 
     *pdf = 0;
 
@@ -365,7 +367,7 @@ phongBrdfSample(
         x_1 /= scatteredPower;
     }
 
-    idealDir = idealReflectedDirection(&inrev, normal);
+    idealDir = idealReflectedDirection(&inRev, normal);
 
     if ( x_1 < (avgKd / scatteredPower) ) {
         // Sample diffuse
@@ -390,12 +392,12 @@ phongBrdfSample(
         newDir = sampleHemisphereCosNTheta(&coord, brdf->Ns, x_1, x_2,
                                            &nonDiffPdf);
 
-        cos_theta = vectorDotProduct(*normal, newDir);
-        if ( cos_theta <= 0 ) {
+        cosTheta = vectorDotProduct(*normal, newDir);
+        if ( cosTheta <= 0 ) {
             return newDir;
         }
 
-        diffPdf = cos_theta / M_PI;
+        diffPdf = cosTheta / M_PI;
     }
 
     // Combine pdf's

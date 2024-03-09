@@ -32,9 +32,9 @@ ScreenIterateInit() {
     iState.wake_up = 0;
 #endif
 
-    /* initialize for statistics etc... */
+    // Initialize for statistics etc.
     iState.lastTime = clock();
-    GLOBAL_raytracer_totalTime = 0.;
+    GLOBAL_raytracer_totalTime = 0.0;
     GLOBAL_raytracer_rayCount = GLOBAL_raytracer_pixelCount = 0;
 }
 

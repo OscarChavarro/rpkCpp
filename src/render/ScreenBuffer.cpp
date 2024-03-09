@@ -70,7 +70,7 @@ ScreenBuffer::init(Camera *cam) {
 
     // Clear
     for ( i = 0; i < m_cam.xSize * m_cam.ySize; i++ ) {
-        colorSetMonochrome(m_Radiance[i], 0.);
+        colorSetMonochrome(m_Radiance[i], 0.0);
         m_RGB[i] = GLOBAL_material_black;
     }
 
@@ -213,7 +213,7 @@ ScreenBuffer::writeFile(ImageOutputHandle *ip) {
         sync();
     }
 
-    fprintf(stderr, "Writing %s file ... ", ip->drivername);
+    fprintf(stderr, "Writing %s file ... ", ip->driverName);
 
     ip->gamma[0] = GLOBAL_toneMap_options.gamma.r; // For default radiance -> display RGB
     ip->gamma[1] = GLOBAL_toneMap_options.gamma.g;

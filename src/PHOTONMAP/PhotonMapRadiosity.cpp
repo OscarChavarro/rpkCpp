@@ -85,7 +85,7 @@ photonMapInitPmap(java::ArrayList<Patch *> * /*scenePatches*/) {
     fprintf(stderr, "Photonmap activated\n");
 
     GLOBAL_photonMap_state.lastClock = clock();
-    GLOBAL_photonMap_state.cpuSecs = 0.;
+    GLOBAL_photonMap_state.cpuSecs = 0.0;
     GLOBAL_photonMap_state.gIterationNumber = 0;
     GLOBAL_photonMap_state.cIterationNumber = 0;
     GLOBAL_photonMap_state.i_iteration_nr = 0;
@@ -611,7 +611,7 @@ photonMapGetRadiance(Patch *patch,
     float density;
 
     patch->pointBarycentricMapping(u, v, &point);
-    hitInit(&hit, patch, nullptr, &point, &patch->normal, patch->surface->material, 0.);
+    hitInit(&hit, patch, nullptr, &point, &patch->normal, patch->surface->material, 0.0);
     hitShadingNormal(&hit, &hit.normal);
 
     if ( ZeroAlbedo(bsdf, &hit, BSDF_DIFFUSE_COMPONENT | BSDF_GLOSSY_COMPONENT)) {

@@ -1306,8 +1306,12 @@ mgfEntityPrism(int ac, char **av)
         return MGF_ERROR_UNDEFINED_REFERENCE;
     }
     hasnorm = 0;
-    norm[0] = norm[1] = norm[2] = 0.;
-    v1[0] = v1[1] = v1[2] = 0.;
+    norm[0] = 0.0;
+    norm[1] = 0.0;
+    norm[2] = 0.0;
+    v1[0] = 0.0;
+    v1[1] = 0.0;
+    v1[2] = 0.0;
     for ( i = 2; i < ac - 1; i++ ) {
         cv = getNamedVertex(av[i]);
         if ( cv == nullptr) {

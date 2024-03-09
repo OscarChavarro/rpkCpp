@@ -324,12 +324,12 @@ writeMaterial(Geometry *geom) {
         return;
     }
 
-    hitInit(&hit, firstPatch, nullptr, &firstPatch->midpoint, &firstPatch->normal, mat, 0.);
+    hitInit(&hit, firstPatch, nullptr, &firstPatch->midpoint, &firstPatch->normal, mat, 0.0);
     Rd = bsdfScatteredPower(mat->bsdf, &hit, &firstPatch->normal, BRDF_DIFFUSE_COMPONENT);
     convertColorToRGB(Rd, &rd);
     Rs = bsdfScatteredPower(mat->bsdf, &hit, &firstPatch->normal, BRDF_GLOSSY_COMPONENT | BRDF_SPECULAR_COMPONENT);
     convertColorToRGB(Rs, &rs);
-    specularity = 128.;
+    specularity = 128.0;
 
     fprintf(vrmlfp, "      appearance Appearance {\n");
     fprintf(vrmlfp, "\tmaterial DEF %s Material {\n", makeValidVrmlId(mat->name));
@@ -337,11 +337,11 @@ writeMaterial(Geometry *geom) {
     if ( mat->edf ) {
         fprintf(vrmlfp, "\t  emissiveColor %.3g %.3g %.3g\n", rd.r, rd.g, rd.b);
     } else {
-        fprintf(vrmlfp, "\t  emissiveColor %.3g %.3g %.3g\n", 0., 0., 0.);
+        fprintf(vrmlfp, "\t  emissiveColor %.3g %.3g %.3g\n", 0.0, 0.0, 0.0);
     }
     fprintf(vrmlfp, "\t  diffuseColor %.3g %.3g %.3g \n", rd.r, rd.g, rd.b);
     fprintf(vrmlfp, "\t  specularColor %.3g %.3g %.3g \n", rs.r, rs.g, rs.b);
-    fprintf(vrmlfp, "\t  shininess %g\n", specularity / 128. > 1. ? 1. : specularity / 128.);
+    fprintf(vrmlfp, "\t  shininess %g\n", specularity / 128.0 > 1.0 ? 1.0 : specularity / 128.0);
     fprintf(vrmlfp, "\t  transparency 0.\n");
     fprintf(vrmlfp, "\t}\n");
     fprintf(vrmlfp, "      }\n");

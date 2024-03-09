@@ -168,7 +168,7 @@ renderGetNearFar(float *near, float *far) {
         float vSize = camLen * cam->viewDistance * cam->pixelHeightTangent;
         Vector3D c, P[5];
 
-        vectorComb2(1., cam->eyePosition, camLen * cam->viewDistance, cam->Z, c);
+        vectorComb2(1.0, cam->eyePosition, camLen * cam->viewDistance, cam->Z, c);
         vectorComb3(c, hSize, cam->X, vSize, cam->Y, P[0]);
         vectorComb3(c, hSize, cam->X, -vSize, cam->Y, P[1]);
         vectorComb3(c, -hSize, cam->X, -vSize, cam->Y, P[2]);

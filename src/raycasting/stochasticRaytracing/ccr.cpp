@@ -255,7 +255,7 @@ determineControlRadiosity(
 
     colorSubtract(fMax, fMin, delta);
     colorAddScaled(delta, (-eps), fMin, delta);
-    while ( (colorMaximumComponent(delta) > 0.) || sweep < 4 ) {
+    while ( (colorMaximumComponent(delta) > 0.0) || sweep < 4 ) {
         sweep++;
         refineControlRadiosity(&minRad, &maxRad, &fMin, &fMax, scenePatches);
         colorSubtract(fMax, fMin, delta);

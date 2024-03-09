@@ -177,7 +177,7 @@ toneMapDefaults() {
         map->Defaults();
     }
 
-    GLOBAL_toneMap_options.brightness_adjust = 0.;
+    GLOBAL_toneMap_options.brightness_adjust = 0.0;
     GLOBAL_toneMap_options.pow_bright_adjust = std::pow(2.0f, GLOBAL_toneMap_options.brightness_adjust);
 
     GLOBAL_toneMap_options.staticAdaptationMethod = TMA_MEDIAN;
@@ -242,7 +242,7 @@ void
 recomputeGammaTable(int index, double gamma) {
     int i;
     if ( gamma <= EPSILON ) {
-        gamma = 1.;
+        gamma = 1.0;
     }
     for ( i = 0; i <= (1 << GAMMA_TAB_BITS); i++ ) {
         GLOBAL_toneMap_options.gammaTab[index][i] = (float)std::pow((double) i / (double) (1 << GAMMA_TAB_BITS), 1. / gamma);

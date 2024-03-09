@@ -56,7 +56,7 @@ hitInit(
     hit->flags |= HIT_DIST;
     vectorSet(hit->normal, 0, 0, 0);
     hit->texCoord = hit->X = hit->Y = hit->Z = hit->normal;
-    hit->uv.u = hit->uv.v = 0.;
+    hit->uv.u = hit->uv.v = 0.0;
     return hitInitialised(hit);
 }
 

@@ -58,7 +58,7 @@ static void
 clusterInit(GalerkinElement *cluster) {
     // Total area of surfaces inside the cluster is sum of the areas of
     // the sub-clusters + pull radiance
-    cluster->area = 0.;
+    cluster->area = 0.0;
     cluster->numberOfPatches = 0;
     cluster->minimumArea = HUGE;
     clusterGalerkinClearCoefficients(cluster->radiance, cluster->basisSize);
@@ -447,7 +447,7 @@ clusterGatherRadiance(Interaction *link, COLOR *srcRad) {
 
     switch ( GLOBAL_galerkin_state.clusteringStrategy ) {
         case ISOTROPIC:
-            doGatherRadiance(rcv, 1., link, srcRad);
+            doGatherRadiance(rcv, 1.0, link, srcRad);
             break;
         case ORIENTED:
             iterateOverSurfaceElementsInCluster(rcv, orientedSurfaceGatherRadiance);

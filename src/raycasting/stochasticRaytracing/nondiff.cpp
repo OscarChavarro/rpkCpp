@@ -140,9 +140,9 @@ sampleLightSources(int nr_samples) {
 static void
 summarize(java::ArrayList<Patch *> *scenePatches) {
     colorClear(GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotFlux);
-    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotYmp = 0.;
+    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotYmp = 0.0;
     colorClear(GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalFlux);
-    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalYmp = 0.;
+    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalYmp = 0.0;
     colorClear(GLOBAL_stochasticRaytracing_monteCarloRadiosityState.indirectImportanceWeightedUnShotFlux);
     for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
         Patch *patch = scenePatches->get(i);

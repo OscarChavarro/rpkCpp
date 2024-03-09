@@ -104,7 +104,7 @@ updateDirectPotential(java::ArrayList<Patch *> *scenePatches) {
     }
 
     GLOBAL_statistics.averageDirectPotential = GLOBAL_statistics.totalDirectPotential =
-    GLOBAL_statistics.maxDirectPotential = GLOBAL_statistics.maxDirectImportance = 0.;
+    GLOBAL_statistics.maxDirectPotential = GLOBAL_statistics.maxDirectImportance = 0.0;
     for ( unsigned long i = 1; i <= maximumPatchId; i++ ) {
         Patch *patch = id2patch[i];
 

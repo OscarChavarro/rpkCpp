@@ -242,7 +242,7 @@ splitBsdfSample(
     *pdf = 0; // So we can return safely
     if ( !hitShadingNormal(hit, &normal) ) {
         logWarning("splitBsdfSample", "Couldn't determine shading normal");
-        vectorSet(out, 0., 0., 1.);
+        vectorSet(out, 0.0, 0.0, 1.0);
         return out;
     }
 

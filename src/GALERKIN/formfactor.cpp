@@ -243,7 +243,7 @@ doHigherOrderAreaToAreaFormFactor(
                 logFatal(-1, "doHigherOrderAreaToAreaFormFactor",
                          "non-constant approximation on receiver cluster is not possible");
             }
-            rcvphi[0][k] = 1.;
+            rcvphi[0][k] = 1.0;
         } else {
             for ( alpha = 0; alpha < link->nrcv && rcvbasis != nullptr; alpha++ ) {
                 rcvphi[alpha][k] = rcvbasis->function[alpha](crrcv->u[k], crrcv->v[k]);
@@ -262,7 +262,7 @@ doHigherOrderAreaToAreaFormFactor(
                          "non-constant approximation on source cluster is not possible");
             }
             for ( l = 0; l < crsrc->numberOfNodes; l++ ) {
-                srcphi[l] = 1.;
+                srcphi[l] = 1.0;
             }
         } else {
             for ( l = 0; l < crsrc->numberOfNodes && srcbasis != nullptr; l++ ) {
@@ -273,7 +273,7 @@ doHigherOrderAreaToAreaFormFactor(
         for ( k = 0; k < crrcv->numberOfNodes; k++ ) {
             // Compute point-to-patch form factors for positions x_k on receiver and
             // basis function \beta on the source
-            G_beta[k] = 0.;
+            G_beta[k] = 0.0;
             for ( l = 0; l < crsrc->numberOfNodes; l++ ) {
                 G_beta[k] += crsrc->w[l] * Gxy[k][l] * srcphi[l];
             }
@@ -286,7 +286,7 @@ doHigherOrderAreaToAreaFormFactor(
         for ( alpha = 0; alpha < link->nrcv; alpha++ ) {
             // Compute patch-to-patch form factor for basis function alpha on the
             // receiver and beta on the source
-            G_alpha_beta = 0.;
+            G_alpha_beta = 0.0;
             for ( k = 0; k < crrcv->numberOfNodes; k++ ) {
                 G_alpha_beta += crrcv->w[k] * rcvphi[alpha][k] * G_beta[k];
             }
@@ -460,16 +460,16 @@ areaToAreaFormFactor(
         if ( !disjunctBounds(rcvBounds, srcBounds) ) {
             // Take 0 as form factor
             if ( link->nrcv == 1 && link->nsrc == 1 ) {
-                link->K.f = 0.;
+                link->K.f = 0.0;
             } else {
                 int i;
                 for ( i = 0; i < link->nrcv * link->nsrc; i++ ) {
-                    link->K.p[i] = 0.;
+                    link->K.p[i] = 0.0;
                 }
             }
 
             // And a large error on the form factor
-            link->deltaK.f = 1.;
+            link->deltaK.f = 1.0;
             link->crcv = 1;
 
             // And half visibility

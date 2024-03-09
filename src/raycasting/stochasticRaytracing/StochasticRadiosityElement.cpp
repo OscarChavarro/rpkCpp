@@ -148,12 +148,14 @@ createElement() {
 
     elem->rayIndex = 0;
     elem->quality = 0;
-    elem->ng = 0.;
+    elem->ng = 0.0;
 
-    elem->importance = elem->unShotImportance = elem->sourceImportance = 0.;
+    elem->importance = 0.0;
+    elem->unShotImportance = 0.0;
+    elem->sourceImportance = 0.0;
     elem->importanceRayIndex = 0;
 
-    vectorSet(elem->midPoint, 0., 0., 0.);
+    vectorSet(elem->midPoint, 0.0, 0.0, 0.0);
     elem->vertices[0] = elem->vertices[1] = elem->vertices[2] = elem->vertices[3] = nullptr;
     elem->parent = nullptr;
     elem->regularSubElements = nullptr;
@@ -374,7 +376,7 @@ stochasticRadiosityElementRegularSubElementAtPoint(StochasticRadiosityElement *p
                     *v = _v * 2.0;
                 } else if ( _v > 0.5 ) {
                         child = (StochasticRadiosityElement *)parent->regularSubElements[2];
-                        *u = _u * 2.;
+                        *u = _u * 2.0;
                         *v = (_v - 0.5) * 2.0;
                     } else {
                         child = (StochasticRadiosityElement *)parent->regularSubElements[3];
@@ -590,7 +592,7 @@ monteCarloRadiosityNewEdgeMidpointVertex(StochasticRadiosityElement *elem, int e
 static Vector3D
 galerkinElementMidpoint(StochasticRadiosityElement *elem) {
     int i;
-    vectorSet(elem->midPoint, 0., 0., 0.);
+    vectorSet(elem->midPoint, 0.0, 0.0, 0.0);
     for ( i = 0; i < elem->numberOfVertices; i++ ) {
         vectorAdd(elem->midPoint, *elem->vertices[i]->point, elem->midPoint);
     }
@@ -647,7 +649,7 @@ monteCarloRadiosityElementComputeAverageReflectanceAndEmittance(StochasticRadios
     niedindex n;
     COLOR albedo, emittance;
     RayHit hit;
-    hitInit(&hit, patch, nullptr, &patch->midpoint, &patch->normal, patch->surface->material, 0.);
+    hitInit(&hit, patch, nullptr, &patch->midpoint, &patch->normal, patch->surface->material, 0.0);
 
     isTextured = stochasticRadiosityElementIsTextured(elem);
     numberOfSamples = isTextured ? 100 : 1;
@@ -736,7 +738,7 @@ monteCarloRadiosityCreateSurfaceSubElement(
     stochasticRadiosityClearCoefficients(elem->radiance, elem->basis);
     stochasticRadiosityClearCoefficients(elem->unShotRadiance, elem->basis);
     stochasticRadiosityClearCoefficients(elem->receivedRadiance, elem->basis);
-    elem->importance = elem->unShotImportance = elem->receivedImportance = 0.;
+    elem->importance = elem->unShotImportance = elem->receivedImportance = 0.0;
     monteCarloRadiosityInitSurfacePush(parent, elem);
 
     return elem;

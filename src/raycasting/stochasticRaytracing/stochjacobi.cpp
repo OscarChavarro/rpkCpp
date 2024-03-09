@@ -472,10 +472,10 @@ stochasticJacobiRefineAndPropagate(
         }
     } else {
         if ( globalGetRadianceCallback ) {
-            stochasticJacobiRefineAndPropagateRadiance(src, us, vs, P, up, vp, Q, uq, vq, src_prob, 0., ray, +1);
+            stochasticJacobiRefineAndPropagateRadiance(src, us, vs, P, up, vp, Q, uq, vq, src_prob, 0.0, ray, +1);
         }
         if ( globalGetImportanceCallback ) {
-            stochasticJacobiRefineAndPropagateImportance(P, up, vp, Q, uq, vq, src_prob, 0., ray, +1);
+            stochasticJacobiRefineAndPropagateImportance(P, up, vp, Q, uq, vq, src_prob, 0.0, ray, +1);
         }
     }
 }
@@ -720,7 +720,7 @@ stochasticJacobiClearElement(StochasticRadiosityElement *parent) {
         stochasticRadiosityClearCoefficients(parent->unShotRadiance, parent->basis);
     }
     if ( globalGetImportanceCallback ) {
-        parent->importance = parent->unShotImportance = 0.;
+        parent->importance = parent->unShotImportance = 0.0;
     }
 }
 
@@ -778,9 +778,9 @@ static void
 stochasticJacobiPushUpdatePullSweep() {
     // Update radiance, compute new total and un-shot flux
     colorClear(GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotFlux);
-    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotYmp = 0.;
+    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotYmp = 0.0;
     colorClear(GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalFlux);
-    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalYmp = 0.;
+    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalYmp = 0.0;
     colorClear(GLOBAL_stochasticRaytracing_monteCarloRadiosityState.indirectImportanceWeightedUnShotFlux);
 
     // Update reflectances and emittances (refinement yields more accurate estimates

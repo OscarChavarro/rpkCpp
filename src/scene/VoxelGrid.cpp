@@ -303,7 +303,7 @@ VoxelGrid::gridTraceSetup(
             step[0] = out[0] = -1;
         }
     } else {
-        tDelta->x = 0.;
+        tDelta->x = 0.0;
         tNext->x = HUGE;
     }
 
@@ -320,7 +320,7 @@ VoxelGrid::gridTraceSetup(
             step[1] = out[1] = -1;
         }
     } else {
-        tDelta->y = 0.;
+        tDelta->y = 0.0;
         tNext->y = HUGE;
     }
 
@@ -337,7 +337,7 @@ VoxelGrid::gridTraceSetup(
             step[2] = out[2] = -1;
         }
     } else {
-        tDelta->z = 0.;
+        tDelta->z = 0.0;
         tNext->z = HUGE;
     }
 }

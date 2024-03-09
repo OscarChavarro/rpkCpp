@@ -227,7 +227,9 @@ mgfGetColor(MgfColorContext *cin, float intensity, COLOR *colorOut) {
         xyz[2] = (1.0f - cin->cx - cin->cy) / cin->cy * intensity;
     } else {
         doWarning("invalid color specification (Y<=0) ... setting to black");
-        xyz[0] = xyz[1] = xyz[2] = 0.;
+        xyz[0] = 0.0;
+        xyz[1] = 0.0;
+        xyz[2] = 0.0;
     }
 
     if ( xyz[0] < 0. || xyz[1] < 0. || xyz[2] < 0. ) {

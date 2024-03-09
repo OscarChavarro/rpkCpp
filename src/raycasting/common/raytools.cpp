@@ -146,7 +146,7 @@ pathNodesVisible(SimpleRaytracingPathNode *node1, SimpleRaytracingPathNode *node
         Patch::dontIntersect(3, node2->m_hit.patch, node1->m_hit.patch,
                              node1->m_hit.patch ? node1->m_hit.patch->twin : nullptr);
         hit = GLOBAL_scene_worldVoxelGrid->gridIntersect(&ray,
-                            0., &fDistance,
+                            0.0, &fDistance,
                             HIT_FRONT | HIT_BACK | HIT_ANY, &hitStore);
         Patch::dontIntersect(0);
         visible = (hit == nullptr);
@@ -225,7 +225,7 @@ eyeNodeVisible(
                     Patch::dontIntersect(3, node->m_hit.patch, eyeNode->m_hit.patch,
                                          eyeNode->m_hit.patch ? eyeNode->m_hit.patch->twin : nullptr);
                     hit = GLOBAL_scene_worldVoxelGrid->gridIntersect(&ray,
-                                        0., &fDistance,
+                                        0.0, &fDistance,
                                         HIT_FRONT | HIT_ANY, &hitStore);
                     Patch::dontIntersect(0);
                     // HIT_BACK removed ! So you can see through backwalls with N.E.E

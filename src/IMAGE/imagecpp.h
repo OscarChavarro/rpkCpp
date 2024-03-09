@@ -14,10 +14,12 @@ protected:
     int height;
 
     void init(const char *_name, int _width, int _height) {
-        drivername = _name;
+        driverName = _name;
         width = _width;
         height = _height;
-        gamma[0] = gamma[1] = gamma[2] = 1.;
+        gamma[0] = 1.0;
+        gamma[1] = 1.0;
+        gamma[2] = 1.0;
     }
 
 public:
@@ -25,34 +27,40 @@ public:
 
     virtual ~ImageOutputHandle() {};
 
-    /* image file output driver name */
-    const char *drivername;
+    // Image file output driver name
+    const char *driverName;
 
-    /* gamma correction factors for red, green and blue  used by default  */
-    /* WriteRadianceRGB() */
+    // Gamma correction factors for red, green and blue  used by default
     float gamma[3];
 
-    /* writes a scanline of gamma-corrected display RGB pixels */
-    /* returns the number of pixels written. */
+    // Writes a scanline of gamma-corrected display RGB pixels
+    // returns the number of pixels written
     virtual int writeDisplayRGB(unsigned char *rgb);
 
     virtual int writeDisplayRGB(float *rgbFloatArray);
 
-    /* writes a scanline of raw radiance data */
-    /* returns the number of pixels written. */
-    virtual int writeRadianceRGB(float *rgbRadiance);    /* RGB radiance data */
+    // Writes a scanline of raw radiance data
+    // returns the number of pixels written
+    virtual int writeRadianceRGB(float *rgbRadiance); // RGB radiance data
 };
 
 #include <cstdio>
 
-/* Examines filename extension in order to decide what file format to use to write
- * radiance image.*/
-extern ImageOutputHandle *createRadianceImageOutputHandle(char *fileName, FILE *fp, int isPipe,
-                                                          int width, int height,
-                                                          float referenceLuminance);
+extern ImageOutputHandle *
+createRadianceImageOutputHandle(
+    char *fileName,
+    FILE *fp,
+    int isPipe,
+    int width,
+    int height,
+    float referenceLuminance);
 
-/* Same, but for writing "normal" display RGB images instead radiance image. */
-extern ImageOutputHandle *createImageOutputHandle(char *fileName, FILE *fp, int isPipe,
-                                                  int width, int height);
+extern ImageOutputHandle *
+createImageOutputHandle(
+    char *fileName,
+    FILE *fp,
+    int isPipe,
+    int width,
+    int height);
 
 #endif

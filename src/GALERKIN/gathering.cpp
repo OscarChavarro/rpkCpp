@@ -243,7 +243,7 @@ doClusteredGatheringIteration(java::ArrayList<Patch*> *scenePatches) {
     basisGalerkinPushPullRadiance(GLOBAL_galerkin_state.topCluster);
 
     if ( GLOBAL_galerkin_state.importance_driven ) {
-        gatheringPushPullPotential(GLOBAL_galerkin_state.topCluster, 0.);
+        gatheringPushPullPotential(GLOBAL_galerkin_state.topCluster, 0.0);
     }
 
     // No visualisation with ambient term for gathering radiosity algorithms

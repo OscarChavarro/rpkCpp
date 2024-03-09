@@ -264,7 +264,7 @@ boundsBehindPlane(const float *bounds, Vector3D *norm, float d) {
         P.z = bounds[MIN_Z];
     }
 
-    return vectorDotProduct(*norm, P) + d <= 0.;
+    return vectorDotProduct(*norm, P) + d <= 0.0;
 }
 
 /**

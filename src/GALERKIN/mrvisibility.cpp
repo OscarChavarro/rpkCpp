@@ -23,49 +23,50 @@ static double
 geomMultiResolutionVisibility(
     Geometry *geom,
     Ray *ray,
-    float rcvdist,
+    float rcvDist,
     float srcSize,
     float minimumFeatureSize)
 {
-    Vector3D vtmp;
-    float tmin;
-    float tmax;
+    Vector3D vectorTmp;
+    float tMinimum;
+    float tMaximum;
     float t;
-    float fsize;
+    float fSize;
     float *bbx;
     GalerkinElement *cluster = (GalerkinElement *) (geom->radianceData);
-    RayHit hitstore;
+    RayHit hitStore;
 
     if ( geom == GLOBAL_geom_excludedGeom1 || geom == GLOBAL_geom_excludedGeom2 ) {
-        return 1.;
+        return 1.0;
     }
 
     if ( !geom->bounded ) {
         logFatal(-1, "geomMultiResolutionVisibility", "Don't know what to do with unbounded geoms");
     }
 
-    fsize = HUGE;
-    tmin = rcvdist * ((float)EPSILON);
-    tmax = rcvdist;
+    fSize = HUGE;
+    tMinimum = rcvDist * ((float)EPSILON);
+    tMaximum = rcvDist;
     bbx = geom->bounds;
 
     /* Check ray/bounding volume intersection and compute feature size of
      * occluder. */
-    vectorSumScaled(ray->pos, tmin, ray->dir, vtmp);
-    if ( outOfBounds(&vtmp, bbx)) {
-        if ( !boundsIntersectingSegment(ray, bbx, &tmin, &tmax)) {
-            return 1.;
-        }  /* ray doesn't intersect the bounding box of the Geometry within
-		   * distance interval tmin ... tmax. */
+    vectorSumScaled(ray->pos, tMinimum, ray->dir, vectorTmp);
+    if ( outOfBounds(&vectorTmp, bbx)) {
+        if ( !boundsIntersectingSegment(ray, bbx, &tMinimum, &tMaximum) ) {
+            // Ray doesn't intersect the bounding box of the Geometry within
+		    // distance interval tMinimum ... tMaximum
+            return 1.0;
+        }
 
         if ( cluster ) {
-            /* Compute feature size using equivalent blocker size of the occluder */
-            t = (tmin + tmax) / 2.0f;    /* put the centre of the equivalent blocker halfway tmin and tmax */
-            fsize = srcSize + rcvdist / t * (cluster->blockerSize - srcSize);
+            // Compute feature size using equivalent blocker size of the occluder
+            t = (tMinimum + tMaximum) / 2.0f; // Put the centre of the equivalent blocker halfway tMinimum and tMaximum
+            fSize = srcSize + rcvDist / t * (cluster->blockerSize - srcSize);
         }
     }
 
-    if ( fsize < minimumFeatureSize ) {
+    if ( fSize < minimumFeatureSize ) {
         double kappa = 0.0;
         double vol;
         vol = (bbx[MAX_X] - bbx[MIN_X] + EPSILON) * (bbx[MAX_Y] - bbx[MIN_Y] + EPSILON) *
@@ -73,23 +74,23 @@ geomMultiResolutionVisibility(
         if ( cluster != nullptr ) {
             kappa = cluster->area / (4.0 * vol);
         }
-        return std::exp(-kappa * (tmax - tmin));
+        return std::exp(-kappa * (tMaximum - tMinimum));
     } else {
         if ( geomIsAggregate(geom) ) {
             java::ArrayList<Geometry *> *geometryList = geomPrimListCopy(geom);
-            double visibility = geomListMultiResolutionVisibility(geometryList, ray, rcvdist, srcSize, minimumFeatureSize);
+            double visibility = geomListMultiResolutionVisibility(geometryList, ray, rcvDist, srcSize, minimumFeatureSize);
             delete geometryList;
             return visibility;
         } else {
             RayHit *hit = patchListIntersect(
                     geomPatchArrayListReference(geom),
                     ray,
-                rcvdist * ((float) EPSILON), &rcvdist, HIT_FRONT | HIT_ANY, &hitstore);
+                    rcvDist * ((float) EPSILON), &rcvDist, HIT_FRONT | HIT_ANY, &hitStore);
             if ( hit != nullptr ) {
                 addToShadowCache(hit->patch);
-                return 0.;
+                return 0.0;
             } else {
-                return 1.;
+                return 1.0;
             }
         }
     }

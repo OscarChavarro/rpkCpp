@@ -40,12 +40,12 @@ RGB x LOG LUV TIFF MACROS
 #define PRE_TIFF_GENERAL_HANDLE(_func) \
     logError(_func, "TIFF support has not been compiled in")
 
-ImageOutputHandle::ImageOutputHandle(): width(), height(), drivername(), gamma() {
+ImageOutputHandle::ImageOutputHandle(): width(), height(), driverName(), gamma() {
 }
 
 int
 ImageOutputHandle::writeDisplayRGB(unsigned char * /*x*/) {
-    fprintf(stderr, "%s does not support display RGB output.\n", drivername);
+    fprintf(stderr, "%s does not support display RGB output.\n", driverName);
     return 0;
 }
 

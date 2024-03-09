@@ -659,7 +659,7 @@ Patch::averageNormalAlbedo(BSDFFLAGS components) {
     int numberOfSamples;
     COLOR albedo;
     RayHit hit;
-    hitInit(&hit, this, nullptr, &midpoint, &normal, surface->material, 0.);
+    hitInit(&hit, this, nullptr, &midpoint, &normal, surface->material, 0.0);
 
     numberOfSamples = getNumberOfSamples();
     colorClear(albedo);
@@ -683,7 +683,7 @@ Patch::averageEmittance(XXDFFLAGS components) {
     int numberOfSamples;
     COLOR emittance;
     RayHit hit;
-    hitInit(&hit, this, nullptr, &midpoint, &normal, surface->material, 0.);
+    hitInit(&hit, this, nullptr, &midpoint, &normal, surface->material, 0.0);
 
     numberOfSamples = getNumberOfSamples();
     colorClear(emittance);
@@ -764,7 +764,7 @@ Patch::interpolatedFrameAtUv(
     if ( X && Y ) {
         double zz = std::sqrt(1 - Z->z * Z->z);
         if ( zz < EPSILON ) {
-            vectorSet(*X, 1., 0., 0.);
+            vectorSet(*X, 1.0, 0.0, 0.0);
         } else {
             vectorSet(*X, (float) (Z->y / zz), (float) (-Z->x / zz), 0.0f);
         }

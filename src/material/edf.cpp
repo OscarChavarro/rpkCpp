@@ -51,7 +51,7 @@ edfEval(EDF *edf, RayHit *hit, Vector3D *out, XXDFFLAGS flags, double *pdf) {
         static COLOR val;
         colorClear(val);
         if ( pdf ) {
-            *pdf = 0.;
+            *pdf = 0.0;
         }
         return val;
     }
@@ -70,7 +70,7 @@ edfSample(EDF *edf, RayHit *hit, XXDFFLAGS flags,
     if ( edf && edf->methods->Sample ) {
         return edf->methods->Sample(edf->data, hit, flags, xi1, xi2, emitted_radiance, pdf);
     } else {
-        Vector3D v = {0., 0., 0.};
+        Vector3D v = {0.0, 0.0, 0.0};
         logFatal(-1, "edfSample", "Can't sample EDF");
         return v;
     }

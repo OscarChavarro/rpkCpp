@@ -184,18 +184,18 @@ I don't think the other rules will be better than this one (Haegemans & Piessens
 SIAM J. Numer Anal 14 (1977) p 492 is maybe a nice alternative? Other formulas have
 less symmetry.
 */
-#define r 0.92582009977255141919    /* sqrt(6./7.) */
-#define s 0.38055443320831561227    /* sqrt((114.-3.*sqrt(583.))/287.) */
-#define t 0.80597978291859884159    /* sqrt((114.+3.*sqrt(583.))/287.) */
-#define w1 0.24197530864197530631    /* 49./810.*4. */
-#define w2 0.52059291666739448967    /* (178981.+2769.*sqrt(583.))/1888920.*4. */
-#define w3 0.23743177469063023177    /* (178981.-2769.*sqrt(583.))/1888920.*4. */
+#define r 0.92582009977255141919    /* sqrt(6.0 / 7.0) */
+#define s 0.38055443320831561227    /* sqrt((114.0 - 3.0 * sqrt(583.0)) / 287.0) */
+#define t 0.80597978291859884159    /* sqrt((114.0 + 3.0 * sqrt(583.0)) / 287.0) */
+#define w1 0.24197530864197530631    /* 49.0 / 810.0 * 4.0 */
+#define w2 0.52059291666739448967    /* (178981.0 + 2769.0 * sqrt(583.0)) / 1888920.0 * 4.0 */
+#define w3 0.23743177469063023177    /* (178981.0 - 2769.0 * sqrt(583.0)) / 1888920.0 * 4.0 */
 CUBARULE GLOBAL_crq7 = {
     "quads degree 7, 12 positions",
     7 /* degree */, 12 /* positions */,
     {r, -r, 0.0, 0.0, s, s, -s, -s, t, t, -t, -t},
     {0.0, 0.0, r, -r, s, -s, s, -s, t, -t, t, -t},
-    {0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.},
+    {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0},
     {w1, w1, w1, w1, w2, w2, w2, w2, w3, w3, w3, w3}
 };
 #undef r
@@ -216,7 +216,7 @@ CUBARULE GLOBAL_crq7pg = {
     16,
     {-x1, -x1, -x1, -x1, -x2, -x2, -x2, -x2, x2, x2, x2, x2, x1, x1, x1, x1},
     {-x1, -x2, x2, x1, -x1, -x2, x2, x1, -x1, -x2, x2, x1, -x1, -x2, x2, x1},
-    {0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.},
+    {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0},
     {w1 * w1, w1 * w2, w1 * w2, w1 * w1, w2 * w1, w2 * w2, w2 * w2, w2 * w1, w2 * w1, w2 * w2, w2 * w2, w2 * w1,
      w1 * w1, w1 * w2, w1 * w2, w1 * w1}
 };
@@ -371,7 +371,7 @@ CUBARULE GLOBAL_crt4 = {
     4, 6,
     {a1, b1, c1, a2, b2, c2},
     {b1, c1, a1, b2, c2, a2},
-    {0., 0., 0., 0., 0., 0.},
+    {0.0, 0.0, 0.0, 0.0, 0.0, 0.0},
     {w1, w1, w1, w2, w2, w2}
 };
 #undef c2
@@ -398,7 +398,7 @@ CUBARULE GLOBAL_crt5 = {
     7,
     {t, r, r, s, u, u, v},
     {t, r, s, r, u, v, u},
-    {0., 0., 0., 0., 0., 0., 0.},
+    {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0},
     {A, B, B, B, C, C, C}
 };
 #undef C
@@ -437,8 +437,8 @@ CUBARULE GLOBAL_crt7 = {
      a3, b3, c3, a4, b4, c4},
     {b1, c1, a1, b2, c2, a2,
      b3, c3, a3, b4, c4, a4},
-    {0., 0., 0., 0., 0., 0.,
-     0., 0., 0., 0., 0., 0.},
+    {0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+     0.0, 0.0, 0.0, 0.0, 0.0, 0.0},
     {w1, w1, w1, w2, w2, w2,
      w3, w3, w3, w4, w4, w4}
 };
@@ -670,10 +670,10 @@ This routine transforms a rule over [-1,1]^3 to the unit cube [0,1]^3
 static void
 cubatureTransformCubeRule(CUBARULE *rule) {
     for ( int k = 0; k < rule->numberOfNodes; k++ ) {
-        rule->u[k] = (rule->u[k] + 1.) / 2.;
-        rule->v[k] = (rule->v[k] + 1.) / 2.;
-        rule->t[k] = (rule->t[k] + 1.) / 2.;
-        rule->w[k] /= 8.;
+        rule->u[k] = (rule->u[k] + 1.0) / 2.0;
+        rule->v[k] = (rule->v[k] + 1.0) / 2.0;
+        rule->t[k] = (rule->t[k] + 1.0) / 2.0;
+        rule->w[k] /= 8.0;
     }
 }
 
