@@ -1,3 +1,4 @@
+#include "common/mymath.h"
 #include "skin/BoundingBox.h"
 
 BoundingBox::BoundingBox(): coordinates() {
