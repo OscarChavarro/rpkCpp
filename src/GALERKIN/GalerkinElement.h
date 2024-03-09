@@ -87,6 +87,7 @@ public:
     float *bounds(float *bounds);
     Vector3D midPoint();
     POLYGON *polygon(POLYGON *polygon);
+    void traverseLeafElements(void (*func)(GalerkinElement *));
 };
 
 /**
@@ -103,6 +104,5 @@ extern int galerkinElementGetNumberOfClusters();
 extern int galerkinElementGetNumberOfSurfaceElements();
 
 extern void galerkinElementReAllocCoefficients(GalerkinElement *element);
-extern void galerkinElementForAllLeafElements(GalerkinElement *element, void (*func)(GalerkinElement *));
 
 #endif

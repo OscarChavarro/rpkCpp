@@ -767,18 +767,18 @@ GalerkinElement::render() {
 Call func for each leaf element of element
 */
 void
-galerkinElementForAllLeafElements(GalerkinElement *element, void (*func)(GalerkinElement *)) {
-    for ( int i = 0; element->irregularSubElements != nullptr && i < element->irregularSubElements->size(); i++ ) {
-        galerkinElementForAllLeafElements(element->irregularSubElements->get(i), func);
+GalerkinElement::traverseLeafElements(void (*func)(GalerkinElement *)) {
+    for ( int i = 0; irregularSubElements != nullptr && i < irregularSubElements->size(); i++ ) {
+        irregularSubElements->get(i)->traverseLeafElements(func);
     }
 
-    if ( element->regularSubElements != nullptr ) {
+    if ( regularSubElements != nullptr ) {
         for ( int i = 0; i < 4; i++ ) {
-            galerkinElementForAllLeafElements(element->regularSubElements[i], func);
+            regularSubElements[i]->traverseLeafElements(func);
         }
     }
 
-    if ( !element->irregularSubElements && !element->regularSubElements ) {
-        func(element);
+    if ( !irregularSubElements && !regularSubElements ) {
+        func(this);
     }
 }
