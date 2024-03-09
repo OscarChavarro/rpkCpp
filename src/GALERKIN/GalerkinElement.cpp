@@ -500,12 +500,10 @@ GalerkinElement::midPoint() {
     Vector3D c;
 
     if ( isCluster() ) {
-        float *boundingBox = geomBounds(geometry).coordinates;
-
         vectorSet(c,
-                  (boundingBox[MIN_X] + boundingBox[MAX_X]) / 2.0f,
-                  (boundingBox[MIN_Y] + boundingBox[MAX_Y]) / 2.0f,
-                  (boundingBox[MIN_Z] + boundingBox[MAX_Z]) / 2.0f);
+                  (geomBounds(geometry).coordinates[MIN_X] + geomBounds(geometry).coordinates[MAX_X]) / 2.0f,
+                  (geomBounds(geometry).coordinates[MIN_Y] + geomBounds(geometry).coordinates[MAX_Y]) / 2.0f,
+                  (geomBounds(geometry).coordinates[MIN_Z] + geomBounds(geometry).coordinates[MAX_Z]) / 2.0f);
     } else {
         Vector3D p[8];
         int numberOfVertices = vertices(p, 4);
