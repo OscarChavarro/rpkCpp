@@ -17,32 +17,32 @@ class VoxelGrid {
 
     inline float
     voxel2x(const float px) {
-        return px * voxelSize.x + boundingBox[MIN_X];
+        return px * voxelSize.x + boundingBox.coordinates[MIN_X];
     }
 
     inline float
     voxel2y(const float py) {
-        return py * voxelSize.y + boundingBox[MIN_Y];
+        return py * voxelSize.y + boundingBox.coordinates[MIN_Y];
     }
 
     inline float
     voxel2z(const float pz) {
-        return pz * voxelSize.z + boundingBox[MIN_Z];
+        return pz * voxelSize.z + boundingBox.coordinates[MIN_Z];
     }
 
     inline short
     x2voxel(const float px) {
-        return (short)((voxelSize.x<EPSILON) ? 0 : (px - boundingBox[MIN_X]) / voxelSize.x);
+        return (short)((voxelSize.x<EPSILON) ? 0 : (px - boundingBox.coordinates[MIN_X]) / voxelSize.x);
     }
 
     inline short
     y2voxel(const float py) {
-        return (short)((voxelSize.y < EPSILON) ? 0 : (py - boundingBox[MIN_Y]) / voxelSize.y);
+        return (short)((voxelSize.y < EPSILON) ? 0 : (py - boundingBox.coordinates[MIN_Y]) / voxelSize.y);
     }
 
     inline short
     z2voxel(const float pz) {
-        return (short)((voxelSize.z < EPSILON) ? 0 : (pz - boundingBox[MIN_Z]) / voxelSize.z);
+        return (short)((voxelSize.z < EPSILON) ? 0 : (pz - boundingBox.coordinates[MIN_Z]) / voxelSize.z);
     }
 
     inline int

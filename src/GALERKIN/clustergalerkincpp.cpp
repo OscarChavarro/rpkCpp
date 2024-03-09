@@ -89,7 +89,7 @@ clusterInit(GalerkinElement *cluster) {
 
     // Compute equivalent blocker (or blocker complement) size for multi-resolution
     // visibility
-    float *bbx = cluster->geometry->bounds;
+    float *bbx = cluster->geometry->bounds.coordinates;
     cluster->blockerSize = floatMax((bbx[MAX_X] - bbx[MIN_X]), (bbx[MAX_Y] - bbx[MIN_Y]));
     cluster->blockerSize = floatMax(cluster->blockerSize, (bbx[MAX_Z] - bbx[MIN_Z]));
 }
@@ -237,7 +237,7 @@ clusterRadianceToSamplePoint(GalerkinElement *src, Vector3D sample) {
         }
 
         case Z_VISIBILITY:
-            if ( !src->isCluster() || !outOfBounds(&sample, src->geometry->bounds) ) {
+            if ( !src->isCluster() || !outOfBounds(&sample, src->geometry->bounds.coordinates) ) {
                 return src->radiance[0];
             } else {
                 double areaFactor;
@@ -337,7 +337,7 @@ receiverClusterArea(Interaction *link) {
 
         case Z_VISIBILITY:
             globalSamplePoint = src->midPoint();
-            if ( !outOfBounds(&globalSamplePoint, rcv->geometry->bounds)) {
+            if ( !outOfBounds(&globalSamplePoint, rcv->geometry->bounds.coordinates)) {
                 return rcv->area;
             } else {
                 float *bbx = scratchRenderElements(rcv, globalSamplePoint);
@@ -453,7 +453,7 @@ clusterGatherRadiance(Interaction *link, COLOR *srcRad) {
             iterateOverSurfaceElementsInCluster(rcv, orientedSurfaceGatherRadiance);
             break;
         case Z_VISIBILITY:
-            if ( !outOfBounds(&globalSamplePoint, rcv->geometry->bounds)) {
+            if ( !outOfBounds(&globalSamplePoint, rcv->geometry->bounds.coordinates) ) {
                 iterateOverSurfaceElementsInCluster(rcv, orientedSurfaceGatherRadiance);
             } else {
                 float *bbx = scratchRenderElements(rcv, globalSamplePoint);

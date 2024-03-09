@@ -47,7 +47,7 @@ geomMultiResolutionVisibility(
     fSize = HUGE;
     tMinimum = rcvDist * ((float)EPSILON);
     tMaximum = rcvDist;
-    bbx = geom->bounds;
+    bbx = geom->bounds.coordinates;
 
     /* Check ray/bounding volume intersection and compute feature size of
      * occluder. */

@@ -438,10 +438,10 @@ GalerkinElement::vertices(Vector3D *p, int n) {
     if ( isCluster() ) {
         BoundingBox vol;
 
-        bounds(vol);
+        bounds(vol.coordinates);
 
         for ( int i = 0; i < n; i++ ) {
-            vectorSet(p[i], vol[MIN_X], vol[MIN_Y], vol[MIN_Z]);
+            vectorSet(p[i], vol.coordinates[MIN_X], vol.coordinates[MIN_Y], vol.coordinates[MIN_Z]);
         }
 
         return 8;
@@ -500,7 +500,7 @@ GalerkinElement::midPoint() {
     Vector3D c;
 
     if ( isCluster() ) {
-        float *boundingBox = geomBounds(geometry);
+        float *boundingBox = geomBounds(geometry).coordinates;
 
         vectorSet(c,
                   (boundingBox[MIN_X] + boundingBox[MAX_X]) / 2.0f,
@@ -526,7 +526,7 @@ Computes a bounding box for the element
 float *
 GalerkinElement::bounds(float *bounds) {
     if ( isCluster() ) {
-        boundsCopy(geomBounds(geometry), bounds);
+        boundsCopy(geomBounds(geometry).coordinates, bounds);
     } else {
         Vector3D p[4];
         int i;
@@ -559,9 +559,9 @@ GalerkinElement::polygon(POLYGON *polygon) {
     polygon->index = (unsigned char)patch->index;
     polygon->numberOfVertices = vertices(polygon->vertex, polygon->numberOfVertices);
 
-    boundsInit(polygon->bounds);
+    boundsInit(polygon->bounds.coordinates);
     for ( int i = 0; i < polygon->numberOfVertices; i++ ) {
-        boundsEnlargePoint(polygon->bounds, &polygon->vertex[i]);
+        boundsEnlargePoint(polygon->bounds.coordinates, &polygon->vertex[i]);
     }
 
     return polygon;

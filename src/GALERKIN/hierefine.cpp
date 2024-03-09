@@ -65,8 +65,8 @@ hierarchicRefinementCull(
         } else {
             BoundingBox srcBounds;
             BoundingBox rcvBounds;
-            the_shaft = constructShaft(link->receiverElement->bounds(rcvBounds),
-                                       link->sourceElement->bounds(srcBounds), &shaft);
+            the_shaft = constructShaft(link->receiverElement->bounds(rcvBounds.coordinates),
+                                       link->sourceElement->bounds(srcBounds.coordinates), &shaft);
         }
         if ( !the_shaft ) {
             logError("hierarchicRefinementCull", "Couldn't construct shaft");
@@ -576,7 +576,7 @@ hierarchicRefinementSubdivideSourceCluster(
         if ( !childElement->isCluster() ) {
             Patch *the_patch = childElement->patch;
             if ((rcv->isCluster() &&
-                 boundsBehindPlane(geomBounds(rcv->geometry), &the_patch->normal, the_patch->planeConstant)) ||
+                 boundsBehindPlane(geomBounds(rcv->geometry).coordinates, &the_patch->normal, the_patch->planeConstant)) ||
                 (!rcv->isCluster() && !facing(rcv->patch, the_patch)) ) {
                 continue;
             }
@@ -618,7 +618,7 @@ hierarchicRefinementSubdivideReceiverCluster(
         if ( !child->isCluster() ) {
             Patch *the_patch = child->patch;
             if ((src->isCluster() &&
-                 boundsBehindPlane(geomBounds(src->geometry), &the_patch->normal, the_patch->planeConstant)) ||
+                 boundsBehindPlane(geomBounds(src->geometry).coordinates, &the_patch->normal, the_patch->planeConstant)) ||
                 (!src->isCluster() && !facing(src->patch, the_patch)) ) {
                 continue;
             }

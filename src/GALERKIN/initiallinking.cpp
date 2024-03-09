@@ -53,7 +53,7 @@ createInitialLink(Patch *patch) {
                                                        &shaft);
         } else {
             BoundingBox bbox;
-            the_shaft = constructShaft(globalPatchBoundingBox, patch->patchBounds(bbox), &shaft);
+            the_shaft = constructShaft(globalPatchBoundingBox.coordinates, patch->patchBounds(bbox.coordinates), &shaft);
         }
 
         if ( the_shaft ) {
@@ -120,7 +120,7 @@ geomLink(Geometry *geom) {
     java::ArrayList<Geometry *> *oldCandidateList = globalCandidateList;
 
     // Immediately return if the Geometry is bounded and behind the plane of the patch for which interactions are created
-    if ( geom->bounded && boundsBehindPlane(geomBounds(geom), &globalPatch->normal, globalPatch->planeConstant) ) {
+    if ( geom->bounded && boundsBehindPlane(geomBounds(geom).coordinates, &globalPatch->normal, globalPatch->planeConstant) ) {
         return;
     }
 
@@ -128,7 +128,7 @@ geomLink(Geometry *geom) {
     // which contains the possible occluder between a pair of patches for which
     // an initial link will need to be created
     if ( geom->bounded && oldCandidateList ) {
-        constructShaft(globalPatchBoundingBox, geomBounds(geom), &shaft);
+        constructShaft(globalPatchBoundingBox.coordinates, geomBounds(geom).coordinates, &shaft);
         setShaftOmit(&shaft, globalPatch);
         java::ArrayList<Geometry*> *arr = new java::ArrayList<Geometry*>();
         doShaftCulling(oldCandidateList, &shaft, arr);
@@ -171,7 +171,7 @@ createInitialLinks(GalerkinElement *top, GalerkinRole role) {
     globalElement = top;
     globalRole = role;
     globalPatch = top->patch;
-    globalPatch->patchBounds(globalPatchBoundingBox);
+    globalPatch->patchBounds(globalPatchBoundingBox.coordinates);
     globalCandidateList = GLOBAL_scene_clusteredGeometries;
 
     for ( int i = 0; GLOBAL_scene_geometries != nullptr && i < GLOBAL_scene_geometries->size(); i++ ) {

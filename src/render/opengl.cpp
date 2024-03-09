@@ -370,13 +370,13 @@ openGlRenderOctreeNonLeaf(Geometry *geometry, void (*render_patch)(Patch *)) {
 
     // cull the non-leaf octree children geoms
     for ( i = 0; i < n; i++ ) {
-        if ( openGlViewCullBounds(octree_children[i].geom->bounds)) {
+        if ( openGlViewCullBounds(octree_children[i].geom->bounds.coordinates) ) {
             octree_children[i].geom = nullptr; // culled
             octree_children[i].dist = HUGE;
         } else {
-            // not culled, compute distance from eye to midpoint of child
-            octree_children[i].dist = openGlBoundsDistance2(GLOBAL_camera_mainCamera.eyePosition,
-                                                            octree_children[i].geom->bounds);
+            // Not culled, compute distance from eye to midpoint of child
+            octree_children[i].dist = openGlBoundsDistance2(
+                GLOBAL_camera_mainCamera.eyePosition, octree_children[i].geom->bounds.coordinates);
         }
     }
 

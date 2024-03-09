@@ -202,7 +202,7 @@ StochasticRadiosityElement::~StochasticRadiosityElement() {
 static StochasticRadiosityElement *
 monteCarloRadiosityCreateCluster(Geometry *geometry) {
     StochasticRadiosityElement *elem = createElement();
-    float *bounds = geometry->bounds;
+    float *bounds = geometry->bounds.coordinates;
 
     elem->geometry = geometry;
     elem->flags = IS_CLUSTER_MASK;
@@ -910,7 +910,7 @@ Computes and fills in a bounding box for the element
 float *
 stochasticRadiosityElementBounds(StochasticRadiosityElement *elem, float *bounds) {
     if ( elem->isCluster() ) {
-        boundsCopy(elem->geometry->bounds, bounds);
+        boundsCopy(elem->geometry->bounds.coordinates, bounds);
     } else if ( !elem->upTrans ) {
             elem->patch->patchBounds(bounds);
         } else {

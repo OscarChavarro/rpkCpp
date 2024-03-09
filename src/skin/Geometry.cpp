@@ -108,15 +108,15 @@ geomCreateBase(
     newGeometry->isDuplicate = false;
 
     if ( className == GeometryClassId::SURFACE_MESH ) {
-        surfaceBounds(surfaceData, newGeometry->bounds);
+        surfaceBounds(surfaceData, newGeometry->bounds.coordinates);
     } else if ( className == GeometryClassId::COMPOUND ) {
-        geometryListBounds(compoundData->children, newGeometry->bounds);
+        geometryListBounds(compoundData->children, newGeometry->bounds.coordinates);
     } else /* if ( className == GeometryClassId::PATCH_SET ) */ {
-        patchListBounds(patchSetData->patchList, newGeometry->bounds);
+        patchListBounds(patchSetData->patchList, newGeometry->bounds.coordinates);
     }
 
     // Enlarge bounding box a tiny bit for more conservative bounding box culling
-    boundsEnlargeTinyBit(newGeometry->bounds);
+    boundsEnlargeTinyBit(newGeometry->bounds.coordinates);
     newGeometry->bounded = true;
     newGeometry->shaftCullGeometry = false;
     newGeometry->radianceData = nullptr;
@@ -171,7 +171,7 @@ geomCreateCompound(Compound *compoundData) {
 /**
 This function returns a bounding box for the geometry
 */
-float *
+BoundingBox
 geomBounds(Geometry *geometry) {
     return geometry->bounds;
 }
@@ -298,9 +298,9 @@ geomDiscretizationIntersect(
     if ( geometry->bounded ) {
         // Check ray/bounding volume intersection
         vectorSumScaled(ray->pos, minimumDistance, ray->dir, vTmp);
-        if ( outOfBounds(&vTmp, geometry->bounds)) {
+        if ( outOfBounds(&vTmp, geometry->bounds.coordinates) ) {
             nMaximumDistance = *maximumDistance;
-            if ( !boundsIntersect(ray, geometry->bounds, minimumDistance, &nMaximumDistance)) {
+            if ( !boundsIntersect(ray, geometry->bounds.coordinates, minimumDistance, &nMaximumDistance) ) {
                 return nullptr;
             }
         }
@@ -369,7 +369,7 @@ float *
 geometryListBounds(java::ArrayList<Geometry *> *geometryList, float *boundingBox) {
     boundsInit(boundingBox);
     for ( int i = 0; geometryList != nullptr && i < geometryList->size(); i++ ) {
-        boundsEnlarge(boundingBox, geometryList->get(i)->bounds);
+        boundsEnlarge(boundingBox, geometryList->get(i)->bounds.coordinates);
     }
     return boundingBox;
 }

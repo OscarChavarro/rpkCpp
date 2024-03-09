@@ -39,9 +39,9 @@ Cluster::Cluster(java::ArrayList<Patch *> *inPatches) {
     }
 
     vectorSet(boundingBoxCentroid,
-              (boundingBox[MIN_X] + boundingBox[MAX_X]) * 0.5f,
-              (boundingBox[MIN_Y] + boundingBox[MAX_Y]) * 0.5f,
-              (boundingBox[MIN_Z] + boundingBox[MAX_Z]) * 0.5f);
+              (boundingBox.coordinates[MIN_X] + boundingBox.coordinates[MAX_X]) * 0.5f,
+              (boundingBox.coordinates[MIN_Y] + boundingBox.coordinates[MAX_Y]) * 0.5f,
+              (boundingBox.coordinates[MIN_Z] + boundingBox.coordinates[MAX_Z]) * 0.5f);
 
 }
 
@@ -60,15 +60,14 @@ Cluster::~Cluster() {
 
 void
 Cluster::commonBuild() {
-    int i;
-    boundsInit(boundingBox);
+    boundsInit(boundingBox.coordinates);
     vectorSet(boundingBoxCentroid, 0.0, 0.0, 0.0);
 
     if ( patches == nullptr ) {
         patches = new java::ArrayList<Patch *>();
     }
 
-    for ( i = 0; i < 8; i++ ) {
+    for ( int i = 0; i < 8; i++ ) {
         children[i] = nullptr;
     }
 }
@@ -81,11 +80,13 @@ determined)
 */
 void
 Cluster::clusterAddPatch(Patch *patch) {
-    BoundingBox patchBoundingBox;
+    BoundingBox patchBoundingBox{};
 
     if ( patch != nullptr ) {
         patches->add(0, patch);
-        boundsEnlarge(boundingBox, patch->boundingBox ? patch->boundingBox : patch->patchBounds(patchBoundingBox));
+        boundsEnlarge(
+            boundingBox.coordinates,
+            patch->boundingBox ? patch->boundingBox : patch->patchBounds(patchBoundingBox.coordinates));
     }
 }
 
@@ -116,9 +117,9 @@ Cluster::clusterMovePatch(int parentIndex) {
     float dy = patchBoundingBox[MAX_Y] - patchBoundingBox[MIN_Y];
     float dz = patchBoundingBox[MAX_Z] - patchBoundingBox[MIN_Z];
 
-    if ((dx > smallestBoxDimension && dx > (boundingBox[MAX_X] - boundingBox[MIN_X]) * 0.5) ||
-        (dy > smallestBoxDimension && dy > (boundingBox[MAX_Y] - boundingBox[MIN_Y]) * 0.5) ||
-        (dz > smallestBoxDimension && dz > (boundingBox[MAX_Z] - boundingBox[MIN_Z]) * 0.5) ) {
+    if ((dx > smallestBoxDimension && dx > (boundingBox.coordinates[MAX_X] - boundingBox.coordinates[MIN_X]) * 0.5) ||
+        (dy > smallestBoxDimension && dy > (boundingBox.coordinates[MAX_Y] - boundingBox.coordinates[MIN_Y]) * 0.5) ||
+        (dz > smallestBoxDimension && dz > (boundingBox.coordinates[MAX_Z] - boundingBox.coordinates[MIN_Z]) * 0.5) ) {
         return false;
     }
 
@@ -146,7 +147,7 @@ Cluster::clusterMovePatch(int parentIndex) {
     selectedChildCluster->patches->add(patch);
 
     // Enlarge the bounding box the of sub-cluster
-    boundsEnlarge(selectedChildCluster->boundingBox, patchBoundingBox);
+    boundsEnlarge(selectedChildCluster->boundingBox.coordinates, patchBoundingBox);
 
     // Current patch was moved to the sub-cluster
     return true;
@@ -190,9 +191,9 @@ Cluster::splitCluster() {
             children[i] = nullptr;
         } else {
             vectorSet(children[i]->boundingBoxCentroid,
-                      (children[i]->boundingBox[MIN_X] + children[i]->boundingBox[MAX_X]) * 0.5f,
-                      (children[i]->boundingBox[MIN_Y] + children[i]->boundingBox[MAX_Y]) * 0.5f,
-                      (children[i]->boundingBox[MIN_Z] + children[i]->boundingBox[MAX_Z]) * 0.5f);
+                      (children[i]->boundingBox.coordinates[MIN_X] + children[i]->boundingBox.coordinates[MAX_X]) * 0.5f,
+                      (children[i]->boundingBox.coordinates[MIN_Y] + children[i]->boundingBox.coordinates[MAX_Y]) * 0.5f,
+                      (children[i]->boundingBox.coordinates[MIN_Z] + children[i]->boundingBox.coordinates[MAX_Z]) * 0.5f);
             if ( children[i] != nullptr ) {
                 children[i]->splitCluster();
             }

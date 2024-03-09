@@ -431,8 +431,8 @@ constructPolygonToPolygonShaft(POLYGON *p1, POLYGON *p2, SHAFT *shaft) {
     shaft->ref1 = shaft->ref2 = nullptr;
 
     // Shaft extent = bounding box containing the bounding boxes of the patches
-    boundsCopy(p1->bounds, shaft->extent);
-    boundsEnlarge(shaft->extent, p2->bounds);
+    boundsCopy(p1->bounds.coordinates, shaft->extent);
+    boundsEnlarge(shaft->extent, p2->bounds.coordinates);
 
     // Nothing (yet) to omit
     shaft->omit[0] = nullptr;
@@ -704,7 +704,7 @@ shaftCullPatchList(java::ArrayList<Patch *> *patchList, SHAFT *shaft) {
         if ( patch->boundingBox == nullptr ) {
             // Compute getBoundingBox
             BoundingBox bounds;
-            patch->patchBounds(bounds);
+            patch->patchBounds(bounds.coordinates);
         }
         boundingBoxSide = shaftBoxTest(patch->boundingBox, shaft);
         if ( boundingBoxSide != OUTSIDE ) {
@@ -780,7 +780,7 @@ shaftCullGeometry(Geometry *geometry, SHAFT *shaft, java::ArrayList<Geometry *> 
     }
 
     // Unbounded geoms always overlap the shaft
-    switch ( geometry->bounded ? shaftBoxTest(geometry->bounds, shaft) : OVERLAP ) {
+    switch ( geometry->bounded ? shaftBoxTest(geometry->bounds.coordinates, shaft) : OVERLAP ) {
         case INSIDE:
             if ( strategy == ALWAYS_OPEN && !dontOpen(shaft, geometry) ) {
                 shaftCullOpen(geometry, shaft, candidateList);

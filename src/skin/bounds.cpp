@@ -3,6 +3,9 @@
 #include "common/mymath.h"
 #include "skin/bounds.h"
 
+BoundingBox::BoundingBox(): coordinates() {
+}
+
 static void inline
 setIfLess(float &a, float &b) {
     a = a < b ? a : b;

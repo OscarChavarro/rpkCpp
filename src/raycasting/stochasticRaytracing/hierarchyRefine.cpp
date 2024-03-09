@@ -92,12 +92,12 @@ linkInvolvingClusters(LINK *link) {
 
 static int
 disjunctElements(StochasticRadiosityElement *rcv, StochasticRadiosityElement *src) {
-    BoundingBox receiveBounds;
-    BoundingBox sourceBounds;
+    BoundingBox receiveBounds{};
+    BoundingBox sourceBounds{};
 
-    stochasticRadiosityElementBounds(rcv, receiveBounds);
-    stochasticRadiosityElementBounds(src, sourceBounds);
-    return disjunctBounds(receiveBounds, sourceBounds);
+    stochasticRadiosityElementBounds(rcv, receiveBounds.coordinates);
+    stochasticRadiosityElementBounds(src, sourceBounds.coordinates);
+    return disjunctBounds(receiveBounds.coordinates, sourceBounds.coordinates);
 }
 
 /**

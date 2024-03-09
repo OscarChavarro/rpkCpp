@@ -57,25 +57,25 @@ VoxelGrid::putItemInsideVoxelGrid(VoxelData *item, const float *itemBounds) {
 
     // Enlarge the boundaries by a small amount in all directions
     BoundingBox boundaries;
-    float xExtent = (boundingBox[MAX_X] - boundingBox[MIN_X]) * 1e-4f;
-    float yExtent = (boundingBox[MAX_Y] - boundingBox[MIN_Y]) * 1e-4f;
-    float zExtent = (boundingBox[MAX_Z] - boundingBox[MIN_Z]) * 1e-4f;
-    boundsCopy(itemBounds, boundaries);
-    boundaries[MIN_X] -= xExtent;
-    boundaries[MAX_X] += xExtent;
-    boundaries[MIN_Y] -= yExtent;
-    boundaries[MAX_Y] += yExtent;
-    boundaries[MIN_Z] -= zExtent;
-    boundaries[MAX_Z] += zExtent;
+    float xExtent = (boundingBox.coordinates[MAX_X] - boundingBox.coordinates[MIN_X]) * 1e-4f;
+    float yExtent = (boundingBox.coordinates[MAX_Y] - boundingBox.coordinates[MIN_Y]) * 1e-4f;
+    float zExtent = (boundingBox.coordinates[MAX_Z] - boundingBox.coordinates[MIN_Z]) * 1e-4f;
+    boundsCopy(itemBounds, boundaries.coordinates);
+    boundaries.coordinates[MIN_X] -= xExtent;
+    boundaries.coordinates[MAX_X] += xExtent;
+    boundaries.coordinates[MIN_Y] -= yExtent;
+    boundaries.coordinates[MAX_Y] += yExtent;
+    boundaries.coordinates[MIN_Z] -= zExtent;
+    boundaries.coordinates[MAX_Z] += zExtent;
 
-    minA = x2voxel(boundaries[MIN_X]);
+    minA = x2voxel(boundaries.coordinates[MIN_X]);
     if ( minA >= xSize ) {
         minA = (short)(xSize - 1);
     }
     if ( minA < 0 ) {
         minA = 0;
     }
-    maxA = x2voxel(boundaries[MAX_X]);
+    maxA = x2voxel(boundaries.coordinates[MAX_X]);
     if ( maxA >= xSize ) {
         maxA = (short)(xSize - 1);
     }
@@ -83,14 +83,14 @@ VoxelGrid::putItemInsideVoxelGrid(VoxelData *item, const float *itemBounds) {
         maxA = 0;
     }
 
-    minB = y2voxel(boundaries[MIN_Y]);
+    minB = y2voxel(boundaries.coordinates[MIN_Y]);
     if ( minB >= ySize ) {
         minB = (short)(ySize - 1);
     }
     if ( minB < 0 ) {
         minB = 0;
     }
-    maxB = y2voxel(boundaries[MAX_Y]);
+    maxB = y2voxel(boundaries.coordinates[MAX_Y]);
     if ( maxB >= ySize ) {
         maxB = (short)(ySize - 1);
     }
@@ -98,14 +98,14 @@ VoxelGrid::putItemInsideVoxelGrid(VoxelData *item, const float *itemBounds) {
         maxB = 0;
     }
 
-    minC = z2voxel(boundaries[MIN_Z]);
+    minC = z2voxel(boundaries.coordinates[MIN_Z]);
     if ( minC >= zSize ) {
         minC = (short)(zSize - 1);
     }
     if ( minC < 0 ) {
         minC = 0;
     }
-    maxC = z2voxel(boundaries[MAX_Z]);
+    maxC = z2voxel(boundaries.coordinates[MAX_Z]);
     if ( maxC >= zSize ) {
         maxC = (short)(zSize - 1);
     }
@@ -132,18 +132,19 @@ VoxelGrid::putItemInsideVoxelGrid(VoxelData *item, const float *itemBounds) {
 void
 VoxelGrid::putPatchInsideVoxelGrid(Patch *patch) {
     BoundingBox localBounds;
-    putItemInsideVoxelGrid(new VoxelData(patch, PATCH_MASK),
-                           patch->boundingBox ? patch->boundingBox : patch->patchBounds(localBounds));
+    putItemInsideVoxelGrid(
+        new VoxelData(patch, PATCH_MASK),
+           patch->boundingBox ? patch->boundingBox : patch->patchBounds(localBounds.coordinates));
 }
 
 void
 VoxelGrid::putSubGeometryInsideVoxelGrid(Geometry *geometry) {
-    if ( isSmall(geometry->bounds) ) {
+    if ( isSmall(geometry->bounds.coordinates) ) {
         if ( geometry->itemCount < 10 ) {
-            putItemInsideVoxelGrid(new VoxelData(geometry, GEOM_MASK), geometry->bounds);
+            putItemInsideVoxelGrid(new VoxelData(geometry, GEOM_MASK), geometry->bounds.coordinates);
         } else {
             VoxelGrid *subgrid = new VoxelGrid(geometry);
-            putItemInsideVoxelGrid(new VoxelData(subgrid, GRID_MASK), subgrid->boundingBox);
+            putItemInsideVoxelGrid(new VoxelData(subgrid, GRID_MASK), subgrid->boundingBox.coordinates);
         }
     } else {
         if ( geomIsAggregate(geometry) ) {
@@ -174,23 +175,23 @@ VoxelGrid::putGeometryInsideVoxelGrid(Geometry *geometry, const short na, const 
     }
 
     // Enlarge the getBoundingBox by a small amount
-    xExtension = (geometry->bounds[MAX_X] - geometry->bounds[MIN_X]) * 1e-4f;
-    yExtension = (geometry->bounds[MAX_Y] - geometry->bounds[MIN_Y]) * 1e-4f;
-    zExtension = (geometry->bounds[MAX_Z] - geometry->bounds[MIN_Z]) * 1e-4f;
-    boundsCopy(geometry->bounds, boundingBox);
-    boundingBox[MIN_X] -= xExtension;
-    boundingBox[MAX_X] += xExtension;
-    boundingBox[MIN_Y] -= yExtension;
-    boundingBox[MAX_Y] += yExtension;
-    boundingBox[MIN_Z] -= zExtension;
-    boundingBox[MAX_Z] += zExtension;
+    xExtension = (geometry->bounds.coordinates[MAX_X] - geometry->bounds.coordinates[MIN_X]) * 1e-4f;
+    yExtension = (geometry->bounds.coordinates[MAX_Y] - geometry->bounds.coordinates[MIN_Y]) * 1e-4f;
+    zExtension = (geometry->bounds.coordinates[MAX_Z] - geometry->bounds.coordinates[MIN_Z]) * 1e-4f;
+    boundsCopy(geometry->bounds.coordinates, boundingBox.coordinates);
+    boundingBox.coordinates[MIN_X] -= xExtension;
+    boundingBox.coordinates[MAX_X] += xExtension;
+    boundingBox.coordinates[MIN_Y] -= yExtension;
+    boundingBox.coordinates[MAX_Y] += yExtension;
+    boundingBox.coordinates[MIN_Z] -= zExtension;
+    boundingBox.coordinates[MAX_Z] += zExtension;
 
     xSize = na;
     ySize = nb;
     zSize = nc;
-    voxelSize.x = (boundingBox[MAX_X] - boundingBox[MIN_X]) / (float) na;
-    voxelSize.y = (boundingBox[MAX_Y] - boundingBox[MIN_Y]) / (float) nb;
-    voxelSize.z = (boundingBox[MAX_Z] - boundingBox[MIN_Z]) / (float) nc;
+    voxelSize.x = (boundingBox.coordinates[MAX_X] - boundingBox.coordinates[MIN_X]) / (float) na;
+    voxelSize.y = (boundingBox.coordinates[MAX_Y] - boundingBox.coordinates[MIN_Y]) / (float) nb;
+    voxelSize.z = (boundingBox.coordinates[MAX_Z] - boundingBox.coordinates[MIN_Z]) / (float) nc;
     volumeListsOfItems = new java::ArrayList<VoxelData *> *[na * nb * nc]();
     gridItemPool = nullptr;
     for ( i = 0; i < na * nb * nc; i++ ) {
@@ -241,9 +242,9 @@ VoxelGrid::gridBoundsIntersect(
 {
     *t0 = minimumDistance;
     vectorSumScaled(ray->pos, *t0, ray->dir, *P);
-    if ( outOfBounds(P, boundingBox)) {
+    if ( outOfBounds(P, boundingBox.coordinates) ) {
         *t0 = maximumDistance;
-        if ( !boundsIntersect(ray, boundingBox, minimumDistance, t0)) {
+        if ( !boundsIntersect(ray, boundingBox.coordinates, minimumDistance, t0)) {
             return false;
         }
         vectorSumScaled(ray->pos, *t0, ray->dir, *P);

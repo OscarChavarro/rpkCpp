@@ -72,7 +72,7 @@ scratchRenderElements(GalerkinElement *cluster, Vector3D eye) {
     int vp_size;
 
     if ( cluster->id == GLOBAL_galerkin_state.lastClusterId && vectorEqual(eye, GLOBAL_galerkin_state.lastEye, EPSILON)) {
-        return bbx;
+        return bbx.coordinates;
     } else {
         // Cache previously rendered cluster and eye point in order to
         // avoid re-rendering the same situation next time
@@ -85,15 +85,24 @@ scratchRenderElements(GalerkinElement *cluster, Vector3D eye) {
     if ( std::fabs(vectorDotProduct(up, viewDirection)) > 1. - EPSILON ) vectorSet(up, 0.0, 1.0, 0.0);
     lookAt = lookAtMatrix(eye, centre, up);
 
-    boundsTransform(geomBounds(cluster->geometry), &lookAt, bbx);
+    boundsTransform(geomBounds(cluster->geometry).coordinates, &lookAt, bbx.coordinates);
 
     prev_sgl_context = sglMakeCurrent(GLOBAL_galerkin_state.scratch);
-    GLOBAL_sgl_currentContext->sglLoadMatrix(orthogonalViewMatrix(bbx[MIN_X], bbx[MAX_X], bbx[MIN_Y], bbx[MAX_Y], -bbx[MAX_Z], -bbx[MIN_Z]));
+    GLOBAL_sgl_currentContext->sglLoadMatrix(
+        orthogonalViewMatrix(
+            bbx.coordinates[MIN_X],
+            bbx.coordinates[MAX_X],
+            bbx.coordinates[MIN_Y],
+            bbx.coordinates[MAX_Y],
+            -bbx.coordinates[MAX_Z],
+            -bbx.coordinates[MIN_Z]));
     GLOBAL_sgl_currentContext->sglMultiplyMatrix(lookAt);
 
     // Choose a viewport depending on the relative size of the smallest
     // surface element in the cluster to be rendered
-    vp_size = (int) ((bbx[MAX_X] - bbx[MIN_X]) * (bbx[MAX_Y] - bbx[MIN_Y]) / cluster->minimumArea);
+    vp_size = (int)(
+        (bbx.coordinates[MAX_X] - bbx.coordinates[MIN_X]) * (bbx.coordinates[MAX_Y] - bbx.coordinates[MIN_Y]
+    ) / cluster->minimumArea);
     if ( vp_size > GLOBAL_galerkin_state.scratch->width ) {
         vp_size = GLOBAL_galerkin_state.scratch->width;
     }
@@ -108,7 +117,7 @@ scratchRenderElements(GalerkinElement *cluster, Vector3D eye) {
     iterateOverSurfaceElementsInCluster(cluster, scratchRenderElementPtr);
 
     sglMakeCurrent(prev_sgl_context);
-    return bbx;
+    return bbx.coordinates;
 }
 
 /**

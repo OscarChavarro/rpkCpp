@@ -5,10 +5,14 @@
 #include "common/Ray.h"
 
 /**
-A bounding box is represented as a n array of 6 floating point numbers.
+A bounding box is represented as an array of 6 floating point numbers.
 The meaning of the numbers is given by the constants MIN_X ... below
 */
-typedef float BoundingBox[6];
+class BoundingBox {
+  public:
+    float coordinates[6];
+    BoundingBox();
+};
 
 /**
  * the following defines must obey the following rules:

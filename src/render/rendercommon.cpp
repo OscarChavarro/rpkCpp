@@ -137,10 +137,10 @@ renderGetNearFar(float *near, float *far) {
         return;
     }
 
-    geometryListBounds(GLOBAL_scene_geometries, bounds);
+    geometryListBounds(GLOBAL_scene_geometries, bounds.coordinates);
 
-    vectorSet(b[0], bounds[MIN_X], bounds[MIN_Y], bounds[MIN_Z]);
-    vectorSet(b[1], bounds[MAX_X], bounds[MAX_Y], bounds[MAX_Z]);
+    vectorSet(b[0], bounds.coordinates[MIN_X], bounds.coordinates[MIN_Y], bounds.coordinates[MIN_Z]);
+    vectorSet(b[1], bounds.coordinates[MAX_X], bounds.coordinates[MAX_Y], bounds.coordinates[MAX_Z]);
 
     *far = -HUGE;
     *near = HUGE;
@@ -205,14 +205,14 @@ void
 renderBounds(BoundingBox bounds) {
     Vector3D p[8];
 
-    vectorSet(p[0], bounds[MIN_X], bounds[MIN_Y], bounds[MIN_Z]);
-    vectorSet(p[1], bounds[MAX_X], bounds[MIN_Y], bounds[MIN_Z]);
-    vectorSet(p[2], bounds[MIN_X], bounds[MAX_Y], bounds[MIN_Z]);
-    vectorSet(p[3], bounds[MAX_X], bounds[MAX_Y], bounds[MIN_Z]);
-    vectorSet(p[4], bounds[MIN_X], bounds[MIN_Y], bounds[MAX_Z]);
-    vectorSet(p[5], bounds[MAX_X], bounds[MIN_Y], bounds[MAX_Z]);
-    vectorSet(p[6], bounds[MIN_X], bounds[MAX_Y], bounds[MAX_Z]);
-    vectorSet(p[7], bounds[MAX_X], bounds[MAX_Y], bounds[MAX_Z]);
+    vectorSet(p[0], bounds.coordinates[MIN_X], bounds.coordinates[MIN_Y], bounds.coordinates[MIN_Z]);
+    vectorSet(p[1], bounds.coordinates[MAX_X], bounds.coordinates[MIN_Y], bounds.coordinates[MIN_Z]);
+    vectorSet(p[2], bounds.coordinates[MIN_X], bounds.coordinates[MAX_Y], bounds.coordinates[MIN_Z]);
+    vectorSet(p[3], bounds.coordinates[MAX_X], bounds.coordinates[MAX_Y], bounds.coordinates[MIN_Z]);
+    vectorSet(p[4], bounds.coordinates[MIN_X], bounds.coordinates[MIN_Y], bounds.coordinates[MAX_Z]);
+    vectorSet(p[5], bounds.coordinates[MAX_X], bounds.coordinates[MIN_Y], bounds.coordinates[MAX_Z]);
+    vectorSet(p[6], bounds.coordinates[MIN_X], bounds.coordinates[MAX_Y], bounds.coordinates[MAX_Z]);
+    vectorSet(p[7], bounds.coordinates[MAX_X], bounds.coordinates[MAX_Y], bounds.coordinates[MAX_Z]);
 
     openGlRenderLine(&p[0], &p[1]);
     openGlRenderLine(&p[1], &p[3]);
@@ -230,9 +230,9 @@ renderBounds(BoundingBox bounds) {
 
 void
 renderGeomBounds(Geometry *geom) {
-    float *geometryBoundingBox = geomBounds(geom);
+    BoundingBox geometryBoundingBox = geomBounds(geom);
 
-    if ( geom->bounded && geometryBoundingBox ) {
+    if ( geom->bounded ) {
         renderBounds(geometryBoundingBox);
     }
 
