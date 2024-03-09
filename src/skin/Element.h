@@ -24,6 +24,10 @@ class Element {
     COLOR *unShotRadiance; // For progressive refinement radiosity
     Element *parent; // Parent element in a hierarchy, or
         // nullptr pointer if there is no parent
+    Element **regularSubElements; // For surface elements with regular quadtree subdivision
+        // A nullptr pointer if there are no regular sub-elements, or an array containing
+        // exactly 4 pointers to the sub-elements
+
     Matrix2x2 *upTrans; // Relates surface element (u,v) coordinates to patch (u,v) coordinates,
     // if non-null, transforms (u,v) coordinates on a sub-element to the (u,v) coordinates
     // of the same point on the parent surface element. It is nullptr if the element is a
@@ -39,7 +43,11 @@ class Element {
         className(),
         radiance(),
         receivedRadiance(),
-        unShotRadiance()
+        unShotRadiance(),
+        parent(),
+        regularSubElements(),
+        upTrans(),
+        area()
     {}
     virtual ~Element() {};
 };

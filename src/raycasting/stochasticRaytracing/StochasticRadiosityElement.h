@@ -12,7 +12,6 @@ Monte Carlo radiosity element type
 
 class StochasticRadiosityElement : public Element {
   public:
-    StochasticRadiosityElement **regularSubElements;
     java::ArrayList<StochasticRadiosityElement *> *irregularSubElements;
 
     niedindex ray_index; // Incremented each time a ray is shot from the elem

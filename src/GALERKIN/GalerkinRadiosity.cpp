@@ -461,12 +461,12 @@ getGalerkinStats() {
 }
 
 static void
-renderElementHierarchy(GalerkinElement *elem) {
-    if ( !elem->regularSubElements ) {
-        elem->render();
-    } else if ( elem->regularSubElements != nullptr ) {
+renderElementHierarchy(GalerkinElement *element) {
+    if ( !element->regularSubElements ) {
+        element->render();
+    } else if ( element->regularSubElements != nullptr ) {
         for ( int i = 0; i < 4; i++ ) {
-            renderElementHierarchy((elem)->regularSubElements[i]);
+            renderElementHierarchy((GalerkinElement *)element->regularSubElements[i]);
         }
     }
 }

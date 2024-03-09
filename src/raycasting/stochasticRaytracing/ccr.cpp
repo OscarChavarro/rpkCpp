@@ -38,14 +38,14 @@ initialControlRadiosityRecursive(
         // Recursive case
         for ( int i = 0; i < 4; i++ ) {
             initialControlRadiosityRecursive(
-                    element->regularSubElements[i],
-                    minRad,
-                    maxRad,
-                    fMin,
-                    fMax,
-                    totalFluxColor,
-                    maxRadColor,
-                    area);
+                (StochasticRadiosityElement *)element->regularSubElements[i],
+                minRad,
+                maxRad,
+                fMin,
+                fMax,
+                totalFluxColor,
+                maxRadColor,
+                area);
         }
     }
 }
@@ -155,7 +155,7 @@ refineControlRadiosityRecursive(
     } else {
         // Recursive case
         for ( int i = 0; i < 4; i++ ) {
-            refineControlRadiosityRecursive(element->regularSubElements[i], colorOne, rad, f);
+            refineControlRadiosityRecursive((StochasticRadiosityElement *)element->regularSubElements[i], colorOne, rad, f);
         }
     }
 }

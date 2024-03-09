@@ -34,9 +34,6 @@ class GalerkinElement : public Element {
     GalerkinElement *regularSubElementAtPoint(double *u, double *v);
 
 public:
-    GalerkinElement **regularSubElements; // For surface elements with regular quadtree subdivision
-        // A nullptr pointer if there are no regular sub-elements, or an array containing
-        // exactly 4 pointers to the sub-elements
     java::ArrayList<GalerkinElement *> *irregularSubElements; // Hierarchy of clusters
 
     float potential; // Total potential of the element

@@ -85,7 +85,7 @@ static void
 gatheringUpdateDirectPotential(GalerkinElement *elem, float potential_increment) {
     if ( elem->regularSubElements != nullptr ) {
         for ( int i = 0; i < 4; i++ ) {
-            gatheringUpdateDirectPotential(elem->regularSubElements[i], potential_increment);
+            gatheringUpdateDirectPotential((GalerkinElement *)elem->regularSubElements[i], potential_increment);
         }
     }
     elem->directPotential += potential_increment;
@@ -112,7 +112,7 @@ gatheringPushPullPotential(GalerkinElement *element, float down) {
     if ( element->regularSubElements ) {
         int i;
         for ( i = 0; i < 4; i++ ) {
-            up += 0.25f * gatheringPushPullPotential(element->regularSubElements[i], down);
+            up += 0.25f * gatheringPushPullPotential((GalerkinElement *)element->regularSubElements[i], down);
         }
     }
 

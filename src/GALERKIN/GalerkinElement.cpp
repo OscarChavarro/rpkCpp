@@ -91,20 +91,19 @@ Matrix2x2 GLOBAL_galerkin_TriangularUpTransformMatrix[4] = {
 Private inner constructor, Use either galerkinElementCreateTopLevel() or CreateRegularSubElement()
 */
 GalerkinElement::GalerkinElement():
-        regularSubElements(),
-        irregularSubElements(),
-        potential(),
-        receivedPotential(),
-        unShotPotential(),
-        directPotential(),
-        minimumArea(),
-        bsize(),
-        numberOfPatches(),
-        tmp(),
-        childNumber(),
-        basisSize(),
-        basisUsed(),
-        flags()
+    irregularSubElements(),
+    potential(),
+    receivedPotential(),
+    unShotPotential(),
+    directPotential(),
+    minimumArea(),
+    bsize(),
+    numberOfPatches(),
+    tmp(),
+    childNumber(),
+    basisSize(),
+    basisUsed(),
+    flags()
 {
     className = ElementTypes::ELEMENT_GALERKIN;
     irregularSubElements = new java::ArrayList<GalerkinElement *>();
@@ -315,7 +314,7 @@ GalerkinElement::regularSubDivide() {
     }
 
     if ( regularSubElements != nullptr ) {
-        return regularSubElements;
+        return (GalerkinElement **)regularSubElements;
     }
 
     GalerkinElement **subElement = new GalerkinElement *[4];
@@ -350,7 +349,7 @@ GalerkinElement::regularSubDivide() {
         subElement[i]->drawOutline();
     }
 
-    regularSubElements = subElement;
+    regularSubElements = (Element **)subElement;
     return subElement;
 }
 
@@ -404,7 +403,7 @@ The point is transformed to the corresponding point on the sub-element
 */
 GalerkinElement *
 GalerkinElement::regularSubElementAtPoint(double *u, double *v) {
-    GalerkinElement *childElement = nullptr;
+    Element *childElement = nullptr;
     double _u = *u;
     double _v = *v;
 
@@ -458,7 +457,7 @@ GalerkinElement::regularSubElementAtPoint(double *u, double *v) {
             logFatal(-1, "galerkinElementRegularSubElementAtPoint", "Can handle only triangular or quadrilateral elements");
     }
 
-    return childElement;
+    return (GalerkinElement *)childElement;
 }
 
 /**
@@ -765,7 +764,7 @@ GalerkinElement::traverseLeafElements(void (*func)(GalerkinElement *)) {
 
     if ( regularSubElements != nullptr ) {
         for ( int i = 0; i < 4; i++ ) {
-            regularSubElements[i]->traverseLeafElements(func);
+            ((GalerkinElement *)regularSubElements[i])->traverseLeafElements(func);
         }
     }
 

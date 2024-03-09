@@ -97,14 +97,14 @@ basisGalerkinPushPullRadianceRecursive(GalerkinElement *element, COLOR *Bdown, C
             COLOR Bdown2[MAX_BASIS_SIZE];
             COLOR Bup2[MAX_BASIS_SIZE];
 
-            // 1. Push Bdown to the i-th sub-element
-            basisGalerkinPush(element, Bdown, element->regularSubElements[i], Bdown2);
+            // 1. Push B-down to the i-th sub-element
+            basisGalerkinPush((GalerkinElement *)element, Bdown, (GalerkinElement *)element->regularSubElements[i], Bdown2);
 
             // 2. Recursive call the push-pull for the sub-element
-            basisGalerkinPushPullRadianceRecursive(element->regularSubElements[i], Bdown2, Btmp);
+            basisGalerkinPushPullRadianceRecursive((GalerkinElement *)element->regularSubElements[i], Bdown2, Btmp);
 
             // 3. Pull the radiance of the sub-element up to this level again
-            basisGalerkinPull(element, Bup2, element->regularSubElements[i], Btmp);
+            basisGalerkinPull((GalerkinElement *)element, Bup2, (GalerkinElement *)element->regularSubElements[i], Btmp);
 
             // 4. Add to Bup
             clusterGalerkinAddCoefficients(Bup, Bup2, element->basisSize);

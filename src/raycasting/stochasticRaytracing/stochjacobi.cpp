@@ -617,7 +617,7 @@ stochasticJacobiShootRaysRecursive(StochasticRadiosityElement *element, double r
     } else {
         // Recursive case
         for ( int i = 0; i < 4; i++ ) {
-            stochasticJacobiShootRaysRecursive(element->regularSubElements[i], rnd, rayCount, pCumulative);
+            stochasticJacobiShootRaysRecursive((StochasticRadiosityElement *)element->regularSubElements[i], rnd, rayCount, pCumulative);
         }
     }
 }

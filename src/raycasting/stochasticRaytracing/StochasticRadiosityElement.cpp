@@ -1,7 +1,6 @@
 #include "raycasting/stochasticRaytracing/StochasticRadiosityElement.h"
 
 StochasticRadiosityElement::StochasticRadiosityElement():
-    regularSubElements(),
     irregularSubElements(),
     ray_index(),
     quality(),

@@ -315,19 +315,19 @@ monteCarloRadiosityRegularSubElementAtPoint(StochasticRadiosityElement *parent, 
     switch ( parent->numberOfVertices ) {
         case 3:
             if ( _u + _v <= 0.5 ) {
-                child = parent->regularSubElements[0];
+                child = (StochasticRadiosityElement *)parent->regularSubElements[0];
                 *u = _u * 2.0;
                 *v = _v * 2.0;
             } else if ( _u > 0.5 ) {
-                child = parent->regularSubElements[1];
+                child = (StochasticRadiosityElement *)parent->regularSubElements[1];
                 *u = (_u - 0.5) * 2.0;
                 *v = _v * 2.0;
             } else if ( _v > 0.5 ) {
-                child = parent->regularSubElements[2];
+                child = (StochasticRadiosityElement *)parent->regularSubElements[2];
                 *u = _u * 2.;
                 *v = (_v - 0.5) * 2.0;
             } else {
-                child = parent->regularSubElements[3];
+                child = (StochasticRadiosityElement *)parent->regularSubElements[3];
                 *u = (0.5 - _u) * 2.0;
                 *v = (0.5 - _v) * 2.0;
             }
@@ -335,19 +335,19 @@ monteCarloRadiosityRegularSubElementAtPoint(StochasticRadiosityElement *parent, 
         case 4:
             if ( _v <= 0.5 ) {
                 if ( _u < 0.5 ) {
-                    child = parent->regularSubElements[0];
+                    child = (StochasticRadiosityElement *)parent->regularSubElements[0];
                     *u = _u * 2.0;
                 } else {
-                    child = parent->regularSubElements[1];
+                    child = (StochasticRadiosityElement *)parent->regularSubElements[1];
                     *u = (_u - 0.5) * 2.0;
                 }
                 *v = _v * 2.0;
             } else {
                 if ( _u < 0.5 ) {
-                    child = parent->regularSubElements[2];
+                    child = (StochasticRadiosityElement *)parent->regularSubElements[2];
                     *u = _u * 2.0;
                 } else {
-                    child = parent->regularSubElements[3];
+                    child = (StochasticRadiosityElement *)parent->regularSubElements[3];
                     *u = (_u - 0.5) * 2.0;
                 }
                 *v = (_v - 0.5) * 2.0;
@@ -486,14 +486,14 @@ monteCarloRadiosityEdgeMidpointVertex(StochasticRadiosityElement *elem, int edge
             case 3:
                 switch ( index ) {
                     case 0:
-                        v = neighbour->regularSubElements[0]->vertex[1];
+                        v = ((StochasticRadiosityElement *)neighbour->regularSubElements[0])->vertex[1];
                         break;
                     case 1:
-                        v = neighbour->regularSubElements[1]->vertex[2];
+                        v = ((StochasticRadiosityElement *)neighbour->regularSubElements[1])->vertex[2];
                         break;
 
                     case 2:
-                        v = neighbour->regularSubElements[2]->vertex[0];
+                        v = ((StochasticRadiosityElement *)neighbour->regularSubElements[2])->vertex[0];
                         break;
                     default:
                         logError("EdgeMidpointVertex", "Invalid vertex index %d", index);
@@ -502,16 +502,16 @@ monteCarloRadiosityEdgeMidpointVertex(StochasticRadiosityElement *elem, int edge
             case 4:
                 switch ( index ) {
                     case 0:
-                        v = neighbour->regularSubElements[0]->vertex[1];
+                        v = ((StochasticRadiosityElement *)neighbour->regularSubElements[0])->vertex[1];
                         break;
                     case 1:
-                        v = neighbour->regularSubElements[1]->vertex[2];
+                        v = ((StochasticRadiosityElement *)neighbour->regularSubElements[1])->vertex[2];
                         break;
                     case 2:
-                        v = neighbour->regularSubElements[3]->vertex[3];
+                        v = ((StochasticRadiosityElement *)neighbour->regularSubElements[3])->vertex[3];
                         break;
                     case 3:
-                        v = neighbour->regularSubElements[2]->vertex[0];
+                        v = ((StochasticRadiosityElement *)neighbour->regularSubElements[2])->vertex[0];
                         break;
                     default:
                         logError("EdgeMidpointVertex", "Invalid vertex index %d", index);
@@ -719,7 +719,7 @@ monteCarloRadiosityRegularSubdivideTriangle(StochasticRadiosityElement *element)
     openGlRenderLine(m1->point, m2->point);
     openGlRenderLine(m2->point, m0->point);
 
-    return element->regularSubElements;
+    return (StochasticRadiosityElement **)element->regularSubElements;
 }
 
 static StochasticRadiosityElement **
@@ -749,7 +749,7 @@ monteCarloRadiosityRegularSubdivideQuad(StochasticRadiosityElement *element) {
     openGlRenderLine(m0->point, m2->point);
     openGlRenderLine(m1->point, m3->point);
 
-    return element->regularSubElements;
+    return (StochasticRadiosityElement **)element->regularSubElements;
 }
 
 /**
@@ -759,7 +759,7 @@ done so before. Returns the list of created sub-elements
 StochasticRadiosityElement **
 monteCarloRadiosityRegularSubdivideElement(StochasticRadiosityElement *element) {
     if ( element->regularSubElements ) {
-        return element->regularSubElements;
+        return (StochasticRadiosityElement **)element->regularSubElements;
     }
 
     if ( element->isCluster ) {
@@ -777,7 +777,7 @@ monteCarloRadiosityRegularSubdivideElement(StochasticRadiosityElement *element) 
     }
 
     // Create the sub-elements
-    element->regularSubElements = new StochasticRadiosityElement *[4];
+    element->regularSubElements = (Element **)new StochasticRadiosityElement *[4];
     switch ( element->numberOfVertices ) {
         case 3:
             monteCarloRadiosityRegularSubdivideTriangle(element);
@@ -788,7 +788,7 @@ monteCarloRadiosityRegularSubdivideElement(StochasticRadiosityElement *element) 
         default:
             logFatal(-1, "galerkinElementRegularSubDivide", "invalid element: not 3 or 4 vertices");
     }
-    return element->regularSubElements;
+    return (StochasticRadiosityElement **)element->regularSubElements;
 }
 
 static void
@@ -832,7 +832,7 @@ monteCarloRadiosityDestroySurfaceElement(StochasticRadiosityElement *elem) {
     }
     if ( elem->regularSubElements != nullptr ) {
         for ( int i = 0; i < 4; i++ ) {
-            monteCarloRadiosityDestroySurfaceElement(elem->regularSubElements[i]);
+            monteCarloRadiosityDestroySurfaceElement((StochasticRadiosityElement *)elem->regularSubElements[i]);
         }
     }
     monteCarloRadiosityDestroyElement(elem);
@@ -874,7 +874,7 @@ monteCarloRadiosityForAllChildrenElements(StochasticRadiosityElement *top, void 
     } else if ( top->regularSubElements ) {
         if ( top->regularSubElements != nullptr ) {
             for ( int i = 0; i < 4; i++ ) {
-                func(top->regularSubElements[i]);
+                func((StochasticRadiosityElement *)top->regularSubElements[i]);
             }
         }
         return true;
@@ -897,7 +897,7 @@ monteCarloRadiosityForAllLeafElements(StochasticRadiosityElement *top, void (*fu
     } else if ( top->regularSubElements ) {
         if ( top->regularSubElements != nullptr ) {
             for ( int i = 0; i < 4; i++ ) {
-                monteCarloRadiosityForAllLeafElements(top->regularSubElements[i], func);
+                monteCarloRadiosityForAllLeafElements((StochasticRadiosityElement *)top->regularSubElements[i], func);
             }
         }
     } else {
@@ -916,7 +916,7 @@ monteCarloRadiosityForAllSurfaceLeafsRecursive(
     } else {
         // Recursive case
         for ( int i = 0; i < 4; i++ ) {
-            monteCarloRadiosityForAllSurfaceLeafsRecursive(element->regularSubElements[i], func);
+            monteCarloRadiosityForAllSurfaceLeafsRecursive((StochasticRadiosityElement *)element->regularSubElements[i], func);
         }
     }
 }

@@ -55,7 +55,7 @@ static void
 clearUnShotRadianceAndPotential(GalerkinElement *elem) {
     if ( elem->regularSubElements != nullptr ) {
         for ( int i = 0; i < 4; i++) {
-            clearUnShotRadianceAndPotential(elem->regularSubElements[i]);
+            clearUnShotRadianceAndPotential((GalerkinElement *)elem->regularSubElements[i]);
         }
     }
 
@@ -113,7 +113,7 @@ shootingPushPullPotential(GalerkinElement *element, float down) {
 
     if ( element->regularSubElements ) {
         for ( i = 0; i < 4; i++ ) {
-            up += 0.25f * shootingPushPullPotential(element->regularSubElements[i], down);
+            up += 0.25f * shootingPushPullPotential((GalerkinElement *)element->regularSubElements[i], down);
         }
     }
 
@@ -256,7 +256,7 @@ shootingUpdateDirectPotential(GalerkinElement *elem, float potential_increment) 
     if ( elem->regularSubElements ) {
         int i;
         for ( i = 0; i < 4; i++ ) {
-            shootingUpdateDirectPotential(elem->regularSubElements[i], potential_increment);
+            shootingUpdateDirectPotential((GalerkinElement *)elem->regularSubElements[i], potential_increment);
         }
     }
     elem->directPotential += potential_increment;

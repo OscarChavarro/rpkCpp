@@ -503,7 +503,7 @@ hierarchicRefinementRegularSubdivideSource(
 
     src->regularSubDivide();
     for ( int i = 0; i < 4; i++ ) {
-        GalerkinElement *child = src->regularSubElements[i];
+        GalerkinElement *child = (GalerkinElement *)src->regularSubElements[i];
         Interaction subInteraction{};
         float formFactors[MAX_BASIS_SIZE * MAX_BASIS_SIZE];
         subInteraction.K.p = formFactors; // Temporary storage for the form factors
@@ -538,7 +538,7 @@ hierarchicRefinementRegularSubdivideReceiver(
     for ( int i = 0; i < 4; i++ ) {
         Interaction subInteraction{};
         float ff[MAX_BASIS_SIZE * MAX_BASIS_SIZE];
-        GalerkinElement *child = rcv->regularSubElements[i];
+        GalerkinElement *child = (GalerkinElement *)rcv->regularSubElements[i];
         subInteraction.K.p = ff;
 
         if ( hierarchicRefinementCreateSubdivisionLink(*candidatesList, child, src, &subInteraction) ) {
@@ -722,7 +722,7 @@ refineInteractions(GalerkinElement *parentElement, GalerkinState *state) {
 
     if ( parentElement->regularSubElements != nullptr ) {
         for ( int i = 0; i < 4; i++ ) {
-            refineInteractions(parentElement->regularSubElements[i], state);
+            refineInteractions((GalerkinElement *)parentElement->regularSubElements[i], state);
         }
     }
 
