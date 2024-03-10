@@ -50,6 +50,7 @@ class BoundingBox {
     void enlarge(const BoundingBox *other);
     void enlargeToIncludePoint(const Vector3D *point);
     void transformTo(Matrix4x4 *transform, BoundingBox *transformedBoundingBox);
+    void enlargeTinyBit();
 };
 
 #endif

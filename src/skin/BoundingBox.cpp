@@ -289,3 +289,25 @@ BoundingBox::transformTo(Matrix4x4 *transform, BoundingBox *transformedBoundingB
     transformedBoundingBox->coordinates[MIN_Z] -= d;
     transformedBoundingBox->coordinates[MAX_Z] += d;
 }
+
+void
+BoundingBox::enlargeTinyBit() {
+    float Dx = (float)((coordinates[MAX_X] - coordinates[MIN_X]) * 1e-4);
+    float Dy = (float)((coordinates[MAX_Y] - coordinates[MIN_Y]) * 1e-4);
+    float Dz = (float)((coordinates[MAX_Z] - coordinates[MIN_Z]) * 1e-4);
+    if ( Dx < EPSILON ) {
+        Dx = EPSILON;
+    }
+    if ( Dy < EPSILON ) {
+        Dy = EPSILON;
+    }
+    if ( Dz < EPSILON ) {
+        Dz = EPSILON;
+    }
+    coordinates[MIN_X] -= Dx;
+    coordinates[MAX_X] += Dx;
+    coordinates[MIN_Y] -= Dy;
+    coordinates[MAX_Y] += Dy;
+    coordinates[MIN_Z] -= Dz;
+    coordinates[MAX_Z] += Dz;
+}

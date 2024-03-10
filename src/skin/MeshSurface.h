@@ -72,7 +72,7 @@ geomGetSurface(Geometry *geom) {
     return geomIsSurface(geom) ? geom->surfaceData : nullptr;
 }
 
-extern float *
+extern BoundingBox *
 surfaceBounds(MeshSurface *surf, BoundingBox *boundingBox);
 
 RayHit *

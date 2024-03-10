@@ -63,28 +63,6 @@ Geometry::~Geometry() {
     }
 }
 
-static void
-boundsEnlargeTinyBit(float *bounds) {
-    float Dx = (float)((bounds[MAX_X] - bounds[MIN_X]) * 1e-4);
-    float Dy = (float)((bounds[MAX_Y] - bounds[MIN_Y]) * 1e-4);
-    float Dz = (float)((bounds[MAX_Z] - bounds[MIN_Z]) * 1e-4);
-    if ( Dx < EPSILON ) {
-        Dx = EPSILON;
-    }
-    if ( Dy < EPSILON ) {
-        Dy = EPSILON;
-    }
-    if ( Dz < EPSILON ) {
-        Dz = EPSILON;
-    }
-    bounds[MIN_X] -= Dx;
-    bounds[MAX_X] += Dx;
-    bounds[MIN_Y] -= Dy;
-    bounds[MAX_Y] += Dy;
-    bounds[MIN_Z] -= Dz;
-    bounds[MAX_Z] += Dz;
-}
-
 /**
 This function is used to create a new geometry with given specific data and
 methods. A pointer to the new geometry is returned
@@ -116,7 +94,7 @@ geomCreateBase(
     }
 
     // Enlarge bounding box a tiny bit for more conservative bounding box culling
-    boundsEnlargeTinyBit(newGeometry->boundingBox.coordinates);
+    newGeometry->boundingBox.enlargeTinyBit();
     newGeometry->bounded = true;
     newGeometry->shaftCullGeometry = false;
     newGeometry->radianceData = nullptr;
@@ -365,10 +343,9 @@ geometryListDiscretizationIntersect(
 /**
 This function computes a bounding box for a list of geometries
 */
-float *
+void
 geometryListBounds(java::ArrayList<Geometry *> *geometryList, BoundingBox *boundingBox) {
     for ( int i = 0; geometryList != nullptr && i < geometryList->size(); i++ ) {
         boundingBox->enlarge(&geometryList->get(i)->boundingBox);
     }
-    return boundingBox->coordinates;
 }

@@ -119,9 +119,9 @@ This method will compute a bounding box for a geometry. The bounding box
 is filled in bounding box and a pointer to the filled in bounding box
 returned
 */
-float *
+BoundingBox *
 surfaceBounds(MeshSurface *surf, BoundingBox *boundingBox) {
-    return patchListBounds(surf->faces, boundingBox)->coordinates;
+    return patchListBounds(surf->faces, boundingBox);
 }
 
 /**

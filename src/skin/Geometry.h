@@ -82,7 +82,7 @@ geomDiscretizationIntersect(
     int hitFlags,
     RayHit *hitStore);
 
-extern float *geometryListBounds(java::ArrayList<Geometry *> *geometryList, BoundingBox *boundingBox);
+extern void geometryListBounds(java::ArrayList<Geometry *> *geometryList, BoundingBox *boundingBox);
 
 extern RayHit *
 geometryListDiscretizationIntersect(
