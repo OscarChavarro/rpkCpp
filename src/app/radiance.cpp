@@ -8,10 +8,10 @@ Stuff common to all radiance methods
 #include "common/error.h"
 #include "common/options.h"
 #include "common/RenderOptions.h"
-#include "GALERKIN/GalerkinRadiosity.h"
+#include "GALERKIN/GalerkinRadianceMethod.h"
 
 #ifdef RAYTRACING_ENABLED
-    #include "PHOTONMAP/PhotonMapRadiosity.h"
+    #include "PHOTONMAP/PhotonMapRadiosityMethod.h"
     #include "raycasting/stochasticRaytracing/mcrad.h"
 #endif
 

@@ -21,7 +21,7 @@
 #include "PHOTONMAP/screensampler.h"
 #include "PHOTONMAP/photonmap.h"
 #include "PHOTONMAP/importancemap.h"
-#include "PHOTONMAP/PhotonMapRadiosity.h"
+#include "PHOTONMAP/PhotonMapRadiosityMethod.h"
 #include "PHOTONMAP/pmapoptions.h"
 #include "PHOTONMAP/pmapconfig.h"
 #include "PHOTONMAP/pmapimportance.h"
@@ -32,6 +32,76 @@ PhotonMapConfig GLOBAL_photonMap_config;
 static bool globalDoingLocalRayCasting = false;
 
 #define STRING_LENGTH 1000
+
+PhotonMapRadianceMethod::PhotonMapRadianceMethod() {
+}
+
+PhotonMapRadianceMethod::~PhotonMapRadianceMethod() {
+}
+
+char *
+PhotonMapRadianceMethod::getShortName() {
+    return nullptr;
+}
+
+int
+PhotonMapRadianceMethod::getShortNameMinimumLength() {
+    return 0;
+}
+
+char *
+PhotonMapRadianceMethod::getFullName() {
+    return nullptr;
+}
+
+void
+PhotonMapRadianceMethod::defaultValues() {
+}
+
+void
+PhotonMapRadianceMethod::parseOptions(int *argc, char **argv) {
+}
+
+void
+PhotonMapRadianceMethod::initialize(java::ArrayList<Patch *> *scenePatches) {
+
+}
+
+int
+PhotonMapRadianceMethod::doStep(java::ArrayList<Patch *> *scenePatches, java::ArrayList<Patch *> *lightPatches) {
+    return 0;
+}
+
+void
+PhotonMapRadianceMethod::terminate(java::ArrayList<Patch *> *scenePatches) {
+}
+
+COLOR
+PhotonMapRadianceMethod::getRadiance(Patch *patch, double u, double v, Vector3D dir) {
+    return COLOR{};
+}
+
+Element *
+PhotonMapRadianceMethod::createPatchData(Patch *patch) {
+    return nullptr;
+}
+
+void
+PhotonMapRadianceMethod::destroyPatchData(Patch *patch) {
+}
+
+char *
+PhotonMapRadianceMethod::getStats() {
+    return nullptr;
+}
+
+void
+PhotonMapRadianceMethod::renderScene(java::ArrayList<Patch *> *scenePatches) {
+}
+
+void
+PhotonMapRadianceMethod::writeVRML(FILE *fp){
+}
 
 /**
 Initializes the rendering methods 'state' structure. Don't forget to

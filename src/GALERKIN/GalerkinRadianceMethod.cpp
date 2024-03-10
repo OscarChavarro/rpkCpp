@@ -18,7 +18,7 @@ potential-driven or not.
 #include "io/writevrml.h"
 #include "render/opengl.h"
 #include "IMAGE/tonemap/tonemapping.h"
-#include "GALERKIN/GalerkinRadiosity.h"
+#include "GALERKIN/GalerkinRadianceMethod.h"
 #include "GALERKIN/galerkinP.h"
 #include "GALERKIN/basisgalerkin.h"
 #include "GALERKIN/clustergalerkincpp.h"
@@ -63,6 +63,76 @@ GalerkinState::GalerkinState():
         lastClock(),
         cpu_secs()
 {
+}
+
+GalerkinRadianceMethod::GalerkinRadianceMethod() {
+}
+
+GalerkinRadianceMethod::~GalerkinRadianceMethod() {
+}
+
+char *
+GalerkinRadianceMethod::getShortName() {
+    return nullptr;
+}
+
+int
+GalerkinRadianceMethod::getShortNameMinimumLength() {
+    return 0;
+}
+
+char *
+GalerkinRadianceMethod::getFullName() {
+    return nullptr;
+}
+
+void
+GalerkinRadianceMethod::defaultValues() {
+}
+
+void
+GalerkinRadianceMethod::parseOptions(int *argc, char **argv) {
+}
+
+void
+GalerkinRadianceMethod::initialize(java::ArrayList<Patch *> *scenePatches) {
+
+}
+
+int
+GalerkinRadianceMethod::doStep(java::ArrayList<Patch *> *scenePatches, java::ArrayList<Patch *> *lightPatches) {
+    return 0;
+}
+
+void
+GalerkinRadianceMethod::terminate(java::ArrayList<Patch *> *scenePatches) {
+}
+
+COLOR
+GalerkinRadianceMethod::getRadiance(Patch *patch, double u, double v, Vector3D dir) {
+    return COLOR{};
+}
+
+Element *
+GalerkinRadianceMethod::createPatchData(Patch *patch) {
+    return nullptr;
+}
+
+void
+GalerkinRadianceMethod::destroyPatchData(Patch *patch) {
+}
+
+char *
+GalerkinRadianceMethod::getStats() {
+    return nullptr;
+}
+
+void
+GalerkinRadianceMethod::renderScene(java::ArrayList<Patch *> *scenePatches) {
+}
+
+void
+GalerkinRadianceMethod::writeVRML(FILE *fp){
 }
 
 static int globalTrue = true;

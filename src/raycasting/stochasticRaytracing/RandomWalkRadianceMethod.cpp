@@ -6,6 +6,77 @@
 #include "raycasting/stochasticRaytracing/mcradP.h"
 #include "raycasting/stochasticRaytracing/tracepath.h"
 #include "raycasting/stochasticRaytracing/stochjacobi.h"
+#include "raycasting/stochasticRaytracing/RandomWalkRadianceMethod.h"
+
+RandomWalkRadianceMethod::RandomWalkRadianceMethod() {
+}
+
+RandomWalkRadianceMethod::~RandomWalkRadianceMethod() {
+}
+
+char *
+RandomWalkRadianceMethod::getShortName() {
+    return nullptr;
+}
+
+int
+RandomWalkRadianceMethod::getShortNameMinimumLength() {
+    return 0;
+}
+
+char *
+RandomWalkRadianceMethod::getFullName() {
+    return nullptr;
+}
+
+void
+RandomWalkRadianceMethod::defaultValues() {
+}
+
+void
+RandomWalkRadianceMethod::parseOptions(int *argc, char **argv) {
+}
+
+void
+RandomWalkRadianceMethod::initialize(java::ArrayList<Patch *> *scenePatches) {
+
+}
+
+int
+RandomWalkRadianceMethod::doStep(java::ArrayList<Patch *> *scenePatches, java::ArrayList<Patch *> *lightPatches) {
+    return 0;
+}
+
+void
+RandomWalkRadianceMethod::terminate(java::ArrayList<Patch *> *scenePatches) {
+}
+
+COLOR
+RandomWalkRadianceMethod::getRadiance(Patch *patch, double u, double v, Vector3D dir) {
+    return COLOR{};
+}
+
+Element *
+RandomWalkRadianceMethod::createPatchData(Patch *patch) {
+    return nullptr;
+}
+
+void
+RandomWalkRadianceMethod::destroyPatchData(Patch *patch) {
+}
+
+char *
+RandomWalkRadianceMethod::getStats() {
+    return nullptr;
+}
+
+void
+RandomWalkRadianceMethod::renderScene(java::ArrayList<Patch *> *scenePatches) {
+}
+
+void
+RandomWalkRadianceMethod::writeVRML(FILE *fp){
+}
 
 static void
 randomWalkRadiosityInit(java::ArrayList<Patch *> * /*scenePatches*/) {

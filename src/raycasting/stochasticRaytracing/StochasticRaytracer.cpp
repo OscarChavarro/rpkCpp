@@ -1,7 +1,7 @@
 #include "scene/scene.h"
 #include "common/stratification.h"
 #include "raycasting/raytracing/lightlist.h"
-#include "PHOTONMAP/PhotonMapRadiosity.h"
+#include "PHOTONMAP/PhotonMapRadiosityMethod.h"
 #include "raycasting/common/Raytracer.h"
 #include "raycasting/common/raytools.h"
 #include "raycasting/raytracing/screeniterate.h"

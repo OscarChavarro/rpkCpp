@@ -8,6 +8,8 @@
 
 class RadianceMethod {
   public:
+    RadianceMethod();
+    virtual ~RadianceMethod();
     virtual char *getShortName() = 0;
     virtual int getShortNameMinimumLength() = 0;
     virtual char *getFullName() = 0;

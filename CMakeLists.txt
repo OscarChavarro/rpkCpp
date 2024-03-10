@@ -53,6 +53,7 @@ set(MAIN_SRC
     src/skin/Vertex.cpp
     src/skin/Jacobian.cpp
     src/skin/Element.cpp
+    src/skin/RadianceMethod.cpp
     src/SGL/poly_clip.cpp
     src/SGL/poly_scan_z.cpp
     src/SGL/sgl.cpp
@@ -96,7 +97,7 @@ set(MAIN_SRC
     src/render/ScreenBuffer.cpp
     src/GALERKIN/shadowcaching.cpp
     src/GALERKIN/basisgalerkin.cpp
-    src/GALERKIN/GalerkinRadiosity.cpp
+    src/GALERKIN/GalerkinRadianceMethod.cpp
     src/GALERKIN/shaftculling.cpp
     src/GALERKIN/gathering.cpp
     src/GALERKIN/formfactor.cpp
@@ -142,16 +143,16 @@ set(MAIN_SRC
     src/PHOTONMAP/pmapoptions.cpp
     src/PHOTONMAP/photon.cpp
     src/PHOTONMAP/importancemap.cpp
-    src/PHOTONMAP/PhotonMapRadiosity.cpp
+    src/PHOTONMAP/PhotonMapRadiosityMethod.cpp
     src/PHOTONMAP/photonmap.cpp
     src/PHOTONMAP/photonmapsampler.cpp
     src/raycasting/stochasticRaytracing/StochasticRaytracer.cpp
     src/raycasting/stochasticRaytracing/StochasticRaytracerOptions.cpp
     src/raycasting/stochasticRaytracing/StochasticRadiosityElement.cpp
     src/raycasting/stochasticRaytracing/hierarchy.cpp
-    src/raycasting/stochasticRaytracing/StochasticRelaxationRadiosity.cpp
+    src/raycasting/stochasticRaytracing/StochasticJacobiRadianceMethod.cpp
     src/raycasting/stochasticRaytracing/render.cpp
-    src/raycasting/stochasticRaytracing/RandomWalkRadiosity.cpp
+    src/raycasting/stochasticRaytracing/RandomWalkRadianceMethod.cpp
     src/raycasting/stochasticRaytracing/coefficientsgalerkin.cpp
     src/raycasting/stochasticRaytracing/basismcrad.cpp
     src/raycasting/stochasticRaytracing/basistrimcrad.cpp

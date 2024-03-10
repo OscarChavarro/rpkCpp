@@ -6,14 +6,85 @@ Stochastic Relaxation Radiosity (currently only stochastic Jacobi)
 #include "common/error.h"
 #include "material/statistics.h"
 #include "render/render.h"
+#include "scene/scene.h"
+#include "render/opengl.h"
+#include "raycasting/common/Raytracer.h"
 #include "raycasting/stochasticRaytracing/vrml/vrml.h"
 #include "raycasting/stochasticRaytracing/mcradP.h"
 #include "raycasting/stochasticRaytracing/hierarchy.h"
 #include "raycasting/stochasticRaytracing/stochjacobi.h"
 #include "raycasting/stochasticRaytracing/StochasticRadiosityElement.h"
-#include "raycasting/common/Raytracer.h"
-#include "render/opengl.h"
-#include "scene/scene.h"
+#include "raycasting/stochasticRaytracing/StochasticJacobiRadianceMethod.h"
+
+StochasticJacobiRadianceMethod::StochasticJacobiRadianceMethod() {
+}
+
+StochasticJacobiRadianceMethod::~StochasticJacobiRadianceMethod() {
+}
+
+char *
+StochasticJacobiRadianceMethod::getShortName() {
+    return nullptr;
+}
+
+int
+StochasticJacobiRadianceMethod::getShortNameMinimumLength() {
+    return 0;
+}
+
+char *
+StochasticJacobiRadianceMethod::getFullName() {
+    return nullptr;
+}
+
+void
+StochasticJacobiRadianceMethod::defaultValues() {
+}
+
+void
+StochasticJacobiRadianceMethod::parseOptions(int *argc, char **argv) {
+}
+
+void
+StochasticJacobiRadianceMethod::initialize(java::ArrayList<Patch *> *scenePatches) {
+
+}
+
+int
+StochasticJacobiRadianceMethod::doStep(java::ArrayList<Patch *> *scenePatches, java::ArrayList<Patch *> *lightPatches) {
+    return 0;
+}
+
+void
+StochasticJacobiRadianceMethod::terminate(java::ArrayList<Patch *> *scenePatches) {
+}
+
+COLOR
+StochasticJacobiRadianceMethod::getRadiance(Patch *patch, double u, double v, Vector3D dir) {
+    return COLOR{};
+}
+
+Element *
+StochasticJacobiRadianceMethod::createPatchData(Patch *patch) {
+    return nullptr;
+}
+
+void
+StochasticJacobiRadianceMethod::destroyPatchData(Patch *patch) {
+}
+
+char *
+StochasticJacobiRadianceMethod::getStats() {
+    return nullptr;
+}
+
+void
+StochasticJacobiRadianceMethod::renderScene(java::ArrayList<Patch *> *scenePatches) {
+}
+
+void
+StochasticJacobiRadianceMethod::writeVRML(FILE *fp){
+}
 
 static void
 stochasticRelaxationRadiosityInit(java::ArrayList<Patch *> * /*scenePatches*/) {
