@@ -11,7 +11,7 @@ Stuff common to all radiance methods
 #include "GALERKIN/GalerkinRadianceMethod.h"
 
 #ifdef RAYTRACING_ENABLED
-    #include "PHOTONMAP/PhotonMapRadiosityMethod.h"
+    #include "PHOTONMAP/PhotonMapRadianceMethod.h"
     #include "raycasting/stochasticRaytracing/mcrad.h"
 #endif
 

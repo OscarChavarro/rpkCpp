@@ -21,7 +21,7 @@
 #include "PHOTONMAP/screensampler.h"
 #include "PHOTONMAP/photonmap.h"
 #include "PHOTONMAP/importancemap.h"
-#include "PHOTONMAP/PhotonMapRadiosityMethod.h"
+#include "PHOTONMAP/PhotonMapRadianceMethod.h"
 #include "PHOTONMAP/pmapoptions.h"
 #include "PHOTONMAP/pmapconfig.h"
 #include "PHOTONMAP/pmapimportance.h"

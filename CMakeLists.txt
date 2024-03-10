@@ -143,7 +143,7 @@ set(MAIN_SRC
     src/PHOTONMAP/pmapoptions.cpp
     src/PHOTONMAP/photon.cpp
     src/PHOTONMAP/importancemap.cpp
-    src/PHOTONMAP/PhotonMapRadiosityMethod.cpp
+    src/PHOTONMAP/PhotonMapRadianceMethod.cpp
     src/PHOTONMAP/photonmap.cpp
     src/PHOTONMAP/photonmapsampler.cpp
     src/raycasting/stochasticRaytracing/StochasticRaytracer.cpp
