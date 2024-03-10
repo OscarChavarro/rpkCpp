@@ -77,6 +77,7 @@ class RADIANCEMETHOD {
 extern RADIANCEMETHOD *GLOBAL_radiance_radianceMethods[];
 
 extern RADIANCEMETHOD *GLOBAL_radiance_currentRadianceMethodHandle;
+
 extern void setRadianceMethod(RADIANCEMETHOD *newMethod, java::ArrayList<Patch *> *scenePatches);
 extern void radianceDefaults(java::ArrayList<Patch *> *scenePatches);
 extern void parseRadianceOptions(int *argc, char **argv);

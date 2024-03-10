@@ -229,7 +229,7 @@ BoundingBox::intersect(Ray *ray, float minimumDistance, float *maximumDistance) 
 
 /**
 Returns true if the bounding box is behind the plane defined by norm and d
-see F. Tampieri, Fast Vertex Radiosity Update, Graphics Gems II, p 303
+see F. Tampieri, "Faster Vertex Radiosity Update", Graphics Gems II, p 303
 */
 bool
 BoundingBox::behindPlane(Vector3D *norm, float d) const {
