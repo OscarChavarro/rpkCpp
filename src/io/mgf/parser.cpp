@@ -773,7 +773,7 @@ mgfEntityTorus(int ac, char **av)
     } else {
         return MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
     }
-    if ( sgn * (maxrad - minrad) <= 0. ) {
+    if ( sgn * (maxrad - minrad) <= 0.0 ) {
         return MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
     }
 

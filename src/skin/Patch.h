@@ -1,15 +1,9 @@
 #ifndef __PATCH__
 #define __PATCH__
 
-#include "common/linealAlgebra/Vector3D.h"
-#include "common/Ray.h"
-#include "common/rgb.h"
 #include "skin/Jacobian.h"
 #include "skin/Vertex.h"
-#include "skin/Element.h"
 #include "skin/MeshSurface.h"
-#include "material/hit.h"
-#include "material/xxdf.h"
 
 #define MAXIMUM_VERTICES_PER_PATCH 4
 #define PATCH_VISIBILITY 0x01
@@ -18,7 +12,7 @@
 class Patch {
   private:
     // A static counter which is increased every time a Patch is created in
-    //order to make a unique Patch id
+    // order to make a unique Patch id
     static int globalPatchId;
     static Patch *globalExcludedPatches[MAX_EXCLUDED_PATCHES];
 
@@ -46,7 +40,7 @@ class Patch {
     float computeTolerance();
     bool triangleUv(Vector3D *point, Vector2Dd *uv);
 
-public:
+  public:
     unsigned id; // Identification number for debugging, ID rendering
     Patch *twin; // Twin face (for double-sided surfaces)
     Vertex *vertex[MAXIMUM_VERTICES_PER_PATCH]; // Pointers to the vertices
@@ -59,7 +53,7 @@ public:
     Vector3D midpoint; // Patch midpoint
     Jacobian *jacobian; // Shape-related constants for irregular quadrilaterals.
                         // Used for sampling the quadrilateral and for computing integrals
-    float directPotential; // Directly received hemispherical potential (ref: Pattanaik, ACM Trans Graph).
+    float directPotential; // Directly received hemispherical potential (ref: Pattanaik, ACM Trans Graph, 1995?).
                            // Only determined when asked to do so (see potential.[ch]).
     char index; // Indicates dominant part of patch normal
     char omit; // Indicates that the patch should not be considered

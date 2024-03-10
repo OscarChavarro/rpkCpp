@@ -93,7 +93,7 @@ CLightDirSampler::EvalPDF(
     edfEval(thisNode->m_hit.material->edf,
             &thisNode->m_hit, &outDir, DIFFUSE_COMPONENT, &pdfDir);
 
-    if ( pdfDir < 0. ) {
+    if ( pdfDir < 0.0 ) {
         return 0.0;
     }  // Back face of a light does not radiate !
 

@@ -142,7 +142,7 @@ pointKernelEval(
         cosQ = 0.25;
     } else {
         cosQ = vectorDotProduct(ray.dir, src->patch->normal);
-        if ( cosQ <= 0. ) {
+        if ( cosQ <= 0.0 ) {
             // Ray leaves behind the source
             return 0.0;
         }
@@ -539,7 +539,7 @@ areaToAreaFormFactor(
                 if ( kval > maxkval ) {
                     maxkval = kval;
                 }
-                if ( Gxy[k][l] != 0. ) {
+                if ( Gxy[k][l] != 0.0 ) {
                     viscount++;
                 }
             }

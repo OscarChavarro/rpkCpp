@@ -275,7 +275,7 @@ Patch::computeMidpoint(Vector3D *p) {
 }
 
 /**
-Computes a certain "width" for the plane, e.g. for co-planarity testing
+Computes a certain "width" for the plane, e.g. for co-planar testing
 */
 float
 Patch::computeTolerance() {
@@ -294,7 +294,7 @@ Patch::computeTolerance() {
 }
 
 /**
-Returns (u,v) coordinates of the point in the triangle
+Returns (u, v) coordinates of the point in the triangle
 Didier Badouel, Graphics Gems I, p390
 */
 bool
@@ -345,14 +345,14 @@ Patch::triangleUv(Vector3D *point, Vector2Dd *uv) {
     if ( p1.u < -EPSILON || p1.u > EPSILON ) {
         // p1.u non zero
         beta = (p0.v * p1.u - p0.u * p1.v) / (p2.v * p1.u - p2.u * p1.v);
-        if ( beta >= 0. && beta <= 1. ) {
+        if ( beta >= 0. && beta <= 1.0 ) {
             alpha = (p0.u - beta * p2.u) / p1.u;
         } else {
             return false;
         }
     } else {
         beta = p0.u / p2.u;
-        if ( beta >= 0. && beta <= 1. ) {
+        if ( beta >= 0. && beta <= 1.0 ) {
             alpha = (p0.v - beta * p2.v) / p1.v;
         } else {
             return false;
@@ -360,7 +360,7 @@ Patch::triangleUv(Vector3D *point, Vector2Dd *uv) {
     }
     uv->u = alpha;
     uv->v = beta;
-    if ( alpha < 0. || (alpha + beta) > 1. ) {
+    if ( alpha < 0. || (alpha + beta) > 1.0 ) {
         return false;
     }
     return true;
@@ -369,7 +369,7 @@ Patch::triangleUv(Vector3D *point, Vector2Dd *uv) {
 /**
 Christophe Schlick and Gilles Subrenat (15 May 1994)
 "Ray Intersection of Tessellated Surfaces : Quadrangles versus Triangles"
-in Graphics Gems V (edited by A. Paeth), Academic Press
+in Graphics Gems V (edited by A. Paeth), Academic Press, pages 232-241
 */
 int
 Patch::quadUv(Patch *patch, Vector3D *point, Vector2Dd *uv) {

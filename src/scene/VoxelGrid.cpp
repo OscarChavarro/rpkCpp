@@ -293,7 +293,7 @@ VoxelGrid::gridTraceSetup(
     grid.
     */
     if ( std::fabs(ray->dir.x) > EPSILON ) {
-        if ( ray->dir.x > 0. ) {
+        if ( ray->dir.x > 0.0 ) {
             tDelta->x = voxelSize.x / ray->dir.x;
             tNext->x = t0 + (voxel2x((float)g[0] + 1) - P->x) / ray->dir.x;
             step[0] = 1;
@@ -310,7 +310,7 @@ VoxelGrid::gridTraceSetup(
 
     // Setup Y:
     if ( std::fabs(ray->dir.y) > EPSILON ) {
-        if ( ray->dir.y > 0. ) {
+        if ( ray->dir.y > 0.0 ) {
             tDelta->y = voxelSize.y / ray->dir.y;
             tNext->y = t0 + (voxel2y((float)g[1] + 1) - P->y) / ray->dir.y;
             step[1] = 1;
@@ -327,7 +327,7 @@ VoxelGrid::gridTraceSetup(
 
     // Setup Z:
     if ( std::fabs(ray->dir.z) > EPSILON ) {
-        if ( ray->dir.z > 0. ) {
+        if ( ray->dir.z > 0.0 ) {
             tDelta->z = voxelSize.z / ray->dir.z;
             tNext->z = t0 + (voxel2z((float)g[2] + 1) - P->z) / ray->dir.z;
             step[2] = 1;

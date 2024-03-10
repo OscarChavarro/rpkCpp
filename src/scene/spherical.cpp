@@ -72,7 +72,7 @@ vectorToSphericalCoord(Vector3D *C, COORDSYS *coordSys, double *phi, double *the
     if ( x < -1.0 )
         x = -1.0;
     *phi = std::acos(x);
-    if ( y < 0. )
+    if ( y < 0.0 )
         *phi = 2. * M_PI - *phi;
 }
 

@@ -178,8 +178,8 @@ handleColorEntity(int ac, char **av)
             GLOBAL_mgf_currentColor->cx = strtof(av[1], nullptr);
             GLOBAL_mgf_currentColor->cy = strtof(av[2], nullptr);
             GLOBAL_mgf_currentColor->flags = C_CDXY | C_CSXY;
-            if ( GLOBAL_mgf_currentColor->cx < 0. || GLOBAL_mgf_currentColor->cy < 0. ||
-                 GLOBAL_mgf_currentColor->cx + GLOBAL_mgf_currentColor->cy > 1. ) {
+            if ( GLOBAL_mgf_currentColor->cx < 0.0 || GLOBAL_mgf_currentColor->cy < 0.0 ||
+                 GLOBAL_mgf_currentColor->cx + GLOBAL_mgf_currentColor->cy > 1.0 ) {
                 return MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
             }
             GLOBAL_mgf_currentColor->clock++;
@@ -343,7 +343,7 @@ handleMaterialEntity(int ac, char **av)
                 return MGF_ERROR_ARGUMENT_TYPE;
             }
             GLOBAL_mgf_currentMaterial->rd = strtof(av[1], nullptr);
-            if ( GLOBAL_mgf_currentMaterial->rd < 0. || GLOBAL_mgf_currentMaterial->rd > 1. ) {
+            if ( GLOBAL_mgf_currentMaterial->rd < 0. || GLOBAL_mgf_currentMaterial->rd > 1.0 ) {
                 return MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
             }
             GLOBAL_mgf_currentMaterial->rd_c = *GLOBAL_mgf_currentColor;
@@ -373,7 +373,7 @@ handleMaterialEntity(int ac, char **av)
                 return MGF_ERROR_ARGUMENT_TYPE;
             }
             GLOBAL_mgf_currentMaterial->td = strtof(av[1], nullptr);
-            if ( GLOBAL_mgf_currentMaterial->td < 0.0 || GLOBAL_mgf_currentMaterial->td > 1. ) {
+            if ( GLOBAL_mgf_currentMaterial->td < 0.0 || GLOBAL_mgf_currentMaterial->td > 1.0 ) {
                 return MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
             }
             GLOBAL_mgf_currentMaterial->td_c = *GLOBAL_mgf_currentColor;
@@ -389,7 +389,7 @@ handleMaterialEntity(int ac, char **av)
             }
             GLOBAL_mgf_currentMaterial->rs = strtof(av[1], nullptr);
             GLOBAL_mgf_currentMaterial->rs_a = strtof(av[2], nullptr);
-            if ( GLOBAL_mgf_currentMaterial->rs < 0.0 || GLOBAL_mgf_currentMaterial->rs > 1. ||
+            if ( GLOBAL_mgf_currentMaterial->rs < 0.0 || GLOBAL_mgf_currentMaterial->rs > 1.0 ||
                  GLOBAL_mgf_currentMaterial->rs_a < 0.0 ) {
                 return MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
             }

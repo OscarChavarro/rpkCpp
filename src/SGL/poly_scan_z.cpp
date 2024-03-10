@@ -5,7 +5,7 @@ by Paul Heckbert
 from "Graphics Gems", Academic Press, 1990
 Point-sampled scan conversion of convex polygons
 
-Paul Heckbert	1985, Dec 1989
+Paul Heckbert 1985, Dec 1989
 */
 
 #include "common/mymath.h"

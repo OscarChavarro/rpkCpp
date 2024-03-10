@@ -380,7 +380,7 @@ stochasticRadiosityElementRenderOutline(StochasticRadiosityElement *elem) {
     Vector3D vertices[4];
 
     // Test whether eye point is in front of the patch
-    if ( vectorDotProduct(elem->patch->normal, GLOBAL_camera_mainCamera.eyePosition) + elem->patch->planeConstant < 0. ) {
+    if ( vectorDotProduct(elem->patch->normal, GLOBAL_camera_mainCamera.eyePosition) + elem->patch->planeConstant < 0.0 ) {
         return;
     }
 

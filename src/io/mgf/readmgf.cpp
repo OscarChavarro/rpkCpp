@@ -232,7 +232,7 @@ mgfGetColor(MgfColorContext *cin, float intensity, COLOR *colorOut) {
         xyz[2] = 0.0;
     }
 
-    if ( xyz[0] < 0. || xyz[1] < 0. || xyz[2] < 0. ) {
+    if ( xyz[0] < 0.0 || xyz[1] < 0.0 || xyz[2] < 0.0 ) {
         doWarning("invalid color specification (negative CIE XYZ components) ... clipping to zero");
         if ( xyz[0] < 0.0 ) {
             xyz[0] = 0.0;

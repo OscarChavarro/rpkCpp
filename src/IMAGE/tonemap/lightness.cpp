@@ -31,12 +31,12 @@ static float Lightness(float luminance) {
     }
 }
 
-static COLOR ScaleForComputations(COLOR radiance) {
+static COLOR lightnessScaleForComputations(COLOR radiance) {
     logFatal(-1, "ScaleForComputations", "%s %d not yet implemented", __FILE__, __LINE__);
     return radiance;
 }
 
-static COLOR ScaleForDisplay(COLOR radiance) {
+static COLOR lightnessScaleForDisplay(COLOR radiance) {
     float max, scale_factor;
 
     max = colorMaximumComponent(radiance);
@@ -47,7 +47,7 @@ static COLOR ScaleForDisplay(COLOR radiance) {
     // Multiply by WHITE EFFICACY to convert W/m^2sr to nits
     // (reference luminance is also in nits)
     scale_factor = Lightness(WHITE_EFFICACY * max);
-    if ( scale_factor == 0. ) {
+    if ( scale_factor == 0.0 ) {
         return radiance;
     }
 
@@ -63,6 +63,6 @@ ToneMap GLOBAL_toneMap_lightness = {
     nullptr,
     lightnessInit,
     lightnessTerminate,
-    ScaleForComputations,
-    ScaleForDisplay
+    lightnessScaleForComputations,
+    lightnessScaleForDisplay
 };
