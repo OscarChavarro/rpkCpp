@@ -1,7 +1,7 @@
 #ifndef __GALERKIN_RADIOSITY__
 #define __GALERKIN_RADIOSITY__
 
-#include "skin/radianceinterfaces.h"
+#include "skin/RadianceMethod.h"
 
 extern RADIANCEMETHOD GLOBAL_galerkin_radiosity;
 

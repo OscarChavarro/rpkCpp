@@ -5,7 +5,7 @@
 
 #include "common/error.h"
 #include "scene/scene.h"
-#include "skin/radianceinterfaces.h"
+#include "skin/RadianceMethod.h"
 #include "render/canvas.h"
 #include "render/renderhook.h"
 #include "render/softids.h"

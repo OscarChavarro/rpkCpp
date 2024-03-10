@@ -4,7 +4,7 @@
 #include "common/error.h"
 #include "material/statistics.h"
 #include "QMC/nied31.h"
-#include "skin/radianceinterfaces.h"
+#include "skin/RadianceMethod.h"
 #include "skin/Patch.h"
 
 #define TOLERANCE 1e-5
@@ -610,8 +610,8 @@ Patch::Patch(int inNumberOfVertices, Vertex *v1, Vertex *v2, Vertex *v3, Vertex 
     flags = 0; // Other flags
 
     // If we are doing radiance computations, create radiance data for the patch
-    radianceData = (GLOBAL_radiance_currentRadianceMethodHandle && GLOBAL_radiance_currentRadianceMethodHandle->CreatePatchData) ?
-                          GLOBAL_radiance_currentRadianceMethodHandle->CreatePatchData(this) : nullptr;
+    radianceData = (GLOBAL_radiance_currentRadianceMethodHandle && GLOBAL_radiance_currentRadianceMethodHandle->createPatchData) ?
+                   GLOBAL_radiance_currentRadianceMethodHandle->createPatchData(this) : nullptr;
 }
 
 /**

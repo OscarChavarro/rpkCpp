@@ -1,23 +1,29 @@
-/**
-Declarations common to all radiance algorithms
-
-This should migrate to a superclass / interface on an
-inheritance hierarchy
-*/
-
-#ifndef __RADIANCE__
-#define __RADIANCE__
+#ifndef __RADIANCE_METHOD__
+#define __RADIANCE_METHOD__
 
 #include <cstdio>
 
 #include "java/util/ArrayList.h"
 #include "skin/Geometry.h"
 
-typedef COLOR(*GETRADIANCE_FT)(Patch *patch, double u, double v, Vector3D dir);
+class RadianceMethod {
+  public:
+    virtual char *getShortName() = 0;
+    virtual int getShortNameMinimumLength() = 0;
+    virtual char *getFullName() = 0;
+    virtual void defaultValues() = 0;
+    virtual void parseOptions(int *argc, char **argv) = 0;
+    virtual void initialize(java::ArrayList<Patch *> *scenePatches) = 0;
+    virtual int doStep(java::ArrayList<Patch *> *scenePatches, java::ArrayList<Patch *> *lightPatches) = 0;
+    virtual void terminate(java::ArrayList<Patch *> *scenePatches) = 0;
+    virtual COLOR getRadiance(Patch *patch, double u, double v, Vector3D dir) = 0;
+    virtual Element *createPatchData(Patch *patch) = 0;
+    virtual void destroyPatchData(Patch *patch) = 0;
+    virtual char *getStats() = 0;
+    virtual void renderScene(java::ArrayList<Patch *> *scenePatches) = 0;
+    virtual void writeVRML(FILE *fp) = 0;
+};
 
-/**
-Routines to be implemented for each radiance algorithm
-*/
 class RADIANCEMETHOD {
   public:
     // A one-word name for the method: among others used to select it using
@@ -25,16 +31,16 @@ class RADIANCEMETHOD {
     const char *shortName;
 
     // To how many characters can be abbreviated the short name
-    int nameAbbrev;
+    int shortNameMinimumLength;
 
     // A longer name for the method
     const char *fullName;
 
     // A function to set default values for the method
-    void (*Defaults)();
+    void (*defaultValues)();
 
     // A function to parse command line arguments for the method
-    void (*ParseOptions)(int *argc, char **argv);
+    void (*parseOptions)(int *argc, char **argv);
 
     // Initializes the current scene for radiance computations. Called when a new
     // scene is loaded or when selecting a particular radiance algorithm
@@ -50,16 +56,16 @@ class RADIANCEMETHOD {
 
     // Returns the radiance being emitted from the specified patch, at
     // the point with given (u,v) parameters and into the given direction
-    GETRADIANCE_FT GetRadiance;
+    COLOR(*getRadiance)(Patch *patch, double u, double v, Vector3D dir);
 
     // Allocates memory for the radiance data for the given patch. Fills in the pointer in patch->radianceData
-    Element *(*CreatePatchData)(Patch *patch);
+    Element *(*createPatchData)(Patch *patch);
 
     // Destroys the radiance data for the patch. Clears the patch->radianceData pointer
-    void (*DestroyPatchData)(Patch *patch);
+    void (*destroyPatchData)(Patch *patch);
 
     // Returns a string with statistics information about the current run so far
-    char *(*GetStats)();
+    char *(*getStats)();
 
     // Renders the scene using the specific data. This routine can be
     // a nullptr pointer. In that case, the default hardware assisted rendering

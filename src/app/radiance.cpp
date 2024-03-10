@@ -43,7 +43,7 @@ radianceMethodOption(void *value) {
 
     for ( RADIANCEMETHOD **methodPointer = GLOBAL_radiance_radianceMethods; *methodPointer != nullptr; methodPointer++) {
         RADIANCEMETHOD *method = *methodPointer;
-        if ( strncasecmp(name, method->shortName, method->nameAbbrev) == 0 ) {
+        if ( strncasecmp(name, method->shortName, method->shortNameMinimumLength) == 0 ) {
             setRadianceMethod(method, GLOBAL_scenePatches);
             return;
         }
@@ -71,17 +71,17 @@ setRadianceMethod(RADIANCEMETHOD *newMethod, java::ArrayList<Patch *> *scenePatc
         GLOBAL_radiance_currentRadianceMethodHandle->terminate(scenePatches);
         // Until we have radiance data convertors, we dispose of the old data and
         // allocate new data for the new method
-        if ( GLOBAL_radiance_currentRadianceMethodHandle->DestroyPatchData ) {
+        if ( GLOBAL_radiance_currentRadianceMethodHandle->destroyPatchData ) {
             for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
-                GLOBAL_radiance_currentRadianceMethodHandle->DestroyPatchData(scenePatches->get(i));
+                GLOBAL_radiance_currentRadianceMethodHandle->destroyPatchData(scenePatches->get(i));
             }
         }
     }
     GLOBAL_radiance_currentRadianceMethodHandle = newMethod;
     if ( GLOBAL_radiance_currentRadianceMethodHandle != nullptr ) {
-        if ( GLOBAL_radiance_currentRadianceMethodHandle->CreatePatchData ) {
+        if ( GLOBAL_radiance_currentRadianceMethodHandle->createPatchData ) {
             for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
-                GLOBAL_radiance_currentRadianceMethodHandle->CreatePatchData(scenePatches->get(i));
+                GLOBAL_radiance_currentRadianceMethodHandle->createPatchData(scenePatches->get(i));
             }
         }
         GLOBAL_radiance_currentRadianceMethodHandle->initialize(scenePatches);
@@ -113,8 +113,8 @@ void
 radianceDefaults(java::ArrayList<Patch *> *scenePatches) {
     for ( RADIANCEMETHOD **methodPointer = GLOBAL_radiance_radianceMethods; *methodPointer != nullptr; methodPointer++) {
         RADIANCEMETHOD *method = *methodPointer;
-        method->Defaults();
-        if ( strncasecmp(DEFAULT_RADIANCE_METHOD, method->shortName, method->nameAbbrev) == 0 ) {
+        method->defaultValues();
+        if ( strncasecmp(DEFAULT_RADIANCE_METHOD, method->shortName, method->shortNameMinimumLength) == 0 ) {
             setRadianceMethod(method, scenePatches);
         }
     }
@@ -130,6 +130,6 @@ parseRadianceOptions(int *argc, char **argv) {
     parseOptions(globalRadianceOptions, argc, argv);
     for ( RADIANCEMETHOD **methodPointer = GLOBAL_radiance_radianceMethods; *methodPointer != nullptr; methodPointer++) {
         RADIANCEMETHOD *method = *methodPointer;
-        method->ParseOptions(argc, argv);
+        method->parseOptions(argc, argv);
     }
 }

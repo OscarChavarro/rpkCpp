@@ -1,6 +1,6 @@
 #include "common/error.h"
 #include "material/statistics.h"
-#include "skin/radianceinterfaces.h"
+#include "skin/RadianceMethod.h"
 #include "raycasting/bidirectionalRaytracing/spar.h"
 
 CSpar::CSpar() {

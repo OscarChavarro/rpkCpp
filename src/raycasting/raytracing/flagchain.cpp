@@ -1,6 +1,6 @@
 #include "common/error.h"
 #include "material/edf.h"
-#include "skin/radianceinterfaces.h"
+#include "skin/RadianceMethod.h"
 #include "raycasting/common/pathnode.h"
 #include "raycasting/raytracing/flagchain.h"
 

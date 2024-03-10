@@ -6,7 +6,7 @@
 #include "common/options.h"
 #include "common/cubature.h"
 #include "material/statistics.h"
-#include "skin/radianceinterfaces.h"
+#include "skin/RadianceMethod.h"
 #include "render/render.h"
 #include "render/renderhook.h"
 #include "scene/scene.h"

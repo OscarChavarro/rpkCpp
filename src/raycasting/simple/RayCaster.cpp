@@ -60,7 +60,7 @@ Determines the radiance of the nearest patch visible through the pixel
 (x,y). P shall be the nearest patch visible in the pixel.
 */
 inline COLOR
-RayCaster::getRadianceAtPixel(int x, int y, Patch *patch, GETRADIANCE_FT getRadiance) {
+RayCaster::getRadianceAtPixel(int x, int y, Patch *patch, COLOR(*getRadiance)(Patch *patch, double u, double v, Vector3D dir)) {
     COLOR rad{};
     colorClear(rad);
     if ( patch != nullptr && getRadiance != nullptr ) {
@@ -94,14 +94,14 @@ RayCaster::getRadianceAtPixel(int x, int y, Patch *patch, GETRADIANCE_FT getRadi
 }
 
 void
-RayCaster::render(GETRADIANCE_FT getRadiance, java::ArrayList<Patch *> *scenePatches) {
+RayCaster::render(COLOR(*getRadiance)(Patch *patch, double u, double v, Vector3D dir), java::ArrayList<Patch *> *scenePatches) {
     #ifdef RAYTRACING_ENABLED
         clock_t t = clock();
     #endif
 
     if ( getRadiance == nullptr ) {
         if ( GLOBAL_radiance_currentRadianceMethodHandle ) {
-            getRadiance = GLOBAL_radiance_currentRadianceMethodHandle->GetRadiance;
+            getRadiance = GLOBAL_radiance_currentRadianceMethodHandle->getRadiance;
         }
     }
 

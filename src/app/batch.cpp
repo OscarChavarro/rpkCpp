@@ -3,7 +3,7 @@
 #include <GL/gl.h>
 
 #include "material/statistics.h"
-#include "skin/radianceinterfaces.h"
+#include "skin/RadianceMethod.h"
 #include "scene/scene.h"
 #include "io/writevrml.h"
 #include "common/options.h"
@@ -200,7 +200,7 @@ batch(java::ArrayList<Patch *> *scenePatches, java::ArrayList<Patch *> *lightPat
             fflush(stdout);
             fflush(stderr);
 
-            printf("%s", GLOBAL_radiance_currentRadianceMethodHandle->GetStats());
+            printf("%s", GLOBAL_radiance_currentRadianceMethodHandle->getStats());
 
             int (*f)() = nullptr;
             #ifdef RAYTRACING_ENABLED
