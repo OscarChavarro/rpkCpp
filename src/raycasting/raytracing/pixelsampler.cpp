@@ -20,9 +20,9 @@ bool CPixelSampler::sample(SimpleRaytracingPathNode *prevNode/*prevNode*/, Simpl
     double distPixel = sqrt(distPixel2);
     vectorScaleInverse((float)distPixel, dir, dir);
 
-    double cosPixel = fabs(vectorDotProduct(GLOBAL_camera_mainCamera.Z, dir));
+    double cosPixel = std::fabs(vectorDotProduct(GLOBAL_camera_mainCamera.Z, dir));
 
-    double pdfDir = ((1. / (GLOBAL_camera_mainCamera.pixelWidth * GLOBAL_camera_mainCamera.pixelHeight)) * // 1 / Area pixel
+    double pdfDir = ((1.0 / (GLOBAL_camera_mainCamera.pixelWidth * GLOBAL_camera_mainCamera.pixelHeight)) * // 1 / Area pixel
                      (distPixel2 / cosPixel));  // Spherical angle measure
 
     // Determine ray type
