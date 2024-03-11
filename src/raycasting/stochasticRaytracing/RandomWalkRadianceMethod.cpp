@@ -29,7 +29,7 @@ RandomWalkRadianceMethod::initialize(java::ArrayList<Patch *> *scenePatches) {
 
 COLOR
 RandomWalkRadianceMethod::getRadiance(Patch *patch, double u, double v, Vector3D dir) {
-    return COLOR{};
+    return monteCarloRadiosityGetRadiance(patch, u, v, dir);
 }
 
 Element *
@@ -488,7 +488,6 @@ RADIANCEMETHOD GLOBAL_stochasticRaytracing_randomWalkRadiosity = {
     monteCarloRadiosityDefaults,
     randomWalkRadiosityParseOptions,
     randomWalkRadiosityInit,
-    monteCarloRadiosityGetRadiance,
     monteCarloRadiosityDestroyPatchData,
     randomWalkRadiosityGetStats,
     nullptr,

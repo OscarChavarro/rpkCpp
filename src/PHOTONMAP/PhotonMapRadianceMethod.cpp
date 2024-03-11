@@ -52,11 +52,6 @@ PhotonMapRadianceMethod::initialize(java::ArrayList<Patch *> *scenePatches) {
 
 }
 
-COLOR
-PhotonMapRadianceMethod::getRadiance(Patch *patch, double u, double v, Vector3D dir) {
-    return COLOR{};
-}
-
 void
 PhotonMapRadianceMethod::destroyPatchData(Patch *patch) {
 }
@@ -641,10 +636,8 @@ photonMapGetNodeCRadiance(SimpleRaytracingPathNode *node) {
     return col;
 }
 
-static COLOR
-photonMapGetRadiance(Patch *patch,
-                     double u, double v,
-                     Vector3D dir) {
+COLOR
+PhotonMapRadianceMethod::getRadiance(Patch *patch, double u, double v, Vector3D dir) {
     RayHit hit;
     Vector3D point;
     BSDF *bsdf = patch->surface->material->bsdf;
@@ -773,7 +766,6 @@ RADIANCEMETHOD GLOBAL_photonMapMethods = {
     photonMapDefaults,
     photonMapParseOptions,
     photonMapInitPmap,
-    photonMapGetRadiance,
     photonMapDestroyPatchData,
     photonMapGetStats,
     photonMapRenderScreen,

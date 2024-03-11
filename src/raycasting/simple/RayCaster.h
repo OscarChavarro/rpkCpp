@@ -17,12 +17,12 @@ class RayCaster {
 
     static void clipUv(int numberOfVertices, double *u, double *v);
 
-    inline COLOR getRadianceAtPixel(int x, int y, Patch *patch, COLOR(*getRadiance)(Patch *patch, double u, double v, Vector3D dir));
+    inline COLOR getRadianceAtPixel(int x, int y, Patch *patch);
 
   public:
     explicit RayCaster(ScreenBuffer *inScreen);
     virtual ~RayCaster();
-    void render(COLOR(*getRadiance)(Patch *patch, double u, double v, Vector3D dir), java::ArrayList<Patch *> *scenePatches);
+    void render(java::ArrayList<Patch *> *scenePatches);
     void display();
     void save(ImageOutputHandle *ip);
 };

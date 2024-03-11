@@ -84,11 +84,6 @@ GalerkinRadianceMethod::initialize(java::ArrayList<Patch *> *scenePatches) {
 
 }
 
-COLOR
-GalerkinRadianceMethod::getRadiance(Patch *patch, double u, double v, Vector3D dir) {
-    return COLOR{};
-}
-
 void
 GalerkinRadianceMethod::destroyPatchData(Patch *patch) {
 }
@@ -436,8 +431,8 @@ GalerkinRadianceMethod::terminate(java::ArrayList<Patch *> *scenePatches) {
     }
 }
 
-static COLOR
-getRadiance(Patch *patch, double u, double v, Vector3D /*dir*/) {
+COLOR
+GalerkinRadianceMethod::getRadiance(Patch *patch, double u, double v, Vector3D dir) {
     GalerkinElement *leaf;
     COLOR rad;
 
@@ -687,7 +682,6 @@ RADIANCEMETHOD GLOBAL_galerkin_radiosity = {
     galerkinDefaults,
     parseGalerkinOptions,
     initGalerkin,
-    getRadiance,
     destroyPatchData,
     getGalerkinStats,
     galerkinRender,

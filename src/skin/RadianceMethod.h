@@ -25,6 +25,8 @@ class RadianceMethod {
     // Terminates radiance computations on the current scene
     virtual void terminate(java::ArrayList<Patch *> *scenePatches) = 0;
 
+    // Returns the radiance being emitted from the specified patch, at
+    // the point with given (u,v) parameters and into the given direction
     virtual COLOR getRadiance(Patch *patch, double u, double v, Vector3D dir) = 0;
 
     // Allocates memory for the radiance data for the given patch. Fills in the pointer in patch->radianceData
@@ -60,10 +62,6 @@ class RADIANCEMETHOD {
     // Initializes the current scene for radiance computations. Called when a new
     // scene is loaded or when selecting a particular radiance algorithm
     void (*initialize)(java::ArrayList<Patch *> *scenePatches);
-
-    // Returns the radiance being emitted from the specified patch, at
-    // the point with given (u,v) parameters and into the given direction
-    COLOR(*getRadiance)(Patch *patch, double u, double v, Vector3D dir);
 
     // Destroys the radiance data for the patch. Clears the patch->radianceData pointer
     void (*destroyPatchData)(Patch *patch);

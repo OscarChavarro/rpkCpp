@@ -42,7 +42,7 @@ StochasticJacobiRadianceMethod::terminate(java::ArrayList<Patch *> *scenePatches
 
 COLOR
 StochasticJacobiRadianceMethod::getRadiance(Patch *patch, double u, double v, Vector3D dir) {
-    return COLOR{};
+    return monteCarloRadiosityGetRadiance(patch, u, v, dir);
 }
 
 Element *
@@ -523,7 +523,6 @@ RADIANCEMETHOD GLOBAL_stochasticRaytracing_stochasticRelaxationRadiosity = {
     monteCarloRadiosityDefaults,
     stochasticRelaxationRadiosityParseOptions,
     stochasticRelaxationRadiosityInit,
-    monteCarloRadiosityGetRadiance,
     monteCarloRadiosityDestroyPatchData,
     stochasticRelaxationRadiosityGetStats,
     stochasticRelaxationRadiosityRender,

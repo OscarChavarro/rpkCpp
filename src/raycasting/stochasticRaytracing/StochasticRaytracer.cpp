@@ -375,8 +375,8 @@ SR_GetRadiance(
                 // (u, v) coordinates of intersection point
                 thisNode->m_hit.patch->uv(&thisNode->m_hit.point, &u, &v);
 
-                radiance = GLOBAL_radiance_currentRadianceMethodHandle->getRadiance(thisNode->m_hit.patch, u, v,
-                                                                                    thisNode->m_inDirF);
+                radiance = GLOBAL_radiance_selectedRadianceMethod->getRadiance(
+                    thisNode->m_hit.patch, u, v, thisNode->m_inDirF);
 
                 // This includes Le diffuse, subtract first and handle total emitted later (possibly weighted)
                 // -- Interface mechanism needed to determine what a

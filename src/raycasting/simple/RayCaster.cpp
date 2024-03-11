@@ -60,10 +60,11 @@ Determines the radiance of the nearest patch visible through the pixel
 (x,y). P shall be the nearest patch visible in the pixel.
 */
 inline COLOR
-RayCaster::getRadianceAtPixel(int x, int y, Patch *patch, COLOR(*getRadiance)(Patch *patch, double u, double v, Vector3D dir)) {
+RayCaster::getRadianceAtPixel(int x, int y, Patch *patch) {
     COLOR rad{};
     colorClear(rad);
-    if ( getRadiance != nullptr ) {
+
+    if ( GLOBAL_radiance_selectedRadianceMethod != nullptr ) {
         // Ray pointing from the eye through the center of the pixel.
         Ray ray;
         ray.pos = GLOBAL_camera_mainCamera.eyePosition;
@@ -88,22 +89,16 @@ RayCaster::getRadianceAtPixel(int x, int y, Patch *patch, COLOR(*getRadiance)(Pa
 
         // Reverse ray direction and get radiance emitted at hit point towards the eye
         Vector3D dir(-ray.dir.x, -ray.dir.y, -ray.dir.z);
-        rad = getRadiance(patch, u, v, dir);
+        rad = GLOBAL_radiance_selectedRadianceMethod->getRadiance(patch, u, v, dir);
     }
     return rad;
 }
 
 void
-RayCaster::render(COLOR(*getRadiance)(Patch *patch, double u, double v, Vector3D dir), java::ArrayList<Patch *> *scenePatches) {
+RayCaster::render(java::ArrayList<Patch *> *scenePatches) {
     #ifdef RAYTRACING_ENABLED
         clock_t t = clock();
     #endif
-
-    if ( getRadiance == nullptr ) {
-        if ( GLOBAL_radiance_currentRadianceMethodHandle ) {
-            getRadiance = GLOBAL_radiance_currentRadianceMethodHandle->getRadiance;
-        }
-    }
 
     Soft_ID_Renderer *idRenderer = new Soft_ID_Renderer(scenePatches);
 
@@ -119,7 +114,7 @@ RayCaster::render(COLOR(*getRadiance)(Patch *patch, double u, double v, Vector3D
         for ( int x = 0; x < width; x++ ) {
             Patch *patch = idRenderer->getPatchAtPixel(x, y);
             if ( patch != nullptr ) {
-                COLOR rad = getRadianceAtPixel(x, y, patch, getRadiance);
+                COLOR rad = getRadianceAtPixel(x, y, patch);
                 screenBuffer->add(x, y, rad);
             }
         }
@@ -198,7 +193,7 @@ rayCasterExecute(ImageOutputHandle *ip, java::ArrayList<Patch *> *scenePatches, 
         delete globalRayCaster;
     }
     globalRayCaster = new RayCaster(nullptr);
-    globalRayCaster->render(nullptr, scenePatches);
+    globalRayCaster->render(scenePatches);
     if ( globalRayCaster != nullptr && ip != nullptr ) {
         globalRayCaster->save(ip);
     }
@@ -229,7 +224,7 @@ rayCast(char *fileName, FILE *fp, int isPipe) {
     }
 
     RayCaster *rc = new RayCaster(nullptr);
-    rc->render(nullptr, nullptr);
+    rc->render(nullptr);
     if ( img != nullptr ) {
         rc->save(img);
     }
