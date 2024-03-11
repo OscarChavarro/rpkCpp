@@ -25,7 +25,7 @@ vectorCoordSys(Vector3D *Z, CoordSys *coord) {
     float zz;
 
     coord->Z = *Z;
-    zz = sqrt(1 - Z->z * Z->z);
+    zz = std::sqrt(1 - Z->z * Z->z);
 
     if ( zz < EPSILON ) {
         coord->X.x = 1.0;

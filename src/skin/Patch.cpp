@@ -466,7 +466,7 @@ Patch::quadUv(Patch *patch, Vector3D *point, Vector2Dd *uv) {
             c *= (a + a);
             SqrtDelta = b * b + c;
             if ( SqrtDelta >= 0.0 ) {
-                SqrtDelta = sqrt(SqrtDelta);
+                SqrtDelta = std::sqrt(SqrtDelta);
                 u = b - SqrtDelta;
                 if ( (u < 0.0) || (u > 1.0) ) {
                     // To choose u between 0 and 1

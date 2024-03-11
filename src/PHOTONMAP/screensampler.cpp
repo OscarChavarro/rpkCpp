@@ -28,7 +28,7 @@ ScreenSampler::sample(
     vectorComb3(GLOBAL_camera_mainCamera.Z, (float)xSample, GLOBAL_camera_mainCamera.X, (float)ySample, GLOBAL_camera_mainCamera.Y,
                 dir);
     double distScreen2 = vectorNorm2(dir);
-    double distScreen = sqrt(distScreen2);
+    double distScreen = std::sqrt(distScreen2);
     vectorScaleInverse((float)distScreen, dir, dir);
 
     double cosScreen = std::fabs(vectorDotProduct(GLOBAL_camera_mainCamera.Z, dir));
@@ -80,7 +80,7 @@ ScreenSampler::EvalPDF(
     // More efficient with extra params?
     vectorSubtract(newNode->m_hit.point, thisNode->m_hit.point, outDir);
     dist2 = vectorNorm2(outDir);
-    dist = sqrt(dist2);
+    dist = std::sqrt(dist2);
     vectorScaleInverse((float)dist, outDir, outDir);
 
     // pdf = 1 / A_screen transformed to area measure

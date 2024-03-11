@@ -31,9 +31,16 @@ CUBARULE GLOBAL_crq1 = {
 Degree 2, 3 positions Stroud '71
 */
 #define w (4.0/3.0)
-#define u 0.81649658092772603272 // sqrt(2/3)
-#define c (-0.5) // cos(2*M_PI/3)
-#define s 0.86602540378443864676 // sin(2*M_PI/3)
+
+// sqrt(2/3)
+#define u 0.81649658092772603272
+
+// cos(2*M_PI/3)
+#define c (-0.5)
+
+// sin(2*M_PI/3)
+#define s 0.86602540378443864676
+
 CUBARULE GLOBAL_crq2 = {
     "quads degree 2, 3 positions",
     2,
@@ -52,7 +59,8 @@ CUBARULE GLOBAL_crq2 = {
 Degree 3, 4 positions, Davis & Rabinowitz, Methods of Numerical Integration,
 2nd edition 1984, p 367
 */
-#define u 0.81649658092772603272 // sqrt(2/3)
+// sqrt(2/3)
+#define u 0.81649658092772603272
 CUBARULE GLOBAL_crq3 = {
     "quads degree 3, 4 positions",
     3,
@@ -65,7 +73,8 @@ CUBARULE GLOBAL_crq3 = {
 #undef u
 
 // Degree 3, 4 positions, product Gauss-Legendre formula
-#define u 0.57735026918962576450 // sqrt(1/3)
+// sqrt(1/3)
+#define u 0.57735026918962576450
 CUBARULE GLOBAL_crq3pg = {
     "quads degree 3, 4 positions, product Gauss formula",
     3, // Degree
@@ -184,12 +193,23 @@ I don't think the other rules will be better than this one (Haegemans & Piessens
 SIAM J. Numer Anal 14 (1977) p 492 is maybe a nice alternative? Other formulas have
 less symmetry.
 */
-#define r 0.92582009977255141919    /* sqrt(6.0 / 7.0) */
-#define s 0.38055443320831561227    /* sqrt((114.0 - 3.0 * sqrt(583.0)) / 287.0) */
-#define t 0.80597978291859884159    /* sqrt((114.0 + 3.0 * sqrt(583.0)) / 287.0) */
-#define w1 0.24197530864197530631    /* 49.0 / 810.0 * 4.0 */
-#define w2 0.52059291666739448967    /* (178981.0 + 2769.0 * sqrt(583.0)) / 1888920.0 * 4.0 */
-#define w3 0.23743177469063023177    /* (178981.0 - 2769.0 * sqrt(583.0)) / 1888920.0 * 4.0 */
+// sqrt(6.0 / 7.0)
+#define r 0.92582009977255141919
+
+// sqrt((114.0 - 3.0 * sqrt(583.0)) / 287.0)
+#define s 0.38055443320831561227
+
+// sqrt((114.0 + 3.0 * sqrt(583.0)) / 287.0)
+#define t 0.80597978291859884159
+
+// 49.0 / 810.0 * 4.0
+#define w1 0.24197530864197530631
+
+// (178981.0 + 2769.0 * sqrt(583.0)) / 1888920.0 * 4.0
+#define w2 0.52059291666739448967
+
+// (178981.0 - 2769.0 * sqrt(583.0)) / 1888920.0 * 4.0
+#define w3 0.23743177469063023177
 CUBARULE GLOBAL_crq7 = {
     "quads degree 7, 12 positions",
     7 /* degree */, 12 /* positions */,
@@ -330,8 +350,7 @@ CUBARULE GLOBAL_crt1 = {
     {1.0}
 };
 
-/* degree 2, 3 positions,
- * Stroud '71 p 307 */
+// Degree 2, 3 positions, Stroud '71 p 307
 CUBARULE GLOBAL_crt2 = {
     "triangles degree 2, 3 positions",
     2,

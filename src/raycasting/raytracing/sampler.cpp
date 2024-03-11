@@ -62,22 +62,17 @@ Sampler::SampleTransfer(
     vectorScale(-1, newNode->m_inDirT, newNode->m_inDirF);
 
     // Check for shading normal vs. geometric normal errors
-
     if ( vectorDotProduct(newNode->m_hit.normal, newNode->m_inDirF) < 0 ) {
         // Error("Sample", "Shading normal anomaly");
         return false;
     }
 
     // Compute geometry factor cos(a)*cos(b)/r^2
-    double cosa;
-    double cosb;
     double dist2;
     Vector3D tmpVec;
 
-    cosa = std::fabs(vectorDotProduct(thisNode->m_hit.normal,
-                                 newNode->m_inDirT));
-    cosb = std::fabs(vectorDotProduct(newNode->m_hit.normal,
-                                 newNode->m_inDirT));
+    double cosA = std::fabs(vectorDotProduct(thisNode->m_hit.normal, newNode->m_inDirT));
+    double cosB = std::fabs(vectorDotProduct(newNode->m_hit.normal, newNode->m_inDirT));
     vectorSubtract(newNode->m_hit.point, thisNode->m_hit.point, tmpVec);
     dist2 = vectorNorm2(tmpVec);
 
@@ -86,10 +81,10 @@ Sampler::SampleTransfer(
         return false;
     }
 
-    newNode->m_G = cosa * cosb / dist2; // Integrate over area !
+    newNode->m_G = cosA * cosB / dist2; // Integrate over area !
 
     // Fill in probability
-    newNode->m_pdfFromPrev = pdfDir * cosb / dist2;
+    newNode->m_pdfFromPrev = pdfDir * cosB / dist2;
 
     return true; // Transfer succeeded
 }

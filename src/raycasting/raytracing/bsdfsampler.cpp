@@ -116,7 +116,7 @@ CBsdfSampler::EvalPDF(
     /* -- more efficient with extra params ?? -- */
     vectorSubtract(newNode->m_hit.point, thisNode->m_hit.point, outDir);
     dist2 = vectorNorm2(outDir);
-    dist = sqrt(dist2);
+    dist = std::sqrt(dist2);
     vectorScaleInverse((float)dist, outDir, outDir);
 
     // Beware : NOT RECIPROKE !!!!!!
