@@ -32,7 +32,7 @@ extern char *GLOBAL_option_dummyVal;
 
 /**
 Shorthands for specifying command line argument type, the 'type'
-field of the CMDLINEOPTDESC structure below
+field of the CMD_LINE_OPT_DESC structure below
 */
 #define TYPELESS nullptr
 #define Tint (&GLOBAL_options_intType)

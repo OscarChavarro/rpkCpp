@@ -22,7 +22,7 @@ class BSDF {
 
 extern BSDF *bsdfCreate(void *data, BSDF_METHODS *methods);
 
-extern COLOR bsdfScatteredPower(BSDF *bsdf, RayHit *hit, Vector3D *dir, BSDFFLAGS flags);
+extern COLOR bsdfScatteredPower(BSDF *bsdf, RayHit *hit, Vector3D *dir, BSDF_FLAGS flags);
 
 /**
 Returns the reflectance of hte BSDF according to the flags
@@ -59,48 +59,48 @@ BSDF Evaluation functions
 
 extern COLOR
 bsdfEval(
-    BSDF *bsdf,
-    RayHit *hit,
-    BSDF *inBsdf,
-    BSDF *outBsdf,
-    Vector3D *in,
-    Vector3D *out,
-    BSDFFLAGS flags);
+        BSDF *bsdf,
+        RayHit *hit,
+        BSDF *inBsdf,
+        BSDF *outBsdf,
+        Vector3D *in,
+        Vector3D *out,
+        BSDF_FLAGS flags);
 
 extern COLOR
 bsdfEvalComponents(
-    BSDF *bsdf,
-    RayHit *hit,
-    BSDF *inBsdf,
-    BSDF *outBsdf,
-    Vector3D *in,
-    Vector3D *out,
-    BSDFFLAGS flags,
-    COLOR *colArray);
+        BSDF *bsdf,
+        RayHit *hit,
+        BSDF *inBsdf,
+        BSDF *outBsdf,
+        Vector3D *in,
+        Vector3D *out,
+        BSDF_FLAGS flags,
+        COLOR *colArray);
 
 extern Vector3D
 bsdfSample(
-    BSDF *bsdf,
-    RayHit *hit,
-    BSDF *inBsdf,
-    BSDF *outBsdf,
-    Vector3D *in,
-    int doRussianRoulette,
-    BSDFFLAGS flags,
-    double x_1,
-    double x_2,
-    double *pdf);
+        BSDF *bsdf,
+        RayHit *hit,
+        BSDF *inBsdf,
+        BSDF *outBsdf,
+        Vector3D *in,
+        int doRussianRoulette,
+        BSDF_FLAGS flags,
+        double x_1,
+        double x_2,
+        double *pdf);
 
 extern void bsdfEvalPdf(
-    BSDF *bsdf,
-    RayHit *hit,
-    BSDF *inBsdf,
-    BSDF *outBsdf,
-    Vector3D *in,
-    Vector3D *out,
-    BSDFFLAGS flags,
-    double *pdf,
-    double *pdfRR);
+        BSDF *bsdf,
+        RayHit *hit,
+        BSDF *inBsdf,
+        BSDF *outBsdf,
+        Vector3D *in,
+        Vector3D *out,
+        BSDF_FLAGS flags,
+        double *pdf,
+        double *pdfRR);
 
 extern int bsdfIsTextured(BSDF *bsdf);
 

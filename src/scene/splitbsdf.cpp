@@ -74,7 +74,7 @@ texturedScattererEvalPdf(Vector3D * /*in*/, Vector3D *out, Vector3D *normal, dou
 }
 
 static COLOR
-splitBsdfScatteredPower(SPLIT_BSDF *bsdf, RayHit *hit, Vector3D * /*in*/, BSDFFLAGS flags) {
+splitBsdfScatteredPower(SPLIT_BSDF *bsdf, RayHit *hit, Vector3D * /*in*/, BSDF_FLAGS flags) {
     COLOR albedo;
     colorClear(albedo);
 
@@ -104,13 +104,13 @@ splitBsdfIndexOfRefraction(SPLIT_BSDF *bsdf, RefractionIndex *index) {
 
 static COLOR
 splitBsdfEval(
-    SPLIT_BSDF *bsdf,
-    RayHit *hit,
-    BSDF *inBsdf,
-    BSDF *outBsdf,
-    Vector3D *in,
-    Vector3D *out,
-    BSDFFLAGS flags)
+        SPLIT_BSDF *bsdf,
+        RayHit *hit,
+        BSDF *inBsdf,
+        BSDF *outBsdf,
+        Vector3D *in,
+        Vector3D *out,
+        BSDF_FLAGS flags)
 {
     COLOR result;
     Vector3D normal;
@@ -158,14 +158,14 @@ account potential texturing
 */
 static void
 splitBsdfProbabilities(
-    SPLIT_BSDF *bsdf,
-    RayHit *hit,
-    BSDFFLAGS flags,
-    double *Ptexture,
-    double *Preflection,
-    double *Ptransmission,
-    XXDFFLAGS *brdfFlags,
-    XXDFFLAGS *btdfFlags)
+        SPLIT_BSDF *bsdf,
+        RayHit *hit,
+        BSDF_FLAGS flags,
+        double *Ptexture,
+        double *Preflection,
+        double *Ptransmission,
+        XXDFFLAGS *brdfFlags,
+        XXDFFLAGS *btdfFlags)
 {
     COLOR textureColor;
     COLOR reflectance;
@@ -214,16 +214,16 @@ splitBsdfSamplingMode(double Ptexture, double Preflection, double Ptransmission,
 
 static Vector3D
 splitBsdfSample(
-    SPLIT_BSDF *bsdf,
-    RayHit *hit,
-    BSDF *inBsdf,
-    BSDF *outBsdf,
-    Vector3D *in,
-    int doRussianRoulette,
-    BSDFFLAGS flags,
-    double x_1,
-    double x_2,
-    double *pdf)
+        SPLIT_BSDF *bsdf,
+        RayHit *hit,
+        BSDF *inBsdf,
+        BSDF *outBsdf,
+        Vector3D *in,
+        int doRussianRoulette,
+        BSDF_FLAGS flags,
+        double x_1,
+        double x_2,
+        double *pdf)
 {
     double Ptexture;
     double Preflection;
@@ -324,15 +324,15 @@ the pdf will be 0 upon return
 */
 static void
 splitBsdfEvalPdf(
-    SPLIT_BSDF *bsdf,
-    RayHit *hit,
-    BSDF *inBsdf,
-    BSDF *outBsdf,
-    Vector3D *in,
-    Vector3D *out,
-    BSDFFLAGS flags,
-    double *pdf,
-    double *pdfRR)
+        SPLIT_BSDF *bsdf,
+        RayHit *hit,
+        BSDF *inBsdf,
+        BSDF *outBsdf,
+        Vector3D *in,
+        Vector3D *out,
+        BSDF_FLAGS flags,
+        double *pdf,
+        double *pdfRR)
 {
     double pTexture;
     double pReflection;
@@ -389,18 +389,18 @@ splitBsdfIsTextured(SPLIT_BSDF *bsdf) {
 }
 
 BSDF_METHODS GLOBAL_scene_splitBsdfMethods = {
-    (COLOR (*)(void *data, RayHit *hit, Vector3D *in, BSDFFLAGS flags)) splitBsdfScatteredPower,
+    (COLOR (*)(void *data, RayHit *hit, Vector3D *in, BSDF_FLAGS flags)) splitBsdfScatteredPower,
     (int (*)(void *)) splitBsdfIsTextured,
     (void (*)(void *data, RefractionIndex *index)) splitBsdfIndexOfRefraction,
     (COLOR (*)(void *data, RayHit *hit, void *inBsdf, void *outBsdf, Vector3D *in, Vector3D *out,
-    BSDFFLAGS flags)) splitBsdfEval,
+               BSDF_FLAGS flags)) splitBsdfEval,
     (Vector3D (*)(void *data, RayHit *hit, void *inBsdf, void *outBsdf, Vector3D *in,
-    int doRussianRoulette,
-    BSDFFLAGS flags, double x_1, double x_2,
-    double *pdf)) splitBsdfSample,
+                  int doRussianRoulette,
+                  BSDF_FLAGS flags, double x_1, double x_2,
+                  double *pdf)) splitBsdfSample,
     (void (*)(void *data, RayHit *hit, void *inBsdf, void *outBsdf,
-    Vector3D *in, Vector3D *out,
-    BSDFFLAGS flags,
-    double *pdf, double *pdfRR)) splitBsdfEvalPdf,
+              Vector3D *in, Vector3D *out,
+              BSDF_FLAGS flags,
+              double *pdf, double *pdfRR)) splitBsdfEvalPdf,
     nullptr
 };

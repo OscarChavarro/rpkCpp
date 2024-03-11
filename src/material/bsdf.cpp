@@ -19,7 +19,7 @@ bsdfCreate(void *data, BSDF_METHODS *methods) {
 Returns the scattered power of the BSDF, depending on the flags
 */
 COLOR
-bsdfScatteredPower(BSDF *bsdf, RayHit *hit, Vector3D *in, BSDFFLAGS flags) {
+bsdfScatteredPower(BSDF *bsdf, RayHit *hit, Vector3D *in, BSDF_FLAGS flags) {
     COLOR refl;
     colorClear(refl);
     if ( bsdf && bsdf->methods->ScatteredPower ) {
@@ -84,7 +84,7 @@ hit->normal : leaving from patch, on the incoming side.
          So in . hit->normal > 0 !!!
 */
 COLOR
-bsdfEval(BSDF *bsdf, RayHit *hit, BSDF *inBsdf, BSDF *outBsdf, Vector3D *in, Vector3D *out, BSDFFLAGS flags) {
+bsdfEval(BSDF *bsdf, RayHit *hit, BSDF *inBsdf, BSDF *outBsdf, Vector3D *in, Vector3D *out, BSDF_FLAGS flags) {
     if ( bsdf && bsdf->methods->Eval ) {
         return bsdf->methods->Eval(bsdf->data, hit, inBsdf, outBsdf, in, out, flags);
     } else {
@@ -102,19 +102,19 @@ Total evaluation is returned.
 */
 COLOR
 bsdfEvalComponents(
-    BSDF *bsdf,
-    RayHit *hit,
-    BSDF *inBsdf,
-    BSDF *outBsdf,
-    Vector3D *in,
-    Vector3D *out,
-    BSDFFLAGS flags,
-    COLOR *colArray)
+        BSDF *bsdf,
+        RayHit *hit,
+        BSDF *inBsdf,
+        BSDF *outBsdf,
+        Vector3D *in,
+        Vector3D *out,
+        BSDF_FLAGS flags,
+        COLOR *colArray)
 {
     // Some caching optimisation could be used here
     COLOR result;
     COLOR empty;
-    BSDFFLAGS thisFlag;
+    BSDF_FLAGS thisFlag;
 
     colorClear(empty);
     colorClear(result);
@@ -141,16 +141,16 @@ random numbers x_1 and x_2 are needed (2D sampling process)
 */
 Vector3D
 bsdfSample(
-    BSDF *bsdf,
-    RayHit *hit,
-    BSDF *inBsdf,
-    BSDF *outBsdf,
-    Vector3D *in,
-    int doRussianRoulette,
-    BSDFFLAGS flags,
-    double x_1,
-    double x_2,
-    double *pdf)
+        BSDF *bsdf,
+        RayHit *hit,
+        BSDF *inBsdf,
+        BSDF *outBsdf,
+        Vector3D *in,
+        int doRussianRoulette,
+        BSDF_FLAGS flags,
+        double x_1,
+        double x_2,
+        double *pdf)
 {
     if ( bsdf && bsdf->methods->Sample ) {
         return bsdf->methods->Sample(bsdf->data, hit, inBsdf, outBsdf, in,
@@ -164,15 +164,15 @@ bsdfSample(
 
 void
 bsdfEvalPdf(
-    BSDF *bsdf,
-    RayHit *hit,
-    BSDF *inBsdf,
-    BSDF *outBsdf,
-    Vector3D *in,
-    Vector3D *out,
-    BSDFFLAGS flags,
-    double *pdf,
-    double *pdfRR)
+        BSDF *bsdf,
+        RayHit *hit,
+        BSDF *inBsdf,
+        BSDF *outBsdf,
+        Vector3D *in,
+        Vector3D *out,
+        BSDF_FLAGS flags,
+        double *pdf,
+        double *pdfRR)
 {
     if ( bsdf && bsdf->methods->EvalPdf ) {
         bsdf->methods->EvalPdf(bsdf->data, hit, inBsdf, outBsdf, in, out,

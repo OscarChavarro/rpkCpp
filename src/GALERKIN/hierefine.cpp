@@ -120,7 +120,7 @@ static double
 hierarchicRefinementColorToError(COLOR rad) {
     RGB rgb{};
     convertColorToRGB(rad, &rgb);
-    return RGBMAXCOMPONENT(rgb);
+    return maxComponentRGB(rgb);
 }
 
 /**

@@ -30,7 +30,7 @@ static bool
 DoImportanceStore(CImportanceMap *map, SimpleRaytracingPathNode *node, COLOR importance) {
     if ( HasDiffuseOrGlossy(node)) {
         float importanceF = colorAverage(importance);
-        float potentialF = 1.0; // COLORAVERAGE(potential)*Ax;
+        float potentialF = 1.0; // COLOR_AVERAGE(potential) * Ax;
 
         // Compute footprint
         float footprintF = 1.0;
@@ -82,7 +82,7 @@ TracePotentialPath(PhotonMapConfig *config) {
                 node,
                 x_1,
                 x_2,
-                (BSDFFLAGS)((indirectImportance ? BSDF_SPECULAR_COMPONENT : BSDF_ALL_COMPONENTS))
+                (BSDF_FLAGS)((indirectImportance ? BSDF_SPECULAR_COMPONENT : BSDF_ALL_COMPONENTS))
             ) ) {
         // Successful trace
         SimpleRaytracingPathNode *prev = node->previous();

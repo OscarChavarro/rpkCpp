@@ -4,14 +4,14 @@
 #include "raycasting/raytracing/specularsampler.h"
 
 bool
-CSpecularSampler::Sample(
-    SimpleRaytracingPathNode *prevNode,
-    SimpleRaytracingPathNode *thisNode,
-    SimpleRaytracingPathNode *newNode,
-    double x1,
-    double x2,
-    bool doRR,
-    BSDFFLAGS flags)
+CSpecularSampler::sample(
+        SimpleRaytracingPathNode *prevNode,
+        SimpleRaytracingPathNode *thisNode,
+        SimpleRaytracingPathNode *newNode,
+        double x1,
+        double x2,
+        bool doRR,
+        BSDF_FLAGS flags)
 {
     Vector3D dir;
     double pdfDir = 1.0;
@@ -103,11 +103,11 @@ CSpecularSampler::Sample(
 
 double
 CSpecularSampler::EvalPDF(
-    SimpleRaytracingPathNode *thisNode,
-    SimpleRaytracingPathNode *newNode,
-    BSDFFLAGS flags,
-    double *pdf,
-    double *pdfRR)
+        SimpleRaytracingPathNode *thisNode,
+        SimpleRaytracingPathNode *newNode,
+        BSDF_FLAGS flags,
+        double *pdf,
+        double *pdfRR)
 {
     if ( pdf ) {
         *pdf = 0;
@@ -122,12 +122,12 @@ CSpecularSampler::EvalPDF(
 
 double
 CSpecularSampler::EvalPDFPrev(
-    SimpleRaytracingPathNode *prevNode,
-    SimpleRaytracingPathNode *thisNode,
-    SimpleRaytracingPathNode */*newNode*/,
-    BSDFFLAGS flags,
-    double *pdf,
-    double *pdfRR)
+        SimpleRaytracingPathNode *prevNode,
+        SimpleRaytracingPathNode *thisNode,
+        SimpleRaytracingPathNode */*newNode*/,
+        BSDF_FLAGS flags,
+        double *pdf,
+        double *pdfRR)
 {
     *pdf = 0.0;
     *pdfRR = 0.0;

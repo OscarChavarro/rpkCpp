@@ -3,26 +3,29 @@
 #include "skin/RadianceMethod.h"
 #include "raycasting/bidirectionalRaytracing/spar.h"
 
-CSpar::CSpar() {
+Spar::Spar() {
     m_contrib = new CContribHandler[MAX_PATH_GROUPS];
     m_sparList = new CSparList[MAX_PATH_GROUPS];
 }
 
-CSpar::~CSpar() {
+Spar::~Spar() {
     delete[] m_contrib;
     delete[] m_sparList;
 }
 
 void
-CSpar::init(CSparConfig *config) {
+Spar::init(CSparConfig *config) {
     for ( int i = 0; i < MAX_PATH_GROUPS; i++ ) {
-        m_contrib[i].init(config->m_bcfg->maximumPathDepth);
+        m_contrib[i].init(config->baseConfig->maximumPathDepth);
         m_sparList[i].removeAll();
     }
 }
 
+/**
+MainInit spar with a comma separated list of regular expressions
+*/
 void
-CSpar::parseAndInit(int group, char *regExp) {
+Spar::parseAndInit(int group, char *regExp) {
     int beginPos = 0, endPos = 0;
     char tmpChar;
 
@@ -47,8 +50,13 @@ CSpar::parseAndInit(int group, char *regExp) {
     }
 }
 
+/**
+Handles a bidirectional path. Image contribution
+is returned. Normally this is a contribution for the pixel
+affected by the path
+*/
 COLOR
-CSpar::handlePath(CSparConfig *config, CBiPath *path) {
+Spar::handlePath(CSparConfig *config, CBiPath *path) {
     COLOR result;
 
     colorClear(result);
@@ -57,25 +65,25 @@ CSpar::handlePath(CSparConfig *config, CBiPath *path) {
 }
 
 void
-CLeSpar::init(CSparConfig *sconfig) {
-    CSpar::init(sconfig);
+LeSpar::init(CSparConfig *sconfig) {
+    Spar::init(sconfig);
 
     // Disjoint path group for BPT
-    if ( sconfig->m_bcfg->doLe ) {
-        parseAndInit(DISJOINT_GROUP, sconfig->m_bcfg->leRegExp);
+    if ( sconfig->baseConfig->doLe ) {
+        parseAndInit(DISJOINT_GROUP, sconfig->baseConfig->leRegExp);
     }
 
-    if ( sconfig->m_bcfg->doWeighted ) {
-        parseAndInit(LD_GROUP, sconfig->m_bcfg->wleRegExp);
-        m_sparList[LD_GROUP].add(sconfig->m_ldSpar);
+    if ( sconfig->baseConfig->doWeighted ) {
+        parseAndInit(LD_GROUP, sconfig->baseConfig->wleRegExp);
+        m_sparList[LD_GROUP].add(sconfig->ldSpar);
     }
 }
 
 void
-CLDSpar::init(CSparConfig *sconfig) {
-    CSpar::init(sconfig);
+LDSpar::init(CSparConfig *sconfig) {
+    Spar::init(sconfig);
 
-    if ( !(sconfig->m_bcfg->doLD || sconfig->m_bcfg->doWeighted)) {
+    if ( !(sconfig->baseConfig->doLD || sconfig->baseConfig->doWeighted)) {
         return;
     }
 
@@ -84,37 +92,37 @@ CLDSpar::init(CSparConfig *sconfig) {
     }
 
     // Overlap group
-    if ( sconfig->m_bcfg->doLD ) {
-        parseAndInit(DISJOINT_GROUP, sconfig->m_bcfg->ldRegExp);
+    if ( sconfig->baseConfig->doLD ) {
+        parseAndInit(DISJOINT_GROUP, sconfig->baseConfig->ldRegExp);
     }
 
-    if ( sconfig->m_bcfg->doWeighted ) {
-        parseAndInit(LD_GROUP, sconfig->m_bcfg->wldRegExp);
-        m_sparList[LD_GROUP].add(sconfig->m_leSpar);
+    if ( sconfig->baseConfig->doWeighted ) {
+        parseAndInit(LD_GROUP, sconfig->baseConfig->wldRegExp);
+        m_sparList[LD_GROUP].add(sconfig->leSpar);
     }
 }
 
 void
 CSparList::handlePath(
-    CSparConfig *sconfig,
+    CSparConfig *config,
     CBiPath *path,
-    COLOR *frad,
-    COLOR *fbpt)
+    COLOR *fRad,
+    COLOR *fBpt)
 {
     CSparListIter iter(*this);
-    CSpar **pspar;
+    Spar **pspar;
     COLOR col;
 
-    colorClear(*fbpt);
-    colorClear(*frad);
+    colorClear(*fBpt);
+    colorClear(*fRad);
 
     while ( (pspar = iter.nextOnSequence()) ) {
-        col = (*pspar)->handlePath(sconfig, path);
+        col = (*pspar)->handlePath(config, path);
 
-        if ( *pspar == sconfig->m_leSpar ) {
-            colorAdd(col, *fbpt, *fbpt);
+        if ( *pspar == config->leSpar ) {
+            colorAdd(col, *fBpt, *fBpt);
         } else {
-            colorAdd(col, *frad, *frad);
+            colorAdd(col, *fRad, *fRad);
         }
     }
 }

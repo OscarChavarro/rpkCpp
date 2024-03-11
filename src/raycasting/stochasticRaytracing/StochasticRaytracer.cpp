@@ -95,12 +95,12 @@ SR_GetScatteredRadiance(
                 stratified.sample(&x_1, &x_2);
 
                 // Surface sampling
-                if ( config->samplerConfig.surfaceSampler->Sample(
+                if ( config->samplerConfig.surfaceSampler->sample(
                         thisNode->previous(),
-                         thisNode,
-                         &newNode, x_1, x_2,
-                         doRR,
-                         si->flags)
+                        thisNode,
+                        &newNode, x_1, x_2,
+                        doRR,
+                        si->flags)
                      && ((newNode.m_rayType != Environment) || (config->backgroundIndirect)) ) {
                     if ( newNode.m_rayType != Environment ) {
                         newNode.assignBsdfAndNormal();
@@ -190,7 +190,7 @@ SR_GetDirectRadiance(
                 // Light sampling
                 stratified.sample(&x_1, &x_2);
 
-                if ( config->samplerConfig.neSampler->Sample(
+                if ( config->samplerConfig.neSampler->sample(
                         prevNode->previous(),
                         prevNode,
                         &lightNode,
@@ -486,7 +486,7 @@ CalcPixel(int nx, int ny, StochasticRaytracingConfiguration *config) {
     // Calc pixel data
 
     // Sample eye node
-    config->samplerConfig.pointSampler->Sample(nullptr, nullptr, &eyeNode, 0, 0);
+    config->samplerConfig.pointSampler->sample(nullptr, nullptr, &eyeNode, 0, 0);
     ((CPixelSampler *) config->samplerConfig.dirSampler)->SetPixel(nx, ny);
 
     eyeNode.attach(&pixelNode);
@@ -495,7 +495,7 @@ CalcPixel(int nx, int ny, StochasticRaytracingConfiguration *config) {
     for ( i = 0; i < config->samplesPerPixel; i++ ) {
         stratified.sample(&x1, &x2);
 
-        if ( config->samplerConfig.dirSampler->Sample(nullptr, &eyeNode, &pixelNode, x1, x2)
+        if ( config->samplerConfig.dirSampler->sample(nullptr, &eyeNode, &pixelNode, x1, x2)
              && ((pixelNode.m_rayType != Environment) || (config->backgroundDirect))) {
             pixelNode.assignBsdfAndNormal();
 

@@ -11,7 +11,7 @@ Philippe.Bekaert@cs.kuleuven.ac.be, Tue Nov 7 2000
 */
 
 #ifndef NOINT64
-/* all this makes no sense if you don't have 64-bit integers */
+// All this makes no sense if you don't have 64-bit integers
 
 #include <cstdlib>
 #include <cstdio>

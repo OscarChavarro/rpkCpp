@@ -17,7 +17,7 @@ A chain list is a set of scattering modes
 
 class CFlagChain {
   public:
-    BSDFFLAGS *chain;
+    BSDF_FLAGS *chain;
     int length;
     bool subtract;
 
@@ -29,7 +29,7 @@ class CFlagChain {
     ~CFlagChain();
 
     // Array access operator
-    inline BSDFFLAGS &operator[](const int index) const {
+    inline BSDF_FLAGS &operator[](const int index) const {
         return chain[index];
     }
 
@@ -83,8 +83,8 @@ class CContribHandler {
   protected:
     virtual void doRegExp(char *regExp, bool subtract);
     void doSyntaxError(const char *errString);
-    bool getFlags(const char *regExp, int *pos, BSDFFLAGS *flags);
-    bool getToken(char *regExp, int *pos, char *token, BSDFFLAGS *flags);
+    bool getFlags(const char *regExp, int *pos, BSDF_FLAGS *flags);
+    bool getToken(char *regExp, int *pos, char *token, BSDF_FLAGS *flags);
     void doRegExpGeneral(char *regExp, bool subtract);
 };
 

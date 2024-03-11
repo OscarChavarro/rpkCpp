@@ -60,7 +60,7 @@ setRGB(RGB &color, float R, float G, float B) {
 Maximum component
 */
 inline float
-RGBMAXCOMPONENT(RGB &color) {
+maxComponentRGB(RGB &color) {
     return color.r > color.g ? floatMax(color.r, color.b) : floatMax(color.g, color.b);
 }
 

@@ -1,4 +1,3 @@
-
 /**
 This is a hack to get fresnel factors for perfect specular reflection and refraction
 */
@@ -14,16 +13,26 @@ CPhotonMapSampler::CPhotonMapSampler() {
     m_photonMap = nullptr;
 }
 
-// Returns true a component was chosen, false if absorbed
+/**
+Returns true a component was chosen, false if absorbed
+*/
 bool
-CPhotonMapSampler::ChooseComponent(BSDFFLAGS flags1, BSDFFLAGS flags2,
-                                        BSDF *bsdf, RayHit *hit, bool doRR,
-                                        double *x, float *pdf, bool *chose1) {
+CPhotonMapSampler::chooseComponent(
+    BSDF_FLAGS flags1,
+    BSDF_FLAGS flags2,
+    BSDF *bsdf,
+    RayHit *hit,
+    bool doRR,
+    double *x,
+    float *pdf,
+    bool *chose1)
+{
     COLOR col;
-    float power1, power2, totalPower;
+    float power1;
+    float power2;
+    float totalPower;
 
     // Choose between flags1 or flags2 scattering
-
     col = bsdfScatteredPower(bsdf, hit, &hit->geometricNormal, flags1);
     power1 = colorAverage(col);
 
@@ -33,19 +42,18 @@ CPhotonMapSampler::ChooseComponent(BSDFFLAGS flags1, BSDFFLAGS flags2,
     totalPower = power1 + power2;
 
     if ( totalPower < EPSILON ) {
+        // No significant scattering
         return false;
-    } // No significant scattering...
+    }
 
     // Account for russian roulette
-
     if ( !doRR ) {
         power1 /= totalPower;
         power2 /= totalPower;
         totalPower = 1.0;
     }
 
-    // use x for scattering choice
-
+    // Use x for scattering choice
     if ( *x < power1 ) {
         *chose1 = true;
         *pdf = power1;
@@ -62,46 +70,52 @@ CPhotonMapSampler::ChooseComponent(BSDFFLAGS flags1, BSDFFLAGS flags2,
     return true;
 }
 
-bool CPhotonMapSampler::Sample(SimpleRaytracingPathNode *prevNode, SimpleRaytracingPathNode *thisNode,
-                               SimpleRaytracingPathNode *newNode, double x_1, double x_2,
-                               bool doRR, BSDFFLAGS flags) {
+bool
+CPhotonMapSampler::sample(
+    SimpleRaytracingPathNode *prevNode,
+    SimpleRaytracingPathNode *thisNode,
+    SimpleRaytracingPathNode *newNode,
+    double x1,
+    double x2,
+    bool doRR,
+    BSDF_FLAGS flags)
+{
     BSDF *bsdf = thisNode->m_useBsdf;
     bool sChosen;
     float pdfChoice;
-    BSDFFLAGS sFlagMask;
+    BSDF_FLAGS sFlagMask;
 
     const XXDFFLAGS sFLAGS = BSDF_SPECULAR_COMPONENT;
     const XXDFFLAGS gdFLAGS = BRDF_GLOSSY_COMPONENT | BRDF_DIFFUSE_COMPONENT;
 
     // Choose between S or D|G scattering
     // Hack to get separate specular en fresnel ok...
-
     if ( flags == BRDF_SPECULAR_COMPONENT ) {
-        sFlagMask = sFLAGS;  // Specular transmission can result in reflection
+        // Specular transmission can result in reflection
+        sFlagMask = sFLAGS;
     } else {
         sFlagMask = flags;
     }
-    if ( !ChooseComponent(
-            (BSDFFLAGS)(sFLAGS & sFlagMask),
-            (BSDFFLAGS)(gdFLAGS & flags),
+    if ( !chooseComponent(
+            (BSDF_FLAGS) (sFLAGS & sFlagMask),
+            (BSDF_FLAGS) (gdFLAGS & flags),
             bsdf,
             &thisNode->m_hit,
             doRR,
-            &x_2,
+            &x2,
             &pdfChoice,
             &sChosen) ) {
         return false; // Absorbed
     }
 
     // Get a sampled direction
-
     bool ok;
 
     if ( sChosen ) {
-        ok = FresnelSample(prevNode, thisNode, newNode, x_2, flags);
+        ok = fresnelSample(prevNode, thisNode, newNode, x2, flags);
     } else {
-        flags = (BSDFFLAGS)(gdFLAGS & flags);
-        ok = GDSample(prevNode, thisNode, newNode, x_1, x_2,
+        flags = (BSDF_FLAGS)(gdFLAGS & flags);
+        ok = gdSample(prevNode, thisNode, newNode, x1, x2,
                       false, flags);
     }
 
@@ -110,35 +124,34 @@ bool CPhotonMapSampler::Sample(SimpleRaytracingPathNode *prevNode, SimpleRaytrac
         newNode->m_pdfFromPrev *= pdfChoice;
 
         // Component propagation
-
-        newNode->m_accUsedComponents = (BSDFFLAGS)(thisNode->m_accUsedComponents |
-                                        thisNode->m_usedComponents);
+        newNode->m_accUsedComponents = (BSDF_FLAGS)(thisNode->m_accUsedComponents |
+                                                    thisNode->m_usedComponents);
     }
 
     return ok;
 }
 
-
-// The Fresnel sampler works as follows:
-// 1) Index of refractions are taken
-// 2) Reflectance and Transmittance values are taken. Normally one of the two
-//    would be zero.
-// 2b) Complex index of refraction, converted into geometric iof
-// 3) Perfect reflected and refracted (if necessary) directions are computed
-// 4) cosines and fresnel formulas are computed
-// 5) reflection or refraction is chosen
-// 6) fresnel reflection/refraction multiplied by appropriate scattering powers
-// 7) node filled in.
+/** The Fresnel sampler works as follows:
+1. Index of refractions are taken
+2. Reflectance and Transmittance values are taken. Normally one of the two
+   would be zero.
+2b. Complex index of refraction, converted into geometric iof
+3. Perfect reflected and refracted (if necessary) directions are computed
+4. cosines and fresnel formulas are computed
+5. reflection or refraction is chosen
+6. fresnel reflection/refraction multiplied by appropriate scattering powers
+7. node filled in.
+*/
 
 // Utility functions
 
-static RefractionIndex BsdfGeometricIOR(BSDF *bsdf) {
+static RefractionIndex
+bsdfGeometricIOR(BSDF *bsdf) {
     RefractionIndex nc{};
 
     bsdfIndexOfRefraction(bsdf, &nc);
 
     // Convert to geometric IOR if necessary
-
     if ( nc.ni > EPSILON ) {
         nc.nr = complexToGeometricRefractionIndex(nc);
         nc.ni = 0.0; // ? Necessary ?
@@ -147,29 +160,23 @@ static RefractionIndex BsdfGeometricIOR(BSDF *bsdf) {
     return nc;
 }
 
-
 static bool
-ChooseFresnelDirection(
+chooseFresnelDirection(
     SimpleRaytracingPathNode *thisNode,
-    BSDFFLAGS flags,
-    double x_2,
+    BSDF_FLAGS flags,
+    double x2,
     Vector3D *dir,
     double *pdfDir,
     COLOR *scatteringColor,
     bool *doCosInverse)
 {
     // Index of refractions are taken
-    RefractionIndex nc_in{};
-    RefractionIndex nc_out{}; // IOR
-
-    nc_in = BsdfGeometricIOR(thisNode->m_inBsdf);
-    nc_out = BsdfGeometricIOR(thisNode->m_outBsdf);
+    RefractionIndex nc_in = bsdfGeometricIOR(thisNode->m_inBsdf);
+    RefractionIndex nc_out = bsdfGeometricIOR(thisNode->m_outBsdf);
 
     // Reflectance and Transmittance values are taken. Normally one of the two
-    // would be zero.
-
+    // would be zero
     BSDF *bsdf = thisNode->m_useBsdf;
-    // Vector3D *point = &thisNode->m_hit.point;
 
     COLOR reflectance = bsdfSpecularReflectance(bsdf, &thisNode->m_hit,
                                                 &thisNode->m_normal);
@@ -177,21 +184,21 @@ ChooseFresnelDirection(
                                                     &thisNode->m_normal);
 
     bool reflective = (colorAverage(reflectance) > EPSILON);
-    bool transmittive = (colorAverage(transmittance) > EPSILON);
+    bool trans = (colorAverage(transmittance) > EPSILON);
 
-    if ( reflective && transmittive ) {
+    if ( reflective && trans ) {
         logError("FresnelFactor",
-                 "Cannot deal with simultaneous reflective & transittive materials");
+                 "Cannot deal with simultaneous reflective & transit materials");
         return false;
     }
 
-
     // Fresnel reflection factor is computed.
-
-    float cosi, cost;
+    float cosI;
+    float cost;
     float F;  // Fresnel reflection. (Refraction = 1 - T)
     int tir; // total internal reflection
-    Vector3D reflectedDir, refractedDir;
+    Vector3D reflectedDir;
+    Vector3D refractedDir;
 
     if ( reflective ) {
         if ( flags & BRDF_SPECULAR_COMPONENT ) {
@@ -199,9 +206,9 @@ ChooseFresnelDirection(
             F = 1.0;
             reflectedDir = idealReflectedDirection(&thisNode->m_inDirT,
                                                    &thisNode->m_normal);
-            cosi = vectorDotProduct(thisNode->m_normal, thisNode->m_inDirF);
-            if ( cosi < 0 ) {
-                logError("FresnelSample", "cosi < 0");
+            cosI = vectorDotProduct(thisNode->m_normal, thisNode->m_inDirF);
+            if ( cosI < 0 ) {
+                logError("fresnelSample", "cosI < 0");
             }
         } else {
             F = 0;
@@ -216,39 +223,38 @@ ChooseFresnelDirection(
                                                    &thisNode->m_normal);
         }
 
-        // 4) cosines and fresnel formulas are computed
+        // 4. Cosines and fresnel formulas are computed
+        cosI = vectorDotProduct(thisNode->m_normal, thisNode->m_inDirF);
 
-        cosi = vectorDotProduct(thisNode->m_normal, thisNode->m_inDirF);
-
-        if ( cosi < 0 ) {
-            logError("FresnelSample", "cosi < 0");
+        if ( cosI < 0 ) {
+            logError("fresnelSample", "cosI < 0");
         }
 
         if ( !tir ) {
             cost = -vectorDotProduct(thisNode->m_normal, refractedDir);
 
             if ( cost < 0 ) {
-                logError("FresnelSample", "cost < 0");
+                logError("fresnelSample", "cost < 0");
             }
 
-            float rpar, rper;
+            float rParallel;
+            float rPerpendicular;
             float nt = nc_out.nr;
             float ni = nc_in.nr;
 
-            rpar = (nt * cosi - ni * cost) / (nt * cosi + ni * cost); // Parallel
-            rper = (ni * cosi - nt * cost) / (ni * cosi + nt * cost); // Perpendicular
+            rParallel = (nt * cosI - ni * cost) / (nt * cosI + ni * cost);
+            rPerpendicular = (ni * cosI - nt * cost) / (ni * cosI + nt * cost);
 
-            F = 0.5f * (rpar * rpar + rper * rper);
+            F = 0.5f * (rParallel * rParallel + rPerpendicular * rPerpendicular);
         } else {
-            F = 0;  // All in refracted dir, which == reflected dir
+            F = 0; // All in refracted dir, which == reflected dir
         }
     }
 
     float T = 1.0f - F;
     bool reflected;
 
-    // choose reflection or refraction
-
+    // Choose reflection or refraction
     float sum = 0.0;
 
     if ( flags & BTDF_SPECULAR_COMPONENT ) {
@@ -267,10 +273,9 @@ ChooseFresnelDirection(
         return false;
     }
 
-    if ( x_2 < T / sum ) {
+    if ( x2 < T / sum ) {
         reflected = false;
         *dir = refractedDir;
-        x_2 = x_2 / (T / sum);
         *pdfDir = T / sum;
     } else {
         reflected = true;
@@ -281,7 +286,6 @@ ChooseFresnelDirection(
     // Compute bsdf evaluation here and determine if we
     // still need to divide by the cosine to get 'real'
     // specular transmission
-
     if ( reflected ) {
         if ( reflective ) {
             colorScale(F, reflectance, *scatteringColor);
@@ -299,20 +303,20 @@ ChooseFresnelDirection(
 }
 
 bool
-CPhotonMapSampler::FresnelSample(
+CPhotonMapSampler::fresnelSample(
     SimpleRaytracingPathNode *prevNode,
     SimpleRaytracingPathNode *thisNode,
     SimpleRaytracingPathNode *newNode,
-    double x_2,
-    BSDFFLAGS flags)
+    double x2,
+    BSDF_FLAGS flags)
 {
     Vector3D dir;
     double pdfDir;
     bool doCosInverse;
     COLOR scatteringColor;
 
-    if ( !ChooseFresnelDirection(thisNode, flags, x_2, &dir, &pdfDir,
-                                 &scatteringColor, &doCosInverse)) {
+    if ( !chooseFresnelDirection(thisNode, flags, x2, &dir, &pdfDir,
+                                 &scatteringColor, &doCosInverse) ) {
         return false;
     }
 
@@ -328,18 +332,15 @@ CPhotonMapSampler::FresnelSample(
     // Fill in bsdf evaluation. This is just reflectance or transmittance
     // given by ChooseFresnelDirection, but may be divided by a cosine
     // -- No bsdf components yet here !!
-
     if ( doCosInverse ) {
-        float cosb = fabs(vectorDotProduct(newNode->m_hit.normal,
+        float cosB = std::fabs(vectorDotProduct(newNode->m_hit.normal,
                                            newNode->m_inDirT));
-        colorScaleInverse(cosb, scatteringColor, thisNode->m_bsdfEval);
+        colorScaleInverse(cosB, scatteringColor, thisNode->m_bsdfEval);
     } else {
         thisNode->m_bsdfEval = scatteringColor;
     }
 
-
     // Fill in probability for previous node
-
     if ( m_computeFromNextPdf && prevNode ) {
         logWarning("FresnelSampler", "FromNextPdf not supported");
     }
@@ -354,17 +355,22 @@ CPhotonMapSampler::FresnelSample(
     return true; // Node filled in
 }
 
-
-bool CPhotonMapSampler::GDSample(SimpleRaytracingPathNode *prevNode, SimpleRaytracingPathNode *thisNode,
-                                 SimpleRaytracingPathNode *newNode, double x_1, double x_2,
-                                 bool doRR, BSDFFLAGS flags) {
+bool
+CPhotonMapSampler::gdSample(
+    SimpleRaytracingPathNode *prevNode,
+    SimpleRaytracingPathNode *thisNode,
+    SimpleRaytracingPathNode *newNode,
+    double x1,
+    double x2,
+    bool doRR,
+    BSDF_FLAGS flags)
+{
     bool ok;
 
     // Sample G|D and use m_photonMap for importance sampling if possible.
-
     if ( m_photonMap == nullptr ) {
         // We can just use standard bsdf sampling
-        ok = CBsdfSampler::Sample(prevNode, thisNode, newNode, x_1, x_2,
+        ok = CBsdfSampler::sample(prevNode, thisNode, newNode, x1, x2,
                                   doRR, flags);
         thisNode->m_usedComponents = flags;
         return ok;
@@ -373,17 +379,15 @@ bool CPhotonMapSampler::GDSample(SimpleRaytracingPathNode *prevNode, SimpleRaytr
     // -- Currently NEVER reached!
 
     // Choose G or D
-
     BSDF *bsdf = thisNode->m_useBsdf;
     bool dChosen;
     float pdfChoice;
 
     // Choose between D or G scattering
-
-    if ( !ChooseComponent(BRDF_DIFFUSE_COMPONENT & flags,
+    if ( !chooseComponent(BRDF_DIFFUSE_COMPONENT & flags,
                           BRDF_GLOSSY_COMPONENT & flags,
                           bsdf, &thisNode->m_hit,
-                          doRR, &x_1, &pdfChoice, &dChosen)) {
+                          doRR, &x1, &pdfChoice, &dChosen)) {
         return false;
     }
 
@@ -399,27 +403,23 @@ bool CPhotonMapSampler::GDSample(SimpleRaytracingPathNode *prevNode, SimpleRaytr
     } else {
         flags = BRDF_GLOSSY_COMPONENT;
 
-        logError("CPhotonMapSampler::GDSample", "Shit nog nie klaar");
+        logError("CPhotonMapSampler::gdSample", "Not done yet");
         return false;
     }
 
-    double pmapPdf = m_photonMap->Sample(thisNode->m_hit.point, &x_1, &x_2, &coord, flags,
-                                         glossy_exponent);
+    double photonMapPdf = m_photonMap->Sample(thisNode->m_hit.point, &x1, &x2, &coord, flags,
+                                              glossy_exponent);
 
     // Do real sampling
-
-    ok = CBsdfSampler::Sample(prevNode, thisNode, newNode, x_1, x_2,
+    ok = CBsdfSampler::sample(prevNode, thisNode, newNode, x1, x2,
                               false, flags);
 
-    // Adjust pdf's
-
+    // Adjust pdf
     if ( ok ) {
-        newNode->m_pdfFromPrev *= pdfChoice * pmapPdf;
+        newNode->m_pdfFromPrev *= pdfChoice * photonMapPdf;
         thisNode->m_usedComponents = flags;
     }
 
     return ok;
 }
-
-
 

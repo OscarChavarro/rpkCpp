@@ -3,9 +3,9 @@
 #include "scene/scene.h"
 #include "raycasting/raytracing/eyesampler.h"
 
-bool CEyeSampler::Sample(SimpleRaytracingPathNode *prevNode, SimpleRaytracingPathNode *thisNode,
-                         SimpleRaytracingPathNode *newNode, double /*x_1*/, double /*x_2*/,
-                         bool /* doRR */, BSDFFLAGS /* flags */) {
+bool CEyeSampler::sample(SimpleRaytracingPathNode *prevNode, SimpleRaytracingPathNode *thisNode,
+                         SimpleRaytracingPathNode *newNode, double /*x_1*/x1, double /*x_2*/x2,
+                         bool /* doRR */doRR, BSDF_FLAGS /* flags */flags) {
     if ( prevNode != nullptr || thisNode != nullptr ) {
         logWarning("CEyeSampler::sample", "Not first node in path ?!");
     }
@@ -54,7 +54,7 @@ bool CEyeSampler::Sample(SimpleRaytracingPathNode *prevNode, SimpleRaytracingPat
 }
 
 double CEyeSampler::EvalPDF(SimpleRaytracingPathNode */*thisNode*/,
-                            SimpleRaytracingPathNode */*newNode*/, BSDFFLAGS /*flags*/,
+                            SimpleRaytracingPathNode */*newNode*/, BSDF_FLAGS /*flags*/,
                             double * /*pdf*/, double * /*pdfRR*/) {
     return 1.0;
 }

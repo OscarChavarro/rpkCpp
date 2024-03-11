@@ -6,17 +6,17 @@
 #include "raycasting/raytracing/lightdirsampler.h"
 
 /**
-Sample : newNode gets filled, others may change
+sample : newNode gets filled, others may change
 */
 bool
-CLightDirSampler::Sample(
-    SimpleRaytracingPathNode */*prevNode*/,
-    SimpleRaytracingPathNode *thisNode,
-    SimpleRaytracingPathNode *newNode,
-    double x1,
-    double x2,
-    bool /* doRR */,
-    BSDFFLAGS /* flags */)
+CLightDirSampler::sample(
+        SimpleRaytracingPathNode *prevNode/*prevNode*/,
+        SimpleRaytracingPathNode *thisNode,
+        SimpleRaytracingPathNode *newNode,
+        double x1,
+        double x2,
+        bool /* doRR */doRR,
+        BSDF_FLAGS /* flags */flags)
 {
     double pdfDir;
 
@@ -56,8 +56,8 @@ CLightDirSampler::Sample(
 
     // Component propagation
     thisNode->m_usedComponents = NO_COMPONENTS; // the light...
-    newNode->m_accUsedComponents = static_cast<BSDFFLAGS>(thisNode->m_accUsedComponents |
-                                    thisNode->m_usedComponents);
+    newNode->m_accUsedComponents = static_cast<BSDF_FLAGS>(thisNode->m_accUsedComponents |
+                                                           thisNode->m_usedComponents);
 
     newNode->m_rracc = thisNode->m_rracc;
 
@@ -66,11 +66,11 @@ CLightDirSampler::Sample(
 
 double
 CLightDirSampler::EvalPDF(
-    SimpleRaytracingPathNode *thisNode,
-    SimpleRaytracingPathNode *newNode,
-    BSDFFLAGS /*flags*/,
-    double * /*pdf*/,
-    double * /*pdfRR*/)
+        SimpleRaytracingPathNode *thisNode,
+        SimpleRaytracingPathNode *newNode,
+        BSDF_FLAGS /*flags*/,
+        double * /*pdf*/,
+        double * /*pdfRR*/)
 {
     double pdfDir;
     double cosa;

@@ -11,22 +11,22 @@ It's kind of a dual of a pixelsampler.
 class CLightDirSampler : public Sampler {
 public:
     virtual bool
-    Sample(
-        SimpleRaytracingPathNode *prevNode,
-        SimpleRaytracingPathNode *thisNode,
-        SimpleRaytracingPathNode *newNode,
-        double x1,
-        double x2,
-        bool doRR = false,
-        BSDFFLAGS flags = BSDF_ALL_COMPONENTS);
+    sample(
+            SimpleRaytracingPathNode *prevNode,
+            SimpleRaytracingPathNode *thisNode,
+            SimpleRaytracingPathNode *newNode,
+            double x1,
+            double x2,
+            bool doRR = false,
+            BSDF_FLAGS flags = BSDF_ALL_COMPONENTS);
 
     virtual double
     EvalPDF(
-        SimpleRaytracingPathNode *thisNode,
-        SimpleRaytracingPathNode *newNode,
-        BSDFFLAGS flags = BSDF_ALL_COMPONENTS,
-        double *pdf = nullptr,
-        double *pdfRR = nullptr);
+            SimpleRaytracingPathNode *thisNode,
+            SimpleRaytracingPathNode *newNode,
+            BSDF_FLAGS flags = BSDF_ALL_COMPONENTS,
+            double *pdf = nullptr,
+            double *pdfRR = nullptr);
 };
 
 #endif

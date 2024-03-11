@@ -11,7 +11,7 @@ CFlagChain::init(const int paramLength, bool const paramSubtract) {
     }
 
     if ( paramLength > 0 ) {
-        chain = new BSDFFLAGS[paramLength];
+        chain = new BSDF_FLAGS[paramLength];
     } else {
         chain = nullptr;
     }
@@ -105,7 +105,7 @@ FlagChainCombine(const CFlagChain *c1,
     if ( nrDifferent == 1 ) {
         // Combinable
         CFlagChain *newFlagChain = new CFlagChain(*c1);
-        newFlagChain->chain[diffIndex] = static_cast<BSDFFLAGS>(c1->chain[diffIndex] | c2->chain[diffIndex]);
+        newFlagChain->chain[diffIndex] = static_cast<BSDF_FLAGS>(c1->chain[diffIndex] | c2->chain[diffIndex]);
         return newFlagChain;
     }
 
@@ -335,7 +335,7 @@ CContribHandler::doSyntaxError(const char *errString) {
 }
 
 bool
-CContribHandler::getFlags(const char *regExp, int *pos, BSDFFLAGS *flags) {
+CContribHandler::getFlags(const char *regExp, int *pos, BSDF_FLAGS *flags) {
     char c;
     int p = *pos;
 
@@ -441,7 +441,7 @@ CContribHandler::getFlags(const char *regExp, int *pos, BSDFFLAGS *flags) {
 
 bool
 CContribHandler::getToken(char *regExp, int *pos, char *token,
-                               BSDFFLAGS *flags) {
+                          BSDF_FLAGS *flags) {
     switch ( regExp[*pos] ) {
         case '\0':
             return false;
@@ -474,12 +474,12 @@ CContribHandler::doRegExpGeneral(char *regExp, bool subtract) {
     // Build iteration arrays (not tree so no nested brackets!)
     const int MAX_REGEXP_ITEMS = 15;
 
-    BSDFFLAGS flagArray[MAX_REGEXP_ITEMS];
+    BSDF_FLAGS flagArray[MAX_REGEXP_ITEMS];
     char typeArray[MAX_REGEXP_ITEMS];
     int countArray[MAX_REGEXP_ITEMS];
     int pos = 0, tokenCount = -1, iteratorCount = 0;
     char token;
-    BSDFFLAGS data;
+    BSDF_FLAGS data;
 
     while ( getToken(regExp, &pos, &token, &data)) {
         if ( token == 'F' ) {

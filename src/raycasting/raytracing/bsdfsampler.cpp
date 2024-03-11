@@ -5,9 +5,9 @@
 #include "raycasting/common/raytools.h"
 #include "raycasting/raytracing/bsdfsampler.h"
 
-bool CBsdfSampler::Sample(SimpleRaytracingPathNode *prevNode, SimpleRaytracingPathNode *thisNode,
+bool CBsdfSampler::sample(SimpleRaytracingPathNode *prevNode, SimpleRaytracingPathNode *thisNode,
                           SimpleRaytracingPathNode *newNode, double x_1, double x_2,
-                          bool doRR, BSDFFLAGS flags) {
+                          bool doRR, BSDF_FLAGS flags) {
     double pdfDir;
 
     // Sample direction
@@ -55,8 +55,8 @@ bool CBsdfSampler::Sample(SimpleRaytracingPathNode *prevNode, SimpleRaytracingPa
 
     // Accumulate scattering components
     thisNode->m_usedComponents = flags;
-    newNode->m_accUsedComponents = static_cast<BSDFFLAGS>(thisNode->m_accUsedComponents |
-                                    thisNode->m_usedComponents);
+    newNode->m_accUsedComponents = static_cast<BSDF_FLAGS>(thisNode->m_accUsedComponents |
+                                                           thisNode->m_usedComponents);
 
 
     // thisNode->m_bsdfEvalFromNext = thisNode->m_bsdfEvalFromPrev;
@@ -92,11 +92,11 @@ bool CBsdfSampler::Sample(SimpleRaytracingPathNode *prevNode, SimpleRaytracingPa
 
 double
 CBsdfSampler::EvalPDF(
-    SimpleRaytracingPathNode *thisNode,
-    SimpleRaytracingPathNode *newNode,
-    BSDFFLAGS flags,
-    double *pdf,
-    double *pdfRR)
+        SimpleRaytracingPathNode *thisNode,
+        SimpleRaytracingPathNode *newNode,
+        BSDF_FLAGS flags,
+        double *pdf,
+        double *pdfRR)
 {
     double pdfDir;
     double dist2;
@@ -137,7 +137,7 @@ CBsdfSampler::EvalPDF(
 
 double CBsdfSampler::EvalPDFPrev(SimpleRaytracingPathNode *prevNode,
                                  SimpleRaytracingPathNode *thisNode, SimpleRaytracingPathNode */*newNode*/,
-                                 BSDFFLAGS flags,
+                                 BSDF_FLAGS flags,
                                  double *pdf, double *pdfRR) {
     double pdfDir, cosb, pdfH, pdfRRH;
     Vector3D outDir;

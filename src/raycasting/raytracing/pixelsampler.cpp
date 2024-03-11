@@ -3,9 +3,9 @@
 #include "raycasting/common/raytools.h"
 #include "raycasting/raytracing/pixelsampler.h"
 
-bool CPixelSampler::Sample(SimpleRaytracingPathNode */*prevNode*/, SimpleRaytracingPathNode *thisNode,
+bool CPixelSampler::sample(SimpleRaytracingPathNode *prevNode/*prevNode*/, SimpleRaytracingPathNode *thisNode,
                            SimpleRaytracingPathNode *newNode, double x1, double x2,
-                           bool /* doRR */, BSDFFLAGS /* flags */) {
+                           bool /* doRR */doRR, BSDF_FLAGS /* flags */flags) {
     Vector3D dir;
 
     // Pre-condition: thisNode == eye, prevNode == nullptr, SetPixel called
@@ -46,7 +46,7 @@ bool CPixelSampler::Sample(SimpleRaytracingPathNode */*prevNode*/, SimpleRaytrac
 
     // Component propagation
     thisNode->m_usedComponents = NO_COMPONENTS; // the eye...
-    newNode->m_accUsedComponents = static_cast<BSDFFLAGS>(thisNode->m_accUsedComponents | thisNode->m_usedComponents);
+    newNode->m_accUsedComponents = static_cast<BSDF_FLAGS>(thisNode->m_accUsedComponents | thisNode->m_usedComponents);
 
     newNode->m_rracc = thisNode->m_rracc; // No russian roulette
 
@@ -63,7 +63,7 @@ void CPixelSampler::SetPixel(int nx, int ny, Camera *cam) {
 }
 
 double CPixelSampler::EvalPDF(SimpleRaytracingPathNode *thisNode, SimpleRaytracingPathNode *newNode,
-                              BSDFFLAGS /*flags*/, double * /*pdf*/,
+                              BSDF_FLAGS /*flags*/, double * /*pdf*/,
                               double * /*pdfRR*/) {
     double dist2;
     double dist;

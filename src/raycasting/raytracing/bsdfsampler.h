@@ -12,18 +12,18 @@ public:
     // Sample : newNode gets filled, others may change
     //   Return true if the node was filled in, false if path Ends
     //   If path ends (absorption) the type of thisNode is adjusted to 'Ends'
-    virtual bool Sample(SimpleRaytracingPathNode *prevNode, SimpleRaytracingPathNode *thisNode,
+    virtual bool sample(SimpleRaytracingPathNode *prevNode, SimpleRaytracingPathNode *thisNode,
                         SimpleRaytracingPathNode *newNode, double x_1, double x_2,
-                        bool doRR, BSDFFLAGS flags);
+                        bool doRR, BSDF_FLAGS flags);
 
     // Use this for a N.E.E. : connecting a light node with an eye node
     virtual double
     EvalPDF(
-        SimpleRaytracingPathNode *thisNode,
-        SimpleRaytracingPathNode *newNode,
-        BSDFFLAGS flags,
-        double *pdf = nullptr,
-        double *pdfRR = nullptr);
+            SimpleRaytracingPathNode *thisNode,
+            SimpleRaytracingPathNode *newNode,
+            BSDF_FLAGS flags,
+            double *pdf = nullptr,
+            double *pdfRR = nullptr);
 
     // Use this for calculating f.i. eyeEndNode->Previous pdf(Next).
     // The newNode is calculated, thisNode should be and end node connecting
@@ -32,7 +32,7 @@ public:
     virtual double EvalPDFPrev(SimpleRaytracingPathNode *prevNode,
                                SimpleRaytracingPathNode *thisNode,
                                SimpleRaytracingPathNode *newNode,
-                               BSDFFLAGS flags,
+                               BSDF_FLAGS flags,
                                double *pdf, double *pdfRR);
 
 };

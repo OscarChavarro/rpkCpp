@@ -654,7 +654,7 @@ Use next function (with PatchListIterate) to close any open files of the patch u
 Computes average scattered power and emittance of the Patch
 */
 COLOR
-Patch::averageNormalAlbedo(BSDFFLAGS components) {
+Patch::averageNormalAlbedo(BSDF_FLAGS components) {
     int numberOfSamples;
     COLOR albedo;
     RayHit hit;

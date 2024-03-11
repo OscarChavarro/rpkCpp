@@ -17,7 +17,7 @@ class BsdfComp {
 
     inline operator COLOR *() { return comp; }
 
-    void Clear(const BSDFFLAGS flags = BSDF_ALL_COMPONENTS) {
+    void Clear(const BSDF_FLAGS flags = BSDF_ALL_COMPONENTS) {
         for ( int i = 0; i < BSDF_COMPONENTS; i++ ) {
             if ( flags & (BSDF_INDEXTOCOMP(i)) ) {
                 colorClear(comp[i]);
@@ -25,7 +25,7 @@ class BsdfComp {
         }
     }
 
-    void Fill(const COLOR col, const BSDFFLAGS flags = BSDF_ALL_COMPONENTS) {
+    void Fill(const COLOR col, const BSDF_FLAGS flags = BSDF_ALL_COMPONENTS) {
         for ( int i = 0; i < BSDF_COMPONENTS; i++ ) {
             if ( flags & (BSDF_INDEXTOCOMP(i)) ) {
                 comp[i] = col;
@@ -33,7 +33,7 @@ class BsdfComp {
         }
     }
 
-    COLOR Sum(const BSDFFLAGS flags = BSDF_ALL_COMPONENTS) {
+    COLOR Sum(const BSDF_FLAGS flags = BSDF_ALL_COMPONENTS) {
         COLOR result;
 
         colorClear(result);

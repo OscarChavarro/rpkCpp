@@ -4,7 +4,7 @@
 #include "raycasting/raytracing/sampler.h"
 
 /**
-Sample transfer generates a new point on a surface by ray tracing
+sample transfer generates a new point on a surface by ray tracing
 given a certain direction and the pdf for that direction
 The medium the ray is traveling through must be known and
 is given by newNode->m_inBsdf.

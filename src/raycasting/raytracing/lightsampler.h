@@ -24,18 +24,18 @@ public:
 
     // Sample : newNode gets filled, others may change
     virtual bool
-    Sample(
+    sample(
             SimpleRaytracingPathNode *prevNode,
             SimpleRaytracingPathNode *thisNode,
             SimpleRaytracingPathNode *newNode,
             double x1,
             double x2,
             bool doRR,
-            BSDFFLAGS flags);
+            BSDF_FLAGS flags);
 
     virtual double
     EvalPDF(SimpleRaytracingPathNode *thisNode, SimpleRaytracingPathNode *newNode,
-            BSDFFLAGS flags,
+            BSDF_FLAGS flags,
             double *pdf, double *pdfRR);
 };
 
@@ -43,20 +43,20 @@ class CImportantLightSampler : public CNextEventSampler {
 public:
     // Sample : newNode gets filled, others may change
     virtual bool
-    Sample(
+    sample(
             SimpleRaytracingPathNode *prevNode,
             SimpleRaytracingPathNode *thisNode,
             SimpleRaytracingPathNode *newNode,
             double x1,
             double x2,
             bool doRR,
-            BSDFFLAGS flags);
+            BSDF_FLAGS flags);
 
     virtual double
     EvalPDF(
             SimpleRaytracingPathNode *thisNode,
             SimpleRaytracingPathNode *newNode,
-            BSDFFLAGS flags,
+            BSDF_FLAGS flags,
             double *pdf,
             double *pdfRR);
 };

@@ -461,7 +461,7 @@ photonMapHandlePath(PhotonMapConfig *config) {
 }
 
 static void
-photonMapTracePath(PhotonMapConfig *config, BSDFFLAGS bsdfFlags) {
+photonMapTracePath(PhotonMapConfig *config, BSDF_FLAGS bsdfFlags) {
     config->biPath.m_eyePath = config->eyeConfig.tracePath(config->biPath.m_eyePath);
 
     // Use qmc for light sampling
@@ -497,7 +497,7 @@ photonMapTracePath(PhotonMapConfig *config, BSDFFLAGS bsdfFlags) {
 }
 
 static void
-photonMapTracePaths(int nrPaths, BSDFFLAGS bsdfFlags = BSDF_ALL_COMPONENTS) {
+photonMapTracePaths(int nrPaths, BSDF_FLAGS bsdfFlags = BSDF_ALL_COMPONENTS) {
     int i;
 
     // Fill in config structures

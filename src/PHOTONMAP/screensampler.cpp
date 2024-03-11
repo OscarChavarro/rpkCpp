@@ -8,14 +8,14 @@
 newNode gets filled, others may change
 */
 bool
-ScreenSampler::Sample(
-    SimpleRaytracingPathNode */*prevNode*/,
-    SimpleRaytracingPathNode *thisNode,
-    SimpleRaytracingPathNode *newNode,
-    double x1,
-    double x2,
-    bool /* doRR */,
-    BSDFFLAGS /* flags */)
+ScreenSampler::sample(
+        SimpleRaytracingPathNode */*prevNode*/,
+        SimpleRaytracingPathNode *thisNode,
+        SimpleRaytracingPathNode *newNode,
+        double x1,
+        double x2,
+        bool /* doRR */,
+        BSDF_FLAGS /* flags */)
 {
     Vector3D dir;
 
@@ -31,11 +31,11 @@ ScreenSampler::Sample(
     double distScreen = sqrt(distScreen2);
     vectorScaleInverse((float)distScreen, dir, dir);
 
-    double cosScreen = fabs(vectorDotProduct(GLOBAL_camera_mainCamera.Z, dir));
+    double cosScreen = std::fabs(vectorDotProduct(GLOBAL_camera_mainCamera.Z, dir));
 
-    double pdfDir = ((1. / (GLOBAL_camera_mainCamera.pixelWidth * (float)GLOBAL_camera_mainCamera.xSize *
+    double pdfDir = ((1.0 / (GLOBAL_camera_mainCamera.pixelWidth * (float)GLOBAL_camera_mainCamera.xSize *
                             GLOBAL_camera_mainCamera.pixelHeight * (float)GLOBAL_camera_mainCamera.ySize)) * // 1 / Area pixel
-                     (distScreen2 / cosScreen));  // spher. angle measure
+                     (distScreen2 / cosScreen));  // Spherical angle measure
 
     // Determine ray type
     thisNode->m_rayType = Starts;
@@ -58,17 +58,17 @@ ScreenSampler::Sample(
 
     // Component propagation
     thisNode->m_usedComponents = NO_COMPONENTS; // The eye...
-    newNode->m_accUsedComponents = static_cast<BSDFFLAGS>(thisNode->m_accUsedComponents | thisNode->m_usedComponents);
+    newNode->m_accUsedComponents = static_cast<BSDF_FLAGS>(thisNode->m_accUsedComponents | thisNode->m_usedComponents);
     return true;
 }
 
 double
 ScreenSampler::EvalPDF(
-    SimpleRaytracingPathNode *thisNode,
-    SimpleRaytracingPathNode *newNode,
-    BSDFFLAGS /*flags*/,
-    double * /*pdf*/,
-    double * /*pdfRR*/)
+        SimpleRaytracingPathNode *thisNode,
+        SimpleRaytracingPathNode *newNode,
+        BSDF_FLAGS /*flags*/,
+        double * /*pdf*/,
+        double * /*pdfRR*/)
 {
     double dist2;
     double dist;
@@ -88,7 +88,7 @@ ScreenSampler::EvalPDF(
     cosA = vectorDotProduct(thisNode->m_normal, outDir);
 
     // pdf = 1/Apix * (r^2 / cos(dir, eyeNormal) * (cos(dir, patchNormal) / d^2)
-    //                 |__> to sper.angle           |__> to area on patch
+    //                 |__> to spherical angle           |__> to area on patch
 
     // Three cosines : r^2 / cos = 1 / cos^3 since r is length
     // of viewing ray to the screen.

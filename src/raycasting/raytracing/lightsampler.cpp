@@ -35,14 +35,14 @@ bool CUniformLightSampler::ActivateNextUnit() {
 }
 
 bool
-CUniformLightSampler::Sample(
-        SimpleRaytracingPathNode */*prevNode*/,
+CUniformLightSampler::sample(
+        SimpleRaytracingPathNode *prevNode/*prevNode*/,
         SimpleRaytracingPathNode *thisNode,
         SimpleRaytracingPathNode *newNode,
         double x1,
         double x2,
-        bool /* doRR */,
-        BSDFFLAGS flags)
+        bool /* doRR */doRR,
+        BSDF_FLAGS flags)
 {
     double pdfLight;
     double pdfPoint;
@@ -121,7 +121,7 @@ double
 CUniformLightSampler::EvalPDF(
         SimpleRaytracingPathNode */*thisNode*/,
         SimpleRaytracingPathNode *newNode,
-        BSDFFLAGS /*flags*/, double * /*pdf*/,
+        BSDF_FLAGS /*flags*/, double * /*pdf*/,
         double * /*pdfRR*/)
 {
     double pdf;
@@ -162,14 +162,14 @@ CUniformLightSampler::EvalPDF(
 Important light sampler : attach weights to each lamp
 */
 bool
-CImportantLightSampler::Sample(
-        SimpleRaytracingPathNode */*prevNode*/,
+CImportantLightSampler::sample(
+        SimpleRaytracingPathNode *prevNode/*prevNode*/,
         SimpleRaytracingPathNode *thisNode,
         SimpleRaytracingPathNode *newNode,
         double x1,
         double x2,
-        bool /* doRR */,
-        BSDFFLAGS flags)
+        bool /* doRR */doRR,
+        BSDF_FLAGS flags)
 {
     double pdfLight, pdfPoint;
     Patch *light;
@@ -253,7 +253,7 @@ double
 CImportantLightSampler::EvalPDF(
         SimpleRaytracingPathNode *thisNode,
         SimpleRaytracingPathNode *newNode,
-        BSDFFLAGS /*flags*/, double * /*pdf*/,
+        BSDF_FLAGS /*flags*/, double * /*pdf*/,
         double * /*pdfRR*/)
 {
     double pdf;

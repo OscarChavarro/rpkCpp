@@ -7,7 +7,7 @@ Sobol QMC sequence
 
 extern double *nextSobol();
 extern double *sobol(int seed);
-extern void initSobol(int idim);
+extern void initSobol(int iDim);
 
 #endif
 

@@ -103,7 +103,7 @@ public:
 class CScatterInfo {
 public:
     // The components under consideration
-    BSDFFLAGS flags;
+    BSDF_FLAGS flags;
     // Spawning factor if no 'flags' bounce was made before
     int nrSamplesBefore;
     // Spawning factor after at least one 'flags' bounce

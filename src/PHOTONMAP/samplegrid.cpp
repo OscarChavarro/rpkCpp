@@ -2,12 +2,12 @@
 #include "PHOTONMAP/samplegrid.h"
 #include "PHOTONMAP/discretesampling.h"
 
-CSampleGrid2D::CSampleGrid2D(int xsections, int ysections): m_totalSum() {
-    m_xsections = xsections;
-    m_ysections = ysections;
+CSampleGrid2D::CSampleGrid2D(int xSectionsParam, int ySectionsParam): totalSum() {
+    xSections = xSectionsParam;
+    ySections = ySectionsParam;
 
-    m_values = new double[m_xsections * m_ysections];
-    m_ysums = new double[m_xsections];
+    values = new double[xSections * ySections];
+    ySums = new double[xSections];
 
     Init();
 }
@@ -17,62 +17,66 @@ void CSampleGrid2D::Init() {
 
     index = 0;
 
-    for ( i = 0; i < m_xsections; i++ ) {
-        m_ysums[i] = 0.0;
-        for ( j = 0; j < m_ysections; j++ ) {
-            m_values[index++] = 0.0;
+    for ( i = 0; i < xSections; i++ ) {
+        ySums[i] = 0.0;
+        for ( j = 0; j < ySections; j++ ) {
+            values[index++] = 0.0;
         }
     }
 
-    m_totalSum = 0.0;
+    totalSum = 0.0;
 }
 
 void
 CSampleGrid2D::Add(double x, double y, double value) {
     // Precondition: 0 <= x < 1 en 0 <= y < 1
 
-    int xindex, yindex;
+    int xIndex;
+    int yIndex;
 
-    xindex = (int) (x * m_xsections);
-    yindex = (int) (y * m_ysections);
+    xIndex = (int) (x * xSections);
+    yIndex = (int) (y * ySections);
 
-    if ( xindex == m_xsections ) {
-        xindex--;
+    if ( xIndex == xSections ) {
+        xIndex--;
     }  // x or y seem to be able to be 1
-    if ( yindex == m_ysections ) {
-        yindex--;
+    if ( yIndex == ySections ) {
+        yIndex--;
     }  // x or y seem to be able to be 1
 
-    m_values[ValIndex(xindex, yindex)] += value;
-    m_ysums[xindex] += value;
-    m_totalSum += value;
+    values[ValIndex(xIndex, yIndex)] += value;
+    ySums[xIndex] += value;
+    totalSum += value;
 }
 
 void CSampleGrid2D::EnsureNonZeroEntries() {
     int index, i, j;
     // Add 3% of the average value to empty grid elements
-    double fraction = 0.03 * m_totalSum / (m_xsections * m_ysections);
-    double treshold = 1e-10 * m_totalSum;
+    double fraction = 0.03 * totalSum / (xSections * ySections);
+    double threshold = 1e-10 * totalSum;
 
     index = 0; // ! index is correlated with i,j in for loops
 
-    for ( i = 0; i < m_xsections; i++ ) {
-        for ( j = 0; j < m_ysections; j++ ) {
-            if ( m_values[index] < treshold ) {
-                m_values[index] += fraction;
-                m_ysums[i] += fraction;
-                m_totalSum += fraction;
+    for ( i = 0; i < xSections; i++ ) {
+        for ( j = 0; j < ySections; j++ ) {
+            if ( values[index] < threshold ) {
+                values[index] += fraction;
+                ySums[i] += fraction;
+                totalSum += fraction;
             }
             index++;
         }
     }
 }
 
-void CSampleGrid2D::Sample(double *x, double *y, double *pdf) {
-    int xindex, yindex;
-    double xpdf, ypdf;
+void
+CSampleGrid2D::Sample(double *x, double *y, double *pdf) {
+    int xIndex;
+    int yIndex;
+    double xPdf;
+    double yPdf;
 
-    if ( m_totalSum < EPSILON ) {
+    if ( totalSum < EPSILON ) {
         // No significant data in table, use uniform sampling
         *pdf = 1.0;
         return;
@@ -80,25 +84,25 @@ void CSampleGrid2D::Sample(double *x, double *y, double *pdf) {
 
     // Choose x row
 
-    xindex = discreteSample(m_ysums, m_totalSum, x, &xpdf);
+    xIndex = discreteSample(ySums, totalSum, x, &xPdf);
 
     // Choose y column
 
-    yindex = discreteSample(m_values + xindex * m_ysections, m_ysums[xindex], y, &ypdf);
+    yIndex = discreteSample(values + xIndex * ySections, ySums[xIndex], y, &yPdf);
 
-    *pdf = xpdf * ypdf;
+    *pdf = xPdf * yPdf;
 
     // Rescale: x and y are in [0,1[ now we need to sample
-    // gridelement (xindex, yindex) uniformly
+    // grid element (xIndex, yIndex) uniformly
 
     double range;
 
-    range = 1.0 / m_xsections;
-    *x = (*x + xindex) * range;
+    range = 1.0 / xSections;
+    *x = (*x + xIndex) * range;
     *pdf /= range;
 
-    range = 1.0 / m_ysections;
-    *y = (*y + yindex) * range;
+    range = 1.0 / ySections;
+    *y = (*y + yIndex) * range;
     *pdf /= range;  // Uniform sampling: pdf = 1/A(xi,yi) * p(xi) * p(yi)
 }
 

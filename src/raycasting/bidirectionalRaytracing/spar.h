@@ -17,49 +17,39 @@ Specification of the Stored Partial Radiance class
 #define DISJOINT_GROUP 0
 #define LD_GROUP 1
 
-class CSpar;
+class Spar;
 
 // Spar Config stores handy config params
 class CSparConfig {
 public:
-    BP_BASECONFIG *m_bcfg;
+    BP_BASECONFIG *baseConfig;
 
     // Needed in weighted multi-pass methods
-    CSpar *m_leSpar;
-    CSpar *m_ldSpar;
+    Spar *leSpar;
+    Spar *ldSpar;
 };
 
-class CSparList : public CTSList<CSpar *> {
+class CSparList : public CTSList<Spar *> {
 public:
-    virtual void handlePath(CSparConfig *sconfig,
-                            CBiPath *path, COLOR *frad, COLOR *fbpt);
-    virtual ~CSparList() {};
+    virtual void handlePath(CSparConfig *config,
+                            CBiPath *path, COLOR *fRad, COLOR *fBpt);
+    virtual ~CSparList() {
+    };
 };
 
-// iterator
+typedef CTSList_Iter<Spar *> CSparListIter;
 
-typedef CTSList_Iter<CSpar *> CSparListIter;
-
-class CSpar {
-public:
+class Spar {
+  public:
     CContribHandler *m_contrib;
     CSparList *m_sparList;
 
-public:
-    CSpar();
-
-    // Destructor
-    virtual ~CSpar();
+  public:
+    Spar();
+    virtual ~Spar();
 
     virtual void init(CSparConfig *config);
-
-    // mainInit spar with a comma separated list of regular expressions
     virtual void parseAndInit(int group, char *regExp);
-
-    // photonMapHandlePath : Handles a bidirectional path. Image contribution
-    // is returned. Normally this is a contribution for the pixel
-    // affected by the path
-
     virtual COLOR handlePath(CSparConfig *config, CBiPath *path);
 };
 
@@ -67,8 +57,7 @@ public:
 Le Spar : Uses emission ase stored radiance. Allows sampling of
 all bidirectional paths
 */
-
-class CLeSpar : public CSpar {
+class LeSpar : public Spar {
 public:
     virtual void init(CSparConfig *config);
 };
@@ -77,7 +66,7 @@ public:
 LD Spar : Uses direct diffuse as stored radiance. Allows sampling of
 of eye paths. GetDirectRadiance is used as a readout function
 */
-class CLDSpar : public CSpar {
+class LDSpar : public Spar {
 public:
     virtual void init(CSparConfig *config);
 };

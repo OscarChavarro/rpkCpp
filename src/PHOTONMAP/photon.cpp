@@ -2,7 +2,7 @@
 #include "common/error.h"
 
 void CPhoton::FindRS(double *r, double *s, COORDSYS *coord,
-                     BSDFFLAGS flag, float n) {
+                     BSDF_FLAGS flag, float n) {
     double phi;
     double theta;
 

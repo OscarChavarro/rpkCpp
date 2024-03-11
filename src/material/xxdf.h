@@ -54,7 +54,7 @@ typedef char XXDFFLAGS;
 #define SETBRDFFLAGS(xxflags) ((xxflags) & ALL_COMPONENTS)
 #define SETBTDFFLAGS(xxflags) (((xxflags) & ALL_COMPONENTS) << XXDF_COMPONENTS)
 
-typedef char BSDFFLAGS;
+typedef char BSDF_FLAGS;
 
 class RefractionIndex {
   public:

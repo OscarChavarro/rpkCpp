@@ -54,7 +54,7 @@ public:
 
     // Find the r,s values in a [0,1[^2 square corresponding to the photon
     void FindRS(double *r, double *s, COORDSYS *coord,
-                BSDFFLAGS flag, float n);
+                BSDF_FLAGS flag, float n);
 };
 
 

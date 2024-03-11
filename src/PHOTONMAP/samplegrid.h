@@ -8,16 +8,18 @@ Grid values are doubles. Grid domain is [0,1]^dim
 
 class CSampleGrid2D {
   protected:
-    int m_xsections;
-    int m_ysections;
-    double *m_values;
-    double *m_ysums;  // Sum of y columns for faster sampling
-    double m_totalSum; // Normalisation factor
+    int xSections;
+    int ySections;
+    double *values;
+    double *ySums;  // Sum of y columns for faster sampling
+    double totalSum; // Normalisation factor
 
-    inline int ValIndex(int i, int j) const { return i * m_ysections + j; }
+    inline int ValIndex(int i, int j) const {
+        return i * ySections + j;
+    }
 
   public:
-    CSampleGrid2D(int xsections, int ysections);
+    CSampleGrid2D(int xSectionsParam, int ySectionsParam);
 
     void Init(); // Reinitialise, keeping current number of sections
 

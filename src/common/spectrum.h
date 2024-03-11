@@ -178,7 +178,7 @@ spectrumInterpolateBarycentric(SPECTRUM &c0, SPECTRUM &c1, SPECTRUM &c2, float u
 }
 
 inline void
-spectrumInterpolateBilinear(SPECTRUM &c0, SPECTRUM &c1, SPECTRUM &c2, SPECTRUM &c3, float u, float v, SPECTRUM &c) {
+spectrumInterpolateBiLinear(SPECTRUM &c0, SPECTRUM &c1, SPECTRUM &c2, SPECTRUM &c3, float u, float v, SPECTRUM &c) {
     float _c = u * v;
     float _b = u - _c;
     float _d = v - _c;

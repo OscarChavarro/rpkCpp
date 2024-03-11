@@ -62,7 +62,7 @@ CSamplerConfig::traceNode(
         SimpleRaytracingPathNode *nextNode,
         double x1,
         double x2,
-        BSDFFLAGS flags) const
+        BSDF_FLAGS flags) const
 {
     SimpleRaytracingPathNode *lastNode;
 
@@ -74,14 +74,14 @@ CSamplerConfig::traceNode(
 
     if ( lastNode == nullptr ) {
         // Fill in first node
-        if ( !pointSampler->Sample(nullptr, nullptr, nextNode, x1, x2)) {
+        if ( !pointSampler->sample(nullptr, nullptr, nextNode, x1, x2)) {
             logWarning("CSamplerConfig::traceNode", "Point sampler failed");
             return nullptr;
         }
     } else if ( lastNode->m_depth == 0 ) {
         // Fill in second node : dir sampler
         if ( (lastNode->m_depth + 1) < maxDepth ) {
-            if ( !dirSampler->Sample(nullptr, lastNode, nextNode, x1, x2)) {
+            if ( !dirSampler->sample(nullptr, lastNode, nextNode, x1, x2)) {
                 // No point !
                 lastNode->m_rayType = Stops;
                 return nullptr;
@@ -93,7 +93,7 @@ CSamplerConfig::traceNode(
     } else {
         // In the middle of a path
         if ((lastNode->m_depth + 1) < maxDepth ) {
-            if ( !surfaceSampler->Sample(lastNode->previous(), lastNode, nextNode,
+            if ( !surfaceSampler->sample(lastNode->previous(), lastNode, nextNode,
                                          x1, x2,
                                          lastNode->m_depth >= minDepth,
                                          flags)) {
@@ -116,7 +116,7 @@ CSamplerConfig::traceNode(
 }
 
 SimpleRaytracingPathNode *
-CSamplerConfig::tracePath(SimpleRaytracingPathNode *nextNode, BSDFFLAGS flags) {
+CSamplerConfig::tracePath(SimpleRaytracingPathNode *nextNode, BSDF_FLAGS flags) {
     double x1;
     double x2;
 
@@ -145,8 +145,8 @@ pathNodeConnect(
         CSamplerConfig *eyeConfig,
         CSamplerConfig *lightConfig,
         CONNECT_FLAGS flags,
-        BSDFFLAGS bsdfFlagsE,
-        BSDFFLAGS bsdfFlagsL,
+        BSDF_FLAGS bsdfFlagsE,
+        BSDF_FLAGS bsdfFlagsL,
         Vector3D *pDirEl)
 {
     SimpleRaytracingPathNode *nodeEP; // previous nodes

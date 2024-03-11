@@ -6,14 +6,14 @@ Sobol QMC sequence
 #include "QMC/sobol.h"
 
 #define MAX_DIM 5
-#define VMAX 30
+#define V_MAX 30
 
 static int dim;
-static int nextn;
+static int nextN;
 static int x[MAX_DIM];
-static int v[MAX_DIM][VMAX];
+static int v[MAX_DIM][V_MAX];
 static int skip;
-static double RECIPD;
+static double RECIP;
 
 double *
 nextSobol() {
@@ -23,16 +23,16 @@ nextSobol() {
     int save;
 
     c = 1;
-    save = nextn;
+    save = nextN;
     while ( (save % 2) == 1 ) {
         c += 1;
         save = save / 2;
     }
     for ( i = 0; i < dim; i++ ) {
-        x[i] = x[i] ^ (v[i][c - 1] << (VMAX - c));
-        xx[i] = x[i] * RECIPD;
+        x[i] = x[i] ^ (v[i][c - 1] << (V_MAX - c));
+        xx[i] = x[i] * RECIP;
     }
-    nextn += 1;
+    nextN += 1;
 
     return xx;
 }
@@ -53,20 +53,20 @@ sobol(int seed) {
         gray = GRAY(seed);
         while ( gray ) {
             if ( gray & 1 ) {
-                x[i] = x[i] ^ (v[i][c - 1] << (VMAX - c));
+                x[i] = x[i] ^ (v[i][c - 1] << (V_MAX - c));
             }
             c++;
             gray >>= 1;
         }
 
-        xx[i] = x[i] * RECIPD;
+        xx[i] = x[i] * RECIP;
     }
 
     return xx;
 }
 
 void
-initSobol(int idim) {
+initSobol(int iDim) {
     int i;
     int j;
     int k;
@@ -75,9 +75,9 @@ initSobol(int idim) {
     int d[MAX_DIM];
     int POLY[MAX_DIM];
 
-    nextn = 0;
-    dim = idim;
-    RECIPD = 1.0 / std::pow(2.0, VMAX);
+    nextN = 0;
+    dim = iDim;
+    RECIP = 1.0 / std::pow(2.0, V_MAX);
 
     // Reading primitive polynomials
     POLY[0] = 3;
@@ -100,7 +100,7 @@ initSobol(int idim) {
 
     // Calculate remainder of v
     for ( i = 0; i < dim; i++ ) {
-        for ( j = d[i]; j < VMAX; j++ ) {
+        for ( j = d[i]; j < V_MAX; j++ ) {
             v[i][j] = v[i][j - d[i]];
             save = POLY[i];
             m = (int)std::pow(2, d[i]);

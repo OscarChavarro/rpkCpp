@@ -126,7 +126,7 @@ radianceDefaults(java::ArrayList<Patch *> *scenePatches) {
 }
 
 static void
-selectRadianceMethod(int *argc, char **argv) {
+selectRadianceMethod(const int *argc, char **argv) {
     bool getNext = false;
     char *name = nullptr;
     for ( int i = 0; i < *argc; i++ ) {

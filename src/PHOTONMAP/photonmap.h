@@ -9,7 +9,7 @@
 #include "PHOTONMAP/samplegrid.h"
 #include "PHOTONMAP/pmapoptions.h"
 
-bool ZeroAlbedo(BSDF *bsdf, RayHit *hit, BSDFFLAGS flags);
+bool ZeroAlbedo(BSDF *bsdf, RayHit *hit, BSDF_FLAGS flags);
 
 // Convert a value val given a maximum into some nice color
 COLOR GetFalseColor(float val);
@@ -137,7 +137,7 @@ public:
     // OUT: r,s are changed for importance sampling, pdf is returned
 
     double Sample(Vector3D &pos, double *r, double *s, COORDSYS *coord,
-                  BSDFFLAGS flag, float n = 1);
+                  BSDF_FLAGS flag, float n = 1);
 
     // Utility functions
 

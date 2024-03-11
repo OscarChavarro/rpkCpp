@@ -110,7 +110,7 @@ StochasticRaytracingConfiguration::initDependentVars(java::ArrayList<Patch *> *l
 
     // Storage block
 
-    BSDFFLAGS storeFlags;
+    BSDF_FLAGS storeFlags;
 
     if ( (GLOBAL_radiance_currentRadianceMethodHandle == nullptr) || (radMode == STORED_NONE) ) {
         storeFlags = NO_COMPONENTS;
@@ -149,19 +149,19 @@ StochasticRaytracingConfiguration::initDependentVars(java::ArrayList<Patch *> *l
     // Other blocks, this is non storage with optional
     // separation of specular components
 
-    BSDFFLAGS remainingFlags = BSDF_ALL_COMPONENTS & ~storeFlags;
+    BSDF_FLAGS remainingFlags = BSDF_ALL_COMPONENTS & ~storeFlags;
     int siIndex = 0;
 
     if ( separateSpecular ) {
-        BSDFFLAGS flags;
+        BSDF_FLAGS flags;
 
         // spec reflection
 
         if ( reflectionSampling == CLASSICAL_SAMPLING ) {
-            flags = (BSDFFLAGS)(remainingFlags & (BRDF_SPECULAR_COMPONENT |
-                                      BRDF_GLOSSY_COMPONENT)); // Glossy == Specular in classic
+            flags = (BSDF_FLAGS)(remainingFlags & (BRDF_SPECULAR_COMPONENT |
+                                                   BRDF_GLOSSY_COMPONENT)); // Glossy == Specular in classic
         } else {
-            flags = (BSDFFLAGS)(remainingFlags & BRDF_SPECULAR_COMPONENT);
+            flags = (BSDF_FLAGS)(remainingFlags & BRDF_SPECULAR_COMPONENT);
         }
 
         if ( flags ) {
@@ -169,15 +169,15 @@ StochasticRaytracingConfiguration::initDependentVars(java::ArrayList<Patch *> *l
             siOthers[siIndex].nrSamplesBefore = scatterSamples;
             siOthers[siIndex].nrSamplesAfter = scatterSamples;
             siIndex++;
-            remainingFlags = static_cast<BSDFFLAGS>(remainingFlags & ~flags);
+            remainingFlags = static_cast<BSDF_FLAGS>(remainingFlags & ~flags);
         }
 
         // Spec transmission
         if ( reflectionSampling == CLASSICAL_SAMPLING ) {
-            flags = (BSDFFLAGS)(remainingFlags & (BTDF_SPECULAR_COMPONENT |
-                                      BTDF_GLOSSY_COMPONENT)); // Glossy == Specular in classic
+            flags = (BSDF_FLAGS)(remainingFlags & (BTDF_SPECULAR_COMPONENT |
+                                                   BTDF_GLOSSY_COMPONENT)); // Glossy == Specular in classic
         } else {
-            flags = (BSDFFLAGS)(remainingFlags & BTDF_SPECULAR_COMPONENT);
+            flags = (BSDF_FLAGS)(remainingFlags & BTDF_SPECULAR_COMPONENT);
         }
 
         if ( flags ) {
@@ -185,34 +185,34 @@ StochasticRaytracingConfiguration::initDependentVars(java::ArrayList<Patch *> *l
             siOthers[siIndex].nrSamplesBefore = scatterSamples;
             siOthers[siIndex].nrSamplesAfter = scatterSamples;
             siIndex++;
-            remainingFlags = static_cast<BSDFFLAGS>(remainingFlags & ~flags);
+            remainingFlags = static_cast<BSDF_FLAGS>(remainingFlags & ~flags);
         }
     }
 
     // Glossy or diffuse with different firstDGSamples
 
     if ((reflectionSampling != CLASSICAL_SAMPLING) && (scatterSamples != firstDGSamples) ) {
-        BSDFFLAGS gdFlags = (BSDFFLAGS)(remainingFlags &
-                             (BSDF_DIFFUSE_COMPONENT | BSDF_GLOSSY_COMPONENT));
+        BSDF_FLAGS gdFlags = (BSDF_FLAGS)(remainingFlags &
+                                          (BSDF_DIFFUSE_COMPONENT | BSDF_GLOSSY_COMPONENT));
         if ( gdFlags ) {
             siOthers[siIndex].flags = gdFlags;
             siOthers[siIndex].nrSamplesBefore = firstDGSamples;
             siOthers[siIndex].nrSamplesAfter = scatterSamples;
             siIndex++;
-            remainingFlags = static_cast<BSDFFLAGS>(remainingFlags & ~gdFlags);
+            remainingFlags = static_cast<BSDF_FLAGS>(remainingFlags & ~gdFlags);
         }
     }
 
     if ( reflectionSampling == CLASSICAL_SAMPLING ) {
         // Classical: Diffuse, with no scattering
-        BSDFFLAGS dFlags = (BSDFFLAGS)(remainingFlags & BSDF_DIFFUSE_COMPONENT);
+        BSDF_FLAGS dFlags = (BSDF_FLAGS)(remainingFlags & BSDF_DIFFUSE_COMPONENT);
 
         if ( dFlags ) {
             siOthers[siIndex].flags = dFlags;
             siOthers[siIndex].nrSamplesBefore = 0;
             siOthers[siIndex].nrSamplesAfter = 0;
             siIndex++;
-            remainingFlags = static_cast<BSDFFLAGS>(remainingFlags & ~dFlags);
+            remainingFlags = static_cast<BSDF_FLAGS>(remainingFlags & ~dFlags);
         }
     }
 

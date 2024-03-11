@@ -96,7 +96,7 @@ public:
     SimpleRaytracingPathNode *
     traceNode(SimpleRaytracingPathNode *nextNode,
               double x1, double x2,
-              BSDFFLAGS flags) const;
+              BSDF_FLAGS flags) const;
 
     // photonMapTracePath : Traces a path using the samplers in the class
     // New nodes are allocated if necessary. TraceNode is used
@@ -104,7 +104,7 @@ public:
     // The first filled in node is returned (==nextNode if nextNode != nullptr)
 
     SimpleRaytracingPathNode *
-    tracePath(SimpleRaytracingPathNode *nextNode, BSDFFLAGS flags = BSDF_ALL_COMPONENTS);
+    tracePath(SimpleRaytracingPathNode *nextNode, BSDF_FLAGS flags = BSDF_ALL_COMPONENTS);
 
 
     // Generate two random numbers. Depth needed for QMC sampling
@@ -147,8 +147,8 @@ pathNodeConnect(
         CSamplerConfig *eyeConfig,
         CSamplerConfig *lightConfig,
         CONNECT_FLAGS flags,
-        BSDFFLAGS bsdfFlagsE = BSDF_ALL_COMPONENTS,
-        BSDFFLAGS bsdfFlagsL = BSDF_ALL_COMPONENTS,
+        BSDF_FLAGS bsdfFlagsE = BSDF_ALL_COMPONENTS,
+        BSDF_FLAGS bsdfFlagsL = BSDF_ALL_COMPONENTS,
         Vector3D *pDirEl = nullptr);
 
 #endif

@@ -3,7 +3,7 @@
 #include "PHOTONMAP/photonmap.h"
 
 bool
-ZeroAlbedo(BSDF *bsdf, RayHit *hit, BSDFFLAGS flags) {
+ZeroAlbedo(BSDF *bsdf, RayHit *hit, BSDF_FLAGS flags) {
     COLOR col = bsdfScatteredPower(bsdf, hit, &hit->geometricNormal, flags);
     return (colorAverage(col) < EPSILON);
 }
@@ -458,12 +458,12 @@ CPhotonMap::GetDensityColor(RayHit &hit) {
 
 double
 CPhotonMap::Sample(
-    Vector3D &pos,
-    double *r,
-    double *s,
-    COORDSYS *coord,
-    BSDFFLAGS flag,
-    float n)
+        Vector3D &pos,
+        double *r,
+        double *s,
+        COORDSYS *coord,
+        BSDF_FLAGS flag,
+        float n)
 {
     COLOR col;
 

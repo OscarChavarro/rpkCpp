@@ -12,44 +12,56 @@ NO DIFFUSE OR GLOSSY TRANSMITTING SURFACES SUPPORTED YET!
 #include "PHOTONMAP/photonmap.h"
 
 class CPhotonMapSampler : public CBsdfSampler {
-protected:
+  protected:
     CPhotonMap *m_photonMap; // To be used for importance sampling
 
-    bool FresnelSample(SimpleRaytracingPathNode *prevNode, SimpleRaytracingPathNode *thisNode,
-                       SimpleRaytracingPathNode *newNode, double x_2,
-                       BSDFFLAGS flags);
+    bool
+    fresnelSample(
+        SimpleRaytracingPathNode *prevNode,
+        SimpleRaytracingPathNode *thisNode,
+        SimpleRaytracingPathNode *newNode,
+        double x2,
+        BSDF_FLAGS flags);
 
-    bool GDSample(SimpleRaytracingPathNode *prevNode, SimpleRaytracingPathNode *thisNode,
-                  SimpleRaytracingPathNode *newNode, double x_1, double x_2,
-                  bool doRR, BSDFFLAGS flags);
+    bool
+    gdSample(
+        SimpleRaytracingPathNode *prevNode,
+        SimpleRaytracingPathNode *thisNode,
+        SimpleRaytracingPathNode *newNode,
+        double x1,
+        double x2,
+        bool doRR,
+        BSDF_FLAGS flags);
 
     // Randomly choose between 2 scattering components, using
-    // scatteredpower as probabilities.
+    // scattered power as probabilities.
     // Returns true a component was chosen, false if absorbed
-    static bool ChooseComponent(BSDFFLAGS flags1, BSDFFLAGS flags2,
-                         BSDF *bsdf, RayHit *hit, bool doRR,
-                         double *x, float *pdf, bool *chose1);
+    static bool
+    chooseComponent(
+        BSDF_FLAGS flags1,
+        BSDF_FLAGS flags2,
+        BSDF *bsdf,
+        RayHit *hit,
+        bool doRR,
+        double *x,
+        float *pdf,
+        bool *chose1);
 
 public:
     CPhotonMapSampler();
 
     // Sample : newNode gets filled, others may change
-    //   Return true if the node was filled in, false if path Ends
-    //   When path ends (absorption) the type of thisNode is adjusted to 'Ends'
-
-    virtual bool Sample(SimpleRaytracingPathNode *prevNode, SimpleRaytracingPathNode *thisNode,
-                        SimpleRaytracingPathNode *newNode, double x_1, double x_2,
-                        bool doRR, BSDFFLAGS flags);
-
-    //   virtual double EvalPDF(CPathNode *thisNode, CPathNode *newNode,
-    // 			 BSDFFLAGS flags, double *pdf = nullptr,
-    // 			 double *pdfRR = nullptr);
-    //   virtual double EvalPDFPrev(CPathNode *prevNode,
-    // 			     CPathNode *thisNode,
-    // 			     CPathNode *newNode,
-    // 			     BSDFFLAGS flags,
-    // 			     double *pdf, double *pdfRR);
-
+    // Return true if the node was filled in, false if path Ends
+    // When path ends (absorption) the type of thisNode is adjusted to 'Ends'
+    virtual bool
+    sample(
+        SimpleRaytracingPathNode *prevNode,
+        SimpleRaytracingPathNode *thisNode,
+        SimpleRaytracingPathNode *newNode,
+        double x1,
+        double x2,
+        bool doRR,
+        BSDF_FLAGS flags);
 };
 
-#endif // __PHOTON_MAP_SAMPLER__
+#endif
