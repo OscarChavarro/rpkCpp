@@ -4,25 +4,36 @@
 #include <cstdio>
 
 #include "java/util/ArrayList.h"
-#include "skin/Geometry.h"
+#include "skin/Patch.h"
 
 class RadianceMethod {
   public:
     RadianceMethod();
     virtual ~RadianceMethod();
-    virtual char *getShortName() = 0;
-    virtual int getShortNameMinimumLength() = 0;
-    virtual char *getFullName() = 0;
+
     virtual void defaultValues() = 0;
+
     virtual void parseOptions(int *argc, char **argv) = 0;
+
     virtual void initialize(java::ArrayList<Patch *> *scenePatches) = 0;
+
+    // Does one step or iteration of the radiance computation, typically a unit
+    // of computations after which the scene is to be redrawn. Returns TRUE when
+    // done
     virtual int doStep(java::ArrayList<Patch *> *scenePatches, java::ArrayList<Patch *> *lightPatches) = 0;
+
     virtual void terminate(java::ArrayList<Patch *> *scenePatches) = 0;
+
     virtual COLOR getRadiance(Patch *patch, double u, double v, Vector3D dir) = 0;
+
     virtual Element *createPatchData(Patch *patch) = 0;
+
     virtual void destroyPatchData(Patch *patch) = 0;
+
     virtual char *getStats() = 0;
+
     virtual void renderScene(java::ArrayList<Patch *> *scenePatches) = 0;
+
     virtual void writeVRML(FILE *fp) = 0;
 };
 
@@ -47,11 +58,6 @@ class RADIANCEMETHOD {
     // Initializes the current scene for radiance computations. Called when a new
     // scene is loaded or when selecting a particular radiance algorithm
     void (*initialize)(java::ArrayList<Patch *> *scenePatches);
-
-    // Does one step or iteration of the radiance computation, typically a unit
-    // of computations after which the scene is to be redrawn. Returns TRUE when
-    // done
-    int (*doStep)(java::ArrayList<Patch *> *scenePatches, java::ArrayList<Patch *> *lightPatches);
 
     // Terminates radiance computations on the current scene
     void (*terminate)(java::ArrayList<Patch *> *scenePatches);

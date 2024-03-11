@@ -20,6 +20,8 @@
     #include "app/raytrace.h"
 #endif
 
+RadianceMethod *GLOBAL_radiance_selectedRadianceMethod = nullptr;
+
 static int globalIterations = 1; // Radiance method iterations
 static int globalSaveModulo = 10; // Every 10th iteration, surface model and image will be saved
 static int globalTimings = false;
@@ -194,7 +196,12 @@ batch(java::ArrayList<Patch *> *scenePatches, java::ArrayList<Patch *> *lightPat
                    "-----------------------------------\n\n", it);
 
             canvasPushMode();
-            done = GLOBAL_radiance_currentRadianceMethodHandle->doStep(scenePatches, lightPatches);
+            if ( GLOBAL_radiance_selectedRadianceMethod == nullptr ) {
+                fprintf(stderr, "No radiance method selected. Aborting program.\n");
+                fflush(stderr);
+                exit(1);
+            }
+            done = GLOBAL_radiance_selectedRadianceMethod->doStep(scenePatches, lightPatches);
             canvasPullMode();
 
             fflush(stdout);

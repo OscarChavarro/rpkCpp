@@ -7,9 +7,6 @@ class GalerkinRadianceMethod : public RadianceMethod {
   public:
     GalerkinRadianceMethod();
     ~GalerkinRadianceMethod();
-    char *getShortName();
-    int getShortNameMinimumLength();
-    char *getFullName();
     void defaultValues();
     void parseOptions(int *argc, char **argv);
     void initialize(java::ArrayList<Patch *> *scenePatches);

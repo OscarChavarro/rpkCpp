@@ -39,21 +39,6 @@ PhotonMapRadianceMethod::PhotonMapRadianceMethod() {
 PhotonMapRadianceMethod::~PhotonMapRadianceMethod() {
 }
 
-char *
-PhotonMapRadianceMethod::getShortName() {
-    return nullptr;
-}
-
-int
-PhotonMapRadianceMethod::getShortNameMinimumLength() {
-    return 0;
-}
-
-char *
-PhotonMapRadianceMethod::getFullName() {
-    return nullptr;
-}
-
 void
 PhotonMapRadianceMethod::defaultValues() {
 }
@@ -65,11 +50,6 @@ PhotonMapRadianceMethod::parseOptions(int *argc, char **argv) {
 void
 PhotonMapRadianceMethod::initialize(java::ArrayList<Patch *> *scenePatches) {
 
-}
-
-int
-PhotonMapRadianceMethod::doStep(java::ArrayList<Patch *> *scenePatches, java::ArrayList<Patch *> *lightPatches) {
-    return 0;
 }
 
 void
@@ -595,8 +575,8 @@ to fill in a RGB color for display of each patch and/or vertex. These
 colors are used for hardware rendering if the default hardware rendering
 method is not superceeded in this file
 */
-static int
-photonMapDoStep(java::ArrayList<Patch *> * /*scenePatches*/, java::ArrayList<Patch *> * /*lightPatches*/) {
+int
+PhotonMapRadianceMethod::doStep(java::ArrayList<Patch *> *scenePatches, java::ArrayList<Patch *> *lightPatches) {
     GLOBAL_photonMap_state.lastClock = clock();
 
     photonMapBRRealIteration();
@@ -802,7 +782,6 @@ RADIANCEMETHOD GLOBAL_photonMapMethods = {
     photonMapDefaults,
     photonMapParseOptions,
     photonMapInitPmap,
-    photonMapDoStep,
     photonMapTerminate,
     photonMapGetRadiance,
     photonMapCreatePatchData,

@@ -7,9 +7,6 @@ class RandomWalkRadianceMethod : public RadianceMethod {
   public:
     RandomWalkRadianceMethod();
     ~RandomWalkRadianceMethod();
-    char *getShortName();
-    int getShortNameMinimumLength();
-    char *getFullName();
     void defaultValues();
     void parseOptions(int *argc, char **argv);
     void initialize(java::ArrayList<Patch *> *scenePatches);

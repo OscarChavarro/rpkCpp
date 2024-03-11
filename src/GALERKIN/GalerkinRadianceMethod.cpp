@@ -71,21 +71,6 @@ GalerkinRadianceMethod::GalerkinRadianceMethod() {
 GalerkinRadianceMethod::~GalerkinRadianceMethod() {
 }
 
-char *
-GalerkinRadianceMethod::getShortName() {
-    return nullptr;
-}
-
-int
-GalerkinRadianceMethod::getShortNameMinimumLength() {
-    return 0;
-}
-
-char *
-GalerkinRadianceMethod::getFullName() {
-    return nullptr;
-}
-
 void
 GalerkinRadianceMethod::defaultValues() {
 }
@@ -97,11 +82,6 @@ GalerkinRadianceMethod::parseOptions(int *argc, char **argv) {
 void
 GalerkinRadianceMethod::initialize(java::ArrayList<Patch *> *scenePatches) {
 
-}
-
-int
-GalerkinRadianceMethod::doStep(java::ArrayList<Patch *> *scenePatches, java::ArrayList<Patch *> *lightPatches) {
-    return 0;
 }
 
 void
@@ -422,8 +402,8 @@ initGalerkin(java::ArrayList<Patch *> *scenePatches) {
     vectorSet(GLOBAL_galerkin_state.lastEye, HUGE, HUGE, HUGE);
 }
 
-static int
-doGalerkinOneStep(java::ArrayList<Patch *> *scenePatches, java::ArrayList<Patch *> * /*lightPatches*/) {
+int
+GalerkinRadianceMethod::doStep(java::ArrayList<Patch *> *scenePatches, java::ArrayList<Patch *> *lightPatches) {
     int done = false;
 
     if ( GLOBAL_galerkin_state.iteration_nr < 0 ) {
@@ -713,7 +693,6 @@ RADIANCEMETHOD GLOBAL_galerkin_radiosity = {
     galerkinDefaults,
     parseGalerkinOptions,
     initGalerkin,
-    doGalerkinOneStep,
     terminateGalerkin,
     getRadiance,
     createPatchData,

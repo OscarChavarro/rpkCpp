@@ -22,21 +22,6 @@ StochasticJacobiRadianceMethod::StochasticJacobiRadianceMethod() {
 StochasticJacobiRadianceMethod::~StochasticJacobiRadianceMethod() {
 }
 
-char *
-StochasticJacobiRadianceMethod::getShortName() {
-    return nullptr;
-}
-
-int
-StochasticJacobiRadianceMethod::getShortNameMinimumLength() {
-    return 0;
-}
-
-char *
-StochasticJacobiRadianceMethod::getFullName() {
-    return nullptr;
-}
-
 void
 StochasticJacobiRadianceMethod::defaultValues() {
 }
@@ -48,11 +33,6 @@ StochasticJacobiRadianceMethod::parseOptions(int *argc, char **argv) {
 void
 StochasticJacobiRadianceMethod::initialize(java::ArrayList<Patch *> *scenePatches) {
 
-}
-
-int
-StochasticJacobiRadianceMethod::doStep(java::ArrayList<Patch *> *scenePatches, java::ArrayList<Patch *> *lightPatches) {
-    return 0;
 }
 
 void
@@ -457,8 +437,29 @@ stochasticRelaxationRadiosityDiscardIncremental() {
     stochasticRelaxationRadiosityElementDiscardIncremental(GLOBAL_stochasticRaytracing_hierarchy.topCluster);
 }
 
-static int
-stochasticRelaxationRadiosityDoStep(java::ArrayList<Patch *> *scenePatches, java::ArrayList<Patch *> *lightPatches) {
+static void
+stochasticRelaxationRadiosityRenderPatch(Patch *patch) {
+    if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.inited ) {
+        topLevelGalerkinElement(patch)->traverseQuadTreeLeafs(stochasticRadiosityElementRender);
+    } else {
+        // Not yet initialized
+        openGlRenderPatch(patch);
+    }
+}
+
+static void
+stochasticRelaxationRadiosityRender(java::ArrayList<Patch *> *scenePatches) {
+    if ( GLOBAL_render_renderOptions.frustumCulling ) {
+        openGlRenderWorldOctree(stochasticRelaxationRadiosityRenderPatch);
+    } else {
+        for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
+            stochasticRelaxationRadiosityRenderPatch(scenePatches->get(i));
+        }
+    }
+}
+
+int
+StochasticJacobiRadianceMethod::doStep(java::ArrayList<Patch *> *scenePatches, java::ArrayList<Patch *> *lightPatches) {
     monteCarloRadiosityPreStep(scenePatches);
 
     // Do some real work now
@@ -472,14 +473,14 @@ stochasticRelaxationRadiosityDoStep(java::ArrayList<Patch *> *scenePatches, java
             if ( !GLOBAL_stochasticRaytracing_monteCarloRadiosityState.incrementalUsesImportance ) {
                 logWarning(nullptr, "Importance is only used from the second iteration on ...");
             } else if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceUpdated ) {
-                GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceUpdated = false;
+                    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceUpdated = false;
 
-                // Propagate importance changes
-                stochasticRelaxationRadiosityDoIncrementalImportanceIterations(scenePatches);
-                if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceUpdatedFromScratch ) {
-                    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceRaysPerIteration = GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceTracedRays;
+                    // Propagate importance changes
+                    stochasticRelaxationRadiosityDoIncrementalImportanceIterations(scenePatches);
+                    if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceUpdatedFromScratch ) {
+                        GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceRaysPerIteration = GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceTracedRays;
+                    }
                 }
-            }
         }
         stochasticRelaxationRadiosityDoIncrementalRadianceIterations(scenePatches);
 
@@ -514,27 +515,6 @@ stochasticRelaxationRadiosityDoStep(java::ArrayList<Patch *> *scenePatches, java
     return false; // Always continue computing (never fully converged)
 }
 
-static void
-stochasticRelaxationRadiosityRenderPatch(Patch *patch) {
-    if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.inited ) {
-        topLevelGalerkinElement(patch)->traverseQuadTreeLeafs(stochasticRadiosityElementRender);
-    } else {
-        // Not yet initialized
-        openGlRenderPatch(patch);
-    }
-}
-
-static void
-stochasticRelaxationRadiosityRender(java::ArrayList<Patch *> *scenePatches) {
-    if ( GLOBAL_render_renderOptions.frustumCulling ) {
-        openGlRenderWorldOctree(stochasticRelaxationRadiosityRenderPatch);
-    } else {
-        for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
-            stochasticRelaxationRadiosityRenderPatch(scenePatches->get(i));
-        }
-    }
-}
-
 RADIANCEMETHOD GLOBAL_stochasticRaytracing_stochasticRelaxationRadiosity = {
     "StochJacobi",
     3,
@@ -542,7 +522,6 @@ RADIANCEMETHOD GLOBAL_stochasticRaytracing_stochasticRelaxationRadiosity = {
     monteCarloRadiosityDefaults,
     stochasticRelaxationRadiosityParseOptions,
     stochasticRelaxationRadiosityInit,
-    stochasticRelaxationRadiosityDoStep,
     monteCarloRadiosityTerminate,
     monteCarloRadiosityGetRadiance,
     monteCarloRadiosityCreatePatchData,

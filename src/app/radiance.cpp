@@ -9,10 +9,13 @@ Stuff common to all radiance methods
 #include "common/options.h"
 #include "common/RenderOptions.h"
 #include "GALERKIN/GalerkinRadianceMethod.h"
+#include "app/batch.h"
 
 #ifdef RAYTRACING_ENABLED
     #include "PHOTONMAP/PhotonMapRadianceMethod.h"
     #include "raycasting/stochasticRaytracing/mcrad.h"
+    #include "raycasting/stochasticRaytracing/StochasticJacobiRadianceMethod.h"
+    #include "raycasting/stochasticRaytracing/RandomWalkRadianceMethod.h"
 #endif
 
 // Default radiance method: a short name of a radiance method or "none"
@@ -114,11 +117,47 @@ radianceDefaults(java::ArrayList<Patch *> *scenePatches) {
     for ( RADIANCEMETHOD **methodPointer = GLOBAL_radiance_radianceMethods; *methodPointer != nullptr; methodPointer++) {
         RADIANCEMETHOD *method = *methodPointer;
         method->defaultValues();
+        GLOBAL_radiance_selectedRadianceMethod = new GalerkinRadianceMethod();
         if ( strncasecmp(DEFAULT_RADIANCE_METHOD, method->shortName, method->shortNameMinimumLength) == 0 ) {
             setRadianceMethod(method, scenePatches);
         }
     }
     makeRadianceMethodsString();
+}
+
+static void
+selectRadianceMethod(int *argc, char **argv) {
+    bool getNext = false;
+    char *name = nullptr;
+    for ( int i = 0; i < *argc; i++ ) {
+        if ( strcmp(argv[i], "-radiance-method") == 0 ) {
+            getNext = true;
+            continue;
+        } else if ( getNext ) {
+            name = argv[i];
+            break;
+        }
+    }
+
+    if ( name != nullptr ) {
+        if ( GLOBAL_radiance_selectedRadianceMethod != nullptr ) {
+            delete GLOBAL_radiance_selectedRadianceMethod;
+            GLOBAL_radiance_selectedRadianceMethod = nullptr;
+        }
+
+        if ( strncasecmp(name, "Galerkin", 4) == 0 ) {
+            GLOBAL_radiance_selectedRadianceMethod = new GalerkinRadianceMethod();
+        }
+#ifdef RAYTRACING_ENABLED
+        else if ( strncasecmp(name, "PMAP", 4) == 0 ) {
+            GLOBAL_radiance_selectedRadianceMethod = new PhotonMapRadianceMethod();
+        } else if ( strncasecmp(name, "StochJacobi", 4) == 0 ) {
+            GLOBAL_radiance_selectedRadianceMethod = new StochasticJacobiRadianceMethod();
+        } else if ( strncasecmp(name, "RandomWalk", 4) == 0 ) {
+            GLOBAL_radiance_selectedRadianceMethod = new RandomWalkRadianceMethod();
+        }
+    }
+#endif
 }
 
 /**
@@ -127,6 +166,7 @@ computation
 */
 void
 parseRadianceOptions(int *argc, char **argv) {
+    selectRadianceMethod(argc, argv);
     parseOptions(globalRadianceOptions, argc, argv);
     for ( RADIANCEMETHOD **methodPointer = GLOBAL_radiance_radianceMethods; *methodPointer != nullptr; methodPointer++) {
         RADIANCEMETHOD *method = *methodPointer;

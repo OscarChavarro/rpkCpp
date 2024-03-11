@@ -14,21 +14,6 @@ RandomWalkRadianceMethod::RandomWalkRadianceMethod() {
 RandomWalkRadianceMethod::~RandomWalkRadianceMethod() {
 }
 
-char *
-RandomWalkRadianceMethod::getShortName() {
-    return nullptr;
-}
-
-int
-RandomWalkRadianceMethod::getShortNameMinimumLength() {
-    return 0;
-}
-
-char *
-RandomWalkRadianceMethod::getFullName() {
-    return nullptr;
-}
-
 void
 RandomWalkRadianceMethod::defaultValues() {
 }
@@ -40,11 +25,6 @@ RandomWalkRadianceMethod::parseOptions(int *argc, char **argv) {
 void
 RandomWalkRadianceMethod::initialize(java::ArrayList<Patch *> *scenePatches) {
 
-}
-
-int
-RandomWalkRadianceMethod::doStep(java::ArrayList<Patch *> *scenePatches, java::ArrayList<Patch *> *lightPatches) {
-    return 0;
 }
 
 void
@@ -449,8 +429,13 @@ randomWalkRadiosityDoFirstShot(java::ArrayList<Patch *> *scenePatches) {
     randomWalkRadiosityPrintStats();
 }
 
-static int
-randomWalkRadiosityDoStep(java::ArrayList<Patch *> *scenePatches, java::ArrayList<Patch *> * /*lightPatches*/) {
+static void
+randomWalkRadiosityTerminate(java::ArrayList<Patch *> *scenePatches) {
+    monteCarloRadiosityTerminate(scenePatches);
+}
+
+int
+RandomWalkRadianceMethod::doStep(java::ArrayList<Patch *> *scenePatches, java::ArrayList<Patch *> *lightPatches) {
     monteCarloRadiosityPreStep(scenePatches);
 
     if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.currentIteration == 1 ) {
@@ -476,11 +461,6 @@ randomWalkRadiosityDoStep(java::ArrayList<Patch *> *scenePatches, java::ArrayLis
     }
 
     return false; // Never converged
-}
-
-static void
-randomWalkRadiosityTerminate(java::ArrayList<Patch *> *scenePatches) {
-    monteCarloRadiosityTerminate(scenePatches);
 }
 
 #define STRING_SIZE 2000
@@ -512,7 +492,6 @@ RADIANCEMETHOD GLOBAL_stochasticRaytracing_randomWalkRadiosity = {
     monteCarloRadiosityDefaults,
     randomWalkRadiosityParseOptions,
     randomWalkRadiosityInit,
-    randomWalkRadiosityDoStep,
     randomWalkRadiosityTerminate,
     monteCarloRadiosityGetRadiance,
     monteCarloRadiosityCreatePatchData,

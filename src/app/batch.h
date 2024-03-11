@@ -6,5 +6,6 @@
 
 extern void parseBatchOptions(int *argc, char **argv);
 extern void batch(java::ArrayList<Patch *> *scenePatches, java::ArrayList<Patch *> *lightPatches);
+extern RadianceMethod *GLOBAL_radiance_selectedRadianceMethod;
 
 #endif
