@@ -84,10 +84,6 @@ GalerkinRadianceMethod::initialize(java::ArrayList<Patch *> *scenePatches) {
 
 }
 
-void
-GalerkinRadianceMethod::terminate(java::ArrayList<Patch *> *scenePatches) {
-}
-
 COLOR
 GalerkinRadianceMethod::getRadiance(Patch *patch, double u, double v, Vector3D dir) {
     return COLOR{};
@@ -436,10 +432,13 @@ GalerkinRadianceMethod::doStep(java::ArrayList<Patch *> *scenePatches, java::Arr
     return done;
 }
 
-static void
-terminateGalerkin(java::ArrayList<Patch *> * /*scenePatches*/) {
+void
+GalerkinRadianceMethod::terminate(java::ArrayList<Patch *> *scenePatches) {
     scratchTerminate();
-    galerkinDestroyClusterHierarchy(GLOBAL_galerkin_state.topCluster);
+    if ( GLOBAL_galerkin_state.topCluster != nullptr ) {
+        galerkinDestroyClusterHierarchy(GLOBAL_galerkin_state.topCluster);
+        GLOBAL_galerkin_state.topCluster = nullptr;
+    }
 }
 
 static COLOR
@@ -693,7 +692,6 @@ RADIANCEMETHOD GLOBAL_galerkin_radiosity = {
     galerkinDefaults,
     parseGalerkinOptions,
     initGalerkin,
-    terminateGalerkin,
     getRadiance,
     createPatchData,
     destroyPatchData,

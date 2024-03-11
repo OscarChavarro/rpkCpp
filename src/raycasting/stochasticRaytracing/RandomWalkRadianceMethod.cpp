@@ -27,10 +27,6 @@ RandomWalkRadianceMethod::initialize(java::ArrayList<Patch *> *scenePatches) {
 
 }
 
-void
-RandomWalkRadianceMethod::terminate(java::ArrayList<Patch *> *scenePatches) {
-}
-
 COLOR
 RandomWalkRadianceMethod::getRadiance(Patch *patch, double u, double v, Vector3D dir) {
     return COLOR{};
@@ -429,8 +425,8 @@ randomWalkRadiosityDoFirstShot(java::ArrayList<Patch *> *scenePatches) {
     randomWalkRadiosityPrintStats();
 }
 
-static void
-randomWalkRadiosityTerminate(java::ArrayList<Patch *> *scenePatches) {
+void
+RandomWalkRadianceMethod::terminate(java::ArrayList<Patch *> *scenePatches) {
     monteCarloRadiosityTerminate(scenePatches);
 }
 
@@ -492,7 +488,6 @@ RADIANCEMETHOD GLOBAL_stochasticRaytracing_randomWalkRadiosity = {
     monteCarloRadiosityDefaults,
     randomWalkRadiosityParseOptions,
     randomWalkRadiosityInit,
-    randomWalkRadiosityTerminate,
     monteCarloRadiosityGetRadiance,
     monteCarloRadiosityCreatePatchData,
     monteCarloRadiosityDestroyPatchData,

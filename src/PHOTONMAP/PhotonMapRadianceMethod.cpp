@@ -52,10 +52,6 @@ PhotonMapRadianceMethod::initialize(java::ArrayList<Patch *> *scenePatches) {
 
 }
 
-void
-PhotonMapRadianceMethod::terminate(java::ArrayList<Patch *> *scenePatches) {
-}
-
 COLOR
 PhotonMapRadianceMethod::getRadiance(Patch *patch, double u, double v, Vector3D dir) {
     return COLOR{};
@@ -590,8 +586,8 @@ PhotonMapRadianceMethod::doStep(java::ArrayList<Patch *> *scenePatches, java::Ar
 /**
 Undoes the effect of mainInit() and all side-effects of Step()
 */
-static void
-photonMapTerminate(java::ArrayList<Patch *> * /*scenePatches*/) {
+void
+PhotonMapRadianceMethod::terminate(java::ArrayList<Patch *> *scenePatches) {
     if ( GLOBAL_photonMap_config.screen ) {
         delete GLOBAL_photonMap_config.screen;
         GLOBAL_photonMap_config.screen = nullptr;
@@ -782,7 +778,6 @@ RADIANCEMETHOD GLOBAL_photonMapMethods = {
     photonMapDefaults,
     photonMapParseOptions,
     photonMapInitPmap,
-    photonMapTerminate,
     photonMapGetRadiance,
     photonMapCreatePatchData,
     photonMapDestroyPatchData,

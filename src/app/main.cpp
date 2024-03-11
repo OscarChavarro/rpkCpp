@@ -383,8 +383,8 @@ mainReadFile(char *filename) {
     // Dispose of the old scene
     fprintf(stderr, "Disposing of the old scene ... ");
     fflush(stderr);
-    if ( GLOBAL_radiance_currentRadianceMethodHandle ) {
-        GLOBAL_radiance_currentRadianceMethodHandle->terminate(GLOBAL_scenePatches);
+    if ( GLOBAL_radiance_selectedRadianceMethod ) {
+        GLOBAL_radiance_selectedRadianceMethod->terminate(GLOBAL_scenePatches);
     }
 
     #ifdef RAYTRACING_ENABLED

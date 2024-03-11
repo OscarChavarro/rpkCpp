@@ -30,7 +30,10 @@ Terminates scratch rendering
 */
 void
 scratchTerminate() {
-    delete GLOBAL_galerkin_state.scratch;
+    if ( GLOBAL_galerkin_state.scratch != nullptr ) {
+        delete GLOBAL_galerkin_state.scratch;
+        GLOBAL_galerkin_state.scratch = nullptr;
+    }
 }
 
 static void
