@@ -644,7 +644,7 @@ segmentsIntersect2D(Vector2D *p1, Vector2D *p2, Vector2D *p3, Vector2D *p4) {
         r3 = a * p3->u + b * p3->v + c;
         r4 = a * p4->u + b * p4->v + c;
 
-        if ( fabs(r3) < EPSILON && fabs(r4) < EPSILON ) {
+        if ( std::fabs(r3) < EPSILON && fabs(r4) < EPSILON ) {
             coLinear = true;
         } else if ((r3 > -EPSILON && r4 > -EPSILON) || (r3 < EPSILON && r4 < EPSILON)) {
             return false;
@@ -668,7 +668,7 @@ segmentsIntersect2D(Vector2D *p1, Vector2D *p2, Vector2D *p3, Vector2D *p4) {
             r1 = a * p1->u + b * p1->v + c;
             r2 = a * p2->u + b * p2->v + c;
 
-            if ( fabs(r1) < EPSILON && fabs(r2) < EPSILON ) {
+            if ( std::fabs(r1) < EPSILON && fabs(r2) < EPSILON ) {
                 coLinear = true;
             } else if ((r1 > -EPSILON && r2 > -EPSILON) || (r1 < EPSILON && r2 < EPSILON)) {
                 return false;

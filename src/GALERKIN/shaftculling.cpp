@@ -187,7 +187,7 @@ verifyPolygonWrtPlane(POLYGON *poly, Vector3D *normal, double d, int side) {
 
     for ( int i = 0; i < poly->numberOfVertices; i++ ) {
         double e = vectorDotProduct(*normal, poly->vertex[i]) + d,
-                tolerance = fabs(d) * EPSILON + vectorTolerance(poly->vertex[i]);
+                tolerance = std::fabs(d) * EPSILON + vectorTolerance(poly->vertex[i]);
         out |= e > tolerance;
         if ( out && (side == INSIDE || side == COPLANAR) ) {
             return false;
@@ -229,7 +229,7 @@ if the point is on the plane within tolerance distance d*EPSILON
 */
 int
 testPointWrtPlane(Vector3D *p, Vector3D *normal, double d) {
-    double e, tolerance = fabs(d * EPSILON) + vectorTolerance(*p);
+    double e, tolerance = std::fabs(d * EPSILON) + vectorTolerance(*p);
     e = vectorDotProduct(*normal, *p) + d;
     if ( e < -tolerance ) {
         return INSIDE;
@@ -270,7 +270,7 @@ compareShaftPlanes(ShaftPlane *p1, ShaftPlane *p2) {
     }
 
     // Compare plane constants
-    tolerance = fabs(floatMax(p1->d, p2->d) * EPSILON);
+    tolerance = std::fabs(floatMax(p1->d, p2->d) * EPSILON);
     if ( p1->d < p2->d - tolerance ) {
         return -1;
     } else if ( p1->d > p2->d + tolerance ) {
@@ -484,7 +484,7 @@ shaftBoxTest(BoundingBox *bounds, SHAFT *shaft) {
         if ( plane->n[0] * bounds->coordinates[plane->coord_offset[0]] +
              plane->n[1] * bounds->coordinates[plane->coord_offset[1]] +
              plane->n[2] * bounds->coordinates[plane->coord_offset[2]] +
-             plane->d > -fabs(plane->d * EPSILON)) {
+             plane->d > -std::fabs(plane->d * EPSILON)) {
             return OUTSIDE;
         }
     }
@@ -502,7 +502,7 @@ shaftBoxTest(BoundingBox *bounds, SHAFT *shaft) {
         if ( plane->n[0] * bounds->coordinates[(plane->coord_offset[0] + 3) % 6] +
              plane->n[1] * bounds->coordinates[(plane->coord_offset[1] + 3) % 6] +
              plane->n[2] * bounds->coordinates[(plane->coord_offset[2] + 3) % 6] +
-             plane->d > fabs(plane->d * EPSILON)) {
+             plane->d > std::fabs(plane->d * EPSILON)) {
             return OVERLAP;
         }
     }

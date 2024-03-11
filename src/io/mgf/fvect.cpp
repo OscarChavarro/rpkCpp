@@ -23,7 +23,7 @@ normalize(double *v)
 	// first order approximation
         len = 0.5 + 0.5 * len;
     } else {
-        len = sqrt(len);
+        len = std::sqrt(len);
     }
 
     v[0] /= len;

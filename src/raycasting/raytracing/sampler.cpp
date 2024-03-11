@@ -39,7 +39,7 @@ Sampler::SampleTransfer(
             newNode->m_inDirT = *dir;
             newNode->m_inDirF = -(*dir);
             newNode->m_pdfFromPrev = pdfDir;
-            newNode->m_G = fabs(vectorDotProduct(thisNode->m_hit.normal, newNode->m_inDirT));
+            newNode->m_G = std::fabs(vectorDotProduct(thisNode->m_hit.normal, newNode->m_inDirT));
             newNode->m_inBsdf = thisNode->m_outBsdf;
             newNode->m_useBsdf = nullptr;
             newNode->m_outBsdf = nullptr;
@@ -70,27 +70,27 @@ Sampler::SampleTransfer(
 
 
     // Compute geometry factor cos(a)*cos(b)/r^2
-    double cosa, cosb, dist2;
+    double cosA;
+    double cosB;
+    double dist2;
     Vector3D tmpVec;
 
-    cosa = fabs(vectorDotProduct(thisNode->m_hit.normal,
-                                 newNode->m_inDirT));
-    cosb = fabs(vectorDotProduct(newNode->m_hit.normal,
-                                 newNode->m_inDirT));
+    cosA = std::fabs(vectorDotProduct(thisNode->m_hit.normal, newNode->m_inDirT));
+    cosB = std::fabs(vectorDotProduct(newNode->m_hit.normal, newNode->m_inDirT));
     vectorSubtract(newNode->m_hit.point, thisNode->m_hit.point, tmpVec);
     dist2 = vectorNorm2(tmpVec);
 
     if ( dist2 < EPSILON ) {
-        /* Next node is useless, gives rise to
-           numeric errors (Inf) */
+        // Next node is useless, gives rise to
+        // numeric errors (Inf)
         return false;
     }
 
-    newNode->m_G = cosa * cosb / dist2; // Integrate over area !
+    newNode->m_G = cosA * cosB / dist2; // Integrate over area !
 
     // Fill in probability
 
-    newNode->m_pdfFromPrev = pdfDir * cosb / dist2;
+    newNode->m_pdfFromPrev = pdfDir * cosB / dist2;
 
     return true; // Transfer succeeded
 }
