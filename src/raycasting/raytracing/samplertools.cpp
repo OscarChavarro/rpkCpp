@@ -161,7 +161,7 @@ pathNodeConnect(
 
     vectorSubtract(nodeY->m_hit.point, nodeX->m_hit.point, dirEL);
     dist2 = vectorNorm2(dirEL);
-    dist = std::sqrt(dist2);
+    dist = sqrt(dist2);
     vectorScaleInverse((float) dist, dirEL, dirEL);
     vectorScale(-1, dirEL, dirLE);
 

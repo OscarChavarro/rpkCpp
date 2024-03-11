@@ -66,27 +66,27 @@ CLightDirSampler::sample(
 
 double
 CLightDirSampler::EvalPDF(
-    SimpleRaytracingPathNode *thisNode,
-    SimpleRaytracingPathNode *newNode,
-    BSDF_FLAGS /*flags*/,
-    double * /*pdf*/,
-    double * /*pdfRR*/)
+        SimpleRaytracingPathNode *thisNode,
+        SimpleRaytracingPathNode *newNode,
+        BSDF_FLAGS /*flags*/,
+        double * /*pdf*/,
+        double * /*pdfRR*/)
 {
     double pdfDir;
-    double cosA;
+    double cosa;
     double dist;
     double dist2;
     Vector3D outDir;
 
     if ( !thisNode->m_hit.material->edf ) {
-        // More efficient with extra params?
         logError("CLightDirSampler::evalPdf", "No EDF");
         return false;
     }
+    /* -- more efficient with extra params ?? -- */
 
     vectorSubtract(newNode->m_hit.point, thisNode->m_hit.point, outDir);
     dist2 = vectorNorm2(outDir);
-    dist = std::sqrt(dist2);
+    dist = sqrt(dist2);
     vectorScaleInverse((float)dist, outDir, outDir);
 
     // EDF sampling
@@ -97,9 +97,9 @@ CLightDirSampler::EvalPDF(
         return 0.0;
     }  // Back face of a light does not radiate !
 
-    cosA = -vectorDotProduct(outDir, newNode->m_normal);
+    cosa = -vectorDotProduct(outDir, newNode->m_normal);
 
-    return pdfDir * cosA / dist2;
+    return pdfDir * cosa / dist2;
 }
 
 

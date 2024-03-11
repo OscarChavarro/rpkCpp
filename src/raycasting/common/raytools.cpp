@@ -98,7 +98,7 @@ pathNodesVisible(SimpleRaytracingPathNode *node1, SimpleRaytracingPathNode *node
                    dir);
 
     dist2 = vectorNorm2(dir);
-    dist = std::sqrt(dist2);
+    dist = sqrt(dist2);
 
     vectorScaleInverse((float) dist, dir, dir);
 
