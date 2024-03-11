@@ -9,7 +9,7 @@ given a certain direction and the pdf for that direction
 The medium the ray is traveling through must be known and
 is given by newNode->m_inBsdf.
 The function fills in newNode: hit, normal, directions, pdf (area)
-         geometry factor and depth  (rayType is untocuhed)
+         geometry factor and depth  (rayType is un-touched)
 It returns false if no point was found when tracing a ray
 or if a shading normal anomaly occurs
 */
@@ -28,13 +28,13 @@ Sampler::SampleTransfer(
 
     // Fill in depth
     newNode->m_depth = thisNode->m_depth + 1;
-    newNode->m_rayType = Stops;
+    newNode->m_rayType = STOPS;
     hit = findRayIntersection(&ray, thisNode->m_hit.patch,
                               newNode->m_inBsdf, &newNode->m_hit);
 
     if ( !hit ) {
         if ( GLOBAL_scene_background ) {
-            // Fill in pathnode for background
+            // Fill in path node for background
             hitInit(&(newNode->m_hit), GLOBAL_scene_background->bkgPatch, nullptr, nullptr, dir, nullptr, HUGE);
             newNode->m_inDirT = *dir;
             newNode->m_inDirF = -(*dir);
@@ -43,7 +43,7 @@ Sampler::SampleTransfer(
             newNode->m_inBsdf = thisNode->m_outBsdf;
             newNode->m_useBsdf = nullptr;
             newNode->m_outBsdf = nullptr;
-            newNode->m_rayType = Environment;
+            newNode->m_rayType = ENVIRONMENT;
             newNode->m_hit.flags |= HIT_FRONT;
 
             return true;
@@ -106,15 +106,15 @@ CSurfaceSampler::DetermineRayType(
     if ( cosThisPatch < 0 ) {
         // Refraction !
         if ( thisNode->m_hit.flags & HIT_BACK ) {
-            thisNode->m_rayType = Leaves;
+            thisNode->m_rayType = LEAVES;
         } else {
-            thisNode->m_rayType = Enters;
+            thisNode->m_rayType = ENTERS;
         }
 
         newNode->m_inBsdf = thisNode->m_outBsdf;
     } else {
         // Reflection
-        thisNode->m_rayType = Reflects;
+        thisNode->m_rayType = REFLECTS;
         newNode->m_inBsdf = thisNode->m_inBsdf; // staying in same medium
     }
 }

@@ -237,7 +237,7 @@ phongEdfSample(
 
     if ( flags & DIFFUSE_COMPONENT ) {
         double spdf;
-        COORDSYS coord;
+        CoordSys coord;
 
         Vector3D normal;
         if ( !hitShadingNormal(hit, &normal)) {
@@ -325,7 +325,7 @@ phongBrdfSample(
     double avgKd;
     double avgKs;
     float tmpFloat;
-    COORDSYS coord;
+    CoordSys coord;
     XXDFFLAGS nonDiffuseFlag;
     Vector3D inRev;
     vectorScale(-1.0, *in, inRev);
@@ -586,7 +586,7 @@ phongBtdfSample(
     Vector3D newDir = {0.0, 0.0, 0.0};
     int totalIR;
     Vector3D idealDir, invNormal;
-    COORDSYS coord;
+    CoordSys coord;
     double cos_theta;
     double avgKd;
     double avgKs;

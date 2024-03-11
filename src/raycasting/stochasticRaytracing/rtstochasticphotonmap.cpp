@@ -11,7 +11,7 @@
 CSeed CSeedConfig::xOrSeed;
 
 void
-StochasticRaytracingConfiguration::init(RTStochastic_State &state, java::ArrayList<Patch *> *lightList) {
+StochasticRaytracingConfiguration::init(RayTracingStochasticState &state, java::ArrayList<Patch *> *lightList) {
     // Copy state options
 
     samplesPerPixel = state.samplesPerPixel;

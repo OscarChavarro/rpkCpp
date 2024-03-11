@@ -24,11 +24,11 @@ bool CBsdfSampler::sample(SimpleRaytracingPathNode *prevNode, SimpleRaytracingPa
         return false;
     } // No good sample
 
-    newNode->m_rracc = thisNode->m_rracc;
+    newNode->accumulatedRussianRouletteFactors = thisNode->accumulatedRussianRouletteFactors;
     if ( doRR ) {
         COLOR albedo = bsdfScatteredPower(thisNode->m_useBsdf, &thisNode->m_hit,
                                           &thisNode->m_inDirF, flags);
-        newNode->m_rracc *= colorAverage(albedo);
+        newNode->accumulatedRussianRouletteFactors *= colorAverage(albedo);
     }
 
 
@@ -38,7 +38,7 @@ bool CBsdfSampler::sample(SimpleRaytracingPathNode *prevNode, SimpleRaytracingPa
 
     // Transfer
     if ( !SampleTransfer(thisNode, newNode, &dir, pdfDir)) {
-        thisNode->m_rayType = Stops;
+        thisNode->m_rayType = STOPS;
         return false;
     }
 

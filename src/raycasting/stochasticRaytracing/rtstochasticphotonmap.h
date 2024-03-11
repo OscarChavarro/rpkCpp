@@ -137,13 +137,13 @@ public:
     int samplesPerPixel;
 
     int nextEventSamples;
-    RTSLIGHT_MODE lightMode;
+    RayTracingLightMode lightMode;
 
-    RTSRAD_MODE radMode;
+    RayTracingRadMode radMode;
 
     int scatterSamples;
     int firstDGSamples;
-    RTSSAMPLING_MODE reflectionSampling;
+    RayTracingSamplingMode reflectionSampling;
     bool separateSpecular;
 
     bool backgroundIndirect;      // use background in reflections (indirect)
@@ -172,7 +172,7 @@ public:
     StorageReadout initialReadout;
 
 public:
-    void init(RTStochastic_State &state, java::ArrayList<Patch *> *lightList);
+    void init(RayTracingStochasticState &state, java::ArrayList<Patch *> *lightList);
 
     // Constructors
     StochasticRaytracingConfiguration():
@@ -196,7 +196,7 @@ public:
         initialReadout()
     {}
 
-    StochasticRaytracingConfiguration(RTStochastic_State &state, java::ArrayList<Patch *> *lightList):
+    StochasticRaytracingConfiguration(RayTracingStochasticState &state, java::ArrayList<Patch *> *lightList):
             samplesPerPixel(),
             nextEventSamples(),
             lightMode(),

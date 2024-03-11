@@ -14,7 +14,7 @@ bool CEyeSampler::sample(SimpleRaytracingPathNode *prevNode, SimpleRaytracingPat
     // are set to 1
 
     newNode->m_depth = 0;  // We expect this to be the first node in an eye path
-    newNode->m_rayType = Stops;
+    newNode->m_rayType = STOPS;
 
     // Choose eye : N/A
     // Choose point on eye : N/A
@@ -48,7 +48,7 @@ bool CEyeSampler::sample(SimpleRaytracingPathNode *prevNode, SimpleRaytracingPat
     // Component propagation
     newNode->m_accUsedComponents = NO_COMPONENTS; // Eye had no accumulated comps.
 
-    newNode->m_rracc = 1.0; // No russian roulette
+    newNode->accumulatedRussianRouletteFactors = 1.0; // No russian roulette
 
     return true;
 }

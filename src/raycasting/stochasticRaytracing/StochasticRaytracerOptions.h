@@ -9,19 +9,19 @@ Options and global state vars for stochastic raytracing
 
 /*** Typedefs & enums ***/
 
-enum RTSSAMPLING_MODE {
+enum RayTracingSamplingMode {
     BRDF_SAMPLING,
     CLASSICAL_SAMPLING,
     PHOTON_MAP_SAMPLING
 };
 
-enum RTSLIGHT_MODE {
+enum RayTracingLightMode {
     POWER_LIGHTS,
     IMPORTANT_LIGHTS,
     ALL_LIGHTS
 };
 
-enum RTSRAD_MODE {
+enum RayTracingRadMode {
     STORED_NONE,
     STORED_DIRECT,
     STORED_INDIRECT,
@@ -30,7 +30,7 @@ enum RTSRAD_MODE {
 
 /*** The global state structure ***/
 
-class RTStochastic_State {
+class RayTracingStochasticState {
   public:
     // Pixel sampling
     int samplesPerPixel;
@@ -41,41 +41,34 @@ class RTStochastic_State {
     long int baseSeed;
 
     // Stored radiance handling
-    RTSRAD_MODE radMode;
+    RayTracingRadMode radMode;
 
-    /* Direct Light sampling */
+    // Direct Light sampling
     int nextEvent;
     int nextEventSamples;
-    RTSLIGHT_MODE lightMode;
+    RayTracingLightMode lightMode;
 
-    /* Background */
+    // Background
     int backgroundDirect;
     int backgroundIndirect;
     int backgroundSampling;
 
-    /* Scattering */
+    // Scattering
     int scatterSamples;
     int differentFirstDG;
     int firstDGSamples;
     int separateSpecular;
-    RTSSAMPLING_MODE reflectionSampling;
+    RayTracingSamplingMode reflectionSampling;
 
     int minPathDepth;
     int maxPathDepth;
 
-    ScreenBuffer *lastscreen;
+    ScreenBuffer *lastScreen;
 };
 
-
-/*** The global state ***/
-
-extern RTStochastic_State GLOBAL_raytracing_state;
-
-
-/*** Function prototypers ***/
+extern RayTracingStochasticState GLOBAL_raytracing_state;
 
 void stochasticRayTracerDefaults();
-
 void RTStochasticParseOptions(int *argc, char **argv);
 
 #endif

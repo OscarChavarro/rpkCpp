@@ -63,7 +63,7 @@ inline COLOR
 RayCaster::getRadianceAtPixel(int x, int y, Patch *patch, COLOR(*getRadiance)(Patch *patch, double u, double v, Vector3D dir)) {
     COLOR rad{};
     colorClear(rad);
-    if ( patch != nullptr && getRadiance != nullptr ) {
+    if ( getRadiance != nullptr ) {
         // Ray pointing from the eye through the center of the pixel.
         Ray ray;
         ray.pos = GLOBAL_camera_mainCamera.eyePosition;

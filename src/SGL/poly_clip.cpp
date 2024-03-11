@@ -144,9 +144,9 @@ where s is a Poly_vert* cast as a double*.
 index is an index into the array of doubles at each vertex, such that
 s[index] is sx, sy, or sz (screen space x, y, or z).
 Thus, to clip against xMin, use
-polyClipToHalfSpace(p, q, XINDEX, -1.0, -xMin);
+polyClipToHalfSpace(p, q, X_INDEX, -1.0, -xMin);
 and to clip against xMax, use
-polyClipToHalfSpace(p, q, XINDEX,  1.0,  xMax);
+polyClipToHalfSpace(p, q, X_INDEX, 1.0,  xMax);
 */
 void
 polyClipToHalfSpace(Polygon *p, Polygon *q, int index, double sign, double k) {

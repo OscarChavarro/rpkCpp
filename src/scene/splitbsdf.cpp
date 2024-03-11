@@ -63,7 +63,7 @@ Albedo is assumed to be 1
 */
 static Vector3D
 texturedScattererSample(Vector3D * /*in*/, Vector3D *normal, double x_1, double x_2, double *pdf) {
-    COORDSYS coord;
+    CoordSys coord;
     vectorCoordSys(normal, &coord);
     return sampleHemisphereCosTheta(&coord, x_1, x_2, pdf);
 }
@@ -85,8 +85,8 @@ splitBsdfScatteredPower(SPLIT_BSDF *bsdf, RayHit *hit, Vector3D * /*in*/, BSDF_F
     }
 
     if ( bsdf->brdf ) {
-        COLOR refl = brdfReflectance(bsdf->brdf, GETBRDFFLAGS(flags));
-        colorAdd(albedo, refl, albedo);
+        COLOR reflectance = brdfReflectance(bsdf->brdf, GETBRDFFLAGS(flags));
+        colorAdd(albedo, reflectance, albedo);
     }
 
     if ( bsdf->btdf ) {
@@ -161,9 +161,9 @@ splitBsdfProbabilities(
         SPLIT_BSDF *bsdf,
         RayHit *hit,
         BSDF_FLAGS flags,
-        double *Ptexture,
-        double *Preflection,
-        double *Ptransmission,
+        double *texture,
+        double *reflection,
+        double *transmission,
         XXDFFLAGS *brdfFlags,
         XXDFFLAGS *btdfFlags)
 {
@@ -171,12 +171,12 @@ splitBsdfProbabilities(
     COLOR reflectance;
     COLOR transmittance;
 
-    *Ptexture = 0.0;
+    *texture = 0.0;
     if ( bsdf->texture && (flags & TEXTURED_COMPONENT)) {
         // bsdf has a texture for diffuse reflection and diffuse reflection
         // needs to be sampled
         textureColor = splitBsdfEvalTexture(bsdf->texture, hit);
-        *Ptexture = colorAverage(textureColor);
+        *texture = colorAverage(textureColor);
         flags &= ~TEXTURED_COMPONENT;
     }
 
@@ -184,28 +184,28 @@ splitBsdfProbabilities(
     *btdfFlags = GETBTDFFLAGS(flags);
 
     reflectance = brdfReflectance(bsdf->brdf, *brdfFlags);
-    *Preflection = colorAverage(reflectance);
+    *reflection = colorAverage(reflectance);
 
     transmittance = btdfTransmittance(bsdf->btdf, *btdfFlags);
-    *Ptransmission = colorAverage(transmittance);
+    *transmission = colorAverage(transmittance);
 }
 
 static SAMPLING_MODE
-splitBsdfSamplingMode(double Ptexture, double Preflection, double Ptransmission, double *x_1) {
+splitBsdfSamplingMode(double texture, double reflection, double transmission, double *x1) {
     SAMPLING_MODE mode = SAMPLE_ABSORPTION;
-    if ( *x_1 < Ptexture ) {
+    if ( *x1 < texture ) {
         mode = SAMPLE_TEXTURE;
-        *x_1 /= Ptexture;     /* rescale into [0,1) interval again */
+        *x1 /= texture; // Rescale into [0,1) interval again
     } else {
-        *x_1 -= Ptexture;
-        if ( *x_1 < Preflection ) {
+        *x1 -= texture;
+        if ( *x1 < reflection ) {
             mode = SAMPLE_REFLECTION;
-            *x_1 /= Preflection;
+            *x1 /= reflection;
         } else {
-            *x_1 -= Preflection;
-            if ( *x_1 < Ptransmission ) {
+            *x1 -= reflection;
+            if ( *x1 < transmission ) {
                 mode = SAMPLE_TRANSMISSION;
-                *x_1 /= Ptransmission;
+                *x1 /= transmission;
             }
         }
     }
@@ -221,14 +221,14 @@ splitBsdfSample(
         Vector3D *in,
         int doRussianRoulette,
         BSDF_FLAGS flags,
-        double x_1,
-        double x_2,
+        double x1,
+        double x2,
         double *pdf)
 {
-    double Ptexture;
-    double Preflection;
-    double Ptransmission;
-    double Pscattering;
+    double texture;
+    double reflection;
+    double transmission;
+    double scattering;
     double p;
     double pRR;
     RefractionIndex inIndex{};
@@ -249,10 +249,10 @@ splitBsdfSample(
     // Calculate probabilities for sampling the texture, reflection minus texture,
     // and transmission. Also fills in correct b[r|t]dfFlags. */
     splitBsdfProbabilities(bsdf, hit, flags,
-                           &Ptexture, &Preflection, &Ptransmission,
+                           &texture, &reflection, &transmission,
                            &brdfFlags, &btdfFlags);
-    Pscattering = Ptexture + Preflection + Ptransmission;
-    if ( Pscattering < EPSILON ) {
+    scattering = texture + reflection + transmission;
+    if ( scattering < EPSILON ) {
         return out;
     }
 
@@ -260,11 +260,11 @@ splitBsdfSample(
     // modes not in the texture, transmission or absorption
     if ( !doRussianRoulette ) {
         // Normalize: no absorption sampling
-        Ptexture /= Pscattering;
-        Preflection /= Pscattering;
-        Ptransmission /= Pscattering;
+        texture /= scattering;
+        reflection /= scattering;
+        transmission /= scattering;
     }
-    mode = splitBsdfSamplingMode(Ptexture, Preflection, Ptransmission, &x_1);
+    mode = splitBsdfSamplingMode(texture, reflection, transmission, &x1);
 
     bsdfIndexOfRefraction(inBsdf, &inIndex);
     bsdfIndexOfRefraction(outBsdf, &outIndex);
@@ -272,24 +272,24 @@ splitBsdfSample(
     // Sample according to the selected mode
     switch ( mode ) {
         case SAMPLE_TEXTURE:
-            out = texturedScattererSample(in, &normal, x_1, x_2, &p);
+            out = texturedScattererSample(in, &normal, x1, x2, &p);
             if ( p < EPSILON ) {
                 return out;
             } /* don't care */
-            *pdf = Ptexture * p; /* other components will be added later */
+            *pdf = texture * p; /* other components will be added later */
             break;
         case SAMPLE_REFLECTION:
-            out = brdfSample(bsdf->brdf, in, &normal, false, brdfFlags, x_1, x_2, &p);
+            out = brdfSample(bsdf->brdf, in, &normal, false, brdfFlags, x1, x2, &p);
             if ( p < EPSILON )
                 return out;
-            *pdf = Preflection * p;
+            *pdf = reflection * p;
             break;
         case SAMPLE_TRANSMISSION:
             out = btdfSample(bsdf->btdf, inIndex, outIndex, in, &normal,
-                             false, btdfFlags, x_1, x_2, &p);
+                             false, btdfFlags, x1, x2, &p);
             if ( p < EPSILON )
                 return out;
-            *pdf = Ptransmission * p;
+            *pdf = transmission * p;
             break;
         case SAMPLE_ABSORPTION:
             *pdf = 0;
@@ -302,17 +302,17 @@ splitBsdfSample(
     // selected scattering mode (e.g. internal reflection) */
     if ( mode != SAMPLE_TEXTURE ) {
         texturedScattererEvalPdf(in, &out, &normal, &p);
-        *pdf += Ptexture * p;
+        *pdf += texture * p;
     }
     if ( mode != SAMPLE_REFLECTION ) {
         brdfEvalPdf(bsdf->brdf, in, &out, &normal,
                     brdfFlags, &p, &pRR);
-        *pdf += Preflection * p;
+        *pdf += reflection * p;
     }
     if ( mode != SAMPLE_TRANSMISSION ) {
         btdfEvalPdf(bsdf->btdf, inIndex, outIndex, in, &out, &normal,
                     btdfFlags, &p, &pRR);
-        *pdf += Ptransmission * p;
+        *pdf += transmission * p;
     }
 
     return out;

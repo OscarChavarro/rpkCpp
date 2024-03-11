@@ -86,7 +86,7 @@ RayMatter::Matting() {
                 }
             }
 
-            // add matte value to screenbuffer
+            // Add matte value to screen buffer
             float value = (hits / (float)GLOBAL_rayCasting_rayMatterState.samplesPerPixel);
             if ( value > 1.0 ) {
                 value = 1.0;

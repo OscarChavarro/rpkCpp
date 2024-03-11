@@ -10,13 +10,13 @@
 // Different functions need to sync with the timer
 #define WAKE_UP_RENDER ((unsigned char)1<<1)
 
-class SCREENITERATESTATE {
+class ScreenIterateState {
   public:
     clock_t lastTime;
-    unsigned char wake_up;
+    unsigned char wakeUp;
 };
 
-static SCREENITERATESTATE iState;
+static ScreenIterateState iState;
 
 /* for counting how much CPU time was used for the computations */
 static void
@@ -29,7 +29,7 @@ screenIterateUpdateCpuSecs() {
 void
 ScreenIterateInit() {
 #ifndef NO_EVENT_TIMER
-    iState.wake_up = 0;
+    iState.wakeUp = 0;
 #endif
 
     // Initialize for statistics etc.
@@ -44,7 +44,7 @@ ScreenIterateFinish() {
 }
 
 void
-ScreenIterateSequential(SCREENITERATECALLBACK callback, void *data) {
+ScreenIterateSequential(SCREEN_ITERATE_CALLBACK callback, void *data) {
     int i, j, width, height;
     COLOR col;
     RGB *rgb;
@@ -87,98 +87,104 @@ FillRect(int x0, int y0, int x1, int y1, RGB col, RGB *rgb) {
 
 
 void
-ScreenIterateProgressive(SCREENITERATECALLBACK callback, void *data) {
+ScreenIterateProgressive(SCREEN_ITERATE_CALLBACK callback, void *data) {
     int i;
     int width;
     int height;
     COLOR col;
     RGB pixelRGB{};
     RGB *rgb;
-    int x0, y0, x1, y1, stepsize, xsteps, ysteps;
-    int xstep_done;
-    int ystep_done;
+    int x0;
+    int y0;
+    int x1;
+    int y1;
+    int stepSize;
+    int xSteps;
+    int ySteps;
+    int xStepDone;
+    int yStepDone;
     int skip;
-    int ymin;
-    int ymax;
+    int yMin;
+    int yMax;
 
     ScreenIterateInit();
 
     width = GLOBAL_camera_mainCamera.xSize;
     height = GLOBAL_camera_mainCamera.ySize;
-    rgb = new RGB[width * height]; // We need a full screen !
+    rgb = new RGB[width * height]; // We need a full screen!
 
     for ( i = 0; i < width * height; i++ ) {
         rgb[i] = GLOBAL_material_black;
     }
 
-    stepsize = 64;
+    stepSize = 64;
     skip = false;  // First iteration all squares need to be filled
-    ymin = height + 1;
-    ymax = -1;
+    yMin = height + 1;
+    yMax = -1;
 
-    while ( stepsize > 0 ) {
+    while ( stepSize > 0 ) {
         y0 = 0;
-        ysteps = 0;
-        ystep_done = false;
+        ySteps = 0;
+        yStepDone = false;
 
-        while ( !ystep_done ) {
-            y1 = y0 + stepsize;
+        while ( !yStepDone ) {
+            y1 = y0 + stepSize;
             if ( y1 >= height ) {
                 y1 = height;
-                ystep_done = true;
+                yStepDone = true;
             }
 
-            ymin = intMin(y0, ymin);
-            ymax = intMax(y1, ymax);
+            yMin = intMin(y0, yMin);
+            yMax = intMax(y1, yMax);
 
             x0 = 0;
-            xsteps = 0;
-            xstep_done = false;
+            xSteps = 0;
+            xStepDone = false;
 
-            while ( !xstep_done ) {
-                x1 = x0 + stepsize;
+            while ( !xStepDone ) {
+                x1 = x0 + stepSize;
 
                 if ( x1 >= width ) {
                     x1 = width;
-                    xstep_done = true;
+                    xStepDone = true;
                 }
 
-                if ( !skip || (ysteps & 1) || (xsteps & 1)) {
+                if ( !skip || (ySteps & 1) || (xSteps & 1)) {
                     col = callback(x0, height - y0 - 1, data);
                     radianceToRgb(col, &pixelRGB);
                     FillRect(x0, y0, x1, y1, pixelRGB, rgb);
 
                     GLOBAL_raytracer_pixelCount++;
 
-                    if ( iState.wake_up & WAKE_UP_RENDER) {
-                        iState.wake_up &= ~WAKE_UP_RENDER;
-                        if ((ymax > 0) && (ymax > ymin)) {
-                            openGlRenderPixels(0, ymin, width, ymax - ymin,
-                                               rgb + ymin * width);
+                    if ( iState.wakeUp & WAKE_UP_RENDER) {
+                        iState.wakeUp &= ~WAKE_UP_RENDER;
+                        if ((yMax > 0) && (yMax > yMin)) {
+                            openGlRenderPixels(0, yMin, width, yMax - yMin,
+                                               rgb + yMin * width);
                         }
 
-                        ymin = intMax(0, ymax - stepsize);
+                        yMin = intMax(0, yMax - stepSize);
                     }
                 }
 
                 x0 = x1;
-                xsteps++;
+                xSteps++;
             }
 
-            if ( ymax >= height ) {
-                if ((ymax > ymin)) {
-                    openGlRenderPixels(0, ymin, width, ymax - ymin,
-                                       rgb + ymin * width);
+            if ( yMax >= height ) {
+                if ((yMax > yMin)) {
+                    openGlRenderPixels(0, yMin, width, yMax - yMin,
+                                       rgb + yMin * width);
                 }
-                ymax = -1;
+                yMax = -1;
             }
 
             y0 = y1;
-            ysteps++;
+            ySteps++;
         }
 
         skip = true;
-        stepsize /= 2;
+        stepSize /= 2;
 
     }
 

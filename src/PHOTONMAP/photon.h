@@ -53,7 +53,7 @@ public:
     // Importance sampling utility functions
 
     // Find the r,s values in a [0,1[^2 square corresponding to the photon
-    void FindRS(double *r, double *s, COORDSYS *coord,
+    void FindRS(double *r, double *s, CoordSys *coord,
                 BSDF_FLAGS flag, float n);
 };
 

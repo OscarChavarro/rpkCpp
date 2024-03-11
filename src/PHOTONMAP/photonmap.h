@@ -136,7 +136,7 @@ public:
 
     // OUT: r,s are changed for importance sampling, pdf is returned
 
-    double Sample(Vector3D &pos, double *r, double *s, COORDSYS *coord,
+    double Sample(Vector3D &pos, double *r, double *s, CoordSys *coord,
                   BSDF_FLAGS flag, float n = 1);
 
     // Utility functions

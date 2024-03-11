@@ -10,7 +10,7 @@ using Arvo's technique published in SIGGRAPH '95 p 437
 Creates a coordinate system on the patch P with Z direction along the normal
 */
 void
-patchCoordSys(Patch *P, COORDSYS *coord) {
+patchCoordSys(Patch *P, CoordSys *coord) {
     coord->Z = P->normal;
     vectorSubtract(*P->vertex[1]->point, *P->vertex[0]->point, coord->X);
     vectorNormalize(coord->X);
@@ -21,7 +21,7 @@ patchCoordSys(Patch *P, COORDSYS *coord) {
 Creates a coordinate system with the given UNIT direction vector as Z-axis
 */
 void
-vectorCoordSys(Vector3D *Z, COORDSYS *coord) {
+vectorCoordSys(Vector3D *Z, CoordSys *coord) {
     float zz;
 
     coord->Z = *Z;
@@ -45,7 +45,7 @@ Given a unit vector and a coordinate system, this routine computes the spherical
 coordinates phi and theta of the vector with respect to the coordinate system
 */
 void
-vectorToSphericalCoord(Vector3D *C, COORDSYS *coordSys, double *phi, double *theta) {
+vectorToSphericalCoord(Vector3D *C, CoordSys *coordSys, double *phi, double *theta) {
     double x, y, z;
     Vector3D c;
 
@@ -80,7 +80,7 @@ vectorToSphericalCoord(Vector3D *C, COORDSYS *coordSys, double *phi, double *the
 Samples the hemisphere according to a cos_theta distribution
 */
 Vector3D
-sampleHemisphereCosTheta(COORDSYS *coord, double xi_1, double xi_2, double *pdf_value) {
+sampleHemisphereCosTheta(CoordSys *coord, double xi_1, double xi_2, double *pdf_value) {
     float phi;
     Vector3D dir;
 
@@ -106,7 +106,7 @@ sampleHemisphereCosTheta(COORDSYS *coord, double xi_1, double xi_2, double *pdf_
 Samples the hemisphere according to a cos_theta ^ n  distribution
 */
 Vector3D
-sampleHemisphereCosNTheta(COORDSYS *coord, double n, double xi_1, double xi_2, double *pdf_value) {
+sampleHemisphereCosNTheta(CoordSys *coord, double n, double xi_1, double xi_2, double *pdf_value) {
     float phi;
     Vector3D dir;
 

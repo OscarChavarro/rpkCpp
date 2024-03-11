@@ -113,7 +113,7 @@ pixelProc(x, y, point)
 int x, y;
 Poly_vert *point;
 
-All the fields of point indicated by p->mask will be valid inside pixelproc
+All the fields of point indicated by p->mask will be valid inside pixel proc
 except sx and sy.  If they were computed, they would have values
 sx=x+.5 and sy=y+.5, since sampling is done at pixel centers.
 */

@@ -55,7 +55,7 @@ CUniformLightSampler::sample(
     // Visibility is NOT determined here!
 
     newNode->m_depth = 0;
-    newNode->m_rayType = Stops;
+    newNode->m_rayType = STOPS;
 
     newNode->m_useBsdf = nullptr;
     newNode->m_inBsdf = nullptr;
@@ -112,7 +112,7 @@ CUniformLightSampler::sample(
     // Component propagation
     newNode->m_accUsedComponents = NO_COMPONENTS; // Light has no accumulated comps.
 
-    newNode->m_rracc = 1.0;
+    newNode->accumulatedRussianRouletteFactors = 1.0;
 
     return true;
 }
@@ -180,7 +180,7 @@ CImportantLightSampler::sample(
     // sampler. Otherwise, pdf's cannot be calculated
     // Visibility is NOT determined here!
     newNode->m_depth = 0;
-    newNode->m_rayType = Stops;
+    newNode->m_rayType = STOPS;
     newNode->m_useBsdf = nullptr;
     newNode->m_inBsdf = nullptr;
     newNode->m_outBsdf = nullptr;

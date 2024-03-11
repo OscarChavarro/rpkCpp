@@ -1,5 +1,5 @@
 /**
-Class definition of pathnodes. These node are building blocks of paths.
+Class definition of path nodes. These node are building blocks of paths.
 and contain necessary information for raytracing-like algorithms
 */
 
@@ -23,18 +23,22 @@ multipleImportanceSampling(double a) {
 
 // Type definitions used in CPathNode
 
-// PATHRAYTYPE indicates what the ray does further in the path
+// PathRayType indicates what the ray does further in the path
 // F.i. it can be reflected, it can enter a material, leave it
 // or the path can end with this ray.
 
-enum PATHRAYTYPE {
-    Starts, Enters, Leaves, Reflects, Stops, Environment
+enum PathRayType {
+    STARTS,
+    ENTERS,
+    LEAVES,
+    REFLECTS,
+    STOPS,
+    ENVIRONMENT
 };
 
 // -- TODO clean up, additional functions that are now duplicated
 // -- in the samplers, accessor methods, splitting in a
-// -- pathnode and spearate connections
-
+// -- path node and spear rate connections
 
 class SimpleRaytracingPathNode {
   public:
@@ -49,7 +53,7 @@ class SimpleRaytracingPathNode {
     double m_pdfFromNext;
     double m_rrPdfFromNext; // Path length in other direction not
     //  known beforehand => separate components needed.
-    double m_rracc; // Accumulated russian roulette factors
+    double accumulatedRussianRouletteFactors;
 
     COLOR m_bsdfEval;
     BsdfComp m_bsdfComp;
@@ -65,16 +69,14 @@ class SimpleRaytracingPathNode {
     BSDF *m_useBsdf; // bsdf used for scattering
     BSDF *m_inBsdf; // Medium of incoming ray
     BSDF *m_outBsdf;//Medium of a possible transmitted ray (other side of normal)
-    PATHRAYTYPE m_rayType;
+    PathRayType m_rayType;
     int m_depth; // First node in a path has depth 0
 
-protected:
+  protected:
     SimpleRaytracingPathNode *m_next;
     SimpleRaytracingPathNode *m_previous;
 
-    // friend CPath;
-    // methods
-public:
+  public:
     SimpleRaytracingPathNode();
 
     ~SimpleRaytracingPathNode();
@@ -105,13 +107,10 @@ public:
     void print(FILE *out);
 
     bool ends() const {
-        return (m_rayType == Stops) || (m_rayType == Environment);
+        return (m_rayType == STOPS) || (m_rayType == ENVIRONMENT);
     }
 
-    // Delete all nodes, including the supplied 'node'
-    static void ReleaseAll(SimpleRaytracingPathNode *node);
-
-protected:
+  protected:
     SimpleRaytracingPathNode *GetMatchingNode();
 };
 

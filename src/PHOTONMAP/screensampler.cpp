@@ -38,12 +38,12 @@ ScreenSampler::sample(
                      (distScreen2 / cosScreen));  // Spherical angle measure
 
     // Determine ray type
-    thisNode->m_rayType = Starts;
+    thisNode->m_rayType = STARTS;
     newNode->m_inBsdf = thisNode->m_outBsdf; // GLOBAL_camera_mainCamera can be placed in a medium
 
     // Transfer
     if ( !SampleTransfer(thisNode, newNode, &dir, pdfDir)) {
-        thisNode->m_rayType = Stops;
+        thisNode->m_rayType = STOPS;
         return false;
     }
 

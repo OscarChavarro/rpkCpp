@@ -14,7 +14,7 @@ Spar::~Spar() {
 }
 
 void
-Spar::init(CSparConfig *config) {
+Spar::init(SparConfig *config) {
     for ( int i = 0; i < MAX_PATH_GROUPS; i++ ) {
         m_contrib[i].init(config->baseConfig->maximumPathDepth);
         m_sparList[i].removeAll();
@@ -56,7 +56,7 @@ is returned. Normally this is a contribution for the pixel
 affected by the path
 */
 COLOR
-Spar::handlePath(CSparConfig *config, CBiPath *path) {
+Spar::handlePath(SparConfig *config, CBiPath *path) {
     COLOR result;
 
     colorClear(result);
@@ -65,25 +65,25 @@ Spar::handlePath(CSparConfig *config, CBiPath *path) {
 }
 
 void
-LeSpar::init(CSparConfig *sconfig) {
-    Spar::init(sconfig);
+LeSpar::init(SparConfig *sparConfig) {
+    Spar::init(sparConfig);
 
     // Disjoint path group for BPT
-    if ( sconfig->baseConfig->doLe ) {
-        parseAndInit(DISJOINT_GROUP, sconfig->baseConfig->leRegExp);
+    if ( sparConfig->baseConfig->doLe ) {
+        parseAndInit(DISJOINT_GROUP, sparConfig->baseConfig->leRegExp);
     }
 
-    if ( sconfig->baseConfig->doWeighted ) {
-        parseAndInit(LD_GROUP, sconfig->baseConfig->wleRegExp);
-        m_sparList[LD_GROUP].add(sconfig->ldSpar);
+    if ( sparConfig->baseConfig->doWeighted ) {
+        parseAndInit(LD_GROUP, sparConfig->baseConfig->wleRegExp);
+        m_sparList[LD_GROUP].add(sparConfig->ldSpar);
     }
 }
 
 void
-LDSpar::init(CSparConfig *sconfig) {
-    Spar::init(sconfig);
+LDSpar::init(SparConfig *sparConfig) {
+    Spar::init(sparConfig);
 
-    if ( !(sconfig->baseConfig->doLD || sconfig->baseConfig->doWeighted)) {
+    if ( !(sparConfig->baseConfig->doLD || sparConfig->baseConfig->doWeighted)) {
         return;
     }
 
@@ -92,34 +92,34 @@ LDSpar::init(CSparConfig *sconfig) {
     }
 
     // Overlap group
-    if ( sconfig->baseConfig->doLD ) {
-        parseAndInit(DISJOINT_GROUP, sconfig->baseConfig->ldRegExp);
+    if ( sparConfig->baseConfig->doLD ) {
+        parseAndInit(DISJOINT_GROUP, sparConfig->baseConfig->ldRegExp);
     }
 
-    if ( sconfig->baseConfig->doWeighted ) {
-        parseAndInit(LD_GROUP, sconfig->baseConfig->wldRegExp);
-        m_sparList[LD_GROUP].add(sconfig->leSpar);
+    if ( sparConfig->baseConfig->doWeighted ) {
+        parseAndInit(LD_GROUP, sparConfig->baseConfig->wldRegExp);
+        m_sparList[LD_GROUP].add(sparConfig->leSpar);
     }
 }
 
 void
 CSparList::handlePath(
-    CSparConfig *config,
+    SparConfig *config,
     CBiPath *path,
     COLOR *fRad,
     COLOR *fBpt)
 {
     CSparListIter iter(*this);
-    Spar **pspar;
+    Spar **spar;
     COLOR col;
 
     colorClear(*fBpt);
     colorClear(*fRad);
 
-    while ( (pspar = iter.nextOnSequence()) ) {
-        col = (*pspar)->handlePath(config, path);
+    while ( (spar = iter.nextOnSequence()) ) {
+        col = (*spar)->handlePath(config, path);
 
-        if ( *pspar == config->leSpar ) {
+        if ( *spar == config->leSpar ) {
             colorAdd(col, *fBpt, *fBpt);
         } else {
             colorAdd(col, *fRad, *fRad);

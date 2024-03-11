@@ -3,8 +3,6 @@
 #include "raycasting/common/Raytracer.h"
 #include "raycasting/common/raytools.h"
 
-bool GLOBAL_rayCasting_interruptRaytracing;
-
 #define PATH_FRONT_HIT_FLAGS (HIT_FRONT|HIT_POINT|HIT_MATERIAL)
 #define PATH_FRONT_BACK_HIT_FLAGS (PATH_FRONT_HIT_FLAGS|HIT_BACK)
 
@@ -228,7 +226,7 @@ eyeNodeVisible(
                                         0.0, &fDistance,
                                         HIT_FRONT | HIT_ANY, &hitStore);
                     Patch::dontIntersect(0);
-                    // HIT_BACK removed ! So you can see through backwalls with N.E.E
+                    // HIT_BACK removed ! So you can see through back walls with N.E.E
                     visible = (hit == nullptr);
 
                     // geomFactor

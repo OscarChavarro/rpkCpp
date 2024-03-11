@@ -1,5 +1,5 @@
 /**
-Class implementation of pathnodes. These node are building blocks of paths.
+Class implementation of path nodes. These node are building blocks of paths.
 and contain necessary information for raytracing-like algorithms
 */
 
@@ -10,9 +10,9 @@ and contain necessary information for raytracing-like algorithms
 #include "raycasting/common/pathnode.h"
 
 SimpleRaytracingPathNode::SimpleRaytracingPathNode():
-    m_G(), m_pdfFromPrev(), m_pdfFromNext(), m_rrPdfFromNext(), m_rracc(),
-    m_usedComponents(), m_accUsedComponents(), m_useBsdf(), m_inBsdf(), m_outBsdf(),
-    m_rayType(), m_depth()
+        m_G(), m_pdfFromPrev(), m_pdfFromNext(), m_rrPdfFromNext(), accumulatedRussianRouletteFactors(),
+        m_usedComponents(), m_accUsedComponents(), m_useBsdf(), m_inBsdf(), m_outBsdf(),
+        m_rayType(), m_depth()
 {
     m_next = nullptr;
     m_previous = nullptr;
@@ -22,23 +22,9 @@ SimpleRaytracingPathNode::SimpleRaytracingPathNode():
 SimpleRaytracingPathNode::~SimpleRaytracingPathNode() {
 }
 
-/**
-Delete all nodes, including the supplied 'node'
-*/
-void
-SimpleRaytracingPathNode::ReleaseAll(SimpleRaytracingPathNode *node) {
-    SimpleRaytracingPathNode *tmp;
-
-    while ( node ) {
-        tmp = node;
-        node = node->next();
-        delete tmp;
-    }
-}
-
 void
 SimpleRaytracingPathNode::print(FILE *out) {
-    fprintf(out, "Pathnode at depth %i\n", m_depth);
+    fprintf(out, "Path node at depth %i\n", m_depth);
     fprintf(out, "Pos : ");
     vector3DPrint(out, m_hit.point);
     fprintf(out, "\n");
@@ -78,26 +64,26 @@ SimpleRaytracingPathNode::print(FILE *out) {
 SimpleRaytracingPathNode *
 SimpleRaytracingPathNode::GetMatchingNode() {
     BSDF *thisBsdf;
-    int backhits;
+    int backHits;
     SimpleRaytracingPathNode *tmpNode = previous();
     SimpleRaytracingPathNode *matchedNode = nullptr;
 
     thisBsdf = m_useBsdf;
-    backhits = 1;
+    backHits = 1;
 
-    while ( tmpNode && backhits > 0 ) {
+    while ( tmpNode && backHits > 0 ) {
         switch ( tmpNode->m_rayType ) {
-            case Enters:
+            case ENTERS:
                 if ( tmpNode->m_hit.patch->surface->material->bsdf == thisBsdf ) {
-                    backhits--; // Aha an entering point in this material
+                    backHits--; // Entering point in this material
                 }
                 break;
-            case Leaves:
+            case LEAVES:
                 if ( tmpNode->m_inBsdf == thisBsdf ) {
-                    backhits++; // Leaves the same material more than one time
+                    backHits++; // Leaves the same material more than one time
                 }
                 break;
-            case Reflects:
+            case REFLECTS:
                 break;
             default:
                 logError("CPathNode::GetMatchingNode", "Wrong ray type in path");
@@ -107,7 +93,7 @@ SimpleRaytracingPathNode::GetMatchingNode() {
         tmpNode = tmpNode->previous();
     }
 
-    if ( backhits == 0 ) {
+    if ( backHits == 0 ) {
         return (matchedNode);
     } else {
         return nullptr;  // No matching node

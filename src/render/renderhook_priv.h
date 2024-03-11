@@ -1,5 +1,5 @@
-#ifndef __RENDER_HOOK_PRIV__
-#define __RENDER_HOOK_PRIV__
+#ifndef __RENDER_HOOK_PRIVATE__
+#define __RENDER_HOOK_PRIVATE__
 
 #include "render/renderhook.h"
 

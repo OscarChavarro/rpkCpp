@@ -74,7 +74,7 @@ scanline(SGL_CONTEXT *sglContext, int y, PolygonVertex *l, PolygonVertex *r, Win
 }
 
 /**
-Scan convert a polygon, calling pixel proc at each pixel with an
+Scan convert a polygon, calling pixelProc at each pixel with an
 interpolated Poly_vert structure.  Polygon can be clockwise or ccw.
 Polygon is clipped in 2-D to win, the screen space window.
 
@@ -83,13 +83,13 @@ These two must always be interpolated, and only they have special meaning
 to this code; any other fields are blindly interpolated regardless of
 their semantics.
 
-The pixelproc subroutine takes the arguments:
+The pixelProc subroutine takes the arguments:
 
-pixelproc(x, y, point)
+pixelProc(x, y, point)
 int x, y;
 Poly_vert *point;
 
-All the fields of point indicated by p->mask will be valid inside pixelproc
+All the fields of point indicated by p->mask will be valid inside pixelProc
 except sx and sy.  If they were computed, they would have values
 sx=x+.5 and sy=y+.5, since sampling is done at pixel centers
 

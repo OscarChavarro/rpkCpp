@@ -10,11 +10,11 @@ Several functions are provided for different iterating schemes
 
 #include "common/color.h"
 
-typedef COLOR(*SCREENITERATECALLBACK)(int, int, void *);
+typedef COLOR(*SCREEN_ITERATE_CALLBACK)(int, int, void *);
 
-void ScreenIterateSequential(SCREENITERATECALLBACK callback, void *data);
+void ScreenIterateSequential(SCREEN_ITERATE_CALLBACK callback, void *data);
 
-void ScreenIterateProgressive(SCREENITERATECALLBACK callback,
+void ScreenIterateProgressive(SCREEN_ITERATE_CALLBACK callback,
                               void *data);
 
 #endif

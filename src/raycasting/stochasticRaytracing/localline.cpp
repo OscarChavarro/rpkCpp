@@ -15,7 +15,7 @@ by the 4-dimensional sample vector xi
 Ray
 mcrGenerateLocalLine(Patch *patch, double *xi) {
     static Patch *previousPatch = nullptr;
-    static COORDSYS coordSys;
+    static CoordSys coordSys;
     Ray ray;
     double pdf;
 

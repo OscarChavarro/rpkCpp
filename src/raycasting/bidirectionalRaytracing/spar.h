@@ -20,7 +20,7 @@ Specification of the Stored Partial Radiance class
 class Spar;
 
 // Spar Config stores handy config params
-class CSparConfig {
+class SparConfig {
 public:
     BP_BASECONFIG *baseConfig;
 
@@ -31,7 +31,7 @@ public:
 
 class CSparList : public CTSList<Spar *> {
 public:
-    virtual void handlePath(CSparConfig *config,
+    virtual void handlePath(SparConfig *config,
                             CBiPath *path, COLOR *fRad, COLOR *fBpt);
     virtual ~CSparList() {
     };
@@ -48,9 +48,9 @@ class Spar {
     Spar();
     virtual ~Spar();
 
-    virtual void init(CSparConfig *config);
+    virtual void init(SparConfig *config);
     virtual void parseAndInit(int group, char *regExp);
-    virtual COLOR handlePath(CSparConfig *config, CBiPath *path);
+    virtual COLOR handlePath(SparConfig *config, CBiPath *path);
 };
 
 /**
@@ -59,7 +59,7 @@ all bidirectional paths
 */
 class LeSpar : public Spar {
 public:
-    virtual void init(CSparConfig *config);
+    virtual void init(SparConfig *sparConfig);
 };
 
 /**
@@ -68,7 +68,7 @@ of eye paths. GetDirectRadiance is used as a readout function
 */
 class LDSpar : public Spar {
 public:
-    virtual void init(CSparConfig *config);
+    virtual void init(SparConfig *sparConfig);
 };
 
 #endif

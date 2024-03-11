@@ -16,32 +16,34 @@ Saves "illuminated" model in the VRML'97 file
 
 // Keeps all arrays smaller than 30k els
 #define FACES_PER_SET 1000
-static int vid;
-static int nwrit;
-static int nrcoords, nrcolors, nrcoordindices, pass;
-static FILE *vrmlfp;
+static int globalVid;
+static int global_numberOfWrites;
+static int globalNumberOfCoords;
+static int globalNumberOfColors;
+static int globalNumberOfCoordinateIndices;
+static int globalPass;
+static int globalLeafElementCount;
+static FILE *globalVrmlFp;
 
-/* iterator adapted in order to handle only a subset of the elements
- * at a time, taking into account 'pass' and FACES_PER_SET */
-static void (*elemfunc)(StochasticRadiosityElement *);
-
-static int leaf_element_count;
+// Iterator adapted in order to handle only a subset of the elements
+// at a time, taking into account 'pass' and FACES_PER_SET
+static void (*elemFunction)(StochasticRadiosityElement *);
 
 static void
 countAndCall(Element *element) {
     StochasticRadiosityElement *stochasticRadiosityElement = (StochasticRadiosityElement *)element;
-    if ( leaf_element_count >= pass * FACES_PER_SET &&
-         leaf_element_count < (pass + 1) * FACES_PER_SET ) {
-        elemfunc(stochasticRadiosityElement);
+    if ( globalLeafElementCount >= globalPass * FACES_PER_SET &&
+         globalLeafElementCount < (globalPass + 1) * FACES_PER_SET ) {
+        elemFunction(stochasticRadiosityElement);
     }
-    leaf_element_count++;
+    globalLeafElementCount++;
 }
 
 static void
 geometryIterateLeafElements(Geometry *geom, void (*func)(StochasticRadiosityElement *)) {
     java::ArrayList<Patch *> *patchList = geomPatchArrayListReference(geom);
-    elemfunc = func;
-    leaf_element_count = 0;
+    elemFunction = func;
+    globalLeafElementCount = 0;
     for ( int i = 0; patchList != nullptr && i < patchList->size(); i++ ) {
         if ( topLevelGalerkinElement(patchList->get(i)) != nullptr ) {
             topLevelGalerkinElement(patchList->get(i))->traverseClusterLeafElements(countAndCall);
@@ -81,16 +83,16 @@ static void
 writeVertexCoord(Vertex *v) {
     if ( v->tmp == -1 ) {
         /* not yet written */
-        if ( nwrit > 0 ) {
-            fprintf(vrmlfp, ", ");
+        if ( global_numberOfWrites > 0 ) {
+            fprintf(globalVrmlFp, ", ");
         }
-        nwrit++;
-        if ( nwrit % 4 == 0 ) {
-            fprintf(vrmlfp, "\n\t  ");
+        global_numberOfWrites++;
+        if ( global_numberOfWrites % 4 == 0 ) {
+            fprintf(globalVrmlFp, "\n\t  ");
         }
-        fprintf(vrmlfp, "%g %g %g", v->point->x, v->point->y, v->point->z);
-        v->tmp = vid;
-        vid++;
+        fprintf(globalVrmlFp, "%g %g %g", v->point->x, v->point->y, v->point->z);
+        v->tmp = globalVid;
+        globalVid++;
     }
 }
 
@@ -118,29 +120,29 @@ static void
 writePrimitiveCoords(Geometry *geom) {
     geometryIterateLeafElements(geom, resetVertexIds);
 
-    vid = nwrit = 0;
-    fprintf(vrmlfp, "\tcoord Coordinate {\n\t  point [ ");
+    globalVid = global_numberOfWrites = 0;
+    fprintf(globalVrmlFp, "\tcoord Coordinate {\n\t  point [ ");
     geometryIterateLeafElements(geom, writeVertexCoords);
-    fprintf(vrmlfp, " ] ");
-    fprintf(vrmlfp, "\n\t}\n");
+    fprintf(globalVrmlFp, " ] ");
+    fprintf(globalVrmlFp, "\n\t}\n");
 
-    nrcoords = nwrit;
+    globalNumberOfCoords = global_numberOfWrites;
 }
 
 static void
 writeVertexColor(Vertex *v) {
     if ( v->tmp == -1 ) {
         /* not yet written */
-        if ( nwrit > 0 ) {
-            fprintf(vrmlfp, ", ");
+        if ( global_numberOfWrites > 0 ) {
+            fprintf(globalVrmlFp, ", ");
         }
-        nwrit++;
-        if ( nwrit % 4 == 0 ) {
-            fprintf(vrmlfp, "\n\t  ");
+        global_numberOfWrites++;
+        if ( global_numberOfWrites % 4 == 0 ) {
+            fprintf(globalVrmlFp, "\n\t  ");
         }
-        fprintf(vrmlfp, "%.3g %.3g %.3g", v->color.r, v->color.g, v->color.b);
-        v->tmp = vid;
-        vid++;
+        fprintf(globalVrmlFp, "%.3g %.3g %.3g", v->color.r, v->color.g, v->color.b);
+        v->tmp = globalVid;
+        globalVid++;
     }
 }
 
@@ -168,22 +170,22 @@ static void
 writePrimitiveColors(Geometry *geom) {
     geometryIterateLeafElements(geom, resetVertexIds);
 
-    vid = nwrit = 0;
-    fprintf(vrmlfp, "\tcolor Color {\n\t  color [ ");
+    globalVid = global_numberOfWrites = 0;
+    fprintf(globalVrmlFp, "\tcolor Color {\n\t  color [ ");
     geometryIterateLeafElements(geom, elementWriteVertexColors);
-    fprintf(vrmlfp, " ] ");
-    fprintf(vrmlfp, "\n\t}\n");
+    fprintf(globalVrmlFp, " ] ");
+    fprintf(globalVrmlFp, "\n\t}\n");
 
-    nrcolors = nwrit;
+    globalNumberOfColors = global_numberOfWrites;
 }
 
 static void
 writeCoordIndex(int index) {
-    nwrit++;
-    if ( nwrit % 20 == 0 ) {
-        fprintf(vrmlfp, "\n\t  ");
+    global_numberOfWrites++;
+    if ( global_numberOfWrites % 20 == 0 ) {
+        fprintf(globalVrmlFp, "\n\t  ");
     }
-    fprintf(vrmlfp, "%d ", index);
+    fprintf(globalVrmlFp, "%d ", index);
 }
 
 static void
@@ -210,34 +212,34 @@ elementWriteCoordIndices(StochasticRadiosityElement *elem) {
 
 static void
 writePrimitiveCoordIndices(Geometry *geom) {
-    nwrit = 0;
-    fprintf(vrmlfp, "\tcoordIndex [ ");
+    global_numberOfWrites = 0;
+    fprintf(globalVrmlFp, "\tcoordIndex [ ");
     geometryIterateLeafElements(geom, elementWriteCoordIndices);
-    fprintf(vrmlfp, " ]\n");
+    fprintf(globalVrmlFp, " ]\n");
 
-    nrcoordindices = nwrit;
+    globalNumberOfCoordinateIndices = global_numberOfWrites;
 }
 
 void
 mcrWriteVrmlHeader(FILE *fp) {
-    Matrix4x4 model_xf;
-    Vector3D model_rotaxis;
-    float model_rotangle;
+    Matrix4x4 modelTransform{};
+    Vector3D modelRotationAxis;
+    float modelRotationAngle;
 
     fprintf(fp, "#VRML V2.0 utf8\n\n");
 
     fprintf(fp,
-            "WorldInfo {\n  title \"%s\"\n  info [ \"Created with RenderPark (%s) using Monte Carlo radiosty\" ]\n}\n\n",
+            "WorldInfo {\n  title \"%s\"\n  info [ \"Created with RenderPark (%s) using Monte Carlo radiosity\" ]\n}\n\n",
             "Some nice model",
             RPKHOME);
 
     fprintf(fp, "NavigationInfo {\n type \"WALK\"\n headlight FALSE\n}\n\n");
 
-    model_xf = transformModelVRML(&model_rotaxis, &model_rotangle);
-    writeVRMLViewPoints(fp, model_xf);
+    modelTransform = transformModelVRML(&modelRotationAxis, &modelRotationAngle);
+    writeVRMLViewPoints(fp, modelTransform);
 
     fprintf(fp, "Transform {\n  rotation %g %g %g %g\n  children [\n",
-            model_rotaxis.x, model_rotaxis.y, model_rotaxis.z, model_rotangle);
+            modelRotationAxis.x, modelRotationAxis.y, modelRotationAxis.z, modelRotationAngle);
 }
 
 void
@@ -245,50 +247,52 @@ mcrWriteVrmlTrailer(FILE *fp) {
     fprintf(fp, "  ]\n}\n\n");
 }
 
-static unsigned char IdFirstChar[256], IdRestChar[256];
+static unsigned char idFirstChar[256], idRestChar[256];
 
 static void
 initIdTransTabs() {
     unsigned int i;
     const char *IdSpecialChars = "!$%&()*/:;<=>?@^_`|~";
     for ( i = 0; i < 256; i++ ) {
-        IdFirstChar[i] = '_';
+        idFirstChar[i] = '_';
     }
     for ( i = 'a'; i <= 'z'; i++ ) {
-        IdFirstChar[i] = i;
+        idFirstChar[i] = i;
     }
     for ( i = 'A'; i <= 'Z'; i++ ) {
-        IdFirstChar[i] = i;
+        idFirstChar[i] = i;
     }
     for ( i = 0; i < strlen(IdSpecialChars); i++ ) {
-        IdFirstChar[(int) IdSpecialChars[i]] = IdSpecialChars[i];
+        idFirstChar[(int)(unsigned char)IdSpecialChars[i]] = IdSpecialChars[i];
     }
     for ( i = 0; i < 256; i++ ) {
-        IdRestChar[i] = IdFirstChar[i];
+        idRestChar[i] = idFirstChar[i];
     }
-    IdRestChar[(int)'+'] = '+';
-    IdRestChar[(int)'-'] = '-';
+    idRestChar[(int)'+'] = '+';
+    idRestChar[(int)'-'] = '-';
     for ( i = '0'; i <= '9'; i++ ) {
-        IdRestChar[i] = i;
+        idRestChar[i] = i;
     }
 }
 
 static const char *
 makeValidVrmlId(const char *id) {
-    int idlen, i, n;
+    int idLen;
+    int i;
+    int n;
     static char buf[101];
     if ( !id || id[0] == '\0' ) {
         return "";
     }
-    idlen = strlen(id);
-    if ( idlen > 100 ) {
+    idLen = (int)strlen(id);
+    if ( idLen > 100 ) {
         logWarning("makeValidVrmlId", "id '%s' is being truncated to %d characters",
                    id, 100);
     }
-    n = idlen > 100 ? 100 : idlen;  /* minimum of both */
-    buf[0] = IdFirstChar[(int) id[0]];
+    n = idLen > 100 ? 100 : idLen;  /* minimum of both */
+    buf[0] = (char)idFirstChar[(int)(unsigned char)id[0]];
     for ( i = 1; i < n; i++ ) {
-        buf[i] = IdRestChar[(int) id[i]];
+        buf[i] = (char)idRestChar[(int)(unsigned char)id[i]];
     }
     buf[n] = '\0';
     return buf;
@@ -302,9 +306,9 @@ writeMaterial(Geometry *geom) {
     RayHit hit;
     COLOR Rd;
     COLOR Rs;
-    RGB rd;
-    RGB rs;
-    float specularity;
+    RGB rd{};
+    RGB rs{};
+    float specularLevel;
 
     if ( surf->faces != nullptr && surf->faces->size() > 0 ) {
         firstPatch = surf->faces->get(0);
@@ -318,9 +322,9 @@ writeMaterial(Geometry *geom) {
 
     if ( mat->radiance_data != nullptr) {
         // Has been written before
-        fprintf(vrmlfp, "      appearance Appearance {\n");
-        fprintf(vrmlfp, "\tmaterial USE %s\n", makeValidVrmlId((char *) mat->radiance_data));
-        fprintf(vrmlfp, "      }\n");
+        fprintf(globalVrmlFp, "      appearance Appearance {\n");
+        fprintf(globalVrmlFp, "\tmaterial USE %s\n", makeValidVrmlId((char *) mat->radiance_data));
+        fprintf(globalVrmlFp, "      }\n");
         return;
     }
 
@@ -329,42 +333,42 @@ writeMaterial(Geometry *geom) {
     convertColorToRGB(Rd, &rd);
     Rs = bsdfScatteredPower(mat->bsdf, &hit, &firstPatch->normal, BRDF_GLOSSY_COMPONENT | BRDF_SPECULAR_COMPONENT);
     convertColorToRGB(Rs, &rs);
-    specularity = 128.0;
+    specularLevel = 128.0;
 
-    fprintf(vrmlfp, "      appearance Appearance {\n");
-    fprintf(vrmlfp, "\tmaterial DEF %s Material {\n", makeValidVrmlId(mat->name));
-    fprintf(vrmlfp, "\t  ambientIntensity 0.\n");
+    fprintf(globalVrmlFp, "      appearance Appearance {\n");
+    fprintf(globalVrmlFp, "\tmaterial DEF %s Material {\n", makeValidVrmlId(mat->name));
+    fprintf(globalVrmlFp, "\t  ambientIntensity 0.\n");
     if ( mat->edf ) {
-        fprintf(vrmlfp, "\t  emissiveColor %.3g %.3g %.3g\n", rd.r, rd.g, rd.b);
+        fprintf(globalVrmlFp, "\t  emissionColor %.3g %.3g %.3g\n", rd.r, rd.g, rd.b);
     } else {
-        fprintf(vrmlfp, "\t  emissiveColor %.3g %.3g %.3g\n", 0.0, 0.0, 0.0);
+        fprintf(globalVrmlFp, "\t  emissionColor %.3g %.3g %.3g\n", 0.0, 0.0, 0.0);
     }
-    fprintf(vrmlfp, "\t  diffuseColor %.3g %.3g %.3g \n", rd.r, rd.g, rd.b);
-    fprintf(vrmlfp, "\t  specularColor %.3g %.3g %.3g \n", rs.r, rs.g, rs.b);
-    fprintf(vrmlfp, "\t  shininess %g\n", specularity / 128.0 > 1.0 ? 1.0 : specularity / 128.0);
-    fprintf(vrmlfp, "\t  transparency 0.\n");
-    fprintf(vrmlfp, "\t}\n");
-    fprintf(vrmlfp, "      }\n");
+    fprintf(globalVrmlFp, "\t  diffuseColor %.3g %.3g %.3g \n", rd.r, rd.g, rd.b);
+    fprintf(globalVrmlFp, "\t  specularColor %.3g %.3g %.3g \n", rs.r, rs.g, rs.b);
+    fprintf(globalVrmlFp, "\t  shininess %g\n", specularLevel / 128.0 > 1.0 ? 1.0 : specularLevel / 128.0);
+    fprintf(globalVrmlFp, "\t  transparency 0.\n");
+    fprintf(globalVrmlFp, "\t}\n");
+    fprintf(globalVrmlFp, "      }\n");
 
     mat->radiance_data = mat->name;
 }
 
 static void
 beginWritePrimitive(Geometry *geom) {
-    static int wgiv = false;
-    fprintf(vrmlfp, "    Shape {\n");
-    if ( geomIsSurface(geom)) {
+    static bool flag = false;
+    fprintf(globalVrmlFp, "    Shape {\n");
+    if ( geomIsSurface(geom) ) {
         writeMaterial(geom);
     }
-    fprintf(vrmlfp, "      geometry IndexedFaceSet {\n");
-    if ( geomIsSurface(geom)) {
-        fprintf(vrmlfp, "\tsolid %s\n", geomGetSurface(geom)->material->sided ? "TRUE" : "FALSE");
+    fprintf(globalVrmlFp, "      geometry IndexedFaceSet {\n");
+    if ( geomIsSurface(geom) ) {
+        fprintf(globalVrmlFp, "\tsolid %s\n", geomGetSurface(geom)->material->sided ? "TRUE" : "FALSE");
     }
-    if ( !GLOBAL_render_renderOptions.smoothShading && !wgiv ) {
+    if ( !GLOBAL_render_renderOptions.smoothShading && !flag ) {
         logWarning(nullptr, "I assume you want a smooth shaded model ...");
-        wgiv = true;
+        flag = true;
     }
-    fprintf(vrmlfp, "\tcolorPerVertex %s\n", "TRUE");
+    fprintf(globalVrmlFp, "\tcolorPerVertex %s\n", "TRUE");
 }
 
 static const char *
@@ -379,11 +383,11 @@ primitiveMatName(Geometry *geom) {
 
 static void
 endWritePrimitive(Geometry *geom) {
-    fprintf(vrmlfp, "      }\n"); /* end IndexedFaceSet */
-    fprintf(vrmlfp, "    },\n");  /* end Shape */
+    fprintf(globalVrmlFp, "      }\n"); /* end IndexedFaceSet */
+    fprintf(globalVrmlFp, "    },\n");  /* end Shape */
 
-    fprintf(stderr, "Shape material %s, pass %d, %d coords, %d colors, %d coordindices\n",
-            primitiveMatName(geom), pass, nrcoords, nrcolors, nrcoordindices);
+    fprintf(stderr, "Shape material %s, pass %d, %d coords, %d colors, %d coord indices\n",
+            primitiveMatName(geom), globalPass, globalNumberOfCoords, globalNumberOfColors, globalNumberOfCoordinateIndices);
 }
 
 static void
@@ -397,11 +401,11 @@ writePrimitivePass(Geometry *geom) {
 
 static void
 writePrimitive(Geometry *geom) {
-    pass = 0;
+    globalPass = 0;
     writePrimitivePass(geom);
-    if ( leaf_element_count > FACES_PER_SET ) {
+    if ( globalLeafElementCount > FACES_PER_SET ) {
         // Large set, additional passes needed
-        for ( pass = 1; pass <= leaf_element_count / FACES_PER_SET; pass++ ) {
+        for ( globalPass = 1; globalPass <= globalLeafElementCount / FACES_PER_SET; globalPass++ ) {
             // Write next batch of leaf elements
             writePrimitivePass(geom);
         }
@@ -414,9 +418,9 @@ iteratePrimitiveGeoms(java::ArrayList<Geometry *> *geometryList, void (*function
         Geometry *geometry = geometryList->get(i);
 
         if ( geomIsAggregate(geometry) ) {
-            java::ArrayList<Geometry *> * geometryList = geomPrimListCopy(geometry);
-            iteratePrimitiveGeoms(geometryList, functionCallback);
-            delete geometryList;
+            java::ArrayList<Geometry *> * tmpList = geomPrimListCopy(geometry);
+            iteratePrimitiveGeoms(tmpList, functionCallback);
+            delete tmpList;
         } else {
             functionCallback(geometry);
         }
@@ -436,7 +440,7 @@ mcrWriteVrml(FILE *fp) {
     resetMaterialData();
     mcrWriteVrmlHeader(fp);
 
-    vrmlfp = fp;
+    globalVrmlFp = fp;
     java::ArrayList<Geometry *> *allGeometries = GLOBAL_scene_geometries;
     iteratePrimitiveGeoms(allGeometries, writePrimitive);
     delete allGeometries;

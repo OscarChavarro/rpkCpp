@@ -36,12 +36,12 @@ CLightDirSampler::sample(
     } // Zero pdf event, no valid sample
 
     // Determine ray type
-    thisNode->m_rayType = Starts;
+    thisNode->m_rayType = STARTS;
     newNode->m_inBsdf = thisNode->m_outBsdf; // Light can be placed in a medium
 
     // Transfer
     if ( !SampleTransfer(thisNode, newNode, &dir, pdfDir)) {
-        thisNode->m_rayType = Stops;
+        thisNode->m_rayType = STOPS;
         return false;
     }
 
@@ -59,7 +59,7 @@ CLightDirSampler::sample(
     newNode->m_accUsedComponents = static_cast<BSDF_FLAGS>(thisNode->m_accUsedComponents |
                                                            thisNode->m_usedComponents);
 
-    newNode->m_rracc = thisNode->m_rracc;
+    newNode->accumulatedRussianRouletteFactors = thisNode->accumulatedRussianRouletteFactors;
 
     return true;
 }

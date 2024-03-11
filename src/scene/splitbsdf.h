@@ -1,5 +1,5 @@
-#ifndef __SPLITBSDF__
-#define __SPLITBSDF__
+#ifndef __SPLIT_BSDF__
+#define __SPLIT_BSDF__
 
 #include "material/texture.h"
 #include "material/bsdf.h"

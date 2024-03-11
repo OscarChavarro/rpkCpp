@@ -12,7 +12,7 @@
 const float PHOTON_MAP_MIN_DIST = 0.02;
 const float PHOTON_MAP_MIN_DIST2 = PHOTON_MAP_MIN_DIST * PHOTON_MAP_MIN_DIST; // squared
 
-RTStochastic_State GLOBAL_raytracing_state;
+RayTracingStochasticState GLOBAL_raytracing_state;
 
 /******* get radiance routines for stochastic raytracing *******/
 
@@ -101,8 +101,8 @@ SR_GetScatteredRadiance(
                         &newNode, x_1, x_2,
                         doRR,
                         si->flags)
-                     && ((newNode.m_rayType != Environment) || (config->backgroundIndirect)) ) {
-                    if ( newNode.m_rayType != Environment ) {
+                     && ((newNode.m_rayType != ENVIRONMENT) || (config->backgroundIndirect)) ) {
+                    if ( newNode.m_rayType != ENVIRONMENT ) {
                         newNode.assignBsdfAndNormal();
                     }
 
@@ -308,7 +308,7 @@ SR_GetRadiance(
     XXDFFLAGS edfFlags = ALL_COMPONENTS;
 
     // Handle background
-    if ( thisNode->m_rayType == Environment ) {
+    if ( thisNode->m_rayType == ENVIRONMENT ) {
         // Check for  weighting
         double weight = 1;
         double cr;
@@ -496,7 +496,7 @@ CalcPixel(int nx, int ny, StochasticRaytracingConfiguration *config) {
         stratified.sample(&x1, &x2);
 
         if ( config->samplerConfig.dirSampler->sample(nullptr, &eyeNode, &pixelNode, x1, x2)
-             && ((pixelNode.m_rayType != Environment) || (config->backgroundDirect))) {
+             && ((pixelNode.m_rayType != ENVIRONMENT) || (config->backgroundDirect))) {
             pixelNode.assignBsdfAndNormal();
 
             // Frame coherent & correlated sampling
@@ -569,17 +569,17 @@ RTStochastic_Trace(
         config.screen->writeFile(ip);
     }
 
-    if ( GLOBAL_raytracing_state.lastscreen ) {
-        delete GLOBAL_raytracing_state.lastscreen;
+    if ( GLOBAL_raytracing_state.lastScreen ) {
+        delete GLOBAL_raytracing_state.lastScreen;
     }
-    GLOBAL_raytracing_state.lastscreen = config.screen;
+    GLOBAL_raytracing_state.lastScreen = config.screen;
     config.screen = nullptr;
 }
 
 int
 RTStochastic_Redisplay() {
-    if ( GLOBAL_raytracing_state.lastscreen ) {
-        GLOBAL_raytracing_state.lastscreen->render();
+    if ( GLOBAL_raytracing_state.lastScreen ) {
+        GLOBAL_raytracing_state.lastScreen->render();
         return true;
     } else {
         return false;
@@ -588,9 +588,9 @@ RTStochastic_Redisplay() {
 
 int
 RTStochastic_SaveImage(ImageOutputHandle *ip) {
-    if ( ip && GLOBAL_raytracing_state.lastscreen ) {
-        GLOBAL_raytracing_state.lastscreen->sync();
-        GLOBAL_raytracing_state.lastscreen->writeFile(ip);
+    if ( ip && GLOBAL_raytracing_state.lastScreen ) {
+        GLOBAL_raytracing_state.lastScreen->sync();
+        GLOBAL_raytracing_state.lastScreen->writeFile(ip);
         return true;
     } else {
         return false;
@@ -608,10 +608,10 @@ RTStochastic_Init(java::ArrayList<Patch *> *lightPatches) {
 
 void
 RTStochastic_Terminate() {
-    if ( GLOBAL_raytracing_state.lastscreen ) {
-        delete GLOBAL_raytracing_state.lastscreen;
+    if ( GLOBAL_raytracing_state.lastScreen ) {
+        delete GLOBAL_raytracing_state.lastScreen;
     }
-    GLOBAL_raytracing_state.lastscreen = nullptr;
+    GLOBAL_raytracing_state.lastScreen = nullptr;
 }
 
 Raytracer

@@ -461,7 +461,7 @@ CPhotonMap::Sample(
         Vector3D &pos,
         double *r,
         double *s,
-        COORDSYS *coord,
+        CoordSys *coord,
         BSDF_FLAGS flag,
         float n)
 {

@@ -2,12 +2,14 @@
 Some bsdf component stuff.
 */
 
-#ifndef __BSDFCOMP__
-#define __BSDFCOMP__
+#ifndef __BSDF_COMP__
+#define __BSDF_COMP__
 
 class BsdfComp {
   public:
     COLOR comp[BSDF_COMPONENTS];
+
+    BsdfComp():comp() {}
 
     inline COLOR &operator[](int index) {
         return comp[index];

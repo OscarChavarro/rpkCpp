@@ -9,7 +9,7 @@ for multiple importance sampling!
 
 All pdf evaluations should be multiplied by infinity.
 
-I currently use it only in rtstochastic.cpp for classical raytracing
+I currently use it only in classical raytracing
 */
 
 #ifndef __SPECULAR_SAMPLER__
@@ -21,39 +21,46 @@ class CSpecularSampler : public CSurfaceSampler {
 public:
     // Sample : newNode gets filled, others may change
     //   Return true if the node was filled in, false if path Ends
-    //   If path ends (absorption) the type of thisNode is adjusted to 'Ends'
+    //   When path ends (absorption) the type of thisNode is adjusted to 'Ends'
 
     // *** 'flags' is used to determine the amount of energy that is
     // reflected/refracted. If there are both reflective AND refractive
-    // components, a scattermode is chosen randomly !!
+    // components, a scatter mode is chosen randomly !!
 
-    virtual bool sample(SimpleRaytracingPathNode *prevNode, SimpleRaytracingPathNode *thisNode,
-                        SimpleRaytracingPathNode *newNode, double x1, double x2,
-                        bool doRR, BSDF_FLAGS flags);
+    virtual bool
+    sample(
+        SimpleRaytracingPathNode *prevNode,
+        SimpleRaytracingPathNode *thisNode,
+        SimpleRaytracingPathNode *newNode,
+        double x1,
+        double x2,
+        bool doRR,
+        BSDF_FLAGS flags);
 
     // Use this for N.E.E. : connecting a light node with an eye node
 
     // Return value should be multiplied by infinity!
     virtual double
     EvalPDF(
-            SimpleRaytracingPathNode *thisNode,
-            SimpleRaytracingPathNode *newNode,
-            BSDF_FLAGS flags,
-            double *pdf = nullptr,
-            double *pdfRR = nullptr);
+        SimpleRaytracingPathNode *thisNode,
+        SimpleRaytracingPathNode *newNode,
+        BSDF_FLAGS flags,
+        double *pdf = nullptr,
+        double *pdfRR = nullptr);
 
     // Use this for calculating f.i. eyeEndNode->Previous pdf(Next).
     // The newNode is calculated, thisNode should be and end node connecting
-    // to another sub path end node. prevNode is that other subpath
-    // endNode.
-    // Return value should be multiplied by infinity !!
-    virtual double EvalPDFPrev(SimpleRaytracingPathNode *prevNode,
-                               SimpleRaytracingPathNode *thisNode,
-                               SimpleRaytracingPathNode *newNode,
-                               BSDF_FLAGS flags,
-                               double *pdf, double *pdfRR);
-
-
+    // to another sub path end node. prevNode is that other sub-path
+    // endNode
+    // Return value should be multiplied by infinity!
+    virtual double
+    EvalPDFPrev(
+        SimpleRaytracingPathNode *prevNode,
+        SimpleRaytracingPathNode *thisNode,
+        SimpleRaytracingPathNode *newNode,
+        BSDF_FLAGS flags,
+        double *pdf,
+        double *pdfRR);
 };
 
-#endif // __SPECULAR_SAMPLER__
+#endif

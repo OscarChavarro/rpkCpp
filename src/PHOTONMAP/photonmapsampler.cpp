@@ -325,7 +325,7 @@ CPhotonMapSampler::fresnelSample(
 
     // Transfer
     if ( !SampleTransfer(thisNode, newNode, &dir, pdfDir)) {
-        thisNode->m_rayType = Stops;
+        thisNode->m_rayType = STOPS;
         return false;
     }
 
@@ -346,7 +346,7 @@ CPhotonMapSampler::fresnelSample(
     }
 
     // Component propagation
-    if ( thisNode->m_rayType == Reflects ) {
+    if ( thisNode->m_rayType == REFLECTS ) {
         thisNode->m_usedComponents = BRDF_SPECULAR_COMPONENT;
     } else {
         thisNode->m_usedComponents = BTDF_SPECULAR_COMPONENT;
@@ -393,7 +393,7 @@ CPhotonMapSampler::gdSample(
 
     // Importance sampling using photon map x_1 & x_2 get transformed
 
-    COORDSYS coord;
+    CoordSys coord;
     float glossy_exponent;
 
     if ( dChosen ) {

@@ -1,7 +1,7 @@
 #include "PHOTONMAP/photon.h"
 #include "common/error.h"
 
-void CPhoton::FindRS(double *r, double *s, COORDSYS *coord,
+void CPhoton::FindRS(double *r, double *s, CoordSys *coord,
                      BSDF_FLAGS flag, float n) {
     double phi;
     double theta;

@@ -44,7 +44,7 @@ class BidirectionalPathTracingConfiguration {
     SimpleRaytracingPathNode *lightPath;
 
     // SPaR configuration
-    CSparConfig sparConfig;
+    SparConfig sparConfig;
     CSparList *sparList;
     bool deStoreHits;
     ScreenBuffer *ref;
@@ -308,7 +308,7 @@ computeNeFluxEstimate(
         CBiPath *path,
         float *pPdf = nullptr,
         float *pWeight = nullptr,
-        COLOR *frad = nullptr)
+        COLOR *fRad = nullptr)
 {
     SimpleRaytracingPathNode *eyePrevNode;
     SimpleRaytracingPathNode *lightPrevNode;
@@ -328,7 +328,7 @@ computeNeFluxEstimate(
     SimpleRaytracingPathNode *eyeEndNode;
     SimpleRaytracingPathNode *lightEndNode;
 
-    // Store PDF and BSDF evals that will be overwritten
+    // Store PDF and BSDF evaluations that will be overwritten
     eyeEndNode = path->m_eyeEndNode;
     lightEndNode = path->m_lightEndNode;
     eyePrevNode = eyeEndNode->previous();
@@ -373,7 +373,7 @@ computeNeFluxEstimate(
     // Evaluate radiance and pdf and weight
     if ( config->baseConfig->useSpars ) {
         // f = config->sparList->photonMapHandlePath(&config->sparConfig, path);
-        config->sparList->handlePath(&config->sparConfig, path, frad, &f);
+        config->sparList->handlePath(&config->sparConfig, path, fRad, &f);
     } else {
         f = path->EvalRadiance();
 
@@ -414,7 +414,7 @@ light size >= 1
 void
 handlePathXx(BidirectionalPathTracingConfiguration *config, CBiPath *path) {
     COLOR f;
-    COLOR frad;
+    COLOR fRad;
     double oldPdfLNE = 0.0;
     float pdf;
     float weight;
@@ -466,7 +466,7 @@ handlePathXx(BidirectionalPathTracingConfiguration *config, CBiPath *path) {
     }
 
     if ( pathNodesVisible(path->m_eyeEndNode, path->m_lightEndNode) ) {
-        f = computeNeFluxEstimate(config, path, &pdf, &weight, &frad);
+        f = computeNeFluxEstimate(config, path, &pdf, &weight, &fRad);
 
         float factor = (float)config->fluxToRadFactor / (float)config->baseConfig->samplesPerPixel;
         colorScale(factor, f, f);
@@ -474,9 +474,9 @@ handlePathXx(BidirectionalPathTracingConfiguration *config, CBiPath *path) {
                           config->xSample, config->ySample, f);
 
         if ( config->baseConfig->useSpars ) {
-            colorScale(factor, frad, frad);
+            colorScale(factor, fRad, fRad);
             addWithSpikeCheck(config, path, config->nx, config->ny,
-                              config->xSample, config->ySample, frad, true);
+                              config->xSample, config->ySample, fRad, true);
         }
     }
 
@@ -493,10 +493,10 @@ void
 handlePath1X(BidirectionalPathTracingConfiguration *config, CBiPath *path) {
     int nx;
     int ny;
-    float pix_x;
-    float pix_y;
+    float pixX;
+    float pixY;
     COLOR f;
-    COLOR frad;
+    COLOR fRad;
     double oldPdfLNE;
     float pdf;
     float weight;
@@ -511,20 +511,20 @@ handlePath1X(BidirectionalPathTracingConfiguration *config, CBiPath *path) {
 
     // First we need to determine if the lightEndNode can be seen from
     // the camera. At the same time the pixel hit is computed
-    if ( eyeNodeVisible(path->m_eyeEndNode, path->m_lightEndNode, &pix_x, &pix_y) ) {
+    if ( eyeNodeVisible(path->m_eyeEndNode, path->m_lightEndNode, &pixX, &pixY) ) {
         // Visible !
-        f = computeNeFluxEstimate(config, path, &pdf, &weight, &frad);
+        f = computeNeFluxEstimate(config, path, &pdf, &weight, &fRad);
 
-        config->screen->getPixel(pix_x, pix_y, &nx, &ny);
+        config->screen->getPixel(pixX, pixY, &nx, &ny);
 
         float factor = (computeFluxToRadFactor(nx, ny) / (float) config->baseConfig->totalSamples);
         colorScale(factor, f, f);
 
-        addWithSpikeCheck(config, path, nx, ny, pix_x, pix_y, f);
+        addWithSpikeCheck(config, path, nx, ny, pixX, pixY, f);
 
         if ( config->baseConfig->useSpars ) {
-            colorScale(factor, frad, frad);
-            addWithSpikeCheck(config, path, nx, ny, pix_x, pix_y, frad, true);
+            colorScale(factor, fRad, fRad);
+            addWithSpikeCheck(config, path, nx, ny, pixX, pixY, fRad, true);
         }
     }
 
@@ -632,8 +632,9 @@ bpCalcPixel(int nx, int ny, BidirectionalPathTracingConfiguration *config) {
     int i;
     double x_1, x_2;
     COLOR result;
-    StratifiedSampling2D strat(config->baseConfig->samplesPerPixel);
-    SimpleRaytracingPathNode *pixNode, *nextNode;
+    StratifiedSampling2D stratifiedSampling2D(config->baseConfig->samplesPerPixel);
+    SimpleRaytracingPathNode *pixNode;
+    SimpleRaytracingPathNode *nextNode;
 
     colorClear(result);
 
@@ -666,13 +667,13 @@ bpCalcPixel(int nx, int ny, BidirectionalPathTracingConfiguration *config) {
     for ( i = 0; i < config->baseConfig->samplesPerPixel; i++ ) {
         if ( config->eyeConfig.maxDepth > 1 ) {
             // Generate an eye path
-            strat.sample(&x_1, &x_2);
+            stratifiedSampling2D.sample(&x_1, &x_2);
 
-            config->eyePath->m_rayType = Starts;
+            config->eyePath->m_rayType = STARTS;
 
             Vector2D tmpVec2D = config->screen->getPixelCenter((int) (x_1), (int) (x_2));
-            config->xSample = tmpVec2D.u; // pix_x + (GLOBAL_camera_mainCamera.pixh * x_1);
-            config->ySample = tmpVec2D.v; //pix_y + (GLOBAL_camera_mainCamera.pixv * x_2);
+            config->xSample = tmpVec2D.u; // pix_x + (GLOBAL_camera_mainCamera.pixH * x_1);
+            config->ySample = tmpVec2D.v; //pix_y + (GLOBAL_camera_mainCamera.pixV * x_2);
 
             if ( config->eyeConfig.dirSampler->sample(nullptr, config->eyePath,
                                                       pixNode, x_1, x_2)) {
@@ -681,7 +682,7 @@ bpCalcPixel(int nx, int ny, BidirectionalPathTracingConfiguration *config) {
                 config->eyeConfig.tracePath(nextNode);
             }
         } else {
-            config->eyePath->m_rayType = Stops;
+            config->eyePath->m_rayType = STOPS;
         }
 
         // Generate a light path
@@ -758,7 +759,7 @@ doBptAndSubsequentImages(BidirectionalPathTracingConfiguration *config) {
     int totalSamples = 1;
 
     for ( int i = 0; i < nrIterations; i++ ) {
-        // Halve the screen contribs
+        // Halve the screen contributions
         if ( i > 0 ) {
             config->screen->scaleRadiance(0.5);
             config->screen->setAddScaleFactor(0.5);
@@ -830,29 +831,25 @@ doBptDensityEstimation(BidirectionalPathTracingConfiguration *config) {
     // Do the run
     ScreenIterateSequential((COLOR(*)(int, int, void *)) bpCalcPixel, config);
 
-    // Now we have a noisy screen in dest and hits in dbuffer
+    // Now we have a noisy screen in dest and hits in double buffer
 
     // Density estimation
 
     config->dBuffer->reconstruct(); // Estimates ref with fixed kernel width
     config->ref->render();
-    //  config->ref->WriteFile("./firstreffix.ppm.gz");
 
     if ( config->dBuffer2 ) {
         config->dBuffer2->reconstruct(); // Estimates ref with fixed kernel width
         config->ref2->render();
-        //    config->ref2->WriteFile("./firstref2fix.ppm.gz");
     }
 
     // Now reconstruct the hits using variable kernels
     config->dBuffer->reconstructVariable(config->dest, 5.0);
     config->dest->render();
-    //  config->dest->WriteFile("./firstrefvar.ppm.gz");
 
     if ( config->dBuffer2 ) {
         config->dBuffer2->reconstructVariable(config->dest2, 1.5);
         config->dest2->render();
-        //    config->dest2->WriteFile("./firstref2var.ppm.gz");
     }
 
     delete config->dBuffer; // Not needed anymore
@@ -896,14 +893,14 @@ doBptDensityEstimation(BidirectionalPathTracingConfiguration *config) {
         }
 
 
-        // Rescale dest : Nold / Nnew
+        // Rescale dest: nOld / nNew
         config->dest->scaleRadiance((float) oldTotalSPP / (float) newTotalSPP);
 
         // Set scale factor for added radiance in this run
         config->dest->setAddScaleFactor((float) newSPP / (float) newTotalSPP);
 
         if ( config->dest2 ) {
-            // Rescale dest : Nold / Nnew
+            // Rescale dest: nOld / nNew
             config->dest2->scaleRadiance((float) oldTotalSPP / (float) newTotalSPP);
 
             // Set scale factor for added radiance in this run
@@ -917,7 +914,7 @@ doBptDensityEstimation(BidirectionalPathTracingConfiguration *config) {
 
         config->scaleSamples = newTotalSPP; // Base kernel size on total #s/pix
 
-        // Iterate screen : Nnew - Nold, using an appropriate scale factor
+        // Iterate screen : nNew - nOld, using an appropriate scale factor
 
         ScreenIterateSequential((COLOR(*)(int, int, void *)) bpCalcPixel, config);
 
@@ -1021,7 +1018,7 @@ biDirPathTrace(ImageOutputHandle *ip, java::ArrayList<Patch *> * /*scenePatches*
     LDSpar *ldSpar = nullptr;
 
     if ( GLOBAL_rayTracing_biDirectionalPath.basecfg.useSpars ) {
-        CSparConfig *sc = &config.sparConfig;
+        SparConfig *sc = &config.sparConfig;
 
         sc->baseConfig = config.baseConfig; // Share base config options
 

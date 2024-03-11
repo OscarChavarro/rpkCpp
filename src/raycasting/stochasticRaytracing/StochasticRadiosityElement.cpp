@@ -578,12 +578,12 @@ stochasticRadiosityElementEdgeMidpointVertex(StochasticRadiosityElement *elem, i
 }
 
 static Vertex *
-monteCarloRadiosityNewEdgeMidpointVertex(StochasticRadiosityElement *elem, int edgenr) {
-    Vertex *v = stochasticRadiosityElementEdgeMidpointVertex(elem, edgenr);
-    if ( !v ) {
+monteCarloRadiosityNewEdgeMidpointVertex(StochasticRadiosityElement *elem, int edgeNumber) {
+    Vertex *v = stochasticRadiosityElementEdgeMidpointVertex(elem, edgeNumber);
+    if ( v == nullptr ) {
         // First time we split the edge, create the midpoint vertex
-        Vertex *from = elem->vertices[edgenr],
-                *to = elem->vertices[(edgenr + 1) % elem->numberOfVertices];
+        Vertex *from = elem->vertices[edgeNumber],
+                *to = elem->vertices[(edgeNumber + 1) % elem->numberOfVertices];
         v = monteCarloRadiosityNewMidpointVertex(elem, from, to);
     }
     return v;
@@ -645,7 +645,7 @@ monteCarloRadiosityElementComputeAverageReflectanceAndEmittance(StochasticRadios
     int isTextured;
     int nbits;
     niedindex msb1;
-    niedindex rmsb2;
+    niedindex rMostSignificantBit2;
     niedindex n;
     COLOR albedo, emittance;
     RayHit hit;
@@ -655,12 +655,12 @@ monteCarloRadiosityElementComputeAverageReflectanceAndEmittance(StochasticRadios
     numberOfSamples = isTextured ? 100 : 1;
     colorClear(albedo);
     colorClear(emittance);
-    stochasticRadiosityElementRange(elem, &nbits, &msb1, &rmsb2);
+    stochasticRadiosityElementRange(elem, &nbits, &msb1, &rMostSignificantBit2);
 
     n = 1;
     for ( i = 0; i < numberOfSamples; i++, n++ ) {
         COLOR sample;
-        niedindex *xi = NextNiedInRange(&n, +1, nbits, msb1, rmsb2);
+        niedindex *xi = NextNiedInRange(&n, +1, nbits, msb1, rMostSignificantBit2);
         hit.uv.u = (double) xi[0] * RECIP;
         hit.uv.v = (double) xi[1] * RECIP;
         hit.flags |= HIT_UV;
@@ -820,12 +820,12 @@ stochasticRadiosityElementRegularSubdivideElement(StochasticRadiosityElement *el
     }
 
     if ( element->patch->jacobian ) {
-        static int wgiv = false;
-        if ( !wgiv ) {
+        static bool flag = false;
+        if ( !flag ) {
             logWarning("galerkinElementRegularSubDivide",
                        "irregular quadrilateral patches are not correctly handled (but you probably won't notice it)");
         }
-        wgiv = true;
+        flag = true;
     }
 
     // Create the sub-elements

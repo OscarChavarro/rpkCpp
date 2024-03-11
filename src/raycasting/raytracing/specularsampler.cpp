@@ -5,13 +5,13 @@
 
 bool
 CSpecularSampler::sample(
-        SimpleRaytracingPathNode *prevNode,
-        SimpleRaytracingPathNode *thisNode,
-        SimpleRaytracingPathNode *newNode,
-        double x1,
-        double x2,
-        bool doRR,
-        BSDF_FLAGS flags)
+    SimpleRaytracingPathNode *prevNode,
+    SimpleRaytracingPathNode *thisNode,
+    SimpleRaytracingPathNode *newNode,
+    double x1,
+    double x2,
+    bool doRR,
+    BSDF_FLAGS flags)
 {
     Vector3D dir;
     double pdfDir = 1.0;
@@ -70,7 +70,7 @@ CSpecularSampler::sample(
 
     // Transfer
     if ( !SampleTransfer(thisNode, newNode, &dir, pdfDir)) {
-        thisNode->m_rayType = Stops;
+        thisNode->m_rayType = STOPS;
         return false;
     }
 
@@ -88,8 +88,8 @@ CSpecularSampler::sample(
                                        thisNode->m_inDirF);
         double pdfDirI, pdfRR;
 
-        // prevpdf : new->this->prev pdf evaluation
-        // normal direction is handled by the evalpdf routine
+        // prevPdf : new->this->prev pdf evaluation
+        // normal direction is handled by the evalPdf routine
 
         pdfRR = avgScattering;
         pdfDirI = pdfDir;
@@ -103,11 +103,11 @@ CSpecularSampler::sample(
 
 double
 CSpecularSampler::EvalPDF(
-        SimpleRaytracingPathNode *thisNode,
-        SimpleRaytracingPathNode *newNode,
-        BSDF_FLAGS flags,
-        double *pdf,
-        double *pdfRR)
+    SimpleRaytracingPathNode *thisNode,
+    SimpleRaytracingPathNode *newNode,
+    BSDF_FLAGS flags,
+    double *pdf,
+    double *pdfRR)
 {
     if ( pdf ) {
         *pdf = 0;
@@ -122,12 +122,12 @@ CSpecularSampler::EvalPDF(
 
 double
 CSpecularSampler::EvalPDFPrev(
-        SimpleRaytracingPathNode *prevNode,
-        SimpleRaytracingPathNode *thisNode,
-        SimpleRaytracingPathNode */*newNode*/,
-        BSDF_FLAGS flags,
-        double *pdf,
-        double *pdfRR)
+    SimpleRaytracingPathNode *prevNode,
+    SimpleRaytracingPathNode *thisNode,
+    SimpleRaytracingPathNode */*newNode*/,
+    BSDF_FLAGS flags,
+    double *pdf,
+    double *pdfRR)
 {
     *pdf = 0.0;
     *pdfRR = 0.0;
