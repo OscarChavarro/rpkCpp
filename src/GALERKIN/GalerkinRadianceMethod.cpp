@@ -27,41 +27,41 @@ potential-driven or not.
 GalerkinState GLOBAL_galerkin_state;
 
 GalerkinState::GalerkinState():
-        iteration_nr(),
-        hierarchical(),
-        importance_driven(),
-        clustered(),
-        iteration_method(),
-        lazy_linking(),
-        exact_visibility(),
-        multiResolutionVisibility(),
-        use_constant_radiance(),
-        use_ambient_radiance(),
-        constant_radiance(),
-        ambient_radiance(),
-        shaftCullMode(),
-        rcvDegree(),
-        srcDegree(),
-        rcv3rule(),
-        rcv4rule(),
-        src3rule(),
-        src4rule(),
-        clusterRule(),
-        topCluster(),
-        topGeometry(),
-        errorNorm(),
-        relMinElemArea(),
-        relLinkErrorThreshold (),
-        basisType(),
-        clusteringStrategy(),
-        formFactorLastRcv(),
-        formFactorLastSrc(),
-        scratch(),
-        scratchFbSize(),
-        lastClusterId(),
-        lastEye(),
-        lastClock(),
-        cpu_secs()
+    iteration_nr(),
+    hierarchical(),
+    importance_driven(),
+    clustered(),
+    iteration_method(),
+    lazy_linking(),
+    exact_visibility(),
+    multiResolutionVisibility(),
+    use_constant_radiance(),
+    use_ambient_radiance(),
+    constant_radiance(),
+    ambient_radiance(),
+    shaftCullMode(),
+    rcvDegree(),
+    srcDegree(),
+    rcv3rule(),
+    rcv4rule(),
+    src3rule(),
+    src4rule(),
+    clusterRule(),
+    topCluster(),
+    topGeometry(),
+    errorNorm(),
+    relMinElemArea(),
+    relLinkErrorThreshold (),
+    basisType(),
+    clusteringStrategy(),
+    formFactorLastRcv(),
+    formFactorLastSrc(),
+    scratch(),
+    scratchFbSize(),
+    lastClusterId(),
+    lastEye(),
+    lastClock(),
+    cpu_secs()
 {
 }
 
@@ -87,11 +87,6 @@ GalerkinRadianceMethod::initialize(java::ArrayList<Patch *> *scenePatches) {
 COLOR
 GalerkinRadianceMethod::getRadiance(Patch *patch, double u, double v, Vector3D dir) {
     return COLOR{};
-}
-
-Element *
-GalerkinRadianceMethod::createPatchData(Patch *patch) {
-    return nullptr;
 }
 
 void
@@ -298,8 +293,8 @@ updateCpuSecs() {
 /**
 Radiance data for a Patch is a surface element
 */
-static Element *
-createPatchData(Patch *patch) {
+Element *
+GalerkinRadianceMethod::createPatchData(Patch *patch) {
     return patch->radianceData = new GalerkinElement(patch);
 }
 
@@ -693,7 +688,6 @@ RADIANCEMETHOD GLOBAL_galerkin_radiosity = {
     parseGalerkinOptions,
     initGalerkin,
     getRadiance,
-    createPatchData,
     destroyPatchData,
     getGalerkinStats,
     galerkinRender,

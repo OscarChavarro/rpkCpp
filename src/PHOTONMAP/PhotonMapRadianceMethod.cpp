@@ -57,11 +57,6 @@ PhotonMapRadianceMethod::getRadiance(Patch *patch, double u, double v, Vector3D 
     return COLOR{};
 }
 
-Element *
-PhotonMapRadianceMethod::createPatchData(Patch *patch) {
-    return nullptr;
-}
-
 void
 PhotonMapRadianceMethod::destroyPatchData(Patch *patch) {
 }
@@ -100,8 +95,8 @@ photonMapRadiosityUpdateCpuSecs() {
     GLOBAL_photonMap_state.lastClock = t;
 }
 
-static Element *
-photonMapCreatePatchData(Patch *patch) {
+Element *
+PhotonMapRadianceMethod::createPatchData(Patch *patch) {
     return patch->radianceData = nullptr;
 }
 
@@ -779,7 +774,6 @@ RADIANCEMETHOD GLOBAL_photonMapMethods = {
     photonMapParseOptions,
     photonMapInitPmap,
     photonMapGetRadiance,
-    photonMapCreatePatchData,
     photonMapDestroyPatchData,
     photonMapGetStats,
     photonMapRenderScreen,

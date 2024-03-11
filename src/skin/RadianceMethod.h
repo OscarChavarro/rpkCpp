@@ -27,6 +27,7 @@ class RadianceMethod {
 
     virtual COLOR getRadiance(Patch *patch, double u, double v, Vector3D dir) = 0;
 
+    // Allocates memory for the radiance data for the given patch. Fills in the pointer in patch->radianceData
     virtual Element *createPatchData(Patch *patch) = 0;
 
     virtual void destroyPatchData(Patch *patch) = 0;
@@ -64,9 +65,6 @@ class RADIANCEMETHOD {
     // the point with given (u,v) parameters and into the given direction
     COLOR(*getRadiance)(Patch *patch, double u, double v, Vector3D dir);
 
-    // Allocates memory for the radiance data for the given patch. Fills in the pointer in patch->radianceData
-    Element *(*createPatchData)(Patch *patch);
-
     // Destroys the radiance data for the patch. Clears the patch->radianceData pointer
     void (*destroyPatchData)(Patch *patch);
 
@@ -87,8 +85,8 @@ class RADIANCEMETHOD {
 
 // Available radiance methods, terminated with a nullptr pointer
 extern RADIANCEMETHOD *GLOBAL_radiance_radianceMethods[];
-
 extern RADIANCEMETHOD *GLOBAL_radiance_currentRadianceMethodHandle;
+extern RadianceMethod *GLOBAL_radiance_selectedRadianceMethod;
 
 extern void setRadianceMethod(RADIANCEMETHOD *newMethod, java::ArrayList<Patch *> *scenePatches);
 extern void radianceDefaults(java::ArrayList<Patch *> *scenePatches);

@@ -47,7 +47,7 @@ StochasticJacobiRadianceMethod::getRadiance(Patch *patch, double u, double v, Ve
 
 Element *
 StochasticJacobiRadianceMethod::createPatchData(Patch *patch) {
-    return nullptr;
+    return monteCarloRadiosityCreatePatchData(patch);
 }
 
 void
@@ -524,7 +524,6 @@ RADIANCEMETHOD GLOBAL_stochasticRaytracing_stochasticRelaxationRadiosity = {
     stochasticRelaxationRadiosityParseOptions,
     stochasticRelaxationRadiosityInit,
     monteCarloRadiosityGetRadiance,
-    monteCarloRadiosityCreatePatchData,
     monteCarloRadiosityDestroyPatchData,
     stochasticRelaxationRadiosityGetStats,
     stochasticRelaxationRadiosityRender,

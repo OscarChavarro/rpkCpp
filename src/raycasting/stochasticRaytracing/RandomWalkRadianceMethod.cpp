@@ -34,7 +34,7 @@ RandomWalkRadianceMethod::getRadiance(Patch *patch, double u, double v, Vector3D
 
 Element *
 RandomWalkRadianceMethod::createPatchData(Patch *patch) {
-    return nullptr;
+    return monteCarloRadiosityCreatePatchData(patch);
 }
 
 void
@@ -489,7 +489,6 @@ RADIANCEMETHOD GLOBAL_stochasticRaytracing_randomWalkRadiosity = {
     randomWalkRadiosityParseOptions,
     randomWalkRadiosityInit,
     monteCarloRadiosityGetRadiance,
-    monteCarloRadiosityCreatePatchData,
     monteCarloRadiosityDestroyPatchData,
     randomWalkRadiosityGetStats,
     nullptr,

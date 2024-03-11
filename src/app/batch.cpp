@@ -20,8 +20,6 @@
     #include "app/raytrace.h"
 #endif
 
-RadianceMethod *GLOBAL_radiance_selectedRadianceMethod = nullptr;
-
 static int globalIterations = 1; // Radiance method iterations
 static int globalSaveModulo = 10; // Every 10th iteration, surface model and image will be saved
 static int globalTimings = false;

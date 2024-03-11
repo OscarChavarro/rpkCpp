@@ -610,8 +610,8 @@ Patch::Patch(int inNumberOfVertices, Vertex *v1, Vertex *v2, Vertex *v3, Vertex 
     flags = 0; // Other flags
 
     // If we are doing radiance computations, create radiance data for the patch
-    radianceData = (GLOBAL_radiance_currentRadianceMethodHandle && GLOBAL_radiance_currentRadianceMethodHandle->createPatchData) ?
-                   GLOBAL_radiance_currentRadianceMethodHandle->createPatchData(this) : nullptr;
+    radianceData = GLOBAL_radiance_selectedRadianceMethod != nullptr ?
+                   GLOBAL_radiance_selectedRadianceMethod->createPatchData(this) : nullptr;
 }
 
 /**
