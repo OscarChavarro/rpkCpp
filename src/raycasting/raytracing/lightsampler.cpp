@@ -13,7 +13,7 @@ CUniformLightSampler::CUniformLightSampler() {
 bool CUniformLightSampler::ActivateFirstUnit() {
     if ( !iterator ) {
         if ( GLOBAL_lightList ) {
-            iterator = new CLightList_Iter(*GLOBAL_lightList);
+            iterator = new LightListIterator(*GLOBAL_lightList);
         } else {
             return false;
         }

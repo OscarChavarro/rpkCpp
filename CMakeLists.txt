@@ -118,7 +118,7 @@ set(MAIN_SRC
     src/raycasting/simple/RayMatterOptions.cpp
     src/raycasting/simple/RayCaster.cpp
     src/raycasting/simple/RayMatter.cpp
-    src/raycasting/raytracing/lightlist.cpp
+        src/raycasting/bidirectionalRaytracing/LightList.cpp
     src/raycasting/raytracing/bidiroptions.cpp
     src/raycasting/raytracing/screeniterate.cpp
     src/raycasting/raytracing/specularsampler.cpp

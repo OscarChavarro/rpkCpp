@@ -1,6 +1,6 @@
 #include "scene/scene.h"
 #include "common/stratification.h"
-#include "raycasting/raytracing/lightlist.h"
+#include "raycasting/bidirectionalRaytracing/LightList.h"
 #include "PHOTONMAP/PhotonMapRadianceMethod.h"
 #include "raycasting/common/Raytracer.h"
 #include "raycasting/common/raytools.h"
@@ -603,7 +603,7 @@ RTStochastic_Init(java::ArrayList<Patch *> *lightPatches) {
     if ( GLOBAL_lightList ) {
         delete GLOBAL_lightList;
     }
-    GLOBAL_lightList = new CLightList(lightPatches);
+    GLOBAL_lightList = new LightList(lightPatches);
 }
 
 void

@@ -1108,7 +1108,7 @@ biDirPathInit(java::ArrayList<Patch *> *lightPatches) {
     if ( GLOBAL_lightList ) {
         delete GLOBAL_lightList;
     }
-    GLOBAL_lightList = new CLightList(lightPatches);
+    GLOBAL_lightList = new LightList(lightPatches);
 }
 
 static void

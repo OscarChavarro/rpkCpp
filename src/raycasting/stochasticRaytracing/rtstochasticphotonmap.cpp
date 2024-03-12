@@ -231,7 +231,7 @@ StochasticRaytracingConfiguration::initDependentVars(java::ArrayList<Patch *> *l
         delete GLOBAL_lightList;
     }
 
-    GLOBAL_lightList = new CLightList(lightList, backgroundSampling);
+    GLOBAL_lightList = new LightList(lightList, backgroundSampling);
 
     // Main init the seed config
     seedConfig.Init(samplerConfig.maxDepth);

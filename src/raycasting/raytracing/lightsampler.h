@@ -6,12 +6,12 @@ importance sampling
 #ifndef __LIGHT_SAMPLER__
 #define __LIGHT_SAMPLER__
 
-#include "raycasting/raytracing/lightlist.h"
+#include "raycasting/bidirectionalRaytracing/LightList.h"
 #include "raycasting/raytracing/sampler.h"
 
 class CUniformLightSampler : public CNextEventSampler {
 private:
-    CLightList_Iter *iterator;
+    LightListIterator *iterator;
     Patch *currentPatch;
     bool unitsActive;
 public:

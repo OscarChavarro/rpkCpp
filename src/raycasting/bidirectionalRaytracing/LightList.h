@@ -10,7 +10,7 @@ this class can be used for sampling lights
 #include "common/dataStructures/CircularList.h"
 #include "skin/Patch.h"
 
-class CLightInfo {
+class LightInfo {
 public:
     float emittedFlux;
     float importance; // Cumulative probability : for importance sampling
@@ -18,9 +18,9 @@ public:
 };
 
 
-class CLightList_Iter;
+class LightListIterator;
 
-class CLightList : private CTSList<CLightInfo> {
+class LightList : private CTSList<LightInfo> {
 private:
     // Total flux ( sum(L * A * PI))
     float totalFlux;
@@ -35,9 +35,9 @@ public:
 
     // A getPatchList must be supplied for building a light list.
     // Non emitting patches (edf == nullptr) are NOT put in the list.
-    explicit CLightList(java::ArrayList<Patch *> *list, bool includeVirtualPatches = false);
+    explicit LightList(java::ArrayList<Patch *> *list, bool includeVirtualPatches = false);
 
-    ~CLightList();
+    ~LightList();
 
     // Normal sampling : uniform over emitted power
     Patch *sample(double *x1, double *pdf);
@@ -83,20 +83,20 @@ protected:
 
     double evalPdfReal(Patch *light, Vector3D *) const;
 
-    friend class CLightList_Iter;
+    friend class LightListIterator;
 };
 
-class CLightList_Iter {
+class LightListIterator {
   private:
-    CTSList_Iter<CLightInfo> iterator;
+    CTSList_Iter<LightInfo> iterator;
   public:
-    explicit CLightList_Iter(CLightList &list) : iterator(list) {}
+    explicit LightListIterator(LightList &list) : iterator(list) {}
 
     Patch *
-    First(CLightList &list) {
+    First(LightList &list) {
         iterator.init(list);
 
-        CLightInfo *li = iterator.nextOnSequence();
+        LightInfo *li = iterator.nextOnSequence();
         if ( li != nullptr ) {
             return li->light;
         } else {
@@ -106,7 +106,7 @@ class CLightList_Iter {
 
     Patch *
     Next() {
-        CLightInfo *li = iterator.nextOnSequence();
+        LightInfo *li = iterator.nextOnSequence();
         if ( li ) {
             return li->light;
         } else {
@@ -116,6 +116,6 @@ class CLightList_Iter {
 };
 
 // Global var for the scene light list
-extern CLightList *GLOBAL_lightList;
+extern LightList *GLOBAL_lightList;
 
 #endif

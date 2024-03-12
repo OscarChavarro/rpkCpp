@@ -1,11 +1,11 @@
 #include "java/util/ArrayList.txx"
 #include "common/error.h"
-#include "raycasting/raytracing/lightlist.h"
+#include "LightList.h"
 
-CLightList *GLOBAL_lightList = nullptr;
+LightList *GLOBAL_lightList = nullptr;
 
-CLightList::CLightList(java::ArrayList<Patch *> *list, bool includeVirtualPatches) {
-    CLightInfo info{};
+LightList::LightList(java::ArrayList<Patch *> *list, bool includeVirtualPatches) {
+    LightInfo info{};
     COLOR lightColor;
 
     totalFlux = 0.0;
@@ -37,7 +37,7 @@ CLightList::CLightList(java::ArrayList<Patch *> *list, bool includeVirtualPatche
     }
 }
 
-CLightList::~CLightList() {
+LightList::~LightList() {
     removeAll();
 }
 
@@ -45,9 +45,9 @@ CLightList::~CLightList() {
 Returns sampled patch, scales x_1 back to a random in 0..1
 */
 Patch *
-CLightList::sample(double *x1, double *pdf) {
-    CLightInfo *info, *lastInfo;
-    CTSList_Iter<CLightInfo> iterator(*this);
+LightList::sample(double *x1, double *pdf) {
+    LightInfo *info, *lastInfo;
+    CTSList_Iter<LightInfo> iterator(*this);
 
     double rnd = *x1 * totalFlux;
     double currentSum;
@@ -90,7 +90,7 @@ CLightList::sample(double *x1, double *pdf) {
 }
 
 double
-CLightList::evalPdfVirtual(Patch *light, Vector3D */*point*/) const {
+LightList::evalPdfVirtual(Patch *light, Vector3D */*point*/) const {
     // EvalPDF for virtual patches (see EvalPDF)
     double pdf;
 
@@ -104,7 +104,7 @@ CLightList::evalPdfVirtual(Patch *light, Vector3D */*point*/) const {
 }
 
 double
-CLightList::evalPdfReal(Patch *light, Vector3D */*point*/) const {
+LightList::evalPdfReal(Patch *light, Vector3D */*point*/) const {
     // Eval PDF for normal patches (see EvalPDF)
     COLOR col;
     double pdf;
@@ -118,7 +118,7 @@ CLightList::evalPdfReal(Patch *light, Vector3D */*point*/) const {
 }
 
 double
-CLightList::evalPdf(Patch *light, Vector3D *point) {
+LightList::evalPdf(Patch *light, Vector3D *point) {
     // TODO!!!  1) patch should become class
     //          2) virtual patch should become child-class
     //          3) this method should be handled by specialisation
@@ -136,10 +136,10 @@ CLightList::evalPdf(Patch *light, Vector3D *point) {
 /* Important light sampling */
 
 double
-CLightList::computeOneLightImportanceVirtual(Patch *light,
-                                             const Vector3D *,
-                                             const Vector3D *,
-                                             float) {
+LightList::computeOneLightImportanceVirtual(Patch *light,
+                                            const Vector3D *,
+                                            const Vector3D *,
+                                            float) {
     // ComputeOneLightImportance for virtual patches
     XXDFFLAGS all = DIFFUSE_COMPONENT | GLOSSY_COMPONENT | SPECULAR_COMPONENT;
 
@@ -148,10 +148,10 @@ CLightList::computeOneLightImportanceVirtual(Patch *light,
 }
 
 double
-CLightList::computeOneLightImportanceReal(Patch *light,
-                                          const Vector3D *point,
-                                          const Vector3D *normal,
-                                          float emittedFlux) {
+LightList::computeOneLightImportanceReal(Patch *light,
+                                         const Vector3D *point,
+                                         const Vector3D *normal,
+                                         float emittedFlux) {
     // ComputeOneLightImportance for real patches
     int tried = 0;  // No positions on the patch are tried yet
     int done = false;
@@ -220,10 +220,10 @@ CLightList::computeOneLightImportanceReal(Patch *light,
 }
 
 double
-CLightList::computeOneLightImportance(Patch *light,
-                                             const Vector3D *point,
-                                             const Vector3D *normal,
-                                             float emittedFlux) {
+LightList::computeOneLightImportance(Patch *light,
+                                     const Vector3D *point,
+                                     const Vector3D *normal,
+                                     float emittedFlux) {
     // TODO!!!  1) patch should become class
     //          2) virtual patch should become child-class
     //          3) this method should be handled by specialisation
@@ -235,15 +235,15 @@ CLightList::computeOneLightImportance(Patch *light,
 }
 
 void
-CLightList::computeLightImportance(Vector3D *point, Vector3D *normal) {
+LightList::computeLightImportance(Vector3D *point, Vector3D *normal) {
     if ((vectorEqual(*point, lastPoint, EPSILON)) &&
         (vectorEqual(*normal, lastNormal, EPSILON))) {
         return; // Still ok !!
     }
 
 
-    CLightInfo *info;
-    CTSList_Iter<CLightInfo> iterator(*this);
+    LightInfo *info;
+    CTSList_Iter<LightInfo> iterator(*this);
     double imp;
 
     totalImp = 0.0;
@@ -269,9 +269,9 @@ CLightList::computeLightImportance(Vector3D *point, Vector3D *normal) {
 }
 
 Patch *
-CLightList::sampleImportant(Vector3D *point, Vector3D *normal, double *x1, double *pdf) {
-    CLightInfo *info, *lastInfo;
-    CTSList_Iter<CLightInfo> iterator(*this);
+LightList::sampleImportant(Vector3D *point, Vector3D *normal, double *x1, double *pdf) {
+    LightInfo *info, *lastInfo;
+    CTSList_Iter<LightInfo> iterator(*this);
     double rnd;
     double currentSum;
 
@@ -325,11 +325,11 @@ CLightList::sampleImportant(Vector3D *point, Vector3D *normal, double *x1, doubl
 }
 
 double
-CLightList::evalPdfImportant(Patch *light, Vector3D */*lightPoint*/,
-                             Vector3D *litPoint, Vector3D *normal) {
+LightList::evalPdfImportant(Patch *light, Vector3D */*lightPoint*/,
+                            Vector3D *litPoint, Vector3D *normal) {
     double pdf;
-    CLightInfo *info;
-    CTSList_Iter<CLightInfo> iterator(*this);
+    LightInfo *info;
+    CTSList_Iter<LightInfo> iterator(*this);
 
     computeLightImportance(litPoint, normal);
 
