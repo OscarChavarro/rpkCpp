@@ -1,6 +1,6 @@
 #include "common/error.h"
 #include "skin/Patch.h"
-#include "LightSampler.h"
+#include "raycasting/bidirectionalRaytracing/LightSampler.h"
 
 UniformLightSampler::UniformLightSampler() {
     // if(gLightList)

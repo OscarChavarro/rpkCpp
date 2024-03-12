@@ -4,7 +4,7 @@
 #include "common/stratification.h"
 #include "raycasting/common/raytools.h"
 #include "raycasting/raytracing/eyesampler.h"
-#include "LightSampler.h"
+#include "raycasting/bidirectionalRaytracing/LightSampler.h"
 #include "raycasting/bidirectionalRaytracing/LightDirSampler.h"
 #include "raycasting/raytracing/bsdfsampler.h"
 #include "raycasting/raytracing/samplertools.h"
