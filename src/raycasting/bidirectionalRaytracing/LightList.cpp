@@ -1,6 +1,6 @@
 #include "java/util/ArrayList.txx"
 #include "common/error.h"
-#include "LightList.h"
+#include "raycasting/bidirectionalRaytracing/LightList.h"
 
 LightList *GLOBAL_lightList = nullptr;
 
