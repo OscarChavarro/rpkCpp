@@ -3,20 +3,20 @@
 #include "common/error.h"
 #include "scene/spherical.h"
 #include "material/edf.h"
-#include "raycasting/raytracing/lightdirsampler.h"
+#include "raycasting/bidirectionalRaytracing/LightDirSampler.h"
 
 /**
 sample : newNode gets filled, others may change
 */
 bool
-CLightDirSampler::sample(
-        SimpleRaytracingPathNode *prevNode/*prevNode*/,
-        SimpleRaytracingPathNode *thisNode,
-        SimpleRaytracingPathNode *newNode,
-        double x1,
-        double x2,
-        bool /* doRR */doRR,
-        BSDF_FLAGS /* flags */flags)
+LightDirSampler::sample(
+    SimpleRaytracingPathNode *prevNode/*prevNode*/,
+    SimpleRaytracingPathNode *thisNode,
+    SimpleRaytracingPathNode *newNode,
+    double x1,
+    double x2,
+    bool /* doRR */doRR,
+    BSDF_FLAGS /* flags */flags)
 {
     double pdfDir;
 
@@ -65,15 +65,15 @@ CLightDirSampler::sample(
 }
 
 double
-CLightDirSampler::EvalPDF(
-        SimpleRaytracingPathNode *thisNode,
-        SimpleRaytracingPathNode *newNode,
-        BSDF_FLAGS /*flags*/,
-        double * /*pdf*/,
-        double * /*pdfRR*/)
+LightDirSampler::evalPDF(
+    SimpleRaytracingPathNode *thisNode,
+    SimpleRaytracingPathNode *newNode,
+    BSDF_FLAGS /*flags*/,
+    double * /*pdf*/,
+    double * /*pdfRR*/)
 {
     double pdfDir;
-    double cosa;
+    double cosA;
     double dist;
     double dist2;
     Vector3D outDir;
@@ -97,9 +97,7 @@ CLightDirSampler::EvalPDF(
         return 0.0;
     }  // Back face of a light does not radiate !
 
-    cosa = -vectorDotProduct(outDir, newNode->m_normal);
+    cosA = -vectorDotProduct(outDir, newNode->m_normal);
 
-    return pdfDir * cosa / dist2;
+    return pdfDir * cosA / dist2;
 }
-
-

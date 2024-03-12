@@ -11,21 +11,21 @@ class ScreenSampler : public Sampler {
 public:
     bool
     sample(
-            SimpleRaytracingPathNode *prevNode,
-            SimpleRaytracingPathNode *thisNode,
-            SimpleRaytracingPathNode *newNode,
-            double x1,
-            double x2,
-            bool doRR = false,
-            BSDF_FLAGS flags = BSDF_ALL_COMPONENTS);
+        SimpleRaytracingPathNode *prevNode,
+        SimpleRaytracingPathNode *thisNode,
+        SimpleRaytracingPathNode *newNode,
+        double x1,
+        double x2,
+        bool doRR = false,
+        BSDF_FLAGS flags = BSDF_ALL_COMPONENTS);
 
     virtual double
-    EvalPDF(
-            SimpleRaytracingPathNode *thisNode,
-            SimpleRaytracingPathNode *newNode,
-            BSDF_FLAGS flags = BSDF_ALL_COMPONENTS,
-            double *pdf = nullptr,
-            double *pdfRR = nullptr);
+    evalPDF(
+        SimpleRaytracingPathNode *thisNode,
+        SimpleRaytracingPathNode *newNode,
+        BSDF_FLAGS flags = BSDF_ALL_COMPONENTS,
+        double *pdf = nullptr,
+        double *pdfRR = nullptr);
 };
 
 #endif

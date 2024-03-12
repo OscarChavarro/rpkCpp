@@ -1,22 +1,22 @@
 /**
-Just fills in the eye point in the node
+Samples a direction from a light source point.
+It's kind of a dual of a pixel sampler.
 */
 
-#ifndef _EYE_SAMPLER__
-#define _EYE_SAMPLER__
+#ifndef __LIGHT_DIR_SAMPLER__
+#define __LIGHT_DIR_SAMPLER__
 
 #include "raycasting/raytracing/sampler.h"
 
-class CEyeSampler : public Sampler {
+class LightDirSampler : public Sampler {
 public:
-    // Sample : newNode gets filled, others may change
     virtual bool
     sample(
         SimpleRaytracingPathNode *prevNode,
         SimpleRaytracingPathNode *thisNode,
         SimpleRaytracingPathNode *newNode,
-        double x_1,
-        double x_2,
+        double x1,
+        double x2,
         bool doRR = false,
         BSDF_FLAGS flags = BSDF_ALL_COMPONENTS);
 

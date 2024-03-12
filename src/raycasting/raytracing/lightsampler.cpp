@@ -10,7 +10,8 @@ CUniformLightSampler::CUniformLightSampler() {
     unitsActive = false;
 }
 
-bool CUniformLightSampler::ActivateFirstUnit() {
+bool
+CUniformLightSampler::ActivateFirstUnit() {
     if ( !iterator ) {
         if ( GLOBAL_lightList ) {
             iterator = new LightListIterator(*GLOBAL_lightList);
@@ -118,7 +119,7 @@ CUniformLightSampler::sample(
 }
 
 double
-CUniformLightSampler::EvalPDF(
+CUniformLightSampler::evalPDF(
         SimpleRaytracingPathNode */*thisNode*/,
         SimpleRaytracingPathNode *newNode,
         BSDF_FLAGS /*flags*/, double * /*pdf*/,
@@ -250,7 +251,7 @@ CImportantLightSampler::sample(
 }
 
 double
-CImportantLightSampler::EvalPDF(
+CImportantLightSampler::evalPDF(
         SimpleRaytracingPathNode *thisNode,
         SimpleRaytracingPathNode *newNode,
         BSDF_FLAGS /*flags*/, double * /*pdf*/,

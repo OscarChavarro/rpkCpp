@@ -62,7 +62,8 @@ void CPixelSampler::SetPixel(int nx, int ny, Camera *cam) {
     m_py = -cam->pixelHeight * (double)cam->ySize / 2.0 + (double)ny * cam->pixelHeight;
 }
 
-double CPixelSampler::EvalPDF(SimpleRaytracingPathNode *thisNode, SimpleRaytracingPathNode *newNode,
+double
+CPixelSampler::evalPDF(SimpleRaytracingPathNode *thisNode, SimpleRaytracingPathNode *newNode,
                               BSDF_FLAGS /*flags*/, double * /*pdf*/,
                               double * /*pdfRR*/) {
     double dist2;

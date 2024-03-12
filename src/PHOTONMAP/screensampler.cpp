@@ -63,7 +63,7 @@ ScreenSampler::sample(
 }
 
 double
-ScreenSampler::EvalPDF(
+ScreenSampler::evalPDF(
         SimpleRaytracingPathNode *thisNode,
         SimpleRaytracingPathNode *newNode,
         BSDF_FLAGS /*flags*/,

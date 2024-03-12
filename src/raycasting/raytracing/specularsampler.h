@@ -41,7 +41,7 @@ public:
 
     // Return value should be multiplied by infinity!
     virtual double
-    EvalPDF(
+    evalPDF(
         SimpleRaytracingPathNode *thisNode,
         SimpleRaytracingPathNode *newNode,
         BSDF_FLAGS flags,

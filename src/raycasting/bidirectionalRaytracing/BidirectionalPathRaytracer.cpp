@@ -5,7 +5,7 @@
 #include "raycasting/common/raytools.h"
 #include "raycasting/raytracing/eyesampler.h"
 #include "raycasting/raytracing/lightsampler.h"
-#include "raycasting/raytracing/lightdirsampler.h"
+#include "raycasting/bidirectionalRaytracing/LightDirSampler.h"
 #include "raycasting/raytracing/bsdfsampler.h"
 #include "raycasting/raytracing/samplertools.h"
 #include "raycasting/raytracing/screeniterate.h"
@@ -232,7 +232,7 @@ handlePathX0(BidirectionalPathTracingConfiguration *config, CBiPath *path) {
 
             if ( config->lightConfig.maxDepth > 0 ) {
                 eyeEndNode->m_pdfFromNext =
-                        config->lightConfig.pointSampler->EvalPDF(nullptr, eyeEndNode);
+                        config->lightConfig.pointSampler->evalPDF(nullptr, eyeEndNode);
                 PNAN(eyeEndNode->m_pdfFromNext);
 
                 eyeEndNode->m_rrPdfFromNext = 1.0; // Light point: no Russian R.
@@ -244,7 +244,7 @@ handlePathX0(BidirectionalPathTracingConfiguration *config, CBiPath *path) {
 
             if ( config->lightConfig.maxDepth > 1 ) {
                 eyePrevNode->m_pdfFromNext =
-                        config->lightConfig.dirSampler->EvalPDF(eyeEndNode, eyePrevNode);
+                        config->lightConfig.dirSampler->evalPDF(eyeEndNode, eyePrevNode);
                 PNAN(eyePrevNode->m_pdfFromNext);
 
                 eyePrevNode->m_rrPdfFromNext = 1.0;
@@ -256,7 +256,7 @@ handlePathX0(BidirectionalPathTracingConfiguration *config, CBiPath *path) {
             // Compute
             if ((config->baseConfig->sampleImportantLights) && (config->lightConfig.maxDepth > 0)
                 && (path->m_eyeSize > 2)) {
-                pdfLNE = config->eyeConfig.neSampler->EvalPDF(eyePrevNode, eyeEndNode);
+                pdfLNE = config->eyeConfig.neSampler->evalPDF(eyePrevNode, eyeEndNode);
             } else {
                 pdfLNE = eyeEndNode->m_pdfFromNext; // same sampling as light path
             }
@@ -457,7 +457,7 @@ handlePathXx(BidirectionalPathTracingConfiguration *config, CBiPath *path) {
         oldPdfLNE = path->m_pdfLNE;
         path->m_pdfLNE = newLightNode.m_pdfFromPrev;
         newLightNode.m_pdfFromPrev =
-                config->lightConfig.pointSampler->EvalPDF(nullptr, &newLightNode);
+                config->lightConfig.pointSampler->evalPDF(nullptr, &newLightNode);
 
         PNAN(newLightNode.m_pdfFromPrev);
         PNAN(path->m_pdfLNE);
@@ -553,7 +553,7 @@ bpCombinePaths(BidirectionalPathTracingConfiguration *config) {
         // the pdf for it, in order to get correct weights.
         if ( config->baseConfig->sampleImportantLights && config->lightPath->next()) {
             config->pdfLNE =
-                    config->eyeConfig.neSampler->EvalPDF(lightPath->next(),
+                    config->eyeConfig.neSampler->evalPDF(lightPath->next(),
                                                          lightPath);
 
         } else {
@@ -996,7 +996,7 @@ biDirPathTrace(ImageOutputHandle *ip, java::ArrayList<Patch *> * /*scenePatches*
     }
 
     config.lightConfig.pointSampler = new CUniformLightSampler;
-    config.lightConfig.dirSampler = new CLightDirSampler;
+    config.lightConfig.dirSampler = new LightDirSampler;
     config.lightConfig.surfaceSampler = new CBsdfSampler;
     config.lightConfig.surfaceSampler->SetComputeFromNextPdf(true);
     config.lightConfig.surfaceSampler->SetComputeBsdfComponents(GLOBAL_rayTracing_biDirectionalPath.basecfg.useSpars);

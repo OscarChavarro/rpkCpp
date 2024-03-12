@@ -126,12 +126,12 @@ set(MAIN_SRC
     src/raycasting/raytracing/eyesampler.cpp
     src/raycasting/raytracing/lightsampler.cpp
     src/raycasting/raytracing/densitybuffer.cpp
-    src/raycasting/raytracing/lightdirsampler.cpp
     src/raycasting/raytracing/bipath.cpp
     src/raycasting/raytracing/bsdfsampler.cpp
     src/raycasting/raytracing/samplertools.cpp
     src/raycasting/raytracing/densitykernel.cpp
     src/raycasting/raytracing/pixelsampler.cpp
+    src/raycasting/bidirectionalRaytracing/LightDirSampler.cpp
     src/raycasting/bidirectionalRaytracing/FlagChain.cpp
     src/raycasting/bidirectionalRaytracing/spar.cpp
     src/raycasting/bidirectionalRaytracing/BidirectionalPathRaytracer.cpp

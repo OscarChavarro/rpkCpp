@@ -179,10 +179,10 @@ pathNodeConnect(
             if ( nodeEP == nullptr ) {
                 // nodeE is the eye -> use the pixel sampler !
                 // -- Which pixel?
-                pdf = eyeConfig->dirSampler->EvalPDF(nodeX, nodeY);
+                pdf = eyeConfig->dirSampler->evalPDF(nodeX, nodeY);
                 pdfRR = 1.0;
             } else {
-                eyeConfig->surfaceSampler->EvalPDF(nodeX, nodeY, bsdfFlagsE, &pdf,
+                eyeConfig->surfaceSampler->evalPDF(nodeX, nodeY, bsdfFlagsE, &pdf,
                                                    &pdfRR);
             }
         } else {
@@ -222,10 +222,10 @@ pathNodeConnect(
 
             if ( nodeLP == nullptr ) {
                 // nodeE is the light point -> use the dir sampler!
-                pdf = lightConfig->dirSampler->EvalPDF(nodeY, nodeX);
+                pdf = lightConfig->dirSampler->evalPDF(nodeY, nodeX);
                 pdfRR = 1.0;
             } else {
-                lightConfig->surfaceSampler->EvalPDF(nodeY, nodeX, bsdfFlagsL, &pdf,
+                lightConfig->surfaceSampler->evalPDF(nodeY, nodeX, bsdfFlagsL, &pdf,
                                                      &pdfRR);
             }
         } else {

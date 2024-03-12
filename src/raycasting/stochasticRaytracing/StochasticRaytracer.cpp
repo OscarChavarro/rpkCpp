@@ -329,11 +329,10 @@ SR_GetRadiance(
 
         if ( doWeight ) {
             cl = config->nextEventSamples *
-                 config->samplerConfig.neSampler->EvalPDF(thisNode->previous(), thisNode);
+                 config->samplerConfig.neSampler->evalPDF(thisNode->previous(), thisNode);
             cl = multipleImportanceSampling(cl);
             cr = usedScatterSamples * thisNode->m_pdfFromPrev;
             cr = multipleImportanceSampling(cr);
-
             weight = cr / (cr + cl);
         }
 
@@ -439,7 +438,7 @@ SR_GetRadiance(
 
             if ( doWeight ) {
                 cl = config->nextEventSamples *
-                     config->samplerConfig.neSampler->EvalPDF(thisNode->previous(),
+                     config->samplerConfig.neSampler->evalPDF(thisNode->previous(),
                                                               thisNode);
                 cl = multipleImportanceSampling(cl);
                 cr = usedScatterSamples * thisNode->m_pdfFromPrev;

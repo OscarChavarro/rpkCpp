@@ -5,7 +5,7 @@
 #include "raycasting/raytracing/sampler.h"
 
 class CPixelSampler : public Sampler {
-public:
+  public:
     // Sample : newNode gets filled, others may change
     virtual bool
     sample(
@@ -18,7 +18,7 @@ public:
             BSDF_FLAGS flags = BSDF_ALL_COMPONENTS);
 
     virtual double
-    EvalPDF(
+    evalPDF(
             SimpleRaytracingPathNode *thisNode,
             SimpleRaytracingPathNode *newNode,
             BSDF_FLAGS flags = BSDF_ALL_COMPONENTS,

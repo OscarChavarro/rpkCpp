@@ -422,4 +422,3 @@ CPhotonMapSampler::gdSample(
 
     return ok;
 }
-

@@ -91,12 +91,12 @@ bool CBsdfSampler::sample(SimpleRaytracingPathNode *prevNode, SimpleRaytracingPa
 }
 
 double
-CBsdfSampler::EvalPDF(
-        SimpleRaytracingPathNode *thisNode,
-        SimpleRaytracingPathNode *newNode,
-        BSDF_FLAGS flags,
-        double *pdf,
-        double *pdfRR)
+CBsdfSampler::evalPDF(
+    SimpleRaytracingPathNode *thisNode,
+    SimpleRaytracingPathNode *newNode,
+    BSDF_FLAGS flags,
+    double *pdf,
+    double *pdfRR)
 {
     double pdfDir;
     double dist2;

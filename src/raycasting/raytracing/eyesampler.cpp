@@ -53,7 +53,7 @@ bool CEyeSampler::sample(SimpleRaytracingPathNode *prevNode, SimpleRaytracingPat
     return true;
 }
 
-double CEyeSampler::EvalPDF(SimpleRaytracingPathNode */*thisNode*/,
+double CEyeSampler::evalPDF(SimpleRaytracingPathNode */*thisNode*/,
                             SimpleRaytracingPathNode */*newNode*/, BSDF_FLAGS /*flags*/,
                             double * /*pdf*/, double * /*pdfRR*/) {
     return 1.0;
