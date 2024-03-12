@@ -15,7 +15,7 @@ A chain list is a set of scattering modes
 #include "raycasting/common/pathnode.h"
 #include "raycasting/raytracing/bipath.h"
 
-class CFlagChain {
+class FlagChain {
   public:
     BSDF_FLAGS *chain;
     int length;
@@ -23,10 +23,10 @@ class CFlagChain {
 
     void init(int paramLength, bool paramSubtract = false);
 
-    explicit CFlagChain(int paramLength = 0, bool paramSubtract = false);
+    explicit FlagChain(int paramLength = 0, bool paramSubtract = false);
 
-    CFlagChain(const CFlagChain &c); // Copy constructor
-    ~CFlagChain();
+    FlagChain(const FlagChain &c); // Copy constructor
+    ~FlagChain();
 
     // Array access operator
     inline BSDF_FLAGS &operator[](const int index) const {
@@ -38,45 +38,45 @@ class CFlagChain {
 
 
 // Compare two flag chains
-bool FlagChainCompare(const CFlagChain *c1,
-                      const CFlagChain *c2);
+bool
+FlagChainCompare(const FlagChain *c1, const FlagChain *c2);
 
 // try to combine two flag chains into one equivalent chain
 // Only one element in the chain may differ.
-CFlagChain *FlagChainCombine(const CFlagChain *chain1,
-                             const CFlagChain *chain2);
+FlagChain *FlagChainCombine(const FlagChain *chain1,
+                            const FlagChain *chain2);
 
 
 // A linked list of flag chains.
 // Chains in the list are of fixed length !
 
-class CChainList : private CTSList<CFlagChain> {
+class ChainList : private CTSList<FlagChain> {
   public:
     int length;
     int count;
 
-    CChainList();
-    ~CChainList();
-    void add(const CFlagChain &chain);
-    void add(CChainList *list);
-    void addDisjoint(const CFlagChain &chain);
+    ChainList();
+    ~ChainList();
+    void add(const FlagChain &chain);
+    void add(ChainList *list);
+    void addDisjoint(const FlagChain &chain);
     COLOR compute(CBiPath *path);
-    CChainList *simplify();
+    ChainList *simplify();
 };
 
-// iterator
+typedef CTSList_Iter<FlagChain> FlagChainIterator;
 
-typedef CTSList_Iter<CFlagChain> CFlagChainIter;
-
-// An array of chain lists indexed by length
-class CContribHandler {
+/**
+An array of chain lists indexed by length
+*/
+class ContribHandler {
   public:
-    CChainList *array;
+    ChainList *array;
     int maxLength;
 
-    CContribHandler();
+    ContribHandler();
     virtual void init(int paramMaxLength);
-    virtual ~CContribHandler();
+    virtual ~ContribHandler();
     virtual void addRegExp(char *regExp);
     virtual COLOR compute(CBiPath *path);
 

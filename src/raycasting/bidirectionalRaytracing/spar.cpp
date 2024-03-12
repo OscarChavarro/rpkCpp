@@ -4,7 +4,7 @@
 #include "raycasting/bidirectionalRaytracing/spar.h"
 
 Spar::Spar() {
-    m_contrib = new CContribHandler[MAX_PATH_GROUPS];
+    m_contrib = new ContribHandler[MAX_PATH_GROUPS];
     m_sparList = new CSparList[MAX_PATH_GROUPS];
 }
 

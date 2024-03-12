@@ -2,10 +2,10 @@
 #include "material/edf.h"
 #include "skin/RadianceMethod.h"
 #include "raycasting/common/pathnode.h"
-#include "raycasting/raytracing/flagchain.h"
+#include "raycasting/bidirectionalRaytracing/FlagChain.h"
 
 void
-CFlagChain::init(const int paramLength, bool const paramSubtract) {
+FlagChain::init(const int paramLength, bool const paramSubtract) {
     if ( chain ) {
         delete[] chain;
     }
@@ -26,13 +26,13 @@ CFlagChain::init(const int paramLength, bool const paramSubtract) {
     }
 }
 
-CFlagChain::CFlagChain(const int paramLength, const bool paramSubtract): length(), subtract() {
+FlagChain::FlagChain(const int paramLength, const bool paramSubtract): length(), subtract() {
     chain = nullptr;
 
     init(paramLength, paramSubtract);
 }
 
-CFlagChain::CFlagChain(const CFlagChain &c): length(), subtract() {
+FlagChain::FlagChain(const FlagChain &c): length(), subtract() {
     chain = nullptr;
     init(c.length, c.subtract);
 
@@ -43,13 +43,13 @@ CFlagChain::CFlagChain(const CFlagChain &c): length(), subtract() {
     }
 }
 
-CFlagChain::~CFlagChain() {
+FlagChain::~FlagChain() {
     delete[] chain;
 }
 
 bool
-FlagChainCompare(const CFlagChain *c1,
-                      const CFlagChain *c2) {
+FlagChainCompare(const FlagChain *c1,
+                      const FlagChain *c2) {
     // Determine if equal
 
     int nrDifferent = 0;
@@ -77,9 +77,9 @@ FlagChainCompare(const CFlagChain *c1,
     return false;
 }
 
-CFlagChain *
-FlagChainCombine(const CFlagChain *c1,
-                             const CFlagChain *c2) {
+FlagChain *
+FlagChainCombine(const FlagChain *c1,
+                             const FlagChain *c2) {
     // Determine if combinable
     int nrDifferent = 0;
     int diffIndex = 0;
@@ -99,12 +99,12 @@ FlagChainCombine(const CFlagChain *c1,
     if ( nrDifferent == 0 ) {
         // Flag chains identical - maybe dangerous if someone wants to
         // count one contribution twice...
-        return new CFlagChain(*c1);
+        return new FlagChain(*c1);
     }
 
     if ( nrDifferent == 1 ) {
         // Combinable
-        CFlagChain *newFlagChain = new CFlagChain(*c1);
+        FlagChain *newFlagChain = new FlagChain(*c1);
         newFlagChain->chain[diffIndex] = static_cast<BSDF_FLAGS>(c1->chain[diffIndex] | c2->chain[diffIndex]);
         return newFlagChain;
     }
@@ -118,7 +118,7 @@ Compute : calculate the product of bsdf components defined
 by the chain. Eye and light node ARE INCLUDED
 */
 COLOR
-CFlagChain::compute(CBiPath *path) const {
+FlagChain::compute(CBiPath *path) const {
     COLOR result, tmpCol;
     colorSetMonochrome(result, 1.0);
     int i;
@@ -156,20 +156,20 @@ CFlagChain::compute(CBiPath *path) const {
     return result;
 }
 
-CChainList::CChainList() {
+ChainList::ChainList() {
     count = 0;
     length = 0;
 }
 
-CChainList::~CChainList() {
+ChainList::~ChainList() {
     removeAll();
 }
 
 void
-CChainList::add(CChainList *list) {
+ChainList::add(ChainList *list) {
     // Add all chains in 'list'
-    CFlagChainIter iter(*list);
-    CFlagChain *tmpChain;
+    FlagChainIterator iter(*list);
+    FlagChain *tmpChain;
 
     while ( (tmpChain = iter.nextOnSequence()) != nullptr ) {
         add(*tmpChain);
@@ -177,7 +177,7 @@ CChainList::add(CChainList *list) {
 }
 
 void
-CChainList::add(const CFlagChain &chain) {
+ChainList::add(const FlagChain &chain) {
     if ( count > 0 ) {
         if ( chain.length != length ) {
             logError("CChainList::add", "Wrong length flag chain inserted!");
@@ -193,7 +193,7 @@ CChainList::add(const CFlagChain &chain) {
 }
 
 void
-CChainList::addDisjoint(const CFlagChain &chain) {
+ChainList::addDisjoint(const FlagChain &chain) {
     if ( count > 0 ) {
         if ( chain.length != length ) {
             logError("CChainList::add", "Wrong length flag chain inserted!");
@@ -204,8 +204,8 @@ CChainList::addDisjoint(const CFlagChain &chain) {
         length = chain.length;
     }
 
-    CFlagChainIter iter(*this);
-    CFlagChain *tmpChain;
+    FlagChainIterator iter(*this);
+    FlagChain *tmpChain;
     bool found = false;
 
     while ((tmpChain = iter.nextOnSequence()) && !found ) {
@@ -219,13 +219,13 @@ CChainList::addDisjoint(const CFlagChain &chain) {
 }
 
 COLOR
-CChainList::compute(CBiPath *path) {
+ChainList::compute(CBiPath *path) {
     COLOR result, tmpCol;
 
     colorClear(result);
 
-    CFlagChainIter iter(*this);
-    CFlagChain *chain;
+    FlagChainIterator iter(*this);
+    FlagChain *chain;
 
     while ( (chain = iter.nextOnSequence()) != nullptr ) {
         tmpCol = chain->compute(path);
@@ -241,14 +241,14 @@ simplify the chain list returning the equivalent
 simplified chain list. Equal entries MAY be reduced to a
 single entry! (So in fact no equal entries is advisable)
 */
-CChainList *
-CChainList::simplify() {
+ChainList *
+ChainList::simplify() {
     // Try a simple simplification scheme, just comparing pair wise chains
-    CChainList *newList = new CChainList;
-    CFlagChain *c1;
-    CFlagChain *c2;
-    CFlagChain *cCombined;
-    CFlagChainIter iter(*this);
+    ChainList *newList = new ChainList;
+    FlagChain *c1;
+    FlagChain *c2;
+    FlagChain *cCombined;
+    FlagChainIterator iter(*this);
 
     c1 = iter.nextOnSequence();
 
@@ -270,13 +270,13 @@ CChainList::simplify() {
     return newList;
 }
 
-CContribHandler::CContribHandler() {
+ContribHandler::ContribHandler() {
     array = nullptr;
     maxLength = 0;
 }
 
 void
-CContribHandler::init(int paramMaxLength) {
+ContribHandler::init(int paramMaxLength) {
     this->maxLength = paramMaxLength;
 
     if ( array ) {
@@ -284,15 +284,15 @@ CContribHandler::init(int paramMaxLength) {
     }
 
     // For each length we need a chain list
-    array = new CChainList[paramMaxLength + 1]; // 0 <= length <= maxlength !!
+    array = new ChainList[paramMaxLength + 1]; // 0 <= length <= maxlength !!
 }
 
-CContribHandler::~CContribHandler() {
+ContribHandler::~ContribHandler() {
     delete[] array;
 }
 
 COLOR
-CContribHandler::compute(CBiPath *path) {
+ContribHandler::compute(CBiPath *path) {
     COLOR result;
     int length;
 
@@ -309,7 +309,7 @@ CContribHandler::compute(CBiPath *path) {
 }
 
 void
-CContribHandler::doRegExp(char *regExp, bool subtract) {
+ContribHandler::doRegExp(char *regExp, bool subtract) {
     doRegExpGeneral(regExp, subtract);
 }
 
@@ -320,7 +320,7 @@ The class of covered paths covered by the contrib handler is : (regSPaR)(regPath
 regSPar is not needed here. The regExp must ensure disjoint paths!
 */
 void
-CContribHandler::addRegExp(char *regExp) {
+ContribHandler::addRegExp(char *regExp) {
     if ( regExp[0] == '-' ) {
         doRegExp(regExp + 1, true);
     } else {
@@ -329,13 +329,13 @@ CContribHandler::addRegExp(char *regExp) {
 }
 
 void
-CContribHandler::doSyntaxError(const char *errString) {
+ContribHandler::doSyntaxError(const char *errString) {
     logError("Flag chain Syntax Error", errString);
     init(maxLength);
 }
 
 bool
-CContribHandler::getFlags(const char *regExp, int *pos, BSDF_FLAGS *flags) {
+ContribHandler::getFlags(const char *regExp, int *pos, BSDF_FLAGS *flags) {
     char c;
     int p = *pos;
 
@@ -440,8 +440,8 @@ CContribHandler::getFlags(const char *regExp, int *pos, BSDF_FLAGS *flags) {
 }
 
 bool
-CContribHandler::getToken(char *regExp, int *pos, char *token,
-                          BSDF_FLAGS *flags) {
+ContribHandler::getToken(char *regExp, int *pos, char *token,
+                         BSDF_FLAGS *flags) {
     switch ( regExp[*pos] ) {
         case '\0':
             return false;
@@ -467,8 +467,8 @@ CContribHandler::getToken(char *regExp, int *pos, char *token,
 }
 
 void
-CContribHandler::doRegExpGeneral(char *regExp, bool subtract) {
-    CFlagChain c;
+ContribHandler::doRegExpGeneral(char *regExp, bool subtract) {
+    FlagChain c;
 
 
     // Build iteration arrays (not tree so no nested brackets!)
@@ -546,7 +546,7 @@ CContribHandler::doRegExpGeneral(char *regExp, bool subtract) {
     }
 
     for ( int length = beginLength; length <= endLength; length++ ) {
-        CChainList tmpList;
+        ChainList tmpList;
         c.init(length, subtract);
 
         maxIteration = length - tokenCount + iteratorCount;

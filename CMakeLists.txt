@@ -118,8 +118,6 @@ set(MAIN_SRC
     src/raycasting/simple/RayMatterOptions.cpp
     src/raycasting/simple/RayCaster.cpp
     src/raycasting/simple/RayMatter.cpp
-    src/raycasting/bidirectionalRaytracing/spar.cpp
-    src/raycasting/bidirectionalRaytracing/BidirectionalPathRaytracer.cpp
     src/raycasting/raytracing/lightlist.cpp
     src/raycasting/raytracing/bidiroptions.cpp
     src/raycasting/raytracing/screeniterate.cpp
@@ -129,12 +127,14 @@ set(MAIN_SRC
     src/raycasting/raytracing/lightsampler.cpp
     src/raycasting/raytracing/densitybuffer.cpp
     src/raycasting/raytracing/lightdirsampler.cpp
-    src/raycasting/raytracing/flagchain.cpp
     src/raycasting/raytracing/bipath.cpp
     src/raycasting/raytracing/bsdfsampler.cpp
     src/raycasting/raytracing/samplertools.cpp
     src/raycasting/raytracing/densitykernel.cpp
     src/raycasting/raytracing/pixelsampler.cpp
+    src/raycasting/bidirectionalRaytracing/FlagChain.cpp
+    src/raycasting/bidirectionalRaytracing/spar.cpp
+    src/raycasting/bidirectionalRaytracing/BidirectionalPathRaytracer.cpp
     src/PHOTONMAP/samplegrid.cpp
     src/PHOTONMAP/discretesampling.cpp
     src/PHOTONMAP/photonkdtree.cpp

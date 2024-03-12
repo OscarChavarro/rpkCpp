@@ -8,7 +8,7 @@ Specification of the Stored Partial Radiance class
 #include "common/color.h"
 #include "raycasting/common/pathnode.h"
 #include "raycasting/raytracing/bipath.h"
-#include "raycasting/raytracing/flagchain.h"
+#include "raycasting/bidirectionalRaytracing/FlagChain.h"
 
 #define MAX_PATH_GROUPS 2
 
@@ -41,7 +41,7 @@ typedef CTSList_Iter<Spar *> CSparListIter;
 
 class Spar {
   public:
-    CContribHandler *m_contrib;
+    ContribHandler *m_contrib;
     CSparList *m_sparList;
 
   public:
