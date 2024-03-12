@@ -1,8 +1,8 @@
 #include "common/error.h"
 #include "skin/Patch.h"
-#include "raycasting/raytracing/lightsampler.h"
+#include "LightSampler.h"
 
-CUniformLightSampler::CUniformLightSampler() {
+UniformLightSampler::UniformLightSampler() {
     // if(gLightList)
     // iterator = new CLightList_Iter(*gLightList);
     iterator = nullptr;
@@ -11,7 +11,7 @@ CUniformLightSampler::CUniformLightSampler() {
 }
 
 bool
-CUniformLightSampler::ActivateFirstUnit() {
+UniformLightSampler::ActivateFirstUnit() {
     if ( !iterator ) {
         if ( GLOBAL_lightList ) {
             iterator = new LightListIterator(*GLOBAL_lightList);
@@ -30,13 +30,13 @@ CUniformLightSampler::ActivateFirstUnit() {
     }
 }
 
-bool CUniformLightSampler::ActivateNextUnit() {
+bool UniformLightSampler::ActivateNextUnit() {
     currentPatch = iterator->Next();
     return (currentPatch != nullptr);
 }
 
 bool
-CUniformLightSampler::sample(
+UniformLightSampler::sample(
         SimpleRaytracingPathNode *prevNode/*prevNode*/,
         SimpleRaytracingPathNode *thisNode,
         SimpleRaytracingPathNode *newNode,
@@ -119,7 +119,7 @@ CUniformLightSampler::sample(
 }
 
 double
-CUniformLightSampler::evalPDF(
+UniformLightSampler::evalPDF(
         SimpleRaytracingPathNode */*thisNode*/,
         SimpleRaytracingPathNode *newNode,
         BSDF_FLAGS /*flags*/, double * /*pdf*/,
@@ -163,7 +163,7 @@ CUniformLightSampler::evalPDF(
 Important light sampler : attach weights to each lamp
 */
 bool
-CImportantLightSampler::sample(
+ImportantLightSampler::sample(
         SimpleRaytracingPathNode *prevNode/*prevNode*/,
         SimpleRaytracingPathNode *thisNode,
         SimpleRaytracingPathNode *newNode,
@@ -251,7 +251,7 @@ CImportantLightSampler::sample(
 }
 
 double
-CImportantLightSampler::evalPDF(
+ImportantLightSampler::evalPDF(
         SimpleRaytracingPathNode *thisNode,
         SimpleRaytracingPathNode *newNode,
         BSDF_FLAGS /*flags*/, double * /*pdf*/,

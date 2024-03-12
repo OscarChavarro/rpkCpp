@@ -13,7 +13,7 @@
 #include "raycasting/simple/RayCaster.h"
 #include "raycasting/raytracing/bipath.h"
 #include "raycasting/raytracing/eyesampler.h"
-#include "raycasting/raytracing/lightsampler.h"
+#include "raycasting/bidirectionalRaytracing/LightSampler.h"
 #include "raycasting/bidirectionalRaytracing/LightDirSampler.h"
 #include "raycasting/raytracing/bsdfsampler.h"
 #include "raycasting/raytracing/samplertools.h"
@@ -158,7 +158,7 @@ photonMapInitPmap(java::ArrayList<Patch *> * /*scenePatches*/) {
 
     cfg = &GLOBAL_photonMap_config.lightConfig;
 
-    cfg->pointSampler = new CUniformLightSampler;
+    cfg->pointSampler = new UniformLightSampler;
     cfg->dirSampler = new LightDirSampler;
     photonMapChooseSurfaceSampler(&cfg->surfaceSampler);
     // cfg->surfaceSampler = new CPhotonMapSampler; //new CBsdfSampler;

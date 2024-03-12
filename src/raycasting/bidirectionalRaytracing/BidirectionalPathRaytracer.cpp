@@ -4,7 +4,7 @@
 #include "common/stratification.h"
 #include "raycasting/common/raytools.h"
 #include "raycasting/raytracing/eyesampler.h"
-#include "raycasting/raytracing/lightsampler.h"
+#include "LightSampler.h"
 #include "raycasting/bidirectionalRaytracing/LightDirSampler.h"
 #include "raycasting/raytracing/bsdfsampler.h"
 #include "raycasting/raytracing/samplertools.h"
@@ -981,9 +981,9 @@ biDirPathTrace(ImageOutputHandle *ip, java::ArrayList<Patch *> * /*scenePatches*
     config.eyeConfig.surfaceSampler->SetComputeBsdfComponents(GLOBAL_rayTracing_biDirectionalPath.basecfg.useSpars);
 
     if ( GLOBAL_rayTracing_biDirectionalPath.basecfg.sampleImportantLights ) {
-        config.eyeConfig.neSampler = new CImportantLightSampler;
+        config.eyeConfig.neSampler = new ImportantLightSampler;
     } else {
-        config.eyeConfig.neSampler = new CUniformLightSampler;
+        config.eyeConfig.neSampler = new UniformLightSampler;
     }
 
     config.eyeConfig.minDepth = GLOBAL_rayTracing_biDirectionalPath.basecfg.minimumPathDepth;
@@ -995,7 +995,7 @@ biDirPathTrace(ImageOutputHandle *ip, java::ArrayList<Patch *> * /*scenePatches*
         config.eyeConfig.maxDepth = GLOBAL_rayTracing_biDirectionalPath.basecfg.maximumEyePathDepth;
     }
 
-    config.lightConfig.pointSampler = new CUniformLightSampler;
+    config.lightConfig.pointSampler = new UniformLightSampler;
     config.lightConfig.dirSampler = new LightDirSampler;
     config.lightConfig.surfaceSampler = new CBsdfSampler;
     config.lightConfig.surfaceSampler->SetComputeFromNextPdf(true);

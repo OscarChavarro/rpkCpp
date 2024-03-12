@@ -9,15 +9,14 @@ importance sampling
 #include "raycasting/bidirectionalRaytracing/LightList.h"
 #include "raycasting/raytracing/sampler.h"
 
-class CUniformLightSampler : public CNextEventSampler {
-private:
+class UniformLightSampler : public CNextEventSampler {
+  private:
     LightListIterator *iterator;
     Patch *currentPatch;
     bool unitsActive;
-public:
-    CUniformLightSampler();
+  public:
+    UniformLightSampler();
 
-    // Units, see sampler.H
     virtual bool ActivateFirstUnit();
 
     virtual bool ActivateNextUnit();
@@ -42,8 +41,8 @@ public:
         double *pdfRR);
 };
 
-class CImportantLightSampler : public CNextEventSampler {
-public:
+class ImportantLightSampler : public CNextEventSampler {
+  public:
     // Sample : newNode gets filled, others may change
     virtual bool
     sample(

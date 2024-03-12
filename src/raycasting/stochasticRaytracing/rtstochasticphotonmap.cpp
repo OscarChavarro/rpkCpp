@@ -5,7 +5,7 @@
 #include "raycasting/raytracing/eyesampler.h"
 #include "raycasting/raytracing/bsdfsampler.h"
 #include "raycasting/raytracing/specularsampler.h"
-#include "raycasting/raytracing/lightsampler.h"
+#include "raycasting/bidirectionalRaytracing/LightSampler.h"
 #include "raycasting/stochasticRaytracing/rtstochasticphotonmap.h"
 
 CSeed CSeedConfig::xOrSeed;
@@ -100,9 +100,9 @@ StochasticRaytracingConfiguration::initDependentVars(java::ArrayList<Patch *> *l
     }
 
     if ( lightMode == IMPORTANT_LIGHTS ) {
-        samplerConfig.neSampler = new CImportantLightSampler;
+        samplerConfig.neSampler = new ImportantLightSampler;
     } else {
-        samplerConfig.neSampler = new CUniformLightSampler;
+        samplerConfig.neSampler = new UniformLightSampler;
     }
 
 
