@@ -1,11 +1,11 @@
-#include "common/dataStructures/CSList.h"
+#include "common/dataStructures/CircularList.h"
 
-CISLink *CircularListBase::Remove() {
-    // Remove first element and return it
-
+/**
+Remove first element and return it
+*/
+CISLink *
+CircularListBase::remove() {
     if ( last == nullptr ) {
-        // Not really an error.
-        // Error("CList_Base::Remove", "Remove from empty list");
         return nullptr;
     }
 
@@ -33,9 +33,11 @@ CircularListBase::clear() {
     last = nullptr;
 }
 
+/**
+Add an element to the head of the list
+*/
 void
 CircularListBase::add(CISLink *data) {
-    // Add an element to the head of the list
     if ( last != nullptr ) {
         // Not empty
         data->nextLink = last->nextLink;
@@ -65,7 +67,8 @@ void CircularListBaseIterator::init(CircularListBase &list) {
     currentElement = currentList->last;
 }
 
-CISLink *CircularListBaseIterator::next() {
+CISLink *
+CircularListBaseIterator::next() {
     CISLink *ret = (currentElement ?
                     (currentElement = currentElement->nextLink) :
                     nullptr);

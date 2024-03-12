@@ -17,25 +17,25 @@ class CISLink {
 };
 
 class CircularListBase {
-private:
+  private:
     CISLink *last;
 
-public:
+  public:
     CircularListBase();
     void add(CISLink *data);
     void append(CISLink *data);
-    CISLink *Remove();
+    CISLink *remove();
     virtual void clear();
 
     friend class CircularListBaseIterator;
 };
 
 class CircularListBaseIterator {
-private:
+  private:
     CISLink *currentElement;
     CircularListBase *currentList;
 
-public:
+  public:
     explicit CircularListBaseIterator(CircularListBase &list);
     virtual CISLink *next();
     void init(CircularListBase &list);
@@ -80,11 +80,11 @@ inline void CTSList<T>::append(const T &data) {
 
 template<class T>
 inline void CTSList<T>::removeAll() {
-    CTSLink<T> *link = (CTSLink<T> *) CircularListBase::Remove();
+    CTSLink<T> *link = (CTSLink<T> *) CircularListBase::remove();
 
     while ( link != nullptr ) {
         delete link;
-        link = (CTSLink<T> *) CircularListBase::Remove();
+        link = (CTSLink<T> *) CircularListBase::remove();
     }
 }
 
