@@ -199,7 +199,7 @@ batch(java::ArrayList<Patch *> *scenePatches, java::ArrayList<Patch *> *lightPat
                 fflush(stderr);
                 exit(1);
             }
-            done = GLOBAL_radiance_selectedRadianceMethod->doStep(scenePatches, lightPatches);
+            done = GLOBAL_radiance_selectedRadianceMethod->doStep(scenePatches, lightPatches, GLOBAL_radiance_selectedRadianceMethod);
             canvasPullMode();
 
             fflush(stdout);
@@ -215,7 +215,7 @@ batch(java::ArrayList<Patch *> *scenePatches, java::ArrayList<Patch *> *lightPat
                     f = GLOBAL_raytracer_activeRaytracer->Redisplay;
                 }
             #endif
-            openGlRenderScene(scenePatches, GLOBAL_scene_clusteredGeometries, f);
+            openGlRenderScene(scenePatches, GLOBAL_scene_clusteredGeometries, f, GLOBAL_radiance_selectedRadianceMethod);
 
             fflush(stdout);
             fflush(stderr);

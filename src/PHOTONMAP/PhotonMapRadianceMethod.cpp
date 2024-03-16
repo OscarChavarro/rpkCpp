@@ -176,7 +176,7 @@ PhotonMapRadianceMethod::initialize(java::ArrayList<Patch *> *scenePatches) {
 Adapted from bi-directional path, this is a bit overkill for here
 */
 static COLOR
-photonMapDoComputePixelFluxEstimate(PhotonMapConfig *config) {
+photonMapDoComputePixelFluxEstimate(PhotonMapConfig *config, RadianceMethod *context) {
     CBiPath *bp = &config->biPath;
     SimpleRaytracingPathNode *eyePrevNode;
     SimpleRaytracingPathNode *lightPrevNode;
@@ -289,10 +289,9 @@ photonMapDoScreenNEE(PhotonMapConfig *config) {
 
     // First we need to determine if the lightEndNode can be seen from
     // the camera. At the same time the pixel hit is computed
-    if ( eyeNodeVisible(bp->m_eyeEndNode, bp->m_lightEndNode,
-                        &pix_x, &pix_y)) {
+    if ( eyeNodeVisible(bp->m_eyeEndNode, bp->m_lightEndNode, &pix_x, &pix_y) ) {
         // Visible !
-        f = photonMapDoComputePixelFluxEstimate(config);
+        f = photonMapDoComputePixelFluxEstimate(config, GLOBAL_radiance_selectedRadianceMethod);
 
         config->screen->getPixel(pix_x, pix_y, &nx, &ny);
 
@@ -534,7 +533,7 @@ colors are used for hardware rendering if the default hardware rendering
 method is not updated in this file
 */
 int
-PhotonMapRadianceMethod::doStep(java::ArrayList<Patch *> *scenePatches, java::ArrayList<Patch *> *lightPatches) {
+PhotonMapRadianceMethod::doStep(java::ArrayList<Patch *> *scenePatches, java::ArrayList<Patch *> *lightPatches, RadianceMethod *context) {
     GLOBAL_photonMap_state.lastClock = clock();
 
     photonMapBRRealIteration();

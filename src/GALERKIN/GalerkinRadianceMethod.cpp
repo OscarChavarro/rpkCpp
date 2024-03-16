@@ -361,7 +361,7 @@ GalerkinRadianceMethod::initialize(java::ArrayList<Patch *> *scenePatches) {
 }
 
 int
-GalerkinRadianceMethod::doStep(java::ArrayList<Patch *> *scenePatches, java::ArrayList<Patch *> *lightPatches) {
+GalerkinRadianceMethod::doStep(java::ArrayList<Patch *> *scenePatches, java::ArrayList<Patch *> *lightPatches, RadianceMethod *context) {
     int done = false;
 
     if ( GLOBAL_galerkin_state.iteration_nr < 0 ) {

@@ -1,6 +1,5 @@
 #include "common/error.h"
 #include "skin/RadianceMethod.h"
-#include "PHOTONMAP/PhotonMapRadianceMethod.h"
 #include "PHOTONMAP/photonmapsampler.h"
 #include "raycasting/raytracing/eyesampler.h"
 #include "raycasting/raytracing/bsdfsampler.h"
@@ -64,10 +63,10 @@ StochasticRaytracingConfiguration::init(RayTracingStochasticState &state, java::
     separateSpecular = state.separateSpecular;
 
     if ( reflectionSampling == PHOTON_MAP_SAMPLING ) {
-        // radMode == STORED_PHOTONMAP)
+        // radMode == STORED_PHOTON_MAP)
         logWarning("Fresnel Specular Sampling",
                    "always uses separate specular");
-        separateSpecular = true;  // Always separate specular with photonmap
+        separateSpecular = true;  // Always separate specular with photon map
     }
 
     samplerConfig.minDepth = state.minPathDepth;
@@ -96,7 +95,7 @@ StochasticRaytracingConfiguration::initDependentVars(java::ArrayList<Patch *> *l
             samplerConfig.surfaceSampler = new CSpecularSampler;
             break;
         default:
-            logError("SRCONFIG::initDependentVars", "Wrong sampling mode");
+            logError("SR CONFIG::initDependentVars", "Wrong sampling mode");
     }
 
     if ( lightMode == IMPORTANT_LIGHTS ) {
@@ -143,7 +142,7 @@ StochasticRaytracingConfiguration::initDependentVars(java::ArrayList<Patch *> *l
             siStorage.nrSamplesAfter = 0;
             break;
         default:
-            logError("SRCONFIG::initDependentVars", "Wrong Rad Mode");
+            logError("SR CONFIG::initDependentVars", "Wrong Rad Mode");
     }
 
     // Other blocks, this is non storage with optional

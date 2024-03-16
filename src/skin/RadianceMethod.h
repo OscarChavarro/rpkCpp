@@ -32,7 +32,7 @@ class RadianceMethod {
     // Does one step or iteration of the radiance computation, typically a unit
     // of computations after which the scene is to be redrawn. Returns TRUE when
     // done
-    virtual int doStep(java::ArrayList<Patch *> *scenePatches, java::ArrayList<Patch *> *lightPatches) = 0;
+    virtual int doStep(java::ArrayList<Patch *> *scenePatches, java::ArrayList<Patch *> *lightPatches, RadianceMethod *context) = 0;
 
     // Terminates radiance computations on the current scene
     virtual void terminate(java::ArrayList<Patch *> *scenePatches) = 0;

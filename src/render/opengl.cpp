@@ -467,11 +467,11 @@ openGlRenderNewDisplayList() {
 }
 
 static void
-openGlReallyRender(java::ArrayList<Patch *> *scenePatches) {
-    if ( GLOBAL_radiance_selectedRadianceMethod != nullptr ) {
-        GLOBAL_radiance_selectedRadianceMethod->renderScene(scenePatches);
+openGlReallyRender(java::ArrayList<Patch *> *scenePatches, RadianceMethod *context) {
+    if ( context != nullptr ) {
+        context->renderScene(scenePatches);
     } else if ( GLOBAL_render_renderOptions.frustumCulling ) {
-            openGlRenderWorldOctree(openGlRenderPatch);
+        openGlRenderWorldOctree(openGlRenderPatch);
     } else {
         for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
             openGlRenderPatch(scenePatches->get(i));
@@ -480,7 +480,7 @@ openGlReallyRender(java::ArrayList<Patch *> *scenePatches) {
 }
 
 static void
-openGlRenderRadiance(java::ArrayList<Patch *> *scenePatches, java::ArrayList<Geometry *> *clusteredGeometryList) {
+openGlRenderRadiance(java::ArrayList<Patch *> *scenePatches, java::ArrayList<Geometry *> *clusteredGeometryList, RadianceMethod *context) {
     if ( GLOBAL_render_renderOptions.smoothShading ) {
         glShadeModel(GL_SMOOTH);
     } else {
@@ -500,14 +500,14 @@ openGlRenderRadiance(java::ArrayList<Patch *> *scenePatches, java::ArrayList<Geo
             globalDisplayListId = 1;
             glNewList(globalDisplayListId, GL_COMPILE_AND_EXECUTE);
             // Render the scene
-            openGlReallyRender(scenePatches);
+            openGlReallyRender(scenePatches, context);
             glEndList();
         } else {
             glCallList(1);
         }
     } else {
         // Just render the scene
-        openGlReallyRender(scenePatches);
+        openGlReallyRender(scenePatches, context);
     }
 
     if ( GLOBAL_render_renderOptions.drawBoundingBoxes ) {
@@ -527,7 +527,7 @@ openGlRenderRadiance(java::ArrayList<Patch *> *scenePatches, java::ArrayList<Geo
 Renders the whole scene
 */
 void
-openGlRenderScene(java::ArrayList<Patch *> *scenePatches, java::ArrayList<Geometry *> *clusteredGeometryList, int (*reDisplayCallback)()) {
+openGlRenderScene(java::ArrayList<Patch *> *scenePatches, java::ArrayList<Geometry *> *clusteredGeometryList, int (*reDisplayCallback)(), RadianceMethod *context) {
     if ( !globalOpenGlInitialized ) {
         return;
     }
@@ -541,7 +541,7 @@ openGlRenderScene(java::ArrayList<Patch *> *scenePatches, java::ArrayList<Geomet
     }
 
     if ( !GLOBAL_render_renderOptions.renderRayTracedImage || !openGlRenderRayTraced(reDisplayCallback)) {
-        openGlRenderRadiance(scenePatches, clusteredGeometryList);
+        openGlRenderRadiance(scenePatches, clusteredGeometryList, context);
     }
 
     // Call installed render hooks, that want to render something in the scene
