@@ -205,7 +205,7 @@ batch(java::ArrayList<Patch *> *scenePatches, java::ArrayList<Patch *> *lightPat
             fflush(stdout);
             fflush(stderr);
 
-            if ( GLOBAL_radiance_selectedRadianceMethod == nullptr ) {
+            if ( GLOBAL_radiance_selectedRadianceMethod != nullptr ) {
                 printf("%s", GLOBAL_radiance_selectedRadianceMethod->getStats());
             }
 
