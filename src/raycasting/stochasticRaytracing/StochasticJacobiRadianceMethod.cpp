@@ -61,10 +61,6 @@ StochasticJacobiRadianceMethod::getStats() {
 }
 
 void
-StochasticJacobiRadianceMethod::renderScene(java::ArrayList<Patch *> *scenePatches) {
-}
-
-void
 StochasticJacobiRadianceMethod::writeVRML(FILE *fp){
 }
 
@@ -449,8 +445,8 @@ stochasticRelaxationRadiosityRenderPatch(Patch *patch) {
     }
 }
 
-static void
-stochasticRelaxationRadiosityRender(java::ArrayList<Patch *> *scenePatches) {
+void
+StochasticJacobiRadianceMethod::renderScene(java::ArrayList<Patch *> *scenePatches) {
     if ( GLOBAL_render_renderOptions.frustumCulling ) {
         openGlRenderWorldOctree(stochasticRelaxationRadiosityRenderPatch);
     } else {
@@ -525,6 +521,5 @@ RADIANCEMETHOD GLOBAL_stochasticRaytracing_stochasticRelaxationRadiosity = {
     stochasticRelaxationRadiosityParseOptions,
     stochasticRelaxationRadiosityInit,
     stochasticRelaxationRadiosityGetStats,
-    stochasticRelaxationRadiosityRender,
     mcrWriteVrml
 };

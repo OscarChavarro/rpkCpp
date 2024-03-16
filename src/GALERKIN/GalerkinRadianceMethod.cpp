@@ -90,10 +90,6 @@ GalerkinRadianceMethod::getStats() {
 }
 
 void
-GalerkinRadianceMethod::renderScene(java::ArrayList<Patch *> *scenePatches) {
-}
-
-void
 GalerkinRadianceMethod::writeVRML(FILE *fp){
 }
 
@@ -513,7 +509,7 @@ galerkinRenderPatch(Patch *patch) {
 }
 
 void
-galerkinRender(java::ArrayList<Patch *> *scenePatches) {
+GalerkinRadianceMethod::renderScene(java::ArrayList<Patch *> *scenePatches) {
     if ( GLOBAL_render_renderOptions.frustumCulling ) {
         openGlRenderWorldOctree(galerkinRenderPatch);
     } else {
@@ -679,6 +675,5 @@ RADIANCEMETHOD GLOBAL_galerkin_radiosity = {
     parseGalerkinOptions,
     initGalerkin,
     getGalerkinStats,
-    galerkinRender,
     galerkinWriteVRML
 };

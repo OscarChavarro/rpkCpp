@@ -490,6 +490,5 @@ RADIANCEMETHOD GLOBAL_stochasticRaytracing_randomWalkRadiosity = {
     randomWalkRadiosityParseOptions,
     randomWalkRadiosityInit,
     randomWalkRadiosityGetStats,
-    nullptr,
     nullptr
 };

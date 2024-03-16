@@ -468,8 +468,8 @@ openGlRenderNewDisplayList() {
 
 static void
 openGlReallyRender(java::ArrayList<Patch *> *scenePatches) {
-    if ( GLOBAL_radiance_currentRadianceMethodHandle && GLOBAL_radiance_currentRadianceMethodHandle->renderScene ) {
-        GLOBAL_radiance_currentRadianceMethodHandle->renderScene(scenePatches);
+    if ( GLOBAL_radiance_selectedRadianceMethod != nullptr ) {
+        GLOBAL_radiance_selectedRadianceMethod->renderScene(scenePatches);
     } else if ( GLOBAL_render_renderOptions.frustumCulling ) {
             openGlRenderWorldOctree(openGlRenderPatch);
     } else {

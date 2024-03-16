@@ -58,10 +58,6 @@ PhotonMapRadianceMethod::getStats() {
 }
 
 void
-PhotonMapRadianceMethod::renderScene(java::ArrayList<Patch *> *scenePatches) {
-}
-
-void
 PhotonMapRadianceMethod::writeVRML(FILE *fp){
 }
 
@@ -691,8 +687,8 @@ PhotonMapRadianceMethod::getRadiance(Patch *patch, double u, double v, Vector3D 
     return col;
 }
 
-static void
-photonMapRenderScreen(java::ArrayList<Patch *> *scenePatches) {
+void
+PhotonMapRadianceMethod::renderScene(java::ArrayList<Patch *> *scenePatches) {
     if ( GLOBAL_photonMap_config.screen && GLOBAL_photonMap_state.renderImage ) {
         GLOBAL_photonMap_config.screen->render();
     } else {
@@ -759,6 +755,5 @@ RADIANCEMETHOD GLOBAL_photonMapMethods = {
         photonMapParseOptions,
         photonMapInitPhotonMap,
         photonMapGetStats,
-        photonMapRenderScreen,
         nullptr
 };
