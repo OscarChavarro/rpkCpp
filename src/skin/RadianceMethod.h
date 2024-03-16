@@ -58,9 +58,6 @@ class RADIANCEMETHOD {
     // A longer name for the method
     const char *fullName;
 
-    // A function to set default values for the method
-    void (*defaultValues)();
-
     // A function to parse command line arguments for the method
     void (*parseOptions)(int *argc, char **argv);
 

@@ -34,6 +34,7 @@ static bool globalDoingLocalRayCasting = false;
 #define STRING_LENGTH 1000
 
 PhotonMapRadianceMethod::PhotonMapRadianceMethod() {
+    GLOBAL_photonMap_state.defaults();
 }
 
 PhotonMapRadianceMethod::~PhotonMapRadianceMethod() {
@@ -59,15 +60,6 @@ PhotonMapRadianceMethod::getStats() {
 
 void
 PhotonMapRadianceMethod::writeVRML(FILE *fp){
-}
-
-/**
-Initializes the rendering methods 'state' structure. Don't forget to
-update radiance.c to call this routine!
-*/
-static
-void photonMapDefaults() {
-    GLOBAL_photonMap_state.defaults();
 }
 
 /**
@@ -751,7 +743,6 @@ RADIANCEMETHOD GLOBAL_photonMapMethods = {
         "PMAP",
         4,
         "PhotonMap",
-        photonMapDefaults,
         photonMapParseOptions,
         photonMapInitPhotonMap,
         photonMapGetStats,

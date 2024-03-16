@@ -17,6 +17,7 @@ Stochastic Relaxation Radiosity (currently only stochastic Jacobi)
 #include "raycasting/stochasticRaytracing/StochasticJacobiRadianceMethod.h"
 
 StochasticJacobiRadianceMethod::StochasticJacobiRadianceMethod() {
+    monteCarloRadiosityDefaults();
 }
 
 StochasticJacobiRadianceMethod::~StochasticJacobiRadianceMethod() {
@@ -517,7 +518,6 @@ RADIANCEMETHOD GLOBAL_stochasticRaytracing_stochasticRelaxationRadiosity = {
     "StochJacobi",
     3,
     "Stochastic Jacobi Radiosity",
-    monteCarloRadiosityDefaults,
     stochasticRelaxationRadiosityParseOptions,
     stochasticRelaxationRadiosityInit,
     stochasticRelaxationRadiosityGetStats,

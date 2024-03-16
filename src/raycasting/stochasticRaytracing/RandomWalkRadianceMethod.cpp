@@ -9,6 +9,7 @@
 #include "raycasting/stochasticRaytracing/RandomWalkRadianceMethod.h"
 
 RandomWalkRadianceMethod::RandomWalkRadianceMethod() {
+    monteCarloRadiosityDefaults();
 }
 
 RandomWalkRadianceMethod::~RandomWalkRadianceMethod() {
@@ -486,7 +487,6 @@ RADIANCEMETHOD GLOBAL_stochasticRaytracing_randomWalkRadiosity = {
     "RandomWalk",
     3,
     "Random Walk Radiosity",
-    monteCarloRadiosityDefaults,
     randomWalkRadiosityParseOptions,
     randomWalkRadiosityInit,
     randomWalkRadiosityGetStats,

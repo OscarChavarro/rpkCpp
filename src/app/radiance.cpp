@@ -116,8 +116,6 @@ void
 radianceDefaults(java::ArrayList<Patch *> *scenePatches) {
     for ( RADIANCEMETHOD **methodPointer = GLOBAL_radiance_radianceMethods; *methodPointer != nullptr; methodPointer++) {
         RADIANCEMETHOD *method = *methodPointer;
-        method->defaultValues();
-        GLOBAL_radiance_selectedRadianceMethod = new GalerkinRadianceMethod();
         if ( strncasecmp(DEFAULT_RADIANCE_METHOD, method->shortName, method->shortNameMinimumLength) == 0 ) {
             setRadianceMethod(method, scenePatches);
         }

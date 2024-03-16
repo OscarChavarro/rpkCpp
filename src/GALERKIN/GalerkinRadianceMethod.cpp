@@ -63,6 +63,30 @@ GalerkinState::GalerkinState():
     lastClock(),
     cpu_secs()
 {
+    GLOBAL_galerkin_state.hierarchical = DEFAULT_GAL_HIERARCHICAL;
+    GLOBAL_galerkin_state.importance_driven = DEFAULT_GAL_IMPORTANCE_DRIVEN;
+    GLOBAL_galerkin_state.clustered = DEFAULT_GAL_CLUSTERED;
+    GLOBAL_galerkin_state.iteration_method = DEFAULT_GAL_ITERATION_METHOD;
+    GLOBAL_galerkin_state.lazy_linking = DEFAULT_GAL_LAZY_LINKING;
+    GLOBAL_galerkin_state.use_constant_radiance = DEFAULT_GAL_CONSTANT_RADIANCE;
+    GLOBAL_galerkin_state.use_ambient_radiance = DEFAULT_GAL_AMBIENT_RADIANCE;
+    GLOBAL_galerkin_state.shaftCullMode = DEFAULT_GAL_SHAFT_CULL_MODE;
+    GLOBAL_galerkin_state.rcvDegree = DEFAULT_GAL_RCV_CUBATURE_DEGREE;
+    GLOBAL_galerkin_state.srcDegree = DEFAULT_GAL_SRC_CUBATURE_DEGREE;
+    setCubatureRules(&GLOBAL_galerkin_state.rcv3rule, &GLOBAL_galerkin_state.rcv4rule, GLOBAL_galerkin_state.rcvDegree);
+    setCubatureRules(&GLOBAL_galerkin_state.src3rule, &GLOBAL_galerkin_state.src4rule, GLOBAL_galerkin_state.srcDegree);
+    GLOBAL_galerkin_state.clusterRule = &GLOBAL_crv1;
+    GLOBAL_galerkin_state.relMinElemArea = DEFAULT_GAL_REL_MIN_ELEM_AREA;
+    GLOBAL_galerkin_state.relLinkErrorThreshold = DEFAULT_GAL_REL_LINK_ERROR_THRESHOLD;
+    GLOBAL_galerkin_state.errorNorm = DEFAULT_GAL_ERROR_NORM;
+    GLOBAL_galerkin_state.basisType = DEFAULT_GAL_BASIS_TYPE;
+    GLOBAL_galerkin_state.exact_visibility = DEFAULT_GAL_EXACT_VISIBILITY;
+    GLOBAL_galerkin_state.multiResolutionVisibility = DEFAULT_GAL_MULTI_RESOLUTION_VISIBILITY;
+    GLOBAL_galerkin_state.clusteringStrategy = DEFAULT_GAL_CLUSTERING_STRATEGY;
+    GLOBAL_galerkin_state.scratch = nullptr;
+    GLOBAL_galerkin_state.scratchFbSize = DEFAULT_GAL_SCRATCH_FB_SIZE;
+
+    GLOBAL_galerkin_state.iteration_nr = -1; // This means "not initialized"
 }
 
 GalerkinRadianceMethod::GalerkinRadianceMethod() {
@@ -155,34 +179,6 @@ setCubatureRules(CUBARULE **triRule, CUBARULE **quadRule, GalerkinCubatureDegree
         default:
             logFatal(2, "setCubatureRules", "Invalid degree %d", degree);
     }
-}
-
-static void
-galerkinDefaults() {
-    GLOBAL_galerkin_state.hierarchical = DEFAULT_GAL_HIERARCHICAL;
-    GLOBAL_galerkin_state.importance_driven = DEFAULT_GAL_IMPORTANCE_DRIVEN;
-    GLOBAL_galerkin_state.clustered = DEFAULT_GAL_CLUSTERED;
-    GLOBAL_galerkin_state.iteration_method = DEFAULT_GAL_ITERATION_METHOD;
-    GLOBAL_galerkin_state.lazy_linking = DEFAULT_GAL_LAZY_LINKING;
-    GLOBAL_galerkin_state.use_constant_radiance = DEFAULT_GAL_CONSTANT_RADIANCE;
-    GLOBAL_galerkin_state.use_ambient_radiance = DEFAULT_GAL_AMBIENT_RADIANCE;
-    GLOBAL_galerkin_state.shaftCullMode = DEFAULT_GAL_SHAFT_CULL_MODE;
-    GLOBAL_galerkin_state.rcvDegree = DEFAULT_GAL_RCV_CUBATURE_DEGREE;
-    GLOBAL_galerkin_state.srcDegree = DEFAULT_GAL_SRC_CUBATURE_DEGREE;
-    setCubatureRules(&GLOBAL_galerkin_state.rcv3rule, &GLOBAL_galerkin_state.rcv4rule, GLOBAL_galerkin_state.rcvDegree);
-    setCubatureRules(&GLOBAL_galerkin_state.src3rule, &GLOBAL_galerkin_state.src4rule, GLOBAL_galerkin_state.srcDegree);
-    GLOBAL_galerkin_state.clusterRule = &GLOBAL_crv1;
-    GLOBAL_galerkin_state.relMinElemArea = DEFAULT_GAL_REL_MIN_ELEM_AREA;
-    GLOBAL_galerkin_state.relLinkErrorThreshold = DEFAULT_GAL_REL_LINK_ERROR_THRESHOLD;
-    GLOBAL_galerkin_state.errorNorm = DEFAULT_GAL_ERROR_NORM;
-    GLOBAL_galerkin_state.basisType = DEFAULT_GAL_BASIS_TYPE;
-    GLOBAL_galerkin_state.exact_visibility = DEFAULT_GAL_EXACT_VISIBILITY;
-    GLOBAL_galerkin_state.multiResolutionVisibility = DEFAULT_GAL_MULTI_RESOLUTION_VISIBILITY;
-    GLOBAL_galerkin_state.clusteringStrategy = DEFAULT_GAL_CLUSTERING_STRATEGY;
-    GLOBAL_galerkin_state.scratch = nullptr;
-    GLOBAL_galerkin_state.scratchFbSize = DEFAULT_GAL_SCRATCH_FB_SIZE;
-
-    GLOBAL_galerkin_state.iteration_nr = -1;    /* means "not initialized" */
 }
 
 static void
@@ -671,7 +667,6 @@ RADIANCEMETHOD GLOBAL_galerkin_radiosity = {
     "Galerkin",
     3,
     "Galerkin Radiosity",
-    galerkinDefaults,
     parseGalerkinOptions,
     initGalerkin,
     getGalerkinStats,
