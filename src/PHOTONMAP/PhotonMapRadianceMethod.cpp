@@ -194,8 +194,7 @@ photonMapDoComputePixelFluxEstimate(PhotonMapConfig *config) {
     SimpleRaytracingPathNode *eyeEndNode;
     SimpleRaytracingPathNode *lightEndNode;
 
-    // Store PDF and BSDF evals that will be overwritten
-
+    // Store PDF and BSDF evaluations that will be overwritten
     eyeEndNode = bp->m_eyeEndNode;
     lightEndNode = bp->m_lightEndNode;
     eyePrevNode = eyeEndNode->previous();
@@ -735,6 +734,5 @@ RADIANCEMETHOD GLOBAL_photonMapMethods = {
     4,
     "PhotonMap",
     photonMapParseOptions,
-    photonMapGetStats,
-    nullptr
+    photonMapGetStats
 };

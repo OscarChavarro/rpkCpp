@@ -43,6 +43,9 @@ class RadianceMethod {
     // triplet they were assigned
     virtual void renderScene(java::ArrayList<Patch *> *scenePatches) = 0;
 
+    // If defined, this routine will save the current model in VRML format.
+    // If not defined, the default method implemented in write vrml.[ch] will
+    // be used
     virtual void writeVRML(FILE *fp) = 0;
 };
 
@@ -63,11 +66,6 @@ class RADIANCEMETHOD {
 
     // Returns a string with statistics information about the current run so far
     char *(*getStats)();
-
-    // If defined, this routine will save the current model in VRML format.
-    // If not defined, the default method implemented in write vrml.[ch] will
-    // be used
-    void (*writeVRML)(FILE *fp);
 };
 
 // Available radiance methods, terminated with a nullptr pointer

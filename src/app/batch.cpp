@@ -150,8 +150,8 @@ batchSaveRadianceModel(const char *fileName, FILE *fp, int /*isPipe*/, java::Arr
     fflush(stdout);
     t = clock();
 
-    if ( GLOBAL_radiance_currentRadianceMethodHandle && GLOBAL_radiance_currentRadianceMethodHandle->writeVRML != nullptr ) {
-        GLOBAL_radiance_currentRadianceMethodHandle->writeVRML(fp);
+    if ( GLOBAL_radiance_selectedRadianceMethod != nullptr ) {
+        GLOBAL_radiance_selectedRadianceMethod->writeVRML(fp);
     } else {
         writeVRML(fp, scenePatches);
     }

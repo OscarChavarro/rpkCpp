@@ -104,10 +104,6 @@ GalerkinRadianceMethod::getStats() {
     return nullptr;
 }
 
-void
-GalerkinRadianceMethod::writeVRML(FILE *fp){
-}
-
 static int globalTrue = true;
 static int globalFalse = false;
 
@@ -634,8 +630,8 @@ galerkinWriteCoordIndicesTopCluster() {
     fprintf(globalVrmlFileDescriptor, " ]\n");
 }
 
-static void
-galerkinWriteVRML(FILE *fp) {
+void
+GalerkinRadianceMethod::writeVRML(FILE *fp) {
     writeVrmlHeader(fp);
 
     globalVrmlFileDescriptor = fp;
@@ -660,5 +656,4 @@ RADIANCEMETHOD GLOBAL_galerkin_radiosity = {
     "Galerkin Radiosity",
     parseGalerkinOptions,
     getGalerkinStats,
-    galerkinWriteVRML
 };

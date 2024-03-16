@@ -54,6 +54,7 @@ StochasticJacobiRadianceMethod::getStats() {
 
 void
 StochasticJacobiRadianceMethod::writeVRML(FILE *fp){
+    mcrWriteVrml(fp);
 }
 
 void
@@ -510,6 +511,5 @@ RADIANCEMETHOD GLOBAL_stochasticRaytracing_stochasticRelaxationRadiosity = {
     3,
     "Stochastic Jacobi Radiosity",
     stochasticRelaxationRadiosityParseOptions,
-    stochasticRelaxationRadiosityGetStats,
-    mcrWriteVrml
+    stochasticRelaxationRadiosityGetStats
 };
