@@ -7,6 +7,7 @@ class StochasticJacobiRadianceMethod : public RadianceMethod {
 public:
     StochasticJacobiRadianceMethod();
     ~StochasticJacobiRadianceMethod();
+    const char *getRadianceMethodName() const;
     void parseOptions(int *argc, char **argv);
     void initialize(java::ArrayList<Patch *> *scenePatches);
     int doStep(java::ArrayList<Patch *> *scenePatches, java::ArrayList<Patch *> *lightPatches);

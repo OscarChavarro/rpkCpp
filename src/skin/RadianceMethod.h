@@ -13,13 +13,14 @@ enum RadianceMethodAlgorithm {
     PHOTON_MAP
 };
 
-extern char *getRadianceMethodAlgorithmName(RadianceMethodAlgorithm classZ);
-
 class RadianceMethod {
   public:
     RadianceMethodAlgorithm className;
+
     RadianceMethod();
     virtual ~RadianceMethod();
+
+    virtual const char *getRadianceMethodName() const = 0;
 
     // A function to parse command line arguments for the method
     virtual void parseOptions(int *argc, char **argv) = 0;

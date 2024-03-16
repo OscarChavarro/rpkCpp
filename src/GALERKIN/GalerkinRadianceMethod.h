@@ -7,7 +7,7 @@ class GalerkinRadianceMethod : public RadianceMethod {
   public:
     GalerkinRadianceMethod();
     ~GalerkinRadianceMethod();
-    void defaultValues();
+    const char *getRadianceMethodName() const;
     void parseOptions(int *argc, char **argv);
     void initialize(java::ArrayList<Patch *> *scenePatches);
     int doStep(java::ArrayList<Patch *> *scenePatches, java::ArrayList<Patch *> *lightPatches);

@@ -96,6 +96,11 @@ GalerkinRadianceMethod::GalerkinRadianceMethod() {
 GalerkinRadianceMethod::~GalerkinRadianceMethod() {
 }
 
+const char *
+GalerkinRadianceMethod::getRadianceMethodName() const  {
+    return "Galerkin";
+}
+
 static int globalTrue = true;
 static int globalFalse = false;
 

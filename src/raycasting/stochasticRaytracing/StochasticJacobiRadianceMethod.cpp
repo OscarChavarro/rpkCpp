@@ -24,6 +24,11 @@ StochasticJacobiRadianceMethod::StochasticJacobiRadianceMethod() {
 StochasticJacobiRadianceMethod::~StochasticJacobiRadianceMethod() {
 }
 
+const char *
+StochasticJacobiRadianceMethod::getRadianceMethodName() const {
+    return "Stochastic Jacobi";
+}
+
 void
 StochasticJacobiRadianceMethod::parseOptions(int *argc, char **argv) {
     stochasticRelaxationRadiosityParseOptions(argc, argv);

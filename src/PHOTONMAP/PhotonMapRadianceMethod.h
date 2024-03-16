@@ -10,6 +10,7 @@ class PhotonMapRadianceMethod : public RadianceMethod {
   public:
     PhotonMapRadianceMethod();
     ~PhotonMapRadianceMethod();
+    const char *getRadianceMethodName() const;
     void parseOptions(int *argc, char **argv);
     void initialize(java::ArrayList<Patch *> *scenePatches);
     int doStep(java::ArrayList<Patch *> *scenePatches, java::ArrayList<Patch *> *lightPatches);

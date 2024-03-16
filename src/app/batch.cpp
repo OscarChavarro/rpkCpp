@@ -183,7 +183,7 @@ batch(java::ArrayList<Patch *> *scenePatches, java::ArrayList<Patch *> *lightPat
         int it = 0;
         bool done = false;
 
-        printf("Doing %s ...\n", getRadianceMethodAlgorithmName(GLOBAL_radiance_selectedRadianceMethod->className));
+        printf("Doing %s ...\n", GLOBAL_radiance_selectedRadianceMethod->getRadianceMethodName());
 
         fflush(stdout);
         fflush(stderr);

@@ -16,6 +16,11 @@ RandomWalkRadianceMethod::RandomWalkRadianceMethod() {
 RandomWalkRadianceMethod::~RandomWalkRadianceMethod() {
 }
 
+const char *
+RandomWalkRadianceMethod::getRadianceMethodName() const {
+    return "Random walk";
+}
+
 void
 RandomWalkRadianceMethod::parseOptions(int *argc, char **argv) {
     randomWalkRadiosityParseOptions(argc, argv);

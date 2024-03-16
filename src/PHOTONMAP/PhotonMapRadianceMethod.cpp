@@ -41,6 +41,11 @@ PhotonMapRadianceMethod::PhotonMapRadianceMethod() {
 PhotonMapRadianceMethod::~PhotonMapRadianceMethod() {
 }
 
+const char *
+PhotonMapRadianceMethod::getRadianceMethodName() const {
+    return "Photon map";
+}
+
 void
 PhotonMapRadianceMethod::parseOptions(int *argc, char **argv) {
     photonMapParseOptions(argc, argv);
