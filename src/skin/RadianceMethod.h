@@ -36,6 +36,7 @@ class RadianceMethod {
     // Destroys the radiance data for the patch. Clears the patch->radianceData pointer
     virtual void destroyPatchData(Patch *patch) = 0;
 
+    // Returns a string with statistics information about the current run so far
     virtual char *getStats() = 0;
 
     // Renders the scene using the specific data. This routine can be
@@ -61,9 +62,6 @@ class RADIANCEMETHOD {
 
     // A longer name for the method
     const char *fullName;
-
-    // Returns a string with statistics information about the current run so far
-    char *(*getStats)();
 };
 
 // Available radiance methods, terminated with a nullptr pointer

@@ -35,11 +35,6 @@ RandomWalkRadianceMethod::destroyPatchData(Patch *patch) {
     monteCarloRadiosityDestroyPatchData(patch);
 }
 
-char *
-RandomWalkRadianceMethod::getStats() {
-    return nullptr;
-}
-
 void
 RandomWalkRadianceMethod::renderScene(java::ArrayList<Patch *> *scenePatches) {
 }
@@ -455,8 +450,8 @@ RandomWalkRadianceMethod::doStep(java::ArrayList<Patch *> *scenePatches, java::A
 
 #define STRING_SIZE 2000
 
-static char *
-randomWalkRadiosityGetStats() {
+char *
+RandomWalkRadianceMethod::getStats() {
     static char stats[STRING_SIZE];
     char *p;
     int n;
@@ -478,6 +473,5 @@ randomWalkRadiosityGetStats() {
 RADIANCEMETHOD GLOBAL_stochasticRaytracing_randomWalkRadiosity = {
     "RandomWalk",
     3,
-    "Random Walk Radiosity",
-    randomWalkRadiosityGetStats
+    "Random Walk Radiosity"
 };

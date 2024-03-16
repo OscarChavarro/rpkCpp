@@ -205,7 +205,9 @@ batch(java::ArrayList<Patch *> *scenePatches, java::ArrayList<Patch *> *lightPat
             fflush(stdout);
             fflush(stderr);
 
-            printf("%s", GLOBAL_radiance_currentRadianceMethodHandle->getStats());
+            if ( GLOBAL_radiance_selectedRadianceMethod == nullptr ) {
+                printf("%s", GLOBAL_radiance_selectedRadianceMethod->getStats());
+            }
 
             int (*f)() = nullptr;
             #ifdef RAYTRACING_ENABLED

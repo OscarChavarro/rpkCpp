@@ -48,11 +48,6 @@ StochasticJacobiRadianceMethod::destroyPatchData(Patch *patch) {
     monteCarloRadiosityDestroyPatchData(patch);
 }
 
-char *
-StochasticJacobiRadianceMethod::getStats() {
-    return nullptr;
-}
-
 void
 StochasticJacobiRadianceMethod::writeVRML(FILE *fp){
     mcrWriteVrml(fp);
@@ -66,8 +61,8 @@ StochasticJacobiRadianceMethod::initialize(java::ArrayList<Patch *> *scenePatche
 
 #define STRING_SIZE 2000
 
-static char *
-stochasticRelaxationRadiosityGetStats() {
+char *
+StochasticJacobiRadianceMethod::getStats() {
     static char stats[STRING_SIZE];
     char *p;
     int n;
@@ -502,7 +497,7 @@ StochasticJacobiRadianceMethod::doStep(java::ArrayList<Patch *> *scenePatches, j
 
     stochasticRelaxationRadiosityRecomputeDisplayColors(scenePatches);
 
-    fprintf(stderr, "%s\n", stochasticRelaxationRadiosityGetStats());
+    fprintf(stderr, "%s\n", getStats());
 
     return false; // Always continue computing (never fully converged)
 }
@@ -510,6 +505,5 @@ StochasticJacobiRadianceMethod::doStep(java::ArrayList<Patch *> *scenePatches, j
 RADIANCEMETHOD GLOBAL_stochasticRaytracing_stochasticRelaxationRadiosity = {
     "StochJacobi",
     3,
-    "Stochastic Jacobi Radiosity",
-    stochasticRelaxationRadiosityGetStats
+    "Stochastic Jacobi Radiosity"
 };

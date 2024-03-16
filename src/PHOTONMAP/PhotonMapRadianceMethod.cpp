@@ -45,11 +45,6 @@ PhotonMapRadianceMethod::parseOptions(int *argc, char **argv) {
     photonMapParseOptions(argc, argv);
 }
 
-char *
-PhotonMapRadianceMethod::getStats() {
-    return nullptr;
-}
-
 void
 PhotonMapRadianceMethod::writeVRML(FILE *fp){
 }
@@ -681,8 +676,8 @@ PhotonMapRadianceMethod::renderScene(java::ArrayList<Patch *> *scenePatches) {
     }
 }
 
-static char *
-photonMapGetStats() {
+char *
+PhotonMapRadianceMethod::getStats() {
     static char stats[STRING_LENGTH];
     char *p;
     int n;
@@ -733,6 +728,5 @@ photonMapGetStats() {
 RADIANCEMETHOD GLOBAL_photonMapMethods = {
     "PMAP",
     4,
-    "PhotonMap",
-    photonMapGetStats
+    "PhotonMap"
 };

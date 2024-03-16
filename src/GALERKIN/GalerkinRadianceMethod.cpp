@@ -95,11 +95,6 @@ GalerkinRadianceMethod::GalerkinRadianceMethod() {
 GalerkinRadianceMethod::~GalerkinRadianceMethod() {
 }
 
-char *
-GalerkinRadianceMethod::getStats() {
-    return nullptr;
-}
-
 static int globalTrue = true;
 static int globalFalse = false;
 
@@ -427,8 +422,8 @@ GalerkinRadianceMethod::getRadiance(Patch *patch, double u, double v, Vector3D d
     return rad;
 }
 
-static char *
-getGalerkinStats() {
+char *
+GalerkinRadianceMethod::getStats() {
     static char stats[STRING_LENGTH];
     char *p;
     int n;
@@ -649,6 +644,5 @@ galerkinFreeMemory() {
 RADIANCEMETHOD GLOBAL_galerkin_radiosity = {
     "Galerkin",
     3,
-    "Galerkin Radiosity",
-    getGalerkinStats,
+    "Galerkin Radiosity"
 };
