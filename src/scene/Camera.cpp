@@ -119,7 +119,7 @@ static CommandLineOptionDescription globalCameraOptions[] = {
 };
 
 void parseCameraOptions(int *argc, char **argv) {
-    parseOptions(globalCameraOptions, argc, argv);
+    parseGeneralOptions(globalCameraOptions, argc, argv);
 }
 
 /**

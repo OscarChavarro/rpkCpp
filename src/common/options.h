@@ -61,7 +61,7 @@ class CommandLineOptionDescription {
     const char *description; // Short description of the option. For printing command line option usage
 };
 
-extern void parseOptions(CommandLineOptionDescription *options, int *argc, char **argv);
+extern void parseGeneralOptions(CommandLineOptionDescription *options, int *argc, char **argv);
 
 /**
 Enumerated type options: let the enumTypeStruct.data field point to an array

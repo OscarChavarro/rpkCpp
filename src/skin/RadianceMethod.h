@@ -11,6 +11,7 @@ class RadianceMethod {
     RadianceMethod();
     virtual ~RadianceMethod();
 
+    // A function to parse command line arguments for the method
     virtual void parseOptions(int *argc, char **argv) = 0;
 
     // Initializes the current scene for radiance computations. Called when a new
@@ -60,9 +61,6 @@ class RADIANCEMETHOD {
 
     // A longer name for the method
     const char *fullName;
-
-    // A function to parse command line arguments for the method
-    void (*parseOptions)(int *argc, char **argv);
 
     // Returns a string with statistics information about the current run so far
     char *(*getStats)();

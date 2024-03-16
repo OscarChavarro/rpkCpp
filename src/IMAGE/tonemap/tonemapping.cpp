@@ -208,7 +208,7 @@ toneMapDefaults() {
 
 void
 parseToneMapOptions(int *argc, char **argv) {
-    parseOptions(globalToneMappingOptions, argc, argv);
+    parseGeneralOptions(globalToneMappingOptions, argc, argv);
     recomputeGammaTables(GLOBAL_toneMap_options.gamma);
 
     for ( ToneMap **toneMap = GLOBAL_toneMap_availableToneMaps; *toneMap != nullptr; toneMap++) {

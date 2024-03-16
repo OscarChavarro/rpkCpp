@@ -417,7 +417,7 @@ list, parses their value, executes their associated actions, and
 removes them from the argv list (decreasing argc)
 */
 void
-parseOptions(CommandLineOptionDescription *options, int *argc, char **argv) {
+parseGeneralOptions(CommandLineOptionDescription *options, int *argc, char **argv) {
     optionsInitArguments(argc, argv);
     while ( optionsArgumentsRemaining()) {
         optionsProcessArguments(options);

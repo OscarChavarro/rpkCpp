@@ -117,7 +117,7 @@ static CommandLineOptionDescription renderingOptions[] = {
 
 void
 renderParseOptions(int *argc, char **argv) {
-    parseOptions(renderingOptions, argc, argv);
+    parseGeneralOptions(renderingOptions, argc, argv);
 }
 
 /**

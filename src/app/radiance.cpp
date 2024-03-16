@@ -164,9 +164,8 @@ computation
 void
 parseRadianceOptions(int *argc, char **argv) {
     selectRadianceMethod(argc, argv);
-    parseOptions(globalRadianceOptions, argc, argv);
-    for ( RADIANCEMETHOD **methodPointer = GLOBAL_radiance_radianceMethods; *methodPointer != nullptr; methodPointer++) {
-        RADIANCEMETHOD *method = *methodPointer;
-        method->parseOptions(argc, argv);
+    parseGeneralOptions(globalRadianceOptions, argc, argv);
+    if ( GLOBAL_radiance_selectedRadianceMethod != nullptr ) {
+        GLOBAL_radiance_selectedRadianceMethod->parseOptions(argc, argv);
     }
 }

@@ -32,5 +32,5 @@ static CommandLineOptionDescription globalRayMatterOptions[] =
 
 void
 rayMattingParseOptions(int *argc, char **argv) {
-    parseOptions(globalRayMatterOptions, argc, argv);
+    parseGeneralOptions(globalRayMatterOptions, argc, argv);
 }

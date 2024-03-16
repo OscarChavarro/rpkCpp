@@ -17,6 +17,7 @@ RandomWalkRadianceMethod::~RandomWalkRadianceMethod() {
 
 void
 RandomWalkRadianceMethod::parseOptions(int *argc, char **argv) {
+    randomWalkRadiosityParseOptions(argc, argv);
 }
 
 COLOR
@@ -478,6 +479,5 @@ RADIANCEMETHOD GLOBAL_stochasticRaytracing_randomWalkRadiosity = {
     "RandomWalk",
     3,
     "Random Walk Radiosity",
-    randomWalkRadiosityParseOptions,
     randomWalkRadiosityGetStats
 };

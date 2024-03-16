@@ -268,7 +268,7 @@ mainParseGlobalOptions(int *argc, char **argv) {
     #endif
 
     parseBatchOptions(argc, argv);
-    parseOptions(globalOptions, argc, argv); // Order is important, this should be called last
+    parseGeneralOptions(globalOptions, argc, argv); // Order is important, this should be called last
 }
 
 /**

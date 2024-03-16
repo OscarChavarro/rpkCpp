@@ -162,7 +162,7 @@ batchSaveRadianceModel(const char *fileName, FILE *fp, int /*isPipe*/, java::Arr
 
 void
 parseBatchOptions(int *argc, char **argv) {
-    parseOptions(batchOptions, argc, argv);
+    parseGeneralOptions(batchOptions, argc, argv);
 }
 
 void

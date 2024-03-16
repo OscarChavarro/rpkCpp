@@ -75,5 +75,5 @@ static CommandLineOptionDescription globalBiDirectionalOptions[] = {
 
 void
 biDirectionalPathParseOptions(int *argc, char **argv) {
-    parseOptions(globalBiDirectionalOptions, argc, argv);
+    parseGeneralOptions(globalBiDirectionalOptions, argc, argv);
 }

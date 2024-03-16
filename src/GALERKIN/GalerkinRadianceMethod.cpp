@@ -95,10 +95,6 @@ GalerkinRadianceMethod::GalerkinRadianceMethod() {
 GalerkinRadianceMethod::~GalerkinRadianceMethod() {
 }
 
-void
-GalerkinRadianceMethod::parseOptions(int *argc, char **argv) {
-}
-
 char *
 GalerkinRadianceMethod::getStats() {
     return nullptr;
@@ -243,9 +239,9 @@ static CommandLineOptionDescription galerkinOptions[] = {
     {nullptr, 0, TYPELESS, nullptr, DEFAULT_ACTION, nullptr}
 };
 
-static void
-parseGalerkinOptions(int *argc, char **argv) {
-    parseOptions(galerkinOptions, argc, argv);
+void
+GalerkinRadianceMethod::parseOptions(int *argc, char **argv) {
+    parseGeneralOptions(galerkinOptions, argc, argv);
 }
 
 /**
@@ -654,6 +650,5 @@ RADIANCEMETHOD GLOBAL_galerkin_radiosity = {
     "Galerkin",
     3,
     "Galerkin Radiosity",
-    parseGalerkinOptions,
     getGalerkinStats,
 };

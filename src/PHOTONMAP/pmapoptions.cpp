@@ -30,7 +30,7 @@ static CommandLineOptionDescription globalPhotonMapOptions[] = {
 
 void
 photonMapParseOptions(int *argc, char **argv) {
-    parseOptions(globalPhotonMapOptions, argc, argv);
+    parseGeneralOptions(globalPhotonMapOptions, argc, argv);
 }
 
 PhotonMapState::PhotonMapState():

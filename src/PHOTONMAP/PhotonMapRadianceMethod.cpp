@@ -42,6 +42,7 @@ PhotonMapRadianceMethod::~PhotonMapRadianceMethod() {
 
 void
 PhotonMapRadianceMethod::parseOptions(int *argc, char **argv) {
+    photonMapParseOptions(argc, argv);
 }
 
 char *
@@ -733,6 +734,5 @@ RADIANCEMETHOD GLOBAL_photonMapMethods = {
     "PMAP",
     4,
     "PhotonMap",
-    photonMapParseOptions,
     photonMapGetStats
 };

@@ -25,6 +25,7 @@ StochasticJacobiRadianceMethod::~StochasticJacobiRadianceMethod() {
 
 void
 StochasticJacobiRadianceMethod::parseOptions(int *argc, char **argv) {
+    stochasticRelaxationRadiosityParseOptions(argc, argv);
 }
 
 void
@@ -510,6 +511,5 @@ RADIANCEMETHOD GLOBAL_stochasticRaytracing_stochasticRelaxationRadiosity = {
     "StochJacobi",
     3,
     "Stochastic Jacobi Radiosity",
-    stochasticRelaxationRadiosityParseOptions,
     stochasticRelaxationRadiosityGetStats
 };

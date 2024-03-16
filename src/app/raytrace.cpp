@@ -89,7 +89,7 @@ mainRayTracingDefaults() {
 
 void
 mainParseRayTracingOptions(int *argc, char **argv) {
-    parseOptions(globalRaytracingOptions, argc, argv);
+    parseGeneralOptions(globalRaytracingOptions, argc, argv);
     for ( Raytracer **window = globalRayTracingMethods; *window; window++ ) {
         Raytracer *method = *window;
         method->ParseOptions(argc, argv);
