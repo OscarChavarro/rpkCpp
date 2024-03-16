@@ -349,7 +349,7 @@ SR_GetRadiance(
         // Stored radiance
         if ( (readout == READ_NOW) && (config->siStorage.flags != NO_COMPONENTS) ) {
             // Add the stored radiance being emitted from the patch
-            if ( GLOBAL_radiance_currentRadianceMethodHandle == &GLOBAL_photonMapMethods ) {
+            if ( GLOBAL_radiance_selectedRadianceMethod->className == PHOTON_MAP ) {
                 if ( config->radMode == STORED_PHOTON_MAP ) {
                     // Check if the distance to the previous point is big enough
                     // otherwise we need more scattering...
@@ -406,7 +406,7 @@ SR_GetRadiance(
         colorAdd(result, radiance, result);
 
         // Emitted Light
-        if ((config->radMode == STORED_PHOTON_MAP) && (GLOBAL_radiance_currentRadianceMethodHandle == &GLOBAL_photonMapMethods) ) {
+        if ( (config->radMode == STORED_PHOTON_MAP) && (GLOBAL_radiance_selectedRadianceMethod->className == PHOTON_MAP) ) {
             // Check if Le would contribute to a caustic
             if ( (readout == READ_NOW) && !(config->siStorage.DoneThisBounce(thisNode->previous())) ) {
                 // Caustic contribution:  (E...(D|G)...?L) with ? some specular bounce

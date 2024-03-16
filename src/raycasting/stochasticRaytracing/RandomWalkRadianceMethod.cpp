@@ -10,6 +10,7 @@
 
 RandomWalkRadianceMethod::RandomWalkRadianceMethod() {
     monteCarloRadiosityDefaults();
+    className = RANDOM_WALK;
 }
 
 RandomWalkRadianceMethod::~RandomWalkRadianceMethod() {
@@ -469,9 +470,3 @@ RandomWalkRadianceMethod::getStats() {
 
     return stats;
 }
-
-RADIANCEMETHOD GLOBAL_stochasticRaytracing_randomWalkRadiosity = {
-    "RandomWalk",
-    3,
-    "Random Walk Radiosity"
-};

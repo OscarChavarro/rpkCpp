@@ -334,7 +334,6 @@ mainReadFile(char *filename) {
 
     // Terminate any active radiance or raytracing methods
     fprintf(stderr, "Terminating current radiance/raytracing method ... \n");
-    RADIANCEMETHOD *oRadiance = GLOBAL_radiance_currentRadianceMethodHandle;
     setRadianceMethod(nullptr, GLOBAL_scenePatches);
 
     #ifdef RAYTRACING_ENABLED
@@ -510,11 +509,11 @@ mainReadFile(char *filename) {
            GLOBAL_statistics.totalArea);
 
     // Initialize radiance for the freshly loaded scene
-    if ( oRadiance != nullptr ) {
+    if ( GLOBAL_radiance_selectedRadianceMethod != nullptr ) {
         fprintf(stderr, "Initializing radiance computations ... ");
         fflush(stderr);
 
-        setRadianceMethod(oRadiance, globalAppScenePatches);
+        setRadianceMethod(GLOBAL_radiance_selectedRadianceMethod, globalAppScenePatches);
 
         t = clock();
         fprintf(stderr, "%g secs.\n", (float) (t - last) / (float) CLOCKS_PER_SEC);

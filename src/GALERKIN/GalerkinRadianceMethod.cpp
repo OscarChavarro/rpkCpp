@@ -90,6 +90,7 @@ GalerkinState::GalerkinState():
 }
 
 GalerkinRadianceMethod::GalerkinRadianceMethod() {
+    className = GALERKIN;
 }
 
 GalerkinRadianceMethod::~GalerkinRadianceMethod() {
@@ -640,9 +641,3 @@ galerkinFreeMemory() {
         GLOBAL_galerkin_state.scratch = nullptr;
     }
 }
-
-RADIANCEMETHOD GLOBAL_galerkin_radiosity = {
-    "Galerkin",
-    3,
-    "Galerkin Radiosity"
-};

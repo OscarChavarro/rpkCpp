@@ -35,6 +35,7 @@ static bool globalDoingLocalRayCasting = false;
 
 PhotonMapRadianceMethod::PhotonMapRadianceMethod() {
     GLOBAL_photonMap_state.defaults();
+    className = PHOTON_MAP;
 }
 
 PhotonMapRadianceMethod::~PhotonMapRadianceMethod() {
@@ -724,9 +725,3 @@ PhotonMapRadianceMethod::getStats() {
 
     return stats;
 }
-
-RADIANCEMETHOD GLOBAL_photonMapMethods = {
-    "PMAP",
-    4,
-    "PhotonMap"
-};

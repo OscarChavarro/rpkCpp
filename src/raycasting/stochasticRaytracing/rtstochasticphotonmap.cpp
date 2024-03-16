@@ -23,10 +23,10 @@ StochasticRaytracingConfiguration::init(RayTracingStochasticState &state, java::
     backgroundSampling = state.backgroundSampling;
 
     if ( radMode != STORED_NONE ) {
-        if ( GLOBAL_radiance_currentRadianceMethodHandle == nullptr ) {
+        if ( GLOBAL_radiance_selectedRadianceMethod == nullptr ) {
             logError("Stored Radiance", "No radiance method active, using no storage");
             radMode = STORED_NONE;
-        } else if ((radMode == STORED_PHOTON_MAP) && (GLOBAL_radiance_currentRadianceMethodHandle != &GLOBAL_photonMapMethods)) {
+        } else if ((radMode == STORED_PHOTON_MAP) && (GLOBAL_radiance_selectedRadianceMethod->className != PHOTON_MAP) ) {
             logError("Stored Radiance", "Photon map method not active, using no storage");
             radMode = STORED_NONE;
         }
@@ -112,10 +112,10 @@ StochasticRaytracingConfiguration::initDependentVars(java::ArrayList<Patch *> *l
 
     BSDF_FLAGS storeFlags;
 
-    if ( (GLOBAL_radiance_currentRadianceMethodHandle == nullptr) || (radMode == STORED_NONE) ) {
+    if ( (GLOBAL_radiance_selectedRadianceMethod == nullptr) || (radMode == STORED_NONE) ) {
         storeFlags = NO_COMPONENTS;
     } else {
-        if ( GLOBAL_radiance_currentRadianceMethodHandle == &GLOBAL_photonMapMethods ) {
+        if ( GLOBAL_radiance_selectedRadianceMethod->className == PHOTON_MAP ) {
             storeFlags = BSDF_GLOSSY_COMPONENT | BSDF_DIFFUSE_COMPONENT;
         } else {
             storeFlags = BRDF_DIFFUSE_COMPONENT;

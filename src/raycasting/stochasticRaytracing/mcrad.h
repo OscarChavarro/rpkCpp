@@ -7,7 +7,4 @@ Monte Carlo radiosity
 
 #include "skin/RadianceMethod.h"
 
-extern RADIANCEMETHOD GLOBAL_stochasticRaytracing_stochasticRelaxationRadiosity;
-extern RADIANCEMETHOD GLOBAL_stochasticRaytracing_randomWalkRadiosity;
-
 #endif

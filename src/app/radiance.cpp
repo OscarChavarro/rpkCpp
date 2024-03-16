@@ -18,39 +18,18 @@ Stuff common to all radiance methods
     #include "raycasting/stochasticRaytracing/RandomWalkRadianceMethod.h"
 #endif
 
-// Default radiance method: a short name of a radiance method or "none"
-#define DEFAULT_RADIANCE_METHOD "none"
-
 // Composes explanation for -radiance command line option
 #define STRING_LENGTH 1000
 static char globalRadianceMethodsString[STRING_LENGTH];
 
-// Table of available radiance methods
-RADIANCEMETHOD *GLOBAL_radiance_radianceMethods[] = {
-&GLOBAL_galerkin_radiosity,
-    #ifdef RAYTRACING_ENABLED
-        &GLOBAL_stochasticRaytracing_stochasticRelaxationRadiosity,
-        &GLOBAL_stochasticRaytracing_randomWalkRadiosity,
-        &GLOBAL_photonMapMethods,
-    #endif
-nullptr
-};
-
 // Current radiance method handle
-RADIANCEMETHOD *GLOBAL_radiance_currentRadianceMethodHandle = nullptr;
 java::ArrayList<Patch *> *GLOBAL_scenePatches = nullptr;
 
 static void
 radianceMethodOption(void *value) {
     char *name = *(char **) value;
 
-    for ( RADIANCEMETHOD **methodPointer = GLOBAL_radiance_radianceMethods; *methodPointer != nullptr; methodPointer++) {
-        RADIANCEMETHOD *method = *methodPointer;
-        if ( strncasecmp(name, method->shortName, method->shortNameMinimumLength) == 0 ) {
-            setRadianceMethod(method, GLOBAL_scenePatches);
-            return;
-        }
-    }
+    setRadianceMethod(GLOBAL_radiance_selectedRadianceMethod, GLOBAL_scenePatches);
 
     if ( strncasecmp(name, "none", 4) == 0 ) {
         setRadianceMethod(nullptr, GLOBAL_scenePatches);
@@ -69,20 +48,14 @@ static CommandLineOptionDescription globalRadianceOptions[] = {
 This routine sets the current radiance method to be used + initializes
 */
 void
-setRadianceMethod(RADIANCEMETHOD *newMethod, java::ArrayList<Patch *> *scenePatches) {
-    if ( GLOBAL_radiance_currentRadianceMethodHandle != nullptr && GLOBAL_radiance_selectedRadianceMethod != nullptr ) {
+setRadianceMethod(RadianceMethod *newMethod, java::ArrayList<Patch *> *scenePatches) {
+    if ( GLOBAL_radiance_selectedRadianceMethod != nullptr ) {
         GLOBAL_radiance_selectedRadianceMethod->terminate(scenePatches);
         // Until we have radiance data convertors, we dispose of the old data and
         // allocate new data for the new method
-        if ( GLOBAL_radiance_selectedRadianceMethod != nullptr ) {
-            for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
-                GLOBAL_radiance_selectedRadianceMethod->destroyPatchData(scenePatches->get(i));
-            }
+        for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
+            GLOBAL_radiance_selectedRadianceMethod->destroyPatchData(scenePatches->get(i));
         }
-    }
-
-    GLOBAL_radiance_currentRadianceMethodHandle = newMethod;
-    if ( GLOBAL_radiance_selectedRadianceMethod != nullptr ) {
         for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
             GLOBAL_radiance_selectedRadianceMethod->createPatchData(scenePatches->get(i));
         }
@@ -90,36 +63,9 @@ setRadianceMethod(RADIANCEMETHOD *newMethod, java::ArrayList<Patch *> *scenePatc
     }
 }
 
-static void
-makeRadianceMethodsString() {
-    char *str = globalRadianceMethodsString;
-    int n;
-    snprintf(str, STRING_LENGTH, "-radiance-method <method>: set world-space radiance computation method\n%n",
-            &n);
-    str += n;
-    snprintf(str, STRING_LENGTH, "\tmethods: %-20.20s %s%s\n%n",
-            "none", "no world-space radiance computation",
-            !GLOBAL_radiance_currentRadianceMethodHandle ? " (default)" : "", &n);
-    str += n;
-    for ( RADIANCEMETHOD **methodPointer = GLOBAL_radiance_radianceMethods; *methodPointer != nullptr; methodPointer++) {
-        RADIANCEMETHOD *method = *methodPointer;
-        snprintf(str, STRING_LENGTH, "\t         %-20.20s %s%s\n%n",
-                method->shortName, method->fullName,
-                GLOBAL_radiance_currentRadianceMethodHandle == method ? " (default)" : "", &n);
-        str += n;
-    }
-    *(str - 1) = '\0'; // Discard last newline character
-}
-
 void
 radianceDefaults(java::ArrayList<Patch *> *scenePatches) {
-    for ( RADIANCEMETHOD **methodPointer = GLOBAL_radiance_radianceMethods; *methodPointer != nullptr; methodPointer++) {
-        RADIANCEMETHOD *method = *methodPointer;
-        if ( strncasecmp(DEFAULT_RADIANCE_METHOD, method->shortName, method->shortNameMinimumLength) == 0 ) {
-            setRadianceMethod(method, scenePatches);
-        }
-    }
-    makeRadianceMethodsString();
+    setRadianceMethod(GLOBAL_radiance_selectedRadianceMethod, scenePatches);
 }
 
 static void

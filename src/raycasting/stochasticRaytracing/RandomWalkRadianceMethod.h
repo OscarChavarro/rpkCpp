@@ -7,7 +7,6 @@ class RandomWalkRadianceMethod : public RadianceMethod {
   public:
     RandomWalkRadianceMethod();
     ~RandomWalkRadianceMethod();
-    void defaultValues();
     void parseOptions(int *argc, char **argv);
     void initialize(java::ArrayList<Patch *> *scenePatches);
     int doStep(java::ArrayList<Patch *> *scenePatches, java::ArrayList<Patch *> *lightPatches);

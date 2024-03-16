@@ -18,6 +18,7 @@ Stochastic Relaxation Radiosity (currently only stochastic Jacobi)
 
 StochasticJacobiRadianceMethod::StochasticJacobiRadianceMethod() {
     monteCarloRadiosityDefaults();
+    className = STOCHASTIC_JACOBI;
 }
 
 StochasticJacobiRadianceMethod::~StochasticJacobiRadianceMethod() {
@@ -501,9 +502,3 @@ StochasticJacobiRadianceMethod::doStep(java::ArrayList<Patch *> *scenePatches, j
 
     return false; // Always continue computing (never fully converged)
 }
-
-RADIANCEMETHOD GLOBAL_stochasticRaytracing_stochasticRelaxationRadiosity = {
-    "StochJacobi",
-    3,
-    "Stochastic Jacobi Radiosity"
-};

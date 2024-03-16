@@ -178,12 +178,12 @@ batch(java::ArrayList<Patch *> *scenePatches, java::ArrayList<Patch *> *lightPat
     start_time = clock();
     wasted_secs = 0.0;
 
-    if ( GLOBAL_radiance_currentRadianceMethodHandle ) {
+    if ( GLOBAL_radiance_selectedRadianceMethod != nullptr ) {
         // GLOBAL_scene_world-space radiance computations
         int it = 0;
         bool done = false;
 
-        printf("Doing %s ...\n", GLOBAL_radiance_currentRadianceMethodHandle->fullName);
+        printf("Doing %s ...\n", getRadianceMethodAlgorithmName(GLOBAL_radiance_selectedRadianceMethod->className));
 
         fflush(stdout);
         fflush(stderr);

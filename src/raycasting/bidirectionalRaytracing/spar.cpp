@@ -87,7 +87,7 @@ LDSpar::init(SparConfig *sparConfig) {
         return;
     }
 
-    if ( !GLOBAL_radiance_currentRadianceMethodHandle ) {
+    if ( GLOBAL_radiance_selectedRadianceMethod == nullptr ) {
         logError("CLDSpar::mainInit", "Galerkin Radiance method not active !");
     }
 

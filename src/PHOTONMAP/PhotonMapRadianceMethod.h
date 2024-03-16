@@ -10,7 +10,6 @@ class PhotonMapRadianceMethod : public RadianceMethod {
   public:
     PhotonMapRadianceMethod();
     ~PhotonMapRadianceMethod();
-    void defaultValues();
     void parseOptions(int *argc, char **argv);
     void initialize(java::ArrayList<Patch *> *scenePatches);
     int doStep(java::ArrayList<Patch *> *scenePatches, java::ArrayList<Patch *> *lightPatches);
@@ -22,8 +21,6 @@ class PhotonMapRadianceMethod : public RadianceMethod {
     void renderScene(java::ArrayList<Patch *> *scenePatches);
     void writeVRML(FILE *fp);
 };
-
-extern RADIANCEMETHOD GLOBAL_photonMapMethods;
 
 COLOR photonMapGetNodeGRadiance(SimpleRaytracingPathNode *node);
 COLOR photonMapGetNodeCRadiance(SimpleRaytracingPathNode *node);

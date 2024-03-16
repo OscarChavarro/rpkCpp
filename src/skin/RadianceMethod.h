@@ -6,8 +6,18 @@
 #include "java/util/ArrayList.h"
 #include "skin/Patch.h"
 
+enum RadianceMethodAlgorithm {
+    GALERKIN,
+    STOCHASTIC_JACOBI,
+    RANDOM_WALK,
+    PHOTON_MAP
+};
+
+extern char *getRadianceMethodAlgorithmName(RadianceMethodAlgorithm classZ);
+
 class RadianceMethod {
   public:
+    RadianceMethodAlgorithm className;
     RadianceMethod();
     virtual ~RadianceMethod();
 
@@ -51,25 +61,10 @@ class RadianceMethod {
     virtual void writeVRML(FILE *fp) = 0;
 };
 
-class RADIANCEMETHOD {
-  public:
-    // A one-word name for the method: among others used to select it using
-    // the radiance method with the -radiance command line option
-    const char *shortName;
-
-    // To how many characters can be abbreviated the short name
-    int shortNameMinimumLength;
-
-    // A longer name for the method
-    const char *fullName;
-};
-
 // Available radiance methods, terminated with a nullptr pointer
-extern RADIANCEMETHOD *GLOBAL_radiance_radianceMethods[];
-extern RADIANCEMETHOD *GLOBAL_radiance_currentRadianceMethodHandle;
 extern RadianceMethod *GLOBAL_radiance_selectedRadianceMethod;
 
-extern void setRadianceMethod(RADIANCEMETHOD *newMethod, java::ArrayList<Patch *> *scenePatches);
+extern void setRadianceMethod(RadianceMethod *newMethod, java::ArrayList<Patch *> *scenePatches);
 extern void radianceDefaults(java::ArrayList<Patch *> *scenePatches);
 extern void parseRadianceOptions(int *argc, char **argv);
 

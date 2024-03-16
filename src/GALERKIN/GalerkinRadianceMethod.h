@@ -20,8 +20,6 @@ class GalerkinRadianceMethod : public RadianceMethod {
     void writeVRML(FILE *fp);
 };
 
-extern RADIANCEMETHOD GLOBAL_galerkin_radiosity;
-
 extern void galerkinFreeMemory();
 
 #endif
