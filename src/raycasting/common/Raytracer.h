@@ -36,7 +36,7 @@ class Raytracer {
     // Raytrace the current scene as seen with the current camera. If 'ip'
     // is not a nullptr pointer, write the ray-traced image using the image output
     // handle pointed by 'ip'
-    void (*Raytrace)(ImageOutputHandle *ip, java::ArrayList<Patch *> *scenePatches, java::ArrayList<Patch *> *lightPatches);
+    void (*Raytrace)(ImageOutputHandle *ip, java::ArrayList<Patch *> *scenePatches, java::ArrayList<Patch *> *lightPatches, RadianceMethod *context);
 
     // Re-displays last ray-traced image. Returns FALSE if there is no
     // previous ray-traced image and TRUE there is

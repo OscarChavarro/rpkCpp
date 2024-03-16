@@ -498,9 +498,9 @@ newFace(Vertex *v1, Vertex *v2, Vertex *v3, Vertex *v4) {
     }
 
     if ( GLOBAL_mgf_xfContext && GLOBAL_mgf_xfContext->rev ) {
-        theFace = new Patch(numberOfVertices, v3, v2, v1, v4);
+        theFace = new Patch(numberOfVertices, v3, v2, v1, v4, GLOBAL_radiance_selectedRadianceMethod);
     } else {
-        theFace = new Patch(numberOfVertices, v1, v2, v3, v4);
+        theFace = new Patch(numberOfVertices, v1, v2, v3, v4, GLOBAL_radiance_selectedRadianceMethod);
     }
 
     globalCurrentFaceList->add(0, theFace);
@@ -691,7 +691,7 @@ Inspiration comes from Burger and Gillis, Interactive Computer Graphics and
 the (indispensable) Graphics Gems books
 */
 static void
-doComplexFace(int n, Vertex **v, Vector3D *normal, Vertex **backv) {
+doComplexFace(int n, Vertex **v, Vector3D *normal, Vertex **backv, RadianceMethod *context) {
     int i;
     int j;
     int max;
@@ -827,7 +827,6 @@ handleFaceEntity(int argc, char **argv) {
     Vector3D backNormal;
     Patch *face;
     Patch *twin;
-    int i;
     int errcode;
 
     if ( argc < 4 ) {
@@ -851,7 +850,7 @@ handleFaceEntity(int argc, char **argv) {
         }
     }
 
-    for ( i = 0; i < argc - 1; i++ ) {
+    for ( int i = 0; i < argc - 1; i++ ) {
         v[i] = getVertex(argv[i + 1]);
         if ( v[i] == nullptr ) {
             // This is however a reason to stop parsing the input
@@ -891,12 +890,12 @@ handleFaceEntity(int argc, char **argv) {
                 }
             }
         } else {
-            doComplexFace(argc - 1, v, &normal, backV);
+            doComplexFace(argc - 1, v, &normal, backV, GLOBAL_radiance_selectedRadianceMethod);
             errcode = MGF_OK;
         }
     } else {
         // More than 4 vertices
-        doComplexFace(argc - 1, v, &normal, backV);
+        doComplexFace(argc - 1, v, &normal, backV, GLOBAL_radiance_selectedRadianceMethod);
         errcode = MGF_OK;
     }
 

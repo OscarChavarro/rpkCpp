@@ -60,7 +60,7 @@ Determines the radiance of the nearest patch visible through the pixel
 (x,y). P shall be the nearest patch visible in the pixel.
 */
 inline COLOR
-RayCaster::getRadianceAtPixel(int x, int y, Patch *patch) {
+RayCaster::getRadianceAtPixel(int x, int y, Patch *patch, RadianceMethod *context) {
     COLOR rad{};
     colorClear(rad);
 
@@ -89,13 +89,13 @@ RayCaster::getRadianceAtPixel(int x, int y, Patch *patch) {
 
         // Reverse ray direction and get radiance emitted at hit point towards the eye
         Vector3D dir(-ray.dir.x, -ray.dir.y, -ray.dir.z);
-        rad = GLOBAL_radiance_selectedRadianceMethod->getRadiance(patch, u, v, dir);
+        rad = context->getRadiance(patch, u, v, dir);
     }
     return rad;
 }
 
 void
-RayCaster::render(java::ArrayList<Patch *> *scenePatches) {
+RayCaster::render(java::ArrayList<Patch *> *scenePatches, RadianceMethod *context) {
     #ifdef RAYTRACING_ENABLED
         clock_t t = clock();
     #endif
@@ -114,7 +114,7 @@ RayCaster::render(java::ArrayList<Patch *> *scenePatches) {
         for ( int x = 0; x < width; x++ ) {
             Patch *patch = idRenderer->getPatchAtPixel(x, y);
             if ( patch != nullptr ) {
-                COLOR rad = getRadianceAtPixel(x, y, patch);
+                COLOR rad = getRadianceAtPixel(x, y, patch, context);
                 screenBuffer->add(x, y, rad);
             }
         }
@@ -188,12 +188,12 @@ rayCasterInitialize(java::ArrayList<Patch *> * /*lightPatches*/) {
 }
 
 static void
-rayCasterExecute(ImageOutputHandle *ip, java::ArrayList<Patch *> *scenePatches, java::ArrayList<Patch *> * /*lightPatches*/) {
+rayCasterExecute(ImageOutputHandle *ip, java::ArrayList<Patch *> *scenePatches, java::ArrayList<Patch *> * /*lightPatches*/, RadianceMethod *context) {
     if ( globalRayCaster != nullptr ) {
         delete globalRayCaster;
     }
     globalRayCaster = new RayCaster(nullptr);
-    globalRayCaster->render(scenePatches);
+    globalRayCaster->render(scenePatches, context);
     if ( globalRayCaster != nullptr && ip != nullptr ) {
         globalRayCaster->save(ip);
     }
@@ -206,7 +206,7 @@ and saved into the file with given name and file pointer. 'isPipe'
 reflects whether this file pointer is a pipe or not.
 */
 void
-rayCast(char *fileName, FILE *fp, int isPipe) {
+rayCast(char *fileName, FILE *fp, int isPipe, RadianceMethod *context) {
     ImageOutputHandle *img = nullptr;
 
     if ( fp ) {
@@ -224,7 +224,7 @@ rayCast(char *fileName, FILE *fp, int isPipe) {
     }
 
     RayCaster *rc = new RayCaster(nullptr);
-    rc->render(nullptr);
+    rc->render(nullptr, context);
     if ( img != nullptr ) {
         rc->save(img);
     }

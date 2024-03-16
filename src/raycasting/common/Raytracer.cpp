@@ -25,7 +25,7 @@ rayTrace(char *fileName, FILE *fp, int isPipe, Raytracer *activeRayTracer, java:
     }
 
     if ( activeRayTracer != nullptr ) {
-        activeRayTracer->Raytrace(img, scenePatches, lightPatches);
+        activeRayTracer->Raytrace(img, scenePatches, lightPatches, GLOBAL_radiance_selectedRadianceMethod);
     }
 
     if ( img ) {

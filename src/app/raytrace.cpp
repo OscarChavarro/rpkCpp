@@ -112,7 +112,7 @@ mainSetRayTracingMethod(Raytracer *newMethod) {
 }
 
 void
-batchSaveRaytracingImage(const char *fileName, FILE *fp, int isPipe, java::ArrayList<Patch *> * /*scenePatches*/) {
+batchSaveRaytracingImage(const char *fileName, FILE *fp, int isPipe, java::ArrayList<Patch *> * /*scenePatches*/, RadianceMethod * /*context*/) {
     clock_t t;
 
     if ( fp == nullptr ) {

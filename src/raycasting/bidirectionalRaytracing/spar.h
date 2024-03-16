@@ -48,7 +48,7 @@ class Spar {
     Spar();
     virtual ~Spar();
 
-    virtual void init(SparConfig *config);
+    virtual void init(SparConfig *config, RadianceMethod *context);
     virtual void parseAndInit(int group, char *regExp);
     virtual COLOR handlePath(SparConfig *config, CBiPath *path);
 };
@@ -58,8 +58,8 @@ Le Spar : Uses emission ase stored radiance. Allows sampling of
 all bidirectional paths
 */
 class LeSpar : public Spar {
-public:
-    virtual void init(SparConfig *sparConfig);
+  public:
+    virtual void init(SparConfig *sparConfig, RadianceMethod *context);
 };
 
 /**
@@ -67,8 +67,8 @@ LD Spar : Uses direct diffuse as stored radiance. Allows sampling of
 of eye paths. GetDirectRadiance is used as a readout function
 */
 class LDSpar : public Spar {
-public:
-    virtual void init(SparConfig *sparConfig);
+  public:
+    virtual void init(SparConfig *sparConfig, RadianceMethod *context);
 };
 
 #endif

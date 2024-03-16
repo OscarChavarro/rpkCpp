@@ -547,7 +547,8 @@ void
 RTStochastic_Trace(
     ImageOutputHandle *ip,
     java::ArrayList<Patch *> * /*scenePatches*/,
-    java::ArrayList<Patch *> *lightPatches)
+    java::ArrayList<Patch *> *lightPatches,
+    RadianceMethod *context)
 {
     StochasticRaytracingConfiguration config(GLOBAL_raytracing_state, lightPatches); // config filled in by constructor
 

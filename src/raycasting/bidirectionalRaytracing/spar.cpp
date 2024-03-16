@@ -14,7 +14,7 @@ Spar::~Spar() {
 }
 
 void
-Spar::init(SparConfig *config) {
+Spar::init(SparConfig *config, RadianceMethod *context) {
     for ( int i = 0; i < MAX_PATH_GROUPS; i++ ) {
         m_contrib[i].init(config->baseConfig->maximumPathDepth);
         m_sparList[i].removeAll();
@@ -65,8 +65,8 @@ Spar::handlePath(SparConfig *config, CBiPath *path) {
 }
 
 void
-LeSpar::init(SparConfig *sparConfig) {
-    Spar::init(sparConfig);
+LeSpar::init(SparConfig *sparConfig, RadianceMethod *context) {
+    Spar::init(sparConfig, context);
 
     // Disjoint path group for BPT
     if ( sparConfig->baseConfig->doLe ) {
@@ -80,14 +80,14 @@ LeSpar::init(SparConfig *sparConfig) {
 }
 
 void
-LDSpar::init(SparConfig *sparConfig) {
-    Spar::init(sparConfig);
+LDSpar::init(SparConfig *sparConfig, RadianceMethod *context) {
+    Spar::init(sparConfig, context);
 
     if ( !(sparConfig->baseConfig->doLD || sparConfig->baseConfig->doWeighted)) {
         return;
     }
 
-    if ( GLOBAL_radiance_selectedRadianceMethod == nullptr ) {
+    if ( context == nullptr ) {
         logError("CLDSpar::mainInit", "Galerkin Radiance method not active !");
     }
 

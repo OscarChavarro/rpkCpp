@@ -546,7 +546,7 @@ Patch::hasZeroVertices() const {
 /**
 Creates a patch structure for a patch with given vertices
 */
-Patch::Patch(int inNumberOfVertices, Vertex *v1, Vertex *v2, Vertex *v3, Vertex *v4):
+Patch::Patch(int inNumberOfVertices, Vertex *v1, Vertex *v2, Vertex *v3, Vertex *v4, RadianceMethod *context):
     flags(), id(), twin(), vertex(), numberOfVertices(), boundingBox(), normal(), planeConstant(),
     tolerance(), area(), midpoint(), jacobian(), directPotential(), index(), omit(),
     color(), radianceData(), surface()
@@ -610,8 +610,8 @@ Patch::Patch(int inNumberOfVertices, Vertex *v1, Vertex *v2, Vertex *v3, Vertex 
     flags = 0; // Other flags
 
     // If we are doing radiance computations, create radiance data for the patch
-    if ( GLOBAL_radiance_selectedRadianceMethod != nullptr && surface != nullptr ) {
-        GLOBAL_radiance_selectedRadianceMethod->createPatchData(this);
+    if ( context != nullptr && surface != nullptr ) {
+        context->createPatchData(this);
     } else {
         radianceData = nullptr;
     }

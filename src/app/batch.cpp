@@ -51,7 +51,7 @@ static CommandLineOptionDescription batchOptions[] = {
 Saves a RGB image in the front buffer
 */
 static void
-openGlSaveScreen(char *fileName, FILE *fp, int isPipe) {
+openGlSaveScreen(char *fileName, FILE *fp, int isPipe, RadianceMethod *context) {
     ImageOutputHandle *img;
     long j, x = GLOBAL_camera_mainCamera.xSize, y = GLOBAL_camera_mainCamera.ySize;
     GLubyte *screen;
@@ -59,11 +59,11 @@ openGlSaveScreen(char *fileName, FILE *fp, int isPipe) {
 
     // RayCast() saves the current picture in display-mapped (!) real values
     if ( GLOBAL_render_renderOptions.trace ) {
-        rayCast(fileName, fp, isPipe);
+        rayCast(fileName, fp, isPipe, context);
         return;
     }
 
-    if ( !fp || !(img = createImageOutputHandle(fileName, fp, isPipe, (int)x, (int)y)) ) {
+    if ( !(img = createImageOutputHandle(fileName, fp, isPipe, (int)x, (int)y)) ) {
         return;
     }
 
@@ -97,21 +97,21 @@ This routine was copied from uit.c, leaving out all interface related things
 static void
 batchProcessFile(
     const char *fileName,
-    const char *open_mode,
-    void (*processFileCallback)(const char *fileName, FILE *fp, int isPipe, java::ArrayList<Patch *> *scenePatches),
+    const char *openMode,
+    void (*processFileCallback)(const char *fileName, FILE *fp, int isPipe, java::ArrayList<Patch *> *scenePatches, RadianceMethod *context),
     java::ArrayList<Patch *> *scenePatches)
 {
     int isPipe;
-    FILE *fp = openFile(fileName, open_mode, &isPipe);
+    FILE *fp = openFile(fileName, openMode, &isPipe);
 
     // Call the user supplied procedure to process the file
-    processFileCallback(fileName, fp, isPipe, scenePatches);
+    processFileCallback(fileName, fp, isPipe, scenePatches, GLOBAL_radiance_selectedRadianceMethod);
 
     closeFile(fp, isPipe);
 }
 
 static void
-batchSaveRadianceImage(const char *fileName, FILE *fp, int isPipe, java::ArrayList<Patch *> *scenePatches) {
+batchSaveRadianceImage(const char *fileName, FILE *fp, int isPipe, java::ArrayList<Patch *> *scenePatches, RadianceMethod *context) {
     clock_t t;
     char *extension;
 
@@ -131,14 +131,14 @@ batchSaveRadianceImage(const char *fileName, FILE *fp, int isPipe, java::ArrayLi
 
     t = clock();
 
-    openGlSaveScreen((char *) fileName, fp, isPipe);
+    openGlSaveScreen((char *)fileName, fp, isPipe, context);
 
     fprintf(stdout, "%g secs.\n", (float) (clock() - t) / (float) CLOCKS_PER_SEC);
     canvasPullMode();
 }
 
 static void
-batchSaveRadianceModel(const char *fileName, FILE *fp, int /*isPipe*/, java::ArrayList<Patch *> *scenePatches) {
+batchSaveRadianceModel(const char *fileName, FILE *fp, int /*isPipe*/, java::ArrayList<Patch *> *scenePatches, RadianceMethod * /*context*/) {
     clock_t t;
 
     if ( !fp ) {

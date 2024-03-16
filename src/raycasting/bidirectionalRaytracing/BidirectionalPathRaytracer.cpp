@@ -961,7 +961,7 @@ is not a nullptr pointer, write the ray traced image to the file
 pointed to by 'fp'
 */
 static void
-biDirPathTrace(ImageOutputHandle *ip, java::ArrayList<Patch *> * /*scenePatches*/, java::ArrayList<Patch *> * /*lightPatches*/) {
+biDirPathTrace(ImageOutputHandle *ip, java::ArrayList<Patch *> * /*scenePatches*/, java::ArrayList<Patch *> * /*lightPatches*/, RadianceMethod *context) {
     // Install the samplers to be used in the state
 
     BidirectionalPathTracingConfiguration config;
@@ -1030,8 +1030,8 @@ biDirPathTrace(ImageOutputHandle *ip, java::ArrayList<Patch *> * /*scenePatches*
         sc->leSpar = leSpar;
         sc->ldSpar = ldSpar;
 
-        leSpar->init(sc);
-        ldSpar->init(sc);
+        leSpar->init(sc, context);
+        ldSpar->init(sc, context);
 
         config.sparList->add(leSpar);
         config.sparList->add(ldSpar);

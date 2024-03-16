@@ -117,7 +117,7 @@ static RayMatter *rm = nullptr;
 RayMattingState GLOBAL_rayCasting_rayMatterState;
 
 static void
-IRayMatte(ImageOutputHandle *ip, java::ArrayList<Patch *> * /*scenePatches*/, java::ArrayList<Patch *> * /*lightPatches*/) {
+IRayMatte(ImageOutputHandle *ip, java::ArrayList<Patch *> * /*scenePatches*/, java::ArrayList<Patch *> * /*lightPatches*/, RadianceMethod *context) {
     if ( rm ) {
         delete rm;
     }
