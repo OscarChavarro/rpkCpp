@@ -84,10 +84,6 @@ GalerkinRadianceMethod::initialize(java::ArrayList<Patch *> *scenePatches) {
 
 }
 
-void
-GalerkinRadianceMethod::destroyPatchData(Patch *patch) {
-}
-
 char *
 GalerkinRadianceMethod::getStats() {
     return nullptr;
@@ -293,8 +289,8 @@ GalerkinRadianceMethod::createPatchData(Patch *patch) {
     return patch->radianceData = new GalerkinElement(patch);
 }
 
-static void
-destroyPatchData(Patch *patch) {
+void
+GalerkinRadianceMethod::destroyPatchData(Patch *patch) {
     delete ((GalerkinElement *)patch->radianceData);
     patch->radianceData = nullptr;
 }
@@ -682,7 +678,6 @@ RADIANCEMETHOD GLOBAL_galerkin_radiosity = {
     galerkinDefaults,
     parseGalerkinOptions,
     initGalerkin,
-    destroyPatchData,
     getGalerkinStats,
     galerkinRender,
     galerkinWriteVRML

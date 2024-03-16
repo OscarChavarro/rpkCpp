@@ -39,6 +39,7 @@ RandomWalkRadianceMethod::createPatchData(Patch *patch) {
 
 void
 RandomWalkRadianceMethod::destroyPatchData(Patch *patch) {
+    monteCarloRadiosityDestroyPatchData(patch);
 }
 
 char *
@@ -488,7 +489,6 @@ RADIANCEMETHOD GLOBAL_stochasticRaytracing_randomWalkRadiosity = {
     monteCarloRadiosityDefaults,
     randomWalkRadiosityParseOptions,
     randomWalkRadiosityInit,
-    monteCarloRadiosityDestroyPatchData,
     randomWalkRadiosityGetStats,
     nullptr,
     nullptr

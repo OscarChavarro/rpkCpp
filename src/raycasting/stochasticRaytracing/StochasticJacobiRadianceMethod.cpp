@@ -52,6 +52,7 @@ StochasticJacobiRadianceMethod::createPatchData(Patch *patch) {
 
 void
 StochasticJacobiRadianceMethod::destroyPatchData(Patch *patch) {
+    monteCarloRadiosityDestroyPatchData(patch);
 }
 
 char *
@@ -347,7 +348,7 @@ stochasticRelaxationRadiosityElementUpdateRadiance(StochasticRadiosityElement *e
     // Re-add source radiosity
     colorAdd(elem->radiance[0], elem->sourceRad, elem->radiance[0]);
 
-    // Clear unshot and received radiance
+    // Clear un-shot and received radiance
     stochasticRadiosityClearCoefficients(elem->unShotRadiance, elem->basis);
     stochasticRadiosityClearCoefficients(elem->receivedRadiance, elem->basis);
 }
@@ -523,7 +524,6 @@ RADIANCEMETHOD GLOBAL_stochasticRaytracing_stochasticRelaxationRadiosity = {
     monteCarloRadiosityDefaults,
     stochasticRelaxationRadiosityParseOptions,
     stochasticRelaxationRadiosityInit,
-    monteCarloRadiosityDestroyPatchData,
     stochasticRelaxationRadiosityGetStats,
     stochasticRelaxationRadiosityRender,
     mcrWriteVrml

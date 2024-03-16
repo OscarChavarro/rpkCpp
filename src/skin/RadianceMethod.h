@@ -32,6 +32,7 @@ class RadianceMethod {
     // Allocates memory for the radiance data for the given patch. Fills in the pointer in patch->radianceData
     virtual Element *createPatchData(Patch *patch) = 0;
 
+    // Destroys the radiance data for the patch. Clears the patch->radianceData pointer
     virtual void destroyPatchData(Patch *patch) = 0;
 
     virtual char *getStats() = 0;
@@ -62,9 +63,6 @@ class RADIANCEMETHOD {
     // Initializes the current scene for radiance computations. Called when a new
     // scene is loaded or when selecting a particular radiance algorithm
     void (*initialize)(java::ArrayList<Patch *> *scenePatches);
-
-    // Destroys the radiance data for the patch. Clears the patch->radianceData pointer
-    void (*destroyPatchData)(Patch *patch);
 
     // Returns a string with statistics information about the current run so far
     char *(*getStats)();

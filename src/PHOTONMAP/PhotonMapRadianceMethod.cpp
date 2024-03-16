@@ -52,10 +52,6 @@ PhotonMapRadianceMethod::initialize(java::ArrayList<Patch *> *scenePatches) {
 
 }
 
-void
-PhotonMapRadianceMethod::destroyPatchData(Patch *patch) {
-}
-
 char *
 PhotonMapRadianceMethod::getStats() {
     return nullptr;
@@ -95,8 +91,8 @@ PhotonMapRadianceMethod::createPatchData(Patch *patch) {
     return patch->radianceData = nullptr;
 }
 
-static void
-photonMapDestroyPatchData(Patch *patch) {
+void
+PhotonMapRadianceMethod::destroyPatchData(Patch *patch) {
     patch->radianceData = nullptr;
 }
 
@@ -117,8 +113,8 @@ photonMapChooseSurfaceSampler(CSurfaceSampler **samplerPtr) {
 Initializes the computations for the current scene (if any)
 */
 static void
-photonMapInitPmap(java::ArrayList<Patch *> * /*scenePatches*/) {
-    fprintf(stderr, "Photonmap activated\n");
+photonMapInitPhotonMap(java::ArrayList<Patch *> * /*scenePatches*/) {
+    fprintf(stderr, "Photon map activated\n");
 
     GLOBAL_photonMap_state.lastClock = clock();
     GLOBAL_photonMap_state.cpuSecs = 0.0;
@@ -169,7 +165,7 @@ photonMapInitPmap(java::ArrayList<Patch *> * /*scenePatches*/) {
 
     GLOBAL_raytracer_rayCount = 0;
 
-    // mainInit the photonmap
+    // mainInit the photon map
 
     if ( GLOBAL_photonMap_config.globalMap ) {
         delete GLOBAL_photonMap_config.globalMap;
@@ -196,7 +192,7 @@ photonMapInitPmap(java::ArrayList<Patch *> * /*scenePatches*/) {
 }
 
 /**
-Adapted from bidirpath, this is a bit overkill for here
+Adapted from bi-directional path, this is a bit overkill for here
 */
 static COLOR
 photonMapDoComputePixelFluxEstimate(PhotonMapConfig *config) {
@@ -233,23 +229,23 @@ photonMapDoComputePixelFluxEstimate(PhotonMapConfig *config) {
     oldBsdfCompE = eyeEndNode->m_bsdfComp;
 
     oldPdfL = lightEndNode->m_pdfFromNext;
-    PNAN(lightEndNode->m_pdfFromNext);
+    //PNAN(lightEndNode->m_pdfFromNext);
 
     oldRRPdfL = lightEndNode->m_rrPdfFromNext;
 
     if ( lightPrevNode ) {
         oldPdfLP = lightPrevNode->m_pdfFromNext;
-        PNAN(lightPrevNode->m_pdfFromNext);
+        //PNAN(lightPrevNode->m_pdfFromNext);
         oldRRPdfLP = lightPrevNode->m_rrPdfFromNext;
     }
 
     oldPdfE = eyeEndNode->m_pdfFromNext;
-    PNAN(eyeEndNode->m_pdfFromNext);
+    //PNAN(eyeEndNode->m_pdfFromNext);
     oldRRPdfE = eyeEndNode->m_rrPdfFromNext;
 
     if ( eyePrevNode ) {
         oldPdfEP = eyePrevNode->m_pdfFromNext;
-        PNAN(eyePrevNode->m_pdfFromNext);
+        //PNAN(eyePrevNode->m_pdfFromNext);
         oldRRPdfEP = eyePrevNode->m_rrPdfFromNext;
     }
 
@@ -388,7 +384,7 @@ Handle one path : store at all end positions and for testing, connect to the eye
 */
 void
 photonMapHandlePath(PhotonMapConfig *config) {
-    bool ldone;
+    bool lDone;
     CBiPath *bp = &config->biPath;
     COLOR accPower;
     float factor;
@@ -402,10 +398,10 @@ photonMapHandlePath(PhotonMapConfig *config) {
     bp->m_eyeEndNode = bp->m_eyePath;
     bp->m_geomConnect = 1.0; // No connection yet
 
-    ldone = false;
+    lDone = false;
     colorSetMonochrome(accPower, 1.0);
 
-    while ( !ldone ) {
+    while ( !lDone ) {
         // Adjust accPower
 
         factor = (float)(currentNode->m_G / currentNode->m_pdfFromPrev);
@@ -445,7 +441,7 @@ photonMapHandlePath(PhotonMapConfig *config) {
             currentNode = currentNode->next();
             bp->m_lightSize++;
         } else {
-            ldone = true;
+            lDone = true;
         }
     }
 }
@@ -455,17 +451,13 @@ photonMapTracePath(PhotonMapConfig *config, BSDF_FLAGS bsdfFlags) {
     config->biPath.m_eyePath = config->eyeConfig.tracePath(config->biPath.m_eyePath);
 
     // Use qmc for light sampling
-
-    double x_1, x_2;
-    // unsigned *nrs = Nied31(pmapQMCseed_s++);
-
     SimpleRaytracingPathNode *path = config->biPath.m_lightPath;
 
     // First node
-    x_1 = drand48(); //nrs[0] * RECIP;
-    x_2 = drand48(); //nrs[1] * RECIP;
+    double x1 = drand48(); //nrs[0] * RECIP;
+    double x2 = drand48(); //nrs[1] * RECIP;
 
-    path = config->lightConfig.traceNode(path, x_1, x_2, bsdfFlags);
+    path = config->lightConfig.traceNode(path, x1, x2, bsdfFlags);
     if ( path == nullptr ) {
         return;
     }
@@ -476,11 +468,11 @@ photonMapTracePath(PhotonMapConfig *config, BSDF_FLAGS bsdfFlags) {
 
     // Second node
     SimpleRaytracingPathNode *node = path->next();
-    x_1 = drand48(); // nrs[2] * RECIP;
-    x_2 = drand48(); // nrs[3] * RECIP; // 4D Niederreiter...
+    x1 = drand48(); // nrs[2] * RECIP;
+    x2 = drand48(); // nrs[3] * RECIP; // 4D Niederreiter...
 
-    if ( config->lightConfig.traceNode(node, x_1, x_2, bsdfFlags)) {
-        // Succesful trace...
+    if ( config->lightConfig.traceNode(node, x1, x2, bsdfFlags)) {
+        // Successful trace
         node->ensureNext();
         config->lightConfig.tracePath(node->next(), bsdfFlags);
     }
@@ -559,7 +551,7 @@ photonMapBRRealIteration() {
 Performs one step of the radiance computations. The goal most often is
 to fill in a RGB color for display of each patch and/or vertex. These
 colors are used for hardware rendering if the default hardware rendering
-method is not superceeded in this file
+method is not updated in this file
 */
 int
 PhotonMapRadianceMethod::doStep(java::ArrayList<Patch *> *scenePatches, java::ArrayList<Patch *> *lightPatches) {
@@ -717,7 +709,7 @@ photonMapGetStats() {
     int n;
 
     p = stats;
-    snprintf(p, STRING_LENGTH, "PMAP Statistics:\n\n%n", &n);
+    snprintf(p, STRING_LENGTH, "Photon map Statistics:\n\n%n", &n);
     p += n;
     snprintf(p, STRING_LENGTH, "Ray count %li\n%n", GLOBAL_raytracer_rayCount, &n);
     p += n;
@@ -760,14 +752,13 @@ photonMapGetStats() {
 }
 
 RADIANCEMETHOD GLOBAL_photonMapMethods = {
-    "PMAP",
-    4,
-    "PhotonMap",
-    photonMapDefaults,
-    photonMapParseOptions,
-    photonMapInitPmap,
-    photonMapDestroyPatchData,
-    photonMapGetStats,
-    photonMapRenderScreen,
-    nullptr
+        "PMAP",
+        4,
+        "PhotonMap",
+        photonMapDefaults,
+        photonMapParseOptions,
+        photonMapInitPhotonMap,
+        photonMapGetStats,
+        photonMapRenderScreen,
+        nullptr
 };

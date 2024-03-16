@@ -74,9 +74,9 @@ setRadianceMethod(RADIANCEMETHOD *newMethod, java::ArrayList<Patch *> *scenePatc
         GLOBAL_radiance_selectedRadianceMethod->terminate(scenePatches);
         // Until we have radiance data convertors, we dispose of the old data and
         // allocate new data for the new method
-        if ( GLOBAL_radiance_currentRadianceMethodHandle->destroyPatchData ) {
+        if ( GLOBAL_radiance_selectedRadianceMethod != nullptr ) {
             for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
-                GLOBAL_radiance_currentRadianceMethodHandle->destroyPatchData(scenePatches->get(i));
+                GLOBAL_radiance_selectedRadianceMethod->destroyPatchData(scenePatches->get(i));
             }
         }
     }
