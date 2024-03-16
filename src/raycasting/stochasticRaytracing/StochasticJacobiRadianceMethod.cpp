@@ -24,16 +24,7 @@ StochasticJacobiRadianceMethod::~StochasticJacobiRadianceMethod() {
 }
 
 void
-StochasticJacobiRadianceMethod::defaultValues() {
-}
-
-void
 StochasticJacobiRadianceMethod::parseOptions(int *argc, char **argv) {
-}
-
-void
-StochasticJacobiRadianceMethod::initialize(java::ArrayList<Patch *> *scenePatches) {
-
 }
 
 void
@@ -65,8 +56,8 @@ void
 StochasticJacobiRadianceMethod::writeVRML(FILE *fp){
 }
 
-static void
-stochasticRelaxationRadiosityInit(java::ArrayList<Patch *> * /*scenePatches*/) {
+void
+StochasticJacobiRadianceMethod::initialize(java::ArrayList<Patch *> *scenePatches) {
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.method = STOCHASTIC_RELAXATION_RADIOSITY_METHOD;
     monteCarloRadiosityInit();
 }
@@ -519,7 +510,6 @@ RADIANCEMETHOD GLOBAL_stochasticRaytracing_stochasticRelaxationRadiosity = {
     3,
     "Stochastic Jacobi Radiosity",
     stochasticRelaxationRadiosityParseOptions,
-    stochasticRelaxationRadiosityInit,
     stochasticRelaxationRadiosityGetStats,
     mcrWriteVrml
 };

@@ -41,16 +41,7 @@ PhotonMapRadianceMethod::~PhotonMapRadianceMethod() {
 }
 
 void
-PhotonMapRadianceMethod::defaultValues() {
-}
-
-void
 PhotonMapRadianceMethod::parseOptions(int *argc, char **argv) {
-}
-
-void
-PhotonMapRadianceMethod::initialize(java::ArrayList<Patch *> *scenePatches) {
-
 }
 
 char *
@@ -100,8 +91,8 @@ photonMapChooseSurfaceSampler(CSurfaceSampler **samplerPtr) {
 /**
 Initializes the computations for the current scene (if any)
 */
-static void
-photonMapInitPhotonMap(java::ArrayList<Patch *> * /*scenePatches*/) {
+void
+PhotonMapRadianceMethod::initialize(java::ArrayList<Patch *> *scenePatches) {
     fprintf(stderr, "Photon map activated\n");
 
     GLOBAL_photonMap_state.lastClock = clock();
@@ -740,11 +731,10 @@ photonMapGetStats() {
 }
 
 RADIANCEMETHOD GLOBAL_photonMapMethods = {
-        "PMAP",
-        4,
-        "PhotonMap",
-        photonMapParseOptions,
-        photonMapInitPhotonMap,
-        photonMapGetStats,
-        nullptr
+    "PMAP",
+    4,
+    "PhotonMap",
+    photonMapParseOptions,
+    photonMapGetStats,
+    nullptr
 };

@@ -11,10 +11,10 @@ class RadianceMethod {
     RadianceMethod();
     virtual ~RadianceMethod();
 
-    virtual void defaultValues() = 0;
-
     virtual void parseOptions(int *argc, char **argv) = 0;
 
+    // Initializes the current scene for radiance computations. Called when a new
+    // scene is loaded or when selecting a particular radiance algorithm
     virtual void initialize(java::ArrayList<Patch *> *scenePatches) = 0;
 
     // Does one step or iteration of the radiance computation, typically a unit
@@ -60,10 +60,6 @@ class RADIANCEMETHOD {
 
     // A function to parse command line arguments for the method
     void (*parseOptions)(int *argc, char **argv);
-
-    // Initializes the current scene for radiance computations. Called when a new
-    // scene is loaded or when selecting a particular radiance algorithm
-    void (*initialize)(java::ArrayList<Patch *> *scenePatches);
 
     // Returns a string with statistics information about the current run so far
     char *(*getStats)();

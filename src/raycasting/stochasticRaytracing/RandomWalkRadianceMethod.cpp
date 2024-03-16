@@ -16,16 +16,7 @@ RandomWalkRadianceMethod::~RandomWalkRadianceMethod() {
 }
 
 void
-RandomWalkRadianceMethod::defaultValues() {
-}
-
-void
 RandomWalkRadianceMethod::parseOptions(int *argc, char **argv) {
-}
-
-void
-RandomWalkRadianceMethod::initialize(java::ArrayList<Patch *> *scenePatches) {
-
 }
 
 COLOR
@@ -56,8 +47,8 @@ void
 RandomWalkRadianceMethod::writeVRML(FILE *fp){
 }
 
-static void
-randomWalkRadiosityInit(java::ArrayList<Patch *> * /*scenePatches*/) {
+void
+RandomWalkRadianceMethod::initialize(java::ArrayList<Patch *> *scenePatches) {
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.method = RANDOM_WALK_RADIOSITY_METHOD;
     monteCarloRadiosityInit();
 }
@@ -488,7 +479,6 @@ RADIANCEMETHOD GLOBAL_stochasticRaytracing_randomWalkRadiosity = {
     3,
     "Random Walk Radiosity",
     randomWalkRadiosityParseOptions,
-    randomWalkRadiosityInit,
     randomWalkRadiosityGetStats,
     nullptr
 };

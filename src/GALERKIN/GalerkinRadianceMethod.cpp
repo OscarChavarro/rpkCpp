@@ -96,16 +96,7 @@ GalerkinRadianceMethod::~GalerkinRadianceMethod() {
 }
 
 void
-GalerkinRadianceMethod::defaultValues() {
-}
-
-void
 GalerkinRadianceMethod::parseOptions(int *argc, char **argv) {
-}
-
-void
-GalerkinRadianceMethod::initialize(java::ArrayList<Patch *> *scenePatches) {
-
 }
 
 char *
@@ -343,8 +334,8 @@ patchInit(Patch *patch) {
     patchRecomputeColor(patch);
 }
 
-static void
-initGalerkin(java::ArrayList<Patch *> *scenePatches) {
+void
+GalerkinRadianceMethod::initialize(java::ArrayList<Patch *> *scenePatches) {
     GLOBAL_galerkin_state.iteration_nr = 0;
     GLOBAL_galerkin_state.cpu_secs = 0.0;
 
@@ -668,7 +659,6 @@ RADIANCEMETHOD GLOBAL_galerkin_radiosity = {
     3,
     "Galerkin Radiosity",
     parseGalerkinOptions,
-    initGalerkin,
     getGalerkinStats,
     galerkinWriteVRML
 };

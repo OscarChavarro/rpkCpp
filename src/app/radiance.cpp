@@ -80,14 +80,13 @@ setRadianceMethod(RADIANCEMETHOD *newMethod, java::ArrayList<Patch *> *scenePatc
             }
         }
     }
+
     GLOBAL_radiance_currentRadianceMethodHandle = newMethod;
-    if ( GLOBAL_radiance_currentRadianceMethodHandle != nullptr ) {
-        if ( GLOBAL_radiance_selectedRadianceMethod != nullptr ) {
-            for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
-                GLOBAL_radiance_selectedRadianceMethod->createPatchData(scenePatches->get(i));
-            }
+    if ( GLOBAL_radiance_selectedRadianceMethod != nullptr ) {
+        for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
+            GLOBAL_radiance_selectedRadianceMethod->createPatchData(scenePatches->get(i));
         }
-        GLOBAL_radiance_currentRadianceMethodHandle->initialize(scenePatches);
+        GLOBAL_radiance_selectedRadianceMethod->initialize(scenePatches);
     }
 }
 
