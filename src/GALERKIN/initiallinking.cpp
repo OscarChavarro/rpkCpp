@@ -3,7 +3,7 @@
 #include "skin/Geometry.h"
 #include "scene/scene.h"
 #include "skin/Patch.h"
-#include "GALERKIN/shaftculling.h"
+#include "GALERKIN/Shaft.h"
 #include "GALERKIN/basisgalerkin.h"
 #include "GALERKIN/galerkinP.h"
 #include "GALERKIN/formfactor.h"
@@ -42,36 +42,29 @@ createInitialLink(Patch *patch) {
     }
 
     if ( (GLOBAL_galerkin_state.exact_visibility || GLOBAL_galerkin_state.shaftCullMode == ALWAYS_DO_SHAFT_CULLING) && oldCandidateList ) {
-        SHAFT shaft;
-        SHAFT *theShaft;
+        Shaft shaft;
 
         if ( GLOBAL_galerkin_state.exact_visibility ) {
             POLYGON rcvPolygon;
             POLYGON srcPolygon;
-            theShaft = constructPolygonToPolygonShaft(rcv->polygon(&rcvPolygon),
-                                                      src->polygon(&srcPolygon),
-                                                      &shaft);
+            shaft.constructFromPolygonToPolygon(rcv->polygon(&rcvPolygon),
+                                                src->polygon(&srcPolygon));
         } else {
             BoundingBox bbox;
-            theShaft = constructShaft(&globalPatchBoundingBox, patch->patchBounds(&bbox), &shaft);
+            shaft.constructShaft(&globalPatchBoundingBox, patch->patchBounds(&bbox));
         }
 
-        if ( theShaft != nullptr ) {
-            setShaftOmit(&shaft, globalPatch);
-            setShaftOmit(&shaft, patch);
-            java::ArrayList<Geometry*> *arr = new java::ArrayList<Geometry*>();
-            doShaftCulling(oldCandidateList, theShaft, globalCandidateList);
-            globalCandidateList = arr;
+        shaft.setShaftOmit(globalPatch);
+        shaft.setShaftOmit(patch);
+        java::ArrayList<Geometry*> *arr = new java::ArrayList<Geometry*>();
+        shaft.doCulling(oldCandidateList, globalCandidateList);
+        globalCandidateList = arr;
 
-            if ( theShaft->cut == true ) {
-                // One patch causes full occlusion
-                freeCandidateList(globalCandidateList);
-                globalCandidateList = oldCandidateList;
-                return;
-            }
-        } else {
-            // Should never happen though
-            logWarning("createInitialLinks", "Unable to construct a shaft for shaft culling");
+        if ( shaft.cut == true ) {
+            // One patch causes full occlusion
+            freeCandidateList(globalCandidateList);
+            globalCandidateList = oldCandidateList;
+            return;
         }
     }
 
@@ -88,9 +81,8 @@ createInitialLink(Patch *patch) {
 
     bool isSceneGeometry = (globalCandidateList == GLOBAL_scene_geometries);
     bool isClusteredGeometry = (globalCandidateList == GLOBAL_scene_clusteredGeometries);
-    java::ArrayList<Geometry *> *geometryList = globalCandidateList;
-    areaToAreaFormFactor(&link, geometryList, isSceneGeometry, isClusteredGeometry);
-    //delete geometryList;
+    java::ArrayList<Geometry *> *geometryListReferences = globalCandidateList;
+    areaToAreaFormFactor(&link, geometryListReferences, isSceneGeometry, isClusteredGeometry);
 
     if ( GLOBAL_galerkin_state.exact_visibility || GLOBAL_galerkin_state.shaftCullMode == ALWAYS_DO_SHAFT_CULLING ) {
         if ( oldCandidateList != globalCandidateList ) {
@@ -116,7 +108,7 @@ Yes ... we exploit the hierarchical structure of the scene during initial linkin
 */
 static void
 geomLink(Geometry *geom) {
-    SHAFT shaft;
+    Shaft shaft;
     java::ArrayList<Geometry *> *oldCandidateList = globalCandidateList;
 
     // Immediately return if the Geometry is bounded and behind the plane of the patch for which interactions are created
@@ -128,10 +120,10 @@ geomLink(Geometry *geom) {
     // which contains the possible occluder between a pair of patches for which
     // an initial link will need to be created
     if ( geom->bounded && oldCandidateList ) {
-        constructShaft(&globalPatchBoundingBox, &geomBounds(geom), &shaft);
-        setShaftOmit(&shaft, globalPatch);
+        shaft.constructShaft(&globalPatchBoundingBox, &geomBounds(geom));
+        shaft.setShaftOmit(globalPatch);
         java::ArrayList<Geometry*> *arr = new java::ArrayList<Geometry*>();
-        doShaftCulling(oldCandidateList, &shaft, arr);
+        shaft.doCulling(oldCandidateList, arr);
         globalCandidateList = arr;
     }
 

@@ -4,7 +4,7 @@ efficient ray-traced radiosity", 2nd Euro-graphics Workshop on Rendering, Barcel
 */
 
 #include "java/util/ArrayList.txx"
-#include "GALERKIN/shaftculling.h"
+#include "GALERKIN/Shaft.h"
 
 /**
 Some constants describing the position of some item with respect to a plane or a shaft
@@ -15,15 +15,24 @@ Some constants describing the position of some item with respect to a plane or a
 #define COPLANAR 2
 
 /**
-Default strategy is "overlap open", which was
-the most efficient strategy in the tests I did
+Default strategy is "overlap open", which was the most efficient strategy tested
 */
 static ShaftCullStrategy strategy = OVERLAP_OPEN;
 
-SHAFT::SHAFT():
-        ref1(), ref2(), boundingBox(), plane(), planes(), omit(), numberOfGeometriesToOmit(), dontOpen(), numberOfGeometriesToNotOpen(),
-        center1(), center2(), cut() {
-
+Shaft::Shaft():
+    ref1(),
+    ref2(),
+    boundingBox(),
+    plane(),
+    planes(),
+    omit(),
+    numberOfGeometriesToOmit(),
+    dontOpen(),
+    numberOfGeometriesToNotOpen(),
+    center1(),
+    center2(),
+    cut()
+{
 }
 
 /**
@@ -31,46 +40,43 @@ Marks a geometry as to be omitted during shaft culling: it will not be added to 
 candidate list, even if the geometry overlaps or is inside the shaft
 */
 void
-setShaftOmit(SHAFT *shaft, Patch *geom) {
-    shaft->omit[shaft->numberOfGeometriesToOmit++] = geom;
+Shaft::setShaftOmit(Patch *patch) {
+    omit[numberOfGeometriesToOmit++] = patch;
 }
 
 /**
 Marks a geometry as one not to be opened during shaft culling
 */
 void
-setShaftDontOpen(SHAFT *shaft, Geometry *geom) {
-    shaft->dontOpen[shaft->numberOfGeometriesToNotOpen++] = geom;
+Shaft::setShaftDontOpen(Geometry *geometry) {
+    dontOpen[numberOfGeometriesToNotOpen++] = geometry;
 }
 
 /**
-Constructs a shaft for two given bounding boxes. Supply a pointer to a SHAFT
-structure. This structure will be filled in and the pointer returned if successful.
-nullptr is returned if something goes wrong
+Constructs a shaft for two given bounding boxes.
 */
-SHAFT *
-constructShaft(BoundingBox *ref1, BoundingBox *ref2, SHAFT *shaft) {
+void
+Shaft::constructShaft(BoundingBox *boundingBox1, BoundingBox *boundingBox2) {
     int i;
-    int j;
     int hasMinMax1[6];
     int hasMinMax2[6];
-    ShaftPlane *plane;
+    ShaftPlane *localPlane;
 
-    shaft->numberOfGeometriesToOmit = shaft->numberOfGeometriesToNotOpen = 0;
-    shaft->cut = false;
+    numberOfGeometriesToOmit = numberOfGeometriesToNotOpen = 0;
+    cut = false;
 
-    shaft->ref1 = ref1;
-    shaft->ref2 = ref2;
+    ref1 = boundingBox1;
+    ref2 = boundingBox2;
 
     // Midpoints of the reference boxes define a line that is guaranteed
     // to lay within the shaft
-    shaft->center1.x = 0.5f * (ref1->coordinates[MIN_X] + ref1->coordinates[MAX_X]);
-    shaft->center1.y = 0.5f * (ref1->coordinates[MIN_Y] + ref1->coordinates[MAX_Y]);
-    shaft->center1.z = 0.5f * (ref1->coordinates[MIN_Z] + ref1->coordinates[MAX_Z]);
+    center1.x = 0.5f * (boundingBox1->coordinates[MIN_X] + boundingBox1->coordinates[MAX_X]);
+    center1.y = 0.5f * (boundingBox1->coordinates[MIN_Y] + boundingBox1->coordinates[MAX_Y]);
+    center1.z = 0.5f * (boundingBox1->coordinates[MIN_Z] + boundingBox1->coordinates[MAX_Z]);
 
-    shaft->center2.x = 0.5f * (ref2->coordinates[MIN_X] + ref2->coordinates[MAX_X]);
-    shaft->center2.y = 0.5f * (ref2->coordinates[MIN_Y] + ref2->coordinates[MAX_Y]);
-    shaft->center2.z = 0.5f * (ref2->coordinates[MIN_Z] + ref2->coordinates[MAX_Z]);
+    center2.x = 0.5f * (boundingBox2->coordinates[MIN_X] + boundingBox2->coordinates[MAX_X]);
+    center2.y = 0.5f * (boundingBox2->coordinates[MIN_Y] + boundingBox2->coordinates[MAX_Y]);
+    center2.z = 0.5f * (boundingBox2->coordinates[MIN_Z] + boundingBox2->coordinates[MAX_Z]);
 
     for ( i = 0; i < 6; i++ ) {
         hasMinMax1[i] = hasMinMax2[i] = 0;
@@ -79,37 +85,36 @@ constructShaft(BoundingBox *ref1, BoundingBox *ref2, SHAFT *shaft) {
     // Create extent box of both volumeListsOfItems and keep track which coordinates of which
     // box become the minimum or maximum
     for ( i = MIN_X; i <= MIN_Z; i++ ) {
-        if ( shaft->ref1->coordinates[i] < shaft->ref2->coordinates[i] ) {
-            shaft->boundingBox.coordinates[i] = shaft->ref1->coordinates[i];
+        if ( ref1->coordinates[i] < ref2->coordinates[i] ) {
+            boundingBox.coordinates[i] = ref1->coordinates[i];
             hasMinMax1[i] = 1;
         } else {
-            shaft->boundingBox.coordinates[i] = shaft->ref2->coordinates[i];
-            if ( !doubleEqual(shaft->ref1->coordinates[i], shaft->ref2->coordinates[i], EPSILON) ) {
+            boundingBox.coordinates[i] = ref2->coordinates[i];
+            if ( !doubleEqual(ref1->coordinates[i], ref2->coordinates[i], EPSILON) ) {
                 hasMinMax2[i] = 1;
             }
         }
     }
 
     for ( i = MAX_X; i <= MAX_Z; i++ ) {
-        if ( shaft->ref1->coordinates[i] > shaft->ref2->coordinates[i] ) {
-            shaft->boundingBox.coordinates[i] = shaft->ref1->coordinates[i];
+        if ( ref1->coordinates[i] > ref2->coordinates[i] ) {
+            boundingBox.coordinates[i] = ref1->coordinates[i];
             hasMinMax1[i] = 1;
         } else {
-            shaft->boundingBox.coordinates[i] = shaft->ref2->coordinates[i];
-            if ( !doubleEqual(shaft->ref1->coordinates[i], shaft->ref2->coordinates[i], EPSILON)) {
+            boundingBox.coordinates[i] = ref2->coordinates[i];
+            if ( !doubleEqual(ref1->coordinates[i], ref2->coordinates[i], EPSILON)) {
                 hasMinMax2[i] = 1;
             }
         }
     }
 
     // Create plane set
-    plane = &shaft->plane[0];
+    localPlane = &plane[0];
     for ( i = 0; i < 6; i++ ) {
         if ( !hasMinMax1[i] ) {
             continue;
         }
-        for ( j = 0; j < 6; j++ ) {
-            float u1, u2, v1, v2, du, dv;
+        for ( int j = 0; j < 6; j++ ) {
             int a = (i % 3), b = (j % 3); // Directions
 
             if ( !hasMinMax2[j] || a == b ) {
@@ -117,12 +122,14 @@ constructShaft(BoundingBox *ref1, BoundingBox *ref2, SHAFT *shaft) {
                 continue;
             }
 
-            u1 = shaft->ref1->coordinates[i]; // Coords. defining the plane
-            v1 = shaft->ref1->coordinates[j];
-            u2 = shaft->ref2->coordinates[i];
-            v2 = shaft->ref2->coordinates[j];
+            float u1 = ref1->coordinates[i]; // Coordinates defining the plane
+            float v1 = ref1->coordinates[j];
+            float u2 = ref2->coordinates[i];
+            float v2 = ref2->coordinates[j];
+            float du;
+            float dv;
 
-            if ((i <= MIN_Z && j <= MIN_Z) || (i >= MAX_X && j >= MAX_X)) {
+            if ( (i <= MIN_Z && j <= MIN_Z) || (i >= MAX_X && j >= MAX_X) ) {
                 du = v2 - v1;
                 dv = u1 - u2;
             } else {
@@ -131,25 +138,23 @@ constructShaft(BoundingBox *ref1, BoundingBox *ref2, SHAFT *shaft) {
                 dv = u2 - u1;
             }
 
-            plane->n[a] = du;
-            plane->n[b] = dv;
-            plane->n[3 - a - b] = 0.0;
-            plane->d = -(du * u1 + dv * v1);
+            localPlane->n[a] = du;
+            localPlane->n[b] = dv;
+            localPlane->n[3 - a - b] = 0.0;
+            localPlane->d = -(du * u1 + dv * v1);
 
-            plane->coord_offset[0] = plane->n[0] > 0. ? MIN_X : MAX_X;
-            plane->coord_offset[1] = plane->n[1] > 0. ? MIN_Y : MAX_Y;
-            plane->coord_offset[2] = plane->n[2] > 0. ? MIN_Z : MAX_Z;
+            localPlane->coord_offset[0] = localPlane->n[0] > 0.0 ? MIN_X : MAX_X;
+            localPlane->coord_offset[1] = localPlane->n[1] > 0.0 ? MIN_Y : MAX_Y;
+            localPlane->coord_offset[2] = localPlane->n[2] > 0.0 ? MIN_Z : MAX_Z;
 
-            plane++;
+            localPlane++;
         }
     }
-    shaft->planes = (int)(plane - &shaft->plane[0]);
-
-    return shaft;
+    planes = (int)(localPlane - &plane[0]);
 }
 
 /**
-Tests a polygon w.r.t. the plane defined by the given normal and plane
+Tests a polygon with respect to the plane defined by the given normal and plane
 constant. Returns INSIDE if the polygon is totally on the negative side of
 the plane, OUTSIDE if the polygon on all on the positive side, OVERLAP
 if the polygon is cut by the plane and COPLANAR if the polygon lays on the
@@ -223,11 +228,11 @@ verifyPolygonWrtPlane(POLYGON *poly, Vector3D *normal, double d, int side) {
 }
 
 /**
-Tests the position of a point w.r.t. a plane. Returns OUTSIDE if the point is
+Tests the position of a point with respect to a plane. Returns OUTSIDE if the point is
 on the positive side of the plane, INSIDE if on the negative side, and COPLANAR
 if the point is on the plane within tolerance distance d*EPSILON
 */
-int
+static int
 testPointWrtPlane(Vector3D *p, Vector3D *normal, double d) {
     double e, tolerance = std::fabs(d * EPSILON) + vectorTolerance(*p);
     e = vectorDotProduct(*normal, *p) + d;
@@ -284,7 +289,7 @@ Plane is a pointer to the shaft plane defined in shaft. This routine will return
 true if the plane differs from all previous defined planes
 */
 static int
-uniqueShaftPlane(SHAFT *shaft, ShaftPlane *plane) {
+uniqueShaftPlane(Shaft *shaft, ShaftPlane *plane) {
     ShaftPlane *ref;
 
     for ( ref = &shaft->plane[0]; ref != plane; ref++ ) {
@@ -314,7 +319,7 @@ fillInPlane(ShaftPlane *plane, float nx, float ny, float nz, float d) {
 Construct the planes determining the shaft that use edges of p1 and vertices of p2
 */
 static void
-constructPolygonToPolygonPlanes(POLYGON *p1, POLYGON *p2, SHAFT *shaft) {
+constructPolygonToPolygonPlanes(POLYGON *p1, POLYGON *p2, Shaft *shaft) {
     ShaftPlane *plane = &shaft->plane[shaft->planes];
     Vector3D *cur, *next, *other;
     Vector3D normal;
@@ -381,10 +386,9 @@ constructPolygonToPolygonPlanes(POLYGON *p1, POLYGON *p2, SHAFT *shaft) {
             vectorScaleInverse(norm, normal, normal);
             d = -vectorDotProduct(normal, *cur);
 
-            // Test position of p1 w.r.t. the constructed plane. Skip the vertices
+            // Test position of p1 with respect to the constructed plane. Skip the vertices
             // that were used to construct the plane
-            k = (i + 2) % p1->numberOfVertices;
-            side = testPointWrtPlane(&p1->vertex[k], &normal, d);
+            side = testPointWrtPlane(&p1->vertex[(i + 2) % p1->numberOfVertices], &normal, d);
             for ( k = (i + 3) % p1->numberOfVertices; k != i; k = (k + 1) % p1->numberOfVertices ) {
                 int nSide = testPointWrtPlane(&p1->vertex[k], &normal, d);
                 if ( side == COPLANAR ) {
@@ -425,84 +429,82 @@ constructPolygonToPolygonPlanes(POLYGON *p1, POLYGON *p2, SHAFT *shaft) {
 /**
 Constructs a shaft enclosing the two given polygons
 */
-SHAFT *
-constructPolygonToPolygonShaft(POLYGON *p1, POLYGON *p2, SHAFT *shaft) {
+void
+Shaft::constructFromPolygonToPolygon(POLYGON *polygon1, POLYGON *polygon2) {
     // No "reference" bounding boxes to test with
-    shaft->ref1 = shaft->ref2 = nullptr;
+    ref1 = nullptr;
+    ref2 = nullptr;
 
-    // Shaft extent = bounding box containing the bounding boxes of the patches
-    shaft->boundingBox.copyFrom(&p1->bounds);
-    shaft->boundingBox.enlarge(&p2->bounds);
+    // Shaft extent: bounding box containing the bounding boxes of the patches
+    boundingBox.copyFrom(&polygon1->bounds);
+    boundingBox.enlarge(&polygon2->bounds);
 
     // Nothing (yet) to omit
-    shaft->omit[0] = nullptr;
-    shaft->omit[1] = nullptr;
-    shaft->dontOpen[0] = nullptr;
-    shaft->dontOpen[1] = nullptr;
-    shaft->numberOfGeometriesToOmit = 0;
-    shaft->numberOfGeometriesToNotOpen = 0;
-    shaft->cut = false;
+    omit[0] = nullptr;
+    omit[1] = nullptr;
+    dontOpen[0] = nullptr;
+    dontOpen[1] = nullptr;
+    numberOfGeometriesToOmit = 0;
+    numberOfGeometriesToNotOpen = 0;
+    cut = false;
 
     // Center positions of polygons define a line that is guaranteed to lay inside the shaft
-    shaft->center1 = p1->vertex[0];
-    for ( int i = 1; i < p1->numberOfVertices; i++ ) {
-        vectorAdd(shaft->center1, p1->vertex[i], shaft->center1);
+    center1 = polygon1->vertex[0];
+    for ( int i = 1; i < polygon1->numberOfVertices; i++ ) {
+        vectorAdd(center1, polygon1->vertex[i], center1);
     }
-    vectorScaleInverse((float) p1->numberOfVertices, shaft->center1, shaft->center1);
+    vectorScaleInverse((float) polygon1->numberOfVertices, center1, center1);
 
-    shaft->center2 = p2->vertex[0];
-    for ( int i = 1; i < p2->numberOfVertices; i++ ) {
-        vectorAdd(shaft->center2, p2->vertex[i], shaft->center2);
+    center2 = polygon2->vertex[0];
+    for ( int i = 1; i < polygon2->numberOfVertices; i++ ) {
+        vectorAdd(center2, polygon2->vertex[i], center2);
     }
-    vectorScaleInverse((float) p2->numberOfVertices, shaft->center2, shaft->center2);
+    vectorScaleInverse((float) polygon2->numberOfVertices, center2, center2);
 
     // Determine the shaft planes
-    shaft->planes = 0;
-    constructPolygonToPolygonPlanes(p1, p2, shaft);
-    constructPolygonToPolygonPlanes(p2, p1, shaft);
-
-    return shaft;
+    planes = 0;
+    constructPolygonToPolygonPlanes(polygon1, polygon2, this);
+    constructPolygonToPolygonPlanes(polygon2, polygon1, this);
 }
 
 /**
 Tests a bounding volume against the shaft: returns INSIDE if the bounding volume
 is inside the shaft, OVERLAP if it overlaps, OUTSIDE if it is outside the shaft
 */
-static int
-shaftBoxTest(BoundingBox *bounds, SHAFT *shaft) {
-    int i;
-    ShaftPlane *plane;
-
+int
+Shaft::boundingBoxTest(BoundingBox *bounds) {
     // Test against extent box
-    if ( bounds->disjointToOtherBoundingBox(&shaft->boundingBox) ) {
+    if ( bounds->disjointToOtherBoundingBox(&boundingBox) ) {
         return OUTSIDE;
     }
 
     // Test against plane set: if nearest corner of the bounding box is on or
     // outside any shaft plane, the object is outside the shaft
-    for ( i = 0, plane = &shaft->plane[0]; i < shaft->planes; i++, plane++ ) {
-        if ( plane->n[0] * bounds->coordinates[plane->coord_offset[0]] +
-             plane->n[1] * bounds->coordinates[plane->coord_offset[1]] +
-             plane->n[2] * bounds->coordinates[plane->coord_offset[2]] +
-             plane->d > -std::fabs(plane->d * EPSILON)) {
+    int i;
+    ShaftPlane *localPlane;
+    for ( i = 0, localPlane = &plane[0]; i < planes; i++, localPlane++ ) {
+        if ( localPlane->n[0] * bounds->coordinates[localPlane->coord_offset[0]] +
+             localPlane->n[1] * bounds->coordinates[localPlane->coord_offset[1]] +
+             localPlane->n[2] * bounds->coordinates[localPlane->coord_offset[2]] +
+             localPlane->d > -std::fabs(localPlane->d * EPSILON)) {
             return OUTSIDE;
         }
     }
 
     // Test against reference volumeListsOfItems
-    if ((shaft->ref1 && !bounds->disjointToOtherBoundingBox(shaft->ref1)) ||
-        (shaft->ref2 && !bounds->disjointToOtherBoundingBox(shaft->ref2)) ) {
+    if ( (ref1 && !bounds->disjointToOtherBoundingBox(ref1)) ||
+         (ref2 && !bounds->disjointToOtherBoundingBox(ref2)) ) {
         return OVERLAP;
     }
 
     // If the bounding box survives all previous tests, it must overlap or be inside the
     // shaft. If the farthest corner of the bounding box is outside any shaft-plane, it
     // overlaps the shaft, otherwise it is inside the shaft
-    for ( i = 0, plane = &shaft->plane[0]; i < shaft->planes; i++, plane++ ) {
-        if ( plane->n[0] * bounds->coordinates[(plane->coord_offset[0] + 3) % 6] +
-             plane->n[1] * bounds->coordinates[(plane->coord_offset[1] + 3) % 6] +
-             plane->n[2] * bounds->coordinates[(plane->coord_offset[2] + 3) % 6] +
-             plane->d > std::fabs(plane->d * EPSILON)) {
+    for ( i = 0, localPlane = &localPlane[0]; i < planes; i++, localPlane++ ) {
+        if ( localPlane->n[0] * bounds->coordinates[(localPlane->coord_offset[0] + 3) % 6] +
+             localPlane->n[1] * bounds->coordinates[(localPlane->coord_offset[1] + 3) % 6] +
+             localPlane->n[2] * bounds->coordinates[(localPlane->coord_offset[2] + 3) % 6] +
+             localPlane->d > std::fabs(localPlane->d * EPSILON)) {
             return OVERLAP;
         }
     }
@@ -516,8 +518,8 @@ to whether the patch is fully inside the shaft, overlapping it, or fully outside
 set to true, indicating that there is full occlusion due to one patch and
 that as such no further shaft culling is necessary
 */
-int
-shaftPatchTest(Patch *patch, SHAFT *shaft) {
+static int
+shaftPatchTest(Patch *patch, Shaft *shaft) {
     int i;
     int j;
     int someOut;
@@ -661,10 +663,10 @@ shaftPatchTest(Patch *patch, SHAFT *shaft) {
 /**
 Returns true if the geometry is not to be enclosed in the shaft
 */
-static int
-patchIsOnOmitSet(SHAFT *shaft, Patch *geometry) {
-    for ( int i = 0; i < shaft->numberOfGeometriesToOmit; i++ ) {
-        if ( shaft->omit[i] == geometry ) {
+int
+Shaft::patchIsOnOmitSet(Patch *geometry) {
+    for ( int i = 0; i < numberOfGeometriesToOmit; i++ ) {
+        if ( omit[i] == geometry ) {
             return true;
         }
     }
@@ -675,7 +677,7 @@ patchIsOnOmitSet(SHAFT *shaft, Patch *geometry) {
 Returns true if the geometry is not to be opened during shaft culling
 */
 static int
-dontOpen(SHAFT *shaft, Geometry *geom) {
+dontOpenFunction(Shaft *shaft, Geometry *geom) {
     for ( int i = 0; i < shaft->numberOfGeometriesToNotOpen; i++ ) {
         if ( shaft->dontOpen[i] == geom ) {
             return true;
@@ -691,13 +693,13 @@ are added to culledPatchList. A pointer to the possibly elongated culledPatchLis
 is returned
 */
 java::ArrayList<Patch *> *
-shaftCullPatchList(java::ArrayList<Patch *> *patchList, SHAFT *shaft) {
+Shaft::cullPatches(java::ArrayList<Patch *> *patchList) {
     java::ArrayList<Patch *> *culledPatchList = new java::ArrayList<Patch *>();
     int boundingBoxSide;
 
-    for ( int i = 0; patchList != nullptr && i < patchList->size() && !shaft->cut; i++ ) {
+    for ( int i = 0; patchList != nullptr && i < patchList->size() && !cut; i++ ) {
         Patch *patch = patchList->get(i);
-        if ( patch->omit || patchIsOnOmitSet(shaft, patch) ) {
+        if ( patch->omit || patchIsOnOmitSet(patch) ) {
             continue;
         }
 
@@ -706,12 +708,12 @@ shaftCullPatchList(java::ArrayList<Patch *> *patchList, SHAFT *shaft) {
             BoundingBox bounds;
             patch->patchBounds(&bounds);
         }
-        boundingBoxSide = shaftBoxTest(patch->boundingBox, shaft);
+        boundingBoxSide = boundingBoxTest(patch->boundingBox);
         if ( boundingBoxSide != OUTSIDE ) {
             // Patch bounding box is inside the shaft, or overlaps with it. If it
             // overlaps, do a more expensive, but definitive, test to see whether
             // the patch itself is inside, outside or overlapping the shaft
-            if ( boundingBoxSide == INSIDE || shaftPatchTest(patch, shaft) != OUTSIDE ) {
+            if ( boundingBoxSide == INSIDE || shaftPatchTest(patch, this) != OUTSIDE ) {
                 if ( patch != nullptr ) {
                     culledPatchList->add(0, patch);
                 }
@@ -741,22 +743,21 @@ keep(Geometry *geom, java::ArrayList<Geometry *> *candidateList) {
 }
 
 /**
-Breaks the geom into it's components and does shaft culling on
-the components
+Breaks the geometry into it's components and does shaft culling on the components
 */
-static void
-shaftCullOpen(Geometry *geom, SHAFT *shaft, java::ArrayList<Geometry *> *candidateList) {
-    if ( geom->omit ) {
+void
+Shaft::shaftCullOpen(Geometry *geometry, java::ArrayList<Geometry *> *candidateList) {
+    if ( geometry->omit ) {
         return;
     }
 
-    if ( geomIsAggregate(geom) ) {
-        java::ArrayList<Geometry *> *geometryList = geomPrimListCopy(geom);
-        doShaftCulling(geometryList, shaft, candidateList);
+    if ( geomIsAggregate(geometry) ) {
+        java::ArrayList<Geometry *> *geometryList = geomPrimListCopy(geometry);
+        doCulling(geometryList, candidateList);
         delete geometryList;
     } else {
-        java::ArrayList<Patch *> *geometryPatchesList = geomPatchArrayListReference(geom);
-        java::ArrayList<Patch *> *culledPatches = shaftCullPatchList(geometryPatchesList, shaft);
+        java::ArrayList<Patch *> *geometryPatchesList = geomPatchArrayListReference(geometry);
+        java::ArrayList<Patch *> *culledPatches = cullPatches(geometryPatchesList);
 
         if ( culledPatches->size() > 0 ) {
             Geometry *newGeometry = geomCreatePatchSet(culledPatches);
@@ -774,25 +775,26 @@ the shaft, it is copied to the shaft or broken open depending on
 the current shaft culling strategy
 */
 void
-shaftCullGeometry(Geometry *geometry, SHAFT *shaft, java::ArrayList<Geometry *> *candidateList) {
-    if ( geometry->className == GeometryClassId::PATCH_SET && (geometry->omit || patchIsOnOmitSet(shaft, (Patch *)geometry)) ) {
+Shaft::cullGeometry(Geometry *geometry, java::ArrayList<Geometry *> *candidateList) {
+    if ( geometry->className == GeometryClassId::PATCH_SET
+        && (geometry->omit || patchIsOnOmitSet((Patch *)geometry)) ) {
         return;
     }
 
     // Unbounded geoms always overlap the shaft
-    switch ( geometry->bounded ? shaftBoxTest(&geometry->boundingBox, shaft) : OVERLAP ) {
+    switch ( geometry->bounded ? boundingBoxTest(&geometry->boundingBox) : OVERLAP ) {
         case INSIDE:
-            if ( strategy == ALWAYS_OPEN && !dontOpen(shaft, geometry) ) {
-                shaftCullOpen(geometry, shaft, candidateList);
+            if ( strategy == ALWAYS_OPEN && !dontOpenFunction(this, geometry) ) {
+                shaftCullOpen(geometry, candidateList);
             } else {
                 keep(geometry, candidateList);
             }
             break;
         case OVERLAP:
-            if ( strategy == KEEP_CLOSED || dontOpen(shaft, geometry) ) {
+            if ( strategy == KEEP_CLOSED || dontOpenFunction(this, geometry) ) {
                 keep(geometry, candidateList);
             } else {
-                shaftCullOpen(geometry, shaft, candidateList);
+                shaftCullOpen(geometry, candidateList);
             }
             break;
         default:
@@ -806,17 +808,17 @@ candidateList, returns the new candidate list
 
 During shaft culling getPatchList "geoms" are created - they (and only they)
 need to be destroyed when destroying a geom candidate list created by
-doShaftCulling - for other kinds of geoms, only a pointer is copied
+doCulling - for other kinds of geoms, only a pointer is copied
 */
 void
-doShaftCulling(java::ArrayList<Geometry *> *world, SHAFT *shaft, java::ArrayList<Geometry *> *candidateList) {
-    for ( int i = 0; world != nullptr && i < world->size() && !shaft->cut; i++ ) {
-        shaftCullGeometry(world->get(i), shaft, candidateList);
+Shaft::doCulling(java::ArrayList<Geometry *> *world, java::ArrayList<Geometry *> *candidateList) {
+    for ( int i = 0; world != nullptr && i < world->size() && !cut; i++ ) {
+        cullGeometry(world->get(i), candidateList);
     }
 }
 
 /**
-Frees the memory occupied by a candidate list produced by DoShaftCulling
+Frees the memory occupied by a candidate list produced by doCulling
 */
 void
 freeCandidateList(java::ArrayList<Geometry *> *candidateList) {

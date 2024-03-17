@@ -5,7 +5,7 @@
 References:
 
 - Haines, E. A. and Wallace, J. R. "Shaft culling for
-  efficient ray-traced radiosity", 2nd Eurographics Workshop
+  efficient ray-traced radiosity", 2nd Euro-graphics Workshop
   on Rendering, Barcelona, Spain, May 1991
 */
 
@@ -16,16 +16,16 @@ class ShaftPlane {
   public:
     float n[3];
     float d;
-    int coord_offset[3]; // Coord. offset for nearest corner in box-plane tests
+    int coord_offset[3]; // Coordinate offset for nearest corner in box-plane tests
 };
 
-#define SHAFT_MAX_PLANES 16 // Max. 16 planes in plane-set: maximum 8 for a
-    // box-to-box shaft, maximum 2 times the total nr of vertices for a
-    // patch-to-patch shaft
+// Maximum 16 planes in plane-set: maximum 8 for a box-to-box shaft, maximum 2
+// times the total nr of vertices for a patch-to-patch shaft
+#define SHAFT_MAX_PLANES 16
 
 // The shaft is the region bounded by extent and ref1 and ref2 (if defined)
 // and on the negative side of the planes
-class SHAFT {
+class Shaft {
   public:
     BoundingBox *ref1; // Bounding boxes of the reference volumeListsOfItems and the whole shaft
     BoundingBox *ref2;
@@ -46,7 +46,18 @@ class SHAFT {
 			 //	As soon as such a situation is detected, shaft culling ends and the
              //	occluder in question is the first patch in the returned candidate list.
              //	The candidate list does not contain all occluder!
-    SHAFT();
+    Shaft();
+    void constructShaft(BoundingBox *boundingBox1, BoundingBox *boundingBox2);
+
+    java::ArrayList<Patch *> *cullPatches(java::ArrayList<Patch *> *patchList);
+    int patchIsOnOmitSet(Patch *geometry);
+    void shaftCullOpen(Geometry *geometry, java::ArrayList<Geometry *> *candidateList);
+    int boundingBoxTest(BoundingBox *bounds);
+    void constructFromPolygonToPolygon(POLYGON *polygon1, POLYGON *polygon2);
+    void setShaftOmit(Patch *patch);
+    void setShaftDontOpen(Geometry *geometry);
+    void doCulling(java::ArrayList<Geometry *> *world, java::ArrayList<Geometry *> *candidateList);
+    void cullGeometry(Geometry *geometry, java::ArrayList<Geometry *> *candidateList);
 };
 
 enum ShaftCullStrategy {
@@ -55,13 +66,6 @@ enum ShaftCullStrategy {
     ALWAYS_OPEN
 };
 
-extern SHAFT *constructShaft(BoundingBox *ref1, BoundingBox *ref2, SHAFT *shaft);
-extern SHAFT *constructPolygonToPolygonShaft(POLYGON *p1, POLYGON *p2, SHAFT *shaft);
-extern void setShaftOmit(SHAFT *shaft, Patch *geom);
-extern void setShaftDontOpen(SHAFT *shaft, Geometry *geom);
-extern void doShaftCulling(java::ArrayList<Geometry *> *world, SHAFT *shaft, java::ArrayList<Geometry *> *candidateList);
-extern void shaftCullGeometry(Geometry *geometry, SHAFT *shaft, java::ArrayList<Geometry *> *candidateList);
-extern java::ArrayList<Patch *> *shaftCullPatchList(java::ArrayList<Patch *> *patchList, SHAFT *shaft);
 extern void freeCandidateList(java::ArrayList<Geometry *> *candidateList);
 
 #endif

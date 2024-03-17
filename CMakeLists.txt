@@ -98,7 +98,7 @@ set(MAIN_SRC
     src/GALERKIN/shadowcaching.cpp
     src/GALERKIN/basisgalerkin.cpp
     src/GALERKIN/GalerkinRadianceMethod.cpp
-    src/GALERKIN/shaftculling.cpp
+    src/GALERKIN/Shaft.cpp
     src/GALERKIN/gathering.cpp
     src/GALERKIN/formfactor.cpp
     src/GALERKIN/initiallinking.cpp

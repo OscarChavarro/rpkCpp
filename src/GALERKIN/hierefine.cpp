@@ -8,7 +8,7 @@ Hierarchical refinement
 #include "scene/scene.h"
 #include "GALERKIN/basisgalerkin.h"
 #include "GALERKIN/formfactor.h"
-#include "GALERKIN/shaftculling.h"
+#include "GALERKIN/Shaft.h"
 #include "GALERKIN/clustergalerkincpp.h"
 #include "GALERKIN/hierefine.h"
 
@@ -52,46 +52,40 @@ hierarchicRefinementCull(
 
     if ( state->shaftCullMode == DO_SHAFT_CULLING_FOR_REFINEMENT ||
             state->shaftCullMode == ALWAYS_DO_SHAFT_CULLING ) {
-        SHAFT shaft;
-        SHAFT *theShaft;
+        Shaft shaft;
 
         if ( state->exact_visibility && !link->receiverElement->isCluster() && !link->sourceElement->isCluster() ) {
             POLYGON rcvPolygon;
             POLYGON srcPolygon;
-            theShaft = constructPolygonToPolygonShaft(
-                link->receiverElement->polygon(&rcvPolygon),
-               link->sourceElement->polygon(&srcPolygon),
-               &shaft);
+            shaft.constructFromPolygonToPolygon(
+                    link->receiverElement->polygon(&rcvPolygon),
+                    link->sourceElement->polygon(&srcPolygon));
         } else {
             BoundingBox srcBounds;
             BoundingBox rcvBounds;
-            theShaft = constructShaft(link->receiverElement->bounds(&rcvBounds),
-                                      link->sourceElement->bounds(&srcBounds), &shaft);
-        }
-        if ( !theShaft ) {
-            logError("hierarchicRefinementCull", "Couldn't construct shaft");
-            return;
+            shaft.constructShaft(link->receiverElement->bounds(&rcvBounds),
+                                      link->sourceElement->bounds(&srcBounds));
         }
 
         if ( link->receiverElement->isCluster() ) {
-            setShaftDontOpen(&shaft, link->receiverElement->geometry);
+            shaft.setShaftDontOpen(link->receiverElement->geometry);
         } else {
-            setShaftOmit(&shaft, link->receiverElement->patch);
+            shaft.setShaftOmit(link->receiverElement->patch);
         }
 
         if ( link->sourceElement->isCluster() ) {
-            setShaftDontOpen(&shaft, link->sourceElement->geometry);
+            shaft.setShaftDontOpen( link->sourceElement->geometry);
         } else {
-            setShaftOmit(&shaft, link->sourceElement->patch);
+            shaft.setShaftOmit(link->sourceElement->patch);
         }
 
         if ( isClusteredGeometry ) {
             java::ArrayList<Geometry*> *arr = new java::ArrayList<Geometry*>();
-            shaftCullGeometry(GLOBAL_scene_clusteredWorldGeom, &shaft, arr);
+            shaft.cullGeometry(GLOBAL_scene_clusteredWorldGeom, arr);
             *candidatesList = arr;
         } else {
             java::ArrayList<Geometry*> *arr = new java::ArrayList<Geometry*>();
-            doShaftCulling(*candidatesList, &shaft, arr);
+            shaft.doCulling(*candidatesList, arr);
             *candidatesList = arr;
         }
     }
