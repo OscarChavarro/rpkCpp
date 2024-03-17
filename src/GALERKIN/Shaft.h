@@ -16,7 +16,7 @@ class ShaftPlane {
   public:
     float n[3];
     float d;
-    int coord_offset[3]; // Coordinate offset for nearest corner in box-plane tests
+    int coordinateOffset[3]; // Coordinate offset for nearest corner in box-plane tests
 };
 
 // Maximum 16 planes in plane-set: maximum 8 for a box-to-box shaft, maximum 2
@@ -26,7 +26,20 @@ class ShaftPlane {
 // The shaft is the region bounded by extent and ref1 and ref2 (if defined)
 // and on the negative side of the planes
 class Shaft {
-  public:
+  private:
+    static int testPolygonWrtPlane(POLYGON *poly, Vector3D *normal, double d);
+    static void fillInPlane(ShaftPlane *plane, float nx, float ny, float nz, float d);
+    static bool verifyPolygonWrtPlane(POLYGON *polygon, Vector3D *normal, double d, int side);
+    static int testPointWrtPlane(Vector3D *p, Vector3D *normal, double d);
+    static int compareShaftPlanes(ShaftPlane *plane1, ShaftPlane *plane2);
+    static void keep(Geometry *geometry, java::ArrayList<Geometry *> *candidateList);
+
+    void constructPolygonToPolygonPlanes(POLYGON *p1, POLYGON *p2);
+    int shaftPatchTest(Patch *patch);
+    int dontOpenFunction(Geometry *geometry);
+    int uniqueShaftPlane(ShaftPlane *parameterPlane);
+
+public:
     BoundingBox *ref1; // Bounding boxes of the reference volumeListsOfItems and the whole shaft
     BoundingBox *ref2;
     BoundingBox boundingBox;
