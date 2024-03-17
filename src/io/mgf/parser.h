@@ -4,6 +4,7 @@
 #include <cstring>
 
 #include "common/mymath.h"
+#include "skin/RadianceMethod.h"
 
 // Major version number
 #define MGF_MAJOR_VERSION_NUMBER 2
@@ -74,7 +75,7 @@
 #define MGF_MAXIMUM_ENTITY_NAME_LENGTH    6
 
 extern char GLOBAL_mgf_entityNames[MGF_TOTAL_NUMBER_OF_ENTITIES][MGF_MAXIMUM_ENTITY_NAME_LENGTH];
-extern int (*GLOBAL_mgf_handleCallbacks[MGF_TOTAL_NUMBER_OF_ENTITIES])(int argc, char **argv);
+extern int (*GLOBAL_mgf_handleCallbacks[MGF_TOTAL_NUMBER_OF_ENTITIES])(int argc, char **argv, RadianceMethod *context);
 extern int (*GLOBAL_mgf_unknownEntityHandleCallback)(int argc, char **argv);
 extern int mgfDefaultHandlerForUnknownEntities(int ac, char **av);
 extern unsigned GLOBAL_mgf_unknownEntitiesCounter;
@@ -140,24 +141,24 @@ public:
 extern MgfReaderContext *GLOBAL_mgf_file;
 extern int GLOBAL_mgf_divisionsPerQuarterCircle;
 
-extern void mgfAlternativeInit(int (*handleCallbacks[MGF_TOTAL_NUMBER_OF_ENTITIES])(int, char **));
+extern void mgfAlternativeInit(int (*handleCallbacks[MGF_TOTAL_NUMBER_OF_ENTITIES])(int, char **, RadianceMethod *));
 extern int mgfOpen(MgfReaderContext *, char *);
 extern int mgfReadNextLine();
-extern int mgfParseCurrentLine();
+extern int mgfParseCurrentLine(RadianceMethod *context);
 extern void mgfGetFilePosition(MgdReaderFilePosition *pos);
 extern int mgfGoToFilePosition(MgdReaderFilePosition *pos);
 extern void mgfClose();
 extern void mgfClear();
-extern int mgfHandle(int en, int ac, char **av);
+extern int mgfHandle(int en, int ac, char **av, RadianceMethod * /*context*/);
 
 extern int mgfEntity(char *name);
-extern int mgfEntitySphere(int ac, char **av);
-extern int mgfEntityTorus(int ac, char **av);
-extern int mgfEntityCylinder(int ac, char **av);
-extern int mgfEntityRing(int ac, char **av);
-extern int mgfEntityCone(int ac, char **av);
-extern int mgfEntityPrism(int ac, char **av);
-extern int mgfEntityFaceWithHoles(int ac, char **av);
+extern int mgfEntitySphere(int ac, char **av, RadianceMethod *context);
+extern int mgfEntityTorus(int ac, char **av, RadianceMethod *context);
+extern int mgfEntityCylinder(int ac, char **av, RadianceMethod *context);
+extern int mgfEntityRing(int ac, char **av, RadianceMethod *context);
+extern int mgfEntityCone(int ac, char **av, RadianceMethod *context);
+extern int mgfEntityPrism(int ac, char **av, RadianceMethod *context);
+extern int mgfEntityFaceWithHoles(int ac, char **av, RadianceMethod *context);
 
 extern int isIntWords(char *);
 extern int isIntDWords(char *, char *);
@@ -165,7 +166,7 @@ extern int isFloatWords(char *);
 extern int isFloatDWords(char *, char *);
 extern int isNameWords(char *);
 extern int checkForBadArguments(int, char **, char *);
-extern int handleIncludedFile(int ac, char **av);
+extern int handleIncludedFile(int ac, char **av, RadianceMethod *context);
 
 /**
 Definitions for 3-d vector manipulation functions
@@ -280,9 +281,9 @@ extern char *GLOBAL_mgf_currentMaterialName;
 extern MgfVertexContext *GLOBAL_mgf_currentVertex;
 extern char *GLOBAL_mgf_currentVertexName;
 
-extern int handleColorEntity(int ac, char **av);
-extern int handleMaterialEntity(int ac, char **av);
-extern int handleVertexEntity(int ac, char **av);
+extern int handleColorEntity(int ac, char **av, RadianceMethod * /*context*/);
+extern int handleMaterialEntity(int ac, char **av, RadianceMethod * /*context*/);
+extern int handleVertexEntity(int ac, char **av, RadianceMethod * /*context*/);
 extern void clearContextTables();
 extern MgfVertexContext *getNamedVertex(char *name);
 extern void mgfContextFixColorRepresentation(MgfColorContext *clr, int fl);
@@ -361,7 +362,7 @@ The routines mgfTransformPoint, mgfTransformVector and xf_rotvect take two
 puts the result into the first.
 */
 
-extern int handleTransformationEntity(int ac, char **av); // Handle xf entity
+extern int handleTransformationEntity(int ac, char **av, RadianceMethod * /*context*/); // Handle xf entity
 extern void mgfTransformPoint(FVECT v1, FVECT v2); // Transform point
 extern void mgfTransformVector(FVECT v1, FVECT v2); // Transform vector
 

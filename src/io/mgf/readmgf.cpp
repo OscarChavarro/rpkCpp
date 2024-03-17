@@ -92,22 +92,22 @@ The parser was changed so we can call them in order not to have to duplicate
 the code
 */
 static int
-doDiscretize(int argc, char **argv) {
+doDiscretize(int argc, char **argv, RadianceMethod *context) {
     int en = mgfEntity(argv[0]);
 
     switch ( en ) {
         case MGF_ERROR_SPHERE:
-            return mgfEntitySphere(argc, argv);
+            return mgfEntitySphere(argc, argv, context);
         case MGF_ERROR_TORUS:
-            return mgfEntityTorus(argc, argv);
+            return mgfEntityTorus(argc, argv, context);
         case MGF_ERROR_CYLINDER:
-            return mgfEntityCylinder(argc, argv);
+            return mgfEntityCylinder(argc, argv, context);
         case MGF_ERROR_RING:
-            return mgfEntityRing(argc, argv);
+            return mgfEntityRing(argc, argv, context);
         case MGF_ERROR_CONE:
-            return mgfEntityCone(argc, argv);
+            return mgfEntityCone(argc, argv, context);
         case MGF_ERROR_PRISM:
-            return mgfEntityPrism(argc, argv);
+            return mgfEntityPrism(argc, argv, context);
         default:
             logFatal(4, "mgf.c: doDiscretize", "Unsupported geometry entity number %d", en);
     }
@@ -489,7 +489,7 @@ getBackFaceVertex(Vertex *v) {
 }
 
 static Patch *
-newFace(Vertex *v1, Vertex *v2, Vertex *v3, Vertex *v4) {
+newFace(Vertex *v1, Vertex *v2, Vertex *v3, Vertex *v4, RadianceMethod *context) {
     Patch *theFace;
     int numberOfVertices = v4 ? 4 : 3;
 
@@ -498,9 +498,9 @@ newFace(Vertex *v1, Vertex *v2, Vertex *v3, Vertex *v4) {
     }
 
     if ( GLOBAL_mgf_xfContext && GLOBAL_mgf_xfContext->rev ) {
-        theFace = new Patch(numberOfVertices, v3, v2, v1, v4, GLOBAL_radiance_selectedRadianceMethod);
+        theFace = new Patch(numberOfVertices, v3, v2, v1, v4, context);
     } else {
-        theFace = new Patch(numberOfVertices, v1, v2, v3, v4, GLOBAL_radiance_selectedRadianceMethod);
+        theFace = new Patch(numberOfVertices, v1, v2, v3, v4, context);
     }
 
     globalCurrentFaceList->add(0, theFace);
@@ -804,9 +804,9 @@ doComplexFace(int n, Vertex **v, Vector3D *normal, Vertex **backv, RadianceMetho
 
         if ( std::fabs(a) > EPSILON ) {
             // Avoid degenerate faces
-            Patch *face = newFace(v[p0], v[p1], v[p2], nullptr);
+            Patch *face = newFace(v[p0], v[p1], v[p2], nullptr, context);
             if ( !globalCurrentMaterial->sided && face != nullptr ) {
-                Patch *twin = newFace(backv[p2], backv[p1], backv[p0], nullptr);
+                Patch *twin = newFace(backv[p2], backv[p1], backv[p0], nullptr, context);
                 face->twin = twin;
                 if ( twin != nullptr ) {
                     twin->twin = face;
@@ -820,7 +820,8 @@ doComplexFace(int n, Vertex **v, Vector3D *normal, Vertex **backv, RadianceMetho
 }
 
 static int
-handleFaceEntity(int argc, char **argv) {
+handleFaceEntity(int argc, char **argv, RadianceMethod * /*context*/) {
+    RadianceMethod *context = GLOBAL_radiance_selectedRadianceMethod;
     Vertex *v[MAXIMUM_FACE_VERTICES + 1];
     Vertex *backV[MAXIMUM_FACE_VERTICES + 1];
     Vector3D normal;
@@ -870,9 +871,9 @@ handleFaceEntity(int argc, char **argv) {
     errcode = MGF_OK;
     if ( argc == 4 ) {
         // Triangles
-        face = newFace(v[0], v[1], v[2], nullptr);
+        face = newFace(v[0], v[1], v[2], nullptr, context);
         if ( !globalCurrentMaterial->sided && face != nullptr ) {
-            twin = newFace(backV[2], backV[1], backV[0], nullptr);
+            twin = newFace(backV[2], backV[1], backV[0], nullptr, context);
             face->twin = twin;
             if ( twin != nullptr ) {
                 twin->twin = face;
@@ -881,21 +882,21 @@ handleFaceEntity(int argc, char **argv) {
     } else if ( argc == 5 ) {
         // Quadrilaterals
         if ( globalInComplex || faceIsConvex(argc - 1, v, &normal)) {
-            face = newFace(v[0], v[1], v[2], v[3]);
+            face = newFace(v[0], v[1], v[2], v[3], context);
             if ( !globalCurrentMaterial->sided && face != nullptr ) {
-                twin = newFace(backV[3], backV[2], backV[1], backV[0]);
+                twin = newFace(backV[3], backV[2], backV[1], backV[0], context);
                 face->twin = twin;
                 if ( twin != nullptr ) {
                     twin->twin = face;
                 }
             }
         } else {
-            doComplexFace(argc - 1, v, &normal, backV, GLOBAL_radiance_selectedRadianceMethod);
+            doComplexFace(argc - 1, v, &normal, backV, context);
             errcode = MGF_OK;
         }
     } else {
         // More than 4 vertices
-        doComplexFace(argc - 1, v, &normal, backV, GLOBAL_radiance_selectedRadianceMethod);
+        doComplexFace(argc - 1, v, &normal, backV, context);
         errcode = MGF_OK;
     }
 
@@ -908,7 +909,7 @@ on another contour. Creates an argument list for the face
 without hole entity handling routine handleFaceEntity() and calls it
 */
 static int
-handleFaceWithHolesEntity(int argc, char **argv) {
+handleFaceWithHolesEntity(int argc, char **argv, RadianceMethod *context) {
     FVECT v[MAXIMUM_FACE_VERTICES + 1]; // v[i] = location of vertex argv[i]
     char *nargv[MAXIMUM_FACE_VERTICES + 1], // Arguments to be passed to the face
                                             // without hole entity handler
@@ -1057,16 +1058,16 @@ handleFaceWithHolesEntity(int argc, char **argv) {
     }
 
     // And handle the face without holes
-    return handleFaceEntity(numberOfVerticesInNewContour + 1, nargv);
+    return handleFaceEntity(numberOfVerticesInNewContour + 1, nargv, context);
 }
 
 static int
-handleSurfaceEntity(int argc, char **argv) {
+handleSurfaceEntity(int argc, char **argv, RadianceMethod *context) {
     int errcode;
 
     if ( globalInComplex ) {
         // mgfEntitySphere calls mgfEntityCone
-        return doDiscretize(argc, argv);
+        return doDiscretize(argc, argv, context);
     } else {
         globalInComplex = true;
         if ( globalInSurface ) {
@@ -1075,7 +1076,7 @@ handleSurfaceEntity(int argc, char **argv) {
         newSurface();
         getCurrentMaterial();
 
-        errcode = doDiscretize(argc, argv);
+        errcode = doDiscretize(argc, argv, context);
 
         surfaceDone();
         globalInComplex = false;
@@ -1085,7 +1086,7 @@ handleSurfaceEntity(int argc, char **argv) {
 }
 
 static int
-handleObjectEntity(int argc, char **argv) {
+handleObjectEntity(int argc, char **argv, RadianceMethod * /*context*/) {
     int i;
 
     if ( argc > 1 ) {
@@ -1140,7 +1141,7 @@ handleUnknownEntity(int /*argc*/, char ** /*argv*/) {
 }
 
 static void
-initMgf() {
+initMgf(RadianceMethod *context) {
     GLOBAL_mgf_handleCallbacks[MG_E_FACE] = handleFaceEntity;
     GLOBAL_mgf_handleCallbacks[MG_E_FACEH] = handleFaceWithHolesEntity;
     GLOBAL_mgf_handleCallbacks[MG_E_VERTEX] = handleVertexEntity;
@@ -1198,12 +1199,12 @@ Reads in an mgf file. The result is that the global variables
 GLOBAL_scene_world and GLOBAL_scene_materials are filled in.
 */
 void
-readMgf(char *filename) {
+readMgf(char *filename, RadianceMethod *context) {
     mgfSetNrQuartCircDivs(GLOBAL_fileOptions_numberOfQuarterCircleDivisions);
     mgfSetIgnoreSidedness(GLOBAL_fileOptions_forceOneSidedSurfaces);
     mgfSetMonochrome(GLOBAL_fileOptions_monochrome);
 
-    initMgf();
+    initMgf(context);
 
     globalPointsOctree = nullptr;
     globalNormalsOctree = nullptr;
@@ -1232,7 +1233,7 @@ readMgf(char *filename) {
         doError(GLOBAL_mgf_errors[status]);
     } else {
         while ( mgfReadNextLine() > 0 && !status ) {
-            status = mgfParseCurrentLine();
+            status = mgfParseCurrentLine(context);
             if ( status ) {
                 doError(GLOBAL_mgf_errors[status]);
             }
@@ -1255,7 +1256,7 @@ readMgf(char *filename) {
 }
 
 void
-mgfFreeMemory() {
+mgfFreeMemory(RadianceMethod *context) {
     printf("Freeing %ld geometries\n", globalCurrentGeometryList->size());
     long surfaces = 0;
     long patchSets = 0;

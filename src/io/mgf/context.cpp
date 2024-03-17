@@ -99,7 +99,7 @@ static void mixColors(MgfColorContext *cres, double w1, MgfColorContext *c1, dou
 Handle color entity
 */
 int
-handleColorEntity(int ac, char **av)
+handleColorEntity(int ac, char **av, RadianceMethod * /*context*/)
 {
     double w;
     double wSum;
@@ -248,7 +248,7 @@ handleColorEntity(int ac, char **av)
 Handle material entity
 */
 int
-handleMaterialEntity(int ac, char **av)
+handleMaterialEntity(int ac, char **av, RadianceMethod * /*context*/)
 {
     int i;
     LUENT *lp;
@@ -439,7 +439,7 @@ handleMaterialEntity(int ac, char **av)
 Handle a vertex entity
 */
 int
-handleVertexEntity(int ac, char **av)
+handleVertexEntity(int ac, char **av, RadianceMethod * /*context*/)
 {
     LUENT *lp;
 

@@ -120,7 +120,7 @@ checkarg(int a, const char *l, int ac, char **av, int i) {
 Put out name for this instance
 */
 static int
-xf_aname(XfArray *ap)
+xf_aname(XfArray *ap, RadianceMethod *context)
 {
     static char oname[10 * XF_MAXDIM];
     static char *oav[3] = {GLOBAL_mgf_entityNames[MG_E_OBJECT], oname};
@@ -129,7 +129,7 @@ xf_aname(XfArray *ap)
     char *cp2;
 
     if ( ap == nullptr) {
-        return mgfHandle(MG_E_OBJECT, 1, oav);
+        return mgfHandle(MG_E_OBJECT, 1, oav, context);
     }
     cp1 = oname;
     *cp1 = 'a';
@@ -140,7 +140,7 @@ xf_aname(XfArray *ap)
         *++cp1 = '.';
     }
     *cp1 = '\0';
-    return mgfHandle(MG_E_OBJECT, 2, oav);
+    return mgfHandle(MG_E_OBJECT, 2, oav, context);
 }
 
 /**
@@ -488,7 +488,7 @@ xf(XF *ret, int ac, char **av)
 Handle xf entity
 */
 int
-handleTransformationEntity(int ac, char **av) {
+handleTransformationEntity(int ac, char **av, RadianceMethod *context) {
     XfSpec *spec;
     int n;
     int rv;
@@ -503,7 +503,7 @@ handleTransformationEntity(int ac, char **av) {
             // check for iteration
             XfArray *ap = spec->xarr;
 
-            xf_aname(nullptr);
+            xf_aname(nullptr, context);
             n = ap->ndim;
             while ( n-- ) {
                 if ( ++ap->aarg[n].i < ap->aarg[n].n ) {
@@ -518,7 +518,7 @@ handleTransformationEntity(int ac, char **av) {
                     return rv;
                 }
                 snprintf(ap->aarg[n].arg, 8, "%d", ap->aarg[n].i);
-                xf_aname(ap);
+                xf_aname(ap, context);
             }
         }
         if ( n < 0 ) {
@@ -534,7 +534,7 @@ handleTransformationEntity(int ac, char **av) {
             return MGF_ERROR_OUT_OF_MEMORY;
         }
         if ( spec->xarr != nullptr) {
-            xf_aname(spec->xarr);
+            xf_aname(spec->xarr, context);
         }
         spec->prev = GLOBAL_mgf_xfContext; // Push onto stack
         GLOBAL_mgf_xfContext = spec;

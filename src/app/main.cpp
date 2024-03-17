@@ -365,7 +365,7 @@ mainReadFile(char *filename) {
     }
 
     if ( strncmp(extension, "mgf", 3) == 0 ) {
-        readMgf(filename);
+        readMgf(filename, GLOBAL_radiance_selectedRadianceMethod);
     }
 
     clock_t t = clock();
@@ -602,7 +602,7 @@ mainFreeMemory() {
     }
 
     deleteOptionsMemory();
-    mgfFreeMemory();
+    mgfFreeMemory(GLOBAL_radiance_selectedRadianceMethod);
     galerkinFreeMemory();
 }
 
