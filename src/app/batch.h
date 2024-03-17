@@ -5,6 +5,11 @@
 #include "skin/Patch.h"
 
 extern void parseBatchOptions(int *argc, char **argv);
-extern void batch(java::ArrayList<Patch *> *scenePatches, java::ArrayList<Patch *> *lightPatches);
+
+extern void
+batch(
+    java::ArrayList<Patch *> *scenePatches,
+    java::ArrayList<Patch *> *lightPatches,
+    RadianceMethod *context);
 
 #endif

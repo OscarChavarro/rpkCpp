@@ -9,6 +9,9 @@ Stuff common to all radiance methods
 #include "common/options.h"
 #include "common/RenderOptions.h"
 #include "GALERKIN/GalerkinRadianceMethod.h"
+#include "app/radiance.h"
+
+RadianceMethod *GLOBAL_radiance_selectedRadianceMethod = nullptr;
 
 #ifdef RAYTRACING_ENABLED
     #include "PHOTONMAP/PhotonMapRadianceMethod.h"

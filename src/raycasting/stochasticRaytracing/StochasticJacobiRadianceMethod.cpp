@@ -453,13 +453,13 @@ StochasticJacobiRadianceMethod::renderScene(java::ArrayList<Patch *> *scenePatch
 }
 
 int
-StochasticJacobiRadianceMethod::doStep(java::ArrayList<Patch *> *scenePatches, java::ArrayList<Patch *> *lightPatches, RadianceMethod *context) {
+StochasticJacobiRadianceMethod::doStep(java::ArrayList<Patch *> *scenePatches, java::ArrayList<Patch *> *lightPatches) {
     monteCarloRadiosityPreStep(scenePatches);
 
     // Do some real work now
     if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.currentIteration == 1 ) {
         if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.doNonDiffuseFirstShot ) {
-            doNonDiffuseFirstShot(scenePatches, lightPatches, context);
+            doNonDiffuseFirstShot(scenePatches, lightPatches, this);
         }
         int initial_nr_of_rays = (int)GLOBAL_stochasticRaytracing_monteCarloRadiosityState.tracedRays;
 
@@ -476,7 +476,7 @@ StochasticJacobiRadianceMethod::doStep(java::ArrayList<Patch *> *scenePatches, j
                     }
                 }
         }
-        stochasticRelaxationRadiosityDoIncrementalRadianceIterations(scenePatches, context);
+        stochasticRelaxationRadiosityDoIncrementalRadianceIterations(scenePatches, this);
 
         // Subsequent regular iterations will take as many rays as in the whole
         // sequence of incremental iteration steps

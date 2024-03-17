@@ -16,6 +16,7 @@
 #include "render/opengl.h"
 #include "GALERKIN/GalerkinRadianceMethod.h"
 #include "app/Cluster.h"
+#include "app/radiance.h"
 #include "app/batch.h"
 
 #ifdef RAYTRACING_ENABLED
@@ -591,7 +592,7 @@ mainExecuteRendering(java::ArrayList<Patch *> *scenePatches) {
         openGlRenderScene(scenePatches, GLOBAL_scene_clusteredGeometries, f, GLOBAL_radiance_selectedRadianceMethod);
     #endif
 
-    batch(scenePatches, GLOBAL_app_lightSourcePatches);
+    batch(scenePatches, GLOBAL_app_lightSourcePatches, GLOBAL_radiance_selectedRadianceMethod);
 }
 
 static void

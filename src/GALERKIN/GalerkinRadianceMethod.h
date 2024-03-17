@@ -10,7 +10,7 @@ class GalerkinRadianceMethod : public RadianceMethod {
     const char *getRadianceMethodName() const;
     void parseOptions(int *argc, char **argv);
     void initialize(java::ArrayList<Patch *> *scenePatches);
-    int doStep(java::ArrayList<Patch *> *scenePatches, java::ArrayList<Patch *> *lightPatches, RadianceMethod *context);
+    int doStep(java::ArrayList<Patch *> *scenePatches, java::ArrayList<Patch *> *lightPatches);
     void terminate(java::ArrayList<Patch *> *scenePatches);
     COLOR getRadiance(Patch *patch, double u, double v, Vector3D dir);
     Element *createPatchData(Patch *patch);

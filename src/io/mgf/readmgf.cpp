@@ -820,8 +820,7 @@ doComplexFace(int n, Vertex **v, Vector3D *normal, Vertex **backv, RadianceMetho
 }
 
 static int
-handleFaceEntity(int argc, char **argv, RadianceMethod * /*context*/) {
-    RadianceMethod *context = GLOBAL_radiance_selectedRadianceMethod;
+handleFaceEntity(int argc, char **argv, RadianceMethod *context) {
     Vertex *v[MAXIMUM_FACE_VERTICES + 1];
     Vertex *backV[MAXIMUM_FACE_VERTICES + 1];
     Vector3D normal;

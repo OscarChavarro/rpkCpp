@@ -2,14 +2,10 @@
 #include <cstring>
 #include <GL/gl.h>
 
-#include "material/statistics.h"
-#include "skin/RadianceMethod.h"
 #include "scene/scene.h"
 #include "io/writevrml.h"
 #include "common/options.h"
 #include "render/canvas.h"
-#include "render/render.h"
-#include "IMAGE/imagec.h"
 #include "io/FileUncompressWrapper.h"
 #include "raycasting/simple/RayCaster.h"
 #include "render/opengl.h"
@@ -99,13 +95,14 @@ batchProcessFile(
     const char *fileName,
     const char *openMode,
     void (*processFileCallback)(const char *fileName, FILE *fp, int isPipe, java::ArrayList<Patch *> *scenePatches, RadianceMethod *context),
-    java::ArrayList<Patch *> *scenePatches)
+    java::ArrayList<Patch *> *scenePatches,
+    RadianceMethod *context)
 {
     int isPipe;
     FILE *fp = openFile(fileName, openMode, &isPipe);
 
     // Call the user supplied procedure to process the file
-    processFileCallback(fileName, fp, isPipe, scenePatches, GLOBAL_radiance_selectedRadianceMethod);
+    processFileCallback(fileName, fp, isPipe, scenePatches, context);
 
     closeFile(fp, isPipe);
 }
@@ -138,7 +135,7 @@ batchSaveRadianceImage(const char *fileName, FILE *fp, int isPipe, java::ArrayLi
 }
 
 static void
-batchSaveRadianceModel(const char *fileName, FILE *fp, int /*isPipe*/, java::ArrayList<Patch *> *scenePatches, RadianceMethod * /*context*/) {
+batchSaveRadianceModel(const char *fileName, FILE *fp, int /*isPipe*/, java::ArrayList<Patch *> *scenePatches, RadianceMethod *context) {
     clock_t t;
 
     if ( !fp ) {
@@ -150,8 +147,8 @@ batchSaveRadianceModel(const char *fileName, FILE *fp, int /*isPipe*/, java::Arr
     fflush(stdout);
     t = clock();
 
-    if ( GLOBAL_radiance_selectedRadianceMethod != nullptr ) {
-        GLOBAL_radiance_selectedRadianceMethod->writeVRML(fp);
+    if ( context != nullptr ) {
+        context->writeVRML(fp);
     } else {
         writeVRML(fp, scenePatches);
     }
@@ -166,7 +163,11 @@ parseBatchOptions(int *argc, char **argv) {
 }
 
 void
-batch(java::ArrayList<Patch *> *scenePatches, java::ArrayList<Patch *> *lightPatches) {
+batch(
+    java::ArrayList<Patch *> *scenePatches,
+    java::ArrayList<Patch *> *lightPatches,
+    RadianceMethod *context)
+{
     clock_t start_time, wasted_start;
     float wasted_secs;
 
@@ -178,12 +179,12 @@ batch(java::ArrayList<Patch *> *scenePatches, java::ArrayList<Patch *> *lightPat
     start_time = clock();
     wasted_secs = 0.0;
 
-    if ( GLOBAL_radiance_selectedRadianceMethod != nullptr ) {
+    if ( context != nullptr ) {
         // GLOBAL_scene_world-space radiance computations
         int it = 0;
         bool done = false;
 
-        printf("Doing %s ...\n", GLOBAL_radiance_selectedRadianceMethod->getRadianceMethodName());
+        printf("Doing %s ...\n", context->getRadianceMethodName());
 
         fflush(stdout);
         fflush(stderr);
@@ -194,19 +195,19 @@ batch(java::ArrayList<Patch *> *scenePatches, java::ArrayList<Patch *> *lightPat
                    "-----------------------------------\n\n", it);
 
             canvasPushMode();
-            if ( GLOBAL_radiance_selectedRadianceMethod == nullptr ) {
+            if ( context == nullptr ) {
                 fprintf(stderr, "No radiance method selected. Aborting program.\n");
                 fflush(stderr);
                 exit(1);
             }
-            done = GLOBAL_radiance_selectedRadianceMethod->doStep(scenePatches, lightPatches, GLOBAL_radiance_selectedRadianceMethod);
+            done = context->doStep(scenePatches, lightPatches);
             canvasPullMode();
 
             fflush(stdout);
             fflush(stderr);
 
-            if ( GLOBAL_radiance_selectedRadianceMethod != nullptr ) {
-                printf("%s", GLOBAL_radiance_selectedRadianceMethod->getStats());
+            if ( context != nullptr ) {
+                printf("%s", context->getStats());
             }
 
             int (*f)() = nullptr;
@@ -215,7 +216,7 @@ batch(java::ArrayList<Patch *> *scenePatches, java::ArrayList<Patch *> *lightPat
                     f = GLOBAL_raytracer_activeRaytracer->Redisplay;
                 }
             #endif
-            openGlRenderScene(scenePatches, GLOBAL_scene_clusteredGeometries, f, GLOBAL_radiance_selectedRadianceMethod);
+            openGlRenderScene(scenePatches, GLOBAL_scene_clusteredGeometries, f, context);
 
             fflush(stdout);
             fflush(stderr);
@@ -226,7 +227,7 @@ batch(java::ArrayList<Patch *> *scenePatches, java::ArrayList<Patch *> *lightPat
                 int n = (int)strlen(globalRadianceImageFileNameFormat) + 1;
                 char *fileName = new char[n];
                 snprintf(fileName, n, globalRadianceImageFileNameFormat, it);
-                batchProcessFile(fileName, "w", batchSaveRadianceImage, scenePatches);
+                batchProcessFile(fileName, "w", batchSaveRadianceImage, scenePatches, context);
                 delete[] fileName;
             }
 
@@ -234,7 +235,7 @@ batch(java::ArrayList<Patch *> *scenePatches, java::ArrayList<Patch *> *lightPat
                 int n = (int)strlen(globalRadianceModelFileNameFormat) + 1;
                 char *fileName = new char[n];
                 snprintf(fileName, n, globalRadianceModelFileNameFormat, it);
-                batchProcessFile(fileName, "w", batchSaveRadianceModel, scenePatches);
+                batchProcessFile(fileName, "w", batchSaveRadianceModel, scenePatches, context);
                 delete[] fileName;
             }
 
@@ -262,14 +263,14 @@ batch(java::ArrayList<Patch *> *scenePatches, java::ArrayList<Patch *> *lightPat
             printf("Doing %s ...\n", GLOBAL_raytracer_activeRaytracer->fullName);
 
             start_time = clock();
-            batchRayTrace(nullptr, nullptr, false, scenePatches, lightPatches, GLOBAL_radiance_selectedRadianceMethod);
+            batchRayTrace(nullptr, nullptr, false, scenePatches, lightPatches, context);
 
             if ( globalTimings ) {
                 fprintf(stdout, "Raytracing total time %g secs.\n",
                         (float) (clock() - start_time) / (float) CLOCKS_PER_SEC);
             }
 
-            batchProcessFile(globalRaytracingImageFileName, "w", batchSaveRaytracingImage, scenePatches);
+            batchProcessFile(globalRaytracingImageFileName, "w", batchSaveRaytracingImage, scenePatches, context);
         } else {
             printf("(No pixel-based radiance computations are being done)\n");
         }
