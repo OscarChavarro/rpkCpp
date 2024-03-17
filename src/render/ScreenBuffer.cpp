@@ -80,7 +80,9 @@ ScreenBuffer::init(Camera *cam) {
     m_RGBImage = false;
 }
 
-// Copy dimensions and contents (m_Radiance only) from source
+/**
+Copy dimensions and contents (m_Radiance only) from source
+*/
 void
 ScreenBuffer::copy(ScreenBuffer *source) {
     init(&(source->m_cam));
@@ -377,30 +379,23 @@ ScreenBuffer::getVRes() const {
 
 float
 computeFluxToRadFactor(int pixX, int pixY) {
-    double x;
-    double y;
-    double xSample;
-    double ySample;
     Vector3D dir;
-    double distPixel2;
-    double distPixel;
-    double factor;
     double h = GLOBAL_camera_mainCamera.pixelWidth;
     double v = GLOBAL_camera_mainCamera.pixelHeight;
 
-    x = -h * GLOBAL_camera_mainCamera.xSize / 2.0 + pixX * h;
-    y = -v * GLOBAL_camera_mainCamera.ySize / 2.0 + pixY * v;
+    double x = -h * GLOBAL_camera_mainCamera.xSize / 2.0 + pixX * h;
+    double y = -v * GLOBAL_camera_mainCamera.ySize / 2.0 + pixY * v;
 
-    xSample = x + h * 0.5;  // (pixX, pixY) indicate upper left
-    ySample = y + v * 0.5;
+    double xSample = x + h * 0.5;  // (pixX, pixY) indicate upper left
+    double ySample = y + v * 0.5;
 
     vectorComb3(GLOBAL_camera_mainCamera.Z, (float)xSample, GLOBAL_camera_mainCamera.X, (float)ySample, GLOBAL_camera_mainCamera.Y,
                 dir);
-    distPixel2 = vectorNorm2(dir);
-    distPixel = std::sqrt(distPixel2);
+    double distPixel2 = vectorNorm2(dir);
+    double distPixel = std::sqrt(distPixel2);
     vectorScaleInverse((float)distPixel, dir, dir);
 
-    factor = 1.0 / (h * v);
+    double factor = 1.0 / (h * v);
 
     factor *= distPixel2; // r(eye->pixel)^2
     factor /= std::pow(vectorDotProduct(dir, GLOBAL_camera_mainCamera.Z), 2);  // cos^2

@@ -9,24 +9,25 @@ Geometry *GLOBAL_geom_excludedGeom2 = nullptr;
 static int globalCurrentMaxId = 0;
 
 Geometry::Geometry():
-        id(),
-        boundingBox(),
-        radianceData(),
-        displayListId(),
-        itemCount(),
-        bounded(),
-        shaftCullGeometry(),
-        omit(),
-        className(),
-        surfaceData(),
-        compoundData(),
-        patchSetData(),
-        isDuplicate()
+    id(),
+    boundingBox(),
+    radianceData(),
+    displayListId(),
+    itemCount(),
+    bounded(),
+    shaftCullGeometry(),
+    omit(),
+    className(),
+    surfaceData(),
+    compoundData(),
+    patchSetData(),
+    isDuplicate()
 {
     className = GeometryClassId::UNDEFINED;
 }
 
-static bool contains(java::ArrayList<MeshSurface *> *deleted, MeshSurface *candidate) {
+bool
+Geometry::contains(java::ArrayList<MeshSurface *> *deleted, MeshSurface *candidate) {
     for ( int i = 0; i < deleted->size(); i++ ) {
         if ( deleted->get(i) == candidate ) {
             return true;

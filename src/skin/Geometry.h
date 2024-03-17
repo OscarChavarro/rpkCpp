@@ -34,6 +34,9 @@ enum GeometryClassId {
 };
 
 class Geometry {
+  private:
+    static bool contains(java::ArrayList<MeshSurface *> *deleted, MeshSurface *candidate);
+
   public:
     int id; // Unique ID number
     BoundingBox boundingBox;

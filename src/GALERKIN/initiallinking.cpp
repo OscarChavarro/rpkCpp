@@ -1,8 +1,6 @@
 #include "java/util/ArrayList.txx"
 #include "common/error.h"
-#include "skin/Geometry.h"
 #include "scene/scene.h"
-#include "skin/Patch.h"
 #include "GALERKIN/Shaft.h"
 #include "GALERKIN/basisgalerkin.h"
 #include "GALERKIN/galerkinP.h"
@@ -16,17 +14,12 @@ static java::ArrayList<Geometry *> *globalCandidateList; // Candidate list for s
 
 static void
 createInitialLink(Patch *patch) {
-    GalerkinElement *rcv = nullptr;
-    GalerkinElement *src = nullptr;
-    java::ArrayList<Geometry *> *oldCandidateList = globalCandidateList;
-    Interaction link{};
-    float ff[MAX_BASIS_SIZE * MAX_BASIS_SIZE];
-    link.K.p = ff;
-
-    if ( !facing(patch, globalPatch)) {
+    if ( !facing(patch, globalPatch) ) {
         return;
     }
 
+    GalerkinElement *rcv = nullptr;
+    GalerkinElement *src = nullptr;
     GalerkinElement *topLevelElement = patchGalerkinElement(patch);
     switch ( globalRole ) {
         case SOURCE:
@@ -41,14 +34,18 @@ createInitialLink(Patch *patch) {
             logFatal(2, "createInitialLink", "Impossible element role");
     }
 
+    java::ArrayList<Geometry *> *oldCandidateList = globalCandidateList;
+
     if ( (GLOBAL_galerkin_state.exact_visibility || GLOBAL_galerkin_state.shaftCullMode == ALWAYS_DO_SHAFT_CULLING) && oldCandidateList ) {
         Shaft shaft;
 
         if ( GLOBAL_galerkin_state.exact_visibility ) {
             POLYGON rcvPolygon;
             POLYGON srcPolygon;
-            shaft.constructFromPolygonToPolygon(rcv->polygon(&rcvPolygon),
-                                                src->polygon(&srcPolygon));
+            if ( rcv != nullptr && src != nullptr ) {
+                shaft.constructFromPolygonToPolygon(rcv->polygon(&rcvPolygon),
+                                                    src->polygon(&srcPolygon));
+            }
         } else {
             BoundingBox bbox;
             shaft.constructShaft(&globalPatchBoundingBox, patch->patchBounds(&bbox));
@@ -68,6 +65,9 @@ createInitialLink(Patch *patch) {
         }
     }
 
+    Interaction link{};
+    float ff[MAX_BASIS_SIZE * MAX_BASIS_SIZE];
+    link.K.p = ff;
     link.receiverElement = rcv;
     link.sourceElement = src;
 
@@ -96,8 +96,10 @@ createInitialLink(Patch *patch) {
         // Store interactions with the source patch for the progressive radiosity method
         // and with the receiving patch for gathering methods
         if ( GLOBAL_galerkin_state.iteration_method == SOUTH_WELL ) {
-            src->interactions->add(newLink);
-        } else {
+            if ( src != nullptr ) {
+                src->interactions->add(newLink);
+            }
+        } else if ( rcv != nullptr ) {
             rcv->interactions->add(newLink);
         }
     }
@@ -107,20 +109,20 @@ createInitialLink(Patch *patch) {
 Yes ... we exploit the hierarchical structure of the scene during initial linking
 */
 static void
-geomLink(Geometry *geom) {
+geometryLink(Geometry *geometry) {
     Shaft shaft;
     java::ArrayList<Geometry *> *oldCandidateList = globalCandidateList;
 
     // Immediately return if the Geometry is bounded and behind the plane of the patch for which interactions are created
-    if ( geom->bounded && geomBounds(geom).behindPlane(&globalPatch->normal, globalPatch->planeConstant) ) {
+    if ( geometry->bounded && geomBounds(geometry).behindPlane(&globalPatch->normal, globalPatch->planeConstant) ) {
         return;
     }
 
     // If the geometry is bounded, do shaft culling, reducing the candidate list
     // which contains the possible occluder between a pair of patches for which
     // an initial link will need to be created
-    if ( geom->bounded && oldCandidateList ) {
-        shaft.constructShaft(&globalPatchBoundingBox, &geomBounds(geom));
+    if ( geometry->bounded && oldCandidateList ) {
+        shaft.constructShaft(&globalPatchBoundingBox, &geomBounds(geometry));
         shaft.setShaftOmit(globalPatch);
         java::ArrayList<Geometry*> *arr = new java::ArrayList<Geometry*>();
         shaft.doCulling(oldCandidateList, arr);
@@ -129,20 +131,20 @@ geomLink(Geometry *geom) {
 
     // If the Geometry is an aggregate, test each of its children GEOMs, if it
     // is a primitive, create an initial link with each patch it consists of
-    if ( geomIsAggregate(geom)) {
-        java::ArrayList<Geometry *> *geometryList = geomPrimListCopy(geom);
+    if ( geomIsAggregate(geometry) ) {
+        java::ArrayList<Geometry *> *geometryList = geomPrimListCopy(geometry);
         for ( int i = 0; geometryList != nullptr && i < geometryList->size(); i++ ) {
-            geomLink(geometryList->get(i));
+            geometryLink(geometryList->get(i));
         }
         delete geometryList;
     } else {
-        java::ArrayList<Patch *> *patchList = geomPatchArrayListReference(geom);
+        java::ArrayList<Patch *> *patchList = geomPatchArrayListReference(geometry);
         for ( int i = 0; patchList != nullptr && i < patchList->size(); i++ ) {
             createInitialLink(patchList->get(i));
         }
     }
 
-    if ( geom->bounded && oldCandidateList ) {
+    if ( geometry->bounded && oldCandidateList ) {
         freeCandidateList(globalCandidateList);
     }
     globalCandidateList = oldCandidateList;
@@ -167,7 +169,7 @@ createInitialLinks(GalerkinElement *top, GalerkinRole role) {
     globalCandidateList = GLOBAL_scene_clusteredGeometries;
 
     for ( int i = 0; GLOBAL_scene_geometries != nullptr && i < GLOBAL_scene_geometries->size(); i++ ) {
-        geomLink(GLOBAL_scene_geometries->get(i));
+        geometryLink(GLOBAL_scene_geometries->get(i));
 
     }
 }
@@ -179,11 +181,6 @@ void
 createInitialLinkWithTopCluster(GalerkinElement *elem, GalerkinRole role) {
     GalerkinElement *rcv = nullptr;
     GalerkinElement *src = nullptr;
-    Interaction *newLink;
-    FloatOrPointer K;
-    FloatOrPointer deltaK;
-    float ff[MAX_BASIS_SIZE * MAX_BASIS_SIZE];
-    int i;
 
     switch ( role ) {
         case RECEIVER:
@@ -199,19 +196,23 @@ createInitialLinkWithTopCluster(GalerkinElement *elem, GalerkinRole role) {
     }
 
     // Assume no light transport (overlapping receiver and source)
+    FloatOrPointer K;
+    FloatOrPointer deltaK;
+    float ff[MAX_BASIS_SIZE * MAX_BASIS_SIZE];
+
     if ( rcv != nullptr && src != nullptr ) {
         if ( rcv->basisSize * src->basisSize == 1 ) {
             K.f = 0.0;
         } else {
             K.p = ff;
-            for ( i = 0; i < rcv->basisSize * src->basisSize; i++ ) {
+            for ( int i = 0; i < rcv->basisSize * src->basisSize; i++ ) {
                 K.p[i] = 0.0;
             }
         }
         deltaK.f = HUGE; // HUGE error on the form factor
     }
 
-    newLink = new Interaction(
+    Interaction *newLink = new Interaction(
         rcv,
         src,
         K,

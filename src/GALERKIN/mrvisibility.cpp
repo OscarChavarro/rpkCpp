@@ -98,7 +98,7 @@ double
 geomListMultiResolutionVisibility(
     java::ArrayList<Geometry *> *geometryOccluderList,
     Ray *ray,
-    float rcvdist,
+    float rcvDist,
     float srcSize,
     float minimumFeatureSize)
 {
@@ -106,7 +106,7 @@ geomListMultiResolutionVisibility(
 
     for ( int i = 0; geometryOccluderList != nullptr && i < geometryOccluderList->size(); i++ ) {
         double v;
-        v = geomMultiResolutionVisibility(geometryOccluderList->get(i), ray, rcvdist, srcSize, minimumFeatureSize);
+        v = geomMultiResolutionVisibility(geometryOccluderList->get(i), ray, rcvDist, srcSize, minimumFeatureSize);
         if ( v < EPSILON ) {
             return 0.0;
         } else {
