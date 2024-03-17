@@ -14,21 +14,20 @@ const float PHOTON_MAP_MIN_DIST2 = PHOTON_MAP_MIN_DIST * PHOTON_MAP_MIN_DIST; //
 
 RayTracingStochasticState GLOBAL_raytracing_state;
 
-/******* get radiance routines for stochastic raytracing *******/
-
-// Forward declaration
-COLOR
-SR_GetRadiance(
-        SimpleRaytracingPathNode *thisNode,
-        StochasticRaytracingConfiguration *config,
-        StorageReadout readout,
-        int usedScatterSamples);
+static COLOR
+stochasticRaytracerGetRadiance(
+    SimpleRaytracingPathNode *thisNode,
+    StochasticRaytracingConfiguration *config,
+    StorageReadout readout,
+    int usedScatterSamples,
+    RadianceMethod *context);
 
 COLOR
-SR_GetScatteredRadiance(
-        SimpleRaytracingPathNode *thisNode,
-        StochasticRaytracingConfiguration *config,
-        StorageReadout readout)
+stochasticRaytracerGetScatteredRadiance(
+    SimpleRaytracingPathNode *thisNode,
+    StochasticRaytracingConfiguration *config,
+    StorageReadout readout,
+    RadianceMethod *context)
 {
     int siCurrent; // What scatter block are we handling
     CScatterInfo *si;
@@ -114,9 +113,9 @@ SR_GetScatteredRadiance(
                     // Get the incoming radiance
                     if ( siCurrent == -1 ) {
                         // Storage bounce
-                        radiance = SR_GetRadiance(&newNode, config, READ_NOW, nrSamples);
+                        radiance = stochasticRaytracerGetRadiance(&newNode, config, READ_NOW, nrSamples, context);
                     } else {
-                        radiance = SR_GetRadiance(&newNode, config, readout, nrSamples);
+                        radiance = stochasticRaytracerGetRadiance(&newNode, config, readout, nrSamples, context);
                     }
 
                     // Frame coherent & correlated sampling
@@ -296,12 +295,13 @@ SR_GetDirectRadiance(
     return result;
 }
 
-COLOR
-SR_GetRadiance(
-        SimpleRaytracingPathNode *thisNode,
-        StochasticRaytracingConfiguration *config,
-        StorageReadout readout,
-        int usedScatterSamples)
+static COLOR
+stochasticRaytracerGetRadiance(
+    SimpleRaytracingPathNode *thisNode,
+    StochasticRaytracingConfiguration *config,
+    StorageReadout readout,
+    int usedScatterSamples,
+    RadianceMethod *context)
 {
     COLOR result;
     COLOR radiance;
@@ -349,7 +349,7 @@ SR_GetRadiance(
         // Stored radiance
         if ( (readout == READ_NOW) && (config->siStorage.flags != NO_COMPONENTS) ) {
             // Add the stored radiance being emitted from the patch
-            if ( GLOBAL_radiance_selectedRadianceMethod->className == PHOTON_MAP ) {
+            if ( context->className == PHOTON_MAP ) {
                 if ( config->radMode == STORED_PHOTON_MAP ) {
                     // Check if the distance to the previous point is big enough
                     // otherwise we need more scattering...
@@ -374,7 +374,7 @@ SR_GetRadiance(
                 // (u, v) coordinates of intersection point
                 thisNode->m_hit.patch->uv(&thisNode->m_hit.point, &u, &v);
 
-                radiance = GLOBAL_radiance_selectedRadianceMethod->getRadiance(
+                radiance = context->getRadiance(
                     thisNode->m_hit.patch, u, v, thisNode->m_inDirF);
 
                 // This includes Le diffuse, subtract first and handle total emitted later (possibly weighted)
@@ -402,11 +402,11 @@ SR_GetRadiance(
         colorAdd(result, radiance, result);
 
         // Scattered light
-        radiance = SR_GetScatteredRadiance(thisNode, config, readout);
+        radiance = stochasticRaytracerGetScatteredRadiance(thisNode, config, readout, context);
         colorAdd(result, radiance, result);
 
         // Emitted Light
-        if ( (config->radMode == STORED_PHOTON_MAP) && (GLOBAL_radiance_selectedRadianceMethod->className == PHOTON_MAP) ) {
+        if ( (config->radMode == STORED_PHOTON_MAP) && (context->className == PHOTON_MAP) ) {
             // Check if Le would contribute to a caustic
             if ( (readout == READ_NOW) && !(config->siStorage.DoneThisBounce(thisNode->previous())) ) {
                 // Caustic contribution:  (E...(D|G)...?L) with ? some specular bounce
@@ -462,7 +462,7 @@ SR_GetRadiance(
 }
 
 static COLOR
-CalcPixel(int nx, int ny, StochasticRaytracingConfiguration *config) {
+CalcPixel(int nx, int ny, StochasticRaytracingConfiguration *config, RadianceMethod *context) {
     int i;
     SimpleRaytracingPathNode eyeNode, pixelNode;
     double x1;
@@ -503,8 +503,8 @@ CalcPixel(int nx, int ny, StochasticRaytracingConfiguration *config) {
                 config->seedConfig.Save(pixelNode.m_depth);
             }
 
-            col = SR_GetRadiance(&pixelNode, config, config->initialReadout,
-                                 config->samplesPerPixel);
+            col = stochasticRaytracerGetRadiance(&pixelNode, config, config->initialReadout,
+                                                 config->samplesPerPixel, context);
 
             // Frame coherent & correlated sampling
             if ( GLOBAL_raytracing_state.doFrameCoherent || GLOBAL_raytracing_state.doCorrelatedSampling ) {
@@ -550,7 +550,7 @@ RTStochastic_Trace(
     java::ArrayList<Patch *> *lightPatches,
     RadianceMethod *context)
 {
-    StochasticRaytracingConfiguration config(GLOBAL_raytracing_state, lightPatches); // config filled in by constructor
+    StochasticRaytracingConfiguration config(GLOBAL_raytracing_state, lightPatches, context); // config filled in by constructor
 
     // Frame Coherent sampling : init fixed seed
     if ( GLOBAL_raytracing_state.doFrameCoherent ) {

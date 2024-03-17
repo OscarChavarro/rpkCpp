@@ -172,10 +172,10 @@ public:
     StorageReadout initialReadout;
 
 public:
-    void init(RayTracingStochasticState &state, java::ArrayList<Patch *> *lightList);
+    void init(RayTracingStochasticState &state, java::ArrayList<Patch *> *lightList, RadianceMethod *context);
 
     // Constructors
-    StochasticRaytracingConfiguration():
+    StochasticRaytracingConfiguration(RadianceMethod *context):
         samplesPerPixel(),
         nextEventSamples(),
         lightMode(),
@@ -196,7 +196,7 @@ public:
         initialReadout()
     {}
 
-    StochasticRaytracingConfiguration(RayTracingStochasticState &state, java::ArrayList<Patch *> *lightList):
+    StochasticRaytracingConfiguration(RayTracingStochasticState &state, java::ArrayList<Patch *> *lightList, RadianceMethod *context):
             samplesPerPixel(),
             nextEventSamples(),
             lightMode(),
@@ -216,7 +216,7 @@ public:
             siOthersCount(),
             initialReadout()
         {
-        init(state, lightList);
+        init(state, lightList, context);
     }
 
     ~StochasticRaytracingConfiguration() {
@@ -224,7 +224,7 @@ public:
     };
 
 private:
-    void initDependentVars(java::ArrayList<Patch *> *lightList);
+    void initDependentVars(java::ArrayList<Patch *> *lightList, RadianceMethod *context);
 };
 
 #endif

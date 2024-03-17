@@ -64,7 +64,7 @@ RayCaster::getRadianceAtPixel(int x, int y, Patch *patch, RadianceMethod *contex
     COLOR rad{};
     colorClear(rad);
 
-    if ( GLOBAL_radiance_selectedRadianceMethod != nullptr ) {
+    if ( context != nullptr ) {
         // Ray pointing from the eye through the center of the pixel.
         Ray ray;
         ray.pos = GLOBAL_camera_mainCamera.eyePosition;

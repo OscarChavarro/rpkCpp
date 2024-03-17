@@ -144,12 +144,12 @@ batchSaveRaytracingImage(const char *fileName, FILE *fp, int isPipe, java::Array
 }
 
 void
-batchRayTrace(char *filename, FILE *fp, int isPipe, java::ArrayList<Patch *> *scenePatches, java::ArrayList<Patch *> *lightPatches) {
+batchRayTrace(char *filename, FILE *fp, int isPipe, java::ArrayList<Patch *> *scenePatches, java::ArrayList<Patch *> *lightPatches, RadianceMethod *context) {
     GLOBAL_render_renderOptions.renderRayTracedImage = true;
     GLOBAL_camera_mainCamera.changed = false;
 
     canvasPushMode();
-    rayTrace(filename, fp, isPipe, GLOBAL_raytracer_activeRaytracer, scenePatches, lightPatches);
+    rayTrace(filename, fp, isPipe, GLOBAL_raytracer_activeRaytracer, scenePatches, lightPatches, context);
     canvasPullMode();
 }
 

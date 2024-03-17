@@ -9,11 +9,9 @@ Stuff common to all radiance methods
 #include "common/options.h"
 #include "common/RenderOptions.h"
 #include "GALERKIN/GalerkinRadianceMethod.h"
-#include "app/batch.h"
 
 #ifdef RAYTRACING_ENABLED
     #include "PHOTONMAP/PhotonMapRadianceMethod.h"
-    #include "raycasting/stochasticRaytracing/mcrad.h"
     #include "raycasting/stochasticRaytracing/StochasticJacobiRadianceMethod.h"
     #include "raycasting/stochasticRaytracing/RandomWalkRadianceMethod.h"
 #endif
@@ -49,17 +47,17 @@ This routine sets the current radiance method to be used + initializes
 */
 void
 setRadianceMethod(RadianceMethod *newMethod, java::ArrayList<Patch *> *scenePatches) {
-    if ( GLOBAL_radiance_selectedRadianceMethod != nullptr ) {
-        GLOBAL_radiance_selectedRadianceMethod->terminate(scenePatches);
+    if ( newMethod != nullptr ) {
+        newMethod->terminate(scenePatches);
         // Until we have radiance data convertors, we dispose of the old data and
         // allocate new data for the new method
         for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
-            GLOBAL_radiance_selectedRadianceMethod->destroyPatchData(scenePatches->get(i));
+            newMethod->destroyPatchData(scenePatches->get(i));
         }
         for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
-            GLOBAL_radiance_selectedRadianceMethod->createPatchData(scenePatches->get(i));
+            newMethod->createPatchData(scenePatches->get(i));
         }
-        GLOBAL_radiance_selectedRadianceMethod->initialize(scenePatches);
+        newMethod->initialize(scenePatches);
     }
 }
 

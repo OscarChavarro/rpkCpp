@@ -10,7 +10,11 @@
 CSeed CSeedConfig::xOrSeed;
 
 void
-StochasticRaytracingConfiguration::init(RayTracingStochasticState &state, java::ArrayList<Patch *> *lightList) {
+StochasticRaytracingConfiguration::init(
+    RayTracingStochasticState &state,
+    java::ArrayList<Patch *> *lightList,
+    RadianceMethod *context)
+{
     // Copy state options
 
     samplesPerPixel = state.samplesPerPixel;
@@ -22,10 +26,10 @@ StochasticRaytracingConfiguration::init(RayTracingStochasticState &state, java::
     backgroundSampling = state.backgroundSampling;
 
     if ( radMode != STORED_NONE ) {
-        if ( GLOBAL_radiance_selectedRadianceMethod == nullptr ) {
+        if ( context == nullptr ) {
             logError("Stored Radiance", "No radiance method active, using no storage");
             radMode = STORED_NONE;
-        } else if ((radMode == STORED_PHOTON_MAP) && (GLOBAL_radiance_selectedRadianceMethod->className != PHOTON_MAP) ) {
+        } else if ( (radMode == STORED_PHOTON_MAP) && (context->className != PHOTON_MAP) ) {
             logError("Stored Radiance", "Photon map method not active, using no storage");
             radMode = STORED_NONE;
         }
@@ -75,11 +79,11 @@ StochasticRaytracingConfiguration::init(RayTracingStochasticState &state, java::
     screen = new ScreenBuffer(nullptr);
     screen->setFactor(1.0); // We're storing plain radiance
 
-    initDependentVars(lightList);
+    initDependentVars(lightList, context);
 }
 
 void
-StochasticRaytracingConfiguration::initDependentVars(java::ArrayList<Patch *> *lightList) {
+StochasticRaytracingConfiguration::initDependentVars(java::ArrayList<Patch *> *lightList, RadianceMethod *context) {
     // Sampler configuration
     samplerConfig.pointSampler = new CEyeSampler;
     samplerConfig.dirSampler = new CPixelSampler;
@@ -111,10 +115,10 @@ StochasticRaytracingConfiguration::initDependentVars(java::ArrayList<Patch *> *l
 
     BSDF_FLAGS storeFlags;
 
-    if ( (GLOBAL_radiance_selectedRadianceMethod == nullptr) || (radMode == STORED_NONE) ) {
+    if ( (context == nullptr) || (radMode == STORED_NONE) ) {
         storeFlags = NO_COMPONENTS;
     } else {
-        if ( GLOBAL_radiance_selectedRadianceMethod->className == PHOTON_MAP ) {
+        if ( context->className == PHOTON_MAP ) {
             storeFlags = BSDF_GLOSSY_COMPONENT | BSDF_DIFFUSE_COMPONENT;
         } else {
             storeFlags = BRDF_DIFFUSE_COMPONENT;

@@ -117,7 +117,7 @@ stochasticRelaxationRadiosityRecomputeDisplayColors(java::ArrayList<Patch *> *sc
 }
 
 /**
-Computes quality factor on given leaf element (see PhD Ph.Bekaert p.152).
+Computes quality factor on given leaf element (see PhD Phillipe Bekaert p.152).
 In the basic algorithms by Neumann et al. the quality factor would
 correspond to the inverse of the elementary ray power. The quality factor
 indicates the quality of the radiosity solution on a given leaf element.
@@ -141,16 +141,17 @@ stochasticRelaxationRadiosityElementUnShotRadiance(StochasticRadiosityElement *e
 
 static void
 stochasticRelaxationRadiosityElementIncrementRadiance(StochasticRadiosityElement *elem, double w) {
-    /* Each incremental iteration computes a different contribution to the
-     * solution. The quality factor of the result remains constant. */
+    // Each incremental iteration computes a different contribution to the
+    // solution. The quality factor of the result remains constant
     if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.discardIncremental ) {
         elem->quality = 0.0;
         {
-            static int wgiv = false;
-            if ( !wgiv ) {
-                logWarning("stochasticRelaxationRadiosityElementIncrementRadiance", "Solution of incremental Jacobi steps receives zero quality");
+            static bool repeated = false;
+            if ( !repeated ) {
+                logWarning("stochasticRelaxationRadiosityElementIncrementRadiance",
+                           "Solution of incremental Jacobi steps receives zero quality");
             }
-            wgiv = true;
+            repeated = true;
         }
     } else {
         elem->quality = (float)stochasticRelaxationRadiosityQualityFactor(elem, w);
@@ -159,7 +160,7 @@ stochasticRelaxationRadiosityElementIncrementRadiance(StochasticRadiosityElement
     stochasticRadiosityAddCoefficients(elem->radiance, elem->receivedRadiance, elem->basis);
     stochasticRadiosityCopyCoefficients(elem->unShotRadiance, elem->receivedRadiance, elem->basis);
     if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.setSource ) {
-        /* copy direct illumination and forget selfemitted illumination */
+        // Copy direct illumination and forget self emitted illumination
         elem->radiance[0] = elem->sourceRad = elem->receivedRadiance[0];
     }
     stochasticRadiosityClearCoefficients(elem->receivedRadiance, elem->basis);
@@ -167,12 +168,12 @@ stochasticRelaxationRadiosityElementIncrementRadiance(StochasticRadiosityElement
 
 static void
 stochasticRelaxationRadiosityPrintIncrementalRadianceStats() {
-    fprintf(stderr, "%g secs., radiance rays = %ld (%ld not to background), unshot flux = ",
+    fprintf(stderr, "%g secs., radiance rays = %ld (%ld not to background), un-shot flux = ",
             GLOBAL_stochasticRaytracing_monteCarloRadiosityState.cpuSeconds, GLOBAL_stochasticRaytracing_monteCarloRadiosityState.tracedRays, GLOBAL_stochasticRaytracing_monteCarloRadiosityState.tracedRays - GLOBAL_stochasticRaytracing_monteCarloRadiosityState.numberOfMisses);
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotFlux.print(stderr);
     fprintf(stderr, ", total flux = ");
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalFlux.print(stderr);
-    fprintf(stderr, ", indirect importance weighted unshot flux = ");
+    fprintf(stderr, ", indirect importance weighted un-shot flux = ");
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.indirectImportanceWeightedUnShotFlux.print(stderr);
     fprintf(stderr, "\n");
 }
@@ -212,7 +213,7 @@ stochasticRelaxationRadiosityDoIncrementalRadianceIterations(java::ArrayList<Pat
                         GLOBAL_stochasticRadiosity_approxDesc[GLOBAL_stochasticRaytracing_monteCarloRadiosityState.approximationOrderType].basis_size));
 
         stepNumber++;
-        fprintf(stderr, "Incremental radiance propagation step %ld: %.3f%% unshot power left.\n",
+        fprintf(stderr, "Incremental radiance propagation step %ld: %.3f%% un-shot power left.\n",
                 stepNumber, 100. * unShotFraction);
 
         doStochasticJacobiIteration(nr_rays, stochasticRelaxationRadiosityElementUnShotRadiance, nullptr,
@@ -252,7 +253,7 @@ stochasticRelaxationRadiosityElementIncrementImportance(StochasticRadiosityEleme
 
 static void
 stochasticRelaxationRadiosityPrintIncrementalImportanceStats() {
-    fprintf(stderr, "%g secs., importance rays = %ld, unshot importance = %g, total importance = %g, total area = %g\n",
+    fprintf(stderr, "%g secs., importance rays = %ld, un-shot importance = %g, total importance = %g, total area = %g\n",
             GLOBAL_stochasticRaytracing_monteCarloRadiosityState.cpuSeconds, GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceTracedRays, GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotYmp, GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalYmp, GLOBAL_statistics.totalArea);
 }
 
@@ -278,16 +279,16 @@ stochasticRelaxationRadiosityDoIncrementalImportanceIterations(java::ArrayList<P
     while ( true ) {
         // Choose nr of rays so that power carried by each ray is the same, and
         // proportional to the number of basis functions in the rad. approx. */
-        double unshot_fraction = GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotYmp / GLOBAL_stochasticRaytracing_monteCarloRadiosityState.sourceYmp;
+        double unShotFraction = GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotYmp / GLOBAL_stochasticRaytracing_monteCarloRadiosityState.sourceYmp;
         long nr_rays = stochasticRelaxationRadiosityRandomRound(
-                (float)unshot_fraction * (float) GLOBAL_stochasticRaytracing_monteCarloRadiosityState.initialNumberOfRays);
-        if ( unshot_fraction < 0.01 ) {
+                (float)unShotFraction * (float) GLOBAL_stochasticRaytracing_monteCarloRadiosityState.initialNumberOfRays);
+        if ( unShotFraction < 0.01 ) {
             break;
         }
 
         step_nr++;
         fprintf(stderr, "Incremental importance propagation step %ld: %.3f%% un-shot importance left.\n",
-                step_nr, 100.0 * unshot_fraction);
+                step_nr, 100.0 * unShotFraction);
 
         doStochasticJacobiIteration(nr_rays, nullptr, stochasticRelaxationRadiosityElementUnShotImportance,
                                     stochasticRelaxationRadiosityElementIncrementImportance, scenePatches);
@@ -346,7 +347,7 @@ stochasticRelaxationRadiosityElementUpdateRadiance(StochasticRadiosityElement *e
 
 static void
 stochasticRelaxationRadiosityPrintRegularStats() {
-    fprintf(stderr, "%g secs., radiance rays = %ld (%ld not to background), unshot flux = ",
+    fprintf(stderr, "%g secs., radiance rays = %ld (%ld not to background), un-shot flux = ",
             GLOBAL_stochasticRaytracing_monteCarloRadiosityState.cpuSeconds, GLOBAL_stochasticRaytracing_monteCarloRadiosityState.tracedRays, GLOBAL_stochasticRaytracing_monteCarloRadiosityState.tracedRays - GLOBAL_stochasticRaytracing_monteCarloRadiosityState.numberOfMisses);
     fprintf(stderr, ", total flux = ");
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalFlux.print(stderr);

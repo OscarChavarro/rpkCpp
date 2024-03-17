@@ -262,7 +262,7 @@ batch(java::ArrayList<Patch *> *scenePatches, java::ArrayList<Patch *> *lightPat
             printf("Doing %s ...\n", GLOBAL_raytracer_activeRaytracer->fullName);
 
             start_time = clock();
-            batchRayTrace(nullptr, nullptr, false, scenePatches, lightPatches);
+            batchRayTrace(nullptr, nullptr, false, scenePatches, lightPatches, GLOBAL_radiance_selectedRadianceMethod);
 
             if ( globalTimings ) {
                 fprintf(stdout, "Raytracing total time %g secs.\n",

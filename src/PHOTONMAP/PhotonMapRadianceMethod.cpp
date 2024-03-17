@@ -10,7 +10,6 @@
 #include "raycasting/common/raytools.h"
 #include "render/ScreenBuffer.h"
 #include "raycasting/common/pathnode.h"
-#include "raycasting/simple/RayCaster.h"
 #include "raycasting/raytracing/bipath.h"
 #include "raycasting/raytracing/eyesampler.h"
 #include "raycasting/bidirectionalRaytracing/LightSampler.h"
@@ -209,23 +208,19 @@ photonMapDoComputePixelFluxEstimate(PhotonMapConfig *config, RadianceMethod *con
     oldBsdfCompE = eyeEndNode->m_bsdfComp;
 
     oldPdfL = lightEndNode->m_pdfFromNext;
-    //PNAN(lightEndNode->m_pdfFromNext);
 
     oldRRPdfL = lightEndNode->m_rrPdfFromNext;
 
     if ( lightPrevNode ) {
         oldPdfLP = lightPrevNode->m_pdfFromNext;
-        //PNAN(lightPrevNode->m_pdfFromNext);
         oldRRPdfLP = lightPrevNode->m_rrPdfFromNext;
     }
 
     oldPdfE = eyeEndNode->m_pdfFromNext;
-    //PNAN(eyeEndNode->m_pdfFromNext);
     oldRRPdfE = eyeEndNode->m_rrPdfFromNext;
 
     if ( eyePrevNode ) {
         oldPdfEP = eyePrevNode->m_pdfFromNext;
-        //PNAN(eyePrevNode->m_pdfFromNext);
         oldRRPdfEP = eyePrevNode->m_rrPdfFromNext;
     }
 
@@ -276,8 +271,8 @@ Test next event estimator to the screen. The result is standard
 particle tracing, although constructing global & caustic together
 does not give correct display
 */
-void
-photonMapDoScreenNEE(PhotonMapConfig *config) {
+static void
+photonMapDoScreenNEE(PhotonMapConfig *config, RadianceMethod *context) {
     int nx, ny;
     float pix_x, pix_y;
     COLOR f;
@@ -291,7 +286,7 @@ photonMapDoScreenNEE(PhotonMapConfig *config) {
     // the camera. At the same time the pixel hit is computed
     if ( eyeNodeVisible(bp->m_eyeEndNode, bp->m_lightEndNode, &pix_x, &pix_y) ) {
         // Visible !
-        f = photonMapDoComputePixelFluxEstimate(config, GLOBAL_radiance_selectedRadianceMethod);
+        f = photonMapDoComputePixelFluxEstimate(config, context);
 
         config->screen->getPixel(pix_x, pix_y, &nx, &ny);
 
@@ -361,8 +356,8 @@ photonMapDoPhotonStore(SimpleRaytracingPathNode *node, COLOR power) {
 /**
 Handle one path : store at all end positions and for testing, connect to the eye
 */
-void
-photonMapHandlePath(PhotonMapConfig *config) {
+static void
+photonMapHandlePath(PhotonMapConfig *config, RadianceMethod *context) {
     bool lDone;
     CBiPath *bp = &config->biPath;
     COLOR accPower;
@@ -395,7 +390,7 @@ photonMapHandlePath(PhotonMapConfig *config) {
                     // Screen next event estimation for testing
 
                     bp->m_lightEndNode = currentNode;
-                    photonMapDoScreenNEE(config);
+                    photonMapDoScreenNEE(config, context);
                 }
             }
         } else {
@@ -407,7 +402,7 @@ photonMapHandlePath(PhotonMapConfig *config) {
                     // Screen next event estimation for testing
 
                     bp->m_lightEndNode = currentNode;
-                    photonMapDoScreenNEE(config);
+                    photonMapDoScreenNEE(config, context);
                 }
             }
         }
@@ -458,18 +453,18 @@ photonMapTracePath(PhotonMapConfig *config, BSDF_FLAGS bsdfFlags) {
 }
 
 static void
-photonMapTracePaths(int nrPaths, BSDF_FLAGS bsdfFlags = BSDF_ALL_COMPONENTS) {
+photonMapTracePaths(int nrPaths, BSDF_FLAGS bsdfFlags = BSDF_ALL_COMPONENTS, RadianceMethod *context = nullptr) {
     int i;
 
     // Fill in config structures
     for ( i = 0; i < nrPaths; i++ ) {
         photonMapTracePath(&GLOBAL_photonMap_config, bsdfFlags);
-        photonMapHandlePath(&GLOBAL_photonMap_config);
+        photonMapHandlePath(&GLOBAL_photonMap_config, context);
     }
 }
 
 static void
-photonMapBRRealIteration() {
+photonMapBRRealIteration(RadianceMethod *context) {
     GLOBAL_photonMap_state.iterationNumber++;
 
     fprintf(stderr, "GLOBAL_photonMapMethods Iteration %li\n", (long) GLOBAL_photonMap_state.iterationNumber);
@@ -503,7 +498,7 @@ photonMapBRRealIteration() {
         // Set correct importance map: indirect importance
         GLOBAL_photonMap_config.currentImpMap = GLOBAL_photonMap_config.importanceMap;
 
-        photonMapTracePaths((int)GLOBAL_photonMap_state.gPathsPerIteration);
+        photonMapTracePaths((int)GLOBAL_photonMap_state.gPathsPerIteration, BSDF_ALL_COMPONENTS, context);
 
         fprintf(stderr, "Global map: ");
         GLOBAL_photonMap_config.globalMap->PrintStats(stderr);
@@ -536,7 +531,7 @@ int
 PhotonMapRadianceMethod::doStep(java::ArrayList<Patch *> *scenePatches, java::ArrayList<Patch *> *lightPatches, RadianceMethod *context) {
     GLOBAL_photonMap_state.lastClock = clock();
 
-    photonMapBRRealIteration();
+    photonMapBRRealIteration(context);
     photonMapRadiosityUpdateCpuSecs();
 
     GLOBAL_photonMap_state.runStopNumber++;

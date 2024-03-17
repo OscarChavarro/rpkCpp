@@ -12,7 +12,14 @@ Initializes an ImageOutputHandle taking into account the image filename extensio
 and performs raytracing
 */
 void
-rayTrace(char *fileName, FILE *fp, int isPipe, Raytracer *activeRayTracer, java::ArrayList<Patch *> *scenePatches, java::ArrayList<Patch *> *lightPatches) {
+rayTrace(
+    char *fileName,
+    FILE *fp,
+    int isPipe,
+    Raytracer *activeRayTracer,
+    java::ArrayList<Patch *> *scenePatches,
+    java::ArrayList<Patch *> *lightPatches,
+    RadianceMethod *context) {
     ImageOutputHandle *img = nullptr;
 
     if ( fp != nullptr ) {
@@ -25,7 +32,7 @@ rayTrace(char *fileName, FILE *fp, int isPipe, Raytracer *activeRayTracer, java:
     }
 
     if ( activeRayTracer != nullptr ) {
-        activeRayTracer->Raytrace(img, scenePatches, lightPatches, GLOBAL_radiance_selectedRadianceMethod);
+        activeRayTracer->Raytrace(img, scenePatches, lightPatches, context);
     }
 
     if ( img ) {

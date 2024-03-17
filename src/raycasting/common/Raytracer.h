@@ -54,6 +54,14 @@ extern double GLOBAL_raytracer_totalTime; // Statistics: raytracing time
 extern long GLOBAL_raytracer_rayCount; // Statistics: number of rays traced
 extern long GLOBAL_raytracer_pixelCount; // Statistics: number of pixels drawn
 
-extern void rayTrace(char *fileName, FILE *fp, int isPipe, Raytracer *activeRayTracer, java::ArrayList<Patch *> *scenePatches, java::ArrayList<Patch *> *lightPatches);
+extern void
+rayTrace(
+    char *fileName,
+    FILE *fp,
+    int isPipe,
+    Raytracer *activeRayTracer,
+    java::ArrayList<Patch *> *scenePatches,
+    java::ArrayList<Patch *> *lightPatches,
+    RadianceMethod *context);
 
 #endif
