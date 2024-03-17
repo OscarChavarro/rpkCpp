@@ -7,7 +7,7 @@ Galerkin finite elements: one structure for both surface and cluster elements
 
 #include "java/util/ArrayList.h"
 #include "GALERKIN/Interaction.h"
-#include "scene/polygon.h"
+#include "scene/Polygon.h"
 
 /**
 The Galerkin radiosity specific data to be kept with every surface or
@@ -54,7 +54,7 @@ public:
     int vertices(Vector3D *p, int n);
     BoundingBox *bounds(BoundingBox *boundingBox);
     Vector3D midPoint();
-    POLYGON *polygon(POLYGON *polygon);
+    Polygon *polygon(Polygon *polygon);
     void reAllocCoefficients();
 };
 

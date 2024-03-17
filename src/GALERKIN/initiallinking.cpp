@@ -40,8 +40,8 @@ createInitialLink(Patch *patch) {
         Shaft shaft;
 
         if ( GLOBAL_galerkin_state.exact_visibility ) {
-            POLYGON rcvPolygon;
-            POLYGON srcPolygon;
+            Polygon rcvPolygon;
+            Polygon srcPolygon;
             if ( rcv != nullptr && src != nullptr ) {
                 shaft.constructFromPolygonToPolygon(rcv->polygon(&rcvPolygon),
                                                     src->polygon(&srcPolygon));

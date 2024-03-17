@@ -10,7 +10,7 @@ References:
 */
 
 #include "java/util/ArrayList.h"
-#include "scene/polygon.h"
+#include "scene/Polygon.h"
 
 class ShaftPlane {
   public:
@@ -27,14 +27,14 @@ class ShaftPlane {
 // and on the negative side of the planes
 class Shaft {
   private:
-    static int testPolygonWrtPlane(POLYGON *poly, Vector3D *normal, double d);
+    static int testPolygonWrtPlane(Polygon *poly, Vector3D *normal, double d);
     static void fillInPlane(ShaftPlane *plane, float nx, float ny, float nz, float d);
-    static bool verifyPolygonWrtPlane(POLYGON *polygon, Vector3D *normal, double d, int side);
+    static bool verifyPolygonWrtPlane(Polygon *polygon, Vector3D *normal, double d, int side);
     static int testPointWrtPlane(Vector3D *p, Vector3D *normal, double d);
     static int compareShaftPlanes(ShaftPlane *plane1, ShaftPlane *plane2);
     static void keep(Geometry *geometry, java::ArrayList<Geometry *> *candidateList);
 
-    void constructPolygonToPolygonPlanes(POLYGON *p1, POLYGON *p2);
+    void constructPolygonToPolygonPlanes(Polygon *p1, Polygon *p2);
     int shaftPatchTest(Patch *patch);
     int dontOpenFunction(Geometry *geometry);
     int uniqueShaftPlane(ShaftPlane *parameterPlane);
@@ -66,7 +66,7 @@ public:
     int patchIsOnOmitSet(Patch *geometry);
     void shaftCullOpen(Geometry *geometry, java::ArrayList<Geometry *> *candidateList);
     int boundingBoxTest(BoundingBox *bounds);
-    void constructFromPolygonToPolygon(POLYGON *polygon1, POLYGON *polygon2);
+    void constructFromPolygonToPolygon(Polygon *polygon1, Polygon *polygon2);
     void setShaftOmit(Patch *patch);
     void setShaftDontOpen(Geometry *geometry);
     void doCulling(java::ArrayList<Geometry *> *world, java::ArrayList<Geometry *> *candidateList);

@@ -55,8 +55,8 @@ hierarchicRefinementCull(
         Shaft shaft;
 
         if ( state->exact_visibility && !link->receiverElement->isCluster() && !link->sourceElement->isCluster() ) {
-            POLYGON rcvPolygon;
-            POLYGON srcPolygon;
+            Polygon rcvPolygon;
+            Polygon srcPolygon;
             shaft.constructFromPolygonToPolygon(
                     link->receiverElement->polygon(&rcvPolygon),
                     link->sourceElement->polygon(&srcPolygon));
