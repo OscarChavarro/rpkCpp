@@ -15,7 +15,7 @@ class ShaftPlane {
   public:
     float n[3];
     float d;
-    int coord_offset[3]; // Coordinate offset for nearest corner in box-plane tests
+    int coordinateOffset[3]; // Coordinate offset for nearest corner in box-plane tests
 };
 
 // Maximum 16 planes in plane-set: maximum 8 for a box-to-box shaft, maximum 2
@@ -38,8 +38,16 @@ class Shaft {
     Geometry *dontOpen[2]; // Geometries not to be opened during shaft culling, maximum 2
     int numberOfGeometriesToNotOpen;
     Vector3D center1; // The line segment from center1 to center2 is guaranteed
-    // to lay within the shaft
+                      // to lay within the shaft
     Vector3D center2;
+    // A boolean initialized to FALSE when the shaft is created and set
+    // to TRUE during shaft culling if there are patches that cut the shaft. If
+    // after shaft culling, this flag is TRUE, there is full occlusion due to
+    // one occluder
+    // As soon as such a situation is detected, shaft culling ends and the
+    // occluder in question is the first patch in the returned candidate list.
+    // The candidate list does not contain all occluder!
+    bool cut;
 
     static int testPolygonWrtPlane(POLYGON *poly, Vector3D *normal, double d);
     static void fillInPlane(ShaftPlane *plane, float nx, float ny, float nz, float d);
@@ -57,15 +65,6 @@ class Shaft {
     int boundingBoxTest(BoundingBox *bounds);
 
   public:
-    // A boolean initialized to FALSE when the shaft is created and set
-    // to TRUE during shaft culling if there are patches that cut the shaft. If
-    // after shaft culling, this flag is TRUE, there is full occlusion due to
-    // one occluder
-    // As soon as such a situation is detected, shaft culling ends and the
-    // occluder in question is the first patch in the returned candidate list.
-    // The candidate list does not contain all occluder!
-    int cut;
-
     Shaft();
     void constructShaft(BoundingBox *boundingBox1, BoundingBox *boundingBox2);
 
@@ -74,6 +73,7 @@ class Shaft {
     void setShaftDontOpen(Geometry *geometry);
     void doCulling(java::ArrayList<Geometry *> *world, java::ArrayList<Geometry *> *candidateList);
     void cullGeometry(Geometry *geometry, java::ArrayList<Geometry *> *candidateList);
+    bool isCut();
 };
 
 extern void freeCandidateList(java::ArrayList<Geometry *> *candidateList);

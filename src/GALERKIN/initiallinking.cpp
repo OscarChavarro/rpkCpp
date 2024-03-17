@@ -60,7 +60,7 @@ createInitialLink(Patch *patch) {
         shaft.doCulling(oldCandidateList, globalCandidateList);
         globalCandidateList = arr;
 
-        if ( shaft.cut == true ) {
+        if ( shaft.isCut() ) {
             // One patch causes full occlusion
             freeCandidateList(globalCandidateList);
             globalCandidateList = oldCandidateList;
