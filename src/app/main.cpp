@@ -614,12 +614,14 @@ mainFreeMemory(RadianceMethod *context) {
 
 int
 main(int argc, char *argv[]) {
-    mainInit(GLOBAL_radiance_selectedRadianceMethod);
-    mainParseGlobalOptions(&argc, argv, &GLOBAL_radiance_selectedRadianceMethod);
-    mainBuildModel(&argc, argv, GLOBAL_radiance_selectedRadianceMethod);
+    RadianceMethod *selectedRadianceMethod = nullptr;
 
-    mainExecuteRendering(globalAppScenePatches, GLOBAL_radiance_selectedRadianceMethod);
-    mainFreeMemory(GLOBAL_radiance_selectedRadianceMethod);
+    mainInit(selectedRadianceMethod);
+    mainParseGlobalOptions(&argc, argv, &selectedRadianceMethod);
+    mainBuildModel(&argc, argv, selectedRadianceMethod);
+
+    mainExecuteRendering(globalAppScenePatches, selectedRadianceMethod);
+    mainFreeMemory(selectedRadianceMethod);
 
     return 0;
 }

@@ -419,7 +419,7 @@ removes them from the argv list (decreasing argc)
 void
 parseGeneralOptions(CommandLineOptionDescription *options, int *argc, char **argv) {
     optionsInitArguments(argc, argv);
-    while ( optionsArgumentsRemaining()) {
+    while ( optionsArgumentsRemaining() ) {
         optionsProcessArguments(options);
     }
 }

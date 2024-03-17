@@ -11,8 +11,6 @@ Stuff common to all radiance methods
 #include "GALERKIN/GalerkinRadianceMethod.h"
 #include "app/radiance.h"
 
-RadianceMethod *GLOBAL_radiance_selectedRadianceMethod = nullptr;
-
 #ifdef RAYTRACING_ENABLED
     #include "PHOTONMAP/PhotonMapRadianceMethod.h"
     #include "raycasting/stochasticRaytracing/StochasticJacobiRadianceMethod.h"
@@ -28,15 +26,6 @@ java::ArrayList<Patch *> *GLOBAL_scenePatches = nullptr;
 
 static void
 radianceMethodOption(void *value) {
-    char *name = *(char **) value;
-
-    setRadianceMethod(GLOBAL_radiance_selectedRadianceMethod, GLOBAL_scenePatches);
-
-    if ( strncasecmp(name, "none", 4) == 0 ) {
-        setRadianceMethod(nullptr, GLOBAL_scenePatches);
-    } else {
-        logError(nullptr, "Invalid world-space radiance method name '%s'", name);
-    }
 }
 
 static CommandLineOptionDescription globalRadianceOptions[] = {
