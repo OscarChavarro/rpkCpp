@@ -14,6 +14,11 @@ Some constants describing the position of some item with respect to a plane or a
 #define OUTSIDE 1
 #define COPLANAR 2
 
+/**
+Default strategy is "overlap open", which was the most efficient strategy tested
+*/
+static ShaftCullStrategy strategy = OVERLAP_OPEN;
+
 Shaft::Shaft():
     ref1(),
     ref2(),
@@ -63,7 +68,8 @@ Shaft::constructShaft(BoundingBox *boundingBox1, BoundingBox *boundingBox2) {
     ref1 = boundingBox1;
     ref2 = boundingBox2;
 
-    // Midpoints of the reference boxes define a line that is guaranteed to lay within the shaft
+    // Midpoints of the reference boxes define a line that is guaranteed
+    // to lay within the shaft
     center1.x = 0.5f * (boundingBox1->coordinates[MIN_X] + boundingBox1->coordinates[MAX_X]);
     center1.y = 0.5f * (boundingBox1->coordinates[MIN_Y] + boundingBox1->coordinates[MAX_Y]);
     center1.z = 0.5f * (boundingBox1->coordinates[MIN_Z] + boundingBox1->coordinates[MAX_Z]);
@@ -154,8 +160,8 @@ the plane, OUTSIDE if the polygon on all on the positive side, OVERLAP
 if the polygon is cut by the plane and COPLANAR if the polygon lays on the
 plane within tolerance distance d*EPSILON
 */
-int
-Shaft::testPolygonWrtPlane(POLYGON *poly, Vector3D *normal, double d) {
+static int
+testPolygonWrtPlane(POLYGON *poly, Vector3D *normal, double d) {
     int i;
     int out; // out = there are positions on the positive side of the plane
     int in; // in  = there are positions on the negative side of the plane
@@ -179,8 +185,8 @@ Shaft::testPolygonWrtPlane(POLYGON *poly, Vector3D *normal, double d) {
 Verifies whether the polygon is on the given side of the plane. Returns true if
 so, and false if not
 */
-bool
-Shaft::verifyPolygonWrtPlane(POLYGON *poly, Vector3D *normal, double d, int side) {
+static bool
+verifyPolygonWrtPlane(POLYGON *poly, Vector3D *normal, double d, int side) {
     bool out = false;
     bool in = false;
 
@@ -226,8 +232,8 @@ Tests the position of a point with respect to a plane. Returns OUTSIDE if the po
 on the positive side of the plane, INSIDE if on the negative side, and COPLANAR
 if the point is on the plane within tolerance distance d*EPSILON
 */
-int
-Shaft::testPointWrtPlane(Vector3D *p, Vector3D *normal, double d) {
+static int
+testPointWrtPlane(Vector3D *p, Vector3D *normal, double d) {
     double e, tolerance = std::fabs(d * EPSILON) + vectorTolerance(*p);
     e = vectorDotProduct(*normal, *p) + d;
     if ( e < -tolerance ) {
@@ -244,8 +250,8 @@ Compare to shaft planes. Returns 0 if they are the same and -1 or +1
 if not (can be used for sorting the planes. It is assumed that the plane normals
 are normalized!
 */
-int
-Shaft::compareShaftPlanes(ShaftPlane *p1, ShaftPlane *p2) {
+static int
+compareShaftPlanes(ShaftPlane *p1, ShaftPlane *p2) {
     double tolerance;
 
     // Compare components of plane normal (normalized vector, so components
@@ -282,10 +288,12 @@ Shaft::compareShaftPlanes(ShaftPlane *p1, ShaftPlane *p2) {
 Plane is a pointer to the shaft plane defined in shaft. This routine will return
 true if the plane differs from all previous defined planes
 */
-bool
-Shaft::uniqueShaftPlane(ShaftPlane *parameterPlane) {
-    for ( ShaftPlane *ref = &plane[0]; ref != parameterPlane; ref++ ) {
-        if ( compareShaftPlanes(ref, parameterPlane) == 0 ) {
+static int
+uniqueShaftPlane(Shaft *shaft, ShaftPlane *plane) {
+    ShaftPlane *ref;
+
+    for ( ref = &shaft->plane[0]; ref != plane; ref++ ) {
+        if ( compareShaftPlanes(ref, plane) == 0 ) {
             return false;
         }
     }
@@ -295,8 +303,8 @@ Shaft::uniqueShaftPlane(ShaftPlane *parameterPlane) {
 /**
 Fills in normal and plane constant, as will as the coord_offset parameters
 */
-void
-Shaft::fillInPlane(ShaftPlane *plane, float nx, float ny, float nz, float d) {
+static void
+fillInPlane(ShaftPlane *plane, float nx, float ny, float nz, float d) {
     plane->n[0] = nx;
     plane->n[1] = ny;
     plane->n[2] = nz;
@@ -310,30 +318,38 @@ Shaft::fillInPlane(ShaftPlane *plane, float nx, float ny, float nz, float d) {
 /**
 Construct the planes determining the shaft that use edges of p1 and vertices of p2
 */
-void
-Shaft::constructPolygonToPolygonPlanes(POLYGON *polygon1, POLYGON *polygon2) {
-    ShaftPlane *localPlane = &plane[planes];
+static void
+constructPolygonToPolygonPlanes(POLYGON *p1, POLYGON *p2, Shaft *shaft) {
+    ShaftPlane *plane = &shaft->plane[shaft->planes];
+    Vector3D *cur, *next, *other;
     Vector3D normal;
+    float d;
+    float norm;
+    int i;
+    int j;
+    int k;
+    int side;
+    int planesFoundForEdge;
     int maxPlanesPerEdge;
 
     // Test p2 wrt plane of p1
-    vectorCopy(polygon1->normal, normal); // Convert to double precision
-    switch ( testPolygonWrtPlane(polygon2, &normal, polygon1->planeConstant) ) {
+    vectorCopy(p1->normal, normal); // Convert to double precision
+    switch ( testPolygonWrtPlane(p2, &normal, p1->planeConstant) ) {
         case INSIDE:
             // Polygon p2 is on the negative side of the plane of p1. The plane of p1 is
             // a shaft plane and there will be at most one shaft plane per edge of p1
-            fillInPlane(plane, polygon1->normal.x, polygon1->normal.y, polygon1->normal.z, polygon1->planeConstant);
-            if ( uniqueShaftPlane(localPlane) ) {
-                localPlane++;
+            fillInPlane(plane, p1->normal.x, p1->normal.y, p1->normal.z, p1->planeConstant);
+            if ( uniqueShaftPlane(shaft, plane) ) {
+                plane++;
             }
             maxPlanesPerEdge = 1;
             break;
         case OUTSIDE:
             // Like above, except that p2 is on the positive side of the plane of p1, so
             // we have to invert normal and plane constant
-            fillInPlane(plane, -polygon1->normal.x, -polygon1->normal.y, -polygon1->normal.z, -polygon1->planeConstant);
-            if ( uniqueShaftPlane(localPlane) ) {
-                localPlane++;
+            fillInPlane(plane, -p1->normal.x, -p1->normal.y, -p1->normal.z, -p1->planeConstant);
+            if ( uniqueShaftPlane(shaft, plane) ) {
+                plane++;
             }
             maxPlanesPerEdge = 1;
             break;
@@ -350,23 +366,15 @@ Shaft::constructPolygonToPolygonPlanes(POLYGON *polygon1, POLYGON *polygon2) {
             return;
     }
 
-    for ( int i = 0; i < polygon1->numberOfVertices; i++ ) {
+    for ( i = 0; i < p1->numberOfVertices; i++ ) {
         // For each edge of p1
-        Vector3D *cur;
-        Vector3D *next;
-        Vector3D *other;
-        float d;
-        float norm;
-        int side;
-        int planesFoundForEdge;
-
-        cur = &polygon1->vertex[i];
-        next = &polygon1->vertex[(i + 1) % polygon1->numberOfVertices];
+        cur = &p1->vertex[i];
+        next = &p1->vertex[(i + 1) % p1->numberOfVertices];
 
         planesFoundForEdge = 0;
-        for ( int j = 0; j < polygon2->numberOfVertices && planesFoundForEdge < maxPlanesPerEdge; j++ ) {
+        for ( j = 0; j < p2->numberOfVertices && planesFoundForEdge < maxPlanesPerEdge; j++ ) {
             // For each vertex of p2
-            other = &polygon2->vertex[j];
+            other = &p2->vertex[j];
 
             // Compute normal and plane constant of the plane formed by cur, next and other
             vectorTripleCrossProduct(*cur, *next, *other, normal);
@@ -380,9 +388,9 @@ Shaft::constructPolygonToPolygonPlanes(POLYGON *polygon1, POLYGON *polygon2) {
 
             // Test position of p1 with respect to the constructed plane. Skip the vertices
             // that were used to construct the plane
-            side = testPointWrtPlane(&polygon1->vertex[(i + 2) % polygon1->numberOfVertices], &normal, d);
-            for ( int k = (i + 3) % polygon1->numberOfVertices; k != i; k = (k + 1) % polygon1->numberOfVertices ) {
-                int nSide = testPointWrtPlane(&polygon1->vertex[k], &normal, d);
+            side = testPointWrtPlane(&p1->vertex[(i + 2) % p1->numberOfVertices], &normal, d);
+            for ( k = (i + 3) % p1->numberOfVertices; k != i; k = (k + 1) % p1->numberOfVertices ) {
+                int nSide = testPointWrtPlane(&p1->vertex[k], &normal, d);
                 if ( side == COPLANAR ) {
                     side = nSide;
                 } else if ( nSide != COPLANAR ) {
@@ -400,22 +408,22 @@ Shaft::constructPolygonToPolygonPlanes(POLYGON *polygon1, POLYGON *polygon2) {
             // Verify whether p2 is on the same side of the constructed plane. If so,
             // the plane is a candidate shaft plane and will be added to the list if
             // it is unique
-            if ( verifyPolygonWrtPlane(polygon2, &normal, d, side) ) {
+            if ( verifyPolygonWrtPlane(p2, &normal, d, side) ) {
                 if ( side == INSIDE ) {
                     // p1 and p2 are on the negative side as it should be
-                    fillInPlane(localPlane, normal.x, normal.y, normal.z, d);
+                    fillInPlane(plane, normal.x, normal.y, normal.z, d);
                 } else {
-                    fillInPlane(localPlane, -normal.x, -normal.y, -normal.z, -d);
+                    fillInPlane(plane, -normal.x, -normal.y, -normal.z, -d);
                 }
-                if ( uniqueShaftPlane(localPlane) ) {
-                    localPlane++;
+                if ( uniqueShaftPlane(shaft, plane) ) {
+                    plane++;
                 }
                 planesFoundForEdge++;
             }
         }
     }
 
-    planes = (int)(localPlane - &plane[0]);
+    shaft->planes = (int)(plane - &shaft->plane[0]);
 }
 
 /**
@@ -455,8 +463,8 @@ Shaft::constructFromPolygonToPolygon(POLYGON *polygon1, POLYGON *polygon2) {
 
     // Determine the shaft planes
     planes = 0;
-    constructPolygonToPolygonPlanes(polygon1, polygon2);
-    constructPolygonToPolygonPlanes(polygon2, polygon1);
+    constructPolygonToPolygonPlanes(polygon1, polygon2, this);
+    constructPolygonToPolygonPlanes(polygon2, polygon1, this);
 }
 
 /**
@@ -510,15 +518,19 @@ to whether the patch is fully inside the shaft, overlapping it, or fully outside
 set to true, indicating that there is full occlusion due to one patch and
 that as such no further shaft culling is necessary
 */
-int
-Shaft::shaftPatchTest(Patch *patch) {
+static int
+shaftPatchTest(Patch *patch, Shaft *shaft) {
     int i;
     int j;
     int someOut;
     int inAll[MAXIMUM_VERTICES_PER_PATCH];
+    ShaftPlane *plane;
     double tMin[MAXIMUM_VERTICES_PER_PATCH];
     double tMax[MAXIMUM_VERTICES_PER_PATCH];
     double pTol[MAXIMUM_VERTICES_PER_PATCH];
+    Ray ray;
+    float dist;
+    RayHit hitStore;
 
     // Start by assuming that all vertices are on the negative side ("inside") all shaft planes
     someOut = false;
@@ -529,19 +541,18 @@ Shaft::shaftPatchTest(Patch *patch) {
         pTol[j] = vectorTolerance(*patch->vertex[j]->point); // Vertex tolerance
     }
 
-    ShaftPlane *localPlane;
-    for ( i = 0, localPlane = &plane[0]; i < planes; i++, localPlane++ ) {
+    for ( i = 0, plane = &shaft->plane[0]; i < shaft->planes; i++, plane++ ) {
         // Test patch against i-th plane of the shaft
         Vector3D plane_normal;
         double e[MAXIMUM_VERTICES_PER_PATCH], tolerance;
         int in, out, side[MAXIMUM_VERTICES_PER_PATCH];
 
-        plane_normal.set(localPlane->n[0], localPlane->n[1], localPlane->n[2]);
+        plane_normal.set(plane->n[0], plane->n[1], plane->n[2]);
 
         in = out = false;
         for ( j = 0; j < patch->numberOfVertices; j++ ) {
-            e[j] = vectorDotProduct(plane_normal, *patch->vertex[j]->point) + localPlane->d;
-            tolerance = (float)(std::fabs(localPlane->d) * EPSILON + pTol[j]);
+            e[j] = vectorDotProduct(plane_normal, *patch->vertex[j]->point) + plane->d;
+            tolerance = (float)(std::fabs(plane->d) * EPSILON + pTol[j]);
             side[j] = COPLANAR;
             if ( e[j] > tolerance ) {
                 side[j] = OUTSIDE;
@@ -608,7 +619,7 @@ Shaft::shaftPatchTest(Patch *patch) {
     }
 
     // The remaining tests only work if the shaft planes alone determine the shaft
-    if ( ref1 || ref2 ) {
+    if ( shaft->ref1 || shaft->ref2 ) {
         return OVERLAP;
     }
 
@@ -638,14 +649,11 @@ Shaft::shaftPatchTest(Patch *patch) {
     // If the line segment connecting the midpoints of the polygons defining
     // the shaft intersects the patch, the patch cuts the shaft. If not,
     // the patch lays fully outside
-    Ray ray;
-    float dist;
-    RayHit hitStore;
-    ray.pos = center1;
-    vectorSubtract(center2, center1, ray.dir);
+    ray.pos = shaft->center1;
+    vectorSubtract(shaft->center2, shaft->center1, ray.dir);
     dist = 1.0 - EPSILON;
-    if ( patch->intersect(&ray, EPSILON, &dist, HIT_FRONT | HIT_BACK, &hitStore) ) {
-        cut = true;
+    if ( patch->intersect(&ray, EPSILON, &dist, HIT_FRONT | HIT_BACK, &hitStore)) {
+        shaft->cut = true;
         return OVERLAP;
     }
 
@@ -666,6 +674,19 @@ Shaft::patchIsOnOmitSet(Patch *geometry) {
 }
 
 /**
+Returns true if the geometry is not to be opened during shaft culling
+*/
+static int
+dontOpenFunction(Shaft *shaft, Geometry *geom) {
+    for ( int i = 0; i < shaft->numberOfGeometriesToNotOpen; i++ ) {
+        if ( shaft->dontOpen[i] == geom ) {
+            return true;
+        }
+    }
+    return false;
+}
+
+/**
 Given a patchList and a shaft. This routine will check every patch in patchList to
 see if it is inside, outside or overlapping the shaft. Inside or overlapping patches
 are added to culledPatchList. A pointer to the possibly elongated culledPatchList
@@ -674,6 +695,7 @@ is returned
 java::ArrayList<Patch *> *
 Shaft::cullPatches(java::ArrayList<Patch *> *patchList) {
     java::ArrayList<Patch *> *culledPatchList = new java::ArrayList<Patch *>();
+    int boundingBoxSide;
 
     for ( int i = 0; patchList != nullptr && i < patchList->size() && !cut; i++ ) {
         Patch *patch = patchList->get(i);
@@ -686,12 +708,12 @@ Shaft::cullPatches(java::ArrayList<Patch *> *patchList) {
             BoundingBox bounds;
             patch->patchBounds(&bounds);
         }
-        int boundingBoxSide = boundingBoxTest(patch->boundingBox);
+        boundingBoxSide = boundingBoxTest(patch->boundingBox);
         if ( boundingBoxSide != OUTSIDE ) {
             // Patch bounding box is inside the shaft, or overlaps with it. If it
             // overlaps, do a more expensive, but definitive, test to see whether
             // the patch itself is inside, outside or overlapping the shaft
-            if ( boundingBoxSide == INSIDE || shaftPatchTest(patch) != OUTSIDE ) {
+            if ( boundingBoxSide == INSIDE || shaftPatchTest(patch, this) != OUTSIDE ) {
                 if ( patch != nullptr ) {
                     culledPatchList->add(0, patch);
                 }
@@ -705,18 +727,18 @@ Shaft::cullPatches(java::ArrayList<Patch *> *patchList) {
 Adds the geom to the candidateList, possibly duplicating it if the geom
 was created during previous shaft culling
 */
-void
-Shaft::keep(Geometry *geometry, java::ArrayList<Geometry *> *candidateList) {
-    if ( geometry->omit ) {
+static void
+keep(Geometry *geom, java::ArrayList<Geometry *> *candidateList) {
+    if ( geom->omit ) {
         return;
     }
 
-    if ( geometry->shaftCullGeometry ) {
-        Geometry *newGeometry = geomDuplicate(geometry);
+    if ( geom->shaftCullGeometry ) {
+        Geometry *newGeometry = geomDuplicate(geom);
         newGeometry->shaftCullGeometry = true;
         candidateList->add(0, newGeometry);
     } else {
-        candidateList->add(0, geometry);
+        candidateList->add(0, geom);
     }
 }
 
@@ -762,10 +784,18 @@ Shaft::cullGeometry(Geometry *geometry, java::ArrayList<Geometry *> *candidateLi
     // Unbounded geoms always overlap the shaft
     switch ( geometry->bounded ? boundingBoxTest(&geometry->boundingBox) : OVERLAP ) {
         case INSIDE:
-            keep(geometry, candidateList);
+            if ( strategy == ALWAYS_OPEN && !dontOpenFunction(this, geometry) ) {
+                shaftCullOpen(geometry, candidateList);
+            } else {
+                keep(geometry, candidateList);
+            }
             break;
         case OVERLAP:
-            shaftCullOpen(geometry, candidateList);
+            if ( strategy == KEEP_CLOSED || dontOpenFunction(this, geometry) ) {
+                keep(geometry, candidateList);
+            } else {
+                shaftCullOpen(geometry, candidateList);
+            }
             break;
         default:
             break;
