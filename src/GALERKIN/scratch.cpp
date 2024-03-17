@@ -85,7 +85,9 @@ scratchRenderElements(GalerkinElement *cluster, Vector3D eye) {
 
     vectorSubtract(centre, eye, viewDirection);
     vectorNormalize(viewDirection);
-    if ( std::fabs(vectorDotProduct(up, viewDirection)) > 1. - EPSILON ) vectorSet(up, 0.0, 1.0, 0.0);
+    if ( std::fabs(vectorDotProduct(up, viewDirection)) > 1.0 - EPSILON ) {
+        up.set(0.0, 1.0, 0.0);
+    }
     lookAt = lookAtMatrix(eye, centre, up);
 
     geomBounds(cluster->geometry).transformTo(&lookAt, &bbx);

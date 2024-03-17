@@ -231,7 +231,7 @@ Only sets virtual camera position in 3D space
 Camera *
 cameraSetEyePosition(Camera *camera, float x, float y, float z) {
     Vector3D newEyePosition;
-    vectorSet(newEyePosition, x, y, z);
+    newEyePosition.set(x, y, z);
     return cameraSet(camera, &newEyePosition, &camera->lookPosition, &camera->upDirection,
                      camera->fov, camera->xSize, camera->ySize, &camera->background);
 }
@@ -239,7 +239,7 @@ cameraSetEyePosition(Camera *camera, float x, float y, float z) {
 Camera *
 cameraSetLookPosition(Camera *camera, float x, float y, float z) {
     Vector3D newLookPosition;
-    vectorSet(newLookPosition, x, y, z);
+    newLookPosition.set(x, y, z);
     return cameraSet(camera, &camera->eyePosition, &newLookPosition, &camera->upDirection,
                      camera->fov, camera->xSize, camera->ySize, &camera->background);
 }
@@ -247,7 +247,7 @@ cameraSetLookPosition(Camera *camera, float x, float y, float z) {
 Camera *
 cameraSetUpDirection(Camera *camera, float x, float y, float z) {
     Vector3D newUpDirection;
-    vectorSet(newUpDirection, x, y, z);
+    newUpDirection.set(x, y, z);
     return cameraSet(camera, &camera->eyePosition, &camera->lookPosition, &newUpDirection,
                      camera->fov, camera->xSize, camera->ySize, &camera->background);
 }

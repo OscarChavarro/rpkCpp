@@ -545,7 +545,7 @@ shaftPatchTest(Patch *patch, SHAFT *shaft) {
         double e[MAXIMUM_VERTICES_PER_PATCH], tolerance;
         int in, out, side[MAXIMUM_VERTICES_PER_PATCH];
 
-        vectorSet(plane_normal, plane->n[0], plane->n[1], plane->n[2]);
+        plane_normal.set(plane->n[0], plane->n[1], plane->n[2]);
 
         in = out = false;
         for ( j = 0; j < patch->numberOfVertices; j++ ) {

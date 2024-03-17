@@ -357,7 +357,7 @@ GalerkinRadianceMethod::initialize(java::ArrayList<Patch *> *scenePatches) {
 
     // Global variables for scratch rendering
     GLOBAL_galerkin_state.lastClusterId = -1;
-    vectorSet(GLOBAL_galerkin_state.lastEye, HUGE, HUGE, HUGE);
+    GLOBAL_galerkin_state.lastEye.set(HUGE, HUGE, HUGE);
 }
 
 int

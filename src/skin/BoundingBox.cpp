@@ -264,14 +264,14 @@ void
 BoundingBox::transformTo(Matrix4x4 *transform, BoundingBox *transformedBoundingBox) {
     Vector3D v[8];
 
-    vectorSet(v[0], coordinates[MIN_X], coordinates[MIN_Y], coordinates[MIN_Z]);
-    vectorSet(v[1], coordinates[MAX_X], coordinates[MIN_Y], coordinates[MIN_Z]);
-    vectorSet(v[2], coordinates[MIN_X], coordinates[MAX_Y], coordinates[MIN_Z]);
-    vectorSet(v[3], coordinates[MAX_X], coordinates[MAX_Y], coordinates[MIN_Z]);
-    vectorSet(v[4], coordinates[MIN_X], coordinates[MIN_Y], coordinates[MAX_Z]);
-    vectorSet(v[5], coordinates[MAX_X], coordinates[MIN_Y], coordinates[MAX_Z]);
-    vectorSet(v[6], coordinates[MIN_X], coordinates[MAX_Y], coordinates[MAX_Z]);
-    vectorSet(v[7], coordinates[MAX_X], coordinates[MAX_Y], coordinates[MAX_Z]);
+    v[0].set(coordinates[MIN_X], coordinates[MIN_Y], coordinates[MIN_Z]);
+    v[1].set(coordinates[MAX_X], coordinates[MIN_Y], coordinates[MIN_Z]);
+    v[2].set(coordinates[MIN_X], coordinates[MAX_Y], coordinates[MIN_Z]);
+    v[3].set(coordinates[MAX_X], coordinates[MAX_Y], coordinates[MIN_Z]);
+    v[4].set(coordinates[MIN_X], coordinates[MIN_Y], coordinates[MAX_Z]);
+    v[5].set(coordinates[MAX_X], coordinates[MIN_Y], coordinates[MAX_Z]);
+    v[6].set(coordinates[MIN_X], coordinates[MAX_Y], coordinates[MAX_Z]);
+    v[7].set(coordinates[MAX_X], coordinates[MAX_Y], coordinates[MAX_Z]);
 
     for ( int i = 0; i < 8; i++ ) {
         transformPoint3D(*transform, v[i], v[i]);

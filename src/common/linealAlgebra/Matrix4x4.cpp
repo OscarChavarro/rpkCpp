@@ -12,11 +12,11 @@ static Matrix4x4 globalIdentityMatrix = {
 };
 
 Matrix4x4
-translationMatrix(Vector3D t) {
+translationMatrix(Vector3D translation) {
     Matrix4x4 xf = globalIdentityMatrix;
-    xf.m[0][3] = t.x;
-    xf.m[1][3] = t.y;
-    xf.m[2][3] = t.z;
+    xf.m[0][3] = translation.x;
+    xf.m[1][3] = translation.y;
+    xf.m[2][3] = translation.z;
     return xf;
 }
 
@@ -25,31 +25,25 @@ Create scaling, ... transform. The transforms behave identically as the
 corresponding transforms in OpenGL
 */
 Matrix4x4
-rotateMatrix(float angle, Vector3D axis) {
+createRotationMatrix(float angle, Vector3D axis) {
     Matrix4x4 xf = globalIdentityMatrix;
-    float x;
-    float y;
-    float z;
-    float c;
-    float s;
-    float t;
 
     // Singularity test
-    s = vectorNorm(axis);
+    float s = vectorNorm(axis);
     if ( s < EPSILON ) {
-        //Error("Rotate", "Bad rotation axis");
+        // Bad rotation axis
         return xf;
     } else {
-        // normalize
+        // Normalize
         vectorScaleInverse(s, axis, axis);
     }
 
-    x = axis.x;
-    y = axis.y;
-    z = axis.z;
-    c = std::cos(angle);
+    float x = axis.x;
+    float y = axis.y;
+    float z = axis.z;
+    float c = std::cos(angle);
     s = std::sin(angle);
-    t = 1 - c;
+    float t = 1 - c;
     set3X3Matrix(xf.m,
                  x * x * t + c, x * y * t - z * s, x * z * t + y * s,
                  x * y * t + z * s, y * y * t + c, y * z * t - x * s,
@@ -63,13 +57,10 @@ There is no check whether the transform really is a rotation.
 */
 void
 recoverRotationMatrix(Matrix4x4 xf, float *angle, Vector3D *axis) {
-    float c;
-    float s;
-
-    c = (xf.m[0][0] + xf.m[1][1] + xf.m[2][2] - 1.0f) * 0.5f;
+    float c = (xf.m[0][0] + xf.m[1][1] + xf.m[2][2] - 1.0f) * 0.5f;
     if ( c > 1.0f - EPSILON ) {
         *angle = 0.0f;
-        vectorSet(*axis, 0.0f, 0.0f, 1.0f);
+        axis->set(0.0f, 0.0f, 1.0f);
     } else if ( c < -1.0f + EPSILON ) {
         *angle = M_PI;
         axis->x = (float)std::sqrt((xf.m[0][0] + 1.0f) * 0.5f);
@@ -86,7 +77,7 @@ recoverRotationMatrix(Matrix4x4 xf, float *angle, Vector3D *axis) {
     } else {
         float r;
         *angle = (float)std::acos(c);
-        s = std::sqrt(1.0f - c * c);
+        float s = std::sqrt(1.0f - c * c);
         r = 1.0f / (2.0f * s);
         axis->x = (float) (xf.m[2][1] - xf.m[1][2]) * r;
         axis->y = (float) (xf.m[0][2] - xf.m[2][0]) * r;
@@ -149,7 +140,10 @@ towards the viewer)
 Matrix4x4
 lookAtMatrix(Vector3D eye, Vector3D centre, Vector3D up) {
     Matrix4x4 xf = globalIdentityMatrix;
-    Vector3D s, X, Y, Z;
+    Vector3D s;
+    Vector3D X;
+    Vector3D Y;
+    Vector3D Z;
 
     vectorSubtract(eye, centre, Z); // Z positions towards viewer
     vectorNormalize(Z);
@@ -168,9 +162,9 @@ lookAtMatrix(Vector3D eye, Vector3D centre, Vector3D up) {
 }
 
 Matrix4x4
-perspectiveMatrix(float fov /*radians*/, float aspect, float near, float far) {
+perspectiveMatrix(float fieldOfViewInRadians, float aspect, float near, float far) {
     Matrix4x4 xf = globalIdentityMatrix;
-    float f = 1.0f / std::tan(fov / 2.0f);
+    float f = 1.0f / std::tan(fieldOfViewInRadians / 2.0f);
 
     xf.m[0][0] = f / aspect;
     xf.m[1][1] = f;

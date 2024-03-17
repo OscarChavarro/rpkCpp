@@ -38,10 +38,10 @@ Cluster::Cluster(java::ArrayList<Patch *> *inPatches) {
         clusterAddPatch(inPatches->get(i));
     }
 
-    vectorSet(boundingBoxCentroid,
-              (boundingBox.coordinates[MIN_X] + boundingBox.coordinates[MAX_X]) * 0.5f,
-              (boundingBox.coordinates[MIN_Y] + boundingBox.coordinates[MAX_Y]) * 0.5f,
-              (boundingBox.coordinates[MIN_Z] + boundingBox.coordinates[MAX_Z]) * 0.5f);
+    boundingBoxCentroid.set(
+        (boundingBox.coordinates[MIN_X] + boundingBox.coordinates[MAX_X]) * 0.5f,
+        (boundingBox.coordinates[MIN_Y] + boundingBox.coordinates[MAX_Y]) * 0.5f,
+        (boundingBox.coordinates[MIN_Z] + boundingBox.coordinates[MAX_Z]) * 0.5f);
 
 }
 
@@ -60,7 +60,7 @@ Cluster::~Cluster() {
 
 void
 Cluster::commonBuild() {
-    vectorSet(boundingBoxCentroid, 0.0, 0.0, 0.0);
+    boundingBoxCentroid.set(0.0, 0.0, 0.0);
 
     if ( patches == nullptr ) {
         patches = new java::ArrayList<Patch *>();
@@ -125,7 +125,7 @@ Cluster::clusterMovePatch(int parentIndex) {
     // centroid of the cluster
     Vector3D midPatch;
 
-    vectorSet(midPatch,
+    midPatch.set(
               (patchBoundingBox->coordinates[MIN_X] + patchBoundingBox->coordinates[MAX_X]) / 2.0f,
               (patchBoundingBox->coordinates[MIN_Y] + patchBoundingBox->coordinates[MAX_Y]) / 2.0f,
               (patchBoundingBox->coordinates[MIN_Z] + patchBoundingBox->coordinates[MAX_Z]) / 2.0f);
@@ -188,10 +188,10 @@ Cluster::splitCluster() {
             delete children[i];
             children[i] = nullptr;
         } else {
-            vectorSet(children[i]->boundingBoxCentroid,
-                      (children[i]->boundingBox.coordinates[MIN_X] + children[i]->boundingBox.coordinates[MAX_X]) * 0.5f,
-                      (children[i]->boundingBox.coordinates[MIN_Y] + children[i]->boundingBox.coordinates[MAX_Y]) * 0.5f,
-                      (children[i]->boundingBox.coordinates[MIN_Z] + children[i]->boundingBox.coordinates[MAX_Z]) * 0.5f);
+            children[i]->boundingBoxCentroid.set(
+                (children[i]->boundingBox.coordinates[MIN_X] + children[i]->boundingBox.coordinates[MAX_X]) * 0.5f,
+                (children[i]->boundingBox.coordinates[MIN_Y] + children[i]->boundingBox.coordinates[MAX_Y]) * 0.5f,
+                (children[i]->boundingBox.coordinates[MIN_Z] + children[i]->boundingBox.coordinates[MAX_Z]) * 0.5f);
             if ( children[i] != nullptr ) {
                 children[i]->splitCluster();
             }

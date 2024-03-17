@@ -10,23 +10,22 @@ Find the "dominant" part of the vector (eg patch-normal).  This
 is used to turn the point-in-polygon test into a 2D problem.
 */
 int
-vector3DDominantCoord(Vector3D *v) {
+vector3DDominantCoord(const Vector3D *v) {
     Vector3D anorm;
-    double indexValue;
 
     anorm.x = std::fabs(v->x);
     anorm.y = std::fabs(v->y);
     anorm.z = std::fabs(v->z);
-    indexValue = floatMax(anorm.y, anorm.z);
+    double indexValue = floatMax(anorm.y, anorm.z);
     indexValue = floatMax(anorm.x, (float)indexValue);
 
-    return indexValue == anorm.x ? X_NORMAL :
-            (indexValue == anorm.y ? Y_NORMAL : Z_NORMAL);
+    return indexValue == anorm.x ? X_NORMAL : (indexValue == anorm.y ? Y_NORMAL : Z_NORMAL);
 }
 
 int
 vectorCompareByDimensions(Vector3D *v1, Vector3D *v2, float epsilon) {
     int code = 0;
+
     if ( v1->x > v2->x + epsilon ) {
         code += X_GREATER;
     }

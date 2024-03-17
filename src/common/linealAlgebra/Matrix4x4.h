@@ -10,7 +10,18 @@ class Matrix4x4 {
 };
 
 inline void
-set3X3Matrix(float m[4][4], float a, float b, float c, float d, float e, float f, float g, float h, float i) {
+set3X3Matrix(
+    float m[4][4],
+    const float a,
+    const float b,
+    const float c,
+    const float d,
+    const float e,
+    const float f,
+    const float g,
+    const float h,
+    const float i)
+{
     m[0][0] = a; m[0][1] = b; m[0][2] = c;
     m[1][0] = d; m[1][1] = e; m[1][2] = f;
     m[2][0] = g; m[2][1] = h; m[2][2] = i;
@@ -36,9 +47,9 @@ transformPoint4D(const Matrix4x4 trans, const Vector4D src, Vector4D &dst) {
 }
 
 extern Matrix4x4 transComposeMatrix(Matrix4x4 xf2, Matrix4x4 xf1);
-extern Matrix4x4 translationMatrix(Vector3D t);
-extern Matrix4x4 perspectiveMatrix(float fov /*radians*/, float aspect, float near, float far);
-extern Matrix4x4 rotateMatrix(float angle /* radians */, Vector3D axis);
+extern Matrix4x4 translationMatrix(Vector3D translation);
+extern Matrix4x4 perspectiveMatrix(float fieldOfViewInRadians /*radians*/, float aspect, float near, float far);
+extern Matrix4x4 createRotationMatrix(float angle /* radians */, Vector3D axis);
 extern Matrix4x4 lookAtMatrix(Vector3D eye, Vector3D centre, Vector3D up);
 extern Matrix4x4 orthogonalViewMatrix(float left, float right, float bottom, float top, float near, float far);
 extern void recoverRotationMatrix(Matrix4x4 xf, float *angle, Vector3D *axis);

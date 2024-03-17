@@ -155,7 +155,7 @@ createElement() {
     elem->sourceImportance = 0.0;
     elem->importanceRayIndex = 0;
 
-    vectorSet(elem->midPoint, 0.0, 0.0, 0.0);
+    elem->midPoint.set(0.0, 0.0, 0.0);
     elem->vertices[0] = elem->vertices[1] = elem->vertices[2] = elem->vertices[3] = nullptr;
     elem->parent = nullptr;
     elem->regularSubElements = nullptr;
@@ -211,10 +211,10 @@ monteCarloRadiosityCreateCluster(Geometry *geometry) {
     colorClear(elem->Ed);
 
     // elem->area will be computed from the sub-elements in the cluster later
-    vectorSet(elem->midPoint,
-              (bounds[MIN_X] + bounds[MAX_X]) / 2.0f,
-              (bounds[MIN_Y] + bounds[MAX_Y]) / 2.0f,
-              (bounds[MIN_Z] + bounds[MAX_Z]) / 2.0f);
+    elem->midPoint.set(
+        (bounds[MIN_X] + bounds[MAX_X]) / 2.0f,
+        (bounds[MIN_Y] + bounds[MAX_Y]) / 2.0f,
+        (bounds[MIN_Z] + bounds[MAX_Z]) / 2.0f);
 
     allocCoefficients(elem); // Always constant approx. so no need to delay allocating the coefficients
     stochasticRadiosityClearCoefficients(elem->radiance, elem->basis);
@@ -432,21 +432,21 @@ stochasticRadiosityElementRegularLeafElementAtPoint(StochasticRadiosityElement *
 
 static Vector3D *
 monteCarloRadiosityInstallCoordinate(Vector3D *coord) {
-    Vector3D *v = VectorCreate(coord->x, coord->y, coord->z);
+    Vector3D *v = new Vector3D(coord->x, coord->y, coord->z);
     GLOBAL_stochasticRaytracing_hierarchy.coords->add(0, v);
     return v;
 }
 
 static Vector3D *
 monteCarloRadiosityInstallNormal(Vector3D *norm) {
-    Vector3D *v = VectorCreate(norm->x, norm->y, norm->z);
+    Vector3D *v = new Vector3D(norm->x, norm->y, norm->z);
     GLOBAL_stochasticRaytracing_hierarchy.normals->add(0, v);
     return v;
 }
 
 static Vector3D *
 monteCarloRadiosityInstallTexCoord(Vector3D *texCoord) {
-    Vector3D *t = VectorCreate(texCoord->x, texCoord->y, texCoord->z);
+    Vector3D *t = new Vector3D(texCoord->x, texCoord->y, texCoord->z);
     GLOBAL_stochasticRaytracing_hierarchy.texCoords->add(0, t);
     return t;
 }
@@ -591,9 +591,8 @@ monteCarloRadiosityNewEdgeMidpointVertex(StochasticRadiosityElement *elem, int e
 
 static Vector3D
 galerkinElementMidpoint(StochasticRadiosityElement *elem) {
-    int i;
-    vectorSet(elem->midPoint, 0.0, 0.0, 0.0);
-    for ( i = 0; i < elem->numberOfVertices; i++ ) {
+    elem->midPoint.set(0.0, 0.0, 0.0);
+    for ( int i = 0; i < elem->numberOfVertices; i++ ) {
         vectorAdd(elem->midPoint, *elem->vertices[i]->point, elem->midPoint);
     }
     vectorScaleInverse((float) elem->numberOfVertices, elem->midPoint, elem->midPoint);

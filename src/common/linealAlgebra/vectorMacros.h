@@ -9,7 +9,7 @@ Given a vector p in 3D space and an index i, which is X_NORMAL, Y_NORMAL
 or Z_NORMAL, projects the vector on the YZ, XZ or XY plane respectively
 */
 inline void
-vectorProject(Vector2D &r, Vector3D &p, int i) {
+vectorProject(Vector2D &r, const Vector3D &p, const int i) {
     switch ( i ) {
         case X_NORMAL:
             r.u = p.y;

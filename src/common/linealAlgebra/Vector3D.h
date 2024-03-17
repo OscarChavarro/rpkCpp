@@ -37,12 +37,25 @@ class Vector3D {
     inline Vector3D operator/(const Vector3D &v) const;
     inline Vector3D operator/(float s) const;
 
-    /* Compute (T * vector) with  */
-    /* T = transpose[ X Y Z ] so that e.g. T.X = (1 0 0) if */
-    /* X,Y,Z form a coordinate system */
+    /**
+    Compute (T * vector) with
+    T = transpose[ X Y Z ] so that e.g. T.X = (1 0 0) if
+    X, Y, Z form a coordinate system
+    */
     inline Vector3D transform(const Vector3D &X,
                               const Vector3D &Y,
                               const Vector3D &Z) const;
+
+    /**
+    Fills in x, y, and z component of a vector
+    */
+    inline void set(const float xParam,
+                    const float yParam,
+                    const float zParam) {
+        x = xParam;
+        y = yParam;
+        z = zParam;
+    }
 };
 
 inline bool
@@ -164,30 +177,6 @@ Vector3D::transform(
         const Vector3D &Y,
         const Vector3D &Z) const {
     return {X & *this, Y & *this, Z & *this};
-}
-
-inline Vector3D *
-VectorCreate(float x, float y, float z)
-{
-    Vector3D *vector;
-
-    vector = (Vector3D *)malloc(sizeof(Vector3D));
-
-    vector->x = x;
-    vector->y = y;
-    vector->z = z;
-
-    return vector;
-}
-
-/**
-Fills in x, y, and z component of a vector
-*/
-inline void
-vectorSet(Vector3D &v, const float a, const float b, const float c) {
-    v.x = a;
-    v.y = b;
-    v.z = c;
 }
 
 /**
@@ -320,7 +309,13 @@ vectorCrossProduct(const Vector3D &a, const Vector3D &b, Vector3D &d) {
 Linear combination of two vectors: d = a.v + b.w
 */
 inline void
-vectorComb2(const float a, const Vector3D &v, const float b, const Vector3D &w, Vector3D &d) {
+vectorComb2(
+    const float a,
+    const Vector3D &v,
+    const float b,
+    const Vector3D &w,
+    Vector3D &d)
+{
     d.x = a * v.x + b * w.x;
     d.y = a * v.y + b * w.y;
     d.z = a * v.z + b * w.z;
@@ -330,7 +325,14 @@ vectorComb2(const float a, const Vector3D &v, const float b, const Vector3D &w, 
 Affine linear combination of two vectors: d = o + a.v + b.w
 */
 inline void
-vectorComb3(const Vector3D &o, const float a, const Vector3D &v, const float b, const Vector3D &w, Vector3D &d) {
+vectorComb3(
+    const Vector3D &o,
+    const float a,
+    const Vector3D &v,
+    const float b,
+    const Vector3D &w,
+    Vector3D &d)
+{
     d.x = o.x + a * v.x + b * w.x;
     d.y = o.y + a * v.y + b * w.y;
     d.z = o.z + a * v.z + b * w.z;
@@ -340,7 +342,12 @@ vectorComb3(const Vector3D &o, const float a, const Vector3D &v, const float b, 
 Triple (cross) product: d = (v3 - v2) x (v1 - v2)
 */
 inline void
-vectorTripleCrossProduct(const Vector3D &v1, const Vector3D &v2, const Vector3D &v3, Vector3D &d) {
+vectorTripleCrossProduct(
+    const Vector3D &v1,
+    const Vector3D &v2,
+    const Vector3D &v3,
+    Vector3D &d)
+{
     Vector3D d1;
     Vector3D d2;
     vectorSubtract(v3, v2, d1);
@@ -382,7 +389,14 @@ vectorMidPoint(const Vector3D &p1, const Vector3D &p2, Vector3D &m) {
 Point IN Triangle: barycentric parametrisation
 */
 inline void
-vectorPointInTriangle(const Vector3D &v0, const Vector3D &v1, const Vector3D &v2, const float u, const float v, Vector3D &p) {
+vectorPointInTriangle(
+    const Vector3D &v0,
+    const Vector3D &v1,
+    const Vector3D &v2,
+    const float u,
+    const float v,
+    Vector3D &p)
+{
     p.x = v0.x + u * (v1.x - v0.x) + v * (v2.x - v0.x);
     p.y = v0.y + u * (v1.y - v0.y) + v * (v2.y - v0.y);
     p.z = v0.z + u * (v1.z - v0.z) + v * (v2.z - v0.z);
@@ -393,13 +407,13 @@ Point IN Quadrilateral: bi-linear parametrisation
 */
 inline void
 vectorPointInQuadrilateral(
-        const Vector3D &v0,
-        const Vector3D &v1,
-        const Vector3D &v2,
-        const Vector3D &v3,
-        const float u,
-        const float v,
-        Vector3D &p)
+    const Vector3D &v0,
+    const Vector3D &v1,
+    const Vector3D &v2,
+    const Vector3D &v3,
+    const float u,
+    const float v,
+    Vector3D &p)
 {
     float c = u * v;
     float b = u - c;
@@ -411,7 +425,7 @@ vectorPointInQuadrilateral(
 
 extern int vectorCompareByDimensions(Vector3D *v1, Vector3D *v2, float epsilon);
 extern void vector3DDestroy(Vector3D *vector);
-extern int vector3DDominantCoord(Vector3D *v);
+extern int vector3DDominantCoord(const Vector3D *v);
 extern void vector3DPrint(FILE *fp, Vector3D &v);
 
 #endif

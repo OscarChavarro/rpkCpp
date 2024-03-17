@@ -60,7 +60,7 @@ determineNodes(GalerkinElement *element, CUBARULE **cr, Vector3D x[CUBAMAXNODES]
         dy = boundingBox.coordinates[MAX_Y] - boundingBox.coordinates[MIN_Y];
         dz = boundingBox.coordinates[MAX_Z] - boundingBox.coordinates[MIN_Z];
         for ( k = 0; k < (*cr)->numberOfNodes; k++ ) {
-            vectorSet(x[k],
+            x[k].set(
                       (float) (boundingBox.coordinates[MIN_X] + (*cr)->u[k] * dx),
                       (float) (boundingBox.coordinates[MIN_Y] + (*cr)->v[k] * dy),
                       (float) (boundingBox.coordinates[MIN_Z] + (*cr)->t[k] * dz));

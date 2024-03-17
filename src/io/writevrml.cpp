@@ -24,18 +24,18 @@ Y-axis positions up in VRML2.0
 */
 Matrix4x4
 transformModelVRML(Vector3D *modelRotationAxis, float *modelRotationAngle) {
-    Vector3D up_axis;
+    Vector3D upAxis;
     double cosA;
 
-    vectorSet(up_axis, 0.0, 1.0, 0.0);
-    cosA = vectorDotProduct(GLOBAL_camera_mainCamera.upDirection, up_axis);
+    upAxis.set(0.0, 1.0, 0.0);
+    cosA = vectorDotProduct(GLOBAL_camera_mainCamera.upDirection, upAxis);
     if ( cosA < 1.0 - EPSILON ) {
         *modelRotationAngle = (float)std::acos(cosA);
-        vectorCrossProduct(GLOBAL_camera_mainCamera.upDirection, up_axis, *modelRotationAxis);
+        vectorCrossProduct(GLOBAL_camera_mainCamera.upDirection, upAxis, *modelRotationAxis);
         vectorNormalize(*modelRotationAxis);
-        return rotateMatrix(*modelRotationAngle, *modelRotationAxis);
+        return createRotationMatrix(*modelRotationAngle, *modelRotationAxis);
     } else {
-        vectorSet(*modelRotationAxis, 0.0, 1.0, 0.0);
+        modelRotationAxis->set(0.0, 1.0, 0.0);
         *modelRotationAngle = 0.0;
         return globalIdentityMatrix;
     }

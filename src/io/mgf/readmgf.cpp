@@ -408,14 +408,14 @@ getCurrentMaterial() {
 
 static Vector3D *
 installPoint(float x, float y, float z) {
-    Vector3D *coord = VectorCreate(x, y, z);
+    Vector3D *coord = new Vector3D(x, y, z);
     globalCurrentPointList->add(0, coord);
     return coord;
 }
 
 static Vector3D *
 installNormal(float x, float y, float z) {
-    Vector3D *norm = VectorCreate(x, y, z);
+    Vector3D *norm = new Vector3D(x, y, z);
     globalCurrentNormalList->add(0, norm);
     return norm;
 }
@@ -519,7 +519,7 @@ faceNormal(int numberOfVertices, Vertex **v, Vector3D *normal) {
     Vector3D n;
     int i;
 
-    vectorSet(n, 0, 0, 0);
+    n.set(0, 0, 0);
     vectorSubtract(*(v[numberOfVertices - 1]->point), *(v[0]->point), cur);
     for ( i = 0; i < numberOfVertices; i++ ) {
         prev = cur;
@@ -710,8 +710,10 @@ doComplexFace(int n, Vertex **v, Vector3D *normal, Vertex **backv, RadianceMetho
     Vector2D q[MAXIMUM_FACE_VERTICES + 1];
     Vector3D nn;
 
-    vectorSet(center, 0.0, 0.0, 0.0);
-    for ( i = 0; i < n; i++ ) vectorAdd(center, *(v[i]->point), center);
+    center.set(0.0, 0.0, 0.0);
+    for ( i = 0; i < n; i++ ) {
+        vectorAdd(center, *(v[i]->point), center);
+    }
     vectorScaleInverse((float) n, center, center);
 
     maxD = vectorDist(center, *(v[0]->point));

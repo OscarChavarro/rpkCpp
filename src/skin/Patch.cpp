@@ -265,7 +265,7 @@ returns a pointer to p
 */
 Vector3D *
 Patch::computeMidpoint(Vector3D *p) {
-    vectorSet(*p, 0, 0, 0);
+    p->set(0, 0, 0);
     for ( int i = 0; i < numberOfVertices; i++ ) {
         vectorAdd(*p, *(vertex[i]->point), *p);
     }
@@ -314,31 +314,31 @@ Patch::triangleUv(Vector3D *point, Vector2Dd *uv) {
         case X_NORMAL:
             u0 = (*v)->point->y;
             v0 = (*v)->point->z;
-            V2Set(p0, point->y - u0, point->z - v0);
+            vector2DSet(p0, point->y - u0, point->z - v0);
             v++;
-            V2Set(p1, (*v)->point->y - u0, (*v)->point->z - v0);
+            vector2DSet(p1, (*v)->point->y - u0, (*v)->point->z - v0);
             v++;
-            V2Set(p2, (*v)->point->y - u0, (*v)->point->z - v0);
+            vector2DSet(p2, (*v)->point->y - u0, (*v)->point->z - v0);
             break;
 
         case Y_NORMAL:
             u0 = (*v)->point->x;
             v0 = (*v)->point->z;
-            V2Set(p0, point->x - u0, point->z - v0);
+            vector2DSet(p0, point->x - u0, point->z - v0);
             v++;
-            V2Set(p1, (*v)->point->x - u0, (*v)->point->z - v0);
+            vector2DSet(p1, (*v)->point->x - u0, (*v)->point->z - v0);
             v++;
-            V2Set(p2, (*v)->point->x - u0, (*v)->point->z - v0);
+            vector2DSet(p2, (*v)->point->x - u0, (*v)->point->z - v0);
             break;
 
         case Z_NORMAL:
             u0 = (*v)->point->x;
             v0 = (*v)->point->y;
-            V2Set(p0, point->x - u0, point->y - v0);
+            vector2DSet(p0, point->x - u0, point->y - v0);
             v++;
-            V2Set(p1, (*v)->point->x - u0, (*v)->point->y - v0);
+            vector2DSet(p1, (*v)->point->x - u0, (*v)->point->y - v0);
             v++;
-            V2Set(p2, (*v)->point->x - u0, (*v)->point->y - v0);
+            vector2DSet(p2, (*v)->point->x - u0, (*v)->point->y - v0);
             break;
     }
 
@@ -397,70 +397,73 @@ Patch::quadUv(Patch *patch, Vector3D *point, Vector2Dd *uv) {
     // Projection on the plane that is most parallel to the facet
     p = patch->vertex;
     switch ( patch->index ) {
-        case X_NORMAL: V2Set(A, (*p)->point->y, (*p)->point->z);
+        case X_NORMAL:
+            vector2DSet(A, (*p)->point->y, (*p)->point->z);
             p++;
-            V2Set(B, (*p)->point->y, (*p)->point->z);
+            vector2DSet(B, (*p)->point->y, (*p)->point->z);
             p++;
-            V2Set(C, (*p)->point->y, (*p)->point->z);
+            vector2DSet(C, (*p)->point->y, (*p)->point->z);
             p++;
-            V2Set(D, (*p)->point->y, (*p)->point->z);
-            V2Set(M, point->y, point->z);
+            vector2DSet(D, (*p)->point->y, (*p)->point->z);
+            vector2DSet(M, point->y, point->z);
             break;
 
-        case Y_NORMAL: V2Set(A, (*p)->point->x, (*p)->point->z);
+        case Y_NORMAL:
+            vector2DSet(A, (*p)->point->x, (*p)->point->z);
             p++;
-            V2Set(B, (*p)->point->x, (*p)->point->z);
+            vector2DSet(B, (*p)->point->x, (*p)->point->z);
             p++;
-            V2Set(C, (*p)->point->x, (*p)->point->z);
+            vector2DSet(C, (*p)->point->x, (*p)->point->z);
             p++;
-            V2Set(D, (*p)->point->x, (*p)->point->z);
-            V2Set(M, point->x, point->z);
+            vector2DSet(D, (*p)->point->x, (*p)->point->z);
+            vector2DSet(M, point->x, point->z);
             break;
 
-        case Z_NORMAL: V2Set(A, (*p)->point->x, (*p)->point->y);
+        case Z_NORMAL:
+            vector2DSet(A, (*p)->point->x, (*p)->point->y);
             p++;
-            V2Set(B, (*p)->point->x, (*p)->point->y);
+            vector2DSet(B, (*p)->point->x, (*p)->point->y);
             p++;
-            V2Set(C, (*p)->point->x, (*p)->point->y);
+            vector2DSet(C, (*p)->point->x, (*p)->point->y);
             p++;
-            V2Set(D, (*p)->point->x, (*p)->point->y);
-            V2Set(M, point->x, point->y);
+            vector2DSet(D, (*p)->point->x, (*p)->point->y);
+            vector2DSet(M, point->x, point->y);
             break;
     }
 
-    V2Sub(B, A, AB);
-    V2Sub(C, B, BC);
-    V2Sub(D, C, CD);
-    V2Sub(D, A, AD);
-    V2Add(CD, AB, AE);
-    V2Negate(AE);
-    V2Sub(M, A, AM);
+    vector2DSubtract(B, A, AB);
+    vector2DSubtract(C, B, BC);
+    vector2DSubtract(D, C, CD);
+    vector2DSubtract(D, A, AD);
+    vector2DAdd(CD, AB, AE);
+    vector2DNegate(AE);
+    vector2DSubtract(M, A, AM);
 
-    if ( std::fabs(DETERMINANT(AB, CD)) < EPSILON ) {
+    if ( std::fabs(vector2DDeterminant(AB, CD)) < EPSILON ) {
         // Case AB // CD
-        V2Sub (AB, CD, Vector);
-        v = DETERMINANT(AM, Vector) / DETERMINANT(AD, Vector);
+        vector2DSubtract(AB, CD, Vector);
+        v = vector2DDeterminant(AM, Vector) / vector2DDeterminant(AD, Vector);
         if ( (v >= 0.0) && (v <= 1.0) ) {
-            b = DETERMINANT(AB, AD) - DETERMINANT(AM, AE);
-            c = DETERMINANT (AM, AD);
+            b = vector2DDeterminant(AB, AD) - vector2DDeterminant(AM, AE);
+            c = vector2DDeterminant(AM, AD);
             u = realAbs(b) < EPSILON ? -1 : c / b;
             isInside = ((u >= 0.0) && (u <= 1.0));
         }
-    } else if ( std::fabs(DETERMINANT(BC, AD)) < EPSILON ) {
+    } else if ( std::fabs(vector2DDeterminant(BC, AD)) < EPSILON ) {
             // Case AD // BC
-            V2Add (AD, BC, Vector);
-            u = DETERMINANT(AM, Vector) / DETERMINANT(AB, Vector);
+            vector2DAdd(AD, BC, Vector);
+            u = vector2DDeterminant(AM, Vector) / vector2DDeterminant(AB, Vector);
             if ((u >= 0.0) && (u <= 1.0)) {
-                b = DETERMINANT(AD, AB) - DETERMINANT(AM, AE);
-                c = DETERMINANT (AM, AB);
+                b = vector2DDeterminant(AD, AB) - vector2DDeterminant(AM, AE);
+                c = vector2DDeterminant(AM, AB);
                 v = realAbs(b) < EPSILON ? -1 : c / b;
                 isInside = ((v >= 0.0) && (v <= 1.0));
             }
         } else {
             // General case
-            a = DETERMINANT(AB, AE);
-            c = -DETERMINANT (AM, AD);
-            b = DETERMINANT(AB, AD) - DETERMINANT(AM, AE);
+            a = vector2DDeterminant(AB, AE);
+            c = -vector2DDeterminant(AM, AD);
+            b = vector2DDeterminant(AB, AD) - vector2DDeterminant(AM, AE);
             a = -0.5 / a;
             b *= a;
             c *= (a + a);
@@ -515,7 +518,7 @@ patchNormal(Patch *patch, Vector3D *normal) {
     Vector3D prev;
     Vector3D cur;
 
-    vectorSet(*normal, 0, 0, 0);
+    normal->set(0, 0, 0);
     vectorSubtract(*patch->vertex[patch->numberOfVertices - 1]->point,
                    *patch->vertex[0]->point, cur);
     for ( int i = 0; i < patch->numberOfVertices; i++ ) {
@@ -762,9 +765,9 @@ Patch::interpolatedFrameAtUv(
     if ( X && Y ) {
         double zz = std::sqrt(1 - Z->z * Z->z);
         if ( zz < EPSILON ) {
-            vectorSet(*X, 1.0, 0.0, 0.0);
+            X->set(1.0, 0.0, 0.0);
         } else {
-            vectorSet(*X, (float) (Z->y / zz), (float) (-Z->x / zz), 0.0f);
+            X->set((float) (Z->y / zz), (float) (-Z->x / zz), 0.0f);
         }
 
         vectorCrossProduct(*Z, *X, *Y); // *Y = (*Z) ^ (*X)
@@ -782,7 +785,7 @@ Patch::textureCoordAtUv(double u, double v) {
     Vector3D *t2;
     Vector3D *t3;
     Vector3D texCoord;
-    vectorSet(texCoord, 0.0, 0.0, 0.0);
+    texCoord.set(0.0, 0.0, 0.0);
 
     t0 = vertex[0]->texCoord;
     t1 = vertex[1]->texCoord;
@@ -790,7 +793,7 @@ Patch::textureCoordAtUv(double u, double v) {
     switch ( numberOfVertices ) {
         case 3:
             if ( !t0 || !t1 || !t2 ) {
-                vectorSet(texCoord, (float) u, (float) v, 0.0f);
+                texCoord.set((float) u, (float) v, 0.0f);
             } else {
                 vectorPointInTriangle(*t0, *t1, *t2, (float) u, (float) v, texCoord);
             }
@@ -798,7 +801,7 @@ Patch::textureCoordAtUv(double u, double v) {
         case 4:
             t3 = vertex[3]->texCoord;
             if ( !t0 || !t1 || !t2 || !t3 ) {
-                vectorSet(texCoord, (float) u, (float) v, 0.0f);
+                texCoord.set((float) u, (float) v, 0.0f);
             } else {
                 vectorPointInQuadrilateral(*t0, *t1, *t2, *t3, (float) u, (float) v, texCoord);
             }

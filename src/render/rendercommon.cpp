@@ -139,15 +139,15 @@ renderGetNearFar(float *near, float *far) {
 
     geometryListBounds(GLOBAL_scene_geometries, &bounds);
 
-    vectorSet(b[0], bounds.coordinates[MIN_X], bounds.coordinates[MIN_Y], bounds.coordinates[MIN_Z]);
-    vectorSet(b[1], bounds.coordinates[MAX_X], bounds.coordinates[MAX_Y], bounds.coordinates[MAX_Z]);
+    b[0].set(bounds.coordinates[MIN_X], bounds.coordinates[MIN_Y], bounds.coordinates[MIN_Z]);
+    b[1].set(bounds.coordinates[MAX_X], bounds.coordinates[MAX_Y], bounds.coordinates[MAX_Z]);
 
     *far = -HUGE;
     *near = HUGE;
     for ( i = 0; i <= 1; i++ ) {
         for ( j = 0; j <= 1; j++ ) {
             for ( k = 0; k <= 1; k++ ) {
-                vectorSet(d, b[i].x, b[j].y, b[k].z);
+                d.set(b[i].x, b[j].y, b[k].z);
                 vectorSubtract(d, GLOBAL_camera_mainCamera.eyePosition, d);
                 z = vectorDotProduct(d, GLOBAL_camera_mainCamera.Z);
 
@@ -205,14 +205,14 @@ void
 renderBounds(BoundingBox bounds) {
     Vector3D p[8];
 
-    vectorSet(p[0], bounds.coordinates[MIN_X], bounds.coordinates[MIN_Y], bounds.coordinates[MIN_Z]);
-    vectorSet(p[1], bounds.coordinates[MAX_X], bounds.coordinates[MIN_Y], bounds.coordinates[MIN_Z]);
-    vectorSet(p[2], bounds.coordinates[MIN_X], bounds.coordinates[MAX_Y], bounds.coordinates[MIN_Z]);
-    vectorSet(p[3], bounds.coordinates[MAX_X], bounds.coordinates[MAX_Y], bounds.coordinates[MIN_Z]);
-    vectorSet(p[4], bounds.coordinates[MIN_X], bounds.coordinates[MIN_Y], bounds.coordinates[MAX_Z]);
-    vectorSet(p[5], bounds.coordinates[MAX_X], bounds.coordinates[MIN_Y], bounds.coordinates[MAX_Z]);
-    vectorSet(p[6], bounds.coordinates[MIN_X], bounds.coordinates[MAX_Y], bounds.coordinates[MAX_Z]);
-    vectorSet(p[7], bounds.coordinates[MAX_X], bounds.coordinates[MAX_Y], bounds.coordinates[MAX_Z]);
+    p[0].set(bounds.coordinates[MIN_X], bounds.coordinates[MIN_Y], bounds.coordinates[MIN_Z]);
+    p[1].set(bounds.coordinates[MAX_X], bounds.coordinates[MIN_Y], bounds.coordinates[MIN_Z]);
+    p[2].set(bounds.coordinates[MIN_X], bounds.coordinates[MAX_Y], bounds.coordinates[MIN_Z]);
+    p[3].set(bounds.coordinates[MAX_X], bounds.coordinates[MAX_Y], bounds.coordinates[MIN_Z]);
+    p[4].set(bounds.coordinates[MIN_X], bounds.coordinates[MIN_Y], bounds.coordinates[MAX_Z]);
+    p[5].set(bounds.coordinates[MAX_X], bounds.coordinates[MIN_Y], bounds.coordinates[MAX_Z]);
+    p[6].set(bounds.coordinates[MIN_X], bounds.coordinates[MAX_Y], bounds.coordinates[MAX_Z]);
+    p[7].set(bounds.coordinates[MAX_X], bounds.coordinates[MAX_Y], bounds.coordinates[MAX_Z]);
 
     openGlRenderLine(&p[0], &p[1]);
     openGlRenderLine(&p[1], &p[3]);

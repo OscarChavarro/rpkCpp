@@ -441,7 +441,7 @@ GalerkinElement::vertices(Vector3D *p, int n) {
         bounds(&boundingBox);
 
         for ( int i = 0; i < n; i++ ) {
-            vectorSet(p[i], boundingBox.coordinates[MIN_X], boundingBox.coordinates[MIN_Y], boundingBox.coordinates[MIN_Z]);
+            p[i].set(boundingBox.coordinates[MIN_X], boundingBox.coordinates[MIN_Y], boundingBox.coordinates[MIN_Z]);
         }
 
         return 8;
@@ -485,7 +485,7 @@ GalerkinElement::vertices(Vector3D *p, int n) {
             }
             patch->uniformPoint(uv.u, uv.v, &p[2]);
 
-            vectorSet(p[3], 0.0, 0.0, 0.0);
+            p[3].set(0.0, 0.0, 0.0);
         }
 
         return patch->numberOfVertices;
@@ -500,15 +500,14 @@ GalerkinElement::midPoint() {
     Vector3D c;
 
     if ( isCluster() ) {
-        vectorSet(c,
-                  (geomBounds(geometry).coordinates[MIN_X] + geomBounds(geometry).coordinates[MAX_X]) / 2.0f,
-                  (geomBounds(geometry).coordinates[MIN_Y] + geomBounds(geometry).coordinates[MAX_Y]) / 2.0f,
-                  (geomBounds(geometry).coordinates[MIN_Z] + geomBounds(geometry).coordinates[MAX_Z]) / 2.0f);
+        c.set((geomBounds(geometry).coordinates[MIN_X] + geomBounds(geometry).coordinates[MAX_X]) / 2.0f,
+              (geomBounds(geometry).coordinates[MIN_Y] + geomBounds(geometry).coordinates[MAX_Y]) / 2.0f,
+              (geomBounds(geometry).coordinates[MIN_Z] + geomBounds(geometry).coordinates[MAX_Z]) / 2.0f);
     } else {
         Vector3D p[8];
         int numberOfVertices = vertices(p, 4);
 
-        vectorSet(c, 0.0, 0.0, 0.0);
+        c.set(0.0, 0.0, 0.0);
         for ( int i = 0; i < numberOfVertices; i++ ) {
             vectorAdd(c, p[i], c);
         }

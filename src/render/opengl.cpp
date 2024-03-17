@@ -330,7 +330,7 @@ openGlBoundsDistance2(Vector3D p, const float *bounds) {
     Vector3D mid;
     Vector3D d;
 
-    vectorSet(mid,
+    mid.set(
               0.5f * (bounds[MIN_X] + bounds[MAX_X]),
               0.5f * (bounds[MIN_Y] + bounds[MAX_Y]),
               0.5f * (bounds[MIN_Z] + bounds[MAX_Z]));
