@@ -203,7 +203,7 @@ mainRenderingDefaults() {
 Global initializations
 */
 static void
-mainInit() {
+mainInit(RadianceMethod *context) {
     // Transforms the cubature rules for quadrilaterals to be over the domain [0,1]^2 instead of [-1,1]^2
     fixCubatureRules();
 
@@ -214,7 +214,7 @@ mainInit() {
     mainRenderingDefaults();
     toneMapDefaults();
     cameraDefaults();
-    radianceDefaults(GLOBAL_scenePatches);
+    radianceDefaults(GLOBAL_scenePatches, context);
 
     #ifdef RAYTRACING_ENABLED
         mainRayTracingDefaults();
@@ -256,13 +256,13 @@ mainCreateClusterHierarchy(java::ArrayList<Patch *> *patches) {
 Processes command line arguments not recognized by the Xt GUI toolkit
 */
 static void
-mainParseGlobalOptions(int *argc, char **argv) {
+mainParseGlobalOptions(int *argc, char **argv, RadianceMethod **context) {
     GLOBAL_scenePatches = globalAppScenePatches;
 
     renderParseOptions(argc, argv);
     parseToneMapOptions(argc, argv);
     parseCameraOptions(argc, argv);
-    parseRadianceOptions(argc, argv);
+    parseRadianceOptions(argc, argv, context);
 
     #ifdef RAYTRACING_ENABLED
         mainParseRayTracingOptions(argc, argv);
@@ -307,7 +307,7 @@ Returns true if successful. There's nothing GUI specific in this function.
 When a file cannot be read, the current scene is restored
 */
 static bool
-mainReadFile(char *filename) {
+mainReadFile(char *filename, RadianceMethod *context) {
     // Check whether the file can be opened if not reading from stdin
     if ( filename[0] != '#' ) {
         FILE *input = fopen(filename, "r");
@@ -366,7 +366,7 @@ mainReadFile(char *filename) {
     }
 
     if ( strncmp(extension, "mgf", 3) == 0 ) {
-        readMgf(filename, GLOBAL_radiance_selectedRadianceMethod);
+        readMgf(filename, context);
     }
 
     clock_t t = clock();
@@ -383,8 +383,8 @@ mainReadFile(char *filename) {
     // Dispose of the old scene
     fprintf(stderr, "Disposing of the old scene ... ");
     fflush(stderr);
-    if ( GLOBAL_radiance_selectedRadianceMethod ) {
-        GLOBAL_radiance_selectedRadianceMethod->terminate(GLOBAL_scenePatches);
+    if ( context ) {
+        context->terminate(GLOBAL_scenePatches);
     }
 
     #ifdef RAYTRACING_ENABLED
@@ -510,11 +510,11 @@ mainReadFile(char *filename) {
            GLOBAL_statistics.totalArea);
 
     // Initialize radiance for the freshly loaded scene
-    if ( GLOBAL_radiance_selectedRadianceMethod != nullptr ) {
+    if ( context != nullptr ) {
         fprintf(stderr, "Initializing radiance computations ... ");
         fflush(stderr);
 
-        setRadianceMethod(GLOBAL_radiance_selectedRadianceMethod, globalAppScenePatches);
+        setRadianceMethod(context, globalAppScenePatches);
 
         t = clock();
         fprintf(stderr, "%g secs.\n", (float) (t - last) / (float) CLOCKS_PER_SEC);
@@ -541,19 +541,24 @@ mainReadFile(char *filename) {
 }
 
 static void
-mainBuildModel(const int *argc, char *const *argv) {
+mainBuildModel(const int *argc, char *const *argv, RadianceMethod *context) {
     // All options should have disappeared from argv now
     if ( *argc > 1 ) {
         if ( *argv[1] == '-' ) {
             logError(nullptr, "Unrecognized option '%s'", argv[1]);
-        } else if ( !mainReadFile(argv[1]) ) {
+        } else if ( !mainReadFile(argv[1], context) ) {
             exit(1);
         }
     }
 }
 
 static void
-createOffscreenCanvasWindow(int width, int height, java::ArrayList<Patch *> *scenePatches) {
+createOffscreenCanvasWindow(
+    int width,
+    int height,
+    java::ArrayList<Patch *> *scenePatches,
+    RadianceMethod *context)
+{
     openGlMesaRenderCreateOffscreenWindow(width, height);
 
     // Set correct width and height for the camera
@@ -567,12 +572,12 @@ createOffscreenCanvasWindow(int width, int height, java::ArrayList<Patch *> *sce
         if ( GLOBAL_raytracer_activeRaytracer != nullptr ) {
             f = GLOBAL_raytracer_activeRaytracer->Redisplay;
         }
-        openGlRenderScene(scenePatches, GLOBAL_scene_clusteredGeometries, f, GLOBAL_radiance_selectedRadianceMethod);
+        openGlRenderScene(scenePatches, GLOBAL_scene_clusteredGeometries, f, context);
     #endif
 }
 
 static void
-mainExecuteRendering(java::ArrayList<Patch *> *scenePatches) {
+mainExecuteRendering(java::ArrayList<Patch *> *scenePatches, RadianceMethod *context) {
     // Create the window in which to render (canvas window)
     if ( globalImageOutputWidth <= 0 ) {
         globalImageOutputWidth = 1920;
@@ -580,7 +585,7 @@ mainExecuteRendering(java::ArrayList<Patch *> *scenePatches) {
     if ( globalImageOutputHeight <= 0 ) {
         globalImageOutputHeight = 1080;
     }
-    createOffscreenCanvasWindow(globalImageOutputWidth, globalImageOutputHeight, scenePatches);
+    createOffscreenCanvasWindow(globalImageOutputWidth, globalImageOutputHeight, scenePatches, context);
 
     while ( !openGlRenderInitialized() ) {}
 
@@ -589,32 +594,32 @@ mainExecuteRendering(java::ArrayList<Patch *> *scenePatches) {
         if ( GLOBAL_raytracer_activeRaytracer != nullptr ) {
             f = GLOBAL_raytracer_activeRaytracer->Redisplay;
         }
-        openGlRenderScene(scenePatches, GLOBAL_scene_clusteredGeometries, f, GLOBAL_radiance_selectedRadianceMethod);
+        openGlRenderScene(scenePatches, GLOBAL_scene_clusteredGeometries, f, context);
     #endif
 
-    batch(scenePatches, GLOBAL_app_lightSourcePatches, GLOBAL_radiance_selectedRadianceMethod);
+    batch(scenePatches, GLOBAL_app_lightSourcePatches, context);
 }
 
 static void
-mainFreeMemory() {
+mainFreeMemory(RadianceMethod *context) {
     if ( GLOBAL_scene_clusteredWorldGeom != nullptr ) {
         delete GLOBAL_scene_clusteredWorldGeom;
         GLOBAL_scene_clusteredWorldGeom = nullptr;
     }
 
     deleteOptionsMemory();
-    mgfFreeMemory(GLOBAL_radiance_selectedRadianceMethod);
+    mgfFreeMemory(context);
     galerkinFreeMemory();
 }
 
 int
 main(int argc, char *argv[]) {
-    mainInit();
-    mainParseGlobalOptions(&argc, argv);
-    mainBuildModel(&argc, argv);
+    mainInit(GLOBAL_radiance_selectedRadianceMethod);
+    mainParseGlobalOptions(&argc, argv, &GLOBAL_radiance_selectedRadianceMethod);
+    mainBuildModel(&argc, argv, GLOBAL_radiance_selectedRadianceMethod);
 
-    mainExecuteRendering(globalAppScenePatches);
-    mainFreeMemory();
+    mainExecuteRendering(globalAppScenePatches, GLOBAL_radiance_selectedRadianceMethod);
+    mainFreeMemory(GLOBAL_radiance_selectedRadianceMethod);
 
     return 0;
 }

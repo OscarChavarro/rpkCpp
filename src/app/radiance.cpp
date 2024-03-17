@@ -65,12 +65,12 @@ setRadianceMethod(RadianceMethod *newMethod, java::ArrayList<Patch *> *scenePatc
 }
 
 void
-radianceDefaults(java::ArrayList<Patch *> *scenePatches) {
-    setRadianceMethod(GLOBAL_radiance_selectedRadianceMethod, scenePatches);
+radianceDefaults(java::ArrayList<Patch *> *scenePatches, RadianceMethod *context) {
+    setRadianceMethod(context, scenePatches);
 }
 
 static void
-selectRadianceMethod(const int *argc, char **argv) {
+selectRadianceMethod(const int *argc, char **argv, RadianceMethod **newRadianceMethod) {
     bool getNext = false;
     char *name = nullptr;
     for ( int i = 0; i < *argc; i++ ) {
@@ -84,21 +84,21 @@ selectRadianceMethod(const int *argc, char **argv) {
     }
 
     if ( name != nullptr ) {
-        if ( GLOBAL_radiance_selectedRadianceMethod != nullptr ) {
-            delete GLOBAL_radiance_selectedRadianceMethod;
-            GLOBAL_radiance_selectedRadianceMethod = nullptr;
+        if ( *newRadianceMethod != nullptr ) {
+            delete *newRadianceMethod;
+            *newRadianceMethod = nullptr;
         }
 
         if ( strncasecmp(name, "Galerkin", 4) == 0 ) {
-            GLOBAL_radiance_selectedRadianceMethod = new GalerkinRadianceMethod();
+            *newRadianceMethod = new GalerkinRadianceMethod();
         }
 #ifdef RAYTRACING_ENABLED
         else if ( strncasecmp(name, "PMAP", 4) == 0 ) {
-            GLOBAL_radiance_selectedRadianceMethod = new PhotonMapRadianceMethod();
+            *newRadianceMethod = new PhotonMapRadianceMethod();
         } else if ( strncasecmp(name, "StochJacobi", 4) == 0 ) {
-            GLOBAL_radiance_selectedRadianceMethod = new StochasticJacobiRadianceMethod();
+            *newRadianceMethod = new StochasticJacobiRadianceMethod();
         } else if ( strncasecmp(name, "RandomWalk", 4) == 0 ) {
-            GLOBAL_radiance_selectedRadianceMethod = new RandomWalkRadianceMethod();
+            *newRadianceMethod = new RandomWalkRadianceMethod();
         }
     }
 #endif
@@ -109,10 +109,10 @@ Parses (and consumes) command line options for radiance
 computation
 */
 void
-parseRadianceOptions(int *argc, char **argv) {
-    selectRadianceMethod(argc, argv);
+parseRadianceOptions(int *argc, char **argv, RadianceMethod **newRadianceMethod) {
+    selectRadianceMethod(argc, argv, newRadianceMethod);
     parseGeneralOptions(globalRadianceOptions, argc, argv);
-    if ( GLOBAL_radiance_selectedRadianceMethod != nullptr ) {
-        GLOBAL_radiance_selectedRadianceMethod->parseOptions(argc, argv);
+    if ( *newRadianceMethod != nullptr ) {
+        (*newRadianceMethod)->parseOptions(argc, argv);
     }
 }

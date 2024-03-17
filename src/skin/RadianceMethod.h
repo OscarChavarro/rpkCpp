@@ -63,7 +63,5 @@ class RadianceMethod {
 };
 
 extern void setRadianceMethod(RadianceMethod *newMethod, java::ArrayList<Patch *> *scenePatches);
-extern void radianceDefaults(java::ArrayList<Patch *> *scenePatches);
-extern void parseRadianceOptions(int *argc, char **argv);
 
 #endif
