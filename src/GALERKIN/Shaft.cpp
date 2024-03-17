@@ -30,11 +30,6 @@ Shaft::Shaft():
 {
 }
 
-bool
-Shaft::isCut() {
-    return cut;
-}
-
 /**
 Marks a geometry as to be omitted during shaft culling: it will not be added to the
 candidate list, even if the geometry overlaps or is inside the shaft
@@ -142,9 +137,9 @@ Shaft::constructShaft(BoundingBox *boundingBox1, BoundingBox *boundingBox2) {
             localPlane->n[3 - a - b] = 0.0;
             localPlane->d = -(du * u1 + dv * v1);
 
-            localPlane->coordinateOffset[0] = localPlane->n[0] > 0.0 ? MIN_X : MAX_X;
-            localPlane->coordinateOffset[1] = localPlane->n[1] > 0.0 ? MIN_Y : MAX_Y;
-            localPlane->coordinateOffset[2] = localPlane->n[2] > 0.0 ? MIN_Z : MAX_Z;
+            localPlane->coord_offset[0] = localPlane->n[0] > 0.0 ? MIN_X : MAX_X;
+            localPlane->coord_offset[1] = localPlane->n[1] > 0.0 ? MIN_Y : MAX_Y;
+            localPlane->coord_offset[2] = localPlane->n[2] > 0.0 ? MIN_Z : MAX_Z;
 
             localPlane++;
         }
@@ -307,9 +302,9 @@ Shaft::fillInPlane(ShaftPlane *plane, float nx, float ny, float nz, float d) {
     plane->n[2] = nz;
     plane->d = d;
 
-    plane->coordinateOffset[0] = plane->n[0] > 0. ? MIN_X : MAX_X;
-    plane->coordinateOffset[1] = plane->n[1] > 0. ? MIN_Y : MAX_Y;
-    plane->coordinateOffset[2] = plane->n[2] > 0. ? MIN_Z : MAX_Z;
+    plane->coord_offset[0] = plane->n[0] > 0. ? MIN_X : MAX_X;
+    plane->coord_offset[1] = plane->n[1] > 0. ? MIN_Y : MAX_Y;
+    plane->coord_offset[2] = plane->n[2] > 0. ? MIN_Z : MAX_Z;
 }
 
 /**
@@ -480,9 +475,9 @@ Shaft::boundingBoxTest(BoundingBox *bounds) {
     int i;
     ShaftPlane *localPlane;
     for ( i = 0, localPlane = &plane[0]; i < planes; i++, localPlane++ ) {
-        if ( localPlane->n[0] * bounds->coordinates[localPlane->coordinateOffset[0]] +
-             localPlane->n[1] * bounds->coordinates[localPlane->coordinateOffset[1]] +
-             localPlane->n[2] * bounds->coordinates[localPlane->coordinateOffset[2]] +
+        if ( localPlane->n[0] * bounds->coordinates[localPlane->coord_offset[0]] +
+             localPlane->n[1] * bounds->coordinates[localPlane->coord_offset[1]] +
+             localPlane->n[2] * bounds->coordinates[localPlane->coord_offset[2]] +
              localPlane->d > -std::fabs(localPlane->d * EPSILON)) {
             return OUTSIDE;
         }
@@ -498,9 +493,9 @@ Shaft::boundingBoxTest(BoundingBox *bounds) {
     // shaft. If the farthest corner of the bounding box is outside any shaft-plane, it
     // overlaps the shaft, otherwise it is inside the shaft
     for ( i = 0, localPlane = &localPlane[0]; i < planes; i++, localPlane++ ) {
-        if ( localPlane->n[0] * bounds->coordinates[(localPlane->coordinateOffset[0] + 3) % 6] +
-             localPlane->n[1] * bounds->coordinates[(localPlane->coordinateOffset[1] + 3) % 6] +
-             localPlane->n[2] * bounds->coordinates[(localPlane->coordinateOffset[2] + 3) % 6] +
+        if ( localPlane->n[0] * bounds->coordinates[(localPlane->coord_offset[0] + 3) % 6] +
+             localPlane->n[1] * bounds->coordinates[(localPlane->coord_offset[1] + 3) % 6] +
+             localPlane->n[2] * bounds->coordinates[(localPlane->coord_offset[2] + 3) % 6] +
              localPlane->d > std::fabs(localPlane->d * EPSILON)) {
             return OVERLAP;
         }
