@@ -37,9 +37,9 @@ enum ShaftPlanePosition {
 // and on the negative side of the planes
 class Shaft {
   private:
-    static ShaftPlanePosition testPolygonWithRespectToPlane(POLYGON *poly, Vector3D *normal, double d);
+    static ShaftPlanePosition testPolygonWithRespectToPlane(Polygon *poly, Vector3D *normal, double d);
     static void fillInPlane(ShaftPlane *plane, float nx, float ny, float nz, float d);
-    static bool verifyPolygonWrtPlane(Polygon *polygon, Vector3D *normal, double d, int side);
+    static bool verifyPolygonWithRespectToPlane(Polygon *polygon, Vector3D *normal, double d, int side);
     static int testPointWrtPlane(Vector3D *p, Vector3D *normal, double d);
     static int compareShaftPlanes(ShaftPlane *plane1, ShaftPlane *plane2);
     static void keep(Geometry *geometry, java::ArrayList<Geometry *> *candidateList);
@@ -72,7 +72,7 @@ public:
              //	The candidate list does not contain all occluder!
     Shaft();
     void constructShaft(BoundingBox *boundingBox1, BoundingBox *boundingBox2);
-    void constructFromPolygonToPolygon(POLYGON *polygon1, POLYGON *polygon2);
+    void constructFromPolygonToPolygon(Polygon *polygon1, Polygon *polygon2);
 
     java::ArrayList<Patch *> *cullPatches(java::ArrayList<Patch *> *patchList);
     int patchIsOnOmitSet(Patch *geometry);

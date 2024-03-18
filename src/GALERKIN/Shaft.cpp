@@ -152,8 +152,8 @@ the plane, OUTSIDE if the polygon on all on the positive side, OVERLAP
 if the polygon is cut by the plane and COPLANAR if the polygon lays on the
 plane within tolerance distance d*EPSILON
 */
-int
-Shaft::testPolygonWrtPlane(Polygon *poly, Vector3D *normal, double d) {
+ShaftPlanePosition
+Shaft::testPolygonWithRespectToPlane(Polygon *poly, Vector3D *normal, double d) {
     int i;
     int out; // out = there are positions on the positive side of the plane
     int in; // in  = there are positions on the negative side of the plane
@@ -178,7 +178,7 @@ Verifies whether the polygon is on the given side of the plane. Returns true if
 so, and false if not
 */
 bool
-Shaft::verifyPolygonWrtPlane(Polygon *polygon, Vector3D *normal, double d, int side) {
+Shaft::verifyPolygonWithRespectToPlane(Polygon *polygon, Vector3D *normal, double d, int side) {
     bool out = false;
     bool in = false;
 
