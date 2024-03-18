@@ -542,8 +542,8 @@ GalerkinElement::bounds(BoundingBox *boundingBox) {
 Computes a polygon description for shaft culling for the surface
 element. Cannot be used for clusters
 */
-POLYGON *
-GalerkinElement::polygon(POLYGON *polygon) {
+Polygon *
+GalerkinElement::polygon(Polygon *polygon) {
     if ( isCluster() ) {
         logFatal(-1, "galerkinElementPolygon", "Cannot use this function for cluster elements");
         return nullptr;

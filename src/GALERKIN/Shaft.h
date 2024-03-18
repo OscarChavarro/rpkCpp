@@ -10,7 +10,7 @@ References:
 */
 
 #include "java/util/ArrayList.h"
-#include "scene/polygon.h"
+#include "scene/Polygon.h"
 
 class ShaftPlane {
   public:
@@ -39,12 +39,12 @@ class Shaft {
   private:
     static ShaftPlanePosition testPolygonWithRespectToPlane(POLYGON *poly, Vector3D *normal, double d);
     static void fillInPlane(ShaftPlane *plane, float nx, float ny, float nz, float d);
-    static bool verifyPolygonWithRespectToPlane(POLYGON *polygon, Vector3D *normal, double d, int side);
+    static bool verifyPolygonWrtPlane(Polygon *polygon, Vector3D *normal, double d, int side);
     static int testPointWrtPlane(Vector3D *p, Vector3D *normal, double d);
     static int compareShaftPlanes(ShaftPlane *plane1, ShaftPlane *plane2);
     static void keep(Geometry *geometry, java::ArrayList<Geometry *> *candidateList);
 
-    void constructPolygonToPolygonPlanes(POLYGON *p1, POLYGON *p2);
+    void constructPolygonToPolygonPlanes(Polygon *p1, Polygon *p2);
     int shaftPatchTest(Patch *patch);
     bool closedGeometry(Geometry *geometry);
     int uniqueShaftPlane(ShaftPlane *parameterPlane);

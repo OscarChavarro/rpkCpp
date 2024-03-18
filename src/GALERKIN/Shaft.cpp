@@ -152,8 +152,8 @@ the plane, OUTSIDE if the polygon on all on the positive side, OVERLAP
 if the polygon is cut by the plane and COPLANAR if the polygon lays on the
 plane within tolerance distance d*EPSILON
 */
-ShaftPlanePosition
-Shaft::testPolygonWithRespectToPlane(POLYGON *poly, Vector3D *normal, double d) {
+int
+Shaft::testPolygonWrtPlane(Polygon *poly, Vector3D *normal, double d) {
     int i;
     int out; // out = there are positions on the positive side of the plane
     int in; // in  = there are positions on the negative side of the plane
@@ -178,7 +178,7 @@ Verifies whether the polygon is on the given side of the plane. Returns true if
 so, and false if not
 */
 bool
-Shaft::verifyPolygonWithRespectToPlane(POLYGON *polygon, Vector3D *normal, double d, int side) {
+Shaft::verifyPolygonWrtPlane(Polygon *polygon, Vector3D *normal, double d, int side) {
     bool out = false;
     bool in = false;
 
@@ -311,7 +311,7 @@ Shaft::fillInPlane(ShaftPlane *plane, float nx, float ny, float nz, float d) {
 Construct the planes determining the shaft that use edges of p1 and vertices of p2
 */
 void
-Shaft::constructPolygonToPolygonPlanes(POLYGON *polygon1, POLYGON *polygon2) {
+Shaft::constructPolygonToPolygonPlanes(Polygon *polygon1, Polygon *polygon2) {
     Vector3D normal;
     ShaftPlane *localPlane = &plane[planes];
     int maxPlanesPerEdge;
@@ -422,7 +422,7 @@ Shaft::constructPolygonToPolygonPlanes(POLYGON *polygon1, POLYGON *polygon2) {
 Constructs a shaft enclosing the two given polygons
 */
 void
-Shaft::constructFromPolygonToPolygon(POLYGON *polygon1, POLYGON *polygon2) {
+Shaft::constructFromPolygonToPolygon(Polygon *polygon1, Polygon *polygon2) {
     // No "reference" bounding boxes to test with
     ref1 = nullptr;
     ref2 = nullptr;

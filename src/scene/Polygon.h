@@ -7,7 +7,7 @@
 /**
 A structure describing polygons. Only used for shaft culling for the moment
 */
-class POLYGON {
+class Polygon {
   public:
     Vector3D normal;
     float planeConstant;
@@ -16,7 +16,7 @@ class POLYGON {
     int numberOfVertices;
     int index;
 
-    POLYGON():
+    Polygon():
         normal(),
         planeConstant(),
         bounds(),
