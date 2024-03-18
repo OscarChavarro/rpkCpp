@@ -13,6 +13,12 @@ Surfaces are basically a list of patches representing a simple object with given
 
 class Vertex;
 
+enum MaterialColorFlags {
+    NO_COLORS,
+    VERTEX_COLORS,
+    FACE_COLORS
+};
+
 class MeshSurface : public Geometry {
   public:
     int id;
@@ -44,23 +50,15 @@ class MeshSurface : public Geometry {
     Material *material;
 
     MeshSurface();
+    MeshSurface(
+        Material *material,
+        java::ArrayList<Vector3D *> *points,
+        java::ArrayList<Vector3D *> *normals,
+        java::ArrayList<Vector3D *> * /*texCoords*/,
+        java::ArrayList<Vertex *> *vertices,
+        java::ArrayList<Patch *> *faces,
+        enum MaterialColorFlags flags);
 };
-
-enum MaterialColorFlags {
-    NO_COLORS,
-    VERTEX_COLORS,
-    FACE_COLORS
-};
-
-extern MeshSurface *
-surfaceCreate(
-    Material *material,
-    java::ArrayList<Vector3D *> *points,
-    java::ArrayList<Vector3D *> *normals,
-    java::ArrayList<Vector3D *> *texCoords,
-    java::ArrayList<Vertex *> *vertices,
-    java::ArrayList<Patch *> *faces,
-    MaterialColorFlags flags);
 
 inline bool
 geomIsSurface(Geometry *geom) {

@@ -177,7 +177,7 @@ surfaceDone() {
 
     if ( globalCurrentFaceList != nullptr ) {
         Geometry *newGeometry = geomCreateSurface(
-            surfaceCreate(
+            new MeshSurface(
                 globalCurrentMaterial,
                 globalCurrentPointList,
                 globalCurrentNormalList,

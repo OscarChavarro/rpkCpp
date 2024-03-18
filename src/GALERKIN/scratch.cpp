@@ -90,7 +90,7 @@ scratchRenderElements(GalerkinElement *cluster, Vector3D eye) {
     }
     lookAt = lookAtMatrix(eye, centre, up);
 
-    geomBounds(cluster->geometry).transformTo(&lookAt, &bbx);
+    cluster->geometry->getBoundingBox().transformTo(&lookAt, &bbx);
 
     prev_sgl_context = sglMakeCurrent(GLOBAL_galerkin_state.scratch);
     GLOBAL_sgl_currentContext->sglLoadMatrix(
