@@ -21,7 +21,7 @@ the equivalent blocker size
 
 static double
 geomMultiResolutionVisibility(
-    Geometry *geom,
+    Geometry *geometry,
     Ray *ray,
     float rcvDist,
     float srcSize,
@@ -32,21 +32,21 @@ geomMultiResolutionVisibility(
     float tMaximum;
     float t;
     float fSize;
-    GalerkinElement *cluster = (GalerkinElement *) (geom->radianceData);
+    GalerkinElement *cluster = (GalerkinElement *) (geometry->radianceData);
     RayHit hitStore;
 
-    if ( geom == GLOBAL_geom_excludedGeom1 || geom == GLOBAL_geom_excludedGeom2 ) {
+    if ( geometry == GLOBAL_geom_excludedGeom1 || geometry == GLOBAL_geom_excludedGeom2 ) {
         return 1.0;
     }
 
-    if ( !geom->bounded ) {
+    if ( !geometry->bounded ) {
         logFatal(-1, "geomMultiResolutionVisibility", "Don't know what to do with unbounded geoms");
     }
 
     fSize = HUGE;
     tMinimum = rcvDist * ((float)EPSILON);
     tMaximum = rcvDist;
-    BoundingBox *boundingBox = &geom->boundingBox;
+    BoundingBox *boundingBox = &geometry->boundingBox;
 
     // Check ray/bounding volume intersection and compute feature size of occluder
     vectorSumScaled(ray->pos, tMinimum, ray->dir, vectorTmp);
@@ -74,14 +74,14 @@ geomMultiResolutionVisibility(
         }
         return std::exp(-kappa * (tMaximum - tMinimum));
     } else {
-        if ( geomIsAggregate(geom) ) {
-            java::ArrayList<Geometry *> *geometryList = geomPrimListCopy(geom);
+        if ( geometry->isCompound() ) {
+            java::ArrayList<Geometry *> *geometryList = geomPrimListCopy(geometry);
             double visibility = geomListMultiResolutionVisibility(geometryList, ray, rcvDist, srcSize, minimumFeatureSize);
             delete geometryList;
             return visibility;
         } else {
             RayHit *hit = patchListIntersect(
-                    geomPatchArrayListReference(geom),
+                    geomPatchArrayListReference(geometry),
                     ray,
                     rcvDist * ((float) EPSILON), &rcvDist, HIT_FRONT | HIT_ANY, &hitStore);
             if ( hit != nullptr ) {

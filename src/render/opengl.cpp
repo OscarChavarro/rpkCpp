@@ -354,7 +354,7 @@ openGlRenderOctreeNonLeaf(Geometry *geometry, void (*render_patch)(Patch *)) {
     i = 0;
     for ( int j = 0; children != nullptr && j < children->size(); j++ ) {
         Geometry *child = children->get(j);
-        if ( geomIsAggregate(child) ) {
+        if ( child->isCompound() ) {
             if ( i >= 8 ) {
                 logError("openGlRenderOctreeNonLeaf", "Invalid octree geometry node (more than 8 compound children)");
                 delete children;
@@ -419,7 +419,7 @@ openGlRenderWorldOctree(void (*render_patch)(Patch *)) {
     if ( !render_patch ) {
         render_patch = openGlRenderPatch;
     }
-    if ( geomIsAggregate(GLOBAL_scene_clusteredWorldGeom)) {
+    if ( GLOBAL_scene_clusteredWorldGeom->isCompound() ) {
         openGlRenderOctreeNonLeaf(GLOBAL_scene_clusteredWorldGeom, render_patch);
     } else {
         openGlRenderOctreeLeaf(GLOBAL_scene_clusteredWorldGeom, render_patch);
@@ -433,7 +433,7 @@ openGlGeometryDeleteDLists(Geometry *geom) {
     }
     geom->displayListId = -1;
 
-    if ( geomIsAggregate(GLOBAL_scene_clusteredWorldGeom)) {
+    if ( GLOBAL_scene_clusteredWorldGeom->isCompound() ) {
         java::ArrayList<Geometry *> *children = geomPrimListCopy(geom);
         for ( int i = 0; children != nullptr && i < children->size(); i++ ) {
             openGlGeometryDeleteDLists(children->get(i));

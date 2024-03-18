@@ -15,7 +15,6 @@ Geometry::Geometry():
     displayListId(),
     itemCount(),
     bounded(),
-    shaftCullGeometry(),
     omit(),
     className(),
     surfaceData(),
@@ -24,6 +23,7 @@ Geometry::Geometry():
     isDuplicate()
 {
     className = GeometryClassId::UNDEFINED;
+    shaftCullGeometry = false;
 }
 
 bool
@@ -90,7 +90,7 @@ geomCreateBase(
         surfaceBounds(surfaceData, &newGeometry->boundingBox);
     } else if ( className == GeometryClassId::COMPOUND ) {
         geometryListBounds(compoundData->children, &newGeometry->boundingBox);
-    } else /* if ( className == GeometryClassId::PATCH_SET ) */ {
+    } else /* if ( className == GeometryClassId::PATCH_SET && patchSetData != nullptr ) */ {
         patchListBounds(patchSetData->patchList, &newGeometry->boundingBox);
     }
 
@@ -176,9 +176,9 @@ possible, e.g. CSG objects. If the given geometry is a primitive, zero is
 returned. A primitive geometry is a geometry that does not consist of
 simpler geometries
 */
-int
-geomIsAggregate(Geometry *geometry) {
-    return geometry != nullptr && (geometry->className == GeometryClassId::COMPOUND);
+bool
+Geometry::isCompound() const {
+    return className == GeometryClassId::COMPOUND;
 }
 
 static java::ArrayList<Geometry *> *
@@ -196,7 +196,7 @@ A nullptr pointer is returned if the geometry is a primitive
 */
 java::ArrayList<Geometry *> *
 geomPrimListCopy(Geometry *geometry) {
-    if ( geomIsAggregate(geometry) && geometry->compoundData != nullptr ) {
+    if ( geometry->isCompound() && geometry->compoundData != nullptr ) {
         return cloneGeometryList(geometry->compoundData->children);
     } else {
         return nullptr;
@@ -301,7 +301,7 @@ int
 Geometry::geomCountItems() {
     int count = 0;
 
-    if ( geomIsAggregate(this) ) {
+    if ( isCompound() ) {
         if ( this->compoundData != nullptr && this->compoundData->children != nullptr ) {
             for ( int i = 0; i < this->compoundData->children->size(); i++ ) {
                 count += this->compoundData->children->get(i)->geomCountItems();

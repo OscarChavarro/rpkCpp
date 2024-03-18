@@ -23,21 +23,32 @@ class ShaftPlane {
 // times the total nr of vertices for a patch-to-patch shaft
 #define SHAFT_MAX_PLANES 16
 
+/**
+Positions of item with respect to a plane or a shaft
+*/
+enum ShaftPlanePosition {
+    INSIDE,
+    OVERLAP,
+    OUTSIDE,
+    COPLANAR
+};
+
 // The shaft is the region bounded by extent and ref1 and ref2 (if defined)
 // and on the negative side of the planes
 class Shaft {
   private:
-    static int testPolygonWrtPlane(POLYGON *poly, Vector3D *normal, double d);
+    static ShaftPlanePosition testPolygonWithRespectToPlane(POLYGON *poly, Vector3D *normal, double d);
     static void fillInPlane(ShaftPlane *plane, float nx, float ny, float nz, float d);
-    static bool verifyPolygonWrtPlane(POLYGON *polygon, Vector3D *normal, double d, int side);
+    static bool verifyPolygonWithRespectToPlane(POLYGON *polygon, Vector3D *normal, double d, int side);
     static int testPointWrtPlane(Vector3D *p, Vector3D *normal, double d);
     static int compareShaftPlanes(ShaftPlane *plane1, ShaftPlane *plane2);
     static void keep(Geometry *geometry, java::ArrayList<Geometry *> *candidateList);
 
     void constructPolygonToPolygonPlanes(POLYGON *p1, POLYGON *p2);
     int shaftPatchTest(Patch *patch);
-    int dontOpenFunction(Geometry *geometry);
+    bool closedGeometry(Geometry *geometry);
     int uniqueShaftPlane(ShaftPlane *parameterPlane);
+    ShaftPlanePosition boundingBoxTest(BoundingBox *parameterBoundingBox);
 
 public:
     BoundingBox *ref1; // Bounding boxes of the reference volumeListsOfItems and the whole shaft
@@ -45,9 +56,9 @@ public:
     BoundingBox boundingBox;
     ShaftPlane plane[SHAFT_MAX_PLANES];
     int planes;  // Number of planes in plane-set
-    Patch *omit[2]; // Geometries to be ignored during shaft culling. max. 2!
+    Patch *omit[2]; // Geometries to be ignored during shaft culling, maximum 2
     int numberOfGeometriesToOmit;
-    Geometry *dontOpen[2]; // Geometries not to be opened during shaft culling. max. 2!
+    Geometry *dontOpen[2]; // Geometries not to be opened during shaft culling, maximum 2
     int numberOfGeometriesToNotOpen;
     Vector3D center1; // The line segment from center1 to center2 is guaranteed
 				      // to lay within the shaft
@@ -61,12 +72,11 @@ public:
              //	The candidate list does not contain all occluder!
     Shaft();
     void constructShaft(BoundingBox *boundingBox1, BoundingBox *boundingBox2);
+    void constructFromPolygonToPolygon(POLYGON *polygon1, POLYGON *polygon2);
 
     java::ArrayList<Patch *> *cullPatches(java::ArrayList<Patch *> *patchList);
     int patchIsOnOmitSet(Patch *geometry);
     void shaftCullOpen(Geometry *geometry, java::ArrayList<Geometry *> *candidateList);
-    int boundingBoxTest(BoundingBox *bounds);
-    void constructFromPolygonToPolygon(POLYGON *polygon1, POLYGON *polygon2);
     void setShaftOmit(Patch *patch);
     void setShaftDontOpen(Geometry *geometry);
     void doCulling(java::ArrayList<Geometry *> *world, java::ArrayList<Geometry *> *candidateList);

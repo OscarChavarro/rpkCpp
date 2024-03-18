@@ -624,18 +624,20 @@ Patch::Patch(int inNumberOfVertices, Vertex *v1, Vertex *v2, Vertex *v3, Vertex 
 Computes a bounding box for the patch. fills it in 'getBoundingBox' and returns
 a pointer to 'getBoundingBox'
 */
-BoundingBox *
-Patch::patchBounds(BoundingBox *bounds) {
+void
+Patch::getBoundingBox(BoundingBox *bounds) {
+    computeBoundingBox();
+    bounds->copyFrom(boundingBox);
+}
+
+void
+Patch::computeBoundingBox() {
     if ( !boundingBox ) {
         boundingBox = new BoundingBox();
         for ( int i = 0; i < numberOfVertices; i++ ) {
             boundingBox->enlargeToIncludePoint(vertex[i]->point);
         }
     }
-
-    bounds->copyFrom(boundingBox);
-
-    return bounds;
 }
 
 int

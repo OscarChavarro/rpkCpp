@@ -274,7 +274,7 @@ static void
 monteCarloRadiosityCreateClusterChildren(StochasticRadiosityElement *parent) {
     Geometry *geometry = parent->geometry;
 
-    if ( geomIsAggregate(geometry) ) {
+    if ( geometry->isCompound() ) {
         java::ArrayList<Geometry *> *geometryList = geomPrimListCopy(geometry);
         for ( int i = 0; geometryList != nullptr && i < geometryList->size(); i++ ) {
             monteCarloRadiosityCreateClusterChild(geometryList->get(i), parent);
@@ -911,7 +911,7 @@ stochasticRadiosityElementBounds(StochasticRadiosityElement *elem, BoundingBox *
     if ( elem->isCluster() ) {
         boundingBox->copyFrom(&elem->geometry->boundingBox);
     } else if ( !elem->upTrans ) {
-            elem->patch->patchBounds(boundingBox);
+        elem->patch->getBoundingBox(boundingBox);
         } else {
             for ( int i = 0; i < elem->numberOfVertices; i++ ) {
                 Vertex *v = elem->vertices[i];

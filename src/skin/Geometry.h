@@ -58,6 +58,7 @@ class Geometry {
     Geometry();
     virtual ~Geometry();
     int geomCountItems();
+    bool isCompound() const;
 };
 
 extern Geometry *GLOBAL_geom_excludedGeom1;
@@ -70,7 +71,6 @@ extern Geometry *geomCreateCompound(Compound *compoundData);
 
 extern BoundingBox &geomBounds(Geometry *geometry);
 extern void geomDestroy(Geometry *geometry);
-extern int geomIsAggregate(Geometry *geometry);
 extern java::ArrayList<Geometry *> *geomPrimListCopy(Geometry *geometry);
 java::ArrayList<Patch *> *geomPatchArrayListReference(Geometry *geometry);
 extern void geomDontIntersect(Geometry *geometry1, Geometry *geometry2);

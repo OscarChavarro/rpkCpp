@@ -132,9 +132,12 @@ VoxelGrid::putItemInsideVoxelGrid(VoxelData *item, const BoundingBox *itemBounds
 void
 VoxelGrid::putPatchInsideVoxelGrid(Patch *patch) {
     BoundingBox localBounds;
-    putItemInsideVoxelGrid(
-        new VoxelData(patch, PATCH_MASK),
-       patch->boundingBox != nullptr ? patch->boundingBox : patch->patchBounds(&localBounds));
+    if ( patch->boundingBox != nullptr ) {
+        localBounds = *patch->boundingBox;
+    } else {
+        patch->getBoundingBox(&localBounds);
+    }
+    putItemInsideVoxelGrid(new VoxelData(patch, PATCH_MASK), &localBounds);
 }
 
 void
@@ -147,7 +150,7 @@ VoxelGrid::putSubGeometryInsideVoxelGrid(Geometry *geometry) {
             putItemInsideVoxelGrid(new VoxelData(subgrid, GRID_MASK), &subgrid->boundingBox);
         }
     } else {
-        if ( geomIsAggregate(geometry) ) {
+        if ( geometry->isCompound() ) {
             java::ArrayList<Geometry *> *geometryList = geomPrimListCopy(geometry);
             for ( int i = 0; geometryList != nullptr && i < geometryList->size(); i++ ) {
                 putSubGeometryInsideVoxelGrid(geometryList->get(i));

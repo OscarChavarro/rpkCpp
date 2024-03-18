@@ -111,7 +111,7 @@ galerkinDoCreateClusterHierarchy(Geometry *parentGeometry) {
     parentGeometry->radianceData = cluster;
 
     // Recursively creates list of sub-clusters
-    if ( geomIsAggregate(parentGeometry) ) {
+    if ( parentGeometry->isCompound() ) {
         java::ArrayList<Geometry *> *geometryList = geomPrimListCopy(parentGeometry);
         for ( int i = 0; geometryList != nullptr && i < geometryList->size(); i++ ) {
             geomAddClusterChild(geometryList->get(i), cluster);

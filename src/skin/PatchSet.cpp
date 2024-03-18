@@ -25,7 +25,7 @@ patchListBounds(java::ArrayList<Patch *> *patchList, BoundingBox *boundingBox) {
     BoundingBox b;
 
     for ( int i = 0; patchList != nullptr && i < patchList->size(); i++ ) {
-        patchList->get(i)->patchBounds(&b);
+        patchList->get(i)->getBoundingBox(&b);
         boundingBox->enlarge(&b);
     }
 

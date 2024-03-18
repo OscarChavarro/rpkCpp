@@ -229,15 +229,15 @@ renderBounds(BoundingBox bounds) {
 }
 
 void
-renderGeomBounds(Geometry *geom) {
-    BoundingBox geometryBoundingBox = geomBounds(geom);
+renderGeomBounds(Geometry *geometry) {
+    BoundingBox geometryBoundingBox = geomBounds(geometry);
 
-    if ( geom->bounded ) {
+    if ( geometry->bounded ) {
         renderBounds(geometryBoundingBox);
     }
 
-    if ( geomIsAggregate(geom) ) {
-        java::ArrayList<Geometry *> *geometryList = geomPrimListCopy(geom);
+    if ( geometry->isCompound() ) {
+        java::ArrayList<Geometry *> *geometryList = geomPrimListCopy(geometry);
         for ( int i = 0; geometryList != nullptr && i < geometryList->size(); i++ ) {
             renderGeomBounds(geometryList->get(i));
         }

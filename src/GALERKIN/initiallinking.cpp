@@ -43,12 +43,12 @@ createInitialLink(Patch *patch) {
             POLYGON rcvPolygon;
             POLYGON srcPolygon;
             if ( rcv != nullptr && src != nullptr ) {
-                shaft.constructFromPolygonToPolygon(rcv->polygon(&rcvPolygon),
-                                                    src->polygon(&srcPolygon));
+                shaft.constructFromPolygonToPolygon(rcv->polygon(&rcvPolygon), src->polygon(&srcPolygon));
             }
         } else {
-            BoundingBox bbox;
-            shaft.constructShaft(&globalPatchBoundingBox, patch->patchBounds(&bbox));
+            BoundingBox boundingBox;
+            patch->getBoundingBox(&boundingBox);
+            shaft.constructShaft(&globalPatchBoundingBox, &boundingBox);
         }
 
         shaft.setShaftOmit(globalPatch);
@@ -131,7 +131,7 @@ geometryLink(Geometry *geometry) {
 
     // If the Geometry is an aggregate, test each of its children GEOMs, if it
     // is a primitive, create an initial link with each patch it consists of
-    if ( geomIsAggregate(geometry) ) {
+    if ( geometry->isCompound() ) {
         java::ArrayList<Geometry *> *geometryList = geomPrimListCopy(geometry);
         for ( int i = 0; geometryList != nullptr && i < geometryList->size(); i++ ) {
             geometryLink(geometryList->get(i));
@@ -165,7 +165,7 @@ createInitialLinks(GalerkinElement *top, GalerkinRole role) {
     globalElement = top;
     globalRole = role;
     globalPatch = top->patch;
-    globalPatch->patchBounds(&globalPatchBoundingBox);
+    globalPatch->getBoundingBox(&globalPatchBoundingBox);
     globalCandidateList = GLOBAL_scene_clusteredGeometries;
 
     for ( int i = 0; GLOBAL_scene_geometries != nullptr && i < GLOBAL_scene_geometries->size(); i++ ) {

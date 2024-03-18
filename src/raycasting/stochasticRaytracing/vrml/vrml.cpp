@@ -417,7 +417,7 @@ iteratePrimitiveGeoms(java::ArrayList<Geometry *> *geometryList, void (*function
     for ( int i = 0; geometryList!= nullptr && i < geometryList->size(); i++ ) {
         Geometry *geometry = geometryList->get(i);
 
-        if ( geomIsAggregate(geometry) ) {
+        if ( geometry->isCompound() ) {
             java::ArrayList<Geometry *> * tmpList = geomPrimListCopy(geometry);
             iteratePrimitiveGeoms(tmpList, functionCallback);
             delete tmpList;
