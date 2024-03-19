@@ -65,7 +65,7 @@ class MeshSurface : public Geometry {
         float minimumDistance,
         float *maximumDistance,
         int hitFlags,
-        RayHit *hitStore);
+        RayHit *hitStore) const;
 };
 
 extern BoundingBox *

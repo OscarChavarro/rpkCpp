@@ -74,7 +74,8 @@ class Geometry {
 
     int geomCountItems();
     bool isCompound() const;
-    RayHit *
+
+    virtual RayHit *
     discretizationIntersect(
         Ray *ray,
         float minimumDistance,

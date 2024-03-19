@@ -283,11 +283,11 @@ Geometry::discretizationIntersect(
         return nullptr;
     }
 
-    if ( surfaceData != nullptr ) {
+    if ( className == GeometryClassId::SURFACE_MESH ) {
         return surfaceData->discretizationIntersect(ray, minimumDistance, maximumDistance, hitFlags, hitStore);
-    } else if ( compoundData != nullptr ) {
+    } else if ( className == GeometryClassId::COMPOUND ) {
         return compoundData->discretizationIntersect(ray, minimumDistance, maximumDistance, hitFlags, hitStore);
-    } else if ( patchSetData != nullptr ) {
+    } else if ( className == GeometryClassId::PATCH_SET ) {
         return patchSetData->discretizationIntersect(ray, minimumDistance, maximumDistance, hitFlags, hitStore);
     }
     return nullptr;
