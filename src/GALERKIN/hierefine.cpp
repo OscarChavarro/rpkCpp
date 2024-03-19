@@ -569,8 +569,8 @@ hierarchicRefinementSubdivideSourceCluster(
 
         if ( !childElement->isCluster() ) {
             Patch *the_patch = childElement->patch;
-            if ( (rcv->isCluster() && rcv->geometry->getBoundingBox().behindPlane(&the_patch->normal, the_patch->planeConstant)) ||
-                 (!rcv->isCluster() && !facing(rcv->patch, the_patch)) ) {
+            if ( (rcv->isCluster() && geomBounds(rcv->geometry).behindPlane(&the_patch->normal, the_patch->planeConstant)) ||
+                (!rcv->isCluster() && !facing(rcv->patch, the_patch)) ) {
                 continue;
             }
         }
@@ -609,9 +609,9 @@ hierarchicRefinementSubdivideReceiverCluster(
         subInteraction.K.p = formFactor;
 
         if ( !child->isCluster() ) {
-            Patch *thePatch = child->patch;
-            if ( (src->isCluster() && src->geometry->getBoundingBox().behindPlane(&thePatch->normal, thePatch->planeConstant)) ||
-                 (!src->isCluster() && !facing(src->patch, thePatch)) ) {
+            Patch *the_patch = child->patch;
+            if ( (src->isCluster() && geomBounds(src->geometry).behindPlane(&the_patch->normal, the_patch->planeConstant)) ||
+                (!src->isCluster() && !facing(src->patch, the_patch)) ) {
                 continue;
             }
         }

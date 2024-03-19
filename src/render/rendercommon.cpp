@@ -230,7 +230,7 @@ renderBounds(BoundingBox bounds) {
 
 void
 renderGeomBounds(Geometry *geometry) {
-    BoundingBox geometryBoundingBox = geometry->getBoundingBox();
+    BoundingBox geometryBoundingBox = geomBounds(geometry);
 
     if ( geometry->bounded ) {
         renderBounds(geometryBoundingBox);
