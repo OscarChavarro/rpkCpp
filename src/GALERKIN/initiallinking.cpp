@@ -114,7 +114,7 @@ geometryLink(Geometry *geometry) {
     java::ArrayList<Geometry *> *oldCandidateList = globalCandidateList;
 
     // Immediately return if the Geometry is bounded and behind the plane of the patch for which interactions are created
-    if ( geometry->bounded && geomBounds(geometry).behindPlane(&globalPatch->normal, globalPatch->planeConstant) ) {
+    if ( geometry->bounded && getBoundingBox(geometry).behindPlane(&globalPatch->normal, globalPatch->planeConstant) ) {
         return;
     }
 
@@ -122,7 +122,7 @@ geometryLink(Geometry *geometry) {
     // which contains the possible occluder between a pair of patches for which
     // an initial link will need to be created
     if ( geometry->bounded && oldCandidateList ) {
-        shaft.constructShaft(&globalPatchBoundingBox, &geomBounds(geometry));
+        shaft.constructShaft(&globalPatchBoundingBox, &getBoundingBox(geometry));
         shaft.setShaftOmit(globalPatch);
         java::ArrayList<Geometry*> *arr = new java::ArrayList<Geometry*>();
         shaft.doCulling(oldCandidateList, arr);

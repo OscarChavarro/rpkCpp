@@ -151,7 +151,7 @@ geomCreateCompound(Compound *compoundData) {
 This function returns a bounding box for the geometry
 */
 BoundingBox &
-geomBounds(Geometry *geometry) {
+getBoundingBox(Geometry *geometry) {
     return geometry->boundingBox;
 }
 
