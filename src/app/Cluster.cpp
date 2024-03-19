@@ -236,6 +236,5 @@ Cluster::convertClusterToGeometry() {
     if ( patchesGeometry != nullptr ) {
         geometryList->add(0, patchesGeometry);
     }
-    Compound *newCompound = new Compound(geometryList);
-    return geomCreateCompound(newCompound);
+    return geomCreateCompound(new Compound(geometryList));
 }

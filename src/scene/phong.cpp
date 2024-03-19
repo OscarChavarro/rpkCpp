@@ -430,10 +430,10 @@ phongBrdfEvalPdf(
     double avgKd;
     XXDFFLAGS nonDiffuseFlag;
     Vector3D idealDir;
-    Vector3D inrev;
+    Vector3D inRev;
     Vector3D goodNormal;
 
-    vectorScale(-1., *in, inrev);
+    vectorScale(-1.0, *in, inRev);
 
     *pdf = 0;
     *pdfRR = 0;
@@ -487,7 +487,7 @@ phongBrdfEvalPdf(
     // Glossy or specular
     nonDiffPdf = 0.0;
     if ( avgKs > 0 ) {
-        idealDir = idealReflectedDirection(&inrev, &goodNormal);
+        idealDir = idealReflectedDirection(&inRev, &goodNormal);
 
         cos_alpha = vectorDotProduct(idealDir, *out);
 

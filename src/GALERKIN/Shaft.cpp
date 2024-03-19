@@ -302,9 +302,9 @@ Shaft::fillInPlane(ShaftPlane *plane, float nx, float ny, float nz, float d) {
     plane->n[2] = nz;
     plane->d = d;
 
-    plane->coordinateOffset[0] = plane->n[0] > 0. ? MIN_X : MAX_X;
-    plane->coordinateOffset[1] = plane->n[1] > 0. ? MIN_Y : MAX_Y;
-    plane->coordinateOffset[2] = plane->n[2] > 0. ? MIN_Z : MAX_Z;
+    plane->coordinateOffset[0] = plane->n[0] > 0.0 ? MIN_X : MAX_X;
+    plane->coordinateOffset[1] = plane->n[1] > 0.0 ? MIN_Y : MAX_Y;
+    plane->coordinateOffset[2] = plane->n[2] > 0.0 ? MIN_Z : MAX_Z;
 }
 
 /**

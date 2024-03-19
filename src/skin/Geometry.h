@@ -37,6 +37,13 @@ class Geometry {
   private:
     static bool contains(java::ArrayList<MeshSurface *> *deleted, MeshSurface *candidate);
 
+  public: // Will become protected
+    Geometry(
+        PatchSet *patchSetData,
+        MeshSurface *surfaceData,
+        Compound *compoundData,
+        GeometryClassId className);
+
   public:
     int id; // Unique ID number
     BoundingBox boundingBox;
@@ -48,15 +55,16 @@ class Geometry {
     char omit; // Indicates that the Geometry should not be considered for a number of things,
                // such as intersection testing. Set to false by default, don't forget
                // to set to false again after you changed it!
+    bool isDuplicate;
 
     GeometryClassId className;
     MeshSurface *surfaceData;
     Compound *compoundData;
     PatchSet *patchSetData;
-    bool isDuplicate;
 
     Geometry();
     virtual ~Geometry();
+
     int geomCountItems();
     bool isCompound() const;
 };

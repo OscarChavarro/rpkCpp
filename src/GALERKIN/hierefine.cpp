@@ -568,14 +568,14 @@ hierarchicRefinementSubdivideSourceCluster(
         subInteraction.K.p = ff; // Temporary storage for the form-factors
 
         if ( !childElement->isCluster() ) {
-            Patch *the_patch = childElement->patch;
-            if ((rcv->isCluster() && getBoundingBox(rcv->geometry).behindPlane(&the_patch->normal, the_patch->planeConstant)) ||
-                (!rcv->isCluster() && !facing(rcv->patch, the_patch)) ) {
+            Patch *thePatch = childElement->patch;
+            if ( (rcv->isCluster() && getBoundingBox(rcv->geometry).behindPlane(&thePatch->normal, thePatch->planeConstant)) ||
+                (!rcv->isCluster() && !facing(rcv->patch, thePatch)) ) {
                 continue;
             }
         }
 
-        if ( hierarchicRefinementCreateSubdivisionLink(*candidatesList, rcv, childElement, &subInteraction)) {
+        if ( hierarchicRefinementCreateSubdivisionLink(*candidatesList, rcv, childElement, &subInteraction) ) {
             if ( !refineRecursive(candidatesList, &subInteraction, state) ) {
                 hierarchicRefinementStoreInteraction(&subInteraction, state);
             }

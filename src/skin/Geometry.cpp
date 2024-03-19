@@ -16,14 +16,52 @@ Geometry::Geometry():
     itemCount(),
     bounded(),
     omit(),
+    isDuplicate(),
     className(),
     surfaceData(),
     compoundData(),
-    patchSetData(),
-    isDuplicate()
+    patchSetData()
 {
     className = GeometryClassId::UNDEFINED;
     shaftCullGeometry = false;
+}
+
+/**
+This function is used to create a new geometry with given specific data and
+methods. A pointer to the new geometry is returned
+
+Note: currently containing the super() method.
+*/
+Geometry::Geometry(
+    PatchSet *patchSetData,
+    MeshSurface *surfaceData,
+    Compound *compoundData,
+    GeometryClassId className)
+{
+    GLOBAL_statistics.numberOfGeometries++;
+    this->id = globalCurrentMaxId++;
+    this->surfaceData = surfaceData;
+    this->compoundData = compoundData;
+    this->patchSetData = patchSetData;
+    this->className = className;
+    this->isDuplicate = false;
+
+    if ( className == GeometryClassId::SURFACE_MESH ) {
+        surfaceBounds(surfaceData, &this->boundingBox);
+    } else if ( className == GeometryClassId::COMPOUND ) {
+        geometryListBounds(compoundData->children, &this->boundingBox);
+    } else /* if ( className == GeometryClassId::PATCH_SET && patchSetData != nullptr ) */ {
+        patchListBounds(patchSetData->patchList, &this->boundingBox);
+    }
+
+    // Enlarge bounding box a tiny bit for more conservative bounding box culling
+    this->boundingBox.enlargeTinyBit();
+    this->bounded = true;
+    this->shaftCullGeometry = false;
+    this->radianceData = nullptr;
+    this->itemCount = 0;
+    this->omit = false;
+    this->displayListId = -1;
 }
 
 bool
@@ -64,48 +102,6 @@ Geometry::~Geometry() {
     }
 }
 
-/**
-This function is used to create a new geometry with given specific data and
-methods. A pointer to the new geometry is returned
-
-Note: currently containing the super() method.
-*/
-static Geometry *
-geomCreateBase(
-    PatchSet *patchSetData,
-    MeshSurface *surfaceData,
-    Compound *compoundData,
-    GeometryClassId className)
-{
-    Geometry *newGeometry = new Geometry();
-    GLOBAL_statistics.numberOfGeometries++;
-    newGeometry->id = globalCurrentMaxId++;
-    newGeometry->surfaceData = surfaceData;
-    newGeometry->compoundData = compoundData;
-    newGeometry->patchSetData = patchSetData;
-    newGeometry->className = className;
-    newGeometry->isDuplicate = false;
-
-    if ( className == GeometryClassId::SURFACE_MESH ) {
-        surfaceBounds(surfaceData, &newGeometry->boundingBox);
-    } else if ( className == GeometryClassId::COMPOUND ) {
-        geometryListBounds(compoundData->children, &newGeometry->boundingBox);
-    } else /* if ( className == GeometryClassId::PATCH_SET && patchSetData != nullptr ) */ {
-        patchListBounds(patchSetData->patchList, &newGeometry->boundingBox);
-    }
-
-    // Enlarge bounding box a tiny bit for more conservative bounding box culling
-    newGeometry->boundingBox.enlargeTinyBit();
-    newGeometry->bounded = true;
-    newGeometry->shaftCullGeometry = false;
-    newGeometry->radianceData = nullptr;
-    newGeometry->itemCount = 0;
-    newGeometry->omit = false;
-    newGeometry->displayListId = -1;
-
-    return newGeometry;
-}
-
 Geometry *
 geomCreatePatchSet(java::ArrayList<Patch *> *geometryList) {
     PatchSet *patchSet = nullptr;
@@ -123,8 +119,7 @@ geomCreatePatchSet(PatchSet *patchSet) {
         return nullptr;
     }
 
-    Geometry *newGeometry = geomCreateBase(patchSet, nullptr, nullptr, GeometryClassId::PATCH_SET);
-    return newGeometry;
+    return new Geometry(patchSet, nullptr, nullptr, GeometryClassId::PATCH_SET);
 }
 
 Geometry *
@@ -133,8 +128,7 @@ geomCreateSurface(MeshSurface *surfaceData) {
         return nullptr;
     }
 
-    Geometry *newGeometry = geomCreateBase(nullptr, surfaceData, nullptr, GeometryClassId::SURFACE_MESH);
-    return newGeometry;
+    return new Geometry(nullptr, surfaceData, nullptr, GeometryClassId::SURFACE_MESH);
 }
 
 Geometry *
@@ -143,8 +137,7 @@ geomCreateCompound(Compound *compoundData) {
         return nullptr;
     }
 
-    Geometry *newGeometry = geomCreateBase(nullptr, nullptr, compoundData, GeometryClassId::COMPOUND);
-    return newGeometry;
+    return new Geometry(nullptr, nullptr, compoundData, GeometryClassId::COMPOUND);
 }
 
 /**

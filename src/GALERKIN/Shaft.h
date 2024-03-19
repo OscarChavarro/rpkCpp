@@ -84,7 +84,6 @@ public:
 };
 
 enum ShaftCullStrategy {
-    KEEP_CLOSED,
     OVERLAP_OPEN,
     ALWAYS_OPEN
 };

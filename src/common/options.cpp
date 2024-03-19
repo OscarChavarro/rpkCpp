@@ -86,7 +86,7 @@ Integer option values
 */
 static int
 optionsGetInt(int *n, void * /*data*/) {
-    if ( !optionsGetArgumentIntValue(n)) {
+    if ( !optionsGetArgumentIntValue(n) ) {
         fprintf(stderr, "'%s' is not a valid integer value\n", *globalCurrentArgumentValue);
         return false;
     }
