@@ -9,6 +9,7 @@ Stochastic Relaxation Radiosity (currently only stochastic Jacobi)
 #include "scene/scene.h"
 #include "render/opengl.h"
 #include "raycasting/common/Raytracer.h"
+#include "raycasting/stochasticRaytracing/vrml/vrml.h"
 #include "raycasting/stochasticRaytracing/mcradP.h"
 #include "raycasting/stochasticRaytracing/hierarchy.h"
 #include "raycasting/stochasticRaytracing/stochjacobi.h"
@@ -54,7 +55,8 @@ StochasticJacobiRadianceMethod::destroyPatchData(Patch *patch) {
 }
 
 void
-StochasticJacobiRadianceMethod::writeVRML(FILE *fp) {
+StochasticJacobiRadianceMethod::writeVRML(FILE *fp){
+    mcrWriteVrml(fp);
 }
 
 void

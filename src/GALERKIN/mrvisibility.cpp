@@ -80,10 +80,10 @@ geomMultiResolutionVisibility(
             delete geometryList;
             return visibility;
         } else {
-            RayHit *hit = Geometry::patchListIntersect(
-                geomPatchArrayListReference(geometry),
-                ray,
-                rcvDist * ((float) EPSILON), &rcvDist, HIT_FRONT | HIT_ANY, &hitStore);
+            RayHit *hit = patchListIntersect(
+                    geomPatchArrayListReference(geometry),
+                    ray,
+                    rcvDist * ((float) EPSILON), &rcvDist, HIT_FRONT | HIT_ANY, &hitStore);
             if ( hit != nullptr ) {
                 addToShadowCache(hit->patch);
                 return 0.0;

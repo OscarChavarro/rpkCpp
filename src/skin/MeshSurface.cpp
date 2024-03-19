@@ -87,7 +87,6 @@ surfaceCreate(
     surface->normals = normals;
     surface->vertices = vertices;
     surface->faces = faces;
-    surface->className = GeometryClassId::SURFACE_MESH;
 
     globalColorFlags = flags;
 
@@ -116,17 +115,28 @@ surfaceCreate(
 }
 
 /**
+This method will compute a bounding box for a geometry. The bounding box
+is filled in bounding box and a pointer to the filled in bounding box
+returned
+*/
+BoundingBox *
+surfaceBounds(MeshSurface *surf, BoundingBox *boundingBox) {
+    return patchListBounds(surf->faces, boundingBox);
+}
+
+/**
 DiscretizationIntersect returns nullptr is the ray doesn't hit the discretization
 of the object. If the ray hits the object, a hit record is returned containing
 information about the intersection point. See geometry.h for more explanation
 */
 RayHit *
-MeshSurface::discretizationIntersect(
+surfaceDiscretizationIntersect(
+    MeshSurface *surf,
     Ray *ray,
     float minimumDistance,
     float *maximumDistance,
     int hitFlags,
-    RayHit *hitStore) const
+    RayHit *hitStore)
 {
-    return patchListIntersect(faces, ray, minimumDistance, maximumDistance, hitFlags, hitStore);
+    return patchListIntersect(surf->faces, ray, minimumDistance, maximumDistance, hitFlags, hitStore);
 }

@@ -118,7 +118,7 @@ set(MAIN_SRC
     src/raycasting/simple/RayMatterOptions.cpp
     src/raycasting/simple/RayCaster.cpp
     src/raycasting/simple/RayMatter.cpp
-    src/raycasting/bidirectionalRaytracing/LightList.cpp
+        src/raycasting/bidirectionalRaytracing/LightList.cpp
     src/raycasting/raytracing/bidiroptions.cpp
     src/raycasting/raytracing/screeniterate.cpp
     src/raycasting/raytracing/specularsampler.cpp
@@ -161,6 +161,7 @@ set(MAIN_SRC
     src/raycasting/stochasticRaytracing/stochjacobi.cpp
     src/raycasting/stochasticRaytracing/nondiff.cpp
     src/raycasting/stochasticRaytracing/sample4d.cpp
+    src/raycasting/stochasticRaytracing/vrml/vrml.cpp
     src/raycasting/stochasticRaytracing/mcrad.cpp
     src/raycasting/stochasticRaytracing/tracepath.cpp
     src/raycasting/stochasticRaytracing/rtstochasticphotonmap.cpp

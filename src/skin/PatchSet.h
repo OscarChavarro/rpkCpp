@@ -9,14 +9,18 @@ class PatchSet : public Geometry {
     java::ArrayList<Patch *> *patchList;
     explicit PatchSet(java::ArrayList<Patch *> *input);
     virtual ~PatchSet();
-
-    RayHit *
-    discretizationIntersect(
-        Ray *ray,
-        float minimumDistance,
-        float *maximumDistance,
-        int hitFlags,
-        RayHit *hitStore) const;
 };
+
+extern BoundingBox *
+patchListBounds(java::ArrayList<Patch *> *patchList, BoundingBox *boundingBox);
+
+extern RayHit *
+patchListIntersect(
+    java::ArrayList<Patch *> *patchList,
+    Ray *ray,
+    float minimumDistance,
+    float *maximumDistance,
+    int hitFlags,
+    RayHit *hitStore);
 
 #endif
