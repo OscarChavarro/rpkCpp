@@ -207,9 +207,9 @@ This routine creates and returns a duplicate of the given geometry. Needed for
 shaft culling.
 */
 Geometry *
-geomDuplicate(Geometry *geometry) {
+geomDuplicateIfPatchSet(Geometry *geometry) {
     if ( geometry->className != GeometryClassId::PATCH_SET ) {
-        logError("geomDuplicate", "geometry has no duplicate method");
+        logError("geomDuplicateIfPatchSet", "geometry has no duplicate method");
         return nullptr;
     }
 

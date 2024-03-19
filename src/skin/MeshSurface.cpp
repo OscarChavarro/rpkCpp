@@ -73,18 +73,23 @@ MeshSurface::MeshSurface(
     java::ArrayList<Vector3D *> * /*texCoords*/,
     java::ArrayList<Vertex *> *vertices,
     java::ArrayList<Patch *> *faces,
-    enum MaterialColorFlags flags) : Geometry(nullptr, this, nullptr, GeometryClassId::SURFACE_MESH)
+    enum MaterialColorFlags flags)
 {
     GLOBAL_statistics.numberOfSurfaces++;
 
     this->id = globalNextSurfaceId++;
+    this->surfaceData = this;
+    this->compoundData = nullptr;
+    this->patchSetData = nullptr;
+    this->className = GeometryClassId::SURFACE_MESH;
+    this->isDuplicate = false;
+
     this->material = material;
     this->positions = points;
     this->normals = normals;
     this->vertices = vertices;
     this->faces = faces;
     this->className = GeometryClassId::SURFACE_MESH;
-    this->surfaceData = this;
 
     globalColorFlags = flags;
 
@@ -109,6 +114,17 @@ MeshSurface::MeshSurface(
     }
 
     globalColorFlags = NO_COLORS;
+
+    surfaceBounds(this, &this->boundingBox);
+
+    // Enlarge bounding box a tiny bit for more conservative bounding box culling
+    this->boundingBox.enlargeTinyBit();
+    this->bounded = true;
+    this->shaftCullGeometry = false;
+    this->radianceData = nullptr;
+    this->itemCount = 0;
+    this->omit = false;
+    this->displayListId = -1;
 }
 
 /**

@@ -105,7 +105,7 @@ extern void geomDestroy(Geometry *geometry);
 extern java::ArrayList<Geometry *> *geomPrimListCopy(Geometry *geometry);
 java::ArrayList<Patch *> *geomPatchArrayListReference(Geometry *geometry);
 extern void geomDontIntersect(Geometry *geometry1, Geometry *geometry2);
-extern Geometry *geomDuplicate(Geometry *geometry);
+extern Geometry *geomDuplicateIfPatchSet(Geometry *geometry);
 
 extern void geometryListBounds(java::ArrayList<Geometry *> *geometryList, BoundingBox *boundingBox);
 
