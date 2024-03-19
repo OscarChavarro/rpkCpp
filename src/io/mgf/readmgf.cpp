@@ -21,16 +21,16 @@ static VectorOctreeNode *globalPointsOctree;
 static VectorOctreeNode *globalNormalsOctree;
 
 // Elements for surface currently being created
-static java::ArrayList<Vector3D *> *globalCurrentPointList;
-static java::ArrayList<Vector3D *> *globalCurrentNormalList;
-static java::ArrayList<Vertex *> *globalCurrentVertexList;
-static java::ArrayList<Patch *> *globalCurrentFaceList;
+static java::ArrayList<Vector3D *> *globalCurrentPointList = nullptr;
+static java::ArrayList<Vector3D *> *globalCurrentNormalList = nullptr;
+static java::ArrayList<Vertex *> *globalCurrentVertexList = nullptr;
+static java::ArrayList<Patch *> *globalCurrentFaceList = nullptr;
 static java::ArrayList<Geometry *> *globalCurrentGeometryList = nullptr;
-static Material *globalCurrentMaterial;
+static Material *globalCurrentMaterial = nullptr;
 
 // Geometry stack: used for building a hierarchical representation of the scene
 static java::ArrayList<Geometry *> *globalGeometryStack[MAXIMUM_GEOMETRY_STACK_DEPTH];
-static java::ArrayList<Geometry *> **globalGeometryStackPtr;
+static java::ArrayList<Geometry *> **globalGeometryStackPtr = nullptr;
 
 static int globalInComplex = false; // True if reading a sphere, torus or other unsupported
 static int globalInSurface = false; // True if busy creating a new surface
@@ -176,15 +176,14 @@ surfaceDone() {
     }
 
     if ( globalCurrentFaceList != nullptr ) {
-        Geometry *newGeometry = geomCreateSurface(
-            new MeshSurface(
-                    globalCurrentMaterial,
-                    globalCurrentPointList,
-                    globalCurrentNormalList,
-                    nullptr, // null texture coordinate list
-                    globalCurrentVertexList,
-                    globalCurrentFaceList,
-                    MaterialColorFlags::NO_COLORS));
+        Geometry *newGeometry = new MeshSurface(
+            globalCurrentMaterial,
+            globalCurrentPointList,
+            globalCurrentNormalList,
+            nullptr, // null texture coordinate list
+            globalCurrentVertexList,
+            globalCurrentFaceList,
+            MaterialColorFlags::NO_COLORS);
         globalCurrentGeometryList->add(0, newGeometry);
     }
     globalInSurface = false;
@@ -338,7 +337,8 @@ getCurrentMaterial() {
 
     // Check/correct range of reflectances and transmittances
     colorAdd(Rd, Rs, A);
-    if ( (a = colorMax(A)) > 1.0f - (float)EPSILON ) {
+    a = colorMax(A);
+    if ( a > 1.0f - (float)EPSILON ) {
         doWarning("invalid material specification: total reflectance shall be < 1");
         a = (1.0f - (float)EPSILON) / a;
         colorScale(a, Rd, Rd);
@@ -346,7 +346,8 @@ getCurrentMaterial() {
     }
 
     colorAdd(Td, Ts, A);
-    if ( (a = colorMax(A)) > 1.0f - (float)EPSILON ) {
+    a = colorMax(A);
+    if ( a > 1.0f - (float)EPSILON ) {
         doWarning("invalid material specification: total transmittance shall be < 1");
         a = (1.0f - (float)EPSILON) / a;
         colorScale(a, Td, Td);
@@ -1142,7 +1143,7 @@ handleUnknownEntity(int /*argc*/, char ** /*argv*/) {
 }
 
 static void
-initMgf(RadianceMethod *context) {
+initMgf() {
     GLOBAL_mgf_handleCallbacks[MG_E_FACE] = handleFaceEntity;
     GLOBAL_mgf_handleCallbacks[MG_E_FACEH] = handleFaceWithHolesEntity;
     GLOBAL_mgf_handleCallbacks[MG_E_VERTEX] = handleVertexEntity;
@@ -1205,7 +1206,7 @@ readMgf(char *filename, RadianceMethod *context) {
     mgfSetIgnoreSidedness(GLOBAL_fileOptions_forceOneSidedSurfaces);
     mgfSetMonochrome(GLOBAL_fileOptions_monochrome);
 
-    initMgf(context);
+    initMgf();
 
     globalPointsOctree = nullptr;
     globalNormalsOctree = nullptr;
@@ -1257,7 +1258,7 @@ readMgf(char *filename, RadianceMethod *context) {
 }
 
 void
-mgfFreeMemory(RadianceMethod *context) {
+mgfFreeMemory() {
     printf("Freeing %ld geometries\n", globalCurrentGeometryList->size());
     long surfaces = 0;
     long patchSets = 0;

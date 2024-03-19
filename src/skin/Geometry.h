@@ -40,7 +40,6 @@ class Geometry {
   public: // Will become protected
     Geometry(
         PatchSet *patchSetData,
-        MeshSurface *surfaceData,
         Compound *compoundData,
         GeometryClassId className);
 
@@ -65,7 +64,6 @@ class Geometry {
     bool isDuplicate;
 
     GeometryClassId className;
-    MeshSurface *surfaceData;
     Compound *compoundData;
     PatchSet *patchSetData;
 
