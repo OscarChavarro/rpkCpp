@@ -13,6 +13,12 @@ Surfaces are basically a list of patches representing a simple object with given
 
 class Vertex;
 
+enum MaterialColorFlags {
+    NO_COLORS,
+    VERTEX_COLORS,
+    FACE_COLORS
+};
+
 class MeshSurface : public Geometry {
   public:
     int id;
@@ -44,44 +50,25 @@ class MeshSurface : public Geometry {
     Material *material;
 
     MeshSurface();
+    MeshSurface(
+        Material *material,
+        java::ArrayList<Vector3D *> *points,
+        java::ArrayList<Vector3D *> *normals,
+        java::ArrayList<Vector3D *> * /*texCoords*/,
+        java::ArrayList<Vertex *> *vertices,
+        java::ArrayList<Patch *> *faces,
+        enum MaterialColorFlags flags);
+
+    RayHit *
+    discretizationIntersect(
+        Ray *ray,
+        float minimumDistance,
+        float *maximumDistance,
+        int hitFlags,
+        RayHit *hitStore);
 };
-
-enum MaterialColorFlags {
-    NO_COLORS,
-    VERTEX_COLORS,
-    FACE_COLORS
-};
-
-extern MeshSurface *
-surfaceCreate(
-    Material *material,
-    java::ArrayList<Vector3D *> *points,
-    java::ArrayList<Vector3D *> *normals,
-    java::ArrayList<Vector3D *> *texCoords,
-    java::ArrayList<Vertex *> *vertices,
-    java::ArrayList<Patch *> *faces,
-    MaterialColorFlags flags);
-
-inline bool
-geomIsSurface(Geometry *geom) {
-    return geom->className == GeometryClassId::SURFACE_MESH;
-}
-
-inline MeshSurface*
-geomGetSurface(Geometry *geom) {
-    return geomIsSurface(geom) ? geom->surfaceData : nullptr;
-}
 
 extern BoundingBox *
 surfaceBounds(MeshSurface *surf, BoundingBox *boundingBox);
-
-RayHit *
-surfaceDiscretizationIntersect(
-    MeshSurface *surf,
-    Ray *ray,
-    float minimumDistance,
-    float *maximumDistance,
-    int hitFlags,
-    RayHit *hitStore);
 
 #endif

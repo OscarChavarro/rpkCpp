@@ -81,6 +81,15 @@ class Geometry {
         float *maximumDistance,
         int hitFlags,
         RayHit *hitStore) const;
+
+    static RayHit *
+    patchListIntersect(
+        java::ArrayList<Patch *> *patchList,
+        Ray *ray,
+        float minimumDistance,
+        float *maximumDistance,
+        int hitFlags,
+        RayHit *hitStore);
 };
 
 extern Geometry *GLOBAL_geom_excludedGeom1;

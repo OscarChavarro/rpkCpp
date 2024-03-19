@@ -66,52 +66,49 @@ surfaceConnectFace(MeshSurface *surf, Patch *face) {
 /**
 This routine creates a MeshSurface with given material, positions
 */
-MeshSurface *
-surfaceCreate(
+MeshSurface::MeshSurface(
     Material *material,
     java::ArrayList<Vector3D *> *points,
     java::ArrayList<Vector3D *> *normals,
     java::ArrayList<Vector3D *> * /*texCoords*/,
     java::ArrayList<Vertex *> *vertices,
     java::ArrayList<Patch *> *faces,
-    enum MaterialColorFlags flags)
+    enum MaterialColorFlags flags) : Geometry(nullptr, this, nullptr, GeometryClassId::SURFACE_MESH)
 {
     GLOBAL_statistics.numberOfSurfaces++;
 
-    MeshSurface *surface;
-
-    surface = new MeshSurface();
-    surface->id = globalNextSurfaceId++;
-    surface->material = material;
-    surface->positions = points;
-    surface->normals = normals;
-    surface->vertices = vertices;
-    surface->faces = faces;
+    this->id = globalNextSurfaceId++;
+    this->material = material;
+    this->positions = points;
+    this->normals = normals;
+    this->vertices = vertices;
+    this->faces = faces;
+    this->className = GeometryClassId::SURFACE_MESH;
+    this->surfaceData = this;
 
     globalColorFlags = flags;
 
     // If globalColorFlags == VERTEX_COLORS< the vertices are assumed to contain
     // the sum of the colors as used in each patch sharing the vertex
     if ( globalColorFlags == VERTEX_COLORS ) {
-        for ( int i = 0; surface->vertices != nullptr && i < surface->vertices->size(); i++ ) {
-            normalizeVertexColor(surface->vertices->get(i));
+        for ( int i = 0; this->vertices != nullptr && i < this->vertices->size(); i++ ) {
+            normalizeVertexColor(this->vertices->get(i));
         }
     }
 
     // Fill in the MeshSurface back pointer of the FACEs in the MeshSurface
-    for ( int i = 0; surface->faces != nullptr && i < surface->faces->size(); i++ ) {
-        surfaceConnectFace(surface, surface->faces->get(i));
+    for ( int i = 0; this->faces != nullptr && i < this->faces->size(); i++ ) {
+        surfaceConnectFace(this, this->faces->get(i));
     }
 
     // Compute vertex colors
     if ( globalColorFlags != VERTEX_COLORS ) {
-        for ( int i = 0; surface->vertices != nullptr && i < surface->vertices->size(); i++ ) {
-            computeVertexColor(surface->vertices->get(i));
+        for ( int i = 0; this->vertices != nullptr && i < this->vertices->size(); i++ ) {
+            computeVertexColor(this->vertices->get(i));
         }
     }
 
     globalColorFlags = NO_COLORS;
-    return surface;
 }
 
 /**
@@ -130,13 +127,12 @@ of the object. If the ray hits the object, a hit record is returned containing
 information about the intersection point. See geometry.h for more explanation
 */
 RayHit *
-surfaceDiscretizationIntersect(
-    MeshSurface *surf,
+MeshSurface::discretizationIntersect(
     Ray *ray,
     float minimumDistance,
     float *maximumDistance,
     int hitFlags,
     RayHit *hitStore)
 {
-    return patchListIntersect(surf->faces, ray, minimumDistance, maximumDistance, hitFlags, hitStore);
+    return patchListIntersect(faces, ray, minimumDistance, maximumDistance, hitFlags, hitStore);
 }

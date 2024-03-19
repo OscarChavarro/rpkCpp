@@ -177,14 +177,14 @@ surfaceDone() {
 
     if ( globalCurrentFaceList != nullptr ) {
         Geometry *newGeometry = geomCreateSurface(
-            surfaceCreate(
-                globalCurrentMaterial,
-                globalCurrentPointList,
-                globalCurrentNormalList,
-                nullptr, // null texture coordinate list
-                globalCurrentVertexList,
-                globalCurrentFaceList,
-                MaterialColorFlags::NO_COLORS));
+            new MeshSurface(
+                    globalCurrentMaterial,
+                    globalCurrentPointList,
+                    globalCurrentNormalList,
+                    nullptr, // null texture coordinate list
+                    globalCurrentVertexList,
+                    globalCurrentFaceList,
+                    MaterialColorFlags::NO_COLORS));
         globalCurrentGeometryList->add(0, newGeometry);
     }
     globalInSurface = false;

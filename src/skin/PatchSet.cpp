@@ -41,24 +41,12 @@ Tests whether the Ray intersect the patches in the list. See geometry.h
 (GeomDiscretizationIntersect()) for more explanation
 */
 RayHit *
-patchListIntersect(
-    java::ArrayList<Patch *> *patchList,
+PatchSet::discretizationIntersect(
     Ray *ray,
     float minimumDistance,
     float *maximumDistance,
     int hitFlags,
-    RayHit *hitStore)
+    RayHit *hitStore) const
 {
-    RayHit *hit = nullptr;
-    for ( int i = 0; patchList != nullptr && i < patchList->size(); i++ ) {
-        RayHit *h = patchList->get(i)->intersect(ray, minimumDistance, maximumDistance, hitFlags, hitStore);
-        if ( h != nullptr ) {
-            if ( hitFlags & HIT_ANY ) {
-                return h;
-            } else {
-                hit = h;
-            }
-        }
-    }
-    return hit;
+    return Geometry::patchListIntersect(patchList, ray, minimumDistance, maximumDistance, hitFlags, hitStore);
 }
