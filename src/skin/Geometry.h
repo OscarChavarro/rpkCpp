@@ -44,6 +44,13 @@ class Geometry {
         Compound *compoundData,
         GeometryClassId className);
 
+    bool
+    discretizationIntersectPreTest(
+        Ray *ray,
+        float minimumDistance,
+        const float *maximumDistance
+    ) const;
+
   public:
     int id; // Unique ID number
     BoundingBox boundingBox;
@@ -67,6 +74,13 @@ class Geometry {
 
     int geomCountItems();
     bool isCompound() const;
+    RayHit *
+    discretizationIntersect(
+        Ray *ray,
+        float minimumDistance,
+        float *maximumDistance,
+        int hitFlags,
+        RayHit *hitStore) const;
 };
 
 extern Geometry *GLOBAL_geom_excludedGeom1;
@@ -83,15 +97,6 @@ extern java::ArrayList<Geometry *> *geomPrimListCopy(Geometry *geometry);
 java::ArrayList<Patch *> *geomPatchArrayListReference(Geometry *geometry);
 extern void geomDontIntersect(Geometry *geometry1, Geometry *geometry2);
 extern Geometry *geomDuplicate(Geometry *geometry);
-
-extern RayHit *
-geomDiscretizationIntersect(
-    Geometry *geometry,
-    Ray *ray,
-    float minimumDistance,
-    float *maximumDistance,
-    int hitFlags,
-    RayHit *hitStore);
 
 extern void geometryListBounds(java::ArrayList<Geometry *> *geometryList, BoundingBox *boundingBox);
 

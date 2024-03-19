@@ -1262,10 +1262,10 @@ mgfFreeMemory(RadianceMethod *context) {
     long surfaces = 0;
     long patchSets = 0;
     for ( int i = 0; i < globalCurrentGeometryList->size(); i++ ) {
-        if ( globalCurrentGeometryList->get(i)->surfaceData != nullptr ) {
+        if ( globalCurrentGeometryList->get(i)->className == SURFACE_MESH ) {
             surfaces++;
         }
-        if ( globalCurrentGeometryList->get(i)->patchSetData != nullptr ) {
+        if ( globalCurrentGeometryList->get(i)->className == PATCH_SET ) {
             patchSets++;
         }
     }

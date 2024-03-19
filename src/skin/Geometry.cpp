@@ -104,21 +104,15 @@ Geometry::~Geometry() {
 
 Geometry *
 geomCreatePatchSet(java::ArrayList<Patch *> *geometryList) {
-    PatchSet *patchSet = nullptr;
-
     if ( geometryList != nullptr && geometryList->size() > 0 ) {
-        patchSet = new PatchSet(geometryList);
+        return geomCreatePatchSet(new PatchSet(geometryList));
     }
 
-    return geomCreatePatchSet(patchSet);
+    return nullptr;
 }
 
 Geometry *
 geomCreatePatchSet(PatchSet *patchSet) {
-    if ( patchSet == nullptr ) {
-        return nullptr;
-    }
-
     return new Geometry(patchSet, nullptr, nullptr, GeometryClassId::PATCH_SET);
 }
 
@@ -240,6 +234,32 @@ geomDontIntersect(Geometry *geometry1, Geometry *geometry2) {
     GLOBAL_geom_excludedGeom2 = geometry2;
 }
 
+bool
+Geometry::discretizationIntersectPreTest(
+    Ray *ray,
+    float minimumDistance,
+    const float *maximumDistance) const
+{
+    if ( this == GLOBAL_geom_excludedGeom1 || this == GLOBAL_geom_excludedGeom2 ) {
+        return false;
+    }
+
+    if ( bounded ) {
+        Vector3D vTmp;
+
+        // Check ray/bounding volume intersection
+        vectorSumScaled(ray->pos, minimumDistance, ray->dir, vTmp);
+        if ( boundingBox.outOfBounds(&vTmp) ) {
+            float nMaximumDistance = *maximumDistance;
+            if ( !boundingBox.intersect(ray, minimumDistance, &nMaximumDistance) ) {
+                return false;
+            }
+        }
+    }
+
+    return true;
+}
+
 /**
 This routine returns nullptr is the ray doesn't hit the discretization of the
 geometry. If the ray hits the discretization of the Geometry, containing
@@ -252,40 +272,23 @@ besides the hit patch (interpolated normal, intersection point, material
 properties) to return.
 */
 RayHit *
-geomDiscretizationIntersect(
-    Geometry *geometry,
+Geometry::discretizationIntersect(
     Ray *ray,
     float minimumDistance,
     float *maximumDistance,
     int hitFlags,
-    RayHit *hitStore)
+    RayHit *hitStore) const
 {
-    Vector3D vTmp;
-    float nMaximumDistance;
-
-    if ( geometry == GLOBAL_geom_excludedGeom1 || geometry == GLOBAL_geom_excludedGeom2 ) {
+    if ( !discretizationIntersectPreTest(ray, minimumDistance, maximumDistance) ) {
         return nullptr;
     }
 
-    if ( geometry->bounded ) {
-        // Check ray/bounding volume intersection
-        vectorSumScaled(ray->pos, minimumDistance, ray->dir, vTmp);
-        if ( geometry->boundingBox.outOfBounds(&vTmp) ) {
-            nMaximumDistance = *maximumDistance;
-            if ( !geometry->boundingBox.intersect(ray, minimumDistance, &nMaximumDistance) ) {
-                return nullptr;
-            }
-        }
-    }
-
-    if ( geometry->surfaceData != nullptr ) {
-        return surfaceDiscretizationIntersect(geometry->surfaceData, ray, minimumDistance, maximumDistance, hitFlags, hitStore);
-    } else if ( geometry->compoundData != nullptr ) {
-        return geometry->compoundData->discretizationIntersect(ray, minimumDistance, maximumDistance, hitFlags, hitStore);
-    } else if ( geometry->patchSetData != nullptr ) {
-        RayHit *response;
-        response = patchListIntersect(geometry->patchSetData->patchList, ray, minimumDistance, maximumDistance, hitFlags, hitStore);
-        return response;
+    if ( surfaceData != nullptr ) {
+        return surfaceDiscretizationIntersect(surfaceData, ray, minimumDistance, maximumDistance, hitFlags, hitStore);
+    } else if ( compoundData != nullptr ) {
+        return compoundData->discretizationIntersect(ray, minimumDistance, maximumDistance, hitFlags, hitStore);
+    } else if ( patchSetData != nullptr ) {
+        return patchListIntersect(patchSetData->patchList, ray, minimumDistance, maximumDistance, hitFlags, hitStore);
     }
     return nullptr;
 }
@@ -312,17 +315,18 @@ Geometry::geomCountItems() {
 
 RayHit *
 geometryListDiscretizationIntersect(
-        java::ArrayList<Geometry *> *geometryList,
-        Ray *ray,
-        float minimumDistance,
-        float *maximumDistance,
-        int hitFlags,
-        RayHit *hitStore)
+    java::ArrayList<Geometry *> *geometryList,
+    Ray *ray,
+    float minimumDistance,
+    float *maximumDistance,
+    int hitFlags,
+    RayHit *hitStore)
 {
     RayHit *hit = nullptr;
 
     for ( int i = 0; geometryList != nullptr && i < geometryList->size(); i++ ) {
-        RayHit *h = geomDiscretizationIntersect(geometryList->get(i), ray, minimumDistance, maximumDistance, hitFlags, hitStore);
+        RayHit *h = geometryList->get(i)->discretizationIntersect(
+            ray, minimumDistance, maximumDistance, hitFlags, hitStore);
         if ( h != nullptr ) {
             if ( hitFlags & HIT_ANY ) {
                 return h;

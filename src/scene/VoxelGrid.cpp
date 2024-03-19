@@ -403,8 +403,7 @@ VoxelGrid::voxelIntersect(
             if ( item->isPatch() ) {
                 h = item->patch->intersect(ray, minimumDistance, maximumDistance, hitFlags, hitStore);
             } else if ( item->isGeom() ) {
-                h = geomDiscretizationIntersect(item->geometry, ray, minimumDistance, maximumDistance, hitFlags,
-                                                hitStore);
+                h = item->geometry->discretizationIntersect(ray, minimumDistance, maximumDistance, hitFlags, hitStore);
             } else if ( item->isGrid() ) {
                 h = item->voxelGrid->gridIntersect(ray, minimumDistance, maximumDistance, hitFlags, hitStore);
             }
