@@ -77,10 +77,7 @@ geomIsSurface(Geometry *geom) {
 
 inline MeshSurface*
 geomGetSurface(Geometry *geom) {
-    return geomIsSurface(geom) ? geom->surfaceData : nullptr;
+    return nullptr;
 }
-
-extern BoundingBox *
-surfaceBounds(MeshSurface *surf, BoundingBox *boundingBox);
 
 #endif

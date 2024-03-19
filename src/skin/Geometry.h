@@ -40,7 +40,6 @@ class Geometry {
   public: // Will become protected
     Geometry(
         PatchSet *patchSetData,
-        MeshSurface *surfaceData,
         Compound *compoundData,
         GeometryClassId className);
 
@@ -68,7 +67,6 @@ class Geometry {
     bool isDuplicate;
 
     GeometryClassId className;
-    MeshSurface *surfaceData;
     Compound *compoundData;
     PatchSet *patchSetData;
 
@@ -99,7 +97,6 @@ class Geometry {
 extern Geometry *GLOBAL_geom_excludedGeom1;
 extern Geometry *GLOBAL_geom_excludedGeom2;
 
-extern Geometry *geomCreateSurface(MeshSurface *surfaceData);
 extern Geometry *geomCreatePatchSet(java::ArrayList<Patch *> *patchList);
 extern Geometry *geomCreatePatchSet(PatchSet *patchSet);
 extern Geometry *geomCreateCompound(Compound *compoundData);

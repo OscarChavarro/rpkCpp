@@ -87,6 +87,7 @@ surfaceCreate(
     surface->normals = normals;
     surface->vertices = vertices;
     surface->faces = faces;
+    surface->className = GeometryClassId::SURFACE_MESH;
 
     globalColorFlags = flags;
 
@@ -112,16 +113,6 @@ surfaceCreate(
 
     globalColorFlags = NO_COLORS;
     return surface;
-}
-
-/**
-This method will compute a bounding box for a geometry. The bounding box
-is filled in bounding box and a pointer to the filled in bounding box
-returned
-*/
-BoundingBox *
-surfaceBounds(MeshSurface *surf, BoundingBox *boundingBox) {
-    return Geometry::patchListBounds(surf->faces, boundingBox);
 }
 
 /**
