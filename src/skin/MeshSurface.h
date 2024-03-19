@@ -44,6 +44,14 @@ class MeshSurface : public Geometry {
     Material *material;
 
     MeshSurface();
+
+    RayHit *
+    discretizationIntersect(
+        Ray *ray,
+        float minimumDistance,
+        float *maximumDistance,
+        int hitFlags,
+        RayHit *hitStore) const;
 };
 
 enum MaterialColorFlags {
@@ -74,14 +82,5 @@ geomGetSurface(Geometry *geom) {
 
 extern BoundingBox *
 surfaceBounds(MeshSurface *surf, BoundingBox *boundingBox);
-
-RayHit *
-surfaceDiscretizationIntersect(
-    MeshSurface *surf,
-    Ray *ray,
-    float minimumDistance,
-    float *maximumDistance,
-    int hitFlags,
-    RayHit *hitStore);
 
 #endif

@@ -51,6 +51,9 @@ class Geometry {
         const float *maximumDistance
     ) const;
 
+    static BoundingBox *
+    patchListBounds(java::ArrayList<Patch *> *patchList, BoundingBox *boundingBox);
+
   public:
     int id; // Unique ID number
     BoundingBox boundingBox;
@@ -74,13 +77,23 @@ class Geometry {
 
     int geomCountItems();
     bool isCompound() const;
-    RayHit *
+
+    virtual RayHit *
     discretizationIntersect(
         Ray *ray,
         float minimumDistance,
         float *maximumDistance,
         int hitFlags,
         RayHit *hitStore) const;
+
+    static RayHit *
+    patchListIntersect(
+            java::ArrayList<Patch *> *patchList,
+            Ray *ray,
+            float minimumDistance,
+            float *maximumDistance,
+            int hitFlags,
+            RayHit *hitStore);
 };
 
 extern Geometry *GLOBAL_geom_excludedGeom1;

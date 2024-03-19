@@ -121,7 +121,7 @@ returned
 */
 BoundingBox *
 surfaceBounds(MeshSurface *surf, BoundingBox *boundingBox) {
-    return patchListBounds(surf->faces, boundingBox);
+    return Geometry::patchListBounds(surf->faces, boundingBox);
 }
 
 /**
@@ -130,13 +130,12 @@ of the object. If the ray hits the object, a hit record is returned containing
 information about the intersection point. See geometry.h for more explanation
 */
 RayHit *
-surfaceDiscretizationIntersect(
-    MeshSurface *surf,
+MeshSurface::discretizationIntersect(
     Ray *ray,
     float minimumDistance,
     float *maximumDistance,
     int hitFlags,
-    RayHit *hitStore)
+    RayHit *hitStore) const
 {
-    return patchListIntersect(surf->faces, ray, minimumDistance, maximumDistance, hitFlags, hitStore);
+    return patchListIntersect(faces, ray, minimumDistance, maximumDistance, hitFlags, hitStore);
 }

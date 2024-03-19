@@ -33,7 +33,6 @@ Compound::discretizationIntersect(
     int hitFlags,
     RayHit *hitStore) const
 {
-    RayHit * result = geometryListDiscretizationIntersect(
+    return geometryListDiscretizationIntersect(
             children, ray, minimumDistance, maximumDistance, hitFlags, hitStore);
-    return result;
 }

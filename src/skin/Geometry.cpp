@@ -284,11 +284,11 @@ Geometry::discretizationIntersect(
     }
 
     if ( surfaceData != nullptr ) {
-        return surfaceDiscretizationIntersect(surfaceData, ray, minimumDistance, maximumDistance, hitFlags, hitStore);
+        return surfaceData->discretizationIntersect(ray, minimumDistance, maximumDistance, hitFlags, hitStore);
     } else if ( compoundData != nullptr ) {
         return compoundData->discretizationIntersect(ray, minimumDistance, maximumDistance, hitFlags, hitStore);
     } else if ( patchSetData != nullptr ) {
-        return patchListIntersect(patchSetData->patchList, ray, minimumDistance, maximumDistance, hitFlags, hitStore);
+        return patchSetData->discretizationIntersect(ray, minimumDistance, maximumDistance, hitFlags, hitStore);
     }
     return nullptr;
 }
@@ -346,4 +346,42 @@ geometryListBounds(java::ArrayList<Geometry *> *geometryList, BoundingBox *bound
     for ( int i = 0; geometryList != nullptr && i < geometryList->size(); i++ ) {
         boundingBox->enlarge(&geometryList->get(i)->boundingBox);
     }
+}
+
+RayHit *
+Geometry::patchListIntersect(
+        java::ArrayList<Patch *> *patchList,
+        Ray *ray,
+        float minimumDistance,
+        float *maximumDistance,
+        int hitFlags,
+        RayHit *hitStore) {
+    RayHit *hit = nullptr;
+    for ( int i = 0; patchList != nullptr && i < patchList->size(); i++ ) {
+        RayHit *h = patchList->get(i)->intersect(ray, minimumDistance, maximumDistance, hitFlags, hitStore);
+        if ( h != nullptr ) {
+            if ( hitFlags & HIT_ANY ) {
+                return h;
+            } else {
+                hit = h;
+            }
+        }
+    }
+    return hit;
+}
+
+/**
+Computes a bounding box for the given list of patches. The bounding box is
+filled in 'bounding box' and a pointer to it returned
+*/
+BoundingBox *
+Geometry::patchListBounds(java::ArrayList<Patch *> *patchList, BoundingBox *boundingBox) {
+    BoundingBox b;
+
+    for ( int i = 0; patchList != nullptr && i < patchList->size(); i++ ) {
+        patchList->get(i)->getBoundingBox(&b);
+        boundingBox->enlarge(&b);
+    }
+
+    return boundingBox;
 }
