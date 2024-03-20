@@ -1,11 +1,13 @@
 #include "java/util/ArrayList.txx"
 #include "skin/PatchSet.h"
 
-PatchSet::PatchSet(java::ArrayList<Patch *> *input) {
+PatchSet::PatchSet(java::ArrayList<Patch *> *input): Geometry(nullptr, GeometryClassId::PATCH_SET) {
     patchList = new java::ArrayList<Patch *>();
     for ( int i = 0; input != nullptr && i < input->size(); i++ ) {
         patchList->add(input->get(i));
     }
+    patchListBounds(patchList, &this->boundingBox);
+    this->boundingBox.enlargeTinyBit();
 }
 
 PatchSet::~PatchSet() {
@@ -22,11 +24,11 @@ filled in 'bounding box' and a pointer to it returned
 */
 BoundingBox *
 patchListBounds(java::ArrayList<Patch *> *patchList, BoundingBox *boundingBox) {
-    BoundingBox b;
+    BoundingBox currentPatchBoundingBox;
 
     for ( int i = 0; patchList != nullptr && i < patchList->size(); i++ ) {
-        patchList->get(i)->getBoundingBox(&b);
-        boundingBox->enlarge(&b);
+        patchList->get(i)->getBoundingBox(&currentPatchBoundingBox);
+        boundingBox->enlarge(&currentPatchBoundingBox);
     }
 
     return boundingBox;
