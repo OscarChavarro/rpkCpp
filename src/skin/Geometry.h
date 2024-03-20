@@ -96,9 +96,7 @@ class Geometry {
 extern Geometry *GLOBAL_geom_excludedGeom1;
 extern Geometry *GLOBAL_geom_excludedGeom2;
 
-extern Geometry *geomCreateSurface(MeshSurface *surfaceData);
 extern Geometry *geomCreatePatchSet(java::ArrayList<Patch *> *patchList);
-extern Geometry *geomCreatePatchSet(PatchSet *patchSet);
 extern Geometry *geomCreateCompound(Compound *compoundData);
 
 extern BoundingBox &getBoundingBox(Geometry *geometry);

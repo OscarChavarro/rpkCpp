@@ -42,21 +42,22 @@ Geometry::Geometry(
     this->patchSetData = patchSetData;
     this->className = className;
     this->isDuplicate = false;
-
-    if ( className == GeometryClassId::COMPOUND ) {
-        geometryListBounds(compoundData->children, &this->boundingBox);
-    } else if ( className == GeometryClassId::PATCH_SET && patchSetData != nullptr ) {
-        patchListBounds(patchSetData->patchList, &this->boundingBox);
-    }
-
-    // Enlarge bounding box a tiny bit for more conservative bounding box culling
-    this->boundingBox.enlargeTinyBit();
-    this->bounded = true;
+    this->bounded = false;
     this->shaftCullGeometry = false;
     this->radianceData = nullptr;
     this->itemCount = 0;
     this->omit = false;
     this->displayListId = -1;
+
+    if ( className == GeometryClassId::COMPOUND ) {
+        geometryListBounds(compoundData->children, &this->boundingBox);
+        this->boundingBox.enlargeTinyBit();
+        this->bounded = true;
+    } else if ( className == GeometryClassId::PATCH_SET && patchSetData != nullptr ) {
+        patchListBounds(patchSetData->patchList, &this->boundingBox);
+        this->boundingBox.enlargeTinyBit();
+        this->bounded = true;
+    }
 }
 
 bool
@@ -91,15 +92,10 @@ Geometry::~Geometry() {
 Geometry *
 geomCreatePatchSet(java::ArrayList<Patch *> *geometryList) {
     if ( geometryList != nullptr && geometryList->size() > 0 ) {
-        return geomCreatePatchSet(new PatchSet(geometryList));
+        return new Geometry(new PatchSet(geometryList), nullptr, GeometryClassId::PATCH_SET);
     }
 
     return nullptr;
-}
-
-Geometry *
-geomCreatePatchSet(PatchSet *patchSet) {
-    return new Geometry(patchSet, nullptr, GeometryClassId::PATCH_SET);
 }
 
 Geometry *

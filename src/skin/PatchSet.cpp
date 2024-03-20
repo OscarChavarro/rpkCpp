@@ -6,6 +6,10 @@ PatchSet::PatchSet(java::ArrayList<Patch *> *input): Geometry(nullptr, nullptr, 
     for ( int i = 0; input != nullptr && i < input->size(); i++ ) {
         patchList->add(input->get(i));
     }
+    //patchSetData = this;
+    //patchListBounds(patchList, &this->boundingBox);
+    //boundingBox.enlargeTinyBit();
+    //bounded = true;
 }
 
 PatchSet::~PatchSet() {
