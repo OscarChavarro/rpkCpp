@@ -6,7 +6,7 @@
 Geometry *GLOBAL_geom_excludedGeom1 = nullptr;
 Geometry *GLOBAL_geom_excludedGeom2 = nullptr;
 
-static int globalCurrentMaxId = 0;
+int Geometry::nextGeometryId = 0;
 
 Geometry::Geometry():
     id(),
@@ -37,7 +37,7 @@ Geometry::Geometry(
     GeometryClassId className)
 {
     GLOBAL_statistics.numberOfGeometries++;
-    this->id = globalCurrentMaxId++;
+    this->id = nextGeometryId++;
     this->compoundData = compoundData;
     this->patchSetData = patchSetData;
     this->className = className;
@@ -45,7 +45,7 @@ Geometry::Geometry(
 
     if ( className == GeometryClassId::COMPOUND ) {
         geometryListBounds(compoundData->children, &this->boundingBox);
-    } else /* if ( className == GeometryClassId::PATCH_SET && patchSetData != nullptr ) */ {
+    } else if ( className == GeometryClassId::PATCH_SET && patchSetData != nullptr ) {
         patchListBounds(patchSetData->patchList, &this->boundingBox);
     }
 
