@@ -68,4 +68,7 @@ class MeshSurface : public Geometry {
         RayHit *hitStore) const;
 };
 
+extern BoundingBox *
+surfaceBounds(MeshSurface *surf, BoundingBox *boundingBox);
+
 #endif

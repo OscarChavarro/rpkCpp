@@ -79,6 +79,7 @@ MeshSurface::MeshSurface(
 
     this->id = globalNextSurfaceId++;
     this->compoundData = nullptr;
+    this->patchSetData = nullptr;
     this->className = GeometryClassId::SURFACE_MESH;
     this->isDuplicate = false;
 
@@ -113,7 +114,7 @@ MeshSurface::MeshSurface(
 
     globalColorFlags = NO_COLORS;
 
-    patchListBounds(this->faces, &boundingBox);
+    surfaceBounds(this, &this->boundingBox);
 
     // Enlarge bounding box a tiny bit for more conservative bounding box culling
     this->boundingBox.enlargeTinyBit();
@@ -123,6 +124,16 @@ MeshSurface::MeshSurface(
     this->itemCount = 0;
     this->omit = false;
     this->displayListId = -1;
+}
+
+/**
+This method will compute a bounding box for a geometry. The bounding box
+is filled in bounding box and a pointer to the filled in bounding box
+returned
+*/
+BoundingBox *
+surfaceBounds(MeshSurface *surf, BoundingBox *boundingBox) {
+    return patchListBounds(surf->faces, boundingBox);
 }
 
 /**

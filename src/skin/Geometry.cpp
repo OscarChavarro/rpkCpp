@@ -18,7 +18,8 @@ Geometry::Geometry():
     omit(),
     isDuplicate(),
     className(),
-    compoundData()
+    compoundData(),
+    patchSetData()
 {
     className = GeometryClassId::UNDEFINED;
     shaftCullGeometry = false;
@@ -31,20 +32,25 @@ methods. A pointer to the new geometry is returned
 Note: currently containing the super() method.
 */
 Geometry::Geometry(
+    PatchSet *patchSetData,
     Compound *compoundData,
     GeometryClassId className)
 {
     GLOBAL_statistics.numberOfGeometries++;
     this->id = globalCurrentMaxId++;
     this->compoundData = compoundData;
+    this->patchSetData = patchSetData;
     this->className = className;
     this->isDuplicate = false;
 
     if ( className == GeometryClassId::COMPOUND ) {
         geometryListBounds(compoundData->children, &this->boundingBox);
-        this->boundingBox.enlargeTinyBit();
+    } else /* if ( className == GeometryClassId::PATCH_SET && patchSetData != nullptr ) */ {
+        patchListBounds(patchSetData->patchList, &this->boundingBox);
     }
 
+    // Enlarge bounding box a tiny bit for more conservative bounding box culling
+    this->boundingBox.enlargeTinyBit();
     this->bounded = true;
     this->shaftCullGeometry = false;
     this->radianceData = nullptr;
@@ -75,15 +81,25 @@ Geometry::~Geometry() {
         delete compoundData;
         compoundData = nullptr;
     }
+
+    if ( patchSetData != nullptr && !isDuplicate ) {
+        delete patchSetData;
+        patchSetData = nullptr;
+    }
 }
 
 Geometry *
 geomCreatePatchSet(java::ArrayList<Patch *> *geometryList) {
     if ( geometryList != nullptr && geometryList->size() > 0 ) {
-        return new PatchSet(geometryList);
+        return geomCreatePatchSet(new PatchSet(geometryList));
     }
 
     return nullptr;
+}
+
+Geometry *
+geomCreatePatchSet(PatchSet *patchSet) {
+    return new Geometry(patchSet, nullptr, GeometryClassId::PATCH_SET);
 }
 
 Geometry *
@@ -92,7 +108,7 @@ geomCreateCompound(Compound *compoundData) {
         return nullptr;
     }
 
-    return new Geometry(compoundData, GeometryClassId::COMPOUND);
+    return new Geometry(nullptr, compoundData, GeometryClassId::COMPOUND);
 }
 
 /**
@@ -156,7 +172,7 @@ geomPatchArrayListReference(Geometry *geometry) {
     if ( geometry->className == GeometryClassId::SURFACE_MESH ) {
         return ((MeshSurface *)geometry)->faces;
     } else if ( geometry->className == GeometryClassId::PATCH_SET ) {
-        return ((PatchSet *)geometry)->patchList;
+        return geometry->patchSetData->patchList;
     } else if ( geometry->className == GeometryClassId::COMPOUND ) {
         return nullptr;
     }
@@ -174,12 +190,11 @@ geomDuplicateIfPatchSet(Geometry *geometry) {
         return nullptr;
     }
 
-    PatchSet *originalPatchSet = (PatchSet *)geometry;
-    PatchSet *newGeometry = new PatchSet(originalPatchSet->patchList);
+    Geometry *newGeometry = new Geometry();
     GLOBAL_statistics.numberOfGeometries++;
-    java::ArrayList<Patch *> *copy = newGeometry->patchList;
-    *newGeometry = *originalPatchSet;
-    newGeometry->patchList = copy;
+    *newGeometry = *geometry;
+    newGeometry->compoundData = geometry->compoundData;
+    newGeometry->patchSetData = geometry->patchSetData;
     newGeometry->isDuplicate = true;
 
     return newGeometry;
@@ -249,7 +264,7 @@ Geometry::discretizationIntersect(
     } else if ( className == GeometryClassId::COMPOUND ) {
         return compoundData->discretizationIntersect(ray, minimumDistance, maximumDistance, hitFlags, hitStore);
     } else if ( className == GeometryClassId::PATCH_SET ) {
-        return ((PatchSet *)this)->discretizationIntersect(ray, minimumDistance, maximumDistance, hitFlags, hitStore);
+        return patchSetData->discretizationIntersect(ray, minimumDistance, maximumDistance, hitFlags, hitStore);
     }
     return nullptr;
 }
