@@ -7,10 +7,11 @@ Routines for 4x4 homogeneous, rigid-body transformations
 #include "io/mgf/Vector3Dd.h"
 #include "io/mgf/badarg.h"
 #include "io/mgf/parser.h"
+#include "io/mgf/MgfTransformContext.h"
 
 static char **globalTransformArgumentListBeginning;
 
-MgfTransformSpec *GLOBAL_mgf_xfContext; // Current context
+MgfTransformContext *GLOBAL_mgf_xfContext; // Current context
 char **GLOBAL_mgf_xfLastTransform; // End of transform argument list
 
 /**
@@ -40,7 +41,7 @@ computeUniqueId(double (*xfm)[4])
 Free a transform
 */
 static void
-free_xf(MgfTransformSpec *spec)
+free_xf(MgfTransformContext *spec)
 {
     if ( spec->xarr != nullptr) {
         free(spec->xarr);
@@ -91,10 +92,10 @@ transformName(MgfTransformArray *ap, RadianceMethod *context)
 /**
 Allocate new transform structure
 */
-static MgfTransformSpec *
+static MgfTransformContext *
 new_xf(int ac, char **av)
 {
-    MgfTransformSpec *spec;
+    MgfTransformContext *spec;
     int i;
     char *cp;
     int n;
@@ -115,7 +116,7 @@ new_xf(int ac, char **av)
     if ( nDim > TRANSFORM_MAXIMUM_DIMENSIONS ) {
         return nullptr;
     }
-    spec = (MgfTransformSpec *) malloc(sizeof(MgfTransformSpec) + n);
+    spec = (MgfTransformContext *) malloc(sizeof(MgfTransformContext) + n);
     if ( spec == nullptr) {
         return nullptr;
     }
@@ -434,7 +435,7 @@ Handle xf entity
 */
 int
 handleTransformationEntity(int ac, char **av, RadianceMethod *context) {
-    MgfTransformSpec *spec;
+    MgfTransformContext *spec;
     int n;
     int rv;
 

@@ -8,10 +8,10 @@
 #include "io/mgf/vectoroctree.h"
 #include "io/mgf/fileopts.h"
 #include "io/mgf/readmgf.h"
-#include "lookup.h"
-
-// Objects 'o' contexts can be nested this deep
-#define MAXIMUM_GEOMETRY_STACK_DEPTH 100
+#include "io/mgf/lookup.h"
+#include "io/mgf/mgfHandlerTransform.h"
+#include "io/mgf/MgfTransformContext.h"
+#include "io/mgf/mgfHandlerObject.h"
 
 // No face can have more than this vertices
 #define MAXIMUM_FACE_VERTICES 100
@@ -22,19 +22,14 @@ static VectorOctreeNode *globalPointsOctree = nullptr;
 static VectorOctreeNode *globalNormalsOctree = nullptr;
 
 // Elements for surface currently being created
-static java::ArrayList<Vector3D *> *globalCurrentPointList = nullptr;
-static java::ArrayList<Vector3D *> *globalCurrentNormalList = nullptr;
-static java::ArrayList<Vertex *> *globalCurrentVertexList = nullptr;
-static java::ArrayList<Patch *> *globalCurrentFaceList = nullptr;
-static java::ArrayList<Geometry *> *globalCurrentGeometryList = nullptr;
-static Material *globalCurrentMaterial = nullptr;
+java::ArrayList<Vector3D *> *GLOBAL_mgf_currentPointList = nullptr;
+java::ArrayList<Vector3D *> *GLOBAL_mgf_currentNormalList = nullptr;
+java::ArrayList<Vertex *> *GLOBAL_mgf_currentVertexList = nullptr;
+java::ArrayList<Patch *> *GLOBAL_mgf_currentFaceList = nullptr;
+java::ArrayList<Geometry *> *GLOBAL_mgf_currentGeometryList = nullptr;
 
 // Geometry stack: used for building a hierarchical representation of the scene
-static java::ArrayList<Geometry *> *globalGeometryStack[MAXIMUM_GEOMETRY_STACK_DEPTH];
-static java::ArrayList<Geometry *> **globalGeometryStackPtr = nullptr;
-
 static int globalInComplex = false; // True if reading a sphere, torus or other unsupported
-static int globalInSurface = false; // True if busy creating a new surface
 static bool globalAllSurfacesSided = false; // When set to true, all surfaces will be considered one-sided
 
 void
@@ -45,31 +40,6 @@ doError(const char *errmsg) {
 void
 doWarning(const char *errmsg) {
     logWarning(nullptr, (char *) "%s line %d: %s", GLOBAL_mgf_file->fileName, GLOBAL_mgf_file->lineNumber, errmsg);
-}
-
-static void
-pushCurrentGeometryList() {
-    if ( globalGeometryStackPtr - globalGeometryStack >= MAXIMUM_GEOMETRY_STACK_DEPTH ) {
-        doError(
-                "Objects are nested too deep for this program. Recompile with larger MAXIMUM_GEOMETRY_STACK_DEPTH constant in read mgf");
-        return;
-    } else {
-        *globalGeometryStackPtr = globalCurrentGeometryList;
-        globalGeometryStackPtr++;
-        globalCurrentGeometryList = nullptr;
-    }
-}
-
-static void
-popCurrentGeometryList() {
-    if ( globalGeometryStackPtr <= globalGeometryStack ) {
-        doError("Object stack underflow ... unbalanced 'o' contexts?");
-        globalCurrentGeometryList = nullptr;
-        return;
-    } else {
-        globalGeometryStackPtr--;
-        globalCurrentGeometryList = *globalGeometryStackPtr;
-    }
 }
 
 /**
@@ -154,46 +124,17 @@ mgfSetMonochrome(int yesno) {
     GLOBAL_fileOptions_monochrome = yesno;
 }
 
-static void
-newSurface() {
-    globalCurrentPointList = new java::ArrayList<Vector3D *>();
-    globalCurrentNormalList = new java::ArrayList<Vector3D *>();
-    globalCurrentVertexList = new java::ArrayList<Vertex *>();
-    globalCurrentFaceList = new java::ArrayList<Patch *>();
-    globalInSurface = true;
-}
-
-static void
-surfaceDone() {
-    if ( globalCurrentGeometryList == nullptr ) {
-        globalCurrentGeometryList = new java::ArrayList<Geometry *>();
-    }
-
-    if ( globalCurrentFaceList != nullptr ) {
-        Geometry *newGeometry = new MeshSurface(
-            globalCurrentMaterial,
-            globalCurrentPointList,
-            globalCurrentNormalList,
-            nullptr, // null texture coordinate list
-            globalCurrentVertexList,
-            globalCurrentFaceList,
-            MaterialColorFlags::NO_COLORS);
-        globalCurrentGeometryList->add(0, newGeometry);
-    }
-    globalInSurface = false;
-}
-
 static Vector3D *
 installPoint(float x, float y, float z) {
     Vector3D *coord = new Vector3D(x, y, z);
-    globalCurrentPointList->add(0, coord);
+    GLOBAL_mgf_currentPointList->add(0, coord);
     return coord;
 }
 
 static Vector3D *
 installNormal(float x, float y, float z) {
     Vector3D *norm = new Vector3D(x, y, z);
-    globalCurrentNormalList->add(0, norm);
+    GLOBAL_mgf_currentNormalList->add(0, norm);
     return norm;
 }
 
@@ -201,7 +142,7 @@ static Vertex *
 installVertex(Vector3D *coord, Vector3D *norm) {
     java::ArrayList<Patch *> *newPatchList = new java::ArrayList<Patch *>();
     Vertex *v = vertexCreate(coord, norm, nullptr, newPatchList);
-    globalCurrentVertexList->add(v);
+    GLOBAL_mgf_currentVertexList->add(v);
     return v;
 }
 
@@ -280,7 +221,7 @@ newFace(Vertex *v1, Vertex *v2, Vertex *v3, Vertex *v4, RadianceMethod *context)
         theFace = new Patch(numberOfVertices, v1, v2, v3, v4, context);
     }
 
-    globalCurrentFaceList->add(0, theFace);
+    GLOBAL_mgf_currentFaceList->add(0, theFace);
 
     return theFace;
 }
@@ -584,7 +525,7 @@ doComplexFace(int n, Vertex **v, Vector3D *normal, Vertex **backv, RadianceMetho
         if ( std::fabs(a) > EPSILON ) {
             // Avoid degenerate faces
             Patch *face = newFace(v[p0], v[p1], v[p2], nullptr, context);
-            if ( !globalCurrentMaterial->sided && face != nullptr ) {
+            if ( !GLOBAL_mgf_currentMaterial->sided && face != nullptr ) {
                 Patch *twin = newFace(backv[p2], backv[p1], backv[p0], nullptr, context);
                 face->twin = twin;
                 if ( twin != nullptr ) {
@@ -620,12 +561,12 @@ handleFaceEntity(int argc, char **argv, RadianceMethod *context) {
     }
 
     if ( !globalInComplex ) {
-        if ( mgfMaterialChanged(globalCurrentMaterial) ) {
-            if ( globalInSurface ) {
+        if ( mgfMaterialChanged(GLOBAL_mgf_currentMaterial) ) {
+            if ( GLOBAL_mgf_inSurface ) {
                 surfaceDone();
             }
             newSurface();
-            mgfGetCurrentMaterial(&globalCurrentMaterial, globalAllSurfacesSided);
+            mgfGetCurrentMaterial(&GLOBAL_mgf_currentMaterial, globalAllSurfacesSided);
         }
     }
 
@@ -636,7 +577,7 @@ handleFaceEntity(int argc, char **argv, RadianceMethod *context) {
             return MGF_ERROR_UNDEFINED_REFERENCE;
         }
         backV[i] = nullptr;
-        if ( !globalCurrentMaterial->sided )
+        if ( !GLOBAL_mgf_currentMaterial->sided )
             backV[i] = getBackFaceVertex(v[i]);
     }
 
@@ -644,13 +585,13 @@ handleFaceEntity(int argc, char **argv, RadianceMethod *context) {
         doWarning("degenerate face");
         return MGF_OK; // Just ignore the generated face
     }
-    if ( !globalCurrentMaterial->sided ) vectorScale(-1.0, normal, backNormal);
+    if ( !GLOBAL_mgf_currentMaterial->sided ) vectorScale(-1.0, normal, backNormal);
 
     errcode = MGF_OK;
     if ( argc == 4 ) {
         // Triangles
         face = newFace(v[0], v[1], v[2], nullptr, context);
-        if ( !globalCurrentMaterial->sided && face != nullptr ) {
+        if ( !GLOBAL_mgf_currentMaterial->sided && face != nullptr ) {
             twin = newFace(backV[2], backV[1], backV[0], nullptr, context);
             face->twin = twin;
             if ( twin != nullptr ) {
@@ -658,27 +599,51 @@ handleFaceEntity(int argc, char **argv, RadianceMethod *context) {
             }
         }
     } else if ( argc == 5 ) {
-        // Quadrilaterals
-        if ( globalInComplex || faceIsConvex(argc - 1, v, &normal)) {
-            face = newFace(v[0], v[1], v[2], v[3], context);
-            if ( !globalCurrentMaterial->sided && face != nullptr ) {
-                twin = newFace(backV[3], backV[2], backV[1], backV[0], context);
-                face->twin = twin;
-                if ( twin != nullptr ) {
-                    twin->twin = face;
+            // Quadrilaterals
+            if ( globalInComplex || faceIsConvex(argc - 1, v, &normal)) {
+                face = newFace(v[0], v[1], v[2], v[3], context);
+                if ( !GLOBAL_mgf_currentMaterial->sided && face != nullptr ) {
+                    twin = newFace(backV[3], backV[2], backV[1], backV[0], context);
+                    face->twin = twin;
+                    if ( twin != nullptr ) {
+                        twin->twin = face;
+                    }
                 }
+            } else {
+                doComplexFace(argc - 1, v, &normal, backV, context);
+                errcode = MGF_OK;
             }
         } else {
+            // More than 4 vertices
             doComplexFace(argc - 1, v, &normal, backV, context);
             errcode = MGF_OK;
         }
-    } else {
-        // More than 4 vertices
-        doComplexFace(argc - 1, v, &normal, backV, context);
-        errcode = MGF_OK;
-    }
 
     return errcode;
+}
+
+static int
+handleSurfaceEntity(int argc, char **argv, RadianceMethod *context) {
+    int errcode;
+
+    if ( globalInComplex ) {
+        // mgfEntitySphere calls mgfEntityCone
+        return doDiscretize(argc, argv, context);
+    } else {
+        globalInComplex = true;
+        if ( GLOBAL_mgf_inSurface ) {
+            surfaceDone();
+        }
+        newSurface();
+        mgfGetCurrentMaterial(&GLOBAL_mgf_currentMaterial, globalAllSurfacesSided);
+
+        errcode = doDiscretize(argc, argv, context);
+
+        surfaceDone();
+        globalInComplex = false;
+
+        return errcode;
+    }
 }
 
 /**
@@ -840,78 +805,6 @@ handleFaceWithHolesEntity(int argc, char **argv, RadianceMethod *context) {
 }
 
 static int
-handleSurfaceEntity(int argc, char **argv, RadianceMethod *context) {
-    int errcode;
-
-    if ( globalInComplex ) {
-        // mgfEntitySphere calls mgfEntityCone
-        return doDiscretize(argc, argv, context);
-    } else {
-        globalInComplex = true;
-        if ( globalInSurface ) {
-            surfaceDone();
-        }
-        newSurface();
-        mgfGetCurrentMaterial(&globalCurrentMaterial, globalAllSurfacesSided);
-
-        errcode = doDiscretize(argc, argv, context);
-
-        surfaceDone();
-        globalInComplex = false;
-
-        return errcode;
-    }
-}
-
-static int
-handleObjectEntity(int argc, char **argv, RadianceMethod * /*context*/) {
-    int i;
-
-    if ( argc > 1 ) {
-        // Beginning of a new object
-        for ( i = 0; i < globalGeometryStackPtr - globalGeometryStack; i++ ) {
-            fprintf(stderr, "\t");
-        }
-        fprintf(stderr, "%s ...\n", argv[1]);
-
-        if ( globalInSurface ) {
-            surfaceDone();
-        }
-
-        pushCurrentGeometryList();
-
-        newSurface();
-    } else {
-        // End of object definition
-        Geometry *theGeometry = nullptr;
-
-        if ( globalInSurface ) {
-            surfaceDone();
-        }
-
-        long listSize = 0;
-        if ( globalCurrentGeometryList != nullptr ) {
-            listSize += globalCurrentGeometryList->size();
-        }
-
-        if ( listSize > 0 ) {
-            theGeometry = geomCreateCompound(new Compound(globalCurrentGeometryList));
-        }
-
-        popCurrentGeometryList();
-
-        if ( theGeometry ) {
-            globalCurrentGeometryList->add(0, theGeometry);
-            GLOBAL_scene_geometries = globalCurrentGeometryList;
-        }
-
-        newSurface();
-    }
-
-    return handleObject2Entity(argc, argv);
-}
-
-static int
 handleUnknownEntity(int /*argc*/, char ** /*argv*/) {
     doWarning("unknown entity");
 
@@ -1022,14 +915,10 @@ handleVertexEntity(int ac, char **av, RadianceMethod * /*context*/)
 
 static void
 initMgf() {
-    GLOBAL_mgf_handleCallbacks[MGF_ENTITY_FACE] = handleFaceEntity;
-    GLOBAL_mgf_handleCallbacks[MGF_ENTITY_FACE_WITH_HOLES] = handleFaceWithHolesEntity;
-    GLOBAL_mgf_handleCallbacks[MGF_ENTITY_VERTEX] = handleVertexEntity;
-    GLOBAL_mgf_handleCallbacks[MGF_ENTITY_POINT] = handleVertexEntity;
-    GLOBAL_mgf_handleCallbacks[MGF_ENTITY_NORMAL] = handleVertexEntity;
     GLOBAL_mgf_handleCallbacks[MGF_ENTITY_COLOR] = handleColorEntity;
     GLOBAL_mgf_handleCallbacks[MGF_ENTITY_CXY] = handleColorEntity;
     GLOBAL_mgf_handleCallbacks[MGF_ENTITY_C_MIX] = handleColorEntity;
+
     GLOBAL_mgf_handleCallbacks[MGF_ENTITY_MATERIAL] = handleMaterialEntity;
     GLOBAL_mgf_handleCallbacks[MGF_ENTITY_ED] = handleMaterialEntity;
     GLOBAL_mgf_handleCallbacks[MGF_ENTITY_IR] = handleMaterialEntity;
@@ -1038,8 +927,16 @@ initMgf() {
     GLOBAL_mgf_handleCallbacks[MGF_ENTITY_SIDES] = handleMaterialEntity;
     GLOBAL_mgf_handleCallbacks[MGF_ENTITY_TD] = handleMaterialEntity;
     GLOBAL_mgf_handleCallbacks[MGF_ENTITY_TS] = handleMaterialEntity;
-    GLOBAL_mgf_handleCallbacks[MGF_ENTITY_OBJECT] = handleObjectEntity;
+
     GLOBAL_mgf_handleCallbacks[MGF_ENTITY_XF] = handleTransformationEntity;
+
+    GLOBAL_mgf_handleCallbacks[MGF_ENTITY_OBJECT] = handleObjectEntity;
+
+    GLOBAL_mgf_handleCallbacks[MGF_ENTITY_FACE] = handleFaceEntity;
+    GLOBAL_mgf_handleCallbacks[MGF_ENTITY_FACE_WITH_HOLES] = handleFaceWithHolesEntity;
+    GLOBAL_mgf_handleCallbacks[MGF_ENTITY_VERTEX] = handleVertexEntity;
+    GLOBAL_mgf_handleCallbacks[MGF_ENTITY_POINT] = handleVertexEntity;
+    GLOBAL_mgf_handleCallbacks[MGF_ENTITY_NORMAL] = handleVertexEntity;
     GLOBAL_mgf_handleCallbacks[MGF_ENTITY_SPHERE] = handleSurfaceEntity;
     GLOBAL_mgf_handleCallbacks[MGF_ENTITY_TORUS] = handleSurfaceEntity;
     GLOBAL_mgf_handleCallbacks[MGF_ENTITY_RING] = handleSurfaceEntity;
@@ -1053,24 +950,24 @@ initMgf() {
 
 static void
 freeLists() {
-    if ( globalCurrentPointList != nullptr ) {
-        delete globalCurrentPointList;
-        globalCurrentPointList = nullptr;
+    if ( GLOBAL_mgf_currentPointList != nullptr ) {
+        delete GLOBAL_mgf_currentPointList;
+        GLOBAL_mgf_currentPointList = nullptr;
     }
 
-    if ( globalCurrentNormalList != nullptr ) {
-        delete globalCurrentNormalList;
-        globalCurrentNormalList = nullptr;
+    if ( GLOBAL_mgf_currentNormalList != nullptr ) {
+        delete GLOBAL_mgf_currentNormalList;
+        GLOBAL_mgf_currentNormalList = nullptr;
     }
 
-    if ( globalCurrentVertexList != nullptr ) {
-        delete globalCurrentVertexList;
-        globalCurrentVertexList = nullptr;
+    if ( GLOBAL_mgf_currentVertexList != nullptr ) {
+        delete GLOBAL_mgf_currentVertexList;
+        GLOBAL_mgf_currentVertexList = nullptr;
     }
 
-    if ( globalCurrentFaceList != nullptr ) {
-        delete globalCurrentFaceList;
-        globalCurrentFaceList = nullptr;
+    if ( GLOBAL_mgf_currentFaceList != nullptr ) {
+        delete GLOBAL_mgf_currentFaceList;
+        GLOBAL_mgf_currentFaceList = nullptr;
     }
 }
 
@@ -1092,17 +989,17 @@ readMgf(
 
     globalPointsOctree = nullptr;
     globalNormalsOctree = nullptr;
-    globalCurrentGeometryList = new java::ArrayList<Geometry *>();
+    GLOBAL_mgf_currentGeometryList = new java::ArrayList<Geometry *>();
 
     if ( GLOBAL_scene_materials == nullptr ) {
         GLOBAL_scene_materials = new java::ArrayList<Material *>();
     }
-    globalCurrentMaterial = &GLOBAL_material_defaultMaterial;
+    GLOBAL_mgf_currentMaterial = &GLOBAL_material_defaultMaterial;
 
-    globalGeometryStackPtr = globalGeometryStack;
+    GLOBAL_mgf_geometryStackPtr = GLOBAL_mgf_geometryStack;
 
     globalInComplex = false;
-    globalInSurface = false;
+    GLOBAL_mgf_inSurface = false;
 
     newSurface();
 
@@ -1126,10 +1023,10 @@ readMgf(
     }
     mgfClear();
 
-    if ( globalInSurface ) {
+    if ( GLOBAL_mgf_inSurface ) {
         surfaceDone();
     }
-    GLOBAL_scene_geometries = globalCurrentGeometryList;
+    GLOBAL_scene_geometries = GLOBAL_mgf_currentGeometryList;
 
     if ( globalPointsOctree != nullptr) {
         free(globalPointsOctree);
@@ -1141,14 +1038,14 @@ readMgf(
 
 void
 mgfFreeMemory() {
-    printf("Freeing %ld geometries\n", globalCurrentGeometryList->size());
+    printf("Freeing %ld geometries\n", GLOBAL_mgf_currentGeometryList->size());
     long surfaces = 0;
     long patchSets = 0;
-    for ( int i = 0; i < globalCurrentGeometryList->size(); i++ ) {
-        if ( globalCurrentGeometryList->get(i)->className == SURFACE_MESH ) {
+    for ( int i = 0; i < GLOBAL_mgf_currentGeometryList->size(); i++ ) {
+        if ( GLOBAL_mgf_currentGeometryList->get(i)->className == SURFACE_MESH ) {
             surfaces++;
         }
-        if ( globalCurrentGeometryList->get(i)->className == PATCH_SET ) {
+        if ( GLOBAL_mgf_currentGeometryList->get(i)->className == PATCH_SET ) {
             patchSets++;
         }
     }
@@ -1156,11 +1053,11 @@ mgfFreeMemory() {
     printf("  - Patch sets: %ld\n", patchSets);
     fflush(stdout);
 
-    for ( int i = 0; i < globalCurrentGeometryList->size(); i++ ) {
-        geomDestroy(globalCurrentGeometryList->get(i));
+    for ( int i = 0; i < GLOBAL_mgf_currentGeometryList->size(); i++ ) {
+        geomDestroy(GLOBAL_mgf_currentGeometryList->get(i));
     }
-    delete globalCurrentGeometryList;
-    globalCurrentGeometryList = nullptr;
+    delete GLOBAL_mgf_currentGeometryList;
+    GLOBAL_mgf_currentGeometryList = nullptr;
 
     freeLists();
 }

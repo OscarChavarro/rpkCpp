@@ -206,8 +206,6 @@ Definitions for hierarchical object name handler
 extern int GLOBAL_mgf_objectNames; // Depth of name hierarchy
 extern char **GLOBAL_mgf_objectNamesList; // Names in hierarchy
 
-extern int handleObject2Entity(int ac, char **av);
-
 /**
 Definitions for hierarchical transformation handler
 */
@@ -236,17 +234,6 @@ class MgfTransformArray {
     MgfTransformArrayArgument transformArguments[TRANSFORM_MAXIMUM_DIMENSIONS];
 };
 
-class MgfTransformSpec {
-  public:
-    long xid; // Unique transform id
-    short xac; // Context argument count
-    short rev; // Boolean true if vertices reversed
-    XF xf; // Cumulative transformation
-    MgfTransformArray *xarr; // Transformation array pointer
-    MgfTransformSpec *prev; // Previous transformation context
-}; // Followed by argument buffer
-
-extern MgfTransformSpec *GLOBAL_mgf_xfContext; // Current transform context
 extern char **GLOBAL_mgf_xfLastTransform; // Last transform argument
 extern MgfVertexContext GLOBAL_mgf_defaultVertexContext;
 
@@ -254,21 +241,5 @@ extern MgfVertexContext GLOBAL_mgf_defaultVertexContext;
 #define xf_av(xf) (GLOBAL_mgf_xfLastTransform - (xf)->xac)
 #define xf_argc xf_ac(GLOBAL_mgf_xfContext)
 #define xf_xid(xf) ((xf)==nullptr ? 0 : (xf)->xid)
-
-/**
-The transformation handler should do most of the work that needs
-doing. Just globalPass it any xf entities, then use the associated
-functions to transform and translate positions, transform vectors
-(without translation), rotate vectors (without scaling) and scale
-values appropriately.
-
-The routines mgfTransformPoint, mgfTransformVector and xf_rotvect take two
-3-D vectors (which may be identical), transforms the second and
-puts the result into the first.
-*/
-
-extern int handleTransformationEntity(int ac, char **av, RadianceMethod * /*context*/); // Handle xf entity
-extern void mgfTransformPoint(VECTOR3Dd v1, VECTOR3Dd v2); // Transform point
-extern void mgfTransformVector(VECTOR3Dd v1, VECTOR3Dd v2); // Transform vector
 
 #endif

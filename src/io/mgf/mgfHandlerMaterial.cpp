@@ -33,6 +33,8 @@
     0.0f \
 }
 
+Material *GLOBAL_mgf_currentMaterial = nullptr;
+
 static MgfMaterialContext globalUnNamedMaterialContext = DEFAULT_MATERIAL;
 static MgfMaterialContext globalDefaultMgfMaterial = DEFAULT_MATERIAL;
 static MgfMaterialContext *globalMgfCurrentMaterial = &globalUnNamedMaterialContext;

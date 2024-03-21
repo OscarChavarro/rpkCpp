@@ -9,6 +9,7 @@ Parse an mgf file, converting or discarding unsupported entities.
 #include "io/mgf/lookup.h"
 #include "io/mgf/messages.h"
 #include "io/mgf/parser.h"
+#include "MgfTransformContext.h"
 
 /*
  * Global definitions of variables declared in parser.h
@@ -540,7 +541,7 @@ handleIncludedFile(int ac, char **av, RadianceMethod *context)
 {
     char *xfarg[MGF_MAXIMUM_ARGUMENT_COUNT];
     MgfReaderContext ictx{};
-    MgfTransformSpec *xf_orig = GLOBAL_mgf_xfContext;
+    MgfTransformContext *xf_orig = GLOBAL_mgf_xfContext;
 
     if ( ac < 2 ) {
         return MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;

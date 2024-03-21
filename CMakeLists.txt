@@ -76,11 +76,11 @@ set(MAIN_SRC
     src/IMAGE/tonemap/trwf.cpp
     src/IMAGE/adaptation.cpp
     src/io/mgf/readmgf.cpp
-    src/io/mgf/object.cpp
+    src/io/mgf/mgfHandlerObject.cpp
     src/io/mgf/lookup.cpp
     src/io/mgf/fileopts.cpp
     src/io/mgf/badarg.cpp
-    src/io/mgf/xf.cpp
+    src/io/mgf/mgfHandlerTransform.cpp
     src/io/mgf/words.cpp
     src/io/mgf/Vector3Dd.cpp
     src/io/mgf/parser.cpp
