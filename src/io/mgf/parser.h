@@ -7,6 +7,7 @@
 #include "skin/RadianceMethod.h"
 #include "io/mgf/Vector3Dd.h"
 #include "io/mgf/MgfColorContext.h"
+#include "io/mgf/mgfHandlerMaterial.h"
 
 // Major version number
 #define MGF_MAJOR_VERSION_NUMBER 2
@@ -225,7 +226,6 @@ extern char *GLOBAL_mgf_currentVertexName;
 extern MgfVertexContext GLOBAL_mgf_vertexContext;
 
 extern int handleColorEntity(int ac, char **av, RadianceMethod * /*context*/);
-extern int handleMaterialEntity(int ac, char **av, RadianceMethod * /*context*/);
 extern int handleVertexEntity(int ac, char **av, RadianceMethod * /*context*/);
 extern void clearContextTables();
 extern MgfVertexContext *getNamedVertex(char *name);

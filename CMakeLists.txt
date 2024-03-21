@@ -170,7 +170,7 @@ set(MAIN_SRC
     src/app/radiance.cpp
     src/app/raytrace.cpp
     src/app/batch.cpp
-    src/app/main.cpp)
+    src/app/main.cpp src/io/mgf/mgfHandlerMaterial.cpp src/io/mgf/mgfHandlerMaterial.h)
 add_executable(rpk ${MAIN_SRC})
 
 target_link_libraries(rpk GLU GL OSMesa)
