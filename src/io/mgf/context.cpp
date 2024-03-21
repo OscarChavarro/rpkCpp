@@ -22,12 +22,12 @@ bblm(double t) {
 }
 
 /* default context values */
-static MgfColorContext c_dfcolor = C_DEFCOLOR;
+static MgfColorContext c_dfcolor = C_DEF_COLOR;
 static MgfMaterialContext c_dfmaterial = C_DEFMATERIAL;
 static MgfVertexContext c_dfvertex = C_DEFVERTEX;
 
 /* the unnamed contexts */
-static MgfColorContext c_uncolor = C_DEFCOLOR;
+static MgfColorContext c_uncolor = C_DEF_COLOR;
 static MgfMaterialContext c_unmaterial = C_DEFMATERIAL;
 static MgfVertexContext c_unvertex = C_DEFVERTEX;
 
@@ -594,13 +594,13 @@ mgfContextFixColorRepresentation(MgfColorContext *clr, int fl)
         y = 0.0;
         z = 0.0;
         for ( i = 0; i < C_CNSS; i++ ) {
-            x += cie_xf.ssamp[i] * clr->ssamp[i];
-            y += cie_yf.ssamp[i] * clr->ssamp[i];
-            z += cie_zf.ssamp[i] * clr->ssamp[i];
+            x += cie_xf.straightSamples[i] * clr->straightSamples[i];
+            y += cie_yf.straightSamples[i] * clr->straightSamples[i];
+            z += cie_zf.straightSamples[i] * clr->straightSamples[i];
         }
-        x /= (double) cie_xf.ssum;
-        y /= (double) cie_yf.ssum;
-        z /= (double) cie_zf.ssum;
+        x /= (double) cie_xf.spectralStraightSum;
+        y /= (double) cie_yf.spectralStraightSum;
+        z /= (double) cie_zf.spectralStraightSum;
         z += x + y;
         clr->cx = (float)(x / z);
         clr->cy = (float)(y / z);
@@ -610,15 +610,15 @@ mgfContextFixColorRepresentation(MgfColorContext *clr, int fl)
         x = clr->cx;
         y = clr->cy;
         z = 1.0 - x - y;
-        clr->ssum = 0;
+        clr->spectralStraightSum = 0;
         for ( i = 0; i < C_CNSS; i++ ) {
-            clr->ssamp[i] = (short)std::lround(x * cie_xp.ssamp[i] + y * cie_yp.ssamp[i]
-                            + z * cie_zp.ssamp[i] + 0.5);
-            if ( clr->ssamp[i] < 0 ) {
+            clr->straightSamples[i] = (short)std::lround(x * cie_xp.straightSamples[i] + y * cie_yp.straightSamples[i]
+                                                         + z * cie_zp.straightSamples[i] + 0.5);
+            if ( clr->straightSamples[i] < 0 ) {
                 // Out of gamut!
-                clr->ssamp[i] = 0;
+                clr->straightSamples[i] = 0;
             } else {
-                clr->ssum += clr->ssamp[i];
+                clr->spectralStraightSum += clr->straightSamples[i];
             }
         }
         clr->flags |= C_CSSPEC;
@@ -629,9 +629,9 @@ mgfContextFixColorRepresentation(MgfColorContext *clr, int fl)
             // From spectrum
             y = 0.0;
             for ( i = 0; i < C_CNSS; i++ ) {
-                y += cie_yf.ssamp[i] * clr->ssamp[i];
+                y += cie_yf.straightSamples[i] * clr->straightSamples[i];
             }
-            clr->eff = C_CLPWM * y / (double)clr->ssum;
+            clr->eff = C_CLPWM * y / (double)clr->spectralStraightSum;
         } else {
             // clr->flags & C_CSXY from (x,y)
             clr->eff = (float)(clr->cx * cie_xf.eff + clr->cy * cie_yf.eff +
@@ -703,26 +703,26 @@ setSpectrum(MgfColorContext *clr, double wlmin, double wlmax, int ac, char **av)
         return MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
     }
     scale = C_CMAXV / scale;
-    clr->ssum = 0; // Convert to our spacing
+    clr->spectralStraightSum = 0; // Convert to our spacing
     wl0 = wlmin;
     pos = 0;
     for ( i = 0, wl = C_CMINWL; i < C_CNSS; i++, wl += C_CWLI) {
         if ( wl < wlmin || wl > wlmax ) {
-            clr->ssamp[i] = 0;
+            clr->straightSamples[i] = 0;
         } else {
             while ( wl0 + wlstep < wl + FLOAT_TINY) {
                 wl0 += wlstep;
                 pos++;
             }
             if ( wl + FLOAT_TINY >= wl0 && wl - FLOAT_TINY <= wl0 ) {
-                clr->ssamp[i] = (short)std::lround(scale * va[pos] + 0.5);
+                clr->straightSamples[i] = (short)std::lround(scale * va[pos] + 0.5);
             } else {
                 // Interpolate if necessary
-                clr->ssamp[i] = (short)std::lround(0.5 + scale / wlstep *
-                                     (va[pos] * (wl0 + wlstep - wl) +
+                clr->straightSamples[i] = (short)std::lround(0.5 + scale / wlstep *
+                                                                   (va[pos] * (wl0 + wlstep - wl) +
                                       va[pos + 1] * (wl - wl0)));
             }
-            clr->ssum += clr->ssamp[i];
+            clr->spectralStraightSum += clr->straightSamples[i];
         }
     }
     clr->flags = C_CDSPEC | C_CSSPEC;
@@ -749,19 +749,19 @@ mixColors(
         // Spectral mixing
         mgfContextFixColorRepresentation(c1, C_CSSPEC | C_CSEFF);
         mgfContextFixColorRepresentation(c2, C_CSSPEC | C_CSEFF);
-        w1 /= c1->eff * (float) c1->ssum;
-        w2 /= c2->eff * (float) c2->ssum;
+        w1 /= c1->eff * (float) c1->spectralStraightSum;
+        w2 /= c2->eff * (float) c2->spectralStraightSum;
         scale = 0.0;
         for ( i = 0; i < C_CNSS; i++ ) {
-            cmix[i] = (float)(w1 * c1->ssamp[i] + w2 * c2->ssamp[i]);
+            cmix[i] = (float)(w1 * c1->straightSamples[i] + w2 * c2->straightSamples[i]);
             if ( cmix[i] > scale ) {
                 scale = cmix[i];
             }
         }
         scale = C_CMAXV / scale;
-        cres->ssum = 0;
+        cres->spectralStraightSum = 0;
         for ( i = 0; i < C_CNSS; i++ ) {
-            cres->ssum += cres->ssamp[i] = (short)std::lround(scale * cmix[i] + 0.5);
+            cres->spectralStraightSum += cres->straightSamples[i] = (short)std::lround(scale * cmix[i] + 0.5);
         }
         cres->flags = C_CDSPEC | C_CSSPEC;
     } else {
@@ -800,10 +800,10 @@ setbbtemp(MgfColorContext *clr, double tk)
         wl = C_CMAXWL * 1e-9;
     }
     sf = C_CMAXV / bbsp(wl, tk);
-    clr->ssum = 0;
+    clr->spectralStraightSum = 0;
     for ( i = 0; i < C_CNSS; i++ ) {
         wl = (C_CMINWL + (float)i * C_CWLI) * 1e-9;
-        clr->ssum += clr->ssamp[i] = (short)std::lround(sf * bbsp(wl, tk) + 0.5);
+        clr->spectralStraightSum += clr->straightSamples[i] = (short)std::lround(sf * bbsp(wl, tk) + 0.5);
     }
     clr->flags = C_CDSPEC | C_CSSPEC;
     clr->clock++;

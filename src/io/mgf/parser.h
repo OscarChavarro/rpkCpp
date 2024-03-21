@@ -196,9 +196,6 @@ round0(FLOAT &x) {
     }
 }
 
-extern double normalize(FVECT);
-extern void floatCrossProduct(FVECT result, const FVECT a, const FVECT b);
-
 /**
 Definitions for context handling routines (materials, colors, vectors)
 */
@@ -219,21 +216,23 @@ class MgfColorContext {
 public:
     int clock; // Incremented each change
     short flags; // What's been set
-    short ssamp[C_CNSS]; // Spectral samples, min wl to max
-    long ssum; // Straight sum of spectral values
+    short straightSamples[C_CNSS]; // Spectral samples, min wl to max
+    long spectralStraightSum; // Straight sum of spectral values
     float cx; // Chromaticity X value
     float cy; // chromaticity Y value
-    float eff; // efficacy (lumens/watt)
+    float eff; // efficacy (lumens / watt)
 };
 
-#define C_DEFCOLOR { 1, C_CDXY|C_CSXY|C_CSSPEC|C_CSEFF,\
-    {C_CMAXV,C_CMAXV,C_CMAXV,C_CMAXV,C_CMAXV,\
-    C_CMAXV,C_CMAXV,C_CMAXV,C_CMAXV,C_CMAXV,C_CMAXV,\
-    C_CMAXV,C_CMAXV,C_CMAXV,C_CMAXV,C_CMAXV,C_CMAXV,\
-    C_CMAXV,C_CMAXV,C_CMAXV,C_CMAXV,C_CMAXV,C_CMAXV,\
-    C_CMAXV,C_CMAXV,C_CMAXV,C_CMAXV,C_CMAXV,C_CMAXV,\
-    C_CMAXV,C_CMAXV,C_CMAXV,C_CMAXV,C_CMAXV,C_CMAXV,\
-    C_CMAXV,C_CMAXV,C_CMAXV,C_CMAXV,C_CMAXV,C_CMAXV},\
+#define C_DEF_COLOR { 1, C_CDXY|C_CSXY|C_CSSPEC|C_CSEFF,\
+    { \
+        C_CMAXV, C_CMAXV, C_CMAXV, C_CMAXV, C_CMAXV, \
+        C_CMAXV, C_CMAXV, C_CMAXV, C_CMAXV, C_CMAXV, C_CMAXV, \
+        C_CMAXV, C_CMAXV, C_CMAXV, C_CMAXV, C_CMAXV, C_CMAXV, \
+        C_CMAXV, C_CMAXV, C_CMAXV, C_CMAXV, C_CMAXV, C_CMAXV, \
+        C_CMAXV, C_CMAXV, C_CMAXV, C_CMAXV, C_CMAXV, C_CMAXV, \
+        C_CMAXV, C_CMAXV, C_CMAXV, C_CMAXV, C_CMAXV, C_CMAXV, \
+        C_CMAXV, C_CMAXV, C_CMAXV, C_CMAXV, C_CMAXV, C_CMAXV \
+    }, \
     (long)C_CNSS*C_CMAXV, 1.0/3.0, 1.0/3.0, 178.006 }
 
 class MgfMaterialContext {
@@ -258,15 +257,15 @@ class MgfMaterialContext {
 
 class MgfVertexContext {
   public:
-    FVECT p; // Point
-    FVECT n; // Normal
+    VECTOR3Dd p; // Point
+    VECTOR3Dd n; // Normal
     long xid; // Transform id of transform last time the vertex was modified (or created)
     int clock; // Incremented each change -- resettable
-    void *client_data; // Client data -- initialized to nullptr by the parser
+    void *clientData; // Client data -- initialized to nullptr by the parser
 };
 
-#define C_DEFMATERIAL {1, 0, 1.0, 0.0, 0.0, C_DEFCOLOR, 0.0, C_DEFCOLOR, 0.0, C_DEFCOLOR,\
-                    0.0, C_DEFCOLOR, 0.0, 0.0, C_DEFCOLOR, 0.0}
+#define C_DEFMATERIAL {1, 0, 1.0, 0.0, 0.0, C_DEF_COLOR, 0.0, C_DEF_COLOR, 0.0, C_DEF_COLOR,\
+                    0.0, C_DEF_COLOR, 0.0, 0.0, C_DEF_COLOR, 0.0}
 #define C_DEFVERTEX {{0.0, 0.0, 0.0}, {0.0, 0.0, 0.0}, 0, 1, (void *)nullptr}
 
 extern MgfColorContext *GLOBAL_mgf_currentColor;
@@ -295,48 +294,41 @@ extern int handleObject2Entity(int ac, char **av);
 Definitions for hierarchical transformation handler
 */
 
-typedef FLOAT MAT4[4][4];
-
-#define MAT4IDENT { {1.0, 0.0, 0.0, 0.0}, {0.0, 1.0, 0.0, 0.0}, \
-                {0.0, 0.0, 1.0, 0.0}, {0.0, 0.0, 0.0, 1.0} }
-
-extern MAT4 GLOBAL_mgf_m4Ident;
-
 // Regular transformation
 class XF {
   public:
-    MAT4 xfm; // Transform matrix
+    MATRIX4Dd xfm; // Transform matrix
     FLOAT sca; // Scale factor
 };
 
 // Maximum array dimensions
 #define XF_MAXDIM 8
 
-class XfArrayArg {
+class MgfTransformArrayArgument {
   public:
     short i; // Current count
     short n; // Current maximum
     char arg[8]; // String argument value
 };
 
-class XfArray {
+class MgfTransformArray {
   public:
-    MgdReaderFilePosition spos; // Starting position on input
-    int ndim; // Number of array dimensions
-    XfArrayArg aarg[XF_MAXDIM];
+    MgdReaderFilePosition startingPosition; // Starting position on input
+    int numberOfDimensions; // Number of array dimensions
+    MgfTransformArrayArgument transformArguments[XF_MAXDIM];
 };
 
-class XfSpec {
-public:
+class MgfTransformSpec {
+  public:
     long xid; // Unique transform id
     short xac; // Context argument count
     short rev; // Boolean true if vertices reversed
     XF xf; // Cumulative transformation
-    XfArray *xarr; // Transformation array pointer
-    XfSpec *prev; // Previous transformation context
+    MgfTransformArray *xarr; // Transformation array pointer
+    MgfTransformSpec *prev; // Previous transformation context
 }; // Followed by argument buffer
 
-extern XfSpec *GLOBAL_mgf_xfContext; // Current transform context
+extern MgfTransformSpec *GLOBAL_mgf_xfContext; // Current transform context
 extern char **GLOBAL_mgf_xfLastTransform; // Last transform argument
 
 #define xf_ac(xf) ((xf)==nullptr ? 0 : (xf)->xac)
@@ -357,7 +349,7 @@ puts the result into the first.
 */
 
 extern int handleTransformationEntity(int ac, char **av, RadianceMethod * /*context*/); // Handle xf entity
-extern void mgfTransformPoint(FVECT v1, FVECT v2); // Transform point
-extern void mgfTransformVector(FVECT v1, FVECT v2); // Transform vector
+extern void mgfTransformPoint(VECTOR3Dd v1, VECTOR3Dd v2); // Transform point
+extern void mgfTransformVector(VECTOR3Dd v1, VECTOR3Dd v2); // Transform vector
 
 #endif

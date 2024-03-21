@@ -75,8 +75,8 @@ popCurrentGeometryList() {
 Returns squared distance between the two vectors
 */
 static double
-distanceSquared(FVECT *v1, FVECT *v2) {
-    FVECT d;
+distanceSquared(VECTOR3Dd *v1, VECTOR3Dd *v2) {
+    VECTOR3Dd d;
 
     d[0] = (*v2)[0] - (*v1)[0];
     d[1] = (*v2)[1] - (*v1)[1];
@@ -439,12 +439,12 @@ getVertex(char *name) {
         return nullptr;
     }
 
-    theVertex = (Vertex *) (vp->client_data);
+    theVertex = (Vertex *) (vp->clientData);
     if ( !theVertex || vp->clock >= 1 || vp->xid != xf_xid(GLOBAL_mgf_xfContext) || is0Vector(vp->n)) {
         // New vertex, or updated vertex or same vertex, but other transform, or
         // vertex without normal: create a new Vertex
-        FVECT vert;
-        FVECT norm;
+        VECTOR3Dd vert;
+        VECTOR3Dd norm;
         Vector3D *theNormal;
         Vector3D *thePoint;
 
@@ -457,7 +457,7 @@ getVertex(char *name) {
             theNormal = installNormal((float)norm[0], (float)norm[1], (float)norm[2]);
         }
         theVertex = installVertex(thePoint, theNormal);
-        vp->client_data = (void *) theVertex;
+        vp->clientData = (void *) theVertex;
         vp->xid = xf_xid(GLOBAL_mgf_xfContext);
     }
     vp->clock = 0;
@@ -912,7 +912,7 @@ without hole entity handling routine handleFaceEntity() and calls it
 */
 static int
 handleFaceWithHolesEntity(int argc, char **argv, RadianceMethod *context) {
-    FVECT v[MAXIMUM_FACE_VERTICES + 1]; // v[i] = location of vertex argv[i]
+    VECTOR3Dd v[MAXIMUM_FACE_VERTICES + 1]; // v[i] = location of vertex argv[i]
     char *nargv[MAXIMUM_FACE_VERTICES + 1], // Arguments to be passed to the face
                                             // without hole entity handler
     copied[MAXIMUM_FACE_VERTICES + 1]; // copied[i] is 1 or 0 indicating if

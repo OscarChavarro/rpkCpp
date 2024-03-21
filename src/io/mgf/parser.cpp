@@ -65,29 +65,6 @@ mgfDiscardUnNeededEntity(int /*ac*/, char ** /*av*/, RadianceMethod * /*context*
 }
 
 /**
-Compute u and v given w (normalized)
-*/
-static void
-mgfMakeAxes(double *u, double *v, const double *w)
-{
-    v[0] = 0.0;
-    v[1] = 0.0;
-    v[2] = 0.0;
-
-    int i;
-    for ( i = 0; i < 3; i++ ) {
-        if ( w[i] > -0.6 && w[i] < 0.6 ) {
-            break;
-        }
-    }
-    v[i] = 1.0;
-
-    floatCrossProduct(u, v, w);
-    normalize(u);
-    floatCrossProduct(v, w, u);
-}
-
-/**
 Put out current xy chromaticities
 */
 static int
@@ -120,9 +97,9 @@ mgfPutCSpec(RadianceMethod *context)
         newav[0] = GLOBAL_mgf_entityNames[MG_E_CSPEC];
         newav[1] = wl[0];
         newav[2] = wl[1];
-        sf = (double)C_CNSS / (double)GLOBAL_mgf_currentColor->ssum;
+        sf = (double)C_CNSS / (double)GLOBAL_mgf_currentColor->spectralStraightSum;
         for ( i = 0; i < C_CNSS; i++ ) {
-            snprintf(vbuf[i], 24, "%.4f", sf * GLOBAL_mgf_currentColor->ssamp[i]);
+            snprintf(vbuf[i], 24, "%.4f", sf * GLOBAL_mgf_currentColor->straightSamples[i]);
             newav[i + 3] = vbuf[i];
         }
         newav[C_CNSS + 3] = nullptr;
@@ -563,7 +540,7 @@ handleIncludedFile(int ac, char **av, RadianceMethod *context)
 {
     char *xfarg[MGF_MAXIMUM_ARGUMENT_COUNT];
     MgfReaderContext ictx{};
-    XfSpec *xf_orig = GLOBAL_mgf_xfContext;
+    MgfTransformSpec *xf_orig = GLOBAL_mgf_xfContext;
 
     if ( ac < 2 ) {
         return MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
@@ -923,8 +900,8 @@ mgfEntityRing(int ac, char **av, RadianceMethod *context)
     }
 
     // Initialize
-    FVECT u;
-    FVECT v;
+    VECTOR3Dd u;
+    VECTOR3Dd v;
 
     mgfMakeAxes(u, v, cv->n);
     for ( j = 0; j < 3; j++ ) {
@@ -1051,10 +1028,6 @@ mgfEntityCone(int ac, char **av, RadianceMethod *context)
     char *v1n;
     MgfVertexContext *cv1;
     MgfVertexContext *cv2;
-    int i, j;
-    FVECT u;
-    FVECT v;
-    FVECT w;
     double rad1;
     double rad2;
     int sgn;
@@ -1103,7 +1076,9 @@ mgfEntityCone(int ac, char **av, RadianceMethod *context)
     sgn = rad2 < 0.0 ? -1 : 1;
 
     // Initialize
-    for ( j = 0; j < 3; j++ ) {
+    VECTOR3Dd w;
+
+    for ( int j = 0; j < 3; j++ ) {
         w[j] = cv1->p[j] - cv2->p[j];
     }
     d = normalize(w);
@@ -1121,8 +1096,11 @@ mgfEntityCone(int ac, char **av, RadianceMethod *context)
             n2off = std::tan(d);
         }
     }
+
+    VECTOR3Dd u;
+    VECTOR3Dd v;
     mgfMakeAxes(u, v, w);
-    for ( j = 0; j < 3; j++ ) {
+    for ( int j = 0; j < 3; j++ ) {
         snprintf(p3[j], 24, globalFloatFormat, cv2->p[j] + rad2 * u[j]);
         if ( n2off <= -FLOAT_HUGE) {
             snprintf(n3[j], 24, globalFloatFormat, -w[j]);
@@ -1142,27 +1120,28 @@ mgfEntityCone(int ac, char **av, RadianceMethod *context)
     if ( rv != MGF_OK ) {
         return rv;
     }
-    if ( rad1 == 0.0 ) { // TODO: Review floating point comparisons vs EPSILON
+    if ( rad1 == 0.0 ) {
+        // TODO: Review floating point comparisons vs EPSILON
         // Triangles
         v1ent[3] = v1n;
         rv = mgfHandle(MG_E_VERTEX, 4, v1ent, context);
         if ( rv != MGF_OK ) {
             return rv;
         }
-        for ( j = 0; j < 3; j++ ) {
+        for ( int j = 0; j < 3; j++ ) {
             snprintf(n4[j], 24, globalFloatFormat, w[j]);
         }
         rv = mgfHandle(MG_E_NORMAL, 4, n4ent, context);
         if ( rv != MGF_OK ) {
             return rv;
         }
-        for ( i = 1; i <= 4 * GLOBAL_mgf_divisionsPerQuarterCircle; i++ ) {
+        for ( int i = 1; i <= 4 * GLOBAL_mgf_divisionsPerQuarterCircle; i++ ) {
             theta = sgn * i * (M_PI / 2) / GLOBAL_mgf_divisionsPerQuarterCircle;
             rv = mgfHandle(MG_E_VERTEX, 4, v2ent, context);
             if ( rv != MGF_OK ) {
                 return rv;
             }
-            for ( j = 0; j < 3; j++ ) {
+            for ( int j = 0; j < 3; j++ ) {
                 d = u[j] * std::cos(theta) + v[j] * std::sin(theta);
                 snprintf(p3[j], 24, globalFloatFormat, cv2->p[j] + rad2 * d);
                 if ( n2off > -FLOAT_HUGE) {
@@ -1198,7 +1177,7 @@ mgfEntityCone(int ac, char **av, RadianceMethod *context)
                 n1off = std::tan(std::atan(n1off) + (M_PI / 4) / GLOBAL_mgf_divisionsPerQuarterCircle);
             }
         }
-        for ( j = 0; j < 3; j++ ) {
+        for ( int j = 0; j < 3; j++ ) {
             snprintf(p4[j], 24, globalFloatFormat, cv1->p[j] + rad1 * u[j]);
             if ( n1off >= FLOAT_HUGE) {
                 snprintf(n4[j], 24, globalFloatFormat, w[j]);
@@ -1218,7 +1197,7 @@ mgfEntityCone(int ac, char **av, RadianceMethod *context)
         if ( rv != MGF_OK ) {
             return rv;
         }
-        for ( i = 1; i <= 4 * GLOBAL_mgf_divisionsPerQuarterCircle; i++ ) {
+        for ( int i = 1; i <= 4 * GLOBAL_mgf_divisionsPerQuarterCircle; i++ ) {
             theta = sgn * i * (M_PI / 2) / GLOBAL_mgf_divisionsPerQuarterCircle;
             rv = mgfHandle(MG_E_VERTEX, 4, v1ent, context);
             if ( rv != MGF_OK ) {
@@ -1228,7 +1207,7 @@ mgfEntityCone(int ac, char **av, RadianceMethod *context)
             if ( rv != MGF_OK ) {
                 return rv;
             }
-            for ( j = 0; j < 3; j++ ) {
+            for ( int j = 0; j < 3; j++ ) {
                 d = u[j] * std::cos(theta) + v[j] * std::sin(theta);
                 snprintf(p3[j], 24, globalFloatFormat, cv2->p[j] + rad2 * d);
                 if ( n2off > -FLOAT_HUGE) {
@@ -1287,10 +1266,6 @@ mgfEntityPrism(int ac, char **av, RadianceMethod *context)
     char nvn[MGF_MAXIMUM_ARGUMENT_COUNT - 1][8];
     double length;
     int hasnorm;
-    FVECT v1;
-    FVECT v2;
-    FVECT v3;
-    FVECT norm;
     MgfVertexContext *cv;
     MgfVertexContext *cv0;
     int rv;
@@ -1315,18 +1290,30 @@ mgfEntityPrism(int ac, char **av, RadianceMethod *context)
         return MGF_ERROR_UNDEFINED_REFERENCE;
     }
     hasnorm = 0;
+
+    VECTOR3Dd norm;
+
     norm[0] = 0.0;
     norm[1] = 0.0;
     norm[2] = 0.0;
+
+    VECTOR3Dd v1;
     v1[0] = 0.0;
     v1[1] = 0.0;
     v1[2] = 0.0;
+
+
+
     for ( i = 2; i < ac - 1; i++ ) {
         cv = getNamedVertex(av[i]);
         if ( cv == nullptr) {
             return MGF_ERROR_UNDEFINED_REFERENCE;
         }
         hasnorm += !is0Vector(cv->n);
+
+        VECTOR3Dd v2;
+        VECTOR3Dd v3;
+
         v2[0] = cv->p[0] - cv0->p[0];
         v2[1] = cv->p[1] - cv0->p[1];
         v2[2] = cv->p[2] - cv0->p[2];
