@@ -1,7 +1,7 @@
 #ifndef __MGF_MATERIAL_CONTEXT__
 #define __MGF_MATERIAL_CONTEXT__
 
-#include "MgfColorContext.h"
+#include "io/mgf/MgfColorContext.h"
 
 class MgfMaterialContext {
 public:

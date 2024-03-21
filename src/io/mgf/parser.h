@@ -1,13 +1,11 @@
 #ifndef MGF_MAJOR_VERSION_NUMBER
 
-#include <cstdio>
-#include <cstring>
-
 #include "common/mymath.h"
 #include "skin/RadianceMethod.h"
 #include "io/mgf/Vector3Dd.h"
 #include "io/mgf/MgfColorContext.h"
 #include "io/mgf/mgfHandlerMaterial.h"
+#include "MgfVertexContext.h"
 
 // Major version number
 #define MGF_MAJOR_VERSION_NUMBER 2
@@ -124,7 +122,7 @@ returns 0 when the end of file has been reached.
 #define MGF_DEFAULT_NUMBER_OF_DIVISIONS 5
 
 class MgfReaderContext {
-public:
+  public:
     char fileName[96];
     FILE *fp; // stream pointer
     int fileContextId;
@@ -184,15 +182,6 @@ Definitions for context handling routines (materials, colors, vectors)
 #define C_CSXY 04 // Flag if xy is set
 #define C_CDXY 010 // Flag if defined w/ xy
 #define C_CSEFF 020 // Flag if efficacy set
-
-class MgfVertexContext {
-  public:
-    VECTOR3Dd p; // Point
-    VECTOR3Dd n; // Normal
-    long xid; // Transform id of transform last time the vertex was modified (or created)
-    int clock; // Incremented each change -- resettable
-    void *clientData; // Client data -- initialized to nullptr by the parser
-};
 
 #define DEFAULT_VERTEX {{0.0, 0.0, 0.0}, {0.0, 0.0, 0.0}, 0, 1, (void *)nullptr}
 

@@ -84,7 +84,7 @@ set(MAIN_SRC
     src/io/mgf/words.cpp
     src/io/mgf/Vector3Dd.cpp
     src/io/mgf/parser.cpp
-    src/io/mgf/context.cpp
+    src/io/mgf/mgfHandlerColor.cpp
     src/io/mgf/mgfHandlerMaterial.cpp
     src/io/FileUncompressWrapper.cpp
     src/io/writevrml.cpp

@@ -1,3 +1,5 @@
+#include <cstring>
+
 #include "java/util/ArrayList.txx"
 #include "material/brdf.h"
 #include "material/btdf.h"

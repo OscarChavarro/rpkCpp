@@ -1,9 +1,9 @@
+#include <cstring>
+
 #include "java/util/ArrayList.txx"
 #include "common/linealAlgebra/vectorMacros.h"
 #include "common/error.h"
 #include "scene/scene.h"
-#include "scene/splitbsdf.h"
-#include "scene/phong.h"
 #include "io/mgf/parser.h"
 #include "io/mgf/vectoroctree.h"
 #include "io/mgf/fileopts.h"

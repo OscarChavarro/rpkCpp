@@ -22,7 +22,7 @@ public:
     short straightSamples[NUMBER_OF_SPECTRAL_SAMPLES]; // Spectral samples, min wl to max
     long spectralStraightSum; // Straight sum of spectral values
     float cx; // Chromaticity X value
-    float cy; // chromaticity Y value
+    float cy; // Chromaticity Y value
     float eff; // efficacy (lumens / watt)
 };
 

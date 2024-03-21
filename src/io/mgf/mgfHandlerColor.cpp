@@ -1,3 +1,5 @@
+#include <cstring>
+
 #include "io/mgf/parser.h"
 #include "io/mgf/lookup.h"
 #include "io/mgf/MgfColorContext.h"
@@ -8,10 +10,6 @@
 // m-K
 #define C2 1.4388e-2
 
-// Default context values
-static MgfColorContext globalDefaultMgfColorContext = DEFAULT_COLOR_CONTEXT;
-MgfVertexContext GLOBAL_mgf_defaultVertexContext = DEFAULT_VERTEX;
-
 // The unnamed contexts
 static MgfColorContext globalUnNamedColorContext = DEFAULT_COLOR_CONTEXT;
 
@@ -21,6 +19,10 @@ MgfColorContext *GLOBAL_mgf_currentColor = &globalUnNamedColorContext;
 char *GLOBAL_mgf_currentMaterialName = nullptr;
 MgfVertexContext *GLOBAL_mgf_currentVertex = &GLOBAL_mgf_vertexContext;
 char *GLOBAL_mgf_currentVertexName = nullptr;
+MgfVertexContext GLOBAL_mgf_defaultVertexContext = DEFAULT_VERTEX;
+
+// Default context values
+static MgfColorContext globalDefaultMgfColorContext = DEFAULT_COLOR_CONTEXT;
 
 // Color lookup table
 static LUTAB clr_tab = LU_SINIT(free, free);
@@ -81,12 +83,12 @@ static MgfColorContext cie_zp = {
                  36057L, 0.0, 0.0,
 };
 
-inline double
+static inline double
 bBsp(double l, double t) {
     return C1 / (l * l * l * l * l * (std::exp(C2 / (t * l)) - 1.0));
 }
 
-inline double
+static inline double
 bBlm(double t) {
     return C2 / 5.0 / t;
 }
