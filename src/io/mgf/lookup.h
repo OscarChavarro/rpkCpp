@@ -20,6 +20,8 @@ class LUTAB {
     int ndel; // number of deleted entries
 };
 
+extern LUTAB GLOBAL_mgf_vertexLookUpTable;
+
 #define LU_SINIT(fk, fd) { \
     (long (*)(char *))lookUpSHash, \
     (int (*)(const char *, const char *))strcmp, \

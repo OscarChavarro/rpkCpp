@@ -66,13 +66,13 @@ static int
 transformName(MgfTransformArray *ap, RadianceMethod *context)
 {
     static char oName[10 * TRANSFORM_MAXIMUM_DIMENSIONS];
-    static char *oav[3] = {GLOBAL_mgf_entityNames[MG_E_OBJECT], oName};
+    static char *oav[3] = {GLOBAL_mgf_entityNames[MGF_ENTITY_OBJECT], oName};
     int i;
     char *cp1;
     char *cp2;
 
     if ( ap == nullptr) {
-        return mgfHandle(MG_E_OBJECT, 1, oav, context);
+        return mgfHandle(MGF_ENTITY_OBJECT, 1, oav, context);
     }
     cp1 = oName;
     *cp1 = 'a';
@@ -83,7 +83,7 @@ transformName(MgfTransformArray *ap, RadianceMethod *context)
         *++cp1 = '.';
     }
     *cp1 = '\0';
-    return mgfHandle(MG_E_OBJECT, 2, oav, context);
+    return mgfHandle(MGF_ENTITY_OBJECT, 2, oav, context);
 }
 
 /**

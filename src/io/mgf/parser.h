@@ -12,34 +12,34 @@
 #define MGF_MAJOR_VERSION_NUMBER 2
 
 // Entities
-#define MG_E_COLOR 1 // c
-#define MG_E_CCT 2 // cct
-#define MGF_ERROR_CONE 3 // cone
-#define MG_E_CMIX 4 // cmix
-#define MG_E_CSPEC 5 // cspec
-#define MG_E_CXY 6 // cxy
-#define MGF_ERROR_CYLINDER 7 // cyl
-#define MG_E_ED 8 // ed
-#define MG_E_FACE 9 // f
+#define MGF_ENTITY_COLOR 1 // c
+#define MGF_ENTITY_CCT 2 // cct
+#define MGF_ENTITY_CONE 3 // cone
+#define MGF_ENTITY_C_MIX 4 // cmix
+#define MGF_ENTITY_C_SPEC 5 // cspec
+#define MGF_ENTITY_CXY 6 // cxy
+#define MGF_ENTITY_CYLINDER 7 // cyl
+#define MGF_ENTITY_ED 8 // ed
+#define MGF_ENTITY_FACE 9 // f
 #define MG_E_INCLUDE 10 // i
 #define MG_E_IES 11 // ies
-#define MG_E_IR 12 // ir
-#define MG_E_MATERIAL 13 // m
-#define MG_E_NORMAL 14 // n
-#define MG_E_OBJECT 15 // o
-#define MG_E_POINT 16 // p
-#define MGF_ERROR_PRISM 17 // prism
-#define MG_E_RD 18 // rd
-#define MGF_ERROR_RING 19 // ring
-#define MG_E_RS 20 // rs
-#define MG_E_SIDES 21 // sides
-#define MGF_ERROR_SPHERE 22 // sph
-#define MG_E_TD 23 // td
-#define MGF_ERROR_TORUS 24 // torus
-#define MG_E_TS 25 // ts
-#define MG_E_VERTEX 26 // v
-#define MG_E_XF 27 // xf
-#define MG_E_FACEH 28 // fh (version 2 MGF)
+#define MGF_ENTITY_IR 12 // ir
+#define MGF_ENTITY_MATERIAL 13 // m
+#define MGF_ENTITY_NORMAL 14 // n
+#define MGF_ENTITY_OBJECT 15 // o
+#define MGF_ENTITY_POINT 16 // p
+#define MGF_ENTITY_PRISM 17 // prism
+#define MGF_ENTITY_RD 18 // rd
+#define MGF_ENTITY_RING 19 // ring
+#define MGF_ENTITY_RS 20 // rs
+#define MGF_ENTITY_SIDES 21 // sides
+#define MGF_ENTITY_SPHERE 22 // sph
+#define MGF_ENTITY_TD 23 // td
+#define MGF_ENTITY_TORUS 24 // torus
+#define MGF_ENTITY_TS 25 // ts
+#define MGF_ENTITY_VERTEX 26 // v
+#define MGF_ENTITY_XF 27 // xf
+#define MGF_ENTITY_FACE_WITH_HOLES 28 // fh (version 2 MGF)
 #define MGF_TOTAL_NUMBER_OF_ENTITIES 29
 
 #define MG_NAMELIST { \
@@ -222,6 +222,7 @@ extern MgfMaterialContext *GLOBAL_mgf_currentMaterial;
 extern char *GLOBAL_mgf_currentMaterialName;
 extern MgfVertexContext *GLOBAL_mgf_currentVertex;
 extern char *GLOBAL_mgf_currentVertexName;
+extern MgfVertexContext GLOBAL_mgf_vertexContext;
 
 extern int handleColorEntity(int ac, char **av, RadianceMethod * /*context*/);
 extern int handleMaterialEntity(int ac, char **av, RadianceMethod * /*context*/);
@@ -279,6 +280,7 @@ class MgfTransformSpec {
 
 extern MgfTransformSpec *GLOBAL_mgf_xfContext; // Current transform context
 extern char **GLOBAL_mgf_xfLastTransform; // Last transform argument
+extern MgfVertexContext GLOBAL_mgf_defaultVertexContext;
 
 #define xf_ac(xf) ((xf)==nullptr ? 0 : (xf)->xac)
 #define xf_av(xf) (GLOBAL_mgf_xfLastTransform - (xf)->xac)

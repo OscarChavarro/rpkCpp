@@ -8,6 +8,7 @@
 #include "io/mgf/vectoroctree.h"
 #include "io/mgf/fileopts.h"
 #include "io/mgf/readmgf.h"
+#include "lookup.h"
 
 // Objects 'o' contexts can be nested this deep
 #define MAXIMUM_GEOMETRY_STACK_DEPTH 100
@@ -16,6 +17,8 @@
 #define MAXIMUM_FACE_VERTICES 100
 
 #define NUMBER_OF_SAMPLES 3
+
+LUTAB GLOBAL_mgf_vertexLookUpTable = LU_SINIT(free, free);
 
 static VectorOctreeNode *globalPointsOctree = nullptr;
 static VectorOctreeNode *globalNormalsOctree = nullptr;
@@ -96,17 +99,17 @@ doDiscretize(int argc, char **argv, RadianceMethod *context) {
     int en = mgfEntity(argv[0]);
 
     switch ( en ) {
-        case MGF_ERROR_SPHERE:
+        case MGF_ENTITY_SPHERE:
             return mgfEntitySphere(argc, argv, context);
-        case MGF_ERROR_TORUS:
+        case MGF_ENTITY_TORUS:
             return mgfEntityTorus(argc, argv, context);
-        case MGF_ERROR_CYLINDER:
+        case MGF_ENTITY_CYLINDER:
             return mgfEntityCylinder(argc, argv, context);
-        case MGF_ERROR_RING:
+        case MGF_ENTITY_RING:
             return mgfEntityRing(argc, argv, context);
-        case MGF_ERROR_CONE:
+        case MGF_ENTITY_CONE:
             return mgfEntityCone(argc, argv, context);
-        case MGF_ERROR_PRISM:
+        case MGF_ENTITY_PRISM:
             return mgfEntityPrism(argc, argv, context);
         default:
             logFatal(4, "mgf.c: doDiscretize", "Unsupported geometry entity number %d", en);
@@ -1142,32 +1145,134 @@ handleUnknownEntity(int /*argc*/, char ** /*argv*/) {
     return MGF_OK;
 }
 
+/**
+Handle a vertex entity
+*/
+int
+handleVertexEntity(int ac, char **av, RadianceMethod * /*context*/)
+{
+    LUENT *lp;
+
+    switch ( mgfEntity(av[0]) ) {
+        case MGF_ENTITY_VERTEX:
+            // get/set vertex context
+            if ( ac > 4 ) {
+                return MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
+            }
+            if ( ac == 1 ) {
+                // Set unnamed vertex context
+                GLOBAL_mgf_vertexContext = GLOBAL_mgf_defaultVertexContext;
+                GLOBAL_mgf_currentVertex = &GLOBAL_mgf_vertexContext;
+                GLOBAL_mgf_currentVertexName = nullptr;
+                return MGF_OK;
+            }
+            if ( !isNameWords(av[1]) ) {
+                return MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
+            }
+            lp = lookUpFind(&GLOBAL_mgf_vertexLookUpTable, av[1]);
+            // Lookup context
+            if ( lp == nullptr ) {
+                return MGF_ERROR_OUT_OF_MEMORY;
+            }
+            GLOBAL_mgf_currentVertexName = lp->key;
+            GLOBAL_mgf_currentVertex = (MgfVertexContext *) lp->data;
+            if ( ac == 2 ) {
+                // Re-establish previous context
+                if ( GLOBAL_mgf_currentVertex == nullptr) {
+                    return MGF_ERROR_UNDEFINED_REFERENCE;
+                }
+                return MGF_OK;
+            }
+            if ( av[2][0] != '=' || av[2][1] ) {
+                return MGF_ERROR_ARGUMENT_TYPE;
+            }
+            if ( GLOBAL_mgf_currentVertex == nullptr) {
+                // Create new vertex context
+                GLOBAL_mgf_currentVertexName = (char *) malloc(strlen(av[1]) + 1);
+                if ( !GLOBAL_mgf_currentVertexName ) {
+                    return MGF_ERROR_OUT_OF_MEMORY;
+                }
+                strcpy(GLOBAL_mgf_currentVertexName, av[1]);
+                lp->key = GLOBAL_mgf_currentVertexName;
+                GLOBAL_mgf_currentVertex = (MgfVertexContext *) malloc(sizeof(MgfVertexContext));
+                if ( !GLOBAL_mgf_currentVertex ) {
+                    return MGF_ERROR_OUT_OF_MEMORY;
+                }
+                lp->data = (char *) GLOBAL_mgf_currentVertex;
+            }
+            if ( ac == 3 ) {
+                // Use default template
+                *GLOBAL_mgf_currentVertex = GLOBAL_mgf_defaultVertexContext;
+                return MGF_OK;
+            }
+            lp = lookUpFind(&GLOBAL_mgf_vertexLookUpTable, av[3]);
+            // Lookup template
+            if ( lp == nullptr) {
+                return MGF_ERROR_OUT_OF_MEMORY;
+            }
+            if ( lp->data == nullptr) {
+                return MGF_ERROR_UNDEFINED_REFERENCE;
+            }
+            *GLOBAL_mgf_currentVertex = *(MgfVertexContext *) lp->data;
+            GLOBAL_mgf_currentVertex->clock++;
+            return MGF_OK;
+        case MGF_ENTITY_POINT:
+            // Set point
+            if ( ac != 4 ) {
+                return MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
+            }
+            if ( !isFloatWords(av[1]) || !isFloatWords(av[2]) || !isFloatWords(av[3])) {
+                return MGF_ERROR_ARGUMENT_TYPE;
+            }
+            GLOBAL_mgf_currentVertex->p[0] = strtod(av[1], nullptr);
+            GLOBAL_mgf_currentVertex->p[1] = strtod(av[2], nullptr);
+            GLOBAL_mgf_currentVertex->p[2] = strtod(av[3], nullptr);
+            GLOBAL_mgf_currentVertex->clock++;
+            return MGF_OK;
+        case MGF_ENTITY_NORMAL:
+            // Set normal
+            if ( ac != 4 ) {
+                return MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
+            }
+            if ( !isFloatWords(av[1]) || !isFloatWords(av[2]) || !isFloatWords(av[3])) {
+                return MGF_ERROR_ARGUMENT_TYPE;
+            }
+            GLOBAL_mgf_currentVertex->n[0] = strtod(av[1], nullptr);
+            GLOBAL_mgf_currentVertex->n[1] = strtod(av[2], nullptr);
+            GLOBAL_mgf_currentVertex->n[2] = strtod(av[3], nullptr);
+            normalize(GLOBAL_mgf_currentVertex->n);
+            GLOBAL_mgf_currentVertex->clock++;
+            return MGF_OK;
+    }
+    return MGF_ERROR_UNKNOWN_ENTITY;
+}
+
 static void
 initMgf() {
-    GLOBAL_mgf_handleCallbacks[MG_E_FACE] = handleFaceEntity;
-    GLOBAL_mgf_handleCallbacks[MG_E_FACEH] = handleFaceWithHolesEntity;
-    GLOBAL_mgf_handleCallbacks[MG_E_VERTEX] = handleVertexEntity;
-    GLOBAL_mgf_handleCallbacks[MG_E_POINT] = handleVertexEntity;
-    GLOBAL_mgf_handleCallbacks[MG_E_NORMAL] = handleVertexEntity;
-    GLOBAL_mgf_handleCallbacks[MG_E_COLOR] = handleColorEntity;
-    GLOBAL_mgf_handleCallbacks[MG_E_CXY] = handleColorEntity;
-    GLOBAL_mgf_handleCallbacks[MG_E_CMIX] = handleColorEntity;
-    GLOBAL_mgf_handleCallbacks[MG_E_MATERIAL] = handleMaterialEntity;
-    GLOBAL_mgf_handleCallbacks[MG_E_ED] = handleMaterialEntity;
-    GLOBAL_mgf_handleCallbacks[MG_E_IR] = handleMaterialEntity;
-    GLOBAL_mgf_handleCallbacks[MG_E_RD] = handleMaterialEntity;
-    GLOBAL_mgf_handleCallbacks[MG_E_RS] = handleMaterialEntity;
-    GLOBAL_mgf_handleCallbacks[MG_E_SIDES] = handleMaterialEntity;
-    GLOBAL_mgf_handleCallbacks[MG_E_TD] = handleMaterialEntity;
-    GLOBAL_mgf_handleCallbacks[MG_E_TS] = handleMaterialEntity;
-    GLOBAL_mgf_handleCallbacks[MG_E_OBJECT] = handleObjectEntity;
-    GLOBAL_mgf_handleCallbacks[MG_E_XF] = handleTransformationEntity;
-    GLOBAL_mgf_handleCallbacks[MGF_ERROR_SPHERE] = handleSurfaceEntity;
-    GLOBAL_mgf_handleCallbacks[MGF_ERROR_TORUS] = handleSurfaceEntity;
-    GLOBAL_mgf_handleCallbacks[MGF_ERROR_RING] = handleSurfaceEntity;
-    GLOBAL_mgf_handleCallbacks[MGF_ERROR_CYLINDER] = handleSurfaceEntity;
-    GLOBAL_mgf_handleCallbacks[MGF_ERROR_CONE] = handleSurfaceEntity;
-    GLOBAL_mgf_handleCallbacks[MGF_ERROR_PRISM] = handleSurfaceEntity;
+    GLOBAL_mgf_handleCallbacks[MGF_ENTITY_FACE] = handleFaceEntity;
+    GLOBAL_mgf_handleCallbacks[MGF_ENTITY_FACE_WITH_HOLES] = handleFaceWithHolesEntity;
+    GLOBAL_mgf_handleCallbacks[MGF_ENTITY_VERTEX] = handleVertexEntity;
+    GLOBAL_mgf_handleCallbacks[MGF_ENTITY_POINT] = handleVertexEntity;
+    GLOBAL_mgf_handleCallbacks[MGF_ENTITY_NORMAL] = handleVertexEntity;
+    GLOBAL_mgf_handleCallbacks[MGF_ENTITY_COLOR] = handleColorEntity;
+    GLOBAL_mgf_handleCallbacks[MGF_ENTITY_CXY] = handleColorEntity;
+    GLOBAL_mgf_handleCallbacks[MGF_ENTITY_C_MIX] = handleColorEntity;
+    GLOBAL_mgf_handleCallbacks[MGF_ENTITY_MATERIAL] = handleMaterialEntity;
+    GLOBAL_mgf_handleCallbacks[MGF_ENTITY_ED] = handleMaterialEntity;
+    GLOBAL_mgf_handleCallbacks[MGF_ENTITY_IR] = handleMaterialEntity;
+    GLOBAL_mgf_handleCallbacks[MGF_ENTITY_RD] = handleMaterialEntity;
+    GLOBAL_mgf_handleCallbacks[MGF_ENTITY_RS] = handleMaterialEntity;
+    GLOBAL_mgf_handleCallbacks[MGF_ENTITY_SIDES] = handleMaterialEntity;
+    GLOBAL_mgf_handleCallbacks[MGF_ENTITY_TD] = handleMaterialEntity;
+    GLOBAL_mgf_handleCallbacks[MGF_ENTITY_TS] = handleMaterialEntity;
+    GLOBAL_mgf_handleCallbacks[MGF_ENTITY_OBJECT] = handleObjectEntity;
+    GLOBAL_mgf_handleCallbacks[MGF_ENTITY_XF] = handleTransformationEntity;
+    GLOBAL_mgf_handleCallbacks[MGF_ENTITY_SPHERE] = handleSurfaceEntity;
+    GLOBAL_mgf_handleCallbacks[MGF_ENTITY_TORUS] = handleSurfaceEntity;
+    GLOBAL_mgf_handleCallbacks[MGF_ENTITY_RING] = handleSurfaceEntity;
+    GLOBAL_mgf_handleCallbacks[MGF_ENTITY_CYLINDER] = handleSurfaceEntity;
+    GLOBAL_mgf_handleCallbacks[MGF_ENTITY_CONE] = handleSurfaceEntity;
+    GLOBAL_mgf_handleCallbacks[MGF_ENTITY_PRISM] = handleSurfaceEntity;
     GLOBAL_mgf_unknownEntityHandleCallback = handleUnknownEntity;
 
     mgfAlternativeInit(GLOBAL_mgf_handleCallbacks);

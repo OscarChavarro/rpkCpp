@@ -72,11 +72,11 @@ mgfPutCxy(RadianceMethod *context)
 {
     static char xbuf[24];
     static char ybuf[24];
-    static char *ccom[4] = {GLOBAL_mgf_entityNames[MG_E_CXY], xbuf, ybuf};
+    static char *ccom[4] = {GLOBAL_mgf_entityNames[MGF_ENTITY_CXY], xbuf, ybuf};
 
     snprintf(xbuf, 24, "%.4f", GLOBAL_mgf_currentColor->cx);
     snprintf(ybuf, 24, "%.4f", GLOBAL_mgf_currentColor->cy);
-    return mgfHandle(MG_E_CXY, 3, ccom, context);
+    return mgfHandle(MGF_ENTITY_CXY, 3, ccom, context);
 }
 
 /**
@@ -91,10 +91,10 @@ mgfPutCSpec(RadianceMethod *context)
     double sf;
     int i;
 
-    if ( GLOBAL_mgf_handleCallbacks[MG_E_CSPEC] != handleColorEntity ) {
+    if ( GLOBAL_mgf_handleCallbacks[MGF_ENTITY_C_SPEC] != handleColorEntity ) {
         snprintf(wl[0], 6, "%d", C_CMINWL);
         snprintf(wl[1], 6, "%d", C_CMAXWL);
-        newav[0] = GLOBAL_mgf_entityNames[MG_E_CSPEC];
+        newav[0] = GLOBAL_mgf_entityNames[MGF_ENTITY_C_SPEC];
         newav[1] = wl[0];
         newav[2] = wl[1];
         sf = (double)NUMBER_OF_SPECTRAL_SAMPLES / (double)GLOBAL_mgf_currentColor->spectralStraightSum;
@@ -103,7 +103,7 @@ mgfPutCSpec(RadianceMethod *context)
             newav[i + 3] = vbuf[i];
         }
         newav[NUMBER_OF_SPECTRAL_SAMPLES + 3] = nullptr;
-        if ( (i = mgfHandle(MG_E_CSPEC, NUMBER_OF_SPECTRAL_SAMPLES + 3, newav, context)) != MGF_OK ) {
+        if ((i = mgfHandle(MGF_ENTITY_C_SPEC, NUMBER_OF_SPECTRAL_SAMPLES + 3, newav, context)) != MGF_OK ) {
             return i;
         }
     }
@@ -118,7 +118,7 @@ mgfECSpec(int /*ac*/, char ** /*av*/, RadianceMethod *context) {
     // Convert to xy chromaticity
     mgfContextFixColorRepresentation(GLOBAL_mgf_currentColor, C_CSXY);
     // If it's really their handler, use it
-    if ( GLOBAL_mgf_handleCallbacks[MG_E_CXY] != handleColorEntity ) {
+    if ( GLOBAL_mgf_handleCallbacks[MGF_ENTITY_CXY] != handleColorEntity ) {
         return mgfPutCxy(context);
     }
     return MGF_OK;
@@ -135,12 +135,12 @@ Contorted logic works as follows:
 */
 static int
 mgfECmix(int /*ac*/, char ** /*av*/, RadianceMethod *context) {
-    if ( GLOBAL_mgf_handleCallbacks[MG_E_CSPEC] == mgfECSpec ) {
+    if ( GLOBAL_mgf_handleCallbacks[MGF_ENTITY_C_SPEC] == mgfECSpec ) {
         mgfContextFixColorRepresentation(GLOBAL_mgf_currentColor, C_CSXY);
     } else if ( GLOBAL_mgf_currentColor->flags & C_CDSPEC ) {
         return mgfPutCSpec(context);
     }
-    if ( GLOBAL_mgf_handleCallbacks[MG_E_CXY] != handleColorEntity ) {
+    if ( GLOBAL_mgf_handleCallbacks[MGF_ENTITY_CXY] != handleColorEntity ) {
         return mgfPutCxy(context);
     }
     return MGF_OK;
@@ -156,11 +156,11 @@ mgfColorTemperature(int /*ac*/, char ** /*av*/, RadianceMethod *context)
     // converted temperature to spectral color.  Put it out as such
     // if they support it, otherwise convert to xy chromaticity and
     // put it out if they handle it
-    if ( GLOBAL_mgf_handleCallbacks[MG_E_CSPEC] != mgfECSpec ) {
+    if ( GLOBAL_mgf_handleCallbacks[MGF_ENTITY_C_SPEC] != mgfECSpec ) {
         return mgfPutCSpec(context);
     }
     mgfContextFixColorRepresentation(GLOBAL_mgf_currentColor, C_CSXY);
-    if ( GLOBAL_mgf_handleCallbacks[MG_E_CXY] != handleColorEntity ) {
+    if ( GLOBAL_mgf_handleCallbacks[MGF_ENTITY_CXY] != handleColorEntity ) {
         return mgfPutCxy(context);
     }
     return MGF_OK;
@@ -182,77 +182,77 @@ mgfAlternativeInit(int (*handleCallbacks[MGF_TOTAL_NUMBER_OF_ENTITIES])(int, cha
     if ( handleCallbacks[MG_E_INCLUDE] == nullptr) {
         handleCallbacks[MG_E_INCLUDE] = handleIncludedFile;
     }
-    if ( handleCallbacks[MGF_ERROR_SPHERE] == nullptr) {
-        handleCallbacks[MGF_ERROR_SPHERE] = mgfEntitySphere;
-        ineed |= 1L << MG_E_POINT | 1L << MG_E_VERTEX;
+    if ( handleCallbacks[MGF_ENTITY_SPHERE] == nullptr) {
+        handleCallbacks[MGF_ENTITY_SPHERE] = mgfEntitySphere;
+        ineed |= 1L << MGF_ENTITY_POINT | 1L << MGF_ENTITY_VERTEX;
     } else {
-        uneed |= 1L << MG_E_POINT | 1L << MG_E_VERTEX | 1L << MG_E_XF;
+        uneed |= 1L << MGF_ENTITY_POINT | 1L << MGF_ENTITY_VERTEX | 1L << MGF_ENTITY_XF;
     }
-    if ( handleCallbacks[MGF_ERROR_CYLINDER] == nullptr) {
-        handleCallbacks[MGF_ERROR_CYLINDER] = mgfEntityCylinder;
-        ineed |= 1L << MG_E_POINT | 1L << MG_E_VERTEX;
+    if ( handleCallbacks[MGF_ENTITY_CYLINDER] == nullptr) {
+        handleCallbacks[MGF_ENTITY_CYLINDER] = mgfEntityCylinder;
+        ineed |= 1L << MGF_ENTITY_POINT | 1L << MGF_ENTITY_VERTEX;
     } else {
-        uneed |= 1L << MG_E_POINT | 1L << MG_E_VERTEX | 1L << MG_E_XF;
+        uneed |= 1L << MGF_ENTITY_POINT | 1L << MGF_ENTITY_VERTEX | 1L << MGF_ENTITY_XF;
     }
-    if ( handleCallbacks[MGF_ERROR_CONE] == nullptr) {
-        handleCallbacks[MGF_ERROR_CONE] = mgfEntityCone;
-        ineed |= 1L << MG_E_POINT | 1L << MG_E_VERTEX;
+    if ( handleCallbacks[MGF_ENTITY_CONE] == nullptr) {
+        handleCallbacks[MGF_ENTITY_CONE] = mgfEntityCone;
+        ineed |= 1L << MGF_ENTITY_POINT | 1L << MGF_ENTITY_VERTEX;
     } else {
-        uneed |= 1L << MG_E_POINT | 1L << MG_E_VERTEX | 1L << MG_E_XF;
+        uneed |= 1L << MGF_ENTITY_POINT | 1L << MGF_ENTITY_VERTEX | 1L << MGF_ENTITY_XF;
     }
-    if ( handleCallbacks[MGF_ERROR_RING] == nullptr) {
-        handleCallbacks[MGF_ERROR_RING] = mgfEntityRing;
-        ineed |= 1L << MG_E_POINT | 1L << MG_E_NORMAL | 1L << MG_E_VERTEX;
+    if ( handleCallbacks[MGF_ENTITY_RING] == nullptr) {
+        handleCallbacks[MGF_ENTITY_RING] = mgfEntityRing;
+        ineed |= 1L << MGF_ENTITY_POINT | 1L << MGF_ENTITY_NORMAL | 1L << MGF_ENTITY_VERTEX;
     } else {
-        uneed |= 1L << MG_E_POINT | 1L << MG_E_NORMAL | 1L << MG_E_VERTEX | 1L << MG_E_XF;
+        uneed |= 1L << MGF_ENTITY_POINT | 1L << MGF_ENTITY_NORMAL | 1L << MGF_ENTITY_VERTEX | 1L << MGF_ENTITY_XF;
     }
-    if ( handleCallbacks[MGF_ERROR_PRISM] == nullptr) {
-        handleCallbacks[MGF_ERROR_PRISM] = mgfEntityPrism;
-        ineed |= 1L << MG_E_POINT | 1L << MG_E_VERTEX;
+    if ( handleCallbacks[MGF_ENTITY_PRISM] == nullptr) {
+        handleCallbacks[MGF_ENTITY_PRISM] = mgfEntityPrism;
+        ineed |= 1L << MGF_ENTITY_POINT | 1L << MGF_ENTITY_VERTEX;
     } else {
-        uneed |= 1L << MG_E_POINT | 1L << MG_E_VERTEX | 1L << MG_E_XF;
+        uneed |= 1L << MGF_ENTITY_POINT | 1L << MGF_ENTITY_VERTEX | 1L << MGF_ENTITY_XF;
     }
-    if ( handleCallbacks[MGF_ERROR_TORUS] == nullptr) {
-        handleCallbacks[MGF_ERROR_TORUS] = mgfEntityTorus;
-        ineed |= 1L << MG_E_POINT | 1L << MG_E_NORMAL | 1L << MG_E_VERTEX;
+    if ( handleCallbacks[MGF_ENTITY_TORUS] == nullptr) {
+        handleCallbacks[MGF_ENTITY_TORUS] = mgfEntityTorus;
+        ineed |= 1L << MGF_ENTITY_POINT | 1L << MGF_ENTITY_NORMAL | 1L << MGF_ENTITY_VERTEX;
     } else {
-        uneed |= 1L << MG_E_POINT | 1L << MG_E_NORMAL | 1L << MG_E_VERTEX | 1L << MG_E_XF;
+        uneed |= 1L << MGF_ENTITY_POINT | 1L << MGF_ENTITY_NORMAL | 1L << MGF_ENTITY_VERTEX | 1L << MGF_ENTITY_XF;
     }
-    if ( handleCallbacks[MG_E_FACE] == nullptr) {
-        handleCallbacks[MG_E_FACE] = handleCallbacks[MG_E_FACEH];
-    } else if ( handleCallbacks[MG_E_FACEH] == nullptr) {
-        handleCallbacks[MG_E_FACEH] = mgfEntityFaceWithHoles;
+    if ( handleCallbacks[MGF_ENTITY_FACE] == nullptr) {
+        handleCallbacks[MGF_ENTITY_FACE] = handleCallbacks[MGF_ENTITY_FACE_WITH_HOLES];
+    } else if ( handleCallbacks[MGF_ENTITY_FACE_WITH_HOLES] == nullptr) {
+        handleCallbacks[MGF_ENTITY_FACE_WITH_HOLES] = mgfEntityFaceWithHoles;
     }
-    if ( handleCallbacks[MG_E_COLOR] != nullptr) {
-        if ( handleCallbacks[MG_E_CMIX] == nullptr) {
-            handleCallbacks[MG_E_CMIX] = mgfECmix;
-            ineed |= 1L << MG_E_COLOR | 1L << MG_E_CXY | 1L << MG_E_CSPEC | 1L << MG_E_CMIX | 1L << MG_E_CCT;
+    if ( handleCallbacks[MGF_ENTITY_COLOR] != nullptr) {
+        if ( handleCallbacks[MGF_ENTITY_C_MIX] == nullptr) {
+            handleCallbacks[MGF_ENTITY_C_MIX] = mgfECmix;
+            ineed |= 1L << MGF_ENTITY_COLOR | 1L << MGF_ENTITY_CXY | 1L << MGF_ENTITY_C_SPEC | 1L << MGF_ENTITY_C_MIX | 1L << MGF_ENTITY_CCT;
         }
-        if ( handleCallbacks[MG_E_CSPEC] == nullptr) {
-            handleCallbacks[MG_E_CSPEC] = mgfECSpec;
-            ineed |= 1L << MG_E_COLOR | 1L << MG_E_CXY | 1L << MG_E_CSPEC | 1L << MG_E_CMIX | 1L << MG_E_CCT;
+        if ( handleCallbacks[MGF_ENTITY_C_SPEC] == nullptr) {
+            handleCallbacks[MGF_ENTITY_C_SPEC] = mgfECSpec;
+            ineed |= 1L << MGF_ENTITY_COLOR | 1L << MGF_ENTITY_CXY | 1L << MGF_ENTITY_C_SPEC | 1L << MGF_ENTITY_C_MIX | 1L << MGF_ENTITY_CCT;
         }
-        if ( handleCallbacks[MG_E_CCT] == nullptr) {
-            handleCallbacks[MG_E_CCT] = mgfColorTemperature;
-            ineed |= 1L << MG_E_COLOR | 1L << MG_E_CXY | 1L << MG_E_CSPEC | 1L << MG_E_CMIX | 1L << MG_E_CCT;
+        if ( handleCallbacks[MGF_ENTITY_CCT] == nullptr) {
+            handleCallbacks[MGF_ENTITY_CCT] = mgfColorTemperature;
+            ineed |= 1L << MGF_ENTITY_COLOR | 1L << MGF_ENTITY_CXY | 1L << MGF_ENTITY_C_SPEC | 1L << MGF_ENTITY_C_MIX | 1L << MGF_ENTITY_CCT;
         }
     }
 
     // Check for consistency
-    if ( handleCallbacks[MG_E_FACE] != nullptr) {
-        uneed |= 1L << MG_E_POINT | 1L << MG_E_VERTEX | 1L << MG_E_XF;
+    if ( handleCallbacks[MGF_ENTITY_FACE] != nullptr) {
+        uneed |= 1L << MGF_ENTITY_POINT | 1L << MGF_ENTITY_VERTEX | 1L << MGF_ENTITY_XF;
     }
-    if ( handleCallbacks[MG_E_CXY] != nullptr || handleCallbacks[MG_E_CSPEC] != nullptr ||
-         handleCallbacks[MG_E_CMIX] != nullptr) {
-        uneed |= 1L << MG_E_COLOR;
+    if ( handleCallbacks[MGF_ENTITY_CXY] != nullptr || handleCallbacks[MGF_ENTITY_C_SPEC] != nullptr ||
+         handleCallbacks[MGF_ENTITY_C_MIX] != nullptr) {
+        uneed |= 1L << MGF_ENTITY_COLOR;
     }
-    if ( handleCallbacks[MG_E_RD] != nullptr || handleCallbacks[MG_E_TD] != nullptr ||
-         handleCallbacks[MG_E_IR] != nullptr ||
-         handleCallbacks[MG_E_ED] != nullptr ||
-         handleCallbacks[MG_E_RS] != nullptr ||
-         handleCallbacks[MG_E_TS] != nullptr ||
-         handleCallbacks[MG_E_SIDES] != nullptr) {
-        uneed |= 1L << MG_E_MATERIAL;
+    if ( handleCallbacks[MGF_ENTITY_RD] != nullptr || handleCallbacks[MGF_ENTITY_TD] != nullptr ||
+         handleCallbacks[MGF_ENTITY_IR] != nullptr ||
+         handleCallbacks[MGF_ENTITY_ED] != nullptr ||
+         handleCallbacks[MGF_ENTITY_RS] != nullptr ||
+         handleCallbacks[MGF_ENTITY_TS] != nullptr ||
+         handleCallbacks[MGF_ENTITY_SIDES] != nullptr) {
+        uneed |= 1L << MGF_ENTITY_MATERIAL;
     }
     for ( i = 0; i < MGF_TOTAL_NUMBER_OF_ENTITIES; i++ ) {
         if ( uneed & 1L << i && handleCallbacks[i] == nullptr) {
@@ -263,29 +263,29 @@ mgfAlternativeInit(int (*handleCallbacks[MGF_TOTAL_NUMBER_OF_ENTITIES])(int, cha
     }
 
     // Add support as needed
-    if ( ineed & 1L << MG_E_VERTEX && handleCallbacks[MG_E_VERTEX] != handleVertexEntity ) {
-        e_supp[MG_E_VERTEX] = handleVertexEntity;
+    if ( ineed & 1L << MGF_ENTITY_VERTEX && handleCallbacks[MGF_ENTITY_VERTEX] != handleVertexEntity ) {
+        e_supp[MGF_ENTITY_VERTEX] = handleVertexEntity;
     }
-    if ( ineed & 1L << MG_E_POINT && handleCallbacks[MG_E_POINT] != handleVertexEntity ) {
-        e_supp[MG_E_POINT] = handleVertexEntity;
+    if ( ineed & 1L << MGF_ENTITY_POINT && handleCallbacks[MGF_ENTITY_POINT] != handleVertexEntity ) {
+        e_supp[MGF_ENTITY_POINT] = handleVertexEntity;
     }
-    if ( ineed & 1L << MG_E_NORMAL && handleCallbacks[MG_E_NORMAL] != handleVertexEntity ) {
-        e_supp[MG_E_NORMAL] = handleVertexEntity;
+    if ( ineed & 1L << MGF_ENTITY_NORMAL && handleCallbacks[MGF_ENTITY_NORMAL] != handleVertexEntity ) {
+        e_supp[MGF_ENTITY_NORMAL] = handleVertexEntity;
     }
-    if ( ineed & 1L << MG_E_COLOR && handleCallbacks[MG_E_COLOR] != handleColorEntity ) {
-        e_supp[MG_E_COLOR] = handleColorEntity;
+    if ( ineed & 1L << MGF_ENTITY_COLOR && handleCallbacks[MGF_ENTITY_COLOR] != handleColorEntity ) {
+        e_supp[MGF_ENTITY_COLOR] = handleColorEntity;
     }
-    if ( ineed & 1L << MG_E_CXY && handleCallbacks[MG_E_CXY] != handleColorEntity ) {
-        e_supp[MG_E_CXY] = handleColorEntity;
+    if ( ineed & 1L << MGF_ENTITY_CXY && handleCallbacks[MGF_ENTITY_CXY] != handleColorEntity ) {
+        e_supp[MGF_ENTITY_CXY] = handleColorEntity;
     }
-    if ( ineed & 1L << MG_E_CSPEC && handleCallbacks[MG_E_CSPEC] != handleColorEntity ) {
-        e_supp[MG_E_CSPEC] = handleColorEntity;
+    if ( ineed & 1L << MGF_ENTITY_C_SPEC && handleCallbacks[MGF_ENTITY_C_SPEC] != handleColorEntity ) {
+        e_supp[MGF_ENTITY_C_SPEC] = handleColorEntity;
     }
-    if ( ineed & 1L << MG_E_CMIX && handleCallbacks[MG_E_CMIX] != handleColorEntity ) {
-        e_supp[MG_E_CMIX] = handleColorEntity;
+    if ( ineed & 1L << MGF_ENTITY_C_MIX && handleCallbacks[MGF_ENTITY_C_MIX] != handleColorEntity ) {
+        e_supp[MGF_ENTITY_C_MIX] = handleColorEntity;
     }
-    if ( ineed & 1L << MG_E_CCT && handleCallbacks[MG_E_CCT] != handleColorEntity ) {
-        e_supp[MG_E_CCT] = handleColorEntity;
+    if ( ineed & 1L << MGF_ENTITY_CCT && handleCallbacks[MGF_ENTITY_CCT] != handleColorEntity ) {
+        e_supp[MGF_ENTITY_CCT] = handleColorEntity;
     }
 
     // Discard remaining entities
@@ -553,12 +553,12 @@ handleIncludedFile(int ac, char **av, RadianceMethod *context)
     if ( ac > 2 ) {
         int i;
 
-        xfarg[0] = GLOBAL_mgf_entityNames[MG_E_XF];
+        xfarg[0] = GLOBAL_mgf_entityNames[MGF_ENTITY_XF];
         for ( i = 1; i < ac - 1; i++ ) {
             xfarg[i] = av[i + 1];
         }
         xfarg[ac - 1] = nullptr;
-        rv = mgfHandle(MG_E_XF, ac - 1, xfarg, context);
+        rv = mgfHandle(MGF_ENTITY_XF, ac - 1, xfarg, context);
         if ( rv != MGF_OK ) {
             mgfClose();
             return rv;
@@ -582,7 +582,7 @@ handleIncludedFile(int ac, char **av, RadianceMethod *context)
             }
         }
         if ( ac > 2 ) {
-            rv = mgfHandle(MG_E_XF, 1, xfarg, context);
+            rv = mgfHandle(MGF_ENTITY_XF, 1, xfarg, context);
             if ( rv != MGF_OK ) {
                 mgfClose();
                 return rv;
@@ -602,7 +602,7 @@ mgfEntityFaceWithHoles(int ac, char **av, RadianceMethod *context)
     char *newav[MGF_MAXIMUM_ARGUMENT_COUNT];
     int lastp = 0;
 
-    newav[0] = GLOBAL_mgf_entityNames[MG_E_FACE];
+    newav[0] = GLOBAL_mgf_entityNames[MGF_ENTITY_FACE];
     int i;
     for ( i = 1; i < ac; i++ ) {
         int j;
@@ -633,7 +633,7 @@ mgfEntityFaceWithHoles(int ac, char **av, RadianceMethod *context)
         newav[i++] = av[lastp];
     }
     newav[i] = nullptr;
-    return mgfHandle(MG_E_FACE, i, newav, context);
+    return mgfHandle(MGF_ENTITY_FACE, i, newav, context);
 }
 
 /**
@@ -647,10 +647,10 @@ mgfEntitySphere(int ac, char **av, RadianceMethod *context)
     static char p2z[24];
     static char r1[24];
     static char r2[24];
-    static char *v1ent[5] = {GLOBAL_mgf_entityNames[MG_E_VERTEX], (char *)"_sv1", (char *)"=", (char *)"_sv2"};
-    static char *v2ent[4] = {GLOBAL_mgf_entityNames[MG_E_VERTEX], (char *)"_sv2", (char *)"="};
-    static char *p2ent[5] = {GLOBAL_mgf_entityNames[MG_E_POINT], p2x, p2y, p2z};
-    static char *conent[6] = {GLOBAL_mgf_entityNames[MGF_ERROR_CONE], (char *)"_sv1", r1, (char *)"_sv2", r2};
+    static char *v1ent[5] = {GLOBAL_mgf_entityNames[MGF_ENTITY_VERTEX], (char *)"_sv1", (char *)"=", (char *)"_sv2"};
+    static char *v2ent[4] = {GLOBAL_mgf_entityNames[MGF_ENTITY_VERTEX], (char *)"_sv2", (char *)"="};
+    static char *p2ent[5] = {GLOBAL_mgf_entityNames[MGF_ENTITY_POINT], p2x, p2y, p2z};
+    static char *conent[6] = {GLOBAL_mgf_entityNames[MGF_ENTITY_CONE], (char *)"_sv1", r1, (char *)"_sv2", r2};
     MgfVertexContext *cv;
     int i;
     int rval;
@@ -671,14 +671,14 @@ mgfEntitySphere(int ac, char **av, RadianceMethod *context)
 
     // Initialize
     warpconends = 1;
-    rval = mgfHandle(MG_E_VERTEX, 3, v2ent, context);
+    rval = mgfHandle(MGF_ENTITY_VERTEX, 3, v2ent, context);
     if ( rval != MGF_OK ) {
         return rval;
     }
     snprintf(p2x, 24, globalFloatFormat, cv->p[0]);
     snprintf(p2y, 24, globalFloatFormat, cv->p[1]);
     snprintf(p2z, 24, globalFloatFormat, cv->p[2] + rad);
-    rval = mgfHandle(MG_E_POINT, 4, p2ent, context);
+    rval = mgfHandle(MGF_ENTITY_POINT, 4, p2ent, context);
     if ( rval != MGF_OK ) {
         return rval;
     }
@@ -686,22 +686,22 @@ mgfEntitySphere(int ac, char **av, RadianceMethod *context)
     r2[1] = '\0';
     for ( i = 1; i <= 2 * GLOBAL_mgf_divisionsPerQuarterCircle; i++ ) {
         theta = i * (M_PI / 2) / GLOBAL_mgf_divisionsPerQuarterCircle;
-        rval = mgfHandle(MG_E_VERTEX, 4, v1ent, context);
+        rval = mgfHandle(MGF_ENTITY_VERTEX, 4, v1ent, context);
         if ( rval != MGF_OK ) {
             return rval;
         }
         snprintf(p2z, 24, globalFloatFormat, cv->p[2] + rad * std::cos(theta));
-        rval = mgfHandle(MG_E_VERTEX, 2, v2ent, context);
+        rval = mgfHandle(MGF_ENTITY_VERTEX, 2, v2ent, context);
         if ( rval != MGF_OK ) {
             return rval;
         }
-        rval = mgfHandle(MG_E_POINT, 4, p2ent, context);
+        rval = mgfHandle(MGF_ENTITY_POINT, 4, p2ent, context);
         if ( rval != MGF_OK ) {
             return rval;
         }
         strcpy(r1, r2);
         snprintf(r2, 24, globalFloatFormat, rad * std::sin(theta));
-        rval = mgfHandle(MGF_ERROR_CONE, 5, conent, context);
+        rval = mgfHandle(MGF_ENTITY_CONE, 5, conent, context);
         if ( rval != MGF_OK ) {
             return rval;
         }
@@ -719,10 +719,10 @@ mgfEntityTorus(int ac, char **av, RadianceMethod *context)
     static char p2[3][24];
     static char r1[24];
     static char r2[24];
-    static char *v1ent[5] = {GLOBAL_mgf_entityNames[MG_E_VERTEX], (char *)"_tv1", (char *)"=", (char *)"_tv2"};
-    static char *v2ent[5] = {GLOBAL_mgf_entityNames[MG_E_VERTEX], (char *)"_tv2", (char *)"="};
-    static char *p2ent[5] = {GLOBAL_mgf_entityNames[MG_E_POINT], p2[0], p2[1], p2[2]};
-    static char *conent[6] = {GLOBAL_mgf_entityNames[MGF_ERROR_CONE], (char *)"_tv1", r1, (char *)"_tv2", r2};
+    static char *v1ent[5] = {GLOBAL_mgf_entityNames[MGF_ENTITY_VERTEX], (char *)"_tv1", (char *)"=", (char *)"_tv2"};
+    static char *v2ent[5] = {GLOBAL_mgf_entityNames[MGF_ENTITY_VERTEX], (char *)"_tv2", (char *)"="};
+    static char *p2ent[5] = {GLOBAL_mgf_entityNames[MGF_ENTITY_POINT], p2[0], p2[1], p2[2]};
+    static char *conent[6] = {GLOBAL_mgf_entityNames[MGF_ENTITY_CONE], (char *)"_tv1", r1, (char *)"_tv2", r2};
     MgfVertexContext *cv;
     int i;
     int j;
@@ -767,11 +767,11 @@ mgfEntityTorus(int ac, char **av, RadianceMethod *context)
     for ( j = 0; j < 3; j++ ) {
         snprintf(p2[j], 24, globalFloatFormat, cv->p[j] + 0.5 * sgn * (maxrad - minrad) * cv->n[j]);
     }
-    rval = mgfHandle(MG_E_VERTEX, 4, v2ent, context);
+    rval = mgfHandle(MGF_ENTITY_VERTEX, 4, v2ent, context);
     if ( rval != MGF_OK ) {
         return rval;
     }
-    rval = mgfHandle(MG_E_POINT, 4, p2ent, context);
+    rval = mgfHandle(MGF_ENTITY_POINT, 4, p2ent, context);
     if ( rval != MGF_OK ) {
         return rval;
     }
@@ -780,7 +780,7 @@ mgfEntityTorus(int ac, char **av, RadianceMethod *context)
     // Run outer section
     for ( i = 1; i <= 2 * GLOBAL_mgf_divisionsPerQuarterCircle; i++ ) {
         theta = i * (M_PI / 2) / GLOBAL_mgf_divisionsPerQuarterCircle;
-        rval = mgfHandle(MG_E_VERTEX, 4, v1ent, context);
+        rval = mgfHandle(MGF_ENTITY_VERTEX, 4, v1ent, context);
         if ( rval != MGF_OK ) {
             return rval;
         }
@@ -788,17 +788,17 @@ mgfEntityTorus(int ac, char **av, RadianceMethod *context)
             snprintf(p2[j], 24, globalFloatFormat, cv->p[j] +
                                    0.5 * sgn * (maxrad - minrad) * std::cos(theta) * cv->n[j]);
         }
-        rval = mgfHandle(MG_E_VERTEX, 2, v2ent, context);
+        rval = mgfHandle(MGF_ENTITY_VERTEX, 2, v2ent, context);
         if ( rval != MGF_OK ) {
             return rval;
         }
-        rval = mgfHandle(MG_E_POINT, 4, p2ent, context);
+        rval = mgfHandle(MGF_ENTITY_POINT, 4, p2ent, context);
         if ( rval != MGF_OK ) {
             return rval;
         }
         strcpy(r1, r2);
         snprintf(r2, 24, globalFloatFormat, avgrad + 0.5 * (maxrad - minrad) * std::sin(theta));
-        rval = mgfHandle(MGF_ERROR_CONE, 5, conent, context);
+        rval = mgfHandle(MGF_ENTITY_CONE, 5, conent, context);
         if ( rval != MGF_OK ) {
             return rval;
         }
@@ -812,21 +812,21 @@ mgfEntityTorus(int ac, char **av, RadianceMethod *context)
             snprintf(p2[j], 24, globalFloatFormat, cv->p[j] +
                                    0.5 * sgn * (maxrad - minrad) * std::cos(theta) * cv->n[j]);
         }
-        rval = mgfHandle(MG_E_VERTEX, 4, v1ent, context);
+        rval = mgfHandle(MGF_ENTITY_VERTEX, 4, v1ent, context);
         if ( rval != MGF_OK ) {
             return rval;
         }
-        rval = mgfHandle(MG_E_VERTEX, 2, v2ent, context);
+        rval = mgfHandle(MGF_ENTITY_VERTEX, 2, v2ent, context);
         if ( rval != MGF_OK ) {
             return rval;
         }
-        rval = mgfHandle(MG_E_POINT, 4, p2ent, context);
+        rval = mgfHandle(MGF_ENTITY_POINT, 4, p2ent, context);
         if ( rval != MGF_OK ) {
             return rval;
         }
         strcpy(r1, r2);
         snprintf(r2, 24, globalFloatFormat, -avgrad - .5 * (maxrad - minrad) * std::sin(theta));
-        rval = mgfHandle(MGF_ERROR_CONE, 5, conent, context);
+        rval = mgfHandle(MGF_ENTITY_CONE, 5, conent, context);
         if ( rval != MGF_OK ) {
             return rval;
         }
@@ -841,7 +841,7 @@ Replace a cylinder with equivalent cone
 int
 mgfEntityCylinder(int ac, char **av, RadianceMethod *context)
 {
-    static char *avnew[6] = {GLOBAL_mgf_entityNames[MGF_ERROR_CONE]};
+    static char *avnew[6] = {GLOBAL_mgf_entityNames[MGF_ENTITY_CONE]};
 
     if ( ac != 4 ) {
         return MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
@@ -850,7 +850,7 @@ mgfEntityCylinder(int ac, char **av, RadianceMethod *context)
     avnew[2] = av[2];
     avnew[3] = av[3];
     avnew[4] = av[2];
-    return mgfHandle(MGF_ERROR_CONE, 5, avnew, context);
+    return mgfHandle(MGF_ENTITY_CONE, 5, avnew, context);
 }
 
 /**
@@ -861,14 +861,14 @@ mgfEntityRing(int ac, char **av, RadianceMethod *context)
 {
     static char p3[3][24];
     static char p4[3][24];
-    static char *nzent[5] = {GLOBAL_mgf_entityNames[MG_E_NORMAL], (char *)"0", (char *)"0", (char *)"0"};
-    static char *v1ent[5] = {GLOBAL_mgf_entityNames[MG_E_VERTEX], (char *)"_rv1", (char *)"="};
-    static char *v2ent[5] = {GLOBAL_mgf_entityNames[MG_E_VERTEX], (char *)"_rv2", (char *)"=", (char *)"_rv3"};
-    static char *v3ent[4] = {GLOBAL_mgf_entityNames[MG_E_VERTEX], (char *)"_rv3", (char *)"="};
-    static char *p3ent[5] = {GLOBAL_mgf_entityNames[MG_E_POINT], p3[0], p3[1], p3[2]};
-    static char *v4ent[4] = {GLOBAL_mgf_entityNames[MG_E_VERTEX], (char *)"_rv4", (char *)"="};
-    static char *p4ent[5] = {GLOBAL_mgf_entityNames[MG_E_POINT], p4[0], p4[1], p4[2]};
-    static char *fent[6] = {GLOBAL_mgf_entityNames[MG_E_FACE], (char *)"_rv1", (char *)"_rv2", (char *)"_rv3", (char *)"_rv4"};
+    static char *nzent[5] = {GLOBAL_mgf_entityNames[MGF_ENTITY_NORMAL], (char *)"0", (char *)"0", (char *)"0"};
+    static char *v1ent[5] = {GLOBAL_mgf_entityNames[MGF_ENTITY_VERTEX], (char *)"_rv1", (char *)"="};
+    static char *v2ent[5] = {GLOBAL_mgf_entityNames[MGF_ENTITY_VERTEX], (char *)"_rv2", (char *)"=", (char *)"_rv3"};
+    static char *v3ent[4] = {GLOBAL_mgf_entityNames[MGF_ENTITY_VERTEX], (char *)"_rv3", (char *)"="};
+    static char *p3ent[5] = {GLOBAL_mgf_entityNames[MGF_ENTITY_POINT], p3[0], p3[1], p3[2]};
+    static char *v4ent[4] = {GLOBAL_mgf_entityNames[MGF_ENTITY_VERTEX], (char *)"_rv4", (char *)"="};
+    static char *p4ent[5] = {GLOBAL_mgf_entityNames[MGF_ENTITY_POINT], p4[0], p4[1], p4[2]};
+    static char *fent[6] = {GLOBAL_mgf_entityNames[MGF_ENTITY_FACE], (char *)"_rv1", (char *)"_rv2", (char *)"_rv3", (char *)"_rv4"};
     MgfVertexContext *cv;
     int i;
     int j;
@@ -907,11 +907,11 @@ mgfEntityRing(int ac, char **av, RadianceMethod *context)
     for ( j = 0; j < 3; j++ ) {
         snprintf(p3[j], 24, globalFloatFormat, cv->p[j] + maxRad * u[j]);
     }
-    rv = mgfHandle(MG_E_VERTEX, 3, v3ent, context);
+    rv = mgfHandle(MGF_ENTITY_VERTEX, 3, v3ent, context);
     if ( rv != MGF_OK ) {
         return rv;
     }
-    rv = mgfHandle(MG_E_POINT, 4, p3ent, context);
+    rv = mgfHandle(MGF_ENTITY_POINT, 4, p3ent, context);
     if ( rv != MGF_OK ) {
         return rv;
     }
@@ -920,17 +920,17 @@ mgfEntityRing(int ac, char **av, RadianceMethod *context)
         // TODO: Review floating point comparisons vs EPSILON
         // Closed
         v1ent[3] = av[1];
-        rv = mgfHandle(MG_E_VERTEX, 4, v1ent, context);
+        rv = mgfHandle(MGF_ENTITY_VERTEX, 4, v1ent, context);
         if ( rv != MGF_OK ) {
             return rv;
         }
-        rv = mgfHandle(MG_E_NORMAL, 4, nzent, context);
+        rv = mgfHandle(MGF_ENTITY_NORMAL, 4, nzent, context);
         if ( rv != MGF_OK ) {
             return rv;
         }
         for ( i = 1; i <= 4 * GLOBAL_mgf_divisionsPerQuarterCircle; i++ ) {
             theta = i * (M_PI / 2) / GLOBAL_mgf_divisionsPerQuarterCircle;
-            rv = mgfHandle(MG_E_VERTEX, 4, v2ent, context);
+            rv = mgfHandle(MGF_ENTITY_VERTEX, 4, v2ent, context);
             if ( rv != MGF_OK ) {
                 return rv;
             }
@@ -939,40 +939,40 @@ mgfEntityRing(int ac, char **av, RadianceMethod *context)
                                             maxRad * u[j] * std::cos(theta) +
                                             maxRad * v[j] * std::sin(theta));
             }
-            rv = mgfHandle(MG_E_VERTEX, 2, v3ent, context);
+            rv = mgfHandle(MGF_ENTITY_VERTEX, 2, v3ent, context);
             if ( rv != MGF_OK ) {
                 return rv;
             }
-            rv = mgfHandle(MG_E_POINT, 4, p3ent, context);
+            rv = mgfHandle(MGF_ENTITY_POINT, 4, p3ent, context);
             if ( rv != MGF_OK ) {
                 return rv;
             }
-            rv = mgfHandle(MG_E_FACE, 4, fent, context);
+            rv = mgfHandle(MGF_ENTITY_FACE, 4, fent, context);
             if ( rv != MGF_OK ) {
                 return rv;
             }
         }
     } else {
         // Open
-        rv = mgfHandle(MG_E_VERTEX, 3, v4ent, context);
+        rv = mgfHandle(MGF_ENTITY_VERTEX, 3, v4ent, context);
         if ( rv != MGF_OK ) {
             return rv;
         }
         for ( j = 0; j < 3; j++ ) {
             snprintf(p4[j], 24, globalFloatFormat, cv->p[j] + minRad * u[j]);
         }
-        rv = mgfHandle(MG_E_POINT, 4, p4ent, context);
+        rv = mgfHandle(MGF_ENTITY_POINT, 4, p4ent, context);
         if ( rv != MGF_OK ) {
             return rv;
         }
         v1ent[3] = (char *)"_rv4";
         for ( i = 1; i <= 4 * GLOBAL_mgf_divisionsPerQuarterCircle; i++ ) {
             theta = i * (M_PI / 2) / GLOBAL_mgf_divisionsPerQuarterCircle;
-            rv = mgfHandle(MG_E_VERTEX, 4, v1ent, context);
+            rv = mgfHandle(MGF_ENTITY_VERTEX, 4, v1ent, context);
             if ( rv != MGF_OK ) {
                 return rv;
             }
-            rv = mgfHandle(MG_E_VERTEX, 4, v2ent, context);
+            rv = mgfHandle(MGF_ENTITY_VERTEX, 4, v2ent, context);
             if ( rv != MGF_OK ) {
                 return rv;
             }
@@ -981,23 +981,23 @@ mgfEntityRing(int ac, char **av, RadianceMethod *context)
                 snprintf(p3[j], 24, globalFloatFormat, cv->p[j] + maxRad * d);
                 snprintf(p4[j], 24, globalFloatFormat, cv->p[j] + minRad * d);
             }
-            rv = mgfHandle(MG_E_VERTEX, 2, v3ent, context);
+            rv = mgfHandle(MGF_ENTITY_VERTEX, 2, v3ent, context);
             if ( rv != MGF_OK ) {
                 return rv;
             }
-            rv = mgfHandle(MG_E_POINT, 4, p3ent, context);
+            rv = mgfHandle(MGF_ENTITY_POINT, 4, p3ent, context);
             if ( rv != MGF_OK ) {
                 return rv;
             }
-            rv = mgfHandle(MG_E_VERTEX, 2, v4ent, context);
+            rv = mgfHandle(MGF_ENTITY_VERTEX, 2, v4ent, context);
             if ( rv != MGF_OK ) {
                 return rv;
             }
-            rv = mgfHandle(MG_E_POINT, 4, p4ent, context);
+            rv = mgfHandle(MGF_ENTITY_POINT, 4, p4ent, context);
             if ( rv != MGF_OK ) {
                 return rv;
             }
-            rv = mgfHandle(MG_E_FACE, 5, fent, context);
+            rv = mgfHandle(MGF_ENTITY_FACE, 5, fent, context);
             if ( rv != MGF_OK ) {
                 return rv;
             }
@@ -1016,15 +1016,15 @@ mgfEntityCone(int ac, char **av, RadianceMethod *context)
     static char p4[3][24];
     static char n3[3][24];
     static char n4[3][24];
-    static char *v1ent[5] = {GLOBAL_mgf_entityNames[MG_E_VERTEX], (char *)"_cv1", (char *)"="};
-    static char *v2ent[5] = {GLOBAL_mgf_entityNames[MG_E_VERTEX], (char *)"_cv2", (char *)"=", (char *)"_cv3"};
-    static char *v3ent[4] = {GLOBAL_mgf_entityNames[MG_E_VERTEX], (char *)"_cv3", (char *)"="};
-    static char *p3ent[5] = {GLOBAL_mgf_entityNames[MG_E_POINT], p3[0], p3[1], p3[2]};
-    static char *n3ent[5] = {GLOBAL_mgf_entityNames[MG_E_NORMAL], n3[0], n3[1], n3[2]};
-    static char *v4ent[4] = {GLOBAL_mgf_entityNames[MG_E_VERTEX], (char *)"_cv4", (char *)"="};
-    static char *p4ent[5] = {GLOBAL_mgf_entityNames[MG_E_POINT], p4[0], p4[1], p4[2]};
-    static char *n4ent[5] = {GLOBAL_mgf_entityNames[MG_E_NORMAL], n4[0], n4[1], n4[2]};
-    static char *fent[6] = {GLOBAL_mgf_entityNames[MG_E_FACE], (char *)"_cv1", (char *)"_cv2", (char *)"_cv3", (char *)"_cv4"};
+    static char *v1ent[5] = {GLOBAL_mgf_entityNames[MGF_ENTITY_VERTEX], (char *)"_cv1", (char *)"="};
+    static char *v2ent[5] = {GLOBAL_mgf_entityNames[MGF_ENTITY_VERTEX], (char *)"_cv2", (char *)"=", (char *)"_cv3"};
+    static char *v3ent[4] = {GLOBAL_mgf_entityNames[MGF_ENTITY_VERTEX], (char *)"_cv3", (char *)"="};
+    static char *p3ent[5] = {GLOBAL_mgf_entityNames[MGF_ENTITY_POINT], p3[0], p3[1], p3[2]};
+    static char *n3ent[5] = {GLOBAL_mgf_entityNames[MGF_ENTITY_NORMAL], n3[0], n3[1], n3[2]};
+    static char *v4ent[4] = {GLOBAL_mgf_entityNames[MGF_ENTITY_VERTEX], (char *)"_cv4", (char *)"="};
+    static char *p4ent[5] = {GLOBAL_mgf_entityNames[MGF_ENTITY_POINT], p4[0], p4[1], p4[2]};
+    static char *n4ent[5] = {GLOBAL_mgf_entityNames[MGF_ENTITY_NORMAL], n4[0], n4[1], n4[2]};
+    static char *fent[6] = {GLOBAL_mgf_entityNames[MGF_ENTITY_FACE], (char *)"_cv1", (char *)"_cv2", (char *)"_cv3", (char *)"_cv4"};
     char *v1n;
     MgfVertexContext *cv1;
     MgfVertexContext *cv2;
@@ -1108,15 +1108,15 @@ mgfEntityCone(int ac, char **av, RadianceMethod *context)
             snprintf(n3[j], 24, globalFloatFormat, u[j] + w[j] * n2off);
         }
     }
-    rv = mgfHandle(MG_E_VERTEX, 3, v3ent, context);
+    rv = mgfHandle(MGF_ENTITY_VERTEX, 3, v3ent, context);
     if ( rv != MGF_OK ) {
         return rv;
     }
-    rv = mgfHandle(MG_E_POINT, 4, p3ent, context);
+    rv = mgfHandle(MGF_ENTITY_POINT, 4, p3ent, context);
     if ( rv != MGF_OK ) {
         return rv;
     }
-    rv = mgfHandle(MG_E_NORMAL, 4, n3ent, context);
+    rv = mgfHandle(MGF_ENTITY_NORMAL, 4, n3ent, context);
     if ( rv != MGF_OK ) {
         return rv;
     }
@@ -1124,20 +1124,20 @@ mgfEntityCone(int ac, char **av, RadianceMethod *context)
         // TODO: Review floating point comparisons vs EPSILON
         // Triangles
         v1ent[3] = v1n;
-        rv = mgfHandle(MG_E_VERTEX, 4, v1ent, context);
+        rv = mgfHandle(MGF_ENTITY_VERTEX, 4, v1ent, context);
         if ( rv != MGF_OK ) {
             return rv;
         }
         for ( int j = 0; j < 3; j++ ) {
             snprintf(n4[j], 24, globalFloatFormat, w[j]);
         }
-        rv = mgfHandle(MG_E_NORMAL, 4, n4ent, context);
+        rv = mgfHandle(MGF_ENTITY_NORMAL, 4, n4ent, context);
         if ( rv != MGF_OK ) {
             return rv;
         }
         for ( int i = 1; i <= 4 * GLOBAL_mgf_divisionsPerQuarterCircle; i++ ) {
             theta = sgn * i * (M_PI / 2) / GLOBAL_mgf_divisionsPerQuarterCircle;
-            rv = mgfHandle(MG_E_VERTEX, 4, v2ent, context);
+            rv = mgfHandle(MGF_ENTITY_VERTEX, 4, v2ent, context);
             if ( rv != MGF_OK ) {
                 return rv;
             }
@@ -1148,19 +1148,19 @@ mgfEntityCone(int ac, char **av, RadianceMethod *context)
                     snprintf(n3[j], 24, globalFloatFormat, d + w[j] * n2off);
                 }
             }
-            rv = mgfHandle(MG_E_VERTEX, 2, v3ent, context);
+            rv = mgfHandle(MGF_ENTITY_VERTEX, 2, v3ent, context);
             if ( rv != MGF_OK ) {
                 return rv;
             }
-            rv = mgfHandle(MG_E_POINT, 4, p3ent, context);
+            rv = mgfHandle(MGF_ENTITY_POINT, 4, p3ent, context);
             if ( rv != MGF_OK ) {
                 return rv;
             }
-            rv = mgfHandle(MG_E_NORMAL, 4, n3ent, context);
+            rv = mgfHandle(MGF_ENTITY_NORMAL, 4, n3ent, context);
             if ( n2off > -FLOAT_HUGE && rv != MGF_OK ) {
                 return rv;
             }
-            rv = mgfHandle(MG_E_FACE, 4, fent, context);
+            rv = mgfHandle(MGF_ENTITY_FACE, 4, fent, context);
             if ( rv != MGF_OK ) {
                 return rv;
             }
@@ -1185,25 +1185,25 @@ mgfEntityCone(int ac, char **av, RadianceMethod *context)
                 snprintf(n4[j], 24, globalFloatFormat, u[j] + w[j] * n1off);
             }
         }
-        rv = mgfHandle(MG_E_VERTEX, 3, v4ent, context);
+        rv = mgfHandle(MGF_ENTITY_VERTEX, 3, v4ent, context);
         if ( rv != MGF_OK ) {
             return rv;
         }
-        rv = mgfHandle(MG_E_POINT, 4, p4ent, context);
+        rv = mgfHandle(MGF_ENTITY_POINT, 4, p4ent, context);
         if ( rv != MGF_OK ) {
             return rv;
         }
-        rv = mgfHandle(MG_E_NORMAL, 4, n4ent, context);
+        rv = mgfHandle(MGF_ENTITY_NORMAL, 4, n4ent, context);
         if ( rv != MGF_OK ) {
             return rv;
         }
         for ( int i = 1; i <= 4 * GLOBAL_mgf_divisionsPerQuarterCircle; i++ ) {
             theta = sgn * i * (M_PI / 2) / GLOBAL_mgf_divisionsPerQuarterCircle;
-            rv = mgfHandle(MG_E_VERTEX, 4, v1ent, context);
+            rv = mgfHandle(MGF_ENTITY_VERTEX, 4, v1ent, context);
             if ( rv != MGF_OK ) {
                 return rv;
             }
-            rv = mgfHandle(MG_E_VERTEX, 4, v2ent, context);
+            rv = mgfHandle(MGF_ENTITY_VERTEX, 4, v2ent, context);
             if ( rv != MGF_OK ) {
                 return rv;
             }
@@ -1218,32 +1218,32 @@ mgfEntityCone(int ac, char **av, RadianceMethod *context)
                     snprintf(n4[j], 24, globalFloatFormat, d + w[j] * n1off);
                 }
             }
-            rv = mgfHandle(MG_E_VERTEX, 2, v3ent, context);
+            rv = mgfHandle(MGF_ENTITY_VERTEX, 2, v3ent, context);
             if ( rv != MGF_OK ) {
                 return rv;
             }
-            rv = mgfHandle(MG_E_POINT, 4, p3ent, context);
+            rv = mgfHandle(MGF_ENTITY_POINT, 4, p3ent, context);
             if ( rv != MGF_OK ) {
                 return rv;
             }
-            rv = mgfHandle(MG_E_NORMAL, 4, n3ent, context);
+            rv = mgfHandle(MGF_ENTITY_NORMAL, 4, n3ent, context);
             if ( n2off > -FLOAT_HUGE && rv != MGF_OK ) {
                 return rv;
             }
-            rv = mgfHandle(MG_E_VERTEX, 2, v4ent, context);
+            rv = mgfHandle(MGF_ENTITY_VERTEX, 2, v4ent, context);
             if ( rv != MGF_OK ) {
                 return rv;
             }
-            rv = mgfHandle(MG_E_POINT, 4, p4ent, context);
+            rv = mgfHandle(MGF_ENTITY_POINT, 4, p4ent, context);
             if ( rv != MGF_OK ) {
                 return rv;
             }
-            rv = mgfHandle(MG_E_NORMAL, 4, n4ent, context);
+            rv = mgfHandle(MGF_ENTITY_NORMAL, 4, n4ent, context);
             if ( n1off < FLOAT_HUGE &&
                  rv != MGF_OK ) {
                 return rv;
             }
-            rv = mgfHandle(MG_E_FACE, 5, fent, context);
+            rv = mgfHandle(MGF_ENTITY_FACE, 5, fent, context);
             if ( rv != MGF_OK ) {
                 return rv;
             }
@@ -1259,9 +1259,9 @@ int
 mgfEntityPrism(int ac, char **av, RadianceMethod *context)
 {
     static char p[3][24];
-    static char *vent[5] = {GLOBAL_mgf_entityNames[MG_E_VERTEX], nullptr, (char *)"="};
-    static char *pent[5] = {GLOBAL_mgf_entityNames[MG_E_POINT], p[0], p[1], p[2]};
-    static char *znorm[5] = {GLOBAL_mgf_entityNames[MG_E_NORMAL], (char *)"0", (char *)"0", (char *)"0"};
+    static char *vent[5] = {GLOBAL_mgf_entityNames[MGF_ENTITY_VERTEX], nullptr, (char *)"="};
+    static char *pent[5] = {GLOBAL_mgf_entityNames[MGF_ENTITY_POINT], p[0], p[1], p[2]};
+    static char *znorm[5] = {GLOBAL_mgf_entityNames[MGF_ENTITY_NORMAL], (char *)"0", (char *)"0", (char *)"0"};
     char *newav[MGF_MAXIMUM_ARGUMENT_COUNT];
     char nvn[MGF_MAXIMUM_ARGUMENT_COUNT - 1][8];
     double length;
@@ -1332,7 +1332,7 @@ mgfEntityPrism(int ac, char **av, RadianceMethod *context)
         snprintf(nvn[i - 1], MGF_MAXIMUM_ARGUMENT_COUNT, "_pv%d", i);
         vent[1] = nvn[i - 1];
         vent[3] = av[i];
-        rv = mgfHandle(MG_E_VERTEX, 4, vent, context);
+        rv = mgfHandle(MGF_ENTITY_VERTEX, 4, vent, context);
         if ( rv != MGF_OK ) {
             return rv;
         }
@@ -1340,14 +1340,14 @@ mgfEntityPrism(int ac, char **av, RadianceMethod *context)
         for ( j = 0; j < 3; j++ ) {
             snprintf(p[j], 24, globalFloatFormat, cv->p[j] - length * norm[j]);
         }
-        rv = mgfHandle(MG_E_POINT, 4, pent, context);
+        rv = mgfHandle(MGF_ENTITY_POINT, 4, pent, context);
         if ( rv != MGF_OK ) {
             return rv;
         }
     }
 
     // Make faces
-    newav[0] = GLOBAL_mgf_entityNames[MG_E_FACE];
+    newav[0] = GLOBAL_mgf_entityNames[MGF_ENTITY_FACE];
     // Do the side faces
     newav[5] = nullptr;
     newav[3] = av[ac - 2];
@@ -1355,7 +1355,7 @@ mgfEntityPrism(int ac, char **av, RadianceMethod *context)
     for ( i = 1; i < ac - 1; i++ ) {
         newav[1] = nvn[i - 1];
         newav[2] = av[i];
-        rv = mgfHandle(MG_E_FACE, 5, newav, context);
+        rv = mgfHandle(MGF_ENTITY_FACE, 5, newav, context);
         if ( rv != MGF_OK ) {
             return rv;
         }
@@ -1368,18 +1368,18 @@ mgfEntityPrism(int ac, char **av, RadianceMethod *context)
         if ( hasnorm ) {
             // Zero normals
             vent[1] = nvn[i - 1];
-            rv = mgfHandle(MG_E_VERTEX, 2, vent, context);
+            rv = mgfHandle(MGF_ENTITY_VERTEX, 2, vent, context);
             if ( rv != MGF_OK ) {
                 return rv;
             }
-            rv = mgfHandle(MG_E_NORMAL, 4, znorm, context);
+            rv = mgfHandle(MGF_ENTITY_NORMAL, 4, znorm, context);
             if ( rv != MGF_OK ) {
                 return rv;
             }
         }
         newav[ac - 1 - i] = nvn[i - 1]; // Reverse
     }
-    rv = mgfHandle(MG_E_FACE, ac - 1, newav, context);
+    rv = mgfHandle(MGF_ENTITY_FACE, ac - 1, newav, context);
     if ( rv != MGF_OK ) {
         return rv;
     }
@@ -1389,11 +1389,11 @@ mgfEntityPrism(int ac, char **av, RadianceMethod *context)
         for ( i = 1; i < ac - 1; i++ ) {
             vent[1] = nvn[i - 1];
             vent[3] = av[i];
-            rv = mgfHandle(MG_E_VERTEX, 4, vent, context);
+            rv = mgfHandle(MGF_ENTITY_VERTEX, 4, vent, context);
             if ( rv != MGF_OK ) {
                 return rv;
             }
-            rv = mgfHandle(MG_E_NORMAL, 4, znorm, context);
+            rv = mgfHandle(MGF_ENTITY_NORMAL, 4, znorm, context);
             if ( rv != MGF_OK ) {
                 return rv;
             }
@@ -1405,7 +1405,7 @@ mgfEntityPrism(int ac, char **av, RadianceMethod *context)
         }
     }
     newav[i] = nullptr;
-    rv = mgfHandle(MG_E_FACE, i, newav, context);
+    rv = mgfHandle(MGF_ENTITY_FACE, i, newav, context);
     if ( rv != MGF_OK ) {
         return rv;
     }
