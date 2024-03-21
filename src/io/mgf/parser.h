@@ -5,6 +5,7 @@
 
 #include "common/mymath.h"
 #include "skin/RadianceMethod.h"
+#include "io/mgf/Vector3Dd.h"
 
 // Major version number
 #define MGF_MAJOR_VERSION_NUMBER 2
@@ -165,18 +166,11 @@ extern int isIntDWords(char *, char *);
 extern int isFloatWords(char *);
 extern int isFloatDWords(char *, char *);
 extern int isNameWords(char *);
-extern int checkForBadArguments(int, char **, char *);
 extern int handleIncludedFile(int ac, char **av, RadianceMethod *context);
 
 /**
 Definitions for 3-d vector manipulation functions
 */
-
-#define FLOAT double
-#define FLOAT_TINY (1e-6)
-#define FLOAT_HUGE (1e10)
-
-typedef FLOAT FVECT[3];
 
 inline void
 mgfVertexCopy(double *result, const double *source) {

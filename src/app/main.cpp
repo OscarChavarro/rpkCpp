@@ -52,10 +52,11 @@ static int globalYes = 1;
 static int globalNo = 0;
 static int globalImageOutputWidth = 0;
 static int globalImageOutputHeight = 0;
+static int globalFileOptionsForceOneSidedSurfaces = 0;
 
 static void
 mainForceOneSidedOption(void *value) {
-    GLOBAL_fileOptions_forceOneSidedSurfaces = *((int *) value);
+    globalFileOptionsForceOneSidedSurfaces = *((int *) value);
 }
 
 static void
@@ -203,18 +204,18 @@ mainRenderingDefaults() {
 Global initializations
 */
 static void
-mainInit(RadianceMethod *context) {
+mainInit() {
     // Transforms the cubature rules for quadrilaterals to be over the domain [0,1]^2 instead of [-1,1]^2
     fixCubatureRules();
 
     GLOBAL_fileOptions_monochrome = DEFAULT_MONOCHROME;
-    GLOBAL_fileOptions_forceOneSidedSurfaces = DEFAULT_FORCE_ONESIDEDNESS;
+    globalFileOptionsForceOneSidedSurfaces = DEFAULT_FORCE_ONESIDEDNESS;
     GLOBAL_fileOptions_numberOfQuarterCircleDivisions = DEFAULT_NUMBER_OF_QUARTIC_DIVISIONS;
 
     mainRenderingDefaults();
     toneMapDefaults();
     cameraDefaults();
-    radianceDefaults(GLOBAL_scenePatches, context);
+    radianceDefaults(GLOBAL_scenePatches, nullptr);
 
     #ifdef RAYTRACING_ENABLED
         mainRayTracingDefaults();
@@ -366,7 +367,10 @@ mainReadFile(char *filename, RadianceMethod *context) {
     }
 
     if ( strncmp(extension, "mgf", 3) == 0 ) {
-        readMgf(filename, context);
+        readMgf(
+                filename,
+                context,
+                globalFileOptionsForceOneSidedSurfaces != 0);
     }
 
     clock_t t = clock();
@@ -616,7 +620,7 @@ int
 main(int argc, char *argv[]) {
     RadianceMethod *selectedRadianceMethod = nullptr;
 
-    mainInit(selectedRadianceMethod);
+    mainInit();
     mainParseGlobalOptions(&argc, argv, &selectedRadianceMethod);
     mainBuildModel(&argc, argv, selectedRadianceMethod);
 

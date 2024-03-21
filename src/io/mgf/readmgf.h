@@ -3,7 +3,10 @@
 
 #include "skin/RadianceMethod.h"
 
-extern void readMgf(char *filename, RadianceMethod *context);
+extern void readMgf(
+    char *filename,
+    RadianceMethod *context,
+    bool singleSided);
 extern void mgfFreeMemory();
 
 #endif

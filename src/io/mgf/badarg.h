@@ -1,5 +1,5 @@
-#ifndef __BADARG__
-#define __BADARG__
+#ifndef __BAD_ARGUMENT__
+#define __BAD_ARGUMENT__
 
 extern int checkForBadArguments(int ac, char **av, char *fl);
 

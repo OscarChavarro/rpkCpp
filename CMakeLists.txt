@@ -82,7 +82,7 @@ set(MAIN_SRC
     src/io/mgf/badarg.cpp
     src/io/mgf/xf.cpp
     src/io/mgf/words.cpp
-    src/io/mgf/fvect.cpp
+    src/io/mgf/Vector3Dd.cpp
     src/io/mgf/parser.cpp
     src/io/mgf/context.cpp
     src/io/FileUncompressWrapper.cpp
@@ -170,7 +170,7 @@ set(MAIN_SRC
     src/app/radiance.cpp
     src/app/raytrace.cpp
     src/app/batch.cpp
-    src/app/main.cpp)
+    src/app/main.cpp src/io/mgf/Vector3Dd.h)
 add_executable(rpk ${MAIN_SRC})
 
 target_link_libraries(rpk GLU GL OSMesa)

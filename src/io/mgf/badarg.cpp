@@ -18,24 +18,24 @@ checkForBadArguments(int ac, char **av, char *fl) {
             return -1;
         }
         switch ( *fl ) {
-            case 's': // string
+            case 's': // String
                 if ( **av == '\0' || isspace(**av)) {
                     return i;
                 }
                 break;
-            case 'i': // integer
+            case 'i': // Integer
                 if ( !isIntDWords(*av, (char *) " \t\r\n")) {
                     return i;
                 }
                 break;
-            case 'f': // float
+            case 'f': // Float
                 if ( !isFloatDWords(*av, (char *) " \t\r\n")) {
                     return i;
                 }
                 break;
-            default: // bad call!
+            default: // Bad call!
                 return -1;
         }
     }
-    return 0; // all's well
+    return 0; // All's well
 }

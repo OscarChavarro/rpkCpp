@@ -4,6 +4,7 @@ Routines for 3-d vectors
 
 #include "common/mymath.h"
 #include "io/mgf/parser.h"
+#include "io/mgf/Vector3Dd.h"
 
 /**
 Normalize a vector, return old magnitude

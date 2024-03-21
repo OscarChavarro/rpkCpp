@@ -17,8 +17,8 @@
 
 #define NUMBER_OF_SAMPLES 3
 
-static VectorOctreeNode *globalPointsOctree;
-static VectorOctreeNode *globalNormalsOctree;
+static VectorOctreeNode *globalPointsOctree = nullptr;
+static VectorOctreeNode *globalNormalsOctree = nullptr;
 
 // Elements for surface currently being created
 static java::ArrayList<Vector3D *> *globalCurrentPointList = nullptr;
@@ -34,7 +34,7 @@ static java::ArrayList<Geometry *> **globalGeometryStackPtr = nullptr;
 
 static int globalInComplex = false; // True if reading a sphere, torus or other unsupported
 static int globalInSurface = false; // True if busy creating a new surface
-static int globalAllSurfacesSided = false; // When set to true, all surfaces will be considered one-sided
+static bool globalAllSurfacesSided = false; // When set to true, all surfaces will be considered one-sided
 
 static void
 doError(const char *errmsg) {
@@ -148,7 +148,7 @@ face normals and vertices in counter clockwise order as seen from the
 normal direction).
 */
 static void
-mgfSetIgnoreSidedness(int yesno) {
+mgfSetIgnoreSidedness(bool yesno) {
     globalAllSurfacesSided = yesno;
 }
 
@@ -1201,9 +1201,13 @@ Reads in an mgf file. The result is that the global variables
 GLOBAL_scene_world and GLOBAL_scene_materials are filled in.
 */
 void
-readMgf(char *filename, RadianceMethod *context) {
+readMgf(
+    char *filename,
+    RadianceMethod *context,
+    bool singleSided)
+{
     mgfSetNrQuartCircDivs(GLOBAL_fileOptions_numberOfQuarterCircleDivisions);
-    mgfSetIgnoreSidedness(GLOBAL_fileOptions_forceOneSidedSurfaces);
+    mgfSetIgnoreSidedness(singleSided);
     mgfSetMonochrome(GLOBAL_fileOptions_monochrome);
 
     initMgf();

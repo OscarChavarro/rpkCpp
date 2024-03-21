@@ -2,6 +2,7 @@
 Routines for 4x4 homogeneous, rigid-body transformations
 */
 
+#include "io/mgf/badarg.h"
 #include "io/mgf/parser.h"
 
 static MAT4 globalM4Tmp; // For efficiency
@@ -109,7 +110,7 @@ d2r(double a) {
 }
 
 static bool
-checkarg(int a, const char *l, int ac, char **av, int i) {
+checkArgument(int a, const char *l, int ac, char **av, int i) {
     if ( av[i][(a)] || checkForBadArguments(ac - i - 1, av + i + 1, (char *) (l)) ) {
         return false;
     }
@@ -282,7 +283,7 @@ xf(XF *ret, int ac, char **av)
 
             case 't':
                 // Translate
-                if ( !checkarg(2, "fff", ac, av, i) ) {
+                if ( !checkArgument(2, "fff", ac, av, i) ) {
                     finish(icnt, ret, xfmat, xfsca);
                     return i;
                 }
@@ -295,7 +296,7 @@ xf(XF *ret, int ac, char **av)
                 // Rotate
                 switch ( av[i][2] ) {
                     case 'x':
-                        if ( !checkarg(3, "f", ac, av, i) ) {
+                        if ( !checkArgument(3, "f", ac, av, i) ) {
                             finish(icnt, ret, xfmat, xfsca);
                             return i;
                         }
@@ -304,7 +305,7 @@ xf(XF *ret, int ac, char **av)
                         m4[2][1] = -(m4[1][2] = std::sin(dtmp));
                         break;
                     case 'y':
-                        if ( !checkarg(3, "f", ac, av, i) ) {
+                        if ( !checkArgument(3, "f", ac, av, i) ) {
                             finish(icnt, ret, xfmat, xfsca);
                             return i;
                         }
@@ -313,7 +314,7 @@ xf(XF *ret, int ac, char **av)
                         m4[0][2] = -(m4[2][0] = std::sin(dtmp));
                         break;
                     case 'z':
-                        if ( !checkarg(3, "f", ac, av, i) ) {
+                        if ( !checkArgument(3, "f", ac, av, i) ) {
                             finish(icnt, ret, xfmat, xfsca);
                             return i;
                         }
@@ -332,7 +333,7 @@ xf(XF *ret, int ac, char **av)
                         float A;
                         float B;
 
-                        if ( !checkarg(2, "ffff", ac, av, i) ) {
+                        if ( !checkArgument(2, "ffff", ac, av, i) ) {
                             finish(icnt, ret, xfmat, xfsca);
                             return i;
                         }
@@ -370,7 +371,7 @@ xf(XF *ret, int ac, char **av)
                 // Scale
                 switch ( av[i][2] ) {
                     case 'x':
-                        if ( !checkarg(3, "f", ac, av, i) ) {
+                        if ( !checkArgument(3, "f", ac, av, i) ) {
                             finish(icnt, ret, xfmat, xfsca);
                             return i;
                         }
@@ -382,7 +383,7 @@ xf(XF *ret, int ac, char **av)
                         m4[0][0] = dtmp;
                         break;
                     case 'y':
-                        if ( !checkarg(3, "f", ac, av, i) ) {
+                        if ( !checkArgument(3, "f", ac, av, i) ) {
                             finish(icnt, ret, xfmat, xfsca);
                             return i;
                         }
@@ -394,7 +395,7 @@ xf(XF *ret, int ac, char **av)
                         m4[1][1] = dtmp;
                         break;
                     case 'z':
-                        if ( !checkarg(3, "f", ac, av, i) ) {
+                        if ( !checkArgument(3, "f", ac, av, i) ) {
                             finish(icnt, ret, xfmat, xfsca);
                             return i;
                         }
@@ -406,7 +407,7 @@ xf(XF *ret, int ac, char **av)
                         m4[2][2] = dtmp;
                         break;
                     default:
-                        if ( !checkarg(2, "f", ac, av, i) ) {
+                        if ( !checkArgument(2, "f", ac, av, i) ) {
                             finish(icnt, ret, xfmat, xfsca);
                             return i;
                         }
@@ -428,7 +429,7 @@ xf(XF *ret, int ac, char **av)
                 // Mirror
                 switch ( av[i][2] ) {
                     case 'x':
-                        if ( !checkarg(3, "", ac, av, i) ) {
+                        if ( !checkArgument(3, "", ac, av, i) ) {
                             finish(icnt, ret, xfmat, xfsca);
                             return i;
                         }
@@ -436,7 +437,7 @@ xf(XF *ret, int ac, char **av)
                         m4[0][0] = -1.0;
                         break;
                     case 'y':
-                        if ( !checkarg(3, "", ac, av, i) ) {
+                        if ( !checkArgument(3, "", ac, av, i) ) {
                             finish(icnt, ret, xfmat, xfsca);
                             return i;
                         }
@@ -444,7 +445,7 @@ xf(XF *ret, int ac, char **av)
                         m4[1][1] = -1.0;
                         break;
                     case 'z':
-                        if ( !checkarg(3, "", ac, av, i) ) {
+                        if ( !checkArgument(3, "", ac, av, i) ) {
                             finish(icnt, ret, xfmat, xfsca);
                             return i;
                         }
@@ -459,7 +460,7 @@ xf(XF *ret, int ac, char **av)
 
             case 'i':
                 // Iterate
-                if ( !checkarg(2, "i", ac, av, i) ) {
+                if ( !checkArgument(2, "i", ac, av, i) ) {
                     finish(icnt, ret, xfmat, xfsca);
                     return i;
                 }

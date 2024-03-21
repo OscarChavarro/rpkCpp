@@ -68,17 +68,20 @@ mgfDiscardUnNeededEntity(int /*ac*/, char ** /*av*/, RadianceMethod * /*context*
 Compute u and v given w (normalized)
 */
 static void
-mgfMakeAxes(double *u, double *v, double *w)
+mgfMakeAxes(double *u, double *v, const double *w)
 {
-    int i;
+    v[0] = 0.0;
+    v[1] = 0.0;
+    v[2] = 0.0;
 
-    v[0] = v[1] = v[2] = 0.0;
+    int i;
     for ( i = 0; i < 3; i++ ) {
-        if ( w[i] < 0.6 && w[i] > -0.6 ) {
+        if ( w[i] > -0.6 && w[i] < 0.6 ) {
             break;
         }
     }
     v[i] = 1.0;
+
     floatCrossProduct(u, v, w);
     normalize(u);
     floatCrossProduct(v, w, u);
@@ -892,8 +895,6 @@ mgfEntityRing(int ac, char **av, RadianceMethod *context)
     MgfVertexContext *cv;
     int i;
     int j;
-    FVECT u;
-    FVECT v;
     double minRad;
     double maxRad;
     int rv;
@@ -922,6 +923,9 @@ mgfEntityRing(int ac, char **av, RadianceMethod *context)
     }
 
     // Initialize
+    FVECT u;
+    FVECT v;
+
     mgfMakeAxes(u, v, cv->n);
     for ( j = 0; j < 3; j++ ) {
         snprintf(p3[j], 24, globalFloatFormat, cv->p[j] + maxRad * u[j]);

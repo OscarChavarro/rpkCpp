@@ -2,16 +2,14 @@
 Context handlers
 */
 
-#include <cstdlib>
-#include <cstring>
-
-#include "common/mymath.h"
 #include "io/mgf/parser.h"
 #include "io/mgf/lookup.h"
-#include "io/mgf/words.h"
 
-#define C1 3.741832e-16 /* W-m^2 */
-#define C2 1.4388e-2 /* m-K */
+// W-m^2
+#define C1 3.741832e-16
+
+// m-K
+#define C2 1.4388e-2
 
 inline double
 bbsp(double l, double t) {
