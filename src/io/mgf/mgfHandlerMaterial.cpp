@@ -8,6 +8,7 @@
 #include "io/mgf/lookup.h"
 #include "io/mgf/parser.h"
 #include "io/mgf/fileopts.h"
+#include "io/mgf/MgfMaterialContext.h"
 
 #define NUMBER_OF_SAMPLES 3
 
@@ -32,8 +33,7 @@
 
 static MgfMaterialContext globalUnNamedMaterialContext = DEFAULT_MATERIAL;
 static MgfMaterialContext globalDefaultMgfMaterial = DEFAULT_MATERIAL;
-MgfMaterialContext *GLOBAL_mgf_currentMaterial = &globalUnNamedMaterialContext;
-
+static MgfMaterialContext *globalMgfCurrentMaterial = &globalUnNamedMaterialContext;
 static LUTAB globalMaterialLookUpTable = LU_SINIT(free, free);
 
 /**
@@ -125,7 +125,7 @@ creates a new MATERIAL, which is added to the global material library.
 The routine returns true if the material being used has changed
 */
 int
-getCurrentMaterial(Material **material, bool allSurfacesSided) {
+mgfGetCurrentMaterial(Material **material, bool allSurfacesSided) {
     COLOR Ed;
     COLOR Es;
     COLOR Rd;
@@ -147,13 +147,13 @@ getCurrentMaterial(Material **material, bool allSurfacesSided) {
 
     // Is it another material than the one used for the previous face ?? If not, the
     // material remains the same
-    if ( strcmp(materialName, (*material)->name) == 0 && GLOBAL_mgf_currentMaterial->clock == 0 ) {
+    if ( strcmp(materialName, (*material)->name) == 0 && globalMgfCurrentMaterial->clock == 0 ) {
         return false;
     }
 
     Material *theMaterial = materialLookup(materialName);
     if ( theMaterial != nullptr ) {
-        if ( GLOBAL_mgf_currentMaterial->clock == 0 ) {
+        if ( globalMgfCurrentMaterial->clock == 0 ) {
             (*material) = theMaterial;
             return true;
         }
@@ -161,11 +161,11 @@ getCurrentMaterial(Material **material, bool allSurfacesSided) {
 
     // New material, or a material that changed. Convert intensities and chromaticities
     // to our color model
-    mgfGetColor(&GLOBAL_mgf_currentMaterial->ed_c, GLOBAL_mgf_currentMaterial->ed, &Ed);
-    mgfGetColor(&GLOBAL_mgf_currentMaterial->rd_c, GLOBAL_mgf_currentMaterial->rd, &Rd);
-    mgfGetColor(&GLOBAL_mgf_currentMaterial->td_c, GLOBAL_mgf_currentMaterial->td, &Td);
-    mgfGetColor(&GLOBAL_mgf_currentMaterial->rs_c, GLOBAL_mgf_currentMaterial->rs, &Rs);
-    mgfGetColor(&GLOBAL_mgf_currentMaterial->ts_c, GLOBAL_mgf_currentMaterial->ts, &Ts);
+    mgfGetColor(&globalMgfCurrentMaterial->ed_c, globalMgfCurrentMaterial->ed, &Ed);
+    mgfGetColor(&globalMgfCurrentMaterial->rd_c, globalMgfCurrentMaterial->rd, &Rd);
+    mgfGetColor(&globalMgfCurrentMaterial->td_c, globalMgfCurrentMaterial->td, &Td);
+    mgfGetColor(&globalMgfCurrentMaterial->rs_c, globalMgfCurrentMaterial->rs, &Rs);
+    mgfGetColor(&globalMgfCurrentMaterial->ts_c, globalMgfCurrentMaterial->ts, &Ts);
 
     // Check/correct range of reflectances and transmittances
     colorAdd(Rd, Rs, A);
@@ -193,15 +193,15 @@ getCurrentMaterial(Material **material, bool allSurfacesSided) {
     Ne = 0.0;
 
     // Specular power = (0.6/roughness)^2 (see mgf docs)
-    if ( GLOBAL_mgf_currentMaterial->rs_a != 0.0 ) {
-        Nr = 0.6f / GLOBAL_mgf_currentMaterial->rs_a;
+    if ( globalMgfCurrentMaterial->rs_a != 0.0 ) {
+        Nr = 0.6f / globalMgfCurrentMaterial->rs_a;
         Nr *= Nr;
     } else {
         Nr = 0.0;
     }
 
-    if ( GLOBAL_mgf_currentMaterial->ts_a != 0.0 ) {
-        Nt = 0.6f / GLOBAL_mgf_currentMaterial->ts_a;
+    if ( globalMgfCurrentMaterial->ts_a != 0.0 ) {
+        Nt = 0.6f / globalMgfCurrentMaterial->ts_a;
         Nt *= Nt;
     } else {
         Nt = 0.0;
@@ -224,17 +224,17 @@ getCurrentMaterial(Material **material, bool allSurfacesSided) {
                                                             phongBrdfCreate(&Rd, &Rs, Nr), &GLOBAL_scene_phongBrdfMethods),
                                                     (colorNull(Td) && colorNull(Ts)) ? nullptr : btdfCreate(
                                                             phongBtdfCreate(&Td, &Ts, Nt,
-                                                                            GLOBAL_mgf_currentMaterial->nr,
-                                                                            GLOBAL_mgf_currentMaterial->ni),
+                                                                            globalMgfCurrentMaterial->nr,
+                                                                            globalMgfCurrentMaterial->ni),
                                                             &GLOBAL_scene_phongBtdfMethods), nullptr),
                                             &GLOBAL_scene_splitBsdfMethods),
-                                 allSurfacesSided ? 1 : GLOBAL_mgf_currentMaterial->sided);
+                                 allSurfacesSided ? 1 : globalMgfCurrentMaterial->sided);
 
     GLOBAL_scene_materials->add(0, theMaterial);
     *material = theMaterial;
 
     // Reset the clock value to be aware of possible changes in future
-    GLOBAL_mgf_currentMaterial->clock = 0;
+    globalMgfCurrentMaterial->clock = 0;
 
     return true;
 }
@@ -242,7 +242,7 @@ getCurrentMaterial(Material **material, bool allSurfacesSided) {
 void
 mgfClearMaterialTables() {
     globalUnNamedMaterialContext = globalDefaultMgfMaterial;
-    GLOBAL_mgf_currentMaterial = &globalUnNamedMaterialContext;
+    globalMgfCurrentMaterial = &globalUnNamedMaterialContext;
     lookUpDone(&globalMaterialLookUpTable);
 }
 
@@ -250,7 +250,7 @@ mgfClearMaterialTables() {
 This routine returns true if the current material has changed
 */
 int
-materialChanged(Material *material) {
+mgfMaterialChanged(Material *material) {
     char *materialName;
 
     materialName = GLOBAL_mgf_currentMaterialName;
@@ -261,7 +261,7 @@ materialChanged(Material *material) {
 
     // Is it another material than the one used for the previous face? If not, the
     // globalCurrentMaterial remains the same
-    if ( strcmp(materialName, material->name) == 0 && GLOBAL_mgf_currentMaterial->clock == 0 ) {
+    if ( strcmp(materialName, material->name) == 0 && globalMgfCurrentMaterial->clock == 0 ) {
         return false;
     }
 
@@ -287,7 +287,7 @@ handleMaterialEntity(int ac, char **av, RadianceMethod * /*context*/)
             if ( ac == 1 ) {
                 // Set unnamed material context
                 globalUnNamedMaterialContext = globalDefaultMgfMaterial;
-                GLOBAL_mgf_currentMaterial = &globalUnNamedMaterialContext;
+                globalMgfCurrentMaterial = &globalUnNamedMaterialContext;
                 GLOBAL_mgf_currentMaterialName = nullptr;
                 return MGF_OK;
             }
@@ -300,10 +300,10 @@ handleMaterialEntity(int ac, char **av, RadianceMethod * /*context*/)
                 return MGF_ERROR_OUT_OF_MEMORY;
             }
             GLOBAL_mgf_currentMaterialName = lp->key;
-            GLOBAL_mgf_currentMaterial = (MgfMaterialContext *) lp->data;
+            globalMgfCurrentMaterial = (MgfMaterialContext *) lp->data;
             if ( ac == 2 ) {
                 // Re-establish previous context
-                if ( GLOBAL_mgf_currentMaterial == nullptr) {
+                if ( globalMgfCurrentMaterial == nullptr) {
                     return MGF_ERROR_UNDEFINED_REFERENCE;
                 }
                 return MGF_OK;
@@ -311,7 +311,7 @@ handleMaterialEntity(int ac, char **av, RadianceMethod * /*context*/)
             if ( av[2][0] != '=' || av[2][1] ) {
                 return MGF_ERROR_ARGUMENT_TYPE;
             }
-            if ( GLOBAL_mgf_currentMaterial == nullptr ) {
+            if ( globalMgfCurrentMaterial == nullptr ) {
                 // Create new material
                 lp->key = (char *) malloc(strlen(av[1]) + 1);
                 if ( lp->key == nullptr) {
@@ -323,14 +323,14 @@ handleMaterialEntity(int ac, char **av, RadianceMethod * /*context*/)
                     return MGF_ERROR_OUT_OF_MEMORY;
                 }
                 GLOBAL_mgf_currentMaterialName = lp->key;
-                GLOBAL_mgf_currentMaterial = (MgfMaterialContext *) lp->data;
-                GLOBAL_mgf_currentMaterial->clock = 0;
+                globalMgfCurrentMaterial = (MgfMaterialContext *) lp->data;
+                globalMgfCurrentMaterial->clock = 0;
             }
-            i = GLOBAL_mgf_currentMaterial->clock;
+            i = globalMgfCurrentMaterial->clock;
             if ( ac == 3 ) {
                 // Use default template
-                *GLOBAL_mgf_currentMaterial = globalDefaultMgfMaterial;
-                GLOBAL_mgf_currentMaterial->clock = i + 1;
+                *globalMgfCurrentMaterial = globalDefaultMgfMaterial;
+                globalMgfCurrentMaterial->clock = i + 1;
                 return MGF_OK;
             }
             lp = lookUpFind(&globalMaterialLookUpTable, av[3]);
@@ -341,8 +341,8 @@ handleMaterialEntity(int ac, char **av, RadianceMethod * /*context*/)
             if ( lp->data == nullptr ) {
                 return MGF_ERROR_UNDEFINED_REFERENCE;
             }
-            *GLOBAL_mgf_currentMaterial = *(MgfMaterialContext *) lp->data;
-            GLOBAL_mgf_currentMaterial->clock = i + 1;
+            *globalMgfCurrentMaterial = *(MgfMaterialContext *) lp->data;
+            globalMgfCurrentMaterial->clock = i + 1;
             return MGF_OK;
 
         case MGF_ENTITY_IR:
@@ -353,12 +353,12 @@ handleMaterialEntity(int ac, char **av, RadianceMethod * /*context*/)
             if ( !isFloatWords(av[1]) || !isFloatWords(av[2]) ) {
                 return MGF_ERROR_ARGUMENT_TYPE;
             }
-            GLOBAL_mgf_currentMaterial->nr = strtof(av[1], nullptr);
-            GLOBAL_mgf_currentMaterial->ni = strtof(av[2], nullptr);
-            if ( GLOBAL_mgf_currentMaterial->nr <= EPSILON ) {
+            globalMgfCurrentMaterial->nr = strtof(av[1], nullptr);
+            globalMgfCurrentMaterial->ni = strtof(av[2], nullptr);
+            if ( globalMgfCurrentMaterial->nr <= EPSILON ) {
                 return MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
             }
-            GLOBAL_mgf_currentMaterial->clock++;
+            globalMgfCurrentMaterial->clock++;
             return MGF_OK;
 
         case MGF_ENTITY_RD:
@@ -369,12 +369,12 @@ handleMaterialEntity(int ac, char **av, RadianceMethod * /*context*/)
             if ( !isFloatWords(av[1])) {
                 return MGF_ERROR_ARGUMENT_TYPE;
             }
-            GLOBAL_mgf_currentMaterial->rd = strtof(av[1], nullptr);
-            if ( GLOBAL_mgf_currentMaterial->rd < 0. || GLOBAL_mgf_currentMaterial->rd > 1.0 ) {
+            globalMgfCurrentMaterial->rd = strtof(av[1], nullptr);
+            if ( globalMgfCurrentMaterial->rd < 0. || globalMgfCurrentMaterial->rd > 1.0 ) {
                 return MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
             }
-            GLOBAL_mgf_currentMaterial->rd_c = *GLOBAL_mgf_currentColor;
-            GLOBAL_mgf_currentMaterial->clock++;
+            globalMgfCurrentMaterial->rd_c = *GLOBAL_mgf_currentColor;
+            globalMgfCurrentMaterial->clock++;
             return MGF_OK;
 
         case MGF_ENTITY_ED:
@@ -385,12 +385,12 @@ handleMaterialEntity(int ac, char **av, RadianceMethod * /*context*/)
             if ( !isFloatWords(av[1])) {
                 return MGF_ERROR_ARGUMENT_TYPE;
             }
-            GLOBAL_mgf_currentMaterial->ed = strtof(av[1], nullptr);
-            if ( GLOBAL_mgf_currentMaterial->ed < 0.0 ) {
+            globalMgfCurrentMaterial->ed = strtof(av[1], nullptr);
+            if ( globalMgfCurrentMaterial->ed < 0.0 ) {
                 return MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
             }
-            GLOBAL_mgf_currentMaterial->ed_c = *GLOBAL_mgf_currentColor;
-            GLOBAL_mgf_currentMaterial->clock++;
+            globalMgfCurrentMaterial->ed_c = *GLOBAL_mgf_currentColor;
+            globalMgfCurrentMaterial->clock++;
             return MGF_OK;
 
         case MGF_ENTITY_TD:
@@ -401,12 +401,12 @@ handleMaterialEntity(int ac, char **av, RadianceMethod * /*context*/)
             if ( !isFloatWords(av[1]) ) {
                 return MGF_ERROR_ARGUMENT_TYPE;
             }
-            GLOBAL_mgf_currentMaterial->td = strtof(av[1], nullptr);
-            if ( GLOBAL_mgf_currentMaterial->td < 0.0 || GLOBAL_mgf_currentMaterial->td > 1.0 ) {
+            globalMgfCurrentMaterial->td = strtof(av[1], nullptr);
+            if ( globalMgfCurrentMaterial->td < 0.0 || globalMgfCurrentMaterial->td > 1.0 ) {
                 return MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
             }
-            GLOBAL_mgf_currentMaterial->td_c = *GLOBAL_mgf_currentColor;
-            GLOBAL_mgf_currentMaterial->clock++;
+            globalMgfCurrentMaterial->td_c = *GLOBAL_mgf_currentColor;
+            globalMgfCurrentMaterial->clock++;
             return MGF_OK;
 
         case MGF_ENTITY_RS:
@@ -417,14 +417,14 @@ handleMaterialEntity(int ac, char **av, RadianceMethod * /*context*/)
             if ( !isFloatWords(av[1]) || !isFloatWords(av[2])) {
                 return MGF_ERROR_ARGUMENT_TYPE;
             }
-            GLOBAL_mgf_currentMaterial->rs = strtof(av[1], nullptr);
-            GLOBAL_mgf_currentMaterial->rs_a = strtof(av[2], nullptr);
-            if ( GLOBAL_mgf_currentMaterial->rs < 0.0 || GLOBAL_mgf_currentMaterial->rs > 1.0 ||
-                 GLOBAL_mgf_currentMaterial->rs_a < 0.0 ) {
+            globalMgfCurrentMaterial->rs = strtof(av[1], nullptr);
+            globalMgfCurrentMaterial->rs_a = strtof(av[2], nullptr);
+            if ( globalMgfCurrentMaterial->rs < 0.0 || globalMgfCurrentMaterial->rs > 1.0 ||
+                 globalMgfCurrentMaterial->rs_a < 0.0 ) {
                 return MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
             }
-            GLOBAL_mgf_currentMaterial->rs_c = *GLOBAL_mgf_currentColor;
-            GLOBAL_mgf_currentMaterial->clock++;
+            globalMgfCurrentMaterial->rs_c = *GLOBAL_mgf_currentColor;
+            globalMgfCurrentMaterial->clock++;
             return MGF_OK;
 
         case MGF_ENTITY_TS:
@@ -435,14 +435,14 @@ handleMaterialEntity(int ac, char **av, RadianceMethod * /*context*/)
             if ( !isFloatWords(av[1]) || !isFloatWords(av[2])) {
                 return MGF_ERROR_ARGUMENT_TYPE;
             }
-            GLOBAL_mgf_currentMaterial->ts = strtof(av[1], nullptr);
-            GLOBAL_mgf_currentMaterial->ts_a = strtof(av[2], nullptr);
-            if ( GLOBAL_mgf_currentMaterial->ts < 0.0 || GLOBAL_mgf_currentMaterial->ts > 1.0 ||
-                 GLOBAL_mgf_currentMaterial->ts_a < 0.0 ) {
+            globalMgfCurrentMaterial->ts = strtof(av[1], nullptr);
+            globalMgfCurrentMaterial->ts_a = strtof(av[2], nullptr);
+            if ( globalMgfCurrentMaterial->ts < 0.0 || globalMgfCurrentMaterial->ts > 1.0 ||
+                 globalMgfCurrentMaterial->ts_a < 0.0 ) {
                 return MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
             }
-            GLOBAL_mgf_currentMaterial->ts_c = *GLOBAL_mgf_currentColor;
-            GLOBAL_mgf_currentMaterial->clock++;
+            globalMgfCurrentMaterial->ts_c = *GLOBAL_mgf_currentColor;
+            globalMgfCurrentMaterial->clock++;
             return MGF_OK;
 
         case MGF_ENTITY_SIDES:
@@ -455,13 +455,13 @@ handleMaterialEntity(int ac, char **av, RadianceMethod * /*context*/)
             }
             i = (int)strtol(av[1], nullptr, 10);
             if ( i == 1 ) {
-                GLOBAL_mgf_currentMaterial->sided = 1;
+                globalMgfCurrentMaterial->sided = 1;
             } else if ( i == 2 ) {
-                    GLOBAL_mgf_currentMaterial->sided = 0;
+                    globalMgfCurrentMaterial->sided = 0;
                 } else {
                     return MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
                 }
-            GLOBAL_mgf_currentMaterial->clock++;
+            globalMgfCurrentMaterial->clock++;
             return MGF_OK;
     }
     return MGF_ERROR_UNKNOWN_ENTITY;

@@ -85,6 +85,7 @@ set(MAIN_SRC
     src/io/mgf/Vector3Dd.cpp
     src/io/mgf/parser.cpp
     src/io/mgf/context.cpp
+    src/io/mgf/mgfHandlerMaterial.cpp
     src/io/FileUncompressWrapper.cpp
     src/io/writevrml.cpp
     src/render/potential.cpp
@@ -170,7 +171,7 @@ set(MAIN_SRC
     src/app/radiance.cpp
     src/app/raytrace.cpp
     src/app/batch.cpp
-    src/app/main.cpp src/io/mgf/mgfHandlerMaterial.cpp src/io/mgf/mgfHandlerMaterial.h)
+    src/app/main.cpp)
 add_executable(rpk ${MAIN_SRC})
 
 target_link_libraries(rpk GLU GL OSMesa)

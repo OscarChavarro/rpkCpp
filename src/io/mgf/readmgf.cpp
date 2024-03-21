@@ -620,12 +620,12 @@ handleFaceEntity(int argc, char **argv, RadianceMethod *context) {
     }
 
     if ( !globalInComplex ) {
-        if ( materialChanged(globalCurrentMaterial) ) {
+        if ( mgfMaterialChanged(globalCurrentMaterial) ) {
             if ( globalInSurface ) {
                 surfaceDone();
             }
             newSurface();
-            getCurrentMaterial(&globalCurrentMaterial, globalAllSurfacesSided);
+            mgfGetCurrentMaterial(&globalCurrentMaterial, globalAllSurfacesSided);
         }
     }
 
@@ -852,7 +852,7 @@ handleSurfaceEntity(int argc, char **argv, RadianceMethod *context) {
             surfaceDone();
         }
         newSurface();
-        getCurrentMaterial(&globalCurrentMaterial, globalAllSurfacesSided);
+        mgfGetCurrentMaterial(&globalCurrentMaterial, globalAllSurfacesSided);
 
         errcode = doDiscretize(argc, argv, context);
 
