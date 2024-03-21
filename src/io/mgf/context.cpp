@@ -4,6 +4,7 @@ Context handlers
 
 #include "io/mgf/parser.h"
 #include "io/mgf/lookup.h"
+#include "io/mgf/MgfColorContext.h"
 
 // W-m^2
 #define C1 3.741832e-16
@@ -21,17 +22,17 @@ bblm(double t) {
     return C2 / 5.0 / t;
 }
 
-/* default context values */
-static MgfColorContext c_dfcolor = C_DEF_COLOR;
-static MgfMaterialContext c_dfmaterial = C_DEFMATERIAL;
-static MgfVertexContext c_dfvertex = C_DEFVERTEX;
+// Default context values
+static MgfColorContext globalDefaultMgfColorContext = DEFAULT_COLOR_CONTEXT;
+static MgfMaterialContext globalDefaultMgfMaterial = DEFAULT_MATERIAL;
+static MgfVertexContext globalDefaultVertexContext = DEFAULT_VERTEX;
 
-/* the unnamed contexts */
-static MgfColorContext c_uncolor = C_DEF_COLOR;
-static MgfMaterialContext c_unmaterial = C_DEFMATERIAL;
-static MgfVertexContext c_unvertex = C_DEFVERTEX;
+// The unnamed contexts
+static MgfColorContext c_uncolor = DEFAULT_COLOR_CONTEXT;
+static MgfMaterialContext c_unmaterial = DEFAULT_MATERIAL;
+static MgfVertexContext c_unvertex = DEFAULT_VERTEX;
 
-/* the current contexts */
+// Current contexts
 MgfColorContext *GLOBAL_mgf_currentColor = &c_uncolor;
 MgfMaterialContext *GLOBAL_mgf_currentMaterial = &c_unmaterial;
 char *GLOBAL_mgf_currentMaterialName = nullptr;
@@ -42,56 +43,74 @@ static LUTAB clr_tab = LU_SINIT(free, free);    /* color lookup table */
 static LUTAB mat_tab = LU_SINIT(free, free);    /* material lookup table */
 static LUTAB vtx_tab = LU_SINIT(free, free);    /* vertex lookup table */
 
-/* CIE 1931 Standard Observer curves */
-static MgfColorContext cie_xf = {1, C_CDSPEC | C_CSSPEC | C_CSXY | C_CSEFF,
-                                 {14, 42, 143, 435, 1344, 2839, 3483, 3362, 2908, 1954, 956,
-                          320, 49, 93, 633, 1655, 2904, 4334, 5945, 7621, 9163, 10263,
-                          10622, 10026, 8544, 6424, 4479, 2835, 1649, 874, 468, 227,
-                          114, 58, 29, 14, 7, 3, 2, 1, 0}, 106836L, .467, .368, 362.230
-};
-static MgfColorContext cie_yf = {1, C_CDSPEC | C_CSSPEC | C_CSXY | C_CSEFF,
-                                 {0, 1, 4, 12, 40, 116, 230, 380, 600, 910, 1390, 2080, 3230,
-                          5030, 7100, 8620, 9540, 9950, 9950, 9520, 8700, 7570, 6310,
-                          5030, 3810, 2650, 1750, 1070, 610, 320, 170, 82, 41, 21, 10,
-                          5, 2, 1, 1, 0, 0}, 106856L, .398, .542, 493.525
-};
-static MgfColorContext cie_zf = {1, C_CDSPEC | C_CSSPEC | C_CSXY | C_CSEFF,
-                                 {65, 201, 679, 2074, 6456, 13856, 17471, 17721, 16692,
-                          12876, 8130, 4652, 2720, 1582, 782, 422, 203, 87, 39, 21, 17,
-                          11, 8, 3, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-                                 106770L, 0.147, 0.077, 54.363
-};
-/* Derived CIE 1931 Primaries (imaginary) */
-static MgfColorContext cie_xp = {1, C_CDSPEC | C_CSSPEC | C_CSXY,
-                                 {-174, -198, -195, -197, -202, -213, -235, -272, -333,
-                          -444, -688, -1232, -2393, -4497, -6876, -6758, -5256,
-                          -3100, -815, 1320, 3200, 4782, 5998, 6861, 7408, 7754,
-                          7980, 8120, 8199, 8240, 8271, 8292, 8309, 8283, 8469,
-                          8336, 8336, 8336, 8336, 8336, 8336},
-                                 127424L, 1.0, 0.0,
-};
-static MgfColorContext cie_yp = {1, C_CDSPEC | C_CSSPEC | C_CSXY,
-                                 {-451, -431, -431, -430, -427, -417, -399, -366, -312,
-                          -204, 57, 691, 2142, 4990, 8810, 9871, 9122, 7321, 5145,
-                          3023, 1123, -473, -1704, -2572, -3127, -3474, -3704,
-                          -3846, -3927, -3968, -3999, -4021, -4038, -4012, -4201,
-                          -4066, -4066, -4066, -4066, -4066, -4066},
-                                 -23035L, 0.0, 1.0,
-};
-static MgfColorContext cie_zp = {1, C_CDSPEC | C_CSSPEC | C_CSXY,
-                                 {4051, 4054, 4052, 4053, 4054, 4056, 4059, 4064, 4071,
-                          4074, 4056, 3967, 3677, 2933, 1492, 313, -440, -795,
-                          -904, -918, -898, -884, -869, -863, -855, -855, -851,
-                          -848, -847, -846, -846, -846, -845, -846, -843, -845,
-                          -845, -845, -845, -845, -845},
-                                 36057L, 0.0, 0.0,
+// CIE 1931 Standard Observer curves
+static MgfColorContext cie_xf = {
+    1, C_CDSPEC | C_CSSPEC | C_CSXY | C_CSEFF,
+     {14, 42, 143, 435, 1344, 2839, 3483, 3362, 2908, 1954, 956,
+              320, 49, 93, 633, 1655, 2904, 4334, 5945, 7621, 9163, 10263,
+              10622, 10026, 8544, 6424, 4479, 2835, 1649, 874, 468, 227,
+              114, 58, 29, 14, 7, 3, 2, 1, 0}, 106836L, .467, .368, 362.230
 };
 
-static int setSpectrum(MgfColorContext *clr, double wlmin, double wlmax, int ac, char **av);
+static MgfColorContext cie_yf = {
+        1, C_CDSPEC | C_CSSPEC | C_CSXY | C_CSEFF,
+         {0, 1, 4, 12, 40, 116, 230, 380, 600, 910, 1390, 2080, 3230,
+          5030, 7100, 8620, 9540, 9950, 9950, 9520, 8700, 7570, 6310,
+          5030, 3810, 2650, 1750, 1070, 610, 320, 170, 82, 41, 21, 10,
+          5, 2, 1, 1, 0, 0}, 106856L, .398, .542, 493.525
+};
 
-static int setbbtemp(MgfColorContext *clr, double tk);
+static MgfColorContext cie_zf = {
+    1, C_CDSPEC | C_CSSPEC | C_CSXY | C_CSEFF,
+       {65, 201, 679, 2074, 6456, 13856, 17471, 17721, 16692,
+                  12876, 8130, 4652, 2720, 1582, 782, 422, 203, 87, 39, 21, 17,
+                  11, 8, 3, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                     106770L, 0.147, 0.077, 54.363
+};
 
-static void mixColors(MgfColorContext *cres, double w1, MgfColorContext *c1, double w2, MgfColorContext *c2);
+// Derived CIE 1931 Primaries (imaginary)
+static MgfColorContext cie_xp = {
+    1, C_CDSPEC | C_CSSPEC | C_CSXY,
+     {-174, -198, -195, -197, -202, -213, -235, -272, -333,
+      -444, -688, -1232, -2393, -4497, -6876, -6758, -5256,
+      -3100, -815, 1320, 3200, 4782, 5998, 6861, 7408, 7754,
+      7980, 8120, 8199, 8240, 8271, 8292, 8309, 8283, 8469,
+      8336, 8336, 8336, 8336, 8336, 8336},
+             127424L, 1.0, 0.0
+};
+static MgfColorContext cie_yp = {
+    1, C_CDSPEC | C_CSSPEC | C_CSXY,
+         {-451, -431, -431, -430, -427, -417, -399, -366, -312,
+          -204, 57, 691, 2142, 4990, 8810, 9871, 9122, 7321, 5145,
+          3023, 1123, -473, -1704, -2572, -3127, -3474, -3704,
+          -3846, -3927, -3968, -3999, -4021, -4038, -4012, -4201,
+          -4066, -4066, -4066, -4066, -4066, -4066},
+                 -23035L, 0.0, 1.0
+};
+
+static MgfColorContext cie_zp = {
+    1, C_CDSPEC | C_CSSPEC | C_CSXY,
+     {4051, 4054, 4052, 4053, 4054, 4056, 4059, 4064, 4071,
+          4074, 4056, 3967, 3677, 2933, 1492, 313, -440, -795,
+          -904, -918, -898, -884, -869, -863, -855, -855, -851,
+          -848, -847, -846, -846, -846, -845, -846, -843, -845,
+          -845, -845, -845, -845, -845},
+                 36057L, 0.0, 0.0,
+};
+
+static int
+setSpectrum(MgfColorContext *clr, double wlMinimum, double wlMaximum, int ac, char **av);
+
+static int
+setbbtemp(MgfColorContext *clr, double tk);
+
+static void
+mixColors(
+    MgfColorContext *colorContext,
+    double w1,
+    MgfColorContext *c1,
+    double w2,
+    MgfColorContext *c2);
 
 /**
 Handle color entity
@@ -112,7 +131,7 @@ handleColorEntity(int ac, char **av, RadianceMethod * /*context*/)
             }
             if ( ac == 1 ) {
                 // Set unnamed color context
-                c_uncolor = c_dfcolor;
+                c_uncolor = globalDefaultMgfColorContext;
                 GLOBAL_mgf_currentColor = &c_uncolor;
                 return MGF_OK;
             }
@@ -150,7 +169,7 @@ handleColorEntity(int ac, char **av, RadianceMethod * /*context*/)
             i = GLOBAL_mgf_currentColor->clock;
             if ( ac == 3 ) {
                 // Use default template
-                *GLOBAL_mgf_currentColor = c_dfcolor;
+                *GLOBAL_mgf_currentColor = globalDefaultMgfColorContext;
                 GLOBAL_mgf_currentColor->clock = i + 1;
                 return MGF_OK;
             }
@@ -259,7 +278,7 @@ handleMaterialEntity(int ac, char **av, RadianceMethod * /*context*/)
             }
             if ( ac == 1 ) {
                 // Set unnamed material context
-                c_unmaterial = c_dfmaterial;
+                c_unmaterial = globalDefaultMgfMaterial;
                 GLOBAL_mgf_currentMaterial = &c_unmaterial;
                 GLOBAL_mgf_currentMaterialName = nullptr;
                 return MGF_OK;
@@ -302,7 +321,7 @@ handleMaterialEntity(int ac, char **av, RadianceMethod * /*context*/)
             i = GLOBAL_mgf_currentMaterial->clock;
             if ( ac == 3 ) {
                 // Use default template
-                *GLOBAL_mgf_currentMaterial = c_dfmaterial;
+                *GLOBAL_mgf_currentMaterial = globalDefaultMgfMaterial;
                 GLOBAL_mgf_currentMaterial->clock = i + 1;
                 return MGF_OK;
             }
@@ -327,7 +346,7 @@ handleMaterialEntity(int ac, char **av, RadianceMethod * /*context*/)
             }
             GLOBAL_mgf_currentMaterial->nr = strtof(av[1], nullptr);
             GLOBAL_mgf_currentMaterial->ni = strtof(av[2], nullptr);
-            if ( GLOBAL_mgf_currentMaterial->nr <= FLOAT_TINY ) {
+            if ( GLOBAL_mgf_currentMaterial->nr <= EPSILON ) {
                 return MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
             }
             GLOBAL_mgf_currentMaterial->clock++;
@@ -449,7 +468,7 @@ handleVertexEntity(int ac, char **av, RadianceMethod * /*context*/)
             }
             if ( ac == 1 ) {
                 // Set unnamed vertex context
-                c_unvertex = c_dfvertex;
+                c_unvertex = globalDefaultVertexContext;
                 GLOBAL_mgf_currentVertex = &c_unvertex;
                 GLOBAL_mgf_currentVertexName = nullptr;
                 return MGF_OK;
@@ -490,7 +509,7 @@ handleVertexEntity(int ac, char **av, RadianceMethod * /*context*/)
             }
             if ( ac == 3 ) {
                 // Use default template
-                *GLOBAL_mgf_currentVertex = c_dfvertex;
+                *GLOBAL_mgf_currentVertex = globalDefaultVertexContext;
                 return MGF_OK;
             }
             lp = lookUpFind(&vtx_tab, av[3]);
@@ -541,14 +560,14 @@ Empty context tables
 void
 clearContextTables()
 {
-    c_uncolor = c_dfcolor;
+    c_uncolor = globalDefaultMgfColorContext;
     GLOBAL_mgf_currentColor = &c_uncolor;
     lookUpDone(&clr_tab);
-    c_unmaterial = c_dfmaterial;
+    c_unmaterial = globalDefaultMgfMaterial;
     GLOBAL_mgf_currentMaterial = &c_unmaterial;
     GLOBAL_mgf_currentMaterialName = nullptr;
     lookUpDone(&mat_tab);
-    c_unvertex = c_dfvertex;
+    c_unvertex = globalDefaultVertexContext;
     GLOBAL_mgf_currentVertex = &c_unvertex;
     GLOBAL_mgf_currentVertexName = nullptr;
     lookUpDone(&vtx_tab);
@@ -586,14 +605,14 @@ mgfContextFixColorRepresentation(MgfColorContext *clr, int fl)
     }
     if ( !(clr->flags & (C_CSXY | C_CSSPEC)) ) {
         // Nothing set!
-        *clr = c_dfcolor;
+        *clr = globalDefaultMgfColorContext;
     }
     if ( fl & C_CSXY ) {
         // cspec -> cxy *
         x = 0.0;
         y = 0.0;
         z = 0.0;
-        for ( i = 0; i < C_CNSS; i++ ) {
+        for ( i = 0; i < NUMBER_OF_SPECTRAL_SAMPLES; i++ ) {
             x += cie_xf.straightSamples[i] * clr->straightSamples[i];
             y += cie_yf.straightSamples[i] * clr->straightSamples[i];
             z += cie_zf.straightSamples[i] * clr->straightSamples[i];
@@ -611,7 +630,7 @@ mgfContextFixColorRepresentation(MgfColorContext *clr, int fl)
         y = clr->cy;
         z = 1.0 - x - y;
         clr->spectralStraightSum = 0;
-        for ( i = 0; i < C_CNSS; i++ ) {
+        for ( i = 0; i < NUMBER_OF_SPECTRAL_SAMPLES; i++ ) {
             clr->straightSamples[i] = (short)std::lround(x * cie_xp.straightSamples[i] + y * cie_yp.straightSamples[i]
                                                          + z * cie_zp.straightSamples[i] + 0.5);
             if ( clr->straightSamples[i] < 0 ) {
@@ -628,7 +647,7 @@ mgfContextFixColorRepresentation(MgfColorContext *clr, int fl)
         if ( clr->flags & C_CSSPEC ) {
             // From spectrum
             y = 0.0;
-            for ( i = 0; i < C_CNSS; i++ ) {
+            for ( i = 0; i < NUMBER_OF_SPECTRAL_SAMPLES; i++ ) {
                 y += cie_yf.straightSamples[i] * clr->straightSamples[i];
             }
             clr->eff = C_CLPWM * y / (double)clr->spectralStraightSum;
@@ -642,10 +661,10 @@ mgfContextFixColorRepresentation(MgfColorContext *clr, int fl)
 }
 
 static int
-setSpectrum(MgfColorContext *clr, double wlmin, double wlmax, int ac, char **av)    /* convert a spectrum */
+setSpectrum(MgfColorContext *clr, double wlMinimum, double wlMaximum, int ac, char **av)    /* convert a spectrum */
 {
     double scale;
-    float va[C_CNSS];
+    float va[NUMBER_OF_SPECTRAL_SAMPLES];
     int i, pos;
     int n, imax;
     int wl;
@@ -655,25 +674,25 @@ setSpectrum(MgfColorContext *clr, double wlmin, double wlmax, int ac, char **av)
     double boxstep;
 
     // Check getBoundingBox
-    if ( wlmax <= C_CMINWL || wlmax <= wlmin || wlmin >= C_CMAXWL ) {
+    if ( wlMaximum <= C_CMINWL || wlMaximum <= wlMinimum || wlMinimum >= C_CMAXWL ) {
         return MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
     }
-    wlstep = (wlmax - wlmin) / (ac - 1);
-    while ( wlmin < C_CMINWL ) {
-        wlmin += wlstep;
+    wlstep = (wlMaximum - wlMinimum) / (ac - 1);
+    while ( wlMinimum < C_CMINWL ) {
+        wlMinimum += wlstep;
         ac--;
         av++;
     }
-    while ( wlmax > C_CMAXWL ) {
-        wlmax -= wlstep;
+    while ( wlMaximum > C_CMAXWL ) {
+        wlMaximum -= wlstep;
         ac--;
     }
     imax = ac; // Box filter if necessary
     boxpos = 0;
     boxstep = 1;
     if ( wlstep < (double)C_CWLI ) {
-        imax = (int)std::lround((wlmax - wlmin) / C_CWLI + (1 - FLOAT_TINY));
-        boxpos = (wlmin - C_CMINWL) / C_CWLI;
+        imax = (int)std::lround((wlMaximum - wlMinimum) / C_CWLI + (1 - EPSILON));
+        boxpos = (wlMinimum - C_CMINWL) / C_CWLI;
         boxstep = wlstep / C_CWLI;
         wlstep = C_CWLI;
     }
@@ -699,22 +718,22 @@ setSpectrum(MgfColorContext *clr, double wlmin, double wlmax, int ac, char **av)
             scale = -va[i];
         }
     }
-    if ( scale <= FLOAT_TINY) {
+    if ( scale <= EPSILON) {
         return MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
     }
     scale = C_CMAXV / scale;
     clr->spectralStraightSum = 0; // Convert to our spacing
-    wl0 = wlmin;
+    wl0 = wlMinimum;
     pos = 0;
-    for ( i = 0, wl = C_CMINWL; i < C_CNSS; i++, wl += C_CWLI) {
-        if ( wl < wlmin || wl > wlmax ) {
+    for ( i = 0, wl = C_CMINWL; i < NUMBER_OF_SPECTRAL_SAMPLES; i++, wl += C_CWLI) {
+        if ( wl < wlMinimum || wl > wlMaximum ) {
             clr->straightSamples[i] = 0;
         } else {
-            while ( wl0 + wlstep < wl + FLOAT_TINY) {
+            while ( wl0 + wlstep < wl + EPSILON) {
                 wl0 += wlstep;
                 pos++;
             }
-            if ( wl + FLOAT_TINY >= wl0 && wl - FLOAT_TINY <= wl0 ) {
+            if ( wl + EPSILON >= wl0 && wl - EPSILON <= wl0 ) {
                 clr->straightSamples[i] = (short)std::lround(scale * va[pos] + 0.5);
             } else {
                 // Interpolate if necessary
@@ -735,14 +754,14 @@ Mix two colors according to weights given
 */
 static void
 mixColors(
-    MgfColorContext *cres,
+    MgfColorContext *colorContext,
     double w1,
     MgfColorContext *c1,
     double w2,
     MgfColorContext *c2)
 {
     double scale;
-    float cmix[C_CNSS];
+    float cmix[NUMBER_OF_SPECTRAL_SAMPLES];
     int i;
 
     if ( (c1->flags | c2->flags) & C_CDSPEC ) {
@@ -752,18 +771,18 @@ mixColors(
         w1 /= c1->eff * (float) c1->spectralStraightSum;
         w2 /= c2->eff * (float) c2->spectralStraightSum;
         scale = 0.0;
-        for ( i = 0; i < C_CNSS; i++ ) {
+        for ( i = 0; i < NUMBER_OF_SPECTRAL_SAMPLES; i++ ) {
             cmix[i] = (float)(w1 * c1->straightSamples[i] + w2 * c2->straightSamples[i]);
             if ( cmix[i] > scale ) {
                 scale = cmix[i];
             }
         }
         scale = C_CMAXV / scale;
-        cres->spectralStraightSum = 0;
-        for ( i = 0; i < C_CNSS; i++ ) {
-            cres->spectralStraightSum += cres->straightSamples[i] = (short)std::lround(scale * cmix[i] + 0.5);
+        colorContext->spectralStraightSum = 0;
+        for ( i = 0; i < NUMBER_OF_SPECTRAL_SAMPLES; i++ ) {
+            colorContext->spectralStraightSum += colorContext->straightSamples[i] = (short)std::lround(scale * cmix[i] + 0.5);
         }
-        cres->flags = C_CDSPEC | C_CSSPEC;
+        colorContext->flags = C_CDSPEC | C_CSSPEC;
     } else {
         // CIE xy mixing
         mgfContextFixColorRepresentation(c1, C_CSXY);
@@ -773,9 +792,9 @@ mixColors(
             return;
         }
         scale = 1.0 / scale;
-        cres->cx = (float)((c1->cx * w1 / c1->cy + c2->cx * w2 / c2->cy) * scale);
-        cres->cy = (float)((w1 + w2) * scale);
-        cres->flags = C_CDXY | C_CSXY;
+        colorContext->cx = (float)((c1->cx * w1 / c1->cy + c2->cx * w2 / c2->cy) * scale);
+        colorContext->cy = (float)((w1 + w2) * scale);
+        colorContext->flags = C_CDXY | C_CSXY;
     }
 }
 
@@ -801,7 +820,7 @@ setbbtemp(MgfColorContext *clr, double tk)
     }
     sf = C_CMAXV / bbsp(wl, tk);
     clr->spectralStraightSum = 0;
-    for ( i = 0; i < C_CNSS; i++ ) {
+    for ( i = 0; i < NUMBER_OF_SPECTRAL_SAMPLES; i++ ) {
         wl = (C_CMINWL + (float)i * C_CWLI) * 1e-9;
         clr->spectralStraightSum += clr->straightSamples[i] = (short)std::lround(sf * bbsp(wl, tk) + 0.5);
     }

@@ -24,7 +24,7 @@ normalize(double *v)
         return 0.0;
     }
 
-    if ( len <= 1.0 + FLOAT_TINY && len >= 1.0 - FLOAT_TINY) {
+    if ( len <= 1.0 + EPSILON && len >= 1.0 - EPSILON) {
         // First order approximation
         len = 0.5 + 0.5 * len;
     } else {

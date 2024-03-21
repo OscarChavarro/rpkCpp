@@ -6,6 +6,7 @@
 #include "common/mymath.h"
 #include "skin/RadianceMethod.h"
 #include "io/mgf/Vector3Dd.h"
+#include "io/mgf/MgfColorContext.h"
 
 // Major version number
 #define MGF_MAJOR_VERSION_NUMBER 2
@@ -169,41 +170,12 @@ extern int isNameWords(char *);
 extern int handleIncludedFile(int ac, char **av, RadianceMethod *context);
 
 /**
-Definitions for 3-d vector manipulation functions
-*/
-
-inline void
-mgfVertexCopy(double *result, const double *source) {
-    result[0] = source[0];
-    result[1] = source[1];
-    result[2] = source[2];
-}
-
-inline double
-dotProduct(const double *a, const double *b) {
-    return a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
-}
-
-inline bool
-is0Vector(double *v) {
-    return dotProduct(v, v) <= FLOAT_TINY * FLOAT_TINY;
-}
-
-inline void
-round0(FLOAT &x) {
-    if ( x <= FLOAT_TINY && x >= -FLOAT_TINY) {
-        x = 0;
-    }
-}
-
-/**
 Definitions for context handling routines (materials, colors, vectors)
 */
 
 #define C_CMINWL 380 // Minimum wavelength
 #define C_CMAXWL 780 // Maximum wavelength
-#define C_CNSS 41 // Number of spectral samples
-#define C_CWLI ((float)(C_CMAXWL-C_CMINWL) / (float)(C_CNSS-1))
+#define C_CWLI ((float)(C_CMAXWL-C_CMINWL) / (float)(NUMBER_OF_SPECTRAL_SAMPLES - 1))
 #define C_CMAXV 10000 // Nominal maximum sample value
 #define C_CLPWM (683.0/C_CMAXV) // Peak lumens/watt multiplier
 #define C_CSSPEC 01 // Flag if spectrum is set
@@ -211,29 +183,6 @@ Definitions for context handling routines (materials, colors, vectors)
 #define C_CSXY 04 // Flag if xy is set
 #define C_CDXY 010 // Flag if defined w/ xy
 #define C_CSEFF 020 // Flag if efficacy set
-
-class MgfColorContext {
-public:
-    int clock; // Incremented each change
-    short flags; // What's been set
-    short straightSamples[C_CNSS]; // Spectral samples, min wl to max
-    long spectralStraightSum; // Straight sum of spectral values
-    float cx; // Chromaticity X value
-    float cy; // chromaticity Y value
-    float eff; // efficacy (lumens / watt)
-};
-
-#define C_DEF_COLOR { 1, C_CDXY|C_CSXY|C_CSSPEC|C_CSEFF,\
-    { \
-        C_CMAXV, C_CMAXV, C_CMAXV, C_CMAXV, C_CMAXV, \
-        C_CMAXV, C_CMAXV, C_CMAXV, C_CMAXV, C_CMAXV, C_CMAXV, \
-        C_CMAXV, C_CMAXV, C_CMAXV, C_CMAXV, C_CMAXV, C_CMAXV, \
-        C_CMAXV, C_CMAXV, C_CMAXV, C_CMAXV, C_CMAXV, C_CMAXV, \
-        C_CMAXV, C_CMAXV, C_CMAXV, C_CMAXV, C_CMAXV, C_CMAXV, \
-        C_CMAXV, C_CMAXV, C_CMAXV, C_CMAXV, C_CMAXV, C_CMAXV, \
-        C_CMAXV, C_CMAXV, C_CMAXV, C_CMAXV, C_CMAXV, C_CMAXV \
-    }, \
-    (long)C_CNSS*C_CMAXV, 1.0/3.0, 1.0/3.0, 178.006 }
 
 class MgfMaterialContext {
   public:
@@ -264,9 +213,9 @@ class MgfVertexContext {
     void *clientData; // Client data -- initialized to nullptr by the parser
 };
 
-#define C_DEFMATERIAL {1, 0, 1.0, 0.0, 0.0, C_DEF_COLOR, 0.0, C_DEF_COLOR, 0.0, C_DEF_COLOR,\
-                    0.0, C_DEF_COLOR, 0.0, 0.0, C_DEF_COLOR, 0.0}
-#define C_DEFVERTEX {{0.0, 0.0, 0.0}, {0.0, 0.0, 0.0}, 0, 1, (void *)nullptr}
+#define DEFAULT_MATERIAL {1, 0, 1.0, 0.0, 0.0, DEFAULT_COLOR_CONTEXT, 0.0, DEFAULT_COLOR_CONTEXT, 0.0, DEFAULT_COLOR_CONTEXT,\
+                    0.0, DEFAULT_COLOR_CONTEXT, 0.0, 0.0, DEFAULT_COLOR_CONTEXT, 0.0}
+#define DEFAULT_VERTEX {{0.0, 0.0, 0.0}, {0.0, 0.0, 0.0}, 0, 1, (void *)nullptr}
 
 extern MgfColorContext *GLOBAL_mgf_currentColor;
 extern MgfMaterialContext *GLOBAL_mgf_currentMaterial;
@@ -298,11 +247,11 @@ Definitions for hierarchical transformation handler
 class XF {
   public:
     MATRIX4Dd xfm; // Transform matrix
-    FLOAT sca; // Scale factor
+    double sca; // Scale factor
 };
 
 // Maximum array dimensions
-#define XF_MAXDIM 8
+#define TRANSFORM_MAXIMUM_DIMENSIONS 8
 
 class MgfTransformArrayArgument {
   public:
@@ -315,7 +264,7 @@ class MgfTransformArray {
   public:
     MgdReaderFilePosition startingPosition; // Starting position on input
     int numberOfDimensions; // Number of array dimensions
-    MgfTransformArrayArgument transformArguments[XF_MAXDIM];
+    MgfTransformArrayArgument transformArguments[TRANSFORM_MAXIMUM_DIMENSIONS];
 };
 
 class MgfTransformSpec {

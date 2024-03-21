@@ -86,8 +86,8 @@ static int
 mgfPutCSpec(RadianceMethod *context)
 {
     char wl[2][6];
-    char vbuf[C_CNSS][24];
-    char *newav[C_CNSS + 4];
+    char vbuf[NUMBER_OF_SPECTRAL_SAMPLES][24];
+    char *newav[NUMBER_OF_SPECTRAL_SAMPLES + 4];
     double sf;
     int i;
 
@@ -97,13 +97,13 @@ mgfPutCSpec(RadianceMethod *context)
         newav[0] = GLOBAL_mgf_entityNames[MG_E_CSPEC];
         newav[1] = wl[0];
         newav[2] = wl[1];
-        sf = (double)C_CNSS / (double)GLOBAL_mgf_currentColor->spectralStraightSum;
-        for ( i = 0; i < C_CNSS; i++ ) {
+        sf = (double)NUMBER_OF_SPECTRAL_SAMPLES / (double)GLOBAL_mgf_currentColor->spectralStraightSum;
+        for ( i = 0; i < NUMBER_OF_SPECTRAL_SAMPLES; i++ ) {
             snprintf(vbuf[i], 24, "%.4f", sf * GLOBAL_mgf_currentColor->straightSamples[i]);
             newav[i + 3] = vbuf[i];
         }
-        newav[C_CNSS + 3] = nullptr;
-        if ( (i = mgfHandle(MG_E_CSPEC, C_CNSS + 3, newav, context)) != MGF_OK ) {
+        newav[NUMBER_OF_SPECTRAL_SAMPLES + 3] = nullptr;
+        if ( (i = mgfHandle(MG_E_CSPEC, NUMBER_OF_SPECTRAL_SAMPLES + 3, newav, context)) != MGF_OK ) {
             return i;
         }
     }
@@ -1090,7 +1090,7 @@ mgfEntityCone(int ac, char **av, RadianceMethod *context)
     if ( warpconends != 0 ) {
         // Hack for mgfEntitySphere and mgfEntityTorus
         d = std::atan(n2off) - (M_PI / 4) / GLOBAL_mgf_divisionsPerQuarterCircle;
-        if ( d <= -M_PI / 2 + FLOAT_TINY) {
+        if ( d <= -M_PI / 2 + EPSILON) {
             n2off = -FLOAT_HUGE;
         } else {
             n2off = std::tan(d);
@@ -1171,7 +1171,7 @@ mgfEntityCone(int ac, char **av, RadianceMethod *context)
         if ( warpconends ) {
             // Hack for mgfEntitySphere and mgfEntityTorus
             d = std::atan(n1off) + (M_PI / 4) / GLOBAL_mgf_divisionsPerQuarterCircle;
-            if ( d >= M_PI / 2 - FLOAT_TINY) {
+            if ( d >= M_PI / 2 - EPSILON) {
                 n1off = FLOAT_HUGE;
             } else {
                 n1off = std::tan(std::atan(n1off) + (M_PI / 4) / GLOBAL_mgf_divisionsPerQuarterCircle);
@@ -1280,7 +1280,7 @@ mgfEntityPrism(int ac, char **av, RadianceMethod *context)
         return MGF_ERROR_ARGUMENT_TYPE;
     }
     length = strtod(av[ac - 1], nullptr);
-    if ( length <= FLOAT_TINY && length >= -FLOAT_TINY ) {
+    if ( length <= EPSILON && length >= -EPSILON ) {
         return MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
     }
 

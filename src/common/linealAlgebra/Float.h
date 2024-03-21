@@ -4,6 +4,7 @@
 #include <cmath>
 
 #define EPSILON 1e-6
+#define FLOAT_HUGE 1e10
 
 // Yes, float or double makes a difference!
 #define REAL double

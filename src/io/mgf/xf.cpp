@@ -65,7 +65,7 @@ Put out name for this instance
 static int
 transformName(MgfTransformArray *ap, RadianceMethod *context)
 {
-    static char oName[10 * XF_MAXDIM];
+    static char oName[10 * TRANSFORM_MAXIMUM_DIMENSIONS];
     static char *oav[3] = {GLOBAL_mgf_entityNames[MG_E_OBJECT], oName};
     int i;
     char *cp1;
@@ -110,7 +110,7 @@ new_xf(int ac, char **av)
             n += (int)strlen(av[i]) + 1;
         }
     }
-    if ( nDim > XF_MAXDIM ) {
+    if ( nDim > TRANSFORM_MAXIMUM_DIMENSIONS ) {
         return nullptr;
     }
     spec = (MgfTransformSpec *) malloc(sizeof(MgfTransformSpec) + n);
