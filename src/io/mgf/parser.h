@@ -185,26 +185,6 @@ Definitions for context handling routines (materials, colors, vectors)
 #define C_CDXY 010 // Flag if defined w/ xy
 #define C_CSEFF 020 // Flag if efficacy set
 
-class MgfMaterialContext {
-  public:
-    int clock; // Incremented each change -- resettable
-    int sided; // 1 if surface is 1-sided, 0 for 2-sided
-    float nr; // Index of refraction, real and imaginary
-    float ni;
-    float rd; // Diffuse reflectance
-    MgfColorContext rd_c; // Diffuse reflectance color
-    float td; // Diffuse transmittance
-    MgfColorContext td_c; // Diffuse transmittance color
-    float ed; // Diffuse emittance
-    MgfColorContext ed_c; // Diffuse emittance color
-    float rs; // Specular reflectance
-    MgfColorContext rs_c; // Specular reflectance color
-    float rs_a; // Specular reflectance roughness
-    float ts; // Specular transmittance
-    MgfColorContext ts_c; // Specular transmittance color
-    float ts_a; // Specular transmittance roughness
-};
-
 class MgfVertexContext {
   public:
     VECTOR3Dd p; // Point
@@ -214,12 +194,11 @@ class MgfVertexContext {
     void *clientData; // Client data -- initialized to nullptr by the parser
 };
 
-#define DEFAULT_MATERIAL {1, 0, 1.0, 0.0, 0.0, DEFAULT_COLOR_CONTEXT, 0.0, DEFAULT_COLOR_CONTEXT, 0.0, DEFAULT_COLOR_CONTEXT,\
-                    0.0, DEFAULT_COLOR_CONTEXT, 0.0, 0.0, DEFAULT_COLOR_CONTEXT, 0.0}
 #define DEFAULT_VERTEX {{0.0, 0.0, 0.0}, {0.0, 0.0, 0.0}, 0, 1, (void *)nullptr}
 
+extern void doError(const char *errmsg);
+extern void doWarning(const char *errmsg);
 extern MgfColorContext *GLOBAL_mgf_currentColor;
-extern MgfMaterialContext *GLOBAL_mgf_currentMaterial;
 extern char *GLOBAL_mgf_currentMaterialName;
 extern MgfVertexContext *GLOBAL_mgf_currentVertex;
 extern char *GLOBAL_mgf_currentVertexName;

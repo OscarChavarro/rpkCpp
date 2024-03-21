@@ -16,8 +16,6 @@
 // No face can have more than this vertices
 #define MAXIMUM_FACE_VERTICES 100
 
-#define NUMBER_OF_SAMPLES 3
-
 LUTAB GLOBAL_mgf_vertexLookUpTable = LU_SINIT(free, free);
 
 static VectorOctreeNode *globalPointsOctree = nullptr;
@@ -39,12 +37,12 @@ static int globalInComplex = false; // True if reading a sphere, torus or other 
 static int globalInSurface = false; // True if busy creating a new surface
 static bool globalAllSurfacesSided = false; // When set to true, all surfaces will be considered one-sided
 
-static void
+void
 doError(const char *errmsg) {
     logError(nullptr, (char *) "%s line %d: %s", GLOBAL_mgf_file->fileName, GLOBAL_mgf_file->lineNumber, errmsg);
 }
 
-static void
+void
 doWarning(const char *errmsg) {
     logWarning(nullptr, (char *) "%s line %d: %s", GLOBAL_mgf_file->fileName, GLOBAL_mgf_file->lineNumber, errmsg);
 }
@@ -118,13 +116,6 @@ doDiscretize(int argc, char **argv, RadianceMethod *context) {
     return MGF_ERROR_ILLEGAL_ARGUMENT_VALUE; // Definitely illegal when this point is reached
 }
 
-static void
-specSamples(COLOR &col, float *rgb) {
-    rgb[0] = col.spec[0];
-    rgb[1] = col.spec[1];
-    rgb[2] = col.spec[2];
-}
-
 /**
 Sets the number of quarter circle divisions for discretizing cylinders, spheres, cones, etc.
 */
@@ -190,224 +181,6 @@ surfaceDone() {
         globalCurrentGeometryList->add(0, newGeometry);
     }
     globalInSurface = false;
-}
-
-/**
-This routine returns true if the current material has changed
-*/
-static int
-materialChanged() {
-    char *materialName;
-
-    materialName = GLOBAL_mgf_currentMaterialName;
-    if ( !materialName || *materialName == '\0' ) {
-        // This might cause strcmp to crash!
-        materialName = (char *) "unnamed";
-    }
-
-    // Is it another material than the one used for the previous face? If not, the
-    // globalCurrentMaterial remains the same
-    if ( strcmp(materialName, globalCurrentMaterial->name) == 0 && GLOBAL_mgf_currentMaterial->clock == 0 ) {
-        return false;
-    }
-
-    return true;
-}
-
-/**
-Translates mgf color into out color representation
-*/
-static void
-mgfGetColor(MgfColorContext *cin, float intensity, COLOR *colorOut) {
-    float xyz[3];
-    float rgb[3];
-
-    mgfContextFixColorRepresentation(cin, C_CSXY);
-    if ( cin->cy > EPSILON ) {
-        xyz[0] = cin->cx / cin->cy * intensity;
-        xyz[1] = 1.0f * intensity;
-        xyz[2] = (1.0f - cin->cx - cin->cy) / cin->cy * intensity;
-    } else {
-        doWarning("invalid color specification (Y<=0) ... setting to black");
-        xyz[0] = 0.0;
-        xyz[1] = 0.0;
-        xyz[2] = 0.0;
-    }
-
-    if ( xyz[0] < 0.0 || xyz[1] < 0.0 || xyz[2] < 0.0 ) {
-        doWarning("invalid color specification (negative CIE XYZ components) ... clipping to zero");
-        if ( xyz[0] < 0.0 ) {
-            xyz[0] = 0.0;
-        }
-        if ( xyz[1] < 1.0 ) {
-            xyz[1] = 0.0;
-        }
-        if ( xyz[2] < 2.0 ) {
-            xyz[2] = 0.0;
-        }
-    }
-
-    transformColorFromXYZ2RGB(xyz, rgb);
-    if ( clipGamut(rgb)) {
-        doWarning("color desaturated during gamut clipping");
-    }
-    colorSet(*colorOut, rgb[0], rgb[1], rgb[2]);
-}
-
-static float
-colorMax(COLOR col) {
-    // We should check every wavelength in the visible spectrum, but
-    // as a first approximation, only the three RGB primary colors
-    // are checked
-    float samples[NUMBER_OF_SAMPLES], mx;
-    int i;
-
-    specSamples(col, samples);
-
-    mx = -HUGE;
-    for ( i = 0; i < NUMBER_OF_SAMPLES; i++ ) {
-        if ( samples[i] > mx ) {
-            mx = samples[i];
-        }
-    }
-
-    return mx;
-}
-
-/**
-Looks up a material with given name in the given material list. Returns
-a pointer to the material if found, or (Material *)nullptr if not found
-*/
-static Material *
-materialLookup(char *name) {
-    for ( int i = 0; GLOBAL_scene_materials != nullptr && i < GLOBAL_scene_materials->size(); i++ ) {
-        Material *m = GLOBAL_scene_materials->get(i);
-        if ( m != nullptr && m->name != nullptr && strcmp(m->name, name) == 0 ) {
-            return m;
-        }
-    }
-    return nullptr;
-}
-
-/**
-This routine checks whether the mgf material being used has changed. If it
-changed, this routine converts to our representation of materials and
-creates a new MATERIAL, which is added to the global material library.
-The routine returns true if the material being used has changed
-*/
-static int
-getCurrentMaterial() {
-    COLOR Ed;
-    COLOR Es;
-    COLOR Rd;
-    COLOR Td;
-    COLOR Rs;
-    COLOR Ts;
-    COLOR A;
-    float Ne;
-    float Nr;
-    float Nt;
-    float a;
-    char *materialName;
-
-    materialName = GLOBAL_mgf_currentMaterialName;
-    if ( !materialName || *materialName == '\0' ) {
-        // This might cause strcmp to crash!
-        materialName = (char *)"unnamed";
-    }
-
-    // Is it another material than the one used for the previous face ?? If not, the
-    // globalCurrentMaterial remains the same
-    if ( strcmp(materialName, globalCurrentMaterial->name) == 0 && GLOBAL_mgf_currentMaterial->clock == 0 ) {
-        return false;
-    }
-
-    Material *theMaterial = materialLookup(materialName);
-    if ( theMaterial != nullptr ) {
-        if ( GLOBAL_mgf_currentMaterial->clock == 0 ) {
-            globalCurrentMaterial = theMaterial;
-            return true;
-        }
-    }
-
-    // New material, or a material that changed. Convert intensities and chromaticities
-    // to our color model
-    mgfGetColor(&GLOBAL_mgf_currentMaterial->ed_c, GLOBAL_mgf_currentMaterial->ed, &Ed);
-    mgfGetColor(&GLOBAL_mgf_currentMaterial->rd_c, GLOBAL_mgf_currentMaterial->rd, &Rd);
-    mgfGetColor(&GLOBAL_mgf_currentMaterial->td_c, GLOBAL_mgf_currentMaterial->td, &Td);
-    mgfGetColor(&GLOBAL_mgf_currentMaterial->rs_c, GLOBAL_mgf_currentMaterial->rs, &Rs);
-    mgfGetColor(&GLOBAL_mgf_currentMaterial->ts_c, GLOBAL_mgf_currentMaterial->ts, &Ts);
-
-    // Check/correct range of reflectances and transmittances
-    colorAdd(Rd, Rs, A);
-    a = colorMax(A);
-    if ( a > 1.0f - (float)EPSILON ) {
-        doWarning("invalid material specification: total reflectance shall be < 1");
-        a = (1.0f - (float)EPSILON) / a;
-        colorScale(a, Rd, Rd);
-        colorScale(a, Rs, Rs);
-    }
-
-    colorAdd(Td, Ts, A);
-    a = colorMax(A);
-    if ( a > 1.0f - (float)EPSILON ) {
-        doWarning("invalid material specification: total transmittance shall be < 1");
-        a = (1.0f - (float)EPSILON) / a;
-        colorScale(a, Td, Td);
-        colorScale(a, Ts, Ts);
-    }
-
-    // Convert lumen / m^2 to W / m^2
-    colorScale((1.0 / WHITE_EFFICACY), Ed, Ed);
-
-    colorClear(Es);
-    Ne = 0.0;
-
-    // Specular power = (0.6/roughness)^2 (see mgf docs)
-    if ( GLOBAL_mgf_currentMaterial->rs_a != 0.0 ) {
-        Nr = 0.6f / GLOBAL_mgf_currentMaterial->rs_a;
-        Nr *= Nr;
-    } else {
-        Nr = 0.0;
-    }
-
-    if ( GLOBAL_mgf_currentMaterial->ts_a != 0.0 ) {
-        Nt = 0.6f / GLOBAL_mgf_currentMaterial->ts_a;
-        Nt *= Nt;
-    } else {
-        Nt = 0.0;
-    }
-
-    if ( GLOBAL_fileOptions_monochrome ) {
-        colorSetMonochrome(Ed, colorGray(Ed));
-        colorSetMonochrome(Es, colorGray(Es));
-        colorSetMonochrome(Rd, colorGray(Rd));
-        colorSetMonochrome(Rs, colorGray(Rs));
-        colorSetMonochrome(Td, colorGray(Td));
-        colorSetMonochrome(Ts, colorGray(Ts));
-    }
-
-    theMaterial = materialCreate(materialName,
-                                 (colorNull(Ed) && colorNull(Es)) ? nullptr : edfCreate(
-                                         phongEdfCreate(&Ed, &Es, Ne), &GLOBAL_scene_phongEdfMethods),
-                                 bsdfCreate(splitBsdfCreate(
-                                                    (colorNull(Rd) && colorNull(Rs)) ? nullptr : brdfCreate(
-                                                            phongBrdfCreate(&Rd, &Rs, Nr), &GLOBAL_scene_phongBrdfMethods),
-                                                    (colorNull(Td) && colorNull(Ts)) ? nullptr : btdfCreate(
-                                                            phongBtdfCreate(&Td, &Ts, Nt,
-                                                                            GLOBAL_mgf_currentMaterial->nr,
-                                                                            GLOBAL_mgf_currentMaterial->ni),
-                                                            &GLOBAL_scene_phongBtdfMethods), nullptr),
-                                            &GLOBAL_scene_splitBsdfMethods),
-                                 globalAllSurfacesSided ? 1 : GLOBAL_mgf_currentMaterial->sided);
-
-    GLOBAL_scene_materials->add(0, theMaterial);
-    globalCurrentMaterial = theMaterial;
-
-    // Reset the clock value to be aware of possible changes in future
-    GLOBAL_mgf_currentMaterial->clock = 0;
-
-    return true;
 }
 
 static Vector3D *
@@ -847,12 +620,12 @@ handleFaceEntity(int argc, char **argv, RadianceMethod *context) {
     }
 
     if ( !globalInComplex ) {
-        if ( materialChanged()) {
+        if ( materialChanged(globalCurrentMaterial) ) {
             if ( globalInSurface ) {
                 surfaceDone();
             }
             newSurface();
-            getCurrentMaterial();
+            getCurrentMaterial(&globalCurrentMaterial, globalAllSurfacesSided);
         }
     }
 
@@ -1079,7 +852,7 @@ handleSurfaceEntity(int argc, char **argv, RadianceMethod *context) {
             surfaceDone();
         }
         newSurface();
-        getCurrentMaterial();
+        getCurrentMaterial(&globalCurrentMaterial, globalAllSurfacesSided);
 
         errcode = doDiscretize(argc, argv, context);
 
