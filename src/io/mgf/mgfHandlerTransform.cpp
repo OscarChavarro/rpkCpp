@@ -6,8 +6,8 @@ Routines for 4x4 homogeneous, rigid-body transformations
 
 #include "io/mgf/Vector3Dd.h"
 #include "io/mgf/badarg.h"
-#include "io/mgf/parser.h"
 #include "io/mgf/MgfTransformContext.h"
+#include "skin/RadianceMethod.h"
 
 static char **globalTransformArgumentListBeginning;
 
@@ -74,7 +74,7 @@ transformName(MgfTransformArray *ap, RadianceMethod *context)
     char *cp1;
     char *cp2;
 
-    if ( ap == nullptr) {
+    if ( ap == nullptr ) {
         return mgfHandle(MGF_ENTITY_OBJECT, 1, oav, context);
     }
     cp1 = oName;
@@ -194,7 +194,7 @@ mgfTransformVector(VECTOR3Dd v1, VECTOR3Dd v2)
 }
 
 static void
-finish(int count, XF *ret, MATRIX4Dd transformMatrix, double scaTransform) {
+finish(int count, MgfTransform *ret, MATRIX4Dd transformMatrix, double scaTransform) {
     while ( count-- > 0 ) {
         multiplyMatrix4(ret->xfm, ret->xfm, transformMatrix);
         ret->sca *= scaTransform;
@@ -205,7 +205,7 @@ finish(int count, XF *ret, MATRIX4Dd transformMatrix, double scaTransform) {
 Get transform specification
 */
 static int
-xf(XF *ret, int ac, char **av)
+xf(MgfTransform *ret, int ac, char **av)
 {
     MATRIX4Dd transformMatrix;
     MATRIX4Dd m4;

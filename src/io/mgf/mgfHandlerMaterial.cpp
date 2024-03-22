@@ -6,11 +6,12 @@
 #include "scene/scene.h"
 #include "scene/phong.h"
 #include "scene/splitbsdf.h"
+#include "io/mgf/mgfDefinitions.h"
 #include "io/mgf/mgfHandlerMaterial.h"
 #include "io/mgf/lookup.h"
-#include "io/mgf/parser.h"
 #include "io/mgf/fileopts.h"
 #include "io/mgf/MgfMaterialContext.h"
+#include "io/mgf/words.h"
 
 #define NUMBER_OF_SAMPLES 3
 
@@ -34,6 +35,7 @@
 }
 
 Material *GLOBAL_mgf_currentMaterial = nullptr;
+char *GLOBAL_mgf_currentMaterialName = nullptr;
 
 static MgfMaterialContext globalUnNamedMaterialContext = DEFAULT_MATERIAL;
 static MgfMaterialContext globalDefaultMgfMaterial = DEFAULT_MATERIAL;

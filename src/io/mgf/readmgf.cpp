@@ -1,6 +1,7 @@
 #include "java/util/ArrayList.txx"
 #include "common/error.h"
 #include "scene/scene.h"
+#include "io/mgf/mgfDefinitions.h"
 #include "io/mgf/parser.h"
 #include "io/mgf/vectoroctree.h"
 #include "io/mgf/fileopts.h"

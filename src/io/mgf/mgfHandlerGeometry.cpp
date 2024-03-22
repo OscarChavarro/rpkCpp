@@ -3,12 +3,15 @@
 #include "java/util/ArrayList.txx"
 #include "common/linealAlgebra/vectorMacros.h"
 #include "common/error.h"
-#include "io/mgf/parser.h"
 #include "io/mgf/vectoroctree.h"
 #include "io/mgf/lookup.h"
 #include "io/mgf/mgfHandlerTransform.h"
 #include "io/mgf/MgfTransformContext.h"
 #include "io/mgf/mgfHandlerObject.h"
+#include "io/mgf/MgfVertexContext.h"
+#include "io/mgf/words.h"
+#include "io/mgf/mgfGeometry.h"
+#include "io/mgf/mgfHandlerMaterial.h"
 
 // No face can have more than this vertices
 #define MAXIMUM_FACE_VERTICES 100
@@ -25,16 +28,6 @@ java::ArrayList<Geometry *> *GLOBAL_mgf_currentGeometryList = nullptr;
 // Geometry stack: used for building a hierarchical representation of the scene
 int GLOBAL_mgf_inComplex = false; // True if reading a sphere, torus or other unsupported
 bool GLOBAL_mgf_allSurfacesSided = false; // When set to true, all surfaces will be considered one-sided
-
-void
-doError(const char *errmsg) {
-    logError(nullptr, (char *) "%s line %d: %s", GLOBAL_mgf_file->fileName, GLOBAL_mgf_file->lineNumber, errmsg);
-}
-
-void
-doWarning(const char *errmsg) {
-    logWarning(nullptr, (char *) "%s line %d: %s", GLOBAL_mgf_file->fileName, GLOBAL_mgf_file->lineNumber, errmsg);
-}
 
 /**
 The mgf parser already contains some good routines for discrete spheres / cone / cylinder / torus
@@ -778,7 +771,7 @@ handleVertexEntity(int ac, char **av, RadianceMethod * /*context*/)
             if ( av[2][0] != '=' || av[2][1] ) {
                 return MGF_ERROR_ARGUMENT_TYPE;
             }
-            if ( GLOBAL_mgf_currentVertex == nullptr) {
+            if ( GLOBAL_mgf_currentVertex == nullptr  ) {
                 // Create new vertex context
                 GLOBAL_mgf_currentVertexName = (char *) malloc(strlen(av[1]) + 1);
                 if ( !GLOBAL_mgf_currentVertexName ) {

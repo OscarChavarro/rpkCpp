@@ -4,6 +4,7 @@
 #include "skin/RadianceMethod.h"
 
 extern Material *GLOBAL_mgf_currentMaterial;
+extern char *GLOBAL_mgf_currentMaterialName;
 
 extern int handleMaterialEntity(int ac, char **av, RadianceMethod * /*context*/);
 extern void mgfClearMaterialTables();

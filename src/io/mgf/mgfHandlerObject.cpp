@@ -5,20 +5,22 @@ Hierarchical object names tracking
 #include <cstring>
 
 #include "java/util/ArrayList.txx"
-#include "io/mgf/parser.h"
+#include "scene/scene.h"
 #include "io/mgf/words.h"
 #include "io/mgf/mgfHandlerObject.h"
-#include "scene/scene.h"
+#include "io/mgf/mgfDefinitions.h"
+#include "io/mgf/mgfHandlerMaterial.h"
 
-int GLOBAL_mgf_objectNames; // depth of name hierarchy
-char **GLOBAL_mgf_objectNamesList; // name list
+int GLOBAL_mgf_objectNames; // Depth of name hierarchy
+char **GLOBAL_mgf_objectNamesList; // Name list
 java::ArrayList<Geometry *> **GLOBAL_mgf_geometryStackPtr = nullptr;
 int GLOBAL_mgf_inSurface = false; // True if busy creating a new surface
 java::ArrayList<Geometry *> *GLOBAL_mgf_geometryStack[MAXIMUM_GEOMETRY_STACK_DEPTH];
 
-static int globalObjectMaxName; // allocated list size
+static int globalObjectMaxName; // Allocated list size
 
-#define ALLOC_INC 16 // list increment ( > 1 )
+// List increment ( > 1 )
+#define ALLOC_INC 16
 
 static void
 pushCurrentGeometryList() {

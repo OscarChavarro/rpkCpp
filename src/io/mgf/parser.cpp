@@ -5,15 +5,14 @@ Parse an mgf file, converting or discarding unsupported entities.
 #include <cctype>
 #include <cstring>
 
+#include "common/error.h"
 #include "io/FileUncompressWrapper.h"
 #include "io/mgf/lookup.h"
 #include "io/mgf/messages.h"
 #include "io/mgf/parser.h"
-#include "MgfTransformContext.h"
-
-/*
- * Global definitions of variables declared in parser.h
- */
+#include "io/mgf/MgfTransformContext.h"
+#include "io/mgf/words.h"
+#include "io/mgf/mgfGeometry.h"
 
 // Entity names
 char GLOBAL_mgf_entityNames[MGF_TOTAL_NUMBER_OF_ENTITIES][MGF_MAXIMUM_ENTITY_NAME_LENGTH] = MG_NAMELIST;
@@ -56,6 +55,16 @@ parallel support handlers to assist in this effort.
 static int (*e_supp[MGF_TOTAL_NUMBER_OF_ENTITIES])(int argc, char **argv, RadianceMethod * /*context*/);
 static char globalFloatFormat[] = "%.12g";
 static int warpconends; // Hack for generating good normals
+
+void
+doError(const char *errmsg) {
+    logError(nullptr, (char *) "%s line %d: %s", GLOBAL_mgf_file->fileName, GLOBAL_mgf_file->lineNumber, errmsg);
+}
+
+void
+doWarning(const char *errmsg) {
+    logWarning(nullptr, (char *) "%s line %d: %s", GLOBAL_mgf_file->fileName, GLOBAL_mgf_file->lineNumber, errmsg);
+}
 
 /**
 Discard unneeded/unwanted entity
@@ -552,10 +561,8 @@ handleIncludedFile(int ac, char **av, RadianceMethod *context)
         return rv;
     }
     if ( ac > 2 ) {
-        int i;
-
         xfarg[0] = GLOBAL_mgf_entityNames[MGF_ENTITY_XF];
-        for ( i = 1; i < ac - 1; i++ ) {
+        for ( int i = 1; i < ac - 1; i++ ) {
             xfarg[i] = av[i + 1];
         }
         xfarg[ac - 1] = nullptr;
@@ -665,7 +672,7 @@ mgfEntitySphere(int ac, char **av, RadianceMethod *context)
     if ( cv == nullptr) {
         return MGF_ERROR_UNDEFINED_REFERENCE;
     }
-    if ( !isFloatWords(av[2])) {
+    if ( !isFloatWords(av[2]) ) {
         return MGF_ERROR_ARGUMENT_TYPE;
     }
     rad = strtod(av[2], nullptr);
