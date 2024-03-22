@@ -75,7 +75,7 @@ set(MAIN_SRC
     src/IMAGE/tonemap/tonemapping.cpp
     src/IMAGE/tonemap/trwf.cpp
     src/IMAGE/adaptation.cpp
-    src/io/mgf/readmgf.cpp
+    src/io/mgf/mgfHandlerGeometry.cpp
     src/io/mgf/mgfHandlerObject.cpp
     src/io/mgf/lookup.cpp
     src/io/mgf/fileopts.cpp
@@ -88,6 +88,7 @@ set(MAIN_SRC
     src/io/mgf/mgfHandlerMaterial.cpp
     src/io/FileUncompressWrapper.cpp
     src/io/writevrml.cpp
+    src/io/mgf/readmgf.cpp
     src/render/potential.cpp
     src/render/SoftIdsWrapper.cpp
     src/render/softids.cpp

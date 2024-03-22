@@ -128,3 +128,16 @@ multiplyMatrix4(double (*m4a)[4], double (*m4b)[4], double (*m4c)[4])
 
     copyMat4(m4a, globalM4Tmp);
 }
+
+/**
+Returns squared distance between the two vectors
+*/
+double
+distanceSquared(VECTOR3Dd *v1, VECTOR3Dd *v2) {
+    VECTOR3Dd d;
+
+    d[0] = (*v2)[0] - (*v1)[0];
+    d[1] = (*v2)[1] - (*v1)[1];
+    d[2] = (*v2)[2] - (*v1)[2];
+    return d[0] * d[0] + d[1] * d[1] + d[2] * d[2];
+}
