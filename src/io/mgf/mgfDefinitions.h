@@ -55,6 +55,7 @@
 #define xf_xid(xf) ((xf)==nullptr ? 0 : (xf)->xid)
 
 #define MGF_MAXIMUM_ENTITY_NAME_LENGTH    6
+#define MGF_MAXIMUM_ARGUMENT_COUNT (MGF_MAXIMUM_INPUT_LINE_LENGTH / 4)
 
 extern char GLOBAL_mgf_entityNames[MGF_TOTAL_NUMBER_OF_ENTITIES][MGF_MAXIMUM_ENTITY_NAME_LENGTH];
 

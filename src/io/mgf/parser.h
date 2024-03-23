@@ -24,9 +24,6 @@ mgfLoad will report the error to stderr.  The mgfReadNextLine routine
 returns 0 when the end of file has been reached.
 */
 
-#define MGF_MAXIMUM_ARGUMENT_COUNT (MGF_MAXIMUM_INPUT_LINE_LENGTH / 4)
-#define MGF_DEFAULT_NUMBER_OF_DIVISIONS 5
-
 extern int GLOBAL_mgf_divisionsPerQuarterCircle;
 
 extern int mgfReadNextLine();

@@ -4,8 +4,8 @@
 #include "skin/RadianceMethod.h"
 #include "io/mgf/MgfVertexContext.h"
 
-extern MgfVertexContext *GLOBAL_mgf_currentVertex;
 extern char *GLOBAL_mgf_currentVertexName;
+extern MgfVertexContext *GLOBAL_mgf_currentVertex;
 extern MgfVertexContext GLOBAL_mgf_vertexContext;
 
 extern int mgfEntitySphere(int ac, char **av, RadianceMethod *context);

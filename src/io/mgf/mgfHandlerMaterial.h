@@ -2,6 +2,7 @@
 #define __MGF_HANDLER_MATERIAL__
 
 #include "skin/RadianceMethod.h"
+#include "material/Material.h"
 
 extern Material *GLOBAL_mgf_currentMaterial;
 extern char *GLOBAL_mgf_currentMaterialName;

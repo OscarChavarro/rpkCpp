@@ -1,12 +1,11 @@
 #include <cstring>
 
-#include "skin/RadianceMethod.h"
-#include "io/mgf/MgfColorContext.h"
-#include "io/mgf/MgfVertexContext.h"
-#include "io/mgf/mgfDefinitions.h"
-#include "io/mgf/mgfHandlerMaterial.h"
 #include "io/mgf/lookup.h"
 #include "io/mgf/words.h"
+#include "io/mgf/mgfDefinitions.h"
+#include "io/mgf/MgfColorContext.h"
+#include "io/mgf/MgfVertexContext.h"
+#include "io/mgf/mgfHandlerMaterial.h"
 
 // W-m^2
 #define C1 3.741832e-16

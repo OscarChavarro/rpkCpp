@@ -1,12 +1,10 @@
 #include "java/util/ArrayList.txx"
 #include "common/error.h"
 #include "scene/scene.h"
-#include "io/mgf/mgfDefinitions.h"
 #include "io/mgf/parser.h"
 #include "io/mgf/vectoroctree.h"
 #include "io/mgf/fileopts.h"
 #include "io/mgf/mgfHandlerGeometry.h"
-#include "io/mgf/lookup.h"
 #include "io/mgf/mgfHandlerTransform.h"
 #include "io/mgf/mgfHandlerObject.h"
 #include "io/mgf/mgfGeometry.h"
@@ -432,9 +430,9 @@ Note: this is an implementation of MGF file format with major version number 2.
 */
 void
 readMgf(
-        char *filename,
-        RadianceMethod *context,
-        bool singleSided)
+    char *filename,
+    RadianceMethod *context,
+    bool singleSided)
 {
     mgfSetNrQuartCircDivs(GLOBAL_fileOptions_numberOfQuarterCircleDivisions);
     mgfSetIgnoreSingleSide(singleSided);

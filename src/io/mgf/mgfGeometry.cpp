@@ -1,16 +1,17 @@
 #include <cstring>
 
-#include "io/mgf/mgfGeometry.h"
 #include "io/mgf/mgfDefinitions.h"
 #include "io/mgf/words.h"
-#include "io/mgf/parser.h"
+#include "io/mgf/mgfGeometry.h"
 
-// Alternate handler support functions
-static char globalFloatFormat[] = "%.12g";
-static int warpconends; // Hack for generating good normals
+#define MGF_DEFAULT_NUMBER_OF_DIVISIONS 5
 
 // Number of divisions per quarter circle
 int GLOBAL_mgf_divisionsPerQuarterCircle = MGF_DEFAULT_NUMBER_OF_DIVISIONS;
+
+// Alternate handler support functions
+static char globalFloatFormat[] = "%.12g";
+static int globalWarpConEnds; // Hack for generating good normals
 
 /**
 Expand a sphere into cones
@@ -46,7 +47,7 @@ mgfEntitySphere(int ac, char **av, RadianceMethod *context)
     rad = strtod(av[2], nullptr);
 
     // Initialize
-    warpconends = 1;
+    globalWarpConEnds = 1;
     rval = mgfHandle(MGF_ENTITY_VERTEX, 3, v2ent, context);
     if ( rval != MGF_OK ) {
         return rval;
@@ -82,7 +83,7 @@ mgfEntitySphere(int ac, char **av, RadianceMethod *context)
             return rval;
         }
     }
-    warpconends = 0;
+    globalWarpConEnds = 0;
     return MGF_OK;
 }
 
@@ -138,7 +139,7 @@ mgfEntityTorus(int ac, char **av, RadianceMethod *context)
     }
 
     // Initialize
-    warpconends = 1;
+    globalWarpConEnds = 1;
     v2ent[3] = av[1];
     for ( j = 0; j < 3; j++ ) {
         snprintf(p2[j], 24, globalFloatFormat, cv->p[j] + 0.5 * sgn * (maxrad - minrad) * cv->n[j]);
@@ -207,7 +208,7 @@ mgfEntityTorus(int ac, char **av, RadianceMethod *context)
             return rval;
         }
     }
-    warpconends = 0;
+    globalWarpConEnds = 0;
     return MGF_OK;
 }
 
@@ -463,7 +464,7 @@ mgfEntityCone(int ac, char **av, RadianceMethod *context)
         return MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
     }
     n1off = n2off = (rad2 - rad1) / d;
-    if ( warpconends != 0 ) {
+    if ( globalWarpConEnds != 0 ) {
         // Hack for mgfEntitySphere and mgfEntityTorus
         d = std::atan(n2off) - (M_PI / 4) / GLOBAL_mgf_divisionsPerQuarterCircle;
         if ( d <= -M_PI / 2 + EPSILON) {
@@ -544,7 +545,7 @@ mgfEntityCone(int ac, char **av, RadianceMethod *context)
     } else {
         // Quads
         v1ent[3] = (char *)"_cv4";
-        if ( warpconends ) {
+        if ( globalWarpConEnds ) {
             // Hack for mgfEntitySphere and mgfEntityTorus
             d = std::atan(n1off) + (M_PI / 4) / GLOBAL_mgf_divisionsPerQuarterCircle;
             if ( d >= M_PI / 2 - EPSILON) {
