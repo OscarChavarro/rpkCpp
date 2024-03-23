@@ -22,8 +22,8 @@
 #define MGF_ENTITY_COLOR 1 // c
 #define MGF_ENTITY_CCT 2 // cct
 #define MGF_ENTITY_CONE 3 // cone
-#define MGF_ENTITY_C_MIX 4 // cmix
-#define MGF_ENTITY_C_SPEC 5 // cspec
+#define MGF_ENTITY_C_MIX 4 // cMix
+#define MGF_ENTITY_C_SPEC 5 // cSpec
 #define MGF_ENTITY_CXY 6 // cxy
 #define MGF_ENTITY_CYLINDER 7 // cyl
 #define MGF_ENTITY_ED 8 // ed
@@ -49,7 +49,6 @@
 #define MGF_ENTITY_FACE_WITH_HOLES 28 // fh (version 2 MGF)
 #define MGF_TOTAL_NUMBER_OF_ENTITIES 29
 
-
 #define xf_ac(xf) ((xf)==nullptr ? 0 : (xf)->xac)
 #define xf_av(xf) (GLOBAL_mgf_xfLastTransform - (xf)->xac)
 #define xf_argc xf_ac(GLOBAL_mgf_xfContext)
@@ -66,7 +65,24 @@ class MgdReaderFilePosition {
     long offset; // Offset from beginning
 };
 
+#define MGF_MAXIMUM_INPUT_LINE_LENGTH 4096
+class MgfReaderContext {
+public:
+    char fileName[96];
+    FILE *fp; // stream pointer
+    int fileContextId;
+    char inputLine[MGF_MAXIMUM_INPUT_LINE_LENGTH];
+    int lineNumber;
+    char isPipe; // Flag indicating whether input comes from a pipe or a real file
+    MgfReaderContext *prev; // Previous context
+};
+
+extern int mgfOpen(MgfReaderContext *, char *);
+
 extern char *GLOBAL_mgf_errors[MGF_NUMBER_OF_ERRORS];
+extern MgfReaderContext *GLOBAL_mgf_file;
+extern int (*GLOBAL_mgf_handleCallbacks[MGF_TOTAL_NUMBER_OF_ENTITIES])(int argc, char **argv, RadianceMethod *context);
+extern int (*GLOBAL_mgf_support[MGF_TOTAL_NUMBER_OF_ENTITIES])(int argc, char **argv, RadianceMethod * /*context*/);
 
 extern void doError(const char *errmsg);
 extern void doWarning(const char *errmsg);

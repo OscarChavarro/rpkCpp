@@ -2,7 +2,7 @@
 #define __MGF_HANDLER_TRANSFORM__
 
 #include "skin/RadianceMethod.h"
-#include "io/mgf/Vector3Dd.h"
+#include "common/linealAlgebra/Vector3Dd.h"
 
 /**
 The transformation handler should do most of the work that needs

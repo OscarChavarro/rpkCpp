@@ -13,11 +13,11 @@ proper compress/uncompress commands. Also if the first character of the file nam
 equal to '|', the file name is opened as a pipe.
 */
 FILE *
-openFile(const char *filename, const char *open_mode, int *isPipe) {
+openFileCompressWrapper(const char *filename, const char *open_mode, int *isPipe) {
     FILE *fp = nullptr;
 
     if ( *open_mode != 'r' && *open_mode != 'w' && *open_mode != 'a' ) {
-        logError("openFile", "Invalid fopen() mode '%s'\n", open_mode);
+        logError("openFileCompressWrapper", "Invalid fopen() mode '%s'\n", open_mode);
         return fp;
     }
 

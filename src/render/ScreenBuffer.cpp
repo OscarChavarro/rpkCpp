@@ -235,7 +235,7 @@ ScreenBuffer::writeFile(ImageOutputHandle *ip) {
 void
 ScreenBuffer::writeFile(char *filename) {
     int isPipe;
-    FILE *fp = openFile(filename, "w", &isPipe);
+    FILE *fp = openFileCompressWrapper(filename, "w", &isPipe);
     if ( !fp ) {
         return;
     }

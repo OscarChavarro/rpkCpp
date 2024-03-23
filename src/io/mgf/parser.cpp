@@ -17,21 +17,6 @@ Parse an mgf file, converting or discarding unsupported entities.
 // Entity names
 char GLOBAL_mgf_entityNames[MGF_TOTAL_NUMBER_OF_ENTITIES][MGF_MAXIMUM_ENTITY_NAME_LENGTH] = MG_NAMELIST;
 
-// Handler routines for each entity
-int (*GLOBAL_mgf_handleCallbacks[MGF_TOTAL_NUMBER_OF_ENTITIES])(int argc, char **argv, RadianceMethod *context);
-
-// Handler routine for unknown entities
-int (*GLOBAL_mgf_unknownEntityHandleCallback)(int argc, char **argv) = mgfDefaultHandlerForUnknownEntities;
-
-// Count of unknown entities
-unsigned GLOBAL_mgf_unknownEntitiesCounter;
-
-// Error messages
-char *GLOBAL_mgf_errors[MGF_NUMBER_OF_ERRORS] = MG_ERROR_LIST;
-
-// Current file context pointer
-MgfReaderContext *GLOBAL_mgf_file;
-
 // Number of divisions per quarter circle
 int GLOBAL_mgf_divisionsPerQuarterCircle = MGF_DEFAULT_NUMBER_OF_DIVISIONS;
 
@@ -52,19 +37,8 @@ parallel support handlers to assist in this effort.
 */
 
 // Alternate handler support functions
-static int (*e_supp[MGF_TOTAL_NUMBER_OF_ENTITIES])(int argc, char **argv, RadianceMethod * /*context*/);
 static char globalFloatFormat[] = "%.12g";
 static int warpconends; // Hack for generating good normals
-
-void
-doError(const char *errmsg) {
-    logError(nullptr, (char *) "%s line %d: %s", GLOBAL_mgf_file->fileName, GLOBAL_mgf_file->lineNumber, errmsg);
-}
-
-void
-doWarning(const char *errmsg) {
-    logWarning(nullptr, (char *) "%s line %d: %s", GLOBAL_mgf_file->fileName, GLOBAL_mgf_file->lineNumber, errmsg);
-}
 
 /**
 Discard unneeded/unwanted entity
@@ -274,28 +248,28 @@ mgfAlternativeInit(int (*handleCallbacks[MGF_TOTAL_NUMBER_OF_ENTITIES])(int, cha
 
     // Add support as needed
     if ( ineed & 1L << MGF_ENTITY_VERTEX && handleCallbacks[MGF_ENTITY_VERTEX] != handleVertexEntity ) {
-        e_supp[MGF_ENTITY_VERTEX] = handleVertexEntity;
+        GLOBAL_mgf_support[MGF_ENTITY_VERTEX] = handleVertexEntity;
     }
     if ( ineed & 1L << MGF_ENTITY_POINT && handleCallbacks[MGF_ENTITY_POINT] != handleVertexEntity ) {
-        e_supp[MGF_ENTITY_POINT] = handleVertexEntity;
+        GLOBAL_mgf_support[MGF_ENTITY_POINT] = handleVertexEntity;
     }
     if ( ineed & 1L << MGF_ENTITY_NORMAL && handleCallbacks[MGF_ENTITY_NORMAL] != handleVertexEntity ) {
-        e_supp[MGF_ENTITY_NORMAL] = handleVertexEntity;
+        GLOBAL_mgf_support[MGF_ENTITY_NORMAL] = handleVertexEntity;
     }
     if ( ineed & 1L << MGF_ENTITY_COLOR && handleCallbacks[MGF_ENTITY_COLOR] != handleColorEntity ) {
-        e_supp[MGF_ENTITY_COLOR] = handleColorEntity;
+        GLOBAL_mgf_support[MGF_ENTITY_COLOR] = handleColorEntity;
     }
     if ( ineed & 1L << MGF_ENTITY_CXY && handleCallbacks[MGF_ENTITY_CXY] != handleColorEntity ) {
-        e_supp[MGF_ENTITY_CXY] = handleColorEntity;
+        GLOBAL_mgf_support[MGF_ENTITY_CXY] = handleColorEntity;
     }
     if ( ineed & 1L << MGF_ENTITY_C_SPEC && handleCallbacks[MGF_ENTITY_C_SPEC] != handleColorEntity ) {
-        e_supp[MGF_ENTITY_C_SPEC] = handleColorEntity;
+        GLOBAL_mgf_support[MGF_ENTITY_C_SPEC] = handleColorEntity;
     }
     if ( ineed & 1L << MGF_ENTITY_C_MIX && handleCallbacks[MGF_ENTITY_C_MIX] != handleColorEntity ) {
-        e_supp[MGF_ENTITY_C_MIX] = handleColorEntity;
+        GLOBAL_mgf_support[MGF_ENTITY_C_MIX] = handleColorEntity;
     }
     if ( ineed & 1L << MGF_ENTITY_CCT && handleCallbacks[MGF_ENTITY_CCT] != handleColorEntity ) {
-        e_supp[MGF_ENTITY_CCT] = handleColorEntity;
+        GLOBAL_mgf_support[MGF_ENTITY_CCT] = handleColorEntity;
     }
 
     // Discard remaining entities
@@ -304,102 +278,6 @@ mgfAlternativeInit(int (*handleCallbacks[MGF_TOTAL_NUMBER_OF_ENTITIES])(int, cha
             handleCallbacks[i] = mgfDiscardUnNeededEntity;
         }
     }
-}
-
-/**
-Get entity number from its name
-*/
-int
-mgfEntity(char *name)
-{
-    static LUTAB ent_tab = LU_SINIT(nullptr, nullptr); // Lookup table
-    char *cp;
-
-    if ( !ent_tab.tsiz ) {
-        // Initialize hash table
-        if ( !lookUpInit(&ent_tab, MGF_TOTAL_NUMBER_OF_ENTITIES)) {
-            return -1;
-        }
-
-        // What to do?
-        for ( cp = GLOBAL_mgf_entityNames[MGF_TOTAL_NUMBER_OF_ENTITIES - 1];
-              cp >= GLOBAL_mgf_entityNames[0];
-              cp -= sizeof(GLOBAL_mgf_entityNames[0]) ) {
-            lookUpFind(&ent_tab, cp)->key = cp;
-        }
-    }
-    cp = lookUpFind(&ent_tab, name)->key;
-    if ( cp == nullptr) {
-        return -1;
-    }
-    return (int)((cp - GLOBAL_mgf_entityNames[0]) / sizeof(GLOBAL_mgf_entityNames[0]));
-}
-
-/**
-Pass entity to appropriate handler
-*/
-int
-mgfHandle(int en, int ac, char **av, RadianceMethod *context)
-{
-    int rv;
-
-    if ( en < 0 && (en = mgfEntity(av[0])) < 0 ) {
-        // Unknown entity
-        if ( GLOBAL_mgf_unknownEntityHandleCallback != nullptr) {
-            return (*GLOBAL_mgf_unknownEntityHandleCallback)(ac, av);
-        }
-        return MGF_ERROR_UNKNOWN_ENTITY;
-    }
-    if ( e_supp[en] != nullptr) {
-        // Support handler
-        // TODO SITHMASTER: Check number of arguments here
-        rv = (*e_supp[en])(ac, av, context);
-        if ( rv != MGF_OK ) {
-            return rv;
-        }
-    }
-    return (*GLOBAL_mgf_handleCallbacks[en])(ac, av, context); // Assigned handler
-}
-
-/**
-shaftCullOpen new input file
-*/
-int
-mgfOpen(MgfReaderContext *ctx, char *fn)
-{
-    static int nfids;
-    char *cp;
-    int isPipe;
-
-    ctx->fileContextId = ++nfids;
-    ctx->lineNumber = 0;
-    ctx->isPipe = 0;
-    if ( fn == nullptr) {
-        strcpy(ctx->fileName, "<stdin>");
-        ctx->fp = stdin;
-        ctx->prev = GLOBAL_mgf_file;
-        GLOBAL_mgf_file = ctx;
-        return MGF_OK;
-    }
-
-    // Get name relative to this context
-    if ( GLOBAL_mgf_file != nullptr && (cp = strrchr(GLOBAL_mgf_file->fileName, '/')) != nullptr) {
-        strcpy(ctx->fileName, GLOBAL_mgf_file->fileName);
-        strcpy(ctx->fileName + (cp - GLOBAL_mgf_file->fileName + 1), fn);
-    } else {
-        strcpy(ctx->fileName, fn);
-    }
-
-    ctx->fp = openFile(ctx->fileName, "r", &isPipe);
-    ctx->isPipe = (char)isPipe;
-
-    if ( ctx->fp == nullptr) {
-        return MGF_ERROR_CAN_NOT_OPEN_INPUT_FILE;
-    }
-
-    ctx->prev = GLOBAL_mgf_file; // Establish new context
-    GLOBAL_mgf_file = ctx;
-    return MGF_OK;
 }
 
 /**
@@ -415,40 +293,6 @@ mgfClose()
         // Close file if it's a file
         closeFile(ctx->fp, ctx->isPipe);
     }
-}
-
-/**
-Get current position in input file
-*/
-void
-mgfGetFilePosition(MgdReaderFilePosition *pos)
-{
-    pos->fid = GLOBAL_mgf_file->fileContextId;
-    pos->lineno = GLOBAL_mgf_file->lineNumber;
-    pos->offset = ftell(GLOBAL_mgf_file->fp);
-}
-
-/**
-Reposition input file pointer
-*/
-int
-mgfGoToFilePosition(MgdReaderFilePosition *pos)
-{
-    if ( pos->fid != GLOBAL_mgf_file->fileContextId ) {
-        return MGF_ERROR_FILE_SEEK_ERROR;
-    }
-    if ( pos->lineno == GLOBAL_mgf_file->lineNumber ) {
-        return MGF_OK;
-    }
-    if ( GLOBAL_mgf_file->fp == stdin || GLOBAL_mgf_file->isPipe ) {
-        // Cannot seek on standard input
-        return MGF_ERROR_FILE_SEEK_ERROR;
-    }
-    if ( fseek(GLOBAL_mgf_file->fp, pos->offset, 0) == EOF) {
-        return MGF_ERROR_FILE_SEEK_ERROR;
-    }
-    GLOBAL_mgf_file->lineNumber = pos->lineno;
-    return MGF_OK;
 }
 
 /**
@@ -516,20 +360,6 @@ mgfParseCurrentLine(RadianceMethod *context)
     *ap = nullptr;
     // Else handle it
     return mgfHandle(-1, (int)(ap - argv), argv, context);
-}
-
-/**
-Default handler for unknown entities
-*/
-int
-mgfDefaultHandlerForUnknownEntities(int /*ac*/, char **av)
-{
-    if ( GLOBAL_mgf_unknownEntitiesCounter++ == 0 ) {
-        // Report first incident
-        fprintf(stderr, "%s: %d: %s: %s\n", GLOBAL_mgf_file->fileName,
-                GLOBAL_mgf_file->lineNumber, GLOBAL_mgf_errors[MGF_ERROR_UNKNOWN_ENTITY], av[0]);
-    }
-    return MGF_OK;
 }
 
 /**

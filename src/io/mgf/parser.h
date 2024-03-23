@@ -2,7 +2,7 @@
 
 #include "common/mymath.h"
 #include "skin/RadianceMethod.h"
-#include "io/mgf/Vector3Dd.h"
+#include "common/linealAlgebra/Vector3Dd.h"
 #include "io/mgf/MgfColorContext.h"
 #include "io/mgf/mgfHandlerMaterial.h"
 #include "io/mgf/MgfVertexContext.h"
@@ -43,7 +43,6 @@
     "fh" \
 }
 
-extern int (*GLOBAL_mgf_handleCallbacks[MGF_TOTAL_NUMBER_OF_ENTITIES])(int argc, char **argv, RadianceMethod *context);
 extern int (*GLOBAL_mgf_unknownEntityHandleCallback)(int argc, char **argv);
 extern int mgfDefaultHandlerForUnknownEntities(int ac, char **av);
 extern unsigned GLOBAL_mgf_unknownEntitiesCounter;
@@ -67,26 +66,12 @@ mgfLoad will report the error to stderr.  The mgfReadNextLine routine
 returns 0 when the end of file has been reached.
 */
 
-#define MGF_MAXIMUM_INPUT_LINE_LENGTH 4096
 #define MGF_MAXIMUM_ARGUMENT_COUNT (MGF_MAXIMUM_INPUT_LINE_LENGTH / 4)
 #define MGF_DEFAULT_NUMBER_OF_DIVISIONS 5
 
-class MgfReaderContext {
-  public:
-    char fileName[96];
-    FILE *fp; // stream pointer
-    int fileContextId;
-    char inputLine[MGF_MAXIMUM_INPUT_LINE_LENGTH];
-    int lineNumber;
-    char isPipe; // Flag indicating whether input comes from a pipe or a real file
-    MgfReaderContext *prev; // Previous context
-};
-
-extern MgfReaderContext *GLOBAL_mgf_file;
 extern int GLOBAL_mgf_divisionsPerQuarterCircle;
 
 extern void mgfAlternativeInit(int (*handleCallbacks[MGF_TOTAL_NUMBER_OF_ENTITIES])(int, char **, RadianceMethod *));
-extern int mgfOpen(MgfReaderContext *, char *);
 extern int mgfReadNextLine();
 extern int mgfParseCurrentLine(RadianceMethod *context);
 extern void mgfClose();

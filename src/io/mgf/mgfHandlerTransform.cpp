@@ -4,7 +4,7 @@ Routines for 4x4 homogeneous, rigid-body transformations
 
 #include <cstring>
 
-#include "io/mgf/Vector3Dd.h"
+#include "common/linealAlgebra/Vector3Dd.h"
 #include "io/mgf/badarg.h"
 #include "io/mgf/MgfTransformContext.h"
 #include "skin/RadianceMethod.h"

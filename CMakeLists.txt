@@ -75,6 +75,7 @@ set(MAIN_SRC
     src/IMAGE/tonemap/tonemapping.cpp
     src/IMAGE/tonemap/trwf.cpp
     src/IMAGE/adaptation.cpp
+    src/io/mgf/mgfDefinitions.cpp
     src/io/mgf/mgfHandlerGeometry.cpp
     src/io/mgf/mgfHandlerObject.cpp
     src/io/mgf/lookup.cpp
@@ -82,7 +83,7 @@ set(MAIN_SRC
     src/io/mgf/badarg.cpp
     src/io/mgf/mgfHandlerTransform.cpp
     src/io/mgf/words.cpp
-    src/io/mgf/Vector3Dd.cpp
+        src/common/linealAlgebra/Vector3Dd.cpp
     src/io/mgf/parser.cpp
     src/io/mgf/mgfHandlerColor.cpp
     src/io/mgf/mgfHandlerMaterial.cpp

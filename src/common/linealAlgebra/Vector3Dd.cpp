@@ -5,7 +5,7 @@ Routines for 3-d vectors
 #include <cstring>
 
 #include "common/mymath.h"
-#include "io/mgf/Vector3Dd.h"
+#include "common/linealAlgebra/Vector3Dd.h"
 
 MATRIX4Dd GLOBAL_mgf_m4Ident = MAT4IDENT;
 

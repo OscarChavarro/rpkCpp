@@ -1,7 +1,7 @@
 #ifndef __MGF_VERTEX_CONTEXT__
 #define __MGF_VERTEX_CONTEXT__
 
-#include "io/mgf/Vector3Dd.h"
+#include "common/linealAlgebra/Vector3Dd.h"
 
 class MgfVertexContext {
   public:

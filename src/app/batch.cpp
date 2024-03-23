@@ -99,7 +99,7 @@ batchProcessFile(
     RadianceMethod *context)
 {
     int isPipe;
-    FILE *fp = openFile(fileName, openMode, &isPipe);
+    FILE *fp = openFileCompressWrapper(fileName, openMode, &isPipe);
 
     // Call the user supplied procedure to process the file
     processFileCallback(fileName, fp, isPipe, scenePatches, context);
