@@ -1,6 +1,7 @@
 #ifndef __MGF_TRANSFORM_CONTEXT__
 #define __MGF_TRANSFORM_CONTEXT__
 
+#include "common/linealAlgebra/Vector3Dd.h"
 #include "io/mgf/mgfDefinitions.h"
 
 // Regular transformation

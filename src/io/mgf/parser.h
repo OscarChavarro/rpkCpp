@@ -1,47 +1,5 @@
-#ifndef MGF_MAJOR_VERSION_NUMBER
-
-#include "common/mymath.h"
-#include "skin/RadianceMethod.h"
-#include "common/linealAlgebra/Vector3Dd.h"
-#include "io/mgf/MgfColorContext.h"
-#include "io/mgf/mgfHandlerMaterial.h"
-#include "io/mgf/MgfVertexContext.h"
-#include "io/mgf/mgfDefinitions.h"
-
-// Major version number
-#define MGF_MAJOR_VERSION_NUMBER 2
-
-#define MG_NAMELIST { \
-    "#", \
-    "c", \
-    "cct", \
-    "cone", \
-    "cmix", \
-    "cspec", \
-    "cxy", \
-    "cyl", \
-    "ed", \
-    "f", \
-    "i", \
-    "ies", \
-    "ir", \
-    "m", \
-    "n", \
-    "o", \
-    "p", \
-    "prism", \
-    "rd", \
-    "ring", \
-    "rs", \
-    "sides", \
-    "sph", \
-    "td", \
-    "torus", \
-    "ts", \
-    "v", \
-    "xf", \
-    "fh" \
-}
+#ifndef __MGF_PARSER__
+#define __MGF_PARSER__
 
 extern int (*GLOBAL_mgf_unknownEntityHandleCallback)(int argc, char **argv);
 extern int mgfDefaultHandlerForUnknownEntities(int ac, char **av);
@@ -71,13 +29,9 @@ returns 0 when the end of file has been reached.
 
 extern int GLOBAL_mgf_divisionsPerQuarterCircle;
 
-extern void mgfAlternativeInit(int (*handleCallbacks[MGF_TOTAL_NUMBER_OF_ENTITIES])(int, char **, RadianceMethod *));
 extern int mgfReadNextLine();
 extern int mgfParseCurrentLine(RadianceMethod *context);
-extern void mgfClose();
 extern void mgfClear();
-
-extern int handleIncludedFile(int ac, char **av, RadianceMethod *context);
 
 /**
 Definitions for context handling routines (materials, colors, vectors)

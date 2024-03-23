@@ -2,6 +2,7 @@
 #define __MGF_GEOMETRY__
 
 #include "skin/RadianceMethod.h"
+#include "io/mgf/MgfVertexContext.h"
 
 extern MgfVertexContext *GLOBAL_mgf_currentVertex;
 extern char *GLOBAL_mgf_currentVertexName;

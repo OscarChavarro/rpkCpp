@@ -78,6 +78,7 @@ public:
 };
 
 extern int mgfOpen(MgfReaderContext *, char *);
+extern void mgfClose();
 
 extern char *GLOBAL_mgf_errors[MGF_NUMBER_OF_ERRORS];
 extern MgfReaderContext *GLOBAL_mgf_file;

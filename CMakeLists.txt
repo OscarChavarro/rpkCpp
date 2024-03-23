@@ -18,17 +18,18 @@ include_directories(src)
 set(MAIN_SRC
     src/common/errorshared.cpp
     src/common/mymath.cpp
-    src/common/linealAlgebra/Matrix2x2.cpp
-    src/common/linealAlgebra/Vector3D.cpp
-    src/common/linealAlgebra/Matrix4x4.cpp
-    src/common/dataStructures/CircularList.cpp
-    src/common/dataStructures/KDTree.cpp
     src/common/color.cpp
     src/common/options.cpp
     src/common/cie.cpp
     src/common/RenderOptions.cpp
     src/common/cubature.cpp
     src/common/stratification.cpp
+    src/common/linealAlgebra/Matrix2x2.cpp
+    src/common/linealAlgebra/Vector3D.cpp
+    src/common/linealAlgebra/Matrix4x4.cpp
+    src/common/linealAlgebra/Vector3Dd.cpp
+    src/common/dataStructures/CircularList.cpp
+    src/common/dataStructures/KDTree.cpp
     src/QMC/halton.cpp
     src/QMC/scrambledhalton.cpp
     src/QMC/nied31.cpp
@@ -76,6 +77,7 @@ set(MAIN_SRC
     src/IMAGE/tonemap/trwf.cpp
     src/IMAGE/adaptation.cpp
     src/io/mgf/mgfDefinitions.cpp
+    src/io/mgf/mgfGeometry.cpp
     src/io/mgf/mgfHandlerGeometry.cpp
     src/io/mgf/mgfHandlerObject.cpp
     src/io/mgf/lookup.cpp
@@ -83,13 +85,12 @@ set(MAIN_SRC
     src/io/mgf/badarg.cpp
     src/io/mgf/mgfHandlerTransform.cpp
     src/io/mgf/words.cpp
-        src/common/linealAlgebra/Vector3Dd.cpp
     src/io/mgf/parser.cpp
     src/io/mgf/mgfHandlerColor.cpp
     src/io/mgf/mgfHandlerMaterial.cpp
+    src/io/mgf/readmgf.cpp
     src/io/FileUncompressWrapper.cpp
     src/io/writevrml.cpp
-    src/io/mgf/readmgf.cpp
     src/render/potential.cpp
     src/render/SoftIdsWrapper.cpp
     src/render/softids.cpp
@@ -121,7 +122,6 @@ set(MAIN_SRC
     src/raycasting/simple/RayMatterOptions.cpp
     src/raycasting/simple/RayCaster.cpp
     src/raycasting/simple/RayMatter.cpp
-    src/raycasting/bidirectionalRaytracing/LightList.cpp
     src/raycasting/raytracing/bidiroptions.cpp
     src/raycasting/raytracing/screeniterate.cpp
     src/raycasting/raytracing/specularsampler.cpp
@@ -133,6 +133,7 @@ set(MAIN_SRC
     src/raycasting/raytracing/samplertools.cpp
     src/raycasting/raytracing/densitykernel.cpp
     src/raycasting/raytracing/pixelsampler.cpp
+    src/raycasting/bidirectionalRaytracing/LightList.cpp
     src/raycasting/bidirectionalRaytracing/LightSampler.cpp
     src/raycasting/bidirectionalRaytracing/LightDirSampler.cpp
     src/raycasting/bidirectionalRaytracing/FlagChain.cpp

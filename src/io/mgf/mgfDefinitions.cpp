@@ -6,6 +6,38 @@
 #include "io/mgf/messages.h"
 #include "io/FileUncompressWrapper.h"
 
+#define MG_NAMELIST { \
+    "#", \
+    "c", \
+    "cct", \
+    "cone", \
+    "cmix", \
+    "cspec", \
+    "cxy", \
+    "cyl", \
+    "ed", \
+    "f", \
+    "i", \
+    "ies", \
+    "ir", \
+    "m", \
+    "n", \
+    "o", \
+    "p", \
+    "prism", \
+    "rd", \
+    "ring", \
+    "rs", \
+    "sides", \
+    "sph", \
+    "td", \
+    "torus", \
+    "ts", \
+    "v", \
+    "xf", \
+    "fh" \
+}
+
 // Current file context pointer
 MgfReaderContext *GLOBAL_mgf_file;
 
@@ -19,6 +51,9 @@ int (*GLOBAL_mgf_support[MGF_TOTAL_NUMBER_OF_ENTITIES])(int argc, char **argv, R
 
 // Error messages
 char *GLOBAL_mgf_errors[MGF_NUMBER_OF_ERRORS] = MG_ERROR_LIST;
+
+// Entity names
+char GLOBAL_mgf_entityNames[MGF_TOTAL_NUMBER_OF_ENTITIES][MGF_MAXIMUM_ENTITY_NAME_LENGTH] = MG_NAMELIST;
 
 /**
 Default handler for unknown entities
@@ -175,4 +210,19 @@ mgfOpen(MgfReaderContext *ctx, char *fn)
     ctx->prev = GLOBAL_mgf_file; // Establish new context
     GLOBAL_mgf_file = ctx;
     return MGF_OK;
+}
+
+/**
+Close input file
+*/
+void
+mgfClose()
+{
+    MgfReaderContext *ctx = GLOBAL_mgf_file;
+
+    GLOBAL_mgf_file = ctx->prev; // Restore enclosing context
+    if ( ctx->fp != stdin ) {
+        // Close file if it's a file
+        closeFile(ctx->fp, ctx->isPipe);
+    }
 }
