@@ -20,11 +20,9 @@ the mgfHandle function rather than the GLOBAL_mgf_handleCallbacks routines direc
 To free any data structures and clear the parser, use mgfClear.
 If there is an error, mgfLoad, mgfOpen, mgfParseCurrentLine, mgfHandle and
 mgfGoToFilePosition will return an error from the list above.  In addition,
-mgfLoad will report the error to stderr.  The mgfReadNextLine routine
+mgfLoad will report the error to stderr. The mgfReadNextLine routine
 returns 0 when the end of file has been reached.
 */
-
-extern int GLOBAL_mgf_divisionsPerQuarterCircle;
 
 extern int mgfReadNextLine();
 extern int mgfParseCurrentLine(RadianceMethod *context);
@@ -36,7 +34,7 @@ Definitions for context handling routines (materials, colors, vectors)
 
 extern int handleColorEntity(int ac, char **av, RadianceMethod * /*context*/);
 extern int handleVertexEntity(int ac, char **av, RadianceMethod * /*context*/);
-extern void clearContextTables();
+extern void initColorContextTables();
 
 /**
 Definitions for hierarchical object name handler

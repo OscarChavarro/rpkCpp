@@ -5,7 +5,7 @@
 #include "io/mgf/MgfVertexContext.h"
 
 extern char *GLOBAL_mgf_currentVertexName;
-extern MgfVertexContext *GLOBAL_mgf_currentVertex;
+extern int GLOBAL_mgf_divisionsPerQuarterCircle;
 extern MgfVertexContext GLOBAL_mgf_vertexContext;
 
 extern int mgfEntitySphere(int ac, char **av, RadianceMethod *context);

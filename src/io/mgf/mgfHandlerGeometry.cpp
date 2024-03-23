@@ -13,8 +13,12 @@
 
 // No face can have more than this vertices
 #define MAXIMUM_FACE_VERTICES 100
+#define DEFAULT_VERTEX {{0.0, 0.0, 0.0}, {0.0, 0.0, 0.0}, 0, 1, (void *)nullptr}
 
 LUTAB GLOBAL_mgf_vertexLookUpTable = LU_SINIT(free, free);
+MgfVertexContext *GLOBAL_mgf_currentVertex = &GLOBAL_mgf_vertexContext;
+MgfVertexContext GLOBAL_mgf_vertexContext = DEFAULT_VERTEX;
+MgfVertexContext GLOBAL_mgf_defaultVertexContext = DEFAULT_VERTEX;
 
 // Elements for surface currently being created
 java::ArrayList<Vector3D *> *GLOBAL_mgf_currentPointList = nullptr;
@@ -828,4 +832,25 @@ handleVertexEntity(int ac, char **av, RadianceMethod * /*context*/)
             return MGF_OK;
     }
     return MGF_ERROR_UNKNOWN_ENTITY;
+}
+
+/**
+Get a named vertex
+*/
+MgfVertexContext *
+getNamedVertex(char *name)
+{
+    LUENT *lp = lookUpFind(&GLOBAL_mgf_vertexLookUpTable, name);
+
+    if ( lp == nullptr ) {
+        return nullptr;
+    }
+    return (MgfVertexContext *)lp->data;
+}
+
+void
+initGeometryContextTables() {
+    GLOBAL_mgf_vertexContext = GLOBAL_mgf_defaultVertexContext;
+    GLOBAL_mgf_currentVertex = &GLOBAL_mgf_vertexContext;
+    GLOBAL_mgf_currentVertexName = nullptr;
 }

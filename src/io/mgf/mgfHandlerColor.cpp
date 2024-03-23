@@ -4,7 +4,6 @@
 #include "io/mgf/words.h"
 #include "io/mgf/mgfDefinitions.h"
 #include "io/mgf/MgfColorContext.h"
-#include "io/mgf/MgfVertexContext.h"
 #include "io/mgf/mgfHandlerMaterial.h"
 
 // W-m^2
@@ -17,13 +16,8 @@
 static MgfColorContext globalUnNamedColorContext = DEFAULT_COLOR_CONTEXT;
 
 // Current contexts
-#define DEFAULT_VERTEX {{0.0, 0.0, 0.0}, {0.0, 0.0, 0.0}, 0, 1, (void *)nullptr}
-
-MgfVertexContext GLOBAL_mgf_vertexContext = DEFAULT_VERTEX;
 MgfColorContext *GLOBAL_mgf_currentColor = &globalUnNamedColorContext;
-MgfVertexContext *GLOBAL_mgf_currentVertex = &GLOBAL_mgf_vertexContext;
 char *GLOBAL_mgf_currentVertexName = nullptr;
-MgfVertexContext GLOBAL_mgf_defaultVertexContext = DEFAULT_VERTEX;
 
 // Default context values
 static MgfColorContext globalDefaultMgfColorContext = DEFAULT_COLOR_CONTEXT;
@@ -420,31 +414,14 @@ handleColorEntity(int ac, char **av, RadianceMethod * /*context*/)
 Empty context tables
 */
 void
-clearContextTables()
+initColorContextTables()
 {
     globalUnNamedColorContext = globalDefaultMgfColorContext;
     GLOBAL_mgf_currentColor = &globalUnNamedColorContext;
     lookUpDone(&clr_tab);
     GLOBAL_mgf_currentMaterialName = nullptr;
-    GLOBAL_mgf_vertexContext = GLOBAL_mgf_defaultVertexContext;
-    GLOBAL_mgf_currentVertex = &GLOBAL_mgf_vertexContext;
-    GLOBAL_mgf_currentVertexName = nullptr;
     lookUpDone(&GLOBAL_mgf_vertexLookUpTable);
     mgfClearMaterialTables();
-}
-
-/**
-Get a named vertex
-*/
-MgfVertexContext *
-getNamedVertex(char *name)
-{
-    LUENT *lp = lookUpFind(&GLOBAL_mgf_vertexLookUpTable, name);
-
-    if ( lp == nullptr ) {
-        return nullptr;
-    }
-    return (MgfVertexContext *)lp->data;
 }
 
 /**

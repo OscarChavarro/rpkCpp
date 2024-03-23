@@ -8,6 +8,7 @@ Parse an mgf file, converting or discarding unsupported entities.
 #include "io/FileUncompressWrapper.h"
 #include "io/mgf/MgfTransformContext.h"
 #include "io/mgf/parser.h"
+#include "io/mgf/mgfHandlerGeometry.h"
 
 /**
 The idea with this parser is to compensate for any missing entries in
@@ -98,7 +99,8 @@ Clear parser history
 void
 mgfClear()
 {
-    clearContextTables(); // Clear context tables
+    initColorContextTables();
+    initGeometryContextTables();
     while ( GLOBAL_mgf_file != nullptr) {
         // Reset our file context
         mgfClose();
