@@ -4,7 +4,6 @@
 #include "io/mgf/words.h"
 #include "io/mgf/mgfDefinitions.h"
 #include "io/mgf/MgfColorContext.h"
-#include "io/mgf/mgfHandlerMaterial.h"
 
 // W-m^2
 #define C1 3.741832e-16
@@ -419,9 +418,6 @@ initColorContextTables()
     globalUnNamedColorContext = globalDefaultMgfColorContext;
     GLOBAL_mgf_currentColor = &globalUnNamedColorContext;
     lookUpDone(&clr_tab);
-    GLOBAL_mgf_currentMaterialName = nullptr;
-    lookUpDone(&GLOBAL_mgf_vertexLookUpTable);
-    mgfClearMaterialTables();
 }
 
 /**

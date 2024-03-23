@@ -853,4 +853,5 @@ initGeometryContextTables() {
     GLOBAL_mgf_vertexContext = GLOBAL_mgf_defaultVertexContext;
     GLOBAL_mgf_currentVertex = &GLOBAL_mgf_vertexContext;
     GLOBAL_mgf_currentVertexName = nullptr;
+    lookUpDone(&GLOBAL_mgf_vertexLookUpTable);
 }

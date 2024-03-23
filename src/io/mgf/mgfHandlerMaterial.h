@@ -8,7 +8,7 @@ extern Material *GLOBAL_mgf_currentMaterial;
 extern char *GLOBAL_mgf_currentMaterialName;
 
 extern int handleMaterialEntity(int ac, char **av, RadianceMethod * /*context*/);
-extern void mgfClearMaterialTables();
+extern void initMaterialContextTables();
 extern int mgfMaterialChanged(Material *material);
 extern int mgfGetCurrentMaterial(Material **material, bool allSurfacesSided);
 

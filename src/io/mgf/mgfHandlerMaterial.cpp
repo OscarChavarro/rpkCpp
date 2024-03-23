@@ -1,17 +1,15 @@
 #include <cstring>
 
 #include "java/util/ArrayList.txx"
-#include "material/brdf.h"
-#include "material/btdf.h"
 #include "scene/scene.h"
 #include "scene/phong.h"
 #include "scene/splitbsdf.h"
 #include "io/mgf/mgfDefinitions.h"
-#include "io/mgf/mgfHandlerMaterial.h"
 #include "io/mgf/lookup.h"
 #include "io/mgf/fileopts.h"
-#include "io/mgf/MgfMaterialContext.h"
 #include "io/mgf/words.h"
+#include "io/mgf/MgfMaterialContext.h"
+#include "io/mgf/mgfHandlerMaterial.h"
 
 #define NUMBER_OF_SAMPLES 3
 
@@ -246,10 +244,11 @@ mgfGetCurrentMaterial(Material **material, bool allSurfacesSided) {
 }
 
 void
-mgfClearMaterialTables() {
+initMaterialContextTables() {
     globalUnNamedMaterialContext = globalDefaultMgfMaterial;
     globalMgfCurrentMaterial = &globalUnNamedMaterialContext;
     lookUpDone(&globalMaterialLookUpTable);
+    GLOBAL_mgf_currentMaterialName = nullptr;
 }
 
 /**
