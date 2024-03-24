@@ -4,9 +4,9 @@
 extern bool GLOBAL_mgf_allSurfacesSided;
 extern int GLOBAL_mgf_inComplex;
 
-extern int handleFaceEntity(int argc, char **argv, RadianceMethod *context);
-extern int handleFaceWithHolesEntity(int argc, char **argv, RadianceMethod *context);
-extern int handleSurfaceEntity(int argc, char **argv, RadianceMethod *context);
+extern int handleFaceEntity(int argc, char **argv, MgfContext *context);
+extern int handleFaceWithHolesEntity(int argc, char **argv, MgfContext *context);
+extern int handleSurfaceEntity(int argc, char **argv, MgfContext *context);
 extern void initGeometryContextTables();
 
 #endif

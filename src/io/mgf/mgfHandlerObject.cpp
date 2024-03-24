@@ -121,7 +121,7 @@ surfaceDone() {
 }
 
 int
-handleObjectEntity(int argc, char **argv, RadianceMethod * /*context*/) {
+handleObjectEntity(int argc, char **argv, MgfContext * /*context*/) {
     int i;
 
     if ( argc > 1 ) {

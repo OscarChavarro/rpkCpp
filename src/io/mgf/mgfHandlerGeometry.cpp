@@ -39,7 +39,7 @@ The parser was changed so we can call them in order not to have to duplicate
 the code
 */
 static int
-doDiscreteConic(int argc, char **argv, RadianceMethod *context) {
+doDiscreteConic(int argc, char **argv, MgfContext *context) {
     int en = mgfEntity(argv[0]);
 
     switch ( en ) {
@@ -145,7 +145,7 @@ getBackFaceVertex(Vertex *v) {
 }
 
 static Patch *
-newFace(Vertex *v1, Vertex *v2, Vertex *v3, Vertex *v4, RadianceMethod *context) {
+newFace(Vertex *v1, Vertex *v2, Vertex *v3, Vertex *v4, MgfContext *context) {
     Patch *theFace;
     int numberOfVertices = v4 ? 4 : 3;
 
@@ -154,9 +154,9 @@ newFace(Vertex *v1, Vertex *v2, Vertex *v3, Vertex *v4, RadianceMethod *context)
     }
 
     if ( GLOBAL_mgf_xfContext && GLOBAL_mgf_xfContext->rev ) {
-        theFace = new Patch(numberOfVertices, v3, v2, v1, v4, context);
+        theFace = new Patch(numberOfVertices, v3, v2, v1, v4, context->radianceMethod);
     } else {
-        theFace = new Patch(numberOfVertices, v1, v2, v3, v4, context);
+        theFace = new Patch(numberOfVertices, v1, v2, v3, v4, context->radianceMethod);
     }
 
     GLOBAL_mgf_currentFaceList->add(0, theFace);
@@ -347,7 +347,7 @@ Inspiration comes from Burger and Gillis, Interactive Computer Graphics and
 the (indispensable) Graphics Gems books
 */
 static void
-doComplexFace(int n, Vertex **v, Vector3D *normal, Vertex **backVertex, RadianceMethod *context) {
+doComplexFace(int n, Vertex **v, Vector3D *normal, Vertex **backVertex, MgfContext *context) {
     Vector3D center;
 
     center.set(0.0, 0.0, 0.0);
@@ -468,7 +468,7 @@ doComplexFace(int n, Vertex **v, Vector3D *normal, Vertex **backVertex, Radiance
 }
 
 int
-handleFaceEntity(int argc, char **argv, RadianceMethod *context) {
+handleFaceEntity(int argc, char **argv, MgfContext *context) {
     Vertex *v[MAXIMUM_FACE_VERTICES + 1];
     Vertex *backV[MAXIMUM_FACE_VERTICES + 1];
     Vector3D normal;
@@ -551,7 +551,7 @@ handleFaceEntity(int argc, char **argv, RadianceMethod *context) {
 }
 
 int
-handleSurfaceEntity(int argc, char **argv, RadianceMethod *context) {
+handleSurfaceEntity(int argc, char **argv, MgfContext *context) {
     int errcode;
 
     if ( GLOBAL_mgf_inComplex ) {
@@ -580,7 +580,7 @@ on another contour. Creates an argument list for the face
 without hole entity handling routine handleFaceEntity() and calls it
 */
 int
-handleFaceWithHolesEntity(int argc, char **argv, RadianceMethod *context) {
+handleFaceWithHolesEntity(int argc, char **argv, MgfContext *context) {
     VECTOR3Dd v[MAXIMUM_FACE_VERTICES + 1]; // v[i] = location of vertex argv[i]
     char *argumentsToFaceWithoutHoles[MAXIMUM_FACE_VERTICES + 1], // Arguments to be passed to the face
                                             // without hole entity handler
@@ -736,7 +736,7 @@ handleFaceWithHolesEntity(int argc, char **argv, RadianceMethod *context) {
 Handle a vertex entity
 */
 int
-handleVertexEntity(int ac, char **av, RadianceMethod * /*context*/)
+handleVertexEntity(int ac, char **av, MgfContext * /*context*/)
 {
     LUENT *lp;
 

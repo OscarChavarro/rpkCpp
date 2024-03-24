@@ -308,7 +308,7 @@ Returns true if successful. There's nothing GUI specific in this function.
 When a file cannot be read, the current scene is restored
 */
 static bool
-mainReadFile(char *filename, RadianceMethod *context) {
+mainReadFile(char *filename, MgfContext *context) {
     // Check whether the file can be opened if not reading from stdin
     if ( filename[0] != '#' ) {
         FILE *input = fopen(filename, "r");
@@ -368,9 +368,9 @@ mainReadFile(char *filename, RadianceMethod *context) {
 
     if ( strncmp(extension, "mgf", 3) == 0 ) {
         readMgf(
-                filename,
-                context,
-                globalFileOptionsForceOneSidedSurfaces != 0);
+            filename,
+            context,
+            globalFileOptionsForceOneSidedSurfaces != 0);
     }
 
     clock_t t = clock();
@@ -388,7 +388,7 @@ mainReadFile(char *filename, RadianceMethod *context) {
     fprintf(stderr, "Disposing of the old scene ... ");
     fflush(stderr);
     if ( context ) {
-        context->terminate(GLOBAL_scenePatches);
+        context->radianceMethod->terminate(GLOBAL_scenePatches);
     }
 
     #ifdef RAYTRACING_ENABLED
@@ -518,7 +518,7 @@ mainReadFile(char *filename, RadianceMethod *context) {
         fprintf(stderr, "Initializing radiance computations ... ");
         fflush(stderr);
 
-        setRadianceMethod(context, globalAppScenePatches);
+        setRadianceMethod(context->radianceMethod, globalAppScenePatches);
 
         t = clock();
         fprintf(stderr, "%g secs.\n", (float) (t - last) / (float) CLOCKS_PER_SEC);
@@ -545,7 +545,7 @@ mainReadFile(char *filename, RadianceMethod *context) {
 }
 
 static void
-mainBuildModel(const int *argc, char *const *argv, RadianceMethod *context) {
+mainBuildModel(const int *argc, char *const *argv, MgfContext *context) {
     // All options should have disappeared from argv now
     if ( *argc > 1 ) {
         if ( *argv[1] == '-' ) {
@@ -622,7 +622,11 @@ main(int argc, char *argv[]) {
 
     mainInit();
     mainParseGlobalOptions(&argc, argv, &selectedRadianceMethod);
-    mainBuildModel(&argc, argv, selectedRadianceMethod);
+
+    MgfContext mgfContext;
+    mgfContext.radianceMethod = selectedRadianceMethod;
+
+    mainBuildModel(&argc, argv, &mgfContext);
 
     mainExecuteRendering(globalAppScenePatches, selectedRadianceMethod);
     mainFreeMemory();

@@ -45,9 +45,9 @@ MgfReaderContext *GLOBAL_mgf_file;
 unsigned GLOBAL_mgf_unknownEntitiesCounter;
 
 // Handler routines for each entity
-int (*GLOBAL_mgf_handleCallbacks[MGF_TOTAL_NUMBER_OF_ENTITIES])(int argc, char **argv, RadianceMethod *context);
+int (*GLOBAL_mgf_handleCallbacks[MGF_TOTAL_NUMBER_OF_ENTITIES])(int argc, char **argv, MgfContext *context);
 
-int (*GLOBAL_mgf_support[MGF_TOTAL_NUMBER_OF_ENTITIES])(int argc, char **argv, RadianceMethod * /*context*/);
+int (*GLOBAL_mgf_support[MGF_TOTAL_NUMBER_OF_ENTITIES])(int argc, char **argv, MgfContext * /*context*/);
 
 // Error messages
 char *GLOBAL_mgf_errors[MGF_NUMBER_OF_ERRORS] = MG_ERROR_LIST;
@@ -149,7 +149,7 @@ mgfEntity(char *name)
 Pass entity to appropriate handler
 */
 int
-mgfHandle(int en, int ac, char **av, RadianceMethod *context)
+mgfHandle(int en, int ac, char **av, MgfContext *context)
 {
     int rv;
 

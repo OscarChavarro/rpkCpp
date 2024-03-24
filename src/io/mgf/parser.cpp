@@ -54,7 +54,7 @@ mgfReadNextLine()
 Parse current input line
 */
 int
-mgfParseCurrentLine(RadianceMethod *context)
+mgfParseCurrentLine(MgfContext *context)
 {
     char abuf[MGF_MAXIMUM_INPUT_LINE_LENGTH];
     char *argv[MGF_MAXIMUM_ARGUMENT_COUNT];

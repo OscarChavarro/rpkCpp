@@ -1,7 +1,7 @@
 #ifndef __MGF_DEFINITIONS__
 #define __MGF_DEFINITIONS__
 
-#include "skin/RadianceMethod.h"
+#include "io/mgf/MgfContext.h"
 
 // logError codes
 #define MGF_OK 0 // normal return value
@@ -83,8 +83,8 @@ extern void mgfClose();
 
 extern char *GLOBAL_mgf_errors[MGF_NUMBER_OF_ERRORS];
 extern MgfReaderContext *GLOBAL_mgf_file;
-extern int (*GLOBAL_mgf_handleCallbacks[MGF_TOTAL_NUMBER_OF_ENTITIES])(int argc, char **argv, RadianceMethod *context);
-extern int (*GLOBAL_mgf_support[MGF_TOTAL_NUMBER_OF_ENTITIES])(int argc, char **argv, RadianceMethod * /*context*/);
+extern int (*GLOBAL_mgf_handleCallbacks[MGF_TOTAL_NUMBER_OF_ENTITIES])(int argc, char **argv, MgfContext *context);
+extern int (*GLOBAL_mgf_support[MGF_TOTAL_NUMBER_OF_ENTITIES])(int argc, char **argv, MgfContext * /*context*/);
 
 extern void doError(const char *errmsg);
 extern void doWarning(const char *errmsg);
@@ -92,6 +92,6 @@ extern void doWarning(const char *errmsg);
 extern void mgfGetFilePosition(MgdReaderFilePosition *pos);
 extern int mgfGoToFilePosition(MgdReaderFilePosition *pos);
 extern int mgfEntity(char *name);
-extern int mgfHandle(int en, int ac, char **av, RadianceMethod * /*context*/);
+extern int mgfHandle(int en, int ac, char **av, MgfContext * /*context*/);
 
 #endif

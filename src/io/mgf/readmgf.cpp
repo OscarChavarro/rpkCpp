@@ -65,7 +65,7 @@ mgfSetMonochrome(int yesno) {
 Discard unneeded/unwanted entity
 */
 static int
-mgfDiscardUnNeededEntity(int /*ac*/, char ** /*av*/, RadianceMethod * /*context*/) {
+mgfDiscardUnNeededEntity(int /*ac*/, char ** /*av*/, MgfContext * /*context*/) {
     return MGF_OK;
 }
 
@@ -73,7 +73,7 @@ mgfDiscardUnNeededEntity(int /*ac*/, char ** /*av*/, RadianceMethod * /*context*
 Put out current color spectrum
 */
 static int
-mgfPutCSpec(RadianceMethod *context)
+mgfPutCSpec(MgfContext *context)
 {
     char wl[2][6];
     char vbuf[NUMBER_OF_SPECTRAL_SAMPLES][24];
@@ -104,7 +104,7 @@ mgfPutCSpec(RadianceMethod *context)
 Put out current xy chromaticities
 */
 static int
-mgfPutCxy(RadianceMethod *context)
+mgfPutCxy(MgfContext *context)
 {
     static char xbuf[24];
     static char ybuf[24];
@@ -119,7 +119,7 @@ mgfPutCxy(RadianceMethod *context)
 Handle spectral color
 */
 static int
-mgfECSpec(int /*ac*/, char ** /*av*/, RadianceMethod *context) {
+mgfECSpec(int /*ac*/, char ** /*av*/, MgfContext *context) {
     // Convert to xy chromaticity
     mgfContextFixColorRepresentation(GLOBAL_mgf_currentColor, C_CSXY);
     // If it's really their handler, use it
@@ -139,7 +139,7 @@ Contorted logic works as follows:
 5. if we have only xy results, handle it as c_spec() would
 */
 static int
-mgfECmix(int /*ac*/, char ** /*av*/, RadianceMethod *context) {
+mgfECmix(int /*ac*/, char ** /*av*/, MgfContext *context) {
     if ( GLOBAL_mgf_handleCallbacks[MGF_ENTITY_C_SPEC] == mgfECSpec ) {
         mgfContextFixColorRepresentation(GLOBAL_mgf_currentColor, C_CSXY);
     } else if ( GLOBAL_mgf_currentColor->flags & C_CDSPEC ) {
@@ -155,7 +155,7 @@ mgfECmix(int /*ac*/, char ** /*av*/, RadianceMethod *context) {
 Handle color temperature
 */
 static int
-mgfColorTemperature(int /*ac*/, char ** /*av*/, RadianceMethod *context)
+mgfColorTemperature(int /*ac*/, char ** /*av*/, MgfContext *context)
 {
     // Logic is similar to mgfECmix here.  Support handler has already
     // converted temperature to spectral color.  Put it out as such
@@ -172,7 +172,7 @@ mgfColorTemperature(int /*ac*/, char ** /*av*/, RadianceMethod *context)
 }
 
 static int
-handleIncludedFile(int ac, char **av, RadianceMethod *context)
+handleIncludedFile(int ac, char **av, MgfContext *context)
 {
     char *xfarg[MGF_MAXIMUM_ARGUMENT_COUNT];
     MgfReaderContext ictx{};
@@ -231,7 +231,7 @@ handleIncludedFile(int ac, char **av, RadianceMethod *context)
 rayCasterInitialize alternate entity handlers
 */
 static void
-mgfAlternativeInit(int (*handleCallbacks[MGF_TOTAL_NUMBER_OF_ENTITIES])(int, char **, RadianceMethod *)) {
+mgfAlternativeInit(int (*handleCallbacks[MGF_TOTAL_NUMBER_OF_ENTITIES])(int, char **, MgfContext *)) {
     unsigned long ineed = 0;
     unsigned long uneed = 0;
     int i;
@@ -431,7 +431,7 @@ Note: this is an implementation of MGF file format with major version number 2.
 void
 readMgf(
     char *filename,
-    RadianceMethod *context,
+    MgfContext *context,
     bool singleSided)
 {
     mgfSetNrQuartCircDivs(GLOBAL_fileOptions_numberOfQuarterCircleDivisions);

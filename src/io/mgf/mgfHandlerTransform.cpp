@@ -7,7 +7,6 @@ Routines for 4x4 homogeneous, rigid-body transformations
 #include "common/linealAlgebra/Vector3Dd.h"
 #include "io/mgf/badarg.h"
 #include "io/mgf/MgfTransformContext.h"
-#include "skin/RadianceMethod.h"
 
 static char **globalTransformArgumentListBeginning;
 
@@ -66,7 +65,7 @@ checkArgument(int a, const char *l, int ac, char **av, int i) {
 Put out name for this instance
 */
 static int
-transformName(MgfTransformArray *ap, RadianceMethod *context)
+transformName(MgfTransformArray *ap, MgfContext *context)
 {
     static char oName[10 * TRANSFORM_MAXIMUM_DIMENSIONS];
     static char *oav[3] = {GLOBAL_mgf_entityNames[MGF_ENTITY_OBJECT], oName};
@@ -434,7 +433,7 @@ xf(MgfTransform *ret, int ac, char **av)
 Handle xf entity
 */
 int
-handleTransformationEntity(int ac, char **av, RadianceMethod *context) {
+handleTransformationEntity(int ac, char **av, MgfContext *context) {
     MgfTransformContext *spec;
     int n;
     int rv;

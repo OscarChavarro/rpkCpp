@@ -17,7 +17,7 @@ static bool globalWarpConeEnds; // Hack for generating good normals
 Expand a sphere into cones
 */
 int
-mgfEntitySphere(int ac, char **av, RadianceMethod *context)
+mgfEntitySphere(int ac, char **av, MgfContext *context)
 {
     char p2x[24];
     char p2y[24];
@@ -90,7 +90,7 @@ mgfEntitySphere(int ac, char **av, RadianceMethod *context)
 Expand a torus into cones
 */
 int
-mgfEntityTorus(int ac, char **av, RadianceMethod *context)
+mgfEntityTorus(int ac, char **av, MgfContext *context)
 {
     char p2[3][24];
     char r1[24];
@@ -214,7 +214,7 @@ mgfEntityTorus(int ac, char **av, RadianceMethod *context)
 Replace a cylinder with equivalent cone
 */
 int
-mgfEntityCylinder(int ac, char **av, RadianceMethod *context)
+mgfEntityCylinder(int ac, char **av, MgfContext *context)
 {
     char *newArgV[6] = {GLOBAL_mgf_entityNames[MGF_ENTITY_CONE]};
 
@@ -232,7 +232,7 @@ mgfEntityCylinder(int ac, char **av, RadianceMethod *context)
 Turn a ring into polygons
 */
 int
-mgfEntityRing(int ac, char **av, RadianceMethod *context)
+mgfEntityRing(int ac, char **av, MgfContext *context)
 {
     char p3[3][24];
     char p4[3][24];
@@ -383,7 +383,7 @@ mgfEntityRing(int ac, char **av, RadianceMethod *context)
 Turn a cone into polygons
 */
 int
-mgfEntityCone(int ac, char **av, RadianceMethod *context)
+mgfEntityCone(int ac, char **av, MgfContext *context)
 {
     char p3[3][24];
     char p4[3][24];
@@ -629,7 +629,7 @@ mgfEntityCone(int ac, char **av, RadianceMethod *context)
 Turn a prism into polygons
 */
 int
-mgfEntityPrism(int ac, char **av, RadianceMethod *context)
+mgfEntityPrism(int ac, char **av, MgfContext *context)
 {
     char p[3][24];
     char *vent[5] = {GLOBAL_mgf_entityNames[MGF_ENTITY_VERTEX], nullptr, (char *)"="};
@@ -786,7 +786,7 @@ mgfEntityPrism(int ac, char **av, RadianceMethod *context)
 Replace face+holes with single contour
 */
 int
-mgfEntityFaceWithHoles(int ac, char **av, RadianceMethod *context)
+mgfEntityFaceWithHoles(int ac, char **av, MgfContext *context)
 {
     char *newArgV[MGF_MAXIMUM_ARGUMENT_COUNT];
     int lastP = 0;

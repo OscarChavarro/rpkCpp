@@ -1,7 +1,7 @@
 #ifndef __MGF_HANDLER_OBJECT__
 #define __MGF_HANDLER_OBJECT__
 
-#include "skin/RadianceMethod.h"
+#include "io/mgf/MgfContext.h"
 
 // Objects 'o' contexts can be nested this deep
 #define MAXIMUM_GEOMETRY_STACK_DEPTH 100
@@ -15,7 +15,7 @@ extern java::ArrayList<Geometry *> *GLOBAL_mgf_currentGeometryList;
 extern int GLOBAL_mgf_inSurface;
 extern java::ArrayList<Geometry *> *GLOBAL_mgf_geometryStack[MAXIMUM_GEOMETRY_STACK_DEPTH];
 
-extern int handleObjectEntity(int argc, char **argv, RadianceMethod * /*context*/);
+extern int handleObjectEntity(int argc, char **argv, MgfContext * /*context*/);
 extern void newSurface();
 extern void surfaceDone();
 

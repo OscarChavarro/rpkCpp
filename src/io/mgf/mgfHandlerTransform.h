@@ -1,8 +1,8 @@
 #ifndef __MGF_HANDLER_TRANSFORM__
 #define __MGF_HANDLER_TRANSFORM__
 
-#include "skin/RadianceMethod.h"
 #include "common/linealAlgebra/Vector3Dd.h"
+#include "io/mgf/MgfContext.h"
 
 /**
 The transformation handler should do most of the work that needs
@@ -16,7 +16,7 @@ The routines mgfTransformPoint, mgfTransformVector and xf_rotvect take two
 puts the result into the first.
 */
 
-extern int handleTransformationEntity(int ac, char **av, RadianceMethod * /*context*/);
+extern int handleTransformationEntity(int ac, char **av, MgfContext * /*context*/);
 extern void mgfTransformPoint(VECTOR3Dd v1, VECTOR3Dd v2); // Transform point
 extern void mgfTransformVector(VECTOR3Dd v1, VECTOR3Dd v2); // Transform vector
 

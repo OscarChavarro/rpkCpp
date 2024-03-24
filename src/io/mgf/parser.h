@@ -1,6 +1,8 @@
 #ifndef __MGF_PARSER__
 #define __MGF_PARSER__
 
+#include "io/mgf/MgfContext.h"
+
 extern int (*GLOBAL_mgf_unknownEntityHandleCallback)(int argc, char **argv);
 extern int mgfDefaultHandlerForUnknownEntities(int ac, char **av);
 extern unsigned GLOBAL_mgf_unknownEntitiesCounter;
@@ -25,15 +27,15 @@ returns 0 when the end of file has been reached.
 */
 
 extern int mgfReadNextLine();
-extern int mgfParseCurrentLine(RadianceMethod *context);
+extern int mgfParseCurrentLine(MgfContext *context);
 extern void mgfClear();
 
 /**
 Definitions for context handling routines (materials, colors, vectors)
 */
 
-extern int handleColorEntity(int ac, char **av, RadianceMethod * /*context*/);
-extern int handleVertexEntity(int ac, char **av, RadianceMethod * /*context*/);
+extern int handleColorEntity(int ac, char **av, MgfContext * /*context*/);
+extern int handleVertexEntity(int ac, char **av, MgfContext * /*context*/);
 extern void initColorContextTables();
 
 /**

@@ -1,12 +1,14 @@
 #ifndef __READ_MGF__
 #define __READ_MGF__
 
-#include "skin/RadianceMethod.h"
+#include "io/mgf/MgfContext.h"
 
-extern void readMgf(
+extern void
+readMgf(
     char *filename,
-    RadianceMethod *context,
+    MgfContext *context,
     bool singleSided);
+
 extern void mgfFreeMemory();
 
 #endif

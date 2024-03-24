@@ -263,7 +263,7 @@ setSpectrum(MgfColorContext *clr, double wlMinimum, double wlMaximum, int ac, ch
 Handle color entity
 */
 int
-handleColorEntity(int ac, char **av, RadianceMethod * /*context*/)
+handleColorEntity(int ac, char **av, MgfContext * /*context*/)
 {
     double w;
     double wSum;

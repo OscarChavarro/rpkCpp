@@ -277,7 +277,7 @@ mgfMaterialChanged(Material *material) {
 Handle material entity
 */
 int
-handleMaterialEntity(int ac, char **av, RadianceMethod * /*context*/)
+handleMaterialEntity(int ac, char **av, MgfContext * /*context*/)
 {
     int i;
     LUENT *lp;
