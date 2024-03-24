@@ -24,7 +24,7 @@ static const char *globalRadianceModelFileNameFormat = "";
 static const char *globalRaytracingImageFileName = "";
 
 static CommandLineOptionDescription batchOptions[] = {
-    {"-iterations", 3,  Tint, &globalIterations, DEFAULT_ACTION,
+    {"-iterations", 3, &GLOBAL_options_intType, &globalIterations, DEFAULT_ACTION,
      "-iterations <integer>\t: world-space radiance iterations"},
     {"-radiance-image-savefile", 12, Tstring,
      &globalRadianceImageFileNameFormat, DEFAULT_ACTION,
@@ -34,11 +34,11 @@ static CommandLineOptionDescription batchOptions[] = {
      &globalRadianceModelFileNameFormat, DEFAULT_ACTION,
      "-radiance-model-savefile <filename>\t: radiance VRML model savefile name,"
      "\n\tfirst '%%d' will be substituted by iteration number"},
-    {"-save-modulo", 8, Tint, &globalSaveModulo, DEFAULT_ACTION,
+    {"-save-modulo", 8, &GLOBAL_options_intType, &globalSaveModulo, DEFAULT_ACTION,
      "-save-modulo <integer>\t: save every n-th iteration"},
     {"-raytracing-image-savefile", 14, Tstring, &globalRaytracingImageFileName, DEFAULT_ACTION,
      "-raytracing-image-savefile <filename>\t: raytracing PPM savefile name"},
-    {"-timings", 3,  Tsettrue, &globalTimings, DEFAULT_ACTION,
+    {"-timings", 3, Tsettrue, &globalTimings, DEFAULT_ACTION,
      "-timings\t: printRegularHierarchy timings for world-space radiance and raytracing methods"},
     {nullptr, 0,  TYPELESS, nullptr, DEFAULT_ACTION, nullptr}
 };

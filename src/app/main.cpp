@@ -66,9 +66,9 @@ mainMonochromeOption(void *value) {
 }
 
 static CommandLineOptionDescription globalOptions[] = {
-    {"-nqcdivs", 3, Tint, &globalNumberOfQuarterCircleDivisions, DEFAULT_ACTION,
+    {"-nqcdivs", 3, &GLOBAL_options_intType, &globalNumberOfQuarterCircleDivisions, DEFAULT_ACTION,
     "-nqcdivs <integer>\t: number of quarter circle divisions"},
-    {"-force-onesided", 10, TYPELESS, &globalYes,     mainForceOneSidedOption,
+    {"-force-onesided", 10, TYPELESS, &globalYes, mainForceOneSidedOption,
     "-force-onesided\t\t: force one-sided surfaces"},
     {"-dont-force-onesided", 14, TYPELESS, &globalNo, mainForceOneSidedOption,
     "-dont-force-onesided\t: allow two-sided surfaces"},

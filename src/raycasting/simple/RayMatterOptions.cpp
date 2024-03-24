@@ -23,9 +23,9 @@ MakeEnumOptTypeStruct(rmPixelFilterTypeStruct, globalRayMatterPixelFilters);
 
 static CommandLineOptionDescription globalRayMatterOptions[] =
 {
-    {"-rm-samples-per-pixel", 6, Tint, &GLOBAL_rayCasting_rayMatterState.samplesPerPixel, DEFAULT_ACTION,
+    {"-rm-samples-per-pixel", 6, &GLOBAL_options_intType, &GLOBAL_rayCasting_rayMatterState.samplesPerPixel, DEFAULT_ACTION,
      "-rm-samples-per-pixel <number>\t: eye-rays per pixel"},
-    {"-rm-pixel-filter",      7, TrmPixelFilter, &GLOBAL_rayCasting_rayMatterState.filter, DEFAULT_ACTION,
+    {"-rm-pixel-filter", 7, TrmPixelFilter, &GLOBAL_rayCasting_rayMatterState.filter, DEFAULT_ACTION,
      "-rm-pixel-filter <type>\t: Select filter - \"box\", \"tent\", \"gaussian 1/sqrt2\", \"gaussian 1/2\""},
     {nullptr, 0, TYPELESS, nullptr, DEFAULT_ACTION, nullptr}
 };

@@ -77,7 +77,7 @@ MakeEnumOptTypeStruct(showWhatTypeStruct, showWhatVals);
 #define TshowWhat (&showWhatTypeStruct)
 
 static CommandLineOptionDescription srrOptions[] = {
-    {"-srr-ray-units", 8, Tint, &GLOBAL_stochasticRaytracing_monteCarloRadiosityState.rayUnitsPerIt,                                  DEFAULT_ACTION,
+    {"-srr-ray-units", 8, &GLOBAL_options_intType, &GLOBAL_stochasticRaytracing_monteCarloRadiosityState.rayUnitsPerIt,                                  DEFAULT_ACTION,
      "-srr-ray-units <n>          : To tune the amount of work in a single iteration"},
     {"-srr-bidirectional", 7, Tbool, &GLOBAL_stochasticRaytracing_monteCarloRadiosityState.bidirectionalTransfers,                    DEFAULT_ACTION,
      "-srr-bidirectional <yes|no> : Use lines bidirectionally"},
@@ -109,13 +109,13 @@ static CommandLineOptionDescription srrOptions[] = {
      "-srr-naive-merging <y|n>    : disable intelligent merging heuristic"},
     {"-srr-nondiffuse-first-shot", 7, Tbool, &GLOBAL_stochasticRaytracing_monteCarloRadiosityState.doNonDiffuseFirstShot,             DEFAULT_ACTION,
      "-srr-nondiffuse-first-shot <y|n>: Do Non-diffuse first shot before real work"},
-    {"-srr-initial-ls-samples", 7, Tint, &GLOBAL_stochasticRaytracing_monteCarloRadiosityState.initialLightSourceSamples,             DEFAULT_ACTION,
+    {"-srr-initial-ls-samples", 7, &GLOBAL_options_intType, &GLOBAL_stochasticRaytracing_monteCarloRadiosityState.initialLightSourceSamples,             DEFAULT_ACTION,
      "-srr-initial-ls-samples <int>        : nr of samples per light source for initial shot"},
     {nullptr, 0, TYPELESS, nullptr, DEFAULT_ACTION, nullptr}
 };
 
 static CommandLineOptionDescription rwrOptions[] = {
-    {"-rwr-ray-units", 8, Tint, &GLOBAL_stochasticRaytracing_monteCarloRadiosityState.rayUnitsPerIt,                 DEFAULT_ACTION,
+    {"-rwr-ray-units", 8, &GLOBAL_options_intType, &GLOBAL_stochasticRaytracing_monteCarloRadiosityState.rayUnitsPerIt,                 DEFAULT_ACTION,
      "-rwr-ray-units <n>          : To tune the amount of work in a single iteration"},
     {"-rwr-continuous", 7, Tbool, &GLOBAL_stochasticRaytracing_monteCarloRadiosityState.continuousRandomWalk, DEFAULT_ACTION,
      "-rwr-continuous <y|n>       : Continuous (yes) or Discrete (no) random walk"},
@@ -131,7 +131,7 @@ static CommandLineOptionDescription rwrOptions[] = {
      "-rwr-estimator <type>       : \"shooting\", \"gathering\""},
     {"-rwr-score", 7, TestKind, &GLOBAL_stochasticRaytracing_monteCarloRadiosityState.randomWalkEstimatorKind, DEFAULT_ACTION,
      "-rwr-score <kind>           : \"collision\", \"absorption\", \"survival\", \"last-N\", \"last-but-N\""},
-    {"-rwr-numlast", 12, Tint, &GLOBAL_stochasticRaytracing_monteCarloRadiosityState.randomWalkNumLast,              DEFAULT_ACTION,
+    {"-rwr-numlast", 12, &GLOBAL_options_intType, &GLOBAL_stochasticRaytracing_monteCarloRadiosityState.randomWalkNumLast,              DEFAULT_ACTION,
      "-rwr-numlast <int>          : N to use in \"last-N\" and \"last-but-N\" scorers"},
     {nullptr, 0, TYPELESS, nullptr, DEFAULT_ACTION, nullptr}
 };
