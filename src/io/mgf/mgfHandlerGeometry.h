@@ -7,6 +7,6 @@ extern int GLOBAL_mgf_inComplex;
 extern int handleFaceEntity(int argc, char **argv, MgfContext *context);
 extern int handleFaceWithHolesEntity(int argc, char **argv, MgfContext *context);
 extern int handleSurfaceEntity(int argc, char **argv, MgfContext *context);
-extern void initGeometryContextTables();
+extern void initGeometryContextTables(MgfContext *context);
 
 #endif

@@ -16,7 +16,6 @@ static MgfColorContext globalUnNamedColorContext = DEFAULT_COLOR_CONTEXT;
 
 // Current contexts
 MgfColorContext *GLOBAL_mgf_currentColor = &globalUnNamedColorContext;
-char *GLOBAL_mgf_currentVertexName = nullptr;
 
 // Default context values
 static MgfColorContext globalDefaultMgfColorContext = DEFAULT_COLOR_CONTEXT;

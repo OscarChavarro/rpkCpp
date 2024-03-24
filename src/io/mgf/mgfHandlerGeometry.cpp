@@ -736,7 +736,7 @@ handleFaceWithHolesEntity(int argc, char **argv, MgfContext *context) {
 Handle a vertex entity
 */
 int
-handleVertexEntity(int ac, char **av, MgfContext * /*context*/)
+handleVertexEntity(int ac, char **av, MgfContext *context)
 {
     LUENT *lp;
 
@@ -750,7 +750,7 @@ handleVertexEntity(int ac, char **av, MgfContext * /*context*/)
                 // Set unnamed vertex context
                 GLOBAL_mgf_vertexContext = GLOBAL_mgf_defaultVertexContext;
                 GLOBAL_mgf_currentVertex = &GLOBAL_mgf_vertexContext;
-                GLOBAL_mgf_currentVertexName = nullptr;
+                context->currentVertexName = nullptr;
                 return MGF_OK;
             }
             if ( !isNameWords(av[1]) ) {
@@ -761,7 +761,7 @@ handleVertexEntity(int ac, char **av, MgfContext * /*context*/)
             if ( lp == nullptr ) {
                 return MGF_ERROR_OUT_OF_MEMORY;
             }
-            GLOBAL_mgf_currentVertexName = lp->key;
+            context->currentVertexName = lp->key;
             GLOBAL_mgf_currentVertex = (MgfVertexContext *) lp->data;
             if ( ac == 2 ) {
                 // Re-establish previous context
@@ -775,12 +775,12 @@ handleVertexEntity(int ac, char **av, MgfContext * /*context*/)
             }
             if ( GLOBAL_mgf_currentVertex == nullptr  ) {
                 // Create new vertex context
-                GLOBAL_mgf_currentVertexName = (char *) malloc(strlen(av[1]) + 1);
-                if ( !GLOBAL_mgf_currentVertexName ) {
+                context->currentVertexName = (char *) malloc(strlen(av[1]) + 1);
+                if ( context->currentVertexName == nullptr ) {
                     return MGF_ERROR_OUT_OF_MEMORY;
                 }
-                strcpy(GLOBAL_mgf_currentVertexName, av[1]);
-                lp->key = GLOBAL_mgf_currentVertexName;
+                strcpy(context->currentVertexName, av[1]);
+                lp->key = context->currentVertexName;
                 GLOBAL_mgf_currentVertex = (MgfVertexContext *) malloc(sizeof(MgfVertexContext));
                 if ( !GLOBAL_mgf_currentVertex ) {
                     return MGF_ERROR_OUT_OF_MEMORY;
@@ -849,9 +849,9 @@ getNamedVertex(char *name)
 }
 
 void
-initGeometryContextTables() {
+initGeometryContextTables(MgfContext *context) {
     GLOBAL_mgf_vertexContext = GLOBAL_mgf_defaultVertexContext;
     GLOBAL_mgf_currentVertex = &GLOBAL_mgf_vertexContext;
-    GLOBAL_mgf_currentVertexName = nullptr;
+    context->currentVertexName = nullptr;
     lookUpDone(&GLOBAL_mgf_vertexLookUpTable);
 }

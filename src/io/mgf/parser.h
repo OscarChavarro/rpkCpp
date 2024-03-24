@@ -28,7 +28,7 @@ returns 0 when the end of file has been reached.
 
 extern int mgfReadNextLine();
 extern int mgfParseCurrentLine(MgfContext *context);
-extern void mgfClear();
+extern void mgfClear(MgfContext *context);
 
 /**
 Definitions for context handling routines (materials, colors, vectors)

@@ -3,12 +3,7 @@
 
 #include "io/mgf/MgfContext.h"
 
-extern void
-readMgf(
-    char *filename,
-    MgfContext *context,
-    bool singleSided);
-
+extern void readMgf(char *filename, MgfContext *context);
 extern void mgfFreeMemory();
 
 #endif

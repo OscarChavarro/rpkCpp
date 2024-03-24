@@ -98,10 +98,10 @@ mgfParseCurrentLine(MgfContext *context)
 Clear parser history
 */
 void
-mgfClear()
+mgfClear(MgfContext *context)
 {
     initColorContextTables();
-    initGeometryContextTables();
+    initGeometryContextTables(context);
     initMaterialContextTables();
     while ( GLOBAL_mgf_file != nullptr) {
         // Reset our file context

@@ -367,10 +367,7 @@ mainReadFile(char *filename, MgfContext *context) {
     }
 
     if ( strncmp(extension, "mgf", 3) == 0 ) {
-        readMgf(
-            filename,
-            context,
-            globalFileOptionsForceOneSidedSurfaces != 0);
+        readMgf(filename, context);
     }
 
     clock_t t = clock();
@@ -625,6 +622,7 @@ main(int argc, char *argv[]) {
 
     MgfContext mgfContext;
     mgfContext.radianceMethod = selectedRadianceMethod;
+    mgfContext.singleSided = globalFileOptionsForceOneSidedSurfaces != 0;
 
     mainBuildModel(&argc, argv, &mgfContext);
 

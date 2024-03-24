@@ -429,13 +429,10 @@ GLOBAL_scene_world and GLOBAL_scene_materials are filled in.
 Note: this is an implementation of MGF file format with major version number 2.
 */
 void
-readMgf(
-    char *filename,
-    MgfContext *context,
-    bool singleSided)
+readMgf(char *filename, MgfContext *context)
 {
     mgfSetNrQuartCircDivs(GLOBAL_fileOptions_numberOfQuarterCircleDivisions);
-    mgfSetIgnoreSingleSide(singleSided);
+    mgfSetIgnoreSingleSide(context->singleSided);
     mgfSetMonochrome(GLOBAL_fileOptions_monochrome);
 
     initMgf();
@@ -474,7 +471,7 @@ readMgf(
         }
         mgfClose();
     }
-    mgfClear();
+    mgfClear(context);
 
     if ( GLOBAL_mgf_inSurface ) {
         surfaceDone();
