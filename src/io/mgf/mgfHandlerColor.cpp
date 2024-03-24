@@ -262,14 +262,14 @@ setSpectrum(MgfColorContext *clr, double wlMinimum, double wlMaximum, int ac, ch
 Handle color entity
 */
 int
-handleColorEntity(int ac, char **av, MgfContext * /*context*/)
+handleColorEntity(int ac, char **av, MgfContext *context)
 {
     double w;
     double wSum;
     int i;
     LookUpEntity *lp;
 
-    switch ( mgfEntity(av[0]) ) {
+    switch ( mgfEntity(av[0], context) ) {
         case MGF_ENTITY_COLOR:
             // Get/set color context
             if ( ac > 4 ) {

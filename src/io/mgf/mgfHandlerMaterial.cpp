@@ -277,12 +277,12 @@ mgfMaterialChanged(Material *material) {
 Handle material entity
 */
 int
-handleMaterialEntity(int ac, char **av, MgfContext * /*context*/)
+handleMaterialEntity(int ac, char **av, MgfContext *context)
 {
     int i;
     LookUpEntity *lp;
 
-    switch ( mgfEntity(av[0]) ) {
+    switch ( mgfEntity(av[0], context) ) {
 
         case MGF_ENTITY_MATERIAL:
             // Get / set material context

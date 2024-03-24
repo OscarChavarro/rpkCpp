@@ -25,7 +25,7 @@
 
 // Mgf defaults
 #define DEFAULT_NUMBER_OF_QUARTIC_DIVISIONS 4
-#define DEFAULT_FORCE_ONESIDEDNESS true
+#define DEFAULT_FORCE_ONE_SIDED true
 #define DEFAULT_MONOCHROME false
 
 // Default rendering options
@@ -48,6 +48,7 @@ java::ArrayList<Patch *> *GLOBAL_app_lightSourcePatches = nullptr;
 static java::ArrayList<Patch *> *globalAppScenePatches = nullptr;
 
 static char *globalCurrentDirectory;
+static int globalNumberOfQuarterCircleDivisions = DEFAULT_NUMBER_OF_QUARTIC_DIVISIONS;
 static int globalYes = 1;
 static int globalNo = 0;
 static int globalImageOutputWidth = 0;
@@ -61,11 +62,11 @@ mainForceOneSidedOption(void *value) {
 
 static void
 mainMonochromeOption(void *value) {
-    GLOBAL_fileOptions_monochrome = *(int *) value;
+    globalNumberOfQuarterCircleDivisions = *(int *)value;
 }
 
 static CommandLineOptionDescription globalOptions[] = {
-    {"-nqcdivs", 3, Tint, &GLOBAL_fileOptions_numberOfQuarterCircleDivisions, DEFAULT_ACTION,
+    {"-nqcdivs", 3, Tint, &globalNumberOfQuarterCircleDivisions, DEFAULT_ACTION,
     "-nqcdivs <integer>\t: number of quarter circle divisions"},
     {"-force-onesided", 10, TYPELESS, &globalYes,     mainForceOneSidedOption,
     "-force-onesided\t\t: force one-sided surfaces"},
@@ -209,8 +210,8 @@ mainInit() {
     fixCubatureRules();
 
     GLOBAL_fileOptions_monochrome = DEFAULT_MONOCHROME;
-    globalFileOptionsForceOneSidedSurfaces = DEFAULT_FORCE_ONESIDEDNESS;
-    GLOBAL_fileOptions_numberOfQuarterCircleDivisions = DEFAULT_NUMBER_OF_QUARTIC_DIVISIONS;
+    globalFileOptionsForceOneSidedSurfaces = DEFAULT_FORCE_ONE_SIDED;
+    globalNumberOfQuarterCircleDivisions = DEFAULT_NUMBER_OF_QUARTIC_DIVISIONS;
 
     mainRenderingDefaults();
     toneMapDefaults();
@@ -623,6 +624,7 @@ main(int argc, char *argv[]) {
     MgfContext mgfContext;
     mgfContext.radianceMethod = selectedRadianceMethod;
     mgfContext.singleSided = globalFileOptionsForceOneSidedSurfaces != 0;
+    mgfContext.numberOfQuarterCircleDivisions = globalNumberOfQuarterCircleDivisions;
 
     mainBuildModel(&argc, argv, &mgfContext);
 

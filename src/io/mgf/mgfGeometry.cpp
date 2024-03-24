@@ -24,10 +24,10 @@ mgfEntitySphere(int ac, char **av, MgfContext *context)
     char p2z[24];
     char r1[24];
     char r2[24];
-    char *v1Entity[5] = {GLOBAL_mgf_entityNames[MGF_ENTITY_VERTEX], (char *)"_sv1", (char *)"=", (char *)"_sv2"};
-    char *v2Entity[4] = {GLOBAL_mgf_entityNames[MGF_ENTITY_VERTEX], (char *)"_sv2", (char *)"="};
-    char *p2Entity[5] = {GLOBAL_mgf_entityNames[MGF_ENTITY_POINT], p2x, p2y, p2z};
-    char *coneEntity[6] = {GLOBAL_mgf_entityNames[MGF_ENTITY_CONE], (char *)"_sv1", r1, (char *)"_sv2", r2};
+    char *v1Entity[5] = {context->entityNames[MGF_ENTITY_VERTEX], (char *)"_sv1", (char *)"=", (char *)"_sv2"};
+    char *v2Entity[4] = {context->entityNames[MGF_ENTITY_VERTEX], (char *)"_sv2", (char *)"="};
+    char *p2Entity[5] = {context->entityNames[MGF_ENTITY_POINT], p2x, p2y, p2z};
+    char *coneEntity[6] = {context->entityNames[MGF_ENTITY_CONE], (char *)"_sv1", r1, (char *)"_sv2", r2};
     MgfVertexContext *cv;
     int rVal;
     double rad;
@@ -95,10 +95,10 @@ mgfEntityTorus(int ac, char **av, MgfContext *context)
     char p2[3][24];
     char r1[24];
     char r2[24];
-    char *v1Entity[5] = {GLOBAL_mgf_entityNames[MGF_ENTITY_VERTEX], (char *)"_tv1", (char *)"=", (char *)"_tv2"};
-    char *v2Entity[5] = {GLOBAL_mgf_entityNames[MGF_ENTITY_VERTEX], (char *)"_tv2", (char *)"="};
-    char *p2Entity[5] = {GLOBAL_mgf_entityNames[MGF_ENTITY_POINT], p2[0], p2[1], p2[2]};
-    char *coneEntity[6] = {GLOBAL_mgf_entityNames[MGF_ENTITY_CONE], (char *)"_tv1", r1, (char *)"_tv2", r2};
+    char *v1Entity[5] = {context->entityNames[MGF_ENTITY_VERTEX], (char *)"_tv1", (char *)"=", (char *)"_tv2"};
+    char *v2Entity[5] = {context->entityNames[MGF_ENTITY_VERTEX], (char *)"_tv2", (char *)"="};
+    char *p2Entity[5] = {context->entityNames[MGF_ENTITY_POINT], p2[0], p2[1], p2[2]};
+    char *coneEntity[6] = {context->entityNames[MGF_ENTITY_CONE], (char *)"_tv1", r1, (char *)"_tv2", r2};
     MgfVertexContext *cv;
     int i;
     int rVal;
@@ -216,7 +216,7 @@ Replace a cylinder with equivalent cone
 int
 mgfEntityCylinder(int ac, char **av, MgfContext *context)
 {
-    char *newArgV[6] = {GLOBAL_mgf_entityNames[MGF_ENTITY_CONE]};
+    char *newArgV[6] = {context->entityNames[MGF_ENTITY_CONE]};
 
     if ( ac != 4 ) {
         return MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
@@ -236,14 +236,14 @@ mgfEntityRing(int ac, char **av, MgfContext *context)
 {
     char p3[3][24];
     char p4[3][24];
-    char *namesEntity[5] = {GLOBAL_mgf_entityNames[MGF_ENTITY_NORMAL], (char *)"0", (char *)"0", (char *)"0"};
-    char *v1Entity[5] = {GLOBAL_mgf_entityNames[MGF_ENTITY_VERTEX], (char *)"_rv1", (char *)"="};
-    char *v2Entity[5] = {GLOBAL_mgf_entityNames[MGF_ENTITY_VERTEX], (char *)"_rv2", (char *)"=", (char *)"_rv3"};
-    char *v3Entity[4] = {GLOBAL_mgf_entityNames[MGF_ENTITY_VERTEX], (char *)"_rv3", (char *)"="};
-    char *p3Entity[5] = {GLOBAL_mgf_entityNames[MGF_ENTITY_POINT], p3[0], p3[1], p3[2]};
-    char *v4Entity[4] = {GLOBAL_mgf_entityNames[MGF_ENTITY_VERTEX], (char *)"_rv4", (char *)"="};
-    char *p4Entity[5] = {GLOBAL_mgf_entityNames[MGF_ENTITY_POINT], p4[0], p4[1], p4[2]};
-    char *faceEntity[6] = {GLOBAL_mgf_entityNames[MGF_ENTITY_FACE], (char *)"_rv1", (char *)"_rv2", (char *)"_rv3", (char *)"_rv4"};
+    char *namesEntity[5] = {context->entityNames[MGF_ENTITY_NORMAL], (char *)"0", (char *)"0", (char *)"0"};
+    char *v1Entity[5] = {context->entityNames[MGF_ENTITY_VERTEX], (char *)"_rv1", (char *)"="};
+    char *v2Entity[5] = {context->entityNames[MGF_ENTITY_VERTEX], (char *)"_rv2", (char *)"=", (char *)"_rv3"};
+    char *v3Entity[4] = {context->entityNames[MGF_ENTITY_VERTEX], (char *)"_rv3", (char *)"="};
+    char *p3Entity[5] = {context->entityNames[MGF_ENTITY_POINT], p3[0], p3[1], p3[2]};
+    char *v4Entity[4] = {context->entityNames[MGF_ENTITY_VERTEX], (char *)"_rv4", (char *)"="};
+    char *p4Entity[5] = {context->entityNames[MGF_ENTITY_POINT], p4[0], p4[1], p4[2]};
+    char *faceEntity[6] = {context->entityNames[MGF_ENTITY_FACE], (char *)"_rv1", (char *)"_rv2", (char *)"_rv3", (char *)"_rv4"};
     MgfVertexContext *vertexContext;
     double minRad;
     double maxRad;
@@ -389,15 +389,15 @@ mgfEntityCone(int ac, char **av, MgfContext *context)
     char p4[3][24];
     char n3[3][24];
     char n4[3][24];
-    char *v1Entity[5] = {GLOBAL_mgf_entityNames[MGF_ENTITY_VERTEX], (char *)"_cv1", (char *)"="};
-    char *v2Entity[5] = {GLOBAL_mgf_entityNames[MGF_ENTITY_VERTEX], (char *)"_cv2", (char *)"=", (char *)"_cv3"};
-    char *v3Entity[4] = {GLOBAL_mgf_entityNames[MGF_ENTITY_VERTEX], (char *)"_cv3", (char *)"="};
-    char *p3Entity[5] = {GLOBAL_mgf_entityNames[MGF_ENTITY_POINT], p3[0], p3[1], p3[2]};
-    char *n3Entity[5] = {GLOBAL_mgf_entityNames[MGF_ENTITY_NORMAL], n3[0], n3[1], n3[2]};
-    char *v4Entity[4] = {GLOBAL_mgf_entityNames[MGF_ENTITY_VERTEX], (char *)"_cv4", (char *)"="};
-    char *p4Entity[5] = {GLOBAL_mgf_entityNames[MGF_ENTITY_POINT], p4[0], p4[1], p4[2]};
-    char *n4Entity[5] = {GLOBAL_mgf_entityNames[MGF_ENTITY_NORMAL], n4[0], n4[1], n4[2]};
-    char *faceEntity[6] = {GLOBAL_mgf_entityNames[MGF_ENTITY_FACE], (char *)"_cv1", (char *)"_cv2", (char *)"_cv3", (char *)"_cv4"};
+    char *v1Entity[5] = {context->entityNames[MGF_ENTITY_VERTEX], (char *)"_cv1", (char *)"="};
+    char *v2Entity[5] = {context->entityNames[MGF_ENTITY_VERTEX], (char *)"_cv2", (char *)"=", (char *)"_cv3"};
+    char *v3Entity[4] = {context->entityNames[MGF_ENTITY_VERTEX], (char *)"_cv3", (char *)"="};
+    char *p3Entity[5] = {context->entityNames[MGF_ENTITY_POINT], p3[0], p3[1], p3[2]};
+    char *n3Entity[5] = {context->entityNames[MGF_ENTITY_NORMAL], n3[0], n3[1], n3[2]};
+    char *v4Entity[4] = {context->entityNames[MGF_ENTITY_VERTEX], (char *)"_cv4", (char *)"="};
+    char *p4Entity[5] = {context->entityNames[MGF_ENTITY_POINT], p4[0], p4[1], p4[2]};
+    char *n4Entity[5] = {context->entityNames[MGF_ENTITY_NORMAL], n4[0], n4[1], n4[2]};
+    char *faceEntity[6] = {context->entityNames[MGF_ENTITY_FACE], (char *)"_cv1", (char *)"_cv2", (char *)"_cv3", (char *)"_cv4"};
     char *v1n;
     MgfVertexContext *cv1;
     MgfVertexContext *cv2;
@@ -632,9 +632,9 @@ int
 mgfEntityPrism(int ac, char **av, MgfContext *context)
 {
     char p[3][24];
-    char *vent[5] = {GLOBAL_mgf_entityNames[MGF_ENTITY_VERTEX], nullptr, (char *)"="};
-    char *pent[5] = {GLOBAL_mgf_entityNames[MGF_ENTITY_POINT], p[0], p[1], p[2]};
-    char *zNormal[5] = {GLOBAL_mgf_entityNames[MGF_ENTITY_NORMAL], (char *)"0", (char *)"0", (char *)"0"};
+    char *vent[5] = {context->entityNames[MGF_ENTITY_VERTEX], nullptr, (char *)"="};
+    char *pent[5] = {context->entityNames[MGF_ENTITY_POINT], p[0], p[1], p[2]};
+    char *zNormal[5] = {context->entityNames[MGF_ENTITY_NORMAL], (char *)"0", (char *)"0", (char *)"0"};
     char *newArgV[MGF_MAXIMUM_ARGUMENT_COUNT];
     char nvn[MGF_MAXIMUM_ARGUMENT_COUNT - 1][8];
     double length;
@@ -717,7 +717,7 @@ mgfEntityPrism(int ac, char **av, MgfContext *context)
     }
 
     // Make faces
-    newArgV[0] = GLOBAL_mgf_entityNames[MGF_ENTITY_FACE];
+    newArgV[0] = context->entityNames[MGF_ENTITY_FACE];
     // Do the side faces
     newArgV[5] = nullptr;
     newArgV[3] = av[ac - 2];
@@ -783,7 +783,7 @@ mgfEntityPrism(int ac, char **av, MgfContext *context)
 }
 
 /**
-Replace face+holes with single contour
+Replace face + holes with single contour
 */
 int
 mgfEntityFaceWithHoles(int ac, char **av, MgfContext *context)
@@ -791,7 +791,7 @@ mgfEntityFaceWithHoles(int ac, char **av, MgfContext *context)
     char *newArgV[MGF_MAXIMUM_ARGUMENT_COUNT];
     int lastP = 0;
 
-    newArgV[0] = GLOBAL_mgf_entityNames[MGF_ENTITY_FACE];
+    newArgV[0] = context->entityNames[MGF_ENTITY_FACE];
     int i;
     for ( i = 1; i < ac; i++ ) {
         int j;

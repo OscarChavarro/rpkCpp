@@ -40,7 +40,7 @@ the code
 */
 static int
 doDiscreteConic(int argc, char **argv, MgfContext *context) {
-    int en = mgfEntity(argv[0]);
+    int en = mgfEntity(argv[0], context);
 
     switch ( en ) {
         case MGF_ENTITY_SPHERE:
@@ -740,7 +740,7 @@ handleVertexEntity(int ac, char **av, MgfContext *context)
 {
     LookUpEntity *lp;
 
-    switch ( mgfEntity(av[0]) ) {
+    switch ( mgfEntity(av[0], context) ) {
         case MGF_ENTITY_VERTEX:
             // get/set vertex context
             if ( ac > 4 ) {

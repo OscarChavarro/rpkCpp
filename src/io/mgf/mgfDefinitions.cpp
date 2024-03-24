@@ -6,38 +6,6 @@
 #include "io/mgf/messages.h"
 #include "io/FileUncompressWrapper.h"
 
-#define MG_NAMELIST { \
-    "#", \
-    "c", \
-    "cct", \
-    "cone", \
-    "cmix", \
-    "cspec", \
-    "cxy", \
-    "cyl", \
-    "ed", \
-    "f", \
-    "i", \
-    "ies", \
-    "ir", \
-    "m", \
-    "n", \
-    "o", \
-    "p", \
-    "prism", \
-    "rd", \
-    "ring", \
-    "rs", \
-    "sides", \
-    "sph", \
-    "td", \
-    "torus", \
-    "ts", \
-    "v", \
-    "xf", \
-    "fh" \
-}
-
 // Current file context pointer
 MgfReaderContext *GLOBAL_mgf_file;
 
@@ -51,8 +19,6 @@ int (*GLOBAL_mgf_support[MGF_TOTAL_NUMBER_OF_ENTITIES])(int argc, char **argv, M
 // Error messages
 char *GLOBAL_mgf_errors[MGF_NUMBER_OF_ERRORS] = MG_ERROR_LIST;
 
-// Entity names
-char GLOBAL_mgf_entityNames[MGF_TOTAL_NUMBER_OF_ENTITIES][MGF_MAXIMUM_ENTITY_NAME_LENGTH] = MG_NAMELIST;
 
 /**
 Default handler for unknown entities
@@ -119,7 +85,7 @@ mgfGoToFilePosition(MgdReaderFilePosition *pos)
 Get entity number from its name
 */
 int
-mgfEntity(char *name)
+mgfEntity(char *name, MgfContext *context)
 {
     static LookUpTable ent_tab = LOOK_UP_INIT(nullptr, nullptr); // Lookup table
     char *cp;
@@ -131,9 +97,9 @@ mgfEntity(char *name)
         }
 
         // What to do?
-        for ( cp = GLOBAL_mgf_entityNames[MGF_TOTAL_NUMBER_OF_ENTITIES - 1];
-              cp >= GLOBAL_mgf_entityNames[0];
-              cp -= sizeof(GLOBAL_mgf_entityNames[0]) ) {
+        for ( cp = context->entityNames[MGF_TOTAL_NUMBER_OF_ENTITIES - 1];
+              cp >= context->entityNames[0];
+              cp -= sizeof(context->entityNames[0]) ) {
             lookUpFind(&ent_tab, cp)->key = cp;
         }
     }
@@ -141,7 +107,7 @@ mgfEntity(char *name)
     if ( cp == nullptr) {
         return -1;
     }
-    return (int)((cp - GLOBAL_mgf_entityNames[0]) / sizeof(GLOBAL_mgf_entityNames[0]));
+    return (int)((cp - context->entityNames[0]) / sizeof(context->entityNames[0]));
 }
 
 /**
@@ -152,7 +118,7 @@ mgfHandle(int en, int ac, char **av, MgfContext *context)
 {
     int rv;
 
-    if ( en < 0 && (en = mgfEntity(av[0])) < 0 ) {
+    if ( en < 0 && (en = mgfEntity(av[0], context)) < 0 ) {
         // Unknown entity
         if ( GLOBAL_mgf_unknownEntityHandleCallback != nullptr) {
             return (*GLOBAL_mgf_unknownEntityHandleCallback)(ac, av);

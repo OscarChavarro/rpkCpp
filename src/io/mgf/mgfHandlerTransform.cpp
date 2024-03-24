@@ -68,7 +68,9 @@ static int
 transformName(MgfTransformArray *ap, MgfContext *context)
 {
     static char oName[10 * TRANSFORM_MAXIMUM_DIMENSIONS];
-    static char *oav[3] = {GLOBAL_mgf_entityNames[MGF_ENTITY_OBJECT], oName};
+    static char *oav[3] = {
+            context->entityNames[MGF_ENTITY_OBJECT], oName
+    };
     int i;
     char *cp1;
     char *cp2;

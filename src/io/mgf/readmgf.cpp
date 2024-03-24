@@ -84,7 +84,7 @@ mgfPutCSpec(MgfContext *context)
     if ( GLOBAL_mgf_handleCallbacks[MGF_ENTITY_C_SPEC] != handleColorEntity ) {
         snprintf(wl[0], 6, "%d", C_CMINWL);
         snprintf(wl[1], 6, "%d", C_CMAXWL);
-        newAv[0] = GLOBAL_mgf_entityNames[MGF_ENTITY_C_SPEC];
+        newAv[0] = context->entityNames[MGF_ENTITY_C_SPEC];
         newAv[1] = wl[0];
         newAv[2] = wl[1];
         sf = (double)NUMBER_OF_SPECTRAL_SAMPLES / (double)GLOBAL_mgf_currentColor->spectralStraightSum;
@@ -108,7 +108,7 @@ mgfPutCxy(MgfContext *context)
 {
     static char xBuffer[24];
     static char yBuffer[24];
-    static char *cCom[4] = {GLOBAL_mgf_entityNames[MGF_ENTITY_CXY], xBuffer, yBuffer};
+    static char *cCom[4] = {context->entityNames[MGF_ENTITY_CXY], xBuffer, yBuffer};
 
     snprintf(xBuffer, 24, "%.4f", GLOBAL_mgf_currentColor->cx);
     snprintf(yBuffer, 24, "%.4f", GLOBAL_mgf_currentColor->cy);
@@ -187,7 +187,7 @@ handleIncludedFile(int ac, char **av, MgfContext *context)
         return rv;
     }
     if ( ac > 2 ) {
-        transformArgument[0] = GLOBAL_mgf_entityNames[MGF_ENTITY_XF];
+        transformArgument[0] = context->entityNames[MGF_ENTITY_XF];
         for ( int i = 1; i < ac - 1; i++ ) {
             transformArgument[i] = av[i + 1];
         }
@@ -231,7 +231,7 @@ handleIncludedFile(int ac, char **av, MgfContext *context)
 rayCasterInitialize alternate entity handlers
 */
 static void
-mgfAlternativeInit(int (*handleCallbacks[MGF_TOTAL_NUMBER_OF_ENTITIES])(int, char **, MgfContext *)) {
+mgfAlternativeInit(int (*handleCallbacks[MGF_TOTAL_NUMBER_OF_ENTITIES])(int, char **, MgfContext *), MgfContext *context) {
     unsigned long iNeed = 0;
     unsigned long uNeed = 0;
     int i;
@@ -318,7 +318,7 @@ mgfAlternativeInit(int (*handleCallbacks[MGF_TOTAL_NUMBER_OF_ENTITIES])(int, cha
     for ( i = 0; i < MGF_TOTAL_NUMBER_OF_ENTITIES; i++ ) {
         if ( uNeed & 1L << i && handleCallbacks[i] == nullptr) {
             fprintf(stderr, "Missing support for \"%s\" entity\n",
-                    GLOBAL_mgf_entityNames[i]);
+                context->entityNames[i]);
             exit(1);
         }
     }
@@ -358,7 +358,7 @@ mgfAlternativeInit(int (*handleCallbacks[MGF_TOTAL_NUMBER_OF_ENTITIES])(int, cha
 }
 
 static void
-initMgf() {
+initMgf(MgfContext *context) {
     // Related to MgfColorContext
     GLOBAL_mgf_handleCallbacks[MGF_ENTITY_COLOR] = handleColorEntity;
     GLOBAL_mgf_handleCallbacks[MGF_ENTITY_CXY] = handleColorEntity;
@@ -396,7 +396,7 @@ initMgf() {
     // Default behavior: skip
     GLOBAL_mgf_unknownEntityHandleCallback = handleUnknownEntity;
 
-    mgfAlternativeInit(GLOBAL_mgf_handleCallbacks);
+    mgfAlternativeInit(GLOBAL_mgf_handleCallbacks, context);
 }
 
 static void
@@ -431,11 +431,11 @@ Note: this is an implementation of MGF file format with major version number 2.
 void
 readMgf(char *filename, MgfContext *context)
 {
-    mgfSetNrQuartCircDivs(GLOBAL_fileOptions_numberOfQuarterCircleDivisions);
+    mgfSetNrQuartCircDivs(context->numberOfQuarterCircleDivisions);
     mgfSetIgnoreSingleSide(context->singleSided);
     mgfSetMonochrome(GLOBAL_fileOptions_monochrome);
 
-    initMgf();
+    initMgf(context);
 
     globalPointsOctree = nullptr;
     globalNormalsOctree = nullptr;

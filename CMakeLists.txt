@@ -76,6 +76,7 @@ set(MAIN_SRC
     src/IMAGE/tonemap/tonemapping.cpp
     src/IMAGE/tonemap/trwf.cpp
     src/IMAGE/adaptation.cpp
+    src/io/mgf/MgfContext.cpp
     src/io/mgf/mgfDefinitions.cpp
     src/io/mgf/mgfGeometry.cpp
     src/io/mgf/mgfHandlerGeometry.cpp
