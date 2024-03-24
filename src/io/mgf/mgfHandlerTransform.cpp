@@ -94,7 +94,7 @@ transformName(MgfTransformArray *ap, MgfContext *context)
 Allocate new transform structure
 */
 static MgfTransformContext *
-new_xf(int ac, char **av)
+new_xf(int ac, char **av, MgfContext *context)
 {
     MgfTransformContext *spec;
     int i;
@@ -126,21 +126,21 @@ new_xf(int ac, char **av)
         if ( spec->transformationArray == nullptr) {
             return nullptr;
         }
-        mgfGetFilePosition(&spec->transformationArray->startingPosition);
+        mgfGetFilePosition(&spec->transformationArray->startingPosition, context);
         spec->transformationArray->numberOfDimensions = 0; // Incremented below
     } else {
         spec->transformationArray = nullptr;
     }
-    spec->xac = (short)(ac + xf_argc);
+    spec->xac = (short)(ac + TRANSFORM_CONTEXT_ARGC);
 
     // And store new xf arguments
-    if ( globalTransformArgumentListBeginning == nullptr || xf_av(spec) < globalTransformArgumentListBeginning ) {
+    if ( globalTransformArgumentListBeginning == nullptr || TRANSFORM_ARGV(spec) < globalTransformArgumentListBeginning ) {
         char **newAv =
                 (char **) malloc((spec->xac + 1) * sizeof(char *));
         if ( newAv == nullptr) {
             return nullptr;
         }
-        for ( i = xf_argc; i-- > 0; ) {
+        for ( i = TRANSFORM_CONTEXT_ARGC; i-- > 0; ) {
             newAv[ac + i] = GLOBAL_mgf_xfLastTransform[i - GLOBAL_mgf_xfContext->xac];
         }
         *(GLOBAL_mgf_xfLastTransform = newAv + spec->xac) = nullptr;
@@ -154,14 +154,14 @@ new_xf(int ac, char **av)
     // Use memory allocated above
     for ( i = 0; i < ac; i++ ) {
         if ( !strcmp(av[i], "-a") ) {
-            xf_av(spec)[i++] = (char *)"-i";
-            xf_av(spec)[i] = strcpy(
+            TRANSFORM_ARGV(spec)[i++] = (char *)"-i";
+            TRANSFORM_ARGV(spec)[i] = strcpy(
                     spec->transformationArray->transformArguments[spec->transformationArray->numberOfDimensions].arg,
                     "0");
             spec->transformationArray->transformArguments[spec->transformationArray->numberOfDimensions].i = 0;
             spec->transformationArray->transformArguments[spec->transformationArray->numberOfDimensions++].n = (short)strtol(av[i], nullptr, 10);
         } else {
-            xf_av(spec)[i] = strcpy(cp, av[i]);
+            TRANSFORM_ARGV(spec)[i] = strcpy(cp, av[i]);
             cp += strlen(av[i]) + 1;
         }
     }
@@ -460,7 +460,7 @@ handleTransformationEntity(int ac, char **av, MgfContext *context) {
                 ap->transformArguments[n].i = 0;
             }
             if ( n >= 0 ) {
-                rv = mgfGoToFilePosition(&ap->startingPosition);
+                rv = mgfGoToFilePosition(&ap->startingPosition, context);
                 if ( rv != MGF_OK ) {
                     return rv;
                 }
@@ -476,7 +476,7 @@ handleTransformationEntity(int ac, char **av, MgfContext *context) {
         }
     } else {
         // Allocate transform
-        spec = new_xf(ac - 1, av + 1);
+        spec = new_xf(ac - 1, av + 1, context);
         if ( spec == nullptr ) {
             return MGF_ERROR_OUT_OF_MEMORY;
         }
@@ -488,9 +488,9 @@ handleTransformationEntity(int ac, char **av, MgfContext *context) {
     }
 
     // Translate new specification
-    n = xf_ac(spec);
-    n -= xf_ac(spec->prev); // Incremental comp. is more eff.
-    if ( xf(&spec->xf, n, xf_av(spec)) != n ) {
+    n = TRANSFORM_ARGC(spec);
+    n -= TRANSFORM_ARGC(spec->prev); // Incremental comp. is more eff.
+    if ( xf(&spec->xf, n, TRANSFORM_ARGV(spec)) != n ) {
         return MGF_ERROR_ARGUMENT_TYPE;
     }
 

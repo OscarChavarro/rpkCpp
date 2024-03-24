@@ -95,7 +95,7 @@ getVertex(char *name) {
     }
 
     theVertex = (Vertex *) (vp->clientData);
-    if ( !theVertex || vp->clock >= 1 || vp->xid != xf_xid(GLOBAL_mgf_xfContext) || is0Vector(vp->n)) {
+    if ( !theVertex || vp->clock >= 1 || vp->xid != TRANSFORM_XID(GLOBAL_mgf_xfContext) || is0Vector(vp->n)) {
         // New vertex, or updated vertex or same vertex, but other transform, or
         // vertex without normal: create a new Vertex
         VECTOR3Dd vert;
@@ -113,7 +113,7 @@ getVertex(char *name) {
         }
         theVertex = installVertex(thePoint, theNormal);
         vp->clientData = (void *) theVertex;
-        vp->xid = xf_xid(GLOBAL_mgf_xfContext);
+        vp->xid = TRANSFORM_XID(GLOBAL_mgf_xfContext);
     }
     vp->clock = 0;
 
@@ -446,7 +446,7 @@ doComplexFace(int n, Vertex **v, Vector3D *normal, Vertex **backVertex, MgfConte
         } while ( d > 1.0 || !good );
 
         if ( p0 == start ) {
-            doError("mis-built polygonal face");
+            doError("mis-built polygonal face", context);
             return; // Don't stop parsing the input however
         }
 
@@ -478,13 +478,13 @@ handleFaceEntity(int argc, char **argv, MgfContext *context) {
     int errcode;
 
     if ( argc < 4 ) {
-        doError("too few vertices in face");
+        doError("too few vertices in face", context);
         return MGF_OK; // Don't stop parsing the input
     }
 
     if ( argc - 1 > MAXIMUM_FACE_VERTICES ) {
         doWarning(
-                "too many vertices in face. Recompile the program with larger MAXIMUM_FACE_VERTICES constant in read mgf");
+                "too many vertices in face. Recompile the program with larger MAXIMUM_FACE_VERTICES constant in read mgf", context);
         return MGF_OK; // No reason to stop parsing the input
     }
 
@@ -494,7 +494,7 @@ handleFaceEntity(int argc, char **argv, MgfContext *context) {
                 surfaceDone();
             }
             newSurface();
-            mgfGetCurrentMaterial(&GLOBAL_mgf_currentMaterial, GLOBAL_mgf_allSurfacesSided);
+            mgfGetCurrentMaterial(&GLOBAL_mgf_currentMaterial, GLOBAL_mgf_allSurfacesSided, context);
         }
     }
 
@@ -510,7 +510,7 @@ handleFaceEntity(int argc, char **argv, MgfContext *context) {
     }
 
     if ( !faceNormal(argc - 1, v, &normal)) {
-        doWarning("degenerate face");
+        doWarning("degenerate face", context);
         return MGF_OK; // Just ignore the generated face
     }
     if ( !GLOBAL_mgf_currentMaterial->sided ) vectorScale(-1.0, normal, backNormal);
@@ -563,7 +563,7 @@ handleSurfaceEntity(int argc, char **argv, MgfContext *context) {
             surfaceDone();
         }
         newSurface();
-        mgfGetCurrentMaterial(&GLOBAL_mgf_currentMaterial, GLOBAL_mgf_allSurfacesSided);
+        mgfGetCurrentMaterial(&GLOBAL_mgf_currentMaterial, GLOBAL_mgf_allSurfacesSided, context);
 
         errcode = doDiscreteConic(argc, argv, context);
 
@@ -593,7 +593,7 @@ handleFaceWithHolesEntity(int argc, char **argv, MgfContext *context) {
 
     if ( argc - 1 > MAXIMUM_FACE_VERTICES ) {
         doWarning(
-                "too many vertices in face. Recompile the program with larger MAXIMUM_FACE_VERTICES constant in read mgf");
+                "too many vertices in face. Recompile the program with larger MAXIMUM_FACE_VERTICES constant in read mgf", context);
         return MGF_OK; // No reason to stop parsing the input
     }
 
@@ -685,7 +685,7 @@ handleFaceWithHolesEntity(int argc, char **argv, MgfContext *context) {
         // Create num+2 extra vertices in new contour
         if ( numberOfVerticesInNewContour + num + 2 > MAXIMUM_FACE_VERTICES ) {
             doWarning(
-                    "too many vertices in face. Recompile the program with larger MAXIMUM_FACE_VERTICES constant in read mgf");
+                    "too many vertices in face. Recompile the program with larger MAXIMUM_FACE_VERTICES constant in read mgf", context);
             return MGF_OK; // No reason to stop parsing the input
         }
 

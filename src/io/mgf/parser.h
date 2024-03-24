@@ -3,8 +3,8 @@
 
 #include "io/mgf/MgfContext.h"
 
-extern int (*GLOBAL_mgf_unknownEntityHandleCallback)(int argc, char **argv);
-extern int mgfDefaultHandlerForUnknownEntities(int ac, char **av);
+extern int (*GLOBAL_mgf_unknownEntityHandleCallback)(int argc, char **argv, MgfContext *context);
+extern int mgfDefaultHandlerForUnknownEntities(int ac, char **av, MgfContext *context);
 extern unsigned GLOBAL_mgf_unknownEntitiesCounter;
 
 /**
@@ -26,7 +26,7 @@ mgfLoad will report the error to stderr. The mgfReadNextLine routine
 returns 0 when the end of file has been reached.
 */
 
-extern int mgfReadNextLine();
+extern int mgfReadNextLine(MgfContext *context);
 extern int mgfParseCurrentLine(MgfContext *context);
 extern void mgfClear(MgfContext *context);
 

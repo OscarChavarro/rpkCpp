@@ -31,21 +31,21 @@ parallel support handlers to assist in this effort.
 Read next line from file
 */
 int
-mgfReadNextLine()
+mgfReadNextLine(MgfContext *context)
 {
     int len = 0;
 
     do {
-        if ( fgets(GLOBAL_mgf_file->inputLine + len,
-                   MGF_MAXIMUM_INPUT_LINE_LENGTH - len, GLOBAL_mgf_file->fp) == nullptr) {
+        if ( fgets(context->readerContext->inputLine + len,
+                   MGF_MAXIMUM_INPUT_LINE_LENGTH - len, context->readerContext->fp) == nullptr) {
             return len;
         }
-        len += (int)strlen(GLOBAL_mgf_file->inputLine + len);
+        len += (int)strlen(context->readerContext->inputLine + len);
         if ( len >= MGF_MAXIMUM_INPUT_LINE_LENGTH - 1 ) {
             return len;
         }
-        GLOBAL_mgf_file->lineNumber++;
-    } while ( len > 1 && GLOBAL_mgf_file->inputLine[len - 2] == '\\' );
+        context->readerContext->lineNumber++;
+    } while ( len > 1 && context->readerContext->inputLine[len - 2] == '\\' );
 
     return len;
 }
@@ -64,7 +64,7 @@ mgfParseCurrentLine(MgfContext *context)
 
     // Copy line, removing escape chars
     cp = buffer;
-    cp2 = GLOBAL_mgf_file->inputLine;
+    cp2 = context->readerContext->inputLine;
     while ((*cp++ = *cp2++)) {
         if ( cp2[0] == '\n' && cp2[-1] == '\\' ) {
             cp--;
@@ -103,8 +103,8 @@ mgfClear(MgfContext *context)
     initColorContextTables();
     initGeometryContextTables(context);
     initMaterialContextTables();
-    while ( GLOBAL_mgf_file != nullptr) {
+    while ( context->readerContext != nullptr) {
         // Reset our file context
-        mgfClose();
+        mgfClose(context);
     }
 }

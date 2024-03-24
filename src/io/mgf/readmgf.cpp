@@ -17,8 +17,8 @@ static VectorOctreeNode *globalPointsOctree = nullptr;
 static VectorOctreeNode *globalNormalsOctree = nullptr;
 
 static int
-handleUnknownEntity(int /*argc*/, char ** /*argv*/) {
-    doWarning("unknown entity");
+handleUnknownEntity(int /*argc*/, char ** /*argv*/, MgfContext *context) {
+    doWarning("unknown entity", context);
 
     return MGF_OK;
 }
@@ -182,7 +182,7 @@ handleIncludedFile(int ac, char **av, MgfContext *context)
         return MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
     }
 
-    int rv = mgfOpen(&readerContext, av[1]);
+    int rv = mgfOpen(&readerContext, av[1], context);
     if ( rv != MGF_OK ) {
         return rv;
     }
@@ -194,36 +194,36 @@ handleIncludedFile(int ac, char **av, MgfContext *context)
         transformArgument[ac - 1] = nullptr;
         rv = mgfHandle(MGF_ENTITY_XF, ac - 1, transformArgument, context);
         if ( rv != MGF_OK ) {
-            mgfClose();
+            mgfClose(context);
             return rv;
         }
     }
     do {
-        while ( (rv = mgfReadNextLine()) > 0 ) {
+        while ( (rv = mgfReadNextLine(context)) > 0 ) {
             if ( rv >= MGF_MAXIMUM_INPUT_LINE_LENGTH - 1 ) {
                 fprintf(stderr, "%s: %d: %s\n", readerContext.fileName,
-                        readerContext.lineNumber, GLOBAL_mgf_errors[MGF_ERROR_LINE_TOO_LONG]);
-                mgfClose();
+                        readerContext.lineNumber, context->errorCodeMessages[MGF_ERROR_LINE_TOO_LONG]);
+                mgfClose(context);
                 return MGF_ERROR_IN_INCLUDED_FILE;
             }
             rv = mgfParseCurrentLine(context);
             if ( rv != MGF_OK ) {
                 fprintf(stderr, "%s: %d: %s:\n%s", readerContext.fileName,
-                        readerContext.lineNumber, GLOBAL_mgf_errors[rv],
+                        readerContext.lineNumber, context->errorCodeMessages[rv],
                         readerContext.inputLine);
-                mgfClose();
+                mgfClose(context);
                 return MGF_ERROR_IN_INCLUDED_FILE;
             }
         }
         if ( ac > 2 ) {
             rv = mgfHandle(MGF_ENTITY_XF, 1, transformArgument, context);
             if ( rv != MGF_OK ) {
-                mgfClose();
+                mgfClose(context);
                 return rv;
             }
         }
     } while ( GLOBAL_mgf_xfContext != xf_orig );
-    mgfClose();
+    mgfClose(context);
     return MGF_OK;
 }
 
@@ -456,20 +456,20 @@ readMgf(char *filename, MgfContext *context)
     MgfReaderContext mgfReaderContext{};
     int status;
     if ( filename[0] == '#' ) {
-        status = mgfOpen(&mgfReaderContext, nullptr);
+        status = mgfOpen(&mgfReaderContext, nullptr, context);
     } else {
-        status = mgfOpen(&mgfReaderContext, filename);
+        status = mgfOpen(&mgfReaderContext, filename, context);
     }
     if ( status ) {
-        doError(GLOBAL_mgf_errors[status]);
+        doError(context->errorCodeMessages[status], context);
     } else {
-        while ( mgfReadNextLine() > 0 && !status ) {
+        while ( mgfReadNextLine(context) > 0 && !status ) {
             status = mgfParseCurrentLine(context);
             if ( status ) {
-                doError(GLOBAL_mgf_errors[status]);
+                doError(context->errorCodeMessages[status], context);
             }
         }
-        mgfClose();
+        mgfClose(context);
     }
     mgfClear(context);
 

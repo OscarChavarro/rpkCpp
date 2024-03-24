@@ -4,6 +4,11 @@
 #include "common/linealAlgebra/Vector3Dd.h"
 #include "io/mgf/mgfDefinitions.h"
 
+#define TRANSFORM_ARGC(xf) ( (xf) == nullptr ? 0 : (xf)->xac )
+#define TRANSFORM_ARGV(xf) (GLOBAL_mgf_xfLastTransform - (xf)->xac)
+#define TRANSFORM_CONTEXT_ARGC TRANSFORM_ARGC(GLOBAL_mgf_xfContext)
+#define TRANSFORM_XID(xf) ( (xf) == nullptr ? 0 : (xf)->xid )
+
 // Regular transformation
 class MgfTransform {
 public:

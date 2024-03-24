@@ -3,11 +3,7 @@
 #include "common/error.h"
 #include "io/mgf/mgfDefinitions.h"
 #include "io/mgf/lookup.h"
-#include "io/mgf/messages.h"
 #include "io/FileUncompressWrapper.h"
-
-// Current file context pointer
-MgfReaderContext *GLOBAL_mgf_file;
 
 // Count of unknown entities
 unsigned GLOBAL_mgf_unknownEntitiesCounter;
@@ -16,68 +12,64 @@ unsigned GLOBAL_mgf_unknownEntitiesCounter;
 int (*GLOBAL_mgf_handleCallbacks[MGF_TOTAL_NUMBER_OF_ENTITIES])(int argc, char **argv, MgfContext *context);
 int (*GLOBAL_mgf_support[MGF_TOTAL_NUMBER_OF_ENTITIES])(int argc, char **argv, MgfContext * /*context*/);
 
-// Error messages
-char *GLOBAL_mgf_errors[MGF_NUMBER_OF_ERRORS] = MG_ERROR_LIST;
-
-
 /**
 Default handler for unknown entities
 */
 int
-mgfDefaultHandlerForUnknownEntities(int /*ac*/, char **av)
+mgfDefaultHandlerForUnknownEntities(int /*ac*/, char **av, MgfContext *context)
 {
     if ( GLOBAL_mgf_unknownEntitiesCounter++ == 0 ) {
         // Report first incident
-        fprintf(stderr, "%s: %d: %s: %s\n", GLOBAL_mgf_file->fileName,
-                GLOBAL_mgf_file->lineNumber, GLOBAL_mgf_errors[MGF_ERROR_UNKNOWN_ENTITY], av[0]);
+        fprintf(stderr, "%s: %d: %s: %s\n", context->readerContext->fileName,
+                context->readerContext->lineNumber, context->errorCodeMessages[MGF_ERROR_UNKNOWN_ENTITY], av[0]);
     }
     return MGF_OK;
 }
 
 // Handler routine for unknown entities
-int (*GLOBAL_mgf_unknownEntityHandleCallback)(int argc, char **argv) = mgfDefaultHandlerForUnknownEntities;
+int (*GLOBAL_mgf_unknownEntityHandleCallback)(int argc, char **argv, MgfContext *context) = mgfDefaultHandlerForUnknownEntities;
 
 void
-doError(const char *errmsg) {
-    logError(nullptr, (char *) "%s line %d: %s", GLOBAL_mgf_file->fileName, GLOBAL_mgf_file->lineNumber, errmsg);
+doError(const char *errmsg, MgfContext *context) {
+    logError(nullptr, (char *) "%s line %d: %s", context->readerContext->fileName, context->readerContext->lineNumber, errmsg);
 }
 
 void
-doWarning(const char *errmsg) {
-    logWarning(nullptr, (char *) "%s line %d: %s", GLOBAL_mgf_file->fileName, GLOBAL_mgf_file->lineNumber, errmsg);
+doWarning(const char *errmsg, MgfContext *context) {
+    logWarning(nullptr, (char *) "%s line %d: %s", context->readerContext->fileName, context->readerContext->lineNumber, errmsg);
 }
 
 /**
 Get current position in input file
 */
 void
-mgfGetFilePosition(MgdReaderFilePosition *pos)
+mgfGetFilePosition(MgdReaderFilePosition *pos, MgfContext *context)
 {
-    pos->fid = GLOBAL_mgf_file->fileContextId;
-    pos->lineno = GLOBAL_mgf_file->lineNumber;
-    pos->offset = ftell(GLOBAL_mgf_file->fp);
+    pos->fid = context->readerContext->fileContextId;
+    pos->lineno = context->readerContext->lineNumber;
+    pos->offset = ftell(context->readerContext->fp);
 }
 
 /**
 Reposition input file pointer
 */
 int
-mgfGoToFilePosition(MgdReaderFilePosition *pos)
+mgfGoToFilePosition(MgdReaderFilePosition *pos, MgfContext *context)
 {
-    if ( pos->fid != GLOBAL_mgf_file->fileContextId ) {
+    if ( pos->fid != context->readerContext->fileContextId ) {
         return MGF_ERROR_FILE_SEEK_ERROR;
     }
-    if ( pos->lineno == GLOBAL_mgf_file->lineNumber ) {
+    if ( pos->lineno == context->readerContext->lineNumber ) {
         return MGF_OK;
     }
-    if ( GLOBAL_mgf_file->fp == stdin || GLOBAL_mgf_file->isPipe ) {
+    if ( context->readerContext->fp == stdin || context->readerContext->isPipe ) {
         // Cannot seek on standard input
         return MGF_ERROR_FILE_SEEK_ERROR;
     }
-    if ( fseek(GLOBAL_mgf_file->fp, pos->offset, 0) == EOF) {
+    if ( fseek(context->readerContext->fp, pos->offset, 0) == EOF) {
         return MGF_ERROR_FILE_SEEK_ERROR;
     }
-    GLOBAL_mgf_file->lineNumber = pos->lineno;
+    context->readerContext->lineNumber = pos->lineno;
     return MGF_OK;
 }
 
@@ -121,7 +113,7 @@ mgfHandle(int en, int ac, char **av, MgfContext *context)
     if ( en < 0 && (en = mgfEntity(av[0], context)) < 0 ) {
         // Unknown entity
         if ( GLOBAL_mgf_unknownEntityHandleCallback != nullptr) {
-            return (*GLOBAL_mgf_unknownEntityHandleCallback)(ac, av);
+            return (*GLOBAL_mgf_unknownEntityHandleCallback)(ac, av, context);
         }
         return MGF_ERROR_UNKNOWN_ENTITY;
     }
@@ -140,40 +132,40 @@ mgfHandle(int en, int ac, char **av, MgfContext *context)
 shaftCullOpen new input file
 */
 int
-mgfOpen(MgfReaderContext *ctx, char *fn)
+mgfOpen(MgfReaderContext *readerContext, char *functionCallback, MgfContext *context)
 {
     static int numberOfFileIds;
     char *cp;
     int isPipe;
 
-    ctx->fileContextId = ++numberOfFileIds;
-    ctx->lineNumber = 0;
-    ctx->isPipe = 0;
-    if ( fn == nullptr) {
-        strcpy(ctx->fileName, "<stdin>");
-        ctx->fp = stdin;
-        ctx->prev = GLOBAL_mgf_file;
-        GLOBAL_mgf_file = ctx;
+    readerContext->fileContextId = ++numberOfFileIds;
+    readerContext->lineNumber = 0;
+    readerContext->isPipe = 0;
+    if ( functionCallback == nullptr ) {
+        strcpy(readerContext->fileName, "<stdin>");
+        readerContext->fp = stdin;
+        readerContext->prev = context->readerContext;
+        context->readerContext = readerContext;
         return MGF_OK;
     }
 
     // Get name relative to this context
-    if ( GLOBAL_mgf_file != nullptr && (cp = strrchr(GLOBAL_mgf_file->fileName, '/')) != nullptr) {
-        strcpy(ctx->fileName, GLOBAL_mgf_file->fileName);
-        strcpy(ctx->fileName + (cp - GLOBAL_mgf_file->fileName + 1), fn);
+    if ( context->readerContext != nullptr && (cp = strrchr(context->readerContext->fileName, '/')) != nullptr ) {
+        strcpy(readerContext->fileName, context->readerContext->fileName);
+        strcpy(readerContext->fileName + (cp - context->readerContext->fileName + 1), functionCallback);
     } else {
-        strcpy(ctx->fileName, fn);
+        strcpy(readerContext->fileName, functionCallback);
     }
 
-    ctx->fp = openFileCompressWrapper(ctx->fileName, "r", &isPipe);
-    ctx->isPipe = (char)isPipe;
+    readerContext->fp = openFileCompressWrapper(readerContext->fileName, "r", &isPipe);
+    readerContext->isPipe = (char)isPipe;
 
-    if ( ctx->fp == nullptr) {
+    if ( readerContext->fp == nullptr ) {
         return MGF_ERROR_CAN_NOT_OPEN_INPUT_FILE;
     }
 
-    ctx->prev = GLOBAL_mgf_file; // Establish new context
-    GLOBAL_mgf_file = ctx;
+    readerContext->prev = context->readerContext; // Establish new context
+    context->readerContext = readerContext;
     return MGF_OK;
 }
 
@@ -181,11 +173,11 @@ mgfOpen(MgfReaderContext *ctx, char *fn)
 Close input file
 */
 void
-mgfClose()
+mgfClose(MgfContext *context)
 {
-    MgfReaderContext *ctx = GLOBAL_mgf_file;
+    MgfReaderContext *ctx = context->readerContext;
 
-    GLOBAL_mgf_file = ctx->prev; // Restore enclosing context
+    context->readerContext = ctx->prev; // Restore enclosing context
     if ( ctx->fp != stdin ) {
         // Close file if it's a file
         closeFile(ctx->fp, ctx->isPipe);

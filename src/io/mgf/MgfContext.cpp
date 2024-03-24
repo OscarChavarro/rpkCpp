@@ -6,7 +6,10 @@ MgfContext::MgfContext():
         radianceMethod(),
         singleSided(),
         currentVertexName(),
-        entityNames()
+        numberOfQuarterCircleDivisions(),
+        entityNames(),
+        errorCodeMessages(),
+        readerContext()
 {
     strcpy(entityNames[0], "#");
     strcpy(entityNames[1], "c");
@@ -37,4 +40,18 @@ MgfContext::MgfContext():
     strcpy(entityNames[26], "v");
     strcpy(entityNames[27], "xf");
     strcpy(entityNames[28], "fh");
+
+	errorCodeMessages[0] = "No error";
+	errorCodeMessages[1] =  "Unknown entity";
+	errorCodeMessages[2] =  "Wrong number of arguments";
+	errorCodeMessages[3] =  "Wrong argument type";
+	errorCodeMessages[4] =  "Illegal argument value";
+	errorCodeMessages[5] =  "Undefined reference";
+	errorCodeMessages[6] =  "Cannot open input file";
+	errorCodeMessages[7] =  "Error in included file";
+	errorCodeMessages[8] =  "Out of memory";
+	errorCodeMessages[9] =  "Seek failure";
+	errorCodeMessages[10] =  "Illegal material specification";
+	errorCodeMessages[11] =  "Input line too long";
+	errorCodeMessages[12] =  "Unmatched context close";
 }

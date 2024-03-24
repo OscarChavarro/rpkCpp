@@ -59,7 +59,7 @@ materialLookup(char *name) {
 Translates mgf color into out color representation
 */
 static void
-mgfGetColor(MgfColorContext *cin, float intensity, COLOR *colorOut) {
+mgfGetColor(MgfColorContext *cin, float intensity, COLOR *colorOut, MgfContext *context) {
     float xyz[3];
     float rgb[3];
 
@@ -69,14 +69,14 @@ mgfGetColor(MgfColorContext *cin, float intensity, COLOR *colorOut) {
         xyz[1] = 1.0f * intensity;
         xyz[2] = (1.0f - cin->cx - cin->cy) / cin->cy * intensity;
     } else {
-        doWarning("invalid color specification (Y<=0) ... setting to black");
+        doWarning("invalid color specification (Y<=0) ... setting to black", context);
         xyz[0] = 0.0;
         xyz[1] = 0.0;
         xyz[2] = 0.0;
     }
 
     if ( xyz[0] < 0.0 || xyz[1] < 0.0 || xyz[2] < 0.0 ) {
-        doWarning("invalid color specification (negative CIE XYZ components) ... clipping to zero");
+        doWarning("invalid color specification (negative CIE XYZ components) ... clipping to zero", context);
         if ( xyz[0] < 0.0 ) {
             xyz[0] = 0.0;
         }
@@ -90,7 +90,7 @@ mgfGetColor(MgfColorContext *cin, float intensity, COLOR *colorOut) {
 
     transformColorFromXYZ2RGB(xyz, rgb);
     if ( clipGamut(rgb)) {
-        doWarning("color desaturated during gamut clipping");
+        doWarning("color desaturated during gamut clipping", context);
     }
     colorSet(*colorOut, rgb[0], rgb[1], rgb[2]);
 }
@@ -129,7 +129,7 @@ creates a new MATERIAL, which is added to the global material library.
 The routine returns true if the material being used has changed
 */
 int
-mgfGetCurrentMaterial(Material **material, bool allSurfacesSided) {
+mgfGetCurrentMaterial(Material **material, bool allSurfacesSided, MgfContext *context) {
     COLOR Ed;
     COLOR Es;
     COLOR Rd;
@@ -165,17 +165,17 @@ mgfGetCurrentMaterial(Material **material, bool allSurfacesSided) {
 
     // New material, or a material that changed. Convert intensities and chromaticities
     // to our color model
-    mgfGetColor(&globalMgfCurrentMaterial->ed_c, globalMgfCurrentMaterial->ed, &Ed);
-    mgfGetColor(&globalMgfCurrentMaterial->rd_c, globalMgfCurrentMaterial->rd, &Rd);
-    mgfGetColor(&globalMgfCurrentMaterial->td_c, globalMgfCurrentMaterial->td, &Td);
-    mgfGetColor(&globalMgfCurrentMaterial->rs_c, globalMgfCurrentMaterial->rs, &Rs);
-    mgfGetColor(&globalMgfCurrentMaterial->ts_c, globalMgfCurrentMaterial->ts, &Ts);
+    mgfGetColor(&globalMgfCurrentMaterial->ed_c, globalMgfCurrentMaterial->ed, &Ed, context);
+    mgfGetColor(&globalMgfCurrentMaterial->rd_c, globalMgfCurrentMaterial->rd, &Rd, context);
+    mgfGetColor(&globalMgfCurrentMaterial->td_c, globalMgfCurrentMaterial->td, &Td, context);
+    mgfGetColor(&globalMgfCurrentMaterial->rs_c, globalMgfCurrentMaterial->rs, &Rs, context);
+    mgfGetColor(&globalMgfCurrentMaterial->ts_c, globalMgfCurrentMaterial->ts, &Ts, context);
 
     // Check/correct range of reflectances and transmittances
     colorAdd(Rd, Rs, A);
     a = colorMax(A);
     if ( a > 1.0f - (float)EPSILON ) {
-        doWarning("invalid material specification: total reflectance shall be < 1");
+        doWarning("invalid material specification: total reflectance shall be < 1", context);
         a = (1.0f - (float)EPSILON) / a;
         colorScale(a, Rd, Rd);
         colorScale(a, Rs, Rs);
@@ -184,7 +184,7 @@ mgfGetCurrentMaterial(Material **material, bool allSurfacesSided) {
     colorAdd(Td, Ts, A);
     a = colorMax(A);
     if ( a > 1.0f - (float)EPSILON ) {
-        doWarning("invalid material specification: total transmittance shall be < 1");
+        doWarning("invalid material specification: total transmittance shall be < 1", context);
         a = (1.0f - (float)EPSILON) / a;
         colorScale(a, Td, Td);
         colorScale(a, Ts, Ts);

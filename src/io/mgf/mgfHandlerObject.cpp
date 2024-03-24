@@ -23,10 +23,10 @@ static int globalObjectMaxName; // Allocated list size
 #define ALLOC_INC 16
 
 static void
-pushCurrentGeometryList() {
+pushCurrentGeometryList(MgfContext *context) {
     if ( GLOBAL_mgf_geometryStackPtr - GLOBAL_mgf_geometryStack >= MAXIMUM_GEOMETRY_STACK_DEPTH ) {
         doError(
-                "Objects are nested too deep for this program. Recompile with larger MAXIMUM_GEOMETRY_STACK_DEPTH constant in read mgf");
+                "Objects are nested too deep for this program. Recompile with larger MAXIMUM_GEOMETRY_STACK_DEPTH constant in read mgf", context);
         return;
     } else {
         *GLOBAL_mgf_geometryStackPtr = GLOBAL_mgf_currentGeometryList;
@@ -36,9 +36,9 @@ pushCurrentGeometryList() {
 }
 
 static void
-popCurrentGeometryList() {
+popCurrentGeometryList(MgfContext *context) {
     if ( GLOBAL_mgf_geometryStackPtr <= GLOBAL_mgf_geometryStack ) {
-        doError("Object stack underflow ... unbalanced 'o' contexts?");
+        doError("Object stack underflow ... unbalanced 'o' contexts?", context);
         GLOBAL_mgf_currentGeometryList = nullptr;
         return;
     } else {
@@ -121,7 +121,7 @@ surfaceDone() {
 }
 
 int
-handleObjectEntity(int argc, char **argv, MgfContext * /*context*/) {
+handleObjectEntity(int argc, char **argv, MgfContext *context) {
     int i;
 
     if ( argc > 1 ) {
@@ -135,7 +135,7 @@ handleObjectEntity(int argc, char **argv, MgfContext * /*context*/) {
             surfaceDone();
         }
 
-        pushCurrentGeometryList();
+        pushCurrentGeometryList(context);
 
         newSurface();
     } else {
@@ -155,7 +155,7 @@ handleObjectEntity(int argc, char **argv, MgfContext * /*context*/) {
             theGeometry = geomCreateCompound(new Compound(GLOBAL_mgf_currentGeometryList));
         }
 
-        popCurrentGeometryList();
+        popCurrentGeometryList(context);
 
         if ( theGeometry ) {
             GLOBAL_mgf_currentGeometryList->add(0, theGeometry);

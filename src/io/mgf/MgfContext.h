@@ -2,6 +2,7 @@
 #define __MGF_CONTEXT__
 
 #include "skin/RadianceMethod.h"
+#include "io/mgf/mgfDefinitions.h"
 
 // Entities
 #define MGF_ENTITY_COLOR 1 // c
@@ -36,6 +37,23 @@
 
 #define MGF_MAXIMUM_ENTITY_NAME_LENGTH    6
 
+// Error codes
+#define MGF_OK 0 // normal return value
+#define MGF_ERROR_UNKNOWN_ENTITY 1
+#define MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS 2
+#define MGF_ERROR_ARGUMENT_TYPE 3
+#define MGF_ERROR_ILLEGAL_ARGUMENT_VALUE 4
+#define MGF_ERROR_UNDEFINED_REFERENCE 5
+#define MGF_ERROR_CAN_NOT_OPEN_INPUT_FILE 6
+#define MGF_ERROR_IN_INCLUDED_FILE 7
+#define MGF_ERROR_OUT_OF_MEMORY 8
+#define MGF_ERROR_FILE_SEEK_ERROR 9
+#define MGF_ERROR_LINE_TOO_LONG 11
+#define MGF_ERROR_UNMATCHED_CONTEXT_CLOSE 12
+#define MGF_NUMBER_OF_ERRORS 13
+
+class MgfReaderContext;
+
 class MgfContext {
   public:
     // Parameters received from main program
@@ -46,9 +64,16 @@ class MgfContext {
 
     // Global variables on the MGF reader context
     char entityNames[MGF_TOTAL_NUMBER_OF_ENTITIES][MGF_MAXIMUM_ENTITY_NAME_LENGTH];
+    const char *errorCodeMessages[MGF_NUMBER_OF_ERRORS];
+    MgfReaderContext *readerContext;
 
     // Return model
     MgfContext();
 };
+
+extern int (*GLOBAL_mgf_handleCallbacks[MGF_TOTAL_NUMBER_OF_ENTITIES])(int argc, char **argv, MgfContext *context);
+extern int (*GLOBAL_mgf_support[MGF_TOTAL_NUMBER_OF_ENTITIES])(int argc, char **argv, MgfContext * /*context*/);
+
+#include "io/mgf/mgfDefinitions.h"
 
 #endif
