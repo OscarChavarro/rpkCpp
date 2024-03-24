@@ -28,7 +28,7 @@ static unsigned char globalShuffle[256] = {
 Initialize tbl for at least nel elements
 */
 int
-lookUpInit(LUTAB *tbl, int nel)
+lookUpInit(LookUpTable *tbl, int nel)
 {
     static int hSizeTab[] = {
             31, 61, 127, 251, 509, 1021, 2039, 4093, 8191, 16381,
@@ -43,16 +43,16 @@ lookUpInit(LUTAB *tbl, int nel)
             break;
         }
     }
-    if ( !(tbl->tsiz = *hsp)) {
-        tbl->tsiz = nel * 2 + 1;
+    if ( !(tbl->currentTableSize = *hsp)) {
+        tbl->currentTableSize = nel * 2 + 1;
     }        /* not always prime */
-    tbl->tabl = (LUENT *) calloc(tbl->tsiz, sizeof(LUENT));
-    if ( tbl->tabl == nullptr) {
-        tbl->tsiz = 0;
+    tbl->table = (LookUpEntity *) calloc(tbl->currentTableSize, sizeof(LookUpEntity));
+    if ( tbl->table == nullptr) {
+        tbl->currentTableSize = 0;
     }
-    tbl->ndel = 0;
+    tbl->numberOfDeletedEntries = 0;
 
-    return tbl->tsiz;
+    return tbl->currentTableSize;
 }
 
 /**
@@ -73,20 +73,20 @@ lookUpSHash(char *s)
 }
 
 int
-lookUpReAlloc(LUTAB *tbl, int nel) {
+lookUpReAlloc(LookUpTable *tbl, int nel) {
     int i;
-    LUENT *le;
+    LookUpEntity *le;
     int oldTSize;
-    LUENT *oldTable;
+    LookUpEntity *oldTable;
 
-    oldTable = tbl->tabl;
-    oldTSize = tbl->tsiz;
-    i = tbl->ndel;
+    oldTable = tbl->table;
+    oldTSize = tbl->currentTableSize;
+    i = tbl->numberOfDeletedEntries;
     if ( !lookUpInit(tbl, nel) ) {
         // No more memory!
-        tbl->tabl = oldTable;
-        tbl->tsiz = oldTSize;
-        tbl->ndel = i;
+        tbl->table = oldTable;
+        tbl->currentTableSize = oldTSize;
+        tbl->numberOfDeletedEntries = i;
         return 0;
     }
 
@@ -100,62 +100,62 @@ lookUpReAlloc(LUTAB *tbl, int nel) {
             if ( le->data != nullptr) {
                 *lookUpFind(tbl, le->key) = *le;
             } else {
-                if ( tbl->freek != nullptr) {
-                    (*tbl->freek)(le->key);
+                if ( tbl->freeKeyFunction != nullptr) {
+                    (*tbl->freeKeyFunction)(le->key);
                 }
             }
         }
     }
     free(oldTable);
 
-    return tbl->tsiz;
+    return tbl->currentTableSize;
 }
 
 /**
 Find a table entry
 */
-LUENT *
-lookUpFind(LUTAB *tbl, char *key)
+LookUpEntity *
+lookUpFind(LookUpTable *tbl, char *key)
 {
     long hVal;
     int ndx;
     int i, n;
-    LUENT *le;
+    LookUpEntity *le;
 
     // Look up object
-    if ( tbl->tsiz <= 0 ) {
+    if ( tbl->currentTableSize <= 0 ) {
         lookUpInit(tbl, 1);
     }
 
-    hVal = (*tbl->hashf)(key);
+    hVal = (*tbl->keyHashFunction)(key);
 
     do {
-        ndx = (int)(hVal % tbl->tsiz);
-        le = &tbl->tabl[ndx];
+        ndx = (int)(hVal % tbl->currentTableSize);
+        le = &tbl->table[ndx];
         i = 0;
         n = -1;
         do {
             if ( le->key == nullptr ) {
-                le->hval = hVal;
+                le->value = hVal;
                 return le;
             }
-            if ( le->hval == hVal &&
-                 (tbl->keycmp == nullptr || (*tbl->keycmp)(le->key, key) == 0)) {
+            if ( le->value == hVal &&
+                 (tbl->keyCompareFunction == nullptr || (*tbl->keyCompareFunction)(le->key, key) == 0)) {
                 return le;
             }
 
             i++;
             n += 2;
             le += n;
-            if ( (ndx += n) >= tbl->tsiz ) {
+            if ( (ndx += n) >= tbl->currentTableSize ) {
                 // This happens rarely
-                ndx = ndx % tbl->tsiz;
-                le = &tbl->tabl[ndx];
+                ndx = ndx % tbl->currentTableSize;
+                le = &tbl->table[ndx];
             }
         }
-        while ( i < tbl->tsiz );
+        while ( i < tbl->currentTableSize );
 
-        if ( !lookUpReAlloc(tbl, tbl->tsiz - tbl->ndel + 1)) {
+        if ( !lookUpReAlloc(tbl, tbl->currentTableSize - tbl->numberOfDeletedEntries + 1)) {
             // Table is full, reallocate
             return nullptr;
         }
@@ -166,25 +166,25 @@ lookUpFind(LUTAB *tbl, char *key)
 Free table and contents
 */
 void
-lookUpDone(LUTAB *l)
+lookUpDone(LookUpTable *l)
 {
-    LUENT *tp;
+    LookUpEntity *tp;
 
-    if ( !l->tsiz ) {
+    if ( !l->currentTableSize ) {
         return;
     }
-    for ( tp = l->tabl + l->tsiz; tp-- > l->tabl; ) {
+    for ( tp = l->table + l->currentTableSize; tp-- > l->table; ) {
         if ( tp->key != nullptr) {
-            if ( l->freek != nullptr) {
-                (*l->freek)(tp->key);
+            if ( l->freeKeyFunction != nullptr) {
+                (*l->freeKeyFunction)(tp->key);
             }
-            if ( tp->data != nullptr && l->freed != nullptr) {
-                (*l->freed)(tp->data);
+            if ( tp->data != nullptr && l->freeDataFunction != nullptr) {
+                (*l->freeDataFunction)(tp->data);
             }
         }
     }
-    free(l->tabl);
-    l->tabl = nullptr;
-    l->tsiz = 0;
-    l->ndel = 0;
+    free(l->table);
+    l->table = nullptr;
+    l->currentTableSize = 0;
+    l->numberOfDeletedEntries = 0;
 }

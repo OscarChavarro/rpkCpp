@@ -21,7 +21,7 @@ MgfColorContext *GLOBAL_mgf_currentColor = &globalUnNamedColorContext;
 static MgfColorContext globalDefaultMgfColorContext = DEFAULT_COLOR_CONTEXT;
 
 // Color lookup table
-static LUTAB clr_tab = LU_SINIT(free, free);
+static LookUpTable clr_tab = LOOK_UP_INIT(free, free);
 
 // CIE 1931 Standard Observer curves
 static MgfColorContext cie_xf = {
@@ -267,7 +267,7 @@ handleColorEntity(int ac, char **av, MgfContext * /*context*/)
     double w;
     double wSum;
     int i;
-    LUENT *lp;
+    LookUpEntity *lp;
 
     switch ( mgfEntity(av[0]) ) {
         case MGF_ENTITY_COLOR:

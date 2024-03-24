@@ -9,7 +9,7 @@ Parse an mgf file, converting or discarding unsupported entities.
 #include "io/mgf/MgfTransformContext.h"
 #include "io/mgf/parser.h"
 #include "io/mgf/mgfHandlerGeometry.h"
-#include "mgfHandlerMaterial.h"
+#include "io/mgf/mgfHandlerMaterial.h"
 
 /**
 The idea with this parser is to compensate for any missing entries in
@@ -56,21 +56,21 @@ Parse current input line
 int
 mgfParseCurrentLine(MgfContext *context)
 {
-    char abuf[MGF_MAXIMUM_INPUT_LINE_LENGTH];
+    char buffer[MGF_MAXIMUM_INPUT_LINE_LENGTH];
     char *argv[MGF_MAXIMUM_ARGUMENT_COUNT];
     char *cp;
     char *cp2;
     char **ap;
 
     // Copy line, removing escape chars
-    cp = abuf;
+    cp = buffer;
     cp2 = GLOBAL_mgf_file->inputLine;
     while ((*cp++ = *cp2++)) {
         if ( cp2[0] == '\n' && cp2[-1] == '\\' ) {
             cp--;
         }
     }
-    cp = abuf;
+    cp = buffer;
     ap = argv; // Break into words
     for ( ;; ) {
         while ( isspace(*cp)) {

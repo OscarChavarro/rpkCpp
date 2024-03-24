@@ -46,7 +46,6 @@ unsigned GLOBAL_mgf_unknownEntitiesCounter;
 
 // Handler routines for each entity
 int (*GLOBAL_mgf_handleCallbacks[MGF_TOTAL_NUMBER_OF_ENTITIES])(int argc, char **argv, MgfContext *context);
-
 int (*GLOBAL_mgf_support[MGF_TOTAL_NUMBER_OF_ENTITIES])(int argc, char **argv, MgfContext * /*context*/);
 
 // Error messages
@@ -122,10 +121,10 @@ Get entity number from its name
 int
 mgfEntity(char *name)
 {
-    static LUTAB ent_tab = LU_SINIT(nullptr, nullptr); // Lookup table
+    static LookUpTable ent_tab = LOOK_UP_INIT(nullptr, nullptr); // Lookup table
     char *cp;
 
-    if ( !ent_tab.tsiz ) {
+    if ( !ent_tab.currentTableSize ) {
         // Initialize hash table
         if ( !lookUpInit(&ent_tab, MGF_TOTAL_NUMBER_OF_ENTITIES)) {
             return -1;
@@ -177,11 +176,11 @@ shaftCullOpen new input file
 int
 mgfOpen(MgfReaderContext *ctx, char *fn)
 {
-    static int nfids;
+    static int numberOfFileIds;
     char *cp;
     int isPipe;
 
-    ctx->fileContextId = ++nfids;
+    ctx->fileContextId = ++numberOfFileIds;
     ctx->lineNumber = 0;
     ctx->isPipe = 0;
     if ( fn == nullptr) {

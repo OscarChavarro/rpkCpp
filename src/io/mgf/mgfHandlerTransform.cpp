@@ -42,8 +42,8 @@ Free a transform
 static void
 free_xf(MgfTransformContext *spec)
 {
-    if ( spec->xarr != nullptr) {
-        free(spec->xarr);
+    if ( spec->transformationArray != nullptr) {
+        free(spec->transformationArray);
     }
     free(spec);
 }
@@ -120,14 +120,14 @@ new_xf(int ac, char **av)
         return nullptr;
     }
     if ( nDim ) {
-        spec->xarr = (MgfTransformArray *) malloc(sizeof(MgfTransformArray));
-        if ( spec->xarr == nullptr) {
+        spec->transformationArray = (MgfTransformArray *) malloc(sizeof(MgfTransformArray));
+        if ( spec->transformationArray == nullptr) {
             return nullptr;
         }
-        mgfGetFilePosition(&spec->xarr->startingPosition);
-        spec->xarr->numberOfDimensions = 0; // Incremented below
+        mgfGetFilePosition(&spec->transformationArray->startingPosition);
+        spec->transformationArray->numberOfDimensions = 0; // Incremented below
     } else {
-        spec->xarr = nullptr;
+        spec->transformationArray = nullptr;
     }
     spec->xac = (short)(ac + xf_argc);
 
@@ -154,10 +154,10 @@ new_xf(int ac, char **av)
         if ( !strcmp(av[i], "-a") ) {
             xf_av(spec)[i++] = (char *)"-i";
             xf_av(spec)[i] = strcpy(
-                    spec->xarr->transformArguments[spec->xarr->numberOfDimensions].arg,
+                    spec->transformationArray->transformArguments[spec->transformationArray->numberOfDimensions].arg,
                     "0");
-            spec->xarr->transformArguments[spec->xarr->numberOfDimensions].i = 0;
-            spec->xarr->transformArguments[spec->xarr->numberOfDimensions++].n = (short)strtol(av[i], nullptr, 10);
+            spec->transformationArray->transformArguments[spec->transformationArray->numberOfDimensions].i = 0;
+            spec->transformationArray->transformArguments[spec->transformationArray->numberOfDimensions++].n = (short)strtol(av[i], nullptr, 10);
         } else {
             xf_av(spec)[i] = strcpy(cp, av[i]);
             cp += strlen(av[i]) + 1;
@@ -444,9 +444,9 @@ handleTransformationEntity(int ac, char **av, MgfContext *context) {
             return MGF_ERROR_UNMATCHED_CONTEXT_CLOSE;
         }
         n = -1;
-        if ( spec->xarr != nullptr) {
+        if ( spec->transformationArray != nullptr) {
             // check for iteration
-            MgfTransformArray *ap = spec->xarr;
+            MgfTransformArray *ap = spec->transformationArray;
 
             transformName(nullptr, context);
             n = ap->numberOfDimensions;
@@ -478,8 +478,8 @@ handleTransformationEntity(int ac, char **av, MgfContext *context) {
         if ( spec == nullptr ) {
             return MGF_ERROR_OUT_OF_MEMORY;
         }
-        if ( spec->xarr != nullptr) {
-            transformName(spec->xarr, context);
+        if ( spec->transformationArray != nullptr) {
+            transformName(spec->transformationArray, context);
         }
         spec->prev = GLOBAL_mgf_xfContext; // Push onto stack
         GLOBAL_mgf_xfContext = spec;

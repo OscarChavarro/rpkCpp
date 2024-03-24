@@ -38,7 +38,7 @@ char *GLOBAL_mgf_currentMaterialName = nullptr;
 static MgfMaterialContext globalUnNamedMaterialContext = DEFAULT_MATERIAL;
 static MgfMaterialContext globalDefaultMgfMaterial = DEFAULT_MATERIAL;
 static MgfMaterialContext *globalMgfCurrentMaterial = &globalUnNamedMaterialContext;
-static LUTAB globalMaterialLookUpTable = LU_SINIT(free, free);
+static LookUpTable globalMaterialLookUpTable = LOOK_UP_INIT(free, free);
 
 /**
 Looks up a material with given name in the given material list. Returns
@@ -280,7 +280,7 @@ int
 handleMaterialEntity(int ac, char **av, MgfContext * /*context*/)
 {
     int i;
-    LUENT *lp;
+    LookUpEntity *lp;
 
     switch ( mgfEntity(av[0]) ) {
 

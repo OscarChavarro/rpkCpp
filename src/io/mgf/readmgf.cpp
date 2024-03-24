@@ -76,24 +76,24 @@ static int
 mgfPutCSpec(MgfContext *context)
 {
     char wl[2][6];
-    char vbuf[NUMBER_OF_SPECTRAL_SAMPLES][24];
-    char *newav[NUMBER_OF_SPECTRAL_SAMPLES + 4];
+    char buffer[NUMBER_OF_SPECTRAL_SAMPLES][24];
+    char *newAv[NUMBER_OF_SPECTRAL_SAMPLES + 4];
     double sf;
     int i;
 
     if ( GLOBAL_mgf_handleCallbacks[MGF_ENTITY_C_SPEC] != handleColorEntity ) {
         snprintf(wl[0], 6, "%d", C_CMINWL);
         snprintf(wl[1], 6, "%d", C_CMAXWL);
-        newav[0] = GLOBAL_mgf_entityNames[MGF_ENTITY_C_SPEC];
-        newav[1] = wl[0];
-        newav[2] = wl[1];
+        newAv[0] = GLOBAL_mgf_entityNames[MGF_ENTITY_C_SPEC];
+        newAv[1] = wl[0];
+        newAv[2] = wl[1];
         sf = (double)NUMBER_OF_SPECTRAL_SAMPLES / (double)GLOBAL_mgf_currentColor->spectralStraightSum;
         for ( i = 0; i < NUMBER_OF_SPECTRAL_SAMPLES; i++ ) {
-            snprintf(vbuf[i], 24, "%.4f", sf * GLOBAL_mgf_currentColor->straightSamples[i]);
-            newav[i + 3] = vbuf[i];
+            snprintf(buffer[i], 24, "%.4f", sf * GLOBAL_mgf_currentColor->straightSamples[i]);
+            newAv[i + 3] = buffer[i];
         }
-        newav[NUMBER_OF_SPECTRAL_SAMPLES + 3] = nullptr;
-        if ((i = mgfHandle(MGF_ENTITY_C_SPEC, NUMBER_OF_SPECTRAL_SAMPLES + 3, newav, context)) != MGF_OK ) {
+        newAv[NUMBER_OF_SPECTRAL_SAMPLES + 3] = nullptr;
+        if ((i = mgfHandle(MGF_ENTITY_C_SPEC, NUMBER_OF_SPECTRAL_SAMPLES + 3, newAv, context)) != MGF_OK ) {
             return i;
         }
     }
@@ -101,18 +101,18 @@ mgfPutCSpec(MgfContext *context)
 }
 
 /**
-Put out current xy chromaticities
+Put out current xy chromatic values
 */
 static int
 mgfPutCxy(MgfContext *context)
 {
-    static char xbuf[24];
-    static char ybuf[24];
-    static char *ccom[4] = {GLOBAL_mgf_entityNames[MGF_ENTITY_CXY], xbuf, ybuf};
+    static char xBuffer[24];
+    static char yBuffer[24];
+    static char *cCom[4] = {GLOBAL_mgf_entityNames[MGF_ENTITY_CXY], xBuffer, yBuffer};
 
-    snprintf(xbuf, 24, "%.4f", GLOBAL_mgf_currentColor->cx);
-    snprintf(ybuf, 24, "%.4f", GLOBAL_mgf_currentColor->cy);
-    return mgfHandle(MGF_ENTITY_CXY, 3, ccom, context);
+    snprintf(xBuffer, 24, "%.4f", GLOBAL_mgf_currentColor->cx);
+    snprintf(yBuffer, 24, "%.4f", GLOBAL_mgf_currentColor->cy);
+    return mgfHandle(MGF_ENTITY_CXY, 3, cCom, context);
 }
 
 /**
@@ -132,14 +132,14 @@ mgfECSpec(int /*ac*/, char ** /*av*/, MgfContext *context) {
 /**
 Handle mixing of colors
 Contorted logic works as follows:
-1. the colors are already mixed in c_hcolor() support function
+1. the colors are already mixed in c_h_color() support function
 2. if we would handle a spectral result, make sure it's not
 3. if handleColorEntity() would handle a spectral result, don't bother
-4. otherwise, make cspec entity and pass it to their handler
+4. otherwise, make c_spec entity and pass it to their handler
 5. if we have only xy results, handle it as c_spec() would
 */
 static int
-mgfECmix(int /*ac*/, char ** /*av*/, MgfContext *context) {
+mgfECMix(int /*ac*/, char ** /*av*/, MgfContext *context) {
     if ( GLOBAL_mgf_handleCallbacks[MGF_ENTITY_C_SPEC] == mgfECSpec ) {
         mgfContextFixColorRepresentation(GLOBAL_mgf_currentColor, C_CSXY);
     } else if ( GLOBAL_mgf_currentColor->flags & C_CDSPEC ) {
@@ -157,7 +157,7 @@ Handle color temperature
 static int
 mgfColorTemperature(int /*ac*/, char ** /*av*/, MgfContext *context)
 {
-    // Logic is similar to mgfECmix here.  Support handler has already
+    // Logic is similar to mgfECMix here.  Support handler has already
     // converted temperature to spectral color.  Put it out as such
     // if they support it, otherwise convert to xy chromaticity and
     // put it out if they handle it
@@ -174,25 +174,25 @@ mgfColorTemperature(int /*ac*/, char ** /*av*/, MgfContext *context)
 static int
 handleIncludedFile(int ac, char **av, MgfContext *context)
 {
-    char *xfarg[MGF_MAXIMUM_ARGUMENT_COUNT];
-    MgfReaderContext ictx{};
+    char *transformArgument[MGF_MAXIMUM_ARGUMENT_COUNT];
+    MgfReaderContext readerContext{};
     MgfTransformContext *xf_orig = GLOBAL_mgf_xfContext;
 
     if ( ac < 2 ) {
         return MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
     }
 
-    int rv = mgfOpen(&ictx, av[1]);
+    int rv = mgfOpen(&readerContext, av[1]);
     if ( rv != MGF_OK ) {
         return rv;
     }
     if ( ac > 2 ) {
-        xfarg[0] = GLOBAL_mgf_entityNames[MGF_ENTITY_XF];
+        transformArgument[0] = GLOBAL_mgf_entityNames[MGF_ENTITY_XF];
         for ( int i = 1; i < ac - 1; i++ ) {
-            xfarg[i] = av[i + 1];
+            transformArgument[i] = av[i + 1];
         }
-        xfarg[ac - 1] = nullptr;
-        rv = mgfHandle(MGF_ENTITY_XF, ac - 1, xfarg, context);
+        transformArgument[ac - 1] = nullptr;
+        rv = mgfHandle(MGF_ENTITY_XF, ac - 1, transformArgument, context);
         if ( rv != MGF_OK ) {
             mgfClose();
             return rv;
@@ -201,22 +201,22 @@ handleIncludedFile(int ac, char **av, MgfContext *context)
     do {
         while ( (rv = mgfReadNextLine()) > 0 ) {
             if ( rv >= MGF_MAXIMUM_INPUT_LINE_LENGTH - 1 ) {
-                fprintf(stderr, "%s: %d: %s\n", ictx.fileName,
-                        ictx.lineNumber, GLOBAL_mgf_errors[MGF_ERROR_LINE_TOO_LONG]);
+                fprintf(stderr, "%s: %d: %s\n", readerContext.fileName,
+                        readerContext.lineNumber, GLOBAL_mgf_errors[MGF_ERROR_LINE_TOO_LONG]);
                 mgfClose();
                 return MGF_ERROR_IN_INCLUDED_FILE;
             }
             rv = mgfParseCurrentLine(context);
             if ( rv != MGF_OK ) {
-                fprintf(stderr, "%s: %d: %s:\n%s", ictx.fileName,
-                        ictx.lineNumber, GLOBAL_mgf_errors[rv],
-                        ictx.inputLine);
+                fprintf(stderr, "%s: %d: %s:\n%s", readerContext.fileName,
+                        readerContext.lineNumber, GLOBAL_mgf_errors[rv],
+                        readerContext.inputLine);
                 mgfClose();
                 return MGF_ERROR_IN_INCLUDED_FILE;
             }
         }
         if ( ac > 2 ) {
-            rv = mgfHandle(MGF_ENTITY_XF, 1, xfarg, context);
+            rv = mgfHandle(MGF_ENTITY_XF, 1, transformArgument, context);
             if ( rv != MGF_OK ) {
                 mgfClose();
                 return rv;
@@ -232,8 +232,8 @@ rayCasterInitialize alternate entity handlers
 */
 static void
 mgfAlternativeInit(int (*handleCallbacks[MGF_TOTAL_NUMBER_OF_ENTITIES])(int, char **, MgfContext *)) {
-    unsigned long ineed = 0;
-    unsigned long uneed = 0;
+    unsigned long iNeed = 0;
+    unsigned long uNeed = 0;
     int i;
 
     // Pick up slack
@@ -245,39 +245,39 @@ mgfAlternativeInit(int (*handleCallbacks[MGF_TOTAL_NUMBER_OF_ENTITIES])(int, cha
     }
     if ( handleCallbacks[MGF_ENTITY_SPHERE] == nullptr) {
         handleCallbacks[MGF_ENTITY_SPHERE] = mgfEntitySphere;
-        ineed |= 1L << MGF_ENTITY_POINT | 1L << MGF_ENTITY_VERTEX;
+        iNeed |= 1L << MGF_ENTITY_POINT | 1L << MGF_ENTITY_VERTEX;
     } else {
-        uneed |= 1L << MGF_ENTITY_POINT | 1L << MGF_ENTITY_VERTEX | 1L << MGF_ENTITY_XF;
+        uNeed |= 1L << MGF_ENTITY_POINT | 1L << MGF_ENTITY_VERTEX | 1L << MGF_ENTITY_XF;
     }
     if ( handleCallbacks[MGF_ENTITY_CYLINDER] == nullptr) {
         handleCallbacks[MGF_ENTITY_CYLINDER] = mgfEntityCylinder;
-        ineed |= 1L << MGF_ENTITY_POINT | 1L << MGF_ENTITY_VERTEX;
+        iNeed |= 1L << MGF_ENTITY_POINT | 1L << MGF_ENTITY_VERTEX;
     } else {
-        uneed |= 1L << MGF_ENTITY_POINT | 1L << MGF_ENTITY_VERTEX | 1L << MGF_ENTITY_XF;
+        uNeed |= 1L << MGF_ENTITY_POINT | 1L << MGF_ENTITY_VERTEX | 1L << MGF_ENTITY_XF;
     }
     if ( handleCallbacks[MGF_ENTITY_CONE] == nullptr) {
         handleCallbacks[MGF_ENTITY_CONE] = mgfEntityCone;
-        ineed |= 1L << MGF_ENTITY_POINT | 1L << MGF_ENTITY_VERTEX;
+        iNeed |= 1L << MGF_ENTITY_POINT | 1L << MGF_ENTITY_VERTEX;
     } else {
-        uneed |= 1L << MGF_ENTITY_POINT | 1L << MGF_ENTITY_VERTEX | 1L << MGF_ENTITY_XF;
+        uNeed |= 1L << MGF_ENTITY_POINT | 1L << MGF_ENTITY_VERTEX | 1L << MGF_ENTITY_XF;
     }
     if ( handleCallbacks[MGF_ENTITY_RING] == nullptr) {
         handleCallbacks[MGF_ENTITY_RING] = mgfEntityRing;
-        ineed |= 1L << MGF_ENTITY_POINT | 1L << MGF_ENTITY_NORMAL | 1L << MGF_ENTITY_VERTEX;
+        iNeed |= 1L << MGF_ENTITY_POINT | 1L << MGF_ENTITY_NORMAL | 1L << MGF_ENTITY_VERTEX;
     } else {
-        uneed |= 1L << MGF_ENTITY_POINT | 1L << MGF_ENTITY_NORMAL | 1L << MGF_ENTITY_VERTEX | 1L << MGF_ENTITY_XF;
+        uNeed |= 1L << MGF_ENTITY_POINT | 1L << MGF_ENTITY_NORMAL | 1L << MGF_ENTITY_VERTEX | 1L << MGF_ENTITY_XF;
     }
     if ( handleCallbacks[MGF_ENTITY_PRISM] == nullptr) {
         handleCallbacks[MGF_ENTITY_PRISM] = mgfEntityPrism;
-        ineed |= 1L << MGF_ENTITY_POINT | 1L << MGF_ENTITY_VERTEX;
+        iNeed |= 1L << MGF_ENTITY_POINT | 1L << MGF_ENTITY_VERTEX;
     } else {
-        uneed |= 1L << MGF_ENTITY_POINT | 1L << MGF_ENTITY_VERTEX | 1L << MGF_ENTITY_XF;
+        uNeed |= 1L << MGF_ENTITY_POINT | 1L << MGF_ENTITY_VERTEX | 1L << MGF_ENTITY_XF;
     }
     if ( handleCallbacks[MGF_ENTITY_TORUS] == nullptr) {
         handleCallbacks[MGF_ENTITY_TORUS] = mgfEntityTorus;
-        ineed |= 1L << MGF_ENTITY_POINT | 1L << MGF_ENTITY_NORMAL | 1L << MGF_ENTITY_VERTEX;
+        iNeed |= 1L << MGF_ENTITY_POINT | 1L << MGF_ENTITY_NORMAL | 1L << MGF_ENTITY_VERTEX;
     } else {
-        uneed |= 1L << MGF_ENTITY_POINT | 1L << MGF_ENTITY_NORMAL | 1L << MGF_ENTITY_VERTEX | 1L << MGF_ENTITY_XF;
+        uNeed |= 1L << MGF_ENTITY_POINT | 1L << MGF_ENTITY_NORMAL | 1L << MGF_ENTITY_VERTEX | 1L << MGF_ENTITY_XF;
     }
     if ( handleCallbacks[MGF_ENTITY_FACE] == nullptr) {
         handleCallbacks[MGF_ENTITY_FACE] = handleCallbacks[MGF_ENTITY_FACE_WITH_HOLES];
@@ -286,26 +286,26 @@ mgfAlternativeInit(int (*handleCallbacks[MGF_TOTAL_NUMBER_OF_ENTITIES])(int, cha
     }
     if ( handleCallbacks[MGF_ENTITY_COLOR] != nullptr) {
         if ( handleCallbacks[MGF_ENTITY_C_MIX] == nullptr) {
-            handleCallbacks[MGF_ENTITY_C_MIX] = mgfECmix;
-            ineed |= 1L << MGF_ENTITY_COLOR | 1L << MGF_ENTITY_CXY | 1L << MGF_ENTITY_C_SPEC | 1L << MGF_ENTITY_C_MIX | 1L << MGF_ENTITY_CCT;
+            handleCallbacks[MGF_ENTITY_C_MIX] = mgfECMix;
+            iNeed |= 1L << MGF_ENTITY_COLOR | 1L << MGF_ENTITY_CXY | 1L << MGF_ENTITY_C_SPEC | 1L << MGF_ENTITY_C_MIX | 1L << MGF_ENTITY_CCT;
         }
         if ( handleCallbacks[MGF_ENTITY_C_SPEC] == nullptr) {
             handleCallbacks[MGF_ENTITY_C_SPEC] = mgfECSpec;
-            ineed |= 1L << MGF_ENTITY_COLOR | 1L << MGF_ENTITY_CXY | 1L << MGF_ENTITY_C_SPEC | 1L << MGF_ENTITY_C_MIX | 1L << MGF_ENTITY_CCT;
+            iNeed |= 1L << MGF_ENTITY_COLOR | 1L << MGF_ENTITY_CXY | 1L << MGF_ENTITY_C_SPEC | 1L << MGF_ENTITY_C_MIX | 1L << MGF_ENTITY_CCT;
         }
         if ( handleCallbacks[MGF_ENTITY_CCT] == nullptr) {
             handleCallbacks[MGF_ENTITY_CCT] = mgfColorTemperature;
-            ineed |= 1L << MGF_ENTITY_COLOR | 1L << MGF_ENTITY_CXY | 1L << MGF_ENTITY_C_SPEC | 1L << MGF_ENTITY_C_MIX | 1L << MGF_ENTITY_CCT;
+            iNeed |= 1L << MGF_ENTITY_COLOR | 1L << MGF_ENTITY_CXY | 1L << MGF_ENTITY_C_SPEC | 1L << MGF_ENTITY_C_MIX | 1L << MGF_ENTITY_CCT;
         }
     }
 
     // Check for consistency
     if ( handleCallbacks[MGF_ENTITY_FACE] != nullptr) {
-        uneed |= 1L << MGF_ENTITY_POINT | 1L << MGF_ENTITY_VERTEX | 1L << MGF_ENTITY_XF;
+        uNeed |= 1L << MGF_ENTITY_POINT | 1L << MGF_ENTITY_VERTEX | 1L << MGF_ENTITY_XF;
     }
     if ( handleCallbacks[MGF_ENTITY_CXY] != nullptr || handleCallbacks[MGF_ENTITY_C_SPEC] != nullptr ||
          handleCallbacks[MGF_ENTITY_C_MIX] != nullptr) {
-        uneed |= 1L << MGF_ENTITY_COLOR;
+        uNeed |= 1L << MGF_ENTITY_COLOR;
     }
     if ( handleCallbacks[MGF_ENTITY_RD] != nullptr || handleCallbacks[MGF_ENTITY_TD] != nullptr ||
          handleCallbacks[MGF_ENTITY_IR] != nullptr ||
@@ -313,10 +313,10 @@ mgfAlternativeInit(int (*handleCallbacks[MGF_TOTAL_NUMBER_OF_ENTITIES])(int, cha
          handleCallbacks[MGF_ENTITY_RS] != nullptr ||
          handleCallbacks[MGF_ENTITY_TS] != nullptr ||
          handleCallbacks[MGF_ENTITY_SIDES] != nullptr) {
-        uneed |= 1L << MGF_ENTITY_MATERIAL;
+        uNeed |= 1L << MGF_ENTITY_MATERIAL;
     }
     for ( i = 0; i < MGF_TOTAL_NUMBER_OF_ENTITIES; i++ ) {
-        if ( uneed & 1L << i && handleCallbacks[i] == nullptr) {
+        if ( uNeed & 1L << i && handleCallbacks[i] == nullptr) {
             fprintf(stderr, "Missing support for \"%s\" entity\n",
                     GLOBAL_mgf_entityNames[i]);
             exit(1);
@@ -324,28 +324,28 @@ mgfAlternativeInit(int (*handleCallbacks[MGF_TOTAL_NUMBER_OF_ENTITIES])(int, cha
     }
 
     // Add support as needed
-    if ( ineed & 1L << MGF_ENTITY_VERTEX && handleCallbacks[MGF_ENTITY_VERTEX] != handleVertexEntity ) {
+    if ( iNeed & 1L << MGF_ENTITY_VERTEX && handleCallbacks[MGF_ENTITY_VERTEX] != handleVertexEntity ) {
         GLOBAL_mgf_support[MGF_ENTITY_VERTEX] = handleVertexEntity;
     }
-    if ( ineed & 1L << MGF_ENTITY_POINT && handleCallbacks[MGF_ENTITY_POINT] != handleVertexEntity ) {
+    if ( iNeed & 1L << MGF_ENTITY_POINT && handleCallbacks[MGF_ENTITY_POINT] != handleVertexEntity ) {
         GLOBAL_mgf_support[MGF_ENTITY_POINT] = handleVertexEntity;
     }
-    if ( ineed & 1L << MGF_ENTITY_NORMAL && handleCallbacks[MGF_ENTITY_NORMAL] != handleVertexEntity ) {
+    if ( iNeed & 1L << MGF_ENTITY_NORMAL && handleCallbacks[MGF_ENTITY_NORMAL] != handleVertexEntity ) {
         GLOBAL_mgf_support[MGF_ENTITY_NORMAL] = handleVertexEntity;
     }
-    if ( ineed & 1L << MGF_ENTITY_COLOR && handleCallbacks[MGF_ENTITY_COLOR] != handleColorEntity ) {
+    if ( iNeed & 1L << MGF_ENTITY_COLOR && handleCallbacks[MGF_ENTITY_COLOR] != handleColorEntity ) {
         GLOBAL_mgf_support[MGF_ENTITY_COLOR] = handleColorEntity;
     }
-    if ( ineed & 1L << MGF_ENTITY_CXY && handleCallbacks[MGF_ENTITY_CXY] != handleColorEntity ) {
+    if ( iNeed & 1L << MGF_ENTITY_CXY && handleCallbacks[MGF_ENTITY_CXY] != handleColorEntity ) {
         GLOBAL_mgf_support[MGF_ENTITY_CXY] = handleColorEntity;
     }
-    if ( ineed & 1L << MGF_ENTITY_C_SPEC && handleCallbacks[MGF_ENTITY_C_SPEC] != handleColorEntity ) {
+    if ( iNeed & 1L << MGF_ENTITY_C_SPEC && handleCallbacks[MGF_ENTITY_C_SPEC] != handleColorEntity ) {
         GLOBAL_mgf_support[MGF_ENTITY_C_SPEC] = handleColorEntity;
     }
-    if ( ineed & 1L << MGF_ENTITY_C_MIX && handleCallbacks[MGF_ENTITY_C_MIX] != handleColorEntity ) {
+    if ( iNeed & 1L << MGF_ENTITY_C_MIX && handleCallbacks[MGF_ENTITY_C_MIX] != handleColorEntity ) {
         GLOBAL_mgf_support[MGF_ENTITY_C_MIX] = handleColorEntity;
     }
-    if ( ineed & 1L << MGF_ENTITY_CCT && handleCallbacks[MGF_ENTITY_CCT] != handleColorEntity ) {
+    if ( iNeed & 1L << MGF_ENTITY_CCT && handleCallbacks[MGF_ENTITY_CCT] != handleColorEntity ) {
         GLOBAL_mgf_support[MGF_ENTITY_CCT] = handleColorEntity;
     }
 

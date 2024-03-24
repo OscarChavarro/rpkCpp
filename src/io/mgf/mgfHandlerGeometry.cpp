@@ -15,9 +15,9 @@
 #define MAXIMUM_FACE_VERTICES 100
 #define DEFAULT_VERTEX {{0.0, 0.0, 0.0}, {0.0, 0.0, 0.0}, 0, 1, (void *)nullptr}
 
-LUTAB GLOBAL_mgf_vertexLookUpTable = LU_SINIT(free, free);
-MgfVertexContext *GLOBAL_mgf_currentVertex = &GLOBAL_mgf_vertexContext;
+LookUpTable GLOBAL_mgf_vertexLookUpTable = LOOK_UP_INIT(free, free);
 MgfVertexContext GLOBAL_mgf_vertexContext = DEFAULT_VERTEX;
+MgfVertexContext *GLOBAL_mgf_currentVertex = &GLOBAL_mgf_vertexContext;
 MgfVertexContext GLOBAL_mgf_defaultVertexContext = DEFAULT_VERTEX;
 
 // Elements for surface currently being created
@@ -738,7 +738,7 @@ Handle a vertex entity
 int
 handleVertexEntity(int ac, char **av, MgfContext *context)
 {
-    LUENT *lp;
+    LookUpEntity *lp;
 
     switch ( mgfEntity(av[0]) ) {
         case MGF_ENTITY_VERTEX:
@@ -840,7 +840,7 @@ Get a named vertex
 MgfVertexContext *
 getNamedVertex(char *name)
 {
-    LUENT *lp = lookUpFind(&GLOBAL_mgf_vertexLookUpTable, name);
+    LookUpEntity *lp = lookUpFind(&GLOBAL_mgf_vertexLookUpTable, name);
 
     if ( lp == nullptr ) {
         return nullptr;

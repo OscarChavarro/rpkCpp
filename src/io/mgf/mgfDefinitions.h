@@ -83,6 +83,7 @@ extern void mgfClose();
 
 extern char *GLOBAL_mgf_errors[MGF_NUMBER_OF_ERRORS];
 extern MgfReaderContext *GLOBAL_mgf_file;
+
 extern int (*GLOBAL_mgf_handleCallbacks[MGF_TOTAL_NUMBER_OF_ENTITIES])(int argc, char **argv, MgfContext *context);
 extern int (*GLOBAL_mgf_support[MGF_TOTAL_NUMBER_OF_ENTITIES])(int argc, char **argv, MgfContext * /*context*/);
 

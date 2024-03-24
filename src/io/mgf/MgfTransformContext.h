@@ -34,7 +34,7 @@ public:
     short xac; // Context argument count
     short rev; // Boolean true if vertices reversed
     MgfTransform xf; // Cumulative transformation
-    MgfTransformArray *xarr; // Transformation array pointer
+    MgfTransformArray *transformationArray;
     MgfTransformContext *prev; // Previous transformation context
 }; // Followed by argument buffer
 

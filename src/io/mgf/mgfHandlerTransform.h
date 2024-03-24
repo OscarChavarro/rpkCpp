@@ -11,7 +11,7 @@ functions to transform and translate positions, transform vectors
 (without translation), rotate vectors (without scaling) and scale
 values appropriately.
 
-The routines mgfTransformPoint, mgfTransformVector and xf_rotvect take two
+The routines mgfTransformPoint and mgfTransformVector takes two
 3-D vectors (which may be identical), transforms the second and
 puts the result into the first.
 */
