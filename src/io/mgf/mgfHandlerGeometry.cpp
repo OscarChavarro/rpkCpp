@@ -16,9 +16,6 @@
 #define DEFAULT_VERTEX {{0.0, 0.0, 0.0}, {0.0, 0.0, 0.0}, 0, 1, nullptr}
 
 LookUpTable GLOBAL_mgf_vertexLookUpTable = LOOK_UP_INIT(free, free);
-MgfVertexContext GLOBAL_mgf_vertexContext = DEFAULT_VERTEX;
-MgfVertexContext *GLOBAL_mgf_currentVertex = &GLOBAL_mgf_vertexContext;
-MgfVertexContext GLOBAL_mgf_defaultVertexContext = DEFAULT_VERTEX;
 
 // Elements for surface currently being created
 java::ArrayList<Vector3D *> *GLOBAL_mgf_currentPointList = nullptr;
@@ -30,6 +27,10 @@ java::ArrayList<Geometry *> *GLOBAL_mgf_currentGeometryList = nullptr;
 // Geometry stack: used for building a hierarchical representation of the scene
 int GLOBAL_mgf_inComplex = false; // True if reading a sphere, torus or other unsupported
 bool GLOBAL_mgf_allSurfacesSided = false; // When set to true, all surfaces will be considered one-sided
+
+static MgfVertexContext globalMgfVertexContext = DEFAULT_VERTEX;
+static MgfVertexContext *globalMgfCurrentVertex = &globalMgfVertexContext;
+static MgfVertexContext globalMgfDefaultVertexContext = DEFAULT_VERTEX;
 
 /**
 The mgf parser already contains some good routines for discrete spheres / cone / cylinder / torus
@@ -763,8 +764,8 @@ handleVertexEntity(int ac, char **av, MgfContext *context)
             }
             if ( ac == 1 ) {
                 // Set unnamed vertex context
-                GLOBAL_mgf_vertexContext = GLOBAL_mgf_defaultVertexContext;
-                GLOBAL_mgf_currentVertex = &GLOBAL_mgf_vertexContext;
+                globalMgfVertexContext = globalMgfDefaultVertexContext;
+                globalMgfCurrentVertex = &globalMgfVertexContext;
                 context->currentVertexName = nullptr;
                 return MGF_OK;
             }
@@ -777,10 +778,10 @@ handleVertexEntity(int ac, char **av, MgfContext *context)
                 return MGF_ERROR_OUT_OF_MEMORY;
             }
             context->currentVertexName = lp->key;
-            GLOBAL_mgf_currentVertex = (MgfVertexContext *) lp->data;
+            globalMgfCurrentVertex = (MgfVertexContext *) lp->data;
             if ( ac == 2 ) {
                 // Re-establish previous context
-                if ( GLOBAL_mgf_currentVertex == nullptr) {
+                if ( globalMgfCurrentVertex == nullptr) {
                     return MGF_ERROR_UNDEFINED_REFERENCE;
                 }
                 return MGF_OK;
@@ -788,7 +789,7 @@ handleVertexEntity(int ac, char **av, MgfContext *context)
             if ( av[2][0] != '=' || av[2][1] ) {
                 return MGF_ERROR_ARGUMENT_TYPE;
             }
-            if ( GLOBAL_mgf_currentVertex == nullptr  ) {
+            if ( globalMgfCurrentVertex == nullptr  ) {
                 // Create new vertex context
                 context->currentVertexName = (char *) malloc(strlen(av[1]) + 1);
                 if ( context->currentVertexName == nullptr ) {
@@ -796,15 +797,15 @@ handleVertexEntity(int ac, char **av, MgfContext *context)
                 }
                 strcpy(context->currentVertexName, av[1]);
                 lp->key = context->currentVertexName;
-                GLOBAL_mgf_currentVertex = (MgfVertexContext *) malloc(sizeof(MgfVertexContext));
-                if ( !GLOBAL_mgf_currentVertex ) {
+                globalMgfCurrentVertex = (MgfVertexContext *) malloc(sizeof(MgfVertexContext));
+                if ( !globalMgfCurrentVertex ) {
                     return MGF_ERROR_OUT_OF_MEMORY;
                 }
-                lp->data = (char *) GLOBAL_mgf_currentVertex;
+                lp->data = (char *) globalMgfCurrentVertex;
             }
             if ( ac == 3 ) {
                 // Use default template
-                *GLOBAL_mgf_currentVertex = GLOBAL_mgf_defaultVertexContext;
+                *globalMgfCurrentVertex = globalMgfDefaultVertexContext;
                 return MGF_OK;
             }
             lp = lookUpFind(&GLOBAL_mgf_vertexLookUpTable, av[3]);
@@ -815,8 +816,8 @@ handleVertexEntity(int ac, char **av, MgfContext *context)
             if ( lp->data == nullptr) {
                 return MGF_ERROR_UNDEFINED_REFERENCE;
             }
-            *GLOBAL_mgf_currentVertex = *(MgfVertexContext *) lp->data;
-            GLOBAL_mgf_currentVertex->clock++;
+            *globalMgfCurrentVertex = *(MgfVertexContext *) lp->data;
+            globalMgfCurrentVertex->clock++;
             return MGF_OK;
         case MGF_ENTITY_POINT:
             // Set point
@@ -826,10 +827,10 @@ handleVertexEntity(int ac, char **av, MgfContext *context)
             if ( !isFloatWords(av[1]) || !isFloatWords(av[2]) || !isFloatWords(av[3])) {
                 return MGF_ERROR_ARGUMENT_TYPE;
             }
-            GLOBAL_mgf_currentVertex->p[0] = strtod(av[1], nullptr);
-            GLOBAL_mgf_currentVertex->p[1] = strtod(av[2], nullptr);
-            GLOBAL_mgf_currentVertex->p[2] = strtod(av[3], nullptr);
-            GLOBAL_mgf_currentVertex->clock++;
+            globalMgfCurrentVertex->p[0] = strtod(av[1], nullptr);
+            globalMgfCurrentVertex->p[1] = strtod(av[2], nullptr);
+            globalMgfCurrentVertex->p[2] = strtod(av[3], nullptr);
+            globalMgfCurrentVertex->clock++;
             return MGF_OK;
         case MGF_ENTITY_NORMAL:
             // Set normal
@@ -839,11 +840,11 @@ handleVertexEntity(int ac, char **av, MgfContext *context)
             if ( !isFloatWords(av[1]) || !isFloatWords(av[2]) || !isFloatWords(av[3])) {
                 return MGF_ERROR_ARGUMENT_TYPE;
             }
-            GLOBAL_mgf_currentVertex->n[0] = strtod(av[1], nullptr);
-            GLOBAL_mgf_currentVertex->n[1] = strtod(av[2], nullptr);
-            GLOBAL_mgf_currentVertex->n[2] = strtod(av[3], nullptr);
-            normalize(GLOBAL_mgf_currentVertex->n);
-            GLOBAL_mgf_currentVertex->clock++;
+            globalMgfCurrentVertex->n[0] = strtod(av[1], nullptr);
+            globalMgfCurrentVertex->n[1] = strtod(av[2], nullptr);
+            globalMgfCurrentVertex->n[2] = strtod(av[3], nullptr);
+            normalize(globalMgfCurrentVertex->n);
+            globalMgfCurrentVertex->clock++;
             return MGF_OK;
     }
     return MGF_ERROR_UNKNOWN_ENTITY;
@@ -865,8 +866,8 @@ getNamedVertex(char *name)
 
 void
 initGeometryContextTables(MgfContext *context) {
-    GLOBAL_mgf_vertexContext = GLOBAL_mgf_defaultVertexContext;
-    GLOBAL_mgf_currentVertex = &GLOBAL_mgf_vertexContext;
+    globalMgfVertexContext = globalMgfDefaultVertexContext;
+    globalMgfCurrentVertex = &globalMgfVertexContext;
     context->currentVertexName = nullptr;
     lookUpDone(&GLOBAL_mgf_vertexLookUpTable);
 }
