@@ -5,25 +5,15 @@
 #include "io/mgf/lookup.h"
 #include "io/FileUncompressWrapper.h"
 
-// Count of unknown entities
-unsigned GLOBAL_mgf_unknownEntitiesCounter;
-
 /**
 Default handler for unknown entities
 */
 int
-mgfDefaultHandlerForUnknownEntities(int /*ac*/, char **av, MgfContext *context)
+mgfDefaultHandlerForUnknownEntities(int /*ac*/, char ** /*av*/, MgfContext * /*context*/)
 {
-    if ( GLOBAL_mgf_unknownEntitiesCounter++ == 0 ) {
-        // Report first incident
-        fprintf(stderr, "%s: %d: %s: %s\n", context->readerContext->fileName,
-                context->readerContext->lineNumber, context->errorCodeMessages[MGF_ERROR_UNKNOWN_ENTITY], av[0]);
-    }
+    // Just ignore line
     return MGF_OK;
 }
-
-// Handler routine for unknown entities
-int (*GLOBAL_mgf_unknownEntityHandleCallback)(int argc, char **argv, MgfContext *context) = mgfDefaultHandlerForUnknownEntities;
 
 void
 doError(const char *errmsg, MgfContext *context) {
@@ -102,26 +92,22 @@ mgfEntity(char *name, MgfContext *context)
 Pass entity to appropriate handler
 */
 int
-mgfHandle(int en, int ac, char **av, MgfContext *context)
+mgfHandle(int entityIndex, int argc, char **argv, MgfContext *context)
 {
     int rv;
 
-    if ( en < 0 && (en = mgfEntity(av[0], context)) < 0 ) {
+    if ( entityIndex < 0 && (entityIndex = mgfEntity(argv[0], context)) < 0 ) {
         // Unknown entity
-        if ( GLOBAL_mgf_unknownEntityHandleCallback != nullptr) {
-            return (*GLOBAL_mgf_unknownEntityHandleCallback)(ac, av, context);
-        }
-        return MGF_ERROR_UNKNOWN_ENTITY;
+        return mgfDefaultHandlerForUnknownEntities(argc, argv, context);
     }
-    if ( context->supportCallbacks[en] != nullptr) {
+    if ( context->supportCallbacks[entityIndex] != nullptr ) {
         // Support handler
-        // TODO SITHMASTER: Check number of arguments here
-        rv = (*context->supportCallbacks[en])(ac, av, context);
+        rv = (*context->supportCallbacks[entityIndex])(argc, argv, context);
         if ( rv != MGF_OK ) {
             return rv;
         }
     }
-    return (*context->handleCallbacks[en])(ac, av, context); // Assigned handler
+    return (*context->handleCallbacks[entityIndex])(argc, argv, context); // Assigned handler
 }
 
 /**

@@ -3,9 +3,7 @@
 
 #include "io/mgf/MgfContext.h"
 
-extern int (*GLOBAL_mgf_unknownEntityHandleCallback)(int argc, char **argv, MgfContext *context);
 extern int mgfDefaultHandlerForUnknownEntities(int ac, char **av, MgfContext *context);
-extern unsigned GLOBAL_mgf_unknownEntitiesCounter;
 
 /**
 The general process for running the parser is to fill in the handleCallbacks

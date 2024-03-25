@@ -16,13 +16,6 @@
 static VectorOctreeNode *globalPointsOctree = nullptr;
 static VectorOctreeNode *globalNormalsOctree = nullptr;
 
-static int
-handleUnknownEntity(int /*argc*/, char ** /*argv*/, MgfContext *context) {
-    doWarning("unknown entity", context);
-
-    return MGF_OK;
-}
-
 /**
 Sets the number of quarter circle divisions for discrete approximation of cylinders, spheres, cones, etc.
 */
@@ -392,9 +385,6 @@ initMgf(MgfContext *context) {
     context->handleCallbacks[MGF_ENTITY_CYLINDER] = handleSurfaceEntity;
     context->handleCallbacks[MGF_ENTITY_CONE] = handleSurfaceEntity;
     context->handleCallbacks[MGF_ENTITY_PRISM] = handleSurfaceEntity;
-
-    // Default behavior: skip
-    GLOBAL_mgf_unknownEntityHandleCallback = handleUnknownEntity;
 
     mgfAlternativeInit(context->handleCallbacks, context);
 }

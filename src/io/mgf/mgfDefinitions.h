@@ -21,6 +21,6 @@ extern void doWarning(const char *errmsg, MgfContext *context);
 extern void mgfGetFilePosition(MgdReaderFilePosition *pos, MgfContext *context);
 extern int mgfGoToFilePosition(MgdReaderFilePosition *pos, MgfContext *context);
 extern int mgfEntity(char *name, MgfContext *context);
-extern int mgfHandle(int en, int ac, char **av, MgfContext * /*context*/);
+extern int mgfHandle(int entityIndex, int argc, char **argv, MgfContext * /*context*/);
 
 #endif
