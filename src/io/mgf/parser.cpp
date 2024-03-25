@@ -13,7 +13,7 @@ Parse an mgf file, converting or discarding unsupported entities.
 
 /**
 The idea with this parser is to compensate for any missing entries in
-GLOBAL_mgf_handleCallbacks with alternate handlers that express these entities in terms
+handleCallbacks with alternate handlers that express these entities in terms
 of others that the calling program can handle.
 
 In some cases, no alternate handler is possible because the entity

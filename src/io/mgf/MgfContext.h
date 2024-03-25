@@ -2,7 +2,7 @@
 #define __MGF_CONTEXT__
 
 #include "skin/RadianceMethod.h"
-#include "io/mgf/mgfDefinitions.h"
+#include "io/mgf/MgfReaderContext.h"
 
 // Entities
 #define MGF_ENTITY_COLOR 1 // c
@@ -52,8 +52,6 @@
 #define MGF_ERROR_UNMATCHED_CONTEXT_CLOSE 12
 #define MGF_NUMBER_OF_ERRORS 13
 
-class MgfReaderContext;
-
 class MgfContext {
   public:
     // Parameters received from main program
@@ -66,14 +64,11 @@ class MgfContext {
     char entityNames[MGF_TOTAL_NUMBER_OF_ENTITIES][MGF_MAXIMUM_ENTITY_NAME_LENGTH];
     const char *errorCodeMessages[MGF_NUMBER_OF_ERRORS];
     MgfReaderContext *readerContext;
+    int (*handleCallbacks[MGF_TOTAL_NUMBER_OF_ENTITIES])(int argc, char **argv, MgfContext *context);
+    int (*supportCallbacks[MGF_TOTAL_NUMBER_OF_ENTITIES])(int argc, char **argv, MgfContext *context);
 
     // Return model
     MgfContext();
 };
-
-extern int (*GLOBAL_mgf_handleCallbacks[MGF_TOTAL_NUMBER_OF_ENTITIES])(int argc, char **argv, MgfContext *context);
-extern int (*GLOBAL_mgf_support[MGF_TOTAL_NUMBER_OF_ENTITIES])(int argc, char **argv, MgfContext * /*context*/);
-
-#include "io/mgf/mgfDefinitions.h"
 
 #endif

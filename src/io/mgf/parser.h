@@ -8,7 +8,7 @@ extern int mgfDefaultHandlerForUnknownEntities(int ac, char **av, MgfContext *co
 extern unsigned GLOBAL_mgf_unknownEntitiesCounter;
 
 /**
-The general process for running the parser is to fill in the GLOBAL_mgf_handleCallbacks
+The general process for running the parser is to fill in the handleCallbacks
 array with handlers for each entity you know how to handle.
 Then, call mg_init to fill in the rest.  This function will report
 an error and quit if you try to support an inconsistent set of entities.
@@ -17,7 +17,7 @@ To read from standard input, use nullptr as the file name.
 For additional control over error reporting and file management,
 use mgfOpen, mgfReadNextLine, mgfParseCurrentLine and mgfClose instead of mgfLoad.
 To globalPass an entity of your own construction to the parser, use
-the mgfHandle function rather than the GLOBAL_mgf_handleCallbacks routines directly.
+the mgfHandle function rather than the handleCallbacks routines directly.
 (The first argument to mgfHandle is the entity #, or -1.)
 To free any data structures and clear the parser, use mgfClear.
 If there is an error, mgfLoad, mgfOpen, mgfParseCurrentLine, mgfHandle and

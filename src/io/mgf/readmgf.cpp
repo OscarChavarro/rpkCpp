@@ -81,7 +81,7 @@ mgfPutCSpec(MgfContext *context)
     double sf;
     int i;
 
-    if ( GLOBAL_mgf_handleCallbacks[MGF_ENTITY_C_SPEC] != handleColorEntity ) {
+    if ( context->handleCallbacks[MGF_ENTITY_C_SPEC] != handleColorEntity ) {
         snprintf(wl[0], 6, "%d", C_CMINWL);
         snprintf(wl[1], 6, "%d", C_CMAXWL);
         newAv[0] = context->entityNames[MGF_ENTITY_C_SPEC];
@@ -123,7 +123,7 @@ mgfECSpec(int /*ac*/, char ** /*av*/, MgfContext *context) {
     // Convert to xy chromaticity
     mgfContextFixColorRepresentation(GLOBAL_mgf_currentColor, C_CSXY);
     // If it's really their handler, use it
-    if ( GLOBAL_mgf_handleCallbacks[MGF_ENTITY_CXY] != handleColorEntity ) {
+    if ( context->handleCallbacks[MGF_ENTITY_CXY] != handleColorEntity ) {
         return mgfPutCxy(context);
     }
     return MGF_OK;
@@ -140,12 +140,12 @@ Contorted logic works as follows:
 */
 static int
 mgfECMix(int /*ac*/, char ** /*av*/, MgfContext *context) {
-    if ( GLOBAL_mgf_handleCallbacks[MGF_ENTITY_C_SPEC] == mgfECSpec ) {
+    if ( context->handleCallbacks[MGF_ENTITY_C_SPEC] == mgfECSpec ) {
         mgfContextFixColorRepresentation(GLOBAL_mgf_currentColor, C_CSXY);
     } else if ( GLOBAL_mgf_currentColor->flags & C_CDSPEC ) {
         return mgfPutCSpec(context);
     }
-    if ( GLOBAL_mgf_handleCallbacks[MGF_ENTITY_CXY] != handleColorEntity ) {
+    if ( context->handleCallbacks[MGF_ENTITY_CXY] != handleColorEntity ) {
         return mgfPutCxy(context);
     }
     return MGF_OK;
@@ -161,11 +161,11 @@ mgfColorTemperature(int /*ac*/, char ** /*av*/, MgfContext *context)
     // converted temperature to spectral color.  Put it out as such
     // if they support it, otherwise convert to xy chromaticity and
     // put it out if they handle it
-    if ( GLOBAL_mgf_handleCallbacks[MGF_ENTITY_C_SPEC] != mgfECSpec ) {
+    if ( context->handleCallbacks[MGF_ENTITY_C_SPEC] != mgfECSpec ) {
         return mgfPutCSpec(context);
     }
     mgfContextFixColorRepresentation(GLOBAL_mgf_currentColor, C_CSXY);
-    if ( GLOBAL_mgf_handleCallbacks[MGF_ENTITY_CXY] != handleColorEntity ) {
+    if ( context->handleCallbacks[MGF_ENTITY_CXY] != handleColorEntity ) {
         return mgfPutCxy(context);
     }
     return MGF_OK;
@@ -325,28 +325,28 @@ mgfAlternativeInit(int (*handleCallbacks[MGF_TOTAL_NUMBER_OF_ENTITIES])(int, cha
 
     // Add support as needed
     if ( iNeed & 1L << MGF_ENTITY_VERTEX && handleCallbacks[MGF_ENTITY_VERTEX] != handleVertexEntity ) {
-        GLOBAL_mgf_support[MGF_ENTITY_VERTEX] = handleVertexEntity;
+        context->supportCallbacks[MGF_ENTITY_VERTEX] = handleVertexEntity;
     }
     if ( iNeed & 1L << MGF_ENTITY_POINT && handleCallbacks[MGF_ENTITY_POINT] != handleVertexEntity ) {
-        GLOBAL_mgf_support[MGF_ENTITY_POINT] = handleVertexEntity;
+        context->supportCallbacks[MGF_ENTITY_POINT] = handleVertexEntity;
     }
     if ( iNeed & 1L << MGF_ENTITY_NORMAL && handleCallbacks[MGF_ENTITY_NORMAL] != handleVertexEntity ) {
-        GLOBAL_mgf_support[MGF_ENTITY_NORMAL] = handleVertexEntity;
+        context->supportCallbacks[MGF_ENTITY_NORMAL] = handleVertexEntity;
     }
     if ( iNeed & 1L << MGF_ENTITY_COLOR && handleCallbacks[MGF_ENTITY_COLOR] != handleColorEntity ) {
-        GLOBAL_mgf_support[MGF_ENTITY_COLOR] = handleColorEntity;
+        context->supportCallbacks[MGF_ENTITY_COLOR] = handleColorEntity;
     }
     if ( iNeed & 1L << MGF_ENTITY_CXY && handleCallbacks[MGF_ENTITY_CXY] != handleColorEntity ) {
-        GLOBAL_mgf_support[MGF_ENTITY_CXY] = handleColorEntity;
+        context->supportCallbacks[MGF_ENTITY_CXY] = handleColorEntity;
     }
     if ( iNeed & 1L << MGF_ENTITY_C_SPEC && handleCallbacks[MGF_ENTITY_C_SPEC] != handleColorEntity ) {
-        GLOBAL_mgf_support[MGF_ENTITY_C_SPEC] = handleColorEntity;
+        context->supportCallbacks[MGF_ENTITY_C_SPEC] = handleColorEntity;
     }
     if ( iNeed & 1L << MGF_ENTITY_C_MIX && handleCallbacks[MGF_ENTITY_C_MIX] != handleColorEntity ) {
-        GLOBAL_mgf_support[MGF_ENTITY_C_MIX] = handleColorEntity;
+        context->supportCallbacks[MGF_ENTITY_C_MIX] = handleColorEntity;
     }
     if ( iNeed & 1L << MGF_ENTITY_CCT && handleCallbacks[MGF_ENTITY_CCT] != handleColorEntity ) {
-        GLOBAL_mgf_support[MGF_ENTITY_CCT] = handleColorEntity;
+        context->supportCallbacks[MGF_ENTITY_CCT] = handleColorEntity;
     }
 
     // Discard remaining entities
@@ -360,43 +360,43 @@ mgfAlternativeInit(int (*handleCallbacks[MGF_TOTAL_NUMBER_OF_ENTITIES])(int, cha
 static void
 initMgf(MgfContext *context) {
     // Related to MgfColorContext
-    GLOBAL_mgf_handleCallbacks[MGF_ENTITY_COLOR] = handleColorEntity;
-    GLOBAL_mgf_handleCallbacks[MGF_ENTITY_CXY] = handleColorEntity;
-    GLOBAL_mgf_handleCallbacks[MGF_ENTITY_C_MIX] = handleColorEntity;
+    context->handleCallbacks[MGF_ENTITY_COLOR] = handleColorEntity;
+    context->handleCallbacks[MGF_ENTITY_CXY] = handleColorEntity;
+    context->handleCallbacks[MGF_ENTITY_C_MIX] = handleColorEntity;
 
     // Related to MgfMaterialContext
-    GLOBAL_mgf_handleCallbacks[MGF_ENTITY_MATERIAL] = handleMaterialEntity;
-    GLOBAL_mgf_handleCallbacks[MGF_ENTITY_ED] = handleMaterialEntity;
-    GLOBAL_mgf_handleCallbacks[MGF_ENTITY_IR] = handleMaterialEntity;
-    GLOBAL_mgf_handleCallbacks[MGF_ENTITY_RD] = handleMaterialEntity;
-    GLOBAL_mgf_handleCallbacks[MGF_ENTITY_RS] = handleMaterialEntity;
-    GLOBAL_mgf_handleCallbacks[MGF_ENTITY_SIDES] = handleMaterialEntity;
-    GLOBAL_mgf_handleCallbacks[MGF_ENTITY_TD] = handleMaterialEntity;
-    GLOBAL_mgf_handleCallbacks[MGF_ENTITY_TS] = handleMaterialEntity;
+    context->handleCallbacks[MGF_ENTITY_MATERIAL] = handleMaterialEntity;
+    context->handleCallbacks[MGF_ENTITY_ED] = handleMaterialEntity;
+    context->handleCallbacks[MGF_ENTITY_IR] = handleMaterialEntity;
+    context->handleCallbacks[MGF_ENTITY_RD] = handleMaterialEntity;
+    context->handleCallbacks[MGF_ENTITY_RS] = handleMaterialEntity;
+    context->handleCallbacks[MGF_ENTITY_SIDES] = handleMaterialEntity;
+    context->handleCallbacks[MGF_ENTITY_TD] = handleMaterialEntity;
+    context->handleCallbacks[MGF_ENTITY_TS] = handleMaterialEntity;
 
     // Related to MgfTransformContext
-    GLOBAL_mgf_handleCallbacks[MGF_ENTITY_XF] = handleTransformationEntity;
+    context->handleCallbacks[MGF_ENTITY_XF] = handleTransformationEntity;
 
     // Related to object, no explicit context
-    GLOBAL_mgf_handleCallbacks[MGF_ENTITY_OBJECT] = handleObjectEntity;
+    context->handleCallbacks[MGF_ENTITY_OBJECT] = handleObjectEntity;
 
     // Related to geometry elements, no explicit context
-    GLOBAL_mgf_handleCallbacks[MGF_ENTITY_FACE] = handleFaceEntity;
-    GLOBAL_mgf_handleCallbacks[MGF_ENTITY_FACE_WITH_HOLES] = handleFaceWithHolesEntity;
-    GLOBAL_mgf_handleCallbacks[MGF_ENTITY_VERTEX] = handleVertexEntity;
-    GLOBAL_mgf_handleCallbacks[MGF_ENTITY_POINT] = handleVertexEntity;
-    GLOBAL_mgf_handleCallbacks[MGF_ENTITY_NORMAL] = handleVertexEntity;
-    GLOBAL_mgf_handleCallbacks[MGF_ENTITY_SPHERE] = handleSurfaceEntity;
-    GLOBAL_mgf_handleCallbacks[MGF_ENTITY_TORUS] = handleSurfaceEntity;
-    GLOBAL_mgf_handleCallbacks[MGF_ENTITY_RING] = handleSurfaceEntity;
-    GLOBAL_mgf_handleCallbacks[MGF_ENTITY_CYLINDER] = handleSurfaceEntity;
-    GLOBAL_mgf_handleCallbacks[MGF_ENTITY_CONE] = handleSurfaceEntity;
-    GLOBAL_mgf_handleCallbacks[MGF_ENTITY_PRISM] = handleSurfaceEntity;
+    context->handleCallbacks[MGF_ENTITY_FACE] = handleFaceEntity;
+    context->handleCallbacks[MGF_ENTITY_FACE_WITH_HOLES] = handleFaceWithHolesEntity;
+    context->handleCallbacks[MGF_ENTITY_VERTEX] = handleVertexEntity;
+    context->handleCallbacks[MGF_ENTITY_POINT] = handleVertexEntity;
+    context->handleCallbacks[MGF_ENTITY_NORMAL] = handleVertexEntity;
+    context->handleCallbacks[MGF_ENTITY_SPHERE] = handleSurfaceEntity;
+    context->handleCallbacks[MGF_ENTITY_TORUS] = handleSurfaceEntity;
+    context->handleCallbacks[MGF_ENTITY_RING] = handleSurfaceEntity;
+    context->handleCallbacks[MGF_ENTITY_CYLINDER] = handleSurfaceEntity;
+    context->handleCallbacks[MGF_ENTITY_CONE] = handleSurfaceEntity;
+    context->handleCallbacks[MGF_ENTITY_PRISM] = handleSurfaceEntity;
 
     // Default behavior: skip
     GLOBAL_mgf_unknownEntityHandleCallback = handleUnknownEntity;
 
-    mgfAlternativeInit(GLOBAL_mgf_handleCallbacks, context);
+    mgfAlternativeInit(context->handleCallbacks, context);
 }
 
 static void

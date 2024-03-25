@@ -8,10 +8,6 @@
 // Count of unknown entities
 unsigned GLOBAL_mgf_unknownEntitiesCounter;
 
-// Handler routines for each entity
-int (*GLOBAL_mgf_handleCallbacks[MGF_TOTAL_NUMBER_OF_ENTITIES])(int argc, char **argv, MgfContext *context);
-int (*GLOBAL_mgf_support[MGF_TOTAL_NUMBER_OF_ENTITIES])(int argc, char **argv, MgfContext * /*context*/);
-
 /**
 Default handler for unknown entities
 */
@@ -117,15 +113,15 @@ mgfHandle(int en, int ac, char **av, MgfContext *context)
         }
         return MGF_ERROR_UNKNOWN_ENTITY;
     }
-    if ( GLOBAL_mgf_support[en] != nullptr) {
+    if ( context->supportCallbacks[en] != nullptr) {
         // Support handler
         // TODO SITHMASTER: Check number of arguments here
-        rv = (*GLOBAL_mgf_support[en])(ac, av, context);
+        rv = (*context->supportCallbacks[en])(ac, av, context);
         if ( rv != MGF_OK ) {
             return rv;
         }
     }
-    return (*GLOBAL_mgf_handleCallbacks[en])(ac, av, context); // Assigned handler
+    return (*context->handleCallbacks[en])(ac, av, context); // Assigned handler
 }
 
 /**
