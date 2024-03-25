@@ -31,8 +31,6 @@
     0.0f \
 }
 
-char *GLOBAL_mgf_currentMaterialName = nullptr;
-
 static MgfMaterialContext globalUnNamedMaterialContext = DEFAULT_MATERIAL;
 static MgfMaterialContext globalDefaultMgfMaterial = DEFAULT_MATERIAL;
 static MgfMaterialContext *globalMgfCurrentMaterial = &globalUnNamedMaterialContext;
@@ -141,7 +139,7 @@ mgfGetCurrentMaterial(Material **material, bool allSurfacesSided, MgfContext *co
     float a;
     char *materialName;
 
-    materialName = GLOBAL_mgf_currentMaterialName;
+    materialName = context->currentMaterialName;
     if ( !materialName || *materialName == '\0' ) {
         // This might cause strcmp to crash!
         materialName = (char *)"unnamed";
@@ -242,21 +240,21 @@ mgfGetCurrentMaterial(Material **material, bool allSurfacesSided, MgfContext *co
 }
 
 void
-initMaterialContextTables() {
+initMaterialContextTables(MgfContext *context) {
     globalUnNamedMaterialContext = globalDefaultMgfMaterial;
     globalMgfCurrentMaterial = &globalUnNamedMaterialContext;
     lookUpDone(&globalMaterialLookUpTable);
-    GLOBAL_mgf_currentMaterialName = nullptr;
+    context->currentMaterialName = nullptr;
 }
 
 /**
 This routine returns true if the current material has changed
 */
 int
-mgfMaterialChanged(Material *material) {
+mgfMaterialChanged(Material *material, MgfContext *context) {
     char *materialName;
 
-    materialName = GLOBAL_mgf_currentMaterialName;
+    materialName = context->currentMaterialName;
     if ( !materialName || *materialName == '\0' ) {
         // This might cause strcmp to crash!
         materialName = (char *) "unnamed";
@@ -291,7 +289,7 @@ handleMaterialEntity(int ac, char **av, MgfContext *context)
                 // Set unnamed material context
                 globalUnNamedMaterialContext = globalDefaultMgfMaterial;
                 globalMgfCurrentMaterial = &globalUnNamedMaterialContext;
-                GLOBAL_mgf_currentMaterialName = nullptr;
+                context->currentMaterialName = nullptr;
                 return MGF_OK;
             }
             if ( !isNameWords(av[1]) ) {
@@ -302,7 +300,7 @@ handleMaterialEntity(int ac, char **av, MgfContext *context)
             if ( lp == nullptr ) {
                 return MGF_ERROR_OUT_OF_MEMORY;
             }
-            GLOBAL_mgf_currentMaterialName = lp->key;
+            context->currentMaterialName = lp->key;
             globalMgfCurrentMaterial = (MgfMaterialContext *) lp->data;
             if ( ac == 2 ) {
                 // Re-establish previous context
@@ -325,7 +323,7 @@ handleMaterialEntity(int ac, char **av, MgfContext *context)
                 if ( lp->data == nullptr) {
                     return MGF_ERROR_OUT_OF_MEMORY;
                 }
-                GLOBAL_mgf_currentMaterialName = lp->key;
+                context->currentMaterialName = lp->key;
                 globalMgfCurrentMaterial = (MgfMaterialContext *) lp->data;
                 globalMgfCurrentMaterial->clock = 0;
             }

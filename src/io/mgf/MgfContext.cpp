@@ -59,4 +59,5 @@ MgfContext::MgfContext():
 	errorCodeMessages[12] =  "Unmatched context close";
 
     currentMaterial = nullptr;
+    currentMaterialName = nullptr;
 }

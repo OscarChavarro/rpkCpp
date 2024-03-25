@@ -505,7 +505,7 @@ handleFaceEntity(int argc, char **argv, MgfContext *context) {
     }
 
     if ( !GLOBAL_mgf_inComplex ) {
-        if ( mgfMaterialChanged(context->currentMaterial) ) {
+        if ( mgfMaterialChanged(context->currentMaterial, context) ) {
             if ( GLOBAL_mgf_inSurface ) {
                 surfaceDone(context);
             }

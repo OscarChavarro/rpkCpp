@@ -68,6 +68,7 @@ class MgfContext {
     int (*handleCallbacks[MGF_TOTAL_NUMBER_OF_ENTITIES])(int argc, char **argv, MgfContext *context);
     int (*supportCallbacks[MGF_TOTAL_NUMBER_OF_ENTITIES])(int argc, char **argv, MgfContext *context);
     Material *currentMaterial;
+    char *currentMaterialName;
 
     // Return model
     MgfContext();

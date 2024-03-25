@@ -125,7 +125,7 @@ static void
 mgfClear(MgfContext *context) {
     initColorContextTables();
     initGeometryContextTables(context);
-    initMaterialContextTables();
+    initMaterialContextTables(context);
     while ( context->readerContext != nullptr) {
         // Reset our file context
         mgfClose(context);
