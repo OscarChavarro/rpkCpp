@@ -60,4 +60,5 @@ MgfContext::MgfContext():
 
     currentMaterial = nullptr;
     currentMaterialName = nullptr;
+    geometryStackPtr = nullptr;
 }

@@ -40,7 +40,7 @@ class MgfColorContext {
     long spectralStraightSum; // Straight sum of spectral values
     float cx; // Chromaticity X value
     float cy; // Chromaticity Y value
-    float eff; // efficacy (lumens / watt)
+    float eff; // Efficacy (lumens / watt)
 };
 
 extern MgfColorContext *GLOBAL_mgf_currentColor;

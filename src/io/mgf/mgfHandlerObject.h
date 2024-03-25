@@ -6,7 +6,6 @@
 // Objects 'o' contexts can be nested this deep
 #define MAXIMUM_GEOMETRY_STACK_DEPTH 100
 
-extern java::ArrayList<Geometry *> **GLOBAL_mgf_geometryStackPtr;
 extern java::ArrayList<Vector3D *> *GLOBAL_mgf_currentPointList;
 extern java::ArrayList<Vector3D *> *GLOBAL_mgf_currentNormalList;
 extern java::ArrayList<Vertex *> *GLOBAL_mgf_currentVertexList;

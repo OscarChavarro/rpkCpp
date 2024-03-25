@@ -9,9 +9,7 @@ Hierarchical object names tracking
 #include "io/mgf/words.h"
 #include "io/mgf/mgfHandlerObject.h"
 #include "io/mgf/mgfDefinitions.h"
-#include "io/mgf/mgfHandlerMaterial.h"
 
-java::ArrayList<Geometry *> **GLOBAL_mgf_geometryStackPtr = nullptr;
 int GLOBAL_mgf_inSurface = false; // True if busy creating a new surface
 java::ArrayList<Geometry *> *GLOBAL_mgf_geometryStack[MAXIMUM_GEOMETRY_STACK_DEPTH];
 
@@ -24,26 +22,26 @@ static int globalObjectNames; // Depth of name hierarchy
 
 static void
 pushCurrentGeometryList(MgfContext *context) {
-    if ( GLOBAL_mgf_geometryStackPtr - GLOBAL_mgf_geometryStack >= MAXIMUM_GEOMETRY_STACK_DEPTH ) {
+    if ( context->geometryStackPtr - GLOBAL_mgf_geometryStack >= MAXIMUM_GEOMETRY_STACK_DEPTH ) {
         doError(
                 "Objects are nested too deep for this program. Recompile with larger MAXIMUM_GEOMETRY_STACK_DEPTH constant in read mgf", context);
         return;
     } else {
-        *GLOBAL_mgf_geometryStackPtr = GLOBAL_mgf_currentGeometryList;
-        GLOBAL_mgf_geometryStackPtr++;
+        *context->geometryStackPtr = GLOBAL_mgf_currentGeometryList;
+        context->geometryStackPtr++;
         GLOBAL_mgf_currentGeometryList = nullptr;
     }
 }
 
 static void
 popCurrentGeometryList(MgfContext *context) {
-    if ( GLOBAL_mgf_geometryStackPtr <= GLOBAL_mgf_geometryStack ) {
+    if ( context->geometryStackPtr <= GLOBAL_mgf_geometryStack ) {
         doError("Object stack underflow ... unbalanced 'o' contexts?", context);
         GLOBAL_mgf_currentGeometryList = nullptr;
         return;
     } else {
-        GLOBAL_mgf_geometryStackPtr--;
-        GLOBAL_mgf_currentGeometryList = *GLOBAL_mgf_geometryStackPtr;
+        context->geometryStackPtr--;
+        GLOBAL_mgf_currentGeometryList = *context->geometryStackPtr;
     }
 }
 
@@ -126,7 +124,7 @@ handleObjectEntity(int argc, char **argv, MgfContext *context) {
 
     if ( argc > 1 ) {
         // Beginning of a new object
-        for ( i = 0; i < GLOBAL_mgf_geometryStackPtr - GLOBAL_mgf_geometryStack; i++ ) {
+        for ( i = 0; i < context->geometryStackPtr - GLOBAL_mgf_geometryStack; i++ ) {
             fprintf(stderr, "\t");
         }
         fprintf(stderr, "%s ...\n", argv[1]);
