@@ -52,8 +52,6 @@
 #define MGF_ERROR_UNMATCHED_CONTEXT_CLOSE 12
 #define MGF_NUMBER_OF_ERRORS 13
 
-class MgfTransformContext;
-
 class MgfContext {
   public:
     // Parameters received from main program
@@ -71,10 +69,7 @@ class MgfContext {
     int (*supportCallbacks[MGF_TOTAL_NUMBER_OF_ENTITIES])(int argc, char **argv, MgfContext *context);
 
     // Return model
-    MgfTransformContext *currentTransformContext;
     MgfContext();
 };
-
-#include "io/mgf/MgfTransformContext.h"
 
 #endif
