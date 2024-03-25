@@ -11,13 +11,13 @@ Hierarchical object names tracking
 #include "io/mgf/mgfDefinitions.h"
 #include "io/mgf/mgfHandlerMaterial.h"
 
-int GLOBAL_mgf_objectNames; // Depth of name hierarchy
-char **GLOBAL_mgf_objectNamesList; // Name list
 java::ArrayList<Geometry *> **GLOBAL_mgf_geometryStackPtr = nullptr;
 int GLOBAL_mgf_inSurface = false; // True if busy creating a new surface
 java::ArrayList<Geometry *> *GLOBAL_mgf_geometryStack[MAXIMUM_GEOMETRY_STACK_DEPTH];
 
+static char **globalObjectNamesList; // Name list (names in hierarchy)
 static int globalObjectMaxName; // Allocated list size
+static int globalObjectNames; // Depth of name hierarchy
 
 // List increment ( > 1 )
 #define ALLOC_INC 16
@@ -64,11 +64,11 @@ handleObject2Entity(int ac, char **av)
 {
     if ( ac == 1 ) {
         // just pop top object
-        if ( GLOBAL_mgf_objectNames < 1 ) {
+        if ( globalObjectNames < 1 ) {
             return MGF_ERROR_UNMATCHED_CONTEXT_CLOSE;
         }
-        free(GLOBAL_mgf_objectNamesList[--GLOBAL_mgf_objectNames]);
-        GLOBAL_mgf_objectNamesList[GLOBAL_mgf_objectNames] = nullptr;
+        free(globalObjectNamesList[--globalObjectNames]);
+        globalObjectNamesList[globalObjectNames] = nullptr;
         return MGF_OK;
     }
     if ( ac != 2 ) {
@@ -77,26 +77,26 @@ handleObject2Entity(int ac, char **av)
     if ( !isNameWords(av[1])) {
         return MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
     }
-    if ( GLOBAL_mgf_objectNames >= globalObjectMaxName - 1 ) {
+    if ( globalObjectNames >= globalObjectMaxName - 1 ) {
         // enlarge array
         if ( !globalObjectMaxName ) {
-            GLOBAL_mgf_objectNamesList = (char **) malloc(
+            globalObjectNamesList = (char **) malloc(
                     (globalObjectMaxName = ALLOC_INC) * sizeof(char *));
         } else {
-            GLOBAL_mgf_objectNamesList = (char **) realloc((void *) GLOBAL_mgf_objectNamesList, (globalObjectMaxName += ALLOC_INC) * sizeof(char *));
+            globalObjectNamesList = (char **) realloc((void *) globalObjectNamesList, (globalObjectMaxName += ALLOC_INC) * sizeof(char *));
         }
-        if ( GLOBAL_mgf_objectNamesList == nullptr) {
+        if ( globalObjectNamesList == nullptr) {
             return MGF_ERROR_OUT_OF_MEMORY;
         }
     }
 
     // allocate new entry
-    GLOBAL_mgf_objectNamesList[GLOBAL_mgf_objectNames] = (char *) malloc(strlen(av[1]) + 1);
-    if ( GLOBAL_mgf_objectNamesList[GLOBAL_mgf_objectNames] == nullptr) {
+    globalObjectNamesList[globalObjectNames] = (char *) malloc(strlen(av[1]) + 1);
+    if ( globalObjectNamesList[globalObjectNames] == nullptr) {
         return MGF_ERROR_OUT_OF_MEMORY;
     }
-    strcpy(GLOBAL_mgf_objectNamesList[GLOBAL_mgf_objectNames++], av[1]);
-    GLOBAL_mgf_objectNamesList[GLOBAL_mgf_objectNames] = nullptr;
+    strcpy(globalObjectNamesList[globalObjectNames++], av[1]);
+    globalObjectNamesList[globalObjectNames] = nullptr;
     return MGF_OK;
 }
 

@@ -85,7 +85,6 @@ set(MAIN_SRC
     src/io/mgf/badarg.cpp
     src/io/mgf/mgfHandlerTransform.cpp
     src/io/mgf/words.cpp
-    src/io/mgf/parser.cpp
     src/io/mgf/mgfHandlerColor.cpp
     src/io/mgf/mgfHandlerMaterial.cpp
     src/io/mgf/readmgf.cpp

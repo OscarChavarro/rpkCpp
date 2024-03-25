@@ -7,6 +7,7 @@ MgfContext::MgfContext():
     singleSided(),
     currentVertexName(),
     numberOfQuarterCircleDivisions(),
+    monochrome(),
     entityNames(),
     errorCodeMessages(),
     readerContext(),

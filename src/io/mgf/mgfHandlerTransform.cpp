@@ -8,10 +8,10 @@ Routines for 4x4 homogeneous, rigid-body transformations
 #include "io/mgf/badarg.h"
 #include "io/mgf/MgfTransformContext.h"
 
-static char **globalTransformArgumentListBeginning;
-
 MgfTransformContext *GLOBAL_mgf_xfContext; // Current context
-char **GLOBAL_mgf_xfLastTransform; // End of transform argument list
+
+static char **globalTransformArgumentListBeginning;
+static char **globalLastTransform; // End of transform argument list (last transform argument)
 
 /**
 Compute unique ID from matrix
@@ -141,9 +141,9 @@ new_xf(int ac, char **av, MgfContext *context)
             return nullptr;
         }
         for ( i = TRANSFORM_CONTEXT_ARGC; i-- > 0; ) {
-            newAv[ac + i] = GLOBAL_mgf_xfLastTransform[i - GLOBAL_mgf_xfContext->xac];
+            newAv[ac + i] = globalLastTransform[i - GLOBAL_mgf_xfContext->xac];
         }
-        *(GLOBAL_mgf_xfLastTransform = newAv + spec->xac) = nullptr;
+        *(globalLastTransform = newAv + spec->xac) = nullptr;
         if ( globalTransformArgumentListBeginning != nullptr) {
             free((void *) globalTransformArgumentListBeginning);
         }
