@@ -4,9 +4,6 @@
 #include "io/mgf/words.h"
 #include "io/mgf/mgfGeometry.h"
 
-#define MGF_DEFAULT_NUMBER_OF_DIVISIONS 5
-
-
 // Alternate handler support functions
 static char globalFloatFormat[] = "%.12g";
 static bool globalWarpConeEnds; // Hack for generating good normals
