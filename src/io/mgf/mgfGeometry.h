@@ -4,7 +4,6 @@
 #include "io/mgf/MgfVertexContext.h"
 #include "io/mgf/MgfContext.h"
 
-extern int GLOBAL_mgf_divisionsPerQuarterCircle;
 extern MgfVertexContext GLOBAL_mgf_vertexContext;
 
 extern int mgfEntitySphere(int ac, char **av, MgfContext *context);

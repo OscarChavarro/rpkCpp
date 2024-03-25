@@ -25,8 +25,6 @@ mgfSetNrQuartCircDivs(int divs) {
         logError(nullptr, "Number of quarter circle divisions (%d) should be positive", divs);
         return;
     }
-
-    GLOBAL_mgf_divisionsPerQuarterCircle = divs;
 }
 
 /**

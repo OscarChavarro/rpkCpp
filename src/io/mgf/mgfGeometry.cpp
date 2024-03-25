@@ -6,8 +6,6 @@
 
 #define MGF_DEFAULT_NUMBER_OF_DIVISIONS 5
 
-// Number of divisions per quarter circle
-int GLOBAL_mgf_divisionsPerQuarterCircle = MGF_DEFAULT_NUMBER_OF_DIVISIONS;
 
 // Alternate handler support functions
 static char globalFloatFormat[] = "%.12g";
@@ -60,8 +58,8 @@ mgfEntitySphere(int ac, char **av, MgfContext *context)
     }
     r2[0] = '0';
     r2[1] = '\0';
-    for ( int i = 1; i <= 2 * GLOBAL_mgf_divisionsPerQuarterCircle; i++ ) {
-        theta = i * (M_PI / 2) / GLOBAL_mgf_divisionsPerQuarterCircle;
+    for ( int i = 1; i <= 2 * context->numberOfQuarterCircleDivisions; i++ ) {
+        theta = i * (M_PI / 2) / context->numberOfQuarterCircleDivisions;
         rVal = mgfHandle(MGF_ENTITY_VERTEX, 4, v1Entity, context);
         if ( rVal != MGF_OK ) {
             return rVal;
@@ -153,8 +151,8 @@ mgfEntityTorus(int ac, char **av, MgfContext *context)
     snprintf(r2, 24, globalFloatFormat, avgRad = 0.5 * (minRad + maxRad));
 
     // Run outer section
-    for ( i = 1; i <= 2 * GLOBAL_mgf_divisionsPerQuarterCircle; i++ ) {
-        theta = i * (M_PI / 2) / GLOBAL_mgf_divisionsPerQuarterCircle;
+    for ( i = 1; i <= 2 * context->numberOfQuarterCircleDivisions; i++ ) {
+        theta = i * (M_PI / 2) / context->numberOfQuarterCircleDivisions;
         rVal = mgfHandle(MGF_ENTITY_VERTEX, 4, v1Entity, context);
         if ( rVal != MGF_OK ) {
             return rVal;
@@ -181,8 +179,8 @@ mgfEntityTorus(int ac, char **av, MgfContext *context)
 
     // Run inner section
     snprintf(r2, 24, globalFloatFormat, -0.5 * (minRad + maxRad));
-    for ( ; i <= 4 * GLOBAL_mgf_divisionsPerQuarterCircle; i++ ) {
-        theta = i * (M_PI / 2) / GLOBAL_mgf_divisionsPerQuarterCircle;
+    for ( ; i <= 4 * context->numberOfQuarterCircleDivisions; i++ ) {
+        theta = i * (M_PI / 2) / context->numberOfQuarterCircleDivisions;
         for ( int j = 0; j < 3; j++ ) {
             snprintf(p2[j], 24, globalFloatFormat, cv->p[j] +
                                                    0.5 * sign * (maxRad - minRad) * std::cos(theta) * cv->n[j]);
@@ -301,8 +299,8 @@ mgfEntityRing(int ac, char **av, MgfContext *context)
         if ( rv != MGF_OK ) {
             return rv;
         }
-        for ( int i = 1; i <= 4 * GLOBAL_mgf_divisionsPerQuarterCircle; i++ ) {
-            theta = i * (M_PI / 2) / GLOBAL_mgf_divisionsPerQuarterCircle;
+        for ( int i = 1; i <= 4 * context->numberOfQuarterCircleDivisions; i++ ) {
+            theta = i * (M_PI / 2) / context->numberOfQuarterCircleDivisions;
             rv = mgfHandle(MGF_ENTITY_VERTEX, 4, v2Entity, context);
             if ( rv != MGF_OK ) {
                 return rv;
@@ -339,8 +337,8 @@ mgfEntityRing(int ac, char **av, MgfContext *context)
             return rv;
         }
         v1Entity[3] = (char *)"_rv4";
-        for ( int i = 1; i <= 4 * GLOBAL_mgf_divisionsPerQuarterCircle; i++ ) {
-            theta = i * (M_PI / 2) / GLOBAL_mgf_divisionsPerQuarterCircle;
+        for ( int i = 1; i <= 4 * context->numberOfQuarterCircleDivisions; i++ ) {
+            theta = i * (M_PI / 2) / context->numberOfQuarterCircleDivisions;
             rv = mgfHandle(MGF_ENTITY_VERTEX, 4, v1Entity, context);
             if ( rv != MGF_OK ) {
                 return rv;
@@ -462,7 +460,7 @@ mgfEntityCone(int ac, char **av, MgfContext *context)
     n1off = n2off = (radius2 - radius1) / d;
     if ( globalWarpConeEnds ) {
         // Hack for mgfEntitySphere and mgfEntityTorus
-        d = std::atan(n2off) - (M_PI / 4) / GLOBAL_mgf_divisionsPerQuarterCircle;
+        d = std::atan(n2off) - (M_PI / 4) / context->numberOfQuarterCircleDivisions;
         if ( d <= -M_PI / 2 + EPSILON ) {
             n2off = -FLOAT_HUGE;
         } else {
@@ -508,8 +506,8 @@ mgfEntityCone(int ac, char **av, MgfContext *context)
         if ( rv != MGF_OK ) {
             return rv;
         }
-        for ( int i = 1; i <= 4 * GLOBAL_mgf_divisionsPerQuarterCircle; i++ ) {
-            theta = sign * i * (M_PI / 2) / GLOBAL_mgf_divisionsPerQuarterCircle;
+        for ( int i = 1; i <= 4 * context->numberOfQuarterCircleDivisions; i++ ) {
+            theta = sign * i * (M_PI / 2) / context->numberOfQuarterCircleDivisions;
             rv = mgfHandle(MGF_ENTITY_VERTEX, 4, v2Entity, context);
             if ( rv != MGF_OK ) {
                 return rv;
@@ -543,11 +541,11 @@ mgfEntityCone(int ac, char **av, MgfContext *context)
         v1Entity[3] = (char *)"_cv4";
         if ( globalWarpConeEnds ) {
             // Hack for mgfEntitySphere and mgfEntityTorus
-            d = std::atan(n1off) + (M_PI / 4) / GLOBAL_mgf_divisionsPerQuarterCircle;
+            d = std::atan(n1off) + (M_PI / 4) / context->numberOfQuarterCircleDivisions;
             if ( d >= M_PI / 2 - EPSILON) {
                 n1off = FLOAT_HUGE;
             } else {
-                n1off = std::tan(std::atan(n1off) + (M_PI / 4) / GLOBAL_mgf_divisionsPerQuarterCircle);
+                n1off = std::tan(std::atan(n1off) + (M_PI / 4) / context->numberOfQuarterCircleDivisions);
             }
         }
         for ( int j = 0; j < 3; j++ ) {
@@ -570,8 +568,8 @@ mgfEntityCone(int ac, char **av, MgfContext *context)
         if ( rv != MGF_OK ) {
             return rv;
         }
-        for ( int i = 1; i <= 4 * GLOBAL_mgf_divisionsPerQuarterCircle; i++ ) {
-            theta = sign * i * (M_PI / 2) / GLOBAL_mgf_divisionsPerQuarterCircle;
+        for ( int i = 1; i <= 4 * context->numberOfQuarterCircleDivisions; i++ ) {
+            theta = sign * i * (M_PI / 2) / context->numberOfQuarterCircleDivisions;
             rv = mgfHandle(MGF_ENTITY_VERTEX, 4, v1Entity, context);
             if ( rv != MGF_OK ) {
                 return rv;
