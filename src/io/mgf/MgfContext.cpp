@@ -3,16 +3,17 @@
 #include "io/mgf/MgfContext.h"
 
 MgfContext::MgfContext():
-    radianceMethod(),
-    singleSided(),
-    currentVertexName(),
-    numberOfQuarterCircleDivisions(),
-    monochrome(),
-    entityNames(),
-    errorCodeMessages(),
-    readerContext(),
-    handleCallbacks(),
-    supportCallbacks()
+        radianceMethod(),
+        singleSided(),
+        currentVertexName(),
+        numberOfQuarterCircleDivisions(),
+        monochrome(),
+        entityNames(),
+        errorCodeMessages(),
+        readerContext(),
+        handleCallbacks(),
+        supportCallbacks(),
+        geometryStack()
 {
     strcpy(entityNames[0], "#");
     strcpy(entityNames[1], "c");

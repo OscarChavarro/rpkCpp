@@ -52,6 +52,9 @@
 #define MGF_ERROR_UNMATCHED_CONTEXT_CLOSE 12
 #define MGF_NUMBER_OF_ERRORS 13
 
+// Objects 'o' contexts can be nested this deep
+#define MAXIMUM_GEOMETRY_STACK_DEPTH 100
+
 class MgfContext {
   public:
     // Parameters received from main program
@@ -70,6 +73,7 @@ class MgfContext {
     Material *currentMaterial;
     char *currentMaterialName;
     java::ArrayList<Geometry *> **geometryStackPtr;
+    java::ArrayList<Geometry *> *geometryStack[MAXIMUM_GEOMETRY_STACK_DEPTH];
 
     // Return model
     MgfContext();

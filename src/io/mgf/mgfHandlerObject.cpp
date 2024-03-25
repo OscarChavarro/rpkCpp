@@ -11,7 +11,6 @@ Hierarchical object names tracking
 #include "io/mgf/mgfDefinitions.h"
 
 int GLOBAL_mgf_inSurface = false; // True if busy creating a new surface
-java::ArrayList<Geometry *> *GLOBAL_mgf_geometryStack[MAXIMUM_GEOMETRY_STACK_DEPTH];
 
 static char **globalObjectNamesList; // Name list (names in hierarchy)
 static int globalObjectMaxName; // Allocated list size
@@ -22,7 +21,7 @@ static int globalObjectNames; // Depth of name hierarchy
 
 static void
 pushCurrentGeometryList(MgfContext *context) {
-    if ( context->geometryStackPtr - GLOBAL_mgf_geometryStack >= MAXIMUM_GEOMETRY_STACK_DEPTH ) {
+    if ( context->geometryStackPtr - context->geometryStack >= MAXIMUM_GEOMETRY_STACK_DEPTH ) {
         doError(
                 "Objects are nested too deep for this program. Recompile with larger MAXIMUM_GEOMETRY_STACK_DEPTH constant in read mgf", context);
         return;
@@ -35,7 +34,7 @@ pushCurrentGeometryList(MgfContext *context) {
 
 static void
 popCurrentGeometryList(MgfContext *context) {
-    if ( context->geometryStackPtr <= GLOBAL_mgf_geometryStack ) {
+    if ( context->geometryStackPtr <= context->geometryStack ) {
         doError("Object stack underflow ... unbalanced 'o' contexts?", context);
         GLOBAL_mgf_currentGeometryList = nullptr;
         return;
@@ -124,7 +123,7 @@ handleObjectEntity(int argc, char **argv, MgfContext *context) {
 
     if ( argc > 1 ) {
         // Beginning of a new object
-        for ( i = 0; i < context->geometryStackPtr - GLOBAL_mgf_geometryStack; i++ ) {
+        for ( i = 0; i < context->geometryStackPtr - context->geometryStack; i++ ) {
             fprintf(stderr, "\t");
         }
         fprintf(stderr, "%s ...\n", argv[1]);

@@ -550,7 +550,7 @@ readMgf(char *filename, MgfContext *context)
     }
     context->currentMaterial = &GLOBAL_material_defaultMaterial;
 
-    context->geometryStackPtr = GLOBAL_mgf_geometryStack;
+    context->geometryStackPtr = context->geometryStack;
 
     GLOBAL_mgf_inComplex = false;
     GLOBAL_mgf_inSurface = false;
