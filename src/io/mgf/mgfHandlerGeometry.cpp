@@ -469,7 +469,7 @@ doComplexFace(int n, Vertex **v, Vector3D *normal, Vertex **backVertex, MgfConte
         if ( std::fabs(a) > EPSILON ) {
             // Avoid degenerate faces
             Patch *face = newFace(v[p0], v[p1], v[p2], nullptr, context);
-            if ( !GLOBAL_mgf_currentMaterial->sided && face != nullptr ) {
+            if ( !context->currentMaterial->sided && face != nullptr ) {
                 Patch *twin = newFace(backVertex[p2], backVertex[p1], backVertex[p0], nullptr, context);
                 face->twin = twin;
                 if ( twin != nullptr ) {
@@ -505,12 +505,12 @@ handleFaceEntity(int argc, char **argv, MgfContext *context) {
     }
 
     if ( !GLOBAL_mgf_inComplex ) {
-        if ( mgfMaterialChanged(GLOBAL_mgf_currentMaterial) ) {
+        if ( mgfMaterialChanged(context->currentMaterial) ) {
             if ( GLOBAL_mgf_inSurface ) {
-                surfaceDone();
+                surfaceDone(context);
             }
             newSurface();
-            mgfGetCurrentMaterial(&GLOBAL_mgf_currentMaterial, GLOBAL_mgf_allSurfacesSided, context);
+            mgfGetCurrentMaterial(&context->currentMaterial, GLOBAL_mgf_allSurfacesSided, context);
         }
     }
 
@@ -521,7 +521,7 @@ handleFaceEntity(int argc, char **argv, MgfContext *context) {
             return MGF_ERROR_UNDEFINED_REFERENCE;
         }
         backV[i] = nullptr;
-        if ( !GLOBAL_mgf_currentMaterial->sided )
+        if ( !context->currentMaterial->sided )
             backV[i] = getBackFaceVertex(v[i]);
     }
 
@@ -529,13 +529,13 @@ handleFaceEntity(int argc, char **argv, MgfContext *context) {
         doWarning("degenerate face", context);
         return MGF_OK; // Just ignore the generated face
     }
-    if ( !GLOBAL_mgf_currentMaterial->sided ) vectorScale(-1.0, normal, backNormal);
+    if ( !context->currentMaterial->sided ) vectorScale(-1.0, normal, backNormal);
 
     errcode = MGF_OK;
     if ( argc == 4 ) {
         // Triangles
         face = newFace(v[0], v[1], v[2], nullptr, context);
-        if ( !GLOBAL_mgf_currentMaterial->sided && face != nullptr ) {
+        if ( !context->currentMaterial->sided && face != nullptr ) {
             twin = newFace(backV[2], backV[1], backV[0], nullptr, context);
             face->twin = twin;
             if ( twin != nullptr ) {
@@ -546,7 +546,7 @@ handleFaceEntity(int argc, char **argv, MgfContext *context) {
             // Quadrilaterals
             if ( GLOBAL_mgf_inComplex || faceIsConvex(argc - 1, v, &normal)) {
                 face = newFace(v[0], v[1], v[2], v[3], context);
-                if ( !GLOBAL_mgf_currentMaterial->sided && face != nullptr ) {
+                if ( !context->currentMaterial->sided && face != nullptr ) {
                     twin = newFace(backV[3], backV[2], backV[1], backV[0], context);
                     face->twin = twin;
                     if ( twin != nullptr ) {
@@ -576,14 +576,14 @@ handleSurfaceEntity(int argc, char **argv, MgfContext *context) {
     } else {
         GLOBAL_mgf_inComplex = true;
         if ( GLOBAL_mgf_inSurface ) {
-            surfaceDone();
+            surfaceDone(context);
         }
         newSurface();
-        mgfGetCurrentMaterial(&GLOBAL_mgf_currentMaterial, GLOBAL_mgf_allSurfacesSided, context);
+        mgfGetCurrentMaterial(&context->currentMaterial, GLOBAL_mgf_allSurfacesSided, context);
 
         errcode = doDiscreteConic(argc, argv, context);
 
-        surfaceDone();
+        surfaceDone(context);
         GLOBAL_mgf_inComplex = false;
 
         return errcode;

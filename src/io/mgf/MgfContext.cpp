@@ -57,4 +57,6 @@ MgfContext::MgfContext():
 	errorCodeMessages[10] =  "Illegal material specification";
 	errorCodeMessages[11] =  "Input line too long";
 	errorCodeMessages[12] =  "Unmatched context close";
+
+    currentMaterial = nullptr;
 }

@@ -548,7 +548,7 @@ readMgf(char *filename, MgfContext *context)
     if ( GLOBAL_scene_materials == nullptr ) {
         GLOBAL_scene_materials = new java::ArrayList<Material *>();
     }
-    GLOBAL_mgf_currentMaterial = &GLOBAL_material_defaultMaterial;
+    context->currentMaterial = &GLOBAL_material_defaultMaterial;
 
     GLOBAL_mgf_geometryStackPtr = GLOBAL_mgf_geometryStack;
 
@@ -578,7 +578,7 @@ readMgf(char *filename, MgfContext *context)
     mgfClear(context);
 
     if ( GLOBAL_mgf_inSurface ) {
-        surfaceDone();
+        surfaceDone(context);
     }
     GLOBAL_scene_geometries = GLOBAL_mgf_currentGeometryList;
 

@@ -4,7 +4,6 @@
 #include "material/Material.h"
 #include "io/mgf/MgfContext.h"
 
-extern Material *GLOBAL_mgf_currentMaterial;
 extern char *GLOBAL_mgf_currentMaterialName;
 
 extern int handleMaterialEntity(int ac, char **av, MgfContext * /*context*/);

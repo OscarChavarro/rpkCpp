@@ -101,20 +101,20 @@ handleObject2Entity(int ac, char **av)
 }
 
 void
-surfaceDone() {
+surfaceDone(MgfContext *context) {
     if ( GLOBAL_mgf_currentGeometryList == nullptr ) {
         GLOBAL_mgf_currentGeometryList = new java::ArrayList<Geometry *>();
     }
 
     if ( GLOBAL_mgf_currentFaceList != nullptr ) {
         Geometry *newGeometry = new MeshSurface(
-                GLOBAL_mgf_currentMaterial,
-                GLOBAL_mgf_currentPointList,
-                GLOBAL_mgf_currentNormalList,
-                nullptr, // null texture coordinate list
-                GLOBAL_mgf_currentVertexList,
-                GLOBAL_mgf_currentFaceList,
-                MaterialColorFlags::NO_COLORS);
+            context->currentMaterial,
+            GLOBAL_mgf_currentPointList,
+            GLOBAL_mgf_currentNormalList,
+            nullptr, // null texture coordinate list
+            GLOBAL_mgf_currentVertexList,
+            GLOBAL_mgf_currentFaceList,
+            MaterialColorFlags::NO_COLORS);
         GLOBAL_mgf_currentGeometryList->add(0, newGeometry);
     }
     GLOBAL_mgf_inSurface = false;
@@ -132,7 +132,7 @@ handleObjectEntity(int argc, char **argv, MgfContext *context) {
         fprintf(stderr, "%s ...\n", argv[1]);
 
         if ( GLOBAL_mgf_inSurface ) {
-            surfaceDone();
+            surfaceDone(context);
         }
 
         pushCurrentGeometryList(context);
@@ -143,7 +143,7 @@ handleObjectEntity(int argc, char **argv, MgfContext *context) {
         Geometry *theGeometry = nullptr;
 
         if ( GLOBAL_mgf_inSurface ) {
-            surfaceDone();
+            surfaceDone(context);
         }
 
         long listSize = 0;

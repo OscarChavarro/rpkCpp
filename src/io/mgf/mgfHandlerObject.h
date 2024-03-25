@@ -17,6 +17,6 @@ extern java::ArrayList<Geometry *> *GLOBAL_mgf_geometryStack[MAXIMUM_GEOMETRY_ST
 
 extern int handleObjectEntity(int argc, char **argv, MgfContext * /*context*/);
 extern void newSurface();
-extern void surfaceDone();
+extern void surfaceDone(MgfContext *context);
 
 #endif
