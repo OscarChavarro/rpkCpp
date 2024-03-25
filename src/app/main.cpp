@@ -12,7 +12,6 @@
 #include "scene/scene.h"
 #include "IMAGE/tonemap/tonemapping.h"
 #include "io/mgf/readmgf.h"
-#include "io/mgf/mgfHandlerGeometry.h"
 #include "render/opengl.h"
 #include "GALERKIN/GalerkinRadianceMethod.h"
 #include "app/Cluster.h"
@@ -625,7 +624,6 @@ main(int argc, char *argv[]) {
     mgfContext.singleSided = globalFileOptionsForceOneSidedSurfaces != 0;
     mgfContext.numberOfQuarterCircleDivisions = globalNumberOfQuarterCircleDivisions;
     mgfContext.monochrome = DEFAULT_MONOCHROME;
-    GLOBAL_mgf_inComplex = false;
 
     mainBuildModel(&argc, argv, &mgfContext);
 

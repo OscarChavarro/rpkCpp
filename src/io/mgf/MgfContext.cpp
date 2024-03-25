@@ -12,8 +12,7 @@ MgfContext::MgfContext():
     errorCodeMessages(),
     readerContext(),
     handleCallbacks(),
-    supportCallbacks(),
-    currentTransformContext()
+    supportCallbacks()
 {
     strcpy(entityNames[0], "#");
     strcpy(entityNames[1], "c");
@@ -58,7 +57,4 @@ MgfContext::MgfContext():
 	errorCodeMessages[10] =  "Illegal material specification";
 	errorCodeMessages[11] =  "Input line too long";
 	errorCodeMessages[12] =  "Unmatched context close";
-
-    // When set to true, all surfaces will be considered one-sided
-    allSurfacesSided = false;
 }

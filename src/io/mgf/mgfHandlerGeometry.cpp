@@ -25,7 +25,8 @@ java::ArrayList<Patch *> *GLOBAL_mgf_currentFaceList = nullptr;
 java::ArrayList<Geometry *> *GLOBAL_mgf_currentGeometryList = nullptr;
 
 // Geometry stack: used for building a hierarchical representation of the scene
-bool GLOBAL_mgf_inComplex = false; // True if reading a sphere, torus or other unsupported
+int GLOBAL_mgf_inComplex = false; // True if reading a sphere, torus or other unsupported
+bool GLOBAL_mgf_allSurfacesSided = false; // When set to true, all surfaces will be considered one-sided
 
 static MgfVertexContext globalMgfVertexContext = DEFAULT_VERTEX;
 static MgfVertexContext *globalMgfCurrentVertex = &globalMgfVertexContext;
@@ -509,7 +510,7 @@ handleFaceEntity(int argc, char **argv, MgfContext *context) {
                 surfaceDone();
             }
             newSurface();
-            mgfGetCurrentMaterial(&GLOBAL_mgf_currentMaterial, context->allSurfacesSided, context);
+            mgfGetCurrentMaterial(&GLOBAL_mgf_currentMaterial, GLOBAL_mgf_allSurfacesSided, context);
         }
     }
 
@@ -578,7 +579,7 @@ handleSurfaceEntity(int argc, char **argv, MgfContext *context) {
             surfaceDone();
         }
         newSurface();
-        mgfGetCurrentMaterial(&GLOBAL_mgf_currentMaterial, context->allSurfacesSided, context);
+        mgfGetCurrentMaterial(&GLOBAL_mgf_currentMaterial, GLOBAL_mgf_allSurfacesSided, context);
 
         errcode = doDiscreteConic(argc, argv, context);
 

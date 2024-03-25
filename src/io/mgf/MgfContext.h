@@ -62,7 +62,6 @@ class MgfContext {
     char *currentVertexName;
     int numberOfQuarterCircleDivisions;
     bool monochrome;
-    bool allSurfacesSided;
 
     // Global variables on the MGF reader context
     char entityNames[MGF_TOTAL_NUMBER_OF_ENTITIES][MGF_MAXIMUM_ENTITY_NAME_LENGTH];

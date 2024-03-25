@@ -156,8 +156,8 @@ face normals and vertices in counter clockwise order as seen from the
 normal direction)
 */
 static void
-mgfSetIgnoreSingleSide(bool yesno, MgfContext *context) {
-    context->allSurfacesSided = yesno;
+mgfSetIgnoreSingleSide(bool yesno) {
+    GLOBAL_mgf_allSurfacesSided = yesno;
 }
 
 /**
@@ -536,7 +536,7 @@ void
 readMgf(char *filename, MgfContext *context)
 {
     mgfSetNrQuartCircDivs(context->numberOfQuarterCircleDivisions);
-    mgfSetIgnoreSingleSide(context->singleSided, context);
+    mgfSetIgnoreSingleSide(context->singleSided);
     mgfSetMonochrome(context->monochrome, context);
 
     initMgf(context);
@@ -552,6 +552,7 @@ readMgf(char *filename, MgfContext *context)
 
     GLOBAL_mgf_geometryStackPtr = GLOBAL_mgf_geometryStack;
 
+    GLOBAL_mgf_inComplex = false;
     GLOBAL_mgf_inSurface = false;
 
     newSurface();
