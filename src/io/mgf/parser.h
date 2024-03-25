@@ -27,12 +27,6 @@ returns 0 when the end of file has been reached.
 extern int mgfReadNextLine(MgfContext *context);
 extern int mgfParseCurrentLine(MgfContext *context);
 extern void mgfClear(MgfContext *context);
-
-/**
-Definitions for context handling routines (materials, colors, vectors)
-*/
-
-extern int handleColorEntity(int ac, char **av, MgfContext * /*context*/);
 extern int handleVertexEntity(int ac, char **av, MgfContext * /*context*/);
 extern void initColorContextTables();
 

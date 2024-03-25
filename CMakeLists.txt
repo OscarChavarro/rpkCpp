@@ -82,7 +82,6 @@ set(MAIN_SRC
     src/io/mgf/mgfHandlerGeometry.cpp
     src/io/mgf/mgfHandlerObject.cpp
     src/io/mgf/lookup.cpp
-    src/io/mgf/fileopts.cpp
     src/io/mgf/badarg.cpp
     src/io/mgf/mgfHandlerTransform.cpp
     src/io/mgf/words.cpp
@@ -175,7 +174,7 @@ set(MAIN_SRC
     src/app/radiance.cpp
     src/app/raytrace.cpp
     src/app/batch.cpp
-    src/app/main.cpp)
+    src/app/main.cpp src/io/mgf/mgfHandlerColor.h)
 add_executable(rpk ${MAIN_SRC})
 
 target_link_libraries(rpk GLU GL OSMesa)

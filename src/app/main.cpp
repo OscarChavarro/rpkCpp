@@ -12,7 +12,6 @@
 #include "scene/scene.h"
 #include "IMAGE/tonemap/tonemapping.h"
 #include "io/mgf/readmgf.h"
-#include "io/mgf/fileopts.h"
 #include "render/opengl.h"
 #include "GALERKIN/GalerkinRadianceMethod.h"
 #include "app/Cluster.h"
@@ -209,7 +208,6 @@ mainInit() {
     // Transforms the cubature rules for quadrilaterals to be over the domain [0,1]^2 instead of [-1,1]^2
     fixCubatureRules();
 
-    GLOBAL_mgf_monochrome = DEFAULT_MONOCHROME;
     globalFileOptionsForceOneSidedSurfaces = DEFAULT_FORCE_ONE_SIDED;
     globalNumberOfQuarterCircleDivisions = DEFAULT_NUMBER_OF_QUARTIC_DIVISIONS;
 
@@ -625,6 +623,7 @@ main(int argc, char *argv[]) {
     mgfContext.radianceMethod = selectedRadianceMethod;
     mgfContext.singleSided = globalFileOptionsForceOneSidedSurfaces != 0;
     mgfContext.numberOfQuarterCircleDivisions = globalNumberOfQuarterCircleDivisions;
+    mgfContext.monochrome = DEFAULT_MONOCHROME;
 
     mainBuildModel(&argc, argv, &mgfContext);
 

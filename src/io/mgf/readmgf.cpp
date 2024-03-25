@@ -3,14 +3,14 @@
 #include "scene/scene.h"
 #include "io/mgf/parser.h"
 #include "io/mgf/vectoroctree.h"
-#include "io/mgf/fileopts.h"
+#include "io/mgf/MgfColorContext.h"
+#include "io/mgf/MgfTransformContext.h"
 #include "io/mgf/mgfHandlerGeometry.h"
 #include "io/mgf/mgfHandlerTransform.h"
 #include "io/mgf/mgfHandlerObject.h"
 #include "io/mgf/mgfGeometry.h"
-#include "io/mgf/MgfColorContext.h"
+#include "io/mgf/mgfHandlerColor.h"
 #include "io/mgf/mgfHandlerMaterial.h"
-#include "io/mgf/MgfTransformContext.h"
 #include "io/mgf/readmgf.h"
 
 static VectorOctreeNode *globalPointsOctree = nullptr;
@@ -50,8 +50,8 @@ mgfSetIgnoreSingleSide(bool yesno) {
 If yesno is true, all materials will be converted to be GLOBAL_mgf_monochrome.
 */
 static void
-mgfSetMonochrome(int yesno) {
-    GLOBAL_mgf_monochrome = yesno;
+mgfSetMonochrome(bool yesno, MgfContext *context) {
+    context->monochrome = yesno;
 }
 
 /**
@@ -423,7 +423,7 @@ readMgf(char *filename, MgfContext *context)
 {
     mgfSetNrQuartCircDivs(context->numberOfQuarterCircleDivisions);
     mgfSetIgnoreSingleSide(context->singleSided);
-    mgfSetMonochrome(GLOBAL_mgf_monochrome);
+    mgfSetMonochrome(context->monochrome, context);
 
     initMgf(context);
 

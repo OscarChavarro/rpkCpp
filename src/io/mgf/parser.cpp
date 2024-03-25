@@ -73,7 +73,7 @@ mgfParseCurrentLine(MgfContext *context)
     cp = buffer;
     ap = argv; // Break into words
     for ( ;; ) {
-        while ( isspace(*cp)) {
+        while ( isspace(*cp) ) {
             *cp++ = '\0';
         }
         if ( !*cp ) {

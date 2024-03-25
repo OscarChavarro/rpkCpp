@@ -6,7 +6,6 @@
 #include "scene/splitbsdf.h"
 #include "io/mgf/mgfDefinitions.h"
 #include "io/mgf/lookup.h"
-#include "io/mgf/fileopts.h"
 #include "io/mgf/words.h"
 #include "io/mgf/MgfMaterialContext.h"
 #include "io/mgf/mgfHandlerMaterial.h"
@@ -211,7 +210,7 @@ mgfGetCurrentMaterial(Material **material, bool allSurfacesSided, MgfContext *co
         Nt = 0.0;
     }
 
-    if ( GLOBAL_mgf_monochrome ) {
+    if ( context->monochrome ) {
         colorSetMonochrome(Ed, colorGray(Ed));
         colorSetMonochrome(Es, colorGray(Es));
         colorSetMonochrome(Rd, colorGray(Rd));
