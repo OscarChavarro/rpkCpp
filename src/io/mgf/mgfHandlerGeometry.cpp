@@ -86,7 +86,7 @@ installVertex(Vector3D *coord, Vector3D *norm) {
 }
 
 static Vertex *
-getVertex(char *name) {
+getVertex(char *name, MgfContext *context) {
     MgfVertexContext *vp;
     Vertex *theVertex;
 
@@ -96,7 +96,7 @@ getVertex(char *name) {
     }
 
     theVertex = (Vertex *) (vp->clientData);
-    if ( !theVertex || vp->clock >= 1 || vp->xid != TRANSFORM_XID(GLOBAL_mgf_xfContext) || is0Vector(vp->n)) {
+    if ( !theVertex || vp->clock >= 1 || vp->xid != TRANSFORM_XID(context->currentTransformContext) || is0Vector(vp->n)) {
         // New vertex, or updated vertex or same vertex, but other transform, or
         // vertex without normal: create a new Vertex
         VECTOR3Dd vert;
@@ -114,7 +114,7 @@ getVertex(char *name) {
         }
         theVertex = installVertex(thePoint, theNormal);
         vp->clientData = (void *) theVertex;
-        vp->xid = TRANSFORM_XID(GLOBAL_mgf_xfContext);
+        vp->xid = TRANSFORM_XID(context->currentTransformContext);
     }
     vp->clock = 0;
 
@@ -154,7 +154,7 @@ newFace(Vertex *v1, Vertex *v2, Vertex *v3, Vertex *v4, MgfContext *context) {
         return nullptr;
     }
 
-    if ( GLOBAL_mgf_xfContext && GLOBAL_mgf_xfContext->rev ) {
+    if ( context->currentTransformContext && context->currentTransformContext->rev ) {
         theFace = new Patch(numberOfVertices, v3, v2, v1, v4, context->radianceMethod);
     } else {
         theFace = new Patch(numberOfVertices, v1, v2, v3, v4, context->radianceMethod);
@@ -515,7 +515,7 @@ handleFaceEntity(int argc, char **argv, MgfContext *context) {
     }
 
     for ( int i = 0; i < argc - 1; i++ ) {
-        v[i] = getVertex(argv[i + 1]);
+        v[i] = getVertex(argv[i + 1], context);
         if ( v[i] == nullptr ) {
             // This is however a reason to stop parsing the input
             return MGF_ERROR_UNDEFINED_REFERENCE;

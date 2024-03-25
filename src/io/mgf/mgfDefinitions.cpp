@@ -29,7 +29,7 @@ doWarning(const char *errmsg, MgfContext *context) {
 Get current position in input file
 */
 void
-mgfGetFilePosition(MgdReaderFilePosition *pos, MgfContext *context)
+mgfGetFilePosition(MgfReaderFilePosition *pos, MgfContext *context)
 {
     pos->fid = context->readerContext->fileContextId;
     pos->lineno = context->readerContext->lineNumber;
@@ -40,7 +40,7 @@ mgfGetFilePosition(MgdReaderFilePosition *pos, MgfContext *context)
 Reposition input file pointer
 */
 int
-mgfGoToFilePosition(MgdReaderFilePosition *pos, MgfContext *context)
+mgfGoToFilePosition(MgfReaderFilePosition *pos, MgfContext *context)
 {
     if ( pos->fid != context->readerContext->fileContextId ) {
         return MGF_ERROR_FILE_SEEK_ERROR;

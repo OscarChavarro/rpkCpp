@@ -3,10 +3,11 @@
 
 #include "common/linealAlgebra/Vector3Dd.h"
 #include "io/mgf/mgfDefinitions.h"
+#include "io/mgf/MgfReaderFilePosition.h"
 
 #define TRANSFORM_ARGC(xf) ( (xf) == nullptr ? 0 : (xf)->xac )
 #define TRANSFORM_ARGV(xf) (globalLastTransform - (xf)->xac)
-#define TRANSFORM_CONTEXT_ARGC TRANSFORM_ARGC(GLOBAL_mgf_xfContext)
+#define TRANSFORM_CONTEXT_ARGC TRANSFORM_ARGC(GLOBAL_mgf_currentTransformContext)
 #define TRANSFORM_XID(xf) ( (xf) == nullptr ? 0 : (xf)->xid )
 
 // Regular transformation
@@ -28,13 +29,13 @@ public:
 
 class MgfTransformArray {
 public:
-    MgdReaderFilePosition startingPosition; // Starting position on input
+    MgfReaderFilePosition startingPosition; // Starting position on input
     int numberOfDimensions; // Number of array dimensions
     MgfTransformArrayArgument transformArguments[TRANSFORM_MAXIMUM_DIMENSIONS];
 };
 
 class MgfTransformContext {
-public:
+  public:
     long xid; // Unique transform id
     short xac; // Context argument count
     short rev; // Boolean true if vertices reversed
@@ -42,7 +43,5 @@ public:
     MgfTransformArray *transformationArray;
     MgfTransformContext *prev; // Previous transformation context
 }; // Followed by argument buffer
-
-extern MgfTransformContext *GLOBAL_mgf_xfContext; // Current transform context
 
 #endif
