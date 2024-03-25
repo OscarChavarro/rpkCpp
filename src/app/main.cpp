@@ -209,7 +209,7 @@ mainInit() {
     // Transforms the cubature rules for quadrilaterals to be over the domain [0,1]^2 instead of [-1,1]^2
     fixCubatureRules();
 
-    GLOBAL_fileOptions_monochrome = DEFAULT_MONOCHROME;
+    GLOBAL_mgf_monochrome = DEFAULT_MONOCHROME;
     globalFileOptionsForceOneSidedSurfaces = DEFAULT_FORCE_ONE_SIDED;
     globalNumberOfQuarterCircleDivisions = DEFAULT_NUMBER_OF_QUARTIC_DIVISIONS;
 

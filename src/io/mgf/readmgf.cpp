@@ -47,11 +47,11 @@ mgfSetIgnoreSingleSide(bool yesno) {
 }
 
 /**
-If yesno is true, all materials will be converted to be GLOBAL_fileOptions_monochrome.
+If yesno is true, all materials will be converted to be GLOBAL_mgf_monochrome.
 */
 static void
 mgfSetMonochrome(int yesno) {
-    GLOBAL_fileOptions_monochrome = yesno;
+    GLOBAL_mgf_monochrome = yesno;
 }
 
 /**
@@ -423,7 +423,7 @@ readMgf(char *filename, MgfContext *context)
 {
     mgfSetNrQuartCircDivs(context->numberOfQuarterCircleDivisions);
     mgfSetIgnoreSingleSide(context->singleSided);
-    mgfSetMonochrome(GLOBAL_fileOptions_monochrome);
+    mgfSetMonochrome(GLOBAL_mgf_monochrome);
 
     initMgf(context);
 

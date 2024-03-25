@@ -211,7 +211,7 @@ mgfGetCurrentMaterial(Material **material, bool allSurfacesSided, MgfContext *co
         Nt = 0.0;
     }
 
-    if ( GLOBAL_fileOptions_monochrome ) {
+    if ( GLOBAL_mgf_monochrome ) {
         colorSetMonochrome(Ed, colorGray(Ed));
         colorSetMonochrome(Es, colorGray(Es));
         colorSetMonochrome(Rd, colorGray(Rd));
