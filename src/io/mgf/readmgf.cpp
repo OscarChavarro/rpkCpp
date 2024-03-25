@@ -75,8 +75,8 @@ mgfPutCSpec(MgfContext *context)
     int i;
 
     if ( context->handleCallbacks[MGF_ENTITY_C_SPEC] != handleColorEntity ) {
-        snprintf(wl[0], 6, "%d", C_CMINWL);
-        snprintf(wl[1], 6, "%d", C_CMAXWL);
+        snprintf(wl[0], 6, "%d", COLOR_MINIMUM_WAVE_LENGTH);
+        snprintf(wl[1], 6, "%d", COLOR_MAXIMUM_WAVE_LENGTH);
         newAv[0] = context->entityNames[MGF_ENTITY_C_SPEC];
         newAv[1] = wl[0];
         newAv[2] = wl[1];
@@ -114,7 +114,7 @@ Handle spectral color
 static int
 mgfECSpec(int /*ac*/, char ** /*av*/, MgfContext *context) {
     // Convert to xy chromaticity
-    mgfContextFixColorRepresentation(GLOBAL_mgf_currentColor, C_CSXY);
+    mgfContextFixColorRepresentation(GLOBAL_mgf_currentColor, COLOR_XY_IS_SET_FLAG);
     // If it's really their handler, use it
     if ( context->handleCallbacks[MGF_ENTITY_CXY] != handleColorEntity ) {
         return mgfPutCxy(context);
@@ -134,8 +134,8 @@ Contorted logic works as follows:
 static int
 mgfECMix(int /*ac*/, char ** /*av*/, MgfContext *context) {
     if ( context->handleCallbacks[MGF_ENTITY_C_SPEC] == mgfECSpec ) {
-        mgfContextFixColorRepresentation(GLOBAL_mgf_currentColor, C_CSXY);
-    } else if ( GLOBAL_mgf_currentColor->flags & C_CDSPEC ) {
+        mgfContextFixColorRepresentation(GLOBAL_mgf_currentColor, COLOR_XY_IS_SET_FLAG);
+    } else if ( GLOBAL_mgf_currentColor->flags & COLOR_DEFINED_WITH_SPECTRUM_FLAG ) {
         return mgfPutCSpec(context);
     }
     if ( context->handleCallbacks[MGF_ENTITY_CXY] != handleColorEntity ) {
@@ -157,7 +157,7 @@ mgfColorTemperature(int /*ac*/, char ** /*av*/, MgfContext *context)
     if ( context->handleCallbacks[MGF_ENTITY_C_SPEC] != mgfECSpec ) {
         return mgfPutCSpec(context);
     }
-    mgfContextFixColorRepresentation(GLOBAL_mgf_currentColor, C_CSXY);
+    mgfContextFixColorRepresentation(GLOBAL_mgf_currentColor, COLOR_XY_IS_SET_FLAG);
     if ( context->handleCallbacks[MGF_ENTITY_CXY] != handleColorEntity ) {
         return mgfPutCxy(context);
     }

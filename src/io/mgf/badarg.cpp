@@ -4,7 +4,7 @@
 #include "io/mgf/badarg.h"
 
 /**
-Check argument list against format string.
+Check argument list against format string
 */
 int
 checkForBadArguments(int ac, char **av, char *fl) {

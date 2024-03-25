@@ -25,58 +25,58 @@ static LookUpTable clr_tab = LOOK_UP_INIT(free, free);
 
 // CIE 1931 Standard Observer curves
 static MgfColorContext cie_xf = {
-    1, C_CDSPEC | C_CSSPEC | C_CSXY | C_CSEFF,
-     {14, 42, 143, 435, 1344, 2839, 3483, 3362, 2908, 1954, 956,
+        1, COLOR_DEFINED_WITH_SPECTRUM_FLAG | COLOR_SPECTRUM_IS_SET_FLAG | COLOR_XY_IS_SET_FLAG | COLOR_EFFICACY_FLAG,
+        {14, 42, 143, 435, 1344, 2839, 3483, 3362, 2908, 1954, 956,
               320, 49, 93, 633, 1655, 2904, 4334, 5945, 7621, 9163, 10263,
               10622, 10026, 8544, 6424, 4479, 2835, 1649, 874, 468, 227,
               114, 58, 29, 14, 7, 3, 2, 1, 0}, 106836L, .467, .368, 362.230
 };
 
 static MgfColorContext cie_yf = {
-        1, C_CDSPEC | C_CSSPEC | C_CSXY | C_CSEFF,
-         {0, 1, 4, 12, 40, 116, 230, 380, 600, 910, 1390, 2080, 3230,
+        1, COLOR_DEFINED_WITH_SPECTRUM_FLAG | COLOR_SPECTRUM_IS_SET_FLAG | COLOR_XY_IS_SET_FLAG | COLOR_EFFICACY_FLAG,
+        {0, 1, 4, 12, 40, 116, 230, 380, 600, 910, 1390, 2080, 3230,
           5030, 7100, 8620, 9540, 9950, 9950, 9520, 8700, 7570, 6310,
           5030, 3810, 2650, 1750, 1070, 610, 320, 170, 82, 41, 21, 10,
           5, 2, 1, 1, 0, 0}, 106856L, .398, .542, 493.525
 };
 
 static MgfColorContext cie_zf = {
-    1, C_CDSPEC | C_CSSPEC | C_CSXY | C_CSEFF,
-       {65, 201, 679, 2074, 6456, 13856, 17471, 17721, 16692,
+        1, COLOR_DEFINED_WITH_SPECTRUM_FLAG | COLOR_SPECTRUM_IS_SET_FLAG | COLOR_XY_IS_SET_FLAG | COLOR_EFFICACY_FLAG,
+        {65, 201, 679, 2074, 6456, 13856, 17471, 17721, 16692,
                   12876, 8130, 4652, 2720, 1582, 782, 422, 203, 87, 39, 21, 17,
                   11, 8, 3, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-                     106770L, 0.147, 0.077, 54.363
+        106770L, 0.147, 0.077, 54.363
 };
 
 // Derived CIE 1931 Primaries (imaginary)
 static MgfColorContext cie_xp = {
-    1, C_CDSPEC | C_CSSPEC | C_CSXY,
-     {-174, -198, -195, -197, -202, -213, -235, -272, -333,
+        1, COLOR_DEFINED_WITH_SPECTRUM_FLAG | COLOR_SPECTRUM_IS_SET_FLAG | COLOR_XY_IS_SET_FLAG,
+        {-174, -198, -195, -197, -202, -213, -235, -272, -333,
       -444, -688, -1232, -2393, -4497, -6876, -6758, -5256,
       -3100, -815, 1320, 3200, 4782, 5998, 6861, 7408, 7754,
       7980, 8120, 8199, 8240, 8271, 8292, 8309, 8283, 8469,
       8336, 8336, 8336, 8336, 8336, 8336},
-             127424L, 1.0, 0.0
+        127424L, 1.0, 0.0
 };
 
 static MgfColorContext cie_yp = {
-    1, C_CDSPEC | C_CSSPEC | C_CSXY,
-         {-451, -431, -431, -430, -427, -417, -399, -366, -312,
+        1, COLOR_DEFINED_WITH_SPECTRUM_FLAG | COLOR_SPECTRUM_IS_SET_FLAG | COLOR_XY_IS_SET_FLAG,
+        {-451, -431, -431, -430, -427, -417, -399, -366, -312,
           -204, 57, 691, 2142, 4990, 8810, 9871, 9122, 7321, 5145,
           3023, 1123, -473, -1704, -2572, -3127, -3474, -3704,
           -3846, -3927, -3968, -3999, -4021, -4038, -4012, -4201,
           -4066, -4066, -4066, -4066, -4066, -4066},
-                 -23035L, 0.0, 1.0
+        -23035L, 0.0, 1.0
 };
 
 static MgfColorContext cie_zp = {
-    1, C_CDSPEC | C_CSSPEC | C_CSXY,
-     {4051, 4054, 4052, 4053, 4054, 4056, 4059, 4064, 4071,
+        1, COLOR_DEFINED_WITH_SPECTRUM_FLAG | COLOR_SPECTRUM_IS_SET_FLAG | COLOR_XY_IS_SET_FLAG,
+        {4051, 4054, 4052, 4053, 4054, 4056, 4059, 4064, 4071,
           4074, 4056, 3967, 3677, 2933, 1492, 313, -440, -795,
           -904, -918, -898, -884, -869, -863, -855, -855, -851,
           -848, -847, -846, -846, -846, -845, -846, -843, -845,
           -845, -845, -845, -845, -845},
-                 36057L, 0.0, 0.0,
+        36057L, 0.0, 0.0,
 };
 
 static inline double
@@ -104,18 +104,18 @@ setBbTemp(MgfColorContext *clr, double tk)
     }
     wl = bBlm(tk);
     // Scale factor based on peak
-    if ( wl < C_CMINWL * 1e-9 ) {
-        wl = C_CMINWL * 1e-9;
-    } else if ( wl > C_CMAXWL * 1e-9 ) {
-            wl = C_CMAXWL * 1e-9;
+    if ( wl < COLOR_MINIMUM_WAVE_LENGTH * 1e-9 ) {
+        wl = COLOR_MINIMUM_WAVE_LENGTH * 1e-9;
+    } else if ( wl > COLOR_MAXIMUM_WAVE_LENGTH * 1e-9 ) {
+            wl = COLOR_MAXIMUM_WAVE_LENGTH * 1e-9;
         }
-    sf = C_CMAXV / bBsp(wl, tk);
+    sf = COLOR_NOMINAL_MAXIMUM_SAMPLE_VALUE / bBsp(wl, tk);
     clr->spectralStraightSum = 0;
     for ( i = 0; i < NUMBER_OF_SPECTRAL_SAMPLES; i++ ) {
-        wl = (C_CMINWL + (float)i * C_CWLI) * 1e-9;
+        wl = (COLOR_MINIMUM_WAVE_LENGTH + (float)i * COLOR_WAVE_LENGTH_DELTA_I) * 1e-9;
         clr->spectralStraightSum += clr->straightSamples[i] = (short)std::lround(sf * bBsp(wl, tk) + 0.5);
     }
-    clr->flags = C_CDSPEC | C_CSSPEC;
+    clr->flags = COLOR_DEFINED_WITH_SPECTRUM_FLAG | COLOR_SPECTRUM_IS_SET_FLAG;
     clr->clock++;
     return MGF_OK;
 }
@@ -135,10 +135,10 @@ mixColors(
     float cMix[NUMBER_OF_SPECTRAL_SAMPLES];
     int i;
 
-    if ( (c1->flags | c2->flags) & C_CDSPEC ) {
+    if ((c1->flags | c2->flags) & COLOR_DEFINED_WITH_SPECTRUM_FLAG ) {
         // Spectral mixing
-        mgfContextFixColorRepresentation(c1, C_CSSPEC | C_CSEFF);
-        mgfContextFixColorRepresentation(c2, C_CSSPEC | C_CSEFF);
+        mgfContextFixColorRepresentation(c1, COLOR_SPECTRUM_IS_SET_FLAG | COLOR_EFFICACY_FLAG);
+        mgfContextFixColorRepresentation(c2, COLOR_SPECTRUM_IS_SET_FLAG | COLOR_EFFICACY_FLAG);
         w1 /= c1->eff * (float) c1->spectralStraightSum;
         w2 /= c2->eff * (float) c2->spectralStraightSum;
         scale = 0.0;
@@ -148,16 +148,16 @@ mixColors(
                 scale = cMix[i];
             }
         }
-        scale = C_CMAXV / scale;
+        scale = COLOR_NOMINAL_MAXIMUM_SAMPLE_VALUE / scale;
         colorContext->spectralStraightSum = 0;
         for ( i = 0; i < NUMBER_OF_SPECTRAL_SAMPLES; i++ ) {
             colorContext->spectralStraightSum += colorContext->straightSamples[i] = (short)std::lround(scale * cMix[i] + 0.5);
         }
-        colorContext->flags = C_CDSPEC | C_CSSPEC;
+        colorContext->flags = COLOR_DEFINED_WITH_SPECTRUM_FLAG | COLOR_SPECTRUM_IS_SET_FLAG;
     } else {
         // CIE xy mixing
-        mgfContextFixColorRepresentation(c1, C_CSXY);
-        mgfContextFixColorRepresentation(c2, C_CSXY);
+        mgfContextFixColorRepresentation(c1, COLOR_XY_IS_SET_FLAG);
+        mgfContextFixColorRepresentation(c2, COLOR_XY_IS_SET_FLAG);
         scale = w1 / c1->cy + w2 / c2->cy;
         if ( scale == 0.0 ) {
             return;
@@ -165,7 +165,7 @@ mixColors(
         scale = 1.0 / scale;
         colorContext->cx = (float)((c1->cx * w1 / c1->cy + c2->cx * w2 / c2->cy) * scale);
         colorContext->cy = (float)((w1 + w2) * scale);
-        colorContext->flags = C_CDXY | C_CSXY;
+        colorContext->flags = COLOR_DEFINED_WITH_XY_FLAG | COLOR_XY_IS_SET_FLAG;
     }
 }
 
@@ -183,27 +183,27 @@ setSpectrum(MgfColorContext *clr, double wlMinimum, double wlMaximum, int ac, ch
     double boxStep;
 
     // Check getBoundingBox
-    if ( wlMaximum <= C_CMINWL || wlMaximum <= wlMinimum || wlMinimum >= C_CMAXWL ) {
+    if ( wlMaximum <= COLOR_MINIMUM_WAVE_LENGTH || wlMaximum <= wlMinimum || wlMinimum >= COLOR_MAXIMUM_WAVE_LENGTH ) {
         return MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
     }
     wlStep = (wlMaximum - wlMinimum) / (ac - 1);
-    while ( wlMinimum < C_CMINWL ) {
+    while ( wlMinimum < COLOR_MINIMUM_WAVE_LENGTH ) {
         wlMinimum += wlStep;
         ac--;
         av++;
     }
-    while ( wlMaximum > C_CMAXWL ) {
+    while ( wlMaximum > COLOR_MAXIMUM_WAVE_LENGTH ) {
         wlMaximum -= wlStep;
         ac--;
     }
     imax = ac; // Box filter if necessary
     boxPos = 0;
     boxStep = 1;
-    if ( wlStep < (double)C_CWLI ) {
-        imax = (int)std::lround((wlMaximum - wlMinimum) / C_CWLI + (1 - EPSILON));
-        boxPos = (wlMinimum - C_CMINWL) / C_CWLI;
-        boxStep = wlStep / C_CWLI;
-        wlStep = C_CWLI;
+    if ( wlStep < (double)COLOR_WAVE_LENGTH_DELTA_I ) {
+        imax = (int)std::lround((wlMaximum - wlMinimum) / COLOR_WAVE_LENGTH_DELTA_I + (1 - EPSILON));
+        boxPos = (wlMinimum - COLOR_MINIMUM_WAVE_LENGTH) / COLOR_WAVE_LENGTH_DELTA_I;
+        boxStep = wlStep / COLOR_WAVE_LENGTH_DELTA_I;
+        wlStep = COLOR_WAVE_LENGTH_DELTA_I;
     }
     scale = 0.0; // Get values and maximum
     pos = 0;
@@ -230,11 +230,11 @@ setSpectrum(MgfColorContext *clr, double wlMinimum, double wlMaximum, int ac, ch
     if ( scale <= EPSILON) {
         return MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
     }
-    scale = C_CMAXV / scale;
+    scale = COLOR_NOMINAL_MAXIMUM_SAMPLE_VALUE / scale;
     clr->spectralStraightSum = 0; // Convert to our spacing
     wl0 = wlMinimum;
     pos = 0;
-    for ( i = 0, wl = C_CMINWL; i < NUMBER_OF_SPECTRAL_SAMPLES; i++, wl += C_CWLI) {
+    for ( i = 0, wl = COLOR_MINIMUM_WAVE_LENGTH; i < NUMBER_OF_SPECTRAL_SAMPLES; i++, wl += COLOR_WAVE_LENGTH_DELTA_I) {
         if ( wl < wlMinimum || wl > wlMaximum ) {
             clr->straightSamples[i] = 0;
         } else {
@@ -253,7 +253,7 @@ setSpectrum(MgfColorContext *clr, double wlMinimum, double wlMaximum, int ac, ch
             clr->spectralStraightSum += clr->straightSamples[i];
         }
     }
-    clr->flags = C_CDSPEC | C_CSSPEC;
+    clr->flags = COLOR_DEFINED_WITH_SPECTRUM_FLAG | COLOR_SPECTRUM_IS_SET_FLAG;
     clr->clock++;
     return MGF_OK;
 }
@@ -340,7 +340,7 @@ handleColorEntity(int ac, char **av, MgfContext *context)
             }
             GLOBAL_mgf_currentColor->cx = strtof(av[1], nullptr);
             GLOBAL_mgf_currentColor->cy = strtof(av[2], nullptr);
-            GLOBAL_mgf_currentColor->flags = C_CDXY | C_CSXY;
+            GLOBAL_mgf_currentColor->flags = COLOR_DEFINED_WITH_XY_FLAG | COLOR_XY_IS_SET_FLAG;
             if ( GLOBAL_mgf_currentColor->cx < 0.0 || GLOBAL_mgf_currentColor->cy < 0.0 ||
                  GLOBAL_mgf_currentColor->cx + GLOBAL_mgf_currentColor->cy > 1.0 ) {
                 return MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
@@ -435,11 +435,11 @@ mgfContextFixColorRepresentation(MgfColorContext *clr, int fl)
         // Everything's done!
         return;
     }
-    if ( !(clr->flags & (C_CSXY | C_CSSPEC)) ) {
+    if ( !(clr->flags & (COLOR_XY_IS_SET_FLAG | COLOR_SPECTRUM_IS_SET_FLAG)) ) {
         // Nothing set!
         *clr = globalDefaultMgfColorContext;
     }
-    if ( fl & C_CSXY ) {
+    if ( fl & COLOR_XY_IS_SET_FLAG ) {
         // spec -> cxy *
         x = 0.0;
         y = 0.0;
@@ -455,8 +455,8 @@ mgfContextFixColorRepresentation(MgfColorContext *clr, int fl)
         z += x + y;
         clr->cx = (float)(x / z);
         clr->cy = (float)(y / z);
-        clr->flags |= C_CSXY;
-    } else if ( fl & C_CSSPEC ) {
+        clr->flags |= COLOR_XY_IS_SET_FLAG;
+    } else if ( fl & COLOR_SPECTRUM_IS_SET_FLAG ) {
         // cxy -> spec
         x = clr->cx;
         y = clr->cy;
@@ -472,22 +472,22 @@ mgfContextFixColorRepresentation(MgfColorContext *clr, int fl)
                 clr->spectralStraightSum += clr->straightSamples[i];
             }
         }
-        clr->flags |= C_CSSPEC;
+        clr->flags |= COLOR_SPECTRUM_IS_SET_FLAG;
     }
-    if ( fl & C_CSEFF ) {
+    if ( fl & COLOR_EFFICACY_FLAG ) {
         // Compute efficacy
-        if ( clr->flags & C_CSSPEC ) {
+        if ( clr->flags & COLOR_SPECTRUM_IS_SET_FLAG ) {
             // From spectrum
             y = 0.0;
             for ( i = 0; i < NUMBER_OF_SPECTRAL_SAMPLES; i++ ) {
                 y += cie_yf.straightSamples[i] * clr->straightSamples[i];
             }
-            clr->eff = C_CLPWM * y / (double)clr->spectralStraightSum;
+            clr->eff = COLOR_PEAK_LUMENS_PER_WATT * y / (double)clr->spectralStraightSum;
         } else {
             // clr->flags & C_CS_XY from (x,y)
             clr->eff = (float)(clr->cx * cie_xf.eff + clr->cy * cie_yf.eff +
                        (1.0 - clr->cx - clr->cy) * cie_zf.eff);
         }
-        clr->flags |= C_CSEFF;
+        clr->flags |= COLOR_EFFICACY_FLAG;
     }
 }

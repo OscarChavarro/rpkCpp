@@ -26,7 +26,7 @@ class LookUpTable {
 extern LookUpTable GLOBAL_mgf_vertexLookUpTable;
 
 #define LOOK_UP_INIT(fk, fd) { \
-    (long (*)(char *))lookUpSHash, \
+    (long (*)(char *))lookUpShuffleHash, \
     (int (*)(const char *, const char *))strcmp, \
     (void (*)(char *))(fk), \
     (void (*)(char *))(fd), \
@@ -38,6 +38,6 @@ extern LookUpTable GLOBAL_mgf_vertexLookUpTable;
 extern int lookUpInit(LookUpTable *tbl, int nel);
 extern LookUpEntity *lookUpFind(LookUpTable *tbl, char *key);
 extern void lookUpDone(LookUpTable *l);
-extern long lookUpSHash(char *s);
+extern long lookUpShuffleHash(char *s);
 
 #endif

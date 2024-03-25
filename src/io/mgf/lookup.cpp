@@ -3,6 +3,7 @@ Table lookup routines
 */
 
 #include <cstdlib>
+
 #include "io/mgf/lookup.h"
 
 static unsigned char globalShuffle[256] = {
@@ -35,8 +36,7 @@ and the expected (minimum) table size.  The value returned is the
 actual allocated table size (or zero if there was insufficient memory).
 */
 int
-lookUpInit(LookUpTable *tbl, int nel)
-{
+lookUpInit(LookUpTable *tbl, int nel) {
     static int hSizeTab[] = {
             31, 61, 127, 251, 509, 1021, 2039, 4093, 8191, 16381,
             32749, 65521, 131071, 262139, 524287, 1048573, 2097143,
@@ -50,9 +50,10 @@ lookUpInit(LookUpTable *tbl, int nel)
             break;
         }
     }
-    if ( !(tbl->currentTableSize = *hsp)) {
+    if ( !(tbl->currentTableSize = *hsp) ) {
+        // Not always prime
         tbl->currentTableSize = nel * 2 + 1;
-    }        /* not always prime */
+    }
     tbl->table = (LookUpEntity *) calloc(tbl->currentTableSize, sizeof(LookUpEntity));
     if ( tbl->table == nullptr) {
         tbl->currentTableSize = 0;
@@ -63,7 +64,7 @@ lookUpInit(LookUpTable *tbl, int nel)
 }
 
 /**
-Hash a nul-terminated string
+Hash a null-terminated string
 
 The functions must be assigned separately.  If the hash value is sufficient to
 guarantee equality between keys, then the keyCompareFunction pointer may be nullptr.  Otherwise, it
@@ -74,17 +75,16 @@ freeDataFunction member functions may be nullptr.
 It isn't fully necessary to call lookUpInit to initialize the LookUpTable structure.
 If currentTableSize is 0, then the first call to lookUpFind will allocate a minimal table.
 The LOOK_UP_INIT macro provides a convenient static declaration for character
-string keys.
+string keys
 */
 long
-lookUpSHash(char *s)
-{
+lookUpShuffleHash(char *s) {
     int i = 0;
     long h = 0;
     unsigned char *t = (unsigned char *)s;
 
     while ( *t ) {
-        h ^= (long) globalShuffle[*t++] << ((i += 11) & 0xf);
+        h ^= (long)globalShuffle[*t++] << ((i += 11) & 0xf);
     }
 
     return h;
@@ -108,11 +108,9 @@ lookUpReAlloc(LookUpTable *tbl, int nel) {
         return 0;
     }
 
-    /*
-     * The following code may fail if the user has reclaimed many
-     * deleted entries and the system runs out of memory in a
-     * recursive call to lu_find().
-     */
+    // The following code may fail if the user has reclaimed many
+    // deleted entries and the system runs out of memory in a
+    // recursive call to lu_find()
     for ( i = 0, le = oldTable; i < oldTSize; i++, le++ ) {
         if ( le->key != nullptr) {
             if ( le->data != nullptr) {
@@ -141,11 +139,11 @@ creating a new entry.  The only case where lookUpFind returns nullptr is when
 the system has run out of memory.
 */
 LookUpEntity *
-lookUpFind(LookUpTable *tbl, char *key)
-{
+lookUpFind(LookUpTable *tbl, char *key) {
     long hVal;
     int ndx;
-    int i, n;
+    int i;
+    int n;
     LookUpEntity *le;
 
     // Look up object
@@ -198,14 +196,12 @@ in the LU_TAB structure.  The final action of lookUpDone is to free the
 allocated table itself.
 */
 void
-lookUpDone(LookUpTable *l)
-{
-    LookUpEntity *tp;
-
+lookUpDone(LookUpTable *l) {
     if ( !l->currentTableSize ) {
         return;
     }
-    for ( tp = l->table + l->currentTableSize; tp-- > l->table; ) {
+
+    for ( LookUpEntity *tp = l->table + l->currentTableSize; tp-- > l->table; ) {
         if ( tp->key != nullptr) {
             if ( l->freeKeyFunction != nullptr) {
                 (*l->freeKeyFunction)(tp->key);

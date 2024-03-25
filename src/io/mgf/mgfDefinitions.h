@@ -12,12 +12,11 @@ class MgdReaderFilePosition {
     long offset; // Offset from beginning
 };
 
+extern int mgfDefaultHandlerForUnknownEntities(int ac, char **av, MgfContext *context);
 extern int mgfOpen(MgfReaderContext *readerContext, char *functionCallback, MgfContext *context);
 extern void mgfClose(MgfContext *context);
-
 extern void doError(const char *errmsg, MgfContext *context);
 extern void doWarning(const char *errmsg, MgfContext *context);
-
 extern void mgfGetFilePosition(MgdReaderFilePosition *pos, MgfContext *context);
 extern int mgfGoToFilePosition(MgdReaderFilePosition *pos, MgfContext *context);
 extern int mgfEntity(char *name, MgfContext *context);

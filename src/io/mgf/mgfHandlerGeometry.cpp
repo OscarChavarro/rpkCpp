@@ -13,7 +13,7 @@
 
 // No face can have more than this vertices
 #define MAXIMUM_FACE_VERTICES 100
-#define DEFAULT_VERTEX {{0.0, 0.0, 0.0}, {0.0, 0.0, 0.0}, 0, 1, (void *)nullptr}
+#define DEFAULT_VERTEX {{0.0, 0.0, 0.0}, {0.0, 0.0, 0.0}, 0, 1, nullptr}
 
 LookUpTable GLOBAL_mgf_vertexLookUpTable = LOOK_UP_INIT(free, free);
 MgfVertexContext GLOBAL_mgf_vertexContext = DEFAULT_VERTEX;
@@ -239,7 +239,14 @@ Returns true if the 2D point p is inside the 2D triangle p1-p2-p3
 */
 static int
 pointInsideTriangle2D(Vector2D *p, Vector2D *p1, Vector2D *p2, Vector2D *p3) {
-    double u0, v0, u1, v1, u2, v2, a, b;
+    double u0;
+    double v0;
+    double u1;
+    double v1;
+    double u2;
+    double v2;
+    double a;
+    double b;
 
     // From Graphics Gems I, Didier Badouel, An Efficient Ray-Polygon Intersection, p390
     u0 = p->u - p1->u;
@@ -254,7 +261,7 @@ pointInsideTriangle2D(Vector2D *p, Vector2D *p1, Vector2D *p2, Vector2D *p3) {
     if ( std::fabs(u1) < EPSILON ) {
         if ( std::fabs(u2) > EPSILON && std::fabs(v1) > EPSILON ) {
             b = u0 / u2;
-            if ( b < EPSILON || b > 1. - EPSILON ) {
+            if ( b < EPSILON || b > 1.0 - EPSILON ) {
                 return false;
             } else {
                 a = (v0 - b * v2) / v1;
@@ -280,7 +287,15 @@ Returns true if the 2D segments p1-p2 and p3-p4 intersect
 */
 static int
 segmentsIntersect2D(Vector2D *p1, Vector2D *p2, Vector2D *p3, Vector2D *p4) {
-    double a, b, c, du, dv, r1, r2, r3, r4;
+    double a;
+    double b;
+    double c;
+    double du;
+    double dv;
+    double r1;
+    double r2;
+    double r3;
+    double r4;
     int coLinear = false;
 
     // From Graphics Gems II, Mukesh Prasad, Intersection of Line Segments, p7
