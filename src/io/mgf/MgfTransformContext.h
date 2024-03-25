@@ -3,6 +3,7 @@
 
 #include "common/linealAlgebra/Vector3Dd.h"
 #include "io/mgf/mgfDefinitions.h"
+#include "io/mgf/MgfReaderFilePosition.h"
 
 #define TRANSFORM_ARGC(xf) ( (xf) == nullptr ? 0 : (xf)->xac )
 #define TRANSFORM_ARGV(xf) (globalLastTransform - (xf)->xac)
@@ -27,8 +28,8 @@ public:
 };
 
 class MgfTransformArray {
-public:
-    MgdReaderFilePosition startingPosition; // Starting position on input
+  public:
+    MgfReaderFilePosition startingPosition; // Starting position on input
     int numberOfDimensions; // Number of array dimensions
     MgfTransformArrayArgument transformArguments[TRANSFORM_MAXIMUM_DIMENSIONS];
 };
