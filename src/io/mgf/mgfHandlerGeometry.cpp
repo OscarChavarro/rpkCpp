@@ -17,8 +17,6 @@
 
 LookUpTable GLOBAL_mgf_vertexLookUpTable = LOOK_UP_INIT(free, free);
 
-java::ArrayList<Geometry *> *GLOBAL_mgf_currentGeometryList = nullptr;
-
 // Geometry stack: used for building a hierarchical representation of the scene
 int GLOBAL_mgf_inComplex = false; // True if reading a sphere, torus or other unsupported
 
