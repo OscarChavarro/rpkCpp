@@ -18,7 +18,6 @@
 LookUpTable GLOBAL_mgf_vertexLookUpTable = LOOK_UP_INIT(free, free);
 
 // Elements for surface currently being created
-java::ArrayList<Vertex *> *GLOBAL_mgf_currentVertexList = nullptr;
 java::ArrayList<Patch *> *GLOBAL_mgf_currentFaceList = nullptr;
 java::ArrayList<Geometry *> *GLOBAL_mgf_currentGeometryList = nullptr;
 
@@ -76,10 +75,10 @@ installNormal(float x, float y, float z, MgfContext *context) {
 }
 
 static Vertex *
-installVertex(Vector3D *coord, Vector3D *norm) {
+installVertex(Vector3D *coord, Vector3D *norm, MgfContext *context) {
     java::ArrayList<Patch *> *newPatchList = new java::ArrayList<Patch *>();
     Vertex *v = vertexCreate(coord, norm, nullptr, newPatchList);
-    GLOBAL_mgf_currentVertexList->add(v);
+    context->currentVertexList->add(v);
     return v;
 }
 
@@ -110,7 +109,7 @@ getVertex(char *name, MgfContext *context) {
             mgfTransformVector(norm, vp->n);
             theNormal = installNormal((float)norm[0], (float)norm[1], (float)norm[2], context);
         }
-        theVertex = installVertex(thePoint, theNormal);
+        theVertex = installVertex(thePoint, theNormal, context);
         vp->clientData = (void *) theVertex;
         vp->xid = TRANSFORM_XID(GLOBAL_mgf_xfContext);
     }
@@ -128,15 +127,13 @@ getBackFaceVertex(Vertex *v, MgfContext * context) {
     Vertex *back = v->back;
 
     if ( !back ) {
-        Vector3D *the_point, *the_normal;
-
-        the_point = v->point;
-        the_normal = v->normal;
-        if ( the_normal ) {
-            the_normal = installNormal(-the_normal->x, -the_normal->y, -the_normal->z, context);
+        Vector3D *point = v->point;
+        Vector3D *normal = v->normal;
+        if ( normal ) {
+            normal = installNormal(-normal->x, -normal->y, -normal->z, context);
         }
 
-        back = v->back = installVertex(the_point, the_normal);
+        back = v->back = installVertex(point, normal, context);
         back->back = v;
     }
 

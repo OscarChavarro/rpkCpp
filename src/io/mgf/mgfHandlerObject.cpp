@@ -48,7 +48,7 @@ void
 newSurface(MgfContext *context) {
     context->currentPointList = new java::ArrayList<Vector3D *>();
     context->currentNormalList = new java::ArrayList<Vector3D *>();
-    GLOBAL_mgf_currentVertexList = new java::ArrayList<Vertex *>();
+    context->currentVertexList = new java::ArrayList<Vertex *>();
     GLOBAL_mgf_currentFaceList = new java::ArrayList<Patch *>();
     GLOBAL_mgf_inSurface = true;
 }
@@ -60,7 +60,7 @@ static int
 handleObject2Entity(int ac, char **av)
 {
     if ( ac == 1 ) {
-        // just pop top object
+        // Just pop top object
         if ( globalObjectNames < 1 ) {
             return MGF_ERROR_UNMATCHED_CONTEXT_CLOSE;
         }
@@ -75,7 +75,7 @@ handleObject2Entity(int ac, char **av)
         return MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
     }
     if ( globalObjectNames >= globalObjectMaxName - 1 ) {
-        // enlarge array
+        // Enlarge array
         if ( !globalObjectMaxName ) {
             globalObjectNamesList = (char **) malloc(
                     (globalObjectMaxName = ALLOC_INC) * sizeof(char *));
@@ -109,7 +109,7 @@ surfaceDone(MgfContext *context) {
             context->currentPointList,
             context->currentNormalList,
             nullptr, // null texture coordinate list
-            GLOBAL_mgf_currentVertexList,
+            context->currentVertexList,
             GLOBAL_mgf_currentFaceList,
             MaterialColorFlags::NO_COLORS);
         GLOBAL_mgf_currentGeometryList->add(0, newGeometry);

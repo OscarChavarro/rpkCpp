@@ -515,9 +515,9 @@ freeLists(MgfContext *context) {
         context->currentNormalList = nullptr;
     }
 
-    if ( GLOBAL_mgf_currentVertexList != nullptr ) {
-        delete GLOBAL_mgf_currentVertexList;
-        GLOBAL_mgf_currentVertexList = nullptr;
+    if ( context->currentVertexList != nullptr ) {
+        delete context->currentVertexList;
+        context->currentVertexList = nullptr;
     }
 
     if ( GLOBAL_mgf_currentFaceList != nullptr ) {
