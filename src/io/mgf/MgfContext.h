@@ -3,6 +3,7 @@
 
 #include "skin/RadianceMethod.h"
 #include "io/mgf/MgfReaderContext.h"
+#include "io/mgf/MgfColorContext.h"
 
 // Entities
 #define MGF_ENTITY_COLOR 1 // c
@@ -72,6 +73,8 @@ class MgfContext {
     int (*supportCallbacks[MGF_TOTAL_NUMBER_OF_ENTITIES])(int argc, char **argv, MgfContext *context);
     Material *currentMaterial;
     char *currentMaterialName;
+
+    // Return model
     java::ArrayList<Geometry *> **geometryStackPtr;
     java::ArrayList<Geometry *> *geometryStack[MAXIMUM_GEOMETRY_STACK_DEPTH];
     java::ArrayList<Vector3D *> *currentPointList;
@@ -79,8 +82,8 @@ class MgfContext {
     java::ArrayList<Vertex *> *currentVertexList;
     java::ArrayList<Patch *> *currentFaceList;
     java::ArrayList<Geometry *> *currentGeometryList;
+    MgfColorContext *currentColor;
 
-    // Return model
     MgfContext();
 };
 
