@@ -43,6 +43,4 @@ class MgfTransformContext {
     MgfTransformContext *prev; // Previous transformation context
 }; // Followed by argument buffer
 
-extern MgfTransformContext *GLOBAL_mgf_transformContext; // Current transform context
-
 #endif

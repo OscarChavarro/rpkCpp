@@ -8,8 +8,6 @@ Routines for 4x4 homogeneous, rigid-body transformations
 #include "io/mgf/badarg.h"
 #include "io/mgf/MgfTransformContext.h"
 
-MgfTransformContext *GLOBAL_mgf_transformContext; // Current context
-
 static char **globalTransformArgumentListBeginning;
 static char **globalLastTransform; // End of transform argument list (last transform argument)
 
@@ -126,7 +124,7 @@ newTransform(int ac, char **av, MgfContext *context) {
     } else {
         spec->transformationArray = nullptr;
     }
-    spec->xac = (short)(ac + TRANSFORM_ARGC(GLOBAL_mgf_transformContext));
+    spec->xac = (short)(ac + TRANSFORM_ARGC(context->transformContext));
 
     // And store new xf arguments
     if ( globalTransformArgumentListBeginning == nullptr || TRANSFORM_ARGV(spec) < globalTransformArgumentListBeginning ) {
@@ -135,8 +133,8 @@ newTransform(int ac, char **av, MgfContext *context) {
         if ( newAv == nullptr) {
             return nullptr;
         }
-        for ( int i = TRANSFORM_ARGC(GLOBAL_mgf_transformContext); i-- > 0; ) {
-            newAv[ac + i] = globalLastTransform[i - GLOBAL_mgf_transformContext->xac];
+        for ( int i = TRANSFORM_ARGC(context->transformContext); i-- > 0; ) {
+            newAv[ac + i] = globalLastTransform[i - context->transformContext->xac];
         }
         *(globalLastTransform = newAv + spec->xac) = nullptr;
         if ( globalTransformArgumentListBeginning != nullptr) {
@@ -167,24 +165,24 @@ newTransform(int ac, char **av, MgfContext *context) {
 Transform a point by the current matrix
 */
 void
-mgfTransformPoint(VECTOR3Dd v1, VECTOR3Dd v2) {
-    if ( GLOBAL_mgf_transformContext == nullptr) {
+mgfTransformPoint(VECTOR3Dd v1, VECTOR3Dd v2, MgfContext *context) {
+    if ( context->transformContext == nullptr) {
         mgfVertexCopy(v1, v2);
         return;
     }
-    multiplyP3(v1, v2, GLOBAL_mgf_transformContext->xf.xfm);
+    multiplyP3(v1, v2, context->transformContext->xf.xfm);
 }
 
 /**
 Transform a vector using current matrix
 */
 void
-mgfTransformVector(VECTOR3Dd v1, VECTOR3Dd v2) {
-    if ( GLOBAL_mgf_transformContext == nullptr) {
+mgfTransformVector(VECTOR3Dd v1, VECTOR3Dd v2, MgfContext *context) {
+    if ( context->transformContext == nullptr) {
         mgfVertexCopy(v1, v2);
         return;
     }
-    multiplyV3(v1, v2, GLOBAL_mgf_transformContext->xf.xfm);
+    multiplyV3(v1, v2, context->transformContext->xf.xfm);
 }
 
 static void
@@ -424,7 +422,8 @@ handleTransformationEntity(int ac, char **av, MgfContext *context) {
 
     if ( ac == 1 ) {
         // Something with existing transform
-        if ((spec = GLOBAL_mgf_transformContext) == nullptr ) {
+        spec = context->transformContext;
+        if ( spec == nullptr ) {
             return MGF_ERROR_UNMATCHED_CONTEXT_CLOSE;
         }
         n = -1;
@@ -452,7 +451,7 @@ handleTransformationEntity(int ac, char **av, MgfContext *context) {
         }
         if ( n < 0 ) {
             // Pop transform
-            GLOBAL_mgf_transformContext = spec->prev;
+            context->transformContext = spec->prev;
             free_xf(spec);
             return MGF_OK;
         }
@@ -465,8 +464,8 @@ handleTransformationEntity(int ac, char **av, MgfContext *context) {
         if ( spec->transformationArray != nullptr) {
             transformName(spec->transformationArray, context);
         }
-        spec->prev = GLOBAL_mgf_transformContext; // Push onto stack
-        GLOBAL_mgf_transformContext = spec;
+        spec->prev = context->transformContext; // Push onto stack
+        context->transformContext = spec;
     }
 
     // Translate new specification

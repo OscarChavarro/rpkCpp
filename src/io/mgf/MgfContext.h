@@ -55,6 +55,8 @@
 // Objects 'o' contexts can be nested this deep
 #define MAXIMUM_GEOMETRY_STACK_DEPTH 100
 
+class MgfTransformContext;
+
 class MgfContext {
   public:
     // Parameters received from main program
@@ -81,8 +83,11 @@ class MgfContext {
     java::ArrayList<Vertex *> *currentVertexList;
     java::ArrayList<Patch *> *currentFaceList;
     java::ArrayList<Geometry *> *currentGeometryList;
+    MgfTransformContext *transformContext;
 
     MgfContext();
 };
+
+#include "io/mgf/MgfTransformContext.h"
 
 #endif

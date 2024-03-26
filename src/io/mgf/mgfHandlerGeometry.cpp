@@ -88,7 +88,7 @@ getVertex(char *name, MgfContext *context) {
     }
 
     theVertex = (Vertex *) (vp->clientData);
-    if ( !theVertex || vp->clock >= 1 || vp->xid != TRANSFORM_XID(GLOBAL_mgf_transformContext) || is0Vector(vp->n)) {
+    if ( !theVertex || vp->clock >= 1 || vp->xid != TRANSFORM_XID(context->transformContext) || is0Vector(vp->n)) {
         // New vertex, or updated vertex or same vertex, but other transform, or
         // vertex without normal: create a new Vertex
         VECTOR3Dd vert;
@@ -96,17 +96,17 @@ getVertex(char *name, MgfContext *context) {
         Vector3D *theNormal;
         Vector3D *thePoint;
 
-        mgfTransformPoint(vert, vp->p);
+        mgfTransformPoint(vert, vp->p, context);
         thePoint = installPoint((float)vert[0], (float)vert[1], (float)vert[2], context);
         if ( is0Vector(vp->n)) {
             theNormal = nullptr;
         } else {
-            mgfTransformVector(norm, vp->n);
+            mgfTransformVector(norm, vp->n, context);
             theNormal = installNormal((float)norm[0], (float)norm[1], (float)norm[2], context);
         }
         theVertex = installVertex(thePoint, theNormal, context);
         vp->clientData = (void *) theVertex;
-        vp->xid = TRANSFORM_XID(GLOBAL_mgf_transformContext);
+        vp->xid = TRANSFORM_XID(context->transformContext);
     }
     vp->clock = 0;
 
@@ -144,7 +144,7 @@ newFace(Vertex *v1, Vertex *v2, Vertex *v3, Vertex *v4, MgfContext *context) {
         return nullptr;
     }
 
-    if ( GLOBAL_mgf_transformContext && GLOBAL_mgf_transformContext->rev ) {
+    if ( context->transformContext && context->transformContext->rev ) {
         theFace = new Patch(numberOfVertices, v3, v2, v1, v4, context->radianceMethod);
     } else {
         theFace = new Patch(numberOfVertices, v1, v2, v3, v4, context->radianceMethod);
@@ -619,7 +619,7 @@ handleFaceWithHolesEntity(int argc, char **argv, MgfContext *context) {
             // Undefined vertex
             return MGF_ERROR_UNDEFINED_REFERENCE;
         }
-        mgfTransformPoint(v[i], vp->p); // Transform with the current transform
+        mgfTransformPoint(v[i], vp->p, context); // Transform with the current transform
 
         copied[i] = false; // Vertex not yet copied to argumentsToFaceWithoutHoles
     }
