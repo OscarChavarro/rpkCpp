@@ -43,8 +43,6 @@ class MgfColorContext {
     float eff; // Efficacy (lumens / watt)
 };
 
-extern MgfColorContext *GLOBAL_mgf_currentColor;
-
 extern void mgfContextFixColorRepresentation(MgfColorContext *clr, int fl);
 
 #endif

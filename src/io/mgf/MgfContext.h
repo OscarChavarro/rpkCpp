@@ -56,6 +56,7 @@
 #define MAXIMUM_GEOMETRY_STACK_DEPTH 100
 
 class MgfTransformContext;
+class MgfColorContext;
 
 class MgfContext {
   public:
@@ -84,10 +85,14 @@ class MgfContext {
     java::ArrayList<Patch *> *currentFaceList;
     java::ArrayList<Geometry *> *currentGeometryList;
     MgfTransformContext *transformContext;
+    MgfColorContext *unNamedColorContext;
+    MgfColorContext *currentColor;
 
     MgfContext();
+    ~MgfContext();
 };
 
 #include "io/mgf/MgfTransformContext.h"
+#include "io/mgf/MgfColorContext.h"
 
 #endif

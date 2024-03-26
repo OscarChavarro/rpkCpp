@@ -11,12 +11,6 @@
 // m-K
 #define C2 1.4388e-2
 
-// The unnamed contexts
-static MgfColorContext globalUnNamedColorContext = DEFAULT_COLOR_CONTEXT;
-
-// Current contexts
-MgfColorContext *GLOBAL_mgf_currentColor = &globalUnNamedColorContext;
-
 // Default context values
 static MgfColorContext globalDefaultMgfColorContext = DEFAULT_COLOR_CONTEXT;
 
@@ -277,8 +271,8 @@ handleColorEntity(int ac, char **av, MgfContext *context)
             }
             if ( ac == 1 ) {
                 // Set unnamed color context
-                globalUnNamedColorContext = globalDefaultMgfColorContext;
-                GLOBAL_mgf_currentColor = &globalUnNamedColorContext;
+                *(context->unNamedColorContext) = globalDefaultMgfColorContext;
+                context->currentColor = context->unNamedColorContext;
                 return MGF_OK;
             }
             if ( !isNameWords(av[1])) {
@@ -288,10 +282,10 @@ handleColorEntity(int ac, char **av, MgfContext *context)
             if ( lp == nullptr) {
                 return MGF_ERROR_OUT_OF_MEMORY;
             }
-            GLOBAL_mgf_currentColor = (MgfColorContext *) lp->data;
+            context->currentColor = (MgfColorContext *) lp->data;
             if ( ac == 2 ) {
                 // Re-establish previous context
-                if ( GLOBAL_mgf_currentColor == nullptr) {
+                if ( context->currentColor == nullptr) {
                     return MGF_ERROR_UNDEFINED_REFERENCE;
                 }
                 return MGF_OK;
@@ -299,7 +293,7 @@ handleColorEntity(int ac, char **av, MgfContext *context)
             if ( av[2][0] != '=' || av[2][1] ) {
                 return MGF_ERROR_ARGUMENT_TYPE;
             }
-            if ( GLOBAL_mgf_currentColor == nullptr) {    /* create new color context */
+            if ( context->currentColor == nullptr) {    /* create new color context */
                 lp->key = (char *) malloc(strlen(av[1]) + 1);
                 if ( lp->key == nullptr) {
                     return MGF_ERROR_OUT_OF_MEMORY;
@@ -309,14 +303,14 @@ handleColorEntity(int ac, char **av, MgfContext *context)
                 if ( lp->data == nullptr) {
                     return MGF_ERROR_OUT_OF_MEMORY;
                 }
-                GLOBAL_mgf_currentColor = (MgfColorContext *) lp->data;
-                GLOBAL_mgf_currentColor->clock = 0;
+                context->currentColor = (MgfColorContext *) lp->data;
+                context->currentColor->clock = 0;
             }
-            i = GLOBAL_mgf_currentColor->clock;
+            i = context->currentColor->clock;
             if ( ac == 3 ) {
                 // Use default template
-                *GLOBAL_mgf_currentColor = globalDefaultMgfColorContext;
-                GLOBAL_mgf_currentColor->clock = i + 1;
+                *context->currentColor = globalDefaultMgfColorContext;
+                context->currentColor->clock = i + 1;
                 return MGF_OK;
             }
             lp = lookUpFind(&clr_tab, av[3]);
@@ -327,8 +321,8 @@ handleColorEntity(int ac, char **av, MgfContext *context)
             if ( lp->data == nullptr) {
                 return MGF_ERROR_UNDEFINED_REFERENCE;
             }
-            *GLOBAL_mgf_currentColor = *(MgfColorContext *) lp->data;
-            GLOBAL_mgf_currentColor->clock = i + 1;
+            *context->currentColor = *(MgfColorContext *) lp->data;
+            context->currentColor->clock = i + 1;
             return MGF_OK;
         case MGF_ENTITY_CXY:
             // Assign CIE XY value
@@ -338,14 +332,14 @@ handleColorEntity(int ac, char **av, MgfContext *context)
             if ( !isFloatWords(av[1]) || !isFloatWords(av[2])) {
                 return MGF_ERROR_ARGUMENT_TYPE;
             }
-            GLOBAL_mgf_currentColor->cx = strtof(av[1], nullptr);
-            GLOBAL_mgf_currentColor->cy = strtof(av[2], nullptr);
-            GLOBAL_mgf_currentColor->flags = COLOR_DEFINED_WITH_XY_FLAG | COLOR_XY_IS_SET_FLAG;
-            if ( GLOBAL_mgf_currentColor->cx < 0.0 || GLOBAL_mgf_currentColor->cy < 0.0 ||
-                 GLOBAL_mgf_currentColor->cx + GLOBAL_mgf_currentColor->cy > 1.0 ) {
+            context->currentColor->cx = strtof(av[1], nullptr);
+            context->currentColor->cy = strtof(av[2], nullptr);
+            context->currentColor->flags = COLOR_DEFINED_WITH_XY_FLAG | COLOR_XY_IS_SET_FLAG;
+            if ( context->currentColor->cx < 0.0 || context->currentColor->cy < 0.0 ||
+                 context->currentColor->cx + context->currentColor->cy > 1.0 ) {
                 return MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
             }
-            GLOBAL_mgf_currentColor->clock++;
+            context->currentColor->clock++;
             return MGF_OK;
         case MGF_ENTITY_C_SPEC:
             // Assign spectral values
@@ -355,7 +349,7 @@ handleColorEntity(int ac, char **av, MgfContext *context)
             if ( !isFloatWords(av[1]) || !isFloatWords(av[2])) {
                 return MGF_ERROR_ARGUMENT_TYPE;
             }
-            return setSpectrum(GLOBAL_mgf_currentColor, strtod(av[1], nullptr), strtod(av[2], nullptr),
+            return setSpectrum(context->currentColor, strtod(av[1], nullptr), strtod(av[2], nullptr),
                                ac - 3, av + 3);
         case MGF_ENTITY_CCT:
             // Assign black body spectrum
@@ -365,7 +359,7 @@ handleColorEntity(int ac, char **av, MgfContext *context)
             if ( !isFloatWords(av[1]) ) {
                 return MGF_ERROR_ARGUMENT_TYPE;
             }
-            return setBbTemp(GLOBAL_mgf_currentColor, strtod(av[1], nullptr));
+            return setBbTemp(context->currentColor, strtod(av[1], nullptr));
         case MGF_ENTITY_C_MIX:
             // Mix colors
             if ( ac < 5 || (ac - 1) % 2 ) {
@@ -382,7 +376,7 @@ handleColorEntity(int ac, char **av, MgfContext *context)
             if ( lp->data == nullptr) {
                 return MGF_ERROR_UNDEFINED_REFERENCE;
             }
-            *GLOBAL_mgf_currentColor = *(MgfColorContext *) lp->data;
+            *context->currentColor = *(MgfColorContext *) lp->data;
             for ( i = 3; i < ac; i += 2 ) {
                 if ( !isFloatWords(av[i]) ) {
                     return MGF_ERROR_ARGUMENT_TYPE;
@@ -395,14 +389,14 @@ handleColorEntity(int ac, char **av, MgfContext *context)
                 if ( lp->data == nullptr ) {
                     return MGF_ERROR_UNDEFINED_REFERENCE;
                 }
-                mixColors(GLOBAL_mgf_currentColor, wSum, GLOBAL_mgf_currentColor,
+                mixColors(context->currentColor, wSum, context->currentColor,
                           w, (MgfColorContext *) lp->data);
                 wSum += w;
             }
             if ( wSum <= 0.0 ) {
                 return MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
             }
-            GLOBAL_mgf_currentColor->clock++;
+            context->currentColor->clock++;
             return MGF_OK;
     }
     return MGF_ERROR_UNKNOWN_ENTITY;
@@ -414,8 +408,8 @@ Empty context tables
 void
 initColorContextTables(MgfContext *context)
 {
-    globalUnNamedColorContext = globalDefaultMgfColorContext;
-    GLOBAL_mgf_currentColor = &globalUnNamedColorContext;
+    *(context->unNamedColorContext) = globalDefaultMgfColorContext;
+    context->currentColor = context->unNamedColorContext;
     lookUpDone(&clr_tab);
 }
 
