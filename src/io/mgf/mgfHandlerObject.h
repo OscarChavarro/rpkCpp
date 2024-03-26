@@ -3,7 +3,6 @@
 
 #include "io/mgf/MgfContext.h"
 
-extern java::ArrayList<Patch *> *GLOBAL_mgf_currentFaceList;
 extern java::ArrayList<Geometry *> *GLOBAL_mgf_currentGeometryList;
 extern int GLOBAL_mgf_inSurface;
 

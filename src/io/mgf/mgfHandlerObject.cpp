@@ -49,7 +49,7 @@ newSurface(MgfContext *context) {
     context->currentPointList = new java::ArrayList<Vector3D *>();
     context->currentNormalList = new java::ArrayList<Vector3D *>();
     context->currentVertexList = new java::ArrayList<Vertex *>();
-    GLOBAL_mgf_currentFaceList = new java::ArrayList<Patch *>();
+    context->currentFaceList = new java::ArrayList<Patch *>();
     GLOBAL_mgf_inSurface = true;
 }
 
@@ -103,14 +103,14 @@ surfaceDone(MgfContext *context) {
         GLOBAL_mgf_currentGeometryList = new java::ArrayList<Geometry *>();
     }
 
-    if ( GLOBAL_mgf_currentFaceList != nullptr ) {
+    if ( context->currentFaceList != nullptr ) {
         Geometry *newGeometry = new MeshSurface(
             context->currentMaterial,
             context->currentPointList,
             context->currentNormalList,
             nullptr, // null texture coordinate list
             context->currentVertexList,
-            GLOBAL_mgf_currentFaceList,
+            context->currentFaceList,
             MaterialColorFlags::NO_COLORS);
         GLOBAL_mgf_currentGeometryList->add(0, newGeometry);
     }

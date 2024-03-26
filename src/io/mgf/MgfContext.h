@@ -77,6 +77,7 @@ class MgfContext {
     java::ArrayList<Vector3D *> *currentPointList;
     java::ArrayList<Vector3D *> *currentNormalList;
     java::ArrayList<Vertex *> *currentVertexList;
+    java::ArrayList<Patch *> *currentFaceList;
 
     // Return model
     MgfContext();

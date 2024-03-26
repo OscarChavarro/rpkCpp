@@ -18,7 +18,6 @@
 LookUpTable GLOBAL_mgf_vertexLookUpTable = LOOK_UP_INIT(free, free);
 
 // Elements for surface currently being created
-java::ArrayList<Patch *> *GLOBAL_mgf_currentFaceList = nullptr;
 java::ArrayList<Geometry *> *GLOBAL_mgf_currentGeometryList = nullptr;
 
 // Geometry stack: used for building a hierarchical representation of the scene
@@ -155,7 +154,7 @@ newFace(Vertex *v1, Vertex *v2, Vertex *v3, Vertex *v4, MgfContext *context) {
         theFace = new Patch(numberOfVertices, v1, v2, v3, v4, context->radianceMethod);
     }
 
-    GLOBAL_mgf_currentFaceList->add(0, theFace);
+    context->currentFaceList->add(0, theFace);
 
     return theFace;
 }
