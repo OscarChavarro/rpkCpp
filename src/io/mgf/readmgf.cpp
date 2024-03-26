@@ -144,23 +144,6 @@ mgfSetNrQuartCircDivs(int divs) {
 }
 
 /**
-Sets a flag indicating whether all surfaces should be considered
-1-sided (the best for "good" models) or not.
-
-When the argument is false, surfaces are considered two-sided unless
-explicit specified 1-sided in the mgf file. When the argument is true,
-the specified single side flag in the mgf file are ignored and all surfaces
-considered 1-sided. This may yield a significant speedup for "good"
-models (containing only solids with consistently defined
-face normals and vertices in counter clockwise order as seen from the
-normal direction)
-*/
-static void
-mgfSetIgnoreSingleSide(bool yesno) {
-    GLOBAL_mgf_allSurfacesSided = yesno;
-}
-
-/**
 If yesno is true, all materials will be converted to be GLOBAL_mgf_monochrome.
 */
 static void
@@ -536,7 +519,6 @@ void
 readMgf(char *filename, MgfContext *context)
 {
     mgfSetNrQuartCircDivs(context->numberOfQuarterCircleDivisions);
-    mgfSetIgnoreSingleSide(context->singleSided);
     mgfSetMonochrome(context->monochrome, context);
 
     initMgf(context);

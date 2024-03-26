@@ -19,7 +19,6 @@ LookUpTable GLOBAL_mgf_vertexLookUpTable = LOOK_UP_INIT(free, free);
 
 // Geometry stack: used for building a hierarchical representation of the scene
 int GLOBAL_mgf_inComplex = false; // True if reading a sphere, torus or other unsupported
-bool GLOBAL_mgf_allSurfacesSided = false; // When set to true, all surfaces will be considered one-sided
 
 static MgfVertexContext globalMgfVertexContext = DEFAULT_VERTEX;
 static MgfVertexContext *globalMgfCurrentVertex = &globalMgfVertexContext;
@@ -501,7 +500,7 @@ handleFaceEntity(int argc, char **argv, MgfContext *context) {
                 surfaceDone(context);
             }
             newSurface(context);
-            mgfGetCurrentMaterial(&context->currentMaterial, GLOBAL_mgf_allSurfacesSided, context);
+            mgfGetCurrentMaterial(&context->currentMaterial, context->singleSided, context);
         }
     }
 
@@ -570,7 +569,7 @@ handleSurfaceEntity(int argc, char **argv, MgfContext *context) {
             surfaceDone(context);
         }
         newSurface(context);
-        mgfGetCurrentMaterial(&context->currentMaterial, GLOBAL_mgf_allSurfacesSided, context);
+        mgfGetCurrentMaterial(&context->currentMaterial, context->singleSided, context);
 
         errcode = doDiscreteConic(argc, argv, context);
 

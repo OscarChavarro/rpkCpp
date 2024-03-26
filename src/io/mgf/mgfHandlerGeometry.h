@@ -1,7 +1,6 @@
 #ifndef __MGF_HANDLER_GEOMETRY__
 #define __MGF_HANDLER_GEOMETRY__
 
-extern bool GLOBAL_mgf_allSurfacesSided;
 extern int GLOBAL_mgf_inComplex;
 
 extern int handleVertexEntity(int ac, char **av, MgfContext * /*context*/);
