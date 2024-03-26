@@ -10,8 +10,6 @@ Hierarchical object names tracking
 #include "io/mgf/mgfHandlerObject.h"
 #include "io/mgf/mgfDefinitions.h"
 
-int GLOBAL_mgf_inSurface = false; // True if busy creating a new surface
-
 static char **globalObjectNamesList; // Name list (names in hierarchy)
 static int globalObjectMaxName; // Allocated list size
 static int globalObjectNames; // Depth of name hierarchy
@@ -50,7 +48,7 @@ newSurface(MgfContext *context) {
     context->currentNormalList = new java::ArrayList<Vector3D *>();
     context->currentVertexList = new java::ArrayList<Vertex *>();
     context->currentFaceList = new java::ArrayList<Patch *>();
-    GLOBAL_mgf_inSurface = true;
+    context->inSurface = true;
 }
 
 /**
@@ -114,7 +112,7 @@ surfaceDone(MgfContext *context) {
             MaterialColorFlags::NO_COLORS);
         context->currentGeometryList->add(0, newGeometry);
     }
-    GLOBAL_mgf_inSurface = false;
+    context->inSurface = false;
 }
 
 int
@@ -128,7 +126,7 @@ handleObjectEntity(int argc, char **argv, MgfContext *context) {
         }
         fprintf(stderr, "%s ...\n", argv[1]);
 
-        if ( GLOBAL_mgf_inSurface ) {
+        if ( context->inSurface ) {
             surfaceDone(context);
         }
 
@@ -139,7 +137,7 @@ handleObjectEntity(int argc, char **argv, MgfContext *context) {
         // End of object definition
         Geometry *theGeometry = nullptr;
 
-        if ( GLOBAL_mgf_inSurface ) {
+        if ( context->inSurface ) {
             surfaceDone(context);
         }
 

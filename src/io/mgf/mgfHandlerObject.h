@@ -3,8 +3,6 @@
 
 #include "io/mgf/MgfContext.h"
 
-extern int GLOBAL_mgf_inSurface;
-
 extern int handleObjectEntity(int argc, char **argv, MgfContext * /*context*/);
 extern void newSurface(MgfContext *context);
 extern void surfaceDone(MgfContext *context);

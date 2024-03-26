@@ -21,7 +21,8 @@ MgfContext::MgfContext():
     currentGeometryList(),
     transformContext(),
     unNamedColorContext(),
-    currentColor()
+    currentColor(),
+    inSurface()
 {
     strcpy(entityNames[0], "#");
     strcpy(entityNames[1], "c");
@@ -78,6 +79,7 @@ MgfContext::MgfContext():
     unNamedColorContext = new MgfColorContext();
     *unNamedColorContext = DEFAULT_COLOR_CONTEXT;
     currentColor = unNamedColorContext;
+    inSurface = false; // True if busy creating a new surface
 }
 
 MgfContext::~MgfContext() {

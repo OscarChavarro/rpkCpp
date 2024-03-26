@@ -533,7 +533,7 @@ readMgf(char *filename, MgfContext *context) {
     context->geometryStackPtr = context->geometryStack;
 
     GLOBAL_mgf_inComplex = false;
-    GLOBAL_mgf_inSurface = false;
+    context->inSurface = false;
 
     newSurface(context);
 
@@ -557,7 +557,7 @@ readMgf(char *filename, MgfContext *context) {
     }
     mgfClear(context);
 
-    if ( GLOBAL_mgf_inSurface ) {
+    if ( context->inSurface ) {
         surfaceDone(context);
     }
     GLOBAL_scene_geometries = context->currentGeometryList;

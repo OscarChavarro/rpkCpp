@@ -496,7 +496,7 @@ handleFaceEntity(int argc, char **argv, MgfContext *context) {
 
     if ( !GLOBAL_mgf_inComplex ) {
         if ( mgfMaterialChanged(context->currentMaterial, context) ) {
-            if ( GLOBAL_mgf_inSurface ) {
+            if ( context->inSurface ) {
                 surfaceDone(context);
             }
             newSurface(context);
@@ -565,7 +565,7 @@ handleSurfaceEntity(int argc, char **argv, MgfContext *context) {
         return doDiscreteConic(argc, argv, context);
     } else {
         GLOBAL_mgf_inComplex = true;
-        if ( GLOBAL_mgf_inSurface ) {
+        if ( context->inSurface ) {
             surfaceDone(context);
         }
         newSurface(context);
