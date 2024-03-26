@@ -88,7 +88,7 @@ getVertex(char *name, MgfContext *context) {
     }
 
     theVertex = (Vertex *) (vp->clientData);
-    if ( !theVertex || vp->clock >= 1 || vp->xid != TRANSFORM_XID(GLOBAL_mgf_xfContext) || is0Vector(vp->n)) {
+    if ( !theVertex || vp->clock >= 1 || vp->xid != TRANSFORM_XID(GLOBAL_mgf_transformContext) || is0Vector(vp->n)) {
         // New vertex, or updated vertex or same vertex, but other transform, or
         // vertex without normal: create a new Vertex
         VECTOR3Dd vert;
@@ -106,7 +106,7 @@ getVertex(char *name, MgfContext *context) {
         }
         theVertex = installVertex(thePoint, theNormal, context);
         vp->clientData = (void *) theVertex;
-        vp->xid = TRANSFORM_XID(GLOBAL_mgf_xfContext);
+        vp->xid = TRANSFORM_XID(GLOBAL_mgf_transformContext);
     }
     vp->clock = 0;
 
@@ -144,7 +144,7 @@ newFace(Vertex *v1, Vertex *v2, Vertex *v3, Vertex *v4, MgfContext *context) {
         return nullptr;
     }
 
-    if ( GLOBAL_mgf_xfContext && GLOBAL_mgf_xfContext->rev ) {
+    if ( GLOBAL_mgf_transformContext && GLOBAL_mgf_transformContext->rev ) {
         theFace = new Patch(numberOfVertices, v3, v2, v1, v4, context->radianceMethod);
     } else {
         theFace = new Patch(numberOfVertices, v1, v2, v3, v4, context->radianceMethod);

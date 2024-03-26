@@ -266,7 +266,7 @@ handleIncludedFile(int ac, char **av, MgfContext *context)
 {
     char *transformArgument[MGF_MAXIMUM_ARGUMENT_COUNT];
     MgfReaderContext readerContext{};
-    MgfTransformContext *xf_orig = GLOBAL_mgf_xfContext;
+    MgfTransformContext *xf_orig = GLOBAL_mgf_transformContext;
 
     if ( ac < 2 ) {
         return MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
@@ -312,7 +312,7 @@ handleIncludedFile(int ac, char **av, MgfContext *context)
                 return rv;
             }
         }
-    } while ( GLOBAL_mgf_xfContext != xf_orig );
+    } while ( GLOBAL_mgf_transformContext != xf_orig );
     mgfClose(context);
     return MGF_OK;
 }

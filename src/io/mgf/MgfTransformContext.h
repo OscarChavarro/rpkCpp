@@ -7,12 +7,11 @@
 
 #define TRANSFORM_ARGC(xf) ( (xf) == nullptr ? 0 : (xf)->xac )
 #define TRANSFORM_ARGV(xf) (globalLastTransform - (xf)->xac)
-#define TRANSFORM_CONTEXT_ARGC TRANSFORM_ARGC(GLOBAL_mgf_xfContext)
 #define TRANSFORM_XID(xf) ( (xf) == nullptr ? 0 : (xf)->xid )
 
 // Regular transformation
 class MgfTransform {
-public:
+  public:
     MATRIX4Dd xfm; // Transform matrix
     double sca; // Scale factor
 };
@@ -21,7 +20,7 @@ public:
 #define TRANSFORM_MAXIMUM_DIMENSIONS 8
 
 class MgfTransformArrayArgument {
-public:
+  public:
     short i; // Current count
     short n; // Current maximum
     char arg[8]; // String argument value
@@ -35,7 +34,7 @@ class MgfTransformArray {
 };
 
 class MgfTransformContext {
-public:
+  public:
     long xid; // Unique transform id
     short xac; // Context argument count
     short rev; // Boolean true if vertices reversed
@@ -44,6 +43,6 @@ public:
     MgfTransformContext *prev; // Previous transformation context
 }; // Followed by argument buffer
 
-extern MgfTransformContext *GLOBAL_mgf_xfContext; // Current transform context
+extern MgfTransformContext *GLOBAL_mgf_transformContext; // Current transform context
 
 #endif
