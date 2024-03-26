@@ -3,21 +3,22 @@
 #include "io/mgf/MgfContext.h"
 
 MgfContext::MgfContext():
-        radianceMethod(),
-        singleSided(),
-        currentVertexName(),
-        numberOfQuarterCircleDivisions(),
-        monochrome(),
-        entityNames(),
-        errorCodeMessages(),
-        readerContext(),
-        handleCallbacks(),
-        supportCallbacks(),
-        geometryStack(),
-        currentPointList(),
-        currentNormalList(),
-        currentVertexList(),
-        currentGeometryList()
+    radianceMethod(),
+    singleSided(),
+    currentVertexName(),
+    numberOfQuarterCircleDivisions(),
+    monochrome(),
+    entityNames(),
+    errorCodeMessages(),
+    readerContext(),
+    handleCallbacks(),
+    supportCallbacks(),
+    geometryStack(),
+    currentPointList(),
+    currentNormalList(),
+    currentVertexList(),
+    currentFaceList(),
+    currentGeometryList()
 {
     strcpy(entityNames[0], "#");
     strcpy(entityNames[1], "c");
@@ -69,4 +70,5 @@ MgfContext::MgfContext():
     currentNormalList = nullptr;
     currentVertexList = nullptr;
     currentGeometryList = nullptr;
+    currentFaceList = nullptr;
 }
