@@ -17,8 +17,7 @@ static char **globalLastTransform; // End of transform argument list (last trans
 Compute unique ID from matrix
 */
 static long
-computeUniqueId(double (*xfm)[4])
-{
+computeUniqueId(double (*xfm)[4]) {
     static char shiftTab[64] = {15, 5, 11, 5, 6, 3,
                                 9, 15, 13, 2, 13, 5, 2, 12, 14, 11,
                                 11, 12, 12, 3, 2, 11, 8, 12, 1, 12,
@@ -40,9 +39,8 @@ computeUniqueId(double (*xfm)[4])
 Free a transform
 */
 static void
-free_xf(MgfTransformContext *spec)
-{
-    if ( spec->transformationArray != nullptr) {
+free_xf(MgfTransformContext *spec) {
+    if ( spec->transformationArray != nullptr ) {
         free(spec->transformationArray);
     }
     free(spec);
@@ -55,7 +53,7 @@ d2r(double a) {
 
 static bool
 checkArgument(int a, const char *l, int ac, char **av, int i) {
-    if ( av[i][(a)] || checkForBadArguments(ac - i - 1, av + i + 1, (char *) (l)) ) {
+    if ( av[i][(a)] || checkForBadArguments(ac - i - 1, av + i + 1, (char *)(l)) ) {
         return false;
     }
     return true;
@@ -65,8 +63,7 @@ checkArgument(int a, const char *l, int ac, char **av, int i) {
 Put out name for this instance
 */
 static int
-transformName(MgfTransformArray *ap, MgfContext *context)
-{
+transformName(MgfTransformArray *ap, MgfContext *context) {
     static char oName[10 * TRANSFORM_MAXIMUM_DIMENSIONS];
     static char *oav[3] = {
             context->entityNames[MGF_ENTITY_OBJECT], oName
@@ -94,10 +91,8 @@ transformName(MgfTransformArray *ap, MgfContext *context)
 Allocate new transform structure
 */
 static MgfTransformContext *
-new_xf(int ac, char **av, MgfContext *context)
-{
+newTransform(int ac, char **av, MgfContext *context) {
     MgfTransformContext *spec;
-    int i;
     char *cp;
     int n;
     int nDim;
@@ -106,7 +101,7 @@ new_xf(int ac, char **av, MgfContext *context)
     n = 0;
 
     // Compute space required by arguments
-    for ( i = 0; i < ac; i++ ) {
+    for ( int i = 0; i < ac; i++ ) {
         if ( !strcmp(av[i], "-a") ) {
             nDim++;
             i++;
@@ -140,7 +135,7 @@ new_xf(int ac, char **av, MgfContext *context)
         if ( newAv == nullptr) {
             return nullptr;
         }
-        for ( i = TRANSFORM_ARGC(GLOBAL_mgf_transformContext); i-- > 0; ) {
+        for ( int i = TRANSFORM_ARGC(GLOBAL_mgf_transformContext); i-- > 0; ) {
             newAv[ac + i] = globalLastTransform[i - GLOBAL_mgf_transformContext->xac];
         }
         *(globalLastTransform = newAv + spec->xac) = nullptr;
@@ -149,10 +144,10 @@ new_xf(int ac, char **av, MgfContext *context)
         }
         globalTransformArgumentListBeginning = newAv;
     }
-    cp = (char *) (spec + 1);
+    cp = (char *)(spec + 1);
 
     // Use memory allocated above
-    for ( i = 0; i < ac; i++ ) {
+    for ( int i = 0; i < ac; i++ ) {
         if ( !strcmp(av[i], "-a") ) {
             TRANSFORM_ARGV(spec)[i++] = (char *)"-i";
             TRANSFORM_ARGV(spec)[i] = strcpy(
@@ -172,8 +167,7 @@ new_xf(int ac, char **av, MgfContext *context)
 Transform a point by the current matrix
 */
 void
-mgfTransformPoint(VECTOR3Dd v1, VECTOR3Dd v2)
-{
+mgfTransformPoint(VECTOR3Dd v1, VECTOR3Dd v2) {
     if ( GLOBAL_mgf_transformContext == nullptr) {
         mgfVertexCopy(v1, v2);
         return;
@@ -185,8 +179,7 @@ mgfTransformPoint(VECTOR3Dd v1, VECTOR3Dd v2)
 Transform a vector using current matrix
 */
 void
-mgfTransformVector(VECTOR3Dd v1, VECTOR3Dd v2)
-{
+mgfTransformVector(VECTOR3Dd v1, VECTOR3Dd v2) {
     if ( GLOBAL_mgf_transformContext == nullptr) {
         mgfVertexCopy(v1, v2);
         return;
@@ -206,13 +199,11 @@ finish(int count, MgfTransform *ret, MATRIX4Dd transformMatrix, double scaTransf
 Get transform specification
 */
 static int
-xf(MgfTransform *ret, int ac, char **av)
-{
+xf(MgfTransform *ret, int ac, char **av) {
     MATRIX4Dd transformMatrix;
     MATRIX4Dd m4;
     double scaTransform;
     double tmp;
-    int i;
     int counter;
 
     setIdent4(ret->xfm);
@@ -222,6 +213,7 @@ xf(MgfTransform *ret, int ac, char **av)
     setIdent4(transformMatrix);
     scaTransform = 1.0;
 
+    int i;
     for ( i = 0; i < ac && av[i][0] == '-'; i++ ) {
         setIdent4(m4);
 
@@ -269,36 +261,26 @@ xf(MgfTransform *ret, int ac, char **av)
                         m4[1][0] = -(m4[0][1] = std::sin(tmp));
                         break;
                     default: {
-                        float x;
-                        float y;
-                        float z;
-                        float a;
-                        float c;
-                        float s;
-                        float t;
-                        float A;
-                        float B;
-
                         if ( !checkArgument(2, "ffff", ac, av, i) ) {
                             finish(counter, ret, transformMatrix, scaTransform);
                             return i;
                         }
-                        x = strtof(av[++i], nullptr);
-                        y = strtof(av[++i], nullptr);
-                        z = strtof(av[++i], nullptr);
-                        a = (float)d2r(strtod(av[++i], nullptr));
-                        s = std::sqrt(x * x + y * y + z * z);
+                        float x = strtof(av[++i], nullptr);
+                        float y = strtof(av[++i], nullptr);
+                        float z = strtof(av[++i], nullptr);
+                        float a = (float)d2r(strtod(av[++i], nullptr));
+                        float s = std::sqrt(x * x + y * y + z * z);
                         x /= s;
                         y /= s;
                         z /= s;
-                        c = std::cos(a);
+                        float c = std::cos(a);
                         s = std::sin(a);
-                        t = 1 - c;
+                        float t = 1 - c;
                         m4[0][0] = t * x * x + c;
                         m4[1][1] = t * y * y + c;
                         m4[2][2] = t * z * z + c;
-                        A = t * x * y;
-                        B = s * z;
+                        float A = t * x * y;
+                        float B = s * z;
                         m4[0][1] = A + B;
                         m4[1][0] = A - B;
                         A = t * x * z;
@@ -476,7 +458,7 @@ handleTransformationEntity(int ac, char **av, MgfContext *context) {
         }
     } else {
         // Allocate transform
-        spec = new_xf(ac - 1, av + 1, context);
+        spec = newTransform(ac - 1, av + 1, context);
         if ( spec == nullptr ) {
             return MGF_ERROR_OUT_OF_MEMORY;
         }

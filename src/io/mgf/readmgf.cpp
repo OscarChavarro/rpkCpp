@@ -194,8 +194,7 @@ mgfPutCSpec(MgfContext *context)
 Put out current xy chromatic values
 */
 static int
-mgfPutCxy(MgfContext *context)
-{
+mgfPutCxy(MgfContext *context) {
     static char xBuffer[24];
     static char yBuffer[24];
     static char *cCom[4] = {context->entityNames[MGF_ENTITY_CXY], xBuffer, yBuffer};
@@ -245,8 +244,7 @@ mgfECMix(int /*ac*/, char ** /*av*/, MgfContext *context) {
 Handle color temperature
 */
 static int
-mgfColorTemperature(int /*ac*/, char ** /*av*/, MgfContext *context)
-{
+mgfColorTemperature(int /*ac*/, char ** /*av*/, MgfContext *context) {
     // Logic is similar to mgfECMix here.  Support handler has already
     // converted temperature to spectral color.  Put it out as such
     // if they support it, otherwise convert to xy chromaticity and
@@ -262,11 +260,10 @@ mgfColorTemperature(int /*ac*/, char ** /*av*/, MgfContext *context)
 }
 
 static int
-handleIncludedFile(int ac, char **av, MgfContext *context)
-{
+handleIncludedFile(int ac, char **av, MgfContext *context) {
     char *transformArgument[MGF_MAXIMUM_ARGUMENT_COUNT];
     MgfReaderContext readerContext{};
-    MgfTransformContext *xf_orig = GLOBAL_mgf_transformContext;
+    MgfTransformContext *originTransform = GLOBAL_mgf_transformContext;
 
     if ( ac < 2 ) {
         return MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
@@ -312,7 +309,7 @@ handleIncludedFile(int ac, char **av, MgfContext *context)
                 return rv;
             }
         }
-    } while ( GLOBAL_mgf_transformContext != xf_orig );
+    } while ( GLOBAL_mgf_transformContext != originTransform );
     mgfClose(context);
     return MGF_OK;
 }
@@ -321,7 +318,9 @@ handleIncludedFile(int ac, char **av, MgfContext *context)
 rayCasterInitialize alternate entity handlers
 */
 static void
-mgfAlternativeInit(int (*handleCallbacks[MGF_TOTAL_NUMBER_OF_ENTITIES])(int, char **, MgfContext *), MgfContext *context) {
+mgfAlternativeInit(
+    int (*handleCallbacks[MGF_TOTAL_NUMBER_OF_ENTITIES])(int, char **, MgfContext *), MgfContext *context)
+{
     unsigned long iNeed = 0;
     unsigned long uNeed = 0;
     int i;
@@ -516,8 +515,7 @@ GLOBAL_scene_world and GLOBAL_scene_materials are filled in.
 Note: this is an implementation of MGF file format with major version number 2.
 */
 void
-readMgf(char *filename, MgfContext *context)
-{
+readMgf(char *filename, MgfContext *context) {
     mgfSetNrQuartCircDivs(context->numberOfQuarterCircleDivisions);
     mgfSetMonochrome(context->monochrome, context);
 
