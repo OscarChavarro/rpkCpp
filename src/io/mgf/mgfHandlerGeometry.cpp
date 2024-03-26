@@ -18,7 +18,6 @@
 LookUpTable GLOBAL_mgf_vertexLookUpTable = LOOK_UP_INIT(free, free);
 
 // Elements for surface currently being created
-java::ArrayList<Vector3D *> *GLOBAL_mgf_currentNormalList = nullptr;
 java::ArrayList<Vertex *> *GLOBAL_mgf_currentVertexList = nullptr;
 java::ArrayList<Patch *> *GLOBAL_mgf_currentFaceList = nullptr;
 java::ArrayList<Geometry *> *GLOBAL_mgf_currentGeometryList = nullptr;
@@ -70,9 +69,9 @@ installPoint(float x, float y, float z, MgfContext *context) {
 }
 
 static Vector3D *
-installNormal(float x, float y, float z) {
+installNormal(float x, float y, float z, MgfContext *context) {
     Vector3D *norm = new Vector3D(x, y, z);
-    GLOBAL_mgf_currentNormalList->add(0, norm);
+    context->currentNormalList->add(0, norm);
     return norm;
 }
 
@@ -109,7 +108,7 @@ getVertex(char *name, MgfContext *context) {
             theNormal = nullptr;
         } else {
             mgfTransformVector(norm, vp->n);
-            theNormal = installNormal((float)norm[0], (float)norm[1], (float)norm[2]);
+            theNormal = installNormal((float)norm[0], (float)norm[1], (float)norm[2], context);
         }
         theVertex = installVertex(thePoint, theNormal);
         vp->clientData = (void *) theVertex;
@@ -125,7 +124,7 @@ Create a vertex with given name, but with reversed normal as
 the given vertex. For back-faces of two-sided surfaces
 */
 static Vertex *
-getBackFaceVertex(Vertex *v) {
+getBackFaceVertex(Vertex *v, MgfContext * context) {
     Vertex *back = v->back;
 
     if ( !back ) {
@@ -134,7 +133,7 @@ getBackFaceVertex(Vertex *v) {
         the_point = v->point;
         the_normal = v->normal;
         if ( the_normal ) {
-            the_normal = installNormal(-the_normal->x, -the_normal->y, -the_normal->z);
+            the_normal = installNormal(-the_normal->x, -the_normal->y, -the_normal->z, context);
         }
 
         back = v->back = installVertex(the_point, the_normal);
@@ -521,7 +520,7 @@ handleFaceEntity(int argc, char **argv, MgfContext *context) {
         }
         backV[i] = nullptr;
         if ( !context->currentMaterial->sided )
-            backV[i] = getBackFaceVertex(v[i]);
+            backV[i] = getBackFaceVertex(v[i], context);
     }
 
     if ( !faceNormal(argc - 1, v, &normal)) {

@@ -3,7 +3,6 @@
 
 #include "io/mgf/MgfContext.h"
 
-extern java::ArrayList<Vector3D *> *GLOBAL_mgf_currentNormalList;
 extern java::ArrayList<Vertex *> *GLOBAL_mgf_currentVertexList;
 extern java::ArrayList<Patch *> *GLOBAL_mgf_currentFaceList;
 extern java::ArrayList<Geometry *> *GLOBAL_mgf_currentGeometryList;

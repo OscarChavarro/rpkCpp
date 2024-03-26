@@ -14,7 +14,8 @@ MgfContext::MgfContext():
         handleCallbacks(),
         supportCallbacks(),
         geometryStack(),
-        currentPointList()
+        currentPointList(),
+        currentNormalList()
 {
     strcpy(entityNames[0], "#");
     strcpy(entityNames[1], "c");
@@ -63,4 +64,5 @@ MgfContext::MgfContext():
     currentMaterial = nullptr;
     currentMaterialName = nullptr;
     geometryStackPtr = nullptr;
+    currentNormalList = nullptr;
 }

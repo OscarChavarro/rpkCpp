@@ -47,7 +47,7 @@ popCurrentGeometryList(MgfContext *context) {
 void
 newSurface(MgfContext *context) {
     context->currentPointList = new java::ArrayList<Vector3D *>();
-    GLOBAL_mgf_currentNormalList = new java::ArrayList<Vector3D *>();
+    context->currentNormalList = new java::ArrayList<Vector3D *>();
     GLOBAL_mgf_currentVertexList = new java::ArrayList<Vertex *>();
     GLOBAL_mgf_currentFaceList = new java::ArrayList<Patch *>();
     GLOBAL_mgf_inSurface = true;
@@ -107,7 +107,7 @@ surfaceDone(MgfContext *context) {
         Geometry *newGeometry = new MeshSurface(
             context->currentMaterial,
             context->currentPointList,
-            GLOBAL_mgf_currentNormalList,
+            context->currentNormalList,
             nullptr, // null texture coordinate list
             GLOBAL_mgf_currentVertexList,
             GLOBAL_mgf_currentFaceList,

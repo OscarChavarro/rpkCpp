@@ -75,6 +75,7 @@ class MgfContext {
     java::ArrayList<Geometry *> **geometryStackPtr;
     java::ArrayList<Geometry *> *geometryStack[MAXIMUM_GEOMETRY_STACK_DEPTH];
     java::ArrayList<Vector3D *> *currentPointList;
+    java::ArrayList<Vector3D *> *currentNormalList;
 
     // Return model
     MgfContext();
