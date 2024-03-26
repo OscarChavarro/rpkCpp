@@ -4,8 +4,6 @@
 #include "io/mgf/MgfVertexContext.h"
 #include "io/mgf/MgfContext.h"
 
-extern MgfVertexContext GLOBAL_mgf_vertexContext;
-
 extern int mgfEntitySphere(int ac, char **av, MgfContext *context);
 extern int mgfEntityTorus(int ac, char **av, MgfContext *context);
 extern int mgfEntityCylinder(int ac, char **av, MgfContext *context);
