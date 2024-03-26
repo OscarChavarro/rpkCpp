@@ -17,7 +17,6 @@
 
 LookUpTable GLOBAL_mgf_vertexLookUpTable = LOOK_UP_INIT(free, free);
 
-// Elements for surface currently being created
 java::ArrayList<Geometry *> *GLOBAL_mgf_currentGeometryList = nullptr;
 
 // Geometry stack: used for building a hierarchical representation of the scene

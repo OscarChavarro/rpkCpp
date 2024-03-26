@@ -26,9 +26,9 @@ pushCurrentGeometryList(MgfContext *context) {
                 "Objects are nested too deep for this program. Recompile with larger MAXIMUM_GEOMETRY_STACK_DEPTH constant in read mgf", context);
         return;
     } else {
-        *context->geometryStackPtr = GLOBAL_mgf_currentGeometryList;
+        *context->geometryStackPtr = context->currentGeometryList;
         context->geometryStackPtr++;
-        GLOBAL_mgf_currentGeometryList = nullptr;
+        context->currentGeometryList = nullptr;
     }
 }
 
@@ -36,11 +36,11 @@ static void
 popCurrentGeometryList(MgfContext *context) {
     if ( context->geometryStackPtr <= context->geometryStack ) {
         doError("Object stack underflow ... unbalanced 'o' contexts?", context);
-        GLOBAL_mgf_currentGeometryList = nullptr;
+        context->currentGeometryList = nullptr;
         return;
     } else {
         context->geometryStackPtr--;
-        GLOBAL_mgf_currentGeometryList = *context->geometryStackPtr;
+        context->currentGeometryList = *context->geometryStackPtr;
     }
 }
 
@@ -99,8 +99,8 @@ handleObject2Entity(int ac, char **av)
 
 void
 surfaceDone(MgfContext *context) {
-    if ( GLOBAL_mgf_currentGeometryList == nullptr ) {
-        GLOBAL_mgf_currentGeometryList = new java::ArrayList<Geometry *>();
+    if ( context->currentGeometryList == nullptr ) {
+        context->currentGeometryList = new java::ArrayList<Geometry *>();
     }
 
     if ( context->currentFaceList != nullptr ) {
@@ -112,7 +112,7 @@ surfaceDone(MgfContext *context) {
             context->currentVertexList,
             context->currentFaceList,
             MaterialColorFlags::NO_COLORS);
-        GLOBAL_mgf_currentGeometryList->add(0, newGeometry);
+        context->currentGeometryList->add(0, newGeometry);
     }
     GLOBAL_mgf_inSurface = false;
 }
@@ -144,19 +144,19 @@ handleObjectEntity(int argc, char **argv, MgfContext *context) {
         }
 
         long listSize = 0;
-        if ( GLOBAL_mgf_currentGeometryList != nullptr ) {
-            listSize += GLOBAL_mgf_currentGeometryList->size();
+        if ( context->currentGeometryList != nullptr ) {
+            listSize += context->currentGeometryList->size();
         }
 
         if ( listSize > 0 ) {
-            theGeometry = geomCreateCompound(new Compound(GLOBAL_mgf_currentGeometryList));
+            theGeometry = geomCreateCompound(new Compound(context->currentGeometryList));
         }
 
         popCurrentGeometryList(context);
 
         if ( theGeometry ) {
-            GLOBAL_mgf_currentGeometryList->add(0, theGeometry);
-            GLOBAL_scene_geometries = GLOBAL_mgf_currentGeometryList;
+            context->currentGeometryList->add(0, theGeometry);
+            GLOBAL_scene_geometries = context->currentGeometryList;
         }
 
         newSurface(context);

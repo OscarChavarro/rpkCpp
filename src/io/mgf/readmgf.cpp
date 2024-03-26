@@ -543,7 +543,7 @@ readMgf(char *filename, MgfContext *context)
 
     globalPointsOctree = nullptr;
     globalNormalsOctree = nullptr;
-    GLOBAL_mgf_currentGeometryList = new java::ArrayList<Geometry *>();
+    context->currentGeometryList = new java::ArrayList<Geometry *>();
 
     if ( GLOBAL_scene_materials == nullptr ) {
         GLOBAL_scene_materials = new java::ArrayList<Material *>();
@@ -580,7 +580,7 @@ readMgf(char *filename, MgfContext *context)
     if ( GLOBAL_mgf_inSurface ) {
         surfaceDone(context);
     }
-    GLOBAL_scene_geometries = GLOBAL_mgf_currentGeometryList;
+    GLOBAL_scene_geometries = context->currentGeometryList;
 
     if ( globalPointsOctree != nullptr) {
         free(globalPointsOctree);
@@ -592,14 +592,14 @@ readMgf(char *filename, MgfContext *context)
 
 void
 mgfFreeMemory(MgfContext *context) {
-    printf("Freeing %ld geometries\n", GLOBAL_mgf_currentGeometryList->size());
+    printf("Freeing %ld geometries\n", context->currentGeometryList->size());
     long surfaces = 0;
     long patchSets = 0;
-    for ( int i = 0; i < GLOBAL_mgf_currentGeometryList->size(); i++ ) {
-        if ( GLOBAL_mgf_currentGeometryList->get(i)->className == SURFACE_MESH ) {
+    for ( int i = 0; i < context->currentGeometryList->size(); i++ ) {
+        if ( context->currentGeometryList->get(i)->className == SURFACE_MESH ) {
             surfaces++;
         }
-        if ( GLOBAL_mgf_currentGeometryList->get(i)->className == PATCH_SET ) {
+        if ( context->currentGeometryList->get(i)->className == PATCH_SET ) {
             patchSets++;
         }
     }
@@ -607,11 +607,11 @@ mgfFreeMemory(MgfContext *context) {
     printf("  - Patch sets: %ld\n", patchSets);
     fflush(stdout);
 
-    for ( int i = 0; i < GLOBAL_mgf_currentGeometryList->size(); i++ ) {
-        geomDestroy(GLOBAL_mgf_currentGeometryList->get(i));
+    for ( int i = 0; i < context->currentGeometryList->size(); i++ ) {
+        geomDestroy(context->currentGeometryList->get(i));
     }
-    delete GLOBAL_mgf_currentGeometryList;
-    GLOBAL_mgf_currentGeometryList = nullptr;
+    delete context->currentGeometryList;
+    context->currentGeometryList = nullptr;
 
     freeLists(context);
 }

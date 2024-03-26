@@ -3,7 +3,6 @@
 
 #include "io/mgf/MgfContext.h"
 
-extern java::ArrayList<Geometry *> *GLOBAL_mgf_currentGeometryList;
 extern int GLOBAL_mgf_inSurface;
 
 extern int handleObjectEntity(int argc, char **argv, MgfContext * /*context*/);
