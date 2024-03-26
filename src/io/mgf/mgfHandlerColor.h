@@ -3,7 +3,7 @@
 
 #include "io/mgf/MgfContext.h"
 
-extern void initColorContextTables();
+extern void initColorContextTables(MgfContext *context);
 extern int handleColorEntity(int ac, char **av, MgfContext * /*context*/);
 
 #endif

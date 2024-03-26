@@ -123,7 +123,7 @@ Clear parser history
 */
 static void
 mgfClear(MgfContext *context) {
-    initColorContextTables();
+    initColorContextTables(context);
     initGeometryContextTables(context);
     initMaterialContextTables(context);
     while ( context->readerContext != nullptr) {

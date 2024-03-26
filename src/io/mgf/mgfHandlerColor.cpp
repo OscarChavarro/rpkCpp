@@ -412,7 +412,7 @@ handleColorEntity(int ac, char **av, MgfContext *context)
 Empty context tables
 */
 void
-initColorContextTables()
+initColorContextTables(MgfContext *context)
 {
     globalUnNamedColorContext = globalDefaultMgfColorContext;
     GLOBAL_mgf_currentColor = &globalUnNamedColorContext;
