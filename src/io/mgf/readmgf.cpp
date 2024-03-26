@@ -123,7 +123,7 @@ Clear parser history
 */
 static void
 mgfClear(MgfContext *context) {
-    initColorContextTables(context);
+    initColorContextTables();
     initGeometryContextTables(context);
     initMaterialContextTables(context);
     while ( context->readerContext != nullptr) {
@@ -177,9 +177,9 @@ mgfPutCSpec(MgfContext *context)
         newAv[0] = context->entityNames[MGF_ENTITY_C_SPEC];
         newAv[1] = wl[0];
         newAv[2] = wl[1];
-        sf = (double)NUMBER_OF_SPECTRAL_SAMPLES / (double)context->currentColor->spectralStraightSum;
+        sf = (double)NUMBER_OF_SPECTRAL_SAMPLES / (double)GLOBAL_mgf_currentColor->spectralStraightSum;
         for ( i = 0; i < NUMBER_OF_SPECTRAL_SAMPLES; i++ ) {
-            snprintf(buffer[i], 24, "%.4f", sf * context->currentColor->straightSamples[i]);
+            snprintf(buffer[i], 24, "%.4f", sf * GLOBAL_mgf_currentColor->straightSamples[i]);
             newAv[i + 3] = buffer[i];
         }
         newAv[NUMBER_OF_SPECTRAL_SAMPLES + 3] = nullptr;
@@ -200,8 +200,8 @@ mgfPutCxy(MgfContext *context)
     static char yBuffer[24];
     static char *cCom[4] = {context->entityNames[MGF_ENTITY_CXY], xBuffer, yBuffer};
 
-    snprintf(xBuffer, 24, "%.4f", context->currentColor->cx);
-    snprintf(yBuffer, 24, "%.4f", context->currentColor->cy);
+    snprintf(xBuffer, 24, "%.4f", GLOBAL_mgf_currentColor->cx);
+    snprintf(yBuffer, 24, "%.4f", GLOBAL_mgf_currentColor->cy);
     return mgfHandle(MGF_ENTITY_CXY, 3, cCom, context);
 }
 
@@ -211,7 +211,7 @@ Handle spectral color
 static int
 mgfECSpec(int /*ac*/, char ** /*av*/, MgfContext *context) {
     // Convert to xy chromaticity
-    mgfContextFixColorRepresentation(context->currentColor, COLOR_XY_IS_SET_FLAG);
+    mgfContextFixColorRepresentation(GLOBAL_mgf_currentColor, COLOR_XY_IS_SET_FLAG);
     // If it's really their handler, use it
     if ( context->handleCallbacks[MGF_ENTITY_CXY] != handleColorEntity ) {
         return mgfPutCxy(context);
@@ -231,8 +231,8 @@ Contorted logic works as follows:
 static int
 mgfECMix(int /*ac*/, char ** /*av*/, MgfContext *context) {
     if ( context->handleCallbacks[MGF_ENTITY_C_SPEC] == mgfECSpec ) {
-        mgfContextFixColorRepresentation(context->currentColor, COLOR_XY_IS_SET_FLAG);
-    } else if ( context->currentColor->flags & COLOR_DEFINED_WITH_SPECTRUM_FLAG ) {
+        mgfContextFixColorRepresentation(GLOBAL_mgf_currentColor, COLOR_XY_IS_SET_FLAG);
+    } else if ( GLOBAL_mgf_currentColor->flags & COLOR_DEFINED_WITH_SPECTRUM_FLAG ) {
         return mgfPutCSpec(context);
     }
     if ( context->handleCallbacks[MGF_ENTITY_CXY] != handleColorEntity ) {
@@ -254,7 +254,7 @@ mgfColorTemperature(int /*ac*/, char ** /*av*/, MgfContext *context)
     if ( context->handleCallbacks[MGF_ENTITY_C_SPEC] != mgfECSpec ) {
         return mgfPutCSpec(context);
     }
-    mgfContextFixColorRepresentation(context->currentColor, COLOR_XY_IS_SET_FLAG);
+    mgfContextFixColorRepresentation(GLOBAL_mgf_currentColor, COLOR_XY_IS_SET_FLAG);
     if ( context->handleCallbacks[MGF_ENTITY_CXY] != handleColorEntity ) {
         return mgfPutCxy(context);
     }
@@ -564,10 +564,10 @@ readMgf(char *filename, MgfContext *context)
     }
     GLOBAL_scene_geometries = context->currentGeometryList;
 
-    if ( globalPointsOctree != nullptr ) {
+    if ( globalPointsOctree != nullptr) {
         free(globalPointsOctree);
     }
-    if ( globalNormalsOctree != nullptr ) {
+    if ( globalNormalsOctree != nullptr) {
         free(globalNormalsOctree);
     }
 }

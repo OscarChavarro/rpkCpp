@@ -374,7 +374,7 @@ handleMaterialEntity(int ac, char **av, MgfContext *context)
             if ( globalMgfCurrentMaterial->rd < 0. || globalMgfCurrentMaterial->rd > 1.0 ) {
                 return MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
             }
-            globalMgfCurrentMaterial->rd_c = *context->currentColor;
+            globalMgfCurrentMaterial->rd_c = *GLOBAL_mgf_currentColor;
             globalMgfCurrentMaterial->clock++;
             return MGF_OK;
 
@@ -390,7 +390,7 @@ handleMaterialEntity(int ac, char **av, MgfContext *context)
             if ( globalMgfCurrentMaterial->ed < 0.0 ) {
                 return MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
             }
-            globalMgfCurrentMaterial->ed_c = *context->currentColor;
+            globalMgfCurrentMaterial->ed_c = *GLOBAL_mgf_currentColor;
             globalMgfCurrentMaterial->clock++;
             return MGF_OK;
 
@@ -406,7 +406,7 @@ handleMaterialEntity(int ac, char **av, MgfContext *context)
             if ( globalMgfCurrentMaterial->td < 0.0 || globalMgfCurrentMaterial->td > 1.0 ) {
                 return MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
             }
-            globalMgfCurrentMaterial->td_c = *context->currentColor;
+            globalMgfCurrentMaterial->td_c = *GLOBAL_mgf_currentColor;
             globalMgfCurrentMaterial->clock++;
             return MGF_OK;
 
@@ -424,7 +424,7 @@ handleMaterialEntity(int ac, char **av, MgfContext *context)
                  globalMgfCurrentMaterial->rs_a < 0.0 ) {
                 return MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
             }
-            globalMgfCurrentMaterial->rs_c = *context->currentColor;
+            globalMgfCurrentMaterial->rs_c = *GLOBAL_mgf_currentColor;
             globalMgfCurrentMaterial->clock++;
             return MGF_OK;
 
@@ -442,7 +442,7 @@ handleMaterialEntity(int ac, char **av, MgfContext *context)
                  globalMgfCurrentMaterial->ts_a < 0.0 ) {
                 return MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
             }
-            globalMgfCurrentMaterial->ts_c = *context->currentColor;
+            globalMgfCurrentMaterial->ts_c = *GLOBAL_mgf_currentColor;
             globalMgfCurrentMaterial->clock++;
             return MGF_OK;
 
