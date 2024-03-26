@@ -18,7 +18,6 @@
 LookUpTable GLOBAL_mgf_vertexLookUpTable = LOOK_UP_INIT(free, free);
 
 // Elements for surface currently being created
-java::ArrayList<Vector3D *> *GLOBAL_mgf_currentPointList = nullptr;
 java::ArrayList<Vector3D *> *GLOBAL_mgf_currentNormalList = nullptr;
 java::ArrayList<Vertex *> *GLOBAL_mgf_currentVertexList = nullptr;
 java::ArrayList<Patch *> *GLOBAL_mgf_currentFaceList = nullptr;
@@ -64,9 +63,9 @@ doDiscreteConic(int argc, char **argv, MgfContext *context) {
 }
 
 static Vector3D *
-installPoint(float x, float y, float z) {
+installPoint(float x, float y, float z, MgfContext *context) {
     Vector3D *coord = new Vector3D(x, y, z);
-    GLOBAL_mgf_currentPointList->add(0, coord);
+    context->currentPointList->add(0, coord);
     return coord;
 }
 
@@ -86,7 +85,7 @@ installVertex(Vector3D *coord, Vector3D *norm) {
 }
 
 static Vertex *
-getVertex(char *name) {
+getVertex(char *name, MgfContext *context) {
     MgfVertexContext *vp;
     Vertex *theVertex;
 
@@ -105,7 +104,7 @@ getVertex(char *name) {
         Vector3D *thePoint;
 
         mgfTransformPoint(vert, vp->p);
-        thePoint = installPoint((float)vert[0], (float)vert[1], (float)vert[2]);
+        thePoint = installPoint((float)vert[0], (float)vert[1], (float)vert[2], context);
         if ( is0Vector(vp->n)) {
             theNormal = nullptr;
         } else {
@@ -509,13 +508,13 @@ handleFaceEntity(int argc, char **argv, MgfContext *context) {
             if ( GLOBAL_mgf_inSurface ) {
                 surfaceDone(context);
             }
-            newSurface();
+            newSurface(context);
             mgfGetCurrentMaterial(&context->currentMaterial, GLOBAL_mgf_allSurfacesSided, context);
         }
     }
 
     for ( int i = 0; i < argc - 1; i++ ) {
-        v[i] = getVertex(argv[i + 1]);
+        v[i] = getVertex(argv[i + 1], context);
         if ( v[i] == nullptr ) {
             // This is however a reason to stop parsing the input
             return MGF_ERROR_UNDEFINED_REFERENCE;
@@ -578,7 +577,7 @@ handleSurfaceEntity(int argc, char **argv, MgfContext *context) {
         if ( GLOBAL_mgf_inSurface ) {
             surfaceDone(context);
         }
-        newSurface();
+        newSurface(context);
         mgfGetCurrentMaterial(&context->currentMaterial, GLOBAL_mgf_allSurfacesSided, context);
 
         errcode = doDiscreteConic(argc, argv, context);

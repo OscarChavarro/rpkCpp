@@ -4,6 +4,6 @@
 #include "io/mgf/MgfContext.h"
 
 extern void readMgf(char *filename, MgfContext *context);
-extern void mgfFreeMemory();
+extern void mgfFreeMemory(MgfContext *context);
 
 #endif

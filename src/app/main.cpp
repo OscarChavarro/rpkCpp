@@ -601,14 +601,14 @@ mainExecuteRendering(java::ArrayList<Patch *> *scenePatches, RadianceMethod *con
 }
 
 static void
-mainFreeMemory() {
+mainFreeMemory(MgfContext *context) {
     if ( GLOBAL_scene_clusteredWorldGeom != nullptr ) {
         delete GLOBAL_scene_clusteredWorldGeom;
         GLOBAL_scene_clusteredWorldGeom = nullptr;
     }
 
     deleteOptionsMemory();
-    mgfFreeMemory();
+    mgfFreeMemory(context);
     galerkinFreeMemory();
 }
 
@@ -628,7 +628,7 @@ main(int argc, char *argv[]) {
     mainBuildModel(&argc, argv, &mgfContext);
 
     mainExecuteRendering(globalAppScenePatches, selectedRadianceMethod);
-    mainFreeMemory();
+    mainFreeMemory(&mgfContext);
 
     return 0;
 }

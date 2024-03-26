@@ -45,8 +45,8 @@ popCurrentGeometryList(MgfContext *context) {
 }
 
 void
-newSurface() {
-    GLOBAL_mgf_currentPointList = new java::ArrayList<Vector3D *>();
+newSurface(MgfContext *context) {
+    context->currentPointList = new java::ArrayList<Vector3D *>();
     GLOBAL_mgf_currentNormalList = new java::ArrayList<Vector3D *>();
     GLOBAL_mgf_currentVertexList = new java::ArrayList<Vertex *>();
     GLOBAL_mgf_currentFaceList = new java::ArrayList<Patch *>();
@@ -106,7 +106,7 @@ surfaceDone(MgfContext *context) {
     if ( GLOBAL_mgf_currentFaceList != nullptr ) {
         Geometry *newGeometry = new MeshSurface(
             context->currentMaterial,
-            GLOBAL_mgf_currentPointList,
+            context->currentPointList,
             GLOBAL_mgf_currentNormalList,
             nullptr, // null texture coordinate list
             GLOBAL_mgf_currentVertexList,
@@ -134,7 +134,7 @@ handleObjectEntity(int argc, char **argv, MgfContext *context) {
 
         pushCurrentGeometryList(context);
 
-        newSurface();
+        newSurface(context);
     } else {
         // End of object definition
         Geometry *theGeometry = nullptr;
@@ -159,7 +159,7 @@ handleObjectEntity(int argc, char **argv, MgfContext *context) {
             GLOBAL_scene_geometries = GLOBAL_mgf_currentGeometryList;
         }
 
-        newSurface();
+        newSurface(context);
     }
 
     return handleObject2Entity(argc, argv);

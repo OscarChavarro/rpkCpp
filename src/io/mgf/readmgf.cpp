@@ -504,10 +504,10 @@ initMgf(MgfContext *context) {
 }
 
 static void
-freeLists() {
-    if ( GLOBAL_mgf_currentPointList != nullptr ) {
-        delete GLOBAL_mgf_currentPointList;
-        GLOBAL_mgf_currentPointList = nullptr;
+freeLists(MgfContext *context) {
+    if ( context->currentPointList != nullptr ) {
+        delete context->currentPointList;
+        context->currentPointList = nullptr;
     }
 
     if ( GLOBAL_mgf_currentNormalList != nullptr ) {
@@ -555,7 +555,7 @@ readMgf(char *filename, MgfContext *context)
     GLOBAL_mgf_inComplex = false;
     GLOBAL_mgf_inSurface = false;
 
-    newSurface();
+    newSurface(context);
 
     MgfReaderContext mgfReaderContext{};
     int status;
@@ -591,7 +591,7 @@ readMgf(char *filename, MgfContext *context)
 }
 
 void
-mgfFreeMemory() {
+mgfFreeMemory(MgfContext *context) {
     printf("Freeing %ld geometries\n", GLOBAL_mgf_currentGeometryList->size());
     long surfaces = 0;
     long patchSets = 0;
@@ -613,5 +613,5 @@ mgfFreeMemory() {
     delete GLOBAL_mgf_currentGeometryList;
     GLOBAL_mgf_currentGeometryList = nullptr;
 
-    freeLists();
+    freeLists(context);
 }

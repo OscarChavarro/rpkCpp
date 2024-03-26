@@ -13,7 +13,8 @@ MgfContext::MgfContext():
         readerContext(),
         handleCallbacks(),
         supportCallbacks(),
-        geometryStack()
+        geometryStack(),
+        currentPointList()
 {
     strcpy(entityNames[0], "#");
     strcpy(entityNames[1], "c");
