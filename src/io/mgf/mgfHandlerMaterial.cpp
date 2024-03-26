@@ -216,19 +216,20 @@ mgfGetCurrentMaterial(Material **material, bool allSurfacesSided, MgfContext *co
         colorSetMonochrome(Ts, colorGray(Ts));
     }
 
-    theMaterial = materialCreate(materialName,
-                                 (colorNull(Ed) && colorNull(Es)) ? nullptr : edfCreate(
-                                         phongEdfCreate(&Ed, &Es, Ne), &GLOBAL_scene_phongEdfMethods),
-                                 bsdfCreate(splitBsdfCreate(
-                                                    (colorNull(Rd) && colorNull(Rs)) ? nullptr : brdfCreate(
-                                                            phongBrdfCreate(&Rd, &Rs, Nr), &GLOBAL_scene_phongBrdfMethods),
-                                                    (colorNull(Td) && colorNull(Ts)) ? nullptr : btdfCreate(
-                                                            phongBtdfCreate(&Td, &Ts, Nt,
-                                                                            globalMgfCurrentMaterial->nr,
-                                                                            globalMgfCurrentMaterial->ni),
-                                                            &GLOBAL_scene_phongBtdfMethods), nullptr),
-                                            &GLOBAL_scene_splitBsdfMethods),
-                                 allSurfacesSided ? 1 : globalMgfCurrentMaterial->sided);
+    theMaterial = materialCreate(
+        materialName,
+         (colorNull(Ed) && colorNull(Es)) ? nullptr : edfCreate(
+                 phongEdfCreate(&Ed, &Es, Ne), &GLOBAL_scene_phongEdfMethods),
+         bsdfCreate(splitBsdfCreate(
+                            (colorNull(Rd) && colorNull(Rs)) ? nullptr : brdfCreate(
+                                    phongBrdfCreate(&Rd, &Rs, Nr), &GLOBAL_scene_phongBrdfMethods),
+                            (colorNull(Td) && colorNull(Ts)) ? nullptr : btdfCreate(
+                                    phongBtdfCreate(&Td, &Ts, Nt,
+                                                    globalMgfCurrentMaterial->nr,
+                                                    globalMgfCurrentMaterial->ni),
+                                    &GLOBAL_scene_phongBtdfMethods), nullptr),
+                    &GLOBAL_scene_splitBsdfMethods),
+         allSurfacesSided ? 1 : globalMgfCurrentMaterial->sided);
 
     GLOBAL_scene_materials->add(0, theMaterial);
     *material = theMaterial;
@@ -273,8 +274,7 @@ mgfMaterialChanged(Material *material, MgfContext *context) {
 Handle material entity
 */
 int
-handleMaterialEntity(int ac, char **av, MgfContext *context)
-{
+handleMaterialEntity(int ac, char **av, MgfContext *context) {
     int i;
     LookUpEntity *lp;
 

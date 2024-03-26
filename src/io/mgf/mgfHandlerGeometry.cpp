@@ -742,8 +742,7 @@ handleFaceWithHolesEntity(int argc, char **argv, MgfContext *context) {
 Handle a vertex entity
 */
 int
-handleVertexEntity(int ac, char **av, MgfContext *context)
-{
+handleVertexEntity(int ac, char **av, MgfContext *context) {
     LookUpEntity *lp;
 
     switch ( mgfEntity(av[0], context) ) {
@@ -844,8 +843,7 @@ handleVertexEntity(int ac, char **av, MgfContext *context)
 Get a named vertex
 */
 MgfVertexContext *
-getNamedVertex(char *name)
-{
+getNamedVertex(char *name) {
     LookUpEntity *lp = lookUpFind(&GLOBAL_mgf_vertexLookUpTable, name);
 
     if ( lp == nullptr ) {

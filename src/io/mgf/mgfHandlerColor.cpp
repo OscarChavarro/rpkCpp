@@ -87,8 +87,7 @@ bBlm(double t) {
 Set black body spectrum
 */
 static int
-setBbTemp(MgfColorContext *clr, double tk)
-{
+setBbTemp(MgfColorContext *clr, double tk) {
     double sf;
     double wl;
     int i;
@@ -163,9 +162,11 @@ mixColors(
     }
 }
 
+/**
+Convert a spectrum
+*/
 static int
-setSpectrum(MgfColorContext *clr, double wlMinimum, double wlMaximum, int ac, char **av)    /* convert a spectrum */
-{
+setSpectrum(MgfColorContext *clr, double wlMinimum, double wlMaximum, int ac, char **av) {
     double scale;
     float va[NUMBER_OF_SPECTRAL_SAMPLES];
     int i, pos;
@@ -256,8 +257,7 @@ setSpectrum(MgfColorContext *clr, double wlMinimum, double wlMaximum, int ac, ch
 Handle color entity
 */
 int
-handleColorEntity(int ac, char **av, MgfContext *context)
-{
+handleColorEntity(int ac, char **av, MgfContext *context) {
     double w;
     double wSum;
     int i;
@@ -406,8 +406,7 @@ handleColorEntity(int ac, char **av, MgfContext *context)
 Empty context tables
 */
 void
-initColorContextTables(MgfContext *context)
-{
+initColorContextTables(MgfContext *context) {
     *(context->unNamedColorContext) = globalDefaultMgfColorContext;
     context->currentColor = context->unNamedColorContext;
     lookUpDone(&clr_tab);
@@ -417,8 +416,7 @@ initColorContextTables(MgfContext *context)
 Convert color representations
 */
 void
-mgfContextFixColorRepresentation(MgfColorContext *clr, int fl)
-{
+mgfContextFixColorRepresentation(MgfColorContext *clr, int fl) {
     double x;
     double y;
     double z;

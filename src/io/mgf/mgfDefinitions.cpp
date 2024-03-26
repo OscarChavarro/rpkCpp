@@ -10,8 +10,7 @@
 Default handler for unknown entities
 */
 int
-mgfDefaultHandlerForUnknownEntities(int /*ac*/, char ** /*av*/, MgfContext * /*context*/)
-{
+mgfDefaultHandlerForUnknownEntities(int /*ac*/, char ** /*av*/, MgfContext * /*context*/) {
     // Just ignore line
     return MGF_OK;
 }
@@ -30,8 +29,7 @@ doWarning(const char *errmsg, MgfContext *context) {
 Get current position in input file
 */
 void
-mgfGetFilePosition(MgfReaderFilePosition *pos, MgfContext *context)
-{
+mgfGetFilePosition(MgfReaderFilePosition *pos, MgfContext *context) {
     pos->fid = context->readerContext->fileContextId;
     pos->lineno = context->readerContext->lineNumber;
     pos->offset = ftell(context->readerContext->fp);
@@ -41,8 +39,7 @@ mgfGetFilePosition(MgfReaderFilePosition *pos, MgfContext *context)
 Reposition input file pointer
 */
 int
-mgfGoToFilePosition(MgfReaderFilePosition *pos, MgfContext *context)
-{
+mgfGoToFilePosition(MgfReaderFilePosition *pos, MgfContext *context) {
     if ( pos->fid != context->readerContext->fileContextId ) {
         return MGF_ERROR_FILE_SEEK_ERROR;
     }
@@ -64,8 +61,7 @@ mgfGoToFilePosition(MgfReaderFilePosition *pos, MgfContext *context)
 Get entity number from its name
 */
 int
-mgfEntity(char *name, MgfContext *context)
-{
+mgfEntity(char *name, MgfContext *context) {
     static LookUpTable ent_tab = LOOK_UP_INIT(nullptr, nullptr); // Lookup table
     char *cp;
 
@@ -93,8 +89,7 @@ mgfEntity(char *name, MgfContext *context)
 Pass entity to appropriate handler
 */
 int
-mgfHandle(int entityIndex, int argc, char **argv, MgfContext *context)
-{
+mgfHandle(int entityIndex, int argc, char **argv, MgfContext *context) {
     int rv;
 
     if ( entityIndex < 0 && (entityIndex = mgfEntity(argv[0], context)) < 0 ) {
@@ -115,8 +110,7 @@ mgfHandle(int entityIndex, int argc, char **argv, MgfContext *context)
 shaftCullOpen new input file
 */
 int
-mgfOpen(MgfReaderContext *readerContext, char *functionCallback, MgfContext *context)
-{
+mgfOpen(MgfReaderContext *readerContext, char *functionCallback, MgfContext *context) {
     static int numberOfFileIds;
     char *cp;
     int isPipe;
@@ -156,8 +150,7 @@ mgfOpen(MgfReaderContext *readerContext, char *functionCallback, MgfContext *con
 Close input file
 */
 void
-mgfClose(MgfContext *context)
-{
+mgfClose(MgfContext *context) {
     MgfReaderContext *ctx = context->readerContext;
 
     context->readerContext = ctx->prev; // Restore enclosing context

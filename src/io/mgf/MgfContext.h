@@ -73,8 +73,6 @@ class MgfContext {
     MgfReaderContext *readerContext;
     int (*handleCallbacks[MGF_TOTAL_NUMBER_OF_ENTITIES])(int argc, char **argv, MgfContext *context);
     int (*supportCallbacks[MGF_TOTAL_NUMBER_OF_ENTITIES])(int argc, char **argv, MgfContext *context);
-
-    // Return model
     Material *currentMaterial;
     char *currentMaterialName;
     java::ArrayList<Geometry *> **geometryStackPtr;
@@ -87,6 +85,8 @@ class MgfContext {
     MgfTransformContext *transformContext;
     MgfColorContext *unNamedColorContext;
     MgfColorContext *currentColor;
+
+    // Return model
 
     MgfContext();
     ~MgfContext();
