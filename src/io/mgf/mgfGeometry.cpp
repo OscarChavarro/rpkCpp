@@ -30,7 +30,7 @@ mgfEntitySphere(int ac, char **av, MgfContext *context) {
     if ( ac != 3 ) {
         return MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
     }
-    cv = getNamedVertex(av[1]);
+    cv = getNamedVertex(av[1], context);
     if ( cv == nullptr) {
         return MGF_ERROR_UNDEFINED_REFERENCE;
     }
@@ -103,7 +103,7 @@ mgfEntityTorus(int ac, char **av, MgfContext *context) {
     if ( ac != 4 ) {
         return MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
     }
-    if ( (cv = getNamedVertex(av[1])) == nullptr ) {
+    if ( (cv = getNamedVertex(av[1], context)) == nullptr ) {
         return MGF_ERROR_UNDEFINED_REFERENCE;
     }
     if ( is0Vector(cv->n) ) {
@@ -246,7 +246,7 @@ mgfEntityRing(int ac, char **av, MgfContext *context) {
         return MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
     }
 
-    vertexContext = getNamedVertex(av[1]);
+    vertexContext = getNamedVertex(av[1], context);
     if ( vertexContext == nullptr) {
         return MGF_ERROR_UNDEFINED_REFERENCE;
     }
@@ -400,8 +400,8 @@ mgfEntityCone(int ac, char **av, MgfContext *context) {
     if ( ac != 5 ) {
         return MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
     }
-    cv1 = getNamedVertex(av[1]);
-    cv2 = getNamedVertex(av[3]);
+    cv1 = getNamedVertex(av[1], context);
+    cv2 = getNamedVertex(av[3], context);
     if ( cv1 == nullptr || cv2 == nullptr) {
         return MGF_ERROR_UNDEFINED_REFERENCE;
     }
@@ -646,7 +646,7 @@ mgfEntityPrism(int ac, char **av, MgfContext *context) {
     }
 
     // Compute face normal
-    cv0 = getNamedVertex(av[1]);
+    cv0 = getNamedVertex(av[1], context);
     if ( cv0 == nullptr ) {
         return MGF_ERROR_UNDEFINED_REFERENCE;
     }
@@ -664,7 +664,7 @@ mgfEntityPrism(int ac, char **av, MgfContext *context) {
     v1[2] = 0.0;
 
     for ( i = 2; i < ac - 1; i++ ) {
-        cv = getNamedVertex(av[i]);
+        cv = getNamedVertex(av[i], context);
         if ( cv == nullptr) {
             return MGF_ERROR_UNDEFINED_REFERENCE;
         }
@@ -695,7 +695,7 @@ mgfEntityPrism(int ac, char **av, MgfContext *context) {
         if ( rv != MGF_OK ) {
             return rv;
         }
-        cv = getNamedVertex(av[i]); // Checked above
+        cv = getNamedVertex(av[i], context); // Checked above
         for ( int j = 0; j < 3; j++ ) {
             snprintf(p[j], 24, globalFloatFormat, cv->p[j] - length * norm[j]);
         }

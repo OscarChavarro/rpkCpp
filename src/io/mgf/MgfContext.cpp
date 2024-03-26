@@ -73,9 +73,11 @@ MgfContext::MgfContext():
     currentColor = unNamedColorContext;
     inSurface = false; // True if busy creating a new surface
     inComplex = false; // True if reading a sphere, torus or other unsupported
-
+    vertexLookUpTable = new LookUpTable;
+    *vertexLookUpTable = LOOK_UP_INIT(free, free);
 }
 
 MgfContext::~MgfContext() {
     delete unNamedColorContext;
+    delete vertexLookUpTable;
 }

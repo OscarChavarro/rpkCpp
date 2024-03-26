@@ -57,6 +57,7 @@
 
 class MgfTransformContext;
 class MgfColorContext;
+class LookUpTable;
 
 class MgfContext {
   public:
@@ -87,6 +88,7 @@ class MgfContext {
     MgfColorContext *currentColor;
     bool inSurface;
     bool inComplex;
+    LookUpTable *vertexLookUpTable;
 
     // Return model
 
@@ -96,5 +98,6 @@ class MgfContext {
 
 #include "io/mgf/MgfTransformContext.h"
 #include "io/mgf/MgfColorContext.h"
+#include "io/mgf/lookup.h"
 
 #endif

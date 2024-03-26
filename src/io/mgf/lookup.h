@@ -23,8 +23,6 @@ class LookUpTable {
     int numberOfDeletedEntries;
 };
 
-extern LookUpTable GLOBAL_mgf_vertexLookUpTable;
-
 #define LOOK_UP_INIT(fk, fd) { \
     (long (*)(char *))lookUpShuffleHash, \
     (int (*)(const char *, const char *))strcmp, \

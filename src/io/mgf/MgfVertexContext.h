@@ -12,6 +12,6 @@ class MgfVertexContext {
     void *clientData; // Client data -- initialized to nullptr by the parser
 };
 
-extern MgfVertexContext *getNamedVertex(char *name);
+extern MgfVertexContext *getNamedVertex(char *name, MgfContext *context);
 
 #endif

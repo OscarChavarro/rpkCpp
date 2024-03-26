@@ -15,8 +15,6 @@
 #define MAXIMUM_FACE_VERTICES 100
 #define DEFAULT_VERTEX {{0.0, 0.0, 0.0}, {0.0, 0.0, 0.0}, 0, 1, nullptr}
 
-LookUpTable GLOBAL_mgf_vertexLookUpTable = LOOK_UP_INIT(free, free);
-
 static MgfVertexContext globalMgfVertexContext = DEFAULT_VERTEX;
 static MgfVertexContext *globalMgfCurrentVertex = &globalMgfVertexContext;
 static MgfVertexContext globalMgfDefaultVertexContext = DEFAULT_VERTEX;
@@ -79,7 +77,7 @@ getVertex(char *name, MgfContext *context) {
     MgfVertexContext *vp;
     Vertex *theVertex;
 
-    vp = getNamedVertex(name);
+    vp = getNamedVertex(name, context);
     if ( vp == nullptr ) {
         return nullptr;
     }
@@ -611,7 +609,7 @@ handleFaceWithHolesEntity(int argc, char **argv, MgfContext *context) {
             continue;
         }
 
-        vp = getNamedVertex(argv[i]);
+        vp = getNamedVertex(argv[i], context);
         if ( !vp ) {
             // Undefined vertex
             return MGF_ERROR_UNDEFINED_REFERENCE;
@@ -758,7 +756,7 @@ handleVertexEntity(int ac, char **av, MgfContext *context) {
             if ( !isNameWords(av[1]) ) {
                 return MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
             }
-            lp = lookUpFind(&GLOBAL_mgf_vertexLookUpTable, av[1]);
+            lp = lookUpFind(context->vertexLookUpTable, av[1]);
             // Lookup context
             if ( lp == nullptr ) {
                 return MGF_ERROR_OUT_OF_MEMORY;
@@ -794,7 +792,7 @@ handleVertexEntity(int ac, char **av, MgfContext *context) {
                 *globalMgfCurrentVertex = globalMgfDefaultVertexContext;
                 return MGF_OK;
             }
-            lp = lookUpFind(&GLOBAL_mgf_vertexLookUpTable, av[3]);
+            lp = lookUpFind(context->vertexLookUpTable, av[3]);
             // Lookup template
             if ( lp == nullptr) {
                 return MGF_ERROR_OUT_OF_MEMORY;
@@ -840,8 +838,8 @@ handleVertexEntity(int ac, char **av, MgfContext *context) {
 Get a named vertex
 */
 MgfVertexContext *
-getNamedVertex(char *name) {
-    LookUpEntity *lp = lookUpFind(&GLOBAL_mgf_vertexLookUpTable, name);
+getNamedVertex(char *name, MgfContext *context) {
+    LookUpEntity *lp = lookUpFind(context->vertexLookUpTable, name);
 
     if ( lp == nullptr ) {
         return nullptr;
@@ -854,5 +852,5 @@ initGeometryContextTables(MgfContext *context) {
     globalMgfVertexContext = globalMgfDefaultVertexContext;
     globalMgfCurrentVertex = &globalMgfVertexContext;
     context->currentVertexName = nullptr;
-    lookUpDone(&GLOBAL_mgf_vertexLookUpTable);
+    lookUpDone(context->vertexLookUpTable);
 }
