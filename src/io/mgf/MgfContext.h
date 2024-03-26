@@ -86,6 +86,7 @@ class MgfContext {
     MgfColorContext *unNamedColorContext;
     MgfColorContext *currentColor;
     bool inSurface;
+    bool inComplex;
 
     // Return model
 

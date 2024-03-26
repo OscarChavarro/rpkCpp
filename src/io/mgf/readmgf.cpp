@@ -532,7 +532,7 @@ readMgf(char *filename, MgfContext *context) {
 
     context->geometryStackPtr = context->geometryStack;
 
-    GLOBAL_mgf_inComplex = false;
+    context->inComplex = false;
     context->inSurface = false;
 
     newSurface(context);

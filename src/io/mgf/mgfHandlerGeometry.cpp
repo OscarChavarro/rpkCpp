@@ -17,9 +17,6 @@
 
 LookUpTable GLOBAL_mgf_vertexLookUpTable = LOOK_UP_INIT(free, free);
 
-// Geometry stack: used for building a hierarchical representation of the scene
-int GLOBAL_mgf_inComplex = false; // True if reading a sphere, torus or other unsupported
-
 static MgfVertexContext globalMgfVertexContext = DEFAULT_VERTEX;
 static MgfVertexContext *globalMgfCurrentVertex = &globalMgfVertexContext;
 static MgfVertexContext globalMgfDefaultVertexContext = DEFAULT_VERTEX;
@@ -494,7 +491,7 @@ handleFaceEntity(int argc, char **argv, MgfContext *context) {
         return MGF_OK; // No reason to stop parsing the input
     }
 
-    if ( !GLOBAL_mgf_inComplex ) {
+    if ( !context->inComplex ) {
         if ( mgfMaterialChanged(context->currentMaterial, context) ) {
             if ( context->inSurface ) {
                 surfaceDone(context);
@@ -534,7 +531,7 @@ handleFaceEntity(int argc, char **argv, MgfContext *context) {
         }
     } else if ( argc == 5 ) {
             // Quadrilaterals
-            if ( GLOBAL_mgf_inComplex || faceIsConvex(argc - 1, v, &normal)) {
+            if ( context->inComplex || faceIsConvex(argc - 1, v, &normal)) {
                 face = newFace(v[0], v[1], v[2], v[3], context);
                 if ( !context->currentMaterial->sided && face != nullptr ) {
                     twin = newFace(backV[3], backV[2], backV[1], backV[0], context);
@@ -560,11 +557,11 @@ int
 handleSurfaceEntity(int argc, char **argv, MgfContext *context) {
     int errcode;
 
-    if ( GLOBAL_mgf_inComplex ) {
+    if ( context->inComplex ) {
         // mgfEntitySphere calls mgfEntityCone
         return doDiscreteConic(argc, argv, context);
     } else {
-        GLOBAL_mgf_inComplex = true;
+        context->inComplex = true;
         if ( context->inSurface ) {
             surfaceDone(context);
         }
@@ -574,7 +571,7 @@ handleSurfaceEntity(int argc, char **argv, MgfContext *context) {
         errcode = doDiscreteConic(argc, argv, context);
 
         surfaceDone(context);
-        GLOBAL_mgf_inComplex = false;
+        context->inComplex = false;
 
         return errcode;
     }

@@ -14,15 +14,7 @@ MgfContext::MgfContext():
     handleCallbacks(),
     supportCallbacks(),
     geometryStack(),
-    currentPointList(),
-    currentNormalList(),
-    currentVertexList(),
-    currentFaceList(),
-    currentGeometryList(),
-    transformContext(),
-    unNamedColorContext(),
-    currentColor(),
-    inSurface()
+    currentPointList()
 {
     strcpy(entityNames[0], "#");
     strcpy(entityNames[1], "c");
@@ -80,6 +72,8 @@ MgfContext::MgfContext():
     *unNamedColorContext = DEFAULT_COLOR_CONTEXT;
     currentColor = unNamedColorContext;
     inSurface = false; // True if busy creating a new surface
+    inComplex = false; // True if reading a sphere, torus or other unsupported
+
 }
 
 MgfContext::~MgfContext() {
