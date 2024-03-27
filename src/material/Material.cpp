@@ -12,7 +12,7 @@ Material GLOBAL_material_defaultMaterial = {
 
 Material *
 materialCreate(const char *name,
-               EDF *edf, BSDF *bsdf,
+               PhongEmittanceDistributionFunctions *edf, BSDF *bsdf,
                int sided) {
     Material *m = (Material *)malloc(sizeof(Material));
     m->name = (char *)malloc(strlen(name) + 1);

@@ -2,7 +2,7 @@
 
 #include "common/error.h"
 #include "scene/spherical.h"
-#include "material/edf.h"
+#include "material/PhongEmittanceDistributionFunctions.h"
 #include "raycasting/bidirectionalRaytracing/LightDirSampler.h"
 
 /**

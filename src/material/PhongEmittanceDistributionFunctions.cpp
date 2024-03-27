@@ -1,15 +1,15 @@
 #include <cstdlib>
 
-#include "material/edf.h"
+#include "material/PhongEmittanceDistributionFunctions.h"
 #include "common/error.h"
 
 /**
 Creates a EDF instance with given data and methods. A pointer
 to the created EDF object is returned
 */
-EDF *
+PhongEmittanceDistributionFunctions *
 edfCreate(void *data, EDF_METHODS *methods) {
-    EDF *edf = (EDF *)malloc(sizeof(EDF));
+    PhongEmittanceDistributionFunctions *edf = (PhongEmittanceDistributionFunctions *)malloc(sizeof(PhongEmittanceDistributionFunctions));
     edf->data = data;
     edf->methods = methods;
 
@@ -20,7 +20,7 @@ edfCreate(void *data, EDF_METHODS *methods) {
 Returns the emittance (self-emitted radiant exitance) [W/m^2] of the EDF
 */
 COLOR
-edfEmittance(EDF *edf, RayHit *hit, XXDFFLAGS flags) {
+edfEmittance(PhongEmittanceDistributionFunctions *edf, RayHit *hit, XXDFFLAGS flags) {
     if ( edf && edf->methods->Emittance ) {
         return edf->methods->Emittance(edf->data, hit, flags);
     } else {
@@ -31,7 +31,7 @@ edfEmittance(EDF *edf, RayHit *hit, XXDFFLAGS flags) {
 }
 
 int
-edfIsTextured(EDF *edf) {
+edfIsTextured(PhongEmittanceDistributionFunctions *edf) {
     if ( edf && edf->methods->IsTextured ) {
         return edf->methods->IsTextured(edf->data);
     }
@@ -44,7 +44,7 @@ out. If pdf is not null, the stochasticJacobiProbability density of the directio
 computed and returned in pdf
 */
 COLOR
-edfEval(EDF *edf, RayHit *hit, Vector3D *out, XXDFFLAGS flags, double *pdf) {
+edfEval(PhongEmittanceDistributionFunctions *edf, RayHit *hit, Vector3D *out, XXDFFLAGS flags, double *pdf) {
     if ( edf && edf->methods->Eval ) {
         return edf->methods->Eval(edf->data, hit, out, flags, pdf);
     } else {
@@ -64,7 +64,7 @@ the generated direction is returned. If pdf is not null, the stochasticJacobiPro
 of the generated direction is computed and returned in pdf
 */
 Vector3D
-edfSample(EDF *edf, RayHit *hit, XXDFFLAGS flags,
+edfSample(PhongEmittanceDistributionFunctions *edf, RayHit *hit, XXDFFLAGS flags,
           double xi1, double xi2,
           COLOR *emitted_radiance, double *pdf) {
     if ( edf && edf->methods->Sample ) {
@@ -92,7 +92,7 @@ routine - hitPointShadingFrame() in material.[ch] constructs such a frame if
 needed)
 */
 int
-edfShadingFrame(EDF *edf, RayHit *hit, Vector3D *X, Vector3D *Y, Vector3D *Z) {
+edfShadingFrame(PhongEmittanceDistributionFunctions *edf, RayHit *hit, Vector3D *X, Vector3D *Y, Vector3D *Z) {
     if ( edf && edf->methods->ShadingFrame ) {
         return edf->methods->ShadingFrame(edf->data, hit, X, Y, Z);
     }

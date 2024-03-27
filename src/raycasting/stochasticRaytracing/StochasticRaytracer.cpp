@@ -342,7 +342,7 @@ stochasticRaytracerGetRadiance(
         colorScale((float)weight, result, result);
     } else {
         // Handle non-background
-        EDF *thisEdf = thisNode->m_hit.material->edf;
+        PhongEmittanceDistributionFunctions *thisEdf = thisNode->m_hit.material->edf;
 
         colorClear(result);
 

@@ -175,7 +175,7 @@ addWithSpikeCheck(
 
 void
 handlePathX0(BidirectionalPathTracingConfiguration *config, CBiPath *path) {
-    EDF *endingEdf = path->m_eyeEndNode->m_hit.material ? path->m_eyeEndNode->m_hit.material->edf : nullptr;
+    PhongEmittanceDistributionFunctions *endingEdf = path->m_eyeEndNode->m_hit.material ? path->m_eyeEndNode->m_hit.material->edf : nullptr;
     COLOR oldBsdfEval;
     COLOR f;
     COLOR fRad;

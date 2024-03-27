@@ -216,7 +216,7 @@ mgfGetCurrentMaterial(Material **material, bool allSurfacesSided, MgfContext *co
         colorSetMonochrome(Ts, colorGray(Ts));
     }
 
-    EDF* edf = nullptr;
+    PhongEmittanceDistributionFunctions* edf = nullptr;
     if ( !colorNull(Ed) || !colorNull(Es) ) {
         edf = edfCreate(phongEdfCreate(&Ed, &Es, Ne), &GLOBAL_scene_phongEdfMethods);
     }
