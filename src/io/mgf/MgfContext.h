@@ -68,7 +68,7 @@ class MgfContext {
     int numberOfQuarterCircleDivisions;
     bool monochrome;
 
-    // Global variables on the MGF reader context
+    // Internal variables on the MGF reader context
     char entityNames[MGF_TOTAL_NUMBER_OF_ENTITIES][MGF_MAXIMUM_ENTITY_NAME_LENGTH];
     const char *errorCodeMessages[MGF_NUMBER_OF_ERRORS];
     MgfReaderContext *readerContext;

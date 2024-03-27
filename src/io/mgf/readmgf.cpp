@@ -144,7 +144,7 @@ mgfSetNrQuartCircDivs(int divs) {
 }
 
 /**
-If yesno is true, all materials will be converted to be GLOBAL_mgf_monochrome.
+If yesno is true, all materials will be converted to be monochrome
 */
 static void
 mgfSetMonochrome(bool yesno, MgfContext *context) {

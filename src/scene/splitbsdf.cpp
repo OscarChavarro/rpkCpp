@@ -26,7 +26,7 @@ splitBsdfCreate(
     BTDF *btdf,
     TEXTURE *texture)
 {
-    SPLIT_BSDF *bsdf = (SPLIT_BSDF *)malloc(sizeof(SPLIT_BSDF));
+    SPLIT_BSDF *bsdf = new SPLIT_BSDF();
 
     bsdf->brdf = brdf;
     bsdf->btdf = btdf;

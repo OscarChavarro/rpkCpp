@@ -175,7 +175,7 @@ PhotonMapRadianceMethod::initialize(java::ArrayList<Patch *> *scenePatches) {
 Adapted from bi-directional path, this is a bit overkill for here
 */
 static COLOR
-photonMapDoComputePixelFluxEstimate(PhotonMapConfig *config, RadianceMethod *context) {
+photonMapDoComputePixelFluxEstimate(PhotonMapConfig *config, RadianceMethod * /*context*/) {
     CBiPath *bp = &config->biPath;
     SimpleRaytracingPathNode *eyePrevNode;
     SimpleRaytracingPathNode *lightPrevNode;
@@ -314,15 +314,13 @@ bool
 photonMapDoPhotonStore(SimpleRaytracingPathNode *node, COLOR power) {
     //float scatteredPower;
     //COLOR col;
-    BSDF *bsdf;
-
     if ( node->m_hit.patch && node->m_hit.patch->surface->material ) {
         // Only add photons on surfaces with a certain reflection
-        // coefficient.
+        // coefficient
 
-        bsdf = node->m_hit.patch->surface->material->bsdf;
+        BSDF *bsdf = node->m_hit.patch->surface->material->bsdf;
 
-        if ( !ZeroAlbedo(bsdf, &node->m_hit, BSDF_DIFFUSE_COMPONENT | BSDF_GLOSSY_COMPONENT)) {
+        if ( !ZeroAlbedo(bsdf, &node->m_hit, BSDF_DIFFUSE_COMPONENT | BSDF_GLOSSY_COMPONENT) ) {
             CPhoton photon(node->m_hit.point, power, node->m_inDirF);
 
             // Determine photon flags

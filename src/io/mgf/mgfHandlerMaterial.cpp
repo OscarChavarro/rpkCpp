@@ -38,7 +38,7 @@ static LookUpTable globalMaterialLookUpTable = LOOK_UP_INIT(free, free);
 
 /**
 Looks up a material with given name in the given material list. Returns
-a pointer to the material if found, or (Material *)nullptr if not found
+a pointer to the material if found, or nullptr if not found
 */
 static Material *
 materialLookup(char *name) {
@@ -216,19 +216,29 @@ mgfGetCurrentMaterial(Material **material, bool allSurfacesSided, MgfContext *co
         colorSetMonochrome(Ts, colorGray(Ts));
     }
 
+    EDF* edf = nullptr;
+    if ( !colorNull(Ed) || !colorNull(Es) ) {
+        edf = edfCreate(phongEdfCreate(&Ed, &Es, Ne), &GLOBAL_scene_phongEdfMethods);
+    }
+
+    BRDF *brdf = (colorNull(Rd) && colorNull(Rs)) ? nullptr : brdfCreate(
+            phongBrdfCreate(&Rd, &Rs, Nr), &GLOBAL_scene_phongBrdfMethods);
+
+    BTDF *btdf = (colorNull(Td) && colorNull(Ts)) ? nullptr : btdfCreate(
+            phongBtdfCreate(&Td, &Ts, Nt,
+                            globalMgfCurrentMaterial->nr,
+                            globalMgfCurrentMaterial->ni),
+            &GLOBAL_scene_phongBtdfMethods);
+
+    BSDF *bsdf = bsdfCreate(
+        splitBsdfCreate(brdf, btdf, nullptr),
+       &GLOBAL_scene_splitBsdfMethods
+    );
+
     theMaterial = materialCreate(
         materialName,
-         (colorNull(Ed) && colorNull(Es)) ? nullptr : edfCreate(
-                 phongEdfCreate(&Ed, &Es, Ne), &GLOBAL_scene_phongEdfMethods),
-         bsdfCreate(splitBsdfCreate(
-                            (colorNull(Rd) && colorNull(Rs)) ? nullptr : brdfCreate(
-                                    phongBrdfCreate(&Rd, &Rs, Nr), &GLOBAL_scene_phongBrdfMethods),
-                            (colorNull(Td) && colorNull(Ts)) ? nullptr : btdfCreate(
-                                    phongBtdfCreate(&Td, &Ts, Nt,
-                                                    globalMgfCurrentMaterial->nr,
-                                                    globalMgfCurrentMaterial->ni),
-                                    &GLOBAL_scene_phongBtdfMethods), nullptr),
-                    &GLOBAL_scene_splitBsdfMethods),
+         edf,
+         bsdf,
          allSurfacesSided ? 1 : globalMgfCurrentMaterial->sided);
 
     GLOBAL_scene_materials->add(0, theMaterial);

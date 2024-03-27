@@ -643,7 +643,7 @@ Patch::computeBoundingBox() {
 int
 Patch::getNumberOfSamples() {
     int numberOfSamples = 1;
-    if ( bsdfIsTextured(surface->material->bsdf)) {
+    if ( bsdfIsTextured(surface->material->bsdf) ) {
         if ( vertex[0]->texCoord == vertex[1]->texCoord &&
              vertex[0]->texCoord == vertex[2]->texCoord &&
              (numberOfVertices == 3 || vertex[0]->texCoord == vertex[3]->texCoord) &&
@@ -916,13 +916,9 @@ Patch::uniformToBiLinear(double *u, double *v) const {
     double a = jacobian->A;
     double b = jacobian->B;
     double c = jacobian->C;
-    double A;
-    double B;
-    double C;
-
-    A = 0.5 * b / area;
-    B = (a + 0.5 * c) / area;
-    C = -(*u);
+    double A = 0.5 * b / area;
+    double B = (a + 0.5 * c) / area;
+    double C = -(*u);
     if ( !solveQuadraticUnitInterval(A, B, C, u) ) {
         logError(nullptr, "Tried to solve %g*u^2 + %g*u = %g for patch %d",
           A, B, -C, id);
