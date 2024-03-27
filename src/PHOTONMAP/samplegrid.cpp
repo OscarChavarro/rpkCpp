@@ -70,7 +70,7 @@ void CSampleGrid2D::EnsureNonZeroEntries() {
 }
 
 void
-CSampleGrid2D::Sample(double *x, double *y, double *pdf) {
+CSampleGrid2D::Sample(double *x, double *y, double *probabilityDensityFunction) {
     int xIndex;
     int yIndex;
     double xPdf;
@@ -78,19 +78,17 @@ CSampleGrid2D::Sample(double *x, double *y, double *pdf) {
 
     if ( totalSum < EPSILON ) {
         // No significant data in table, use uniform sampling
-        *pdf = 1.0;
+        *probabilityDensityFunction = 1.0;
         return;
     }
 
     // Choose x row
-
     xIndex = discreteSample(ySums, totalSum, x, &xPdf);
 
     // Choose y column
-
     yIndex = discreteSample(values + xIndex * ySections, ySums[xIndex], y, &yPdf);
 
-    *pdf = xPdf * yPdf;
+    *probabilityDensityFunction = xPdf * yPdf;
 
     // Rescale: x and y are in [0,1[ now we need to sample
     // grid element (xIndex, yIndex) uniformly
@@ -99,10 +97,10 @@ CSampleGrid2D::Sample(double *x, double *y, double *pdf) {
 
     range = 1.0 / xSections;
     *x = (*x + xIndex) * range;
-    *pdf /= range;
+    *probabilityDensityFunction /= range;
 
     range = 1.0 / ySections;
     *y = (*y + yIndex) * range;
-    *pdf /= range;  // Uniform sampling: pdf = 1/A(xi,yi) * p(xi) * p(yi)
+    *probabilityDensityFunction /= range;  // Uniform sampling: pdf = 1/A(xi,yi) * p(xi) * p(yi)
 }
 

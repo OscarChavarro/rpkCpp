@@ -9,13 +9,13 @@ newNode gets filled, others may change
 */
 bool
 ScreenSampler::sample(
-        SimpleRaytracingPathNode */*prevNode*/,
-        SimpleRaytracingPathNode *thisNode,
-        SimpleRaytracingPathNode *newNode,
-        double x1,
-        double x2,
-        bool /* doRR */,
-        BSDF_FLAGS /* flags */)
+    SimpleRaytracingPathNode */*prevNode*/,
+    SimpleRaytracingPathNode *thisNode,
+    SimpleRaytracingPathNode *newNode,
+    double x1,
+    double x2,
+    bool /* doRR */,
+    BSDF_FLAGS /* flags */)
 {
     Vector3D dir;
 
@@ -67,14 +67,14 @@ ScreenSampler::evalPDF(
         SimpleRaytracingPathNode *thisNode,
         SimpleRaytracingPathNode *newNode,
         BSDF_FLAGS /*flags*/,
-        double * /*pdf*/,
-        double * /*pdfRR*/)
+        double * /*probabilityDensityFunction*/,
+        double * /*probabilityDensityFunctionRR*/)
 {
     double dist2;
     double dist;
     double cosA;
     double cosB;
-    double pdf;
+    double probabilityDensityFunction;
     Vector3D outDir;
 
     // More efficient with extra params?
@@ -83,22 +83,22 @@ ScreenSampler::evalPDF(
     dist = std::sqrt(dist2);
     vectorScaleInverse((float)dist, outDir, outDir);
 
-    // pdf = 1 / A_screen transformed to area measure
+    // probabilityDensityFunction = 1 / A_screen transformed to area measure
 
     cosA = vectorDotProduct(thisNode->m_normal, outDir);
 
-    // pdf = 1/Apix * (r^2 / cos(dir, eyeNormal) * (cos(dir, patchNormal) / d^2)
+    // probabilityDensityFunction = 1/Apix * (r^2 / cos(dir, eyeNormal) * (cos(dir, patchNormal) / d^2)
     //                 |__> to spherical angle           |__> to area on patch
 
     // Three cosines : r^2 / cos = 1 / cos^3 since r is length
     // of viewing ray to the screen.
-    pdf = 1.0 / (GLOBAL_camera_mainCamera.pixelHeight * (float)GLOBAL_camera_mainCamera.ySize * GLOBAL_camera_mainCamera.pixelWidth *
-                 (float)GLOBAL_camera_mainCamera.xSize * cosA * cosA * cosA);
+    probabilityDensityFunction = 1.0 / (GLOBAL_camera_mainCamera.pixelHeight * (float)GLOBAL_camera_mainCamera.ySize * GLOBAL_camera_mainCamera.pixelWidth *
+                                        (float)GLOBAL_camera_mainCamera.xSize * cosA * cosA * cosA);
 
     cosB = -vectorDotProduct(newNode->m_normal, outDir);
-    pdf = pdf * cosB / dist2;
+    probabilityDensityFunction = probabilityDensityFunction * cosB / dist2;
 
-    return pdf;
+    return probabilityDensityFunction;
 }
 
 

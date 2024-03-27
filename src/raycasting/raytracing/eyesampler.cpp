@@ -55,7 +55,7 @@ bool CEyeSampler::sample(SimpleRaytracingPathNode *prevNode, SimpleRaytracingPat
 
 double CEyeSampler::evalPDF(SimpleRaytracingPathNode */*thisNode*/,
                             SimpleRaytracingPathNode */*newNode*/, BSDF_FLAGS /*flags*/,
-                            double * /*pdf*/, double * /*pdfRR*/) {
+                            double * /*probabilityDensityFunction*/, double * /*probabilityDensityFunctionRR*/) {
     return 1.0;
 }
 

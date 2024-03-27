@@ -21,11 +21,11 @@ CSpecularSampler::sample(
     COLOR reflectance = bsdfReflectance(thisNode->m_useBsdf,
                                         &thisNode->m_hit,
                                         &thisNode->m_hit.normal,
-                                        GETBRDFFLAGS(flags));
+                                        GET_BRDF_FLAGS(flags));
     COLOR transmittance = bsdfScatteredPower(thisNode->m_useBsdf,
-                                            &thisNode->m_hit,
-                                            &thisNode->m_hit.normal,
-                                            GETBTDFFLAGS(flags));
+                                             &thisNode->m_hit,
+                                             &thisNode->m_hit.normal,
+                                             GET_BTDF_FLAGS(flags));
 
     float avgReflectance = colorAverage(reflectance);
     float avgTransmittance = colorAverage(transmittance);
@@ -106,14 +106,14 @@ CSpecularSampler::evalPDF(
     SimpleRaytracingPathNode *thisNode,
     SimpleRaytracingPathNode *newNode,
     BSDF_FLAGS flags,
-    double *pdf,
-    double *pdfRR)
+    double *probabilityDensityFunction,
+    double *probabilityDensityFunctionRR)
 {
-    if ( pdf ) {
-        *pdf = 0;
+    if ( probabilityDensityFunction ) {
+        *probabilityDensityFunction = 0;
     }
-    if ( pdfRR ) {
-        *pdfRR = 0;
+    if ( probabilityDensityFunctionRR ) {
+        *probabilityDensityFunctionRR = 0;
     }
 
     return 0.0; // Specular reflection can only be done by sampling!
@@ -126,11 +126,11 @@ CSpecularSampler::EvalPDFPrev(
     SimpleRaytracingPathNode *thisNode,
     SimpleRaytracingPathNode */*newNode*/,
     BSDF_FLAGS flags,
-    double *pdf,
-    double *pdfRR)
+    double *probabilityDensityFunction,
+    double *probabilityDensityFunctionRR)
 {
-    *pdf = 0.0;
-    *pdfRR = 0.0;
+    *probabilityDensityFunction = 0.0;
+    *probabilityDensityFunctionRR = 0.0;
 
     return 0.0;
 }

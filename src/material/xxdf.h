@@ -15,16 +15,17 @@ Contributions to outgoing radiance are divided into three components :
 #define GLOSSY_COMPONENT 2
 #define SPECULAR_COMPONENT 4
 
-/* Convert index to component value */
+// Convert index to component value
 
-#define XXDF_COMPONENTS 3  /* There are three components */
+// There are three components
+#define XXDF_COMPONENTS 3
 
 #define NO_COMPONENTS 0
 #define ALL_COMPONENTS (DIFFUSE_COMPONENT|GLOSSY_COMPONENT|SPECULAR_COMPONENT)
 
 typedef char XXDFFLAGS;
 
-/* Bsdf's have 6 components : 3 for reflection, 3 for transmission */
+// Bsdf's have 6 components : 3 for reflection, 3 for transmission
 
 #define BRDF_DIFFUSE_COMPONENT 0x01
 #define BRDF_GLOSSY_COMPONENT 0x02
@@ -33,26 +34,26 @@ typedef char XXDFFLAGS;
 #define BTDF_GLOSSY_COMPONENT 0x10
 #define BTDF_SPECULAR_COMPONENT 0x20
 
-#define BSDF_DIFFUSE_COMPONENT (BTDF_DIFFUSE_COMPONENT|BRDF_DIFFUSE_COMPONENT)
-#define BSDF_GLOSSY_COMPONENT (BTDF_GLOSSY_COMPONENT|BRDF_GLOSSY_COMPONENT)
-#define BSDF_SPECULAR_COMPONENT (BTDF_SPECULAR_COMPONENT|BRDF_SPECULAR_COMPONENT)
+#define BSDF_DIFFUSE_COMPONENT (BTDF_DIFFUSE_COMPONENT | BRDF_DIFFUSE_COMPONENT)
+#define BSDF_GLOSSY_COMPONENT (BTDF_GLOSSY_COMPONENT | BRDF_GLOSSY_COMPONENT)
+#define BSDF_SPECULAR_COMPONENT (BTDF_SPECULAR_COMPONENT | BRDF_SPECULAR_COMPONENT)
 
-/* Convert index to component value */
+// Convert index to component value
+#define BSDF_INDEX_TO_COMP(i) (1 << (i))
 
-#define BSDF_INDEXTOCOMP(i) (1<<(i))
-
-#define BSDF_COMPONENTS 6  /* There are six components */
+// There are six components
+#define BSDF_COMPONENTS 6
 
 #define NO_COMPONENTS 0
 #define BSDF_ALL_COMPONENTS (BRDF_DIFFUSE_COMPONENT|BRDF_GLOSSY_COMPONENT|BRDF_SPECULAR_COMPONENT|BTDF_DIFFUSE_COMPONENT|BTDF_GLOSSY_COMPONENT|BTDF_SPECULAR_COMPONENT)
 
-/* converts BSDFFLAGS to XXDFFLAGS */
-#define GETBRDFFLAGS(bsflags) ((bsflags) & ALL_COMPONENTS)
-#define GETBTDFFLAGS(bsflags) (((bsflags) >> XXDF_COMPONENTS) & ALL_COMPONENTS)
+// Converts BSDFFLAGS to XXDFFLAGS
+#define GET_BRDF_FLAGS(bsflags) ((bsflags) & ALL_COMPONENTS)
+#define GET_BTDF_FLAGS(bsflags) (((bsflags) >> XXDF_COMPONENTS) & ALL_COMPONENTS)
 
-/* converts XXDFFLAGS to BSDFFLAGS */
-#define SETBRDFFLAGS(xxflags) ((xxflags) & ALL_COMPONENTS)
-#define SETBTDFFLAGS(xxflags) (((xxflags) & ALL_COMPONENTS) << XXDF_COMPONENTS)
+// Converts XXDFFLAGS to BSDFFLAGS
+#define SET_BRDF_FLAGS(xxflags) ((xxflags) & ALL_COMPONENTS)
+#define SET_BTDF_FLAGS(xxflags) (((xxflags) & ALL_COMPONENTS) << XXDF_COMPONENTS)
 
 typedef char BSDF_FLAGS;
 
@@ -67,10 +68,10 @@ extern Vector3D idealReflectedDirection(Vector3D *in, Vector3D *normal);
 
 extern Vector3D
 idealRefractedDirection(
-        Vector3D *in,
-        Vector3D *normal,
-        RefractionIndex inIndex,
-        RefractionIndex outIndex,
-        int *totalInternalReflection);
+    Vector3D *in,
+    Vector3D *normal,
+    RefractionIndex inIndex,
+    RefractionIndex outIndex,
+    int *totalInternalReflection);
 
 #endif

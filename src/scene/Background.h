@@ -6,11 +6,11 @@
 #include "skin/Patch.h"
 
 class BACKGROUND_METHODS {
-public:
+  public:
     /* evaluate background radiance coming in from direction (direction
-     * positions towards the background). If 'pdf' is non-null, also fills
+     * positions towards the background). If probabilityDensityFunction is non-null, also fills
      * in the probability of sampling this direction with Sample() */
-    COLOR (*Radiance)(void *data, Vector3D *position, Vector3D *direction, float *pdf);
+    COLOR (*Radiance)(void *data, Vector3D *position, Vector3D *direction, float *probabilityDensityFunction);
 
     /* Samples a direction to the background, taking into account the
      * radiance coming in from the background. The returned direction
@@ -20,7 +20,7 @@ public:
      * needs to be sampled. If value or pdf is non-null, the radiance coming
      * in from the sampled direction or the probability of sampling the
      * direction are computed on the fly. */
-    Vector3D (*Sample)(void *data, Vector3D *position, float xi1, float xi2, COLOR *radiance, float *pdf);
+    Vector3D (*Sample)(void *data, Vector3D *position, float xi1, float xi2, COLOR *radiance, float *probabilityDensityFunction);
 
     /* Computes total power emitted by the background (= integral over
      * the full sphere of the background radiance */
@@ -36,7 +36,7 @@ class Background {
     BACKGROUND_METHODS *methods; // class methods operating on state
 };
 
-extern COLOR backgroundRadiance(Background *bkg, Vector3D *position, Vector3D *direction, float *pdf);
+extern COLOR backgroundRadiance(Background *bkg, Vector3D *position, Vector3D *direction, float *probabilityDensityFunction);
 extern COLOR backgroundPower(Background *bkg, Vector3D *position);
 
 #endif

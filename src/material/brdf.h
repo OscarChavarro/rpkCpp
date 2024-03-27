@@ -42,7 +42,7 @@ brdfSample(
     XXDFFLAGS flags,
     double x_1,
     double x_2,
-    double *pdf);
+    double *probabilityDensityFunction);
 
 extern void
 brdfEvalPdf(
@@ -51,7 +51,7 @@ brdfEvalPdf(
     Vector3D *out,
     Vector3D *normal,
     XXDFFLAGS flags,
-    double *pdf,
-    double *pdfRR);
+    double *probabilityDensityFunction,
+    double *probabilityDensityFunctionRR);
 
 #endif

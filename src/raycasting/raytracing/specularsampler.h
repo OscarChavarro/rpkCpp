@@ -7,7 +7,7 @@ for generating the outgoing direction is infinite (dirac)
 You CANNOT use these samplers together with other samplers
 for multiple importance sampling!
 
-All pdf evaluations should be multiplied by infinity.
+All probabilityDensityFunction evaluations should be multiplied by infinity.
 
 I currently use it only in classical raytracing
 */
@@ -45,10 +45,10 @@ public:
         SimpleRaytracingPathNode *thisNode,
         SimpleRaytracingPathNode *newNode,
         BSDF_FLAGS flags,
-        double *pdf = nullptr,
-        double *pdfRR = nullptr);
+        double *probabilityDensityFunction = nullptr,
+        double *probabilityDensityFunctionRR = nullptr);
 
-    // Use this for calculating f.i. eyeEndNode->Previous pdf(Next).
+    // Use this for calculating f.i. eyeEndNode->Previous probabilityDensityFunction(Next).
     // The newNode is calculated, thisNode should be and end node connecting
     // to another sub path end node. prevNode is that other sub-path
     // endNode
@@ -59,8 +59,8 @@ public:
         SimpleRaytracingPathNode *thisNode,
         SimpleRaytracingPathNode *newNode,
         BSDF_FLAGS flags,
-        double *pdf,
-        double *pdfRR);
+        double *probabilityDensityFunction,
+        double *probabilityDensityFunctionRR);
 };
 
 #endif

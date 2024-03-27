@@ -29,7 +29,7 @@ Returns the reflectance of hte BSDF according to the flags
 */
 inline COLOR
 bsdfReflectance(BSDF *bsdf, RayHit *hit, Vector3D *dir, int xxflags) {
-    return bsdfScatteredPower(bsdf, hit, dir, SETBRDFFLAGS(xxflags));
+    return bsdfScatteredPower(bsdf, hit, dir, SET_BRDF_FLAGS(xxflags));
 }
 
 inline COLOR
@@ -42,7 +42,7 @@ Returns the transmittance of the BSDF
 */
 inline COLOR
 bsdfTransmittance(BSDF *bsdf, RayHit *hit, Vector3D *dir, int xxflags) {
-    return bsdfScatteredPower(bsdf, hit, dir, SETBTDFFLAGS(xxflags));
+    return bsdfScatteredPower(bsdf, hit, dir, SET_BTDF_FLAGS(xxflags));
 }
 
 inline COLOR
@@ -59,48 +59,49 @@ BSDF Evaluation functions
 
 extern COLOR
 bsdfEval(
-        BSDF *bsdf,
-        RayHit *hit,
-        BSDF *inBsdf,
-        BSDF *outBsdf,
-        Vector3D *in,
-        Vector3D *out,
-        BSDF_FLAGS flags);
+    BSDF *bsdf,
+    RayHit *hit,
+    BSDF *inBsdf,
+    BSDF *outBsdf,
+    Vector3D *in,
+    Vector3D *out,
+    BSDF_FLAGS flags);
 
 extern COLOR
 bsdfEvalComponents(
-        BSDF *bsdf,
-        RayHit *hit,
-        BSDF *inBsdf,
-        BSDF *outBsdf,
-        Vector3D *in,
-        Vector3D *out,
-        BSDF_FLAGS flags,
-        COLOR *colArray);
+    BSDF *bsdf,
+    RayHit *hit,
+    BSDF *inBsdf,
+    BSDF *outBsdf,
+    Vector3D *in,
+    Vector3D *out,
+    BSDF_FLAGS flags,
+    COLOR *colArray);
 
 extern Vector3D
 bsdfSample(
-        BSDF *bsdf,
-        RayHit *hit,
-        BSDF *inBsdf,
-        BSDF *outBsdf,
-        Vector3D *in,
-        int doRussianRoulette,
-        BSDF_FLAGS flags,
-        double x_1,
-        double x_2,
-        double *pdf);
+    BSDF *bsdf,
+    RayHit *hit,
+    BSDF *inBsdf,
+    BSDF *outBsdf,
+    Vector3D *in,
+    int doRussianRoulette,
+    BSDF_FLAGS flags,
+    double x_1,
+    double x_2,
+    double *probabilityDensityFunction);
 
-extern void bsdfEvalPdf(
-        BSDF *bsdf,
-        RayHit *hit,
-        BSDF *inBsdf,
-        BSDF *outBsdf,
-        Vector3D *in,
-        Vector3D *out,
-        BSDF_FLAGS flags,
-        double *pdf,
-        double *pdfRR);
+extern void
+bsdfEvalPdf(
+    BSDF *bsdf,
+    RayHit *hit,
+    BSDF *inBsdf,
+    BSDF *outBsdf,
+    Vector3D *in,
+    Vector3D *out,
+    BSDF_FLAGS flags,
+    double *probabilityDensityFunction,
+    double *probabilityDensityFunctionRR);
 
 extern int bsdfIsTextured(BSDF *bsdf);
 

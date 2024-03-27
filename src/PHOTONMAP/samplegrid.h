@@ -34,8 +34,8 @@ class CSampleGrid2D {
     // Sample a point in a grid element. 'Random' values x and y get rescaled
     // so that they sample a uniform point in the selected grid element.
     // Note that their range is not [0,1] anymore, but smaller
-    // pdf for sampling this point is filled in.
-    void Sample(double *x, double *y, double *pdf);
+    // probabilityDensityFunction for sampling this point is filled in.
+    void Sample(double *x, double *y, double *probabilityDensityFunction);
 };
 
 #endif

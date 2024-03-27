@@ -55,7 +55,7 @@ brdfEval(
 }
 
 /**
-Sampling and pdf evaluation
+Sampling and Probability Density Function evaluation
 */
 Vector3D
 brdfSample(
@@ -66,14 +66,14 @@ brdfSample(
     XXDFFLAGS flags,
     double x_1,
     double x_2,
-    double *pdf)
+    double *probabilityDensityFunction)
 {
     if ( brdf && brdf->methods->Sample ) {
         return brdf->methods->Sample(brdf->data, in, normal,
-                                     doRussianRoulette, flags, x_1, x_2, pdf);
+                                     doRussianRoulette, flags, x_1, x_2, probabilityDensityFunction);
     } else {
         Vector3D dummy = {0.0, 0.0, 0.0};
-        *pdf = 0;
+        *probabilityDensityFunction = 0;
         return dummy;
     }
 }
@@ -85,13 +85,13 @@ brdfEvalPdf(
     Vector3D *out,
     Vector3D *normal,
     XXDFFLAGS flags,
-    double *pdf,
-    double *pdfRR)
+    double *probabilityDensityFunction,
+    double *probabilityDensityFunctionRR)
 {
     if ( brdf && brdf->methods->EvalPdf ) {
         brdf->methods->EvalPdf(brdf->data, in, out,
-                               normal, flags, pdf, pdfRR);
+                               normal, flags, probabilityDensityFunction, probabilityDensityFunctionRR);
     } else {
-        *pdf = 0;
+        *probabilityDensityFunction = 0;
     }
 }

@@ -22,19 +22,29 @@ class BSDF_METHODS {
     // void *incomingBsdf should be BSDF *incomingBsdf
     COLOR (*Eval)(void *data, RayHit *hit, void *inBsdf, void *outBsdf, Vector3D *in, Vector3D *out, BSDF_FLAGS flags);
 
-    Vector3D (*Sample)(void *data, RayHit *hit,
-                       void *inBsdf, void *outBsdf,
-                       Vector3D *in,
-                       int doRussianRoulette, BSDF_FLAGS flags,
-                       double x_1, double x_2,
-                       double *pdf);
+    Vector3D (*Sample)(
+        void *data,
+        RayHit *hit,
+        void *inBsdf,
+        void *outBsdf,
+        Vector3D *in,
+        int doRussianRoulette,
+        BSDF_FLAGS flags,
+        double x1,
+        double x2,
+        double *probabilityDensityFunction);
 
 
-    void (*EvalPdf)(void *data, RayHit *hit,
-                    void *inBsdf, void *outBsdf,
-                    Vector3D *in, Vector3D *out,
-                    BSDF_FLAGS flags,
-                    double *pdf, double *pdfRR);
+    void (*EvalPdf)(
+        void *data,
+        RayHit *hit,
+        void *inBsdf,
+        void *outBsdf,
+        Vector3D *in,
+        Vector3D *out,
+        BSDF_FLAGS flags,
+        double *probabilityDensityFunction,
+        double *probabilityDensityFunctionRR);
 
     // Constructs shading frame at hit point. Returns TRUE if successful and
     // FALSE if not. X and Y may be null pointers

@@ -40,18 +40,18 @@ edfIsTextured(PhongEmittanceDistributionFunctions *edf) {
 
 /**
 Evaluates the edf: return exitant radiance [W/m^2 sr] into the direction
-out. If pdf is not null, the stochasticJacobiProbability density of the direction is
-computed and returned in pdf
+out. If probabilityDensityFunction is not null, the stochasticJacobiProbability density of the direction is
+computed and returned in probabilityDensityFunction
 */
 COLOR
-edfEval(PhongEmittanceDistributionFunctions *edf, RayHit *hit, Vector3D *out, XXDFFLAGS flags, double *pdf) {
+edfEval(PhongEmittanceDistributionFunctions *edf, RayHit *hit, Vector3D *out, XXDFFLAGS flags, double *probabilityDensityFunction) {
     if ( edf && edf->methods->evaluate ) {
-        return edf->methods->evaluate(edf->data, hit, out, flags, pdf);
+        return edf->methods->evaluate(edf->data, hit, out, flags, probabilityDensityFunction);
     } else {
         static COLOR val;
         colorClear(val);
-        if ( pdf ) {
-            *pdf = 0.0;
+        if ( probabilityDensityFunction ) {
+            *probabilityDensityFunction = 0.0;
         }
         return val;
     }
@@ -60,15 +60,15 @@ edfEval(PhongEmittanceDistributionFunctions *edf, RayHit *hit, Vector3D *out, XX
 /**
 Samples a direction according to the specified edf and emission range determined
 by flags. If emitted_radiance is not a null pointer, the emitted radiance along
-the generated direction is returned. If pdf is not null, the stochasticJacobiProbability density
-of the generated direction is computed and returned in pdf
+the generated direction is returned. If probabilityDensityFunction is not null, the stochasticJacobiProbability density
+of the generated direction is computed and returned in probabilityDensityFunction
 */
 Vector3D
 edfSample(PhongEmittanceDistributionFunctions *edf, RayHit *hit, XXDFFLAGS flags,
           double xi1, double xi2,
-          COLOR *emitted_radiance, double *pdf) {
+          COLOR *emitted_radiance, double *probabilityDensityFunction) {
     if ( edf && edf->methods->Sample ) {
-        return edf->methods->Sample(edf->data, hit, flags, xi1, xi2, emitted_radiance, pdf);
+        return edf->methods->Sample(edf->data, hit, flags, xi1, xi2, emitted_radiance, probabilityDensityFunction);
     } else {
         Vector3D v = {0.0, 0.0, 0.0};
         logFatal(-1, "edfSample", "Can't sample EDF");

@@ -134,7 +134,7 @@ public:
     //     flags: component that will be sampled (GR or DR !!)
     //     n: phong exponent for GR
 
-    // OUT: r,s are changed for importance sampling, pdf is returned
+    // OUT: r,s are changed for importance sampling, probabilityDensityFunction is returned
 
     double Sample(Vector3D &pos, double *r, double *s, CoordSys *coord,
                   BSDF_FLAGS flag, float n = 1);

@@ -494,8 +494,8 @@ CPhotonMap::Sample(
     }
 
     // Sample
-    double pdf;
-    m_grid->Sample(r, s, &pdf);
+    double probabilityDensityFunction;
+    m_grid->Sample(r, s, &probabilityDensityFunction);
 
-    return pdf;
+    return probabilityDensityFunction;
 }

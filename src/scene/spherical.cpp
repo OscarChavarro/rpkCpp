@@ -80,7 +80,7 @@ vectorToSphericalCoord(Vector3D *C, CoordSys *coordSys, double *phi, double *the
 Samples the hemisphere according to a cos_theta distribution
 */
 Vector3D
-sampleHemisphereCosTheta(CoordSys *coord, double xi_1, double xi_2, double *pdf_value) {
+sampleHemisphereCosTheta(CoordSys *coord, double xi_1, double xi_2, double *probabilityDensityFunction) {
     float phi;
     Vector3D dir;
 
@@ -97,16 +97,16 @@ sampleHemisphereCosTheta(CoordSys *coord, double xi_1, double xi_2, double *pdf_
                 cos_theta, coord->Z,
                 dir);
 
-    *pdf_value = cos_theta / M_PI;
+    *probabilityDensityFunction = cos_theta / M_PI;
 
     return dir;
 }
 
 /**
-Samples the hemisphere according to a cos_theta ^ n  distribution
+Samples the hemisphere according to a cos_theta ^ n distribution
 */
 Vector3D
-sampleHemisphereCosNTheta(CoordSys *coord, double n, double xi_1, double xi_2, double *pdf_value) {
+sampleHemisphereCosNTheta(CoordSys *coord, double n, double xi_1, double xi_2, double *probabilityDensityFunction) {
     float phi;
     Vector3D dir;
 
@@ -123,7 +123,7 @@ sampleHemisphereCosNTheta(CoordSys *coord, double n, double xi_1, double xi_2, d
                 cos_theta, coord->Z,
                 dir);
 
-    *pdf_value = (n + 1.0) * std::pow(cos_theta, n) / (2.0 * M_PI);
+    *probabilityDensityFunction = (n + 1.0) * std::pow(cos_theta, n) / (2.0 * M_PI);
 
     return dir;
 }

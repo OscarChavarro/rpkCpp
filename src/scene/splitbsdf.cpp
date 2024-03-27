@@ -62,15 +62,15 @@ texturedScattererEval(Vector3D * /*in*/, Vector3D * /*out*/, Vector3D * /*normal
 Albedo is assumed to be 1
 */
 static Vector3D
-texturedScattererSample(Vector3D * /*in*/, Vector3D *normal, double x_1, double x_2, double *pdf) {
+texturedScattererSample(Vector3D * /*in*/, Vector3D *normal, double x1, double x2, double *probabilityDensityFunction) {
     CoordSys coord;
     vectorCoordSys(normal, &coord);
-    return sampleHemisphereCosTheta(&coord, x_1, x_2, pdf);
+    return sampleHemisphereCosTheta(&coord, x1, x2, probabilityDensityFunction);
 }
 
 static void
-texturedScattererEvalPdf(Vector3D * /*in*/, Vector3D *out, Vector3D *normal, double *pdf) {
-    *pdf = vectorDotProduct(*normal, *out) / M_PI;
+texturedScattererEvalPdf(Vector3D * /*in*/, Vector3D *out, Vector3D *normal, double *probabilityDensityFunction) {
+    *probabilityDensityFunction = vectorDotProduct(*normal, *out) / M_PI;
 }
 
 static COLOR
@@ -85,12 +85,12 @@ splitBsdfScatteredPower(SPLIT_BSDF *bsdf, RayHit *hit, Vector3D * /*in*/, BSDF_F
     }
 
     if ( bsdf->brdf ) {
-        COLOR reflectance = brdfReflectance(bsdf->brdf, GETBRDFFLAGS(flags));
+        COLOR reflectance = brdfReflectance(bsdf->brdf, GET_BRDF_FLAGS(flags));
         colorAdd(albedo, reflectance, albedo);
     }
 
     if ( bsdf->btdf ) {
-        COLOR trans = btdfTransmittance(bsdf->btdf, GETBTDFFLAGS(flags));
+        COLOR trans = btdfTransmittance(bsdf->btdf, GET_BTDF_FLAGS(flags));
         colorAdd(albedo, trans, albedo);
     }
 
@@ -132,7 +132,7 @@ splitBsdfEval(
     // handle the direction of out. Note that out * normal is
     // computed more than once :-(
     if ( bsdf->brdf ) {
-        COLOR reflectionCol = brdfEval(bsdf->brdf, in, out, &normal, GETBRDFFLAGS(flags));
+        COLOR reflectionCol = brdfEval(bsdf->brdf, in, out, &normal, GET_BRDF_FLAGS(flags));
         colorAdd(result, reflectionCol, result);
     }
 
@@ -143,7 +143,7 @@ splitBsdfEval(
         bsdfIndexOfRefraction(inBsdf, &inIndex);
         bsdfIndexOfRefraction(outBsdf, &outIndex);
         refractionCol = btdfEval(bsdf->btdf, inIndex, outIndex,
-                                 in, out, &normal, GETBTDFFLAGS(flags));
+                                 in, out, &normal, GET_BTDF_FLAGS(flags));
         colorAdd(result, refractionCol, result);
     }
 
@@ -180,8 +180,8 @@ splitBsdfProbabilities(
         flags &= ~TEXTURED_COMPONENT;
     }
 
-    *brdfFlags = GETBRDFFLAGS(flags);
-    *btdfFlags = GETBTDFFLAGS(flags);
+    *brdfFlags = GET_BRDF_FLAGS(flags);
+    *btdfFlags = GET_BTDF_FLAGS(flags);
 
     reflectance = brdfReflectance(bsdf->brdf, *brdfFlags);
     *reflection = colorAverage(reflectance);
@@ -223,7 +223,7 @@ splitBsdfSample(
         BSDF_FLAGS flags,
         double x1,
         double x2,
-        double *pdf)
+        double *probabilityDensityFunction)
 {
     double texture;
     double reflection;
@@ -239,7 +239,7 @@ splitBsdfSample(
     SAMPLING_MODE mode;
     Vector3D out;
 
-    *pdf = 0; // So we can return safely
+    *probabilityDensityFunction = 0; // So we can return safely
     if ( !hitShadingNormal(hit, &normal) ) {
         logWarning("splitBsdfSample", "Couldn't determine shading normal");
         out.set(0.0, 0.0, 1.0);
@@ -276,23 +276,23 @@ splitBsdfSample(
             if ( p < EPSILON ) {
                 return out;
             } /* don't care */
-            *pdf = texture * p; /* other components will be added later */
+            *probabilityDensityFunction = texture * p; /* other components will be added later */
             break;
         case SAMPLE_REFLECTION:
             out = brdfSample(bsdf->brdf, in, &normal, false, brdfFlags, x1, x2, &p);
             if ( p < EPSILON )
                 return out;
-            *pdf = reflection * p;
+            *probabilityDensityFunction = reflection * p;
             break;
         case SAMPLE_TRANSMISSION:
             out = btdfSample(bsdf->btdf, inIndex, outIndex, in, &normal,
                              false, btdfFlags, x1, x2, &p);
             if ( p < EPSILON )
                 return out;
-            *pdf = transmission * p;
+            *probabilityDensityFunction = transmission * p;
             break;
         case SAMPLE_ABSORPTION:
-            *pdf = 0;
+            *probabilityDensityFunction = 0;
             return out;
         default:
             logFatal(-1, "splitBsdfSample", "Impossible sampling mode %d", mode);
@@ -302,17 +302,17 @@ splitBsdfSample(
     // selected scattering mode (e.g. internal reflection) */
     if ( mode != SAMPLE_TEXTURE ) {
         texturedScattererEvalPdf(in, &out, &normal, &p);
-        *pdf += texture * p;
+        *probabilityDensityFunction += texture * p;
     }
     if ( mode != SAMPLE_REFLECTION ) {
         brdfEvalPdf(bsdf->brdf, in, &out, &normal,
                     brdfFlags, &p, &pRR);
-        *pdf += reflection * p;
+        *probabilityDensityFunction += reflection * p;
     }
     if ( mode != SAMPLE_TRANSMISSION ) {
         btdfEvalPdf(bsdf->btdf, inIndex, outIndex, in, &out, &normal,
                     btdfFlags, &p, &pRR);
-        *pdf += transmission * p;
+        *probabilityDensityFunction += transmission * p;
     }
 
     return out;
@@ -324,15 +324,15 @@ the pdf will be 0 upon return
 */
 static void
 splitBsdfEvalPdf(
-        SPLIT_BSDF *bsdf,
-        RayHit *hit,
-        BSDF *inBsdf,
-        BSDF *outBsdf,
-        Vector3D *in,
-        Vector3D *out,
-        BSDF_FLAGS flags,
-        double *pdf,
-        double *pdfRR)
+    SPLIT_BSDF *bsdf,
+    RayHit *hit,
+    BSDF *inBsdf,
+    BSDF *outBsdf,
+    Vector3D *in,
+    Vector3D *out,
+    BSDF_FLAGS flags,
+    double *probabilityDensityFunction,
+    double *probabilityDensityFunctionRR)
 {
     double pTexture;
     double pReflection;
@@ -346,7 +346,7 @@ splitBsdfEvalPdf(
     XXDFFLAGS btdfFlags;
     Vector3D normal;
 
-    *pdf = *pdfRR = 0.0; // So we can return safely
+    *probabilityDensityFunction = *probabilityDensityFunctionRR = 0.0; // So we can return safely
     if ( !hitShadingNormal(hit, &normal) ) {
         logWarning("splitBsdfEvalPdf", "Couldn't determine shading normal");
         return;
@@ -363,24 +363,24 @@ splitBsdfEvalPdf(
     }
 
     // Survival probability
-    *pdfRR = pScattering;
+    *probabilityDensityFunctionRR = pScattering;
 
     // Probability of sampling the outgoing direction, after survival decision
     bsdfIndexOfRefraction(inBsdf, &inIndex);
     bsdfIndexOfRefraction(outBsdf, &outIndex);
 
     texturedScattererEvalPdf(in, out, &normal, &p);
-    *pdf = pTexture * p;
+    *probabilityDensityFunction = pTexture * p;
 
     brdfEvalPdf(bsdf->brdf, in, out, &normal,
                 brdfFlags, &p, &pRR);
-    *pdf += pReflection * p;
+    *probabilityDensityFunction += pReflection * p;
 
     btdfEvalPdf(bsdf->btdf, inIndex, outIndex, in, out, &normal,
                 btdfFlags, &p, &pRR);
-    *pdf += pTransmission * p;
+    *probabilityDensityFunction += pTransmission * p;
 
-    *pdf /= pScattering;
+    *probabilityDensityFunction /= pScattering;
 }
 
 static int
@@ -394,13 +394,26 @@ BSDF_METHODS GLOBAL_scene_splitBsdfMethods = {
     (void (*)(void *data, RefractionIndex *index)) splitBsdfIndexOfRefraction,
     (COLOR (*)(void *data, RayHit *hit, void *inBsdf, void *outBsdf, Vector3D *in, Vector3D *out,
                BSDF_FLAGS flags)) splitBsdfEval,
-    (Vector3D (*)(void *data, RayHit *hit, void *inBsdf, void *outBsdf, Vector3D *in,
-                  int doRussianRoulette,
-                  BSDF_FLAGS flags, double x_1, double x_2,
-                  double *pdf)) splitBsdfSample,
-    (void (*)(void *data, RayHit *hit, void *inBsdf, void *outBsdf,
-              Vector3D *in, Vector3D *out,
-              BSDF_FLAGS flags,
-              double *pdf, double *pdfRR)) splitBsdfEvalPdf,
+    (Vector3D (*)(
+                void *data,
+                RayHit *hit,
+                void *inBsdf,
+                void *outBsdf,
+                Vector3D *in,
+                int doRussianRoulette,
+                BSDF_FLAGS flags,
+                double x1,
+                double x2,
+                double *probabilityDensityFunction))splitBsdfSample,
+    (void (*)(
+                void *data,
+                RayHit *hit,
+                void *inBsdf,
+                void *outBsdf,
+                Vector3D *in,
+                Vector3D *out,
+                BSDF_FLAGS flags,
+                double *probabilityDensityFunction,
+                double *probabilityDensityFunctionRR))splitBsdfEvalPdf,
     nullptr
 };

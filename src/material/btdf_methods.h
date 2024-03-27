@@ -17,19 +17,39 @@ class BTDF_METHODS {
     void (*IndexOfRefraction)(void *data, RefractionIndex *index);
 
     COLOR
-    (*Eval)(void *data, RefractionIndex inIndex, RefractionIndex outIndex, Vector3D *in, Vector3D *out, Vector3D *normal,
-            XXDFFLAGS flags);
+    (*Eval)(
+        void *data,
+        RefractionIndex inIndex,
+        RefractionIndex outIndex,
+        Vector3D *in,
+        Vector3D *out,
+        Vector3D *normal,
+        XXDFFLAGS flags);
 
-    Vector3D (*Sample)(void *data, RefractionIndex inIndex,
-                       RefractionIndex outIndex, Vector3D *in,
-                       Vector3D *normal, int doRussianRoulette,
-                       XXDFFLAGS flags, double x_1, double x_2,
-                       double *pdf);
+    Vector3D
+    (*Sample)(
+        void *data,
+        RefractionIndex inIndex,
+        RefractionIndex outIndex,
+        Vector3D *in,
+        Vector3D *normal,
+        int doRussianRoulette,
+        XXDFFLAGS flags,
+        double x1,
+        double x2,
+        double *probabilityDensityFunction);
 
-    void (*EvalPdf)(void *data, RefractionIndex inIndex,
-                    RefractionIndex outIndex, Vector3D *in,
-                    Vector3D *out, Vector3D *normal,
-                    XXDFFLAGS flags, double *pdf, double *pdfRR);
+    void
+    (*EvalPdf)(
+        void *data,
+        RefractionIndex inIndex,
+        RefractionIndex outIndex,
+        Vector3D *in,
+        Vector3D *out,
+        Vector3D *normal,
+        XXDFFLAGS flags,
+        double *probabilityDensityFunction,
+        double *probabilityDensityFunctionRR);
 };
 
 #endif

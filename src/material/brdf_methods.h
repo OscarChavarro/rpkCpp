@@ -22,7 +22,7 @@ class BRDF_METHODS {
     Vector3D (*Sample)(void *data, Vector3D *in,
                        Vector3D *normal, int doRussianRoulette,
                        XXDFFLAGS flags, double x_1, double x_2,
-                       double *pdf);
+                       double *probabilityDensityFunction);
 
     void (*EvalPdf)(void *data, Vector3D *in,
                     Vector3D *out, Vector3D *normal,

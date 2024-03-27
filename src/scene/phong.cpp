@@ -176,14 +176,14 @@ phongIndexOfRefraction(PHONG_BTDF *btdf, RefractionIndex *index) {
 Edf evaluations
 */
 static COLOR
-phongEdfEval(PHONG_EDF *edf, RayHit *hit, Vector3D *out, XXDFFLAGS flags, double *pdf) {
+phongEdfEval(PHONG_EDF *edf, RayHit *hit, Vector3D *out, XXDFFLAGS flags, double *probabilityDensityFunction) {
     Vector3D normal;
     COLOR result;
     double cosL;
 
     colorClear(result);
-    if ( pdf ) {
-        *pdf = 0.0;
+    if ( probabilityDensityFunction ) {
+        *probabilityDensityFunction = 0.0;
     }
 
     if ( !hitShadingNormal(hit, &normal) ) {
@@ -202,8 +202,8 @@ phongEdfEval(PHONG_EDF *edf, RayHit *hit, Vector3D *out, XXDFFLAGS flags, double
     if ( flags & DIFFUSE_COMPONENT ) {
         // Divide by PI to turn radiant exitance [W/m^2] into exitant radiance [W/m^2 sr]
         colorAdd(result, edf->kd, result);
-        if ( pdf ) {
-            *pdf = cosL / M_PI;
+        if ( probabilityDensityFunction ) {
+            *probabilityDensityFunction = cosL / M_PI;
         }
     }
 
@@ -225,18 +225,18 @@ phongEdfSample(
     double xi1,
     double xi2,
     COLOR *selfEmittedRadiance,
-    double *pdf)
+    double *probabilityDensityFunction)
 {
     Vector3D dir = {0.0, 0.0, 1.0};
     if ( selfEmittedRadiance ) {
         colorClear(*selfEmittedRadiance);
     }
-    if ( pdf ) {
-        *pdf = 0.0;
+    if ( probabilityDensityFunction ) {
+        *probabilityDensityFunction = 0.0;
     }
 
     if ( flags & DIFFUSE_COMPONENT ) {
-        double spdf;
+        double sProbabilityDensityFunction;
         CoordSys coord;
 
         Vector3D normal;
@@ -246,9 +246,9 @@ phongEdfSample(
         }
 
         vectorCoordSys(&normal, &coord);
-        dir = sampleHemisphereCosTheta(&coord, xi1, xi2, &spdf);
-        if ( pdf ) {
-            *pdf = spdf;
+        dir = sampleHemisphereCosTheta(&coord, xi1, xi2, &sProbabilityDensityFunction);
+        if ( probabilityDensityFunction ) {
+            *probabilityDensityFunction = sProbabilityDensityFunction;
         }
         if ( selfEmittedRadiance ) {
             colorScale((1.0f / (float)M_PI), edf->Kd, *selfEmittedRadiance);
@@ -262,7 +262,12 @@ phongEdfSample(
 Brdf evaluations
 */
 static COLOR
-phongBrdfEval(PHONG_BRDF *brdf, Vector3D *in, Vector3D *out, Vector3D *normal, XXDFFLAGS flags) {
+phongBrdfEval(
+    PHONG_BRDF *brdf,
+    Vector3D *in,
+    Vector3D *out,
+    Vector3D *normal, XXDFFLAGS flags)
+{
     COLOR result;
     float tmpFloat;
     float dotProduct;
@@ -315,7 +320,7 @@ phongBrdfSample(
     XXDFFLAGS flags,
     double x_1,
     double x_2,
-    double *pdf)
+    double *probabilityDensityFunction)
 {
     Vector3D newDir = {0.0, 0.0, 0.0}, idealDir;
     double cosTheta;
@@ -330,7 +335,7 @@ phongBrdfSample(
     Vector3D inRev;
     vectorScale(-1.0, *in, inRev);
 
-    *pdf = 0;
+    *probabilityDensityFunction = 0;
 
     if ( flags & DIFFUSE_COMPONENT ) {
         avgKd = brdf->avgKd;
@@ -400,11 +405,11 @@ phongBrdfSample(
         diffPdf = cosTheta / M_PI;
     }
 
-    // Combine pdf's
-    *pdf = avgKd * diffPdf + avgKs * nonDiffPdf;
+    // Combine probabilityDensityFunctions
+    *probabilityDensityFunction = avgKd * diffPdf + avgKs * nonDiffPdf;
 
     if ( !doRussianRoulette ) {
-        *pdf /= scatteredPower;
+        *probabilityDensityFunction /= scatteredPower;
     }
 
     return newDir;
@@ -417,8 +422,8 @@ phongBrdfEvalPdf(
     Vector3D *out,
     Vector3D *normal,
     XXDFFLAGS flags,
-    double *pdf,
-    double *pdfRR)
+    double *probabilityDensityFunction,
+    double *probabilityDensityFunctionRR)
 {
     double cos_theta;
     double cos_alpha;
@@ -435,8 +440,8 @@ phongBrdfEvalPdf(
 
     vectorScale(-1.0, *in, inRev);
 
-    *pdf = 0;
-    *pdfRR = 0;
+    *probabilityDensityFunction = 0;
+    *probabilityDensityFunctionRR = 0;
 
     // Ensure 'in' on the same side as 'normal'!
     cos_in = vectorDotProduct(*in, *normal);
@@ -477,7 +482,7 @@ phongBrdfEvalPdf(
         return;
     }
 
-    // Diffuse sampling pdf
+    // Diffuse sampling probabilityDensityFunction
     diffPdf = 0.0;
 
     if ( avgKd > 0 ) {
@@ -497,8 +502,8 @@ phongBrdfEvalPdf(
         }
     }
 
-    *pdf = (avgKd * diffPdf + avgKs * nonDiffPdf) / scatteredPower;
-    *pdfRR = scatteredPower;
+    *probabilityDensityFunction = (avgKd * diffPdf + avgKs * nonDiffPdf) / scatteredPower;
+    *probabilityDensityFunctionRR = scatteredPower;
 }
 
 /**
@@ -581,7 +586,7 @@ phongBtdfSample(
         XXDFFLAGS flags,
         double x_1,
         double x_2,
-        double *pdf)
+        double *probabilityDensityFunction)
 {
     Vector3D newDir = {0.0, 0.0, 0.0};
     int totalIR;
@@ -595,10 +600,10 @@ phongBtdfSample(
     double nonDiffPdf;
     float tmpFloat;
     XXDFFLAGS nonDiffuseFlag;
-    Vector3D inrev;
-    vectorScale(-1.0, *in, inrev);
+    Vector3D inRev;
+    vectorScale(-1.0, *in, inRev);
 
-    *pdf = 0;
+    *probabilityDensityFunction = 0;
 
     // Choose sampling mode
     if ( flags & DIFFUSE_COMPONENT ) {
@@ -636,7 +641,7 @@ phongBtdfSample(
         x_1 /= scatteredPower;
     }
 
-    idealDir = idealRefractedDirection(&inrev, normal, inIndex, outIndex,
+    idealDir = idealRefractedDirection(&inRev, normal, inIndex, outIndex,
                                        &totalIR);
     vectorScale(-1, *normal, invNormal);
 
@@ -673,11 +678,11 @@ phongBtdfSample(
         }
     }
 
-    // Combine pdf's
-    *pdf = avgKd * diffPdf + avgKs * nonDiffPdf;
+    // Combine Probability Density Functions
+    *probabilityDensityFunction = avgKd * diffPdf + avgKs * nonDiffPdf;
 
     if ( !doRussianRoulette ) {
-        *pdf /= scatteredPower;
+        *probabilityDensityFunction /= scatteredPower;
     }
 
     return newDir;
@@ -685,19 +690,19 @@ phongBtdfSample(
 
 static void
 phongBtdfEvalPdf(
-        PHONG_BTDF *btdf,
-        RefractionIndex inIndex,
-        RefractionIndex outIndex,
-        Vector3D *in,
-        Vector3D *out,
-        Vector3D *normal,
-        XXDFFLAGS flags,
-        double *pdf,
-        double *pdfRR)
+    PHONG_BTDF *btdf,
+    RefractionIndex inIndex,
+    RefractionIndex outIndex,
+    Vector3D *in,
+    Vector3D *out,
+    Vector3D *normal,
+    XXDFFLAGS flags,
+    double *probabilityDensityFunction,
+    double *probabilityDensityFunctionRR)
 {
-    double cos_theta;
-    double cos_alpha;
-    double cos_in;
+    double cosTheta;
+    double cosAlpha;
+    double cosIn;
     double diffPdf;
     double nonDiffPdf = 0.0;
     double scatteredPower;
@@ -707,24 +712,24 @@ phongBtdfEvalPdf(
     Vector3D idealDir;
     int totalIR;
     Vector3D goodNormal;
-    Vector3D inrev;
-    vectorScale(-1.0, *in, inrev);
+    Vector3D inRev;
+    vectorScale(-1.0, *in, inRev);
 
-    *pdf = 0;
-    *pdfRR = 0;
+    *probabilityDensityFunction = 0;
+    *probabilityDensityFunctionRR = 0;
 
     // Ensure 'in' on the same side as 'normal'!
 
-    cos_in = vectorDotProduct(*in, *normal);
-    if ( cos_in >= 0 ) {
+    cosIn = vectorDotProduct(*in, *normal);
+    if ( cosIn >= 0 ) {
         vectorCopy(*normal, goodNormal);
     } else {
         vectorScale(-1, *normal, goodNormal);
     }
 
-    cos_theta = vectorDotProduct(goodNormal, *out);
+    cosTheta = vectorDotProduct(goodNormal, *out);
 
-    if ( flags & DIFFUSE_COMPONENT && (cos_theta < 0))  /* transmitted ray */
+    if ( flags & DIFFUSE_COMPONENT && (cosTheta < 0))  /* transmitted ray */
     {
         avgKd = btdf->avgKd;
     } else {
@@ -749,42 +754,42 @@ phongBtdfEvalPdf(
         return;
     }
 
-    // Diffuse sampling pdf
+    // Diffuse sampling probabilityDensityFunction
     if ( avgKd > 0 ) {
-        diffPdf = cos_theta / M_PI;
+        diffPdf = cosTheta / M_PI;
     } else {
         diffPdf = 0.0;
     }
 
     // Glossy or specular
     if ( avgKs > 0 ) {
-        if ( cos_in >= 0 ) {
-            idealDir = idealRefractedDirection(&inrev, &goodNormal, inIndex,
+        if ( cosIn >= 0 ) {
+            idealDir = idealRefractedDirection(&inRev, &goodNormal, inIndex,
                                                outIndex, &totalIR);
         } else {
             // Normal was inverted, so materialSides switch also
-            idealDir = idealRefractedDirection(&inrev, &goodNormal, outIndex,
+            idealDir = idealRefractedDirection(&inRev, &goodNormal, outIndex,
                                                inIndex, &totalIR);
         }
 
-        cos_alpha = vectorDotProduct(idealDir, *out);
+        cosAlpha = vectorDotProduct(idealDir, *out);
 
         nonDiffPdf = 0.0;
-        if ( cos_alpha > 0 ) {
-            nonDiffPdf = (btdf->Ns + 1.0) * std::pow(cos_alpha, btdf->Ns) / (2.0 * M_PI);
+        if ( cosAlpha > 0 ) {
+            nonDiffPdf = (btdf->Ns + 1.0) * std::pow(cosAlpha, btdf->Ns) / (2.0 * M_PI);
         }
     }
 
-    *pdf = (avgKd * diffPdf + avgKs * nonDiffPdf) / scatteredPower;
-    *pdfRR = scatteredPower;
+    *probabilityDensityFunction = (avgKd * diffPdf + avgKs * nonDiffPdf) / scatteredPower;
+    *probabilityDensityFunctionRR = scatteredPower;
 }
 
 // Phong-type edf method structs
 EDF_METHODS GLOBAL_scene_phongEdfMethods = {
-    (COLOR (*)(void *, RayHit *, XXDFFLAGS)) phongEmittance,
+    (COLOR (*)(void *, RayHit *, char flags)) phongEmittance,
     nullptr, // Not textured
-    (COLOR (*)(PHONG_EDF *edf, RayHit *hit, Vector3D *out, char flags, double *pdf))phongEdfEval,
-    (Vector3D (*)(void *, RayHit *, XXDFFLAGS, double, double, COLOR *, double *))phongEdfSample,
+    (COLOR (*)(PHONG_EDF *edf, RayHit *hit, Vector3D *out, char flags, double *probabilityDensityFunction))phongEdfEval,
+    (Vector3D (*)(void *, RayHit *, char flags, double, double, COLOR *, double *))phongEdfSample,
     nullptr
 };
 

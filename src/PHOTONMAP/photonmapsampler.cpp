@@ -24,7 +24,7 @@ CPhotonMapSampler::chooseComponent(
     RayHit *hit,
     bool doRR,
     double *x,
-    float *pdf,
+    float *probabilityDensityFunction,
     bool *chose1)
 {
     COLOR col;
@@ -56,11 +56,11 @@ CPhotonMapSampler::chooseComponent(
     // Use x for scattering choice
     if ( *x < power1 ) {
         *chose1 = true;
-        *pdf = power1;
+        *probabilityDensityFunction = power1;
         *x = *x / power1;
     } else if ( *x < totalPower ) {
         *chose1 = false;
-        *pdf = power2;
+        *probabilityDensityFunction = power2;
         *x = (*x - power1) / power2;
     } else {
         // Absorbed
@@ -120,7 +120,7 @@ CPhotonMapSampler::sample(
     }
 
     if ( ok ) {
-        // Adjust pdf with s vs gd choice
+        // Adjust probabilityDensityFunction with s vs gd choice
         newNode->m_pdfFromPrev *= pdfChoice;
 
         // Component propagation
@@ -414,7 +414,7 @@ CPhotonMapSampler::gdSample(
     ok = CBsdfSampler::sample(prevNode, thisNode, newNode, x1, x2,
                               false, flags);
 
-    // Adjust pdf
+    // Adjust probabilityDensityFunction
     if ( ok ) {
         newNode->m_pdfFromPrev *= pdfChoice * photonMapPdf;
         thisNode->m_usedComponents = flags;

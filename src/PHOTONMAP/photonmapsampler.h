@@ -44,7 +44,7 @@ class CPhotonMapSampler : public CBsdfSampler {
         RayHit *hit,
         bool doRR,
         double *x,
-        float *pdf,
+        float *probabilityDensityFunction,
         bool *chose1);
 
 public:

@@ -92,15 +92,15 @@ LightList::sample(double *x1, double *pdf) {
 double
 LightList::evalPdfVirtual(Patch *light, Vector3D */*point*/) const {
     // EvalPDF for virtual patches (see EvalPDF)
-    double pdf;
+    double probabilityDensityFunction;
 
     // Prob for choosing this light
     XXDFFLAGS all = DIFFUSE_COMPONENT | GLOSSY_COMPONENT | SPECULAR_COMPONENT;
 
     COLOR e = edfEmittance(light->surface->material->edf, nullptr, all);
-    pdf = colorAverage(e) / totalFlux;
+    probabilityDensityFunction = colorAverage(e) / totalFlux;
 
-    return pdf;
+    return probabilityDensityFunction;
 }
 
 double

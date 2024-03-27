@@ -5,7 +5,7 @@ discreteSample(
     const double probabilities[],
     double total,
     double *x1,
-    double *pdf)
+    double *probabilityDensityFunction)
 {
     int i = 0;
     double sum;
@@ -23,6 +23,6 @@ discreteSample(
     left = sum - probabilities[i];
 
     *x1 = ((sample - left) / (sum - left));
-    *pdf = probabilities[i] / total;
+    *probabilityDensityFunction = probabilities[i] / total;
     return i;
 }

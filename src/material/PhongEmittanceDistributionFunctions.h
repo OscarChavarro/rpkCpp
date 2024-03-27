@@ -30,7 +30,7 @@ edfEval(
     RayHit *hit,
     Vector3D *out,
     XXDFFLAGS flags,
-    double *pdf);
+    double *probabilityDensityFunction);
 
 extern Vector3D
 edfSample(
@@ -40,7 +40,7 @@ edfSample(
     double xi1,
     double xi2,
     COLOR *emitted_radiance,
-    double *pdf);
+    double *probabilityDensityFunction);
 
 extern int
 edfShadingFrame(

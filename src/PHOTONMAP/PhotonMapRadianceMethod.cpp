@@ -233,7 +233,7 @@ photonMapDoComputePixelFluxEstimate(PhotonMapConfig *config, RadianceMethod * /*
 
     vectorScale(-1, bp->m_dirEL, bp->m_dirLE);
 
-    // Evaluate radiance and pdf and weight
+    // Evaluate radiance and probabilityDensityFunction and weight
     f = bp->EvalRadiance();
 
     float factor = 1.0f / (float)bp->EvalPDFAcc();

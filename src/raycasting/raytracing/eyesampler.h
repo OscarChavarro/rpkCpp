@@ -25,8 +25,8 @@ public:
         SimpleRaytracingPathNode *thisNode,
         SimpleRaytracingPathNode *newNode,
         BSDF_FLAGS flags = BSDF_ALL_COMPONENTS,
-        double *pdf = nullptr,
-        double *pdfRR = nullptr);
+        double *probabilityDensityFunction = nullptr,
+        double *probabilityDensityFunctionRR = nullptr);
 };
 
 #endif

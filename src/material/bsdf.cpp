@@ -120,7 +120,7 @@ bsdfEvalComponents(
     colorClear(result);
 
     for ( int i = 0; i < BSDF_COMPONENTS; i++ ) {
-        thisFlag = BSDF_INDEXTOCOMP(i);
+        thisFlag = BSDF_INDEX_TO_COMP(i);
 
         if ( flags & thisFlag ) {
             colArray[i] = bsdfEval(bsdf, hit, inBsdf, outBsdf, in, out, thisFlag);
@@ -150,14 +150,14 @@ bsdfSample(
         BSDF_FLAGS flags,
         double x_1,
         double x_2,
-        double *pdf)
+        double *probabilityDensityFunction)
 {
     if ( bsdf && bsdf->methods->Sample ) {
         return bsdf->methods->Sample(bsdf->data, hit, inBsdf, outBsdf, in,
-                                     doRussianRoulette, flags, x_1, x_2, pdf);
+                                     doRussianRoulette, flags, x_1, x_2, probabilityDensityFunction);
     } else {
         Vector3D dummy = {0.0, 0.0, 0.0};
-        *pdf = 0;
+        *probabilityDensityFunction = 0;
         return dummy;
     }
 }
@@ -171,13 +171,13 @@ bsdfEvalPdf(
         Vector3D *in,
         Vector3D *out,
         BSDF_FLAGS flags,
-        double *pdf,
-        double *pdfRR)
+        double *probabilityDensityFunction,
+        double *probabilityDensityFunctionRR)
 {
     if ( bsdf && bsdf->methods->EvalPdf ) {
         bsdf->methods->EvalPdf(bsdf->data, hit, inBsdf, outBsdf, in, out,
-                               flags, pdf, pdfRR);
+                               flags, probabilityDensityFunction, probabilityDensityFunctionRR);
     } else {
-        *pdf = 0;
+        *probabilityDensityFunction = 0;
     }
 }

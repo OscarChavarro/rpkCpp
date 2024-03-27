@@ -75,14 +75,14 @@ btdfSample(
         XXDFFLAGS flags,
         double x1,
         double x2,
-        double *pdf)
+        double *probabilityDensityFunction)
 {
     if ( btdf && btdf->methods->Sample ) {
         return btdf->methods->Sample(btdf->data, inIndex, outIndex, in, normal,
-                                     doRussianRoulette, flags, x1, x2, pdf);
+                                     doRussianRoulette, flags, x1, x2, probabilityDensityFunction);
     } else {
         Vector3D dummy = {0.0, 0.0, 0.0};
-        *pdf = 0;
+        *probabilityDensityFunction = 0;
         return dummy;
     }
 }
@@ -96,14 +96,14 @@ btdfEvalPdf(
         Vector3D *out,
         Vector3D *normal,
         XXDFFLAGS flags,
-        double *pdf,
-        double *pdfRR)
+        double *probabilityDensityFunction,
+        double *probabilityDensityFunctionRR)
 {
     if ( btdf && btdf->methods->EvalPdf ) {
         btdf->methods->EvalPdf(
-            btdf->data, inIndex, outIndex, in, out,
-            normal, flags, pdf, pdfRR);
+                btdf->data, inIndex, outIndex, in, out,
+                normal, flags, probabilityDensityFunction, probabilityDensityFunctionRR);
     } else {
-        *pdf = 0;
+        *probabilityDensityFunction = 0;
     }
 }

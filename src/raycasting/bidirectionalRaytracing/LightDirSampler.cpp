@@ -33,7 +33,7 @@ LightDirSampler::sample(
 
     if ( pdfDir < EPSILON ) {
         return false;
-    } // Zero pdf event, no valid sample
+    } // Zero probabilityDensityFunction event, no valid sample
 
     // Determine ray type
     thisNode->m_rayType = STARTS;
@@ -69,8 +69,8 @@ LightDirSampler::evalPDF(
     SimpleRaytracingPathNode *thisNode,
     SimpleRaytracingPathNode *newNode,
     BSDF_FLAGS /*flags*/,
-    double * /*pdf*/,
-    double * /*pdfRR*/)
+    double * /*probabilityDensityFunction*/,
+    double * /*probabilityDensityFunctionRR*/)
 {
     double pdfDir;
     double cosA;
