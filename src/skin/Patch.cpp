@@ -604,7 +604,7 @@ Patch::Patch(
     boundingBox = nullptr;
 
     // Compute normal
-    if ( !patchNormal(this, &normal) ) {
+    if ( patchNormal(this, &normal) == nullptr ) {
         GLOBAL_statistics.numberOfElements--;
         logError("Patch::Patch", "Error computing patch normal");
         exit(3);

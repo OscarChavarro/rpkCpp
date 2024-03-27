@@ -151,10 +151,10 @@ mgfGetCurrentMaterial(Material **material, bool allSurfacesSided, MgfContext *co
         return false;
     }
 
-    Material *theMaterial = materialLookup(materialName);
-    if ( theMaterial != nullptr ) {
+    Material *storedMaterial = materialLookup(materialName);
+    if ( storedMaterial != nullptr ) {
         if ( globalMgfCurrentMaterial->clock == 0 ) {
-            (*material) = theMaterial;
+            (*material) = storedMaterial;
             return true;
         }
     }
@@ -222,27 +222,26 @@ mgfGetCurrentMaterial(Material **material, bool allSurfacesSided, MgfContext *co
     }
 
     BRDF *brdf = (colorNull(Rd) && colorNull(Rs)) ? nullptr : brdfCreate(
-            phongBrdfCreate(&Rd, &Rs, Nr), &GLOBAL_scene_phongBrdfMethods);
+        phongBrdfCreate(&Rd, &Rs, Nr), &GLOBAL_scene_phongBrdfMethods);
 
     BTDF *btdf = (colorNull(Td) && colorNull(Ts)) ? nullptr : btdfCreate(
-            phongBtdfCreate(&Td, &Ts, Nt,
-                            globalMgfCurrentMaterial->nr,
-                            globalMgfCurrentMaterial->ni),
-            &GLOBAL_scene_phongBtdfMethods);
+        phongBtdfCreate(&Td, &Ts, Nt,
+                globalMgfCurrentMaterial->nr,
+                globalMgfCurrentMaterial->ni),
+        &GLOBAL_scene_phongBtdfMethods);
 
     BSDF *bsdf = bsdfCreate(
         splitBsdfCreate(brdf, btdf, nullptr),
        &GLOBAL_scene_splitBsdfMethods
     );
 
-    theMaterial = materialCreate(
+    (*material) = materialCreate(
         materialName,
          edf,
          bsdf,
          allSurfacesSided ? 1 : globalMgfCurrentMaterial->sided);
 
-    GLOBAL_scene_materials->add(0, theMaterial);
-    *material = theMaterial;
+    GLOBAL_scene_materials->add(0, (*material));
 
     // Reset the clock value to be aware of possible changes in future
     globalMgfCurrentMaterial->clock = 0;
