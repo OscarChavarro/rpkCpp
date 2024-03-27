@@ -189,7 +189,7 @@ accumulatePowerToSamplePoint(GalerkinElement *src) {
     Vector3D dir;
     COLOR rad;
 
-    vectorSubtract(globalSamplePoint, src->patch->midpoint, dir);
+    vectorSubtract(globalSamplePoint, src->patch->midPoint, dir);
     dist = vectorNorm(dir);
     if ( dist < EPSILON ) {
         srcOs = 1.0f;
@@ -292,7 +292,7 @@ surfaceProjectedAreaToSamplePoint(GalerkinElement *rcv) {
     double dist;
     Vector3D dir;
 
-    vectorSubtract(globalSamplePoint, rcv->patch->midpoint, dir);
+    vectorSubtract(globalSamplePoint, rcv->patch->midPoint, dir);
     dist = vectorNorm(dir);
     if ( dist < EPSILON ) {
         rcvCos = 1.0;

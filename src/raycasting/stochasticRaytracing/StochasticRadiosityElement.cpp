@@ -177,7 +177,7 @@ stochasticRadiosityElementCreateFromPatch(Patch *patch) {
     elem->patch = patch;
     elem->flags = 0x00;
     elem->area = patch->area;
-    elem->midPoint = patch->midpoint;
+    elem->midPoint = patch->midPoint;
     elem->numberOfVertices = patch->numberOfVertices;
     for ( i = 0; i < elem->numberOfVertices; i++ ) {
         elem->vertices[i] = patch->vertex[i];
@@ -648,7 +648,7 @@ monteCarloRadiosityElementComputeAverageReflectanceAndEmittance(StochasticRadios
     niedindex n;
     COLOR albedo, emittance;
     RayHit hit;
-    hitInit(&hit, patch, nullptr, &patch->midpoint, &patch->normal, patch->surface->material, 0.0);
+    hitInit(&hit, patch, nullptr, &patch->midPoint, &patch->normal, patch->surface->material, 0.0);
 
     isTextured = stochasticRadiosityElementIsTextured(elem);
     numberOfSamples = isTextured ? 100 : 1;

@@ -52,7 +52,7 @@ class Patch {
     float planeConstant;
     float tolerance; // Plane tolerance
     float area; // Patch area
-    Vector3D midpoint; // Patch midpoint
+    Vector3D midPoint; // Patch midpoint
     Jacobian *jacobian; // Shape-related constants for irregular quadrilaterals.
                         // Used for sampling the quadrilateral and for computing integrals
     float directPotential; // Directly received hemispherical potential (ref: Pattanaik, ACM Trans Graph, 1995?).

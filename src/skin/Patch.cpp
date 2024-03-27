@@ -106,7 +106,7 @@ Patch::solveQuadraticUnitInterval(double A, double B, double C, double *x) {
 
         if ( x1 > -TOLERANCE && x1 < 1.0 + TOLERANCE ) {
             *x = x1;
-            if ( x2 > -TOLERANCE && x2 < 1. + TOLERANCE ) {
+            if ( x2 > -TOLERANCE && x2 < 1.0 + TOLERANCE ) {
                 // Error(nullptr, "Bi-linear->Uniform mapping ambiguous: x1=%g, x2=%g, taking %g as solution", x1, x2, x1);
                 return false;
             } else {
@@ -115,7 +115,7 @@ Patch::solveQuadraticUnitInterval(double A, double B, double C, double *x) {
         }
     }
 
-    if ( x2 > -TOLERANCE && x2 < 1. + TOLERANCE ) {
+    if ( x2 > -TOLERANCE && x2 < 1.0 + TOLERANCE ) {
         *x = x2;
         return true;
     } else {
@@ -170,13 +170,13 @@ Patch::patchConnectVertices() {
 }
 
 /**
-We also compute the jacobian J(u,v) of the coordinate mapping from the unit
-square [0,1]^2 or the standard triangle (0,0), (1,0), (0,1) to the patch.
-- For triangles: J(u,v) = the area of the triangle
-- For quadrilaterals: J(u,v) = A + B.u + C.v
-  the area of the patch = A + (B+C)/2
-  for parallelograms holds that B=C=0
-  the coefficients A,B,C are only stored if B and C are nonzero.
+Compute the jacobian J(u, v) of the coordinate mapping from the unit
+square [0, 1] ^ 2 or the standard triangle (0, 0), (1, 0), (0, 1) to the patch.
+- For triangles: J(u, v) = the area of the triangle
+- For quadrilaterals: J(u, v) = A + B.u + C.v
+  the area of the patch = A + (B + C) / 2
+  for parallelograms holds that B = C = 0
+  the coefficients A, B, C are only stored if B and C are non-zero.
 The normal of the patch should have been computed before calling this routine
 */
 float
@@ -515,21 +515,22 @@ Returns a pointer to the normal vector if everything is OK. nullptr pointer if d
 Vector3D *
 patchNormal(Patch *patch, Vector3D *normal) {
     float norm;
-    Vector3D prev;
-    Vector3D cur;
+    Vector3D previous;
+    Vector3D current;
 
     normal->set(0, 0, 0);
     vectorSubtract(*patch->vertex[patch->numberOfVertices - 1]->point,
-                   *patch->vertex[0]->point, cur);
+                   *patch->vertex[0]->point, current);
     for ( int i = 0; i < patch->numberOfVertices; i++ ) {
-        prev = cur;
-        vectorSubtract(*patch->vertex[i]->point, *patch->vertex[0]->point, cur);
-        normal->x += (float)((prev.y - cur.y) * (prev.z + cur.z));
-        normal->y += (float)((prev.z - cur.z) * (prev.x + cur.x));
-        normal->z += (float)((prev.x - cur.x) * (prev.y + cur.y));
+        previous = current;
+        vectorSubtract(*patch->vertex[i]->point, *patch->vertex[0]->point, current);
+        normal->x += (float)((previous.y - current.y) * (previous.z + current.z));
+        normal->y += (float)((previous.z - current.z) * (previous.x + current.x));
+        normal->z += (float)((previous.x - current.x) * (previous.y + current.y));
     }
 
-    if ((norm = vectorNorm(*normal)) < EPSILON ) {
+    norm = vectorNorm(*normal);
+    if ( norm < EPSILON ) {
         logWarning("patchNormal", "degenerate patch (id %d)", patch->id);
         return nullptr;
     }
@@ -549,10 +550,31 @@ Patch::hasZeroVertices() const {
 /**
 Creates a patch structure for a patch with given vertices
 */
-Patch::Patch(int inNumberOfVertices, Vertex *v1, Vertex *v2, Vertex *v3, Vertex *v4, RadianceMethod *context):
-    flags(), id(), twin(), vertex(), numberOfVertices(), boundingBox(), normal(), planeConstant(),
-    tolerance(), area(), midpoint(), jacobian(), directPotential(), index(), omit(),
-    color(), radianceData(), surface()
+Patch::Patch(
+    int inNumberOfVertices,
+    Vertex *v1,
+    Vertex *v2,
+    Vertex *v3,
+    Vertex *v4,
+    RadianceMethod *context):
+    flags(),
+    id(),
+    twin(),
+    vertex(),
+    numberOfVertices(),
+    boundingBox(),
+    normal(),
+    planeConstant(),
+    tolerance(),
+    area(),
+    midPoint(),
+    jacobian(),
+    directPotential(),
+    index(),
+    omit(),
+    color(),
+    radianceData(),
+    surface()
 {
     if ( v1 == nullptr || v2 == nullptr || v3 == nullptr || (inNumberOfVertices == 4 && v4 == nullptr) ) {
         logError("Patch::Patch", "Null vertex!");
@@ -592,10 +614,10 @@ Patch::Patch(int inNumberOfVertices, Vertex *v1, Vertex *v2, Vertex *v3, Vertex 
     area = randomWalkRadiosityPatchArea();
 
     // Patch midpoint
-    computeMidpoint(&midpoint);
+    computeMidpoint(&midPoint);
 
     // Plane constant
-    planeConstant = -vectorDotProduct(normal, midpoint);
+    planeConstant = -vectorDotProduct(normal, midPoint);
 
     // Plane tolerance
     tolerance = computeTolerance();
@@ -667,7 +689,7 @@ Patch::averageNormalAlbedo(BSDF_FLAGS components) {
     COLOR albedo;
     RayHit hit;
 
-    hitInit(&hit, this, nullptr, &midpoint, &normal, surface->material, 0.0);
+    hitInit(&hit, this, nullptr, &midPoint, &normal, surface->material, 0.0);
 
     numberOfSamples = getNumberOfSamples();
     colorClear(albedo);
@@ -691,7 +713,7 @@ Patch::averageEmittance(XXDFFLAGS components) {
     int numberOfSamples;
     COLOR emittance;
     RayHit hit;
-    hitInit(&hit, this, nullptr, &midpoint, &normal, surface->material, 0.0);
+    hitInit(&hit, this, nullptr, &midPoint, &normal, surface->material, 0.0);
 
     numberOfSamples = getNumberOfSamples();
     colorClear(emittance);
