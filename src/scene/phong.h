@@ -10,6 +10,8 @@ Phong type EDFs, BRDFs, BTDFs
 #include "material/brdf_methods.h"
 #include "material/btdf_methods.h"
 
+class EDF_METHODS;
+
 class PHONG_BRDF {
   public:
     COLOR Kd;
@@ -67,5 +69,7 @@ extern PHONG_BTDF *phongBtdfCreate(COLOR *Kd, COLOR *Ks, float Ns, float nr, flo
 extern EDF_METHODS GLOBAL_scene_phongEdfMethods;
 extern BRDF_METHODS GLOBAL_scene_phongBrdfMethods;
 extern BTDF_METHODS GLOBAL_scene_phongBtdfMethods;
+
+#include "material/PhongEmittanceDistributionFunctions.h"
 
 #endif

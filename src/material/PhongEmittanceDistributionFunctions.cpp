@@ -8,7 +8,7 @@ Creates a EDF instance with given data and methods. A pointer
 to the created EDF object is returned
 */
 PhongEmittanceDistributionFunctions *
-edfCreate(void *data, EDF_METHODS *methods) {
+edfCreate(PHONG_EDF *data, EDF_METHODS *methods) {
     PhongEmittanceDistributionFunctions *edf = (PhongEmittanceDistributionFunctions *)malloc(sizeof(PhongEmittanceDistributionFunctions));
     edf->data = data;
     edf->methods = methods;
@@ -45,8 +45,8 @@ computed and returned in pdf
 */
 COLOR
 edfEval(PhongEmittanceDistributionFunctions *edf, RayHit *hit, Vector3D *out, XXDFFLAGS flags, double *pdf) {
-    if ( edf && edf->methods->Eval ) {
-        return edf->methods->Eval(edf->data, hit, out, flags, pdf);
+    if ( edf && edf->methods->evaluate ) {
+        return edf->methods->evaluate(edf->data, hit, out, flags, pdf);
     } else {
         static COLOR val;
         colorClear(val);

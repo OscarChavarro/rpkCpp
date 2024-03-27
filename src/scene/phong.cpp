@@ -783,7 +783,7 @@ phongBtdfEvalPdf(
 EDF_METHODS GLOBAL_scene_phongEdfMethods = {
     (COLOR (*)(void *, RayHit *, XXDFFLAGS)) phongEmittance,
     nullptr, // Not textured
-    (COLOR (*)(void *, RayHit *, Vector3D *, XXDFFLAGS, double *))phongEdfEval,
+    (COLOR (*)(PHONG_EDF *edf, RayHit *hit, Vector3D *out, char flags, double *pdf))phongEdfEval,
     (Vector3D (*)(void *, RayHit *, XXDFFLAGS, double, double, COLOR *, double *))phongEdfSample,
     nullptr
 };

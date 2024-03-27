@@ -4,6 +4,7 @@
 #include "common/color.h"
 #include "material/xxdf.h"
 #include "material/hit.h"
+#include "scene/phong.h"
 
 /**
 EDF methods: every kind of EDF needs to have these functions
@@ -16,7 +17,8 @@ class EDF_METHODS {
     int (*IsTextured)(void *data);
 
     // Evaluates the edf
-    COLOR (*Eval)(void *data, RayHit *hit, Vector3D *out, XXDFFLAGS flags, double *pdf);
+    COLOR
+    (*evaluate)(PHONG_EDF *data, RayHit *hit, Vector3D *out, char flags, double *pdf);
 
     // Samples the edf
     Vector3D

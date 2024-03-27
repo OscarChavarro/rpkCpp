@@ -16,11 +16,11 @@ just an implementation of that interface.
 */
 class PhongEmittanceDistributionFunctions {
   public:
-    void *data;
+    PHONG_EDF *data;
     EDF_METHODS *methods;
 };
 
-extern PhongEmittanceDistributionFunctions *edfCreate(void *data, EDF_METHODS *methods);
+extern PhongEmittanceDistributionFunctions *edfCreate(PHONG_EDF *data, EDF_METHODS *methods);
 extern COLOR edfEmittance(PhongEmittanceDistributionFunctions *edf, RayHit *hit, XXDFFLAGS flags);
 extern int edfIsTextured(PhongEmittanceDistributionFunctions *edf);
 
