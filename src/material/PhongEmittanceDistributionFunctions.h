@@ -1,14 +1,14 @@
-/**
-Emittance Distribution Functions: the self-emitted radiance
-distribution of light sources
-*/
-
 #ifndef __PhongEmittanceDistributionFunctions__
 #define __PhongEmittanceDistributionFunctions__
 
 #include <cstdio>
 
-#include "material/edf_methods.h"
+#include "scene/phong.h"
+
+/**
+Emittance Distribution Functions: the self-emitted radiance
+distribution of light sources
+*/
 
 /**
 If a new implementation of EmittanceDistributionFunctions is needed, this class will be
@@ -17,12 +17,11 @@ just an implementation of that interface.
 class PhongEmittanceDistributionFunctions {
   public:
     PHONG_EDF *data;
-    EDF_METHODS *methods;
 };
 
-extern PhongEmittanceDistributionFunctions *edfCreate(PHONG_EDF *data, EDF_METHODS *methods);
-extern COLOR edfEmittance(PhongEmittanceDistributionFunctions *edf, RayHit *hit, XXDFFLAGS flags);
-extern int edfIsTextured(PhongEmittanceDistributionFunctions *edf);
+extern PhongEmittanceDistributionFunctions *edfCreate(PHONG_EDF *data);
+extern COLOR edfEmittance(PhongEmittanceDistributionFunctions *edf, RayHit *hit, char flags);
+extern bool edfIsTextured(PhongEmittanceDistributionFunctions *edf);
 
 extern COLOR
 edfEval(
@@ -36,13 +35,13 @@ extern Vector3D
 edfSample(
     PhongEmittanceDistributionFunctions *edf,
     RayHit *hit,
-    XXDFFLAGS flags,
+    char flags,
     double xi1,
     double xi2,
-    COLOR *emitted_radiance,
+    COLOR *emittedRadiance,
     double *probabilityDensityFunction);
 
-extern int
+extern bool
 edfShadingFrame(
     PhongEmittanceDistributionFunctions *edf,
     RayHit *hit,

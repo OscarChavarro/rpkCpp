@@ -168,7 +168,7 @@ hitPointShadingFrame(RayHit *hit, Vector3D *X, Vector3D *Y, Vector3D *Z) {
         success = bsdfShadingFrame(hit->material->bsdf, hit, X, Y, Z);
     }
 
-    if ( !success && hit->material && hit->material->edf && hit->material->edf->methods->ShadingFrame ) {
+    if ( !success && hit->material && hit->material->edf ) {
         success = edfShadingFrame(hit->material->edf, hit, X, Y, Z);
     }
 

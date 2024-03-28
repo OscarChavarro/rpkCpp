@@ -87,32 +87,6 @@ phongBtdfCreate(COLOR *Kd, COLOR *Ks, float Ns, float nr, float ni) {
     return btdf;
 }
 
-/**
-Returns emittance, reflectance, transmittance
-*/
-static COLOR
-phongEmittance(PHONG_EDF *edf, RayHit * /*hit*/, XXDFFLAGS flags) {
-    COLOR result;
-
-    colorClear(result);
-
-    if ( flags & DIFFUSE_COMPONENT ) {
-        colorAdd(result, edf->Kd, result);
-    }
-
-    if ( PHONG_IS_SPECULAR(*edf)) {
-        if ( flags & SPECULAR_COMPONENT ) {
-            colorAdd(result, edf->Ks, result);
-        }
-    } else {
-        if ( flags & GLOSSY_COMPONENT ) {
-            colorAdd(result, edf->Ks, result);
-        }
-    }
-
-    return result;
-}
-
 static COLOR
 phongReflectance(PHONG_BRDF *brdf, XXDFFLAGS flags) {
     COLOR result;
@@ -170,92 +144,6 @@ static void
 phongIndexOfRefraction(PHONG_BTDF *btdf, RefractionIndex *index) {
     index->nr = btdf->refractionIndex.nr;
     index->ni = btdf->refractionIndex.ni;
-}
-
-/**
-Edf evaluations
-*/
-static COLOR
-phongEdfEval(PHONG_EDF *edf, RayHit *hit, Vector3D *out, XXDFFLAGS flags, double *probabilityDensityFunction) {
-    Vector3D normal;
-    COLOR result;
-    double cosL;
-
-    colorClear(result);
-    if ( probabilityDensityFunction ) {
-        *probabilityDensityFunction = 0.0;
-    }
-
-    if ( !hitShadingNormal(hit, &normal) ) {
-        logWarning("phongEdfEval", "Couldn't determine shading normal");
-        return result;
-    }
-
-    cosL = vectorDotProduct(*out, normal);
-
-    if ( cosL < 0.0 ) {
-        return result;
-    } // Back face of a light does not radiate
-
-    // kd + ks (idealReflected * out)^n
-
-    if ( flags & DIFFUSE_COMPONENT ) {
-        // Divide by PI to turn radiant exitance [W/m^2] into exitant radiance [W/m^2 sr]
-        colorAdd(result, edf->kd, result);
-        if ( probabilityDensityFunction ) {
-            *probabilityDensityFunction = cosL / M_PI;
-        }
-    }
-
-    if ( flags & SPECULAR_COMPONENT ) {
-        // ???
-    }
-
-    return result;
-}
-
-/**
-Edf sampling
-*/
-static Vector3D
-phongEdfSample(
-    PHONG_EDF *edf,
-    RayHit *hit,
-    XXDFFLAGS flags,
-    double xi1,
-    double xi2,
-    COLOR *selfEmittedRadiance,
-    double *probabilityDensityFunction)
-{
-    Vector3D dir = {0.0, 0.0, 1.0};
-    if ( selfEmittedRadiance ) {
-        colorClear(*selfEmittedRadiance);
-    }
-    if ( probabilityDensityFunction ) {
-        *probabilityDensityFunction = 0.0;
-    }
-
-    if ( flags & DIFFUSE_COMPONENT ) {
-        double sProbabilityDensityFunction;
-        CoordSys coord;
-
-        Vector3D normal;
-        if ( !hitShadingNormal(hit, &normal)) {
-            logWarning("phongEdfEval", "Couldn't determine shading normal");
-            return dir;
-        }
-
-        vectorCoordSys(&normal, &coord);
-        dir = sampleHemisphereCosTheta(&coord, xi1, xi2, &sProbabilityDensityFunction);
-        if ( probabilityDensityFunction ) {
-            *probabilityDensityFunction = sProbabilityDensityFunction;
-        }
-        if ( selfEmittedRadiance ) {
-            colorScale((1.0f / (float)M_PI), edf->Kd, *selfEmittedRadiance);
-        }
-    }
-
-    return dir;
 }
 
 /**
@@ -783,15 +671,6 @@ phongBtdfEvalPdf(
     *probabilityDensityFunction = (avgKd * diffPdf + avgKs * nonDiffPdf) / scatteredPower;
     *probabilityDensityFunctionRR = scatteredPower;
 }
-
-// Phong-type edf method structs
-EDF_METHODS GLOBAL_scene_phongEdfMethods = {
-    (COLOR (*)(void *, RayHit *, char flags)) phongEmittance,
-    nullptr, // Not textured
-    (COLOR (*)(PHONG_EDF *edf, RayHit *hit, Vector3D *out, char flags, double *probabilityDensityFunction))phongEdfEval,
-    (Vector3D (*)(void *, RayHit *, char flags, double, double, COLOR *, double *))phongEdfSample,
-    nullptr
-};
 
 BRDF_METHODS GLOBAL_scene_phongBrdfMethods = {
     (COLOR (*)(void *, XXDFFLAGS)) phongReflectance,
