@@ -9,7 +9,7 @@ Phong type EDFs, BRDFs, BTDFs
 #include "material/brdf_methods.h"
 #include "material/btdf_methods.h"
 
-class PHONG_BRDF {
+class PhongBiDirectionalReflectanceDistributionFunction {
   public:
     COLOR Kd;
     COLOR Ks;
@@ -17,7 +17,7 @@ class PHONG_BRDF {
     float avgKs;
     float Ns;
 
-    PHONG_BRDF():
+    PhongBiDirectionalReflectanceDistributionFunction():
         Kd(),
         Ks(),
         avgKd(),
@@ -70,8 +70,9 @@ Choice is arbitrary for the moment
 #define PHONG_IS_SPECULAR(p) ((p).Ns >= PHONG_LOWEST_SPECULAR_EXP)
 
 extern PHONG_EDF *phongEdfCreate(COLOR *Kd, COLOR *Ks, double Ns);
-extern PHONG_BRDF *phongBrdfCreate(COLOR *Kd, COLOR *Ks, double Ns);
+extern PhongBiDirectionalReflectanceDistributionFunction *phongBrdfCreate(COLOR *Kd, COLOR *Ks, double Ns);
 extern PHONG_BTDF *phongBtdfCreate(COLOR *Kd, COLOR *Ks, float Ns, float nr, float ni);
+extern COLOR phongReflectance(PhongBiDirectionalReflectanceDistributionFunction *brdf, char flags);
 
 // Methods for manipulating Phong type EDFs, BRDFs, BTDFs
 extern BRDF_METHODS GLOBAL_scene_phongBrdfMethods;

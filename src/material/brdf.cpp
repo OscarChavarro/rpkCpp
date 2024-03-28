@@ -4,13 +4,14 @@ Bidirectional Reflectance Distribution Functions
 
 #include "common/error.h"
 #include "material/brdf.h"
+#include "scene/phong.h"
 
 /**
 Creates a BRDF instance with given data and methods
 */
 BRDF *
-brdfCreate(void *data, BRDF_METHODS *methods) {
-    BRDF *brdf = (BRDF *)malloc(sizeof(BRDF));
+brdfCreate(PhongBiDirectionalReflectanceDistributionFunction *data, BRDF_METHODS *methods) {
+    BRDF *brdf = new BRDF();
     brdf->data = data;
     brdf->methods = methods;
     return brdf;
@@ -21,8 +22,8 @@ Returns the diffuse reflectance of the BRDF according to the flags
 */
 COLOR
 brdfReflectance(BRDF *brdf, XXDFFLAGS flags) {
-    if ( brdf && brdf->methods->reflectance ) {
-        COLOR test = brdf->methods->reflectance(brdf->data, flags);
+    if ( brdf != nullptr ) {
+        COLOR test = phongReflectance(brdf->data, flags);
         if ( !std::isfinite(colorAverage(test))) {
             logFatal(-1, "brdfReflectance", "Oops - test Rd is not finite!");
         }

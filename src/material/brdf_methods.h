@@ -12,9 +12,6 @@ BRDF methods: every kind of BRDF needs to have these functions implemented
 */
 class BRDF_METHODS {
   public:
-    // Returns the reflectance
-    COLOR (*reflectance)(void *data, XXDFFLAGS flags);
-
     // Eval brdf
     COLOR
     (*evaluate)(
@@ -30,7 +27,7 @@ class BRDF_METHODS {
         Vector3D *in,
         Vector3D *normal,
         int doRussianRoulette,
-        XXDFFLAGS flags,
+        char flags,
         double x1,
         double x2,
         double *probabilityDensityFunction);
@@ -41,7 +38,7 @@ class BRDF_METHODS {
         Vector3D *in,
         Vector3D *out,
         Vector3D *normal,
-        XXDFFLAGS flags,
+        char flags,
         double *probabilityDensityFunction,
         double *probabilityDensityFunctionRR);
 };
