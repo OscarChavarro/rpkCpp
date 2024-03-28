@@ -59,7 +59,7 @@ set(MAIN_SRC
     src/SGL/poly_scan_z.cpp
     src/SGL/sgl.cpp
     src/SGL/poly_scan_flat.cpp
-    src/scene/spherical.cpp
+    src/material/spherical.cpp
     src/scene/scene.cpp
     src/scene/splitbsdf.cpp
     src/scene/VoxelGrid.cpp

@@ -4,7 +4,7 @@ be nullptr
 */
 
 #include "common/error.h"
-#include "scene/spherical.h"
+#include "material/spherical.h"
 #include "scene/splitbsdf.h"
 
 // Texture modulates diffuse reflection

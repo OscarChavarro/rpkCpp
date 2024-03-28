@@ -3,7 +3,7 @@ Phong-type EDFs, BRDFs, BTDFs
 */
 
 #include "common/error.h"
-#include "scene/spherical.h"
+#include "material/spherical.h"
 #include "scene/phong.h"
 
 /**
