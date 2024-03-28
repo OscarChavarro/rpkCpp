@@ -10,10 +10,9 @@ Bidirectional Reflectance Distribution Functions
 Creates a BRDF instance with given data and methods
 */
 BRDF *
-brdfCreate(PhongBiDirectionalReflectanceDistributionFunction *data, BRDF_METHODS *methods) {
+brdfCreate(PhongBiDirectionalReflectanceDistributionFunction *data) {
     BRDF *brdf = new BRDF();
     brdf->data = data;
-    brdf->methods = methods;
     return brdf;
 }
 
@@ -46,8 +45,8 @@ brdfEval(
     Vector3D *normal,
     XXDFFLAGS flags)
 {
-    if ( brdf && brdf->methods->evaluate ) {
-        return brdf->methods->evaluate(brdf->data, in, out, normal, flags);
+    if ( brdf != nullptr ) {
+        return phongBrdfEval(brdf->data, in, out, normal, flags);
     } else {
         static COLOR refl;
         colorClear(refl);
@@ -69,8 +68,8 @@ brdfSample(
     double x_2,
     double *probabilityDensityFunction)
 {
-    if ( brdf && brdf->methods->sample ) {
-        return brdf->methods->sample(brdf->data, in, normal,
+    if ( brdf != nullptr ) {
+        return phongBrdfSample(brdf->data, in, normal,
                                      doRussianRoulette, flags, x_1, x_2, probabilityDensityFunction);
     } else {
         Vector3D dummy = {0.0, 0.0, 0.0};
@@ -89,8 +88,8 @@ brdfEvalPdf(
     double *probabilityDensityFunction,
     double *probabilityDensityFunctionRR)
 {
-    if ( brdf && brdf->methods->evaluatePdf ) {
-        brdf->methods->evaluatePdf(brdf->data, in, out,
+    if ( brdf != nullptr ) {
+        phongBrdfEvalPdf(brdf->data, in, out,
                                    normal, flags, probabilityDensityFunction, probabilityDensityFunctionRR);
     } else {
         *probabilityDensityFunction = 0;

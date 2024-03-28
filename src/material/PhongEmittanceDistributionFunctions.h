@@ -3,6 +3,7 @@
 
 #include <cstdio>
 
+#include "material/hit.h"
 #include "scene/phong.h"
 
 /**

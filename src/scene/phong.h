@@ -6,7 +6,6 @@ Phong type EDFs, BRDFs, BTDFs
 #define __PHONG__
 
 #include "common/color.h"
-#include "material/brdf_methods.h"
 #include "material/btdf_methods.h"
 
 class PhongBiDirectionalReflectanceDistributionFunction {
@@ -74,8 +73,36 @@ extern PhongBiDirectionalReflectanceDistributionFunction *phongBrdfCreate(COLOR 
 extern PHONG_BTDF *phongBtdfCreate(COLOR *Kd, COLOR *Ks, float Ns, float nr, float ni);
 extern COLOR phongReflectance(PhongBiDirectionalReflectanceDistributionFunction *brdf, char flags);
 
+extern COLOR
+phongBrdfEval(
+    PhongBiDirectionalReflectanceDistributionFunction *brdf,
+    Vector3D *in,
+    Vector3D *out,
+    Vector3D *normal,
+    char flags);
+
+extern Vector3D
+phongBrdfSample(
+    PhongBiDirectionalReflectanceDistributionFunction *brdf,
+    Vector3D *in,
+    Vector3D *normal,
+    int doRussianRoulette,
+    char flags,
+    double x1,
+    double x2,
+    double *probabilityDensityFunction);
+
+extern void
+phongBrdfEvalPdf(
+    PhongBiDirectionalReflectanceDistributionFunction *brdf,
+    Vector3D *in,
+    Vector3D *out,
+    Vector3D *normal,
+    char flags,
+    double *probabilityDensityFunction,
+    double *probabilityDensityFunctionRR);
+
 // Methods for manipulating Phong type EDFs, BRDFs, BTDFs
-extern BRDF_METHODS GLOBAL_scene_phongBrdfMethods;
 extern BTDF_METHODS GLOBAL_scene_phongBtdfMethods;
 
 #endif

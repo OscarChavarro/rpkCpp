@@ -5,16 +5,14 @@ Bidirectional Reflectance Distribution Functions
 #ifndef __BRDF__
 #define __BRDF__
 
-#include "material/brdf_methods.h"
 #include "scene/phong.h"
 
 class BRDF {
   public:
     PhongBiDirectionalReflectanceDistributionFunction *data;
-    BRDF_METHODS *methods;
 };
 
-extern BRDF *brdfCreate(PhongBiDirectionalReflectanceDistributionFunction *data, BRDF_METHODS *methods);
+extern BRDF *brdfCreate(PhongBiDirectionalReflectanceDistributionFunction *data);
 extern COLOR brdfReflectance(BRDF *brdf, XXDFFLAGS flags);
 
 /**
