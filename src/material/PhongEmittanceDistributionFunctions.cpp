@@ -208,5 +208,5 @@ needed)
 */
 bool
 edfShadingFrame(PhongEmittanceDistributionFunctions * /*edf*/, RayHit * /*hit*/, Vector3D * /*X*/, Vector3D * /*Y*/, Vector3D * /*Z*/) {
-    return true;
+    return false;
 }
