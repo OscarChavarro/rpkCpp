@@ -65,7 +65,7 @@ phongEdfCreate(COLOR *Kd, COLOR *Ks, double Ns) {
 
 PHONG_BRDF *
 phongBrdfCreate(COLOR *Kd, COLOR *Ks, double Ns) {
-    PHONG_BRDF *brdf = (PHONG_BRDF *)malloc(sizeof(PHONG_BRDF));
+    PHONG_BRDF *brdf = new PHONG_BRDF();
     brdf->Kd = *Kd;
     brdf->avgKd = colorAverage(brdf->Kd);
     brdf->Ks = *Ks;
@@ -673,12 +673,10 @@ phongBtdfEvalPdf(
 }
 
 BRDF_METHODS GLOBAL_scene_phongBrdfMethods = {
-    (COLOR (*)(void *, XXDFFLAGS)) phongReflectance,
-    (COLOR (*)(void *, Vector3D *, Vector3D *, Vector3D *, XXDFFLAGS)) phongBrdfEval,
-    (Vector3D (*)(void *, Vector3D *, Vector3D *, int, XXDFFLAGS, double, double,
-    double *)) phongBrdfSample,
-    (void (*)(void *, Vector3D *, Vector3D *, Vector3D *,
-    XXDFFLAGS, double *, double *)) phongBrdfEvalPdf
+    (COLOR (*)(void *, char))phongReflectance,
+    (COLOR (*)(void *, Vector3D *, Vector3D *, Vector3D *, char))phongBrdfEval,
+    (Vector3D (*)(void *, Vector3D *, Vector3D *, int, char, double, double, double *))phongBrdfSample,
+    (void (*)(void *, Vector3D *, Vector3D *, Vector3D *, char, double *, double *)) phongBrdfEvalPdf
 };
 
 BTDF_METHODS GLOBAL_scene_phongBtdfMethods = {

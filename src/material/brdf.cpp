@@ -21,8 +21,8 @@ Returns the diffuse reflectance of the BRDF according to the flags
 */
 COLOR
 brdfReflectance(BRDF *brdf, XXDFFLAGS flags) {
-    if ( brdf && brdf->methods->Reflectance ) {
-        COLOR test = brdf->methods->Reflectance(brdf->data, flags);
+    if ( brdf && brdf->methods->reflectance ) {
+        COLOR test = brdf->methods->reflectance(brdf->data, flags);
         if ( !std::isfinite(colorAverage(test))) {
             logFatal(-1, "brdfReflectance", "Oops - test Rd is not finite!");
         }
@@ -45,8 +45,8 @@ brdfEval(
     Vector3D *normal,
     XXDFFLAGS flags)
 {
-    if ( brdf && brdf->methods->Eval ) {
-        return brdf->methods->Eval(brdf->data, in, out, normal, flags);
+    if ( brdf && brdf->methods->evaluate ) {
+        return brdf->methods->evaluate(brdf->data, in, out, normal, flags);
     } else {
         static COLOR refl;
         colorClear(refl);
@@ -68,8 +68,8 @@ brdfSample(
     double x_2,
     double *probabilityDensityFunction)
 {
-    if ( brdf && brdf->methods->Sample ) {
-        return brdf->methods->Sample(brdf->data, in, normal,
+    if ( brdf && brdf->methods->sample ) {
+        return brdf->methods->sample(brdf->data, in, normal,
                                      doRussianRoulette, flags, x_1, x_2, probabilityDensityFunction);
     } else {
         Vector3D dummy = {0.0, 0.0, 0.0};
@@ -88,9 +88,9 @@ brdfEvalPdf(
     double *probabilityDensityFunction,
     double *probabilityDensityFunctionRR)
 {
-    if ( brdf && brdf->methods->EvalPdf ) {
-        brdf->methods->EvalPdf(brdf->data, in, out,
-                               normal, flags, probabilityDensityFunction, probabilityDensityFunctionRR);
+    if ( brdf && brdf->methods->evaluatePdf ) {
+        brdf->methods->evaluatePdf(brdf->data, in, out,
+                                   normal, flags, probabilityDensityFunction, probabilityDensityFunctionRR);
     } else {
         *probabilityDensityFunction = 0;
     }
