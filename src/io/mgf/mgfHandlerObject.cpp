@@ -86,7 +86,7 @@ handleObject2Entity(int ac, char **av)
     }
 
     // allocate new entry
-    globalObjectNamesList[globalObjectNames] = (char *) malloc(strlen(av[1]) + 1);
+    globalObjectNamesList[globalObjectNames] = new char[strlen(av[1]) + 1];
     if ( globalObjectNamesList[globalObjectNames] == nullptr) {
         return MGF_ERROR_OUT_OF_MEMORY;
     }
@@ -117,11 +117,9 @@ surfaceDone(MgfContext *context) {
 
 int
 handleObjectEntity(int argc, char **argv, MgfContext *context) {
-    int i;
-
     if ( argc > 1 ) {
         // Beginning of a new object
-        for ( i = 0; i < context->geometryStackPtr - context->geometryStack; i++ ) {
+        for ( int i = 0; i < context->geometryStackPtr - context->geometryStack; i++ ) {
             fprintf(stderr, "\t");
         }
         fprintf(stderr, "%s ...\n", argv[1]);
@@ -161,4 +159,9 @@ handleObjectEntity(int argc, char **argv, MgfContext *context) {
     }
 
     return handleObject2Entity(argc, argv);
+}
+
+void
+mgfFreeObjectMemory() {
+    delete globalObjectNamesList;
 }

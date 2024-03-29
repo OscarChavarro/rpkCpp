@@ -593,4 +593,5 @@ mgfFreeMemory(MgfContext *context) {
     context->currentGeometryList = nullptr;
 
     freeLists(context);
+    mgfFreeObjectMemory();
 }

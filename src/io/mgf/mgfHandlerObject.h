@@ -6,5 +6,6 @@
 extern int handleObjectEntity(int argc, char **argv, MgfContext * /*context*/);
 extern void newSurface(MgfContext *context);
 extern void surfaceDone(MgfContext *context);
+extern void mgfFreeObjectMemory();
 
 #endif
