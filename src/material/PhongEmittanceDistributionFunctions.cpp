@@ -2,7 +2,7 @@
 
 #include "common/error.h"
 #include "material/PhongEmittanceDistributionFunctions.h"
-#include "skin/spherical.h"
+#include "material/spherical.h"
 
 /**
 Creates a EDF instance with given data and methods. A pointer

@@ -4,7 +4,7 @@ Bidirectional Reflectance Distribution Functions
 
 #include "common/error.h"
 #include "material/brdf.h"
-#include "skin/phong.h"
+#include "material/phong.h"
 
 /**
 Creates a BRDF instance with given data and methods

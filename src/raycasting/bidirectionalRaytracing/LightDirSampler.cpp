@@ -1,7 +1,7 @@
 #include <cmath>
 
 #include "common/error.h"
-#include "skin/spherical.h"
+#include "material/spherical.h"
 #include "material/PhongEmittanceDistributionFunctions.h"
 #include "raycasting/bidirectionalRaytracing/LightDirSampler.h"
 

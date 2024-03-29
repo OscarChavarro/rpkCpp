@@ -5,7 +5,7 @@ Bidirectional Reflectance Distribution Functions
 #ifndef __BRDF__
 #define __BRDF__
 
-#include "skin/phong.h"
+#include "material/phong.h"
 
 class BRDF {
   public:

@@ -2,7 +2,7 @@
 
 #include "java/util/ArrayList.txx"
 #include "scene/scene.h"
-#include "skin/phong.h"
+#include "material/phong.h"
 #include "scene/splitbsdf.h"
 #include "io/mgf/mgfDefinitions.h"
 #include "io/mgf/lookup.h"

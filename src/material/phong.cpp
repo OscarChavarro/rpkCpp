@@ -3,8 +3,8 @@ Phong-type EDFs, BRDFs, BTDFs
 */
 
 #include "common/error.h"
-#include "skin/spherical.h"
-#include "skin/phong.h"
+#include "material/spherical.h"
+#include "material/phong.h"
 
 /**
 The BRDF described in this file (phong.c) is a modified phong-brdf.

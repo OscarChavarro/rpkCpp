@@ -4,18 +4,7 @@ using Arvo's technique published in SIGGRAPH '95 p 437
 */
 
 #include "common/mymath.h"
-#include "skin/spherical.h"
-
-/**
-Creates a coordinate system on the patch P with Z direction along the normal
-*/
-void
-patchCoordSys(Patch *P, CoordSys *coord) {
-    coord->Z = P->normal;
-    vectorSubtract(*P->vertex[1]->point, *P->vertex[0]->point, coord->X);
-    vectorNormalize(coord->X);
-    vectorCrossProduct(coord->Z, coord->X, coord->Y);
-}
+#include "material/spherical.h"
 
 /**
 Creates a coordinate system with the given UNIT direction vector as Z-axis

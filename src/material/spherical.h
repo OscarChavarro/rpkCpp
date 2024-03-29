@@ -16,7 +16,6 @@ class CoordSys {
     Vector3D Z;
 };
 
-extern void patchCoordSys(Patch *P, CoordSys *coord);
 extern void vectorCoordSys(Vector3D *Z, CoordSys *coord);
 extern void vectorToSphericalCoord(Vector3D *C, CoordSys *coordSys, double *phi, double *theta);
 extern Vector3D sampleHemisphereCosTheta(CoordSys *coord, double xi_1, double xi_2, double *probabilityDensityFunction);

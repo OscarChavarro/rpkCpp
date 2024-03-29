@@ -3,9 +3,20 @@ Generate and trace a local line
 */
 
 #include "scene/scene.h"
-#include "skin/spherical.h"
+#include "material/spherical.h"
 #include "raycasting/stochasticRaytracing/mcradP.h"
 #include "raycasting/stochasticRaytracing/localline.h"
+
+/**
+Creates a coordinate system on the patch P with Z direction along the normal
+*/
+static void
+patchCoordSys(Patch *patch, CoordSys *coord) {
+    coord->Z = patch->normal;
+    vectorSubtract(*patch->vertex[1]->point, *patch->vertex[0]->point, coord->X);
+    vectorNormalize(coord->X);
+    vectorCrossProduct(coord->Z, coord->X, coord->Y);
+}
 
 /**
 Constructs a ray with uniformly chosen origin on patch and cosine distributed
