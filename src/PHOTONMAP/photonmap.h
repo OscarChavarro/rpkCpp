@@ -3,7 +3,7 @@
 
 #include "common/color.h"
 #include "material/bsdf.h"
-#include "material/spherical.h"
+#include "skin/spherical.h"
 #include "PHOTONMAP/photonkdtree.h"
 #include "PHOTONMAP/photon.h"
 #include "PHOTONMAP/samplegrid.h"

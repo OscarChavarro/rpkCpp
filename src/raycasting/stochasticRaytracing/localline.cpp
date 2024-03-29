@@ -3,7 +3,7 @@ Generate and trace a local line
 */
 
 #include "scene/scene.h"
-#include "material/spherical.h"
+#include "skin/spherical.h"
 #include "raycasting/stochasticRaytracing/mcradP.h"
 #include "raycasting/stochasticRaytracing/localline.h"
 

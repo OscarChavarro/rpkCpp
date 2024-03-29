@@ -8,7 +8,7 @@ Data structure for individual photons
 #include <cstring>
 
 #include "common/color.h"
-#include "material/spherical.h"
+#include "skin/spherical.h"
 #include "PHOTONMAP/pmapoptions.h"
 
 // KD tree flags (currently not used)

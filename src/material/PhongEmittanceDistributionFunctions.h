@@ -4,7 +4,7 @@
 #include <cstdio>
 
 #include "material/hit.h"
-#include "material/phong.h"
+#include "skin/phong.h"
 
 /**
 Emittance Distribution Functions: the self-emitted radiance

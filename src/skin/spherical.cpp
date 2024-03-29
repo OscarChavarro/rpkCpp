@@ -4,7 +4,7 @@ using Arvo's technique published in SIGGRAPH '95 p 437
 */
 
 #include "common/mymath.h"
-#include "material/spherical.h"
+#include "skin/spherical.h"
 
 /**
 Creates a coordinate system on the patch P with Z direction along the normal
