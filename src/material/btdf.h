@@ -5,7 +5,7 @@ Bidirectional Transmittance Distribution Functions
 #ifndef __BTDF__
 #define __BTDF__
 
-#include "scene/phong.h"
+#include "material/phong.h"
 
 /**
 Index of refraction data type. Normally when using BSDF's

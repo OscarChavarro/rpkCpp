@@ -3,7 +3,7 @@ Bidirectional Transmittance Distribution Functions
 */
 
 #include "material/btdf.h"
-#include "scene/phong.h"
+#include "material/phong.h"
 
 /**
 Creates a BTDF instance with given data and methods

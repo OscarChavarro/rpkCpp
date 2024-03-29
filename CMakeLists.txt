@@ -63,7 +63,7 @@ set(MAIN_SRC
     src/scene/scene.cpp
     src/scene/splitbsdf.cpp
     src/scene/VoxelGrid.cpp
-    src/scene/phong.cpp
+    src/material/phong.cpp
     src/scene/Background.cpp
     src/scene/VoxelData.cpp
     src/scene/Camera.cpp
