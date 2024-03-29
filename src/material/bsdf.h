@@ -14,13 +14,14 @@ light scattering.
 
 #include "material/bsdf_methods.h"
 
+class SPLIT_BSDF;
+
 class BSDF {
   public:
-    void *data;
+    SPLIT_BSDF *data;
     BSDF_METHODS *methods;
 };
-
-extern BSDF *bsdfCreate(void *data, BSDF_METHODS *methods);
+extern BSDF *bsdfCreate(SPLIT_BSDF *data, BSDF_METHODS *methods);
 
 extern COLOR bsdfScatteredPower(BSDF *bsdf, RayHit *hit, Vector3D *dir, BSDF_FLAGS flags);
 
@@ -104,5 +105,7 @@ bsdfEvalPdf(
     double *probabilityDensityFunctionRR);
 
 extern int bsdfIsTextured(BSDF *bsdf);
+
+#include "material/splitbsdf.h"
 
 #endif

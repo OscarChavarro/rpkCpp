@@ -3,7 +3,7 @@
 #include "java/util/ArrayList.txx"
 #include "scene/scene.h"
 #include "material/phong.h"
-#include "scene/splitbsdf.h"
+#include "material/splitbsdf.h"
 #include "io/mgf/mgfDefinitions.h"
 #include "io/mgf/lookup.h"
 #include "io/mgf/words.h"

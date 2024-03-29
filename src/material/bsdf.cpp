@@ -8,7 +8,7 @@ Bidirectional Reflectance Distribution Functions
 Creates a BSDF instance with given data and methods
 */
 BSDF *
-bsdfCreate(void *data, BSDF_METHODS *methods) {
+bsdfCreate(SPLIT_BSDF *data, BSDF_METHODS *methods) {
     BSDF *bsdf = (BSDF *) malloc(sizeof(BSDF));
     bsdf->data = data;
     bsdf->methods = methods;
@@ -22,16 +22,16 @@ COLOR
 bsdfScatteredPower(BSDF *bsdf, RayHit *hit, Vector3D *in, BSDF_FLAGS flags) {
     COLOR refl;
     colorClear(refl);
-    if ( bsdf && bsdf->methods->ScatteredPower ) {
-        refl = bsdf->methods->ScatteredPower(bsdf->data, hit, in, flags);
+    if ( bsdf && bsdf->methods->scatteredPower ) {
+        refl = bsdf->methods->scatteredPower(bsdf->data, hit, in, flags);
     }
     return refl;
 }
 
 int
 bsdfIsTextured(BSDF *bsdf) {
-    if ( bsdf && bsdf->methods->IsTextured ) {
-        return bsdf->methods->IsTextured(bsdf->data);
+    if ( bsdf && bsdf->methods->isTextured ) {
+        return bsdf->methods->isTextured(bsdf->data);
     }
     return false;
 }
@@ -53,8 +53,8 @@ needed)
 */
 int
 bsdfShadingFrame(BSDF *bsdf, RayHit *hit, Vector3D *X, Vector3D *Y, Vector3D *Z) {
-    if ( bsdf && bsdf->methods->ShadingFrame ) {
-        return bsdf->methods->ShadingFrame(bsdf->data, hit, X, Y, Z);
+    if ( bsdf && bsdf->methods->shadingFrame ) {
+        return bsdf->methods->shadingFrame(bsdf->data, hit, X, Y, Z);
     }
     return false;
 }
@@ -64,8 +64,8 @@ Returns the index of refraction of the BSDF
 */
 void
 bsdfIndexOfRefraction(BSDF *bsdf, RefractionIndex *index) {
-    if ( bsdf && bsdf->methods->IndexOfRefraction ) {
-        bsdf->methods->IndexOfRefraction(bsdf->data, index);
+    if ( bsdf && bsdf->methods->indexOfRefraction ) {
+        bsdf->methods->indexOfRefraction(bsdf->data, index);
     } else {
         index->nr = 1.0;
         index->ni = 0.0; /* Vacuum */
@@ -85,8 +85,8 @@ hit->normal : leaving from patch, on the incoming side.
 */
 COLOR
 bsdfEval(BSDF *bsdf, RayHit *hit, BSDF *inBsdf, BSDF *outBsdf, Vector3D *in, Vector3D *out, BSDF_FLAGS flags) {
-    if ( bsdf && bsdf->methods->Eval ) {
-        return bsdf->methods->Eval(bsdf->data, hit, inBsdf, outBsdf, in, out, flags);
+    if ( bsdf && bsdf->methods->evaluate ) {
+        return bsdf->methods->evaluate(bsdf->data, hit, inBsdf, outBsdf, in, out, flags);
     } else {
         static COLOR refl;
         colorClear(refl);
@@ -152,8 +152,8 @@ bsdfSample(
         double x_2,
         double *probabilityDensityFunction)
 {
-    if ( bsdf && bsdf->methods->Sample ) {
-        return bsdf->methods->Sample(bsdf->data, hit, inBsdf, outBsdf, in,
+    if ( bsdf && bsdf->methods->sample ) {
+        return bsdf->methods->sample(bsdf->data, hit, inBsdf, outBsdf, in,
                                      doRussianRoulette, flags, x_1, x_2, probabilityDensityFunction);
     } else {
         Vector3D dummy = {0.0, 0.0, 0.0};
@@ -174,8 +174,8 @@ bsdfEvalPdf(
         double *probabilityDensityFunction,
         double *probabilityDensityFunctionRR)
 {
-    if ( bsdf && bsdf->methods->EvalPdf ) {
-        bsdf->methods->EvalPdf(bsdf->data, hit, inBsdf, outBsdf, in, out,
+    if ( bsdf && bsdf->methods->evalPdf ) {
+        bsdf->methods->evalPdf(bsdf->data, hit, inBsdf, outBsdf, in, out,
                                flags, probabilityDensityFunction, probabilityDensityFunctionRR);
     } else {
         *probabilityDensityFunction = 0;

@@ -5,7 +5,7 @@ be nullptr
 
 #include "common/error.h"
 #include "material/spherical.h"
-#include "scene/splitbsdf.h"
+#include "material/splitbsdf.h"
 
 // Texture modulates diffuse reflection
 #define TEXTURED_COMPONENT BRDF_DIFFUSE_COMPONENT
@@ -389,7 +389,7 @@ splitBsdfIsTextured(SPLIT_BSDF *bsdf) {
 }
 
 BSDF_METHODS GLOBAL_scene_splitBsdfMethods = {
-    (COLOR (*)(void *data, RayHit *hit, Vector3D *in, BSDF_FLAGS flags)) splitBsdfScatteredPower,
+    (COLOR (*)(SPLIT_BSDF *data, RayHit *hit, Vector3D *in, BSDF_FLAGS flags)) splitBsdfScatteredPower,
     (int (*)(void *)) splitBsdfIsTextured,
     (void (*)(void *data, RefractionIndex *index)) splitBsdfIndexOfRefraction,
     (COLOR (*)(void *data, RayHit *hit, void *inBsdf, void *outBsdf, Vector3D *in, Vector3D *out,

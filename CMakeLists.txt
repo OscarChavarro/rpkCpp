@@ -44,6 +44,9 @@ set(MAIN_SRC
     src/material/PhongEmittanceDistributionFunctions.cpp
     src/material/bsdf.cpp
     src/material/Material.cpp
+    src/material/spherical.cpp
+    src/material/splitbsdf.cpp
+    src/material/phong.cpp
     src/skin/PatchSet.cpp
     src/skin/hit.cpp
     src/skin/Compound.cpp
@@ -59,11 +62,8 @@ set(MAIN_SRC
     src/SGL/poly_scan_z.cpp
     src/SGL/sgl.cpp
     src/SGL/poly_scan_flat.cpp
-        src/material/spherical.cpp
     src/scene/scene.cpp
-    src/scene/splitbsdf.cpp
     src/scene/VoxelGrid.cpp
-        src/material/phong.cpp
     src/scene/Background.cpp
     src/scene/VoxelData.cpp
     src/scene/Camera.cpp
