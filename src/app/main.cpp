@@ -6,7 +6,6 @@
 #include "common/options.h"
 #include "common/cubature.h"
 #include "material/statistics.h"
-#include "skin/RadianceMethod.h"
 #include "render/render.h"
 #include "render/renderhook.h"
 #include "scene/scene.h"
@@ -344,9 +343,6 @@ mainReadFile(char *filename, MgfContext *context) {
 
     // Prepare if errors occur when reading the new scene will abort
     GLOBAL_scene_geometries = nullptr;
-    if ( GLOBAL_scene_materials == nullptr ) {
-        GLOBAL_scene_materials = new java::ArrayList<Material *>();
-    }
 
     globalAppScenePatches = nullptr;
     Patch::setNextId(1);
@@ -497,12 +493,12 @@ mainReadFile(char *filename, MgfContext *context) {
     last = t;
 
     printf("\nStats: GLOBAL_statistics.totalEmittedPower ................: %f W\n"
-           "       GLOBAL_statistics.estimatedAverageRadiance .........: %f W/sr\n"
-           "       GLOBAL_statistics_averageReflectivity ..............: %f\n"
-           "       GLOBAL_statistics.maxSelfEmittedRadiance ...........: %f W/sr\n"
-           "       GLOBAL_statistics.maxSelfEmittedPower ..............: %f W\n"
-           "       GLOBAL_toneMap_options.lwa (adaptationLuminance) ...: %f cd/m2\n"
-           "       GLOBAL_statistics_totalArea ........................: %f m2\n",
+           "         GLOBAL_statistics.estimatedAverageRadiance .........: %f W / sr\n"
+           "         GLOBAL_statistics_averageReflectivity ..............: %f\n"
+           "         GLOBAL_statistics.maxSelfEmittedRadiance ...........: %f W / sr\n"
+           "         GLOBAL_statistics.maxSelfEmittedPower ..............: %f W\n"
+           "         GLOBAL_toneMap_options.lwa (adaptationLuminance) ...: %f cd / m2\n"
+           "         GLOBAL_statistics_totalArea ........................: %f m2\n",
            colorGray(GLOBAL_statistics.totalEmittedPower),
            colorGray(GLOBAL_statistics.estimatedAverageRadiance),
            colorGray(GLOBAL_statistics.averageReflectivity),
