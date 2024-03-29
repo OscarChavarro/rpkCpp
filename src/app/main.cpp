@@ -624,6 +624,7 @@ main(int argc, char *argv[]) {
     mgfContext.singleSided = globalFileOptionsForceOneSidedSurfaces != 0;
     mgfContext.numberOfQuarterCircleDivisions = globalNumberOfQuarterCircleDivisions;
     mgfContext.monochrome = DEFAULT_MONOCHROME;
+    mgfContext.currentMaterial = &GLOBAL_material_defaultMaterial;
 
     mainBuildModel(&argc, argv, &mgfContext);
 

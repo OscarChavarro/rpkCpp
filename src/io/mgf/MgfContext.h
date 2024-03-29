@@ -67,6 +67,7 @@ class MgfContext {
     char *currentVertexName;
     int numberOfQuarterCircleDivisions;
     bool monochrome;
+    Material *currentMaterial;
 
     // Internal variables on the MGF reader context
     char entityNames[MGF_TOTAL_NUMBER_OF_ENTITIES][MGF_MAXIMUM_ENTITY_NAME_LENGTH];
@@ -74,7 +75,6 @@ class MgfContext {
     MgfReaderContext *readerContext;
     int (*handleCallbacks[MGF_TOTAL_NUMBER_OF_ENTITIES])(int argc, char **argv, MgfContext *context);
     int (*supportCallbacks[MGF_TOTAL_NUMBER_OF_ENTITIES])(int argc, char **argv, MgfContext *context);
-    Material *currentMaterial;
     char *currentMaterialName;
     java::ArrayList<Geometry *> **geometryStackPtr;
     java::ArrayList<Geometry *> *geometryStack[MAXIMUM_GEOMETRY_STACK_DEPTH];

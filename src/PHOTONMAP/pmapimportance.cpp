@@ -2,6 +2,7 @@
 Importon tracing
 */
 
+#include "skin/Patch.h"
 #include "PHOTONMAP/pmapimportance.h"
 #include "PHOTONMAP/pmapoptions.h"
 #include "PHOTONMAP/pmapconfig.h"

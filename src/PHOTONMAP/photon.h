@@ -10,6 +10,7 @@ Data structure for individual photons
 #include "common/color.h"
 #include "material/spherical.h"
 #include "PHOTONMAP/pmapoptions.h"
+#include "material/xxdf.h"
 
 // KD tree flags (currently not used)
 const short DIRECT_LIGHT_PHOTON = 0x10;
