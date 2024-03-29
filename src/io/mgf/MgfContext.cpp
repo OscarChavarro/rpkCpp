@@ -14,7 +14,9 @@ MgfContext::MgfContext():
     handleCallbacks(),
     supportCallbacks(),
     geometryStack(),
-    currentPointList()
+    currentPointList(),
+    geometries(),
+    materials()
 {
     strcpy(entityNames[0], "#");
     strcpy(entityNames[1], "c");

@@ -91,6 +91,8 @@ class MgfContext {
     LookUpTable *vertexLookUpTable;
 
     // Return model
+    java::ArrayList<Geometry *> *geometries;
+    java::ArrayList<Material *> *materials;
 
     MgfContext();
     ~MgfContext();

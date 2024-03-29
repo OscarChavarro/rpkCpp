@@ -154,7 +154,7 @@ handleObjectEntity(int argc, char **argv, MgfContext *context) {
 
         if ( theGeometry ) {
             context->currentGeometryList->add(0, theGeometry);
-            GLOBAL_scene_geometries = context->currentGeometryList;
+            context->geometries = context->currentGeometryList;
         }
 
         newSurface(context);

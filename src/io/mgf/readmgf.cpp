@@ -510,7 +510,7 @@ freeLists(MgfContext *context) {
 
 /**
 Reads in an mgf file. The result is that the global variables
-GLOBAL_scene_geometries and GLOBAL_scene_materials are filled in.
+context->geometries and context->materials are filled in.
 
 Note: this is an implementation of MGF file format with major version number 2.
 */
@@ -525,8 +525,8 @@ readMgf(char *filename, MgfContext *context) {
     globalNormalsOctree = nullptr;
     context->currentGeometryList = new java::ArrayList<Geometry *>();
 
-    if ( GLOBAL_scene_materials == nullptr ) {
-        GLOBAL_scene_materials = new java::ArrayList<Material *>();
+    if ( context->materials == nullptr ) {
+        context->materials = new java::ArrayList<Material *>();
     }
 
     context->geometryStackPtr = context->geometryStack;
@@ -559,7 +559,7 @@ readMgf(char *filename, MgfContext *context) {
     if ( context->inSurface ) {
         surfaceDone(context);
     }
-    GLOBAL_scene_geometries = context->currentGeometryList;
+    context->geometries = context->currentGeometryList;
 
     if ( globalPointsOctree != nullptr) {
         free(globalPointsOctree);

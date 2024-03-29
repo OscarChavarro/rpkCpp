@@ -41,9 +41,9 @@ Looks up a material with given name in the given material list. Returns
 a pointer to the material if found, or nullptr if not found
 */
 static Material *
-materialLookup(char *name) {
-    for ( int i = 0; GLOBAL_scene_materials != nullptr && i < GLOBAL_scene_materials->size(); i++ ) {
-        Material *m = GLOBAL_scene_materials->get(i);
+materialLookup(char *name, MgfContext *context) {
+    for ( int i = 0; context->materials != nullptr && i < context->materials->size(); i++ ) {
+        Material *m = context->materials->get(i);
         if ( m != nullptr && m->name != nullptr && strcmp(m->name, name) == 0 ) {
             return m;
         }
@@ -145,7 +145,7 @@ mgfGetCurrentMaterial(Material **material, bool allSurfacesSided, MgfContext *co
         return false;
     }
 
-    Material *storedMaterial = materialLookup(materialName);
+    Material *storedMaterial = materialLookup(materialName, context);
     if ( storedMaterial != nullptr ) {
         if ( globalMgfCurrentMaterial->clock == 0 ) {
             (*material) = storedMaterial;
@@ -239,7 +239,7 @@ mgfGetCurrentMaterial(Material **material, bool allSurfacesSided, MgfContext *co
          bsdf,
          allSurfacesSided ? 1 : globalMgfCurrentMaterial->sided);
 
-    GLOBAL_scene_materials->add(0, (*material));
+    context->materials->add(0, (*material));
 
     // Reset the clock value to be aware of possible changes in future
     globalMgfCurrentMaterial->clock = 0;

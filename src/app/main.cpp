@@ -367,6 +367,8 @@ mainReadFile(char *filename, MgfContext *context) {
 
     if ( strncmp(extension, "mgf", 3) == 0 ) {
         readMgf(filename, context);
+        GLOBAL_scene_geometries = context->geometries;
+        GLOBAL_scene_materials = context->materials;
     }
 
     clock_t t = clock();
