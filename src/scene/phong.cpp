@@ -140,7 +140,7 @@ phongTransmittance(PHONG_BTDF *btdf, char flags) {
 /**
 Refraction index
 */
-static void
+void
 phongIndexOfRefraction(PHONG_BTDF *btdf, RefractionIndex *index) {
     index->nr = btdf->refractionIndex.nr;
     index->ni = btdf->refractionIndex.ni;
@@ -398,7 +398,7 @@ phongBrdfEvalPdf(
 /**
 Btdf evaluations
 */
-static COLOR
+COLOR
 phongBtdfEval(
     PHONG_BTDF *btdf,
     RefractionIndex inIndex,
@@ -461,7 +461,7 @@ phongBtdfEval(
     return result;
 }
 
-static Vector3D
+Vector3D
 phongBtdfSample(
     PHONG_BTDF *btdf,
     RefractionIndex inIndex,
@@ -470,8 +470,8 @@ phongBtdfSample(
     Vector3D *normal,
     int doRussianRoulette,
     char flags,
-    double x_1,
-    double x_2,
+    double x1,
+    double x2,
     double *probabilityDensityFunction)
 {
     Vector3D newDir = {0.0, 0.0, 0.0};
@@ -519,26 +519,25 @@ phongBtdfSample(
 
     // Determine diffuse or glossy/specular sampling
     if ( doRussianRoulette ) {
-        if ( x_1 > scatteredPower ) {
+        if ( x1 > scatteredPower ) {
             // Absorption
             return newDir;
         }
 
         // Rescaling of x_1
-        x_1 /= scatteredPower;
+        x1 /= scatteredPower;
     }
 
-    idealDir = idealRefractedDirection(&inRev, normal, inIndex, outIndex,
-                                       &totalIR);
+    idealDir = idealRefractedDirection(&inRev, normal, inIndex, outIndex, &totalIR);
     vectorScale(-1, *normal, invNormal);
 
-    if ( x_1 < (avgKd / scatteredPower) ) {
+    if ( x1 < (avgKd / scatteredPower) ) {
         // Sample diffuse
-        x_1 = x_1 / (avgKd / scatteredPower);
+        x1 = x1 / (avgKd / scatteredPower);
 
         vectorCoordSys(&invNormal, &coord);
 
-        newDir = sampleHemisphereCosTheta(&coord, x_1, x_2, &diffPdf);
+        newDir = sampleHemisphereCosTheta(&coord, x1, x2, &diffPdf);
 
         tmpFloat = vectorDotProduct(idealDir, newDir);
 
@@ -550,10 +549,10 @@ phongBtdfSample(
         }
     } else {
         // Sample specular
-        x_1 = (x_1 - (avgKd / scatteredPower)) / (avgKs / scatteredPower);
+        x1 = (x1 - (avgKd / scatteredPower)) / (avgKs / scatteredPower);
 
         vectorCoordSys(&idealDir, &coord);
-        newDir = sampleHemisphereCosNTheta(&coord, btdf->Ns, x_1, x_2,
+        newDir = sampleHemisphereCosNTheta(&coord, btdf->Ns, x1, x2,
                                            &nonDiffPdf);
 
         cosTheta = vectorDotProduct(*normal, newDir);
@@ -575,7 +574,7 @@ phongBtdfSample(
     return newDir;
 }
 
-static void
+void
 phongBtdfEvalPdf(
     PHONG_BTDF *btdf,
     RefractionIndex inIndex,
@@ -670,11 +669,3 @@ phongBtdfEvalPdf(
     *probabilityDensityFunction = (avgKd * diffPdf + avgKs * nonDiffPdf) / scatteredPower;
     *probabilityDensityFunctionRR = scatteredPower;
 }
-
-BTDF_METHODS GLOBAL_scene_phongBtdfMethods = {
-    (COLOR (*)(void *, char))phongTransmittance,
-    reinterpret_cast<void (*)(void *, RefractionIndex *)>((void (*)())phongIndexOfRefraction),
-    (COLOR (*)(void *, RefractionIndex, RefractionIndex, Vector3D *, Vector3D *, Vector3D *, char))phongBtdfEval,
-    (Vector3D (*)(void *, RefractionIndex, RefractionIndex, Vector3D *, Vector3D *, int, char, double, double, double *))phongBtdfSample,
-    (void (*)(void *, RefractionIndex, RefractionIndex, Vector3D *, Vector3D *, Vector3D *, char, double *, double *))phongBtdfEvalPdf
-};

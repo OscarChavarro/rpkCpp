@@ -5,7 +5,6 @@ Bidirectional Transmittance Distribution Functions
 #ifndef __BTDF__
 #define __BTDF__
 
-#include "material/btdf_methods.h"
 #include "scene/phong.h"
 
 /**
@@ -16,10 +15,9 @@ be a plain complex number
 class BTDF {
   public:
     PHONG_BTDF *data;
-    BTDF_METHODS *methods;
 };
 
-extern BTDF *btdfCreate(PHONG_BTDF *data, BTDF_METHODS *methods);
+extern BTDF *btdfCreate(PHONG_BTDF *data);
 extern COLOR btdfTransmittance(BTDF *btdf, XXDFFLAGS flags);
 extern void btdfIndexOfRefraction(BTDF *btdf, RefractionIndex *index);
 

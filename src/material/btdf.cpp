@@ -9,13 +9,9 @@ Bidirectional Transmittance Distribution Functions
 Creates a BTDF instance with given data and methods
 */
 BTDF *
-btdfCreate(PHONG_BTDF *data, BTDF_METHODS *methods) {
-    BTDF *btdf;
-
-    btdf = (BTDF *)malloc(sizeof(BTDF));
+btdfCreate(PHONG_BTDF *data) {
+    BTDF *btdf = new BTDF();
     btdf->data = data;
-    btdf->methods = methods;
-
     return btdf;
 }
 
@@ -38,8 +34,8 @@ Returns the index of refraction of the BTDF
 */
 void
 btdfIndexOfRefraction(BTDF *btdf, RefractionIndex *index) {
-    if ( btdf && btdf->methods->indexOfRefraction ) {
-        btdf->methods->indexOfRefraction(btdf->data, index);
+    if ( btdf != nullptr ) {
+        phongIndexOfRefraction(btdf->data, index);
     } else {
         index->nr = 1.0;
         index->ni = 0.0; // Vacuum
@@ -56,12 +52,12 @@ btdfEval(
     Vector3D *normal,
     char flags)
 {
-    if ( btdf && btdf->methods->evaluate ) {
-        return btdf->methods->evaluate(btdf->data, inIndex, outIndex, in, out, normal, flags);
+    if ( btdf != nullptr ) {
+        return phongBtdfEval(btdf->data, inIndex, outIndex, in, out, normal, flags);
     } else {
-        static COLOR refl;
-        colorClear(refl);
-        return refl;
+        COLOR reflectedColor;
+        colorClear(reflectedColor);
+        return reflectedColor;
     }
 }
 
@@ -78,8 +74,8 @@ btdfSample(
     double x2,
     double *probabilityDensityFunction)
 {
-    if ( btdf && btdf->methods->sample ) {
-        return btdf->methods->sample(btdf->data, inIndex, outIndex, in, normal,
+    if ( btdf != nullptr ) {
+        return phongBtdfSample(btdf->data, inIndex, outIndex, in, normal,
                                      doRussianRoulette, flags, x1, x2, probabilityDensityFunction);
     } else {
         Vector3D dummy = {0.0, 0.0, 0.0};
@@ -100,8 +96,8 @@ btdfEvalPdf(
     double *probabilityDensityFunction,
     double *probabilityDensityFunctionRR)
 {
-    if ( btdf && btdf->methods->evalPdf ) {
-        btdf->methods->evalPdf(
+    if ( btdf != nullptr ) {
+        phongBtdfEvalPdf(
                 btdf->data, inIndex, outIndex, in, out,
                 normal, flags, probabilityDensityFunction, probabilityDensityFunctionRR);
     } else {

@@ -226,11 +226,13 @@ mgfGetCurrentMaterial(Material **material, bool allSurfacesSided, MgfContext *co
         brdf = brdfCreate(phongBrdfCreate(&Rd, &Rs, Nr));
     }
 
-    BTDF *btdf = (colorNull(Td) && colorNull(Ts)) ? nullptr : btdfCreate(
+    BTDF *btdf = nullptr;
+    if ( !colorNull(Td) || !colorNull(Ts) ) {
+        btdf = btdfCreate(
         phongBtdfCreate(&Td, &Ts, Nt,
                 globalMgfCurrentMaterial->nr,
-                globalMgfCurrentMaterial->ni),
-        &GLOBAL_scene_phongBtdfMethods);
+                globalMgfCurrentMaterial->ni));
+    }
 
     BSDF *bsdf = bsdfCreate(
         splitBsdfCreate(brdf, btdf, nullptr),
