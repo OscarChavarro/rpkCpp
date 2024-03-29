@@ -11,8 +11,6 @@ typedef double MATRIX4Dd[4][4];
 #define MAT4IDENT { {1.0, 0.0, 0.0, 0.0}, {0.0, 1.0, 0.0, 0.0}, \
                 {0.0, 0.0, 1.0, 0.0}, {0.0, 0.0, 0.0, 1.0} }
 
-extern MATRIX4Dd GLOBAL_mgf_m4Ident;
-
 extern double normalize(double *v);
 extern void floatCrossProduct(VECTOR3Dd result, const VECTOR3Dd a, const VECTOR3Dd b);
 extern void mgfMakeAxes(double *u, double *v, const double *w);

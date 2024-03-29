@@ -6,7 +6,7 @@ Routines for 3-d vectors
 
 #include "common/linealAlgebra/Vector3Dd.h"
 
-MATRIX4Dd GLOBAL_mgf_m4Ident = MAT4IDENT;
+MATRIX4Dd globalMatrix4Ident = MAT4IDENT;
 
 static MATRIX4Dd globalM4Tmp; // For efficiency
 
@@ -107,7 +107,7 @@ copyMat4(double (*m4a)[4], MATRIX4Dd m4b) {
 
 void
 setIdent4(double (*m4a)[4]) {
-    copyMat4(m4a, GLOBAL_mgf_m4Ident);
+    copyMat4(m4a, globalMatrix4Ident);
 }
 
 /**
