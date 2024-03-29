@@ -95,7 +95,7 @@ LightList::evalPdfVirtual(Patch *light, Vector3D */*point*/) const {
     double probabilityDensityFunction;
 
     // Prob for choosing this light
-    XXDFFLAGS all = DIFFUSE_COMPONENT | GLOSSY_COMPONENT | SPECULAR_COMPONENT;
+    char all = DIFFUSE_COMPONENT | GLOSSY_COMPONENT | SPECULAR_COMPONENT;
 
     COLOR e = edfEmittance(light->surface->material->edf, nullptr, all);
     probabilityDensityFunction = colorAverage(e) / totalFlux;
@@ -141,7 +141,7 @@ LightList::computeOneLightImportanceVirtual(Patch *light,
                                             const Vector3D *,
                                             float) {
     // ComputeOneLightImportance for virtual patches
-    XXDFFLAGS all = DIFFUSE_COMPONENT | GLOSSY_COMPONENT | SPECULAR_COMPONENT;
+    char all = DIFFUSE_COMPONENT | GLOSSY_COMPONENT | SPECULAR_COMPONENT;
 
     COLOR e = edfEmittance(light->surface->material->edf, nullptr, all);
     return colorAverage(e);

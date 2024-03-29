@@ -110,7 +110,7 @@ phongReflectance(PhongBiDirectionalReflectanceDistributionFunction *brdf, char f
     return result;
 }
 
-static COLOR
+COLOR
 phongTransmittance(PHONG_BTDF *btdf, char flags) {
     COLOR result;
 
@@ -161,7 +161,7 @@ phongBrdfEval(
     float tmpFloat;
     float dotProduct;
     Vector3D idealReflected;
-    XXDFFLAGS nonDiffuseFlag;
+    char nonDiffuseFlag;
     Vector3D inRev;
     vectorScale(-1.0, *in, inRev);
 
@@ -220,7 +220,7 @@ phongBrdfSample(
     double avgKs;
     float tmpFloat;
     CoordSys coord;
-    XXDFFLAGS nonDiffuseFlag;
+    char nonDiffuseFlag;
     Vector3D inRev;
     vectorScale(-1.0, *in, inRev);
 
@@ -322,7 +322,7 @@ phongBrdfEvalPdf(
     double scatteredPower;
     double avgKs;
     double avgKd;
-    XXDFFLAGS nonDiffuseFlag;
+    char nonDiffuseFlag;
     Vector3D idealDir;
     Vector3D inRev;
     Vector3D goodNormal;
@@ -414,7 +414,7 @@ phongBtdfEval(
     Vector3D idealRefracted;
     int totalIR;
     int isReflection;
-    XXDFFLAGS nonDiffuseFlag;
+    char nonDiffuseFlag;
     Vector3D inRev;
     vectorScale(-1.0, *in, inRev);
 
@@ -486,7 +486,7 @@ phongBtdfSample(
     double diffPdf;
     double nonDiffPdf;
     float tmpFloat;
-    XXDFFLAGS nonDiffuseFlag;
+    char nonDiffuseFlag;
     Vector3D inRev;
     vectorScale(-1.0, *in, inRev);
 
@@ -595,7 +595,7 @@ phongBtdfEvalPdf(
     double scatteredPower;
     double avgKs;
     double avgKd;
-    XXDFFLAGS nonDiffuseFlag;
+    char nonDiffuseFlag;
     Vector3D idealDir;
     int totalIR;
     Vector3D goodNormal;
@@ -672,13 +672,9 @@ phongBtdfEvalPdf(
 }
 
 BTDF_METHODS GLOBAL_scene_phongBtdfMethods = {
-    (COLOR (*)(void *, XXDFFLAGS)) phongTransmittance,
-    reinterpret_cast<void (*)(void *, RefractionIndex *)>((void (*)()) phongIndexOfRefraction),
-    (COLOR (*)(void *, RefractionIndex, RefractionIndex, Vector3D *, Vector3D *, Vector3D *,
-               XXDFFLAGS)) phongBtdfEval,
-    (Vector3D (*)(void *, RefractionIndex, RefractionIndex, Vector3D *,
-                  Vector3D *, int, XXDFFLAGS, double, double,
-                  double *)) phongBtdfSample,
-    (void (*)(void *, RefractionIndex, RefractionIndex, Vector3D *,
-              Vector3D *, Vector3D *, XXDFFLAGS, double *, double *)) phongBtdfEvalPdf
+    (COLOR (*)(void *, char))phongTransmittance,
+    reinterpret_cast<void (*)(void *, RefractionIndex *)>((void (*)())phongIndexOfRefraction),
+    (COLOR (*)(void *, RefractionIndex, RefractionIndex, Vector3D *, Vector3D *, Vector3D *, char))phongBtdfEval,
+    (Vector3D (*)(void *, RefractionIndex, RefractionIndex, Vector3D *, Vector3D *, int, char, double, double, double *))phongBtdfSample,
+    (void (*)(void *, RefractionIndex, RefractionIndex, Vector3D *, Vector3D *, Vector3D *, char, double *, double *))phongBtdfEvalPdf
 };

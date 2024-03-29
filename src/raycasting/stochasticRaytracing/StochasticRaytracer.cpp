@@ -305,7 +305,7 @@ stochasticRaytracerGetRadiance(
 {
     COLOR result;
     COLOR radiance;
-    XXDFFLAGS edfFlags = ALL_COMPONENTS;
+    char edfFlags = ALL_COMPONENTS;
 
     // Handle background
     if ( thisNode->m_rayType == ENVIRONMENT ) {

@@ -100,7 +100,7 @@ class Patch {
     void interpolatedFrameAtUv(double u, double v, Vector3D *X, Vector3D *Y, Vector3D *Z);
     Vector3D textureCoordAtUv(double u, double v);
     COLOR averageNormalAlbedo(BSDF_FLAGS components);
-    COLOR averageEmittance(XXDFFLAGS components);
+    COLOR averageEmittance(char components);
 };
 
 #include "skin/RadianceMethod.h"

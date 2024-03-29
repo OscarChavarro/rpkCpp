@@ -709,7 +709,7 @@ Patch::averageNormalAlbedo(BSDF_FLAGS components) {
 }
 
 COLOR
-Patch::averageEmittance(XXDFFLAGS components) {
+Patch::averageEmittance(char components) {
     int numberOfSamples;
     COLOR emittance;
     RayHit hit;

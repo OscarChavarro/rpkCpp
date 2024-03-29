@@ -102,6 +102,8 @@ phongBrdfEvalPdf(
     double *probabilityDensityFunction,
     double *probabilityDensityFunctionRR);
 
+extern COLOR phongTransmittance(PHONG_BTDF *btdf, char flags);
+
 // Methods for manipulating Phong type EDFs, BRDFs, BTDFs
 extern BTDF_METHODS GLOBAL_scene_phongBtdfMethods;
 

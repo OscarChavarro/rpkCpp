@@ -3,12 +3,13 @@ Bidirectional Transmittance Distribution Functions
 */
 
 #include "material/btdf.h"
+#include "scene/phong.h"
 
 /**
 Creates a BTDF instance with given data and methods
 */
 BTDF *
-btdfCreate(void *data, BTDF_METHODS *methods) {
+btdfCreate(PHONG_BTDF *data, BTDF_METHODS *methods) {
     BTDF *btdf;
 
     btdf = (BTDF *)malloc(sizeof(BTDF));
@@ -22,13 +23,13 @@ btdfCreate(void *data, BTDF_METHODS *methods) {
 Returns the transmittance of the BTDF
 */
 COLOR
-btdfTransmittance(BTDF *btdf, XXDFFLAGS flags) {
-    if ( btdf && btdf->methods->Transmittance ) {
-        return btdf->methods->Transmittance(btdf->data, flags);
+btdfTransmittance(BTDF *btdf, char flags) {
+    if ( btdf != nullptr ) {
+        return phongTransmittance(btdf->data, flags);
     } else {
-        static COLOR refl;
-        colorClear(refl);
-        return refl;
+        static COLOR reflected;
+        colorClear(reflected);
+        return reflected;
     }
 }
 
@@ -37,8 +38,8 @@ Returns the index of refraction of the BTDF
 */
 void
 btdfIndexOfRefraction(BTDF *btdf, RefractionIndex *index) {
-    if ( btdf && btdf->methods->IndexOfRefraction ) {
-        btdf->methods->IndexOfRefraction(btdf->data, index);
+    if ( btdf && btdf->methods->indexOfRefraction ) {
+        btdf->methods->indexOfRefraction(btdf->data, index);
     } else {
         index->nr = 1.0;
         index->ni = 0.0; // Vacuum
@@ -47,16 +48,16 @@ btdfIndexOfRefraction(BTDF *btdf, RefractionIndex *index) {
 
 COLOR
 btdfEval(
-        BTDF *btdf,
-        RefractionIndex inIndex,
-        RefractionIndex outIndex,
-        Vector3D *in,
-        Vector3D *out,
-        Vector3D *normal,
-        XXDFFLAGS flags)
+    BTDF *btdf,
+    RefractionIndex inIndex,
+    RefractionIndex outIndex,
+    Vector3D *in,
+    Vector3D *out,
+    Vector3D *normal,
+    char flags)
 {
-    if ( btdf && btdf->methods->Eval ) {
-        return btdf->methods->Eval(btdf->data, inIndex, outIndex, in, out, normal, flags);
+    if ( btdf && btdf->methods->evaluate ) {
+        return btdf->methods->evaluate(btdf->data, inIndex, outIndex, in, out, normal, flags);
     } else {
         static COLOR refl;
         colorClear(refl);
@@ -66,19 +67,19 @@ btdfEval(
 
 Vector3D
 btdfSample(
-        BTDF *btdf,
-        RefractionIndex inIndex,
-        RefractionIndex outIndex,
-        Vector3D *in,
-        Vector3D *normal,
-        int doRussianRoulette,
-        XXDFFLAGS flags,
-        double x1,
-        double x2,
-        double *probabilityDensityFunction)
+    BTDF *btdf,
+    RefractionIndex inIndex,
+    RefractionIndex outIndex,
+    Vector3D *in,
+    Vector3D *normal,
+    int doRussianRoulette,
+    char flags,
+    double x1,
+    double x2,
+    double *probabilityDensityFunction)
 {
-    if ( btdf && btdf->methods->Sample ) {
-        return btdf->methods->Sample(btdf->data, inIndex, outIndex, in, normal,
+    if ( btdf && btdf->methods->sample ) {
+        return btdf->methods->sample(btdf->data, inIndex, outIndex, in, normal,
                                      doRussianRoulette, flags, x1, x2, probabilityDensityFunction);
     } else {
         Vector3D dummy = {0.0, 0.0, 0.0};
@@ -89,18 +90,18 @@ btdfSample(
 
 void
 btdfEvalPdf(
-        BTDF *btdf,
-        RefractionIndex inIndex,
-        RefractionIndex outIndex,
-        Vector3D *in,
-        Vector3D *out,
-        Vector3D *normal,
-        XXDFFLAGS flags,
-        double *probabilityDensityFunction,
-        double *probabilityDensityFunctionRR)
+    BTDF *btdf,
+    RefractionIndex inIndex,
+    RefractionIndex outIndex,
+    Vector3D *in,
+    Vector3D *out,
+    Vector3D *normal,
+    char flags,
+    double *probabilityDensityFunction,
+    double *probabilityDensityFunctionRR)
 {
-    if ( btdf && btdf->methods->EvalPdf ) {
-        btdf->methods->EvalPdf(
+    if ( btdf && btdf->methods->evalPdf ) {
+        btdf->methods->evalPdf(
                 btdf->data, inIndex, outIndex, in, out,
                 normal, flags, probabilityDensityFunction, probabilityDensityFunctionRR);
     } else {

@@ -264,12 +264,9 @@ This routine returns true if the current material has changed
 */
 int
 mgfMaterialChanged(Material *material, MgfContext *context) {
-    char *materialName;
-
-    materialName = context->currentMaterialName;
-    if ( !materialName || *materialName == '\0' ) {
-        // This might cause strcmp to crash!
-        materialName = (char *) "unnamed";
+    char *materialName = context->currentMaterialName;
+    if ( materialName == nullptr || materialName[0] == '\0' ) {
+        materialName = (char *)"unnamed";
     }
 
     // Is it another material than the one used for the previous face? If not, the

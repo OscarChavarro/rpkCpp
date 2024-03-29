@@ -11,43 +11,43 @@ implemented
 class BTDF_METHODS {
   public:
     // Returns the transmittance
-    COLOR (*Transmittance)(void *data, XXDFFLAGS flags);
+    COLOR (*transmittance)(void *data, char flags);
 
     // Returns the index of refraction
-    void (*IndexOfRefraction)(void *data, RefractionIndex *index);
+    void (*indexOfRefraction)(void *data, RefractionIndex *index);
 
     COLOR
-    (*Eval)(
+    (*evaluate)(
         void *data,
         RefractionIndex inIndex,
         RefractionIndex outIndex,
         Vector3D *in,
         Vector3D *out,
         Vector3D *normal,
-        XXDFFLAGS flags);
+        char flags);
 
     Vector3D
-    (*Sample)(
+    (*sample)(
         void *data,
         RefractionIndex inIndex,
         RefractionIndex outIndex,
         Vector3D *in,
         Vector3D *normal,
         int doRussianRoulette,
-        XXDFFLAGS flags,
+        char flags,
         double x1,
         double x2,
         double *probabilityDensityFunction);
 
     void
-    (*EvalPdf)(
+    (*evalPdf)(
         void *data,
         RefractionIndex inIndex,
         RefractionIndex outIndex,
         Vector3D *in,
         Vector3D *out,
         Vector3D *normal,
-        XXDFFLAGS flags,
+        char flags,
         double *probabilityDensityFunction,
         double *probabilityDensityFunctionRR);
 };
