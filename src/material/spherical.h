@@ -7,7 +7,7 @@ and similar stuff
 #ifndef __SPHERICAL__
 #define __SPHERICAL__
 
-#include "skin/Patch.h"
+#include "common/linealAlgebra/Vector3D.h"
 
 class CoordSys {
   public:
@@ -22,4 +22,3 @@ extern Vector3D sampleHemisphereCosTheta(CoordSys *coord, double xi_1, double xi
 extern Vector3D sampleHemisphereCosNTheta(CoordSys *coord, double n, double xi_1, double xi_2, double *probabilityDensityFunction);
 
 #endif
-
