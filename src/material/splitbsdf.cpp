@@ -73,8 +73,12 @@ texturedScattererEvalPdf(Vector3D * /*in*/, Vector3D *out, Vector3D *normal, dou
     *probabilityDensityFunction = vectorDotProduct(*normal, *out) / M_PI;
 }
 
-static COLOR
-splitBsdfScatteredPower(SPLIT_BSDF *bsdf, RayHit *hit, Vector3D * /*in*/, BSDF_FLAGS flags) {
+/**
+Returns the scattered power (diffuse/glossy/specular
+reflectance and/or transmittance) according to flags
+*/
+COLOR
+splitBsdfScatteredPower(SPLIT_BSDF *bsdf, RayHit *hit, Vector3D * /*in*/, char flags) {
     COLOR albedo;
     colorClear(albedo);
 
@@ -97,20 +101,20 @@ splitBsdfScatteredPower(SPLIT_BSDF *bsdf, RayHit *hit, Vector3D * /*in*/, BSDF_F
     return albedo;
 }
 
-static void
+void
 splitBsdfIndexOfRefraction(SPLIT_BSDF *bsdf, RefractionIndex *index) {
     btdfIndexOfRefraction(bsdf->btdf, index);
 }
 
-static COLOR
+COLOR
 splitBsdfEval(
-        SPLIT_BSDF *bsdf,
-        RayHit *hit,
-        BSDF *inBsdf,
-        BSDF *outBsdf,
-        Vector3D *in,
-        Vector3D *out,
-        BSDF_FLAGS flags)
+    SPLIT_BSDF *bsdf,
+    RayHit *hit,
+    BSDF *inBsdf,
+    BSDF *outBsdf,
+    Vector3D *in,
+    Vector3D *out,
+    BSDF_FLAGS flags)
 {
     COLOR result;
     Vector3D normal;
@@ -212,18 +216,18 @@ splitBsdfSamplingMode(double texture, double reflection, double transmission, do
     return mode;
 }
 
-static Vector3D
+Vector3D
 splitBsdfSample(
-        SPLIT_BSDF *bsdf,
-        RayHit *hit,
-        BSDF *inBsdf,
-        BSDF *outBsdf,
-        Vector3D *in,
-        int doRussianRoulette,
-        BSDF_FLAGS flags,
-        double x1,
-        double x2,
-        double *probabilityDensityFunction)
+    SPLIT_BSDF *bsdf,
+    RayHit *hit,
+    BSDF *inBsdf,
+    BSDF *outBsdf,
+    Vector3D *in,
+    int doRussianRoulette,
+    BSDF_FLAGS flags,
+    double x1,
+    double x2,
+    double *probabilityDensityFunction)
 {
     double texture;
     double reflection;
@@ -319,10 +323,13 @@ splitBsdfSample(
 }
 
 /**
-sample a split bsdf. If no sample was taken (RR/absorption)
+Constructs shading frame at hit point. Returns TRUE if successful and
+FALSE if not. X and Y may be null pointers
+
+Sample a split bsdf. If no sample was taken (RR/absorption)
 the pdf will be 0 upon return
 */
-static void
+void
 splitBsdfEvalPdf(
     SPLIT_BSDF *bsdf,
     RayHit *hit,
@@ -383,37 +390,7 @@ splitBsdfEvalPdf(
     *probabilityDensityFunction /= pScattering;
 }
 
-static int
+int
 splitBsdfIsTextured(SPLIT_BSDF *bsdf) {
     return bsdf->texture != nullptr;
 }
-
-BSDF_METHODS GLOBAL_scene_splitBsdfMethods = {
-    (COLOR (*)(SPLIT_BSDF *data, RayHit *hit, Vector3D *in, BSDF_FLAGS flags)) splitBsdfScatteredPower,
-    (int (*)(void *)) splitBsdfIsTextured,
-    (void (*)(void *data, RefractionIndex *index)) splitBsdfIndexOfRefraction,
-    (COLOR (*)(void *data, RayHit *hit, void *inBsdf, void *outBsdf, Vector3D *in, Vector3D *out,
-               BSDF_FLAGS flags)) splitBsdfEval,
-    (Vector3D (*)(
-                void *data,
-                RayHit *hit,
-                void *inBsdf,
-                void *outBsdf,
-                Vector3D *in,
-                int doRussianRoulette,
-                BSDF_FLAGS flags,
-                double x1,
-                double x2,
-                double *probabilityDensityFunction))splitBsdfSample,
-    (void (*)(
-                void *data,
-                RayHit *hit,
-                void *inBsdf,
-                void *outBsdf,
-                Vector3D *in,
-                Vector3D *out,
-                BSDF_FLAGS flags,
-                double *probabilityDensityFunction,
-                double *probabilityDensityFunctionRR))splitBsdfEvalPdf,
-    nullptr
-};

@@ -12,18 +12,19 @@ light scattering.
 #ifndef __BSDF__
 #define __BSDF__
 
-#include "material/bsdf_methods.h"
+#include "common/color.h"
+#include "material/hit.h"
+#include "material/xxdf.h"
 
 class SPLIT_BSDF;
 
 class BSDF {
   public:
     SPLIT_BSDF *data;
-    BSDF_METHODS *methods;
 };
-extern BSDF *bsdfCreate(SPLIT_BSDF *data, BSDF_METHODS *methods);
+extern BSDF *bsdfCreate(SPLIT_BSDF *data);
 
-extern COLOR bsdfScatteredPower(BSDF *bsdf, RayHit *hit, Vector3D *dir, BSDF_FLAGS flags);
+extern COLOR bsdfScatteredPower(BSDF *bsdf, RayHit *hit, Vector3D *dir, char flags);
 
 /**
 Returns the reflectance of hte BSDF according to the flags
@@ -52,7 +53,7 @@ bsdfSpecularTransmittance(BSDF *bsdf, RayHit *hit, Vector3D *dir) {
 }
 
 extern void bsdfIndexOfRefraction(BSDF *bsdf, RefractionIndex *index);
-extern int bsdfShadingFrame(BSDF *bsdf, RayHit *hit, Vector3D *X, Vector3D *Y, Vector3D *Z);
+extern bool bsdfShadingFrame(BSDF *bsdf, RayHit *hit, Vector3D *X, Vector3D *Y, Vector3D *Z);
 
 /**
 BSDF Evaluation functions

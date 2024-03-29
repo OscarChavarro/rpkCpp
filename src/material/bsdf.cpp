@@ -3,15 +3,15 @@ Bidirectional Reflectance Distribution Functions
 */
 
 #include "material/bsdf.h"
+#include "material/splitbsdf.h"
 
 /**
 Creates a BSDF instance with given data and methods
 */
 BSDF *
-bsdfCreate(SPLIT_BSDF *data, BSDF_METHODS *methods) {
+bsdfCreate(SPLIT_BSDF *data) {
     BSDF *bsdf = (BSDF *) malloc(sizeof(BSDF));
     bsdf->data = data;
-    bsdf->methods = methods;
     return bsdf;
 }
 
@@ -19,19 +19,19 @@ bsdfCreate(SPLIT_BSDF *data, BSDF_METHODS *methods) {
 Returns the scattered power of the BSDF, depending on the flags
 */
 COLOR
-bsdfScatteredPower(BSDF *bsdf, RayHit *hit, Vector3D *in, BSDF_FLAGS flags) {
-    COLOR refl;
-    colorClear(refl);
-    if ( bsdf && bsdf->methods->scatteredPower ) {
-        refl = bsdf->methods->scatteredPower(bsdf->data, hit, in, flags);
+bsdfScatteredPower(BSDF *bsdf, RayHit *hit, Vector3D *in, char flags) {
+    COLOR reflectionColor;
+    colorClear(reflectionColor);
+    if ( bsdf != nullptr ) {
+        reflectionColor = splitBsdfScatteredPower(bsdf->data, hit, in, flags);
     }
-    return refl;
+    return reflectionColor;
 }
 
 int
 bsdfIsTextured(BSDF *bsdf) {
-    if ( bsdf && bsdf->methods->isTextured ) {
-        return bsdf->methods->isTextured(bsdf->data);
+    if ( bsdf != nullptr ) {
+        return splitBsdfIsTextured(bsdf->data);
     }
     return false;
 }
@@ -51,11 +51,9 @@ not. In the latter case, a default frame needs to be used (not computed by this
 routine - hitPointShadingFrame() in material.[ch] constructs such a frame if
 needed)
 */
-int
+bool
 bsdfShadingFrame(BSDF *bsdf, RayHit *hit, Vector3D *X, Vector3D *Y, Vector3D *Z) {
-    if ( bsdf && bsdf->methods->shadingFrame ) {
-        return bsdf->methods->shadingFrame(bsdf->data, hit, X, Y, Z);
-    }
+    //return bsdf->methods->shadingFrame(bsdf->data, hit, X, Y, Z);
     return false;
 }
 
@@ -64,8 +62,8 @@ Returns the index of refraction of the BSDF
 */
 void
 bsdfIndexOfRefraction(BSDF *bsdf, RefractionIndex *index) {
-    if ( bsdf && bsdf->methods->indexOfRefraction ) {
-        bsdf->methods->indexOfRefraction(bsdf->data, index);
+    if ( bsdf != nullptr ) {
+        splitBsdfIndexOfRefraction(bsdf->data, index);
     } else {
         index->nr = 1.0;
         index->ni = 0.0; /* Vacuum */
@@ -85,12 +83,12 @@ hit->normal : leaving from patch, on the incoming side.
 */
 COLOR
 bsdfEval(BSDF *bsdf, RayHit *hit, BSDF *inBsdf, BSDF *outBsdf, Vector3D *in, Vector3D *out, BSDF_FLAGS flags) {
-    if ( bsdf && bsdf->methods->evaluate ) {
-        return bsdf->methods->evaluate(bsdf->data, hit, inBsdf, outBsdf, in, out, flags);
+    if ( bsdf != nullptr ) {
+        return splitBsdfEval(bsdf->data, hit, inBsdf, outBsdf, in, out, flags);
     } else {
-        static COLOR refl;
-        colorClear(refl);
-        return refl;
+        static COLOR reflectionColor;
+        colorClear(reflectionColor);
+        return reflectionColor;
     }
 }
 
@@ -152,8 +150,8 @@ bsdfSample(
         double x_2,
         double *probabilityDensityFunction)
 {
-    if ( bsdf && bsdf->methods->sample ) {
-        return bsdf->methods->sample(bsdf->data, hit, inBsdf, outBsdf, in,
+    if ( bsdf != nullptr ) {
+        return splitBsdfSample(bsdf->data, hit, inBsdf, outBsdf, in,
                                      doRussianRoulette, flags, x_1, x_2, probabilityDensityFunction);
     } else {
         Vector3D dummy = {0.0, 0.0, 0.0};
@@ -174,8 +172,8 @@ bsdfEvalPdf(
         double *probabilityDensityFunction,
         double *probabilityDensityFunctionRR)
 {
-    if ( bsdf && bsdf->methods->evalPdf ) {
-        bsdf->methods->evalPdf(bsdf->data, hit, inBsdf, outBsdf, in, out,
+    if ( bsdf != nullptr ) {
+        splitBsdfEvalPdf(bsdf->data, hit, inBsdf, outBsdf, in, out,
                                flags, probabilityDensityFunction, probabilityDensityFunctionRR);
     } else {
         *probabilityDensityFunction = 0;

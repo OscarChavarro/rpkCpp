@@ -133,13 +133,7 @@ mgfGetCurrentMaterial(Material **material, bool allSurfacesSided, MgfContext *co
     COLOR Rs;
     COLOR Ts;
     COLOR A;
-    float Ne;
-    float Nr;
-    float Nt;
-    float a;
-    char *materialName;
-
-    materialName = context->currentMaterialName;
+    char *materialName = context->currentMaterialName;
     if ( !materialName || *materialName == '\0' ) {
         // This might cause strcmp to crash!
         materialName = (char *)"unnamed";
@@ -169,7 +163,7 @@ mgfGetCurrentMaterial(Material **material, bool allSurfacesSided, MgfContext *co
 
     // Check/correct range of reflectances and transmittances
     colorAdd(Rd, Rs, A);
-    a = colorMax(A);
+    float a = colorMax(A);
     if ( a > 1.0f - (float)EPSILON ) {
         doWarning("invalid material specification: total reflectance shall be < 1", context);
         a = (1.0f - (float)EPSILON) / a;
@@ -190,7 +184,10 @@ mgfGetCurrentMaterial(Material **material, bool allSurfacesSided, MgfContext *co
     colorScale((1.0 / WHITE_EFFICACY), Ed, Ed);
 
     colorClear(Es);
-    Ne = 0.0;
+
+    float Ne = 0.0;
+    float Nr;
+    float Nt;
 
     // Specular power = (0.6/roughness)^2 (see mgf docs)
     if ( globalMgfCurrentMaterial->rs_a != 0.0 ) {
@@ -234,10 +231,7 @@ mgfGetCurrentMaterial(Material **material, bool allSurfacesSided, MgfContext *co
                 globalMgfCurrentMaterial->ni));
     }
 
-    BSDF *bsdf = bsdfCreate(
-        splitBsdfCreate(brdf, btdf, nullptr),
-       &GLOBAL_scene_splitBsdfMethods
-    );
+    BSDF *bsdf = bsdfCreate(splitBsdfCreate(brdf, btdf, nullptr));
 
     (*material) = materialCreate(
         materialName,
