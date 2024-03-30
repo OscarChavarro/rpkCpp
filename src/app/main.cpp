@@ -284,9 +284,7 @@ buildPatchList(java::ArrayList<Geometry *> *geometryList, java::ArrayList<Patch 
     for ( int i = 0; i < geometryList->size(); i++ ) {
         Geometry *geometry = geometryList->get(i);
         if ( geometry->isCompound() ) {
-            java::ArrayList<Geometry *> *subList = geomPrimListCopy(geometry);
-            buildPatchList(subList, patchList);
-            delete subList;
+            buildPatchList(geometry->compoundData->children, patchList);
         } else {
             java::ArrayList<Patch *> *list2 = geomPatchArrayListReference(geometry);
 
