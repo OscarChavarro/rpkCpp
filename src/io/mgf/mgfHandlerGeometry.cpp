@@ -492,9 +492,9 @@ handleFaceEntity(int argc, char **argv, MgfContext *context) {
     if ( !context->inComplex ) {
         if ( mgfMaterialChanged(context->currentMaterial, context) ) {
             if ( context->inSurface ) {
-                surfaceDone(context);
+                mgfObjectSurfaceDone(context);
             }
-            newSurface(context);
+            mgfObjectNewSurface(context);
             mgfGetCurrentMaterial(&context->currentMaterial, context->singleSided, context);
         }
     }
@@ -561,14 +561,14 @@ handleSurfaceEntity(int argc, char **argv, MgfContext *context) {
     } else {
         context->inComplex = true;
         if ( context->inSurface ) {
-            surfaceDone(context);
+            mgfObjectSurfaceDone(context);
         }
-        newSurface(context);
+        mgfObjectNewSurface(context);
         mgfGetCurrentMaterial(&context->currentMaterial, context->singleSided, context);
 
         errcode = doDiscreteConic(argc, argv, context);
 
-        surfaceDone(context);
+        mgfObjectSurfaceDone(context);
         context->inComplex = false;
 
         return errcode;

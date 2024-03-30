@@ -43,7 +43,7 @@ handleCallbacks with alternate handlers that express these entities in terms
 of others that the calling program can handle.
 
 In some cases, no alternate handler is possible because the entity
-has no approximate equivalent.  These entities are simply discarded.
+has no approximate equivalent. These entities are simply discarded.
 
 Certain entities are dependent on others, and mgfAlternativeInit() will fail
 if the supported entities are not consistent.
@@ -169,7 +169,6 @@ mgfPutCSpec(MgfContext *context)
     char buffer[NUMBER_OF_SPECTRAL_SAMPLES][24];
     char *newAv[NUMBER_OF_SPECTRAL_SAMPLES + 4];
     double sf;
-    int i;
 
     if ( context->handleCallbacks[MGF_ENTITY_C_SPEC] != handleColorEntity ) {
         snprintf(wl[0], 6, "%d", COLOR_MINIMUM_WAVE_LENGTH);
@@ -178,13 +177,14 @@ mgfPutCSpec(MgfContext *context)
         newAv[1] = wl[0];
         newAv[2] = wl[1];
         sf = (double)NUMBER_OF_SPECTRAL_SAMPLES / (double)(context->currentColor->spectralStraightSum);
-        for ( i = 0; i < NUMBER_OF_SPECTRAL_SAMPLES; i++ ) {
+        for ( int i = 0; i < NUMBER_OF_SPECTRAL_SAMPLES; i++ ) {
             snprintf(buffer[i], 24, "%.4f", sf * context->currentColor->straightSamples[i]);
             newAv[i + 3] = buffer[i];
         }
         newAv[NUMBER_OF_SPECTRAL_SAMPLES + 3] = nullptr;
-        if ((i = mgfHandle(MGF_ENTITY_C_SPEC, NUMBER_OF_SPECTRAL_SAMPLES + 3, newAv, context)) != MGF_OK ) {
-            return i;
+        int status = mgfHandle(MGF_ENTITY_C_SPEC, NUMBER_OF_SPECTRAL_SAMPLES + 3, newAv, context);
+        if ( status != MGF_OK ) {
+            return status;
         }
     }
     return MGF_OK;
@@ -485,8 +485,8 @@ initMgf(MgfContext *context) {
     mgfAlternativeInit(context->handleCallbacks, context);
 }
 
-static void
-freeLists(MgfContext *context) {
+void
+mgfObjectFreeLists(MgfContext *context) {
     if ( context->currentPointList != nullptr ) {
         delete context->currentPointList;
         context->currentPointList = nullptr;
@@ -534,7 +534,7 @@ readMgf(char *filename, MgfContext *context) {
     context->inComplex = false;
     context->inSurface = false;
 
-    newSurface(context);
+    mgfObjectNewSurface(context);
 
     MgfReaderContext mgfReaderContext{};
     int status;
@@ -557,7 +557,7 @@ readMgf(char *filename, MgfContext *context) {
     mgfClear(context);
 
     if ( context->inSurface ) {
-        surfaceDone(context);
+        mgfObjectSurfaceDone(context);
     }
     context->geometries = context->currentGeometryList;
 
@@ -592,6 +592,6 @@ mgfFreeMemory(MgfContext *context) {
     delete context->currentGeometryList;
     context->currentGeometryList = nullptr;
 
-    freeLists(context);
-    mgfFreeObjectMemory();
+    mgfObjectFreeLists(context);
+    mgfObjectFreeMemory();
 }

@@ -213,11 +213,9 @@ are copied to the GEOMs)
 */
 Geometry *
 Cluster::convertClusterToGeometry() {
-    Geometry *patchesGeometry;
-
-    patchesGeometry = nullptr;
+    Geometry *patchesGeometry = nullptr;
     if ( patches != nullptr ) {
-        patchesGeometry = geomCreatePatchSet(patches);
+s        patchesGeometry = geomCreatePatchSet(patches);
     }
 
     java::ArrayList<Geometry *> *geometryList = new java::ArrayList<Geometry *>();

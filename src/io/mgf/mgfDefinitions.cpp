@@ -90,15 +90,13 @@ Pass entity to appropriate handler
 */
 int
 mgfHandle(int entityIndex, int argc, char **argv, MgfContext *context) {
-    int rv;
-
     if ( entityIndex < 0 && (entityIndex = mgfEntity(argv[0], context)) < 0 ) {
         // Unknown entity
         return mgfDefaultHandlerForUnknownEntities(argc, argv, context);
     }
     if ( context->supportCallbacks[entityIndex] != nullptr ) {
         // Support handler
-        rv = (*context->supportCallbacks[entityIndex])(argc, argv, context);
+        int rv = (*context->supportCallbacks[entityIndex])(argc, argv, context);
         if ( rv != MGF_OK ) {
             return rv;
         }

@@ -20,8 +20,7 @@ static int globalObjectNames; // Depth of name hierarchy
 static void
 pushCurrentGeometryList(MgfContext *context) {
     if ( context->geometryStackPtr - context->geometryStack >= MAXIMUM_GEOMETRY_STACK_DEPTH ) {
-        doError(
-                "Objects are nested too deep for this program. Recompile with larger MAXIMUM_GEOMETRY_STACK_DEPTH constant in read mgf", context);
+        doError("Objects are nested too deep for this program. Recompile with larger MAXIMUM_GEOMETRY_STACK_DEPTH constant in read mgf", context);
         return;
     } else {
         *context->geometryStackPtr = context->currentGeometryList;
@@ -43,7 +42,7 @@ popCurrentGeometryList(MgfContext *context) {
 }
 
 void
-newSurface(MgfContext *context) {
+mgfObjectNewSurface(MgfContext *context) {
     context->currentPointList = new java::ArrayList<Vector3D *>();
     context->currentNormalList = new java::ArrayList<Vector3D *>();
     context->currentVertexList = new java::ArrayList<Vertex *>();
@@ -96,7 +95,7 @@ handleObject2Entity(int ac, char **av)
 }
 
 void
-surfaceDone(MgfContext *context) {
+mgfObjectSurfaceDone(MgfContext *context) {
     if ( context->currentGeometryList == nullptr ) {
         context->currentGeometryList = new java::ArrayList<Geometry *>();
     }
@@ -125,18 +124,18 @@ handleObjectEntity(int argc, char **argv, MgfContext *context) {
         fprintf(stderr, "%s ...\n", argv[1]);
 
         if ( context->inSurface ) {
-            surfaceDone(context);
+            mgfObjectSurfaceDone(context);
         }
 
         pushCurrentGeometryList(context);
 
-        newSurface(context);
+        mgfObjectNewSurface(context);
     } else {
         // End of object definition
         Geometry *theGeometry = nullptr;
 
         if ( context->inSurface ) {
-            surfaceDone(context);
+            mgfObjectSurfaceDone(context);
         }
 
         long listSize = 0;
@@ -155,13 +154,13 @@ handleObjectEntity(int argc, char **argv, MgfContext *context) {
             context->geometries = context->currentGeometryList;
         }
 
-        newSurface(context);
+        mgfObjectNewSurface(context);
     }
 
     return handleObject2Entity(argc, argv);
 }
 
 void
-mgfFreeObjectMemory() {
+mgfObjectFreeMemory() {
     delete globalObjectNamesList;
 }

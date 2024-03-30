@@ -4,8 +4,9 @@
 #include "io/mgf/MgfContext.h"
 
 extern int handleObjectEntity(int argc, char **argv, MgfContext * /*context*/);
-extern void newSurface(MgfContext *context);
-extern void surfaceDone(MgfContext *context);
-extern void mgfFreeObjectMemory();
+extern void mgfObjectNewSurface(MgfContext *context);
+extern void mgfObjectSurfaceDone(MgfContext *context);
+extern void mgfObjectFreeMemory();
+extern void mgfObjectFreeLists(MgfContext *context);
 
 #endif
