@@ -215,7 +215,7 @@ Geometry *
 Cluster::convertClusterToGeometry() {
     Geometry *patchesGeometry = nullptr;
     if ( patches != nullptr ) {
-s        patchesGeometry = geomCreatePatchSet(patches);
+        patchesGeometry = geomCreatePatchSet(patches);
     }
 
     java::ArrayList<Geometry *> *geometryList = new java::ArrayList<Geometry *>();
