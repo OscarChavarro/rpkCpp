@@ -5,10 +5,8 @@ Hierarchical object names tracking
 #include <cstring>
 
 #include "java/util/ArrayList.txx"
-#include "scene/scene.h"
 #include "io/mgf/words.h"
 #include "io/mgf/mgfHandlerObject.h"
-#include "io/mgf/mgfDefinitions.h"
 
 static char **globalObjectNamesList; // Name list (names in hierarchy)
 static int globalObjectMaxName; // Allocated list size
@@ -54,8 +52,7 @@ mgfObjectNewSurface(MgfContext *context) {
 Handle an object entity statement
 */
 static int
-handleObject2Entity(int ac, char **av)
-{
+handleObject2Entity(int ac, char **av) {
     if ( ac == 1 ) {
         // Just pop top object
         if ( globalObjectNames < 1 ) {
@@ -68,7 +65,7 @@ handleObject2Entity(int ac, char **av)
     if ( ac != 2 ) {
         return MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
     }
-    if ( !isNameWords(av[1])) {
+    if ( !isNameWords(av[1]) ) {
         return MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
     }
     if ( globalObjectNames >= globalObjectMaxName - 1 ) {
