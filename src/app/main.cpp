@@ -284,8 +284,10 @@ buildPatchList(java::ArrayList<Geometry *> *geometryList, java::ArrayList<Patch 
     for ( int i = 0; i < geometryList->size(); i++ ) {
         Geometry *geometry = geometryList->get(i);
         if ( geometry->isCompound() ) {
+            // Recursive case
             buildPatchList(geometry->compoundData->children, patchList);
         } else {
+            // Trivial case
             java::ArrayList<Patch *> *list2 = geomPatchArrayListReference(geometry);
 
             for ( int j = 0; list2 != nullptr && j < list2->size(); j++ ) {

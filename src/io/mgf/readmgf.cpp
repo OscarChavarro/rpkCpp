@@ -529,7 +529,7 @@ readMgf(char *filename, MgfContext *context) {
         context->materials = new java::ArrayList<Material *>();
     }
 
-    context->geometryStackPtr = context->geometryStack;
+    context->geometryStackHeadIndex = 0;
 
     context->inComplex = false;
     context->inSurface = false;

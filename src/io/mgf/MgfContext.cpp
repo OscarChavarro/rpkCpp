@@ -64,7 +64,7 @@ MgfContext::MgfContext():
 
     currentMaterial = nullptr;
     currentMaterialName = nullptr;
-    geometryStackPtr = nullptr;
+    geometryStackHeadIndex = 0;
     currentNormalList = nullptr;
     currentVertexList = nullptr;
     currentGeometryList = nullptr;

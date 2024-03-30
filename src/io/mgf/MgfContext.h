@@ -76,7 +76,7 @@ class MgfContext {
     int (*handleCallbacks[MGF_TOTAL_NUMBER_OF_ENTITIES])(int argc, char **argv, MgfContext *context);
     int (*supportCallbacks[MGF_TOTAL_NUMBER_OF_ENTITIES])(int argc, char **argv, MgfContext *context);
     char *currentMaterialName;
-    java::ArrayList<Geometry *> **geometryStackPtr;
+    int geometryStackHeadIndex;
     java::ArrayList<Geometry *> *geometryStack[MAXIMUM_GEOMETRY_STACK_DEPTH];
     java::ArrayList<Vector3D *> *currentPointList;
     java::ArrayList<Vector3D *> *currentNormalList;

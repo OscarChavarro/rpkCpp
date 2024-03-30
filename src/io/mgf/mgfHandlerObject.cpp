@@ -19,25 +19,25 @@ static int globalObjectNames; // Depth of name hierarchy
 
 static void
 pushCurrentGeometryList(MgfContext *context) {
-    if ( context->geometryStackPtr - context->geometryStack >= MAXIMUM_GEOMETRY_STACK_DEPTH ) {
+    if ( context->geometryStackHeadIndex >= MAXIMUM_GEOMETRY_STACK_DEPTH ) {
         doError("Objects are nested too deep for this program. Recompile with larger MAXIMUM_GEOMETRY_STACK_DEPTH constant in read mgf", context);
         return;
     } else {
-        *context->geometryStackPtr = context->currentGeometryList;
-        context->geometryStackPtr++;
+        context->geometryStack[context->geometryStackHeadIndex] = context->currentGeometryList;
+        context->geometryStackHeadIndex++;
         context->currentGeometryList = nullptr;
     }
 }
 
 static void
 popCurrentGeometryList(MgfContext *context) {
-    if ( context->geometryStackPtr <= context->geometryStack ) {
+    if ( context->geometryStackHeadIndex < 0 ) {
         doError("Object stack underflow ... unbalanced 'o' contexts?", context);
         context->currentGeometryList = nullptr;
         return;
     } else {
-        context->geometryStackPtr--;
-        context->currentGeometryList = *context->geometryStackPtr;
+        context->geometryStackHeadIndex--;
+        context->currentGeometryList = context->geometryStack[context->geometryStackHeadIndex];
     }
 }
 
@@ -118,7 +118,7 @@ int
 handleObjectEntity(int argc, char **argv, MgfContext *context) {
     if ( argc > 1 ) {
         // Beginning of a new object
-        for ( int i = 0; i < context->geometryStackPtr - context->geometryStack; i++ ) {
+        for ( int i = 0; i < context->geometryStackHeadIndex; i++ ) {
             fprintf(stderr, "\t");
         }
         fprintf(stderr, "%s ...\n", argv[1]);
@@ -149,7 +149,7 @@ handleObjectEntity(int argc, char **argv, MgfContext *context) {
 
         popCurrentGeometryList(context);
 
-        if ( theGeometry ) {
+        if ( theGeometry != nullptr ) {
             context->currentGeometryList->add(0, theGeometry);
             context->geometries = context->currentGeometryList;
         }
