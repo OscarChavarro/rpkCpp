@@ -561,10 +561,10 @@ readMgf(char *filename, MgfContext *context) {
     }
     context->geometries = context->currentGeometryList;
 
-    if ( globalPointsOctree != nullptr) {
+    if ( globalPointsOctree != nullptr ) {
         free(globalPointsOctree);
     }
-    if ( globalNormalsOctree != nullptr) {
+    if ( globalNormalsOctree != nullptr ) {
         free(globalNormalsOctree);
     }
 }

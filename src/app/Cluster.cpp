@@ -204,12 +204,12 @@ Cluster::splitCluster() {
 }
 
 /**
-Converts a cluster GLOBAL_stochasticRaytracing_hierarchy to a "normal" Geometry GLOBAL_stochasticRaytracing_hierarchy. The
-"normal" routines for raytracing can be used to trace a ray through
-the cluster GLOBAL_stochasticRaytracing_hierarchy and shaft culling and such can be done on clusters
+Converts a cluster GLOBAL_stochasticRaytracing_hierarchy to a "normal" Geometry.
+The "normal" routines for raytracing can be used to trace a ray through the cluster
+GLOBAL_stochasticRaytracing_hierarchy and shaft culling and such can be done on clusters
 without extra code and such ... This routine is destructive:
 the Cluster GLOBAL_stochasticRaytracing_hierarchy is disposed of (the patch lists of the clusters
-are copied to the GEOMs)
+are copied to the geometries)
 */
 Geometry *
 Cluster::convertClusterToGeometry() {

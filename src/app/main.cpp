@@ -323,7 +323,7 @@ mainReadFile(char *filename, MgfContext *context) {
     // Get current directory from the filename
     unsigned long n = strlen(filename) + 1;
 
-    globalCurrentDirectory = (char *)malloc(n);
+    globalCurrentDirectory = new char[n];
     snprintf(globalCurrentDirectory, n, "%s", filename);
     char *slash = strrchr(globalCurrentDirectory, '/');
     if ( slash != nullptr ) {
@@ -371,7 +371,7 @@ mainReadFile(char *filename, MgfContext *context) {
     fprintf(stderr, "Reading took %g secs.\n", (float) (t - last) / (float) CLOCKS_PER_SEC);
     last = t;
 
-    free(globalCurrentDirectory);
+    delete[] globalCurrentDirectory;
 
     // Check for errors
     if ( GLOBAL_scene_geometries == nullptr || GLOBAL_scene_geometries->size() == 0 ) {

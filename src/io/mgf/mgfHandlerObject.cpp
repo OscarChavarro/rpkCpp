@@ -84,7 +84,7 @@ handleObject2Entity(int ac, char **av)
         }
     }
 
-    // allocate new entry
+    // Allocate new entry
     globalObjectNamesList[globalObjectNames] = new char[strlen(av[1]) + 1];
     if ( globalObjectNamesList[globalObjectNames] == nullptr) {
         return MGF_ERROR_OUT_OF_MEMORY;
