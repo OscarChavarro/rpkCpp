@@ -96,7 +96,7 @@ class VoxelGrid {
 
     static int randomRayId();
 public:
-    explicit VoxelGrid(Geometry *geom);
+    explicit VoxelGrid(Geometry *geometry);
 
     void destroyGrid() const;
 

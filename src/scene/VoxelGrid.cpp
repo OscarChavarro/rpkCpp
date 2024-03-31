@@ -12,7 +12,7 @@ optimisations/enhancements from ray shade 4.0.6 by Graig Kolb, Stanford U
 /**
 Constructs a recursive grid structure containing the whole geometry
 */
-VoxelGrid::VoxelGrid(Geometry *geom) : boundingBox{} {
+VoxelGrid::VoxelGrid(Geometry *geometry) : boundingBox{} {
     xSize = 0.0f;
     ySize = 0.0f;
     zSize = 0.0f;
@@ -23,15 +23,15 @@ VoxelGrid::VoxelGrid(Geometry *geom) : boundingBox{} {
     short gridSize;
 
     if ( level == 0 ) {
-        geom->geomCountItems();
+        geometry->geomCountItems();
     }
 
-    double p = std::pow((double) geom->itemCount, 0.33333) + 1;
+    double p = std::pow((double) geometry->itemCount, 0.33333) + 1;
     gridSize = (short)std::floor(p);
-    fprintf(stderr, "Setting %d volumeListsOfItems in %d^3 cells level %d voxel grid ... \n", geom->itemCount, gridSize, level);
+    fprintf(stderr, "Setting %d volumeListsOfItems in %d^3 cells level %d voxel grid ... \n", geometry->itemCount, gridSize, level);
     level++;
 
-    putGeometryInsideVoxelGrid(geom, gridSize, gridSize, gridSize);
+    putGeometryInsideVoxelGrid(geometry, gridSize, gridSize, gridSize);
 
     level--;
 }
