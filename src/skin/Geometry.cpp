@@ -60,19 +60,7 @@ Geometry::Geometry(
     }
 }
 
-bool
-Geometry::contains(java::ArrayList<MeshSurface *> *deleted, MeshSurface *candidate) {
-    for ( int i = 0; i < deleted->size(); i++ ) {
-        if ( deleted->get(i) == candidate ) {
-            return true;
-        }
-    }
-    return false;
-}
-
 Geometry::~Geometry() {
-    static java::ArrayList<MeshSurface *> deleted;
-
     if ( radianceData != nullptr && !isDuplicate ) {
         delete radianceData;
         radianceData = nullptr;

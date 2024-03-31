@@ -34,9 +34,6 @@ enum GeometryClassId {
 };
 
 class Geometry {
-  private:
-    static bool contains(java::ArrayList<MeshSurface *> *deleted, MeshSurface *candidate);
-
   public: // Will become protected
     static int nextGeometryId;
 

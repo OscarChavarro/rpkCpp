@@ -574,16 +574,23 @@ mgfFreeMemory(MgfContext *context) {
     printf("Freeing %ld geometries\n", context->currentGeometryList->size());
     long surfaces = 0;
     long patchSets = 0;
+    long compounds = 0;
+    long unknowns = 0;
     for ( int i = 0; i < context->currentGeometryList->size(); i++ ) {
         if ( context->currentGeometryList->get(i)->className == SURFACE_MESH ) {
             surfaces++;
-        }
-        if ( context->currentGeometryList->get(i)->className == PATCH_SET ) {
+        } else if ( context->currentGeometryList->get(i)->className == PATCH_SET ) {
             patchSets++;
+        } else if ( context->currentGeometryList->get(i)->className == COMPOUND ) {
+            compounds++;
+        } else {
+            unknowns++;
         }
     }
-    printf("  - Surfaces: %ld\n", surfaces);
+    printf("  - MeshSurfaces: %ld\n", surfaces);
     printf("  - Patch sets: %ld\n", patchSets);
+    printf("  - Compounds: %ld\n", compounds);
+    printf("  - Unknowns: %ld\n", unknowns);
     fflush(stdout);
 
     for ( int i = 0; i < context->currentGeometryList->size(); i++ ) {
