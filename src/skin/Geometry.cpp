@@ -50,7 +50,8 @@ Geometry::Geometry(
     this->displayListId = -1;
 
     if ( className == GeometryClassId::COMPOUND ) {
-        geometryListBounds(compoundData->children, &this->boundingBox);
+        Compound *compound = (Compound *)compoundData;
+        geometryListBounds(compound->children, &this->boundingBox);
         this->boundingBox.enlargeTinyBit();
         this->bounded = true;
     } else if ( className == GeometryClassId::PATCH_SET && patchSetData != nullptr ) {
@@ -249,10 +250,12 @@ Geometry::geomCountItems() {
     int count = 0;
 
     if ( isCompound() ) {
-        if ( this->compoundData != nullptr && this->compoundData->children != nullptr ) {
-            for ( int i = 0; i < this->compoundData->children->size(); i++ ) {
-                count += this->compoundData->children->get(i)->geomCountItems();
-            }
+        Compound *compound = (Compound *)this->compoundData;
+        if ( compound == nullptr ) {
+            return 0;
+        }
+        for ( int i = 0; compound->children != nullptr && i < compound->children->size(); i++ ) {
+            count += compound->children->get(i)->geomCountItems();
         }
     } else {
         java::ArrayList<Patch *> * list = geomPatchArrayListReference(this);
