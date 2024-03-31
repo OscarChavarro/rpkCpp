@@ -86,15 +86,6 @@ geomCreatePatchSet(java::ArrayList<Patch *> *geometryList) {
     return nullptr;
 }
 
-Geometry *
-geomCreateCompound(Compound *compoundData) {
-    if ( compoundData == nullptr ) {
-        return nullptr;
-    }
-
-    return new Geometry(nullptr, compoundData, GeometryClassId::COMPOUND);
-}
-
 /**
 This function returns a bounding box for the geometry
 */

@@ -94,7 +94,6 @@ extern Geometry *GLOBAL_geom_excludedGeom1;
 extern Geometry *GLOBAL_geom_excludedGeom2;
 
 extern Geometry *geomCreatePatchSet(java::ArrayList<Patch *> *patchList);
-extern Geometry *geomCreateCompound(Compound *compoundData);
 
 extern BoundingBox &getBoundingBox(Geometry *geometry);
 extern void geomDestroy(Geometry *geometry);
