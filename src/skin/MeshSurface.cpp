@@ -78,6 +78,7 @@ MeshSurface::MeshSurface(
     GLOBAL_statistics.numberOfSurfaces++;
 
     this->id = globalNextSurfaceId++;
+    this->compoundData = nullptr;
     this->patchSetData = nullptr;
     this->className = GeometryClassId::SURFACE_MESH;
     this->isDuplicate = false;

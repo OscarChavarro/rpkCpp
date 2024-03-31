@@ -9,17 +9,13 @@ Creates a Compound from a list of geometries
 Actually, it just counts the number of compounds in the scene and
 returns the geometry list
 */
-Compound::Compound(java::ArrayList<Geometry *> *geometryList): Geometry(nullptr, GeometryClassId::COMPOUND) {
+Compound::Compound(java::ArrayList<Geometry *> *geometryList) {
     GLOBAL_statistics.numberOfCompounds++;
     children = geometryList;
-
-    geometryListBounds(children, &this->boundingBox);
-    this->boundingBox.enlargeTinyBit();
-    this->bounded = true;
 }
 
 Compound::~Compound() {
-    if ( children != nullptr && !isDuplicate ) {
+    if ( children != nullptr ) {
         delete children;
         children = nullptr;
     }

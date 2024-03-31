@@ -39,6 +39,7 @@ class Geometry {
 
     Geometry(
         PatchSet *patchSetData,
+        Compound *compoundData,
         GeometryClassId className);
 
     bool
@@ -62,6 +63,7 @@ class Geometry {
     bool isDuplicate;
 
     GeometryClassId className;
+    Compound *compoundData;
     PatchSet *patchSetData;
 
     Geometry();

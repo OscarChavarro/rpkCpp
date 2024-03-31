@@ -286,7 +286,7 @@ buildPatchList(java::ArrayList<Geometry *> *geometryList, java::ArrayList<Patch 
         Geometry *geometry = geometryList->get(i);
         if ( geometry->isCompound() ) {
             // Recursive case
-            Compound *compound = (Compound *)geometry;
+            Compound *compound = (Compound *)geometry->compoundData;
             buildPatchList(compound->children, patchList);
         } else {
             // Trivial case
@@ -451,7 +451,12 @@ mainReadFile(char *filename, MgfContext *context) {
 
     GLOBAL_scene_clusteredWorldGeom = mainCreateClusterHierarchy(globalAppScenePatches);
 
-    if ( GLOBAL_scene_clusteredWorldGeom->className != GeometryClassId::COMPOUND ) {
+    if ( GLOBAL_scene_clusteredWorldGeom->className == GeometryClassId::COMPOUND ) {
+        if ( GLOBAL_scene_clusteredWorldGeom->compoundData == nullptr ) {
+            fprintf(stderr, "Unexpected case: review code - generic case not supported anymore.\n");
+            exit(2);
+        }
+    } else {
         logWarning(nullptr, "Strange clusters for this world ...");
     }
 
