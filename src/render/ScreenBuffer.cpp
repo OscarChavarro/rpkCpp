@@ -7,6 +7,10 @@
 #include "IMAGE/tonemap/tonemapping.h"
 #include "render/ScreenBuffer.h"
 
+RGB GLOBAL_material_black = {0.0, 0.0, 0.0};
+RGB GLOBAL_material_yellow = {1.0, 1.0, 0.0};
+RGB GLOBAL_material_white = {1.0, 1.0, 1.0};
+
 /**
 Constructor : make an screen buffer from a camera definition
 If (cam == nullptr) the current camera (GLOBAL_camera_mainCamera) is taken

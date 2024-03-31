@@ -27,10 +27,6 @@ class RGB {
     }
 };
 
-extern RGB GLOBAL_material_black;
-extern RGB GLOBAL_material_white;
-extern RGB GLOBAL_material_yellow;
-
 inline int operator==(RGB rgb1, RGB rgb2)
 {
     return(doubleEqual(rgb1.r, rgb2.r, EPSILON) &&

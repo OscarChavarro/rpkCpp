@@ -6,9 +6,11 @@ Southwell Galerkin radiosity (progressive refinement radiosity)
 #include "material/statistics.h"
 #include "render/potential.h"
 #include "render/opengl.h"
+#include "render/ScreenBuffer.h"
 #include "GALERKIN/clustergalerkincpp.h"
 #include "GALERKIN/galerkinP.h"
 #include "GALERKIN/hierefine.h"
+
 /**
 Returns the patch with highest un-shot power, weighted with indirect
 importance if importance-driven (see Bekaert&Willems, "Importance-driven

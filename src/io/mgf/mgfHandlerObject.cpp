@@ -115,11 +115,6 @@ int
 handleObjectEntity(int argc, char **argv, MgfContext *context) {
     if ( argc > 1 ) {
         // Beginning of a new object
-        for ( int i = 0; i < context->geometryStackHeadIndex; i++ ) {
-            fprintf(stderr, "\t");
-        }
-        fprintf(stderr, "%s ...\n", argv[1]);
-
         if ( context->inSurface ) {
             mgfObjectSurfaceDone(context);
         }

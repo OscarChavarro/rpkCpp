@@ -12,6 +12,7 @@
 #include "IMAGE/tonemap/tonemapping.h"
 #include "io/mgf/readmgf.h"
 #include "render/opengl.h"
+#include "render/ScreenBuffer.h"
 #include "GALERKIN/GalerkinRadianceMethod.h"
 #include "app/Cluster.h"
 #include "app/radiance.h"

@@ -70,6 +70,10 @@ class ScreenBuffer {
     void syncLine(int lineNumber);
 };
 
+extern RGB GLOBAL_material_black;
+extern RGB GLOBAL_material_white;
+extern RGB GLOBAL_material_yellow;
+
 extern float computeFluxToRadFactor(int pixX, int pixY);
 
 #endif
