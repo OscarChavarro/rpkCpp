@@ -26,19 +26,6 @@ class PhongBiDirectionalReflectanceDistributionFunction {
     }
 };
 
-class PHONG_EDF {
-  public:
-    COLOR Kd;
-    COLOR kd;
-    COLOR Ks;
-    float Ns;
-
-    PHONG_EDF():
-        Kd(), kd(), Ks(), Ns()
-    {
-    }
-};
-
 class PHONG_BTDF {
   public:
     COLOR Kd;
@@ -68,7 +55,6 @@ Choice is arbitrary for the moment
 #define PHONG_LOWEST_SPECULAR_EXP 250
 #define PHONG_IS_SPECULAR(p) ((p).Ns >= PHONG_LOWEST_SPECULAR_EXP)
 
-extern PHONG_EDF *phongEdfCreate(COLOR *Kd, COLOR *Ks, double Ns);
 extern PhongBiDirectionalReflectanceDistributionFunction *phongBrdfCreate(COLOR *Kd, COLOR *Ks, double Ns);
 extern PHONG_BTDF *phongBtdfCreate(COLOR *Kd, COLOR *Ks, float Ns, float nr, float ni);
 extern COLOR phongReflectance(PhongBiDirectionalReflectanceDistributionFunction *brdf, char flags);

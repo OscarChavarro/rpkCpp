@@ -1,26 +1,29 @@
-#include <cstdlib>
-
 #include "common/error.h"
 #include "material/PhongEmittanceDistributionFunctions.h"
 #include "material/spherical.h"
 
 /**
-Creates a EDF instance with given data and methods. A pointer
-to the created EDF object is returned
+Creates Phong type EDF, BRDF, BTDF data structs:
+Kd = diffuse emittance [W/m^2], reflectance or transmittance (number between 0 and 1)
+Ks = specular emittance, reflectance or transmittance (same dimensions as Kd)
+Ns = Phong exponent.
+note: Emittance is total power emitted by the light source per unit of area
 */
-PhongEmittanceDistributionFunctions *
-edfCreate(PHONG_EDF *data) {
-    PhongEmittanceDistributionFunctions *edf = (PhongEmittanceDistributionFunctions *)malloc(sizeof(PhongEmittanceDistributionFunctions));
-    edf->data = data;
-
-    return edf;
+PhongEmittanceDistributionFunctions::PhongEmittanceDistributionFunctions(COLOR *KdParameter, COLOR *KsParameter, double NsParameter) {
+    Kd = *KdParameter;
+    colorScale((1.00f / (float)M_PI), Kd, kd); // Because we use it often
+    Ks = *KsParameter;
+    if ( !colorNull(Ks) ) {
+        logWarning("phongEdfCreate", "Non-diffuse light sources not yet implemented");
+    }
+    Ns = (float)NsParameter;
 }
 
 /**
 Returns emittance, reflectance, transmittance
 */
 static COLOR
-phongEmittance(PHONG_EDF *edf, RayHit * /*hit*/, XXDFFLAGS flags) {
+phongEmittance(PhongEmittanceDistributionFunctions *edf, RayHit * /*hit*/, XXDFFLAGS flags) {
     COLOR result;
 
     colorClear(result);
@@ -48,7 +51,7 @@ Returns the emittance (self-emitted radiant exitance) [W / m ^ 2] of the EDF
 COLOR
 edfEmittance(PhongEmittanceDistributionFunctions *edf, RayHit *hit, char flags) {
     if ( edf != nullptr ) {
-        return phongEmittance(edf->data, hit, flags);
+        return phongEmittance(edf, hit, flags);
     } else {
         static COLOR emit;
         colorClear(emit);
@@ -65,7 +68,7 @@ edfIsTextured(PhongEmittanceDistributionFunctions * /*edf*/) {
 Edf evaluations
 */
 static COLOR
-phongEdfEval(PHONG_EDF *edf, RayHit *hit, Vector3D *out, XXDFFLAGS flags, double *probabilityDensityFunction) {
+phongEdfEval(PhongEmittanceDistributionFunctions *edf, RayHit *hit, Vector3D *out, XXDFFLAGS flags, double *probabilityDensityFunction) {
     Vector3D normal;
     COLOR result;
     double cosL;
@@ -111,7 +114,7 @@ computed and returned in probabilityDensityFunction
 COLOR
 edfEval(PhongEmittanceDistributionFunctions *edf, RayHit *hit, Vector3D *out, XXDFFLAGS flags, double *probabilityDensityFunction) {
     if ( edf != nullptr ) {
-        return phongEdfEval(edf->data, hit, out, flags, probabilityDensityFunction);
+        return phongEdfEval(edf, hit, out, flags, probabilityDensityFunction);
     } else {
         static COLOR val;
         colorClear(val);
@@ -127,7 +130,7 @@ Edf sampling
 */
 static Vector3D
 phongEdfSample(
-    PHONG_EDF *edf,
+    PhongEmittanceDistributionFunctions *edf,
     RayHit *hit,
     XXDFFLAGS flags,
     double xi1,
@@ -183,7 +186,7 @@ edfSample(
     double *probabilityDensityFunction)
 {
     if ( edf != nullptr ) {
-        return phongEdfSample(edf->data, hit, flags, xi1, xi2, emittedRadiance, probabilityDensityFunction);
+        return phongEdfSample(edf, hit, flags, xi1, xi2, emittedRadiance, probabilityDensityFunction);
     } else {
         Vector3D v = {0.0, 0.0, 0.0};
         logFatal(-1, "edfSample", "Can't sample EDF");

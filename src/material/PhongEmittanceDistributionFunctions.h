@@ -17,10 +17,14 @@ just an implementation of that interface.
 */
 class PhongEmittanceDistributionFunctions {
   public:
-    PHONG_EDF *data;
+    COLOR Kd;
+    COLOR kd;
+    COLOR Ks;
+    float Ns;
+
+    PhongEmittanceDistributionFunctions(COLOR *KdParameter, COLOR *KsParameter, double NsParameter);
 };
 
-extern PhongEmittanceDistributionFunctions *edfCreate(PHONG_EDF *data);
 extern COLOR edfEmittance(PhongEmittanceDistributionFunctions *edf, RayHit *hit, char flags);
 extern bool edfIsTextured(PhongEmittanceDistributionFunctions *edf);
 

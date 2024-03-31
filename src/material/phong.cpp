@@ -43,26 +43,6 @@ inverse cumulative PDF sampling	PhongBrdfSampleCumPdf()
 The different sampling functions are commented separately.
 */
 
-/**
-Creates Phong type EDF, BRDF, BTDF data structs:
-Kd = diffuse emittance [W/m^2], reflectance or transmittance (number between 0 and 1)
-Ks = specular emittance, reflectance or transmittance (same dimensions as Kd)
-Ns = Phong exponent.
-note: Emittance is total power emitted by the light source per unit of area
-*/
-PHONG_EDF *
-phongEdfCreate(COLOR *Kd, COLOR *Ks, double Ns) {
-    PHONG_EDF *edf = (PHONG_EDF *)malloc(sizeof(PHONG_EDF));
-    edf->Kd = *Kd;
-    colorScale((1.00f / (float)M_PI), edf->Kd, edf->kd); // Because we use it often
-    edf->Ks = *Ks;
-    if ( !colorNull(edf->Ks) ) {
-        logWarning("phongEdfCreate", "Non-diffuse light sources not yet implemented");
-    }
-    edf->Ns = (float)Ns;
-    return edf;
-}
-
 PhongBiDirectionalReflectanceDistributionFunction *
 phongBrdfCreate(COLOR *Kd, COLOR *Ks, double Ns) {
     PhongBiDirectionalReflectanceDistributionFunction *brdf = new PhongBiDirectionalReflectanceDistributionFunction();

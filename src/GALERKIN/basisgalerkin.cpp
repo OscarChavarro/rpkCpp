@@ -223,10 +223,10 @@ at the given point on the element
 */
 COLOR
 basisGalerkinRadianceAtPoint(
-        GalerkinElement *elem,
-        COLOR *coefficients,
-        double u,
-        double v)
+    GalerkinElement *elem,
+    COLOR *coefficients,
+    double u,
+    double v)
 {
     COLOR rad;
     GalerkinBasis *basis = elem->patch->numberOfVertices == 3 ? &GLOBAL_galerkin_triBasis : &GLOBAL_galerkin_quadBasis;
