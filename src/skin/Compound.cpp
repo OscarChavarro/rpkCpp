@@ -9,7 +9,7 @@ Creates a Compound from a list of geometries
 Actually, it just counts the number of compounds in the scene and
 returns the geometry list
 */
-Compound::Compound(java::ArrayList<Geometry *> *geometryList): Geometry(nullptr, this, GeometryClassId::COMPOUND) {
+Compound::Compound(java::ArrayList<Geometry *> *geometryList) {
     GLOBAL_statistics.numberOfCompounds++;
     children = geometryList;
 }
