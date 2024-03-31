@@ -59,7 +59,7 @@ mgfGetColor(MgfColorContext *cin, float intensity, COLOR *colorOut, MgfContext *
     float xyz[3];
     float rgb[3];
 
-    mgfContextFixColorRepresentation(cin, COLOR_XY_IS_SET_FLAG);
+    cin->fixColorRepresentation(COLOR_XY_IS_SET_FLAG);
     if ( cin->cy > EPSILON ) {
         xyz[0] = cin->cx / cin->cy * intensity;
         xyz[1] = 1.0f * intensity;

@@ -210,7 +210,7 @@ Handle spectral color
 static int
 mgfECSpec(int /*ac*/, char ** /*av*/, MgfContext *context) {
     // Convert to xy chromaticity
-    mgfContextFixColorRepresentation(context->currentColor, COLOR_XY_IS_SET_FLAG);
+    context->currentColor->fixColorRepresentation(COLOR_XY_IS_SET_FLAG);
     // If it's really their handler, use it
     if ( context->handleCallbacks[MGF_ENTITY_CXY] != handleColorEntity ) {
         return mgfPutCxy(context);
@@ -230,7 +230,7 @@ Contorted logic works as follows:
 static int
 mgfECMix(int /*ac*/, char ** /*av*/, MgfContext *context) {
     if ( context->handleCallbacks[MGF_ENTITY_C_SPEC] == mgfECSpec ) {
-        mgfContextFixColorRepresentation(context->currentColor, COLOR_XY_IS_SET_FLAG);
+        context->currentColor->fixColorRepresentation(COLOR_XY_IS_SET_FLAG);
     } else if ( context->currentColor->flags & COLOR_DEFINED_WITH_SPECTRUM_FLAG ) {
         return mgfPutCSpec(context);
     }
@@ -252,7 +252,7 @@ mgfColorTemperature(int /*ac*/, char ** /*av*/, MgfContext *context) {
     if ( context->handleCallbacks[MGF_ENTITY_C_SPEC] != mgfECSpec ) {
         return mgfPutCSpec(context);
     }
-    mgfContextFixColorRepresentation(context->currentColor, COLOR_XY_IS_SET_FLAG);
+    context->currentColor->fixColorRepresentation(COLOR_XY_IS_SET_FLAG);
     if ( context->handleCallbacks[MGF_ENTITY_CXY] != handleColorEntity ) {
         return mgfPutCxy(context);
     }

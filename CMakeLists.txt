@@ -77,6 +77,7 @@ set(MAIN_SRC
     src/IMAGE/tonemap/trwf.cpp
     src/IMAGE/adaptation.cpp
     src/io/mgf/MgfContext.cpp
+    src/io/mgf/MgfColorContext.cpp
     src/io/mgf/mgfDefinitions.cpp
     src/io/mgf/mgfGeometry.cpp
     src/io/mgf/mgfHandlerGeometry.cpp
@@ -173,7 +174,7 @@ set(MAIN_SRC
     src/app/radiance.cpp
     src/app/raytrace.cpp
     src/app/batch.cpp
-    src/app/main.cpp src/io/mgf/MgfReaderFilePosition.h)
+    src/app/main.cpp)
 add_executable(rpk ${MAIN_SRC})
 
 target_link_libraries(rpk GLU GL OSMesa)

@@ -41,8 +41,17 @@ class MgfColorContext {
     float cx; // Chromaticity X value
     float cy; // Chromaticity Y value
     float eff; // Efficacy (lumens / watt)
-};
 
-extern void mgfContextFixColorRepresentation(MgfColorContext *clr, int fl);
+    int setBlackBodyTemperature(double tk);
+    void fixColorRepresentation(int fl);
+    int setSpectrum(double wlMinimum, double wlMaximum, int ac, char **av);
+
+    void
+    mixColors(
+        double w1,
+        MgfColorContext *c1,
+        double w2,
+        MgfColorContext *c2);
+};
 
 #endif
