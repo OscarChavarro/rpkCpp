@@ -5,7 +5,7 @@
 #include "skin/Geometry.h"
 
 class Compound : public Geometry {
-public:
+  public:
     java::ArrayList<Geometry *> *children;
 
     explicit Compound(java::ArrayList<Geometry *> *geometryList);
@@ -18,7 +18,6 @@ public:
         float *maximumDistance,
         int hitFlags,
         RayHit *hitStore) const;
-
 };
 
 #endif
