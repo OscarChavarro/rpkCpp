@@ -32,7 +32,24 @@
 
 #define NUMBER_OF_SPECTRAL_SAMPLES 41 // Number of spectral samples
 
+// W-m^2
+#define C1 3.741832e-16
+
+// m-K
+#define C2 1.4388e-2
+
 class MgfColorContext {
+  private:
+    inline static double
+    bBlm(double t) {
+        return C2 / 5.0 / t;
+    }
+
+    inline static double
+    bBsp(double l, double t) {
+        return C1 / (l * l * l * l * l * (std::exp(C2 / (t * l)) - 1.0));
+    }
+
   public:
     int clock; // Incremented each change
     short flags; // What's been set

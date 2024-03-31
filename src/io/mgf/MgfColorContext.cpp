@@ -2,12 +2,6 @@
 #include "io/mgf/words.h"
 #include "io/mgf/MgfColorContext.h"
 
-// W-m^2
-#define C1 3.741832e-16
-
-// m-K
-#define C2 1.4388e-2
-
 // Derived CIE 1931 Primaries (imaginary)
 static MgfColorContext cie_xp = {
         1, COLOR_DEFINED_WITH_SPECTRUM_FLAG | COLOR_SPECTRUM_IS_SET_FLAG | COLOR_XY_IS_SET_FLAG,
@@ -153,16 +147,6 @@ MgfColorContext::setSpectrum(double wlMinimum, double wlMaximum, int ac, char **
     flags = COLOR_DEFINED_WITH_SPECTRUM_FLAG | COLOR_SPECTRUM_IS_SET_FLAG;
     clock++;
     return MGF_OK;
-}
-
-static inline double
-bBlm(double t) {
-    return C2 / 5.0 / t;
-}
-
-static inline double
-bBsp(double l, double t) {
-    return C1 / (l * l * l * l * l * (std::exp(C2 / (t * l)) - 1.0));
 }
 
 /**
