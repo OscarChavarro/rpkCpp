@@ -1,7 +1,7 @@
 #include "java/util/ArrayList.txx"
 #include "skin/PatchSet.h"
 
-PatchSet::PatchSet(java::ArrayList<Patch *> *input): Geometry(nullptr, nullptr, GeometryClassId::PATCH_SET) {
+PatchSet::PatchSet(java::ArrayList<Patch *> *input): Geometry(nullptr, GeometryClassId::PATCH_SET) {
     patchList = new java::ArrayList<Patch *>();
     for ( int i = 0; input != nullptr && i < input->size(); i++ ) {
         patchList->add(input->get(i));

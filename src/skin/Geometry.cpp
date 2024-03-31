@@ -18,7 +18,6 @@ Geometry::Geometry():
     omit(),
     isDuplicate(),
     className(),
-    compoundData(),
     patchSetData()
 {
     className = GeometryClassId::UNDEFINED;
@@ -33,12 +32,10 @@ Note: currently containing the super() method.
 */
 Geometry::Geometry(
     PatchSet *patchSetData,
-    Compound *compoundData,
     GeometryClassId className)
 {
     GLOBAL_statistics.numberOfGeometries++;
     this->id = nextGeometryId++;
-    this->compoundData = compoundData;
     this->patchSetData = patchSetData;
     this->className = className;
     this->isDuplicate = false;
@@ -49,12 +46,7 @@ Geometry::Geometry(
     this->omit = false;
     this->displayListId = -1;
 
-    if ( className == GeometryClassId::COMPOUND ) {
-        Compound *compound = (Compound *)compoundData;
-        geometryListBounds(compound->children, &this->boundingBox);
-        this->boundingBox.enlargeTinyBit();
-        this->bounded = true;
-    } else if ( className == GeometryClassId::PATCH_SET && patchSetData != nullptr ) {
+    if ( className == GeometryClassId::PATCH_SET && patchSetData != nullptr ) {
         patchListBounds(patchSetData->patchList, &this->boundingBox);
         this->boundingBox.enlargeTinyBit();
         this->bounded = true;
@@ -67,11 +59,6 @@ Geometry::~Geometry() {
         radianceData = nullptr;
     }
 
-    if ( compoundData != nullptr && !isDuplicate ) {
-        delete compoundData;
-        compoundData = nullptr;
-    }
-
     if ( patchSetData != nullptr && !isDuplicate ) {
         delete patchSetData;
         patchSetData = nullptr;
@@ -81,7 +68,7 @@ Geometry::~Geometry() {
 Geometry *
 geomCreatePatchSet(java::ArrayList<Patch *> *geometryList) {
     if ( geometryList != nullptr && geometryList->size() > 0 ) {
-        return new Geometry(new PatchSet(geometryList), nullptr, GeometryClassId::PATCH_SET);
+        return new Geometry(new PatchSet(geometryList), GeometryClassId::PATCH_SET);
     }
 
     return nullptr;
@@ -136,8 +123,8 @@ A nullptr pointer is returned if the geometry is a primitive
 */
 java::ArrayList<Geometry *> *
 geomPrimListCopy(Geometry *geometry) {
-    if ( geometry->isCompound() && geometry->compoundData != nullptr ) {
-        return cloneGeometryList(geometry->compoundData->children);
+    if ( geometry->isCompound() ) {
+        return cloneGeometryList(((Compound *)geometry)->children);
     } else {
         return nullptr;
     }
@@ -169,7 +156,6 @@ geomDuplicateIfPatchSet(Geometry *geometry) {
     Geometry *newGeometry = new Geometry();
     GLOBAL_statistics.numberOfGeometries++;
     *newGeometry = *geometry;
-    newGeometry->compoundData = geometry->compoundData;
     newGeometry->patchSetData = geometry->patchSetData;
     newGeometry->isDuplicate = true;
 
@@ -238,7 +224,7 @@ Geometry::discretizationIntersect(
     if ( className == GeometryClassId::SURFACE_MESH ) {
         return ((MeshSurface *)this)->discretizationIntersect(ray, minimumDistance, maximumDistance, hitFlags, hitStore);
     } else if ( className == GeometryClassId::COMPOUND ) {
-        return compoundData->discretizationIntersect(ray, minimumDistance, maximumDistance, hitFlags, hitStore);
+        return ((Compound *)this)->discretizationIntersect(ray, minimumDistance, maximumDistance, hitFlags, hitStore);
     } else if ( className == GeometryClassId::PATCH_SET ) {
         return patchSetData->discretizationIntersect(ray, minimumDistance, maximumDistance, hitFlags, hitStore);
     }
@@ -250,7 +236,7 @@ Geometry::geomCountItems() {
     int count = 0;
 
     if ( isCompound() ) {
-        Compound *compound = (Compound *)this->compoundData;
+        Compound *compound = (Compound *)this;
         if ( compound == nullptr ) {
             return 0;
         }
