@@ -6,6 +6,9 @@
 #include "io/mgf/lookup.h"
 #include "io/mgf/MgfReaderFilePosition.h"
 
+static LookUpTable globalLookUpTable = LOOK_UP_INIT(nullptr, nullptr);
+
+
 /**
 Default handler for unknown entities
 */
@@ -62,12 +65,11 @@ Get entity number from its name
 */
 int
 mgfEntity(char *name, MgfContext *context) {
-    static LookUpTable ent_tab = LOOK_UP_INIT(nullptr, nullptr); // Lookup table
     char *cp;
 
-    if ( !ent_tab.currentTableSize ) {
+    if ( !globalLookUpTable.currentTableSize ) {
         // Initialize hash table
-        if ( !lookUpInit(&ent_tab, MGF_TOTAL_NUMBER_OF_ENTITIES)) {
+        if ( !lookUpInit(&globalLookUpTable, MGF_TOTAL_NUMBER_OF_ENTITIES)) {
             return -1;
         }
 
@@ -75,10 +77,10 @@ mgfEntity(char *name, MgfContext *context) {
         for ( cp = context->entityNames[MGF_TOTAL_NUMBER_OF_ENTITIES - 1];
               cp >= context->entityNames[0];
               cp -= sizeof(context->entityNames[0]) ) {
-            lookUpFind(&ent_tab, cp)->key = cp;
+            lookUpFind(&globalLookUpTable, cp)->key = cp;
         }
     }
-    cp = lookUpFind(&ent_tab, name)->key;
+    cp = lookUpFind(&globalLookUpTable, name)->key;
     if ( cp == nullptr) {
         return -1;
     }
@@ -156,4 +158,5 @@ mgfClose(MgfContext *context) {
         // Close file if it's a file
         closeFile(ctx->fp, ctx->isPipe);
     }
+    free(globalLookUpTable.table);
 }
