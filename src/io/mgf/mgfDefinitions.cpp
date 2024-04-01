@@ -2,9 +2,9 @@
 
 #include "common/error.h"
 #include "io/FileUncompressWrapper.h"
-#include "io/mgf/mgfDefinitions.h"
 #include "io/mgf/lookup.h"
 #include "io/mgf/MgfReaderFilePosition.h"
+#include "io/mgf/mgfDefinitions.h"
 
 static LookUpTable globalLookUpTable = LOOK_UP_INIT(nullptr, nullptr);
 
@@ -158,5 +158,12 @@ mgfClose(MgfContext *context) {
         // Close file if it's a file
         closeFile(ctx->fp, ctx->isPipe);
     }
-    free(globalLookUpTable.table);
+}
+
+void
+mgfLookUpFreeMemory() {
+    if ( globalLookUpTable.table != nullptr ) {
+        free(globalLookUpTable.table);
+        globalLookUpTable.table = nullptr;
+    }
 }

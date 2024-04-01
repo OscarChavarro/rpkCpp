@@ -606,4 +606,5 @@ mgfFreeMemory(MgfContext *context) {
     mgfObjectFreeLists(context);
     mgfObjectFreeMemory(context);
     mgfTransformFreeMemory();
+    mgfLookUpFreeMemory();
 }

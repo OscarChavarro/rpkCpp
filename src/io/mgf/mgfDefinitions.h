@@ -16,6 +16,7 @@ extern void mgfGetFilePosition(MgfReaderFilePosition *pos, MgfContext *context);
 extern int mgfGoToFilePosition(MgfReaderFilePosition *pos, MgfContext *context);
 extern int mgfEntity(char *name, MgfContext *context);
 extern int mgfHandle(int entityIndex, int argc, char **argv, MgfContext * /*context*/);
+extern void mgfLookUpFreeMemory();
 
 #include "io/mgf/MgfTransformContext.h"
 
