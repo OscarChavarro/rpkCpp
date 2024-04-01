@@ -599,6 +599,11 @@ mgfFreeMemory(MgfContext *context) {
     delete context->currentGeometryList;
     context->currentGeometryList = nullptr;
 
+    if ( context->materials != nullptr ) {
+        delete context->materials;
+    }
+    
     mgfObjectFreeLists(context);
-    mgfObjectFreeMemory();
+    mgfObjectFreeMemory(context);
+    mgfTransformFreeMemory();
 }

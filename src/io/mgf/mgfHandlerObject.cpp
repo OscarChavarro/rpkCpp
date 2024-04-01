@@ -82,7 +82,7 @@ handleObject2Entity(int ac, char **av) {
     }
 
     // Allocate new entry
-    globalObjectNamesList[globalObjectNames] = new char[strlen(av[1]) + 1];
+    globalObjectNamesList[globalObjectNames] = (char *)malloc(strlen(av[1]) + 1);
     if ( globalObjectNamesList[globalObjectNames] == nullptr) {
         return MGF_ERROR_OUT_OF_MEMORY;
     }
@@ -153,7 +153,20 @@ handleObjectEntity(int argc, char **argv, MgfContext *context) {
     return handleObject2Entity(argc, argv);
 }
 
+static void
+freeUnusedGeometries(MgfContext *context) {
+    for ( int i = 1; i < MAXIMUM_GEOMETRY_STACK_DEPTH && context->geometryStack[i] != nullptr; i++ ) {
+        for ( int j = 0; j < context->geometryStack[i]->size(); j++ ) {
+            Geometry *geometry = context->geometryStack[i]->get(j);
+	    if ( geometry->className == COMPOUND ) {
+                delete geometry;
+            }
+        }
+    }
+}
+
 void
-mgfObjectFreeMemory() {
-    delete globalObjectNamesList;
+mgfObjectFreeMemory(MgfContext *context) {
+    freeUnusedGeometries(context);
+    free(globalObjectNamesList);
 }

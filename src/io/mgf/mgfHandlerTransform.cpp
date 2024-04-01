@@ -489,3 +489,8 @@ handleTransformationEntity(int ac, char **av, MgfContext *context) {
     spec->xid = computeUniqueId(spec->xf.xfm); // Compute unique ID
     return MGF_OK;
 }
+
+void
+mgfTransformFreeMemory() {
+    free(globalTransformArgumentListBeginning);
+}
