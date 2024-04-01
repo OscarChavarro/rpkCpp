@@ -157,10 +157,10 @@ static void
 freeUnusedGeometries(MgfContext *context) {
     for ( int i = 1; i < MAXIMUM_GEOMETRY_STACK_DEPTH && context->geometryStack[i] != nullptr; i++ ) {
         for ( int j = 0; j < context->geometryStack[i]->size(); j++ ) {
-            Geometry *geometry = context->geometryStack[i]->get(j);
-	    if ( geometry->className == COMPOUND ) {
-                delete geometry;
-            }
+            //Geometry *geometry = context->geometryStack[i]->get(j);
+	        //if ( geometry->className == COMPOUND ) {
+            //    delete geometry;
+            //}
         }
     }
 }

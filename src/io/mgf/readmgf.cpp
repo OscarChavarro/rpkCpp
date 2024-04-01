@@ -600,6 +600,9 @@ mgfFreeMemory(MgfContext *context) {
     context->currentGeometryList = nullptr;
 
     if ( context->materials != nullptr ) {
+        for ( int i = 0; i < context->materials->size(); i++ ) {
+            //delete context->materials->get(i);
+        }
         delete context->materials;
     }
     

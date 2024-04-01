@@ -9,17 +9,22 @@
 
 class Material {
   public:
-    const char *name; // Material name
+    char *name; // Material name
     PhongEmittanceDistributionFunctions *edf; // Emittance distribution function
     BSDF *bsdf; // Reflection and transmission together
     int sided; // 1 for 1-sided surface, 0 for 2-sided, see mgf docs
-    const char *radiance_data;
+
+    Material();
+    virtual ~Material();
 };
 
 extern Material GLOBAL_material_defaultMaterial;
 
-extern Material *materialCreate(const char *name,
-                                PhongEmittanceDistributionFunctions *edf, BSDF *bsdf,
-                                int sided);
+extern Material *
+materialCreate(
+    char *name,
+    PhongEmittanceDistributionFunctions *edf,
+    BSDF *bsdf,
+    int sided);
 
 #endif
