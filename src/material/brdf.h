@@ -13,14 +13,14 @@ class BRDF {
 };
 
 extern BRDF *brdfCreate(PhongBiDirectionalReflectanceDistributionFunction *data);
-extern COLOR brdfReflectance(BRDF *brdf, XXDFFLAGS flags);
+extern COLOR brdfReflectance(BRDF *brdf, char flags);
 
 /**
 BRDF evaluation functions :
   Vector3D in : incoming ray direction (to patch)
   Vector3D out : reflected ray direction (from patch)
   Vector3D normal : normal vector
-  XXDFFLAGS flags : flags indicating which components must be
+  char flags : flags indicating which components must be
     evaluated
 */
 
@@ -30,7 +30,7 @@ brdfEval(
     Vector3D *in,
     Vector3D *out,
     Vector3D *normal,
-    XXDFFLAGS flags);
+    char flags);
 
 extern Vector3D
 brdfSample(
@@ -38,7 +38,7 @@ brdfSample(
     Vector3D *in,
     Vector3D *normal,
     int doRussianRoulette,
-    XXDFFLAGS flags,
+    char flags,
     double x_1,
     double x_2,
     double *probabilityDensityFunction);
@@ -49,7 +49,7 @@ brdfEvalPdf(
     Vector3D *in,
     Vector3D *out,
     Vector3D *normal,
-    XXDFFLAGS flags,
+    char flags,
     double *probabilityDensityFunction,
     double *probabilityDensityFunctionRR);
 

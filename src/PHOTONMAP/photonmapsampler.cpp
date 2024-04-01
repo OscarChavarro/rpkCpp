@@ -85,8 +85,8 @@ CPhotonMapSampler::sample(
     float pdfChoice;
     BSDF_FLAGS sFlagMask;
 
-    const XXDFFLAGS sFLAGS = BSDF_SPECULAR_COMPONENT;
-    const XXDFFLAGS gdFLAGS = BRDF_GLOSSY_COMPONENT | BRDF_DIFFUSE_COMPONENT;
+    const char sFLAGS = BSDF_SPECULAR_COMPONENT;
+    const char gdFLAGS = BRDF_GLOSSY_COMPONENT | BRDF_DIFFUSE_COMPONENT;
 
     // Choose between S or D|G scattering
     // Hack to get separate specular en fresnel ok...

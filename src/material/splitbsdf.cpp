@@ -222,8 +222,8 @@ splitBsdfSample(
     double pRR;
     RefractionIndex inIndex{};
     RefractionIndex outIndex{};
-    XXDFFLAGS brdfFlags;
-    XXDFFLAGS btdfFlags;
+    char brdfFlags;
+    char btdfFlags;
     Vector3D normal;
     SAMPLING_MODE mode;
     Vector3D out;
@@ -334,8 +334,8 @@ splitBsdfEvalPdf(
     double pRR;
     RefractionIndex inIndex{};
     RefractionIndex outIndex{};
-    XXDFFLAGS brdfFlags;
-    XXDFFLAGS btdfFlags;
+    char brdfFlags;
+    char btdfFlags;
     Vector3D normal;
 
     *probabilityDensityFunction = *probabilityDensityFunctionRR = 0.0; // So we can return safely

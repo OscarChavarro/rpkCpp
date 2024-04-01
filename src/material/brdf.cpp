@@ -20,7 +20,7 @@ brdfCreate(PhongBiDirectionalReflectanceDistributionFunction *data) {
 Returns the diffuse reflectance of the BRDF according to the flags
 */
 COLOR
-brdfReflectance(BRDF *brdf, XXDFFLAGS flags) {
+brdfReflectance(BRDF *brdf, char flags) {
     if ( brdf != nullptr ) {
         COLOR test = phongReflectance(brdf->data, flags);
         if ( !std::isfinite(colorAverage(test))) {
@@ -43,7 +43,7 @@ brdfEval(
     Vector3D *in,
     Vector3D *out,
     Vector3D *normal,
-    XXDFFLAGS flags)
+    char flags)
 {
     if ( brdf != nullptr ) {
         return phongBrdfEval(brdf->data, in, out, normal, flags);
@@ -63,7 +63,7 @@ brdfSample(
     Vector3D *in,
     Vector3D *normal,
     int doRussianRoulette,
-    XXDFFLAGS flags,
+    char flags,
     double x_1,
     double x_2,
     double *probabilityDensityFunction)
@@ -84,7 +84,7 @@ brdfEvalPdf(
     Vector3D *in,
     Vector3D *out,
     Vector3D *normal,
-    XXDFFLAGS flags,
+    char flags,
     double *probabilityDensityFunction,
     double *probabilityDensityFunctionRR)
 {

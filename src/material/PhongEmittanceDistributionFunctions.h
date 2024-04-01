@@ -33,7 +33,7 @@ edfEval(
     PhongEmittanceDistributionFunctions *edf,
     RayHit *hit,
     Vector3D *out,
-    XXDFFLAGS flags,
+    char flags,
     double *probabilityDensityFunction);
 
 extern Vector3D

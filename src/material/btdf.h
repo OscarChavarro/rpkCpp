@@ -18,7 +18,7 @@ class BTDF {
 };
 
 extern BTDF *btdfCreate(PHONG_BTDF *data);
-extern COLOR btdfTransmittance(BTDF *btdf, XXDFFLAGS flags);
+extern COLOR btdfTransmittance(BTDF *btdf, char flags);
 extern void btdfIndexOfRefraction(BTDF *btdf, RefractionIndex *index);
 
 /************* BTDF Evaluation functions ****************/
@@ -42,7 +42,7 @@ btdfEval(
     Vector3D *in,
     Vector3D *out,
     Vector3D *normal,
-    XXDFFLAGS flags);
+    char flags);
 
 extern Vector3D
 btdfSample(
@@ -52,7 +52,7 @@ btdfSample(
     Vector3D *in,
     Vector3D *normal,
     int doRussianRoulette,
-    XXDFFLAGS flags,
+    char flags,
     double x1,
     double x2,
     double *probabilityDensityFunction);
@@ -65,7 +65,7 @@ btdfEvalPdf(
     Vector3D *in,
     Vector3D *out,
     Vector3D *normal,
-    XXDFFLAGS flags,
+    char flags,
     double *probabilityDensityFunction,
     double *probabilityDensityFunctionRR);
 

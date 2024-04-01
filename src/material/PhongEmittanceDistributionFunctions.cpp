@@ -23,7 +23,7 @@ PhongEmittanceDistributionFunctions::PhongEmittanceDistributionFunctions(COLOR *
 Returns emittance, reflectance, transmittance
 */
 static COLOR
-phongEmittance(PhongEmittanceDistributionFunctions *edf, RayHit * /*hit*/, XXDFFLAGS flags) {
+phongEmittance(PhongEmittanceDistributionFunctions *edf, RayHit * /*hit*/, char flags) {
     COLOR result;
 
     colorClear(result);
@@ -68,7 +68,7 @@ edfIsTextured(PhongEmittanceDistributionFunctions * /*edf*/) {
 Edf evaluations
 */
 static COLOR
-phongEdfEval(PhongEmittanceDistributionFunctions *edf, RayHit *hit, Vector3D *out, XXDFFLAGS flags, double *probabilityDensityFunction) {
+phongEdfEval(PhongEmittanceDistributionFunctions *edf, RayHit *hit, Vector3D *out, char flags, double *probabilityDensityFunction) {
     Vector3D normal;
     COLOR result;
     double cosL;
@@ -112,7 +112,7 @@ out. If probabilityDensityFunction is not null, the stochasticJacobiProbability 
 computed and returned in probabilityDensityFunction
 */
 COLOR
-edfEval(PhongEmittanceDistributionFunctions *edf, RayHit *hit, Vector3D *out, XXDFFLAGS flags, double *probabilityDensityFunction) {
+edfEval(PhongEmittanceDistributionFunctions *edf, RayHit *hit, Vector3D *out, char flags, double *probabilityDensityFunction) {
     if ( edf != nullptr ) {
         return phongEdfEval(edf, hit, out, flags, probabilityDensityFunction);
     } else {
@@ -132,7 +132,7 @@ static Vector3D
 phongEdfSample(
     PhongEmittanceDistributionFunctions *edf,
     RayHit *hit,
-    XXDFFLAGS flags,
+    char flags,
     double xi1,
     double xi2,
     COLOR *selfEmittedRadiance,

@@ -23,8 +23,6 @@ Contributions to outgoing radiance are divided into three components :
 #define NO_COMPONENTS 0
 #define ALL_COMPONENTS (DIFFUSE_COMPONENT|GLOSSY_COMPONENT|SPECULAR_COMPONENT)
 
-typedef char XXDFFLAGS;
-
 // Bsdf's have 6 components : 3 for reflection, 3 for transmission
 
 #define BRDF_DIFFUSE_COMPONENT 0x01
