@@ -26,7 +26,6 @@ digraph G {
 
     Material [shape=box, style=filled, fillcolor="#ffff80"];
     BSDF [shape=box, style=filled, fillcolor="#ffff80"];
-    SPLIT_BSDF [shape=box, style=filled, fillcolor="#ffff80"];
     PhongEmittanceDistributionFunctions [shape=box, style=filled, fillcolor="#ffff80"];
     BTDF [shape=box, style=filled, fillcolor="#ffff80"];
     BRDF [shape=box, style=filled, fillcolor="#ffff80"];
@@ -75,10 +74,9 @@ digraph G {
     PHONG_BTDF -> COLOR;
     PHONG_BTDF -> RefractionIndex;
     BTDF -> PHONG_BTDF;
-    SPLIT_BSDF -> BRDF;
-    SPLIT_BSDF -> BTDF;
-    SPLIT_BSDF -> TEXTURE;
-    BSDF -> SPLIT_BSDF;
+    BSDF -> BRDF;
+    BSDF -> BTDF;
+    BSDF -> TEXTURE;
     Material -> PhongEmittanceDistributionFunctions;
     Material -> BSDF;
     Geometry -> BoundingBox;

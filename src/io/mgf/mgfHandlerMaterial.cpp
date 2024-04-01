@@ -231,7 +231,7 @@ mgfGetCurrentMaterial(Material **material, bool allSurfacesSided, MgfContext *co
                 globalMgfCurrentMaterial->ni));
     }
 
-    BSDF *bsdf = bsdfCreate(splitBsdfCreate(brdf, btdf, nullptr));
+    BSDF *bsdf = new BSDF(brdf, btdf, nullptr);
 
     (*material) = materialCreate(
         materialName,

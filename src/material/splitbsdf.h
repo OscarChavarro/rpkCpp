@@ -5,28 +5,17 @@
 #include "material/brdf.h"
 #include "material/btdf.h"
 #include "material/hit.h"
-
-class SPLIT_BSDF {
-  public:
-    BRDF *brdf;
-    BTDF *btdf;
-    TEXTURE *texture;
-};
-
-class BSDF;
-
-extern SPLIT_BSDF *
-splitBsdfCreate(BRDF *brdf, BTDF *btdf, TEXTURE *texture);
+#include "material/bsdf.h"
 
 extern COLOR
-splitBsdfScatteredPower(SPLIT_BSDF *bsdf, RayHit *hit, Vector3D * /*in*/, char flags);
+splitBsdfScatteredPower(BSDF *bsdf, RayHit *hit, char flags);
 
 extern int
-splitBsdfIsTextured(SPLIT_BSDF *bsdf);
+splitBsdfIsTextured(BSDF *bsdf);
 
 extern COLOR
 splitBsdfEval(
-    SPLIT_BSDF *bsdf,
+    BSDF *bsdf,
     RayHit *hit,
     BSDF *inBsdf,
     BSDF *outBsdf,
@@ -35,11 +24,11 @@ splitBsdfEval(
     BSDF_FLAGS flags);
 
 extern void
-splitBsdfIndexOfRefraction(SPLIT_BSDF *bsdf, RefractionIndex *index);
+splitBsdfIndexOfRefraction(BSDF *bsdf, RefractionIndex *index);
 
 extern Vector3D
 splitBsdfSample(
-    SPLIT_BSDF *bsdf,
+    BSDF *bsdf,
     RayHit *hit,
     BSDF *inBsdf,
     BSDF *outBsdf,
@@ -52,7 +41,7 @@ splitBsdfSample(
 
 extern void
 splitBsdfEvalPdf(
-    SPLIT_BSDF *bsdf,
+    BSDF *bsdf,
     RayHit *hit,
     BSDF *inBsdf,
     BSDF *outBsdf,
@@ -61,7 +50,5 @@ splitBsdfEvalPdf(
     BSDF_FLAGS flags,
     double *probabilityDensityFunction,
     double *probabilityDensityFunctionRR);
-
-#include "material/bsdf.h"
 
 #endif

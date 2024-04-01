@@ -20,21 +20,6 @@ enum SAMPLING_MODE {
     SAMPLE_ABSORPTION
 };
 
-SPLIT_BSDF *
-splitBsdfCreate(
-    BRDF *brdf,
-    BTDF *btdf,
-    TEXTURE *texture)
-{
-    SPLIT_BSDF *bsdf = new SPLIT_BSDF();
-
-    bsdf->brdf = brdf;
-    bsdf->btdf = btdf;
-    bsdf->texture = texture;
-
-    return bsdf;
-}
-
 static COLOR
 splitBsdfEvalTexture(TEXTURE *texture, RayHit *hit) {
     Vector3D texCoord;
@@ -78,7 +63,7 @@ Returns the scattered power (diffuse/glossy/specular
 reflectance and/or transmittance) according to flags
 */
 COLOR
-splitBsdfScatteredPower(SPLIT_BSDF *bsdf, RayHit *hit, Vector3D * /*in*/, char flags) {
+splitBsdfScatteredPower(BSDF *bsdf, RayHit *hit, char flags) {
     COLOR albedo;
     colorClear(albedo);
 
@@ -102,13 +87,13 @@ splitBsdfScatteredPower(SPLIT_BSDF *bsdf, RayHit *hit, Vector3D * /*in*/, char f
 }
 
 void
-splitBsdfIndexOfRefraction(SPLIT_BSDF *bsdf, RefractionIndex *index) {
+splitBsdfIndexOfRefraction(BSDF *bsdf, RefractionIndex *index) {
     btdfIndexOfRefraction(bsdf->btdf, index);
 }
 
 COLOR
 splitBsdfEval(
-    SPLIT_BSDF *bsdf,
+    BSDF *bsdf,
     RayHit *hit,
     BSDF *inBsdf,
     BSDF *outBsdf,
@@ -162,14 +147,14 @@ account potential texturing
 */
 static void
 splitBsdfProbabilities(
-        SPLIT_BSDF *bsdf,
-        RayHit *hit,
-        BSDF_FLAGS flags,
-        double *texture,
-        double *reflection,
-        double *transmission,
-        XXDFFLAGS *brdfFlags,
-        XXDFFLAGS *btdfFlags)
+    BSDF *bsdf,
+    RayHit *hit,
+    BSDF_FLAGS flags,
+    double *texture,
+    double *reflection,
+    double *transmission,
+    char *brdfFlags,
+    char *btdfFlags)
 {
     COLOR textureColor;
     COLOR reflectance;
@@ -218,7 +203,7 @@ splitBsdfSamplingMode(double texture, double reflection, double transmission, do
 
 Vector3D
 splitBsdfSample(
-    SPLIT_BSDF *bsdf,
+    BSDF *bsdf,
     RayHit *hit,
     BSDF *inBsdf,
     BSDF *outBsdf,
@@ -331,7 +316,7 @@ the pdf will be 0 upon return
 */
 void
 splitBsdfEvalPdf(
-    SPLIT_BSDF *bsdf,
+    BSDF *bsdf,
     RayHit *hit,
     BSDF *inBsdf,
     BSDF *outBsdf,
@@ -391,6 +376,6 @@ splitBsdfEvalPdf(
 }
 
 int
-splitBsdfIsTextured(SPLIT_BSDF *bsdf) {
+splitBsdfIsTextured(BSDF *bsdf) {
     return bsdf->texture != nullptr;
 }

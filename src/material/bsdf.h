@@ -15,14 +15,21 @@ light scattering.
 #include "common/color.h"
 #include "material/hit.h"
 #include "material/xxdf.h"
+#include "material/texture.h"
+#include "material/brdf.h"
+#include "material/btdf.h"
 
 class SPLIT_BSDF;
 
 class BSDF {
   public:
-    SPLIT_BSDF *data;
+    BRDF *brdf;
+    BTDF *btdf;
+    TEXTURE *texture;
+
+    explicit BSDF(BRDF *brdf, BTDF *btdf, TEXTURE *texture);
+    virtual ~BSDF();
 };
-extern BSDF *bsdfCreate(SPLIT_BSDF *data);
 
 extern COLOR bsdfScatteredPower(BSDF *bsdf, RayHit *hit, Vector3D *dir, char flags);
 
