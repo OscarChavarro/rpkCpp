@@ -13,7 +13,6 @@ class SPLIT_BSDF {
     TEXTURE *texture;
 };
 
-class BSDF_METHODS;
 class BSDF;
 
 extern SPLIT_BSDF *
