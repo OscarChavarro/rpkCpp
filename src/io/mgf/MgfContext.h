@@ -92,6 +92,7 @@ class MgfContext {
     bool inSurface;
     bool inComplex;
     LookUpTable *vertexLookUpTable;
+    java::ArrayList<Geometry *> *allGeometries;
 
     // Return model
     java::ArrayList<Geometry *> *geometries;

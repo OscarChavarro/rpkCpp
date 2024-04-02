@@ -571,17 +571,22 @@ mgfFreeMemory(MgfContext *context) {
     printf("  - Unknowns: %ld\n", unknowns);
     fflush(stdout);
 
+    for ( int i = 0; i < context->allGeometries->size(); i++ ) {
+        Geometry *geometry = context->allGeometries->get(i);
+        //delete geometry;
+    }
+
     delete context->currentGeometryList;
     context->currentGeometryList = nullptr;
 
     if ( context->materials != nullptr ) {
         for ( int i = 0; i < context->materials->size(); i++ ) {
-            delete context->materials->get(i);
+            //delete context->materials->get(i);
         }
         delete context->materials;
     }
 
-    mgfObjectFreeMemory(context);
+    mgfObjectFreeMemory();
     mgfTransformFreeMemory();
     mgfLookUpFreeMemory();
 }
