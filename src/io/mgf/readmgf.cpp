@@ -485,29 +485,6 @@ initMgf(MgfContext *context) {
     mgfAlternativeInit(context->handleCallbacks, context);
 }
 
-void
-mgfObjectFreeLists(MgfContext *context) {
-    if ( context->currentPointList != nullptr ) {
-        delete context->currentPointList;
-        context->currentPointList = nullptr;
-    }
-
-    if ( context->currentNormalList != nullptr ) {
-        delete context->currentNormalList;
-        context->currentNormalList = nullptr;
-    }
-
-    if ( context->currentVertexList != nullptr ) {
-        delete context->currentVertexList;
-        context->currentVertexList = nullptr;
-    }
-
-    if ( context->currentFaceList != nullptr ) {
-        delete context->currentFaceList;
-        context->currentFaceList = nullptr;
-    }
-}
-
 /**
 Reads in an mgf file. The result is that the global variables
 context->geometries and context->materials are filled in.

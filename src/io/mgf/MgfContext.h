@@ -78,11 +78,14 @@ class MgfContext {
     char *currentMaterialName;
     int geometryStackHeadIndex;
     java::ArrayList<Geometry *> *geometryStack[MAXIMUM_GEOMETRY_STACK_DEPTH];
+
+    // Those lists are transferred to MeshSurface objects, should not be deleted from context
     java::ArrayList<Vector3D *> *currentPointList;
     java::ArrayList<Vector3D *> *currentNormalList;
     java::ArrayList<Vertex *> *currentVertexList;
     java::ArrayList<Patch *> *currentFaceList;
     java::ArrayList<Geometry *> *currentGeometryList;
+
     MgfTransformContext *transformContext;
     MgfColorContext *unNamedColorContext;
     MgfColorContext *currentColor;

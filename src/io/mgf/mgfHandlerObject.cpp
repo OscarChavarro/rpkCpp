@@ -41,10 +41,13 @@ popCurrentGeometryList(MgfContext *context) {
 
 void
 mgfObjectNewSurface(MgfContext *context) {
+    // Note: lists created here will be transferred to new MeshSurface,
+    // should not be deleted from MgfContext
     context->currentPointList = new java::ArrayList<Vector3D *>();
     context->currentNormalList = new java::ArrayList<Vector3D *>();
     context->currentVertexList = new java::ArrayList<Vertex *>();
     context->currentFaceList = new java::ArrayList<Patch *>();
+
     context->inSurface = true;
 }
 
