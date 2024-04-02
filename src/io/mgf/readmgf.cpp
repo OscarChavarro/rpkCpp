@@ -593,9 +593,6 @@ mgfFreeMemory(MgfContext *context) {
     printf("  - Unknowns: %ld\n", unknowns);
     fflush(stdout);
 
-    for ( int i = 0; i < context->currentGeometryList->size(); i++ ) {
-        geomDestroy(context->currentGeometryList->get(i));
-    }
     delete context->currentGeometryList;
     context->currentGeometryList = nullptr;
 
