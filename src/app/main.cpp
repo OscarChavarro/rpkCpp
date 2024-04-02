@@ -346,6 +346,9 @@ mainReadFile(char *filename, MgfContext *context) {
     // Prepare if errors occur when reading the new scene will abort
     GLOBAL_scene_geometries = nullptr;
 
+    if ( globalAppScenePatches != nullptr ) {
+        delete globalAppScenePatches;
+    }
     globalAppScenePatches = nullptr;
     Patch::setNextId(1);
     GLOBAL_scene_clusteredGeometries = new java::ArrayList<Geometry *>();
@@ -394,11 +397,8 @@ mainReadFile(char *filename, MgfContext *context) {
     #endif
 
     delete globalAppScenePatches;
+    globalAppScenePatches = nullptr;
 
-    if ( GLOBAL_scene_clusteredWorldGeom ) {
-        geomDestroy(GLOBAL_scene_clusteredWorldGeom);
-        GLOBAL_scene_clusteredWorldGeom = nullptr;
-    }
     if ( GLOBAL_scene_background != nullptr ) {
         GLOBAL_scene_background->methods->Destroy(GLOBAL_scene_background->data);
         GLOBAL_scene_background = nullptr;
@@ -407,15 +407,6 @@ mainReadFile(char *filename, MgfContext *context) {
     if ( GLOBAL_scene_worldVoxelGrid != nullptr ) {
         GLOBAL_scene_worldVoxelGrid->destroyGrid();
         GLOBAL_scene_worldVoxelGrid = nullptr;
-    }
-
-    if ( GLOBAL_scene_materials != nullptr ) {
-        // Note: it seems this should not be called - are materials linked to other structures?
-        //for ( int i; i < GLOBAL_scene_materials->size(); i++ ) {
-        //    MaterialDestroy(GLOBAL_scene_materials->get(i));
-        //}
-        delete GLOBAL_scene_materials;
-        GLOBAL_scene_materials = nullptr;
     }
 
     t = clock();
@@ -536,6 +527,8 @@ mainReadFile(char *filename, MgfContext *context) {
     removeAllRenderHooks();
 
     fprintf(stderr, "Initialisations done.\n");
+    delete globalAppScenePatches;
+    globalAppScenePatches = nullptr;
 
     return true;
 }
@@ -602,14 +595,11 @@ mainExecuteRendering(java::ArrayList<Patch *> *scenePatches, RadianceMethod *con
 
 static void
 mainFreeMemory(MgfContext *context) {
-    if ( GLOBAL_scene_clusteredWorldGeom != nullptr ) {
-        delete GLOBAL_scene_clusteredWorldGeom;
-        GLOBAL_scene_clusteredWorldGeom = nullptr;
-    }
-
     deleteOptionsMemory();
     mgfFreeMemory(context);
     galerkinFreeMemory();
+    delete GLOBAL_app_lightSourcePatches;
+    delete GLOBAL_scene_clusteredGeometries;
 }
 
 int

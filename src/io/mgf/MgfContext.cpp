@@ -77,9 +77,12 @@ MgfContext::MgfContext():
     inComplex = false; // True if reading a sphere, torus or other unsupported
     vertexLookUpTable = new LookUpTable;
     *vertexLookUpTable = LOOK_UP_INIT(free, free);
+
+    allGeometries = new java::ArrayList<Geometry *>();
 }
 
 MgfContext::~MgfContext() {
     delete unNamedColorContext;
     delete vertexLookUpTable;
+    delete allGeometries;
 }

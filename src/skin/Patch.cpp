@@ -594,6 +594,10 @@ Patch::Patch(
 
     surface = nullptr;
 
+    for ( int i = 0; i < MAXIMUM_VERTICES_PER_PATCH; i++ ) {
+        vertex[i] = nullptr;
+    }
+
     numberOfVertices = (char)inNumberOfVertices;
     vertex[0] = v1;
     vertex[1] = v2;
@@ -639,6 +643,16 @@ Patch::Patch(
         context->createPatchData(this);
     } else {
         radianceData = nullptr;
+    }
+}
+
+Patch::~Patch() {
+    if ( jacobian != nullptr ) {
+        delete jacobian;
+    }
+
+    if ( boundingBox != nullptr ) {
+        delete boundingBox;
     }
 }
 

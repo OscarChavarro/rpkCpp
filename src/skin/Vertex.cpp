@@ -11,13 +11,7 @@ tmp()
 }
 
 Vertex::~Vertex() {
-    if ( patches ) {
-        // TODO: Check if should delete all content
-        for ( int i = 0; patches != nullptr && i < patches->size(); i++) {
-            //delete patches->get(i);
-        }
-        delete patches;
-    }
+    delete patches;
 }
 
 /**

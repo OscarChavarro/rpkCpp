@@ -58,6 +58,7 @@ class MeshSurface : public Geometry {
         java::ArrayList<Vertex *> *vertices,
         java::ArrayList<Patch *> *faces,
         enum MaterialColorFlags flags);
+    virtual ~MeshSurface();
 
     RayHit *
     discretizationIntersect(
