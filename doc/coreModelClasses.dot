@@ -67,6 +67,7 @@ digraph G {
     Patch -> Jacobian;
     Patch -> RGB;
     Patch -> Element;
+    Patch -> Geometry;
     Patch -> MeshSurface;
     PhongEmittanceDistributionFunctions -> COLOR;
     PhongBiDirectionalReflectanceDistributionFunction -> COLOR;
