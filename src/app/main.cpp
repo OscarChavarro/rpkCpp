@@ -527,8 +527,10 @@ mainReadFile(char *filename, MgfContext *context) {
     removeAllRenderHooks();
 
     fprintf(stderr, "Initialisations done.\n");
-    delete globalAppScenePatches;
-    globalAppScenePatches = nullptr;
+    
+    // Deleting this is causing ray-casting test to fail
+    //delete globalAppScenePatches;
+    //globalAppScenePatches = nullptr;
 
     return true;
 }
