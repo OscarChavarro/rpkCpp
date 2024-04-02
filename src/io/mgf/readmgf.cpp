@@ -563,6 +563,7 @@ mgfFreeMemory(MgfContext *context) {
         } else {
             unknowns++;
         }
+        delete context->currentGeometryList->get(i);
     }
     printf("  - MeshSurfaces: %ld\n", surfaces);
     printf("  - Patch sets: %ld\n", patchSets);
@@ -579,8 +580,7 @@ mgfFreeMemory(MgfContext *context) {
         }
         delete context->materials;
     }
-    
-    mgfObjectFreeLists(context);
+
     mgfObjectFreeMemory(context);
     mgfTransformFreeMemory();
     mgfLookUpFreeMemory();
