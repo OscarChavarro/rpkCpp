@@ -72,6 +72,7 @@ class Patch {
     static void setNextId(int id);
 
     Patch(int inNumberOfVertices, Vertex *v1, Vertex *v2, Vertex *v3, Vertex *v4, RadianceMethod *context);
+    ~Patch();
 
     void
     setVisible() {

@@ -84,4 +84,5 @@ MgfContext::MgfContext():
 MgfContext::~MgfContext() {
     delete unNamedColorContext;
     delete vertexLookUpTable;
+    delete allGeometries;
 }

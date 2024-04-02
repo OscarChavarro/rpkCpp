@@ -599,6 +599,7 @@ mainFreeMemory(MgfContext *context) {
     mgfFreeMemory(context);
     galerkinFreeMemory();
     delete GLOBAL_app_lightSourcePatches;
+    delete GLOBAL_scene_clusteredGeometries;
 }
 
 int
