@@ -12,20 +12,22 @@ Material::Material(): name(), edf(), bsdf(), sided(0) {
 }
 
 Material::~Material() {
-    //delete name;
+    delete[] name;
+    delete bsdf;
+    delete edf;
 }
 
 Material *
 materialCreate(
-    char *name,
+    char *inName,
     PhongEmittanceDistributionFunctions *edf,
     BSDF *bsdf,
     int sided)
 {
     Material *m = new Material();
     delete m->name;
-    m->name = new char[strlen(name) + 1];
-    snprintf((char *)m->name, strlen(name) + 1, "%s", name);
+    m->name = new char[strlen(inName) + 1];
+    strcpy(m->name, inName);
     m->sided = sided;
     m->edf = edf;
     m->bsdf = bsdf;

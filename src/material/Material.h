@@ -22,7 +22,7 @@ extern Material GLOBAL_material_defaultMaterial;
 
 extern Material *
 materialCreate(
-    char *name,
+    char *inName,
     PhongEmittanceDistributionFunctions *edf,
     BSDF *bsdf,
     int sided);
