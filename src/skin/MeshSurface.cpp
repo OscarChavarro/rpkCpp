@@ -26,7 +26,7 @@ MeshSurface::~MeshSurface() {
 
     if ( vertices != nullptr ) {
         for ( int i = 0; i < vertices->size(); i++ ) {
-            //delete vertices->get(i);
+            delete vertices->get(i);
         }
         delete vertices;
     }
