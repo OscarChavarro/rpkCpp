@@ -25,7 +25,7 @@ materialCreate(
     int sided)
 {
     Material *m = new Material();
-    delete m->name;
+    delete[] m->name;
     m->name = new char[strlen(inName) + 1];
     strcpy(m->name, inName);
     m->sided = sided;
