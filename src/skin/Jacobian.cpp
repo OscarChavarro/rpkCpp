@@ -1,8 +1,10 @@
+#include <cstdlib>
+
 #include "skin/Jacobian.h"
 
 Jacobian *
 jacobianCreate(float A, float B, float C) {
-    Jacobian *jacobian = new Jacobian();
+    Jacobian *jacobian = (Jacobian *)malloc(sizeof(Jacobian));
     jacobian->A = A;
     jacobian->B = B;
     jacobian->C = C;

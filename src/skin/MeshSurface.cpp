@@ -9,36 +9,6 @@ static int globalNextSurfaceId = 0;
 MeshSurface::MeshSurface(): id(), vertices(), positions(), normals(), faces(), material() {
 }
 
-MeshSurface::~MeshSurface() {
-    if ( positions != nullptr) {
-        for ( int i = 0; i < positions->size(); i++ ) {
-            delete positions->get(i);
-        }
-        delete positions;
-    }
-
-    if ( normals != nullptr ) {
-        for ( int i = 0; i < normals->size(); i++ ) {
-            delete normals->get(i);
-        }
-        delete normals;
-    }
-
-    if ( vertices != nullptr ) {
-        for ( int i = 0; i < vertices->size(); i++ ) {
-            delete vertices->get(i);
-        }
-        delete vertices;
-    }
-
-    if ( faces != nullptr ) {
-        for ( int i = 0; i < faces->size(); i++ ) {
-            delete faces->get(i);
-        }
-        delete faces;
-    }
-}
-
 /**
 Indicates on whether or not, and if so, which, colors are given when creating
 a new surface

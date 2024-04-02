@@ -110,7 +110,6 @@ mgfObjectSurfaceDone(MgfContext *context) {
             context->currentFaceList,
             MaterialColorFlags::NO_COLORS);
         context->currentGeometryList->add(0, newGeometry);
-        context->allGeometries->add(newGeometry);
     }
     context->inSurface = false;
 }
@@ -128,7 +127,7 @@ handleObjectEntity(int argc, char **argv, MgfContext *context) {
         mgfObjectNewSurface(context);
     } else {
         // End of object definition
-        Geometry *newGeometry = nullptr;
+        Geometry *theGeometry = nullptr;
 
         if ( context->inSurface ) {
             mgfObjectSurfaceDone(context);
@@ -141,15 +140,14 @@ handleObjectEntity(int argc, char **argv, MgfContext *context) {
 
         if ( listSize > 0 ) {
             Compound *newCompound = new Compound(context->currentGeometryList);
-            newGeometry = new Geometry(nullptr, newCompound, GeometryClassId::COMPOUND);
+            theGeometry = new Geometry(nullptr, newCompound, GeometryClassId::COMPOUND);
         }
 
         popCurrentGeometryList(context);
 
-        if ( newGeometry != nullptr ) {
-            context->currentGeometryList->add(0, newGeometry);
+        if ( theGeometry != nullptr ) {
+            context->currentGeometryList->add(0, theGeometry);
             context->geometries = context->currentGeometryList;
-            context->allGeometries->add(newGeometry);
         }
 
         mgfObjectNewSurface(context);
@@ -158,7 +156,20 @@ handleObjectEntity(int argc, char **argv, MgfContext *context) {
     return handleObject2Entity(argc, argv);
 }
 
+static void
+freeUnusedGeometries(MgfContext *context) {
+    for ( int i = 1; i < MAXIMUM_GEOMETRY_STACK_DEPTH && context->geometryStack[i] != nullptr; i++ ) {
+        for ( int j = 0; j < context->geometryStack[i]->size(); j++ ) {
+            //Geometry *geometry = context->geometryStack[i]->get(j);
+	        //if ( geometry->className == COMPOUND ) {
+            //    delete geometry;
+            //}
+        }
+    }
+}
+
 void
-mgfObjectFreeMemory() {
+mgfObjectFreeMemory(MgfContext *context) {
+    freeUnusedGeometries(context);
     free(globalObjectNamesList);
 }
