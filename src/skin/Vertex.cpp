@@ -11,6 +11,7 @@ tmp()
 }
 
 Vertex::~Vertex() {
+    delete patches;
 }
 
 /**
