@@ -409,6 +409,15 @@ mainReadFile(char *filename, MgfContext *context) {
         GLOBAL_scene_worldVoxelGrid = nullptr;
     }
 
+    if ( GLOBAL_scene_materials != nullptr ) {
+        // Note: it seems this should not be called - are materials linked to other structures?
+        //for ( int i; i < GLOBAL_scene_materials->size(); i++ ) {
+        //    MaterialDestroy(GLOBAL_scene_materials->get(i));
+        //}
+        delete GLOBAL_scene_materials;
+        GLOBAL_scene_materials = nullptr;
+    }
+
     t = clock();
     fprintf(stderr, "%g secs.\n", (float) (t - last) / (float) CLOCKS_PER_SEC);
     last = t;
@@ -528,10 +537,6 @@ mainReadFile(char *filename, MgfContext *context) {
 
     fprintf(stderr, "Initialisations done.\n");
 
-    // Free locally used memory
-    delete globalAppScenePatches;
-    globalAppScenePatches = nullptr;
-
     return true;
 }
 
@@ -605,7 +610,6 @@ mainFreeMemory(MgfContext *context) {
     deleteOptionsMemory();
     mgfFreeMemory(context);
     galerkinFreeMemory();
-    delete GLOBAL_app_lightSourcePatches;
 }
 
 int

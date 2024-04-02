@@ -14,7 +14,7 @@ class Material {
     BSDF *bsdf; // Reflection and transmission together
     int sided; // 1 for 1-sided surface, 0 for 2-sided, see mgf docs
 
-    Material(const char *inName);
+    Material();
     virtual ~Material();
 };
 
