@@ -563,7 +563,6 @@ mgfFreeMemory(MgfContext *context) {
         } else {
             unknowns++;
         }
-        delete context->currentGeometryList->get(i);
     }
     printf("  - MeshSurfaces: %ld\n", surfaces);
     printf("  - Patch sets: %ld\n", patchSets);
@@ -572,8 +571,7 @@ mgfFreeMemory(MgfContext *context) {
     fflush(stdout);
 
     for ( int i = 0; i < context->allGeometries->size(); i++ ) {
-        Geometry *geometry = context->allGeometries->get(i);
-        //delete geometry;
+        delete context->allGeometries->get(i);
     }
 
     delete context->currentGeometryList;
@@ -581,7 +579,7 @@ mgfFreeMemory(MgfContext *context) {
 
     if ( context->materials != nullptr ) {
         for ( int i = 0; i < context->materials->size(); i++ ) {
-            //delete context->materials->get(i);
+            delete context->materials->get(i);
         }
         delete context->materials;
     }
