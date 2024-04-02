@@ -4,15 +4,17 @@
 #include "material/Material.h"
 #include "material/bsdf.h"
 
-Material GLOBAL_material_defaultMaterial;
+Material GLOBAL_material_defaultMaterial("(default)");
 
-Material::Material(): name(), edf(), bsdf(), sided(0) {
-    name = new char[10];
-    strcpy(name, "(default)");
+Material::Material(const char *inName): name(), edf(), bsdf(), sided(0) {
+    name = new char[strlen(inName) + 1];
+    snprintf((char *)name, strlen(inName) + 1, "%s", inName);
 }
 
 Material::~Material() {
-    //delete name;
+    delete[] name;
+    delete bsdf;
+    delete edf;
 }
 
 Material *
@@ -22,10 +24,7 @@ materialCreate(
     BSDF *bsdf,
     int sided)
 {
-    Material *m = new Material();
-    delete m->name;
-    m->name = new char[strlen(name) + 1];
-    snprintf((char *)m->name, strlen(name) + 1, "%s", name);
+    Material *m = new Material(name);
     m->sided = sided;
     m->edf = edf;
     m->bsdf = bsdf;
