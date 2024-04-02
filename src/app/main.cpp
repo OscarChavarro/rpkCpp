@@ -527,10 +527,6 @@ mainReadFile(char *filename, MgfContext *context) {
     removeAllRenderHooks();
 
     fprintf(stderr, "Initialisations done.\n");
-    
-    // Deleting this is causing ray-casting test to fail
-    //delete globalAppScenePatches;
-    //globalAppScenePatches = nullptr;
 
     return true;
 }
@@ -602,6 +598,7 @@ mainFreeMemory(MgfContext *context) {
     galerkinFreeMemory();
     delete GLOBAL_app_lightSourcePatches;
     delete GLOBAL_scene_clusteredGeometries;
+    delete globalAppScenePatches;
 }
 
 int
