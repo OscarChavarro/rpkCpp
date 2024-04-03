@@ -454,7 +454,7 @@ monteCarloRadiosityInstallTexCoord(Vector3D *texCoord) {
 static Vertex *
 monteCarloRadiosityInstallVertex(Vector3D *coord, Vector3D *norm, Vector3D *texCoord) {
     java::ArrayList<Patch *> *newPatchList = new java::ArrayList<Patch *>();
-    Vertex *v = vertexCreate(coord, norm, texCoord, newPatchList);
+    Vertex *v = new Vertex(coord, norm, texCoord, newPatchList);
     GLOBAL_stochasticRaytracing_hierarchy.vertices->add(0, v);
     return v;
 }
@@ -473,8 +473,8 @@ monteCarloRadiosityNewMidpointVertex(StochasticRadiosityElement *elem, Vertex *v
         n = &elem->patch->normal;
     }
 
-    if ( v1->texCoord && v2->texCoord ) {
-        vectorMidPoint(*(v1->texCoord), *(v2->texCoord), texCoord);
+    if ( v1->textureCoordinates && v2->textureCoordinates ) {
+        vectorMidPoint(*(v1->textureCoordinates), *(v2->textureCoordinates), texCoord);
         t = monteCarloRadiosityInstallTexCoord(&texCoord);
     } else {
         t = nullptr;

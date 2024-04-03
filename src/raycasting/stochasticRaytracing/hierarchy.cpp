@@ -47,7 +47,7 @@ elementHierarchyTerminate(java::ArrayList<Patch *> *scenePatches) {
     java::ArrayList<Vertex *> *vertices = GLOBAL_stochasticRaytracing_hierarchy.vertices;
     if ( vertices != nullptr ) {
         for ( int i = 0; i < vertices->size(); i++ ) {
-            vertexDestroy(vertices->get(i));
+            delete vertices->get(i);
         }
         delete vertices;
     }

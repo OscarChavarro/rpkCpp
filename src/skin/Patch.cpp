@@ -680,10 +680,10 @@ int
 Patch::getNumberOfSamples() {
     int numberOfSamples = 1;
     if ( bsdfIsTextured(surface->material->bsdf) ) {
-        if ( vertex[0]->texCoord == vertex[1]->texCoord &&
-             vertex[0]->texCoord == vertex[2]->texCoord &&
-             (numberOfVertices == 3 || vertex[0]->texCoord == vertex[3]->texCoord) &&
-             vertex[0]->texCoord != nullptr ) {
+        if ( vertex[0]->textureCoordinates == vertex[1]->textureCoordinates &&
+             vertex[0]->textureCoordinates == vertex[2]->textureCoordinates &&
+             (numberOfVertices == 3 || vertex[0]->textureCoordinates == vertex[3]->textureCoordinates) &&
+             vertex[0]->textureCoordinates != nullptr ) {
             // All vertices have same texture coordinates (important special case)
             numberOfSamples = 1;
         } else {
@@ -825,9 +825,9 @@ Patch::textureCoordAtUv(double u, double v) {
     Vector3D texCoord;
     texCoord.set(0.0, 0.0, 0.0);
 
-    t0 = vertex[0]->texCoord;
-    t1 = vertex[1]->texCoord;
-    t2 = vertex[2]->texCoord;
+    t0 = vertex[0]->textureCoordinates;
+    t1 = vertex[1]->textureCoordinates;
+    t2 = vertex[2]->textureCoordinates;
     switch ( numberOfVertices ) {
         case 3:
             if ( !t0 || !t1 || !t2 ) {
@@ -837,7 +837,7 @@ Patch::textureCoordAtUv(double u, double v) {
             }
             break;
         case 4:
-            t3 = vertex[3]->texCoord;
+            t3 = vertex[3]->textureCoordinates;
             if ( !t0 || !t1 || !t2 || !t3 ) {
                 texCoord.set((float) u, (float) v, 0.0f);
             } else {

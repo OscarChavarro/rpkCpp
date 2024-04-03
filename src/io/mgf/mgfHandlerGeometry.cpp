@@ -67,7 +67,7 @@ installNormal(float x, float y, float z, MgfContext *context) {
 static Vertex *
 installVertex(Vector3D *coord, Vector3D *norm, MgfContext *context) {
     java::ArrayList<Patch *> *newPatchList = new java::ArrayList<Patch *>();
-    Vertex *v = vertexCreate(coord, norm, nullptr, newPatchList);
+    Vertex *v = new Vertex(coord, norm, nullptr, newPatchList);
     context->currentVertexList->add(v);
     return v;
 }

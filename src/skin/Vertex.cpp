@@ -2,47 +2,38 @@
 #include "material/statistics.h"
 #include "skin/Vertex.h"
 
-static unsigned int vertex_compare_flags = VERTEX_COMPARE_LOCATION | VERTEX_COMPARE_NORMAL | VERTEX_COMPARE_TEXTURE_COORDINATE;
-
-Vertex::Vertex(): id(), point(), normal(),
-                  texCoord(), color(), radianceData(), back(), patches(),
-                  tmp()
-{
-}
-
-Vertex::~Vertex() {
-    delete patches;
-}
+static unsigned int globalCurrentVertexComparisonFlags = VERTEX_COMPARE_LOCATION | VERTEX_COMPARE_NORMAL | VERTEX_COMPARE_TEXTURE_COORDINATE;
 
 /**
-Create a vertex with given coordinates, normal vector and list of patches
+Create a vertex with given coordinates, inNormal vector and list of inPatches
 sharing the vertex. Several vertices can share the same coordinates
-and normal vector. Several patches can share the same vertex
+and inNormal vector. Several inPatches can share the same vertex
 */
-Vertex *
-vertexCreate(Vector3D *point, Vector3D *normal, Vector3D *texCoord, java::ArrayList<Patch *> *patches) {
-    Vertex *v = new Vertex();
-
-    v->id = GLOBAL_statistics.numberOfVertices++;
-    v->point = point;
-    v->normal = normal;
-    v->texCoord = texCoord;
-    v->patches = patches;
-    setRGB(v->color, 0.0f, 0.0f, 0.0f);
-    v->radianceData = nullptr;
-    v->back = (Vertex *)nullptr;
-
-    return v;
+Vertex::Vertex(
+    Vector3D *inPoint,
+    Vector3D *inNormal,
+    Vector3D *inTextureCoordinates,
+    java::ArrayList<Patch *> *inPatches):
+    color(),
+    tmp()
+{
+    id = GLOBAL_statistics.numberOfVertices++;
+    point = inPoint;
+    normal = inNormal;
+    textureCoordinates = inTextureCoordinates;
+    patches = inPatches;
+    setRGB(color, 0.0f, 0.0f, 0.0f);
+    radianceData = nullptr;
+    back = (Vertex *)nullptr;
 }
 
 /**
 Destroys the vertex. Does not destroy the coordinate vector and
 normal vector, neither the patches sharing the vertex
 */
-void
-vertexDestroy(Vertex *vertex) {
-    delete vertex;
+Vertex::~Vertex() {
     GLOBAL_statistics.numberOfVertices--;
+    delete patches;
 }
 
 /**
@@ -78,16 +69,14 @@ Computes a vertex color for the vertices of the patch
 */
 void
 patchComputeVertexColors(Patch *patch) {
-    int i;
-
-    for ( i = 0; i < patch->numberOfVertices; i++ ) {
+    for ( int i = 0; i < patch->numberOfVertices; i++ ) {
         computeVertexColor(patch->vertex[i]);
     }
 }
 
 unsigned
 vertexSetCompareFlags(unsigned flags) {
-    unsigned oldFlags = vertex_compare_flags;
-    vertex_compare_flags = flags;
+    unsigned oldFlags = globalCurrentVertexComparisonFlags;
+    globalCurrentVertexComparisonFlags = flags;
     return oldFlags;
 }
