@@ -1,4 +1,5 @@
 #include <cstring>
+#include <cstdlib>
 
 #include "material/Material.h"
 #include "material/bsdf.h"
@@ -19,7 +20,7 @@ Material::~Material() {
 Material *
 materialCreate(
     char *inName,
-    PhongEmittanceDistributionFunction *edf,
+    PhongEmittanceDistributionFunctions *edf,
     BSDF *bsdf,
     int sided)
 {
