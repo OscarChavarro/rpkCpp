@@ -288,7 +288,7 @@ patchRecomputeColor(Patch *patch) {
     } else {
         radianceToRgb(RADIANCE(patch), &patch->color);
     }
-    patchComputeVertexColors(patch);
+    patch->computeVertexColors();
 }
 
 static void

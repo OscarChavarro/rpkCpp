@@ -1061,3 +1061,13 @@ Patch::uniformUv(Vector3D *point, double *u, double *v) {
     }
     return inside;
 }
+
+/**
+Computes a vertex color for the vertices of the patch
+*/
+void
+Patch::computeVertexColors() {
+    for ( int i = 0; i < numberOfVertices; i++ ) {
+        vertex[i]->computeColor();
+    }
+}

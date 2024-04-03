@@ -41,36 +41,26 @@ Averages the color of each patch sharing the vertex and assign the
 resulting color to the vertex
 */
 void
-computeVertexColor(Vertex *vertex) {
+Vertex::computeColor() {
     long numberOfPatches;
 
-    setRGB(vertex->color, 0.0f, 0.0f, 0.0f);
+    setRGB(color, 0.0f, 0.0f, 0.0f);
     numberOfPatches = 0;
 
-    if ( vertex->patches != nullptr ) {
-        for ( int i = 0; i < vertex->patches->size(); i++) {
-            Patch *p = vertex->patches->get(i);
-            vertex->color.r += p->color.r;
-            vertex->color.g += p->color.g;
-            vertex->color.b += p->color.b;
+    if ( patches != nullptr ) {
+        for ( int i = 0; i < patches->size(); i++) {
+            Patch *p = patches->get(i);
+            color.r += p->color.r;
+            color.g += p->color.g;
+            color.b += p->color.b;
         }
-        numberOfPatches = vertex->patches->size();
+        numberOfPatches = patches->size();
     }
 
     if ( numberOfPatches > 0 ) {
-        vertex->color.r /= (float) numberOfPatches;
-        vertex->color.g /= (float) numberOfPatches;
-        vertex->color.b /= (float) numberOfPatches;
-    }
-}
-
-/**
-Computes a vertex color for the vertices of the patch
-*/
-void
-patchComputeVertexColors(Patch *patch) {
-    for ( int i = 0; i < patch->numberOfVertices; i++ ) {
-        computeVertexColor(patch->vertex[i]);
+        color.r /= (float) numberOfPatches;
+        color.g /= (float) numberOfPatches;
+        color.b /= (float) numberOfPatches;
     }
 }
 

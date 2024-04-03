@@ -102,6 +102,7 @@ class Patch {
     Vector3D textureCoordAtUv(double u, double v);
     COLOR averageNormalAlbedo(BSDF_FLAGS components);
     COLOR averageEmittance(char components);
+    void computeVertexColors();
 };
 
 #include "skin/RadianceMethod.h"

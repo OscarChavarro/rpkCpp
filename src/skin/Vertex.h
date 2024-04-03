@@ -27,10 +27,9 @@ class Vertex {
         Vector3D *inTextureCoordinates,
         java::ArrayList<Patch *> *inPatches);
     virtual ~Vertex();
-};
 
-extern void computeVertexColor(Vertex *vertex);
-extern void patchComputeVertexColors(Patch *patch);
+    void computeColor();
+};
 
 /**
 Vertex comparison

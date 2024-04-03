@@ -138,7 +138,7 @@ MeshSurface::MeshSurface(
     // Compute vertex colors
     if ( globalColorFlags != VERTEX_COLORS ) {
         for ( int i = 0; this->vertices != nullptr && i < this->vertices->size(); i++ ) {
-            computeVertexColor(this->vertices->get(i));
+            vertices->get(i)->computeColor();
         }
     }
 

@@ -212,7 +212,7 @@ in the current random walk radiosity implementation
 void
 monteCarloRadiosityPatchComputeNewColor(Patch *patch) {
     patch->color = stochasticRadiosityElementColor(topLevelGalerkinElement(patch));
-    patchComputeVertexColors(patch);
+    patch->computeVertexColors();
 }
 
 /**
