@@ -54,9 +54,9 @@ phongBrdfCreate(COLOR *Kd, COLOR *Ks, double Ns) {
     return brdf;
 }
 
-PHONG_BTDF *
+PhongBidirectionalTransmittanceDistributionFunction *
 phongBtdfCreate(COLOR *Kd, COLOR *Ks, float Ns, float nr, float ni) {
-    PHONG_BTDF *btdf = (PHONG_BTDF *)malloc(sizeof(PHONG_BTDF));
+    PhongBidirectionalTransmittanceDistributionFunction *btdf = (PhongBidirectionalTransmittanceDistributionFunction *)malloc(sizeof(PhongBidirectionalTransmittanceDistributionFunction));
     btdf->Kd = *Kd;
     btdf->avgKd = colorAverage(btdf->Kd);
     btdf->Ks = *Ks;
@@ -91,7 +91,7 @@ phongReflectance(PhongBiDirectionalReflectanceDistributionFunction *brdf, char f
 }
 
 COLOR
-phongTransmittance(PHONG_BTDF *btdf, char flags) {
+phongTransmittance(PhongBidirectionalTransmittanceDistributionFunction *btdf, char flags) {
     COLOR result;
 
     colorClear(result);
@@ -121,7 +121,7 @@ phongTransmittance(PHONG_BTDF *btdf, char flags) {
 Refraction index
 */
 void
-phongIndexOfRefraction(PHONG_BTDF *btdf, RefractionIndex *index) {
+phongIndexOfRefraction(PhongBidirectionalTransmittanceDistributionFunction *btdf, RefractionIndex *index) {
     index->nr = btdf->refractionIndex.nr;
     index->ni = btdf->refractionIndex.ni;
 }
@@ -380,13 +380,13 @@ Btdf evaluations
 */
 COLOR
 phongBtdfEval(
-    PHONG_BTDF *btdf,
-    RefractionIndex inIndex,
-    RefractionIndex outIndex,
-    Vector3D *in,
-    Vector3D *out,
-    Vector3D *normal,
-    char flags)
+        PhongBidirectionalTransmittanceDistributionFunction *btdf,
+        RefractionIndex inIndex,
+        RefractionIndex outIndex,
+        Vector3D *in,
+        Vector3D *out,
+        Vector3D *normal,
+        char flags)
 {
     COLOR result;
     float tmpFloat;
@@ -443,16 +443,16 @@ phongBtdfEval(
 
 Vector3D
 phongBtdfSample(
-    PHONG_BTDF *btdf,
-    RefractionIndex inIndex,
-    RefractionIndex outIndex,
-    Vector3D *in,
-    Vector3D *normal,
-    int doRussianRoulette,
-    char flags,
-    double x1,
-    double x2,
-    double *probabilityDensityFunction)
+        PhongBidirectionalTransmittanceDistributionFunction *btdf,
+        RefractionIndex inIndex,
+        RefractionIndex outIndex,
+        Vector3D *in,
+        Vector3D *normal,
+        int doRussianRoulette,
+        char flags,
+        double x1,
+        double x2,
+        double *probabilityDensityFunction)
 {
     Vector3D newDir = {0.0, 0.0, 0.0};
     int totalIR;
@@ -556,15 +556,15 @@ phongBtdfSample(
 
 void
 phongBtdfEvalPdf(
-    PHONG_BTDF *btdf,
-    RefractionIndex inIndex,
-    RefractionIndex outIndex,
-    Vector3D *in,
-    Vector3D *out,
-    Vector3D *normal,
-    char flags,
-    double *probabilityDensityFunction,
-    double *probabilityDensityFunctionRR)
+        PhongBidirectionalTransmittanceDistributionFunction *btdf,
+        RefractionIndex inIndex,
+        RefractionIndex outIndex,
+        Vector3D *in,
+        Vector3D *out,
+        Vector3D *normal,
+        char flags,
+        double *probabilityDensityFunction,
+        double *probabilityDensityFunctionRR)
 {
     double cosTheta;
     double cosAlpha;

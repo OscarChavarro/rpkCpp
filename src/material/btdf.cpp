@@ -6,22 +6,12 @@ Bidirectional Transmittance Distribution Functions
 #include "material/phong.h"
 
 /**
-Creates a BTDF instance with given data and methods
-*/
-BTDF *
-btdfCreate(PHONG_BTDF *data) {
-    BTDF *btdf = new BTDF();
-    btdf->data = data;
-    return btdf;
-}
-
-/**
 Returns the transmittance of the BTDF
 */
 COLOR
-btdfTransmittance(BTDF *btdf, char flags) {
+btdfTransmittance(PhongBidirectionalTransmittanceDistributionFunction *btdf, char flags) {
     if ( btdf != nullptr ) {
-        return phongTransmittance(btdf->data, flags);
+        return phongTransmittance(btdf, flags);
     } else {
         static COLOR reflected;
         colorClear(reflected);
@@ -33,9 +23,9 @@ btdfTransmittance(BTDF *btdf, char flags) {
 Returns the index of refraction of the BTDF
 */
 void
-btdfIndexOfRefraction(BTDF *btdf, RefractionIndex *index) {
+btdfIndexOfRefraction(PhongBidirectionalTransmittanceDistributionFunction *btdf, RefractionIndex *index) {
     if ( btdf != nullptr ) {
-        phongIndexOfRefraction(btdf->data, index);
+        phongIndexOfRefraction(btdf, index);
     } else {
         index->nr = 1.0;
         index->ni = 0.0; // Vacuum
@@ -44,7 +34,7 @@ btdfIndexOfRefraction(BTDF *btdf, RefractionIndex *index) {
 
 COLOR
 btdfEval(
-    BTDF *btdf,
+    PhongBidirectionalTransmittanceDistributionFunction *btdf,
     RefractionIndex inIndex,
     RefractionIndex outIndex,
     Vector3D *in,
@@ -53,7 +43,7 @@ btdfEval(
     char flags)
 {
     if ( btdf != nullptr ) {
-        return phongBtdfEval(btdf->data, inIndex, outIndex, in, out, normal, flags);
+        return phongBtdfEval(btdf, inIndex, outIndex, in, out, normal, flags);
     } else {
         COLOR reflectedColor;
         colorClear(reflectedColor);
@@ -63,7 +53,7 @@ btdfEval(
 
 Vector3D
 btdfSample(
-    BTDF *btdf,
+    PhongBidirectionalTransmittanceDistributionFunction *btdf,
     RefractionIndex inIndex,
     RefractionIndex outIndex,
     Vector3D *in,
@@ -75,7 +65,7 @@ btdfSample(
     double *probabilityDensityFunction)
 {
     if ( btdf != nullptr ) {
-        return phongBtdfSample(btdf->data, inIndex, outIndex, in, normal,
+        return phongBtdfSample(btdf, inIndex, outIndex, in, normal,
                                      doRussianRoulette, flags, x1, x2, probabilityDensityFunction);
     } else {
         Vector3D dummy = {0.0, 0.0, 0.0};
@@ -86,7 +76,7 @@ btdfSample(
 
 void
 btdfEvalPdf(
-    BTDF *btdf,
+    PhongBidirectionalTransmittanceDistributionFunction *btdf,
     RefractionIndex inIndex,
     RefractionIndex outIndex,
     Vector3D *in,
@@ -98,7 +88,7 @@ btdfEvalPdf(
 {
     if ( btdf != nullptr ) {
         phongBtdfEvalPdf(
-                btdf->data, inIndex, outIndex, in, out,
+                btdf, inIndex, outIndex, in, out,
                 normal, flags, probabilityDensityFunction, probabilityDensityFunctionRR);
     } else {
         *probabilityDensityFunction = 0;

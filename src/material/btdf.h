@@ -7,19 +7,14 @@ Bidirectional Transmittance Distribution Functions
 
 #include "material/phong.h"
 
-/**
-Index of refraction data type. Normally when using BSDF's
-this should not be needed. In C++ this would of course
-be a plain complex number
-*/
-class BTDF {
-  public:
-    PHONG_BTDF *data;
-};
+extern PhongBidirectionalTransmittanceDistributionFunction *
+btdfCreate(PhongBidirectionalTransmittanceDistributionFunction *data);
 
-extern BTDF *btdfCreate(PHONG_BTDF *data);
-extern COLOR btdfTransmittance(BTDF *btdf, char flags);
-extern void btdfIndexOfRefraction(BTDF *btdf, RefractionIndex *index);
+extern COLOR
+btdfTransmittance(PhongBidirectionalTransmittanceDistributionFunction *btdf, char flags);
+
+extern void
+btdfIndexOfRefraction(PhongBidirectionalTransmittanceDistributionFunction *btdf, RefractionIndex *index);
 
 /************* BTDF Evaluation functions ****************/
 
@@ -36,7 +31,7 @@ normal : leaving from patch, on the incoming side.
 
 extern COLOR
 btdfEval(
-    BTDF *btdf,
+    PhongBidirectionalTransmittanceDistributionFunction *btdf,
     RefractionIndex inIndex,
     RefractionIndex outIndex,
     Vector3D *in,
@@ -46,7 +41,7 @@ btdfEval(
 
 extern Vector3D
 btdfSample(
-    BTDF *btdf,
+    PhongBidirectionalTransmittanceDistributionFunction *btdf,
     RefractionIndex inIndex,
     RefractionIndex outIndex,
     Vector3D *in,
@@ -59,7 +54,7 @@ btdfSample(
 
 extern void
 btdfEvalPdf(
-    BTDF *btdf,
+    PhongBidirectionalTransmittanceDistributionFunction *btdf,
     RefractionIndex inIndex,
     RefractionIndex outIndex,
     Vector3D *in,

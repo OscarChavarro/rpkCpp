@@ -27,9 +27,8 @@ digraph G {
     Material [shape=box, style=filled, fillcolor="#ffff80"];
     BSDF [shape=box, style=filled, fillcolor="#ffff80"];
     PhongEmittanceDistributionFunctions [shape=box, style=filled, fillcolor="#ffff80"];
-    BTDF [shape=box, style=filled, fillcolor="#ffff80"];
     TEXTURE [shape=box, style=filled, fillcolor="#ffff80"];
-    PHONG_BTDF [shape=box, style=filled, fillcolor="#ffff80"];
+    PhongBidirectionalTransmittanceDistributionFunction [shape=box, style=filled, fillcolor="#ffff80"];
     RefractionIndex [shape=box, style=filled, fillcolor="#ffff80"];
     PhongBiDirectionalReflectanceDistributionFunction [shape=box, style=filled, fillcolor="#ffff80"];
     COLOR [shape=box, style=filled, fillcolor="#ffff80"];
@@ -70,11 +69,10 @@ digraph G {
     Patch -> MeshSurface;
     PhongEmittanceDistributionFunctions -> COLOR;
     PhongBiDirectionalReflectanceDistributionFunction -> COLOR;
-    PHONG_BTDF -> COLOR;
-    PHONG_BTDF -> RefractionIndex;
-    BTDF -> PHONG_BTDF;
+    PhongBidirectionalTransmittanceDistributionFunction -> COLOR;
+    PhongBidirectionalTransmittanceDistributionFunction -> RefractionIndex;
     BSDF -> PhongBiDirectionalReflectanceDistributionFunction;
-    BSDF -> BTDF;
+    BSDF -> PhongBidirectionalTransmittanceDistributionFunction;
     BSDF -> TEXTURE;
     Material -> PhongEmittanceDistributionFunctions;
     Material -> BSDF;

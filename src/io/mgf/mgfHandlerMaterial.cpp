@@ -223,12 +223,11 @@ mgfGetCurrentMaterial(Material **material, bool allSurfacesSided, MgfContext *co
         brdf = phongBrdfCreate(&Rd, &Rs, Nr);
     }
 
-    BTDF *btdf = nullptr;
+    PhongBidirectionalTransmittanceDistributionFunction *btdf = nullptr;
     if ( !colorNull(Td) || !colorNull(Ts) ) {
-        btdf = btdfCreate(
-        phongBtdfCreate(&Td, &Ts, Nt,
+        btdf = phongBtdfCreate(&Td, &Ts, Nt,
                 globalMgfCurrentMaterial->nr,
-                globalMgfCurrentMaterial->ni));
+                globalMgfCurrentMaterial->ni);
     }
 
     BSDF *bsdf = new BSDF(brdf, btdf, nullptr);
