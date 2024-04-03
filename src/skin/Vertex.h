@@ -9,6 +9,9 @@ class Element;
 class Patch;
 
 class Vertex {
+  private:
+    static unsigned int currentComparisonFlags;
+
   public:
     int id;
     Vector3D *point;
@@ -29,6 +32,7 @@ class Vertex {
     virtual ~Vertex();
 
     void computeColor();
+    static unsigned setCompareFlags(unsigned flags);
 };
 
 /**
@@ -40,7 +44,7 @@ when comparing vertices:
 - VERTEX_COMPARE_LOCATION: compare location
 - VERTEX_COMPARE_NORMAL: compare normal
 - VERTEX_COMPARE_TEXTURE_COORDINATE: compare texture coordinates
-The flags are set using vertexSetCompareFlags().
+The flags are set using setCompareFlags().
 
 The comparison order is as follows:
 - First the location is compared (if so requested)
@@ -51,15 +55,13 @@ The vertex comparison routines return
 - XYZ_EQUAL: is the vertices are equal
 - A code from 0 to 7 if the vertices are not equal. This code can be used
   to sort vertices in an octree. The code is a combination of the flags
-  X_GREATER, Y_GREATER and Z_GREATER and is the same as for vectorCompareByDimensions in
+  X_GREATER, Y_GREATER and Z_GREATER and is the same as for Vertex::setCompareFlags in
   Vector3D
 */
 
 #define VERTEX_COMPARE_LOCATION 0x01
 #define VERTEX_COMPARE_NORMAL 0x02
 #define VERTEX_COMPARE_TEXTURE_COORDINATE 0x04
-
-extern unsigned vertexSetCompareFlags(unsigned flags);
 
 #include "skin/Patch.h"
 #include "skin/Element.h"

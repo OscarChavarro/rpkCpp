@@ -223,7 +223,7 @@ mainInit() {
     // Default vertex compare flags: both location and normal is relevant. Two
     // vertices without normal, but at the same location, are to be considered
     // different
-    vertexSetCompareFlags(VERTEX_COMPARE_LOCATION | VERTEX_COMPARE_NORMAL);
+    Vertex::setCompareFlags(VERTEX_COMPARE_LOCATION | VERTEX_COMPARE_NORMAL);
 }
 
 /**

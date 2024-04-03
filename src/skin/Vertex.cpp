@@ -2,7 +2,7 @@
 #include "material/statistics.h"
 #include "skin/Vertex.h"
 
-static unsigned int globalCurrentVertexComparisonFlags = VERTEX_COMPARE_LOCATION | VERTEX_COMPARE_NORMAL | VERTEX_COMPARE_TEXTURE_COORDINATE;
+unsigned int Vertex::currentComparisonFlags = VERTEX_COMPARE_LOCATION | VERTEX_COMPARE_NORMAL | VERTEX_COMPARE_TEXTURE_COORDINATE;
 
 /**
 Create a vertex with given coordinates, inNormal vector and list of inPatches
@@ -65,8 +65,8 @@ Vertex::computeColor() {
 }
 
 unsigned
-vertexSetCompareFlags(unsigned flags) {
-    unsigned oldFlags = globalCurrentVertexComparisonFlags;
-    globalCurrentVertexComparisonFlags = flags;
+Vertex::setCompareFlags(unsigned flags) {
+    unsigned oldFlags = currentComparisonFlags;
+    currentComparisonFlags = flags;
     return oldFlags;
 }
