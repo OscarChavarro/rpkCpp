@@ -20,7 +20,7 @@ LightList::LightList(java::ArrayList<Patch *> *list, bool includeVirtualPatches)
                 info.light = light;
 
                 // calc emittedFlux
-                if ( light->hasZeroVertices()) {
+                if ( light->hasZeroVertices() ) {
                     COLOR e = edfEmittance(light->surface->material->edf, nullptr,
                                            DIFFUSE_COMPONENT);
                     info.emittedFlux = colorAverage(e);
@@ -67,7 +67,7 @@ LightList::sample(double *x1, double *pdf) {
     while ( (rnd > currentSum) && (info != nullptr) ) {
         lastInfo = info;
         info = iterator.nextOnSequence();
-        while ((info != nullptr) && (info->light->hasZeroVertices()) && (!includeVirtual)) {
+        while ((info != nullptr) && (info->light->hasZeroVertices()) && (!includeVirtual) ) {
             info = iterator.nextOnSequence();
         }
 
@@ -236,8 +236,8 @@ LightList::computeOneLightImportance(Patch *light,
 
 void
 LightList::computeLightImportance(Vector3D *point, Vector3D *normal) {
-    if ((vectorEqual(*point, lastPoint, EPSILON)) &&
-        (vectorEqual(*normal, lastNormal, EPSILON))) {
+    if ( (vectorEqual(*point, lastPoint, EPSILON)) &&
+        (vectorEqual(*normal, lastNormal, EPSILON)) ) {
         return; // Still ok !!
     }
 
@@ -250,7 +250,7 @@ LightList::computeLightImportance(Vector3D *point, Vector3D *normal) {
 
     // next
     info = iterator.nextOnSequence();
-    while ((info != nullptr) && (info->light->hasZeroVertices()) && (!includeVirtual)) {
+    while ((info != nullptr) && (info->light->hasZeroVertices()) && (!includeVirtual) ) {
         info = iterator.nextOnSequence();
     }
 
@@ -286,7 +286,7 @@ LightList::sampleImportant(Vector3D *point, Vector3D *normal, double *x1, double
 
     // Next
     info = iterator.nextOnSequence();
-    while ((info != nullptr) && (info->light->hasZeroVertices()) && (!includeVirtual)) {
+    while ( (info != nullptr) && (info->light->hasZeroVertices()) && (!includeVirtual) ) {
         info = iterator.nextOnSequence();
     }
 

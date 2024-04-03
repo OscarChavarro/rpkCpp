@@ -95,7 +95,7 @@ BoundingBox::intersectingSegment(Ray *ray, float *tMin, float *tMax) const {
         }
         t = (coordinates[MAX_X] - pos) / dir;
         if ( t >= *tMin ) {
-            if ( t > *tMax * (1. + EPSILON)) {
+            if ( t > *tMax * (1. + EPSILON) ) {
                 return false;
             }
             *tMin = t;
@@ -110,7 +110,7 @@ BoundingBox::intersectingSegment(Ray *ray, float *tMin, float *tMax) const {
         }
         t = (coordinates[MIN_X] - pos) / dir;
         if ( t >= *tMin ) {
-            if ( t > *tMax * (1.0 + EPSILON)) {
+            if ( t > *tMax * (1.0 + EPSILON) ) {
                 return false;
             }
             *tMin = t;
@@ -132,7 +132,7 @@ BoundingBox::intersectingSegment(Ray *ray, float *tMin, float *tMax) const {
         }
         t = (coordinates[MAX_Y] - pos) / dir;
         if ( t >= *tMin ) {
-            if ( t > *tMax * (1.0 + EPSILON)) {
+            if ( t > *tMax * (1.0 + EPSILON) ) {
                 return false;
             }
             *tMin = t;
@@ -147,7 +147,7 @@ BoundingBox::intersectingSegment(Ray *ray, float *tMin, float *tMax) const {
         }
         t = (coordinates[MIN_Y] - pos) / dir;
         if ( t >= *tMin ) {
-            if ( t > *tMax * (1. + EPSILON)) {
+            if ( t > *tMax * (1.0 + EPSILON) ) {
                 return false;
             }
             *tMin = t;
@@ -169,7 +169,7 @@ BoundingBox::intersectingSegment(Ray *ray, float *tMin, float *tMax) const {
         }
         t = (coordinates[MAX_Z] - pos) / dir;
         if ( t >= *tMin ) {
-            if ( t > *tMax * (1.0 + EPSILON)) {
+            if ( t > *tMax * (1.0 + EPSILON) ) {
                 return false;
             }
             *tMin = t;
@@ -184,7 +184,7 @@ BoundingBox::intersectingSegment(Ray *ray, float *tMin, float *tMax) const {
         }
         t = (coordinates[MIN_Z] - pos) / dir;
         if ( t >= *tMin ) {
-            if ( t > *tMax * (1.0 + EPSILON)) {
+            if ( t > *tMax * (1.0 + EPSILON) ) {
                 return false;
             }
             *tMin = t;

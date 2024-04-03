@@ -156,7 +156,7 @@ public:
     }
 
     void CheckNBalance() {
-        if ((!m_balanced) && (m_doBalancing || m_precomputeIrradiance)) {
+        if ((!m_balanced) && (m_doBalancing || m_precomputeIrradiance) ) {
             Balance();
         }
     }

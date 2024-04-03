@@ -74,7 +74,7 @@ scratchRenderElements(GalerkinElement *cluster, Vector3D eye) {
     SGL_CONTEXT *prev_sgl_context;
     int vp_size;
 
-    if ( cluster->id == GLOBAL_galerkin_state.lastClusterId && vectorEqual(eye, GLOBAL_galerkin_state.lastEye, EPSILON)) {
+    if ( cluster->id == GLOBAL_galerkin_state.lastClusterId && vectorEqual(eye, GLOBAL_galerkin_state.lastEye, EPSILON) ) {
         return bbx.coordinates;
     } else {
         // Cache previously rendered cluster and eye point in order to

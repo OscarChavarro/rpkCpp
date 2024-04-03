@@ -30,7 +30,7 @@ splitBsdfEvalTexture(TEXTURE *texture, RayHit *hit) {
         return col;
     }
 
-    if ( !hit || !hitTexCoord(hit, &texCoord)) {
+    if ( !hit || !hitTexCoord(hit, &texCoord) ) {
         logWarning("splitBsdfEvalTexture", "Couldn't get texture coordinates");
         return col;
     }
@@ -67,7 +67,7 @@ splitBsdfScatteredPower(BSDF *bsdf, RayHit *hit, char flags) {
     COLOR albedo;
     colorClear(albedo);
 
-    if ( bsdf->texture && (flags & TEXTURED_COMPONENT)) {
+    if ( bsdf->texture && (flags & TEXTURED_COMPONENT) ) {
         COLOR textureColor = splitBsdfEvalTexture(bsdf->texture, hit);
         colorAdd(albedo, textureColor, albedo);
         flags &= ~TEXTURED_COMPONENT;  /* avoid taking it into account again */
@@ -105,12 +105,12 @@ splitBsdfEval(
     Vector3D normal;
 
     colorClear(result);
-    if ( !hitShadingNormal(hit, &normal)) {
+    if ( !hitShadingNormal(hit, &normal) ) {
         logWarning("splitBsdfEval", "Couldn't determine shading normal");
         return result;
     }
 
-    if ( bsdf->texture && (flags & TEXTURED_COMPONENT)) {
+    if ( bsdf->texture && (flags & TEXTURED_COMPONENT) ) {
         double textureBsdf = texturedScattererEval(in, out, &normal);
         COLOR textureCol = splitBsdfEvalTexture(bsdf->texture, hit);
         colorAddScaled(result, (float)textureBsdf, textureCol, result);
@@ -161,7 +161,7 @@ splitBsdfProbabilities(
     COLOR transmittance;
 
     *texture = 0.0;
-    if ( bsdf->texture && (flags & TEXTURED_COMPONENT)) {
+    if ( bsdf->texture && (flags & TEXTURED_COMPONENT) ) {
         // bsdf has a texture for diffuse reflection and diffuse reflection
         // needs to be sampled
         textureColor = splitBsdfEvalTexture(bsdf->texture, hit);

@@ -508,7 +508,7 @@ monteCarloRadiosityElementNeighbour(StochasticRadiosityElement *elem, int edgeNu
                   ((e->vertices[0] == to && e->vertices[1] == from) ||
                    (e->vertices[1] == to && e->vertices[2] == from) ||
                    (e->vertices[2] == to && e->vertices[3] == from) ||
-                   (e->vertices[3] == to && e->vertices[0] == from))))) {
+                   (e->vertices[3] == to && e->vertices[0] == from)))) ) {
             return e;
         }
     }

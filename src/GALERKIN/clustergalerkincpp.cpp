@@ -165,7 +165,7 @@ galerkinDestroyClusterHierarchy(GalerkinElement *clusterElement) {
 Executes func for every surface element in the cluster
 */
 void
-iterateOverSurfaceElementsInCluster(GalerkinElement *galerkinElement, void (*func)(GalerkinElement *elem)) {
+iterateOverSurfaceElementsInCluster(GalerkinElement *galerkinElement, void (*func)(GalerkinElement *elem) ) {
     if ( !galerkinElement->isCluster() ) {
         func(galerkinElement);
     } else {

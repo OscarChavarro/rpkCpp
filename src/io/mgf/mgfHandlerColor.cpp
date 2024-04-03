@@ -28,7 +28,7 @@ handleColorEntity(int ac, char **av, MgfContext *context) {
                 context->currentColor = context->unNamedColorContext;
                 return MGF_OK;
             }
-            if ( !isNameWords(av[1])) {
+            if ( !isNameWords(av[1]) ) {
                 return MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
             }
             lp = lookUpFind(&globalColorTable, av[1]); // Lookup context
@@ -82,7 +82,7 @@ handleColorEntity(int ac, char **av, MgfContext *context) {
             if ( ac != 3 ) {
                 return MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
             }
-            if ( !isFloatWords(av[1]) || !isFloatWords(av[2])) {
+            if ( !isFloatWords(av[1]) || !isFloatWords(av[2]) ) {
                 return MGF_ERROR_ARGUMENT_TYPE;
             }
             context->currentColor->cx = strtof(av[1], nullptr);
@@ -99,7 +99,7 @@ handleColorEntity(int ac, char **av, MgfContext *context) {
             if ( ac < 5 ) {
                 return MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
             }
-            if ( !isFloatWords(av[1]) || !isFloatWords(av[2])) {
+            if ( !isFloatWords(av[1]) || !isFloatWords(av[2]) ) {
                 return MGF_ERROR_ARGUMENT_TYPE;
             }
             return context->currentColor->setSpectrum(
@@ -121,7 +121,7 @@ handleColorEntity(int ac, char **av, MgfContext *context) {
             if ( ac < 5 || (ac - 1) % 2 ) {
                 return MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
             }
-            if ( !isFloatWords(av[1])) {
+            if ( !isFloatWords(av[1]) ) {
                 return MGF_ERROR_ARGUMENT_TYPE;
             }
             wSum = strtod(av[1], nullptr);

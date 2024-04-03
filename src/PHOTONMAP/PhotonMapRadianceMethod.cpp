@@ -384,7 +384,7 @@ photonMapHandlePath(PhotonMapConfig *config, RadianceMethod *context) {
             if ( bp->m_lightSize > 1 ) {
                 // Store
 
-                if ( photonMapDoPhotonStore(currentNode, accPower)) {
+                if ( photonMapDoPhotonStore(currentNode, accPower) ) {
                     // Screen next event estimation for testing
 
                     bp->m_lightEndNode = currentNode;
@@ -396,7 +396,7 @@ photonMapHandlePath(PhotonMapConfig *config, RadianceMethod *context) {
             if ( bp->m_lightSize > 2 ) {
                 // Store
 
-                if ( photonMapDoPhotonStore(currentNode, accPower)) {
+                if ( photonMapDoPhotonStore(currentNode, accPower) ) {
                     // Screen next event estimation for testing
 
                     bp->m_lightEndNode = currentNode;
@@ -407,7 +407,7 @@ photonMapHandlePath(PhotonMapConfig *config, RadianceMethod *context) {
 
         // Account for bsdf, node that for the first node, this accounts
         // for the emitted radiance.
-        if ( !(currentNode->ends())) {
+        if ( !(currentNode->ends()) ) {
             colorProduct(currentNode->m_bsdfEval, accPower, accPower);
 
             currentNode = currentNode->next();
@@ -443,7 +443,7 @@ photonMapTracePath(PhotonMapConfig *config, BSDF_FLAGS bsdfFlags) {
     x1 = drand48(); // nrs[2] * RECIP;
     x2 = drand48(); // nrs[3] * RECIP; // 4D Niederreiter...
 
-    if ( config->lightConfig.traceNode(node, x1, x2, bsdfFlags)) {
+    if ( config->lightConfig.traceNode(node, x1, x2, bsdfFlags) ) {
         // Successful trace
         node->ensureNext();
         config->lightConfig.tracePath(node->next(), bsdfFlags);
@@ -467,7 +467,7 @@ photonMapBRRealIteration(RadianceMethod *context) {
 
     fprintf(stderr, "GLOBAL_photonMapMethods Iteration %li\n", (long) GLOBAL_photonMap_state.iterationNumber);
 
-    if ((GLOBAL_photonMap_state.iterationNumber > 1) && (GLOBAL_photonMap_state.doGlobalMap || GLOBAL_photonMap_state.doCausticMap)) {
+    if ((GLOBAL_photonMap_state.iterationNumber > 1) && (GLOBAL_photonMap_state.doGlobalMap || GLOBAL_photonMap_state.doCausticMap) ) {
         float scaleFactor = ((float)GLOBAL_photonMap_state.iterationNumber - 1.0f) / (float) GLOBAL_photonMap_state.iterationNumber;
         GLOBAL_photonMap_config.screen->scaleRadiance(scaleFactor);
     }
@@ -612,7 +612,7 @@ PhotonMapRadianceMethod::getRadiance(Patch *patch, double u, double v, Vector3D 
     hitInit(&hit, patch, nullptr, &point, &patch->normal, patch->surface->material, 0.0);
     hitShadingNormal(&hit, &hit.normal);
 
-    if ( ZeroAlbedo(bsdf, &hit, BSDF_DIFFUSE_COMPONENT | BSDF_GLOSSY_COMPONENT)) {
+    if ( ZeroAlbedo(bsdf, &hit, BSDF_DIFFUSE_COMPONENT | BSDF_GLOSSY_COMPONENT) ) {
         colorClear(col);
         return col;
     }

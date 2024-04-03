@@ -55,7 +55,7 @@ FlagChainCompare(const FlagChain *c1,
     int nrDifferent = 0;
     int i;
 
-    if ((c1->length != c2->length) || (c1->subtract != c2->subtract)) {
+    if ( (c1->length != c2->length) || (c1->subtract != c2->subtract) ) {
         return false;
     }
 
@@ -481,7 +481,7 @@ ContribHandler::doRegExpGeneral(char *regExp, bool subtract) {
     char token;
     BSDF_FLAGS data;
 
-    while ( getToken(regExp, &pos, &token, &data)) {
+    while ( getToken(regExp, &pos, &token, &data) ) {
         if ( token == 'F' ) {
             // A flag was read
 
@@ -516,7 +516,7 @@ ContribHandler::doRegExpGeneral(char *regExp, bool subtract) {
             typeArray[tokenCount] = token;
             countArray[tokenCount] = 0;
 
-            if ((token == '*') || (token == '+')) {
+            if ( (token == '*') || (token == '+') ) {
                 iteratorCount++;
             }
         }

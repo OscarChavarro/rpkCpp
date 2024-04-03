@@ -69,7 +69,7 @@ mgfEntity(char *name, MgfContext *context) {
 
     if ( !globalLookUpTable.currentTableSize ) {
         // Initialize hash table
-        if ( !lookUpInit(&globalLookUpTable, MGF_TOTAL_NUMBER_OF_ENTITIES)) {
+        if ( !lookUpInit(&globalLookUpTable, MGF_TOTAL_NUMBER_OF_ENTITIES) ) {
             return -1;
         }
 

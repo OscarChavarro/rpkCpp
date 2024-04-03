@@ -83,7 +83,7 @@ void
 LDSpar::init(SparConfig *sparConfig, RadianceMethod *context) {
     Spar::init(sparConfig, context);
 
-    if ( !(sparConfig->baseConfig->doLD || sparConfig->baseConfig->doWeighted)) {
+    if ( !(sparConfig->baseConfig->doLD || sparConfig->baseConfig->doWeighted) ) {
         return;
     }
 

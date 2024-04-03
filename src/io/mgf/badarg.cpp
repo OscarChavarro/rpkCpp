@@ -19,17 +19,17 @@ checkForBadArguments(int ac, char **av, char *fl) {
         }
         switch ( *fl ) {
             case 's': // String
-                if ( **av == '\0' || isspace(**av)) {
+                if ( **av == '\0' || isspace(**av) ) {
                     return i;
                 }
                 break;
             case 'i': // Integer
-                if ( !isIntDWords(*av, (char *) " \t\r\n")) {
+                if ( !isIntDWords(*av, (char *) " \t\r\n") ) {
                     return i;
                 }
                 break;
             case 'f': // Float
-                if ( !isFloatDWords(*av, (char *) " \t\r\n")) {
+                if ( !isFloatDWords(*av, (char *) " \t\r\n") ) {
                     return i;
                 }
                 break;

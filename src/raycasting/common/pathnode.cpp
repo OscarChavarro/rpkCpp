@@ -104,7 +104,7 @@ BSDF *
 SimpleRaytracingPathNode::getPreviousBsdf() {
     SimpleRaytracingPathNode *matchedNode;
 
-    if ( !(m_hit.flags & HIT_BACK)) {
+    if ( !(m_hit.flags & HIT_BACK) ) {
         logError("CPathNode::getPreviousBsdf", "Last node not a back hit");
         return (m_inBsdf);  // Should not happen
     }

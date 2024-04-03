@@ -91,7 +91,7 @@ hitTexCoord(RayHit *hit, Vector3D *texCoord) {
         return true;
     }
 
-    if ( !hitUv(hit, &hit->uv)) {
+    if ( !hitUv(hit, &hit->uv) ) {
         return false;
     }
 
@@ -140,7 +140,7 @@ hitShadingNormal(RayHit *hit, Vector3D *normal) {
         return true;
     }
 
-    if ( !hitPointShadingFrame(hit, nullptr, nullptr, &hit->normal)) {
+    if ( !hitPointShadingFrame(hit, nullptr, nullptr, &hit->normal) ) {
         return false;
     }
 

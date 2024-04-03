@@ -119,7 +119,7 @@ batchSaveRadianceImage(const char *fileName, FILE *fp, int isPipe, java::ArrayLi
     canvasPushMode();
 
     extension = imageFileExtension((char *) fileName);
-    if ( IS_TIFF_LOGLUV_EXT(extension)) {
+    if ( IS_TIFF_LOGLUV_EXT(extension) ) {
         fprintf(stdout, "Saving LOGLUV image to file '%s' ....... ", fileName);
     } else {
         fprintf(stdout, "Saving RGB image to file '%s' .......... ", fileName);

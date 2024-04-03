@@ -106,7 +106,7 @@ ScreenBuffer::merge(ScreenBuffer *src1, ScreenBuffer *src2) {
     init(&(src1->m_cam));
     m_RGBImage = src1->isRgbImage();
 
-    if ((getHRes() != src2->getHRes()) || (getVRes() != src2->getVRes())) {
+    if ( (getHRes() != src2->getHRes()) || (getVRes() != src2->getVRes()) ) {
         logError("ScreenBuffer::merge", "Incompatible screen buffer sources");
         return;
     }
@@ -273,7 +273,7 @@ ScreenBuffer::sync() {
 
     for ( i = 0; i < m_cam.xSize * m_cam.ySize; i++ ) {
         colorScale(m_Factor, m_Radiance[i], tmpRad);
-        if ( !isRgbImage()) {
+        if ( !isRgbImage() ) {
             radianceToRgb(tmpRad, &m_RGB[i]);
         } else {
             convertColorToRGB(tmpRad, &m_RGB[i]);
@@ -291,7 +291,7 @@ ScreenBuffer::syncLine(int lineNumber) {
 
     for ( i = 0; i < m_cam.xSize; i++ ) {
         colorScale(m_Factor, m_Radiance[lineNumber * m_cam.xSize + i], tmpRad);
-        if ( !isRgbImage()) {
+        if ( !isRgbImage() ) {
             radianceToRgb(tmpRad, &m_RGB[lineNumber * m_cam.xSize + i]);
         } else {
             convertColorToRGB(tmpRad, &m_RGB[lineNumber * m_cam.xSize + i]);

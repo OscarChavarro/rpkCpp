@@ -134,7 +134,7 @@ batchSaveRaytracingImage(const char *fileName, FILE *fp, int isPipe, java::Array
 
     if ( !GLOBAL_raytracer_activeRaytracer ) {
         logWarning(nullptr, "No ray tracing method active");
-    } else if ( !GLOBAL_raytracer_activeRaytracer->SaveImage || !GLOBAL_raytracer_activeRaytracer->SaveImage(img)) {
+    } else if ( !GLOBAL_raytracer_activeRaytracer->SaveImage || !GLOBAL_raytracer_activeRaytracer->SaveImage(img) ) {
         logWarning(nullptr, "No previous %s image available", GLOBAL_raytracer_activeRaytracer->fullName);
     }
 

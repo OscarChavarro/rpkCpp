@@ -85,7 +85,7 @@ mgfGetColor(MgfColorContext *cin, float intensity, COLOR *colorOut, MgfContext *
     }
 
     transformColorFromXYZ2RGB(xyz, rgb);
-    if ( clipGamut(rgb)) {
+    if ( clipGamut(rgb) ) {
         doWarning("color desaturated during gamut clipping", context);
     }
     colorSet(*colorOut, rgb[0], rgb[1], rgb[2]);
@@ -371,7 +371,7 @@ handleMaterialEntity(int ac, char **av, MgfContext *context) {
             if ( ac != 2 ) {
                 return MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
             }
-            if ( !isFloatWords(av[1])) {
+            if ( !isFloatWords(av[1]) ) {
                 return MGF_ERROR_ARGUMENT_TYPE;
             }
             globalMgfCurrentMaterial->rd = strtof(av[1], nullptr);
@@ -387,7 +387,7 @@ handleMaterialEntity(int ac, char **av, MgfContext *context) {
             if ( ac != 2 ) {
                 return MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
             }
-            if ( !isFloatWords(av[1])) {
+            if ( !isFloatWords(av[1]) ) {
                 return MGF_ERROR_ARGUMENT_TYPE;
             }
             globalMgfCurrentMaterial->ed = strtof(av[1], nullptr);
@@ -419,7 +419,7 @@ handleMaterialEntity(int ac, char **av, MgfContext *context) {
             if ( ac != 3 ) {
                 return MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
             }
-            if ( !isFloatWords(av[1]) || !isFloatWords(av[2])) {
+            if ( !isFloatWords(av[1]) || !isFloatWords(av[2]) ) {
                 return MGF_ERROR_ARGUMENT_TYPE;
             }
             globalMgfCurrentMaterial->rs = strtof(av[1], nullptr);
@@ -437,7 +437,7 @@ handleMaterialEntity(int ac, char **av, MgfContext *context) {
             if ( ac != 3 ) {
                 return MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
             }
-            if ( !isFloatWords(av[1]) || !isFloatWords(av[2])) {
+            if ( !isFloatWords(av[1]) || !isFloatWords(av[2]) ) {
                 return MGF_ERROR_ARGUMENT_TYPE;
             }
             globalMgfCurrentMaterial->ts = strtof(av[1], nullptr);

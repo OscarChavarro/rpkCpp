@@ -27,7 +27,7 @@ CDensityHit CDensityHitList::operator[](int i) {
         logFatal(-1, __FILE__ ":CDensityHitList::operator[]", "Index 'i' out of getBoundingBox");
     }
 
-    if ( !m_cacheCurrent || (i < m_cacheLowerLimit)) {
+    if ( !m_cacheCurrent || (i < m_cacheLowerLimit) ) {
         m_cacheCurrent = m_first;
         m_cacheLowerLimit = 0;
     }
@@ -44,7 +44,7 @@ CDensityHit CDensityHitList::operator[](int i) {
 }
 
 void CDensityHitList::add(CDensityHit &hit) {
-    if ( !m_last->Add(hit)) {
+    if ( !m_last->Add(hit) ) {
         // New array needed
 
         m_last->next = new CDensityHitArray(DHL_ARRAY_SIZE);

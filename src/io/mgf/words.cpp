@@ -120,11 +120,11 @@ isNameWords(char *s)
         // skip leading underscores
         s++;
     }
-    if ( !isascii(*s) || !isalpha(*s)) {
+    if ( !isascii(*s) || !isalpha(*s) ) {
         // start with a letter
         return 0;
     }
-    while ( isascii(*++s) && isgraph(*s)) {
+    while ( isascii(*++s) && isgraph(*s) ) {
         // all visible characters
     }
     return *s == '\0'; // ending in nul

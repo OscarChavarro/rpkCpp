@@ -77,7 +77,7 @@ phongReflectance(PhongBiDirectionalReflectanceDistributionFunction *brdf, char f
         colorAdd(result, brdf->Kd, result);
     }
 
-    if ( PHONG_IS_SPECULAR(*brdf)) {
+    if ( PHONG_IS_SPECULAR(*brdf) ) {
         if ( flags & SPECULAR_COMPONENT ) {
             colorAdd(result, brdf->Ks, result);
         }
@@ -100,7 +100,7 @@ phongTransmittance(PHONG_BTDF *btdf, char flags) {
         colorAdd(result, btdf->Kd, result);
     }
 
-    if ( PHONG_IS_SPECULAR(*btdf)) {
+    if ( PHONG_IS_SPECULAR(*btdf) ) {
         if ( flags & SPECULAR_COMPONENT ) {
             colorAdd(result, btdf->Ks, result);
         }
@@ -110,7 +110,7 @@ phongTransmittance(PHONG_BTDF *btdf, char flags) {
         }
     }
 
-    if ( !std::isfinite(colorAverage(result))) {
+    if ( !std::isfinite(colorAverage(result)) ) {
         logFatal(-1, "phongTransmittance", "Oops - result is not finite!");
     }
 
@@ -157,7 +157,7 @@ phongBrdfEval(
         colorAddScaled(result, M_1_PI, brdf->Kd, result);
     }
 
-    if ( PHONG_IS_SPECULAR(*brdf)) {
+    if ( PHONG_IS_SPECULAR(*brdf) ) {
         nonDiffuseFlag = SPECULAR_COMPONENT;
     } else {
         nonDiffuseFlag = GLOSSY_COMPONENT;
@@ -333,7 +333,7 @@ phongBrdfEvalPdf(
         avgKd = 0.0;
     }
 
-    if ( PHONG_IS_SPECULAR(*brdf)) {
+    if ( PHONG_IS_SPECULAR(*brdf) ) {
         nonDiffuseFlag = SPECULAR_COMPONENT;
     } else {
         nonDiffuseFlag = GLOSSY_COMPONENT;
@@ -417,7 +417,7 @@ phongBtdfEval(
         }
     }
 
-    if ( PHONG_IS_SPECULAR(*btdf)) {
+    if ( PHONG_IS_SPECULAR(*btdf) ) {
         nonDiffuseFlag = SPECULAR_COMPONENT;
     } else {
         nonDiffuseFlag = GLOSSY_COMPONENT;

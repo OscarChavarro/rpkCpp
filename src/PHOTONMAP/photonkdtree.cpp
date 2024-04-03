@@ -64,7 +64,7 @@ CPhotonkdtree::NormalBQuery_rec(const int index) {
         }
 
         dist *= dist; // Square distance to the separator plane
-        if ((farIndex < m_numBalanced) && (dist < qdat_s.maximumDistance)) {
+        if ((farIndex < m_numBalanced) && (dist < qdat_s.maximumDistance) ) {
             // Discriminator line closer than maxdist : nearer positions can lie
             // on the far side. Or there are still not enough nodes found
             NormalBQuery_rec(farIndex);
@@ -102,7 +102,7 @@ CPhotonkdtree::NormalPhotonQuery(
     qdat_s.threshold = threshold;
     qdat_s.maximumDistance = maxR2;
 
-    if ( m_broot && (m_numNodes > 0) && (m_numUnbalanced == 0)) {
+    if ( m_broot && (m_numNodes > 0) && (m_numUnbalanced == 0) ) {
         // Find the best photon
         NormalBQuery_rec(0);
     }

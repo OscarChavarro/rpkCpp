@@ -281,7 +281,7 @@ openGlRenderPatch(Patch *patch) {
 
     if ( GLOBAL_render_renderOptions.drawOutlines &&
          (vectorDotProduct(patch->normal, GLOBAL_camera_mainCamera.eyePosition) + patch->planeConstant > EPSILON
-          || GLOBAL_render_renderOptions.useDisplayLists)) {
+          || GLOBAL_render_renderOptions.useDisplayLists) ) {
         openGlRenderSetColor(&GLOBAL_render_renderOptions.outline_color);
         openGlRenderPatchOutline(patch);
     }
@@ -315,7 +315,7 @@ static int
 openGlViewCullBounds(BoundingBox *bounds) {
     for ( int i = 0; i < NUMBER_OF_VIEW_PLANES; i++ ) {
         if ( bounds->behindPlane(&GLOBAL_camera_mainCamera.viewPlane[i].normal,
-                         GLOBAL_camera_mainCamera.viewPlane[i].d)) {
+                         GLOBAL_camera_mainCamera.viewPlane[i].d) ) {
             return true;
         }
     }
@@ -540,7 +540,7 @@ openGlRenderScene(java::ArrayList<Patch *> *scenePatches, java::ArrayList<Geomet
         GLOBAL_render_renderOptions.renderRayTracedImage = false;
     }
 
-    if ( !GLOBAL_render_renderOptions.renderRayTracedImage || !openGlRenderRayTraced(reDisplayCallback)) {
+    if ( !GLOBAL_render_renderOptions.renderRayTracedImage || !openGlRenderRayTraced(reDisplayCallback) ) {
         openGlRenderRadiance(scenePatches, clusteredGeometryList, context);
     }
 

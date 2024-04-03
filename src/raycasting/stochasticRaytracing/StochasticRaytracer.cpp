@@ -249,7 +249,7 @@ SR_GetDirectRadiance(
                                     cl = multipleImportanceSampling(config->nextEventSamples * lightNode.m_pdfFromPrev);
 
                                     // N scatter * pdf  for possible scattering
-                                    if ( si->DoneSomePreviousBounce(prevNode)) {
+                                    if ( si->DoneSomePreviousBounce(prevNode) ) {
                                         nrs = si->nrSamplesAfter;
                                     } else {
                                         nrs = si->nrSamplesBefore;
@@ -495,7 +495,7 @@ CalcPixel(int nx, int ny, StochasticRaytracingConfiguration *config, RadianceMet
         stratified.sample(&x1, &x2);
 
         if ( config->samplerConfig.dirSampler->sample(nullptr, &eyeNode, &pixelNode, x1, x2)
-             && ((pixelNode.m_rayType != ENVIRONMENT) || (config->backgroundDirect))) {
+             && ((pixelNode.m_rayType != ENVIRONMENT) || (config->backgroundDirect)) ) {
             pixelNode.assignBsdfAndNormal();
 
             // Frame coherent & correlated sampling

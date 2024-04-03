@@ -143,7 +143,7 @@ stochasticJacobiElementSetup(Element *element) {
     }
 
     stochasticRadiosityElement->samplingProbability = 0.0;
-    if ( !stochasticRadiosityElement->traverseAllChildren(stochasticJacobiElementSetup)) {
+    if ( !stochasticRadiosityElement->traverseAllChildren(stochasticJacobiElementSetup) ) {
         // Elem is a leaf element. We need to compute the sum of the un-normalized
         // sampling "probabilities" at the leaf elements
         stochasticRadiosityElement->samplingProbability = (float)stochasticJacobiProbability(stochasticRadiosityElement);

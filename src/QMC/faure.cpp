@@ -106,7 +106,7 @@ nextFaure() {
 
     save = globalNextN;
     k = 1;
-    while ((save % globalPR) == (globalPR - 1)) {
+    while ((save % globalPR) == (globalPR - 1) ) {
         k = k + 1;
         save = save / globalPR;
     }

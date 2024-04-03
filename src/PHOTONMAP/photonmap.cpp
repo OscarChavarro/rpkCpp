@@ -366,7 +366,7 @@ CPhotonMap::Reconstruct(RayHit *hit, Vector3D &outDir,
         } else {
             if ( m_precomputeIrradiance ) {
                 // if(IrradianceReconstruct(hit, outDir, bsdf, inBsdf, outBsdf, &result))
-                if ( IrradianceReconstruct(hit, outDir, diffuseAlbedo, &result)) {
+                if ( IrradianceReconstruct(hit, outDir, diffuseAlbedo, &result) ) {
                     return result;
                 } else // no appropriate irradiance photon -> do normal reconstruction
                 {
@@ -468,7 +468,7 @@ CPhotonMap::Sample(
     COLOR col;
 
     // -- Epsilon in as a function of scene/camera measure ??
-    if ( !vectorEqual(m_sampleLastPos, pos, 0.0001)) {
+    if ( !vectorEqual(m_sampleLastPos, pos, 0.0001) ) {
         // Need a new grid
 
         m_grid->Init();

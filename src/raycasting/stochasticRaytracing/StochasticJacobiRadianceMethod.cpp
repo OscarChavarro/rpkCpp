@@ -95,7 +95,7 @@ Randomly returns floor(x) or ceil(x) so that the expected value is equal to x
 static long
 stochasticRelaxationRadiosityRandomRound(float x) {
     long l = (long)std::floor(x);
-    if ( drand48() < (x - (float) l)) {
+    if ( drand48() < (x - (float) l) ) {
         l++;
     }
     return l;

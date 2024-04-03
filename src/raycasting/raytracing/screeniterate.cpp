@@ -150,7 +150,7 @@ ScreenIterateProgressive(SCREEN_ITERATE_CALLBACK callback, void *data) {
                     xStepDone = true;
                 }
 
-                if ( !skip || (ySteps & 1) || (xSteps & 1)) {
+                if ( !skip || (ySteps & 1) || (xSteps & 1) ) {
                     col = callback(x0, height - y0 - 1, data);
                     radianceToRgb(col, &pixelRGB);
                     FillRect(x0, y0, x1, y1, pixelRGB, rgb);
@@ -159,11 +159,9 @@ ScreenIterateProgressive(SCREEN_ITERATE_CALLBACK callback, void *data) {
 
                     if ( iState.wakeUp & WAKE_UP_RENDER) {
                         iState.wakeUp &= ~WAKE_UP_RENDER;
-                        if ((yMax > 0) && (yMax > yMin)) {
-                            openGlRenderPixels(0, yMin, width, yMax - yMin,
-                                               rgb + yMin * width);
+                        if ( (yMax > 0) && (yMax > yMin) ) {
+                            openGlRenderPixels(0, yMin, width, yMax - yMin, rgb + yMin * width);
                         }
-
                         yMin = intMax(0, yMax - stepSize);
                     }
                 }
@@ -173,7 +171,7 @@ ScreenIterateProgressive(SCREEN_ITERATE_CALLBACK callback, void *data) {
             }
 
             if ( yMax >= height ) {
-                if ((yMax > yMin)) {
+                if ( (yMax > yMin) ) {
                     openGlRenderPixels(0, yMin, width, yMax - yMin,
                                        rgb + yMin * width);
                 }

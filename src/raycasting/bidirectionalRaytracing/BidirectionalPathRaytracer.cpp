@@ -162,7 +162,7 @@ addWithSpikeCheck(
     }
 
     if ( config->baseConfig->eliminateSpikes ) {
-        if ( !spikeCheck(f)) {
+        if ( !spikeCheck(f) ) {
             config->screen->add(nx, ny, f);
         } else {
             // Wanna see the spikes !
@@ -255,7 +255,7 @@ handlePathX0(BidirectionalPathTracingConfiguration *config, CBiPath *path) {
 
             // Compute
             if ((config->baseConfig->sampleImportantLights) && (config->lightConfig.maxDepth > 0)
-                && (path->m_eyeSize > 2)) {
+                && (path->m_eyeSize > 2) ) {
                 pdfLNE = config->eyeConfig.neSampler->evalPDF(eyePrevNode, eyeEndNode);
             } else {
                 pdfLNE = eyeEndNode->m_pdfFromNext; // same sampling as light path
@@ -444,9 +444,8 @@ handlePathXx(BidirectionalPathTracingConfiguration *config, CBiPath *path) {
         newLightNode.m_pdfFromPrev = 0.0;
         newLightNode.m_pdfFromNext = 0.0;
 
-        if ( !config->eyeConfig.neSampler->sample(nullptr, path->m_eyeEndNode,
-                                                  &newLightNode,
-                                                  drand48(), drand48())) {
+        if ( !config->eyeConfig.neSampler->sample(
+            nullptr, path->m_eyeEndNode, &newLightNode, drand48(), drand48()) ) {
             // No light point sampled, no contribution possible
 
             path->m_lightPath = oldLightPath;
@@ -551,11 +550,9 @@ bpCombinePaths(BidirectionalPathTracingConfiguration *config) {
     if ( config->lightPath ) {
         // Single light point get importance sampled, so compute
         // the pdf for it, in order to get correct weights.
-        if ( config->baseConfig->sampleImportantLights && config->lightPath->next()) {
+        if ( config->baseConfig->sampleImportantLights && config->lightPath->next() ) {
             config->pdfLNE =
-                    config->eyeConfig.neSampler->evalPDF(lightPath->next(),
-                                                         lightPath);
-
+                    config->eyeConfig.neSampler->evalPDF(lightPath->next(), lightPath);
         } else {
             config->pdfLNE = lightPath->m_pdfFromPrev;
         }
@@ -610,7 +607,7 @@ bpCombinePaths(BidirectionalPathTracingConfiguration *config) {
                 handlePath1X(config, &path);
             }
 
-            if ( lightEndNode->ends()) {
+            if ( lightEndNode->ends() ) {
                 lightSubPathDone = true;
             } else {
                 lightSize++;
@@ -675,10 +672,8 @@ bpCalcPixel(int nx, int ny, BidirectionalPathTracingConfiguration *config) {
             config->xSample = tmpVec2D.u; // pix_x + (GLOBAL_camera_mainCamera.pixH * x_1);
             config->ySample = tmpVec2D.v; //pix_y + (GLOBAL_camera_mainCamera.pixV * x_2);
 
-            if ( config->eyeConfig.dirSampler->sample(nullptr, config->eyePath,
-                                                      pixNode, x_1, x_2)) {
+            if ( config->eyeConfig.dirSampler->sample(nullptr, config->eyePath, pixNode, x_1, x_2) ) {
                 pixNode->assignBsdfAndNormal();
-
                 config->eyeConfig.tracePath(nextNode);
             }
         } else {

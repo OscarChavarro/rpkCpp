@@ -94,7 +94,7 @@ Shaft::constructShaft(BoundingBox *boundingBox1, BoundingBox *boundingBox2) {
             hasMinMax1[i] = 1;
         } else {
             boundingBox.coordinates[i] = ref2->coordinates[i];
-            if ( !doubleEqual(ref1->coordinates[i], ref2->coordinates[i], EPSILON)) {
+            if ( !doubleEqual(ref1->coordinates[i], ref2->coordinates[i], EPSILON) ) {
                 hasMinMax2[i] = 1;
             }
         }
@@ -644,7 +644,7 @@ Shaft::shaftPatchTest(Patch *patch) {
     ray.pos = center1;
     vectorSubtract(center2, center1, ray.dir);
     dist = 1.0 - EPSILON;
-    if ( patch->intersect(&ray, EPSILON, &dist, HIT_FRONT | HIT_BACK, &hitStore)) {
+    if ( patch->intersect(&ray, EPSILON, &dist, HIT_FRONT | HIT_BACK, &hitStore) ) {
         cut = true;
         return OVERLAP;
     }

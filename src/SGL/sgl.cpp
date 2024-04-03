@@ -200,7 +200,7 @@ SGL_CONTEXT::sglPolygon(int numberOfVertices, Vector3D *vertices) {
     PolygonBox clip_box = {-1.0, 1.0, -1.0, 1.0, -1.0, 1.0};
     int i;
 
-    if ( numberOfVertices > (clipping ? (MAXIMUM_SIDES_PER_POLYGON - 6) : MAXIMUM_SIDES_PER_POLYGON)) {
+    if ( numberOfVertices > (clipping ? (MAXIMUM_SIDES_PER_POLYGON - 6) : MAXIMUM_SIDES_PER_POLYGON) ) {
         logError("sglPolygon", "Too many vertices (max. %d)", MAXIMUM_SIDES_PER_POLYGON);
         return;
     }

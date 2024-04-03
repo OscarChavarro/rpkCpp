@@ -20,7 +20,7 @@ static void
 patchLazyCreateInteractions(Patch *patch) {
     GalerkinElement *topLevelElement = patchGalerkinElement(patch);
 
-    if ( !colorNull(topLevelElement->radiance[0]) && !(topLevelElement->flags & INTERACTIONS_CREATED_MASK)) {
+    if ( !colorNull(topLevelElement->radiance[0]) && !(topLevelElement->flags & INTERACTIONS_CREATED_MASK) ) {
         createInitialLinks(topLevelElement, SOURCE);
         topLevelElement->flags |= INTERACTIONS_CREATED_MASK;
     }
@@ -59,7 +59,7 @@ patchGather(Patch *patch) {
     // linking
     if ( GLOBAL_galerkin_state.iteration_method == GAUSS_SEIDEL || !GLOBAL_galerkin_state.lazy_linking ||
          GLOBAL_galerkin_state.importance_driven ) {
-        if ( !(topLevelElement->flags & INTERACTIONS_CREATED_MASK)) {
+        if ( !(topLevelElement->flags & INTERACTIONS_CREATED_MASK) ) {
             createInitialLinks(topLevelElement, RECEIVER);
             topLevelElement->flags |= INTERACTIONS_CREATED_MASK;
         }

@@ -324,7 +324,7 @@ CPhotonMapSampler::fresnelSample(
     DetermineRayType(thisNode, newNode, &dir);
 
     // Transfer
-    if ( !SampleTransfer(thisNode, newNode, &dir, pdfDir)) {
+    if ( !SampleTransfer(thisNode, newNode, &dir, pdfDir) ) {
         thisNode->m_rayType = STOPS;
         return false;
     }
@@ -387,7 +387,7 @@ CPhotonMapSampler::gdSample(
     if ( !chooseComponent(BRDF_DIFFUSE_COMPONENT & flags,
                           BRDF_GLOSSY_COMPONENT & flags,
                           bsdf, &thisNode->m_hit,
-                          doRR, &x1, &pdfChoice, &dChosen)) {
+                          doRR, &x1, &pdfChoice, &dChosen) ) {
         return false;
     }
 

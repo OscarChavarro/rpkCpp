@@ -453,7 +453,7 @@ Patch::quadUv(Patch *patch, Vector3D *point, Vector2Dd *uv) {
             // Case AD // BC
             vector2DAdd(AD, BC, Vector);
             u = vector2DDeterminant(AM, Vector) / vector2DDeterminant(AB, Vector);
-            if ((u >= 0.0) && (u <= 1.0)) {
+            if ( (u >= 0.0) && (u <= 1.0) ) {
                 b = vector2DDeterminant(AD, AB) - vector2DDeterminant(AM, AE);
                 c = vector2DDeterminant(AM, AB);
                 v = realAbs(b) < EPSILON ? -1 : c / b;
@@ -885,7 +885,7 @@ Patch::intersect(
         }
     } else if ( dist < -EPSILON ) {
         // Front facing patch
-        if ( !(hitFlags & HIT_FRONT)) {
+        if ( !(hitFlags & HIT_FRONT) ) {
             return nullptr;
         } else {
             hit.flags = HIT_FRONT;
@@ -914,7 +914,7 @@ Patch::intersect(
         hit.geometricNormal = normal;
         hit.flags |= HIT_PATCH | HIT_POINT | HIT_MATERIAL | HIT_GNORMAL | HIT_DIST;
         if ( hitFlags & HIT_UV ) {
-            if ( !(hit.flags & HIT_UV)) {
+            if ( !(hit.flags & HIT_UV) ) {
                 hit.patch->uv(&hit.point, &hit.uv.u, &hit.uv.v);
                 hit.flags &= HIT_UV;
             }

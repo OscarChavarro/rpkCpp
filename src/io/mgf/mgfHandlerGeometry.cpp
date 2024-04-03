@@ -83,7 +83,7 @@ getVertex(char *name, MgfContext *context) {
     }
 
     theVertex = (Vertex *) (vp->clientData);
-    if ( !theVertex || vp->clock >= 1 || vp->xid != TRANSFORM_XID(context->transformContext) || is0Vector(vp->n)) {
+    if ( !theVertex || vp->clock >= 1 || vp->xid != TRANSFORM_XID(context->transformContext) || is0Vector(vp->n) ) {
         // New vertex, or updated vertex or same vertex, but other transform, or
         // vertex without normal: create a new Vertex
         VECTOR3Dd vert;
@@ -93,7 +93,7 @@ getVertex(char *name, MgfContext *context) {
 
         mgfTransformPoint(vert, vp->p, context);
         thePoint = installPoint((float)vert[0], (float)vert[1], (float)vert[2], context);
-        if ( is0Vector(vp->n)) {
+        if ( is0Vector(vp->n) ) {
             theNormal = nullptr;
         } else {
             mgfTransformVector(norm, vp->n, context);
@@ -303,7 +303,7 @@ segmentsIntersect2D(Vector2D *p1, Vector2D *p2, Vector2D *p3, Vector2D *p4) {
 
         if ( std::fabs(r3) < EPSILON && std::fabs(r4) < EPSILON ) {
             coLinear = true;
-        } else if ((r3 > -EPSILON && r4 > -EPSILON) || (r3 < EPSILON && r4 < EPSILON)) {
+        } else if ((r3 > -EPSILON && r4 > -EPSILON) || (r3 < EPSILON && r4 < EPSILON) ) {
             return false;
         }
     }
@@ -327,7 +327,7 @@ segmentsIntersect2D(Vector2D *p1, Vector2D *p2, Vector2D *p3, Vector2D *p4) {
 
             if ( std::fabs(r1) < EPSILON && std::fabs(r2) < EPSILON ) {
                 coLinear = true;
-            } else if ((r1 > -EPSILON && r2 > -EPSILON) || (r1 < EPSILON && r2 < EPSILON)) {
+            } else if ( (r1 > -EPSILON && r2 > -EPSILON) || (r1 < EPSILON && r2 < EPSILON) ) {
                 return false;
             }
         }
@@ -430,7 +430,7 @@ doComplexFace(int n, Vertex **v, Vector3D *normal, Vertex **backVertex, MgfConte
                         continue;
                     }
 
-                    if ( pointInsideTriangle2D(&q[i], &q[p0], &q[p1], &q[p2])) {
+                    if ( pointInsideTriangle2D(&q[i], &q[p0], &q[p1], &q[p2]) ) {
                         good = false;
                     }
 
@@ -439,7 +439,7 @@ doComplexFace(int n, Vertex **v, Vector3D *normal, Vertex **backVertex, MgfConte
                         continue;
                     }
 
-                    if ( segmentsIntersect2D(&q[p2], &q[p0], &q[i], &q[j])) {
+                    if ( segmentsIntersect2D(&q[p2], &q[p0], &q[i], &q[j]) ) {
                         good = false;
                     }
                 }
@@ -510,7 +510,7 @@ handleFaceEntity(int argc, char **argv, MgfContext *context) {
             backV[i] = getBackFaceVertex(v[i], context);
     }
 
-    if ( !faceNormal(argc - 1, v, &normal)) {
+    if ( !faceNormal(argc - 1, v, &normal) ) {
         doWarning("degenerate face", context);
         return MGF_OK; // Just ignore the generated face
     }
@@ -529,7 +529,7 @@ handleFaceEntity(int argc, char **argv, MgfContext *context) {
         }
     } else if ( argc == 5 ) {
             // Quadrilaterals
-            if ( context->inComplex || faceIsConvex(argc - 1, v, &normal)) {
+            if ( context->inComplex || faceIsConvex(argc - 1, v, &normal) ) {
                 face = newFace(v[0], v[1], v[2], v[3], context);
                 if ( !context->currentMaterial->sided && face != nullptr ) {
                     twin = newFace(backV[3], backV[2], backV[1], backV[0], context);
@@ -808,7 +808,7 @@ handleVertexEntity(int ac, char **av, MgfContext *context) {
             if ( ac != 4 ) {
                 return MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
             }
-            if ( !isFloatWords(av[1]) || !isFloatWords(av[2]) || !isFloatWords(av[3])) {
+            if ( !isFloatWords(av[1]) || !isFloatWords(av[2]) || !isFloatWords(av[3]) ) {
                 return MGF_ERROR_ARGUMENT_TYPE;
             }
             globalMgfCurrentVertex->p[0] = strtod(av[1], nullptr);
@@ -821,7 +821,7 @@ handleVertexEntity(int ac, char **av, MgfContext *context) {
             if ( ac != 4 ) {
                 return MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
             }
-            if ( !isFloatWords(av[1]) || !isFloatWords(av[2]) || !isFloatWords(av[3])) {
+            if ( !isFloatWords(av[1]) || !isFloatWords(av[2]) || !isFloatWords(av[3]) ) {
                 return MGF_ERROR_ARGUMENT_TYPE;
             }
             globalMgfCurrentVertex->n[0] = strtod(av[1], nullptr);

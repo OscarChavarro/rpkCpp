@@ -29,7 +29,7 @@ BounceDiffuseOrGlossy(SimpleRaytracingPathNode *node) {
 
 static bool
 DoImportanceStore(CImportanceMap *map, SimpleRaytracingPathNode *node, COLOR importance) {
-    if ( HasDiffuseOrGlossy(node)) {
+    if ( HasDiffuseOrGlossy(node) ) {
         float importanceF = colorAverage(importance);
         float potentialF = 1.0; // COLOR_AVERAGE(potential) * Ax;
 

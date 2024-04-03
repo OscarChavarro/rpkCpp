@@ -247,7 +247,7 @@ CommandLineOptions GLOBAL_options_setFalseType = {
 /* ------------------- float option values --------------------- */
 static int
 optionsGetfloat(float *x, void * /*data*/) {
-    if ( !optionsGetArgumentFloatValue("%f", x)) {
+    if ( !optionsGetArgumentFloatValue("%f", x) ) {
         fprintf(stderr, "'%s' is not a valid floating point value\n", *globalCurrentArgumentValue);
         return false;
     }
@@ -388,14 +388,14 @@ optionsProcessArguments(CommandLineOptionDescription *options) {
         int ok = true;
         if ( opt->type ) {
             if ((opt->type == &GLOBAL_options_setTrueType) ||
-                (opt->type == &GLOBAL_options_setFalseType)) {
-                if ( !opt->type->get(opt->value ? opt->value : opt->type->dummy, opt->type->data)) {
+                (opt->type == &GLOBAL_options_setFalseType) ) {
+                if ( !opt->type->get(opt->value ? opt->value : opt->type->dummy, opt->type->data) ) {
                     ok = false;
                 }
             } else {
                 optionsConsumeArgument();
-                if ( optionsArgumentsRemaining()) {
-                    if ( !opt->type->get(opt->value ? opt->value : opt->type->dummy, opt->type->data)) {
+                if ( optionsArgumentsRemaining() ) {
+                    if ( !opt->type->get(opt->value ? opt->value : opt->type->dummy, opt->type->data) ) {
                         ok = false;
                     }
                 } else {

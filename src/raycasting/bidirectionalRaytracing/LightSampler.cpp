@@ -82,7 +82,7 @@ UniformLightSampler::sample(
     }
 
     // Choose point (uniform for real, sampled for background)
-    if ( light->hasZeroVertices()) {
+    if ( light->hasZeroVertices() ) {
         double pdf;
         Vector3D dir = edfSample(light->surface->material->edf, &(thisNode->m_hit), flags, x1, x2, nullptr, &pdf);
         vectorSubtract(thisNode->m_hit.point, dir, point);   // fake hit at distance 1!

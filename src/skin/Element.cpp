@@ -72,7 +72,7 @@ Element::childContainingElement(Element *descendant) {
 Call traversalCallbackFunction for each leaf element of element
 */
 void
-Element::traverseAllLeafElements(void (*traversalCallbackFunction)(Element *)) {
+Element::traverseAllLeafElements(void (*traversalCallbackFunction)(Element *) ) {
     for ( int i = 0; irregularSubElements != nullptr && i < irregularSubElements->size(); i++ ) {
         irregularSubElements->get(i)->traverseAllLeafElements(traversalCallbackFunction);
     }

@@ -151,7 +151,7 @@ hierarchicRefinementLinkErrorThreshold(
     // instead of weighting the error, we weight the threshold with the inverse
     if ( state->importance_driven &&
          (state->iteration_method == JACOBI ||
-          state->iteration_method == GAUSS_SEIDEL)) {
+          state->iteration_method == GAUSS_SEIDEL) ) {
         threshold /= 2.0 * link->receiverElement->potential / GLOBAL_statistics.maxDirectPotential;
     }
 

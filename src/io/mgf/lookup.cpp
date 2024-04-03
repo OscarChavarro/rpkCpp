@@ -164,7 +164,7 @@ lookUpFind(LookUpTable *tbl, char *key) {
                 return le;
             }
             if ( le->value == hVal &&
-                 (tbl->keyCompareFunction == nullptr || (*tbl->keyCompareFunction)(le->key, key) == 0)) {
+                 (tbl->keyCompareFunction == nullptr || (*tbl->keyCompareFunction)(le->key, key) == 0) ) {
                 return le;
             }
 
@@ -179,7 +179,7 @@ lookUpFind(LookUpTable *tbl, char *key) {
         }
         while ( i < tbl->currentTableSize );
 
-        if ( !lookUpReAlloc(tbl, tbl->currentTableSize - tbl->numberOfDeletedEntries + 1)) {
+        if ( !lookUpReAlloc(tbl, tbl->currentTableSize - tbl->numberOfDeletedEntries + 1) ) {
             // Table is full, reallocate
             return nullptr;
         }

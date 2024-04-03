@@ -32,7 +32,7 @@ phongEmittance(PhongEmittanceDistributionFunctions *edf, RayHit * /*hit*/, char 
         colorAdd(result, edf->Kd, result);
     }
 
-    if ( PHONG_IS_SPECULAR(*edf)) {
+    if ( PHONG_IS_SPECULAR(*edf) ) {
         if ( flags & SPECULAR_COMPONENT ) {
             colorAdd(result, edf->Ks, result);
         }
@@ -151,7 +151,7 @@ phongEdfSample(
         CoordSys coord;
 
         Vector3D normal;
-        if ( !hitShadingNormal(hit, &normal)) {
+        if ( !hitShadingNormal(hit, &normal) ) {
             logWarning("phongEdfEval", "Couldn't determine shading normal");
             return dir;
         }

@@ -427,7 +427,7 @@ KDTree::queryRec(const KDTreeNode *node) {
     dist *= dist; // Square distance to the separator plane
     if ( (farNode) && (((GLOBAL_qDatS.foundN < GLOBAL_qDatS.wantedN) &&
                         (dist < GLOBAL_qDatS.sqrRadius)) ||
-                       (dist < GLOBAL_qDatS.maximumDistance))) {
+                       (dist < GLOBAL_qDatS.maximumDistance)) ) {
         // Discriminator line closer than maximumDistance : nearer positions can lie
         // on the far side. Or there are still not enough nodes found
         queryRec(farNode);
@@ -467,7 +467,7 @@ KDTree::BQuery_rec(int index) {
         dist *= dist; // Square distance to the separator plane
         if ((farIndex < m_numBalanced) && (((GLOBAL_qDatS.notFilled) && // qdat_s.foundN < qdat_s.wantedN
                                             (dist < GLOBAL_qDatS.sqrRadius)) ||
-                                           (dist < GLOBAL_qDatS.maximumDistance))) {
+                                           (dist < GLOBAL_qDatS.maximumDistance)) ) {
             // Discriminator line closer than maximumDistance : nearer positions can lie
             // on the far side. Or there are still not enough nodes found
             BQuery_rec(farIndex);

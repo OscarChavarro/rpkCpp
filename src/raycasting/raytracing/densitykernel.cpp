@@ -82,8 +82,7 @@ CKernel2D::Cover(const Vector2D &point, float scale, COLOR &col, ScreenBuffer *s
 
     for ( nx = nx_min; nx <= nx_max; nx++ ) {
         for ( ny = ny_min; ny <= ny_max; ny++ ) {
-            if ((nx >= 0) && (ny >= 0) && (nx < screen->getHRes()) &&
-                (ny < screen->getVRes())) {
+            if ( (nx >= 0) && (ny >= 0) && (nx < screen->getHRes()) && (ny < screen->getVRes()) ) {
                 center = screen->getPixelCenter(nx, ny);
                 factor = scale * Evaluate(point, center);
                 colorScale(factor, col, addCol);

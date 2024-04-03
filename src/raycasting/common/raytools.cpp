@@ -59,7 +59,7 @@ findRayIntersection(
     // Robustness test : If a back is hit, check the current
     // bsdf and the bsdf of the material hit. If they
     // don't match, exclude this patch and trace again :-(
-    if ( newHit != nullptr && (newHit->flags & HIT_BACK)) {
+    if ( newHit != nullptr && (newHit->flags & HIT_BACK) ) {
         if ( newHit->patch->surface->material->bsdf != currentBsdf ) {
             // Whoops, intersected with wrong patch (accuracy problem)
             newHit = traceWorld(ray, patch, hitFlags, newHit->patch, hitStore);
@@ -135,7 +135,7 @@ pathNodesVisible(SimpleRaytracingPathNode *node1, SimpleRaytracingPathNode *node
     }
 
     if ( doTest ) {
-        if ( node2->m_hit.patch->hasZeroVertices()) {
+        if ( node2->m_hit.patch->hasZeroVertices() ) {
             fDistance = HUGE;
         } else {
             fDistance = (float) dist;
