@@ -352,8 +352,8 @@ hierarchicRefinementComputeLightTransport(
 {
     // Update the number of effectively used radiance coefficients on the
     // receiver element
-    int a = intMin(link->nrcv, link->receiverElement->basisSize);
-    int b = intMin(link->nsrc, link->sourceElement->basisSize);
+    int a = intMin(link->numberOfBasisFunctionsOnReceiver, link->receiverElement->basisSize);
+    int b = intMin(link->numberOfBasisFunctionsOnSource, link->sourceElement->basisSize);
     if ( a > link->receiverElement->basisUsed ) {
         link->receiverElement->basisUsed = (char)a;
     }
@@ -379,14 +379,14 @@ hierarchicRefinementComputeLightTransport(
         clusterGatherRadiance(link, srcRad);
     } else {
         rcvRad = link->receiverElement->receivedRadiance;
-        if ( link->nrcv == 1 && link->nsrc == 1 ) {
+        if ( link->numberOfBasisFunctionsOnReceiver == 1 && link->numberOfBasisFunctionsOnSource == 1 ) {
             colorAddScaled(rcvRad[0], link->K[0], srcRad[0], rcvRad[0]);
         } else {
             for ( int alpha = 0; alpha < a; alpha++ ) {
                 for ( int beta = 0; beta < b; beta++ ) {
                     colorAddScaled(
                      rcvRad[alpha],
-                     link->K[alpha * link->nsrc + beta],
+                     link->K[alpha * link->numberOfBasisFunctionsOnSource + beta],
                      srcRad[beta],
                      rcvRad[alpha]);
                 }
@@ -441,22 +441,22 @@ hierarchicRefinementCreateSubdivisionLink(
 
     // Always a constant approximation on cluster elements
     if ( link->receiverElement->isCluster() ) {
-        link->nrcv = 1;
+        link->numberOfBasisFunctionsOnReceiver = 1;
     } else {
-        link->nrcv = rcv->basisSize;
+        link->numberOfBasisFunctionsOnReceiver = rcv->basisSize;
     }
 
     if ( link->sourceElement->isCluster() ) {
-        link->nsrc = 1;
+        link->numberOfBasisFunctionsOnSource = 1;
     } else {
-        link->nsrc = src->basisSize;
+        link->numberOfBasisFunctionsOnSource = src->basisSize;
     }
 
     bool isSceneGeometry = (candidatesList == GLOBAL_scene_geometries);
     bool isClusteredGeometry = (candidatesList == GLOBAL_scene_clusteredGeometries);
     areaToAreaFormFactor(link, candidatesList, isSceneGeometry, isClusteredGeometry);
 
-    return link->vis != 0;
+    return link->visibility != 0;
 }
 
 /**
@@ -673,7 +673,7 @@ static bool
 refineInteraction(Interaction *link, GalerkinState *state) {
     java::ArrayList<Geometry *> *candidateOccluderList = GLOBAL_scene_clusteredGeometries;
 
-    if ( state->exact_visibility && link->vis == 255 ) {
+    if ( state->exact_visibility && link->visibility == 255 ) {
         candidateOccluderList = nullptr;
     }
 

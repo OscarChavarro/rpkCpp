@@ -241,13 +241,13 @@ doHigherOrderAreaToAreaFormFactor(
     for ( k = 0; k < crrcv->numberOfNodes; k++ ) {
         if ( rcv->isCluster() ) {
             // Constant approximation on clusters
-            if ( link->nrcv != 1 ) {
+            if ( link->numberOfBasisFunctionsOnReceiver != 1 ) {
                 logFatal(-1, "doHigherOrderAreaToAreaFormFactor",
                          "non-constant approximation on receiver cluster is not possible");
             }
             rcvphi[0][k] = 1.0;
         } else {
-            for ( alpha = 0; alpha < link->nrcv && rcvbasis != nullptr; alpha++ ) {
+            for ( alpha = 0; alpha < link->numberOfBasisFunctionsOnReceiver && rcvbasis != nullptr; alpha++ ) {
                 rcvphi[alpha][k] = rcvbasis->function[alpha](crrcv->u[k], crrcv->v[k]);
             }
         }
@@ -256,7 +256,7 @@ doHigherOrderAreaToAreaFormFactor(
 
     Gmin = HUGE;
     Gmax = -HUGE;
-    for ( beta = 0; beta < link->nsrc; beta++ ) {
+    for ( beta = 0; beta < link->numberOfBasisFunctionsOnSource; beta++ ) {
         // Determine basis function values \phi_{j,\beta}(x_l) at sample positions on the source patch
         if ( src->isCluster() ) {
             if ( beta > 0 ) {
@@ -285,14 +285,14 @@ doHigherOrderAreaToAreaFormFactor(
             delta_beta[k] = -G_beta[k];
         }
 
-        for ( alpha = 0; alpha < link->nrcv; alpha++ ) {
+        for ( alpha = 0; alpha < link->numberOfBasisFunctionsOnReceiver; alpha++ ) {
             // Compute patch-to-patch form factor for basis function alpha on the
             // receiver and beta on the source
             G_alpha_beta = 0.0;
             for ( k = 0; k < crrcv->numberOfNodes; k++ ) {
                 G_alpha_beta += crrcv->w[k] * rcvphi[alpha][k] * G_beta[k];
             }
-            link->K[alpha * link->nsrc + beta] = (float)(rcv->area * G_alpha_beta);
+            link->K[alpha * link->numberOfBasisFunctionsOnSource + beta] = (float)(rcv->area * G_alpha_beta);
 
             // Second part of error estimate at receiver node x_k
             for ( k = 0; k < crrcv->numberOfNodes; k++ ) {
@@ -335,7 +335,7 @@ doHigherOrderAreaToAreaFormFactor(
             }
         }
     }
-    link->crcv = 1; // One error estimation coefficient
+    link->numberOfReceiverCubaturePositions = 1; // One error estimation coefficient
 }
 
 /**
@@ -383,19 +383,19 @@ doConstantAreaToAreaFormFactor(
         link->deltaK.f = (float)(Gmax - G);
     }
 
-    link->crcv = 1;
+    link->numberOfReceiverCubaturePositions = 1;
 }
 
 /**
 Area (or volume) to area (or volume) form factor:
 
-IN: 	link->rcv, link->src, link->nrcv, link->nsrc: receiver and source element
+IN: 	link->rcv, link->src, link->numberOfBasisFunctionsOnReceiver, link->numberOfBasisFunctionsOnSource: receiver and source element
 and the number of basis functions to consider on them.
 shadowlist: a list of possible occluders.
 OUT: link->K, link->deltaK: generalized form factor(s) and error estimation
 coefficients (to be used in the refinement oracle hierarchicRefinementEvaluateInteraction()
 in hierefine.c.
-link->crcv: number of error estimation coefficients (only 1 for the moment)
+link->numberOfReceiverCubaturePositions: number of error estimation coefficients (only 1 for the moment)
 link->vis: visibility factor: 255 for total visibility, 0 for total
 occludedness
 
@@ -461,42 +461,42 @@ areaToAreaFormFactor(
         // Do not allow interactions between a pair of overlapping source and receiver
         if ( !rcvBounds.disjointToOtherBoundingBox(&srcBounds) ) {
             // Take 0 as form factor
-            if ( link->nrcv == 1 && link->nsrc == 1 ) {
+            if ( link->numberOfBasisFunctionsOnReceiver == 1 && link->numberOfBasisFunctionsOnSource == 1 ) {
                 link->K[0] = 0.0;
             } else {
                 int i;
-                for ( i = 0; i < link->nrcv * link->nsrc; i++ ) {
+                for ( i = 0; i < link->numberOfBasisFunctionsOnReceiver * link->numberOfBasisFunctionsOnSource; i++ ) {
                     link->K[i] = 0.0;
                 }
             }
 
             // And a large error on the form factor
             link->deltaK.f = 1.0;
-            link->crcv = 1;
+            link->numberOfReceiverCubaturePositions = 1;
 
             // And half visibility
-            return link->vis = 128;
+            return link->visibility = 128;
         }
     } else {
         // We assume that no light transport can take place between a surface element
         // and itself. It would cause trouble if we would go on b.t.w.
         if ( rcv == src ) {
             // Take 0. as form factor
-            if ( link->nrcv == 1 && link->nsrc == 1 ) {
+            if ( link->numberOfBasisFunctionsOnReceiver == 1 && link->numberOfBasisFunctionsOnSource == 1 ) {
                 link->K[0] = 0.0;
             } else {
                 int i;
-                for ( i = 0; i < link->nrcv * link->nsrc; i++ ) {
+                for ( i = 0; i < link->numberOfBasisFunctionsOnReceiver * link->numberOfBasisFunctionsOnSource; i++ ) {
                     link->K[i] = 0.0;
                 }
             }
 
             // And a 0 error on the form factor
             link->deltaK.f = 0.0;
-            link->crcv = 1;
+            link->numberOfReceiverCubaturePositions = 1;
 
             // And full occlusion
-            return link->vis = 0;
+            return link->visibility = 0;
         }
     }
 
@@ -556,7 +556,7 @@ areaToAreaFormFactor(
 
     if ( viscount != 0 ) {
         // Actually compute the form factors
-        if ( link->nrcv == 1 && link->nsrc == 1 ) {
+        if ( link->numberOfBasisFunctionsOnReceiver == 1 && link->numberOfBasisFunctionsOnSource == 1 ) {
             doConstantAreaToAreaFormFactor(link, crrcv, crsrc, Gxy);
         } else {
             doHigherOrderAreaToAreaFormFactor(link, crrcv, crsrc, Gxy);
@@ -572,12 +572,12 @@ areaToAreaFormFactor(
     }
 
     // Returns the visibility: basically the fraction of rays that did not hit an occluder
-    link->vis = (unsigned) (255.0 * (double) viscount / (double) (crrcv->numberOfNodes * crsrc->numberOfNodes));
+    link->visibility = (unsigned) (255.0 * (double) viscount / (double) (crrcv->numberOfNodes * crsrc->numberOfNodes));
 
-    if ( GLOBAL_galerkin_state.exact_visibility && geometryShadowList != nullptr && link->vis == 255 ) {
+    if ( GLOBAL_galerkin_state.exact_visibility && geometryShadowList != nullptr && link->visibility == 255 ) {
         // Not full visibility, we missed the shadow!
-        link->vis = 254;
+        link->visibility = 254;
     }
 
-    return link->vis;
+    return link->visibility;
 }

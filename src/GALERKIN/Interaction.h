@@ -21,10 +21,10 @@ class Interaction {
     GalerkinElement *sourceElement;
     float *K; // Coupling coefficient(s), stored top to bottom, left to right
     FloatOrPointer deltaK; // Used for approximation error estimation over the link
-    unsigned char nrcv; // Number of basis functions on receiver and source
-    unsigned char nsrc;
-    unsigned char crcv; // Number of cubature positions on receiver
-    unsigned char vis; // 255 for full visibility, 0 for full occlusion
+    unsigned char numberOfBasisFunctionsOnReceiver;
+    unsigned char numberOfBasisFunctionsOnSource;
+    unsigned char numberOfReceiverCubaturePositions;
+    unsigned char visibility; // 255 for full visibility, 0 for full occlusion
 
     Interaction();
     explicit Interaction(
@@ -32,10 +32,10 @@ class Interaction {
         GalerkinElement *src,
         const float *K,
         FloatOrPointer deltaK,
-        unsigned char nrcv,
-        unsigned char nsrc,
-        unsigned char crcv,
-        unsigned char vis
+        unsigned char inNumberOfBasisFunctionsOnReceiver,
+        unsigned char inNumberOfBasisFunctionsOnSource,
+        unsigned char inNumberOfReceiverCubaturePositions,
+        unsigned char inVisibility
     );
 };
 

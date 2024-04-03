@@ -71,11 +71,11 @@ createInitialLink(Patch *patch) {
     link.sourceElement = src;
 
     if ( rcv != nullptr ) {
-        link.nrcv = rcv->basisSize;
+        link.numberOfBasisFunctionsOnReceiver = rcv->basisSize;
     }
 
     if ( src != nullptr ) {
-        link.nsrc = src->basisSize;
+        link.numberOfBasisFunctionsOnSource = src->basisSize;
     }
 
     bool isSceneGeometry = (globalCandidateList == GLOBAL_scene_geometries);
@@ -90,7 +90,7 @@ createInitialLink(Patch *patch) {
         globalCandidateList = oldCandidateList;
     }
 
-    if ( link.vis > 0 ) {
+    if ( link.visibility > 0 ) {
         Interaction *newLink = interactionDuplicate(&link);
         // Store interactions with the source patch for the progressive radiosity method
         // and with the receiving patch for gathering methods

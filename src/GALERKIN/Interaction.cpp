@@ -37,10 +37,10 @@ Interaction::Interaction():
     sourceElement(),
     K(),
     deltaK(),
-    nrcv(),
-    nsrc(),
-    crcv(),
-    vis() {
+    numberOfBasisFunctionsOnReceiver(),
+    numberOfBasisFunctionsOnSource(),
+    numberOfReceiverCubaturePositions(),
+    visibility() {
 }
 
 Interaction::Interaction(
@@ -48,29 +48,29 @@ Interaction::Interaction(
     GalerkinElement *src,
     const float *K,
     FloatOrPointer deltaK,
-    unsigned char nrcv,
-    unsigned char nsrc,
-    unsigned char crcv,
-    unsigned char vis
+    unsigned char inNumberOfBasisFunctionsOnReceiver,
+    unsigned char inNumberOfBasisFunctionsOnSource,
+    unsigned char inNumberOfReceiverCubaturePositions,
+    unsigned char inVisibility
 ): K(), deltaK() {
     this->receiverElement = rcv;
     this->sourceElement = src;
-    this->nrcv = nrcv;
-    this->nsrc = nsrc;
-    this->crcv = crcv;
-    this->vis = vis;
+    this->numberOfBasisFunctionsOnReceiver = inNumberOfBasisFunctionsOnReceiver;
+    this->numberOfBasisFunctionsOnSource = inNumberOfBasisFunctionsOnSource;
+    this->numberOfReceiverCubaturePositions = inNumberOfReceiverCubaturePositions;
+    this->visibility = inVisibility;
 
-    if ( nrcv == 1 && nsrc == 1 ) {
+    if ( inNumberOfBasisFunctionsOnReceiver == 1 && inNumberOfBasisFunctionsOnSource == 1 ) {
         this->K = new float[1];
         *this->K = *K;
     } else {
-        this->K = new float[nrcv * nsrc];
-        for ( int i = 0; i < nrcv * nsrc; i++ ) {
+        this->K = new float[inNumberOfBasisFunctionsOnReceiver * inNumberOfBasisFunctionsOnSource];
+        for ( int i = 0; i < inNumberOfBasisFunctionsOnReceiver * inNumberOfBasisFunctionsOnSource; i++ ) {
             this->K[i] = K[i];
         }
     }
 
-    if ( crcv > 1 ) {
+    if ( inNumberOfReceiverCubaturePositions > 1 ) {
         logFatal(2, "interactionCreate", "Not yet implemented for higher order approximations");
     }
     this->deltaK.f = deltaK.f;
@@ -98,10 +98,10 @@ interactionDuplicate(Interaction *interaction) {
         interaction->sourceElement,
         interaction->K,
         interaction->deltaK,
-        interaction->nrcv,
-        interaction->nsrc,
-        interaction->crcv,
-        interaction->vis
+        interaction->numberOfBasisFunctionsOnReceiver,
+        interaction->numberOfBasisFunctionsOnSource,
+        interaction->numberOfReceiverCubaturePositions,
+        interaction->visibility
     );
 }
 
@@ -110,7 +110,7 @@ interactionDestroy(Interaction *interaction) {
     GalerkinElement *src = interaction->sourceElement;
     GalerkinElement *rcv = interaction->receiverElement;
 
-    if ( interaction->nrcv > 1 || interaction->nsrc > 1 ) {
+    if ( interaction->numberOfBasisFunctionsOnReceiver > 1 || interaction->numberOfBasisFunctionsOnSource > 1 ) {
         delete[] interaction->K;
     }
 
