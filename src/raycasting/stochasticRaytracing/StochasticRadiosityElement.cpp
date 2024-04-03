@@ -87,10 +87,10 @@ static int globalCoefficientPoolsInitialized = false;
 static void
 vertexAttachElement(Vertex *v, StochasticRadiosityElement *elem) {
     elem->className = ElementTypes::ELEMENT_STOCHASTIC_RADIOSITY;
-    if ( v->radiance_data == nullptr ) {
-        v->radiance_data = new java::ArrayList<Element *>();
+    if ( v->radianceData == nullptr ) {
+        v->radianceData = new java::ArrayList<Element *>();
     }
-    v->radiance_data->add(0, elem);
+    v->radianceData->add(0, elem);
 }
 
 static void
@@ -493,8 +493,8 @@ monteCarloRadiosityElementNeighbour(StochasticRadiosityElement *elem, int edgeNu
     Vertex *from = elem->vertices[edgeNumber];
     Vertex *to = elem->vertices[(edgeNumber + 1) % elem->numberOfVertices];
 
-    for ( int i = 0; to->radiance_data != nullptr && i < to->radiance_data->size(); i++ ) {
-        Element *element = to->radiance_data->get(i);
+    for ( int i = 0; to->radianceData != nullptr && i < to->radianceData->size(); i++ ) {
+        Element *element = to->radianceData->get(i);
         if ( element->className != ElementTypes::ELEMENT_STOCHASTIC_RADIOSITY ) {
             continue;
         }
@@ -861,11 +861,11 @@ monteCarloRadiosityDestroyElement(StochasticRadiosityElement *elem) {
         delete[] elem->regularSubElements;
     }
     for ( int i = 0; i < elem->numberOfVertices; i++ ) {
-        for ( int j = 0; elem->vertices[i]->radiance_data != nullptr && j < elem->vertices[i]->radiance_data->size(); j++ ) {
-            delete elem->vertices[i]->radiance_data->get(j);
+        for ( int j = 0; elem->vertices[i]->radianceData != nullptr && j < elem->vertices[i]->radianceData->size(); j++ ) {
+            delete elem->vertices[i]->radianceData->get(j);
         }
-        delete elem->vertices[i]->radiance_data;
-        elem->vertices[i]->radiance_data = nullptr;
+        delete elem->vertices[i]->radianceData;
+        elem->vertices[i]->radianceData = nullptr;
     }
     disposeCoefficients(elem);
     delete elem;

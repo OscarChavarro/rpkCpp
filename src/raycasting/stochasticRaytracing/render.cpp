@@ -38,8 +38,8 @@ vertexRadiance(Vertex *v) {
     COLOR radiance;
 
     colorClear(radiance);
-    for ( int i = 0; v->radiance_data != nullptr && i < v->radiance_data->size(); i++ ) {
-        Element *element = v->radiance_data->get(i);
+    for ( int i = 0; v->radianceData != nullptr && i < v->radianceData->size(); i++ ) {
+        Element *element = v->radianceData->get(i);
         if ( element->className != ElementTypes::ELEMENT_STOCHASTIC_RADIOSITY ) {
             continue;
         }
@@ -66,8 +66,8 @@ vertexImportance(Vertex *v) {
     int count = 0;
     float imp = 0.0;
 
-    for ( int i = 0; v->radiance_data != nullptr && i < v->radiance_data->size(); i++ ) {
-        Element *genericElement = v->radiance_data->get(i);
+    for ( int i = 0; v->radianceData != nullptr && i < v->radianceData->size(); i++ ) {
+        Element *genericElement = v->radianceData->get(i);
         if ( genericElement->className != ElementTypes::ELEMENT_STOCHASTIC_RADIOSITY ) {
             continue;
         }

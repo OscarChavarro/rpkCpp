@@ -5,8 +5,8 @@
 static unsigned int vertex_compare_flags = VERTEX_COMPARE_LOCATION | VERTEX_COMPARE_NORMAL | VERTEX_COMPARE_TEXTURE_COORDINATE;
 
 Vertex::Vertex(): id(), point(), normal(),
-texCoord(), color(), radiance_data(), back(), patches(),
-tmp()
+                  texCoord(), color(), radianceData(), back(), patches(),
+                  tmp()
 {
 }
 
@@ -29,7 +29,7 @@ vertexCreate(Vector3D *point, Vector3D *normal, Vector3D *texCoord, java::ArrayL
     v->texCoord = texCoord;
     v->patches = patches;
     setRGB(v->color, 0.0f, 0.0f, 0.0f);
-    v->radiance_data = nullptr;
+    v->radianceData = nullptr;
     v->back = (Vertex *)nullptr;
 
     return v;

@@ -501,8 +501,8 @@ vertexReflectance(Vertex *v) {
     COLOR rd;
 
     colorClear(rd);
-    for ( int i = 0; v->radiance_data != nullptr && i < v->radiance_data->size(); i++ ) {
-        Element *genericElement = v->radiance_data->get(i);
+    for ( int i = 0; v->radianceData != nullptr && i < v->radianceData->size(); i++ ) {
+        Element *genericElement = v->radianceData->get(i);
         if ( genericElement->className != ElementTypes::ELEMENT_STOCHASTIC_RADIOSITY ) {
             continue;
         }
