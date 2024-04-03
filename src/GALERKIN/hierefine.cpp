@@ -690,7 +690,7 @@ removeRefinedInteractions(const GalerkinState *state, java::ArrayList<Interactio
         } else {
             interaction->receiverElement->interactions->remove(interaction);
         }
-        interactionDestroy(interaction);
+        delete interaction;
     }
 }
 

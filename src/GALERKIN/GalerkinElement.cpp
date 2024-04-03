@@ -187,7 +187,7 @@ GalerkinElement::~GalerkinElement() {
     }
 
     for ( int i = 0; interactions != nullptr && i < interactions->size(); i++ ) {
-        interactionDestroy(interactions->get(i));
+        delete interactions->get(i);
     }
     delete interactions;
 
