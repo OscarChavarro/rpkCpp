@@ -202,14 +202,14 @@ refineControlRadiosity(
         float radC[NUMBER_OF_INTERVALS + 1];
         for ( int i = 0; i <= NUMBER_OF_INTERVALS; i++ ) {
             // Copy components
-            fc[i] = f[i].spec[s];
-            radC[i] = rad[i].spec[s];
+            fc[i] = f[i].spectrum[s];
+            radC[i] = rad[i].spectrum[s];
         }
         refineComponent(
-            &(minRad->spec[s]),
-            &(maxRad->spec[s]),
-            &(fMin->spec[s]),
-            &(fMax->spec[s]),
+            &(minRad->spectrum[s]),
+            &(maxRad->spectrum[s]),
+            &(fMin->spectrum[s]),
+            &(fMax->spectrum[s]),
             fc,
             radC);
     }
