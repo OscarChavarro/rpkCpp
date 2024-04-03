@@ -32,9 +32,7 @@ digraph G {
     RefractionIndex [shape=box, style=filled, fillcolor="#ffff80"];
     PhongBiDirectionalReflectanceDistributionFunction [shape=box, style=filled, fillcolor="#ffff80"];
     COLOR [shape=box, style=filled, fillcolor="#ffff80"];
-    SPECTRUM [shape=box, style=filled, fillcolor="#ffff80"];
 
-    COLOR -> SPECTRUM;
     Vertex -> Vector3D;
     Vertex -> RGB;
     Vertex -> ArrayList;
@@ -87,5 +85,4 @@ digraph G {
     MeshSurface -> ArrayList;
     MeshSurface -> Material;
     Compound -> Geometry;
-    Compound
 }
