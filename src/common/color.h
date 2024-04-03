@@ -12,28 +12,36 @@ class COLOR {
 
     inline void
     print(FILE *fp) {
-        printSpectrum(fp, spec);
+        fprintf(fp, "%g %g %g", spec[0], spec[1], spec[2]);
     }
 };
 
 inline void
 colorClear(COLOR &c) {
-    clearSpectrum(c.spec);
+    c.spec[0] = 0;
+    c.spec[1] = 0;
+    c.spec[2] = 0;
 }
 
 inline void
 colorSet(COLOR &c, float v1, float v2, float v3) {
-    setSpectrum((c).spec, v1, v2, v3);
+    c.spec[0] = v1;
+    c.spec[1] = v2;
+    c.spec[2] = v3;
 }
 
 inline void
 colorSetMonochrome(COLOR &c, float v) {
-    setSpectrumMonochrome(c.spec, v);
+    c.spec[0] = v;
+    c.spec[1] = v;
+    c.spec[2] = v;
 }
 
 inline bool
 colorNull(COLOR &c) {
-    return isBlackSpectrum(c.spec);
+    return (c.spec[0] > -EPSILON && c.spec[0] < EPSILON &&
+            c.spec[1] > -EPSILON && c.spec[1] < EPSILON &&
+            c.spec[2] > -EPSILON && c.spec[2] < EPSILON);
 }
 
 inline void
@@ -108,7 +116,7 @@ colorMinimum(COLOR &s, COLOR &t, COLOR &r) {
 
 inline float
 colorAverage(COLOR &s) {
-    return spectrumAverage(s.spec);
+    return (s.spec[0] + s.spec[1] + s.spec[2]) / 3.0f;
 }
 
 inline float
