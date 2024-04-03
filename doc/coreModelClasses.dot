@@ -29,7 +29,7 @@ digraph G {
     TEXTURE [shape=box, style=filled, fillcolor="#ffff80"];
     PhongBidirectionalTransmittanceDistributionFunction [shape=box, style=filled, fillcolor="#ffff80"];
     RefractionIndex [shape=box, style=filled, fillcolor="#ffff80"];
-    PhongBiDirectionalReflectanceDistributionFunction [shape=box, style=filled, fillcolor="#ffff80"];
+    PhongBidirectionalReflectanceDistributionFunction [shape=box, style=filled, fillcolor="#ffff80"];
     COLOR [shape=box, style=filled, fillcolor="#ffff80"];
 
     Vertex -> Vector3D;
@@ -64,10 +64,10 @@ digraph G {
     Patch -> Geometry;
     Patch -> MeshSurface;
     PhongEmittanceDistributionFunctions -> COLOR;
-    PhongBiDirectionalReflectanceDistributionFunction -> COLOR;
+    PhongBidirectionalReflectanceDistributionFunction -> COLOR;
     PhongBidirectionalTransmittanceDistributionFunction -> COLOR;
     PhongBidirectionalTransmittanceDistributionFunction -> RefractionIndex;
-    BSDF -> PhongBiDirectionalReflectanceDistributionFunction;
+    BSDF -> PhongBidirectionalReflectanceDistributionFunction;
     BSDF -> PhongBidirectionalTransmittanceDistributionFunction;
     BSDF -> TEXTURE;
     Material -> PhongEmittanceDistributionFunctions;

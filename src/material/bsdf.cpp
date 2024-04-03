@@ -10,9 +10,9 @@ Bidirectional Reflectance Distribution Functions
 Creates a BSDF instance with given data and methods
 */
 BSDF::BSDF(
-    PhongBiDirectionalReflectanceDistributionFunction *brdf,
-    PhongBidirectionalTransmittanceDistributionFunction *btdf,
-    TEXTURE *texture)
+        PhongBidirectionalReflectanceDistributionFunction *brdf,
+        PhongBidirectionalTransmittanceDistributionFunction *btdf,
+        TEXTURE *texture)
 {
     this->brdf = brdf;
     this->btdf = btdf;

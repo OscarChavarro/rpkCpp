@@ -10,7 +10,7 @@ Bidirectional Reflectance Distribution Functions
 Returns the diffuse reflectance of the BRDF according to the flags
 */
 COLOR
-brdfReflectance(PhongBiDirectionalReflectanceDistributionFunction *brdf, char flags) {
+brdfReflectance(PhongBidirectionalReflectanceDistributionFunction *brdf, char flags) {
     if ( brdf != nullptr ) {
         COLOR test = phongReflectance(brdf, flags);
         if ( !std::isfinite(colorAverage(test)) ) {
@@ -29,11 +29,11 @@ Brdf evaluations
 */
 COLOR
 brdfEval(
-        PhongBiDirectionalReflectanceDistributionFunction *brdf,
-    Vector3D *in,
-    Vector3D *out,
-    Vector3D *normal,
-    char flags)
+        PhongBidirectionalReflectanceDistributionFunction *brdf,
+        Vector3D *in,
+        Vector3D *out,
+        Vector3D *normal,
+        char flags)
 {
     if ( brdf != nullptr ) {
         return phongBrdfEval(brdf, in, out, normal, flags);
@@ -49,14 +49,14 @@ Sampling and Probability Density Function evaluation
 */
 Vector3D
 brdfSample(
-    PhongBiDirectionalReflectanceDistributionFunction *brdf,
-    Vector3D *in,
-    Vector3D *normal,
-    int doRussianRoulette,
-    char flags,
-    double x_1,
-    double x_2,
-    double *probabilityDensityFunction)
+        PhongBidirectionalReflectanceDistributionFunction *brdf,
+        Vector3D *in,
+        Vector3D *normal,
+        int doRussianRoulette,
+        char flags,
+        double x_1,
+        double x_2,
+        double *probabilityDensityFunction)
 {
     if ( brdf != nullptr ) {
         return phongBrdfSample(brdf, in, normal,
@@ -70,13 +70,13 @@ brdfSample(
 
 void
 brdfEvalPdf(
-    PhongBiDirectionalReflectanceDistributionFunction *brdf,
-    Vector3D *in,
-    Vector3D *out,
-    Vector3D *normal,
-    char flags,
-    double *probabilityDensityFunction,
-    double *probabilityDensityFunctionRR)
+        PhongBidirectionalReflectanceDistributionFunction *brdf,
+        Vector3D *in,
+        Vector3D *out,
+        Vector3D *normal,
+        char flags,
+        double *probabilityDensityFunction,
+        double *probabilityDensityFunctionRR)
 {
     if ( brdf != nullptr ) {
         phongBrdfEvalPdf(brdf, in, out,

@@ -9,10 +9,10 @@ Bidirectional Reflectance Distribution Functions
 
 class BRDF {
   public:
-    PhongBiDirectionalReflectanceDistributionFunction *data;
+    PhongBidirectionalReflectanceDistributionFunction *data;
 };
 
-extern COLOR brdfReflectance(PhongBiDirectionalReflectanceDistributionFunction *brdf, char flags);
+extern COLOR brdfReflectance(PhongBidirectionalReflectanceDistributionFunction *brdf, char flags);
 
 /**
 BRDF evaluation functions :
@@ -25,31 +25,31 @@ BRDF evaluation functions :
 
 extern COLOR
 brdfEval(
-    PhongBiDirectionalReflectanceDistributionFunction *brdf,
-    Vector3D *in,
-    Vector3D *out,
-    Vector3D *normal,
-    char flags);
+        PhongBidirectionalReflectanceDistributionFunction *brdf,
+        Vector3D *in,
+        Vector3D *out,
+        Vector3D *normal,
+        char flags);
 
 extern Vector3D
 brdfSample(
-    PhongBiDirectionalReflectanceDistributionFunction *brdf,
-    Vector3D *in,
-    Vector3D *normal,
-    int doRussianRoulette,
-    char flags,
-    double x_1,
-    double x_2,
-    double *probabilityDensityFunction);
+        PhongBidirectionalReflectanceDistributionFunction *brdf,
+        Vector3D *in,
+        Vector3D *normal,
+        int doRussianRoulette,
+        char flags,
+        double x_1,
+        double x_2,
+        double *probabilityDensityFunction);
 
 extern void
 brdfEvalPdf(
-    PhongBiDirectionalReflectanceDistributionFunction *brdf,
-    Vector3D *in,
-    Vector3D *out,
-    Vector3D *normal,
-    char flags,
-    double *probabilityDensityFunction,
-    double *probabilityDensityFunctionRR);
+        PhongBidirectionalReflectanceDistributionFunction *brdf,
+        Vector3D *in,
+        Vector3D *out,
+        Vector3D *normal,
+        char flags,
+        double *probabilityDensityFunction,
+        double *probabilityDensityFunctionRR);
 
 #endif

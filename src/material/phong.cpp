@@ -43,9 +43,9 @@ inverse cumulative PDF sampling	PhongBrdfSampleCumPdf()
 The different sampling functions are commented separately.
 */
 
-PhongBiDirectionalReflectanceDistributionFunction *
+PhongBidirectionalReflectanceDistributionFunction *
 phongBrdfCreate(COLOR *Kd, COLOR *Ks, double Ns) {
-    PhongBiDirectionalReflectanceDistributionFunction *brdf = new PhongBiDirectionalReflectanceDistributionFunction();
+    PhongBidirectionalReflectanceDistributionFunction *brdf = new PhongBidirectionalReflectanceDistributionFunction();
     brdf->Kd = *Kd;
     brdf->avgKd = colorAverage(brdf->Kd);
     brdf->Ks = *Ks;
@@ -68,7 +68,7 @@ phongBtdfCreate(COLOR *Kd, COLOR *Ks, float Ns, float nr, float ni) {
 }
 
 COLOR
-phongReflectance(PhongBiDirectionalReflectanceDistributionFunction *brdf, char flags) {
+phongReflectance(PhongBidirectionalReflectanceDistributionFunction *brdf, char flags) {
     COLOR result;
 
     colorClear(result);
@@ -131,11 +131,11 @@ Brdf evaluations
 */
 COLOR
 phongBrdfEval(
-    PhongBiDirectionalReflectanceDistributionFunction *brdf,
-    Vector3D *in,
-    Vector3D *out,
-    Vector3D *normal,
-    char flags)
+        PhongBidirectionalReflectanceDistributionFunction *brdf,
+        Vector3D *in,
+        Vector3D *out,
+        Vector3D *normal,
+        char flags)
 {
     COLOR result;
     float tmpFloat;
@@ -182,14 +182,14 @@ Brdf sampling
 */
 Vector3D
 phongBrdfSample(
-    PhongBiDirectionalReflectanceDistributionFunction *brdf,
-    Vector3D *in,
-    Vector3D *normal,
-    int doRussianRoulette,
-    char flags,
-    double x1,
-    double x2,
-    double *probabilityDensityFunction)
+        PhongBidirectionalReflectanceDistributionFunction *brdf,
+        Vector3D *in,
+        Vector3D *normal,
+        int doRussianRoulette,
+        char flags,
+        double x1,
+        double x2,
+        double *probabilityDensityFunction)
 {
     Vector3D newDir = {0.0, 0.0, 0.0}, idealDir;
     double cosTheta;
@@ -286,13 +286,13 @@ phongBrdfSample(
 
 void
 phongBrdfEvalPdf(
-    PhongBiDirectionalReflectanceDistributionFunction *brdf,
-    Vector3D *in,
-    Vector3D *out,
-    Vector3D *normal,
-    char flags,
-    double *probabilityDensityFunction,
-    double *probabilityDensityFunctionRR)
+        PhongBidirectionalReflectanceDistributionFunction *brdf,
+        Vector3D *in,
+        Vector3D *out,
+        Vector3D *normal,
+        char flags,
+        double *probabilityDensityFunction,
+        double *probabilityDensityFunctionRR)
 {
     double cos_theta;
     double cos_alpha;
