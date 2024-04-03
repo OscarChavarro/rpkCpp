@@ -28,7 +28,7 @@ BounceDiffuseOrGlossy(SimpleRaytracingPathNode *node) {
 }
 
 static bool
-DoImportanceStore(CImportanceMap *map, SimpleRaytracingPathNode *node, ColorRgb importance) {
+DoImportanceStore(CImportanceMap *map, SimpleRaytracingPathNode *node, COLOR importance) {
     if ( HasDiffuseOrGlossy(node) ) {
         float importanceF = colorAverage(importance);
         float potentialF = 1.0; // COLOR_AVERAGE(potential) * Ax;
@@ -58,7 +58,7 @@ TracePotentialPath(PhotonMapConfig *config) {
     }
     config->biPath.m_eyePath = path;  // In case no nodes were present
 
-    ColorRgb accImportance;  // Track importance along the ray
+    COLOR accImportance;  // Track importance along the ray
     colorSetMonochrome(accImportance, 1.0);
 
     // Adjust importance for eye ray

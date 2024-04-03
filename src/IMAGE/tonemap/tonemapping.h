@@ -23,14 +23,14 @@ class ToneMap {
     correct scaling value that transforms display luminance back into
     the real world luminance.
     */
-    ColorRgb (*scaleForComputations)(ColorRgb radiance);
+    COLOR (*scaleForComputations)(COLOR radiance);
 
     /**
     Full tone mapping to display values. Transforms real world luminance of
     colour specified by "radiance" into corresponding display input
     values. The result has to be clipped to <0,1> afterwards.
     */
-    ColorRgb (*scaleForDisplay)(ColorRgb radiance);
+    COLOR (*scaleForDisplay)(COLOR radiance);
 };
 
 // Available tone mapping operators (nullptr terminated array)
@@ -89,8 +89,8 @@ toneMappingGammaCorrection(RGB &rgb) {
   (rgb).b = GLOBAL_toneMap_options.gammaTab[2][GAMMA_TAB_ENTRY((rgb).b)];
 }
 
-inline ColorRgb
-toneMapScaleForDisplay(ColorRgb &radiance) {
+inline COLOR
+toneMapScaleForDisplay(COLOR &radiance) {
     return GLOBAL_toneMap_options.toneMap->scaleForDisplay(radiance);
 }
 
@@ -102,7 +102,7 @@ Does most to convert radiance to display RGB color
    an RGB triplet for display on the screen
 3) clipping of RGB values to the range [0,1].
 */
-extern RGB *radianceToRgb(ColorRgb color, RGB *rgb);
+extern RGB *radianceToRgb(COLOR color, RGB *rgb);
 
 /**
 Transforms luminance from cd/m^2 to lamberts. Luminance in lamberts

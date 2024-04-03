@@ -26,10 +26,10 @@ CAVEAT: propagate either radiance or importance alone. Simultaneous
 propagation of importance and radiance does not work yet.
 */
 extern void doStochasticJacobiIteration(
-        long nr_rays,
-        ColorRgb *(*GetRadiance)(StochasticRadiosityElement *),
-        float (*GetImportance)(StochasticRadiosityElement *),
-        void Update(StochasticRadiosityElement *elem, double w),
-        java::ArrayList<Patch *> *scenePatches);
+    long nr_rays,
+    COLOR *(*GetRadiance)(StochasticRadiosityElement *),
+    float (*GetImportance)(StochasticRadiosityElement *),
+    void Update(StochasticRadiosityElement *elem, double w),
+    java::ArrayList<Patch *> *scenePatches);
 
 #endif

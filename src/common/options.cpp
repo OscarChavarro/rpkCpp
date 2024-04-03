@@ -6,7 +6,7 @@ Command line options and defaults
 
 #include "java/util/ArrayList.txx"
 #include "common/linealAlgebra/Vector3D.h"
-#include "common/ColorRgb.h"
+#include "common/color.h"
 #include "common/options.h"
 
 char *GLOBAL_option_dummyVal = nullptr;

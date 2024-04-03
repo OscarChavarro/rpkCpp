@@ -9,16 +9,16 @@ Bidirectional Reflectance Distribution Functions
 /**
 Returns the diffuse reflectance of the BRDF according to the flags
 */
-ColorRgb
+COLOR
 brdfReflectance(PhongBidirectionalReflectanceDistributionFunction *brdf, char flags) {
     if ( brdf != nullptr ) {
-        ColorRgb test = phongReflectance(brdf, flags);
+        COLOR test = phongReflectance(brdf, flags);
         if ( !std::isfinite(colorAverage(test)) ) {
             logFatal(-1, "brdfReflectance", "Oops - test Rd is not finite!");
         }
         return test;
     } else {
-        static ColorRgb refl;
+        static COLOR refl;
         colorClear(refl);
         return refl;
     }
@@ -27,7 +27,7 @@ brdfReflectance(PhongBidirectionalReflectanceDistributionFunction *brdf, char fl
 /**
 Brdf evaluations
 */
-ColorRgb
+COLOR
 brdfEval(
         PhongBidirectionalReflectanceDistributionFunction *brdf,
         Vector3D *in,
@@ -38,7 +38,7 @@ brdfEval(
     if ( brdf != nullptr ) {
         return phongBrdfEval(brdf, in, out, normal, flags);
     } else {
-        static ColorRgb refl;
+        static COLOR refl;
         colorClear(refl);
         return refl;
     }

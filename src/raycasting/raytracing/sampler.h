@@ -93,7 +93,7 @@ class CSurfaceSampler : public Sampler {
     m_computeBsdfComponents uses BsdfEval or BsdfEvalComponents
     Introduced to share code
     */
-    inline ColorRgb
+    inline COLOR
     DoBsdfEval(
         BSDF *bsdf,
         RayHit *hit,

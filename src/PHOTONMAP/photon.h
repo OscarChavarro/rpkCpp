@@ -7,7 +7,7 @@ Data structure for individual photons
 
 #include <cstring>
 
-#include "common/ColorRgb.h"
+#include "common/color.h"
 #include "material/spherical.h"
 #include "PHOTONMAP/pmapoptions.h"
 #include "material/xxdf.h"
@@ -24,7 +24,7 @@ const short NO_IMPSAMP_PHOTON = DIRECT_LIGHT_PHOTON | CAUSTIC_LIGHT_PHOTON;
 class CPhoton {
 protected:
     Vector3D m_pos;  // Position: 3 floats, MUST COME FIRST for kd tree storage
-    ColorRgb m_power;  // Power represented by this photon
+    COLOR m_power;  // Power represented by this photon
     //  float m_dcWeight; // Weight for density control
     Vector3D m_dir;  // Direction
 
@@ -33,16 +33,16 @@ public:
 
     CPhoton() {};
 
-    CPhoton(Vector3D &pos, ColorRgb &power, Vector3D &dir)
+    CPhoton(Vector3D &pos, COLOR &power, Vector3D &dir)
             : m_pos(pos), m_power(power), m_dir(dir) { /*m_dcWeight = 1.0;*/ }
 
     // Accessor functions
 
     inline Vector3D Pos() { return m_pos; }
 
-    inline ColorRgb Power() { return m_power; }
+    inline COLOR Power() { return m_power; }
 
-    inline void AddPower(ColorRgb col) {
+    inline void AddPower(COLOR col) {
         colorAdd(m_power, col, m_power);
     }
 
@@ -64,14 +64,14 @@ class CIrrPhoton : public CPhoton {
 public:
     //protected:
     Vector3D m_normal;
-    ColorRgb m_irradiance;
+    COLOR m_irradiance;
 
 public:
     inline Vector3D Normal() const { return m_normal; }
 
     inline void SetNormal(const Vector3D &normal) { m_normal = normal; }
 
-    inline void SetIrradiance(const ColorRgb &irr) { m_irradiance = irr; }
+    inline void SetIrradiance(const COLOR &irr) { m_irradiance = irr; }
 
     inline void Copy(const CPhoton &photon) {
         // Dangerous ??

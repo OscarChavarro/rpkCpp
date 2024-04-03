@@ -2,7 +2,7 @@
 #define __CAMERA__
 
 #include "common/linealAlgebra/Vector3D.h"
-#include "common/ColorRgb.h"
+#include "common/color.h"
 
 class CameraClippingPlane {
   public:

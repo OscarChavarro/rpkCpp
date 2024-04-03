@@ -9,10 +9,10 @@ Cluster-specific operations
 #include "GALERKIN/scratch.h"
 #include "GALERKIN/mrvisibility.h"
 
-static ColorRgb globalSourceRadiance;
+static COLOR globalSourceRadiance;
 static Vector3D globalSamplePoint;
 static double globalProjectedArea;
-static ColorRgb *globalPSourceRad;
+static COLOR *globalPSourceRad;
 static Interaction *globalTheLink;
 
 // Area corresponding to one pixel in the scratch frame buffer
@@ -187,7 +187,7 @@ accumulatePowerToSamplePoint(GalerkinElement *src) {
     float srcOs;
     float dist;
     Vector3D dir;
-    ColorRgb rad;
+    COLOR rad;
 
     vectorSubtract(globalSamplePoint, src->patch->midPoint, dir);
     dist = vectorNorm(dir);
@@ -216,7 +216,7 @@ Returns the radiance or un-shot radiance (depending on the
 iteration method) emitted by the source element, a cluster,
 towards the sample point
 */
-ColorRgb
+COLOR
 clusterRadianceToSamplePoint(GalerkinElement *src, Vector3D sample) {
     switch ( GLOBAL_galerkin_state.clusteringStrategy ) {
         case ISOTROPIC:
@@ -270,7 +270,7 @@ Determines the average radiance or un-shot radiance (depending on
 the iteration method) emitted by the source cluster towards the
 receiver in the link. The source should be a cluster
 */
-ColorRgb
+COLOR
 sourceClusterRadiance(Interaction *link) {
     GalerkinElement *src = link->sourceElement, *rcv = link->receiverElement;
 
@@ -366,8 +366,8 @@ form factor computations instead of the true receiver area. The source
 radiance is explicit given
 */
 static void
-doGatherRadiance(GalerkinElement *rcv, double area_factor, Interaction *link, ColorRgb *srcRad) {
-    ColorRgb *rcvRad = rcv->receivedRadiance;
+doGatherRadiance(GalerkinElement *rcv, double area_factor, Interaction *link, COLOR *srcRad) {
+    COLOR *rcvRad = rcv->receivedRadiance;
 
     if ( link->numberOfBasisFunctionsOnReceiver == 1 && link->numberOfBasisFunctionsOnSource == 1 ) {
         colorAddScaled(rcvRad[0], (float)(area_factor * link->K[0]), srcRad[0], rcvRad[0]);
@@ -433,7 +433,7 @@ Distributes the source radiance to the surface elements in the
 receiver cluster
 */
 void
-clusterGatherRadiance(Interaction *link, ColorRgb *srcRad) {
+clusterGatherRadiance(Interaction *link, COLOR *srcRad) {
     GalerkinElement *src = link->sourceElement, *rcv = link->receiverElement;
 
     if ( !rcv->isCluster() || src == rcv ) {
@@ -479,7 +479,7 @@ clusterGatherRadiance(Interaction *link, ColorRgb *srcRad) {
 
 static void
 determineMaxRadiance(GalerkinElement *elem) {
-    ColorRgb rad;
+    COLOR rad;
     if ( GLOBAL_galerkin_state.iteration_method == GAUSS_SEIDEL ||
          GLOBAL_galerkin_state.iteration_method == JACOBI ) {
         rad = elem->radiance[0];
@@ -489,7 +489,7 @@ determineMaxRadiance(GalerkinElement *elem) {
     colorMaximum(globalSourceRadiance, rad, globalSourceRadiance);
 }
 
-ColorRgb
+COLOR
 maxClusterRadiance(GalerkinElement *cluster) {
     colorClear(globalSourceRadiance);
     iterateOverSurfaceElementsInCluster(cluster, determineMaxRadiance);

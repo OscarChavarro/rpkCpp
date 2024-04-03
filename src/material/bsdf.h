@@ -12,7 +12,7 @@ light scattering.
 #ifndef __BSDF__
 #define __BSDF__
 
-#include "common/ColorRgb.h"
+#include "common/color.h"
 #include "material/hit.h"
 #include "material/xxdf.h"
 #include "material/texture.h"
@@ -31,17 +31,17 @@ class BSDF {
     virtual ~BSDF();
 };
 
-extern ColorRgb bsdfScatteredPower(BSDF *bsdf, RayHit *hit, Vector3D *dir, char flags);
+extern COLOR bsdfScatteredPower(BSDF *bsdf, RayHit *hit, Vector3D *dir, char flags);
 
 /**
 Returns the reflectance of hte BSDF according to the flags
 */
-inline ColorRgb
+inline COLOR
 bsdfReflectance(BSDF *bsdf, RayHit *hit, Vector3D *dir, int xxflags) {
     return bsdfScatteredPower(bsdf, hit, dir, SET_BRDF_FLAGS(xxflags));
 }
 
-inline ColorRgb
+inline COLOR
 bsdfSpecularReflectance(BSDF *bsdf, RayHit *hit, Vector3D *dir) {
     return bsdfReflectance((bsdf), hit, dir, SPECULAR_COMPONENT);
 }
@@ -49,12 +49,12 @@ bsdfSpecularReflectance(BSDF *bsdf, RayHit *hit, Vector3D *dir) {
 /**
 Returns the transmittance of the BSDF
 */
-inline ColorRgb
+inline COLOR
 bsdfTransmittance(BSDF *bsdf, RayHit *hit, Vector3D *dir, int xxflags) {
     return bsdfScatteredPower(bsdf, hit, dir, SET_BTDF_FLAGS(xxflags));
 }
 
-inline ColorRgb
+inline COLOR
 bsdfSpecularTransmittance(BSDF *bsdf, RayHit *hit, Vector3D *dir) {
     return bsdfTransmittance((bsdf), hit, dir, SPECULAR_COMPONENT);
 }
@@ -66,7 +66,7 @@ extern bool bsdfShadingFrame(BSDF *bsdf, RayHit *hit, Vector3D *X, Vector3D *Y, 
 BSDF Evaluation functions
 */
 
-extern ColorRgb
+extern COLOR
 bsdfEval(
     BSDF *bsdf,
     RayHit *hit,
@@ -76,16 +76,16 @@ bsdfEval(
     Vector3D *out,
     BSDF_FLAGS flags);
 
-extern ColorRgb
+extern COLOR
 bsdfEvalComponents(
-        BSDF *bsdf,
-        RayHit *hit,
-        BSDF *inBsdf,
-        BSDF *outBsdf,
-        Vector3D *in,
-        Vector3D *out,
-        BSDF_FLAGS flags,
-        ColorRgb *colArray);
+    BSDF *bsdf,
+    RayHit *hit,
+    BSDF *inBsdf,
+    BSDF *outBsdf,
+    Vector3D *in,
+    Vector3D *out,
+    BSDF_FLAGS flags,
+    COLOR *colArray);
 
 extern Vector3D
 bsdfSample(

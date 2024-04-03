@@ -17,7 +17,7 @@ TODO: global lines and global line bundles.
 #include "raycasting/stochasticRaytracing/StochasticRadiosityElement.h"
 
 // Returns radiance or importance to be propagated
-static ColorRgb *(*globalGetRadianceCallback)(StochasticRadiosityElement *);
+static COLOR *(*globalGetRadianceCallback)(StochasticRadiosityElement *);
 
 static float (*globalGetImportanceCallback)(StochasticRadiosityElement *);
 
@@ -31,10 +31,10 @@ static double globalSumOfProbabilities = 0.0; // Sum of un-normalised sampling "
 
 static void
 stochasticJacobiInitGlobals(
-        int numberOfRays,
-        ColorRgb *(*GetRadiance)(StochasticRadiosityElement *),
-        float (*GetImportance)(StochasticRadiosityElement *),
-        void (*Update)(StochasticRadiosityElement *P, double w))
+    int numberOfRays,
+    COLOR *(*GetRadiance)(StochasticRadiosityElement *),
+    float (*GetImportance)(StochasticRadiosityElement *),
+    void (*Update)(StochasticRadiosityElement *P, double w))
 {
     globalNumberOfRays = numberOfRays;
     globalGetRadianceCallback = GetRadiance;
@@ -85,7 +85,7 @@ stochasticJacobiProbability(StochasticRadiosityElement *elem) {
 
     if ( globalGetRadianceCallback ) {
         // Probability proportional to power to be propagated
-        ColorRgb radiance = globalGetRadianceCallback(elem)[0];
+        COLOR radiance = globalGetRadianceCallback(elem)[0];
         if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.constantControlVariate ) {
             colorSubtract(radiance, GLOBAL_stochasticRaytracing_monteCarloRadiosityState.controlRadiance, radiance);
         }
@@ -103,7 +103,7 @@ stochasticJacobiProbability(StochasticRadiosityElement *elem) {
 
         if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.radianceDriven ) {
             // Received-radiance weighted importance transport
-            ColorRgb received_radiance;
+            COLOR received_radiance;
             colorSubtract(elem->radiance[0], elem->sourceRad, received_radiance);
             prob2 *= colorSumAbsComponents(received_radiance);
         }
@@ -182,21 +182,21 @@ stochasticJacobiSetup(java::ArrayList<Patch *> *scenePatches) {
 /**
 Returns radiance to be propagated from the given location of the element
 */
-static ColorRgb
+static COLOR
 stochasticJacobiGetSourceRadiance(StochasticRadiosityElement *src, double us, double vs) {
-    ColorRgb *srcRad = globalGetRadianceCallback(src);
+    COLOR *srcRad = globalGetRadianceCallback(src);
     return colorAtUv(src->basis, srcRad, us, vs);
 }
 
 static void
 stochasticJacobiPropagateRadianceToSurface(
-        StochasticRadiosityElement *rcv,
-        double ur,
-        double vr,
-        ColorRgb rayPower,
-        StochasticRadiosityElement * /*src*/,
-        double fraction,
-        double /*weight*/)
+    StochasticRadiosityElement *rcv,
+    double ur,
+    double vr,
+    COLOR rayPower,
+    StochasticRadiosityElement * /*src*/,
+    double fraction,
+    double /*weight*/)
 {
     for ( int i = 0; i < rcv->basis->size; i++ ) {
         double dual = rcv->basis->dualFunction[i](ur, vr) / rcv->area;
@@ -207,11 +207,11 @@ stochasticJacobiPropagateRadianceToSurface(
 
 static void
 stochasticJacobiPropagateRadianceToClusterIsotropic(
-        StochasticRadiosityElement *cluster,
-        ColorRgb rayPower,
-        StochasticRadiosityElement * /*src*/,
-        double fraction,
-        double /*weight*/)
+    StochasticRadiosityElement *cluster,
+    COLOR rayPower,
+    StochasticRadiosityElement * /*src*/,
+    double fraction,
+    double /*weight*/)
 {
     double w = fraction / cluster->area / (double) globalNumberOfRays;
     colorAddScaled(cluster->receivedRadiance[0], (float)w, rayPower, cluster->receivedRadiance[0]);
@@ -222,12 +222,12 @@ Note: Not considering the MAX_HIERARCHY_DEPTH limit.
 */
 static void
 stochasticJacobiPropagateRadianceClusterRecursive(
-        StochasticRadiosityElement *currentElement,
-        ColorRgb rayPower,
-        Ray *ray,
-        float dir,
-        double projectedArea,
-        double fraction)
+    StochasticRadiosityElement *currentElement,
+    COLOR rayPower,
+    Ray *ray,
+    float dir,
+    double projectedArea,
+    double fraction)
 {
     if ( currentElement != nullptr && !currentElement->isCluster() ) {
         // Trivial case
@@ -253,14 +253,14 @@ stochasticJacobiPropagateRadianceClusterRecursive(
 
 static void
 stochasticJacobiPropagateRadianceToClusterOriented(
-        StochasticRadiosityElement *cluster,
-        ColorRgb rayPower,
-        Ray *ray,
-        float dir,
-        StochasticRadiosityElement * /*src*/,
-        double projectedArea,
-        double fraction,
-        double /*weight*/)
+    StochasticRadiosityElement *cluster,
+    COLOR rayPower,
+    Ray *ray,
+    float dir,
+    StochasticRadiosityElement * /*src*/,
+    double projectedArea,
+    double fraction,
+    double /*weight*/)
 {
     stochasticJacobiPropagateRadianceClusterRecursive(cluster, rayPower, ray, dir, projectedArea, fraction);
 }
@@ -324,8 +324,8 @@ stochasticJacobiPropagateRadiance(
     Ray *ray,
     float dir)
 {
-    ColorRgb rad;
-    ColorRgb rayPower;
+    COLOR rad;
+    COLOR rayPower;
     double area;
     double weight = globalSumOfProbabilities / src_prob; // src area / normalised src prob
     double fraction = src_prob / (src_prob + rcv_prob); // 1 for uni-directional transfers
@@ -680,12 +680,12 @@ stochasticJacobiUpdateElement(StochasticRadiosityElement *elem) {
 static void
 stochasticJacobiPush(StochasticRadiosityElement *parent, StochasticRadiosityElement *child) {
     if ( globalGetRadianceCallback ) {
-        ColorRgb Rd;
+        COLOR Rd;
         colorClear(Rd);
 
         if ( parent->isCluster() && !child->isCluster() ) {
             // Multiply with reflectance (See PropagateRadianceToClusterIsotropic() above)
-            ColorRgb rad = parent->receivedRadiance[0];
+            COLOR rad = parent->receivedRadiance[0];
             Rd = child->Rd;
             colorProduct(Rd, rad, rad);
             stochasticRadiosityElementPushRadiance(parent, child, &rad, child->receivedRadiance);
@@ -814,11 +814,11 @@ propagation of importance and radiance does not work yet.
 */
 void
 doStochasticJacobiIteration(
-        long nr_rays,
-        ColorRgb *(*GetRadiance)(StochasticRadiosityElement *),
-        float (*GetImportance)(StochasticRadiosityElement *),
-        void (*Update)(StochasticRadiosityElement *P, double w),
-        java::ArrayList<Patch *> *scenePatches)
+    long nr_rays,
+    COLOR *(*GetRadiance)(StochasticRadiosityElement *),
+    float (*GetImportance)(StochasticRadiosityElement *),
+    void (*Update)(StochasticRadiosityElement *P, double w),
+    java::ArrayList<Patch *> *scenePatches)
 {
     stochasticJacobiInitGlobals((int)nr_rays, GetRadiance, GetImportance, Update);
     stochasticJacobiPrintMessage(nr_rays);

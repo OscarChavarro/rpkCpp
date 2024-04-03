@@ -5,7 +5,7 @@ Higher order approximations for Galerkin radiosity
 #ifndef __BASIS__
 #define __BASIS__
 
-#include "common/ColorRgb.h"
+#include "common/color.h"
 #include "raycasting/stochasticRaytracing/mcrad.h"
 
 // No basis consists of more than this number of basis functions
@@ -70,8 +70,8 @@ extern GalerkinBasis GLOBAL_stochasticRadiosity_basis[NR_ELEMENT_TYPES][NR_APPRO
 extern GalerkinBasis GLOBAL_stochasticRadiosity_dummyBasis;
 
 extern void monteCarloRadiosityInitBasis();
-extern ColorRgb colorAtUv(GalerkinBasis *basis, ColorRgb *rad, double u, double v);
-extern void filterColorDown(ColorRgb *parent, FILTER *h, ColorRgb *child, int n);
-extern void filterColorUp(ColorRgb *child, FILTER *h, ColorRgb *parent, int n, double areaFactor);
+extern COLOR colorAtUv(GalerkinBasis *basis, COLOR *rad, double u, double v);
+extern void filterColorDown(COLOR *parent, FILTER *h, COLOR *child, int n);
+extern void filterColorUp(COLOR *child, FILTER *h, COLOR *parent, int n, double areaFactor);
 
 #endif

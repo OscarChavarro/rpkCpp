@@ -78,9 +78,9 @@ static CommandLineOptionDescription globalOptions[] = {
 
 static void
 mainPatchAccumulateStats(Patch *patch) {
-    ColorRgb E = patch->averageEmittance(ALL_COMPONENTS);
-    ColorRgb R = patch->averageNormalAlbedo(BSDF_ALL_COMPONENTS);
-    ColorRgb power;
+    COLOR E = patch->averageEmittance(ALL_COMPONENTS);
+    COLOR R = patch->averageNormalAlbedo(BSDF_ALL_COMPONENTS);
+    COLOR power;
 
     GLOBAL_statistics.totalArea += patch->area;
     colorScale(patch->area, E, power);
@@ -95,9 +95,9 @@ mainPatchAccumulateStats(Patch *patch) {
 static void
 mainComputeSomeSceneStats() {
     Vector3D zero;
-    ColorRgb one;
-    ColorRgb average_absorption;
-    ColorRgb BP;
+    COLOR one;
+    COLOR average_absorption;
+    COLOR BP;
 
     colorSetMonochrome(one, 1.0f);
     zero.set(0, 0, 0);

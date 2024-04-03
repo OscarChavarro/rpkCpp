@@ -111,7 +111,7 @@ Link error estimation
 */
 
 static double
-hierarchicRefinementColorToError(ColorRgb rad) {
+hierarchicRefinementColorToError(COLOR rad) {
     RGB rgb{};
     convertColorToRGB(rad, &rgb);
     return maxComponentRGB(rgb);
@@ -165,13 +165,13 @@ radiance when doing shooting and the total radiance when gathering
 */
 static double
 hierarchicRefinementApproximationError(
-        Interaction *link,
-        ColorRgb srcRho,
-        ColorRgb rcvRho,
-        GalerkinState *state)
+    Interaction *link,
+    COLOR srcRho,
+    COLOR rcvRho,
+    GalerkinState *state)
 {
-    ColorRgb error;
-    ColorRgb srcRad;
+    COLOR error;
+    COLOR srcRad;
     double approxError = 0.0;
     double approxError2;
 
@@ -239,7 +239,7 @@ this operation is quite expensive and should be avoided when not strictly
 necessary
 */
 static double
-sourceClusterRadianceVariationError(Interaction *link, ColorRgb rcvRho, double rcv_area) {
+sourceClusterRadianceVariationError(Interaction *link, COLOR rcvRho, double rcv_area) {
     double K = link->K[0];
     if ( K == 0.0 || colorNull(rcvRho) || colorNull(link->sourceElement->radiance[0]) ) {
         // Receiver reflectivity or coupling coefficient or source radiance
@@ -250,14 +250,14 @@ sourceClusterRadianceVariationError(Interaction *link, ColorRgb rcvRho, double r
     Vector3D rcVertices[8];
     int numberOfRcVertices = link->receiverElement->vertices(rcVertices, 8);
 
-    ColorRgb minimumSrcRad;
-    ColorRgb maximumSrcRad;
-    ColorRgb error;
+    COLOR minimumSrcRad;
+    COLOR maximumSrcRad;
+    COLOR error;
 
     colorSetMonochrome(minimumSrcRad, HUGE);
     colorSetMonochrome(maximumSrcRad, -HUGE);
     for ( int i = 0; i < numberOfRcVertices; i++ ) {
-        ColorRgb rad;
+        COLOR rad;
         rad = clusterRadianceToSamplePoint(link->sourceElement, rcVertices[i]);
         colorMinimum(minimumSrcRad, rad, minimumSrcRad);
         colorMaximum(maximumSrcRad, rad, maximumSrcRad);
@@ -274,8 +274,8 @@ hierarchicRefinementEvaluateInteraction(
     Interaction *link,
     GalerkinState *state)
 {
-    ColorRgb srcRho;
-    ColorRgb rcvRho;
+    COLOR srcRho;
+    COLOR rcvRho;
     double error;
     double threshold;
     double rcv_area;
@@ -361,15 +361,15 @@ hierarchicRefinementComputeLightTransport(
         link->sourceElement->basisUsed = (char)b;
     }
 
-    ColorRgb *srcRad;
-    ColorRgb *rcvRad;
+    COLOR *srcRad;
+    COLOR *rcvRad;
     if ( state->iteration_method == SOUTH_WELL ) {
         srcRad = link->sourceElement->unShotRadiance;
     } else {
         srcRad = link->sourceElement->radiance;
     }
 
-    ColorRgb linkClusterRad;
+    COLOR linkClusterRad;
     if ( link->sourceElement->isCluster() && link->sourceElement != link->receiverElement ) {
         linkClusterRad = sourceClusterRadiance(link);
         srcRad = &linkClusterRad;
@@ -396,8 +396,8 @@ hierarchicRefinementComputeLightTransport(
 
     if ( state->importance_driven ) {
         float K = link->K[0];
-        ColorRgb rcvRho;
-        ColorRgb srcRho;
+        COLOR rcvRho;
+        COLOR srcRho;
 
         if ( state->iteration_method == GAUSS_SEIDEL ||
              state->iteration_method == JACOBI ) {

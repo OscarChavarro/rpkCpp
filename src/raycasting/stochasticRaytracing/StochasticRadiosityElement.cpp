@@ -646,7 +646,7 @@ monteCarloRadiosityElementComputeAverageReflectanceAndEmittance(StochasticRadios
     niedindex msb1;
     niedindex rMostSignificantBit2;
     niedindex n;
-    ColorRgb albedo, emittance;
+    COLOR albedo, emittance;
     RayHit hit;
     hitInit(&hit, patch, nullptr, &patch->midPoint, &patch->normal, patch->surface->material, 0.0);
 
@@ -658,7 +658,7 @@ monteCarloRadiosityElementComputeAverageReflectanceAndEmittance(StochasticRadios
 
     n = 1;
     for ( i = 0; i < numberOfSamples; i++, n++ ) {
-        ColorRgb sample;
+        COLOR sample;
         niedindex *xi = NextNiedInRange(&n, +1, nbits, msb1, rMostSignificantBit2);
         hit.uv.u = (double) xi[0] * RECIP;
         hit.uv.v = (double) xi[1] * RECIP;
@@ -927,7 +927,7 @@ regularChild(StochasticRadiosityElement *child) {
 }
 
 void
-stochasticRadiosityElementPushRadiance(StochasticRadiosityElement *parent, StochasticRadiosityElement *child, ColorRgb *parent_rad, ColorRgb *child_rad) {
+stochasticRadiosityElementPushRadiance(StochasticRadiosityElement *parent, StochasticRadiosityElement *child, COLOR *parent_rad, COLOR *child_rad) {
     if ( parent->isCluster() || child->basis->size == 1 ) {
         colorAdd(child_rad[0], parent_rad[0], child_rad[0]);
     } else if ( regularChild(child) && child->basis == parent->basis ) {
@@ -945,7 +945,7 @@ stochasticRadiosityElementPushImportance(const float *parentImportance, float *c
 }
 
 void
-stochasticRadiosityElementPullRadiance(StochasticRadiosityElement *parent, StochasticRadiosityElement *child, ColorRgb *parent_rad, ColorRgb *child_rad) {
+stochasticRadiosityElementPullRadiance(StochasticRadiosityElement *parent, StochasticRadiosityElement *child, COLOR *parent_rad, COLOR *child_rad) {
     float areaFactor = child->area / parent->area;
     if ( parent->isCluster() || child->basis->size == 1 ) {
         colorAddScaled(parent_rad[0], areaFactor, child_rad[0], parent_rad[0]);

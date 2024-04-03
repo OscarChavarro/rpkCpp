@@ -1,6 +1,6 @@
 #include <ctime>
 
-#include "common/ColorRgb.h"
+#include "common/color.h"
 #include "scene/Camera.h"
 #include "IMAGE/tonemap/tonemapping.h"
 #include "render/opengl.h"
@@ -47,7 +47,7 @@ ScreenIterateFinish() {
 void
 ScreenIterateSequential(SCREEN_ITERATE_CALLBACK callback, void *data) {
     int i, j, width, height;
-    ColorRgb col;
+    COLOR col;
     RGB *rgb;
 
     ScreenIterateInit();
@@ -92,7 +92,7 @@ ScreenIterateProgressive(SCREEN_ITERATE_CALLBACK callback, void *data) {
     int i;
     int width;
     int height;
-    ColorRgb col;
+    COLOR col;
     RGB pixelRGB{};
     RGB *rgb;
     int x0;

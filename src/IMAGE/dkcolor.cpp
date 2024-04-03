@@ -93,7 +93,7 @@ dkColorWriteColrs(COLR *scanline, int len, FILE *fp)/* write out a colr scanline
 Write out a scanline
 */
 int
-dkColorWriteScan(ColorRgb *scanline, int len, FILE *fp)
+dkColorWriteScan(COLOR *scanline, int len, FILE *fp)
 {
     COLR *clrscan;
     int n;
@@ -106,9 +106,9 @@ dkColorWriteScan(ColorRgb *scanline, int len, FILE *fp)
     // Convert scanline
     n = len;
     while ( n-- > 0 ) {
-        dkColorSetColr(sp[0], scanline->r,
-                       scanline->g,
-                       scanline->b);
+        dkColorSetColr(sp[0], scanline[0][RED],
+                       scanline[0][GREEN],
+                       scanline[0][BLUE]);
         scanline++;
         sp++;
     }

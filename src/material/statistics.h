@@ -1,13 +1,13 @@
 #ifndef __STATISTICS__
 #define __STATISTICS__
 
-#include "common/ColorRgb.h"
+#include "common/color.h"
 
 class Statistics {
   public:
     float totalArea;
-    ColorRgb maxSelfEmittedRadiance;
-    ColorRgb maxSelfEmittedPower;
+    COLOR maxSelfEmittedRadiance;
+    COLOR maxSelfEmittedPower;
     int numberOfGeometries;
     int numberOfCompounds;
     int numberOfSurfaces;
@@ -22,9 +22,9 @@ class Statistics {
     double maxDirectImportance; // Potential times area
     double totalDirectPotential;
     double referenceLuminance;
-    ColorRgb totalEmittedPower;
-    ColorRgb estimatedAverageRadiance;
-    ColorRgb averageReflectivity;
+    COLOR totalEmittedPower;
+    COLOR estimatedAverageRadiance;
+    COLOR averageReflectivity;
 
     Statistics();
 };

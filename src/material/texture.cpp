@@ -5,14 +5,14 @@ rgbSetMonochrome(RGB rgb, float val) {
     setRGB(rgb, val, val, val);
 }
 
-ColorRgb
+COLOR
 evalTextureColor(TEXTURE *texture, float u, float v) {
     RGB rgb00{};
     RGB rgb10{};
     RGB rgb01{};
     RGB rgb11{};
     RGB rgb{};
-    ColorRgb col;
+    COLOR col;
     unsigned char *pix00, *pix01, *pix10, *pix11;
     double u1 = u - floor(u), u0 = 1. - u1, v1 = v - floor(v), v0 = 1. - v1;
     int i = (int)(u1 * texture->width);

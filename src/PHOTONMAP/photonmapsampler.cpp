@@ -27,7 +27,7 @@ CPhotonMapSampler::chooseComponent(
     float *probabilityDensityFunction,
     bool *chose1)
 {
-    ColorRgb col;
+    COLOR col;
     float power1;
     float power2;
     float totalPower;
@@ -162,13 +162,13 @@ bsdfGeometricIOR(BSDF *bsdf) {
 
 static bool
 chooseFresnelDirection(
-        SimpleRaytracingPathNode *thisNode,
-        BSDF_FLAGS flags,
-        double x2,
-        Vector3D *dir,
-        double *pdfDir,
-        ColorRgb *scatteringColor,
-        bool *doCosInverse)
+    SimpleRaytracingPathNode *thisNode,
+    BSDF_FLAGS flags,
+    double x2,
+    Vector3D *dir,
+    double *pdfDir,
+    COLOR *scatteringColor,
+    bool *doCosInverse)
 {
     // Index of refractions are taken
     RefractionIndex nc_in = bsdfGeometricIOR(thisNode->m_inBsdf);
@@ -178,10 +178,10 @@ chooseFresnelDirection(
     // would be zero
     BSDF *bsdf = thisNode->m_useBsdf;
 
-    ColorRgb reflectance = bsdfSpecularReflectance(bsdf, &thisNode->m_hit,
-                                                   &thisNode->m_normal);
-    ColorRgb transmittance = bsdfSpecularTransmittance(bsdf, &thisNode->m_hit,
-                                                       &thisNode->m_normal);
+    COLOR reflectance = bsdfSpecularReflectance(bsdf, &thisNode->m_hit,
+                                                &thisNode->m_normal);
+    COLOR transmittance = bsdfSpecularTransmittance(bsdf, &thisNode->m_hit,
+                                                    &thisNode->m_normal);
 
     bool reflective = (colorAverage(reflectance) > EPSILON);
     bool trans = (colorAverage(transmittance) > EPSILON);
@@ -313,7 +313,7 @@ CPhotonMapSampler::fresnelSample(
     Vector3D dir;
     double pdfDir;
     bool doCosInverse;
-    ColorRgb scatteringColor;
+    COLOR scatteringColor;
 
     if ( !chooseFresnelDirection(thisNode, flags, x2, &dir, &pdfDir,
                                  &scatteringColor, &doCosInverse) ) {

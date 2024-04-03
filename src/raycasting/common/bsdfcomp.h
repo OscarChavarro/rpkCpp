@@ -7,17 +7,17 @@ Some bsdf component stuff.
 
 class BsdfComp {
   public:
-    ColorRgb comp[BSDF_COMPONENTS];
+    COLOR comp[BSDF_COMPONENTS];
 
     BsdfComp():comp() {}
 
-    inline ColorRgb &operator[](int index) {
+    inline COLOR &operator[](int index) {
         return comp[index];
     }
 
     // Conversion to COLOR *
 
-    inline operator ColorRgb *() { return comp; }
+    inline operator COLOR *() { return comp; }
 
     void Clear(const BSDF_FLAGS flags = BSDF_ALL_COMPONENTS) {
         for ( int i = 0; i < BSDF_COMPONENTS; i++ ) {
@@ -27,7 +27,7 @@ class BsdfComp {
         }
     }
 
-    void Fill(const ColorRgb col, const BSDF_FLAGS flags = BSDF_ALL_COMPONENTS) {
+    void Fill(const COLOR col, const BSDF_FLAGS flags = BSDF_ALL_COMPONENTS) {
         for ( int i = 0; i < BSDF_COMPONENTS; i++ ) {
             if ( flags & (BSDF_INDEX_TO_COMP(i)) ) {
                 comp[i] = col;
@@ -35,8 +35,8 @@ class BsdfComp {
         }
     }
 
-    ColorRgb Sum(const BSDF_FLAGS flags = BSDF_ALL_COMPONENTS) {
-        ColorRgb result;
+    COLOR Sum(const BSDF_FLAGS flags = BSDF_ALL_COMPONENTS) {
+        COLOR result;
 
         colorClear(result);
 

@@ -9,7 +9,7 @@ with a Z-buffer visibility algorithm in software
 extern void scratchInit();
 extern void scratchTerminate();
 extern float *scratchRenderElements(GalerkinElement *cluster, Vector3D eye);
-extern ColorRgb scratchRadiance();
+extern COLOR scratchRadiance();
 extern int scratchNonBackgroundPixels();
 extern void scratchPixelsPerElement();
 

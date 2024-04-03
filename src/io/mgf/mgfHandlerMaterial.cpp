@@ -55,7 +55,7 @@ materialLookup(char *name, MgfContext *context) {
 Translates mgf color into out color representation
 */
 static void
-mgfGetColor(MgfColorContext *cin, float intensity, ColorRgb *colorOut, MgfContext *context) {
+mgfGetColor(MgfColorContext *cin, float intensity, COLOR *colorOut, MgfContext *context) {
     float xyz[3];
     float rgb[3];
 
@@ -92,14 +92,14 @@ mgfGetColor(MgfColorContext *cin, float intensity, ColorRgb *colorOut, MgfContex
 }
 
 static void
-specSamples(ColorRgb &col, float *rgb) {
+specSamples(COLOR &col, float *rgb) {
     rgb[0] = col.r;
     rgb[1] = col.g;
     rgb[2] = col.b;
 }
 
 static float
-colorMax(ColorRgb col) {
+colorMax(COLOR col) {
     // We should check every wavelength in the visible spectrum, but
     // as a first approximation, only the three RGB primary colors
     // are checked
@@ -126,13 +126,13 @@ The routine returns true if the material being used has changed
 */
 int
 mgfGetCurrentMaterial(Material **material, bool allSurfacesSided, MgfContext *context) {
-    ColorRgb Ed;
-    ColorRgb Es;
-    ColorRgb Rd;
-    ColorRgb Td;
-    ColorRgb Rs;
-    ColorRgb Ts;
-    ColorRgb A;
+    COLOR Ed;
+    COLOR Es;
+    COLOR Rd;
+    COLOR Td;
+    COLOR Rs;
+    COLOR Ts;
+    COLOR A;
     char *materialName = context->currentMaterialName;
     if ( !materialName || *materialName == '\0' ) {
         // This might cause strcmp to crash!

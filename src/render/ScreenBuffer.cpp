@@ -66,8 +66,8 @@ ScreenBuffer::init(Camera *cam) {
     m_cam = *cam;
 
     if ( m_Radiance == nullptr ) {
-        m_Radiance = (ColorRgb *)malloc(m_cam.xSize * m_cam.ySize *
-                                        sizeof(ColorRgb));
+        m_Radiance = (COLOR *)malloc(m_cam.xSize * m_cam.ySize *
+                                     sizeof(COLOR));
         m_RGB = (RGB *)malloc(m_cam.xSize * m_cam.ySize *
                               sizeof(RGB));
     }
@@ -94,7 +94,7 @@ ScreenBuffer::copy(ScreenBuffer *source) {
 
     // Now the resolution is ok.
 
-    memcpy(m_Radiance, source->m_Radiance, m_cam.xSize * m_cam.ySize * sizeof(ColorRgb));
+    memcpy(m_Radiance, source->m_Radiance, m_cam.xSize * m_cam.ySize * sizeof(COLOR));
     m_Synced = false;
 }
 
@@ -119,7 +119,7 @@ ScreenBuffer::merge(ScreenBuffer *src1, ScreenBuffer *src2) {
 }
 
 void
-ScreenBuffer::add(int x, int y, ColorRgb radiance) {
+ScreenBuffer::add(int x, int y, COLOR radiance) {
     int index = x + (m_cam.ySize - y - 1) * m_cam.xSize;
 
     colorAddScaled(m_Radiance[index], m_AddFactor, radiance,
@@ -128,7 +128,7 @@ ScreenBuffer::add(int x, int y, ColorRgb radiance) {
 }
 
 void
-ScreenBuffer::set(int x, int y, ColorRgb radiance) {
+ScreenBuffer::set(int x, int y, COLOR radiance) {
     int index = x + (m_cam.ySize - y - 1) * m_cam.xSize;
     colorScale(m_AddFactor, radiance, m_Radiance[index]);
     m_Synced = false;
@@ -143,18 +143,18 @@ ScreenBuffer::scaleRadiance(float factor) {
     m_Synced = false;
 }
 
-ColorRgb
+COLOR
 ScreenBuffer::get(int x, int y) {
     int index = x + (m_cam.ySize - y - 1) * m_cam.xSize;
 
     return m_Radiance[index];
 }
 
-ColorRgb
+COLOR
 ScreenBuffer::getBiLinear(float x, float y) {
     int nx0, nx1, ny0, ny1;
     Vector2D center;
-    ColorRgb col{};
+    COLOR col{};
 
     getPixel(x, y, &nx0, &ny0);
     center = getPixelCenter(nx0, ny0);
@@ -180,10 +180,10 @@ ScreenBuffer::getBiLinear(float x, float y) {
     // u = 0 for nx0 and u = 1 for nx1, x in-between. Not that
     // nx0 and nx1 may be the same (at border of image). Same for ny
 
-    ColorRgb c0 = get(nx0, ny0); // Separate vars, since interpolation is a macro...
-    ColorRgb c1 = get(nx1, ny0); // u = 1
-    ColorRgb c2 = get(nx1, ny1); // u = 1, v = 1
-    ColorRgb c3 = get(nx0, ny1); // v = 1
+    COLOR c0 = get(nx0, ny0); // Separate vars, since interpolation is a macro...
+    COLOR c1 = get(nx1, ny0); // u = 1
+    COLOR c2 = get(nx1, ny1); // u = 1, v = 1
+    COLOR c3 = get(nx0, ny1); // v = 1
 
     colorInterpolateBiLinear(c0, c1, c2, c3, x, y, col);
 
@@ -269,7 +269,7 @@ ScreenBuffer::renderScanline(int i) {
 void
 ScreenBuffer::sync() {
     int i;
-    ColorRgb tmpRad{};
+    COLOR tmpRad{};
 
     for ( i = 0; i < m_cam.xSize * m_cam.ySize; i++ ) {
         colorScale(m_Factor, m_Radiance[i], tmpRad);
@@ -287,7 +287,7 @@ ScreenBuffer::sync() {
 void
 ScreenBuffer::syncLine(int lineNumber) {
     int i;
-    ColorRgb tmpRad{};
+    COLOR tmpRad{};
 
     for ( i = 0; i < m_cam.xSize; i++ ) {
         colorScale(m_Factor, m_Radiance[lineNumber * m_cam.xSize + i], tmpRad);

@@ -54,7 +54,7 @@ RayMatter::CheckFilter() {
 void
 RayMatter::Matting() {
     clock_t t = clock();
-    ColorRgb matte;
+    COLOR matte;
 
     CheckFilter();
 

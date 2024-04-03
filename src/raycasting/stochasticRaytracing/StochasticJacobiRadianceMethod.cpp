@@ -38,7 +38,7 @@ StochasticJacobiRadianceMethod::terminate(java::ArrayList<Patch *> *scenePatches
     monteCarloRadiosityTerminate(scenePatches);
 }
 
-ColorRgb
+COLOR
 StochasticJacobiRadianceMethod::getRadiance(Patch *patch, double u, double v, Vector3D dir) {
     return monteCarloRadiosityGetRadiance(patch, u, v, dir);
 }
@@ -132,7 +132,7 @@ stochasticRelaxationRadiosityQualityFactor(StochasticRadiosityElement *elem, dou
     return w / stochasticRadiosityElementScalarReflectance(elem);
 }
 
-static ColorRgb *
+static COLOR *
 stochasticRelaxationRadiosityElementUnShotRadiance(StochasticRadiosityElement *elem) {
     return elem->unShotRadiance;
 }
@@ -301,7 +301,7 @@ stochasticRelaxationRadiosityDoIncrementalImportanceIterations(java::ArrayList<P
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.weightedSampling = weighted_sampling;
 }
 
-static ColorRgb *
+static COLOR *
 stochasticRelaxationRadiosityElementRadiance(StochasticRadiosityElement *elem) {
     return elem->radiance;
 }

@@ -19,8 +19,8 @@ void CBiPath::Init() {
 
 // Evaluate the radiance contribution of a bipath. Only Function
 // evaluation, no pdf involved
-ColorRgb CBiPath::EvalRadiance() {
-    ColorRgb col;
+COLOR CBiPath::EvalRadiance() {
+    COLOR col;
     double factor = 1.0;
     SimpleRaytracingPathNode *node;
     int i;

@@ -55,9 +55,9 @@ Handles a bidirectional path. Image contribution
 is returned. Normally this is a contribution for the pixel
 affected by the path
 */
-ColorRgb
+COLOR
 Spar::handlePath(SparConfig *config, CBiPath *path) {
-    ColorRgb result;
+    COLOR result;
 
     colorClear(result);
 
@@ -104,14 +104,14 @@ LDSpar::init(SparConfig *sparConfig, RadianceMethod *context) {
 
 void
 CSparList::handlePath(
-        SparConfig *config,
-        CBiPath *path,
-        ColorRgb *fRad,
-        ColorRgb *fBpt)
+    SparConfig *config,
+    CBiPath *path,
+    COLOR *fRad,
+    COLOR *fBpt)
 {
     CSparListIter iter(*this);
     Spar **spar;
-    ColorRgb col;
+    COLOR col;
 
     colorClear(*fBpt);
     colorClear(*fRad);

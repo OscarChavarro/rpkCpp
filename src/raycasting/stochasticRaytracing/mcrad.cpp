@@ -229,7 +229,7 @@ Initialises patch data
 */
 static void
 monteCarloRadiosityInitPatch(Patch *patch) {
-    ColorRgb Ed = topLevelGalerkinElement(patch)->Ed;
+    COLOR Ed = topLevelGalerkinElement(patch)->Ed;
 
     reAllocCoefficients(topLevelGalerkinElement(patch));
     stochasticRadiosityClearCoefficients(getTopLevelPatchRad(patch), getTopLevelPatchBasis(patch));
@@ -483,7 +483,7 @@ monteCarloRadiosityTerminate(java::ArrayList<Patch *> *scenePatches) {
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.inited = false;
 }
 
-static ColorRgb
+static COLOR
 monteCarloRadiosityDiffuseReflectanceAtPoint(Patch *patch, double u, double v) {
     RayHit hit;
     Vector3D point;
@@ -495,10 +495,10 @@ monteCarloRadiosityDiffuseReflectanceAtPoint(Patch *patch, double u, double v) {
     return bsdfScatteredPower(hit.material->bsdf, &hit, &patch->normal, BRDF_DIFFUSE_COMPONENT);
 }
 
-static ColorRgb
+static COLOR
 vertexReflectance(Vertex *v) {
     int count = 0;
-    ColorRgb rd;
+    COLOR rd;
 
     colorClear(rd);
     for ( int i = 0; v->radianceData != nullptr && i < v->radianceData->size(); i++ ) {
@@ -520,10 +520,10 @@ vertexReflectance(Vertex *v) {
     return rd;
 }
 
-static ColorRgb
+static COLOR
 monteCarloRadiosityInterpolatedReflectanceAtPoint(StochasticRadiosityElement *leaf, double u, double v) {
     static StochasticRadiosityElement *cachedleaf = nullptr;
-    static ColorRgb vrd[4], rd;
+    static COLOR vrd[4], rd;
 
     if ( leaf != cachedleaf ) {
         int i;
@@ -551,14 +551,14 @@ monteCarloRadiosityInterpolatedReflectanceAtPoint(StochasticRadiosityElement *le
 Returns the radiance emitted from the patch at the point with parameters
 (u,v) into the direction 'dir'
 */
-ColorRgb
+COLOR
 monteCarloRadiosityGetRadiance(Patch *patch, double u, double v, Vector3D /*dir*/) {
-    ColorRgb TrueRdAtPoint = monteCarloRadiosityDiffuseReflectanceAtPoint(patch, u, v);
+    COLOR TrueRdAtPoint = monteCarloRadiosityDiffuseReflectanceAtPoint(patch, u, v);
     StochasticRadiosityElement *leaf = stochasticRadiosityElementRegularLeafElementAtPoint(
             topLevelGalerkinElement(patch), &u, &v);
-    ColorRgb UsedRdAtPoint = GLOBAL_render_renderOptions.smoothShading ? monteCarloRadiosityInterpolatedReflectanceAtPoint(leaf, u, v) : leaf->Rd;
-    ColorRgb rad = stochasticRadiosityElementDisplayRadianceAtPoint(leaf, u, v);
-    ColorRgb source_rad;
+    COLOR UsedRdAtPoint = GLOBAL_render_renderOptions.smoothShading ? monteCarloRadiosityInterpolatedReflectanceAtPoint(leaf, u, v) : leaf->Rd;
+    COLOR rad = stochasticRadiosityElementDisplayRadianceAtPoint(leaf, u, v);
+    COLOR source_rad;
     colorClear(source_rad);
 
     // Subtract source radiance

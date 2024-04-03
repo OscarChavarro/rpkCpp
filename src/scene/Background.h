@@ -2,7 +2,7 @@
 #define __BACKGROUND__
 
 #include "common/linealAlgebra/Vector3D.h"
-#include "common/ColorRgb.h"
+#include "common/color.h"
 #include "skin/Patch.h"
 
 class BACKGROUND_METHODS {
@@ -10,7 +10,7 @@ class BACKGROUND_METHODS {
     /* evaluate background radiance coming in from direction (direction
      * positions towards the background). If probabilityDensityFunction is non-null, also fills
      * in the probability of sampling this direction with Sample() */
-    ColorRgb (*Radiance)(void *data, Vector3D *position, Vector3D *direction, float *probabilityDensityFunction);
+    COLOR (*Radiance)(void *data, Vector3D *position, Vector3D *direction, float *probabilityDensityFunction);
 
     /* Samples a direction to the background, taking into account the
      * radiance coming in from the background. The returned direction
@@ -20,11 +20,11 @@ class BACKGROUND_METHODS {
      * needs to be sampled. If value or pdf is non-null, the radiance coming
      * in from the sampled direction or the probability of sampling the
      * direction are computed on the fly. */
-    Vector3D (*Sample)(void *data, Vector3D *position, float xi1, float xi2, ColorRgb *radiance, float *probabilityDensityFunction);
+    Vector3D (*Sample)(void *data, Vector3D *position, float xi1, float xi2, COLOR *radiance, float *probabilityDensityFunction);
 
     /* Computes total power emitted by the background (= integral over
      * the full sphere of the background radiance */
-    ColorRgb (*Power)(void *data, Vector3D *position);
+    COLOR (*Power)(void *data, Vector3D *position);
 
     void (*Destroy)(void *data);
 };
@@ -36,7 +36,7 @@ class Background {
     BACKGROUND_METHODS *methods; // class methods operating on state
 };
 
-extern ColorRgb backgroundRadiance(Background *bkg, Vector3D *position, Vector3D *direction, float *probabilityDensityFunction);
-extern ColorRgb backgroundPower(Background *bkg, Vector3D *position);
+extern COLOR backgroundRadiance(Background *bkg, Vector3D *position, Vector3D *direction, float *probabilityDensityFunction);
+extern COLOR backgroundPower(Background *bkg, Vector3D *position);
 
 #endif

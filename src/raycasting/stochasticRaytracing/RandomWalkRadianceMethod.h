@@ -12,7 +12,7 @@ class RandomWalkRadianceMethod : public RadianceMethod {
     void initialize(java::ArrayList<Patch *> *scenePatches);
     int doStep(java::ArrayList<Patch *> *scenePatches, java::ArrayList<Patch *> *lightPatches);
     void terminate(java::ArrayList<Patch *> *scenePatches);
-    ColorRgb getRadiance(Patch *patch, double u, double v, Vector3D dir);
+    COLOR getRadiance(Patch *patch, double u, double v, Vector3D dir);
     Element *createPatchData(Patch *patch);
     void destroyPatchData(Patch *patch);
     char *getStats();

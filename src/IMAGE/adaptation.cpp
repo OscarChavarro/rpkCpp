@@ -21,11 +21,11 @@ class LuminanceArea {
 /**
 A-priori estimate of a patch's radiance
 */
-static ColorRgb
+static COLOR
 initRadianceEstimate(Patch *patch) {
-    ColorRgb E = patch->averageEmittance(ALL_COMPONENTS);
-    ColorRgb R = patch->averageNormalAlbedo(BSDF_ALL_COMPONENTS);
-    ColorRgb radiance;
+    COLOR E = patch->averageEmittance(ALL_COMPONENTS);
+    COLOR R = patch->averageNormalAlbedo(BSDF_ALL_COMPONENTS);
+    COLOR radiance;
 
     colorProduct(R, GLOBAL_statistics.estimatedAverageRadiance, radiance);
     colorAddScaled(radiance, (1.0 / M_PI), E, radiance);
@@ -37,7 +37,7 @@ static double globalLogAreaLum;
 static LuminanceArea *globalLumArea;
 static float globalLumMin = HUGE;
 static float globalLumMax = 0.0;
-static ColorRgb (*PatchRadianceEstimate)(Patch *globalP) = initRadianceEstimate;
+static COLOR (*PatchRadianceEstimate)(Patch *globalP) = initRadianceEstimate;
 
 static int
 adaptationLumAreaComp(const void *la1, const void *la2) {
@@ -48,7 +48,7 @@ adaptationLumAreaComp(const void *la1, const void *la2) {
 
 static float
 patchBrightnessEstimate(Patch *patch) {
-    ColorRgb radiance = PatchRadianceEstimate(patch);
+    COLOR radiance = PatchRadianceEstimate(patch);
     float brightness = colorLuminance(radiance);
     if ( brightness < EPSILON ) {
         brightness = EPSILON;
@@ -104,7 +104,7 @@ adaption estimation method in GLOBAL_toneMap_options.statadapt
 emitted by a patch. The result is filled in GLOBAL_toneMap_options.lwa
 */
 static void
-estimateSceneAdaptation(ColorRgb (*patch_radiance)(Patch *), java::ArrayList<Patch *> *scenePatches) {
+estimateSceneAdaptation(COLOR (*patch_radiance)(Patch *), java::ArrayList<Patch *> *scenePatches) {
     PatchRadianceEstimate = patch_radiance;
 
     switch ( GLOBAL_toneMap_options.staticAdaptationMethod ) {

@@ -36,7 +36,7 @@ makeLightSourceTable(java::ArrayList<Patch *> *scenePatches, java::ArrayList<Pat
 
     for ( int i = 0; lightPatches != nullptr && i < lightPatches->size(); i++ ) {
         Patch *light = lightPatches->get(i);
-        ColorRgb emitted_rad = light->averageEmittance(ALL_COMPONENTS);
+        COLOR emitted_rad = light->averageEmittance(ALL_COMPONENTS);
         double flux = M_PI * light->area * colorSumAbsComponents(emitted_rad);
         globalTotalFlux += flux;
         initLight(&globalLights[i], light, flux);
@@ -68,7 +68,7 @@ nextLightSample(Patch *patch, double *zeta) {
 }
 
 static Ray
-sampleLightRay(Patch *patch, ColorRgb *emitted_rad, double *point_selection_pdf, double *dir_selection_pdf) {
+sampleLightRay(Patch *patch, COLOR *emitted_rad, double *point_selection_pdf, double *dir_selection_pdf) {
     Ray ray;
     do {
         double zeta[4];
@@ -91,7 +91,7 @@ sampleLightRay(Patch *patch, ColorRgb *emitted_rad, double *point_selection_pdf,
 
 static void
 sampleLight(LightSourceTable *light, double light_selection_pdf) {
-    ColorRgb rad;
+    COLOR rad;
     double point_selection_pdf, dir_selection_pdf;
     Ray ray = sampleLightRay(light->patch, &rad, &point_selection_pdf, &dir_selection_pdf);
     RayHit hitStore;
@@ -102,8 +102,8 @@ sampleLight(LightSourceTable *light, double light_selection_pdf) {
     if ( hit ) {
         double pdf = light_selection_pdf * point_selection_pdf * dir_selection_pdf;
         double outCos = vectorDotProduct(ray.dir, light->patch->normal);
-        ColorRgb receivedRadiosity;
-        ColorRgb Rd = topLevelGalerkinElement(hit->patch)->Rd;
+        COLOR receivedRadiosity;
+        COLOR Rd = topLevelGalerkinElement(hit->patch)->Rd;
         colorScale((float)(outCos / (M_PI * hit->patch->area * pdf * globalNumberOfSamples)), rad, receivedRadiosity);
         colorProduct(Rd, receivedRadiosity, receivedRadiosity);
         colorAdd(getTopLevelPatchRad(hit->patch)[0], receivedRadiosity, getTopLevelPatchRad(hit->patch)[0]);

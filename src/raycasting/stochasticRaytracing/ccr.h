@@ -7,10 +7,10 @@ Constant Control Radiosity
 
 #include "java/util/ArrayList.h"
 
-extern ColorRgb
+extern COLOR
 determineControlRadiosity(
-        ColorRgb *(*getRadiance)(StochasticRadiosityElement *),
-        ColorRgb (*getScaling)(StochasticRadiosityElement *),
-        java::ArrayList<Patch *> *scenePatches);
+    COLOR *(*getRadiance)(StochasticRadiosityElement *),
+    COLOR (*getScaling)(StochasticRadiosityElement *),
+    java::ArrayList<Patch *> *scenePatches);
 
 #endif

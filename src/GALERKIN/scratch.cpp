@@ -129,11 +129,11 @@ scratchRenderElements(GalerkinElement *cluster, Vector3D eye) {
 After rendering element pointers in the scratch frame buffer, this routine
 computes the average radiance of the virtual screen
 */
-ColorRgb
+COLOR
 scratchRadiance() {
     int nonBackGround;
     SGL_PIXEL *pix;
-    ColorRgb rad;
+    COLOR rad;
     int i;
     int j;
 

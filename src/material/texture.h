@@ -1,7 +1,7 @@
 #ifndef __TEXTURE__
 #define __TEXTURE__
 
-#include "common/ColorRgb.h"
+#include "common/color.h"
 
 class TEXTURE {
   public:
@@ -11,6 +11,6 @@ class TEXTURE {
     unsigned char *data; // First bytes correspond to bottom-left pixel (as in OpenGL)
 };
 
-extern ColorRgb evalTextureColor(TEXTURE *texture, float u, float v);
+extern COLOR evalTextureColor(TEXTURE *texture, float u, float v);
 
 #endif

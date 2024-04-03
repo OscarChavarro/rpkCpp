@@ -14,7 +14,7 @@ Galerkin Radiosity "private" declarations
 The Galerkin specific data for a patch is its toplevel element
 */
 
-inline ColorRgb&
+inline COLOR&
 RADIANCE(Patch *patch) {
     return ((GalerkinElement *)(patch->radianceData))->radiance[0];
 }
@@ -101,8 +101,8 @@ class GalerkinState {
     int multiResolutionVisibility; // For multi-resolution visibility determination
     int use_constant_radiance; // Set true for constant radiance initialization
     int use_ambient_radiance; // Ambient radiance (for visualisation only)
-    ColorRgb constant_radiance;
-    ColorRgb ambient_radiance;
+    COLOR constant_radiance;
+    COLOR ambient_radiance;
     GalerkinShaftCullMode shaftCullMode; // When to do shaft culling
 
     // Cubature rules for computing form factors

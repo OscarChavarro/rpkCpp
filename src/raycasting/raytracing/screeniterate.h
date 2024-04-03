@@ -8,9 +8,9 @@ Several functions are provided for different iterating schemes
 #ifndef __SCREEN_ITERATE__
 #define __SCREEN_ITERATE__
 
-#include "common/ColorRgb.h"
+#include "common/color.h"
 
-typedef ColorRgb(*SCREEN_ITERATE_CALLBACK)(int, int, void *);
+typedef COLOR(*SCREEN_ITERATE_CALLBACK)(int, int, void *);
 
 void ScreenIterateSequential(SCREEN_ITERATE_CALLBACK callback, void *data);
 

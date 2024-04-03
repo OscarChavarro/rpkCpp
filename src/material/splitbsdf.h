@@ -7,13 +7,13 @@
 #include "material/hit.h"
 #include "material/bsdf.h"
 
-extern ColorRgb
+extern COLOR
 splitBsdfScatteredPower(BSDF *bsdf, RayHit *hit, char flags);
 
 extern int
 splitBsdfIsTextured(BSDF *bsdf);
 
-extern ColorRgb
+extern COLOR
 splitBsdfEval(
     BSDF *bsdf,
     RayHit *hit,

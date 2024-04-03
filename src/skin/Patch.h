@@ -100,8 +100,8 @@ class Patch {
     void biLinearToUniform(double *u, double *v) const;
     void interpolatedFrameAtUv(double u, double v, Vector3D *X, Vector3D *Y, Vector3D *Z);
     Vector3D textureCoordAtUv(double u, double v);
-    ColorRgb averageNormalAlbedo(BSDF_FLAGS components);
-    ColorRgb averageEmittance(char components);
+    COLOR averageNormalAlbedo(BSDF_FLAGS components);
+    COLOR averageEmittance(char components);
     void computeVertexColors();
 };
 

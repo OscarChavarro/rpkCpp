@@ -26,7 +26,7 @@ RandomWalkRadianceMethod::parseOptions(int *argc, char **argv) {
     randomWalkRadiosityParseOptions(argc, argv);
 }
 
-ColorRgb
+COLOR
 RandomWalkRadianceMethod::getRadiance(Patch *patch, double u, double v, Vector3D dir) {
     return monteCarloRadiosityGetRadiance(patch, u, v, dir);
 }
@@ -81,7 +81,7 @@ stochasticJacobiProbability proportional to power to be propagated
 */
 static double
 randomWalkRadiosityScalarSourcePower(Patch *P) {
-    ColorRgb radiance = topLevelGalerkinElement(P)->sourceRad;
+    COLOR radiance = topLevelGalerkinElement(P)->sourceRad;
     return /* M_PI * */ P->area * colorSumAbsComponents(radiance);
 }
 
@@ -94,9 +94,9 @@ randomWalkRadiosityScalarReflectance(Patch *P) {
     return monteCarloRadiosityScalarReflectance(P);
 }
 
-static ColorRgb *
+static COLOR *
 randomWalkRadiosityGetSelfEmittedRadiance(StochasticRadiosityElement *elem) {
-    static ColorRgb Ed[MAX_BASIS_SIZE];
+    static COLOR Ed[MAX_BASIS_SIZE];
     stochasticRadiosityClearCoefficients(Ed, elem->basis);
     Ed[0] = topLevelGalerkinElement(elem->patch)->Ed; // Emittance
     return Ed;
@@ -109,8 +109,8 @@ static void
 randomWalkRadiosityReduceSource(java::ArrayList<Patch *> *scenePatches) {
     for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
         Patch *patch = scenePatches->get(i);
-        ColorRgb newSourceRadiance;
-        ColorRgb rho;
+        COLOR newSourceRadiance;
+        COLOR rho;
 
         colorSetMonochrome(newSourceRadiance, 1.0);
         rho = topLevelGalerkinElement(patch)->Rd; // Reflectance
@@ -172,7 +172,7 @@ randomWalkRadiosityScoreWeight(PATH *path, int n) {
 
 static void
 randomWalkRadiosityShootingScore(PATH *path, long nr_paths, double (* /*birthProb*/)(Patch *)) {
-    ColorRgb accumPow;
+    COLOR accumPow;
     int n;
     StochasticRaytracingPathNode *node = &path->nodes[0];
 
@@ -187,7 +187,7 @@ randomWalkRadiosityShootingScore(PATH *path, long nr_paths, double (* /*birthPro
         double w;
         int i;
         Patch *P = node->patch;
-        ColorRgb Rd = topLevelGalerkinElement(P)->Rd;
+        COLOR Rd = topLevelGalerkinElement(P)->Rd;
         colorProduct(accumPow, Rd, accumPow);
 
         P->uniformUv(&node->inPoint, &uin, &vin);
@@ -267,21 +267,21 @@ randomWalkRadiosityDoShootingIteration(java::ArrayList<Patch *> *scenePatches) {
 /**
 Determines control radiosity value for collision gathering estimator
 */
-static ColorRgb
+static COLOR
 randomWalkRadiosityDetermineGatheringControlRadiosity(java::ArrayList<Patch *> *scenePatches) {
-    ColorRgb c1;
-    ColorRgb c2;
-    ColorRgb cr;
+    COLOR c1;
+    COLOR c2;
+    COLOR cr;
 
     colorClear(c1);
     colorClear(c2);
 
     for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
-        ColorRgb absorb;
-        ColorRgb rho;
-        ColorRgb Ed;
-        ColorRgb num;
-        ColorRgb denominator;
+        COLOR absorb;
+        COLOR rho;
+        COLOR Ed;
+        COLOR num;
+        COLOR denominator;
         Patch *patch = scenePatches->get(i);
 
         colorSetMonochrome(absorb, 1.0);
@@ -306,7 +306,7 @@ randomWalkRadiosityDetermineGatheringControlRadiosity(java::ArrayList<Patch *> *
 
 static void
 randomWalkRadiosityCollisionGatheringScore(PATH *path, long /*nr_paths*/, double (* /*birthProb*/)(Patch *)) {
-    ColorRgb accum_rad;
+    COLOR accum_rad;
     int n;
     StochasticRaytracingPathNode *node = &path->nodes[path->numberOfNodes - 1];
     accum_rad = topLevelGalerkinElement(node->patch)->sourceRad;
@@ -318,7 +318,7 @@ randomWalkRadiosityCollisionGatheringScore(PATH *path, long /*nr_paths*/, double
         double r = 1.0;
         int i;
         Patch *P = node->patch;
-        ColorRgb Rd = topLevelGalerkinElement(P)->Rd;
+        COLOR Rd = topLevelGalerkinElement(P)->Rd;
         colorProduct(Rd, accum_rad, accum_rad);
 
         P->uniformUv(&node->outpoint, &uOut, &vOut);
@@ -362,9 +362,9 @@ randomWalkRadiosityGatheringUpdate(Patch *P, double /*w*/) {
 
     if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.constantControlVariate ) {
         /* add constant control radiosity value */
-        ColorRgb cr = GLOBAL_stochasticRaytracing_monteCarloRadiosityState.controlRadiance;
+        COLOR cr = GLOBAL_stochasticRaytracing_monteCarloRadiosityState.controlRadiance;
         if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.indirectOnly ) {
-            ColorRgb Rd = topLevelGalerkinElement(P)->Rd;
+            COLOR Rd = topLevelGalerkinElement(P)->Rd;
             colorProduct(Rd, GLOBAL_stochasticRaytracing_monteCarloRadiosityState.controlRadiance, cr);
         }
         colorAdd(getTopLevelPatchRad(P)[0], cr, getTopLevelPatchRad(P)[0]);

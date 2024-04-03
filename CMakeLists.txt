@@ -18,7 +18,7 @@ include_directories(src)
 set(MAIN_SRC
     src/common/errorshared.cpp
     src/common/mymath.cpp
-    src/common/ColorRgb.cpp
+    src/common/color.cpp
     src/common/options.cpp
     src/common/cie.cpp
     src/common/RenderOptions.cpp
