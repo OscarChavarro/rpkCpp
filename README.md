@@ -7,6 +7,9 @@ Original software from 2001 is available on
 This is a full rewrite with the following features:
 - Project controlled by cmake instead of make.
 - Code ported from a mix of K&C + ancient C++ to C++ 2011.
+- Avoid usage of very old coding styles:
+  - Avoid using union structs
+  - Avoid using goto in favor of structured programming
 - Custom-made operations and data structures replaced in favor of standard ones
   - Pools library for memory allocator replaced by standard Ansi C malloc (intermediate step).
   - Ansi C malloc/free operators replaced by C++ new/delete (final step).

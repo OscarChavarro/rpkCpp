@@ -370,7 +370,7 @@ doGatherRadiance(GalerkinElement *rcv, double area_factor, Interaction *link, CO
     COLOR *rcvRad = rcv->receivedRadiance;
 
     if ( link->nrcv == 1 && link->nsrc == 1 ) {
-        colorAddScaled(rcvRad[0], (float)(area_factor * link->K.f), srcRad[0], rcvRad[0]);
+        colorAddScaled(rcvRad[0], (float)(area_factor * link->K[0]), srcRad[0], rcvRad[0]);
     } else {
         int alpha;
         int beta;
@@ -381,7 +381,7 @@ doGatherRadiance(GalerkinElement *rcv, double area_factor, Interaction *link, CO
         for ( alpha = 0; alpha < a; alpha++ ) {
             for ( beta = 0; beta < b; beta++ ) {
                 colorAddScaled(rcvRad[alpha],
-                               (float)(area_factor * link->K.p[alpha * link->nsrc + beta]),
+                               (float)(area_factor * link->K[alpha * link->nsrc + beta]),
                                srcRad[beta], rcvRad[alpha]);
             }
         }

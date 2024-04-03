@@ -240,8 +240,8 @@ necessary
 */
 static double
 sourceClusterRadianceVariationError(Interaction *link, COLOR rcvRho, double rcv_area) {
-    double K = (link->nsrc == 1 && link->nrcv == 1) ? link->K.f : link->K.p[0];
-    if ( K == 0. || colorNull(rcvRho) || colorNull(link->sourceElement->radiance[0])) {
+    double K = link->K[0];
+    if ( K == 0.0 || colorNull(rcvRho) || colorNull(link->sourceElement->radiance[0]) ) {
         // Receiver reflectivity or coupling coefficient or source radiance
         // is zero
         return 0.0;
@@ -380,13 +380,13 @@ hierarchicRefinementComputeLightTransport(
     } else {
         rcvRad = link->receiverElement->receivedRadiance;
         if ( link->nrcv == 1 && link->nsrc == 1 ) {
-            colorAddScaled(rcvRad[0], link->K.f, srcRad[0], rcvRad[0]);
+            colorAddScaled(rcvRad[0], link->K[0], srcRad[0], rcvRad[0]);
         } else {
             for ( int alpha = 0; alpha < a; alpha++ ) {
                 for ( int beta = 0; beta < b; beta++ ) {
                     colorAddScaled(
                      rcvRad[alpha],
-                     link->K.p[alpha * link->nsrc + beta],
+                     link->K[alpha * link->nsrc + beta],
                      srcRad[beta],
                      rcvRad[alpha]);
                 }
@@ -395,7 +395,7 @@ hierarchicRefinementComputeLightTransport(
     }
 
     if ( state->importance_driven ) {
-        float K = ((link->nrcv == 1 && link->nsrc == 1) ? link->K.f : link->K.p[0]);
+        float K = link->K[0];
         COLOR rcvRho;
         COLOR srcRho;
 
@@ -499,8 +499,7 @@ hierarchicRefinementRegularSubdivideSource(
     for ( int i = 0; i < 4; i++ ) {
         GalerkinElement *child = (GalerkinElement *)src->regularSubElements[i];
         Interaction subInteraction{};
-        float formFactors[MAX_BASIS_SIZE * MAX_BASIS_SIZE];
-        subInteraction.K.p = formFactors; // Temporary storage for the form factors
+        subInteraction.K = new float[MAX_BASIS_SIZE * MAX_BASIS_SIZE];
 
         if ( hierarchicRefinementCreateSubdivisionLink(*candidatesList, rcv, child, &subInteraction) ) {
             if ( !refineRecursive(candidatesList, &subInteraction, state) ) {
@@ -531,9 +530,8 @@ hierarchicRefinementRegularSubdivideReceiver(
     rcv->regularSubDivide();
     for ( int i = 0; i < 4; i++ ) {
         Interaction subInteraction{};
-        float ff[MAX_BASIS_SIZE * MAX_BASIS_SIZE];
         GalerkinElement *child = (GalerkinElement *)rcv->regularSubElements[i];
-        subInteraction.K.p = ff;
+        subInteraction.K = new float[MAX_BASIS_SIZE * MAX_BASIS_SIZE];
 
         if ( hierarchicRefinementCreateSubdivisionLink(*candidatesList, child, src, &subInteraction) ) {
             if ( !refineRecursive(candidatesList, &subInteraction, state) ) {
@@ -564,8 +562,7 @@ hierarchicRefinementSubdivideSourceCluster(
     for ( int i = 0; src->irregularSubElements != nullptr && i < src->irregularSubElements->size(); i++ ) {
         GalerkinElement *childElement = (GalerkinElement *)src->irregularSubElements->get(i);
         Interaction subInteraction{};
-        float ff[MAX_BASIS_SIZE * MAX_BASIS_SIZE];
-        subInteraction.K.p = ff; // Temporary storage for the form-factors
+        subInteraction.K = new float[MAX_BASIS_SIZE * MAX_BASIS_SIZE];
 
         if ( !childElement->isCluster() ) {
             Patch *thePatch = childElement->patch;
@@ -605,18 +602,17 @@ hierarchicRefinementSubdivideReceiverCluster(
     for ( int i = 0; rcv->irregularSubElements != nullptr && i < rcv->irregularSubElements->size(); i++ ) {
         GalerkinElement *child = (GalerkinElement *)rcv->irregularSubElements->get(i);
         Interaction subInteraction{};
-        float formFactor[MAX_BASIS_SIZE * MAX_BASIS_SIZE];
-        subInteraction.K.p = formFactor;
+        subInteraction.K = new float [MAX_BASIS_SIZE * MAX_BASIS_SIZE];
 
         if ( !child->isCluster() ) {
             Patch *the_patch = child->patch;
-            if ((src->isCluster() && getBoundingBox(src->geometry).behindPlane(&the_patch->normal, the_patch->planeConstant)) ||
-                (!src->isCluster() && !facing(src->patch, the_patch)) ) {
+            if ( (src->isCluster() && getBoundingBox(src->geometry).behindPlane(&the_patch->normal, the_patch->planeConstant)) ||
+                 (!src->isCluster() && !facing(src->patch, the_patch)) ) {
                 continue;
             }
         }
 
-        if ( hierarchicRefinementCreateSubdivisionLink(*candidatesList, child, src, &subInteraction)) {
+        if ( hierarchicRefinementCreateSubdivisionLink(*candidatesList, child, src, &subInteraction) ) {
             if ( !refineRecursive(candidatesList, &subInteraction, state) ) {
                 hierarchicRefinementStoreInteraction(&subInteraction, state);
             }

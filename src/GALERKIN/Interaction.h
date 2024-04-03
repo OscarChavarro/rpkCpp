@@ -19,7 +19,7 @@ class Interaction {
   public:
     GalerkinElement *receiverElement;
     GalerkinElement *sourceElement;
-    FloatOrPointer K; // Coupling coefficient(s), stored top to bottom, left to right
+    float *K; // Coupling coefficient(s), stored top to bottom, left to right
     FloatOrPointer deltaK; // Used for approximation error estimation over the link
     unsigned char nrcv; // Number of basis functions on receiver and source
     unsigned char nsrc;
@@ -28,14 +28,14 @@ class Interaction {
 
     Interaction();
     explicit Interaction(
-            GalerkinElement *rcv,
-            GalerkinElement *src,
-            FloatOrPointer K,
-            FloatOrPointer deltaK,
-            unsigned char nrcv,
-            unsigned char nsrc,
-            unsigned char crcv,
-            unsigned char vis
+        GalerkinElement *rcv,
+        GalerkinElement *src,
+        const float *K,
+        FloatOrPointer deltaK,
+        unsigned char nrcv,
+        unsigned char nsrc,
+        unsigned char crcv,
+        unsigned char vis
     );
 };
 

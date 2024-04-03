@@ -46,7 +46,7 @@ Interaction::Interaction():
 Interaction::Interaction(
     GalerkinElement *rcv,
     GalerkinElement *src,
-    FloatOrPointer K,
+    const float *K,
     FloatOrPointer deltaK,
     unsigned char nrcv,
     unsigned char nsrc,
@@ -61,11 +61,12 @@ Interaction::Interaction(
     this->vis = vis;
 
     if ( nrcv == 1 && nsrc == 1 ) {
-        this->K.f = K.f;
+        this->K = new float[1];
+        *this->K = *K;
     } else {
-        this->K.p = new float[nrcv * nsrc];
+        this->K = new float[nrcv * nsrc];
         for ( int i = 0; i < nrcv * nsrc; i++ ) {
-            this->K.p[i] = K.p[i];
+            this->K[i] = K[i];
         }
     }
 
@@ -110,7 +111,7 @@ interactionDestroy(Interaction *interaction) {
     GalerkinElement *rcv = interaction->receiverElement;
 
     if ( interaction->nrcv > 1 || interaction->nsrc > 1 ) {
-        delete[] interaction->K.p;
+        delete[] interaction->K;
     }
 
     delete interaction;

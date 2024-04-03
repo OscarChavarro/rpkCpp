@@ -66,8 +66,7 @@ createInitialLink(Patch *patch) {
     }
 
     Interaction link{};
-    float ff[MAX_BASIS_SIZE * MAX_BASIS_SIZE];
-    link.K.p = ff;
+    link.K = new float[MAX_BASIS_SIZE * MAX_BASIS_SIZE];
     link.receiverElement = rcv;
     link.sourceElement = src;
 
@@ -215,7 +214,7 @@ createInitialLinkWithTopCluster(GalerkinElement *elem, GalerkinRole role) {
     Interaction *newLink = new Interaction(
         rcv,
         src,
-        K,
+        &K.f,
         deltaK,
         rcv->basisSize,
         src->basisSize,
