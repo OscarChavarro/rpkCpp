@@ -12,7 +12,6 @@ digraph G {
     Vector3D [shape=box];
     Matrix2x2 [shape=box];
     RGB [shape=box];
-    FloatOrPointer [shape=box];
 
     Patch [shape=box, style=filled, fillcolor="#80ff80"];
     Geometry [shape=box, style=filled, fillcolor="#80ff80"];
@@ -47,7 +46,6 @@ digraph G {
     Element -> Matrix2x2;
     Element -> ElementTypes;
     Interaction -> GalerkinElement;
-    Interaction -> FloatOrPointer;
     GalerkinElement -> Element;
     GalerkinElement -> ArrayList;
     GalerkinElement -> Interaction;
