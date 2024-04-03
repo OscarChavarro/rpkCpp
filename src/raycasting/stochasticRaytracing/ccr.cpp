@@ -202,16 +202,50 @@ refineControlRadiosity(
         float radC[NUMBER_OF_INTERVALS + 1];
         for ( int i = 0; i <= NUMBER_OF_INTERVALS; i++ ) {
             // Copy components
-            fc[i] = f[i].spectrum[s];
-            radC[i] = rad[i].spectrum[s];
+            switch ( s ) {
+                case 0:
+                    fc[i] = f[i].r;
+                    radC[i] = rad[i].r;
+                    break;
+                case 1:
+                    fc[i] = f[i].g;
+                    radC[i] = rad[i].g;
+                    break;
+                case 2:
+                    fc[i] = f[i].b;
+                    radC[i] = rad[i].b;
+                    break;
+            }
         }
-        refineComponent(
-            &(minRad->spectrum[s]),
-            &(maxRad->spectrum[s]),
-            &(fMin->spectrum[s]),
-            &(fMax->spectrum[s]),
-            fc,
-            radC);
+        switch ( s ) {
+            case 0:
+                refineComponent(
+                    &(minRad->r),
+                    &(maxRad->r),
+                    &(fMin->r),
+                    &(fMax->r),
+                    fc,
+                    radC);
+                break;
+            case 1:
+                refineComponent(
+                    &(minRad->g),
+                    &(maxRad->g),
+                    &(fMin->g),
+                    &(fMax->g),
+                    fc,
+                    radC);
+                break;
+            case 2:
+                refineComponent(
+                    &(minRad->b),
+                    &(maxRad->b),
+                    &(fMin->b),
+                    &(fMax->b),
+                    fc,
+                    radC);
+                break;
+        }
     }
 }
 

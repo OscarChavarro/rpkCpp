@@ -27,13 +27,6 @@ class RGB {
     }
 };
 
-inline int operator==(RGB rgb1, RGB rgb2)
-{
-    return(doubleEqual(rgb1.r, rgb2.r, EPSILON) &&
-           doubleEqual(rgb1.g, rgb2.g, EPSILON) &&
-           doubleEqual(rgb1.b, rgb2.b, EPSILON));
-}
-
 /**
 printRegularHierarchy an RGB triplet
 */
