@@ -37,11 +37,10 @@ class Interaction {
         unsigned char inNumberOfReceiverCubaturePositions,
         unsigned char inVisibility
     );
-
-    virtual ~Interaction();
 };
 
 extern Interaction *interactionDuplicate(Interaction *interaction);
+extern void interactionDestroy(Interaction *interaction);
 extern int getNumberOfInteractions();
 extern int getNumberOfClusterToClusterInteractions();
 extern int getNumberOfClusterToSurfaceInteractions();
