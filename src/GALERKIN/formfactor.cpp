@@ -317,21 +317,22 @@ doHigherOrderAreaToAreaFormFactor(
         }
     }
 
+    link->deltaK = new float[1];
     if ( colorNull(srcrad[0]) ) {
         // No source radiance: use constant radiance error approximation
         Gav = link->K[0] / rcv->area;
-        link->deltaK.f = (float)(Gmax - Gav);
-        if ( Gav - Gmin > link->deltaK.f ) {
-            link->deltaK.f = (float)(Gav - Gmin);
+        link->deltaK[0] = (float)(Gmax - Gav);
+        if ( Gav - Gmin > link->deltaK[0] ) {
+            link->deltaK[0] = (float)(Gav - Gmin);
         }
     } else {
-        link->deltaK.f = 0.0;
+        link->deltaK[0] = 0.0;
         for ( k = 0; k < crrcv->numberOfNodes; k++ ) {
             double delta;
 
             colorDivide(deltarad[k], srcrad[0], deltarad[k]);
-            if ((delta = std::fabs(colorMaximumComponent(deltarad[k]))) > link->deltaK.f ) {
-                link->deltaK.f = (float)delta;
+            if ((delta = std::fabs(colorMaximumComponent(deltarad[k]))) > link->deltaK[0] ) {
+                link->deltaK[0] = (float)delta;
             }
         }
     }
@@ -378,9 +379,10 @@ doConstantAreaToAreaFormFactor(
     }
     link->K[0] = (float)(rcv->area * G);
 
-    link->deltaK.f = (float)(G - Gmin);
-    if ( Gmax - G > link->deltaK.f ) {
-        link->deltaK.f = (float)(Gmax - G);
+    link->deltaK = new float[1];
+    link->deltaK[0] = (float)(G - Gmin);
+    if ( Gmax - G > link->deltaK[0] ) {
+        link->deltaK[0] = (float)(Gmax - G);
     }
 
     link->numberOfReceiverCubaturePositions = 1;
@@ -471,7 +473,8 @@ areaToAreaFormFactor(
             }
 
             // And a large error on the form factor
-            link->deltaK.f = 1.0;
+            link->deltaK = new float[1];
+            link->deltaK[0] = 1.0;
             link->numberOfReceiverCubaturePositions = 1;
 
             // And half visibility
@@ -492,7 +495,8 @@ areaToAreaFormFactor(
             }
 
             // And a 0 error on the form factor
-            link->deltaK.f = 0.0;
+            link->deltaK = new float[1];
+            link->deltaK[0] = 0.0;
             link->numberOfReceiverCubaturePositions = 1;
 
             // And full occlusion
@@ -568,7 +572,8 @@ areaToAreaFormFactor(
     GLOBAL_galerkin_state.formFactorLastSrc = src;
 
     if ( GLOBAL_galerkin_state.clusteringStrategy == ISOTROPIC && (rcv->isCluster() || src->isCluster()) ) {
-        link->deltaK.f = (float)(maxkval * src->area);
+        link->deltaK = new float[1];
+        link->deltaK[0] = (float)(maxkval * src->area);
     }
 
     // Returns the visibility: basically the fraction of rays that did not hit an occluder

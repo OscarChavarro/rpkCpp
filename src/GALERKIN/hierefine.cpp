@@ -184,7 +184,7 @@ hierarchicRefinementApproximationError(
                 srcRad = link->sourceElement->radiance[0];
             }
 
-            colorProductScaled(rcvRho, link->deltaK.f, srcRad, error);
+            colorProductScaled(rcvRho, link->deltaK[0], srcRad, error);
             colorAbs(error, error);
             approxError = hierarchicRefinementColorToError(error);
             break;
@@ -196,7 +196,7 @@ hierarchicRefinementApproximationError(
                 srcRad = link->sourceElement->unShotRadiance[0];
             }
 
-            colorProductScaled(rcvRho, link->deltaK.f, srcRad, error);
+            colorProductScaled(rcvRho, link->deltaK[0], srcRad, error);
             colorAbs(error, error);
             approxError = hierarchicRefinementColorToError(error);
 
@@ -205,7 +205,7 @@ hierarchicRefinementApproximationError(
                 // from source to receiver. Note that it makes no sense to
                 // subdivide receiver patches (potential is only used to help
                 // choosing a radiance shooting patch
-                approxError2 = (hierarchicRefinementColorToError(srcRho) * link->deltaK.f * link->sourceElement->unShotPotential);
+                approxError2 = (hierarchicRefinementColorToError(srcRho) * link->deltaK[0] * link->sourceElement->unShotPotential);
 
                 // Compare potential error w.r.t. maximum direct potential or importance
                 // instead of self-emitted radiance or power

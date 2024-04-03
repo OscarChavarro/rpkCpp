@@ -195,26 +195,27 @@ createInitialLinkWithTopCluster(GalerkinElement *elem, GalerkinRole role) {
     }
 
     // Assume no light transport (overlapping receiver and source)
-    FloatOrPointer K;
-    FloatOrPointer deltaK;
-    float ff[MAX_BASIS_SIZE * MAX_BASIS_SIZE];
+    float *K = nullptr;
+    float *deltaK = nullptr;
 
     if ( rcv != nullptr && src != nullptr ) {
         if ( rcv->basisSize * src->basisSize == 1 ) {
-            K.f = 0.0;
+            K = new float[1];
+            K[0] = 0.0;
         } else {
-            K.p = ff;
+            K = new float[MAX_BASIS_SIZE * MAX_BASIS_SIZE];
             for ( int i = 0; i < rcv->basisSize * src->basisSize; i++ ) {
-                K.p[i] = 0.0;
+                K[i] = 0.0;
             }
         }
-        deltaK.f = HUGE; // HUGE error on the form factor
+        deltaK = new float[1];
+        deltaK[0] = HUGE; // HUGE error on the form factor
     }
 
     Interaction *newLink = new Interaction(
         rcv,
         src,
-        &K.f,
+        K,
         deltaK,
         rcv->basisSize,
         src->basisSize,

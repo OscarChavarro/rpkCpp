@@ -397,7 +397,6 @@ mainReadFile(char *filename, MgfContext *context) {
     #endif
 
     delete globalAppScenePatches;
-    globalAppScenePatches = nullptr;
 
     if ( GLOBAL_scene_background != nullptr ) {
         GLOBAL_scene_background->methods->Destroy(GLOBAL_scene_background->data);
@@ -598,7 +597,9 @@ mainFreeMemory(MgfContext *context) {
     galerkinFreeMemory();
     delete GLOBAL_app_lightSourcePatches;
     delete GLOBAL_scene_clusteredGeometries;
-    delete globalAppScenePatches;
+    if ( globalAppScenePatches != nullptr ) {
+        delete globalAppScenePatches;
+    }
 }
 
 int

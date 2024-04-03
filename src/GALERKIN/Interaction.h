@@ -5,22 +5,12 @@
 
 class GalerkinElement;
 
-/**
-For the coupling coefficients and error estimation coefficients: store
-the coefficient directly if there is only one, if there are more,
-make an array and store a pointer to it
-*/
-typedef union FloatOrPointer {
-    float f;
-    float *p;
-} FloatOrPointer;
-
 class Interaction {
   public:
     GalerkinElement *receiverElement;
     GalerkinElement *sourceElement;
     float *K; // Coupling coefficient(s), stored top to bottom, left to right
-    FloatOrPointer deltaK; // Used for approximation error estimation over the link
+    float *deltaK; // Used for approximation error estimation over the link
     unsigned char numberOfBasisFunctionsOnReceiver;
     unsigned char numberOfBasisFunctionsOnSource;
     unsigned char numberOfReceiverCubaturePositions;
@@ -31,7 +21,7 @@ class Interaction {
         GalerkinElement *rcv,
         GalerkinElement *src,
         const float *K,
-        FloatOrPointer deltaK,
+        const float *deltaK,
         unsigned char inNumberOfBasisFunctionsOnReceiver,
         unsigned char inNumberOfBasisFunctionsOnSource,
         unsigned char inNumberOfReceiverCubaturePositions,

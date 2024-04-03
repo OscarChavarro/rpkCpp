@@ -47,7 +47,7 @@ Interaction::Interaction(
     GalerkinElement *rcv,
     GalerkinElement *src,
     const float *K,
-    FloatOrPointer deltaK,
+    const float *deltaK,
     unsigned char inNumberOfBasisFunctionsOnReceiver,
     unsigned char inNumberOfBasisFunctionsOnSource,
     unsigned char inNumberOfReceiverCubaturePositions,
@@ -73,7 +73,8 @@ Interaction::Interaction(
     if ( inNumberOfReceiverCubaturePositions > 1 ) {
         logFatal(2, "interactionCreate", "Not yet implemented for higher order approximations");
     }
-    this->deltaK.f = deltaK.f;
+    this->deltaK = new float[1];
+    *(this->deltaK) = *deltaK;
 
     globalTotalInteractions++;
     if ( rcv->isCluster() ) {
