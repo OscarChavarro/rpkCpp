@@ -7,7 +7,7 @@
 
 class COLOR {
   public:
-    SPECTRUM spec;
+    float spec[3];
     COLOR() : spec() {}
 
     inline void
@@ -45,8 +45,10 @@ colorNull(COLOR &c) {
 }
 
 inline void
-colorScale(float a, COLOR &s, COLOR &r) {
-    scaleSpectrum(a, s.spec, r.spec);
+colorScale(float a, COLOR &c, COLOR &result) {
+    result.spec[0] = a * c.spec[0];
+    result.spec[1] = a * c.spec[1];
+    result.spec[2] = a * c.spec[2];
 }
 
 inline void
@@ -91,12 +93,12 @@ colorScaleInverse(float a, COLOR &s, COLOR &r) {
 
 inline float
 colorMaximumComponent(COLOR &s) {
-    return maxSpectrumComponent(s.spec);
+    return (s.spec[0] > s.spec[1] ? (s.spec[0] > s.spec[2] ? s.spec[0] : s.spec[2]) : (s.spec[1] > s.spec[2] ? s.spec[1] : s.spec[2]));
 }
 
 inline float
 colorSumAbsComponents(COLOR &s) {
-    return sumAbsSpectrumComponents(s.spec);
+    return std::fabs(s.spec[0]) + std::fabs(s.spec[1]) + std::fabs(s.spec[2]);
 }
 
 inline void

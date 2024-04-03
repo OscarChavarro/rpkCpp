@@ -10,6 +10,7 @@ This is a full rewrite with the following features:
 - Avoid usage of very old coding styles:
   - Avoid using union structs
   - Avoid using goto in favor of structured programming
+  - Avoid using pointer arithmetic
 - Custom-made operations and data structures replaced in favor of standard ones
   - Pools library for memory allocator replaced by standard Ansi C malloc (intermediate step).
   - Ansi C malloc/free operators replaced by C++ new/delete (final step).
