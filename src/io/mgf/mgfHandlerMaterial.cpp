@@ -218,9 +218,9 @@ mgfGetCurrentMaterial(Material **material, bool allSurfacesSided, MgfContext *co
         edf = new PhongEmittanceDistributionFunctions(&Ed, &Es, Ne);
     }
 
-    BRDF *brdf = nullptr;
+    PhongBiDirectionalReflectanceDistributionFunction *brdf = nullptr;
     if ( !colorNull(Rd) || !colorNull(Rs) ) {
-        brdf = brdfCreate(phongBrdfCreate(&Rd, &Rs, Nr));
+        brdf = phongBrdfCreate(&Rd, &Rs, Nr);
     }
 
     BTDF *btdf = nullptr;

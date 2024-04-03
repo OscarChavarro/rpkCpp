@@ -12,8 +12,7 @@ class BRDF {
     PhongBiDirectionalReflectanceDistributionFunction *data;
 };
 
-extern BRDF *brdfCreate(PhongBiDirectionalReflectanceDistributionFunction *data);
-extern COLOR brdfReflectance(BRDF *brdf, char flags);
+extern COLOR brdfReflectance(PhongBiDirectionalReflectanceDistributionFunction *brdf, char flags);
 
 /**
 BRDF evaluation functions :
@@ -26,7 +25,7 @@ BRDF evaluation functions :
 
 extern COLOR
 brdfEval(
-    BRDF *brdf,
+    PhongBiDirectionalReflectanceDistributionFunction *brdf,
     Vector3D *in,
     Vector3D *out,
     Vector3D *normal,
@@ -34,7 +33,7 @@ brdfEval(
 
 extern Vector3D
 brdfSample(
-    BRDF *brdf,
+    PhongBiDirectionalReflectanceDistributionFunction *brdf,
     Vector3D *in,
     Vector3D *normal,
     int doRussianRoulette,
@@ -45,7 +44,7 @@ brdfSample(
 
 extern void
 brdfEvalPdf(
-    BRDF *brdf,
+    PhongBiDirectionalReflectanceDistributionFunction *brdf,
     Vector3D *in,
     Vector3D *out,
     Vector3D *normal,

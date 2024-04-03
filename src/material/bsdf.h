@@ -23,11 +23,11 @@ class SPLIT_BSDF;
 
 class BSDF {
   public:
-    BRDF *brdf;
+    PhongBiDirectionalReflectanceDistributionFunction *brdf;
     BTDF *btdf;
     TEXTURE *texture;
 
-    explicit BSDF(BRDF *brdf, BTDF *btdf, TEXTURE *texture);
+    explicit BSDF(PhongBiDirectionalReflectanceDistributionFunction *brdf, BTDF *btdf, TEXTURE *texture);
     virtual ~BSDF();
 };
 
