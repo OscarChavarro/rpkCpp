@@ -64,12 +64,12 @@ IN: The screen buffer to cover.
 OUT: /
 */
 void
-CKernel2D::Cover(const Vector2D &point, float scale, COLOR &col, ScreenBuffer *screen) const {
+CKernel2D::Cover(const Vector2D &point, float scale, ColorRgb &col, ScreenBuffer *screen) const {
     // For each neighbourhood pixel : eval kernel and add contrib
 
     int nx_min, nx_max, ny_min, ny_max, nx, ny;
     Vector2D center;
-    COLOR addCol;
+    ColorRgb addCol;
     float factor;
 
     //  screen->GetPixel(point, &nx, &ny);
@@ -99,13 +99,13 @@ Add one hit/splat with a size dependend on a reference estimate
 */
 void
 CKernel2D::VarCover(
-    const Vector2D &center,
-    COLOR &col,
-    ScreenBuffer *ref,
-    ScreenBuffer *dest,
-    int totalSamples,
-    int scaleSamples,
-    float baseSize)
+        const Vector2D &center,
+        ColorRgb &col,
+        ScreenBuffer *ref,
+        ScreenBuffer *dest,
+        int totalSamples,
+        int scaleSamples,
+        float baseSize)
 {
     float screenScale = floatMax(ref->getPixXSize(), ref->getPixYSize());
     //float screenFactor = ref->GetPixXSize() * ref->GetPixYSize();
@@ -122,7 +122,7 @@ CKernel2D::VarCover(
     // Now compute h for this sample
 
     // Reference estimated function
-    COLOR fe = ref->getBiLinear(center.u, center.v);
+    ColorRgb fe = ref->getBiLinear(center.u, center.v);
 
     float avgFe = colorAverage(fe);
     float avgG = colorAverage(col);

@@ -24,17 +24,17 @@ public:
 
     float Evaluate(const Vector2D &point, const Vector2D &center) const;
 
-    void Cover(const Vector2D &point, float factor, COLOR &col, ScreenBuffer *screen) const;
+    void Cover(const Vector2D &point, float factor, ColorRgb &col, ScreenBuffer *screen) const;
 
     void
     VarCover(
-        const Vector2D &center,
-        COLOR &col,
-        ScreenBuffer *ref,
-        ScreenBuffer *dest,
-        int totalSamples,
-        int scaleSamples,
-        float baseSize = 4.0);
+            const Vector2D &center,
+            ColorRgb &col,
+            ScreenBuffer *ref,
+            ScreenBuffer *dest,
+            int totalSamples,
+            int scaleSamples,
+            float baseSize = 4.0);
 };
 
 #endif

@@ -15,7 +15,7 @@ class PhotonMapRadianceMethod : public RadianceMethod {
     void initialize(java::ArrayList<Patch *> *scenePatches);
     int doStep(java::ArrayList<Patch *> *scenePatches, java::ArrayList<Patch *> *lightPatches);
     void terminate(java::ArrayList<Patch *> *scenePatches);
-    COLOR getRadiance(Patch *patch, double u, double v, Vector3D dir);
+    ColorRgb getRadiance(Patch *patch, double u, double v, Vector3D dir);
     Element *createPatchData(Patch *patch);
     void destroyPatchData(Patch *patch);
     char *getStats();
@@ -23,7 +23,7 @@ class PhotonMapRadianceMethod : public RadianceMethod {
     void writeVRML(FILE *fp);
 };
 
-COLOR photonMapGetNodeGRadiance(SimpleRaytracingPathNode *node);
-COLOR photonMapGetNodeCRadiance(SimpleRaytracingPathNode *node);
+ColorRgb photonMapGetNodeGRadiance(SimpleRaytracingPathNode *node);
+ColorRgb photonMapGetNodeCRadiance(SimpleRaytracingPathNode *node);
 
 #endif

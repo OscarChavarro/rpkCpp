@@ -18,14 +18,14 @@ CSpecularSampler::sample(
     bool reflect;
 
     // Choose a scattering mode : reflection vs. refraction
-    COLOR reflectance = bsdfReflectance(thisNode->m_useBsdf,
-                                        &thisNode->m_hit,
-                                        &thisNode->m_hit.normal,
-                                        GET_BRDF_FLAGS(flags));
-    COLOR transmittance = bsdfScatteredPower(thisNode->m_useBsdf,
-                                             &thisNode->m_hit,
-                                             &thisNode->m_hit.normal,
-                                             GET_BTDF_FLAGS(flags));
+    ColorRgb reflectance = bsdfReflectance(thisNode->m_useBsdf,
+                                           &thisNode->m_hit,
+                                           &thisNode->m_hit.normal,
+                                           GET_BRDF_FLAGS(flags));
+    ColorRgb transmittance = bsdfScatteredPower(thisNode->m_useBsdf,
+                                                &thisNode->m_hit,
+                                                &thisNode->m_hit.normal,
+                                                GET_BTDF_FLAGS(flags));
 
     float avgReflectance = colorAverage(reflectance);
     float avgTransmittance = colorAverage(transmittance);

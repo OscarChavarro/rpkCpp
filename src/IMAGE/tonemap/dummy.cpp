@@ -13,11 +13,11 @@ static void dummyInit() {
 static void dummyTerminate() {
 }
 
-static COLOR dummyScaleForComputations(COLOR radiance) {
+static ColorRgb dummyScaleForComputations(ColorRgb radiance) {
     return radiance;
 }
 
-static COLOR dummyScaleForDisplay(COLOR radiance) {
+static ColorRgb dummyScaleForDisplay(ColorRgb radiance) {
     return radiance;
 }
 

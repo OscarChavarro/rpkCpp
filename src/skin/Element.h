@@ -2,7 +2,7 @@
 #define __ELEMENT__
 
 #include "common/linealAlgebra/Matrix2x2.h"
-#include "common/color.h"
+#include "common/ColorRgb.h"
 #include "skin/Patch.h"
 #include "skin/Geometry.h"
 
@@ -23,13 +23,13 @@ enum ElementTypes {
 class Element {
   public:
     int id; // Unique ID number for the element
-    COLOR Ed; // Diffuse emittance radiance
-    COLOR Rd; // Reflectance
+    ColorRgb Ed; // Diffuse emittance radiance
+    ColorRgb Rd; // Reflectance
     Patch *patch;
     Geometry *geometry;
-    COLOR *radiance; // Total radiance on the element as computed so far
-    COLOR *receivedRadiance; // Radiance received during iteration
-    COLOR *unShotRadiance; // For progressive refinement radiosity
+    ColorRgb *radiance; // Total radiance on the element as computed so far
+    ColorRgb *receivedRadiance; // Radiance received during iteration
+    ColorRgb *unShotRadiance; // For progressive refinement radiosity
     Element *parent; // Parent element in a hierarchy, or
         // nullptr pointer if there is no parent
     Element **regularSubElements; // For surface elements with regular quadtree subdivision

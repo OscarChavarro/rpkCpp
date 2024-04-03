@@ -4,7 +4,7 @@
 
 bool
 ZeroAlbedo(BSDF *bsdf, RayHit *hit, BSDF_FLAGS flags) {
-    COLOR col = bsdfScatteredPower(bsdf, hit, &hit->geometricNormal, flags);
+    ColorRgb col = bsdfScatteredPower(bsdf, hit, &hit->geometricNormal, flags);
     return (colorAverage(col) < EPSILON);
 }
 
@@ -25,10 +25,10 @@ GetFalseMonochrome(float val) {
     return tmp;
 }
 
-COLOR
+ColorRgb
 GetFalseColor(float val) {
     RGB rgb{};
-    COLOR col;
+    ColorRgb col;
     float max;
     float tmp;
     float r = 0;
@@ -191,8 +191,8 @@ CPhotonMap::Redistribute(CPhoton &photon) {
     // -- Check the flags
     // -- normal weighted average?
 
-    COLOR deltaPower;
-    COLOR pow;
+    ColorRgb deltaPower;
+    ColorRgb pow;
     float factor = 1.0f / (float)m_nrpCosinePos;
 
     pow = photon.Power();
@@ -269,7 +269,7 @@ CPhotonMap::GetMaxR2() {
 // Precompute Irradiance
 void
 CPhotonMap::PhotonPrecomputeIrradiance(CIrrPhoton *photon) {
-    COLOR irradiance, power;
+    ColorRgb irradiance, power;
     colorClear(irradiance);
 
     // locate nearest photons using a max radius limit
@@ -315,10 +315,10 @@ CPhotonMap::PrecomputeIrradiance() {
 
 bool
 CPhotonMap::IrradianceReconstruct(
-    RayHit *hit,
-    Vector3D &outDir,
-    COLOR &diffuseAlbedo,
-    COLOR *result)
+        RayHit *hit,
+        Vector3D &outDir,
+        ColorRgb &diffuseAlbedo,
+        ColorRgb *result)
 {
     if ( !m_irradianceComputed ) {
         PrecomputeIrradiance();
@@ -342,17 +342,17 @@ CPhotonMap::IrradianceReconstruct(
     }
 }
 
-COLOR
+ColorRgb
 CPhotonMap::Reconstruct(RayHit *hit, Vector3D &outDir,
                               BSDF *bsdf, BSDF *inBsdf, BSDF *outBsdf) {
     // Find the nearest photons
     float maxDistance;
-    COLOR result, eval, power, col;
+    ColorRgb result, eval, power, col;
     float factor;
 
     colorClear(result);
 
-    COLOR diffuseAlbedo, glossyAlbedo;
+    ColorRgb diffuseAlbedo, glossyAlbedo;
 
     diffuseAlbedo = bsdfScatteredPower(bsdf, hit, &hit->geometricNormal, BRDF_DIFFUSE_COMPONENT);
     // -- TODO Irradiance pre-computation for diffuse transmission
@@ -444,10 +444,10 @@ CPhotonMap::GetCurrentDensity(RayHit &hit, int nrPhotons) {
 /**
 Return a color coded density of the photon map
 */
-COLOR
+ColorRgb
 CPhotonMap::GetDensityColor(RayHit &hit) {
     float density;
-    COLOR result;
+    ColorRgb result;
 
     density = GetCurrentDensity(hit, 0);
 
@@ -465,7 +465,7 @@ CPhotonMap::Sample(
         BSDF_FLAGS flag,
         float n)
 {
-    COLOR col;
+    ColorRgb col;
 
     // -- Epsilon in as a function of scene/camera measure ??
     if ( !vectorEqual(m_sampleLastPos, pos, 0.0001) ) {

@@ -17,7 +17,7 @@ class RayCaster {
 
     static void clipUv(int numberOfVertices, double *u, double *v);
 
-    inline COLOR getRadianceAtPixel(int x, int y, Patch *patch, RadianceMethod *context);
+    inline ColorRgb getRadianceAtPixel(int x, int y, Patch *patch, RadianceMethod *context);
 
   public:
     explicit RayCaster(ScreenBuffer *inScreen);

@@ -3,7 +3,7 @@ Tumblin/Rushmeier/Ward/Ferwerda tone maps (Jan Prikryl)
 */
 
 #include "common/rgb.h"
-#include "common/color.h"
+#include "common/ColorRgb.h"
 #include "common/cie.h"
 #include "common/mymath.h"
 #include "IMAGE/tonemap/trwf.h"
@@ -162,8 +162,8 @@ static void
 trwfTerminate() {
 }
 
-static COLOR
-trwfScaleForComputations(COLOR radiance) {
+static ColorRgb
+trwfScaleForComputations(ColorRgb radiance) {
     float rwl;
     float scale;
 
@@ -181,8 +181,8 @@ trwfScaleForComputations(COLOR radiance) {
     return radiance;
 }
 
-static COLOR
-trwfScaleForDisplay(COLOR radiance) {
+static ColorRgb
+trwfScaleForDisplay(ColorRgb radiance) {
     float rwl;
     float scale;
     float eff;
@@ -215,14 +215,14 @@ ToneMap GLOBAL_toneMap_tumblinRushmeier = {
     trwfScaleForDisplay
 };
 
-static COLOR
-wardScaleForComputations(COLOR radiance) {
+static ColorRgb
+wardScaleForComputations(ColorRgb radiance) {
     colorScale(m_comp, radiance, radiance);
     return radiance;
 }
 
-static COLOR
-wardScaleForDisplay(COLOR radiance) {
+static ColorRgb
+wardScaleForDisplay(ColorRgb radiance) {
     float eff;
 
     getLuminousEfficacy(&eff);
@@ -243,8 +243,8 @@ ToneMap GLOBAL_toneMap_ward = {
     wardScaleForDisplay
 };
 
-static COLOR
-revisedTRScaleForComputations(COLOR radiance) {
+static ColorRgb
+revisedTRScaleForComputations(ColorRgb radiance) {
     float rwl;
     float scale;
 
@@ -260,8 +260,8 @@ revisedTRScaleForComputations(COLOR radiance) {
     return radiance;
 }
 
-static COLOR
-revisedTRScaleForDisplay(COLOR radiance) {
+static ColorRgb
+revisedTRScaleForDisplay(ColorRgb radiance) {
     float rwl;
     float scale;
     float eff;
@@ -293,8 +293,8 @@ ToneMap GLOBAL_toneMap_revisedTumblinRushmeier = {
     revisedTRScaleForDisplay
 };
 
-static COLOR
-ferwerdaScaleForComputations(COLOR radiance) {
+static ColorRgb
+ferwerdaScaleForComputations(ColorRgb radiance) {
     RGB p{};
     float sl;
     float eff;
@@ -318,8 +318,8 @@ ferwerdaScaleForComputations(COLOR radiance) {
     return radiance;
 }
 
-static COLOR
-ferwerdaScaleForDisplay(COLOR radiance) {
+static ColorRgb
+ferwerdaScaleForDisplay(ColorRgb radiance) {
     RGB p{};
     float sl;
     float eff;

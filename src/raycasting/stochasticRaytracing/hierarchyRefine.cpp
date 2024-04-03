@@ -130,14 +130,14 @@ LowPowerLink(
 {
     StochasticRadiosityElement *rcv = link->rcv;
     StochasticRadiosityElement *src = link->src;
-    COLOR rhosrcrad;
+    ColorRgb rhosrcrad;
     float ff = formFactorEstimate(rcv, src);
     float threshold, propagated_power;
 
     /* compute receiver reflectance times source radiosity */
     colorScale(M_PI, src->radiance[0], rhosrcrad);
     if ( !rcv->isCluster() ) {
-        COLOR Rd = topLevelGalerkinElement(rcv->patch)->Rd;
+        ColorRgb Rd = topLevelGalerkinElement(rcv->patch)->Rd;
         colorProduct(Rd, rhosrcrad, rhosrcrad);
     }
 

@@ -66,7 +66,7 @@ Fills in the MeshSurface back pointer of the face belonging to the given surface
 void
 surfaceConnectFace(MeshSurface *surf, Patch *face) {
     int i;
-    COLOR rho;
+    ColorRgb rho;
 
     face->surface = surf;
 

@@ -10,7 +10,7 @@ Bidirectional Transmittance Distribution Functions
 extern PhongBidirectionalTransmittanceDistributionFunction *
 btdfCreate(PhongBidirectionalTransmittanceDistributionFunction *data);
 
-extern COLOR
+extern ColorRgb
 btdfTransmittance(PhongBidirectionalTransmittanceDistributionFunction *btdf, char flags);
 
 extern void
@@ -29,7 +29,7 @@ normal : leaving from patch, on the incoming side.
          So in.normal < 0 !!!
 */
 
-extern COLOR
+extern ColorRgb
 btdfEval(
     PhongBidirectionalTransmittanceDistributionFunction *btdf,
     RefractionIndex inIndex,

@@ -32,10 +32,10 @@ stochasticRadiosityElementColor(StochasticRadiosityElement *element) {
     return color;
 }
 
-static COLOR
+static ColorRgb
 vertexRadiance(Vertex *v) {
     int count = 0;
-    COLOR radiance;
+    ColorRgb radiance;
 
     colorClear(radiance);
     for ( int i = 0; v->radianceData != nullptr && i < v->radianceData->size(); i++ ) {
@@ -45,7 +45,7 @@ vertexRadiance(Vertex *v) {
         }
         StochasticRadiosityElement *elem = (StochasticRadiosityElement *)element;
         if ( !elem->regularSubElements ) {
-            COLOR elementRadiosity = stochasticRadiosityElementDisplayRadiance(elem);
+            ColorRgb elementRadiosity = stochasticRadiosityElementDisplayRadiance(elem);
             colorAdd(radiance, elementRadiosity, radiance);
             count++;
         }
@@ -453,9 +453,9 @@ stochasticRadiosityElementRender(Element *element) {
         stochasticRadiosityElementRenderOutline(stochasticRadiosityElement);
 }
 
-COLOR
+ColorRgb
 stochasticRadiosityElementDisplayRadiance(StochasticRadiosityElement *elem) {
-    COLOR rad;
+    ColorRgb rad;
     colorSubtract(elem->radiance[0], elem->sourceRad, rad);
 
     if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.show != SHOW_INDIRECT_RADIANCE ) {
@@ -470,14 +470,14 @@ stochasticRadiosityElementDisplayRadiance(StochasticRadiosityElement *elem) {
     return rad;
 }
 
-COLOR
+ColorRgb
 stochasticRadiosityElementDisplayRadianceAtPoint(StochasticRadiosityElement *elem, double u, double v) {
-    COLOR radiance;
+    ColorRgb radiance;
     if ( elem->basis->size == 1 ) {
         if ( GLOBAL_render_renderOptions.smoothShading ) {
             // Do Gouraud interpolation if required
             int i;
-            COLOR rad[4];
+            ColorRgb rad[4];
             for ( i = 0; i < elem->numberOfVertices; i++ ) {
                 rad[i] = vertexRadiance(elem->vertices[i]);
             }

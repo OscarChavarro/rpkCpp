@@ -10,7 +10,7 @@ A chain list is a set of scattering modes
 #define __FLAG_CHAIN__
 
 #include "common/dataStructures/CircularList.h"
-#include "common/color.h"
+#include "common/ColorRgb.h"
 #include "material/bsdf.h"
 #include "raycasting/common/pathnode.h"
 #include "raycasting/raytracing/bipath.h"
@@ -33,7 +33,7 @@ class FlagChain {
         return chain[index];
     }
 
-    COLOR compute(CBiPath *path) const;
+    ColorRgb compute(CBiPath *path) const;
 };
 
 
@@ -60,7 +60,7 @@ class ChainList : private CTSList<FlagChain> {
     void add(const FlagChain &chain);
     void add(ChainList *list);
     void addDisjoint(const FlagChain &chain);
-    COLOR compute(CBiPath *path);
+    ColorRgb compute(CBiPath *path);
     ChainList *simplify();
 };
 
@@ -78,7 +78,7 @@ class ContribHandler {
     virtual void init(int paramMaxLength);
     virtual ~ContribHandler();
     virtual void addRegExp(char *regExp);
-    virtual COLOR compute(CBiPath *path);
+    virtual ColorRgb compute(CBiPath *path);
 
   protected:
     virtual void doRegExp(char *regExp, bool subtract);

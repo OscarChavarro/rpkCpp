@@ -6,7 +6,7 @@ LightList *GLOBAL_lightList = nullptr;
 
 LightList::LightList(java::ArrayList<Patch *> *list, bool includeVirtualPatches) {
     LightInfo info{};
-    COLOR lightColor;
+    ColorRgb lightColor;
 
     totalFlux = 0.0;
     lightCount = 0;
@@ -21,8 +21,8 @@ LightList::LightList(java::ArrayList<Patch *> *list, bool includeVirtualPatches)
 
                 // calc emittedFlux
                 if ( light->hasZeroVertices() ) {
-                    COLOR e = edfEmittance(light->surface->material->edf, nullptr,
-                                           DIFFUSE_COMPONENT);
+                    ColorRgb e = edfEmittance(light->surface->material->edf, nullptr,
+                                              DIFFUSE_COMPONENT);
                     info.emittedFlux = colorAverage(e);
                 } else {
                     lightColor = light->averageEmittance(DIFFUSE_COMPONENT);
@@ -97,7 +97,7 @@ LightList::evalPdfVirtual(Patch *light, Vector3D */*point*/) const {
     // Prob for choosing this light
     char all = DIFFUSE_COMPONENT | GLOSSY_COMPONENT | SPECULAR_COMPONENT;
 
-    COLOR e = edfEmittance(light->surface->material->edf, nullptr, all);
+    ColorRgb e = edfEmittance(light->surface->material->edf, nullptr, all);
     probabilityDensityFunction = colorAverage(e) / totalFlux;
 
     return probabilityDensityFunction;
@@ -106,7 +106,7 @@ LightList::evalPdfVirtual(Patch *light, Vector3D */*point*/) const {
 double
 LightList::evalPdfReal(Patch *light, Vector3D */*point*/) const {
     // Eval PDF for normal patches (see EvalPDF)
-    COLOR col;
+    ColorRgb col;
     double pdf;
 
     col = light->averageEmittance(DIFFUSE_COMPONENT);
@@ -143,7 +143,7 @@ LightList::computeOneLightImportanceVirtual(Patch *light,
     // ComputeOneLightImportance for virtual patches
     char all = DIFFUSE_COMPONENT | GLOSSY_COMPONENT | SPECULAR_COMPONENT;
 
-    COLOR e = edfEmittance(light->surface->material->edf, nullptr, all);
+    ColorRgb e = edfEmittance(light->surface->material->edf, nullptr, all);
     return colorAverage(e);
 }
 

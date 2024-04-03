@@ -38,9 +38,9 @@ BSDF::~BSDF() {
 /**
 Returns the scattered power of the BSDF, depending on the flags
 */
-COLOR
+ColorRgb
 bsdfScatteredPower(BSDF *bsdf, RayHit *hit, Vector3D *in, char flags) {
-    COLOR reflectionColor;
+    ColorRgb reflectionColor;
     colorClear(reflectionColor);
     if ( bsdf != nullptr ) {
         reflectionColor = splitBsdfScatteredPower(bsdf, hit, flags);
@@ -101,12 +101,12 @@ out : from patch
 hit->normal : leaving from patch, on the incoming side.
          So in . hit->normal > 0 !!!
 */
-COLOR
+ColorRgb
 bsdfEval(BSDF *bsdf, RayHit *hit, BSDF *inBsdf, BSDF *outBsdf, Vector3D *in, Vector3D *out, BSDF_FLAGS flags) {
     if ( bsdf != nullptr ) {
         return splitBsdfEval(bsdf, hit, inBsdf, outBsdf, in, out, flags);
     } else {
-        static COLOR reflectionColor;
+        static ColorRgb reflectionColor;
         colorClear(reflectionColor);
         return reflectionColor;
     }
@@ -118,7 +118,7 @@ Evaluates all requested components of the BSDF separately and
 stores the result in 'colArray'.
 Total evaluation is returned.
 */
-COLOR
+ColorRgb
 bsdfEvalComponents(
         BSDF *bsdf,
         RayHit *hit,
@@ -127,11 +127,11 @@ bsdfEvalComponents(
         Vector3D *in,
         Vector3D *out,
         BSDF_FLAGS flags,
-        COLOR *colArray)
+        ColorRgb *colArray)
 {
     // Some caching optimisation could be used here
-    COLOR result;
-    COLOR empty;
+    ColorRgb result;
+    ColorRgb empty;
     BSDF_FLAGS thisFlag;
 
     colorClear(empty);

@@ -83,7 +83,7 @@ ImageOutputHandle::writeRadianceRGB(float *rgbRadiance) {
     for ( int i = 0; i < width; i++ ) {
         // Convert RGB radiance to display RGB
         RGB displayRgb{};
-        radianceToRgb(*(COLOR *) &rgbRadiance[3 * i], &displayRgb);
+        radianceToRgb(*(ColorRgb *) &rgbRadiance[3 * i], &displayRgb);
         // Apply gamma correction
         gammaCorrect(displayRgb, gamma);
         // Convert float to byte representation

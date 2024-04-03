@@ -5,13 +5,13 @@ Phong type EDFs, BRDFs, BTDFs
 #ifndef __PHONG__
 #define __PHONG__
 
-#include "common/color.h"
+#include "common/ColorRgb.h"
 #include "material/xxdf.h"
 
 class PhongBidirectionalReflectanceDistributionFunction {
   public:
-    COLOR Kd;
-    COLOR Ks;
+    ColorRgb Kd;
+    ColorRgb Ks;
     float avgKd;
     float avgKs;
     float Ns;
@@ -33,8 +33,8 @@ be a plain complex number
 */
 class PhongBidirectionalTransmittanceDistributionFunction {
   public:
-    COLOR Kd;
-    COLOR Ks;
+    ColorRgb Kd;
+    ColorRgb Ks;
     float avgKd;
     float avgKs;
     float Ns;
@@ -60,11 +60,11 @@ Choice is arbitrary for the moment
 #define PHONG_LOWEST_SPECULAR_EXP 250
 #define PHONG_IS_SPECULAR(p) ((p).Ns >= PHONG_LOWEST_SPECULAR_EXP)
 
-extern PhongBidirectionalReflectanceDistributionFunction *phongBrdfCreate(COLOR *Kd, COLOR *Ks, double Ns);
-extern PhongBidirectionalTransmittanceDistributionFunction *phongBtdfCreate(COLOR *Kd, COLOR *Ks, float Ns, float nr, float ni);
-extern COLOR phongReflectance(PhongBidirectionalReflectanceDistributionFunction *brdf, char flags);
+extern PhongBidirectionalReflectanceDistributionFunction *phongBrdfCreate(ColorRgb *Kd, ColorRgb *Ks, double Ns);
+extern PhongBidirectionalTransmittanceDistributionFunction *phongBtdfCreate(ColorRgb *Kd, ColorRgb *Ks, float Ns, float nr, float ni);
+extern ColorRgb phongReflectance(PhongBidirectionalReflectanceDistributionFunction *brdf, char flags);
 
-extern COLOR
+extern ColorRgb
 phongBrdfEval(
         PhongBidirectionalReflectanceDistributionFunction *brdf,
         Vector3D *in,
@@ -93,10 +93,10 @@ phongBrdfEvalPdf(
         double *probabilityDensityFunction,
         double *probabilityDensityFunctionRR);
 
-extern COLOR phongTransmittance(PhongBidirectionalTransmittanceDistributionFunction *btdf, char flags);
+extern ColorRgb phongTransmittance(PhongBidirectionalTransmittanceDistributionFunction *btdf, char flags);
 extern void phongIndexOfRefraction(PhongBidirectionalTransmittanceDistributionFunction *btdf, RefractionIndex *index);
 
-extern COLOR
+extern ColorRgb
 phongBtdfEval(
         PhongBidirectionalTransmittanceDistributionFunction *btdf,
         RefractionIndex inIndex,

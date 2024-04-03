@@ -30,7 +30,7 @@ digraph G {
     PhongBidirectionalTransmittanceDistributionFunction [shape=box, style=filled, fillcolor="#ffff80"];
     RefractionIndex [shape=box, style=filled, fillcolor="#ffff80"];
     PhongBidirectionalReflectanceDistributionFunction [shape=box, style=filled, fillcolor="#ffff80"];
-    COLOR [shape=box, style=filled, fillcolor="#ffff80"];
+    ColorRgb [shape=box, style=filled, fillcolor="#ffff80"];
 
     Vertex -> Vector3D;
     Vertex -> RGB;
@@ -38,7 +38,7 @@ digraph G {
     Vertex -> Vertex;
     GalerkinBasis -> FILTER_TABLE;
     FILTER_TABLE -> FILTER;
-    Element -> COLOR;
+    Element -> ColorRgb;
     Element -> Patch;
     Element -> Geometry;
     Element -> Element;
@@ -51,7 +51,7 @@ digraph G {
     GalerkinElement -> Interaction;
     StochasticRadiosityElement -> Element;
     StochasticRadiosityElement -> GalerkinBasis;
-    StochasticRadiosityElement -> COLOR;
+    StochasticRadiosityElement -> ColorRgb;
     StochasticRadiosityElement -> Vector3D;
     StochasticRadiosityElement -> Vertex;
     Patch -> Patch;
@@ -63,9 +63,9 @@ digraph G {
     Patch -> Element;
     Patch -> Geometry;
     Patch -> MeshSurface;
-    PhongEmittanceDistributionFunctions -> COLOR;
-    PhongBidirectionalReflectanceDistributionFunction -> COLOR;
-    PhongBidirectionalTransmittanceDistributionFunction -> COLOR;
+    PhongEmittanceDistributionFunctions -> ColorRgb;
+    PhongBidirectionalReflectanceDistributionFunction -> ColorRgb;
+    PhongBidirectionalTransmittanceDistributionFunction -> ColorRgb;
     PhongBidirectionalTransmittanceDistributionFunction -> RefractionIndex;
     BSDF -> PhongBidirectionalReflectanceDistributionFunction;
     BSDF -> PhongBidirectionalTransmittanceDistributionFunction;

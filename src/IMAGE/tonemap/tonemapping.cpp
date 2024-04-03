@@ -262,15 +262,15 @@ recomputeGammaTables(RGB gamma) {
 /**
 Rescale real world radiance using appropiately set up tone mapping algorithm
 */
-COLOR *
-rescaleRadiance(COLOR in, COLOR *out) {
+ColorRgb *
+rescaleRadiance(ColorRgb in, ColorRgb *out) {
     colorScale(GLOBAL_toneMap_options.pow_bright_adjust, in, in);
     *out = toneMapScaleForDisplay(in);
     return out;
 }
 
 RGB *
-radianceToRgb(COLOR color, RGB *rgb) {
+radianceToRgb(ColorRgb color, RGB *rgb) {
     rescaleRadiance(color, &color);
     convertColorToRGB(color, rgb);
     rgb->clip();

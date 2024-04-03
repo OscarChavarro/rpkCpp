@@ -8,12 +8,12 @@ Bidirectional Transmittance Distribution Functions
 /**
 Returns the transmittance of the BTDF
 */
-COLOR
+ColorRgb
 btdfTransmittance(PhongBidirectionalTransmittanceDistributionFunction *btdf, char flags) {
     if ( btdf != nullptr ) {
         return phongTransmittance(btdf, flags);
     } else {
-        static COLOR reflected;
+        static ColorRgb reflected;
         colorClear(reflected);
         return reflected;
     }
@@ -32,7 +32,7 @@ btdfIndexOfRefraction(PhongBidirectionalTransmittanceDistributionFunction *btdf,
     }
 }
 
-COLOR
+ColorRgb
 btdfEval(
     PhongBidirectionalTransmittanceDistributionFunction *btdf,
     RefractionIndex inIndex,
@@ -45,7 +45,7 @@ btdfEval(
     if ( btdf != nullptr ) {
         return phongBtdfEval(btdf, inIndex, outIndex, in, out, normal, flags);
     } else {
-        COLOR reflectedColor;
+        ColorRgb reflectedColor;
         colorClear(reflectedColor);
         return reflectedColor;
     }

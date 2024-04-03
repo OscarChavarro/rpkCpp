@@ -1,11 +1,11 @@
 #ifndef __COEFFICIENTS__
 #define __COEFFICIENTS__
 
-#include "common/color.h"
+#include "common/ColorRgb.h"
 #include "raycasting/stochasticRaytracing/basismcrad.h"
 
 inline void
-stochasticRadiosityClearCoefficients(COLOR *c, GalerkinBasis *galerkinBasis) {
+stochasticRadiosityClearCoefficients(ColorRgb *c, GalerkinBasis *galerkinBasis) {
     int i;
     for ( i = 0; i < galerkinBasis->size; i++ ) {
         colorClear(c[i]);
@@ -13,10 +13,10 @@ stochasticRadiosityClearCoefficients(COLOR *c, GalerkinBasis *galerkinBasis) {
 }
 
 inline void
-stochasticRadiosityCopyCoefficients(COLOR *dst, COLOR *src, GalerkinBasis *galerkinBasis) {
+stochasticRadiosityCopyCoefficients(ColorRgb *dst, ColorRgb *src, GalerkinBasis *galerkinBasis) {
     int i;
-    COLOR *d;
-    COLOR *s;
+    ColorRgb *d;
+    ColorRgb *s;
 
     for ( i = 0, d = dst, s = src; i < galerkinBasis->size; i++, d++, s++ ) {
         *d = *s;
@@ -24,10 +24,10 @@ stochasticRadiosityCopyCoefficients(COLOR *dst, COLOR *src, GalerkinBasis *galer
 }
 
 inline void
-stochasticRadiosityAddCoefficients(COLOR *dst, COLOR *extra, GalerkinBasis *galerkinBasis) {
+stochasticRadiosityAddCoefficients(ColorRgb *dst, ColorRgb *extra, GalerkinBasis *galerkinBasis) {
     int i;
-    COLOR *d;
-    COLOR *s;
+    ColorRgb *d;
+    ColorRgb *s;
 
     for ( i = 0, d = dst, s = extra; i < galerkinBasis->size; i++, d++, s++ ) {
         colorAdd(*d, *s, *d);
@@ -35,9 +35,9 @@ stochasticRadiosityAddCoefficients(COLOR *dst, COLOR *extra, GalerkinBasis *gale
 }
 
 inline void
-stochasticRadiosityScaleCoefficients(float scale, COLOR *color, GalerkinBasis *galerkinBasis) {
+stochasticRadiosityScaleCoefficients(float scale, ColorRgb *color, GalerkinBasis *galerkinBasis) {
     int i;
-    COLOR *d;
+    ColorRgb *d;
 
     for ( i = 0, d = color; i < galerkinBasis->size; i++, d++ ) {
         colorScale(scale, *d, *d);
@@ -45,10 +45,10 @@ stochasticRadiosityScaleCoefficients(float scale, COLOR *color, GalerkinBasis *g
 }
 
 inline void
-stochasticRadiosityMultiplyCoefficients(COLOR &color, COLOR *coefficients, GalerkinBasis *galerkinBasis) {
+stochasticRadiosityMultiplyCoefficients(ColorRgb &color, ColorRgb *coefficients, GalerkinBasis *galerkinBasis) {
     int i;
-    COLOR *d;
-    COLOR c = color;
+    ColorRgb *d;
+    ColorRgb c = color;
 
     for ( i = 0, d = coefficients; i < galerkinBasis->size; i++, d++) {
         colorProduct(c, *d, *d);

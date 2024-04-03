@@ -32,7 +32,7 @@ public:
 
     // Some interesting methods, only to be called for
     // valid bidirectional paths
-    COLOR EvalRadiance();
+    ColorRgb EvalRadiance();
 
     // Evaluate accumulated PDF of a bipath (no weighting)
     double EvalPDFAcc();

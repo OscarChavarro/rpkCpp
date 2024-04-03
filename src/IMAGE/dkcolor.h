@@ -9,6 +9,7 @@ three single byte mantissas and a common exponent.
 */
 
 #include <cstdio>
+#include "common/ColorRgb.h"
 
 #define RED 0
 #define GREEN 1
@@ -50,9 +51,6 @@ typedef float COLOR_MATRIX[3][3]; // Color coordinate conversion matrix
 
 /***** The following definitions are valid for RGB colors only *****/
 
-// Luminous efficacy over visible spectrum / uniform white light
-#define WHITE_EFFICACY 179.0
-
 /**
  * Conversions to and from XYZ space generally don't apply WHITE_EFFICACY.
  * If you need Y to be luminance (cd/m^2), this must be applied when
@@ -64,5 +62,5 @@ extern COLOR_MATRIX GLOBAL_xyz2RgbMat; // XYZ to RGB conversion matrix
 
 char *dkColorTempBuffer(unsigned int len);
 int dkColorWriteColrs(COLR *scanline, int len, FILE *fp);
-int dkColorWriteScan(COLOR *scanline, int len, FILE *fp);
+int dkColorWriteScan(ColorRgb *scanline, int len, FILE *fp);
 void dkColorSetColr(COLR clr, double r, double g, double b);

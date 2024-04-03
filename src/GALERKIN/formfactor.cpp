@@ -202,7 +202,7 @@ doHigherOrderAreaToAreaFormFactor(
     CUBARULE *crsrc,
     double Gxy[CUBAMAXNODES][CUBAMAXNODES])
 {
-    static COLOR deltarad[CUBAMAXNODES]; // See Bekaert & Willems, p159 bottom
+    static ColorRgb deltarad[CUBAMAXNODES]; // See Bekaert & Willems, p159 bottom
     static double rcvphi[MAX_BASIS_SIZE][CUBAMAXNODES];
     static double srcphi[CUBAMAXNODES];
     static double G_beta[CUBAMAXNODES]; // G_beta[k] = G_{j,\beta}(x_k)
@@ -219,8 +219,8 @@ doHigherOrderAreaToAreaFormFactor(
     int l;
     int alpha;
     int beta;
-    COLOR *srcrad = (GLOBAL_galerkin_state.iteration_method == SOUTH_WELL) ?
-                    src->unShotRadiance : src->radiance;
+    ColorRgb *srcrad = (GLOBAL_galerkin_state.iteration_method == SOUTH_WELL) ?
+                       src->unShotRadiance : src->radiance;
 
     // Receiver and source basis description
     if ( rcv->isCluster() ) {

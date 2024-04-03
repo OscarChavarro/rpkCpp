@@ -117,9 +117,9 @@ FlagChainCombine(const FlagChain *c1,
 Compute : calculate the product of bsdf components defined
 by the chain. Eye and light node ARE INCLUDED
 */
-COLOR
+ColorRgb
 FlagChain::compute(CBiPath *path) const {
-    COLOR result, tmpCol;
+    ColorRgb result, tmpCol;
     colorSetMonochrome(result, 1.0);
     int i;
     int eyeSize = path->m_eyeSize;
@@ -218,9 +218,9 @@ ChainList::addDisjoint(const FlagChain &chain) {
     }
 }
 
-COLOR
+ColorRgb
 ChainList::compute(CBiPath *path) {
-    COLOR result, tmpCol;
+    ColorRgb result, tmpCol;
 
     colorClear(result);
 
@@ -291,9 +291,9 @@ ContribHandler::~ContribHandler() {
     delete[] array;
 }
 
-COLOR
+ColorRgb
 ContribHandler::compute(CBiPath *path) {
-    COLOR result;
+    ColorRgb result;
     int length;
 
     colorClear(result);
