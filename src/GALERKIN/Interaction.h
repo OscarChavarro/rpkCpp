@@ -1,11 +1,18 @@
 #ifndef __INTERACTION__
 #define __INTERACTION__
 
-#include <cstdio>
-
 class GalerkinElement;
 
 class Interaction {
+  private:
+    static int totalInteractions;
+    static int ccInteractions;
+    static int csInteractions;
+    static int scInteractions;
+    static int ssInteractions;
+
+    friend void interactionDestroy(Interaction *interaction);
+
   public:
     GalerkinElement *receiverElement;
     GalerkinElement *sourceElement;
@@ -15,12 +22,13 @@ class Interaction {
     unsigned char numberOfBasisFunctionsOnSource;
     unsigned char numberOfReceiverCubaturePositions;
     unsigned char visibility; // 255 for full visibility, 0 for full occlusion
+
     bool isDuplicate;
 
     Interaction();
     explicit Interaction(
-        GalerkinElement *rcv,
-        GalerkinElement *src,
+        GalerkinElement *inReceiverElement,
+        GalerkinElement *inSourceElement,
         const float *K,
         const float *deltaK,
         unsigned char inNumberOfBasisFunctionsOnReceiver,
@@ -29,15 +37,16 @@ class Interaction {
         unsigned char inVisibility
     );
     virtual ~Interaction();
+
+    static int getNumberOfInteractions();
+    static int getNumberOfClusterToClusterInteractions();
+    static int getNumberOfClusterToSurfaceInteractions();
+    static int getNumberOfSurfaceToClusterInteractions();
+    static int getNumberOfSurfaceToSurfaceInteractions();
 };
 
 extern Interaction *interactionDuplicate(Interaction *interaction);
 extern void interactionDestroy(Interaction *interaction);
-extern int getNumberOfInteractions();
-extern int getNumberOfClusterToClusterInteractions();
-extern int getNumberOfClusterToSurfaceInteractions();
-extern int getNumberOfSurfaceToClusterInteractions();
-extern int getNumberOfSurfaceToSurfaceInteractions();
 
 #include "GALERKIN/GalerkinElement.h"
 

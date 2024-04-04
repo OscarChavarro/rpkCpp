@@ -1,35 +1,35 @@
 #include "common/error.h"
 #include "GALERKIN/Interaction.h"
 
-static int globalTotalInteractions = 0;
-static int globalCCInteractions = 0;
-static int globalCSInteractions = 0;
-static int globalSCInteractions = 0;
-static int globalSSInteractions = 0;
+int Interaction::totalInteractions = 0;
+int Interaction::ccInteractions = 0;
+int Interaction::csInteractions = 0;
+int Interaction::scInteractions = 0;
+int Interaction::ssInteractions = 0;
 
 int
-getNumberOfInteractions() {
-    return globalTotalInteractions;
+Interaction::getNumberOfInteractions() {
+    return totalInteractions;
 }
 
 int
-getNumberOfClusterToClusterInteractions() {
-    return globalCCInteractions;
+Interaction::getNumberOfClusterToClusterInteractions() {
+    return ccInteractions;
 }
 
 int
-getNumberOfClusterToSurfaceInteractions() {
-    return globalCSInteractions;
+Interaction::getNumberOfClusterToSurfaceInteractions() {
+    return csInteractions;
 }
 
 int
-getNumberOfSurfaceToClusterInteractions() {
-    return globalSCInteractions;
+Interaction::getNumberOfSurfaceToClusterInteractions() {
+    return scInteractions;
 }
 
 int
-getNumberOfSurfaceToSurfaceInteractions() {
-    return globalSSInteractions;
+Interaction::getNumberOfSurfaceToSurfaceInteractions() {
+    return ssInteractions;
 }
 
 Interaction::Interaction():
@@ -45,8 +45,8 @@ Interaction::Interaction():
 }
 
 Interaction::Interaction(
-    GalerkinElement *rcv,
-    GalerkinElement *src,
+    GalerkinElement *inReceiverElement,
+    GalerkinElement *inSourceElement,
     const float *K,
     const float *deltaK,
     unsigned char inNumberOfBasisFunctionsOnReceiver,
@@ -54,8 +54,8 @@ Interaction::Interaction(
     unsigned char inNumberOfReceiverCubaturePositions,
     unsigned char inVisibility
 ): K(), deltaK() {
-    this->receiverElement = rcv;
-    this->sourceElement = src;
+    this->receiverElement = inReceiverElement;
+    this->sourceElement = inSourceElement;
     this->numberOfBasisFunctionsOnReceiver = inNumberOfBasisFunctionsOnReceiver;
     this->numberOfBasisFunctionsOnSource = inNumberOfBasisFunctionsOnSource;
     this->numberOfReceiverCubaturePositions = inNumberOfReceiverCubaturePositions;
@@ -77,18 +77,18 @@ Interaction::Interaction(
     this->deltaK = new float[1];
     *(this->deltaK) = *deltaK;
 
-    globalTotalInteractions++;
-    if ( rcv->isCluster() ) {
-        if ( src->isCluster() ) {
-            globalCCInteractions++;
+    totalInteractions++;
+    if ( inReceiverElement->isCluster() ) {
+        if ( inSourceElement->isCluster() ) {
+            ccInteractions++;
         } else {
-            globalSCInteractions++;
+            scInteractions++;
         }
     } else {
-        if ( src->isCluster() ) {
-            globalCSInteractions++;
+        if ( inSourceElement->isCluster() ) {
+            csInteractions++;
         } else {
-            globalSSInteractions++;
+            ssInteractions++;
         }
     }
     isDuplicate = false;
@@ -123,18 +123,18 @@ interactionDuplicate(Interaction *interaction) {
 
 void
 interactionDestroy(Interaction *interaction) {
-    globalTotalInteractions--;
+    Interaction::totalInteractions--;
     if ( interaction->receiverElement->isCluster() ) {
         if ( interaction->sourceElement->isCluster() ) {
-            globalCCInteractions--;
+            Interaction::ccInteractions--;
         } else {
-            globalSCInteractions--;
+            Interaction::scInteractions--;
         }
     } else {
         if ( interaction->sourceElement->isCluster() ) {
-            globalCSInteractions--;
+            Interaction::csInteractions--;
         } else {
-            globalSSInteractions--;
+            Interaction::ssInteractions--;
         }
     }
 
