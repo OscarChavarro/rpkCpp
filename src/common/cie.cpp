@@ -47,20 +47,22 @@ static float GLOBAL_xyz2RgbMat[3][3];
 static float GLOBAL_rgb2XyzMat[3][3];
 
 static float
-gray(const float *spec) {
-    return CIE_rf * spec[0] + CIE_gf * spec[1] + CIE_bf * spec[2];
+gray(const float r, const float g, const float b) {
+    return CIE_rf * r + CIE_gf * g + CIE_bf * b;
 }
 
 static float
-luminance(const float *spec) {
-    return globalLuminousEfficacy * gray(spec);
+luminance(const float r, const float g, const float b) {
+    return globalLuminousEfficacy * gray(r, g, b);
 }
 
 static void
-setColorTransform(float mat[3][3],
-                  float a, float b, float c,
-                  float d, float e, float f,
-                  float g, float h, float i) {
+setColorTransform(
+    float mat[3][3],
+    float a, float b, float c,
+    float d, float e, float f,
+    float g, float h, float i)
+{
     mat[0][0] = a;
     mat[0][1] = b;
     mat[0][2] = c;
@@ -91,8 +93,8 @@ getLuminousEfficacy(float *e) {
 Returns an achromatic value representing the spectral quantity.
 */
 float
-spectrumGray(const float *spec) {
-    return gray(spec);
+spectrumGray(const float r, const float g, const float b) {
+    return gray(r, g, b);
 }
 
 /**
@@ -100,8 +102,8 @@ Returns the luminance, photometric quantity corresponding to the
 radiance of the given spectrum.
 */
 float
-spectrumLuminance(const float *spec) {
-    return luminance(spec);
+spectrumLuminance(const float r, const float g, const float b) {
+    return luminance(r, g, b);
 }
 
 /**

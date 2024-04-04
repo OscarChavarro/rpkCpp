@@ -148,12 +148,12 @@ colorAverage(ColorRgb &s) {
 
 inline float
 colorGray(ColorRgb &s) {
-    return spectrumGray(s.spectrum);
+    return spectrumGray(s.spectrum[0], s.spectrum[1], s.spectrum[2]);
 }
 
 inline float
 colorLuminance(ColorRgb &s) {
-    return spectrumLuminance(s.spectrum);
+    return spectrumLuminance(s.spectrum[0], s.spectrum[1], s.spectrum[2]);
 }
 
 inline void
