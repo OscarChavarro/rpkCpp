@@ -264,7 +264,7 @@ Rescale real world radiance using appropiately set up tone mapping algorithm
 */
 ColorRgb *
 rescaleRadiance(ColorRgb in, ColorRgb *out) {
-    colorScale(GLOBAL_toneMap_options.pow_bright_adjust, in, in);
+    in.scale(GLOBAL_toneMap_options.pow_bright_adjust);
     *out = toneMapScaleForDisplay(in);
     return out;
 }

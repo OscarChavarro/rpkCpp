@@ -73,8 +73,8 @@ clusterInit(GalerkinElement *cluster) {
         cluster->flags |= (subCluster->flags & IS_LIGHT_SOURCE_MASK);
         colorAddScaled(cluster->Ed, subCluster->area, subCluster->Ed, cluster->Ed);
     }
-    colorScale((1.0f / cluster->area), cluster->radiance[0], cluster->radiance[0]);
-    colorScale((1.0f / cluster->area), cluster->Ed, cluster->Ed);
+    cluster->radiance[0].scale(1.0f / cluster->area);
+    cluster->Ed.scale(1.0f / cluster->area);
 
     // Also pull un-shot radiance for the "shooting" methods
     if ( GLOBAL_galerkin_state.iteration_method == SOUTH_WELL ) {
@@ -84,7 +84,7 @@ clusterInit(GalerkinElement *cluster) {
             colorAddScaled(cluster->unShotRadiance[0], subCluster->area, subCluster->unShotRadiance[0],
                            cluster->unShotRadiance[0]);
         }
-        colorScale((1.0f / cluster->area), cluster->unShotRadiance[0], cluster->unShotRadiance[0]);
+        cluster->unShotRadiance[0].scale(1.0f / cluster->area);
     }
 
     // Compute equivalent blocker (or blocker complement) size for multi-resolution
@@ -232,7 +232,7 @@ clusterRadianceToSamplePoint(GalerkinElement *src, Vector3D sample) {
 
             // Divide by the source area used for computing the form factor:
             // src->area / 4.0 (average projected area)
-            colorScale(4.0f / src->area, globalSourceRadiance, globalSourceRadiance);
+            globalSourceRadiance.scale(4.0f / src->area);
             return globalSourceRadiance;
         }
 
@@ -253,7 +253,7 @@ clusterRadianceToSamplePoint(GalerkinElement *src, Vector3D sample) {
                 // form factor computation
                 areaFactor = ((bbx[MAX_X] - bbx[MIN_X]) * (bbx[MAX_Y] - bbx[MIN_Y])) /
                              (0.25 * src->area);
-                colorScale((float)areaFactor, globalSourceRadiance, globalSourceRadiance);
+                globalSourceRadiance.scale((float) areaFactor);
                 return globalSourceRadiance;
             }
 

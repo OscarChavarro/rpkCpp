@@ -20,7 +20,7 @@ static void
 patchLazyCreateInteractions(Patch *patch) {
     GalerkinElement *topLevelElement = patchGalerkinElement(patch);
 
-    if ( !colorNull(topLevelElement->radiance[0]) && !(topLevelElement->flags & INTERACTIONS_CREATED_MASK) ) {
+    if ( !topLevelElement->radiance[0].isBlack() && !(topLevelElement->flags & INTERACTIONS_CREATED_MASK) ) {
         createInitialLinks(topLevelElement, SOURCE);
         topLevelElement->flags |= INTERACTIONS_CREATED_MASK;
     }

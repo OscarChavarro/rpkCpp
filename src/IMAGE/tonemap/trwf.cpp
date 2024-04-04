@@ -177,7 +177,7 @@ trwfScaleForComputations(ColorRgb radiance) {
         scale = 0.0f;
     }
 
-    colorScale(scale, radiance, radiance);
+    radiance.scale(scale);
     return radiance;
 }
 
@@ -190,7 +190,7 @@ trwfScaleForDisplay(ColorRgb radiance) {
     rwl = M_PI * colorLuminance(radiance);
 
     getLuminousEfficacy(&eff);
-    colorScale(eff * (float)M_PI, radiance, radiance);
+    radiance.scale(eff * (float) M_PI);
 
     if ( rwl > 0.0 ) {
         float m = (std::pow(tmoCandelaLambert(rwl), lrwexponent) * lrwm_disp - invcmax);
@@ -199,7 +199,7 @@ trwfScaleForDisplay(ColorRgb radiance) {
         scale = 0.0f;
     }
 
-    colorScale(scale, radiance, radiance);
+    radiance.scale(scale);
     return radiance;
 }
 
@@ -217,7 +217,7 @@ ToneMap GLOBAL_toneMap_tumblinRushmeier = {
 
 static ColorRgb
 wardScaleForComputations(ColorRgb radiance) {
-    colorScale(m_comp, radiance, radiance);
+    radiance.scale(m_comp);
     return radiance;
 }
 
@@ -227,7 +227,7 @@ wardScaleForDisplay(ColorRgb radiance) {
 
     getLuminousEfficacy(&eff);
 
-    colorScale(eff * m_disp, radiance, radiance);
+    radiance.scale(eff * m_disp);
     return radiance;
 }
 
@@ -256,7 +256,7 @@ revisedTRScaleForComputations(ColorRgb radiance) {
         scale = 0.0;
     }
 
-    colorScale(scale, radiance, radiance);
+    radiance.scale(scale);
     return radiance;
 }
 
@@ -269,7 +269,7 @@ revisedTRScaleForDisplay(ColorRgb radiance) {
     rwl = M_PI * colorLuminance(radiance);
 
     getLuminousEfficacy(&eff);
-    colorScale(eff * (float)M_PI, radiance, radiance);
+    radiance.scale(eff * (float)M_PI);
 
     if ( rwl > 0.0 ) {
         scale = r_disp * std::pow(rwl / _lwa, g) / rwl;
@@ -277,7 +277,7 @@ revisedTRScaleForDisplay(ColorRgb radiance) {
         scale = 0.0f;
     }
 
-    colorScale(scale, radiance, radiance);
+    radiance.scale(scale);
     return radiance;
 }
 
@@ -301,14 +301,14 @@ ferwerdaScaleForComputations(ColorRgb radiance) {
 
     // Convert to photometric values
     getLuminousEfficacy(&eff);
-    colorScale(eff, radiance, radiance);
+    radiance.scale(eff);
 
     // Compute the scotopic grayscale shift
     convertColorToRGB(radiance, &p);
     sl = f_sm_comp * f_msf * (p.r * f_sf.r + p.g * f_sf.g + p.b * f_sf.b);
 
     // Scale the photopic luminance
-    colorScale(f_pm_comp, radiance, radiance);
+    radiance.scale(f_pm_comp);
 
     // Eventually, offset by the scotopic luminance
     if ( sl > 0.0 ) {
@@ -326,14 +326,14 @@ ferwerdaScaleForDisplay(ColorRgb radiance) {
 
     // Convert to photometric values
     getLuminousEfficacy(&eff);
-    colorScale(eff, radiance, radiance);
+    radiance.scale(eff);
 
     // Compute the scotopic grayscale shift
     convertColorToRGB(radiance, &p);
     sl = f_sm_disp * f_msf * (p.r * f_sf.r + p.g * f_sf.g + p.b * f_sf.b);
 
     // Scale the photopic luminance
-    colorScale(f_pm_disp, radiance, radiance);
+    radiance.scale(f_pm_disp);
 
     // Eventually, offset by the scotopic luminance
     if ( sl > 0.0 ) {

@@ -51,7 +51,7 @@ static ColorRgb lightnessScaleForDisplay(ColorRgb radiance) {
         return radiance;
     }
 
-    colorScale((scale_factor / max), radiance, radiance);
+    radiance.scale(scale_factor / max);
     return radiance;
 }
 

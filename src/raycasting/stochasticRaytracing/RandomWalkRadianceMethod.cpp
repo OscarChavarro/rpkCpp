@@ -176,8 +176,8 @@ randomWalkRadiosityShootingScore(PATH *path, long nr_paths, double (* /*birthPro
     int n;
     StochasticRaytracingPathNode *node = &path->nodes[0];
 
-    /* path->nodes[0].probability is birth probability of the path */
-    colorScale((float)(node->patch->area / node->probability), topLevelGalerkinElement(node->patch)->sourceRad, accumPow);
+    // path->nodes[0].probability is birth probability of the path
+    accumPow.scaledCopy((float) (node->patch->area / node->probability), topLevelGalerkinElement(node->patch)->sourceRad);
     for ( n = 1, node++; n < path->numberOfNodes; n++, node++ ) {
         double uin = 0.0;
         double vin = 0.0;
@@ -211,7 +211,7 @@ randomWalkRadiosityShootingScore(PATH *path, long nr_paths, double (* /*birthPro
             }
         }
 
-        colorScale((float)(r / node->probability), accumPow, accumPow);
+        accumPow.scale((float) (r / node->probability));
     }
 }
 
@@ -331,7 +331,7 @@ randomWalkRadiosityCollisionGatheringScore(PATH *path, long /*nr_paths*/, double
         }
 
         for ( i = 0; i < getTopLevelPatchBasis(P)->size; i++ ) {
-            double dual = getTopLevelPatchBasis(P)->dualFunction[i](uOut, vOut);    /* = dual basis f * area */
+            double dual = getTopLevelPatchBasis(P)->dualFunction[i](uOut, vOut); // = dual basis f * area
             colorAddScaled(getTopLevelPatchReceivedRad(P)[i], (float)dual, accum_rad, getTopLevelPatchReceivedRad(P)[i]);
 
             if ( !GLOBAL_stochasticRaytracing_monteCarloRadiosityState.continuousRandomWalk ) {
@@ -341,7 +341,7 @@ randomWalkRadiosityCollisionGatheringScore(PATH *path, long /*nr_paths*/, double
         }
         topLevelGalerkinElement(P)->ng++;
 
-        colorScale((float)(r / node->probability), accum_rad, accum_rad);
+        accum_rad.scale((float) (r / node->probability));
         colorAdd(accum_rad, topLevelGalerkinElement(P)->sourceRad, accum_rad);
     }
 }

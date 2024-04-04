@@ -318,7 +318,7 @@ doHigherOrderAreaToAreaFormFactor(
     }
 
     link->deltaK = new float[1];
-    if ( colorNull(srcrad[0]) ) {
+    if ( srcrad[0].isBlack() ) {
         // No source radiance: use constant radiance error approximation
         Gav = link->K[0] / rcv->area;
         link->deltaK[0] = (float)(Gmax - Gav);

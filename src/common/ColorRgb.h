@@ -20,21 +20,10 @@ class ColorRgb {
     void clear();
     void set(float v1, float v2, float v3);
     void setMonochrome(float v);
+    bool isBlack() const;
+    void scaledCopy(const float a, const ColorRgb &c);
+    void scale(const float a);
 };
-
-inline bool
-colorNull(ColorRgb &c) {
-    return (c.spectrum[0] > -EPSILON && c.spectrum[0] < EPSILON &&
-            c.spectrum[1] > -EPSILON && c.spectrum[1] < EPSILON &&
-            c.spectrum[2] > -EPSILON && c.spectrum[2] < EPSILON);
-}
-
-inline void
-colorScale(float a, ColorRgb &c, ColorRgb &result) {
-    result.spectrum[0] = a * c.spectrum[0];
-    result.spectrum[1] = a * c.spectrum[1];
-    result.spectrum[2] = a * c.spectrum[2];
-}
 
 inline void
 colorProduct(ColorRgb &s, ColorRgb &t, ColorRgb &r) {

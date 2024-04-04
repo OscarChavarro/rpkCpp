@@ -11,9 +11,9 @@ note: Emittance is total power emitted by the light source per unit of area
 */
 PhongEmittanceDistributionFunction::PhongEmittanceDistributionFunction(ColorRgb *KdParameter, ColorRgb *KsParameter, double NsParameter) {
     Kd = *KdParameter;
-    colorScale((1.00f / (float)M_PI), Kd, kd); // Because we use it often
+    kd.scaledCopy((1.00f / (float) M_PI), Kd); // Because we use it often
     Ks = *KsParameter;
-    if ( !colorNull(Ks) ) {
+    if ( !Ks.isBlack() ) {
         logWarning("phongEdfCreate", "Non-diffuse light sources not yet implemented");
     }
     Ns = (float)NsParameter;
@@ -161,7 +161,7 @@ phongEdfSample(
             *probabilityDensityFunction = sProbabilityDensityFunction;
         }
         if ( selfEmittedRadiance ) {
-            colorScale((1.0f / (float)M_PI), edf->Kd, *selfEmittedRadiance);
+            selfEmittedRadiance->scaledCopy((1.0f / (float) M_PI), edf->Kd);
         }
     }
 

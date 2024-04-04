@@ -238,7 +238,7 @@ photonMapDoComputePixelFluxEstimate(PhotonMapConfig *config, RadianceMethod * /*
 
     float factor = 1.0f / (float)bp->EvalPDFAcc();
 
-    colorScale(factor, f, f); // Flux estimate
+    f.scale(factor); // Flux estimate
 
     // Restore old values
     lightEndNode->m_bsdfEval = oldBsdfL;
@@ -300,7 +300,7 @@ photonMapDoScreenNEE(PhotonMapConfig *config, RadianceMethod *context) {
                       / (float) GLOBAL_photonMap_state.totalCPaths);
         }
 
-        colorScale(factor, f, f);
+        f.scale(factor);
 
         config->screen->add(nx, ny, f);
     }
@@ -375,9 +375,8 @@ photonMapHandlePath(PhotonMapConfig *config, RadianceMethod *context) {
 
     while ( !lDone ) {
         // Adjust accPower
-
         factor = (float)(currentNode->m_G / currentNode->m_pdfFromPrev);
-        colorScale(factor, accPower, accPower);
+        accPower.scale(factor);
 
         // Store photon, but not emitted light
         if ( config->currentMap == config->globalMap ) {

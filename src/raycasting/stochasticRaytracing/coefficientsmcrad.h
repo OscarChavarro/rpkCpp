@@ -39,7 +39,7 @@ stochasticRadiosityScaleCoefficients(float scale, ColorRgb *color, GalerkinBasis
     ColorRgb *d;
 
     for ( i = 0, d = color; i < galerkinBasis->size; i++, d++ ) {
-        colorScale(scale, *d, *d);
+        d->scale(scale);
     }
 }
 

@@ -149,7 +149,7 @@ FlagChain::compute(CBiPath *path) const {
     }
 
     if ( subtract ) {
-        colorScale(-1, result, result);
+        result.scale(-1);
     }
 
     return result;

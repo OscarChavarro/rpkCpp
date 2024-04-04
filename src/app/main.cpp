@@ -83,11 +83,11 @@ mainPatchAccumulateStats(Patch *patch) {
     ColorRgb power;
 
     GLOBAL_statistics.totalArea += patch->area;
-    colorScale(patch->area, E, power);
+    power.scaledCopy(patch->area, E);
     colorAdd(GLOBAL_statistics.totalEmittedPower, power, GLOBAL_statistics.totalEmittedPower);
     colorAddScaled(GLOBAL_statistics.averageReflectivity, patch->area, R, GLOBAL_statistics.averageReflectivity);
     // Convert radiant exitance to exitant radiance
-    colorScale((1.0 / (float)M_PI), E, E);
+    E.scale(1.0f / (float) M_PI);
     colorMaximum(E, GLOBAL_statistics.maxSelfEmittedRadiance, GLOBAL_statistics.maxSelfEmittedRadiance);
     colorMaximum(power, GLOBAL_statistics.maxSelfEmittedPower, GLOBAL_statistics.maxSelfEmittedPower);
 }
@@ -121,7 +121,7 @@ mainComputeSomeSceneStats() {
 
     // Include background radiation
     BP = backgroundPower(GLOBAL_scene_background, &zero);
-    colorScale(1.0 / (4.0 * (double)M_PI), BP, BP);
+    BP.scale(1.0 / (4.0 * (double) M_PI));
     colorAdd(GLOBAL_statistics.totalEmittedPower, BP, GLOBAL_statistics.totalEmittedPower);
     colorAdd(GLOBAL_statistics.estimatedAverageRadiance, BP, GLOBAL_statistics.estimatedAverageRadiance);
 

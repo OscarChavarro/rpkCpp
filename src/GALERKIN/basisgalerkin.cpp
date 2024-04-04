@@ -36,7 +36,7 @@ basisGalerkinPull(
         // Clusters only have irregular sub-elements and a constant
         // radiance approximation is used on them
         clusterGalerkinClearCoefficients(parent_coefficients, parent->basisSize);
-        colorScale(child->area / parent->area, child_coefficients[0], parent_coefficients[0]);
+        parent_coefficients[0].scaledCopy(child->area / parent->area, child_coefficients[0]);
     } else {
         if ( sigma < 0 || sigma > 3 ) {
             logError("stochasticJacobiPull", "Not yet implemented for non-regular subdivision");
@@ -57,7 +57,7 @@ basisGalerkinPull(
                                    child_coefficients[beta],
                                    parent_coefficients[alpha]);
             }
-            colorScale(0.25, parent_coefficients[alpha], parent_coefficients[alpha]);
+            parent_coefficients[alpha].scale(0.25f);
         }
     }
 }

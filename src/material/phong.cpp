@@ -413,7 +413,7 @@ phongBtdfEval(
 
         if ( !isReflection ) {
             result = btdf->Kd;
-            colorScale(M_1_PI, result, result);
+            result.scale(M_1_PI);
         }
     }
 

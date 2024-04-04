@@ -286,14 +286,14 @@ chooseFresnelDirection(
     // specular transmission
     if ( reflected ) {
         if ( reflective ) {
-            colorScale(F, reflectance, *scatteringColor);
+            scatteringColor->scaledCopy(F, reflectance);
             *doCosInverse = false;
         } else {
-            colorScale(F, transmittance, *scatteringColor);
+            scatteringColor->scaledCopy(F, transmittance);
             *doCosInverse = true;
         }
     } else {
-        colorScale(T, transmittance, *scatteringColor);
+        scatteringColor->scaledCopy(T, transmittance);
         *doCosInverse = true;
     }
 

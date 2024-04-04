@@ -340,7 +340,7 @@ stochasticJacobiPropagateRadiance(
     if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.constantControlVariate ) {
         colorSubtract(rad, GLOBAL_stochasticRaytracing_monteCarloRadiosityState.controlRadiance, rad);
     }
-    colorScale((float)weight, rad, rayPower);
+    rayPower.scaledCopy((float) weight, rad);
 
     if ( !rcv->isCluster() ) {
         stochasticJacobiPropagateRadianceToSurface(rcv, ur, vr, rayPower, src, fraction, weight);

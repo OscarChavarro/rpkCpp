@@ -153,8 +153,7 @@ scratchRadiance() {
         }
     }
     if ( nonBackGround > 0 ) {
-        colorScale(1.0f / (float) (GLOBAL_galerkin_state.scratch->vp_width * GLOBAL_galerkin_state.scratch->vp_height),
-                   rad, rad);
+        rad.scale(1.0f / (float) (GLOBAL_galerkin_state.scratch->vp_width * GLOBAL_galerkin_state.scratch->vp_height));
     }
     return rad;
 }

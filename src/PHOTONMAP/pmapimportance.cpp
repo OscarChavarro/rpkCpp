@@ -63,7 +63,7 @@ TracePotentialPath(PhotonMapConfig *config) {
 
     // Adjust importance for eye ray
     float factor = (float)(path->m_G / path->m_pdfFromPrev);
-    colorScale(factor, accImportance, accImportance);
+    accImportance.scale(factor);
 
     bool indirectImportance = false; // Can we store in the indirect importance map
 
@@ -101,7 +101,7 @@ TracePotentialPath(PhotonMapConfig *config) {
         // Adjust importance
         colorProduct(prev->m_bsdfEval, accImportance, accImportance);
         factor = (float)(node->m_G / node->m_pdfFromPrev);
-        colorScale(factor, accImportance, accImportance);
+        accImportance.scale(factor);
 
         // Store in map
         CImportanceMap *imap = (indirectImportance ? config->importanceMap :

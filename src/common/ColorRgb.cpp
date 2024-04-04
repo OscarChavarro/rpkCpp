@@ -32,3 +32,24 @@ ColorRgb::setMonochrome(float v) {
     spectrum[1] = v;
     spectrum[2] = v;
 }
+
+bool
+ColorRgb::isBlack() const {
+    return (spectrum[0] > -EPSILON && spectrum[0] < EPSILON &&
+            spectrum[1] > -EPSILON && spectrum[1] < EPSILON &&
+            spectrum[2] > -EPSILON && spectrum[2] < EPSILON);
+}
+
+void
+ColorRgb::scaledCopy(const float a, const ColorRgb &c) {
+    spectrum[0] = a * c.spectrum[0];
+    spectrum[1] = a * c.spectrum[1];
+    spectrum[2] = a * c.spectrum[2];
+}
+
+void
+ColorRgb::scale(const float a) {
+    spectrum[0] *= a;
+    spectrum[1] *= a;
+    spectrum[2] *= a;
+}

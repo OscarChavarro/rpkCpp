@@ -45,7 +45,7 @@ ColorRgb CBiPath::EvalRadiance() {
 
     factor *= m_geomConnect; // Next event ray geometry factor
 
-    colorScale((float)factor, col, col);
+    col.scale((float)factor);
 
     return col;
 }

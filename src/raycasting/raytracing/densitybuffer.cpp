@@ -87,7 +87,7 @@ CDensityBuffer::add(float x, float y, ColorRgb col) {
     ColorRgb tmpCol;
 
     if ( colorAverage(col) > EPSILON ) {
-        colorScale(factor, col, tmpCol); // Undo part of flux to rad factor
+        tmpCol.scaledCopy(factor, col); // Undo part of flux to rad factor
 
         CDensityHit hit(x, y, tmpCol);
 

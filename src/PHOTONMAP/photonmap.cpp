@@ -198,7 +198,7 @@ CPhotonMap::Redistribute(CPhoton &photon) {
     float factor = 1.0f / (float)m_nrpCosinePos;
 
     pow = photon.Power();
-    colorScale(factor, pow, deltaPower);
+    deltaPower.scaledCopy(factor, pow);
 
     for ( int i = 0; i < m_nrpFound; i++ ) {
         if ( m_cosines[i] > 0.0 ) {
@@ -295,7 +295,7 @@ CPhotonMap::PhotonPrecomputeIrradiance(CIrrPhoton *photon) {
         // so we convert it to irradiance, maxDistance is already squared
         // An extra factor PI is added, that accounts for Albedo -> diffuse brdf...
         float factor = (float)(1.0f / ((float)M_PI * (float)M_PI * maxDistance * (float)m_totalPaths));
-        colorScale(factor, irradiance, irradiance);
+        irradiance.scale(factor);
     }
 
     photon->SetIrradiance(irradiance);
@@ -411,7 +411,7 @@ CPhotonMap::Reconstruct(RayHit *hit, Vector3D &outDir,
 
     factor = 1.0f / ((float)M_PI * maxDistance * (float)m_totalPaths);
 
-    colorScale(factor, result, result);
+    result.scale(factor);
 
     return result;
 }

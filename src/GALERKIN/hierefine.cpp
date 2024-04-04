@@ -241,7 +241,7 @@ necessary
 static double
 sourceClusterRadianceVariationError(Interaction *link, ColorRgb rcvRho, double rcv_area) {
     double K = link->K[0];
-    if ( K == 0.0 || colorNull(rcvRho) || colorNull(link->sourceElement->radiance[0]) ) {
+    if ( K == 0.0 || rcvRho.isBlack() || link->sourceElement->radiance[0].isBlack() ) {
         // Receiver reflectivity or coupling coefficient or source radiance
         // is zero
         return 0.0;

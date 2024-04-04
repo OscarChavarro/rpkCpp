@@ -83,7 +83,7 @@ initialControlRadiosity(
     *fMin = totalFluxColor;
 
     *maxRad = maxRadColor;
-    colorScale((float)area, maxRadColor, *fMax);
+    fMax->scaledCopy((float) area, maxRadColor);
     colorSubtract(*fMax, totalFluxColor, *fMax);
 }
 
@@ -302,7 +302,7 @@ determineControlRadiosity(
     }
 
     colorAdd(minRad, maxRad, beta);
-    colorScale(0.5, beta, beta);
+    beta.scale(0.5);
     beta.print(stderr);
     fprintf(stderr, " (%g lux)", M_PI * colorLuminance(beta));
     fprintf(stderr, "\n");

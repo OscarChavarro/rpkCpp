@@ -151,7 +151,7 @@ addWithSpikeCheck(
                            * (float) config->baseConfig->totalSamples;
 
             if ( colorAverage(f) > EPSILON ) {
-                colorScale(factor, f, g); // Undo part of flux to rad factor
+                g.scaledCopy(factor, f); // Undo part of flux to rad factor
 
                 config->kernel.varCover(center, g, rs, ds,
                                         (int) config->baseConfig->totalSamples, config->scaleSamples,
@@ -279,14 +279,14 @@ handlePathX0(BidirectionalPathTracingConfiguration *config, CBiPath *path) {
         factor *= (float)config->fluxToRadFactor / (float)config->baseConfig->samplesPerPixel;
 
         if ( config->baseConfig->useSpars ) {
-            colorScale(factor, fRad, fRad);
+            fRad.scale(factor);
             addWithSpikeCheck(config, path, config->nx, config->ny,
                               config->xSample, config->ySample, fRad, true);
-            colorScale(factor, f, f);
+            f.scale(factor);
             addWithSpikeCheck(config, path, config->nx, config->ny,
                               config->xSample, config->ySample, f, false);
         } else {
-            colorScale(factor, f, f);
+            f.scale(factor);
             addWithSpikeCheck(config, path, config->nx, config->ny,
                               config->xSample, config->ySample, f);
         }
@@ -378,7 +378,7 @@ computeNeFluxEstimate(
         f = path->EvalRadiance();
 
         float factor = path->EvalPDFAndWeight(config->baseConfig, pPdf, pWeight);
-        colorScale(factor, f, f); // Flux estimate
+        f.scale(factor); // Flux estimate
     }
 
     // Restore old values
@@ -468,12 +468,12 @@ handlePathXx(BidirectionalPathTracingConfiguration *config, CBiPath *path) {
         f = computeNeFluxEstimate(config, path, &pdf, &weight, &fRad);
 
         float factor = (float)config->fluxToRadFactor / (float)config->baseConfig->samplesPerPixel;
-        colorScale(factor, f, f);
+        f.scale(factor);
         addWithSpikeCheck(config, path, config->nx, config->ny,
                           config->xSample, config->ySample, f);
 
         if ( config->baseConfig->useSpars ) {
-            colorScale(factor, fRad, fRad);
+            fRad.scale(factor);
             addWithSpikeCheck(config, path, config->nx, config->ny,
                               config->xSample, config->ySample, fRad, true);
         }
@@ -517,12 +517,12 @@ handlePath1X(BidirectionalPathTracingConfiguration *config, CBiPath *path) {
         config->screen->getPixel(pixX, pixY, &nx, &ny);
 
         float factor = (computeFluxToRadFactor(nx, ny) / (float) config->baseConfig->totalSamples);
-        colorScale(factor, f, f);
+        f.scale(factor);
 
         addWithSpikeCheck(config, path, nx, ny, pixX, pixY, f);
 
         if ( config->baseConfig->useSpars ) {
-            colorScale(factor, fRad, fRad);
+            fRad.scale(factor);
             addWithSpikeCheck(config, path, nx, ny, pixX, pixY, fRad, true);
         }
     }

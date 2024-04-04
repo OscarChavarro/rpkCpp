@@ -339,7 +339,7 @@ stochasticRaytracerGetRadiance(
         result = backgroundRadiance(GLOBAL_scene_background, &(thisNode->previous()->m_hit.point),
                                     &(thisNode->m_inDirF), nullptr);
 
-        colorScale((float)weight, result, result);
+        result.scale((float)weight);
     } else {
         // Handle non-background
         PhongEmittanceDistributionFunction *thisEdf = thisNode->m_hit.material->edf;
@@ -518,7 +518,7 @@ CalcPixel(int nx, int ny, StochasticRaytracingConfiguration *config, RadianceMet
             // -- Not needed yet ...
 
             // Account for pixel sampling
-            colorScale((float)(pixelNode.m_G / pixelNode.m_pdfFromPrev), col, col);
+            col.scale((float) (pixelNode.m_G / pixelNode.m_pdfFromPrev));
             colorAdd(result, col, result);
         }
     }
@@ -527,7 +527,7 @@ CalcPixel(int nx, int ny, StochasticRaytracingConfiguration *config, RadianceMet
     double factor = (computeFluxToRadFactor(nx, ny) /
             (float)config->samplesPerPixel);
 
-    colorScale((float)factor, result, result);
+    result.scale((float)factor);
     config->screen->add(nx, ny, result);
 
     // Frame coherent & correlated sampling

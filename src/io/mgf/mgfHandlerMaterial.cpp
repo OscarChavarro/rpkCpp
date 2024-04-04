@@ -167,8 +167,8 @@ mgfGetCurrentMaterial(Material **material, bool allSurfacesSided, MgfContext *co
     if ( a > 1.0f - (float)EPSILON ) {
         doWarning("invalid material specification: total reflectance shall be < 1", context);
         a = (1.0f - (float)EPSILON) / a;
-        colorScale(a, Rd, Rd);
-        colorScale(a, Rs, Rs);
+        Rd.scale(a);
+        Rs.scale(a);
     }
 
     colorAdd(Td, Ts, A);
@@ -176,12 +176,12 @@ mgfGetCurrentMaterial(Material **material, bool allSurfacesSided, MgfContext *co
     if ( a > 1.0f - (float)EPSILON ) {
         doWarning("invalid material specification: total transmittance shall be < 1", context);
         a = (1.0f - (float)EPSILON) / a;
-        colorScale(a, Td, Td);
-        colorScale(a, Ts, Ts);
+        Td.scale(a);
+        Ts.scale(a);
     }
 
     // Convert lumen / m^2 to W / m^2
-    colorScale((1.0 / WHITE_EFFICACY), Ed, Ed);
+    Ed.scale(1.0f / WHITE_EFFICACY);
 
     Es.clear();
 
@@ -214,17 +214,17 @@ mgfGetCurrentMaterial(Material **material, bool allSurfacesSided, MgfContext *co
     }
 
     PhongEmittanceDistributionFunction* edf = nullptr;
-    if ( !colorNull(Ed) || !colorNull(Es) ) {
+    if ( !Ed.isBlack() || !Es.isBlack() ) {
         edf = new PhongEmittanceDistributionFunction(&Ed, &Es, Ne);
     }
 
     PhongBidirectionalReflectanceDistributionFunction *brdf = nullptr;
-    if ( !colorNull(Rd) || !colorNull(Rs) ) {
+    if ( !Rd.isBlack() || !Rs.isBlack() ) {
         brdf = phongBrdfCreate(&Rd, &Rs, Nr);
     }
 
     PhongBidirectionalTransmittanceDistributionFunction *btdf = nullptr;
-    if ( !colorNull(Td) || !colorNull(Ts) ) {
+    if ( !Td.isBlack() || !Ts.isBlack() ) {
         btdf = phongBtdfCreate(&Td, &Ts, Nt,
                 globalMgfCurrentMaterial->nr,
                 globalMgfCurrentMaterial->ni);

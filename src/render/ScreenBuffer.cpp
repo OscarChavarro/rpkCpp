@@ -130,14 +130,14 @@ ScreenBuffer::add(int x, int y, ColorRgb radiance) {
 void
 ScreenBuffer::set(int x, int y, ColorRgb radiance) {
     int index = x + (m_cam.ySize - y - 1) * m_cam.xSize;
-    colorScale(m_AddFactor, radiance, m_Radiance[index]);
+    m_Radiance[index].scaledCopy(m_AddFactor, radiance);
     m_Synced = false;
 }
 
 void
 ScreenBuffer::scaleRadiance(float factor) {
     for ( int i = 0; i < m_cam.xSize * m_cam.ySize; i++ ) {
-        colorScale(factor, m_Radiance[i], m_Radiance[i]);
+        m_Radiance[i].scale(factor);
     }
 
     m_Synced = false;
@@ -272,7 +272,7 @@ ScreenBuffer::sync() {
     ColorRgb tmpRad{};
 
     for ( i = 0; i < m_cam.xSize * m_cam.ySize; i++ ) {
-        colorScale(m_Factor, m_Radiance[i], tmpRad);
+        tmpRad.scaledCopy(m_Factor, m_Radiance[i]);
         if ( !isRgbImage() ) {
             radianceToRgb(tmpRad, &m_RGB[i]);
         } else {
@@ -290,7 +290,7 @@ ScreenBuffer::syncLine(int lineNumber) {
     ColorRgb tmpRad{};
 
     for ( i = 0; i < m_cam.xSize; i++ ) {
-        colorScale(m_Factor, m_Radiance[lineNumber * m_cam.xSize + i], tmpRad);
+        tmpRad.scaledCopy(m_Factor, m_Radiance[lineNumber * m_cam.xSize + i]);
         if ( !isRgbImage() ) {
             radianceToRgb(tmpRad, &m_RGB[lineNumber * m_cam.xSize + i]);
         } else {
