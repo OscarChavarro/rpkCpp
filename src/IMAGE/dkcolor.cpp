@@ -14,40 +14,44 @@ Routines for color calculations. 10/10/85
 Get a temporary buffer
 */
 char *
-dkColorTempBuffer(unsigned int len)
-{
-    static char *tempbuf = nullptr;
-    static unsigned tempbuflen = 0;
+dkColorTempBuffer(unsigned int len) {
+    static char *tempBuffer = nullptr;
+    static unsigned tempBufferLength = 0;
 
-    if ( len > tempbuflen ) {
-        if ( tempbuflen > 0 ) {
-            tempbuf = (char *)realloc(tempbuf, len);
+    if ( len > tempBufferLength ) {
+        if ( tempBufferLength > 0 ) {
+            tempBuffer = (char *)realloc(tempBuffer, len);
         } else {
-            tempbuf = (char *)malloc(len);
+            tempBuffer = (char *)malloc(len);
         }
-        tempbuflen = tempbuf == nullptr ? 0 : len;
+        tempBufferLength = tempBuffer == nullptr ? 0 : len;
     }
-    return (tempbuf);
+    return tempBuffer;
 }
 
 /**
-Write out a colr scanline
+Write out a byte color scanline
 */
 int
-dkColorWriteColrs(COLR *scanline, int len, FILE *fp)/* write out a colr scanline */
-{
-    int i, j, beg, cnt = 0;
+dkColorWriteByteColors(BYTE_COLOR *scanline, int len, FILE *fp) {
+    int i;
+    int j;
+    int beg;
+    int cnt = 0;
     int c2;
 
-    if ( len < MINIMUM_SCAN_LINE_LENGTH || len > MAXIMUM_SCAN_LINE_LENGTH ) {      /* OOBs, write out flat */
-        return (int)(fwrite((char *) scanline, sizeof(COLR), len, fp) - len);
+    if ( len < MINIMUM_SCAN_LINE_LENGTH || len > MAXIMUM_SCAN_LINE_LENGTH ) {
+        // OOBs, write out flat
+        return (int)(fwrite((char *) scanline, sizeof(BYTE_COLOR), len, fp) - len);
     }
-    /* put magic header */
+
+    // Put magic header
     putc(2, fp);
     putc(2, fp);
     putc(len >> 8, fp);
     putc(len & 255, fp);
-    /* put components seperately */
+
+    // Put components separately
     for ( i = 0; i < 4; i++ ) {
         for ( j = 0; j < len; j += cnt ) {    /* find next run */
             for ( beg = j; beg < len; beg += cnt ) {
@@ -69,8 +73,9 @@ dkColorWriteColrs(COLR *scanline, int len, FILE *fp)/* write out a colr scanline
                     }
                 }
             }
-            while ( j < beg ) {               /* write out non-run */
-                if ((c2 = beg - j) > 128 ) {
+            while ( j < beg ) {
+                // Write out non-run
+                if ( (c2 = beg - j) > 128 ) {
                     c2 = 128;
                 }
                 putc(c2, fp);
@@ -78,7 +83,8 @@ dkColorWriteColrs(COLR *scanline, int len, FILE *fp)/* write out a colr scanline
                     putc(scanline[j++][i], fp);
                 }
             }
-            if ( cnt >= MINIMUM_RUN_LENGTH ) {            /* write out run */
+            if ( cnt >= MINIMUM_RUN_LENGTH ) {
+                // Write out run
                 putc(128 + cnt, fp);
                 putc(scanline[beg][i], fp);
             } else {
@@ -95,31 +101,33 @@ Write out a scanline
 int
 dkColorWriteScan(COLOR *scanline, int len, FILE *fp)
 {
-    COLR *colorScan;
+    BYTE_COLOR *colorScan;
     int n;
-    COLR *sp;
-    // get scanline buffer
-    if ((sp = (COLR *) dkColorTempBuffer(len * sizeof(COLR))) == nullptr) {
+    BYTE_COLOR *sp;
+
+    // Get scanline buffer
+    if ((sp = (BYTE_COLOR *) dkColorTempBuffer(len * sizeof(BYTE_COLOR))) == nullptr) {
         return (-1);
     }
     colorScan = sp;
+
     // Convert scanline
     n = len;
     while ( n-- > 0 ) {
-        dkColorSetColr(sp[0], scanline[0][RED],
-                       scanline[0][GREEN],
-                       scanline[0][BLUE]);
+        dkColorSetByteColors(sp[0], scanline[0][RED],
+                             scanline[0][GREEN],
+                             scanline[0][BLUE]);
         scanline++;
         sp++;
     }
-    return (dkColorWriteColrs(colorScan, len, fp));
+    return (dkColorWriteByteColors(colorScan, len, fp));
 }
 
 /**
 Assign a short color value
 */
 void
-dkColorSetColr(COLR clr, double r, double g, double b)
+dkColorSetByteColors(BYTE_COLOR clr, double r, double g, double b)
 {
     double d;
     int e;

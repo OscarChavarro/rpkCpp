@@ -22,7 +22,7 @@ three single byte mantissas and a common exponent.
 
 typedef unsigned char BYTE; // 8-bit unsigned integer
 
-typedef BYTE COLR[4]; // Red, green, blue (or X,Y,Z), exponent
+typedef BYTE BYTE_COLOR[4]; // Red, green, blue (or X,Y,Z), exponent
 
 typedef float COLOR[3]; // Red, green, blue (or X,Y,Z)
 
@@ -55,14 +55,14 @@ typedef float COLOR_MATRIX[3][3]; // Color coordinate conversion matrix
 
 /**
  * Conversions to and from XYZ space generally don't apply WHITE_EFFICACY.
- * If you need Y to be luminance (cd/m^2), this must be applied when
- * converting from radiance (watts/sr/m^2).
+ * If you need Y to be luminance (cd / m^2), this must be applied when
+ * converting from radiance (watts / sr / m^2).
  */
 
 extern COLOR_MATRIX GLOBAL_rgb2XyzMat; // RGB to XYZ conversion matrix
 extern COLOR_MATRIX GLOBAL_xyz2RgbMat; // XYZ to RGB conversion matrix
 
 char *dkColorTempBuffer(unsigned int len);
-int dkColorWriteColrs(COLR *scanline, int len, FILE *fp);
+int dkColorWriteByteColors(BYTE_COLOR *scanline, int len, FILE *fp);
 int dkColorWriteScan(COLOR *scanline, int len, FILE *fp);
-void dkColorSetColr(COLR clr, double r, double g, double b);
+void dkColorSetByteColors(BYTE_COLOR clr, double r, double g, double b);
