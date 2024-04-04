@@ -93,9 +93,9 @@ mgfGetColor(MgfColorContext *cin, float intensity, ColorRgb *colorOut, MgfContex
 
 static void
 specSamples(ColorRgb &col, float *rgb) {
-    rgb[0] = col.spectrum[0];
-    rgb[1] = col.spectrum[1];
-    rgb[2] = col.spectrum[2];
+    rgb[0] = col.r;
+    rgb[1] = col.g;
+    rgb[2] = col.b;
 }
 
 static float
