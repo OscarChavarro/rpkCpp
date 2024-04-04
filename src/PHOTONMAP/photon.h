@@ -86,13 +86,13 @@ public:
     inline void SetAll(float imp, float /*pot*/, float /*foot*/) {
         // Abuse m_power for importance estimates.
         // -- AT LEAST 3 COLOR components needed!  Watch out with compact photon repr.
-        m_power.r = imp;
+        ((float *) m_power.spectrum)[USE_IMPORTANCE] = imp;
     }
 
     inline void PSetAll(float imp, float /*pot*/, float /*foot*/) {
         // Abuse m_power for importance estimates.
         // -- AT LEAST 3 COLOR components needed!  Watch out with compact photon repr.
-        m_irradiance.r = imp;
+        ((float *) m_irradiance.spectrum)[USE_IMPORTANCE] = imp;
     }
 
     // Constructor:
@@ -105,15 +105,9 @@ public:
     }
 
 public:
-    inline float
-    Importance() {
-        return m_power.r;
-    }
+    inline float Importance() { return ((float *) m_power.spectrum)[USE_IMPORTANCE]; }
 
-    inline float
-    PImportance() {
-        return m_irradiance.r;
-    }
+    inline float PImportance() { return ((float *) m_irradiance.spectrum)[USE_IMPORTANCE]; }
 };
 
 #endif

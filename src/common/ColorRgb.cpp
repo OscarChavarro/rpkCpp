@@ -2,7 +2,7 @@
 
 RGB *
 convertColorToRGB(ColorRgb col, RGB *rgb) {
-    setRGB(*rgb, col.r, col.g, col.b);
+    setRGB(*rgb, col.spectrum[0], col.spectrum[1], col.spectrum[2]);
     return rgb;
 }
 
