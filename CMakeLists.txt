@@ -11,7 +11,7 @@ if(APPLE)
     link_directories(/opt/X11/lib)
 endif()
 
-add_compile_options(-ffast-math -O2)
+add_compile_options(-ffast-math -O3)
 
 include_directories(src)
 
