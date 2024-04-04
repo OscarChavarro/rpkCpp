@@ -16,7 +16,7 @@ class VoxelData {
     Geometry *geometry;
     VoxelGrid *voxelGrid;
 
-    unsigned flags; // patch or geometry? last ray id, ...
+    unsigned flags; // Patch or geometry? last ray id, ...
 
     VoxelData(VoxelGrid *data, unsigned flags);
     VoxelData(Patch *data, unsigned flags);
@@ -46,6 +46,7 @@ class VoxelData {
     isGrid() const {
         return flags & GRID_MASK;
     }
+
   public:
     friend VoxelGrid;
 };

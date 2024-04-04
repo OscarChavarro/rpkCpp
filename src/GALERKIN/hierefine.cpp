@@ -465,14 +465,12 @@ if doing gathering and with the source for shooting
 */
 static void
 hierarchicRefinementStoreInteraction(Interaction *link, GalerkinState *state) {
-    GalerkinElement *src = link->sourceElement;
-    GalerkinElement *rcv = link->receiverElement;
     Interaction *newLink = interactionDuplicate(link);
 
     if ( state->iteration_method == SOUTH_WELL ) {
-        src->interactions->add(newLink);
+        link->sourceElement->interactions->add(newLink);
     } else {
-        rcv->interactions->add(newLink);
+        link->receiverElement->interactions->add(newLink);
     }
 }
 

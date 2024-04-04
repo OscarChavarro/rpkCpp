@@ -97,8 +97,7 @@ class VoxelGrid {
     static int randomRayId();
 public:
     explicit VoxelGrid(Geometry *geometry);
-
-    void destroyGrid() const;
+    virtual ~VoxelGrid();
 
     RayHit *
     gridIntersect(

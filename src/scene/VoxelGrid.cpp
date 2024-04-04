@@ -36,6 +36,11 @@ VoxelGrid::VoxelGrid(Geometry *geometry) : boundingBox{} {
     level--;
 }
 
+VoxelGrid::~VoxelGrid() {
+    destroyGridRecursive();
+    delete gridItemPool;
+}
+
 int
 VoxelGrid::isSmall(const float *boundsArr) const {
     return (boundsArr[MAX_X] - boundsArr[MIN_X]) <= voxelSize.x &&
@@ -119,7 +124,7 @@ VoxelGrid::putItemInsideVoxelGrid(VoxelData *item, const BoundingBox *itemBounds
             for ( c = minC; c <= maxC; c++ ) {
                 java::ArrayList<VoxelData *> **voxelList = &volumeListsOfItems[cellIndexAddress(a, b, c)];
                 if ( (*voxelList) == nullptr ) {
-                    (*voxelList) = new java::ArrayList<VoxelData *>();
+                    (*voxelList) = new java::ArrayList<VoxelData *>(1);
                 }
                 if ( item != nullptr ) {
                     (*voxelList)->add(item);
@@ -137,7 +142,8 @@ VoxelGrid::putPatchInsideVoxelGrid(Patch *patch) {
     } else {
         patch->getBoundingBox(&localBounds);
     }
-    putItemInsideVoxelGrid(new VoxelData(patch, PATCH_MASK), &localBounds);
+    VoxelData *voxelData = new VoxelData(patch, PATCH_MASK);
+    putItemInsideVoxelGrid(voxelData, &localBounds);
 }
 
 void
@@ -205,9 +211,7 @@ VoxelGrid::putGeometryInsideVoxelGrid(Geometry *geometry, const short na, const 
 
 void
 VoxelGrid::destroyGridRecursive() const {
-    int i;
-
-    for ( i = 0; i < xSize * ySize * zSize; i++ ) {
+    for ( int i = 0; i < xSize * ySize * zSize; i++ ) {
         java::ArrayList<VoxelData *> *list = volumeListsOfItems[i];
         if ( list != nullptr ) {
             for ( long int j = 0; j < list->size(); j++ ) {
@@ -216,11 +220,13 @@ VoxelGrid::destroyGridRecursive() const {
                     item->voxelGrid->destroyGridRecursive();
                     item->voxelGrid = nullptr;
                 }
+                //delete item;
             }
         }
 
         delete list;
     }
+    delete[] volumeListsOfItems;
 }
 
 int
@@ -416,12 +422,6 @@ VoxelGrid::voxelIntersect(
     }
 
     return hit;
-}
-
-void
-VoxelGrid::destroyGrid() const {
-    destroyGridRecursive();
-    delete gridItemPool;
 }
 
 /**

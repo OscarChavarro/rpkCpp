@@ -40,7 +40,8 @@ Interaction::Interaction():
     numberOfBasisFunctionsOnReceiver(),
     numberOfBasisFunctionsOnSource(),
     numberOfReceiverCubaturePositions(),
-    visibility() {
+    visibility(),
+    isDuplicate(false) {
 }
 
 Interaction::Interaction(
@@ -90,11 +91,23 @@ Interaction::Interaction(
             globalSSInteractions++;
         }
     }
+    isDuplicate = false;
+}
+
+Interaction::~Interaction() {
+    if ( !isDuplicate ) {
+        if ( K != nullptr ) {
+            delete[] K;
+        }
+        if ( deltaK != nullptr ) {
+            delete[] deltaK;
+        }
+    }
 }
 
 Interaction *
 interactionDuplicate(Interaction *interaction) {
-    return new Interaction(
+    Interaction *newInteraction = new Interaction(
         interaction->receiverElement,
         interaction->sourceElement,
         interaction->K,
@@ -104,6 +117,8 @@ interactionDuplicate(Interaction *interaction) {
         interaction->numberOfReceiverCubaturePositions,
         interaction->visibility
     );
+    newInteraction->isDuplicate = true;
+    return newInteraction;
 }
 
 void

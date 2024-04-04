@@ -404,7 +404,7 @@ mainReadFile(char *filename, MgfContext *context) {
     }
 
     if ( GLOBAL_scene_worldVoxelGrid != nullptr ) {
-        GLOBAL_scene_worldVoxelGrid->destroyGrid();
+        delete GLOBAL_scene_worldVoxelGrid;
         GLOBAL_scene_worldVoxelGrid = nullptr;
     }
 
@@ -599,6 +599,10 @@ mainFreeMemory(MgfContext *context) {
     delete GLOBAL_scene_clusteredGeometries;
     if ( globalAppScenePatches != nullptr ) {
         delete globalAppScenePatches;
+    }
+    if ( GLOBAL_scene_worldVoxelGrid != nullptr ) {
+        delete GLOBAL_scene_worldVoxelGrid;
+        GLOBAL_scene_worldVoxelGrid = nullptr;
     }
 }
 
