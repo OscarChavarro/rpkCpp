@@ -1,5 +1,5 @@
 #include "common/error.h"
-#include "material/PhongEmittanceDistributionFunctions.h"
+#include "material/PhongEmittanceDistributionFunction.h"
 #include "material/spherical.h"
 
 /**
@@ -9,7 +9,7 @@ Ks = specular emittance, reflectance or transmittance (same dimensions as Kd)
 Ns = Phong exponent.
 note: Emittance is total power emitted by the light source per unit of area
 */
-PhongEmittanceDistributionFunctions::PhongEmittanceDistributionFunctions(ColorRgb *KdParameter, ColorRgb *KsParameter, double NsParameter) {
+PhongEmittanceDistributionFunction::PhongEmittanceDistributionFunction(ColorRgb *KdParameter, ColorRgb *KsParameter, double NsParameter) {
     Kd = *KdParameter;
     colorScale((1.00f / (float)M_PI), Kd, kd); // Because we use it often
     Ks = *KsParameter;
@@ -23,7 +23,7 @@ PhongEmittanceDistributionFunctions::PhongEmittanceDistributionFunctions(ColorRg
 Returns emittance, reflectance, transmittance
 */
 static ColorRgb
-phongEmittance(PhongEmittanceDistributionFunctions *edf, RayHit * /*hit*/, char flags) {
+phongEmittance(PhongEmittanceDistributionFunction *edf, RayHit * /*hit*/, char flags) {
     ColorRgb result;
 
     colorClear(result);
@@ -49,7 +49,7 @@ phongEmittance(PhongEmittanceDistributionFunctions *edf, RayHit * /*hit*/, char 
 Returns the emittance (self-emitted radiant exitance) [W / m ^ 2] of the EDF
 */
 ColorRgb
-edfEmittance(PhongEmittanceDistributionFunctions *edf, RayHit *hit, char flags) {
+edfEmittance(PhongEmittanceDistributionFunction *edf, RayHit *hit, char flags) {
     if ( edf != nullptr ) {
         return phongEmittance(edf, hit, flags);
     } else {
@@ -60,7 +60,7 @@ edfEmittance(PhongEmittanceDistributionFunctions *edf, RayHit *hit, char flags) 
 }
 
 bool
-edfIsTextured(PhongEmittanceDistributionFunctions * /*edf*/) {
+edfIsTextured(PhongEmittanceDistributionFunction * /*edf*/) {
     return false;
 }
 
@@ -68,7 +68,7 @@ edfIsTextured(PhongEmittanceDistributionFunctions * /*edf*/) {
 Edf evaluations
 */
 static ColorRgb
-phongEdfEval(PhongEmittanceDistributionFunctions *edf, RayHit *hit, Vector3D *out, char flags, double *probabilityDensityFunction) {
+phongEdfEval(PhongEmittanceDistributionFunction *edf, RayHit *hit, Vector3D *out, char flags, double *probabilityDensityFunction) {
     Vector3D normal;
     ColorRgb result;
     double cosL;
@@ -112,7 +112,7 @@ out. If probabilityDensityFunction is not null, the stochasticJacobiProbability 
 computed and returned in probabilityDensityFunction
 */
 ColorRgb
-edfEval(PhongEmittanceDistributionFunctions *edf, RayHit *hit, Vector3D *out, char flags, double *probabilityDensityFunction) {
+edfEval(PhongEmittanceDistributionFunction *edf, RayHit *hit, Vector3D *out, char flags, double *probabilityDensityFunction) {
     if ( edf != nullptr ) {
         return phongEdfEval(edf, hit, out, flags, probabilityDensityFunction);
     } else {
@@ -130,7 +130,7 @@ Edf sampling
 */
 static Vector3D
 phongEdfSample(
-    PhongEmittanceDistributionFunctions *edf,
+    PhongEmittanceDistributionFunction *edf,
     RayHit *hit,
     char flags,
     double xi1,
@@ -177,7 +177,7 @@ of the generated direction is computed and returned in probabilityDensityFunctio
 */
 Vector3D
 edfSample(
-    PhongEmittanceDistributionFunctions *edf,
+    PhongEmittanceDistributionFunction *edf,
     RayHit *hit,
     char flags,
     double xi1,
@@ -210,6 +210,6 @@ routine - hitPointShadingFrame() in material.[ch] constructs such a frame if
 needed)
 */
 bool
-edfShadingFrame(PhongEmittanceDistributionFunctions * /*edf*/, RayHit * /*hit*/, Vector3D * /*X*/, Vector3D * /*Y*/, Vector3D * /*Z*/) {
+edfShadingFrame(PhongEmittanceDistributionFunction * /*edf*/, RayHit * /*hit*/, Vector3D * /*X*/, Vector3D * /*Y*/, Vector3D * /*Z*/) {
     return false;
 }

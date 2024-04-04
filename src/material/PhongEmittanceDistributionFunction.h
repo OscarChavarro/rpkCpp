@@ -15,22 +15,22 @@ distribution of light sources
 If a new implementation of EmittanceDistributionFunctions is needed, this class will be
 just an implementation of that interface.
 */
-class PhongEmittanceDistributionFunctions {
+class PhongEmittanceDistributionFunction {
   public:
     ColorRgb Kd;
     ColorRgb kd;
     ColorRgb Ks;
     float Ns;
 
-    PhongEmittanceDistributionFunctions(ColorRgb *KdParameter, ColorRgb *KsParameter, double NsParameter);
+    PhongEmittanceDistributionFunction(ColorRgb *KdParameter, ColorRgb *KsParameter, double NsParameter);
 };
 
-extern ColorRgb edfEmittance(PhongEmittanceDistributionFunctions *edf, RayHit *hit, char flags);
-extern bool edfIsTextured(PhongEmittanceDistributionFunctions *edf);
+extern ColorRgb edfEmittance(PhongEmittanceDistributionFunction *edf, RayHit *hit, char flags);
+extern bool edfIsTextured(PhongEmittanceDistributionFunction *edf);
 
 extern ColorRgb
 edfEval(
-    PhongEmittanceDistributionFunctions *edf,
+    PhongEmittanceDistributionFunction *edf,
     RayHit *hit,
     Vector3D *out,
     char flags,
@@ -38,7 +38,7 @@ edfEval(
 
 extern Vector3D
 edfSample(
-    PhongEmittanceDistributionFunctions *edf,
+    PhongEmittanceDistributionFunction *edf,
     RayHit *hit,
     char flags,
     double xi1,
@@ -48,7 +48,7 @@ edfSample(
 
 extern bool
 edfShadingFrame(
-    PhongEmittanceDistributionFunctions *edf,
+    PhongEmittanceDistributionFunction *edf,
     RayHit *hit,
     Vector3D *X,
     Vector3D *Y,

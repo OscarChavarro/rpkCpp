@@ -41,7 +41,7 @@ set(MAIN_SRC
     src/material/statistics.cpp
     src/material/xxdf.cpp
     src/material/btdf.cpp
-    src/material/PhongEmittanceDistributionFunctions.cpp
+    src/material/PhongEmittanceDistributionFunction.cpp
     src/material/bsdf.cpp
     src/material/Material.cpp
     src/material/spherical.cpp

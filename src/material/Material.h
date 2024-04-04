@@ -3,14 +3,14 @@
 
 #include <cstdio>
 
-#include "material/PhongEmittanceDistributionFunctions.h"
+#include "material/PhongEmittanceDistributionFunction.h"
 #include "material/bsdf.h"
 #include "material/hit.h"
 
 class Material {
   public:
     char *name; // Material name
-    PhongEmittanceDistributionFunctions *edf; // Emittance distribution function
+    PhongEmittanceDistributionFunction *edf; // Emittance distribution function
     BSDF *bsdf; // Reflection and transmission together
     int sided; // 1 for 1-sided surface, 0 for 2-sided, see mgf docs
 
@@ -23,7 +23,7 @@ extern Material GLOBAL_material_defaultMaterial;
 extern Material *
 materialCreate(
     char *inName,
-    PhongEmittanceDistributionFunctions *edf,
+    PhongEmittanceDistributionFunction *edf,
     BSDF *bsdf,
     int sided);
 
