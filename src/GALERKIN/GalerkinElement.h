@@ -47,7 +47,7 @@ public:
 
     ~GalerkinElement();
 
-    GalerkinElement **regularSubDivide();
+    void regularSubDivide();
     GalerkinElement *regularLeafAtPoint(double *u, double *v);
     void drawOutline();
     void render();

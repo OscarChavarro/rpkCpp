@@ -172,11 +172,16 @@ GalerkinElement::GalerkinElement(Geometry *parameterGeometry): GalerkinElement()
 }
 
 GalerkinElement::~GalerkinElement() {
+    for ( int i = 0; interactions != nullptr && i < interactions->size(); i++ ) {
+        delete interactions->get(i);
+    }
+    delete interactions;
+
     if ( regularSubElements != nullptr ) {
         for ( int i = 0; i < 4; i++) {
             delete regularSubElements[i];
         }
-        delete regularSubElements;
+        delete[] regularSubElements;
     }
 
     if ( irregularSubElements != nullptr ) {
@@ -185,11 +190,6 @@ GalerkinElement::~GalerkinElement() {
         }
         delete irregularSubElements;
     }
-
-    for ( int i = 0; interactions != nullptr && i < interactions->size(); i++ ) {
-        interactionDestroy(interactions->get(i));
-    }
-    delete interactions;
 
     if ( radiance ) {
         delete[] radiance;
@@ -303,15 +303,15 @@ Regularly subdivides the given element. A pointer to an array of
 
 Only applicable to surface elements.
 */
-GalerkinElement **
+void
 GalerkinElement::regularSubDivide() {
     if ( isCluster() ) {
         logFatal(-1, "galerkinElementRegularSubDivide", "Cannot regularly subdivide cluster elements");
-        return nullptr;
+        return;
     }
 
     if ( regularSubElements != nullptr ) {
-        return (GalerkinElement **)regularSubElements;
+        return;
     }
 
     GalerkinElement **subElement = new GalerkinElement *[4];
@@ -322,7 +322,7 @@ GalerkinElement::regularSubDivide() {
         subElement[i]->parent = this;
         subElement[i]->upTrans =
                 patch->numberOfVertices == 3 ? &GLOBAL_galerkin_TriangularUpTransformMatrix[i] : &GLOBAL_galerkin_QuadUpTransformMatrix[i];
-        subElement[i]->area = 0.25f * area;  /* we always use a uniform mapping */
+        subElement[i]->area = 0.25f * area;  // Uniform mapping is always used
         subElement[i]->blockerSize = 2.0f * (float)std::sqrt(subElement[i]->area / M_PI);
         subElement[i]->childNumber = (char)i;
         subElement[i]->reAllocCoefficients();
@@ -347,7 +347,6 @@ GalerkinElement::regularSubDivide() {
     }
 
     regularSubElements = (Element **)subElement;
-    return subElement;
 }
 
 /**

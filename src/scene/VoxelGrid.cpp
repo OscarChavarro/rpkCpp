@@ -209,23 +209,51 @@ VoxelGrid::putGeometryInsideVoxelGrid(Geometry *geometry, const short na, const 
     putSubGeometryInsideVoxelGrid(geometry);
 }
 
+/**
+On the voxel grid, a single patch usually has several pixels where it can be visible. Same
+reference to voxel data is shared on several pixels. This frees memory for the first instance
+detected.
+*/
+void
+VoxelGrid::freeFirstItem(java::ArrayList<VoxelData *> *deletedItems, VoxelData *item) {
+    // TODO: Should use a Set or HashMap for better efficiency
+    bool alreadyDeleted = false;
+    for ( int i = 0; i < deletedItems->size(); i++ ) {
+        if ( deletedItems->get(i) == item ) {
+            alreadyDeleted = true;
+            break;
+        }
+    }
+
+    if ( !alreadyDeleted ) {
+        deletedItems->add(item);
+        delete item;
+    }
+}
+
 void
 VoxelGrid::destroyGridRecursive() const {
     for ( int i = 0; i < xSize * ySize * zSize; i++ ) {
         java::ArrayList<VoxelData *> *list = volumeListsOfItems[i];
-        if ( list != nullptr ) {
-            for ( long int j = 0; j < list->size(); j++ ) {
-                VoxelData *item = list->get(j);
-                if ( item->isGrid() && item->voxelGrid != nullptr ) {
-                    item->voxelGrid->destroyGridRecursive();
-                    item->voxelGrid = nullptr;
-                }
-                //delete item;
+        for ( long int j = 0; list != nullptr && j < list->size(); j++ ) {
+            VoxelData *item = list->get(j);
+            if ( item->isGrid() && item->voxelGrid != nullptr ) {
+                item->voxelGrid->destroyGridRecursive();
+                item->voxelGrid = nullptr;
             }
         }
+    }
 
+    java::ArrayList<VoxelData *> *deletedItems = new java::ArrayList<VoxelData *>();
+    for ( int i = 0; i < xSize * ySize * zSize; i++ ) {
+        java::ArrayList<VoxelData *> *list = volumeListsOfItems[i];
+        for ( long int j = 0; list != nullptr && j < list->size(); j++ ) {
+            freeFirstItem(deletedItems, list->get(j));
+        }
         delete list;
     }
+
+    delete deletedItems;
     delete[] volumeListsOfItems;
 }
 

@@ -123,27 +123,25 @@ interactionDuplicate(Interaction *interaction) {
 
 void
 interactionDestroy(Interaction *interaction) {
-    GalerkinElement *src = interaction->sourceElement;
-    GalerkinElement *rcv = interaction->receiverElement;
-
-    if ( interaction->numberOfBasisFunctionsOnReceiver > 1 || interaction->numberOfBasisFunctionsOnSource > 1 ) {
-        delete[] interaction->K;
-    }
-
-    delete interaction;
-
     globalTotalInteractions--;
-    if ( rcv->isCluster() ) {
-        if ( src->isCluster() ) {
+    if ( interaction->receiverElement->isCluster() ) {
+        if ( interaction->sourceElement->isCluster() ) {
             globalCCInteractions--;
         } else {
             globalSCInteractions--;
         }
     } else {
-        if ( src->isCluster() ) {
+        if ( interaction->sourceElement->isCluster() ) {
             globalCSInteractions--;
         } else {
             globalSSInteractions--;
         }
     }
+
+    if ( interaction->numberOfBasisFunctionsOnReceiver > 1 || interaction->numberOfBasisFunctionsOnSource > 1 ) {
+        delete[] interaction->K;
+        interaction->K = nullptr;
+    }
+
+    delete interaction;
 }

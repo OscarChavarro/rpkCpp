@@ -95,6 +95,9 @@ class VoxelGrid {
     nextVoxel(float *t0, int *g, Vector3D *tNext, Vector3D *tDelta, const int *step, const int *out);
 
     static int randomRayId();
+
+    static void freeFirstItem(java::ArrayList<VoxelData *> *deletedItems, VoxelData *item);
+
 public:
     explicit VoxelGrid(Geometry *geometry);
     virtual ~VoxelGrid();

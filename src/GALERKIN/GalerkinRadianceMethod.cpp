@@ -94,6 +94,10 @@ GalerkinRadianceMethod::GalerkinRadianceMethod() {
 }
 
 GalerkinRadianceMethod::~GalerkinRadianceMethod() {
+    if ( GLOBAL_galerkin_state.topCluster != nullptr ) {
+        delete GLOBAL_galerkin_state.topCluster;
+        GLOBAL_galerkin_state.topCluster = nullptr;
+    }
 }
 
 const char *

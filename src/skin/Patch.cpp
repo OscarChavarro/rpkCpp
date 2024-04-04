@@ -654,6 +654,10 @@ Patch::~Patch() {
     if ( boundingBox != nullptr ) {
         delete boundingBox;
     }
+
+    if ( radianceData != nullptr ) {
+        delete radianceData;
+    }
 }
 
 /**
