@@ -92,10 +92,10 @@ mgfGetColor(MgfColorContext *cin, float intensity, ColorRgb *colorOut, MgfContex
 }
 
 static void
-specSamples(ColorRgb &col, float *rgb) {
-    rgb[0] = col.spectrum[0];
-    rgb[1] = col.spectrum[1];
-    rgb[2] = col.spectrum[2];
+specSamples(ColorRgb *col, float *rgb) {
+    rgb[0] = col->r;
+    rgb[1] = col->g;
+    rgb[2] = col->b;
 }
 
 static float
@@ -103,13 +103,13 @@ colorMax(ColorRgb col) {
     // We should check every wavelength in the visible spectrum, but
     // as a first approximation, only the three RGB primary colors
     // are checked
-    float samples[NUMBER_OF_SAMPLES], mx;
-    int i;
+    float samples[NUMBER_OF_SAMPLES];
+    float mx;
 
-    specSamples(col, samples);
+    specSamples(&col, samples);
 
     mx = -HUGE;
-    for ( i = 0; i < NUMBER_OF_SAMPLES; i++ ) {
+    for ( int i = 0; i < NUMBER_OF_SAMPLES; i++ ) {
         if ( samples[i] > mx ) {
             mx = samples[i];
         }

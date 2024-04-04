@@ -92,14 +92,14 @@ class CImporton : public CIrrPhoton {
     SetAll(float imp, float /*pot*/, float /*foot*/) {
         // Abuse m_power for importance estimates.
         // -- AT LEAST 3 COLOR components needed!  Watch out with compact photon repr.
-        m_power.spectrum[0] = imp;
+        m_power.r = imp;
     }
 
     inline void
     PSetAll(float imp, float /*pot*/, float /*foot*/) {
         // Abuse m_power for importance estimates.
         // -- AT LEAST 3 COLOR components needed!  Watch out with compact photon repr.
-        m_irradiance.spectrum[0] = imp;
+        m_irradiance.r = imp;
     }
 
     CImporton(
@@ -118,12 +118,12 @@ class CImporton : public CIrrPhoton {
   public:
     inline float
     Importance() {
-        return m_power.spectrum[0];
+        return m_power.r;
     }
 
     inline float
     PImportance() {
-        return m_irradiance.spectrum[0];
+        return m_irradiance.r;
     }
 };
 

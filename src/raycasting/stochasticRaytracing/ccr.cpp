@@ -209,44 +209,44 @@ refineControlRadiosity(
             // Copy components
             switch ( s ) {
                 case 0:
-                    fc[i] = f[i].spectrum[0];
-                    radC[i] = rad[i].spectrum[0];
+                    fc[i] = f[i].r;
+                    radC[i] = rad[i].r;
                     break;
                 case 1:
-                    fc[i] = f[i].spectrum[1];
-                    radC[i] = rad[i].spectrum[1];
+                    fc[i] = f[i].g;
+                    radC[i] = rad[i].g;
                     break;
                 case 2:
-                    fc[i] = f[i].spectrum[2];
-                    radC[i] = rad[i].spectrum[2];
+                    fc[i] = f[i].b;
+                    radC[i] = rad[i].b;
                     break;
             }
         }
         switch ( s ) {
             case 0:
                 refineComponent(
-                    &(minRad->spectrum[0]),
-                    &(maxRad->spectrum[0]),
-                    &(fMin->spectrum[0]),
-                    &(fMax->spectrum[0]),
+                    &(minRad->r),
+                    &(maxRad->r),
+                    &(fMin->r),
+                    &(fMax->r),
                     fc,
                     radC);
                 break;
             case 1:
                 refineComponent(
-                    &(minRad->spectrum[1]),
-                    &(maxRad->spectrum[1]),
-                    &(fMin->spectrum[1]),
-                    &(fMax->spectrum[1]),
+                    &(minRad->g),
+                    &(maxRad->g),
+                    &(fMin->g),
+                    &(fMax->g),
                     fc,
                     radC);
                 break;
             case 2:
                 refineComponent(
-                    &(minRad->spectrum[2]),
-                    &(maxRad->spectrum[2]),
-                    &(fMin->spectrum[2]),
-                    &(fMax->spectrum[2]),
+                    &(minRad->b),
+                    &(maxRad->b),
+                    &(fMin->b),
+                    &(fMax->b),
                     fc,
                     radC);
                 break;
