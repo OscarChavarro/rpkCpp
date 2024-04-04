@@ -9,7 +9,7 @@ Ks = specular emittance, reflectance or transmittance (same dimensions as Kd)
 Ns = Phong exponent.
 note: Emittance is total power emitted by the light source per unit of area
 */
-PhongEmittanceDistributionFunctions::PhongEmittanceDistributionFunctions(COLOR *KdParameter, COLOR *KsParameter, double NsParameter) {
+PhongEmittanceDistributionFunctions::PhongEmittanceDistributionFunctions(ColorRgb *KdParameter, ColorRgb *KsParameter, double NsParameter) {
     Kd = *KdParameter;
     colorScale((1.00f / (float)M_PI), Kd, kd); // Because we use it often
     Ks = *KsParameter;
@@ -22,9 +22,9 @@ PhongEmittanceDistributionFunctions::PhongEmittanceDistributionFunctions(COLOR *
 /**
 Returns emittance, reflectance, transmittance
 */
-static COLOR
+static ColorRgb
 phongEmittance(PhongEmittanceDistributionFunctions *edf, RayHit * /*hit*/, char flags) {
-    COLOR result;
+    ColorRgb result;
 
     colorClear(result);
 
@@ -48,12 +48,12 @@ phongEmittance(PhongEmittanceDistributionFunctions *edf, RayHit * /*hit*/, char 
 /**
 Returns the emittance (self-emitted radiant exitance) [W / m ^ 2] of the EDF
 */
-COLOR
+ColorRgb
 edfEmittance(PhongEmittanceDistributionFunctions *edf, RayHit *hit, char flags) {
     if ( edf != nullptr ) {
         return phongEmittance(edf, hit, flags);
     } else {
-        static COLOR emit;
+        static ColorRgb emit;
         colorClear(emit);
         return emit;
     }
@@ -67,10 +67,10 @@ edfIsTextured(PhongEmittanceDistributionFunctions * /*edf*/) {
 /**
 Edf evaluations
 */
-static COLOR
+static ColorRgb
 phongEdfEval(PhongEmittanceDistributionFunctions *edf, RayHit *hit, Vector3D *out, char flags, double *probabilityDensityFunction) {
     Vector3D normal;
-    COLOR result;
+    ColorRgb result;
     double cosL;
 
     colorClear(result);
@@ -111,12 +111,12 @@ Evaluates the edf: return exitant radiance [W/m^2 sr] into the direction
 out. If probabilityDensityFunction is not null, the stochasticJacobiProbability density of the direction is
 computed and returned in probabilityDensityFunction
 */
-COLOR
+ColorRgb
 edfEval(PhongEmittanceDistributionFunctions *edf, RayHit *hit, Vector3D *out, char flags, double *probabilityDensityFunction) {
     if ( edf != nullptr ) {
         return phongEdfEval(edf, hit, out, flags, probabilityDensityFunction);
     } else {
-        static COLOR val;
+        static ColorRgb val;
         colorClear(val);
         if ( probabilityDensityFunction ) {
             *probabilityDensityFunction = 0.0;
@@ -135,7 +135,7 @@ phongEdfSample(
     char flags,
     double xi1,
     double xi2,
-    COLOR *selfEmittedRadiance,
+    ColorRgb *selfEmittedRadiance,
     double *probabilityDensityFunction)
 {
     Vector3D dir = {0.0, 0.0, 1.0};
@@ -182,7 +182,7 @@ edfSample(
     char flags,
     double xi1,
     double xi2,
-    COLOR *emittedRadiance,
+    ColorRgb *emittedRadiance,
     double *probabilityDensityFunction)
 {
     if ( edf != nullptr ) {

@@ -697,10 +697,10 @@ Patch::getNumberOfSamples() {
 Use next function (with PatchListIterate) to close any open files of the patch use for recording
 Computes average scattered power and emittance of the Patch
 */
-COLOR
+ColorRgb
 Patch::averageNormalAlbedo(BSDF_FLAGS components) {
     int numberOfSamples;
-    COLOR albedo;
+    ColorRgb albedo;
     RayHit hit;
 
     hitInit(&hit, this, nullptr, &midPoint, &normal, surface->material, 0.0);
@@ -708,7 +708,7 @@ Patch::averageNormalAlbedo(BSDF_FLAGS components) {
     numberOfSamples = getNumberOfSamples();
     colorClear(albedo);
     for ( int i = 0; i < numberOfSamples; i++ ) {
-        COLOR sample;
+        ColorRgb sample;
         unsigned *xi = Nied31(i);
         hit.uv.u = (double) xi[0] * RECIP;
         hit.uv.v = (double) xi[1] * RECIP;
@@ -722,17 +722,17 @@ Patch::averageNormalAlbedo(BSDF_FLAGS components) {
     return albedo;
 }
 
-COLOR
+ColorRgb
 Patch::averageEmittance(char components) {
     int numberOfSamples;
-    COLOR emittance;
+    ColorRgb emittance;
     RayHit hit;
     hitInit(&hit, this, nullptr, &midPoint, &normal, surface->material, 0.0);
 
     numberOfSamples = getNumberOfSamples();
     colorClear(emittance);
     for ( int i = 0; i < numberOfSamples; i++ ) {
-        COLOR sample;
+        ColorRgb sample;
         unsigned *xi = Nied31(i);
         hit.uv.u = (double) xi[0] * RECIP;
         hit.uv.v = (double) xi[1] * RECIP;

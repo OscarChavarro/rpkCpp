@@ -30,9 +30,9 @@ void
 allocCoefficients(StochasticRadiosityElement *elem) {
     disposeCoefficients(elem);
     elem->basis = ActualBasis(elem);
-    elem->radiance = (COLOR *)malloc(elem->basis->size * sizeof(COLOR));
-    elem->unShotRadiance = (COLOR *)malloc(elem->basis->size * sizeof(COLOR));
-    elem->receivedRadiance = (COLOR *)malloc(elem->basis->size * sizeof(COLOR));
+    elem->radiance = (ColorRgb *)malloc(elem->basis->size * sizeof(ColorRgb));
+    elem->unShotRadiance = (ColorRgb *)malloc(elem->basis->size * sizeof(ColorRgb));
+    elem->receivedRadiance = (ColorRgb *)malloc(elem->basis->size * sizeof(ColorRgb));
 }
 
 /**

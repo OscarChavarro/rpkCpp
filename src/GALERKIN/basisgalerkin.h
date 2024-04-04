@@ -32,19 +32,19 @@ class GalerkinBasis {
 extern GalerkinBasis GLOBAL_galerkin_quadBasis;
 extern GalerkinBasis GLOBAL_galerkin_triBasis;
 
-extern COLOR
+extern ColorRgb
 basisGalerkinRadianceAtPoint(
     GalerkinElement *elem,
-    COLOR *coefficients,
+    ColorRgb *coefficients,
     double u,
     double v);
 
 extern void
 basisGalerkinPush(
     GalerkinElement *element,
-    COLOR *parent_coefficients,
+    ColorRgb *parent_coefficients,
     GalerkinElement *child,
-    COLOR *child_coefficients);
+    ColorRgb *child_coefficients);
 
 extern void basisGalerkinInitBasis();
 

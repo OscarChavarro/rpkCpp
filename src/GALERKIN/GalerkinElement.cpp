@@ -254,7 +254,7 @@ GalerkinElement::reAllocCoefficients() {
         }
     }
 
-    COLOR *defaultRadiance = new COLOR[localBasisSize];
+    ColorRgb *defaultRadiance = new ColorRgb[localBasisSize];
     clusterGalerkinClearCoefficients(defaultRadiance, localBasisSize);
     if ( radiance ) {
         clusterGalerkinCopyCoefficients(defaultRadiance, radiance, charMin(basisSize, localBasisSize));
@@ -262,7 +262,7 @@ GalerkinElement::reAllocCoefficients() {
     }
     radiance = defaultRadiance;
 
-    COLOR *defaultReceivedRadiance = new COLOR[localBasisSize];
+    ColorRgb *defaultReceivedRadiance = new ColorRgb[localBasisSize];
     clusterGalerkinClearCoefficients(defaultReceivedRadiance, localBasisSize);
     if ( receivedRadiance ) {
         clusterGalerkinCopyCoefficients(defaultReceivedRadiance, receivedRadiance,
@@ -272,7 +272,7 @@ GalerkinElement::reAllocCoefficients() {
     receivedRadiance = defaultReceivedRadiance;
 
     if ( GLOBAL_galerkin_state.iteration_method == SOUTH_WELL ) {
-        COLOR *defaultUnShotRadiance = new COLOR[localBasisSize];
+        ColorRgb *defaultUnShotRadiance = new ColorRgb[localBasisSize];
         clusterGalerkinClearCoefficients(defaultUnShotRadiance, localBasisSize);
         if ( !isCluster() ) {
             if ( unShotRadiance ) {
@@ -577,10 +577,10 @@ GalerkinElement::draw(int mode) {
 
     if ( mode & FLAT ) {
         RGB color{};
-        COLOR rho = patch->radianceData->Rd;
+        ColorRgb rho = patch->radianceData->Rd;
 
         if ( GLOBAL_galerkin_state.use_ambient_radiance ) {
-            COLOR rad_vis;
+            ColorRgb rad_vis;
             colorProduct(rho, GLOBAL_galerkin_state.ambient_radiance, rad_vis);
             colorAdd(rad_vis, radiance[0], rad_vis);
             radianceToRgb(rad_vis, &color);
@@ -591,7 +591,7 @@ GalerkinElement::draw(int mode) {
         openGlRenderPolygonFlat(numberOfVertices, p);
     } else if ( mode & GOURAUD ) {
         RGB vertColor[4];
-        COLOR vertRadiosity[4];
+        ColorRgb vertRadiosity[4];
         int i;
 
         if ( numberOfVertices == 3 ) {
@@ -606,8 +606,8 @@ GalerkinElement::draw(int mode) {
         }
 
         if ( GLOBAL_galerkin_state.use_ambient_radiance ) {
-            COLOR reflectivity = patch->radianceData->Rd;
-            COLOR ambient;
+            ColorRgb reflectivity = patch->radianceData->Rd;
+            ColorRgb ambient;
 
             colorProduct(reflectivity, GLOBAL_galerkin_state.ambient_radiance, ambient);
             for ( i = 0; i < numberOfVertices; i++ ) {

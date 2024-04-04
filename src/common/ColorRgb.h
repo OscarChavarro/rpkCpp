@@ -7,10 +7,10 @@
 /**
 Representation of radiance, radiosity, power, spectra
 */
-class COLOR {
+class ColorRgb {
   public:
     float spectrum[3];
-    COLOR() : spectrum() {}
+    ColorRgb() : spectrum() {}
 
     inline void
     print(FILE *fp) {
@@ -19,91 +19,91 @@ class COLOR {
 };
 
 inline void
-colorClear(COLOR &c) {
+colorClear(ColorRgb &c) {
     c.spectrum[0] = 0;
     c.spectrum[1] = 0;
     c.spectrum[2] = 0;
 }
 
 inline void
-colorSet(COLOR &c, float v1, float v2, float v3) {
+colorSet(ColorRgb &c, float v1, float v2, float v3) {
     c.spectrum[0] = v1;
     c.spectrum[1] = v2;
     c.spectrum[2] = v3;
 }
 
 inline void
-colorSetMonochrome(COLOR &c, float v) {
+colorSetMonochrome(ColorRgb &c, float v) {
     c.spectrum[0] = v;
     c.spectrum[1] = v;
     c.spectrum[2] = v;
 }
 
 inline bool
-colorNull(COLOR &c) {
+colorNull(ColorRgb &c) {
     return (c.spectrum[0] > -EPSILON && c.spectrum[0] < EPSILON &&
             c.spectrum[1] > -EPSILON && c.spectrum[1] < EPSILON &&
             c.spectrum[2] > -EPSILON && c.spectrum[2] < EPSILON);
 }
 
 inline void
-colorScale(float a, COLOR &c, COLOR &result) {
+colorScale(float a, ColorRgb &c, ColorRgb &result) {
     result.spectrum[0] = a * c.spectrum[0];
     result.spectrum[1] = a * c.spectrum[1];
     result.spectrum[2] = a * c.spectrum[2];
 }
 
 inline void
-colorProduct(COLOR &s, COLOR &t, COLOR &r) {
+colorProduct(ColorRgb &s, ColorRgb &t, ColorRgb &r) {
     r.spectrum[0] = s.spectrum[0] * t.spectrum[0];
     r.spectrum[1] = s.spectrum[1] * t.spectrum[1];
     r.spectrum[2] = s.spectrum[2] * t.spectrum[2];
 }
 
 inline void
-colorProductScaled(COLOR &s, float a, COLOR &t, COLOR &r) {
+colorProductScaled(ColorRgb &s, float a, ColorRgb &t, ColorRgb &r) {
     r.spectrum[0] = s.spectrum[0] * a * t.spectrum[0];
     r.spectrum[1] = s.spectrum[1] * a * t.spectrum[1];
     r.spectrum[2] = s.spectrum[2] * a * t.spectrum[2];
 }
 
 inline void
-colorAdd(COLOR &s, COLOR &t, COLOR &r) {
+colorAdd(ColorRgb &s, ColorRgb &t, ColorRgb &r) {
     r.spectrum[0] = s.spectrum[0] + t.spectrum[0];
     r.spectrum[1] = s.spectrum[1] + t.spectrum[1];
     r.spectrum[2] = s.spectrum[2] + t.spectrum[2];
 }
 
 inline void
-colorAddScaled(COLOR &s, float a, COLOR &t, COLOR &r) {
+colorAddScaled(ColorRgb &s, float a, ColorRgb &t, ColorRgb &r) {
     r.spectrum[0] = s.spectrum[0] + a * t.spectrum[0];
     r.spectrum[1] = s.spectrum[1] + a * t.spectrum[1];
     r.spectrum[2] = s.spectrum[2] + a * t.spectrum[2];
 }
 
 inline void
-colorAddConstant(COLOR &s, float a, COLOR &r) {
+colorAddConstant(ColorRgb &s, float a, ColorRgb &r) {
     r.spectrum[0] = s.spectrum[0] + a;
     r.spectrum[1] = s.spectrum[1] + a;
     r.spectrum[2] = s.spectrum[2] + a;
 }
 
 inline void
-colorSubtract(COLOR &s, COLOR & t, COLOR &r) {
+colorSubtract(ColorRgb &s, ColorRgb & t, ColorRgb &r) {
     r.spectrum[0] = s.spectrum[0] - t.spectrum[0];
     r.spectrum[1] = s.spectrum[1] - t.spectrum[1];
     r.spectrum[2] = s.spectrum[2] - t.spectrum[2];
 }
 
 inline void
-colorDivide(COLOR &s, COLOR &t, COLOR &r) {
+colorDivide(ColorRgb &s, ColorRgb &t, ColorRgb &r) {
     r.spectrum[0] = (t.spectrum[0] != 0.0) ? s.spectrum[0] / t.spectrum[0] : s.spectrum[0];
     r.spectrum[1] = (t.spectrum[1] != 0.0) ? s.spectrum[1] / t.spectrum[1] : s.spectrum[1];
     r.spectrum[2] = (t.spectrum[2] != 0.0) ? s.spectrum[2] / t.spectrum[2] : s.spectrum[2];
 }
 
 inline void
-colorScaleInverse(float scale, COLOR &s, COLOR &r) {
+colorScaleInverse(float scale, ColorRgb &s, ColorRgb &r) {
     float a = (scale != 0.0f) ? 1.0f / scale : 1.0f;
     r.spectrum[0] = a * s.spectrum[0];
     r.spectrum[1] = a * s.spectrum[1];
@@ -111,60 +111,60 @@ colorScaleInverse(float scale, COLOR &s, COLOR &r) {
 }
 
 inline float
-colorMaximumComponent(COLOR &s) {
+colorMaximumComponent(ColorRgb &s) {
     return (s.spectrum[0] > s.spectrum[1] ? (s.spectrum[0] > s.spectrum[2] ? s.spectrum[0] : s.spectrum[2]) : (s.spectrum[1] > s.spectrum[2] ? s.spectrum[1] : s.spectrum[2]));
 }
 
 inline float
-colorSumAbsComponents(COLOR &s) {
+colorSumAbsComponents(ColorRgb &s) {
     return std::fabs(s.spectrum[0]) + std::fabs(s.spectrum[1]) + std::fabs(s.spectrum[2]);
 }
 
 inline void
-colorAbs(COLOR &s, COLOR &r) {
+colorAbs(ColorRgb &s, ColorRgb &r) {
     r.spectrum[0] = std::fabs(s.spectrum[0]);
     r.spectrum[1] = std::fabs(s.spectrum[1]);
     r.spectrum[2] = std::fabs(s.spectrum[2]);
 }
 
 inline void
-colorMaximum(COLOR &s, COLOR &t, COLOR &r) {
+colorMaximum(ColorRgb &s, ColorRgb &t, ColorRgb &r) {
     r.spectrum[0] = s.spectrum[0] > t.spectrum[0] ? s.spectrum[0] : t.spectrum[0];
     r.spectrum[1] = s.spectrum[1] > t.spectrum[1] ? s.spectrum[1] : t.spectrum[1];
     r.spectrum[2] = s.spectrum[2] > t.spectrum[2] ? s.spectrum[2] : t.spectrum[2];
 }
 
 inline void
-colorMinimum(COLOR &s, COLOR &t, COLOR &r) {
+colorMinimum(ColorRgb &s, ColorRgb &t, ColorRgb &r) {
     r.spectrum[0] = s.spectrum[0] < t.spectrum[0] ? s.spectrum[0] : t.spectrum[0];
     r.spectrum[1] = s.spectrum[1] < t.spectrum[1] ? s.spectrum[1] : t.spectrum[1];
     r.spectrum[2] = s.spectrum[2] < t.spectrum[2] ? s.spectrum[2] : t.spectrum[2];
 }
 
 inline float
-colorAverage(COLOR &s) {
+colorAverage(ColorRgb &s) {
     return (s.spectrum[0] + s.spectrum[1] + s.spectrum[2]) / 3.0f;
 }
 
 inline float
-colorGray(COLOR &s) {
+colorGray(ColorRgb &s) {
     return spectrumGray(s.spectrum);
 }
 
 inline float
-colorLuminance(COLOR &s) {
+colorLuminance(ColorRgb &s) {
     return spectrumLuminance(s.spectrum);
 }
 
 inline void
-colorInterpolateBarycentric(COLOR &c0, COLOR &c1, COLOR &c2, float u, float v, COLOR &r) {
+colorInterpolateBarycentric(ColorRgb &c0, ColorRgb &c1, ColorRgb &c2, float u, float v, ColorRgb &r) {
     r.spectrum[0] = c0.spectrum[0] + u * (c1.spectrum[0] - c0.spectrum[0]) + v * (c2.spectrum[0] - c0.spectrum[0]);
     r.spectrum[1] = c0.spectrum[1] + u * (c1.spectrum[1] - c0.spectrum[1]) + v * (c2.spectrum[1] - c0.spectrum[1]);
     r.spectrum[2] = c0.spectrum[2] + u * (c1.spectrum[2] - c0.spectrum[2]) + v * (c2.spectrum[2] - c0.spectrum[2]);
 }
 
 inline void
-colorInterpolateBiLinear(COLOR &c0, COLOR &c1, COLOR &c2, COLOR &c3, float u, float v, COLOR &r) {
+colorInterpolateBiLinear(ColorRgb &c0, ColorRgb &c1, ColorRgb &c2, ColorRgb &c3, float u, float v, ColorRgb &r) {
     float c = u * v;
     float b = u - c;
     float d = v - c;
@@ -174,7 +174,7 @@ colorInterpolateBiLinear(COLOR &c0, COLOR &c1, COLOR &c2, COLOR &c3, float u, fl
     r.spectrum[2] = c0.spectrum[2] + b * (c1.spectrum[2] - c0.spectrum[2]) + c * (c2.spectrum[2] - c0.spectrum[2]) + d * (c3.spectrum[2] - c0.spectrum[2]);
 }
 
-extern RGB *convertColorToRGB(COLOR col, RGB *rgb);
-extern COLOR *convertRGBToColor(RGB rgb, COLOR *col);
+extern RGB *convertColorToRGB(ColorRgb col, RGB *rgb);
+extern ColorRgb *convertRGBToColor(RGB rgb, ColorRgb *col);
 
 #endif

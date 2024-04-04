@@ -276,8 +276,8 @@ Recomputes the color of a patch using ambient radiance term, ... if requested fo
 */
 void
 patchRecomputeColor(Patch *patch) {
-    COLOR reflectivity = patch->radianceData->Rd;
-    COLOR rad_vis;
+    ColorRgb reflectivity = patch->radianceData->Rd;
+    ColorRgb rad_vis;
 
     /* compute the patches color based on its radiance + ambient radiance
      * if desired. */
@@ -293,8 +293,8 @@ patchRecomputeColor(Patch *patch) {
 
 static void
 patchInit(Patch *patch) {
-    COLOR reflectivity = patch->radianceData->Rd;
-    COLOR selfEmittanceRadiance = patch->radianceData->Ed;
+    ColorRgb reflectivity = patch->radianceData->Rd;
+    ColorRgb selfEmittanceRadiance = patch->radianceData->Ed;
 
     if ( GLOBAL_galerkin_state.use_constant_radiance ) {
         // See Neumann et-al, "The Constant Radiosity Step", Euro-graphics Rendering Workshop
@@ -403,10 +403,10 @@ GalerkinRadianceMethod::terminate(java::ArrayList<Patch *> *scenePatches) {
     }
 }
 
-COLOR
+ColorRgb
 GalerkinRadianceMethod::getRadiance(Patch *patch, double u, double v, Vector3D dir) {
     GalerkinElement *leaf;
-    COLOR rad;
+    ColorRgb rad;
 
     if ( patch->jacobian ) {
         patch->biLinearToUniform(&u, &v);
@@ -419,8 +419,8 @@ GalerkinRadianceMethod::getRadiance(Patch *patch, double u, double v, Vector3D d
 
     if ( GLOBAL_galerkin_state.use_ambient_radiance ) {
         // Add ambient radiance
-        COLOR reflectivity = patch->radianceData->Rd;
-        COLOR ambientRadiance;
+        ColorRgb reflectivity = patch->radianceData->Rd;
+        ColorRgb ambientRadiance;
         colorProduct(reflectivity, GLOBAL_galerkin_state.ambient_radiance, ambientRadiance);
         colorAdd(rad, ambientRadiance, rad);
     }
@@ -552,7 +552,7 @@ galerkinWriteVertexColor(RGB *color) {
 static void
 galerkinWriteVertexColors(Element *element) {
     GalerkinElement *galerkinElement = (GalerkinElement *)element;
-    COLOR vertexRadiosity[4];
+    ColorRgb vertexRadiosity[4];
     int i;
 
     if ( galerkinElement->patch->numberOfVertices == 3 ) {
@@ -567,8 +567,8 @@ galerkinWriteVertexColors(Element *element) {
     }
 
     if ( GLOBAL_galerkin_state.use_ambient_radiance ) {
-        COLOR reflectivity = galerkinElement->patch->radianceData->Rd;
-        COLOR ambient;
+        ColorRgb reflectivity = galerkinElement->patch->radianceData->Rd;
+        ColorRgb ambient;
 
         colorProduct(reflectivity, GLOBAL_galerkin_state.ambient_radiance, ambient);
         for ( i = 0; i < galerkinElement->patch->numberOfVertices; i++ ) {

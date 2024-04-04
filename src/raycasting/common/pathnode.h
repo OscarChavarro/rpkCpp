@@ -7,7 +7,7 @@ and contain necessary information for raytracing-like algorithms
 #define __PATH_NODE__
 
 #include "common/Ray.h"
-#include "common/color.h"
+#include "common/ColorRgb.h"
 #include "material/bsdf.h"
 
 // -- For evaluation of bi paths, should change!
@@ -55,7 +55,7 @@ class SimpleRaytracingPathNode {
     //  known beforehand => separate components needed.
     double accumulatedRussianRouletteFactors;
 
-    COLOR m_bsdfEval;
+    ColorRgb m_bsdfEval;
     BsdfComp m_bsdfComp;
 
     BSDF_FLAGS m_usedComponents; // Components used for scattering in this

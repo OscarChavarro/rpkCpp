@@ -1,13 +1,13 @@
 #include "scene/Background.h"
 
-COLOR
+ColorRgb
 backgroundRadiance(
     Background *bkg,
     Vector3D *position,
     Vector3D *direction,
     float *probabilityDensityFunction) {
     if ( !bkg || !bkg->methods->Radiance ) {
-        COLOR black;
+        ColorRgb black;
         colorSetMonochrome(black, 0.0);
         return black;
     } else {
@@ -15,10 +15,10 @@ backgroundRadiance(
     }
 }
 
-COLOR
+ColorRgb
 backgroundPower(Background *bkg, Vector3D *position) {
     if ( !bkg || !bkg->methods->Power ) {
-        COLOR black;
+        ColorRgb black;
         colorSetMonochrome(black, 0.0);
         return black;
     } else {

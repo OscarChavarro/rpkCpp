@@ -42,16 +42,16 @@ class STATE {
     SHOW_WHAT show; // What to show and how to display the result
     int inited; // Flag indicating whether initialised or not
     int currentIteration;
-    COLOR unShotFlux;
-    COLOR totalFlux;
-    COLOR indirectImportanceWeightedUnShotFlux;
+    ColorRgb unShotFlux;
+    ColorRgb totalFlux;
+    ColorRgb indirectImportanceWeightedUnShotFlux;
     float unShotYmp;
     float totalYmp; // Sum over all patches of area * importance
     float sourceYmp;
     int rayUnitsPerIt; // To increase or decrease initial nr of rays
     int bidirectionalTransfers; // For bidirectional energy transfers
     int constantControlVariate; // For constant control variate variance reduction
-    COLOR controlRadiance; // Constant control radiance value
+    ColorRgb controlRadiance; // Constant control radiance value
     int indirectOnly; // If to compute indirect illumination only
     int weightedSampling; // If to do weighted sampling ala Powell and Swann/Spanier
     int setSource; // For copying direct illumination to SOURCE_RAD(..) if computing only indirect illumination
@@ -141,17 +141,17 @@ topLevelGalerkinElement(Patch *patch) {
     return (StochasticRadiosityElement *)patch->radianceData;
 }
 
-inline COLOR *
+inline ColorRgb *
 getTopLevelPatchRad(Patch *patch) {
     return topLevelGalerkinElement(patch)->radiance;
 }
 
-inline COLOR *
+inline ColorRgb *
 getTopLevelPatchUnShotRad(Patch *patch) {
     return topLevelGalerkinElement(patch)->unShotRadiance;
 }
 
-inline COLOR*
+inline ColorRgb*
 getTopLevelPatchReceivedRad(Patch *patch) {
     return topLevelGalerkinElement(patch)->receivedRadiance;
 }
@@ -172,7 +172,7 @@ extern void monteCarloRadiosityUpdateViewImportance(java::ArrayList<Patch *> *sc
 extern void monteCarloRadiosityReInit(java::ArrayList<Patch *> *scenePatches);
 extern void monteCarloRadiosityPreStep(java::ArrayList<Patch *> *scenePatches);
 extern void monteCarloRadiosityTerminate(java::ArrayList<Patch *> *scenePatches);
-extern COLOR monteCarloRadiosityGetRadiance(Patch *patch, double u, double v, Vector3D dir);
+extern ColorRgb monteCarloRadiosityGetRadiance(Patch *patch, double u, double v, Vector3D dir);
 extern void stochasticRelaxationRadiosityParseOptions(int *argc, char **argv);
 extern void randomWalkRadiosityParseOptions(int *argc, char **argv);
 

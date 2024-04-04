@@ -95,14 +95,14 @@ Write out a scanline
 int
 dkColorWriteScan(COLOR *scanline, int len, FILE *fp)
 {
-    COLR *clrscan;
+    COLR *colorScan;
     int n;
     COLR *sp;
     // get scanline buffer
     if ((sp = (COLR *) dkColorTempBuffer(len * sizeof(COLR))) == nullptr) {
         return (-1);
     }
-    clrscan = sp;
+    colorScan = sp;
     // Convert scanline
     n = len;
     while ( n-- > 0 ) {
@@ -112,7 +112,7 @@ dkColorWriteScan(COLOR *scanline, int len, FILE *fp)
         scanline++;
         sp++;
     }
-    return (dkColorWriteColrs(clrscan, len, fp));
+    return (dkColorWriteColrs(colorScan, len, fp));
 }
 
 /**

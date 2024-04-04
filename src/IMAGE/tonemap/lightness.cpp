@@ -31,12 +31,12 @@ static float Lightness(float luminance) {
     }
 }
 
-static COLOR lightnessScaleForComputations(COLOR radiance) {
+static ColorRgb lightnessScaleForComputations(ColorRgb radiance) {
     logFatal(-1, "ScaleForComputations", "%s %d not yet implemented", __FILE__, __LINE__);
     return radiance;
 }
 
-static COLOR lightnessScaleForDisplay(COLOR radiance) {
+static ColorRgb lightnessScaleForDisplay(ColorRgb radiance) {
     float max, scale_factor;
 
     max = colorMaximumComponent(radiance);

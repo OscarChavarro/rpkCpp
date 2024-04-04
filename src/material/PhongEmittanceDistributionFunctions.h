@@ -17,18 +17,18 @@ just an implementation of that interface.
 */
 class PhongEmittanceDistributionFunctions {
   public:
-    COLOR Kd;
-    COLOR kd;
-    COLOR Ks;
+    ColorRgb Kd;
+    ColorRgb kd;
+    ColorRgb Ks;
     float Ns;
 
-    PhongEmittanceDistributionFunctions(COLOR *KdParameter, COLOR *KsParameter, double NsParameter);
+    PhongEmittanceDistributionFunctions(ColorRgb *KdParameter, ColorRgb *KsParameter, double NsParameter);
 };
 
-extern COLOR edfEmittance(PhongEmittanceDistributionFunctions *edf, RayHit *hit, char flags);
+extern ColorRgb edfEmittance(PhongEmittanceDistributionFunctions *edf, RayHit *hit, char flags);
 extern bool edfIsTextured(PhongEmittanceDistributionFunctions *edf);
 
-extern COLOR
+extern ColorRgb
 edfEval(
     PhongEmittanceDistributionFunctions *edf,
     RayHit *hit,
@@ -43,7 +43,7 @@ edfSample(
     char flags,
     double xi1,
     double xi2,
-    COLOR *emittedRadiance,
+    ColorRgb *emittedRadiance,
     double *probabilityDensityFunction);
 
 extern bool

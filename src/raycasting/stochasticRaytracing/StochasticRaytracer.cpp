@@ -14,7 +14,7 @@ const float PHOTON_MAP_MIN_DIST2 = PHOTON_MAP_MIN_DIST * PHOTON_MAP_MIN_DIST; //
 
 RayTracingStochasticState GLOBAL_raytracing_state;
 
-static COLOR
+static ColorRgb
 stochasticRaytracerGetRadiance(
     SimpleRaytracingPathNode *thisNode,
     StochasticRaytracingConfiguration *config,
@@ -22,7 +22,7 @@ stochasticRaytracerGetRadiance(
     int usedScatterSamples,
     RadianceMethod *context);
 
-COLOR
+ColorRgb
 stochasticRaytracerGetScatteredRadiance(
     SimpleRaytracingPathNode *thisNode,
     StochasticRaytracingConfiguration *config,
@@ -35,7 +35,7 @@ stochasticRaytracerGetScatteredRadiance(
     SimpleRaytracingPathNode newNode;
     thisNode->attach(&newNode);
 
-    COLOR result;
+    ColorRgb result;
     colorClear(result);
 
     if ( (config->samplerConfig.surfaceSampler == nullptr) ||
@@ -69,7 +69,7 @@ stochasticRaytracerGetScatteredRadiance(
 
         if ( nrSamples > 2 ) {
             // Some bigger value may be more efficient
-            COLOR albedo = bsdfScatteredPower(
+            ColorRgb albedo = bsdfScatteredPower(
                 thisNode->m_useBsdf,
                   &thisNode->m_hit,
                   &thisNode->m_normal,
@@ -87,7 +87,7 @@ stochasticRaytracerGetScatteredRadiance(
             double x_2;
             double factor;
             StratifiedSampling2D stratified(nrSamples);
-            COLOR radiance;
+            ColorRgb radiance;
             bool doRR = thisNode->m_depth >= config->samplerConfig.minDepth;
 
             for ( i = 0; i < nrSamples; i++ ) {
@@ -143,14 +143,14 @@ stochasticRaytracerGetScatteredRadiance(
     return result;
 }
 
-COLOR
+ColorRgb
 SR_GetDirectRadiance(
         SimpleRaytracingPathNode *prevNode,
         StochasticRaytracingConfiguration *config,
         StorageReadout readout)
 {
-    COLOR result;
-    COLOR radiance;
+    ColorRgb result;
+    ColorRgb radiance;
     colorClear(result);
     Vector3D dirEL;
 
@@ -295,7 +295,7 @@ SR_GetDirectRadiance(
     return result;
 }
 
-static COLOR
+static ColorRgb
 stochasticRaytracerGetRadiance(
     SimpleRaytracingPathNode *thisNode,
     StochasticRaytracingConfiguration *config,
@@ -303,8 +303,8 @@ stochasticRaytracerGetRadiance(
     int usedScatterSamples,
     RadianceMethod *context)
 {
-    COLOR result;
-    COLOR radiance;
+    ColorRgb result;
+    ColorRgb radiance;
     char edfFlags = ALL_COMPONENTS;
 
     // Handle background
@@ -380,7 +380,7 @@ stochasticRaytracerGetRadiance(
                 // This includes Le diffuse, subtract first and handle total emitted later (possibly weighted)
                 // -- Interface mechanism needed to determine what a
                 // -- radiance method does...
-                COLOR diffEmit;
+                ColorRgb diffEmit;
 
                 diffEmit = edfEval(thisEdf, &thisNode->m_hit, &(thisNode->m_inDirF),
                                    BRDF_DIFFUSE_COMPONENT, nullptr);
@@ -418,7 +418,7 @@ stochasticRaytracerGetRadiance(
             double weight;
             double cr;
             double cl;
-            COLOR col;
+            ColorRgb col;
             bool doWeight = true;
 
             if ( thisNode->m_depth <= 1 ) {
@@ -461,13 +461,13 @@ stochasticRaytracerGetRadiance(
     return result;
 }
 
-static COLOR
+static ColorRgb
 CalcPixel(int nx, int ny, StochasticRaytracingConfiguration *config, RadianceMethod *context) {
     int i;
     SimpleRaytracingPathNode eyeNode, pixelNode;
     double x1;
     double x2;
-    COLOR col, result;
+    ColorRgb col, result;
     StratifiedSampling2D stratified(config->samplesPerPixel);
 
     colorClear(result);
@@ -558,9 +558,9 @@ RTStochastic_Trace(
     }
 
     if ( !GLOBAL_raytracing_state.progressiveTracing ) {
-        ScreenIterateSequential((COLOR(*)(int, int, void *))CalcPixel, &config);
+        ScreenIterateSequential((ColorRgb(*)(int, int, void *))CalcPixel, &config);
     } else {
-        ScreenIterateProgressive((COLOR(*)(int, int, void *))CalcPixel, &config);
+        ScreenIterateProgressive((ColorRgb(*)(int, int, void *))CalcPixel, &config);
     }
 
     config.screen->render();

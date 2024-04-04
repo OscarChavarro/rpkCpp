@@ -152,10 +152,10 @@ monteCarloRadiosityInitBasis() {
 /**
 Returns color at a given point, with parameters (u,v)
 */
-COLOR
-colorAtUv(GalerkinBasis *basis, COLOR *rad, double u, double v) {
+ColorRgb
+colorAtUv(GalerkinBasis *basis, ColorRgb *rad, double u, double v) {
     int i;
-    COLOR res;
+    ColorRgb res;
     colorClear(res);
     for ( i = 0; i < basis->size; i++ ) {
         double s = basis->function[i](u, v);
@@ -169,7 +169,7 @@ These routine filter the source coefficients down/up and add
 the result to the destination coefficients
 */
 void
-filterColorDown(COLOR *parent, FILTER *h, COLOR *child, int n) {
+filterColorDown(ColorRgb *parent, FILTER *h, ColorRgb *child, int n) {
     for ( int b = 0; b < n; b++ ) {
         for ( int a = 0; a < n; a++ ) {
             colorAddScaled(child[b], (*h)[a][b], parent[a], child[b]);
@@ -178,7 +178,7 @@ filterColorDown(COLOR *parent, FILTER *h, COLOR *child, int n) {
 }
 
 void
-filterColorUp(COLOR *child, FILTER *h, COLOR *parent, int n, double areaFactor) {
+filterColorUp(ColorRgb *child, FILTER *h, ColorRgb *parent, int n, double areaFactor) {
     for ( int a = 0; a < n; a++ ) {
         for ( int b = 0; b < n; b++ ) {
             double H = (*h)[a][b] * areaFactor;

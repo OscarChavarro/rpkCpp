@@ -1,7 +1,7 @@
 #ifndef __PHOTON_MAP__
 #define __PHOTON_MAP__
 
-#include "common/color.h"
+#include "common/ColorRgb.h"
 #include "material/bsdf.h"
 #include "material/spherical.h"
 #include "PHOTONMAP/photonkdtree.h"
@@ -12,7 +12,7 @@
 bool ZeroAlbedo(BSDF *bsdf, RayHit *hit, BSDF_FLAGS flags);
 
 // Convert a value val given a maximum into some nice color
-COLOR GetFalseColor(float val);
+ColorRgb GetFalseColor(float val);
 
 class CPhotonMap {
 protected:
@@ -112,17 +112,17 @@ public:
     virtual void PhotonPrecomputeIrradiance(CIrrPhoton *photon);
 
     // Reconstruct
-    virtual COLOR Reconstruct(RayHit *hit, Vector3D &outDir,
-                              BSDF *bsdf, BSDF *inBsdf, BSDF *outBsdf);
+    virtual ColorRgb Reconstruct(RayHit *hit, Vector3D &outDir,
+                                 BSDF *bsdf, BSDF *inBsdf, BSDF *outBsdf);
 
     bool IrradianceReconstruct(RayHit *hit, Vector3D &outDir,
-                               COLOR &diffuseAlbedo,
-                               COLOR *result);
+                               ColorRgb &diffuseAlbedo,
+                               ColorRgb *result);
 
     virtual float GetCurrentDensity(RayHit &hit, int nrPhotons);
 
     // Return a color coded density of the photonmap
-    virtual COLOR GetDensityColor(RayHit &hit);
+    virtual ColorRgb GetDensityColor(RayHit &hit);
 
 
     // Sample values: Random values r,s are transformed into new

@@ -2,7 +2,7 @@
 #include <ctime>
 
 #include "java/util/ArrayList.h"
-#include "common/color.h"
+#include "common/ColorRgb.h"
 #include "common/error.h"
 #include "skin/Patch.h"
 #include "render/opengl.h"
@@ -174,13 +174,13 @@ PhotonMapRadianceMethod::initialize(java::ArrayList<Patch *> *scenePatches) {
 /**
 Adapted from bi-directional path, this is a bit overkill for here
 */
-static COLOR
+static ColorRgb
 photonMapDoComputePixelFluxEstimate(PhotonMapConfig *config, RadianceMethod * /*context*/) {
     CBiPath *bp = &config->biPath;
     SimpleRaytracingPathNode *eyePrevNode;
     SimpleRaytracingPathNode *lightPrevNode;
-    COLOR oldBsdfL;
-    COLOR oldBsdfE;
+    ColorRgb oldBsdfL;
+    ColorRgb oldBsdfE;
     BsdfComp oldBsdfCompL;
     BsdfComp oldBsdfCompE;
     double oldPdfL;
@@ -191,7 +191,7 @@ photonMapDoComputePixelFluxEstimate(PhotonMapConfig *config, RadianceMethod * /*
     double oldPdfEP = 0.0;
     double oldRRPdfLP = 0.0;
     double oldRRPdfEP = 0.0;
-    COLOR f;
+    ColorRgb f;
     SimpleRaytracingPathNode *eyeEndNode;
     SimpleRaytracingPathNode *lightEndNode;
 
@@ -275,7 +275,7 @@ static void
 photonMapDoScreenNEE(PhotonMapConfig *config, RadianceMethod *context) {
     int nx, ny;
     float pix_x, pix_y;
-    COLOR f;
+    ColorRgb f;
     CBiPath *bp = &config->biPath;
 
     if ( config->currentMap == config->importanceMap ) {
@@ -311,7 +311,7 @@ photonMapDoScreenNEE(PhotonMapConfig *config, RadianceMethod *context) {
 Store a photon. Some acceptance tests are performed first
 */
 bool
-photonMapDoPhotonStore(SimpleRaytracingPathNode *node, COLOR power) {
+photonMapDoPhotonStore(SimpleRaytracingPathNode *node, ColorRgb power) {
     //float scatteredPower;
     //COLOR col;
     if ( node->m_hit.patch && node->m_hit.patch->surface->material ) {
@@ -358,7 +358,7 @@ static void
 photonMapHandlePath(PhotonMapConfig *config, RadianceMethod *context) {
     bool lDone;
     CBiPath *bp = &config->biPath;
-    COLOR accPower;
+    ColorRgb accPower;
     float factor;
 
     // Iterate over all light nodes
@@ -574,9 +574,9 @@ PhotonMapRadianceMethod::terminate(java::ArrayList<Patch *> *scenePatches) {
 /**
 Returns the radiance emitted in the node related direction
 */
-COLOR
+ColorRgb
 photonMapGetNodeGRadiance(SimpleRaytracingPathNode *node) {
-    COLOR col;
+    ColorRgb col;
 
     GLOBAL_photonMap_config.globalMap->DoBalancing(GLOBAL_photonMap_state.balanceKDTree);
     col = GLOBAL_photonMap_config.globalMap->Reconstruct(&node->m_hit, node->m_inDirF,
@@ -588,9 +588,9 @@ photonMapGetNodeGRadiance(SimpleRaytracingPathNode *node) {
 /**
 Returns the radiance emitted in the node related direction
 */
-COLOR
+ColorRgb
 photonMapGetNodeCRadiance(SimpleRaytracingPathNode *node) {
-    COLOR col;
+    ColorRgb col;
 
     GLOBAL_photonMap_config.causticMap->DoBalancing(GLOBAL_photonMap_state.balanceKDTree);
 
@@ -600,12 +600,12 @@ photonMapGetNodeCRadiance(SimpleRaytracingPathNode *node) {
     return col;
 }
 
-COLOR
+ColorRgb
 PhotonMapRadianceMethod::getRadiance(Patch *patch, double u, double v, Vector3D dir) {
     RayHit hit;
     Vector3D point;
     BSDF *bsdf = patch->surface->material->bsdf;
-    COLOR col;
+    ColorRgb col;
     float density;
 
     patch->pointBarycentricMapping(u, v, &point);

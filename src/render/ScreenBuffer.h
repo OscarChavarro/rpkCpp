@@ -6,7 +6,7 @@
 
 #include "common/linealAlgebra/Vector2D.h"
 #include "IMAGE/imagecpp.h"
-#include "common/color.h"
+#include "common/ColorRgb.h"
 #include "scene/Camera.h"
 
 /**
@@ -22,7 +22,7 @@ and an associated RGB framebuffer
 
 class ScreenBuffer {
   private:
-    COLOR *m_Radiance;
+    ColorRgb *m_Radiance;
     RGB *m_RGB;
     Camera m_cam; // GLOBAL_camera_mainCamera used (copied, no pointer!)
 
@@ -53,14 +53,14 @@ class ScreenBuffer {
     Vector3D getPixelVector(int nx, int ny, float xOffset = 0.5, float yOffset = 0.5) const;
     int getHRes() const;
     int getVRes() const;
-    COLOR get(int x, int y);
-    void set(int x, int y, COLOR radiance);
-    COLOR getBiLinear(float x, float y);
+    ColorRgb get(int x, int y);
+    void set(int x, int y, ColorRgb radiance);
+    ColorRgb getBiLinear(float x, float y);
     void render();
     void renderScanline(int line);
     void writeFile(ImageOutputHandle *ip);
     void writeFile(char *filename);
-    void add(int x, int y, COLOR radiance);
+    void add(int x, int y, ColorRgb radiance);
     void setFactor(float factor);
     void setAddScaleFactor(float factor);
     void scaleRadiance(float factor);

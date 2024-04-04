@@ -1,13 +1,13 @@
-#include "common/color.h"
+#include "common/ColorRgb.h"
 
 RGB *
-convertColorToRGB(COLOR col, RGB *rgb) {
+convertColorToRGB(ColorRgb col, RGB *rgb) {
     setRGB(*rgb, col.spectrum[0], col.spectrum[1], col.spectrum[2]);
     return rgb;
 }
 
-COLOR *
-convertRGBToColor(RGB rgb, COLOR *col) {
+ColorRgb *
+convertRGBToColor(RGB rgb, ColorRgb *col) {
     colorSet(*col, rgb.r, rgb.g, rgb.b);
     return col;
 }

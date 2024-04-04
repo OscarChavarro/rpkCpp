@@ -84,7 +84,7 @@ class BidirectionalPathTracingConfiguration {
 #define STRINGS_SIZE 300
 
 static bool
-spikeCheck(COLOR col) {
+spikeCheck(ColorRgb col) {
     double colAvg = colorAverage(col);
 
     if ( ISNAN(colAvg) ) {
@@ -115,7 +115,7 @@ addWithSpikeCheck(
     int ny,
     float pix_x,
     float pix_y,
-    COLOR f,
+    ColorRgb f,
     bool radSample = false)
 {
     if ( config->baseConfig->doDensityEstimation ) {
@@ -140,7 +140,7 @@ addWithSpikeCheck(
         } else {
             // Now splat directly into the dest screen
             Vector2D center;
-            COLOR g;
+            ColorRgb g;
 
             // Get the center:
             center.u = pix_x;
@@ -153,8 +153,8 @@ addWithSpikeCheck(
             if ( colorAverage(f) > EPSILON ) {
                 colorScale(factor, f, g); // Undo part of flux to rad factor
 
-                config->kernel.VarCover(center, g, rs, ds,
-                                        (int)config->baseConfig->totalSamples, config->scaleSamples,
+                config->kernel.varCover(center, g, rs, ds,
+                                        (int) config->baseConfig->totalSamples, config->scaleSamples,
                                         baseSize);
             }
             return;
@@ -176,9 +176,9 @@ addWithSpikeCheck(
 void
 handlePathX0(BidirectionalPathTracingConfiguration *config, CBiPath *path) {
     PhongEmittanceDistributionFunctions *endingEdf = path->m_eyeEndNode->m_hit.material ? path->m_eyeEndNode->m_hit.material->edf : nullptr;
-    COLOR oldBsdfEval;
-    COLOR f;
-    COLOR fRad;
+    ColorRgb oldBsdfEval;
+    ColorRgb f;
+    ColorRgb fRad;
     BsdfComp oldBsdfComp;
     float factor;
     double pdfLNE;
@@ -302,18 +302,18 @@ handlePathX0(BidirectionalPathTracingConfiguration *config, CBiPath *path) {
     }
 }
 
-COLOR
+ColorRgb
 computeNeFluxEstimate(
         BidirectionalPathTracingConfiguration *config,
         CBiPath *path,
         float *pPdf = nullptr,
         float *pWeight = nullptr,
-        COLOR *fRad = nullptr)
+        ColorRgb *fRad = nullptr)
 {
     SimpleRaytracingPathNode *eyePrevNode;
     SimpleRaytracingPathNode *lightPrevNode;
-    COLOR oldBsdfL;
-    COLOR oldBsdfE;
+    ColorRgb oldBsdfL;
+    ColorRgb oldBsdfE;
     BsdfComp oldBsdfCompL;
     BsdfComp oldBsdfCompE;
     double oldPdfL;
@@ -324,7 +324,7 @@ computeNeFluxEstimate(
     double oldPdfEP = 0.0;
     double oldRRPdfLP = 0.0;
     double oldRRPdfEP = 0.0;
-    COLOR f;
+    ColorRgb f;
     SimpleRaytracingPathNode *eyeEndNode;
     SimpleRaytracingPathNode *lightEndNode;
 
@@ -413,8 +413,8 @@ light size >= 1
 */
 void
 handlePathXx(BidirectionalPathTracingConfiguration *config, CBiPath *path) {
-    COLOR f;
-    COLOR fRad;
+    ColorRgb f;
+    ColorRgb fRad;
     double oldPdfLNE = 0.0;
     float pdf;
     float weight;
@@ -494,8 +494,8 @@ handlePath1X(BidirectionalPathTracingConfiguration *config, CBiPath *path) {
     int ny;
     float pixX;
     float pixY;
-    COLOR f;
-    COLOR fRad;
+    ColorRgb f;
+    ColorRgb fRad;
     double oldPdfLNE;
     float pdf;
     float weight;
@@ -624,11 +624,11 @@ bpCombinePaths(BidirectionalPathTracingConfiguration *config) {
     }
 }
 
-static COLOR
+static ColorRgb
 bpCalcPixel(int nx, int ny, BidirectionalPathTracingConfiguration *config) {
     int i;
     double x_1, x_2;
-    COLOR result;
+    ColorRgb result;
     StratifiedSampling2D stratifiedSampling2D(config->baseConfig->samplesPerPixel);
     SimpleRaytracingPathNode *pixNode;
     SimpleRaytracingPathNode *nextNode;
@@ -763,7 +763,7 @@ doBptAndSubsequentImages(BidirectionalPathTracingConfiguration *config) {
         config->baseConfig->samplesPerPixel = currentSamples;
         config->baseConfig->totalSamples = currentSamples * GLOBAL_camera_mainCamera.xSize * GLOBAL_camera_mainCamera.ySize;;
 
-        ScreenIterateSequential((COLOR(*)(int, int, void *)) bpCalcPixel, config);
+        ScreenIterateSequential((ColorRgb(*)(int, int, void *)) bpCalcPixel, config);
 
         config->screen->render();
 
@@ -824,7 +824,7 @@ doBptDensityEstimation(BidirectionalPathTracingConfiguration *config) {
     config->deStoreHits = true;
 
     // Do the run
-    ScreenIterateSequential((COLOR(*)(int, int, void *)) bpCalcPixel, config);
+    ScreenIterateSequential((ColorRgb(*)(int, int, void *)) bpCalcPixel, config);
 
     // Now we have a noisy screen in dest and hits in double buffer
 
@@ -911,7 +911,7 @@ doBptDensityEstimation(BidirectionalPathTracingConfiguration *config) {
 
         // Iterate screen : nNew - nOld, using an appropriate scale factor
 
-        ScreenIterateSequential((COLOR(*)(int, int, void *)) bpCalcPixel, config);
+        ScreenIterateSequential((ColorRgb(*)(int, int, void *)) bpCalcPixel, config);
 
         // Render screen & write
 
@@ -1037,9 +1037,9 @@ biDirPathTrace(ImageOutputHandle *ip, java::ArrayList<Patch *> * /*scenePatches*
     } else if ( config.baseConfig->doDensityEstimation ) {
             doBptDensityEstimation(&config);
     } else if ( !GLOBAL_rayTracing_biDirectionalPath.basecfg.progressiveTracing ) {
-        ScreenIterateSequential((COLOR(*)(int, int, void *)) bpCalcPixel, &config);
+        ScreenIterateSequential((ColorRgb(*)(int, int, void *)) bpCalcPixel, &config);
     } else {
-        ScreenIterateProgressive((COLOR(*)(int, int, void *)) bpCalcPixel, &config);
+        ScreenIterateProgressive((ColorRgb(*)(int, int, void *)) bpCalcPixel, &config);
     }
 
     config.screen->render();

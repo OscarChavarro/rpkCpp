@@ -27,7 +27,7 @@ propagation of importance and radiance does not work yet.
 */
 extern void doStochasticJacobiIteration(
     long nr_rays,
-    COLOR *(*GetRadiance)(StochasticRadiosityElement *),
+    ColorRgb *(*GetRadiance)(StochasticRadiosityElement *),
     float (*GetImportance)(StochasticRadiosityElement *),
     void Update(StochasticRadiosityElement *elem, double w),
     java::ArrayList<Patch *> *scenePatches);

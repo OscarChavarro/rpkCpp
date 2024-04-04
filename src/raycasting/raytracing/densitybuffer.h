@@ -6,7 +6,7 @@ Density estimation on screen
 #define __DENSITY_BUFFER__
 
 #include "common/linealAlgebra/Vector2D.h"
-#include "common/color.h"
+#include "common/ColorRgb.h"
 #include "render/ScreenBuffer.h"
 #include "raycasting/raytracing/bidiroptions.h"
 
@@ -19,17 +19,17 @@ class CDensityHit {
 public:
     float m_x; // Screen/Polygon Coordinates
     float m_y;
-    COLOR color; // Estimate of the function, NOT divided by number of samples
+    ColorRgb color; // Estimate of the function, NOT divided by number of samples
 
     inline void
-    init(float x, float y, COLOR col) {
+    init(float x, float y, ColorRgb col) {
         m_x = x;
         m_y = y;
         color = col;
     }
 
     CDensityHit(): m_x(), m_y() {}
-    CDensityHit(float x, float y, COLOR col): m_x(), m_y() {
+    CDensityHit(float x, float y, ColorRgb col): m_x(), m_y() {
         init(x, y, col);
     }
 };
@@ -113,7 +113,7 @@ class CDensityBuffer {
   public:
     CDensityBuffer(ScreenBuffer *screen, BP_BASECONFIG *paramBaseConfig);
     ~CDensityBuffer();
-    void add(float x, float y, COLOR col);
+    void add(float x, float y, ColorRgb col);
     ScreenBuffer *reconstruct();
     ScreenBuffer *reconstructVariable(ScreenBuffer *dest, float baseSize = 4.0);
 };

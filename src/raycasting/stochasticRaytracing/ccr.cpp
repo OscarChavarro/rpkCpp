@@ -7,23 +7,23 @@ Determination of constant control radiosity value
 
 #define NUMBER_OF_INTERVALS 10
 
-static COLOR *(*globalGetRadiance)(StochasticRadiosityElement *);
-static COLOR (*globalGetScaling)(StochasticRadiosityElement *);
+static ColorRgb *(*globalGetRadiance)(StochasticRadiosityElement *);
+static ColorRgb (*globalGetScaling)(StochasticRadiosityElement *);
 
 static void
 initialControlRadiosityRecursive(
     StochasticRadiosityElement *element,
-    COLOR *minRad,
-    COLOR *maxRad,
-    COLOR *fMin,
-    COLOR *fMax,
-    COLOR *totalFluxColor,
-    COLOR *maxRadColor,
+    ColorRgb *minRad,
+    ColorRgb *maxRad,
+    ColorRgb *fMin,
+    ColorRgb *fMax,
+    ColorRgb *totalFluxColor,
+    ColorRgb *maxRadColor,
     double *area)
 {
     if ( element->regularSubElements == nullptr ) {
         // Trivial case
-        COLOR rad = globalGetRadiance(element)[0];
+        ColorRgb rad = globalGetRadiance(element)[0];
         float weightedArea = element->area;
         if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceDriven &&
              GLOBAL_stochasticRaytracing_monteCarloRadiosityState.method != RANDOM_WALK_RADIOSITY_METHOD ) {
@@ -54,14 +54,14 @@ Initial guess for constant control radiance value
 */
 static void
 initialControlRadiosity(
-    COLOR *minRad,
-    COLOR *maxRad,
-    COLOR *fMin,
-    COLOR *fMax,
+    ColorRgb *minRad,
+    ColorRgb *maxRad,
+    ColorRgb *fMin,
+    ColorRgb *fMax,
     java::ArrayList<Patch *> *scenePatches)
 {
-    COLOR totalFluxColor;
-    COLOR maxRadColor;
+    ColorRgb totalFluxColor;
+    ColorRgb maxRadColor;
     double area = 0.0;
     colorClear(totalFluxColor);
     colorClear(maxRadColor);
@@ -88,15 +88,20 @@ initialControlRadiosity(
 }
 
 static void
-refineComponent(float *minRad, float *maxRad, float *fMin, float *fMax,
-                const float *f, const float *rad) {
-    int i;
+refineComponent(
+    float *minRad,
+    float *maxRad,
+    float *fMin,
+    float *fMax,
+    const float *f,
+    const float *rad)
+{
     int iMin;
 
     // Find sub-interval containing the minimum
     *fMax = f[0];
     *fMin = f[0], iMin = 0;
-    for ( i = 1; i <= NUMBER_OF_INTERVALS; i++ ) {
+    for ( int i = 1; i <= NUMBER_OF_INTERVALS; i++ ) {
         if ( f[i] < *fMin ) {
             *fMin = f[i];
             iMin = i;
@@ -130,14 +135,14 @@ refineComponent(float *minRad, float *maxRad, float *fMin, float *fMax,
 static void
 refineControlRadiosityRecursive(
     StochasticRadiosityElement *element,
-    COLOR *colorOne,
-    COLOR rad[NUMBER_OF_INTERVALS + 1],
-    COLOR f[NUMBER_OF_INTERVALS + 1])
+    ColorRgb *colorOne,
+    ColorRgb rad[NUMBER_OF_INTERVALS + 1],
+    ColorRgb f[NUMBER_OF_INTERVALS + 1])
 {
     if ( element->regularSubElements == nullptr ) {
         // Trivial case
-        COLOR B = globalGetRadiance(element)[0];
-        COLOR s = globalGetScaling ? globalGetScaling(element) : *colorOne;
+        ColorRgb B = globalGetRadiance(element)[0];
+        ColorRgb s = globalGetScaling ? globalGetScaling(element) : *colorOne;
         float weightedArea = element->area;
         if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceDriven &&
              GLOBAL_stochasticRaytracing_monteCarloRadiosityState.method !=
@@ -145,7 +150,7 @@ refineControlRadiosityRecursive(
             weightedArea *= (element->importance - element->sourceImportance); /* multiply with received importance */
         }
         for ( int i = 0; i <= NUMBER_OF_INTERVALS; i++ ) {
-            COLOR t;
+            ColorRgb t;
             colorProduct(s, rad[i], t);
             colorSubtract(B, t, t);
             colorAbs(t, t);
@@ -166,16 +171,16 @@ method). Does so component wise
 */
 static void
 refineControlRadiosity(
-    COLOR *minRad,
-    COLOR *maxRad,
-    COLOR *fMin,
-    COLOR *fMax,
+    ColorRgb *minRad,
+    ColorRgb *maxRad,
+    ColorRgb *fMin,
+    ColorRgb *fMax,
     java::ArrayList<Patch *> *scenePatches)
 {
-    COLOR colorOne;
-    COLOR f[NUMBER_OF_INTERVALS + 1];
-    COLOR rad[NUMBER_OF_INTERVALS + 1];
-    COLOR d;
+    ColorRgb colorOne;
+    ColorRgb f[NUMBER_OF_INTERVALS + 1];
+    ColorRgb rad[NUMBER_OF_INTERVALS + 1];
+    ColorRgb d;
 
     colorSetMonochrome(colorOne, 1.0);
 
@@ -228,18 +233,18 @@ multiplied with the radiance of the element. If getScaling is a nullptr
 pointer, no scaling is applied. Scaling is used in the context of
 random walk radiosity
 */
-COLOR
+ColorRgb
 determineControlRadiosity(
-    COLOR *(*getRadiance)(StochasticRadiosityElement *),
-    COLOR (*getScaling)(StochasticRadiosityElement *),
+    ColorRgb *(*getRadiance)(StochasticRadiosityElement *),
+    ColorRgb (*getScaling)(StochasticRadiosityElement *),
     java::ArrayList<Patch *> *scenePatches)
 {
-    COLOR minRad;
-    COLOR maxRad;
-    COLOR fMin;
-    COLOR fMax;
-    COLOR beta;
-    COLOR delta;
+    ColorRgb minRad;
+    ColorRgb maxRad;
+    ColorRgb fMin;
+    ColorRgb fMax;
+    ColorRgb beta;
+    ColorRgb delta;
     float eps = 0.001f;
     int sweep = 0;
 

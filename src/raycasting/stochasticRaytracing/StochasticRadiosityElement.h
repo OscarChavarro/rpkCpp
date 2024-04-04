@@ -19,7 +19,7 @@ class StochasticRadiosityElement : public Element {
 
     GalerkinBasis *basis; // Radiosity approximation data
         // Higher order approximations need an array of color values for representing radiance
-    COLOR sourceRad; // Always constant source radiosity
+    ColorRgb sourceRad; // Always constant source radiosity
 
     float importance; // For view-importance driven sampling
     float unShotImportance;
@@ -61,14 +61,14 @@ extern StochasticRadiosityElement *stochasticRadiosityElementRegularLeafElementA
 extern Vertex *stochasticRadiosityElementEdgeMidpointVertex(StochasticRadiosityElement *elem, int edgeNumber);
 extern int stochasticRadiosityElementIsTextured(StochasticRadiosityElement *elem);
 extern float stochasticRadiosityElementScalarReflectance(StochasticRadiosityElement *elem);
-extern void stochasticRadiosityElementPushRadiance(StochasticRadiosityElement *parent, StochasticRadiosityElement *child, COLOR *parent_rad, COLOR *child_rad);
+extern void stochasticRadiosityElementPushRadiance(StochasticRadiosityElement *parent, StochasticRadiosityElement *child, ColorRgb *parent_rad, ColorRgb *child_rad);
 extern void stochasticRadiosityElementPushImportance(const float *parentImportance, float *childImportance);
-extern void stochasticRadiosityElementPullRadiance(StochasticRadiosityElement *parent, StochasticRadiosityElement *child, COLOR *parent_rad, COLOR *child_rad);
+extern void stochasticRadiosityElementPullRadiance(StochasticRadiosityElement *parent, StochasticRadiosityElement *child, ColorRgb *parent_rad, ColorRgb *child_rad);
 extern void stochasticRadiosityElementPullImportance(StochasticRadiosityElement *parent, StochasticRadiosityElement *child, float *parent_imp, const float *child_imp);
 
 // In render.cpp
-extern COLOR stochasticRadiosityElementDisplayRadiance(StochasticRadiosityElement *elem);
-extern COLOR stochasticRadiosityElementDisplayRadianceAtPoint(StochasticRadiosityElement *elem, double u, double v);
+extern ColorRgb stochasticRadiosityElementDisplayRadiance(StochasticRadiosityElement *elem);
+extern ColorRgb stochasticRadiosityElementDisplayRadianceAtPoint(StochasticRadiosityElement *elem, double u, double v);
 extern void stochasticRadiosityElementRender(Element *element);
 extern void stochasticRadiosityElementRenderOutline(StochasticRadiosityElement *elem);
 extern void stochasticRadiosityElementComputeNewVertexColors(Element *element);

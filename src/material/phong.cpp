@@ -44,7 +44,7 @@ The different sampling functions are commented separately.
 */
 
 PhongBidirectionalReflectanceDistributionFunction *
-phongBrdfCreate(COLOR *Kd, COLOR *Ks, double Ns) {
+phongBrdfCreate(ColorRgb *Kd, ColorRgb *Ks, double Ns) {
     PhongBidirectionalReflectanceDistributionFunction *brdf = new PhongBidirectionalReflectanceDistributionFunction();
     brdf->Kd = *Kd;
     brdf->avgKd = colorAverage(brdf->Kd);
@@ -55,7 +55,7 @@ phongBrdfCreate(COLOR *Kd, COLOR *Ks, double Ns) {
 }
 
 PhongBidirectionalTransmittanceDistributionFunction *
-phongBtdfCreate(COLOR *Kd, COLOR *Ks, float Ns, float nr, float ni) {
+phongBtdfCreate(ColorRgb *Kd, ColorRgb *Ks, float Ns, float nr, float ni) {
     PhongBidirectionalTransmittanceDistributionFunction *btdf = (PhongBidirectionalTransmittanceDistributionFunction *)malloc(sizeof(PhongBidirectionalTransmittanceDistributionFunction));
     btdf->Kd = *Kd;
     btdf->avgKd = colorAverage(btdf->Kd);
@@ -67,9 +67,9 @@ phongBtdfCreate(COLOR *Kd, COLOR *Ks, float Ns, float nr, float ni) {
     return btdf;
 }
 
-COLOR
+ColorRgb
 phongReflectance(PhongBidirectionalReflectanceDistributionFunction *brdf, char flags) {
-    COLOR result;
+    ColorRgb result;
 
     colorClear(result);
 
@@ -90,9 +90,9 @@ phongReflectance(PhongBidirectionalReflectanceDistributionFunction *brdf, char f
     return result;
 }
 
-COLOR
+ColorRgb
 phongTransmittance(PhongBidirectionalTransmittanceDistributionFunction *btdf, char flags) {
-    COLOR result;
+    ColorRgb result;
 
     colorClear(result);
 
@@ -129,7 +129,7 @@ phongIndexOfRefraction(PhongBidirectionalTransmittanceDistributionFunction *btdf
 /**
 Brdf evaluations
 */
-COLOR
+ColorRgb
 phongBrdfEval(
         PhongBidirectionalReflectanceDistributionFunction *brdf,
         Vector3D *in,
@@ -137,7 +137,7 @@ phongBrdfEval(
         Vector3D *normal,
         char flags)
 {
-    COLOR result;
+    ColorRgb result;
     float tmpFloat;
     float dotProduct;
     Vector3D idealReflected;
@@ -378,7 +378,7 @@ phongBrdfEvalPdf(
 /**
 Btdf evaluations
 */
-COLOR
+ColorRgb
 phongBtdfEval(
         PhongBidirectionalTransmittanceDistributionFunction *btdf,
         RefractionIndex inIndex,
@@ -388,7 +388,7 @@ phongBtdfEval(
         Vector3D *normal,
         char flags)
 {
-    COLOR result;
+    ColorRgb result;
     float tmpFloat;
     float dotProduct;
     Vector3D idealRefracted;

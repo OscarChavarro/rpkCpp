@@ -24,12 +24,12 @@ public:
 
     float Evaluate(const Vector2D &point, const Vector2D &center) const;
 
-    void Cover(const Vector2D &point, float factor, COLOR &col, ScreenBuffer *screen) const;
+    void Cover(const Vector2D &point, float factor, ColorRgb &col, ScreenBuffer *screen) const;
 
     void
-    VarCover(
+    varCover(
         const Vector2D &center,
-        COLOR &col,
+        ColorRgb &col,
         ScreenBuffer *ref,
         ScreenBuffer *dest,
         int totalSamples,

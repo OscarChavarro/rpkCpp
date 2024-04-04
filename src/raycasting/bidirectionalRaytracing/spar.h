@@ -5,7 +5,7 @@ Specification of the Stored Partial Radiance class
 #ifndef __SPAR__
 #define __SPAR__
 
-#include "common/color.h"
+#include "common/ColorRgb.h"
 #include "raycasting/common/pathnode.h"
 #include "raycasting/raytracing/bipath.h"
 #include "raycasting/bidirectionalRaytracing/FlagChain.h"
@@ -31,8 +31,12 @@ public:
 
 class CSparList : public CTSList<Spar *> {
 public:
-    virtual void handlePath(SparConfig *config,
-                            CBiPath *path, COLOR *fRad, COLOR *fBpt);
+    virtual void
+    handlePath(
+        SparConfig *config,
+        CBiPath *path,
+        ColorRgb *fRad,
+        ColorRgb *fBpt);
     virtual ~CSparList() {
     };
 };
@@ -50,7 +54,7 @@ class Spar {
 
     virtual void init(SparConfig *config, RadianceMethod *context);
     virtual void parseAndInit(int group, char *regExp);
-    virtual COLOR handlePath(SparConfig *config, CBiPath *path);
+    virtual ColorRgb handlePath(SparConfig *config, CBiPath *path);
 };
 
 /**

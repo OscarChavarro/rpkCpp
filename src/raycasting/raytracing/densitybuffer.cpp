@@ -81,10 +81,10 @@ CDensityBuffer::~CDensityBuffer() {
 Add a hit
 */
 void
-CDensityBuffer::add(float x, float y, COLOR col) {
+CDensityBuffer::add(float x, float y, ColorRgb col) {
     float factor = screenBuffer->getPixXSize() * screenBuffer->getPixYSize()
                    * (float) baseConfig->totalSamples;
-    COLOR tmpCol;
+    ColorRgb tmpCol;
 
     if ( colorAverage(col) > EPSILON ) {
         colorScale(factor, col, tmpCol); // Undo part of flux to rad factor
@@ -165,7 +165,7 @@ CDensityBuffer::reconstructVariable(ScreenBuffer *dest, float baseSize) {
                 center.u = hit.m_x;
                 center.v = hit.m_y;
 
-                kernel.VarCover(center, hit.color, screenBuffer, dest, (int)baseConfig->totalSamples,
+                kernel.varCover(center, hit.color, screenBuffer, dest, (int) baseConfig->totalSamples,
                                 baseConfig->samplesPerPixel, baseSize);
             }
         }
