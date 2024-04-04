@@ -18,9 +18,9 @@ brdfReflectance(PhongBidirectionalReflectanceDistributionFunction *brdf, char fl
         }
         return test;
     } else {
-        static ColorRgb refl;
-        colorClear(refl);
-        return refl;
+        static ColorRgb reflectedColor;
+        reflectedColor.clear();
+        return reflectedColor;
     }
 }
 
@@ -29,18 +29,18 @@ Brdf evaluations
 */
 ColorRgb
 brdfEval(
-        PhongBidirectionalReflectanceDistributionFunction *brdf,
-        Vector3D *in,
-        Vector3D *out,
-        Vector3D *normal,
-        char flags)
+    PhongBidirectionalReflectanceDistributionFunction *brdf,
+    Vector3D *in,
+    Vector3D *out,
+    Vector3D *normal,
+    char flags)
 {
     if ( brdf != nullptr ) {
         return phongBrdfEval(brdf, in, out, normal, flags);
     } else {
-        static ColorRgb refl;
-        colorClear(refl);
-        return refl;
+        ColorRgb reflectedColor;
+        reflectedColor.clear();
+        return reflectedColor;
     }
 }
 

@@ -107,8 +107,8 @@ GalerkinElement::GalerkinElement():
     irregularSubElements = new java::ArrayList<Element *>();
     interactions = new java::ArrayList<Interaction *>();
 
-    colorClear(Ed);
-    colorClear(Rd);
+    Ed.clear();
+    Rd.clear();
     id = globalNumberOfElements + 1; // Let the IDs start from 1, not 0
     radiance = nullptr;
     receivedRadiance = nullptr;

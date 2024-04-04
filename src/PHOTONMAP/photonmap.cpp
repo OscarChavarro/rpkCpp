@@ -271,10 +271,11 @@ CPhotonMap::GetMaxR2() {
 // Precompute Irradiance
 void
 CPhotonMap::PhotonPrecomputeIrradiance(CIrrPhoton *photon) {
-    ColorRgb irradiance, power;
-    colorClear(irradiance);
+    ColorRgb irradiance;
+    ColorRgb power;
+    irradiance.clear();
 
-    // locate nearest photons using a max radius limit
+    // Locate the nearest photons using a max radius limit
 
     Vector3D pos = photon->Pos();
     m_nrpFound = DoQuery(&pos);
@@ -349,10 +350,13 @@ CPhotonMap::Reconstruct(RayHit *hit, Vector3D &outDir,
                               BSDF *bsdf, BSDF *inBsdf, BSDF *outBsdf) {
     // Find the nearest photons
     float maxDistance;
-    ColorRgb result, eval, power, col;
+    ColorRgb result;
+    ColorRgb eval;
+    ColorRgb power;
+    ColorRgb col;
     float factor;
 
-    colorClear(result);
+    result.clear();
 
     ColorRgb diffuseAlbedo, glossyAlbedo;
 

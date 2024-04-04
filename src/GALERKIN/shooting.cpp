@@ -161,7 +161,7 @@ doPropagate(Patch *shooting_patch, java::ArrayList<Patch *> *scenePatches) {
         basisGalerkinPushPullRadiance(GLOBAL_galerkin_state.topCluster);
         GLOBAL_galerkin_state.ambient_radiance = GLOBAL_galerkin_state.topCluster->unShotRadiance[0];
     } else {
-        colorClear(GLOBAL_galerkin_state.ambient_radiance);
+        GLOBAL_galerkin_state.ambient_radiance.clear();
         for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
             patchUpdateRadianceAndPotential(scenePatches->get(i));
         }

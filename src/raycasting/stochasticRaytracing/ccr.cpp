@@ -63,8 +63,8 @@ initialControlRadiosity(
     ColorRgb totalFluxColor;
     ColorRgb maxRadColor;
     double area = 0.0;
-    colorClear(totalFluxColor);
-    colorClear(maxRadColor);
+    totalFluxColor.clear();
+    maxRadColor.clear();
 
     // Initial interval: 0 ... maxRadColor
     for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
@@ -79,7 +79,7 @@ initialControlRadiosity(
                 &area);
     }
 
-    colorClear(*minRad);
+    minRad->clear();
     *fMin = totalFluxColor;
 
     *maxRad = maxRadColor;
@@ -187,7 +187,7 @@ refineControlRadiosity(
     // Initialisations. rad[i] = radiosity at boundary i
     colorSubtract(*maxRad, *minRad, d);
     for ( int i = 0; i <= NUMBER_OF_INTERVALS; i++ ) {
-        colorClear(f[i]);
+        f[i].clear();
         colorAddScaled(*minRad, (float)i / (float) NUMBER_OF_INTERVALS, d, rad[i]);
     }
 
@@ -284,7 +284,7 @@ determineControlRadiosity(
 
     globalGetRadiance = getRadiance;
     globalGetScaling = getScaling;
-    colorClear(beta);
+    beta.clear();
     if ( globalGetRadiance == nullptr ) {
         return beta;
     }

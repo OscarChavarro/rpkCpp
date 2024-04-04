@@ -38,7 +38,7 @@ evalTextureColor(TEXTURE *texture, float u, float v) {
         j1 -= texture->height;
     }
 
-    colorClear(col);
+    col.clear();
     if ( !texture->data ) {
         return col;
     }

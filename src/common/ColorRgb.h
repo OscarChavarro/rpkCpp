@@ -16,14 +16,9 @@ class ColorRgb {
     print(FILE *fp) {
         fprintf(fp, "%g %g %g", spectrum[0], spectrum[1], spectrum[2]);
     }
-};
 
-inline void
-colorClear(ColorRgb &c) {
-    c.spectrum[0] = 0;
-    c.spectrum[1] = 0;
-    c.spectrum[2] = 0;
-}
+    void clear();
+};
 
 inline void
 colorSet(ColorRgb &c, float v1, float v2, float v3) {

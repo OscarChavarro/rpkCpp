@@ -273,8 +273,8 @@ randomWalkRadiosityDetermineGatheringControlRadiosity(java::ArrayList<Patch *> *
     ColorRgb c2;
     ColorRgb cr;
 
-    colorClear(c1);
-    colorClear(c2);
+    c1.clear();
+    c2.clear();
 
     for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
         ColorRgb absorb;

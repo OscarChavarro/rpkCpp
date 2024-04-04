@@ -37,7 +37,7 @@ vertexRadiance(Vertex *v) {
     int count = 0;
     ColorRgb radiance;
 
-    colorClear(radiance);
+    radiance.clear();
     for ( int i = 0; v->radianceData != nullptr && i < v->radianceData->size(); i++ ) {
         Element *element = v->radianceData->get(i);
         if ( element->className != ElementTypes::ELEMENT_STOCHASTIC_RADIOSITY ) {
@@ -491,7 +491,7 @@ stochasticRadiosityElementDisplayRadianceAtPoint(StochasticRadiosityElement *ele
                 default:
                     logFatal(-1, "stochasticRadiosityElementDisplayRadianceAtPoint",
                              "can only handle triangular or quadrilateral elements");
-                    colorClear(radiance);
+                    radiance.clear();
             }
         } else {
             // Flat shading

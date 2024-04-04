@@ -47,7 +47,7 @@ makeLightSourceTable(java::ArrayList<Patch *> *scenePatches, java::ArrayList<Pat
         stochasticRadiosityClearCoefficients(getTopLevelPatchRad(patch), getTopLevelPatchBasis(patch));
         stochasticRadiosityClearCoefficients(getTopLevelPatchUnShotRad(patch), getTopLevelPatchBasis(patch));
         stochasticRadiosityClearCoefficients(getTopLevelPatchReceivedRad(patch), getTopLevelPatchBasis(patch));
-        colorClear(topLevelGalerkinElement(patch)->sourceRad);
+        topLevelGalerkinElement(patch)->sourceRad.clear();
     }
 }
 
@@ -139,11 +139,11 @@ sampleLightSources(int nr_samples) {
 
 static void
 summarize(java::ArrayList<Patch *> *scenePatches) {
-    colorClear(GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotFlux);
+    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotFlux.clear();
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotYmp = 0.0;
-    colorClear(GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalFlux);
+    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalFlux.clear();
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalYmp = 0.0;
-    colorClear(GLOBAL_stochasticRaytracing_monteCarloRadiosityState.indirectImportanceWeightedUnShotFlux);
+    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.indirectImportanceWeightedUnShotFlux.clear();
     for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
         Patch *patch = scenePatches->get(i);
         colorAddScaled(GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotFlux, M_PI * patch->area, getTopLevelPatchUnShotRad(patch)[0], GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotFlux);

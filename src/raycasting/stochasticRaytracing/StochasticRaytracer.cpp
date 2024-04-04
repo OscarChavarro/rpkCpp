@@ -36,7 +36,7 @@ stochasticRaytracerGetScatteredRadiance(
     thisNode->attach(&newNode);
 
     ColorRgb result;
-    colorClear(result);
+    result.clear();
 
     if ( (config->samplerConfig.surfaceSampler == nullptr) ||
         (thisNode->m_depth >= config->samplerConfig.maxDepth) ) {
@@ -151,7 +151,7 @@ SR_GetDirectRadiance(
 {
     ColorRgb result;
     ColorRgb radiance;
-    colorClear(result);
+    result.clear();
     Vector3D dirEL;
 
     if ( (readout == READ_NOW) && (config->radMode == STORED_PHOTON_MAP) ) {
@@ -344,7 +344,7 @@ stochasticRaytracerGetRadiance(
         // Handle non-background
         PhongEmittanceDistributionFunction *thisEdf = thisNode->m_hit.material->edf;
 
-        colorClear(result);
+        result.clear();
 
         // Stored radiance
         if ( (readout == READ_NOW) && (config->siStorage.flags != NO_COMPONENTS) ) {
@@ -359,7 +359,7 @@ stochasticRaytracerGetRadiance(
                         radiance = photonMapGetNodeGRadiance(thisNode);
                         // This does not include Le (self emitted light)
                     } else {
-                        colorClear(radiance);
+                        radiance.clear();
                         readout = SCATTER; // This ensures extra scattering, direct light and c-map
                     }
                 } else {
@@ -470,7 +470,7 @@ CalcPixel(int nx, int ny, StochasticRaytracingConfiguration *config, RadianceMet
     ColorRgb col, result;
     StratifiedSampling2D stratified(config->samplesPerPixel);
 
-    colorClear(result);
+    result.clear();
 
     // Frame coherent & correlated sampling
     if ( GLOBAL_raytracing_state.doFrameCoherent || GLOBAL_raytracing_state.doCorrelatedSampling ) {

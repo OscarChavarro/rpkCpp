@@ -26,8 +26,7 @@ static ColorRgb
 phongEmittance(PhongEmittanceDistributionFunction *edf, RayHit * /*hit*/, char flags) {
     ColorRgb result;
 
-    colorClear(result);
-
+    result.clear();
     if ( flags & DIFFUSE_COMPONENT ) {
         colorAdd(result, edf->Kd, result);
     }
@@ -53,8 +52,8 @@ edfEmittance(PhongEmittanceDistributionFunction *edf, RayHit *hit, char flags) {
     if ( edf != nullptr ) {
         return phongEmittance(edf, hit, flags);
     } else {
-        static ColorRgb emit;
-        colorClear(emit);
+        ColorRgb emit;
+        emit.clear();
         return emit;
     }
 }
@@ -73,7 +72,7 @@ phongEdfEval(PhongEmittanceDistributionFunction *edf, RayHit *hit, Vector3D *out
     ColorRgb result;
     double cosL;
 
-    colorClear(result);
+    result.clear();
     if ( probabilityDensityFunction ) {
         *probabilityDensityFunction = 0.0;
     }
@@ -116,8 +115,8 @@ edfEval(PhongEmittanceDistributionFunction *edf, RayHit *hit, Vector3D *out, cha
     if ( edf != nullptr ) {
         return phongEdfEval(edf, hit, out, flags, probabilityDensityFunction);
     } else {
-        static ColorRgb val;
-        colorClear(val);
+        ColorRgb val;
+        val.clear();
         if ( probabilityDensityFunction ) {
             *probabilityDensityFunction = 0.0;
         }
@@ -140,7 +139,7 @@ phongEdfSample(
 {
     Vector3D dir = {0.0, 0.0, 1.0};
     if ( selfEmittedRadiance ) {
-        colorClear(*selfEmittedRadiance);
+        selfEmittedRadiance->clear();
     }
     if ( probabilityDensityFunction ) {
         *probabilityDensityFunction = 0.0;

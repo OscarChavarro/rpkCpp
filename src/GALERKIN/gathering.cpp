@@ -175,7 +175,7 @@ randomWalkRadiosityDoGatheringIteration(java::ArrayList<Patch *> *scenePatches) 
     }
 
     // No visualisation with ambient term for gathering radiosity algorithms
-    colorClear(GLOBAL_galerkin_state.ambient_radiance);
+    GLOBAL_galerkin_state.ambient_radiance.clear();
 
     // One iteration = gather to all patches
     for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
@@ -247,7 +247,7 @@ doClusteredGatheringIteration(java::ArrayList<Patch*> *scenePatches) {
     }
 
     // No visualisation with ambient term for gathering radiosity algorithms
-    colorClear(GLOBAL_galerkin_state.ambient_radiance);
+    GLOBAL_galerkin_state.ambient_radiance.clear();
 
     // Update the display colors of the patches
     for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {

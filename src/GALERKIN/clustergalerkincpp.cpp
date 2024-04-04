@@ -227,7 +227,7 @@ clusterRadianceToSamplePoint(GalerkinElement *src, Vector3D sample) {
 
             // Accumulate the power emitted by the patches in the source cluster
             // towards the sample point
-            colorClear(globalSourceRadiance);
+            globalSourceRadiance.clear();
             iterateOverSurfaceElementsInCluster(src, accumulatePowerToSamplePoint);
 
             // Divide by the source area used for computing the form factor:
@@ -491,7 +491,7 @@ determineMaxRadiance(GalerkinElement *elem) {
 
 ColorRgb
 maxClusterRadiance(GalerkinElement *cluster) {
-    colorClear(globalSourceRadiance);
+    globalSourceRadiance.clear();
     iterateOverSurfaceElementsInCluster(cluster, determineMaxRadiance);
     return globalSourceRadiance;
 }

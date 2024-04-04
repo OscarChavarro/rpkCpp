@@ -22,7 +22,7 @@ class BsdfComp {
     void Clear(const BSDF_FLAGS flags = BSDF_ALL_COMPONENTS) {
         for ( int i = 0; i < BSDF_COMPONENTS; i++ ) {
             if ( flags & (BSDF_INDEX_TO_COMP(i)) ) {
-                colorClear(comp[i]);
+                comp[i].clear();
             }
         }
     }
@@ -38,7 +38,7 @@ class BsdfComp {
     ColorRgb Sum(const BSDF_FLAGS flags = BSDF_ALL_COMPONENTS) {
         ColorRgb result;
 
-        colorClear(result);
+        result.clear();
 
         for ( int i = 0; i < BSDF_COMPONENTS; i++ ) {
             if ( flags & (BSDF_INDEX_TO_COMP(i)) ) {

@@ -340,7 +340,7 @@ GalerkinRadianceMethod::initialize(java::ArrayList<Patch *> *scenePatches) {
 
     GLOBAL_galerkin_state.constant_radiance = GLOBAL_statistics.estimatedAverageRadiance;
     if ( GLOBAL_galerkin_state.use_constant_radiance ) {
-        colorClear(GLOBAL_galerkin_state.ambient_radiance);
+        GLOBAL_galerkin_state.ambient_radiance.clear();
     } else {
         GLOBAL_galerkin_state.ambient_radiance = GLOBAL_statistics.estimatedAverageRadiance;
     }

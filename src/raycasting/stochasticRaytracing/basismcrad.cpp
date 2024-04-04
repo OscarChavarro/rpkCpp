@@ -156,7 +156,7 @@ ColorRgb
 colorAtUv(GalerkinBasis *basis, ColorRgb *rad, double u, double v) {
     int i;
     ColorRgb res;
-    colorClear(res);
+    res.clear();
     for ( i = 0; i < basis->size; i++ ) {
         double s = basis->function[i](u, v);
         colorAddScaled(res, s, rad[i], res);

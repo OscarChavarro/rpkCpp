@@ -24,7 +24,7 @@ static ColorRgb
 splitBsdfEvalTexture(TEXTURE *texture, RayHit *hit) {
     Vector3D texCoord;
     ColorRgb col;
-    colorClear(col);
+    col.clear();
 
     if ( !texture ) {
         return col;
@@ -65,7 +65,7 @@ reflectance and/or transmittance) according to flags
 ColorRgb
 splitBsdfScatteredPower(BSDF *bsdf, RayHit *hit, char flags) {
     ColorRgb albedo;
-    colorClear(albedo);
+    albedo.clear();
 
     if ( bsdf->texture && (flags & TEXTURED_COMPONENT) ) {
         ColorRgb textureColor = splitBsdfEvalTexture(bsdf->texture, hit);
@@ -104,7 +104,7 @@ splitBsdfEval(
     ColorRgb result;
     Vector3D normal;
 
-    colorClear(result);
+    result.clear();
     if ( !hitShadingNormal(hit, &normal) ) {
         logWarning("splitBsdfEval", "Couldn't determine shading normal");
         return result;

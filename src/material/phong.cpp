@@ -71,7 +71,7 @@ ColorRgb
 phongReflectance(PhongBidirectionalReflectanceDistributionFunction *brdf, char flags) {
     ColorRgb result;
 
-    colorClear(result);
+    result.clear();
 
     if ( flags & DIFFUSE_COMPONENT ) {
         colorAdd(result, brdf->Kd, result);
@@ -94,7 +94,7 @@ ColorRgb
 phongTransmittance(PhongBidirectionalTransmittanceDistributionFunction *btdf, char flags) {
     ColorRgb result;
 
-    colorClear(result);
+    result.clear();
 
     if ( flags & DIFFUSE_COMPONENT ) {
         colorAdd(result, btdf->Kd, result);
@@ -145,7 +145,7 @@ phongBrdfEval(
     Vector3D inRev;
     vectorScale(-1.0, *in, inRev);
 
-    colorClear(result);
+    result.clear();
 
     // kd + ks (idealReflected * out)^n
     if ( vectorDotProduct(*out, *normal) < 0 ) {
@@ -403,7 +403,7 @@ phongBtdfEval(
     // sampled ! Importance sampling is advisable.
     // Diffuse transmission is considered to always pass
     // the material boundary
-    colorClear(result);
+    result.clear();
 
     if ( (flags & DIFFUSE_COMPONENT) && (btdf->avgKd > 0) ) {
         // Diffuse part

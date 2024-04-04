@@ -14,7 +14,7 @@ btdfTransmittance(PhongBidirectionalTransmittanceDistributionFunction *btdf, cha
         return phongTransmittance(btdf, flags);
     } else {
         static ColorRgb reflected;
-        colorClear(reflected);
+        reflected.clear();
         return reflected;
     }
 }
@@ -46,7 +46,7 @@ btdfEval(
         return phongBtdfEval(btdf, inIndex, outIndex, in, out, normal, flags);
     } else {
         ColorRgb reflectedColor;
-        colorClear(reflectedColor);
+        reflectedColor.clear();
         return reflectedColor;
     }
 }

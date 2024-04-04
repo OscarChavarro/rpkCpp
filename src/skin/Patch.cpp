@@ -710,7 +710,7 @@ Patch::averageNormalAlbedo(BSDF_FLAGS components) {
     hitInit(&hit, this, nullptr, &midPoint, &normal, surface->material, 0.0);
 
     numberOfSamples = getNumberOfSamples();
-    colorClear(albedo);
+    albedo.clear();
     for ( int i = 0; i < numberOfSamples; i++ ) {
         ColorRgb sample;
         unsigned *xi = Nied31(i);
@@ -734,7 +734,7 @@ Patch::averageEmittance(char components) {
     hitInit(&hit, this, nullptr, &midPoint, &normal, surface->material, 0.0);
 
     numberOfSamples = getNumberOfSamples();
-    colorClear(emittance);
+    emittance.clear();
     for ( int i = 0; i < numberOfSamples; i++ ) {
         ColorRgb sample;
         unsigned *xi = Nied31(i);

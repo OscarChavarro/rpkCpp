@@ -251,7 +251,7 @@ doHigherOrderAreaToAreaFormFactor(
                 rcvphi[alpha][k] = rcvbasis->function[alpha](crrcv->u[k], crrcv->v[k]);
             }
         }
-        colorClear(deltarad[k]);
+        deltarad[k].clear();
     }
 
     Gmin = HUGE;

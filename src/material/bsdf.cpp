@@ -41,7 +41,7 @@ Returns the scattered power of the BSDF, depending on the flags
 ColorRgb
 bsdfScatteredPower(BSDF *bsdf, RayHit *hit, Vector3D *in, char flags) {
     ColorRgb reflectionColor;
-    colorClear(reflectionColor);
+    reflectionColor.clear();
     if ( bsdf != nullptr ) {
         reflectionColor = splitBsdfScatteredPower(bsdf, hit, flags);
     }
@@ -106,8 +106,8 @@ bsdfEval(BSDF *bsdf, RayHit *hit, BSDF *inBsdf, BSDF *outBsdf, Vector3D *in, Vec
     if ( bsdf != nullptr ) {
         return splitBsdfEval(bsdf, hit, inBsdf, outBsdf, in, out, flags);
     } else {
-        static ColorRgb reflectionColor;
-        colorClear(reflectionColor);
+        ColorRgb reflectionColor;
+        reflectionColor.clear();
         return reflectionColor;
     }
 }
@@ -134,8 +134,8 @@ bsdfEvalComponents(
     ColorRgb empty;
     BSDF_FLAGS thisFlag;
 
-    colorClear(empty);
-    colorClear(result);
+    empty.clear();
+    result.clear();
 
     for ( int i = 0; i < BSDF_COMPONENTS; i++ ) {
         thisFlag = BSDF_INDEX_TO_COMP(i);

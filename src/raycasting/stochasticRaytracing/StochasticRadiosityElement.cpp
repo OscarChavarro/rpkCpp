@@ -143,8 +143,8 @@ createElement() {
     initCoefficients(elem); // Allocation of the coefficients is left until just before the first iteration
     // in monteCarloRadiosityReInit()
 
-    colorClear(elem->Ed);
-    colorClear(elem->Rd);
+    elem->Ed.clear();
+    elem->Rd.clear();
 
     elem->rayIndex = 0;
     elem->quality = 0;
@@ -208,7 +208,7 @@ monteCarloRadiosityCreateCluster(Geometry *geometry) {
     elem->flags = IS_CLUSTER_MASK;
 
     colorSetMonochrome(elem->Rd, 1.0);
-    colorClear(elem->Ed);
+    elem->Ed.clear();
 
     // elem->area will be computed from the sub-elements in the cluster later
     elem->midPoint.set(
@@ -652,8 +652,8 @@ monteCarloRadiosityElementComputeAverageReflectanceAndEmittance(StochasticRadios
 
     isTextured = stochasticRadiosityElementIsTextured(elem);
     numberOfSamples = isTextured ? 100 : 1;
-    colorClear(albedo);
-    colorClear(emittance);
+    albedo.clear();
+    emittance.clear();
     stochasticRadiosityElementRange(elem, &nbits, &msb1, &rMostSignificantBit2);
 
     n = 1;

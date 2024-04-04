@@ -220,9 +220,10 @@ ChainList::addDisjoint(const FlagChain &chain) {
 
 ColorRgb
 ChainList::compute(CBiPath *path) {
-    ColorRgb result, tmpCol;
+    ColorRgb result;
+    ColorRgb tmpCol;
 
-    colorClear(result);
+    result.clear();
 
     FlagChainIterator iter(*this);
     FlagChain *chain;
@@ -296,7 +297,7 @@ ContribHandler::compute(CBiPath *path) {
     ColorRgb result;
     int length;
 
-    colorClear(result);
+    result.clear();
 
     length = path->m_eyeSize + path->m_lightSize;
 

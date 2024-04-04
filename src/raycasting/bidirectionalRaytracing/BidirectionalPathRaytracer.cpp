@@ -633,7 +633,7 @@ bpCalcPixel(int nx, int ny, BidirectionalPathTracingConfiguration *config) {
     SimpleRaytracingPathNode *pixNode;
     SimpleRaytracingPathNode *nextNode;
 
-    colorClear(result);
+    result.clear();
 
     // We sample the eye here since it's always the same point
     if ( config->eyePath == nullptr ) {

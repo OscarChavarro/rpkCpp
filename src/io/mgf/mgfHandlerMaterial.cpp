@@ -183,7 +183,7 @@ mgfGetCurrentMaterial(Material **material, bool allSurfacesSided, MgfContext *co
     // Convert lumen / m^2 to W / m^2
     colorScale((1.0 / WHITE_EFFICACY), Ed, Ed);
 
-    colorClear(Es);
+    Es.clear();
 
     float Ne = 0.0;
     float Nr;

@@ -48,7 +48,7 @@ basisGalerkinPull(
         // Parent and child basis should be the same
         basis = child->patch->numberOfVertices == 3 ? &GLOBAL_galerkin_triBasis : &GLOBAL_galerkin_quadBasis;
         for ( alpha = 0; alpha < parent->basisSize; alpha++ ) {
-            colorClear(parent_coefficients[alpha]);
+            parent_coefficients[alpha].clear();
             for ( beta = 0; beta < child->basisSize; beta++ ) {
                 double f = basis->regular_filter[sigma][alpha][beta];
                 if ( f < -EPSILON || f > EPSILON )
@@ -70,7 +70,7 @@ basisGalerkinPushPullRadianceRecursive(GalerkinElement *element, ColorRgb *Bdown
     // Re-normalize the received radiance at this level and add to Bdown
     for ( int i = 0; i < element->basisSize; i++ ) {
         colorAddScaled(Bdown[i], 1.0f / element->area, element->receivedRadiance[i], Bdown[i]);
-        colorClear(element->receivedRadiance[i]);
+        element->receivedRadiance[i].clear();
     }
 
     clusterGalerkinClearCoefficients(Bup, element->basisSize);
@@ -231,7 +231,7 @@ basisGalerkinRadianceAtPoint(
     ColorRgb rad;
     GalerkinBasis *basis = elem->patch->numberOfVertices == 3 ? &GLOBAL_galerkin_triBasis : &GLOBAL_galerkin_quadBasis;
 
-    colorClear(rad);
+    rad.clear();
     if ( !coefficients ) {
         return rad;
     }
@@ -298,7 +298,7 @@ basisGalerkinPush(
         // Parent and child basis should be the same
         basis = child->patch->numberOfVertices == 3 ? &GLOBAL_galerkin_triBasis : &GLOBAL_galerkin_quadBasis;
         for ( beta = 0; beta < child->basisSize; beta++ ) {
-            colorClear(child_coefficients[beta]);
+            child_coefficients[beta].clear();
             for ( alpha = 0; alpha < element->basisSize; alpha++ ) {
                 double f = basis->regular_filter[sigma][alpha][beta];
                 if ( f < -EPSILON || f > EPSILON )

@@ -134,14 +134,12 @@ scratchRadiance() {
     int nonBackGround;
     SGL_PIXEL *pix;
     ColorRgb rad;
-    int i;
-    int j;
 
-    colorClear(rad);
+    rad.clear();
     nonBackGround = 0;
-    for ( j = 0; j < GLOBAL_galerkin_state.scratch->vp_height; j++ ) {
+    for ( int j = 0; j < GLOBAL_galerkin_state.scratch->vp_height; j++ ) {
         pix = GLOBAL_galerkin_state.scratch->frameBuffer + j * GLOBAL_galerkin_state.scratch->width;
-        for ( i = 0; i < GLOBAL_galerkin_state.scratch->vp_width; i++, pix++ ) {
+        for ( int i = 0; i < GLOBAL_galerkin_state.scratch->vp_width; i++, pix++ ) {
             GalerkinElement *elem = (GalerkinElement *) (*pix);
             if ( elem != nullptr ) {
                 if ( GLOBAL_galerkin_state.iteration_method == GAUSS_SEIDEL ||

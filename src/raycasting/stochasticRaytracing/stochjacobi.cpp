@@ -164,7 +164,7 @@ Returns true if success, that is: sum of sampling probabilities is nonzero
 static int
 stochasticJacobiSetup(java::ArrayList<Patch *> *scenePatches) {
     // Determine constant control radiosity if required
-    colorClear(GLOBAL_stochasticRaytracing_monteCarloRadiosityState.controlRadiance);
+    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.controlRadiance.clear();
     if ( globalDoControlVariate ) {
         GLOBAL_stochasticRaytracing_monteCarloRadiosityState.controlRadiance = determineControlRadiosity(globalGetRadianceCallback, nullptr, scenePatches);
     }
@@ -681,7 +681,7 @@ static void
 stochasticJacobiPush(StochasticRadiosityElement *parent, StochasticRadiosityElement *child) {
     if ( globalGetRadianceCallback ) {
         ColorRgb Rd;
-        colorClear(Rd);
+        Rd.clear();
 
         if ( parent->isCluster() && !child->isCluster() ) {
             // Multiply with reflectance (See PropagateRadianceToClusterIsotropic() above)
@@ -769,19 +769,19 @@ stochasticJacobiPullRdEd(StochasticRadiosityElement *element) {
         return;
     }
 
-    colorClear(element->Ed);
-    colorClear(element->Rd);
+    element->Ed.clear();
+    element->Rd.clear();
     element->traverseAllChildren(stochasticJacobiPullRdEdFromChild);
 }
 
 static void
 stochasticJacobiPushUpdatePullSweep() {
     // Update radiance, compute new total and un-shot flux
-    colorClear(GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotFlux);
+    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotFlux.clear();
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotYmp = 0.0;
-    colorClear(GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalFlux);
+    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalFlux.clear();
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalYmp = 0.0;
-    colorClear(GLOBAL_stochasticRaytracing_monteCarloRadiosityState.indirectImportanceWeightedUnShotFlux);
+    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.indirectImportanceWeightedUnShotFlux.clear();
 
     // Update reflectances and emittances (refinement yields more accurate estimates
     // on textured surfaces)

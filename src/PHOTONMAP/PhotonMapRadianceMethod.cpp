@@ -613,7 +613,7 @@ PhotonMapRadianceMethod::getRadiance(Patch *patch, double u, double v, Vector3D 
     hitShadingNormal(&hit, &hit.normal);
 
     if ( ZeroAlbedo(bsdf, &hit, BSDF_DIFFUSE_COMPONENT | BSDF_GLOSSY_COMPONENT) ) {
-        colorClear(col);
+        col.clear();
         return col;
     }
 
@@ -656,7 +656,8 @@ PhotonMapRadianceMethod::getRadiance(Patch *patch, double u, double v, Vector3D 
                                                                   bsdf,
                                                                   nullptr, bsdf);
             break;
-        default: colorClear(col);
+        default:
+            col.clear();
             logError("photonMapGetRadiance", "Unknown radiance return");
     }
 

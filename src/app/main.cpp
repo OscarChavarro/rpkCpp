@@ -103,10 +103,10 @@ mainComputeSomeSceneStats() {
     zero.set(0, 0, 0);
 
     // Initialize
-    colorClear(GLOBAL_statistics.totalEmittedPower);
-    colorClear(GLOBAL_statistics.averageReflectivity);
-    colorClear(GLOBAL_statistics.maxSelfEmittedRadiance);
-    colorClear(GLOBAL_statistics.maxSelfEmittedPower);
+    GLOBAL_statistics.totalEmittedPower.clear();
+    GLOBAL_statistics.averageReflectivity.clear();
+    GLOBAL_statistics.maxSelfEmittedRadiance.clear();
+    GLOBAL_statistics.maxSelfEmittedPower.clear();
     GLOBAL_statistics.totalArea = 0.0;
 
     // Accumulate

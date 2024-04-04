@@ -186,9 +186,9 @@ tracePaths(
     freePathNodes(&path);
 
     // Update radiance, compute new total and un-shot flux
-    colorClear(GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotFlux);
+    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotFlux.clear();
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotYmp = 0.0;
-    colorClear(GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalFlux);
+    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalFlux.clear();
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalYmp = 0.0;
 
     for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {

@@ -59,7 +59,7 @@ ColorRgb
 Spar::handlePath(SparConfig *config, CBiPath *path) {
     ColorRgb result;
 
-    colorClear(result);
+    result.clear();
 
     return result;
 }
@@ -113,8 +113,8 @@ CSparList::handlePath(
     Spar **spar;
     ColorRgb col;
 
-    colorClear(*fBpt);
-    colorClear(*fRad);
+    fBpt->clear();
+    fRad->clear();
 
     while ( (spar = iter.nextOnSequence()) ) {
         col = (*spar)->handlePath(config, path);

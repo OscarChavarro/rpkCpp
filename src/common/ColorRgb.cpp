@@ -11,3 +11,10 @@ convertRGBToColor(RGB rgb, ColorRgb *col) {
     colorSet(*col, rgb.r, rgb.g, rgb.b);
     return col;
 }
+
+void
+ColorRgb::clear() {
+    spectrum[0] = 0;
+    spectrum[1] = 0;
+    spectrum[2] = 0;
+}

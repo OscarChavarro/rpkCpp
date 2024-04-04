@@ -145,7 +145,7 @@ monteCarloRadiosityDefaults() {
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.rayUnitsPerIt = 10;
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.bidirectionalTransfers = false;
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.constantControlVariate = false;
-    colorClear(GLOBAL_stochasticRaytracing_monteCarloRadiosityState.controlRadiance);
+    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.controlRadiance.clear();
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.indirectOnly = false;
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.sequence = S4D_NIEDERREITER;
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.approximationOrderType = AT_CONSTANT;
@@ -237,7 +237,7 @@ monteCarloRadiosityInitPatch(Patch *patch) {
     stochasticRadiosityClearCoefficients(getTopLevelPatchReceivedRad(patch), getTopLevelPatchBasis(patch));
 
     getTopLevelPatchRad(patch)[0] = getTopLevelPatchUnShotRad(patch)[0] = topLevelGalerkinElement(patch)->sourceRad = Ed;
-    colorClear(getTopLevelPatchReceivedRad(patch)[0]);
+    getTopLevelPatchReceivedRad(patch)[0].clear();
 
     topLevelGalerkinElement(patch)->rayIndex = patch->id * 11;
     topLevelGalerkinElement(patch)->quality = 0.0;
@@ -420,13 +420,13 @@ monteCarloRadiosityReInit(java::ArrayList<Patch *> *scenePatches) {
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceTracedRays = GLOBAL_stochasticRaytracing_monteCarloRadiosityState.prevImportanceTracedRays = 0;
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.setSource = GLOBAL_stochasticRaytracing_monteCarloRadiosityState.indirectOnly;
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.tracedPaths = 0;
-    colorClear(GLOBAL_stochasticRaytracing_monteCarloRadiosityState.controlRadiance);
+    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.controlRadiance.clear();
 
-    colorClear(GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotFlux);
+    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotFlux.clear();
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotYmp = 0.0;
-    colorClear(GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalFlux);
+    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalFlux.clear();
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalYmp = 0.0;
-    colorClear(GLOBAL_stochasticRaytracing_monteCarloRadiosityState.indirectImportanceWeightedUnShotFlux);
+    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.indirectImportanceWeightedUnShotFlux.clear();
     for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
         Patch *patch = scenePatches->get(i);
         monteCarloRadiosityInitPatch(patch);
@@ -500,7 +500,7 @@ vertexReflectance(Vertex *v) {
     int count = 0;
     ColorRgb rd;
 
-    colorClear(rd);
+    rd.clear();
     for ( int i = 0; v->radianceData != nullptr && i < v->radianceData->size(); i++ ) {
         Element *genericElement = v->radianceData->get(i);
         if ( genericElement->className != ElementTypes::ELEMENT_STOCHASTIC_RADIOSITY ) {
@@ -533,7 +533,7 @@ monteCarloRadiosityInterpolatedReflectanceAtPoint(StochasticRadiosityElement *le
     }
     cachedleaf = leaf;
 
-    colorClear(rd);
+    rd.clear();
     switch ( leaf->numberOfVertices ) {
         case 3:
             colorInterpolateBarycentric(vrd[0], vrd[1], vrd[2], (float)u, (float)v, rd);
@@ -559,7 +559,7 @@ monteCarloRadiosityGetRadiance(Patch *patch, double u, double v, Vector3D /*dir*
     ColorRgb UsedRdAtPoint = GLOBAL_render_renderOptions.smoothShading ? monteCarloRadiosityInterpolatedReflectanceAtPoint(leaf, u, v) : leaf->Rd;
     ColorRgb rad = stochasticRadiosityElementDisplayRadianceAtPoint(leaf, u, v);
     ColorRgb source_rad;
-    colorClear(source_rad);
+    source_rad.clear();
 
     // Subtract source radiance
     if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.show != SHOW_INDIRECT_RADIANCE ) {

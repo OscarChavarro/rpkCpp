@@ -6,9 +6,8 @@
 
 inline void
 stochasticRadiosityClearCoefficients(ColorRgb *c, GalerkinBasis *galerkinBasis) {
-    int i;
-    for ( i = 0; i < galerkinBasis->size; i++ ) {
-        colorClear(c[i]);
+    for ( int i = 0; i < galerkinBasis->size; i++ ) {
+        c[i].clear();
     }
 }
 

@@ -62,7 +62,7 @@ Determines the radiance of the nearest patch visible through the pixel
 inline ColorRgb
 RayCaster::getRadianceAtPixel(int x, int y, Patch *patch, RadianceMethod *context) {
     ColorRgb rad{};
-    colorClear(rad);
+    rad.clear();
 
     if ( context != nullptr ) {
         // Ray pointing from the eye through the center of the pixel.
