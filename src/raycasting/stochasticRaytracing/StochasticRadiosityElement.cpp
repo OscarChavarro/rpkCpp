@@ -207,7 +207,7 @@ monteCarloRadiosityCreateCluster(Geometry *geometry) {
     elem->geometry = geometry;
     elem->flags = IS_CLUSTER_MASK;
 
-    colorSetMonochrome(elem->Rd, 1.0);
+    elem->Rd.setMonochrome(1.0);
     elem->Ed.clear();
 
     // elem->area will be computed from the sub-elements in the cluster later

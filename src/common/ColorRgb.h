@@ -18,21 +18,9 @@ class ColorRgb {
     }
 
     void clear();
+    void set(float v1, float v2, float v3);
+    void setMonochrome(float v);
 };
-
-inline void
-colorSet(ColorRgb &c, float v1, float v2, float v3) {
-    c.spectrum[0] = v1;
-    c.spectrum[1] = v2;
-    c.spectrum[2] = v3;
-}
-
-inline void
-colorSetMonochrome(ColorRgb &c, float v) {
-    c.spectrum[0] = v;
-    c.spectrum[1] = v;
-    c.spectrum[2] = v;
-}
 
 inline bool
 colorNull(ColorRgb &c) {

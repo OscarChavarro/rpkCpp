@@ -182,7 +182,7 @@ refineControlRadiosity(
     ColorRgb rad[NUMBER_OF_INTERVALS + 1];
     ColorRgb d;
 
-    colorSetMonochrome(colorOne, 1.0);
+    colorOne.setMonochrome(1.0);
 
     // Initialisations. rad[i] = radiosity at boundary i
     colorSubtract(*maxRad, *minRad, d);

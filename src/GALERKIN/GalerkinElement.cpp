@@ -165,7 +165,7 @@ GalerkinElement::GalerkinElement(Geometry *parameterGeometry): GalerkinElement()
     flags |= IS_CLUSTER_MASK;
     reAllocCoefficients();
 
-    colorSetMonochrome(Rd, 1.0);
+    Rd.setMonochrome(1.0);
 
     // Whether the cluster contains light sources or not is also determined after the hierarchy is constructed
     globalNumberOfClusters++;

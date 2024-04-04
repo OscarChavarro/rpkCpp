@@ -92,7 +92,7 @@ RayMatter::Matting() {
                 value = 1.0;
             }
 
-            colorSet(matte, value, value, value);
+            matte.set(value, value, value);
             screenBuffer->add((int)x, (int)y, matte);
         }
 

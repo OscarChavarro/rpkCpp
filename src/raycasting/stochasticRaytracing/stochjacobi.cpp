@@ -760,7 +760,7 @@ stochasticJacobiPullRdEdFromChild(Element *element) {
     colorAddScaled(parent->Ed, child->area / parent->area, child->Ed, parent->Ed);
     colorAddScaled(parent->Rd, child->area / parent->area, child->Rd, parent->Rd);
     if ( parent->isCluster() )
-        colorSetMonochrome(parent->Rd, 1.0);
+        parent->Rd.setMonochrome(1.0);
 }
 
 static void

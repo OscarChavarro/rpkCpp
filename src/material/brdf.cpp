@@ -18,7 +18,7 @@ brdfReflectance(PhongBidirectionalReflectanceDistributionFunction *brdf, char fl
         }
         return test;
     } else {
-        static ColorRgb reflectedColor;
+        ColorRgb reflectedColor;
         reflectedColor.clear();
         return reflectedColor;
     }

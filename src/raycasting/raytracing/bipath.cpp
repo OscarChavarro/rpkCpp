@@ -25,7 +25,7 @@ ColorRgb CBiPath::EvalRadiance() {
     SimpleRaytracingPathNode *node;
     int i;
 
-    colorSetMonochrome(col, 1.0);
+    col.setMonochrome(1.0);
 
     node = m_eyePath;
 

@@ -88,7 +88,7 @@ mgfGetColor(MgfColorContext *cin, float intensity, ColorRgb *colorOut, MgfContex
     if ( clipGamut(rgb) ) {
         doWarning("color desaturated during gamut clipping", context);
     }
-    colorSet(*colorOut, rgb[0], rgb[1], rgb[2]);
+    colorOut->set(rgb[0], rgb[1], rgb[2]);
 }
 
 static void
@@ -205,12 +205,12 @@ mgfGetCurrentMaterial(Material **material, bool allSurfacesSided, MgfContext *co
     }
 
     if ( context->monochrome ) {
-        colorSetMonochrome(Ed, colorGray(Ed));
-        colorSetMonochrome(Es, colorGray(Es));
-        colorSetMonochrome(Rd, colorGray(Rd));
-        colorSetMonochrome(Rs, colorGray(Rs));
-        colorSetMonochrome(Td, colorGray(Td));
-        colorSetMonochrome(Ts, colorGray(Ts));
+        Ed.setMonochrome(colorGray(Ed));
+        Es.setMonochrome(colorGray(Es));
+        Rd.setMonochrome(colorGray(Rd));
+        Rs.setMonochrome(colorGray(Rs));
+        Td.setMonochrome(colorGray(Td));
+        Ts.setMonochrome(colorGray(Ts));
     }
 
     PhongEmittanceDistributionFunction* edf = nullptr;

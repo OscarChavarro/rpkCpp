@@ -120,8 +120,7 @@ by the chain. Eye and light node ARE INCLUDED
 ColorRgb
 FlagChain::compute(CBiPath *path) const {
     ColorRgb result, tmpCol;
-    colorSetMonochrome(result, 1.0);
-    int i;
+    result.setMonochrome(1.0);
     int eyeSize = path->m_eyeSize;
     int lightSize = path->m_lightSize;
 
@@ -135,7 +134,7 @@ FlagChain::compute(CBiPath *path) const {
     // Flag chain start at the light node and end at the eye node
     node = path->m_lightPath;
 
-    for ( i = 0; i < lightSize; i++ ) {
+    for ( int i = 0; i < lightSize; i++ ) {
         tmpCol = node->m_bsdfComp.Sum(chain[i]);
         colorProduct(tmpCol, result, result);
         node = node->next();
@@ -143,7 +142,7 @@ FlagChain::compute(CBiPath *path) const {
 
     node = path->m_eyePath;
 
-    for ( i = 0; i < eyeSize; i++ ) {
+    for ( int i = 0; i < eyeSize; i++ ) {
         tmpCol = node->m_bsdfComp.Sum(chain[length - 1 - i]);
         colorProduct(tmpCol, result, result);
         node = node->next();

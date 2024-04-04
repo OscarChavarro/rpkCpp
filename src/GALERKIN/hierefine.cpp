@@ -254,8 +254,8 @@ sourceClusterRadianceVariationError(Interaction *link, ColorRgb rcvRho, double r
     ColorRgb maximumSrcRad;
     ColorRgb error;
 
-    colorSetMonochrome(minimumSrcRad, HUGE);
-    colorSetMonochrome(maximumSrcRad, -HUGE);
+    minimumSrcRad.setMonochrome(HUGE);
+    maximumSrcRad.setMonochrome(-HUGE);
     for ( int i = 0; i < numberOfRcVertices; i++ ) {
         ColorRgb rad;
         rad = clusterRadianceToSamplePoint(link->sourceElement, rcVertices[i]);
@@ -290,7 +290,7 @@ hierarchicRefinementEvaluateInteraction(
     // Determine receiver area (projected visible area for a receiver cluster)
     // and reflectivity
     if ( link->receiverElement->isCluster() ) {
-        colorSetMonochrome(rcvRho, 1.0);
+        rcvRho.setMonochrome(1.0);
         rcv_area = receiverClusterArea(link);
     } else {
         rcvRho = link->receiverElement->patch->radianceData->Rd;
@@ -299,7 +299,7 @@ hierarchicRefinementEvaluateInteraction(
 
     // Determine source reflectivity
     if ( link->sourceElement->isCluster() ) {
-        colorSetMonochrome(srcRho, 1.0f);
+        srcRho.setMonochrome(1.0f);
     } else
         srcRho = link->sourceElement->patch->radianceData->Rd;
 
@@ -402,14 +402,14 @@ hierarchicRefinementComputeLightTransport(
         if ( state->iteration_method == GAUSS_SEIDEL ||
              state->iteration_method == JACOBI ) {
             if ( link->receiverElement->isCluster() ) {
-                colorSetMonochrome(rcvRho, 1.0f);
+                rcvRho.setMonochrome(1.0f);
             } else {
                 rcvRho = link->receiverElement->patch->radianceData->Rd;
             }
             link->sourceElement->receivedPotential += (float)(K * hierarchicRefinementColorToError(rcvRho) * link->receiverElement->potential);
         } else if ( state->iteration_method == SOUTH_WELL ) {
             if ( link->sourceElement->isCluster() ) {
-                colorSetMonochrome(srcRho, 1.0f);
+                srcRho.setMonochrome(1.0f);
             } else {
                 srcRho = link->sourceElement->patch->radianceData->Rd;
             }

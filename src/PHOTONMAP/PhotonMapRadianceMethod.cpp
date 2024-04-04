@@ -371,7 +371,7 @@ photonMapHandlePath(PhotonMapConfig *config, RadianceMethod *context) {
     bp->m_geomConnect = 1.0; // No connection yet
 
     lDone = false;
-    colorSetMonochrome(accPower, 1.0);
+    accPower.setMonochrome(1.0);
 
     while ( !lDone ) {
         // Adjust accPower

@@ -74,7 +74,7 @@ ScreenBuffer::init(Camera *cam) {
 
     // Clear
     for ( i = 0; i < m_cam.xSize * m_cam.ySize; i++ ) {
-        colorSetMonochrome(m_Radiance[i], 0.0);
+        m_Radiance[i].setMonochrome(0.0);
         m_RGB[i] = GLOBAL_material_black;
     }
 

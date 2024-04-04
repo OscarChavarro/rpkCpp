@@ -38,7 +38,7 @@ bool CPixelSampler::sample(SimpleRaytracingPathNode *prevNode/*prevNode*/, Simpl
     // "Bsdf" in thisNode
 
     // Potential is one for all directions through a pixel
-    colorSetMonochrome(thisNode->m_bsdfEval, 1.0);
+    thisNode->m_bsdfEval.setMonochrome(1.0);
 
     // Make sure evaluation of eye components always includes the diff ref.
     thisNode->m_bsdfComp.Clear();

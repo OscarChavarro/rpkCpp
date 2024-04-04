@@ -59,7 +59,7 @@ TracePotentialPath(PhotonMapConfig *config) {
     config->biPath.m_eyePath = path;  // In case no nodes were present
 
     ColorRgb accImportance;  // Track importance along the ray
-    colorSetMonochrome(accImportance, 1.0);
+    accImportance.setMonochrome(1.0);
 
     // Adjust importance for eye ray
     float factor = (float)(path->m_G / path->m_pdfFromPrev);

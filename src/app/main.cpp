@@ -99,7 +99,7 @@ mainComputeSomeSceneStats() {
     ColorRgb average_absorption;
     ColorRgb BP;
 
-    colorSetMonochrome(one, 1.0f);
+    one.setMonochrome(1.0f);
     zero.set(0, 0, 0);
 
     // Initialize
