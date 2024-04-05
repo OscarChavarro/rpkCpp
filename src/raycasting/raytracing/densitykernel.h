@@ -29,7 +29,7 @@ public:
     void
     varCover(
         const Vector2D &center,
-        ColorRgb &col,
+        ColorRgb &color,
         ScreenBuffer *ref,
         ScreenBuffer *dest,
         int totalSamples,

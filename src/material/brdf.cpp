@@ -13,7 +13,7 @@ ColorRgb
 brdfReflectance(PhongBidirectionalReflectanceDistributionFunction *brdf, char flags) {
     if ( brdf != nullptr ) {
         ColorRgb test = phongReflectance(brdf, flags);
-        if ( !std::isfinite(colorAverage(test)) ) {
+        if ( !std::isfinite(test.average()) ) {
             logFatal(-1, "brdfReflectance", "Oops - test Rd is not finite!");
         }
         return test;

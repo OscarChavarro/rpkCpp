@@ -15,7 +15,7 @@ static bool
 HasDiffuseOrGlossy(SimpleRaytracingPathNode *node) {
     if ( node->m_hit.patch->surface->material ) {
         BSDF *bsdf = node->m_hit.patch->surface->material->bsdf;
-        return !ZeroAlbedo(bsdf, &node->m_hit,
+        return !zeroAlbedo(bsdf, &node->m_hit,
                            BSDF_DIFFUSE_COMPONENT | BSDF_GLOSSY_COMPONENT);
     } else {
         return false;
@@ -30,7 +30,7 @@ BounceDiffuseOrGlossy(SimpleRaytracingPathNode *node) {
 static bool
 DoImportanceStore(CImportanceMap *map, SimpleRaytracingPathNode *node, ColorRgb importance) {
     if ( HasDiffuseOrGlossy(node) ) {
-        float importanceF = colorAverage(importance);
+        float importanceF = importance.average();
         float potentialF = 1.0; // COLOR_AVERAGE(potential) * Ax;
 
         // Compute footprint

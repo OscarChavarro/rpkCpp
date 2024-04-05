@@ -27,17 +27,17 @@ CPhotonMapSampler::chooseComponent(
     float *probabilityDensityFunction,
     bool *chose1)
 {
-    ColorRgb col;
+    ColorRgb color;
     float power1;
     float power2;
     float totalPower;
 
     // Choose between flags1 or flags2 scattering
-    col = bsdfScatteredPower(bsdf, hit, &hit->geometricNormal, flags1);
-    power1 = colorAverage(col);
+    color = bsdfScatteredPower(bsdf, hit, &hit->geometricNormal, flags1);
+    power1 = color.average();
 
-    col = bsdfScatteredPower(bsdf, hit, &hit->geometricNormal, flags2);
-    power2 = colorAverage(col);
+    color = bsdfScatteredPower(bsdf, hit, &hit->geometricNormal, flags2);
+    power2 = color.average();
 
     totalPower = power1 + power2;
 
@@ -181,8 +181,8 @@ chooseFresnelDirection(
     ColorRgb transmittance = bsdfSpecularTransmittance(bsdf, &thisNode->m_hit,
                                                        &thisNode->m_normal);
 
-    bool reflective = (colorAverage(reflectance) > EPSILON);
-    bool trans = (colorAverage(transmittance) > EPSILON);
+    bool reflective = (reflectance.average() > EPSILON);
+    bool trans = (transmittance.average() > EPSILON);
 
     if ( reflective && trans ) {
         logError("FresnelFactor",

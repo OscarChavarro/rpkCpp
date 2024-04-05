@@ -3,13 +3,13 @@
 #include "PHOTONMAP/photonmap.h"
 
 bool
-ZeroAlbedo(BSDF *bsdf, RayHit *hit, BSDF_FLAGS flags) {
-    ColorRgb col = bsdfScatteredPower(bsdf, hit, &hit->geometricNormal, flags);
-    return (colorAverage(col) < EPSILON);
+zeroAlbedo(BSDF *bsdf, RayHit *hit, BSDF_FLAGS flags) {
+    ColorRgb color = bsdfScatteredPower(bsdf, hit, &hit->geometricNormal, flags);
+    return (color.average() < EPSILON);
 }
 
 static float
-GetFalseMonochrome(float val) {
+getFalseMonochrome(float val) {
     float tmp;
 
     float max = GLOBAL_photonMap_state.falseColMax;
@@ -26,7 +26,7 @@ GetFalseMonochrome(float val) {
 }
 
 ColorRgb
-GetFalseColor(float val) {
+getFalseColor(float val) {
     RGB rgb{};
     ColorRgb col;
     float max;
@@ -36,7 +36,7 @@ GetFalseColor(float val) {
     float b = 0;
 
     if ( GLOBAL_photonMap_state.falseColMono ) {
-        tmp = GetFalseMonochrome(val);
+        tmp = getFalseMonochrome(val);
         setRGB(rgb, tmp, tmp, tmp);
         convertRGBToColor(rgb, &col);
         return col;
@@ -366,16 +366,15 @@ CPhotonMap::Reconstruct(RayHit *hit, Vector3D &outDir,
 
     CheckNBalance();
 
-    if ( colorAverage(glossyAlbedo) < EPSILON ) {
-        if ( colorAverage(diffuseAlbedo) < EPSILON ) {
+    if ( glossyAlbedo.average() < EPSILON ) {
+        if ( diffuseAlbedo.average() < EPSILON ) {
             return result; // No reflectance
         } else {
             if ( m_precomputeIrradiance ) {
-                // if(IrradianceReconstruct(hit, outDir, bsdf, inBsdf, outBsdf, &result))
                 if ( IrradianceReconstruct(hit, outDir, diffuseAlbedo, &result) ) {
                     return result;
-                } else // no appropriate irradiance photon -> do normal reconstruction
-                {
+                } else {
+                    // No appropriate irradiance photon -> do normal reconstruction
                     // fprintf(stderr, "No irradiance photon found\n");
                 }
             }
@@ -457,21 +456,21 @@ CPhotonMap::GetDensityColor(RayHit &hit) {
 
     density = GetCurrentDensity(hit, 0);
 
-    result = GetFalseColor(density);
+    result = getFalseColor(density);
 
     return result;
 }
 
 double
 CPhotonMap::Sample(
-        Vector3D &pos,
-        double *r,
-        double *s,
-        CoordSys *coord,
-        BSDF_FLAGS flag,
-        float n)
+    Vector3D &pos,
+    double *r,
+    double *s,
+    CoordSys *coord,
+    BSDF_FLAGS flag,
+    float n)
 {
-    ColorRgb col;
+    ColorRgb color;
 
     // -- Epsilon in as a function of scene/camera measure ??
     if ( !vectorEqual(m_sampleLastPos, pos, 0.0001) ) {
@@ -480,19 +479,17 @@ CPhotonMap::Sample(
         m_grid->Init();
 
         // Find the nearest photons
-
         m_nrpFound = DoQuery(&pos, m_sample_nrp, KD_MAX_RADIUS, NO_IMPSAMP_PHOTON);
 
-        //printf("m_nrpFound %i\n", m_nrpFound);
-
-        double pr, ps;
+        double pr;
+        double ps;
 
         for ( int i = 0; i < m_nrpFound; i++ ) {
             m_photons[i]->FindRS(&pr, &ps, coord, flag, n);
 
-            col = m_photons[i]->Power();
+            color = m_photons[i]->Power();
 
-            m_grid->Add(pr, ps, colorAverage(col) / (float)m_nrPhotons);
+            m_grid->Add(pr, ps, color.average() / (float)m_nrPhotons);
         }
 
         m_grid->EnsureNonZeroEntries();

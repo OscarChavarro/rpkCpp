@@ -23,10 +23,10 @@ LightList::LightList(java::ArrayList<Patch *> *list, bool includeVirtualPatches)
                 if ( light->hasZeroVertices() ) {
                     ColorRgb e = edfEmittance(light->surface->material->edf, nullptr,
                                               DIFFUSE_COMPONENT);
-                    info.emittedFlux = colorAverage(e);
+                    info.emittedFlux = e.average();
                 } else {
                     lightColor = light->averageEmittance(DIFFUSE_COMPONENT);
-                    info.emittedFlux = colorAverage(lightColor) * light->area;
+                    info.emittedFlux = lightColor.average() * light->area;
                 }
 
                 totalFlux += info.emittedFlux;
@@ -98,7 +98,7 @@ LightList::evalPdfVirtual(Patch *light, Vector3D */*point*/) const {
     char all = DIFFUSE_COMPONENT | GLOSSY_COMPONENT | SPECULAR_COMPONENT;
 
     ColorRgb e = edfEmittance(light->surface->material->edf, nullptr, all);
-    probabilityDensityFunction = colorAverage(e) / totalFlux;
+    probabilityDensityFunction = e.average() / totalFlux;
 
     return probabilityDensityFunction;
 }
@@ -106,13 +106,13 @@ LightList::evalPdfVirtual(Patch *light, Vector3D */*point*/) const {
 double
 LightList::evalPdfReal(Patch *light, Vector3D */*point*/) const {
     // Eval PDF for normal patches (see EvalPDF)
-    ColorRgb col;
+    ColorRgb color;
     double pdf;
 
-    col = light->averageEmittance(DIFFUSE_COMPONENT);
+    color = light->averageEmittance(DIFFUSE_COMPONENT);
 
     // Prob for choosing this light
-    pdf = colorAverage(col) * light->area / totalFlux;
+    pdf = color.average() * light->area / totalFlux;
 
     return pdf;
 }
@@ -144,7 +144,7 @@ LightList::computeOneLightImportanceVirtual(Patch *light,
     char all = DIFFUSE_COMPONENT | GLOSSY_COMPONENT | SPECULAR_COMPONENT;
 
     ColorRgb e = edfEmittance(light->surface->material->edf, nullptr, all);
-    return colorAverage(e);
+    return e.average();
 }
 
 double

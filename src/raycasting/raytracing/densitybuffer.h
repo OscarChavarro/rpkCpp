@@ -113,7 +113,7 @@ class CDensityBuffer {
   public:
     CDensityBuffer(ScreenBuffer *screen, BP_BASECONFIG *paramBaseConfig);
     ~CDensityBuffer();
-    void add(float x, float y, ColorRgb col);
+    void add(float x, float y, ColorRgb color);
     ScreenBuffer *reconstruct();
     ScreenBuffer *reconstructVariable(ScreenBuffer *dest, float baseSize = 4.0);
 };

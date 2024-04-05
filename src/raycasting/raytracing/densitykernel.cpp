@@ -100,7 +100,7 @@ Add one hit/splat with a size dependend on a reference estimate
 void
 CKernel2D::varCover(
     const Vector2D &center,
-    ColorRgb &col,
+    ColorRgb &color,
     ScreenBuffer *ref,
     ScreenBuffer *dest,
     int totalSamples,
@@ -124,8 +124,8 @@ CKernel2D::varCover(
     // Reference estimated function
     ColorRgb fe = ref->getBiLinear(center.u, center.v);
 
-    float avgFe = colorAverage(fe);
-    float avgG = colorAverage(col);
+    float avgFe = fe.average();
+    float avgG = color.average();
 
     if ( avgFe > EPSILON ) {
         h = (float)(Bn * std::sqrt(avgG / avgFe));
@@ -142,5 +142,5 @@ CKernel2D::varCover(
     SetH(h);
 
     // h determined, now splat the fucker
-    Cover(center, 1.0f / (float)totalSamples, col, dest);
+    Cover(center, 1.0f / (float)totalSamples, color, dest);
 }

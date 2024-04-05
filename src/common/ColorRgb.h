@@ -37,12 +37,8 @@ class ColorRgb {
     void abs();
     void maximum(ColorRgb &s, ColorRgb &t);
     void minimum(ColorRgb &s, ColorRgb &t);
+    float average() const;
 };
-
-inline float
-colorAverage(ColorRgb &s) {
-    return (s.spectrum[0] + s.spectrum[1] + s.spectrum[2]) / 3.0f;
-}
 
 inline float
 colorGray(ColorRgb &s) {

@@ -9,10 +9,10 @@
 #include "PHOTONMAP/samplegrid.h"
 #include "PHOTONMAP/pmapoptions.h"
 
-bool ZeroAlbedo(BSDF *bsdf, RayHit *hit, BSDF_FLAGS flags);
+bool zeroAlbedo(BSDF *bsdf, RayHit *hit, BSDF_FLAGS flags);
 
 // Convert a value val given a maximum into some nice color
-ColorRgb GetFalseColor(float val);
+ColorRgb getFalseColor(float val);
 
 class CPhotonMap {
 protected:

@@ -27,8 +27,8 @@ CSpecularSampler::sample(
                                                 &thisNode->m_hit.normal,
                                                 GET_BTDF_FLAGS(flags));
 
-    float avgReflectance = colorAverage(reflectance);
-    float avgTransmittance = colorAverage(transmittance);
+    float avgReflectance = reflectance.average();
+    float avgTransmittance = transmittance.average();
 
     float avgScattering = avgReflectance + avgTransmittance;
 

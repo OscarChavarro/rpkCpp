@@ -81,13 +81,13 @@ CDensityBuffer::~CDensityBuffer() {
 Add a hit
 */
 void
-CDensityBuffer::add(float x, float y, ColorRgb col) {
+CDensityBuffer::add(float x, float y, ColorRgb color) {
     float factor = screenBuffer->getPixXSize() * screenBuffer->getPixYSize()
                    * (float) baseConfig->totalSamples;
     ColorRgb tmpCol;
 
-    if ( colorAverage(col) > EPSILON ) {
-        tmpCol.scaledCopy(factor, col); // Undo part of flux to rad factor
+    if ( color.average() > EPSILON ) {
+        tmpCol.scaledCopy(factor, color); // Undo part of flux to rad factor
 
         CDensityHit hit(x, y, tmpCol);
 

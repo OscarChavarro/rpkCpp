@@ -47,9 +47,9 @@ PhongBidirectionalReflectanceDistributionFunction *
 phongBrdfCreate(ColorRgb *Kd, ColorRgb *Ks, double Ns) {
     PhongBidirectionalReflectanceDistributionFunction *brdf = new PhongBidirectionalReflectanceDistributionFunction();
     brdf->Kd = *Kd;
-    brdf->avgKd = colorAverage(brdf->Kd);
+    brdf->avgKd = brdf->Kd.average();
     brdf->Ks = *Ks;
-    brdf->avgKs = colorAverage(brdf->Ks);
+    brdf->avgKs = brdf->Ks.average();
     brdf->Ns = (float)Ns;
     return brdf;
 }
@@ -58,9 +58,9 @@ PhongBidirectionalTransmittanceDistributionFunction *
 phongBtdfCreate(ColorRgb *Kd, ColorRgb *Ks, float Ns, float nr, float ni) {
     PhongBidirectionalTransmittanceDistributionFunction *btdf = (PhongBidirectionalTransmittanceDistributionFunction *)malloc(sizeof(PhongBidirectionalTransmittanceDistributionFunction));
     btdf->Kd = *Kd;
-    btdf->avgKd = colorAverage(btdf->Kd);
+    btdf->avgKd = btdf->Kd.average();
     btdf->Ks = *Ks;
-    btdf->avgKs = colorAverage(btdf->Ks);
+    btdf->avgKs = btdf->Ks.average();
     btdf->Ns = Ns;
     btdf->refractionIndex.nr = nr;
     btdf->refractionIndex.ni = ni;
@@ -110,7 +110,7 @@ phongTransmittance(PhongBidirectionalTransmittanceDistributionFunction *btdf, ch
         }
     }
 
-    if ( !std::isfinite(colorAverage(result)) ) {
+    if ( !std::isfinite(result.average()) ) {
         logFatal(-1, "phongTransmittance", "Oops - result is not finite!");
     }
 

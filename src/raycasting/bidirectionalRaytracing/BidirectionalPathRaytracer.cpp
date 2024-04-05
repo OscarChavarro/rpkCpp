@@ -84,12 +84,12 @@ class BidirectionalPathTracingConfiguration {
 #define STRINGS_SIZE 300
 
 static bool
-spikeCheck(ColorRgb col) {
-    double colAvg = colorAverage(col);
+spikeCheck(ColorRgb color) {
+    double colAvg = color.average();
 
     if ( ISNAN(colAvg) ) {
         printf("COL ");
-        col.print(stdout);
+        color.print(stdout);
         printf("\n");
         return true;
     }
@@ -150,7 +150,7 @@ addWithSpikeCheck(
             float factor = rs->getPixXSize() * rs->getPixYSize()
                            * (float) config->baseConfig->totalSamples;
 
-            if ( colorAverage(f) > EPSILON ) {
+            if ( f.average() > EPSILON ) {
                 g.scaledCopy(factor, f); // Undo part of flux to rad factor
 
                 config->kernel.varCover(center, g, rs, ds,

@@ -148,3 +148,8 @@ ColorRgb::minimum(ColorRgb &s, ColorRgb &t) {
     spectrum[1] = s.spectrum[1] < t.spectrum[1] ? s.spectrum[1] : t.spectrum[1];
     spectrum[2] = s.spectrum[2] < t.spectrum[2] ? s.spectrum[2] : t.spectrum[2];
 }
+
+float
+ColorRgb::average() const {
+    return (spectrum[0] + spectrum[1] + spectrum[2]) / 3.0f;
+}

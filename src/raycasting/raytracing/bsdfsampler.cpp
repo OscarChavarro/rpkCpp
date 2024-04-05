@@ -28,7 +28,7 @@ bool CBsdfSampler::sample(SimpleRaytracingPathNode *prevNode, SimpleRaytracingPa
     if ( doRR ) {
         ColorRgb albedo = bsdfScatteredPower(thisNode->m_useBsdf, &thisNode->m_hit,
                                              &thisNode->m_inDirF, flags);
-        newNode->accumulatedRussianRouletteFactors *= colorAverage(albedo);
+        newNode->accumulatedRussianRouletteFactors *= albedo.average();
     }
 
 

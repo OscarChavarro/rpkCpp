@@ -74,7 +74,7 @@ stochasticRaytracerGetScatteredRadiance(
                   &thisNode->m_hit,
                   &thisNode->m_normal,
                   si->flags);
-            if ( colorAverage(albedo) < EPSILON ) {
+            if ( albedo.average() < EPSILON ) {
                 // Skip, no contribution anyway
                 nrSamples = 0;
             }

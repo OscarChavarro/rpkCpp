@@ -320,7 +320,7 @@ photonMapDoPhotonStore(SimpleRaytracingPathNode *node, ColorRgb power) {
 
         BSDF *bsdf = node->m_hit.patch->surface->material->bsdf;
 
-        if ( !ZeroAlbedo(bsdf, &node->m_hit, BSDF_DIFFUSE_COMPONENT | BSDF_GLOSSY_COMPONENT) ) {
+        if ( !zeroAlbedo(bsdf, &node->m_hit, BSDF_DIFFUSE_COMPONENT | BSDF_GLOSSY_COMPONENT) ) {
             CPhoton photon(node->m_hit.point, power, node->m_inDirF);
 
             // Determine photon flags
@@ -611,7 +611,7 @@ PhotonMapRadianceMethod::getRadiance(Patch *patch, double u, double v, Vector3D 
     hitInit(&hit, patch, nullptr, &point, &patch->normal, patch->surface->material, 0.0);
     hitShadingNormal(&hit, &hit.normal);
 
-    if ( ZeroAlbedo(bsdf, &hit, BSDF_DIFFUSE_COMPONENT | BSDF_GLOSSY_COMPONENT) ) {
+    if ( zeroAlbedo(bsdf, &hit, BSDF_DIFFUSE_COMPONENT | BSDF_GLOSSY_COMPONENT) ) {
         col.clear();
         return col;
     }
@@ -638,12 +638,12 @@ PhotonMapRadianceMethod::getRadiance(Patch *patch, double u, double v, Vector3D 
         case REC_C_DENSITY:
             GLOBAL_photonMap_config.importanceCMap->DoBalancing(GLOBAL_photonMap_state.balanceKDTree);
             density = GLOBAL_photonMap_config.importanceCMap->GetRequiredDensity(hit.point, hit.normal);
-            col = GetFalseColor(density);
+            col = getFalseColor(density);
             break;
         case REC_G_DENSITY:
             GLOBAL_photonMap_config.importanceMap->DoBalancing(GLOBAL_photonMap_state.balanceKDTree);
             density = GLOBAL_photonMap_config.importanceMap->GetRequiredDensity(hit.point, hit.normal);
-            col = GetFalseColor(density);
+            col = getFalseColor(density);
             break;
         case GLOBAL_RADIANCE:
             col = GLOBAL_photonMap_config.globalMap->Reconstruct(&hit, dir,
