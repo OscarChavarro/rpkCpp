@@ -9,13 +9,11 @@ Representation of radiance, radiosity, power, spectra
 */
 class ColorRgb {
   public:
-    float spectrum[3];
-    ColorRgb();
+    float r;
+    float g;
+    float b;
 
-    inline void
-    print(FILE *fp) {
-        fprintf(fp, "%g %g %g", spectrum[0], spectrum[1], spectrum[2]);
-    }
+    ColorRgb();
 
     void clear();
     void set(float v1, float v2, float v3);
@@ -42,6 +40,7 @@ class ColorRgb {
     float luminance() const;
     void interpolateBarycentric(ColorRgb c0, ColorRgb c1, ColorRgb c2, float u, float v);
     void interpolateBiLinear(ColorRgb c0, ColorRgb c1, ColorRgb c2, ColorRgb c3, float u, float v);
+    void print(FILE *fp) const;
 };
 
 extern RGB *convertColorToRGB(ColorRgb col, RGB *rgb);

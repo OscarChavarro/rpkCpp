@@ -2,7 +2,7 @@
 
 RGB *
 convertColorToRGB(ColorRgb col, RGB *rgb) {
-    setRGB(*rgb, col.spectrum[0], col.spectrum[1], col.spectrum[2]);
+    setRGB(*rgb, col.r, col.g, col.b);
     return rgb;
 }
 
@@ -13,176 +13,183 @@ convertRGBToColor(RGB rgb, ColorRgb *col) {
 }
 
 ColorRgb::ColorRgb():
-    spectrum()
+    r(),
+    g(),
+    b()
 {
 }
 
 void
 ColorRgb::clear() {
-    spectrum[0] = 0;
-    spectrum[1] = 0;
-    spectrum[2] = 0;
+    r = 0;
+    g = 0;
+    b = 0;
 }
 
 void
 ColorRgb::set(float v1, float v2, float v3) {
-    spectrum[0] = v1;
-    spectrum[1] = v2;
-    spectrum[2] = v3;
+    r = v1;
+    g = v2;
+    b = v3;
 }
 
 void
 ColorRgb::setMonochrome(float v) {
-    spectrum[0] = v;
-    spectrum[1] = v;
-    spectrum[2] = v;
+    r = v;
+    g = v;
+    b = v;
 }
 
 bool
 ColorRgb::isBlack() const {
-    return (spectrum[0] > -EPSILON && spectrum[0] < EPSILON &&
-            spectrum[1] > -EPSILON && spectrum[1] < EPSILON &&
-            spectrum[2] > -EPSILON && spectrum[2] < EPSILON);
+    return (r > -EPSILON && r < EPSILON &&
+            g > -EPSILON && g < EPSILON &&
+            b > -EPSILON && b < EPSILON);
 }
 
 void
 ColorRgb::scaledCopy(float a, const ColorRgb c) {
-    spectrum[0] = a * c.spectrum[0];
-    spectrum[1] = a * c.spectrum[1];
-    spectrum[2] = a * c.spectrum[2];
+    r = a * c.r;
+    g = a * c.g;
+    b = a * c.b;
 }
 
 void
 ColorRgb::scale(float a) {
-    spectrum[0] *= a;
-    spectrum[1] *= a;
-    spectrum[2] *= a;
+    r *= a;
+    g *= a;
+    b *= a;
 }
 
 void
 ColorRgb::scalarProduct(const ColorRgb s, const ColorRgb t) {
-    spectrum[0] = s.spectrum[0] * t.spectrum[0];
-    spectrum[1] = s.spectrum[1] * t.spectrum[1];
-    spectrum[2] = s.spectrum[2] * t.spectrum[2];
+    r = s.r * t.r;
+    g = s.g * t.g;
+    b = s.b * t.b;
 }
 
 void
 ColorRgb::selfScalarProduct(const ColorRgb s) {
-    spectrum[0] *= s.spectrum[0];
-    spectrum[1] *= s.spectrum[1];
-    spectrum[2] *= s.spectrum[2];
+    r *= s.r;
+    g *= s.g;
+    b *= s.b;
 }
 
 void
 ColorRgb::scalarProductScaled(ColorRgb s, float a, ColorRgb t) {
-    spectrum[0] = s.spectrum[0] * a * t.spectrum[0];
-    spectrum[1] = s.spectrum[1] * a * t.spectrum[1];
-    spectrum[2] = s.spectrum[2] * a * t.spectrum[2];
+    r = s.r * a * t.r;
+    g = s.g * a * t.g;
+    b = s.b * a * t.b;
 }
 
 void
 ColorRgb::add(ColorRgb s, ColorRgb t) {
-    spectrum[0] = s.spectrum[0] + t.spectrum[0];
-    spectrum[1] = s.spectrum[1] + t.spectrum[1];
-    spectrum[2] = s.spectrum[2] + t.spectrum[2];
+    r = s.r + t.r;
+    g = s.g + t.g;
+    b = s.b + t.b;
 }
 
 void
 ColorRgb::addScaled(ColorRgb s, float a, ColorRgb t) {
-    spectrum[0] = s.spectrum[0] + a * t.spectrum[0];
-    spectrum[1] = s.spectrum[1] + a * t.spectrum[1];
-    spectrum[2] = s.spectrum[2] + a * t.spectrum[2];
+    r = s.r + a * t.r;
+    g = s.g + a * t.g;
+    b = s.b + a * t.b;
 }
 
 void
 ColorRgb::addConstant(ColorRgb s, float a) {
-    spectrum[0] = s.spectrum[0] + a;
-    spectrum[1] = s.spectrum[1] + a;
-    spectrum[2] = s.spectrum[2] + a;
+    r = s.r + a;
+    g = s.g + a;
+    b = s.b + a;
 }
 
 void
 ColorRgb::subtract(ColorRgb s, ColorRgb  t) {
-    spectrum[0] = s.spectrum[0] - t.spectrum[0];
-    spectrum[1] = s.spectrum[1] - t.spectrum[1];
-    spectrum[2] = s.spectrum[2] - t.spectrum[2];
+    r = s.r - t.r;
+    g = s.g - t.g;
+    b = s.b - t.b;
 }
 
 void
 ColorRgb::divide(ColorRgb s, ColorRgb t) {
-    spectrum[0] = (t.spectrum[0] != 0.0) ? s.spectrum[0] / t.spectrum[0] : s.spectrum[0];
-    spectrum[1] = (t.spectrum[1] != 0.0) ? s.spectrum[1] / t.spectrum[1] : s.spectrum[1];
-    spectrum[2] = (t.spectrum[2] != 0.0) ? s.spectrum[2] / t.spectrum[2] : s.spectrum[2];
+    r = (t.r != 0.0) ? s.r / t.r : s.r;
+    g = (t.g != 0.0) ? s.g / t.g : s.g;
+    b = (t.b != 0.0) ? s.b / t.b : s.b;
 }
 
 void
 ColorRgb::scaleInverse(float scale, ColorRgb s) {
     float a = (scale != 0.0f) ? 1.0f / scale : 1.0f;
-    spectrum[0] = a * s.spectrum[0];
-    spectrum[1] = a * s.spectrum[1];
-    spectrum[2] = a * s.spectrum[2];
+    r = a * s.r;
+    g = a * s.g;
+    b = a * s.b;
 }
 
 float
 ColorRgb::maximumComponent() const {
-    return (spectrum[0] > spectrum[1] ? (spectrum[0] > spectrum[2] ? spectrum[0] : spectrum[2]) : (spectrum[1] > spectrum[2] ? spectrum[1] : spectrum[2]));
+    return (r > g ? (r > b ? r : b) : (g > b ? g : b));
 }
 
 float
 ColorRgb::sumAbsComponents() const {
-    return std::fabs(spectrum[0]) + std::fabs(spectrum[1]) + std::fabs(spectrum[2]);
+    return std::fabs(r) + std::fabs(g) + std::fabs(b);
 }
 
 void
 ColorRgb::abs() {
-    spectrum[0] = std::fabs(spectrum[0]);
-    spectrum[1] = std::fabs(spectrum[1]);
-    spectrum[2] = std::fabs(spectrum[2]);
+    r = std::fabs(r);
+    g = std::fabs(g);
+    b = std::fabs(b);
 }
 
 void
 ColorRgb::maximum(ColorRgb s, ColorRgb t) {
-    spectrum[0] = s.spectrum[0] > t.spectrum[0] ? s.spectrum[0] : t.spectrum[0];
-    spectrum[1] = s.spectrum[1] > t.spectrum[1] ? s.spectrum[1] : t.spectrum[1];
-    spectrum[2] = s.spectrum[2] > t.spectrum[2] ? s.spectrum[2] : t.spectrum[2];
+    r = s.r > t.r ? s.r : t.r;
+    g = s.g > t.g ? s.g : t.g;
+    b = s.b > t.b ? s.b : t.b;
 }
 
 void
 ColorRgb::minimum(ColorRgb s, ColorRgb t) {
-    spectrum[0] = s.spectrum[0] < t.spectrum[0] ? s.spectrum[0] : t.spectrum[0];
-    spectrum[1] = s.spectrum[1] < t.spectrum[1] ? s.spectrum[1] : t.spectrum[1];
-    spectrum[2] = s.spectrum[2] < t.spectrum[2] ? s.spectrum[2] : t.spectrum[2];
+    r = s.r < t.r ? s.r : t.r;
+    g = s.g < t.g ? s.g : t.g;
+    b = s.b < t.b ? s.b : t.b;
 }
 
 float
 ColorRgb::average() const {
-    return (spectrum[0] + spectrum[1] + spectrum[2]) / 3.0f;
+    return (r + g + b) / 3.0f;
 }
 
 float
 ColorRgb::gray() const {
-    return spectrumGray(spectrum[0], spectrum[1], spectrum[2]);
+    return spectrumGray(r, g, b);
 }
 
 float
 ColorRgb::luminance() const {
-    return spectrumLuminance(spectrum[0], spectrum[1], spectrum[2]);
+    return spectrumLuminance(r, g, b);
 }
 
 void
 ColorRgb::interpolateBarycentric(ColorRgb c0, ColorRgb c1, ColorRgb c2, float u, float v) {
-    spectrum[0] = c0.spectrum[0] + u * (c1.spectrum[0] - c0.spectrum[0]) + v * (c2.spectrum[0] - c0.spectrum[0]);
-    spectrum[1] = c0.spectrum[1] + u * (c1.spectrum[1] - c0.spectrum[1]) + v * (c2.spectrum[1] - c0.spectrum[1]);
-    spectrum[2] = c0.spectrum[2] + u * (c1.spectrum[2] - c0.spectrum[2]) + v * (c2.spectrum[2] - c0.spectrum[2]);
+    r = c0.r + u * (c1.r - c0.r) + v * (c2.r - c0.r);
+    g = c0.g + u * (c1.g - c0.g) + v * (c2.g - c0.g);
+    b = c0.b + u * (c1.b - c0.b) + v * (c2.b - c0.b);
 }
 
 void
 ColorRgb::interpolateBiLinear(ColorRgb c0, ColorRgb c1, ColorRgb c2, ColorRgb c3, float u, float v) {
     float c = u * v;
-    float b = u - c;
+    float bb = u - c;
     float d = v - c;
 
-    spectrum[0] = c0.spectrum[0] + b * (c1.spectrum[0] - c0.spectrum[0]) + c * (c2.spectrum[0] - c0.spectrum[0]) + d * (c3.spectrum[0] - c0.spectrum[0]);
-    spectrum[1] = c0.spectrum[1] + b * (c1.spectrum[1] - c0.spectrum[1]) + c * (c2.spectrum[1] - c0.spectrum[1]) + d * (c3.spectrum[1] - c0.spectrum[1]);
-    spectrum[2] = c0.spectrum[2] + b * (c1.spectrum[2] - c0.spectrum[2]) + c * (c2.spectrum[2] - c0.spectrum[2]) + d * (c3.spectrum[2] - c0.spectrum[2]);
+    r = c0.r + b * (c1.r - c0.r) + c * (c2.r - c0.r) + d * (c3.r - c0.r);
+    g = c0.g + b * (c1.g - c0.g) + c * (c2.g - c0.g) + d * (c3.g - c0.g);
+    b = c0.b + bb * (c1.b - c0.b) + c * (c2.b - c0.b) + d * (c3.b - c0.b);
+}
+
+void
+ColorRgb::print(FILE *fp) const {
+    fprintf(fp, "%g %g %g", r, g, b);
 }
