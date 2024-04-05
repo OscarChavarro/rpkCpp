@@ -134,3 +134,17 @@ ColorRgb::abs() {
     spectrum[1] = std::fabs(spectrum[1]);
     spectrum[2] = std::fabs(spectrum[2]);
 }
+
+void
+ColorRgb::maximum(ColorRgb &s, ColorRgb &t) {
+    spectrum[0] = s.spectrum[0] > t.spectrum[0] ? s.spectrum[0] : t.spectrum[0];
+    spectrum[1] = s.spectrum[1] > t.spectrum[1] ? s.spectrum[1] : t.spectrum[1];
+    spectrum[2] = s.spectrum[2] > t.spectrum[2] ? s.spectrum[2] : t.spectrum[2];
+}
+
+void
+ColorRgb::minimum(ColorRgb &s, ColorRgb &t) {
+    spectrum[0] = s.spectrum[0] < t.spectrum[0] ? s.spectrum[0] : t.spectrum[0];
+    spectrum[1] = s.spectrum[1] < t.spectrum[1] ? s.spectrum[1] : t.spectrum[1];
+    spectrum[2] = s.spectrum[2] < t.spectrum[2] ? s.spectrum[2] : t.spectrum[2];
+}

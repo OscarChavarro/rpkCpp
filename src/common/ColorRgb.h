@@ -35,21 +35,9 @@ class ColorRgb {
     float maximumComponent() const;
     float sumAbsComponents() const;
     void abs();
+    void maximum(ColorRgb &s, ColorRgb &t);
+    void minimum(ColorRgb &s, ColorRgb &t);
 };
-
-inline void
-colorMaximum(ColorRgb &s, ColorRgb &t, ColorRgb &r) {
-    r.spectrum[0] = s.spectrum[0] > t.spectrum[0] ? s.spectrum[0] : t.spectrum[0];
-    r.spectrum[1] = s.spectrum[1] > t.spectrum[1] ? s.spectrum[1] : t.spectrum[1];
-    r.spectrum[2] = s.spectrum[2] > t.spectrum[2] ? s.spectrum[2] : t.spectrum[2];
-}
-
-inline void
-colorMinimum(ColorRgb &s, ColorRgb &t, ColorRgb &r) {
-    r.spectrum[0] = s.spectrum[0] < t.spectrum[0] ? s.spectrum[0] : t.spectrum[0];
-    r.spectrum[1] = s.spectrum[1] < t.spectrum[1] ? s.spectrum[1] : t.spectrum[1];
-    r.spectrum[2] = s.spectrum[2] < t.spectrum[2] ? s.spectrum[2] : t.spectrum[2];
-}
 
 inline float
 colorAverage(ColorRgb &s) {

@@ -486,7 +486,7 @@ determineMaxRadiance(GalerkinElement *elem) {
     } else {
         rad = elem->unShotRadiance[0];
     }
-    colorMaximum(globalSourceRadiance, rad, globalSourceRadiance);
+    globalSourceRadiance.maximum(globalSourceRadiance, rad);
 }
 
 ColorRgb

@@ -32,7 +32,7 @@ initialControlRadiosityRecursive(
         // factor M_PI is omitted everywhere
         totalFluxColor->addScaled(*totalFluxColor, /* M_PI* */ weightedArea, rad);
         *area += weightedArea;
-        colorMaximum(*maxRadColor, rad, *maxRadColor);
+        maxRadColor->maximum(*maxRadColor, rad);
     } else {
         // Recursive case
         for ( int i = 0; i < 4; i++ ) {

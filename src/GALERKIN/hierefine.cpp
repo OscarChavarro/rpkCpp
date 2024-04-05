@@ -259,8 +259,8 @@ sourceClusterRadianceVariationError(Interaction *link, ColorRgb rcvRho, double r
     for ( int i = 0; i < numberOfRcVertices; i++ ) {
         ColorRgb rad;
         rad = clusterRadianceToSamplePoint(link->sourceElement, rcVertices[i]);
-        colorMinimum(minimumSrcRad, rad, minimumSrcRad);
-        colorMaximum(maximumSrcRad, rad, maximumSrcRad);
+        minimumSrcRad.minimum(minimumSrcRad, rad);
+        maximumSrcRad.maximum(maximumSrcRad, rad);
     }
     error.subtract(maximumSrcRad, minimumSrcRad);
 
