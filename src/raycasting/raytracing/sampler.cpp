@@ -1,4 +1,5 @@
 #include "material/hit.h"
+#include "common/mymath.h"
 #include "scene/scene.h"
 #include "raycasting/common/raytools.h"
 #include "raycasting/raytracing/sampler.h"

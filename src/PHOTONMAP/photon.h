@@ -8,6 +8,7 @@ Data structure for individual photons
 #include <cstring>
 
 #include "common/ColorRgb.h"
+#include "common/mymath.h"
 #include "material/spherical.h"
 #include "PHOTONMAP/pmapoptions.h"
 #include "material/xxdf.h"

@@ -7,6 +7,7 @@ optimisations/enhancements from ray shade 4.0.6 by Graig Kolb, Stanford U
 
 #include "java/util/ArrayList.txx"
 #include "common/error.h"
+#include "common/mymath.h"
 #include "scene/VoxelGrid.h"
 
 /**

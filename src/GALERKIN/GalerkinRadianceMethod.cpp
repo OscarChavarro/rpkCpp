@@ -9,6 +9,7 @@ potential-driven or not.
 
 #include "java/util/ArrayList.txx"
 #include "common/error.h"
+#include "common/mymath.h"
 #include "material/statistics.h"
 #include "scene/scene.h"
 #include "skin/Vertex.h"

@@ -1,5 +1,6 @@
 #include "java/util/ArrayList.txx"
 #include "common/error.h"
+#include "common/mymath.h"
 #include "render/render.h"
 #include "IMAGE/tonemap/tonemapping.h"
 #include "GALERKIN/basisgalerkin.h"

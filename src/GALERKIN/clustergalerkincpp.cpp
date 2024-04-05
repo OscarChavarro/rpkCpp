@@ -3,6 +3,7 @@ Cluster-specific operations
 */
 
 #include "java/util/ArrayList.txx"
+#include "common/mymath.h"
 #include "common/error.h"
 #include "skin/Geometry.h"
 #include "GALERKIN/clustergalerkincpp.h"

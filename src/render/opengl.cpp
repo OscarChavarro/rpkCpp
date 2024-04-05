@@ -4,6 +4,7 @@
 #include <GL/osmesa.h>
 
 #include "common/error.h"
+#include "common/mymath.h"
 #include "scene/scene.h"
 #include "skin/RadianceMethod.h"
 #include "render/canvas.h"
