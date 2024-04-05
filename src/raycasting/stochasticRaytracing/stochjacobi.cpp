@@ -89,7 +89,7 @@ stochasticJacobiProbability(StochasticRadiosityElement *elem) {
         if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.constantControlVariate ) {
             radiance.subtract(radiance, GLOBAL_stochasticRaytracing_monteCarloRadiosityState.controlRadiance);
         }
-        prob = /* M_PI * */ elem->area * colorSumAbsComponents(radiance);
+        prob = /* M_PI * */ elem->area * radiance.sumAbsComponents();
         if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceDriven ) {
             // Weight with received importance
             float w = elem->importance - elem->sourceImportance;
@@ -105,7 +105,7 @@ stochasticJacobiProbability(StochasticRadiosityElement *elem) {
             // Received-radiance weighted importance transport
             ColorRgb receivedRadiance;
             receivedRadiance.subtract(elem->radiance[0], elem->sourceRad);
-            prob2 *= colorSumAbsComponents(receivedRadiance);
+            prob2 *= receivedRadiance.sumAbsComponents();
         }
 
         // Equal weight to importance and radiance propagation for constant approximation,

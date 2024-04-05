@@ -189,18 +189,18 @@ stochasticRelaxationRadiosityDoIncrementalRadianceIterations(java::ArrayList<Pat
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.weightedSampling = false;
 
     stochasticRelaxationRadiosityPrintIncrementalRadianceStats();
-    refUnShot = colorSumAbsComponents(GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotFlux);
+    refUnShot = GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotFlux.sumAbsComponents();
     if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.incrementalUsesImportance ) {
-        refUnShot = colorSumAbsComponents(GLOBAL_stochasticRaytracing_monteCarloRadiosityState.indirectImportanceWeightedUnShotFlux);
+        refUnShot = GLOBAL_stochasticRaytracing_monteCarloRadiosityState.indirectImportanceWeightedUnShotFlux.sumAbsComponents();
     }
     while ( true ) {
         // Choose nr of rays so that power carried by each ray remains equal, and
         // proportional to the number of basis functions in the rad. approx
         double unShotFraction;
         long nr_rays;
-        unShotFraction = colorSumAbsComponents(GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotFlux) / refUnShot;
+        unShotFraction = GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotFlux.sumAbsComponents() / refUnShot;
         if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.incrementalUsesImportance ) {
-            unShotFraction = colorSumAbsComponents(GLOBAL_stochasticRaytracing_monteCarloRadiosityState.indirectImportanceWeightedUnShotFlux) / refUnShot;
+            unShotFraction = GLOBAL_stochasticRaytracing_monteCarloRadiosityState.indirectImportanceWeightedUnShotFlux.sumAbsComponents() / refUnShot;
         }
         if ( unShotFraction < 0.01 ) {
             // Only 1/100th of self-emitted power remains un-shot

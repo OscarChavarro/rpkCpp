@@ -82,7 +82,7 @@ stochasticJacobiProbability proportional to power to be propagated
 static double
 randomWalkRadiosityScalarSourcePower(Patch *P) {
     ColorRgb radiance = topLevelGalerkinElement(P)->sourceRad;
-    return /* M_PI * */ P->area * colorSumAbsComponents(radiance);
+    return /* M_PI * */ P->area * radiance.sumAbsComponents();
 }
 
 /**

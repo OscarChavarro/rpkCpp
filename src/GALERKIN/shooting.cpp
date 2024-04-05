@@ -30,7 +30,7 @@ chooseRadianceShootingPatch(java::ArrayList<Patch *> *scenePatches) {
     for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
         Patch *patch = scenePatches->get(i);
 
-        power = (float)M_PI * patch->area * colorSumAbsComponents(UN_SHOT_RADIANCE(patch));
+        power = (float)M_PI * patch->area * UN_SHOT_RADIANCE(patch).sumAbsComponents();
         if ( power > maximumPower ) {
             shooting_patch = patch;
             maximumPower = power;
