@@ -184,7 +184,7 @@ hierarchicRefinementApproximationError(
                 srcRad = link->sourceElement->radiance[0];
             }
 
-            colorProductScaled(rcvRho, link->deltaK[0], srcRad, error);
+            error.scalarProductScaled(rcvRho, link->deltaK[0], srcRad);
             colorAbs(error, error);
             approxError = hierarchicRefinementColorToError(error);
             break;
@@ -196,7 +196,7 @@ hierarchicRefinementApproximationError(
                 srcRad = link->sourceElement->unShotRadiance[0];
             }
 
-            colorProductScaled(rcvRho, link->deltaK[0], srcRad, error);
+            error.scalarProductScaled(rcvRho, link->deltaK[0], srcRad);
             colorAbs(error, error);
             approxError = hierarchicRefinementColorToError(error);
 
@@ -264,7 +264,7 @@ sourceClusterRadianceVariationError(Interaction *link, ColorRgb rcvRho, double r
     }
     colorSubtract(maximumSrcRad, minimumSrcRad, error);
 
-    colorProductScaled(rcvRho, (float)(K / rcv_area), error, error);
+    error.scalarProductScaled(rcvRho, (float) (K / rcv_area), error);
     colorAbs(error, error);
     return hierarchicRefinementColorToError(error);
 }

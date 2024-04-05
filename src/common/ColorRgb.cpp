@@ -67,3 +67,10 @@ ColorRgb::selfScalarProduct(const ColorRgb &s) {
     spectrum[1] *= s.spectrum[1];
     spectrum[2] *= s.spectrum[2];
 }
+
+void
+ColorRgb::scalarProductScaled(ColorRgb &s, float a, ColorRgb &t) {
+    spectrum[0] = s.spectrum[0] * a * t.spectrum[0];
+    spectrum[1] = s.spectrum[1] * a * t.spectrum[1];
+    spectrum[2] = s.spectrum[2] * a * t.spectrum[2];
+}

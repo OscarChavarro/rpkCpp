@@ -126,7 +126,7 @@ stochasticRaytracerGetScatteredRadiance(
                     // Collect outgoing radiance
                     factor = newNode.m_G / (newNode.m_pdfFromPrev * nrSamples);
 
-                    colorProductScaled(radiance, (float)factor, thisNode->m_bsdfEval, radiance);
+                    radiance.scalarProductScaled(radiance, (float) factor, thisNode->m_bsdfEval);
                     colorAdd(radiance, result, result);
                 }
             }
@@ -267,8 +267,7 @@ SR_GetDirectRadiance(
 
                                 factor = weight * geom / (lightNode.m_pdfFromPrev *
                                                           config->nextEventSamples);
-                                colorProductScaled(prevNode->m_bsdfEval, (float)factor, lightNode.m_bsdfEval,
-                                                   radiance);
+                                radiance.scalarProductScaled(prevNode->m_bsdfEval, (float) factor, lightNode.m_bsdfEval);
 
                                 // Collect outgoing radiance
                                 colorAdd(result, radiance, result);

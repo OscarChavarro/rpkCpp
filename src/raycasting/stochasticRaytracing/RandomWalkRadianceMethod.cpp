@@ -115,7 +115,7 @@ randomWalkRadiosityReduceSource(java::ArrayList<Patch *> *scenePatches) {
         newSourceRadiance.setMonochrome(1.0);
         rho = topLevelGalerkinElement(patch)->Rd; // Reflectance
         colorSubtract(newSourceRadiance, rho, newSourceRadiance); // 1 - rho
-        newSourceRadiance.scalarProduct(newSourceRadiance, GLOBAL_stochasticRaytracing_monteCarloRadiosityState.controlRadiance); // (1-rho) * beta
+        newSourceRadiance.selfScalarProduct(GLOBAL_stochasticRaytracing_monteCarloRadiosityState.controlRadiance); // (1-rho) * beta
         colorSubtract(topLevelGalerkinElement(patch)->sourceRad, newSourceRadiance, newSourceRadiance); // E - (1-rho) * beta
         topLevelGalerkinElement(patch)->sourceRad = newSourceRadiance;
     }
