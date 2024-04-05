@@ -205,12 +205,12 @@ mgfGetCurrentMaterial(Material **material, bool allSurfacesSided, MgfContext *co
     }
 
     if ( context->monochrome ) {
-        Ed.setMonochrome(colorGray(Ed));
-        Es.setMonochrome(colorGray(Es));
-        Rd.setMonochrome(colorGray(Rd));
-        Rs.setMonochrome(colorGray(Rs));
-        Td.setMonochrome(colorGray(Td));
-        Ts.setMonochrome(colorGray(Ts));
+        Ed.setMonochrome(Ed.gray());
+        Es.setMonochrome(Es.gray());
+        Rd.setMonochrome(Rd.gray());
+        Rs.setMonochrome(Rs.gray());
+        Td.setMonochrome(Td.gray());
+        Ts.setMonochrome(Ts.gray());
     }
 
     PhongEmittanceDistributionFunction* edf = nullptr;

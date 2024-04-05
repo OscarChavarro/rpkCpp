@@ -38,12 +38,8 @@ class ColorRgb {
     void maximum(ColorRgb &s, ColorRgb &t);
     void minimum(ColorRgb &s, ColorRgb &t);
     float average() const;
+    float gray() const;
 };
-
-inline float
-colorGray(ColorRgb &s) {
-    return spectrumGray(s.spectrum[0], s.spectrum[1], s.spectrum[2]);
-}
 
 inline float
 colorLuminance(ColorRgb &s) {

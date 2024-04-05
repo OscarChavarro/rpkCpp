@@ -469,8 +469,8 @@ mainReadFile(char *filename, MgfContext *context) {
 
     GLOBAL_statistics.numberOfPatches = GLOBAL_statistics.numberOfElements;
     mainComputeSomeSceneStats();
-    GLOBAL_statistics.referenceLuminance = 5.42 * ((1. - colorGray(GLOBAL_statistics.averageReflectivity)) *
-            colorLuminance(GLOBAL_statistics.estimatedAverageRadiance));
+    GLOBAL_statistics.referenceLuminance = 5.42 * ((1.0 - GLOBAL_statistics.averageReflectivity.gray()) *
+                                                   colorLuminance(GLOBAL_statistics.estimatedAverageRadiance));
 
     t = clock();
     fprintf(stderr, "%g secs.\n", (float) (t - last) / (float) CLOCKS_PER_SEC);
@@ -493,11 +493,11 @@ mainReadFile(char *filename, MgfContext *context) {
            "         GLOBAL_statistics.maxSelfEmittedPower ..............: %f W\n"
            "         GLOBAL_toneMap_options.lwa (adaptationLuminance) ...: %f cd / m2\n"
            "         GLOBAL_statistics_totalArea ........................: %f m2\n",
-           colorGray(GLOBAL_statistics.totalEmittedPower),
-           colorGray(GLOBAL_statistics.estimatedAverageRadiance),
-           colorGray(GLOBAL_statistics.averageReflectivity),
-           colorGray(GLOBAL_statistics.maxSelfEmittedRadiance),
-           colorGray(GLOBAL_statistics.maxSelfEmittedPower),
+           GLOBAL_statistics.totalEmittedPower.gray(),
+           GLOBAL_statistics.estimatedAverageRadiance.gray(),
+           GLOBAL_statistics.averageReflectivity.gray(),
+           GLOBAL_statistics.maxSelfEmittedRadiance.gray(),
+           GLOBAL_statistics.maxSelfEmittedPower.gray(),
            GLOBAL_toneMap_options.realWorldAdaptionLuminance,
            GLOBAL_statistics.totalArea);
 

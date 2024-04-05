@@ -153,3 +153,8 @@ float
 ColorRgb::average() const {
     return (spectrum[0] + spectrum[1] + spectrum[2]) / 3.0f;
 }
+
+float
+ColorRgb::gray() const {
+    return spectrumGray(spectrum[0], spectrum[1], spectrum[2]);
+}
