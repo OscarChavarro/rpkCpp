@@ -721,7 +721,7 @@ Patch::averageNormalAlbedo(BSDF_FLAGS components) {
         sample = bsdfScatteredPower(surface->material->bsdf, &hit, &normal, components);
         albedo.add(albedo, sample);
     }
-    colorScaleInverse((float) numberOfSamples, albedo, albedo);
+    albedo.scaleInverse((float) numberOfSamples, albedo);
 
     return albedo;
 }
@@ -745,7 +745,7 @@ Patch::averageEmittance(char components) {
         sample = edfEmittance(surface->material->edf, &hit, components);
         emittance.add(emittance, sample);
     }
-    colorScaleInverse((float) numberOfSamples, emittance, emittance);
+    emittance.scaleInverse((float) numberOfSamples, emittance);
 
     return emittance;
 }

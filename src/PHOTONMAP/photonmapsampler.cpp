@@ -333,7 +333,7 @@ CPhotonMapSampler::fresnelSample(
     if ( doCosInverse ) {
         float cosB = std::fabs(vectorDotProduct(newNode->m_hit.normal,
                                            newNode->m_inDirT));
-        colorScaleInverse(cosB, scatteringColor, thisNode->m_bsdfEval);
+        thisNode->m_bsdfEval.scaleInverse(cosB, scatteringColor);
     } else {
         thisNode->m_bsdfEval = scatteringColor;
     }

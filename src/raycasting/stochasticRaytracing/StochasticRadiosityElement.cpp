@@ -190,7 +190,7 @@ stochasticRadiosityElementCreateFromPatch(Patch *patch) {
     stochasticRadiosityClearCoefficients(elem->receivedRadiance, elem->basis);
 
     elem->Ed = patch->averageEmittance(DIFFUSE_COMPONENT);
-    colorScaleInverse(M_PI, elem->Ed, elem->Ed);
+    elem->Ed.scaleInverse(M_PI, elem->Ed);
     elem->Rd = patch->averageNormalAlbedo(BRDF_DIFFUSE_COMPONENT);
 
     return elem;
@@ -290,7 +290,7 @@ monteCarloRadiosityCreateClusterChildren(StochasticRadiosityElement *parent) {
     for ( int i = 0; parent->irregularSubElements != nullptr && i < parent->irregularSubElements->size(); i++ ) {
         monteCarloRadiosityInitClusterPull(parent, (StochasticRadiosityElement *)parent->irregularSubElements->get(i));
     }
-    colorScaleInverse(parent->area, parent->Ed, parent->Ed);
+    parent->Ed.scaleInverse(parent->area, parent->Ed);
 }
 
 static StochasticRadiosityElement *
@@ -673,8 +673,8 @@ monteCarloRadiosityElementComputeAverageReflectanceAndEmittance(StochasticRadios
             emittance.add(emittance, sample);
         }
     }
-    colorScaleInverse((float) numberOfSamples, albedo, elem->Rd);
-    colorScaleInverse((float) numberOfSamples, emittance, elem->Ed);
+    elem->Rd.scaleInverse((float) numberOfSamples, albedo);
+    elem->Ed.scaleInverse((float) numberOfSamples, emittance);
 }
 
 /**

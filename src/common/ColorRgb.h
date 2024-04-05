@@ -31,15 +31,8 @@ class ColorRgb {
     void addConstant(ColorRgb &s, float a);
     void subtract(ColorRgb &s, ColorRgb & t);
     void divide(ColorRgb &s, ColorRgb &t);
+    void scaleInverse(float scale, ColorRgb &s);
 };
-
-inline void
-colorScaleInverse(float scale, ColorRgb &s, ColorRgb &r) {
-    float a = (scale != 0.0f) ? 1.0f / scale : 1.0f;
-    r.spectrum[0] = a * s.spectrum[0];
-    r.spectrum[1] = a * s.spectrum[1];
-    r.spectrum[2] = a * s.spectrum[2];
-}
 
 inline float
 colorMaximumComponent(ColorRgb &s) {

@@ -148,7 +148,7 @@ GalerkinElement::GalerkinElement(Patch *parameterPatch): GalerkinElement() {
          patch->surface->material->edf ) {
         flags |= IS_LIGHT_SOURCE_MASK;
         Ed = patch->averageEmittance(DIFFUSE_COMPONENT);
-        colorScaleInverse(M_PI, Ed, Ed);
+        Ed.scaleInverse(M_PI, Ed);
     }
 
     patch->radianceData = this;

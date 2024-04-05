@@ -109,3 +109,11 @@ ColorRgb::divide(ColorRgb &s, ColorRgb &t) {
     spectrum[1] = (t.spectrum[1] != 0.0) ? s.spectrum[1] / t.spectrum[1] : s.spectrum[1];
     spectrum[2] = (t.spectrum[2] != 0.0) ? s.spectrum[2] / t.spectrum[2] : s.spectrum[2];
 }
+
+void
+ColorRgb::scaleInverse(float scale, ColorRgb &s) {
+    float a = (scale != 0.0f) ? 1.0f / scale : 1.0f;
+    spectrum[0] = a * s.spectrum[0];
+    spectrum[1] = a * s.spectrum[1];
+    spectrum[2] = a * s.spectrum[2];
+}

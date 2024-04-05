@@ -52,7 +52,7 @@ vertexRadiance(Vertex *v) {
     }
 
     if ( count > 0 ) {
-        colorScaleInverse((float) count, radiance, radiance);
+        radiance.scaleInverse((float) count, radiance);
     }
 
     return radiance;

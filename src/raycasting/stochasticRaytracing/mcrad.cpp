@@ -512,7 +512,7 @@ vertexReflectance(Vertex *v) {
     }
 
     if ( count > 0 ) {
-        colorScaleInverse((float) count, rd, rd);
+        rd.scaleInverse((float) count, rd);
     }
 
     return rd;

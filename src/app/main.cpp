@@ -115,9 +115,13 @@ mainComputeSomeSceneStats() {
     }
 
     // Averages
-    colorScaleInverse(GLOBAL_statistics.totalArea, GLOBAL_statistics.averageReflectivity, GLOBAL_statistics.averageReflectivity);
+    GLOBAL_statistics.averageReflectivity.scaleInverse(
+        GLOBAL_statistics.totalArea,
+        GLOBAL_statistics.averageReflectivity);
     averageAbsorption.subtract(one, GLOBAL_statistics.averageReflectivity);
-    colorScaleInverse(M_PI * GLOBAL_statistics.totalArea, GLOBAL_statistics.totalEmittedPower, GLOBAL_statistics.estimatedAverageRadiance);
+    GLOBAL_statistics.estimatedAverageRadiance.scaleInverse(
+        M_PI * GLOBAL_statistics.totalArea,
+        GLOBAL_statistics.totalEmittedPower);
 
     // Include background radiation
     BP = backgroundPower(GLOBAL_scene_background, &zero);
