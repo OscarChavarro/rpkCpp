@@ -52,10 +52,10 @@ basisGalerkinPull(
             for ( beta = 0; beta < child->basisSize; beta++ ) {
                 double f = basis->regular_filter[sigma][alpha][beta];
                 if ( f < -EPSILON || f > EPSILON )
-                    colorAddScaled(parent_coefficients[alpha],
-                                   (float)f,
-                                   child_coefficients[beta],
-                                   parent_coefficients[alpha]);
+                    parent_coefficients[alpha].addScaled(
+                        parent_coefficients[alpha],
+                        (float) f,
+                        child_coefficients[beta]);
             }
             parent_coefficients[alpha].scale(0.25f);
         }
@@ -69,7 +69,7 @@ static void
 basisGalerkinPushPullRadianceRecursive(GalerkinElement *element, ColorRgb *Bdown, ColorRgb *Bup) {
     // Re-normalize the received radiance at this level and add to Bdown
     for ( int i = 0; i < element->basisSize; i++ ) {
-        colorAddScaled(Bdown[i], 1.0f / element->area, element->receivedRadiance[i], Bdown[i]);
+        Bdown[i].addScaled(Bdown[i], 1.0f / element->area, element->receivedRadiance[i]);
         element->receivedRadiance[i].clear();
     }
 
@@ -238,7 +238,7 @@ basisGalerkinRadianceAtPoint(
 
     for ( int i = 0; i < elem->basisSize; i++ ) {
         double f = basis->function[i](u, v);
-        colorAddScaled(rad, (float)f, coefficients[i], rad);
+        rad.addScaled(rad, (float) f, coefficients[i]);
     }
 
     return rad;
@@ -273,9 +273,9 @@ and the up transforms to relate sub-elements with the parent element
 void
 basisGalerkinPush(
     GalerkinElement *element,
-    ColorRgb *parent_coefficients,
+    ColorRgb *parentCoefficients,
     GalerkinElement *child,
-    ColorRgb *child_coefficients)
+    ColorRgb *childCoefficients)
 {
     GalerkinBasis *basis;
     int alpha;
@@ -285,27 +285,27 @@ basisGalerkinPush(
     if ( element->isCluster() ) {
         // Clusters have only irregular sub-elements and a constant
         // approximation is used on them
-        clusterGalerkinClearCoefficients(child_coefficients, child->basisSize);
-        child_coefficients[0] = parent_coefficients[0];
+        clusterGalerkinClearCoefficients(childCoefficients, child->basisSize);
+        childCoefficients[0] = parentCoefficients[0];
     } else {
         if ( sigma < 0 || sigma > 3 ) {
             logError("stochasticJacobiPush", "Not yet implemented for non-regular subdivision");
-            clusterGalerkinClearCoefficients(child_coefficients, child->basisSize);
-            child_coefficients[0] = parent_coefficients[0];
+            clusterGalerkinClearCoefficients(childCoefficients, child->basisSize);
+            childCoefficients[0] = parentCoefficients[0];
             return;
         }
 
         // Parent and child basis should be the same
         basis = child->patch->numberOfVertices == 3 ? &GLOBAL_galerkin_triBasis : &GLOBAL_galerkin_quadBasis;
         for ( beta = 0; beta < child->basisSize; beta++ ) {
-            child_coefficients[beta].clear();
+            childCoefficients[beta].clear();
             for ( alpha = 0; alpha < element->basisSize; alpha++ ) {
                 double f = basis->regular_filter[sigma][alpha][beta];
                 if ( f < -EPSILON || f > EPSILON )
-                    colorAddScaled(child_coefficients[beta],
-                                   (float)f,
-                                   parent_coefficients[alpha],
-                                   child_coefficients[beta]);
+                    childCoefficients[beta].addScaled(
+                        childCoefficients[beta],
+                        (float) f,
+                        parentCoefficients[alpha]);
             }
         }
     }

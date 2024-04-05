@@ -201,7 +201,7 @@ stochasticJacobiPropagateRadianceToSurface(
     for ( int i = 0; i < rcv->basis->size; i++ ) {
         double dual = rcv->basis->dualFunction[i](ur, vr) / rcv->area;
         double w = dual * fraction / (double) globalNumberOfRays;
-        colorAddScaled(rcv->receivedRadiance[i], (float)w, rayPower, rcv->receivedRadiance[i]);
+        rcv->receivedRadiance[i].addScaled(rcv->receivedRadiance[i], (float) w, rayPower);
     }
 }
 
@@ -214,7 +214,7 @@ stochasticJacobiPropagateRadianceToClusterIsotropic(
     double /*weight*/)
 {
     double w = fraction / cluster->area / (double) globalNumberOfRays;
-    colorAddScaled(cluster->receivedRadiance[0], (float)w, rayPower, cluster->receivedRadiance[0]);
+    cluster->receivedRadiance[0].addScaled(cluster->receivedRadiance[0], (float) w, rayPower);
 }
 
 /**
@@ -235,7 +235,7 @@ stochasticJacobiPropagateRadianceClusterRecursive(
         if ( c > 0.0 ) {
             double aFraction = fraction * (c * currentElement->area / projectedArea);
             double w = aFraction / currentElement->area / (double) globalNumberOfRays;
-            colorAddScaled(currentElement->receivedRadiance[0], (float)w, rayPower, currentElement->receivedRadiance[0]);
+            currentElement->receivedRadiance[0].addScaled(currentElement->receivedRadiance[0], (float) w, rayPower);
         }
     } else {
         // Recursive case
@@ -670,10 +670,18 @@ stochasticJacobiUpdateElement(StochasticRadiosityElement *elem) {
 
     globalReflectCallback(elem, (double) globalNumberOfRays / globalSumOfProbabilities);
 
-    colorAddScaled(GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotFlux, M_PI * elem->area, elem->unShotRadiance[0], GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotFlux);
-    colorAddScaled(GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalFlux, M_PI * elem->area, elem->radiance[0], GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalFlux);
-    colorAddScaled(GLOBAL_stochasticRaytracing_monteCarloRadiosityState.indirectImportanceWeightedUnShotFlux, M_PI * elem->area * (elem->importance - elem->sourceImportance), elem->unShotRadiance[0],
-                   GLOBAL_stochasticRaytracing_monteCarloRadiosityState.indirectImportanceWeightedUnShotFlux);
+    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotFlux.addScaled(
+        GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotFlux,
+        M_PI * elem->area,
+        elem->unShotRadiance[0]);
+    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalFlux.addScaled(
+        GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalFlux,
+        M_PI * elem->area,
+        elem->radiance[0]);
+    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.indirectImportanceWeightedUnShotFlux.addScaled(
+        GLOBAL_stochasticRaytracing_monteCarloRadiosityState.indirectImportanceWeightedUnShotFlux,
+        M_PI * elem->area * (elem->importance - elem->sourceImportance),
+        elem->unShotRadiance[0]);
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotYmp += (float)(elem->area * std::fabs(elem->unShotImportance));
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalYmp += elem->area * elem->importance;
 }
@@ -758,8 +766,8 @@ stochasticJacobiPullRdEdFromChild(Element *element) {
 
     stochasticJacobiPullRdEd(child);
 
-    colorAddScaled(parent->Ed, child->area / parent->area, child->Ed, parent->Ed);
-    colorAddScaled(parent->Rd, child->area / parent->area, child->Rd, parent->Rd);
+    parent->Ed.addScaled(parent->Ed, child->area / parent->area, child->Ed);
+    parent->Rd.addScaled(parent->Rd, child->area / parent->area, child->Rd);
     if ( parent->isCluster() )
         parent->Rd.setMonochrome(1.0);
 }

@@ -312,7 +312,7 @@ ferwerdaScaleForComputations(ColorRgb radiance) {
 
     // Eventually, offset by the scotopic luminance
     if ( sl > 0.0 ) {
-        colorAddConstant(radiance, sl, radiance);
+        radiance.addConstant(radiance, sl);
     }
 
     return radiance;
@@ -337,7 +337,7 @@ ferwerdaScaleForDisplay(ColorRgb radiance) {
 
     // Eventually, offset by the scotopic luminance
     if ( sl > 0.0 ) {
-        colorAddConstant(radiance, sl, radiance);
+        radiance.addConstant(radiance, sl);
     }
 
     return radiance;

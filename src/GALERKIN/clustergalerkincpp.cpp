@@ -25,14 +25,14 @@ Creates a cluster hierarchy for the Geometry and adds it to the sub-cluster list
 given parent cluster
 */
 static void
-geomAddClusterChild(Geometry *geom, GalerkinElement *parent_cluster) {
+geomAddClusterChild(Geometry *geom, GalerkinElement *parentCluster) {
     GalerkinElement *cluster = galerkinDoCreateClusterHierarchy(geom);
 
-    if ( parent_cluster->irregularSubElements == nullptr ) {
-        parent_cluster->irregularSubElements = new java::ArrayList<Element *>();
+    if ( parentCluster->irregularSubElements == nullptr ) {
+        parentCluster->irregularSubElements = new java::ArrayList<Element *>();
     }
-    parent_cluster->irregularSubElements->add(0, cluster);
-    cluster->parent = parent_cluster;
+    parentCluster->irregularSubElements->add(0, cluster);
+    cluster->parent = parentCluster;
 }
 
 /**
@@ -66,12 +66,12 @@ clusterInit(GalerkinElement *cluster) {
         GalerkinElement *subCluster = (GalerkinElement *)cluster->irregularSubElements->get(i);
         cluster->area += subCluster->area;
         cluster->numberOfPatches += subCluster->numberOfPatches;
-        colorAddScaled(cluster->radiance[0], subCluster->area, subCluster->radiance[0], cluster->radiance[0]);
+        cluster->radiance[0].addScaled(cluster->radiance[0], subCluster->area, subCluster->radiance[0]);
         if ( subCluster->minimumArea < cluster->minimumArea ) {
             cluster->minimumArea = subCluster->minimumArea;
         }
         cluster->flags |= (subCluster->flags & IS_LIGHT_SOURCE_MASK);
-        colorAddScaled(cluster->Ed, subCluster->area, subCluster->Ed, cluster->Ed);
+        cluster->Ed.addScaled(cluster->Ed, subCluster->area, subCluster->Ed);
     }
     cluster->radiance[0].scale(1.0f / cluster->area);
     cluster->Ed.scale(1.0f / cluster->area);
@@ -81,8 +81,7 @@ clusterInit(GalerkinElement *cluster) {
         clusterGalerkinClearCoefficients(cluster->unShotRadiance, cluster->basisSize);
         for ( int i = 0; cluster->irregularSubElements != nullptr && i < cluster->irregularSubElements->size(); i++ ) {
             GalerkinElement *subCluster = (GalerkinElement *)cluster->irregularSubElements->get(i);
-            colorAddScaled(cluster->unShotRadiance[0], subCluster->area, subCluster->unShotRadiance[0],
-                           cluster->unShotRadiance[0]);
+            cluster->unShotRadiance[0].addScaled(cluster->unShotRadiance[0], subCluster->area, subCluster->unShotRadiance[0]);
         }
         cluster->unShotRadiance[0].scale(1.0f / cluster->area);
     }
@@ -208,7 +207,7 @@ accumulatePowerToSamplePoint(GalerkinElement *src) {
         rad = src->unShotRadiance[0];
     }
 
-    colorAddScaled(globalSourceRadiance, srcOs * src->area, rad, globalSourceRadiance);
+    globalSourceRadiance.addScaled(globalSourceRadiance, srcOs * src->area, rad);
 }
 
 /**
@@ -370,7 +369,7 @@ doGatherRadiance(GalerkinElement *rcv, double area_factor, Interaction *link, Co
     ColorRgb *rcvRad = rcv->receivedRadiance;
 
     if ( link->numberOfBasisFunctionsOnReceiver == 1 && link->numberOfBasisFunctionsOnSource == 1 ) {
-        colorAddScaled(rcvRad[0], (float)(area_factor * link->K[0]), srcRad[0], rcvRad[0]);
+        rcvRad[0].addScaled(rcvRad[0], (float) (area_factor * link->K[0]), srcRad[0]);
     } else {
         int alpha;
         int beta;
@@ -380,9 +379,10 @@ doGatherRadiance(GalerkinElement *rcv, double area_factor, Interaction *link, Co
         b = intMin(link->numberOfBasisFunctionsOnSource, link->sourceElement->basisSize);
         for ( alpha = 0; alpha < a; alpha++ ) {
             for ( beta = 0; beta < b; beta++ ) {
-                colorAddScaled(rcvRad[alpha],
-                               (float)(area_factor * link->K[alpha * link->numberOfBasisFunctionsOnSource + beta]),
-                               srcRad[beta], rcvRad[alpha]);
+                rcvRad[alpha].addScaled(
+                    rcvRad[alpha],
+                    (float)(area_factor * link->K[alpha * link->numberOfBasisFunctionsOnSource + beta]),
+                    srcRad[beta]);
             }
         }
     }

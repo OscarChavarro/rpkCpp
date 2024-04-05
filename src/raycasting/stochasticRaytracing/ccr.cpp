@@ -30,7 +30,7 @@ initialControlRadiosityRecursive(
             weightedArea *= (element->importance - element->sourceImportance); // Multiply with received importance
         }
         // factor M_PI is omitted everywhere
-        colorAddScaled(*totalFluxColor, /* M_PI* */ weightedArea, rad, *totalFluxColor);
+        totalFluxColor->addScaled(*totalFluxColor, /* M_PI* */ weightedArea, rad);
         *area += weightedArea;
         colorMaximum(*maxRadColor, rad, *maxRadColor);
     } else {
@@ -154,7 +154,7 @@ refineControlRadiosityRecursive(
             t.scalarProduct(s, rad[i]);
             colorSubtract(B, t, t);
             colorAbs(t, t);
-            colorAddScaled(f[i], weightedArea, t, f[i]);
+            f[i].addScaled(f[i], weightedArea, t);
         }
     } else {
         // Recursive case
@@ -188,7 +188,7 @@ refineControlRadiosity(
     colorSubtract(*maxRad, *minRad, d);
     for ( int i = 0; i <= NUMBER_OF_INTERVALS; i++ ) {
         f[i].clear();
-        colorAddScaled(*minRad, (float)i / (float) NUMBER_OF_INTERVALS, d, rad[i]);
+        rad[i].addScaled(*minRad, (float) i / (float) NUMBER_OF_INTERVALS, d);
     }
 
     // Determine value of F(beta) = sum_i (area_i * std::fabs(B_i - beta)) on
@@ -293,12 +293,12 @@ determineControlRadiosity(
     initialControlRadiosity(&minRad, &maxRad, &fMin, &fMax, scenePatches);
 
     colorSubtract(fMax, fMin, delta);
-    colorAddScaled(delta, (-eps), fMin, delta);
+    delta.addScaled(delta, (-eps), fMin);
     while ( (colorMaximumComponent(delta) > 0.0) || sweep < 4 ) {
         sweep++;
         refineControlRadiosity(&minRad, &maxRad, &fMin, &fMax, scenePatches);
         colorSubtract(fMax, fMin, delta);
-        colorAddScaled(delta, (-eps), fMin, delta);
+        delta.addScaled(delta, (-eps), fMin);
     }
 
     beta.add(minRad, maxRad);

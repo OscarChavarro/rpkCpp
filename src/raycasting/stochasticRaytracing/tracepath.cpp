@@ -6,7 +6,6 @@ Random walk generation
 
 #include "java/util/ArrayList.txx"
 #include "common/error.h"
-#include "material/statistics.h"
 #include "raycasting/stochasticRaytracing/mcradP.h"
 #include "raycasting/stochasticRaytracing/tracepath.h"
 #include "raycasting/stochasticRaytracing/localline.h"
@@ -194,10 +193,13 @@ tracePaths(
     for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
         Patch *patch = scenePatches->get(i);
         Update(patch, (double) numberOfPaths / globalSumProbabilities);
-        colorAddScaled(GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotFlux, M_PI * patch->area,
-                       getTopLevelPatchUnShotRad(patch)[0],
-                       GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotFlux);
-        colorAddScaled(GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalFlux, M_PI * patch->area,
-                       getTopLevelPatchRad(patch)[0], GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalFlux);
+        GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotFlux.addScaled(
+            GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotFlux,
+            M_PI * patch->area,
+            getTopLevelPatchUnShotRad(patch)[0]);
+        GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalFlux.addScaled(
+            GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalFlux,
+            M_PI * patch->area,
+            getTopLevelPatchRad(patch)[0]);
     }
 }

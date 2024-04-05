@@ -28,7 +28,7 @@ initRadianceEstimate(Patch *patch) {
     ColorRgb radiance;
 
     radiance.scalarProduct(R, GLOBAL_statistics.estimatedAverageRadiance);
-    colorAddScaled(radiance, (1.0 / M_PI), E, radiance);
+    radiance.addScaled(radiance, (1.0 / M_PI), E);
     return radiance;
 }
 

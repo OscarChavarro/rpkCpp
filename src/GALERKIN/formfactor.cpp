@@ -301,7 +301,7 @@ doHigherOrderAreaToAreaFormFactor(
         }
 
         for ( k = 0; k < crrcv->numberOfNodes; k++ ) {
-            colorAddScaled(deltarad[k], (float)delta_beta[k], srcrad[beta], deltarad[k]);
+            deltarad[k].addScaled(deltarad[k], (float) delta_beta[k], srcrad[beta]);
         }
 
         if ( beta == 0 ) {

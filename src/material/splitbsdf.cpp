@@ -113,7 +113,7 @@ splitBsdfEval(
     if ( bsdf->texture && (flags & TEXTURED_COMPONENT) ) {
         double textureBsdf = texturedScattererEval(in, out, &normal);
         ColorRgb textureCol = splitBsdfEvalTexture(bsdf->texture, hit);
-        colorAddScaled(result, (float)textureBsdf, textureCol, result);
+        result.addScaled(result, (float) textureBsdf, textureCol);
         flags &= ~TEXTURED_COMPONENT;
     }
 

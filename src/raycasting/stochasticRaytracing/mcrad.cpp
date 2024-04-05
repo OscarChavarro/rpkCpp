@@ -430,21 +430,19 @@ monteCarloRadiosityReInit(java::ArrayList<Patch *> *scenePatches) {
     for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
         Patch *patch = scenePatches->get(i);
         monteCarloRadiosityInitPatch(patch);
-        colorAddScaled(
+        GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotFlux.addScaled(
             GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotFlux,
             M_PI * patch->area,
-            getTopLevelPatchUnShotRad(patch)[0],
-            GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotFlux);
-        colorAddScaled(
+            getTopLevelPatchUnShotRad(patch)[0]);
+        GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalFlux.addScaled(
             GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalFlux,
             M_PI * patch->area,
-            getTopLevelPatchRad(patch)[0],
-            GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalFlux);
-        colorAddScaled(
+            getTopLevelPatchRad(patch)[0]);
+        GLOBAL_stochasticRaytracing_monteCarloRadiosityState.indirectImportanceWeightedUnShotFlux.addScaled(
             GLOBAL_stochasticRaytracing_monteCarloRadiosityState.indirectImportanceWeightedUnShotFlux,
-            M_PI * patch->area * (topLevelGalerkinElement(patch)->importance - topLevelGalerkinElement(patch)->sourceImportance),
-            getTopLevelPatchUnShotRad(patch)[0],
-            GLOBAL_stochasticRaytracing_monteCarloRadiosityState.indirectImportanceWeightedUnShotFlux);
+            M_PI * patch->area *
+            (topLevelGalerkinElement(patch)->importance - topLevelGalerkinElement(patch)->sourceImportance),
+            getTopLevelPatchUnShotRad(patch)[0]);
         GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotYmp += patch->area * std::fabs(topLevelGalerkinElement(patch)->unShotImportance);
         GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalYmp += patch->area * topLevelGalerkinElement(patch)->importance;
         GLOBAL_stochasticRaytracing_monteCarloRadiosityState.sourceYmp += patch->area * topLevelGalerkinElement(patch)->sourceImportance;

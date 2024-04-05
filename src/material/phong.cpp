@@ -154,7 +154,7 @@ phongBrdfEval(
     }
 
     if ( (flags & DIFFUSE_COMPONENT) && (brdf->avgKd > 0.0) ) {
-        colorAddScaled(result, M_1_PI, brdf->Kd, result);
+        result.addScaled(result, M_1_PI, brdf->Kd);
     }
 
     if ( PHONG_IS_SPECULAR(*brdf) ) {
@@ -170,7 +170,7 @@ phongBrdfEval(
         if ( dotProduct > 0 ) {
             tmpFloat = (float)std::pow(dotProduct, brdf->Ns); // cos(a) ^ n
             tmpFloat *= (brdf->Ns + 2.0f) / (2.0f * (float)M_PI); // Ks -> ks
-            colorAddScaled(result, tmpFloat, brdf->Ks, result);
+            result.addScaled(result, tmpFloat, brdf->Ks);
         }
     }
 
@@ -434,7 +434,7 @@ phongBtdfEval(
         if ( dotProduct > 0 ) {
             tmpFloat = (float)std::pow(dotProduct, btdf->Ns); // cos(a) ^ n
             tmpFloat *= (btdf->Ns + 2.0f) / (2.0f * (float)M_PI); // Ks -> ks
-            colorAddScaled(result, tmpFloat, btdf->Ks, result);
+            result.addScaled(result, tmpFloat, btdf->Ks);
         }
     }
 

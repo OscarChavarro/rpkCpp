@@ -85,7 +85,7 @@ mainPatchAccumulateStats(Patch *patch) {
     GLOBAL_statistics.totalArea += patch->area;
     power.scaledCopy(patch->area, E);
     GLOBAL_statistics.totalEmittedPower.add(GLOBAL_statistics.totalEmittedPower, power);
-    colorAddScaled(GLOBAL_statistics.averageReflectivity, patch->area, R, GLOBAL_statistics.averageReflectivity);
+    GLOBAL_statistics.averageReflectivity.addScaled(GLOBAL_statistics.averageReflectivity, patch->area, R);
     // Convert radiant exitance to exitant radiance
     E.scale(1.0f / (float) M_PI);
     colorMaximum(E, GLOBAL_statistics.maxSelfEmittedRadiance, GLOBAL_statistics.maxSelfEmittedRadiance);

@@ -267,7 +267,7 @@ monteCarloRadiosityInitClusterPull(StochasticRadiosityElement *parent, Stochasti
 
     // Needs division by parent->area once it is known after monteCarloRadiosityInitClusterPull for
     // all children elements
-    colorAddScaled(parent->Ed, child->area, child->Ed, parent->Ed);
+    parent->Ed.addScaled(parent->Ed, child->area, child->Ed);
 }
 
 static void
@@ -953,7 +953,7 @@ void
 stochasticRadiosityElementPullRadiance(StochasticRadiosityElement *parent, StochasticRadiosityElement *child, ColorRgb *parent_rad, ColorRgb *child_rad) {
     float areaFactor = child->area / parent->area;
     if ( parent->isCluster() || child->basis->size == 1 ) {
-        colorAddScaled(parent_rad[0], areaFactor, child_rad[0], parent_rad[0]);
+        parent_rad[0].addScaled(parent_rad[0], areaFactor, child_rad[0]);
     } else if ( regularChild(child) && child->basis == parent->basis ) {
         filterColorUp(child_rad, &(*child->basis->regular_filter)[child->childNumber],
                       parent_rad, child->basis->size, areaFactor);

@@ -380,15 +380,14 @@ hierarchicRefinementComputeLightTransport(
     } else {
         rcvRad = link->receiverElement->receivedRadiance;
         if ( link->numberOfBasisFunctionsOnReceiver == 1 && link->numberOfBasisFunctionsOnSource == 1 ) {
-            colorAddScaled(rcvRad[0], link->K[0], srcRad[0], rcvRad[0]);
+            rcvRad[0].addScaled(rcvRad[0], link->K[0], srcRad[0]);
         } else {
             for ( int alpha = 0; alpha < a; alpha++ ) {
                 for ( int beta = 0; beta < b; beta++ ) {
-                    colorAddScaled(
-                     rcvRad[alpha],
-                     link->K[alpha * link->numberOfBasisFunctionsOnSource + beta],
-                     srcRad[beta],
-                     rcvRad[alpha]);
+                    rcvRad[alpha].addScaled(
+                        rcvRad[alpha],
+                        link->K[alpha * link->numberOfBasisFunctionsOnSource + beta],
+                        srcRad[beta]);
                 }
             }
         }

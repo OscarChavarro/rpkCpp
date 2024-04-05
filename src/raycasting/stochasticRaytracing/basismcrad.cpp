@@ -159,7 +159,7 @@ colorAtUv(GalerkinBasis *basis, ColorRgb *rad, double u, double v) {
     res.clear();
     for ( i = 0; i < basis->size; i++ ) {
         double s = basis->function[i](u, v);
-        colorAddScaled(res, s, rad[i], res);
+        res.addScaled(res, s, rad[i]);
     }
     return res;
 }
@@ -170,19 +170,19 @@ the result to the destination coefficients
 */
 void
 filterColorDown(ColorRgb *parent, FILTER *h, ColorRgb *child, int n) {
-    for ( int b = 0; b < n; b++ ) {
-        for ( int a = 0; a < n; a++ ) {
-            colorAddScaled(child[b], (*h)[a][b], parent[a], child[b]);
+    for ( int i = 0; i < n; i++ ) {
+        for ( int j = 0; j < n; j++ ) {
+            child[i].addScaled(child[i], (*h)[j][i], parent[j]);
         }
     }
 }
 
 void
 filterColorUp(ColorRgb *child, FILTER *h, ColorRgb *parent, int n, double areaFactor) {
-    for ( int a = 0; a < n; a++ ) {
-        for ( int b = 0; b < n; b++ ) {
-            double H = (*h)[a][b] * areaFactor;
-            colorAddScaled(parent[a], H, child[b], parent[a]);
+    for ( int i = 0; i < n; i++ ) {
+        for ( int j = 0; j < n; j++ ) {
+            double H = (*h)[i][j] * areaFactor;
+            parent[i].addScaled(parent[i], H, child[j]);
         }
     }
 }

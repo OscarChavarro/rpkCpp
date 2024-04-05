@@ -453,7 +453,7 @@ stochasticRaytracerGetRadiance(
                           &(thisNode->m_inDirF),
                           edfFlags, nullptr);
 
-            colorAddScaled(result, (float)weight, col, result);
+            result.addScaled(result, (float) weight, col);
         }
     }
 

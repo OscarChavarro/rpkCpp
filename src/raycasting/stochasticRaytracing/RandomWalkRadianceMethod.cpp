@@ -202,7 +202,10 @@ randomWalkRadiosityShootingScore(PATH *path, long nr_paths, double (* /*birthPro
 
         for ( i = 0; i < getTopLevelPatchBasis(P)->size; i++ ) {
             double dual = getTopLevelPatchBasis(P)->dualFunction[i](uin, vin) / P->area;
-            colorAddScaled(getTopLevelPatchReceivedRad(P)[i], (float)(w * dual / (double) nr_paths), accumPow, getTopLevelPatchReceivedRad(P)[i]);
+            getTopLevelPatchReceivedRad(P)[i].addScaled(
+                getTopLevelPatchReceivedRad(P)[i],
+                (float) (w * dual / (double) nr_paths),
+                accumPow);
 
             if ( !GLOBAL_stochasticRaytracing_monteCarloRadiosityState.continuousRandomWalk ) {
                 double basf = getTopLevelPatchBasis(P)->function[i](uOut, vOut);
@@ -290,10 +293,10 @@ randomWalkRadiosityDetermineGatheringControlRadiosity(java::ArrayList<Patch *> *
 
         Ed = topLevelGalerkinElement(patch)->sourceRad;
         num.scalarProduct(absorb, Ed);
-        colorAddScaled(c1, patch->area, num, c1); // A_P (1-rho_P) E_P
+        c1.addScaled(c1, patch->area, num); // A_P (1-rho_P) E_P
 
         denominator.scalarProduct(absorb, absorb);
-        colorAddScaled(c2, patch->area, denominator, c2); // A_P (1-rho_P)^2
+        c2.addScaled(c2, patch->area, denominator); // A_P (1-rho_P)^2
     }
 
     colorDivide(c1, c2, cr);
@@ -332,7 +335,7 @@ randomWalkRadiosityCollisionGatheringScore(PATH *path, long /*nr_paths*/, double
 
         for ( i = 0; i < getTopLevelPatchBasis(P)->size; i++ ) {
             double dual = getTopLevelPatchBasis(P)->dualFunction[i](uOut, vOut); // = dual basis f * area
-            colorAddScaled(getTopLevelPatchReceivedRad(P)[i], (float)dual, accumRad, getTopLevelPatchReceivedRad(P)[i]);
+            getTopLevelPatchReceivedRad(P)[i].addScaled(getTopLevelPatchReceivedRad(P)[i], (float) dual, accumRad);
 
             if ( !GLOBAL_stochasticRaytracing_monteCarloRadiosityState.continuousRandomWalk ) {
                 double basf = getTopLevelPatchBasis(P)->function[i](uin, vin);

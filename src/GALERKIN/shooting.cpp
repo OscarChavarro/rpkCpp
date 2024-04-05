@@ -143,8 +143,7 @@ patchUpdateRadianceAndPotential(Patch *patch) {
     }
     basisGalerkinPushPullRadiance(topLevelElement);
 
-    colorAddScaled(GLOBAL_galerkin_state.ambient_radiance, patch->area, UN_SHOT_RADIANCE(patch),
-                   GLOBAL_galerkin_state.ambient_radiance);
+    GLOBAL_galerkin_state.ambient_radiance.addScaled(GLOBAL_galerkin_state.ambient_radiance, patch->area, UN_SHOT_RADIANCE(patch));
 }
 
 static void

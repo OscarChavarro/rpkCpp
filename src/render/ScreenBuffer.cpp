@@ -122,8 +122,7 @@ void
 ScreenBuffer::add(int x, int y, ColorRgb radiance) {
     int index = x + (m_cam.ySize - y - 1) * m_cam.xSize;
 
-    colorAddScaled(m_Radiance[index], m_AddFactor, radiance,
-                   m_Radiance[index]);
+    m_Radiance[index].addScaled(m_Radiance[index], m_AddFactor, radiance);
     m_Synced = false;
 }
 
