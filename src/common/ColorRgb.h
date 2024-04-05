@@ -10,7 +10,7 @@ Representation of radiance, radiosity, power, spectra
 class ColorRgb {
   public:
     float spectrum[3];
-    ColorRgb() : spectrum() {}
+    ColorRgb();
 
     inline void
     print(FILE *fp) {
@@ -21,10 +21,10 @@ class ColorRgb {
     void set(float v1, float v2, float v3);
     void setMonochrome(float v);
     bool isBlack() const;
-    void scaledCopy(float a, const ColorRgb c);
+    void scaledCopy(float a, ColorRgb c);
     void scale(float a);
-    void scalarProduct(const ColorRgb s, const ColorRgb t);
-    void selfScalarProduct(const ColorRgb s);
+    void scalarProduct(ColorRgb s, ColorRgb t);
+    void selfScalarProduct(ColorRgb s);
     void scalarProductScaled(ColorRgb s, float a, ColorRgb t);
     void add(ColorRgb s, ColorRgb t);
     void addScaled(ColorRgb s, float a, ColorRgb t);

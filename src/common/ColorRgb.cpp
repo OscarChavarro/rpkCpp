@@ -12,6 +12,11 @@ convertRGBToColor(RGB rgb, ColorRgb *col) {
     return col;
 }
 
+ColorRgb::ColorRgb():
+    spectrum()
+{
+}
+
 void
 ColorRgb::clear() {
     spectrum[0] = 0;
