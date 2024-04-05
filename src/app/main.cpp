@@ -124,9 +124,7 @@ mainComputeSomeSceneStats() {
     BP.scale(1.0 / (4.0 * (double) M_PI));
     GLOBAL_statistics.totalEmittedPower.add(GLOBAL_statistics.totalEmittedPower, BP);
     GLOBAL_statistics.estimatedAverageRadiance.add(GLOBAL_statistics.estimatedAverageRadiance, BP);
-
-    colorDivide(GLOBAL_statistics.estimatedAverageRadiance, averageAbsorption,
-                GLOBAL_statistics.estimatedAverageRadiance);
+    GLOBAL_statistics.estimatedAverageRadiance.divide(GLOBAL_statistics.estimatedAverageRadiance, averageAbsorption);
 
     GLOBAL_statistics.totalDirectPotential = 0.0;
     GLOBAL_statistics.maxDirectPotential = 0.0;

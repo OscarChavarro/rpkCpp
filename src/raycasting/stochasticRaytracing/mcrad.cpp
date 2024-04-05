@@ -555,7 +555,7 @@ monteCarloRadiosityGetRadiance(Patch *patch, double u, double v, Vector3D /*dir*
     StochasticRadiosityElement *leaf = stochasticRadiosityElementRegularLeafElementAtPoint(
             topLevelGalerkinElement(patch), &u, &v);
     ColorRgb UsedRdAtPoint = GLOBAL_render_renderOptions.smoothShading ? monteCarloRadiosityInterpolatedReflectanceAtPoint(leaf, u, v) : leaf->Rd;
-    ColorRgb rad = stochasticRadiosityElementDisplayRadianceAtPoint(leaf, u, v);
+    ColorRgb radianceAtPoint = stochasticRadiosityElementDisplayRadianceAtPoint(leaf, u, v);
     ColorRgb sourceRad;
     sourceRad.clear();
 
@@ -571,15 +571,15 @@ monteCarloRadiosityGetRadiance(Patch *patch, double u, double v, Vector3D /*dir*
             sourceRad.add(sourceRad, leaf->Ed);
         }
     }
-    rad.subtract(rad, sourceRad);
+    radianceAtPoint.subtract(radianceAtPoint, sourceRad);
 
-    rad.scalarProduct(rad, TrueRdAtPoint);
-    colorDivide(rad, UsedRdAtPoint, rad);
+    radianceAtPoint.scalarProduct(radianceAtPoint, TrueRdAtPoint);
+    radianceAtPoint.divide(radianceAtPoint, UsedRdAtPoint);
 
     // Re-add source radiance
-    rad.add(rad, sourceRad);
+    radianceAtPoint.add(radianceAtPoint, sourceRad);
 
-    return rad;
+    return radianceAtPoint;
 }
 
 /**

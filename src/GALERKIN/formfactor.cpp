@@ -330,7 +330,7 @@ doHigherOrderAreaToAreaFormFactor(
         for ( k = 0; k < crrcv->numberOfNodes; k++ ) {
             double delta;
 
-            colorDivide(deltarad[k], srcrad[0], deltarad[k]);
+            deltarad[k].divide(deltarad[k], srcrad[0]);
             if ((delta = std::fabs(colorMaximumComponent(deltarad[k]))) > link->deltaK[0] ) {
                 link->deltaK[0] = (float)delta;
             }

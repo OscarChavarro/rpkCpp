@@ -30,14 +30,8 @@ class ColorRgb {
     void addScaled(ColorRgb &s, float a, ColorRgb &t);
     void addConstant(ColorRgb &s, float a);
     void subtract(ColorRgb &s, ColorRgb & t);
+    void divide(ColorRgb &s, ColorRgb &t);
 };
-
-inline void
-colorDivide(ColorRgb &s, ColorRgb &t, ColorRgb &r) {
-    r.spectrum[0] = (t.spectrum[0] != 0.0) ? s.spectrum[0] / t.spectrum[0] : s.spectrum[0];
-    r.spectrum[1] = (t.spectrum[1] != 0.0) ? s.spectrum[1] / t.spectrum[1] : s.spectrum[1];
-    r.spectrum[2] = (t.spectrum[2] != 0.0) ? s.spectrum[2] / t.spectrum[2] : s.spectrum[2];
-}
 
 inline void
 colorScaleInverse(float scale, ColorRgb &s, ColorRgb &r) {

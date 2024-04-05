@@ -299,7 +299,7 @@ randomWalkRadiosityDetermineGatheringControlRadiosity(java::ArrayList<Patch *> *
         c2.addScaled(c2, patch->area, denominator); // A_P (1-rho_P)^2
     }
 
-    colorDivide(c1, c2, cr);
+    cr.divide(c1, c2);
     fprintf(stderr, "Control radiosity value = ");
     cr.print(stderr);
     fprintf(stderr, ", luminosity = %g\n", colorLuminance(cr));
