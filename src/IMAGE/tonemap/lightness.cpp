@@ -36,22 +36,24 @@ static ColorRgb lightnessScaleForComputations(ColorRgb radiance) {
     return radiance;
 }
 
-static ColorRgb lightnessScaleForDisplay(ColorRgb radiance) {
-    float max, scale_factor;
+static ColorRgb
+lightnessScaleForDisplay(ColorRgb radiance) {
+    float max;
+    float scaleFactor;
 
-    max = colorMaximumComponent(radiance);
+    max = radiance.maximumComponent();
     if ( max < 1e-32 ) {
         return radiance;
     }
 
     // Multiply by WHITE EFFICACY to convert W/m^2sr to nits
     // (reference luminance is also in nits)
-    scale_factor = Lightness(WHITE_EFFICACY * max);
-    if ( scale_factor == 0.0 ) {
+    scaleFactor = Lightness(WHITE_EFFICACY * max);
+    if ( scaleFactor == 0.0 ) {
         return radiance;
     }
 
-    radiance.scale(scale_factor / max);
+    radiance.scale(scaleFactor / max);
     return radiance;
 }
 

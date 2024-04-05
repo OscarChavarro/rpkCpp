@@ -294,7 +294,7 @@ determineControlRadiosity(
 
     delta.subtract(fMax, fMin);
     delta.addScaled(delta, (-eps), fMin);
-    while ( (colorMaximumComponent(delta) > 0.0) || sweep < 4 ) {
+    while ( (delta.maximumComponent() > 0.0) || sweep < 4 ) {
         sweep++;
         refineControlRadiosity(&minRad, &maxRad, &fMin, &fMax, scenePatches);
         delta.subtract(fMax, fMin);

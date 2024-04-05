@@ -141,8 +141,8 @@ LowPowerLink(
         rhosrcrad.selfScalarProduct(Rd);
     }
 
-    threshold = GLOBAL_stochasticRaytracing_hierarchy.epsilon * colorMaximumComponent(statistics->maxSelfEmittedPower);
-    propagated_power = rcv->area * ff * colorMaximumComponent(rhosrcrad);
+    threshold = GLOBAL_stochasticRaytracing_hierarchy.epsilon * statistics->maxSelfEmittedPower.maximumComponent();
+    propagated_power = rcv->area * ff * rhosrcrad.maximumComponent();
     if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceDriven ) {
         propagated_power *= rcv->importance;
         if ( !rcv->isCluster() ) {

@@ -331,7 +331,7 @@ doHigherOrderAreaToAreaFormFactor(
             double delta;
 
             deltarad[k].divide(deltarad[k], srcrad[0]);
-            if ((delta = std::fabs(colorMaximumComponent(deltarad[k]))) > link->deltaK[0] ) {
+            if ((delta = std::fabs(deltarad[k].maximumComponent())) > link->deltaK[0] ) {
                 link->deltaK[0] = (float)delta;
             }
         }

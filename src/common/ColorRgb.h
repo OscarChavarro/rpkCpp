@@ -32,12 +32,8 @@ class ColorRgb {
     void subtract(ColorRgb &s, ColorRgb & t);
     void divide(ColorRgb &s, ColorRgb &t);
     void scaleInverse(float scale, ColorRgb &s);
+    float maximumComponent() const;
 };
-
-inline float
-colorMaximumComponent(ColorRgb &s) {
-    return (s.spectrum[0] > s.spectrum[1] ? (s.spectrum[0] > s.spectrum[2] ? s.spectrum[0] : s.spectrum[2]) : (s.spectrum[1] > s.spectrum[2] ? s.spectrum[1] : s.spectrum[2]));
-}
 
 inline float
 colorSumAbsComponents(ColorRgb &s) {

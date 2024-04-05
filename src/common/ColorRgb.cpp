@@ -117,3 +117,8 @@ ColorRgb::scaleInverse(float scale, ColorRgb &s) {
     spectrum[1] = a * s.spectrum[1];
     spectrum[2] = a * s.spectrum[2];
 }
+
+float
+ColorRgb::maximumComponent() const {
+    return (spectrum[0] > spectrum[1] ? (spectrum[0] > spectrum[2] ? spectrum[0] : spectrum[2]) : (spectrum[1] > spectrum[2] ? spectrum[1] : spectrum[2]));
+}

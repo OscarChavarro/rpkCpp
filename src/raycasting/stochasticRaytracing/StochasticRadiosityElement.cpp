@@ -625,7 +625,7 @@ stochasticRadiosityElementScalarReflectance(StochasticRadiosityElement *elem) {
         return 1.0;
     }
 
-    rd = colorMaximumComponent(elem->Rd);
+    rd = elem->Rd.maximumComponent();
     if ( rd < EPSILON ) {
         // Avoid divisions by zero
         rd = EPSILON;
