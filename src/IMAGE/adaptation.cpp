@@ -49,7 +49,7 @@ adaptationLumAreaComp(const void *la1, const void *la2) {
 static float
 patchBrightnessEstimate(Patch *patch) {
     ColorRgb radiance = PatchRadianceEstimate(patch);
-    float brightness = colorLuminance(radiance);
+    float brightness = radiance.luminance();
     if ( brightness < EPSILON ) {
         brightness = EPSILON;
     }

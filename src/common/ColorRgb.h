@@ -39,12 +39,8 @@ class ColorRgb {
     void minimum(ColorRgb &s, ColorRgb &t);
     float average() const;
     float gray() const;
+    float luminance() const;
 };
-
-inline float
-colorLuminance(ColorRgb &s) {
-    return spectrumLuminance(s.spectrum[0], s.spectrum[1], s.spectrum[2]);
-}
 
 inline void
 colorInterpolateBarycentric(ColorRgb &c0, ColorRgb &c1, ColorRgb &c2, float u, float v, ColorRgb &r) {

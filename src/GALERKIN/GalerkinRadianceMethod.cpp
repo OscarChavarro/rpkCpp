@@ -464,9 +464,9 @@ GalerkinRadianceMethod::getStats() {
     snprintf(p, STRING_LENGTH, "Link error threshold: %g %s\n\n%n",
             (double) (GLOBAL_galerkin_state.errorNorm == RADIANCE_ERROR ?
                       M_PI * (GLOBAL_galerkin_state.relLinkErrorThreshold *
-                              colorLuminance(GLOBAL_statistics.maxSelfEmittedRadiance)) :
+                              GLOBAL_statistics.maxSelfEmittedRadiance.luminance()) :
                       GLOBAL_galerkin_state.relLinkErrorThreshold *
-                      colorLuminance(GLOBAL_statistics.maxSelfEmittedPower)),
+                              GLOBAL_statistics.maxSelfEmittedPower.luminance()),
             (GLOBAL_galerkin_state.errorNorm == RADIANCE_ERROR ? "lux" : "lumen"),
             &n);
 

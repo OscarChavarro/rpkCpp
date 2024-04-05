@@ -158,3 +158,8 @@ float
 ColorRgb::gray() const {
     return spectrumGray(spectrum[0], spectrum[1], spectrum[2]);
 }
+
+float
+ColorRgb::luminance() const {
+    return spectrumLuminance(spectrum[0], spectrum[1], spectrum[2]);
+}

@@ -167,7 +167,7 @@ trwfScaleForComputations(ColorRgb radiance) {
     float rwl;
     float scale;
 
-    rwl = colorLuminance(radiance);
+    rwl = radiance.luminance();
 
     if ( rwl > 0.0 ) {
         float m = tmoLambertCandela(
@@ -187,7 +187,7 @@ trwfScaleForDisplay(ColorRgb radiance) {
     float scale;
     float eff;
 
-    rwl = M_PI * colorLuminance(radiance);
+    rwl = M_PI * radiance.luminance();
 
     getLuminousEfficacy(&eff);
     radiance.scale(eff * (float) M_PI);
@@ -248,7 +248,7 @@ revisedTRScaleForComputations(ColorRgb radiance) {
     float rwl;
     float scale;
 
-    rwl = colorLuminance(radiance);
+    rwl = radiance.luminance();
 
     if ( rwl > 0.0 ) {
         scale = r_comp * std::pow(rwl / _lwa, g) / rwl;
@@ -266,7 +266,7 @@ revisedTRScaleForDisplay(ColorRgb radiance) {
     float scale;
     float eff;
 
-    rwl = M_PI * colorLuminance(radiance);
+    rwl = M_PI * radiance.luminance();
 
     getLuminousEfficacy(&eff);
     radiance.scale(eff * (float)M_PI);

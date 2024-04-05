@@ -303,7 +303,7 @@ randomWalkRadiosityDetermineGatheringControlRadiosity(java::ArrayList<Patch *> *
     cr.divide(c1, c2);
     fprintf(stderr, "Control radiosity value = ");
     cr.print(stderr);
-    fprintf(stderr, ", luminosity = %g\n", colorLuminance(cr));
+    fprintf(stderr, ", luminosity = %g\n", cr.luminance());
 
     return cr;
 }

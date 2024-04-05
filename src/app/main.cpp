@@ -470,7 +470,7 @@ mainReadFile(char *filename, MgfContext *context) {
     GLOBAL_statistics.numberOfPatches = GLOBAL_statistics.numberOfElements;
     mainComputeSomeSceneStats();
     GLOBAL_statistics.referenceLuminance = 5.42 * ((1.0 - GLOBAL_statistics.averageReflectivity.gray()) *
-                                                   colorLuminance(GLOBAL_statistics.estimatedAverageRadiance));
+            GLOBAL_statistics.estimatedAverageRadiance.luminance());
 
     t = clock();
     fprintf(stderr, "%g secs.\n", (float) (t - last) / (float) CLOCKS_PER_SEC);
