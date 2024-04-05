@@ -41,7 +41,7 @@ ColorRgb::isBlack() const {
 }
 
 void
-ColorRgb::scaledCopy(float a, const ColorRgb &c) {
+ColorRgb::scaledCopy(float a, const ColorRgb c) {
     spectrum[0] = a * c.spectrum[0];
     spectrum[1] = a * c.spectrum[1];
     spectrum[2] = a * c.spectrum[2];
@@ -55,63 +55,63 @@ ColorRgb::scale(float a) {
 }
 
 void
-ColorRgb::scalarProduct(const ColorRgb &s, const ColorRgb &t) {
+ColorRgb::scalarProduct(const ColorRgb s, const ColorRgb t) {
     spectrum[0] = s.spectrum[0] * t.spectrum[0];
     spectrum[1] = s.spectrum[1] * t.spectrum[1];
     spectrum[2] = s.spectrum[2] * t.spectrum[2];
 }
 
 void
-ColorRgb::selfScalarProduct(const ColorRgb &s) {
+ColorRgb::selfScalarProduct(const ColorRgb s) {
     spectrum[0] *= s.spectrum[0];
     spectrum[1] *= s.spectrum[1];
     spectrum[2] *= s.spectrum[2];
 }
 
 void
-ColorRgb::scalarProductScaled(ColorRgb &s, float a, ColorRgb &t) {
+ColorRgb::scalarProductScaled(ColorRgb s, float a, ColorRgb t) {
     spectrum[0] = s.spectrum[0] * a * t.spectrum[0];
     spectrum[1] = s.spectrum[1] * a * t.spectrum[1];
     spectrum[2] = s.spectrum[2] * a * t.spectrum[2];
 }
 
 void
-ColorRgb::add(ColorRgb &s, ColorRgb &t) {
+ColorRgb::add(ColorRgb s, ColorRgb t) {
     spectrum[0] = s.spectrum[0] + t.spectrum[0];
     spectrum[1] = s.spectrum[1] + t.spectrum[1];
     spectrum[2] = s.spectrum[2] + t.spectrum[2];
 }
 
 void
-ColorRgb::addScaled(ColorRgb &s, float a, ColorRgb &t) {
+ColorRgb::addScaled(ColorRgb s, float a, ColorRgb t) {
     spectrum[0] = s.spectrum[0] + a * t.spectrum[0];
     spectrum[1] = s.spectrum[1] + a * t.spectrum[1];
     spectrum[2] = s.spectrum[2] + a * t.spectrum[2];
 }
 
 void
-ColorRgb::addConstant(ColorRgb &s, float a) {
+ColorRgb::addConstant(ColorRgb s, float a) {
     spectrum[0] = s.spectrum[0] + a;
     spectrum[1] = s.spectrum[1] + a;
     spectrum[2] = s.spectrum[2] + a;
 }
 
 void
-ColorRgb::subtract(ColorRgb &s, ColorRgb & t) {
+ColorRgb::subtract(ColorRgb s, ColorRgb  t) {
     spectrum[0] = s.spectrum[0] - t.spectrum[0];
     spectrum[1] = s.spectrum[1] - t.spectrum[1];
     spectrum[2] = s.spectrum[2] - t.spectrum[2];
 }
 
 void
-ColorRgb::divide(ColorRgb &s, ColorRgb &t) {
+ColorRgb::divide(ColorRgb s, ColorRgb t) {
     spectrum[0] = (t.spectrum[0] != 0.0) ? s.spectrum[0] / t.spectrum[0] : s.spectrum[0];
     spectrum[1] = (t.spectrum[1] != 0.0) ? s.spectrum[1] / t.spectrum[1] : s.spectrum[1];
     spectrum[2] = (t.spectrum[2] != 0.0) ? s.spectrum[2] / t.spectrum[2] : s.spectrum[2];
 }
 
 void
-ColorRgb::scaleInverse(float scale, ColorRgb &s) {
+ColorRgb::scaleInverse(float scale, ColorRgb s) {
     float a = (scale != 0.0f) ? 1.0f / scale : 1.0f;
     spectrum[0] = a * s.spectrum[0];
     spectrum[1] = a * s.spectrum[1];
@@ -136,14 +136,14 @@ ColorRgb::abs() {
 }
 
 void
-ColorRgb::maximum(ColorRgb &s, ColorRgb &t) {
+ColorRgb::maximum(ColorRgb s, ColorRgb t) {
     spectrum[0] = s.spectrum[0] > t.spectrum[0] ? s.spectrum[0] : t.spectrum[0];
     spectrum[1] = s.spectrum[1] > t.spectrum[1] ? s.spectrum[1] : t.spectrum[1];
     spectrum[2] = s.spectrum[2] > t.spectrum[2] ? s.spectrum[2] : t.spectrum[2];
 }
 
 void
-ColorRgb::minimum(ColorRgb &s, ColorRgb &t) {
+ColorRgb::minimum(ColorRgb s, ColorRgb t) {
     spectrum[0] = s.spectrum[0] < t.spectrum[0] ? s.spectrum[0] : t.spectrum[0];
     spectrum[1] = s.spectrum[1] < t.spectrum[1] ? s.spectrum[1] : t.spectrum[1];
     spectrum[2] = s.spectrum[2] < t.spectrum[2] ? s.spectrum[2] : t.spectrum[2];
@@ -165,14 +165,14 @@ ColorRgb::luminance() const {
 }
 
 void
-ColorRgb::interpolateBarycentric(ColorRgb &c0, ColorRgb &c1, ColorRgb &c2, float u, float v) {
+ColorRgb::interpolateBarycentric(ColorRgb c0, ColorRgb c1, ColorRgb c2, float u, float v) {
     spectrum[0] = c0.spectrum[0] + u * (c1.spectrum[0] - c0.spectrum[0]) + v * (c2.spectrum[0] - c0.spectrum[0]);
     spectrum[1] = c0.spectrum[1] + u * (c1.spectrum[1] - c0.spectrum[1]) + v * (c2.spectrum[1] - c0.spectrum[1]);
     spectrum[2] = c0.spectrum[2] + u * (c1.spectrum[2] - c0.spectrum[2]) + v * (c2.spectrum[2] - c0.spectrum[2]);
 }
 
 void
-ColorRgb::interpolateBiLinear(ColorRgb &c0, ColorRgb &c1, ColorRgb &c2, ColorRgb &c3, float u, float v) {
+ColorRgb::interpolateBiLinear(ColorRgb c0, ColorRgb c1, ColorRgb c2, ColorRgb c3, float u, float v) {
     float c = u * v;
     float b = u - c;
     float d = v - c;
