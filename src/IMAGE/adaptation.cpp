@@ -27,7 +27,7 @@ initRadianceEstimate(Patch *patch) {
     ColorRgb R = patch->averageNormalAlbedo(BSDF_ALL_COMPONENTS);
     ColorRgb radiance;
 
-    colorProduct(R, GLOBAL_statistics.estimatedAverageRadiance, radiance);
+    radiance.scalarProduct(R, GLOBAL_statistics.estimatedAverageRadiance);
     colorAddScaled(radiance, (1.0 / M_PI), E, radiance);
     return radiance;
 }

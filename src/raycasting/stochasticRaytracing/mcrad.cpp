@@ -575,7 +575,7 @@ monteCarloRadiosityGetRadiance(Patch *patch, double u, double v, Vector3D /*dir*
     }
     colorSubtract(rad, source_rad, rad);
 
-    colorProduct(rad, TrueRdAtPoint, rad);
+    rad.scalarProduct(rad, TrueRdAtPoint);
     colorDivide(rad, UsedRdAtPoint, rad);
 
     // Re-add source radiance

@@ -21,16 +21,11 @@ class ColorRgb {
     void set(float v1, float v2, float v3);
     void setMonochrome(float v);
     bool isBlack() const;
-    void scaledCopy(const float a, const ColorRgb &c);
-    void scale(const float a);
+    void scaledCopy(float a, const ColorRgb &c);
+    void scale(float a);
+    void scalarProduct(const ColorRgb &s, const ColorRgb &t);
+    void selfScalarProduct(const ColorRgb &s);
 };
-
-inline void
-colorProduct(ColorRgb &s, ColorRgb &t, ColorRgb &r) {
-    r.spectrum[0] = s.spectrum[0] * t.spectrum[0];
-    r.spectrum[1] = s.spectrum[1] * t.spectrum[1];
-    r.spectrum[2] = s.spectrum[2] * t.spectrum[2];
-}
 
 inline void
 colorProductScaled(ColorRgb &s, float a, ColorRgb &t, ColorRgb &r) {

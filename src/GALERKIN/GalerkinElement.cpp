@@ -580,7 +580,7 @@ GalerkinElement::draw(int mode) {
 
         if ( GLOBAL_galerkin_state.use_ambient_radiance ) {
             ColorRgb rad_vis;
-            colorProduct(rho, GLOBAL_galerkin_state.ambient_radiance, rad_vis);
+            rad_vis.scalarProduct(rho, GLOBAL_galerkin_state.ambient_radiance);
             colorAdd(rad_vis, radiance[0], rad_vis);
             radianceToRgb(rad_vis, &color);
         } else {
@@ -608,7 +608,7 @@ GalerkinElement::draw(int mode) {
             ColorRgb reflectivity = patch->radianceData->Rd;
             ColorRgb ambient;
 
-            colorProduct(reflectivity, GLOBAL_galerkin_state.ambient_radiance, ambient);
+            ambient.scalarProduct(reflectivity, GLOBAL_galerkin_state.ambient_radiance);
             for ( i = 0; i < numberOfVertices; i++ ) {
                 colorAdd(vertRadiosity[i], ambient, vertRadiosity[i]);
             }

@@ -138,7 +138,7 @@ LowPowerLink(
     rhosrcrad.scaledCopy(M_PI, src->radiance[0]);
     if ( !rcv->isCluster() ) {
         ColorRgb Rd = topLevelGalerkinElement(rcv->patch)->Rd;
-        colorProduct(Rd, rhosrcrad, rhosrcrad);
+        rhosrcrad.selfScalarProduct(Rd);
     }
 
     threshold = GLOBAL_stochasticRaytracing_hierarchy.epsilon * colorMaximumComponent(statistics->maxSelfEmittedPower);

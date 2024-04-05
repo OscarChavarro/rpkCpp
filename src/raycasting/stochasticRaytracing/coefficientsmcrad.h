@@ -50,7 +50,7 @@ stochasticRadiosityMultiplyCoefficients(ColorRgb &color, ColorRgb *coefficients,
     ColorRgb c = color;
 
     for ( i = 0, d = coefficients; i < galerkinBasis->size; i++, d++) {
-        colorProduct(c, *d, *d);
+        d->selfScalarProduct(c);
     }
 }
 

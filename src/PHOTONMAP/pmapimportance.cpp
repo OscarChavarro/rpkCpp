@@ -99,7 +99,7 @@ TracePotentialPath(PhotonMapConfig *config) {
         }
 
         // Adjust importance
-        colorProduct(prev->m_bsdfEval, accImportance, accImportance);
+        accImportance.selfScalarProduct(prev->m_bsdfEval);
         factor = (float)(node->m_G / node->m_pdfFromPrev);
         accImportance.scale(factor);
 

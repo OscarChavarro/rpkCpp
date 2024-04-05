@@ -687,7 +687,7 @@ stochasticJacobiPush(StochasticRadiosityElement *parent, StochasticRadiosityElem
             // Multiply with reflectance (See PropagateRadianceToClusterIsotropic() above)
             ColorRgb rad = parent->receivedRadiance[0];
             Rd = child->Rd;
-            colorProduct(Rd, rad, rad);
+            rad.selfScalarProduct(Rd);
             stochasticRadiosityElementPushRadiance(parent, child, &rad, child->receivedRadiance);
         } else
             stochasticRadiosityElementPushRadiance(parent, child, parent->receivedRadiance, child->receivedRadiance);

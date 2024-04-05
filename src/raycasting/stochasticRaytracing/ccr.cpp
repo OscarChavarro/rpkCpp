@@ -151,7 +151,7 @@ refineControlRadiosityRecursive(
         }
         for ( int i = 0; i <= NUMBER_OF_INTERVALS; i++ ) {
             ColorRgb t;
-            colorProduct(s, rad[i], t);
+            t.scalarProduct(s, rad[i]);
             colorSubtract(B, t, t);
             colorAbs(t, t);
             colorAddScaled(f[i], weightedArea, t, f[i]);

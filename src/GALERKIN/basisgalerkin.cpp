@@ -79,7 +79,7 @@ basisGalerkinPushPullRadianceRecursive(GalerkinElement *element, ColorRgb *Bdown
         // Leaf-element, multiply with reflectivity at the lowest level
         ColorRgb rho = element->patch->radianceData->Rd;
         for ( int i = 0; i < element->basisSize; i++ ) {
-            colorProduct(rho, Bdown[i], Bup[i]);
+            Bup[i].scalarProduct(rho, Bdown[i]);
         }
 
         if ( GLOBAL_galerkin_state.iteration_method == JACOBI || GLOBAL_galerkin_state.iteration_method == GAUSS_SEIDEL ) {

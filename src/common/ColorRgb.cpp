@@ -41,15 +41,29 @@ ColorRgb::isBlack() const {
 }
 
 void
-ColorRgb::scaledCopy(const float a, const ColorRgb &c) {
+ColorRgb::scaledCopy(float a, const ColorRgb &c) {
     spectrum[0] = a * c.spectrum[0];
     spectrum[1] = a * c.spectrum[1];
     spectrum[2] = a * c.spectrum[2];
 }
 
 void
-ColorRgb::scale(const float a) {
+ColorRgb::scale(float a) {
     spectrum[0] *= a;
     spectrum[1] *= a;
     spectrum[2] *= a;
+}
+
+void
+ColorRgb::scalarProduct(const ColorRgb &s, const ColorRgb &t) {
+    spectrum[0] = s.spectrum[0] * t.spectrum[0];
+    spectrum[1] = s.spectrum[1] * t.spectrum[1];
+    spectrum[2] = s.spectrum[2] * t.spectrum[2];
+}
+
+void
+ColorRgb::selfScalarProduct(const ColorRgb &s) {
+    spectrum[0] *= s.spectrum[0];
+    spectrum[1] *= s.spectrum[1];
+    spectrum[2] *= s.spectrum[2];
 }

@@ -136,7 +136,7 @@ FlagChain::compute(CBiPath *path) const {
 
     for ( int i = 0; i < lightSize; i++ ) {
         tmpCol = node->m_bsdfComp.Sum(chain[i]);
-        colorProduct(tmpCol, result, result);
+        result.selfScalarProduct(tmpCol);
         node = node->next();
     }
 
@@ -144,7 +144,7 @@ FlagChain::compute(CBiPath *path) const {
 
     for ( int i = 0; i < eyeSize; i++ ) {
         tmpCol = node->m_bsdfComp.Sum(chain[length - 1 - i]);
-        colorProduct(tmpCol, result, result);
+        result.selfScalarProduct(tmpCol);
         node = node->next();
     }
 

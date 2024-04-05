@@ -407,7 +407,7 @@ photonMapHandlePath(PhotonMapConfig *config, RadianceMethod *context) {
         // Account for bsdf, node that for the first node, this accounts
         // for the emitted radiance.
         if ( !(currentNode->ends()) ) {
-            colorProduct(currentNode->m_bsdfEval, accPower, accPower);
+            accPower.selfScalarProduct(currentNode->m_bsdfEval);
 
             currentNode = currentNode->next();
             bp->m_lightSize++;

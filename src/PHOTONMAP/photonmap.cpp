@@ -333,11 +333,11 @@ CPhotonMap::IrradianceReconstruct(
         //float factor = 1.0 / (M_PI * m_totalPaths);
         //colorProductScaled(photon->m_irradiance, factor, diffuseAlbedo, *result);
 
-        colorProduct(photon->m_irradiance, diffuseAlbedo, *result);
+        result->scalarProduct(photon->m_irradiance, diffuseAlbedo);
 
         // COLOR eval = BsdfEval(bsdf, hit, inBsdf, outBsdf, &outDir,
         // &hit->normal, BRDF_DIFFUSE_COMPONENT);
-        // colorProduct(photon->m_irradiance, eval, *result);
+        // scalarProduct(photon->m_irradiance, eval, *result);
         return true;
     } else {
         // No appropriate photon found
@@ -402,7 +402,7 @@ CPhotonMap::Reconstruct(RayHit *hit, Vector3D &outDir,
                         BSDF_DIFFUSE_COMPONENT | BSDF_GLOSSY_COMPONENT);
         power = m_photons[i]->Power();
 
-        colorProduct(eval, power, col);
+        col.scalarProduct(eval, power);
         colorAdd(result, col, result);
     }
 

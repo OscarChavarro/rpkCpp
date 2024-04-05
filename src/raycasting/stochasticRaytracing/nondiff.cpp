@@ -105,7 +105,7 @@ sampleLight(LightSourceTable *light, double light_selection_pdf) {
         ColorRgb receivedRadiosity;
         ColorRgb Rd = topLevelGalerkinElement(hit->patch)->Rd;
         receivedRadiosity.scaledCopy((float) (outCos / (M_PI * hit->patch->area * pdf * globalNumberOfSamples)), rad);
-        colorProduct(Rd, receivedRadiosity, receivedRadiosity);
+        receivedRadiosity.selfScalarProduct(Rd);
         colorAdd(getTopLevelPatchRad(hit->patch)[0], receivedRadiosity, getTopLevelPatchRad(hit->patch)[0]);
         colorAdd(getTopLevelPatchUnShotRad(hit->patch)[0], receivedRadiosity, getTopLevelPatchUnShotRad(hit->patch)[0]);
         colorAdd(topLevelGalerkinElement(hit->patch)->sourceRad, receivedRadiosity, topLevelGalerkinElement(hit->patch)->sourceRad);
