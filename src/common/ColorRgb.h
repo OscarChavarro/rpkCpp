@@ -40,25 +40,9 @@ class ColorRgb {
     float average() const;
     float gray() const;
     float luminance() const;
+    void interpolateBarycentric(ColorRgb &c0, ColorRgb &c1, ColorRgb &c2, float u, float v);
+    void interpolateBiLinear(ColorRgb &c0, ColorRgb &c1, ColorRgb &c2, ColorRgb &c3, float u, float v);
 };
-
-inline void
-colorInterpolateBarycentric(ColorRgb &c0, ColorRgb &c1, ColorRgb &c2, float u, float v, ColorRgb &r) {
-    r.spectrum[0] = c0.spectrum[0] + u * (c1.spectrum[0] - c0.spectrum[0]) + v * (c2.spectrum[0] - c0.spectrum[0]);
-    r.spectrum[1] = c0.spectrum[1] + u * (c1.spectrum[1] - c0.spectrum[1]) + v * (c2.spectrum[1] - c0.spectrum[1]);
-    r.spectrum[2] = c0.spectrum[2] + u * (c1.spectrum[2] - c0.spectrum[2]) + v * (c2.spectrum[2] - c0.spectrum[2]);
-}
-
-inline void
-colorInterpolateBiLinear(ColorRgb &c0, ColorRgb &c1, ColorRgb &c2, ColorRgb &c3, float u, float v, ColorRgb &r) {
-    float c = u * v;
-    float b = u - c;
-    float d = v - c;
-
-    r.spectrum[0] = c0.spectrum[0] + b * (c1.spectrum[0] - c0.spectrum[0]) + c * (c2.spectrum[0] - c0.spectrum[0]) + d * (c3.spectrum[0] - c0.spectrum[0]);
-    r.spectrum[1] = c0.spectrum[1] + b * (c1.spectrum[1] - c0.spectrum[1]) + c * (c2.spectrum[1] - c0.spectrum[1]) + d * (c3.spectrum[1] - c0.spectrum[1]);
-    r.spectrum[2] = c0.spectrum[2] + b * (c1.spectrum[2] - c0.spectrum[2]) + c * (c2.spectrum[2] - c0.spectrum[2]) + d * (c3.spectrum[2] - c0.spectrum[2]);
-}
 
 extern RGB *convertColorToRGB(ColorRgb col, RGB *rgb);
 extern ColorRgb *convertRGBToColor(RGB rgb, ColorRgb *col);

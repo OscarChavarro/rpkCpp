@@ -483,10 +483,10 @@ stochasticRadiosityElementDisplayRadianceAtPoint(StochasticRadiosityElement *ele
             }
             switch ( elem->numberOfVertices ) {
                 case 3:
-                    colorInterpolateBarycentric(rad[0], rad[1], rad[2], (float)u, (float)v, radiance);
+                    radiance.interpolateBarycentric(rad[0], rad[1], rad[2], (float) u, (float) v);
                     break;
                 case 4:
-                    colorInterpolateBiLinear(rad[0], rad[1], rad[2], rad[3], (float) u, (float) v, radiance);
+                    radiance.interpolateBiLinear(rad[0], rad[1], rad[2], rad[3], (float) u, (float) v);
                     break;
                 default:
                     logFatal(-1, "stochasticRadiosityElementDisplayRadianceAtPoint",

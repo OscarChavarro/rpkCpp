@@ -163,3 +163,21 @@ float
 ColorRgb::luminance() const {
     return spectrumLuminance(spectrum[0], spectrum[1], spectrum[2]);
 }
+
+void
+ColorRgb::interpolateBarycentric(ColorRgb &c0, ColorRgb &c1, ColorRgb &c2, float u, float v) {
+    spectrum[0] = c0.spectrum[0] + u * (c1.spectrum[0] - c0.spectrum[0]) + v * (c2.spectrum[0] - c0.spectrum[0]);
+    spectrum[1] = c0.spectrum[1] + u * (c1.spectrum[1] - c0.spectrum[1]) + v * (c2.spectrum[1] - c0.spectrum[1]);
+    spectrum[2] = c0.spectrum[2] + u * (c1.spectrum[2] - c0.spectrum[2]) + v * (c2.spectrum[2] - c0.spectrum[2]);
+}
+
+void
+ColorRgb::interpolateBiLinear(ColorRgb &c0, ColorRgb &c1, ColorRgb &c2, ColorRgb &c3, float u, float v) {
+    float c = u * v;
+    float b = u - c;
+    float d = v - c;
+
+    spectrum[0] = c0.spectrum[0] + b * (c1.spectrum[0] - c0.spectrum[0]) + c * (c2.spectrum[0] - c0.spectrum[0]) + d * (c3.spectrum[0] - c0.spectrum[0]);
+    spectrum[1] = c0.spectrum[1] + b * (c1.spectrum[1] - c0.spectrum[1]) + c * (c2.spectrum[1] - c0.spectrum[1]) + d * (c3.spectrum[1] - c0.spectrum[1]);
+    spectrum[2] = c0.spectrum[2] + b * (c1.spectrum[2] - c0.spectrum[2]) + c * (c2.spectrum[2] - c0.spectrum[2]) + d * (c3.spectrum[2] - c0.spectrum[2]);
+}

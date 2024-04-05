@@ -534,10 +534,10 @@ monteCarloRadiosityInterpolatedReflectanceAtPoint(StochasticRadiosityElement *le
     rd.clear();
     switch ( leaf->numberOfVertices ) {
         case 3:
-            colorInterpolateBarycentric(vrd[0], vrd[1], vrd[2], (float)u, (float)v, rd);
+            rd.interpolateBarycentric(vrd[0], vrd[1], vrd[2], (float)u, (float)v);
             break;
         case 4:
-            colorInterpolateBiLinear(vrd[0], vrd[1], vrd[2], vrd[3], (float) u, (float) v, rd);
+            rd.interpolateBiLinear(vrd[0], vrd[1], vrd[2], vrd[3], (float) u, (float) v);
             break;
         default:
             logFatal(-1, "monteCarloRadiosityInterpolatedReflectanceAtPoint", "Invalid nr of vertices %d", leaf->numberOfVertices);

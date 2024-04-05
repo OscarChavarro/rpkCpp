@@ -153,7 +153,7 @@ ColorRgb
 ScreenBuffer::getBiLinear(float x, float y) {
     int nx0, nx1, ny0, ny1;
     Vector2D center;
-    ColorRgb col{};
+    ColorRgb color{};
 
     getPixel(x, y, &nx0, &ny0);
     center = getPixelCenter(nx0, ny0);
@@ -184,9 +184,9 @@ ScreenBuffer::getBiLinear(float x, float y) {
     ColorRgb c2 = get(nx1, ny1); // u = 1, v = 1
     ColorRgb c3 = get(nx0, ny1); // v = 1
 
-    colorInterpolateBiLinear(c0, c1, c2, c3, x, y, col);
+    color.interpolateBiLinear(c0, c1, c2, c3, x, y);
 
-    return col;
+    return color;
 }
 
 void
