@@ -305,8 +305,7 @@ patchInit(Patch *patch) {
         RADIANCE(patch).scalarProduct(reflectivity, GLOBAL_galerkin_state.constant_radiance);
         RADIANCE(patch).add(RADIANCE(patch), selfEmittanceRadiance);
         if ( GLOBAL_galerkin_state.iteration_method == SOUTH_WELL )
-            colorSubtract(RADIANCE(patch), GLOBAL_galerkin_state.constant_radiance,
-                          UN_SHOT_RADIANCE(patch));
+            UN_SHOT_RADIANCE(patch).subtract(RADIANCE(patch), GLOBAL_galerkin_state.constant_radiance);
     } else {
         RADIANCE(patch) = selfEmittanceRadiance;
         if ( GLOBAL_galerkin_state.iteration_method == SOUTH_WELL )

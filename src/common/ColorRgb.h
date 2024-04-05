@@ -29,14 +29,8 @@ class ColorRgb {
     void add(ColorRgb &s, ColorRgb &t);
     void addScaled(ColorRgb &s, float a, ColorRgb &t);
     void addConstant(ColorRgb &s, float a);
+    void subtract(ColorRgb &s, ColorRgb & t);
 };
-
-inline void
-colorSubtract(ColorRgb &s, ColorRgb & t, ColorRgb &r) {
-    r.spectrum[0] = s.spectrum[0] - t.spectrum[0];
-    r.spectrum[1] = s.spectrum[1] - t.spectrum[1];
-    r.spectrum[2] = s.spectrum[2] - t.spectrum[2];
-}
 
 inline void
 colorDivide(ColorRgb &s, ColorRgb &t, ColorRgb &r) {

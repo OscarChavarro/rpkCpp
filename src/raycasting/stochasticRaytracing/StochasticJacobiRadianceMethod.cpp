@@ -328,7 +328,7 @@ stochasticRelaxationRadiosityElementUpdateRadiance(StochasticRadiosityElement *e
     }
 
     // Subtract source radiosity
-    colorSubtract(elem->radiance[0], elem->sourceRad, elem->radiance[0]);
+    elem->radiance[0].subtract(elem->radiance[0], elem->sourceRad);
 
     // Combine with previous results
     stochasticRadiosityScaleCoefficients((float)k, elem->radiance, elem->basis);

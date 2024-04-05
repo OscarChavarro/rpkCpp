@@ -384,7 +384,7 @@ stochasticRaytracerGetRadiance(
                 diffEmit = edfEval(thisEdf, &thisNode->m_hit, &(thisNode->m_inDirF),
                                    BRDF_DIFFUSE_COMPONENT, nullptr);
 
-                colorSubtract(radiance, diffEmit, radiance);
+                radiance.subtract(radiance, diffEmit);
             }
 
             result.add(result, radiance);

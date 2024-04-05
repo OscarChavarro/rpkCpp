@@ -96,7 +96,7 @@ static void
 mainComputeSomeSceneStats() {
     Vector3D zero;
     ColorRgb one;
-    ColorRgb average_absorption;
+    ColorRgb averageAbsorption;
     ColorRgb BP;
 
     one.setMonochrome(1.0f);
@@ -116,7 +116,7 @@ mainComputeSomeSceneStats() {
 
     // Averages
     colorScaleInverse(GLOBAL_statistics.totalArea, GLOBAL_statistics.averageReflectivity, GLOBAL_statistics.averageReflectivity);
-    colorSubtract(one, GLOBAL_statistics.averageReflectivity, average_absorption);
+    averageAbsorption.subtract(one, GLOBAL_statistics.averageReflectivity);
     colorScaleInverse(M_PI * GLOBAL_statistics.totalArea, GLOBAL_statistics.totalEmittedPower, GLOBAL_statistics.estimatedAverageRadiance);
 
     // Include background radiation
@@ -125,7 +125,7 @@ mainComputeSomeSceneStats() {
     GLOBAL_statistics.totalEmittedPower.add(GLOBAL_statistics.totalEmittedPower, BP);
     GLOBAL_statistics.estimatedAverageRadiance.add(GLOBAL_statistics.estimatedAverageRadiance, BP);
 
-    colorDivide(GLOBAL_statistics.estimatedAverageRadiance, average_absorption,
+    colorDivide(GLOBAL_statistics.estimatedAverageRadiance, averageAbsorption,
                 GLOBAL_statistics.estimatedAverageRadiance);
 
     GLOBAL_statistics.totalDirectPotential = 0.0;

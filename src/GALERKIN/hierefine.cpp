@@ -262,7 +262,7 @@ sourceClusterRadianceVariationError(Interaction *link, ColorRgb rcvRho, double r
         colorMinimum(minimumSrcRad, rad, minimumSrcRad);
         colorMaximum(maximumSrcRad, rad, maximumSrcRad);
     }
-    colorSubtract(maximumSrcRad, minimumSrcRad, error);
+    error.subtract(maximumSrcRad, minimumSrcRad);
 
     error.scalarProductScaled(rcvRho, (float) (K / rcv_area), error);
     colorAbs(error, error);

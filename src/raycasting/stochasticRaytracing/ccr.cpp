@@ -84,7 +84,7 @@ initialControlRadiosity(
 
     *maxRad = maxRadColor;
     fMax->scaledCopy((float) area, maxRadColor);
-    colorSubtract(*fMax, totalFluxColor, *fMax);
+    fMax->subtract(*fMax, totalFluxColor);
 }
 
 static void
@@ -152,7 +152,7 @@ refineControlRadiosityRecursive(
         for ( int i = 0; i <= NUMBER_OF_INTERVALS; i++ ) {
             ColorRgb t;
             t.scalarProduct(s, rad[i]);
-            colorSubtract(B, t, t);
+            t.subtract(B, t);
             colorAbs(t, t);
             f[i].addScaled(f[i], weightedArea, t);
         }
@@ -185,7 +185,7 @@ refineControlRadiosity(
     colorOne.setMonochrome(1.0);
 
     // Initialisations. rad[i] = radiosity at boundary i
-    colorSubtract(*maxRad, *minRad, d);
+    d.subtract(*maxRad, *minRad);
     for ( int i = 0; i <= NUMBER_OF_INTERVALS; i++ ) {
         f[i].clear();
         rad[i].addScaled(*minRad, (float) i / (float) NUMBER_OF_INTERVALS, d);
@@ -292,12 +292,12 @@ determineControlRadiosity(
     fprintf(stderr, "Determining optimal control radiosity value ... ");
     initialControlRadiosity(&minRad, &maxRad, &fMin, &fMax, scenePatches);
 
-    colorSubtract(fMax, fMin, delta);
+    delta.subtract(fMax, fMin);
     delta.addScaled(delta, (-eps), fMin);
     while ( (colorMaximumComponent(delta) > 0.0) || sweep < 4 ) {
         sweep++;
         refineControlRadiosity(&minRad, &maxRad, &fMin, &fMax, scenePatches);
-        colorSubtract(fMax, fMin, delta);
+        delta.subtract(fMax, fMin);
         delta.addScaled(delta, (-eps), fMin);
     }
 

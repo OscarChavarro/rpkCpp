@@ -95,3 +95,10 @@ ColorRgb::addConstant(ColorRgb &s, float a) {
     spectrum[1] = s.spectrum[1] + a;
     spectrum[2] = s.spectrum[2] + a;
 }
+
+void
+ColorRgb::subtract(ColorRgb &s, ColorRgb & t) {
+    spectrum[0] = s.spectrum[0] - t.spectrum[0];
+    spectrum[1] = s.spectrum[1] - t.spectrum[1];
+    spectrum[2] = s.spectrum[2] - t.spectrum[2];
+}

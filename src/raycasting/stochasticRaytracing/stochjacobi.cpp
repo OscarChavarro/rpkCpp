@@ -87,7 +87,7 @@ stochasticJacobiProbability(StochasticRadiosityElement *elem) {
         // Probability proportional to power to be propagated
         ColorRgb radiance = globalGetRadianceCallback(elem)[0];
         if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.constantControlVariate ) {
-            colorSubtract(radiance, GLOBAL_stochasticRaytracing_monteCarloRadiosityState.controlRadiance, radiance);
+            radiance.subtract(radiance, GLOBAL_stochasticRaytracing_monteCarloRadiosityState.controlRadiance);
         }
         prob = /* M_PI * */ elem->area * colorSumAbsComponents(radiance);
         if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceDriven ) {
@@ -103,9 +103,9 @@ stochasticJacobiProbability(StochasticRadiosityElement *elem) {
 
         if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.radianceDriven ) {
             // Received-radiance weighted importance transport
-            ColorRgb received_radiance;
-            colorSubtract(elem->radiance[0], elem->sourceRad, received_radiance);
-            prob2 *= colorSumAbsComponents(received_radiance);
+            ColorRgb receivedRadiance;
+            receivedRadiance.subtract(elem->radiance[0], elem->sourceRad);
+            prob2 *= colorSumAbsComponents(receivedRadiance);
         }
 
         // Equal weight to importance and radiance propagation for constant approximation,
@@ -324,7 +324,7 @@ stochasticJacobiPropagateRadiance(
     Ray *ray,
     float dir)
 {
-    ColorRgb rad;
+    ColorRgb radiance;
     ColorRgb rayPower;
     double area;
     double weight = globalSumOfProbabilities / src_prob; // src area / normalised src prob
@@ -336,11 +336,11 @@ stochasticJacobiPropagateRadiance(
         return;
     }
 
-    rad = stochasticJacobiGetSourceRadiance(src, us, vs);
+    radiance = stochasticJacobiGetSourceRadiance(src, us, vs);
     if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.constantControlVariate ) {
-        colorSubtract(rad, GLOBAL_stochasticRaytracing_monteCarloRadiosityState.controlRadiance, rad);
+        radiance.subtract(radiance, GLOBAL_stochasticRaytracing_monteCarloRadiosityState.controlRadiance);
     }
-    rayPower.scaledCopy((float) weight, rad);
+    rayPower.scaledCopy((float) weight, radiance);
 
     if ( !rcv->isCluster() ) {
         stochasticJacobiPropagateRadianceToSurface(rcv, ur, vr, rayPower, src, fraction, weight);

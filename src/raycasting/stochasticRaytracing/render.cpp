@@ -455,19 +455,19 @@ stochasticRadiosityElementRender(Element *element) {
 
 ColorRgb
 stochasticRadiosityElementDisplayRadiance(StochasticRadiosityElement *elem) {
-    ColorRgb rad;
-    colorSubtract(elem->radiance[0], elem->sourceRad, rad);
+    ColorRgb radiance;
+    radiance.subtract(elem->radiance[0], elem->sourceRad);
 
     if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.show != SHOW_INDIRECT_RADIANCE ) {
         // Source_rad is self-emitted radiance if !GLOBAL_stochasticRaytracing_monteCarloRadiosityState.indirectOnly. It is direct
         // illumination if GLOBAL_stochasticRaytracing_monteCarloRadiosityState.direct_only */
-        rad.add(rad, elem->sourceRad);
+        radiance.add(radiance, elem->sourceRad);
         if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.indirectOnly || GLOBAL_stochasticRaytracing_monteCarloRadiosityState.doNonDiffuseFirstShot ) {
             // Add self-emitted radiance
-            rad.add(rad, elem->Ed);
+            radiance.add(radiance, elem->Ed);
         }
     }
-    return rad;
+    return radiance;
 }
 
 ColorRgb
@@ -501,7 +501,7 @@ stochasticRadiosityElementDisplayRadianceAtPoint(StochasticRadiosityElement *ele
         // Higher order approximations
         radiance = colorAtUv(elem->basis, elem->radiance, u, v);
         if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.show == SHOW_INDIRECT_RADIANCE ) {
-            colorSubtract(radiance, elem->sourceRad, radiance);
+            radiance.subtract(radiance, elem->sourceRad);
         }
     }
     return radiance;

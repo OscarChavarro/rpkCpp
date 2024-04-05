@@ -114,9 +114,9 @@ randomWalkRadiosityReduceSource(java::ArrayList<Patch *> *scenePatches) {
 
         newSourceRadiance.setMonochrome(1.0);
         rho = topLevelGalerkinElement(patch)->Rd; // Reflectance
-        colorSubtract(newSourceRadiance, rho, newSourceRadiance); // 1 - rho
+        newSourceRadiance.subtract(newSourceRadiance, rho); // 1 - rho
         newSourceRadiance.selfScalarProduct(GLOBAL_stochasticRaytracing_monteCarloRadiosityState.controlRadiance); // (1-rho) * beta
-        colorSubtract(topLevelGalerkinElement(patch)->sourceRad, newSourceRadiance, newSourceRadiance); // E - (1-rho) * beta
+        newSourceRadiance.subtract(topLevelGalerkinElement(patch)->sourceRad, newSourceRadiance); // E - (1-rho) * beta
         topLevelGalerkinElement(patch)->sourceRad = newSourceRadiance;
     }
 }
@@ -228,7 +228,7 @@ randomWalkRadiosityShootingUpdate(Patch *P, double w) {
     k = old_quality / topLevelGalerkinElement(P)->quality;
 
     // Subtract self-emitted rad
-    colorSubtract(getTopLevelPatchRad(P)[0], topLevelGalerkinElement(P)->sourceRad, getTopLevelPatchRad(P)[0]);
+    getTopLevelPatchRad(P)[0].subtract(getTopLevelPatchRad(P)[0], topLevelGalerkinElement(P)->sourceRad);
 
     // Weight with previous results
     stochasticRadiosityScaleCoefficients((float)k, getTopLevelPatchRad(P), getTopLevelPatchBasis(P));
@@ -289,7 +289,7 @@ randomWalkRadiosityDetermineGatheringControlRadiosity(java::ArrayList<Patch *> *
 
         absorb.setMonochrome(1.0);
         rho = topLevelGalerkinElement(patch)->Rd;
-        colorSubtract(absorb, rho, absorb); // 1-rho
+        absorb.subtract(absorb, rho); // 1-rho
 
         Ed = topLevelGalerkinElement(patch)->sourceRad;
         num.scalarProduct(absorb, Ed);
