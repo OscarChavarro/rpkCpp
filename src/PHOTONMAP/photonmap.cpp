@@ -27,7 +27,6 @@ getFalseMonochrome(float val) {
 
 ColorRgb
 getFalseColor(float val) {
-    RGB rgb{};
     ColorRgb col;
     float max;
     float tmp;
@@ -37,8 +36,7 @@ getFalseColor(float val) {
 
     if ( GLOBAL_photonMap_state.falseColMono ) {
         tmp = getFalseMonochrome(val);
-        setRGB(rgb, tmp, tmp, tmp);
-        convertRGBToColor(rgb, &col);
+        col.set(tmp, tmp, tmp);
         return col;
     }
 
@@ -65,9 +63,7 @@ getFalseColor(float val) {
         g = 1.0f - (float)r;
     }
 
-    setRGB(rgb, r, g, b);
-    convertRGBToColor(rgb, &col);
-
+    col.set(r, g, b);
     return col;
 }
 

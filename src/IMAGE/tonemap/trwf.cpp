@@ -2,7 +2,6 @@
 Tumblin/Rushmeier/Ward/Ferwerda tone maps (Jan Prikryl)
 */
 
-#include "common/rgb.h"
 #include "common/ColorRgb.h"
 #include "common/cie.h"
 #include "common/mymath.h"
@@ -26,7 +25,7 @@ pp. 249-258.
 */
 
 // Precomputed parameters for different tone mapping methods
-static RGB f_sf = {0.062f, 0.608f, 0.330f};
+static ColorRgb f_sf(0.062f, 0.608f, 0.330f);
 static float f_msf;
 static float f_pm_comp;
 static float f_pm_disp;
@@ -295,7 +294,7 @@ ToneMap GLOBAL_toneMap_revisedTumblinRushmeier = {
 
 static ColorRgb
 ferwerdaScaleForComputations(ColorRgb radiance) {
-    RGB p{};
+    ColorRgb p{};
     float sl;
     float eff;
 
@@ -304,7 +303,7 @@ ferwerdaScaleForComputations(ColorRgb radiance) {
     radiance.scale(eff);
 
     // Compute the scotopic grayscale shift
-    convertColorToRGB(radiance, &p);
+    p.set(radiance.r, radiance.g, radiance.b);
     sl = f_sm_comp * f_msf * (p.r * f_sf.r + p.g * f_sf.g + p.b * f_sf.b);
 
     // Scale the photopic luminance
@@ -320,7 +319,7 @@ ferwerdaScaleForComputations(ColorRgb radiance) {
 
 static ColorRgb
 ferwerdaScaleForDisplay(ColorRgb radiance) {
-    RGB p{};
+    ColorRgb p{};
     float sl;
     float eff;
 
@@ -329,7 +328,7 @@ ferwerdaScaleForDisplay(ColorRgb radiance) {
     radiance.scale(eff);
 
     // Compute the scotopic grayscale shift
-    convertColorToRGB(radiance, &p);
+    radiance.set(p.r, p.g, p.b);
     sl = f_sm_disp * f_msf * (p.r * f_sf.r + p.g * f_sf.g + p.b * f_sf.b);
 
     // Scale the photopic luminance

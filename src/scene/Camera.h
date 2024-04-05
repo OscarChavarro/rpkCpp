@@ -30,7 +30,7 @@ class Camera {
     Vector3D X; // Eye coordinate system: X = right
     Vector3D Y; // Eye coordinate system: Y = down
     Vector3D Z; // Eye coordinate system: Z = viewing direction
-    RGB background; // Window background color
+    ColorRgb background; // Window background color
     int changed; // True when camera position has been updated
     float pixelWidth;
     float pixelHeight;
@@ -53,7 +53,7 @@ cameraSet(
     float fov,
     int xSize,
     int ySize,
-    RGB *background);
+    ColorRgb *background);
 
 extern Camera *cameraComplete(Camera *camera);
 extern Camera *cameraSetFieldOfView(Camera *camera, float fov);

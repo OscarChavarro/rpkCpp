@@ -137,8 +137,8 @@ openGlRenderLine(Vector3D *x, Vector3D *y) {
 Sets the current color for line or outline drawing
 */
 void
-openGlRenderSetColor(RGB *rgb) {
-    RGB correctedRgb{};
+openGlRenderSetColor(ColorRgb *rgb) {
+    ColorRgb correctedRgb{};
 
     correctedRgb = *rgb;
     toneMappingGammaCorrection(correctedRgb);
@@ -171,7 +171,7 @@ openGlRenderPolygonFlat(int numberOfVertices, Vector3D *vertices) {
 Renders a convex polygon with Gouraud shading
 */
 void
-openGlRenderPolygonGouraud(int numberOfVertices, Vector3D *vertices, RGB *verticesColors) {
+openGlRenderPolygonGouraud(int numberOfVertices, Vector3D *vertices, ColorRgb *verticesColors) {
     int i;
 
     glBegin(GL_POLYGON);
@@ -559,7 +559,7 @@ Renders an image of m lines of n pixels at column x on row y (= lower
 left corner of image, relative to the lower left corner of the window)
 */
 void
-openGlRenderPixels(int x, int y, int width, int height, RGB *rgb) {
+openGlRenderPixels(int x, int y, int width, int height, ColorRgb *rgb) {
     int rowLength;
 
     // Length of one row of RGBA image data rounded up to a multiple of 8
@@ -567,11 +567,11 @@ openGlRenderPixels(int x, int y, int width, int height, RGB *rgb) {
     GLubyte *c = new GLubyte[height * rowLength + 8];
 
     for ( int j = 0; j < height; j++ ) {
-        RGB *rgbP = &rgb[j * width];
+        ColorRgb *rgbP = &rgb[j * width];
 
         GLubyte *p = c + j * rowLength; // Let each line start on an 8-byte boundary
         for ( int i = 0; i < width; i++, rgbP++ ) {
-            RGB corrected_rgb = *rgbP;
+            ColorRgb corrected_rgb = *rgbP;
             toneMappingGammaCorrection(corrected_rgb);
             *p++ = (GLubyte) (corrected_rgb.r * 255.0);
             *p++ = (GLubyte) (corrected_rgb.g * 255.0);

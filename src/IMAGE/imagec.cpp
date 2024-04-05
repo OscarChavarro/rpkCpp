@@ -50,7 +50,7 @@ ImageOutputHandle::writeDisplayRGB(unsigned char * /*x*/) {
 }
 
 inline void
-gammaCorrect(RGB &rgb, const float gamma[3]) {
+gammaCorrect(ColorRgb &rgb, const float gamma[3]) {
   rgb.r = gamma[0] == 1.0 ? rgb.r : std::pow(rgb.r, 1.0f / gamma[0]);
   rgb.g = gamma[1] == 1.0 ? rgb.g : std::pow(rgb.g, 1.0f / gamma[1]);
   rgb.b = gamma[2] == 1.0 ? rgb.b : std::pow(rgb.b, 1.0f / gamma[2]);
@@ -61,7 +61,7 @@ ImageOutputHandle::writeDisplayRGB(float *rgbFloatArray) {
     unsigned char *rgb = new unsigned char[3 * width];
     for ( int i = 0; i < width; i++ ) {
         // Convert RGB radiance to display RGB
-        RGB displayRgb = *(RGB *) (&rgbFloatArray[3 * i]);
+        ColorRgb displayRgb = *(ColorRgb *)(&rgbFloatArray[3 * i]);
         // Apply gamma correction
         gammaCorrect(displayRgb, gamma);
         // Convert float to byte representation
@@ -82,7 +82,7 @@ ImageOutputHandle::writeRadianceRGB(float *rgbRadiance) {
     unsigned char *rgb = new unsigned char[3 * width];
     for ( int i = 0; i < width; i++ ) {
         // Convert RGB radiance to display RGB
-        RGB displayRgb{};
+        ColorRgb displayRgb{};
         radianceToRgb(*(ColorRgb *) &rgbRadiance[3 * i], &displayRgb);
         // Apply gamma correction
         gammaCorrect(displayRgb, gamma);

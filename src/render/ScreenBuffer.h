@@ -23,7 +23,7 @@ and an associated RGB framebuffer
 class ScreenBuffer {
   private:
     ColorRgb *m_Radiance;
-    RGB *m_RGB;
+    ColorRgb *m_RGB;
     Camera m_cam; // GLOBAL_camera_mainCamera used (copied, no pointer!)
 
     bool m_Synced;
@@ -70,9 +70,9 @@ class ScreenBuffer {
     void syncLine(int lineNumber);
 };
 
-extern RGB GLOBAL_material_black;
-extern RGB GLOBAL_material_white;
-extern RGB GLOBAL_material_yellow;
+extern ColorRgb GLOBAL_material_black;
+extern ColorRgb GLOBAL_material_white;
+extern ColorRgb GLOBAL_material_yellow;
 
 extern float computeFluxToRadFactor(int pixX, int pixY);
 

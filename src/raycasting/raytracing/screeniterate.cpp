@@ -48,13 +48,13 @@ void
 ScreenIterateSequential(SCREEN_ITERATE_CALLBACK callback, void *data) {
     int i, j, width, height;
     ColorRgb col;
-    RGB *rgb;
+    ColorRgb *rgb;
 
     ScreenIterateInit();
 
     width = GLOBAL_camera_mainCamera.xSize;
     height = GLOBAL_camera_mainCamera.ySize;
-    rgb = new RGB[width];
+    rgb = new ColorRgb[width];
 
     // Shoot rays through all the pixels
     for ( j = 0; j < height; j++ ) {
@@ -73,10 +73,11 @@ ScreenIterateSequential(SCREEN_ITERATE_CALLBACK callback, void *data) {
 }
 
 
-/*******************************************************************/
-/* Some utility routines for progressive tracing */
+/**
+Some utility routines for progressive tracing
+*/
 static inline void
-FillRect(int x0, int y0, int x1, int y1, RGB col, RGB *rgb) {
+FillRect(int x0, int y0, int x1, int y1, ColorRgb col, ColorRgb *rgb) {
     int x, y;
 
     for ( x = x0; x < x1; x++ ) {
@@ -93,8 +94,8 @@ ScreenIterateProgressive(SCREEN_ITERATE_CALLBACK callback, void *data) {
     int width;
     int height;
     ColorRgb col;
-    RGB pixelRGB{};
-    RGB *rgb;
+    ColorRgb pixelRGB{};
+    ColorRgb *rgb;
     int x0;
     int y0;
     int x1;
@@ -112,7 +113,7 @@ ScreenIterateProgressive(SCREEN_ITERATE_CALLBACK callback, void *data) {
 
     width = GLOBAL_camera_mainCamera.xSize;
     height = GLOBAL_camera_mainCamera.ySize;
-    rgb = new RGB[width * height]; // We need a full screen!
+    rgb = new ColorRgb[width * height]; // We need a full screen!
 
     for ( i = 0; i < width * height; i++ ) {
         rgb[i] = GLOBAL_material_black;

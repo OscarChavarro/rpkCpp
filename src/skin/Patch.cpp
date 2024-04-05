@@ -633,7 +633,7 @@ Patch::Patch(
     patchConnectVertices();
 
     directPotential = 0.0;
-    setRGB(color, 0.0, 0.0, 0.0);
+    color.set(0.0, 0.0, 0.0);
 
     omit = false;
     flags = 0; // Other flags

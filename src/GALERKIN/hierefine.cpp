@@ -112,9 +112,7 @@ Link error estimation
 
 static double
 hierarchicRefinementColorToError(ColorRgb rad) {
-    RGB rgb{};
-    convertColorToRGB(rad, &rgb);
-    return maxComponentRGB(rgb);
+    return rad.maximumComponent();
 }
 
 /**

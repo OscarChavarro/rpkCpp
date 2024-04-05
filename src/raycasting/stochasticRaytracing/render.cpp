@@ -9,9 +9,9 @@ Rendering elements
 #include "raycasting/stochasticRaytracing/hierarchy.h"
 #include "render/opengl.h"
 
-RGB
+ColorRgb
 stochasticRadiosityElementColor(StochasticRadiosityElement *element) {
-    RGB color{};
+    ColorRgb color{};
 
     switch ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.show ) {
         case SHOW_TOTAL_RADIANCE:
@@ -20,7 +20,7 @@ stochasticRadiosityElementColor(StochasticRadiosityElement *element) {
             break;
         case SHOW_IMPORTANCE: {
             float gray = element->importance > 1.0 ? 1.0f : element->importance < 0.0 ? 0.0f : element->importance;
-            setRGB(color, gray, gray, gray);
+            color.set(gray, gray, gray);
             break;
         }
         default:
@@ -85,7 +85,7 @@ vertexImportance(Vertex *v) {
     return imp;
 }
 
-RGB
+ColorRgb
 vertexColor(Vertex *v) {
     switch ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.show ) {
         case SHOW_TOTAL_RADIANCE:
@@ -100,7 +100,7 @@ vertexColor(Vertex *v) {
             if ( gray < 0.0 ) {
                 gray = 0.0;
             }
-            setRGB(v->color, gray, gray, gray);
+            v->color.set(gray, gray, gray);
             break;
         }
         default:
@@ -139,7 +139,7 @@ stochasticRadiosityElementAdjustTVertexColors(Element *element) {
     }
 
     if ( n > 0 ) {
-        RGB color = stochasticRadiosityElementColor(stochasticRadiosityElement);
+        ColorRgb color = stochasticRadiosityElementColor(stochasticRadiosityElement);
         for ( i = 0; i < stochasticRadiosityElement->numberOfVertices; i++ ) {
             if ( m[i] ) {
                 m[i]->color.r = (float)(m[i]->color.r + color.r) * 0.5f;
@@ -152,7 +152,7 @@ stochasticRadiosityElementAdjustTVertexColors(Element *element) {
 
 static void
 renderTriangle(Vertex *v1, Vertex *v2, Vertex *v3) {
-    RGB col[3];
+    ColorRgb col[3];
     Vector3D vert[3];
 
     vert[0] = *(v1->point);
@@ -164,8 +164,7 @@ renderTriangle(Vertex *v1, Vertex *v2, Vertex *v3) {
     openGlRenderPolygonGouraud(3, vert, col);
 
     if ( GLOBAL_render_renderOptions.drawOutlines ) {
-        int i;
-        for ( i = 0; i < 3; i++ ) {
+        for ( int i = 0; i < 3; i++ ) {
             Vector3D d;
             vectorSubtract(GLOBAL_camera_mainCamera.eyePosition, vert[i], d);
             vectorSumScaled(vert[i], 0.01, d, vert[i]);
@@ -180,7 +179,7 @@ renderTriangle(Vertex *v1, Vertex *v2, Vertex *v3) {
 
 static void
 renderQuadrilateral(Vertex *v1, Vertex *v2, Vertex *v3, Vertex *v4) {
-    RGB col[4];
+    ColorRgb col[4];
     Vector3D vert[4];
 
     vert[0] = *(v1->point);
@@ -433,7 +432,7 @@ stochasticRadiosityElementRender(Element *element) {
     }
 
     if ( GLOBAL_render_renderOptions.smoothShading ) {
-        RGB vertexColors[4];
+        ColorRgb vertexColors[4];
         vertexColors[0] = stochasticRadiosityElement->vertices[0]->color;
         vertexColors[1] = stochasticRadiosityElement->vertices[1]->color;
         vertexColors[2] = stochasticRadiosityElement->vertices[2]->color;
@@ -443,7 +442,7 @@ stochasticRadiosityElementRender(Element *element) {
 
         openGlRenderPolygonGouraud(stochasticRadiosityElement->numberOfVertices, vertices, vertexColors);
     } else {
-        RGB color = stochasticRadiosityElementColor(stochasticRadiosityElement);
+        ColorRgb color = stochasticRadiosityElementColor(stochasticRadiosityElement);
 
         openGlRenderSetColor(&color);
         openGlRenderPolygonFlat(stochasticRadiosityElement->numberOfVertices, vertices);

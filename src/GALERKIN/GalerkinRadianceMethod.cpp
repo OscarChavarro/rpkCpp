@@ -538,8 +538,7 @@ galerkinWriteCoords() {
 }
 
 static void
-galerkinWriteVertexColor(RGB *color) {
-    /* not yet written */
+galerkinWriteVertexColor(ColorRgb *color) {
     if ( globalNumberOfWrites > 0 ) {
         fprintf(globalVrmlFileDescriptor, ", ");
     }
@@ -579,7 +578,7 @@ galerkinWriteVertexColors(Element *element) {
     }
 
     for ( i = 0; i < galerkinElement->patch->numberOfVertices; i++ ) {
-        RGB col{};
+        ColorRgb col{};
         radianceToRgb(vertexRadiosity[i], &col);
         galerkinWriteVertexColor(&col);
     }

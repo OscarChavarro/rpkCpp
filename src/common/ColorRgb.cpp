@@ -1,22 +1,18 @@
+#include "common/mymath.h"
+#include "common/linealAlgebra/Float.h"
 #include "common/ColorRgb.h"
-
-RGB *
-convertColorToRGB(ColorRgb col, RGB *rgb) {
-    setRGB(*rgb, col.r, col.g, col.b);
-    return rgb;
-}
-
-ColorRgb *
-convertRGBToColor(RGB rgb, ColorRgb *col) {
-    col->set(rgb.r, rgb.g, rgb.b);
-    return col;
-}
 
 ColorRgb::ColorRgb():
     r(),
     g(),
     b()
 {
+}
+
+ColorRgb::ColorRgb(float inR, float inG, float inB) {
+    r = inR;
+    g = inG;
+    b = inB;
 }
 
 void
@@ -187,6 +183,13 @@ ColorRgb::interpolateBiLinear(ColorRgb c0, ColorRgb c1, ColorRgb c2, ColorRgb c3
     r = c0.r + b * (c1.r - c0.r) + c * (c2.r - c0.r) + d * (c3.r - c0.r);
     g = c0.g + b * (c1.g - c0.g) + c * (c2.g - c0.g) + d * (c3.g - c0.g);
     b = c0.b + bb * (c1.b - c0.b) + c * (c2.b - c0.b) + d * (c3.b - c0.b);
+}
+
+void
+ColorRgb::clip() {
+    r = (r < 0.0f ? 0.0f : (r > 1.0f ? 1.0f : r));
+    g = (g < 0.0f ? 0.0f : (g > 1.0f ? 1.0f : g));
+    b = (b < 0.0f ? 0.0f : (b > 1.0f ? 1.0f : b));
 }
 
 void

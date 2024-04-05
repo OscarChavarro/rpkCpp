@@ -51,17 +51,17 @@ renderUseFrustumCulling(char truefalse) {
 }
 
 void
-renderSetOutlineColor(RGB *outline_color) {
+renderSetOutlineColor(ColorRgb *outline_color) {
     GLOBAL_render_renderOptions.outline_color = *outline_color;
 }
 
 void
-renderSetBoundingBoxColor(RGB *outline_color) {
+renderSetBoundingBoxColor(ColorRgb *outline_color) {
     GLOBAL_render_renderOptions.bounding_box_color = *outline_color;
 }
 
 void
-renderSetClusterColor(RGB *cluster_color) {
+renderSetClusterColor(ColorRgb *cluster_color) {
     GLOBAL_render_renderOptions.cluster_color = *cluster_color;
 }
 

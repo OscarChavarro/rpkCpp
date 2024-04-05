@@ -73,12 +73,6 @@ extern void stochasticRadiosityElementRender(Element *element);
 extern void stochasticRadiosityElementRenderOutline(StochasticRadiosityElement *elem);
 extern void stochasticRadiosityElementComputeNewVertexColors(Element *element);
 extern void stochasticRadiosityElementAdjustTVertexColors(Element *element);
-extern RGB stochasticRadiosityElementColor(StochasticRadiosityElement *element);
-
-extern void
-stochasticRadiosityElementTVertexElimination(
-        StochasticRadiosityElement *elem,
-        void (*do_triangle)(Vertex *, Vertex *, Vertex *),
-        void (*do_quadrilateral)(Vertex *, Vertex *, Vertex *, Vertex *));
+extern ColorRgb stochasticRadiosityElementColor(StochasticRadiosityElement *element);
 
 #endif

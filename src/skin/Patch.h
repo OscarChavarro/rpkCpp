@@ -63,7 +63,7 @@ class Patch {
                // testing, shaft culling, ... set to FALSE by
                // default. Don't forget to set to FALSE again
 			   // after you changed it!
-    RGB color; // Color used to flat render the patch
+    ColorRgb color; // Color used to flat render the patch
     Element *radianceData; // Data needed for radiance computations. Content depends on the current radiance algorithm / radiosity method (a.k.a. context)
     MeshSurface *surface; // Pointer to surface data (contains vertex list, material properties)
 

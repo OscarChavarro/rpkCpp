@@ -45,9 +45,8 @@ extern void setToneMap(ToneMap *map);
 /* convert RGB color value between 0 and 1 to entry index in gamma table */
 #define GAMMA_TAB_ENTRY(x)  (int)((x)*(float)(1<<GAMMA_TAB_BITS))
 
-/* recomputes gamma tables for the given gamma values for 
- * red, green and blue */
-extern void recomputeGammaTables(RGB gamma);
+// Recomputes gamma tables for the given gamma values for red, green and blue
+extern void recomputeGammaTables(ColorRgb gamma);
 
 class ToneMappingContext {
   public:
@@ -72,9 +71,9 @@ class ToneMappingContext {
     float xw; // Monitor white point
     float yw;
 
-    /* display RGB mapping (corrects display non-linear response) */
-    RGB gamma;                  /* gamma factors for red, green, blue */
-    float gammaTab[3][GAMMA_TAB_SIZE]; /* gamma correction tables for red, green and blue */
+    // Display RGB mapping (corrects display non-linear response)
+    ColorRgb gamma; // Gamma factors for red, green, blue
+    float gammaTab[3][GAMMA_TAB_SIZE]; // Gamma correction tables for red, green and blue
 };
 extern ToneMappingContext GLOBAL_toneMap_options;
 
@@ -83,7 +82,7 @@ extern void parseToneMapOptions(int *argc, char **argv);
 extern void initToneMapping(java::ArrayList<Patch *> *scenePatches);
 
 inline void
-toneMappingGammaCorrection(RGB &rgb) {
+toneMappingGammaCorrection(ColorRgb &rgb) {
   (rgb).r = GLOBAL_toneMap_options.gammaTab[0][GAMMA_TAB_ENTRY((rgb).r)];
   (rgb).g = GLOBAL_toneMap_options.gammaTab[1][GAMMA_TAB_ENTRY((rgb).g)];
   (rgb).b = GLOBAL_toneMap_options.gammaTab[2][GAMMA_TAB_ENTRY((rgb).b)];
@@ -102,7 +101,7 @@ Does most to convert radiance to display RGB color
    an RGB triplet for display on the screen
 3) clipping of RGB values to the range [0,1].
 */
-extern RGB *radianceToRgb(ColorRgb color, RGB *rgb);
+extern ColorRgb *radianceToRgb(ColorRgb color, ColorRgb *rgb);
 
 /**
 Transforms luminance from cd/m^2 to lamberts. Luminance in lamberts

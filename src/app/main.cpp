@@ -179,9 +179,9 @@ mainBuildLightSourcePatchList() {
 
 static void
 mainRenderingDefaults() {
-    RGB outlineColor = DEFAULT_OUTLINE_COLOR;
-    RGB boundingBoxColor = DEFAULT_BOUNDING_BOX_COLOR;
-    RGB clusterColor = DEFAULT_CLUSTER_COLOR;
+    ColorRgb outlineColor = DEFAULT_OUTLINE_COLOR;
+    ColorRgb boundingBoxColor = DEFAULT_BOUNDING_BOX_COLOR;
+    ColorRgb clusterColor = DEFAULT_CLUSTER_COLOR;
 
     renderUseDisplayLists(DEFAULT_DISPLAY_LISTS);
     renderSetSmoothShading(DEFAULT_SMOOTH_SHADING);

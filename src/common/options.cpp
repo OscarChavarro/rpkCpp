@@ -21,7 +21,7 @@ static int globalDummyTrue = true;
 static int globalDummyFalse = false;
 static float globalDummyFloat = 0.0f;
 static Vector3D globalDummyVector3D = {0.0f, 0.0f, 0.0f};
-static RGB globalDummyRgb = {0.0f, 0.0f, 0.0f};
+static ColorRgb globalDummyRgb{};
 static float globalDummyCieXy[2] = {0.0f, 0.0f};
 static java::ArrayList<char *> *globalStringsToDelete = new java::ArrayList<char *>();
 
@@ -304,7 +304,7 @@ CommandLineOptions GLOBAL_options_vectorType = {
 RGB option values
 */
 static int
-optionsGetRgb(RGB *c, void * /*data*/) {
+optionsGetRgb(ColorRgb *c, void * /*data*/) {
     int ok = optionsGetArgumentFloatValue("%f", &c->r);
     if ( ok ) {
         optionsConsumeArgument();
@@ -322,8 +322,8 @@ optionsGetRgb(RGB *c, void * /*data*/) {
 }
 
 static void
-optionsPrintRgb(FILE *fp, RGB *v, void * /*data*/) {
-    printRGB(fp, *v);
+optionsPrintRgb(FILE *fp, ColorRgb *v, void * /*data*/) {
+    v->print(fp);
 }
 
 CommandLineOptions GLOBAL_options_rgbType = {

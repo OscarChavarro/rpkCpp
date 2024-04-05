@@ -575,7 +575,7 @@ GalerkinElement::draw(int mode) {
     numberOfVertices = vertices(p, 4);
 
     if ( mode & FLAT ) {
-        RGB color{};
+        ColorRgb color{};
         ColorRgb rho = patch->radianceData->Rd;
 
         if ( GLOBAL_galerkin_state.use_ambient_radiance ) {
@@ -589,7 +589,7 @@ GalerkinElement::draw(int mode) {
         openGlRenderSetColor(&color);
         openGlRenderPolygonFlat(numberOfVertices, p);
     } else if ( mode & GOURAUD ) {
-        RGB vertColor[4];
+        ColorRgb vertColor[4];
         ColorRgb vertRadiosity[4];
         int i;
 

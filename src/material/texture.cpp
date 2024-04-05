@@ -1,20 +1,20 @@
+#include <cmath>
 #include "material/texture.h"
 
 inline void
-rgbSetMonochrome(RGB rgb, float val) {
-    setRGB(rgb, val, val, val);
+rgbSetMonochrome(ColorRgb rgb, float val) {
+    rgb.set(val, val, val);
 }
 
 ColorRgb
 evalTextureColor(TEXTURE *texture, float u, float v) {
-    RGB rgb00{};
-    RGB rgb10{};
-    RGB rgb01{};
-    RGB rgb11{};
-    RGB rgb{};
-    ColorRgb col;
+    ColorRgb rgb00{};
+    ColorRgb rgb10{};
+    ColorRgb rgb01{};
+    ColorRgb rgb11{};
+    ColorRgb rgb{};
     unsigned char *pix00, *pix01, *pix10, *pix11;
-    double u1 = u - floor(u), u0 = 1. - u1, v1 = v - floor(v), v0 = 1. - v1;
+    double u1 = u - std::floor(u), u0 = 1. - u1, v1 = v - std::floor(v), v0 = 1. - v1;
     int i = (int)(u1 * texture->width);
     int i1 = i + 1;
     int j = (int)(v1 * texture->height);
@@ -38,9 +38,9 @@ evalTextureColor(TEXTURE *texture, float u, float v) {
         j1 -= texture->height;
     }
 
-    col.clear();
+    rgb.clear();
     if ( !texture->data ) {
-        return col;
+        return rgb;
     }
 
     pix00 = texture->data + (j * texture->width + i) * texture->channels;
@@ -57,20 +57,19 @@ evalTextureColor(TEXTURE *texture, float u, float v) {
             break;
         case 3:
         case 4: {
-            setRGB(rgb00, (float) pix00[0] / 255.0f, (float) pix00[1] / 255.0f, (float) pix00[2] / 255.0f);
-            setRGB(rgb10, (float) pix10[0] / 255.0f, (float) pix10[1] / 255.0f, (float) pix10[2] / 255.0f);
-            setRGB(rgb01, (float) pix01[0] / 255.0f, (float) pix01[1] / 255.0f, (float) pix01[2] / 255.0f);
-            setRGB(rgb11, (float) pix11[0] / 255.0f, (float) pix11[1] / 255.0f, (float) pix11[2] / 255.0f);
+            rgb00.set((float) pix00[0] / 255.0f, (float) pix00[1] / 255.0f, (float) pix00[2] / 255.0f);
+            rgb10.set((float) pix10[0] / 255.0f, (float) pix10[1] / 255.0f, (float) pix10[2] / 255.0f);
+            rgb01.set((float) pix01[0] / 255.0f, (float) pix01[1] / 255.0f, (float) pix01[2] / 255.0f);
+            rgb11.set((float) pix11[0] / 255.0f, (float) pix11[1] / 255.0f, (float) pix11[2] / 255.0f);
         }
             break;
         default:
             break;
     }
 
-    setRGB(rgb,
-           0.25f * (float)(u0 * v0 * rgb00.r + u1 * v0 * rgb10.r + u0 * v1 * rgb01.r + u1 * v1 * rgb11.r),
-           0.25f * (float)(u0 * v0 * rgb00.g + u1 * v0 * rgb10.g + u0 * v1 * rgb01.g + u1 * v1 * rgb11.g),
-           0.25f * (float)(u0 * v0 * rgb00.b + u1 * v0 * rgb10.b + u0 * v1 * rgb01.b + u1 * v1 * rgb11.b));
-    convertRGBToColor(rgb, &col);
-    return col;
+    rgb.set(
+        0.25f * (float) (u0 * v0 * rgb00.r + u1 * v0 * rgb10.r + u0 * v1 * rgb01.r + u1 * v1 * rgb11.r),
+        0.25f * (float) (u0 * v0 * rgb00.g + u1 * v0 * rgb10.g + u0 * v1 * rgb01.g + u1 * v1 * rgb11.g),
+        0.25f * (float) (u0 * v0 * rgb00.b + u1 * v0 * rgb10.b + u0 * v1 * rgb01.b + u1 * v1 * rgb11.b));
+    return rgb;
 }

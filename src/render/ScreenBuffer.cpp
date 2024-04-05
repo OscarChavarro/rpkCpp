@@ -7,9 +7,9 @@
 #include "IMAGE/tonemap/tonemapping.h"
 #include "render/ScreenBuffer.h"
 
-RGB GLOBAL_material_black = {0.0, 0.0, 0.0};
-RGB GLOBAL_material_yellow = {1.0, 1.0, 0.0};
-RGB GLOBAL_material_white = {1.0, 1.0, 1.0};
+ColorRgb GLOBAL_material_black = {0.0, 0.0, 0.0};
+ColorRgb GLOBAL_material_yellow = {1.0, 1.0, 0.0};
+ColorRgb GLOBAL_material_white = {1.0, 1.0, 1.0};
 
 /**
 Constructor : make an screen buffer from a camera definition
@@ -66,10 +66,8 @@ ScreenBuffer::init(Camera *cam) {
     m_cam = *cam;
 
     if ( m_Radiance == nullptr ) {
-        m_Radiance = (ColorRgb *)malloc(m_cam.xSize * m_cam.ySize *
-                                        sizeof(ColorRgb));
-        m_RGB = (RGB *)malloc(m_cam.xSize * m_cam.ySize *
-                              sizeof(RGB));
+        m_Radiance = (ColorRgb *)malloc(m_cam.xSize * m_cam.ySize * sizeof(ColorRgb));
+        m_RGB = (ColorRgb *)malloc(m_cam.xSize * m_cam.ySize * sizeof(ColorRgb));
     }
 
     // Clear
@@ -267,15 +265,14 @@ ScreenBuffer::renderScanline(int i) {
 
 void
 ScreenBuffer::sync() {
-    int i;
     ColorRgb tmpRad{};
 
-    for ( i = 0; i < m_cam.xSize * m_cam.ySize; i++ ) {
+    for ( int i = 0; i < m_cam.xSize * m_cam.ySize; i++ ) {
         tmpRad.scaledCopy(m_Factor, m_Radiance[i]);
         if ( !isRgbImage() ) {
             radianceToRgb(tmpRad, &m_RGB[i]);
         } else {
-            convertColorToRGB(tmpRad, &m_RGB[i]);
+            tmpRad.set(m_RGB[i].r, m_RGB[i].g, m_RGB[i].b);
         }
     }
 
@@ -293,7 +290,7 @@ ScreenBuffer::syncLine(int lineNumber) {
         if ( !isRgbImage() ) {
             radianceToRgb(tmpRad, &m_RGB[lineNumber * m_cam.xSize + i]);
         } else {
-            convertColorToRGB(tmpRad, &m_RGB[lineNumber * m_cam.xSize + i]);
+            tmpRad = m_RGB[lineNumber * m_cam.xSize + i];
         }
     }
 }

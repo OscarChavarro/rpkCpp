@@ -11,7 +11,6 @@ digraph G {
     ArrayList [shape=box];
     Vector3D [shape=box];
     Matrix2x2 [shape=box];
-    RGB [shape=box];
 
     Patch [shape=box, style=filled, fillcolor="#80ff80"];
     Geometry [shape=box, style=filled, fillcolor="#80ff80"];
@@ -33,7 +32,7 @@ digraph G {
     ColorRgb [shape=box, style=filled, fillcolor="#ffff80"];
 
     Vertex -> Vector3D;
-    Vertex -> RGB;
+    Vertex -> ColorRgb;
     Vertex -> ArrayList;
     Vertex -> Vertex;
     GalerkinBasis -> FILTER_TABLE;
@@ -59,7 +58,7 @@ digraph G {
     Patch -> BoundingBox;
     Patch -> Vector3D;
     Patch -> Jacobian;
-    Patch -> RGB;
+    Patch -> ColorRgb;
     Patch -> Element;
     Patch -> Geometry;
     Patch -> MeshSurface;

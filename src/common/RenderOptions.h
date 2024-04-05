@@ -1,7 +1,7 @@
 #ifndef __RENDER_OPTIONS__
 #define __RENDER_OPTIONS__
 
-#include "common/rgb.h"
+#include "common/ColorRgb.h"
 
 /**
 If this is undefined, the raytracing code can be trimmed as follows:
@@ -12,10 +12,10 @@ If this is undefined, the raytracing code can be trimmed as follows:
 
 class RenderOptions {
 public:
-    RGB outline_color; // Color in which to draw outlines
-    RGB bounding_box_color; // Color in which to draw bounding boxes
-    RGB cluster_color; // Color in which to show cluster bounding boxes
-    RGB camera_color; // Color for drawing alternate cameras
+    ColorRgb outline_color; // Color in which to draw outlines
+    ColorRgb bounding_box_color; // Color in which to draw bounding boxes
+    ColorRgb cluster_color; // Color in which to show cluster bounding boxes
+    ColorRgb camera_color; // Color for drawing alternate cameras
     float cameraSize; // Determines how large alternate cameras are drawn
     float lineWidth;
     char drawOutlines; // True for drawing facet outlines

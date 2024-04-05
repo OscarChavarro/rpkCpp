@@ -17,9 +17,9 @@ extern void renderSetClusterDrawing(char truefalse);
 extern void renderUseDisplayLists(char truefalse);
 extern void renderUseFrustumCulling(char truefalse);
 extern void renderSetNoShading(char truefalse);
-extern void renderSetOutlineColor(RGB *outline_color);
-extern void renderSetBoundingBoxColor(RGB *outline_color);
-extern void renderSetClusterColor(RGB *cluster_color);
+extern void renderSetOutlineColor(ColorRgb *outline_color);
+extern void renderSetBoundingBoxColor(ColorRgb *outline_color);
+extern void renderSetClusterColor(ColorRgb *cluster_color);
 extern void renderGetNearFar(float *near, float *far);
 extern void renderParseOptions(int *argc, char **argv);
 

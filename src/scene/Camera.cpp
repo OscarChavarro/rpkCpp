@@ -35,7 +35,7 @@ Camera::Camera(): background() {
     X = Vector3D{};
     Y = Vector3D{};
     Z = Vector3D{};
-    background = RGB{};
+    background = ColorRgb{};
     changed = 0;
     pixelWidth = 0.0f;
     pixelHeight = 0.0f;
@@ -48,7 +48,7 @@ cameraDefaults() {
     Vector3D eyePosition = DEFAULT_EYEP;
     Vector3D lookPosition = DEFAULT_LOOKP;
     Vector3D upDirection = DEFAULT_UPDIR;
-    RGB backgroundColor = DEFAULT_BACKGROUND_COLOR;
+    ColorRgb backgroundColor = DEFAULT_BACKGROUND_COLOR;
 
     cameraSet(&GLOBAL_camera_mainCamera, &eyePosition, &lookPosition, &upDirection, DEFAULT_FOV, 600, 600,
               &backgroundColor);
@@ -129,8 +129,16 @@ background. Returns (CAMERA *)nullptr if eye point and focus point coincide or
 viewing direction is equal to the up-direction
 */
 Camera *
-cameraSet(Camera *camera, Vector3D *eyePosition, Vector3D *loopPosition, Vector3D *upDirection,
-          float fov, int xSize, int ySize, RGB *background) {
+cameraSet(
+    Camera *camera,
+    Vector3D *eyePosition,
+    Vector3D *loopPosition,
+    Vector3D *upDirection,
+    float fov,
+    int xSize,
+    int ySize,
+    ColorRgb *background)
+{
     camera->eyePosition = *eyePosition;
     camera->lookPosition = *loopPosition;
     camera->upDirection = *upDirection;

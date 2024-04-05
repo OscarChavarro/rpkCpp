@@ -1,8 +1,9 @@
 #ifndef __COLOR__
 #define __COLOR__
 
+#include <cstdio>
+
 #include "common/cie.h"
-#include "common/rgb.h"
 
 /**
 Representation of radiance, radiosity, power, spectra
@@ -14,6 +15,7 @@ class ColorRgb {
     float b;
 
     ColorRgb();
+    ColorRgb(float inR, float inG, float inB);
 
     void clear();
     void set(float v1, float v2, float v3);
@@ -40,10 +42,8 @@ class ColorRgb {
     float luminance() const;
     void interpolateBarycentric(ColorRgb c0, ColorRgb c1, ColorRgb c2, float u, float v);
     void interpolateBiLinear(ColorRgb c0, ColorRgb c1, ColorRgb c2, ColorRgb c3, float u, float v);
+    void clip();
     void print(FILE *fp) const;
 };
-
-extern RGB *convertColorToRGB(ColorRgb col, RGB *rgb);
-extern ColorRgb *convertRGBToColor(RGB rgb, ColorRgb *col);
 
 #endif

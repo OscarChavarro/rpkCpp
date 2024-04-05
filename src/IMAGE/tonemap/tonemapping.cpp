@@ -123,7 +123,7 @@ toneMappingCommandLineOptionDescAdaptMethodOption(void *value) {
 static void
 gammaOption(void *value) {
     float gam = *(float *) value;
-    setRGB(GLOBAL_toneMap_options.gamma, gam, gam, gam);
+    GLOBAL_toneMap_options.gamma.set(gam, gam, gam);
 }
 
 static CommandLineOptionDescription globalToneMappingOptions[] = {
@@ -198,7 +198,7 @@ toneMapDefaults() {
                                      GLOBAL_toneMap_options.xb, GLOBAL_toneMap_options.yb,
                                      GLOBAL_toneMap_options.xw, GLOBAL_toneMap_options.yw);
 
-    setRGB(GLOBAL_toneMap_options.gamma, DEFAULT_GAMMA, DEFAULT_GAMMA, DEFAULT_GAMMA);
+    GLOBAL_toneMap_options.gamma.set(DEFAULT_GAMMA, DEFAULT_GAMMA, DEFAULT_GAMMA);
     recomputeGammaTables(GLOBAL_toneMap_options.gamma);
     GLOBAL_toneMap_options.toneMap = &GLOBAL_toneMap_lightness;
     GLOBAL_toneMap_options.toneMap->Init();
@@ -253,7 +253,7 @@ recomputeGammaTable(int index, double gamma) {
 Recomputes gamma tables for the given gamma values for red, green and blue
 */
 void
-recomputeGammaTables(RGB gamma) {
+recomputeGammaTables(ColorRgb gamma) {
     recomputeGammaTable(0, gamma.r);
     recomputeGammaTable(1, gamma.g);
     recomputeGammaTable(2, gamma.b);
@@ -269,10 +269,10 @@ rescaleRadiance(ColorRgb in, ColorRgb *out) {
     return out;
 }
 
-RGB *
-radianceToRgb(ColorRgb color, RGB *rgb) {
+ColorRgb *
+radianceToRgb(ColorRgb color, ColorRgb *rgb) {
     rescaleRadiance(color, &color);
-    convertColorToRGB(color, rgb);
+    rgb->set(color.r, color.g, color.b);
     rgb->clip();
     return rgb;
 }

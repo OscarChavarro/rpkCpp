@@ -76,7 +76,7 @@ surfaceConnectFace(MeshSurface *surf, Patch *face) {
             break;
         case MaterialColorFlags::VERTEX_COLORS:
             // Average color of the vertices
-            setRGB(face->color, 0, 0, 0);
+            face->color.set(0, 0, 0);
             for ( i = 0; i < face->numberOfVertices; i++ ) {
                 face->color.r += face->vertex[i]->color.r;
                 face->color.g += face->vertex[i]->color.g;
@@ -88,7 +88,7 @@ surfaceConnectFace(MeshSurface *surf, Patch *face) {
             break;
         default: {
             rho = face->averageNormalAlbedo(BRDF_DIFFUSE_COMPONENT | BRDF_GLOSSY_COMPONENT);
-            convertColorToRGB(rho, &face->color);
+            rho.set(face->color.r, face->color.g, face->color.b);
         }
     }
 }
