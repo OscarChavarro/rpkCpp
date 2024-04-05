@@ -301,7 +301,7 @@ determineControlRadiosity(
         colorAddScaled(delta, (-eps), fMin, delta);
     }
 
-    colorAdd(minRad, maxRad, beta);
+    beta.add(minRad, maxRad);
     beta.scale(0.5);
     beta.print(stderr);
     fprintf(stderr, " (%g lux)", M_PI * colorLuminance(beta));

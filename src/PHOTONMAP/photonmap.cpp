@@ -285,9 +285,9 @@ CPhotonMap::PhotonPrecomputeIrradiance(CIrrPhoton *photon) {
         float maxDistance = m_distances[0];
 
         for ( int i = 0; i < m_nrpFound; i++ ) {
-            if ((photon->Normal() & m_photons[i]->Dir()) > 0 ) {
+            if ( (photon->Normal() & m_photons[i]->Dir()) > 0 ) {
                 power = m_photons[i]->Power();
-                colorAdd(irradiance, power, irradiance);
+                irradiance.add(irradiance, power);
             }
         }
 
@@ -403,7 +403,7 @@ CPhotonMap::Reconstruct(RayHit *hit, Vector3D &outDir,
         power = m_photons[i]->Power();
 
         col.scalarProduct(eval, power);
-        colorAdd(result, col, result);
+        result.add(result, col);
     }
 
     // Now we have a radiance integrated over area estimate,

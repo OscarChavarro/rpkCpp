@@ -84,7 +84,7 @@ mainPatchAccumulateStats(Patch *patch) {
 
     GLOBAL_statistics.totalArea += patch->area;
     power.scaledCopy(patch->area, E);
-    colorAdd(GLOBAL_statistics.totalEmittedPower, power, GLOBAL_statistics.totalEmittedPower);
+    GLOBAL_statistics.totalEmittedPower.add(GLOBAL_statistics.totalEmittedPower, power);
     colorAddScaled(GLOBAL_statistics.averageReflectivity, patch->area, R, GLOBAL_statistics.averageReflectivity);
     // Convert radiant exitance to exitant radiance
     E.scale(1.0f / (float) M_PI);
@@ -122,8 +122,8 @@ mainComputeSomeSceneStats() {
     // Include background radiation
     BP = backgroundPower(GLOBAL_scene_background, &zero);
     BP.scale(1.0 / (4.0 * (double) M_PI));
-    colorAdd(GLOBAL_statistics.totalEmittedPower, BP, GLOBAL_statistics.totalEmittedPower);
-    colorAdd(GLOBAL_statistics.estimatedAverageRadiance, BP, GLOBAL_statistics.estimatedAverageRadiance);
+    GLOBAL_statistics.totalEmittedPower.add(GLOBAL_statistics.totalEmittedPower, BP);
+    GLOBAL_statistics.estimatedAverageRadiance.add(GLOBAL_statistics.estimatedAverageRadiance, BP);
 
     colorDivide(GLOBAL_statistics.estimatedAverageRadiance, average_absorption,
                 GLOBAL_statistics.estimatedAverageRadiance);

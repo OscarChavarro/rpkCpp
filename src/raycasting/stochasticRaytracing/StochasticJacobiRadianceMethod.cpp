@@ -336,7 +336,7 @@ stochasticRelaxationRadiosityElementUpdateRadiance(StochasticRadiosityElement *e
     stochasticRadiosityAddCoefficients(elem->radiance, elem->receivedRadiance, elem->basis);
 
     // Re-add source radiosity
-    colorAdd(elem->radiance[0], elem->sourceRad, elem->radiance[0]);
+    elem->radiance[0].add(elem->radiance[0], elem->sourceRad);
 
     // Clear un-shot and received radiance
     stochasticRadiosityClearCoefficients(elem->unShotRadiance, elem->basis);

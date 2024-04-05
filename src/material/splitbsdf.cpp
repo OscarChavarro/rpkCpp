@@ -69,18 +69,18 @@ splitBsdfScatteredPower(BSDF *bsdf, RayHit *hit, char flags) {
 
     if ( bsdf->texture && (flags & TEXTURED_COMPONENT) ) {
         ColorRgb textureColor = splitBsdfEvalTexture(bsdf->texture, hit);
-        colorAdd(albedo, textureColor, albedo);
-        flags &= ~TEXTURED_COMPONENT;  /* avoid taking it into account again */
+        albedo.add(albedo, textureColor);
+        flags &= ~TEXTURED_COMPONENT; // Avoid taking it into account again
     }
 
     if ( bsdf->brdf ) {
         ColorRgb reflectance = brdfReflectance(bsdf->brdf, GET_BRDF_FLAGS(flags));
-        colorAdd(albedo, reflectance, albedo);
+        albedo.add(albedo, reflectance);
     }
 
     if ( bsdf->btdf ) {
         ColorRgb trans = btdfTransmittance(bsdf->btdf, GET_BTDF_FLAGS(flags));
-        colorAdd(albedo, trans, albedo);
+        albedo.add(albedo, trans);
     }
 
     return albedo;
@@ -122,7 +122,7 @@ splitBsdfEval(
     // computed more than once :-(
     if ( bsdf->brdf ) {
         ColorRgb reflectionCol = brdfEval(bsdf->brdf, in, out, &normal, GET_BRDF_FLAGS(flags));
-        colorAdd(result, reflectionCol, result);
+        result.add(result, reflectionCol);
     }
 
     if ( bsdf->btdf ) {
@@ -133,7 +133,7 @@ splitBsdfEval(
         bsdfIndexOfRefraction(outBsdf, &outIndex);
         refractionCol = btdfEval(bsdf->btdf, inIndex, outIndex,
                                  in, out, &normal, GET_BTDF_FLAGS(flags));
-        colorAdd(result, refractionCol, result);
+        result.add(result, refractionCol);
     }
 
     return result;

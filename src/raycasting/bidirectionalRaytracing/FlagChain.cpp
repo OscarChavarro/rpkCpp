@@ -230,7 +230,7 @@ ChainList::compute(CBiPath *path) {
     while ( (chain = iter.nextOnSequence()) != nullptr ) {
         tmpCol = chain->compute(path);
 
-        colorAdd(tmpCol, result, result);
+        result.add(tmpCol, result);
     }
 
     return result;

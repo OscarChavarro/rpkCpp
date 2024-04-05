@@ -162,7 +162,7 @@ mgfGetCurrentMaterial(Material **material, bool allSurfacesSided, MgfContext *co
     mgfGetColor(&globalMgfCurrentMaterial->ts_c, globalMgfCurrentMaterial->ts, &Ts, context);
 
     // Check/correct range of reflectances and transmittances
-    colorAdd(Rd, Rs, A);
+    A.add(Rd, Rs);
     float a = colorMax(A);
     if ( a > 1.0f - (float)EPSILON ) {
         doWarning("invalid material specification: total reflectance shall be < 1", context);
@@ -171,7 +171,7 @@ mgfGetCurrentMaterial(Material **material, bool allSurfacesSided, MgfContext *co
         Rs.scale(a);
     }
 
-    colorAdd(Td, Ts, A);
+    A.add(Td, Ts);
     a = colorMax(A);
     if ( a > 1.0f - (float)EPSILON ) {
         doWarning("invalid material specification: total transmittance shall be < 1", context);

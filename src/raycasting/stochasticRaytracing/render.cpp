@@ -46,7 +46,7 @@ vertexRadiance(Vertex *v) {
         StochasticRadiosityElement *elem = (StochasticRadiosityElement *)element;
         if ( !elem->regularSubElements ) {
             ColorRgb elementRadiosity = stochasticRadiosityElementDisplayRadiance(elem);
-            colorAdd(radiance, elementRadiosity, radiance);
+            radiance.add(radiance, elementRadiosity);
             count++;
         }
     }
@@ -461,10 +461,10 @@ stochasticRadiosityElementDisplayRadiance(StochasticRadiosityElement *elem) {
     if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.show != SHOW_INDIRECT_RADIANCE ) {
         // Source_rad is self-emitted radiance if !GLOBAL_stochasticRaytracing_monteCarloRadiosityState.indirectOnly. It is direct
         // illumination if GLOBAL_stochasticRaytracing_monteCarloRadiosityState.direct_only */
-        colorAdd(rad, elem->sourceRad, rad);
+        rad.add(rad, elem->sourceRad);
         if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.indirectOnly || GLOBAL_stochasticRaytracing_monteCarloRadiosityState.doNonDiffuseFirstShot ) {
             // Add self-emitted radiance
-            colorAdd(rad, elem->Ed, rad);
+            rad.add(rad, elem->Ed);
         }
     }
     return rad;

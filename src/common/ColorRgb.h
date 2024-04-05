@@ -26,14 +26,8 @@ class ColorRgb {
     void scalarProduct(const ColorRgb &s, const ColorRgb &t);
     void selfScalarProduct(const ColorRgb &s);
     void scalarProductScaled(ColorRgb &s, float a, ColorRgb &t);
+    void add(ColorRgb &s, ColorRgb &t);
 };
-
-inline void
-colorAdd(ColorRgb &s, ColorRgb &t, ColorRgb &r) {
-    r.spectrum[0] = s.spectrum[0] + t.spectrum[0];
-    r.spectrum[1] = s.spectrum[1] + t.spectrum[1];
-    r.spectrum[2] = s.spectrum[2] + t.spectrum[2];
-}
 
 inline void
 colorAddScaled(ColorRgb &s, float a, ColorRgb &t, ColorRgb &r) {

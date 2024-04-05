@@ -142,9 +142,9 @@ bsdfEvalComponents(
 
         if ( flags & thisFlag ) {
             colArray[i] = bsdfEval(bsdf, hit, inBsdf, outBsdf, in, out, thisFlag);
-            colorAdd(result, colArray[i], result);
+            result.add(result, colArray[i]);
         } else {
-            colArray[i] = empty;  /* Set to 0 for safety */
+            colArray[i] = empty;  // Set to 0 for safety
         }
     }
 

@@ -661,7 +661,8 @@ stochasticJacobiUpdateElement(StochasticRadiosityElement *elem) {
     if ( globalGetRadianceCallback ) {
         if ( globalDoControlVariate ) {
             // Add constant radiosity contribution to received flux
-            colorAdd(elem->receivedRadiance[0], GLOBAL_stochasticRaytracing_monteCarloRadiosityState.controlRadiance, elem->receivedRadiance[0]);
+            elem->receivedRadiance[0].add(
+                elem->receivedRadiance[0], GLOBAL_stochasticRaytracing_monteCarloRadiosityState.controlRadiance);
         }
         // Multiply with reflectivity on leaf elements only
         stochasticRadiosityMultiplyCoefficients(elem->Rd, elem->receivedRadiance, elem->basis);

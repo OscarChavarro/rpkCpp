@@ -28,16 +28,16 @@ phongEmittance(PhongEmittanceDistributionFunction *edf, RayHit * /*hit*/, char f
 
     result.clear();
     if ( flags & DIFFUSE_COMPONENT ) {
-        colorAdd(result, edf->Kd, result);
+        result.add(result, edf->Kd);
     }
 
     if ( PHONG_IS_SPECULAR(*edf) ) {
         if ( flags & SPECULAR_COMPONENT ) {
-            colorAdd(result, edf->Ks, result);
+            result.add(result, edf->Ks);
         }
     } else {
         if ( flags & GLOSSY_COMPONENT ) {
-            colorAdd(result, edf->Ks, result);
+            result.add(result, edf->Ks);
         }
     }
 
@@ -92,7 +92,7 @@ phongEdfEval(PhongEmittanceDistributionFunction *edf, RayHit *hit, Vector3D *out
 
     if ( flags & DIFFUSE_COMPONENT ) {
         // Divide by PI to turn radiant exitance [W/m^2] into exitant radiance [W/m^2 sr]
-        colorAdd(result, edf->kd, result);
+        result.add(result, edf->kd);
         if ( probabilityDensityFunction ) {
             *probabilityDensityFunction = cosL / M_PI;
         }

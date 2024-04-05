@@ -224,18 +224,19 @@ randomWalkRadiosityShootingUpdate(Patch *P, double w) {
     }
     k = old_quality / topLevelGalerkinElement(P)->quality;
 
-    /* subtract self-emitted rad */
+    // Subtract self-emitted rad
     colorSubtract(getTopLevelPatchRad(P)[0], topLevelGalerkinElement(P)->sourceRad, getTopLevelPatchRad(P)[0]);
 
-    /* weight with previous results */
+    // Weight with previous results
     stochasticRadiosityScaleCoefficients((float)k, getTopLevelPatchRad(P), getTopLevelPatchBasis(P));
     stochasticRadiosityScaleCoefficients((1.0f - (float)k), getTopLevelPatchReceivedRad(P), getTopLevelPatchBasis(P));
     stochasticRadiosityAddCoefficients(getTopLevelPatchRad(P), getTopLevelPatchReceivedRad(P), getTopLevelPatchBasis(P));
 
-    /* re-add self-emitted rad */
-    colorAdd(getTopLevelPatchRad(P)[0], topLevelGalerkinElement(P)->sourceRad, getTopLevelPatchRad(P)[0]);
+    // Re-add self-emitted rad
+    getTopLevelPatchRad(P)[0].add(
+        getTopLevelPatchRad(P)[0], topLevelGalerkinElement(P)->sourceRad);
 
-    /* clear un-shot and received radiance */
+    // Clear un-shot and received radiance
     stochasticRadiosityClearCoefficients(getTopLevelPatchUnShotRad(P), getTopLevelPatchBasis(P));
     stochasticRadiosityClearCoefficients(getTopLevelPatchReceivedRad(P), getTopLevelPatchBasis(P));
 }
@@ -341,7 +342,7 @@ randomWalkRadiosityCollisionGatheringScore(PATH *path, long /*nr_paths*/, double
         topLevelGalerkinElement(P)->ng++;
 
         accumRad.scale((float) (r / node->probability));
-        colorAdd(accumRad, topLevelGalerkinElement(P)->sourceRad, accumRad);
+        accumRad.add(accumRad, topLevelGalerkinElement(P)->sourceRad);
     }
 }
 
@@ -357,16 +358,16 @@ randomWalkRadiosityGatheringUpdate(Patch *P, double /*w*/) {
         stochasticRadiosityScaleCoefficients((1.0f / (float) topLevelGalerkinElement(P)->ng), getTopLevelPatchRad(P), getTopLevelPatchBasis(P));
 
     // Add source radiance (source term estimation suppression!)
-    colorAdd(getTopLevelPatchRad(P)[0], topLevelGalerkinElement(P)->sourceRad, getTopLevelPatchRad(P)[0]);
+    getTopLevelPatchRad(P)[0].add(getTopLevelPatchRad(P)[0], topLevelGalerkinElement(P)->sourceRad);
 
     if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.constantControlVariate ) {
-        /* add constant control radiosity value */
+        // Add constant control radiosity value
         ColorRgb cr = GLOBAL_stochasticRaytracing_monteCarloRadiosityState.controlRadiance;
         if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.indirectOnly ) {
             ColorRgb Rd = topLevelGalerkinElement(P)->Rd;
             cr.scalarProduct(Rd, GLOBAL_stochasticRaytracing_monteCarloRadiosityState.controlRadiance);
         }
-        colorAdd(getTopLevelPatchRad(P)[0], cr, getTopLevelPatchRad(P)[0]);
+        getTopLevelPatchRad(P)[0].add(getTopLevelPatchRad(P)[0], cr);
     }
 
     stochasticRadiosityClearCoefficients(getTopLevelPatchReceivedRad(P), getTopLevelPatchBasis(P));

@@ -74,16 +74,16 @@ phongReflectance(PhongBidirectionalReflectanceDistributionFunction *brdf, char f
     result.clear();
 
     if ( flags & DIFFUSE_COMPONENT ) {
-        colorAdd(result, brdf->Kd, result);
+        result.add(result, brdf->Kd);
     }
 
     if ( PHONG_IS_SPECULAR(*brdf) ) {
         if ( flags & SPECULAR_COMPONENT ) {
-            colorAdd(result, brdf->Ks, result);
+            result.add(result, brdf->Ks);
         }
     } else {
         if ( flags & GLOSSY_COMPONENT ) {
-            colorAdd(result, brdf->Ks, result);
+            result.add(result, brdf->Ks);
         }
     }
 
@@ -97,16 +97,16 @@ phongTransmittance(PhongBidirectionalTransmittanceDistributionFunction *btdf, ch
     result.clear();
 
     if ( flags & DIFFUSE_COMPONENT ) {
-        colorAdd(result, btdf->Kd, result);
+        result.add(result, btdf->Kd);
     }
 
     if ( PHONG_IS_SPECULAR(*btdf) ) {
         if ( flags & SPECULAR_COMPONENT ) {
-            colorAdd(result, btdf->Ks, result);
+            result.add(result, btdf->Ks);
         }
     } else {
         if ( flags & GLOSSY_COMPONENT ) {
-            colorAdd(result, btdf->Ks, result);
+            result.add(result, btdf->Ks);
         }
     }
 

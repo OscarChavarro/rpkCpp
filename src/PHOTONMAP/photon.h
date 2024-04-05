@@ -46,7 +46,7 @@ class CPhoton {
 
     inline void
     AddPower(ColorRgb col) {
-        colorAdd(m_power, col, m_power);
+        m_power.add(m_power, col);
     }
 
     inline Vector3D

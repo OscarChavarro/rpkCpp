@@ -127,7 +127,7 @@ stochasticRaytracerGetScatteredRadiance(
                     factor = newNode.m_G / (newNode.m_pdfFromPrev * nrSamples);
 
                     radiance.scalarProductScaled(radiance, (float) factor, thisNode->m_bsdfEval);
-                    colorAdd(radiance, result, result);
+                    result.add(radiance, result);
                 }
             }
         }
@@ -270,7 +270,7 @@ SR_GetDirectRadiance(
                                 radiance.scalarProductScaled(prevNode->m_bsdfEval, (float) factor, lightNode.m_bsdfEval);
 
                                 // Collect outgoing radiance
-                                colorAdd(result, radiance, result);
+                                result.add(result, radiance);
                             } // if not photon map or no caustic path
 
                             // Next scatter info block
@@ -387,22 +387,22 @@ stochasticRaytracerGetRadiance(
                 colorSubtract(radiance, diffEmit, radiance);
             }
 
-            colorAdd(result, radiance, result);
+            result.add(result, radiance);
 
         } // Done: Stored radiance, no self emitted light included!
 
         // Stored caustic maps
         if ( (config->radMode == STORED_PHOTON_MAP) && readout == SCATTER ) {
             radiance = photonMapGetNodeCRadiance(thisNode);
-            colorAdd(result, radiance, result);
+            result.add(result, radiance);
         }
 
         radiance = SR_GetDirectRadiance(thisNode, config, readout);
-        colorAdd(result, radiance, result);
+        result.add(result, radiance);
 
         // Scattered light
         radiance = stochasticRaytracerGetScatteredRadiance(thisNode, config, readout, context);
-        colorAdd(result, radiance, result);
+        result.add(result, radiance);
 
         // Emitted Light
         if ( (config->radMode == STORED_PHOTON_MAP) && (context->className == PHOTON_MAP) ) {
@@ -518,7 +518,7 @@ CalcPixel(int nx, int ny, StochasticRaytracingConfiguration *config, RadianceMet
 
             // Account for pixel sampling
             col.scale((float) (pixelNode.m_G / pixelNode.m_pdfFromPrev));
-            colorAdd(result, col, result);
+            result.add(result, col);
         }
     }
 

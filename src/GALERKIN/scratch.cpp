@@ -144,9 +144,9 @@ scratchRadiance() {
             if ( elem != nullptr ) {
                 if ( GLOBAL_galerkin_state.iteration_method == GAUSS_SEIDEL ||
                      GLOBAL_galerkin_state.iteration_method == JACOBI ) {
-                    colorAdd(rad, elem->radiance[0], rad);
+                    rad.add(rad, elem->radiance[0]);
                 } else {
-                    colorAdd(rad, elem->unShotRadiance[0], rad);
+                    rad.add(rad, elem->unShotRadiance[0]);
                 }
                 nonBackGround++;
             }

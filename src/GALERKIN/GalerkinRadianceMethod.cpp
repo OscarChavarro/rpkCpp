@@ -286,7 +286,7 @@ patchRecomputeColor(Patch *patch) {
     // Compute the patches color based on its radiance + ambient radiance if desired
     if ( GLOBAL_galerkin_state.use_ambient_radiance ) {
         radVis.scalarProduct(reflectivity, GLOBAL_galerkin_state.ambient_radiance);
-        colorAdd(radVis, RADIANCE(patch), radVis);
+        radVis.add(radVis, RADIANCE(patch));
         radianceToRgb(radVis, &patch->color);
     } else {
         radianceToRgb(RADIANCE(patch), &patch->color);
@@ -303,7 +303,7 @@ patchInit(Patch *patch) {
         // See Neumann et-al, "The Constant Radiosity Step", Euro-graphics Rendering Workshop
         // '95, Dublin, Ireland, June 1995, p 336-344
         RADIANCE(patch).scalarProduct(reflectivity, GLOBAL_galerkin_state.constant_radiance);
-        colorAdd(RADIANCE(patch), selfEmittanceRadiance, RADIANCE(patch));
+        RADIANCE(patch).add(RADIANCE(patch), selfEmittanceRadiance);
         if ( GLOBAL_galerkin_state.iteration_method == SOUTH_WELL )
             colorSubtract(RADIANCE(patch), GLOBAL_galerkin_state.constant_radiance,
                           UN_SHOT_RADIANCE(patch));
@@ -425,7 +425,7 @@ GalerkinRadianceMethod::getRadiance(Patch *patch, double u, double v, Vector3D d
         ColorRgb reflectivity = patch->radianceData->Rd;
         ColorRgb ambientRadiance;
         ambientRadiance.scalarProduct(reflectivity, GLOBAL_galerkin_state.ambient_radiance);
-        colorAdd(rad, ambientRadiance, rad);
+        rad.add(rad, ambientRadiance);
     }
 
     return rad;
@@ -575,7 +575,7 @@ galerkinWriteVertexColors(Element *element) {
 
         ambient.scalarProduct(reflectivity, GLOBAL_galerkin_state.ambient_radiance);
         for ( i = 0; i < galerkinElement->patch->numberOfVertices; i++ ) {
-            colorAdd(vertexRadiosity[i], ambient, vertexRadiosity[i]);
+            vertexRadiosity[i].add(vertexRadiosity[i], ambient);
         }
     }
 

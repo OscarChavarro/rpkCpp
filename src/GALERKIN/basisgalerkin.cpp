@@ -86,7 +86,7 @@ basisGalerkinPushPullRadianceRecursive(GalerkinElement *element, ColorRgb *Bdown
             // Add self-emitted radiance. Bup is a new approximation of the total radiance
             // add this leaf element
             ColorRgb Ed = element->patch->radianceData->Ed;
-            colorAdd(Bup[0], Ed, Bup[0]);
+            Bup[0].add(Bup[0], Ed);
         }
     }
 

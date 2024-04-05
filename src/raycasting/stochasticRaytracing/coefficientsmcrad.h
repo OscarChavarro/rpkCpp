@@ -29,7 +29,7 @@ stochasticRadiosityAddCoefficients(ColorRgb *dst, ColorRgb *extra, GalerkinBasis
     ColorRgb *s;
 
     for ( i = 0, d = dst, s = extra; i < galerkinBasis->size; i++, d++, s++ ) {
-        colorAdd(*d, *s, *d);
+        d->add(*d, *s);
     }
 }
 

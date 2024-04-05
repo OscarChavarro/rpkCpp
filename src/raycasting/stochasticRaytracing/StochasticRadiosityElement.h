@@ -61,7 +61,7 @@ extern StochasticRadiosityElement *stochasticRadiosityElementRegularLeafElementA
 extern Vertex *stochasticRadiosityElementEdgeMidpointVertex(StochasticRadiosityElement *elem, int edgeNumber);
 extern int stochasticRadiosityElementIsTextured(StochasticRadiosityElement *elem);
 extern float stochasticRadiosityElementScalarReflectance(StochasticRadiosityElement *elem);
-extern void stochasticRadiosityElementPushRadiance(StochasticRadiosityElement *parent, StochasticRadiosityElement *child, ColorRgb *parent_rad, ColorRgb *child_rad);
+extern void stochasticRadiosityElementPushRadiance(StochasticRadiosityElement *parent, StochasticRadiosityElement *child, ColorRgb *parentRadiance, ColorRgb *childRadiance);
 extern void stochasticRadiosityElementPushImportance(const float *parentImportance, float *childImportance);
 extern void stochasticRadiosityElementPullRadiance(StochasticRadiosityElement *parent, StochasticRadiosityElement *child, ColorRgb *parent_rad, ColorRgb *child_rad);
 extern void stochasticRadiosityElementPullImportance(StochasticRadiosityElement *parent, StochasticRadiosityElement *child, float *parent_imp, const float *child_imp);

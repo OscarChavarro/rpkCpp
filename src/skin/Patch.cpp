@@ -719,7 +719,7 @@ Patch::averageNormalAlbedo(BSDF_FLAGS components) {
         hit.flags |= HIT_UV;
         pointBarycentricMapping(hit.uv.u, hit.uv.v, &hit.point);
         sample = bsdfScatteredPower(surface->material->bsdf, &hit, &normal, components);
-        colorAdd(albedo, sample, albedo);
+        albedo.add(albedo, sample);
     }
     colorScaleInverse((float) numberOfSamples, albedo, albedo);
 
@@ -743,7 +743,7 @@ Patch::averageEmittance(char components) {
         hit.flags |= HIT_UV;
         pointBarycentricMapping(hit.uv.u, hit.uv.v, &hit.point);
         sample = edfEmittance(surface->material->edf, &hit, components);
-        colorAdd(emittance, sample, emittance);
+        emittance.add(emittance, sample);
     }
     colorScaleInverse((float) numberOfSamples, emittance, emittance);
 

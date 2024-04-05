@@ -666,11 +666,11 @@ monteCarloRadiosityElementComputeAverageReflectanceAndEmittance(StochasticRadios
         patch->uniformPoint(hit.uv.u, hit.uv.v, &hit.point);
         if ( patch->surface->material->bsdf ) {
             sample = bsdfScatteredPower(patch->surface->material->bsdf, &hit, &patch->normal, BRDF_DIFFUSE_COMPONENT);
-            colorAdd(albedo, sample, albedo);
+            albedo.add(albedo, sample);
         }
         if ( patch->surface->material->edf ) {
             sample = edfEmittance(patch->surface->material->edf, &hit, DIFFUSE_COMPONENT);
-            colorAdd(emittance, sample, emittance);
+            emittance.add(emittance, sample);
         }
     }
     colorScaleInverse((float) numberOfSamples, albedo, elem->Rd);
@@ -927,11 +927,16 @@ regularChild(StochasticRadiosityElement *child) {
 }
 
 void
-stochasticRadiosityElementPushRadiance(StochasticRadiosityElement *parent, StochasticRadiosityElement *child, ColorRgb *parent_rad, ColorRgb *child_rad) {
+stochasticRadiosityElementPushRadiance(
+    StochasticRadiosityElement *parent,
+    StochasticRadiosityElement *child,
+    ColorRgb *parentRadiance,
+    ColorRgb *childRadiance)
+{
     if ( parent->isCluster() || child->basis->size == 1 ) {
-        colorAdd(child_rad[0], parent_rad[0], child_rad[0]);
+        childRadiance[0].add(childRadiance[0], parentRadiance[0]);
     } else if ( regularChild(child) && child->basis == parent->basis ) {
-        filterColorDown(parent_rad, &(*child->basis->regular_filter)[child->childNumber], child_rad,
+        filterColorDown(parentRadiance, &(*child->basis->regular_filter)[child->childNumber], childRadiance,
                         child->basis->size);
     } else {
         logFatal(-1, "stochasticRadiosityElementPushRadiance",

@@ -120,9 +120,9 @@ CSparList::handlePath(
         col = (*spar)->handlePath(config, path);
 
         if ( *spar == config->leSpar ) {
-            colorAdd(col, *fBpt, *fBpt);
+            fBpt->add(col, *fBpt);
         } else {
-            colorAdd(col, *fRad, *fRad);
+            fRad->add(col, *fRad);
         }
     }
 }

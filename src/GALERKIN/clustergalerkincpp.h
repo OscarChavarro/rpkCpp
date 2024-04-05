@@ -29,7 +29,7 @@ clusterGalerkinAddCoefficients(ColorRgb *dst, ColorRgb *extra, char n) {
     ColorRgb *s;
 
     for ( i = 0, d = dst, s = extra; i < n; i++, d++, s++ ) {
-        colorAdd(*d, *s, *d);
+        d->add(*d, *s);
     }
 }
 

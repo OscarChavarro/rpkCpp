@@ -508,7 +508,7 @@ vertexReflectance(Vertex *v) {
         }
         StochasticRadiosityElement *element = (StochasticRadiosityElement *)genericElement;
         if ( !element->regularSubElements ) {
-            colorAdd(rd, element->Rd, rd);
+            rd.add(rd, element->Rd);
             count++;
         }
     }
@@ -558,28 +558,28 @@ monteCarloRadiosityGetRadiance(Patch *patch, double u, double v, Vector3D /*dir*
             topLevelGalerkinElement(patch), &u, &v);
     ColorRgb UsedRdAtPoint = GLOBAL_render_renderOptions.smoothShading ? monteCarloRadiosityInterpolatedReflectanceAtPoint(leaf, u, v) : leaf->Rd;
     ColorRgb rad = stochasticRadiosityElementDisplayRadianceAtPoint(leaf, u, v);
-    ColorRgb source_rad;
-    source_rad.clear();
+    ColorRgb sourceRad;
+    sourceRad.clear();
 
     // Subtract source radiance
     if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.show != SHOW_INDIRECT_RADIANCE ) {
         // source_rad is self-emitted radiance if !GLOBAL_stochasticRaytracing_monteCarloRadiosityState.indirectOnly. It is direct
         // illumination if GLOBAL_stochasticRaytracing_monteCarloRadiosityState.direct_only
         if ( !GLOBAL_stochasticRaytracing_monteCarloRadiosityState.doNonDiffuseFirstShot ) {
-            source_rad = leaf->sourceRad;
+            sourceRad = leaf->sourceRad;
         }
         if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.indirectOnly || GLOBAL_stochasticRaytracing_monteCarloRadiosityState.doNonDiffuseFirstShot ) {
             // Subtract self-emitted radiance
-            colorAdd(source_rad, leaf->Ed, source_rad);
+            sourceRad.add(sourceRad, leaf->Ed);
         }
     }
-    colorSubtract(rad, source_rad, rad);
+    colorSubtract(rad, sourceRad, rad);
 
     rad.scalarProduct(rad, TrueRdAtPoint);
     colorDivide(rad, UsedRdAtPoint, rad);
 
     // Re-add source radiance
-    colorAdd(rad, source_rad, rad);
+    rad.add(rad, sourceRad);
 
     return rad;
 }

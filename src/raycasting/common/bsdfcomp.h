@@ -42,7 +42,7 @@ class BsdfComp {
 
         for ( int i = 0; i < BSDF_COMPONENTS; i++ ) {
             if ( flags & (BSDF_INDEX_TO_COMP(i)) ) {
-                colorAdd(result, comp[i], result);
+                result.add(result, comp[i]);
             }
         }
 
