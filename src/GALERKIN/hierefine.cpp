@@ -185,7 +185,7 @@ hierarchicRefinementApproximationError(
             }
 
             error.scalarProductScaled(rcvRho, link->deltaK[0], srcRad);
-            colorAbs(error, error);
+            error.abs();
             approxError = hierarchicRefinementColorToError(error);
             break;
 
@@ -197,7 +197,7 @@ hierarchicRefinementApproximationError(
             }
 
             error.scalarProductScaled(rcvRho, link->deltaK[0], srcRad);
-            colorAbs(error, error);
+            error.abs();
             approxError = hierarchicRefinementColorToError(error);
 
             if ( state->importance_driven && link->receiverElement->isCluster() ) {
@@ -265,7 +265,7 @@ sourceClusterRadianceVariationError(Interaction *link, ColorRgb rcvRho, double r
     error.subtract(maximumSrcRad, minimumSrcRad);
 
     error.scalarProductScaled(rcvRho, (float) (K / rcv_area), error);
-    colorAbs(error, error);
+    error.abs();
     return hierarchicRefinementColorToError(error);
 }
 

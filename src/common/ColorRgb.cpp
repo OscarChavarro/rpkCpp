@@ -127,3 +127,10 @@ float
 ColorRgb::sumAbsComponents() const {
     return std::fabs(spectrum[0]) + std::fabs(spectrum[1]) + std::fabs(spectrum[2]);
 }
+
+void
+ColorRgb::abs() {
+    spectrum[0] = std::fabs(spectrum[0]);
+    spectrum[1] = std::fabs(spectrum[1]);
+    spectrum[2] = std::fabs(spectrum[2]);
+}

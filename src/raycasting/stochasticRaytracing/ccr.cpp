@@ -153,7 +153,7 @@ refineControlRadiosityRecursive(
             ColorRgb t;
             t.scalarProduct(s, rad[i]);
             t.subtract(B, t);
-            colorAbs(t, t);
+            t.abs();
             f[i].addScaled(f[i], weightedArea, t);
         }
     } else {

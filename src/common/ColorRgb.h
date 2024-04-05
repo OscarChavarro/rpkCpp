@@ -34,14 +34,8 @@ class ColorRgb {
     void scaleInverse(float scale, ColorRgb &s);
     float maximumComponent() const;
     float sumAbsComponents() const;
+    void abs();
 };
-
-inline void
-colorAbs(ColorRgb &s, ColorRgb &r) {
-    r.spectrum[0] = std::fabs(s.spectrum[0]);
-    r.spectrum[1] = std::fabs(s.spectrum[1]);
-    r.spectrum[2] = std::fabs(s.spectrum[2]);
-}
 
 inline void
 colorMaximum(ColorRgb &s, ColorRgb &t, ColorRgb &r) {
