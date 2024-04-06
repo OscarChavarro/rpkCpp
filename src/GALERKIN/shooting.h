@@ -4,6 +4,6 @@
 #include "java/util/ArrayList.h"
 #include "skin/Patch.h"
 
-extern int doShootingStep(java::ArrayList<Patch *> *scenePatches);
+extern int doShootingStep(java::ArrayList<Patch *> *scenePatches, GalerkinState *galerkinState);
 
 #endif

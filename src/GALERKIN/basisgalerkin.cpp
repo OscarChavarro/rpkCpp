@@ -67,7 +67,7 @@ basisGalerkinPull(
 Modifies Bdown!
 */
 static void
-basisGalerkinPushPullRadianceRecursive(GalerkinElement *element, ColorRgb *Bdown, ColorRgb *Bup) {
+basisGalerkinPushPullRadianceRecursive(GalerkinElement *element, ColorRgb *Bdown, ColorRgb *Bup, GalerkinState *galerkinState) {
     // Re-normalize the received radiance at this level and add to Bdown
     for ( int i = 0; i < element->basisSize; i++ ) {
         Bdown[i].addScaled(Bdown[i], 1.0f / element->area, element->receivedRadiance[i]);
@@ -102,7 +102,7 @@ basisGalerkinPushPullRadianceRecursive(GalerkinElement *element, ColorRgb *Bdown
             basisGalerkinPush((GalerkinElement *)element, Bdown, (GalerkinElement *)element->regularSubElements[i], Bdown2);
 
             // 2. Recursive call the push-pull for the sub-element
-            basisGalerkinPushPullRadianceRecursive((GalerkinElement *)element->regularSubElements[i], Bdown2, Btmp);
+            basisGalerkinPushPullRadianceRecursive((GalerkinElement *)element->regularSubElements[i], Bdown2, Btmp, galerkinState);
 
             // 3. Pull the radiance of the sub-element up to this level again
             basisGalerkinPull((GalerkinElement *)element, Bup2, (GalerkinElement *)element->regularSubElements[i], Btmp);
@@ -129,7 +129,7 @@ basisGalerkinPushPullRadianceRecursive(GalerkinElement *element, ColorRgb *Bdown
             }
 
             // 2. Recursive call the push-pull for the sub-element
-            basisGalerkinPushPullRadianceRecursive(subElement, Bdown2, Btmp);
+            basisGalerkinPushPullRadianceRecursive(subElement, Bdown2, Btmp, galerkinState);
 
             // 3. Pull the radiance of the sub-element up to this level again
             basisGalerkinPull(element, Bup2, subElement, Btmp);
@@ -317,11 +317,11 @@ Converts the received radiance of a patch into exit
 radiance, making a consistent hierarchical representation
 */
 void
-basisGalerkinPushPullRadiance(GalerkinElement *top) {
+basisGalerkinPushPullRadiance(GalerkinElement *top, GalerkinState *galerkinState) {
     ColorRgb Bdown[MAX_BASIS_SIZE];
     ColorRgb Bup[MAX_BASIS_SIZE];
     clusterGalerkinClearCoefficients(Bdown, top->basisSize);
-    basisGalerkinPushPullRadianceRecursive(top, Bdown, Bup);
+    basisGalerkinPushPullRadianceRecursive(top, Bdown, Bup, galerkinState);
 }
 
 void

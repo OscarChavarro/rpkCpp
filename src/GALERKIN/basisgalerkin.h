@@ -6,6 +6,7 @@ Higher order approximations for Galerkin radiosity
 #define __BASIS__
 
 #include "GALERKIN/GalerkinElement.h"
+#include "GALERKIN/GalerkinState.h"
 
 // No basis consists of more than this number of basis functions
 #define MAX_BASIS_SIZE 10
@@ -47,6 +48,6 @@ basisGalerkinPush(
     ColorRgb *childCoefficients);
 
 extern void basisGalerkinInitBasis();
-extern void basisGalerkinPushPullRadiance(GalerkinElement *top);
+extern void basisGalerkinPushPullRadiance(GalerkinElement *top, GalerkinState *basisGalerkinPushPullRadiance);
 
 #endif

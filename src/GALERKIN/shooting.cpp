@@ -149,19 +149,19 @@ shootingPushPullPotential(GalerkinElement *element, float down) {
 }
 
 static void
-patchUpdateRadianceAndPotential(Patch *patch) {
+patchUpdateRadianceAndPotential(Patch *patch, GalerkinState *galerkinState) {
     GalerkinElement *topLevelElement = galerkinGetElement(patch);
     if ( GLOBAL_galerkin_state.importance_driven ) {
         shootingPushPullPotential(topLevelElement, 0.0f);
     }
-    basisGalerkinPushPullRadiance(topLevelElement);
+    basisGalerkinPushPullRadiance(topLevelElement, galerkinState);
 
     GLOBAL_galerkin_state.ambient_radiance.addScaled(GLOBAL_galerkin_state.ambient_radiance, patch->area,
                                                      patch->radianceData->unShotRadiance[0]);
 }
 
 static void
-doPropagate(Patch *shooting_patch, java::ArrayList<Patch *> *scenePatches) {
+doPropagate(Patch *shooting_patch, java::ArrayList<Patch *> *scenePatches, GalerkinState *galerkinState) {
     // Propagate the un-shot power of the shooting patch into the environment
     patchPropagateUnShotRadianceAndPotential(shooting_patch);
 
@@ -171,12 +171,12 @@ doPropagate(Patch *shooting_patch, java::ArrayList<Patch *> *scenePatches) {
         if ( GLOBAL_galerkin_state.importance_driven ) {
             shootingPushPullPotential(GLOBAL_galerkin_state.topCluster, 0.0);
         }
-        basisGalerkinPushPullRadiance(GLOBAL_galerkin_state.topCluster);
+        basisGalerkinPushPullRadiance(GLOBAL_galerkin_state.topCluster, galerkinState);
         GLOBAL_galerkin_state.ambient_radiance = GLOBAL_galerkin_state.topCluster->unShotRadiance[0];
     } else {
         GLOBAL_galerkin_state.ambient_radiance.clear();
         for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
-            patchUpdateRadianceAndPotential(scenePatches->get(i));
+            patchUpdateRadianceAndPotential(scenePatches->get(i), galerkinState);
         }
         GLOBAL_galerkin_state.ambient_radiance.scale(1.0f / GLOBAL_statistics.totalArea);
     }
@@ -187,7 +187,7 @@ doPropagate(Patch *shooting_patch, java::ArrayList<Patch *> *scenePatches) {
 }
 
 static int
-propagateRadiance(java::ArrayList<Patch *> *scenePatches) {
+propagateRadiance(java::ArrayList<Patch *> *scenePatches, GalerkinState *galerkinState) {
     Patch *shooting_patch;
 
     // Choose a shooting patch. also accumulates the total un-shot power into
@@ -200,7 +200,7 @@ propagateRadiance(java::ArrayList<Patch *> *scenePatches) {
     openGlRenderSetColor(&GLOBAL_material_yellow);
     openGlRenderPatchOutline(shooting_patch);
 
-    doPropagate(shooting_patch, scenePatches);
+    doPropagate(shooting_patch, scenePatches, galerkinState);
 
     return false;
 }
@@ -248,14 +248,14 @@ choosePotentialShootingPatch(java::ArrayList<Patch *> *scenePatches) {
 }
 
 static void
-propagatePotential(java::ArrayList<Patch *> *scenePatches) {
+propagatePotential(java::ArrayList<Patch *> *scenePatches, GalerkinState *galerkinState) {
     Patch *shooting_patch;
 
     shooting_patch = choosePotentialShootingPatch(scenePatches);
     if ( shooting_patch ) {
         openGlRenderSetColor(&GLOBAL_material_white);
         openGlRenderPatchOutline(shooting_patch);
-        doPropagate(shooting_patch, scenePatches);
+        doPropagate(shooting_patch, scenePatches, galerkinState);
     } else {
         fprintf(stderr, "No patches with un-shot potential??\n");
     }
@@ -282,7 +282,7 @@ shootingUpdateDirectPotential(GalerkinElement *elem, float potential_increment) 
 One step of the progressive refinement radiosity algorithm
 */
 static int
-reallyDoShootingStep(java::ArrayList<Patch *> *scenePatches) {
+reallyDoShootingStep(java::ArrayList<Patch *> *scenePatches, GalerkinState *galerkinState) {
     if ( GLOBAL_galerkin_state.importance_driven ) {
         if ( GLOBAL_galerkin_state.iteration_nr <= 1 || GLOBAL_camera_mainCamera.changed ) {
             updateDirectPotential(scenePatches);
@@ -297,15 +297,15 @@ reallyDoShootingStep(java::ArrayList<Patch *> *scenePatches) {
                 clusterUpdatePotential(GLOBAL_galerkin_state.topCluster);
             }
         }
-        propagatePotential(scenePatches);
+        propagatePotential(scenePatches, galerkinState);
     }
-    return propagateRadiance(scenePatches);
+    return propagateRadiance(scenePatches, galerkinState);
 }
 
 /**
 Returns true when converged and false if not
 */
 int
-doShootingStep(java::ArrayList<Patch *> *scenePatches) {
-    return reallyDoShootingStep(scenePatches);
+doShootingStep(java::ArrayList<Patch *> *scenePatches, GalerkinState *galerkinState) {
+    return reallyDoShootingStep(scenePatches, galerkinState);
 }
