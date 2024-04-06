@@ -399,7 +399,7 @@ GalerkinRadianceMethod::initialize(java::ArrayList<Patch *> *scenePatches) {
     GLOBAL_galerkin_state.topCluster = galerkinCreateClusterHierarchy(GLOBAL_galerkin_state.topGeometry);
 
     // Create a scratch software renderer for various operations on clusters
-    scratchInit();
+    scratchInit(&GLOBAL_galerkin_state);
 
     // Global variables used for form factor computation optimisation
     GLOBAL_galerkin_state.formFactorLastRcv = nullptr;
@@ -446,7 +446,7 @@ GalerkinRadianceMethod::doStep(java::ArrayList<Patch *> *scenePatches, java::Arr
 
 void
 GalerkinRadianceMethod::terminate(java::ArrayList<Patch *> *scenePatches) {
-    scratchTerminate();
+    scratchTerminate(&GLOBAL_galerkin_state);
     if ( GLOBAL_galerkin_state.topCluster != nullptr ) {
         galerkinDestroyClusterHierarchy(GLOBAL_galerkin_state.topCluster);
         GLOBAL_galerkin_state.topCluster = nullptr;

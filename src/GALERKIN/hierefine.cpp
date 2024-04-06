@@ -257,7 +257,7 @@ sourceClusterRadianceVariationError(Interaction *link, ColorRgb rcvRho, double r
     maximumSrcRad.setMonochrome(-HUGE);
     for ( int i = 0; i < numberOfRcVertices; i++ ) {
         ColorRgb rad;
-        rad = clusterRadianceToSamplePoint(link->sourceElement, rcVertices[i]);
+        rad = clusterRadianceToSamplePoint(link->sourceElement, rcVertices[i], &GLOBAL_galerkin_state);
         minimumSrcRad.minimum(minimumSrcRad, rad);
         maximumSrcRad.maximum(maximumSrcRad, rad);
     }
@@ -271,7 +271,7 @@ sourceClusterRadianceVariationError(Interaction *link, ColorRgb rcvRho, double r
 static INTERACTION_EVALUATION_CODE
 hierarchicRefinementEvaluateInteraction(
     Interaction *link,
-    GalerkinState *state)
+    GalerkinState *galerkinState)
 {
     ColorRgb srcRho;
     ColorRgb rcvRho;
@@ -281,7 +281,7 @@ hierarchicRefinementEvaluateInteraction(
     double min_area;
     INTERACTION_EVALUATION_CODE code;
 
-    if ( !state->hierarchical ) {
+    if ( !galerkinState->hierarchical ) {
         // Simply don't refine
         return ACCURATE_ENOUGH;
     }
@@ -290,7 +290,7 @@ hierarchicRefinementEvaluateInteraction(
     // and reflectivity
     if ( link->receiverElement->isCluster() ) {
         rcvRho.setMonochrome(1.0);
-        rcv_area = receiverClusterArea(link);
+        rcv_area = receiverClusterArea(link, galerkinState);
     } else {
         rcvRho = link->receiverElement->patch->radianceData->Rd;
         rcv_area = link->receiverElement->area;
@@ -303,14 +303,14 @@ hierarchicRefinementEvaluateInteraction(
         srcRho = link->sourceElement->patch->radianceData->Rd;
 
     // Determine error estimate and error threshold
-    threshold = hierarchicRefinementLinkErrorThreshold(link, rcv_area, state);
-    error = hierarchicRefinementApproximationError(link, srcRho, rcvRho, state);
+    threshold = hierarchicRefinementLinkErrorThreshold(link, rcv_area, galerkinState);
+    error = hierarchicRefinementApproximationError(link, srcRho, rcvRho, galerkinState);
 
-    if ( link->sourceElement->isCluster() && error < threshold && state->clusteringStrategy != ISOTROPIC )
+    if ( link->sourceElement->isCluster() && error < threshold && galerkinState->clusteringStrategy != ISOTROPIC )
         error += sourceClusterRadianceVariationError(link, rcvRho, rcv_area);
 
     // Minimal element area for which subdivision is allowed
-    min_area = GLOBAL_statistics.totalArea * state->relMinElemArea;
+    min_area = GLOBAL_statistics.totalArea * galerkinState->relMinElemArea;
 
     code = ACCURATE_ENOUGH;
     if ( error > threshold ) {

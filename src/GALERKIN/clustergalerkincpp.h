@@ -2,6 +2,7 @@
 #define __CLUSTER_GALERKIN__
 
 #include "GALERKIN/GalerkinElement.h"
+#include "GALERKIN/GalerkinState.h"
 
 inline void
 clusterGalerkinClearCoefficients(ColorRgb *color, char n) {
@@ -35,10 +36,10 @@ clusterGalerkinAddCoefficients(ColorRgb *dst, ColorRgb *extra, char n) {
 
 extern GalerkinElement *galerkinCreateClusterHierarchy(Geometry *geom);
 extern void galerkinDestroyClusterHierarchy(GalerkinElement *clusterElement);
-extern ColorRgb clusterRadianceToSamplePoint(GalerkinElement *src, Vector3D sample);
+extern ColorRgb clusterRadianceToSamplePoint(GalerkinElement *src, Vector3D sample, GalerkinState *galerkinState);
 extern ColorRgb sourceClusterRadiance(Interaction *link);
-extern void iterateOverSurfaceElementsInCluster(GalerkinElement *galerkinElement, void (*func)(GalerkinElement *elem));
-extern double receiverClusterArea(Interaction *link);
+extern void iterateOverSurfaceElementsInCluster(GalerkinElement *galerkinElement, void (*func)(GalerkinElement *elem, GalerkinState *galerkinState));
+extern double receiverClusterArea(Interaction *link, GalerkinState *galerkinState);
 extern void clusterGatherRadiance(Interaction *link, ColorRgb *srcRad);
 extern ColorRgb maxClusterRadiance(GalerkinElement *cluster);
 

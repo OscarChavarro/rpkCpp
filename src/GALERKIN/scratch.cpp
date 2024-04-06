@@ -20,8 +20,8 @@ static Vector3D globalEyePoint;
 Create a scratch software renderer for various operations on clusters
 */
 void
-scratchInit() {
-    GLOBAL_galerkin_state.scratch = new SGL_CONTEXT(GLOBAL_galerkin_state.scratchFbSize, GLOBAL_galerkin_state.scratchFbSize);
+scratchInit(GalerkinState *galerkinState) {
+    galerkinState->scratch = new SGL_CONTEXT(galerkinState->scratchFbSize, galerkinState->scratchFbSize);
     GLOBAL_sgl_currentContext->sglDepthTesting(true);
 }
 
@@ -29,15 +29,15 @@ scratchInit() {
 Terminates scratch rendering
 */
 void
-scratchTerminate() {
-    if ( GLOBAL_galerkin_state.scratch != nullptr ) {
-        delete GLOBAL_galerkin_state.scratch;
-        GLOBAL_galerkin_state.scratch = nullptr;
+scratchTerminate(GalerkinState *galerkinState) {
+    if ( galerkinState->scratch != nullptr ) {
+        delete galerkinState->scratch;
+        galerkinState->scratch = nullptr;
     }
 }
 
 static void
-scratchRenderElementPtr(GalerkinElement *elem) {
+scratchRenderElementPtr(GalerkinElement *elem, GalerkinState * /*galerkinState*/) {
     Patch *patch = elem->patch;
     Vector3D v[4];
     int i;
@@ -65,7 +65,7 @@ containing the size of the virtual screen. The cluster nicely fits
 into the virtual screen
 */
 float *
-scratchRenderElements(GalerkinElement *cluster, Vector3D eye) {
+scratchRenderElements(GalerkinElement *cluster, Vector3D eye, GalerkinState *galerkinState) {
     Vector3D centre = cluster->midPoint();
     Vector3D up = {0.0, 0.0, 1.0};
     Vector3D viewDirection;
@@ -74,13 +74,13 @@ scratchRenderElements(GalerkinElement *cluster, Vector3D eye) {
     SGL_CONTEXT *prev_sgl_context;
     int vp_size;
 
-    if ( cluster->id == GLOBAL_galerkin_state.lastClusterId && vectorEqual(eye, GLOBAL_galerkin_state.lastEye, EPSILON) ) {
+    if ( cluster->id == galerkinState->lastClusterId && vectorEqual(eye, galerkinState->lastEye, EPSILON) ) {
         return bbx.coordinates;
     } else {
         // Cache previously rendered cluster and eye point in order to
         // avoid re-rendering the same situation next time
-        GLOBAL_galerkin_state.lastClusterId = cluster->id;
-        GLOBAL_galerkin_state.lastEye = eye;
+        galerkinState->lastClusterId = cluster->id;
+        galerkinState->lastEye = eye;
     }
 
     vectorSubtract(centre, eye, viewDirection);
@@ -92,7 +92,7 @@ scratchRenderElements(GalerkinElement *cluster, Vector3D eye) {
 
     getBoundingBox(cluster->geometry).transformTo(&lookAt, &bbx);
 
-    prev_sgl_context = sglMakeCurrent(GLOBAL_galerkin_state.scratch);
+    prev_sgl_context = sglMakeCurrent(galerkinState->scratch);
     GLOBAL_sgl_currentContext->sglLoadMatrix(
         orthogonalViewMatrix(
             bbx.coordinates[MIN_X],
@@ -108,8 +108,8 @@ scratchRenderElements(GalerkinElement *cluster, Vector3D eye) {
     vp_size = (int)(
         (bbx.coordinates[MAX_X] - bbx.coordinates[MIN_X]) * (bbx.coordinates[MAX_Y] - bbx.coordinates[MIN_Y]
     ) / cluster->minimumArea);
-    if ( vp_size > GLOBAL_galerkin_state.scratch->width ) {
-        vp_size = GLOBAL_galerkin_state.scratch->width;
+    if ( vp_size > galerkinState->scratch->width ) {
+        vp_size = galerkinState->scratch->width;
     }
     if ( vp_size < 32 ) {
         vp_size = 32;
@@ -130,20 +130,20 @@ After rendering element pointers in the scratch frame buffer, this routine
 computes the average radiance of the virtual screen
 */
 ColorRgb
-scratchRadiance() {
+scratchRadiance(GalerkinState *galerkinState) {
     int nonBackGround;
     SGL_PIXEL *pix;
     ColorRgb rad;
 
     rad.clear();
     nonBackGround = 0;
-    for ( int j = 0; j < GLOBAL_galerkin_state.scratch->vp_height; j++ ) {
-        pix = GLOBAL_galerkin_state.scratch->frameBuffer + j * GLOBAL_galerkin_state.scratch->width;
-        for ( int i = 0; i < GLOBAL_galerkin_state.scratch->vp_width; i++, pix++ ) {
+    for ( int j = 0; j < galerkinState->scratch->vp_height; j++ ) {
+        pix = galerkinState->scratch->frameBuffer + j * galerkinState->scratch->width;
+        for ( int i = 0; i < galerkinState->scratch->vp_width; i++, pix++ ) {
             GalerkinElement *elem = (GalerkinElement *) (*pix);
             if ( elem != nullptr ) {
-                if ( GLOBAL_galerkin_state.iteration_method == GAUSS_SEIDEL ||
-                     GLOBAL_galerkin_state.iteration_method == JACOBI ) {
+                if ( galerkinState->iteration_method == GAUSS_SEIDEL ||
+                     galerkinState->iteration_method == JACOBI ) {
                     rad.add(rad, elem->radiance[0]);
                 } else {
                     rad.add(rad, elem->unShotRadiance[0]);
@@ -153,7 +153,7 @@ scratchRadiance() {
         }
     }
     if ( nonBackGround > 0 ) {
-        rad.scale(1.0f / (float) (GLOBAL_galerkin_state.scratch->vp_width * GLOBAL_galerkin_state.scratch->vp_height));
+        rad.scale(1.0f / (float) (galerkinState->scratch->vp_width * galerkinState->scratch->vp_height));
     }
     return rad;
 }
@@ -162,15 +162,16 @@ scratchRadiance() {
 Computes the number of non background pixels
 */
 int
-scratchNonBackgroundPixels() {
+scratchNonBackgroundPixels(GalerkinState *galerkinState) {
     int nonBackGround;
     SGL_PIXEL *pix;
-    int i, j;
+    int i;
+    int j;
 
     nonBackGround = 0;
-    for ( j = 0; j < GLOBAL_galerkin_state.scratch->vp_height; j++ ) {
-        pix = GLOBAL_galerkin_state.scratch->frameBuffer + j * GLOBAL_galerkin_state.scratch->width;
-        for ( i = 0; i < GLOBAL_galerkin_state.scratch->vp_width; i++, pix++ ) {
+    for ( j = 0; j < galerkinState->scratch->vp_height; j++ ) {
+        pix = galerkinState->scratch->frameBuffer + j * galerkinState->scratch->width;
+        for ( i = 0; i < galerkinState->scratch->vp_width; i++, pix++ ) {
             GalerkinElement *elem = (GalerkinElement *) (*pix);
             if ( elem ) {
                 nonBackGround++;
