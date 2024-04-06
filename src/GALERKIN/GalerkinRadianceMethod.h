@@ -4,7 +4,6 @@
 #include "common/cubature.h"
 #include "skin/RadianceMethod.h"
 #include "GALERKIN/GalerkinState.h"
-#include "GALERKIN/galerkinP.h"
 
 class GalerkinRadianceMethod : public RadianceMethod {
   public:

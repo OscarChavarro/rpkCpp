@@ -4,7 +4,6 @@
 #include "material/statistics.h"
 #include "scene/scene.h"
 #include "GALERKIN/shadowcaching.h"
-#include "GALERKIN/galerkinP.h"
 #include "GALERKIN/basisgalerkin.h"
 #include "GALERKIN/mrvisibility.h"
 #include "GALERKIN/initiallinking.h"

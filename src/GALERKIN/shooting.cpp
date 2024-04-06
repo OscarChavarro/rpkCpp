@@ -8,12 +8,21 @@ Southwell Galerkin radiosity (progressive refinement radiosity)
 #include "render/opengl.h"
 #include "render/ScreenBuffer.h"
 #include "GALERKIN/clustergalerkincpp.h"
-#include "GALERKIN/galerkinP.h"
 #include "GALERKIN/hierefine.h"
 #include "GALERKIN/initiallinking.h"
 #include "GALERKIN/GalerkinRadianceMethod.h"
 #include "GALERKIN/shooting.h"
 #include "GALERKIN/basisgalerkin.h"
+
+static inline float
+galerkinGetPotential(Patch *patch) {
+    return ((GalerkinElement *)((patch)->radianceData))->potential;
+}
+
+static inline float
+galerkinGetUnShotPotential(Patch *patch) {
+    return ((GalerkinElement *)((patch)->radianceData))->unShotPotential;
+}
 
 /**
 Returns the patch with highest un-shot power, weighted with indirect
@@ -34,7 +43,7 @@ chooseRadianceShootingPatch(java::ArrayList<Patch *> *scenePatches) {
     for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
         Patch *patch = scenePatches->get(i);
 
-        power = (float)M_PI * patch->area * galerkinUnShotRadiance(patch).sumAbsComponents();
+        power = (float)M_PI * patch->area * patch->radianceData->unShotRadiance[0].sumAbsComponents();
         if ( power > maximumPower ) {
             shooting_patch = patch;
             maximumPower = power;
@@ -148,7 +157,7 @@ patchUpdateRadianceAndPotential(Patch *patch) {
     basisGalerkinPushPullRadiance(topLevelElement);
 
     GLOBAL_galerkin_state.ambient_radiance.addScaled(GLOBAL_galerkin_state.ambient_radiance, patch->area,
-                                                     galerkinUnShotRadiance(patch));
+                                                     patch->radianceData->unShotRadiance[0]);
 }
 
 static void

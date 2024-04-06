@@ -20,7 +20,6 @@ potential-driven or not.
 #include "render/opengl.h"
 #include "IMAGE/tonemap/tonemapping.h"
 #include "GALERKIN/GalerkinRadianceMethod.h"
-#include "GALERKIN/galerkinP.h"
 #include "GALERKIN/basisgalerkin.h"
 #include "GALERKIN/clustergalerkincpp.h"
 #include "GALERKIN/scratch.h"
@@ -47,6 +46,26 @@ potential-driven or not.
 #define DEFAULT_GAL_SCRATCH_FB_SIZE 200
 
 GalerkinState GLOBAL_galerkin_state;
+
+static inline ColorRgb
+galerkinGetRadiance(Patch *patch) {
+    return ((GalerkinElement *)(patch->radianceData))->radiance[0];
+}
+
+static inline void
+galerkinSetRadiance(Patch *patch, ColorRgb value) {
+    ((GalerkinElement *)(patch->radianceData))->radiance[0] = value;
+}
+
+static inline void
+galerkinSetPotential(Patch *patch, float value) {
+    ((GalerkinElement *)((patch)->radianceData))->potential = value;
+}
+
+inline void
+galerkinSetUnShotPotential(Patch *patch, float value) {
+    ((GalerkinElement *)((patch)->radianceData))->unShotPotential = value;
+}
 
 GalerkinState::GalerkinState():
     iteration_nr(),
@@ -327,11 +346,11 @@ patchInit(Patch *patch) {
         galerkinGetRadiance(patch).scalarProduct(reflectivity, GLOBAL_galerkin_state.constant_radiance);
         galerkinGetRadiance(patch).add(galerkinGetRadiance(patch), selfEmittanceRadiance);
         if ( GLOBAL_galerkin_state.iteration_method == SOUTH_WELL )
-            galerkinUnShotRadiance(patch).subtract(galerkinGetRadiance(patch), GLOBAL_galerkin_state.constant_radiance);
+            patch->radianceData->unShotRadiance[0].subtract(galerkinGetRadiance(patch), GLOBAL_galerkin_state.constant_radiance);
     } else {
         galerkinSetRadiance(patch, selfEmittanceRadiance);
         if ( GLOBAL_galerkin_state.iteration_method == SOUTH_WELL )
-            galerkinUnShotRadiance(patch) = galerkinGetRadiance(patch);
+            patch->radianceData->unShotRadiance[0] = galerkinGetRadiance(patch);
     }
 
     if ( GLOBAL_galerkin_state.importance_driven ) {

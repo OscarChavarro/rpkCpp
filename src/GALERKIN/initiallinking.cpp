@@ -4,7 +4,6 @@
 #include "scene/scene.h"
 #include "GALERKIN/Shaft.h"
 #include "GALERKIN/basisgalerkin.h"
-#include "GALERKIN/galerkinP.h"
 #include "GALERKIN/formfactor.h"
 #include "GALERKIN/initiallinking.h"
 #include "GALERKIN/GalerkinState.h"

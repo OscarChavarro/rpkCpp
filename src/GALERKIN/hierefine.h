@@ -2,7 +2,6 @@
 #define __HIERARCHICAL_REFINE__
 
 #include "GALERKIN/GalerkinElement.h"
-#include "GALERKIN/galerkinP.h"
 #include "GALERKIN/GalerkinState.h"
 
 extern void refineInteractions(GalerkinElement *parentElement, GalerkinState *state);

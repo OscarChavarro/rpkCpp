@@ -7,7 +7,6 @@ Jocabi or Gauss-Seidel Galerkin radiosity
 #include "render/potential.h"
 #include "material/statistics.h"
 #include "GALERKIN/hierefine.h"
-#include "GALERKIN/galerkinP.h"
 #include "GALERKIN/initiallinking.h"
 #include "GALERKIN/GalerkinRadianceMethod.h"
 #include "GALERKIN/basisgalerkin.h"

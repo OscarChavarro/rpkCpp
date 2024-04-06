@@ -6,6 +6,8 @@ with a Z-buffer visibility algorithm in software
 #ifndef __SCRATCH__
 #define __SCRATCH__
 
+#include "GALERKIN/GalerkinElement.h"
+
 extern void scratchInit();
 extern void scratchTerminate();
 extern float *scratchRenderElements(GalerkinElement *cluster, Vector3D eye);

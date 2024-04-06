@@ -25,7 +25,7 @@ class GalerkinElement : public Element {
     GalerkinElement *regularSubElementAtPoint(double *u, double *v);
     void draw(int mode);
 
-public:
+  public:
     float potential; // Total potential of the element
     float receivedPotential; // Potential received during the last iteration
     float unShotPotential; // Un-shot potential (progressive refinement radiosity)
@@ -70,5 +70,22 @@ extern Matrix2x2 GLOBAL_galerkin_TriangularUpTransformMatrix[4];
 extern int galerkinElementGetNumberOfElements();
 extern int galerkinElementGetNumberOfClusters();
 extern int galerkinElementGetNumberOfSurfaceElements();
+
+inline GalerkinElement*
+galerkinGetElement(Patch *patch) {
+    if ( patch == nullptr ) {
+        fprintf(stderr, "Fatal: Trying to access as GalerkinElement on a null Patch\n");
+        exit(1);
+    }
+    if ( patch->radianceData == nullptr ) {
+        fprintf(stderr, "Fatal: Trying to access as GalerkinElement on a Patch with null radianceData\n");
+        exit(1);
+    }
+    if ( patch->radianceData->className != ElementTypes::ELEMENT_GALERKIN ) {
+        fprintf(stderr, "Fatal: Trying to access as GalerkinElement a different type of element\n");
+        exit(1);
+    }
+    return (GalerkinElement *)patch->radianceData;
+}
 
 #endif

@@ -1,7 +1,7 @@
 #ifndef __CLUSTER_GALERKIN__
 #define __CLUSTER_GALERKIN__
 
-#include "GALERKIN/galerkinP.h"
+#include "GALERKIN/GalerkinElement.h"
 
 inline void
 clusterGalerkinClearCoefficients(ColorRgb *color, char n) {
