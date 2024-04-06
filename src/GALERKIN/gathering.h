@@ -3,9 +3,8 @@
 
 #include "java/util/ArrayList.h"
 #include "skin/Patch.h"
-#include "GALERKIN/GalerkinState.h"
 
-extern int galerkinRadiosityDoGatheringIteration(java::ArrayList<Patch *> *scenePatches, GalerkinState *galerkinState);
+extern int galerkinRadiosityDoGatheringIteration(java::ArrayList<Patch *> *scenePatches);
 extern int doClusteredGatheringIteration(java::ArrayList<Patch *> *scenePatches);
 
 #endif

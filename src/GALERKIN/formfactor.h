@@ -7,14 +7,12 @@ All kind of form factor computations
 
 #include "java/util/ArrayList.h"
 #include "GALERKIN/Interaction.h"
-#include "GALERKIN/GalerkinState.h"
 
 extern int facing(Patch *P, Patch *Q);
 extern unsigned areaToAreaFormFactor(
     Interaction *link,
     java::ArrayList<Geometry *> *geometryShadowList,
     bool isSceneGeometry,
-    bool isClusteredGeometry,
-    GalerkinState *galerkinState);
+    bool isClusteredGeometry);
 
 #endif

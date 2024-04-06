@@ -46,7 +46,7 @@ of the cubature rule on the element. The role (RECEIVER or SOURCE) is only
 relevant for surface elements
 */
 static void
-determineNodes(GalerkinElement *element, CUBARULE **cr, Vector3D x[CUBAMAXNODES], GalerkinRole role, GalerkinState *galerkinState) {
+determineNodes(GalerkinElement *element, CUBARULE **cr, Vector3D x[CUBAMAXNODES], GalerkinRole role) {
     Matrix2x2 topTransform{};
     int k;
 
@@ -56,7 +56,7 @@ determineNodes(GalerkinElement *element, CUBARULE **cr, Vector3D x[CUBAMAXNODES]
         double dy;
         double dz;
 
-        *cr = galerkinState->clusterRule;
+        *cr = GLOBAL_galerkin_state.clusterRule;
 
         element->bounds(&boundingBox);
         dx = boundingBox.coordinates[MAX_X] - boundingBox.coordinates[MIN_X];
@@ -437,8 +437,7 @@ areaToAreaFormFactor(
     Interaction *link,
     java::ArrayList<Geometry *> *geometryShadowList,
     bool isSceneGeometry,
-    bool isClusteredGeometry,
-    GalerkinState *galerkinState)
+    bool isClusteredGeometry)
 {
     // Very often, the source or receiver element is the same as the one in
     // the previous call of the function. We cache cubature rules and nodes
@@ -510,19 +509,19 @@ areaToAreaFormFactor(
 
     // If the receiver is another one than before, determine the cubature
     // rule to be used on it and the nodes (positions on the patch)
-    if ( rcv != galerkinState->formFactorLastRcv ) {
-        determineNodes(rcv, &crrcv, x, RECEIVER, galerkinState);
+    if ( rcv != GLOBAL_galerkin_state.formFactorLastRcv ) {
+        determineNodes(rcv, &crrcv, x, RECEIVER);
     }
 
     // Same for the source element
-    if ( src != galerkinState->formFactorLastSrc ) {
-        determineNodes(src, &crsrc, y, SOURCE, galerkinState);
+    if ( src != GLOBAL_galerkin_state.formFactorLastSrc ) {
+        determineNodes(src, &crsrc, y, SOURCE);
     }
 
     // Evaluate the radiosity kernel between each pair of nodes on the source
     // and the receiver element if at least receiver or source changed since
     // last time
-    if ( rcv != galerkinState->formFactorLastRcv || src != galerkinState->formFactorLastSrc ) {
+    if ( rcv != GLOBAL_galerkin_state.formFactorLastRcv || src != GLOBAL_galerkin_state.formFactorLastSrc ) {
         // Use shadow caching for accelerating occlusion detection
         initShadowCache();
 
@@ -572,10 +571,10 @@ areaToAreaFormFactor(
     }
 
     // Remember receiver and source for next time
-    galerkinState->formFactorLastRcv = rcv;
-    galerkinState->formFactorLastSrc = src;
+    GLOBAL_galerkin_state.formFactorLastRcv = rcv;
+    GLOBAL_galerkin_state.formFactorLastSrc = src;
 
-    if ( galerkinState->clusteringStrategy == ISOTROPIC && (rcv->isCluster() || src->isCluster()) ) {
+    if ( GLOBAL_galerkin_state.clusteringStrategy == ISOTROPIC && (rcv->isCluster() || src->isCluster()) ) {
         link->deltaK = new float[1];
         link->deltaK[0] = (float)(maxkval * src->area);
     }
@@ -583,7 +582,7 @@ areaToAreaFormFactor(
     // Returns the visibility: basically the fraction of rays that did not hit an occluder
     link->visibility = (unsigned) (255.0 * (double) viscount / (double) (crrcv->numberOfNodes * crsrc->numberOfNodes));
 
-    if ( galerkinState->exact_visibility && geometryShadowList != nullptr && link->visibility == 255 ) {
+    if ( GLOBAL_galerkin_state.exact_visibility && geometryShadowList != nullptr && link->visibility == 255 ) {
         // Not full visibility, we missed the shadow!
         link->visibility = 254;
     }
