@@ -463,13 +463,17 @@ GalerkinElement::vertices(Vector3D *p, int n) {
 
         uv.u = 1.0;
         uv.v = 0.0;
-        if ( upTrans ) transformPoint2D(topTrans, uv, uv);
+        if ( upTrans ) {
+            transformPoint2D(topTrans, uv, uv);
+        }
         patch->uniformPoint(uv.u, uv.v, &p[1]);
 
         if ( patch->numberOfVertices == 4 ) {
             uv.u = 1.0;
             uv.v = 1.0;
-            if ( upTrans ) transformPoint2D(topTrans, uv, uv);
+            if ( upTrans ) {
+                transformPoint2D(topTrans, uv, uv);
+            }
             patch->uniformPoint(uv.u, uv.v, &p[2]);
 
             uv.u = 0.0;

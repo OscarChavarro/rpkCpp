@@ -14,25 +14,42 @@ static float CIE_y_b = 0.060;
 static float CIE_x_w = 0.3333333333;
 static float CIE_y_w = 0.3333333333;
 
-#define CIE_D           (       CIE_x_r*(CIE_y_g - CIE_y_b) + \
-                                CIE_x_g*(CIE_y_b - CIE_y_r) + \
-                                CIE_x_b*(CIE_y_r - CIE_y_g)     )
-#define CIE_C_rD        ( (1.0/CIE_y_w) * \
-                                ( CIE_x_w*(CIE_y_g - CIE_y_b) - \
-                                  CIE_y_w*(CIE_x_g - CIE_x_b) + \
-                                  CIE_x_g*CIE_y_b - CIE_x_b*CIE_y_g     ) )
-#define CIE_C_gD        ( (1.0/CIE_y_w) * \
-                                ( CIE_x_w*(CIE_y_b - CIE_y_r) - \
-                                  CIE_y_w*(CIE_x_b - CIE_x_r) - \
-                                  CIE_x_r*CIE_y_b + CIE_x_b*CIE_y_r     ) )
-#define CIE_C_bD        ( (1.0/CIE_y_w) * \
-                                ( CIE_x_w*(CIE_y_r - CIE_y_g) - \
-                                  CIE_y_w*(CIE_x_r - CIE_x_g) + \
-                                  CIE_x_r*CIE_y_g - CIE_x_g*CIE_y_r     ) )
+#define CIE_D ( \
+    CIE_x_r*(CIE_y_g - CIE_y_b) + \
+    CIE_x_g*(CIE_y_b - CIE_y_r) + \
+    CIE_x_b*(CIE_y_r - CIE_y_g)   \
+)
 
-#define CIE_rf          (CIE_y_r*CIE_C_rD/CIE_D)
-#define CIE_gf          (CIE_y_g*CIE_C_gD/CIE_D)
-#define CIE_bf          (CIE_y_b*CIE_C_bD/CIE_D)
+#define CIE_C_rD ( \
+    (1.0/CIE_y_w) * \
+        ( \
+            CIE_x_w*(CIE_y_g - CIE_y_b) - \
+            CIE_y_w*(CIE_x_g - CIE_x_b) + \
+            CIE_x_g*CIE_y_b - CIE_x_b*CIE_y_g \
+        ) \
+    )
+
+#define CIE_C_gD ( \
+    (1.0/CIE_y_w) * \
+        ( \
+            CIE_x_w*(CIE_y_b - CIE_y_r) - \
+            CIE_y_w*(CIE_x_b - CIE_x_r) - \
+            CIE_x_r*CIE_y_b + CIE_x_b*CIE_y_r \
+        ) \
+    )
+
+#define CIE_C_bD ( \
+    (1.0/CIE_y_w) * \
+        ( \
+            CIE_x_w*(CIE_y_r - CIE_y_g) - \
+            CIE_y_w*(CIE_x_r - CIE_x_g) + \
+            CIE_x_r*CIE_y_g - CIE_x_g*CIE_y_r \
+        ) \
+    )
+
+#define CIE_rf (CIE_y_r * CIE_C_rD / CIE_D)
+#define CIE_gf (CIE_y_g * CIE_C_gD / CIE_D)
+#define CIE_bf (CIE_y_b * CIE_C_bD / CIE_D)
 
 /**
 Luminous efficacy currently in use.
