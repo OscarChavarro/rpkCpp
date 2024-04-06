@@ -93,7 +93,7 @@ patchPropagateUnShotRadianceAndPotential(Patch *patch, GalerkinState *galerkinSt
 
     if ( !(topLevelElement->flags & INTERACTIONS_CREATED_MASK) ) {
         if ( galerkinState->clustered ) {
-            createInitialLinkWithTopCluster(topLevelElement, SOURCE);
+            createInitialLinkWithTopCluster(topLevelElement, SOURCE, galerkinState);
         } else {
             createInitialLinks(topLevelElement, SOURCE, galerkinState);
         }

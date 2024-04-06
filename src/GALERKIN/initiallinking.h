@@ -9,6 +9,6 @@ enum GalerkinRole {
 };
 
 extern void createInitialLinks(GalerkinElement *top, GalerkinRole role, GalerkinState *galerkinState);
-extern void createInitialLinkWithTopCluster(GalerkinElement *elem, GalerkinRole role);
+extern void createInitialLinkWithTopCluster(GalerkinElement *elem, GalerkinRole role, GalerkinState *galerkinState);
 
 #endif

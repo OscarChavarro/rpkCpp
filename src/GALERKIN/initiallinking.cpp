@@ -38,10 +38,10 @@ createInitialLink(Patch *patch, GalerkinState *galerkinState) {
 
     java::ArrayList<Geometry *> *oldCandidateList = globalCandidateList;
 
-    if ( (GLOBAL_galerkin_state.exact_visibility || GLOBAL_galerkin_state.shaftCullMode == ALWAYS_DO_SHAFT_CULLING) && oldCandidateList ) {
+    if ( (galerkinState->exact_visibility || galerkinState->shaftCullMode == ALWAYS_DO_SHAFT_CULLING) && oldCandidateList ) {
         Shaft shaft;
 
-        if ( GLOBAL_galerkin_state.exact_visibility ) {
+        if ( galerkinState->exact_visibility ) {
             if ( rcv != nullptr && src != nullptr ) {
                 Polygon rcvPolygon;
                 Polygon srcPolygon;
@@ -87,7 +87,7 @@ createInitialLink(Patch *patch, GalerkinState *galerkinState) {
     java::ArrayList<Geometry *> *geometryListReferences = globalCandidateList;
     areaToAreaFormFactor(&link, geometryListReferences, isSceneGeometry, isClusteredGeometry, galerkinState);
 
-    if ( GLOBAL_galerkin_state.exact_visibility || GLOBAL_galerkin_state.shaftCullMode == ALWAYS_DO_SHAFT_CULLING ) {
+    if ( galerkinState->exact_visibility || galerkinState->shaftCullMode == ALWAYS_DO_SHAFT_CULLING ) {
         if ( oldCandidateList != globalCandidateList ) {
             freeCandidateList(globalCandidateList);
         }
@@ -98,7 +98,7 @@ createInitialLink(Patch *patch, GalerkinState *galerkinState) {
         Interaction *newLink = interactionDuplicate(&link);
         // Store interactions with the source patch for the progressive radiosity method
         // and with the receiving patch for gathering methods
-        if ( GLOBAL_galerkin_state.iteration_method == SOUTH_WELL ) {
+        if ( galerkinState->iteration_method == SOUTH_WELL ) {
             if ( src != nullptr ) {
                 src->interactions->add(newLink);
             }
@@ -180,18 +180,18 @@ createInitialLinks(GalerkinElement *top, GalerkinRole role, GalerkinState *galer
 Creates an initial link between the given element and the top cluster
 */
 void
-createInitialLinkWithTopCluster(GalerkinElement *elem, GalerkinRole role) {
+createInitialLinkWithTopCluster(GalerkinElement *elem, GalerkinRole role, GalerkinState *galerkinState) {
     GalerkinElement *rcv = nullptr;
     GalerkinElement *src = nullptr;
 
     switch ( role ) {
         case RECEIVER:
             rcv = elem;
-            src = GLOBAL_galerkin_state.topCluster;
+            src = galerkinState->topCluster;
             break;
         case SOURCE:
             src = elem;
-            rcv = GLOBAL_galerkin_state.topCluster;
+            rcv = galerkinState->topCluster;
             break;
         default:
             logFatal(-1, "createInitialLinkWithTopCluster", "Invalid role");
@@ -228,7 +228,7 @@ createInitialLinkWithTopCluster(GalerkinElement *elem, GalerkinRole role) {
 
     // Store interactions with the source patch for the progressive radiosity method
     // and with the receiving patch for gathering methods
-    if ( GLOBAL_galerkin_state.iteration_method == SOUTH_WELL ) {
+    if ( galerkinState->iteration_method == SOUTH_WELL ) {
         src->interactions->add(newLink);
     } else {
         rcv->interactions->add(newLink);

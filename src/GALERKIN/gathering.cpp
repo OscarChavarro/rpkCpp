@@ -68,7 +68,7 @@ patchGather(Patch *patch, GalerkinState *galerkinState) {
     }
 
     // Refine the interactions and compute light transport at the leaves
-    refineInteractions(topLevelElement, &GLOBAL_galerkin_state);
+    refineInteractions(topLevelElement, galerkinState);
 
     // Immediately convert received radiance into radiance, make the representation
     // consistent and recompute the color of the patch when doing Gauss-Seidel.
@@ -228,13 +228,13 @@ doClusteredGatheringIteration(java::ArrayList<Patch*> *scenePatches, GalerkinSta
     // Initial linking stage is replaced by the creation of a self-link between
     // the whole scene and itself
     if ( galerkinState->iteration_nr <= 1 ) {
-        createInitialLinkWithTopCluster(galerkinState->topCluster, RECEIVER);
+        createInitialLinkWithTopCluster(galerkinState->topCluster, RECEIVER, galerkinState);
     }
 
     userErrorThreshold = galerkinState->relLinkErrorThreshold;
 
     // Refines and computes light transport over the refined links
-    refineInteractions(galerkinState->topCluster, &GLOBAL_galerkin_state);
+    refineInteractions(galerkinState->topCluster, galerkinState);
 
     galerkinState->relLinkErrorThreshold = (float)userErrorThreshold;
 
