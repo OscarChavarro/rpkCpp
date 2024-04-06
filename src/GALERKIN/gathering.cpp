@@ -8,6 +8,8 @@ Jocabi or Gauss-Seidel Galerkin radiosity
 #include "material/statistics.h"
 #include "GALERKIN/hierefine.h"
 #include "GALERKIN/galerkinP.h"
+#include "GALERKIN/initiallinking.h"
+#include "GALERKIN/GalerkinRadianceMethod.h"
 
 /**
 Lazy linking: delay creating the initial links for a patch until it has

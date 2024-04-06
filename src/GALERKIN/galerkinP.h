@@ -190,25 +190,9 @@ extern GalerkinState GLOBAL_galerkin_state;
 #define DEFAULT_GAL_CLUSTERING_STRATEGY ISOTROPIC
 #define DEFAULT_GAL_SCRATCH_FB_SIZE 200
 
-enum GalerkinRole {
-    SOURCE,
-    RECEIVER
-};
-
-// In GalerkinRadiosity.cpp
-extern void setCubatureRules(CUBARULE **triRule, CUBARULE **quadRule, GalerkinCubatureDegree degree);
-extern void patchRecomputeColor(Patch *patch);
-
-// In shooting.cpp
-extern int doShootingStep(java::ArrayList<Patch *> *scenePatches);
-
 // In gathering.cpp
 extern int randomWalkRadiosityDoGatheringIteration(java::ArrayList<Patch *> *scenePatches);
 extern int doClusteredGatheringIteration(java::ArrayList<Patch *> *scenePatches);
-
-// In initial linking.cpp
-extern void createInitialLinks(GalerkinElement *top, GalerkinRole role);
-extern void createInitialLinkWithTopCluster(GalerkinElement *elem, GalerkinRole role);
 
 // In basis galerkin.cpp
 extern void basisGalerkinPushPullRadiance(GalerkinElement *top);

@@ -6,6 +6,7 @@
 #include "GALERKIN/basisgalerkin.h"
 #include "GALERKIN/galerkinP.h"
 #include "GALERKIN/formfactor.h"
+#include "GALERKIN/initiallinking.h"
 
 static GalerkinElement *globalElement; // The element for which initial links are to be created
 static GalerkinRole globalRole; // The role of that element: SOURCE or RECEIVER

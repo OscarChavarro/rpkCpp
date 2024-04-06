@@ -24,6 +24,7 @@ potential-driven or not.
 #include "GALERKIN/basisgalerkin.h"
 #include "GALERKIN/clustergalerkincpp.h"
 #include "GALERKIN/scratch.h"
+#include "GALERKIN/shooting.h"
 
 GalerkinState GLOBAL_galerkin_state;
 

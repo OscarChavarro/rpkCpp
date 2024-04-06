@@ -1,7 +1,9 @@
 #ifndef __GALERKIN_RADIOSITY_METHOD__
 #define __GALERKIN_RADIOSITY_METHOD__
 
+#include "common/cubature.h"
 #include "skin/RadianceMethod.h"
+#include "galerkinP.h"
 
 class GalerkinRadianceMethod : public RadianceMethod {
   public:
@@ -21,5 +23,7 @@ class GalerkinRadianceMethod : public RadianceMethod {
 };
 
 extern void galerkinFreeMemory();
+extern void setCubatureRules(CUBARULE **triRule, CUBARULE **quadRule, GalerkinCubatureDegree degree);
+extern void patchRecomputeColor(Patch *patch);
 
 #endif

@@ -6,6 +6,7 @@
 #include "GALERKIN/galerkinP.h"
 #include "GALERKIN/basisgalerkin.h"
 #include "GALERKIN/mrvisibility.h"
+#include "GALERKIN/initiallinking.h"
 
 /**
 Returns true if P is at least partly in front the plane of Q. Returns false
