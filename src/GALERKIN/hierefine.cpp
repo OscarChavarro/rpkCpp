@@ -432,7 +432,8 @@ hierarchicRefinementCreateSubdivisionLink(
     java::ArrayList<Geometry *> *candidatesList,
     GalerkinElement *rcv,
     GalerkinElement *src,
-    Interaction *link)
+    Interaction *link,
+    GalerkinState *galerkinState)
 {
     link->receiverElement = rcv;
     link->sourceElement = src;
@@ -452,7 +453,7 @@ hierarchicRefinementCreateSubdivisionLink(
 
     bool isSceneGeometry = (candidatesList == GLOBAL_scene_geometries);
     bool isClusteredGeometry = (candidatesList == GLOBAL_scene_clusteredGeometries);
-    areaToAreaFormFactor(link, candidatesList, isSceneGeometry, isClusteredGeometry);
+    areaToAreaFormFactor(link, candidatesList, isSceneGeometry, isClusteredGeometry, galerkinState);
 
     return link->visibility != 0;
 }
@@ -484,10 +485,10 @@ hierarchicRefinementRegularSubdivideSource(
     java::ArrayList<Geometry *> **candidatesList,
     Interaction *link,
     bool isClusteredGeometry,
-    GalerkinState *state)
+    GalerkinState *galerkinState)
 {
     java::ArrayList<Geometry *> *backup = *candidatesList;
-    hierarchicRefinementCull(candidatesList, link, isClusteredGeometry, state);
+    hierarchicRefinementCull(candidatesList, link, isClusteredGeometry, galerkinState);
     GalerkinElement *src = link->sourceElement;
     GalerkinElement *rcv = link->receiverElement;
 
@@ -497,14 +498,14 @@ hierarchicRefinementRegularSubdivideSource(
         Interaction subInteraction{};
         subInteraction.K = new float[MAX_BASIS_SIZE * MAX_BASIS_SIZE];
 
-        if ( hierarchicRefinementCreateSubdivisionLink(*candidatesList, rcv, child, &subInteraction) ) {
-            if ( !refineRecursive(candidatesList, &subInteraction, state) ) {
-                hierarchicRefinementStoreInteraction(&subInteraction, state);
+        if ( hierarchicRefinementCreateSubdivisionLink(*candidatesList, rcv, child, &subInteraction, galerkinState) ) {
+            if ( !refineRecursive(candidatesList, &subInteraction, galerkinState) ) {
+                hierarchicRefinementStoreInteraction(&subInteraction, galerkinState);
             }
         }
     }
 
-    hierarchicRefinementUnCull(candidatesList, state);
+    hierarchicRefinementUnCull(candidatesList, galerkinState);
     *candidatesList = backup;
 }
 
@@ -516,10 +517,10 @@ hierarchicRefinementRegularSubdivideReceiver(
     java::ArrayList<Geometry *> **candidatesList,
     Interaction *link,
     bool isClusteredGeometry,
-    GalerkinState *state)
+    GalerkinState *galerkinState)
 {
     java::ArrayList<Geometry *> *backup = *candidatesList;
-    hierarchicRefinementCull(candidatesList, link, isClusteredGeometry, state);
+    hierarchicRefinementCull(candidatesList, link, isClusteredGeometry, galerkinState);
     GalerkinElement *src = link->sourceElement;
     GalerkinElement *rcv = link->receiverElement;
 
@@ -529,14 +530,14 @@ hierarchicRefinementRegularSubdivideReceiver(
         GalerkinElement *child = (GalerkinElement *)rcv->regularSubElements[i];
         subInteraction.K = new float[MAX_BASIS_SIZE * MAX_BASIS_SIZE];
 
-        if ( hierarchicRefinementCreateSubdivisionLink(*candidatesList, child, src, &subInteraction) ) {
-            if ( !refineRecursive(candidatesList, &subInteraction, state) ) {
-                hierarchicRefinementStoreInteraction(&subInteraction, state);
+        if ( hierarchicRefinementCreateSubdivisionLink(*candidatesList, child, src, &subInteraction, galerkinState) ) {
+            if ( !refineRecursive(candidatesList, &subInteraction, galerkinState) ) {
+                hierarchicRefinementStoreInteraction(&subInteraction, galerkinState);
             }
         }
     }
 
-    hierarchicRefinementUnCull(candidatesList, state);
+    hierarchicRefinementUnCull(candidatesList, galerkinState);
     *candidatesList = backup;
 }
 
@@ -549,10 +550,10 @@ hierarchicRefinementSubdivideSourceCluster(
     java::ArrayList<Geometry *> **candidatesList,
     Interaction *link,
     bool isClusteredGeometry,
-    GalerkinState *state)
+    GalerkinState *galerkinState)
 {
     java::ArrayList<Geometry *> *backup = *candidatesList;
-    hierarchicRefinementCull(candidatesList, link, isClusteredGeometry, state);
+    hierarchicRefinementCull(candidatesList, link, isClusteredGeometry, galerkinState);
     GalerkinElement *src = link->sourceElement, *rcv = link->receiverElement;
 
     for ( int i = 0; src->irregularSubElements != nullptr && i < src->irregularSubElements->size(); i++ ) {
@@ -568,14 +569,14 @@ hierarchicRefinementSubdivideSourceCluster(
             }
         }
 
-        if ( hierarchicRefinementCreateSubdivisionLink(*candidatesList, rcv, childElement, &subInteraction) ) {
-            if ( !refineRecursive(candidatesList, &subInteraction, state) ) {
-                hierarchicRefinementStoreInteraction(&subInteraction, state);
+        if ( hierarchicRefinementCreateSubdivisionLink(*candidatesList, rcv, childElement, &subInteraction, galerkinState) ) {
+            if ( !refineRecursive(candidatesList, &subInteraction, galerkinState) ) {
+                hierarchicRefinementStoreInteraction(&subInteraction, galerkinState);
             }
         }
     }
 
-    hierarchicRefinementUnCull(candidatesList, state);
+    hierarchicRefinementUnCull(candidatesList, galerkinState);
     *candidatesList = backup;
 }
 
@@ -588,10 +589,10 @@ hierarchicRefinementSubdivideReceiverCluster(
     java::ArrayList<Geometry *> **candidatesList,
     Interaction *link,
     bool isClusteredGeometry,
-    GalerkinState *state)
+    GalerkinState *galerkinState)
 {
     java::ArrayList<Geometry *> *backup = *candidatesList;
-    hierarchicRefinementCull(candidatesList, link, isClusteredGeometry, state);
+    hierarchicRefinementCull(candidatesList, link, isClusteredGeometry, galerkinState);
     GalerkinElement *src = link->sourceElement;
     GalerkinElement *rcv = link->receiverElement;
 
@@ -608,14 +609,14 @@ hierarchicRefinementSubdivideReceiverCluster(
             }
         }
 
-        if ( hierarchicRefinementCreateSubdivisionLink(*candidatesList, child, src, &subInteraction) ) {
-            if ( !refineRecursive(candidatesList, &subInteraction, state) ) {
-                hierarchicRefinementStoreInteraction(&subInteraction, state);
+        if ( hierarchicRefinementCreateSubdivisionLink(*candidatesList, child, src, &subInteraction, galerkinState) ) {
+            if ( !refineRecursive(candidatesList, &subInteraction, galerkinState) ) {
+                hierarchicRefinementStoreInteraction(&subInteraction, galerkinState);
             }
         }
     }
 
-    hierarchicRefinementUnCull(candidatesList, state);
+    hierarchicRefinementUnCull(candidatesList, galerkinState);
     *candidatesList = backup;
 }
 

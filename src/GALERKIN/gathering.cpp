@@ -19,11 +19,11 @@ interactions with light sources are created. See Holschuch, EGRW '94
 (Darmstadt - EuroGraphics Rendering Workshop).
 */
 static void
-patchLazyCreateInteractions(Patch *patch) {
+patchLazyCreateInteractions(Patch *patch, GalerkinState *galerkinState) {
     GalerkinElement *topLevelElement = galerkinGetElement(patch);
 
     if ( !topLevelElement->radiance[0].isBlack() && !(topLevelElement->flags & INTERACTIONS_CREATED_MASK) ) {
-        createInitialLinks(topLevelElement, SOURCE);
+        createInitialLinks(topLevelElement, SOURCE, galerkinState);
         topLevelElement->flags |= INTERACTIONS_CREATED_MASK;
     }
 }
@@ -62,7 +62,7 @@ patchGather(Patch *patch, GalerkinState *galerkinState) {
     if ( GLOBAL_galerkin_state.iteration_method == GAUSS_SEIDEL || !GLOBAL_galerkin_state.lazy_linking ||
          GLOBAL_galerkin_state.importance_driven ) {
         if ( !(topLevelElement->flags & INTERACTIONS_CREATED_MASK) ) {
-            createInitialLinks(topLevelElement, RECEIVER);
+            createInitialLinks(topLevelElement, RECEIVER, galerkinState);
             topLevelElement->flags |= INTERACTIONS_CREATED_MASK;
         }
     }
@@ -172,7 +172,7 @@ galerkinRadiosityDoGatheringIteration(java::ArrayList<Patch *> *scenePatches, Ga
     if ( GLOBAL_galerkin_state.iteration_method != GAUSS_SEIDEL && GLOBAL_galerkin_state.lazy_linking &&
          !GLOBAL_galerkin_state.importance_driven ) {
         for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
-            patchLazyCreateInteractions(scenePatches->get(i));
+            patchLazyCreateInteractions(scenePatches->get(i), galerkinState);
         }
     }
 

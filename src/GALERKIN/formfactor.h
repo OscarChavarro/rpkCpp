@@ -13,6 +13,7 @@ extern unsigned areaToAreaFormFactor(
     Interaction *link,
     java::ArrayList<Geometry *> *geometryShadowList,
     bool isSceneGeometry,
-    bool isClusteredGeometry);
+    bool isClusteredGeometry,
+    GalerkinState *galerkinState);
 
 #endif

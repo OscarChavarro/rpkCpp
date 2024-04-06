@@ -46,7 +46,13 @@ of the cubature rule on the element. The role (RECEIVER or SOURCE) is only
 relevant for surface elements
 */
 static void
-determineNodes(GalerkinElement *element, CUBARULE **cr, Vector3D x[CUBAMAXNODES], GalerkinRole role) {
+determineNodes(
+    GalerkinElement *element,
+    CUBARULE **cr,
+    Vector3D x[CUBAMAXNODES],
+    GalerkinRole role,
+    GalerkinState *galerkinState)
+{
     Matrix2x2 topTransform{};
     int k;
 
@@ -72,10 +78,10 @@ determineNodes(GalerkinElement *element, CUBARULE **cr, Vector3D x[CUBAMAXNODES]
         // What cubature rule should be used over the element
         switch ( element->patch->numberOfVertices ) {
             case 3:
-                *cr = role == RECEIVER ? GLOBAL_galerkin_state.rcv3rule : GLOBAL_galerkin_state.src3rule;
+                *cr = role == RECEIVER ? galerkinState->rcv3rule : galerkinState->src3rule;
                 break;
             case 4:
-                *cr = role == RECEIVER ? GLOBAL_galerkin_state.rcv4rule : GLOBAL_galerkin_state.src4rule;
+                *cr = role == RECEIVER ? galerkinState->rcv4rule : galerkinState->src4rule;
                 break;
             default:
                 logFatal(4, "determineNodes", "Can only handle triangular and quadrilateral patches");
@@ -437,7 +443,8 @@ areaToAreaFormFactor(
     Interaction *link,
     java::ArrayList<Geometry *> *geometryShadowList,
     bool isSceneGeometry,
-    bool isClusteredGeometry)
+    bool isClusteredGeometry,
+    GalerkinState *galerkinState)
 {
     // Very often, the source or receiver element is the same as the one in
     // the previous call of the function. We cache cubature rules and nodes
@@ -510,12 +517,12 @@ areaToAreaFormFactor(
     // If the receiver is another one than before, determine the cubature
     // rule to be used on it and the nodes (positions on the patch)
     if ( rcv != GLOBAL_galerkin_state.formFactorLastRcv ) {
-        determineNodes(rcv, &crrcv, x, RECEIVER);
+        determineNodes(rcv, &crrcv, x, RECEIVER, galerkinState);
     }
 
     // Same for the source element
     if ( src != GLOBAL_galerkin_state.formFactorLastSrc ) {
-        determineNodes(src, &crsrc, y, SOURCE);
+        determineNodes(src, &crsrc, y, SOURCE, galerkinState);
     }
 
     // Evaluate the radiosity kernel between each pair of nodes on the source
