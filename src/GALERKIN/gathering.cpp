@@ -51,7 +51,7 @@ patchGather(Patch *patch, GalerkinState *galerkinState) {
 
     // Don't gather to patches without importance. This optimisation can not
     // be combined with lazy linking based on radiance. */
-    if ( GLOBAL_galerkin_state.importance_driven &&
+    if ( galerkinState->importance_driven &&
          topLevelElement->potential < GLOBAL_statistics.maxDirectPotential * EPSILON ) {
         return;
     }
@@ -59,8 +59,8 @@ patchGather(Patch *patch, GalerkinState *galerkinState) {
     // The form factors have been computed and stored with the source patch
     // already before when doing non-importance-driven Jacobi iterations with lazy
     // linking
-    if ( GLOBAL_galerkin_state.iteration_method == GAUSS_SEIDEL || !GLOBAL_galerkin_state.lazy_linking ||
-         GLOBAL_galerkin_state.importance_driven ) {
+    if ( galerkinState->iteration_method == GAUSS_SEIDEL || !galerkinState->lazy_linking ||
+         galerkinState->importance_driven ) {
         if ( !(topLevelElement->flags & INTERACTIONS_CREATED_MASK) ) {
             createInitialLinks(topLevelElement, RECEIVER, galerkinState);
             topLevelElement->flags |= INTERACTIONS_CREATED_MASK;
@@ -74,7 +74,7 @@ patchGather(Patch *patch, GalerkinState *galerkinState) {
     // consistent and recompute the color of the patch when doing Gauss-Seidel.
     // The new radiance values are immediately used in subsequent steps of
     // the current iteration
-    if ( GLOBAL_galerkin_state.iteration_method == GAUSS_SEIDEL ) {
+    if ( galerkinState->iteration_method == GAUSS_SEIDEL ) {
         patchUpdateRadiance(patch, galerkinState);
     }
 }
@@ -161,23 +161,23 @@ have converged and false if not
 */
 int
 galerkinRadiosityDoGatheringIteration(java::ArrayList<Patch *> *scenePatches, GalerkinState *galerkinState) {
-    if ( GLOBAL_galerkin_state.importance_driven ) {
-        if ( GLOBAL_galerkin_state.iteration_nr <= 1 || GLOBAL_camera_mainCamera.changed ) {
+    if ( galerkinState->importance_driven ) {
+        if ( galerkinState->iteration_nr <= 1 || GLOBAL_camera_mainCamera.changed ) {
             updateDirectPotential(scenePatches);
             GLOBAL_camera_mainCamera.changed = false;
         }
     }
 
     // Not importance-driven Jacobi iterations with lazy linking
-    if ( GLOBAL_galerkin_state.iteration_method != GAUSS_SEIDEL && GLOBAL_galerkin_state.lazy_linking &&
-         !GLOBAL_galerkin_state.importance_driven ) {
+    if ( galerkinState->iteration_method != GAUSS_SEIDEL && galerkinState->lazy_linking &&
+         !galerkinState->importance_driven ) {
         for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
             patchLazyCreateInteractions(scenePatches->get(i), galerkinState);
         }
     }
 
     // No visualisation with ambient term for gathering radiosity algorithms
-    GLOBAL_galerkin_state.ambient_radiance.clear();
+    galerkinState->ambient_radiance.clear();
 
     // One iteration = gather to all patches
     for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
@@ -187,13 +187,13 @@ galerkinRadiosityDoGatheringIteration(java::ArrayList<Patch *> *scenePatches, Ga
     // Update the radiosity after gathering to all patches with Jacobi, immediately
     // update with Gauss-Seidel so the new radiosity are already used for the
     // still-to-be-processed patches in the same iteration
-    if ( GLOBAL_galerkin_state.iteration_method == JACOBI ) {
+    if ( galerkinState->iteration_method == JACOBI ) {
         for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
             patchUpdateRadiance(scenePatches->get(i), galerkinState);
         }
     }
 
-    if ( GLOBAL_galerkin_state.importance_driven ) {
+    if ( galerkinState->importance_driven ) {
         for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
             patchUpdatePotential(scenePatches->get(i));
         }
@@ -209,8 +209,8 @@ int
 doClusteredGatheringIteration(java::ArrayList<Patch*> *scenePatches, GalerkinState *galerkinState) {
     static double userErrorThreshold;
 
-    if ( GLOBAL_galerkin_state.importance_driven ) {
-        if ( GLOBAL_galerkin_state.iteration_nr <= 1 || GLOBAL_camera_mainCamera.changed ) {
+    if ( galerkinState->importance_driven ) {
+        if ( galerkinState->iteration_nr <= 1 || GLOBAL_camera_mainCamera.changed ) {
             updateDirectPotential(scenePatches);
             for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
                 Patch *patch = scenePatches->get(i);
@@ -218,38 +218,38 @@ doClusteredGatheringIteration(java::ArrayList<Patch*> *scenePatches, GalerkinSta
                 float potential_increment = patch->directPotential - top->directPotential;
                 gatheringUpdateDirectPotential(top, potential_increment);
             }
-            gatheringClusterUpdatePotential(GLOBAL_galerkin_state.topCluster);
+            gatheringClusterUpdatePotential(galerkinState->topCluster);
             GLOBAL_camera_mainCamera.changed = false;
         }
     }
 
-    printf("Gal iteration %i\n", GLOBAL_galerkin_state.iteration_nr);
+    printf("Gal iteration %i\n", galerkinState->iteration_nr);
 
     // Initial linking stage is replaced by the creation of a self-link between
     // the whole scene and itself
-    if ( GLOBAL_galerkin_state.iteration_nr <= 1 ) {
-        createInitialLinkWithTopCluster(GLOBAL_galerkin_state.topCluster, RECEIVER);
+    if ( galerkinState->iteration_nr <= 1 ) {
+        createInitialLinkWithTopCluster(galerkinState->topCluster, RECEIVER);
     }
 
-    userErrorThreshold = GLOBAL_galerkin_state.relLinkErrorThreshold;
+    userErrorThreshold = galerkinState->relLinkErrorThreshold;
 
     // Refines and computes light transport over the refined links
-    refineInteractions(GLOBAL_galerkin_state.topCluster, &GLOBAL_galerkin_state);
+    refineInteractions(galerkinState->topCluster, &GLOBAL_galerkin_state);
 
-    GLOBAL_galerkin_state.relLinkErrorThreshold = (float)userErrorThreshold;
+    galerkinState->relLinkErrorThreshold = (float)userErrorThreshold;
 
     // Push received radiance down the hierarchy to the leaf elements, where
     // it is multiplied with the reflectivity and the self-emitted radiance added,
     // and finally pulls back up for a consistent multi-resolution representation
     // of radiance over all levels
-    basisGalerkinPushPullRadiance(GLOBAL_galerkin_state.topCluster, galerkinState);
+    basisGalerkinPushPullRadiance(galerkinState->topCluster, galerkinState);
 
-    if ( GLOBAL_galerkin_state.importance_driven ) {
-        gatheringPushPullPotential(GLOBAL_galerkin_state.topCluster, 0.0);
+    if ( galerkinState->importance_driven ) {
+        gatheringPushPullPotential(galerkinState->topCluster, 0.0);
     }
 
     // No visualisation with ambient term for gathering radiosity algorithms
-    GLOBAL_galerkin_state.ambient_radiance.clear();
+    galerkinState->ambient_radiance.clear();
 
     // Update the display colors of the patches
     for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
