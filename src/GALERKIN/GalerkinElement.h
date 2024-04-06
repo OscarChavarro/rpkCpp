@@ -6,8 +6,8 @@ Galerkin finite elements: one structure for both surface and cluster elements
 #define __GALERKIN_ELEMENT__
 
 #include "java/util/ArrayList.h"
-#include "GALERKIN/Interaction.h"
 #include "scene/Polygon.h"
+#include "GALERKIN/Interaction.h"
 
 /**
 The Galerkin radiosity specific data to be kept with every surface or
@@ -54,7 +54,7 @@ class GalerkinElement : public Element {
     int vertices(Vector3D *p, int n);
     BoundingBox *bounds(BoundingBox *boundingBox);
     Vector3D midPoint();
-    Polygon *polygon(Polygon *polygon);
+    void initPolygon(Polygon *polygon);
     void reAllocCoefficients();
 };
 

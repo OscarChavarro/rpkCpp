@@ -42,10 +42,12 @@ createInitialLink(Patch *patch) {
         Shaft shaft;
 
         if ( GLOBAL_galerkin_state.exact_visibility ) {
-            Polygon rcvPolygon;
-            Polygon srcPolygon;
             if ( rcv != nullptr && src != nullptr ) {
-                shaft.constructFromPolygonToPolygon(rcv->polygon(&rcvPolygon), src->polygon(&srcPolygon));
+                Polygon rcvPolygon;
+                Polygon srcPolygon;
+                rcv->initPolygon(&rcvPolygon);
+                src->initPolygon(&srcPolygon);
+                shaft.constructFromPolygonToPolygon(&rcvPolygon, &srcPolygon);
             }
         } else {
             BoundingBox boundingBox;

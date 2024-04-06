@@ -58,9 +58,9 @@ hierarchicRefinementCull(
         if ( state->exact_visibility && !link->receiverElement->isCluster() && !link->sourceElement->isCluster() ) {
             Polygon rcvPolygon;
             Polygon srcPolygon;
-            shaft.constructFromPolygonToPolygon(
-                    link->receiverElement->polygon(&rcvPolygon),
-                    link->sourceElement->polygon(&srcPolygon));
+            link->receiverElement->initPolygon(&rcvPolygon);
+            link->sourceElement->initPolygon(&srcPolygon);
+            shaft.constructFromPolygonToPolygon(&rcvPolygon, &srcPolygon);
         } else {
             BoundingBox srcBounds;
             BoundingBox rcvBounds;

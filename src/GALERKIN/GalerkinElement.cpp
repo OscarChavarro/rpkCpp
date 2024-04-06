@@ -543,23 +543,21 @@ GalerkinElement::bounds(BoundingBox *boundingBox) {
 Computes a polygon description for shaft culling for the surface
 element. Cannot be used for clusters
 */
-Polygon *
-GalerkinElement::polygon(Polygon *polygon) {
+void
+GalerkinElement::initPolygon(Polygon *polygon) {
     if ( isCluster() ) {
         logFatal(-1, "galerkinElementPolygon", "Cannot use this function for cluster elements");
-        return nullptr;
+        return;
     }
 
     polygon->normal = patch->normal;
     polygon->planeConstant = patch->planeConstant;
-    polygon->index = (unsigned char)patch->index;
+    polygon->index = patch->index;
     polygon->numberOfVertices = vertices(polygon->vertex, polygon->numberOfVertices);
 
     for ( int i = 0; i < polygon->numberOfVertices; i++ ) {
         polygon->bounds.enlargeToIncludePoint(&polygon->vertex[i]);
     }
-
-    return polygon;
 }
 
 void
