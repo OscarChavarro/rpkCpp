@@ -429,7 +429,7 @@ GalerkinRadianceMethod::doStep(java::ArrayList<Patch *> *scenePatches, java::Arr
             if ( GLOBAL_galerkin_state.clustered ) {
                 done = doClusteredGatheringIteration(scenePatches);
             } else {
-                done = galerkinRadiosityDoGatheringIteration(scenePatches);
+                done = galerkinRadiosityDoGatheringIteration(scenePatches, &GLOBAL_galerkin_state);
             }
             break;
         case SOUTH_WELL:

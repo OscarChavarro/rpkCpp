@@ -160,7 +160,7 @@ Does one step of the radiance computations, returns true if the computations
 have converged and false if not
 */
 int
-galerkinRadiosityDoGatheringIteration(java::ArrayList<Patch *> *scenePatches) {
+galerkinRadiosityDoGatheringIteration(java::ArrayList<Patch *> *scenePatches, GalerkinState *galerkinState) {
     if ( GLOBAL_galerkin_state.importance_driven ) {
         if ( GLOBAL_galerkin_state.iteration_nr <= 1 || GLOBAL_camera_mainCamera.changed ) {
             updateDirectPotential(scenePatches);
