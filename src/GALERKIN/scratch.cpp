@@ -119,7 +119,7 @@ scratchRenderElements(GalerkinElement *cluster, Vector3D eye, GalerkinState *gal
     // Render element pointers in the scratch frame buffer
     globalEyePoint = eye; // Needed for backface culling test
     GLOBAL_sgl_currentContext->sglClear((SGL_PIXEL) 0x00, SGL_MAXIMUM_Z);
-    iterateOverSurfaceElementsInCluster(cluster, scratchRenderElementPtr);
+    iterateOverSurfaceElementsInCluster(cluster, scratchRenderElementPtr, galerkinState);
 
     sglMakeCurrent(prev_sgl_context);
     return bbx.coordinates;
@@ -187,14 +187,12 @@ accumulated in the tmp field of the elements. This field should be
 initialized to zero before
 */
 void
-scratchPixelsPerElement() {
-    SGL_PIXEL *pix;
-
-    for ( int j = 0; j < GLOBAL_galerkin_state.scratch->vp_height; j++ ) {
-        pix = GLOBAL_galerkin_state.scratch->frameBuffer + j * GLOBAL_galerkin_state.scratch->width;
-        for ( int i = 0; i < GLOBAL_galerkin_state.scratch->vp_width; i++, pix++ ) {
-            GalerkinElement *elem = (GalerkinElement *) (*pix);
-            if ( elem ) {
+scratchPixelsPerElement(GalerkinState *galerkinState) {
+    for ( int i = 0; i < galerkinState->scratch->vp_height; i++ ) {
+        SGL_PIXEL *pix = galerkinState->scratch->frameBuffer + i * galerkinState->scratch->width;
+        for ( int j = 0; j < galerkinState->scratch->vp_width; j++, pix++ ) {
+            GalerkinElement *elem = (GalerkinElement *)(*pix);
+            if ( elem != nullptr ) {
                 elem->tmp++;
             }
         }

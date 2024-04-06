@@ -14,6 +14,6 @@ extern void scratchTerminate(GalerkinState *galerkinState);
 extern float *scratchRenderElements(GalerkinElement *cluster, Vector3D eye, GalerkinState *galerkinState);
 extern ColorRgb scratchRadiance(GalerkinState *galerkinState);
 extern int scratchNonBackgroundPixels(GalerkinState *galerkinState);
-extern void scratchPixelsPerElement();
+extern void scratchPixelsPerElement(GalerkinState *galerkinState);
 
 #endif

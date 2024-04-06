@@ -167,18 +167,18 @@ hierarchicRefinementApproximationError(
     Interaction *link,
     ColorRgb srcRho,
     ColorRgb rcvRho,
-    GalerkinState *state)
+    GalerkinState *galerkinState)
 {
     ColorRgb error;
     ColorRgb srcRad;
     double approxError = 0.0;
     double approxError2;
 
-    switch ( state->iteration_method ) {
+    switch ( galerkinState->iteration_method ) {
         case GAUSS_SEIDEL:
         case JACOBI:
             if ( link->sourceElement->isCluster() && link->sourceElement != link->receiverElement ) {
-                srcRad = maxClusterRadiance(link->sourceElement);
+                srcRad = maxClusterRadiance(link->sourceElement, galerkinState);
             } else {
                 srcRad = link->sourceElement->radiance[0];
             }
@@ -190,7 +190,7 @@ hierarchicRefinementApproximationError(
 
         case SOUTH_WELL:
             if ( link->sourceElement->isCluster() && link->sourceElement != link->receiverElement ) {
-                srcRad = sourceClusterRadiance(link); // Returns un-shot radiance for shooting
+                srcRad = sourceClusterRadiance(link, galerkinState); // Returns un-shot radiance for shooting
             } else {
                 srcRad = link->sourceElement->unShotRadiance[0];
             }
@@ -199,7 +199,7 @@ hierarchicRefinementApproximationError(
             error.abs();
             approxError = hierarchicRefinementColorToError(error);
 
-            if ( state->importance_driven && link->receiverElement->isCluster() ) {
+            if ( galerkinState->importance_driven && link->receiverElement->isCluster() ) {
                 // Make sure the link is also suited for transport of un-shot potential
                 // from source to receiver. Note that it makes no sense to
                 // subdivide receiver patches (potential is only used to help
@@ -208,7 +208,7 @@ hierarchicRefinementApproximationError(
 
                 // Compare potential error w.r.t. maximum direct potential or importance
                 // instead of self-emitted radiance or power
-                switch ( state->errorNorm ) {
+                switch ( galerkinState->errorNorm ) {
                     case RADIANCE_ERROR:
                         approxError2 *= hierarchicRefinementColorToError(GLOBAL_statistics.maxSelfEmittedRadiance) / GLOBAL_statistics.maxDirectPotential;
                         break;
@@ -238,7 +238,7 @@ this operation is quite expensive and should be avoided when not strictly
 necessary
 */
 static double
-sourceClusterRadianceVariationError(Interaction *link, ColorRgb rcvRho, double rcv_area) {
+sourceClusterRadianceVariationError(Interaction *link, ColorRgb rcvRho, double rcv_area, GalerkinState *galerkinState) {
     double K = link->K[0];
     if ( K == 0.0 || rcvRho.isBlack() || link->sourceElement->radiance[0].isBlack() ) {
         // Receiver reflectivity or coupling coefficient or source radiance
@@ -257,7 +257,7 @@ sourceClusterRadianceVariationError(Interaction *link, ColorRgb rcvRho, double r
     maximumSrcRad.setMonochrome(-HUGE);
     for ( int i = 0; i < numberOfRcVertices; i++ ) {
         ColorRgb rad;
-        rad = clusterRadianceToSamplePoint(link->sourceElement, rcVertices[i], &GLOBAL_galerkin_state);
+        rad = clusterRadianceToSamplePoint(link->sourceElement, rcVertices[i], galerkinState);
         minimumSrcRad.minimum(minimumSrcRad, rad);
         maximumSrcRad.maximum(maximumSrcRad, rad);
     }
@@ -277,8 +277,8 @@ hierarchicRefinementEvaluateInteraction(
     ColorRgb rcvRho;
     double error;
     double threshold;
-    double rcv_area;
-    double min_area;
+    double receiveArea;
+    double minimumArea;
     INTERACTION_EVALUATION_CODE code;
 
     if ( !galerkinState->hierarchical ) {
@@ -290,10 +290,10 @@ hierarchicRefinementEvaluateInteraction(
     // and reflectivity
     if ( link->receiverElement->isCluster() ) {
         rcvRho.setMonochrome(1.0);
-        rcv_area = receiverClusterArea(link, galerkinState);
+        receiveArea = receiverClusterArea(link, galerkinState);
     } else {
         rcvRho = link->receiverElement->patch->radianceData->Rd;
-        rcv_area = link->receiverElement->area;
+        receiveArea = link->receiverElement->area;
     }
 
     // Determine source reflectivity
@@ -303,22 +303,22 @@ hierarchicRefinementEvaluateInteraction(
         srcRho = link->sourceElement->patch->radianceData->Rd;
 
     // Determine error estimate and error threshold
-    threshold = hierarchicRefinementLinkErrorThreshold(link, rcv_area, galerkinState);
+    threshold = hierarchicRefinementLinkErrorThreshold(link, receiveArea, galerkinState);
     error = hierarchicRefinementApproximationError(link, srcRho, rcvRho, galerkinState);
 
     if ( link->sourceElement->isCluster() && error < threshold && galerkinState->clusteringStrategy != ISOTROPIC )
-        error += sourceClusterRadianceVariationError(link, rcvRho, rcv_area);
+        error += sourceClusterRadianceVariationError(link, rcvRho, receiveArea, galerkinState);
 
     // Minimal element area for which subdivision is allowed
-    min_area = GLOBAL_statistics.totalArea * galerkinState->relMinElemArea;
+    minimumArea = GLOBAL_statistics.totalArea * galerkinState->relMinElemArea;
 
     code = ACCURATE_ENOUGH;
     if ( error > threshold ) {
         // A very simple but robust subdivision strategy: subdivide the
         // largest of the two elements in order to reduce the error
         if ((!(link->sourceElement->isCluster() && (link->sourceElement->flags & IS_LIGHT_SOURCE_MASK)) ) &&
-            (rcv_area > link->sourceElement->area) ) {
-            if ( rcv_area > min_area ) {
+            (receiveArea > link->sourceElement->area) ) {
+            if ( receiveArea > minimumArea ) {
                 if ( link->receiverElement->isCluster() ) {
                     code = SUBDIVIDE_RECEIVER_CLUSTER;
                 } else {
@@ -328,7 +328,7 @@ hierarchicRefinementEvaluateInteraction(
         } else {
             if ( link->sourceElement->isCluster() ) {
                 code = SUBDIVIDE_SOURCE_CLUSTER;
-            } else if ( link->sourceElement->area > min_area ) {
+            } else if ( link->sourceElement->area > minimumArea ) {
                 code = REGULAR_SUBDIVIDE_SOURCE;
             }
         }
@@ -370,7 +370,7 @@ hierarchicRefinementComputeLightTransport(
 
     ColorRgb linkClusterRad;
     if ( link->sourceElement->isCluster() && link->sourceElement != link->receiverElement ) {
-        linkClusterRad = sourceClusterRadiance(link);
+        linkClusterRad = sourceClusterRadiance(link, galerkinState);
         srcRad = &linkClusterRad;
     }
 
