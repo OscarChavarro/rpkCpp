@@ -23,7 +23,6 @@ class GalerkinRadianceMethod : public RadianceMethod {
 };
 
 extern void galerkinFreeMemory();
-extern void setCubatureRules(CUBARULE **triRule, CUBARULE **quadRule, GalerkinCubatureDegree degree);
 extern void patchRecomputeColor(Patch *patch);
 
 #endif

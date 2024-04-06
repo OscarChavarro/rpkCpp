@@ -15,7 +15,7 @@ static BoundingBox globalPatchBoundingBox; // Bounding box for that patch
 static java::ArrayList<Geometry *> *globalCandidateList; // Candidate list for shaft culling
 
 static void
-createInitialLink(Patch *patch) {
+createInitialLink(Patch *patch, GalerkinState *galerkinState) {
     if ( !facing(patch, globalPatch) ) {
         return;
     }
@@ -85,7 +85,7 @@ createInitialLink(Patch *patch) {
     bool isSceneGeometry = (globalCandidateList == GLOBAL_scene_geometries);
     bool isClusteredGeometry = (globalCandidateList == GLOBAL_scene_clusteredGeometries);
     java::ArrayList<Geometry *> *geometryListReferences = globalCandidateList;
-    areaToAreaFormFactor(&link, geometryListReferences, isSceneGeometry, isClusteredGeometry);
+    areaToAreaFormFactor(&link, geometryListReferences, isSceneGeometry, isClusteredGeometry, galerkinState);
 
     if ( GLOBAL_galerkin_state.exact_visibility || GLOBAL_galerkin_state.shaftCullMode == ALWAYS_DO_SHAFT_CULLING ) {
         if ( oldCandidateList != globalCandidateList ) {
@@ -112,7 +112,7 @@ createInitialLink(Patch *patch) {
 Yes ... we exploit the hierarchical structure of the scene during initial linking
 */
 static void
-geometryLink(Geometry *geometry) {
+geometryLink(Geometry *geometry, GalerkinState *galerkinState) {
     Shaft shaft;
     java::ArrayList<Geometry *> *oldCandidateList = globalCandidateList;
 
@@ -137,13 +137,13 @@ geometryLink(Geometry *geometry) {
     if ( geometry->isCompound() ) {
         java::ArrayList<Geometry *> *geometryList = geomPrimListCopy(geometry);
         for ( int i = 0; geometryList != nullptr && i < geometryList->size(); i++ ) {
-            geometryLink(geometryList->get(i));
+            geometryLink(geometryList->get(i), galerkinState);
         }
         delete geometryList;
     } else {
         java::ArrayList<Patch *> *patchList = geomPatchArrayListReference(geometry);
         for ( int i = 0; patchList != nullptr && i < patchList->size(); i++ ) {
-            createInitialLink(patchList->get(i));
+            createInitialLink(patchList->get(i), galerkinState);
         }
     }
 
@@ -160,7 +160,7 @@ are stored at the receiver element when doing gathering and at the
 source element when doing shooting
 */
 void
-createInitialLinks(GalerkinElement *top, GalerkinRole role) {
+createInitialLinks(GalerkinElement *top, GalerkinRole role, GalerkinState *galerkinState) {
     if ( top->flags & IS_CLUSTER_MASK ) {
         logFatal(-1, "createInitialLinks", "cannot use this routine for cluster elements");
     }
@@ -172,7 +172,7 @@ createInitialLinks(GalerkinElement *top, GalerkinRole role) {
     globalCandidateList = GLOBAL_scene_clusteredGeometries;
 
     for ( int i = 0; GLOBAL_scene_geometries != nullptr && i < GLOBAL_scene_geometries->size(); i++ ) {
-        geometryLink(GLOBAL_scene_geometries->get(i));
+        geometryLink(GLOBAL_scene_geometries->get(i), galerkinState);
 
     }
 }

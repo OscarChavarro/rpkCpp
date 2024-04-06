@@ -88,14 +88,14 @@ the patch into the environment. Finally clears the un-shot radiance
 at all levels of the element hierarchy for the patch
 */
 static void
-patchPropagateUnShotRadianceAndPotential(Patch *patch) {
+patchPropagateUnShotRadianceAndPotential(Patch *patch, GalerkinState *galerkinState) {
     GalerkinElement *topLevelElement = galerkinGetElement(patch);
 
     if ( !(topLevelElement->flags & INTERACTIONS_CREATED_MASK) ) {
         if ( GLOBAL_galerkin_state.clustered ) {
             createInitialLinkWithTopCluster(topLevelElement, SOURCE);
         } else {
-            createInitialLinks(topLevelElement, SOURCE);
+            createInitialLinks(topLevelElement, SOURCE, galerkinState);
         }
         topLevelElement->flags |= INTERACTIONS_CREATED_MASK;
     }
@@ -161,9 +161,13 @@ patchUpdateRadianceAndPotential(Patch *patch) {
 }
 
 static void
-doPropagate(Patch *shooting_patch, java::ArrayList<Patch *> *scenePatches) {
+doPropagate(
+    Patch *shooting_patch,
+    java::ArrayList<Patch *> *scenePatches,
+    GalerkinState *galerkinState)
+{
     // Propagate the un-shot power of the shooting patch into the environment
-    patchPropagateUnShotRadianceAndPotential(shooting_patch);
+    patchPropagateUnShotRadianceAndPotential(shooting_patch, galerkinState);
 
     // Recompute the colors of all patches, not only the patches that received
     // radiance from the shooting patch, since the ambient term has also changed
@@ -187,7 +191,7 @@ doPropagate(Patch *shooting_patch, java::ArrayList<Patch *> *scenePatches) {
 }
 
 static int
-propagateRadiance(java::ArrayList<Patch *> *scenePatches) {
+propagateRadiance(java::ArrayList<Patch *> *scenePatches, GalerkinState *galerkinState) {
     Patch *shooting_patch;
 
     // Choose a shooting patch. also accumulates the total un-shot power into
@@ -200,7 +204,7 @@ propagateRadiance(java::ArrayList<Patch *> *scenePatches) {
     openGlRenderSetColor(&GLOBAL_material_yellow);
     openGlRenderPatchOutline(shooting_patch);
 
-    doPropagate(shooting_patch, scenePatches);
+    doPropagate(shooting_patch, scenePatches, galerkinState);
 
     return false;
 }
@@ -248,14 +252,14 @@ choosePotentialShootingPatch(java::ArrayList<Patch *> *scenePatches) {
 }
 
 static void
-propagatePotential(java::ArrayList<Patch *> *scenePatches) {
+propagatePotential(java::ArrayList<Patch *> *scenePatches, GalerkinState *galerkinState) {
     Patch *shooting_patch;
 
     shooting_patch = choosePotentialShootingPatch(scenePatches);
     if ( shooting_patch ) {
         openGlRenderSetColor(&GLOBAL_material_white);
         openGlRenderPatchOutline(shooting_patch);
-        doPropagate(shooting_patch, scenePatches);
+        doPropagate(shooting_patch, scenePatches, galerkinState);
     } else {
         fprintf(stderr, "No patches with un-shot potential??\n");
     }
@@ -282,7 +286,7 @@ shootingUpdateDirectPotential(GalerkinElement *elem, float potential_increment) 
 One step of the progressive refinement radiosity algorithm
 */
 static int
-reallyDoShootingStep(java::ArrayList<Patch *> *scenePatches) {
+reallyDoShootingStep(java::ArrayList<Patch *> *scenePatches, GalerkinState *galerkinState) {
     if ( GLOBAL_galerkin_state.importance_driven ) {
         if ( GLOBAL_galerkin_state.iteration_nr <= 1 || GLOBAL_camera_mainCamera.changed ) {
             updateDirectPotential(scenePatches);
@@ -297,15 +301,15 @@ reallyDoShootingStep(java::ArrayList<Patch *> *scenePatches) {
                 clusterUpdatePotential(GLOBAL_galerkin_state.topCluster);
             }
         }
-        propagatePotential(scenePatches);
+        propagatePotential(scenePatches, galerkinState);
     }
-    return propagateRadiance(scenePatches);
+    return propagateRadiance(scenePatches, galerkinState);
 }
 
 /**
 Returns true when converged and false if not
 */
 int
-doShootingStep(java::ArrayList<Patch *> *scenePatches) {
-    return reallyDoShootingStep(scenePatches);
+doShootingStep(java::ArrayList<Patch *> *scenePatches, GalerkinState *galerkinState) {
+    return reallyDoShootingStep(scenePatches, galerkinState);
 }
