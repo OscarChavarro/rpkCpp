@@ -47,5 +47,6 @@ basisGalerkinPush(
     ColorRgb *childCoefficients);
 
 extern void basisGalerkinInitBasis();
+extern void basisGalerkinPushPullRadiance(GalerkinElement *top);
 
 #endif

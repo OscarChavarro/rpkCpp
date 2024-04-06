@@ -2,11 +2,12 @@
 #include "common/error.h"
 #include "common/mymath.h"
 #include "render/render.h"
+#include "render/opengl.h"
 #include "IMAGE/tonemap/tonemapping.h"
 #include "GALERKIN/basisgalerkin.h"
 #include "GALERKIN/clustergalerkincpp.h"
 #include "GALERKIN/GalerkinElement.h"
-#include "render/opengl.h"
+#include "GALERKIN/GalerkinState.h"
 
 // Element render modes, additive
 #define OUTLINE 1

@@ -1,5 +1,6 @@
 #include "common/error.h"
 #include "common/mymath.h"
+#include "common/cubature.h"
 #include "material/statistics.h"
 #include "scene/scene.h"
 #include "GALERKIN/shadowcaching.h"
@@ -7,6 +8,7 @@
 #include "GALERKIN/basisgalerkin.h"
 #include "GALERKIN/mrvisibility.h"
 #include "GALERKIN/initiallinking.h"
+#include "GALERKIN/GalerkinState.h"
 
 /**
 Returns true if P is at least partly in front the plane of Q. Returns false

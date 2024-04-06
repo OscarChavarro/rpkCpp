@@ -9,6 +9,7 @@ Cluster-specific operations
 #include "GALERKIN/clustergalerkincpp.h"
 #include "GALERKIN/scratch.h"
 #include "GALERKIN/mrvisibility.h"
+#include "GALERKIN/GalerkinState.h"
 
 static ColorRgb globalSourceRadiance;
 static Vector3D globalSamplePoint;

@@ -7,6 +7,7 @@
 #include "GALERKIN/galerkinP.h"
 #include "GALERKIN/formfactor.h"
 #include "GALERKIN/initiallinking.h"
+#include "GALERKIN/GalerkinState.h"
 
 static GalerkinElement *globalElement; // The element for which initial links are to be created
 static GalerkinRole globalRole; // The role of that element: SOURCE or RECEIVER
@@ -22,7 +23,7 @@ createInitialLink(Patch *patch) {
 
     GalerkinElement *rcv = nullptr;
     GalerkinElement *src = nullptr;
-    GalerkinElement *topLevelElement = patchGalerkinElement(patch);
+    GalerkinElement *topLevelElement = galerkinGetElement(patch);
     switch ( globalRole ) {
         case SOURCE:
             rcv = topLevelElement;

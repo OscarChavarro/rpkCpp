@@ -10,6 +10,7 @@ Jocabi or Gauss-Seidel Galerkin radiosity
 #include "GALERKIN/galerkinP.h"
 #include "GALERKIN/initiallinking.h"
 #include "GALERKIN/GalerkinRadianceMethod.h"
+#include "GALERKIN/basisgalerkin.h"
 
 /**
 Lazy linking: delay creating the initial links for a patch until it has
@@ -20,7 +21,7 @@ interactions with light sources are created. See Holschuch, EGRW '94
 */
 static void
 patchLazyCreateInteractions(Patch *patch) {
-    GalerkinElement *topLevelElement = patchGalerkinElement(patch);
+    GalerkinElement *topLevelElement = galerkinGetElement(patch);
 
     if ( !topLevelElement->radiance[0].isBlack() && !(topLevelElement->flags & INTERACTIONS_CREATED_MASK) ) {
         createInitialLinks(topLevelElement, SOURCE);
@@ -34,7 +35,7 @@ hierarchical representation consistent and computes a new color for the patch
 */
 static void
 patchUpdateRadiance(Patch *patch) {
-    GalerkinElement *topLevelElement = patchGalerkinElement(patch);
+    GalerkinElement *topLevelElement = galerkinGetElement(patch);
     basisGalerkinPushPullRadiance(topLevelElement);
     patchRecomputeColor(patch);
 }
@@ -47,7 +48,7 @@ Gauss-Seidel iterations
 */
 static void
 patchGather(Patch *patch) {
-    GalerkinElement *topLevelElement = patchGalerkinElement(patch);
+    GalerkinElement *topLevelElement = galerkinGetElement(patch);
 
     // Don't gather to patches without importance. This optimisation can not
     // be combined with lazy linking based on radiance. */
@@ -134,7 +135,7 @@ gatheringPushPullPotential(GalerkinElement *element, float down) {
 
 static void
 patchUpdatePotential(Patch *patch) {
-    GalerkinElement *topLevelElement = patchGalerkinElement(patch);
+    GalerkinElement *topLevelElement = galerkinGetElement(patch);
     gatheringPushPullPotential(topLevelElement, 0.0f);
 }
 
@@ -160,7 +161,7 @@ Does one step of the radiance computations, returns true if the computations
 have converged and false if not
 */
 int
-randomWalkRadiosityDoGatheringIteration(java::ArrayList<Patch *> *scenePatches) {
+galerkinRadiosityDoGatheringIteration(java::ArrayList<Patch *> *scenePatches) {
     if ( GLOBAL_galerkin_state.importance_driven ) {
         if ( GLOBAL_galerkin_state.iteration_nr <= 1 || GLOBAL_camera_mainCamera.changed ) {
             updateDirectPotential(scenePatches);

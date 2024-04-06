@@ -25,6 +25,26 @@ potential-driven or not.
 #include "GALERKIN/clustergalerkincpp.h"
 #include "GALERKIN/scratch.h"
 #include "GALERKIN/shooting.h"
+#include "GALERKIN/gathering.h"
+
+#define DEFAULT_GAL_HIERARCHICAL true
+#define DEFAULT_GAL_IMPORTANCE_DRIVEN false
+#define DEFAULT_GAL_CLUSTERED true
+#define DEFAULT_GAL_ITERATION_METHOD JACOBI
+#define DEFAULT_GAL_LAZY_LINKING true
+#define DEFAULT_GAL_CONSTANT_RADIANCE false
+#define DEFAULT_GAL_AMBIENT_RADIANCE false
+#define DEFAULT_GAL_SHAFT_CULL_MODE DO_SHAFT_CULLING_FOR_REFINEMENT
+#define DEFAULT_GAL_RCV_CUBATURE_DEGREE DEGREE_5
+#define DEFAULT_GAL_SRC_CUBATURE_DEGREE DEGREE_4
+#define DEFAULT_GAL_REL_MIN_ELEM_AREA 1e-6
+#define DEFAULT_GAL_REL_LINK_ERROR_THRESHOLD 1e-5
+#define DEFAULT_GAL_ERROR_NORM POWER_ERROR
+#define DEFAULT_GAL_BASIS_TYPE LINEAR
+#define DEFAULT_GAL_EXACT_VISIBILITY true
+#define DEFAULT_GAL_MULTI_RESOLUTION_VISIBILITY false
+#define DEFAULT_GAL_CLUSTERING_STRATEGY ISOTROPIC
+#define DEFAULT_GAL_SCRATCH_FB_SIZE 200
 
 GalerkinState GLOBAL_galerkin_state;
 
@@ -384,7 +404,7 @@ GalerkinRadianceMethod::doStep(java::ArrayList<Patch *> *scenePatches, java::Arr
             if ( GLOBAL_galerkin_state.clustered ) {
                 done = doClusteredGatheringIteration(scenePatches);
             } else {
-                done = randomWalkRadiosityDoGatheringIteration(scenePatches);
+                done = galerkinRadiosityDoGatheringIteration(scenePatches);
             }
             break;
         case SOUTH_WELL:
@@ -417,7 +437,7 @@ GalerkinRadianceMethod::getRadiance(Patch *patch, double u, double v, Vector3D d
         patch->biLinearToUniform(&u, &v);
     }
 
-    GalerkinElement *topLevelElement = patchGalerkinElement(patch);
+    GalerkinElement *topLevelElement = galerkinGetElement(patch);
     leaf = topLevelElement->regularLeafAtPoint(&u, &v);
 
     rad = basisGalerkinRadianceAtPoint(leaf, leaf->radiance, u, v);
@@ -489,7 +509,7 @@ renderElementHierarchy(GalerkinElement *element) {
 
 static void
 galerkinRenderPatch(Patch *patch) {
-    GalerkinElement *topLevelElement = patchGalerkinElement(patch);
+    GalerkinElement *topLevelElement = galerkinGetElement(patch);
     renderElementHierarchy(topLevelElement);
 }
 

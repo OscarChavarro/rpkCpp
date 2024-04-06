@@ -13,6 +13,7 @@ Southwell Galerkin radiosity (progressive refinement radiosity)
 #include "GALERKIN/initiallinking.h"
 #include "GALERKIN/GalerkinRadianceMethod.h"
 #include "GALERKIN/shooting.h"
+#include "GALERKIN/basisgalerkin.h"
 
 /**
 Returns the patch with highest un-shot power, weighted with indirect
@@ -79,7 +80,7 @@ at all levels of the element hierarchy for the patch
 */
 static void
 patchPropagateUnShotRadianceAndPotential(Patch *patch) {
-    GalerkinElement *topLevelElement = patchGalerkinElement(patch);
+    GalerkinElement *topLevelElement = galerkinGetElement(patch);
 
     if ( !(topLevelElement->flags & INTERACTIONS_CREATED_MASK) ) {
         if ( GLOBAL_galerkin_state.clustered ) {
@@ -140,7 +141,7 @@ shootingPushPullPotential(GalerkinElement *element, float down) {
 
 static void
 patchUpdateRadianceAndPotential(Patch *patch) {
-    GalerkinElement *topLevelElement = patchGalerkinElement(patch);
+    GalerkinElement *topLevelElement = galerkinGetElement(patch);
     if ( GLOBAL_galerkin_state.importance_driven ) {
         shootingPushPullPotential(topLevelElement, 0.0f);
     }
@@ -278,7 +279,7 @@ reallyDoShootingStep(java::ArrayList<Patch *> *scenePatches) {
             updateDirectPotential(scenePatches);
             for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
                 Patch *patch = scenePatches->get(i);
-                GalerkinElement *topLevelElement = patchGalerkinElement(patch);
+                GalerkinElement *topLevelElement = galerkinGetElement(patch);
                 float potential_increment = patch->directPotential - topLevelElement->directPotential;
                 shootingUpdateDirectPotential(topLevelElement, potential_increment);
             }

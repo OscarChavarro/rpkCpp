@@ -8,6 +8,7 @@ with a Z-buffer visibility algorithm in software
 #include "GALERKIN/galerkinP.h"
 #include "GALERKIN/scratch.h"
 #include "GALERKIN/clustergalerkincpp.h"
+#include "GALERKIN/GalerkinState.h"
 
 /**
 Src is a toplevel surface element. Render the corresponding patch
