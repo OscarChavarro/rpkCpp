@@ -1,7 +1,9 @@
 /**
-Galerkin radiosity, with or without hierarchical refinement, with or
-without clusters, with Jacobi, Gauss-Seidel or Southwell iterations,
-potential-driven or not.
+Galerkin radiosity, with the following variants:
+- With or without hierarchical refinement
+- With or without clusters
+- With Jacobi, Gauss-Seidel or South well iterations
+- With potential-driven or not
 */
 
 #include <cstring>
@@ -19,12 +21,12 @@ potential-driven or not.
 #include "io/writevrml.h"
 #include "render/opengl.h"
 #include "IMAGE/tonemap/tonemapping.h"
-#include "GALERKIN/GalerkinRadianceMethod.h"
 #include "GALERKIN/basisgalerkin.h"
 #include "GALERKIN/clustergalerkincpp.h"
 #include "GALERKIN/scratch.h"
 #include "GALERKIN/shooting.h"
 #include "GALERKIN/gathering.h"
+#include "GALERKIN/GalerkinRadianceMethod.h"
 
 #define DEFAULT_GAL_HIERARCHICAL true
 #define DEFAULT_GAL_IMPORTANCE_DRIVEN false
@@ -46,6 +48,10 @@ potential-driven or not.
 #define DEFAULT_GAL_SCRATCH_FB_SIZE 200
 
 GalerkinState GLOBAL_galerkin_state;
+
+static FILE *globalVrmlFileDescriptor;
+static int globalNumberOfWrites;
+static int globalVertexId;
 
 static inline ColorRgb
 galerkinGetRadiance(Patch *patch) {
@@ -256,29 +262,29 @@ ambientOption(void *value) {
 }
 
 static CommandLineOptionDescription galerkinOptions[] = {
-    {"-gr-iteration-method",     6,  Tstring,  nullptr, iterationMethodOption,
+    {"-gr-iteration-method", 6, Tstring, nullptr, iterationMethodOption,
     "-gr-iteration-method <methodname>: Jacobi, GaussSeidel, Southwell"},
-    {"-gr-hierarchical",         6,  TYPELESS, (void *) &globalTrue, hierarchicalOption,
+    {"-gr-hierarchical", 6, TYPELESS, (void *) &globalTrue, hierarchicalOption,
     "-gr-hierarchical    \t: do hierarchical refinement"},
-    {"-gr-not-hierarchical",     10, TYPELESS, (void *) &globalFalse, hierarchicalOption,
+    {"-gr-not-hierarchical", 10, TYPELESS, (void *) &globalFalse, hierarchicalOption,
     "-gr-not-hierarchical\t: don't do hierarchical refinement"},
-    {"-gr-lazy-linking",         6,  TYPELESS, (void *) &globalTrue, lazyOption,
+    {"-gr-lazy-linking", 6, TYPELESS, (void *) &globalTrue, lazyOption,
     "-gr-lazy-linking    \t: do lazy linking"},
-    {"-gr-no-lazy-linking",      10, TYPELESS, (void *) &globalFalse, lazyOption,
+    {"-gr-no-lazy-linking", 10, TYPELESS, (void *) &globalFalse, lazyOption,
     "-gr-no-lazy-linking \t: don't do lazy linking"},
-    {"-gr-clustering",           6,  TYPELESS, (void *) &globalTrue, clusteringOption,
+    {"-gr-clustering", 6, TYPELESS, (void *) &globalTrue, clusteringOption,
     "-gr-clustering      \t: do clustering"},
-    {"-gr-no-clustering",        10, TYPELESS, (void *) &globalFalse, clusteringOption,
+    {"-gr-no-clustering", 10, TYPELESS, (void *) &globalFalse, clusteringOption,
     "-gr-no-clustering   \t: don't do clustering"},
-    {"-gr-importance",           6,  TYPELESS, (void *) &globalTrue, importanceOption,
+    {"-gr-importance", 6, TYPELESS, (void *) &globalTrue, importanceOption,
     "-gr-importance      \t: do view-potential driven computations"},
-    {"-gr-no-importance",        10, TYPELESS, (void *) &globalFalse, importanceOption,
+    {"-gr-no-importance", 10, TYPELESS, (void *) &globalFalse, importanceOption,
     "-gr-no-importance   \t: don't use view-potential"},
-    {"-gr-ambient",              6,  TYPELESS, (void *) &globalTrue, ambientOption,
+    {"-gr-ambient", 6, TYPELESS, (void *) &globalTrue, ambientOption,
     "-gr-ambient         \t: do visualisation with ambient term"},
-    {"-gr-no-ambient",           10, TYPELESS, (void *) &globalFalse, ambientOption,
+    {"-gr-no-ambient", 10, TYPELESS, (void *) &globalFalse, ambientOption,
     "-gr-no-ambient      \t: do visualisation without ambient term"},
-    {"-gr-link-error-threshold", 6,  Tfloat,   &GLOBAL_galerkin_state.relLinkErrorThreshold, DEFAULT_ACTION,
+    {"-gr-link-error-threshold", 6, Tfloat, &GLOBAL_galerkin_state.relLinkErrorThreshold, DEFAULT_ACTION,
     "-gr-link-error-threshold <float>: Relative link error threshold"},
     {"-gr-min-elem-area",6, Tfloat, &GLOBAL_galerkin_state.relMinElemArea, DEFAULT_ACTION,
     "-gr-min-elem-area <float> \t: Relative element area threshold"},
@@ -542,10 +548,6 @@ GalerkinRadianceMethod::renderScene(java::ArrayList<Patch *> *scenePatches) {
         }
     }
 }
-
-static FILE *globalVrmlFileDescriptor;
-static int globalNumberOfWrites;
-static int globalVertexId;
 
 static void
 galerkinWriteVertexCoord(Vector3D *p) {
