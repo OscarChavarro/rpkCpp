@@ -598,14 +598,14 @@ GalerkinElement::draw(int mode) {
         int i;
 
         if ( numberOfVertices == 3 ) {
-            vertRadiosity[0] = basisGalerkinRadianceAtPoint(this, radiance, 0.0, 0.0);
-            vertRadiosity[1] = basisGalerkinRadianceAtPoint(this, radiance, 1.0, 0.0);
-            vertRadiosity[2] = basisGalerkinRadianceAtPoint(this, radiance, 0.0, 1.0);
+            vertRadiosity[0] = basisGalerkinRadianceAtPoint(this, radiance, 0.0, 0.0, &GLOBAL_galerkin_state);
+            vertRadiosity[1] = basisGalerkinRadianceAtPoint(this, radiance, 1.0, 0.0, &GLOBAL_galerkin_state);
+            vertRadiosity[2] = basisGalerkinRadianceAtPoint(this, radiance, 0.0, 1.0, &GLOBAL_galerkin_state);
         } else {
-            vertRadiosity[0] = basisGalerkinRadianceAtPoint(this, radiance, 0.0, 0.0);
-            vertRadiosity[1] = basisGalerkinRadianceAtPoint(this, radiance, 1.0, 0.0);
-            vertRadiosity[2] = basisGalerkinRadianceAtPoint(this, radiance, 1.0, 1.0);
-            vertRadiosity[3] = basisGalerkinRadianceAtPoint(this, radiance, 0.0, 1.0);
+            vertRadiosity[0] = basisGalerkinRadianceAtPoint(this, radiance, 0.0, 0.0, &GLOBAL_galerkin_state);
+            vertRadiosity[1] = basisGalerkinRadianceAtPoint(this, radiance, 1.0, 0.0, &GLOBAL_galerkin_state);
+            vertRadiosity[2] = basisGalerkinRadianceAtPoint(this, radiance, 1.0, 1.0, &GLOBAL_galerkin_state);
+            vertRadiosity[3] = basisGalerkinRadianceAtPoint(this, radiance, 0.0, 1.0, &GLOBAL_galerkin_state);
         }
 
         if ( GLOBAL_galerkin_state.use_ambient_radiance ) {

@@ -26,11 +26,11 @@ galerkinGetUnShotPotential(Patch *patch) {
 
 /**
 Returns the patch with highest un-shot power, weighted with indirect
-importance if importance-driven (see Bekaert&Willems, "Importance-driven
+importance if importance-driven (see Bekaert & Willems, "Importance-driven
 Progressive refinement radiosity", EGRW'95, Dublin
 */
 static Patch *
-chooseRadianceShootingPatch(java::ArrayList<Patch *> *scenePatches) {
+chooseRadianceShootingPatch(java::ArrayList<Patch *> *scenePatches, GalerkinState *galerkinState) {
     Patch *shooting_patch;
     Patch *pot_shooting_patch;
     float power;
@@ -49,7 +49,7 @@ chooseRadianceShootingPatch(java::ArrayList<Patch *> *scenePatches) {
             maximumPower = power;
         }
 
-        if ( GLOBAL_galerkin_state.importance_driven ) {
+        if ( galerkinState->importance_driven ) {
             // For importance-driven progressive refinement radiosity, choose the patch
             // with highest indirectly received potential times power
             powerImportance = (galerkinGetPotential(patch) - patch->directPotential) * power;
@@ -60,7 +60,7 @@ chooseRadianceShootingPatch(java::ArrayList<Patch *> *scenePatches) {
         }
     }
 
-    if ( GLOBAL_galerkin_state.importance_driven && pot_shooting_patch ) {
+    if ( galerkinState->importance_driven && pot_shooting_patch ) {
         return pot_shooting_patch;
     }
     return shooting_patch;
@@ -88,11 +88,11 @@ the patch into the environment. Finally clears the un-shot radiance
 at all levels of the element hierarchy for the patch
 */
 static void
-patchPropagateUnShotRadianceAndPotential(Patch *patch) {
+patchPropagateUnShotRadianceAndPotential(Patch *patch, GalerkinState *galerkinState) {
     GalerkinElement *topLevelElement = galerkinGetElement(patch);
 
     if ( !(topLevelElement->flags & INTERACTIONS_CREATED_MASK) ) {
-        if ( GLOBAL_galerkin_state.clustered ) {
+        if ( galerkinState->clustered ) {
             createInitialLinkWithTopCluster(topLevelElement, SOURCE);
         } else {
             createInitialLinks(topLevelElement, SOURCE);
@@ -102,7 +102,7 @@ patchPropagateUnShotRadianceAndPotential(Patch *patch) {
 
     // Recursively refines the interactions of the shooting patch
     // and computes radiance and potential transport
-    refineInteractions(topLevelElement, &GLOBAL_galerkin_state);
+    refineInteractions(topLevelElement, galerkinState);
 
     // Clear the un-shot radiance at all levels
     clearUnShotRadianceAndPotential(topLevelElement);
@@ -151,34 +151,36 @@ shootingPushPullPotential(GalerkinElement *element, float down) {
 static void
 patchUpdateRadianceAndPotential(Patch *patch, GalerkinState *galerkinState) {
     GalerkinElement *topLevelElement = galerkinGetElement(patch);
-    if ( GLOBAL_galerkin_state.importance_driven ) {
+    if ( galerkinState->importance_driven ) {
         shootingPushPullPotential(topLevelElement, 0.0f);
     }
     basisGalerkinPushPullRadiance(topLevelElement, galerkinState);
 
-    GLOBAL_galerkin_state.ambient_radiance.addScaled(GLOBAL_galerkin_state.ambient_radiance, patch->area,
-                                                     patch->radianceData->unShotRadiance[0]);
+    galerkinState->ambient_radiance.addScaled(
+        galerkinState->ambient_radiance,
+        patch->area,
+        patch->radianceData->unShotRadiance[0]);
 }
 
 static void
 doPropagate(Patch *shooting_patch, java::ArrayList<Patch *> *scenePatches, GalerkinState *galerkinState) {
     // Propagate the un-shot power of the shooting patch into the environment
-    patchPropagateUnShotRadianceAndPotential(shooting_patch);
+    patchPropagateUnShotRadianceAndPotential(shooting_patch, galerkinState);
 
     // Recompute the colors of all patches, not only the patches that received
     // radiance from the shooting patch, since the ambient term has also changed
-    if ( GLOBAL_galerkin_state.clustered ) {
-        if ( GLOBAL_galerkin_state.importance_driven ) {
-            shootingPushPullPotential(GLOBAL_galerkin_state.topCluster, 0.0);
+    if ( galerkinState->clustered ) {
+        if ( galerkinState->importance_driven ) {
+            shootingPushPullPotential(galerkinState->topCluster, 0.0);
         }
-        basisGalerkinPushPullRadiance(GLOBAL_galerkin_state.topCluster, galerkinState);
-        GLOBAL_galerkin_state.ambient_radiance = GLOBAL_galerkin_state.topCluster->unShotRadiance[0];
+        basisGalerkinPushPullRadiance(galerkinState->topCluster, galerkinState);
+        galerkinState->ambient_radiance = galerkinState->topCluster->unShotRadiance[0];
     } else {
-        GLOBAL_galerkin_state.ambient_radiance.clear();
+        galerkinState->ambient_radiance.clear();
         for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
             patchUpdateRadianceAndPotential(scenePatches->get(i), galerkinState);
         }
-        GLOBAL_galerkin_state.ambient_radiance.scale(1.0f / GLOBAL_statistics.totalArea);
+        galerkinState->ambient_radiance.scale(1.0f / GLOBAL_statistics.totalArea);
     }
 
     for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
@@ -191,8 +193,8 @@ propagateRadiance(java::ArrayList<Patch *> *scenePatches, GalerkinState *galerki
     Patch *shooting_patch;
 
     // Choose a shooting patch. also accumulates the total un-shot power into
-    // GLOBAL_galerkin_state.ambient_radiance
-    shooting_patch = chooseRadianceShootingPatch(scenePatches);
+    // galerkinState->ambient_radiance
+    shooting_patch = chooseRadianceShootingPatch(scenePatches, galerkinState);
     if ( !shooting_patch ) {
         return true;
     }
@@ -283,8 +285,8 @@ One step of the progressive refinement radiosity algorithm
 */
 static int
 reallyDoShootingStep(java::ArrayList<Patch *> *scenePatches, GalerkinState *galerkinState) {
-    if ( GLOBAL_galerkin_state.importance_driven ) {
-        if ( GLOBAL_galerkin_state.iteration_nr <= 1 || GLOBAL_camera_mainCamera.changed ) {
+    if ( galerkinState->importance_driven ) {
+        if ( galerkinState->iteration_nr <= 1 || GLOBAL_camera_mainCamera.changed ) {
             updateDirectPotential(scenePatches);
             for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
                 Patch *patch = scenePatches->get(i);
@@ -293,8 +295,8 @@ reallyDoShootingStep(java::ArrayList<Patch *> *scenePatches, GalerkinState *gale
                 shootingUpdateDirectPotential(topLevelElement, potential_increment);
             }
             GLOBAL_camera_mainCamera.changed = false;
-            if ( GLOBAL_galerkin_state.clustered ) {
-                clusterUpdatePotential(GLOBAL_galerkin_state.topCluster);
+            if ( galerkinState->clustered ) {
+                clusterUpdatePotential(galerkinState->topCluster);
             }
         }
         propagatePotential(scenePatches, galerkinState);
