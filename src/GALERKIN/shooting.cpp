@@ -30,7 +30,7 @@ chooseRadianceShootingPatch(java::ArrayList<Patch *> *scenePatches) {
     for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
         Patch *patch = scenePatches->get(i);
 
-        power = (float)M_PI * patch->area * UN_SHOT_RADIANCE(patch).sumAbsComponents();
+        power = (float)M_PI * patch->area * galerkinUnShotRadiance(patch).sumAbsComponents();
         if ( power > maximumPower ) {
             shooting_patch = patch;
             maximumPower = power;
@@ -39,7 +39,7 @@ chooseRadianceShootingPatch(java::ArrayList<Patch *> *scenePatches) {
         if ( GLOBAL_galerkin_state.importance_driven ) {
             // For importance-driven progressive refinement radiosity, choose the patch
             // with highest indirectly received potential times power
-            powerImportance = (POTENTIAL(patch) - patch->directPotential) * power;
+            powerImportance = (galerkinGetPotential(patch) - patch->directPotential) * power;
             if ( powerImportance > maximumPowerImportance ) {
                 pot_shooting_patch = patch;
                 maximumPowerImportance = powerImportance;
@@ -143,7 +143,8 @@ patchUpdateRadianceAndPotential(Patch *patch) {
     }
     basisGalerkinPushPullRadiance(topLevelElement);
 
-    GLOBAL_galerkin_state.ambient_radiance.addScaled(GLOBAL_galerkin_state.ambient_radiance, patch->area, UN_SHOT_RADIANCE(patch));
+    GLOBAL_galerkin_state.ambient_radiance.addScaled(GLOBAL_galerkin_state.ambient_radiance, patch->area,
+                                                     galerkinUnShotRadiance(patch));
 }
 
 static void
@@ -222,7 +223,7 @@ choosePotentialShootingPatch(java::ArrayList<Patch *> *scenePatches) {
 
     for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
         Patch *patch = scenePatches->get(i);
-        float imp = patch->area * std::fabs(UN_SHOT_POTENTIAL(patch));
+        float imp = patch->area * std::fabs(galerkinGetUnShotPotential(patch));
 
         if ( imp > maximumImportance ) {
             shootingPatch = patch;

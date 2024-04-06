@@ -287,10 +287,10 @@ patchRecomputeColor(Patch *patch) {
     // Compute the patches color based on its radiance + ambient radiance if desired
     if ( GLOBAL_galerkin_state.use_ambient_radiance ) {
         radVis.scalarProduct(reflectivity, GLOBAL_galerkin_state.ambient_radiance);
-        radVis.add(radVis, RADIANCE(patch));
+        radVis.add(radVis, galerkinGetRadiance(patch));
         radianceToRgb(radVis, &patch->color);
     } else {
-        radianceToRgb(RADIANCE(patch), &patch->color);
+        radianceToRgb(galerkinGetRadiance(patch), &patch->color);
     }
     patch->computeVertexColors();
 }
@@ -303,24 +303,25 @@ patchInit(Patch *patch) {
     if ( GLOBAL_galerkin_state.use_constant_radiance ) {
         // See Neumann et-al, "The Constant Radiosity Step", Euro-graphics Rendering Workshop
         // '95, Dublin, Ireland, June 1995, p 336-344
-        RADIANCE(patch).scalarProduct(reflectivity, GLOBAL_galerkin_state.constant_radiance);
-        RADIANCE(patch).add(RADIANCE(patch), selfEmittanceRadiance);
+        galerkinGetRadiance(patch).scalarProduct(reflectivity, GLOBAL_galerkin_state.constant_radiance);
+        galerkinGetRadiance(patch).add(galerkinGetRadiance(patch), selfEmittanceRadiance);
         if ( GLOBAL_galerkin_state.iteration_method == SOUTH_WELL )
-            UN_SHOT_RADIANCE(patch).subtract(RADIANCE(patch), GLOBAL_galerkin_state.constant_radiance);
+            galerkinUnShotRadiance(patch).subtract(galerkinGetRadiance(patch), GLOBAL_galerkin_state.constant_radiance);
     } else {
-        RADIANCE(patch) = selfEmittanceRadiance;
+        galerkinSetRadiance(patch, selfEmittanceRadiance);
         if ( GLOBAL_galerkin_state.iteration_method == SOUTH_WELL )
-            UN_SHOT_RADIANCE(patch) = RADIANCE(patch);
+            galerkinUnShotRadiance(patch) = galerkinGetRadiance(patch);
     }
 
     if ( GLOBAL_galerkin_state.importance_driven ) {
         switch ( GLOBAL_galerkin_state.iteration_method ) {
             case GAUSS_SEIDEL:
             case JACOBI:
-                POTENTIAL(patch) = patch->directPotential;
+                galerkinSetPotential(patch, patch->directPotential);
                 break;
             case SOUTH_WELL:
-                POTENTIAL(patch) = UN_SHOT_POTENTIAL(patch) = patch->directPotential;
+                galerkinSetPotential(patch, patch->directPotential);
+                galerkinSetUnShotPotential(patch, patch->directPotential);
                 break;
             default:
                 logFatal(-1, "patchInit", "Invalid iteration method");

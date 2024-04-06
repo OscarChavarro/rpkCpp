@@ -1,7 +1,3 @@
-/**
-Galerkin Radiosity "private" declarations
-*/
-
 #ifndef __GALERKIN_P__
 #define __GALERKIN_P__
 
@@ -14,16 +10,40 @@ Galerkin Radiosity "private" declarations
 The Galerkin specific data for a patch is its toplevel element
 */
 
-inline ColorRgb&
-RADIANCE(Patch *patch) {
+inline ColorRgb
+galerkinGetRadiance(Patch *patch) {
     return ((GalerkinElement *)(patch->radianceData))->radiance[0];
 }
 
-#define UN_SHOT_RADIANCE(patch) ((GalerkinElement *)((patch)->radianceData))->unShotRadiance[0]
+inline void
+galerkinSetRadiance(Patch *patch, ColorRgb value) {
+    ((GalerkinElement *)(patch->radianceData))->radiance[0] = value;
+}
 
-#define POTENTIAL(patch) ((GalerkinElement *)((patch)->radianceData))->potential
+inline ColorRgb
+galerkinUnShotRadiance(Patch *patch) {
+    return patch->radianceData->unShotRadiance[0];
+}
 
-#define UN_SHOT_POTENTIAL(patch) ((GalerkinElement *)((patch)->radianceData))->unShotPotential
+inline float
+galerkinGetPotential(Patch *patch) {
+    return ((GalerkinElement *)((patch)->radianceData))->potential;
+}
+
+inline void
+galerkinSetPotential(Patch *patch, float value) {
+    ((GalerkinElement *)((patch)->radianceData))->potential = value;
+}
+
+inline float
+galerkinGetUnShotPotential(Patch *patch) {
+    return ((GalerkinElement *)((patch)->radianceData))->unShotPotential;
+}
+
+inline void
+galerkinSetUnShotPotential(Patch *patch, float value) {
+    ((GalerkinElement *)((patch)->radianceData))->unShotPotential = value;
+}
 
 inline GalerkinElement*
 patchGalerkinElement(Patch *patch) {
