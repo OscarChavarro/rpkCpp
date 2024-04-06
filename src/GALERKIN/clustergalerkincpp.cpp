@@ -20,15 +20,15 @@ static Interaction *globalTheLink;
 // Area corresponding to one pixel in the scratch frame buffer
 static double globalPixelArea;
 
-static GalerkinElement *galerkinDoCreateClusterHierarchy(Geometry *parentGeometry);
+static GalerkinElement *galerkinDoCreateClusterHierarchy(Geometry *parentGeometry, GalerkinState *galerkinState);
 
 /**
 Creates a cluster hierarchy for the Geometry and adds it to the sub-cluster list of the
 given parent cluster
 */
 static void
-geomAddClusterChild(Geometry *geom, GalerkinElement *parentCluster) {
-    GalerkinElement *cluster = galerkinDoCreateClusterHierarchy(geom);
+geomAddClusterChild(Geometry *geom, GalerkinElement *parentCluster, GalerkinState *galerkinState) {
+    GalerkinElement *cluster = galerkinDoCreateClusterHierarchy(geom, galerkinState);
 
     if ( parentCluster->irregularSubElements == nullptr ) {
         parentCluster->irregularSubElements = new java::ArrayList<Element *>();
@@ -100,7 +100,7 @@ Creates a cluster for the Geometry, recursively traverses for the children GEOMs
 returns the created cluster
 */
 static GalerkinElement *
-galerkinDoCreateClusterHierarchy(Geometry *parentGeometry) {
+galerkinDoCreateClusterHierarchy(Geometry *parentGeometry, GalerkinState *galerkinState) {
     // Geom will be nullptr if e.g. no scene is loaded when selecting
     // Galerkin radiosity for radiance computations
     if ( parentGeometry == nullptr ) {
@@ -115,7 +115,7 @@ galerkinDoCreateClusterHierarchy(Geometry *parentGeometry) {
     if ( parentGeometry->isCompound() ) {
         java::ArrayList<Geometry *> *geometryList = geomPrimListCopy(parentGeometry);
         for ( int i = 0; geometryList != nullptr && i < geometryList->size(); i++ ) {
-            geomAddClusterChild(geometryList->get(i), cluster);
+            geomAddClusterChild(geometryList->get(i), cluster, galerkinState);
         }
         delete geometryList;
     } else {
@@ -125,7 +125,7 @@ galerkinDoCreateClusterHierarchy(Geometry *parentGeometry) {
         }
     }
 
-    clusterInit(cluster, &GLOBAL_galerkin_state);
+    clusterInit(cluster, galerkinState);
 
     return cluster;
 }
@@ -139,9 +139,9 @@ the above function, and finally terminates equivalent blocker size
 determination
 */
 GalerkinElement *
-galerkinCreateClusterHierarchy(Geometry *geom) {
+galerkinCreateClusterHierarchy(Geometry *geom, GalerkinState *galerkinState) {
     blockerInit();
-    GalerkinElement *cluster = galerkinDoCreateClusterHierarchy(geom);
+    GalerkinElement *cluster = galerkinDoCreateClusterHierarchy(geom, galerkinState);
     blockerTerminate();
 
     return cluster;
@@ -435,7 +435,7 @@ Distributes the source radiance to the surface elements in the
 receiver cluster
 */
 void
-clusterGatherRadiance(Interaction *link, ColorRgb *srcRad) {
+clusterGatherRadiance(Interaction *link, ColorRgb *srcRad, GalerkinState *galerkinState) {
     GalerkinElement *src = link->sourceElement, *rcv = link->receiverElement;
 
     if ( !rcv->isCluster() || src == rcv ) {
@@ -447,7 +447,7 @@ clusterGatherRadiance(Interaction *link, ColorRgb *srcRad) {
     globalTheLink = link;
     globalSamplePoint = src->midPoint();
 
-    switch ( GLOBAL_galerkin_state.clusteringStrategy ) {
+    switch ( galerkinState->clusteringStrategy ) {
         case ISOTROPIC:
             doGatherRadiance(rcv, 1.0, link, srcRad);
             break;
@@ -465,7 +465,7 @@ clusterGatherRadiance(Interaction *link, ColorRgb *srcRad) {
 
                 // Area corresponding to one pixel on the virtual screen
                 globalPixelArea = (boundingBox[MAX_X] - boundingBox[MIN_X]) * (boundingBox[MAX_Y] - boundingBox[MIN_Y]) /
-                                  (double) (GLOBAL_galerkin_state.scratch->vp_width * GLOBAL_galerkin_state.scratch->vp_height);
+                                  (double) (galerkinState->scratch->vp_width * galerkinState->scratch->vp_height);
 
                 // Gathers the radiance to each element that occupies at least one
                 // pixel in the scratch frame buffer and sets elem->tmp back to zero
@@ -475,15 +475,15 @@ clusterGatherRadiance(Interaction *link, ColorRgb *srcRad) {
             break;
         default:
             logFatal(-1, "clusterGatherRadiance", "Invalid clustering strategy %d",
-                     GLOBAL_galerkin_state.clusteringStrategy);
+                     galerkinState->clusteringStrategy);
     }
 }
 
 static void
-determineMaxRadiance(GalerkinElement *elem, GalerkinState */*galerkinState*/) {
+determineMaxRadiance(GalerkinElement *elem, GalerkinState *galerkinState) {
     ColorRgb rad;
-    if ( GLOBAL_galerkin_state.iteration_method == GAUSS_SEIDEL ||
-         GLOBAL_galerkin_state.iteration_method == JACOBI ) {
+    if ( galerkinState->iteration_method == GAUSS_SEIDEL ||
+         galerkinState->iteration_method == JACOBI ) {
         rad = elem->radiance[0];
     } else {
         rad = elem->unShotRadiance[0];

@@ -347,7 +347,7 @@ once for all accumulated received radiance during push-pull
 static void
 hierarchicRefinementComputeLightTransport(
     Interaction *link,
-    GalerkinState *state)
+    GalerkinState *galerkinState)
 {
     // Update the number of effectively used radiance coefficients on the
     // receiver element
@@ -362,7 +362,7 @@ hierarchicRefinementComputeLightTransport(
 
     ColorRgb *srcRad;
     ColorRgb *rcvRad;
-    if ( state->iteration_method == SOUTH_WELL ) {
+    if ( galerkinState->iteration_method == SOUTH_WELL ) {
         srcRad = link->sourceElement->unShotRadiance;
     } else {
         srcRad = link->sourceElement->radiance;
@@ -375,7 +375,7 @@ hierarchicRefinementComputeLightTransport(
     }
 
     if ( link->receiverElement->isCluster() && link->sourceElement != link->receiverElement ) {
-        clusterGatherRadiance(link, srcRad);
+        clusterGatherRadiance(link, srcRad, galerkinState);
     } else {
         rcvRad = link->receiverElement->receivedRadiance;
         if ( link->numberOfBasisFunctionsOnReceiver == 1 && link->numberOfBasisFunctionsOnSource == 1 ) {
@@ -392,20 +392,20 @@ hierarchicRefinementComputeLightTransport(
         }
     }
 
-    if ( state->importance_driven ) {
+    if ( galerkinState->importance_driven ) {
         float K = link->K[0];
         ColorRgb rcvRho;
         ColorRgb srcRho;
 
-        if ( state->iteration_method == GAUSS_SEIDEL ||
-             state->iteration_method == JACOBI ) {
+        if ( galerkinState->iteration_method == GAUSS_SEIDEL ||
+             galerkinState->iteration_method == JACOBI ) {
             if ( link->receiverElement->isCluster() ) {
                 rcvRho.setMonochrome(1.0f);
             } else {
                 rcvRho = link->receiverElement->patch->radianceData->Rd;
             }
             link->sourceElement->receivedPotential += (float)(K * hierarchicRefinementColorToError(rcvRho) * link->receiverElement->potential);
-        } else if ( state->iteration_method == SOUTH_WELL ) {
+        } else if ( galerkinState->iteration_method == SOUTH_WELL ) {
             if ( link->sourceElement->isCluster() ) {
                 srcRho.setMonochrome(1.0f);
             } else {

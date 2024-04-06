@@ -396,7 +396,7 @@ GalerkinRadianceMethod::initialize(java::ArrayList<Patch *> *scenePatches) {
     }
 
     GLOBAL_galerkin_state.topGeometry = GLOBAL_scene_clusteredWorldGeom;
-    GLOBAL_galerkin_state.topCluster = galerkinCreateClusterHierarchy(GLOBAL_galerkin_state.topGeometry);
+    GLOBAL_galerkin_state.topCluster = galerkinCreateClusterHierarchy(GLOBAL_galerkin_state.topGeometry, &GLOBAL_galerkin_state);
 
     // Create a scratch software renderer for various operations on clusters
     scratchInit(&GLOBAL_galerkin_state);
