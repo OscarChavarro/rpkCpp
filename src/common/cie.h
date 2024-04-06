@@ -36,7 +36,7 @@ extern void computeColorConversionTransforms(
     float xb, float yb,
     float xw, float yw);
 
-extern void getLuminousEfficacy(float *e);
+extern float getLuminousEfficacy();
 extern float spectrumGray(const float r, const float g, const float b);
 extern float spectrumLuminance(const float r, const float g, const float b);
 

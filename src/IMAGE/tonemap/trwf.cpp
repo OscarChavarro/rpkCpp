@@ -188,7 +188,7 @@ trwfScaleForDisplay(ColorRgb radiance) {
 
     rwl = M_PI * radiance.luminance();
 
-    getLuminousEfficacy(&eff);
+    eff = getLuminousEfficacy();
     radiance.scale(eff * (float) M_PI);
 
     if ( rwl > 0.0 ) {
@@ -222,9 +222,7 @@ wardScaleForComputations(ColorRgb radiance) {
 
 static ColorRgb
 wardScaleForDisplay(ColorRgb radiance) {
-    float eff;
-
-    getLuminousEfficacy(&eff);
+    float eff = getLuminousEfficacy();
 
     radiance.scale(eff * m_disp);
     return radiance;
@@ -263,11 +261,10 @@ static ColorRgb
 revisedTRScaleForDisplay(ColorRgb radiance) {
     float rwl;
     float scale;
-    float eff;
 
     rwl = M_PI * radiance.luminance();
 
-    getLuminousEfficacy(&eff);
+    float eff = getLuminousEfficacy();
     radiance.scale(eff * (float)M_PI);
 
     if ( rwl > 0.0 ) {
@@ -296,10 +293,9 @@ static ColorRgb
 ferwerdaScaleForComputations(ColorRgb radiance) {
     ColorRgb p{};
     float sl;
-    float eff;
 
     // Convert to photometric values
-    getLuminousEfficacy(&eff);
+    float eff = getLuminousEfficacy();
     radiance.scale(eff);
 
     // Compute the scotopic grayscale shift
@@ -321,10 +317,9 @@ static ColorRgb
 ferwerdaScaleForDisplay(ColorRgb radiance) {
     ColorRgb p{};
     float sl;
-    float eff;
 
     // Convert to photometric values
-    getLuminousEfficacy(&eff);
+    float eff = getLuminousEfficacy();
     radiance.scale(eff);
 
     // Compute the scotopic grayscale shift

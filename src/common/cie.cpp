@@ -101,9 +101,9 @@ colorTransform(const float *col, float mat[3][3], float *res) {
 /**
 Set/return the value used for tri-stimulus white efficacy.
 */
-void
-getLuminousEfficacy(float *e) {
-    *e = globalLuminousEfficacy;
+float
+getLuminousEfficacy() {
+    return globalLuminousEfficacy;
 }
 
 /**
