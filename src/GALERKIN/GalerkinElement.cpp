@@ -276,7 +276,7 @@ GalerkinElement::reAllocCoefficients() {
     }
     receivedRadiance = defaultReceivedRadiance;
 
-    if ( galerkinState->iteration_method == SOUTH_WELL ) {
+    if ( galerkinState->galerkinIterationMethod == SOUTH_WELL ) {
         ColorRgb *defaultUnShotRadiance = new ColorRgb[localBasisSize];
         clusterGalerkinClearCoefficients(defaultUnShotRadiance, localBasisSize);
         if ( !isCluster() ) {
@@ -339,7 +339,7 @@ GalerkinElement::regularSubDivide() {
         subElement[i]->potential = potential;
         subElement[i]->directPotential = directPotential;
 
-        if ( galerkinState->iteration_method == SOUTH_WELL ) {
+        if ( galerkinState->galerkinIterationMethod == SOUTH_WELL ) {
             basisGalerkinPush(this, unShotRadiance, subElement[i], subElement[i]->unShotRadiance);
             subElement[i]->unShotPotential = unShotPotential;
         }
@@ -587,9 +587,9 @@ GalerkinElement::draw(int mode, GalerkinState *galerkinState) {
         ColorRgb color{};
         ColorRgb rho = patch->radianceData->Rd;
 
-        if ( galerkinState->use_ambient_radiance ) {
+        if ( galerkinState->useAmbientRadiance ) {
             ColorRgb radVis;
-            radVis.scalarProduct(rho, galerkinState->ambient_radiance);
+            radVis.scalarProduct(rho, galerkinState->ambientRadiance);
             radVis.add(radVis, radiance[0]);
             radianceToRgb(radVis, &color);
         } else {
@@ -613,11 +613,11 @@ GalerkinElement::draw(int mode, GalerkinState *galerkinState) {
             vertRadiosity[3] = basisGalerkinRadianceAtPoint(this, radiance, 0.0, 1.0, galerkinState);
         }
 
-        if ( galerkinState->use_ambient_radiance ) {
+        if ( galerkinState->useAmbientRadiance ) {
             ColorRgb reflectivity = patch->radianceData->Rd;
             ColorRgb ambient;
 
-            ambient.scalarProduct(reflectivity, galerkinState->ambient_radiance);
+            ambient.scalarProduct(reflectivity, galerkinState->ambientRadiance);
             for ( i = 0; i < numberOfVertices; i++ ) {
                 vertRadiosity[i].add(vertRadiosity[i], ambient);
             }

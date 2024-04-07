@@ -83,7 +83,7 @@ basisGalerkinPushPullRadianceRecursive(GalerkinElement *element, ColorRgb *Bdown
             Bup[i].scalarProduct(rho, Bdown[i]);
         }
 
-        if ( galerkinState->iteration_method == JACOBI || galerkinState->iteration_method == GAUSS_SEIDEL ) {
+        if ( galerkinState->galerkinIterationMethod == JACOBI || galerkinState->galerkinIterationMethod == GAUSS_SEIDEL ) {
             // Add self-emitted radiance. Bup is a new approximation of the total radiance
             // add this leaf element
             ColorRgb Ed = element->patch->radianceData->Ed;
@@ -139,7 +139,7 @@ basisGalerkinPushPullRadianceRecursive(GalerkinElement *element, ColorRgb *Bdown
         }
     }
 
-    if ( galerkinState->iteration_method == JACOBI || galerkinState->iteration_method == GAUSS_SEIDEL ) {
+    if ( galerkinState->galerkinIterationMethod == JACOBI || galerkinState->galerkinIterationMethod == GAUSS_SEIDEL ) {
         // Gathering method: Bup is new approximation of the total radiance at this level of detail
         clusterGalerkinCopyCoefficients(element->radiance, Bup, element->basisSize);
     } else {

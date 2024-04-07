@@ -38,10 +38,10 @@ createInitialLink(Patch *patch, GalerkinState *galerkinState) {
 
     java::ArrayList<Geometry *> *oldCandidateList = globalCandidateList;
 
-    if ( (galerkinState->exact_visibility || galerkinState->shaftCullMode == ALWAYS_DO_SHAFT_CULLING) && oldCandidateList ) {
+    if ((galerkinState->exactVisibility || galerkinState->shaftCullMode == ALWAYS_DO_SHAFT_CULLING) && oldCandidateList ) {
         Shaft shaft;
 
-        if ( galerkinState->exact_visibility ) {
+        if ( galerkinState->exactVisibility ) {
             if ( rcv != nullptr && src != nullptr ) {
                 Polygon rcvPolygon;
                 Polygon srcPolygon;
@@ -87,7 +87,7 @@ createInitialLink(Patch *patch, GalerkinState *galerkinState) {
     java::ArrayList<Geometry *> *geometryListReferences = globalCandidateList;
     areaToAreaFormFactor(&link, geometryListReferences, isSceneGeometry, isClusteredGeometry, galerkinState);
 
-    if ( galerkinState->exact_visibility || galerkinState->shaftCullMode == ALWAYS_DO_SHAFT_CULLING ) {
+    if ( galerkinState->exactVisibility || galerkinState->shaftCullMode == ALWAYS_DO_SHAFT_CULLING ) {
         if ( oldCandidateList != globalCandidateList ) {
             freeCandidateList(globalCandidateList);
         }
@@ -98,7 +98,7 @@ createInitialLink(Patch *patch, GalerkinState *galerkinState) {
         Interaction *newLink = interactionDuplicate(&link);
         // Store interactions with the source patch for the progressive radiosity method
         // and with the receiving patch for gathering methods
-        if ( galerkinState->iteration_method == SOUTH_WELL ) {
+        if ( galerkinState->galerkinIterationMethod == SOUTH_WELL ) {
             if ( src != nullptr ) {
                 src->interactions->add(newLink);
             }
@@ -228,7 +228,7 @@ createInitialLinkWithTopCluster(GalerkinElement *elem, GalerkinRole role, Galerk
 
     // Store interactions with the source patch for the progressive radiosity method
     // and with the receiving patch for gathering methods
-    if ( galerkinState->iteration_method == SOUTH_WELL ) {
+    if ( galerkinState->galerkinIterationMethod == SOUTH_WELL ) {
         src->interactions->add(newLink);
     } else {
         rcv->interactions->add(newLink);

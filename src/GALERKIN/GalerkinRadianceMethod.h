@@ -7,7 +7,7 @@
 
 class GalerkinRadianceMethod : public RadianceMethod {
   private:
-    void patchInit(Patch *patch);
+    static void patchInit(Patch *patch);
     static void updateCpuSecs();
 
     static inline ColorRgb
@@ -33,6 +33,8 @@ class GalerkinRadianceMethod : public RadianceMethod {
   public:
     static GalerkinState galerkinState;
 
+    static void recomputePatchColor(Patch *patch);
+
     GalerkinRadianceMethod();
     ~GalerkinRadianceMethod();
     const char *getRadianceMethodName() const;
@@ -46,7 +48,6 @@ class GalerkinRadianceMethod : public RadianceMethod {
     char *getStats();
     void renderScene(java::ArrayList<Patch *> *scenePatches);
     void writeVRML(FILE *fp);
-    void recomputePatchColor(Patch *patch);
 };
 
 extern void galerkinFreeMemory();

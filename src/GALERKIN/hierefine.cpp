@@ -55,7 +55,7 @@ hierarchicRefinementCull(
             state->shaftCullMode == ALWAYS_DO_SHAFT_CULLING ) {
         Shaft shaft;
 
-        if ( state->exact_visibility && !link->receiverElement->isCluster() && !link->sourceElement->isCluster() ) {
+        if ( state->exactVisibility && !link->receiverElement->isCluster() && !link->sourceElement->isCluster() ) {
             Polygon rcvPolygon;
             Polygon srcPolygon;
             link->receiverElement->initPolygon(&rcvPolygon);
@@ -148,9 +148,9 @@ hierarchicRefinementLinkErrorThreshold(
     // of the maximum direct potential. This way, about an equal precision is
     // obtained in the visible parts of the scene if importance is used
     // instead of weighting the error, we weight the threshold with the inverse
-    if ( state->importance_driven &&
-         (state->iteration_method == JACOBI ||
-          state->iteration_method == GAUSS_SEIDEL) ) {
+    if ( state->importanceDriven &&
+         (state->galerkinIterationMethod == JACOBI ||
+          state->galerkinIterationMethod == GAUSS_SEIDEL) ) {
         threshold /= 2.0 * link->receiverElement->potential / GLOBAL_statistics.maxDirectPotential;
     }
 
@@ -174,7 +174,7 @@ hierarchicRefinementApproximationError(
     double approxError = 0.0;
     double approxError2;
 
-    switch ( galerkinState->iteration_method ) {
+    switch ( galerkinState->galerkinIterationMethod ) {
         case GAUSS_SEIDEL:
         case JACOBI:
             if ( link->sourceElement->isCluster() && link->sourceElement != link->receiverElement ) {
@@ -199,7 +199,7 @@ hierarchicRefinementApproximationError(
             error.abs();
             approxError = hierarchicRefinementColorToError(error);
 
-            if ( galerkinState->importance_driven && link->receiverElement->isCluster() ) {
+            if ( galerkinState->importanceDriven && link->receiverElement->isCluster() ) {
                 // Make sure the link is also suited for transport of un-shot potential
                 // from source to receiver. Note that it makes no sense to
                 // subdivide receiver patches (potential is only used to help
@@ -362,7 +362,7 @@ hierarchicRefinementComputeLightTransport(
 
     ColorRgb *srcRad;
     ColorRgb *rcvRad;
-    if ( galerkinState->iteration_method == SOUTH_WELL ) {
+    if ( galerkinState->galerkinIterationMethod == SOUTH_WELL ) {
         srcRad = link->sourceElement->unShotRadiance;
     } else {
         srcRad = link->sourceElement->radiance;
@@ -392,20 +392,20 @@ hierarchicRefinementComputeLightTransport(
         }
     }
 
-    if ( galerkinState->importance_driven ) {
+    if ( galerkinState->importanceDriven ) {
         float K = link->K[0];
         ColorRgb rcvRho;
         ColorRgb srcRho;
 
-        if ( galerkinState->iteration_method == GAUSS_SEIDEL ||
-             galerkinState->iteration_method == JACOBI ) {
+        if ( galerkinState->galerkinIterationMethod == GAUSS_SEIDEL ||
+             galerkinState->galerkinIterationMethod == JACOBI ) {
             if ( link->receiverElement->isCluster() ) {
                 rcvRho.setMonochrome(1.0f);
             } else {
                 rcvRho = link->receiverElement->patch->radianceData->Rd;
             }
             link->sourceElement->receivedPotential += (float)(K * hierarchicRefinementColorToError(rcvRho) * link->receiverElement->potential);
-        } else if ( galerkinState->iteration_method == SOUTH_WELL ) {
+        } else if ( galerkinState->galerkinIterationMethod == SOUTH_WELL ) {
             if ( link->sourceElement->isCluster() ) {
                 srcRho.setMonochrome(1.0f);
             } else {
@@ -466,7 +466,7 @@ static void
 hierarchicRefinementStoreInteraction(Interaction *link, GalerkinState *state) {
     Interaction *newLink = interactionDuplicate(link);
 
-    if ( state->iteration_method == SOUTH_WELL ) {
+    if ( state->galerkinIterationMethod == SOUTH_WELL ) {
         link->sourceElement->interactions->add(newLink);
     } else {
         link->receiverElement->interactions->add(newLink);
@@ -670,7 +670,7 @@ static bool
 refineInteraction(Interaction *link, GalerkinState *state) {
     java::ArrayList<Geometry *> *candidateOccluderList = GLOBAL_scene_clusteredGeometries;
 
-    if ( state->exact_visibility && link->visibility == 255 ) {
+    if ( state->exactVisibility && link->visibility == 255 ) {
         candidateOccluderList = nullptr;
     }
 
@@ -682,7 +682,7 @@ static void
 removeRefinedInteractions(const GalerkinState *state, java::ArrayList<Interaction *> *interactionsToRemove) {
     for ( int i = 0; i < interactionsToRemove->size(); i++ ) {
         Interaction *interaction = interactionsToRemove->get(i);
-        if ( state->iteration_method == SOUTH_WELL ) {
+        if ( state->galerkinIterationMethod == SOUTH_WELL ) {
             interaction->sourceElement->interactions->remove(interaction);
         } else {
             interaction->receiverElement->interactions->remove(interaction);

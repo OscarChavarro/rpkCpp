@@ -79,7 +79,7 @@ clusterInit(GalerkinElement *cluster, GalerkinState *galerkinState) {
     cluster->Ed.scale(1.0f / cluster->area);
 
     // Also pull un-shot radiance for the "shooting" methods
-    if ( galerkinState->iteration_method == SOUTH_WELL ) {
+    if ( galerkinState->galerkinIterationMethod == SOUTH_WELL ) {
         clusterGalerkinClearCoefficients(cluster->unShotRadiance, cluster->basisSize);
         for ( int i = 0; cluster->irregularSubElements != nullptr && i < cluster->irregularSubElements->size(); i++ ) {
             GalerkinElement *subCluster = (GalerkinElement *)cluster->irregularSubElements->get(i);
@@ -202,8 +202,8 @@ accumulatePowerToSamplePoint(GalerkinElement *src, GalerkinState *galerkinState)
         return;
     }
 
-    if ( galerkinState->iteration_method == GAUSS_SEIDEL ||
-         galerkinState->iteration_method == JACOBI ) {
+    if ( galerkinState->galerkinIterationMethod == GAUSS_SEIDEL ||
+         galerkinState->galerkinIterationMethod == JACOBI ) {
         rad = src->radiance[0];
     } else {
         rad = src->unShotRadiance[0];
@@ -482,8 +482,8 @@ clusterGatherRadiance(Interaction *link, ColorRgb *srcRad, GalerkinState *galerk
 static void
 determineMaxRadiance(GalerkinElement *elem, GalerkinState *galerkinState) {
     ColorRgb rad;
-    if ( galerkinState->iteration_method == GAUSS_SEIDEL ||
-         galerkinState->iteration_method == JACOBI ) {
+    if ( galerkinState->galerkinIterationMethod == GAUSS_SEIDEL ||
+         galerkinState->galerkinIterationMethod == JACOBI ) {
         rad = elem->radiance[0];
     } else {
         rad = elem->unShotRadiance[0];

@@ -57,21 +57,21 @@ class GalerkinState {
   public:
     int iteration_nr; // Number of iterations and nr of steps
     int hierarchical; // Set true for hierarchical refinement
-    int importance_driven; // Set true for potential-driven comp
+    int importanceDriven; // Set true for potential-driven comp
     int clustered; // Set true for clustering
-    GalerkinIterationMethod iteration_method; // How to solve the resulting linear set
-    int lazy_linking; // Set true for lazy linking
-    int exact_visibility; // For more exact treatment of visibility
+    GalerkinIterationMethod galerkinIterationMethod; // How to solve the resulting linear set
+    int lazyLinking; // Set true for lazy linking
+    int exactVisibility; // For more exact treatment of visibility
     int multiResolutionVisibility; // For multi-resolution visibility determination
-    int use_constant_radiance; // Set true for constant radiance initialization
-    int use_ambient_radiance; // Ambient radiance (for visualisation only)
-    ColorRgb constant_radiance;
-    ColorRgb ambient_radiance;
+    int useConstantRadiance; // Set true for constant radiance initialization
+    int useAmbientRadiance; // Ambient radiance (for visualisation only)
+    ColorRgb constantRadiance;
+    ColorRgb ambientRadiance;
     GalerkinShaftCullMode shaftCullMode; // When to do shaft culling
 
     // Cubature rules for computing form factors
-    GalerkinCubatureDegree rcvDegree;
-    GalerkinCubatureDegree srcDegree;
+    GalerkinCubatureDegree receiverDegree;
+    GalerkinCubatureDegree sourceDegree;
     CUBARULE *rcv3rule;
     CUBARULE *rcv4rule;
     CUBARULE *src3rule;
@@ -101,12 +101,12 @@ class GalerkinState {
 
     // Scratch offscreen renderer for various clustering operations
     SGL_CONTEXT *scratch;
-    int scratchFbSize; // Scratch frame buffer size
+    int scratchFrameBufferSize;
     int lastClusterId; // Used for caching cluster and eye point
     Vector3D lastEye; // Rendered into the scratch frame buffer
 
     unsigned long lastClock; // For CPU timing
-    float cpu_secs;
+    float cpuSeconds;
 
     GalerkinState();
 };

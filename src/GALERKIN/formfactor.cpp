@@ -230,7 +230,7 @@ doHigherOrderAreaToAreaFormFactor(
     int l;
     int alpha;
     int beta;
-    ColorRgb *srcrad = (galerkinState->iteration_method == SOUTH_WELL) ?
+    ColorRgb *srcrad = (galerkinState->galerkinIterationMethod == SOUTH_WELL) ?
                        src->unShotRadiance : src->radiance;
 
     // Receiver and source basis description
@@ -591,7 +591,7 @@ areaToAreaFormFactor(
     // Returns the visibility: basically the fraction of rays that did not hit an occluder
     link->visibility = (unsigned) (255.0 * (double) viscount / (double) (crrcv->numberOfNodes * crsrc->numberOfNodes));
 
-    if ( galerkinState->exact_visibility && geometryShadowList != nullptr && link->visibility == 255 ) {
+    if ( galerkinState->exactVisibility && geometryShadowList != nullptr && link->visibility == 255 ) {
         // Not full visibility, we missed the shadow!
         link->visibility = 254;
     }

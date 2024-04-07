@@ -30,22 +30,25 @@ Galerkin radiosity, with the following variants:
 
 GalerkinState GalerkinRadianceMethod::galerkinState;
 
-static FILE *globalVrmlFileDescriptor;
-static int globalNumberOfWrites;
-static int globalVertexId;
+// Used for option management
 static int globalTrue = true;
 static int globalFalse = false;
 
+// Used for VRML export
+static FILE *globalVrmlFileDescriptor;
+static int globalNumberOfWrites;
+static int globalVertexId;
+
 static void
 iterationMethodOption(void *value) {
-    char *name = *(char **) value;
+    char *name = *(char **)value;
 
     if ( strncasecmp(name, "jacobi", 2) == 0 ) {
-        GalerkinRadianceMethod::galerkinState.iteration_method = JACOBI;
+        GalerkinRadianceMethod::galerkinState.galerkinIterationMethod = JACOBI;
     } else if ( strncasecmp(name, "gaussseidel", 2) == 0 ) {
-        GalerkinRadianceMethod::galerkinState.iteration_method = GAUSS_SEIDEL;
+        GalerkinRadianceMethod::galerkinState.galerkinIterationMethod = GAUSS_SEIDEL;
     } else if ( strncasecmp(name, "southwell", 2) == 0 ) {
-        GalerkinRadianceMethod::galerkinState.iteration_method = SOUTH_WELL;
+        GalerkinRadianceMethod::galerkinState.galerkinIterationMethod = SOUTH_WELL;
     } else {
         logError(nullptr, "Invalid iteration method '%s'", name);
     }
@@ -60,7 +63,7 @@ hierarchicalOption(void *value) {
 static void
 lazyOption(void *value) {
     int yesno = *(int *) value;
-    GalerkinRadianceMethod::galerkinState.lazy_linking = yesno;
+    GalerkinRadianceMethod::galerkinState.lazyLinking = yesno;
 }
 
 static void
@@ -72,13 +75,13 @@ clusteringOption(void *value) {
 static void
 importanceOption(void *value) {
     int yesno = *(int *) value;
-    GalerkinRadianceMethod::galerkinState.importance_driven = yesno;
+    GalerkinRadianceMethod::galerkinState.importanceDriven = yesno;
 }
 
 static void
 ambientOption(void *value) {
     int yesno = *(int *) value;
-    GalerkinRadianceMethod::galerkinState.use_ambient_radiance = yesno;
+    GalerkinRadianceMethod::galerkinState.useAmbientRadiance = yesno;
 }
 
 static CommandLineOptionDescription galerkinOptions[] = {
@@ -190,11 +193,11 @@ galerkinWriteVertexColors(Element *element) {
         vertexRadiosity[3] = basisGalerkinRadianceAtPoint(galerkinElement, galerkinElement->radiance, 0.0, 1.0, &GalerkinRadianceMethod::galerkinState);
     }
 
-    if ( GalerkinRadianceMethod::galerkinState.use_ambient_radiance ) {
+    if ( GalerkinRadianceMethod::galerkinState.useAmbientRadiance ) {
         ColorRgb reflectivity = galerkinElement->patch->radianceData->Rd;
         ColorRgb ambient;
 
-        ambient.scalarProduct(reflectivity, GalerkinRadianceMethod::galerkinState.ambient_radiance);
+        ambient.scalarProduct(reflectivity, GalerkinRadianceMethod::galerkinState.ambientRadiance);
         for ( i = 0; i < galerkinElement->patch->numberOfVertices; i++ ) {
             vertexRadiosity[i].add(vertexRadiosity[i], ambient);
         }
@@ -276,7 +279,7 @@ For counting how much CPU time was used for the computations
 void
 GalerkinRadianceMethod::updateCpuSecs() {
     clock_t t = clock();
-    galerkinState.cpu_secs += (float) (t - galerkinState.lastClock) / (float) CLOCKS_PER_SEC;
+    galerkinState.cpuSeconds += (float) (t - galerkinState.lastClock) / (float) CLOCKS_PER_SEC;
     galerkinState.lastClock = t;
 }
 
@@ -285,21 +288,21 @@ GalerkinRadianceMethod::patchInit(Patch *patch) {
     ColorRgb reflectivity = patch->radianceData->Rd;
     ColorRgb selfEmittanceRadiance = patch->radianceData->Ed;
 
-    if ( galerkinState.use_constant_radiance ) {
+    if ( galerkinState.useConstantRadiance ) {
         // See Neumann et-al, "The Constant Radiosity Step", Euro-graphics Rendering Workshop
         // '95, Dublin, Ireland, June 1995, p 336-344
-        galerkinGetRadiance(patch).scalarProduct(reflectivity, galerkinState.constant_radiance);
+        galerkinGetRadiance(patch).scalarProduct(reflectivity, galerkinState.constantRadiance);
         galerkinGetRadiance(patch).add(galerkinGetRadiance(patch), selfEmittanceRadiance);
-        if ( galerkinState.iteration_method == SOUTH_WELL )
-            patch->radianceData->unShotRadiance[0].subtract(galerkinGetRadiance(patch), galerkinState.constant_radiance);
+        if ( galerkinState.galerkinIterationMethod == SOUTH_WELL )
+            patch->radianceData->unShotRadiance[0].subtract(galerkinGetRadiance(patch), galerkinState.constantRadiance);
     } else {
         galerkinSetRadiance(patch, selfEmittanceRadiance);
-        if ( galerkinState.iteration_method == SOUTH_WELL )
+        if ( galerkinState.galerkinIterationMethod == SOUTH_WELL )
             patch->radianceData->unShotRadiance[0] = galerkinGetRadiance(patch);
     }
 
-    if ( galerkinState.importance_driven ) {
-        switch ( galerkinState.iteration_method ) {
+    if ( galerkinState.importanceDriven ) {
+        switch ( galerkinState.galerkinIterationMethod ) {
             case GAUSS_SEIDEL:
             case JACOBI:
                 galerkinSetPotential(patch, patch->directPotential);
@@ -325,8 +328,8 @@ GalerkinRadianceMethod::recomputePatchColor(Patch *patch) {
     ColorRgb radVis;
 
     // Compute the patches color based on its radiance + ambient radiance if desired
-    if ( galerkinState.use_ambient_radiance ) {
-        radVis.scalarProduct(reflectivity, galerkinState.ambient_radiance);
+    if ( galerkinState.useAmbientRadiance ) {
+        radVis.scalarProduct(reflectivity, galerkinState.ambientRadiance);
         radVis.add(radVis, galerkinGetRadiance(patch));
         radianceToRgb(radVis, &patch->color);
     } else {
@@ -348,15 +351,15 @@ GalerkinRadianceMethod::parseOptions(int *argc, char **argv) {
 void
 GalerkinRadianceMethod::initialize(java::ArrayList<Patch *> *scenePatches) {
     galerkinState.iteration_nr = 0;
-    galerkinState.cpu_secs = 0.0;
+    galerkinState.cpuSeconds = 0.0;
 
     basisGalerkinInitBasis();
 
-    galerkinState.constant_radiance = GLOBAL_statistics.estimatedAverageRadiance;
-    if ( galerkinState.use_constant_radiance ) {
-        galerkinState.ambient_radiance.clear();
+    galerkinState.constantRadiance = GLOBAL_statistics.estimatedAverageRadiance;
+    if ( galerkinState.useConstantRadiance ) {
+        galerkinState.ambientRadiance.clear();
     } else {
-        galerkinState.ambient_radiance = GLOBAL_statistics.estimatedAverageRadiance;
+        galerkinState.ambientRadiance = GLOBAL_statistics.estimatedAverageRadiance;
     }
 
     for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
@@ -391,7 +394,7 @@ GalerkinRadianceMethod::doStep(java::ArrayList<Patch *> *scenePatches, java::Arr
     galerkinState.lastClock = clock();
 
     // And now the real work
-    switch ( galerkinState.iteration_method ) {
+    switch ( galerkinState.galerkinIterationMethod ) {
         case JACOBI:
         case GAUSS_SEIDEL:
             if ( galerkinState.clustered ) {
@@ -404,7 +407,7 @@ GalerkinRadianceMethod::doStep(java::ArrayList<Patch *> *scenePatches, java::Arr
             done = doShootingStep(scenePatches, &galerkinState, this);
             break;
         default:
-            logFatal(2, "doGalerkinOneStep", "Invalid iteration method %d\n", galerkinState.iteration_method);
+            logFatal(2, "doGalerkinOneStep", "Invalid iteration method %d\n", galerkinState.galerkinIterationMethod);
     }
 
     updateCpuSecs();
@@ -435,11 +438,11 @@ GalerkinRadianceMethod::getRadiance(Patch *patch, double u, double v, Vector3D d
 
     rad = basisGalerkinRadianceAtPoint(leaf, leaf->radiance, u, v, &galerkinState);
 
-    if ( galerkinState.use_ambient_radiance ) {
+    if ( galerkinState.useAmbientRadiance ) {
         // Add ambient radiance
         ColorRgb reflectivity = patch->radianceData->Rd;
         ColorRgb ambientRadiance;
-        ambientRadiance.scalarProduct(reflectivity, galerkinState.ambient_radiance);
+        ambientRadiance.scalarProduct(reflectivity, galerkinState.ambientRadiance);
         rad.add(rad, ambientRadiance);
     }
 
@@ -487,7 +490,7 @@ GalerkinRadianceMethod::getStats() {
     p += n;
     snprintf(p, STRING_LENGTH, "surface to surface: %d\n\n%n", Interaction::getNumberOfSurfaceToSurfaceInteractions(), &n);
     p += n;
-    snprintf(p, STRING_LENGTH, "CPU time: %g secs.\n%n", galerkinState.cpu_secs, &n);
+    snprintf(p, STRING_LENGTH, "CPU time: %g secs.\n%n", galerkinState.cpuSeconds, &n);
     p += n;
     snprintf(p, STRING_LENGTH, "Minimum element area: %g m^2\n%n", GLOBAL_statistics.totalArea * (double) galerkinState.relMinElemArea, &n);
     p += n;

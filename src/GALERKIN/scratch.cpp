@@ -21,7 +21,7 @@ Create a scratch software renderer for various operations on clusters
 */
 void
 scratchInit(GalerkinState *galerkinState) {
-    galerkinState->scratch = new SGL_CONTEXT(galerkinState->scratchFbSize, galerkinState->scratchFbSize);
+    galerkinState->scratch = new SGL_CONTEXT(galerkinState->scratchFrameBufferSize, galerkinState->scratchFrameBufferSize);
     GLOBAL_sgl_currentContext->sglDepthTesting(true);
 }
 
@@ -142,8 +142,8 @@ scratchRadiance(GalerkinState *galerkinState) {
         for ( int i = 0; i < galerkinState->scratch->vp_width; i++, pix++ ) {
             GalerkinElement *elem = (GalerkinElement *) (*pix);
             if ( elem != nullptr ) {
-                if ( galerkinState->iteration_method == GAUSS_SEIDEL ||
-                     galerkinState->iteration_method == JACOBI ) {
+                if ( galerkinState->galerkinIterationMethod == GAUSS_SEIDEL ||
+                     galerkinState->galerkinIterationMethod == JACOBI ) {
                     rad.add(rad, elem->radiance[0]);
                 } else {
                     rad.add(rad, elem->unShotRadiance[0]);

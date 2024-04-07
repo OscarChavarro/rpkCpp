@@ -82,19 +82,19 @@ setCubatureRules(CUBARULE **triRule, CUBARULE **quadRule, GalerkinCubatureDegree
 GalerkinState::GalerkinState():
         iteration_nr(),
         hierarchical(),
-        importance_driven(),
+        importanceDriven(),
         clustered(),
-        iteration_method(),
-        lazy_linking(),
-        exact_visibility(),
+        galerkinIterationMethod(),
+        lazyLinking(),
+        exactVisibility(),
         multiResolutionVisibility(),
-        use_constant_radiance(),
-        use_ambient_radiance(),
-        constant_radiance(),
-        ambient_radiance(),
+        useConstantRadiance(),
+        useAmbientRadiance(),
+        constantRadiance(),
+        ambientRadiance(),
         shaftCullMode(),
-        rcvDegree(),
-        srcDegree(),
+        receiverDegree(),
+        sourceDegree(),
         rcv3rule(),
         rcv4rule(),
         src3rule(),
@@ -110,33 +110,33 @@ GalerkinState::GalerkinState():
         formFactorLastRcv(),
         formFactorLastSrc(),
         scratch(),
-        scratchFbSize(),
+        scratchFrameBufferSize(),
         lastClusterId(),
         lastEye(),
         lastClock(),
-        cpu_secs()
+        cpuSeconds()
 {
     hierarchical = DEFAULT_GAL_HIERARCHICAL;
-    importance_driven = DEFAULT_GAL_IMPORTANCE_DRIVEN;
+    importanceDriven = DEFAULT_GAL_IMPORTANCE_DRIVEN;
     clustered = DEFAULT_GAL_CLUSTERED;
-    iteration_method = DEFAULT_GAL_ITERATION_METHOD;
-    lazy_linking = DEFAULT_GAL_LAZY_LINKING;
-    use_constant_radiance = DEFAULT_GAL_CONSTANT_RADIANCE;
-    use_ambient_radiance = DEFAULT_GAL_AMBIENT_RADIANCE;
+    galerkinIterationMethod = DEFAULT_GAL_ITERATION_METHOD;
+    lazyLinking = DEFAULT_GAL_LAZY_LINKING;
+    useConstantRadiance = DEFAULT_GAL_CONSTANT_RADIANCE;
+    useAmbientRadiance = DEFAULT_GAL_AMBIENT_RADIANCE;
     shaftCullMode = DEFAULT_GAL_SHAFT_CULL_MODE;
-    rcvDegree = DEFAULT_GAL_RCV_CUBATURE_DEGREE;
-    srcDegree = DEFAULT_GAL_SRC_CUBATURE_DEGREE;
-    setCubatureRules(&rcv3rule, &rcv4rule, rcvDegree);
-    setCubatureRules(&src3rule, &src4rule, srcDegree);
+    receiverDegree = DEFAULT_GAL_RCV_CUBATURE_DEGREE;
+    sourceDegree = DEFAULT_GAL_SRC_CUBATURE_DEGREE;
+    setCubatureRules(&rcv3rule, &rcv4rule, receiverDegree);
+    setCubatureRules(&src3rule, &src4rule, sourceDegree);
     clusterRule = &GLOBAL_crv1;
     relMinElemArea = DEFAULT_GAL_REL_MIN_ELEM_AREA;
     relLinkErrorThreshold = DEFAULT_GAL_REL_LINK_ERROR_THRESHOLD;
     errorNorm = DEFAULT_GAL_ERROR_NORM;
     basisType = DEFAULT_GAL_BASIS_TYPE;
-    exact_visibility = DEFAULT_GAL_EXACT_VISIBILITY;
+    exactVisibility = DEFAULT_GAL_EXACT_VISIBILITY;
     multiResolutionVisibility = DEFAULT_GAL_MULTI_RESOLUTION_VISIBILITY;
     clusteringStrategy = DEFAULT_GAL_CLUSTERING_STRATEGY;
     scratch = nullptr;
-    scratchFbSize = DEFAULT_GAL_SCRATCH_FB_SIZE;
+    scratchFrameBufferSize = DEFAULT_GAL_SCRATCH_FB_SIZE;
     iteration_nr = -1; // This means "not initialized"
 }

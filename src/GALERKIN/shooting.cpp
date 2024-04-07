@@ -49,7 +49,7 @@ chooseRadianceShootingPatch(java::ArrayList<Patch *> *scenePatches, GalerkinStat
             maximumPower = power;
         }
 
-        if ( galerkinState->importance_driven ) {
+        if ( galerkinState->importanceDriven ) {
             // For importance-driven progressive refinement radiosity, choose the patch
             // with highest indirectly received potential times power
             powerImportance = (galerkinGetPotential(patch) - patch->directPotential) * power;
@@ -60,7 +60,7 @@ chooseRadianceShootingPatch(java::ArrayList<Patch *> *scenePatches, GalerkinStat
         }
     }
 
-    if ( galerkinState->importance_driven && pot_shooting_patch ) {
+    if ( galerkinState->importanceDriven && pot_shooting_patch ) {
         return pot_shooting_patch;
     }
     return shooting_patch;
@@ -151,13 +151,13 @@ shootingPushPullPotential(GalerkinElement *element, float down) {
 static void
 patchUpdateRadianceAndPotential(Patch *patch, GalerkinState *galerkinState) {
     GalerkinElement *topLevelElement = galerkinGetElement(patch);
-    if ( galerkinState->importance_driven ) {
+    if ( galerkinState->importanceDriven ) {
         shootingPushPullPotential(topLevelElement, 0.0f);
     }
     basisGalerkinPushPullRadiance(topLevelElement, galerkinState);
 
-    galerkinState->ambient_radiance.addScaled(
-        galerkinState->ambient_radiance,
+    galerkinState->ambientRadiance.addScaled(
+        galerkinState->ambientRadiance,
         patch->area,
         patch->radianceData->unShotRadiance[0]);
 }
@@ -175,17 +175,17 @@ doPropagate(
     // Recompute the colors of all patches, not only the patches that received
     // radiance from the shooting patch, since the ambient term has also changed
     if ( galerkinState->clustered ) {
-        if ( galerkinState->importance_driven ) {
+        if ( galerkinState->importanceDriven ) {
             shootingPushPullPotential(galerkinState->topCluster, 0.0);
         }
         basisGalerkinPushPullRadiance(galerkinState->topCluster, galerkinState);
-        galerkinState->ambient_radiance = galerkinState->topCluster->unShotRadiance[0];
+        galerkinState->ambientRadiance = galerkinState->topCluster->unShotRadiance[0];
     } else {
-        galerkinState->ambient_radiance.clear();
+        galerkinState->ambientRadiance.clear();
         for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
             patchUpdateRadianceAndPotential(scenePatches->get(i), galerkinState);
         }
-        galerkinState->ambient_radiance.scale(1.0f / GLOBAL_statistics.totalArea);
+        galerkinState->ambientRadiance.scale(1.0f / GLOBAL_statistics.totalArea);
     }
 
     for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
@@ -202,7 +202,7 @@ propagateRadiance(
     Patch *shooting_patch;
 
     // Choose a shooting patch. also accumulates the total un-shot power into
-    // galerkinState->ambient_radiance
+    // galerkinState->ambientRadiance
     shooting_patch = chooseRadianceShootingPatch(scenePatches, galerkinState);
     if ( !shooting_patch ) {
         return true;
@@ -302,7 +302,7 @@ reallyDoShootingStep(
     GalerkinState *galerkinState,
     GalerkinRadianceMethod *galerkinRadianceMethod)
 {
-    if ( galerkinState->importance_driven ) {
+    if ( galerkinState->importanceDriven ) {
         if ( galerkinState->iteration_nr <= 1 || GLOBAL_camera_mainCamera.changed ) {
             updateDirectPotential(scenePatches);
             for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
