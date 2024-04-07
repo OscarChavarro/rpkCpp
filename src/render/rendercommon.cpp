@@ -91,28 +91,20 @@ traceOption(void * /*value*/) {
 }
 
 static CommandLineOptionDescription renderingOptions[] = {
-        {"-display-lists", 10, TYPELESS,
-                nullptr, displayListsOption,
-                "-display-lists\t\t"
-                ": use display lists for faster hardware-assisted rendering"},
-        {"-flat-shading",  5,  TYPELESS,
-                nullptr, flatOption,
-                "-flat-shading\t\t: render without Gouraud (color) interpolation"},
-        {"-raycast",       5,  TYPELESS,
-                nullptr, traceOption,
-                "-raycast\t\t: save raycasted scene view as a high dynamic range image"},
-        {"-no-culling",    5,  TYPELESS,
-                nullptr, noCullingOption,
-                "-no-culling\t\t: don't use backface culling"},
-        {"-outlines",      5,  TYPELESS,
-                nullptr, outlinesOption,
-                "-outlines\t\t: draw polygon outlines"},
-        {"-outline-color", 10, TRGB,
-                &GLOBAL_render_renderOptions.outline_color, DEFAULT_ACTION,
-                "-outline-color <rgb> \t: color for polygon outlines"},
-        {nullptr,             0,  TYPELESS,
-                nullptr,                      DEFAULT_ACTION,
-                nullptr}
+    {"-display-lists", 10, TYPELESS, nullptr, displayListsOption,
+     "-display-lists\t\t"
+     ": use display lists for faster hardware-assisted rendering"},
+    {"-flat-shading", 5, TYPELESS, nullptr, flatOption,
+     "-flat-shading\t\t: render without Gouraud (color) interpolation"},
+    {"-raycast", 5, TYPELESS, nullptr, traceOption,
+     "-raycast\t\t: save raycasted scene view as a high dynamic range image"},
+    {"-no-culling", 5, TYPELESS, nullptr, noCullingOption,
+     "-no-culling\t\t: don't use backface culling"},
+    {"-outlines", 5, TYPELESS, nullptr, outlinesOption,
+     "-outlines\t\t: draw polygon outlines"},
+    {"-outline-color", 10, TRGB, &GLOBAL_render_renderOptions.outline_color, DEFAULT_ACTION,
+     "-outline-color <rgb> \t: color for polygon outlines"},
+    {nullptr, 0, nullptr, nullptr, nullptr, nullptr}
 };
 
 void

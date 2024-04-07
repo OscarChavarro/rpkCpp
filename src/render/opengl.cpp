@@ -411,19 +411,20 @@ openGlRenderOctreeNonLeaf(Geometry *geometry, void (*render_patch)(Patch *)) {
 Traverses the patches in the scene in such a way to obtain
 hierarchical view frustum culling + sorted (large patches first +
 near to far) rendering. For every patch that is not culled,
-render_patch is called. */
+renderPatchCallback is called
+*/
 void
-openGlRenderWorldOctree(void (*render_patch)(Patch *)) {
-    if ( !GLOBAL_scene_clusteredWorldGeom ) {
+openGlRenderWorldOctree(void (*renderPatchCallback)(Patch *)) {
+    if ( GLOBAL_scene_clusteredWorldGeom == nullptr ) {
         return;
     }
-    if ( !render_patch ) {
-        render_patch = openGlRenderPatch;
+    if ( renderPatchCallback == nullptr ) {
+        renderPatchCallback = openGlRenderPatch;
     }
     if ( GLOBAL_scene_clusteredWorldGeom->isCompound() ) {
-        openGlRenderOctreeNonLeaf(GLOBAL_scene_clusteredWorldGeom, render_patch);
+        openGlRenderOctreeNonLeaf(GLOBAL_scene_clusteredWorldGeom, renderPatchCallback);
     } else {
-        openGlRenderOctreeLeaf(GLOBAL_scene_clusteredWorldGeom, render_patch);
+        openGlRenderOctreeLeaf(GLOBAL_scene_clusteredWorldGeom, renderPatchCallback);
     }
 }
 

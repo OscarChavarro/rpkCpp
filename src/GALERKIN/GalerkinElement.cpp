@@ -570,7 +570,7 @@ GalerkinElement::initPolygon(Polygon *polygon) {
 }
 
 void
-GalerkinElement::draw(int mode, GalerkinState *galerkinState) {
+GalerkinElement::draw(int mode) {
     Vector3D p[4];
     int numberOfVertices;
 
@@ -686,7 +686,7 @@ Draws element outline in the current outline color
 */
 void
 GalerkinElement::drawOutline() {
-    draw(OUTLINE, galerkinState);
+    draw(OUTLINE);
 }
 
 /**
@@ -706,5 +706,5 @@ GalerkinElement::render() {
         renderCode |= FLAT;
     }
 
-    draw(renderCode, galerkinState);
+    draw(renderCode);
 }

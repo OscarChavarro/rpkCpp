@@ -80,7 +80,7 @@ setCubatureRules(CUBARULE **triRule, CUBARULE **quadRule, GalerkinCubatureDegree
 }
 
 GalerkinState::GalerkinState():
-        iteration_nr(),
+        iterationNumber(),
         hierarchical(),
         importanceDriven(),
         clustered(),
@@ -138,5 +138,5 @@ GalerkinState::GalerkinState():
     clusteringStrategy = DEFAULT_GAL_CLUSTERING_STRATEGY;
     scratch = nullptr;
     scratchFrameBufferSize = DEFAULT_GAL_SCRATCH_FB_SIZE;
-    iteration_nr = -1; // This means "not initialized"
+    iterationNumber = -1; // This means "not initialized"
 }

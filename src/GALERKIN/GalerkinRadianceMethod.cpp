@@ -87,49 +87,32 @@ ambientOption(void *value) {
 static CommandLineOptionDescription galerkinOptions[] = {
     {"-gr-iteration-method", 6, Tstring, nullptr, iterationMethodOption,
     "-gr-iteration-method <methodname>: Jacobi, GaussSeidel, Southwell"},
-    {"-gr-hierarchical", 6, TYPELESS, (void *) &globalTrue, hierarchicalOption,
+    {"-gr-hierarchical", 6, TYPELESS, (void *)&globalTrue, hierarchicalOption,
     "-gr-hierarchical    \t: do hierarchical refinement"},
-    {"-gr-not-hierarchical", 10, TYPELESS, (void *) &globalFalse, hierarchicalOption,
+    {"-gr-not-hierarchical", 10, TYPELESS, (void *)&globalFalse, hierarchicalOption,
     "-gr-not-hierarchical\t: don't do hierarchical refinement"},
-    {"-gr-lazy-linking", 6, TYPELESS, (void *) &globalTrue, lazyOption,
+    {"-gr-lazy-linking", 6, TYPELESS, (void *)&globalTrue, lazyOption,
     "-gr-lazy-linking    \t: do lazy linking"},
-    {"-gr-no-lazy-linking", 10, TYPELESS, (void *) &globalFalse, lazyOption,
+    {"-gr-no-lazy-linking", 10, TYPELESS, (void *)&globalFalse, lazyOption,
     "-gr-no-lazy-linking \t: don't do lazy linking"},
-    {"-gr-clustering", 6, TYPELESS, (void *) &globalTrue, clusteringOption,
+    {"-gr-clustering", 6, TYPELESS, (void *)&globalTrue, clusteringOption,
     "-gr-clustering      \t: do clustering"},
-    {"-gr-no-clustering", 10, TYPELESS, (void *) &globalFalse, clusteringOption,
+    {"-gr-no-clustering", 10, TYPELESS, (void *)&globalFalse, clusteringOption,
     "-gr-no-clustering   \t: don't do clustering"},
-    {"-gr-importance", 6, TYPELESS, (void *) &globalTrue, importanceOption,
+    {"-gr-importance", 6, TYPELESS, (void *)&globalTrue, importanceOption,
     "-gr-importance      \t: do view-potential driven computations"},
-    {"-gr-no-importance", 10, TYPELESS, (void *) &globalFalse, importanceOption,
+    {"-gr-no-importance", 10, TYPELESS, (void *)&globalFalse, importanceOption,
     "-gr-no-importance   \t: don't use view-potential"},
-    {"-gr-ambient", 6, TYPELESS, (void *) &globalTrue, ambientOption,
+    {"-gr-ambient", 6, TYPELESS, (void *)&globalTrue, ambientOption,
     "-gr-ambient         \t: do visualisation with ambient term"},
-    {"-gr-no-ambient", 10, TYPELESS, (void *) &globalFalse, ambientOption,
+    {"-gr-no-ambient", 10, TYPELESS, (void *)&globalFalse, ambientOption,
     "-gr-no-ambient      \t: do visualisation without ambient term"},
-    {"-gr-link-error-threshold", 6, Tfloat, &GalerkinRadianceMethod::galerkinState.relLinkErrorThreshold, DEFAULT_ACTION,
+    {"-gr-link-error-threshold", 6, Tfloat, &GalerkinRadianceMethod::galerkinState.relLinkErrorThreshold, nullptr,
     "-gr-link-error-threshold <float>: Relative link error threshold"},
-    {"-gr-min-elem-area",6, Tfloat, &GalerkinRadianceMethod::galerkinState.relMinElemArea,                DEFAULT_ACTION,
+    {"-gr-min-elem-area", 6, Tfloat, &GalerkinRadianceMethod::galerkinState.relMinElemArea, nullptr,
     "-gr-min-elem-area <float> \t: Relative element area threshold"},
-    {nullptr, 0, TYPELESS, nullptr, DEFAULT_ACTION, nullptr}
+    {nullptr, 0, nullptr, nullptr, nullptr, nullptr}
 };
-
-static void
-renderElementHierarchy(GalerkinElement *element) {
-    if ( !element->regularSubElements ) {
-        element->render();
-    } else if ( element->regularSubElements != nullptr ) {
-        for ( int i = 0; i < 4; i++ ) {
-            renderElementHierarchy((GalerkinElement *)element->regularSubElements[i]);
-        }
-    }
-}
-
-static void
-galerkinRenderPatch(Patch *patch) {
-    GalerkinElement *topLevelElement = galerkinGetElement(patch);
-    renderElementHierarchy(topLevelElement);
-}
 
 static void
 galerkinWriteVertexCoord(Vector3D *p) {
@@ -273,6 +256,22 @@ GalerkinRadianceMethod::~GalerkinRadianceMethod() {
     }
 }
 
+void
+GalerkinRadianceMethod::renderElementHierarchy(GalerkinElement *element) {
+    if ( element->regularSubElements == nullptr ) {
+        element->render();
+    } else {
+        for ( int i = 0; i < 4; i++ ) {
+            renderElementHierarchy((GalerkinElement *)element->regularSubElements[i]);
+        }
+    }
+}
+
+void
+GalerkinRadianceMethod::galerkinRenderPatch(Patch *patch) {
+    renderElementHierarchy(galerkinGetElement(patch));
+}
+
 /**
 For counting how much CPU time was used for the computations
 */
@@ -350,7 +349,7 @@ GalerkinRadianceMethod::parseOptions(int *argc, char **argv) {
 
 void
 GalerkinRadianceMethod::initialize(java::ArrayList<Patch *> *scenePatches) {
-    galerkinState.iteration_nr = 0;
+    galerkinState.iterationNumber = 0;
     galerkinState.cpuSeconds = 0.0;
 
     basisGalerkinInitBasis();
@@ -385,12 +384,12 @@ int
 GalerkinRadianceMethod::doStep(java::ArrayList<Patch *> *scenePatches, java::ArrayList<Patch *> *lightPatches) {
     int done = false;
 
-    if ( galerkinState.iteration_nr < 0 ) {
+    if ( galerkinState.iterationNumber < 0 ) {
         logError("doGalerkinOneStep", "method not initialized");
         return true;    /* done, don't continue! */
     }
 
-    galerkinState.iteration_nr++;
+    galerkinState.iterationNumber++;
     galerkinState.lastClock = clock();
 
     // And now the real work
@@ -472,7 +471,7 @@ GalerkinRadianceMethod::getStats() {
     p = stats;
     snprintf(p, STRING_LENGTH, "Galerkin Radiosity Statistics:\n\n%n", &n);
     p += n;
-    snprintf(p, STRING_LENGTH, "Iteration: %d\n\n%n", galerkinState.iteration_nr, &n);
+    snprintf(p, STRING_LENGTH, "Iteration: %d\n\n%n", galerkinState.iterationNumber, &n);
     p += n;
     snprintf(p, STRING_LENGTH, "Nr. elements: %d\n%n", galerkinElementGetNumberOfElements(), &n);
     p += n;

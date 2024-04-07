@@ -25,7 +25,7 @@ class GalerkinElement : public Element {
     explicit GalerkinElement(GalerkinState *inGalerkinState);
 
     GalerkinElement *regularSubElementAtPoint(double *u, double *v);
-    void draw(int mode, GalerkinState *galerkinState);
+    void draw(int mode);
 
   public:
     float potential; // Total potential of the element

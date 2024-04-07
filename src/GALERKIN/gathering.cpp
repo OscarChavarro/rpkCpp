@@ -166,7 +166,7 @@ galerkinRadiosityDoGatheringIteration(
     GalerkinRadianceMethod *galerkinRadianceMethod)
 {
     if ( galerkinState->importanceDriven ) {
-        if ( galerkinState->iteration_nr <= 1 || GLOBAL_camera_mainCamera.changed ) {
+        if ( galerkinState->iterationNumber <= 1 || GLOBAL_camera_mainCamera.changed ) {
             updateDirectPotential(scenePatches);
             GLOBAL_camera_mainCamera.changed = false;
         }
@@ -218,7 +218,7 @@ doClusteredGatheringIteration(
     static double userErrorThreshold;
 
     if ( galerkinState->importanceDriven ) {
-        if ( galerkinState->iteration_nr <= 1 || GLOBAL_camera_mainCamera.changed ) {
+        if ( galerkinState->iterationNumber <= 1 || GLOBAL_camera_mainCamera.changed ) {
             updateDirectPotential(scenePatches);
             for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
                 Patch *patch = scenePatches->get(i);
@@ -231,11 +231,11 @@ doClusteredGatheringIteration(
         }
     }
 
-    printf("Gal iteration %i\n", galerkinState->iteration_nr);
+    printf("Gal iteration %i\n", galerkinState->iterationNumber);
 
     // Initial linking stage is replaced by the creation of a self-link between
     // the whole scene and itself
-    if ( galerkinState->iteration_nr <= 1 ) {
+    if ( galerkinState->iterationNumber <= 1 ) {
         createInitialLinkWithTopCluster(galerkinState->topCluster, RECEIVER, galerkinState);
     }
 

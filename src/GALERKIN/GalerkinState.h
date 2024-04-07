@@ -55,7 +55,7 @@ enum GalerkinClusteringStrategy {
 
 class GalerkinState {
   public:
-    int iteration_nr; // Number of iterations and nr of steps
+    int iterationNumber;
     int hierarchical; // Set true for hierarchical refinement
     int importanceDriven; // Set true for potential-driven comp
     int clustered; // Set true for clustering
@@ -85,10 +85,10 @@ class GalerkinState {
     // Parameters that control accuracy
     GalerkinErrorNorm errorNorm; // Control radiance or power error?
     float relMinElemArea; // Subdivision of elements that are smaller than the total
-    // surface area of the scene times this number, will not be allowed
+        // surface area of the scene times this number, will not be allowed
     float relLinkErrorThreshold;  // Relative to maximum self-emitted radiance
-    // when controlling the radiance error and to the maximum
-    // self-emitted power when controlling the power error
+        // when controlling the radiance error and to the maximum
+        // self-emitted power when controlling the power error
 
     GalerkinBasisType basisType; // Determines max. approximation order
 

@@ -9,7 +9,7 @@ extern void openGlRenderCameras();
 extern void openGlRenderSetLineWidth(float width);
 extern void openGlRenderLine(Vector3D *x, Vector3D *y);
 extern void openGlRenderSetColor(ColorRgb *rgb);
-extern void openGlRenderWorldOctree(void (*render_patch)(Patch *));
+extern void openGlRenderWorldOctree(void (*renderPatchCallback)(Patch *));
 extern void openGlRenderScene(java::ArrayList<Patch *> *scenePatches, java::ArrayList<Geometry *> *clusteredGeometryList, int (*reDisplayCallback)(), RadianceMethod *context);
 extern void openGlMesaRenderCreateOffscreenWindow(int width, int height);
 extern void openGlRenderPatchOutline(Patch *patch);

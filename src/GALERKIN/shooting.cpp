@@ -303,7 +303,7 @@ reallyDoShootingStep(
     GalerkinRadianceMethod *galerkinRadianceMethod)
 {
     if ( galerkinState->importanceDriven ) {
-        if ( galerkinState->iteration_nr <= 1 || GLOBAL_camera_mainCamera.changed ) {
+        if ( galerkinState->iterationNumber <= 1 || GLOBAL_camera_mainCamera.changed ) {
             updateDirectPotential(scenePatches);
             for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
                 Patch *patch = scenePatches->get(i);
