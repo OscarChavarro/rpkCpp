@@ -92,7 +92,7 @@ Matrix2x2 GLOBAL_galerkin_TriangularUpTransformMatrix[4] = {
 /**
 Private inner constructor, Use either galerkinElementCreateTopLevel() or CreateRegularSubElement()
 */
-GalerkinElement::GalerkinElement():
+GalerkinElement::GalerkinElement(GalerkinState *inGalerkinState):
     potential(),
     receivedPotential(),
     unShotPotential(),
@@ -108,6 +108,7 @@ GalerkinElement::GalerkinElement():
     className = ElementTypes::ELEMENT_GALERKIN;
     irregularSubElements = new java::ArrayList<Element *>();
     interactions = new java::ArrayList<Interaction *>();
+    galerkinState = inGalerkinState;
 
     Ed.clear();
     Rd.clear();
@@ -139,7 +140,9 @@ GalerkinElement::GalerkinElement():
 /**
 Creates the toplevel element for the patch
 */
-GalerkinElement::GalerkinElement(Patch *parameterPatch): GalerkinElement() {
+GalerkinElement::GalerkinElement(Patch *parameterPatch, GalerkinState *inGalerkinState):
+    GalerkinElement(inGalerkinState)
+{
     patch = parameterPatch;
     minimumArea = area = patch->area;
     blockerSize = 2.0f * (float)std::sqrt(area / M_PI);
@@ -161,7 +164,7 @@ GalerkinElement::GalerkinElement(Patch *parameterPatch): GalerkinElement() {
 Creates a cluster element for the given geometry
 The average projected area still needs to be determined
 */
-GalerkinElement::GalerkinElement(Geometry *parameterGeometry): GalerkinElement() {
+GalerkinElement::GalerkinElement(Geometry *parameterGeometry, GalerkinState *inGalerkinState): GalerkinElement(inGalerkinState) {
     geometry = parameterGeometry;
     area = 0.0; // Needs to be computed after the whole cluster hierarchy has been constructed
     flags |= IS_CLUSTER_MASK;
@@ -238,7 +241,7 @@ GalerkinElement::reAllocCoefficients() {
         // We always use a constant basis on cluster elements
         localBasisSize = 1;
     } else {
-        switch ( GLOBAL_galerkin_state.basisType ) {
+        switch ( galerkinState->basisType ) {
             case CONSTANT:
                 localBasisSize = 1;
                 break;
@@ -252,7 +255,7 @@ GalerkinElement::reAllocCoefficients() {
                 localBasisSize = 10;
                 break;
             default:
-                logFatal(-1, "galerkinElementReAllocCoefficients", "Invalid basis type %d", GLOBAL_galerkin_state.basisType);
+                logFatal(-1, "galerkinElementReAllocCoefficients", "Invalid basis type %d", galerkinState->basisType);
         }
     }
 
@@ -273,7 +276,7 @@ GalerkinElement::reAllocCoefficients() {
     }
     receivedRadiance = defaultReceivedRadiance;
 
-    if ( GLOBAL_galerkin_state.iteration_method == SOUTH_WELL ) {
+    if ( galerkinState->iteration_method == SOUTH_WELL ) {
         ColorRgb *defaultUnShotRadiance = new ColorRgb[localBasisSize];
         clusterGalerkinClearCoefficients(defaultUnShotRadiance, localBasisSize);
         if ( !isCluster() ) {
@@ -319,11 +322,13 @@ GalerkinElement::regularSubDivide() {
     GalerkinElement **subElement = new GalerkinElement *[4];
 
     for ( int i = 0; i < 4; i++ ) {
-        subElement[i] = new GalerkinElement();
+        subElement[i] = new GalerkinElement(galerkinState);
         subElement[i]->patch = patch;
         subElement[i]->parent = this;
         subElement[i]->upTrans =
-                patch->numberOfVertices == 3 ? &GLOBAL_galerkin_TriangularUpTransformMatrix[i] : &GLOBAL_galerkin_QuadUpTransformMatrix[i];
+            patch->numberOfVertices == 3 ?
+            &GLOBAL_galerkin_TriangularUpTransformMatrix[i] :
+            &GLOBAL_galerkin_QuadUpTransformMatrix[i];
         subElement[i]->area = 0.25f * area;  // Uniform mapping is always used
         subElement[i]->blockerSize = 2.0f * (float)std::sqrt(subElement[i]->area / M_PI);
         subElement[i]->childNumber = (char)i;
@@ -334,7 +339,7 @@ GalerkinElement::regularSubDivide() {
         subElement[i]->potential = potential;
         subElement[i]->directPotential = directPotential;
 
-        if ( GLOBAL_galerkin_state.iteration_method == SOUTH_WELL ) {
+        if ( galerkinState->iteration_method == SOUTH_WELL ) {
             basisGalerkinPush(this, unShotRadiance, subElement[i], subElement[i]->unShotRadiance);
             subElement[i]->unShotPotential = unShotPotential;
         }
@@ -565,7 +570,7 @@ GalerkinElement::initPolygon(Polygon *polygon) {
 }
 
 void
-GalerkinElement::draw(int mode) {
+GalerkinElement::draw(int mode, GalerkinState *galerkinState) {
     Vector3D p[4];
     int numberOfVertices;
 
@@ -582,9 +587,9 @@ GalerkinElement::draw(int mode) {
         ColorRgb color{};
         ColorRgb rho = patch->radianceData->Rd;
 
-        if ( GLOBAL_galerkin_state.use_ambient_radiance ) {
+        if ( galerkinState->use_ambient_radiance ) {
             ColorRgb radVis;
-            radVis.scalarProduct(rho, GLOBAL_galerkin_state.ambient_radiance);
+            radVis.scalarProduct(rho, galerkinState->ambient_radiance);
             radVis.add(radVis, radiance[0]);
             radianceToRgb(radVis, &color);
         } else {
@@ -598,21 +603,21 @@ GalerkinElement::draw(int mode) {
         int i;
 
         if ( numberOfVertices == 3 ) {
-            vertRadiosity[0] = basisGalerkinRadianceAtPoint(this, radiance, 0.0, 0.0, &GLOBAL_galerkin_state);
-            vertRadiosity[1] = basisGalerkinRadianceAtPoint(this, radiance, 1.0, 0.0, &GLOBAL_galerkin_state);
-            vertRadiosity[2] = basisGalerkinRadianceAtPoint(this, radiance, 0.0, 1.0, &GLOBAL_galerkin_state);
+            vertRadiosity[0] = basisGalerkinRadianceAtPoint(this, radiance, 0.0, 0.0, galerkinState);
+            vertRadiosity[1] = basisGalerkinRadianceAtPoint(this, radiance, 1.0, 0.0, galerkinState);
+            vertRadiosity[2] = basisGalerkinRadianceAtPoint(this, radiance, 0.0, 1.0, galerkinState);
         } else {
-            vertRadiosity[0] = basisGalerkinRadianceAtPoint(this, radiance, 0.0, 0.0, &GLOBAL_galerkin_state);
-            vertRadiosity[1] = basisGalerkinRadianceAtPoint(this, radiance, 1.0, 0.0, &GLOBAL_galerkin_state);
-            vertRadiosity[2] = basisGalerkinRadianceAtPoint(this, radiance, 1.0, 1.0, &GLOBAL_galerkin_state);
-            vertRadiosity[3] = basisGalerkinRadianceAtPoint(this, radiance, 0.0, 1.0, &GLOBAL_galerkin_state);
+            vertRadiosity[0] = basisGalerkinRadianceAtPoint(this, radiance, 0.0, 0.0, galerkinState);
+            vertRadiosity[1] = basisGalerkinRadianceAtPoint(this, radiance, 1.0, 0.0, galerkinState);
+            vertRadiosity[2] = basisGalerkinRadianceAtPoint(this, radiance, 1.0, 1.0, galerkinState);
+            vertRadiosity[3] = basisGalerkinRadianceAtPoint(this, radiance, 0.0, 1.0, galerkinState);
         }
 
-        if ( GLOBAL_galerkin_state.use_ambient_radiance ) {
+        if ( galerkinState->use_ambient_radiance ) {
             ColorRgb reflectivity = patch->radianceData->Rd;
             ColorRgb ambient;
 
-            ambient.scalarProduct(reflectivity, GLOBAL_galerkin_state.ambient_radiance);
+            ambient.scalarProduct(reflectivity, galerkinState->ambient_radiance);
             for ( i = 0; i < numberOfVertices; i++ ) {
                 vertRadiosity[i].add(vertRadiosity[i], ambient);
             }
@@ -681,7 +686,7 @@ Draws element outline in the current outline color
 */
 void
 GalerkinElement::drawOutline() {
-    draw(OUTLINE);
+    draw(OUTLINE, galerkinState);
 }
 
 /**
@@ -701,5 +706,5 @@ GalerkinElement::render() {
         renderCode |= FLAT;
     }
 
-    draw(renderCode);
+    draw(renderCode, galerkinState);
 }

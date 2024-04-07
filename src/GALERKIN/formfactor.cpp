@@ -62,7 +62,7 @@ determineNodes(
         double dy;
         double dz;
 
-        *cr = GLOBAL_galerkin_state.clusterRule;
+        *cr = galerkinState->clusterRule;
 
         element->bounds(&boundingBox);
         dx = boundingBox.coordinates[MAX_X] - boundingBox.coordinates[MIN_X];
@@ -124,7 +124,8 @@ pointKernelEval(
     java::ArrayList<Geometry *> *geometryShadowList,
     double *vis,
     bool isSceneGeometry,
-    bool isClusteredGeometry)
+    bool isClusteredGeometry,
+    GalerkinState *galerkinState)
 {
     double dist;
     double cosP;
@@ -175,7 +176,7 @@ pointKernelEval(
     // Determine transmissivity (visibility)
     if ( !geometryShadowList ) {
         *vis = 1.0;
-    } else if ( !GLOBAL_galerkin_state.multiResolutionVisibility ) {
+    } else if ( !galerkinState->multiResolutionVisibility ) {
         if ( !shadowTestDiscretization(
             &ray,
             geometryShadowList,
@@ -191,7 +192,7 @@ pointKernelEval(
     } else if ( cacheHit(&ray, &distance, &hitStore) ) {
         *vis = 0.0;
     } else {
-        float min_feature_size = 2.0f * (float)std::sqrt(GLOBAL_statistics.totalArea * GLOBAL_galerkin_state.relMinElemArea / M_PI);
+        float min_feature_size = 2.0f * (float)std::sqrt(GLOBAL_statistics.totalArea * galerkinState->relMinElemArea / M_PI);
         *vis = geomListMultiResolutionVisibility(geometryShadowList, &ray, distance, src->blockerSize, min_feature_size);
     }
 
@@ -209,7 +210,8 @@ doHigherOrderAreaToAreaFormFactor(
     Interaction *link,
     CUBARULE *crrcv,
     CUBARULE *crsrc,
-    double Gxy[CUBAMAXNODES][CUBAMAXNODES])
+    double Gxy[CUBAMAXNODES][CUBAMAXNODES],
+    GalerkinState *galerkinState)
 {
     static ColorRgb deltarad[CUBAMAXNODES]; // See Bekaert & Willems, p159 bottom
     static double rcvphi[MAX_BASIS_SIZE][CUBAMAXNODES];
@@ -228,7 +230,7 @@ doHigherOrderAreaToAreaFormFactor(
     int l;
     int alpha;
     int beta;
-    ColorRgb *srcrad = (GLOBAL_galerkin_state.iteration_method == SOUTH_WELL) ?
+    ColorRgb *srcrad = (galerkinState->iteration_method == SOUTH_WELL) ?
                        src->unShotRadiance : src->radiance;
 
     // Receiver and source basis description
@@ -516,19 +518,19 @@ areaToAreaFormFactor(
 
     // If the receiver is another one than before, determine the cubature
     // rule to be used on it and the nodes (positions on the patch)
-    if ( rcv != GLOBAL_galerkin_state.formFactorLastRcv ) {
+    if ( rcv != galerkinState->formFactorLastRcv ) {
         determineNodes(rcv, &crrcv, x, RECEIVER, galerkinState);
     }
 
     // Same for the source element
-    if ( src != GLOBAL_galerkin_state.formFactorLastSrc ) {
+    if ( src != galerkinState->formFactorLastSrc ) {
         determineNodes(src, &crsrc, y, SOURCE, galerkinState);
     }
 
     // Evaluate the radiosity kernel between each pair of nodes on the source
     // and the receiver element if at least receiver or source changed since
     // last time
-    if ( rcv != GLOBAL_galerkin_state.formFactorLastRcv || src != GLOBAL_galerkin_state.formFactorLastSrc ) {
+    if ( rcv != galerkinState->formFactorLastRcv || src != galerkinState->formFactorLastSrc ) {
         // Use shadow caching for accelerating occlusion detection
         initShadowCache();
 
@@ -546,7 +548,7 @@ areaToAreaFormFactor(
         for ( k = 0; k < crrcv->numberOfNodes; k++ ) {
             double f = 0.0;
             for ( l = 0; l < crsrc->numberOfNodes; l++ ) {
-                kval = pointKernelEval(&x[k], &y[l], rcv, src, geometryShadowList, &vis, isSceneGeometry, isClusteredGeometry);
+                kval = pointKernelEval(&x[k], &y[l], rcv, src, geometryShadowList, &vis, isSceneGeometry, isClusteredGeometry, galerkinState);
                 Gxy[k][l] = kval * vis;
                 f += crsrc->w[l] * kval;
 
@@ -573,15 +575,15 @@ areaToAreaFormFactor(
         if ( link->numberOfBasisFunctionsOnReceiver == 1 && link->numberOfBasisFunctionsOnSource == 1 ) {
             doConstantAreaToAreaFormFactor(link, crrcv, crsrc, Gxy);
         } else {
-            doHigherOrderAreaToAreaFormFactor(link, crrcv, crsrc, Gxy);
+            doHigherOrderAreaToAreaFormFactor(link, crrcv, crsrc, Gxy, galerkinState);
         }
     }
 
     // Remember receiver and source for next time
-    GLOBAL_galerkin_state.formFactorLastRcv = rcv;
-    GLOBAL_galerkin_state.formFactorLastSrc = src;
+    galerkinState->formFactorLastRcv = rcv;
+    galerkinState->formFactorLastSrc = src;
 
-    if ( GLOBAL_galerkin_state.clusteringStrategy == ISOTROPIC && (rcv->isCluster() || src->isCluster()) ) {
+    if ( galerkinState->clusteringStrategy == ISOTROPIC && (rcv->isCluster() || src->isCluster()) ) {
         link->deltaK = new float[1];
         link->deltaK[0] = (float)(maxkval * src->area);
     }
@@ -589,7 +591,7 @@ areaToAreaFormFactor(
     // Returns the visibility: basically the fraction of rays that did not hit an occluder
     link->visibility = (unsigned) (255.0 * (double) viscount / (double) (crrcv->numberOfNodes * crsrc->numberOfNodes));
 
-    if ( GLOBAL_galerkin_state.exact_visibility && geometryShadowList != nullptr && link->visibility == 255 ) {
+    if ( galerkinState->exact_visibility && geometryShadowList != nullptr && link->visibility == 255 ) {
         // Not full visibility, we missed the shadow!
         link->visibility = 254;
     }

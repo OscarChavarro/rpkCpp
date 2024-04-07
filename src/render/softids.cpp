@@ -62,7 +62,7 @@ void
 softRenderPatches(java::ArrayList<Patch *> *scenePatches) {
     if ( GLOBAL_render_renderOptions.frustumCulling ) {
         char use_display_lists = GLOBAL_render_renderOptions.useDisplayLists;
-        GLOBAL_render_renderOptions.useDisplayLists = false;  /* temporarily switch it off */
+        GLOBAL_render_renderOptions.useDisplayLists = false;  // Temporarily switch it off
         openGlRenderWorldOctree(softRenderPatch);
         GLOBAL_render_renderOptions.useDisplayLists = use_display_lists;
     } else {

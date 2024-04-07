@@ -111,6 +111,4 @@ class GalerkinState {
     GalerkinState();
 };
 
-extern GalerkinState GLOBAL_galerkin_state;
-
 #endif

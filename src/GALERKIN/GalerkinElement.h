@@ -9,6 +9,8 @@ Galerkin finite elements: one structure for both surface and cluster elements
 #include "scene/Polygon.h"
 #include "GALERKIN/Interaction.h"
 
+class GalerkinState;
+
 /**
 The Galerkin radiosity specific data to be kept with every surface or
 cluster element. A flag indicates whether a given element is a cluster or
@@ -20,10 +22,10 @@ and no up trans
 */
 class GalerkinElement : public Element {
   private:
-    GalerkinElement();
+    explicit GalerkinElement(GalerkinState *inGalerkinState);
 
     GalerkinElement *regularSubElementAtPoint(double *u, double *v);
-    void draw(int mode);
+    void draw(int mode, GalerkinState *galerkinState);
 
   public:
     float potential; // Total potential of the element
@@ -41,9 +43,10 @@ class GalerkinElement : public Element {
     char childNumber; // Rang nr of regular sub-element in parent
     char basisSize; // Number of coefficients to represent radiance
     char basisUsed; // Number of coefficients effectively used (<=basis_size)
+    GalerkinState *galerkinState;
 
-    explicit GalerkinElement(Patch *patch);
-    explicit GalerkinElement(Geometry *parameterGeometry);
+    explicit GalerkinElement(Patch *patch, GalerkinState *inGalerkinState);
+    explicit GalerkinElement(Geometry *parameterGeometry, GalerkinState *inGalerkinState);
 
     ~GalerkinElement();
 
@@ -87,5 +90,7 @@ galerkinGetElement(Patch *patch) {
     }
     return (GalerkinElement *)patch->radianceData;
 }
+
+#include "GALERKIN/GalerkinState.h"
 
 #endif
