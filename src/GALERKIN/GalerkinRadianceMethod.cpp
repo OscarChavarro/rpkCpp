@@ -14,9 +14,7 @@ Galerkin radiosity, with the following variants:
 #include "common/mymath.h"
 #include "material/statistics.h"
 #include "scene/scene.h"
-#include "skin/Vertex.h"
 #include "render/render.h"
-#include "scene/Camera.h"
 #include "common/options.h"
 #include "io/writevrml.h"
 #include "render/opengl.h"
@@ -28,34 +26,15 @@ Galerkin radiosity, with the following variants:
 #include "GALERKIN/shooting.h"
 #include "GALERKIN/GalerkinRadianceMethod.h"
 
+#define STRING_LENGTH 2000
+
 GalerkinState GalerkinRadianceMethod::galerkinState;
+
 static FILE *globalVrmlFileDescriptor;
 static int globalNumberOfWrites;
 static int globalVertexId;
 static int globalTrue = true;
 static int globalFalse = false;
-
-#define STRING_LENGTH 2000
-
-static inline ColorRgb
-galerkinGetRadiance(Patch *patch) {
-    return ((GalerkinElement *)(patch->radianceData))->radiance[0];
-}
-
-static inline void
-galerkinSetRadiance(Patch *patch, ColorRgb value) {
-    ((GalerkinElement *)(patch->radianceData))->radiance[0] = value;
-}
-
-static inline void
-galerkinSetPotential(Patch *patch, float value) {
-    ((GalerkinElement *)((patch)->radianceData))->potential = value;
-}
-
-static inline void
-galerkinSetUnShotPotential(Patch *patch, float value) {
-    ((GalerkinElement *)((patch)->radianceData))->unShotPotential = value;
-}
 
 static void
 iterationMethodOption(void *value) {
@@ -137,9 +116,7 @@ For counting how much CPU time was used for the computations
 */
 static void
 updateCpuSecs() {
-    clock_t t;
-
-    t = clock();
+    clock_t t = clock();
     GalerkinRadianceMethod::galerkinState.cpu_secs += (float) (t - GalerkinRadianceMethod::galerkinState.lastClock) / (float) CLOCKS_PER_SEC;
     GalerkinRadianceMethod::galerkinState.lastClock = t;
 }

@@ -9,6 +9,26 @@ class GalerkinRadianceMethod : public RadianceMethod {
   private:
     void patchInit(Patch *patch);
 
+    static inline ColorRgb
+    galerkinGetRadiance(Patch *patch) {
+        return ((GalerkinElement *)(patch->radianceData))->radiance[0];
+    }
+
+    static inline void
+    galerkinSetRadiance(Patch *patch, ColorRgb value) {
+        ((GalerkinElement *)(patch->radianceData))->radiance[0] = value;
+    }
+
+    static inline void
+    galerkinSetPotential(Patch *patch, float value) {
+        ((GalerkinElement *)((patch)->radianceData))->potential = value;
+    }
+
+    static inline void
+    galerkinSetUnShotPotential(Patch *patch, float value) {
+        ((GalerkinElement *)((patch)->radianceData))->unShotPotential = value;
+    }
+
   public:
     static GalerkinState galerkinState;
 
