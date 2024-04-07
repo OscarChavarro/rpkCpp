@@ -32,6 +32,10 @@ static GalerkinState globalGalerkinState;
 static FILE *globalVrmlFileDescriptor;
 static int globalNumberOfWrites;
 static int globalVertexId;
+static int globalTrue = true;
+static int globalFalse = false;
+
+#define STRING_LENGTH 2000
 
 static inline ColorRgb
 galerkinGetRadiance(Patch *patch) {
@@ -48,31 +52,10 @@ galerkinSetPotential(Patch *patch, float value) {
     ((GalerkinElement *)((patch)->radianceData))->potential = value;
 }
 
-inline void
+static inline void
 galerkinSetUnShotPotential(Patch *patch, float value) {
     ((GalerkinElement *)((patch)->radianceData))->unShotPotential = value;
 }
-
-GalerkinRadianceMethod::GalerkinRadianceMethod() {
-    className = GALERKIN;
-}
-
-GalerkinRadianceMethod::~GalerkinRadianceMethod() {
-    if ( globalGalerkinState.topCluster != nullptr ) {
-        delete globalGalerkinState.topCluster;
-        globalGalerkinState.topCluster = nullptr;
-    }
-}
-
-const char *
-GalerkinRadianceMethod::getRadianceMethodName() const  {
-    return "Galerkin";
-}
-
-static int globalTrue = true;
-static int globalFalse = false;
-
-#define STRING_LENGTH 2000
 
 static void
 iterationMethodOption(void *value) {
@@ -144,15 +127,10 @@ static CommandLineOptionDescription galerkinOptions[] = {
     "-gr-no-ambient      \t: do visualisation without ambient term"},
     {"-gr-link-error-threshold", 6, Tfloat, &globalGalerkinState.relLinkErrorThreshold, DEFAULT_ACTION,
     "-gr-link-error-threshold <float>: Relative link error threshold"},
-    {"-gr-min-elem-area",6, Tfloat, &globalGalerkinState.relMinElemArea,                DEFAULT_ACTION,
+    {"-gr-min-elem-area",6, Tfloat, &globalGalerkinState.relMinElemArea, DEFAULT_ACTION,
     "-gr-min-elem-area <float> \t: Relative element area threshold"},
     {nullptr, 0, TYPELESS, nullptr, DEFAULT_ACTION, nullptr}
 };
-
-void
-GalerkinRadianceMethod::parseOptions(int *argc, char **argv) {
-    parseGeneralOptions(galerkinOptions, argc, argv);
-}
 
 /**
 For counting how much CPU time was used for the computations
@@ -164,39 +142,6 @@ updateCpuSecs() {
     t = clock();
     globalGalerkinState.cpu_secs += (float) (t - globalGalerkinState.lastClock) / (float) CLOCKS_PER_SEC;
     globalGalerkinState.lastClock = t;
-}
-
-/**
-Radiance data for a Patch is a surface element
-*/
-Element *
-GalerkinRadianceMethod::createPatchData(Patch *patch) {
-    return patch->radianceData = new GalerkinElement(patch, &globalGalerkinState);
-}
-
-void
-GalerkinRadianceMethod::destroyPatchData(Patch *patch) {
-    delete ((GalerkinElement *)patch->radianceData);
-    patch->radianceData = nullptr;
-}
-
-/**
-Recomputes the color of a patch using ambient radiance term, ... if requested for
-*/
-void
-patchRecomputeColor(Patch *patch) {
-    ColorRgb reflectivity = patch->radianceData->Rd;
-    ColorRgb radVis;
-
-    // Compute the patches color based on its radiance + ambient radiance if desired
-    if ( globalGalerkinState.use_ambient_radiance ) {
-        radVis.scalarProduct(reflectivity, globalGalerkinState.ambient_radiance);
-        radVis.add(radVis, galerkinGetRadiance(patch));
-        radianceToRgb(radVis, &patch->color);
-    } else {
-        radianceToRgb(galerkinGetRadiance(patch), &patch->color);
-    }
-    patch->computeVertexColors();
 }
 
 static void
@@ -235,150 +180,6 @@ patchInit(Patch *patch) {
     patchRecomputeColor(patch);
 }
 
-void
-GalerkinRadianceMethod::initialize(java::ArrayList<Patch *> *scenePatches) {
-    globalGalerkinState.iteration_nr = 0;
-    globalGalerkinState.cpu_secs = 0.0;
-
-    basisGalerkinInitBasis();
-
-    globalGalerkinState.constant_radiance = GLOBAL_statistics.estimatedAverageRadiance;
-    if ( globalGalerkinState.use_constant_radiance ) {
-        globalGalerkinState.ambient_radiance.clear();
-    } else {
-        globalGalerkinState.ambient_radiance = GLOBAL_statistics.estimatedAverageRadiance;
-    }
-
-    for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
-        patchInit(scenePatches->get(i));
-    }
-
-    globalGalerkinState.topGeometry = GLOBAL_scene_clusteredWorldGeom;
-    globalGalerkinState.topCluster = galerkinCreateClusterHierarchy(globalGalerkinState.topGeometry, &globalGalerkinState);
-
-    // Create a scratch software renderer for various operations on clusters
-    scratchInit(&globalGalerkinState);
-
-    // Global variables used for form factor computation optimisation
-    globalGalerkinState.formFactorLastRcv = nullptr;
-    globalGalerkinState.formFactorLastSrc = nullptr;
-
-    // Global variables for scratch rendering
-    globalGalerkinState.lastClusterId = -1;
-    globalGalerkinState.lastEye.set(HUGE, HUGE, HUGE);
-}
-
-int
-GalerkinRadianceMethod::doStep(java::ArrayList<Patch *> *scenePatches, java::ArrayList<Patch *> *lightPatches) {
-    int done = false;
-
-    if ( globalGalerkinState.iteration_nr < 0 ) {
-        logError("doGalerkinOneStep", "method not initialized");
-        return true;    /* done, don't continue! */
-    }
-
-    globalGalerkinState.iteration_nr++;
-    globalGalerkinState.lastClock = clock();
-
-    // And now the real work
-    switch ( globalGalerkinState.iteration_method ) {
-        case JACOBI:
-        case GAUSS_SEIDEL:
-            if ( globalGalerkinState.clustered ) {
-                done = doClusteredGatheringIteration(scenePatches, &globalGalerkinState);
-            } else {
-                done = galerkinRadiosityDoGatheringIteration(scenePatches, &globalGalerkinState);
-            }
-            break;
-        case SOUTH_WELL:
-            done = doShootingStep(scenePatches, &globalGalerkinState);
-            break;
-        default:
-            logFatal(2, "doGalerkinOneStep", "Invalid iteration method %d\n", globalGalerkinState.iteration_method);
-    }
-
-    updateCpuSecs();
-
-    return done;
-}
-
-void
-GalerkinRadianceMethod::terminate(java::ArrayList<Patch *> *scenePatches) {
-    scratchTerminate(&globalGalerkinState);
-    if ( globalGalerkinState.topCluster != nullptr ) {
-        galerkinDestroyClusterHierarchy(globalGalerkinState.topCluster);
-        globalGalerkinState.topCluster = nullptr;
-    }
-}
-
-ColorRgb
-GalerkinRadianceMethod::getRadiance(Patch *patch, double u, double v, Vector3D dir) {
-    GalerkinElement *leaf;
-    ColorRgb rad;
-
-    if ( patch->jacobian ) {
-        patch->biLinearToUniform(&u, &v);
-    }
-
-    GalerkinElement *topLevelElement = galerkinGetElement(patch);
-    leaf = topLevelElement->regularLeafAtPoint(&u, &v);
-
-    rad = basisGalerkinRadianceAtPoint(leaf, leaf->radiance, u, v, &globalGalerkinState);
-
-    if ( globalGalerkinState.use_ambient_radiance ) {
-        // Add ambient radiance
-        ColorRgb reflectivity = patch->radianceData->Rd;
-        ColorRgb ambientRadiance;
-        ambientRadiance.scalarProduct(reflectivity, globalGalerkinState.ambient_radiance);
-        rad.add(rad, ambientRadiance);
-    }
-
-    return rad;
-}
-
-char *
-GalerkinRadianceMethod::getStats() {
-    static char stats[STRING_LENGTH];
-    char *p;
-    int n;
-
-    p = stats;
-    snprintf(p, STRING_LENGTH, "Galerkin Radiosity Statistics:\n\n%n", &n);
-    p += n;
-    snprintf(p, STRING_LENGTH, "Iteration: %d\n\n%n", globalGalerkinState.iteration_nr, &n);
-    p += n;
-    snprintf(p, STRING_LENGTH, "Nr. elements: %d\n%n", galerkinElementGetNumberOfElements(), &n);
-    p += n;
-    snprintf(p, STRING_LENGTH, "clusters: %d\n%n", galerkinElementGetNumberOfClusters(), &n);
-    p += n;
-    snprintf(p, STRING_LENGTH, "surface elements: %d\n\n%n", galerkinElementGetNumberOfSurfaceElements(), &n);
-    p += n;
-    snprintf(p, STRING_LENGTH, "Nr. interactions: %d\n%n", Interaction::getNumberOfInteractions(), &n);
-    p += n;
-    snprintf(p, STRING_LENGTH, "cluster to cluster: %d\n%n", Interaction::getNumberOfClusterToClusterInteractions(), &n);
-    p += n;
-    snprintf(p, STRING_LENGTH, "cluster to surface: %d\n%n", Interaction::getNumberOfClusterToSurfaceInteractions(), &n);
-    p += n;
-    snprintf(p, STRING_LENGTH, "surface to cluster: %d\n%n", Interaction::getNumberOfSurfaceToClusterInteractions(), &n);
-    p += n;
-    snprintf(p, STRING_LENGTH, "surface to surface: %d\n\n%n", Interaction::getNumberOfSurfaceToSurfaceInteractions(), &n);
-    p += n;
-    snprintf(p, STRING_LENGTH, "CPU time: %g secs.\n%n", globalGalerkinState.cpu_secs, &n);
-    p += n;
-    snprintf(p, STRING_LENGTH, "Minimum element area: %g m^2\n%n", GLOBAL_statistics.totalArea * (double) globalGalerkinState.relMinElemArea, &n);
-    p += n;
-    snprintf(p, STRING_LENGTH, "Link error threshold: %g %s\n\n%n",
-            (double) (globalGalerkinState.errorNorm == RADIANCE_ERROR ?
-                      M_PI * (globalGalerkinState.relLinkErrorThreshold *
-                              GLOBAL_statistics.maxSelfEmittedRadiance.luminance()) :
-                      globalGalerkinState.relLinkErrorThreshold *
-                      GLOBAL_statistics.maxSelfEmittedPower.luminance()),
-            (globalGalerkinState.errorNorm == RADIANCE_ERROR ? "lux" : "lumen"),
-            &n);
-
-    return stats;
-}
-
 static void
 renderElementHierarchy(GalerkinElement *element) {
     if ( !element->regularSubElements ) {
@@ -394,17 +195,6 @@ static void
 galerkinRenderPatch(Patch *patch) {
     GalerkinElement *topLevelElement = galerkinGetElement(patch);
     renderElementHierarchy(topLevelElement);
-}
-
-void
-GalerkinRadianceMethod::renderScene(java::ArrayList<Patch *> *scenePatches) {
-    if ( GLOBAL_render_renderOptions.frustumCulling ) {
-        openGlRenderWorldOctree(galerkinRenderPatch);
-    } else {
-        for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
-            galerkinRenderPatch(scenePatches->get(i));
-        }
-    }
 }
 
 static void
@@ -530,6 +320,223 @@ galerkinWriteCoordIndicesTopCluster() {
     fprintf(globalVrmlFileDescriptor, " ]\n");
 }
 
+/**
+Recomputes the color of a patch using ambient radiance term, ... if requested for
+*/
+void
+patchRecomputeColor(Patch *patch) {
+    ColorRgb reflectivity = patch->radianceData->Rd;
+    ColorRgb radVis;
+
+    // Compute the patches color based on its radiance + ambient radiance if desired
+    if ( globalGalerkinState.use_ambient_radiance ) {
+        radVis.scalarProduct(reflectivity, globalGalerkinState.ambient_radiance);
+        radVis.add(radVis, galerkinGetRadiance(patch));
+        radianceToRgb(radVis, &patch->color);
+    } else {
+        radianceToRgb(galerkinGetRadiance(patch), &patch->color);
+    }
+    patch->computeVertexColors();
+}
+
+void
+galerkinFreeMemory() {
+    if ( globalGalerkinState.scratch != nullptr ) {
+        delete globalGalerkinState.scratch;
+        globalGalerkinState.scratch = nullptr;
+    }
+}
+
+GalerkinRadianceMethod::GalerkinRadianceMethod() {
+    className = GALERKIN;
+}
+
+GalerkinRadianceMethod::~GalerkinRadianceMethod() {
+    if ( globalGalerkinState.topCluster != nullptr ) {
+        delete globalGalerkinState.topCluster;
+        globalGalerkinState.topCluster = nullptr;
+    }
+}
+
+const char *
+GalerkinRadianceMethod::getRadianceMethodName() const  {
+    return "Galerkin";
+}
+
+void
+GalerkinRadianceMethod::parseOptions(int *argc, char **argv) {
+    parseGeneralOptions(galerkinOptions, argc, argv);
+}
+
+void
+GalerkinRadianceMethod::initialize(java::ArrayList<Patch *> *scenePatches) {
+    globalGalerkinState.iteration_nr = 0;
+    globalGalerkinState.cpu_secs = 0.0;
+
+    basisGalerkinInitBasis();
+
+    globalGalerkinState.constant_radiance = GLOBAL_statistics.estimatedAverageRadiance;
+    if ( globalGalerkinState.use_constant_radiance ) {
+        globalGalerkinState.ambient_radiance.clear();
+    } else {
+        globalGalerkinState.ambient_radiance = GLOBAL_statistics.estimatedAverageRadiance;
+    }
+
+    for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
+        patchInit(scenePatches->get(i));
+    }
+
+    globalGalerkinState.topGeometry = GLOBAL_scene_clusteredWorldGeom;
+    globalGalerkinState.topCluster = galerkinCreateClusterHierarchy(globalGalerkinState.topGeometry, &globalGalerkinState);
+
+    // Create a scratch software renderer for various operations on clusters
+    scratchInit(&globalGalerkinState);
+
+    // Global variables used for form factor computation optimisation
+    globalGalerkinState.formFactorLastRcv = nullptr;
+    globalGalerkinState.formFactorLastSrc = nullptr;
+
+    // Global variables for scratch rendering
+    globalGalerkinState.lastClusterId = -1;
+    globalGalerkinState.lastEye.set(HUGE, HUGE, HUGE);
+}
+
+int
+GalerkinRadianceMethod::doStep(java::ArrayList<Patch *> *scenePatches, java::ArrayList<Patch *> *lightPatches) {
+    int done = false;
+
+    if ( globalGalerkinState.iteration_nr < 0 ) {
+        logError("doGalerkinOneStep", "method not initialized");
+        return true;    /* done, don't continue! */
+    }
+
+    globalGalerkinState.iteration_nr++;
+    globalGalerkinState.lastClock = clock();
+
+    // And now the real work
+    switch ( globalGalerkinState.iteration_method ) {
+        case JACOBI:
+        case GAUSS_SEIDEL:
+            if ( globalGalerkinState.clustered ) {
+                done = doClusteredGatheringIteration(scenePatches, &globalGalerkinState);
+            } else {
+                done = galerkinRadiosityDoGatheringIteration(scenePatches, &globalGalerkinState);
+            }
+            break;
+        case SOUTH_WELL:
+            done = doShootingStep(scenePatches, &globalGalerkinState);
+            break;
+        default:
+            logFatal(2, "doGalerkinOneStep", "Invalid iteration method %d\n", globalGalerkinState.iteration_method);
+    }
+
+    updateCpuSecs();
+
+    return done;
+}
+
+void
+GalerkinRadianceMethod::terminate(java::ArrayList<Patch *> *scenePatches) {
+    scratchTerminate(&globalGalerkinState);
+    if ( globalGalerkinState.topCluster != nullptr ) {
+        galerkinDestroyClusterHierarchy(globalGalerkinState.topCluster);
+        globalGalerkinState.topCluster = nullptr;
+    }
+}
+
+ColorRgb
+GalerkinRadianceMethod::getRadiance(Patch *patch, double u, double v, Vector3D dir) {
+    GalerkinElement *leaf;
+    ColorRgb rad;
+
+    if ( patch->jacobian ) {
+        patch->biLinearToUniform(&u, &v);
+    }
+
+    GalerkinElement *topLevelElement = galerkinGetElement(patch);
+    leaf = topLevelElement->regularLeafAtPoint(&u, &v);
+
+    rad = basisGalerkinRadianceAtPoint(leaf, leaf->radiance, u, v, &globalGalerkinState);
+
+    if ( globalGalerkinState.use_ambient_radiance ) {
+        // Add ambient radiance
+        ColorRgb reflectivity = patch->radianceData->Rd;
+        ColorRgb ambientRadiance;
+        ambientRadiance.scalarProduct(reflectivity, globalGalerkinState.ambient_radiance);
+        rad.add(rad, ambientRadiance);
+    }
+
+    return rad;
+}
+
+/**
+Radiance data for a Patch is a surface element
+*/
+Element *
+GalerkinRadianceMethod::createPatchData(Patch *patch) {
+    return patch->radianceData = new GalerkinElement(patch, &globalGalerkinState);
+}
+
+void
+GalerkinRadianceMethod::destroyPatchData(Patch *patch) {
+    delete ((GalerkinElement *)patch->radianceData);
+    patch->radianceData = nullptr;
+}
+
+char *
+GalerkinRadianceMethod::getStats() {
+    static char stats[STRING_LENGTH];
+    char *p;
+    int n;
+
+    p = stats;
+    snprintf(p, STRING_LENGTH, "Galerkin Radiosity Statistics:\n\n%n", &n);
+    p += n;
+    snprintf(p, STRING_LENGTH, "Iteration: %d\n\n%n", globalGalerkinState.iteration_nr, &n);
+    p += n;
+    snprintf(p, STRING_LENGTH, "Nr. elements: %d\n%n", galerkinElementGetNumberOfElements(), &n);
+    p += n;
+    snprintf(p, STRING_LENGTH, "clusters: %d\n%n", galerkinElementGetNumberOfClusters(), &n);
+    p += n;
+    snprintf(p, STRING_LENGTH, "surface elements: %d\n\n%n", galerkinElementGetNumberOfSurfaceElements(), &n);
+    p += n;
+    snprintf(p, STRING_LENGTH, "Nr. interactions: %d\n%n", Interaction::getNumberOfInteractions(), &n);
+    p += n;
+    snprintf(p, STRING_LENGTH, "cluster to cluster: %d\n%n", Interaction::getNumberOfClusterToClusterInteractions(), &n);
+    p += n;
+    snprintf(p, STRING_LENGTH, "cluster to surface: %d\n%n", Interaction::getNumberOfClusterToSurfaceInteractions(), &n);
+    p += n;
+    snprintf(p, STRING_LENGTH, "surface to cluster: %d\n%n", Interaction::getNumberOfSurfaceToClusterInteractions(), &n);
+    p += n;
+    snprintf(p, STRING_LENGTH, "surface to surface: %d\n\n%n", Interaction::getNumberOfSurfaceToSurfaceInteractions(), &n);
+    p += n;
+    snprintf(p, STRING_LENGTH, "CPU time: %g secs.\n%n", globalGalerkinState.cpu_secs, &n);
+    p += n;
+    snprintf(p, STRING_LENGTH, "Minimum element area: %g m^2\n%n", GLOBAL_statistics.totalArea * (double) globalGalerkinState.relMinElemArea, &n);
+    p += n;
+    snprintf(p, STRING_LENGTH, "Link error threshold: %g %s\n\n%n",
+             (double) (globalGalerkinState.errorNorm == RADIANCE_ERROR ?
+                       M_PI * (globalGalerkinState.relLinkErrorThreshold *
+                               GLOBAL_statistics.maxSelfEmittedRadiance.luminance()) :
+                       globalGalerkinState.relLinkErrorThreshold *
+                       GLOBAL_statistics.maxSelfEmittedPower.luminance()),
+             (globalGalerkinState.errorNorm == RADIANCE_ERROR ? "lux" : "lumen"),
+             &n);
+
+    return stats;
+}
+
+void
+GalerkinRadianceMethod::renderScene(java::ArrayList<Patch *> *scenePatches) {
+    if ( GLOBAL_render_renderOptions.frustumCulling ) {
+        openGlRenderWorldOctree(galerkinRenderPatch);
+    } else {
+        for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
+            galerkinRenderPatch(scenePatches->get(i));
+        }
+    }
+}
+
 void
 GalerkinRadianceMethod::writeVRML(FILE *fp) {
     writeVrmlHeader(fp);
@@ -540,12 +547,4 @@ GalerkinRadianceMethod::writeVRML(FILE *fp) {
     galerkinWriteCoordIndicesTopCluster();
 
     writeVRMLTrailer(fp);
-}
-
-void
-galerkinFreeMemory() {
-    if ( globalGalerkinState.scratch != nullptr ) {
-        delete globalGalerkinState.scratch;
-        globalGalerkinState.scratch = nullptr;
-    }
 }
