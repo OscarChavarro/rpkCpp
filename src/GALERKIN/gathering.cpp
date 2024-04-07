@@ -33,10 +33,10 @@ Converts the accumulated received radiance into exitant radiance, making the
 hierarchical representation consistent and computes a new color for the patch
 */
 static void
-patchUpdateRadiance(Patch *patch, GalerkinState *galerkinState) {
+patchUpdateRadiance(Patch *patch, GalerkinState *galerkinState, GalerkinRadianceMethod *galerkinRadianceMethod) {
     GalerkinElement *topLevelElement = galerkinGetElement(patch);
     basisGalerkinPushPullRadiance(topLevelElement, galerkinState);
-    patchRecomputeColor(patch);
+    galerkinRadianceMethod->recomputePatchColor(patch);
 }
 
 /**
@@ -46,7 +46,7 @@ interactions and updates the radiance for the patch if doing
 Gauss-Seidel iterations
 */
 static void
-patchGather(Patch *patch, GalerkinState *galerkinState) {
+patchGather(Patch *patch, GalerkinState *galerkinState, GalerkinRadianceMethod *galerkinRadianceMethod) {
     GalerkinElement *topLevelElement = galerkinGetElement(patch);
 
     // Don't gather to patches without importance. This optimisation can not
@@ -75,7 +75,7 @@ patchGather(Patch *patch, GalerkinState *galerkinState) {
     // The new radiance values are immediately used in subsequent steps of
     // the current iteration
     if ( galerkinState->iteration_method == GAUSS_SEIDEL ) {
-        patchUpdateRadiance(patch, galerkinState);
+        patchUpdateRadiance(patch, galerkinState, galerkinRadianceMethod);
     }
 }
 
@@ -160,7 +160,11 @@ Does one step of the radiance computations, returns true if the computations
 have converged and false if not
 */
 int
-galerkinRadiosityDoGatheringIteration(java::ArrayList<Patch *> *scenePatches, GalerkinState *galerkinState) {
+galerkinRadiosityDoGatheringIteration(
+    java::ArrayList<Patch *> *scenePatches,
+    GalerkinState *galerkinState,
+    GalerkinRadianceMethod *galerkinRadianceMethod)
+{
     if ( galerkinState->importance_driven ) {
         if ( galerkinState->iteration_nr <= 1 || GLOBAL_camera_mainCamera.changed ) {
             updateDirectPotential(scenePatches);
@@ -181,7 +185,7 @@ galerkinRadiosityDoGatheringIteration(java::ArrayList<Patch *> *scenePatches, Ga
 
     // One iteration = gather to all patches
     for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
-        patchGather(scenePatches->get(i), galerkinState);
+        patchGather(scenePatches->get(i), galerkinState, galerkinRadianceMethod);
     }
 
     // Update the radiosity after gathering to all patches with Jacobi, immediately
@@ -189,7 +193,7 @@ galerkinRadiosityDoGatheringIteration(java::ArrayList<Patch *> *scenePatches, Ga
     // still-to-be-processed patches in the same iteration
     if ( galerkinState->iteration_method == JACOBI ) {
         for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
-            patchUpdateRadiance(scenePatches->get(i), galerkinState);
+            patchUpdateRadiance(scenePatches->get(i), galerkinState, galerkinRadianceMethod);
         }
     }
 
@@ -206,7 +210,11 @@ galerkinRadiosityDoGatheringIteration(java::ArrayList<Patch *> *scenePatches, Ga
 what if you turn clustering on or off during the calculations?
 */
 int
-doClusteredGatheringIteration(java::ArrayList<Patch*> *scenePatches, GalerkinState *galerkinState) {
+doClusteredGatheringIteration(
+    java::ArrayList<Patch*> *scenePatches,
+    GalerkinState *galerkinState,
+    GalerkinRadianceMethod *galerkinRadianceMethod)
+{
     static double userErrorThreshold;
 
     if ( galerkinState->importance_driven ) {
@@ -253,7 +261,7 @@ doClusteredGatheringIteration(java::ArrayList<Patch*> *scenePatches, GalerkinSta
 
     // Update the display colors of the patches
     for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
-        patchRecomputeColor(scenePatches->get(i));
+        galerkinRadianceMethod->recomputePatchColor(scenePatches->get(i));
     }
 
     return false; // Never done

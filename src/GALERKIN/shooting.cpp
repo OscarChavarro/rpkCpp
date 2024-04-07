@@ -163,7 +163,12 @@ patchUpdateRadianceAndPotential(Patch *patch, GalerkinState *galerkinState) {
 }
 
 static void
-doPropagate(Patch *shooting_patch, java::ArrayList<Patch *> *scenePatches, GalerkinState *galerkinState) {
+doPropagate(
+    Patch *shooting_patch,
+    java::ArrayList<Patch *> *scenePatches,
+    GalerkinState *galerkinState,
+    GalerkinRadianceMethod *galerkinRadianceMethod)
+{
     // Propagate the un-shot power of the shooting patch into the environment
     patchPropagateUnShotRadianceAndPotential(shooting_patch, galerkinState);
 
@@ -184,12 +189,16 @@ doPropagate(Patch *shooting_patch, java::ArrayList<Patch *> *scenePatches, Galer
     }
 
     for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
-        patchRecomputeColor(scenePatches->get(i));
+        galerkinRadianceMethod->recomputePatchColor(scenePatches->get(i));
     }
 }
 
 static int
-propagateRadiance(java::ArrayList<Patch *> *scenePatches, GalerkinState *galerkinState) {
+propagateRadiance(
+    java::ArrayList<Patch *> *scenePatches,
+    GalerkinState *galerkinState,
+    GalerkinRadianceMethod *galerkinRadianceMethod)
+{
     Patch *shooting_patch;
 
     // Choose a shooting patch. also accumulates the total un-shot power into
@@ -202,7 +211,7 @@ propagateRadiance(java::ArrayList<Patch *> *scenePatches, GalerkinState *galerki
     openGlRenderSetColor(&GLOBAL_material_yellow);
     openGlRenderPatchOutline(shooting_patch);
 
-    doPropagate(shooting_patch, scenePatches, galerkinState);
+    doPropagate(shooting_patch, scenePatches, galerkinState, galerkinRadianceMethod);
 
     return false;
 }
@@ -250,14 +259,18 @@ choosePotentialShootingPatch(java::ArrayList<Patch *> *scenePatches) {
 }
 
 static void
-propagatePotential(java::ArrayList<Patch *> *scenePatches, GalerkinState *galerkinState) {
+propagatePotential(
+    java::ArrayList<Patch *> *scenePatches,
+    GalerkinState *galerkinState,
+    GalerkinRadianceMethod *galerkinRadianceMethod)
+{
     Patch *shooting_patch;
 
     shooting_patch = choosePotentialShootingPatch(scenePatches);
     if ( shooting_patch ) {
         openGlRenderSetColor(&GLOBAL_material_white);
         openGlRenderPatchOutline(shooting_patch);
-        doPropagate(shooting_patch, scenePatches, galerkinState);
+        doPropagate(shooting_patch, scenePatches, galerkinState, galerkinRadianceMethod);
     } else {
         fprintf(stderr, "No patches with un-shot potential??\n");
     }
@@ -284,7 +297,11 @@ shootingUpdateDirectPotential(GalerkinElement *elem, float potential_increment) 
 One step of the progressive refinement radiosity algorithm
 */
 static int
-reallyDoShootingStep(java::ArrayList<Patch *> *scenePatches, GalerkinState *galerkinState) {
+reallyDoShootingStep(
+    java::ArrayList<Patch *> *scenePatches,
+    GalerkinState *galerkinState,
+    GalerkinRadianceMethod *galerkinRadianceMethod)
+{
     if ( galerkinState->importance_driven ) {
         if ( galerkinState->iteration_nr <= 1 || GLOBAL_camera_mainCamera.changed ) {
             updateDirectPotential(scenePatches);
@@ -299,15 +316,19 @@ reallyDoShootingStep(java::ArrayList<Patch *> *scenePatches, GalerkinState *gale
                 clusterUpdatePotential(galerkinState->topCluster);
             }
         }
-        propagatePotential(scenePatches, galerkinState);
+        propagatePotential(scenePatches, galerkinState, galerkinRadianceMethod);
     }
-    return propagateRadiance(scenePatches, galerkinState);
+    return propagateRadiance(scenePatches, galerkinState, galerkinRadianceMethod);
 }
 
 /**
 Returns true when converged and false if not
 */
 int
-doShootingStep(java::ArrayList<Patch *> *scenePatches, GalerkinState *galerkinState) {
-    return reallyDoShootingStep(scenePatches, galerkinState);
+doShootingStep(
+    java::ArrayList<Patch *> *scenePatches,
+    GalerkinState *galerkinState,
+    GalerkinRadianceMethod *galerkinRadianceMethod)
+{
+    return reallyDoShootingStep(scenePatches, galerkinState, galerkinRadianceMethod);
 }

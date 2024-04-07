@@ -6,6 +6,9 @@
 #include "GALERKIN/GalerkinState.h"
 
 class GalerkinRadianceMethod : public RadianceMethod {
+  private:
+    void patchInit(Patch *patch);
+
   public:
     GalerkinRadianceMethod();
     ~GalerkinRadianceMethod();
@@ -20,9 +23,10 @@ class GalerkinRadianceMethod : public RadianceMethod {
     char *getStats();
     void renderScene(java::ArrayList<Patch *> *scenePatches);
     void writeVRML(FILE *fp);
+    void recomputePatchColor(Patch *patch);
 };
 
 extern void galerkinFreeMemory();
-extern void patchRecomputeColor(Patch *patch);
+
 
 #endif

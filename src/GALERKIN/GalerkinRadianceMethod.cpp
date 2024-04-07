@@ -24,8 +24,8 @@ Galerkin radiosity, with the following variants:
 #include "GALERKIN/basisgalerkin.h"
 #include "GALERKIN/clustergalerkincpp.h"
 #include "GALERKIN/scratch.h"
-#include "GALERKIN/shooting.h"
 #include "GALERKIN/gathering.h"
+#include "GALERKIN/shooting.h"
 #include "GALERKIN/GalerkinRadianceMethod.h"
 
 static GalerkinState globalGalerkinState;
@@ -144,8 +144,8 @@ updateCpuSecs() {
     globalGalerkinState.lastClock = t;
 }
 
-static void
-patchInit(Patch *patch) {
+void
+GalerkinRadianceMethod::patchInit(Patch *patch) {
     ColorRgb reflectivity = patch->radianceData->Rd;
     ColorRgb selfEmittanceRadiance = patch->radianceData->Ed;
 
@@ -177,7 +177,7 @@ patchInit(Patch *patch) {
         }
     }
 
-    patchRecomputeColor(patch);
+    recomputePatchColor(patch);
 }
 
 static void
@@ -324,7 +324,7 @@ galerkinWriteCoordIndicesTopCluster() {
 Recomputes the color of a patch using ambient radiance term, ... if requested for
 */
 void
-patchRecomputeColor(Patch *patch) {
+GalerkinRadianceMethod::recomputePatchColor(Patch *patch) {
     ColorRgb reflectivity = patch->radianceData->Rd;
     ColorRgb radVis;
 
@@ -418,13 +418,13 @@ GalerkinRadianceMethod::doStep(java::ArrayList<Patch *> *scenePatches, java::Arr
         case JACOBI:
         case GAUSS_SEIDEL:
             if ( globalGalerkinState.clustered ) {
-                done = doClusteredGatheringIteration(scenePatches, &globalGalerkinState);
+                done = doClusteredGatheringIteration(scenePatches, &globalGalerkinState, this);
             } else {
-                done = galerkinRadiosityDoGatheringIteration(scenePatches, &globalGalerkinState);
+                done = galerkinRadiosityDoGatheringIteration(scenePatches, &globalGalerkinState, this);
             }
             break;
         case SOUTH_WELL:
-            done = doShootingStep(scenePatches, &globalGalerkinState);
+            done = doShootingStep(scenePatches, &globalGalerkinState, this);
             break;
         default:
             logFatal(2, "doGalerkinOneStep", "Invalid iteration method %d\n", globalGalerkinState.iteration_method);
