@@ -10,6 +10,8 @@ class GalerkinRadianceMethod : public RadianceMethod {
     void patchInit(Patch *patch);
 
   public:
+    static GalerkinState galerkinState;
+
     GalerkinRadianceMethod();
     ~GalerkinRadianceMethod();
     const char *getRadianceMethodName() const;
