@@ -8,6 +8,7 @@
 class GalerkinRadianceMethod : public RadianceMethod {
   private:
     void patchInit(Patch *patch);
+    static void updateCpuSecs();
 
     static inline ColorRgb
     galerkinGetRadiance(Patch *patch) {

@@ -111,16 +111,6 @@ static CommandLineOptionDescription galerkinOptions[] = {
     {nullptr, 0, TYPELESS, nullptr, DEFAULT_ACTION, nullptr}
 };
 
-/**
-For counting how much CPU time was used for the computations
-*/
-static void
-updateCpuSecs() {
-    clock_t t = clock();
-    GalerkinRadianceMethod::galerkinState.cpu_secs += (float) (t - GalerkinRadianceMethod::galerkinState.lastClock) / (float) CLOCKS_PER_SEC;
-    GalerkinRadianceMethod::galerkinState.lastClock = t;
-}
-
 static void
 renderElementHierarchy(GalerkinElement *element) {
     if ( !element->regularSubElements ) {
@@ -278,6 +268,16 @@ GalerkinRadianceMethod::~GalerkinRadianceMethod() {
         delete galerkinState.topCluster;
         galerkinState.topCluster = nullptr;
     }
+}
+
+/**
+For counting how much CPU time was used for the computations
+*/
+void
+GalerkinRadianceMethod::updateCpuSecs() {
+    clock_t t = clock();
+    galerkinState.cpu_secs += (float) (t - galerkinState.lastClock) / (float) CLOCKS_PER_SEC;
+    galerkinState.lastClock = t;
 }
 
 void
