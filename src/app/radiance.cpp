@@ -89,8 +89,8 @@ selectRadianceMethod(const int *argc, char **argv, RadianceMethod **newRadianceM
         } else if ( strncasecmp(name, "RandomWalk", 4) == 0 ) {
             *newRadianceMethod = new RandomWalkRadianceMethod();
         }
-    }
 #endif
+    }
 }
 
 /**

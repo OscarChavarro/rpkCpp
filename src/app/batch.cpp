@@ -9,6 +9,7 @@
 #include "io/FileUncompressWrapper.h"
 #include "raycasting/simple/RayCaster.h"
 #include "render/opengl.h"
+#include "IMAGE/imagec.h"
 #include "app/batch.h"
 
 #ifdef RAYTRACING_ENABLED
