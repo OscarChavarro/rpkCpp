@@ -105,6 +105,7 @@ set(MAIN_SRC
     src/GALERKIN/GalerkinRadianceMethod.cpp
     src/GALERKIN/Shaft.cpp
     src/GALERKIN/gathering.cpp
+    src/GALERKIN/gatheringClustered.cpp
     src/GALERKIN/formfactor.cpp
     src/GALERKIN/initiallinking.cpp
     src/GALERKIN/shooting.cpp

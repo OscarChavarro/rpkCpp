@@ -6,7 +6,19 @@
 #include "GALERKIN/GalerkinState.h"
 #include "GALERKIN/GalerkinRadianceMethod.h"
 
-extern int galerkinRadiosityDoGatheringIteration(java::ArrayList<Patch *> *scenePatches, GalerkinState *galerkinState, GalerkinRadianceMethod *galerkinRadianceMethod);
-extern int doClusteredGatheringIteration(java::ArrayList<Patch *> *scenePatches, GalerkinState *galerkinState, GalerkinRadianceMethod *galerkinRadianceMethod);
+extern float
+gatheringPushPullPotential(
+    GalerkinElement *element,
+    float down);
+
+extern int
+galerkinRadiosityDoGatheringIteration(
+    java::ArrayList<Patch *> *scenePatches,
+    GalerkinState *galerkinState);
+
+extern int
+doClusteredGatheringIteration(
+    java::ArrayList<Patch *> *scenePatches,
+    GalerkinState *galerkinState);
 
 #endif

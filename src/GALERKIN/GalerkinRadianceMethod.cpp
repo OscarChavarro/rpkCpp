@@ -397,9 +397,9 @@ GalerkinRadianceMethod::doStep(java::ArrayList<Patch *> *scenePatches, java::Arr
         case JACOBI:
         case GAUSS_SEIDEL:
             if ( galerkinState.clustered ) {
-                done = doClusteredGatheringIteration(scenePatches, &galerkinState, this);
+                done = doClusteredGatheringIteration(scenePatches, &galerkinState);
             } else {
-                done = galerkinRadiosityDoGatheringIteration(scenePatches, &galerkinState, this);
+                done = galerkinRadiosityDoGatheringIteration(scenePatches, &galerkinState);
             }
             break;
         case SOUTH_WELL:

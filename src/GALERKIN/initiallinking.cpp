@@ -180,17 +180,17 @@ createInitialLinks(GalerkinElement *top, GalerkinRole role, GalerkinState *galer
 Creates an initial link between the given element and the top cluster
 */
 void
-createInitialLinkWithTopCluster(GalerkinElement *elem, GalerkinRole role, GalerkinState *galerkinState) {
+createInitialLinkWithTopCluster(GalerkinElement *element, GalerkinRole role, GalerkinState *galerkinState) {
     GalerkinElement *rcv = nullptr;
     GalerkinElement *src = nullptr;
 
     switch ( role ) {
         case RECEIVER:
-            rcv = elem;
+            rcv = element;
             src = galerkinState->topCluster;
             break;
         case SOURCE:
-            src = elem;
+            src = element;
             rcv = galerkinState->topCluster;
             break;
         default:
