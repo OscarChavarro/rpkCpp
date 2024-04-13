@@ -1,5 +1,5 @@
 /**
-Jocabi or Gauss-Seidel Galerkin radiosity
+Jacobi or Gauss-Seidel Galerkin radiosity
 */
 
 #include "java/util/ArrayList.txx"
@@ -22,7 +22,7 @@ gatheringPushPullPotential(GalerkinElement *element, float down) {
 
     float up = 0.0;
 
-    if ( element->regularSubElements == nullptr && element->irregularSubElements != nullptr ) {
+    if ( element->regularSubElements == nullptr && element->irregularSubElements == nullptr ) {
         up = down + element->patch->directPotential;
     }
 
