@@ -57,7 +57,7 @@ keypressCallback(unsigned char keyChar, int /*x*/, int /*y*/) {
             }
             break;
         case ' ':
-            globalRadianceMethod->doStep(globalScenePatches, globalSceneGeometries, globalLightPatches);
+            globalRadianceMethod->doStep(globalScenePatches, globalSceneGeometries, globalLightPatches, GLOBAL_scene_clusteredWorldGeom);
             break;
         default:
             return;

@@ -45,6 +45,7 @@ int
 doClusteredGatheringIteration(
     java::ArrayList<Patch*> *scenePatches,
     java::ArrayList<Geometry *> *sceneGeometries,
+    Geometry *clusteredWorldGeometry,
     GalerkinState *galerkinState)
 {
     if ( galerkinState->importanceDriven ) {
@@ -72,7 +73,7 @@ doClusteredGatheringIteration(
     double userErrorThreshold = galerkinState->relLinkErrorThreshold;
 
     // Refines and computes light transport over the refined links
-    refineInteractions(galerkinState->topCluster, galerkinState, sceneGeometries);
+    refineInteractions(galerkinState->topCluster, galerkinState, sceneGeometries, clusteredWorldGeometry);
 
     galerkinState->relLinkErrorThreshold = (float)userErrorThreshold;
 

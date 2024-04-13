@@ -93,7 +93,10 @@ photonMapChooseSurfaceSampler(CSurfaceSampler **samplerPtr) {
 Initializes the computations for the current scene (if any)
 */
 void
-PhotonMapRadianceMethod::initialize(java::ArrayList<Patch *> *scenePatches) {
+PhotonMapRadianceMethod::initialize(
+    java::ArrayList<Patch *> *scenePatches,
+    Geometry *clusteredWorldGeometry)
+{
     fprintf(stderr, "Photon map activated\n");
 
     GLOBAL_photonMap_state.lastClock = clock();
@@ -528,7 +531,8 @@ int
 PhotonMapRadianceMethod::doStep(
     java::ArrayList<Patch *> *scenePatches,
     java::ArrayList<Geometry *> *sceneGeometries,
-    java::ArrayList<Patch *> *lightPatches)
+    java::ArrayList<Patch *> *lightPatches,
+    Geometry *clusteredWorldGeometry)
 {
     GLOBAL_photonMap_state.lastClock = clock();
 

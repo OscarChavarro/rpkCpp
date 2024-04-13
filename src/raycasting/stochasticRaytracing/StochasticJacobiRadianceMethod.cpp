@@ -58,7 +58,10 @@ StochasticJacobiRadianceMethod::writeVRML(FILE *fp){
 }
 
 void
-StochasticJacobiRadianceMethod::initialize(java::ArrayList<Patch *> *scenePatches) {
+StochasticJacobiRadianceMethod::initialize(
+    java::ArrayList<Patch *> *scenePatches,
+    Geometry *clusteredWorldGeometry)
+{
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.method = STOCHASTIC_RELAXATION_RADIOSITY_METHOD;
     monteCarloRadiosityInit();
 }
@@ -464,9 +467,10 @@ int
 StochasticJacobiRadianceMethod::doStep(
     java::ArrayList<Patch *> *scenePatches,
     java::ArrayList<Geometry *> *sceneGeometries,
-    java::ArrayList<Patch *> *lightPatches)
+    java::ArrayList<Patch *> *lightPatches,
+    Geometry *clusteredWorldGeometry)
 {
-    monteCarloRadiosityPreStep(scenePatches, sceneGeometries);
+    monteCarloRadiosityPreStep(scenePatches, sceneGeometries, clusteredWorldGeometry);
 
     // Do some real work now
     if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.currentIteration == 1 ) {

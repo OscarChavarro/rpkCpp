@@ -218,7 +218,7 @@ mainInit() {
     mainRenderingDefaults();
     toneMapDefaults();
     cameraDefaults();
-    radianceDefaults(GLOBAL_scenePatches, nullptr);
+    radianceDefaults(GLOBAL_scenePatches, nullptr, GLOBAL_scene_clusteredWorldGeom);
 
     #ifdef RAYTRACING_ENABLED
         mainRayTracingDefaults();
@@ -340,7 +340,7 @@ mainReadFile(char *filename, MgfContext *context) {
 
     // Terminate any active radiance or raytracing methods
     fprintf(stderr, "Terminating current radiance/raytracing method ... \n");
-    setRadianceMethod(nullptr, GLOBAL_scenePatches);
+    setRadianceMethod(nullptr, GLOBAL_scenePatches, GLOBAL_scene_clusteredWorldGeom);
 
     #ifdef RAYTRACING_ENABLED
         Raytracer *currentRaytracer = GLOBAL_raytracer_activeRaytracer;
@@ -507,7 +507,7 @@ mainReadFile(char *filename, MgfContext *context) {
         fprintf(stderr, "Initializing radiance computations ... ");
         fflush(stderr);
 
-        setRadianceMethod(context->radianceMethod, globalAppScenePatches);
+        setRadianceMethod(context->radianceMethod, globalAppScenePatches, GLOBAL_scene_clusteredWorldGeom);
 
         t = clock();
         fprintf(stderr, "%g secs.\n", (float) (t - last) / (float) CLOCKS_PER_SEC);

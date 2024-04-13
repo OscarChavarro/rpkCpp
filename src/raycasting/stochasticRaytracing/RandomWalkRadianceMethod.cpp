@@ -50,7 +50,10 @@ RandomWalkRadianceMethod::writeVRML(FILE *fp){
 }
 
 void
-RandomWalkRadianceMethod::initialize(java::ArrayList<Patch *> *scenePatches) {
+RandomWalkRadianceMethod::initialize(
+    java::ArrayList<Patch *> *scenePatches,
+    Geometry *clusteredWorldGeometry)
+{
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.method = RANDOM_WALK_RADIOSITY_METHOD;
     monteCarloRadiosityInit();
 }
@@ -433,9 +436,10 @@ int
 RandomWalkRadianceMethod::doStep(
     java::ArrayList<Patch *> *scenePatches,
     java::ArrayList<Geometry *> *sceneGeometries,
-    java::ArrayList<Patch *> *lightPatches)
+    java::ArrayList<Patch *> *lightPatches,
+    Geometry *clusteredWorldGeometry)
 {
-    monteCarloRadiosityPreStep(scenePatches, sceneGeometries);
+    monteCarloRadiosityPreStep(scenePatches, sceneGeometries, clusteredWorldGeometry);
 
     if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.currentIteration == 1 ) {
         if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.indirectOnly ) {

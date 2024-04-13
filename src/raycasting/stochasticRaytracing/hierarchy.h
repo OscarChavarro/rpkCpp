@@ -78,7 +78,7 @@ extern ElementHierarchyState GLOBAL_stochasticRaytracing_hierarchy;
 #define DEFAULT_EH_T_VERTEX_ELIMINATION true
 
 extern void elementHierarchyDefaults();
-extern void elementHierarchyInit();
+extern void elementHierarchyInit(Geometry *clusteredWorldGeometry);
 extern void elementHierarchyTerminate(java::ArrayList<Patch *> *scenePatches);
 
 #endif

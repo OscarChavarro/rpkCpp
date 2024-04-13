@@ -13,7 +13,6 @@ Galerkin radiosity, with the following variants:
 #include "common/error.h"
 #include "common/mymath.h"
 #include "material/statistics.h"
-#include "scene/scene.h"
 #include "render/render.h"
 #include "common/options.h"
 #include "io/writevrml.h"
@@ -349,7 +348,10 @@ GalerkinRadianceMethod::parseOptions(int *argc, char **argv) {
 }
 
 void
-GalerkinRadianceMethod::initialize(java::ArrayList<Patch *> *scenePatches) {
+GalerkinRadianceMethod::initialize(
+    java::ArrayList<Patch *> *scenePatches,
+    Geometry *clusteredWorldGeometry)
+{
     galerkinState.iterationNumber = 0;
     galerkinState.cpuSeconds = 0.0;
 
@@ -366,7 +368,7 @@ GalerkinRadianceMethod::initialize(java::ArrayList<Patch *> *scenePatches) {
         patchInit(scenePatches->get(i));
     }
 
-    galerkinState.topGeometry = GLOBAL_scene_clusteredWorldGeom;
+    galerkinState.topGeometry = clusteredWorldGeometry;
     galerkinState.topCluster = galerkinCreateClusterHierarchy(galerkinState.topGeometry, &galerkinState);
 
     // Create a scratch software renderer for various operations on clusters
@@ -385,7 +387,8 @@ int
 GalerkinRadianceMethod::doStep(
     java::ArrayList<Patch *> *scenePatches,
     java::ArrayList<Geometry *> *sceneGeometries,
-    java::ArrayList<Patch *> *lightPatches)
+    java::ArrayList<Patch *> *lightPatches,
+    Geometry *clusteredWorldGeometry)
 {
     int done = false;
 
@@ -402,13 +405,13 @@ GalerkinRadianceMethod::doStep(
         case JACOBI:
         case GAUSS_SEIDEL:
             if ( galerkinState.clustered ) {
-                done = doClusteredGatheringIteration(scenePatches, sceneGeometries, &galerkinState);
+                done = doClusteredGatheringIteration(scenePatches, sceneGeometries, clusteredWorldGeometry, &galerkinState);
             } else {
-                done = galerkinRadiosityDoGatheringIteration(scenePatches, sceneGeometries, &galerkinState);
+                done = galerkinRadiosityDoGatheringIteration(scenePatches, sceneGeometries, clusteredWorldGeometry, &galerkinState);
             }
             break;
         case SOUTH_WELL:
-            done = doShootingStep(scenePatches, sceneGeometries, &galerkinState, this);
+            done = doShootingStep(scenePatches, sceneGeometries, clusteredWorldGeometry, &galerkinState, this);
             break;
         default:
             logFatal(2, "doGalerkinOneStep", "Invalid iteration method %d\n", galerkinState.galerkinIterationMethod);

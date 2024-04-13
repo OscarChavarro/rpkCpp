@@ -27,7 +27,7 @@ class RadianceMethod {
 
     // Initializes the current scene for radiance computations. Called when a new
     // scene is loaded or when selecting a particular radiance algorithm
-    virtual void initialize(java::ArrayList<Patch *> *scenePatches) = 0;
+    virtual void initialize(java::ArrayList<Patch *> *scenePatches, Geometry *clusteredWorldGeometry) = 0;
 
     // Does one step or iteration of the radiance computation, typically a unit
     // of computations after which the scene is to be redrawn. Returns TRUE when
@@ -36,7 +36,8 @@ class RadianceMethod {
     doStep(
         java::ArrayList<Patch *> *scenePatches,
         java::ArrayList<Geometry *> *sceneGeometries,
-        java::ArrayList<Patch *> *lightPatches) = 0;
+        java::ArrayList<Patch *> *lightPatches,
+        Geometry *clusteredWorldGeometry) = 0;
 
     // Terminates radiance computations on the current scene
     virtual void terminate(java::ArrayList<Patch *> *scenePatches) = 0;
@@ -66,6 +67,10 @@ class RadianceMethod {
     virtual void writeVRML(FILE *fp) = 0;
 };
 
-extern void setRadianceMethod(RadianceMethod *newMethod, java::ArrayList<Patch *> *scenePatches);
+extern void
+setRadianceMethod(
+    RadianceMethod *newMethod,
+    java::ArrayList<Patch *> *scenePatches,
+    Geometry *clusteredWorldGeometry);
 
 #endif

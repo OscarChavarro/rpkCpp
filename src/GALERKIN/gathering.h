@@ -15,12 +15,14 @@ extern int
 galerkinRadiosityDoGatheringIteration(
     java::ArrayList<Patch *> *scenePatches,
     java::ArrayList<Geometry *> *sceneGeometries,
+    Geometry *clusteredWorldGeometry,
     GalerkinState *galerkinState);
 
 extern int
 doClusteredGatheringIteration(
     java::ArrayList<Patch *> *scenePatches,
     java::ArrayList<Geometry *> *sceneGeometries,
+    Geometry *clusteredWorldGeometry,
     GalerkinState *galerkinState);
 
 #endif

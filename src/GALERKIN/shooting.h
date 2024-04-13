@@ -3,11 +3,14 @@
 
 #include "java/util/ArrayList.h"
 #include "skin/Patch.h"
+#include "GALERKIN//GalerkinState.h"
+#include "GALERKIN/GalerkinRadianceMethod.h"
 
 extern int
 doShootingStep(
     java::ArrayList<Patch *> *scenePatches,
     java::ArrayList<Geometry *> *sceneGeometries,
+    Geometry *clusteredWorldGeometry,
     GalerkinState *galerkinState,
     GalerkinRadianceMethod *galerkinRadianceMethod);
 

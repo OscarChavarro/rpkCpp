@@ -38,7 +38,11 @@ static CommandLineOptionDescription globalRadianceOptions[] = {
 This routine sets the current radiance method to be used + initializes
 */
 void
-setRadianceMethod(RadianceMethod *newMethod, java::ArrayList<Patch *> *scenePatches) {
+setRadianceMethod(
+    RadianceMethod *newMethod,
+    java::ArrayList<Patch *> *scenePatches,
+    Geometry *clusteredWorldGeometry)
+{
     if ( newMethod != nullptr ) {
         newMethod->terminate(scenePatches);
         // Until we have radiance data convertors, we dispose of the old data and
@@ -49,13 +53,13 @@ setRadianceMethod(RadianceMethod *newMethod, java::ArrayList<Patch *> *scenePatc
         for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
             newMethod->createPatchData(scenePatches->get(i));
         }
-        newMethod->initialize(scenePatches);
+        newMethod->initialize(scenePatches, clusteredWorldGeometry);
     }
 }
 
 void
-radianceDefaults(java::ArrayList<Patch *> *scenePatches, RadianceMethod *context) {
-    setRadianceMethod(context, scenePatches);
+radianceDefaults(java::ArrayList<Patch *> *scenePatches, RadianceMethod *context, Geometry *clusteredWorldGeometry) {
+    setRadianceMethod(context, scenePatches, clusteredWorldGeometry);
 }
 
 static void

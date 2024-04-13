@@ -82,7 +82,12 @@ interactions and updates the radiance for the patch if doing
 Gauss-Seidel iterations
 */
 static void
-patchGather(Patch *patch, GalerkinState *galerkinState, java::ArrayList<Geometry *> *sceneGeometries) {
+patchGather(
+    Patch *patch,
+    GalerkinState *galerkinState,
+    java::ArrayList<Geometry *> *sceneGeometries,
+    Geometry *clusteredWorldGeometry)
+{
     GalerkinElement *topLevelElement = galerkinGetElement(patch);
 
     // Don't gather to patches without importance. This optimisation can not
@@ -104,7 +109,7 @@ patchGather(Patch *patch, GalerkinState *galerkinState, java::ArrayList<Geometry
     }
 
     // Refine the interactions and compute light transport at the leaves
-    refineInteractions(topLevelElement, galerkinState, sceneGeometries);
+    refineInteractions(topLevelElement, galerkinState, sceneGeometries, clusteredWorldGeometry);
 
     // Immediately convert received radiance into radiance, make the representation
     // consistent and recompute the color of the patch when doing Gauss-Seidel.
@@ -129,6 +134,7 @@ int
 galerkinRadiosityDoGatheringIteration(
     java::ArrayList<Patch *> *scenePatches,
     java::ArrayList<Geometry *> *sceneGeometries,
+    Geometry *clusteredWorldGeometry,
     GalerkinState *galerkinState)
 {
     if ( galerkinState->importanceDriven ) {
@@ -151,7 +157,7 @@ galerkinRadiosityDoGatheringIteration(
 
     // One iteration = gather to all patches
     for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
-        patchGather(scenePatches->get(i), galerkinState, sceneGeometries);
+        patchGather(scenePatches->get(i), galerkinState, sceneGeometries, clusteredWorldGeometry);
     }
 
     // Update the radiosity after gathering to all patches with Jacobi, immediately

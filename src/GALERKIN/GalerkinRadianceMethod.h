@@ -42,13 +42,14 @@ class GalerkinRadianceMethod : public RadianceMethod {
     ~GalerkinRadianceMethod();
     const char *getRadianceMethodName() const;
     void parseOptions(int *argc, char **argv);
-    void initialize(java::ArrayList<Patch *> *scenePatches);
+    void initialize(java::ArrayList<Patch *> *scenePatches, Geometry *clusteredWorldGeometry);
 
     int
     doStep(
         java::ArrayList<Patch *> *scenePatches,
         java::ArrayList<Geometry *> *sceneGeometries,
-        java::ArrayList<Patch *> *lightPatches);
+        java::ArrayList<Patch *> *lightPatches,
+        Geometry *clusteredWorldGeometry);
 
     void terminate(java::ArrayList<Patch *> *scenePatches);
     ColorRgb getRadiance(Patch *patch, double u, double v, Vector3D dir);

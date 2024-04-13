@@ -19,14 +19,14 @@ elementHierarchyDefaults() {
 }
 
 void
-elementHierarchyInit() {
+elementHierarchyInit(Geometry *clusteredWorldGeometry) {
     // These lists hold vertices created during hierarchical refinement
     GLOBAL_stochasticRaytracing_hierarchy.coords = new java::ArrayList<Vector3D *>();
     GLOBAL_stochasticRaytracing_hierarchy.normals = new java::ArrayList<Vector3D *>();
     GLOBAL_stochasticRaytracing_hierarchy.texCoords = new java::ArrayList<Vector3D *>();
     GLOBAL_stochasticRaytracing_hierarchy.vertices = new java::ArrayList<Vertex *>();
-    GLOBAL_stochasticRaytracing_hierarchy.topCluster = stochasticRadiosityElementCreateFromGeometry(
-            GLOBAL_scene_clusteredWorldGeom);
+    GLOBAL_stochasticRaytracing_hierarchy.topCluster =
+        stochasticRadiosityElementCreateFromGeometry(clusteredWorldGeometry);
 }
 
 void

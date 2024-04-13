@@ -412,7 +412,8 @@ Really initialises: before the first iteration step
 void
 monteCarloRadiosityReInit(
     java::ArrayList<Patch *> *scenePatches,
-    java::ArrayList<Geometry *> *sceneGeometries)
+    java::ArrayList<Geometry *> *sceneGeometries,
+    Geometry *clusteredWorldGeometry)
 {
     if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.inited ) {
         return;
@@ -461,7 +462,7 @@ monteCarloRadiosityReInit(
 
     monteCarloRadiosityDetermineInitialNrRays(scenePatches, sceneGeometries);
 
-    elementHierarchyInit();
+    elementHierarchyInit(clusteredWorldGeometry);
 
     if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceDriven ) {
         monteCarloRadiosityUpdateViewImportance(scenePatches);
@@ -470,9 +471,13 @@ monteCarloRadiosityReInit(
 }
 
 void
-monteCarloRadiosityPreStep(java::ArrayList<Patch *> *scenePatches, java::ArrayList<Geometry *> *sceneGeometries) {
+monteCarloRadiosityPreStep(
+    java::ArrayList<Patch *> *scenePatches,
+    java::ArrayList<Geometry *> *sceneGeometries,
+    Geometry *clusteredWorldGeometry)
+{
     if ( !GLOBAL_stochasticRaytracing_monteCarloRadiosityState.inited ) {
-        monteCarloRadiosityReInit(scenePatches, sceneGeometries);
+        monteCarloRadiosityReInit(scenePatches, sceneGeometries, clusteredWorldGeometry);
     }
     if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceDriven && GLOBAL_camera_mainCamera.changed ) {
         monteCarloRadiosityUpdateViewImportance(scenePatches);
