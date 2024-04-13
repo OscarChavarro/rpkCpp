@@ -1,5 +1,8 @@
 #include <cstdio>
 #include <cstdlib>
+
+#define GL_SILENCE_DEPRECATION
+
 #include <GL/glut.h>
 
 #include "java/util/ArrayList.h"

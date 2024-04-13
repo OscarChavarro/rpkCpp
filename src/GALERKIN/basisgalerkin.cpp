@@ -203,8 +203,8 @@ basis->regular_filter table
 static void
 basisGalerkinComputeRegularFilterCoefficients(
     GalerkinBasis *basis,
-    Matrix2x2 *upTransform,
-    CUBARULE *cr)
+    Matrix2x2 upTransform[],
+    CUBARULE *cubaRule)
 {
     for ( int sigma = 0; sigma < 4; sigma++ ) {
         basisGalerkinComputeFilterCoefficients(
@@ -213,7 +213,7 @@ basisGalerkinComputeRegularFilterCoefficients(
             basis,
             basis->size,
             &upTransform[sigma],
-            cr,
+            cubaRule,
             basis->regular_filter[sigma]);
     }
 }
@@ -224,21 +224,20 @@ at the given point on the element
 */
 ColorRgb
 basisGalerkinRadianceAtPoint(
-    GalerkinElement *elem,
+    GalerkinElement *element,
     ColorRgb *coefficients,
     double u,
-    double v,
-    GalerkinState *galerkinState)
+    double v)
 {
     ColorRgb rad;
-    GalerkinBasis *basis = elem->patch->numberOfVertices == 3 ? &GLOBAL_galerkin_triBasis : &GLOBAL_galerkin_quadBasis;
+    GalerkinBasis *basis = element->patch->numberOfVertices == 3 ? &GLOBAL_galerkin_triBasis : &GLOBAL_galerkin_quadBasis;
 
     rad.clear();
     if ( !coefficients ) {
         return rad;
     }
 
-    for ( int i = 0; i < elem->basisSize; i++ ) {
+    for ( int i = 0; i < element->basisSize; i++ ) {
         double f = basis->function[i](u, v);
         rad.addScaled(rad, (float) f, coefficients[i]);
     }

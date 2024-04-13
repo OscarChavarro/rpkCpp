@@ -37,8 +37,12 @@ static double qg7(double u, double v) {
 }
 
 static double qg8(double u, double v) {
-    return -3.872983346207866 + 7.745966692416303 * u + 23.237900077246348 * v + -46.475800154495623 * u * v +
-           -23.237900077245619 * v * v + 46.475800154491409 * u * v * v;
+    return -3.872983346207866
+            + 7.745966692416303 * u
+            + 23.237900077246348 * v +
+            -46.475800154495623 * u * v +
+            -23.237900077245619 * v * v +
+            46.475800154491409 * u * v * v;
 }
 
 static double qg9(double /*u*/, double v) {
@@ -46,7 +50,7 @@ static double qg9(double /*u*/, double v) {
 }
 
 GalerkinBasis GLOBAL_galerkin_quadBasis = {
-        "orthonormal basis for the unit square", // Description
-        10, // Size
-        {qg0, qg1, qg2, qg3, qg4, qg5, qg6, qg7, qg8, qg9} // Functions
+    "orthonormal basis for the unit square", // Description
+    MAX_BASIS_SIZE, // Size
+    {qg0, qg1, qg2, qg3, qg4, qg5, qg6, qg7, qg8, qg9} // Functions
 };

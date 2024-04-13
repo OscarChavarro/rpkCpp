@@ -167,14 +167,14 @@ galerkinWriteVertexColors(Element *element) {
     int i;
 
     if ( galerkinElement->patch->numberOfVertices == 3 ) {
-        vertexRadiosity[0] = basisGalerkinRadianceAtPoint(galerkinElement, galerkinElement->radiance, 0.0, 0.0, &GalerkinRadianceMethod::galerkinState);
-        vertexRadiosity[1] = basisGalerkinRadianceAtPoint(galerkinElement, galerkinElement->radiance, 1.0, 0.0, &GalerkinRadianceMethod::galerkinState);
-        vertexRadiosity[2] = basisGalerkinRadianceAtPoint(galerkinElement, galerkinElement->radiance, 0.0, 1.0, &GalerkinRadianceMethod::galerkinState);
+        vertexRadiosity[0] = basisGalerkinRadianceAtPoint(galerkinElement, galerkinElement->radiance, 0.0, 0.0);
+        vertexRadiosity[1] = basisGalerkinRadianceAtPoint(galerkinElement, galerkinElement->radiance, 1.0, 0.0);
+        vertexRadiosity[2] = basisGalerkinRadianceAtPoint(galerkinElement, galerkinElement->radiance, 0.0, 1.0);
     } else {
-        vertexRadiosity[0] = basisGalerkinRadianceAtPoint(galerkinElement, galerkinElement->radiance, 0.0, 0.0, &GalerkinRadianceMethod::galerkinState);
-        vertexRadiosity[1] = basisGalerkinRadianceAtPoint(galerkinElement, galerkinElement->radiance, 1.0, 0.0, &GalerkinRadianceMethod::galerkinState);
-        vertexRadiosity[2] = basisGalerkinRadianceAtPoint(galerkinElement, galerkinElement->radiance, 1.0, 1.0, &GalerkinRadianceMethod::galerkinState);
-        vertexRadiosity[3] = basisGalerkinRadianceAtPoint(galerkinElement, galerkinElement->radiance, 0.0, 1.0, &GalerkinRadianceMethod::galerkinState);
+        vertexRadiosity[0] = basisGalerkinRadianceAtPoint(galerkinElement, galerkinElement->radiance, 0.0, 0.0);
+        vertexRadiosity[1] = basisGalerkinRadianceAtPoint(galerkinElement, galerkinElement->radiance, 1.0, 0.0);
+        vertexRadiosity[2] = basisGalerkinRadianceAtPoint(galerkinElement, galerkinElement->radiance, 1.0, 1.0);
+        vertexRadiosity[3] = basisGalerkinRadianceAtPoint(galerkinElement, galerkinElement->radiance, 0.0, 1.0);
     }
 
     if ( GalerkinRadianceMethod::galerkinState.useAmbientRadiance ) {
@@ -436,7 +436,7 @@ GalerkinRadianceMethod::getRadiance(Patch *patch, double u, double v, Vector3D d
     GalerkinElement *topLevelElement = galerkinGetElement(patch);
     leaf = topLevelElement->regularLeafAtPoint(&u, &v);
 
-    rad = basisGalerkinRadianceAtPoint(leaf, leaf->radiance, u, v, &galerkinState);
+    rad = basisGalerkinRadianceAtPoint(leaf, leaf->radiance, u, v);
 
     if ( galerkinState.useAmbientRadiance ) {
         // Add ambient radiance
