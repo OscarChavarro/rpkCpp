@@ -362,7 +362,7 @@ monteCarloRadiosityDetermineAreaFraction(
     int numberOfPatchIds = Patch::getNextId();
     int i;
 
-    if ( GLOBAL_scene_geometries == nullptr || GLOBAL_scene_geometries->size() == 0 ) {
+    if ( sceneGeometries == nullptr || sceneGeometries->size() == 0 ) {
         // An arbitrary positive number (in order to avoid divisions by zero
         return 100;
     }

@@ -102,7 +102,7 @@ patchPropagateUnShotRadianceAndPotential(Patch *patch, GalerkinState *galerkinSt
 
     // Recursively refines the interactions of the shooting patch
     // and computes radiance and potential transport
-    refineInteractions(topLevelElement, galerkinState);
+    refineInteractions(topLevelElement, galerkinState, sceneGeometries);
 
     // Clear the un-shot radiance at all levels
     clearUnShotRadianceAndPotential(topLevelElement);

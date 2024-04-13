@@ -20,6 +20,7 @@ galerkinRadiosityDoGatheringIteration(
 extern int
 doClusteredGatheringIteration(
     java::ArrayList<Patch *> *scenePatches,
+    java::ArrayList<Geometry *> *sceneGeometries,
     GalerkinState *galerkinState);
 
 #endif

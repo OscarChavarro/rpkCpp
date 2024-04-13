@@ -5,9 +5,6 @@
 #include "scene/Background.h"
 #include "scene/VoxelGrid.h"
 
-// The current scene
-extern java::ArrayList<Geometry *> *GLOBAL_scene_geometries;
-
 // The current background (sky, environment map, etc.) for the scene
 extern Background *GLOBAL_scene_background;
 

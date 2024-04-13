@@ -104,7 +104,7 @@ patchGather(Patch *patch, GalerkinState *galerkinState, java::ArrayList<Geometry
     }
 
     // Refine the interactions and compute light transport at the leaves
-    refineInteractions(topLevelElement, galerkinState);
+    refineInteractions(topLevelElement, galerkinState, sceneGeometries);
 
     // Immediately convert received radiance into radiance, make the representation
     // consistent and recompute the color of the patch when doing Gauss-Seidel.

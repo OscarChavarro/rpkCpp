@@ -522,7 +522,7 @@ openGlRenderRadiance(
     }
 
     if ( GLOBAL_render_renderOptions.drawBoundingBoxes ) {
-        renderBoundingBoxHierarchy();
+        renderBoundingBoxHierarchy(sceneGeometries);
     }
 
     if ( GLOBAL_render_renderOptions.drawClusters ) {

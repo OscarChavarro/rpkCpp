@@ -7,7 +7,7 @@
 #include "skin/Geometry.h"
 
 extern void renderBounds(BoundingBox bounds);
-extern void renderBoundingBoxHierarchy();
+extern void renderBoundingBoxHierarchy(java::ArrayList<Geometry *> *sceneGeometries);
 extern void renderClusterHierarchy(java::ArrayList<Geometry *> *clusteredGeometryList);
 extern void renderSetBackfaceCulling(char truefalse);
 extern void renderSetSmoothShading(char truefalse);

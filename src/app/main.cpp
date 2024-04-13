@@ -54,6 +54,7 @@ static int globalNo = 0;
 static int globalImageOutputWidth = 0;
 static int globalImageOutputHeight = 0;
 static int globalFileOptionsForceOneSidedSurfaces = 0;
+static java::ArrayList<Geometry *> *globalSceneGeometries = nullptr;
 
 static void
 mainForceOneSidedOption(void *value) {
@@ -347,7 +348,7 @@ mainReadFile(char *filename, MgfContext *context) {
     #endif
 
     // Prepare if errors occur when reading the new scene will abort
-    GLOBAL_scene_geometries = nullptr;
+    globalSceneGeometries = nullptr;
 
     if ( globalAppScenePatches != nullptr ) {
         delete globalAppScenePatches;
@@ -371,7 +372,7 @@ mainReadFile(char *filename, MgfContext *context) {
 
     if ( strncmp(extension, "mgf", 3) == 0 ) {
         readMgf(filename, context);
-        GLOBAL_scene_geometries = context->geometries;
+        globalSceneGeometries = context->geometries;
     }
 
     clock_t t = clock();
@@ -381,7 +382,7 @@ mainReadFile(char *filename, MgfContext *context) {
     delete[] globalCurrentDirectory;
 
     // Check for errors
-    if ( GLOBAL_scene_geometries == nullptr || GLOBAL_scene_geometries->size() == 0 ) {
+    if ( globalSceneGeometries == nullptr || globalSceneGeometries->size() == 0 ) {
         return false; // Not successful
     }
 
@@ -421,7 +422,7 @@ mainReadFile(char *filename, MgfContext *context) {
     fflush(stderr);
 
     globalAppScenePatches = new java::ArrayList<Patch *>();
-    buildPatchList(GLOBAL_scene_geometries, globalAppScenePatches);
+    buildPatchList(globalSceneGeometries, globalAppScenePatches);
 
     t = clock();
     fprintf(stderr, "%g secs.\n", (float) (t - last) / (float) CLOCKS_PER_SEC);
@@ -579,11 +580,11 @@ mainExecuteRendering(java::ArrayList<Patch *> *scenePatches, RadianceMethod *con
         globalImageOutputHeight = 1080;
     }
     createOffscreenCanvasWindow(
-        globalImageOutputWidth,
-        globalImageOutputHeight,
-        scenePatches,
-        GLOBAL_scene_geometries,
-        context);
+            globalImageOutputWidth,
+            globalImageOutputHeight,
+            scenePatches,
+            globalSceneGeometries,
+            context);
 
     while ( !openGlRenderInitialized() ) {}
 
@@ -593,14 +594,14 @@ mainExecuteRendering(java::ArrayList<Patch *> *scenePatches, RadianceMethod *con
             f = GLOBAL_raytracer_activeRaytracer->Redisplay;
         }
         openGlRenderScene(
-            scenePatches,
-            GLOBAL_scene_clusteredGeometries,
-            GLOBAL_scene_geometries,
-            f,
-            context);
+                scenePatches,
+                GLOBAL_scene_clusteredGeometries,
+                globalSceneGeometries,
+                f,
+                context);
     #endif
 
-    batch(scenePatches, GLOBAL_app_lightSourcePatches, GLOBAL_scene_geometries, context);
+    batch(scenePatches, GLOBAL_app_lightSourcePatches, globalSceneGeometries, context);
 }
 
 static void

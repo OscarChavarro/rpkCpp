@@ -17,7 +17,12 @@ Hierarchical refinement
 Shaft culling stuff for hierarchical refinement
 */
 
-static bool refineRecursive(java::ArrayList<Geometry *> **candidatesList, Interaction *link, GalerkinState *state);
+static bool
+refineRecursive(
+    java::ArrayList<Geometry *> **candidatesList,
+    java::ArrayList<Geometry *> *sceneGeometries,
+    Interaction *link,
+    GalerkinState *state);
 
 /**
 Evaluates the interaction and returns a code telling whether it is accurate enough
@@ -430,6 +435,7 @@ and true is returned. If the elements don't interact, false is returned
 static int
 hierarchicRefinementCreateSubdivisionLink(
     java::ArrayList<Geometry *> *candidatesList,
+    java::ArrayList<Geometry *> *sceneGeometries,
     GalerkinElement *rcv,
     GalerkinElement *src,
     Interaction *link,
@@ -451,7 +457,7 @@ hierarchicRefinementCreateSubdivisionLink(
         link->numberOfBasisFunctionsOnSource = src->basisSize;
     }
 
-    bool isSceneGeometry = (candidatesList == GLOBAL_scene_geometries);
+    bool isSceneGeometry = (candidatesList == sceneGeometries);
     bool isClusteredGeometry = (candidatesList == GLOBAL_scene_clusteredGeometries);
     areaToAreaFormFactor(link, candidatesList, isSceneGeometry, isClusteredGeometry, galerkinState);
 
@@ -483,6 +489,7 @@ lower level sub-interactions
 static void
 hierarchicRefinementRegularSubdivideSource(
     java::ArrayList<Geometry *> **candidatesList,
+    java::ArrayList<Geometry *> *sceneGeometries,
     Interaction *link,
     bool isClusteredGeometry,
     GalerkinState *galerkinState)
@@ -498,8 +505,8 @@ hierarchicRefinementRegularSubdivideSource(
         Interaction subInteraction{};
         subInteraction.K = new float[MAX_BASIS_SIZE * MAX_BASIS_SIZE];
 
-        if ( hierarchicRefinementCreateSubdivisionLink(*candidatesList, rcv, child, &subInteraction, galerkinState) ) {
-            if ( !refineRecursive(candidatesList, &subInteraction, galerkinState) ) {
+        if ( hierarchicRefinementCreateSubdivisionLink(*candidatesList, sceneGeometries, rcv, child, &subInteraction, galerkinState) ) {
+            if ( !refineRecursive(candidatesList, sceneGeometries, &subInteraction, galerkinState) ) {
                 hierarchicRefinementStoreInteraction(&subInteraction, galerkinState);
             }
         }
@@ -515,6 +522,7 @@ Same, but subdivides the receiver element
 static void
 hierarchicRefinementRegularSubdivideReceiver(
     java::ArrayList<Geometry *> **candidatesList,
+    java::ArrayList<Geometry *> *sceneGeometries,
     Interaction *link,
     bool isClusteredGeometry,
     GalerkinState *galerkinState)
@@ -530,8 +538,8 @@ hierarchicRefinementRegularSubdivideReceiver(
         GalerkinElement *child = (GalerkinElement *)rcv->regularSubElements[i];
         subInteraction.K = new float[MAX_BASIS_SIZE * MAX_BASIS_SIZE];
 
-        if ( hierarchicRefinementCreateSubdivisionLink(*candidatesList, child, src, &subInteraction, galerkinState) ) {
-            if ( !refineRecursive(candidatesList, &subInteraction, galerkinState) ) {
+        if ( hierarchicRefinementCreateSubdivisionLink(*candidatesList, sceneGeometries, child, src, &subInteraction, galerkinState) ) {
+            if ( !refineRecursive(candidatesList, sceneGeometries, &subInteraction, galerkinState) ) {
                 hierarchicRefinementStoreInteraction(&subInteraction, galerkinState);
             }
         }
@@ -548,6 +556,7 @@ which is a cluster
 static void
 hierarchicRefinementSubdivideSourceCluster(
     java::ArrayList<Geometry *> **candidatesList,
+    java::ArrayList<Geometry *> *sceneGeometries,
     Interaction *link,
     bool isClusteredGeometry,
     GalerkinState *galerkinState)
@@ -569,8 +578,8 @@ hierarchicRefinementSubdivideSourceCluster(
             }
         }
 
-        if ( hierarchicRefinementCreateSubdivisionLink(*candidatesList, rcv, childElement, &subInteraction, galerkinState) ) {
-            if ( !refineRecursive(candidatesList, &subInteraction, galerkinState) ) {
+        if ( hierarchicRefinementCreateSubdivisionLink(*candidatesList, sceneGeometries, rcv, childElement, &subInteraction, galerkinState) ) {
+            if ( !refineRecursive(candidatesList, sceneGeometries, &subInteraction, galerkinState) ) {
                 hierarchicRefinementStoreInteraction(&subInteraction, galerkinState);
             }
         }
@@ -587,6 +596,7 @@ which is a cluster
 static void
 hierarchicRefinementSubdivideReceiverCluster(
     java::ArrayList<Geometry *> **candidatesList,
+    java::ArrayList<Geometry *> *sceneGeometries,
     Interaction *link,
     bool isClusteredGeometry,
     GalerkinState *galerkinState)
@@ -609,8 +619,8 @@ hierarchicRefinementSubdivideReceiverCluster(
             }
         }
 
-        if ( hierarchicRefinementCreateSubdivisionLink(*candidatesList, child, src, &subInteraction, galerkinState) ) {
-            if ( !refineRecursive(candidatesList, &subInteraction, galerkinState) ) {
+        if ( hierarchicRefinementCreateSubdivisionLink(*candidatesList, sceneGeometries, child, src, &subInteraction, galerkinState) ) {
+            if ( !refineRecursive(candidatesList, sceneGeometries, &subInteraction, galerkinState) ) {
                 hierarchicRefinementStoreInteraction(&subInteraction, galerkinState);
             }
         }
@@ -629,6 +639,7 @@ does not need to be refined, light transport over the interaction is computed
 static bool
 refineRecursive(
     java::ArrayList<Geometry *> **candidatesList,
+    java::ArrayList<Geometry *> *sceneGeometries,
     Interaction *link,
     GalerkinState *state)
 {
@@ -641,19 +652,19 @@ refineRecursive(
             refined = false;
             break;
         case REGULAR_SUBDIVIDE_SOURCE:
-            hierarchicRefinementRegularSubdivideSource(candidatesList, link, isClusteredGeometry, state);
+            hierarchicRefinementRegularSubdivideSource(candidatesList, sceneGeometries, link, isClusteredGeometry, state);
             refined = true;
             break;
         case REGULAR_SUBDIVIDE_RECEIVER:
-            hierarchicRefinementRegularSubdivideReceiver(candidatesList, link, isClusteredGeometry, state);
+            hierarchicRefinementRegularSubdivideReceiver(candidatesList, sceneGeometries, link, isClusteredGeometry, state);
             refined = true;
             break;
         case SUBDIVIDE_SOURCE_CLUSTER:
-            hierarchicRefinementSubdivideSourceCluster(candidatesList, link, isClusteredGeometry, state);
+            hierarchicRefinementSubdivideSourceCluster(candidatesList, sceneGeometries, link, isClusteredGeometry, state);
             refined = true;
             break;
         case SUBDIVIDE_RECEIVER_CLUSTER:
-            hierarchicRefinementSubdivideReceiverCluster(candidatesList, link, isClusteredGeometry, state);
+            hierarchicRefinementSubdivideReceiverCluster(candidatesList, sceneGeometries, link, isClusteredGeometry, state);
             refined = true;
             break;
         default:
@@ -667,7 +678,7 @@ refineRecursive(
 Candidate occluder list for a pair of patches, note it is changed inside the methods!
 */
 static bool
-refineInteraction(Interaction *link, GalerkinState *state) {
+refineInteraction(Interaction *link, GalerkinState *state, java::ArrayList<Geometry *> *sceneGeometries) {
     java::ArrayList<Geometry *> *candidateOccluderList = GLOBAL_scene_clusteredGeometries;
 
     if ( state->exactVisibility && link->visibility == 255 ) {
@@ -675,7 +686,7 @@ refineInteraction(Interaction *link, GalerkinState *state) {
     }
 
     // We know for sure that there is full visibility
-    return refineRecursive(&candidateOccluderList, link, state);
+    return refineRecursive(&candidateOccluderList, sceneGeometries, link, state);
 }
 
 static void
@@ -696,18 +707,22 @@ Refines and computes light transport over all interactions of the given
 toplevel element
 */
 void
-refineInteractions(GalerkinElement *parentElement, GalerkinState *state) {
+refineInteractions(
+    GalerkinElement *parentElement,
+    GalerkinState *state,
+    java::ArrayList<Geometry *> *sceneGeometries)
+{
     // Interactions will only be replaced by lower level interactions. We try refinement
     // beginning at the lowest levels in the hierarchy and working upwards to
     // prevent already refined interactions from being tested for refinement
     // again
     for ( int i = 0; parentElement->irregularSubElements != nullptr && i < parentElement->irregularSubElements->size(); i++ ) {
-        refineInteractions((GalerkinElement *)parentElement->irregularSubElements->get(i), state);
+        refineInteractions((GalerkinElement *)parentElement->irregularSubElements->get(i), state, sceneGeometries);
     }
 
     if ( parentElement->regularSubElements != nullptr ) {
         for ( int i = 0; i < 4; i++ ) {
-            refineInteractions((GalerkinElement *)parentElement->regularSubElements[i], state);
+            refineInteractions((GalerkinElement *)parentElement->regularSubElements[i], state, sceneGeometries);
         }
     }
 
@@ -716,7 +731,7 @@ refineInteractions(GalerkinElement *parentElement, GalerkinState *state) {
 
     for ( int i = 0; parentElement->interactions != nullptr && i < parentElement->interactions->size(); i++ ) {
         Interaction *interaction = parentElement->interactions->get(i);
-        if ( refineInteraction(interaction, state) ) {
+        if ( refineInteraction(interaction, state, sceneGeometries) ) {
             interactionsToRemove->add(interaction);
         }
     }

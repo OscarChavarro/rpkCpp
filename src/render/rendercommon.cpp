@@ -241,10 +241,10 @@ renderGeomBounds(Geometry *geometry) {
 Renders the bounding boxes of all objects in the scene
 */
 void
-renderBoundingBoxHierarchy() {
+renderBoundingBoxHierarchy(java::ArrayList<Geometry *> *sceneGeometries) {
     openGlRenderSetColor(&GLOBAL_render_renderOptions.bounding_box_color);
-    for ( int i = 0; GLOBAL_scene_geometries != nullptr && i < GLOBAL_scene_geometries->size(); i++ ) {
-        renderGeomBounds(GLOBAL_scene_geometries->get(i));
+    for ( int i = 0; sceneGeometries != nullptr && i < sceneGeometries->size(); i++ ) {
+        renderGeomBounds(sceneGeometries->get(i));
     }
 }
 

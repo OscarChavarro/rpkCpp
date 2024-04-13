@@ -402,7 +402,7 @@ GalerkinRadianceMethod::doStep(
         case JACOBI:
         case GAUSS_SEIDEL:
             if ( galerkinState.clustered ) {
-                done = doClusteredGatheringIteration(scenePatches, &galerkinState);
+                done = doClusteredGatheringIteration(scenePatches, sceneGeometries, &galerkinState);
             } else {
                 done = galerkinRadiosityDoGatheringIteration(scenePatches, sceneGeometries, &galerkinState);
             }

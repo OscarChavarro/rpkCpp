@@ -1,6 +1,5 @@
 #include "scene/scene.h"
 
-java::ArrayList<Geometry *> *GLOBAL_scene_geometries = nullptr;
 Background *GLOBAL_scene_background = nullptr;
 java::ArrayList<Geometry *> *GLOBAL_scene_clusteredGeometries = nullptr;
 Geometry *GLOBAL_scene_clusteredWorldGeom = nullptr;

@@ -4,6 +4,6 @@
 #include "GALERKIN/GalerkinElement.h"
 #include "GALERKIN/GalerkinState.h"
 
-extern void refineInteractions(GalerkinElement *parentElement, GalerkinState *state);
+extern void refineInteractions(GalerkinElement *parentElement, GalerkinState *state, java::ArrayList<Geometry *> *sceneGeometries);
 
 #endif

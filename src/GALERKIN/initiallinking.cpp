@@ -15,7 +15,7 @@ static BoundingBox globalPatchBoundingBox; // Bounding box for that patch
 static java::ArrayList<Geometry *> *globalCandidateList; // Candidate list for shaft culling
 
 static void
-createInitialLink(Patch *patch, GalerkinState *galerkinState) {
+createInitialLink(Patch *patch, GalerkinState *galerkinState, java::ArrayList<Geometry *> *sceneGeometries) {
     if ( !facing(patch, globalPatch) ) {
         return;
     }
@@ -82,7 +82,7 @@ createInitialLink(Patch *patch, GalerkinState *galerkinState) {
         link.numberOfBasisFunctionsOnSource = src->basisSize;
     }
 
-    bool isSceneGeometry = (globalCandidateList == GLOBAL_scene_geometries);
+    bool isSceneGeometry = (globalCandidateList == sceneGeometries);
     bool isClusteredGeometry = (globalCandidateList == GLOBAL_scene_clusteredGeometries);
     java::ArrayList<Geometry *> *geometryListReferences = globalCandidateList;
     areaToAreaFormFactor(&link, geometryListReferences, isSceneGeometry, isClusteredGeometry, galerkinState);
@@ -112,7 +112,7 @@ createInitialLink(Patch *patch, GalerkinState *galerkinState) {
 Yes ... we exploit the hierarchical structure of the scene during initial linking
 */
 static void
-geometryLink(Geometry *geometry, GalerkinState *galerkinState) {
+geometryLink(Geometry *geometry, GalerkinState *galerkinState, java::ArrayList<Geometry *> *sceneGeometries) {
     Shaft shaft;
     java::ArrayList<Geometry *> *oldCandidateList = globalCandidateList;
 
@@ -137,13 +137,13 @@ geometryLink(Geometry *geometry, GalerkinState *galerkinState) {
     if ( geometry->isCompound() ) {
         java::ArrayList<Geometry *> *geometryList = geomPrimListCopy(geometry);
         for ( int i = 0; geometryList != nullptr && i < geometryList->size(); i++ ) {
-            geometryLink(geometryList->get(i), galerkinState);
+            geometryLink(geometryList->get(i), galerkinState, sceneGeometries);
         }
         delete geometryList;
     } else {
         java::ArrayList<Patch *> *patchList = geomPatchArrayListReference(geometry);
         for ( int i = 0; patchList != nullptr && i < patchList->size(); i++ ) {
-            createInitialLink(patchList->get(i), galerkinState);
+            createInitialLink(patchList->get(i), galerkinState, sceneGeometries);
         }
     }
 
@@ -176,8 +176,8 @@ createInitialLinks(
     globalPatch->getBoundingBox(&globalPatchBoundingBox);
     globalCandidateList = GLOBAL_scene_clusteredGeometries;
 
-    for ( int i = 0; GLOBAL_scene_geometries != nullptr && i < GLOBAL_scene_geometries->size(); i++ ) {
-        geometryLink(GLOBAL_scene_geometries->get(i), galerkinState);
+    for ( int i = 0; sceneGeometries != nullptr && i < sceneGeometries->size(); i++ ) {
+        geometryLink(sceneGeometries->get(i), galerkinState, sceneGeometries);
     }
 }
 
