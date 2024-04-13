@@ -56,7 +56,7 @@ openGlSaveScreen(char *fileName, FILE *fp, int isPipe, RadianceMethod *context) 
 
     // RayCast() saves the current picture in display-mapped (!) real values
     if ( GLOBAL_render_renderOptions.trace ) {
-        rayCast(fileName, fp, isPipe, context);
+        rayCast(fileName, fp, isPipe, GLOBAL_scene_clusteredWorldGeom, context);
         return;
     }
 
@@ -168,6 +168,7 @@ batch(
     java::ArrayList<Patch *> *scenePatches,
     java::ArrayList<Patch *> *lightPatches,
     java::ArrayList<Geometry *> *sceneGeometries,
+    Geometry *clusteredWorldGeometry,
     RadianceMethod *context)
 {
     clock_t start_time, wasted_start;
@@ -202,7 +203,7 @@ batch(
                 fflush(stderr);
                 exit(1);
             }
-            done = context->doStep(scenePatches, sceneGeometries, lightPatches, GLOBAL_scene_clusteredWorldGeom);
+            done = context->doStep(scenePatches, sceneGeometries, lightPatches, clusteredWorldGeometry);
             canvasPullMode();
 
             fflush(stdout);

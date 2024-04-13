@@ -415,17 +415,20 @@ near to far) rendering. For every patch that is not culled,
 renderPatchCallback is called
 */
 void
-openGlRenderWorldOctree(void (*renderPatchCallback)(Patch *)) {
-    if ( GLOBAL_scene_clusteredWorldGeom == nullptr ) {
+openGlRenderWorldOctree(
+    void (*renderPatchCallback)(Patch *),
+    Geometry *clusteredWorldGeometry)
+{
+    if ( clusteredWorldGeometry == nullptr ) {
         return;
     }
     if ( renderPatchCallback == nullptr ) {
         renderPatchCallback = openGlRenderPatch;
     }
-    if ( GLOBAL_scene_clusteredWorldGeom->isCompound() ) {
-        openGlRenderOctreeNonLeaf(GLOBAL_scene_clusteredWorldGeom, renderPatchCallback);
+    if ( clusteredWorldGeometry->isCompound() ) {
+        openGlRenderOctreeNonLeaf(clusteredWorldGeometry, renderPatchCallback);
     } else {
-        openGlRenderOctreeLeaf(GLOBAL_scene_clusteredWorldGeom, renderPatchCallback);
+        openGlRenderOctreeLeaf(clusteredWorldGeometry, renderPatchCallback);
     }
 }
 
@@ -476,7 +479,7 @@ openGlReallyRender(java::ArrayList<Patch *> *scenePatches, RadianceMethod *conte
     if ( context != nullptr ) {
         context->renderScene(scenePatches);
     } else if ( GLOBAL_render_renderOptions.frustumCulling ) {
-        openGlRenderWorldOctree(openGlRenderPatch);
+        openGlRenderWorldOctree(openGlRenderPatch, GLOBAL_scene_clusteredWorldGeom);
     } else {
         for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
             openGlRenderPatch(scenePatches->get(i));
@@ -684,5 +687,5 @@ the pixel. x is normally the width and y the height of the canvas window
 */
 unsigned long *
 sglRenderIds(long *x, long *y, java::ArrayList<Patch *> *scenePatches) {
-    return softRenderIds(x, y, scenePatches);
+    return softRenderIds(x, y, scenePatches, GLOBAL_scene_clusteredWorldGeom);
 }

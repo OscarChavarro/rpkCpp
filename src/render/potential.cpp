@@ -145,12 +145,15 @@ softGetPatchPointers(SGL_CONTEXT *sgl, java::ArrayList<Patch *> *scenePatches) {
 }
 
 void
-softUpdateDirectVisibility(java::ArrayList<Patch *> *scenePatches) {
+softUpdateDirectVisibility(
+    java::ArrayList<Patch *> *scenePatches,
+    Geometry *clusteredWorldGeometry)
+{
     clock_t t = clock();
     SGL_CONTEXT *oldSglContext = GLOBAL_sgl_currentContext;
     SGL_CONTEXT *currentSglContext = setupSoftFrameBuffer();
 
-    softRenderPatches(scenePatches);
+    softRenderPatches(scenePatches, clusteredWorldGeometry);
     softGetPatchPointers(currentSglContext, scenePatches);
     delete currentSglContext;
     sglMakeCurrent(oldSglContext);
@@ -163,8 +166,11 @@ softUpdateDirectVisibility(java::ArrayList<Patch *> *scenePatches) {
 Updates view visibility status of all patches
 */
 void
-updateDirectVisibility(java::ArrayList<Patch *> *scenePatches) {
+updateDirectVisibility(
+    java::ArrayList<Patch *> *scenePatches,
+    Geometry *clusteredWorldGeometry)
+{
     canvasPushMode();
-    softUpdateDirectVisibility(scenePatches);
+    softUpdateDirectVisibility(scenePatches, clusteredWorldGeometry);
     canvasPullMode();
 }

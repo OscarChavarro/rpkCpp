@@ -8,11 +8,12 @@ class Soft_ID_Renderer {
   protected:
     SGL_CONTEXT *sgl; // Software rendering context, includes frame buffer
 
-    void init(java::ArrayList<Patch *> *scenePatches); // Also performs the actual ID rendering
+    void init(java::ArrayList<Patch *> *scenePatches, Geometry *clusteredWorldGeometry); // Also performs the actual ID rendering
+
   public:
-    explicit Soft_ID_Renderer(java::ArrayList<Patch *> *scenePatches) {
+    explicit Soft_ID_Renderer(java::ArrayList<Patch *> *scenePatches, Geometry *clusteredWorldGeometry) {
         sgl = nullptr;
-        init(scenePatches);
+        init(scenePatches, clusteredWorldGeometry);
     }
 
     ~Soft_ID_Renderer();

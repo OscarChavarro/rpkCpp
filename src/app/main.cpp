@@ -601,7 +601,7 @@ mainExecuteRendering(java::ArrayList<Patch *> *scenePatches, RadianceMethod *con
                 context);
     #endif
 
-    batch(scenePatches, GLOBAL_app_lightSourcePatches, globalSceneGeometries, context);
+    batch(scenePatches, GLOBAL_app_lightSourcePatches, globalSceneGeometries, GLOBAL_scene_clusteredWorldGeom, context);
 }
 
 static void
@@ -638,7 +638,14 @@ main(int argc, char *argv[]) {
 
     mainExecuteRendering(globalAppScenePatches, selectedRadianceMethod);
 
-    //executeGlutGui(argc, argv, globalAppScenePatches, GLOBAL_app_lightSourcePatches, GLOBAL_scene_geometries, mgfContext.radianceMethod);
+    //executeGlutGui(
+    //    argc,
+    //    argv,
+    //    globalAppScenePatches,
+    //    GLOBAL_app_lightSourcePatches,
+    //    globalSceneGeometries,
+    //    GLOBAL_scene_clusteredWorldGeom,
+    //    mgfContext.radianceMethod);
 
     mainFreeMemory(&mgfContext);
 

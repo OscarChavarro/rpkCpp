@@ -1,6 +1,7 @@
 #include "scene/Camera.h"
 #include "material/statistics.h"
 #include "raycasting/common/Raytracer.h"
+#include "scene/scene.h"
 
 double GLOBAL_raytracer_totalTime = 0.0;
 long GLOBAL_raytracer_rayCount = 0;
@@ -19,7 +20,8 @@ rayTrace(
     Raytracer *activeRayTracer,
     java::ArrayList<Patch *> *scenePatches,
     java::ArrayList<Patch *> *lightPatches,
-    RadianceMethod *context) {
+    RadianceMethod *context)
+{
     ImageOutputHandle *img = nullptr;
 
     if ( fp != nullptr ) {
@@ -32,7 +34,7 @@ rayTrace(
     }
 
     if ( activeRayTracer != nullptr ) {
-        activeRayTracer->Raytrace(img, scenePatches, lightPatches, context);
+        activeRayTracer->Raytrace(img, scenePatches, lightPatches, GLOBAL_scene_clusteredWorldGeom, context);
     }
 
     if ( img ) {

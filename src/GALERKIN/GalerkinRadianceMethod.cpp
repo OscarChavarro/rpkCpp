@@ -25,6 +25,7 @@ Galerkin radiosity, with the following variants:
 #include "GALERKIN/gathering.h"
 #include "GALERKIN/shooting.h"
 #include "GALERKIN/GalerkinRadianceMethod.h"
+#include "scene/scene.h"
 
 #define STRING_LENGTH 2000
 
@@ -516,7 +517,7 @@ GalerkinRadianceMethod::getStats() {
 void
 GalerkinRadianceMethod::renderScene(java::ArrayList<Patch *> *scenePatches) {
     if ( GLOBAL_render_renderOptions.frustumCulling ) {
-        openGlRenderWorldOctree(galerkinRenderPatch);
+        openGlRenderWorldOctree(galerkinRenderPatch, GLOBAL_scene_clusteredWorldGeom);
     } else {
         for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
             if ( !GLOBAL_render_glutDebugState.showSelectedPathOnly || i == GLOBAL_render_glutDebugState.selectedPatch ) {

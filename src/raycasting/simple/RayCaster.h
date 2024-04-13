@@ -22,7 +22,7 @@ class RayCaster {
   public:
     explicit RayCaster(ScreenBuffer *inScreen);
     virtual ~RayCaster();
-    void render(java::ArrayList<Patch *> *scenePatches, RadianceMethod *context);
+    void render(java::ArrayList<Patch *> *scenePatches, Geometry *clusteredWorldGeometry, RadianceMethod *context);
     void display();
     void save(ImageOutputHandle *ip);
 };
@@ -31,6 +31,12 @@ class RayCaster {
     extern Raytracer GLOBAL_rayCasting_RayCasting;
 #endif
 
-extern void rayCast(char *fileName, FILE *fp, int isPipe, RadianceMethod *context);
+extern void
+rayCast(
+    char *fileName,
+    FILE *fp,
+    int isPipe,
+    Geometry *clusteredWorldGeometry,
+    RadianceMethod *context);
 
 #endif

@@ -321,7 +321,7 @@ void
 monteCarloRadiosityUpdateViewImportance(java::ArrayList<Patch *> *scenePatches) {
     fprintf(stderr, "Updating direct visibility ... \n");
 
-    updateDirectVisibility(scenePatches);
+    updateDirectVisibility(scenePatches, GLOBAL_scene_clusteredWorldGeom);
 
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.sourceYmp = 0.0;
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotYmp = 0.0;

@@ -59,11 +59,14 @@ Renders all scenePatches in the current sgl renderer. PatchPixel returns
 and SGL_PIXEL value for a given Patch
 */
 void
-softRenderPatches(java::ArrayList<Patch *> *scenePatches) {
+softRenderPatches(
+    java::ArrayList<Patch *> *scenePatches,
+    Geometry *clusteredWorldGeometry)
+{
     if ( GLOBAL_render_renderOptions.frustumCulling ) {
         char use_display_lists = GLOBAL_render_renderOptions.useDisplayLists;
         GLOBAL_render_renderOptions.useDisplayLists = false;  // Temporarily switch it off
-        openGlRenderWorldOctree(softRenderPatch);
+        openGlRenderWorldOctree(softRenderPatch, clusteredWorldGeometry);
         GLOBAL_render_renderOptions.useDisplayLists = use_display_lists;
     } else {
         for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
@@ -76,7 +79,12 @@ softRenderPatches(java::ArrayList<Patch *> *scenePatches) {
 Software ID rendering
 */
 unsigned long *
-softRenderIds(long *x, long *y, java::ArrayList<Patch *> *scenePatches) {
+softRenderIds(
+    long *x,
+    long *y,
+    java::ArrayList<Patch *> *scenePatches,
+    Geometry *clusteredWorldGeometry)
+{
     SGL_CONTEXT *currentSglContext;
     SGL_CONTEXT *oldSglContext;
     unsigned long *ids;
@@ -87,7 +95,7 @@ softRenderIds(long *x, long *y, java::ArrayList<Patch *> *scenePatches) {
 
     oldSglContext = GLOBAL_sgl_currentContext;
     currentSglContext = setupSoftFrameBuffer();
-    softRenderPatches(scenePatches);
+    softRenderPatches(scenePatches, clusteredWorldGeometry);
 
     *x = currentSglContext->width;
     *y = currentSglContext->height;

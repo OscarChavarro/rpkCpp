@@ -9,7 +9,11 @@ extern void openGlRenderCameras();
 extern void openGlRenderSetLineWidth(float width);
 extern void openGlRenderLine(Vector3D *x, Vector3D *y);
 extern void openGlRenderSetColor(ColorRgb *rgb);
-extern void openGlRenderWorldOctree(void (*renderPatchCallback)(Patch *));
+
+extern void
+openGlRenderWorldOctree(
+    void (*renderPatchCallback)(Patch *),
+    Geometry *clusteredWorldGeometry);
 
 extern void
 openGlRenderScene(

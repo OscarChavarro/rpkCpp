@@ -455,7 +455,7 @@ stochasticRelaxationRadiosityRenderPatch(Patch *patch) {
 void
 StochasticJacobiRadianceMethod::renderScene(java::ArrayList<Patch *> *scenePatches) {
     if ( GLOBAL_render_renderOptions.frustumCulling ) {
-        openGlRenderWorldOctree(stochasticRelaxationRadiosityRenderPatch);
+        openGlRenderWorldOctree(stochasticRelaxationRadiosityRenderPatch, GLOBAL_scene_clusteredWorldGeom);
     } else {
         for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
             stochasticRelaxationRadiosityRenderPatch(scenePatches->get(i));

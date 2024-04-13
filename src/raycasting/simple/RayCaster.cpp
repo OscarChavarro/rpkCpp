@@ -95,12 +95,12 @@ RayCaster::getRadianceAtPixel(int x, int y, Patch *patch, RadianceMethod *contex
 }
 
 void
-RayCaster::render(java::ArrayList<Patch *> *scenePatches, RadianceMethod *context) {
+RayCaster::render(java::ArrayList<Patch *> *scenePatches, Geometry *clusteredWorldGeometry, RadianceMethod *context) {
     #ifdef RAYTRACING_ENABLED
         clock_t t = clock();
     #endif
 
-    Soft_ID_Renderer *idRenderer = new Soft_ID_Renderer(scenePatches);
+    Soft_ID_Renderer *idRenderer = new Soft_ID_Renderer(scenePatches, clusteredWorldGeometry);
 
     long width;
     long height;
@@ -188,12 +188,17 @@ rayCasterInitialize(java::ArrayList<Patch *> * /*lightPatches*/) {
 }
 
 static void
-rayCasterExecute(ImageOutputHandle *ip, java::ArrayList<Patch *> *scenePatches, java::ArrayList<Patch *> * /*lightPatches*/, RadianceMethod *context) {
+rayCasterExecute(
+    ImageOutputHandle *ip,
+    java::ArrayList<Patch *> *scenePatches,
+    java::ArrayList<Patch *> * /*lightPatches*/,
+    Geometry *clusteredWorldGeometry,
+    RadianceMethod *context) {
     if ( globalRayCaster != nullptr ) {
         delete globalRayCaster;
     }
     globalRayCaster = new RayCaster(nullptr);
-    globalRayCaster->render(scenePatches, context);
+    globalRayCaster->render(scenePatches, clusteredWorldGeometry, context);
     if ( globalRayCaster != nullptr && ip != nullptr ) {
         globalRayCaster->save(ip);
     }
@@ -206,7 +211,12 @@ and saved into the file with given name and file pointer. 'isPipe'
 reflects whether this file pointer is a pipe or not.
 */
 void
-rayCast(char *fileName, FILE *fp, int isPipe, RadianceMethod *context) {
+rayCast(
+    char *fileName,
+    FILE *fp,
+    int isPipe,
+    Geometry *clusteredWorldGeometry,
+    RadianceMethod *context) {
     ImageOutputHandle *img = nullptr;
 
     if ( fp ) {
@@ -224,7 +234,7 @@ rayCast(char *fileName, FILE *fp, int isPipe, RadianceMethod *context) {
     }
 
     RayCaster *rc = new RayCaster(nullptr);
-    rc->render(nullptr, context);
+    rc->render(nullptr, clusteredWorldGeometry, context);
     if ( img != nullptr ) {
         rc->save(img);
     }

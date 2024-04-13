@@ -5,6 +5,6 @@
 #include "skin/Patch.h"
 
 extern void updateDirectPotential(java::ArrayList<Patch *> *scenePatches);
-extern void updateDirectVisibility(java::ArrayList<Patch *> *scenePatches);
+extern void updateDirectVisibility(java::ArrayList<Patch *> *scenePatches, Geometry *clusteredWorldGeometry);
 
 #endif
