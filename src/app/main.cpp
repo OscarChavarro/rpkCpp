@@ -17,6 +17,7 @@
 #include "app/Cluster.h"
 #include "app/radiance.h"
 #include "app/batch.h"
+#include "render/glutDebugTools.h"
 
 #ifdef RAYTRACING_ENABLED
     #include "app/raytrace.h"
@@ -625,6 +626,9 @@ main(int argc, char *argv[]) {
     mainBuildModel(&argc, argv, &mgfContext);
 
     mainExecuteRendering(globalAppScenePatches, selectedRadianceMethod);
+
+    //executeGlutGui(argc, argv, globalAppScenePatches, GLOBAL_app_lightSourcePatches, mgfContext.radianceMethod);
+
     mainFreeMemory(&mgfContext);
 
     return 0;

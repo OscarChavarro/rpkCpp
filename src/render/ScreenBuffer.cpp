@@ -10,6 +10,7 @@
 ColorRgb GLOBAL_material_black = {0.0, 0.0, 0.0};
 ColorRgb GLOBAL_material_yellow = {1.0, 1.0, 0.0};
 ColorRgb GLOBAL_material_white = {1.0, 1.0, 1.0};
+ColorRgb GLOBAL_material_green = {0.0, 1.0, 0.0};
 
 /**
 Constructor : make an screen buffer from a camera definition

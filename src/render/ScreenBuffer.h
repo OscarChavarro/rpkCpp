@@ -73,6 +73,7 @@ class ScreenBuffer {
 extern ColorRgb GLOBAL_material_black;
 extern ColorRgb GLOBAL_material_white;
 extern ColorRgb GLOBAL_material_yellow;
+extern ColorRgb GLOBAL_material_green;
 
 extern float computeFluxToRadFactor(int pixX, int pixY);
 

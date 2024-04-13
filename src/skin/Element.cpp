@@ -18,6 +18,8 @@ Element::Element():
     className()
 {
     flags = 0x0;
+    Ed.clear();
+    Rd.clear();
 }
 
 /**

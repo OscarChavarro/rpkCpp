@@ -7,12 +7,13 @@
 #include "common/mymath.h"
 #include "scene/scene.h"
 #include "skin/RadianceMethod.h"
+#include "IMAGE/tonemap/tonemapping.h"
 #include "render/canvas.h"
 #include "render/renderhook.h"
 #include "render/softids.h"
-#include "IMAGE/tonemap/tonemapping.h"
 #include "render/opengl.h"
 #include "render/render.h"
+#include "render/glutDebugTools.h"
 
 class OctreeChild {
 public:
@@ -57,8 +58,8 @@ openGlRenderSetCamera() {
     glLoadIdentity();
     gluPerspective(GLOBAL_camera_mainCamera.verticalFov * 2.0,
                    (float)GLOBAL_camera_mainCamera.xSize / (float)GLOBAL_camera_mainCamera.ySize,
-                   GLOBAL_camera_mainCamera.near,
-                   GLOBAL_camera_mainCamera.far);
+                   GLOBAL_camera_mainCamera.near / 10,
+                   GLOBAL_camera_mainCamera.far * 10);
 
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
@@ -470,6 +471,8 @@ openGlRenderNewDisplayList() {
 
 static void
 openGlReallyRender(java::ArrayList<Patch *> *scenePatches, RadianceMethod *context) {
+    glPushMatrix();
+    glRotated(GLOBAL_render_glutDebugState.angle, 0, 0, 1);
     if ( context != nullptr ) {
         context->renderScene(scenePatches);
     } else if ( GLOBAL_render_renderOptions.frustumCulling ) {
@@ -479,6 +482,7 @@ openGlReallyRender(java::ArrayList<Patch *> *scenePatches, RadianceMethod *conte
             openGlRenderPatch(scenePatches->get(i));
         }
     }
+    glPopMatrix();
 }
 
 static void
@@ -529,7 +533,10 @@ openGlRenderRadiance(java::ArrayList<Patch *> *scenePatches, java::ArrayList<Geo
 Renders the whole scene
 */
 void
-openGlRenderScene(java::ArrayList<Patch *> *scenePatches, java::ArrayList<Geometry *> *clusteredGeometryList, int (*reDisplayCallback)(), RadianceMethod *context) {
+openGlRenderScene(
+    java::ArrayList<Patch *> *scenePatches,
+    java::ArrayList<Geometry *> *clusteredGeometryList,
+    int (*reDisplayCallback)(), RadianceMethod *context) {
     if ( !globalOpenGlInitialized ) {
         return;
     }

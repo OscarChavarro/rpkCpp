@@ -18,6 +18,7 @@ Galerkin radiosity, with the following variants:
 #include "common/options.h"
 #include "io/writevrml.h"
 #include "render/opengl.h"
+#include "render/glutDebugTools.h"
 #include "IMAGE/tonemap/tonemapping.h"
 #include "GALERKIN/basisgalerkin.h"
 #include "GALERKIN/clustergalerkincpp.h"
@@ -511,7 +512,9 @@ GalerkinRadianceMethod::renderScene(java::ArrayList<Patch *> *scenePatches) {
         openGlRenderWorldOctree(galerkinRenderPatch);
     } else {
         for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
-            galerkinRenderPatch(scenePatches->get(i));
+            if ( !GLOBAL_render_glutDebugState.showSelectedPathOnly || i == GLOBAL_render_glutDebugState.selectedPatch ) {
+                galerkinRenderPatch(scenePatches->get(i));
+            }
         }
     }
 }

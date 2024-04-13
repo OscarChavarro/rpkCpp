@@ -3,6 +3,7 @@
 #include "common/mymath.h"
 #include "render/render.h"
 #include "render/opengl.h"
+#include "render/ScreenBuffer.h"
 #include "IMAGE/tonemap/tonemapping.h"
 #include "GALERKIN/basisgalerkin.h"
 #include "GALERKIN/clustergalerkincpp.h"
@@ -93,6 +94,7 @@ Matrix2x2 GLOBAL_galerkin_TriangularUpTransformMatrix[4] = {
 Private inner constructor, Use either galerkinElementCreateTopLevel() or CreateRegularSubElement()
 */
 GalerkinElement::GalerkinElement(GalerkinState *inGalerkinState):
+    Element(),
     potential(),
     receivedPotential(),
     unShotPotential(),
@@ -106,12 +108,11 @@ GalerkinElement::GalerkinElement(GalerkinState *inGalerkinState):
     basisUsed()
 {
     className = ElementTypes::ELEMENT_GALERKIN;
+
     irregularSubElements = new java::ArrayList<Element *>();
     interactions = new java::ArrayList<Interaction *>();
     galerkinState = inGalerkinState;
 
-    Ed.clear();
-    Rd.clear();
     id = globalNumberOfElements + 1; // Let the IDs start from 1, not 0
     radiance = nullptr;
     receivedRadiance = nullptr;
@@ -642,11 +643,15 @@ GalerkinElement::draw(int mode) {
         }
 
         openGlRenderSetColor(&GLOBAL_render_renderOptions.outline_color);
-        openGlRenderLine(&p[0], &p[1]);
-        openGlRenderLine(&p[1], &p[2]);
         if ( numberOfVertices == 3 ) {
+            openGlRenderSetColor(&GLOBAL_material_yellow);
+            openGlRenderLine(&p[0], &p[1]);
+            openGlRenderLine(&p[1], &p[2]);
             openGlRenderLine(&p[2], &p[0]);
         } else {
+            openGlRenderSetColor(&GLOBAL_material_green);
+            openGlRenderLine(&p[0], &p[1]);
+            openGlRenderLine(&p[1], &p[2]);
             openGlRenderLine(&p[2], &p[3]);
             openGlRenderLine(&p[3], &p[0]);
         }
