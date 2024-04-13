@@ -15,6 +15,7 @@ Compound::Compound(java::ArrayList<Geometry *> *geometryList) {
 }
 
 Compound::~Compound() {
+    GLOBAL_statistics.numberOfCompounds--;
     if ( children != nullptr ) {
         delete children;
         children = nullptr;
