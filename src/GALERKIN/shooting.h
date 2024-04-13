@@ -7,6 +7,7 @@
 extern int
 doShootingStep(
     java::ArrayList<Patch *> *scenePatches,
+    java::ArrayList<Geometry *> *sceneGeometries,
     GalerkinState *galerkinState,
     GalerkinRadianceMethod *galerkinRadianceMethod);
 

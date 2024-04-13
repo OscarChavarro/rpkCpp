@@ -10,6 +10,7 @@ extern void
 batch(
     java::ArrayList<Patch *> *scenePatches,
     java::ArrayList<Patch *> *lightPatches,
+    java::ArrayList<Geometry *> *sceneGeometries,
     RadianceMethod *context);
 
 #endif

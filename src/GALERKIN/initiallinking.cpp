@@ -160,7 +160,12 @@ are stored at the receiver element when doing gathering and at the
 source element when doing shooting
 */
 void
-createInitialLinks(GalerkinElement *top, GalerkinRole role, GalerkinState *galerkinState) {
+createInitialLinks(
+    GalerkinElement *top,
+    GalerkinRole role,
+    GalerkinState *galerkinState,
+    java::ArrayList<Geometry *> *sceneGeometries)
+{
     if ( top->flags & IS_CLUSTER_MASK ) {
         logFatal(-1, "createInitialLinks", "cannot use this routine for cluster elements");
     }

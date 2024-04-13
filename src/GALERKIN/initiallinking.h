@@ -8,7 +8,17 @@ enum GalerkinRole {
     RECEIVER
 };
 
-extern void createInitialLinks(GalerkinElement *top, GalerkinRole role, GalerkinState *galerkinState);
-extern void createInitialLinkWithTopCluster(GalerkinElement *element, GalerkinRole role, GalerkinState *galerkinState);
+extern void
+createInitialLinks(
+    GalerkinElement *top,
+    GalerkinRole role,
+    GalerkinState *galerkinState,
+    java::ArrayList<Geometry *> *sceneGeometries);
+
+extern void
+createInitialLinkWithTopCluster(
+    GalerkinElement *element,
+    GalerkinRole role,
+    GalerkinState *galerkinState);
 
 #endif

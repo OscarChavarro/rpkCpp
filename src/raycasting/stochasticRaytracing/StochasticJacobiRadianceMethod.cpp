@@ -451,7 +451,11 @@ StochasticJacobiRadianceMethod::renderScene(java::ArrayList<Patch *> *scenePatch
 }
 
 int
-StochasticJacobiRadianceMethod::doStep(java::ArrayList<Patch *> *scenePatches, java::ArrayList<Patch *> *lightPatches) {
+StochasticJacobiRadianceMethod::doStep(
+    java::ArrayList<Patch *> *scenePatches,
+    java::ArrayList<Geometry *> *sceneGeometries,
+    java::ArrayList<Patch *> *lightPatches)
+{
     monteCarloRadiosityPreStep(scenePatches);
 
     // Do some real work now

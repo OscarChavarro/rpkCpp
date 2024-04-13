@@ -14,6 +14,7 @@ gatheringPushPullPotential(
 extern int
 galerkinRadiosityDoGatheringIteration(
     java::ArrayList<Patch *> *scenePatches,
+    java::ArrayList<Geometry *> *sceneGeometries,
     GalerkinState *galerkinState);
 
 extern int

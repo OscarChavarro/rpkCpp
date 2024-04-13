@@ -13,7 +13,13 @@ class PhotonMapRadianceMethod : public RadianceMethod {
     const char *getRadianceMethodName() const;
     void parseOptions(int *argc, char **argv);
     void initialize(java::ArrayList<Patch *> *scenePatches);
-    int doStep(java::ArrayList<Patch *> *scenePatches, java::ArrayList<Patch *> *lightPatches);
+
+    int
+    doStep(
+        java::ArrayList<Patch *> *scenePatches,
+        java::ArrayList<Geometry *> *sceneGeometries,
+        java::ArrayList<Patch *> *lightPatches);
+
     void terminate(java::ArrayList<Patch *> *scenePatches);
     ColorRgb getRadiance(Patch *patch, double u, double v, Vector3D dir);
     Element *createPatchData(Patch *patch);

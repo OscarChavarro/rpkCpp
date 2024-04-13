@@ -382,12 +382,16 @@ GalerkinRadianceMethod::initialize(java::ArrayList<Patch *> *scenePatches) {
 }
 
 int
-GalerkinRadianceMethod::doStep(java::ArrayList<Patch *> *scenePatches, java::ArrayList<Patch *> *lightPatches) {
+GalerkinRadianceMethod::doStep(
+    java::ArrayList<Patch *> *scenePatches,
+    java::ArrayList<Geometry *> *sceneGeometries,
+    java::ArrayList<Patch *> *lightPatches)
+{
     int done = false;
 
     if ( galerkinState.iterationNumber < 0 ) {
         logError("doGalerkinOneStep", "method not initialized");
-        return true;    /* done, don't continue! */
+        return true; // Done, don't continue!
     }
 
     galerkinState.iterationNumber++;
@@ -400,11 +404,11 @@ GalerkinRadianceMethod::doStep(java::ArrayList<Patch *> *scenePatches, java::Arr
             if ( galerkinState.clustered ) {
                 done = doClusteredGatheringIteration(scenePatches, &galerkinState);
             } else {
-                done = galerkinRadiosityDoGatheringIteration(scenePatches, &galerkinState);
+                done = galerkinRadiosityDoGatheringIteration(scenePatches, sceneGeometries, &galerkinState);
             }
             break;
         case SOUTH_WELL:
-            done = doShootingStep(scenePatches, &galerkinState, this);
+            done = doShootingStep(scenePatches, sceneGeometries, &galerkinState, this);
             break;
         default:
             logFatal(2, "doGalerkinOneStep", "Invalid iteration method %d\n", galerkinState.galerkinIterationMethod);

@@ -55,11 +55,11 @@ interactions with light sources are created. See Holschuch, EGRW '94
 (Darmstadt - EuroGraphics Rendering Workshop).
 */
 static void
-patchLazyCreateInteractions(Patch *patch, GalerkinState *galerkinState) {
+patchLazyCreateInteractions(Patch *patch, GalerkinState *galerkinState, java::ArrayList<Geometry *> *sceneGeometries) {
     GalerkinElement *topLevelElement = galerkinGetElement(patch);
 
     if ( !topLevelElement->radiance[0].isBlack() && !(topLevelElement->flags & INTERACTIONS_CREATED_MASK) ) {
-        createInitialLinks(topLevelElement, SOURCE, galerkinState);
+        createInitialLinks(topLevelElement, SOURCE, galerkinState, sceneGeometries);
         topLevelElement->flags |= INTERACTIONS_CREATED_MASK;
     }
 }
@@ -82,7 +82,7 @@ interactions and updates the radiance for the patch if doing
 Gauss-Seidel iterations
 */
 static void
-patchGather(Patch *patch, GalerkinState *galerkinState) {
+patchGather(Patch *patch, GalerkinState *galerkinState, java::ArrayList<Geometry *> *sceneGeometries) {
     GalerkinElement *topLevelElement = galerkinGetElement(patch);
 
     // Don't gather to patches without importance. This optimisation can not
@@ -98,7 +98,7 @@ patchGather(Patch *patch, GalerkinState *galerkinState) {
     if ( galerkinState->galerkinIterationMethod == GAUSS_SEIDEL || !galerkinState->lazyLinking ||
          galerkinState->importanceDriven ) {
         if ( !(topLevelElement->flags & INTERACTIONS_CREATED_MASK) ) {
-            createInitialLinks(topLevelElement, RECEIVER, galerkinState);
+            createInitialLinks(topLevelElement, RECEIVER, galerkinState, sceneGeometries);
             topLevelElement->flags |= INTERACTIONS_CREATED_MASK;
         }
     }
@@ -128,6 +128,7 @@ have converged and false if not
 int
 galerkinRadiosityDoGatheringIteration(
     java::ArrayList<Patch *> *scenePatches,
+    java::ArrayList<Geometry *> *sceneGeometries,
     GalerkinState *galerkinState)
 {
     if ( galerkinState->importanceDriven ) {
@@ -141,7 +142,7 @@ galerkinRadiosityDoGatheringIteration(
     if ( galerkinState->galerkinIterationMethod != GAUSS_SEIDEL && galerkinState->lazyLinking &&
          !galerkinState->importanceDriven ) {
         for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
-            patchLazyCreateInteractions(scenePatches->get(i), galerkinState);
+            patchLazyCreateInteractions(scenePatches->get(i), galerkinState, sceneGeometries);
         }
     }
 
@@ -150,7 +151,7 @@ galerkinRadiosityDoGatheringIteration(
 
     // One iteration = gather to all patches
     for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
-        patchGather(scenePatches->get(i), galerkinState);
+        patchGather(scenePatches->get(i), galerkinState, sceneGeometries);
     }
 
     // Update the radiosity after gathering to all patches with Jacobi, immediately

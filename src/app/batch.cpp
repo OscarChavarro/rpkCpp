@@ -167,12 +167,13 @@ void
 batch(
     java::ArrayList<Patch *> *scenePatches,
     java::ArrayList<Patch *> *lightPatches,
+    java::ArrayList<Geometry *> *sceneGeometries,
     RadianceMethod *context)
 {
     clock_t start_time, wasted_start;
     float wasted_secs;
 
-    if ( GLOBAL_scene_geometries == nullptr || GLOBAL_scene_geometries->size() == 0 ) {
+    if ( sceneGeometries == nullptr || sceneGeometries->size() == 0 ) {
         printf("Empty world??\n");
         return;
     }
@@ -201,7 +202,7 @@ batch(
                 fflush(stderr);
                 exit(1);
             }
-            done = context->doStep(scenePatches, lightPatches);
+            done = context->doStep(scenePatches, GLOBAL_scene_geometries, lightPatches);
             canvasPullMode();
 
             fflush(stdout);

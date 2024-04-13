@@ -372,7 +372,6 @@ mainReadFile(char *filename, MgfContext *context) {
     if ( strncmp(extension, "mgf", 3) == 0 ) {
         readMgf(filename, context);
         GLOBAL_scene_geometries = context->geometries;
-        GLOBAL_scene_materials = context->materials;
     }
 
     clock_t t = clock();
@@ -590,7 +589,7 @@ mainExecuteRendering(java::ArrayList<Patch *> *scenePatches, RadianceMethod *con
         openGlRenderScene(scenePatches, GLOBAL_scene_clusteredGeometries, f, context);
     #endif
 
-    batch(scenePatches, GLOBAL_app_lightSourcePatches, context);
+    batch(scenePatches, GLOBAL_app_lightSourcePatches, GLOBAL_scene_geometries, context);
 }
 
 static void

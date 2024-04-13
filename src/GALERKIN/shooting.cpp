@@ -88,14 +88,14 @@ the patch into the environment. Finally clears the un-shot radiance
 at all levels of the element hierarchy for the patch
 */
 static void
-patchPropagateUnShotRadianceAndPotential(Patch *patch, GalerkinState *galerkinState) {
+patchPropagateUnShotRadianceAndPotential(Patch *patch, GalerkinState *galerkinState, java::ArrayList<Geometry *> *sceneGeometries) {
     GalerkinElement *topLevelElement = galerkinGetElement(patch);
 
     if ( !(topLevelElement->flags & INTERACTIONS_CREATED_MASK) ) {
         if ( galerkinState->clustered ) {
             createInitialLinkWithTopCluster(topLevelElement, SOURCE, galerkinState);
         } else {
-            createInitialLinks(topLevelElement, SOURCE, galerkinState);
+            createInitialLinks(topLevelElement, SOURCE, galerkinState, sceneGeometries);
         }
         topLevelElement->flags |= INTERACTIONS_CREATED_MASK;
     }
@@ -166,11 +166,12 @@ static void
 doPropagate(
     Patch *shooting_patch,
     java::ArrayList<Patch *> *scenePatches,
+    java::ArrayList<Geometry *> *sceneGeometries,
     GalerkinState *galerkinState,
     GalerkinRadianceMethod *galerkinRadianceMethod)
 {
     // Propagate the un-shot power of the shooting patch into the environment
-    patchPropagateUnShotRadianceAndPotential(shooting_patch, galerkinState);
+    patchPropagateUnShotRadianceAndPotential(shooting_patch, galerkinState, sceneGeometries);
 
     // Recompute the colors of all patches, not only the patches that received
     // radiance from the shooting patch, since the ambient term has also changed
@@ -196,6 +197,7 @@ doPropagate(
 static int
 propagateRadiance(
     java::ArrayList<Patch *> *scenePatches,
+    java::ArrayList<Geometry *> *sceneGeometries,
     GalerkinState *galerkinState,
     GalerkinRadianceMethod *galerkinRadianceMethod)
 {
@@ -211,7 +213,7 @@ propagateRadiance(
     openGlRenderSetColor(&GLOBAL_material_yellow);
     openGlRenderPatchOutline(shooting_patch);
 
-    doPropagate(shooting_patch, scenePatches, galerkinState, galerkinRadianceMethod);
+    doPropagate(shooting_patch, scenePatches, sceneGeometries, galerkinState, galerkinRadianceMethod);
 
     return false;
 }
@@ -261,6 +263,7 @@ choosePotentialShootingPatch(java::ArrayList<Patch *> *scenePatches) {
 static void
 propagatePotential(
     java::ArrayList<Patch *> *scenePatches,
+    java::ArrayList<Geometry *> *sceneGeometries,
     GalerkinState *galerkinState,
     GalerkinRadianceMethod *galerkinRadianceMethod)
 {
@@ -270,7 +273,7 @@ propagatePotential(
     if ( shooting_patch ) {
         openGlRenderSetColor(&GLOBAL_material_white);
         openGlRenderPatchOutline(shooting_patch);
-        doPropagate(shooting_patch, scenePatches, galerkinState, galerkinRadianceMethod);
+        doPropagate(shooting_patch, scenePatches, sceneGeometries, galerkinState, galerkinRadianceMethod);
     } else {
         fprintf(stderr, "No patches with un-shot potential??\n");
     }
@@ -299,6 +302,7 @@ One step of the progressive refinement radiosity algorithm
 static int
 reallyDoShootingStep(
     java::ArrayList<Patch *> *scenePatches,
+    java::ArrayList<Geometry *> *sceneGeometries,
     GalerkinState *galerkinState,
     GalerkinRadianceMethod *galerkinRadianceMethod)
 {
@@ -316,9 +320,9 @@ reallyDoShootingStep(
                 clusterUpdatePotential(galerkinState->topCluster);
             }
         }
-        propagatePotential(scenePatches, galerkinState, galerkinRadianceMethod);
+        propagatePotential(scenePatches, sceneGeometries, galerkinState, galerkinRadianceMethod);
     }
-    return propagateRadiance(scenePatches, galerkinState, galerkinRadianceMethod);
+    return propagateRadiance(scenePatches, sceneGeometries, galerkinState, galerkinRadianceMethod);
 }
 
 /**
@@ -327,8 +331,9 @@ Returns true when converged and false if not
 int
 doShootingStep(
     java::ArrayList<Patch *> *scenePatches,
+    java::ArrayList<Geometry *> *sceneGeometries,
     GalerkinState *galerkinState,
     GalerkinRadianceMethod *galerkinRadianceMethod)
 {
-    return reallyDoShootingStep(scenePatches, galerkinState, galerkinRadianceMethod);
+    return reallyDoShootingStep(scenePatches, sceneGeometries, galerkinState, galerkinRadianceMethod);
 }

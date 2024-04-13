@@ -525,7 +525,11 @@ colors are used for hardware rendering if the default hardware rendering
 method is not updated in this file
 */
 int
-PhotonMapRadianceMethod::doStep(java::ArrayList<Patch *> *scenePatches, java::ArrayList<Patch *> *lightPatches) {
+PhotonMapRadianceMethod::doStep(
+    java::ArrayList<Patch *> *scenePatches,
+    java::ArrayList<Geometry *> *sceneGeometries,
+    java::ArrayList<Patch *> *lightPatches)
+{
     GLOBAL_photonMap_state.lastClock = clock();
 
     photonMapBRRealIteration(this);
