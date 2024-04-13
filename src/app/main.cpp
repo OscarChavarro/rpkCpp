@@ -549,6 +549,7 @@ createOffscreenCanvasWindow(
     int width,
     int height,
     java::ArrayList<Patch *> *scenePatches,
+    java::ArrayList<Geometry *> *sceneGeometries,
     RadianceMethod *context)
 {
     openGlMesaRenderCreateOffscreenWindow(width, height);
@@ -564,7 +565,7 @@ createOffscreenCanvasWindow(
         if ( GLOBAL_raytracer_activeRaytracer != nullptr ) {
             f = GLOBAL_raytracer_activeRaytracer->Redisplay;
         }
-        openGlRenderScene(scenePatches, GLOBAL_scene_clusteredGeometries, f, context);
+        openGlRenderScene(scenePatches, sceneGeometries, GLOBAL_scene_clusteredGeometries, f, context);
     #endif
 }
 
@@ -577,7 +578,12 @@ mainExecuteRendering(java::ArrayList<Patch *> *scenePatches, RadianceMethod *con
     if ( globalImageOutputHeight <= 0 ) {
         globalImageOutputHeight = 1080;
     }
-    createOffscreenCanvasWindow(globalImageOutputWidth, globalImageOutputHeight, scenePatches, context);
+    createOffscreenCanvasWindow(
+        globalImageOutputWidth,
+        globalImageOutputHeight,
+        scenePatches,
+        GLOBAL_scene_geometries,
+        context);
 
     while ( !openGlRenderInitialized() ) {}
 
@@ -586,7 +592,12 @@ mainExecuteRendering(java::ArrayList<Patch *> *scenePatches, RadianceMethod *con
         if ( GLOBAL_raytracer_activeRaytracer != nullptr ) {
             f = GLOBAL_raytracer_activeRaytracer->Redisplay;
         }
-        openGlRenderScene(scenePatches, GLOBAL_scene_clusteredGeometries, f, context);
+        openGlRenderScene(
+            scenePatches,
+            GLOBAL_scene_clusteredGeometries,
+            GLOBAL_scene_geometries,
+            f,
+            context);
     #endif
 
     batch(scenePatches, GLOBAL_app_lightSourcePatches, GLOBAL_scene_geometries, context);
@@ -626,7 +637,7 @@ main(int argc, char *argv[]) {
 
     mainExecuteRendering(globalAppScenePatches, selectedRadianceMethod);
 
-    //executeGlutGui(argc, argv, globalAppScenePatches, GLOBAL_app_lightSourcePatches, mgfContext.radianceMethod);
+    //executeGlutGui(argc, argv, globalAppScenePatches, GLOBAL_app_lightSourcePatches, GLOBAL_scene_geometries, mgfContext.radianceMethod);
 
     mainFreeMemory(&mgfContext);
 

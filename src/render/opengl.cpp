@@ -44,15 +44,15 @@ openGlRenderClearWindow() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
-void
-openGlRenderSetCamera() {
+static void
+openGlRenderSetCamera(java::ArrayList<Geometry *> *sceneGeometries) {
     openGlRenderClearWindow();
 
     // Use the full viewport
     glViewport(0, 0, GLOBAL_camera_mainCamera.xSize, GLOBAL_camera_mainCamera.ySize);
 
     // Determine distance to front- and back-clipping plane
-    renderGetNearFar(&GLOBAL_camera_mainCamera.near, &GLOBAL_camera_mainCamera.far);
+    renderGetNearFar(&GLOBAL_camera_mainCamera.near, &GLOBAL_camera_mainCamera.far, sceneGeometries);
 
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
@@ -486,14 +486,19 @@ openGlReallyRender(java::ArrayList<Patch *> *scenePatches, RadianceMethod *conte
 }
 
 static void
-openGlRenderRadiance(java::ArrayList<Patch *> *scenePatches, java::ArrayList<Geometry *> *clusteredGeometryList, RadianceMethod *context) {
+openGlRenderRadiance(
+    java::ArrayList<Patch *> *scenePatches,
+    java::ArrayList<Geometry *> *clusteredGeometryList,
+    java::ArrayList<Geometry *> *sceneGeometries,
+    RadianceMethod *context)
+{
     if ( GLOBAL_render_renderOptions.smoothShading ) {
         glShadeModel(GL_SMOOTH);
     } else {
         glShadeModel(GL_FLAT);
     }
 
-    openGlRenderSetCamera();
+    openGlRenderSetCamera(sceneGeometries);
 
     if ( GLOBAL_render_renderOptions.backfaceCulling ) {
         glEnable(GL_CULL_FACE);
@@ -536,7 +541,9 @@ void
 openGlRenderScene(
     java::ArrayList<Patch *> *scenePatches,
     java::ArrayList<Geometry *> *clusteredGeometryList,
-    int (*reDisplayCallback)(), RadianceMethod *context) {
+    java::ArrayList<Geometry *> *sceneGeometries,
+    int (*reDisplayCallback)(),
+    RadianceMethod *context) {
     if ( !globalOpenGlInitialized ) {
         return;
     }
@@ -550,7 +557,7 @@ openGlRenderScene(
     }
 
     if ( !GLOBAL_render_renderOptions.renderRayTracedImage || !openGlRenderRayTraced(reDisplayCallback) ) {
-        openGlRenderRadiance(scenePatches, clusteredGeometryList, context);
+        openGlRenderRadiance(scenePatches, clusteredGeometryList, sceneGeometries, context);
     }
 
     // Call installed render hooks, that want to render something in the scene

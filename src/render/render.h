@@ -20,7 +20,7 @@ extern void renderSetNoShading(char truefalse);
 extern void renderSetOutlineColor(ColorRgb *outline_color);
 extern void renderSetBoundingBoxColor(ColorRgb *outline_color);
 extern void renderSetClusterColor(ColorRgb *cluster_color);
-extern void renderGetNearFar(float *near, float *far);
+extern void renderGetNearFar(float *near, float *far, java::ArrayList<Geometry *> *sceneGeometries);
 extern void renderParseOptions(int *argc, char **argv);
 
 #endif

@@ -202,7 +202,7 @@ batch(
                 fflush(stderr);
                 exit(1);
             }
-            done = context->doStep(scenePatches, GLOBAL_scene_geometries, lightPatches);
+            done = context->doStep(scenePatches, sceneGeometries, lightPatches);
             canvasPullMode();
 
             fflush(stdout);
@@ -218,7 +218,12 @@ batch(
                     f = GLOBAL_raytracer_activeRaytracer->Redisplay;
                 }
             #endif
-            openGlRenderScene(scenePatches, GLOBAL_scene_clusteredGeometries, f, context);
+            openGlRenderScene(
+                scenePatches,
+                GLOBAL_scene_clusteredGeometries,
+                sceneGeometries,
+                f,
+                context);
 
             fflush(stdout);
             fflush(stderr);

@@ -177,15 +177,20 @@ stochasticRelaxationRadiosityPrintIncrementalRadianceStats() {
 }
 
 static void
-stochasticRelaxationRadiosityDoIncrementalRadianceIterations(java::ArrayList<Patch *> *scenePatches, RadianceMethod *context) {
+stochasticRelaxationRadiosityDoIncrementalRadianceIterations(
+    java::ArrayList<Patch *> *scenePatches,
+    java::ArrayList<Geometry *> *sceneGeometries,
+    RadianceMethod *context)
+{
     double refUnShot;
     long stepNumber = 0;
 
-    int weighted_sampling = GLOBAL_stochasticRaytracing_monteCarloRadiosityState.weightedSampling;
-    int importance_driven = GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceDriven;
+    int weightedSampling = GLOBAL_stochasticRaytracing_monteCarloRadiosityState.weightedSampling;
+    int importanceDriven = GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceDriven;
     if ( !GLOBAL_stochasticRaytracing_monteCarloRadiosityState.incrementalUsesImportance ) {
+        // Temporarily switch it off
         GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceDriven = false;
-    } /* temporarily switch it off */
+    }
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.weightedSampling = false;
 
     stochasticRelaxationRadiosityPrintIncrementalRadianceStats();
@@ -229,12 +234,17 @@ stochasticRelaxationRadiosityDoIncrementalRadianceIterations(java::ArrayList<Pat
                 f = GLOBAL_raytracer_activeRaytracer->Redisplay;
             }
 
-            openGlRenderScene(scenePatches, GLOBAL_scene_clusteredGeometries, f, context);
+            openGlRenderScene(
+                scenePatches,
+                GLOBAL_scene_clusteredGeometries,
+                sceneGeometries,
+                f,
+                context);
         }
     }
 
-    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceDriven = importance_driven;    /* switch it back on if it was on */
-    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.weightedSampling = weighted_sampling;
+    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceDriven = importanceDriven;    /* switch it back on if it was on */
+    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.weightedSampling = weightedSampling;
 }
 
 static float
@@ -456,12 +466,12 @@ StochasticJacobiRadianceMethod::doStep(
     java::ArrayList<Geometry *> *sceneGeometries,
     java::ArrayList<Patch *> *lightPatches)
 {
-    monteCarloRadiosityPreStep(scenePatches);
+    monteCarloRadiosityPreStep(scenePatches, sceneGeometries);
 
     // Do some real work now
     if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.currentIteration == 1 ) {
         if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.doNonDiffuseFirstShot ) {
-            doNonDiffuseFirstShot(scenePatches, lightPatches, this);
+            doNonDiffuseFirstShot(scenePatches, sceneGeometries, lightPatches, this);
         }
         int initial_nr_of_rays = (int)GLOBAL_stochasticRaytracing_monteCarloRadiosityState.tracedRays;
 
@@ -478,7 +488,7 @@ StochasticJacobiRadianceMethod::doStep(
                     }
                 }
         }
-        stochasticRelaxationRadiosityDoIncrementalRadianceIterations(scenePatches, this);
+        stochasticRelaxationRadiosityDoIncrementalRadianceIterations(scenePatches, sceneGeometries, this);
 
         // Subsequent regular iterations will take as many rays as in the whole
         // sequence of incremental iteration steps

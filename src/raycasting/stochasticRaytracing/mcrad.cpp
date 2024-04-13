@@ -352,7 +352,10 @@ Computes max_i (A_T/A_i): the ratio of the total area over the minimal patch
 area in the scene, ignoring the 10% area occupied by the smallest patches
 */
 static double
-monteCarloRadiosityDetermineAreaFraction(java::ArrayList<Patch *> *scenePatches) {
+monteCarloRadiosityDetermineAreaFraction(
+    java::ArrayList<Patch *> *scenePatches,
+    java::ArrayList<Geometry *> *sceneGeometries)
+{
     float *areas;
     float cumul;
     float areaFrac;
@@ -395,8 +398,11 @@ monteCarloRadiosityDetermineAreaFraction(java::ArrayList<Patch *> *scenePatches)
 Determines elementary ray power for the initial incremental iterations
 */
 static void
-monteCarloRadiosityDetermineInitialNrRays(java::ArrayList<Patch *> *scenePatches) {
-    double areaFrac = monteCarloRadiosityDetermineAreaFraction(scenePatches);
+monteCarloRadiosityDetermineInitialNrRays(
+    java::ArrayList<Patch *> *scenePatches,
+    java::ArrayList<Geometry *> *sceneGeometries)
+{
+    double areaFrac = monteCarloRadiosityDetermineAreaFraction(scenePatches, sceneGeometries);
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.initialNumberOfRays = (long) ((double) GLOBAL_stochasticRaytracing_monteCarloRadiosityState.rayUnitsPerIt * areaFrac);
 }
 
@@ -404,7 +410,10 @@ monteCarloRadiosityDetermineInitialNrRays(java::ArrayList<Patch *> *scenePatches
 Really initialises: before the first iteration step
 */
 void
-monteCarloRadiosityReInit(java::ArrayList<Patch *> *scenePatches) {
+monteCarloRadiosityReInit(
+    java::ArrayList<Patch *> *scenePatches,
+    java::ArrayList<Geometry *> *sceneGeometries)
+{
     if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.inited ) {
         return;
     }
@@ -450,7 +459,7 @@ monteCarloRadiosityReInit(java::ArrayList<Patch *> *scenePatches) {
         monteCarloRadiosityPatchComputeNewColor(patch);
     }
 
-    monteCarloRadiosityDetermineInitialNrRays(scenePatches);
+    monteCarloRadiosityDetermineInitialNrRays(scenePatches, sceneGeometries);
 
     elementHierarchyInit();
 
@@ -461,9 +470,9 @@ monteCarloRadiosityReInit(java::ArrayList<Patch *> *scenePatches) {
 }
 
 void
-monteCarloRadiosityPreStep(java::ArrayList<Patch *> *scenePatches) {
+monteCarloRadiosityPreStep(java::ArrayList<Patch *> *scenePatches, java::ArrayList<Geometry *> *sceneGeometries) {
     if ( !GLOBAL_stochasticRaytracing_monteCarloRadiosityState.inited ) {
-        monteCarloRadiosityReInit(scenePatches);
+        monteCarloRadiosityReInit(scenePatches, sceneGeometries);
     }
     if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceDriven && GLOBAL_camera_mainCamera.changed ) {
         monteCarloRadiosityUpdateViewImportance(scenePatches);

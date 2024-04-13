@@ -169,13 +169,18 @@ extern void monteCarloRadiosityDestroyPatchData(Patch *patch);
 extern void monteCarloRadiosityPatchComputeNewColor(Patch *patch);
 extern void monteCarloRadiosityInit();
 extern void monteCarloRadiosityUpdateViewImportance(java::ArrayList<Patch *> *scenePatches);
-extern void monteCarloRadiosityReInit(java::ArrayList<Patch *> *scenePatches);
-extern void monteCarloRadiosityPreStep(java::ArrayList<Patch *> *scenePatches);
+extern void monteCarloRadiosityReInit(java::ArrayList<Patch *> *scenePatches, java::ArrayList<Geometry *> *sceneGeometries);
+extern void monteCarloRadiosityPreStep(java::ArrayList<Patch *> *scenePatches, java::ArrayList<Geometry *> *sceneGeometries);
 extern void monteCarloRadiosityTerminate(java::ArrayList<Patch *> *scenePatches);
 extern ColorRgb monteCarloRadiosityGetRadiance(Patch *patch, double u, double v, Vector3D dir);
 extern void stochasticRelaxationRadiosityParseOptions(int *argc, char **argv);
 extern void randomWalkRadiosityParseOptions(int *argc, char **argv);
 
-extern void doNonDiffuseFirstShot(java::ArrayList<Patch *> *scenePatches, java::ArrayList<Patch *> *lightPatches, RadianceMethod *context);
+extern void
+doNonDiffuseFirstShot(
+    java::ArrayList<Patch *> *scenePatches,
+    java::ArrayList<Geometry *> *sceneGeometries,
+    java::ArrayList<Patch *> *lightPatches,
+    RadianceMethod *context);
 
 #endif

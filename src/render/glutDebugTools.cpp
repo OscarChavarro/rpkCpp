@@ -16,6 +16,7 @@ static int globalHeight = 1200;
 static java::ArrayList<Patch *> *globalScenePatches;
 static java::ArrayList<Patch *> *globalLightPatches;
 static RadianceMethod *globalRadianceMethod;
+static java::ArrayList<Geometry *> *globalSceneGeometries;
 
 GlutDebugState GLOBAL_render_glutDebugState;
 
@@ -56,7 +57,7 @@ keypressCallback(unsigned char keyChar, int /*x*/, int /*y*/) {
             }
             break;
         case ' ':
-            globalRadianceMethod->doStep(globalScenePatches, GLOBAL_scene_geometries, globalLightPatches);
+            globalRadianceMethod->doStep(globalScenePatches, globalSceneGeometries, globalLightPatches);
             break;
         default:
             return;
@@ -100,6 +101,7 @@ drawCallback() {
     openGlRenderScene(
         globalScenePatches,
         GLOBAL_scene_clusteredGeometries,
+        globalSceneGeometries,
         nullptr,
         globalRadianceMethod);
     glutSwapBuffers();
@@ -111,11 +113,13 @@ executeGlutGui(
     char *argv[],
     java::ArrayList<Patch *> *scenePatches,
     java::ArrayList<Patch *> *lightPatches,
+    java::ArrayList<Geometry *> *sceneGeometries,
     RadianceMethod *radianceMethod)
 {
     globalLightPatches = lightPatches;
     globalScenePatches = scenePatches;
     globalRadianceMethod = radianceMethod;
+    globalSceneGeometries = sceneGeometries;
     glutInit(&argc, argv);
     glutInitWindowPosition(0, 0);
     glutInitWindowSize(globalWidth, globalHeight);

@@ -117,19 +117,19 @@ Computes front- and back-clipping plane distance for the current GLOBAL_scene_wo
 GLOBAL_camera_mainCamera
 */
 void
-renderGetNearFar(float *near, float *far) {
+renderGetNearFar(float *near, float *far, java::ArrayList<Geometry *> *sceneGeometries) {
     BoundingBox bounds;
     Vector3D b[2], d;
     int i, j, k;
     float z;
 
-    if ( GLOBAL_scene_geometries == nullptr || GLOBAL_scene_geometries->size() == 0 ) {
+    if ( sceneGeometries == nullptr || sceneGeometries->size() == 0 ) {
         *far = 10.0;
         *near = 0.1;
         return;
     }
 
-    geometryListBounds(GLOBAL_scene_geometries, &bounds);
+    geometryListBounds(sceneGeometries, &bounds);
 
     b[0].set(bounds.coordinates[MIN_X], bounds.coordinates[MIN_Y], bounds.coordinates[MIN_Z]);
     b[1].set(bounds.coordinates[MAX_X], bounds.coordinates[MAX_Y], bounds.coordinates[MAX_Z]);
