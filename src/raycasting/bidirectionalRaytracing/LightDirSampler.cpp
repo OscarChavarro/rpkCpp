@@ -5,7 +5,6 @@
 #include "material/Material.h"
 #include "material/PhongEmittanceDistributionFunction.h"
 #include "raycasting/bidirectionalRaytracing/LightDirSampler.h"
-#include "scene/scene.h"
 
 /**
 sample : newNode gets filled, others may change
@@ -42,7 +41,7 @@ LightDirSampler::sample(
     newNode->m_inBsdf = thisNode->m_outBsdf; // Light can be placed in a medium
 
     // Transfer
-    if ( !SampleTransfer(GLOBAL_scene_background, thisNode, newNode, &dir, pdfDir) ) {
+    if ( !SampleTransfer(thisNode, newNode, &dir, pdfDir) ) {
         thisNode->m_rayType = STOPS;
         return false;
     }

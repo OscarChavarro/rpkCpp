@@ -11,12 +11,10 @@ path nodes and have to possible actions :
 #define __SAMPLER__
 
 #include "raycasting/common/pathnode.h"
-#include "scene/Background.h"
 
 class Sampler {
   protected:
     virtual bool SampleTransfer(
-        Background *sceneBackground,
         SimpleRaytracingPathNode *thisNode,
         SimpleRaytracingPathNode *newNode,
         Vector3D *dir,

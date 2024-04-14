@@ -2,7 +2,6 @@
 #include "material/bsdf.h"
 #include "raycasting/common/raytools.h"
 #include "raycasting/raytracing/specularsampler.h"
-#include "scene/scene.h"
 
 bool
 CSpecularSampler::sample(
@@ -70,7 +69,7 @@ CSpecularSampler::sample(
     DetermineRayType(thisNode, newNode, &dir);
 
     // Transfer
-    if ( !SampleTransfer(GLOBAL_scene_background, thisNode, newNode, &dir, pdfDir) ) {
+    if ( !SampleTransfer(thisNode, newNode, &dir, pdfDir) ) {
         thisNode->m_rayType = STOPS;
         return false;
     }
