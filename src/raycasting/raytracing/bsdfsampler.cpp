@@ -4,6 +4,7 @@
 #include "material/bsdf.h"
 #include "raycasting/common/raytools.h"
 #include "raycasting/raytracing/bsdfsampler.h"
+#include "scene/scene.h"
 
 bool CBsdfSampler::sample(SimpleRaytracingPathNode *prevNode, SimpleRaytracingPathNode *thisNode,
                           SimpleRaytracingPathNode *newNode, double x_1, double x_2,
@@ -37,7 +38,7 @@ bool CBsdfSampler::sample(SimpleRaytracingPathNode *prevNode, SimpleRaytracingPa
     DetermineRayType(thisNode, newNode, &dir);
 
     // Transfer
-    if ( !SampleTransfer(thisNode, newNode, &dir, pdfDir) ) {
+    if ( !sampleTransfer(GLOBAL_scene_background, thisNode, newNode, &dir, pdfDir) ) {
         thisNode->m_rayType = STOPS;
         return false;
     }

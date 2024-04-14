@@ -3,6 +3,7 @@
 #include "PHOTONMAP/screensampler.h"
 #include "raycasting/common/raytools.h"
 #include "scene/Camera.h"
+#include "scene/scene.h"
 
 /**
 newNode gets filled, others may change
@@ -42,7 +43,7 @@ ScreenSampler::sample(
     newNode->m_inBsdf = thisNode->m_outBsdf; // GLOBAL_camera_mainCamera can be placed in a medium
 
     // Transfer
-    if ( !SampleTransfer(thisNode, newNode, &dir, pdfDir) ) {
+    if ( !sampleTransfer(GLOBAL_scene_background, thisNode, newNode, &dir, pdfDir) ) {
         thisNode->m_rayType = STOPS;
         return false;
     }
