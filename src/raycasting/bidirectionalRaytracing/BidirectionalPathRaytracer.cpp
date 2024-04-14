@@ -13,6 +13,7 @@
 #include "raycasting/raytracing/densitykernel.h"
 #include "raycasting/bidirectionalRaytracing/spar.h"
 #include "raycasting/bidirectionalRaytracing/BidirectionalPathRaytracer.h"
+#include "scene/scene.h"
 
 // Persistent biDirPath state, contains actual GUI state and some other stuff
 BIDIRPATH_STATE GLOBAL_rayTracing_biDirectionalPath;
@@ -764,7 +765,8 @@ doBptAndSubsequentImages(BidirectionalPathTracingConfiguration *config) {
         config->baseConfig->samplesPerPixel = currentSamples;
         config->baseConfig->totalSamples = currentSamples * GLOBAL_camera_mainCamera.xSize * GLOBAL_camera_mainCamera.ySize;;
 
-        ScreenIterateSequential((ColorRgb(*)(Background *, int, int, void *)) bpCalcPixel, config);
+        screenIterateSequential(GLOBAL_scene_background, (ColorRgb(*)(Background *, int, int, void *)) bpCalcPixel,
+                                config);
 
         config->screen->render();
 
@@ -825,7 +827,7 @@ doBptDensityEstimation(BidirectionalPathTracingConfiguration *config) {
     config->deStoreHits = true;
 
     // Do the run
-    ScreenIterateSequential((ColorRgb(*)(Background *,int, int, void *)) bpCalcPixel, config);
+    screenIterateSequential(GLOBAL_scene_background, (ColorRgb(*)(Background *, int, int, void *)) bpCalcPixel, config);
 
     // Now we have a noisy screen in dest and hits in double buffer
 
@@ -912,7 +914,8 @@ doBptDensityEstimation(BidirectionalPathTracingConfiguration *config) {
 
         // Iterate screen : nNew - nOld, using an appropriate scale factor
 
-        ScreenIterateSequential((ColorRgb(*)(Background *, int, int, void *)) bpCalcPixel, config);
+        screenIterateSequential(GLOBAL_scene_background, (ColorRgb(*)(Background *, int, int, void *)) bpCalcPixel,
+                                config);
 
         // Render screen & write
 
@@ -1043,9 +1046,11 @@ biDirPathTrace(
     } else if ( config.baseConfig->doDensityEstimation ) {
             doBptDensityEstimation(&config);
     } else if ( !GLOBAL_rayTracing_biDirectionalPath.basecfg.progressiveTracing ) {
-        ScreenIterateSequential((ColorRgb(*)(Background *, int, int, void *)) bpCalcPixel, &config);
+                screenIterateSequential(GLOBAL_scene_background,
+                                        (ColorRgb(*)(Background *, int, int, void *)) bpCalcPixel, &config);
     } else {
-        ScreenIterateProgressive((ColorRgb(*)(Background *, int, int, void *)) bpCalcPixel, &config);
+                screenIterateProgressive(GLOBAL_scene_background,
+                                         (ColorRgb(*)(Background *, int, int, void *)) bpCalcPixel, &config);
     }
 
     config.screen->render();

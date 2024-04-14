@@ -46,7 +46,7 @@ ScreenIterateFinish() {
 }
 
 void
-ScreenIterateSequential(SCREEN_ITERATE_CALLBACK callback, void *data) {
+screenIterateSequential(Background *sceneBackground, SCREEN_ITERATE_CALLBACK callback, void *data) {
     int i;
     int j;
     int width;
@@ -93,8 +93,11 @@ FillRect(int x0, int y0, int x1, int y1, ColorRgb col, ColorRgb *rgb) {
 
 
 void
-ScreenIterateProgressive(SCREEN_ITERATE_CALLBACK callback, void *data) {
-    int i;
+screenIterateProgressive(
+    Background *sceneBackground,
+    SCREEN_ITERATE_CALLBACK callback,
+    void *data)
+{
     int width;
     int height;
     ColorRgb col;
@@ -119,7 +122,7 @@ ScreenIterateProgressive(SCREEN_ITERATE_CALLBACK callback, void *data) {
     height = GLOBAL_camera_mainCamera.ySize;
     rgb = new ColorRgb[width * height]; // We need a full screen!
 
-    for ( i = 0; i < width * height; i++ ) {
+    for ( int i = 0; i < width * height; i++ ) {
         rgb[i] = GLOBAL_material_black;
     }
 

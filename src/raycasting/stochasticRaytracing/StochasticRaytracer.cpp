@@ -25,6 +25,7 @@ stochasticRaytracerGetRadiance(
 
 ColorRgb
 stochasticRaytracerGetScatteredRadiance(
+    Background * sceneBackground,
     SimpleRaytracingPathNode *thisNode,
     StochasticRaytracingConfiguration *config,
     StorageReadout readout,
@@ -83,22 +84,21 @@ stochasticRaytracerGetScatteredRadiance(
 
         // Do we need to compute scattered radiance at all...
         if ( (nrSamples > 0) && (thisNode->m_depth + 1 < config->samplerConfig.maxDepth) ) {
-            int i;
-            double x_1;
-            double x_2;
+            double x1;
+            double x2;
             double factor;
             StratifiedSampling2D stratified(nrSamples);
             ColorRgb radiance;
             bool doRR = thisNode->m_depth >= config->samplerConfig.minDepth;
 
-            for ( i = 0; i < nrSamples; i++ ) {
-                stratified.sample(&x_1, &x_2);
+            for ( int i = 0; i < nrSamples; i++ ) {
+                stratified.sample(&x1, &x2);
 
                 // Surface sampling
                 if ( config->samplerConfig.surfaceSampler->sample(
                         thisNode->previous(),
                         thisNode,
-                        &newNode, x_1, x_2,
+                        &newNode, x1, x2,
                         doRR,
                         si->flags)
                      && ((newNode.m_rayType != ENVIRONMENT) || (config->backgroundIndirect)) ) {
@@ -114,9 +114,9 @@ stochasticRaytracerGetScatteredRadiance(
                     // Get the incoming radiance
                     if ( siCurrent == -1 ) {
                         // Storage bounce
-                        radiance = stochasticRaytracerGetRadiance(GLOBAL_scene_background, &newNode, config, READ_NOW, nrSamples, context);
+                        radiance = stochasticRaytracerGetRadiance(sceneBackground, &newNode, config, READ_NOW, nrSamples, context);
                     } else {
-                        radiance = stochasticRaytracerGetRadiance(GLOBAL_scene_background, &newNode, config, readout, nrSamples, context);
+                        radiance = stochasticRaytracerGetRadiance(sceneBackground, &newNode, config, readout, nrSamples, context);
                     }
 
                     // Frame coherent & correlated sampling
@@ -403,7 +403,7 @@ stochasticRaytracerGetRadiance(
         result.add(result, radiance);
 
         // Scattered light
-        radiance = stochasticRaytracerGetScatteredRadiance(thisNode, config, readout, context);
+        radiance = stochasticRaytracerGetScatteredRadiance(sceneBackground, thisNode, config, readout, context);
         result.add(result, radiance);
 
         // Emitted Light
@@ -463,7 +463,7 @@ stochasticRaytracerGetRadiance(
 }
 
 static ColorRgb
-CalcPixel(
+calcPixel(
     Background *sceneBackground,
     int nx,
     int ny,
@@ -566,9 +566,13 @@ RTStochastic_Trace(
     }
 
     if ( !GLOBAL_raytracing_state.progressiveTracing ) {
-        ScreenIterateSequential((ColorRgb(*)(Background *, int, int, void *))CalcPixel, &config);
+        screenIterateSequential(
+            GLOBAL_scene_background,
+            (ColorRgb(*)(Background *, int, int, void *)) calcPixel,
+            &config);
     } else {
-        ScreenIterateProgressive((ColorRgb(*)(Background*, int, int, void *))CalcPixel, &config);
+        screenIterateProgressive(GLOBAL_scene_background, (ColorRgb(*)(Background *, int, int, void *)) calcPixel,
+                                 &config);
     }
 
     config.screen->render();

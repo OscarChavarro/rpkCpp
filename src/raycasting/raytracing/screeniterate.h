@@ -13,9 +13,16 @@ Several functions are provided for different iterating schemes
 
 typedef ColorRgb(*SCREEN_ITERATE_CALLBACK)(Background *, int, int, void *);
 
-void ScreenIterateSequential(SCREEN_ITERATE_CALLBACK callback, void *data);
+void
+screenIterateSequential(
+    Background *sceneBackground,
+    SCREEN_ITERATE_CALLBACK callback,
+    void *data);
 
-void ScreenIterateProgressive(SCREEN_ITERATE_CALLBACK callback,
-                              void *data);
+void
+screenIterateProgressive(
+    Background *sceneBackground,
+    SCREEN_ITERATE_CALLBACK callback,
+    void *data);
 
 #endif
