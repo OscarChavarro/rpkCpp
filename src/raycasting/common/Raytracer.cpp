@@ -18,6 +18,7 @@ rayTrace(
     FILE *fp,
     int isPipe,
     Raytracer *activeRayTracer,
+    Background *sceneBackground,
     java::ArrayList<Patch *> *scenePatches,
     java::ArrayList<Patch *> *lightPatches,
     Geometry *clusteredWorldGeometry,
@@ -35,7 +36,7 @@ rayTrace(
     }
 
     if ( activeRayTracer != nullptr ) {
-        activeRayTracer->Raytrace(img, scenePatches, lightPatches, clusteredWorldGeometry, context);
+        activeRayTracer->Raytrace(sceneBackground, img, scenePatches, lightPatches, clusteredWorldGeometry, context);
     }
 
     if ( img ) {

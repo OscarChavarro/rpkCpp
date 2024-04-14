@@ -189,6 +189,7 @@ rayCasterInitialize(java::ArrayList<Patch *> * /*lightPatches*/) {
 
 static void
 rayCasterExecute(
+    Background * /*sceneBackground*/,
     ImageOutputHandle *ip,
     java::ArrayList<Patch *> *scenePatches,
     java::ArrayList<Patch *> * /*lightPatches*/,

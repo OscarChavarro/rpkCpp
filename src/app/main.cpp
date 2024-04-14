@@ -609,7 +609,7 @@ mainExecuteRendering(java::ArrayList<Patch *> *scenePatches, RadianceMethod *con
                 context);
     #endif
 
-    batch(scenePatches, GLOBAL_app_lightSourcePatches, globalSceneGeometries, globalClusteredWorldGeometry, context);
+    batch(GLOBAL_scene_background, scenePatches, GLOBAL_app_lightSourcePatches, globalSceneGeometries, globalClusteredWorldGeometry, context);
 }
 
 static void

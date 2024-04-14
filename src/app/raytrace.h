@@ -18,6 +18,7 @@
         char *filename,
         FILE *fp,
         int isPipe,
+        Background *sceneBackground,
         java::ArrayList<Patch *> *scenePatches,
         java::ArrayList<Patch *> *lightPatches,
         Geometry *clusteredWorldGeometry,

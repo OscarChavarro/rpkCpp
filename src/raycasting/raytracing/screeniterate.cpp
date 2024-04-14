@@ -46,9 +46,10 @@ ScreenIterateFinish() {
 }
 
 void
-screenIterateSequential(Background *sceneBackground, SCREEN_ITERATE_CALLBACK callback, void *data) {
-    int i;
-    int j;
+screenIterateSequential(
+    Background *sceneBackground,
+    SCREEN_ITERATE_CALLBACK callback, void *data)
+{
     int width;
     int height;
     ColorRgb col;
@@ -61,14 +62,14 @@ screenIterateSequential(Background *sceneBackground, SCREEN_ITERATE_CALLBACK cal
     rgb = new ColorRgb[width];
 
     // Shoot rays through all the pixels
-    for ( j = 0; j < height; j++ ) {
-        for ( i = 0; i < width; i++ ) {
-            col = callback(GLOBAL_scene_background, i, j, data);
-            radianceToRgb(col, &rgb[i]);
+    for ( int i = 0; i < height; i++ ) {
+        for ( int j = 0; j < width; j++ ) {
+            col = callback(sceneBackground, j, i, data);
+            radianceToRgb(col, &rgb[j]);
             GLOBAL_raytracer_pixelCount++;
         }
 
-        openGlRenderPixels(0, height - j - 1, width, 1, rgb);
+        openGlRenderPixels(0, height - i - 1, width, 1, rgb);
     }
 
     delete[] rgb;
@@ -159,7 +160,7 @@ screenIterateProgressive(
                 }
 
                 if ( !skip || (ySteps & 1) || (xSteps & 1) ) {
-                    col = callback(GLOBAL_scene_background, x0, height - y0 - 1, data);
+                    col = callback(sceneBackground, x0, height - y0 - 1, data);
                     radianceToRgb(col, &pixelRGB);
                     FillRect(x0, y0, x1, y1, pixelRGB, rgb);
 

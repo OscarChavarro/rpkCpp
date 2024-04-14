@@ -551,7 +551,8 @@ is not a nullptr pointer, write the ray-traced image to the file
 pointed to by 'fp'
 */
 void
-RTStochastic_Trace(
+rtStochasticTrace(
+    Background *sceneBackground,
     ImageOutputHandle *ip,
     java::ArrayList<Patch *> * /*scenePatches*/,
     java::ArrayList<Patch *> *lightPatches,
@@ -567,12 +568,14 @@ RTStochastic_Trace(
 
     if ( !GLOBAL_raytracing_state.progressiveTracing ) {
         screenIterateSequential(
-            GLOBAL_scene_background,
+                sceneBackground,
             (ColorRgb(*)(Background *, int, int, void *)) calcPixel,
             &config);
     } else {
-        screenIterateProgressive(GLOBAL_scene_background, (ColorRgb(*)(Background *, int, int, void *)) calcPixel,
-                                 &config);
+        screenIterateProgressive(
+            sceneBackground,
+            (ColorRgb(*)(Background *, int, int, void *))calcPixel,
+            &config);
     }
 
     config.screen->render();
@@ -629,14 +632,14 @@ RTStochastic_Terminate() {
 Raytracer
 GLOBAL_raytracing_stochasticMethod =
 {
-    (char *)"StochasticRaytracing",
-    4,
-    (char *)"Stochastic Raytracing & Final Gathers",
-    stochasticRayTracerDefaults,
-    RTStochasticParseOptions,
-    RTStochastic_Init,
-    RTStochastic_Trace,
-    RTStochastic_Redisplay,
-    RTStochastic_SaveImage,
-    RTStochastic_Terminate
+        (char *)"StochasticRaytracing",
+        4,
+        (char *)"Stochastic Raytracing & Final Gathers",
+        stochasticRayTracerDefaults,
+        RTStochasticParseOptions,
+        RTStochastic_Init,
+        rtStochasticTrace,
+        RTStochastic_Redisplay,
+        RTStochastic_SaveImage,
+        RTStochastic_Terminate
 };

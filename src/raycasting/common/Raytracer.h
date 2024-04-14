@@ -4,6 +4,7 @@
 #include "java/util/ArrayList.h"
 #include "skin/Patch.h"
 #include "IMAGE/imagec.h"
+#include "scene/Background.h"
 
 /**
 TODO: This should be converted on to the Raytracer interface for inheriting the current four
@@ -36,7 +37,7 @@ class Raytracer {
     // Raytrace the current scene as seen with the current camera. If 'ip'
     // is not a nullptr pointer, write the ray-traced image using the image output
     // handle pointed by 'ip'
-    void (*Raytrace)(ImageOutputHandle *ip, java::ArrayList<Patch *> *scenePatches, java::ArrayList<Patch *> *lightPatches, Geometry *clusteredWorldGeometry, RadianceMethod *context);
+    void (*Raytrace)(Background *sceneBackground, ImageOutputHandle *ip, java::ArrayList<Patch *> *scenePatches, java::ArrayList<Patch *> *lightPatches, Geometry *clusteredWorldGeometry, RadianceMethod *context);
 
     // Re-displays last ray-traced image. Returns FALSE if there is no
     // previous ray-traced image and TRUE there is
@@ -60,6 +61,7 @@ rayTrace(
     FILE *fp,
     int isPipe,
     Raytracer *activeRayTracer,
+    Background *sceneBackground,
     java::ArrayList<Patch *> *scenePatches,
     java::ArrayList<Patch *> *lightPatches,
     Geometry *clusteredWorldGeometry,

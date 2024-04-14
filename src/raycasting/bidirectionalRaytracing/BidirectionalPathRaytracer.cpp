@@ -709,7 +709,7 @@ bpCalcPixel(Background * /*sceneBackground*/, int nx, int ny, BidirectionalPathT
 }
 
 static void
-doBptAndSubsequentImages(BidirectionalPathTracingConfiguration *config) {
+doBptAndSubsequentImages(Background *sceneBackground, BidirectionalPathTracingConfiguration *config) {
     int maxSamples;
     int nrIterations;
     char *format1 = new char[STRINGS_SIZE];
@@ -765,7 +765,7 @@ doBptAndSubsequentImages(BidirectionalPathTracingConfiguration *config) {
         config->baseConfig->samplesPerPixel = currentSamples;
         config->baseConfig->totalSamples = currentSamples * GLOBAL_camera_mainCamera.xSize * GLOBAL_camera_mainCamera.ySize;;
 
-        screenIterateSequential(GLOBAL_scene_background, (ColorRgb(*)(Background *, int, int, void *)) bpCalcPixel,
+        screenIterateSequential(sceneBackground, (ColorRgb(*)(Background *, int, int, void *)) bpCalcPixel,
                                 config);
 
         config->screen->render();
@@ -792,8 +792,11 @@ doBptAndSubsequentImages(BidirectionalPathTracingConfiguration *config) {
     delete[] filename;
 }
 
-void
-doBptDensityEstimation(BidirectionalPathTracingConfiguration *config) {
+static void
+doBptDensityEstimation(
+    Background *sceneBackground,
+    BidirectionalPathTracingConfiguration *config)
+{
     char *fileName = new char[STRINGS_SIZE];
 
     // mainInit the screens, one reference one destination
@@ -827,7 +830,7 @@ doBptDensityEstimation(BidirectionalPathTracingConfiguration *config) {
     config->deStoreHits = true;
 
     // Do the run
-    screenIterateSequential(GLOBAL_scene_background, (ColorRgb(*)(Background *, int, int, void *)) bpCalcPixel, config);
+    screenIterateSequential(sceneBackground, (ColorRgb(*)(Background *, int, int, void *)) bpCalcPixel, config);
 
     // Now we have a noisy screen in dest and hits in double buffer
 
@@ -914,7 +917,7 @@ doBptDensityEstimation(BidirectionalPathTracingConfiguration *config) {
 
         // Iterate screen : nNew - nOld, using an appropriate scale factor
 
-        screenIterateSequential(GLOBAL_scene_background, (ColorRgb(*)(Background *, int, int, void *)) bpCalcPixel,
+        screenIterateSequential(sceneBackground, (ColorRgb(*)(Background *, int, int, void *)) bpCalcPixel,
                                 config);
 
         // Render screen & write
@@ -961,6 +964,7 @@ pointed to by 'fp'
 */
 static void
 biDirPathTrace(
+    Background *sceneBackground,
     ImageOutputHandle *ip,
     java::ArrayList<Patch *> * /*scenePatches*/,
     java::ArrayList<Patch *> * /*lightPatches*/,
@@ -1042,15 +1046,15 @@ biDirPathTrace(
     }
 
     if ( GLOBAL_rayTracing_biDirectionalPath.saveSubsequentImages ) {
-        doBptAndSubsequentImages(&config);
+        doBptAndSubsequentImages(sceneBackground, &config);
     } else if ( config.baseConfig->doDensityEstimation ) {
-            doBptDensityEstimation(&config);
+        doBptDensityEstimation(sceneBackground, &config);
     } else if ( !GLOBAL_rayTracing_biDirectionalPath.basecfg.progressiveTracing ) {
-                screenIterateSequential(GLOBAL_scene_background,
-                                        (ColorRgb(*)(Background *, int, int, void *)) bpCalcPixel, &config);
+        screenIterateSequential(sceneBackground,
+                                (ColorRgb(*)(Background *, int, int, void *)) bpCalcPixel, &config);
     } else {
-                screenIterateProgressive(GLOBAL_scene_background,
-                                         (ColorRgb(*)(Background *, int, int, void *)) bpCalcPixel, &config);
+        screenIterateProgressive(sceneBackground,
+                                 (ColorRgb(*)(Background *, int, int, void *)) bpCalcPixel, &config);
     }
 
     config.screen->render();

@@ -117,7 +117,8 @@ static RayMatter *rm = nullptr;
 RayMattingState GLOBAL_rayCasting_rayMatterState;
 
 static void
-IRayMatte(
+iRayMatte(
+    Background * /*sceneBackground*/,
     ImageOutputHandle *ip,
     java::ArrayList<Patch *> * /*scenePatches*/,
     java::ArrayList<Patch *> * /*lightPatches*/,
@@ -169,14 +170,14 @@ Initialize(java::ArrayList<Patch *> * /*lightPatches*/) {
 }
 
 Raytracer GLOBAL_rayCasting_RayMatting = {
-    "RayMatting",
-    4,
-    "Ray Matting",
-    rayMattingDefaults,
-    rayMattingParseOptions,
-    Initialize,
-    IRayMatte,
-    Redisplay,
-    SaveImage,
-    Terminate
+        "RayMatting",
+        4,
+        "Ray Matting",
+        rayMattingDefaults,
+        rayMattingParseOptions,
+        Initialize,
+        iRayMatte,
+        Redisplay,
+        SaveImage,
+        Terminate
 };

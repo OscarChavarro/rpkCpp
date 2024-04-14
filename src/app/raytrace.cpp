@@ -153,6 +153,7 @@ batchRayTrace(
     char *filename,
     FILE *fp,
     int isPipe,
+    Background *sceneBackground,
     java::ArrayList<Patch *> *scenePatches,
     java::ArrayList<Patch *> *lightPatches,
     Geometry *clusteredWorldGeometry,
@@ -162,7 +163,7 @@ batchRayTrace(
     GLOBAL_camera_mainCamera.changed = false;
 
     canvasPushMode();
-    rayTrace(filename, fp, isPipe, GLOBAL_raytracer_activeRaytracer, scenePatches, lightPatches, clusteredWorldGeometry, context);
+    rayTrace(filename, fp, isPipe, GLOBAL_raytracer_activeRaytracer, sceneBackground, scenePatches, lightPatches, clusteredWorldGeometry, context);
     canvasPullMode();
 }
 

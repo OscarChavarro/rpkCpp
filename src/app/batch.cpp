@@ -185,6 +185,7 @@ parseBatchOptions(int *argc, char **argv) {
 
 void
 batch(
+    Background *sceneBackground,
     java::ArrayList<Patch *> *scenePatches,
     java::ArrayList<Patch *> *lightPatches,
     java::ArrayList<Geometry *> *sceneGeometries,
@@ -292,7 +293,7 @@ batch(
             printf("Doing %s ...\n", GLOBAL_raytracer_activeRaytracer->fullName);
 
             start_time = clock();
-            batchRayTrace(nullptr, nullptr, false, scenePatches, lightPatches, clusteredWorldGeometry, context);
+            batchRayTrace(nullptr, nullptr, false, sceneBackground, scenePatches, lightPatches, clusteredWorldGeometry, context);
 
             if ( globalTimings ) {
                 fprintf(stdout, "Raytracing total time %g secs.\n",
