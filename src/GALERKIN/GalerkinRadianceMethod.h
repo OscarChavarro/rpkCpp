@@ -56,7 +56,7 @@ class GalerkinRadianceMethod : public RadianceMethod {
     Element *createPatchData(Patch *patch);
     void destroyPatchData(Patch *patch);
     char *getStats();
-    void renderScene(java::ArrayList<Patch *> *scenePatches);
+    void renderScene(java::ArrayList<Patch *> *scenePatches, Geometry *clusteredWorldGeometry);
     void writeVRML(FILE *fp);
 };
 

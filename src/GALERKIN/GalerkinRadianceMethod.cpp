@@ -515,7 +515,7 @@ GalerkinRadianceMethod::getStats() {
 }
 
 void
-GalerkinRadianceMethod::renderScene(java::ArrayList<Patch *> *scenePatches) {
+GalerkinRadianceMethod::renderScene(java::ArrayList<Patch *> *scenePatches, Geometry *clusteredWorldGeometry) {
     if ( GLOBAL_render_renderOptions.frustumCulling ) {
         openGlRenderWorldOctree(galerkinRenderPatch, GLOBAL_scene_clusteredWorldGeom);
     } else {

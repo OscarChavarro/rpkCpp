@@ -192,6 +192,7 @@ doNonDiffuseFirstShot(
     java::ArrayList<Patch *> *scenePatches,
     java::ArrayList<Geometry *> *sceneGeometries,
     java::ArrayList<Patch *> *lightPatches,
+    Geometry *clusteredWorldGeometry,
     RadianceMethod *context);
 
 #endif

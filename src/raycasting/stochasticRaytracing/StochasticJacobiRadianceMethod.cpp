@@ -183,6 +183,7 @@ static void
 stochasticRelaxationRadiosityDoIncrementalRadianceIterations(
     java::ArrayList<Patch *> *scenePatches,
     java::ArrayList<Geometry *> *sceneGeometries,
+    Geometry *clusteredWorldGeometry,
     RadianceMethod *context)
 {
     double refUnShot;
@@ -241,6 +242,7 @@ stochasticRelaxationRadiosityDoIncrementalRadianceIterations(
                 scenePatches,
                 GLOBAL_scene_clusteredGeometries,
                 sceneGeometries,
+                clusteredWorldGeometry,
                 f,
                 context);
         }
@@ -453,7 +455,7 @@ stochasticRelaxationRadiosityRenderPatch(Patch *patch) {
 }
 
 void
-StochasticJacobiRadianceMethod::renderScene(java::ArrayList<Patch *> *scenePatches) {
+StochasticJacobiRadianceMethod::renderScene(java::ArrayList<Patch *> *scenePatches, Geometry *clusteredWorldGeometry) {
     if ( GLOBAL_render_renderOptions.frustumCulling ) {
         openGlRenderWorldOctree(stochasticRelaxationRadiosityRenderPatch, GLOBAL_scene_clusteredWorldGeom);
     } else {
@@ -475,7 +477,7 @@ StochasticJacobiRadianceMethod::doStep(
     // Do some real work now
     if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.currentIteration == 1 ) {
         if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.doNonDiffuseFirstShot ) {
-            doNonDiffuseFirstShot(scenePatches, sceneGeometries, lightPatches, this);
+            doNonDiffuseFirstShot(scenePatches, sceneGeometries, lightPatches, clusteredWorldGeometry, this);
         }
         int initial_nr_of_rays = (int)GLOBAL_stochasticRaytracing_monteCarloRadiosityState.tracedRays;
 
@@ -492,7 +494,7 @@ StochasticJacobiRadianceMethod::doStep(
                     }
                 }
         }
-        stochasticRelaxationRadiosityDoIncrementalRadianceIterations(scenePatches, sceneGeometries, this);
+        stochasticRelaxationRadiosityDoIncrementalRadianceIterations(scenePatches, sceneGeometries, clusteredWorldGeometry, this);
 
         // Subsequent regular iterations will take as many rays as in the whole
         // sequence of incremental iteration steps

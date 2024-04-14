@@ -20,6 +20,7 @@ openGlRenderScene(
     java::ArrayList<Patch *> *scenePatches,
     java::ArrayList<Geometry *> *clusteredGeometryList,
     java::ArrayList<Geometry *> *sceneGeometries,
+    Geometry *clusteredWorldGeometry,
     int (*reDisplayCallback)(),
     RadianceMethod *context);
 

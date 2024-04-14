@@ -672,7 +672,7 @@ PhotonMapRadianceMethod::getRadiance(Patch *patch, double u, double v, Vector3D 
 }
 
 void
-PhotonMapRadianceMethod::renderScene(java::ArrayList<Patch *> *scenePatches) {
+PhotonMapRadianceMethod::renderScene(java::ArrayList<Patch *> *scenePatches, Geometry *clusteredWorldGeometry) {
     if ( GLOBAL_photonMap_config.screen && GLOBAL_photonMap_state.renderImage ) {
         GLOBAL_photonMap_config.screen->render();
     } else {

@@ -473,11 +473,11 @@ openGlRenderNewDisplayList() {
 }
 
 static void
-openGlReallyRender(java::ArrayList<Patch *> *scenePatches, RadianceMethod *context) {
+openGlReallyRender(java::ArrayList<Patch *> *scenePatches, Geometry *clusteredWorldGeometry, RadianceMethod *context) {
     glPushMatrix();
     glRotated(GLOBAL_render_glutDebugState.angle, 0, 0, 1);
     if ( context != nullptr ) {
-        context->renderScene(scenePatches);
+        context->renderScene(scenePatches, clusteredWorldGeometry);
     } else if ( GLOBAL_render_renderOptions.frustumCulling ) {
         openGlRenderWorldOctree(openGlRenderPatch, GLOBAL_scene_clusteredWorldGeom);
     } else {
@@ -493,6 +493,7 @@ openGlRenderRadiance(
     java::ArrayList<Patch *> *scenePatches,
     java::ArrayList<Geometry *> *clusteredGeometryList,
     java::ArrayList<Geometry *> *sceneGeometries,
+    Geometry *clusteredWorldGeometry,
     RadianceMethod *context)
 {
     if ( GLOBAL_render_renderOptions.smoothShading ) {
@@ -514,14 +515,14 @@ openGlRenderRadiance(
             globalDisplayListId = 1;
             glNewList(globalDisplayListId, GL_COMPILE_AND_EXECUTE);
             // Render the scene
-            openGlReallyRender(scenePatches, context);
+            openGlReallyRender(scenePatches, clusteredWorldGeometry, context);
             glEndList();
         } else {
             glCallList(1);
         }
     } else {
         // Just render the scene
-        openGlReallyRender(scenePatches, context);
+        openGlReallyRender(scenePatches, clusteredWorldGeometry, context);
     }
 
     if ( GLOBAL_render_renderOptions.drawBoundingBoxes ) {
@@ -545,8 +546,10 @@ openGlRenderScene(
     java::ArrayList<Patch *> *scenePatches,
     java::ArrayList<Geometry *> *clusteredGeometryList,
     java::ArrayList<Geometry *> *sceneGeometries,
+    Geometry *clusteredWorldGeometry,
     int (*reDisplayCallback)(),
-    RadianceMethod *context) {
+    RadianceMethod *context)
+{
     if ( !globalOpenGlInitialized ) {
         return;
     }
@@ -560,7 +563,7 @@ openGlRenderScene(
     }
 
     if ( !GLOBAL_render_renderOptions.renderRayTracedImage || !openGlRenderRayTraced(reDisplayCallback) ) {
-        openGlRenderRadiance(scenePatches, clusteredGeometryList, sceneGeometries, context);
+        openGlRenderRadiance(scenePatches, clusteredGeometryList, sceneGeometries, clusteredWorldGeometry, context);
     }
 
     // Call installed render hooks, that want to render something in the scene

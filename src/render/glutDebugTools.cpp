@@ -103,6 +103,7 @@ drawCallback() {
         globalScenePatches,
         GLOBAL_scene_clusteredGeometries,
         globalSceneGeometries,
+        globalClusteredWorldGeom,
         nullptr,
         globalRadianceMethod);
     glutSwapBuffers();

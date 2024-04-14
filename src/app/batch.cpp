@@ -109,7 +109,13 @@ batchProcessFile(
 }
 
 static void
-batchSaveRadianceImage(const char *fileName, FILE *fp, int isPipe, java::ArrayList<Patch *> *scenePatches, RadianceMethod *context) {
+batchSaveRadianceImage(
+    const char *fileName,
+    FILE *fp,
+    int isPipe,
+    java::ArrayList<Patch *> *scenePatches,
+    RadianceMethod *context)
+{
     clock_t t;
     char *extension;
 
@@ -223,6 +229,7 @@ batch(
                 scenePatches,
                 GLOBAL_scene_clusteredGeometries,
                 sceneGeometries,
+                GLOBAL_scene_clusteredWorldGeom,
                 f,
                 context);
 

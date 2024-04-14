@@ -176,6 +176,7 @@ doNonDiffuseFirstShot(
     java::ArrayList<Patch *> *scenePatches,
     java::ArrayList<Geometry *> *sceneGeometries,
     java::ArrayList<Patch *> *lightPatches,
+    Geometry *clusteredWorldGeometry,
     RadianceMethod *context)
 {
     makeLightSourceTable(scenePatches, lightPatches);
@@ -191,6 +192,7 @@ doNonDiffuseFirstShot(
         scenePatches,
         sceneGeometries,
         GLOBAL_scene_clusteredGeometries,
+        clusteredWorldGeometry,
         f,
         context);
 }
