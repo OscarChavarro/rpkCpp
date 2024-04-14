@@ -168,7 +168,7 @@ extern Element *monteCarloRadiosityCreatePatchData(Patch *patch);
 extern void monteCarloRadiosityDestroyPatchData(Patch *patch);
 extern void monteCarloRadiosityPatchComputeNewColor(Patch *patch);
 extern void monteCarloRadiosityInit();
-extern void monteCarloRadiosityUpdateViewImportance(java::ArrayList<Patch *> *scenePatches);
+extern void monteCarloRadiosityUpdateViewImportance(java::ArrayList<Patch *> *scenePatches, Geometry *clusteredWorldGeometry);
 
 extern void
 monteCarloRadiosityReInit(

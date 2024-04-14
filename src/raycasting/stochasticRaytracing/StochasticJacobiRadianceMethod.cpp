@@ -231,7 +231,7 @@ stochasticRelaxationRadiosityDoIncrementalRadianceIterations(
         stochasticRelaxationRadiosityPrintIncrementalRadianceStats();
         if ( unShotFraction > 0.3 ) {
             stochasticRelaxationRadiosityRecomputeDisplayColors(scenePatches);
-            openGlRenderNewDisplayList();
+            openGlRenderNewDisplayList(clusteredWorldGeometry);
 
             int (*f)() = nullptr;
             if ( GLOBAL_raytracer_activeRaytracer != nullptr ) {
@@ -457,7 +457,7 @@ stochasticRelaxationRadiosityRenderPatch(Patch *patch) {
 void
 StochasticJacobiRadianceMethod::renderScene(java::ArrayList<Patch *> *scenePatches, Geometry *clusteredWorldGeometry) {
     if ( GLOBAL_render_renderOptions.frustumCulling ) {
-        openGlRenderWorldOctree(stochasticRelaxationRadiosityRenderPatch, GLOBAL_scene_clusteredWorldGeom);
+        openGlRenderWorldOctree(stochasticRelaxationRadiosityRenderPatch, clusteredWorldGeometry);
     } else {
         for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
             stochasticRelaxationRadiosityRenderPatch(scenePatches->get(i));

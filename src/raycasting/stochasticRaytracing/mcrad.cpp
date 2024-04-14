@@ -318,10 +318,10 @@ monteCarloRadiosityReInitImportance(Element *element) {
 }
 
 void
-monteCarloRadiosityUpdateViewImportance(java::ArrayList<Patch *> *scenePatches) {
+monteCarloRadiosityUpdateViewImportance(java::ArrayList<Patch *> *scenePatches, Geometry *clusteredWorldGeometry) {
     fprintf(stderr, "Updating direct visibility ... \n");
 
-    updateDirectVisibility(scenePatches, GLOBAL_scene_clusteredWorldGeom);
+    updateDirectVisibility(scenePatches, clusteredWorldGeometry);
 
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.sourceYmp = 0.0;
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotYmp = 0.0;
@@ -465,7 +465,7 @@ monteCarloRadiosityReInit(
     elementHierarchyInit(clusteredWorldGeometry);
 
     if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceDriven ) {
-        monteCarloRadiosityUpdateViewImportance(scenePatches);
+        monteCarloRadiosityUpdateViewImportance(scenePatches, clusteredWorldGeometry);
         GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceUpdatedFromScratch = true;
     }
 }
@@ -480,7 +480,7 @@ monteCarloRadiosityPreStep(
         monteCarloRadiosityReInit(scenePatches, sceneGeometries, clusteredWorldGeometry);
     }
     if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceDriven && GLOBAL_camera_mainCamera.changed ) {
-        monteCarloRadiosityUpdateViewImportance(scenePatches);
+        monteCarloRadiosityUpdateViewImportance(scenePatches, clusteredWorldGeometry);
     }
 
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.lastClock = clock();

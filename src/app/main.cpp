@@ -55,6 +55,7 @@ static int globalImageOutputWidth = 0;
 static int globalImageOutputHeight = 0;
 static int globalFileOptionsForceOneSidedSurfaces = 0;
 static java::ArrayList<Geometry *> *globalSceneGeometries = nullptr;
+static Geometry *globalClusteredWorldGeometry = nullptr;
 
 static void
 mainForceOneSidedOption(void *value) {
@@ -218,7 +219,7 @@ mainInit() {
     mainRenderingDefaults();
     toneMapDefaults();
     cameraDefaults();
-    radianceDefaults(GLOBAL_scenePatches, nullptr, GLOBAL_scene_clusteredWorldGeom);
+    radianceDefaults(GLOBAL_scenePatches, nullptr, globalClusteredWorldGeometry);
 
     #ifdef RAYTRACING_ENABLED
         mainRayTracingDefaults();
@@ -340,7 +341,7 @@ mainReadFile(char *filename, MgfContext *context) {
 
     // Terminate any active radiance or raytracing methods
     fprintf(stderr, "Terminating current radiance/raytracing method ... \n");
-    setRadianceMethod(nullptr, GLOBAL_scenePatches, GLOBAL_scene_clusteredWorldGeom);
+    setRadianceMethod(nullptr, GLOBAL_scenePatches, globalClusteredWorldGeometry);
 
     #ifdef RAYTRACING_ENABLED
         Raytracer *currentRaytracer = GLOBAL_raytracer_activeRaytracer;
@@ -442,10 +443,10 @@ mainReadFile(char *filename, MgfContext *context) {
     fprintf(stderr, "Building cluster hierarchy ... ");
     fflush(stderr);
 
-    GLOBAL_scene_clusteredWorldGeom = mainCreateClusterHierarchy(globalAppScenePatches);
+    globalClusteredWorldGeometry = mainCreateClusterHierarchy(globalAppScenePatches);
 
-    if ( GLOBAL_scene_clusteredWorldGeom->className == GeometryClassId::COMPOUND ) {
-        if ( GLOBAL_scene_clusteredWorldGeom->compoundData == nullptr ) {
+    if ( globalClusteredWorldGeometry->className == GeometryClassId::COMPOUND ) {
+        if ( globalClusteredWorldGeometry->compoundData == nullptr ) {
             fprintf(stderr, "Unexpected case: review code - generic case not supported anymore.\n");
             exit(2);
         }
@@ -458,7 +459,7 @@ mainReadFile(char *filename, MgfContext *context) {
     last = t;
 
     // Engridding the thing
-    GLOBAL_scene_worldVoxelGrid = new VoxelGrid(GLOBAL_scene_clusteredWorldGeom);
+    GLOBAL_scene_worldVoxelGrid = new VoxelGrid(globalClusteredWorldGeometry);
 
     t = clock();
     fprintf(stderr, "Engridding took %g secs.\n", (float) (t - last) / (float) CLOCKS_PER_SEC);
@@ -507,7 +508,7 @@ mainReadFile(char *filename, MgfContext *context) {
         fprintf(stderr, "Initializing radiance computations ... ");
         fflush(stderr);
 
-        setRadianceMethod(context->radianceMethod, globalAppScenePatches, GLOBAL_scene_clusteredWorldGeom);
+        setRadianceMethod(context->radianceMethod, globalAppScenePatches, globalClusteredWorldGeometry);
 
         t = clock();
         fprintf(stderr, "%g secs.\n", (float) (t - last) / (float) CLOCKS_PER_SEC);
@@ -567,12 +568,12 @@ createOffscreenCanvasWindow(
             f = GLOBAL_raytracer_activeRaytracer->Redisplay;
         }
         openGlRenderScene(
-            scenePatches,
-            sceneGeometries,
-            GLOBAL_scene_clusteredGeometries,
-            GLOBAL_scene_clusteredWorldGeom,
-            f,
-            context);
+                scenePatches,
+                sceneGeometries,
+                GLOBAL_scene_clusteredGeometries,
+                globalClusteredWorldGeometry,
+                f,
+                context);
     #endif
 }
 
@@ -600,15 +601,15 @@ mainExecuteRendering(java::ArrayList<Patch *> *scenePatches, RadianceMethod *con
             f = GLOBAL_raytracer_activeRaytracer->Redisplay;
         }
         openGlRenderScene(
-            scenePatches,
-            GLOBAL_scene_clusteredGeometries,
-            globalSceneGeometries,
-            GLOBAL_scene_clusteredWorldGeom,
-            f,
-            context);
+                scenePatches,
+                GLOBAL_scene_clusteredGeometries,
+                globalSceneGeometries,
+                globalClusteredWorldGeometry,
+                f,
+                context);
     #endif
 
-    batch(scenePatches, GLOBAL_app_lightSourcePatches, globalSceneGeometries, GLOBAL_scene_clusteredWorldGeom, context);
+    batch(scenePatches, GLOBAL_app_lightSourcePatches, globalSceneGeometries, globalClusteredWorldGeometry, context);
 }
 
 static void

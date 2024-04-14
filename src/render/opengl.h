@@ -30,6 +30,6 @@ extern void openGlRenderPolygonFlat(int numberOfVertices, Vector3D *vertices);
 extern void openGlRenderPolygonGouraud(int numberOfVertices, Vector3D *vertices, ColorRgb *verticesColors);
 extern void openGlRenderPixels(int x, int y, int width, int height, ColorRgb *rgb);
 extern void openGlRenderPatch(Patch *patch);
-extern void openGlRenderNewDisplayList();
+extern void openGlRenderNewDisplayList(Geometry *clusteredWorldGeometry);
 
 #endif

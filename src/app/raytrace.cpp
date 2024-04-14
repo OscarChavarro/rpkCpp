@@ -112,7 +112,12 @@ mainSetRayTracingMethod(Raytracer *newMethod) {
 }
 
 void
-batchSaveRaytracingImage(const char *fileName, FILE *fp, int isPipe, java::ArrayList<Patch *> * /*scenePatches*/, RadianceMethod * /*context*/) {
+batchSaveRaytracingImage(
+    const char *fileName,
+    FILE *fp, int isPipe,
+    java::ArrayList<Patch *> * /*scenePatches*/,
+    Geometry * /*clusteredWorldGeometry*/,
+    RadianceMethod * /*context*/) {
     clock_t t;
 
     if ( fp == nullptr ) {
@@ -144,12 +149,20 @@ batchSaveRaytracingImage(const char *fileName, FILE *fp, int isPipe, java::Array
 }
 
 void
-batchRayTrace(char *filename, FILE *fp, int isPipe, java::ArrayList<Patch *> *scenePatches, java::ArrayList<Patch *> *lightPatches, RadianceMethod *context) {
+batchRayTrace(
+    char *filename,
+    FILE *fp,
+    int isPipe,
+    java::ArrayList<Patch *> *scenePatches,
+    java::ArrayList<Patch *> *lightPatches,
+    Geometry *clusteredWorldGeometry,
+    RadianceMethod *context)
+{
     GLOBAL_render_renderOptions.renderRayTracedImage = true;
     GLOBAL_camera_mainCamera.changed = false;
 
     canvasPushMode();
-    rayTrace(filename, fp, isPipe, GLOBAL_raytracer_activeRaytracer, scenePatches, lightPatches, context);
+    rayTrace(filename, fp, isPipe, GLOBAL_raytracer_activeRaytracer, scenePatches, lightPatches, clusteredWorldGeometry, context);
     canvasPullMode();
 }
 

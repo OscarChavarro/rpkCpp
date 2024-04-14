@@ -62,6 +62,7 @@ rayTrace(
     Raytracer *activeRayTracer,
     java::ArrayList<Patch *> *scenePatches,
     java::ArrayList<Patch *> *lightPatches,
+    Geometry *clusteredWorldGeometry,
     RadianceMethod *context);
 
 #endif

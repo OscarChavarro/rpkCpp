@@ -21,7 +21,10 @@ call the integral of potential over surface area "importance"
 Updates directly received potential for all patches
 */
 void
-updateDirectPotential(java::ArrayList<Patch *> *scenePatches) {
+updateDirectPotential(
+    java::ArrayList<Patch *> *scenePatches,
+    Geometry *clusteredWorldGeometry)
+{
     Patch **id2patch;
     unsigned long *ids;
     unsigned long *id;
@@ -41,7 +44,7 @@ updateDirectPotential(java::ArrayList<Patch *> *scenePatches) {
     canvasPushMode();
 
     // Get the patch IDs for each pixel
-    ids = sglRenderIds(&x, &y, scenePatches);
+    ids = sglRenderIds(&x, &y, scenePatches, clusteredWorldGeometry);
 
     canvasPullMode();
 

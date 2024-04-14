@@ -517,7 +517,7 @@ GalerkinRadianceMethod::getStats() {
 void
 GalerkinRadianceMethod::renderScene(java::ArrayList<Patch *> *scenePatches, Geometry *clusteredWorldGeometry) {
     if ( GLOBAL_render_renderOptions.frustumCulling ) {
-        openGlRenderWorldOctree(galerkinRenderPatch, GLOBAL_scene_clusteredWorldGeom);
+        openGlRenderWorldOctree(galerkinRenderPatch, clusteredWorldGeometry);
     } else {
         for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
             if ( !GLOBAL_render_glutDebugState.showSelectedPathOnly || i == GLOBAL_render_glutDebugState.selectedPatch ) {

@@ -433,16 +433,16 @@ openGlRenderWorldOctree(
 }
 
 static void
-openGlGeometryDeleteDLists(Geometry *geom) {
-    if ( geom->displayListId >= 0 ) {
-        glDeleteLists(geom->displayListId, 1);
+openGlGeometryDeleteDLists(Geometry *geometry, Geometry *clusteredWorldGeometry) {
+    if ( geometry->displayListId >= 0 ) {
+        glDeleteLists(geometry->displayListId, 1);
     }
-    geom->displayListId = -1;
+    geometry->displayListId = -1;
 
-    if ( GLOBAL_scene_clusteredWorldGeom->isCompound() ) {
-        java::ArrayList<Geometry *> *children = geomPrimListCopy(geom);
+    if ( clusteredWorldGeometry->isCompound() ) {
+        java::ArrayList<Geometry *> *children = geomPrimListCopy(geometry);
         for ( int i = 0; children != nullptr && i < children->size(); i++ ) {
-            openGlGeometryDeleteDLists(children->get(i));
+            openGlGeometryDeleteDLists(children->get(i), clusteredWorldGeometry);
         }
         delete children;
     }
@@ -450,9 +450,9 @@ openGlGeometryDeleteDLists(Geometry *geom) {
 
 
 static void
-openGlRenderNewOctreeDisplayLists() {
-    if ( GLOBAL_scene_clusteredWorldGeom ) {
-        openGlGeometryDeleteDLists(GLOBAL_scene_clusteredWorldGeom);
+openGlRenderNewOctreeDisplayLists(Geometry *clusteredWorldGeometry) {
+    if ( clusteredWorldGeometry ) {
+        openGlGeometryDeleteDLists(clusteredWorldGeometry, clusteredWorldGeometry);
     }
 }
 
@@ -461,25 +461,29 @@ Indicates that the scene has modified, so a new display list should be
 compiled and rendered from now on. Only relevant when using display lists
 */
 void
-openGlRenderNewDisplayList() {
+openGlRenderNewDisplayList(Geometry *clusteredWorldGeometry) {
     if ( globalDisplayListId >= 0 ) {
         glDeleteLists(globalDisplayListId, 1);
     }
     globalDisplayListId = -1;
 
     if ( GLOBAL_render_renderOptions.frustumCulling ) {
-        openGlRenderNewOctreeDisplayLists();
+        openGlRenderNewOctreeDisplayLists(clusteredWorldGeometry);
     }
 }
 
 static void
-openGlReallyRender(java::ArrayList<Patch *> *scenePatches, Geometry *clusteredWorldGeometry, RadianceMethod *context) {
+openGlReallyRender(
+    java::ArrayList<Patch *> *scenePatches,
+    Geometry *clusteredWorldGeometry,
+    RadianceMethod *context)
+{
     glPushMatrix();
     glRotated(GLOBAL_render_glutDebugState.angle, 0, 0, 1);
     if ( context != nullptr ) {
         context->renderScene(scenePatches, clusteredWorldGeometry);
     } else if ( GLOBAL_render_renderOptions.frustumCulling ) {
-        openGlRenderWorldOctree(openGlRenderPatch, GLOBAL_scene_clusteredWorldGeom);
+        openGlRenderWorldOctree(openGlRenderPatch, clusteredWorldGeometry);
     } else {
         for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
             openGlRenderPatch(scenePatches->get(i));
@@ -689,6 +693,6 @@ the patches visible through each pixel or 0 if the background is visible through
 the pixel. x is normally the width and y the height of the canvas window
 */
 unsigned long *
-sglRenderIds(long *x, long *y, java::ArrayList<Patch *> *scenePatches) {
-    return softRenderIds(x, y, scenePatches, GLOBAL_scene_clusteredWorldGeom);
+sglRenderIds(long *x, long *y, java::ArrayList<Patch *> *scenePatches, Geometry *clusteredWorldGeometry) {
+    return softRenderIds(x, y, scenePatches, clusteredWorldGeometry);
 }

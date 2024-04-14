@@ -20,6 +20,7 @@ rayTrace(
     Raytracer *activeRayTracer,
     java::ArrayList<Patch *> *scenePatches,
     java::ArrayList<Patch *> *lightPatches,
+    Geometry *clusteredWorldGeometry,
     RadianceMethod *context)
 {
     ImageOutputHandle *img = nullptr;
@@ -34,7 +35,7 @@ rayTrace(
     }
 
     if ( activeRayTracer != nullptr ) {
-        activeRayTracer->Raytrace(img, scenePatches, lightPatches, GLOBAL_scene_clusteredWorldGeom, context);
+        activeRayTracer->Raytrace(img, scenePatches, lightPatches, clusteredWorldGeometry, context);
     }
 
     if ( img ) {

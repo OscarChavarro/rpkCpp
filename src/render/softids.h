@@ -25,6 +25,6 @@ softRenderIds(
     Geometry *clusteredWorldGeometry);
 
 extern unsigned long *
-sglRenderIds(long *x, long *y, java::ArrayList<Patch *> *scenePatches);
+sglRenderIds(long *x, long *y, java::ArrayList<Patch *> *scenePatches, Geometry *clusteredWorldGeometry);
 
 #endif

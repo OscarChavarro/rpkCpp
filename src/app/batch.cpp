@@ -48,7 +48,13 @@ static CommandLineOptionDescription batchOptions[] = {
 Saves a RGB image in the front buffer
 */
 static void
-openGlSaveScreen(char *fileName, FILE *fp, int isPipe, RadianceMethod *context) {
+openGlSaveScreen(
+    char *fileName,
+    FILE *fp,
+    int isPipe,
+    Geometry *clusteredWorldGeometry,
+    RadianceMethod *context)
+{
     ImageOutputHandle *img;
     long j, x = GLOBAL_camera_mainCamera.xSize, y = GLOBAL_camera_mainCamera.ySize;
     GLubyte *screen;
@@ -56,7 +62,7 @@ openGlSaveScreen(char *fileName, FILE *fp, int isPipe, RadianceMethod *context) 
 
     // RayCast() saves the current picture in display-mapped (!) real values
     if ( GLOBAL_render_renderOptions.trace ) {
-        rayCast(fileName, fp, isPipe, GLOBAL_scene_clusteredWorldGeom, context);
+        rayCast(fileName, fp, isPipe, clusteredWorldGeometry, context);
         return;
     }
 
@@ -95,15 +101,16 @@ static void
 batchProcessFile(
     const char *fileName,
     const char *openMode,
-    void (*processFileCallback)(const char *fileName, FILE *fp, int isPipe, java::ArrayList<Patch *> *scenePatches, RadianceMethod *context),
+    void (*processFileCallback)(const char *fileName, FILE *fp, int isPipe, java::ArrayList<Patch *> *scenePatches, Geometry *clusteredWorldGeometry, RadianceMethod *context),
     java::ArrayList<Patch *> *scenePatches,
+    Geometry *clusteredWorldGeometry,
     RadianceMethod *context)
 {
     int isPipe;
     FILE *fp = openFileCompressWrapper(fileName, openMode, &isPipe);
 
     // Call the user supplied procedure to process the file
-    processFileCallback(fileName, fp, isPipe, scenePatches, context);
+    processFileCallback(fileName, fp, isPipe, scenePatches, clusteredWorldGeometry, context);
 
     closeFile(fp, isPipe);
 }
@@ -113,7 +120,8 @@ batchSaveRadianceImage(
     const char *fileName,
     FILE *fp,
     int isPipe,
-    java::ArrayList<Patch *> *scenePatches,
+    java::ArrayList<Patch *> * /*scenePatches*/,
+    Geometry *clusteredWorldGeometry,
     RadianceMethod *context)
 {
     clock_t t;
@@ -135,14 +143,20 @@ batchSaveRadianceImage(
 
     t = clock();
 
-    openGlSaveScreen((char *)fileName, fp, isPipe, context);
+    openGlSaveScreen((char *)fileName, fp, isPipe, clusteredWorldGeometry, context);
 
     fprintf(stdout, "%g secs.\n", (float) (clock() - t) / (float) CLOCKS_PER_SEC);
     canvasPullMode();
 }
 
 static void
-batchSaveRadianceModel(const char *fileName, FILE *fp, int /*isPipe*/, java::ArrayList<Patch *> *scenePatches, RadianceMethod *context) {
+batchSaveRadianceModel(
+    const char *fileName,
+    FILE *fp, int /*isPipe*/,
+    java::ArrayList<Patch *> *scenePatches,
+    Geometry *clusteredWorldGeometry,
+    RadianceMethod *context)
+{
     clock_t t;
 
     if ( !fp ) {
@@ -229,7 +243,7 @@ batch(
                 scenePatches,
                 GLOBAL_scene_clusteredGeometries,
                 sceneGeometries,
-                GLOBAL_scene_clusteredWorldGeom,
+                clusteredWorldGeometry,
                 f,
                 context);
 
@@ -242,7 +256,7 @@ batch(
                 int n = (int)strlen(globalRadianceImageFileNameFormat) + 1;
                 char *fileName = new char[n];
                 snprintf(fileName, n, globalRadianceImageFileNameFormat, it);
-                batchProcessFile(fileName, "w", batchSaveRadianceImage, scenePatches, context);
+                batchProcessFile(fileName, "w", batchSaveRadianceImage, scenePatches, clusteredWorldGeometry, context);
                 delete[] fileName;
             }
 
@@ -250,7 +264,7 @@ batch(
                 int n = (int)strlen(globalRadianceModelFileNameFormat) + 1;
                 char *fileName = new char[n];
                 snprintf(fileName, n, globalRadianceModelFileNameFormat, it);
-                batchProcessFile(fileName, "w", batchSaveRadianceModel, scenePatches, context);
+                batchProcessFile(fileName, "w", batchSaveRadianceModel, scenePatches, clusteredWorldGeometry, context);
                 delete[] fileName;
             }
 
@@ -278,14 +292,20 @@ batch(
             printf("Doing %s ...\n", GLOBAL_raytracer_activeRaytracer->fullName);
 
             start_time = clock();
-            batchRayTrace(nullptr, nullptr, false, scenePatches, lightPatches, context);
+            batchRayTrace(nullptr, nullptr, false, scenePatches, lightPatches, clusteredWorldGeometry, context);
 
             if ( globalTimings ) {
                 fprintf(stdout, "Raytracing total time %g secs.\n",
                         (float) (clock() - start_time) / (float) CLOCKS_PER_SEC);
             }
 
-            batchProcessFile(globalRaytracingImageFileName, "w", batchSaveRaytracingImage, scenePatches, context);
+            batchProcessFile(
+                globalRaytracingImageFileName,
+                "w",
+                batchSaveRaytracingImage,
+                scenePatches,
+                clusteredWorldGeometry,
+                context);
         } else {
             printf("(No pixel-based radiance computations are being done)\n");
         }
