@@ -96,7 +96,7 @@ stochasticRaytracerGetScatteredRadiance(
 
                 // Surface sampling
                 if ( config->samplerConfig.surfaceSampler->sample(
-                        GLOBAL_scene_background,
+                        sceneBackground,
                         thisNode->previous(),
                         thisNode,
                         &newNode, x1, x2,
@@ -145,11 +145,12 @@ stochasticRaytracerGetScatteredRadiance(
     return result;
 }
 
-ColorRgb
-SR_GetDirectRadiance(
-        SimpleRaytracingPathNode *prevNode,
-        StochasticRaytracingConfiguration *config,
-        StorageReadout readout)
+static ColorRgb
+srGetDirectRadiance(
+    Background *sceneBackground,
+    SimpleRaytracingPathNode *prevNode,
+    StochasticRaytracingConfiguration *config,
+    StorageReadout readout)
 {
     ColorRgb result;
     ColorRgb radiance;
@@ -169,8 +170,8 @@ SR_GetDirectRadiance(
         (prevNode->m_depth + 1 < config->samplerConfig.maxDepth) ) {
         int i;
         SimpleRaytracingPathNode lightNode;
-        double x_1;
-        double x_2;
+        double x1;
+        double x2;
         double geom;
         double weight;
         double cl;
@@ -189,18 +190,17 @@ SR_GetDirectRadiance(
 
             for ( i = 0; i < config->nextEventSamples; i++ ) {
                 // Light sampling
-                stratified.sample(&x_1, &x_2);
+                stratified.sample(&x1, &x2);
 
                 if ( config->samplerConfig.neSampler->sample(
-                        GLOBAL_scene_background,
-                        prevNode->previous(),
-                        prevNode,
-                        &lightNode,
-                        x_1,
-                        x_2,
-                        true,
-                        BSDF_ALL_COMPONENTS) ) {
-
+                    sceneBackground,
+                    prevNode->previous(),
+                    prevNode,
+                    &lightNode,
+                    x1,
+                    x2,
+                    true,
+                    BSDF_ALL_COMPONENTS) ) {
                     if ( pathNodesVisible(prevNode, &lightNode) ) {
                         // Now connect for all applicable scatter-info's
                         // If no weighting between reflection sampling and
@@ -401,7 +401,7 @@ stochasticRaytracerGetRadiance(
             result.add(result, radiance);
         }
 
-        radiance = SR_GetDirectRadiance(thisNode, config, readout);
+        radiance = srGetDirectRadiance(sceneBackground, thisNode, config, readout);
         result.add(result, radiance);
 
         // Scattered light
@@ -494,7 +494,7 @@ calcPixel(
     // Calc pixel data
 
     // Sample eye node
-    config->samplerConfig.pointSampler->sample(GLOBAL_scene_background, nullptr, nullptr, &eyeNode, 0, 0);
+    config->samplerConfig.pointSampler->sample(sceneBackground, nullptr, nullptr, &eyeNode, 0, 0);
     ((CPixelSampler *) config->samplerConfig.dirSampler)->SetPixel(nx, ny);
 
     eyeNode.attach(&pixelNode);
@@ -503,7 +503,7 @@ calcPixel(
     for ( i = 0; i < config->samplesPerPixel; i++ ) {
         stratified.sample(&x1, &x2);
 
-        if ( config->samplerConfig.dirSampler->sample(GLOBAL_scene_background, nullptr, &eyeNode, &pixelNode, x1, x2)
+        if ( config->samplerConfig.dirSampler->sample(sceneBackground, nullptr, &eyeNode, &pixelNode, x1, x2)
              && ((pixelNode.m_rayType != ENVIRONMENT) || (config->backgroundDirect)) ) {
             pixelNode.assignBsdfAndNormal();
 

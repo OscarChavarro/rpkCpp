@@ -114,11 +114,10 @@ CPhotonMapSampler::sample(
     bool ok;
 
     if ( sChosen ) {
-        ok = fresnelSample(GLOBAL_scene_background, prevNode, thisNode, newNode, x2, flags);
+        ok = fresnelSample(sceneBackground, prevNode, thisNode, newNode, x2, flags);
     } else {
         flags = (BSDF_FLAGS)(gdFLAGS & flags);
-        ok = gdSample(prevNode, thisNode, newNode, x1, x2,
-                      false, flags);
+        ok = gdSample(sceneBackground, prevNode, thisNode, newNode, x1, x2, false, flags);
     }
 
     if ( ok ) {
@@ -325,7 +324,7 @@ CPhotonMapSampler::fresnelSample(
     DetermineRayType(thisNode, newNode, &dir);
 
     // Transfer
-    if ( !sampleTransfer(GLOBAL_scene_background, thisNode, newNode, &dir, pdfDir) ) {
+    if ( !sampleTransfer(sceneBackground, thisNode, newNode, &dir, pdfDir) ) {
         thisNode->m_rayType = STOPS;
         return false;
     }
@@ -358,6 +357,7 @@ CPhotonMapSampler::fresnelSample(
 
 bool
 CPhotonMapSampler::gdSample(
+    Background *sceneBackground,
     SimpleRaytracingPathNode *prevNode,
     SimpleRaytracingPathNode *thisNode,
     SimpleRaytracingPathNode *newNode,
@@ -371,7 +371,7 @@ CPhotonMapSampler::gdSample(
     // Sample G|D and use m_photonMap for importance sampling if possible.
     if ( m_photonMap == nullptr ) {
         // We can just use standard bsdf sampling
-        ok = CBsdfSampler::sample(GLOBAL_scene_background, prevNode, thisNode, newNode, x1, x2, doRR, flags);
+        ok = CBsdfSampler::sample(sceneBackground, prevNode, thisNode, newNode, x1, x2, doRR, flags);
         thisNode->m_usedComponents = flags;
         return ok;
     }
@@ -411,7 +411,7 @@ CPhotonMapSampler::gdSample(
                                               glossy_exponent);
 
     // Do real sampling
-    ok = CBsdfSampler::sample(GLOBAL_scene_background, prevNode, thisNode, newNode, x1, x2, false, flags);
+    ok = CBsdfSampler::sample(sceneBackground, prevNode, thisNode, newNode, x1, x2, false, flags);
 
     // Adjust probabilityDensityFunction
     if ( ok ) {

@@ -44,7 +44,7 @@ ScreenSampler::sample(
     newNode->m_inBsdf = thisNode->m_outBsdf; // GLOBAL_camera_mainCamera can be placed in a medium
 
     // Transfer
-    if ( !sampleTransfer(GLOBAL_scene_background, thisNode, newNode, &dir, pdfDir) ) {
+    if ( !sampleTransfer(sceneBackground, thisNode, newNode, &dir, pdfDir) ) {
         thisNode->m_rayType = STOPS;
         return false;
     }

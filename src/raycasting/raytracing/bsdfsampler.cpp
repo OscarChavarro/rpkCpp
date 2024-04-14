@@ -46,7 +46,7 @@ CBsdfSampler::sample(
     DetermineRayType(thisNode, newNode, &dir);
 
     // Transfer
-    if ( !sampleTransfer(GLOBAL_scene_background, thisNode, newNode, &dir, pdfDir) ) {
+    if ( !sampleTransfer(sceneBackground, thisNode, newNode, &dir, pdfDir) ) {
         thisNode->m_rayType = STOPS;
         return false;
     }

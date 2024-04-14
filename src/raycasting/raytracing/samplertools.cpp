@@ -60,10 +60,10 @@ RETURNS:
 */
 SimpleRaytracingPathNode *
 CSamplerConfig::traceNode(
-        SimpleRaytracingPathNode *nextNode,
-        double x1,
-        double x2,
-        BSDF_FLAGS flags) const
+    SimpleRaytracingPathNode *nextNode,
+    double x1,
+    double x2,
+    BSDF_FLAGS flags) const
 {
     SimpleRaytracingPathNode *lastNode;
 
