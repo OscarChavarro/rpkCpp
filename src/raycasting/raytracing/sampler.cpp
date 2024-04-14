@@ -16,6 +16,7 @@ or if a shading normal anomaly occurs
 */
 bool
 Sampler::SampleTransfer(
+    Background *sceneBackground,
     SimpleRaytracingPathNode *thisNode,
     SimpleRaytracingPathNode *newNode,
     Vector3D *dir,
@@ -34,9 +35,9 @@ Sampler::SampleTransfer(
                               newNode->m_inBsdf, &newNode->m_hit);
 
     if ( !hit ) {
-        if ( GLOBAL_scene_background ) {
+        if ( sceneBackground ) {
             // Fill in path node for background
-            hitInit(&(newNode->m_hit), GLOBAL_scene_background->bkgPatch, nullptr, nullptr, dir, nullptr, HUGE);
+            hitInit(&(newNode->m_hit), sceneBackground->bkgPatch, nullptr, nullptr, dir, nullptr, HUGE);
             newNode->m_inDirT = *dir;
             newNode->m_inDirF = -(*dir);
             newNode->m_pdfFromPrev = pdfDir;

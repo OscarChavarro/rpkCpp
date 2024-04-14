@@ -652,7 +652,7 @@ main(int argc, char *argv[]) {
     //    globalAppScenePatches,
     //    GLOBAL_app_lightSourcePatches,
     //    globalSceneGeometries,
-    //    GLOBAL_scene_clusteredWorldGeom,
+    //    globalClusteredWorldGeometry,
     //    mgfContext.radianceMethod);
 
     mainFreeMemory(&mgfContext);

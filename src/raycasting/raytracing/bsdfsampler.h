@@ -10,13 +10,19 @@ Path node sampler using bsdf sampling
 class CBsdfSampler : public CSurfaceSampler {
 public:
     // Sample : newNode gets filled, others may change
-    //   Return true if the node was filled in, false if path Ends
+    //   Return true if the node was filled in, false if path ends.
     //   If path ends (absorption) the type of thisNode is adjusted to 'Ends'
-    virtual bool sample(SimpleRaytracingPathNode *prevNode, SimpleRaytracingPathNode *thisNode,
-                        SimpleRaytracingPathNode *newNode, double x_1, double x_2,
-                        bool doRR, BSDF_FLAGS flags);
+    virtual bool
+    sample(
+        SimpleRaytracingPathNode *prevNode,
+        SimpleRaytracingPathNode *thisNode,
+        SimpleRaytracingPathNode *newNode,
+        double x1,
+        double x2,
+        bool doRR,
+        BSDF_FLAGS flags);
 
-    // Use this for a N.E.E. : connecting a light node with an eye node
+    // Use this for N.E.E. : connecting a light node with an eye node
     virtual double
     evalPDF(
             SimpleRaytracingPathNode *thisNode,

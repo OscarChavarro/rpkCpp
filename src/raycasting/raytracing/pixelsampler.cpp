@@ -2,6 +2,7 @@
 #include "scene/Camera.h"
 #include "raycasting/common/raytools.h"
 #include "raycasting/raytracing/pixelsampler.h"
+#include "scene/scene.h"
 
 bool CPixelSampler::sample(SimpleRaytracingPathNode *prevNode/*prevNode*/, SimpleRaytracingPathNode *thisNode,
                            SimpleRaytracingPathNode *newNode, double x1, double x2,
@@ -30,7 +31,7 @@ bool CPixelSampler::sample(SimpleRaytracingPathNode *prevNode/*prevNode*/, Simpl
     newNode->m_inBsdf = thisNode->m_outBsdf; // GLOBAL_camera_mainCamera can be placed in a medium
 
     // Transfer
-    if ( !SampleTransfer(thisNode, newNode, &dir, pdfDir) ) {
+    if ( !SampleTransfer(GLOBAL_scene_background, thisNode, newNode, &dir, pdfDir) ) {
         thisNode->m_rayType = STOPS;
         return false;
     }

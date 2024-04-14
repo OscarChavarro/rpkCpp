@@ -4,10 +4,18 @@
 #include "material/bsdf.h"
 #include "raycasting/common/raytools.h"
 #include "raycasting/raytracing/bsdfsampler.h"
+#include "scene/scene.h"
 
-bool CBsdfSampler::sample(SimpleRaytracingPathNode *prevNode, SimpleRaytracingPathNode *thisNode,
-                          SimpleRaytracingPathNode *newNode, double x_1, double x_2,
-                          bool doRR, BSDF_FLAGS flags) {
+bool
+CBsdfSampler::sample(
+    SimpleRaytracingPathNode *prevNode,
+    SimpleRaytracingPathNode *thisNode,
+    SimpleRaytracingPathNode *newNode,
+    double x1,
+    double x2,
+    bool doRR,
+    BSDF_FLAGS flags)
+{
     double pdfDir;
 
     // Sample direction
@@ -15,7 +23,7 @@ bool CBsdfSampler::sample(SimpleRaytracingPathNode *prevNode, SimpleRaytracingPa
                               &thisNode->m_hit,
                               thisNode->m_inBsdf, thisNode->m_outBsdf,
                               &thisNode->m_inDirF,
-                              doRR, flags, x_1, x_2,
+                              doRR, flags, x1, x2,
                               &pdfDir);
 
     PNAN(pdfDir);
@@ -37,7 +45,7 @@ bool CBsdfSampler::sample(SimpleRaytracingPathNode *prevNode, SimpleRaytracingPa
     DetermineRayType(thisNode, newNode, &dir);
 
     // Transfer
-    if ( !SampleTransfer(thisNode, newNode, &dir, pdfDir) ) {
+    if ( !SampleTransfer(GLOBAL_scene_background, thisNode, newNode, &dir, pdfDir) ) {
         thisNode->m_rayType = STOPS;
         return false;
     }
