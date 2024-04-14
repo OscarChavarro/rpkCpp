@@ -24,6 +24,7 @@
 #include "PHOTONMAP/pmapoptions.h"
 #include "PHOTONMAP/pmapconfig.h"
 #include "PHOTONMAP/pmapimportance.h"
+#include "scene/scene.h"
 
 PhotonMapConfig GLOBAL_photonMap_config;
 
@@ -431,7 +432,7 @@ photonMapTracePath(PhotonMapConfig *config, BSDF_FLAGS bsdfFlags) {
     double x1 = drand48(); //nrs[0] * RECIP;
     double x2 = drand48(); //nrs[1] * RECIP;
 
-    path = config->lightConfig.traceNode(path, x1, x2, bsdfFlags);
+    path = config->lightConfig.traceNode(GLOBAL_scene_background, path, x1, x2, bsdfFlags);
     if ( path == nullptr ) {
         return;
     }
@@ -445,7 +446,7 @@ photonMapTracePath(PhotonMapConfig *config, BSDF_FLAGS bsdfFlags) {
     x1 = drand48(); // nrs[2] * RECIP;
     x2 = drand48(); // nrs[3] * RECIP; // 4D Niederreiter...
 
-    if ( config->lightConfig.traceNode(node, x1, x2, bsdfFlags) ) {
+    if ( config->lightConfig.traceNode(GLOBAL_scene_background, node, x1, x2, bsdfFlags) ) {
         // Successful trace
         node->ensureNext();
         config->lightConfig.tracePath(node->next(), bsdfFlags);

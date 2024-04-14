@@ -10,7 +10,7 @@ procedure of a monte carlo ray tracing like algorithm
 #include "raycasting/raytracing/pixelsampler.h"
 
 class CSamplerConfig {
-public:
+  public:
     Sampler *pointSampler;  // Samples first point
     Sampler *dirSampler; // Samples first direction
     CSurfaceSampler *surfaceSampler; // Samples on surfaces
@@ -94,9 +94,12 @@ public:
     //   if sampling fails: nullptr
 
     SimpleRaytracingPathNode *
-    traceNode(SimpleRaytracingPathNode *nextNode,
-              double x1, double x2,
-              BSDF_FLAGS flags) const;
+    traceNode(
+        Background *sceneBackground,
+        SimpleRaytracingPathNode *nextNode,
+        double x1,
+        double x2,
+        BSDF_FLAGS flags) const;
 
     // photonMapTracePath : Traces a path using the samplers in the class
     // New nodes are allocated if necessary. TraceNode is used
@@ -105,7 +108,6 @@ public:
 
     SimpleRaytracingPathNode *
     tracePath(SimpleRaytracingPathNode *nextNode, BSDF_FLAGS flags = BSDF_ALL_COMPONENTS);
-
 
     // Generate two random numbers. Depth needed for QMC sampling
     void getRand(int depth, double *x_1, double *x_2) const;

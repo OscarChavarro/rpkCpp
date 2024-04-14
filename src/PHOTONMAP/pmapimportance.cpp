@@ -7,6 +7,7 @@ Importon tracing
 #include "PHOTONMAP/pmapoptions.h"
 #include "PHOTONMAP/pmapconfig.h"
 #include "PHOTONMAP/screensampler.h"
+#include "scene/scene.h"
 
 /**
 Store a importon/poton. Some acceptance tests are performed first
@@ -52,7 +53,7 @@ TracePotentialPath(PhotonMapConfig *config) {
     CSamplerConfig &scfg = config->eyeConfig;
 
     // Eye node
-    path = scfg.traceNode(path, drand48(), drand48(), BSDF_ALL_COMPONENTS);
+    path = scfg.traceNode(GLOBAL_scene_background, path, drand48(), drand48(), BSDF_ALL_COMPONENTS);
     if ( path == nullptr ) {
         return false;
     }
@@ -73,17 +74,18 @@ TracePotentialPath(PhotonMapConfig *config) {
 
     // Keep tracing nodes until sampling fails, store importons along the way
 
-    double x_1;
-    double x_2;
+    double x1;
+    double x2;
 
-    x_1 = drand48();
-    x_2 = drand48();
+    x1 = drand48();
+    x2 = drand48();
 
     while ( scfg.traceNode(
-                node,
-                x_1,
-                x_2,
-                (BSDF_FLAGS)((indirectImportance ? BSDF_SPECULAR_COMPONENT : BSDF_ALL_COMPONENTS))
+            GLOBAL_scene_background,
+            node,
+            x1,
+            x2,
+            (BSDF_FLAGS)((indirectImportance ? BSDF_SPECULAR_COMPONENT : BSDF_ALL_COMPONENTS))
             ) ) {
         // Successful trace
         SimpleRaytracingPathNode *prev = node->previous();
@@ -113,8 +115,8 @@ TracePotentialPath(PhotonMapConfig *config) {
         // New node
         node->ensureNext();
         node = node->next();
-        x_1 = drand48();
-        x_2 = drand48();
+        x1 = drand48();
+        x2 = drand48();
     }
 
     return true;

@@ -60,6 +60,7 @@ RETURNS:
 */
 SimpleRaytracingPathNode *
 CSamplerConfig::traceNode(
+    Background *sceneBackground,
     SimpleRaytracingPathNode *nextNode,
     double x1,
     double x2,
@@ -75,14 +76,14 @@ CSamplerConfig::traceNode(
 
     if ( lastNode == nullptr ) {
         // Fill in first node
-        if ( !pointSampler->sample(GLOBAL_scene_background, nullptr, nullptr, nextNode, x1, x2) ) {
+        if ( !pointSampler->sample(sceneBackground, nullptr, nullptr, nextNode, x1, x2) ) {
             logWarning("CSamplerConfig::traceNode", "Point sampler failed");
             return nullptr;
         }
     } else if ( lastNode->m_depth == 0 ) {
         // Fill in second node : dir sampler
         if ( (lastNode->m_depth + 1) < maxDepth ) {
-            if ( !dirSampler->sample(GLOBAL_scene_background, nullptr, lastNode, nextNode, x1, x2) ) {
+            if ( !dirSampler->sample(sceneBackground, nullptr, lastNode, nextNode, x1, x2) ) {
                 // No point !
                 lastNode->m_rayType = STOPS;
                 return nullptr;
@@ -122,7 +123,10 @@ CSamplerConfig::traceNode(
 }
 
 SimpleRaytracingPathNode *
-CSamplerConfig::tracePath(SimpleRaytracingPathNode *nextNode, BSDF_FLAGS flags) {
+CSamplerConfig::tracePath(
+    SimpleRaytracingPathNode *nextNode,
+    BSDF_FLAGS flags)
+{
     double x1;
     double x2;
 
@@ -132,7 +136,7 @@ CSamplerConfig::tracePath(SimpleRaytracingPathNode *nextNode, BSDF_FLAGS flags) 
         getRand(nextNode->previous()->m_depth + 1, &x1, &x2);
     }
 
-    nextNode = traceNode(nextNode, x1, x2, flags);
+    nextNode = traceNode(GLOBAL_scene_background, nextNode, x1, x2, flags);
 
     if ( nextNode != nullptr ) {
         nextNode->ensureNext();
