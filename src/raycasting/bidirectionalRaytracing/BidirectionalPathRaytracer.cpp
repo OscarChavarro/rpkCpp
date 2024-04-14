@@ -625,9 +625,10 @@ bpCombinePaths(BidirectionalPathTracingConfiguration *config) {
 }
 
 static ColorRgb
-bpCalcPixel(int nx, int ny, BidirectionalPathTracingConfiguration *config) {
+bpCalcPixel(Background * /*sceneBackground*/, int nx, int ny, BidirectionalPathTracingConfiguration *config) {
     int i;
-    double x_1, x_2;
+    double x1;
+    double x2;
     ColorRgb result;
     StratifiedSampling2D stratifiedSampling2D(config->baseConfig->samplesPerPixel);
     SimpleRaytracingPathNode *pixNode;
@@ -664,15 +665,15 @@ bpCalcPixel(int nx, int ny, BidirectionalPathTracingConfiguration *config) {
     for ( i = 0; i < config->baseConfig->samplesPerPixel; i++ ) {
         if ( config->eyeConfig.maxDepth > 1 ) {
             // Generate an eye path
-            stratifiedSampling2D.sample(&x_1, &x_2);
+            stratifiedSampling2D.sample(&x1, &x2);
 
             config->eyePath->m_rayType = STARTS;
 
-            Vector2D tmpVec2D = config->screen->getPixelCenter((int) (x_1), (int) (x_2));
+            Vector2D tmpVec2D = config->screen->getPixelCenter((int) (x1), (int) (x2));
             config->xSample = tmpVec2D.u; // pix_x + (GLOBAL_camera_mainCamera.pixH * x_1);
             config->ySample = tmpVec2D.v; //pix_y + (GLOBAL_camera_mainCamera.pixV * x_2);
 
-            if ( config->eyeConfig.dirSampler->sample(nullptr, config->eyePath, pixNode, x_1, x_2) ) {
+            if ( config->eyeConfig.dirSampler->sample(nullptr, config->eyePath, pixNode, x1, x2) ) {
                 pixNode->assignBsdfAndNormal();
                 config->eyeConfig.tracePath(nextNode);
             }
@@ -763,7 +764,7 @@ doBptAndSubsequentImages(BidirectionalPathTracingConfiguration *config) {
         config->baseConfig->samplesPerPixel = currentSamples;
         config->baseConfig->totalSamples = currentSamples * GLOBAL_camera_mainCamera.xSize * GLOBAL_camera_mainCamera.ySize;;
 
-        ScreenIterateSequential((ColorRgb(*)(int, int, void *)) bpCalcPixel, config);
+        ScreenIterateSequential((ColorRgb(*)(Background *, int, int, void *)) bpCalcPixel, config);
 
         config->screen->render();
 
@@ -824,7 +825,7 @@ doBptDensityEstimation(BidirectionalPathTracingConfiguration *config) {
     config->deStoreHits = true;
 
     // Do the run
-    ScreenIterateSequential((ColorRgb(*)(int, int, void *)) bpCalcPixel, config);
+    ScreenIterateSequential((ColorRgb(*)(Background *,int, int, void *)) bpCalcPixel, config);
 
     // Now we have a noisy screen in dest and hits in double buffer
 
@@ -911,7 +912,7 @@ doBptDensityEstimation(BidirectionalPathTracingConfiguration *config) {
 
         // Iterate screen : nNew - nOld, using an appropriate scale factor
 
-        ScreenIterateSequential((ColorRgb(*)(int, int, void *)) bpCalcPixel, config);
+        ScreenIterateSequential((ColorRgb(*)(Background *, int, int, void *)) bpCalcPixel, config);
 
         // Render screen & write
 
@@ -1042,9 +1043,9 @@ biDirPathTrace(
     } else if ( config.baseConfig->doDensityEstimation ) {
             doBptDensityEstimation(&config);
     } else if ( !GLOBAL_rayTracing_biDirectionalPath.basecfg.progressiveTracing ) {
-        ScreenIterateSequential((ColorRgb(*)(int, int, void *)) bpCalcPixel, &config);
+        ScreenIterateSequential((ColorRgb(*)(Background *, int, int, void *)) bpCalcPixel, &config);
     } else {
-        ScreenIterateProgressive((ColorRgb(*)(int, int, void *)) bpCalcPixel, &config);
+        ScreenIterateProgressive((ColorRgb(*)(Background *, int, int, void *)) bpCalcPixel, &config);
     }
 
     config.screen->render();

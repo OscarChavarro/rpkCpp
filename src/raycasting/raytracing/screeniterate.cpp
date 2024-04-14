@@ -7,6 +7,7 @@
 #include "render/ScreenBuffer.h"
 #include "raycasting/common/Raytracer.h"
 #include "raycasting/raytracing/screeniterate.h"
+#include "scene/scene.h"
 
 // Different functions need to sync with the timer
 #define WAKE_UP_RENDER ((unsigned char)1<<1)
@@ -46,7 +47,10 @@ ScreenIterateFinish() {
 
 void
 ScreenIterateSequential(SCREEN_ITERATE_CALLBACK callback, void *data) {
-    int i, j, width, height;
+    int i;
+    int j;
+    int width;
+    int height;
     ColorRgb col;
     ColorRgb *rgb;
 
@@ -59,7 +63,7 @@ ScreenIterateSequential(SCREEN_ITERATE_CALLBACK callback, void *data) {
     // Shoot rays through all the pixels
     for ( j = 0; j < height; j++ ) {
         for ( i = 0; i < width; i++ ) {
-            col = callback(i, j, data);
+            col = callback(GLOBAL_scene_background, i, j, data);
             radianceToRgb(col, &rgb[i]);
             GLOBAL_raytracer_pixelCount++;
         }
@@ -152,7 +156,7 @@ ScreenIterateProgressive(SCREEN_ITERATE_CALLBACK callback, void *data) {
                 }
 
                 if ( !skip || (ySteps & 1) || (xSteps & 1) ) {
-                    col = callback(x0, height - y0 - 1, data);
+                    col = callback(GLOBAL_scene_background, x0, height - y0 - 1, data);
                     radianceToRgb(col, &pixelRGB);
                     FillRect(x0, y0, x1, y1, pixelRGB, rgb);
 
