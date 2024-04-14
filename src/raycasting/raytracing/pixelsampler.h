@@ -9,13 +9,14 @@ class CPixelSampler : public Sampler {
     // Sample : newNode gets filled, others may change
     virtual bool
     sample(
-            SimpleRaytracingPathNode *prevNode,
-            SimpleRaytracingPathNode *thisNode,
-            SimpleRaytracingPathNode *newNode,
-            double x1,
-            double x2,
-            bool doRR = false,
-            BSDF_FLAGS flags = BSDF_ALL_COMPONENTS);
+        Background *sceneBackground,
+        SimpleRaytracingPathNode *prevNode,
+        SimpleRaytracingPathNode *thisNode,
+        SimpleRaytracingPathNode *newNode,
+        double x1,
+        double x2,
+        bool doRR = false,
+        BSDF_FLAGS flags = BSDF_ALL_COMPONENTS);
 
     virtual double
     evalPDF(

@@ -10,6 +10,7 @@ newNode gets filled, others may change
 */
 bool
 ScreenSampler::sample(
+    Background *sceneBackground,
     SimpleRaytracingPathNode */*prevNode*/,
     SimpleRaytracingPathNode *thisNode,
     SimpleRaytracingPathNode *newNode,

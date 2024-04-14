@@ -37,13 +37,14 @@ bool UniformLightSampler::ActivateNextUnit() {
 
 bool
 UniformLightSampler::sample(
-        SimpleRaytracingPathNode *prevNode/*prevNode*/,
-        SimpleRaytracingPathNode *thisNode,
-        SimpleRaytracingPathNode *newNode,
-        double x1,
-        double x2,
-        bool /* doRR */doRR,
-        BSDF_FLAGS flags)
+    Background *sceneBackground,
+    SimpleRaytracingPathNode *prevNode,
+    SimpleRaytracingPathNode *thisNode,
+    SimpleRaytracingPathNode *newNode,
+    double x1,
+    double x2,
+    bool doRR,
+    BSDF_FLAGS flags)
 {
     double pdfLight;
     double pdfPoint;
@@ -164,13 +165,14 @@ Important light sampler : attach weights to each lamp
 */
 bool
 ImportantLightSampler::sample(
-        SimpleRaytracingPathNode *prevNode/*prevNode*/,
-        SimpleRaytracingPathNode *thisNode,
-        SimpleRaytracingPathNode *newNode,
-        double x1,
-        double x2,
-        bool /* doRR */doRR,
-        BSDF_FLAGS flags)
+    Background *sceneBackground,
+    SimpleRaytracingPathNode *prevNode,
+    SimpleRaytracingPathNode *thisNode,
+    SimpleRaytracingPathNode *newNode,
+    double x1,
+    double x2,
+    bool doRR,
+    BSDF_FLAGS flags)
 {
     double pdfLight, pdfPoint;
     Patch *light;

@@ -3,9 +3,17 @@
 #include "scene/scene.h"
 #include "raycasting/raytracing/eyesampler.h"
 
-bool CEyeSampler::sample(SimpleRaytracingPathNode *prevNode, SimpleRaytracingPathNode *thisNode,
-                         SimpleRaytracingPathNode *newNode, double /*x_1*/x1, double /*x_2*/x2,
-                         bool /* doRR */doRR, BSDF_FLAGS /* flags */flags) {
+bool
+CEyeSampler::sample(
+    Background *sceneBackground,
+    SimpleRaytracingPathNode *prevNode,
+    SimpleRaytracingPathNode *thisNode,
+    SimpleRaytracingPathNode *newNode,
+    double x1,
+    double x2,
+    bool doRR,
+    BSDF_FLAGS flags)
+{
     if ( prevNode != nullptr || thisNode != nullptr ) {
         logWarning("CEyeSampler::sample", "Not first node in path ?!");
     }

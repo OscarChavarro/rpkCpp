@@ -12,6 +12,7 @@ public:
     // Sample : newNode gets filled, others may change
     virtual bool
     sample(
+        Background *sceneBackground,
         SimpleRaytracingPathNode *prevNode,
         SimpleRaytracingPathNode *thisNode,
         SimpleRaytracingPathNode *newNode,

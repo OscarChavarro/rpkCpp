@@ -6,9 +6,17 @@
 #include "raycasting/raytracing/bsdfsampler.h"
 #include "scene/scene.h"
 
-bool CBsdfSampler::sample(SimpleRaytracingPathNode *prevNode, SimpleRaytracingPathNode *thisNode,
-                          SimpleRaytracingPathNode *newNode, double x_1, double x_2,
-                          bool doRR, BSDF_FLAGS flags) {
+bool
+CBsdfSampler::sample(
+    Background *sceneBackground,
+    SimpleRaytracingPathNode *prevNode,
+    SimpleRaytracingPathNode *thisNode,
+    SimpleRaytracingPathNode *newNode,
+    double x_1,
+    double x_2,
+    bool doRR,
+    BSDF_FLAGS flags)
+{
     double pdfDir;
 
     // Sample direction

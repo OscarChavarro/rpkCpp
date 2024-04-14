@@ -12,7 +12,8 @@ sample : newNode gets filled, others may change
 */
 bool
 LightDirSampler::sample(
-    SimpleRaytracingPathNode *prevNode/*prevNode*/,
+    Background *sceneBackground,
+    SimpleRaytracingPathNode *prevNode,
     SimpleRaytracingPathNode *thisNode,
     SimpleRaytracingPathNode *newNode,
     double x1,

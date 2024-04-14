@@ -31,6 +31,7 @@ public:
 
     virtual bool
     sample(
+        Background *sceneBackground,
         SimpleRaytracingPathNode *prevNode,
         SimpleRaytracingPathNode *thisNode,
         SimpleRaytracingPathNode *newNode,
@@ -121,6 +122,7 @@ class CSurfaceSampler : public Sampler {
     //   When path ends (absorption) the type of thisNode is adjusted to 'Ends'
     virtual bool
     sample(
+        Background *sceneBackground,
         SimpleRaytracingPathNode *prevNode,
         SimpleRaytracingPathNode *thisNode,
         SimpleRaytracingPathNode *newNode,

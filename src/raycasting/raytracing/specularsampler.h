@@ -29,6 +29,7 @@ public:
 
     virtual bool
     sample(
+        Background *sceneBackground,
         SimpleRaytracingPathNode *prevNode,
         SimpleRaytracingPathNode *thisNode,
         SimpleRaytracingPathNode *newNode,

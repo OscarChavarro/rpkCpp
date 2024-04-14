@@ -24,6 +24,7 @@ class UniformLightSampler : public CNextEventSampler {
     // Sample : newNode gets filled, others may change
     virtual bool
     sample(
+        Background *sceneBackground,
         SimpleRaytracingPathNode *prevNode,
         SimpleRaytracingPathNode *thisNode,
         SimpleRaytracingPathNode *newNode,
@@ -46,6 +47,7 @@ class ImportantLightSampler : public CNextEventSampler {
     // Sample : newNode gets filled, others may change
     virtual bool
     sample(
+        Background *sceneBackground,
         SimpleRaytracingPathNode *prevNode,
         SimpleRaytracingPathNode *thisNode,
         SimpleRaytracingPathNode *newNode,

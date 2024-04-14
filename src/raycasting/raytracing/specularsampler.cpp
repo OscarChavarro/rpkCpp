@@ -6,6 +6,7 @@
 
 bool
 CSpecularSampler::sample(
+    Background *sceneBackground,
     SimpleRaytracingPathNode *prevNode,
     SimpleRaytracingPathNode *thisNode,
     SimpleRaytracingPathNode *newNode,
