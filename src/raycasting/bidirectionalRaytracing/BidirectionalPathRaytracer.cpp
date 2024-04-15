@@ -494,20 +494,13 @@ handlePathXx(
     }
 }
 
-void
+static void
 handlePath1X(
+    VoxelGrid *sceneVoxelGrid,
     BidirectionalPathTracingConfiguration *config,
     CBiPath *path)
 {
-    int nx;
-    int ny;
-    float pixX;
-    float pixY;
-    ColorRgb f;
-    ColorRgb fRad;
     double oldPdfLNE;
-    float pdf;
-    float weight;
 
     if ( (path->m_eyeSize + path->m_lightSize) > config->baseConfig->maximumPathDepth ) {
         return;
@@ -519,7 +512,21 @@ handlePath1X(
 
     // First we need to determine if the lightEndNode can be seen from
     // the camera. At the same time the pixel hit is computed
-    if ( eyeNodeVisible(GLOBAL_scene_worldVoxelGrid, path->m_eyeEndNode, path->m_lightEndNode, &pixX, &pixY) ) {
+    float pixX;
+    float pixY;
+    if ( eyeNodeVisible(
+            sceneVoxelGrid,
+            path->m_eyeEndNode,
+            path->m_lightEndNode,
+            &pixX,
+            &pixY) ) {
+        int nx;
+        int ny;
+        ColorRgb f;
+        ColorRgb fRad;
+        float pdf;
+        float weight;
+
         // Visible !
         f = computeNeFluxEstimate(config, path, &pdf, &weight, &fRad);
 
@@ -541,7 +548,11 @@ handlePath1X(
 }
 
 static void
-bpCombinePaths(Background *sceneBackground, BidirectionalPathTracingConfiguration *config) {
+bpCombinePaths(
+    VoxelGrid *sceneVoxelGrid,
+    Background *sceneBackground,
+    BidirectionalPathTracingConfiguration *config)
+{
     int eyeSize;
     int lightSize;
     bool eyeSubPathDone;
@@ -606,14 +617,14 @@ bpCombinePaths(Background *sceneBackground, BidirectionalPathTracingConfiguratio
                 path.m_eyeEndNode = eyeEndNode;
                 path.m_lightSize = lightSize;
                 path.m_lightEndNode = lightEndNode;
-                handlePathXx(GLOBAL_scene_worldVoxelGrid, sceneBackground, config, &path);
+                handlePathXx(sceneVoxelGrid, sceneBackground, config, &path);
             } else {
                 path.m_eyeSize = eyeSize;
                 path.m_eyeEndNode = eyeEndNode;
                 path.m_lightSize = lightSize;
                 path.m_lightEndNode = lightEndNode;
 
-                handlePath1X(config, &path);
+                handlePath1X(sceneVoxelGrid, config, &path);
             }
 
             if ( lightEndNode->ends() ) {
@@ -655,7 +666,7 @@ bpCalcPixel(
         config->eyePath = new SimpleRaytracingPathNode;
     }
 
-    config->eyeConfig.pointSampler->sample(GLOBAL_scene_worldVoxelGrid, sceneBackground, nullptr, nullptr, config->eyePath, 0, 0);
+    config->eyeConfig.pointSampler->sample(sceneVoxelGrid, sceneBackground, nullptr, nullptr, config->eyePath, 0, 0);
     ((CPixelSampler *) config->eyeConfig.dirSampler)->SetPixel(nx, ny);
 
     // Provide a node for the pixel sampling
@@ -704,7 +715,7 @@ bpCalcPixel(
         }
 
         // Connect all endpoints and compute contribution
-        bpCombinePaths(sceneBackground, config);
+        bpCombinePaths(sceneVoxelGrid, sceneBackground, config);
     }
 
     // Radiance contributions are added to the screen buffer directly
@@ -722,7 +733,11 @@ bpCalcPixel(
 }
 
 static void
-doBptAndSubsequentImages(Background *sceneBackground, BidirectionalPathTracingConfiguration *config) {
+doBptAndSubsequentImages(
+    VoxelGrid *sceneVoxelGrid,
+    Background *sceneBackground,
+    BidirectionalPathTracingConfiguration *config)
+{
     int maxSamples;
     int nrIterations;
     char *format1 = new char[STRINGS_SIZE];
@@ -778,8 +793,11 @@ doBptAndSubsequentImages(Background *sceneBackground, BidirectionalPathTracingCo
         config->baseConfig->samplesPerPixel = currentSamples;
         config->baseConfig->totalSamples = currentSamples * GLOBAL_camera_mainCamera.xSize * GLOBAL_camera_mainCamera.ySize;;
 
-        screenIterateSequential(sceneBackground, (ColorRgb(*)(Background *, int, int, void *)) bpCalcPixel,
-                                config);
+        screenIterateSequential(
+            sceneVoxelGrid,
+            sceneBackground,
+            (ColorRgb(*)(VoxelGrid *, Background *, int, int, void *))bpCalcPixel,
+            config);
 
         config->screen->render();
 
@@ -807,6 +825,7 @@ doBptAndSubsequentImages(Background *sceneBackground, BidirectionalPathTracingCo
 
 static void
 doBptDensityEstimation(
+    VoxelGrid *sceneVoxelGrid,
     Background *sceneBackground,
     BidirectionalPathTracingConfiguration *config)
 {
@@ -843,7 +862,11 @@ doBptDensityEstimation(
     config->deStoreHits = true;
 
     // Do the run
-    screenIterateSequential(sceneBackground, (ColorRgb(*)(Background *, int, int, void *)) bpCalcPixel, config);
+    screenIterateSequential(
+        sceneVoxelGrid,
+        sceneBackground,
+        (ColorRgb(*)(VoxelGrid *, Background *, int, int, void *))bpCalcPixel,
+        config);
 
     // Now we have a noisy screen in dest and hits in double buffer
 
@@ -930,8 +953,11 @@ doBptDensityEstimation(
 
         // Iterate screen : nNew - nOld, using an appropriate scale factor
 
-        screenIterateSequential(sceneBackground, (ColorRgb(*)(Background *, int, int, void *)) bpCalcPixel,
-                                config);
+        screenIterateSequential(
+            sceneVoxelGrid,
+            sceneBackground,
+            (ColorRgb(*)(VoxelGrid *, Background *, int, int, void *))bpCalcPixel,
+            config);
 
         // Render screen & write
 
@@ -977,7 +1003,7 @@ pointed to by 'fp'
 */
 static void
 biDirPathTrace(
-    VoxelGrid * /*sceneWorldVoxelGrid*/,
+    VoxelGrid *sceneWorldVoxelGrid,
     Background *sceneBackground,
     ImageOutputHandle *ip,
     java::ArrayList<Patch *> * /*scenePatches*/,
@@ -1060,15 +1086,21 @@ biDirPathTrace(
     }
 
     if ( GLOBAL_rayTracing_biDirectionalPath.saveSubsequentImages ) {
-        doBptAndSubsequentImages(sceneBackground, &config);
+        doBptAndSubsequentImages(sceneWorldVoxelGrid, sceneBackground, &config);
     } else if ( config.baseConfig->doDensityEstimation ) {
-        doBptDensityEstimation(sceneBackground, &config);
+        doBptDensityEstimation(sceneWorldVoxelGrid, sceneBackground, &config);
     } else if ( !GLOBAL_rayTracing_biDirectionalPath.basecfg.progressiveTracing ) {
-        screenIterateSequential(sceneBackground,
-                                (ColorRgb(*)(Background *, int, int, void *)) bpCalcPixel, &config);
+        screenIterateSequential(
+            sceneWorldVoxelGrid,
+            sceneBackground,
+            (ColorRgb(*)(VoxelGrid *, Background *, int, int, void *))bpCalcPixel,
+            &config);
     } else {
-        screenIterateProgressive(sceneBackground,
-                                 (ColorRgb(*)(Background *, int, int, void *)) bpCalcPixel, &config);
+        screenIterateProgressive(
+            sceneWorldVoxelGrid,
+            sceneBackground,
+            (ColorRgb(*)(VoxelGrid *, Background *, int, int, void *))bpCalcPixel,
+            &config);
     }
 
     config.screen->render();

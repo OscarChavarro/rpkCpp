@@ -16,6 +16,7 @@ RayTracingStochasticState GLOBAL_raytracing_state;
 
 static ColorRgb
 stochasticRaytracerGetRadiance(
+    VoxelGrid *sceneVoxelGrid,
     Background *sceneBackground,
     SimpleRaytracingPathNode *thisNode,
     StochasticRaytracingConfiguration *config,
@@ -23,8 +24,9 @@ stochasticRaytracerGetRadiance(
     int usedScatterSamples,
     RadianceMethod *context);
 
-ColorRgb
+static ColorRgb
 stochasticRaytracerGetScatteredRadiance(
+    VoxelGrid *sceneVoxelGrid,
     Background * sceneBackground,
     SimpleRaytracingPathNode *thisNode,
     StochasticRaytracingConfiguration *config,
@@ -96,7 +98,7 @@ stochasticRaytracerGetScatteredRadiance(
 
                 // Surface sampling
                 if ( config->samplerConfig.surfaceSampler->sample(
-                        GLOBAL_scene_worldVoxelGrid,
+                        sceneVoxelGrid,
                         sceneBackground,
                         thisNode->previous(),
                         thisNode,
@@ -116,9 +118,9 @@ stochasticRaytracerGetScatteredRadiance(
                     // Get the incoming radiance
                     if ( siCurrent == -1 ) {
                         // Storage bounce
-                        radiance = stochasticRaytracerGetRadiance(sceneBackground, &newNode, config, READ_NOW, nrSamples, context);
+                        radiance = stochasticRaytracerGetRadiance(sceneVoxelGrid, sceneBackground, &newNode, config, READ_NOW, nrSamples, context);
                     } else {
-                        radiance = stochasticRaytracerGetRadiance(sceneBackground, &newNode, config, readout, nrSamples, context);
+                        radiance = stochasticRaytracerGetRadiance(sceneVoxelGrid, sceneBackground, &newNode, config, readout, nrSamples, context);
                     }
 
                     // Frame coherent & correlated sampling
@@ -148,6 +150,7 @@ stochasticRaytracerGetScatteredRadiance(
 
 static ColorRgb
 srGetDirectRadiance(
+    VoxelGrid *sceneVoxelGrid,
     Background *sceneBackground,
     SimpleRaytracingPathNode *prevNode,
     StochasticRaytracingConfiguration *config,
@@ -194,7 +197,7 @@ srGetDirectRadiance(
                 stratified.sample(&x1, &x2);
 
                 if ( config->samplerConfig.neSampler->sample(
-                    GLOBAL_scene_worldVoxelGrid,
+                    sceneVoxelGrid,
                     sceneBackground,
                     prevNode->previous(),
                     prevNode,
@@ -203,7 +206,7 @@ srGetDirectRadiance(
                     x2,
                     true,
                     BSDF_ALL_COMPONENTS) ) {
-                    if ( pathNodesVisible(GLOBAL_scene_worldVoxelGrid, prevNode, &lightNode) ) {
+                    if ( pathNodesVisible(sceneVoxelGrid, prevNode, &lightNode) ) {
                         // Now connect for all applicable scatter-info's
                         // If no weighting between reflection sampling and
                         // next event estimation were used, only one connect
@@ -301,6 +304,7 @@ srGetDirectRadiance(
 
 static ColorRgb
 stochasticRaytracerGetRadiance(
+    VoxelGrid *sceneVoxelGrid,
     Background *sceneBackground,
     SimpleRaytracingPathNode *thisNode,
     StochasticRaytracingConfiguration *config,
@@ -403,11 +407,11 @@ stochasticRaytracerGetRadiance(
             result.add(result, radiance);
         }
 
-        radiance = srGetDirectRadiance(sceneBackground, thisNode, config, readout);
+        radiance = srGetDirectRadiance(sceneVoxelGrid, sceneBackground, thisNode, config, readout);
         result.add(result, radiance);
 
         // Scattered light
-        radiance = stochasticRaytracerGetScatteredRadiance(sceneBackground, thisNode, config, readout, context);
+        radiance = stochasticRaytracerGetScatteredRadiance(sceneVoxelGrid, sceneBackground, thisNode, config, readout, context);
         result.add(result, radiance);
 
         // Emitted Light
@@ -468,6 +472,7 @@ stochasticRaytracerGetRadiance(
 
 static ColorRgb
 calcPixel(
+    VoxelGrid *sceneVoxelGrid,
     Background *sceneBackground,
     int nx,
     int ny,
@@ -498,7 +503,7 @@ calcPixel(
     // Calc pixel data
 
     // Sample eye node
-    config->samplerConfig.pointSampler->sample(GLOBAL_scene_worldVoxelGrid, sceneBackground, nullptr, nullptr, &eyeNode, 0, 0);
+    config->samplerConfig.pointSampler->sample(sceneVoxelGrid, sceneBackground, nullptr, nullptr, &eyeNode, 0, 0);
     ((CPixelSampler *) config->samplerConfig.dirSampler)->SetPixel(nx, ny);
 
     eyeNode.attach(&pixelNode);
@@ -507,7 +512,7 @@ calcPixel(
     for ( i = 0; i < config->samplesPerPixel; i++ ) {
         stratified.sample(&x1, &x2);
 
-        if ( config->samplerConfig.dirSampler->sample(GLOBAL_scene_worldVoxelGrid, sceneBackground, nullptr, &eyeNode, &pixelNode, x1, x2)
+        if ( config->samplerConfig.dirSampler->sample(sceneVoxelGrid, sceneBackground, nullptr, &eyeNode, &pixelNode, x1, x2)
              && ((pixelNode.m_rayType != ENVIRONMENT) || (config->backgroundDirect)) ) {
             pixelNode.assignBsdfAndNormal();
 
@@ -516,7 +521,7 @@ calcPixel(
                 config->seedConfig.save(pixelNode.m_depth);
             }
 
-            col = stochasticRaytracerGetRadiance(sceneBackground, &pixelNode, config, config->initialReadout,
+            col = stochasticRaytracerGetRadiance(sceneVoxelGrid, sceneBackground, &pixelNode, config, config->initialReadout,
                                                  config->samplesPerPixel, context);
 
             // Frame coherent & correlated sampling
@@ -558,7 +563,7 @@ pointed to by 'fp'
 */
 void
 rtStochasticTrace(
-    VoxelGrid * /*sceneWorldVoxelGrid*/,
+    VoxelGrid *sceneWorldVoxelGrid,
     Background *sceneBackground,
     ImageOutputHandle *ip,
     java::ArrayList<Patch *> * /*scenePatches*/,
@@ -575,13 +580,15 @@ rtStochasticTrace(
 
     if ( !GLOBAL_raytracing_state.progressiveTracing ) {
         screenIterateSequential(
-                sceneBackground,
-            (ColorRgb(*)(Background *, int, int, void *)) calcPixel,
+            sceneWorldVoxelGrid,
+            sceneBackground,
+            (ColorRgb(*)(VoxelGrid *, Background *, int, int, void *)) calcPixel,
             &config);
     } else {
         screenIterateProgressive(
+            sceneWorldVoxelGrid,
             sceneBackground,
-            (ColorRgb(*)(Background *, int, int, void *))calcPixel,
+            (ColorRgb(*)(VoxelGrid *, Background *, int, int, void *))calcPixel,
             &config);
     }
 

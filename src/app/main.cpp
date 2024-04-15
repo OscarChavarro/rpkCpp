@@ -57,6 +57,7 @@ static int globalFileOptionsForceOneSidedSurfaces = 0;
 static java::ArrayList<Geometry *> *globalSceneGeometries = nullptr;
 static Geometry *globalClusteredWorldGeometry = nullptr;
 static Background *globalSceneBackground = nullptr;
+static VoxelGrid *globalSceneWorldVoxelGrid = nullptr;
 
 static void
 mainForceOneSidedOption(void *value) {
@@ -408,9 +409,9 @@ mainReadFile(char *filename, MgfContext *context) {
         globalSceneBackground = nullptr;
     }
 
-    if ( GLOBAL_scene_worldVoxelGrid != nullptr ) {
-        delete GLOBAL_scene_worldVoxelGrid;
-        GLOBAL_scene_worldVoxelGrid = nullptr;
+    if ( globalSceneWorldVoxelGrid != nullptr ) {
+        delete globalSceneWorldVoxelGrid;
+        globalSceneWorldVoxelGrid = nullptr;
     }
 
     t = clock();
@@ -460,7 +461,7 @@ mainReadFile(char *filename, MgfContext *context) {
     last = t;
 
     // Engridding the thing
-    GLOBAL_scene_worldVoxelGrid = new VoxelGrid(globalClusteredWorldGeometry);
+    globalSceneWorldVoxelGrid = new VoxelGrid(globalClusteredWorldGeometry);
 
     t = clock();
     fprintf(stderr, "Engridding took %g secs.\n", (float) (t - last) / (float) CLOCKS_PER_SEC);
@@ -612,12 +613,12 @@ mainExecuteRendering(java::ArrayList<Patch *> *scenePatches, RadianceMethod *con
 
     batch(
         globalSceneBackground,
-        GLOBAL_scene_worldVoxelGrid,
+        globalSceneWorldVoxelGrid,
         scenePatches,
         GLOBAL_app_lightSourcePatches,
         globalSceneGeometries,
         globalClusteredWorldGeometry,
-        GLOBAL_scene_worldVoxelGrid,
+        globalSceneWorldVoxelGrid,
         context);
 }
 
@@ -631,9 +632,9 @@ mainFreeMemory(MgfContext *context) {
     if ( globalAppScenePatches != nullptr ) {
         delete globalAppScenePatches;
     }
-    if ( GLOBAL_scene_worldVoxelGrid != nullptr ) {
-        delete GLOBAL_scene_worldVoxelGrid;
-        GLOBAL_scene_worldVoxelGrid = nullptr;
+    if ( globalSceneWorldVoxelGrid != nullptr ) {
+        delete globalSceneWorldVoxelGrid;
+        globalSceneWorldVoxelGrid = nullptr;
     }
 }
 
@@ -664,7 +665,7 @@ main(int argc, char *argv[]) {
     //    GLOBAL_scene_clusteredWorldGeom,
     //    globalSceneBackground,
     //    mgfContext.radianceMethod,
-    //    GLOBAL_scene_worldVoxelGrid);
+    //    globalSceneWorldVoxelGrid);
 
     mainFreeMemory(&mgfContext);
 

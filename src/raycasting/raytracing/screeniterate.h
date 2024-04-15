@@ -11,16 +11,18 @@ Several functions are provided for different iterating schemes
 #include "common/ColorRgb.h"
 #include "scene/Background.h"
 
-typedef ColorRgb(*SCREEN_ITERATE_CALLBACK)(Background *, int, int, void *);
+typedef ColorRgb(*SCREEN_ITERATE_CALLBACK)(VoxelGrid *, Background *, int, int, void *);
 
 void
 screenIterateSequential(
+    VoxelGrid *sceneVoxelGrid,
     Background *sceneBackground,
     SCREEN_ITERATE_CALLBACK callback,
     void *data);
 
 void
 screenIterateProgressive(
+    VoxelGrid *sceneVoxelGrid,
     Background *sceneBackground,
     SCREEN_ITERATE_CALLBACK callback,
     void *data);

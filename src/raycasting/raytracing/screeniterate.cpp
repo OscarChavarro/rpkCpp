@@ -47,6 +47,7 @@ ScreenIterateFinish() {
 
 void
 screenIterateSequential(
+    VoxelGrid *sceneVoxelGrid,
     Background *sceneBackground,
     SCREEN_ITERATE_CALLBACK callback, void *data)
 {
@@ -64,7 +65,7 @@ screenIterateSequential(
     // Shoot rays through all the pixels
     for ( int i = 0; i < height; i++ ) {
         for ( int j = 0; j < width; j++ ) {
-            col = callback(sceneBackground, j, i, data);
+            col = callback(sceneVoxelGrid, sceneBackground, j, i, data);
             radianceToRgb(col, &rgb[j]);
             GLOBAL_raytracer_pixelCount++;
         }
@@ -95,6 +96,7 @@ FillRect(int x0, int y0, int x1, int y1, ColorRgb col, ColorRgb *rgb) {
 
 void
 screenIterateProgressive(
+    VoxelGrid *sceneVoxelGrid,
     Background *sceneBackground,
     SCREEN_ITERATE_CALLBACK callback,
     void *data)
@@ -160,7 +162,7 @@ screenIterateProgressive(
                 }
 
                 if ( !skip || (ySteps & 1) || (xSteps & 1) ) {
-                    col = callback(sceneBackground, x0, height - y0 - 1, data);
+                    col = callback(sceneVoxelGrid, sceneBackground, x0, height - y0 - 1, data);
                     radianceToRgb(col, &pixelRGB);
                     FillRect(x0, y0, x1, y1, pixelRGB, rgb);
 
