@@ -224,7 +224,7 @@ batch(
                 fflush(stderr);
                 exit(1);
             }
-            done = context->doStep(scenePatches, sceneGeometries, lightPatches, clusteredWorldGeometry);
+            done = context->doStep(sceneBackground, scenePatches, sceneGeometries, lightPatches, clusteredWorldGeometry);
             canvasPullMode();
 
             fflush(stdout);

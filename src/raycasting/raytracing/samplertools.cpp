@@ -96,7 +96,7 @@ CSamplerConfig::traceNode(
         // In the middle of a path
         if ( (lastNode->m_depth + 1) < maxDepth ) {
             if ( !surfaceSampler->sample(
-                    GLOBAL_scene_background,
+                    sceneBackground,
                     lastNode->previous(),
                     lastNode,
                     nextNode,
@@ -124,6 +124,7 @@ CSamplerConfig::traceNode(
 
 SimpleRaytracingPathNode *
 CSamplerConfig::tracePath(
+    Background *sceneBackground,
     SimpleRaytracingPathNode *nextNode,
     BSDF_FLAGS flags)
 {
@@ -142,7 +143,7 @@ CSamplerConfig::tracePath(
         nextNode->ensureNext();
 
         // Recursive call
-        tracePath(nextNode->next(), flags);
+        tracePath(sceneBackground, nextNode->next(), flags);
     }
 
     return nextNode;

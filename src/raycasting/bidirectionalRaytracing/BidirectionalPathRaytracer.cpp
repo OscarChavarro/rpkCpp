@@ -676,7 +676,7 @@ bpCalcPixel(Background *sceneBackground, int nx, int ny, BidirectionalPathTracin
 
             if ( config->eyeConfig.dirSampler->sample(sceneBackground, nullptr, config->eyePath, pixNode, x1, x2) ) {
                 pixNode->assignBsdfAndNormal();
-                config->eyeConfig.tracePath(nextNode);
+                config->eyeConfig.tracePath(GLOBAL_scene_background, nextNode);
             }
         } else {
             config->eyePath->m_rayType = STOPS;
@@ -684,7 +684,7 @@ bpCalcPixel(Background *sceneBackground, int nx, int ny, BidirectionalPathTracin
 
         // Generate a light path
         if ( config->lightConfig.maxDepth > 0 ) {
-            config->lightPath = config->lightConfig.tracePath(config->lightPath);
+            config->lightPath = config->lightConfig.tracePath(GLOBAL_scene_background, config->lightPath);
         } else {
             // Normally this is already so, so no delete necessary ?!
             config->lightPath = nullptr;

@@ -422,8 +422,8 @@ photonMapHandlePath(PhotonMapConfig *config, RadianceMethod *context) {
 }
 
 static void
-photonMapTracePath(PhotonMapConfig *config, BSDF_FLAGS bsdfFlags) {
-    config->biPath.m_eyePath = config->eyeConfig.tracePath(config->biPath.m_eyePath);
+photonMapTracePath(Background *sceneBackground, PhotonMapConfig *config, BSDF_FLAGS bsdfFlags) {
+    config->biPath.m_eyePath = config->eyeConfig.tracePath(GLOBAL_scene_background, config->biPath.m_eyePath);
 
     // Use qmc for light sampling
     SimpleRaytracingPathNode *path = config->biPath.m_lightPath;
@@ -432,7 +432,7 @@ photonMapTracePath(PhotonMapConfig *config, BSDF_FLAGS bsdfFlags) {
     double x1 = drand48(); //nrs[0] * RECIP;
     double x2 = drand48(); //nrs[1] * RECIP;
 
-    path = config->lightConfig.traceNode(GLOBAL_scene_background, path, x1, x2, bsdfFlags);
+    path = config->lightConfig.traceNode(sceneBackground, path, x1, x2, bsdfFlags);
     if ( path == nullptr ) {
         return;
     }
@@ -449,23 +449,23 @@ photonMapTracePath(PhotonMapConfig *config, BSDF_FLAGS bsdfFlags) {
     if ( config->lightConfig.traceNode(GLOBAL_scene_background, node, x1, x2, bsdfFlags) ) {
         // Successful trace
         node->ensureNext();
-        config->lightConfig.tracePath(node->next(), bsdfFlags);
+        config->lightConfig.tracePath(GLOBAL_scene_background, node->next(), bsdfFlags);
     }
 }
 
 static void
-photonMapTracePaths(int nrPaths, BSDF_FLAGS bsdfFlags = BSDF_ALL_COMPONENTS, RadianceMethod *context = nullptr) {
+photonMapTracePaths(Background *sceneBackground, int nrPaths, BSDF_FLAGS bsdfFlags = BSDF_ALL_COMPONENTS, RadianceMethod *context = nullptr) {
     int i;
 
     // Fill in config structures
     for ( i = 0; i < nrPaths; i++ ) {
-        photonMapTracePath(&GLOBAL_photonMap_config, bsdfFlags);
+        photonMapTracePath(sceneBackground, &GLOBAL_photonMap_config, bsdfFlags);
         photonMapHandlePath(&GLOBAL_photonMap_config, context);
     }
 }
 
 static void
-photonMapBRRealIteration(RadianceMethod *context) {
+photonMapBRRealIteration(Background *sceneBackground, RadianceMethod *context) {
     GLOBAL_photonMap_state.iterationNumber++;
 
     fprintf(stderr, "GLOBAL_photonMapMethods Iteration %li\n", (long) GLOBAL_photonMap_state.iterationNumber);
@@ -499,7 +499,7 @@ photonMapBRRealIteration(RadianceMethod *context) {
         // Set correct importance map: indirect importance
         GLOBAL_photonMap_config.currentImpMap = GLOBAL_photonMap_config.importanceMap;
 
-        photonMapTracePaths((int)GLOBAL_photonMap_state.gPathsPerIteration, BSDF_ALL_COMPONENTS, context);
+        photonMapTracePaths(sceneBackground, (int)GLOBAL_photonMap_state.gPathsPerIteration, BSDF_ALL_COMPONENTS, context);
 
         fprintf(stderr, "Global map: ");
         GLOBAL_photonMap_config.globalMap->PrintStats(stderr);
@@ -515,7 +515,7 @@ photonMapBRRealIteration(RadianceMethod *context) {
         // Set correct importance map: direct importance
         GLOBAL_photonMap_config.currentImpMap = GLOBAL_photonMap_config.importanceCMap;
 
-        photonMapTracePaths((int)GLOBAL_photonMap_state.cPathsPerIteration, BSDF_SPECULAR_COMPONENT);
+        photonMapTracePaths(sceneBackground, (int)GLOBAL_photonMap_state.cPathsPerIteration, BSDF_SPECULAR_COMPONENT);
 
         fprintf(stderr, "Caustic map: ");
         GLOBAL_photonMap_config.causticMap->PrintStats(stderr);
@@ -530,6 +530,7 @@ method is not updated in this file
 */
 int
 PhotonMapRadianceMethod::doStep(
+    Background *sceneBackground,
     java::ArrayList<Patch *> *scenePatches,
     java::ArrayList<Geometry *> *sceneGeometries,
     java::ArrayList<Patch *> *lightPatches,
@@ -537,7 +538,7 @@ PhotonMapRadianceMethod::doStep(
 {
     GLOBAL_photonMap_state.lastClock = clock();
 
-    photonMapBRRealIteration(this);
+    photonMapBRRealIteration(sceneBackground, this);
     photonMapRadiosityUpdateCpuSecs();
 
     GLOBAL_photonMap_state.runStopNumber++;

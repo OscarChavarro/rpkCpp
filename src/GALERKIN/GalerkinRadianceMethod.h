@@ -4,6 +4,7 @@
 #include "common/cubature.h"
 #include "skin/RadianceMethod.h"
 #include "GALERKIN/GalerkinState.h"
+#include "scene/Background.h"
 
 class GalerkinRadianceMethod : public RadianceMethod {
   private:
@@ -46,6 +47,7 @@ class GalerkinRadianceMethod : public RadianceMethod {
 
     int
     doStep(
+        Background *sceneBackground,
         java::ArrayList<Patch *> *scenePatches,
         java::ArrayList<Geometry *> *sceneGeometries,
         java::ArrayList<Patch *> *lightPatches,

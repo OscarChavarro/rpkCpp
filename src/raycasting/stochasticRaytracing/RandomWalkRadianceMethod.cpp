@@ -7,6 +7,7 @@
 #include "raycasting/stochasticRaytracing/tracepath.h"
 #include "raycasting/stochasticRaytracing/stochjacobi.h"
 #include "raycasting/stochasticRaytracing/RandomWalkRadianceMethod.h"
+#include "scene/Background.h"
 
 RandomWalkRadianceMethod::RandomWalkRadianceMethod() {
     monteCarloRadiosityDefaults();
@@ -434,6 +435,7 @@ RandomWalkRadianceMethod::terminate(java::ArrayList<Patch *> *scenePatches) {
 
 int
 RandomWalkRadianceMethod::doStep(
+    Background *sceneBackground,
     java::ArrayList<Patch *> *scenePatches,
     java::ArrayList<Geometry *> *sceneGeometries,
     java::ArrayList<Patch *> *lightPatches,

@@ -6,6 +6,8 @@
 #include "java/util/ArrayList.h"
 #include "skin/Patch.h"
 
+class Background;
+
 enum RadianceMethodAlgorithm {
     GALERKIN,
     STOCHASTIC_JACOBI,
@@ -34,6 +36,7 @@ class RadianceMethod {
     // done
     virtual int
     doStep(
+        Background *sceneBackground,
         java::ArrayList<Patch *> *scenePatches,
         java::ArrayList<Geometry *> *sceneGeometries,
         java::ArrayList<Patch *> *lightPatches,
@@ -72,5 +75,7 @@ setRadianceMethod(
     RadianceMethod *newMethod,
     java::ArrayList<Patch *> *scenePatches,
     Geometry *clusteredWorldGeometry);
+
+#include "scene/Background.h"
 
 #endif

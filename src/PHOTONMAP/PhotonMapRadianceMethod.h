@@ -16,6 +16,7 @@ class PhotonMapRadianceMethod : public RadianceMethod {
 
     int
     doStep(
+        Background *sceneBackground,
         java::ArrayList<Patch *> *scenePatches,
         java::ArrayList<Geometry *> *sceneGeometries,
         java::ArrayList<Patch *> *lightPatches,
