@@ -423,7 +423,7 @@ photonMapHandlePath(PhotonMapConfig *config, RadianceMethod *context) {
 
 static void
 photonMapTracePath(Background *sceneBackground, PhotonMapConfig *config, BSDF_FLAGS bsdfFlags) {
-    config->biPath.m_eyePath = config->eyeConfig.tracePath(GLOBAL_scene_background, config->biPath.m_eyePath);
+    config->biPath.m_eyePath = config->eyeConfig.tracePath(sceneBackground, config->biPath.m_eyePath);
 
     // Use qmc for light sampling
     SimpleRaytracingPathNode *path = config->biPath.m_lightPath;
@@ -446,10 +446,10 @@ photonMapTracePath(Background *sceneBackground, PhotonMapConfig *config, BSDF_FL
     x1 = drand48(); // nrs[2] * RECIP;
     x2 = drand48(); // nrs[3] * RECIP; // 4D Niederreiter...
 
-    if ( config->lightConfig.traceNode(GLOBAL_scene_background, node, x1, x2, bsdfFlags) ) {
+    if ( config->lightConfig.traceNode(sceneBackground, node, x1, x2, bsdfFlags) ) {
         // Successful trace
         node->ensureNext();
-        config->lightConfig.tracePath(GLOBAL_scene_background, node->next(), bsdfFlags);
+        config->lightConfig.tracePath(sceneBackground, node->next(), bsdfFlags);
     }
 }
 
@@ -482,7 +482,7 @@ photonMapBRRealIteration(Background *sceneBackground, RadianceMethod *context) {
         GLOBAL_photonMap_config.currentMap->SetTotalPaths(GLOBAL_photonMap_state.totalIPaths);
         GLOBAL_photonMap_config.importanceCMap->SetTotalPaths(GLOBAL_photonMap_state.totalIPaths);
 
-        tracePotentialPaths((int) GLOBAL_photonMap_state.iPathsPerIteration);
+        tracePotentialPaths(sceneBackground, (int)GLOBAL_photonMap_state.iPathsPerIteration);
 
         fprintf(stderr, "Total potential paths : %li, Total rays %li\n",
                 GLOBAL_photonMap_state.totalIPaths,

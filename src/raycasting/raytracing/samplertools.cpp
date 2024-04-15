@@ -137,7 +137,7 @@ CSamplerConfig::tracePath(
         getRand(nextNode->previous()->m_depth + 1, &x1, &x2);
     }
 
-    nextNode = traceNode(GLOBAL_scene_background, nextNode, x1, x2, flags);
+    nextNode = traceNode(sceneBackground, nextNode, x1, x2, flags);
 
     if ( nextNode != nullptr ) {
         nextNode->ensureNext();

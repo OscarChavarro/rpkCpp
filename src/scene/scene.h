@@ -5,9 +5,6 @@
 #include "scene/Background.h"
 #include "scene/VoxelGrid.h"
 
-// The current background (sky, environment map, etc.) for the scene
-extern Background *GLOBAL_scene_background;
-
 // The top of the patch cluster hierarchy for the scene. Automatically derived from scene patches when loading a new scene
 extern java::ArrayList<Geometry *> *GLOBAL_scene_clusteredGeometries;
 

@@ -56,6 +56,7 @@ static int globalImageOutputHeight = 0;
 static int globalFileOptionsForceOneSidedSurfaces = 0;
 static java::ArrayList<Geometry *> *globalSceneGeometries = nullptr;
 static Geometry *globalClusteredWorldGeometry = nullptr;
+static Background *globalSceneBackground = nullptr;
 
 static void
 mainForceOneSidedOption(void *value) {
@@ -127,7 +128,7 @@ mainComputeSomeSceneStats() {
         GLOBAL_statistics.totalEmittedPower);
 
     // Include background radiation
-    BP = backgroundPower(GLOBAL_scene_background, &zero);
+    BP = backgroundPower(globalSceneBackground, &zero);
     BP.scale(1.0 / (4.0 * (double) M_PI));
     GLOBAL_statistics.totalEmittedPower.add(GLOBAL_statistics.totalEmittedPower, BP);
     GLOBAL_statistics.estimatedAverageRadiance.add(GLOBAL_statistics.estimatedAverageRadiance, BP);
@@ -144,8 +145,8 @@ Adds the background to the global light source patch list
 */
 static void
 mainAddBackgroundToLightSourceList() {
-    if ( GLOBAL_scene_background != nullptr && GLOBAL_scene_background->bkgPatch != nullptr ) {
-        GLOBAL_app_lightSourcePatches->add(0, GLOBAL_scene_background->bkgPatch);
+    if ( globalSceneBackground != nullptr && globalSceneBackground->bkgPatch != nullptr ) {
+        GLOBAL_app_lightSourcePatches->add(0, globalSceneBackground->bkgPatch);
     }
 }
 
@@ -357,7 +358,7 @@ mainReadFile(char *filename, MgfContext *context) {
     globalAppScenePatches = nullptr;
     Patch::setNextId(1);
     GLOBAL_scene_clusteredGeometries = new java::ArrayList<Geometry *>();
-    GLOBAL_scene_background = nullptr;
+    globalSceneBackground = nullptr;
 
     // Read the mgf file. The result is a new GLOBAL_scene_world and GLOBAL_scene_materials if everything goes well
     char *extension;
@@ -402,9 +403,9 @@ mainReadFile(char *filename, MgfContext *context) {
 
     delete globalAppScenePatches;
 
-    if ( GLOBAL_scene_background != nullptr ) {
-        GLOBAL_scene_background->methods->Destroy(GLOBAL_scene_background->data);
-        GLOBAL_scene_background = nullptr;
+    if ( globalSceneBackground != nullptr ) {
+        globalSceneBackground->methods->Destroy(globalSceneBackground->data);
+        globalSceneBackground = nullptr;
     }
 
     if ( GLOBAL_scene_worldVoxelGrid != nullptr ) {
@@ -609,7 +610,7 @@ mainExecuteRendering(java::ArrayList<Patch *> *scenePatches, RadianceMethod *con
                 context);
     #endif
 
-    batch(GLOBAL_scene_background, scenePatches, GLOBAL_app_lightSourcePatches, globalSceneGeometries, globalClusteredWorldGeometry, context);
+    batch(globalSceneBackground, scenePatches, GLOBAL_app_lightSourcePatches, globalSceneGeometries, globalClusteredWorldGeometry, context);
 }
 
 static void

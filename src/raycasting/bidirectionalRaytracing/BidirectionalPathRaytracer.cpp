@@ -626,8 +626,12 @@ bpCombinePaths(Background *sceneBackground, BidirectionalPathTracingConfiguratio
 }
 
 static ColorRgb
-bpCalcPixel(Background *sceneBackground, int nx, int ny, BidirectionalPathTracingConfiguration *config) {
-    int i;
+bpCalcPixel(
+    Background *sceneBackground,
+    int nx,
+    int ny,
+    BidirectionalPathTracingConfiguration *config)
+{
     double x1;
     double x2;
     ColorRgb result;
@@ -663,7 +667,7 @@ bpCalcPixel(Background *sceneBackground, int nx, int ny, BidirectionalPathTracin
     config->ny = ny;
     config->fluxToRadFactor = computeFluxToRadFactor(nx, ny);
 
-    for ( i = 0; i < config->baseConfig->samplesPerPixel; i++ ) {
+    for ( int i = 0; i < config->baseConfig->samplesPerPixel; i++ ) {
         if ( config->eyeConfig.maxDepth > 1 ) {
             // Generate an eye path
             stratifiedSampling2D.sample(&x1, &x2);
@@ -676,7 +680,7 @@ bpCalcPixel(Background *sceneBackground, int nx, int ny, BidirectionalPathTracin
 
             if ( config->eyeConfig.dirSampler->sample(sceneBackground, nullptr, config->eyePath, pixNode, x1, x2) ) {
                 pixNode->assignBsdfAndNormal();
-                config->eyeConfig.tracePath(GLOBAL_scene_background, nextNode);
+                config->eyeConfig.tracePath(sceneBackground, nextNode);
             }
         } else {
             config->eyePath->m_rayType = STOPS;
@@ -684,7 +688,7 @@ bpCalcPixel(Background *sceneBackground, int nx, int ny, BidirectionalPathTracin
 
         // Generate a light path
         if ( config->lightConfig.maxDepth > 0 ) {
-            config->lightPath = config->lightConfig.tracePath(GLOBAL_scene_background, config->lightPath);
+            config->lightPath = config->lightConfig.tracePath(sceneBackground, config->lightPath);
         } else {
             // Normally this is already so, so no delete necessary ?!
             config->lightPath = nullptr;
