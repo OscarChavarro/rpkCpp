@@ -2,7 +2,6 @@
 #include <cstring>
 #include <GL/gl.h>
 
-#include "scene/scene.h"
 #include "io/writevrml.h"
 #include "common/options.h"
 #include "render/canvas.h"

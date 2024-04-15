@@ -3,7 +3,6 @@ Rendering stuff independent of the graphics library being used
 */
 
 #include "common/mymath.h"
-#include "scene/scene.h"
 #include "scene/Camera.h"
 #include "skin/Geometry.h"
 #include "common/options.h"

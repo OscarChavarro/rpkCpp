@@ -1,7 +1,6 @@
 #include "java/util/ArrayList.txx"
 #include "common/error.h"
 #include "common/mymath.h"
-#include "scene/scene.h"
 #include "GALERKIN/Shaft.h"
 #include "GALERKIN/basisgalerkin.h"
 #include "GALERKIN/formfactor.h"
@@ -19,7 +18,9 @@ createInitialLink(
     VoxelGrid *sceneWorldVoxelGrid,
     Patch *patch,
     GalerkinState *galerkinState,
-    java::ArrayList<Geometry *> *sceneGeometries) {
+    java::ArrayList<Geometry *> *sceneGeometries,
+    java::ArrayList<Geometry *> *sceneClusteredGeometries)
+    {
     if ( !facing(patch, globalPatch) ) {
         return;
     }
@@ -87,7 +88,7 @@ createInitialLink(
     }
 
     bool isSceneGeometry = (globalCandidateList == sceneGeometries);
-    bool isClusteredGeometry = (globalCandidateList == GLOBAL_scene_clusteredGeometries);
+    bool isClusteredGeometry = (globalCandidateList == sceneClusteredGeometries);
     java::ArrayList<Geometry *> *geometryListReferences = globalCandidateList;
     areaToAreaFormFactor(sceneWorldVoxelGrid, &link, geometryListReferences, isSceneGeometry, isClusteredGeometry, galerkinState);
 
@@ -120,7 +121,9 @@ geometryLink(
     VoxelGrid *sceneWorldVoxelGrid,
     Geometry *geometry,
     GalerkinState *galerkinState,
-    java::ArrayList<Geometry *> *sceneGeometries) {
+    java::ArrayList<Geometry *> *sceneGeometries,
+    java::ArrayList<Geometry *> *sceneClusteredGeometries)
+{
     Shaft shaft;
     java::ArrayList<Geometry *> *oldCandidateList = globalCandidateList;
 
@@ -145,13 +148,13 @@ geometryLink(
     if ( geometry->isCompound() ) {
         java::ArrayList<Geometry *> *geometryList = geomPrimListCopy(geometry);
         for ( int i = 0; geometryList != nullptr && i < geometryList->size(); i++ ) {
-            geometryLink(sceneWorldVoxelGrid, geometryList->get(i), galerkinState, sceneGeometries);
+            geometryLink(sceneWorldVoxelGrid, geometryList->get(i), galerkinState, sceneGeometries, sceneClusteredGeometries);
         }
         delete geometryList;
     } else {
         java::ArrayList<Patch *> *patchList = geomPatchArrayListReference(geometry);
         for ( int i = 0; patchList != nullptr && i < patchList->size(); i++ ) {
-            createInitialLink(sceneWorldVoxelGrid, patchList->get(i), galerkinState, sceneGeometries);
+            createInitialLink(sceneWorldVoxelGrid, patchList->get(i), galerkinState, sceneGeometries, sceneClusteredGeometries);
         }
     }
 
@@ -187,7 +190,7 @@ createInitialLinks(
     globalCandidateList = sceneClusteredGeometries;
 
     for ( int i = 0; sceneGeometries != nullptr && i < sceneGeometries->size(); i++ ) {
-        geometryLink(sceneWorldVoxelGrid, sceneGeometries->get(i), galerkinState, sceneGeometries);
+        geometryLink(sceneWorldVoxelGrid, sceneGeometries->get(i), galerkinState, sceneGeometries, sceneClusteredGeometries);
     }
 }
 

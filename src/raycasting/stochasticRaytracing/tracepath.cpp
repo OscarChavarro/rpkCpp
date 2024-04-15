@@ -9,7 +9,6 @@ Random walk generation
 #include "raycasting/stochasticRaytracing/mcradP.h"
 #include "raycasting/stochasticRaytracing/tracepath.h"
 #include "raycasting/stochasticRaytracing/localline.h"
-#include "scene/scene.h"
 
 static double (*globalBirthProbability)(Patch *);
 static double globalSumProbabilities;

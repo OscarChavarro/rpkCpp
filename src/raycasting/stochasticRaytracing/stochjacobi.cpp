@@ -15,7 +15,6 @@ TODO: global lines and global line bundles.
 #include "raycasting/stochasticRaytracing/ccr.h"
 #include "raycasting/stochasticRaytracing/localline.h"
 #include "raycasting/stochasticRaytracing/StochasticRadiosityElement.h"
-#include "scene/scene.h"
 
 // Returns radiance or importance to be propagated
 static ColorRgb *(*globalGetRadianceCallback)(StochasticRadiosityElement *);

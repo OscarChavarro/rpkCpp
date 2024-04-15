@@ -10,6 +10,7 @@ refineInteractions(
     GalerkinElement *parentElement,
     GalerkinState *state,
     java::ArrayList<Geometry *> *sceneGeometries,
+    java::ArrayList<Geometry *> *sceneClusteredGeometries,
     Geometry *clusteredWorldGeometry);
 
 #endif

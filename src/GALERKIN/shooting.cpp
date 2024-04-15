@@ -109,7 +109,13 @@ patchPropagateUnShotRadianceAndPotential(
 
     // Recursively refines the interactions of the shooting patch
     // and computes radiance and potential transport
-    refineInteractions(sceneWorldVoxelGrid, topLevelElement, galerkinState, sceneGeometries, clusteredWorldGeometry);
+    refineInteractions(
+        sceneWorldVoxelGrid,
+        topLevelElement,
+        galerkinState,
+        sceneGeometries,
+        sceneClusteredGeometries,
+        clusteredWorldGeometry);
 
     // Clear the un-shot radiance at all levels
     clearUnShotRadianceAndPotential(topLevelElement);

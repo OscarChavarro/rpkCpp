@@ -62,7 +62,6 @@ set(MAIN_SRC
     src/SGL/poly_scan_z.cpp
     src/SGL/sgl.cpp
     src/SGL/poly_scan_flat.cpp
-    src/scene/scene.cpp
     src/scene/VoxelGrid.cpp
     src/scene/Background.cpp
     src/scene/VoxelData.cpp

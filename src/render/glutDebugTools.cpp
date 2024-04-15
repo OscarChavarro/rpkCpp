@@ -7,7 +7,6 @@
 
 #include "java/util/ArrayList.h"
 #include "common/RenderOptions.h"
-#include "scene/scene.h"
 #include "render/opengl.h"
 #include "render/glutDebugTools.h"
 

@@ -8,7 +8,6 @@
 #include "material/statistics.h"
 #include "render/render.h"
 #include "render/renderhook.h"
-#include "scene/scene.h"
 #include "IMAGE/tonemap/tonemapping.h"
 #include "io/mgf/readmgf.h"
 #include "render/opengl.h"
@@ -58,6 +57,7 @@ static java::ArrayList<Geometry *> *globalSceneGeometries = nullptr;
 static Geometry *globalClusteredWorldGeometry = nullptr;
 static Background *globalSceneBackground = nullptr;
 static VoxelGrid *globalSceneWorldVoxelGrid = nullptr;
+static java::ArrayList<Geometry *> *globalSceneClusteredGeometries = nullptr;
 
 static void
 mainForceOneSidedOption(void *value) {
@@ -358,7 +358,7 @@ mainReadFile(char *filename, MgfContext *context) {
     }
     globalAppScenePatches = nullptr;
     Patch::setNextId(1);
-    GLOBAL_scene_clusteredGeometries = new java::ArrayList<Geometry *>();
+    globalSceneClusteredGeometries = new java::ArrayList<Geometry *>();
     globalSceneBackground = nullptr;
 
     // Read the mgf file. The result is a new GLOBAL_scene_world and GLOBAL_scene_materials if everything goes well
@@ -572,7 +572,7 @@ createOffscreenCanvasWindow(
         openGlRenderScene(
                 scenePatches,
                 sceneGeometries,
-                GLOBAL_scene_clusteredGeometries,
+                globalSceneClusteredGeometries,
                 globalClusteredWorldGeometry,
                 f,
                 context);
@@ -604,7 +604,7 @@ mainExecuteRendering(java::ArrayList<Patch *> *scenePatches, RadianceMethod *con
         }
         openGlRenderScene(
                 scenePatches,
-                GLOBAL_scene_clusteredGeometries,
+                globalSceneClusteredGeometries,
                 globalSceneGeometries,
                 globalClusteredWorldGeometry,
                 f,
@@ -612,15 +612,15 @@ mainExecuteRendering(java::ArrayList<Patch *> *scenePatches, RadianceMethod *con
     #endif
 
     batch(
-        globalSceneBackground,
-        globalSceneWorldVoxelGrid,
-        scenePatches,
-        GLOBAL_app_lightSourcePatches,
-        globalSceneGeometries,
-        GLOBAL_scene_clusteredGeometries,
-        globalClusteredWorldGeometry,
-        globalSceneWorldVoxelGrid,
-        context);
+            globalSceneBackground,
+            globalSceneWorldVoxelGrid,
+            scenePatches,
+            GLOBAL_app_lightSourcePatches,
+            globalSceneGeometries,
+            globalSceneClusteredGeometries,
+            globalClusteredWorldGeometry,
+            globalSceneWorldVoxelGrid,
+            context);
 }
 
 static void
@@ -629,7 +629,7 @@ mainFreeMemory(MgfContext *context) {
     mgfFreeMemory(context);
     galerkinFreeMemory();
     delete GLOBAL_app_lightSourcePatches;
-    delete GLOBAL_scene_clusteredGeometries;
+    delete globalSceneClusteredGeometries;
     if ( globalAppScenePatches != nullptr ) {
         delete globalAppScenePatches;
     }
@@ -663,7 +663,7 @@ main(int argc, char *argv[]) {
     //    globalAppScenePatches,
     //    GLOBAL_app_lightSourcePatches,
     //    globalSceneGeometries,
-    //    GLOBAL_scene_clusteredGeometries,
+    //    globalSceneClusteredGeometries,
     //    GLOBAL_scene_clusteredWorldGeom,
     //    globalSceneBackground,
     //    mgfContext.radianceMethod,

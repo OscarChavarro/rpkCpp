@@ -4,12 +4,10 @@ Non diffuse first shot
 
 #include "java/util/ArrayList.txx"
 #include "material/statistics.h"
-#include "render/render.h"
 #include "render/opengl.h"
 #include "raycasting/common/Raytracer.h"
 #include "raycasting/stochasticRaytracing/localline.h"
 #include "raycasting/stochasticRaytracing/mcradP.h"
-#include "scene/scene.h"
 
 class LightSourceTable {
   public:

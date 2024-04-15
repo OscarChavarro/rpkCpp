@@ -46,6 +46,7 @@ doClusteredGatheringIteration(
     VoxelGrid *sceneWorldVoxelGrid,
     java::ArrayList<Patch*> *scenePatches,
     java::ArrayList<Geometry *> *sceneGeometries,
+    java::ArrayList<Geometry *> *sceneClusteredGeometries,
     Geometry *clusteredWorldGeometry,
     GalerkinState *galerkinState)
 {
@@ -79,6 +80,7 @@ doClusteredGatheringIteration(
         galerkinState->topCluster,
         galerkinState,
         sceneGeometries,
+        sceneClusteredGeometries,
         clusteredWorldGeometry);
 
     galerkinState->relLinkErrorThreshold = (float)userErrorThreshold;

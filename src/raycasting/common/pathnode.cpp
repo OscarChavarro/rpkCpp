@@ -6,7 +6,7 @@ and contain necessary information for raytracing-like algorithms
 #include <cstdio>
 
 #include "common/error.h"
-#include "scene/scene.h"
+#include "skin/Patch.h"
 #include "raycasting/common/pathnode.h"
 
 SimpleRaytracingPathNode::SimpleRaytracingPathNode():

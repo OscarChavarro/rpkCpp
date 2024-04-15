@@ -122,7 +122,7 @@ patchGather(
     }
 
     // Refine the interactions and compute light transport at the leaves
-    refineInteractions(sceneWorldVoxelGrid, topLevelElement, galerkinState, sceneGeometries, clusteredWorldGeometry);
+    refineInteractions(sceneWorldVoxelGrid, topLevelElement, galerkinState, sceneGeometries, sceneClusteredGeometries, clusteredWorldGeometry);
 
     // Immediately convert received radiance into radiance, make the representation
     // consistent and recompute the color of the patch when doing Gauss-Seidel.

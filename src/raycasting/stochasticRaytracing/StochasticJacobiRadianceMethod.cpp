@@ -6,7 +6,6 @@ Stochastic Relaxation Radiosity (currently only stochastic Jacobi)
 #include "common/error.h"
 #include "material/statistics.h"
 #include "render/render.h"
-#include "scene/scene.h"
 #include "render/opengl.h"
 #include "raycasting/common/Raytracer.h"
 #include "raycasting/stochasticRaytracing/mcradP.h"
