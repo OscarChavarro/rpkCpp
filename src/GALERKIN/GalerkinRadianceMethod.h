@@ -5,6 +5,7 @@
 #include "skin/RadianceMethod.h"
 #include "GALERKIN/GalerkinState.h"
 #include "scene/Background.h"
+#include "scene/VoxelGrid.h"
 
 class GalerkinRadianceMethod : public RadianceMethod {
   private:
@@ -51,7 +52,8 @@ class GalerkinRadianceMethod : public RadianceMethod {
         java::ArrayList<Patch *> *scenePatches,
         java::ArrayList<Geometry *> *sceneGeometries,
         java::ArrayList<Patch *> *lightPatches,
-        Geometry *clusteredWorldGeometry);
+        Geometry *clusteredWorldGeometry,
+        VoxelGrid *sceneWorldVoxelGrid);
 
     void terminate(java::ArrayList<Patch *> *scenePatches);
     ColorRgb getRadiance(Patch *patch, double u, double v, Vector3D dir);

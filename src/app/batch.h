@@ -13,6 +13,7 @@ batch(
     java::ArrayList<Patch *> *lightPatches,
     java::ArrayList<Geometry *> *sceneGeometries,
     Geometry *clusteredWorldGeometry,
+    VoxelGrid *voxelGrid,
     RadianceMethod *context);
 
 #endif

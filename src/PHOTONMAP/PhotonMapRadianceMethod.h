@@ -20,7 +20,8 @@ class PhotonMapRadianceMethod : public RadianceMethod {
         java::ArrayList<Patch *> *scenePatches,
         java::ArrayList<Geometry *> *sceneGeometries,
         java::ArrayList<Patch *> *lightPatches,
-        Geometry *clusteredWorldGeometry);
+        Geometry *clusteredWorldGeometry,
+        VoxelGrid *sceneWorldVoxelGrid);
 
     void terminate(java::ArrayList<Patch *> *scenePatches);
     ColorRgb getRadiance(Patch *patch, double u, double v, Vector3D dir);

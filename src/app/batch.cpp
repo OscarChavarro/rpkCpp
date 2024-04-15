@@ -190,6 +190,7 @@ batch(
     java::ArrayList<Patch *> *lightPatches,
     java::ArrayList<Geometry *> *sceneGeometries,
     Geometry *clusteredWorldGeometry,
+    VoxelGrid *voxelGrid,
     RadianceMethod *context)
 {
     clock_t start_time, wasted_start;
@@ -224,7 +225,13 @@ batch(
                 fflush(stderr);
                 exit(1);
             }
-            done = context->doStep(sceneBackground, scenePatches, sceneGeometries, lightPatches, clusteredWorldGeometry);
+            done = context->doStep(
+                sceneBackground,
+                scenePatches,
+                sceneGeometries,
+                lightPatches,
+                clusteredWorldGeometry,
+                voxelGrid);
             canvasPullMode();
 
             fflush(stdout);

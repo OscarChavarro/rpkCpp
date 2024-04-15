@@ -24,6 +24,7 @@ executeGlutGui(
     java::ArrayList<Geometry *> *sceneGeometries,
     Background *sceneBackground,
     Geometry *clusteredWorldGeom,
-    RadianceMethod *radianceMethod);
+    RadianceMethod *radianceMethod,
+    VoxelGrid *voxelGrid);
 
 #endif

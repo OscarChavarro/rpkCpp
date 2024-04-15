@@ -24,7 +24,6 @@
 #include "PHOTONMAP/pmapoptions.h"
 #include "PHOTONMAP/pmapconfig.h"
 #include "PHOTONMAP/pmapimportance.h"
-#include "scene/scene.h"
 
 PhotonMapConfig GLOBAL_photonMap_config;
 
@@ -534,7 +533,8 @@ PhotonMapRadianceMethod::doStep(
     java::ArrayList<Patch *> *scenePatches,
     java::ArrayList<Geometry *> *sceneGeometries,
     java::ArrayList<Patch *> *lightPatches,
-    Geometry *clusteredWorldGeometry)
+    Geometry *clusteredWorldGeometry,
+    VoxelGrid *sceneWorldVoxelGrid)
 {
     GLOBAL_photonMap_state.lastClock = clock();
 

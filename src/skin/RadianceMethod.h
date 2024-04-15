@@ -7,6 +7,7 @@
 #include "skin/Patch.h"
 
 class Background;
+class VoxelGrid;
 
 enum RadianceMethodAlgorithm {
     GALERKIN,
@@ -40,7 +41,8 @@ class RadianceMethod {
         java::ArrayList<Patch *> *scenePatches,
         java::ArrayList<Geometry *> *sceneGeometries,
         java::ArrayList<Patch *> *lightPatches,
-        Geometry *clusteredWorldGeometry) = 0;
+        Geometry *clusteredWorldGeometry,
+        VoxelGrid *sceneWorldVoxelGrid) = 0;
 
     // Terminates radiance computations on the current scene
     virtual void terminate(java::ArrayList<Patch *> *scenePatches) = 0;
@@ -77,5 +79,6 @@ setRadianceMethod(
     Geometry *clusteredWorldGeometry);
 
 #include "scene/Background.h"
+#include "scene/VoxelGrid.h"
 
 #endif

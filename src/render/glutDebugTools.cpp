@@ -19,6 +19,7 @@ static java::ArrayList<Geometry *> *globalSceneGeometries;
 static Geometry *globalClusteredWorldGeom;
 static Background *globalSceneBackground;
 static RadianceMethod *globalRadianceMethod;
+static VoxelGrid *globalVoxelGrid;
 
 GlutDebugState GLOBAL_render_glutDebugState;
 
@@ -59,7 +60,13 @@ keypressCallback(unsigned char keyChar, int /*x*/, int /*y*/) {
             }
             break;
         case ' ':
-            globalRadianceMethod->doStep(globalSceneBackground, globalScenePatches, globalSceneGeometries, globalLightPatches, globalClusteredWorldGeom);
+            globalRadianceMethod->doStep(
+                globalSceneBackground,
+                globalScenePatches,
+                globalSceneGeometries,
+                globalLightPatches,
+                globalClusteredWorldGeom,
+                globalVoxelGrid);
             break;
         default:
             return;
@@ -119,7 +126,8 @@ executeGlutGui(
     java::ArrayList<Geometry *> *sceneGeometries,
     Background *sceneBackground,
     Geometry *clusteredWorldGeom,
-    RadianceMethod *radianceMethod)
+    RadianceMethod *radianceMethod,
+    VoxelGrid *voxelGrid)
 {
     globalLightPatches = lightPatches;
     globalScenePatches = scenePatches;
@@ -127,6 +135,8 @@ executeGlutGui(
     globalSceneGeometries = sceneGeometries;
     globalClusteredWorldGeom = clusteredWorldGeom;
     globalSceneBackground = sceneBackground;
+    globalVoxelGrid = voxelGrid;
+
     glutInit(&argc, argv);
     glutInitWindowPosition(0, 0);
     glutInitWindowSize(globalWidth, globalHeight);

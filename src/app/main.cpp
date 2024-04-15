@@ -610,7 +610,14 @@ mainExecuteRendering(java::ArrayList<Patch *> *scenePatches, RadianceMethod *con
                 context);
     #endif
 
-    batch(globalSceneBackground, scenePatches, GLOBAL_app_lightSourcePatches, globalSceneGeometries, globalClusteredWorldGeometry, context);
+    batch(
+        globalSceneBackground,
+        scenePatches,
+        GLOBAL_app_lightSourcePatches,
+        globalSceneGeometries,
+        globalClusteredWorldGeometry,
+        GLOBAL_scene_worldVoxelGrid,
+        context);
 }
 
 static void
@@ -655,7 +662,8 @@ main(int argc, char *argv[]) {
     //    globalSceneGeometries,
     //    GLOBAL_scene_clusteredWorldGeom,
     //    GLOBAL_scene_background,
-    //    mgfContext.radianceMethod);
+    //    mgfContext.radianceMethod,
+    //    GLOBAL_scene_worldVoxelGrid);
 
     mainFreeMemory(&mgfContext);
 
