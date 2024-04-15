@@ -19,6 +19,7 @@ rayTrace(
     int isPipe,
     Raytracer *activeRayTracer,
     Background *sceneBackground,
+    VoxelGrid *sceneWorldVoxelGrid,
     java::ArrayList<Patch *> *scenePatches,
     java::ArrayList<Patch *> *lightPatches,
     Geometry *clusteredWorldGeometry,
@@ -36,7 +37,7 @@ rayTrace(
     }
 
     if ( activeRayTracer != nullptr ) {
-        activeRayTracer->Raytrace(sceneBackground, img, scenePatches, lightPatches, clusteredWorldGeometry, context);
+        activeRayTracer->Raytrace(sceneWorldVoxelGrid, sceneBackground, img, scenePatches, lightPatches, clusteredWorldGeometry, context);
     }
 
     if ( img ) {

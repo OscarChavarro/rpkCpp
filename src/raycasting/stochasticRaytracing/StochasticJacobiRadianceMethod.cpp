@@ -181,6 +181,7 @@ stochasticRelaxationRadiosityPrintIncrementalRadianceStats() {
 
 static void
 stochasticRelaxationRadiosityDoIncrementalRadianceIterations(
+    VoxelGrid *sceneWorldVoxelGrid,
     java::ArrayList<Patch *> *scenePatches,
     java::ArrayList<Geometry *> *sceneGeometries,
     Geometry *clusteredWorldGeometry,
@@ -206,7 +207,7 @@ stochasticRelaxationRadiosityDoIncrementalRadianceIterations(
         // Choose nr of rays so that power carried by each ray remains equal, and
         // proportional to the number of basis functions in the rad. approx
         double unShotFraction;
-        long nr_rays;
+        long numberOfRays;
         unShotFraction = GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotFlux.sumAbsComponents() / refUnShot;
         if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.incrementalUsesImportance ) {
             unShotFraction = GLOBAL_stochasticRaytracing_monteCarloRadiosityState.indirectImportanceWeightedUnShotFlux.sumAbsComponents() / refUnShot;
@@ -215,7 +216,7 @@ stochasticRelaxationRadiosityDoIncrementalRadianceIterations(
             // Only 1/100th of self-emitted power remains un-shot
             break;
         }
-        nr_rays = stochasticRelaxationRadiosityRandomRound(
+        numberOfRays = stochasticRelaxationRadiosityRandomRound(
                 (float)(unShotFraction * (double)GLOBAL_stochasticRaytracing_monteCarloRadiosityState.initialNumberOfRays *
                         GLOBAL_stochasticRadiosity_approxDesc[GLOBAL_stochasticRaytracing_monteCarloRadiosityState.approximationOrderType].basis_size));
 
@@ -223,8 +224,13 @@ stochasticRelaxationRadiosityDoIncrementalRadianceIterations(
         fprintf(stderr, "Incremental radiance propagation step %ld: %.3f%% un-shot power left.\n",
                 stepNumber, 100. * unShotFraction);
 
-        doStochasticJacobiIteration(nr_rays, stochasticRelaxationRadiosityElementUnShotRadiance, nullptr,
-                                    stochasticRelaxationRadiosityElementIncrementRadiance, scenePatches);
+        doStochasticJacobiIteration(
+            sceneWorldVoxelGrid,
+            numberOfRays,
+            stochasticRelaxationRadiosityElementUnShotRadiance, nullptr,
+            stochasticRelaxationRadiosityElementIncrementRadiance,
+            scenePatches);
+
         GLOBAL_stochasticRaytracing_monteCarloRadiosityState.setSource = false; // Direct illumination is copied to SOURCE_FLUX(P) only the first time
 
         monteCarloRadiosityUpdateCpuSecs();
@@ -271,8 +277,11 @@ stochasticRelaxationRadiosityPrintIncrementalImportanceStats() {
 }
 
 static void
-stochasticRelaxationRadiosityDoIncrementalImportanceIterations(java::ArrayList<Patch *> *scenePatches) {
-    long step_nr = 0;
+stochasticRelaxationRadiosityDoIncrementalImportanceIterations(
+    VoxelGrid *sceneWorldVoxelGrid,
+    java::ArrayList<Patch *> *scenePatches)
+{
+    long stepNumber = 0;
     int radiance_driven = GLOBAL_stochasticRaytracing_monteCarloRadiosityState.radianceDriven;
     int do_h_meshing = GLOBAL_stochasticRaytracing_hierarchy.do_h_meshing;
     CLUSTERING_MODE clustering = GLOBAL_stochasticRaytracing_hierarchy.clustering;
@@ -293,18 +302,23 @@ stochasticRelaxationRadiosityDoIncrementalImportanceIterations(java::ArrayList<P
         // Choose nr of rays so that power carried by each ray is the same, and
         // proportional to the number of basis functions in the rad. approx. */
         double unShotFraction = GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotYmp / GLOBAL_stochasticRaytracing_monteCarloRadiosityState.sourceYmp;
-        long nr_rays = stochasticRelaxationRadiosityRandomRound(
+        long numberOfRays = stochasticRelaxationRadiosityRandomRound(
                 (float)unShotFraction * (float) GLOBAL_stochasticRaytracing_monteCarloRadiosityState.initialNumberOfRays);
         if ( unShotFraction < 0.01 ) {
             break;
         }
 
-        step_nr++;
+        stepNumber++;
         fprintf(stderr, "Incremental importance propagation step %ld: %.3f%% un-shot importance left.\n",
-                step_nr, 100.0 * unShotFraction);
+                stepNumber, 100.0 * unShotFraction);
 
-        doStochasticJacobiIteration(nr_rays, nullptr, stochasticRelaxationRadiosityElementUnShotImportance,
-                                    stochasticRelaxationRadiosityElementIncrementImportance, scenePatches);
+        doStochasticJacobiIteration(
+            sceneWorldVoxelGrid,
+            numberOfRays,
+            nullptr,
+            stochasticRelaxationRadiosityElementUnShotImportance,
+            stochasticRelaxationRadiosityElementIncrementImportance,
+            scenePatches);
 
         monteCarloRadiosityUpdateCpuSecs();
         stochasticRelaxationRadiosityPrintIncrementalImportanceStats();
@@ -372,11 +386,17 @@ stochasticRelaxationRadiosityPrintRegularStats() {
 }
 
 static void
-stochasticRelaxationRadiosityDoRegularRadianceIteration(java::ArrayList<Patch *> *scenePatches) {
+stochasticRelaxationRadiosityDoRegularRadianceIteration(
+    VoxelGrid *sceneWorldVoxelGrid,
+    java::ArrayList<Patch *> *scenePatches)
+{
     fprintf(stderr, "Regular radiance iteration %d:\n", GLOBAL_stochasticRaytracing_monteCarloRadiosityState.currentIteration);
-    doStochasticJacobiIteration(GLOBAL_stochasticRaytracing_monteCarloRadiosityState.raysPerIteration,
-                                stochasticRelaxationRadiosityElementRadiance, nullptr,
-                                stochasticRelaxationRadiosityElementUpdateRadiance, scenePatches);
+    doStochasticJacobiIteration(
+        sceneWorldVoxelGrid,
+        GLOBAL_stochasticRaytracing_monteCarloRadiosityState.raysPerIteration,
+        stochasticRelaxationRadiosityElementRadiance,
+        nullptr,
+        stochasticRelaxationRadiosityElementUpdateRadiance, scenePatches);
 
     monteCarloRadiosityUpdateCpuSecs();
     stochasticRelaxationRadiosityPrintRegularStats();
@@ -396,24 +416,33 @@ stochasticRelaxationRadiosityElementUpdateImportance(StochasticRadiosityElement 
 }
 
 static void
-stochasticRelaxationRadiosityDoRegularImportanceIteration(java::ArrayList<Patch *> *scenePatches) {
-    long nr_rays;
-    int do_h_meshing = GLOBAL_stochasticRaytracing_hierarchy.do_h_meshing;
+stochasticRelaxationRadiosityDoRegularImportanceIteration(
+    VoxelGrid *sceneWorldVoxelGrid,
+    java::ArrayList<Patch *> *scenePatches)
+{
+    long numberOfRays;
+    int doHierarchicMeshing = GLOBAL_stochasticRaytracing_hierarchy.do_h_meshing;
     CLUSTERING_MODE clustering = GLOBAL_stochasticRaytracing_hierarchy.clustering;
     int weighted_sampling = GLOBAL_stochasticRaytracing_monteCarloRadiosityState.weightedSampling;
     GLOBAL_stochasticRaytracing_hierarchy.do_h_meshing = false;
     GLOBAL_stochasticRaytracing_hierarchy.clustering = NO_CLUSTERING;
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.weightedSampling = false;
 
-    nr_rays = GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceRaysPerIteration;
+    numberOfRays = GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceRaysPerIteration;
     fprintf(stderr, "Regular importance iteration %d:\n", GLOBAL_stochasticRaytracing_monteCarloRadiosityState.currentIteration);
-    doStochasticJacobiIteration(nr_rays, nullptr, stochasticRelaxationRadiosityElementImportance,
-                                stochasticRelaxationRadiosityElementUpdateImportance, scenePatches);
+
+    doStochasticJacobiIteration(
+        sceneWorldVoxelGrid,
+        numberOfRays,
+        nullptr,
+        stochasticRelaxationRadiosityElementImportance,
+        stochasticRelaxationRadiosityElementUpdateImportance,
+        scenePatches);
 
     monteCarloRadiosityUpdateCpuSecs();
     stochasticRelaxationRadiosityPrintRegularStats();
 
-    GLOBAL_stochasticRaytracing_hierarchy.do_h_meshing = do_h_meshing;
+    GLOBAL_stochasticRaytracing_hierarchy.do_h_meshing = doHierarchicMeshing;
     GLOBAL_stochasticRaytracing_hierarchy.clustering = clustering;
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.weightedSampling = weighted_sampling;
 }
@@ -479,7 +508,13 @@ StochasticJacobiRadianceMethod::doStep(
     // Do some real work now
     if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.currentIteration == 1 ) {
         if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.doNonDiffuseFirstShot ) {
-            doNonDiffuseFirstShot(scenePatches, sceneGeometries, lightPatches, clusteredWorldGeometry, this);
+            doNonDiffuseFirstShot(
+                sceneWorldVoxelGrid,
+                scenePatches,
+                sceneGeometries,
+                lightPatches,
+                clusteredWorldGeometry,
+                this);
         }
         int initial_nr_of_rays = (int)GLOBAL_stochasticRaytracing_monteCarloRadiosityState.tracedRays;
 
@@ -490,13 +525,13 @@ StochasticJacobiRadianceMethod::doStep(
                     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceUpdated = false;
 
                     // Propagate importance changes
-                    stochasticRelaxationRadiosityDoIncrementalImportanceIterations(scenePatches);
+                    stochasticRelaxationRadiosityDoIncrementalImportanceIterations(sceneWorldVoxelGrid, scenePatches);
                     if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceUpdatedFromScratch ) {
                         GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceRaysPerIteration = GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceTracedRays;
                     }
                 }
         }
-        stochasticRelaxationRadiosityDoIncrementalRadianceIterations(scenePatches, sceneGeometries, clusteredWorldGeometry, this);
+        stochasticRelaxationRadiosityDoIncrementalRadianceIterations(sceneWorldVoxelGrid, scenePatches, sceneGeometries, clusteredWorldGeometry, this);
 
         // Subsequent regular iterations will take as many rays as in the whole
         // sequence of incremental iteration steps
@@ -511,15 +546,15 @@ StochasticJacobiRadianceMethod::doStep(
                 GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceUpdated = false;
 
                 // Propagate importance changes
-                stochasticRelaxationRadiosityDoIncrementalImportanceIterations(scenePatches);
+                stochasticRelaxationRadiosityDoIncrementalImportanceIterations(sceneWorldVoxelGrid, scenePatches);
                 if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceUpdatedFromScratch ) {
                     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceRaysPerIteration = GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceTracedRays;
                 }
             } else {
-                stochasticRelaxationRadiosityDoRegularImportanceIteration(scenePatches);
+                stochasticRelaxationRadiosityDoRegularImportanceIteration(sceneWorldVoxelGrid, scenePatches);
             }
         }
-        stochasticRelaxationRadiosityDoRegularRadianceIteration(scenePatches);
+        stochasticRelaxationRadiosityDoRegularRadianceIteration(sceneWorldVoxelGrid, scenePatches);
     }
 
     stochasticRelaxationRadiosityRecomputeDisplayColors(scenePatches);

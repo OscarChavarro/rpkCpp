@@ -554,6 +554,7 @@ pointed to by 'fp'
 */
 void
 rtStochasticTrace(
+    VoxelGrid * /*sceneWorldVoxelGrid*/,
     Background *sceneBackground,
     ImageOutputHandle *ip,
     java::ArrayList<Patch *> * /*scenePatches*/,

@@ -2,13 +2,11 @@
 
 #include "common/error.h"
 #include "material/statistics.h"
-#include "raycasting/stochasticRaytracing/mcrad.h"
 #include "raycasting/stochasticRaytracing/mcradP.h"
 #include "raycasting/stochasticRaytracing/tracepath.h"
 #include "raycasting/stochasticRaytracing/stochjacobi.h"
 #include "raycasting/stochasticRaytracing/RandomWalkRadianceMethod.h"
 #include "scene/Background.h"
-#include "scene/scene.h"
 
 RandomWalkRadianceMethod::RandomWalkRadianceMethod() {
     monteCarloRadiosityDefaults();
@@ -250,7 +248,10 @@ randomWalkRadiosityShootingUpdate(Patch *P, double w) {
 }
 
 static void
-randomWalkRadiosityDoShootingIteration(java::ArrayList<Patch *> *scenePatches) {
+randomWalkRadiosityDoShootingIteration(
+    VoxelGrid *sceneWorldVoxelGrid,
+    java::ArrayList<Patch *> *scenePatches)
+{
     long numberOfWalks;
 
     numberOfWalks = GLOBAL_stochasticRaytracing_monteCarloRadiosityState.initialNumberOfRays;
@@ -267,7 +268,7 @@ randomWalkRadiosityDoShootingIteration(java::ArrayList<Patch *> *scenePatches) {
                                                                        GLOBAL_statistics.averageReflectivity.maximumComponent())));
 
     tracePaths(
-        GLOBAL_scene_worldVoxelGrid,
+        sceneWorldVoxelGrid,
         numberOfWalks,
         randomWalkRadiosityScalarSourcePower, randomWalkRadiosityScalarReflectance,
         randomWalkRadiosityShootingScore,
@@ -388,7 +389,10 @@ randomWalkRadiosityGatheringUpdate(Patch *P, double /*w*/) {
 Returns true when converged and false if not
 */
 static void
-randomWalkRadiosityDoGatheringIteration(java::ArrayList<Patch *> *scenePatches) {
+randomWalkRadiosityDoGatheringIteration(
+    VoxelGrid *sceneWorldVoxelGrid,
+    java::ArrayList<Patch *> *scenePatches)
+{
     long numberOfWalks = GLOBAL_stochasticRaytracing_monteCarloRadiosityState.initialNumberOfRays;
     if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.continuousRandomWalk ) {
         numberOfWalks *= GLOBAL_stochasticRadiosity_approxDesc[GLOBAL_stochasticRaytracing_monteCarloRadiosityState.approximationOrderType].basis_size;
@@ -409,7 +413,7 @@ randomWalkRadiosityDoGatheringIteration(java::ArrayList<Patch *> *scenePatches) 
             numberOfWalks, (long) floor((double) numberOfWalks / (1.0 - GLOBAL_statistics.averageReflectivity.maximumComponent())));
 
     tracePaths(
-            GLOBAL_scene_worldVoxelGrid,
+            sceneWorldVoxelGrid,
             numberOfWalks,
             randomWalkRadiosityPatchArea, randomWalkRadiosityScalarReflectance,
             randomWalkRadiosityCollisionGatheringScore,
@@ -426,10 +430,14 @@ randomWalkRadiosityUpdateSourceIllumination(StochasticRadiosityElement *elem, do
 }
 
 static void
-randomWalkRadiosityDoFirstShot(java::ArrayList<Patch *> *scenePatches) {
-    long nr_rays = GLOBAL_stochasticRaytracing_monteCarloRadiosityState.initialNumberOfRays * GLOBAL_stochasticRadiosity_approxDesc[GLOBAL_stochasticRaytracing_monteCarloRadiosityState.approximationOrderType].basis_size;
-    fprintf(stderr, "First shot (%ld rays):\n", nr_rays);
-    doStochasticJacobiIteration(nr_rays, randomWalkRadiosityGetSelfEmittedRadiance, nullptr,
+randomWalkRadiosityDoFirstShot(
+    VoxelGrid *sceneWorldVoxelGrid,
+    java::ArrayList<Patch *> *scenePatches)
+{
+    long numberOfRays = GLOBAL_stochasticRaytracing_monteCarloRadiosityState.initialNumberOfRays *
+        GLOBAL_stochasticRadiosity_approxDesc[GLOBAL_stochasticRaytracing_monteCarloRadiosityState.approximationOrderType].basis_size;
+    fprintf(stderr, "First shot (%ld rays):\n", numberOfRays);
+    doStochasticJacobiIteration(sceneWorldVoxelGrid, numberOfRays, randomWalkRadiosityGetSelfEmittedRadiance, nullptr,
                                 randomWalkRadiosityUpdateSourceIllumination, scenePatches);
     randomWalkRadiosityPrintStats();
 }
@@ -452,16 +460,16 @@ RandomWalkRadianceMethod::doStep(
 
     if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.currentIteration == 1 ) {
         if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.indirectOnly ) {
-            randomWalkRadiosityDoFirstShot(scenePatches);
+            randomWalkRadiosityDoFirstShot(sceneWorldVoxelGrid, scenePatches);
         }
     }
 
     switch ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.randomWalkEstimatorType ) {
         case RW_SHOOTING:
-            randomWalkRadiosityDoShootingIteration(scenePatches);
+            randomWalkRadiosityDoShootingIteration(sceneWorldVoxelGrid, scenePatches);
             break;
         case RW_GATHERING:
-            randomWalkRadiosityDoGatheringIteration(scenePatches);
+            randomWalkRadiosityDoGatheringIteration(sceneWorldVoxelGrid, scenePatches);
             break;
         default:
             logFatal(-1, "randomWalkRadiosityDoStep", "Unknown random walk estimator type %d",

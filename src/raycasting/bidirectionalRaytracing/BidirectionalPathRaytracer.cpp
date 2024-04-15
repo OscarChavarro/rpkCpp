@@ -968,6 +968,7 @@ pointed to by 'fp'
 */
 static void
 biDirPathTrace(
+    VoxelGrid * /*sceneWorldVoxelGrid*/,
     Background *sceneBackground,
     ImageOutputHandle *ip,
     java::ArrayList<Patch *> * /*scenePatches*/,

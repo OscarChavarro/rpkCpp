@@ -595,8 +595,11 @@ stochasticJacobiInitPushRayIndex(Element *element) {
 Determines nr of rays to shoot from element and shoots this number of rays
 */
 static void
-stochasticJacobiElementShootRays(StochasticRadiosityElement *element, int rays_this_elem) {
-    int i;
+stochasticJacobiElementShootRays(
+    VoxelGrid *sceneWorldVoxelGrid,
+    StochasticRadiosityElement *element,
+    int raysThisElem)
+{
     int sampleRange; // Determines a range in which to generate a sample
     niedindex mostSignificantBit1; // See monteCarloRadiosityElementRange() and NextSample()
     niedindex rMostSignificantBit2;
@@ -605,8 +608,8 @@ stochasticJacobiElementShootRays(StochasticRadiosityElement *element, int rays_t
     stochasticRadiosityElementRange(element, &sampleRange, &mostSignificantBit1, &rMostSignificantBit2);
 
     // Shoot the rays
-    for ( i = 0; i < rays_this_elem; i++ ) {
-        stochasticJacobiElementShootRay(GLOBAL_scene_worldVoxelGrid, element, sampleRange, mostSignificantBit1, rMostSignificantBit2);
+    for ( int i = 0; i < raysThisElem; i++ ) {
+        stochasticJacobiElementShootRay(sceneWorldVoxelGrid, element, sampleRange, mostSignificantBit1, rMostSignificantBit2);
     }
 
     if ( element != nullptr && !element->isLeaf() ) {
@@ -616,23 +619,33 @@ stochasticJacobiElementShootRays(StochasticRadiosityElement *element, int rays_t
 }
 
 static void
-stochasticJacobiShootRaysRecursive(StochasticRadiosityElement *element, double rnd, long *rayCount, double *pCumulative) {
+stochasticJacobiShootRaysRecursive(
+    VoxelGrid *sceneWorldVoxelGrid,
+    StochasticRadiosityElement *element,
+    double rnd,
+    long *rayCount,
+    double *cumulative) {
     if ( element->regularSubElements == nullptr ) {
         // Trivial case
         double p = element->samplingProbability / globalSumOfProbabilities;
         long rays_this_leaf =
-                (long) std::floor((*pCumulative + p) * (double) globalNumberOfRays + rnd) - *rayCount;
+                (long) std::floor((*cumulative + p) * (double) globalNumberOfRays + rnd) - *rayCount;
 
         if ( rays_this_leaf > 0 ) {
-            stochasticJacobiElementShootRays(element, (int)rays_this_leaf);
+            stochasticJacobiElementShootRays(sceneWorldVoxelGrid, element, (int)rays_this_leaf);
         }
 
-        *pCumulative += p;
+        *cumulative += p;
         *rayCount += rays_this_leaf;
     } else {
         // Recursive case
         for ( int i = 0; i < 4; i++ ) {
-            stochasticJacobiShootRaysRecursive((StochasticRadiosityElement *)element->regularSubElements[i], rnd, rayCount, pCumulative);
+            stochasticJacobiShootRaysRecursive(
+                sceneWorldVoxelGrid,
+                (StochasticRadiosityElement *)element->regularSubElements[i],
+                rnd,
+                rayCount,
+                cumulative);
         }
     }
 }
@@ -641,14 +654,22 @@ stochasticJacobiShootRaysRecursive(StochasticRadiosityElement *element, double r
 Fire off rays from the leaf elements, propagate radiance/importance
 */
 static void
-stochasticJacobiShootRays(java::ArrayList<Patch *> *scenePatches) {
+stochasticJacobiShootRays(
+    VoxelGrid *sceneWorldVoxelGrid,
+    java::ArrayList<Patch *> *scenePatches)
+{
     double rnd = drand48();
     long rayCount = 0;
-    double pCumulative = 0.0;
+    double cumulative = 0.0;
 
     // Loop over all leaf elements in the element hierarchy
     for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
-        stochasticJacobiShootRaysRecursive(topLevelGalerkinElement(scenePatches->get(i)), rnd, &rayCount, &pCumulative);
+        stochasticJacobiShootRaysRecursive(
+            sceneWorldVoxelGrid,
+            topLevelGalerkinElement(scenePatches->get(i)),
+            rnd,
+            &rayCount,
+            &cumulative);
     }
 
     fprintf(stderr, "\n");
@@ -825,17 +846,18 @@ propagation of importance and radiance does not work yet.
 */
 void
 doStochasticJacobiIteration(
-    long nr_rays,
+    VoxelGrid *sceneWorldVoxelGrid,
+    long numberOfRays,
     ColorRgb *(*GetRadiance)(StochasticRadiosityElement *),
     float (*GetImportance)(StochasticRadiosityElement *),
     void (*Update)(StochasticRadiosityElement *P, double w),
     java::ArrayList<Patch *> *scenePatches)
 {
-    stochasticJacobiInitGlobals((int)nr_rays, GetRadiance, GetImportance, Update);
-    stochasticJacobiPrintMessage(nr_rays);
+    stochasticJacobiInitGlobals((int)numberOfRays, GetRadiance, GetImportance, Update);
+    stochasticJacobiPrintMessage(numberOfRays);
     if ( !stochasticJacobiSetup(scenePatches) ) {
         return;
     }
-    stochasticJacobiShootRays(scenePatches);
+    stochasticJacobiShootRays(sceneWorldVoxelGrid, scenePatches);
     stochasticJacobiPushUpdatePullSweep();
 }

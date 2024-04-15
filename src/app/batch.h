@@ -9,6 +9,7 @@ extern void parseBatchOptions(int *argc, char **argv);
 extern void
 batch(
     Background *sceneBackground,
+    VoxelGrid *sceneWorldVoxelGrid,
     java::ArrayList<Patch *> *scenePatches,
     java::ArrayList<Patch *> *lightPatches,
     java::ArrayList<Geometry *> *sceneGeometries,

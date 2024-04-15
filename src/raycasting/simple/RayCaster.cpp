@@ -189,6 +189,7 @@ rayCasterInitialize(java::ArrayList<Patch *> * /*lightPatches*/) {
 
 static void
 rayCasterExecute(
+    VoxelGrid * /*sceneWorldVoxelGrid*/,
     Background * /*sceneBackground*/,
     ImageOutputHandle *ip,
     java::ArrayList<Patch *> *scenePatches,

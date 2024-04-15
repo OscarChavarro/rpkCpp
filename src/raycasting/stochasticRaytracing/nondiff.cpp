@@ -114,11 +114,11 @@ sampleLight(VoxelGrid * sceneWorldVoxelGrid, LightSourceTable *light, double lig
 }
 
 static void
-sampleLightSources(int nr_samples) {
+sampleLightSources(VoxelGrid *sceneWorldVoxelGrid, int numberOfSamples) {
     double rnd = drand48();
     int count = 0, i;
     double pCumulative = 0.0;
-    globalNumberOfSamples = nr_samples;
+    globalNumberOfSamples = numberOfSamples;
     fprintf(stderr, "Shooting %d light rays ", globalNumberOfSamples);
     fflush(stderr);
     for ( i = 0; i < globalNumberOfLights; i++ ) {
@@ -128,7 +128,7 @@ sampleLightSources(int nr_samples) {
                 (int) floor((pCumulative + p) * (double) globalNumberOfSamples + rnd) - count;
 
         for ( j = 0; j < samples_this_light; j++ ) {
-            sampleLight(GLOBAL_scene_worldVoxelGrid, &globalLights[i], p);
+            sampleLight(sceneWorldVoxelGrid, &globalLights[i], p);
         }
 
         pCumulative += p;
@@ -173,6 +173,7 @@ Initial shooting pass handling non-diffuse light sources
 */
 void
 doNonDiffuseFirstShot(
+    VoxelGrid *sceneWorldVoxelGrid,
     java::ArrayList<Patch *> *scenePatches,
     java::ArrayList<Geometry *> *sceneGeometries,
     java::ArrayList<Patch *> *lightPatches,
@@ -181,7 +182,8 @@ doNonDiffuseFirstShot(
 {
     makeLightSourceTable(scenePatches, lightPatches);
     sampleLightSources(
-            GLOBAL_stochasticRaytracing_monteCarloRadiosityState.initialLightSourceSamples * globalNumberOfLights);
+        sceneWorldVoxelGrid,
+        GLOBAL_stochasticRaytracing_monteCarloRadiosityState.initialLightSourceSamples * globalNumberOfLights);
     summarize(scenePatches);
 
     int (*f)() = nullptr;

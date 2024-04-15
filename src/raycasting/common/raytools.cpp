@@ -9,6 +9,7 @@
 
 static RayHit *
 traceWorld(
+    VoxelGrid *sceneWorldVoxelGrid,
     Ray *ray,
     Patch *patch,
     unsigned int flags = PATH_FRONT_HIT_FLAGS,
@@ -24,7 +25,7 @@ traceWorld(
 
     dist = HUGE;
     Patch::dontIntersect(3, patch, patch ? patch->twin : nullptr, extraPatch);
-    result = GLOBAL_scene_worldVoxelGrid->gridIntersect(ray, 0.0, &dist, (int)flags, hitStore);
+    result = sceneWorldVoxelGrid->gridIntersect(ray, 0.0, &dist, (int)flags, hitStore);
 
     if ( result ) {
         // Compute shading frame (Z-axis = shading normal) at intersection point
@@ -38,6 +39,7 @@ traceWorld(
 
 RayHit *
 findRayIntersection(
+    VoxelGrid *sceneWorldVoxelGrid,
     Ray *ray,
     Patch *patch,
     BSDF *currentBsdf,
@@ -54,7 +56,7 @@ findRayIntersection(
     }
 
     // Trace the ray
-    newHit = traceWorld(ray, patch, hitFlags, nullptr, hitStore);
+    newHit = traceWorld(sceneWorldVoxelGrid, ray, patch, hitFlags, nullptr, hitStore);
     GLOBAL_raytracer_rayCount++; // statistics
 
     // Robustness test : If a back is hit, check the current
@@ -63,7 +65,7 @@ findRayIntersection(
     if ( newHit != nullptr && (newHit->flags & HIT_BACK) ) {
         if ( newHit->patch->surface->material->bsdf != currentBsdf ) {
             // Whoops, intersected with wrong patch (accuracy problem)
-            newHit = traceWorld(ray, patch, hitFlags, newHit->patch, hitStore);
+            newHit = traceWorld(sceneWorldVoxelGrid, ray, patch, hitFlags, newHit->patch, hitStore);
             GLOBAL_raytracer_rayCount++; // Statistics
         }
     }

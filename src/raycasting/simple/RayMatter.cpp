@@ -52,7 +52,7 @@ RayMatter::CheckFilter() {
 }
 
 void
-RayMatter::Matting() {
+RayMatter::Matting(VoxelGrid *sceneWorldVoxelGrid) {
     clock_t t = clock();
     ColorRgb matte;
 
@@ -81,7 +81,7 @@ RayMatter::Matting() {
                 vectorNormalize(ray.dir);
 
                 // check if hit
-                if ( findRayIntersection(&ray, nullptr, nullptr, nullptr) != nullptr ) {
+                if ( findRayIntersection(sceneWorldVoxelGrid, &ray, nullptr, nullptr, nullptr) != nullptr ) {
                     hits++;
                 }
             }
@@ -118,6 +118,7 @@ RayMattingState GLOBAL_rayCasting_rayMatterState;
 
 static void
 iRayMatte(
+    VoxelGrid *sceneWorldVoxelGrid,
     Background * /*sceneBackground*/,
     ImageOutputHandle *ip,
     java::ArrayList<Patch *> * /*scenePatches*/,
@@ -128,7 +129,7 @@ iRayMatte(
         delete rm;
     }
     rm = new RayMatter(nullptr);
-    rm->Matting();
+    rm->Matting(sceneWorldVoxelGrid);
     if ( ip && rm != nullptr ) {
         rm->save(ip);
     }

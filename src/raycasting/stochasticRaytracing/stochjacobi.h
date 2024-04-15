@@ -25,8 +25,10 @@ This routine updates global ray counts and total/un-shot power/importance statis
 CAVEAT: propagate either radiance or importance alone. Simultaneous
 propagation of importance and radiance does not work yet.
 */
-extern void doStochasticJacobiIteration(
-    long nr_rays,
+extern void
+doStochasticJacobiIteration(
+    VoxelGrid *sceneWorldVoxelGrid,
+    long numberOfRays,
     ColorRgb *(*GetRadiance)(StochasticRadiosityElement *),
     float (*GetImportance)(StochasticRadiosityElement *),
     void Update(StochasticRadiosityElement *elem, double w),
