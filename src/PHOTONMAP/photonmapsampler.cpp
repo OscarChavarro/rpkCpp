@@ -115,10 +115,10 @@ CPhotonMapSampler::sample(
     bool ok;
 
     if ( sChosen ) {
-        ok = fresnelSample(sceneBackground, prevNode, thisNode, newNode, x2, flags);
+        ok = fresnelSample(sceneVoxelGrid, sceneBackground, prevNode, thisNode, newNode, x2, flags);
     } else {
         flags = (BSDF_FLAGS)(gdFLAGS & flags);
-        ok = gdSample(sceneBackground, prevNode, thisNode, newNode, x1, x2, false, flags);
+        ok = gdSample(sceneVoxelGrid, sceneBackground, prevNode, thisNode, newNode, x1, x2, false, flags);
     }
 
     if ( ok ) {
@@ -304,6 +304,7 @@ chooseFresnelDirection(
 
 bool
 CPhotonMapSampler::fresnelSample(
+    VoxelGrid *sceneVoxelGrid,
     Background *sceneBackground,
     SimpleRaytracingPathNode *prevNode,
     SimpleRaytracingPathNode *thisNode,
@@ -325,7 +326,7 @@ CPhotonMapSampler::fresnelSample(
     DetermineRayType(thisNode, newNode, &dir);
 
     // Transfer
-    if ( !sampleTransfer(GLOBAL_scene_worldVoxelGrid, sceneBackground, thisNode, newNode, &dir, pdfDir) ) {
+    if ( !sampleTransfer(sceneVoxelGrid, sceneBackground, thisNode, newNode, &dir, pdfDir) ) {
         thisNode->m_rayType = STOPS;
         return false;
     }
@@ -358,6 +359,7 @@ CPhotonMapSampler::fresnelSample(
 
 bool
 CPhotonMapSampler::gdSample(
+    VoxelGrid *sceneVoxelGrid,
     Background *sceneBackground,
     SimpleRaytracingPathNode *prevNode,
     SimpleRaytracingPathNode *thisNode,
@@ -372,7 +374,7 @@ CPhotonMapSampler::gdSample(
     // Sample G|D and use m_photonMap for importance sampling if possible.
     if ( m_photonMap == nullptr ) {
         // We can just use standard bsdf sampling
-        ok = CBsdfSampler::sample(GLOBAL_scene_worldVoxelGrid, sceneBackground, prevNode, thisNode, newNode, x1, x2, doRR, flags);
+        ok = CBsdfSampler::sample(sceneVoxelGrid, sceneBackground, prevNode, thisNode, newNode, x1, x2, doRR, flags);
         thisNode->m_usedComponents = flags;
         return ok;
     }
@@ -413,7 +415,7 @@ CPhotonMapSampler::gdSample(
 
     // Do real sampling
     ok = CBsdfSampler::sample(
-        GLOBAL_scene_worldVoxelGrid,
+        sceneVoxelGrid,
         sceneBackground,
         prevNode,
         thisNode,

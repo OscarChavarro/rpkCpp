@@ -77,14 +77,14 @@ CSamplerConfig::traceNode(
 
     if ( lastNode == nullptr ) {
         // Fill in first node
-        if ( !pointSampler->sample(GLOBAL_scene_worldVoxelGrid, sceneBackground, nullptr, nullptr, nextNode, x1, x2) ) {
+        if ( !pointSampler->sample(sceneVoxelGrid, sceneBackground, nullptr, nullptr, nextNode, x1, x2) ) {
             logWarning("CSamplerConfig::traceNode", "Point sampler failed");
             return nullptr;
         }
     } else if ( lastNode->m_depth == 0 ) {
         // Fill in second node : dir sampler
         if ( (lastNode->m_depth + 1) < maxDepth ) {
-            if ( !dirSampler->sample(GLOBAL_scene_worldVoxelGrid, sceneBackground, nullptr, lastNode, nextNode, x1, x2) ) {
+            if ( !dirSampler->sample(sceneVoxelGrid, sceneBackground, nullptr, lastNode, nextNode, x1, x2) ) {
                 // No point !
                 lastNode->m_rayType = STOPS;
                 return nullptr;
@@ -97,7 +97,7 @@ CSamplerConfig::traceNode(
         // In the middle of a path
         if ( (lastNode->m_depth + 1) < maxDepth ) {
             if ( !surfaceSampler->sample(
-                    GLOBAL_scene_worldVoxelGrid,
+                    sceneVoxelGrid,
                     sceneBackground,
                     lastNode->previous(),
                     lastNode,

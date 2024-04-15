@@ -442,7 +442,7 @@ photonMapTracePath(
     Background *sceneBackground,
     PhotonMapConfig *config,
     BSDF_FLAGS bsdfFlags) {
-    config->biPath.m_eyePath = config->eyeConfig.tracePath(GLOBAL_scene_worldVoxelGrid, sceneBackground, config->biPath.m_eyePath);
+    config->biPath.m_eyePath = config->eyeConfig.tracePath(sceneVoxelGrid, sceneBackground, config->biPath.m_eyePath);
 
     // Use qmc for light sampling
     SimpleRaytracingPathNode *path = config->biPath.m_lightPath;
@@ -510,7 +510,7 @@ photonMapBRRealIteration(
         GLOBAL_photonMap_config.currentMap->SetTotalPaths(GLOBAL_photonMap_state.totalIPaths);
         GLOBAL_photonMap_config.importanceCMap->SetTotalPaths(GLOBAL_photonMap_state.totalIPaths);
 
-        tracePotentialPaths(sceneBackground, (int)GLOBAL_photonMap_state.iPathsPerIteration);
+        tracePotentialPaths(sceneWorldVoxelGrid, sceneBackground, (int)GLOBAL_photonMap_state.iPathsPerIteration);
 
         fprintf(stderr, "Total potential paths : %li, Total rays %li\n",
                 GLOBAL_photonMap_state.totalIPaths,

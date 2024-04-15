@@ -48,7 +48,7 @@ DoImportanceStore(CImportanceMap *map, SimpleRaytracingPathNode *node, ColorRgb 
 
 // Returns whether a valid potential path was returned.
 static bool
-TracePotentialPath(
+tracePotentialPath(
     VoxelGrid *sceneVoxelGrid,
     Background *sceneBackground,
     PhotonMapConfig *config)
@@ -128,15 +128,17 @@ TracePotentialPath(
 }
 
 void
-tracePotentialPaths(Background *sceneBackground, int nrPaths) {
-    int i;
-
+tracePotentialPaths(
+    VoxelGrid *sceneVoxelGrid,
+    Background *sceneBackground,
+    int numberOfPaths)
+{
     // Fill in config structures
     GLOBAL_photonMap_config.eyeConfig.maxDepth = 7; // Maximum of 4 specular bounces
     GLOBAL_photonMap_config.eyeConfig.minDepth = 3;
 
-    for ( i = 0; i < nrPaths; i++ ) {
-        TracePotentialPath(GLOBAL_scene_worldVoxelGrid, sceneBackground, &GLOBAL_photonMap_config);
+    for ( int i = 0; i < numberOfPaths; i++ ) {
+        tracePotentialPath(sceneVoxelGrid, sceneBackground, &GLOBAL_photonMap_config);
     }
 
     GLOBAL_photonMap_config.eyeConfig.maxDepth = 1; // Back to NEE state

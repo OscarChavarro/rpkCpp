@@ -17,6 +17,7 @@ class CPhotonMapSampler : public CBsdfSampler {
 
     bool
     fresnelSample(
+        VoxelGrid *sceneVoxelGrid,
         Background *sceneBackground,
         SimpleRaytracingPathNode *prevNode,
         SimpleRaytracingPathNode *thisNode,
@@ -26,6 +27,7 @@ class CPhotonMapSampler : public CBsdfSampler {
 
     bool
     gdSample(
+        VoxelGrid *sceneVoxelGrid,
         Background *sceneBackground,
         SimpleRaytracingPathNode *prevNode,
         SimpleRaytracingPathNode *thisNode,
@@ -49,7 +51,7 @@ class CPhotonMapSampler : public CBsdfSampler {
         float *probabilityDensityFunction,
         bool *chose1);
 
-public:
+  public:
     CPhotonMapSampler();
 
     // Sample : newNode gets filled, others may change
