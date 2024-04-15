@@ -147,7 +147,7 @@ pointKernelEval(
         return 0.0;
     }
 
-    // Emitter factor times scale, see Sillion, "A Unified Hierarchical ...", IEEE TVCG Vol 1 nr 3, sept 1995
+    // Emitter factor times scale, see [SILL1995b] Sillion, "A Unified Hierarchical ...", IEEE TVCG Vol 1 nr 3, sept 1995
     if ( src->isCluster() ) {
         cosQ = 0.25;
     } else {
@@ -192,8 +192,8 @@ pointKernelEval(
     } else if ( cacheHit(&ray, &distance, &hitStore) ) {
         *vis = 0.0;
     } else {
-        float min_feature_size = 2.0f * (float)std::sqrt(GLOBAL_statistics.totalArea * galerkinState->relMinElemArea / M_PI);
-        *vis = geomListMultiResolutionVisibility(geometryShadowList, &ray, distance, src->blockerSize, min_feature_size);
+        float minimumFeatureSize = 2.0f * (float)std::sqrt(GLOBAL_statistics.totalArea * galerkinState->relMinElemArea / M_PI);
+        *vis = geomListMultiResolutionVisibility(geometryShadowList, &ray, distance, src->blockerSize, minimumFeatureSize);
     }
 
     return formFactor;

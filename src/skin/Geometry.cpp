@@ -5,7 +5,6 @@
 
 Geometry *Geometry::excludedGeometry1 = nullptr;
 Geometry *Geometry::excludedGeometry2 = nullptr;
-
 int Geometry::nextGeometryId = 0;
 
 Geometry::Geometry():

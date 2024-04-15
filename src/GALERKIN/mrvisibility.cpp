@@ -28,14 +28,6 @@ geomMultiResolutionVisibility(
     float srcSize,
     float minimumFeatureSize)
 {
-    Vector3D vectorTmp;
-    float tMinimum;
-    float tMaximum;
-    float t;
-    float fSize;
-    GalerkinElement *cluster = (GalerkinElement *) (geometry->radianceData);
-    RayHit hitStore;
-
     if ( geometry->isExcluded() ) {
         return 1.0;
     }
@@ -44,12 +36,15 @@ geomMultiResolutionVisibility(
         logFatal(-1, "geomMultiResolutionVisibility", "Don't know what to do with unbounded geoms");
     }
 
-    fSize = HUGE;
-    tMinimum = rcvDist * ((float)EPSILON);
-    tMaximum = rcvDist;
+    float fSize = HUGE;
+    float tMinimum = rcvDist * ((float)EPSILON);
+    float tMaximum = rcvDist;
     BoundingBox *boundingBox = &geometry->boundingBox;
 
     // Check ray/bounding volume intersection and compute feature size of occluder
+    Vector3D vectorTmp;
+    GalerkinElement *cluster = (GalerkinElement *)geometry->radianceData;
+
     vectorSumScaled(ray->pos, tMinimum, ray->dir, vectorTmp);
     if ( boundingBox->outOfBounds(&vectorTmp) ) {
         if ( !boundingBox->intersectingSegment(ray, &tMinimum, &tMaximum) ) {
@@ -60,6 +55,7 @@ geomMultiResolutionVisibility(
 
         if ( cluster ) {
             // Compute feature size using equivalent blocker size of the occluder
+            float t;
             t = (tMinimum + tMaximum) / 2.0f; // Put the centre of the equivalent blocker halfway tMinimum and tMaximum
             fSize = srcSize + rcvDist / t * (cluster->blockerSize - srcSize);
         }
@@ -81,6 +77,7 @@ geomMultiResolutionVisibility(
             delete geometryList;
             return visibility;
         } else {
+            RayHit hitStore;
             RayHit *hit = Geometry::patchListIntersect(
                 geomPatchArrayListReference(geometry),
                 ray,
