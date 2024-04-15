@@ -60,6 +60,7 @@ RETURNS:
 */
 SimpleRaytracingPathNode *
 CSamplerConfig::traceNode(
+    VoxelGrid *sceneVoxelGrid,
     Background *sceneBackground,
     SimpleRaytracingPathNode *nextNode,
     double x1,
@@ -125,6 +126,7 @@ CSamplerConfig::traceNode(
 
 SimpleRaytracingPathNode *
 CSamplerConfig::tracePath(
+    VoxelGrid *sceneVoxelGrid,
     Background *sceneBackground,
     SimpleRaytracingPathNode *nextNode,
     BSDF_FLAGS flags)
@@ -138,13 +140,13 @@ CSamplerConfig::tracePath(
         getRand(nextNode->previous()->m_depth + 1, &x1, &x2);
     }
 
-    nextNode = traceNode(sceneBackground, nextNode, x1, x2, flags);
+    nextNode = traceNode(sceneVoxelGrid, sceneBackground, nextNode, x1, x2, flags);
 
     if ( nextNode != nullptr ) {
         nextNode->ensureNext();
 
         // Recursive call
-        tracePath(sceneBackground, nextNode->next(), flags);
+        tracePath(sceneVoxelGrid, sceneBackground, nextNode->next(), flags);
     }
 
     return nextNode;

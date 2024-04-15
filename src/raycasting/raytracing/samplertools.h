@@ -95,6 +95,7 @@ class CSamplerConfig {
 
     SimpleRaytracingPathNode *
     traceNode(
+        VoxelGrid *sceneVoxelGrid,
         Background *sceneBackground,
         SimpleRaytracingPathNode *nextNode,
         double x1,
@@ -108,6 +109,7 @@ class CSamplerConfig {
 
     SimpleRaytracingPathNode *
     tracePath(
+        VoxelGrid *sceneVoxelGrid,
         Background *sceneBackground,
         SimpleRaytracingPathNode *nextNode,
         BSDF_FLAGS flags = BSDF_ALL_COMPONENTS);

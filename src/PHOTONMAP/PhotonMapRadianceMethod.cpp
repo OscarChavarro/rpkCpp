@@ -437,8 +437,12 @@ photonMapHandlePath(
 }
 
 static void
-photonMapTracePath(Background *sceneBackground, PhotonMapConfig *config, BSDF_FLAGS bsdfFlags) {
-    config->biPath.m_eyePath = config->eyeConfig.tracePath(sceneBackground, config->biPath.m_eyePath);
+photonMapTracePath(
+    VoxelGrid *sceneVoxelGrid,
+    Background *sceneBackground,
+    PhotonMapConfig *config,
+    BSDF_FLAGS bsdfFlags) {
+    config->biPath.m_eyePath = config->eyeConfig.tracePath(GLOBAL_scene_worldVoxelGrid, sceneBackground, config->biPath.m_eyePath);
 
     // Use qmc for light sampling
     SimpleRaytracingPathNode *path = config->biPath.m_lightPath;
@@ -447,7 +451,7 @@ photonMapTracePath(Background *sceneBackground, PhotonMapConfig *config, BSDF_FL
     double x1 = drand48(); //nrs[0] * RECIP;
     double x2 = drand48(); //nrs[1] * RECIP;
 
-    path = config->lightConfig.traceNode(sceneBackground, path, x1, x2, bsdfFlags);
+    path = config->lightConfig.traceNode(sceneVoxelGrid, sceneBackground, path, x1, x2, bsdfFlags);
     if ( path == nullptr ) {
         return;
     }
@@ -461,10 +465,10 @@ photonMapTracePath(Background *sceneBackground, PhotonMapConfig *config, BSDF_FL
     x1 = drand48(); // nrs[2] * RECIP;
     x2 = drand48(); // nrs[3] * RECIP; // 4D Niederreiter...
 
-    if ( config->lightConfig.traceNode(sceneBackground, node, x1, x2, bsdfFlags) ) {
+    if ( config->lightConfig.traceNode(sceneVoxelGrid, sceneBackground, node, x1, x2, bsdfFlags) ) {
         // Successful trace
         node->ensureNext();
-        config->lightConfig.tracePath(sceneBackground, node->next(), bsdfFlags);
+        config->lightConfig.tracePath(sceneVoxelGrid, sceneBackground, node->next(), bsdfFlags);
     }
 }
 
@@ -479,7 +483,7 @@ photonMapTracePaths(
 
     // Fill in config structures
     for ( i = 0; i < numberOfPaths; i++ ) {
-        photonMapTracePath(sceneBackground, &GLOBAL_photonMap_config, bsdfFlags);
+        photonMapTracePath(sceneWorldVoxelGrid, sceneBackground, &GLOBAL_photonMap_config, bsdfFlags);
         photonMapHandlePath(sceneWorldVoxelGrid, &GLOBAL_photonMap_config, context);
     }
 }

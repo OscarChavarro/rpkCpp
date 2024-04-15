@@ -635,6 +635,7 @@ bpCombinePaths(Background *sceneBackground, BidirectionalPathTracingConfiguratio
 
 static ColorRgb
 bpCalcPixel(
+    VoxelGrid *sceneVoxelGrid,
     Background *sceneBackground,
     int nx,
     int ny,
@@ -686,9 +687,9 @@ bpCalcPixel(
             config->xSample = tmpVec2D.u; // pix_x + (GLOBAL_camera_mainCamera.pixH * x_1);
             config->ySample = tmpVec2D.v; //pix_y + (GLOBAL_camera_mainCamera.pixV * x_2);
 
-            if ( config->eyeConfig.dirSampler->sample(GLOBAL_scene_worldVoxelGrid, sceneBackground, nullptr, config->eyePath, pixNode, x1, x2) ) {
+            if ( config->eyeConfig.dirSampler->sample(sceneVoxelGrid, sceneBackground, nullptr, config->eyePath, pixNode, x1, x2) ) {
                 pixNode->assignBsdfAndNormal();
-                config->eyeConfig.tracePath(sceneBackground, nextNode);
+                config->eyeConfig.tracePath(sceneVoxelGrid, sceneBackground, nextNode);
             }
         } else {
             config->eyePath->m_rayType = STOPS;
@@ -696,7 +697,7 @@ bpCalcPixel(
 
         // Generate a light path
         if ( config->lightConfig.maxDepth > 0 ) {
-            config->lightPath = config->lightConfig.tracePath(sceneBackground, config->lightPath);
+            config->lightPath = config->lightConfig.tracePath(sceneVoxelGrid, sceneBackground, config->lightPath);
         } else {
             // Normally this is already so, so no delete necessary ?!
             config->lightPath = nullptr;

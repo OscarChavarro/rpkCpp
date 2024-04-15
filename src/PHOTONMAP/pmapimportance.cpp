@@ -7,6 +7,7 @@ Importon tracing
 #include "PHOTONMAP/pmapoptions.h"
 #include "PHOTONMAP/pmapconfig.h"
 #include "PHOTONMAP/screensampler.h"
+#include "scene/scene.h"
 
 /**
 Store a importon/poton. Some acceptance tests are performed first
@@ -47,12 +48,16 @@ DoImportanceStore(CImportanceMap *map, SimpleRaytracingPathNode *node, ColorRgb 
 
 // Returns whether a valid potential path was returned.
 static bool
-TracePotentialPath(Background *sceneBackground, PhotonMapConfig *config) {
+TracePotentialPath(
+    VoxelGrid *sceneVoxelGrid,
+    Background *sceneBackground,
+    PhotonMapConfig *config)
+{
     SimpleRaytracingPathNode *path = config->biPath.m_eyePath;
     CSamplerConfig &scfg = config->eyeConfig;
 
     // Eye node
-    path = scfg.traceNode(sceneBackground, path, drand48(), drand48(), BSDF_ALL_COMPONENTS);
+    path = scfg.traceNode(sceneVoxelGrid, sceneBackground, path, drand48(), drand48(), BSDF_ALL_COMPONENTS);
     if ( path == nullptr ) {
         return false;
     }
@@ -80,6 +85,7 @@ TracePotentialPath(Background *sceneBackground, PhotonMapConfig *config) {
     x2 = drand48();
 
     while ( scfg.traceNode(
+            sceneVoxelGrid,
             sceneBackground,
             node,
             x1,
@@ -130,7 +136,7 @@ tracePotentialPaths(Background *sceneBackground, int nrPaths) {
     GLOBAL_photonMap_config.eyeConfig.minDepth = 3;
 
     for ( i = 0; i < nrPaths; i++ ) {
-        TracePotentialPath(sceneBackground, &GLOBAL_photonMap_config);
+        TracePotentialPath(GLOBAL_scene_worldVoxelGrid, sceneBackground, &GLOBAL_photonMap_config);
     }
 
     GLOBAL_photonMap_config.eyeConfig.maxDepth = 1; // Back to NEE state
