@@ -456,9 +456,9 @@ areaToAreaFormFactor(
     double Gxy[CUBAMAXNODES][CUBAMAXNODES];
     double kval;
     double vis;
-    static double maxkval;
+    double maxkval;
     double maxptff;
-    static unsigned viscount; // Number of rays that "pass" occluders
+    unsigned viscount; // Number of rays that "pass" occluders
     GalerkinElement *rcv = link->receiverElement;
     GalerkinElement *src = link->sourceElement;
     int k;
