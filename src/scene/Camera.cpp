@@ -13,7 +13,6 @@
 #define MAXIMUM_CAMERA_STACK 20
 
 Camera GLOBAL_camera_mainCamera; // The main virtual camera
-Camera GLOBAL_camera_alternateCamera; // The second camera
 
 // A stack of virtual camera positions, used for temporary saving the camera and
 // later restoring
@@ -52,8 +51,6 @@ cameraDefaults() {
 
     cameraSet(&GLOBAL_camera_mainCamera, &eyePosition, &lookPosition, &upDirection, DEFAULT_FOV, 600, 600,
               &backgroundColor);
-
-    GLOBAL_camera_alternateCamera = GLOBAL_camera_mainCamera;
 }
 
 static void
@@ -78,44 +75,16 @@ static void cameraSetFieldOfViewOption(void *val) {
     cameraSetFieldOfView(&GLOBAL_camera_mainCamera, *v);
 }
 
-static void cameraSetAlternativeEyePositionOption(void *val) {
-    Vector3D *v = (Vector3D *) val;
-    cameraSetEyePosition(&GLOBAL_camera_alternateCamera, v->x, v->y, v->z);
-}
-
-static void setAlternativeLookUpOption(void *val) {
-    Vector3D *v = (Vector3D *) val;
-    cameraSetLookPosition(&GLOBAL_camera_alternateCamera, v->x, v->y, v->z);
-}
-
-static void cameraSetAlternativeUpDirectionOption(void *val) {
-    Vector3D *v = (Vector3D *) val;
-    cameraSetUpDirection(&GLOBAL_camera_alternateCamera, v->x, v->y, v->z);
-}
-
-static void cameraSetAlternativeFieldOfVisionOption(void *val) {
-    float *v = (float *) val;
-    cameraSetFieldOfView(&GLOBAL_camera_alternateCamera, *v);
-}
-
 static CommandLineOptionDescription globalCameraOptions[] = {
-        {"-eyepoint",  4, TVECTOR, &GLOBAL_camera_mainCamera.eyePosition,      cameraSetEyePositionOption,
-    "-eyepoint  <vector>\t: viewing position"},
-        {"-center",    4, TVECTOR, &GLOBAL_camera_mainCamera.lookPosition,      cameraSetLookPositionOption,
-    "-center    <vector>\t: point looked at"},
-        {"-updir",     3, TVECTOR, &GLOBAL_camera_mainCamera.upDirection,      cameraSetUpDirectionOption,
-    "-updir     <vector>\t: direction pointing up"},
-        {"-fov",       4, Tfloat,  &GLOBAL_camera_mainCamera.fov, cameraSetFieldOfViewOption,
-    "-fov       <float> \t: field of view angle"},
-        {"-aeyepoint", 4, TVECTOR, &GLOBAL_camera_alternateCamera.eyePosition, cameraSetAlternativeEyePositionOption,
-    "-aeyepoint <vector>\t: alternate viewing position"},
-        {"-acenter",   4, TVECTOR, &GLOBAL_camera_alternateCamera.lookPosition, setAlternativeLookUpOption,
-    "-acenter   <vector>\t: alternate point looked at"},
-        {"-aupdir",    3, TVECTOR, &GLOBAL_camera_alternateCamera.upDirection, cameraSetAlternativeUpDirectionOption,
-    "-aupdir    <vector>\t: alternate direction pointing up"},
-        {"-afov",      4, Tfloat,  &GLOBAL_camera_alternateCamera.fov, cameraSetAlternativeFieldOfVisionOption,
-    "-afov      <float> \t: alternate field of view angle"},
-        {nullptr, 0, TYPELESS, nullptr, DEFAULT_ACTION, nullptr}
+    {"-eyepoint",  4, TVECTOR, &GLOBAL_camera_mainCamera.eyePosition,      cameraSetEyePositionOption,
+"-eyepoint  <vector>\t: viewing position"},
+    {"-center",    4, TVECTOR, &GLOBAL_camera_mainCamera.lookPosition,      cameraSetLookPositionOption,
+"-center    <vector>\t: point looked at"},
+    {"-updir",     3, TVECTOR, &GLOBAL_camera_mainCamera.upDirection,      cameraSetUpDirectionOption,
+"-updir     <vector>\t: direction pointing up"},
+    {"-fov",       4, Tfloat,  &GLOBAL_camera_mainCamera.fov, cameraSetFieldOfViewOption,
+"-fov       <float> \t: field of view angle"},
+    {nullptr, 0, TYPELESS, nullptr, nullptr, nullptr}
 };
 
 void parseCameraOptions(int *argc, char **argv) {

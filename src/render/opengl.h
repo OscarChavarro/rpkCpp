@@ -5,7 +5,6 @@
 #include "scene/Camera.h"
 
 extern int openGlRenderInitialized();
-extern void openGlRenderCameras();
 extern void openGlRenderSetLineWidth(float width);
 extern void openGlRenderLine(Vector3D *x, Vector3D *y);
 extern void openGlRenderSetColor(ColorRgb *rgb);

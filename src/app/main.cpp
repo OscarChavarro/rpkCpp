@@ -199,7 +199,6 @@ mainRenderingDefaults() {
     renderUseFrustumCulling(true);
     renderSetNoShading(false);
 
-    GLOBAL_render_renderOptions.drawCameras = false;
     GLOBAL_render_renderOptions.cameraSize = 0.25;
     GLOBAL_render_renderOptions.lineWidth = 1.0;
     GLOBAL_render_renderOptions.camera_color = GLOBAL_material_yellow;

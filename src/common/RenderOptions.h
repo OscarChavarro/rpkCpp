@@ -26,7 +26,6 @@ public:
     char drawClusters; // True for showing cluster hierarchy
     char useDisplayLists; // True for using display lists for faster display
     char frustumCulling; // Frustum culling accelerates rendering of large scenes.
-    char drawCameras; // True for drawing alternate viewpoints
     char renderRayTracedImage; // For freezing ray-traced image on the screen when appropriate
     char trace; // High-dynamic range ray-traced tiff
 };

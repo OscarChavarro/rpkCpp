@@ -42,7 +42,6 @@ class Camera {
 };
 
 extern Camera GLOBAL_camera_mainCamera;        /* The one and only virtual camera */
-extern Camera GLOBAL_camera_alternateCamera;    /* The one and only alternate camera */
 
 extern Camera *
 cameraSet(

@@ -535,10 +535,6 @@ openGlRenderRadiance(
     if ( GLOBAL_render_renderOptions.drawClusters ) {
         renderClusterHierarchy(clusteredGeometryList);
     }
-
-    if ( GLOBAL_render_renderOptions.drawCameras ) {
-        openGlRenderCameras();
-    }
 }
 
 /**
@@ -632,58 +628,6 @@ openGlRenderPixels(int x, int y, int width, int height, ColorRgb *rgb) {
     glPopMatrix();
 
     delete[] c;
-}
-
-static void
-openGlRenderFrustum(Camera *cam) {
-    Vector3D c;
-    Vector3D P;
-    Vector3D Q;
-    float cameraSize = GLOBAL_render_renderOptions.cameraSize;
-    float width = cameraSize * cam->viewDistance * cam->pixelWidthTangent;
-    float height = cameraSize * cam->viewDistance * cam->pixelHeightTangent;
-    int i;
-    int j;
-    int maxI = 12;
-    int maxJ = (int)((float) maxI * height / width);
-
-    vectorComb2(1.0, cam->eyePosition, cameraSize * cam->viewDistance, cam->Z, c);
-
-    glDisable(GL_DEPTH_TEST);
-
-    openGlRenderSetColor(&GLOBAL_render_renderOptions.camera_color);
-
-    for ( i = 0; i <= maxI; i++ ) {
-        vectorComb3(c, (-1.0f + 2.0f * ((float) i / (float) maxI)) * width, cam->X, -height, cam->Y, P);
-        vectorComb3(c, (-1.0f + 2.0f * ((float) i / (float) maxI)) * width, cam->X, +height, cam->Y, Q);
-        openGlRenderLine(&P, &Q);
-    }
-
-    for ( j = 0; j <= maxJ; j++ ) {
-        vectorComb3(c, -width, cam->X, (-1.0f + 2.0f * ((float) j / (float) maxJ)) * height, cam->Y, P);
-        vectorComb3(c, +width, cam->X, (-1.0f + 2.0f * ((float) j / (float) maxJ)) * height, cam->Y, Q);
-        openGlRenderLine(&P, &Q);
-    }
-
-    vectorComb3(c, width, cam->X, -height, cam->Y, Q);
-    openGlRenderLine(&cam->eyePosition, &Q);
-    vectorComb3(c, -width, cam->X, -height, cam->Y, Q);
-    openGlRenderLine(&cam->eyePosition, &Q);
-    vectorComb3(c, -width, cam->X, height, cam->Y, Q);
-    openGlRenderLine(&cam->eyePosition, &Q);
-    vectorComb3(c, width, cam->X, height, cam->Y, Q);
-    openGlRenderLine(&cam->eyePosition, &Q);
-
-    glLineWidth(1);
-    glEnable(GL_DEPTH_TEST);
-}
-
-/**
-Renders alternate camera, virtual screen etc ... for didactic pictures etc
-*/
-void
-openGlRenderCameras() {
-    openGlRenderFrustum(&GLOBAL_camera_alternateCamera);
 }
 
 /**

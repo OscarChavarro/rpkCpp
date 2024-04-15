@@ -152,33 +152,7 @@ renderGetNearFar(float *near, float *far, java::ArrayList<Geometry *> *sceneGeom
         }
     }
 
-    if ( GLOBAL_render_renderOptions.drawCameras ) {
-        Camera *cam = &GLOBAL_camera_alternateCamera;
-        float camLen = GLOBAL_render_renderOptions.cameraSize;
-        float hSize = camLen * cam->viewDistance * cam->pixelWidthTangent;
-        float vSize = camLen * cam->viewDistance * cam->pixelHeightTangent;
-        Vector3D c, P[5];
-
-        vectorComb2(1.0, cam->eyePosition, camLen * cam->viewDistance, cam->Z, c);
-        vectorComb3(c, hSize, cam->X, vSize, cam->Y, P[0]);
-        vectorComb3(c, hSize, cam->X, -vSize, cam->Y, P[1]);
-        vectorComb3(c, -hSize, cam->X, -vSize, cam->Y, P[2]);
-        vectorComb3(c, -hSize, cam->X, vSize, cam->Y, P[3]);
-        P[4] = cam->eyePosition;
-
-        for ( i = 0; i < 5; i++ ) {
-            vectorSubtract(P[i], GLOBAL_camera_mainCamera.eyePosition, d);
-            z = vectorDotProduct(d, GLOBAL_camera_mainCamera.Z);
-            if ( z > *far ) {
-                *far = z;
-            }
-            if ( z < *near ) {
-                *near = z;
-            }
-        }
-    }
-
-    /* take 2% extra distance for near as well as far clipping plane */
+    // Take 2% extra distance for near as well as far clipping plane
     *far += 0.02f * (*far);
     *near -= 0.02f * (*near);
     if ( *far < EPSILON ) {
