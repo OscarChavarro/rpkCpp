@@ -6,6 +6,7 @@
 
 bool
 CPixelSampler::sample(
+    VoxelGrid *sceneVoxelGrid,
     Background *sceneBackground,
     SimpleRaytracingPathNode *prevNode,
     SimpleRaytracingPathNode *thisNode,
@@ -39,7 +40,7 @@ CPixelSampler::sample(
     newNode->m_inBsdf = thisNode->m_outBsdf; // GLOBAL_camera_mainCamera can be placed in a medium
 
     // Transfer
-    if ( !sampleTransfer(sceneBackground, thisNode, newNode, &dir, pdfDir) ) {
+    if ( !sampleTransfer(sceneVoxelGrid, sceneBackground, thisNode, newNode, &dir, pdfDir) ) {
         thisNode->m_rayType = STOPS;
         return false;
     }

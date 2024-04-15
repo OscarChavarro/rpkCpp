@@ -37,6 +37,7 @@ bool UniformLightSampler::ActivateNextUnit() {
 
 bool
 UniformLightSampler::sample(
+    VoxelGrid *sceneVoxelGrid,
     Background *sceneBackground,
     SimpleRaytracingPathNode *prevNode,
     SimpleRaytracingPathNode *thisNode,
@@ -165,6 +166,7 @@ Important light sampler : attach weights to each lamp
 */
 bool
 ImportantLightSampler::sample(
+    VoxelGrid *sceneVoxelGrid,
     Background *sceneBackground,
     SimpleRaytracingPathNode *prevNode,
     SimpleRaytracingPathNode *thisNode,

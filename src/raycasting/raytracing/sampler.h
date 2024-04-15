@@ -16,6 +16,7 @@ path nodes and have to possible actions :
 class Sampler {
   protected:
     virtual bool sampleTransfer(
+        VoxelGrid *sceneVoxelGrid,
         Background *sceneBackground,
         SimpleRaytracingPathNode *thisNode,
         SimpleRaytracingPathNode *newNode,
@@ -31,6 +32,7 @@ public:
 
     virtual bool
     sample(
+        VoxelGrid *sceneVoxelGrid,
         Background *sceneBackground,
         SimpleRaytracingPathNode *prevNode,
         SimpleRaytracingPathNode *thisNode,
@@ -122,6 +124,7 @@ class CSurfaceSampler : public Sampler {
     //   When path ends (absorption) the type of thisNode is adjusted to 'Ends'
     virtual bool
     sample(
+        VoxelGrid *sceneVoxelGrid,
         Background *sceneBackground,
         SimpleRaytracingPathNode *prevNode,
         SimpleRaytracingPathNode *thisNode,

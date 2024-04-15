@@ -8,6 +8,7 @@ This is a hack to get fresnel factors for perfect specular reflection and refrac
 #include "material/bsdf.h"
 #include "common/error.h"
 #include "raycasting/common/raytools.h"
+#include "scene/scene.h"
 
 CPhotonMapSampler::CPhotonMapSampler() {
     m_photonMap = nullptr;
@@ -72,6 +73,7 @@ CPhotonMapSampler::chooseComponent(
 
 bool
 CPhotonMapSampler::sample(
+    VoxelGrid *sceneVoxelGrid,
     Background *sceneBackground,
     SimpleRaytracingPathNode *prevNode,
     SimpleRaytracingPathNode *thisNode,
@@ -323,7 +325,7 @@ CPhotonMapSampler::fresnelSample(
     DetermineRayType(thisNode, newNode, &dir);
 
     // Transfer
-    if ( !sampleTransfer(sceneBackground, thisNode, newNode, &dir, pdfDir) ) {
+    if ( !sampleTransfer(GLOBAL_scene_worldVoxelGrid, sceneBackground, thisNode, newNode, &dir, pdfDir) ) {
         thisNode->m_rayType = STOPS;
         return false;
     }
@@ -370,7 +372,7 @@ CPhotonMapSampler::gdSample(
     // Sample G|D and use m_photonMap for importance sampling if possible.
     if ( m_photonMap == nullptr ) {
         // We can just use standard bsdf sampling
-        ok = CBsdfSampler::sample(sceneBackground, prevNode, thisNode, newNode, x1, x2, doRR, flags);
+        ok = CBsdfSampler::sample(GLOBAL_scene_worldVoxelGrid, sceneBackground, prevNode, thisNode, newNode, x1, x2, doRR, flags);
         thisNode->m_usedComponents = flags;
         return ok;
     }
@@ -411,6 +413,7 @@ CPhotonMapSampler::gdSample(
 
     // Do real sampling
     ok = CBsdfSampler::sample(
+        GLOBAL_scene_worldVoxelGrid,
         sceneBackground,
         prevNode,
         thisNode,

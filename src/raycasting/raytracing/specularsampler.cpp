@@ -6,6 +6,7 @@
 
 bool
 CSpecularSampler::sample(
+    VoxelGrid *sceneVoxelGrid,
     Background *sceneBackground,
     SimpleRaytracingPathNode *prevNode,
     SimpleRaytracingPathNode *thisNode,
@@ -72,6 +73,7 @@ CSpecularSampler::sample(
 
     // Transfer
     if ( !sampleTransfer(
+            sceneVoxelGrid,
             sceneBackground,
             thisNode,
             newNode,

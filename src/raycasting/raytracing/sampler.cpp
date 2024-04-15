@@ -16,6 +16,7 @@ or if a shading normal anomaly occurs
 */
 bool
 Sampler::sampleTransfer(
+    VoxelGrid *sceneVoxelGrid,
     Background *sceneBackground,
     SimpleRaytracingPathNode *thisNode,
     SimpleRaytracingPathNode *newNode,
@@ -32,7 +33,7 @@ Sampler::sampleTransfer(
     newNode->m_depth = thisNode->m_depth + 1;
     newNode->m_rayType = STOPS;
     hit = findRayIntersection(
-        GLOBAL_scene_worldVoxelGrid,
+        sceneVoxelGrid,
         &ray,
         thisNode->m_hit.patch,
         newNode->m_inBsdf,

@@ -14,6 +14,7 @@ public:
     //   If path ends (absorption) the type of thisNode is adjusted to 'Ends'
     virtual bool
     sample(
+        VoxelGrid *sceneVoxelGrid,
         Background *sceneBackground,
         SimpleRaytracingPathNode *prevNode,
         SimpleRaytracingPathNode *thisNode,

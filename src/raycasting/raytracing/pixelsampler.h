@@ -9,6 +9,7 @@ class CPixelSampler : public Sampler {
     // Sample : newNode gets filled, others may change
     virtual bool
     sample(
+        VoxelGrid *sceneVoxelGrid,
         Background *sceneBackground,
         SimpleRaytracingPathNode *prevNode,
         SimpleRaytracingPathNode *thisNode,
