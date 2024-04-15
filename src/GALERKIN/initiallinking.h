@@ -14,7 +14,8 @@ createInitialLinks(
     GalerkinElement *top,
     GalerkinRole role,
     GalerkinState *galerkinState,
-    java::ArrayList<Geometry *> *sceneGeometries);
+    java::ArrayList<Geometry *> *sceneGeometries,
+    java::ArrayList<Geometry *> *sceneClusteredGeometries);
 
 extern void
 createInitialLinkWithTopCluster(

@@ -617,6 +617,7 @@ mainExecuteRendering(java::ArrayList<Patch *> *scenePatches, RadianceMethod *con
         scenePatches,
         GLOBAL_app_lightSourcePatches,
         globalSceneGeometries,
+        GLOBAL_scene_clusteredGeometries,
         globalClusteredWorldGeometry,
         globalSceneWorldVoxelGrid,
         context);

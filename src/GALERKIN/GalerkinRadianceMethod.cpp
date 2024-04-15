@@ -419,6 +419,7 @@ GalerkinRadianceMethod::doStep(
                     sceneWorldVoxelGrid,
                     scenePatches,
                     sceneGeometries,
+                    sceneClusteredGeometries,
                     clusteredWorldGeometry,
                     &galerkinState);
             }
@@ -428,6 +429,7 @@ GalerkinRadianceMethod::doStep(
                 sceneWorldVoxelGrid,
                 scenePatches,
                 sceneGeometries,
+                sceneClusteredGeometries,
                 clusteredWorldGeometry,
                 &galerkinState,
                 this);

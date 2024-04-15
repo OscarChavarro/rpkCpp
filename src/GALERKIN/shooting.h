@@ -11,6 +11,7 @@ doShootingStep(
     VoxelGrid *sceneWorldVoxelGrid,
     java::ArrayList<Patch *> *scenePatches,
     java::ArrayList<Geometry *> *sceneGeometries,
+    java::ArrayList<Geometry *> *sceneClusteredGeometries,
     Geometry *clusteredWorldGeometry,
     GalerkinState *galerkinState,
     GalerkinRadianceMethod *galerkinRadianceMethod);

@@ -111,7 +111,7 @@ drawCallback() {
     glPolygonMode(GL_FRONT_AND_BACK, GL_LINES);
     openGlRenderScene(
         globalScenePatches,
-        GLOBAL_scene_clusteredGeometries,
+        globalSceneClusteredGeometries,
         globalSceneGeometries,
         globalClusteredWorldGeom,
         nullptr,

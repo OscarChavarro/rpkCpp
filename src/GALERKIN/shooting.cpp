@@ -93,6 +93,7 @@ patchPropagateUnShotRadianceAndPotential(
     Patch *patch,
     GalerkinState *galerkinState,
     java::ArrayList<Geometry *> *sceneGeometries,
+    java::ArrayList<Geometry *> *sceneClusteredGeometries,
     Geometry *clusteredWorldGeometry)
 {
     GalerkinElement *topLevelElement = galerkinGetElement(patch);
@@ -101,7 +102,7 @@ patchPropagateUnShotRadianceAndPotential(
         if ( galerkinState->clustered ) {
             createInitialLinkWithTopCluster(topLevelElement, SOURCE, galerkinState);
         } else {
-            createInitialLinks(sceneWorldVoxelGrid, topLevelElement, SOURCE, galerkinState, sceneGeometries);
+            createInitialLinks(sceneWorldVoxelGrid, topLevelElement, SOURCE, galerkinState, sceneGeometries, sceneClusteredGeometries);
         }
         topLevelElement->flags |= INTERACTIONS_CREATED_MASK;
     }
@@ -174,6 +175,7 @@ doPropagate(
     Patch *shooting_patch,
     java::ArrayList<Patch *> *scenePatches,
     java::ArrayList<Geometry *> *sceneGeometries,
+    java::ArrayList<Geometry *> *sceneClusteredGeometries,
     Geometry *clusteredWorldGeometry,
     GalerkinState *galerkinState,
     GalerkinRadianceMethod *galerkinRadianceMethod)
@@ -184,6 +186,7 @@ doPropagate(
         shooting_patch,
         galerkinState,
         sceneGeometries,
+        sceneClusteredGeometries,
         clusteredWorldGeometry);
 
     // Recompute the colors of all patches, not only the patches that received
@@ -212,6 +215,7 @@ propagateRadiance(
     VoxelGrid *sceneWorldVoxelGrid,
     java::ArrayList<Patch *> *scenePatches,
     java::ArrayList<Geometry *> *sceneGeometries,
+    java::ArrayList<Geometry *> *sceneClusteredGeometries,
     Geometry *clusteredWorldGeometry,
     GalerkinState *galerkinState,
     GalerkinRadianceMethod *galerkinRadianceMethod)
@@ -233,6 +237,7 @@ propagateRadiance(
         shootingPatch,
         scenePatches,
         sceneGeometries,
+        sceneClusteredGeometries,
         clusteredWorldGeometry,
         galerkinState,
         galerkinRadianceMethod);
@@ -287,6 +292,7 @@ propagatePotential(
     VoxelGrid *sceneWorldVoxelGrid,
     java::ArrayList<Patch *> *scenePatches,
     java::ArrayList<Geometry *> *sceneGeometries,
+    java::ArrayList<Geometry *> *sceneClusteredGeometries,
     Geometry *clusteredWorldGeometry,
     GalerkinState *galerkinState,
     GalerkinRadianceMethod *galerkinRadianceMethod)
@@ -302,6 +308,7 @@ propagatePotential(
             shootingPatch,
             scenePatches,
             sceneGeometries,
+            sceneClusteredGeometries,
             clusteredWorldGeometry,
             galerkinState,
             galerkinRadianceMethod);
@@ -335,6 +342,7 @@ reallyDoShootingStep(
     VoxelGrid *sceneWorldVoxelGrid,
     java::ArrayList<Patch *> *scenePatches,
     java::ArrayList<Geometry *> *sceneGeometries,
+    java::ArrayList<Geometry *> *sceneClusteredGeometries,
     Geometry *clusteredWorldGeometry,
     GalerkinState *galerkinState,
     GalerkinRadianceMethod *galerkinRadianceMethod)
@@ -357,6 +365,7 @@ reallyDoShootingStep(
             sceneWorldVoxelGrid,
             scenePatches,
             sceneGeometries,
+            sceneClusteredGeometries,
             clusteredWorldGeometry,
             galerkinState,
             galerkinRadianceMethod);
@@ -365,6 +374,7 @@ reallyDoShootingStep(
         sceneWorldVoxelGrid,
         scenePatches,
         sceneGeometries,
+        sceneClusteredGeometries,
         clusteredWorldGeometry,
         galerkinState,
         galerkinRadianceMethod);
@@ -378,6 +388,7 @@ doShootingStep(
     VoxelGrid *sceneWorldVoxelGrid,
     java::ArrayList<Patch *> *scenePatches,
     java::ArrayList<Geometry *> *sceneGeometries,
+    java::ArrayList<Geometry *> *sceneClusteredGeometries,
     Geometry *clusteredWorldGeometry,
     GalerkinState *galerkinState,
     GalerkinRadianceMethod *galerkinRadianceMethod)
@@ -386,6 +397,7 @@ doShootingStep(
         sceneWorldVoxelGrid,
         scenePatches,
         sceneGeometries,
+        sceneClusteredGeometries,
         clusteredWorldGeometry,
         galerkinState,
         galerkinRadianceMethod);

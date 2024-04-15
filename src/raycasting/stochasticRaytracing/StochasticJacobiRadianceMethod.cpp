@@ -514,6 +514,7 @@ StochasticJacobiRadianceMethod::doStep(
                 sceneWorldVoxelGrid,
                 scenePatches,
                 sceneGeometries,
+                sceneClusteredGeometries,
                 lightPatches,
                 clusteredWorldGeometry,
                 this);

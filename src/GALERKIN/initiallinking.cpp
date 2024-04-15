@@ -173,7 +173,8 @@ createInitialLinks(
     GalerkinElement *top,
     GalerkinRole role,
     GalerkinState *galerkinState,
-    java::ArrayList<Geometry *> *sceneGeometries)
+    java::ArrayList<Geometry *> *sceneGeometries,
+    java::ArrayList<Geometry *> *sceneClusteredGeometries)
 {
     if ( top->flags & IS_CLUSTER_MASK ) {
         logFatal(-1, "createInitialLinks", "cannot use this routine for cluster elements");
@@ -183,7 +184,7 @@ createInitialLinks(
     globalRole = role;
     globalPatch = top->patch;
     globalPatch->getBoundingBox(&globalPatchBoundingBox);
-    globalCandidateList = GLOBAL_scene_clusteredGeometries;
+    globalCandidateList = sceneClusteredGeometries;
 
     for ( int i = 0; sceneGeometries != nullptr && i < sceneGeometries->size(); i++ ) {
         geometryLink(sceneWorldVoxelGrid, sceneGeometries->get(i), galerkinState, sceneGeometries);

@@ -190,6 +190,7 @@ batch(
     java::ArrayList<Patch *> *scenePatches,
     java::ArrayList<Patch *> *lightPatches,
     java::ArrayList<Geometry *> *sceneGeometries,
+    java::ArrayList<Geometry *> *sceneClusteredGeometries,
     Geometry *clusteredWorldGeometry,
     VoxelGrid *voxelGrid,
     RadianceMethod *context)
@@ -230,7 +231,7 @@ batch(
                 sceneBackground,
                 scenePatches,
                 sceneGeometries,
-                GLOBAL_scene_clusteredGeometries,
+                sceneClusteredGeometries,
                 lightPatches,
                 clusteredWorldGeometry,
                 voxelGrid);
@@ -251,7 +252,7 @@ batch(
             #endif
             openGlRenderScene(
                 scenePatches,
-                GLOBAL_scene_clusteredGeometries,
+                sceneClusteredGeometries,
                 sceneGeometries,
                 clusteredWorldGeometry,
                 f,

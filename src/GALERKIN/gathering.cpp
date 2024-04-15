@@ -59,11 +59,18 @@ patchLazyCreateInteractions(
     VoxelGrid *sceneWorldVoxelGrid,
     Patch *patch,
     GalerkinState *galerkinState,
-    java::ArrayList<Geometry *> *sceneGeometries) {
+    java::ArrayList<Geometry *> *sceneGeometries,
+    java::ArrayList<Geometry *> *sceneClusteredGeometries) {
     GalerkinElement *topLevelElement = galerkinGetElement(patch);
 
     if ( !topLevelElement->radiance[0].isBlack() && !(topLevelElement->flags & INTERACTIONS_CREATED_MASK) ) {
-        createInitialLinks(sceneWorldVoxelGrid, topLevelElement, SOURCE, galerkinState, sceneGeometries);
+        createInitialLinks(
+            sceneWorldVoxelGrid,
+            topLevelElement,
+            SOURCE,
+            galerkinState,
+            sceneGeometries,
+            sceneClusteredGeometries);
         topLevelElement->flags |= INTERACTIONS_CREATED_MASK;
     }
 }
@@ -91,6 +98,7 @@ patchGather(
     Patch *patch,
     GalerkinState *galerkinState,
     java::ArrayList<Geometry *> *sceneGeometries,
+    java::ArrayList<Geometry *> *sceneClusteredGeometries,
     Geometry *clusteredWorldGeometry)
 {
     GalerkinElement *topLevelElement = galerkinGetElement(patch);
@@ -108,7 +116,7 @@ patchGather(
     if ( galerkinState->galerkinIterationMethod == GAUSS_SEIDEL || !galerkinState->lazyLinking ||
          galerkinState->importanceDriven ) {
         if ( !(topLevelElement->flags & INTERACTIONS_CREATED_MASK) ) {
-            createInitialLinks(sceneWorldVoxelGrid, topLevelElement, RECEIVER, galerkinState, sceneGeometries);
+            createInitialLinks(sceneWorldVoxelGrid, topLevelElement, RECEIVER, galerkinState, sceneGeometries, sceneClusteredGeometries);
             topLevelElement->flags |= INTERACTIONS_CREATED_MASK;
         }
     }
@@ -140,6 +148,7 @@ galerkinRadiosityDoGatheringIteration(
     VoxelGrid *sceneWorldVoxelGrid,
     java::ArrayList<Patch *> *scenePatches,
     java::ArrayList<Geometry *> *sceneGeometries,
+    java::ArrayList<Geometry *> *sceneClusteredGeometries,
     Geometry *clusteredWorldGeometry,
     GalerkinState *galerkinState)
 {
@@ -154,7 +163,7 @@ galerkinRadiosityDoGatheringIteration(
     if ( galerkinState->galerkinIterationMethod != GAUSS_SEIDEL && galerkinState->lazyLinking &&
          !galerkinState->importanceDriven ) {
         for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
-            patchLazyCreateInteractions(sceneWorldVoxelGrid, scenePatches->get(i), galerkinState, sceneGeometries);
+            patchLazyCreateInteractions(sceneWorldVoxelGrid, scenePatches->get(i), galerkinState, sceneGeometries, sceneClusteredGeometries);
         }
     }
 
@@ -163,7 +172,13 @@ galerkinRadiosityDoGatheringIteration(
 
     // One iteration = gather to all patches
     for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
-        patchGather(sceneWorldVoxelGrid, scenePatches->get(i), galerkinState, sceneGeometries, clusteredWorldGeometry);
+        patchGather(
+            sceneWorldVoxelGrid,
+            scenePatches->get(i),
+            galerkinState,
+            sceneGeometries,
+            sceneClusteredGeometries,
+            clusteredWorldGeometry);
     }
 
     // Update the radiosity after gathering to all patches with Jacobi, immediately

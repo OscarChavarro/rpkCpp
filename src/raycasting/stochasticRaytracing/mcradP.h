@@ -192,6 +192,7 @@ doNonDiffuseFirstShot(
     VoxelGrid *sceneWorldVoxelGrid,
     java::ArrayList<Patch *> *scenePatches,
     java::ArrayList<Geometry *> *sceneGeometries,
+    java::ArrayList<Geometry *> *sceneClusteredGeometries,
     java::ArrayList<Patch *> *lightPatches,
     Geometry *clusteredWorldGeometry,
     RadianceMethod *context);
