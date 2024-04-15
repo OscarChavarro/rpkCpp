@@ -90,7 +90,7 @@ sampleLightRay(Patch *patch, ColorRgb *emitted_rad, double *point_selection_pdf,
 }
 
 static void
-sampleLight(LightSourceTable *light, double light_selection_pdf) {
+sampleLight(VoxelGrid * sceneWorldVoxelGrid, LightSourceTable *light, double light_selection_pdf) {
     ColorRgb rad;
     double point_selection_pdf, dir_selection_pdf;
     Ray ray = sampleLightRay(light->patch, &rad, &point_selection_pdf, &dir_selection_pdf);
@@ -98,7 +98,7 @@ sampleLight(LightSourceTable *light, double light_selection_pdf) {
     RayHit *hit;
 
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.tracedRays++;
-    hit = mcrShootRay(light->patch, &ray, &hitStore);
+    hit = mcrShootRay(sceneWorldVoxelGrid, light->patch, &ray, &hitStore);
     if ( hit ) {
         double pdf = light_selection_pdf * point_selection_pdf * dir_selection_pdf;
         double outCos = vectorDotProduct(ray.dir, light->patch->normal);
@@ -128,7 +128,7 @@ sampleLightSources(int nr_samples) {
                 (int) floor((pCumulative + p) * (double) globalNumberOfSamples + rnd) - count;
 
         for ( j = 0; j < samples_this_light; j++ ) {
-            sampleLight(&globalLights[i], p);
+            sampleLight(GLOBAL_scene_worldVoxelGrid, &globalLights[i], p);
         }
 
         pCumulative += p;

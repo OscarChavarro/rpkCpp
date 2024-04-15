@@ -661,7 +661,7 @@ main(int argc, char *argv[]) {
     //    GLOBAL_app_lightSourcePatches,
     //    globalSceneGeometries,
     //    GLOBAL_scene_clusteredWorldGeom,
-    //    GLOBAL_scene_background,
+    //    globalSceneBackground,
     //    mgfContext.radianceMethod,
     //    GLOBAL_scene_worldVoxelGrid);
 

@@ -9,6 +9,7 @@ Random walk generation
 #include "raycasting/stochasticRaytracing/mcradP.h"
 #include "raycasting/stochasticRaytracing/tracepath.h"
 #include "raycasting/stochasticRaytracing/localline.h"
+#include "scene/scene.h"
 
 static double (*globalBirthProbability)(Patch *);
 static double globalSumProbabilities;
@@ -87,10 +88,11 @@ when no longer needed
 */
 static PATH *
 tracePath(
-        Patch *origin,
-        double birth_prob,
-        double (*SurvivalProbability)(Patch *P),
-        PATH *path)
+    VoxelGrid * sceneWorldVoxelGrid,
+    Patch *origin,
+    double birth_prob,
+    double (*SurvivalProbability)(Patch *P),
+    PATH *path)
 {
     Vector3D inPoint = {0.0, 0.0, 0.0};
     Vector3D outpoint = {0.0, 0.0, 0.0};
@@ -112,7 +114,7 @@ tracePath(
         }
         path->nodes[path->numberOfNodes - 1].outpoint = ray.pos;
 
-        hit = mcrShootRay(P, &ray, &hitStore);
+        hit = mcrShootRay(sceneWorldVoxelGrid, P, &ray, &hitStore);
         if ( !hit ) {
             // Path disappears into background
             break;
@@ -174,7 +176,7 @@ tracePaths(
         double p = BirthProbability(patch) / globalSumProbabilities;
         long paths_this_patch = (int) std::floor((pCumulative + p) * (double) numberOfPaths + rnd) - path_count;
         for ( int j = 0; j < paths_this_patch; j++ ) {
-            tracePath(patch, p, SurvivalProbability, &path);
+            tracePath(GLOBAL_scene_worldVoxelGrid, patch, p, SurvivalProbability, &path);
             ScorePath(&path, numberOfPaths, patchNormalisedBirthProbability);
         }
         pCumulative += p;

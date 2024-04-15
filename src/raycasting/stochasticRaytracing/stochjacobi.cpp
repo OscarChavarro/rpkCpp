@@ -15,6 +15,7 @@ TODO: global lines and global line bundles.
 #include "raycasting/stochasticRaytracing/ccr.h"
 #include "raycasting/stochasticRaytracing/localline.h"
 #include "raycasting/stochasticRaytracing/StochasticRadiosityElement.h"
+#include "scene/scene.h"
 
 // Returns radiance or importance to be propagated
 static ColorRgb *(*globalGetRadianceCallback)(StochasticRadiosityElement *);
@@ -546,6 +547,7 @@ hit patch (and back for bidirectional transfers)
 */
 static void
 stochasticJacobiElementShootRay(
+    VoxelGrid * sceneWorldVoxelGrid,
     StochasticRadiosityElement *src,
     int nMostSignificantBit,
     niedindex mostSignificantBit1,
@@ -564,7 +566,7 @@ stochasticJacobiElementShootRay(
                                stochasticJacobiNextSample(src, nMostSignificantBit, mostSignificantBit1, rMostSignificantBit2, zeta));
 
     RayHit hitStore;
-    RayHit *hit = mcrShootRay(src->patch, &ray, &hitStore);
+    RayHit *hit = mcrShootRay(sceneWorldVoxelGrid, src->patch, &ray, &hitStore);
 
     if ( hit ) {
         double uHit = 0.0;
@@ -604,7 +606,7 @@ stochasticJacobiElementShootRays(StochasticRadiosityElement *element, int rays_t
 
     // Shoot the rays
     for ( i = 0; i < rays_this_elem; i++ ) {
-        stochasticJacobiElementShootRay(element, sampleRange, mostSignificantBit1, rMostSignificantBit2);
+        stochasticJacobiElementShootRay(GLOBAL_scene_worldVoxelGrid, element, sampleRange, mostSignificantBit1, rMostSignificantBit2);
     }
 
     if ( element != nullptr && !element->isLeaf() ) {

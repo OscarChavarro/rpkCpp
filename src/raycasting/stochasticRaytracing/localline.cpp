@@ -58,14 +58,18 @@ someFeedback() {
 Determines nearest intersection point and patch
 */
 RayHit *
-mcrShootRay(Patch *P, Ray *ray, RayHit *hitStore) {
+mcrShootRay(VoxelGrid * sceneWorldVoxelGrid, Patch *P, Ray *ray, RayHit *hitStore) {
     float dist = HUGE;
     RayHit *hit;
 
     // Reject self-intersections
     Patch::dontIntersect(2, P, P->twin);
-    hit = GLOBAL_scene_worldVoxelGrid->gridIntersect(ray, EPSILON < P->tolerance ? EPSILON : P->tolerance, &dist, HIT_FRONT | HIT_POINT,
-                                                     hitStore);
+    hit = sceneWorldVoxelGrid->gridIntersect(
+        ray,
+        EPSILON < P->tolerance ? EPSILON : P->tolerance,
+        &dist,
+        HIT_FRONT | HIT_POINT,
+        hitStore);
     Patch::dontIntersect(0);
     someFeedback();
 
