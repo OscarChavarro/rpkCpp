@@ -19,8 +19,6 @@
 
 #ifdef RAYTRACING_ENABLED
 
-extern java::ArrayList<Patch *> *GLOBAL_app_lightSourcePatches;
-
 static char globalRaytracingMethodsString[STRING_SIZE];
 static Raytracer *globalRayTracingMethods[] = {
     &GLOBAL_raytracing_stochasticMethod,
@@ -30,6 +28,8 @@ static Raytracer *globalRayTracingMethods[] = {
     nullptr
 };
 
+static java::ArrayList<Patch *> *globalLightSourcePatches;
+
 static void
 mainRayTracingOption(void *value) {
     char *name = *(char **) value;
@@ -37,13 +37,13 @@ mainRayTracingOption(void *value) {
     for ( Raytracer **window = globalRayTracingMethods; *window; window++ ) {
         Raytracer *method = *window;
         if ( strncasecmp(name, method->shortName, method->nameAbbrev) == 0 ) {
-            mainSetRayTracingMethod(method);
+            mainSetRayTracingMethod(method, globalLightSourcePatches);
             return;
         }
     }
 
     if ( strncasecmp(name, "none", 4) == 0 ) {
-        mainSetRayTracingMethod(nullptr);
+        mainSetRayTracingMethod(nullptr, globalLightSourcePatches);
     } else {
         logError(nullptr, "Invalid raytracing method name '%s'", name);
     }
@@ -76,12 +76,13 @@ mainMakeRaytracingMethodsString() {
 }
 
 void
-mainRayTracingDefaults() {
+mainRayTracingDefaults(java::ArrayList<Patch *> *lightSourcePatches) {
+    globalLightSourcePatches = lightSourcePatches;
     for ( Raytracer **window = globalRayTracingMethods; *window; window++ ) {
         Raytracer *method = *window;
         method->Defaults();
         if ( strncasecmp(DEFAULT_RAYTRACING_METHOD, method->shortName, method->nameAbbrev) == 0 ) {
-            mainSetRayTracingMethod(method);
+            mainSetRayTracingMethod(method, lightSourcePatches);
         }
     }
     mainMakeRaytracingMethodsString(); // Comes last
@@ -100,14 +101,14 @@ mainParseRayTracingOptions(int *argc, char **argv) {
 This routine sets the current raytracing method to be used
 */
 void
-mainSetRayTracingMethod(Raytracer *newMethod) {
+mainSetRayTracingMethod(Raytracer *newMethod, java::ArrayList<Patch *> *lightSourcePatches) {
     if ( GLOBAL_raytracer_activeRaytracer ) {
         GLOBAL_raytracer_activeRaytracer->Terminate();
     }
 
     GLOBAL_raytracer_activeRaytracer = newMethod;
     if ( GLOBAL_raytracer_activeRaytracer ) {
-        GLOBAL_raytracer_activeRaytracer->Initialize(GLOBAL_app_lightSourcePatches);
+        GLOBAL_raytracer_activeRaytracer->Initialize(lightSourcePatches);
     }
 }
 

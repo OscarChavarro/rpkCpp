@@ -40,7 +40,7 @@
 extern java::ArrayList<Patch *> *GLOBAL_scenePatches;
 
 // The light of all patches on light sources, useful for e.g. next event estimation in Monte Carlo raytracing etc.
-java::ArrayList<Patch *> *GLOBAL_app_lightSourcePatches = nullptr;
+static java::ArrayList<Patch *> *globalLightSourcePatches = nullptr;
 
 // The list of all patches in the current scene. Automatically derived from 'GLOBAL_scene_world' when loading a scene
 static java::ArrayList<Patch *> *globalAppScenePatches = nullptr;
@@ -146,7 +146,7 @@ Adds the background to the global light source patch list
 static void
 mainAddBackgroundToLightSourceList() {
     if ( globalSceneBackground != nullptr && globalSceneBackground->bkgPatch != nullptr ) {
-        GLOBAL_app_lightSourcePatches->add(0, globalSceneBackground->bkgPatch);
+        globalLightSourcePatches->add(0, globalSceneBackground->bkgPatch);
     }
 }
 
@@ -160,7 +160,7 @@ mainAddPatchToLightSourceListIfLightSource(Patch *patch) {
          && patch->surface != nullptr
          && patch->surface->material != nullptr
          && patch->surface->material->edf != nullptr ) {
-        GLOBAL_app_lightSourcePatches->add(0, patch);
+        globalLightSourcePatches->add(0, patch);
         GLOBAL_statistics.numberOfLightSources++;
     }
 }
@@ -170,7 +170,7 @@ Build the global light source patch list
 */
 static void
 mainBuildLightSourcePatchList() {
-    GLOBAL_app_lightSourcePatches = new java::ArrayList<Patch *>();
+    globalLightSourcePatches = new java::ArrayList<Patch *>();
     GLOBAL_statistics.numberOfLightSources = 0;
 
     for ( int i = 0; i < globalAppScenePatches->size(); i++ ) {
@@ -222,7 +222,7 @@ mainInit() {
     radianceDefaults(GLOBAL_scenePatches, nullptr, globalClusteredWorldGeometry);
 
     #ifdef RAYTRACING_ENABLED
-        mainRayTracingDefaults();
+        mainRayTracingDefaults(globalLightSourcePatches);
     #endif
 
     // Default vertex compare flags: both location and normal is relevant. Two
@@ -345,7 +345,7 @@ mainReadFile(char *filename, MgfContext *context) {
 
     #ifdef RAYTRACING_ENABLED
         Raytracer *currentRaytracer = GLOBAL_raytracer_activeRaytracer;
-        mainSetRayTracingMethod(nullptr);
+        mainSetRayTracingMethod(nullptr, globalLightSourcePatches);
     #endif
 
     // Prepare if errors occur when reading the new scene will abort
@@ -519,7 +519,7 @@ mainReadFile(char *filename, MgfContext *context) {
         if ( currentRaytracer != nullptr ) {
             fprintf(stderr, "Initializing raytracing computations ... \n");
 
-            mainSetRayTracingMethod(currentRaytracer);
+            mainSetRayTracingMethod(currentRaytracer, globalLightSourcePatches);
 
             t = clock();
             fprintf(stderr, "%g secs.\n", (float) (t - last) / (float) CLOCKS_PER_SEC);
@@ -613,7 +613,7 @@ mainExecuteRendering(java::ArrayList<Patch *> *scenePatches, RadianceMethod *con
             globalSceneBackground,
             globalSceneWorldVoxelGrid,
             scenePatches,
-            GLOBAL_app_lightSourcePatches,
+            globalLightSourcePatches,
             globalSceneGeometries,
             globalSceneClusteredGeometries,
             globalClusteredWorldGeometry,
@@ -626,7 +626,7 @@ mainFreeMemory(MgfContext *context) {
     deleteOptionsMemory();
     mgfFreeMemory(context);
     galerkinFreeMemory();
-    delete GLOBAL_app_lightSourcePatches;
+    delete globalLightSourcePatches;
     delete globalSceneClusteredGeometries;
     if ( globalAppScenePatches != nullptr ) {
         delete globalAppScenePatches;
