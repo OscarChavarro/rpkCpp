@@ -2,7 +2,6 @@
 Generate and trace a local line
 */
 
-#include "scene/scene.h"
 #include "common/mymath.h"
 #include "material/spherical.h"
 #include "raycasting/stochasticRaytracing/mcradP.h"

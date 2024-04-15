@@ -2,7 +2,6 @@
 #include "skin/Patch.h"
 #include "QMC/nied31.h"
 #include "raycasting/raytracing/samplertools.h"
-#include "scene/scene.h"
 
 void
 CSamplerConfig::init(bool useQMC, int qmcDepth) {

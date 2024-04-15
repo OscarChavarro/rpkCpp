@@ -1,7 +1,6 @@
 #include "scene/Camera.h"
 #include "material/statistics.h"
 #include "raycasting/common/Raytracer.h"
-#include "scene/scene.h"
 
 double GLOBAL_raytracer_totalTime = 0.0;
 long GLOBAL_raytracer_rayCount = 0;

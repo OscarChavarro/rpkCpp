@@ -184,6 +184,7 @@ stochasticRelaxationRadiosityDoIncrementalRadianceIterations(
     VoxelGrid *sceneWorldVoxelGrid,
     java::ArrayList<Patch *> *scenePatches,
     java::ArrayList<Geometry *> *sceneGeometries,
+    java::ArrayList<Geometry *> *sceneClusteredGeometries,
     Geometry *clusteredWorldGeometry,
     RadianceMethod *context)
 {
@@ -246,7 +247,7 @@ stochasticRelaxationRadiosityDoIncrementalRadianceIterations(
 
             openGlRenderScene(
                 scenePatches,
-                GLOBAL_scene_clusteredGeometries,
+                sceneClusteredGeometries,
                 sceneGeometries,
                 clusteredWorldGeometry,
                 f,
@@ -254,7 +255,7 @@ stochasticRelaxationRadiosityDoIncrementalRadianceIterations(
         }
     }
 
-    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceDriven = importanceDriven;    /* switch it back on if it was on */
+    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceDriven = importanceDriven; // Switch it back on if it was on
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.weightedSampling = weightedSampling;
 }
 
@@ -499,6 +500,7 @@ StochasticJacobiRadianceMethod::doStep(
     Background *sceneBackground,
     java::ArrayList<Patch *> *scenePatches,
     java::ArrayList<Geometry *> *sceneGeometries,
+    java::ArrayList<Geometry *> *sceneClusteredGeometries,
     java::ArrayList<Patch *> *lightPatches,
     Geometry *clusteredWorldGeometry,
     VoxelGrid *sceneWorldVoxelGrid)
@@ -531,7 +533,7 @@ StochasticJacobiRadianceMethod::doStep(
                     }
                 }
         }
-        stochasticRelaxationRadiosityDoIncrementalRadianceIterations(sceneWorldVoxelGrid, scenePatches, sceneGeometries, clusteredWorldGeometry, this);
+        stochasticRelaxationRadiosityDoIncrementalRadianceIterations(sceneWorldVoxelGrid, scenePatches, sceneGeometries, sceneClusteredGeometries, clusteredWorldGeometry, this);
 
         // Subsequent regular iterations will take as many rays as in the whole
         // sequence of incremental iteration steps

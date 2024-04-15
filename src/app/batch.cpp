@@ -230,6 +230,7 @@ batch(
                 sceneBackground,
                 scenePatches,
                 sceneGeometries,
+                GLOBAL_scene_clusteredGeometries,
                 lightPatches,
                 clusteredWorldGeometry,
                 voxelGrid);

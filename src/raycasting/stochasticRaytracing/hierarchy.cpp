@@ -1,5 +1,4 @@
 #include "java/util/ArrayList.txx"
-#include "scene/scene.h"
 #include "skin/Vertex.h"
 #include "raycasting/stochasticRaytracing/mcradP.h"
 #include "raycasting/stochasticRaytracing/hierarchy.h"

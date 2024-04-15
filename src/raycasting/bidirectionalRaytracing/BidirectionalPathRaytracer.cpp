@@ -13,7 +13,6 @@
 #include "raycasting/raytracing/densitykernel.h"
 #include "raycasting/bidirectionalRaytracing/spar.h"
 #include "raycasting/bidirectionalRaytracing/BidirectionalPathRaytracer.h"
-#include "scene/scene.h"
 
 // Persistent biDirPath state, contains actual GUI state and some other stuff
 BIDIRPATH_STATE GLOBAL_rayTracing_biDirectionalPath;

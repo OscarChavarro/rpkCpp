@@ -2,10 +2,8 @@
 
 #include "common/error.h"
 #include "material/spherical.h"
-#include "material/Material.h"
 #include "material/PhongEmittanceDistributionFunction.h"
 #include "raycasting/bidirectionalRaytracing/LightDirSampler.h"
-#include "scene/scene.h"
 
 /**
 sample : newNode gets filled, others may change

@@ -1,6 +1,5 @@
 #include "common/error.h"
 #include "scene/Camera.h"
-#include "scene/scene.h"
 #include "raycasting/raytracing/eyesampler.h"
 
 bool

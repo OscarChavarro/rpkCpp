@@ -1,4 +1,3 @@
-#include "scene/scene.h"
 #include "common/stratification.h"
 #include "raycasting/bidirectionalRaytracing/LightList.h"
 #include "PHOTONMAP/PhotonMapRadianceMethod.h"

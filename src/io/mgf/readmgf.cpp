@@ -3,7 +3,6 @@
 
 #include "java/util/ArrayList.txx"
 #include "common/error.h"
-#include "scene/scene.h"
 #include "io/mgf/vectoroctree.h"
 #include "io/mgf/MgfColorContext.h"
 #include "io/mgf/MgfTransformContext.h"

@@ -8,7 +8,6 @@ This is a hack to get fresnel factors for perfect specular reflection and refrac
 #include "material/bsdf.h"
 #include "common/error.h"
 #include "raycasting/common/raytools.h"
-#include "scene/scene.h"
 
 CPhotonMapSampler::CPhotonMapSampler() {
     m_photonMap = nullptr;

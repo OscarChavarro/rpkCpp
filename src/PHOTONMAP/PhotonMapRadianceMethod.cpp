@@ -24,7 +24,6 @@
 #include "PHOTONMAP/pmapoptions.h"
 #include "PHOTONMAP/pmapconfig.h"
 #include "PHOTONMAP/pmapimportance.h"
-#include "scene/scene.h"
 
 PhotonMapConfig GLOBAL_photonMap_config;
 
@@ -561,6 +560,7 @@ PhotonMapRadianceMethod::doStep(
     Background *sceneBackground,
     java::ArrayList<Patch *> *scenePatches,
     java::ArrayList<Geometry *> *sceneGeometries,
+    java::ArrayList<Geometry *> *sceneClusteredGeometries,
     java::ArrayList<Patch *> *lightPatches,
     Geometry *clusteredWorldGeometry,
     VoxelGrid *sceneWorldVoxelGrid)

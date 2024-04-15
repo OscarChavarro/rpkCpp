@@ -16,6 +16,7 @@ static int globalHeight = 1200;
 static java::ArrayList<Patch *> *globalScenePatches;
 static java::ArrayList<Patch *> *globalLightPatches;
 static java::ArrayList<Geometry *> *globalSceneGeometries;
+static java::ArrayList<Geometry *> *globalSceneClusteredGeometries;
 static Geometry *globalClusteredWorldGeom;
 static Background *globalSceneBackground;
 static RadianceMethod *globalRadianceMethod;
@@ -64,6 +65,7 @@ keypressCallback(unsigned char keyChar, int /*x*/, int /*y*/) {
                 globalSceneBackground,
                 globalScenePatches,
                 globalSceneGeometries,
+                globalSceneClusteredGeometries,
                 globalLightPatches,
                 globalClusteredWorldGeom,
                 globalVoxelGrid);
@@ -124,6 +126,7 @@ executeGlutGui(
     java::ArrayList<Patch *> *scenePatches,
     java::ArrayList<Patch *> *lightPatches,
     java::ArrayList<Geometry *> *sceneGeometries,
+    java::ArrayList<Geometry *> *sceneClusteredGeometries,
     Background *sceneBackground,
     Geometry *clusteredWorldGeom,
     RadianceMethod *radianceMethod,
@@ -133,6 +136,7 @@ executeGlutGui(
     globalScenePatches = scenePatches;
     globalRadianceMethod = radianceMethod;
     globalSceneGeometries = sceneGeometries;
+    globalSceneClusteredGeometries = sceneClusteredGeometries;
     globalClusteredWorldGeom = clusteredWorldGeom;
     globalSceneBackground = sceneBackground;
     globalVoxelGrid = voxelGrid;

@@ -2,7 +2,6 @@
 #include "material/bsdf.h"
 #include "raycasting/common/raytools.h"
 #include "raycasting/raytracing/specularsampler.h"
-#include "scene/scene.h"
 
 bool
 CSpecularSampler::sample(

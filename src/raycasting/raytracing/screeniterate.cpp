@@ -7,7 +7,6 @@
 #include "render/ScreenBuffer.h"
 #include "raycasting/common/Raytracer.h"
 #include "raycasting/raytracing/screeniterate.h"
-#include "scene/scene.h"
 
 // Different functions need to sync with the timer
 #define WAKE_UP_RENDER ((unsigned char)1<<1)

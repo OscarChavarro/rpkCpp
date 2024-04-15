@@ -2,7 +2,6 @@
 #include "scene/Camera.h"
 #include "raycasting/common/raytools.h"
 #include "raycasting/raytracing/pixelsampler.h"
-#include "scene/scene.h"
 
 bool
 CPixelSampler::sample(

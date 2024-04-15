@@ -452,6 +452,7 @@ RandomWalkRadianceMethod::doStep(
     Background *sceneBackground,
     java::ArrayList<Patch *> *scenePatches,
     java::ArrayList<Geometry *> *sceneGeometries,
+    java::ArrayList<Geometry *> *sceneClusteredGeometries,
     java::ArrayList<Patch *> *lightPatches,
     Geometry *clusteredWorldGeometry,
     VoxelGrid *sceneWorldVoxelGrid)

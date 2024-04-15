@@ -4,7 +4,6 @@
 #include "material/bsdf.h"
 #include "raycasting/common/raytools.h"
 #include "raycasting/raytracing/bsdfsampler.h"
-#include "scene/scene.h"
 
 bool
 CBsdfSampler::sample(
