@@ -1,6 +1,6 @@
 #include "common/error.h"
 #include "common/mymath.h"
-#include "common/cubature.h"
+#include "common/numericalAnalysis/cubature.h"
 #include "material/statistics.h"
 #include "GALERKIN/shadowcaching.h"
 #include "GALERKIN/basisgalerkin.h"

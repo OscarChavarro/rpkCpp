@@ -3,7 +3,7 @@
 
 #include "common/linealAlgebra/Vector3D.h"
 #include "common/ColorRgb.h"
-#include "common/cubature.h"
+#include "common/numericalAnalysis/cubature.h"
 #include "SGL/sgl.h"
 #include "GALERKIN/GalerkinElement.h"
 

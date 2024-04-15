@@ -22,12 +22,12 @@ set(MAIN_SRC
     src/common/options.cpp
     src/common/cie.cpp
     src/common/RenderOptions.cpp
-    src/common/cubature.cpp
     src/common/stratification.cpp
     src/common/linealAlgebra/Matrix2x2.cpp
     src/common/linealAlgebra/Vector3D.cpp
     src/common/linealAlgebra/Matrix4x4.cpp
     src/common/linealAlgebra/Vector3Dd.cpp
+    src/common/numericalAnalysis/cubature.cpp
     src/common/dataStructures/CircularList.cpp
     src/common/dataStructures/KDTree.cpp
     src/QMC/halton.cpp

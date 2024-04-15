@@ -8,7 +8,7 @@ Philippe.Bekaert@cs.kuleuven.ac.be
 September, 5 1995
 */
 
-#include "common/cubature.h"
+#include "common/numericalAnalysis/cubature.h"
 
 /**
 quadrilaterals: [-1, 1] ^ 2
