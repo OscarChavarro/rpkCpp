@@ -36,6 +36,8 @@ enum GeometryClassId {
 class Geometry {
   public: // Will become protected
     static int nextGeometryId;
+    static Geometry *excludedGeometry1;
+    static Geometry *excludedGeometry2;
 
     Geometry(
         PatchSet *patchSetData,
@@ -88,10 +90,9 @@ class Geometry {
         float *maximumDistance,
         int hitFlags,
         RayHit *hitStore);
-};
 
-extern Geometry *GLOBAL_geom_excludedGeom1;
-extern Geometry *GLOBAL_geom_excludedGeom2;
+    bool isExcluded();
+};
 
 extern Geometry *geomCreatePatchSet(java::ArrayList<Patch *> *patchList);
 

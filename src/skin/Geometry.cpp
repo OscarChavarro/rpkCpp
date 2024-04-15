@@ -3,8 +3,8 @@
 #include "material/statistics.h"
 #include "skin/Geometry.h"
 
-Geometry *GLOBAL_geom_excludedGeom1 = nullptr;
-Geometry *GLOBAL_geom_excludedGeom2 = nullptr;
+Geometry *Geometry::excludedGeometry1 = nullptr;
+Geometry *Geometry::excludedGeometry2 = nullptr;
 
 int Geometry::nextGeometryId = 0;
 
@@ -182,8 +182,8 @@ pointers). Can be used for avoiding immediate self-intersections
 */
 void
 geomDontIntersect(Geometry *geometry1, Geometry *geometry2) {
-    GLOBAL_geom_excludedGeom1 = geometry1;
-    GLOBAL_geom_excludedGeom2 = geometry2;
+    Geometry::excludedGeometry1 = geometry1;
+    Geometry::excludedGeometry2 = geometry2;
 }
 
 bool
@@ -192,7 +192,7 @@ Geometry::discretizationIntersectPreTest(
     float minimumDistance,
     const float *maximumDistance) const
 {
-    if ( this == GLOBAL_geom_excludedGeom1 || this == GLOBAL_geom_excludedGeom2 ) {
+    if ( this == excludedGeometry1 || this == excludedGeometry2 ) {
         return false;
     }
 
@@ -331,4 +331,9 @@ Geometry::patchListIntersect(
         }
     }
     return hit;
+}
+
+bool
+Geometry::isExcluded() {
+    return this == excludedGeometry1 || this == excludedGeometry2;
 }

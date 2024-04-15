@@ -36,7 +36,7 @@ geomMultiResolutionVisibility(
     GalerkinElement *cluster = (GalerkinElement *) (geometry->radianceData);
     RayHit hitStore;
 
-    if ( geometry == GLOBAL_geom_excludedGeom1 || geometry == GLOBAL_geom_excludedGeom2 ) {
+    if ( geometry->isExcluded() ) {
         return 1.0;
     }
 
