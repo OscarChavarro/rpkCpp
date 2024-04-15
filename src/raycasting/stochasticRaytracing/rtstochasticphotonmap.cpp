@@ -237,5 +237,5 @@ StochasticRaytracingConfiguration::initDependentVars(java::ArrayList<Patch *> *l
     GLOBAL_lightList = new LightList(lightList, backgroundSampling);
 
     // Main init the seed config
-    seedConfig.Init(samplerConfig.maxDepth);
+    seedConfig.init(samplerConfig.maxDepth);
 }

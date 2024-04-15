@@ -12,26 +12,32 @@ CBsdfSampler::sample(
     SimpleRaytracingPathNode *prevNode,
     SimpleRaytracingPathNode *thisNode,
     SimpleRaytracingPathNode *newNode,
-    double x_1,
-    double x_2,
+    double x1,
+    double x2,
     bool doRR,
     BSDF_FLAGS flags)
 {
     double pdfDir;
 
     // Sample direction
-    Vector3D dir = bsdfSample(thisNode->m_useBsdf,
-                              &thisNode->m_hit,
-                              thisNode->m_inBsdf, thisNode->m_outBsdf,
-                              &thisNode->m_inDirF,
-                              doRR, flags, x_1, x_2,
-                              &pdfDir);
+    Vector3D dir = bsdfSample(
+        thisNode->m_useBsdf,
+        &thisNode->m_hit,
+        thisNode->m_inBsdf,
+        thisNode->m_outBsdf,
+        &thisNode->m_inDirF,
+        doRR,
+        flags,
+        x1,
+        x2,
+        &pdfDir);
 
     PNAN(pdfDir);
 
     if ( pdfDir <= EPSILON ) {
+        // No good sample
         return false;
-    } // No good sample
+    }
 
     newNode->accumulatedRussianRouletteFactors = thisNode->accumulatedRussianRouletteFactors;
     if ( doRR ) {
@@ -52,41 +58,38 @@ CBsdfSampler::sample(
     }
 
     // Fill in bsdf of current node
-
-    thisNode->m_bsdfEval = DoBsdfEval(thisNode->m_useBsdf,
-                                      &thisNode->m_hit,
-                                      thisNode->m_inBsdf,
-                                      thisNode->m_outBsdf,
-                                      &thisNode->m_inDirF,
-                                      &newNode->m_inDirT,
-                                      flags,
-                                      &thisNode->m_bsdfComp);
+    thisNode->m_bsdfEval = DoBsdfEval(
+        thisNode->m_useBsdf,
+        &thisNode->m_hit,
+        thisNode->m_inBsdf,
+        thisNode->m_outBsdf,
+        &thisNode->m_inDirF,
+        &newNode->m_inDirT,
+        flags,
+        &thisNode->m_bsdfComp);
 
     // Accumulate scattering components
     thisNode->m_usedComponents = flags;
-    newNode->m_accUsedComponents = static_cast<BSDF_FLAGS>(thisNode->m_accUsedComponents |
-                                                           thisNode->m_usedComponents);
-
-
-    // thisNode->m_bsdfEvalFromNext = thisNode->m_bsdfEvalFromPrev;
-
+    newNode->m_accUsedComponents = static_cast<BSDF_FLAGS>(thisNode->m_accUsedComponents | thisNode->m_usedComponents);
 
     // Fill in probability for previous node
-
     if ( m_computeFromNextPdf && prevNode ) {
-        double cosI = vectorDotProduct(thisNode->m_normal,
-                                       thisNode->m_inDirF);
+        double cosI = vectorDotProduct(thisNode->m_normal, thisNode->m_inDirF);
         double pdfDirI, pdfRR;
 
         // prevpdf : new->this->prev pdf evaluation
         // normal direction is handled by the evalpdf routine
-        /* -- Are the flags usable in both directions ? -- */
-        bsdfEvalPdf(thisNode->m_useBsdf,
-                    &thisNode->m_hit,
-                    thisNode->m_outBsdf, thisNode->m_inBsdf,
-                    &newNode->m_inDirT,
-                    &thisNode->m_inDirF,
-                    flags, &pdfDirI, &pdfRR);
+        // Are the flags usable in both directions?
+        bsdfEvalPdf(
+            thisNode->m_useBsdf,
+            &thisNode->m_hit,
+            thisNode->m_outBsdf,
+            thisNode->m_inBsdf,
+            &newNode->m_inDirT,
+            &thisNode->m_inDirF,
+            flags,
+            &pdfDirI,
+            &pdfRR);
 
 
         PNAN(pdfDirI);
@@ -144,7 +147,8 @@ CBsdfSampler::evalPDF(
 }
 
 
-double CBsdfSampler::EvalPDFPrev(SimpleRaytracingPathNode *prevNode,
+double
+CBsdfSampler::EvalPDFPrev(SimpleRaytracingPathNode *prevNode,
                                  SimpleRaytracingPathNode *thisNode, SimpleRaytracingPathNode */*newNode*/,
                                  BSDF_FLAGS flags,
                                  double *pdf, double *pdfRR) {

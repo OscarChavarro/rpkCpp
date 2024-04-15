@@ -109,7 +109,7 @@ stochasticRaytracerGetScatteredRadiance(
 
                     // Frame coherent & correlated sampling
                     if ( GLOBAL_raytracing_state.doFrameCoherent || GLOBAL_raytracing_state.doCorrelatedSampling ) {
-                        config->seedConfig.Save(newNode.m_depth);
+                        config->seedConfig.save(newNode.m_depth);
                     }
 
                     // Get the incoming radiance
@@ -488,7 +488,7 @@ calcPixel(
             srand48(GLOBAL_raytracing_state.baseSeed);
         }
         drand48(); // (randomize seed, gives new seed for uncorrelated sampling)
-        config->seedConfig.Save(0);
+        config->seedConfig.save(0);
     }
 
     // Calc pixel data
@@ -509,7 +509,7 @@ calcPixel(
 
             // Frame coherent & correlated sampling
             if ( GLOBAL_raytracing_state.doFrameCoherent || GLOBAL_raytracing_state.doCorrelatedSampling ) {
-                config->seedConfig.Save(pixelNode.m_depth);
+                config->seedConfig.save(pixelNode.m_depth);
             }
 
             col = stochasticRaytracerGetRadiance(sceneBackground, &pixelNode, config, config->initialReadout,

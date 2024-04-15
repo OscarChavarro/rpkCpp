@@ -410,7 +410,15 @@ CPhotonMapSampler::gdSample(
                                               glossy_exponent);
 
     // Do real sampling
-    ok = CBsdfSampler::sample(sceneBackground, prevNode, thisNode, newNode, x1, x2, false, flags);
+    ok = CBsdfSampler::sample(
+        sceneBackground,
+        prevNode,
+        thisNode,
+        newNode,
+        x1,
+        x2,
+        false,
+        flags);
 
     // Adjust probabilityDensityFunction
     if ( ok ) {

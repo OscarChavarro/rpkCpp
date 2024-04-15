@@ -71,7 +71,12 @@ CSpecularSampler::sample(
     DetermineRayType(thisNode, newNode, &dir);
 
     // Transfer
-    if ( !sampleTransfer(sceneBackground, thisNode, newNode, &dir, pdfDir) ) {
+    if ( !sampleTransfer(
+            sceneBackground,
+            thisNode,
+            newNode,
+            &dir,
+            pdfDir) ) {
         thisNode->m_rayType = STOPS;
         return false;
     }

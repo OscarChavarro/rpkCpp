@@ -54,24 +54,27 @@ public:
         m_seeds = nullptr;
     }
 
-    void Clear() {
+    void
+    clear() {
         if ( m_seeds ) {
             delete[] m_seeds;
         }
     }
 
-    void Init(int maxDepth) {
-        Clear();
+    void
+    init(int maxDepth) {
+        clear();
         m_seeds = new CSeed[maxDepth];
     }
 
     ~CSeedConfig() {
-        Clear();
+        clear();
     }
 
     // Saves the current seed and generates a new seeds based
     // on the current seed
-    void Save(int depth) {
+    void
+    save(int depth) {
         // Save the seed (supply dummy seed to seed48())
         m_seeds[depth].SetSeed(seed48(m_seeds[depth].GetSeed()));
 

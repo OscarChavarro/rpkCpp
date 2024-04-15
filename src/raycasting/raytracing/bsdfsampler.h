@@ -18,30 +18,32 @@ public:
         SimpleRaytracingPathNode *prevNode,
         SimpleRaytracingPathNode *thisNode,
         SimpleRaytracingPathNode *newNode,
-        double x_1,
-        double x_2,
+        double x1,
+        double x2,
         bool doRR,
         BSDF_FLAGS flags);
 
-    // Use this for a N.E.E. : connecting a light node with an eye node
+    // Use this for N.E.E. : connecting a light node with an eye node
     virtual double
     evalPDF(
-            SimpleRaytracingPathNode *thisNode,
-            SimpleRaytracingPathNode *newNode,
-            BSDF_FLAGS flags,
-            double *pdf = nullptr,
-            double *pdfRR = nullptr);
+        SimpleRaytracingPathNode *thisNode,
+        SimpleRaytracingPathNode *newNode,
+        BSDF_FLAGS flags,
+        double *pdf = nullptr,
+        double *pdfRR = nullptr);
 
     // Use this for calculating f.i. eyeEndNode->Previous pdf(Next).
     // The newNode is calculated, thisNode should be and end node connecting
     // to another sub path end node. prevNode is that other subpath
     // endNode.
-    virtual double EvalPDFPrev(SimpleRaytracingPathNode *prevNode,
-                               SimpleRaytracingPathNode *thisNode,
-                               SimpleRaytracingPathNode *newNode,
-                               BSDF_FLAGS flags,
-                               double *pdf, double *pdfRR);
-
+    virtual double
+    EvalPDFPrev(
+        SimpleRaytracingPathNode *prevNode,
+        SimpleRaytracingPathNode *thisNode,
+        SimpleRaytracingPathNode *newNode,
+        BSDF_FLAGS flags,
+        double *pdf,
+        double *pdfRR);
 };
 
 #endif

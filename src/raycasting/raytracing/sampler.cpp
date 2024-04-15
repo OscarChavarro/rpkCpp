@@ -31,8 +31,12 @@ Sampler::sampleTransfer(
     // Fill in depth
     newNode->m_depth = thisNode->m_depth + 1;
     newNode->m_rayType = STOPS;
-    hit = findRayIntersection(GLOBAL_scene_worldVoxelGrid, &ray, thisNode->m_hit.patch,
-                              newNode->m_inBsdf, &newNode->m_hit);
+    hit = findRayIntersection(
+        GLOBAL_scene_worldVoxelGrid,
+        &ray,
+        thisNode->m_hit.patch,
+        newNode->m_inBsdf,
+        &newNode->m_hit);
 
     if ( !hit ) {
         if ( sceneBackground ) {
