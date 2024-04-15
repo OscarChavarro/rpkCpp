@@ -43,6 +43,7 @@ what if you turn clustering on or off during the calculations?
 */
 int
 doClusteredGatheringIteration(
+    VoxelGrid *sceneWorldVoxelGrid,
     java::ArrayList<Patch*> *scenePatches,
     java::ArrayList<Geometry *> *sceneGeometries,
     Geometry *clusteredWorldGeometry,
@@ -73,7 +74,12 @@ doClusteredGatheringIteration(
     double userErrorThreshold = galerkinState->relLinkErrorThreshold;
 
     // Refines and computes light transport over the refined links
-    refineInteractions(galerkinState->topCluster, galerkinState, sceneGeometries, clusteredWorldGeometry);
+    refineInteractions(
+        sceneWorldVoxelGrid,
+        galerkinState->topCluster,
+        galerkinState,
+        sceneGeometries,
+        clusteredWorldGeometry);
 
     galerkinState->relLinkErrorThreshold = (float)userErrorThreshold;
 

@@ -2,7 +2,6 @@
 
 #include "java/util/ArrayList.txx"
 #include "common/mymath.h"
-#include "scene/scene.h"
 #include "material/phong.h"
 #include "material/splitbsdf.h"
 #include "io/mgf/mgfDefinitions.h"

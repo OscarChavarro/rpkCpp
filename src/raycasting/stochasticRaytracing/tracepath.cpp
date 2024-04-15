@@ -138,6 +138,7 @@ Traces 'numberOfPaths' paths with given birth probabilities
 */
 void
 tracePaths(
+    VoxelGrid *sceneWorldVoxelGrid,
     long numberOfPaths,
     double (*BirthProbability)(Patch *P),
     double (*SurvivalProbability)(Patch *P),
@@ -176,7 +177,7 @@ tracePaths(
         double p = BirthProbability(patch) / globalSumProbabilities;
         long paths_this_patch = (int) std::floor((pCumulative + p) * (double) numberOfPaths + rnd) - path_count;
         for ( int j = 0; j < paths_this_patch; j++ ) {
-            tracePath(GLOBAL_scene_worldVoxelGrid, patch, p, SurvivalProbability, &path);
+            tracePath(sceneWorldVoxelGrid, patch, p, SurvivalProbability, &path);
             ScorePath(&path, numberOfPaths, patchNormalisedBirthProbability);
         }
         pCumulative += p;

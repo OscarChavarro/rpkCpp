@@ -89,6 +89,7 @@ at all levels of the element hierarchy for the patch
 */
 static void
 patchPropagateUnShotRadianceAndPotential(
+    VoxelGrid *sceneWorldVoxelGrid,
     Patch *patch,
     GalerkinState *galerkinState,
     java::ArrayList<Geometry *> *sceneGeometries,
@@ -100,14 +101,14 @@ patchPropagateUnShotRadianceAndPotential(
         if ( galerkinState->clustered ) {
             createInitialLinkWithTopCluster(topLevelElement, SOURCE, galerkinState);
         } else {
-            createInitialLinks(topLevelElement, SOURCE, galerkinState, sceneGeometries);
+            createInitialLinks(sceneWorldVoxelGrid, topLevelElement, SOURCE, galerkinState, sceneGeometries);
         }
         topLevelElement->flags |= INTERACTIONS_CREATED_MASK;
     }
 
     // Recursively refines the interactions of the shooting patch
     // and computes radiance and potential transport
-    refineInteractions(topLevelElement, galerkinState, sceneGeometries, clusteredWorldGeometry);
+    refineInteractions(sceneWorldVoxelGrid, topLevelElement, galerkinState, sceneGeometries, clusteredWorldGeometry);
 
     // Clear the un-shot radiance at all levels
     clearUnShotRadianceAndPotential(topLevelElement);
@@ -169,6 +170,7 @@ patchUpdateRadianceAndPotential(Patch *patch, GalerkinState *galerkinState) {
 
 static void
 doPropagate(
+    VoxelGrid *sceneWorldVoxelGrid,
     Patch *shooting_patch,
     java::ArrayList<Patch *> *scenePatches,
     java::ArrayList<Geometry *> *sceneGeometries,
@@ -177,7 +179,12 @@ doPropagate(
     GalerkinRadianceMethod *galerkinRadianceMethod)
 {
     // Propagate the un-shot power of the shooting patch into the environment
-    patchPropagateUnShotRadianceAndPotential(shooting_patch, galerkinState, sceneGeometries, clusteredWorldGeometry);
+    patchPropagateUnShotRadianceAndPotential(
+        sceneWorldVoxelGrid,
+        shooting_patch,
+        galerkinState,
+        sceneGeometries,
+        clusteredWorldGeometry);
 
     // Recompute the colors of all patches, not only the patches that received
     // radiance from the shooting patch, since the ambient term has also changed
@@ -202,6 +209,7 @@ doPropagate(
 
 static int
 propagateRadiance(
+    VoxelGrid *sceneWorldVoxelGrid,
     java::ArrayList<Patch *> *scenePatches,
     java::ArrayList<Geometry *> *sceneGeometries,
     Geometry *clusteredWorldGeometry,
@@ -220,7 +228,14 @@ propagateRadiance(
     openGlRenderSetColor(&GLOBAL_material_yellow);
     openGlRenderPatchOutline(shootingPatch);
 
-    doPropagate(shootingPatch, scenePatches, sceneGeometries, clusteredWorldGeometry, galerkinState, galerkinRadianceMethod);
+    doPropagate(
+        sceneWorldVoxelGrid,
+        shootingPatch,
+        scenePatches,
+        sceneGeometries,
+        clusteredWorldGeometry,
+        galerkinState,
+        galerkinRadianceMethod);
 
     return false;
 }
@@ -269,6 +284,7 @@ choosePotentialShootingPatch(java::ArrayList<Patch *> *scenePatches) {
 
 static void
 propagatePotential(
+    VoxelGrid *sceneWorldVoxelGrid,
     java::ArrayList<Patch *> *scenePatches,
     java::ArrayList<Geometry *> *sceneGeometries,
     Geometry *clusteredWorldGeometry,
@@ -281,7 +297,14 @@ propagatePotential(
     if ( shootingPatch ) {
         openGlRenderSetColor(&GLOBAL_material_white);
         openGlRenderPatchOutline(shootingPatch);
-        doPropagate(shootingPatch, scenePatches, sceneGeometries, clusteredWorldGeometry, galerkinState, galerkinRadianceMethod);
+        doPropagate(
+            sceneWorldVoxelGrid,
+            shootingPatch,
+            scenePatches,
+            sceneGeometries,
+            clusteredWorldGeometry,
+            galerkinState,
+            galerkinRadianceMethod);
     } else {
         fprintf(stderr, "No patches with un-shot potential??\n");
     }
@@ -309,6 +332,7 @@ One step of the progressive refinement radiosity algorithm
 */
 static int
 reallyDoShootingStep(
+    VoxelGrid *sceneWorldVoxelGrid,
     java::ArrayList<Patch *> *scenePatches,
     java::ArrayList<Geometry *> *sceneGeometries,
     Geometry *clusteredWorldGeometry,
@@ -329,9 +353,21 @@ reallyDoShootingStep(
                 clusterUpdatePotential(galerkinState->topCluster);
             }
         }
-        propagatePotential(scenePatches, sceneGeometries, clusteredWorldGeometry, galerkinState, galerkinRadianceMethod);
+        propagatePotential(
+            sceneWorldVoxelGrid,
+            scenePatches,
+            sceneGeometries,
+            clusteredWorldGeometry,
+            galerkinState,
+            galerkinRadianceMethod);
     }
-    return propagateRadiance(scenePatches, sceneGeometries, clusteredWorldGeometry, galerkinState, galerkinRadianceMethod);
+    return propagateRadiance(
+        sceneWorldVoxelGrid,
+        scenePatches,
+        sceneGeometries,
+        clusteredWorldGeometry,
+        galerkinState,
+        galerkinRadianceMethod);
 }
 
 /**
@@ -339,11 +375,18 @@ Returns true when converged and false if not
 */
 int
 doShootingStep(
+    VoxelGrid *sceneWorldVoxelGrid,
     java::ArrayList<Patch *> *scenePatches,
     java::ArrayList<Geometry *> *sceneGeometries,
     Geometry *clusteredWorldGeometry,
     GalerkinState *galerkinState,
     GalerkinRadianceMethod *galerkinRadianceMethod)
 {
-    return reallyDoShootingStep(scenePatches, sceneGeometries, clusteredWorldGeometry, galerkinState, galerkinRadianceMethod);
+    return reallyDoShootingStep(
+        sceneWorldVoxelGrid,
+        scenePatches,
+        sceneGeometries,
+        clusteredWorldGeometry,
+        galerkinState,
+        galerkinRadianceMethod);
 }

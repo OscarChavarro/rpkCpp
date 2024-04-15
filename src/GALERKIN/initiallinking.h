@@ -10,6 +10,7 @@ enum GalerkinRole {
 
 extern void
 createInitialLinks(
+    VoxelGrid *sceneWorldVoxelGrid,
     GalerkinElement *top,
     GalerkinRole role,
     GalerkinState *galerkinState,

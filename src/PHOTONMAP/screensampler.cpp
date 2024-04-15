@@ -3,7 +3,6 @@
 #include "PHOTONMAP/screensampler.h"
 #include "raycasting/common/raytools.h"
 #include "scene/Camera.h"
-#include "scene/scene.h"
 
 /**
 newNode gets filled, others may change

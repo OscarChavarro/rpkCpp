@@ -10,6 +10,7 @@ All kind of form factor computations
 
 extern int facing(Patch *P, Patch *Q);
 extern unsigned areaToAreaFormFactor(
+    VoxelGrid *sceneWorldVoxelGrid,
     Interaction *link,
     java::ArrayList<Geometry *> *geometryShadowList,
     bool isSceneGeometry,

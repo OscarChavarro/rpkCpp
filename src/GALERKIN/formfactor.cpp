@@ -2,7 +2,6 @@
 #include "common/mymath.h"
 #include "common/cubature.h"
 #include "material/statistics.h"
-#include "scene/scene.h"
 #include "GALERKIN/shadowcaching.h"
 #include "GALERKIN/basisgalerkin.h"
 #include "GALERKIN/mrvisibility.h"
@@ -117,6 +116,7 @@ To be used when integrating over the surface of the source element
 */
 static double
 pointKernelEval(
+    VoxelGrid *sceneWorldVoxelGrid,
     Vector3D *x,
     Vector3D *y,
     GalerkinElement *rcv,
@@ -180,7 +180,7 @@ pointKernelEval(
         if ( !shadowTestDiscretization(
             &ray,
             geometryShadowList,
-            GLOBAL_scene_worldVoxelGrid,
+            sceneWorldVoxelGrid,
             distance,
             &hitStore,
             isSceneGeometry,
@@ -442,6 +442,7 @@ sept 1995.
 */
 unsigned
 areaToAreaFormFactor(
+    VoxelGrid *sceneWorldVoxelGrid,
     Interaction *link,
     java::ArrayList<Geometry *> *geometryShadowList,
     bool isSceneGeometry,
@@ -548,7 +549,17 @@ areaToAreaFormFactor(
         for ( k = 0; k < crrcv->numberOfNodes; k++ ) {
             double f = 0.0;
             for ( l = 0; l < crsrc->numberOfNodes; l++ ) {
-                kval = pointKernelEval(&x[k], &y[l], rcv, src, geometryShadowList, &vis, isSceneGeometry, isClusteredGeometry, galerkinState);
+                kval = pointKernelEval(
+                    sceneWorldVoxelGrid,
+                    &x[k],
+                    &y[l],
+                    rcv,
+                    src,
+                    geometryShadowList,
+                    &vis,
+                    isSceneGeometry,
+                    isClusteredGeometry,
+                    galerkinState);
                 Gxy[k][l] = kval * vis;
                 f += crsrc->w[l] * kval;
 

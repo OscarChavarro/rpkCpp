@@ -55,11 +55,15 @@ interactions with light sources are created. See Holschuch, EGRW '94
 (Darmstadt - EuroGraphics Rendering Workshop).
 */
 static void
-patchLazyCreateInteractions(Patch *patch, GalerkinState *galerkinState, java::ArrayList<Geometry *> *sceneGeometries) {
+patchLazyCreateInteractions(
+    VoxelGrid *sceneWorldVoxelGrid,
+    Patch *patch,
+    GalerkinState *galerkinState,
+    java::ArrayList<Geometry *> *sceneGeometries) {
     GalerkinElement *topLevelElement = galerkinGetElement(patch);
 
     if ( !topLevelElement->radiance[0].isBlack() && !(topLevelElement->flags & INTERACTIONS_CREATED_MASK) ) {
-        createInitialLinks(topLevelElement, SOURCE, galerkinState, sceneGeometries);
+        createInitialLinks(sceneWorldVoxelGrid, topLevelElement, SOURCE, galerkinState, sceneGeometries);
         topLevelElement->flags |= INTERACTIONS_CREATED_MASK;
     }
 }
@@ -83,6 +87,7 @@ Gauss-Seidel iterations
 */
 static void
 patchGather(
+    VoxelGrid *sceneWorldVoxelGrid,
     Patch *patch,
     GalerkinState *galerkinState,
     java::ArrayList<Geometry *> *sceneGeometries,
@@ -103,13 +108,13 @@ patchGather(
     if ( galerkinState->galerkinIterationMethod == GAUSS_SEIDEL || !galerkinState->lazyLinking ||
          galerkinState->importanceDriven ) {
         if ( !(topLevelElement->flags & INTERACTIONS_CREATED_MASK) ) {
-            createInitialLinks(topLevelElement, RECEIVER, galerkinState, sceneGeometries);
+            createInitialLinks(sceneWorldVoxelGrid, topLevelElement, RECEIVER, galerkinState, sceneGeometries);
             topLevelElement->flags |= INTERACTIONS_CREATED_MASK;
         }
     }
 
     // Refine the interactions and compute light transport at the leaves
-    refineInteractions(topLevelElement, galerkinState, sceneGeometries, clusteredWorldGeometry);
+    refineInteractions(sceneWorldVoxelGrid, topLevelElement, galerkinState, sceneGeometries, clusteredWorldGeometry);
 
     // Immediately convert received radiance into radiance, make the representation
     // consistent and recompute the color of the patch when doing Gauss-Seidel.
@@ -132,6 +137,7 @@ have converged and false if not
 */
 int
 galerkinRadiosityDoGatheringIteration(
+    VoxelGrid *sceneWorldVoxelGrid,
     java::ArrayList<Patch *> *scenePatches,
     java::ArrayList<Geometry *> *sceneGeometries,
     Geometry *clusteredWorldGeometry,
@@ -148,7 +154,7 @@ galerkinRadiosityDoGatheringIteration(
     if ( galerkinState->galerkinIterationMethod != GAUSS_SEIDEL && galerkinState->lazyLinking &&
          !galerkinState->importanceDriven ) {
         for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
-            patchLazyCreateInteractions(scenePatches->get(i), galerkinState, sceneGeometries);
+            patchLazyCreateInteractions(sceneWorldVoxelGrid, scenePatches->get(i), galerkinState, sceneGeometries);
         }
     }
 
@@ -157,7 +163,7 @@ galerkinRadiosityDoGatheringIteration(
 
     // One iteration = gather to all patches
     for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
-        patchGather(scenePatches->get(i), galerkinState, sceneGeometries, clusteredWorldGeometry);
+        patchGather(sceneWorldVoxelGrid, scenePatches->get(i), galerkinState, sceneGeometries, clusteredWorldGeometry);
     }
 
     // Update the radiosity after gathering to all patches with Jacobi, immediately

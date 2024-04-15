@@ -6,6 +6,7 @@
 
 extern void
 refineInteractions(
+    VoxelGrid *sceneWorldVoxelGrid,
     GalerkinElement *parentElement,
     GalerkinState *state,
     java::ArrayList<Geometry *> *sceneGeometries,

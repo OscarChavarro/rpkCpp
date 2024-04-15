@@ -13,6 +13,7 @@ gatheringPushPullPotential(
 
 extern int
 galerkinRadiosityDoGatheringIteration(
+    VoxelGrid *sceneWorldVoxelGrid,
     java::ArrayList<Patch *> *scenePatches,
     java::ArrayList<Geometry *> *sceneGeometries,
     Geometry *clusteredWorldGeometry,
@@ -20,6 +21,7 @@ galerkinRadiosityDoGatheringIteration(
 
 extern int
 doClusteredGatheringIteration(
+    VoxelGrid *sceneWorldVoxelGrid,
     java::ArrayList<Patch *> *scenePatches,
     java::ArrayList<Geometry *> *sceneGeometries,
     Geometry *clusteredWorldGeometry,

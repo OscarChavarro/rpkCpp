@@ -25,7 +25,6 @@ Galerkin radiosity, with the following variants:
 #include "GALERKIN/gathering.h"
 #include "GALERKIN/shooting.h"
 #include "GALERKIN/GalerkinRadianceMethod.h"
-#include "scene/scene.h"
 
 #define STRING_LENGTH 2000
 
@@ -408,13 +407,29 @@ GalerkinRadianceMethod::doStep(
         case JACOBI:
         case GAUSS_SEIDEL:
             if ( galerkinState.clustered ) {
-                done = doClusteredGatheringIteration(scenePatches, sceneGeometries, clusteredWorldGeometry, &galerkinState);
+                done = doClusteredGatheringIteration(
+                    sceneWorldVoxelGrid,
+                    scenePatches,
+                    sceneGeometries,
+                    clusteredWorldGeometry,
+                    &galerkinState);
             } else {
-                done = galerkinRadiosityDoGatheringIteration(scenePatches, sceneGeometries, clusteredWorldGeometry, &galerkinState);
+                done = galerkinRadiosityDoGatheringIteration(
+                    sceneWorldVoxelGrid,
+                    scenePatches,
+                    sceneGeometries,
+                    clusteredWorldGeometry,
+                    &galerkinState);
             }
             break;
         case SOUTH_WELL:
-            done = doShootingStep(scenePatches, sceneGeometries, clusteredWorldGeometry, &galerkinState, this);
+            done = doShootingStep(
+                sceneWorldVoxelGrid,
+                scenePatches,
+                sceneGeometries,
+                clusteredWorldGeometry,
+                &galerkinState,
+                this);
             break;
         default:
             logFatal(2, "doGalerkinOneStep", "Invalid iteration method %d\n", galerkinState.galerkinIterationMethod);

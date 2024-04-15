@@ -15,7 +15,11 @@ static BoundingBox globalPatchBoundingBox; // Bounding box for that patch
 static java::ArrayList<Geometry *> *globalCandidateList; // Candidate list for shaft culling
 
 static void
-createInitialLink(Patch *patch, GalerkinState *galerkinState, java::ArrayList<Geometry *> *sceneGeometries) {
+createInitialLink(
+    VoxelGrid *sceneWorldVoxelGrid,
+    Patch *patch,
+    GalerkinState *galerkinState,
+    java::ArrayList<Geometry *> *sceneGeometries) {
     if ( !facing(patch, globalPatch) ) {
         return;
     }
@@ -85,7 +89,7 @@ createInitialLink(Patch *patch, GalerkinState *galerkinState, java::ArrayList<Ge
     bool isSceneGeometry = (globalCandidateList == sceneGeometries);
     bool isClusteredGeometry = (globalCandidateList == GLOBAL_scene_clusteredGeometries);
     java::ArrayList<Geometry *> *geometryListReferences = globalCandidateList;
-    areaToAreaFormFactor(&link, geometryListReferences, isSceneGeometry, isClusteredGeometry, galerkinState);
+    areaToAreaFormFactor(sceneWorldVoxelGrid, &link, geometryListReferences, isSceneGeometry, isClusteredGeometry, galerkinState);
 
     if ( galerkinState->exactVisibility || galerkinState->shaftCullMode == ALWAYS_DO_SHAFT_CULLING ) {
         if ( oldCandidateList != globalCandidateList ) {
@@ -112,7 +116,11 @@ createInitialLink(Patch *patch, GalerkinState *galerkinState, java::ArrayList<Ge
 Yes ... we exploit the hierarchical structure of the scene during initial linking
 */
 static void
-geometryLink(Geometry *geometry, GalerkinState *galerkinState, java::ArrayList<Geometry *> *sceneGeometries) {
+geometryLink(
+    VoxelGrid *sceneWorldVoxelGrid,
+    Geometry *geometry,
+    GalerkinState *galerkinState,
+    java::ArrayList<Geometry *> *sceneGeometries) {
     Shaft shaft;
     java::ArrayList<Geometry *> *oldCandidateList = globalCandidateList;
 
@@ -137,13 +145,13 @@ geometryLink(Geometry *geometry, GalerkinState *galerkinState, java::ArrayList<G
     if ( geometry->isCompound() ) {
         java::ArrayList<Geometry *> *geometryList = geomPrimListCopy(geometry);
         for ( int i = 0; geometryList != nullptr && i < geometryList->size(); i++ ) {
-            geometryLink(geometryList->get(i), galerkinState, sceneGeometries);
+            geometryLink(sceneWorldVoxelGrid, geometryList->get(i), galerkinState, sceneGeometries);
         }
         delete geometryList;
     } else {
         java::ArrayList<Patch *> *patchList = geomPatchArrayListReference(geometry);
         for ( int i = 0; patchList != nullptr && i < patchList->size(); i++ ) {
-            createInitialLink(patchList->get(i), galerkinState, sceneGeometries);
+            createInitialLink(sceneWorldVoxelGrid, patchList->get(i), galerkinState, sceneGeometries);
         }
     }
 
@@ -161,6 +169,7 @@ source element when doing shooting
 */
 void
 createInitialLinks(
+    VoxelGrid *sceneWorldVoxelGrid,
     GalerkinElement *top,
     GalerkinRole role,
     GalerkinState *galerkinState,
@@ -177,7 +186,7 @@ createInitialLinks(
     globalCandidateList = GLOBAL_scene_clusteredGeometries;
 
     for ( int i = 0; sceneGeometries != nullptr && i < sceneGeometries->size(); i++ ) {
-        geometryLink(sceneGeometries->get(i), galerkinState, sceneGeometries);
+        geometryLink(sceneWorldVoxelGrid, sceneGeometries->get(i), galerkinState, sceneGeometries);
     }
 }
 

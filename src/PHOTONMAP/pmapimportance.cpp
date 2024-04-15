@@ -7,7 +7,6 @@ Importon tracing
 #include "PHOTONMAP/pmapoptions.h"
 #include "PHOTONMAP/pmapconfig.h"
 #include "PHOTONMAP/screensampler.h"
-#include "scene/scene.h"
 
 /**
 Store a importon/poton. Some acceptance tests are performed first

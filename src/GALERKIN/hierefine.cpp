@@ -19,6 +19,7 @@ Shaft culling stuff for hierarchical refinement
 
 static bool
 refineRecursive(
+    VoxelGrid *sceneWorldVoxelGrid,
     java::ArrayList<Geometry *> **candidatesList,
     java::ArrayList<Geometry *> *sceneGeometries,
     Geometry *clusteredWorldGeometry,
@@ -436,6 +437,7 @@ and true is returned. If the elements don't interact, false is returned
 */
 static int
 hierarchicRefinementCreateSubdivisionLink(
+    VoxelGrid *sceneWorldVoxelGrid,
     java::ArrayList<Geometry *> *candidatesList,
     java::ArrayList<Geometry *> *sceneGeometries,
     GalerkinElement *rcv,
@@ -461,7 +463,7 @@ hierarchicRefinementCreateSubdivisionLink(
 
     bool isSceneGeometry = (candidatesList == sceneGeometries);
     bool isClusteredGeometry = (candidatesList == GLOBAL_scene_clusteredGeometries);
-    areaToAreaFormFactor(link, candidatesList, isSceneGeometry, isClusteredGeometry, galerkinState);
+    areaToAreaFormFactor(sceneWorldVoxelGrid, link, candidatesList, isSceneGeometry, isClusteredGeometry, galerkinState);
 
     return link->visibility != 0;
 }
@@ -490,6 +492,7 @@ lower level sub-interactions
 */
 static void
 hierarchicRefinementRegularSubdivideSource(
+    VoxelGrid *sceneWorldVoxelGrid,
     java::ArrayList<Geometry *> **candidatesList,
     java::ArrayList<Geometry *> *sceneGeometries,
     Geometry *clusteredWorldGeometry,
@@ -499,17 +502,24 @@ hierarchicRefinementRegularSubdivideSource(
 {
     java::ArrayList<Geometry *> *backup = *candidatesList;
     hierarchicRefinementCull(candidatesList, clusteredWorldGeometry, link, isClusteredGeometry, galerkinState);
-    GalerkinElement *src = link->sourceElement;
-    GalerkinElement *rcv = link->receiverElement;
+    GalerkinElement *sourceElement = link->sourceElement;
+    GalerkinElement *receiverElement = link->receiverElement;
 
-    src->regularSubDivide();
+    sourceElement->regularSubDivide();
     for ( int i = 0; i < 4; i++ ) {
-        GalerkinElement *child = (GalerkinElement *)src->regularSubElements[i];
+        GalerkinElement *child = (GalerkinElement *)sourceElement->regularSubElements[i];
         Interaction subInteraction{};
         subInteraction.K = new float[MAX_BASIS_SIZE * MAX_BASIS_SIZE];
 
-        if ( hierarchicRefinementCreateSubdivisionLink(*candidatesList, sceneGeometries, rcv, child, &subInteraction, galerkinState) ) {
-            if ( !refineRecursive(candidatesList, sceneGeometries, clusteredWorldGeometry, &subInteraction, galerkinState) ) {
+        if ( hierarchicRefinementCreateSubdivisionLink(
+                sceneWorldVoxelGrid,
+                *candidatesList,
+                sceneGeometries,
+                receiverElement,
+                child,
+                &subInteraction,
+                galerkinState) ) {
+            if ( !refineRecursive(sceneWorldVoxelGrid, candidatesList, sceneGeometries, clusteredWorldGeometry, &subInteraction, galerkinState) ) {
                 hierarchicRefinementStoreInteraction(&subInteraction, galerkinState);
             }
         }
@@ -524,6 +534,7 @@ Same, but subdivides the receiver element
 */
 static void
 hierarchicRefinementRegularSubdivideReceiver(
+    VoxelGrid *sceneWorldVoxelGrid,
     java::ArrayList<Geometry *> **candidatesList,
     java::ArrayList<Geometry *> *sceneGeometries,
     Geometry *clusteredWorldGeometry,
@@ -533,17 +544,23 @@ hierarchicRefinementRegularSubdivideReceiver(
 {
     java::ArrayList<Geometry *> *backup = *candidatesList;
     hierarchicRefinementCull(candidatesList, clusteredWorldGeometry, link, isClusteredGeometry, galerkinState);
-    GalerkinElement *src = link->sourceElement;
-    GalerkinElement *rcv = link->receiverElement;
+    GalerkinElement *sourceElement = link->sourceElement;
+    GalerkinElement *receiverElement = link->receiverElement;
 
-    rcv->regularSubDivide();
+    receiverElement->regularSubDivide();
     for ( int i = 0; i < 4; i++ ) {
         Interaction subInteraction{};
-        GalerkinElement *child = (GalerkinElement *)rcv->regularSubElements[i];
+        GalerkinElement *child = (GalerkinElement *)receiverElement->regularSubElements[i];
         subInteraction.K = new float[MAX_BASIS_SIZE * MAX_BASIS_SIZE];
 
-        if ( hierarchicRefinementCreateSubdivisionLink(*candidatesList, sceneGeometries, child, src, &subInteraction, galerkinState) ) {
-            if ( !refineRecursive(candidatesList, sceneGeometries, clusteredWorldGeometry, &subInteraction, galerkinState) ) {
+        if ( hierarchicRefinementCreateSubdivisionLink(
+                sceneWorldVoxelGrid,
+                *candidatesList,
+                sceneGeometries,
+                child, sourceElement,
+                &subInteraction,
+                galerkinState) ) {
+            if ( !refineRecursive(sceneWorldVoxelGrid, candidatesList, sceneGeometries, clusteredWorldGeometry, &subInteraction, galerkinState) ) {
                 hierarchicRefinementStoreInteraction(&subInteraction, galerkinState);
             }
         }
@@ -559,6 +576,7 @@ which is a cluster
 */
 static void
 hierarchicRefinementSubdivideSourceCluster(
+    VoxelGrid *sceneWorldVoxelGrid,
     java::ArrayList<Geometry *> **candidatesList,
     java::ArrayList<Geometry *> *sceneGeometries,
     Geometry *clusteredWorldGeometry,
@@ -568,23 +586,31 @@ hierarchicRefinementSubdivideSourceCluster(
 {
     java::ArrayList<Geometry *> *backup = *candidatesList;
     hierarchicRefinementCull(candidatesList, clusteredWorldGeometry, link, isClusteredGeometry, galerkinState);
-    GalerkinElement *src = link->sourceElement, *rcv = link->receiverElement;
+    GalerkinElement *sourceElement = link->sourceElement;
+    GalerkinElement *receiverElement = link->receiverElement;
 
-    for ( int i = 0; src->irregularSubElements != nullptr && i < src->irregularSubElements->size(); i++ ) {
-        GalerkinElement *childElement = (GalerkinElement *)src->irregularSubElements->get(i);
+    for ( int i = 0; sourceElement->irregularSubElements != nullptr && i < sourceElement->irregularSubElements->size(); i++ ) {
+        GalerkinElement *childElement = (GalerkinElement *)sourceElement->irregularSubElements->get(i);
         Interaction subInteraction{};
         subInteraction.K = new float[MAX_BASIS_SIZE * MAX_BASIS_SIZE];
 
         if ( !childElement->isCluster() ) {
             Patch *thePatch = childElement->patch;
-            if ( (rcv->isCluster() && getBoundingBox(rcv->geometry).behindPlane(&thePatch->normal, thePatch->planeConstant)) ||
-                (!rcv->isCluster() && !facing(rcv->patch, thePatch)) ) {
+            if ((receiverElement->isCluster() && getBoundingBox(receiverElement->geometry).behindPlane(&thePatch->normal, thePatch->planeConstant)) ||
+                (!receiverElement->isCluster() && !facing(receiverElement->patch, thePatch)) ) {
                 continue;
             }
         }
 
-        if ( hierarchicRefinementCreateSubdivisionLink(*candidatesList, sceneGeometries, rcv, childElement, &subInteraction, galerkinState) ) {
-            if ( !refineRecursive(candidatesList, sceneGeometries, clusteredWorldGeometry, &subInteraction, galerkinState) ) {
+        if ( hierarchicRefinementCreateSubdivisionLink(
+                sceneWorldVoxelGrid,
+                *candidatesList,
+                sceneGeometries,
+                receiverElement,
+                childElement,
+                &subInteraction,
+                galerkinState) ) {
+            if ( !refineRecursive(sceneWorldVoxelGrid, candidatesList, sceneGeometries, clusteredWorldGeometry, &subInteraction, galerkinState) ) {
                 hierarchicRefinementStoreInteraction(&subInteraction, galerkinState);
             }
         }
@@ -600,6 +626,7 @@ which is a cluster
 */
 static void
 hierarchicRefinementSubdivideReceiverCluster(
+    VoxelGrid *sceneWorldVoxelGrid,
     java::ArrayList<Geometry *> **candidatesList,
     java::ArrayList<Geometry *> *sceneGeometries,
     Geometry *clusteredWorldGeometry,
@@ -609,24 +636,31 @@ hierarchicRefinementSubdivideReceiverCluster(
 {
     java::ArrayList<Geometry *> *backup = *candidatesList;
     hierarchicRefinementCull(candidatesList, clusteredWorldGeometry, link, isClusteredGeometry, galerkinState);
-    GalerkinElement *src = link->sourceElement;
-    GalerkinElement *rcv = link->receiverElement;
+    GalerkinElement *sourceElement = link->sourceElement;
+    GalerkinElement *receiverElement = link->receiverElement;
 
-    for ( int i = 0; rcv->irregularSubElements != nullptr && i < rcv->irregularSubElements->size(); i++ ) {
-        GalerkinElement *child = (GalerkinElement *)rcv->irregularSubElements->get(i);
+    for ( int i = 0; receiverElement->irregularSubElements != nullptr && i < receiverElement->irregularSubElements->size(); i++ ) {
+        GalerkinElement *child = (GalerkinElement *)receiverElement->irregularSubElements->get(i);
         Interaction subInteraction{};
         subInteraction.K = new float [MAX_BASIS_SIZE * MAX_BASIS_SIZE];
 
         if ( !child->isCluster() ) {
             Patch *the_patch = child->patch;
-            if ( (src->isCluster() && getBoundingBox(src->geometry).behindPlane(&the_patch->normal, the_patch->planeConstant)) ||
-                 (!src->isCluster() && !facing(src->patch, the_patch)) ) {
+            if ((sourceElement->isCluster() && getBoundingBox(sourceElement->geometry).behindPlane(&the_patch->normal, the_patch->planeConstant)) ||
+                (!sourceElement->isCluster() && !facing(sourceElement->patch, the_patch)) ) {
                 continue;
             }
         }
 
-        if ( hierarchicRefinementCreateSubdivisionLink(*candidatesList, sceneGeometries, child, src, &subInteraction, galerkinState) ) {
-            if ( !refineRecursive(candidatesList, sceneGeometries, clusteredWorldGeometry, &subInteraction, galerkinState) ) {
+        if ( hierarchicRefinementCreateSubdivisionLink(
+                sceneWorldVoxelGrid,
+                *candidatesList,
+                sceneGeometries,
+                child,
+                sourceElement,
+                &subInteraction,
+                galerkinState) ) {
+            if ( !refineRecursive(sceneWorldVoxelGrid, candidatesList, sceneGeometries, clusteredWorldGeometry, &subInteraction, galerkinState) ) {
                 hierarchicRefinementStoreInteraction(&subInteraction, galerkinState);
             }
         }
@@ -644,6 +678,7 @@ does not need to be refined, light transport over the interaction is computed
 */
 static bool
 refineRecursive(
+    VoxelGrid *sceneWorldVoxelGrid,
     java::ArrayList<Geometry *> **candidatesList,
     java::ArrayList<Geometry *> *sceneGeometries,
     Geometry *clusteredWorldGeometry,
@@ -659,19 +694,19 @@ refineRecursive(
             refined = false;
             break;
         case REGULAR_SUBDIVIDE_SOURCE:
-            hierarchicRefinementRegularSubdivideSource(candidatesList, sceneGeometries, clusteredWorldGeometry, link, isClusteredGeometry, state);
+            hierarchicRefinementRegularSubdivideSource(sceneWorldVoxelGrid, candidatesList, sceneGeometries, clusteredWorldGeometry, link, isClusteredGeometry, state);
             refined = true;
             break;
         case REGULAR_SUBDIVIDE_RECEIVER:
-            hierarchicRefinementRegularSubdivideReceiver(candidatesList, sceneGeometries, clusteredWorldGeometry, link, isClusteredGeometry, state);
+            hierarchicRefinementRegularSubdivideReceiver(sceneWorldVoxelGrid, candidatesList, sceneGeometries, clusteredWorldGeometry, link, isClusteredGeometry, state);
             refined = true;
             break;
         case SUBDIVIDE_SOURCE_CLUSTER:
-            hierarchicRefinementSubdivideSourceCluster(candidatesList, sceneGeometries, clusteredWorldGeometry, link, isClusteredGeometry, state);
+            hierarchicRefinementSubdivideSourceCluster(sceneWorldVoxelGrid, candidatesList, sceneGeometries, clusteredWorldGeometry, link, isClusteredGeometry, state);
             refined = true;
             break;
         case SUBDIVIDE_RECEIVER_CLUSTER:
-            hierarchicRefinementSubdivideReceiverCluster(candidatesList, sceneGeometries, clusteredWorldGeometry, link, isClusteredGeometry, state);
+            hierarchicRefinementSubdivideReceiverCluster(sceneWorldVoxelGrid, candidatesList, sceneGeometries, clusteredWorldGeometry, link, isClusteredGeometry, state);
             refined = true;
             break;
         default:
@@ -686,6 +721,7 @@ Candidate occluder list for a pair of patches, note it is changed inside the met
 */
 static bool
 refineInteraction(
+    VoxelGrid *sceneWorldVoxelGrid,
     Interaction *link,
     GalerkinState *state,
     java::ArrayList<Geometry *> *sceneGeometries,
@@ -698,7 +734,7 @@ refineInteraction(
     }
 
     // We know for sure that there is full visibility
-    return refineRecursive(&candidateOccluderList, sceneGeometries, clusteredWorldGeometry, link, state);
+    return refineRecursive(sceneWorldVoxelGrid, &candidateOccluderList, sceneGeometries, clusteredWorldGeometry, link, state);
 }
 
 static void
@@ -720,6 +756,7 @@ toplevel element
 */
 void
 refineInteractions(
+    VoxelGrid *sceneWorldVoxelGrid,
     GalerkinElement *parentElement,
     GalerkinState *state,
     java::ArrayList<Geometry *> *sceneGeometries,
@@ -729,13 +766,25 @@ refineInteractions(
     // beginning at the lowest levels in the hierarchy and working upwards to
     // prevent already refined interactions from being tested for refinement
     // again
-    for ( int i = 0; parentElement->irregularSubElements != nullptr && i < parentElement->irregularSubElements->size(); i++ ) {
-        refineInteractions((GalerkinElement *)parentElement->irregularSubElements->get(i), state, sceneGeometries, clusteredWorldGeometry);
+    for ( int i = 0;
+          parentElement->irregularSubElements != nullptr && i < parentElement->irregularSubElements->size();
+          i++ ) {
+        refineInteractions(
+            sceneWorldVoxelGrid,
+            (GalerkinElement *)parentElement->irregularSubElements->get(i),
+            state,
+            sceneGeometries,
+            clusteredWorldGeometry);
     }
 
     if ( parentElement->regularSubElements != nullptr ) {
         for ( int i = 0; i < 4; i++ ) {
-            refineInteractions((GalerkinElement *)parentElement->regularSubElements[i], state, sceneGeometries, clusteredWorldGeometry);
+            refineInteractions(
+                sceneWorldVoxelGrid,
+                (GalerkinElement *)parentElement->regularSubElements[i],
+                state,
+                sceneGeometries,
+                clusteredWorldGeometry);
         }
     }
 
@@ -744,7 +793,7 @@ refineInteractions(
 
     for ( int i = 0; parentElement->interactions != nullptr && i < parentElement->interactions->size(); i++ ) {
         Interaction *interaction = parentElement->interactions->get(i);
-        if ( refineInteraction(interaction, state, sceneGeometries, clusteredWorldGeometry) ) {
+        if ( refineInteraction(sceneWorldVoxelGrid, interaction, state, sceneGeometries, clusteredWorldGeometry) ) {
             interactionsToRemove->add(interaction);
         }
     }
