@@ -449,6 +449,7 @@ RandomWalkRadianceMethod::terminate(java::ArrayList<Patch *> *scenePatches) {
 
 int
 RandomWalkRadianceMethod::doStep(
+    Camera *camera,
     Background *sceneBackground,
     java::ArrayList<Patch *> *scenePatches,
     java::ArrayList<Geometry *> *sceneGeometries,

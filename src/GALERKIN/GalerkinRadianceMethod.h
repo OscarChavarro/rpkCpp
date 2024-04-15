@@ -48,6 +48,7 @@ class GalerkinRadianceMethod : public RadianceMethod {
 
     int
     doStep(
+        Camera *camera,
         Background *sceneBackground,
         java::ArrayList<Patch *> *scenePatches,
         java::ArrayList<Geometry *> *sceneGeometries,

@@ -658,6 +658,7 @@ main(int argc, char *argv[]) {
     //executeGlutGui(
     //    argc,
     //    argv,
+    //    &GLOBAL_camera_mainCamera,
     //    globalAppScenePatches,
     //    GLOBAL_app_lightSourcePatches,
     //    globalSceneGeometries,

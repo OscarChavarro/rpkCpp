@@ -2,6 +2,7 @@
 #define __RANDOM_WALK_RADIANCE_METHOD__
 
 #include "skin/RadianceMethod.h"
+#include "scene/Camera.h"
 
 class RandomWalkRadianceMethod : public RadianceMethod {
   public:
@@ -13,6 +14,7 @@ class RandomWalkRadianceMethod : public RadianceMethod {
 
     int
     doStep(
+        Camera *camera,
         Background *sceneBackground,
         java::ArrayList<Patch *> *scenePatches,
         java::ArrayList<Geometry *> *sceneGeometries,

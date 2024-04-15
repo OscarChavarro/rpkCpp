@@ -227,6 +227,7 @@ batch(
                 exit(1);
             }
             done = context->doStep(
+                &GLOBAL_camera_mainCamera,
                 sceneBackground,
                 scenePatches,
                 sceneGeometries,

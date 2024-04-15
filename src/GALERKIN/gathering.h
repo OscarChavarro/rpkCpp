@@ -13,6 +13,7 @@ gatheringPushPullPotential(
 
 extern int
 galerkinRadiosityDoGatheringIteration(
+    Camera *camera,
     VoxelGrid *sceneWorldVoxelGrid,
     java::ArrayList<Patch *> *scenePatches,
     java::ArrayList<Geometry *> *sceneGeometries,

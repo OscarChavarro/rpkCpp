@@ -385,6 +385,7 @@ GalerkinRadianceMethod::initialize(
 
 int
 GalerkinRadianceMethod::doStep(
+    Camera *camera,
     Background *sceneBackground,
     java::ArrayList<Patch *> *scenePatches,
     java::ArrayList<Geometry *> *sceneGeometries,
@@ -417,6 +418,7 @@ GalerkinRadianceMethod::doStep(
                     &galerkinState);
             } else {
                 done = galerkinRadiosityDoGatheringIteration(
+                    camera,
                     sceneWorldVoxelGrid,
                     scenePatches,
                     sceneGeometries,

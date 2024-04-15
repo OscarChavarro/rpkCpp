@@ -20,6 +20,7 @@ static Geometry *globalClusteredWorldGeom;
 static Background *globalSceneBackground;
 static RadianceMethod *globalRadianceMethod;
 static VoxelGrid *globalVoxelGrid;
+static Camera *globalCamera;
 
 GlutDebugState GLOBAL_render_glutDebugState;
 
@@ -61,6 +62,7 @@ keypressCallback(unsigned char keyChar, int /*x*/, int /*y*/) {
             break;
         case ' ':
             globalRadianceMethod->doStep(
+                globalCamera,
                 globalSceneBackground,
                 globalScenePatches,
                 globalSceneGeometries,
@@ -122,6 +124,7 @@ void
 executeGlutGui(
     int argc,
     char *argv[],
+    Camera *camera,
     java::ArrayList<Patch *> *scenePatches,
     java::ArrayList<Patch *> *lightPatches,
     java::ArrayList<Geometry *> *sceneGeometries,
@@ -139,6 +142,7 @@ executeGlutGui(
     globalClusteredWorldGeom = clusteredWorldGeom;
     globalSceneBackground = sceneBackground;
     globalVoxelGrid = voxelGrid;
+    globalCamera = camera;
 
     glutInit(&argc, argv);
     glutInitWindowPosition(0, 0);

@@ -5,6 +5,7 @@
 
 #include "java/util/ArrayList.h"
 #include "skin/Patch.h"
+#include "scene/Camera.h"
 
 class Background;
 class VoxelGrid;
@@ -37,6 +38,7 @@ class RadianceMethod {
     // done
     virtual int
     doStep(
+        Camera *camera,
         Background *sceneBackground,
         java::ArrayList<Patch *> *scenePatches,
         java::ArrayList<Geometry *> *sceneGeometries,

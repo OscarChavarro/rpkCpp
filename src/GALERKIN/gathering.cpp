@@ -145,6 +145,7 @@ have converged and false if not
 */
 int
 galerkinRadiosityDoGatheringIteration(
+    Camera *camera,
     VoxelGrid *sceneWorldVoxelGrid,
     java::ArrayList<Patch *> *scenePatches,
     java::ArrayList<Geometry *> *sceneGeometries,
@@ -153,9 +154,9 @@ galerkinRadiosityDoGatheringIteration(
     GalerkinState *galerkinState)
 {
     if ( galerkinState->importanceDriven ) {
-        if ( galerkinState->iterationNumber <= 1 || GLOBAL_camera_mainCamera.changed ) {
+        if ( galerkinState->iterationNumber <= 1 || camera->changed ) {
             updateDirectPotential(scenePatches, clusteredWorldGeometry);
-            GLOBAL_camera_mainCamera.changed = false;
+            camera->changed = false;
         }
     }
 

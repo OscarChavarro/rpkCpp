@@ -496,6 +496,7 @@ StochasticJacobiRadianceMethod::renderScene(java::ArrayList<Patch *> *scenePatch
 
 int
 StochasticJacobiRadianceMethod::doStep(
+    Camera *camera,
     Background *sceneBackground,
     java::ArrayList<Patch *> *scenePatches,
     java::ArrayList<Geometry *> *sceneGeometries,

@@ -557,6 +557,7 @@ method is not updated in this file
 */
 int
 PhotonMapRadianceMethod::doStep(
+    Camera *camera,
     Background *sceneBackground,
     java::ArrayList<Patch *> *scenePatches,
     java::ArrayList<Geometry *> *sceneGeometries,

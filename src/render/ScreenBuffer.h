@@ -13,7 +13,7 @@
 Class for storing pixel radiance/fluxes
 and an associated RGB framebuffer
 
-12/10/99 : The screen buffer has now a GLOBAL_camera_mainCamera variable that states
+12/10/99 : The screen buffer has now a camera variable that states
            from where the image is made. Several functions
            are provided to handle pixel float coordinates,
            pixel numbers and screen boundaries. These are
@@ -24,7 +24,7 @@ class ScreenBuffer {
   private:
     ColorRgb *m_Radiance;
     ColorRgb *m_RGB;
-    Camera m_cam; // GLOBAL_camera_mainCamera used (copied, no pointer!)
+    Camera camera;
 
     bool m_Synced;
     float m_Factor;
