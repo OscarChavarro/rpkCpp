@@ -5,7 +5,6 @@
 #include "java/lang/Object.h"
 
 namespace java {
-
     template<class T>
     class ArrayList : public Object {
     private:
@@ -46,7 +45,7 @@ namespace java {
 
         bool add(T elem);
 
-        long int size() {
+        long int size() const {
             return currentSize;
         }
 
@@ -54,7 +53,7 @@ namespace java {
             return Data[i];
         }
 
-        T &get(long int i) {
+        T get(long int i) const {
             return Data[i];
         }
 

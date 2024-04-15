@@ -94,7 +94,7 @@ Initializes the computations for the current scene (if any)
 */
 void
 PhotonMapRadianceMethod::initialize(
-    java::ArrayList<Patch *> *scenePatches,
+    const java::ArrayList<Patch *> *scenePatches,
     Geometry *clusteredWorldGeometry)
 {
     fprintf(stderr, "Photon map activated\n");

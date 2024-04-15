@@ -58,7 +58,7 @@ StochasticJacobiRadianceMethod::writeVRML(FILE *fp){
 
 void
 StochasticJacobiRadianceMethod::initialize(
-    java::ArrayList<Patch *> *scenePatches,
+    const java::ArrayList<Patch *> *scenePatches,
     Geometry *clusteredWorldGeometry)
 {
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.method = STOCHASTIC_RELAXATION_RADIOSITY_METHOD;

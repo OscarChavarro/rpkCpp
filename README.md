@@ -22,6 +22,7 @@ This is a full rewrite with the following features:
   - Most smells from SonarLint/clang-tidy cleaned.
   - Variable names refactor to be self-explanatory.
   - Removing redundant comments from code that is self-explanatory.
+  - Const parameter and methods used when possible to reinforce read-only / immutable elements.
 - Reorganization in to new packages structure for clarity at software architecture level.
 - Memory leak free after valgrind analysis.
 - Use of global variables set to a minimum possible, replaced by parameters.

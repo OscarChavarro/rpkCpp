@@ -9,6 +9,7 @@ All kind of form factor computations
 #include "GALERKIN/Interaction.h"
 
 extern int facing(Patch *P, Patch *Q);
+
 extern unsigned areaToAreaFormFactor(
     VoxelGrid *sceneWorldVoxelGrid,
     Interaction *link,

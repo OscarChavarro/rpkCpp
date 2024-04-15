@@ -349,7 +349,7 @@ GalerkinRadianceMethod::parseOptions(int *argc, char **argv) {
 
 void
 GalerkinRadianceMethod::initialize(
-    java::ArrayList<Patch *> *scenePatches,
+    const java::ArrayList<Patch *> *scenePatches,
     Geometry *clusteredWorldGeometry)
 {
     galerkinState.iterationNumber = 0;

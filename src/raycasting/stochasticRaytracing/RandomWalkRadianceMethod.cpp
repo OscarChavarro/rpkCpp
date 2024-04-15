@@ -51,7 +51,7 @@ RandomWalkRadianceMethod::writeVRML(FILE *fp){
 
 void
 RandomWalkRadianceMethod::initialize(
-    java::ArrayList<Patch *> *scenePatches,
+    const java::ArrayList<Patch *> *scenePatches,
     Geometry *clusteredWorldGeometry)
 {
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.method = RANDOM_WALK_RADIOSITY_METHOD;

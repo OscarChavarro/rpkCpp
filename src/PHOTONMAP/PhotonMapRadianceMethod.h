@@ -12,7 +12,7 @@ class PhotonMapRadianceMethod : public RadianceMethod {
     ~PhotonMapRadianceMethod();
     const char *getRadianceMethodName() const;
     void parseOptions(int *argc, char **argv);
-    void initialize(java::ArrayList<Patch *> *scenePatches, Geometry *clusteredWorldGeometry);
+    void initialize(const java::ArrayList<Patch *> *scenePatches, Geometry *clusteredWorldGeometry);
 
     int
     doStep(
