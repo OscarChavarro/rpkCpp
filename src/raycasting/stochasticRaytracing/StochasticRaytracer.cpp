@@ -201,7 +201,7 @@ srGetDirectRadiance(
                     x2,
                     true,
                     BSDF_ALL_COMPONENTS) ) {
-                    if ( pathNodesVisible(prevNode, &lightNode) ) {
+                    if ( pathNodesVisible(GLOBAL_scene_worldVoxelGrid, prevNode, &lightNode) ) {
                         // Now connect for all applicable scatter-info's
                         // If no weighting between reflection sampling and
                         // next event estimation were used, only one connect

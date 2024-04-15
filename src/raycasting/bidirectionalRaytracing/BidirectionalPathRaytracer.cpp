@@ -413,7 +413,12 @@ handlePathXx : handle a path with eyeSize >= 2 and
 light size >= 1
 */
 static void
-handlePathXx(Background *sceneBackground, BidirectionalPathTracingConfiguration *config, CBiPath *path) {
+handlePathXx(
+    VoxelGrid *sceneWorldVoxelGrid,
+    Background *sceneBackground,
+    BidirectionalPathTracingConfiguration *config,
+    CBiPath *path)
+{
     ColorRgb f;
     ColorRgb fRad;
     double oldPdfLNE = 0.0;
@@ -465,7 +470,7 @@ handlePathXx(Background *sceneBackground, BidirectionalPathTracingConfiguration 
         path->m_lightEndNode = &newLightNode;
     }
 
-    if ( pathNodesVisible(path->m_eyeEndNode, path->m_lightEndNode) ) {
+    if ( pathNodesVisible(sceneWorldVoxelGrid, path->m_eyeEndNode, path->m_lightEndNode) ) {
         f = computeNeFluxEstimate(config, path, &pdf, &weight, &fRad);
 
         float factor = (float)config->fluxToRadFactor / (float)config->baseConfig->samplesPerPixel;
@@ -490,7 +495,10 @@ handlePathXx(Background *sceneBackground, BidirectionalPathTracingConfiguration 
 }
 
 void
-handlePath1X(BidirectionalPathTracingConfiguration *config, CBiPath *path) {
+handlePath1X(
+    BidirectionalPathTracingConfiguration *config,
+    CBiPath *path)
+{
     int nx;
     int ny;
     float pixX;
@@ -511,7 +519,7 @@ handlePath1X(BidirectionalPathTracingConfiguration *config, CBiPath *path) {
 
     // First we need to determine if the lightEndNode can be seen from
     // the camera. At the same time the pixel hit is computed
-    if ( eyeNodeVisible(path->m_eyeEndNode, path->m_lightEndNode, &pixX, &pixY) ) {
+    if ( eyeNodeVisible(GLOBAL_scene_worldVoxelGrid, path->m_eyeEndNode, path->m_lightEndNode, &pixX, &pixY) ) {
         // Visible !
         f = computeNeFluxEstimate(config, path, &pdf, &weight, &fRad);
 
@@ -598,7 +606,7 @@ bpCombinePaths(Background *sceneBackground, BidirectionalPathTracingConfiguratio
                 path.m_eyeEndNode = eyeEndNode;
                 path.m_lightSize = lightSize;
                 path.m_lightEndNode = lightEndNode;
-                handlePathXx(sceneBackground, config, &path);
+                handlePathXx(GLOBAL_scene_worldVoxelGrid, sceneBackground, config, &path);
             } else {
                 path.m_eyeSize = eyeSize;
                 path.m_eyeEndNode = eyeEndNode;

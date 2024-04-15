@@ -24,6 +24,7 @@
 #include "PHOTONMAP/pmapoptions.h"
 #include "PHOTONMAP/pmapconfig.h"
 #include "PHOTONMAP/pmapimportance.h"
+#include "scene/scene.h"
 
 PhotonMapConfig GLOBAL_photonMap_config;
 
@@ -275,9 +276,15 @@ particle tracing, although constructing global & caustic together
 does not give correct display
 */
 static void
-photonMapDoScreenNEE(PhotonMapConfig *config, RadianceMethod *context) {
-    int nx, ny;
-    float pix_x, pix_y;
+photonMapDoScreenNEE(
+    VoxelGrid *sceneWorldVoxelGrid,
+    PhotonMapConfig *config,
+    RadianceMethod *context)
+{
+    int nx;
+    int ny;
+    float pixX;
+    float pixY;
     ColorRgb f;
     CBiPath *bp = &config->biPath;
 
@@ -287,11 +294,16 @@ photonMapDoScreenNEE(PhotonMapConfig *config, RadianceMethod *context) {
 
     // First we need to determine if the lightEndNode can be seen from
     // the camera. At the same time the pixel hit is computed
-    if ( eyeNodeVisible(bp->m_eyeEndNode, bp->m_lightEndNode, &pix_x, &pix_y) ) {
+    if ( eyeNodeVisible(
+            sceneWorldVoxelGrid,
+            bp->m_eyeEndNode,
+            bp->m_lightEndNode,
+            &pixX,
+            &pixY) ) {
         // Visible !
         f = photonMapDoComputePixelFluxEstimate(config, context);
 
-        config->screen->getPixel(pix_x, pix_y, &nx, &ny);
+        config->screen->getPixel(pixX, pixY, &nx, &ny);
 
         float factor;
 
@@ -358,7 +370,11 @@ photonMapDoPhotonStore(SimpleRaytracingPathNode *node, ColorRgb power) {
 Handle one path : store at all end positions and for testing, connect to the eye
 */
 static void
-photonMapHandlePath(PhotonMapConfig *config, RadianceMethod *context) {
+photonMapHandlePath(
+    VoxelGrid *sceneWorldVoxelGrid,
+    PhotonMapConfig *config,
+    RadianceMethod *context)
+{
     bool lDone;
     CBiPath *bp = &config->biPath;
     ColorRgb accPower;
@@ -390,7 +406,7 @@ photonMapHandlePath(PhotonMapConfig *config, RadianceMethod *context) {
                     // Screen next event estimation for testing
 
                     bp->m_lightEndNode = currentNode;
-                    photonMapDoScreenNEE(config, context);
+                    photonMapDoScreenNEE(sceneWorldVoxelGrid, config, context);
                 }
             }
         } else {
@@ -402,7 +418,7 @@ photonMapHandlePath(PhotonMapConfig *config, RadianceMethod *context) {
                     // Screen next event estimation for testing
 
                     bp->m_lightEndNode = currentNode;
-                    photonMapDoScreenNEE(config, context);
+                    photonMapDoScreenNEE(sceneWorldVoxelGrid, config, context);
                 }
             }
         }
@@ -453,18 +469,27 @@ photonMapTracePath(Background *sceneBackground, PhotonMapConfig *config, BSDF_FL
 }
 
 static void
-photonMapTracePaths(Background *sceneBackground, int nrPaths, BSDF_FLAGS bsdfFlags = BSDF_ALL_COMPONENTS, RadianceMethod *context = nullptr) {
+photonMapTracePaths(
+    VoxelGrid *sceneWorldVoxelGrid,
+    Background *sceneBackground,
+    int numberOfPaths,
+    BSDF_FLAGS bsdfFlags = BSDF_ALL_COMPONENTS,
+    RadianceMethod *context = nullptr) {
     int i;
 
     // Fill in config structures
-    for ( i = 0; i < nrPaths; i++ ) {
+    for ( i = 0; i < numberOfPaths; i++ ) {
         photonMapTracePath(sceneBackground, &GLOBAL_photonMap_config, bsdfFlags);
-        photonMapHandlePath(&GLOBAL_photonMap_config, context);
+        photonMapHandlePath(sceneWorldVoxelGrid, &GLOBAL_photonMap_config, context);
     }
 }
 
 static void
-photonMapBRRealIteration(Background *sceneBackground, RadianceMethod *context) {
+photonMapBRRealIteration(
+    VoxelGrid *sceneWorldVoxelGrid,
+    Background *sceneBackground,
+    RadianceMethod *context)
+{
     GLOBAL_photonMap_state.iterationNumber++;
 
     fprintf(stderr, "GLOBAL_photonMapMethods Iteration %li\n", (long) GLOBAL_photonMap_state.iterationNumber);
@@ -498,7 +523,7 @@ photonMapBRRealIteration(Background *sceneBackground, RadianceMethod *context) {
         // Set correct importance map: indirect importance
         GLOBAL_photonMap_config.currentImpMap = GLOBAL_photonMap_config.importanceMap;
 
-        photonMapTracePaths(sceneBackground, (int)GLOBAL_photonMap_state.gPathsPerIteration, BSDF_ALL_COMPONENTS, context);
+        photonMapTracePaths(sceneWorldVoxelGrid, sceneBackground, (int)GLOBAL_photonMap_state.gPathsPerIteration, BSDF_ALL_COMPONENTS, context);
 
         fprintf(stderr, "Global map: ");
         GLOBAL_photonMap_config.globalMap->PrintStats(stderr);
@@ -514,7 +539,7 @@ photonMapBRRealIteration(Background *sceneBackground, RadianceMethod *context) {
         // Set correct importance map: direct importance
         GLOBAL_photonMap_config.currentImpMap = GLOBAL_photonMap_config.importanceCMap;
 
-        photonMapTracePaths(sceneBackground, (int)GLOBAL_photonMap_state.cPathsPerIteration, BSDF_SPECULAR_COMPONENT);
+        photonMapTracePaths(sceneWorldVoxelGrid, sceneBackground, (int)GLOBAL_photonMap_state.cPathsPerIteration, BSDF_SPECULAR_COMPONENT);
 
         fprintf(stderr, "Caustic map: ");
         GLOBAL_photonMap_config.causticMap->PrintStats(stderr);
@@ -538,7 +563,7 @@ PhotonMapRadianceMethod::doStep(
 {
     GLOBAL_photonMap_state.lastClock = clock();
 
-    photonMapBRRealIteration(sceneBackground, this);
+    photonMapBRRealIteration(sceneWorldVoxelGrid, sceneBackground, this);
     photonMapRadiosityUpdateCpuSecs();
 
     GLOBAL_photonMap_state.runStopNumber++;

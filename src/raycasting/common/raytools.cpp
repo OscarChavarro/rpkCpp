@@ -77,7 +77,11 @@ findRayIntersection(
 pathNodesVisible : send a shadow ray
 */
 bool
-pathNodesVisible(SimpleRaytracingPathNode *node1, SimpleRaytracingPathNode *node2) {
+pathNodesVisible(
+    VoxelGrid *sceneWorldVoxelGrid,
+    SimpleRaytracingPathNode *node1,
+    SimpleRaytracingPathNode *node2)
+{
     Vector3D dir;
     Ray ray;
     RayHit *hit;
@@ -144,11 +148,12 @@ pathNodesVisible(SimpleRaytracingPathNode *node1, SimpleRaytracingPathNode *node
             fDistance = (float) dist;
         }
 
-        Patch::dontIntersect(3, node2->m_hit.patch, node1->m_hit.patch,
-                             node1->m_hit.patch ? node1->m_hit.patch->twin : nullptr);
-        hit = GLOBAL_scene_worldVoxelGrid->gridIntersect(&ray,
-                            0.0, &fDistance,
-                            HIT_FRONT | HIT_BACK | HIT_ANY, &hitStore);
+        Patch::dontIntersect(
+            3, node2->m_hit.patch, node1->m_hit.patch,
+             node1->m_hit.patch ? node1->m_hit.patch->twin : nullptr);
+        hit = sceneWorldVoxelGrid->gridIntersect(&ray,
+            0.0, &fDistance,
+            HIT_FRONT | HIT_BACK | HIT_ANY, &hitStore);
         Patch::dontIntersect(0);
         visible = (hit == nullptr);
 
@@ -165,10 +170,11 @@ Can the eye see the node ?  If so, pix_x and pix_y are filled in
 */
 bool
 eyeNodeVisible(
-        SimpleRaytracingPathNode *eyeNode,
-        SimpleRaytracingPathNode *node,
-        float *pix_x,
-        float *pix_y)
+    VoxelGrid *sceneWorldVoxelGrid,
+    SimpleRaytracingPathNode *eyeNode,
+    SimpleRaytracingPathNode *node,
+    float *pixX,
+    float *pixY)
 {
     Vector3D dir;
     Ray ray;
@@ -223,11 +229,12 @@ eyeNodeVisible(
 
                 if ( (cosRayLight > 0) && (cosRayEye > 0) ) {
                     fDistance = (float) dist;
-                    Patch::dontIntersect(3, node->m_hit.patch, eyeNode->m_hit.patch,
-                                         eyeNode->m_hit.patch ? eyeNode->m_hit.patch->twin : nullptr);
-                    hit = GLOBAL_scene_worldVoxelGrid->gridIntersect(&ray,
-                                        0.0, &fDistance,
-                                        HIT_FRONT | HIT_ANY, &hitStore);
+                    Patch::dontIntersect(
+                        3, node->m_hit.patch, eyeNode->m_hit.patch,
+                         eyeNode->m_hit.patch ? eyeNode->m_hit.patch->twin : nullptr);
+                    hit = sceneWorldVoxelGrid->gridIntersect(&ray,
+                        0.0, &fDistance,
+                        HIT_FRONT | HIT_ANY, &hitStore);
                     Patch::dontIntersect(0);
                     // HIT_BACK removed ! So you can see through back walls with N.E.E
                     visible = (hit == nullptr);
@@ -236,8 +243,8 @@ eyeNodeVisible(
 
                     if ( visible ) {
                         // *geomFactor = cosRayEye * cosRayLight / dist2;
-                        *pix_x = (float)xz;
-                        *pix_y = (float)yz;
+                        *pixX = (float)xz;
+                        *pixY = (float)yz;
                     }
                 }
             }
