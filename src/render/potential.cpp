@@ -44,7 +44,7 @@ updateDirectPotential(
     canvasPushMode();
 
     // Get the patch IDs for each pixel
-    ids = sglRenderIds(&x, &y, scenePatches, clusteredWorldGeometry);
+    ids = sglRenderIds(&x, &y, &GLOBAL_camera_mainCamera, scenePatches, clusteredWorldGeometry);
 
     canvasPullMode();
 
@@ -147,8 +147,9 @@ softGetPatchPointers(SGL_CONTEXT *sgl, java::ArrayList<Patch *> *scenePatches) {
     }
 }
 
-void
+static void
 softUpdateDirectVisibility(
+    Camera *camera,
     java::ArrayList<Patch *> *scenePatches,
     Geometry *clusteredWorldGeometry)
 {
@@ -156,7 +157,7 @@ softUpdateDirectVisibility(
     SGL_CONTEXT *oldSglContext = GLOBAL_sgl_currentContext;
     SGL_CONTEXT *currentSglContext = setupSoftFrameBuffer();
 
-    softRenderPatches(scenePatches, clusteredWorldGeometry);
+    softRenderPatches(camera, scenePatches, clusteredWorldGeometry);
     softGetPatchPointers(currentSglContext, scenePatches);
     delete currentSglContext;
     sglMakeCurrent(oldSglContext);
@@ -170,10 +171,11 @@ Updates view visibility status of all patches
 */
 void
 updateDirectVisibility(
+    Camera *camera,
     java::ArrayList<Patch *> *scenePatches,
     Geometry *clusteredWorldGeometry)
 {
     canvasPushMode();
-    softUpdateDirectVisibility(scenePatches, clusteredWorldGeometry);
+    softUpdateDirectVisibility(camera, scenePatches, clusteredWorldGeometry);
     canvasPullMode();
 }

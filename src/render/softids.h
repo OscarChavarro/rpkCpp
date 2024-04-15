@@ -14,6 +14,7 @@ extern SGL_CONTEXT *setupSoftFrameBuffer();
 
 extern void
 softRenderPatches(
+    Camera *camera,
     java::ArrayList<Patch *> *scenePatches,
     Geometry *clusteredWorldGeometry);
 
@@ -21,10 +22,16 @@ extern unsigned long *
 softRenderIds(
     long *x,
     long *y,
+    Camera *camera,
     java::ArrayList<Patch *> *scenePatches,
     Geometry *clusteredWorldGeometry);
 
 extern unsigned long *
-sglRenderIds(long *x, long *y, java::ArrayList<Patch *> *scenePatches, Geometry *clusteredWorldGeometry);
+sglRenderIds(
+    long *x,
+    long *y,
+    Camera *camera,
+    java::ArrayList<Patch *> *scenePatches,
+    Geometry *clusteredWorldGeometry);
 
 #endif

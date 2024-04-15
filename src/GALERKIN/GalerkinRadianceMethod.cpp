@@ -257,19 +257,19 @@ GalerkinRadianceMethod::~GalerkinRadianceMethod() {
 }
 
 void
-GalerkinRadianceMethod::renderElementHierarchy(GalerkinElement *element) {
+GalerkinRadianceMethod::renderElementHierarchy(GalerkinElement *element, Camera *camera) {
     if ( element->regularSubElements == nullptr ) {
-        element->render();
+        element->render(camera);
     } else {
         for ( int i = 0; i < 4; i++ ) {
-            renderElementHierarchy((GalerkinElement *)element->regularSubElements[i]);
+            renderElementHierarchy((GalerkinElement *)element->regularSubElements[i], camera);
         }
     }
 }
 
 void
-GalerkinRadianceMethod::galerkinRenderPatch(Patch *patch) {
-    renderElementHierarchy(galerkinGetElement(patch));
+GalerkinRadianceMethod::galerkinRenderPatch(Patch *patch, Camera *camera) {
+    renderElementHierarchy(galerkinGetElement(patch), camera);
 }
 
 /**
@@ -538,13 +538,13 @@ GalerkinRadianceMethod::getStats() {
 }
 
 void
-GalerkinRadianceMethod::renderScene(java::ArrayList<Patch *> *scenePatches, Geometry *clusteredWorldGeometry) {
+GalerkinRadianceMethod::renderScene(Camera *camera, java::ArrayList<Patch *> *scenePatches, Geometry *clusteredWorldGeometry) {
     if ( GLOBAL_render_renderOptions.frustumCulling ) {
-        openGlRenderWorldOctree(galerkinRenderPatch, clusteredWorldGeometry);
+        openGlRenderWorldOctree(camera, galerkinRenderPatch, clusteredWorldGeometry);
     } else {
         for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
             if ( !GLOBAL_render_glutDebugState.showSelectedPathOnly || i == GLOBAL_render_glutDebugState.selectedPatch ) {
-                galerkinRenderPatch(scenePatches->get(i));
+                galerkinRenderPatch(scenePatches->get(i), camera);
             }
         }
     }

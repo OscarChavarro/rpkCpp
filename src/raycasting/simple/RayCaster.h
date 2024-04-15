@@ -22,7 +22,12 @@ class RayCaster {
   public:
     explicit RayCaster(ScreenBuffer *inScreen);
     virtual ~RayCaster();
-    void render(java::ArrayList<Patch *> *scenePatches, Geometry *clusteredWorldGeometry, RadianceMethod *context);
+    void
+    render(
+        Camera *camera,
+        java::ArrayList<Patch *> *scenePatches,
+        Geometry *clusteredWorldGeometry,
+        RadianceMethod *context);
     void display();
     void save(ImageOutputHandle *ip);
 };

@@ -95,12 +95,17 @@ RayCaster::getRadianceAtPixel(int x, int y, Patch *patch, RadianceMethod *contex
 }
 
 void
-RayCaster::render(java::ArrayList<Patch *> *scenePatches, Geometry *clusteredWorldGeometry, RadianceMethod *context) {
+RayCaster::render(
+    Camera *camera,
+    java::ArrayList<Patch *> *scenePatches,
+    Geometry *clusteredWorldGeometry,
+    RadianceMethod *context)
+{
     #ifdef RAYTRACING_ENABLED
         clock_t t = clock();
     #endif
 
-    Soft_ID_Renderer *idRenderer = new Soft_ID_Renderer(scenePatches, clusteredWorldGeometry);
+    Soft_ID_Renderer *idRenderer = new Soft_ID_Renderer(camera, scenePatches, clusteredWorldGeometry);
 
     long width;
     long height;
@@ -200,7 +205,7 @@ rayCasterExecute(
         delete globalRayCaster;
     }
     globalRayCaster = new RayCaster(nullptr);
-    globalRayCaster->render(scenePatches, clusteredWorldGeometry, context);
+    globalRayCaster->render(&GLOBAL_camera_mainCamera, scenePatches, clusteredWorldGeometry, context);
     if ( globalRayCaster != nullptr && ip != nullptr ) {
         globalRayCaster->save(ip);
     }
@@ -236,7 +241,7 @@ rayCast(
     }
 
     RayCaster *rc = new RayCaster(nullptr);
-    rc->render(nullptr, clusteredWorldGeometry, context);
+    rc->render(&GLOBAL_camera_mainCamera, nullptr, clusteredWorldGeometry, context);
     if ( img != nullptr ) {
         rc->save(img);
     }

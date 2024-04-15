@@ -245,6 +245,7 @@ stochasticRelaxationRadiosityDoIncrementalRadianceIterations(
             }
 
             openGlRenderScene(
+                &GLOBAL_camera_mainCamera,
                 scenePatches,
                 sceneClusteredGeometries,
                 sceneGeometries,
@@ -474,22 +475,22 @@ stochasticRelaxationRadiosityDiscardIncremental() {
 }
 
 static void
-stochasticRelaxationRadiosityRenderPatch(Patch *patch) {
+stochasticRelaxationRadiosityRenderPatch(Patch *patch, Camera *camera) {
     if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.inited ) {
         topLevelGalerkinElement(patch)->traverseQuadTreeLeafs(stochasticRadiosityElementRender);
     } else {
         // Not yet initialized
-        openGlRenderPatch(patch);
+        openGlRenderPatch(patch, camera);
     }
 }
 
 void
-StochasticJacobiRadianceMethod::renderScene(java::ArrayList<Patch *> *scenePatches, Geometry *clusteredWorldGeometry) {
+StochasticJacobiRadianceMethod::renderScene(Camera *camera, java::ArrayList<Patch *> *scenePatches, Geometry *clusteredWorldGeometry) {
     if ( GLOBAL_render_renderOptions.frustumCulling ) {
-        openGlRenderWorldOctree(stochasticRelaxationRadiosityRenderPatch, clusteredWorldGeometry);
+        openGlRenderWorldOctree(camera, stochasticRelaxationRadiosityRenderPatch, clusteredWorldGeometry);
     } else {
         for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
-            stochasticRelaxationRadiosityRenderPatch(scenePatches->get(i));
+            stochasticRelaxationRadiosityRenderPatch(scenePatches->get(i), camera);
         }
     }
 }

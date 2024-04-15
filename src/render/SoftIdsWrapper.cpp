@@ -7,12 +7,13 @@ Soft_ID_Renderer::~Soft_ID_Renderer() {
 
 void
 Soft_ID_Renderer::init(
+    Camera *camera,
     java::ArrayList<Patch *> *scenePatches,
     Geometry *clusteredWorldGeometry)
 {
     SGL_CONTEXT *oldSglContext = GLOBAL_sgl_currentContext;
     sgl = setupSoftFrameBuffer();
-    softRenderPatches(scenePatches, clusteredWorldGeometry);
+    softRenderPatches(camera, scenePatches, clusteredWorldGeometry);
     sglMakeCurrent(oldSglContext); // Make the old one current again
 }
 

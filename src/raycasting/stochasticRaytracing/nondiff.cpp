@@ -190,6 +190,7 @@ doNonDiffuseFirstShot(
         f = GLOBAL_raytracer_activeRaytracer->Redisplay;
     }
     openGlRenderScene(
+        &GLOBAL_camera_mainCamera,
         scenePatches,
         sceneGeometries,
         sceneClusteredGeometries,

@@ -507,7 +507,7 @@ hierarchicRefinementRegularSubdivideSource(
     GalerkinElement *sourceElement = link->sourceElement;
     GalerkinElement *receiverElement = link->receiverElement;
 
-    sourceElement->regularSubDivide();
+    sourceElement->regularSubDivide(&GLOBAL_camera_mainCamera);
     for ( int i = 0; i < 4; i++ ) {
         GalerkinElement *child = (GalerkinElement *)sourceElement->regularSubElements[i];
         Interaction subInteraction{};
@@ -558,7 +558,7 @@ hierarchicRefinementRegularSubdivideReceiver(
     GalerkinElement *sourceElement = link->sourceElement;
     GalerkinElement *receiverElement = link->receiverElement;
 
-    receiverElement->regularSubDivide();
+    receiverElement->regularSubDivide(&GLOBAL_camera_mainCamera);
     for ( int i = 0; i < 4; i++ ) {
         Interaction subInteraction{};
         GalerkinElement *child = (GalerkinElement *)receiverElement->regularSubElements[i];

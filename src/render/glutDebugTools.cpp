@@ -111,6 +111,7 @@ drawCallback() {
     glViewport(0, 0, globalWidth, globalHeight);
     glPolygonMode(GL_FRONT_AND_BACK, GL_LINES);
     openGlRenderScene(
+        globalCamera,
         globalScenePatches,
         globalSceneClusteredGeometries,
         globalSceneGeometries,

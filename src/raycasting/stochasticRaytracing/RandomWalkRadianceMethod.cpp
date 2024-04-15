@@ -42,7 +42,7 @@ RandomWalkRadianceMethod::destroyPatchData(Patch *patch) {
 }
 
 void
-RandomWalkRadianceMethod::renderScene(java::ArrayList<Patch *> *scenePatches, Geometry *clusteredWorldGeometry) {
+RandomWalkRadianceMethod::renderScene(Camera *camera, java::ArrayList<Patch *> *scenePatches, Geometry *clusteredWorldGeometry) {
 }
 
 void

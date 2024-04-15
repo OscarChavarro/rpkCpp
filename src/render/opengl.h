@@ -11,11 +11,13 @@ extern void openGlRenderSetColor(ColorRgb *rgb);
 
 extern void
 openGlRenderWorldOctree(
-    void (*renderPatchCallback)(Patch *),
+    Camera *camera,
+    void (*renderPatchCallback)(Patch *, Camera *),
     Geometry *clusteredWorldGeometry);
 
 extern void
 openGlRenderScene(
+    Camera *camera,
     java::ArrayList<Patch *> *scenePatches,
     java::ArrayList<Geometry *> *clusteredGeometryList,
     java::ArrayList<Geometry *> *sceneGeometries,
@@ -28,7 +30,7 @@ extern void openGlRenderPatchOutline(Patch *patch);
 extern void openGlRenderPolygonFlat(int numberOfVertices, Vector3D *vertices);
 extern void openGlRenderPolygonGouraud(int numberOfVertices, Vector3D *vertices, ColorRgb *verticesColors);
 extern void openGlRenderPixels(int x, int y, int width, int height, ColorRgb *rgb);
-extern void openGlRenderPatch(Patch *patch);
+extern void openGlRenderPatch(Patch *patch, Camera *camera);
 extern void openGlRenderNewDisplayList(Geometry *clusteredWorldGeometry);
 
 #endif

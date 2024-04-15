@@ -8,6 +8,7 @@ extern void parseBatchOptions(int *argc, char **argv);
 
 extern void
 batch(
+    Camera *camera,
     Background *sceneBackground,
     VoxelGrid *sceneWorldVoxelGrid,
     java::ArrayList<Patch *> *scenePatches,

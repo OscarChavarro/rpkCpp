@@ -35,7 +35,7 @@ setupSoftFrameBuffer() {
 }
 
 static void
-softRenderPatch(Patch *patch) {
+softRenderPatch(Patch *patch, Camera * /*camera*/) {
     Vector3D vertices[4];
 
     if ( GLOBAL_render_renderOptions.backfaceCulling &&
@@ -60,17 +60,18 @@ and SGL_PIXEL value for a given Patch
 */
 void
 softRenderPatches(
+    Camera *camera,
     java::ArrayList<Patch *> *scenePatches,
     Geometry *clusteredWorldGeometry)
 {
     if ( GLOBAL_render_renderOptions.frustumCulling ) {
         char use_display_lists = GLOBAL_render_renderOptions.useDisplayLists;
         GLOBAL_render_renderOptions.useDisplayLists = false;  // Temporarily switch it off
-        openGlRenderWorldOctree(softRenderPatch, clusteredWorldGeometry);
+        openGlRenderWorldOctree(camera, softRenderPatch, clusteredWorldGeometry);
         GLOBAL_render_renderOptions.useDisplayLists = use_display_lists;
     } else {
         for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
-            softRenderPatch(scenePatches->get(i));
+            softRenderPatch(scenePatches->get(i), camera);
         }
     }
 }
@@ -82,6 +83,7 @@ unsigned long *
 softRenderIds(
     long *x,
     long *y,
+    Camera *camera,
     java::ArrayList<Patch *> *scenePatches,
     Geometry *clusteredWorldGeometry)
 {
@@ -95,7 +97,7 @@ softRenderIds(
 
     oldSglContext = GLOBAL_sgl_currentContext;
     currentSglContext = setupSoftFrameBuffer();
-    softRenderPatches(scenePatches, clusteredWorldGeometry);
+    softRenderPatches(camera, scenePatches, clusteredWorldGeometry);
 
     *x = currentSglContext->width;
     *y = currentSglContext->height;

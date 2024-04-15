@@ -568,12 +568,13 @@ createOffscreenCanvasWindow(
             f = GLOBAL_raytracer_activeRaytracer->Redisplay;
         }
         openGlRenderScene(
-                scenePatches,
-                sceneGeometries,
-                globalSceneClusteredGeometries,
-                globalClusteredWorldGeometry,
-                f,
-                context);
+            &GLOBAL_camera_mainCamera,
+            scenePatches,
+            sceneGeometries,
+            globalSceneClusteredGeometries,
+            globalClusteredWorldGeometry,
+            f,
+            context);
     #endif
 }
 
@@ -601,24 +602,26 @@ mainExecuteRendering(java::ArrayList<Patch *> *scenePatches, RadianceMethod *con
             f = GLOBAL_raytracer_activeRaytracer->Redisplay;
         }
         openGlRenderScene(
-                scenePatches,
-                globalSceneClusteredGeometries,
-                globalSceneGeometries,
-                globalClusteredWorldGeometry,
-                f,
-                context);
+            &GLOBAL_camera_mainCamera,
+            scenePatches,
+            globalSceneClusteredGeometries,
+            globalSceneGeometries,
+            globalClusteredWorldGeometry,
+            f,
+            context);
     #endif
 
     batch(
-            globalSceneBackground,
-            globalSceneWorldVoxelGrid,
-            scenePatches,
-            globalLightSourcePatches,
-            globalSceneGeometries,
-            globalSceneClusteredGeometries,
-            globalClusteredWorldGeometry,
-            globalSceneWorldVoxelGrid,
-            context);
+        &GLOBAL_camera_mainCamera,
+        globalSceneBackground,
+        globalSceneWorldVoxelGrid,
+        scenePatches,
+        globalLightSourcePatches,
+        globalSceneGeometries,
+        globalSceneClusteredGeometries,
+        globalClusteredWorldGeometry,
+        globalSceneWorldVoxelGrid,
+        context);
 }
 
 static void

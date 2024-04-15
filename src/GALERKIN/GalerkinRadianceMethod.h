@@ -32,8 +32,8 @@ class GalerkinRadianceMethod : public RadianceMethod {
         ((GalerkinElement *)((patch)->radianceData))->unShotPotential = value;
     }
 
-    static void renderElementHierarchy(GalerkinElement *element);
-    static void galerkinRenderPatch(Patch *patch);
+    static void renderElementHierarchy(GalerkinElement *element, Camera *camera);
+    static void galerkinRenderPatch(Patch *patch, Camera *camera);
 
   public:
     static GalerkinState galerkinState;
@@ -62,7 +62,7 @@ class GalerkinRadianceMethod : public RadianceMethod {
     Element *createPatchData(Patch *patch);
     void destroyPatchData(Patch *patch);
     char *getStats();
-    void renderScene(java::ArrayList<Patch *> *scenePatches, Geometry *clusteredWorldGeometry);
+    void renderScene(Camera *camera, java::ArrayList<Patch *> *scenePatches, Geometry *clusteredWorldGeometry);
     void writeVRML(FILE *fp);
 };
 

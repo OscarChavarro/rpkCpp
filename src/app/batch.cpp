@@ -184,6 +184,7 @@ parseBatchOptions(int *argc, char **argv) {
 
 void
 batch(
+    Camera *camera,
     Background *sceneBackground,
     VoxelGrid *sceneWorldVoxelGrid,
     java::ArrayList<Patch *> *scenePatches,
@@ -251,6 +252,7 @@ batch(
                 }
             #endif
             openGlRenderScene(
+                camera,
                 scenePatches,
                 sceneClusteredGeometries,
                 sceneGeometries,
