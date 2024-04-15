@@ -23,6 +23,7 @@ galerkinRadiosityDoGatheringIteration(
 
 extern int
 doClusteredGatheringIteration(
+    Camera *camera,
     VoxelGrid *sceneWorldVoxelGrid,
     java::ArrayList<Patch *> *scenePatches,
     java::ArrayList<Geometry *> *sceneGeometries,

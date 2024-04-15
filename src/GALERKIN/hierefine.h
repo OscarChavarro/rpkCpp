@@ -6,6 +6,7 @@
 
 extern void
 refineInteractions(
+    Camera *camera,
     VoxelGrid *sceneWorldVoxelGrid,
     GalerkinElement *parentElement,
     GalerkinState *state,

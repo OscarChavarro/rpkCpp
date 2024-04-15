@@ -410,6 +410,7 @@ GalerkinRadianceMethod::doStep(
         case GAUSS_SEIDEL:
             if ( galerkinState.clustered ) {
                 done = doClusteredGatheringIteration(
+                    camera,
                     sceneWorldVoxelGrid,
                     scenePatches,
                     sceneGeometries,
@@ -429,13 +430,13 @@ GalerkinRadianceMethod::doStep(
             break;
         case SOUTH_WELL:
             done = doShootingStep(
+                camera,
                 sceneWorldVoxelGrid,
                 scenePatches,
                 sceneGeometries,
                 sceneClusteredGeometries,
                 clusteredWorldGeometry,
-                &galerkinState,
-                this);
+                &galerkinState);
             break;
         default:
             logFatal(2, "doGalerkinOneStep", "Invalid iteration method %d\n", galerkinState.galerkinIterationMethod);

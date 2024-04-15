@@ -105,8 +105,8 @@ drawCallback() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BITS);
     glEnable(GL_DEPTH_TEST);
 
-    GLOBAL_camera_mainCamera.xSize = globalWidth;
-    GLOBAL_camera_mainCamera.ySize = globalHeight;
+    globalCamera->xSize = globalWidth;
+    globalCamera->ySize = globalHeight;
 
     glViewport(0, 0, globalWidth, globalHeight);
     glPolygonMode(GL_FRONT_AND_BACK, GL_LINES);

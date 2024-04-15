@@ -43,6 +43,7 @@ what if you turn clustering on or off during the calculations?
 */
 int
 doClusteredGatheringIteration(
+    Camera *camera,
     VoxelGrid *sceneWorldVoxelGrid,
     java::ArrayList<Patch*> *scenePatches,
     java::ArrayList<Geometry *> *sceneGeometries,
@@ -51,7 +52,7 @@ doClusteredGatheringIteration(
     GalerkinState *galerkinState)
 {
     if ( galerkinState->importanceDriven ) {
-        if ( galerkinState->iterationNumber <= 1 || GLOBAL_camera_mainCamera.changed ) {
+        if ( galerkinState->iterationNumber <= 1 || camera->changed ) {
             updateDirectPotential(scenePatches, clusteredWorldGeometry);
             for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
                 Patch *patch = scenePatches->get(i);
@@ -60,7 +61,7 @@ doClusteredGatheringIteration(
                 gatheringUpdateDirectPotential(top, potentialIncrement);
             }
             gatheringClusterUpdatePotential(galerkinState->topCluster);
-            GLOBAL_camera_mainCamera.changed = false;
+            camera->changed = false;
         }
     }
 
@@ -76,6 +77,7 @@ doClusteredGatheringIteration(
 
     // Refines and computes light transport over the refined links
     refineInteractions(
+        camera,
         sceneWorldVoxelGrid,
         galerkinState->topCluster,
         galerkinState,

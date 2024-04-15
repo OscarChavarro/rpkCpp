@@ -18,6 +18,7 @@ Shaft culling stuff for hierarchical refinement
 
 static bool
 refineRecursive(
+    Camera *camera,
     VoxelGrid *sceneWorldVoxelGrid,
     java::ArrayList<Geometry *> **candidatesList,
     java::ArrayList<Geometry *> *sceneGeometries,
@@ -493,6 +494,7 @@ lower level sub-interactions
 */
 static void
 hierarchicRefinementRegularSubdivideSource(
+    Camera *camera,
     VoxelGrid *sceneWorldVoxelGrid,
     java::ArrayList<Geometry *> **candidatesList,
     java::ArrayList<Geometry *> *sceneGeometries,
@@ -507,7 +509,7 @@ hierarchicRefinementRegularSubdivideSource(
     GalerkinElement *sourceElement = link->sourceElement;
     GalerkinElement *receiverElement = link->receiverElement;
 
-    sourceElement->regularSubDivide(&GLOBAL_camera_mainCamera);
+    sourceElement->regularSubDivide(camera);
     for ( int i = 0; i < 4; i++ ) {
         GalerkinElement *child = (GalerkinElement *)sourceElement->regularSubElements[i];
         Interaction subInteraction{};
@@ -523,6 +525,7 @@ hierarchicRefinementRegularSubdivideSource(
                 &subInteraction,
                 galerkinState) ) {
             if ( !refineRecursive(
+                    camera,
                     sceneWorldVoxelGrid,
                     candidatesList,
                     sceneGeometries,
@@ -544,6 +547,7 @@ Same, but subdivides the receiver element
 */
 static void
 hierarchicRefinementRegularSubdivideReceiver(
+    Camera *camera,
     VoxelGrid *sceneWorldVoxelGrid,
     java::ArrayList<Geometry *> **candidatesList,
     java::ArrayList<Geometry *> *sceneGeometries,
@@ -558,7 +562,7 @@ hierarchicRefinementRegularSubdivideReceiver(
     GalerkinElement *sourceElement = link->sourceElement;
     GalerkinElement *receiverElement = link->receiverElement;
 
-    receiverElement->regularSubDivide(&GLOBAL_camera_mainCamera);
+    receiverElement->regularSubDivide(camera);
     for ( int i = 0; i < 4; i++ ) {
         Interaction subInteraction{};
         GalerkinElement *child = (GalerkinElement *)receiverElement->regularSubElements[i];
@@ -573,6 +577,7 @@ hierarchicRefinementRegularSubdivideReceiver(
                 &subInteraction,
                 galerkinState) ) {
             if ( !refineRecursive(
+                    camera,
                     sceneWorldVoxelGrid,
                     candidatesList,
                     sceneGeometries,
@@ -595,6 +600,7 @@ which is a cluster
 */
 static void
 hierarchicRefinementSubdivideSourceCluster(
+    Camera *camera,
     VoxelGrid *sceneWorldVoxelGrid,
     java::ArrayList<Geometry *> **candidatesList,
     java::ArrayList<Geometry *> *sceneGeometries,
@@ -632,6 +638,7 @@ hierarchicRefinementSubdivideSourceCluster(
                 &subInteraction,
                 galerkinState) ) {
             if ( !refineRecursive(
+                    camera,
                     sceneWorldVoxelGrid,
                     candidatesList,
                     sceneGeometries,
@@ -654,6 +661,7 @@ which is a cluster
 */
 static void
 hierarchicRefinementSubdivideReceiverCluster(
+    Camera *camera,
     VoxelGrid *sceneWorldVoxelGrid,
     java::ArrayList<Geometry *> **candidatesList,
     java::ArrayList<Geometry *> *sceneGeometries,
@@ -691,6 +699,7 @@ hierarchicRefinementSubdivideReceiverCluster(
                 &subInteraction,
                 galerkinState) ) {
             if ( !refineRecursive(
+                    camera,
                     sceneWorldVoxelGrid,
                     candidatesList,
                     sceneGeometries,
@@ -715,6 +724,7 @@ does not need to be refined, light transport over the interaction is computed
 */
 static bool
 refineRecursive(
+    Camera *camera,
     VoxelGrid *sceneWorldVoxelGrid,
     java::ArrayList<Geometry *> **candidatesList,
     java::ArrayList<Geometry *> *sceneGeometries,
@@ -733,6 +743,7 @@ refineRecursive(
             break;
         case REGULAR_SUBDIVIDE_SOURCE:
             hierarchicRefinementRegularSubdivideSource(
+                camera,
                 sceneWorldVoxelGrid,
                 candidatesList,
                 sceneGeometries,
@@ -745,6 +756,7 @@ refineRecursive(
             break;
         case REGULAR_SUBDIVIDE_RECEIVER:
             hierarchicRefinementRegularSubdivideReceiver(
+                camera,
                 sceneWorldVoxelGrid,
                 candidatesList,
                 sceneGeometries,
@@ -757,6 +769,7 @@ refineRecursive(
             break;
         case SUBDIVIDE_SOURCE_CLUSTER:
             hierarchicRefinementSubdivideSourceCluster(
+                camera,
                 sceneWorldVoxelGrid,
                 candidatesList,
                 sceneGeometries,
@@ -769,6 +782,7 @@ refineRecursive(
             break;
         case SUBDIVIDE_RECEIVER_CLUSTER:
             hierarchicRefinementSubdivideReceiverCluster(
+                camera,
                 sceneWorldVoxelGrid,
                 candidatesList,
                 sceneGeometries,
@@ -791,6 +805,7 @@ Candidate occluder list for a pair of patches, note it is changed inside the met
 */
 static bool
 refineInteraction(
+    Camera *camera,
     VoxelGrid *sceneWorldVoxelGrid,
     Interaction *link,
     GalerkinState *state,
@@ -806,6 +821,7 @@ refineInteraction(
 
     // We know for sure that there is full visibility
     return refineRecursive(
+        camera,
         sceneWorldVoxelGrid,
         &candidateOccluderList,
         sceneGeometries,
@@ -834,6 +850,7 @@ toplevel element
 */
 void
 refineInteractions(
+    Camera *camera,
     VoxelGrid *sceneWorldVoxelGrid,
     GalerkinElement *parentElement,
     GalerkinState *state,
@@ -849,6 +866,7 @@ refineInteractions(
           parentElement->irregularSubElements != nullptr && i < parentElement->irregularSubElements->size();
           i++ ) {
         refineInteractions(
+            camera,
             sceneWorldVoxelGrid,
             (GalerkinElement *)parentElement->irregularSubElements->get(i),
             state,
@@ -860,6 +878,7 @@ refineInteractions(
     if ( parentElement->regularSubElements != nullptr ) {
         for ( int i = 0; i < 4; i++ ) {
             refineInteractions(
+                camera,
                 sceneWorldVoxelGrid,
                 (GalerkinElement *)parentElement->regularSubElements[i],
                 state,
@@ -875,6 +894,7 @@ refineInteractions(
     for ( int i = 0; parentElement->interactions != nullptr && i < parentElement->interactions->size(); i++ ) {
         Interaction *interaction = parentElement->interactions->get(i);
         if ( refineInteraction(
+                camera,
                 sceneWorldVoxelGrid,
                 interaction,
                 state,
