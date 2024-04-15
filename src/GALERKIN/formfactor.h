@@ -8,11 +8,9 @@ All kind of form factor computations
 #include "java/util/ArrayList.h"
 #include "GALERKIN/Interaction.h"
 
-extern bool
-facing(Patch *P, Patch *Q);
+extern int facing(Patch *P, Patch *Q);
 
-extern unsigned
-areaToAreaFormFactor(
+extern unsigned areaToAreaFormFactor(
     VoxelGrid *sceneWorldVoxelGrid,
     Interaction *link,
     java::ArrayList<Geometry *> *geometryShadowList,
