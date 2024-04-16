@@ -6,18 +6,18 @@
 #define HIT_TEXTURE_COORDINATE 0x200 // Texture coordinates
 
 RayHit::RayHit():
-        patch(),
-        point(),
-        geometricNormal(),
-        material(),
-        normal(),
-        texCoord(),
-        X(),
-        Y(),
-        Z(),
-        uv(),
-        distance(),
-        flags()
+    texCoord(),
+    patch(),
+    point(),
+    geometricNormal(),
+    material(),
+    normal(),
+    X(),
+    Y(),
+    Z(),
+    uv(),
+    distance(),
+    flags()
 {
 }
 
