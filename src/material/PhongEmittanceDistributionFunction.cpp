@@ -77,7 +77,7 @@ phongEdfEval(PhongEmittanceDistributionFunction *edf, RayHit *hit, Vector3D *out
         *probabilityDensityFunction = 0.0;
     }
 
-    if ( !hitShadingNormal(hit, &normal) ) {
+    if ( !hit->shadingNormal(&normal) ) {
         logWarning("phongEdfEval", "Couldn't determine shading normal");
         return result;
     }
@@ -150,7 +150,7 @@ phongEdfSample(
         CoordSys coord;
 
         Vector3D normal;
-        if ( !hitShadingNormal(hit, &normal) ) {
+        if ( !hit->shadingNormal(&normal) ) {
             logWarning("phongEdfEval", "Couldn't determine shading normal");
             return dir;
         }

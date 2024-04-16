@@ -81,17 +81,17 @@ RayHit::init(
 Fills in (u,v) parameters of hit point on the hit patch, computing it if not
 computed before. Returns FALSE if the (u,v) parameters could not be determined
 */
-static int
-hitUv(RayHit *hit, Vector2Dd *uv) {
-    if ( hit->flags & HIT_UV ) {
-        *uv = hit->uv;
+int
+RayHit::hitUv(Vector2Dd *inUv) {
+    if ( flags & HIT_UV ) {
+        *inUv = uv;
         return true;
     }
 
-    if ( (hit->flags & HIT_PATCH) && (hit->flags & HIT_POINT) ) {
-        hit->patch->uv(&hit->point, &hit->uv.u, &hit->uv.v);
-        *uv = hit->uv;
-        hit->flags |= HIT_UV;
+    if ( (flags & HIT_PATCH) && (flags & HIT_POINT) ) {
+        patch->uv(&point, &uv.u, &uv.v);
+        *inUv = uv;
+        flags |= HIT_UV;
         return true;
     }
 
@@ -108,7 +108,7 @@ RayHit::getTexCoord(Vector3D *outTexCoord) {
         return true;
     }
 
-    if ( !hitUv(this, &uv) ) {
+    if ( !hitUv(&uv) ) {
         return false;
     }
 
@@ -128,26 +128,26 @@ if the shading frame could not be determined.
 If X and Y are null pointers, only the shading normal is returned in Z
 possibly avoiding computations of the X and Y axis
 */
-static int
-hitPointShadingFrame(RayHit *hit, Vector3D *X, Vector3D *Y, Vector3D *Z) {
+int
+RayHit::hitPointShadingFrame(Vector3D *inX, Vector3D *inY, Vector3D *inZ) {
     int success = false;
 
-    if ( !hitInitialised(hit) ) {
+    if ( !hitInitialised(this) ) {
         logWarning("hitPointShadingFrame", "uninitialised hit structure");
         return false;
     }
 
-    if ( hit->material && hit->material->bsdf ) {
-        success = bsdfShadingFrame(hit->material->bsdf, hit, X, Y, Z);
+    if ( material && material->bsdf ) {
+        success = bsdfShadingFrame(material->bsdf, this, inX, inY, inZ);
     }
 
-    if ( !success && hit->material && hit->material->edf ) {
-        success = edfShadingFrame(hit->material->edf, hit, X, Y, Z);
+    if ( !success && material && material->edf ) {
+        success = edfShadingFrame(material->edf, this, inX, inY, inZ);
     }
 
-    if ( !success && hitUv(hit, &hit->uv) ) {
+    if ( !success && hitUv(&uv) ) {
         // Make default shading frame
-        hit->patch->interpolatedFrameAtUv(hit->uv.u, hit->uv.v, X, Y, Z);
+        patch->interpolatedFrameAtUv(uv.u, uv.v, inX, inY, inZ);
         success = true;
     }
 
@@ -158,24 +158,24 @@ hitPointShadingFrame(RayHit *hit, Vector3D *X, Vector3D *Y, Vector3D *Z) {
 Fills in shading frame: Z is the shading normal
 */
 int
-hitShadingFrame(RayHit *hit, Vector3D *X, Vector3D *Y, Vector3D *Z) {
-    if ( hit->flags & HIT_SHADING_FRAME ) {
-        *X = hit->X;
-        *Y = hit->Y;
-        *Z = hit->Z;
+RayHit::shadingFrame(Vector3D *inX, Vector3D *inY, Vector3D *inZ) {
+    if ( flags & HIT_SHADING_FRAME ) {
+        *inX = X;
+        *inY = Y;
+        *inZ = Z;
         return true;
     }
 
-    if ( !hitPointShadingFrame(hit, &hit->X, &hit->Y, &hit->Z) ) {
+    if ( !hitPointShadingFrame(&X, &Y, &Z) ) {
         return false;
     }
 
-    hit->normal = hit->Z; // shading normal
-    hit->flags |= HIT_SHADING_FRAME | HIT_NORMAL;
+    normal = Z; // shading normal
+    flags |= HIT_SHADING_FRAME | HIT_NORMAL;
 
-    *X = hit->X;
-    *Y = hit->Y;
-    *Z = hit->Z;
+    *inX = X;
+    *inY = Y;
+    *inZ = Z;
     return true;
 }
 
@@ -184,17 +184,17 @@ Fills in shading normal (Z axis of shading frame) only, avoiding computation
 of shading X and Y axis if possible
 */
 int
-hitShadingNormal(RayHit *hit, Vector3D *normal) {
-    if ( hit->flags & HIT_SHADING_FRAME || hit->flags & HIT_NORMAL ) {
-        *normal = hit->normal;
+RayHit::shadingNormal(Vector3D *inNormal) {
+    if ( flags & HIT_SHADING_FRAME || flags & HIT_NORMAL ) {
+        *inNormal = normal;
         return true;
     }
 
-    if ( !hitPointShadingFrame(hit, nullptr, nullptr, &hit->normal) ) {
+    if ( !hitPointShadingFrame(nullptr, nullptr, &normal) ) {
         return false;
     }
 
-    hit->flags |= HIT_NORMAL;
-    *normal = hit->Z = hit->normal;
+    flags |= HIT_NORMAL;
+    *inNormal = Z = normal;
     return true;
 }

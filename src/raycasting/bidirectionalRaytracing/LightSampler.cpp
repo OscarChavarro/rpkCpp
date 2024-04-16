@@ -103,7 +103,7 @@ UniformLightSampler::sample(
 
         // Fake a hit record
         newNode->m_hit.init(light, nullptr, &point, &light->normal, light->material, 0.0);
-        hitShadingNormal(&newNode->m_hit, &newNode->m_hit.normal);
+        newNode->m_hit.shadingNormal(&newNode->m_hit.normal);
         vectorCopy(newNode->m_hit.normal, newNode->m_normal);
     }
 
@@ -241,7 +241,7 @@ ImportantLightSampler::sample(
 
         // Fake a hit record
         newNode->m_hit.init(light, nullptr, &point, &light->normal, light->material, 0.0);
-        hitShadingNormal(&newNode->m_hit, &newNode->m_hit.normal);
+        newNode->m_hit.shadingNormal(&newNode->m_hit.normal);
         vectorCopy(newNode->m_hit.normal, newNode->m_normal);
     }
 

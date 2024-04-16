@@ -105,7 +105,7 @@ splitBsdfEval(
     Vector3D normal;
 
     result.clear();
-    if ( !hitShadingNormal(hit, &normal) ) {
+    if ( !hit->shadingNormal(&normal) ) {
         logWarning("splitBsdfEval", "Couldn't determine shading normal");
         return result;
     }
@@ -229,7 +229,7 @@ splitBsdfSample(
     Vector3D out;
 
     *probabilityDensityFunction = 0; // So we can return safely
-    if ( !hitShadingNormal(hit, &normal) ) {
+    if ( !hit->shadingNormal(&normal) ) {
         logWarning("splitBsdfSample", "Couldn't determine shading normal");
         out.set(0.0, 0.0, 1.0);
         return out;
@@ -339,7 +339,7 @@ splitBsdfEvalPdf(
     Vector3D normal;
 
     *probabilityDensityFunction = *probabilityDensityFunctionRR = 0.0; // So we can return safely
-    if ( !hitShadingNormal(hit, &normal) ) {
+    if ( !hit->shadingNormal(&normal) ) {
         logWarning("splitBsdfEvalPdf", "Couldn't determine shading normal");
         return;
     }

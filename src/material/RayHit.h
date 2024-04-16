@@ -3,8 +3,8 @@ Hit record structure, returned by ray-object intersection routines and
 used as a parameter for BSDF/EDF queries
 */
 
-#ifndef __HIT__
-#define __HIT__
+#ifndef __RAY_HIT__
+#define __RAY_HIT__
 
 #include "common/linealAlgebra/Vector2Dd.h"
 #include "common/linealAlgebra/Vector3D.h"
@@ -19,6 +19,10 @@ Information returned by ray-geometry or ray-discretization intersection
 routines
 */
 class RayHit {
+  private:
+    int hitUv(Vector2Dd *inUv);
+    int hitPointShadingFrame(Vector3D *inX, Vector3D *inY, Vector3D *inZ);
+
   public:
     Patch *patch; // patch that was hit
     Vector3D point; // intersection point
@@ -45,7 +49,8 @@ class RayHit {
         float inDistance);
 
     int getTexCoord(Vector3D *outTexCoord);
-
+    int shadingFrame(Vector3D *inX, Vector3D *inY, Vector3D *inZ);
+    int shadingNormal(Vector3D *inNormal);
 };
 
 /**
@@ -76,8 +81,5 @@ a ray intersection routine is a front or back hit
                                 // The Z axis of the shading frame is the shading
                                 // normal and may differ from the geometric normal
 #define HIT_NORMAL 0x800 // shading normal (filled in by HitShadingNormal() or HitShadingFrame())
-
-extern int hitShadingFrame(RayHit *hit, Vector3D *X, Vector3D *Y, Vector3D *Z);
-extern int hitShadingNormal(RayHit *hit, Vector3D *normal);
 
 #endif
