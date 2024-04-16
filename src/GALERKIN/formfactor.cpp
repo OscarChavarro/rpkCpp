@@ -106,21 +106,16 @@ pointKernelEval(
     VoxelGrid *sceneWorldVoxelGrid,
     Vector3D *x,
     Vector3D *y,
-    GalerkinElement *rcv,
-    GalerkinElement *src,
-    java::ArrayList<Geometry *> *geometryShadowList,
+    GalerkinElement *receiverElement,
+    GalerkinElement *sourceElement,
+    java::ArrayList<Geometry *> *shadowGeometryList,
     double *vis,
     bool isSceneGeometry,
     bool isClusteredGeometry,
     GalerkinState *galerkinState)
 {
-    double dist;
-    double cosP;
-    double cosQ;
-    double formFactor;
-    float distance;
     Ray ray;
-    RayHit hitStore;
+    double dist;
 
     // Trace the ray from source to receiver (y to x) to handle one-sided surfaces correctly
     ray.pos = *y;
@@ -130,15 +125,16 @@ pointKernelEval(
 
     // Don't allow too nearby nodes to interact
     if ( dist < EPSILON ) {
-        logWarning("pointKernelEval", "Nodes too close too each other (receiver id %d, source id %d)", rcv->id, src->id);
+        logWarning("pointKernelEval", "Nodes too close too each other (receiver id %d, source id %d)", receiverElement->id, sourceElement->id);
         return 0.0;
     }
 
     // Emitter factor times scale, see [SILL1995b] Sillion, "A Unified Hierarchical ...", IEEE TVCG Vol 1 nr 3, sept 1995
-    if ( src->isCluster() ) {
+    double cosQ;
+    if ( sourceElement->isCluster() ) {
         cosQ = 0.25;
     } else {
-        cosQ = vectorDotProduct(ray.dir, src->patch->normal);
+        cosQ = vectorDotProduct(ray.dir, sourceElement->patch->normal);
         if ( cosQ <= 0.0 ) {
             // Ray leaves behind the source
             return 0.0;
@@ -146,10 +142,11 @@ pointKernelEval(
     }
 
     // Receiver factor times scale
-    if ( rcv->isCluster() ) {
+    double cosP;
+    if ( receiverElement->isCluster() ) {
         cosP = 0.25;
     } else {
-        cosP = -vectorDotProduct(ray.dir, rcv->patch->normal);
+        cosP = -vectorDotProduct(ray.dir, receiverElement->patch->normal);
         if ( cosP <= 0.0 ) {
             // Ray hits receiver from the back
             return 0.0;
@@ -157,21 +154,22 @@ pointKernelEval(
     }
 
     // Un-occluded kernel value
-    formFactor = cosP * cosQ / (M_PI * dist * dist);
-    distance = (float)(dist * (1.0f - EPSILON));
+    double formFactor = cosP * cosQ / (M_PI * dist * dist);
+    float distance = (float)(dist * (1.0f - EPSILON));
 
     // Determine transmissivity (visibility)
-    if ( !geometryShadowList ) {
+    RayHit hitStore;
+    if ( !shadowGeometryList ) {
         *vis = 1.0;
     } else if ( !galerkinState->multiResolutionVisibility ) {
         if ( !shadowTestDiscretization(
-            &ray,
-            geometryShadowList,
-            sceneWorldVoxelGrid,
-            distance,
-            &hitStore,
-            isSceneGeometry,
-            isClusteredGeometry) ) {
+                &ray,
+                shadowGeometryList,
+                sceneWorldVoxelGrid,
+                distance,
+                &hitStore,
+                isSceneGeometry,
+                isClusteredGeometry) ) {
             *vis = 1.0;
         } else {
             *vis = 0.0;
@@ -180,7 +178,7 @@ pointKernelEval(
         *vis = 0.0;
     } else {
         float minimumFeatureSize = 2.0f * (float)std::sqrt(GLOBAL_statistics.totalArea * galerkinState->relMinElemArea / M_PI);
-        *vis = geomListMultiResolutionVisibility(geometryShadowList, &ray, distance, src->blockerSize, minimumFeatureSize);
+        *vis = geomListMultiResolutionVisibility(shadowGeometryList, &ray, distance, sourceElement->blockerSize, minimumFeatureSize);
     }
 
     return formFactor;
@@ -480,8 +478,7 @@ areaToAreaFormFactor(
             if ( link->numberOfBasisFunctionsOnReceiver == 1 && link->numberOfBasisFunctionsOnSource == 1 ) {
                 link->K[0] = 0.0;
             } else {
-                int i;
-                for ( i = 0; i < link->numberOfBasisFunctionsOnReceiver * link->numberOfBasisFunctionsOnSource; i++ ) {
+                for ( int i = 0; i < link->numberOfBasisFunctionsOnReceiver * link->numberOfBasisFunctionsOnSource; i++ ) {
                     link->K[i] = 0.0;
                 }
             }
