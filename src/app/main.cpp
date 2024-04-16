@@ -43,7 +43,7 @@ extern java::ArrayList<Patch *> *GLOBAL_scenePatches;
 static java::ArrayList<Patch *> *globalLightSourcePatches = nullptr;
 
 // The list of all patches in the current scene. Automatically derived from 'GLOBAL_scene_world' when loading a scene
-static java::ArrayList<Patch *> *globalAppScenePatches = nullptr;
+static java::ArrayList<Patch *> *globalScenePatches = nullptr;
 
 static char *globalCurrentDirectory;
 static int globalNumberOfQuarterCircleDivisions = DEFAULT_NUMBER_OF_QUARTIC_DIVISIONS;
@@ -114,8 +114,8 @@ mainComputeSomeSceneStats() {
     GLOBAL_statistics.totalArea = 0.0;
 
     // Accumulate
-    for ( int i = 0; i < globalAppScenePatches->size(); i++ ) {
-        mainPatchAccumulateStats(globalAppScenePatches->get(i));
+    for ( int i = 0; i < globalScenePatches->size(); i++ ) {
+        mainPatchAccumulateStats(globalScenePatches->get(i));
     }
 
     // Averages
@@ -173,8 +173,8 @@ mainBuildLightSourcePatchList() {
     globalLightSourcePatches = new java::ArrayList<Patch *>();
     GLOBAL_statistics.numberOfLightSources = 0;
 
-    for ( int i = 0; i < globalAppScenePatches->size(); i++ ) {
-        mainAddPatchToLightSourceListIfLightSource(globalAppScenePatches->get(i));
+    for ( int i = 0; i < globalScenePatches->size(); i++ ) {
+        mainAddPatchToLightSourceListIfLightSource(globalScenePatches->get(i));
     }
 
     mainAddBackgroundToLightSourceList();
@@ -262,7 +262,7 @@ Processes command line arguments not recognized by the Xt GUI toolkit
 */
 static void
 mainParseGlobalOptions(int *argc, char **argv, RadianceMethod **context) {
-    GLOBAL_scenePatches = globalAppScenePatches;
+    GLOBAL_scenePatches = globalScenePatches;
 
     renderParseOptions(argc, argv);
     parseToneMapOptions(argc, argv);
@@ -351,10 +351,10 @@ mainReadFile(char *filename, MgfContext *context) {
     // Prepare if errors occur when reading the new scene will abort
     globalSceneGeometries = nullptr;
 
-    if ( globalAppScenePatches != nullptr ) {
-        delete globalAppScenePatches;
+    if ( globalScenePatches != nullptr ) {
+        delete globalScenePatches;
     }
-    globalAppScenePatches = nullptr;
+    globalScenePatches = nullptr;
     Patch::setNextId(1);
     globalSceneClusteredGeometries = new java::ArrayList<Geometry *>();
     globalSceneBackground = nullptr;
@@ -400,7 +400,7 @@ mainReadFile(char *filename, MgfContext *context) {
         }
     #endif
 
-    delete globalAppScenePatches;
+    delete globalScenePatches;
 
     if ( globalSceneBackground != nullptr ) {
         globalSceneBackground->methods->Destroy(globalSceneBackground->data);
@@ -422,8 +422,8 @@ mainReadFile(char *filename, MgfContext *context) {
     fprintf(stderr, "Building patch list ... ");
     fflush(stderr);
 
-    globalAppScenePatches = new java::ArrayList<Patch *>();
-    buildPatchList(globalSceneGeometries, globalAppScenePatches);
+    globalScenePatches = new java::ArrayList<Patch *>();
+    buildPatchList(globalSceneGeometries, globalScenePatches);
 
     t = clock();
     fprintf(stderr, "%g secs.\n", (float) (t - last) / (float) CLOCKS_PER_SEC);
@@ -443,7 +443,7 @@ mainReadFile(char *filename, MgfContext *context) {
     fprintf(stderr, "Building cluster hierarchy ... ");
     fflush(stderr);
 
-    globalClusteredWorldGeometry = mainCreateClusterHierarchy(globalAppScenePatches);
+    globalClusteredWorldGeometry = mainCreateClusterHierarchy(globalScenePatches);
 
     if ( globalClusteredWorldGeometry->className == GeometryClassId::COMPOUND ) {
         if ( globalClusteredWorldGeometry->compoundData == nullptr ) {
@@ -482,7 +482,7 @@ mainReadFile(char *filename, MgfContext *context) {
     fprintf(stderr, "Initializing tone mapping ... ");
     fflush(stderr);
 
-    initToneMapping(globalAppScenePatches);
+    initToneMapping(globalScenePatches);
 
     t = clock();
     fprintf(stderr, "%g secs.\n", (float) (t - last) / (float) CLOCKS_PER_SEC);
@@ -508,7 +508,7 @@ mainReadFile(char *filename, MgfContext *context) {
         fprintf(stderr, "Initializing radiance computations ... ");
         fflush(stderr);
 
-        setRadianceMethod(context->radianceMethod, globalAppScenePatches, globalClusteredWorldGeometry);
+        setRadianceMethod(context->radianceMethod, globalScenePatches, globalClusteredWorldGeometry);
 
         t = clock();
         fprintf(stderr, "%g secs.\n", (float) (t - last) / (float) CLOCKS_PER_SEC);
@@ -631,8 +631,8 @@ mainFreeMemory(MgfContext *context) {
     galerkinFreeMemory();
     delete globalLightSourcePatches;
     delete globalSceneClusteredGeometries;
-    if ( globalAppScenePatches != nullptr ) {
-        delete globalAppScenePatches;
+    if ( globalScenePatches != nullptr ) {
+        delete globalScenePatches;
     }
     if ( globalSceneWorldVoxelGrid != nullptr ) {
         delete globalSceneWorldVoxelGrid;
@@ -656,18 +656,18 @@ main(int argc, char *argv[]) {
 
     mainBuildModel(&argc, argv, &mgfContext);
 
-    mainExecuteRendering(globalAppScenePatches, selectedRadianceMethod);
+    mainExecuteRendering(globalScenePatches, selectedRadianceMethod);
 
     //executeGlutGui(
     //    argc,
     //    argv,
     //    &GLOBAL_camera_mainCamera,
-    //    globalAppScenePatches,
-    //    GLOBAL_app_lightSourcePatches,
+    //    globalScenePatches,
+    //    globalLightSourcePatches,
     //    globalSceneGeometries,
     //    globalSceneClusteredGeometries,
-    //    GLOBAL_scene_clusteredWorldGeom,
     //    globalSceneBackground,
+    //    globalClusteredWorldGeometry,
     //    mgfContext.radianceMethod,
     //    globalSceneWorldVoxelGrid);
 

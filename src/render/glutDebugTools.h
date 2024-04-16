@@ -23,6 +23,7 @@ executeGlutGui(
     java::ArrayList<Patch *> *scenePatches,
     java::ArrayList<Patch *> *lightPatches,
     java::ArrayList<Geometry *> *sceneGeometries,
+    java::ArrayList<Geometry *> *sceneClusteredGeometries,
     Background *sceneBackground,
     Geometry *clusteredWorldGeom,
     RadianceMethod *radianceMethod,

@@ -551,6 +551,8 @@ mgfFreeMemory(MgfContext *context) {
     long surfaces = 0;
     long patchSets = 0;
     long compounds = 0;
+    long compoundChildren = 0;
+    long innerCompoundChildren = 0;
     long unknowns = 0;
     for ( int i = 0; i < context->currentGeometryList->size(); i++ ) {
         if ( context->currentGeometryList->get(i)->className == SURFACE_MESH ) {
@@ -558,6 +560,13 @@ mgfFreeMemory(MgfContext *context) {
         } else if ( context->currentGeometryList->get(i)->className == PATCH_SET ) {
             patchSets++;
         } else if ( context->currentGeometryList->get(i)->className == COMPOUND ) {
+            Compound *compound = (Compound *)context->currentGeometryList->get(i);
+            if ( compound->compoundData->children != nullptr ) {
+                compoundChildren += compound->compoundData->children->size();
+            }
+            if ( compound->children != nullptr ) {
+                innerCompoundChildren += compound->children->size();
+            }
             compounds++;
         } else {
             unknowns++;
@@ -566,6 +575,8 @@ mgfFreeMemory(MgfContext *context) {
     printf("  - MeshSurfaces: %ld\n", surfaces);
     printf("  - Patch sets: %ld\n", patchSets);
     printf("  - Compounds: %ld\n", compounds);
+    printf("    . Children: %ld\n", compoundChildren);
+    printf("    . Inner children: %ld\n", innerCompoundChildren);
     printf("  - Unknowns: %ld\n", unknowns);
     fflush(stdout);
 
