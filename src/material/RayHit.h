@@ -9,7 +9,7 @@ used as a parameter for BSDF/EDF queries
 #include "common/linealAlgebra/Vector2Dd.h"
 #include "common/linealAlgebra/Vector3D.h"
 
-// TODO SITHMASTER: This is coupling hit with scene level classes :(
+// TODO: this is coupling hit with scene level classes :(
 class Geometry;
 class Patch;
 class Material;
@@ -20,7 +20,6 @@ routines
 */
 class RayHit {
   public:
-    Geometry *geom; // geometry that was hit
     Patch *patch; // patch that was hit
     Vector3D point; // intersection point
     Vector3D geometricNormal;
@@ -34,9 +33,7 @@ class RayHit {
     float dist; // distance to ray origin: always computed
     unsigned int flags; // flags indicating which of the above fields have been filled in
 
-    RayHit(): geom(), patch(), point(), geometricNormal(), material(),
-              normal(), texCoord(), X(), Y(), Z(), uv(), dist(), flags()
-    {};
+    RayHit();
 };
 
 /**
@@ -46,27 +43,27 @@ or both kind of intersections should be returned.
 On output, they contain whether a particular hit record returned by
 a ray intersection routine is a front or back hit
 */
-#define HIT_FRONT 0x10000 // return intersections with surfaces oriented towards the origin of the ray
-#define HIT_BACK  0x20000 // return intersections with surfaces oriented away from the origin of the ray
-#define HIT_ANY   0x40000 // return any intersection point, not necessarily the nearest one. Used for shadow rays e.g.
+#define HIT_FRONT 0x10000 // Return intersections with surfaces oriented towards the origin of the ray
+#define HIT_BACK  0x20000 // Return intersections with surfaces oriented away from the origin of the ray
+#define HIT_ANY   0x40000 // Return any intersection point, not necessarily the nearest one. Used for shadow rays e.g.
 
-/* The following flags indicate what fields are available in a hit record */
+// The following flags indicate what fields are available in a hit record
+// These flags are set by ray intersection routines
 
-/* These flags are set by ray intersection routines */
-#define HIT_GEOM     0x01 // intersected Geometry (currently never set)
-#define HIT_PATCH    0x02 // intersected Patch (returned by DiscretisationHit routines)
-#define HIT_POINT    0x04 // intersection point
-#define HIT_GNORMAL  0x08 // geometric normal
-#define HIT_MATERIAL 0x10 // material properties at intersection point
-#define HIT_DIST     0x20 // distance to hit along the ray
+#define HIT_GEOMETRY 0x01 // Intersected Geometry (currently never set)
+#define HIT_PATCH 0x02 // Intersected Patch (returned by discretizationHit routines)
+#define HIT_POINT 0x04 // Intersection point
+#define HIT_GEOMETRIC_NORMAL 0x08 // Geometric normal
+#define HIT_MATERIAL 0x10 // Material properties at intersection point
+#define HIT_DIST 0x20 // Distance to hit along the ray
 
-/* These flags are only set by the routines HitUV() etc... below */
-#define HIT_UV           0x100 // (u,v) parameters (filled in by HitUV() routine below)
-#define HIT_TEXCOORD     0x200 // texture coordinates (filled in by HitTexCoord()) 
-#define HIT_SHADINGFRAME 0x400 /* shading frame (filled in by HitShadingFrame()).
-                                         * The Z axis of the shading frame is the shading 
-                                         * normal and may differ from the geometric normal */
-#define HIT_NORMAL       0x800 // shading normal (filled in by HitShadingNormal() or HitShadingFrame())
+// These flags are only set by the routines HitUV() etc.
+#define HIT_UV 0x100 // (u,v) parameters (filled in by HitUV() routine below)
+#define HIT_TEXTURE_COORDINATE 0x200 // Texture coordinates (filled in by HitTexCoord())
+#define HIT_SHADING_FRAME 0x400 // Shading frame (filled in by HitShadingFrame())
+                               // The Z axis of the shading frame is the shading
+                               // normal and may differ from the geometric normal
+#define HIT_NORMAL 0x800 // shading normal (filled in by HitShadingNormal() or HitShadingFrame())
 
 extern int
 hitInit(

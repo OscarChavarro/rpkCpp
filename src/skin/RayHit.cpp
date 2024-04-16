@@ -2,6 +2,22 @@
 #include "skin/Patch.h"
 #include "material/hit.h"
 
+RayHit::RayHit():
+    patch(),
+    point(),
+    geometricNormal(),
+    material(),
+    normal(),
+    texCoord(),
+    X(),
+    Y(),
+    Z(),
+    uv(),
+    dist(),
+    flags()
+{
+}
+
 /**
 Checks whether or not the hit record is properly initialised, that
 means that at least 'patch' or 'geom' plus 'point', 'geometricNormal', 'material'
@@ -10,9 +26,9 @@ initialised and FALSE if not
 */
 int
 hitInitialised(RayHit *hit) {
-    return ((hit->flags & HIT_PATCH) || (hit->flags & HIT_GEOM))
+    return ((hit->flags & HIT_PATCH) || (hit->flags & HIT_GEOMETRY))
            && (hit->flags & HIT_POINT)
-           && (hit->flags & HIT_GNORMAL)
+           && (hit->flags & HIT_GEOMETRIC_NORMAL)
            && (hit->flags & HIT_MATERIAL)
            && (hit->flags & HIT_DIST);
 }
@@ -38,9 +54,8 @@ hitInit(
     if ( patch ) {
         hit->flags |= HIT_PATCH;
     }
-    hit->geom = geom;
     if ( geom ) {
-        hit->flags |= HIT_GEOM;
+        hit->flags |= HIT_GEOMETRY;
     }
     if ( point ) {
         hit->point = *point;
@@ -48,7 +63,7 @@ hitInit(
     }
     if ( gNormal ) {
         hit->geometricNormal = *gNormal;
-        hit->flags |= HIT_GNORMAL;
+        hit->flags |= HIT_GEOMETRIC_NORMAL;
     }
     hit->material = material;
     hit->flags |= HIT_MATERIAL;
@@ -86,7 +101,7 @@ Fills in/computes texture coordinates of hit point
 */
 int
 hitTexCoord(RayHit *hit, Vector3D *texCoord) {
-    if ( hit->flags & HIT_TEXCOORD ) {
+    if ( hit->flags & HIT_TEXTURE_COORDINATE ) {
         *texCoord = hit->texCoord;
         return true;
     }
@@ -97,7 +112,7 @@ hitTexCoord(RayHit *hit, Vector3D *texCoord) {
 
     if ( hit->flags & HIT_PATCH ) {
         *texCoord = hit->texCoord = hit->patch->textureCoordAtUv(hit->uv.u, hit->uv.v);
-        hit->flags |= HIT_TEXCOORD;
+        hit->flags |= HIT_TEXTURE_COORDINATE;
         return true;
     }
 
@@ -109,7 +124,7 @@ Fills in shading frame: Z is the shading normal
 */
 int
 hitShadingFrame(RayHit *hit, Vector3D *X, Vector3D *Y, Vector3D *Z) {
-    if ( hit->flags & HIT_SHADINGFRAME ) {
+    if ( hit->flags & HIT_SHADING_FRAME ) {
         *X = hit->X;
         *Y = hit->Y;
         *Z = hit->Z;
@@ -121,7 +136,7 @@ hitShadingFrame(RayHit *hit, Vector3D *X, Vector3D *Y, Vector3D *Z) {
     }
 
     hit->normal = hit->Z; // shading normal
-    hit->flags |= HIT_SHADINGFRAME | HIT_NORMAL;
+    hit->flags |= HIT_SHADING_FRAME | HIT_NORMAL;
 
     *X = hit->X;
     *Y = hit->Y;
@@ -135,7 +150,7 @@ of shading X and Y axis if possible
 */
 int
 hitShadingNormal(RayHit *hit, Vector3D *normal) {
-    if ( hit->flags & HIT_SHADINGFRAME || hit->flags & HIT_NORMAL ) {
+    if ( hit->flags & HIT_SHADING_FRAME || hit->flags & HIT_NORMAL ) {
         *normal = hit->normal;
         return true;
     }
