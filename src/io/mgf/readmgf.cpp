@@ -555,17 +555,15 @@ mgfFreeMemory(MgfContext *context) {
     long innerCompoundChildren = 0;
     long unknowns = 0;
     for ( int i = 0; i < context->currentGeometryList->size(); i++ ) {
-        if ( context->currentGeometryList->get(i)->className == SURFACE_MESH ) {
+        Geometry *geometry = context->currentGeometryList->get(i);
+        if ( geometry->className == SURFACE_MESH ) {
             surfaces++;
-        } else if ( context->currentGeometryList->get(i)->className == PATCH_SET ) {
+        } else if ( geometry->className == PATCH_SET ) {
             patchSets++;
-        } else if ( context->currentGeometryList->get(i)->className == COMPOUND ) {
-            Compound *compound = (Compound *)context->currentGeometryList->get(i);
-            if ( compound->compoundData->children != nullptr ) {
-                compoundChildren += compound->compoundData->children->size();
-            }
-            if ( compound->children != nullptr ) {
-                innerCompoundChildren += compound->children->size();
+        } else if ( geometry->className == COMPOUND ) {
+            // Note that this creation is being done as a Geometry parent type!
+            if ( geometry->compoundData->children != nullptr ) {
+                compoundChildren += geometry->compoundData->children->size();
             }
             compounds++;
         } else {
