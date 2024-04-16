@@ -2,19 +2,22 @@
 #include "skin/Patch.h"
 #include "material/RayHit.h"
 
+#define HIT_GEOMETRY 0x01 // Intersected Geometry
+#define HIT_TEXTURE_COORDINATE 0x200 // Texture coordinates
+
 RayHit::RayHit():
-    patch(),
-    point(),
-    geometricNormal(),
-    material(),
-    normal(),
-    texCoord(),
-    X(),
-    Y(),
-    Z(),
-    uv(),
-    dist(),
-    flags()
+        patch(),
+        point(),
+        geometricNormal(),
+        material(),
+        normal(),
+        texCoord(),
+        X(),
+        Y(),
+        Z(),
+        uv(),
+        distance(),
+        flags()
 {
 }
 
@@ -24,13 +27,13 @@ means that at least 'patch' or 'geom' plus 'point', 'geometricNormal', 'material
 and 'dist' are initialised. Returns TRUE if the structure is properly
 initialised and FALSE if not
 */
-static int
-hitInitialised(RayHit *hit) {
-    return ((hit->flags & HIT_PATCH) || (hit->flags & HIT_GEOMETRY))
-           && (hit->flags & HIT_POINT)
-           && (hit->flags & HIT_GEOMETRIC_NORMAL)
-           && (hit->flags & HIT_MATERIAL)
-           && (hit->flags & HIT_DIST);
+bool
+RayHit::hitInitialised() const {
+    return ((flags & HIT_PATCH) || (flags & HIT_GEOMETRY))
+        && (flags & HIT_POINT)
+        && (flags & HIT_GEOMETRIC_NORMAL)
+        && (flags & HIT_MATERIAL)
+        && (flags & HIT_DIST);
 }
 
 /**
@@ -66,15 +69,16 @@ RayHit::init(
     }
     material = inMaterial;
     flags |= HIT_MATERIAL;
-    dist = inDistance;
+    distance = inDistance;
     flags |= HIT_DIST;
     normal.set(0, 0, 0);
     texCoord = normal;
     X = normal;
     Y = normal;
     Z = normal;
-    uv.u = uv.v = 0.0;
-    return hitInitialised(this);
+    uv.u = 0.0;
+    uv.v = 0.0;
+    return hitInitialised();
 }
 
 /**
@@ -82,7 +86,7 @@ Fills in (u,v) parameters of hit point on the hit patch, computing it if not
 computed before. Returns FALSE if the (u,v) parameters could not be determined
 */
 int
-RayHit::hitUv(Vector2Dd *inUv) {
+RayHit::computeUv(Vector2Dd *inUv) {
     if ( flags & HIT_UV ) {
         *inUv = uv;
         return true;
@@ -108,7 +112,7 @@ RayHit::getTexCoord(Vector3D *outTexCoord) {
         return true;
     }
 
-    if ( !hitUv(&uv) ) {
+    if ( !computeUv(&uv) ) {
         return false;
     }
 
@@ -129,11 +133,11 @@ If X and Y are null pointers, only the shading normal is returned in Z
 possibly avoiding computations of the X and Y axis
 */
 int
-RayHit::hitPointShadingFrame(Vector3D *inX, Vector3D *inY, Vector3D *inZ) {
+RayHit::pointShadingFrame(Vector3D *inX, Vector3D *inY, Vector3D *inZ) {
     int success = false;
 
-    if ( !hitInitialised(this) ) {
-        logWarning("hitPointShadingFrame", "uninitialised hit structure");
+    if ( !hitInitialised() ) {
+        logWarning("pointShadingFrame", "uninitialised hit structure");
         return false;
     }
 
@@ -145,7 +149,7 @@ RayHit::hitPointShadingFrame(Vector3D *inX, Vector3D *inY, Vector3D *inZ) {
         success = edfShadingFrame(material->edf, this, inX, inY, inZ);
     }
 
-    if ( !success && hitUv(&uv) ) {
+    if ( !success && computeUv(&uv) ) {
         // Make default shading frame
         patch->interpolatedFrameAtUv(uv.u, uv.v, inX, inY, inZ);
         success = true;
@@ -166,7 +170,7 @@ RayHit::shadingFrame(Vector3D *inX, Vector3D *inY, Vector3D *inZ) {
         return true;
     }
 
-    if ( !hitPointShadingFrame(&X, &Y, &Z) ) {
+    if ( !pointShadingFrame(&X, &Y, &Z) ) {
         return false;
     }
 
@@ -190,7 +194,7 @@ RayHit::shadingNormal(Vector3D *inNormal) {
         return true;
     }
 
-    if ( !hitPointShadingFrame(nullptr, nullptr, &normal) ) {
+    if ( !pointShadingFrame(nullptr, nullptr, &normal) ) {
         return false;
     }
 

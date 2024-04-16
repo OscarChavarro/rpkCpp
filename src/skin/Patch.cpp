@@ -900,7 +900,7 @@ Patch::intersect(
     }
 
     // Intersection point of ray with plane of patch
-    hit.dist = dist;
+    hit.distance = dist;
     vectorSumScaled(ray->pos, dist, ray->dir, hit.point);
 
     // Test whether it lays inside or outside the patch
