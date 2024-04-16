@@ -2,7 +2,7 @@
 #define __GEOMETRY__
 
 #include "java/util/ArrayList.h"
-#include "material/hit.h"
+#include "material/RayHit.h"
 #include "skin/BoundingBox.h"
 
 /**

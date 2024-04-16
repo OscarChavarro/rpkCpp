@@ -61,7 +61,7 @@ RayMatter::Matting(VoxelGrid *sceneWorldVoxelGrid) {
     long width = GLOBAL_camera_mainCamera.xSize;
     long height = GLOBAL_camera_mainCamera.ySize;
 
-    // TODO SITHMASTER: Main paralelizable loop for ray matter
+    // Main loop for ray matter
     for ( long y = 0; y < height; y++ ) {
         for ( long x = 0; x < width; x++ ) {
             float hits = 0;

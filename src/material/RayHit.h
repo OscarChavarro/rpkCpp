@@ -44,8 +44,8 @@ On output, they contain whether a particular hit record returned by
 a ray intersection routine is a front or back hit
 */
 #define HIT_FRONT 0x10000 // Return intersections with surfaces oriented towards the origin of the ray
-#define HIT_BACK  0x20000 // Return intersections with surfaces oriented away from the origin of the ray
-#define HIT_ANY   0x40000 // Return any intersection point, not necessarily the nearest one. Used for shadow rays e.g.
+#define HIT_BACK 0x20000 // Return intersections with surfaces oriented away from the origin of the ray
+#define HIT_ANY 0x40000 // Return any intersection point, not necessarily the nearest one. Used for shadow rays e.g.
 
 // The following flags indicate what fields are available in a hit record
 // These flags are set by ray intersection routines
@@ -61,8 +61,8 @@ a ray intersection routine is a front or back hit
 #define HIT_UV 0x100 // (u,v) parameters (filled in by HitUV() routine below)
 #define HIT_TEXTURE_COORDINATE 0x200 // Texture coordinates (filled in by HitTexCoord())
 #define HIT_SHADING_FRAME 0x400 // Shading frame (filled in by HitShadingFrame())
-                               // The Z axis of the shading frame is the shading
-                               // normal and may differ from the geometric normal
+                                // The Z axis of the shading frame is the shading
+                                // normal and may differ from the geometric normal
 #define HIT_NORMAL 0x800 // shading normal (filled in by HitShadingNormal() or HitShadingFrame())
 
 extern int

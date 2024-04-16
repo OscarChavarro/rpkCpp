@@ -5,7 +5,7 @@
 
 #include "material/PhongEmittanceDistributionFunction.h"
 #include "material/bsdf.h"
-#include "material/hit.h"
+#include "material/RayHit.h"
 
 class Material {
   public:

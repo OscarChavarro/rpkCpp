@@ -48,7 +48,7 @@ set(MAIN_SRC
     src/material/splitbsdf.cpp
     src/material/phong.cpp
     src/skin/PatchSet.cpp
-    src/skin/hit.cpp
+    src/skin/RayHit.cpp
     src/skin/Compound.cpp
     src/skin/Geometry.cpp
     src/skin/Patch.cpp

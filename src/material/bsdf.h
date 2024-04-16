@@ -13,7 +13,7 @@ light scattering.
 #define __BSDF__
 
 #include "common/ColorRgb.h"
-#include "material/hit.h"
+#include "material/RayHit.h"
 #include "material/xxdf.h"
 #include "material/texture.h"
 #include "material/brdf.h"

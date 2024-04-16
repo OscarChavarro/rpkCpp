@@ -3,7 +3,7 @@
 
 #include <cstdio>
 
-#include "material/hit.h"
+#include "material/RayHit.h"
 #include "material/phong.h"
 
 /**

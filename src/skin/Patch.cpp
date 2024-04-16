@@ -905,11 +905,10 @@ Patch::intersect(
 
     // Test whether it lays inside or outside the patch
     if ( hitInPatch(&hit, this) ) {
-        hit.geom = nullptr; // we don't know it
         hit.patch = this;
         hit.material = material;
         hit.geometricNormal = normal;
-        hit.flags |= HIT_PATCH | HIT_POINT | HIT_MATERIAL | HIT_GNORMAL | HIT_DIST;
+        hit.flags |= HIT_PATCH | HIT_POINT | HIT_MATERIAL | HIT_GEOMETRIC_NORMAL | HIT_DIST;
         if ( hitFlags & HIT_UV ) {
             if ( !(hit.flags & HIT_UV) ) {
                 hit.patch->uv(&hit.point, &hit.uv.u, &hit.uv.v);

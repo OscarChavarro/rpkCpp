@@ -1,6 +1,6 @@
 #include "common/error.h"
 #include "skin/Patch.h"
-#include "material/hit.h"
+#include "material/RayHit.h"
 
 RayHit::RayHit():
     patch(),

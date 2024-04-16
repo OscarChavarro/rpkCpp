@@ -36,7 +36,7 @@ CEyeSampler::sample(
     hit->X = GLOBAL_camera_mainCamera.X;
     hit->Y = GLOBAL_camera_mainCamera.Y;
     hit->Z = GLOBAL_camera_mainCamera.Z;
-    hit->flags |= HIT_NORMAL | HIT_SHADINGFRAME;
+    hit->flags |= HIT_NORMAL | HIT_SHADING_FRAME;
 
     vectorCopy(newNode->m_hit.normal, newNode->m_normal);
     newNode->m_G = 1.0;

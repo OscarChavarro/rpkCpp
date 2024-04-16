@@ -4,7 +4,7 @@
 #include "material/texture.h"
 #include "material/brdf.h"
 #include "material/btdf.h"
-#include "material/hit.h"
+#include "material/RayHit.h"
 #include "material/bsdf.h"
 
 extern ColorRgb
