@@ -43,6 +43,9 @@ class RayHit {
         Vector3D *inGeometryNormal,
         Material *inMaterial,
         float inDistance);
+
+    int getTexCoord(Vector3D *outTexCoord);
+
 };
 
 /**
@@ -74,7 +77,6 @@ a ray intersection routine is a front or back hit
                                 // normal and may differ from the geometric normal
 #define HIT_NORMAL 0x800 // shading normal (filled in by HitShadingNormal() or HitShadingFrame())
 
-extern int hitTexCoord(RayHit *hit, Vector3D *texCoord);
 extern int hitShadingFrame(RayHit *hit, Vector3D *X, Vector3D *Y, Vector3D *Z);
 extern int hitShadingNormal(RayHit *hit, Vector3D *normal);
 

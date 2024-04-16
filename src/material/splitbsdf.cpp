@@ -30,7 +30,7 @@ splitBsdfEvalTexture(TEXTURE *texture, RayHit *hit) {
         return col;
     }
 
-    if ( !hit || !hitTexCoord(hit, &texCoord) ) {
+    if ( !hit || !hit->getTexCoord(&texCoord) ) {
         logWarning("splitBsdfEvalTexture", "Couldn't get texture coordinates");
         return col;
     }

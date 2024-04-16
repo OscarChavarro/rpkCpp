@@ -69,7 +69,10 @@ RayHit::init(
     dist = inDistance;
     flags |= HIT_DIST;
     normal.set(0, 0, 0);
-    texCoord = X = Y = Z = normal;
+    texCoord = normal;
+    X = normal;
+    Y = normal;
+    Z = normal;
     uv.u = uv.v = 0.0;
     return hitInitialised(this);
 }
@@ -99,19 +102,20 @@ hitUv(RayHit *hit, Vector2Dd *uv) {
 Fills in/computes texture coordinates of hit point
 */
 int
-hitTexCoord(RayHit *hit, Vector3D *texCoord) {
-    if ( hit->flags & HIT_TEXTURE_COORDINATE ) {
-        *texCoord = hit->texCoord;
+RayHit::getTexCoord(Vector3D *outTexCoord) {
+    if ( flags & HIT_TEXTURE_COORDINATE ) {
+        *outTexCoord = texCoord;
         return true;
     }
 
-    if ( !hitUv(hit, &hit->uv) ) {
+    if ( !hitUv(this, &uv) ) {
         return false;
     }
 
-    if ( hit->flags & HIT_PATCH ) {
-        *texCoord = hit->texCoord = hit->patch->textureCoordAtUv(hit->uv.u, hit->uv.v);
-        hit->flags |= HIT_TEXTURE_COORDINATE;
+    if ( flags & HIT_PATCH ) {
+        texCoord = patch->textureCoordAtUv(uv.u, uv.v);
+        *outTexCoord = texCoord;
+        flags |= HIT_TEXTURE_COORDINATE;
         return true;
     }
 
