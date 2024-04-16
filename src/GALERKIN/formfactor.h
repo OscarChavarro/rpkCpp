@@ -6,6 +6,7 @@ All kind of form factor computations
 #define __FORM_FACTOR__
 
 #include "java/util/ArrayList.h"
+#include "scene/VoxelGrid.h"
 #include "GALERKIN/Interaction.h"
 
 extern unsigned

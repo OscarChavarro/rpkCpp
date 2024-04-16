@@ -141,9 +141,14 @@ newFace(Vertex *v1, Vertex *v2, Vertex *v3, Vertex *v4, MgfContext *context) {
     }
 
     if ( context->transformContext && context->transformContext->rev ) {
-        theFace = new Patch(numberOfVertices, v3, v2, v1, v4, context->radianceMethod);
+        theFace = new Patch(numberOfVertices, v3, v2, v1, v4);
     } else {
-        theFace = new Patch(numberOfVertices, v1, v2, v3, v4, context->radianceMethod);
+        theFace = new Patch(numberOfVertices, v1, v2, v3, v4);
+    }
+
+    // If we are doing radiance computations, create radiance data for the patch
+    if ( context != nullptr && theFace->material != nullptr ) {
+        context->radianceMethod->createPatchData(theFace);
     }
 
     context->currentFaceList->add(0, theFace);

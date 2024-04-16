@@ -555,8 +555,7 @@ Patch::Patch(
     Vertex *v1,
     Vertex *v2,
     Vertex *v3,
-    Vertex *v4,
-    RadianceMethod *context):
+    Vertex *v4):
     flags(),
     id(),
     twin(),
@@ -638,12 +637,7 @@ Patch::Patch(
     omit = false;
     flags = 0; // Other flags
 
-    // If we are doing radiance computations, create radiance data for the patch
-    if ( context != nullptr && material != nullptr ) {
-        context->createPatchData(this);
-    } else {
-        radianceData = nullptr;
-    }
+    radianceData = nullptr;
 }
 
 Patch::~Patch() {

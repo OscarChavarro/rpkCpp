@@ -12,6 +12,7 @@ path nodes and have to possible actions :
 
 #include "raycasting/common/pathnode.h"
 #include "scene/Background.h"
+#include "scene/VoxelGrid.h"
 
 class Sampler {
   protected:

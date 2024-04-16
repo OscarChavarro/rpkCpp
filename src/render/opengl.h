@@ -2,6 +2,7 @@
 #define __OPENGL__
 
 #include "skin/Patch.h"
+#include "skin/RadianceMethod.h"
 #include "scene/Camera.h"
 
 extern int openGlRenderInitialized();

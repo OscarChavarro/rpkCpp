@@ -7,6 +7,7 @@ Galerkin finite elements: one structure for both surface and cluster elements
 
 #include "java/util/ArrayList.h"
 #include "scene/Polygon.h"
+#include "scene/Camera.h"
 #include "GALERKIN/Interaction.h"
 
 class GalerkinState;

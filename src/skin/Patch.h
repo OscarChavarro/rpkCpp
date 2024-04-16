@@ -10,8 +10,6 @@
 #define PATCH_VISIBILITY 0x01
 #define MAX_EXCLUDED_PATCHES 4
 
-class RadianceMethod;
-
 class Patch {
   private:
     // A static counter which is increased every time a Patch is created in
@@ -72,7 +70,7 @@ class Patch {
     static int getNextId();
     static void setNextId(int id);
 
-    Patch(int inNumberOfVertices, Vertex *v1, Vertex *v2, Vertex *v3, Vertex *v4, RadianceMethod *context);
+    Patch(int inNumberOfVertices, Vertex *v1, Vertex *v2, Vertex *v3, Vertex *v4);
     ~Patch();
 
     void
@@ -105,7 +103,5 @@ class Patch {
     ColorRgb averageEmittance(char components);
     void computeVertexColors();
 };
-
-#include "skin/RadianceMethod.h"
 
 #endif

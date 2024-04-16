@@ -9,6 +9,7 @@ due to frame buffer formats, etc.
 #include "java/util/ArrayList.h"
 #include "SGL/sgl.h"
 #include "skin/Patch.h"
+#include "scene/Camera.h"
 
 extern SGL_CONTEXT *setupSoftFrameBuffer();
 
