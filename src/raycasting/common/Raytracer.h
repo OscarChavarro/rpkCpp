@@ -4,7 +4,7 @@
 #include "java/util/ArrayList.h"
 #include "IMAGE/imagec.h"
 #include "skin/Patch.h"
-#include "skin/RadianceMethod.h"
+#include "scene/RadianceMethod.h"
 #include "scene/Background.h"
 #include "scene/VoxelGrid.h"
 

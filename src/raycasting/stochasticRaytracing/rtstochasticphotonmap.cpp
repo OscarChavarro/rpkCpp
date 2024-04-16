@@ -1,5 +1,5 @@
 #include "common/error.h"
-#include "skin/RadianceMethod.h"
+#include "scene/RadianceMethod.h"
 #include "PHOTONMAP/photonmapsampler.h"
 #include "raycasting/raytracing/eyesampler.h"
 #include "raycasting/raytracing/bsdfsampler.h"

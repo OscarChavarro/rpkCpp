@@ -57,7 +57,6 @@ set(MAIN_SRC
     src/skin/Vertex.cpp
     src/skin/Jacobian.cpp
     src/skin/Element.cpp
-    src/skin/RadianceMethod.cpp
     src/SGL/poly_clip.cpp
     src/SGL/poly_scan_z.cpp
     src/SGL/sgl.cpp
@@ -66,6 +65,7 @@ set(MAIN_SRC
     src/scene/Background.cpp
     src/scene/VoxelData.cpp
     src/scene/Camera.cpp
+    src/scene/RadianceMethod.cpp
     src/IMAGE/pic.cpp
     src/IMAGE/dkcolor.cpp
     src/IMAGE/imagec.cpp

@@ -5,7 +5,7 @@
 
 #include "common/error.h"
 #include "common/mymath.h"
-#include "skin/RadianceMethod.h"
+#include "scene/RadianceMethod.h"
 #include "IMAGE/tonemap/tonemapping.h"
 #include "render/canvas.h"
 #include "render/renderhook.h"

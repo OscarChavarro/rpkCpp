@@ -1,6 +1,6 @@
 #include "common/error.h"
 #include "material/PhongEmittanceDistributionFunction.h"
-#include "skin/RadianceMethod.h"
+#include "scene/RadianceMethod.h"
 #include "raycasting/common/pathnode.h"
 #include "raycasting/bidirectionalRaytracing/FlagChain.h"
 

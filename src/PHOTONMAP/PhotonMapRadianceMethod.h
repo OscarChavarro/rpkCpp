@@ -2,7 +2,7 @@
 #define __PHOTON_MAP_RADIOSITY_
 
 #include "java/util/ArrayList.h"
-#include "skin/RadianceMethod.h"
+#include "scene/RadianceMethod.h"
 #include "raycasting/common/pathnode.h"
 #include "PHOTONMAP/photonmap.h"
 

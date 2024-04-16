@@ -1,6 +1,6 @@
 #include "common/error.h"
 #include "material/statistics.h"
-#include "skin/RadianceMethod.h"
+#include "scene/RadianceMethod.h"
 #include "raycasting/bidirectionalRaytracing/spar.h"
 
 Spar::Spar() {

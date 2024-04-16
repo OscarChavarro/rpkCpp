@@ -2,7 +2,7 @@
 #define __GLUT__
 
 #include "java/util/ArrayList.h"
-#include "skin/RadianceMethod.h"
+#include "scene/RadianceMethod.h"
 
 class GlutDebugState {
   public:

@@ -1,7 +1,7 @@
 #ifndef __MGF_CONTEXT__
 #define __MGF_CONTEXT__
 
-#include "skin/RadianceMethod.h"
+#include "scene/RadianceMethod.h"
 #include "io/mgf/MgfReaderContext.h"
 
 // Entities

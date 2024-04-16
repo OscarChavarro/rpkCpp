@@ -1,7 +1,7 @@
 #ifndef __RANDOM_WALK_RADIANCE_METHOD__
 #define __RANDOM_WALK_RADIANCE_METHOD__
 
-#include "skin/RadianceMethod.h"
+#include "scene/RadianceMethod.h"
 #include "scene/Camera.h"
 
 class RandomWalkRadianceMethod : public RadianceMethod {

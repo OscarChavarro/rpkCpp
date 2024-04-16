@@ -1,7 +1,7 @@
 #ifndef __STOCHASTIC_JACOBI_RADIOSITY_METHOD__
 #define __STOCHASTIC_JACOBI_RADIOSITY_METHOD__
 
-#include "skin/RadianceMethod.h"
+#include "scene/RadianceMethod.h"
 
 class StochasticJacobiRadianceMethod : public RadianceMethod {
 public:

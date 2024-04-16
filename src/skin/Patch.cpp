@@ -4,7 +4,6 @@
 #include "common/error.h"
 #include "material/statistics.h"
 #include "QMC/nied31.h"
-#include "skin/RadianceMethod.h"
 #include "skin/Patch.h"
 
 #define TOLERANCE 1e-5

@@ -1,4 +1,4 @@
-#include "skin/RadianceMethod.h"
+#include "scene/RadianceMethod.h"
 
 RadianceMethod::RadianceMethod() {
 }

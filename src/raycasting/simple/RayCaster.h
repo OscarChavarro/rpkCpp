@@ -3,7 +3,7 @@
 
 #include "common/RenderOptions.h"
 #include "java/util/ArrayList.h"
-#include "skin/RadianceMethod.h"
+#include "scene/RadianceMethod.h"
 #include "render/ScreenBuffer.h"
 
 #ifdef RAYTRACING_ENABLED

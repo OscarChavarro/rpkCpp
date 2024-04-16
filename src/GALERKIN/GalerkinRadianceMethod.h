@@ -2,7 +2,7 @@
 #define __GALERKIN_RADIOSITY_METHOD__
 
 #include "common/numericalAnalysis/cubature.h"
-#include "skin/RadianceMethod.h"
+#include "scene/RadianceMethod.h"
 #include "GALERKIN/GalerkinState.h"
 #include "scene/Background.h"
 #include "scene/VoxelGrid.h"
