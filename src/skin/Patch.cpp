@@ -700,7 +700,7 @@ Patch::averageNormalAlbedo(BSDF_FLAGS components) {
     ColorRgb albedo;
     RayHit hit;
 
-    hitInit(&hit, this, nullptr, &midPoint, &normal, material, 0.0);
+    hit.init(this, nullptr, &midPoint, &normal, material, 0.0);
 
     numberOfSamples = getNumberOfSamples();
     albedo.clear();
@@ -724,7 +724,7 @@ Patch::averageEmittance(char components) {
     int numberOfSamples;
     ColorRgb emittance;
     RayHit hit;
-    hitInit(&hit, this, nullptr, &midPoint, &normal, material, 0.0);
+    hit.init(this, nullptr, &midPoint, &normal, material, 0.0);
 
     numberOfSamples = getNumberOfSamples();
     emittance.clear();

@@ -89,8 +89,7 @@ UniformLightSampler::sample(
         Vector3D dir = edfSample(light->material->edf, &(thisNode->m_hit), flags, x1, x2, nullptr, &pdf);
         vectorSubtract(thisNode->m_hit.point, dir, point);   // fake hit at distance 1!
 
-        hitInit(&newNode->m_hit, light, nullptr, &point, nullptr,
-                light->material, 0.0);
+        newNode->m_hit.init(light, nullptr, &point, nullptr, light->material, 0.0);
 
         // Fill in directions
         vectorScale(-1, dir, newNode->m_inDirT);
@@ -103,8 +102,7 @@ UniformLightSampler::sample(
         pdfPoint = 1.0 / light->area;
 
         // Fake a hit record
-        hitInit(&newNode->m_hit, light, nullptr, &point, &light->normal,
-                light->material, 0.0);
+        newNode->m_hit.init(light, nullptr, &point, &light->normal, light->material, 0.0);
         hitShadingNormal(&newNode->m_hit, &newNode->m_hit.normal);
         vectorCopy(newNode->m_hit.normal, newNode->m_normal);
     }
@@ -226,7 +224,7 @@ ImportantLightSampler::sample(
         Vector3D dir = edfSample(light->material->edf, nullptr, flags, x1, x2, nullptr, &pdf);
         vectorAdd(thisNode->m_hit.point, dir, point);   // fake hit at distance 1!
 
-        hitInit(&newNode->m_hit, light, nullptr, &point, nullptr, light->material, 0.0);
+        newNode->m_hit.init(light, nullptr, &point, nullptr, light->material, 0.0);
 
         // fill in directions
         vectorScale(-1, dir, newNode->m_inDirT);
@@ -242,7 +240,7 @@ ImportantLightSampler::sample(
         // Light position and value are known now
 
         // Fake a hit record
-        hitInit(&newNode->m_hit, light, nullptr, &point, &light->normal, light->material, 0.0);
+        newNode->m_hit.init(light, nullptr, &point, &light->normal, light->material, 0.0);
         hitShadingNormal(&newNode->m_hit, &newNode->m_hit.normal);
         vectorCopy(newNode->m_hit.normal, newNode->m_normal);
     }

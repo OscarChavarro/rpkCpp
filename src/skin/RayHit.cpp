@@ -24,7 +24,7 @@ means that at least 'patch' or 'geom' plus 'point', 'geometricNormal', 'material
 and 'dist' are initialised. Returns TRUE if the structure is properly
 initialised and FALSE if not
 */
-int
+static int
 hitInitialised(RayHit *hit) {
     return ((hit->flags & HIT_PATCH) || (hit->flags & HIT_GEOMETRY))
            && (hit->flags & HIT_POINT)
@@ -40,46 +40,45 @@ This routine can be used in order to construct BSDF queries at other positions
 than hit positions returned by ray intersection routines
 */
 int
-hitInit(
-    RayHit *hit,
-    Patch *patch,
-    Geometry *geom,
-    Vector3D *point,
-    Vector3D *gNormal,
-    Material *material,
-    float dist)
+RayHit::init(
+    Patch *inPatch,
+    Geometry *inGeometry,
+    Vector3D *inPoint,
+    Vector3D *inGeometryNormal,
+    Material *inMaterial,
+    float inDistance)
 {
-    hit->flags = 0;
-    hit->patch = patch;
-    if ( patch ) {
-        hit->flags |= HIT_PATCH;
+    flags = 0;
+    patch = inPatch;
+    if ( inPatch != nullptr ) {
+        flags |= HIT_PATCH;
     }
-    if ( geom ) {
-        hit->flags |= HIT_GEOMETRY;
+    if ( inGeometry != nullptr ) {
+        flags |= HIT_GEOMETRY;
     }
-    if ( point ) {
-        hit->point = *point;
-        hit->flags |= HIT_POINT;
+    if ( inPoint != nullptr ) {
+        point = *inPoint;
+        flags |= HIT_POINT;
     }
-    if ( gNormal ) {
-        hit->geometricNormal = *gNormal;
-        hit->flags |= HIT_GEOMETRIC_NORMAL;
+    if ( inGeometryNormal != nullptr ) {
+        geometricNormal = *inGeometryNormal;
+        flags |= HIT_GEOMETRIC_NORMAL;
     }
-    hit->material = material;
-    hit->flags |= HIT_MATERIAL;
-    hit->dist = dist;
-    hit->flags |= HIT_DIST;
-    hit->normal.set(0, 0, 0);
-    hit->texCoord = hit->X = hit->Y = hit->Z = hit->normal;
-    hit->uv.u = hit->uv.v = 0.0;
-    return hitInitialised(hit);
+    material = inMaterial;
+    flags |= HIT_MATERIAL;
+    dist = inDistance;
+    flags |= HIT_DIST;
+    normal.set(0, 0, 0);
+    texCoord = X = Y = Z = normal;
+    uv.u = uv.v = 0.0;
+    return hitInitialised(this);
 }
 
 /**
 Fills in (u,v) parameters of hit point on the hit patch, computing it if not
 computed before. Returns FALSE if the (u,v) parameters could not be determined
 */
-int
+static int
 hitUv(RayHit *hit, Vector2Dd *uv) {
     if ( hit->flags & HIT_UV ) {
         *uv = hit->uv;
@@ -117,6 +116,38 @@ hitTexCoord(RayHit *hit, Vector3D *texCoord) {
     }
 
     return false;
+}
+
+/**
+Computes shading frame at hit point. Z is the shading normal. Returns FALSE
+if the shading frame could not be determined.
+If X and Y are null pointers, only the shading normal is returned in Z
+possibly avoiding computations of the X and Y axis
+*/
+static int
+hitPointShadingFrame(RayHit *hit, Vector3D *X, Vector3D *Y, Vector3D *Z) {
+    int success = false;
+
+    if ( !hitInitialised(hit) ) {
+        logWarning("hitPointShadingFrame", "uninitialised hit structure");
+        return false;
+    }
+
+    if ( hit->material && hit->material->bsdf ) {
+        success = bsdfShadingFrame(hit->material->bsdf, hit, X, Y, Z);
+    }
+
+    if ( !success && hit->material && hit->material->edf ) {
+        success = edfShadingFrame(hit->material->edf, hit, X, Y, Z);
+    }
+
+    if ( !success && hitUv(hit, &hit->uv) ) {
+        // Make default shading frame
+        hit->patch->interpolatedFrameAtUv(hit->uv.u, hit->uv.v, X, Y, Z);
+        success = true;
+    }
+
+    return success;
 }
 
 /**
@@ -162,36 +193,4 @@ hitShadingNormal(RayHit *hit, Vector3D *normal) {
     hit->flags |= HIT_NORMAL;
     *normal = hit->Z = hit->normal;
     return true;
-}
-
-/**
-Computes shading frame at hit point. Z is the shading normal. Returns FALSE
-if the shading frame could not be determined.
-If X and Y are null pointers, only the shading normal is returned in Z
-possibly avoiding computations of the X and Y axis
-*/
-int
-hitPointShadingFrame(RayHit *hit, Vector3D *X, Vector3D *Y, Vector3D *Z) {
-    int success = false;
-
-    if ( !hitInitialised(hit) ) {
-        logWarning("hitPointShadingFrame", "uninitialised hit structure");
-        return false;
-    }
-
-    if ( hit->material && hit->material->bsdf ) {
-        success = bsdfShadingFrame(hit->material->bsdf, hit, X, Y, Z);
-    }
-
-    if ( !success && hit->material && hit->material->edf ) {
-        success = edfShadingFrame(hit->material->edf, hit, X, Y, Z);
-    }
-
-    if ( !success && hitUv(hit, &hit->uv) ) {
-        // Make default shading frame
-        hit->patch->interpolatedFrameAtUv(hit->uv.u, hit->uv.v, X, Y, Z);
-        success = true;
-    }
-
-    return success;
 }

@@ -34,6 +34,15 @@ class RayHit {
     unsigned int flags; // flags indicating which of the above fields have been filled in
 
     RayHit();
+
+    int
+    init(
+        Patch *inPatch,
+        Geometry *inGeometry,
+        Vector3D *inPoint,
+        Vector3D *inGeometryNormal,
+        Material *inMaterial,
+        float inDistance);
 };
 
 /**
@@ -65,21 +74,8 @@ a ray intersection routine is a front or back hit
                                 // normal and may differ from the geometric normal
 #define HIT_NORMAL 0x800 // shading normal (filled in by HitShadingNormal() or HitShadingFrame())
 
-extern int
-hitInit(
-    RayHit *hit,
-    Patch *patch,
-    Geometry *geom,
-    Vector3D *point,
-    Vector3D *gNormal,
-    Material *material,
-    float dist);
-
-extern int hitInitialised(RayHit *hit);
-extern int hitUv(RayHit *hit, Vector2Dd *uv);
 extern int hitTexCoord(RayHit *hit, Vector3D *texCoord);
 extern int hitShadingFrame(RayHit *hit, Vector3D *X, Vector3D *Y, Vector3D *Z);
 extern int hitShadingNormal(RayHit *hit, Vector3D *normal);
-extern int hitPointShadingFrame(RayHit *hit, Vector3D *X, Vector3D *Y, Vector3D *Z);
 
 #endif

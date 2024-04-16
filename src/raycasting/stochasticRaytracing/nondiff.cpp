@@ -75,7 +75,7 @@ sampleLightRay(Patch *patch, ColorRgb *emitted_rad, double *point_selection_pdf,
 
         patch->uniformPoint(zeta[0], zeta[1], &ray.pos);
 
-        hitInit(&hit, patch, nullptr, &ray.pos, &patch->normal, patch->material, 0.0);
+        hit.init(patch, nullptr, &ray.pos, &patch->normal, patch->material, 0.0);
         ray.dir = edfSample(patch->material->edf, &hit, ALL_COMPONENTS, zeta[2], zeta[3], emitted_rad,
                             dir_selection_pdf);
     } while ( *dir_selection_pdf == 0.0 );

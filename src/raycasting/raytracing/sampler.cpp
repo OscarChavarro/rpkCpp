@@ -41,7 +41,7 @@ Sampler::sampleTransfer(
     if ( !hit ) {
         if ( sceneBackground ) {
             // Fill in path node for background
-            hitInit(&(newNode->m_hit), sceneBackground->bkgPatch, nullptr, nullptr, dir, nullptr, HUGE);
+            newNode->m_hit.init(sceneBackground->bkgPatch, nullptr, nullptr, dir, nullptr, HUGE);
             newNode->m_inDirT = *dir;
             newNode->m_inDirF = -(*dir);
             newNode->m_pdfFromPrev = pdfDir;
