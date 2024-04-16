@@ -13,8 +13,8 @@ Store a importon/poton. Some acceptance tests are performed first
 **/
 static bool
 HasDiffuseOrGlossy(SimpleRaytracingPathNode *node) {
-    if ( node->m_hit.patch->surface->material ) {
-        BSDF *bsdf = node->m_hit.patch->surface->material->bsdf;
+    if ( node->m_hit.patch->material ) {
+        BSDF *bsdf = node->m_hit.patch->material->bsdf;
         return !zeroAlbedo(bsdf, &node->m_hit,
                            BSDF_DIFFUSE_COMPONENT | BSDF_GLOSSY_COMPONENT);
     } else {

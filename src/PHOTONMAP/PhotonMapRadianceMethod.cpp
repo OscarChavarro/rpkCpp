@@ -328,11 +328,11 @@ bool
 photonMapDoPhotonStore(SimpleRaytracingPathNode *node, ColorRgb power) {
     //float scatteredPower;
     //COLOR col;
-    if ( node->m_hit.patch && node->m_hit.patch->surface->material ) {
+    if ( node->m_hit.patch && node->m_hit.patch->material ) {
         // Only add photons on surfaces with a certain reflection
         // coefficient
 
-        BSDF *bsdf = node->m_hit.patch->surface->material->bsdf;
+        BSDF *bsdf = node->m_hit.patch->material->bsdf;
 
         if ( !zeroAlbedo(bsdf, &node->m_hit, BSDF_DIFFUSE_COMPONENT | BSDF_GLOSSY_COMPONENT) ) {
             CPhoton photon(node->m_hit.point, power, node->m_inDirF);
@@ -346,8 +346,7 @@ photonMapDoPhotonStore(SimpleRaytracingPathNode *node, ColorRgb power) {
             }
 
             if ( GLOBAL_photonMap_state.densityControl == NO_DENSITY_CONTROL ) {
-                return GLOBAL_photonMap_config.currentMap->AddPhoton(photon, node->m_hit.normal,
-                                                                     flags);
+                return GLOBAL_photonMap_config.currentMap->AddPhoton(photon, node->m_hit.normal, flags);
             } else {
                 float reqDensity;
                 if ( GLOBAL_photonMap_state.densityControl == CONSTANT_RD ) {
@@ -643,12 +642,12 @@ ColorRgb
 PhotonMapRadianceMethod::getRadiance(Patch *patch, double u, double v, Vector3D dir) {
     RayHit hit;
     Vector3D point;
-    BSDF *bsdf = patch->surface->material->bsdf;
+    BSDF *bsdf = patch->material->bsdf;
     ColorRgb col;
     float density;
 
     patch->pointBarycentricMapping(u, v, &point);
-    hitInit(&hit, patch, nullptr, &point, &patch->normal, patch->surface->material, 0.0);
+    hitInit(&hit, patch, nullptr, &point, &patch->normal, patch->material, 0.0);
     hitShadingNormal(&hit, &hit.normal);
 
     if ( zeroAlbedo(bsdf, &hit, BSDF_DIFFUSE_COMPONENT | BSDF_GLOSSY_COMPONENT) ) {

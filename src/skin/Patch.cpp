@@ -574,7 +574,7 @@ Patch::Patch(
     omit(),
     color(),
     radianceData(),
-    surface()
+    material()
 {
     if ( v1 == nullptr || v2 == nullptr || v3 == nullptr || (inNumberOfVertices == 4 && v4 == nullptr) ) {
         logError("Patch::Patch", "Null vertex!");
@@ -592,7 +592,7 @@ Patch::Patch(
     id = globalPatchId;
     globalPatchId++;
 
-    surface = nullptr;
+    material = nullptr;
 
     for ( int i = 0; i < MAXIMUM_VERTICES_PER_PATCH; i++ ) {
         vertex[i] = nullptr;
@@ -639,7 +639,7 @@ Patch::Patch(
     flags = 0; // Other flags
 
     // If we are doing radiance computations, create radiance data for the patch
-    if ( context != nullptr && surface != nullptr ) {
+    if ( context != nullptr && material != nullptr ) {
         context->createPatchData(this);
     } else {
         radianceData = nullptr;
@@ -683,7 +683,7 @@ Patch::computeBoundingBox() {
 int
 Patch::getNumberOfSamples() {
     int numberOfSamples = 1;
-    if ( bsdfIsTextured(surface->material->bsdf) ) {
+    if ( bsdfIsTextured(material->bsdf) ) {
         if ( vertex[0]->textureCoordinates == vertex[1]->textureCoordinates &&
              vertex[0]->textureCoordinates == vertex[2]->textureCoordinates &&
              (numberOfVertices == 3 || vertex[0]->textureCoordinates == vertex[3]->textureCoordinates) &&
@@ -707,7 +707,7 @@ Patch::averageNormalAlbedo(BSDF_FLAGS components) {
     ColorRgb albedo;
     RayHit hit;
 
-    hitInit(&hit, this, nullptr, &midPoint, &normal, surface->material, 0.0);
+    hitInit(&hit, this, nullptr, &midPoint, &normal, material, 0.0);
 
     numberOfSamples = getNumberOfSamples();
     albedo.clear();
@@ -718,7 +718,7 @@ Patch::averageNormalAlbedo(BSDF_FLAGS components) {
         hit.uv.v = (double) xi[1] * RECIP;
         hit.flags |= HIT_UV;
         pointBarycentricMapping(hit.uv.u, hit.uv.v, &hit.point);
-        sample = bsdfScatteredPower(surface->material->bsdf, &hit, &normal, components);
+        sample = bsdfScatteredPower(material->bsdf, &hit, &normal, components);
         albedo.add(albedo, sample);
     }
     albedo.scaleInverse((float) numberOfSamples, albedo);
@@ -731,7 +731,7 @@ Patch::averageEmittance(char components) {
     int numberOfSamples;
     ColorRgb emittance;
     RayHit hit;
-    hitInit(&hit, this, nullptr, &midPoint, &normal, surface->material, 0.0);
+    hitInit(&hit, this, nullptr, &midPoint, &normal, material, 0.0);
 
     numberOfSamples = getNumberOfSamples();
     emittance.clear();
@@ -742,7 +742,7 @@ Patch::averageEmittance(char components) {
         hit.uv.v = (double) xi[1] * RECIP;
         hit.flags |= HIT_UV;
         pointBarycentricMapping(hit.uv.u, hit.uv.v, &hit.point);
-        sample = edfEmittance(surface->material->edf, &hit, components);
+        sample = edfEmittance(material->edf, &hit, components);
         emittance.add(emittance, sample);
     }
     emittance.scaleInverse((float) numberOfSamples, emittance);
@@ -914,7 +914,7 @@ Patch::intersect(
     if ( hitInPatch(&hit, this) ) {
         hit.geom = nullptr; // we don't know it
         hit.patch = this;
-        hit.material = surface->material;
+        hit.material = material;
         hit.geometricNormal = normal;
         hit.flags |= HIT_PATCH | HIT_POINT | HIT_MATERIAL | HIT_GNORMAL | HIT_DIST;
         if ( hitFlags & HIT_UV ) {

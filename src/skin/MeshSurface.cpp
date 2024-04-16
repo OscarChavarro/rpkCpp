@@ -68,7 +68,7 @@ surfaceConnectFace(MeshSurface *surf, Patch *face) {
     int i;
     ColorRgb rho;
 
-    face->surface = surf;
+    face->material = surf->material;
 
     // Also fill in a nicer default color for the patch
     switch ( globalColorFlags ) {

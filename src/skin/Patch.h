@@ -1,9 +1,10 @@
 #ifndef __PATCH__
 #define __PATCH__
 
+#include "material/Material.h"
+#include "skin/BoundingBox.h"
 #include "skin/Jacobian.h"
 #include "skin/Vertex.h"
-#include "skin/MeshSurface.h"
 
 #define MAXIMUM_VERTICES_PER_PATCH 4
 #define PATCH_VISIBILITY 0x01
@@ -65,7 +66,7 @@ class Patch {
 			   // after you changed it!
     ColorRgb color; // Color used to flat render the patch
     Element *radianceData; // Data needed for radiance computations. Content depends on the current radiance algorithm / radiosity method (a.k.a. context)
-    MeshSurface *surface; // Pointer to surface data (contains vertex list, material properties)
+    Material *material; // Pointer to surface data (contains vertex list, material properties)
 
     static void dontIntersect(int n, ...);
     static int getNextId();

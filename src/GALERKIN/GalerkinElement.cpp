@@ -150,8 +150,7 @@ GalerkinElement::GalerkinElement(Patch *parameterPatch, GalerkinState *inGalerki
     directPotential = patch->directPotential;
 
     Rd = patch->averageNormalAlbedo(BRDF_DIFFUSE_COMPONENT);
-    if ( patch->surface && patch->surface->material &&
-         patch->surface->material->edf ) {
+    if ( patch->material != nullptr && patch->material->edf != nullptr ) {
         flags |= IS_LIGHT_SOURCE_MASK;
         Ed = patch->averageEmittance(DIFFUSE_COMPONENT);
         Ed.scaleInverse(M_PI, Ed);
@@ -285,8 +284,8 @@ GalerkinElement::reAllocCoefficients() {
                 clusterGalerkinCopyCoefficients(defaultUnShotRadiance, unShotRadiance,
                                                 charMin(basisSize, localBasisSize));
                 delete unShotRadiance;
-            } else if ( patch->surface ) {
-                    defaultUnShotRadiance[0] = patch->radianceData->Ed;
+            } else if ( patch->material != nullptr ) {
+                defaultUnShotRadiance[0] = patch->radianceData->Ed;
             }
         }
         unShotRadiance = defaultUnShotRadiance;

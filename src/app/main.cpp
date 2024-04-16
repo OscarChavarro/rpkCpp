@@ -157,9 +157,8 @@ a light source (i.e. when the surfaces material has a non-null edf)
 static void
 mainAddPatchToLightSourceListIfLightSource(Patch *patch) {
     if ( patch != nullptr
-         && patch->surface != nullptr
-         && patch->surface->material != nullptr
-         && patch->surface->material->edf != nullptr ) {
+         && patch->material != nullptr
+         && patch->material->edf != nullptr ) {
         globalLightSourcePatches->add(0, patch);
         GLOBAL_statistics.numberOfLightSources++;
     }

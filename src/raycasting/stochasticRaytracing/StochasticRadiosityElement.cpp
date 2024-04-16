@@ -610,7 +610,7 @@ stochasticRadiosityElementIsTextured(StochasticRadiosityElement *elem) {
         logFatal(-1, "stochasticRadiosityElementIsTextured", "this routine should not be called for cluster elements");
         return false;
     }
-    mat = elem->patch->surface->material;
+    mat = elem->patch->material;
     return bsdfIsTextured(mat->bsdf) || edfIsTextured(mat->edf);
 }
 
@@ -648,7 +648,7 @@ monteCarloRadiosityElementComputeAverageReflectanceAndEmittance(StochasticRadios
     niedindex n;
     ColorRgb albedo, emittance;
     RayHit hit;
-    hitInit(&hit, patch, nullptr, &patch->midPoint, &patch->normal, patch->surface->material, 0.0);
+    hitInit(&hit, patch, nullptr, &patch->midPoint, &patch->normal, patch->material, 0.0);
 
     isTextured = stochasticRadiosityElementIsTextured(elem);
     numberOfSamples = isTextured ? 100 : 1;
@@ -664,12 +664,12 @@ monteCarloRadiosityElementComputeAverageReflectanceAndEmittance(StochasticRadios
         hit.uv.v = (double) xi[1] * RECIP;
         hit.flags |= HIT_UV;
         patch->uniformPoint(hit.uv.u, hit.uv.v, &hit.point);
-        if ( patch->surface->material->bsdf ) {
-            sample = bsdfScatteredPower(patch->surface->material->bsdf, &hit, &patch->normal, BRDF_DIFFUSE_COMPONENT);
+        if ( patch->material->bsdf ) {
+            sample = bsdfScatteredPower(patch->material->bsdf, &hit, &patch->normal, BRDF_DIFFUSE_COMPONENT);
             albedo.add(albedo, sample);
         }
-        if ( patch->surface->material->edf ) {
-            sample = edfEmittance(patch->surface->material->edf, &hit, DIFFUSE_COMPONENT);
+        if ( patch->material->edf ) {
+            sample = edfEmittance(patch->material->edf, &hit, DIFFUSE_COMPONENT);
             emittance.add(emittance, sample);
         }
     }
