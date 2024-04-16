@@ -21,7 +21,7 @@ enum MaterialColorFlags {
 
 class MeshSurface : public Geometry {
   public:
-    int id;
+    int meshId;
 
     /**
     The vertices of the patches. Each vertex contains a pointer to the vertex

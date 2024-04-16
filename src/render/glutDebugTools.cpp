@@ -36,6 +36,52 @@ resizeCallback(int newWidth, int newHeight) {
     globalHeight = newHeight;
 }
 
+static char *globalCompoundType = (char *)"Compound";
+static char *globalMeshSurfaceType = (char *)"MeshSurface";
+static char *globalPatchSetType = (char *)"PatchSet";
+static char *globalUnknownType = (char *)"<unknown>";
+
+static char *
+printGeometryType(GeometryClassId id) {
+    char *response = globalUnknownType;
+    if ( id == GeometryClassId::SURFACE_MESH ) {
+        response = globalMeshSurfaceType;
+    } else if ( id == GeometryClassId::COMPOUND ) {
+        response = globalCompoundType;
+    } else if ( id == GeometryClassId::PATCH_SET ) {
+        response = globalPatchSetType;
+    }
+    return response;
+}
+
+static void
+printDataStructures() {
+    printf("= globalSceneGeometries ================================================================\n");
+    printf("Geometries on list: %ld\n", globalSceneGeometries->size());
+    for ( int i = 0; i < globalSceneGeometries->size(); i++ ) {
+        Geometry *geometry = globalSceneGeometries->get(i);
+        printf("  - [%d] / [%s]\n", i, printGeometryType(geometry->className));
+        printf("    . Id: %d\n", geometry->id);
+        printf("    . %s\n", geometry->isDuplicate ? "Duplicate" : "Original");
+        if ( geometry->className == GeometryClassId::SURFACE_MESH ) {
+            MeshSurface* mesh = (MeshSurface *)geometry;
+            printf("    . Inner id: %d\n", mesh->meshId);
+            // Note that mesh is not used anymore after initial MGF read process, all needed is patches,
+            // compounds/clusters and materials.
+            //printf("    . Vertices: %ld, positions: %ld, normals: %ld, faces: %ld\n",
+            //   mesh->vertices->size(), mesh->positions->size(), mesh->normals->size(), mesh->faces->size());
+        } else if ( geometry->className == GeometryClassId::COMPOUND ) {
+            Compound *compound = (Compound *)geometry;
+            if ( compound->compoundData->children != nullptr ) {
+                printf("    . Outer children: %ld\n", compound->compoundData->children->size());
+            }
+            if ( compound->children != nullptr ) {
+                printf("    . Inner children: %ld\n", compound->children->size());
+            }
+        }
+    }
+}
+
 static void
 keypressCallback(unsigned char keyChar, int /*x*/, int /*y*/) {
     switch ( keyChar ) {
@@ -70,6 +116,9 @@ keypressCallback(unsigned char keyChar, int /*x*/, int /*y*/) {
                 globalLightPatches,
                 globalClusteredWorldGeom,
                 globalVoxelGrid);
+            break;
+        case 'p':
+            printDataStructures();
             break;
         default:
             return;
