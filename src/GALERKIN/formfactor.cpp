@@ -1,41 +1,29 @@
 #include "common/error.h"
 #include "common/mymath.h"
-#include "common/numericalAnalysis/cubature.h"
 #include "material/statistics.h"
 #include "GALERKIN/shadowcaching.h"
 #include "GALERKIN/basisgalerkin.h"
 #include "GALERKIN/mrvisibility.h"
 #include "GALERKIN/initiallinking.h"
-#include "GALERKIN/GalerkinState.h"
+#include "GALERKIN/formfactor.h"
 
 /**
 Returns true if P is at least partly in front the plane of Q. Returns false
-if P is coplanar with or behind Q. It suffices to test the vertices of P w.r.t.
-the plane of Q
+if P is coplanar with or behind Q. It suffices to test the vertices of P
+with respect to the plane of Q
 */
-int
+static bool
 isAtLeastPartlyInFront(Patch *P, Patch *Q) {
-    int i;
-
-    for ( i = 0; i < P->numberOfVertices; i++ ) {
+    for ( int i = 0; i < P->numberOfVertices; i++ ) {
         Vector3D *vp = P->vertex[i]->point;
-        double ep = vectorDotProduct(Q->normal, *vp) + Q->planeConstant,
-                tolp = Q->tolerance + vectorTolerance(*vp);
-        if ( ep > tolp ) {
+        double ep = vectorDotProduct(Q->normal, *vp) + Q->planeConstant;
+        double tolerance = Q->tolerance + vectorTolerance(*vp);
+        if ( ep > tolerance ) {
             // P is at least partly in front of Q
             return true;
         }
     }
     return false; // P is behind or coplanar with Q
-}
-
-/**
-Returns true if the two patches can "see" each other: P and Q see each
-other if at least a part of P is in front of Q and vice versa
-*/
-int
-facing(Patch *P, Patch *Q) {
-    return (isAtLeastPartlyInFront(P, Q) && isAtLeastPartlyInFront(Q, P));
 }
 
 /**
@@ -53,7 +41,6 @@ determineNodes(
     GalerkinState *galerkinState)
 {
     Matrix2x2 topTransform{};
-    int k;
 
     if ( element->isCluster() ) {
         BoundingBox boundingBox;
@@ -67,7 +54,7 @@ determineNodes(
         dx = boundingBox.coordinates[MAX_X] - boundingBox.coordinates[MIN_X];
         dy = boundingBox.coordinates[MAX_Y] - boundingBox.coordinates[MIN_Y];
         dz = boundingBox.coordinates[MAX_Z] - boundingBox.coordinates[MIN_Z];
-        for ( k = 0; k < (*cr)->numberOfNodes; k++ ) {
+        for ( int k = 0; k < (*cr)->numberOfNodes; k++ ) {
             x[k].set(
                       (float) (boundingBox.coordinates[MIN_X] + (*cr)->u[k] * dx),
                       (float) (boundingBox.coordinates[MIN_Y] + (*cr)->v[k] * dy),
@@ -86,15 +73,15 @@ determineNodes(
                 logFatal(4, "determineNodes", "Can only handle triangular and quadrilateral patches");
         }
 
-        /* compute the transform relating positions on the element to positions on
-         * the patch to which it belongs. */
+        // Compute the transform relating positions on the element to positions on
+        // the patch to which it belongs
         if ( element->upTrans ) {
             element->topTransform(&topTransform);
         }
 
-        /* compute the positions x[k] corresponding to the nodes of the cubature rule
-         * in the unit square or triangle used to parametrise the element. */
-        for ( k = 0; k < (*cr)->numberOfNodes; k++ ) {
+        // Compute the positions x[k] corresponding to the nodes of the cubature rule
+        // in the unit square or triangle used to parametrise the element
+        for ( int k = 0; k < (*cr)->numberOfNodes; k++ ) {
             Vector2D node;
             node.u = (float)(*cr)->u[k];
             node.v = (float)(*cr)->v[k];
@@ -139,7 +126,7 @@ pointKernelEval(
     ray.pos = *y;
     vectorSubtract(*x, *y, ray.dir);
     dist = vectorNorm(ray.dir);
-    vectorScaleInverse((float) dist, ray.dir, ray.dir);
+    vectorScaleInverse((float)dist, ray.dir, ray.dir);
 
     // Don't allow too nearby nodes to interact
     if ( dist < EPSILON ) {
@@ -202,7 +189,7 @@ pointKernelEval(
 /**
 Higher order area to area form factor computation. See
 
-- Ph. Bekaert, Y. D. Willems, "Error Control for Radiosity", Eurographics Rendering
+- Ph. Bekaert, Y. D. Willems, "Error Control for Radiosity", Euro-graphics Rendering
 Workshop, Porto, Portugal, June 1996, p 158.
 */
 static void
@@ -213,60 +200,58 @@ doHigherOrderAreaToAreaFormFactor(
     double Gxy[CUBAMAXNODES][CUBAMAXNODES],
     GalerkinState *galerkinState)
 {
-    static ColorRgb deltarad[CUBAMAXNODES]; // See Bekaert & Willems, p159 bottom
-    static double rcvphi[MAX_BASIS_SIZE][CUBAMAXNODES];
-    static double srcphi[CUBAMAXNODES];
-    static double G_beta[CUBAMAXNODES]; // G_beta[k] = G_{j,\beta}(x_k)
-    static double delta_beta[CUBAMAXNODES]; // delta_beta[k] = \delta_{j,\beta}(x_k)
+    static ColorRgb deltaRadiance[CUBAMAXNODES]; // See Bekaert & Willems, p159 bottom
+    static double rcvPhi[MAX_BASIS_SIZE][CUBAMAXNODES];
+    static double srcPhi[CUBAMAXNODES];
+    static double gBeta[CUBAMAXNODES]; // G_beta[k] = G_{j,\beta}(x_k)
+    static double deltaBeta[CUBAMAXNODES]; // delta_beta[k] = \delta_{j,\beta}(x_k)
 
     GalerkinElement *rcv = link->receiverElement, *src = link->sourceElement;
-    GalerkinBasis *rcvbasis;
-    GalerkinBasis *srcbasis;
-    double G_alpha_beta;
-    double Gmin;
-    double Gmax;
-    double Gav;
-    int k;
-    int l;
+    GalerkinBasis *rcvBasis;
+    GalerkinBasis *srcBasis;
+    double gAlphaBeta;
+    double gMin;
+    double gMax;
+    double gav;
     int alpha;
     int beta;
-    ColorRgb *srcrad = (galerkinState->galerkinIterationMethod == SOUTH_WELL) ?
+    ColorRgb *srcRad = (galerkinState->galerkinIterationMethod == SOUTH_WELL) ?
                        src->unShotRadiance : src->radiance;
 
     // Receiver and source basis description
     if ( rcv->isCluster() ) {
         // No basis description for clusters: we always use a constant approximation on clusters
-        rcvbasis = nullptr;
+        rcvBasis = nullptr;
     } else {
-        rcvbasis = (rcv->patch->numberOfVertices == 3 ? &GLOBAL_galerkin_triBasis : &GLOBAL_galerkin_quadBasis);
+        rcvBasis = (rcv->patch->numberOfVertices == 3 ? &GLOBAL_galerkin_triBasis : &GLOBAL_galerkin_quadBasis);
     }
 
     if ( src->isCluster() ) {
-        srcbasis = nullptr;
+        srcBasis = nullptr;
     } else {
-        srcbasis = (src->patch->numberOfVertices == 3 ? &GLOBAL_galerkin_triBasis : &GLOBAL_galerkin_quadBasis);
+        srcBasis = (src->patch->numberOfVertices == 3 ? &GLOBAL_galerkin_triBasis : &GLOBAL_galerkin_quadBasis);
     }
 
     // Determine basis function values \phi_{i,\alpha}(x_k) at sample positions on the
     // receiver patch for all basis functions \alpha
-    for ( k = 0; k < crrcv->numberOfNodes; k++ ) {
+    for ( int k = 0; k < crrcv->numberOfNodes; k++ ) {
         if ( rcv->isCluster() ) {
             // Constant approximation on clusters
             if ( link->numberOfBasisFunctionsOnReceiver != 1 ) {
                 logFatal(-1, "doHigherOrderAreaToAreaFormFactor",
                          "non-constant approximation on receiver cluster is not possible");
             }
-            rcvphi[0][k] = 1.0;
+            rcvPhi[0][k] = 1.0;
         } else {
-            for ( alpha = 0; alpha < link->numberOfBasisFunctionsOnReceiver && rcvbasis != nullptr; alpha++ ) {
-                rcvphi[alpha][k] = rcvbasis->function[alpha](crrcv->u[k], crrcv->v[k]);
+            for ( alpha = 0; alpha < link->numberOfBasisFunctionsOnReceiver && rcvBasis != nullptr; alpha++ ) {
+                rcvPhi[alpha][k] = rcvBasis->function[alpha](crrcv->u[k], crrcv->v[k]);
             }
         }
-        deltarad[k].clear();
+        deltaRadiance[k].clear();
     }
 
-    Gmin = HUGE;
-    Gmax = -HUGE;
+    gMin = HUGE;
+    gMax = -HUGE;
     for ( beta = 0; beta < link->numberOfBasisFunctionsOnSource; beta++ ) {
         // Determine basis function values \phi_{j,\beta}(x_l) at sample positions on the source patch
         if ( src->isCluster() ) {
@@ -274,75 +259,75 @@ doHigherOrderAreaToAreaFormFactor(
                 logFatal(-1, "doHigherOrderAreaToAreaFormFactor",
                          "non-constant approximation on source cluster is not possible");
             }
-            for ( l = 0; l < crsrc->numberOfNodes; l++ ) {
-                srcphi[l] = 1.0;
+            for ( int l = 0; l < crsrc->numberOfNodes; l++ ) {
+                srcPhi[l] = 1.0;
             }
         } else {
-            for ( l = 0; l < crsrc->numberOfNodes && srcbasis != nullptr; l++ ) {
-                srcphi[l] = srcbasis->function[beta](crsrc->u[l], crsrc->v[l]);
+            for ( int l = 0; l < crsrc->numberOfNodes && srcBasis != nullptr; l++ ) {
+                srcPhi[l] = srcBasis->function[beta](crsrc->u[l], crsrc->v[l]);
             }
         }
 
-        for ( k = 0; k < crrcv->numberOfNodes; k++ ) {
+        for ( int k = 0; k < crrcv->numberOfNodes; k++ ) {
             // Compute point-to-patch form factors for positions x_k on receiver and
             // basis function \beta on the source
-            G_beta[k] = 0.0;
-            for ( l = 0; l < crsrc->numberOfNodes; l++ ) {
-                G_beta[k] += crsrc->w[l] * Gxy[k][l] * srcphi[l];
+            gBeta[k] = 0.0;
+            for ( int l = 0; l < crsrc->numberOfNodes; l++ ) {
+                gBeta[k] += crsrc->w[l] * Gxy[k][l] * srcPhi[l];
             }
-            G_beta[k] *= src->area;
+            gBeta[k] *= src->area;
 
             // First part of error estimate at receiver node x_k
-            delta_beta[k] = -G_beta[k];
+            deltaBeta[k] = -gBeta[k];
         }
 
         for ( alpha = 0; alpha < link->numberOfBasisFunctionsOnReceiver; alpha++ ) {
             // Compute patch-to-patch form factor for basis function alpha on the
             // receiver and beta on the source
-            G_alpha_beta = 0.0;
-            for ( k = 0; k < crrcv->numberOfNodes; k++ ) {
-                G_alpha_beta += crrcv->w[k] * rcvphi[alpha][k] * G_beta[k];
+            gAlphaBeta = 0.0;
+            for ( int k = 0; k < crrcv->numberOfNodes; k++ ) {
+                gAlphaBeta += crrcv->w[k] * rcvPhi[alpha][k] * gBeta[k];
             }
-            link->K[alpha * link->numberOfBasisFunctionsOnSource + beta] = (float)(rcv->area * G_alpha_beta);
+            link->K[alpha * link->numberOfBasisFunctionsOnSource + beta] = (float)(rcv->area * gAlphaBeta);
 
             // Second part of error estimate at receiver node x_k
-            for ( k = 0; k < crrcv->numberOfNodes; k++ ) {
-                delta_beta[k] += G_alpha_beta * rcvphi[alpha][k];
+            for ( int k = 0; k < crrcv->numberOfNodes; k++ ) {
+                deltaBeta[k] += gAlphaBeta * rcvPhi[alpha][k];
             }
         }
 
-        for ( k = 0; k < crrcv->numberOfNodes; k++ ) {
-            deltarad[k].addScaled(deltarad[k], (float) delta_beta[k], srcrad[beta]);
+        for ( int k = 0; k < crrcv->numberOfNodes; k++ ) {
+            deltaRadiance[k].addScaled(deltaRadiance[k], (float) deltaBeta[k], srcRad[beta]);
         }
 
         if ( beta == 0 ) {
             // Determine minimum and maximum point-to-patch form factor
-            for ( k = 0; k < crrcv->numberOfNodes; k++ ) {
-                if ( G_beta[k] < Gmin ) {
-                    Gmin = G_beta[k];
+            for ( int k = 0; k < crrcv->numberOfNodes; k++ ) {
+                if ( gBeta[k] < gMin ) {
+                    gMin = gBeta[k];
                 }
-                if ( G_beta[k] > Gmax ) {
-                    Gmax = G_beta[k];
+                if ( gBeta[k] > gMax ) {
+                    gMax = gBeta[k];
                 }
             }
         }
     }
 
     link->deltaK = new float[1];
-    if ( srcrad[0].isBlack() ) {
+    if ( srcRad[0].isBlack() ) {
         // No source radiance: use constant radiance error approximation
-        Gav = link->K[0] / rcv->area;
-        link->deltaK[0] = (float)(Gmax - Gav);
-        if ( Gav - Gmin > link->deltaK[0] ) {
-            link->deltaK[0] = (float)(Gav - Gmin);
+        gav = link->K[0] / rcv->area;
+        link->deltaK[0] = (float)(gMax - gav);
+        if ( gav - gMin > link->deltaK[0] ) {
+            link->deltaK[0] = (float)(gav - gMin);
         }
     } else {
         link->deltaK[0] = 0.0;
-        for ( k = 0; k < crrcv->numberOfNodes; k++ ) {
+        for ( int k = 0; k < crrcv->numberOfNodes; k++ ) {
             double delta;
 
-            deltarad[k].divide(deltarad[k], srcrad[0]);
-            if ((delta = std::fabs(deltarad[k].maximumComponent())) > link->deltaK[0] ) {
+            deltaRadiance[k].divide(deltaRadiance[k], srcRad[0]);
+            if ((delta = std::fabs(deltaRadiance[k].maximumComponent())) > link->deltaK[0] ) {
                 link->deltaK[0] = (float)delta;
             }
         }
@@ -357,43 +342,39 @@ element, which makes things slightly simpler
 static void
 doConstantAreaToAreaFormFactor(
     Interaction *link,
-    CUBARULE *crrcv,
-    CUBARULE *crsrc,
+    CUBARULE *crRcv,
+    CUBARULE *crSrc,
     double Gxy[CUBAMAXNODES][CUBAMAXNODES])
 {
     GalerkinElement *rcv = link->receiverElement;
     GalerkinElement *src = link->sourceElement;
-    double G;
     double Gx;
-    double Gmin;
-    double Gmax;
-    int l;
+    double G = 0.0;
+    double gMin = HUGE;
+    double gMax = -HUGE;
 
-    G = 0.0;
-    Gmin = HUGE;
-    Gmax = -HUGE;
-    for ( int k = 0; k < crrcv->numberOfNodes; k++ ) {
+    for ( int k = 0; k < crRcv->numberOfNodes; k++ ) {
         Gx = 0.0;
-        for ( l = 0; l < crsrc->numberOfNodes; l++ ) {
-            Gx += crsrc->w[l] * Gxy[k][l];
+        for ( int l = 0; l < crSrc->numberOfNodes; l++ ) {
+            Gx += crSrc->w[l] * Gxy[k][l];
         }
         Gx *= src->area;
 
-        G += crrcv->w[k] * Gx;
+        G += crRcv->w[k] * Gx;
 
-        if ( Gx > Gmax ) {
-            Gmax = Gx;
+        if ( Gx > gMax ) {
+            gMax = Gx;
         }
-        if ( Gx < Gmin ) {
-            Gmin = Gx;
+        if ( Gx < gMin ) {
+            gMin = Gx;
         }
     }
     link->K[0] = (float)(rcv->area * G);
 
     link->deltaK = new float[1];
-    link->deltaK[0] = (float)(G - Gmin);
-    if ( Gmax - G > link->deltaK[0] ) {
-        link->deltaK[0] = (float)(Gmax - G);
+    link->deltaK[0] = (float)(G - gMin);
+    if ( gMax - G > link->deltaK[0] ) {
+        link->deltaK[0] = (float)(gMax - G);
     }
 
     link->numberOfReceiverCubaturePositions = 1;
@@ -427,7 +408,7 @@ the unit matrix.
 
 Reference:
 
-- Ph. Bekaert, Y. D. Willems, "Error Control for Radiosity", Eurographics
+- Ph. Bekaert, Y. D. Willems, "Error Control for Radiosity", Euro-graphics
 	Rendering Workshop, Porto, Portugal, June 1996, pp 153--164.
 
 We always use a constant approximation on clusters. For the form factor
@@ -464,8 +445,6 @@ areaToAreaFormFactor(
     static unsigned viscount; // Number of rays that "pass" occluders
     GalerkinElement *rcv = link->receiverElement;
     GalerkinElement *src = link->sourceElement;
-    int k;
-    int l;
 
     if ( rcv->isCluster() || src->isCluster() ) {
         BoundingBox rcvBounds;
@@ -546,9 +525,9 @@ areaToAreaFormFactor(
         maxkval = 0.0; // Compute maximum un-occluded kernel value
         maxptff = 0.0; // Maximum un-occluded point-on-receiver to source form factor
         viscount = 0; // Count nr of rays that "pass" occluders
-        for ( k = 0; k < crrcv->numberOfNodes; k++ ) {
+        for ( int k = 0; k < crrcv->numberOfNodes; k++ ) {
             double f = 0.0;
-            for ( l = 0; l < crsrc->numberOfNodes; l++ ) {
+            for ( int l = 0; l < crsrc->numberOfNodes; l++ ) {
                 kval = pointKernelEval(
                     sceneWorldVoxelGrid,
                     &x[k],
@@ -608,4 +587,13 @@ areaToAreaFormFactor(
     }
 
     return link->visibility;
+}
+
+/**
+Returns true if the two patches can "see" each other: P and Q see each
+other if at least a part of P is in front of Q and vice versa
+*/
+bool
+facing(Patch *P, Patch *Q) {
+    return isAtLeastPartlyInFront(P, Q) && isAtLeastPartlyInFront(Q, P);
 }
