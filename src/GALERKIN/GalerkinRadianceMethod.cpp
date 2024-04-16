@@ -251,7 +251,6 @@ GalerkinRadianceMethod::GalerkinRadianceMethod() {
 
 GalerkinRadianceMethod::~GalerkinRadianceMethod() {
     if ( galerkinState.topCluster != nullptr ) {
-        delete galerkinState.topCluster;
         galerkinState.topCluster = nullptr;
     }
 }
@@ -491,8 +490,13 @@ GalerkinRadianceMethod::createPatchData(Patch *patch) {
 
 void
 GalerkinRadianceMethod::destroyPatchData(Patch *patch) {
-    delete ((GalerkinElement *)patch->radianceData);
-    patch->radianceData = nullptr;
+    if ( patch == nullptr ) {
+        return;
+    }
+    if ( patch->radianceData != nullptr ) {
+        delete ((GalerkinElement *)patch->radianceData);
+        patch->radianceData = nullptr;
+    }
 }
 
 char *

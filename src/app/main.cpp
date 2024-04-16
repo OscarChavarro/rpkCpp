@@ -673,5 +673,9 @@ main(int argc, char *argv[]) {
 
     mainFreeMemory(&mgfContext);
 
+    if ( selectedRadianceMethod != nullptr ) {
+        delete selectedRadianceMethod;
+    }
+
     return 0;
 }

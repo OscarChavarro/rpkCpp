@@ -626,7 +626,7 @@ RTStochastic_SaveImage(ImageOutputHandle *ip) {
 }
 
 static void
-RTStochastic_Init(java::ArrayList<Patch *> *lightPatches) {
+stochasticRayTracerInit(java::ArrayList<Patch *> *lightPatches) {
     // mainInit the light list
     if ( GLOBAL_lightList ) {
         delete GLOBAL_lightList;
@@ -635,11 +635,15 @@ RTStochastic_Init(java::ArrayList<Patch *> *lightPatches) {
 }
 
 void
-RTStochastic_Terminate() {
+stochasticRayTracerTerminate() {
     if ( GLOBAL_raytracing_state.lastScreen ) {
         delete GLOBAL_raytracing_state.lastScreen;
     }
     GLOBAL_raytracing_state.lastScreen = nullptr;
+    if ( GLOBAL_lightList != nullptr ) {
+        delete GLOBAL_lightList;
+        GLOBAL_lightList = nullptr;
+    }
 }
 
 Raytracer
@@ -650,9 +654,9 @@ GLOBAL_raytracing_stochasticMethod =
         (char *)"Stochastic Raytracing & Final Gathers",
         stochasticRayTracerDefaults,
         RTStochasticParseOptions,
-        RTStochastic_Init,
+        stochasticRayTracerInit,
         rtStochasticTrace,
         RTStochastic_Redisplay,
         RTStochastic_SaveImage,
-        RTStochastic_Terminate
+        stochasticRayTracerTerminate
 };
