@@ -46,7 +46,7 @@ RandomWalkRadianceMethod::renderScene(Camera *camera, java::ArrayList<Patch *> *
 }
 
 void
-RandomWalkRadianceMethod::writeVRML(FILE *fp){
+RandomWalkRadianceMethod::writeVRML(Camera *camera, FILE *fp){
 }
 
 void

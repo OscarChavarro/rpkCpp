@@ -51,11 +51,14 @@ openGlSaveScreen(
     char *fileName,
     FILE *fp,
     int isPipe,
+    Camera *camera,
     Geometry *clusteredWorldGeometry,
     RadianceMethod *context)
 {
     ImageOutputHandle *img;
-    long j, x = GLOBAL_camera_mainCamera.xSize, y = GLOBAL_camera_mainCamera.ySize;
+    long j;
+    long x = camera->xSize;
+    long y = camera->ySize;
     GLubyte *screen;
     unsigned char *buf;
 
@@ -100,7 +103,8 @@ static void
 batchProcessFile(
     const char *fileName,
     const char *openMode,
-    void (*processFileCallback)(const char *fileName, FILE *fp, int isPipe, java::ArrayList<Patch *> *scenePatches, Geometry *clusteredWorldGeometry, RadianceMethod *context),
+    void (*processFileCallback)(const char *fileName, FILE *fp, int isPipe, Camera *, java::ArrayList<Patch *> *scenePatches, Geometry *clusteredWorldGeometry, RadianceMethod *context),
+    Camera *camera,
     java::ArrayList<Patch *> *scenePatches,
     Geometry *clusteredWorldGeometry,
     RadianceMethod *context)
@@ -109,7 +113,7 @@ batchProcessFile(
     FILE *fp = openFileCompressWrapper(fileName, openMode, &isPipe);
 
     // Call the user supplied procedure to process the file
-    processFileCallback(fileName, fp, isPipe, scenePatches, clusteredWorldGeometry, context);
+    processFileCallback(fileName, fp, isPipe, camera, scenePatches, clusteredWorldGeometry, context);
 
     closeFile(fp, isPipe);
 }
@@ -119,6 +123,7 @@ batchSaveRadianceImage(
     const char *fileName,
     FILE *fp,
     int isPipe,
+    Camera *camera,
     java::ArrayList<Patch *> * /*scenePatches*/,
     Geometry *clusteredWorldGeometry,
     RadianceMethod *context)
@@ -142,7 +147,7 @@ batchSaveRadianceImage(
 
     t = clock();
 
-    openGlSaveScreen((char *)fileName, fp, isPipe, clusteredWorldGeometry, context);
+    openGlSaveScreen((char *)fileName, fp, isPipe, camera, clusteredWorldGeometry, context);
 
     fprintf(stdout, "%g secs.\n", (float) (clock() - t) / (float) CLOCKS_PER_SEC);
     canvasPullMode();
@@ -152,6 +157,7 @@ static void
 batchSaveRadianceModel(
     const char *fileName,
     FILE *fp, int /*isPipe*/,
+    Camera *camera,
     java::ArrayList<Patch *> *scenePatches,
     Geometry *clusteredWorldGeometry,
     RadianceMethod *context)
@@ -168,9 +174,9 @@ batchSaveRadianceModel(
     t = clock();
 
     if ( context != nullptr ) {
-        context->writeVRML(fp);
+        context->writeVRML(&GLOBAL_camera_mainCamera, fp);
     } else {
-        writeVRML(fp, scenePatches);
+        writeVRML(&GLOBAL_camera_mainCamera, fp, scenePatches);
     }
 
     fprintf(stdout, "%g secs.\n", (float) (clock() - t) / (float) CLOCKS_PER_SEC);
@@ -192,7 +198,7 @@ batch(
     java::ArrayList<Geometry *> *sceneClusteredGeometries,
     Geometry *clusteredWorldGeometry,
     VoxelGrid *voxelGrid,
-    RadianceMethod *context)
+    RadianceMethod *radianceMethod)
 {
     clock_t start_time, wasted_start;
     float wasted_secs;
@@ -205,12 +211,12 @@ batch(
     start_time = clock();
     wasted_secs = 0.0;
 
-    if ( context != nullptr ) {
+    if ( radianceMethod != nullptr ) {
         // GLOBAL_scene_world-space radiance computations
         int it = 0;
         bool done = false;
 
-        printf("Doing %s ...\n", context->getRadianceMethodName());
+        printf("Doing %s ...\n", radianceMethod->getRadianceMethodName());
 
         fflush(stdout);
         fflush(stderr);
@@ -221,12 +227,12 @@ batch(
                    "-----------------------------------\n\n", it);
 
             canvasPushMode();
-            if ( context == nullptr ) {
+            if ( radianceMethod == nullptr ) {
                 fprintf(stderr, "No radiance method selected. Aborting program.\n");
                 fflush(stderr);
                 exit(1);
             }
-            done = context->doStep(
+            done = radianceMethod->doStep(
                 &GLOBAL_camera_mainCamera,
                 sceneBackground,
                 scenePatches,
@@ -240,8 +246,8 @@ batch(
             fflush(stdout);
             fflush(stderr);
 
-            if ( context != nullptr ) {
-                printf("%s", context->getStats());
+            if ( radianceMethod != nullptr ) {
+                printf("%s", radianceMethod->getStats());
             }
 
             int (*f)() = nullptr;
@@ -251,13 +257,13 @@ batch(
                 }
             #endif
             openGlRenderScene(
-                camera,
-                scenePatches,
-                sceneClusteredGeometries,
-                sceneGeometries,
-                clusteredWorldGeometry,
-                f,
-                context);
+                    camera,
+                    scenePatches,
+                    sceneClusteredGeometries,
+                    sceneGeometries,
+                    clusteredWorldGeometry,
+                    f,
+                    radianceMethod);
 
             fflush(stdout);
             fflush(stderr);
@@ -268,7 +274,14 @@ batch(
                 int n = (int)strlen(globalRadianceImageFileNameFormat) + 1;
                 char *fileName = new char[n];
                 snprintf(fileName, n, globalRadianceImageFileNameFormat, it);
-                batchProcessFile(fileName, "w", batchSaveRadianceImage, scenePatches, clusteredWorldGeometry, context);
+                batchProcessFile(
+                        fileName,
+                        "w",
+                        batchSaveRadianceImage,
+                        camera,
+                        scenePatches,
+                        clusteredWorldGeometry,
+                        radianceMethod);
                 delete[] fileName;
             }
 
@@ -276,7 +289,14 @@ batch(
                 int n = (int)strlen(globalRadianceModelFileNameFormat) + 1;
                 char *fileName = new char[n];
                 snprintf(fileName, n, globalRadianceModelFileNameFormat, it);
-                batchProcessFile(fileName, "w", batchSaveRadianceModel, scenePatches, clusteredWorldGeometry, context);
+                batchProcessFile(
+                        fileName,
+                        "w",
+                        batchSaveRadianceModel,
+                        camera,
+                        scenePatches,
+                        clusteredWorldGeometry,
+                        radianceMethod);
                 delete[] fileName;
             }
 
@@ -305,15 +325,15 @@ batch(
 
             start_time = clock();
             batchRayTrace(
-                nullptr,
-                nullptr,
-                false,
-                sceneBackground,
-                voxelGrid,
-                scenePatches,
-                lightPatches,
-                clusteredWorldGeometry,
-                context);
+                    nullptr,
+                    nullptr,
+                    false,
+                    sceneBackground,
+                    voxelGrid,
+                    scenePatches,
+                    lightPatches,
+                    clusteredWorldGeometry,
+                    radianceMethod);
 
             if ( globalTimings ) {
                 fprintf(stdout, "Raytracing total time %g secs.\n",
@@ -321,12 +341,13 @@ batch(
             }
 
             batchProcessFile(
-                globalRaytracingImageFileName,
-                "w",
-                batchSaveRaytracingImage,
-                scenePatches,
-                clusteredWorldGeometry,
-                context);
+                    globalRaytracingImageFileName,
+                    "w",
+                    batchSaveRaytracingImage,
+                    camera,
+                    scenePatches,
+                    clusteredWorldGeometry,
+                    radianceMethod);
         } else {
             printf("(No pixel-based radiance computations are being done)\n");
         }

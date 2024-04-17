@@ -64,7 +64,7 @@ cameraComplete(Camera *camera) {
     }
     vectorScaleInverse(camera->viewDistance, camera->Z, camera->Z);
 
-    // GLOBAL_camera_mainCamera->X is a direction pointing to the right in the window
+    // camera->X is a direction pointing to the right in the window
     vectorCrossProduct(camera->Z, camera->upDirection, camera->X);
     n = vectorNorm(camera->X);
     if ( n < EPSILON ) {
@@ -73,7 +73,7 @@ cameraComplete(Camera *camera) {
     }
     vectorScaleInverse(n, camera->X, camera->X);
 
-    // GLOBAL_camera_mainCamera->Y is a direction pointing down in the window
+    // camera->Y is a direction pointing down in the window
     vectorCrossProduct(camera->Z, camera->X, camera->Y);
     vectorNormalize(camera->Y);
 

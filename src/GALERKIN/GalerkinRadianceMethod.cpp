@@ -556,8 +556,8 @@ GalerkinRadianceMethod::renderScene(Camera *camera, java::ArrayList<Patch *> *sc
 }
 
 void
-GalerkinRadianceMethod::writeVRML(FILE *fp) {
-    writeVrmlHeader(fp);
+GalerkinRadianceMethod::writeVRML(Camera *camera, FILE *fp) {
+    writeVrmlHeader(camera, fp);
 
     globalVrmlFileDescriptor = fp;
     galerkinWriteCoords();

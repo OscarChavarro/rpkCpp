@@ -51,7 +51,7 @@ PhotonMapRadianceMethod::parseOptions(int *argc, char **argv) {
 }
 
 void
-PhotonMapRadianceMethod::writeVRML(FILE *fp){
+PhotonMapRadianceMethod::writeVRML(Camera *camera, FILE *fp){
 }
 
 /**

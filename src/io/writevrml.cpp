@@ -44,15 +44,15 @@ Compute a rotation that will rotate the current "up"-direction to the Y axis.
 Y-axis positions up in VRML2.0
 */
 Matrix4x4
-transformModelVRML(Vector3D *modelRotationAxis, float *modelRotationAngle) {
+transformModelVRML(Camera *camera, Vector3D *modelRotationAxis, float *modelRotationAngle) {
     Vector3D upAxis;
     double cosA;
 
     upAxis.set(0.0, 1.0, 0.0);
-    cosA = vectorDotProduct(GLOBAL_camera_mainCamera.upDirection, upAxis);
+    cosA = vectorDotProduct(camera->upDirection, upAxis);
     if ( cosA < 1.0 - EPSILON ) {
         *modelRotationAngle = (float)std::acos(cosA);
-        vectorCrossProduct(GLOBAL_camera_mainCamera.upDirection, upAxis, *modelRotationAxis);
+        vectorCrossProduct(camera->upDirection, upAxis, *modelRotationAxis);
         vectorNormalize(*modelRotationAxis);
         return createRotationMatrix(*modelRotationAngle, *modelRotationAxis);
     } else {
@@ -104,15 +104,15 @@ writeVRMLViewPoint(FILE *fp, Matrix4x4 model_xf, Camera *cam, const char *viewPo
 }
 
 void
-writeVRMLViewPoints(FILE *fp, Matrix4x4 model_xf) {
-    Camera *camera = nullptr;
+writeVRMLViewPoints(Camera *camera, FILE *fp, Matrix4x4 model_xf) {
+    Camera *localCamera = nullptr;
     int count = 1;
-    writeVRMLViewPoint(fp, model_xf, &GLOBAL_camera_mainCamera, "ViewPoint 1");
-    while ( (camera = nextSavedCamera(camera)) != nullptr) {
+    writeVRMLViewPoint(fp, model_xf, camera, "ViewPoint 1");
+    while ( (localCamera = nextSavedCamera(localCamera)) != nullptr ) {
         char viewPointName[21];
         count++;
         snprintf(viewPointName, 21, "ViewPoint %d", count);
-        writeVRMLViewPoint(fp, model_xf, camera, viewPointName);
+        writeVRMLViewPoint(fp, model_xf, localCamera, viewPointName);
     }
 }
 
@@ -120,7 +120,7 @@ writeVRMLViewPoints(FILE *fp, Matrix4x4 model_xf) {
 Can also be used by radiance-method specific VRML savers.
 */
 void
-writeVrmlHeader(FILE *fp) {
+writeVrmlHeader(Camera *camera, FILE *fp) {
     Matrix4x4 modelTransform{};
     Vector3D modelRotationAxis;
     float modelRotationAngle;
@@ -133,8 +133,8 @@ writeVrmlHeader(FILE *fp) {
 
     fprintf(fp, "NavigationInfo {\n type \"WALK\"\n headlight FALSE\n}\n\n");
 
-    modelTransform = transformModelVRML(&modelRotationAxis, &modelRotationAngle);
-    writeVRMLViewPoints(fp, modelTransform);
+    modelTransform = transformModelVRML(camera, &modelRotationAxis, &modelRotationAngle);
+    writeVRMLViewPoints(camera, fp, modelTransform);
 
     fprintf(fp, "Transform {\n  rotation %g %g %g %g\n  children [\n    Shape {\n      geometry IndexedFaceSet {\n",
             modelRotationAxis.x, modelRotationAxis.y, modelRotationAxis.z, modelRotationAngle);
@@ -276,8 +276,8 @@ Default method for saving VRML models (if the current radiance method
 doesn't have its own one
 */
 void
-writeVRML(FILE *fp, java::ArrayList<Patch *> *scenePatches) {
-    writeVrmlHeader(fp);
+writeVRML(Camera *camera, FILE *fp, java::ArrayList<Patch *> *scenePatches) {
+    writeVrmlHeader(camera, fp);
 
     writeVRMLCoords(fp, scenePatches);
     writeVRMLColors(fp, scenePatches);

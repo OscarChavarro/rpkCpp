@@ -114,7 +114,9 @@ mainSetRayTracingMethod(Raytracer *newMethod, java::ArrayList<Patch *> *lightSou
 void
 batchSaveRaytracingImage(
     const char *fileName,
-    FILE *fp, int isPipe,
+    FILE *fp,
+    int isPipe,
+    Camera *camera,
     java::ArrayList<Patch *> * /*scenePatches*/,
     Geometry * /*clusteredWorldGeometry*/,
     RadianceMethod * /*context*/) {

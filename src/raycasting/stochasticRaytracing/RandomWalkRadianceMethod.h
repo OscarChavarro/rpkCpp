@@ -29,7 +29,7 @@ class RandomWalkRadianceMethod : public RadianceMethod {
     void destroyPatchData(Patch *patch);
     char *getStats();
     void renderScene(Camera *camera, java::ArrayList<Patch *> *scenePatches, Geometry *clusteredWorldGeometry);
-    void writeVRML(FILE *fp);
+    void writeVRML(Camera *camera, FILE *fp);
 };
 
 #endif

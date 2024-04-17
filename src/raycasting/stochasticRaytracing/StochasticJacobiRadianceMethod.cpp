@@ -53,7 +53,7 @@ StochasticJacobiRadianceMethod::destroyPatchData(Patch *patch) {
 }
 
 void
-StochasticJacobiRadianceMethod::writeVRML(FILE *fp){
+StochasticJacobiRadianceMethod::writeVRML(Camera *camera, FILE *fp){
 }
 
 void
