@@ -21,9 +21,6 @@ Stuff common to all radiance methods
 #define STRING_LENGTH 1000
 static char globalRadianceMethodsString[STRING_LENGTH];
 
-// Current radiance method handle
-java::ArrayList<Patch *> *GLOBAL_scenePatches = nullptr;
-
 static void
 radianceMethodOption(void *value) {
 }
@@ -58,8 +55,8 @@ setRadianceMethod(
 }
 
 void
-radianceDefaults(java::ArrayList<Patch *> *scenePatches, RadianceMethod *context, Geometry *clusteredWorldGeometry) {
-    setRadianceMethod(context, scenePatches, clusteredWorldGeometry);
+radianceDefaults(RadianceMethod *context, Geometry *clusteredWorldGeometry) {
+    setRadianceMethod(context, nullptr, clusteredWorldGeometry);
 }
 
 static void

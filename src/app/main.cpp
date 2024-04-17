@@ -11,7 +11,7 @@
 #include "render/renderhook.h"
 #include "render/opengl.h"
 #include "render/ScreenBuffer.h"
-#include "render/glutDebugTools.h"
+//#include "render/glutDebugTools.h"
 #include "GALERKIN/GalerkinRadianceMethod.h"
 #include "app/Cluster.h"
 #include "app/radiance.h"
@@ -37,12 +37,10 @@
 #define DEFAULT_BOUNDING_BOX_COLOR {0.5, 0.0, 1.0}
 #define DEFAULT_CLUSTER_COLOR {1.0, 0.5, 0.0}
 
-extern java::ArrayList<Patch *> *GLOBAL_scenePatches;
-
 // The light of all patches on light sources, useful for e.g. next event estimation in Monte Carlo raytracing etc.
 static java::ArrayList<Patch *> *globalLightSourcePatches = nullptr;
 
-// The list of all patches in the current scene. Automatically derived from 'GLOBAL_scene_world' when loading a scene
+// The list of all patches in the current scene
 static java::ArrayList<Patch *> *globalScenePatches = nullptr;
 
 static char *globalCurrentDirectory;
@@ -90,14 +88,13 @@ mainPatchAccumulateStats(Patch *patch) {
     power.scaledCopy(patch->area, E);
     GLOBAL_statistics.totalEmittedPower.add(GLOBAL_statistics.totalEmittedPower, power);
     GLOBAL_statistics.averageReflectivity.addScaled(GLOBAL_statistics.averageReflectivity, patch->area, R);
-    // Convert radiant exitance to exitant radiance
     E.scale(1.0f / (float) M_PI);
     GLOBAL_statistics.maxSelfEmittedRadiance.maximum(E, GLOBAL_statistics.maxSelfEmittedRadiance);
     GLOBAL_statistics.maxSelfEmittedPower.maximum(power, GLOBAL_statistics.maxSelfEmittedPower);
 }
 
 static void
-mainComputeSomeSceneStats() {
+mainComputeSomeSceneStats(java::ArrayList<Patch *> *scenePatches) {
     Vector3D zero;
     ColorRgb one;
     ColorRgb averageAbsorption;
@@ -114,8 +111,8 @@ mainComputeSomeSceneStats() {
     GLOBAL_statistics.totalArea = 0.0;
 
     // Accumulate
-    for ( int i = 0; i < globalScenePatches->size(); i++ ) {
-        mainPatchAccumulateStats(globalScenePatches->get(i));
+    for ( int i = 0; i < scenePatches->size(); i++ ) {
+        mainPatchAccumulateStats(scenePatches->get(i));
     }
 
     // Averages
@@ -144,9 +141,10 @@ mainComputeSomeSceneStats() {
 Adds the background to the global light source patch list
 */
 static void
-mainAddBackgroundToLightSourceList() {
+mainAddBackgroundToLightSourceList(java::ArrayList<Patch *> *lights) {
     if ( globalSceneBackground != nullptr && globalSceneBackground->bkgPatch != nullptr ) {
-        globalLightSourcePatches->add(0, globalSceneBackground->bkgPatch);
+        lights->add(globalSceneBackground->bkgPatch);
+        GLOBAL_statistics.numberOfLightSources++;
     }
 }
 
@@ -155,11 +153,11 @@ Adds the patch to the global light source patch list if the patch is on
 a light source (i.e. when the surfaces material has a non-null edf)
 */
 static void
-mainAddPatchToLightSourceListIfLightSource(Patch *patch) {
+mainAddPatchToLightSourceListIfLightSource(java::ArrayList<Patch *> *lights, Patch *patch) {
     if ( patch != nullptr
          && patch->material != nullptr
          && patch->material->edf != nullptr ) {
-        globalLightSourcePatches->add(0, patch);
+        lights->add(patch);
         GLOBAL_statistics.numberOfLightSources++;
     }
 }
@@ -167,17 +165,17 @@ mainAddPatchToLightSourceListIfLightSource(Patch *patch) {
 /**
 Build the global light source patch list
 */
-static void
-mainBuildLightSourcePatchList() {
-    globalLightSourcePatches = new java::ArrayList<Patch *>();
+static java::ArrayList<Patch *> *
+mainBuildLightSourcePatchList(java::ArrayList<Patch *> *scenePatches) {
+    java::ArrayList<Patch *> *lights = new java::ArrayList<Patch *>();
     GLOBAL_statistics.numberOfLightSources = 0;
 
-    for ( int i = 0; i < globalScenePatches->size(); i++ ) {
-        mainAddPatchToLightSourceListIfLightSource(globalScenePatches->get(i));
+    for ( int i = 0; i < scenePatches->size(); i++ ) {
+        mainAddPatchToLightSourceListIfLightSource(lights, scenePatches->get(i));
     }
 
-    mainAddBackgroundToLightSourceList();
-    GLOBAL_statistics.numberOfLightSources++;
+    mainAddBackgroundToLightSourceList(lights);
+    return lights;
 }
 
 static void
@@ -218,7 +216,7 @@ mainInit() {
     mainRenderingDefaults();
     toneMapDefaults();
     cameraDefaults();
-    radianceDefaults(GLOBAL_scenePatches, nullptr, globalClusteredWorldGeometry);
+    radianceDefaults(nullptr, globalClusteredWorldGeometry);
 
     #ifdef RAYTRACING_ENABLED
         mainRayTracingDefaults(globalLightSourcePatches);
@@ -261,8 +259,6 @@ Processes command line arguments not recognized by the Xt GUI toolkit
 */
 static void
 mainParseGlobalOptions(int *argc, char **argv, RadianceMethod **context) {
-    GLOBAL_scenePatches = globalScenePatches;
-
     renderParseOptions(argc, argv);
     parseToneMapOptions(argc, argv);
     parseCameraOptions(argc, argv);
@@ -299,7 +295,7 @@ buildPatchList(java::ArrayList<Geometry *> *geometryList, java::ArrayList<Patch 
             for ( int j = 0; list2 != nullptr && j < list2->size(); j++ ) {
                 Patch *patch = list2->get(j);
                 if ( patch != nullptr ) {
-                    patchList->add(0, patch);
+                    patchList->add(patch);
                 }
             }
         }
@@ -338,9 +334,8 @@ mainReadFile(char *filename, MgfContext *context) {
         *globalCurrentDirectory = '\0';
     }
 
-    // Terminate any active radiance or raytracing methods
-    fprintf(stderr, "Terminating current radiance/raytracing method ... \n");
-    setRadianceMethod(nullptr, GLOBAL_scenePatches, globalClusteredWorldGeometry);
+    // Init compute method
+    setRadianceMethod(nullptr, nullptr, globalClusteredWorldGeometry);
 
     #ifdef RAYTRACING_ENABLED
         Raytracer *currentRaytracer = GLOBAL_raytracer_activeRaytracer;
@@ -350,10 +345,6 @@ mainReadFile(char *filename, MgfContext *context) {
     // Prepare if errors occur when reading the new scene will abort
     globalSceneGeometries = nullptr;
 
-    if ( globalScenePatches != nullptr ) {
-        delete globalScenePatches;
-    }
-    globalScenePatches = nullptr;
     Patch::setNextId(1);
     globalSceneClusteredGeometries = new java::ArrayList<Geometry *>();
     globalSceneBackground = nullptr;
@@ -389,17 +380,13 @@ mainReadFile(char *filename, MgfContext *context) {
     // Dispose of the old scene
     fprintf(stderr, "Disposing of the old scene ... ");
     fflush(stderr);
-    if ( context ) {
-        context->radianceMethod->terminate(GLOBAL_scenePatches);
-    }
+    context->radianceMethod->terminate(globalScenePatches);
 
     #ifdef RAYTRACING_ENABLED
         if ( GLOBAL_raytracer_activeRaytracer != nullptr ) {
             GLOBAL_raytracer_activeRaytracer->Terminate();
         }
     #endif
-
-    delete globalScenePatches;
 
     if ( globalSceneBackground != nullptr ) {
         globalSceneBackground->methods->Destroy(globalSceneBackground->data);
@@ -428,11 +415,11 @@ mainReadFile(char *filename, MgfContext *context) {
     fprintf(stderr, "%g secs.\n", (float) (t - last) / (float) CLOCKS_PER_SEC);
     last = t;
 
-    // Destilate the list of patches on light sources from the above patch list
+    // Build the list of patches on light sources from the patch list
     fprintf(stderr, "Building light source patch list ... ");
     fflush(stderr);
 
-    mainBuildLightSourcePatchList();
+    globalLightSourcePatches = mainBuildLightSourcePatchList(globalScenePatches);
 
     t = clock();
     fprintf(stderr, "%g secs.\n", (float) (t - last) / (float) CLOCKS_PER_SEC);
@@ -457,11 +444,11 @@ mainReadFile(char *filename, MgfContext *context) {
     fprintf(stderr, "%g secs.\n", (float) (t - last) / (float) CLOCKS_PER_SEC);
     last = t;
 
-    // Engridding the thing
+    // Create the scene level voxel grid
     globalSceneWorldVoxelGrid = new VoxelGrid(globalClusteredWorldGeometry);
 
     t = clock();
-    fprintf(stderr, "Engridding took %g secs.\n", (float) (t - last) / (float) CLOCKS_PER_SEC);
+    fprintf(stderr, "Voxel grid creation took %g secs.\n", (float) (t - last) / (float) CLOCKS_PER_SEC);
     last = t;
 
     // Estimate average radiance, for radiance to display RGB conversion
@@ -469,7 +456,7 @@ mainReadFile(char *filename, MgfContext *context) {
     fflush(stderr);
 
     GLOBAL_statistics.numberOfPatches = GLOBAL_statistics.numberOfElements;
-    mainComputeSomeSceneStats();
+    mainComputeSomeSceneStats(globalScenePatches);
     GLOBAL_statistics.referenceLuminance = 5.42 * ((1.0 - GLOBAL_statistics.averageReflectivity.gray()) *
             GLOBAL_statistics.estimatedAverageRadiance.luminance());
 
@@ -503,16 +490,14 @@ mainReadFile(char *filename, MgfContext *context) {
            GLOBAL_statistics.totalArea);
 
     // Initialize radiance for the freshly loaded scene
-    if ( context != nullptr ) {
-        fprintf(stderr, "Initializing radiance computations ... ");
-        fflush(stderr);
+    fprintf(stderr, "Initializing radiance computations ... ");
+    fflush(stderr);
 
-        setRadianceMethod(context->radianceMethod, globalScenePatches, globalClusteredWorldGeometry);
+    setRadianceMethod(context->radianceMethod, globalScenePatches, globalClusteredWorldGeometry);
 
-        t = clock();
-        fprintf(stderr, "%g secs.\n", (float) (t - last) / (float) CLOCKS_PER_SEC);
-        last = t;
-    }
+    t = clock();
+    fprintf(stderr, "%g secs.\n", (float) (t - last) / (float) CLOCKS_PER_SEC);
+    last = t;
 
     #ifdef RAYTRACING_ENABLED
         if ( currentRaytracer != nullptr ) {
