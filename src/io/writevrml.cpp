@@ -18,6 +18,27 @@ static Matrix4x4 globalIdentityMatrix = {
     }
 };
 
+// Camera position etc. can be saved on a stack of size MAXIMUM_CAMERA_STACK
+#define MAXIMUM_CAMERA_STACK 20
+
+// A stack of virtual camera positions, used for temporary saving the camera and
+// later restoring
+static Camera globalCameraStack[MAXIMUM_CAMERA_STACK];
+static Camera *globalCameraStackPtr = globalCameraStack;
+
+/**
+Returns pointer to the next saved camera. If previous==nullptr, the first saved
+camera is returned. In subsequent calls, the previous camera returned
+by this function should be passed as the parameter. If all saved cameras
+have been iterated over, nullptr is returned
+*/
+static Camera *
+nextSavedCamera(Camera *previous) {
+    Camera *cam = previous ? previous : globalCameraStackPtr;
+    cam--;
+    return (cam < globalCameraStack) ? nullptr : cam;
+}
+
 /**
 Compute a rotation that will rotate the current "up"-direction to the Y axis.
 Y-axis positions up in VRML2.0
@@ -78,7 +99,7 @@ writeVRMLViewPoint(FILE *fp, Matrix4x4 model_xf, Camera *cam, const char *viewPo
             "Viewpoint {\n  position %g %g %g\n  orientation %g %g %g %g\n  fieldOfView %g\n  description \"%s\"\n}\n\n",
             eyePosition.x, eyePosition.y, eyePosition.z,
             viewRotationAxis.x, viewRotationAxis.y, viewRotationAxis.z, viewRotationAngle,
-            (double) (2.0 * cam->fov * M_PI / 180.0),
+            (double) (2.0 * cam->fieldOfVision * M_PI / 180.0),
             viewPointName);
 }
 

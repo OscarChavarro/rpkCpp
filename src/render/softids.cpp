@@ -23,7 +23,7 @@ setupSoftFrameBuffer() {
     GLOBAL_sgl_currentContext->sglClear((SGL_PIXEL) 0, SGL_MAXIMUM_Z);
 
     GLOBAL_sgl_currentContext->sglLoadMatrix(perspectiveMatrix(
-        GLOBAL_camera_mainCamera.fov * 2.0f * (float)M_PI / 180.0f,
+            GLOBAL_camera_mainCamera.fieldOfVision * 2.0f * (float)M_PI / 180.0f,
             (float) GLOBAL_camera_mainCamera.xSize / (float) GLOBAL_camera_mainCamera.ySize,
             GLOBAL_camera_mainCamera.near,
             GLOBAL_camera_mainCamera.far));

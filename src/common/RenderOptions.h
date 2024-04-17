@@ -15,8 +15,6 @@ public:
     ColorRgb outline_color; // Color in which to draw outlines
     ColorRgb bounding_box_color; // Color in which to draw bounding boxes
     ColorRgb cluster_color; // Color in which to show cluster bounding boxes
-    ColorRgb camera_color; // Color for drawing alternate cameras
-    float cameraSize; // Determines how large alternate cameras are drawn
     float lineWidth;
     char drawOutlines; // True for drawing facet outlines
     char noShading; // False for using any kind of shading

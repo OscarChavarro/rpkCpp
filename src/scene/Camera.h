@@ -3,14 +3,7 @@
 
 #include "common/linealAlgebra/Vector3D.h"
 #include "common/ColorRgb.h"
-
-class CameraClippingPlane {
-  public:
-    Vector3D normal;
-    float d;
-
-    CameraClippingPlane(): normal(), d{} {}
-};
+#include "scene/Plane.h"
 
 #define NUMBER_OF_VIEW_PLANES 4
 
@@ -20,7 +13,7 @@ class Camera {
     Vector3D lookPosition; // Focus point of camera
     Vector3D upDirection; // Direction pointing upward
     float viewDistance; // Distance from eye point to focus point
-    float fov; // Field of view, horizontal and vertical, in degrees
+    float fieldOfVision; // Field of view, horizontal and vertical, in degrees
     float horizontalFov;
     float verticalFov;
     float near; // Far clipping plane distance
@@ -36,31 +29,27 @@ class Camera {
     float pixelHeight;
     float pixelWidthTangent;
     float pixelHeightTangent;
-    CameraClippingPlane viewPlane[NUMBER_OF_VIEW_PLANES];
+    Plane viewPlanes[NUMBER_OF_VIEW_PLANES]; // Clipping planes
 
     Camera();
+
+    void
+    set(
+            Vector3D *inEyePosition,
+            Vector3D *inLoopPosition,
+            Vector3D *inUpDirection,
+            float inFieldOfVision,
+            int inXSize,
+            int inYSize,
+            ColorRgb *inBackground);
+
+    void setEyePosition(float x, float y, float z);
+    void setLookPosition(float x, float y, float z);
+    void setUpDirection(float x, float y, float z);
+    void setFieldOfView(float fieldOfView);
 };
 
 extern Camera GLOBAL_camera_mainCamera;
 
-extern Camera *
-cameraSet(
-    Camera *camera,
-    Vector3D *eyePosition,
-    Vector3D *loopPosition,
-    Vector3D *upDirection,
-    float fov,
-    int xSize,
-    int ySize,
-    ColorRgb *background);
-
-extern Camera *cameraComplete(Camera *camera);
-extern Camera *cameraSetFieldOfView(Camera *camera, float fov);
-extern Camera *cameraSetUpDirection(Camera *camera, float x, float y, float z);
-extern Camera *cameraSetLookPosition(Camera *camera, float x, float y, float z);
-extern Camera *cameraSetEyePosition(Camera *camera, float x, float y, float z);
-extern Camera *nextSavedCamera(Camera *previous);
-extern void parseCameraOptions(int *argc, char **argv);
-extern void cameraDefaults();
 
 #endif

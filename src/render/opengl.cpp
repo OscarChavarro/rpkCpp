@@ -312,8 +312,8 @@ openGlRenderOctreeLeaf(
 static int
 openGlViewCullBounds(BoundingBox *bounds) {
     for ( int i = 0; i < NUMBER_OF_VIEW_PLANES; i++ ) {
-        if ( bounds->behindPlane(&GLOBAL_camera_mainCamera.viewPlane[i].normal,
-                         GLOBAL_camera_mainCamera.viewPlane[i].d) ) {
+        if ( bounds->behindPlane(&GLOBAL_camera_mainCamera.viewPlanes[i].normal,
+                         GLOBAL_camera_mainCamera.viewPlanes[i].d) ) {
             return true;
         }
     }

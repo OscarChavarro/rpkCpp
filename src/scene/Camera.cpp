@@ -1,30 +1,14 @@
 #include "common/error.h"
-#include "common/options.h"
 #include "scene/Camera.h"
 
-// Default virtual camera
-#define DEFAULT_EYEP {10.0, 0.0, 0.0}
-#define DEFAULT_LOOKP { 0.0, 0.0, 0.0}
-#define DEFAULT_UPDIR { 0.0, 0.0, 1.0}
-#define DEFAULT_FOV 22.5
-#define DEFAULT_BACKGROUND_COLOR {0.0, 0.0, 0.0}
-
-// Camera position etc. can be saved on a stack of size MAXIMUM_CAMERA_STACK
-#define MAXIMUM_CAMERA_STACK 20
-
-Camera GLOBAL_camera_mainCamera; // The main virtual camera
-
-// A stack of virtual camera positions, used for temporary saving the camera and
-// later restoring
-static Camera globalCameraStack[MAXIMUM_CAMERA_STACK];
-static Camera *globalCameraStackPtr = globalCameraStack;
+Camera GLOBAL_camera_mainCamera;
 
 Camera::Camera(): background() {
     eyePosition = Vector3D{};
     lookPosition = Vector3D{};
     upDirection = Vector3D{};
     viewDistance = 0.0f;
-    fov = 0.0f;
+    fieldOfVision = 0.0f;
     horizontalFov = 0.0f;
     verticalFov = 0.0f;
     near = 0.0f;
@@ -42,102 +26,21 @@ Camera::Camera(): background() {
     pixelHeightTangent = 0.0f;
 }
 
-void
-cameraDefaults() {
-    Vector3D eyePosition = DEFAULT_EYEP;
-    Vector3D lookPosition = DEFAULT_LOOKP;
-    Vector3D upDirection = DEFAULT_UPDIR;
-    ColorRgb backgroundColor = DEFAULT_BACKGROUND_COLOR;
-
-    cameraSet(&GLOBAL_camera_mainCamera, &eyePosition, &lookPosition, &upDirection, DEFAULT_FOV, 600, 600,
-              &backgroundColor);
-}
-
 static void
-cameraSetEyePositionOption(void *val) {
-    Vector3D *v = (Vector3D *) val;
-    cameraSetEyePosition(&GLOBAL_camera_mainCamera, v->x, v->y, v->z);
-}
-
-static void
-cameraSetLookPositionOption(void *val) {
-    Vector3D *v = (Vector3D *) val;
-    cameraSetLookPosition(&GLOBAL_camera_mainCamera, v->x, v->y, v->z);
-}
-
-static void cameraSetUpDirectionOption(void *val) {
-    Vector3D *v = (Vector3D *) val;
-    cameraSetUpDirection(&GLOBAL_camera_mainCamera, v->x, v->y, v->z);
-}
-
-static void cameraSetFieldOfViewOption(void *val) {
-    float *v = (float *) val;
-    cameraSetFieldOfView(&GLOBAL_camera_mainCamera, *v);
-}
-
-static CommandLineOptionDescription globalCameraOptions[] = {
-    {"-eyepoint",  4, TVECTOR, &GLOBAL_camera_mainCamera.eyePosition,      cameraSetEyePositionOption,
-"-eyepoint  <vector>\t: viewing position"},
-    {"-center",    4, TVECTOR, &GLOBAL_camera_mainCamera.lookPosition,      cameraSetLookPositionOption,
-"-center    <vector>\t: point looked at"},
-    {"-updir",     3, TVECTOR, &GLOBAL_camera_mainCamera.upDirection,      cameraSetUpDirectionOption,
-"-updir     <vector>\t: direction pointing up"},
-    {"-fov",       4, Tfloat,  &GLOBAL_camera_mainCamera.fov, cameraSetFieldOfViewOption,
-"-fov       <float> \t: field of view angle"},
-    {nullptr, 0, TYPELESS, nullptr, nullptr, nullptr}
-};
-
-void parseCameraOptions(int *argc, char **argv) {
-    parseGeneralOptions(globalCameraOptions, argc, argv);
-}
-
-/**
-Sets virtual camera position, focus point, up-direction, field of view
-(in degrees), horizontal and vertical window resolution and window
-background. Returns (CAMERA *)nullptr if eye point and focus point coincide or
-viewing direction is equal to the up-direction
-*/
-Camera *
-cameraSet(
-    Camera *camera,
-    Vector3D *eyePosition,
-    Vector3D *loopPosition,
-    Vector3D *upDirection,
-    float fov,
-    int xSize,
-    int ySize,
-    ColorRgb *background)
-{
-    camera->eyePosition = *eyePosition;
-    camera->lookPosition = *loopPosition;
-    camera->upDirection = *upDirection;
-    camera->fov = fov;
-    camera->xSize = xSize;
-    camera->ySize = ySize;
-    camera->background = *background;
-    camera->changed = true;
-
-    cameraComplete(camera);
-
-    return camera;
-}
-
-void
 cameraComputeClippingPlanes(Camera *camera) {
     float x = camera->pixelWidthTangent * camera->viewDistance; // Half the width of the virtual screen in 3D space
     float y = camera->pixelHeightTangent * camera->viewDistance; // Half the height of the virtual screen
-    Vector3D vscrn[4];
-    int i;
+    Vector3D vScreen[4];
 
-    vectorComb3(camera->lookPosition, x, camera->X, -y, camera->Y, vscrn[0]); // Upper right corner: Y axis positions down!
-    vectorComb3(camera->lookPosition, x, camera->X, y, camera->Y, vscrn[1]); // Lower right
-    vectorComb3(camera->lookPosition, -x, camera->X, y, camera->Y, vscrn[2]); // Lower left
-    vectorComb3(camera->lookPosition, -x, camera->X, -y, camera->Y, vscrn[3]); // Upper left
+    vectorComb3(camera->lookPosition, x, camera->X, -y, camera->Y, vScreen[0]); // Upper right corner: Y axis positions down!
+    vectorComb3(camera->lookPosition, x, camera->X, y, camera->Y, vScreen[1]); // Lower right
+    vectorComb3(camera->lookPosition, -x, camera->X, y, camera->Y, vScreen[2]); // Lower left
+    vectorComb3(camera->lookPosition, -x, camera->X, -y, camera->Y, vScreen[3]); // Upper left
 
-    for ( i = 0; i < 4; i++ ) {
-        vectorTripleCrossProduct(vscrn[(i + 1) % 4], camera->eyePosition, vscrn[i], camera->viewPlane[i].normal);
-        vectorNormalize(camera->viewPlane[i].normal);
-        camera->viewPlane[i].d = -vectorDotProduct(camera->viewPlane[i].normal, camera->eyePosition);
+    for ( int i = 0; i < 4; i++ ) {
+        vectorTripleCrossProduct(vScreen[(i + 1) % 4], camera->eyePosition, vScreen[i], camera->viewPlanes[i].normal);
+        vectorNormalize(camera->viewPlanes[i].normal);
+        camera->viewPlanes[i].d = -vectorDotProduct(camera->viewPlanes[i].normal, camera->eyePosition);
     }
 }
 
@@ -146,7 +49,7 @@ Computes camera coordinate system and horizontal and vertical fov depending
 on filled in fov value and aspect ratio of the view window. Returns
 nullptr if this fails, and a pointer to the camera arg if success
 */
-Camera *
+static Camera *
 cameraComplete(Camera *camera) {
     float n;
 
@@ -176,12 +79,12 @@ cameraComplete(Camera *camera) {
 
     // Compute horizontal and vertical field of view angle from the specified one
     if ( camera->xSize < camera->ySize ) {
-        camera->horizontalFov = camera->fov;
-        camera->verticalFov = (float)std::atan(tan(camera->fov * M_PI / 180.0) *
+        camera->horizontalFov = camera->fieldOfVision;
+        camera->verticalFov = (float)std::atan(tan(camera->fieldOfVision * M_PI / 180.0) *
                                                (float)camera->ySize / (float) camera->xSize) * 180.0f / (float)M_PI;
     } else {
-        camera->verticalFov = camera->fov;
-        camera->horizontalFov = (float)std::atan(tan(camera->fov * M_PI / 180.0) *
+        camera->verticalFov = camera->fieldOfVision;
+        camera->horizontalFov = (float)std::atan(tan(camera->fieldOfVision * M_PI / 180.0) *
                                                  (float)camera->xSize / (float)camera->ySize) * 180.0f / (float)M_PI;
     }
 
@@ -203,50 +106,60 @@ cameraComplete(Camera *camera) {
 }
 
 /**
-Only sets virtual camera position in 3D space
+Sets virtual camera position, focus point, up-direction, field of view
+(in degrees), horizontal and vertical window resolution and window
+inBackground. Returns (CAMERA *)nullptr if eye point and focus point coincide or
+viewing direction is equal to the up-direction
 */
-Camera *
-cameraSetEyePosition(Camera *camera, float x, float y, float z) {
+void
+Camera::set(
+    Vector3D *inEyePosition,
+    Vector3D *inLoopPosition,
+    Vector3D *inUpDirection,
+    float inFieldOfVision,
+    int inXSize,
+    int inYSize,
+    ColorRgb *inBackground)
+{
+    eyePosition = *inEyePosition;
+    lookPosition = *inLoopPosition;
+    upDirection = *inUpDirection;
+    fieldOfVision = inFieldOfVision;
+    xSize = inXSize;
+    ySize = inYSize;
+    background = *inBackground;
+    changed = true;
+    cameraComplete(this);
+}
+
+/**
+Sets virtual camera position, focus point, up-direction, field of view
+(in degrees), horizontal and vertical window resolution and window
+background. Returns (CAMERA *)nullptr if eye point and focus point coincide or
+viewing direction is equal to the up-direction
+*/
+void
+Camera::setEyePosition(float x, float y, float z) {
     Vector3D newEyePosition;
     newEyePosition.set(x, y, z);
-    return cameraSet(camera, &newEyePosition, &camera->lookPosition, &camera->upDirection,
-                     camera->fov, camera->xSize, camera->ySize, &camera->background);
+    set(&newEyePosition, &lookPosition, &upDirection, fieldOfVision, xSize, ySize, &background);
 }
 
-Camera *
-cameraSetLookPosition(Camera *camera, float x, float y, float z) {
+void
+Camera::setLookPosition(float x, float y, float z) {
     Vector3D newLookPosition;
     newLookPosition.set(x, y, z);
-    return cameraSet(camera, &camera->eyePosition, &newLookPosition, &camera->upDirection,
-                     camera->fov, camera->xSize, camera->ySize, &camera->background);
+    set(&eyePosition, &newLookPosition, &upDirection, fieldOfVision, xSize, ySize, &background);
 }
 
-Camera *
-cameraSetUpDirection(Camera *camera, float x, float y, float z) {
+void
+Camera::setUpDirection(float x, float y, float z) {
     Vector3D newUpDirection;
     newUpDirection.set(x, y, z);
-    return cameraSet(camera, &camera->eyePosition, &camera->lookPosition, &newUpDirection,
-                     camera->fov, camera->xSize, camera->ySize, &camera->background);
+    set(&eyePosition, &lookPosition, &newUpDirection, fieldOfVision, xSize, ySize, &background);
 }
 
-/**
-Sets only field-of-view, up-direction, focus point, camera position
-*/
-Camera *
-cameraSetFieldOfView(Camera *camera, float fov) {
-    return cameraSet(camera, &camera->eyePosition, &camera->lookPosition, &camera->upDirection,
-                     fov, camera->xSize, camera->ySize, &camera->background);
-}
-
-/**
-Returns pointer to the next saved camera. If previous==nullptr, the first saved
-camera is returned. In subsequent calls, the previous camera returned
-by this function should be passed as the parameter. If all saved cameras
-have been iterated over, nullptr is returned
-*/
-Camera *
-nextSavedCamera(Camera *previous) {
-    Camera *cam = previous ? previous : globalCameraStackPtr;
-    cam--;
-    return (cam < globalCameraStack) ? nullptr : cam;
+void
+Camera::setFieldOfView(float fieldOfView) {
+    set(&eyePosition, &lookPosition, &upDirection, fieldOfView, xSize, ySize, &background);
 }

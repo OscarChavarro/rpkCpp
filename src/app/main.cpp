@@ -15,18 +15,14 @@
 #include "GALERKIN/GalerkinRadianceMethod.h"
 #include "app/Cluster.h"
 #include "app/radiance.h"
+#include "app/commandLine.h"
 #include "app/batch.h"
 
 #ifdef RAYTRACING_ENABLED
     #include "app/raytrace.h"
 #endif
 
-// Mgf defaults
-#define DEFAULT_NUMBER_OF_QUARTIC_DIVISIONS 4
-#define DEFAULT_FORCE_ONE_SIDED true
 #define DEFAULT_MONOCHROME false
-
-// Default rendering options
 #define DEFAULT_DISPLAY_LISTS false
 #define DEFAULT_SMOOTH_SHADING true
 #define DEFAULT_BACKFACE_CULLING true
@@ -44,39 +40,16 @@ static java::ArrayList<Patch *> *globalLightSourcePatches = nullptr;
 static java::ArrayList<Patch *> *globalScenePatches = nullptr;
 
 static char *globalCurrentDirectory;
-static int globalNumberOfQuarterCircleDivisions = DEFAULT_NUMBER_OF_QUARTIC_DIVISIONS;
-static int globalYes = 1;
-static int globalNo = 0;
 static int globalImageOutputWidth = 1920;
 static int globalImageOutputHeight = 1080;
-static int globalFileOptionsForceOneSidedSurfaces = 0;
-static java::ArrayList<Geometry *> *globalSceneGeometries = nullptr;
-static Geometry *globalSceneClusteredWorldGeometry = nullptr;
+static bool globalOneSidedSurfaces;
+static int globalConicSubDivisions;
+
 static Background *globalSceneBackground = nullptr;
-static VoxelGrid *globalSceneWorldVoxelGrid = nullptr;
+static java::ArrayList<Geometry *> *globalSceneGeometries = nullptr;
 static java::ArrayList<Geometry *> *globalSceneClusteredGeometries = nullptr;
-
-static void
-mainForceOneSidedOption(void *value) {
-    globalFileOptionsForceOneSidedSurfaces = *((int *) value);
-}
-
-static void
-mainMonochromeOption(void *value) {
-    globalNumberOfQuarterCircleDivisions = *(int *)value;
-}
-
-static CommandLineOptionDescription globalOptions[] = {
-    {"-nqcdivs", 3, &GLOBAL_options_intType, &globalNumberOfQuarterCircleDivisions, DEFAULT_ACTION,
-    "-nqcdivs <integer>\t: number of quarter circle divisions"},
-    {"-force-onesided", 10, TYPELESS, &globalYes, mainForceOneSidedOption,
-    "-force-onesided\t\t: force one-sided surfaces"},
-    {"-dont-force-onesided", 14, TYPELESS, &globalNo, mainForceOneSidedOption,
-    "-dont-force-onesided\t: allow two-sided surfaces"},
-    {"-monochromatic", 5, TYPELESS, &globalYes, mainMonochromeOption,
-    "-monochromatic \t\t: convert colors to shades of grey"},
-    {nullptr, 0, TYPELESS, nullptr, DEFAULT_ACTION, nullptr}
-};
+static Geometry *globalSceneClusteredWorldGeometry = nullptr;
+static VoxelGrid *globalSceneWorldVoxelGrid = nullptr;
 
 static void
 mainPatchAccumulateStats(Patch *patch) {
@@ -196,9 +169,7 @@ mainRenderingDefaults() {
     renderUseFrustumCulling(true);
     renderSetNoShading(false);
 
-    GLOBAL_render_renderOptions.cameraSize = 0.25;
     GLOBAL_render_renderOptions.lineWidth = 1.0;
-    GLOBAL_render_renderOptions.camera_color = GLOBAL_material_yellow;
     GLOBAL_render_renderOptions.renderRayTracedImage = false;
 }
 
@@ -210,12 +181,8 @@ mainInit() {
     // Transforms the cubature rules for quadrilaterals to be over the domain [0,1]^2 instead of [-1,1]^2
     fixCubatureRules();
 
-    globalFileOptionsForceOneSidedSurfaces = DEFAULT_FORCE_ONE_SIDED;
-    globalNumberOfQuarterCircleDivisions = DEFAULT_NUMBER_OF_QUARTIC_DIVISIONS;
-
     mainRenderingDefaults();
     toneMapDefaults();
-    cameraDefaults();
     radianceDefaults(nullptr, globalSceneClusteredWorldGeometry);
 
     #ifdef RAYTRACING_ENABLED
@@ -255,13 +222,13 @@ mainCreateClusterHierarchy(java::ArrayList<Patch *> *patches) {
 }
 
 /**
-Processes command line arguments not recognized by the Xt GUI toolkit
+Processes command line arguments
 */
 static void
 mainParseGlobalOptions(int *argc, char **argv, RadianceMethod **context) {
     renderParseOptions(argc, argv);
     parseToneMapOptions(argc, argv);
-    parseCameraOptions(argc, argv);
+    parseCameraOptions(argc, argv, &GLOBAL_camera_mainCamera, globalImageOutputWidth, globalImageOutputHeight);
     parseRadianceOptions(argc, argv, context);
 
     #ifdef RAYTRACING_ENABLED
@@ -269,7 +236,7 @@ mainParseGlobalOptions(int *argc, char **argv, RadianceMethod **context) {
     #endif
 
     parseBatchOptions(argc, argv);
-    parseGeneralOptions(globalOptions, argc, argv); // Order is important, this should be called last
+    parseGeneralProgramOptions(argc, argv, &globalOneSidedSurfaces, &globalConicSubDivisions);
 }
 
 /**
@@ -445,6 +412,7 @@ mainReadFile(char *filename, MgfContext *context) {
     fprintf(stderr, "%g secs.\n", (float) (t - last) / (float) CLOCKS_PER_SEC);
     last = t;
 
+    // Print statistics report
     printf("\nStats: GLOBAL_statistics.totalEmittedPower ................: %f W\n"
            "         GLOBAL_statistics.estimatedAverageRadiance .........: %f W / sr\n"
            "         GLOBAL_statistics_averageReflectivity ..............: %f\n"
@@ -461,7 +429,7 @@ mainReadFile(char *filename, MgfContext *context) {
            GLOBAL_statistics.totalArea);
 
     // Initialize radiance for the freshly loaded scene
-    fprintf(stderr, "Initializing radiance computations ... ");
+    fprintf(stderr, "Initializing radiance method ... ");
     fflush(stderr);
 
     setRadianceMethod(context->radianceMethod, globalScenePatches, globalSceneClusteredWorldGeometry);
@@ -472,7 +440,7 @@ mainReadFile(char *filename, MgfContext *context) {
 
     #ifdef RAYTRACING_ENABLED
         if ( currentRaytracer != nullptr ) {
-            fprintf(stderr, "Initializing raytracing computations ... \n");
+            fprintf(stderr, "Initializing raytracing method ... \n");
 
             mainSetRayTracingMethod(currentRaytracer, globalLightSourcePatches);
 
@@ -515,15 +483,14 @@ createOffscreenCanvasWindow(
     openGlMesaRenderCreateOffscreenWindow(width, height);
 
     // Set correct width and height for the camera
-    cameraSet(
-        camera,
-        &camera->eyePosition,
-        &camera->lookPosition,
-        &camera->upDirection,
-        camera->fov,
-        width,
-        height,
-        &camera->background);
+    camera->set(
+            &camera->eyePosition,
+            &camera->lookPosition,
+            &camera->upDirection,
+            camera->fieldOfVision,
+            width,
+            height,
+            &camera->background);
 
     #ifdef RAYTRACING_ENABLED
         // Render the scene (no expose events on the external canvas window!)
@@ -619,8 +586,8 @@ main(int argc, char *argv[]) {
 
     MgfContext mgfContext;
     mgfContext.radianceMethod = selectedRadianceMethod;
-    mgfContext.singleSided = globalFileOptionsForceOneSidedSurfaces != 0;
-    mgfContext.numberOfQuarterCircleDivisions = globalNumberOfQuarterCircleDivisions;
+    mgfContext.singleSided = globalOneSidedSurfaces;
+    mgfContext.numberOfQuarterCircleDivisions = globalConicSubDivisions;
     mgfContext.monochrome = DEFAULT_MONOCHROME;
     mgfContext.currentMaterial = &GLOBAL_material_defaultMaterial;
 

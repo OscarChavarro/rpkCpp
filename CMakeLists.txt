@@ -64,6 +64,7 @@ set(MAIN_SRC
     src/scene/VoxelGrid.cpp
     src/scene/Background.cpp
     src/scene/VoxelData.cpp
+    src/scene/Plane.cpp
     src/scene/Camera.cpp
     src/scene/RadianceMethod.cpp
     src/IMAGE/pic.cpp
@@ -176,6 +177,7 @@ set(MAIN_SRC
     src/app/radiance.cpp
     src/app/raytrace.cpp
     src/app/batch.cpp
+    src/app/commandLine.cpp
     src/app/main.cpp)
 add_executable(rpk ${MAIN_SRC})
 
