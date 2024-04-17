@@ -40,6 +40,7 @@ class Raytracer {
     // is not a nullptr pointer, write the ray-traced image using the image output
     // handle pointed by 'ip'
     void (*Raytrace)(
+        Camera *camera,
         VoxelGrid *sceneWorldVoxelGrid,
         Background *sceneBackground,
         ImageOutputHandle *ip,
@@ -69,6 +70,7 @@ rayTrace(
     char *fileName,
     FILE *fp,
     int isPipe,
+    Camera *camera,
     Raytracer *activeRayTracer,
     Background *sceneBackground,
     VoxelGrid *sceneWorldVoxelGrid,

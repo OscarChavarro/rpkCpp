@@ -694,8 +694,8 @@ bpCalcPixel(
             config->eyePath->m_rayType = STARTS;
 
             Vector2D tmpVec2D = config->screen->getPixelCenter((int) (x1), (int) (x2));
-            config->xSample = tmpVec2D.u; // pix_x + (GLOBAL_camera_mainCamera.pixH * x_1);
-            config->ySample = tmpVec2D.v; //pix_y + (GLOBAL_camera_mainCamera.pixV * x_2);
+            config->xSample = tmpVec2D.u; // pix_x + (camera.pixelWidth * x1);
+            config->ySample = tmpVec2D.v; // pix_y + (camera.pixelHeight * x2);
 
             if ( config->eyeConfig.dirSampler->sample(sceneVoxelGrid, sceneBackground, nullptr, config->eyePath, pixNode, x1, x2) ) {
                 pixNode->assignBsdfAndNormal();
@@ -733,6 +733,7 @@ bpCalcPixel(
 
 static void
 doBptAndSubsequentImages(
+    Camera *camera,
     VoxelGrid *sceneVoxelGrid,
     Background *sceneBackground,
     BidirectionalPathTracingConfiguration *config)
@@ -790,7 +791,7 @@ doBptAndSubsequentImages(
         }
 
         config->baseConfig->samplesPerPixel = currentSamples;
-        config->baseConfig->totalSamples = currentSamples * GLOBAL_camera_mainCamera.xSize * GLOBAL_camera_mainCamera.ySize;;
+        config->baseConfig->totalSamples = currentSamples * camera->xSize * camera->ySize;
 
         screenIterateSequential(
             sceneVoxelGrid,
@@ -1002,6 +1003,7 @@ pointed to by 'fp'
 */
 static void
 biDirPathTrace(
+    Camera *camera,
     VoxelGrid *sceneWorldVoxelGrid,
     Background *sceneBackground,
     ImageOutputHandle *ip,
@@ -1016,7 +1018,7 @@ biDirPathTrace(
     // Copy base config (so that rendering is independent of GUI)
     config.baseConfig = new BP_BASECONFIG;
     *(config.baseConfig) = GLOBAL_rayTracing_biDirectionalPath.basecfg;
-    config.baseConfig->totalSamples = GLOBAL_rayTracing_biDirectionalPath.basecfg.samplesPerPixel * GLOBAL_camera_mainCamera.xSize * GLOBAL_camera_mainCamera.ySize;
+    config.baseConfig->totalSamples = GLOBAL_rayTracing_biDirectionalPath.basecfg.samplesPerPixel * camera->xSize * camera->ySize;
 
     config.dBuffer = nullptr;
 
@@ -1085,7 +1087,7 @@ biDirPathTrace(
     }
 
     if ( GLOBAL_rayTracing_biDirectionalPath.saveSubsequentImages ) {
-        doBptAndSubsequentImages(sceneWorldVoxelGrid, sceneBackground, &config);
+        doBptAndSubsequentImages(camera, sceneWorldVoxelGrid, sceneBackground, &config);
     } else if ( config.baseConfig->doDensityEstimation ) {
         doBptDensityEstimation(sceneWorldVoxelGrid, sceneBackground, &config);
     } else if ( !GLOBAL_rayTracing_biDirectionalPath.basecfg.progressiveTracing ) {

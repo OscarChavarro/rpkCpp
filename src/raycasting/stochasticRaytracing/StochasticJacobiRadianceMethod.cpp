@@ -180,6 +180,7 @@ stochasticRelaxationRadiosityPrintIncrementalRadianceStats() {
 
 static void
 stochasticRelaxationRadiosityDoIncrementalRadianceIterations(
+    Camera *camera,
     VoxelGrid *sceneWorldVoxelGrid,
     java::ArrayList<Patch *> *scenePatches,
     java::ArrayList<Geometry *> *sceneGeometries,
@@ -245,7 +246,7 @@ stochasticRelaxationRadiosityDoIncrementalRadianceIterations(
             }
 
             openGlRenderScene(
-                &GLOBAL_camera_mainCamera,
+                camera,
                 scenePatches,
                 sceneClusteredGeometries,
                 sceneGeometries,
@@ -535,7 +536,7 @@ StochasticJacobiRadianceMethod::doStep(
                     }
                 }
         }
-        stochasticRelaxationRadiosityDoIncrementalRadianceIterations(sceneWorldVoxelGrid, scenePatches, sceneGeometries, sceneClusteredGeometries, clusteredWorldGeometry, this);
+        stochasticRelaxationRadiosityDoIncrementalRadianceIterations(camera, sceneWorldVoxelGrid, scenePatches, sceneGeometries, sceneClusteredGeometries, clusteredWorldGeometry, this);
 
         // Subsequent regular iterations will take as many rays as in the whole
         // sequence of incremental iteration steps

@@ -16,6 +16,7 @@ rayTrace(
     char *fileName,
     FILE *fp,
     int isPipe,
+    Camera *camera,
     Raytracer *activeRayTracer,
     Background *sceneBackground,
     VoxelGrid *sceneWorldVoxelGrid,
@@ -36,7 +37,7 @@ rayTrace(
     }
 
     if ( activeRayTracer != nullptr ) {
-        activeRayTracer->Raytrace(sceneWorldVoxelGrid, sceneBackground, img, scenePatches, lightPatches, clusteredWorldGeometry, context);
+        activeRayTracer->Raytrace(camera, sceneWorldVoxelGrid, sceneBackground, img, scenePatches, lightPatches, clusteredWorldGeometry, context);
     }
 
     if ( img ) {

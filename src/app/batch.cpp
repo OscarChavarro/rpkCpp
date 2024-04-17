@@ -328,6 +328,7 @@ batch(
                     nullptr,
                     nullptr,
                     false,
+                    camera,
                     sceneBackground,
                     voxelGrid,
                     scenePatches,

@@ -18,6 +18,7 @@
         char *filename,
         FILE *fp,
         int isPipe,
+        Camera *camera,
         Background *sceneBackground,
         VoxelGrid *sceneWorldVoxelGrid,
         java::ArrayList<Patch *> *scenePatches,

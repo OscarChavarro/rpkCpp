@@ -562,6 +562,7 @@ pointed to by 'fp'
 */
 void
 rtStochasticTrace(
+    Camera * /*camera*/,
     VoxelGrid *sceneWorldVoxelGrid,
     Background *sceneBackground,
     ImageOutputHandle *ip,

@@ -118,6 +118,7 @@ RayMattingState GLOBAL_rayCasting_rayMatterState;
 
 static void
 iRayMatte(
+    Camera * /*camera*/,
     VoxelGrid *sceneWorldVoxelGrid,
     Background * /*sceneBackground*/,
     ImageOutputHandle *ip,
