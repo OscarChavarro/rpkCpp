@@ -186,7 +186,6 @@ void
 batch(
     Camera *camera,
     Background *sceneBackground,
-    VoxelGrid *sceneWorldVoxelGrid,
     java::ArrayList<Patch *> *scenePatches,
     java::ArrayList<Patch *> *lightPatches,
     java::ArrayList<Geometry *> *sceneGeometries,
@@ -310,7 +309,7 @@ batch(
                 nullptr,
                 false,
                 sceneBackground,
-                sceneWorldVoxelGrid,
+                voxelGrid,
                 scenePatches,
                 lightPatches,
                 clusteredWorldGeometry,

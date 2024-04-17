@@ -76,13 +76,12 @@ mainMakeRaytracingMethodsString() {
 }
 
 void
-mainRayTracingDefaults(java::ArrayList<Patch *> *lightSourcePatches) {
-    globalLightSourcePatches = lightSourcePatches;
+mainRayTracingDefaults() {
     for ( Raytracer **window = globalRayTracingMethods; *window; window++ ) {
         Raytracer *method = *window;
         method->Defaults();
         if ( strncasecmp(DEFAULT_RAYTRACING_METHOD, method->shortName, method->nameAbbrev) == 0 ) {
-            mainSetRayTracingMethod(method, lightSourcePatches);
+            mainSetRayTracingMethod(method, nullptr);
         }
     }
     mainMakeRaytracingMethodsString(); // Comes last

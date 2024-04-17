@@ -51,7 +51,7 @@ static int globalImageOutputWidth = 1920;
 static int globalImageOutputHeight = 1080;
 static int globalFileOptionsForceOneSidedSurfaces = 0;
 static java::ArrayList<Geometry *> *globalSceneGeometries = nullptr;
-static Geometry *globalClusteredWorldGeometry = nullptr;
+static Geometry *globalSceneClusteredWorldGeometry = nullptr;
 static Background *globalSceneBackground = nullptr;
 static VoxelGrid *globalSceneWorldVoxelGrid = nullptr;
 static java::ArrayList<Geometry *> *globalSceneClusteredGeometries = nullptr;
@@ -216,10 +216,10 @@ mainInit() {
     mainRenderingDefaults();
     toneMapDefaults();
     cameraDefaults();
-    radianceDefaults(nullptr, globalClusteredWorldGeometry);
+    radianceDefaults(nullptr, globalSceneClusteredWorldGeometry);
 
     #ifdef RAYTRACING_ENABLED
-        mainRayTracingDefaults(globalLightSourcePatches);
+        mainRayTracingDefaults();
     #endif
 
     // Default vertex compare flags: both location and normal is relevant. Two
@@ -278,10 +278,6 @@ they are primitive or not
 */
 static void
 buildPatchList(java::ArrayList<Geometry *> *geometryList, java::ArrayList<Patch *> *patchList) {
-    if ( geometryList == nullptr ) {
-        return;
-    }
-
     for ( int i = 0; i < geometryList->size(); i++ ) {
         Geometry *geometry = geometryList->get(i);
         if ( geometry->isCompound() ) {
@@ -290,10 +286,10 @@ buildPatchList(java::ArrayList<Geometry *> *geometryList, java::ArrayList<Patch 
             buildPatchList(compound->children, patchList);
         } else {
             // Trivial case
-            java::ArrayList<Patch *> *list2 = geomPatchArrayListReference(geometry);
+            java::ArrayList<Patch *> *patchesFromNonCompounds = geomPatchArrayListReference(geometry);
 
-            for ( int j = 0; list2 != nullptr && j < list2->size(); j++ ) {
-                Patch *patch = list2->get(j);
+            for ( int j = 0; patchesFromNonCompounds != nullptr && j < patchesFromNonCompounds->size(); j++ ) {
+                Patch *patch = patchesFromNonCompounds->get(j);
                 if ( patch != nullptr ) {
                     patchList->add(patch);
                 }
@@ -335,11 +331,11 @@ mainReadFile(char *filename, MgfContext *context) {
     }
 
     // Init compute method
-    setRadianceMethod(nullptr, nullptr, globalClusteredWorldGeometry);
+    setRadianceMethod(nullptr, nullptr, globalSceneClusteredWorldGeometry);
 
     #ifdef RAYTRACING_ENABLED
         Raytracer *currentRaytracer = GLOBAL_raytracer_activeRaytracer;
-        mainSetRayTracingMethod(nullptr, globalLightSourcePatches);
+        mainSetRayTracingMethod(nullptr, nullptr);
     #endif
 
     // Prepare if errors occur when reading the new scene will abort
@@ -377,31 +373,6 @@ mainReadFile(char *filename, MgfContext *context) {
         return false; // Not successful
     }
 
-    // Dispose of the old scene
-    fprintf(stderr, "Disposing of the old scene ... ");
-    fflush(stderr);
-    context->radianceMethod->terminate(globalScenePatches);
-
-    #ifdef RAYTRACING_ENABLED
-        if ( GLOBAL_raytracer_activeRaytracer != nullptr ) {
-            GLOBAL_raytracer_activeRaytracer->Terminate();
-        }
-    #endif
-
-    if ( globalSceneBackground != nullptr ) {
-        globalSceneBackground->methods->Destroy(globalSceneBackground->data);
-        globalSceneBackground = nullptr;
-    }
-
-    if ( globalSceneWorldVoxelGrid != nullptr ) {
-        delete globalSceneWorldVoxelGrid;
-        globalSceneWorldVoxelGrid = nullptr;
-    }
-
-    t = clock();
-    fprintf(stderr, "%g secs.\n", (float) (t - last) / (float) CLOCKS_PER_SEC);
-    last = t;
-
     // Build the new patch list, this is duplicating already available
     // information and as such potentially dangerous, but we need it
     // so many times
@@ -429,10 +400,10 @@ mainReadFile(char *filename, MgfContext *context) {
     fprintf(stderr, "Building cluster hierarchy ... ");
     fflush(stderr);
 
-    globalClusteredWorldGeometry = mainCreateClusterHierarchy(globalScenePatches);
+    globalSceneClusteredWorldGeometry = mainCreateClusterHierarchy(globalScenePatches);
 
-    if ( globalClusteredWorldGeometry->className == GeometryClassId::COMPOUND ) {
-        if ( globalClusteredWorldGeometry->compoundData == nullptr ) {
+    if ( globalSceneClusteredWorldGeometry->className == GeometryClassId::COMPOUND ) {
+        if ( globalSceneClusteredWorldGeometry->compoundData == nullptr ) {
             fprintf(stderr, "Unexpected case: review code - generic case not supported anymore.\n");
             exit(2);
         }
@@ -445,7 +416,7 @@ mainReadFile(char *filename, MgfContext *context) {
     last = t;
 
     // Create the scene level voxel grid
-    globalSceneWorldVoxelGrid = new VoxelGrid(globalClusteredWorldGeometry);
+    globalSceneWorldVoxelGrid = new VoxelGrid(globalSceneClusteredWorldGeometry);
 
     t = clock();
     fprintf(stderr, "Voxel grid creation took %g secs.\n", (float) (t - last) / (float) CLOCKS_PER_SEC);
@@ -458,7 +429,7 @@ mainReadFile(char *filename, MgfContext *context) {
     GLOBAL_statistics.numberOfPatches = GLOBAL_statistics.numberOfElements;
     mainComputeSomeSceneStats(globalScenePatches);
     GLOBAL_statistics.referenceLuminance = 5.42 * ((1.0 - GLOBAL_statistics.averageReflectivity.gray()) *
-            GLOBAL_statistics.estimatedAverageRadiance.luminance());
+        GLOBAL_statistics.estimatedAverageRadiance.luminance());
 
     t = clock();
     fprintf(stderr, "%g secs.\n", (float) (t - last) / (float) CLOCKS_PER_SEC);
@@ -493,7 +464,7 @@ mainReadFile(char *filename, MgfContext *context) {
     fprintf(stderr, "Initializing radiance computations ... ");
     fflush(stderr);
 
-    setRadianceMethod(context->radianceMethod, globalScenePatches, globalClusteredWorldGeometry);
+    setRadianceMethod(context->radianceMethod, globalScenePatches, globalSceneClusteredWorldGeometry);
 
     t = clock();
     fprintf(stderr, "%g secs.\n", (float) (t - last) / (float) CLOCKS_PER_SEC);
@@ -534,16 +505,25 @@ static void
 createOffscreenCanvasWindow(
     int width,
     int height,
+    Camera *camera,
     java::ArrayList<Patch *> *scenePatches,
     java::ArrayList<Geometry *> *sceneGeometries,
+    java::ArrayList<Geometry *> *sceneClusteredGeometries,
+    Geometry *clusteredWorldGeometry,
     RadianceMethod *context)
 {
     openGlMesaRenderCreateOffscreenWindow(width, height);
 
     // Set correct width and height for the camera
-    cameraSet(&GLOBAL_camera_mainCamera, &GLOBAL_camera_mainCamera.eyePosition, &GLOBAL_camera_mainCamera.lookPosition,
-              &GLOBAL_camera_mainCamera.upDirection,
-              GLOBAL_camera_mainCamera.fov, width, height, &GLOBAL_camera_mainCamera.background);
+    cameraSet(
+        camera,
+        &camera->eyePosition,
+        &camera->lookPosition,
+        &camera->upDirection,
+        camera->fov,
+        width,
+        height,
+        &camera->background);
 
     #ifdef RAYTRACING_ENABLED
         // Render the scene (no expose events on the external canvas window!)
@@ -555,8 +535,8 @@ createOffscreenCanvasWindow(
             &GLOBAL_camera_mainCamera,
             scenePatches,
             sceneGeometries,
-            globalSceneClusteredGeometries,
-            globalClusteredWorldGeometry,
+            sceneClusteredGeometries,
+            clusteredWorldGeometry,
             f,
             context);
     #endif
@@ -567,16 +547,24 @@ mainExecuteRendering(
     Camera *camera,
     int outputImageWidth,
     int outputImageHeight,
+    Background *background,
     java::ArrayList<Geometry *> *sceneGeometries,
+    java::ArrayList<Geometry *> *sceneClusteredGeometries,
     java::ArrayList<Patch *> *scenePatches,
+    java::ArrayList<Patch *> *sceneLightPatches,
+    Geometry *sceneClusteredWorldGeometry,
+    VoxelGrid *sceneVoxelGrid,
     RadianceMethod *radianceMethod)
 {
     // Create the window in which to render (canvas window)
     createOffscreenCanvasWindow(
         outputImageWidth,
         outputImageHeight,
+        camera,
         scenePatches,
         sceneGeometries,
+        sceneClusteredGeometries,
+        sceneClusteredWorldGeometry,
         radianceMethod);
 
     #ifdef RAYTRACING_ENABLED
@@ -587,23 +575,22 @@ mainExecuteRendering(
         openGlRenderScene(
             camera,
             scenePatches,
-            globalSceneClusteredGeometries,
+            sceneClusteredGeometries,
             sceneGeometries,
-            globalClusteredWorldGeometry,
+            sceneClusteredWorldGeometry,
             f,
             radianceMethod);
     #endif
 
     batch(
         camera,
-        globalSceneBackground,
-        globalSceneWorldVoxelGrid,
+        background,
         scenePatches,
-        globalLightSourcePatches,
+        sceneLightPatches,
         sceneGeometries,
-        globalSceneClusteredGeometries,
-        globalClusteredWorldGeometry,
-        globalSceneWorldVoxelGrid,
+        sceneClusteredGeometries,
+        sceneClusteredWorldGeometry,
+        sceneVoxelGrid,
         radianceMethod);
 }
 
@@ -643,8 +630,13 @@ main(int argc, char *argv[]) {
         &GLOBAL_camera_mainCamera,
         globalImageOutputWidth,
         globalImageOutputHeight,
+        globalSceneBackground,
         globalSceneGeometries,
+        globalSceneClusteredGeometries,
         globalScenePatches,
+        globalLightSourcePatches,
+        globalSceneClusteredWorldGeometry,
+        globalSceneWorldVoxelGrid,
         selectedRadianceMethod);
 
     //executeGlutGui(
@@ -656,7 +648,7 @@ main(int argc, char *argv[]) {
     //    globalSceneGeometries,
     //    globalSceneClusteredGeometries,
     //    globalSceneBackground,
-    //    globalClusteredWorldGeometry,
+    //    globalSceneClusteredWorldGeometry,
     //    mgfContext.radianceMethod,
     //    globalSceneWorldVoxelGrid);
 
