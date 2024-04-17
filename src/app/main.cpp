@@ -47,8 +47,8 @@ static char *globalCurrentDirectory;
 static int globalNumberOfQuarterCircleDivisions = DEFAULT_NUMBER_OF_QUARTIC_DIVISIONS;
 static int globalYes = 1;
 static int globalNo = 0;
-static int globalImageOutputWidth = 0;
-static int globalImageOutputHeight = 0;
+static int globalImageOutputWidth = 1920;
+static int globalImageOutputHeight = 1080;
 static int globalFileOptionsForceOneSidedSurfaces = 0;
 static java::ArrayList<Geometry *> *globalSceneGeometries = nullptr;
 static Geometry *globalClusteredWorldGeometry = nullptr;
@@ -563,22 +563,21 @@ createOffscreenCanvasWindow(
 }
 
 static void
-mainExecuteRendering(java::ArrayList<Patch *> *scenePatches, RadianceMethod *context) {
+mainExecuteRendering(
+    Camera *camera,
+    int outputImageWidth,
+    int outputImageHeight,
+    java::ArrayList<Geometry *> *sceneGeometries,
+    java::ArrayList<Patch *> *scenePatches,
+    RadianceMethod *radianceMethod)
+{
     // Create the window in which to render (canvas window)
-    if ( globalImageOutputWidth <= 0 ) {
-        globalImageOutputWidth = 1920;
-    }
-    if ( globalImageOutputHeight <= 0 ) {
-        globalImageOutputHeight = 1080;
-    }
     createOffscreenCanvasWindow(
-            globalImageOutputWidth,
-            globalImageOutputHeight,
-            scenePatches,
-            globalSceneGeometries,
-            context);
-
-    while ( !openGlRenderInitialized() ) {}
+        outputImageWidth,
+        outputImageHeight,
+        scenePatches,
+        sceneGeometries,
+        radianceMethod);
 
     #ifdef RAYTRACING_ENABLED
         int (*f)() = nullptr;
@@ -586,26 +585,26 @@ mainExecuteRendering(java::ArrayList<Patch *> *scenePatches, RadianceMethod *con
             f = GLOBAL_raytracer_activeRaytracer->Redisplay;
         }
         openGlRenderScene(
-            &GLOBAL_camera_mainCamera,
+            camera,
             scenePatches,
             globalSceneClusteredGeometries,
-            globalSceneGeometries,
+            sceneGeometries,
             globalClusteredWorldGeometry,
             f,
-            context);
+            radianceMethod);
     #endif
 
     batch(
-        &GLOBAL_camera_mainCamera,
+        camera,
         globalSceneBackground,
         globalSceneWorldVoxelGrid,
         scenePatches,
         globalLightSourcePatches,
-        globalSceneGeometries,
+        sceneGeometries,
         globalSceneClusteredGeometries,
         globalClusteredWorldGeometry,
         globalSceneWorldVoxelGrid,
-        context);
+        radianceMethod);
 }
 
 static void
@@ -640,7 +639,13 @@ main(int argc, char *argv[]) {
 
     mainBuildModel(&argc, argv, &mgfContext);
 
-    mainExecuteRendering(globalScenePatches, selectedRadianceMethod);
+    mainExecuteRendering(
+        &GLOBAL_camera_mainCamera,
+        globalImageOutputWidth,
+        globalImageOutputHeight,
+        globalSceneGeometries,
+        globalScenePatches,
+        selectedRadianceMethod);
 
     //executeGlutGui(
     //    argc,

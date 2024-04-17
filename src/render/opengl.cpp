@@ -21,7 +21,6 @@ public:
 };
 
 static int globalDisplayListId = -1;
-static int globalOpenGlInitialized = false;
 
 /**
 Re-renders last ray-traced image if any, Returns TRUE if there is one,
@@ -77,7 +76,6 @@ openGlInitState() {
     openGlRenderClearWindow();
     glFinish();
 
-    globalOpenGlInitialized = true;
     globalDisplayListId = -1;
 }
 
@@ -100,15 +98,6 @@ openGlMesaRenderCreateOffscreenWindow(int width, int height) {
     openGlInitState();
     OSMesaDestroyContext(osMesaContext);
     free(imageBuffer);
-}
-
-/**
-Returns FALSE until rendering is fully initialized. Do not attempt to
-render something until this function returns TRUE
-*/
-int
-openGlRenderInitialized() {
-    return globalOpenGlInitialized;
 }
 
 /**
@@ -565,10 +554,6 @@ openGlRenderScene(
     int (*reDisplayCallback)(),
     RadianceMethod *context)
 {
-    if ( !globalOpenGlInitialized ) {
-        return;
-    }
-
     openGlRenderSetLineWidth(GLOBAL_render_renderOptions.lineWidth);
 
     canvasPushMode();
