@@ -11,7 +11,7 @@
 #include "render/renderhook.h"
 #include "render/opengl.h"
 #include "render/ScreenBuffer.h"
-//#include "render/glutDebugTools.h"
+#include "render/glutDebugTools.h"
 #include "GALERKIN/GalerkinRadianceMethod.h"
 #include "app/Cluster.h"
 #include "app/radiance.h"
@@ -225,10 +225,10 @@ mainCreateClusterHierarchy(java::ArrayList<Patch *> *patches) {
 Processes command line arguments
 */
 static void
-mainParseGlobalOptions(int *argc, char **argv, RadianceMethod **context) {
+mainParseGlobalOptions(int *argc, char **argv, RadianceMethod **context, Camera *camera) {
     renderParseOptions(argc, argv);
     parseToneMapOptions(argc, argv);
-    parseCameraOptions(argc, argv, &GLOBAL_camera_mainCamera, globalImageOutputWidth, globalImageOutputHeight);
+    parseCameraOptions(argc, argv, camera, globalImageOutputWidth, globalImageOutputHeight);
     parseRadianceOptions(argc, argv, context);
 
     #ifdef RAYTRACING_ENABLED
@@ -480,7 +480,7 @@ createOffscreenCanvasWindow(
     Geometry *clusteredWorldGeometry,
     RadianceMethod *context)
 {
-    openGlMesaRenderCreateOffscreenWindow(&GLOBAL_camera_mainCamera, width, height);
+    openGlMesaRenderCreateOffscreenWindow(camera, width, height);
 
     // Set correct width and height for the camera
     camera->set(
@@ -499,7 +499,7 @@ createOffscreenCanvasWindow(
             f = GLOBAL_raytracer_activeRaytracer->Redisplay;
         }
         openGlRenderScene(
-            &GLOBAL_camera_mainCamera,
+            camera,
             scenePatches,
             sceneGeometries,
             sceneClusteredGeometries,
@@ -582,7 +582,7 @@ main(int argc, char *argv[]) {
     RadianceMethod *selectedRadianceMethod = nullptr;
 
     mainInit();
-    mainParseGlobalOptions(&argc, argv, &selectedRadianceMethod);
+    mainParseGlobalOptions(&argc, argv, &selectedRadianceMethod, &GLOBAL_camera_mainCamera);
 
     MgfContext mgfContext;
     mgfContext.radianceMethod = selectedRadianceMethod;
@@ -606,18 +606,18 @@ main(int argc, char *argv[]) {
         globalSceneWorldVoxelGrid,
         selectedRadianceMethod);
 
-    //executeGlutGui(
-    //    argc,
-    //    argv,
-    //    &GLOBAL_camera_mainCamera,
-    //    globalScenePatches,
-    //    globalLightSourcePatches,
-    //    globalSceneGeometries,
-    //    globalSceneClusteredGeometries,
-    //    globalSceneBackground,
-    //    globalSceneClusteredWorldGeometry,
-    //    mgfContext.radianceMethod,
-    //    globalSceneWorldVoxelGrid);
+    executeGlutGui(
+        argc,
+        argv,
+        &GLOBAL_camera_mainCamera,
+        globalScenePatches,
+        globalLightSourcePatches,
+        globalSceneGeometries,
+        globalSceneClusteredGeometries,
+        globalSceneBackground,
+        globalSceneClusteredWorldGeometry,
+        mgfContext.radianceMethod,
+        globalSceneWorldVoxelGrid);
 
     mainFreeMemory(&mgfContext);
 

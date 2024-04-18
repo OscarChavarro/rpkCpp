@@ -23,6 +23,7 @@ screenIterateSequential(
 
 void
 screenIterateProgressive(
+    Camera *camera,
     VoxelGrid *sceneVoxelGrid,
     Background *sceneBackground,
     SCREEN_ITERATE_CALLBACK callback,

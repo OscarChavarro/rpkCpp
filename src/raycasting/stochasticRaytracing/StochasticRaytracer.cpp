@@ -588,6 +588,7 @@ rtStochasticTrace(
             &config);
     } else {
         screenIterateProgressive(
+            camera,
             sceneWorldVoxelGrid,
             sceneBackground,
             (ColorRgb(*)(Camera *, VoxelGrid *, Background *, int, int, void *))calcPixel,

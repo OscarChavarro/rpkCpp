@@ -748,14 +748,12 @@ Create sub-elements: regular subdivision, see drawings above
 */
 static StochasticRadiosityElement **
 monteCarloRadiosityRegularSubdivideTriangle(StochasticRadiosityElement *element) {
-    Vertex *v0, *v1, *v2, *m0, *m1, *m2;
-
-    v0 = element->vertices[0];
-    v1 = element->vertices[1];
-    v2 = element->vertices[2];
-    m0 = monteCarloRadiosityNewEdgeMidpointVertex(element, 0);
-    m1 = monteCarloRadiosityNewEdgeMidpointVertex(element, 1);
-    m2 = monteCarloRadiosityNewEdgeMidpointVertex(element, 2);
+    Vertex *v0 = element->vertices[0];
+    Vertex *v1 = element->vertices[1];
+    Vertex *v2 = element->vertices[2];
+    Vertex *m0 = monteCarloRadiosityNewEdgeMidpointVertex(element, 0);
+    Vertex *m1 = monteCarloRadiosityNewEdgeMidpointVertex(element, 1);
+    Vertex *m2 = monteCarloRadiosityNewEdgeMidpointVertex(element, 2);
 
     monteCarloRadiosityCreateSurfaceSubElement(element, 0, v0, m0, m2, nullptr);
     monteCarloRadiosityCreateSurfaceSubElement(element, 1, m0, v1, m1, nullptr);
@@ -763,29 +761,27 @@ monteCarloRadiosityRegularSubdivideTriangle(StochasticRadiosityElement *element)
     monteCarloRadiosityCreateSurfaceSubElement(element, 3, m1, m2, m0, nullptr);
 
     openGlRenderSetColor(&GLOBAL_render_renderOptions.outline_color);
-    openGlRenderLine(&GLOBAL_camera_mainCamera, v0->point, v1->point);
-    openGlRenderLine(&GLOBAL_camera_mainCamera, v1->point, v2->point);
-    openGlRenderLine(&GLOBAL_camera_mainCamera, v2->point, v0->point);
-    openGlRenderLine(&GLOBAL_camera_mainCamera, m0->point, m1->point);
-    openGlRenderLine(&GLOBAL_camera_mainCamera, m1->point, m2->point);
-    openGlRenderLine(&GLOBAL_camera_mainCamera, m2->point, m0->point);
+    openGlRenderLine(v0->point, v1->point);
+    openGlRenderLine(v1->point, v2->point);
+    openGlRenderLine(v2->point, v0->point);
+    openGlRenderLine(m0->point, m1->point);
+    openGlRenderLine(m1->point, m2->point);
+    openGlRenderLine(m2->point, m0->point);
 
     return (StochasticRadiosityElement **)element->regularSubElements;
 }
 
 static StochasticRadiosityElement **
 monteCarloRadiosityRegularSubdivideQuad(StochasticRadiosityElement *element) {
-    Vertex *v0, *v1, *v2, *v3, *m0, *m1, *m2, *m3, *mm;
-
-    v0 = element->vertices[0];
-    v1 = element->vertices[1];
-    v2 = element->vertices[2];
-    v3 = element->vertices[3];
-    m0 = monteCarloRadiosityNewEdgeMidpointVertex(element, 0);
-    m1 = monteCarloRadiosityNewEdgeMidpointVertex(element, 1);
-    m2 = monteCarloRadiosityNewEdgeMidpointVertex(element, 2);
-    m3 = monteCarloRadiosityNewEdgeMidpointVertex(element, 3);
-    mm = monteCarloRadiosityNewMidpointVertex(element, m0, m2);
+    Vertex *v0 = element->vertices[0];
+    Vertex *v1 = element->vertices[1];
+    Vertex *v2 = element->vertices[2];
+    Vertex *v3 = element->vertices[3];
+    Vertex *m0 = monteCarloRadiosityNewEdgeMidpointVertex(element, 0);
+    Vertex *m1 = monteCarloRadiosityNewEdgeMidpointVertex(element, 1);
+    Vertex *m2 = monteCarloRadiosityNewEdgeMidpointVertex(element, 2);
+    Vertex *m3 = monteCarloRadiosityNewEdgeMidpointVertex(element, 3);
+    Vertex *mm = monteCarloRadiosityNewMidpointVertex(element, m0, m2);
 
     monteCarloRadiosityCreateSurfaceSubElement(element, 0, v0, m0, mm, m3);
     monteCarloRadiosityCreateSurfaceSubElement(element, 1, m0, v1, m1, mm);
@@ -793,12 +789,12 @@ monteCarloRadiosityRegularSubdivideQuad(StochasticRadiosityElement *element) {
     monteCarloRadiosityCreateSurfaceSubElement(element, 3, mm, m1, v2, m2);
 
     openGlRenderSetColor(&GLOBAL_render_renderOptions.outline_color);
-    openGlRenderLine(&GLOBAL_camera_mainCamera, v0->point, v1->point);
-    openGlRenderLine(&GLOBAL_camera_mainCamera, v1->point, v2->point);
-    openGlRenderLine(&GLOBAL_camera_mainCamera, v2->point, v3->point);
-    openGlRenderLine(&GLOBAL_camera_mainCamera, v3->point, v0->point);
-    openGlRenderLine(&GLOBAL_camera_mainCamera, m0->point, m2->point);
-    openGlRenderLine(&GLOBAL_camera_mainCamera, m1->point, m3->point);
+    openGlRenderLine(v0->point, v1->point);
+    openGlRenderLine(v1->point, v2->point);
+    openGlRenderLine(v2->point, v3->point);
+    openGlRenderLine(v3->point, v0->point);
+    openGlRenderLine(m0->point, m2->point);
+    openGlRenderLine(m1->point, m3->point);
 
     return (StochasticRadiosityElement **)element->regularSubElements;
 }

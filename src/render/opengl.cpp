@@ -104,22 +104,10 @@ openGlMesaRenderCreateOffscreenWindow(Camera *camera, int width, int height) {
 Renders a line from point p to point q, for eg debugging
 */
 void
-openGlRenderLine(Camera *camera, Vector3D *x, Vector3D *y) {
-    Vector3D X;
-    Vector3D Y;
-    Vector3D dir;
-
+openGlRenderLine(Vector3D *x, Vector3D *y) {
     glBegin(GL_LINES);
-
-    // Move the line a bit closer to the eye-point to avoid Z buffer artefacts
-    vectorSubtract(camera->eyePosition, *x, dir);
-    vectorSumScaled(*x, 0.01, dir, X);
-    glVertex3fv((GLfloat *) &X);
-
-    vectorSubtract(camera->eyePosition, *y, dir);
-    vectorSumScaled(*y, 0.01, dir, Y);
-    glVertex3fv((GLfloat *) &Y);
-
+        glVertex3fv((GLfloat *) x);
+        glVertex3fv((GLfloat *) y);
     glEnd();
 }
 
@@ -148,11 +136,9 @@ Renders a convex polygon flat shaded in the current color
 */
 void
 openGlRenderPolygonFlat(int numberOfVertices, Vector3D *vertices) {
-    int i;
-
     glBegin(GL_POLYGON);
-    for ( i = 0; i < numberOfVertices; i++ ) {
-        glVertex3fv((GLfloat *) &vertices[i]);
+    for ( int i = 0; i < numberOfVertices; i++ ) {
+        glVertex3fv((GLfloat *)&vertices[i]);
     }
     glEnd();
 }
@@ -162,12 +148,10 @@ Renders a convex polygon with Gouraud shading
 */
 void
 openGlRenderPolygonGouraud(int numberOfVertices, Vector3D *vertices, ColorRgb *verticesColors) {
-    int i;
-
     glBegin(GL_POLYGON);
-    for ( i = 0; i < numberOfVertices; i++ ) {
+    for ( int i = 0; i < numberOfVertices; i++ ) {
         openGlRenderSetColor(&verticesColors[i]);
-        glVertex3fv((GLfloat *) &vertices[i]);
+        glVertex3fv((GLfloat *)&vertices[i]);
     }
     glEnd();
 }
@@ -202,8 +186,6 @@ openGlRenderPatchFlat(Patch *patch) {
 
 void
 openGlRenderPatchSmooth(Patch *patch) {
-    int i;
-
     switch ( patch->numberOfVertices ) {
         case 3:
             glBegin(GL_TRIANGLES);
@@ -229,7 +211,7 @@ openGlRenderPatchSmooth(Patch *patch) {
             break;
         default:
             glBegin(GL_POLYGON);
-            for ( i = 0; i < patch->numberOfVertices; i++ ) {
+            for ( int i = 0; i < patch->numberOfVertices; i++ ) {
                 openGlRenderSetColor(&patch->vertex[i]->color);
                 glVertex3fv((GLfloat *) patch->vertex[i]->point);
             }

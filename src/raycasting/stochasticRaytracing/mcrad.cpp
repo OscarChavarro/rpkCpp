@@ -317,11 +317,15 @@ monteCarloRadiosityReInitImportance(Element *element) {
 }
 
 void
-monteCarloRadiosityUpdateViewImportance(java::ArrayList<Patch *> *scenePatches, Geometry *clusteredWorldGeometry) {
+monteCarloRadiosityUpdateViewImportance(
+    Camera *camera,
+    java::ArrayList<Patch *> *scenePatches,
+    Geometry *clusteredWorldGeometry)
+{
     fprintf(stderr, "Updating direct visibility ... \n");
 
     updateDirectVisibility(
-        &GLOBAL_camera_mainCamera,
+        camera,
         scenePatches,
         clusteredWorldGeometry);
 
@@ -413,6 +417,7 @@ Really initialises: before the first iteration step
 */
 void
 monteCarloRadiosityReInit(
+    Camera *camera,
     java::ArrayList<Patch *> *scenePatches,
     java::ArrayList<Geometry *> *sceneGeometries,
     Geometry *clusteredWorldGeometry)
@@ -467,22 +472,23 @@ monteCarloRadiosityReInit(
     elementHierarchyInit(clusteredWorldGeometry);
 
     if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceDriven ) {
-        monteCarloRadiosityUpdateViewImportance(scenePatches, clusteredWorldGeometry);
+        monteCarloRadiosityUpdateViewImportance(camera, scenePatches, clusteredWorldGeometry);
         GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceUpdatedFromScratch = true;
     }
 }
 
 void
 monteCarloRadiosityPreStep(
+    Camera *camera,
     java::ArrayList<Patch *> *scenePatches,
     java::ArrayList<Geometry *> *sceneGeometries,
     Geometry *clusteredWorldGeometry)
 {
     if ( !GLOBAL_stochasticRaytracing_monteCarloRadiosityState.inited ) {
-        monteCarloRadiosityReInit(scenePatches, sceneGeometries, clusteredWorldGeometry);
+        monteCarloRadiosityReInit(camera, scenePatches, sceneGeometries, clusteredWorldGeometry);
     }
     if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceDriven && GLOBAL_camera_mainCamera.changed ) {
-        monteCarloRadiosityUpdateViewImportance(scenePatches, clusteredWorldGeometry);
+        monteCarloRadiosityUpdateViewImportance(camera, scenePatches, clusteredWorldGeometry);
     }
 
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.lastClock = clock();

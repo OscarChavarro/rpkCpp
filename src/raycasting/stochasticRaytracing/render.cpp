@@ -171,9 +171,9 @@ renderTriangle(Vertex *v1, Vertex *v2, Vertex *v3) {
         }
 
         openGlRenderSetColor(&GLOBAL_render_renderOptions.outline_color);
-        openGlRenderLine(&GLOBAL_camera_mainCamera, &vert[0], &vert[1]);
-        openGlRenderLine(&GLOBAL_camera_mainCamera, &vert[1], &vert[2]);
-        openGlRenderLine(&GLOBAL_camera_mainCamera, &vert[2], &vert[0]);
+        openGlRenderLine(&vert[0], &vert[1]);
+        openGlRenderLine(&vert[1], &vert[2]);
+        openGlRenderLine(&vert[2], &vert[0]);
     }
 }
 
@@ -201,10 +201,10 @@ renderQuadrilateral(Vertex *v1, Vertex *v2, Vertex *v3, Vertex *v4) {
         }
 
         openGlRenderSetColor(&GLOBAL_render_renderOptions.outline_color);
-        openGlRenderLine(&GLOBAL_camera_mainCamera, &vert[0], &vert[1]);
-        openGlRenderLine(&GLOBAL_camera_mainCamera, &vert[1], &vert[2]);
-        openGlRenderLine(&GLOBAL_camera_mainCamera, &vert[2], &vert[3]);
-        openGlRenderLine(&GLOBAL_camera_mainCamera, &vert[3], &vert[0]);
+        openGlRenderLine(&vert[0], &vert[1]);
+        openGlRenderLine(&vert[1], &vert[2]);
+        openGlRenderLine(&vert[2], &vert[3]);
+        openGlRenderLine(&vert[3], &vert[0]);
     }
 }
 
@@ -369,13 +369,13 @@ stochasticRadiosityElementRenderOutline(StochasticRadiosityElement *elem) {
     }
 
     openGlRenderSetColor(&GLOBAL_render_renderOptions.outline_color);
-    openGlRenderLine(&GLOBAL_camera_mainCamera, &vertices[0], &vertices[1]);
-    openGlRenderLine(&GLOBAL_camera_mainCamera, &vertices[1], &vertices[2]);
+    openGlRenderLine(&vertices[0], &vertices[1]);
+    openGlRenderLine(&vertices[1], &vertices[2]);
     if ( elem->numberOfVertices == 3 ) {
-        openGlRenderLine(&GLOBAL_camera_mainCamera, &vertices[2], &vertices[0]);
+        openGlRenderLine(&vertices[2], &vertices[0]);
     } else {
-        openGlRenderLine(&GLOBAL_camera_mainCamera, &vertices[2], &vertices[3]);
-        openGlRenderLine(&GLOBAL_camera_mainCamera, &vertices[3], &vertices[0]);
+        openGlRenderLine(&vertices[2], &vertices[3]);
+        openGlRenderLine(&vertices[3], &vertices[0]);
     }
 }
 

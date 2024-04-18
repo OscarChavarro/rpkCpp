@@ -106,6 +106,7 @@ fillRect(int x0, int y0, int x1, int y1, ColorRgb col, ColorRgb *rgb) {
 
 void
 screenIterateProgressive(
+    Camera *camera,
     VoxelGrid *sceneVoxelGrid,
     Background *sceneBackground,
     SCREEN_ITERATE_CALLBACK callback,
@@ -131,8 +132,8 @@ screenIterateProgressive(
 
     ScreenIterateInit();
 
-    width = GLOBAL_camera_mainCamera.xSize;
-    height = GLOBAL_camera_mainCamera.ySize;
+    width = camera->xSize;
+    height = camera->ySize;
     rgb = new ColorRgb[width * height]; // We need a full screen!
 
     for ( int i = 0; i < width * height; i++ ) {

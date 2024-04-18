@@ -3,9 +3,9 @@ Rendering stuff independent of the graphics library being used
 */
 
 #include "common/mymath.h"
-#include "scene/Camera.h"
-#include "skin/Geometry.h"
 #include "common/options.h"
+#include "skin/Geometry.h"
+#include "scene/Camera.h"
 #include "render/opengl.h"
 #include "render/render.h"
 
@@ -185,18 +185,18 @@ renderBounds(Camera *camera, BoundingBox bounds) {
     p[6].set(bounds.coordinates[MIN_X], bounds.coordinates[MAX_Y], bounds.coordinates[MAX_Z]);
     p[7].set(bounds.coordinates[MAX_X], bounds.coordinates[MAX_Y], bounds.coordinates[MAX_Z]);
 
-    openGlRenderLine(camera, &p[0], &p[1]);
-    openGlRenderLine(camera, &p[1], &p[3]);
-    openGlRenderLine(camera, &p[3], &p[2]);
-    openGlRenderLine(camera, &p[2], &p[0]);
-    openGlRenderLine(camera, &p[4], &p[5]);
-    openGlRenderLine(camera, &p[5], &p[7]);
-    openGlRenderLine(camera, &p[7], &p[6]);
-    openGlRenderLine(camera, &p[6], &p[4]);
-    openGlRenderLine(camera, &p[0], &p[4]);
-    openGlRenderLine(camera, &p[1], &p[5]);
-    openGlRenderLine(camera, &p[2], &p[6]);
-    openGlRenderLine(camera, &p[3], &p[7]);
+    openGlRenderLine(&p[0], &p[1]);
+    openGlRenderLine(&p[1], &p[3]);
+    openGlRenderLine(&p[3], &p[2]);
+    openGlRenderLine(&p[2], &p[0]);
+    openGlRenderLine(&p[4], &p[5]);
+    openGlRenderLine(&p[5], &p[7]);
+    openGlRenderLine(&p[7], &p[6]);
+    openGlRenderLine(&p[6], &p[4]);
+    openGlRenderLine(&p[0], &p[4]);
+    openGlRenderLine(&p[1], &p[5]);
+    openGlRenderLine(&p[2], &p[6]);
+    openGlRenderLine(&p[3], &p[7]);
 }
 
 void

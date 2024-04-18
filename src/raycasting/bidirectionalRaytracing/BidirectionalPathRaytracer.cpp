@@ -686,7 +686,7 @@ bpCalcPixel(
 
     config->nx = nx;
     config->ny = ny;
-    config->fluxToRadFactor = computeFluxToRadFactor(&GLOBAL_camera_mainCamera, nx, ny);
+    config->fluxToRadFactor = computeFluxToRadFactor(camera, nx, ny);
 
     for ( int i = 0; i < config->baseConfig->samplesPerPixel; i++ ) {
         if ( config->eyeConfig.maxDepth > 1 ) {
@@ -959,7 +959,7 @@ doBptDensityEstimation(
         // Iterate screen : nNew - nOld, using an appropriate scale factor
 
         screenIterateSequential(
-            &GLOBAL_camera_mainCamera,
+            camera,
             sceneVoxelGrid,
             sceneBackground,
             (ColorRgb(*)(Camera* , VoxelGrid *, Background *, int, int, void *))bpCalcPixel,
@@ -1105,6 +1105,7 @@ biDirPathTrace(
             &config);
     } else {
         screenIterateProgressive(
+            camera,
             sceneWorldVoxelGrid,
             sceneBackground,
             (ColorRgb(*)(Camera *, VoxelGrid *, Background *, int, int, void *))bpCalcPixel,

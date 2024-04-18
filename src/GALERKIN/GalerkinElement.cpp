@@ -644,15 +644,15 @@ GalerkinElement::draw(int mode, Camera *camera) {
         openGlRenderSetColor(&GLOBAL_render_renderOptions.outline_color);
         if ( numberOfVertices == 3 ) {
             openGlRenderSetColor(&GLOBAL_material_yellow);
-            openGlRenderLine(camera, &p[0], &p[1]);
-            openGlRenderLine(camera, &p[1], &p[2]);
-            openGlRenderLine(camera, &p[2], &p[0]);
+            openGlRenderLine(&p[0], &p[1]);
+            openGlRenderLine(&p[1], &p[2]);
+            openGlRenderLine(&p[2], &p[0]);
         } else {
             openGlRenderSetColor(&GLOBAL_material_green);
-            openGlRenderLine(camera, &p[0], &p[1]);
-            openGlRenderLine(camera, &p[1], &p[2]);
-            openGlRenderLine(camera, &p[2], &p[3]);
-            openGlRenderLine(camera, &p[3], &p[0]);
+            openGlRenderLine(&p[0], &p[1]);
+            openGlRenderLine(&p[1], &p[2]);
+            openGlRenderLine(&p[2], &p[3]);
+            openGlRenderLine(&p[3], &p[0]);
         }
 
         if ( mode & STRONG ) {
@@ -664,7 +664,7 @@ GalerkinElement::draw(int mode, Camera *camera) {
 
                 for ( i = 1; i < 4; i++ ) {
                     vectorSumScaled(p[1], i * 0.25, d, pt);
-                    openGlRenderLine(camera, &p[0], &pt);
+                    openGlRenderLine(&p[0], &pt);
                 }
             } else if ( numberOfVertices == 4 ) {
                 Vector3D d1;
@@ -678,7 +678,7 @@ GalerkinElement::draw(int mode, Camera *camera) {
                 for ( i = 0; i < 5; i++ ) {
                     vectorSumScaled(p[0], i * 0.25, d1, p1);
                     vectorSumScaled(p[2], (1.0 - i * 0.25), d2, p2);
-                    openGlRenderLine(camera, &p1, &p2);
+                    openGlRenderLine(&p1, &p2);
                 }
             }
         }

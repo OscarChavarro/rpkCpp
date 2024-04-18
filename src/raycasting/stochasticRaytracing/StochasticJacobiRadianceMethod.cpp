@@ -507,7 +507,7 @@ StochasticJacobiRadianceMethod::doStep(
     Geometry *clusteredWorldGeometry,
     VoxelGrid *sceneWorldVoxelGrid)
 {
-    monteCarloRadiosityPreStep(scenePatches, sceneGeometries, clusteredWorldGeometry);
+    monteCarloRadiosityPreStep(camera, scenePatches, sceneGeometries, clusteredWorldGeometry);
 
     // Do some real work now
     if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.currentIteration == 1 ) {

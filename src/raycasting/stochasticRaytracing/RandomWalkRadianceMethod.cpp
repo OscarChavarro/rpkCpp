@@ -458,7 +458,7 @@ RandomWalkRadianceMethod::doStep(
     Geometry *clusteredWorldGeometry,
     VoxelGrid *sceneWorldVoxelGrid)
 {
-    monteCarloRadiosityPreStep(scenePatches, sceneGeometries, clusteredWorldGeometry);
+    monteCarloRadiosityPreStep(camera, scenePatches, sceneGeometries, clusteredWorldGeometry);
 
     if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.currentIteration == 1 ) {
         if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.indirectOnly ) {
