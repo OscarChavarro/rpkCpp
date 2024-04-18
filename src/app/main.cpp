@@ -11,7 +11,7 @@
 #include "render/renderhook.h"
 #include "render/opengl.h"
 #include "render/ScreenBuffer.h"
-#include "render/glutDebugTools.h"
+//#include "render/glutDebugTools.h"
 #include "GALERKIN/GalerkinRadianceMethod.h"
 #include "app/Cluster.h"
 #include "app/radiance.h"
@@ -606,18 +606,18 @@ main(int argc, char *argv[]) {
         globalSceneWorldVoxelGrid,
         selectedRadianceMethod);
 
-    executeGlutGui(
-        argc,
-        argv,
-        &GLOBAL_camera_mainCamera,
-        globalScenePatches,
-        globalLightSourcePatches,
-        globalSceneGeometries,
-        globalSceneClusteredGeometries,
-        globalSceneBackground,
-        globalSceneClusteredWorldGeometry,
-        mgfContext.radianceMethod,
-        globalSceneWorldVoxelGrid);
+    //executeGlutGui(
+    //    argc,
+    //    argv,
+    //    &GLOBAL_camera_mainCamera,
+    //    globalScenePatches,
+    //    globalLightSourcePatches,
+    //    globalSceneGeometries,
+    //    globalSceneClusteredGeometries,
+    //    globalSceneBackground,
+    //    globalSceneClusteredWorldGeometry,
+    //    mgfContext.radianceMethod,
+    //    globalSceneWorldVoxelGrid);
 
     mainFreeMemory(&mgfContext);
 
