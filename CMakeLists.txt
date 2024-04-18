@@ -67,6 +67,7 @@ set(MAIN_SRC
     src/scene/Plane.cpp
     src/scene/Camera.cpp
     src/scene/RadianceMethod.cpp
+    src/scene/Scene.cpp
     src/IMAGE/pic.cpp
     src/IMAGE/dkcolor.cpp
     src/IMAGE/imagec.cpp
@@ -176,6 +177,7 @@ set(MAIN_SRC
     src/app/Cluster.cpp
     src/app/radiance.cpp
     src/app/raytrace.cpp
+    src/app/sceneBuilder.cpp
     src/app/batch.cpp
     src/app/commandLine.cpp
     src/app/main.cpp)

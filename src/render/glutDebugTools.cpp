@@ -5,22 +5,15 @@
 
 #include <GL/glut.h>
 
-#include "java/util/ArrayList.h"
+#include "java/util/ArrayList.txx"
 #include "common/RenderOptions.h"
 #include "render/opengl.h"
 #include "render/glutDebugTools.h"
 
 static int globalWidth = 1920;
 static int globalHeight = 1200;
-static java::ArrayList<Patch *> *globalScenePatches;
-static java::ArrayList<Patch *> *globalLightPatches;
-static java::ArrayList<Geometry *> *globalSceneGeometries;
-static java::ArrayList<Geometry *> *globalSceneClusteredGeometries;
-static Geometry *globalClusteredWorldGeom;
-static Background *globalSceneBackground;
 static RadianceMethod *globalRadianceMethod;
-static VoxelGrid *globalVoxelGrid;
-static Camera *globalCamera;
+static Scene *globalScene;
 
 GlutDebugState GLOBAL_render_glutDebugState;
 
@@ -57,9 +50,9 @@ printGeometryType(GeometryClassId id) {
 static void
 printDataStructures() {
     printf("= globalSceneGeometries ================================================================\n");
-    printf("Geometries on list: %ld\n", globalSceneGeometries->size());
-    for ( int i = 0; i < globalSceneGeometries->size(); i++ ) {
-        Geometry *geometry = globalSceneGeometries->get(i);
+    printf("Geometries on list: %ld\n", globalScene->geometryList->size());
+    for ( int i = 0; i < globalScene->geometryList->size(); i++ ) {
+        Geometry *geometry = globalScene->geometryList->get(i);
         printf("  - [%d] / [%s]\n", i, printGeometryType(geometry->className));
         printf("    . Id: %d\n", geometry->id);
         printf("    . %s\n", geometry->isDuplicate ? "Duplicate" : "Original");
@@ -102,20 +95,20 @@ keypressCallback(unsigned char keyChar, int /*x*/, int /*y*/) {
             break;
         case '2':
             GLOBAL_render_glutDebugState.selectedPatch++;
-            if ( GLOBAL_render_glutDebugState.selectedPatch >= globalScenePatches->size() ) {
-                GLOBAL_render_glutDebugState.selectedPatch = (int)globalScenePatches->size() - 1;
+            if ( GLOBAL_render_glutDebugState.selectedPatch >= globalScene->patchList->size() ) {
+                GLOBAL_render_glutDebugState.selectedPatch = (int)globalScene->patchList->size() - 1;
             }
             break;
         case ' ':
             globalRadianceMethod->doStep(
-                globalCamera,
-                globalSceneBackground,
-                globalScenePatches,
-                globalSceneGeometries,
-                globalSceneClusteredGeometries,
-                globalLightPatches,
-                globalClusteredWorldGeom,
-                globalVoxelGrid);
+                globalScene->camera,
+                globalScene->background,
+                globalScene->patchList,
+                globalScene->geometryList,
+                globalScene->clusteredGeometryList,
+                globalScene->lightSourcePatchList,
+                globalScene->clusteredRootGeometry,
+                globalScene->voxelGrid);
             break;
         case 'p':
             printDataStructures();
@@ -154,17 +147,17 @@ drawCallback() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BITS);
     glEnable(GL_DEPTH_TEST);
 
-    globalCamera->xSize = globalWidth;
-    globalCamera->ySize = globalHeight;
+    globalScene->camera->xSize = globalWidth;
+    globalScene->camera->ySize = globalHeight;
 
     glViewport(0, 0, globalWidth, globalHeight);
     glPolygonMode(GL_FRONT_AND_BACK, GL_LINES);
     openGlRenderScene(
-        globalCamera,
-        globalScenePatches,
-        globalSceneClusteredGeometries,
-        globalSceneGeometries,
-        globalClusteredWorldGeom,
+        globalScene->camera,
+        globalScene->patchList,
+        globalScene->clusteredGeometryList,
+        globalScene->geometryList,
+        globalScene->clusteredRootGeometry,
         nullptr,
         globalRadianceMethod);
     glutSwapBuffers();
@@ -174,25 +167,11 @@ void
 executeGlutGui(
     int argc,
     char *argv[],
-    Camera *camera,
-    java::ArrayList<Patch *> *scenePatches,
-    java::ArrayList<Patch *> *lightPatches,
-    java::ArrayList<Geometry *> *sceneGeometries,
-    java::ArrayList<Geometry *> *sceneClusteredGeometries,
-    Background *sceneBackground,
-    Geometry *clusteredWorldGeom,
-    RadianceMethod *radianceMethod,
-    VoxelGrid *voxelGrid)
+    Scene *scene,
+    RadianceMethod *radianceMethod)
 {
-    globalLightPatches = lightPatches;
-    globalScenePatches = scenePatches;
+    globalScene = scene;
     globalRadianceMethod = radianceMethod;
-    globalSceneGeometries = sceneGeometries;
-    globalSceneClusteredGeometries = sceneClusteredGeometries;
-    globalClusteredWorldGeom = clusteredWorldGeom;
-    globalSceneBackground = sceneBackground;
-    globalVoxelGrid = voxelGrid;
-    globalCamera = camera;
 
     glutInit(&argc, argv);
     glutInitWindowPosition(0, 0);
