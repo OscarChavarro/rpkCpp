@@ -12,6 +12,7 @@ class ScreenSampler : public Sampler {
   public:
     bool
     sample(
+        Camera *camera,
         VoxelGrid *sceneVoxelGrid,
         Background *sceneBackground,
         SimpleRaytracingPathNode *prevNode,

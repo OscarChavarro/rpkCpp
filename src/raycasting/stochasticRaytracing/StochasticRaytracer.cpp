@@ -97,6 +97,7 @@ stochasticRaytracerGetScatteredRadiance(
 
                 // Surface sampling
                 if ( config->samplerConfig.surfaceSampler->sample(
+                        &GLOBAL_camera_mainCamera,
                         sceneVoxelGrid,
                         sceneBackground,
                         thisNode->previous(),
@@ -196,6 +197,7 @@ srGetDirectRadiance(
                 stratified.sample(&x1, &x2);
 
                 if ( config->samplerConfig.neSampler->sample(
+                    &GLOBAL_camera_mainCamera,
                     sceneVoxelGrid,
                     sceneBackground,
                     prevNode->previous(),
@@ -500,7 +502,7 @@ calcPixel(
     // Calc pixel data
 
     // Sample eye node
-    config->samplerConfig.pointSampler->sample(sceneVoxelGrid, sceneBackground, nullptr, nullptr, &eyeNode, 0, 0);
+    config->samplerConfig.pointSampler->sample(camera, sceneVoxelGrid, sceneBackground, nullptr, nullptr, &eyeNode, 0, 0);
     ((CPixelSampler *) config->samplerConfig.dirSampler)->SetPixel(nx, ny);
 
     eyeNode.attach(&pixelNode);
@@ -509,7 +511,7 @@ calcPixel(
     for ( i = 0; i < config->samplesPerPixel; i++ ) {
         stratified.sample(&x1, &x2);
 
-        if ( config->samplerConfig.dirSampler->sample(sceneVoxelGrid, sceneBackground, nullptr, &eyeNode, &pixelNode, x1, x2)
+        if ( config->samplerConfig.dirSampler->sample(camera, sceneVoxelGrid, sceneBackground, nullptr, &eyeNode, &pixelNode, x1, x2)
              && ((pixelNode.m_rayType != ENVIRONMENT) || (config->backgroundDirect)) ) {
             pixelNode.assignBsdfAndNormal();
 

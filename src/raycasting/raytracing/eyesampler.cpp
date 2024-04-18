@@ -4,6 +4,7 @@
 
 bool
 CEyeSampler::sample(
+    Camera *camera,
     VoxelGrid *sceneVoxelGrid,
     Background *sceneBackground,
     SimpleRaytracingPathNode *prevNode,

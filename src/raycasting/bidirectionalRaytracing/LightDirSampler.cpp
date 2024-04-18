@@ -10,6 +10,7 @@ sample : newNode gets filled, others may change
 */
 bool
 LightDirSampler::sample(
+    Camera *camera,
     VoxelGrid *sceneVoxelGrid,
     Background *sceneBackground,
     SimpleRaytracingPathNode *prevNode,

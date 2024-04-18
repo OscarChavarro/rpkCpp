@@ -29,6 +29,7 @@ public:
 
     virtual bool
     sample(
+        Camera *camera,
         VoxelGrid *sceneVoxelGrid,
         Background *sceneBackground,
         SimpleRaytracingPathNode *prevNode,

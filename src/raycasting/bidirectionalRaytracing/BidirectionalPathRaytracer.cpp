@@ -450,7 +450,14 @@ handlePathXx(
         newLightNode.m_pdfFromNext = 0.0;
 
         if ( !config->eyeConfig.neSampler->sample(
-            sceneWorldVoxelGrid, sceneBackground, nullptr, path->m_eyeEndNode, &newLightNode, drand48(), drand48()) ) {
+            &GLOBAL_camera_mainCamera,
+            sceneWorldVoxelGrid,
+            sceneBackground,
+            nullptr,
+            path->m_eyeEndNode,
+            &newLightNode,
+            drand48(),
+            drand48()) ) {
             // No light point sampled, no contribution possible
 
             path->m_lightPath = oldLightPath;
@@ -667,7 +674,7 @@ bpCalcPixel(
         config->eyePath = new SimpleRaytracingPathNode;
     }
 
-    config->eyeConfig.pointSampler->sample(sceneVoxelGrid, sceneBackground, nullptr, nullptr, config->eyePath, 0, 0);
+    config->eyeConfig.pointSampler->sample(camera, sceneVoxelGrid, sceneBackground, nullptr, nullptr, config->eyePath, 0, 0);
     ((CPixelSampler *) config->eyeConfig.dirSampler)->SetPixel(nx, ny);
 
     // Provide a node for the pixel sampling
@@ -699,7 +706,7 @@ bpCalcPixel(
             config->xSample = tmpVec2D.u; // pix_x + (camera.pixelWidth * x1);
             config->ySample = tmpVec2D.v; // pix_y + (camera.pixelHeight * x2);
 
-            if ( config->eyeConfig.dirSampler->sample(sceneVoxelGrid, sceneBackground, nullptr, config->eyePath, pixNode, x1, x2) ) {
+            if ( config->eyeConfig.dirSampler->sample(&GLOBAL_camera_mainCamera, sceneVoxelGrid, sceneBackground, nullptr, config->eyePath, pixNode, x1, x2) ) {
                 pixNode->assignBsdfAndNormal();
                 config->eyeConfig.tracePath(sceneVoxelGrid, sceneBackground, nextNode);
             }

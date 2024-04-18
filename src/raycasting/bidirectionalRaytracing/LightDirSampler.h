@@ -12,6 +12,7 @@ class LightDirSampler : public Sampler {
 public:
     virtual bool
     sample(
+        Camera *camera,
         VoxelGrid *sceneVoxelGrid,
         Background *sceneBackground,
         SimpleRaytracingPathNode *prevNode,

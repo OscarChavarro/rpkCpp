@@ -34,6 +34,7 @@ public:
 
     virtual bool
     sample(
+        Camera *camera,
         VoxelGrid *sceneVoxelGrid,
         Background *sceneBackground,
         SimpleRaytracingPathNode *prevNode,
@@ -127,6 +128,7 @@ class CSurfaceSampler : public Sampler {
     //   When path ends (absorption) the type of thisNode is adjusted to 'Ends'
     virtual bool
     sample(
+        Camera *camera,
         VoxelGrid *sceneVoxelGrid,
         Background *sceneBackground,
         SimpleRaytracingPathNode *prevNode,

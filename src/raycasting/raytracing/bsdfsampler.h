@@ -8,12 +8,13 @@ Path node sampler using bsdf sampling
 #include "raycasting/raytracing/sampler.h"
 
 class CBsdfSampler : public CSurfaceSampler {
-public:
+  public:
     // Sample : newNode gets filled, others may change
     //   Return true if the node was filled in, false if path ends.
     //   If path ends (absorption) the type of thisNode is adjusted to 'Ends'
     virtual bool
     sample(
+        Camera *camera,
         VoxelGrid *sceneVoxelGrid,
         Background *sceneBackground,
         SimpleRaytracingPathNode *prevNode,

@@ -9,6 +9,7 @@ newNode gets filled, others may change
 */
 bool
 ScreenSampler::sample(
+    Camera *camera,
     VoxelGrid *sceneVoxelGrid,
     Background *sceneBackground,
     SimpleRaytracingPathNode */*prevNode*/,
@@ -24,24 +25,24 @@ ScreenSampler::sample(
     // Pre-condition: thisNode == eye, prevNode == nullptr, SetPixel called
 
     // Sample direction
-    double xSample = (double)(GLOBAL_camera_mainCamera.pixelWidth * (double)GLOBAL_camera_mainCamera.xSize * (-0.5 + x1));
-    double ySample = (double)(GLOBAL_camera_mainCamera.pixelHeight * (double)GLOBAL_camera_mainCamera.ySize * (-0.5 + x2));
+    double xSample = (double)(camera->pixelWidth * (double)camera->xSize * (-0.5 + x1));
+    double ySample = (double)(camera->pixelHeight * (double)camera->ySize * (-0.5 + x2));
 
-    vectorComb3(GLOBAL_camera_mainCamera.Z, (float)xSample, GLOBAL_camera_mainCamera.X, (float)ySample, GLOBAL_camera_mainCamera.Y,
+    vectorComb3(camera->Z, (float)xSample, camera->X, (float)ySample, camera->Y,
                 dir);
     double distScreen2 = vectorNorm2(dir);
     double distScreen = std::sqrt(distScreen2);
     vectorScaleInverse((float)distScreen, dir, dir);
 
-    double cosScreen = std::fabs(vectorDotProduct(GLOBAL_camera_mainCamera.Z, dir));
+    double cosScreen = std::fabs(vectorDotProduct(camera->Z, dir));
 
-    double pdfDir = ((1.0 / (GLOBAL_camera_mainCamera.pixelWidth * (float)GLOBAL_camera_mainCamera.xSize *
-                            GLOBAL_camera_mainCamera.pixelHeight * (float)GLOBAL_camera_mainCamera.ySize)) * // 1 / Area pixel
+    double pdfDir = ((1.0 / (camera->pixelWidth * (float)camera->xSize *
+                            camera->pixelHeight * (float)camera->ySize)) * // 1 / Area pixel
                      (distScreen2 / cosScreen));  // Spherical angle measure
 
     // Determine ray type
     thisNode->m_rayType = STARTS;
-    newNode->m_inBsdf = thisNode->m_outBsdf; // GLOBAL_camera_mainCamera can be placed in a medium
+    newNode->m_inBsdf = thisNode->m_outBsdf; // Camera can be placed in a medium
 
     // Transfer
     if ( !sampleTransfer(sceneVoxelGrid, sceneBackground, thisNode, newNode, &dir, pdfDir) ) {

@@ -5,6 +5,7 @@
 
 bool
 CSpecularSampler::sample(
+    Camera *camera,
     VoxelGrid *sceneVoxelGrid,
     Background *sceneBackground,
     SimpleRaytracingPathNode *prevNode,

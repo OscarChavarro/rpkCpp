@@ -12,6 +12,7 @@ public:
     // Sample : newNode gets filled, others may change
     virtual bool
     sample(
+        Camera *camera,
         VoxelGrid *sceneVoxelGrid,
         Background *sceneBackground,
         SimpleRaytracingPathNode *prevNode,

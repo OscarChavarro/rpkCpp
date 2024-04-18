@@ -59,6 +59,7 @@ class CPhotonMapSampler : public CBsdfSampler {
     // When path ends (absorption) the type of thisNode is adjusted to 'Ends'
     virtual bool
     sample(
+        Camera *camera,
         VoxelGrid *sceneVoxelGrid,
         Background *sceneBackground,
         SimpleRaytracingPathNode *prevNode,
