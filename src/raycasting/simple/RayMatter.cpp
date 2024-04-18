@@ -52,14 +52,14 @@ RayMatter::CheckFilter() {
 }
 
 void
-RayMatter::Matting(VoxelGrid *sceneWorldVoxelGrid) {
+RayMatter::Matting(Camera *camera, VoxelGrid *sceneWorldVoxelGrid) {
     clock_t t = clock();
     ColorRgb matte;
 
     CheckFilter();
 
-    long width = GLOBAL_camera_mainCamera.xSize;
-    long height = GLOBAL_camera_mainCamera.ySize;
+    long width = camera->xSize;
+    long height = camera->ySize;
 
     // Main loop for ray matter
     for ( long y = 0; y < height; y++ ) {
@@ -67,20 +67,20 @@ RayMatter::Matting(VoxelGrid *sceneWorldVoxelGrid) {
             float hits = 0;
 
             for ( int i = 0; i < GLOBAL_rayCasting_rayMatterState.samplesPerPixel; i++ ) {
-                // uniform random var
+                // Uniform random var
                 double xi1 = drand48();
                 double xi2 = drand48();
 
-                // insert non-uniform sampling here
+                // Insert non-uniform sampling here
                 Filter->sample(&xi1, &xi2);
 
-                // generate ray
+                // Generate ray
                 Ray ray;
-                ray.pos = GLOBAL_camera_mainCamera.eyePosition;
+                ray.pos = camera->eyePosition;
                 ray.dir = screenBuffer->getPixelVector((int)x, (int)y, (float)xi1, (float)xi2);
                 vectorNormalize(ray.dir);
 
-                // check if hit
+                // Check if hit
                 if ( findRayIntersection(sceneWorldVoxelGrid, &ray, nullptr, nullptr, nullptr) != nullptr ) {
                     hits++;
                 }
@@ -118,7 +118,7 @@ RayMattingState GLOBAL_rayCasting_rayMatterState;
 
 static void
 iRayMatte(
-    Camera * /*camera*/,
+    Camera *camera,
     VoxelGrid *sceneWorldVoxelGrid,
     Background * /*sceneBackground*/,
     ImageOutputHandle *ip,
@@ -126,11 +126,11 @@ iRayMatte(
     java::ArrayList<Patch *> * /*lightPatches*/,
     Geometry * /*clusteredWorldGeometry*/,
     RadianceMethod *context) {
-    if ( rm ) {
+    if ( rm != nullptr ) {
         delete rm;
     }
     rm = new RayMatter(nullptr);
-    rm->Matting(sceneWorldVoxelGrid);
+    rm->Matting(camera, sceneWorldVoxelGrid);
     if ( ip && rm != nullptr ) {
         rm->save(ip);
     }
@@ -172,14 +172,14 @@ Initialize(java::ArrayList<Patch *> * /*lightPatches*/) {
 }
 
 Raytracer GLOBAL_rayCasting_RayMatting = {
-        "RayMatting",
-        4,
-        "Ray Matting",
-        rayMattingDefaults,
-        rayMattingParseOptions,
-        Initialize,
-        iRayMatte,
-        Redisplay,
-        SaveImage,
-        Terminate
+    "RayMatting",
+    4,
+    "Ray Matting",
+    rayMattingDefaults,
+    rayMattingParseOptions,
+    Initialize,
+    iRayMatte,
+    Redisplay,
+    SaveImage,
+    Terminate
 };

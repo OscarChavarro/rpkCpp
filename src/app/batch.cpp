@@ -64,7 +64,7 @@ openGlSaveScreen(
 
     // RayCast() saves the current picture in display-mapped (!) real values
     if ( GLOBAL_render_renderOptions.trace ) {
-        rayCast(fileName, fp, isPipe, clusteredWorldGeometry, context);
+        rayCast(fileName, fp, isPipe, camera, clusteredWorldGeometry, context);
         return;
     }
 

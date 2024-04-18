@@ -16,7 +16,7 @@ class RayMatter {
     virtual ~RayMatter();
 
     void CheckFilter();
-    void Matting(VoxelGrid *sceneWorldVoxelGrid);
+    void Matting(Camera *camera, VoxelGrid *sceneWorldVoxelGrid);
     void display();
     void save(ImageOutputHandle *ip);
 };

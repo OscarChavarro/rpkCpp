@@ -56,7 +56,8 @@ float CImportanceMap::ReconstructImp(Vector3D &pos, Vector3D &normal /*, IMPORTA
 }
 
 
-float CImportanceMap::GetImpReqDensity(Vector3D &pos, Vector3D &normal) {
+float
+CImportanceMap::GetImpReqDensity(Vector3D &pos, Vector3D &normal) {
     float density;
 
     // Reconstruct importance
@@ -64,7 +65,7 @@ float CImportanceMap::GetImpReqDensity(Vector3D &pos, Vector3D &normal) {
 
     // Rescale
     //if(!pmapstate.pixelImportance)
-    //  density *= GLOBAL_camera_mainCamera.hres * GLOBAL_camera_mainCamera.vres;
+    //  density *= camera->hres * camera->vres;
 
     // We want impScale photons per pixel density, account for
     // the pixel area here

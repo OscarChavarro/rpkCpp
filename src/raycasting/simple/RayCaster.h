@@ -17,7 +17,13 @@ class RayCaster {
 
     static void clipUv(int numberOfVertices, double *u, double *v);
 
-    inline ColorRgb getRadianceAtPixel(int x, int y, Patch *patch, RadianceMethod *context);
+    inline ColorRgb
+    getRadianceAtPixel(
+        Camera *camera,
+        int x,
+        int y,
+        Patch *patch,
+        RadianceMethod *context);
 
   public:
     explicit RayCaster(ScreenBuffer *inScreen);
@@ -41,6 +47,7 @@ rayCast(
     char *fileName,
     FILE *fp,
     int isPipe,
+    Camera *camera,
     Geometry *clusteredWorldGeometry,
     RadianceMethod *context);
 

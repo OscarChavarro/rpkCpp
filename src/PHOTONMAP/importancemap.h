@@ -8,7 +8,6 @@ The real importance map storage
 #include "PHOTONMAP/photonmap.h"
 
 // Importance map, derived from photon map
-
 class CImportanceMap : public CPhotonMap {
   protected:
     float m_maxImp, m_avgImp;

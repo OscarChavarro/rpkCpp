@@ -645,6 +645,7 @@ bpCombinePaths(
 
 static ColorRgb
 bpCalcPixel(
+    Camera * /*camera*/,
     VoxelGrid *sceneVoxelGrid,
     Background *sceneBackground,
     int nx,
@@ -794,9 +795,10 @@ doBptAndSubsequentImages(
         config->baseConfig->totalSamples = currentSamples * camera->xSize * camera->ySize;
 
         screenIterateSequential(
+            camera,
             sceneVoxelGrid,
             sceneBackground,
-            (ColorRgb(*)(VoxelGrid *, Background *, int, int, void *))bpCalcPixel,
+            (ColorRgb(*)(Camera *, VoxelGrid *, Background *, int, int, void *))bpCalcPixel,
             config);
 
         config->screen->render();
@@ -863,9 +865,10 @@ doBptDensityEstimation(
 
     // Do the run
     screenIterateSequential(
+        &GLOBAL_camera_mainCamera,
         sceneVoxelGrid,
         sceneBackground,
-        (ColorRgb(*)(VoxelGrid *, Background *, int, int, void *))bpCalcPixel,
+        (ColorRgb(*)(Camera *, VoxelGrid *, Background *, int, int, void *))bpCalcPixel,
         config);
 
     // Now we have a noisy screen in dest and hits in double buffer
@@ -954,9 +957,10 @@ doBptDensityEstimation(
         // Iterate screen : nNew - nOld, using an appropriate scale factor
 
         screenIterateSequential(
+            &GLOBAL_camera_mainCamera,
             sceneVoxelGrid,
             sceneBackground,
-            (ColorRgb(*)(VoxelGrid *, Background *, int, int, void *))bpCalcPixel,
+            (ColorRgb(*)(Camera* , VoxelGrid *, Background *, int, int, void *))bpCalcPixel,
             config);
 
         // Render screen & write
@@ -1092,15 +1096,16 @@ biDirPathTrace(
         doBptDensityEstimation(sceneWorldVoxelGrid, sceneBackground, &config);
     } else if ( !GLOBAL_rayTracing_biDirectionalPath.basecfg.progressiveTracing ) {
         screenIterateSequential(
+            &GLOBAL_camera_mainCamera,
             sceneWorldVoxelGrid,
             sceneBackground,
-            (ColorRgb(*)(VoxelGrid *, Background *, int, int, void *))bpCalcPixel,
+            (ColorRgb(*)(Camera *, VoxelGrid *, Background *, int, int, void *))bpCalcPixel,
             &config);
     } else {
         screenIterateProgressive(
             sceneWorldVoxelGrid,
             sceneBackground,
-            (ColorRgb(*)(VoxelGrid *, Background *, int, int, void *))bpCalcPixel,
+            (ColorRgb(*)(Camera *, VoxelGrid *, Background *, int, int, void *))bpCalcPixel,
             &config);
     }
 

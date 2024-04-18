@@ -471,6 +471,7 @@ stochasticRaytracerGetRadiance(
 
 static ColorRgb
 calcPixel(
+    Camera *camera,
     VoxelGrid *sceneVoxelGrid,
     Background *sceneBackground,
     int nx,
@@ -541,7 +542,7 @@ calcPixel(
     }
 
     // We have now the FLUX for the pixel (x N), convert it to radiance
-    double factor = (computeFluxToRadFactor(&GLOBAL_camera_mainCamera, nx, ny) /
+    double factor = (computeFluxToRadFactor(camera, nx, ny) /
             (float)config->samplesPerPixel);
 
     result.scale((float)factor);
@@ -562,7 +563,7 @@ pointed to by 'fp'
 */
 void
 rtStochasticTrace(
-    Camera * /*camera*/,
+    Camera *camera,
     VoxelGrid *sceneWorldVoxelGrid,
     Background *sceneBackground,
     ImageOutputHandle *ip,
@@ -580,15 +581,16 @@ rtStochasticTrace(
 
     if ( !GLOBAL_raytracing_state.progressiveTracing ) {
         screenIterateSequential(
+            camera,
             sceneWorldVoxelGrid,
             sceneBackground,
-            (ColorRgb(*)(VoxelGrid *, Background *, int, int, void *)) calcPixel,
+            (ColorRgb(*)(Camera *, VoxelGrid *, Background *, int, int, void *)) calcPixel,
             &config);
     } else {
         screenIterateProgressive(
             sceneWorldVoxelGrid,
             sceneBackground,
-            (ColorRgb(*)(VoxelGrid *, Background *, int, int, void *))calcPixel,
+            (ColorRgb(*)(Camera *, VoxelGrid *, Background *, int, int, void *))calcPixel,
             &config);
     }
 

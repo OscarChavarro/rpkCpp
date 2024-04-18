@@ -60,14 +60,20 @@ Determines the radiance of the nearest patch visible through the pixel
 (x,y). P shall be the nearest patch visible in the pixel.
 */
 inline ColorRgb
-RayCaster::getRadianceAtPixel(int x, int y, Patch *patch, RadianceMethod *context) {
+RayCaster::getRadianceAtPixel(
+    Camera *camera,
+    int x,
+    int y,
+    Patch *patch,
+    RadianceMethod *context)
+{
     ColorRgb rad{};
     rad.clear();
 
     if ( context != nullptr ) {
         // Ray pointing from the eye through the center of the pixel.
         Ray ray;
-        ray.pos = GLOBAL_camera_mainCamera.eyePosition;
+        ray.pos = camera->eyePosition;
         ray.dir = screenBuffer->getPixelVector(x, y);
         vectorNormalize(ray.dir);
 
@@ -119,7 +125,7 @@ RayCaster::render(
         for ( int x = 0; x < width; x++ ) {
             Patch *patch = idRenderer->getPatchAtPixel(x, y);
             if ( patch != nullptr ) {
-                ColorRgb rad = getRadianceAtPixel(x, y, patch, context);
+                ColorRgb rad = getRadianceAtPixel(camera, x, y, patch, context);
                 screenBuffer->add(x, y, rad);
             }
         }
@@ -194,7 +200,7 @@ rayCasterInitialize(java::ArrayList<Patch *> * /*lightPatches*/) {
 
 static void
 rayCasterExecute(
-    Camera * /*camera*/,
+    Camera * camera,
     VoxelGrid * /*sceneWorldVoxelGrid*/,
     Background * /*sceneBackground*/,
     ImageOutputHandle *ip,
@@ -206,7 +212,7 @@ rayCasterExecute(
         delete globalRayCaster;
     }
     globalRayCaster = new RayCaster(nullptr);
-    globalRayCaster->render(&GLOBAL_camera_mainCamera, scenePatches, clusteredWorldGeometry, context);
+    globalRayCaster->render(camera, scenePatches, clusteredWorldGeometry, context);
     if ( globalRayCaster != nullptr && ip != nullptr ) {
         globalRayCaster->save(ip);
     }
@@ -223,6 +229,7 @@ rayCast(
     char *fileName,
     FILE *fp,
     int isPipe,
+    Camera *camera,
     Geometry *clusteredWorldGeometry,
     RadianceMethod *context) {
     ImageOutputHandle *img = nullptr;
@@ -232,8 +239,8 @@ rayCast(
             fileName,
             fp,
             isPipe,
-            GLOBAL_camera_mainCamera.xSize,
-            GLOBAL_camera_mainCamera.ySize,
+            camera->xSize,
+            camera->ySize,
             (float)GLOBAL_statistics.referenceLuminance / 179.0f);
 
         if ( img == nullptr ) {
