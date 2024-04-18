@@ -15,10 +15,10 @@ ColorRgb GLOBAL_material_green = {0.0, 1.0, 0.0};
 /**
 Constructor : make an screen buffer from a camera definition
 */
-ScreenBuffer::ScreenBuffer(Camera *camera) {
+ScreenBuffer::ScreenBuffer(Camera *camera, Camera *defaultCamera) {
     m_Radiance = nullptr;
     m_RGB = nullptr;
-    init(camera);
+    init(camera, defaultCamera);
     m_Synced = false;
     m_Factor = 1.0;
     m_AddFactor = 1.0;
@@ -48,10 +48,10 @@ ScreenBuffer::isRgbImage() const {
 }
 
 void
-ScreenBuffer::init(Camera *inCamera) {
+ScreenBuffer::init(Camera *inCamera, Camera *defaultCamera) {
     if ( inCamera == nullptr ) {
         // Use the current camera
-        inCamera = &GLOBAL_camera_mainCamera;
+        inCamera = defaultCamera;
     }
 
     if ( (m_Radiance != nullptr) &&
@@ -84,8 +84,8 @@ ScreenBuffer::init(Camera *inCamera) {
 Copy dimensions and contents (m_Radiance only) from source
 */
 void
-ScreenBuffer::copy(ScreenBuffer *source) {
-    init(&(source->camera));
+ScreenBuffer::copy(ScreenBuffer *source, Camera *defaultCamera) {
+    init(&(source->camera), defaultCamera);
     m_RGBImage = source->isRgbImage();
 
     // Now the resolution is ok.
@@ -98,8 +98,8 @@ ScreenBuffer::copy(ScreenBuffer *source) {
 Merge (add) two screen buffers (m_Radiance only) from src1 and src2
 */
 void
-ScreenBuffer::merge(ScreenBuffer *src1, ScreenBuffer *src2) {
-    init(&(src1->camera));
+ScreenBuffer::merge(ScreenBuffer *src1, ScreenBuffer *src2, Camera *defaultCamera) {
+    init(&(src1->camera), defaultCamera);
     m_RGBImage = src1->isRgbImage();
 
     if ( (getHRes() != src2->getHRes()) || (getVRes() != src2->getVRes()) ) {

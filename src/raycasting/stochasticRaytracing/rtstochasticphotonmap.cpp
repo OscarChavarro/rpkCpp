@@ -11,6 +11,7 @@ CSeed CSeedConfig::xOrSeed;
 
 void
 StochasticRaytracingConfiguration::init(
+    Camera *defaultCamera,
     RayTracingStochasticState &state,
     java::ArrayList<Patch *> *lightList,
     RadianceMethod *context)
@@ -76,7 +77,7 @@ StochasticRaytracingConfiguration::init(
     samplerConfig.minDepth = state.minPathDepth;
     samplerConfig.maxDepth = state.maxPathDepth;
 
-    screen = new ScreenBuffer(nullptr);
+    screen = new ScreenBuffer(nullptr, defaultCamera);
     screen->setFactor(1.0); // We're storing plain radiance
 
     initDependentVars(lightList, context);

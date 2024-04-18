@@ -94,6 +94,7 @@ Initializes the computations for the current scene (if any)
 */
 void
 PhotonMapRadianceMethod::initialize(
+    Camera *defaultCamera,
     const java::ArrayList<Patch *> *scenePatches,
     Geometry *clusteredWorldGeometry)
 {
@@ -113,7 +114,7 @@ PhotonMapRadianceMethod::initialize(
     if ( GLOBAL_photonMap_config.screen ) {
         delete GLOBAL_photonMap_config.screen;
     }
-    GLOBAL_photonMap_config.screen = new ScreenBuffer(nullptr);
+    GLOBAL_photonMap_config.screen = new ScreenBuffer(nullptr, defaultCamera);
 
     // mainInit samplers
 

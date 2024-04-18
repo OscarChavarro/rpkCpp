@@ -576,7 +576,7 @@ rtStochasticTrace(
     Geometry * /*clusteredWorldGeometry*/,
     RadianceMethod *context)
 {
-    StochasticRaytracingConfiguration config(GLOBAL_raytracing_state, lightPatches, context); // config filled in by constructor
+    StochasticRaytracingConfiguration config(camera, GLOBAL_raytracing_state, lightPatches, context); // config filled in by constructor
 
     // Frame Coherent sampling : init fixed seed
     if ( GLOBAL_raytracing_state.doFrameCoherent ) {

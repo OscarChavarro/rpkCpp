@@ -9,9 +9,9 @@ Original version by Vincent Masselus adapted by Pieter Peers (2001-06-01)
 #include "raycasting/simple/RayMatterOptions.h"
 #include "raycasting/simple/RayMatter.h"
 
-RayMatter::RayMatter(ScreenBuffer *screen) {
+RayMatter::RayMatter(ScreenBuffer *screen, Camera *camera) {
     if ( screen == nullptr ) {
-        screenBuffer = new ScreenBuffer(nullptr);
+        screenBuffer = new ScreenBuffer(nullptr, camera);
         doDeleteScreen = false;
     } else {
         screenBuffer = screen;
@@ -129,7 +129,7 @@ iRayMatte(
     if ( rm != nullptr ) {
         delete rm;
     }
-    rm = new RayMatter(nullptr);
+    rm = new RayMatter(nullptr, camera);
     rm->Matting(camera, sceneWorldVoxelGrid);
     if ( ip && rm != nullptr ) {
         rm->save(ip);

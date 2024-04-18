@@ -31,14 +31,15 @@ class ScreenBuffer {
     float m_AddFactor;
     bool m_RGBImage; // Indicates an RGB image ( = no radiance conversion!)
 
+    void init(Camera *inCamera, Camera *defaultCamera);
+
   public:
-    explicit ScreenBuffer(Camera *camera); // Also calls mainInit()
+    explicit ScreenBuffer(Camera *camera, Camera *defaultCamera); // Also calls mainInit()
     ~ScreenBuffer();
-    void init(Camera *inCamera);
     void setRgbImage(bool isRGB);
     bool isRgbImage() const;
-    void copy(ScreenBuffer *source);
-    void merge(ScreenBuffer *src1, ScreenBuffer *src2);
+    void copy(ScreenBuffer *source, Camera *defaultCamera);
+    void merge(ScreenBuffer *src1, ScreenBuffer *src2, Camera *defaultCamera);
     float getScreenXMin() const;
     float getScreenYMin() const;
     float getScreenXMax() const;

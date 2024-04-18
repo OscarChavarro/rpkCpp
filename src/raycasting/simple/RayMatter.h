@@ -12,7 +12,7 @@ class RayMatter {
     pixelFilter *Filter;
 
   public:
-    explicit RayMatter(ScreenBuffer *screen);
+    explicit RayMatter(ScreenBuffer *screen, Camera *camera);
     virtual ~RayMatter();
 
     void CheckFilter();

@@ -51,5 +51,4 @@ class Camera {
 
 extern Camera GLOBAL_camera_mainCamera;
 
-
 #endif

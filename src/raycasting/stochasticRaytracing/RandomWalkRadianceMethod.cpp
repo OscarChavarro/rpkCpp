@@ -51,6 +51,7 @@ RandomWalkRadianceMethod::writeVRML(Camera *camera, FILE *fp){
 
 void
 RandomWalkRadianceMethod::initialize(
+    Camera *defaultCamera,
     const java::ArrayList<Patch *> *scenePatches,
     Geometry *clusteredWorldGeometry)
 {

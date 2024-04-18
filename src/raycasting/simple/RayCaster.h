@@ -26,7 +26,7 @@ class RayCaster {
         RadianceMethod *context);
 
   public:
-    explicit RayCaster(ScreenBuffer *inScreen);
+    explicit RayCaster(ScreenBuffer *inScreen, Camera *defaultCamera);
     virtual ~RayCaster();
     void
     render(

@@ -16,9 +16,9 @@ a software frame buffer directly.
 #include "render/SoftIdsWrapper.h"
 #include "raycasting/simple/RayCaster.h"
 
-RayCaster::RayCaster(ScreenBuffer *inScreen) {
+RayCaster::RayCaster(ScreenBuffer *inScreen, Camera *defaultCamera) {
     if ( inScreen == nullptr ) {
-        screenBuffer = new ScreenBuffer(nullptr);
+        screenBuffer = new ScreenBuffer(nullptr, defaultCamera);
         doDeleteScreen = true;
     } else {
         screenBuffer = inScreen;
@@ -211,7 +211,7 @@ rayCasterExecute(
     if ( globalRayCaster != nullptr ) {
         delete globalRayCaster;
     }
-    globalRayCaster = new RayCaster(nullptr);
+    globalRayCaster = new RayCaster(nullptr, camera);
     globalRayCaster->render(camera, scenePatches, clusteredWorldGeometry, context);
     if ( globalRayCaster != nullptr && ip != nullptr ) {
         globalRayCaster->save(ip);
@@ -248,7 +248,7 @@ rayCast(
         }
     }
 
-    RayCaster *rc = new RayCaster(nullptr);
+    RayCaster *rc = new RayCaster(nullptr, camera);
     rc->render(camera, nullptr, clusteredWorldGeometry, context);
     if ( img != nullptr ) {
         rc->save(img);

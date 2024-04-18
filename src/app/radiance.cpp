@@ -37,6 +37,7 @@ This routine sets the current radiance method to be used + initializes
 void
 setRadianceMethod(
     RadianceMethod *newMethod,
+    Camera *camera,
     java::ArrayList<Patch *> *scenePatches,
     Geometry *clusteredWorldGeometry)
 {
@@ -50,13 +51,13 @@ setRadianceMethod(
         for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
             newMethod->createPatchData(scenePatches->get(i));
         }
-        newMethod->initialize(scenePatches, clusteredWorldGeometry);
+        newMethod->initialize(camera, scenePatches, clusteredWorldGeometry);
     }
 }
 
 void
-radianceDefaults(RadianceMethod *context, Geometry *clusteredWorldGeometry) {
-    setRadianceMethod(context, nullptr, clusteredWorldGeometry);
+radianceDefaults(RadianceMethod *context, Camera * camera, Geometry *clusteredWorldGeometry) {
+    setRadianceMethod(context, camera, nullptr, clusteredWorldGeometry);
 }
 
 static void

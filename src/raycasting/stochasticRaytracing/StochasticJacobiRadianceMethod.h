@@ -9,7 +9,7 @@ public:
     ~StochasticJacobiRadianceMethod();
     const char *getRadianceMethodName() const;
     void parseOptions(int *argc, char **argv);
-    void initialize(const java::ArrayList<Patch *> *scenePatches, Geometry *clusteredWorldGeometry);
+    void initialize(Camera *defaultCamera, const java::ArrayList<Patch *> *scenePatches, Geometry *clusteredWorldGeometry);
 
     int
     doStep(

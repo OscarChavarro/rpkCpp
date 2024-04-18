@@ -850,8 +850,8 @@ doBptDensityEstimation(
     char *fileName = new char[STRINGS_SIZE];
 
     // mainInit the screens, one reference one destination
-    config->ref = new ScreenBuffer(nullptr);
-    config->dest = new ScreenBuffer(nullptr);
+    config->ref = new ScreenBuffer(nullptr, camera);
+    config->dest = new ScreenBuffer(nullptr, camera);
 
     config->ref->setFactor(1.0);
     config->dest->setFactor(1.0);
@@ -859,8 +859,8 @@ doBptDensityEstimation(
     config->dBuffer = new CDensityBuffer(config->ref, config->baseConfig);
 
     if ( config->baseConfig->useSpars ) {
-        config->ref2 = new ScreenBuffer(nullptr);
-        config->dest2 = new ScreenBuffer(nullptr);
+        config->ref2 = new ScreenBuffer(nullptr, camera);
+        config->dest2 = new ScreenBuffer(nullptr, camera);
 
         config->ref2->setFactor(1.0);
         config->dest2->setFactor(1.0);
@@ -942,10 +942,10 @@ doBptDensityEstimation(
 
         // copy dest to ref
 
-        config->ref->copy(config->dest);
+        config->ref->copy(config->dest, camera);
 
         if ( config->ref2 ) {
-            config->ref2->copy(config->dest2);
+            config->ref2->copy(config->dest2, camera);
         }
 
 
@@ -992,12 +992,12 @@ doBptDensityEstimation(
 
             // Merge two images (just add!) into screen
 
-            config->screen->merge(config->dest, config->dest2);
+            config->screen->merge(config->dest, config->dest2, camera);
             config->screen->render();
             snprintf(fileName, STRINGS_SIZE, "deMRGScreen%i.ppm.gz", newTotalSPP);
             //      config->screen->WriteFile(fileName);
         } else {
-            config->screen->copy(config->dest);
+            config->screen->copy(config->dest, camera);
         }
 
         // Update vars
@@ -1075,7 +1075,7 @@ biDirPathTrace(
     config.lightConfig.neSampler = nullptr; // eyeSampler ?
 
     // config.maxCombinedLength = biDir.baseCfg.maximumPathDepth;
-    config.screen = new ScreenBuffer(nullptr);
+    config.screen = new ScreenBuffer(nullptr, camera);
     config.screen->setFactor(1.0); // We're storing plain radiance
 
     config.eyePath = nullptr;

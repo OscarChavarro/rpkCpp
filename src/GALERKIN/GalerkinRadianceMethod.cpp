@@ -348,6 +348,7 @@ GalerkinRadianceMethod::parseOptions(int *argc, char **argv) {
 
 void
 GalerkinRadianceMethod::initialize(
+    Camera *defaultCamera,
     const java::ArrayList<Patch *> *scenePatches,
     Geometry *clusteredWorldGeometry)
 {

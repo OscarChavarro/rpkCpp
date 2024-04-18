@@ -31,7 +31,7 @@ class RadianceMethod {
 
     // Initializes the current scene for radiance computations. Called when a new
     // scene is loaded or when selecting a particular radiance algorithm
-    virtual void initialize(const java::ArrayList<Patch *> *scenePatches, Geometry *clusteredWorldGeometry) = 0;
+    virtual void initialize(Camera *defaultCamera, const java::ArrayList<Patch *> *scenePatches, Geometry *clusteredWorldGeometry) = 0;
 
     // Does one step or iteration of the radiance computation, typically a unit
     // of computations after which the scene is to be redrawn. Returns TRUE when
@@ -78,6 +78,7 @@ class RadianceMethod {
 extern void
 setRadianceMethod(
     RadianceMethod *newMethod,
+    Camera *camera,
     java::ArrayList<Patch *> *scenePatches,
     Geometry *clusteredWorldGeometry);
 
