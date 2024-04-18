@@ -249,7 +249,7 @@ rayCast(
     }
 
     RayCaster *rc = new RayCaster(nullptr);
-    rc->render(&GLOBAL_camera_mainCamera, nullptr, clusteredWorldGeometry, context);
+    rc->render(camera, nullptr, clusteredWorldGeometry, context);
     if ( img != nullptr ) {
         rc->save(img);
     }

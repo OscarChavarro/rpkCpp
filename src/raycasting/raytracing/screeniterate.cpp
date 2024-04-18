@@ -68,8 +68,8 @@ screenIterateSequential(
 
     ScreenIterateInit();
 
-    width = GLOBAL_camera_mainCamera.xSize;
-    height = GLOBAL_camera_mainCamera.ySize;
+    width = camera->xSize;
+    height = camera->ySize;
     rgb = new ColorRgb[width];
 
     // Shoot rays through all the pixels
@@ -80,7 +80,7 @@ screenIterateSequential(
             GLOBAL_raytracer_pixelCount++;
         }
 
-        openGlRenderPixels(&GLOBAL_camera_mainCamera, 0, height - i - 1, width, 1, rgb);
+        openGlRenderPixels(camera, 0, height - i - 1, width, 1, rgb);
     }
 
     delete[] rgb;
@@ -93,7 +93,7 @@ screenIterateSequential(
 Some utility routines for progressive tracing
 */
 static inline void
-FillRect(int x0, int y0, int x1, int y1, ColorRgb col, ColorRgb *rgb) {
+fillRect(int x0, int y0, int x1, int y1, ColorRgb col, ColorRgb *rgb) {
     int x, y;
 
     for ( x = x0; x < x1; x++ ) {
@@ -174,7 +174,7 @@ screenIterateProgressive(
                 if ( !skip || (ySteps & 1) || (xSteps & 1) ) {
                     col = callback(&GLOBAL_camera_mainCamera, sceneVoxelGrid, sceneBackground, x0, height - y0 - 1, data);
                     radianceToRgb(col, &pixelRGB);
-                    FillRect(x0, y0, x1, y1, pixelRGB, rgb);
+                    fillRect(x0, y0, x1, y1, pixelRGB, rgb);
 
                     GLOBAL_raytracer_pixelCount++;
 

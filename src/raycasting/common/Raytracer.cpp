@@ -28,9 +28,13 @@ rayTrace(
     ImageOutputHandle *img = nullptr;
 
     if ( fp != nullptr ) {
-        img = createRadianceImageOutputHandle(fileName, fp, isPipe,
-                                              GLOBAL_camera_mainCamera.xSize, GLOBAL_camera_mainCamera.ySize,
-                                              (float) (GLOBAL_statistics.referenceLuminance / 179.0));
+        img = createRadianceImageOutputHandle(
+            fileName,
+            fp,
+            isPipe,
+            camera->xSize,
+            camera->ySize,
+            (float) (GLOBAL_statistics.referenceLuminance / 179.0));
         if ( img == nullptr ) {
             return;
         }

@@ -386,7 +386,8 @@ stochasticRadiosityElementRender(Element *element) {
 
     if ( GLOBAL_render_renderOptions.smoothShading && GLOBAL_stochasticRaytracing_hierarchy.tvertex_elimination ) {
         Vertex *m[4];
-        int i, n;
+        int i;
+        int n;
         for ( i = 0, n = 0; i < stochasticRadiosityElement->numberOfVertices; i++ ) {
             m[i] = stochasticRadiosityElementEdgeMidpointVertex(stochasticRadiosityElement, i);
             if ( m[i] ) {

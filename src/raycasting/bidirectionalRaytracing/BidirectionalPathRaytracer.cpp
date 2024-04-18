@@ -495,6 +495,7 @@ handlePathXx(
 
 static void
 handlePath1X(
+    Camera *camera,
     VoxelGrid *sceneVoxelGrid,
     BidirectionalPathTracingConfiguration *config,
     CBiPath *path)
@@ -531,7 +532,7 @@ handlePath1X(
 
         config->screen->getPixel(pixX, pixY, &nx, &ny);
 
-        float factor = (computeFluxToRadFactor(&GLOBAL_camera_mainCamera, nx, ny) / (float) config->baseConfig->totalSamples);
+        float factor = (computeFluxToRadFactor(camera, nx, ny) / (float) config->baseConfig->totalSamples);
         f.scale(factor);
 
         addWithSpikeCheck(config, path, nx, ny, pixX, pixY, f);
@@ -548,6 +549,7 @@ handlePath1X(
 
 static void
 bpCombinePaths(
+    Camera *camera,
     VoxelGrid *sceneVoxelGrid,
     Background *sceneBackground,
     BidirectionalPathTracingConfiguration *config)
@@ -622,8 +624,7 @@ bpCombinePaths(
                 path.m_eyeEndNode = eyeEndNode;
                 path.m_lightSize = lightSize;
                 path.m_lightEndNode = lightEndNode;
-
-                handlePath1X(sceneVoxelGrid, config, &path);
+                handlePath1X(camera, sceneVoxelGrid, config, &path);
             }
 
             if ( lightEndNode->ends() ) {
@@ -645,7 +646,7 @@ bpCombinePaths(
 
 static ColorRgb
 bpCalcPixel(
-    Camera * /*camera*/,
+    Camera *camera,
     VoxelGrid *sceneVoxelGrid,
     Background *sceneBackground,
     int nx,
@@ -715,7 +716,7 @@ bpCalcPixel(
         }
 
         // Connect all endpoints and compute contribution
-        bpCombinePaths(sceneVoxelGrid, sceneBackground, config);
+        bpCombinePaths(camera, sceneVoxelGrid, sceneBackground, config);
     }
 
     // Radiance contributions are added to the screen buffer directly
@@ -827,6 +828,7 @@ doBptAndSubsequentImages(
 
 static void
 doBptDensityEstimation(
+    Camera *camera,
     VoxelGrid *sceneVoxelGrid,
     Background *sceneBackground,
     BidirectionalPathTracingConfiguration *config)
@@ -865,7 +867,7 @@ doBptDensityEstimation(
 
     // Do the run
     screenIterateSequential(
-        &GLOBAL_camera_mainCamera,
+        camera,
         sceneVoxelGrid,
         sceneBackground,
         (ColorRgb(*)(Camera *, VoxelGrid *, Background *, int, int, void *))bpCalcPixel,
@@ -1093,10 +1095,10 @@ biDirPathTrace(
     if ( GLOBAL_rayTracing_biDirectionalPath.saveSubsequentImages ) {
         doBptAndSubsequentImages(camera, sceneWorldVoxelGrid, sceneBackground, &config);
     } else if ( config.baseConfig->doDensityEstimation ) {
-        doBptDensityEstimation(sceneWorldVoxelGrid, sceneBackground, &config);
+        doBptDensityEstimation(camera, sceneWorldVoxelGrid, sceneBackground, &config);
     } else if ( !GLOBAL_rayTracing_biDirectionalPath.basecfg.progressiveTracing ) {
         screenIterateSequential(
-            &GLOBAL_camera_mainCamera,
+            camera,
             sceneWorldVoxelGrid,
             sceneBackground,
             (ColorRgb(*)(Camera *, VoxelGrid *, Background *, int, int, void *))bpCalcPixel,
