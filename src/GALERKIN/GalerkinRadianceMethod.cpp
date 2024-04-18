@@ -456,7 +456,7 @@ GalerkinRadianceMethod::terminate(java::ArrayList<Patch *> *scenePatches) {
 }
 
 ColorRgb
-GalerkinRadianceMethod::getRadiance(Patch *patch, double u, double v, Vector3D dir) {
+GalerkinRadianceMethod::getRadiance(Camera *camera, Patch *patch, double u, double v, Vector3D dir) {
     GalerkinElement *leaf;
     ColorRgb rad;
 

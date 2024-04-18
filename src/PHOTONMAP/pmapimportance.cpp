@@ -48,6 +48,7 @@ DoImportanceStore(CImportanceMap *map, SimpleRaytracingPathNode *node, ColorRgb 
 // Returns whether a valid potential path was returned.
 static bool
 tracePotentialPath(
+    Camera *camera,
     VoxelGrid *sceneVoxelGrid,
     Background *sceneBackground,
     PhotonMapConfig *config)
@@ -56,7 +57,7 @@ tracePotentialPath(
     CSamplerConfig &scfg = config->eyeConfig;
 
     // Eye node
-    path = scfg.traceNode(&GLOBAL_camera_mainCamera, sceneVoxelGrid, sceneBackground, path, drand48(), drand48(), BSDF_ALL_COMPONENTS);
+    path = scfg.traceNode(camera, sceneVoxelGrid, sceneBackground, path, drand48(), drand48(), BSDF_ALL_COMPONENTS);
     if ( path == nullptr ) {
         return false;
     }
@@ -84,7 +85,7 @@ tracePotentialPath(
     x2 = drand48();
 
     while ( scfg.traceNode(
-            &GLOBAL_camera_mainCamera,
+            camera,
             sceneVoxelGrid,
             sceneBackground,
             node,
@@ -129,6 +130,7 @@ tracePotentialPath(
 
 void
 tracePotentialPaths(
+    Camera *camera,
     VoxelGrid *sceneVoxelGrid,
     Background *sceneBackground,
     int numberOfPaths)
@@ -138,7 +140,7 @@ tracePotentialPaths(
     GLOBAL_photonMap_config.eyeConfig.minDepth = 3;
 
     for ( int i = 0; i < numberOfPaths; i++ ) {
-        tracePotentialPath(sceneVoxelGrid, sceneBackground, &GLOBAL_photonMap_config);
+        tracePotentialPath(camera, sceneVoxelGrid, sceneBackground, &GLOBAL_photonMap_config);
     }
 
     GLOBAL_photonMap_config.eyeConfig.maxDepth = 1; // Back to NEE state

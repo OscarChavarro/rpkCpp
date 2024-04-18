@@ -38,7 +38,7 @@ StochasticJacobiRadianceMethod::terminate(java::ArrayList<Patch *> *scenePatches
 }
 
 ColorRgb
-StochasticJacobiRadianceMethod::getRadiance(Patch *patch, double u, double v, Vector3D dir) {
+StochasticJacobiRadianceMethod::getRadiance(Camera *camera, Patch *patch, double u, double v, Vector3D dir) {
     return monteCarloRadiosityGetRadiance(patch, u, v, dir);
 }
 

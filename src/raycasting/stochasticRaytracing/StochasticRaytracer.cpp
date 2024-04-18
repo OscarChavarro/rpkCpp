@@ -99,7 +99,7 @@ stochasticRaytracerGetScatteredRadiance(
 
                 // Surface sampling
                 if ( config->samplerConfig.surfaceSampler->sample(
-                        &GLOBAL_camera_mainCamera,
+                        camera,
                         sceneVoxelGrid,
                         sceneBackground,
                         thisNode->previous(),
@@ -152,6 +152,7 @@ stochasticRaytracerGetScatteredRadiance(
 
 static ColorRgb
 srGetDirectRadiance(
+    Camera *camera,
     VoxelGrid *sceneVoxelGrid,
     Background *sceneBackground,
     SimpleRaytracingPathNode *prevNode,
@@ -199,7 +200,7 @@ srGetDirectRadiance(
                 stratified.sample(&x1, &x2);
 
                 if ( config->samplerConfig.neSampler->sample(
-                    &GLOBAL_camera_mainCamera,
+                    camera,
                     sceneVoxelGrid,
                     sceneBackground,
                     prevNode->previous(),
@@ -242,7 +243,7 @@ srGetDirectRadiance(
                             if ( doSi ) {
                                 // Connect using correct flags
                                 geom = pathNodeConnect(
-                                    &GLOBAL_camera_mainCamera,
+                                    camera,
                                 prevNode,
                                 &lightNode,
                                 &config->samplerConfig,
@@ -343,7 +344,7 @@ stochasticRaytracerGetRadiance(
 
         if ( doWeight ) {
             cl = config->nextEventSamples *
-                 config->samplerConfig.neSampler->evalPDF(&GLOBAL_camera_mainCamera, thisNode->previous(), thisNode);
+                 config->samplerConfig.neSampler->evalPDF(camera, thisNode->previous(), thisNode);
             cl = multipleImportanceSampling(cl);
             cr = usedScatterSamples * thisNode->m_pdfFromPrev;
             cr = multipleImportanceSampling(cr);
@@ -389,7 +390,7 @@ stochasticRaytracerGetRadiance(
                 thisNode->m_hit.patch->uv(&thisNode->m_hit.point, &u, &v);
 
                 radiance = context->getRadiance(
-                    thisNode->m_hit.patch, u, v, thisNode->m_inDirF);
+                    camera, thisNode->m_hit.patch, u, v, thisNode->m_inDirF);
 
                 // This includes Le diffuse, subtract first and handle total emitted later (possibly weighted)
                 // -- Interface mechanism needed to determine what a
@@ -412,7 +413,7 @@ stochasticRaytracerGetRadiance(
             result.add(result, radiance);
         }
 
-        radiance = srGetDirectRadiance(sceneVoxelGrid, sceneBackground, thisNode, config, readout);
+        radiance = srGetDirectRadiance(camera, sceneVoxelGrid, sceneBackground, thisNode, config, readout);
         result.add(result, radiance);
 
         // Scattered light
@@ -452,7 +453,7 @@ stochasticRaytracerGetRadiance(
 
             if ( doWeight ) {
                 cl = config->nextEventSamples *
-                     config->samplerConfig.neSampler->evalPDF(&GLOBAL_camera_mainCamera, thisNode->previous(), thisNode);
+                     config->samplerConfig.neSampler->evalPDF(camera, thisNode->previous(), thisNode);
                 cl = multipleImportanceSampling(cl);
                 cr = usedScatterSamples * thisNode->m_pdfFromPrev;
                 cr = multipleImportanceSampling(cr);

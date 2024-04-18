@@ -521,7 +521,7 @@ photonMapBRRealIteration(
         GLOBAL_photonMap_config.currentMap->SetTotalPaths(GLOBAL_photonMap_state.totalIPaths);
         GLOBAL_photonMap_config.importanceCMap->SetTotalPaths(GLOBAL_photonMap_state.totalIPaths);
 
-        tracePotentialPaths(sceneWorldVoxelGrid, sceneBackground, (int)GLOBAL_photonMap_state.iPathsPerIteration);
+        tracePotentialPaths(camera, sceneWorldVoxelGrid, sceneBackground, (int)GLOBAL_photonMap_state.iPathsPerIteration);
 
         fprintf(stderr, "Total potential paths : %li, Total rays %li\n",
                 GLOBAL_photonMap_state.totalIPaths,
@@ -664,6 +664,7 @@ photonMapGetNodeCRadiance(SimpleRaytracingPathNode *node) {
 
 ColorRgb
 PhotonMapRadianceMethod::getRadiance(
+    Camera *camera,
     Patch *patch,
     double u,
     double v,
@@ -706,13 +707,13 @@ PhotonMapRadianceMethod::getRadiance(
         case REC_C_DENSITY:
             GLOBAL_photonMap_config.importanceCMap->DoBalancing(GLOBAL_photonMap_state.balanceKDTree);
             density = GLOBAL_photonMap_config.importanceCMap->GetRequiredDensity(
-                &GLOBAL_camera_mainCamera, hit.point, hit.normal);
+                camera, hit.point, hit.normal);
             radiance = getFalseColor(density);
             break;
         case REC_G_DENSITY:
             GLOBAL_photonMap_config.importanceMap->DoBalancing(GLOBAL_photonMap_state.balanceKDTree);
             density = GLOBAL_photonMap_config.importanceMap->GetRequiredDensity(
-                &GLOBAL_camera_mainCamera, hit.point, hit.normal);
+                camera, hit.point, hit.normal);
             radiance = getFalseColor(density);
             break;
         case GLOBAL_RADIANCE:

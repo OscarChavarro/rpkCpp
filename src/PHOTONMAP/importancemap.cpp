@@ -132,6 +132,7 @@ CImportanceMap::GetRequiredDensity(Camera *camera, Vector3D &pos, Vector3D &norm
 
 void
 CImportanceMap::ComputeAllRequiredDensities(
+    Camera *camera,
     Vector3D &pos,
     Vector3D &normal,
     float *imp,
@@ -145,18 +146,18 @@ CImportanceMap::ComputeAllRequiredDensities(
         *imp = *pot = *diff = 0.0;
     }
 
-    *imp = GetImpReqDensity(&GLOBAL_camera_mainCamera, pos, normal);
+    *imp = GetImpReqDensity(camera, pos, normal);
 }
 
 void
-CImportanceMap::PhotonPrecomputeIrradiance(CIrrPhoton *photon) {
+CImportanceMap::PhotonPrecomputeIrradiance(Camera *camera, CIrrPhoton *photon) {
     float imp;
     float pot;
     float diff;
     Vector3D pos = photon->Pos();
     Vector3D normal = photon->Normal();
 
-    ComputeAllRequiredDensities(pos, normal, &imp, &pot, &diff);
+    ComputeAllRequiredDensities(camera, pos, normal, &imp, &pot, &diff);
 
     // Abuse pot for tail enhancement
     pot = m_distances[0]; // Only valid since max heap is used in kd-tree

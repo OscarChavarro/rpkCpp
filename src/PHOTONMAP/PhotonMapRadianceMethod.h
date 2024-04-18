@@ -26,7 +26,7 @@ class PhotonMapRadianceMethod : public RadianceMethod {
         VoxelGrid *sceneWorldVoxelGrid);
 
     void terminate(java::ArrayList<Patch *> *scenePatches);
-    ColorRgb getRadiance(Patch *patch, double u, double v, Vector3D dir);
+    ColorRgb getRadiance(Camera *camera, Patch *patch, double u, double v, Vector3D dir);
     Element *createPatchData(Patch *patch);
     void destroyPatchData(Patch *patch);
     char *getStats();

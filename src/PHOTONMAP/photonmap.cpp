@@ -266,7 +266,7 @@ CPhotonMap::GetMaxR2() {
 
 // Precompute Irradiance
 void
-CPhotonMap::PhotonPrecomputeIrradiance(CIrrPhoton *photon) {
+CPhotonMap::PhotonPrecomputeIrradiance(Camera *camera, CIrrPhoton *photon) {
     ColorRgb irradiance;
     ColorRgb power;
     irradiance.clear();
@@ -298,8 +298,8 @@ CPhotonMap::PhotonPrecomputeIrradiance(CIrrPhoton *photon) {
 }
 
 static void
-PrecomputeIrradianceCallback(CPhotonMap *map, CIrrPhoton *photon) {
-    map->PhotonPrecomputeIrradiance(photon);
+PrecomputeIrradianceCallback(Camera *camera, CPhotonMap *map, CIrrPhoton *photon) {
+    map->PhotonPrecomputeIrradiance(camera, photon);
 }
 
 void

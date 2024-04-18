@@ -31,7 +31,7 @@ class CImportanceMap : public CPhotonMap {
     virtual bool
     AddPhoton(CPhoton &photon, Vector3D &normal, short flags);
 
-    virtual void PhotonPrecomputeIrradiance(CIrrPhoton *photon);
+    virtual void PhotonPrecomputeIrradiance(Camera *camera, CIrrPhoton *photon);
     virtual void PrecomputeIrradiance();
 
     // New functions
@@ -42,6 +42,7 @@ class CImportanceMap : public CPhotonMap {
 protected:
     void
     ComputeAllRequiredDensities(
+        Camera *camera,
         Vector3D &pos,
         Vector3D &normal,
         float *imp,

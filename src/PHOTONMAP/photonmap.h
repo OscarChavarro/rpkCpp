@@ -15,7 +15,7 @@ bool zeroAlbedo(BSDF *bsdf, RayHit *hit, BSDF_FLAGS flags);
 ColorRgb getFalseColor(float val);
 
 class CPhotonMap {
-protected:
+  protected:
     bool m_balanced;
     bool m_doBalancing;
 
@@ -49,7 +49,7 @@ protected:
     float *m_cosines; // photon dir * reconstruction normal
     bool m_cosinesOk; // indicates if cosines are computed
 
-protected:
+  protected:
     // nearest photon queries must use these fucntions!
     int DoQuery(Vector3D *pos, int nrPhotons, float maxradius,
                 short excludeFlags = 0) {
@@ -76,7 +76,7 @@ protected:
     // Add a photon taking possible irrPhoton into account
     void DoAddPhoton(CPhoton &photon, Vector3D &normal, short flags);
 
-public:
+  public:
     // Constructor
 
     explicit CPhotonMap(int *estimate_nrp, bool doPrecomputeIrradiance = false);
@@ -109,7 +109,7 @@ public:
     virtual void PrecomputeIrradiance();
 
     // For 1 specific photon
-    virtual void PhotonPrecomputeIrradiance(CIrrPhoton *photon);
+    virtual void PhotonPrecomputeIrradiance(Camera *camera, CIrrPhoton *photon);
 
     // Reconstruct
     virtual ColorRgb Reconstruct(RayHit *hit, Vector3D &outDir,

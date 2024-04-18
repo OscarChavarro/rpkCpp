@@ -174,7 +174,11 @@ addWithSpikeCheck(
 }
 
 void
-handlePathX0(BidirectionalPathTracingConfiguration *config, CBiPath *path) {
+handlePathX0(
+    Camera *camera,
+    BidirectionalPathTracingConfiguration *config,
+    CBiPath *path)
+{
     PhongEmittanceDistributionFunction *endingEdf = path->m_eyeEndNode->m_hit.material ? path->m_eyeEndNode->m_hit.material->edf : nullptr;
     ColorRgb oldBsdfEval;
     ColorRgb f;
@@ -232,7 +236,7 @@ handlePathX0(BidirectionalPathTracingConfiguration *config, CBiPath *path) {
 
             if ( config->lightConfig.maxDepth > 0 ) {
                 eyeEndNode->m_pdfFromNext =
-                        config->lightConfig.pointSampler->evalPDF(&GLOBAL_camera_mainCamera, nullptr, eyeEndNode);
+                        config->lightConfig.pointSampler->evalPDF(camera, nullptr, eyeEndNode);
                 PNAN(eyeEndNode->m_pdfFromNext);
 
                 eyeEndNode->m_rrPdfFromNext = 1.0; // Light point: no Russian R.
@@ -244,7 +248,7 @@ handlePathX0(BidirectionalPathTracingConfiguration *config, CBiPath *path) {
 
             if ( config->lightConfig.maxDepth > 1 ) {
                 eyePrevNode->m_pdfFromNext =
-                        config->lightConfig.dirSampler->evalPDF(&GLOBAL_camera_mainCamera, eyeEndNode, eyePrevNode);
+                        config->lightConfig.dirSampler->evalPDF(camera, eyeEndNode, eyePrevNode);
                 PNAN(eyePrevNode->m_pdfFromNext);
 
                 eyePrevNode->m_rrPdfFromNext = 1.0;
@@ -256,7 +260,7 @@ handlePathX0(BidirectionalPathTracingConfiguration *config, CBiPath *path) {
             // Compute
             if ((config->baseConfig->sampleImportantLights) && (config->lightConfig.maxDepth > 0)
                 && (path->m_eyeSize > 2) ) {
-                pdfLNE = config->eyeConfig.neSampler->evalPDF(&GLOBAL_camera_mainCamera, eyePrevNode, eyeEndNode);
+                pdfLNE = config->eyeConfig.neSampler->evalPDF(camera, eyePrevNode, eyeEndNode);
             } else {
                 pdfLNE = eyeEndNode->m_pdfFromNext; // same sampling as light path
             }
@@ -452,7 +456,7 @@ handlePathXx(
         newLightNode.m_pdfFromNext = 0.0;
 
         if ( !config->eyeConfig.neSampler->sample(
-            &GLOBAL_camera_mainCamera,
+            camera,
             sceneWorldVoxelGrid,
             sceneBackground,
             nullptr,
@@ -470,7 +474,7 @@ handlePathXx(
         oldPdfLNE = path->m_pdfLNE;
         path->m_pdfLNE = newLightNode.m_pdfFromPrev;
         newLightNode.m_pdfFromPrev =
-                config->lightConfig.pointSampler->evalPDF(&GLOBAL_camera_mainCamera, nullptr, &newLightNode);
+                config->lightConfig.pointSampler->evalPDF(camera, nullptr, &newLightNode);
 
         PNAN(newLightNode.m_pdfFromPrev);
         PNAN(path->m_pdfLNE);
@@ -524,7 +528,7 @@ handlePath1X(
     float pixX;
     float pixY;
     if ( eyeNodeVisible(
-            &GLOBAL_camera_mainCamera,
+            camera,
             sceneVoxelGrid,
             path->m_eyeEndNode,
             path->m_lightEndNode,
@@ -583,7 +587,7 @@ bpCombinePaths(
         // the pdf for it, in order to get correct weights.
         if ( config->baseConfig->sampleImportantLights && config->lightPath->next() ) {
             config->pdfLNE =
-                    config->eyeConfig.neSampler->evalPDF(&GLOBAL_camera_mainCamera, lightPath->next(), lightPath);
+                    config->eyeConfig.neSampler->evalPDF(camera, lightPath->next(), lightPath);
         } else {
             config->pdfLNE = lightPath->m_pdfFromPrev;
         }
@@ -610,7 +614,7 @@ bpCombinePaths(
             path.m_lightSize = 0;
             path.m_lightEndNode = nullptr;
 
-            handlePathX0(config, &path);
+            handlePathX0(camera, config, &path);
         }
 
         // Handle lightSize > 0 (with N.E.E.)
@@ -709,7 +713,7 @@ bpCalcPixel(
             config->xSample = tmpVec2D.u; // pix_x + (camera.pixelWidth * x1);
             config->ySample = tmpVec2D.v; // pix_y + (camera.pixelHeight * x2);
 
-            if ( config->eyeConfig.dirSampler->sample(&GLOBAL_camera_mainCamera, sceneVoxelGrid, sceneBackground, nullptr, config->eyePath, pixNode, x1, x2) ) {
+            if ( config->eyeConfig.dirSampler->sample(camera, sceneVoxelGrid, sceneBackground, nullptr, config->eyePath, pixNode, x1, x2) ) {
                 pixNode->assignBsdfAndNormal();
                 config->eyeConfig.tracePath(camera, sceneVoxelGrid, sceneBackground, nextNode);
             }

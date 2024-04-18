@@ -95,7 +95,7 @@ RayCaster::getRadianceAtPixel(
 
         // Reverse ray direction and get radiance emitted at hit point towards the eye
         Vector3D dir(-ray.dir.x, -ray.dir.y, -ray.dir.z);
-        rad = context->getRadiance(patch, u, v, dir);
+        rad = context->getRadiance(camera, patch, u, v, dir);
     }
     return rad;
 }
