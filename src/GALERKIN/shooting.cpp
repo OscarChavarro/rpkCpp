@@ -239,7 +239,7 @@ propagateRadiance(
     }
 
     openGlRenderSetColor(&GLOBAL_material_yellow);
-    openGlRenderPatchOutline(camera, shootingPatch);
+    openGlRenderPatchOutline(shootingPatch);
 
     doPropagate(
         camera,
@@ -311,7 +311,7 @@ propagatePotential(
     shootingPatch = choosePotentialShootingPatch(scenePatches);
     if ( shootingPatch ) {
         openGlRenderSetColor(&GLOBAL_material_white);
-        openGlRenderPatchOutline(camera, shootingPatch);
+        openGlRenderPatchOutline(shootingPatch);
         doPropagate(
             camera,
             sceneWorldVoxelGrid,

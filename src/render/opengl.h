@@ -26,7 +26,7 @@ openGlRenderScene(
     RadianceMethod *context);
 
 extern void openGlMesaRenderCreateOffscreenWindow(Camera *camera, int width, int height);
-extern void openGlRenderPatchOutline(Camera *camera, Patch *patch);
+extern void openGlRenderPatchOutline(Patch *patch);
 extern void openGlRenderPolygonFlat(int numberOfVertices, Vector3D *vertices);
 extern void openGlRenderPolygonGouraud(int numberOfVertices, Vector3D *vertices, ColorRgb *verticesColors);
 extern void openGlRenderPixels(Camera *camera, int x, int y, int width, int height, ColorRgb *rgb);

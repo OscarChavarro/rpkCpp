@@ -632,15 +632,6 @@ GalerkinElement::draw(int mode, Camera *camera) {
 
     // Modifies the positions, that's why it comes last
     if ( mode & OUTLINE ) {
-        int i;
-
-        for ( i = 0; i < numberOfVertices; i++ ) {
-            // Move the point a bit closer the eye point to avoid aliasing
-            Vector3D d;
-            vectorSubtract(camera->eyePosition, p[i], d);
-            vectorSumScaled(p[i], 0.01, d, p[i]);
-        }
-
         openGlRenderSetColor(&GLOBAL_render_renderOptions.outline_color);
         if ( numberOfVertices == 3 ) {
             openGlRenderSetColor(&GLOBAL_material_yellow);
@@ -662,7 +653,7 @@ GalerkinElement::draw(int mode, Camera *camera) {
 
                 vectorSubtract(p[2], p[1], d);
 
-                for ( i = 1; i < 4; i++ ) {
+                for ( int i = 1; i < 4; i++ ) {
                     vectorSumScaled(p[1], i * 0.25, d, pt);
                     openGlRenderLine(&p[0], &pt);
                 }
@@ -675,7 +666,7 @@ GalerkinElement::draw(int mode, Camera *camera) {
                 vectorSubtract(p[1], p[0], d1);
                 vectorSubtract(p[3], p[2], d2);
 
-                for ( i = 0; i < 5; i++ ) {
+                for ( int i = 0; i < 5; i++ ) {
                     vectorSumScaled(p[0], i * 0.25, d1, p1);
                     vectorSumScaled(p[2], (1.0 - i * 0.25), d2, p2);
                     openGlRenderLine(&p1, &p2);

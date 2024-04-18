@@ -223,17 +223,10 @@ openGlRenderPatchSmooth(Patch *patch) {
 Renders the patch outline in the current color
 */
 void
-openGlRenderPatchOutline(Camera *camera, Patch *patch) {
-    int i;
-    Vector3D tmp;
-    Vector3D dir;
-
+openGlRenderPatchOutline(Patch *patch) {
     glBegin(GL_LINE_LOOP);
-    for ( i = 0; i < patch->numberOfVertices; i++ ) {
-        // Move the outlines a bit closer to the eye-point to avoid Z buffer artefacts
-        vectorSubtract(camera->eyePosition, *patch->vertex[i]->point, dir);
-        vectorSumScaled(*patch->vertex[i]->point, 0.01, dir, tmp);
-        glVertex3fv((GLfloat *) &tmp);
+    for ( int i = 0; i < patch->numberOfVertices; i++ ) {
+        glVertex3fv((GLfloat *) &patch->vertex[i]->point);
     }
     glEnd();
 }
@@ -255,7 +248,7 @@ openGlRenderPatch(Patch *patch, Camera *camera) {
          (vectorDotProduct(patch->normal, camera->eyePosition) + patch->planeConstant > EPSILON
           || GLOBAL_render_renderOptions.useDisplayLists) ) {
         openGlRenderSetColor(&GLOBAL_render_renderOptions.outline_color);
-        openGlRenderPatchOutline(camera, patch);
+        openGlRenderPatchOutline(patch);
     }
 }
 
@@ -310,9 +303,9 @@ openGlBoundsDistance2(Vector3D p, const float *bounds) {
     Vector3D d;
 
     mid.set(
-              0.5f * (bounds[MIN_X] + bounds[MAX_X]),
-              0.5f * (bounds[MIN_Y] + bounds[MAX_Y]),
-              0.5f * (bounds[MIN_Z] + bounds[MAX_Z]));
+        0.5f * (bounds[MIN_X] + bounds[MAX_X]),
+        0.5f * (bounds[MIN_Y] + bounds[MAX_Y]),
+        0.5f * (bounds[MIN_Z] + bounds[MAX_Z]));
     vectorSubtract(mid, p, d);
 
     return vectorNorm2(d);

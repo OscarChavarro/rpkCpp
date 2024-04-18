@@ -164,12 +164,6 @@ renderTriangle(Vertex *v1, Vertex *v2, Vertex *v3) {
     openGlRenderPolygonGouraud(3, vert, col);
 
     if ( GLOBAL_render_renderOptions.drawOutlines ) {
-        for ( int i = 0; i < 3; i++ ) {
-            Vector3D d;
-            vectorSubtract(GLOBAL_camera_mainCamera.eyePosition, vert[i], d);
-            vectorSumScaled(vert[i], 0.01, d, vert[i]);
-        }
-
         openGlRenderSetColor(&GLOBAL_render_renderOptions.outline_color);
         openGlRenderLine(&vert[0], &vert[1]);
         openGlRenderLine(&vert[1], &vert[2]);
@@ -193,13 +187,6 @@ renderQuadrilateral(Vertex *v1, Vertex *v2, Vertex *v3, Vertex *v4) {
     openGlRenderPolygonGouraud(4, vert, col);
 
     if ( GLOBAL_render_renderOptions.drawOutlines ) {
-        int i;
-        for ( i = 0; i < 4; i++ ) {
-            Vector3D d;
-            vectorSubtract(GLOBAL_camera_mainCamera.eyePosition, vert[i], d);
-            vectorSumScaled(vert[i], 0.01, d, vert[i]);
-        }
-
         openGlRenderSetColor(&GLOBAL_render_renderOptions.outline_color);
         openGlRenderLine(&vert[0], &vert[1]);
         openGlRenderLine(&vert[1], &vert[2]);
@@ -355,18 +342,6 @@ renderQuadrilateralElement(Vertex **v, Vertex **m, int numberOfTVertices) {
 static void
 stochasticRadiosityElementRenderOutline(StochasticRadiosityElement *elem) {
     Vector3D vertices[4];
-
-    // Test whether eye point is in front of the patch
-    if ( vectorDotProduct(elem->patch->normal, GLOBAL_camera_mainCamera.eyePosition) + elem->patch->planeConstant < 0.0 ) {
-        return;
-    }
-
-    for ( int i = 0; i < elem->numberOfVertices; i++ ) {
-        Vector3D d;
-        vertices[i] = *(elem->vertices[i]->point);
-        vectorSubtract(GLOBAL_camera_mainCamera.eyePosition, vertices[i], d);
-        vectorSumScaled(vertices[i], 0.0001, d, vertices[i]);
-    }
 
     openGlRenderSetColor(&GLOBAL_render_renderOptions.outline_color);
     openGlRenderLine(&vertices[0], &vertices[1]);
