@@ -156,7 +156,7 @@ galerkinRadiosityDoGatheringIteration(
 {
     if ( galerkinState->importanceDriven ) {
         if ( galerkinState->iterationNumber <= 1 || camera->changed ) {
-            updateDirectPotential(scenePatches, clusteredWorldGeometry);
+            updateDirectPotential(camera, scenePatches, clusteredWorldGeometry);
             camera->changed = false;
         }
     }

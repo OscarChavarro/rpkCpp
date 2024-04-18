@@ -22,6 +22,7 @@ Updates directly received potential for all patches
 */
 void
 updateDirectPotential(
+    Camera *camera,
     java::ArrayList<Patch *> *scenePatches,
     Geometry *clusteredWorldGeometry)
 {
@@ -44,7 +45,7 @@ updateDirectPotential(
     canvasPushMode();
 
     // Get the patch IDs for each pixel
-    ids = sglRenderIds(&x, &y, &GLOBAL_camera_mainCamera, scenePatches, clusteredWorldGeometry);
+    ids = sglRenderIds(&x, &y, camera, scenePatches, clusteredWorldGeometry);
 
     canvasPullMode();
 
@@ -72,8 +73,8 @@ updateDirectPotential(
 
     // h and v are the horizontal resp. vertical distance between two
     // neighboring pixels on the screen
-    h = 2.0f * (float)std::tan(GLOBAL_camera_mainCamera.horizontalFov * (float)M_PI / 180.0f) / (float)x;
-    v = 2.0f * (float)std::tan(GLOBAL_camera_mainCamera.verticalFov * (float)M_PI / 180.0f) / (float)y;
+    h = 2.0f * (float)std::tan(camera->horizontalFov * (float)M_PI / 180.0f) / (float)x;
+    v = 2.0f * (float)std::tan(camera->verticalFov * (float)M_PI / 180.0f) / (float)y;
     pixelArea = h * v;
 
     for ( j = y - 1, ySample = -v * (float) (y - 1) / 2.0f;
@@ -85,13 +86,13 @@ updateDirectPotential(
 
             if ( the_id > 0 && the_id <= maximumPatchId ) {
                 // Compute direction to center of pixel
-                vectorComb3(GLOBAL_camera_mainCamera.Z, (float)xSample, GLOBAL_camera_mainCamera.X, ySample,
-                            GLOBAL_camera_mainCamera.Y, pixDir);
+                vectorComb3(camera->Z, (float)xSample, camera->X, ySample,
+                            camera->Y, pixDir);
 
                 // Delta_importance = (cosine of the angle between the direction to
                 // the pixel and the viewing direction, over the distance from the
                 // eye point to the pixel) squared, times area of the pixel
-                deltaImportance = vectorDotProduct(GLOBAL_camera_mainCamera.Z, pixDir) /
+                deltaImportance = vectorDotProduct(camera->Z, pixDir) /
                                   vectorDotProduct(pixDir, pixDir);
                 deltaImportance *= deltaImportance * pixelArea;
 

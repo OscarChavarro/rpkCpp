@@ -358,7 +358,7 @@ reallyDoShootingStep(
 {
     if ( galerkinState->importanceDriven ) {
         if ( galerkinState->iterationNumber <= 1 || camera->changed ) {
-            updateDirectPotential(scenePatches, clusteredWorldGeometry);
+            updateDirectPotential(camera, scenePatches, clusteredWorldGeometry);
             for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
                 Patch *patch = scenePatches->get(i);
                 GalerkinElement *topLevelElement = galerkinGetElement(patch);
