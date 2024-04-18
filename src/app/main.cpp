@@ -46,7 +46,6 @@ static bool globalOneSidedSurfaces;
 static int globalConicSubDivisions;
 
 static Background *globalSceneBackground = nullptr;
-static Camera globalCamera;
 static java::ArrayList<Geometry *> *globalSceneGeometries = nullptr;
 static java::ArrayList<Geometry *> *globalSceneClusteredGeometries = nullptr;
 static Geometry *globalSceneClusteredWorldGeometry = nullptr;
@@ -178,13 +177,13 @@ mainRenderingDefaults() {
 Global initializations
 */
 static void
-mainInit() {
+mainInit(Camera *camera) {
     // Transforms the cubature rules for quadrilaterals to be over the domain [0,1]^2 instead of [-1,1]^2
     fixCubatureRules();
 
     mainRenderingDefaults();
     toneMapDefaults();
-    radianceDefaults(nullptr, &globalCamera, globalSceneClusteredWorldGeometry);
+    radianceDefaults(nullptr, camera, globalSceneClusteredWorldGeometry);
 
     #ifdef RAYTRACING_ENABLED
         mainRayTracingDefaults();
@@ -272,7 +271,7 @@ Returns true if successful. There's nothing GUI specific in this function.
 When a file cannot be read, the current scene is restored
 */
 static bool
-mainReadFile(char *filename, MgfContext *context) {
+mainReadFile(char *filename, MgfContext *context, Camera *camera) {
     // Check whether the file can be opened if not reading from stdin
     if ( filename[0] != '#' ) {
         FILE *input = fopen(filename, "r");
@@ -299,7 +298,7 @@ mainReadFile(char *filename, MgfContext *context) {
     }
 
     // Init compute method
-    setRadianceMethod(nullptr, &globalCamera, nullptr, globalSceneClusteredWorldGeometry);
+    setRadianceMethod(nullptr, camera, nullptr, globalSceneClusteredWorldGeometry);
 
     #ifdef RAYTRACING_ENABLED
         Raytracer *currentRaytracer = GLOBAL_raytracer_activeRaytracer;
@@ -433,7 +432,7 @@ mainReadFile(char *filename, MgfContext *context) {
     fprintf(stderr, "Initializing radiance method ... ");
     fflush(stderr);
 
-    setRadianceMethod(context->radianceMethod, &globalCamera, globalScenePatches, globalSceneClusteredWorldGeometry);
+    setRadianceMethod(context->radianceMethod, camera, globalScenePatches, globalSceneClusteredWorldGeometry);
 
     t = clock();
     fprintf(stderr, "%g secs.\n", (float) (t - last) / (float) CLOCKS_PER_SEC);
@@ -459,12 +458,12 @@ mainReadFile(char *filename, MgfContext *context) {
 }
 
 static void
-mainBuildModel(const int *argc, char *const *argv, MgfContext *context) {
+mainBuildModel(const int *argc, char *const *argv, MgfContext *context, Camera *camera) {
     // All options should have disappeared from argv now
     if ( *argc > 1 ) {
         if ( *argv[1] == '-' ) {
             logError(nullptr, "Unrecognized option '%s'", argv[1]);
-        } else if ( !mainReadFile(argv[1], context) ) {
+        } else if ( !mainReadFile(argv[1], context, camera) ) {
             exit(1);
         }
     }
@@ -581,9 +580,9 @@ mainFreeMemory(MgfContext *context) {
 int
 main(int argc, char *argv[]) {
     RadianceMethod *selectedRadianceMethod = nullptr;
-
-    mainInit();
-    mainParseGlobalOptions(&argc, argv, &selectedRadianceMethod, &globalCamera);
+    Camera sceneCamera;
+    mainInit(&sceneCamera);
+    mainParseGlobalOptions(&argc, argv, &selectedRadianceMethod, &sceneCamera);
 
     MgfContext mgfContext;
     mgfContext.radianceMethod = selectedRadianceMethod;
@@ -592,10 +591,10 @@ main(int argc, char *argv[]) {
     mgfContext.monochrome = DEFAULT_MONOCHROME;
     mgfContext.currentMaterial = &GLOBAL_material_defaultMaterial;
 
-    mainBuildModel(&argc, argv, &mgfContext);
+    mainBuildModel(&argc, argv, &mgfContext, &sceneCamera);
 
     mainExecuteRendering(
-        &globalCamera,
+        &sceneCamera,
         globalImageOutputWidth,
         globalImageOutputHeight,
         globalSceneBackground,
@@ -610,7 +609,7 @@ main(int argc, char *argv[]) {
     //executeGlutGui(
     //    argc,
     //    argv,
-    //    &GLOBAL_camera_mainCamera,
+    //    &sceneCamera,
     //    globalScenePatches,
     //    globalLightSourcePatches,
     //    globalSceneGeometries,
