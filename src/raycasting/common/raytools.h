@@ -8,6 +8,7 @@ Some utility routines for ray intersections and for statistics
 #include "common/Ray.h"
 #include "material/bsdf.h"
 #include "skin/Patch.h"
+#include "scene/Camera.h"
 #include "scene/VoxelGrid.h"
 #include "raycasting/common/pathnode.h"
 
@@ -21,6 +22,7 @@ pathNodesVisible(
 
 extern bool
 eyeNodeVisible(
+    Camera *camera,
     VoxelGrid *sceneWorldVoxelGrid,
     SimpleRaytracingPathNode *eyeNode,
     SimpleRaytracingPathNode *node,

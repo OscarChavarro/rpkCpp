@@ -36,8 +36,8 @@ class CImportanceMap : public CPhotonMap {
 
     // New functions
     virtual float ReconstructImp(Vector3D &pos, Vector3D &normal);
-    virtual float GetImpReqDensity(Vector3D &pos, Vector3D &normal);
-    virtual float GetRequiredDensity(Vector3D &pos, Vector3D &normal);
+    virtual float GetImpReqDensity(Camera *camera, Vector3D &pos, Vector3D &normal);
+    virtual float GetRequiredDensity(Camera *camera, Vector3D &pos, Vector3D &normal);
 
 protected:
     void

@@ -17,7 +17,8 @@ CImportanceMap::AddPhoton(
 }
 
 // Reconstruct
-float CImportanceMap::ReconstructImp(Vector3D &pos, Vector3D &normal /*, IMPORTANCE_OPTION option */) {
+float
+CImportanceMap::ReconstructImp(Vector3D &pos, Vector3D &normal /*, IMPORTANCE_OPTION option */) {
     float maxDistance;
     float result = 0.0;
     float importance;
@@ -55,9 +56,8 @@ float CImportanceMap::ReconstructImp(Vector3D &pos, Vector3D &normal /*, IMPORTA
     return result;
 }
 
-
 float
-CImportanceMap::GetImpReqDensity(Vector3D &pos, Vector3D &normal) {
+CImportanceMap::GetImpReqDensity(Camera *camera, Vector3D &pos, Vector3D &normal) {
     float density;
 
     // Reconstruct importance
@@ -70,13 +70,13 @@ CImportanceMap::GetImpReqDensity(Vector3D &pos, Vector3D &normal) {
     // We want impScale photons per pixel density, account for
     // the pixel area here
 
-    density /= GLOBAL_camera_mainCamera.pixelWidth * GLOBAL_camera_mainCamera.pixelHeight;
+    density /= camera->pixelWidth * camera->pixelHeight;
 
     return (density);
 }
 
-
-float CImportanceMap::GetRequiredDensity(Vector3D &pos, Vector3D &normal) {
+float
+CImportanceMap::GetRequiredDensity(Camera *camera, Vector3D &pos, Vector3D &normal) {
     if ( m_nrPhotons == 0 ) {
         return GLOBAL_photonMap_state.constantRD;
     }  // Safety, if no importance map was constructed
@@ -115,7 +115,7 @@ float CImportanceMap::GetRequiredDensity(Vector3D &pos, Vector3D &normal) {
 
         switch ( GLOBAL_photonMap_state.importanceOption ) {
             case USE_IMPORTANCE:
-                density = GetImpReqDensity(pos, normal);
+                density = GetImpReqDensity(camera, pos, normal);
                 density *= *m_impScalePtr;
                 break;
             default:
@@ -130,9 +130,14 @@ float CImportanceMap::GetRequiredDensity(Vector3D &pos, Vector3D &normal) {
     return density;
 }
 
-
-void CImportanceMap::ComputeAllRequiredDensities(Vector3D &pos, Vector3D &normal,
-                                                 float *imp, float *pot, float *diff) {
+void
+CImportanceMap::ComputeAllRequiredDensities(
+    Vector3D &pos,
+    Vector3D &normal,
+    float *imp,
+    float *pot,
+    float *diff)
+{
     // Query photons, to be used by the appropriate req dest method
     m_nrpFound = DoQuery(&pos);
     if ( m_nrpFound < 5 ) {
@@ -140,19 +145,21 @@ void CImportanceMap::ComputeAllRequiredDensities(Vector3D &pos, Vector3D &normal
         *imp = *pot = *diff = 0.0;
     }
 
-    *imp = GetImpReqDensity(pos, normal);
+    *imp = GetImpReqDensity(&GLOBAL_camera_mainCamera, pos, normal);
 }
 
-
-void CImportanceMap::PhotonPrecomputeIrradiance(CIrrPhoton *photon) {
-    float imp, pot, diff;
+void
+CImportanceMap::PhotonPrecomputeIrradiance(CIrrPhoton *photon) {
+    float imp;
+    float pot;
+    float diff;
     Vector3D pos = photon->Pos();
     Vector3D normal = photon->Normal();
 
     ComputeAllRequiredDensities(pos, normal, &imp, &pot, &diff);
 
     // Abuse pot for tail enhancement
-    pot = m_distances[0]; // Only valid since max heap is used in kdtree
+    pot = m_distances[0]; // Only valid since max heap is used in kd-tree
     m_totalMaxDistance = floatMax(pot, m_totalMaxDistance);
 
     ((CImporton *) photon)->PSetAll(imp, pot, diff);
@@ -160,28 +167,20 @@ void CImportanceMap::PhotonPrecomputeIrradiance(CIrrPhoton *photon) {
         m_maxImp = imp;
     }
 
-
     m_avgImp += imp;
-
 }
 
-void CImportanceMap::PrecomputeIrradiance() {
+void
+CImportanceMap::PrecomputeIrradiance() {
     fprintf(stderr, "CImportanceMap::PrecomputeIrradiance\n");
     m_maxImp = 0;
     m_avgImp = 0;
-
-
     m_preReconPhotons = *m_estimate_nrp;
     m_totalMaxDistance = 0.0;
     m_irradianceComputed = false;
-
-    // fprintf(stderr, "MSDiff %g, AVGSDIFF %g\n", m_maxSingleDiff,
-    // m_sumSingleDiff/ m_nrPhotons);
 
     CPhotonMap::PrecomputeIrradiance();
 
     m_avgImp /= (float)m_nrPhotons;
     m_totalMaxDistance *= 20.0f / (float)*m_estimate_nrp;
 }
-
-

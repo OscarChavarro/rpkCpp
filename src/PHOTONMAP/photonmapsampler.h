@@ -27,6 +27,7 @@ class CPhotonMapSampler : public CBsdfSampler {
 
     bool
     gdSample(
+        Camera *camera,
         VoxelGrid *sceneVoxelGrid,
         Background *sceneBackground,
         SimpleRaytracingPathNode *prevNode,

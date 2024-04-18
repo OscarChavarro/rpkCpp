@@ -522,6 +522,7 @@ handlePath1X(
     float pixX;
     float pixY;
     if ( eyeNodeVisible(
+            &GLOBAL_camera_mainCamera,
             sceneVoxelGrid,
             path->m_eyeEndNode,
             path->m_lightEndNode,

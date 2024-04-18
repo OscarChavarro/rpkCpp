@@ -169,6 +169,7 @@ Can the eye see the node ?  If so, pix_x and pix_y are filled in
 */
 bool
 eyeNodeVisible(
+    Camera *camera,
     VoxelGrid *sceneWorldVoxelGrid,
     SimpleRaytracingPathNode *eyeNode,
     SimpleRaytracingPathNode *node,
@@ -202,19 +203,19 @@ eyeNodeVisible(
 
     // Determine which pixel is visible
 
-    z = vectorDotProduct(dir, GLOBAL_camera_mainCamera.Z);
+    z = vectorDotProduct(dir, camera->Z);
 
     visible = false;
 
     if ( z > 0.0 ) {
-        x = vectorDotProduct(dir, GLOBAL_camera_mainCamera.X);
+        x = vectorDotProduct(dir, camera->X);
         xz = x / z;
 
-        if ( std::fabs(xz) < GLOBAL_camera_mainCamera.pixelWidthTangent ) {
-            y = vectorDotProduct(dir, GLOBAL_camera_mainCamera.Y);
+        if ( std::fabs(xz) < camera->pixelWidthTangent ) {
+            y = vectorDotProduct(dir, camera->Y);
             yz = y / z;
 
-            if ( std::fabs(yz) < GLOBAL_camera_mainCamera.pixelHeightTangent ) {
+            if ( std::fabs(yz) < camera->pixelHeightTangent ) {
                 // Point is within view pyramid
 
                 // Check normal directions

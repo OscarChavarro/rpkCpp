@@ -118,7 +118,7 @@ CPhotonMapSampler::sample(
         ok = fresnelSample(sceneVoxelGrid, sceneBackground, prevNode, thisNode, newNode, x2, flags);
     } else {
         flags = (BSDF_FLAGS)(gdFLAGS & flags);
-        ok = gdSample(sceneVoxelGrid, sceneBackground, prevNode, thisNode, newNode, x1, x2, false, flags);
+        ok = gdSample(camera, sceneVoxelGrid, sceneBackground, prevNode, thisNode, newNode, x1, x2, false, flags);
     }
 
     if ( ok ) {
@@ -359,6 +359,7 @@ CPhotonMapSampler::fresnelSample(
 
 bool
 CPhotonMapSampler::gdSample(
+    Camera *camera,
     VoxelGrid *sceneVoxelGrid,
     Background *sceneBackground,
     SimpleRaytracingPathNode *prevNode,
@@ -374,7 +375,7 @@ CPhotonMapSampler::gdSample(
     // Sample G|D and use m_photonMap for importance sampling if possible.
     if ( m_photonMap == nullptr ) {
         // We can just use standard bsdf sampling
-        ok = CBsdfSampler::sample(&GLOBAL_camera_mainCamera, sceneVoxelGrid, sceneBackground, prevNode, thisNode, newNode, x1, x2, doRR, flags);
+        ok = CBsdfSampler::sample(camera, sceneVoxelGrid, sceneBackground, prevNode, thisNode, newNode, x1, x2, doRR, flags);
         thisNode->m_usedComponents = flags;
         return ok;
     }
@@ -415,7 +416,7 @@ CPhotonMapSampler::gdSample(
 
     // Do real sampling
     ok = CBsdfSampler::sample(
-        &GLOBAL_camera_mainCamera,
+        camera,
         sceneVoxelGrid,
         sceneBackground,
         prevNode,

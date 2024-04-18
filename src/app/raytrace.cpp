@@ -132,8 +132,8 @@ batchSaveRaytracingImage(
         (char *) fileName,
         fp,
         isPipe,
-        GLOBAL_camera_mainCamera.xSize,
-        GLOBAL_camera_mainCamera.ySize,
+        camera->xSize,
+        camera->ySize,
         (float)GLOBAL_statistics.referenceLuminance / 179.0f);
     if ( !img ) {
         return;
@@ -164,7 +164,7 @@ batchRayTrace(
     RadianceMethod *context)
 {
     GLOBAL_render_renderOptions.renderRayTracedImage = true;
-    GLOBAL_camera_mainCamera.changed = false;
+    camera->changed = false;
 
     canvasPushMode();
     rayTrace(

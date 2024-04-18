@@ -21,23 +21,23 @@ CPixelSampler::sample(
     // Pre-condition: thisNode == eye, prevNode == nullptr, SetPixel called
 
     // Sample direction
-    double xSample = (m_px + GLOBAL_camera_mainCamera.pixelWidth * x1);
-    double ySample = (m_py + GLOBAL_camera_mainCamera.pixelHeight * x2);
+    double xSample = (m_px + camera->pixelWidth * x1);
+    double ySample = (m_py + camera->pixelHeight * x2);
 
-    vectorComb3(GLOBAL_camera_mainCamera.Z, (float)xSample, GLOBAL_camera_mainCamera.X, (float)ySample, GLOBAL_camera_mainCamera.Y,
+    vectorComb3(camera->Z, (float)xSample, camera->X, (float)ySample, camera->Y,
                 dir);
     double distPixel2 = vectorNorm2(dir);
     double distPixel = std::sqrt(distPixel2);
     vectorScaleInverse((float)distPixel, dir, dir);
 
-    double cosPixel = std::fabs(vectorDotProduct(GLOBAL_camera_mainCamera.Z, dir));
+    double cosPixel = std::fabs(vectorDotProduct(camera->Z, dir));
 
-    double pdfDir = ((1.0 / (GLOBAL_camera_mainCamera.pixelWidth * GLOBAL_camera_mainCamera.pixelHeight)) * // 1 / Area pixel
+    double pdfDir = ((1.0 / (camera->pixelWidth * camera->pixelHeight)) * // 1 / Area pixel
                      (distPixel2 / cosPixel));  // Spherical angle measure
 
     // Determine ray type
     thisNode->m_rayType = STARTS;
-    newNode->m_inBsdf = thisNode->m_outBsdf; // GLOBAL_camera_mainCamera can be placed in a medium
+    newNode->m_inBsdf = thisNode->m_outBsdf; // Camera can be placed in a medium
 
     // Transfer
     if ( !sampleTransfer(sceneVoxelGrid, sceneBackground, thisNode, newNode, &dir, pdfDir) ) {
@@ -63,13 +63,15 @@ CPixelSampler::sample(
     return true;
 }
 
-void CPixelSampler::SetPixel(int nx, int ny, Camera *cam) {
-    if ( cam == nullptr ) {
-        cam = &GLOBAL_camera_mainCamera;
-    } // Primary camera
+void
+CPixelSampler::SetPixel(int nx, int ny, Camera *camera) {
+    if ( camera == nullptr ) {
+        // Primary camera
+        camera = &GLOBAL_camera_mainCamera;
+    }
 
-    m_px = -cam->pixelWidth * (double)cam->xSize / 2.0 + (double)nx * cam->pixelWidth;
-    m_py = -cam->pixelHeight * (double)cam->ySize / 2.0 + (double)ny * cam->pixelHeight;
+    m_px = -camera->pixelWidth * (double)camera->xSize / 2.0 + (double)nx * camera->pixelWidth;
+    m_py = -camera->pixelHeight * (double)camera->ySize / 2.0 + (double)ny * camera->pixelHeight;
 }
 
 double
@@ -104,11 +106,10 @@ CPixelSampler::evalPDF(
 
     // Three cosines : r^2 / cos = 1 / cos^3 since r is length
     // of viewing ray to the pixel.
-    pdf = 1.0 / (GLOBAL_camera_mainCamera.pixelHeight * GLOBAL_camera_mainCamera.pixelWidth * cosA * cosA * cosA);
+    pdf = 1.0 / (camera->pixelHeight * camera->pixelWidth * cosA * cosA * cosA);
 
     cosB = -vectorDotProduct(newNode->m_normal, outDir);
     pdf = pdf * cosB / dist2;
 
     return pdf;
 }
-

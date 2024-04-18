@@ -19,10 +19,9 @@ CEyeSampler::sample(
         logWarning("CEyeSampler::sample", "Not first node in path ?!");
     }
 
-    // Just fill in newNode with camera data. Appropiate pdf fields are
-    // are set to 1
+    // Just fill in newNode with camera data. Appropriate pdf fields are set to 1
 
-    newNode->m_depth = 0;  // We expect this to be the first node in an eye path
+    newNode->m_depth = 0; // We expect this to be the first node in an eye path
     newNode->m_rayType = STOPS;
 
     // Choose eye : N/A
@@ -32,11 +31,11 @@ CEyeSampler::sample(
 
     RayHit *hit = &newNode->m_hit;
 
-    hit->init(nullptr, nullptr, &GLOBAL_camera_mainCamera.eyePosition, &GLOBAL_camera_mainCamera.Z, nullptr, 0.0);
-    hit->normal = GLOBAL_camera_mainCamera.Z;
-    hit->X = GLOBAL_camera_mainCamera.X;
-    hit->Y = GLOBAL_camera_mainCamera.Y;
-    hit->Z = GLOBAL_camera_mainCamera.Z;
+    hit->init(nullptr, nullptr, &camera->eyePosition, &camera->Z, nullptr, 0.0);
+    hit->normal = camera->Z;
+    hit->X = camera->X;
+    hit->Y = camera->Y;
+    hit->Z = camera->Z;
     hit->flags |= HIT_NORMAL | HIT_SHADING_FRAME;
 
     vectorCopy(newNode->m_hit.normal, newNode->m_normal);
@@ -44,11 +43,9 @@ CEyeSampler::sample(
 
     // outDir's not filled in
 
-    newNode->m_pdfFromPrev = 1.0; /* Differential eye area cancels
-				     out with computing the flux */
+    newNode->m_pdfFromPrev = 1.0; // Differential eye area cancels out with computing the flux
 
-    newNode->m_pdfFromNext = 0.0; /* Eye cannot be hit accidently,
-				   this pdf is never used */
+    newNode->m_pdfFromNext = 0.0; // Eye cannot be hit accidentally, this pdf is never used
 
     newNode->m_useBsdf = nullptr;
     newNode->m_inBsdf = nullptr;
