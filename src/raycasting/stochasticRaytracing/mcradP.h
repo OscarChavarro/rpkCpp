@@ -189,6 +189,7 @@ extern void randomWalkRadiosityParseOptions(int *argc, char **argv);
 
 extern void
 doNonDiffuseFirstShot(
+    Camera *camera,
     VoxelGrid *sceneWorldVoxelGrid,
     java::ArrayList<Patch *> *scenePatches,
     java::ArrayList<Geometry *> *sceneGeometries,

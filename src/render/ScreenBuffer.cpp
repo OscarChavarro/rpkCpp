@@ -49,8 +49,6 @@ ScreenBuffer::isRgbImage() const {
 
 void
 ScreenBuffer::init(Camera *inCamera) {
-    int i;
-
     if ( inCamera == nullptr ) {
         // Use the current camera
         inCamera = &GLOBAL_camera_mainCamera;
@@ -71,7 +69,7 @@ ScreenBuffer::init(Camera *inCamera) {
     }
 
     // Clear
-    for ( i = 0; i < camera.xSize * camera.ySize; i++ ) {
+    for ( int i = 0; i < camera.xSize * camera.ySize; i++ ) {
         m_Radiance[i].setMonochrome(0.0);
         m_RGB[i] = GLOBAL_material_black;
     }

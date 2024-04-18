@@ -352,29 +352,7 @@ renderQuadrilateralElement(Vertex **v, Vertex **m, int numberOfTVertices) {
     quadrilateralTVertexElimination(v, m, numberOfTVertices, renderTriangle, renderQuadrilateral);
 }
 
-void
-stochasticRadiosityElementTVertexElimination(
-    StochasticRadiosityElement *elem,
-    void (*do_triangle)(Vertex *, Vertex *, Vertex *),
-    void (*do_quadrilateral)(Vertex *, Vertex *, Vertex *, Vertex *))
-{
-    Vertex *m[4];
-    int i, n;
-    for ( i = 0, n = 0; i < elem->numberOfVertices; i++ ) {
-        m[i] = stochasticRadiosityElementEdgeMidpointVertex(elem, i);
-        if ( m[i] ) {
-            n++;
-        }
-    }
-
-    if ( elem->numberOfVertices == 3 ) {
-        triangleTVertexElimination(elem->vertices, m, n, do_triangle);
-    } else {
-        quadrilateralTVertexElimination(elem->vertices, m, n, do_triangle, do_quadrilateral);
-    }
-}
-
-void
+static void
 stochasticRadiosityElementRenderOutline(StochasticRadiosityElement *elem) {
     Vector3D vertices[4];
 

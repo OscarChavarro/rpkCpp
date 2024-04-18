@@ -70,7 +70,6 @@ extern void stochasticRadiosityElementPullImportance(StochasticRadiosityElement 
 extern ColorRgb stochasticRadiosityElementDisplayRadiance(StochasticRadiosityElement *elem);
 extern ColorRgb stochasticRadiosityElementDisplayRadianceAtPoint(StochasticRadiosityElement *elem, double u, double v);
 extern void stochasticRadiosityElementRender(Element *element);
-extern void stochasticRadiosityElementRenderOutline(StochasticRadiosityElement *elem);
 extern void stochasticRadiosityElementComputeNewVertexColors(Element *element);
 extern void stochasticRadiosityElementAdjustTVertexColors(Element *element);
 extern ColorRgb stochasticRadiosityElementColor(StochasticRadiosityElement *element);

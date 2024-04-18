@@ -513,6 +513,7 @@ StochasticJacobiRadianceMethod::doStep(
     if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.currentIteration == 1 ) {
         if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.doNonDiffuseFirstShot ) {
             doNonDiffuseFirstShot(
+                camera,
                 sceneWorldVoxelGrid,
                 scenePatches,
                 sceneGeometries,

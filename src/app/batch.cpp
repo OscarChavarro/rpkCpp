@@ -174,9 +174,9 @@ batchSaveRadianceModel(
     t = clock();
 
     if ( context != nullptr ) {
-        context->writeVRML(&GLOBAL_camera_mainCamera, fp);
+        context->writeVRML(camera, fp);
     } else {
-        writeVRML(&GLOBAL_camera_mainCamera, fp, scenePatches);
+        writeVRML(camera, fp, scenePatches);
     }
 
     fprintf(stdout, "%g secs.\n", (float) (clock() - t) / (float) CLOCKS_PER_SEC);
@@ -233,7 +233,7 @@ batch(
                 exit(1);
             }
             done = radianceMethod->doStep(
-                &GLOBAL_camera_mainCamera,
+                camera,
                 sceneBackground,
                 scenePatches,
                 sceneGeometries,

@@ -171,6 +171,7 @@ Initial shooting pass handling non-diffuse light sources
 */
 void
 doNonDiffuseFirstShot(
+    Camera *camera,
     VoxelGrid *sceneWorldVoxelGrid,
     java::ArrayList<Patch *> *scenePatches,
     java::ArrayList<Geometry *> *sceneGeometries,
@@ -190,7 +191,7 @@ doNonDiffuseFirstShot(
         f = GLOBAL_raytracer_activeRaytracer->Redisplay;
     }
     openGlRenderScene(
-        &GLOBAL_camera_mainCamera,
+        camera,
         scenePatches,
         sceneGeometries,
         sceneClusteredGeometries,
