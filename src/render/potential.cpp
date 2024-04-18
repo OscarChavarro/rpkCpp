@@ -155,7 +155,7 @@ softUpdateDirectVisibility(
 {
     clock_t t = clock();
     SGL_CONTEXT *oldSglContext = GLOBAL_sgl_currentContext;
-    SGL_CONTEXT *currentSglContext = setupSoftFrameBuffer();
+    SGL_CONTEXT *currentSglContext = setupSoftFrameBuffer(camera);
 
     softRenderPatches(camera, scenePatches, clusteredWorldGeometry);
     softGetPatchPointers(currentSglContext, scenePatches);

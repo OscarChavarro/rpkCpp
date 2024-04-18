@@ -12,7 +12,7 @@ Soft_ID_Renderer::init(
     Geometry *clusteredWorldGeometry)
 {
     SGL_CONTEXT *oldSglContext = GLOBAL_sgl_currentContext;
-    sgl = setupSoftFrameBuffer();
+    sgl = setupSoftFrameBuffer(camera);
     softRenderPatches(camera, scenePatches, clusteredWorldGeometry);
     sglMakeCurrent(oldSglContext); // Make the old one current again
 }

@@ -16,30 +16,29 @@ Sets up a software rendering context and initialises transforms and
 viewport for the current view. The new renderer is made current
 */
 SGL_CONTEXT *
-setupSoftFrameBuffer() {
-    SGL_CONTEXT *sgl = new SGL_CONTEXT(GLOBAL_camera_mainCamera.xSize, GLOBAL_camera_mainCamera.ySize);
+setupSoftFrameBuffer(Camera *camera) {
+    SGL_CONTEXT *sgl = new SGL_CONTEXT(camera->xSize, camera->ySize);
     GLOBAL_sgl_currentContext->sglDepthTesting(true);
     GLOBAL_sgl_currentContext->sglClipping(true);
     GLOBAL_sgl_currentContext->sglClear((SGL_PIXEL) 0, SGL_MAXIMUM_Z);
 
     GLOBAL_sgl_currentContext->sglLoadMatrix(perspectiveMatrix(
-            GLOBAL_camera_mainCamera.fieldOfVision * 2.0f * (float)M_PI / 180.0f,
-            (float) GLOBAL_camera_mainCamera.xSize / (float) GLOBAL_camera_mainCamera.ySize,
-            GLOBAL_camera_mainCamera.near,
-            GLOBAL_camera_mainCamera.far));
+            camera->fieldOfVision * 2.0f * (float)M_PI / 180.0f,
+            (float) camera->xSize / (float) camera->ySize,
+            camera->near,
+            camera->far));
     GLOBAL_sgl_currentContext->sglMultiplyMatrix(lookAtMatrix(
-            GLOBAL_camera_mainCamera.eyePosition, GLOBAL_camera_mainCamera.lookPosition,
-            GLOBAL_camera_mainCamera.upDirection));
+            camera->eyePosition, camera->lookPosition, camera->upDirection));
 
     return sgl;
 }
 
 static void
-softRenderPatch(Patch *patch, Camera * /*camera*/) {
+softRenderPatch(Patch *patch, Camera *camera) {
     Vector3D vertices[4];
 
     if ( GLOBAL_render_renderOptions.backfaceCulling &&
-            vectorDotProduct(patch->normal, GLOBAL_camera_mainCamera.eyePosition) + patch->planeConstant < EPSILON ) {
+         vectorDotProduct(patch->normal, camera->eyePosition) + patch->planeConstant < EPSILON ) {
         return;
     }
 
@@ -96,7 +95,7 @@ softRenderIds(
     }
 
     oldSglContext = GLOBAL_sgl_currentContext;
-    currentSglContext = setupSoftFrameBuffer();
+    currentSglContext = setupSoftFrameBuffer(camera);
     softRenderPatches(camera, scenePatches, clusteredWorldGeometry);
 
     *x = currentSglContext->width;

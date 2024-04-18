@@ -11,7 +11,8 @@ due to frame buffer formats, etc.
 #include "skin/Patch.h"
 #include "scene/Camera.h"
 
-extern SGL_CONTEXT *setupSoftFrameBuffer();
+extern SGL_CONTEXT *
+setupSoftFrameBuffer(Camera *camera);
 
 extern void
 softRenderPatches(

@@ -576,7 +576,7 @@ GalerkinElement::draw(int mode, Camera *camera) {
 
     if ( isCluster() ) {
         if ( mode & OUTLINE || mode & STRONG ) {
-            renderBounds(getBoundingBox(geometry));
+            renderBounds(camera, getBoundingBox(geometry));
         }
         return;
     }

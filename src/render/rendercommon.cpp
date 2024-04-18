@@ -113,18 +113,24 @@ renderParseOptions(int *argc, char **argv) {
 
 /**
 Computes front- and back-clipping plane distance for the current GLOBAL_scene_world and
-GLOBAL_camera_mainCamera
+camera
 */
 void
-renderGetNearFar(float *near, float *far, java::ArrayList<Geometry *> *sceneGeometries) {
+renderGetNearFar(
+    Camera *camera,
+    java::ArrayList<Geometry *> *sceneGeometries)
+{
     BoundingBox bounds;
-    Vector3D b[2], d;
-    int i, j, k;
+    Vector3D b[2];
+    Vector3D d;
+    int i;
+    int j;
+    int k;
     float z;
 
     if ( sceneGeometries == nullptr || sceneGeometries->size() == 0 ) {
-        *far = 10.0;
-        *near = 0.1;
+        camera->far = 10.0;
+        camera->near = 0.1;
         return;
     }
 
@@ -133,33 +139,33 @@ renderGetNearFar(float *near, float *far, java::ArrayList<Geometry *> *sceneGeom
     b[0].set(bounds.coordinates[MIN_X], bounds.coordinates[MIN_Y], bounds.coordinates[MIN_Z]);
     b[1].set(bounds.coordinates[MAX_X], bounds.coordinates[MAX_Y], bounds.coordinates[MAX_Z]);
 
-    *far = -HUGE;
-    *near = HUGE;
+    camera->far = -HUGE;
+    camera->near = HUGE;
     for ( i = 0; i <= 1; i++ ) {
         for ( j = 0; j <= 1; j++ ) {
             for ( k = 0; k <= 1; k++ ) {
                 d.set(b[i].x, b[j].y, b[k].z);
-                vectorSubtract(d, GLOBAL_camera_mainCamera.eyePosition, d);
-                z = vectorDotProduct(d, GLOBAL_camera_mainCamera.Z);
+                vectorSubtract(d, camera->eyePosition, d);
+                z = vectorDotProduct(d, camera->Z);
 
-                if ( z > *far ) {
-                    *far = z;
+                if ( z > camera->far ) {
+                    camera->far = z;
                 }
-                if ( z < *near ) {
-                    *near = z;
+                if ( z < camera->near ) {
+                    camera->near = z;
                 }
             }
         }
     }
 
     // Take 2% extra distance for near as well as far clipping plane
-    *far += 0.02f * (*far);
-    *near -= 0.02f * (*near);
-    if ( *far < EPSILON ) {
-        *far = GLOBAL_camera_mainCamera.viewDistance;
+    camera->far += 0.02f * (camera->far);
+    camera->near -= 0.02f * (camera->near);
+    if ( camera->far < EPSILON ) {
+        camera->far = camera->viewDistance;
     }
-    if ( *near < EPSILON ) {
-        *near = GLOBAL_camera_mainCamera.viewDistance / 100.0f;
+    if ( camera->near < EPSILON ) {
+        camera->near = camera->viewDistance / 100.0f;
     }
 }
 
@@ -167,7 +173,7 @@ renderGetNearFar(float *near, float *far, java::ArrayList<Geometry *> *sceneGeom
 Renders a bounding box
 */
 void
-renderBounds(BoundingBox bounds) {
+renderBounds(Camera *camera, BoundingBox bounds) {
     Vector3D p[8];
 
     p[0].set(bounds.coordinates[MIN_X], bounds.coordinates[MIN_Y], bounds.coordinates[MIN_Z]);
@@ -179,32 +185,32 @@ renderBounds(BoundingBox bounds) {
     p[6].set(bounds.coordinates[MIN_X], bounds.coordinates[MAX_Y], bounds.coordinates[MAX_Z]);
     p[7].set(bounds.coordinates[MAX_X], bounds.coordinates[MAX_Y], bounds.coordinates[MAX_Z]);
 
-    openGlRenderLine(&GLOBAL_camera_mainCamera, &p[0], &p[1]);
-    openGlRenderLine(&GLOBAL_camera_mainCamera, &p[1], &p[3]);
-    openGlRenderLine(&GLOBAL_camera_mainCamera, &p[3], &p[2]);
-    openGlRenderLine(&GLOBAL_camera_mainCamera, &p[2], &p[0]);
-    openGlRenderLine(&GLOBAL_camera_mainCamera, &p[4], &p[5]);
-    openGlRenderLine(&GLOBAL_camera_mainCamera, &p[5], &p[7]);
-    openGlRenderLine(&GLOBAL_camera_mainCamera, &p[7], &p[6]);
-    openGlRenderLine(&GLOBAL_camera_mainCamera, &p[6], &p[4]);
-    openGlRenderLine(&GLOBAL_camera_mainCamera, &p[0], &p[4]);
-    openGlRenderLine(&GLOBAL_camera_mainCamera, &p[1], &p[5]);
-    openGlRenderLine(&GLOBAL_camera_mainCamera, &p[2], &p[6]);
-    openGlRenderLine(&GLOBAL_camera_mainCamera, &p[3], &p[7]);
+    openGlRenderLine(camera, &p[0], &p[1]);
+    openGlRenderLine(camera, &p[1], &p[3]);
+    openGlRenderLine(camera, &p[3], &p[2]);
+    openGlRenderLine(camera, &p[2], &p[0]);
+    openGlRenderLine(camera, &p[4], &p[5]);
+    openGlRenderLine(camera, &p[5], &p[7]);
+    openGlRenderLine(camera, &p[7], &p[6]);
+    openGlRenderLine(camera, &p[6], &p[4]);
+    openGlRenderLine(camera, &p[0], &p[4]);
+    openGlRenderLine(camera, &p[1], &p[5]);
+    openGlRenderLine(camera, &p[2], &p[6]);
+    openGlRenderLine(camera, &p[3], &p[7]);
 }
 
 void
-renderGeomBounds(Geometry *geometry) {
+renderGeomBounds(Camera *camera, Geometry *geometry) {
     BoundingBox geometryBoundingBox = getBoundingBox(geometry);
 
     if ( geometry->bounded ) {
-        renderBounds(geometryBoundingBox);
+        renderBounds(camera, geometryBoundingBox);
     }
 
     if ( geometry->isCompound() ) {
         java::ArrayList<Geometry *> *geometryList = geomPrimListCopy(geometry);
         for ( int i = 0; geometryList != nullptr && i < geometryList->size(); i++ ) {
-            renderGeomBounds(geometryList->get(i));
+            renderGeomBounds(camera, geometryList->get(i));
         }
         delete geometryList;
     }
@@ -214,10 +220,10 @@ renderGeomBounds(Geometry *geometry) {
 Renders the bounding boxes of all objects in the scene
 */
 void
-renderBoundingBoxHierarchy(java::ArrayList<Geometry *> *sceneGeometries) {
+renderBoundingBoxHierarchy(Camera *camera, java::ArrayList<Geometry *> *sceneGeometries) {
     openGlRenderSetColor(&GLOBAL_render_renderOptions.bounding_box_color);
     for ( int i = 0; sceneGeometries != nullptr && i < sceneGeometries->size(); i++ ) {
-        renderGeomBounds(sceneGeometries->get(i));
+        renderGeomBounds(camera, sceneGeometries->get(i));
     }
 }
 
@@ -225,9 +231,9 @@ renderBoundingBoxHierarchy(java::ArrayList<Geometry *> *sceneGeometries) {
 Renders the cluster hierarchy bounding boxes
 */
 void
-renderClusterHierarchy(java::ArrayList<Geometry *> *clusteredGeometryList) {
+renderClusterHierarchy(Camera *camera, java::ArrayList<Geometry *> *clusteredGeometryList) {
     openGlRenderSetColor(&GLOBAL_render_renderOptions.cluster_color);
     for ( int i = 0; clusteredGeometryList != nullptr && i < clusteredGeometryList->size(); i++ ) {
-        renderGeomBounds(clusteredGeometryList->get(i));
+        renderGeomBounds(camera, clusteredGeometryList->get(i));
     }
 }

@@ -50,7 +50,7 @@ openGlRenderSetCamera(Camera *camera, java::ArrayList<Geometry *> *sceneGeometri
     glViewport(0, 0, camera->xSize, camera->ySize);
 
     // Determine distance to front- and back-clipping plane
-    renderGetNearFar(&camera->near, &camera->far, sceneGeometries);
+    renderGetNearFar(camera, sceneGeometries);
 
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
@@ -532,11 +532,11 @@ openGlRenderRadiance(
     }
 
     if ( GLOBAL_render_renderOptions.drawBoundingBoxes ) {
-        renderBoundingBoxHierarchy(sceneGeometries);
+        renderBoundingBoxHierarchy(camera, sceneGeometries);
     }
 
     if ( GLOBAL_render_renderOptions.drawClusters ) {
-        renderClusterHierarchy(clusteredGeometryList);
+        renderClusterHierarchy(camera, clusteredGeometryList);
     }
 }
 
