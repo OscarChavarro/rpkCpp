@@ -56,7 +56,7 @@ tracePotentialPath(
     CSamplerConfig &scfg = config->eyeConfig;
 
     // Eye node
-    path = scfg.traceNode(sceneVoxelGrid, sceneBackground, path, drand48(), drand48(), BSDF_ALL_COMPONENTS);
+    path = scfg.traceNode(&GLOBAL_camera_mainCamera, sceneVoxelGrid, sceneBackground, path, drand48(), drand48(), BSDF_ALL_COMPONENTS);
     if ( path == nullptr ) {
         return false;
     }
@@ -84,6 +84,7 @@ tracePotentialPath(
     x2 = drand48();
 
     while ( scfg.traceNode(
+            &GLOBAL_camera_mainCamera,
             sceneVoxelGrid,
             sceneBackground,
             node,

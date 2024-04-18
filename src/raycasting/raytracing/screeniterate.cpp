@@ -93,16 +93,21 @@ screenIterateSequential(
 Some utility routines for progressive tracing
 */
 static inline void
-fillRect(int x0, int y0, int x1, int y1, ColorRgb col, ColorRgb *rgb) {
-    int x, y;
-
-    for ( x = x0; x < x1; x++ ) {
-        for ( y = y0; y < y1; y++ ) {
-            rgb[y * GLOBAL_camera_mainCamera.xSize + x] = col;
+fillRect(
+    Camera *camera,
+    int x0,
+    int y0,
+    int x1,
+    int y1,
+    ColorRgb col,
+    ColorRgb *rgb)
+{
+    for ( int x = x0; x < x1; x++ ) {
+        for ( int y = y0; y < y1; y++ ) {
+            rgb[y * camera->xSize + x] = col;
         }
     }
 }
-
 
 void
 screenIterateProgressive(
@@ -173,16 +178,16 @@ screenIterateProgressive(
                 }
 
                 if ( !skip || (ySteps & 1) || (xSteps & 1) ) {
-                    col = callback(&GLOBAL_camera_mainCamera, sceneVoxelGrid, sceneBackground, x0, height - y0 - 1, data);
+                    col = callback(camera, sceneVoxelGrid, sceneBackground, x0, height - y0 - 1, data);
                     radianceToRgb(col, &pixelRGB);
-                    fillRect(x0, y0, x1, y1, pixelRGB, rgb);
+                    fillRect(camera, x0, y0, x1, y1, pixelRGB, rgb);
 
                     GLOBAL_raytracer_pixelCount++;
 
                     if ( iState.wakeUp & WAKE_UP_RENDER) {
                         iState.wakeUp &= ~WAKE_UP_RENDER;
                         if ( (yMax > 0) && (yMax > yMin) ) {
-                            openGlRenderPixels(&GLOBAL_camera_mainCamera, 0, yMin, width, yMax - yMin, rgb + yMin * width);
+                            openGlRenderPixels(camera, 0, yMin, width, yMax - yMin, rgb + yMin * width);
                         }
                         yMin = intMax(0, yMax - stepSize);
                     }
@@ -194,7 +199,7 @@ screenIterateProgressive(
 
             if ( yMax >= height ) {
                 if ( (yMax > yMin) ) {
-                    openGlRenderPixels(&GLOBAL_camera_mainCamera, 0, yMin, width, yMax - yMin, rgb + yMin * width);
+                    openGlRenderPixels(camera, 0, yMin, width, yMax - yMin, rgb + yMin * width);
                 }
                 yMax = -1;
             }

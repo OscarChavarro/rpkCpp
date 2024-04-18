@@ -95,6 +95,7 @@ class CSamplerConfig {
 
     SimpleRaytracingPathNode *
     traceNode(
+        Camera *camera,
         VoxelGrid *sceneVoxelGrid,
         Background *sceneBackground,
         SimpleRaytracingPathNode *nextNode,
@@ -109,6 +110,7 @@ class CSamplerConfig {
 
     SimpleRaytracingPathNode *
     tracePath(
+        Camera *camera,
         VoxelGrid *sceneVoxelGrid,
         Background *sceneBackground,
         SimpleRaytracingPathNode *nextNode,
@@ -149,13 +151,14 @@ typedef int CONNECT_FLAGS;
 
 double
 pathNodeConnect(
-        SimpleRaytracingPathNode *nodeX,
-        SimpleRaytracingPathNode *nodeY,
-        CSamplerConfig *eyeConfig,
-        CSamplerConfig *lightConfig,
-        CONNECT_FLAGS flags,
-        BSDF_FLAGS bsdfFlagsE = BSDF_ALL_COMPONENTS,
-        BSDF_FLAGS bsdfFlagsL = BSDF_ALL_COMPONENTS,
-        Vector3D *pDirEl = nullptr);
+    Camera *camera,
+    SimpleRaytracingPathNode *nodeX,
+    SimpleRaytracingPathNode *nodeY,
+    CSamplerConfig *eyeConfig,
+    CSamplerConfig *lightConfig,
+    CONNECT_FLAGS flags,
+    BSDF_FLAGS bsdfFlagsE = BSDF_ALL_COMPONENTS,
+    BSDF_FLAGS bsdfFlagsL = BSDF_ALL_COMPONENTS,
+    Vector3D *pDirEl = nullptr);
 
 #endif

@@ -15,8 +15,7 @@ CSamplerConfig::init(bool useQMC, int qmcDepth) {
             m_qmcSeed[i] = lrand48();
             printf("Seed %i\n", m_qmcSeed[i]);
 
-            // Every possible path depth gets its own qmc seed to prevent
-            // correlation.
+            // Every possible path depth gets its own qmc seed to prevent correlation
         }
     } else {
         m_qmcSeed = nullptr;
@@ -59,6 +58,7 @@ RETURNS:
 */
 SimpleRaytracingPathNode *
 CSamplerConfig::traceNode(
+    Camera *camera,
     VoxelGrid *sceneVoxelGrid,
     Background *sceneBackground,
     SimpleRaytracingPathNode *nextNode,
@@ -76,14 +76,14 @@ CSamplerConfig::traceNode(
 
     if ( lastNode == nullptr ) {
         // Fill in first node
-        if ( !pointSampler->sample(&GLOBAL_camera_mainCamera, sceneVoxelGrid, sceneBackground, nullptr, nullptr, nextNode, x1, x2) ) {
+        if ( !pointSampler->sample(camera, sceneVoxelGrid, sceneBackground, nullptr, nullptr, nextNode, x1, x2) ) {
             logWarning("CSamplerConfig::traceNode", "Point sampler failed");
             return nullptr;
         }
     } else if ( lastNode->m_depth == 0 ) {
         // Fill in second node : dir sampler
         if ( (lastNode->m_depth + 1) < maxDepth ) {
-            if ( !dirSampler->sample(&GLOBAL_camera_mainCamera, sceneVoxelGrid, sceneBackground, nullptr, lastNode, nextNode, x1, x2) ) {
+            if ( !dirSampler->sample(camera, sceneVoxelGrid, sceneBackground, nullptr, lastNode, nextNode, x1, x2) ) {
                 // No point !
                 lastNode->m_rayType = STOPS;
                 return nullptr;
@@ -96,7 +96,7 @@ CSamplerConfig::traceNode(
         // In the middle of a path
         if ( (lastNode->m_depth + 1) < maxDepth ) {
             if ( !surfaceSampler->sample(
-                    &GLOBAL_camera_mainCamera,
+                    camera,
                     sceneVoxelGrid,
                     sceneBackground,
                     lastNode->previous(),
@@ -126,6 +126,7 @@ CSamplerConfig::traceNode(
 
 SimpleRaytracingPathNode *
 CSamplerConfig::tracePath(
+    Camera *camera,
     VoxelGrid *sceneVoxelGrid,
     Background *sceneBackground,
     SimpleRaytracingPathNode *nextNode,
@@ -140,13 +141,13 @@ CSamplerConfig::tracePath(
         getRand(nextNode->previous()->m_depth + 1, &x1, &x2);
     }
 
-    nextNode = traceNode(sceneVoxelGrid, sceneBackground, nextNode, x1, x2, flags);
+    nextNode = traceNode(camera, sceneVoxelGrid, sceneBackground, nextNode, x1, x2, flags);
 
     if ( nextNode != nullptr ) {
         nextNode->ensureNext();
 
         // Recursive call
-        tracePath(sceneVoxelGrid, sceneBackground, nextNode->next(), flags);
+        tracePath(camera, sceneVoxelGrid, sceneBackground, nextNode->next(), flags);
     }
 
     return nextNode;
@@ -154,6 +155,7 @@ CSamplerConfig::tracePath(
 
 double
 pathNodeConnect(
+    Camera *camera,
     SimpleRaytracingPathNode *nodeX,
     SimpleRaytracingPathNode *nodeY,
     CSamplerConfig *eyeConfig,
@@ -193,10 +195,10 @@ pathNodeConnect(
             if ( nodeEP == nullptr ) {
                 // nodeE is the eye -> use the pixel sampler !
                 // -- Which pixel?
-                pdf = eyeConfig->dirSampler->evalPDF(&GLOBAL_camera_mainCamera, nodeX, nodeY);
+                pdf = eyeConfig->dirSampler->evalPDF(camera, nodeX, nodeY);
                 pdfRR = 1.0;
             } else {
-                eyeConfig->surfaceSampler->evalPDF(&GLOBAL_camera_mainCamera, nodeX, nodeY, bsdfFlagsE, &pdf, &pdfRR);
+                eyeConfig->surfaceSampler->evalPDF(camera, nodeX, nodeY, bsdfFlagsE, &pdf, &pdfRR);
             }
         } else {
             pdf = 0.0;
@@ -235,10 +237,10 @@ pathNodeConnect(
 
             if ( nodeLP == nullptr ) {
                 // nodeE is the light point -> use the dir sampler!
-                pdf = lightConfig->dirSampler->evalPDF(&GLOBAL_camera_mainCamera, nodeY, nodeX);
+                pdf = lightConfig->dirSampler->evalPDF(camera, nodeY, nodeX);
                 pdfRR = 1.0;
             } else {
-                lightConfig->surfaceSampler->evalPDF(&GLOBAL_camera_mainCamera, nodeY, nodeX, bsdfFlagsL, &pdf, &pdfRR);
+                lightConfig->surfaceSampler->evalPDF(camera, nodeY, nodeX, bsdfFlagsL, &pdf, &pdfRR);
             }
         } else {
             pdf = 0.0;
@@ -275,13 +277,15 @@ pathNodeConnect(
         nodeX->m_bsdfComp.Clear();
         nodeX->m_bsdfComp.Fill(nodeX->m_bsdfEval, BRDF_DIFFUSE_COMPONENT);
     } else {
-        nodeX->m_bsdfEval =
-                eyeConfig->surfaceSampler->DoBsdfEval(nodeX->m_useBsdf,
-                                                      &nodeX->m_hit,
-                                                      nodeX->m_inBsdf, nodeX->m_outBsdf,
-                                                      &nodeX->m_inDirF, &dirEL,
-                                                      bsdfFlagsE,
-                                                      &nodeX->m_bsdfComp);
+        nodeX->m_bsdfEval = eyeConfig->surfaceSampler->DoBsdfEval(
+            nodeX->m_useBsdf,
+            &nodeX->m_hit,
+            nodeX->m_inBsdf,
+            nodeX->m_outBsdf,
+            &nodeX->m_inDirF,
+            &dirEL,
+            bsdfFlagsE,
+            &nodeX->m_bsdfComp);
     }
 
     // bsdf(LP->L->E)  (reciprocity assumed !)

@@ -15,6 +15,7 @@ RayTracingStochasticState GLOBAL_raytracing_state;
 
 static ColorRgb
 stochasticRaytracerGetRadiance(
+    Camera *camera,
     VoxelGrid *sceneVoxelGrid,
     Background *sceneBackground,
     SimpleRaytracingPathNode *thisNode,
@@ -25,6 +26,7 @@ stochasticRaytracerGetRadiance(
 
 static ColorRgb
 stochasticRaytracerGetScatteredRadiance(
+    Camera *camera,
     VoxelGrid *sceneVoxelGrid,
     Background * sceneBackground,
     SimpleRaytracingPathNode *thisNode,
@@ -118,9 +120,9 @@ stochasticRaytracerGetScatteredRadiance(
                     // Get the incoming radiance
                     if ( siCurrent == -1 ) {
                         // Storage bounce
-                        radiance = stochasticRaytracerGetRadiance(sceneVoxelGrid, sceneBackground, &newNode, config, READ_NOW, nrSamples, context);
+                        radiance = stochasticRaytracerGetRadiance(camera, sceneVoxelGrid, sceneBackground, &newNode, config, READ_NOW, nrSamples, context);
                     } else {
-                        radiance = stochasticRaytracerGetRadiance(sceneVoxelGrid, sceneBackground, &newNode, config, readout, nrSamples, context);
+                        radiance = stochasticRaytracerGetRadiance(camera, sceneVoxelGrid, sceneBackground, &newNode, config, readout, nrSamples, context);
                     }
 
                     // Frame coherent & correlated sampling
@@ -240,6 +242,7 @@ srGetDirectRadiance(
                             if ( doSi ) {
                                 // Connect using correct flags
                                 geom = pathNodeConnect(
+                                    &GLOBAL_camera_mainCamera,
                                 prevNode,
                                 &lightNode,
                                 &config->samplerConfig,
@@ -305,6 +308,7 @@ srGetDirectRadiance(
 
 static ColorRgb
 stochasticRaytracerGetRadiance(
+    Camera *camera,
     VoxelGrid *sceneVoxelGrid,
     Background *sceneBackground,
     SimpleRaytracingPathNode *thisNode,
@@ -412,7 +416,7 @@ stochasticRaytracerGetRadiance(
         result.add(result, radiance);
 
         // Scattered light
-        radiance = stochasticRaytracerGetScatteredRadiance(sceneVoxelGrid, sceneBackground, thisNode, config, readout, context);
+        radiance = stochasticRaytracerGetScatteredRadiance(camera, sceneVoxelGrid, sceneBackground, thisNode, config, readout, context);
         result.add(result, radiance);
 
         // Emitted Light
@@ -520,7 +524,7 @@ calcPixel(
                 config->seedConfig.save(pixelNode.m_depth);
             }
 
-            col = stochasticRaytracerGetRadiance(sceneVoxelGrid, sceneBackground, &pixelNode, config, config->initialReadout,
+            col = stochasticRaytracerGetRadiance(camera, sceneVoxelGrid, sceneBackground, &pixelNode, config, config->initialReadout,
                                                  config->samplesPerPixel, context);
 
             // Frame coherent & correlated sampling

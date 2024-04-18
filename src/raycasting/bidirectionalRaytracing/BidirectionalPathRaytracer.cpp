@@ -304,11 +304,12 @@ handlePathX0(BidirectionalPathTracingConfiguration *config, CBiPath *path) {
 
 ColorRgb
 computeNeFluxEstimate(
-        BidirectionalPathTracingConfiguration *config,
-        CBiPath *path,
-        float *pPdf = nullptr,
-        float *pWeight = nullptr,
-        ColorRgb *fRad = nullptr)
+    Camera *camera,
+    BidirectionalPathTracingConfiguration *config,
+    CBiPath *path,
+    float *pPdf = nullptr,
+    float *pWeight = nullptr,
+    ColorRgb *fRad = nullptr)
 {
     SimpleRaytracingPathNode *eyePrevNode;
     SimpleRaytracingPathNode *lightPrevNode;
@@ -363,7 +364,7 @@ computeNeFluxEstimate(
 
     // Connect the sub-paths
     path->m_geomConnect =
-            pathNodeConnect(eyeEndNode, lightEndNode,
+            pathNodeConnect(camera, eyeEndNode, lightEndNode,
                             &config->eyeConfig, &config->lightConfig,
                             CONNECT_EL | CONNECT_LE | FILL_OTHER_PDF,
                             BSDF_ALL_COMPONENTS, BSDF_ALL_COMPONENTS, &path->m_dirEL);
@@ -413,6 +414,7 @@ light size >= 1
 */
 static void
 handlePathXx(
+    Camera *camera,
     VoxelGrid *sceneWorldVoxelGrid,
     Background *sceneBackground,
     BidirectionalPathTracingConfiguration *config,
@@ -477,7 +479,7 @@ handlePathXx(
     }
 
     if ( pathNodesVisible(sceneWorldVoxelGrid, path->m_eyeEndNode, path->m_lightEndNode) ) {
-        f = computeNeFluxEstimate(config, path, &pdf, &weight, &fRad);
+        f = computeNeFluxEstimate(camera, config, path, &pdf, &weight, &fRad);
 
         float factor = (float)config->fluxToRadFactor / (float)config->baseConfig->samplesPerPixel;
         f.scale(factor);
@@ -536,7 +538,7 @@ handlePath1X(
         float weight;
 
         // Visible !
-        f = computeNeFluxEstimate(config, path, &pdf, &weight, &fRad);
+        f = computeNeFluxEstimate(camera, config, path, &pdf, &weight, &fRad);
 
         config->screen->getPixel(pixX, pixY, &nx, &ny);
 
@@ -626,7 +628,7 @@ bpCombinePaths(
                 path.m_eyeEndNode = eyeEndNode;
                 path.m_lightSize = lightSize;
                 path.m_lightEndNode = lightEndNode;
-                handlePathXx(sceneVoxelGrid, sceneBackground, config, &path);
+                handlePathXx(camera, sceneVoxelGrid, sceneBackground, config, &path);
             } else {
                 path.m_eyeSize = eyeSize;
                 path.m_eyeEndNode = eyeEndNode;
@@ -709,7 +711,7 @@ bpCalcPixel(
 
             if ( config->eyeConfig.dirSampler->sample(&GLOBAL_camera_mainCamera, sceneVoxelGrid, sceneBackground, nullptr, config->eyePath, pixNode, x1, x2) ) {
                 pixNode->assignBsdfAndNormal();
-                config->eyeConfig.tracePath(sceneVoxelGrid, sceneBackground, nextNode);
+                config->eyeConfig.tracePath(camera, sceneVoxelGrid, sceneBackground, nextNode);
             }
         } else {
             config->eyePath->m_rayType = STOPS;
@@ -717,7 +719,7 @@ bpCalcPixel(
 
         // Generate a light path
         if ( config->lightConfig.maxDepth > 0 ) {
-            config->lightPath = config->lightConfig.tracePath(sceneVoxelGrid, sceneBackground, config->lightPath);
+            config->lightPath = config->lightConfig.tracePath(camera, sceneVoxelGrid, sceneBackground, config->lightPath);
         } else {
             // Normally this is already so, so no delete necessary ?!
             config->lightPath = nullptr;

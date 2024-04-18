@@ -178,7 +178,11 @@ PhotonMapRadianceMethod::initialize(
 Adapted from bi-directional path, this is a bit overkill for here
 */
 static ColorRgb
-photonMapDoComputePixelFluxEstimate(PhotonMapConfig *config, RadianceMethod * /*context*/) {
+photonMapDoComputePixelFluxEstimate(
+    Camera *camera,
+    PhotonMapConfig *config,
+    RadianceMethod * /*context*/)
+{
     CBiPath *bp = &config->biPath;
     SimpleRaytracingPathNode *eyePrevNode;
     SimpleRaytracingPathNode *lightPrevNode;
@@ -229,7 +233,7 @@ photonMapDoComputePixelFluxEstimate(PhotonMapConfig *config, RadianceMethod * /*
 
     // Connect the sub-paths
     bp->m_geomConnect =
-            pathNodeConnect(eyeEndNode, lightEndNode,
+            pathNodeConnect(camera, eyeEndNode, lightEndNode,
                             &config->eyeConfig, &config->lightConfig,
                             CONNECT_EL | CONNECT_LE,
                             BSDF_ALL_COMPONENTS, BSDF_ALL_COMPONENTS, &bp->m_dirEL);
@@ -302,7 +306,7 @@ photonMapDoScreenNEE(
             &pixX,
             &pixY) ) {
         // Visible !
-        f = photonMapDoComputePixelFluxEstimate(config, context);
+        f = photonMapDoComputePixelFluxEstimate(camera, config, context);
 
         config->screen->getPixel(pixX, pixY, &nx, &ny);
 
@@ -327,9 +331,11 @@ photonMapDoScreenNEE(
 Store a photon. Some acceptance tests are performed first
 */
 bool
-photonMapDoPhotonStore(SimpleRaytracingPathNode *node, ColorRgb power) {
-    //float scatteredPower;
-    //COLOR col;
+photonMapDoPhotonStore(
+    Camera *camera,
+    SimpleRaytracingPathNode *node,
+    ColorRgb power)
+{
     if ( node->m_hit.patch && node->m_hit.patch->material ) {
         // Only add photons on surfaces with a certain reflection
         // coefficient
@@ -355,7 +361,7 @@ photonMapDoPhotonStore(SimpleRaytracingPathNode *node, ColorRgb power) {
                     reqDensity = GLOBAL_photonMap_state.constantRD;
                 } else {
                     reqDensity = GLOBAL_photonMap_config.currentImpMap->GetRequiredDensity(
-                        &GLOBAL_camera_mainCamera,
+                        camera,
                         node->m_hit.point,
                         node->m_hit.normal);
                 }
@@ -404,7 +410,7 @@ photonMapHandlePath(
         if ( config->currentMap == config->globalMap ) {
             if ( bp->m_lightSize > 1 ) {
                 // Store
-                if ( photonMapDoPhotonStore(currentNode, accPower) ) {
+                if ( photonMapDoPhotonStore(camera, currentNode, accPower) ) {
                     // Screen next event estimation for testing
 
                     bp->m_lightEndNode = currentNode;
@@ -416,7 +422,7 @@ photonMapHandlePath(
             if ( bp->m_lightSize > 2 ) {
                 // Store
 
-                if ( photonMapDoPhotonStore(currentNode, accPower) ) {
+                if ( photonMapDoPhotonStore(camera, currentNode, accPower) ) {
                     // Screen next event estimation for testing
 
                     bp->m_lightEndNode = currentNode;
@@ -440,11 +446,12 @@ photonMapHandlePath(
 
 static void
 photonMapTracePath(
+    Camera *camera,
     VoxelGrid *sceneVoxelGrid,
     Background *sceneBackground,
     PhotonMapConfig *config,
     BSDF_FLAGS bsdfFlags) {
-    config->biPath.m_eyePath = config->eyeConfig.tracePath(sceneVoxelGrid, sceneBackground, config->biPath.m_eyePath);
+    config->biPath.m_eyePath = config->eyeConfig.tracePath(camera, sceneVoxelGrid, sceneBackground, config->biPath.m_eyePath);
 
     // Use qmc for light sampling
     SimpleRaytracingPathNode *path = config->biPath.m_lightPath;
@@ -453,7 +460,7 @@ photonMapTracePath(
     double x1 = drand48(); //nrs[0] * RECIP;
     double x2 = drand48(); //nrs[1] * RECIP;
 
-    path = config->lightConfig.traceNode(sceneVoxelGrid, sceneBackground, path, x1, x2, bsdfFlags);
+    path = config->lightConfig.traceNode(camera, sceneVoxelGrid, sceneBackground, path, x1, x2, bsdfFlags);
     if ( path == nullptr ) {
         return;
     }
@@ -467,10 +474,10 @@ photonMapTracePath(
     x1 = drand48(); // nrs[2] * RECIP;
     x2 = drand48(); // nrs[3] * RECIP; // 4D Niederreiter...
 
-    if ( config->lightConfig.traceNode(sceneVoxelGrid, sceneBackground, node, x1, x2, bsdfFlags) ) {
+    if ( config->lightConfig.traceNode(camera, sceneVoxelGrid, sceneBackground, node, x1, x2, bsdfFlags) ) {
         // Successful trace
         node->ensureNext();
-        config->lightConfig.tracePath(sceneVoxelGrid, sceneBackground, node->next(), bsdfFlags);
+        config->lightConfig.tracePath(camera, sceneVoxelGrid, sceneBackground, node->next(), bsdfFlags);
     }
 }
 
@@ -486,7 +493,7 @@ photonMapTracePaths(
 
     // Fill in config structures
     for ( i = 0; i < numberOfPaths; i++ ) {
-        photonMapTracePath(sceneWorldVoxelGrid, sceneBackground, &GLOBAL_photonMap_config, bsdfFlags);
+        photonMapTracePath(camera, sceneWorldVoxelGrid, sceneBackground, &GLOBAL_photonMap_config, bsdfFlags);
         photonMapHandlePath(camera, sceneWorldVoxelGrid, &GLOBAL_photonMap_config, context);
     }
 }
@@ -656,7 +663,12 @@ photonMapGetNodeCRadiance(SimpleRaytracingPathNode *node) {
 }
 
 ColorRgb
-PhotonMapRadianceMethod::getRadiance(Patch *patch, double u, double v, Vector3D dir) {
+PhotonMapRadianceMethod::getRadiance(
+    Patch *patch,
+    double u,
+    double v,
+    Vector3D dir)
+{
     RayHit hit;
     Vector3D point;
     BSDF *bsdf = patch->material->bsdf;

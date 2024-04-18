@@ -348,7 +348,7 @@ monteCarloRadiosityUpdateViewImportance(
         monteCarloRadiosityReInitImportance(GLOBAL_stochasticRaytracing_hierarchy.topCluster);
     }
 
-    GLOBAL_camera_mainCamera.changed = false; // Indicate that direct importance has been computed for this view already
+    camera->changed = false; // Indicate that direct importance has been computed for this view already
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceTracedRays = 0; // Start over
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceUpdated = true;
 }
@@ -487,7 +487,7 @@ monteCarloRadiosityPreStep(
     if ( !GLOBAL_stochasticRaytracing_monteCarloRadiosityState.inited ) {
         monteCarloRadiosityReInit(camera, scenePatches, sceneGeometries, clusteredWorldGeometry);
     }
-    if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceDriven && GLOBAL_camera_mainCamera.changed ) {
+    if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceDriven && camera->changed ) {
         monteCarloRadiosityUpdateViewImportance(camera, scenePatches, clusteredWorldGeometry);
     }
 
