@@ -32,7 +32,7 @@ class ScreenBuffer {
     bool m_RGBImage; // Indicates an RGB image ( = no radiance conversion!)
 
   public:
-    explicit ScreenBuffer(Camera *cam); // Also calls mainInit()
+    explicit ScreenBuffer(Camera *camera); // Also calls mainInit()
     ~ScreenBuffer();
     void init(Camera *cam = nullptr);
     void setRgbImage(bool isRGB);
@@ -57,9 +57,9 @@ class ScreenBuffer {
     void set(int x, int y, ColorRgb radiance);
     ColorRgb getBiLinear(float x, float y);
     void render();
-    void renderScanline(int line);
+    void renderScanline(int y);
     void writeFile(ImageOutputHandle *ip);
-    void writeFile(char *filename);
+    void writeFile(char *fileName);
     void add(int x, int y, ColorRgb radiance);
     void setFactor(float factor);
     void setAddScaleFactor(float factor);

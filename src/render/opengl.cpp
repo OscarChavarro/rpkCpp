@@ -35,45 +35,45 @@ openGlRenderRayTraced(int (*reDisplayCallback)()) {
     }
 }
 
-void
-openGlRenderClearWindow() {
-    glClearColor(GLOBAL_camera_mainCamera.background.r, GLOBAL_camera_mainCamera.background.g, GLOBAL_camera_mainCamera.background.b, 0.0);
+static void
+openGlRenderClearWindow(Camera *camera) {
+    glClearColor(camera->background.r, camera->background.g, camera->background.b, 0.0);
     glClearDepth(1.0);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
 static void
-openGlRenderSetCamera(java::ArrayList<Geometry *> *sceneGeometries) {
-    openGlRenderClearWindow();
+openGlRenderSetCamera(Camera *camera, java::ArrayList<Geometry *> *sceneGeometries) {
+    openGlRenderClearWindow(camera);
 
     // Use the full viewport
-    glViewport(0, 0, GLOBAL_camera_mainCamera.xSize, GLOBAL_camera_mainCamera.ySize);
+    glViewport(0, 0, camera->xSize, camera->ySize);
 
     // Determine distance to front- and back-clipping plane
-    renderGetNearFar(&GLOBAL_camera_mainCamera.near, &GLOBAL_camera_mainCamera.far, sceneGeometries);
+    renderGetNearFar(&camera->near, &camera->far, sceneGeometries);
 
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    gluPerspective(GLOBAL_camera_mainCamera.verticalFov * 2.0,
-                   (float)GLOBAL_camera_mainCamera.xSize / (float)GLOBAL_camera_mainCamera.ySize,
-                   GLOBAL_camera_mainCamera.near / 10,
-                   GLOBAL_camera_mainCamera.far * 10);
+    gluPerspective(camera->verticalFov * 2.0,
+                   (float)camera->xSize / (float)camera->ySize,
+                   camera->near / 10,
+                   camera->far * 10);
 
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
-    gluLookAt(GLOBAL_camera_mainCamera.eyePosition.x, GLOBAL_camera_mainCamera.eyePosition.y, GLOBAL_camera_mainCamera.eyePosition.z,
-              GLOBAL_camera_mainCamera.lookPosition.x, GLOBAL_camera_mainCamera.lookPosition.y, GLOBAL_camera_mainCamera.lookPosition.z,
-              GLOBAL_camera_mainCamera.upDirection.x, GLOBAL_camera_mainCamera.upDirection.y, GLOBAL_camera_mainCamera.upDirection.z);
+    gluLookAt(camera->eyePosition.x, camera->eyePosition.y, camera->eyePosition.z,
+              camera->lookPosition.x, camera->lookPosition.y, camera->lookPosition.z,
+              camera->upDirection.x, camera->upDirection.y, camera->upDirection.z);
 }
 
 static void
-openGlInitState() {
+openGlInitState(Camera *camera) {
     glDepthFunc(GL_LEQUAL);
     glEnable(GL_DEPTH_TEST);
 
     glDrawBuffer(GL_FRONT_AND_BACK);
 
-    openGlRenderClearWindow();
+    openGlRenderClearWindow(camera);
     glFinish();
 
     globalDisplayListId = -1;
@@ -83,7 +83,7 @@ openGlInitState() {
 Creates an offscreen window for rendering
 */
 void
-openGlMesaRenderCreateOffscreenWindow(int width, int height) {
+openGlMesaRenderCreateOffscreenWindow(Camera *camera, int width, int height) {
     GLubyte *imageBuffer = (GLubyte *)malloc(width * height * sizeof(GLubyte) * 4);
 
     OSMesaContext osMesaContext = OSMesaCreateContext(OSMESA_RGBA, nullptr);
@@ -95,7 +95,7 @@ openGlMesaRenderCreateOffscreenWindow(int width, int height) {
         logFatal(1, nullptr, "Couldn't bind Mesa offscreen rendering context to image buffer of size %d x %d", width, height);
     }
 
-    openGlInitState();
+    openGlInitState(camera);
     OSMesaDestroyContext(osMesaContext);
     free(imageBuffer);
 }
@@ -104,7 +104,7 @@ openGlMesaRenderCreateOffscreenWindow(int width, int height) {
 Renders a line from point p to point q, for eg debugging
 */
 void
-openGlRenderLine(Vector3D *x, Vector3D *y) {
+openGlRenderLine(Camera *camera, Vector3D *x, Vector3D *y) {
     Vector3D X;
     Vector3D Y;
     Vector3D dir;
@@ -112,11 +112,11 @@ openGlRenderLine(Vector3D *x, Vector3D *y) {
     glBegin(GL_LINES);
 
     // Move the line a bit closer to the eye-point to avoid Z buffer artefacts
-    vectorSubtract(GLOBAL_camera_mainCamera.eyePosition, *x, dir);
+    vectorSubtract(camera->eyePosition, *x, dir);
     vectorSumScaled(*x, 0.01, dir, X);
     glVertex3fv((GLfloat *) &X);
 
-    vectorSubtract(GLOBAL_camera_mainCamera.eyePosition, *y, dir);
+    vectorSubtract(camera->eyePosition, *y, dir);
     vectorSumScaled(*y, 0.01, dir, Y);
     glVertex3fv((GLfloat *) &Y);
 
@@ -241,7 +241,7 @@ openGlRenderPatchSmooth(Patch *patch) {
 Renders the patch outline in the current color
 */
 void
-openGlRenderPatchOutline(Patch *patch) {
+openGlRenderPatchOutline(Camera *camera, Patch *patch) {
     int i;
     Vector3D tmp;
     Vector3D dir;
@@ -249,7 +249,7 @@ openGlRenderPatchOutline(Patch *patch) {
     glBegin(GL_LINE_LOOP);
     for ( i = 0; i < patch->numberOfVertices; i++ ) {
         // Move the outlines a bit closer to the eye-point to avoid Z buffer artefacts
-        vectorSubtract(GLOBAL_camera_mainCamera.eyePosition, *patch->vertex[i]->point, dir);
+        vectorSubtract(camera->eyePosition, *patch->vertex[i]->point, dir);
         vectorSumScaled(*patch->vertex[i]->point, 0.01, dir, tmp);
         glVertex3fv((GLfloat *) &tmp);
     }
@@ -260,7 +260,7 @@ openGlRenderPatchOutline(Patch *patch) {
 Renders the all the patches using default colors
 */
 void
-openGlRenderPatch(Patch *patch, Camera * /*camera*/) {
+openGlRenderPatch(Patch *patch, Camera *camera) {
     if ( !GLOBAL_render_renderOptions.noShading ) {
         if ( GLOBAL_render_renderOptions.smoothShading ) {
             openGlRenderPatchSmooth(patch);
@@ -270,10 +270,10 @@ openGlRenderPatch(Patch *patch, Camera * /*camera*/) {
     }
 
     if ( GLOBAL_render_renderOptions.drawOutlines &&
-         (vectorDotProduct(patch->normal, GLOBAL_camera_mainCamera.eyePosition) + patch->planeConstant > EPSILON
+         (vectorDotProduct(patch->normal, camera->eyePosition) + patch->planeConstant > EPSILON
           || GLOBAL_render_renderOptions.useDisplayLists) ) {
         openGlRenderSetColor(&GLOBAL_render_renderOptions.outline_color);
-        openGlRenderPatchOutline(patch);
+        openGlRenderPatchOutline(camera, patch);
     }
 }
 
@@ -310,10 +310,9 @@ openGlRenderOctreeLeaf(
 }
 
 static int
-openGlViewCullBounds(BoundingBox *bounds) {
+openGlViewCullBounds(Camera *camera, BoundingBox *bounds) {
     for ( int i = 0; i < NUMBER_OF_VIEW_PLANES; i++ ) {
-        if ( bounds->behindPlane(&GLOBAL_camera_mainCamera.viewPlanes[i].normal,
-                         GLOBAL_camera_mainCamera.viewPlanes[i].d) ) {
+        if ( bounds->behindPlane(&camera->viewPlanes[i].normal, camera->viewPlanes[i].d) ) {
             return true;
         }
     }
@@ -372,13 +371,13 @@ openGlRenderOctreeNonLeaf(
 
     // cull the non-leaf octree children geoms
     for ( i = 0; i < n; i++ ) {
-        if ( openGlViewCullBounds(&octree_children[i].geom->boundingBox) ) {
+        if ( openGlViewCullBounds(camera, &octree_children[i].geom->boundingBox) ) {
             octree_children[i].geom = nullptr; // culled
             octree_children[i].dist = HUGE;
         } else {
             // Not culled, compute distance from eye to midpoint of child
             octree_children[i].dist = openGlBoundsDistance2(
-                GLOBAL_camera_mainCamera.eyePosition, octree_children[i].geom->boundingBox.coordinates);
+                camera->eyePosition, octree_children[i].geom->boundingBox.coordinates);
         }
     }
 
@@ -509,7 +508,7 @@ openGlRenderRadiance(
         glShadeModel(GL_FLAT);
     }
 
-    openGlRenderSetCamera(sceneGeometries);
+    openGlRenderSetCamera(camera, sceneGeometries);
 
     if ( GLOBAL_render_renderOptions.backfaceCulling ) {
         glEnable(GL_CULL_FACE);
@@ -558,7 +557,7 @@ openGlRenderScene(
 
     canvasPushMode();
 
-    if ( GLOBAL_camera_mainCamera.changed ) {
+    if ( camera->changed ) {
         GLOBAL_render_renderOptions.renderRayTracedImage = false;
     }
 
@@ -581,7 +580,7 @@ Renders an image of m lines of n pixels at column x on row y (= lower
 left corner of image, relative to the lower left corner of the window)
 */
 void
-openGlRenderPixels(int x, int y, int width, int height, ColorRgb *rgb) {
+openGlRenderPixels(Camera *camera, int x, int y, int width, int height, ColorRgb *rgb) {
     int rowLength;
 
     // Length of one row of RGBA image data rounded up to a multiple of 8
@@ -609,7 +608,7 @@ openGlRenderPixels(int x, int y, int width, int height, ColorRgb *rgb) {
     glMatrixMode(GL_PROJECTION);
     glPushMatrix();
     glLoadIdentity();
-    glOrtho(0, GLOBAL_camera_mainCamera.xSize, 0, GLOBAL_camera_mainCamera.ySize, -1.0, 1.0);
+    glOrtho(0, camera->xSize, 0, camera->ySize, -1.0, 1.0);
 
     glDisable(GL_DEPTH_TEST);
 

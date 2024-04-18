@@ -6,7 +6,7 @@
 #include "scene/Camera.h"
 
 extern void openGlRenderSetLineWidth(float width);
-extern void openGlRenderLine(Vector3D *x, Vector3D *y);
+extern void openGlRenderLine(Camera *camera, Vector3D *x, Vector3D *y);
 extern void openGlRenderSetColor(ColorRgb *rgb);
 
 extern void
@@ -25,11 +25,11 @@ openGlRenderScene(
     int (*reDisplayCallback)(),
     RadianceMethod *context);
 
-extern void openGlMesaRenderCreateOffscreenWindow(int width, int height);
-extern void openGlRenderPatchOutline(Patch *patch);
+extern void openGlMesaRenderCreateOffscreenWindow(Camera *camera, int width, int height);
+extern void openGlRenderPatchOutline(Camera *camera, Patch *patch);
 extern void openGlRenderPolygonFlat(int numberOfVertices, Vector3D *vertices);
 extern void openGlRenderPolygonGouraud(int numberOfVertices, Vector3D *vertices, ColorRgb *verticesColors);
-extern void openGlRenderPixels(int x, int y, int width, int height, ColorRgb *rgb);
+extern void openGlRenderPixels(Camera *camera, int x, int y, int width, int height, ColorRgb *rgb);
 extern void openGlRenderPatch(Patch *patch, Camera *camera);
 extern void openGlRenderNewDisplayList(Geometry *clusteredWorldGeometry);
 

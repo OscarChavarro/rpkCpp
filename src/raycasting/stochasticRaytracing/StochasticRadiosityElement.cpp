@@ -763,12 +763,12 @@ monteCarloRadiosityRegularSubdivideTriangle(StochasticRadiosityElement *element)
     monteCarloRadiosityCreateSurfaceSubElement(element, 3, m1, m2, m0, nullptr);
 
     openGlRenderSetColor(&GLOBAL_render_renderOptions.outline_color);
-    openGlRenderLine(v0->point, v1->point);
-    openGlRenderLine(v1->point, v2->point);
-    openGlRenderLine(v2->point, v0->point);
-    openGlRenderLine(m0->point, m1->point);
-    openGlRenderLine(m1->point, m2->point);
-    openGlRenderLine(m2->point, m0->point);
+    openGlRenderLine(&GLOBAL_camera_mainCamera, v0->point, v1->point);
+    openGlRenderLine(&GLOBAL_camera_mainCamera, v1->point, v2->point);
+    openGlRenderLine(&GLOBAL_camera_mainCamera, v2->point, v0->point);
+    openGlRenderLine(&GLOBAL_camera_mainCamera, m0->point, m1->point);
+    openGlRenderLine(&GLOBAL_camera_mainCamera, m1->point, m2->point);
+    openGlRenderLine(&GLOBAL_camera_mainCamera, m2->point, m0->point);
 
     return (StochasticRadiosityElement **)element->regularSubElements;
 }
@@ -793,12 +793,12 @@ monteCarloRadiosityRegularSubdivideQuad(StochasticRadiosityElement *element) {
     monteCarloRadiosityCreateSurfaceSubElement(element, 3, mm, m1, v2, m2);
 
     openGlRenderSetColor(&GLOBAL_render_renderOptions.outline_color);
-    openGlRenderLine(v0->point, v1->point);
-    openGlRenderLine(v1->point, v2->point);
-    openGlRenderLine(v2->point, v3->point);
-    openGlRenderLine(v3->point, v0->point);
-    openGlRenderLine(m0->point, m2->point);
-    openGlRenderLine(m1->point, m3->point);
+    openGlRenderLine(&GLOBAL_camera_mainCamera, v0->point, v1->point);
+    openGlRenderLine(&GLOBAL_camera_mainCamera, v1->point, v2->point);
+    openGlRenderLine(&GLOBAL_camera_mainCamera, v2->point, v3->point);
+    openGlRenderLine(&GLOBAL_camera_mainCamera, v3->point, v0->point);
+    openGlRenderLine(&GLOBAL_camera_mainCamera, m0->point, m2->point);
+    openGlRenderLine(&GLOBAL_camera_mainCamera, m1->point, m3->point);
 
     return (StochasticRadiosityElement **)element->regularSubElements;
 }

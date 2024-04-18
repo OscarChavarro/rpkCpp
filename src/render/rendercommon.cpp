@@ -179,18 +179,18 @@ renderBounds(BoundingBox bounds) {
     p[6].set(bounds.coordinates[MIN_X], bounds.coordinates[MAX_Y], bounds.coordinates[MAX_Z]);
     p[7].set(bounds.coordinates[MAX_X], bounds.coordinates[MAX_Y], bounds.coordinates[MAX_Z]);
 
-    openGlRenderLine(&p[0], &p[1]);
-    openGlRenderLine(&p[1], &p[3]);
-    openGlRenderLine(&p[3], &p[2]);
-    openGlRenderLine(&p[2], &p[0]);
-    openGlRenderLine(&p[4], &p[5]);
-    openGlRenderLine(&p[5], &p[7]);
-    openGlRenderLine(&p[7], &p[6]);
-    openGlRenderLine(&p[6], &p[4]);
-    openGlRenderLine(&p[0], &p[4]);
-    openGlRenderLine(&p[1], &p[5]);
-    openGlRenderLine(&p[2], &p[6]);
-    openGlRenderLine(&p[3], &p[7]);
+    openGlRenderLine(&GLOBAL_camera_mainCamera, &p[0], &p[1]);
+    openGlRenderLine(&GLOBAL_camera_mainCamera, &p[1], &p[3]);
+    openGlRenderLine(&GLOBAL_camera_mainCamera, &p[3], &p[2]);
+    openGlRenderLine(&GLOBAL_camera_mainCamera, &p[2], &p[0]);
+    openGlRenderLine(&GLOBAL_camera_mainCamera, &p[4], &p[5]);
+    openGlRenderLine(&GLOBAL_camera_mainCamera, &p[5], &p[7]);
+    openGlRenderLine(&GLOBAL_camera_mainCamera, &p[7], &p[6]);
+    openGlRenderLine(&GLOBAL_camera_mainCamera, &p[6], &p[4]);
+    openGlRenderLine(&GLOBAL_camera_mainCamera, &p[0], &p[4]);
+    openGlRenderLine(&GLOBAL_camera_mainCamera, &p[1], &p[5]);
+    openGlRenderLine(&GLOBAL_camera_mainCamera, &p[2], &p[6]);
+    openGlRenderLine(&GLOBAL_camera_mainCamera, &p[3], &p[7]);
 }
 
 void

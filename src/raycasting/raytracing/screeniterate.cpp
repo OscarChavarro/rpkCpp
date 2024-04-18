@@ -15,11 +15,21 @@ class ScreenIterateState {
   public:
     clock_t lastTime;
     unsigned char wakeUp;
+
+    ScreenIterateState();
 };
+
+ScreenIterateState::ScreenIterateState():
+    lastTime(),
+    wakeUp()
+{
+}
 
 static ScreenIterateState iState;
 
-/* for counting how much CPU time was used for the computations */
+/**
+For counting how much CPU time was used for the computations
+*/
 static void
 screenIterateUpdateCpuSecs() {
     GLOBAL_raytracer_totalTime += (double)clock() - (double)iState.lastTime;
@@ -69,7 +79,7 @@ screenIterateSequential(
             GLOBAL_raytracer_pixelCount++;
         }
 
-        openGlRenderPixels(0, height - i - 1, width, 1, rgb);
+        openGlRenderPixels(&GLOBAL_camera_mainCamera, 0, height - i - 1, width, 1, rgb);
     }
 
     delete[] rgb;
@@ -170,7 +180,7 @@ screenIterateProgressive(
                     if ( iState.wakeUp & WAKE_UP_RENDER) {
                         iState.wakeUp &= ~WAKE_UP_RENDER;
                         if ( (yMax > 0) && (yMax > yMin) ) {
-                            openGlRenderPixels(0, yMin, width, yMax - yMin, rgb + yMin * width);
+                            openGlRenderPixels(&GLOBAL_camera_mainCamera, 0, yMin, width, yMax - yMin, rgb + yMin * width);
                         }
                         yMin = intMax(0, yMax - stepSize);
                     }
@@ -182,8 +192,7 @@ screenIterateProgressive(
 
             if ( yMax >= height ) {
                 if ( (yMax > yMin) ) {
-                    openGlRenderPixels(0, yMin, width, yMax - yMin,
-                                       rgb + yMin * width);
+                    openGlRenderPixels(&GLOBAL_camera_mainCamera, 0, yMin, width, yMax - yMin, rgb + yMin * width);
                 }
                 yMax = -1;
             }

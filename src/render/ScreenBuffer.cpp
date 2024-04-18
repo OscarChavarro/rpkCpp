@@ -14,12 +14,12 @@ ColorRgb GLOBAL_material_green = {0.0, 1.0, 0.0};
 
 /**
 Constructor : make an screen buffer from a camera definition
-If (cam == nullptr) the current camera (GLOBAL_camera_mainCamera) is taken
+If (camera == nullptr) the current camera (GLOBAL_camera_mainCamera) is taken
 */
-ScreenBuffer::ScreenBuffer(Camera *cam) {
+ScreenBuffer::ScreenBuffer(Camera *camera) {
     m_Radiance = nullptr;
     m_RGB = nullptr;
-    init(cam);
+    init(camera);
     m_Synced = false;
     m_Factor = 1.0;
     m_AddFactor = 1.0;
@@ -204,7 +204,7 @@ ScreenBuffer::render() {
         sync();
     }
 
-    openGlRenderPixels(0, 0, camera.xSize, camera.ySize, m_RGB);
+    openGlRenderPixels(&camera, 0, 0, camera.xSize, camera.ySize, m_RGB);
 }
 
 void
@@ -235,15 +235,15 @@ ScreenBuffer::writeFile(ImageOutputHandle *ip) {
 }
 
 void
-ScreenBuffer::writeFile(char *filename) {
+ScreenBuffer::writeFile(char *fileName) {
     int isPipe;
-    FILE *fp = openFileCompressWrapper(filename, "w", &isPipe);
+    FILE *fp = openFileCompressWrapper(fileName, "w", &isPipe);
     if ( !fp ) {
         return;
     }
 
     ImageOutputHandle *ip =
-            createRadianceImageOutputHandle(filename, fp, isPipe,
+            createRadianceImageOutputHandle(fileName, fp, isPipe,
                                             camera.xSize, camera.ySize,
                                             (float) GLOBAL_statistics.referenceLuminance / 179.0f);
 
@@ -254,14 +254,14 @@ ScreenBuffer::writeFile(char *filename) {
 }
 
 void
-ScreenBuffer::renderScanline(int i) {
-    i = camera.ySize - i - 1;
+ScreenBuffer::renderScanline(int y) {
+    y = camera.ySize - y - 1;
 
     if ( !m_Synced ) {
-        syncLine(i);
+        syncLine(y);
     }
 
-    openGlRenderPixels(0, i, camera.xSize, 1, &m_RGB[i * camera.xSize]);
+    openGlRenderPixels(&camera, 0, y, camera.xSize, 1, &m_RGB[y * camera.xSize]);
 }
 
 void

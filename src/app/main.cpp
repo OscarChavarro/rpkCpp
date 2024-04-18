@@ -480,7 +480,7 @@ createOffscreenCanvasWindow(
     Geometry *clusteredWorldGeometry,
     RadianceMethod *context)
 {
-    openGlMesaRenderCreateOffscreenWindow(width, height);
+    openGlMesaRenderCreateOffscreenWindow(&GLOBAL_camera_mainCamera, width, height);
 
     // Set correct width and height for the camera
     camera->set(
