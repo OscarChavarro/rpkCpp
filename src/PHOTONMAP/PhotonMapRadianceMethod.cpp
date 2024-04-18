@@ -307,10 +307,10 @@ photonMapDoScreenNEE(
         float factor;
 
         if ( config->currentMap == config->globalMap ) {
-            factor = (computeFluxToRadFactor(nx, ny)
+            factor = (computeFluxToRadFactor(&GLOBAL_camera_mainCamera, nx, ny)
                       / (float) GLOBAL_photonMap_state.totalGPaths);
         } else {
-            factor = (computeFluxToRadFactor(nx, ny)
+            factor = (computeFluxToRadFactor(&GLOBAL_camera_mainCamera, nx, ny)
                       / (float) GLOBAL_photonMap_state.totalCPaths);
         }
 

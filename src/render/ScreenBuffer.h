@@ -34,7 +34,7 @@ class ScreenBuffer {
   public:
     explicit ScreenBuffer(Camera *camera); // Also calls mainInit()
     ~ScreenBuffer();
-    void init(Camera *cam = nullptr);
+    void init(Camera *inCamera);
     void setRgbImage(bool isRGB);
     bool isRgbImage() const;
     void copy(ScreenBuffer *source);
@@ -75,6 +75,6 @@ extern ColorRgb GLOBAL_material_white;
 extern ColorRgb GLOBAL_material_yellow;
 extern ColorRgb GLOBAL_material_green;
 
-extern float computeFluxToRadFactor(int pixX, int pixY);
+extern float computeFluxToRadFactor(Camera *camera, int pixX, int pixY);
 
 #endif

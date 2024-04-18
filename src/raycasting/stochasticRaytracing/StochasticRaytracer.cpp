@@ -541,7 +541,7 @@ calcPixel(
     }
 
     // We have now the FLUX for the pixel (x N), convert it to radiance
-    double factor = (computeFluxToRadFactor(nx, ny) /
+    double factor = (computeFluxToRadFactor(&GLOBAL_camera_mainCamera, nx, ny) /
             (float)config->samplesPerPixel);
 
     result.scale((float)factor);

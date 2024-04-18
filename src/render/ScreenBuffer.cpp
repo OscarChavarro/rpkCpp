@@ -14,7 +14,6 @@ ColorRgb GLOBAL_material_green = {0.0, 1.0, 0.0};
 
 /**
 Constructor : make an screen buffer from a camera definition
-If (camera == nullptr) the current camera (GLOBAL_camera_mainCamera) is taken
 */
 ScreenBuffer::ScreenBuffer(Camera *camera) {
     m_Radiance = nullptr;
@@ -49,22 +48,22 @@ ScreenBuffer::isRgbImage() const {
 }
 
 void
-ScreenBuffer::init(Camera *cam) {
+ScreenBuffer::init(Camera *inCamera) {
     int i;
 
-    if ( cam == nullptr ) {
-        cam = &GLOBAL_camera_mainCamera;
-    } // Use the current camera
+    if ( inCamera == nullptr ) {
+        // Use the current camera
+        inCamera = &GLOBAL_camera_mainCamera;
+    }
 
     if ( (m_Radiance != nullptr) &&
-        ((cam->xSize != camera.xSize) ||
-         (cam->ySize != camera.ySize)) ) {
+        ((inCamera->xSize != camera.xSize) || (inCamera->ySize != camera.ySize)) ) {
         free((char *) m_RGB);
         free((char *) m_Radiance);
         m_Radiance = nullptr;
     }
 
-    camera = *cam;
+    camera = *inCamera;
 
     if ( m_Radiance == nullptr ) {
         m_Radiance = (ColorRgb *)malloc(camera.xSize * camera.ySize * sizeof(ColorRgb));
@@ -379,18 +378,18 @@ ScreenBuffer::getVRes() const {
 }
 
 float
-computeFluxToRadFactor(int pixX, int pixY) {
+computeFluxToRadFactor(Camera *camera, int pixX, int pixY) {
     Vector3D dir;
-    double h = GLOBAL_camera_mainCamera.pixelWidth;
-    double v = GLOBAL_camera_mainCamera.pixelHeight;
+    double h = camera->pixelWidth;
+    double v = camera->pixelHeight;
 
-    double x = -h * GLOBAL_camera_mainCamera.xSize / 2.0 + pixX * h;
-    double y = -v * GLOBAL_camera_mainCamera.ySize / 2.0 + pixY * v;
+    double x = -h * camera->xSize / 2.0 + pixX * h;
+    double y = -v * camera->ySize / 2.0 + pixY * v;
 
     double xSample = x + h * 0.5;  // (pixX, pixY) indicate upper left
     double ySample = y + v * 0.5;
 
-    vectorComb3(GLOBAL_camera_mainCamera.Z, (float)xSample, GLOBAL_camera_mainCamera.X, (float)ySample, GLOBAL_camera_mainCamera.Y,
+    vectorComb3(camera->Z, (float)xSample, camera->X, (float)ySample, camera->Y,
                 dir);
     double distPixel2 = vectorNorm2(dir);
     double distPixel = std::sqrt(distPixel2);
@@ -399,7 +398,7 @@ computeFluxToRadFactor(int pixX, int pixY) {
     double factor = 1.0 / (h * v);
 
     factor *= distPixel2; // r(eye->pixel)^2
-    factor /= std::pow(vectorDotProduct(dir, GLOBAL_camera_mainCamera.Z), 2);  // cos^2
+    factor /= std::pow(vectorDotProduct(dir, camera->Z), 2);  // cos^2
 
     return (float)factor;
 }

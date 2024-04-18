@@ -531,7 +531,7 @@ handlePath1X(
 
         config->screen->getPixel(pixX, pixY, &nx, &ny);
 
-        float factor = (computeFluxToRadFactor(nx, ny) / (float) config->baseConfig->totalSamples);
+        float factor = (computeFluxToRadFactor(&GLOBAL_camera_mainCamera, nx, ny) / (float) config->baseConfig->totalSamples);
         f.scale(factor);
 
         addWithSpikeCheck(config, path, nx, ny, pixX, pixY, f);
@@ -684,7 +684,7 @@ bpCalcPixel(
 
     config->nx = nx;
     config->ny = ny;
-    config->fluxToRadFactor = computeFluxToRadFactor(nx, ny);
+    config->fluxToRadFactor = computeFluxToRadFactor(&GLOBAL_camera_mainCamera, nx, ny);
 
     for ( int i = 0; i < config->baseConfig->samplesPerPixel; i++ ) {
         if ( config->eyeConfig.maxDepth > 1 ) {
