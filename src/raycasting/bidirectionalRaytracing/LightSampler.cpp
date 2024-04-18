@@ -120,10 +120,11 @@ UniformLightSampler::sample(
 
 double
 UniformLightSampler::evalPDF(
-        SimpleRaytracingPathNode */*thisNode*/,
-        SimpleRaytracingPathNode *newNode,
-        BSDF_FLAGS /*flags*/, double * /*pdf*/,
-        double * /*pdfRR*/)
+    Camera *camera,
+    SimpleRaytracingPathNode */*thisNode*/,
+    SimpleRaytracingPathNode *newNode,
+    BSDF_FLAGS /*flags*/, double * /*pdf*/,
+    double * /*pdfRR*/)
 {
     double pdf;
     double pdfdir;
@@ -254,10 +255,11 @@ ImportantLightSampler::sample(
 
 double
 ImportantLightSampler::evalPDF(
-        SimpleRaytracingPathNode *thisNode,
-        SimpleRaytracingPathNode *newNode,
-        BSDF_FLAGS /*flags*/, double * /*pdf*/,
-        double * /*pdfRR*/)
+    Camera *camera,
+    SimpleRaytracingPathNode *thisNode,
+    SimpleRaytracingPathNode *newNode,
+    BSDF_FLAGS /*flags*/, double * /*pdf*/,
+    double * /*pdfRR*/)
 {
     double pdf;
     double pdfdir;

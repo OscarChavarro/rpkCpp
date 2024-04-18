@@ -232,7 +232,7 @@ handlePathX0(BidirectionalPathTracingConfiguration *config, CBiPath *path) {
 
             if ( config->lightConfig.maxDepth > 0 ) {
                 eyeEndNode->m_pdfFromNext =
-                        config->lightConfig.pointSampler->evalPDF(nullptr, eyeEndNode);
+                        config->lightConfig.pointSampler->evalPDF(&GLOBAL_camera_mainCamera, nullptr, eyeEndNode);
                 PNAN(eyeEndNode->m_pdfFromNext);
 
                 eyeEndNode->m_rrPdfFromNext = 1.0; // Light point: no Russian R.
@@ -244,7 +244,7 @@ handlePathX0(BidirectionalPathTracingConfiguration *config, CBiPath *path) {
 
             if ( config->lightConfig.maxDepth > 1 ) {
                 eyePrevNode->m_pdfFromNext =
-                        config->lightConfig.dirSampler->evalPDF(eyeEndNode, eyePrevNode);
+                        config->lightConfig.dirSampler->evalPDF(&GLOBAL_camera_mainCamera, eyeEndNode, eyePrevNode);
                 PNAN(eyePrevNode->m_pdfFromNext);
 
                 eyePrevNode->m_rrPdfFromNext = 1.0;
@@ -256,7 +256,7 @@ handlePathX0(BidirectionalPathTracingConfiguration *config, CBiPath *path) {
             // Compute
             if ((config->baseConfig->sampleImportantLights) && (config->lightConfig.maxDepth > 0)
                 && (path->m_eyeSize > 2) ) {
-                pdfLNE = config->eyeConfig.neSampler->evalPDF(eyePrevNode, eyeEndNode);
+                pdfLNE = config->eyeConfig.neSampler->evalPDF(&GLOBAL_camera_mainCamera, eyePrevNode, eyeEndNode);
             } else {
                 pdfLNE = eyeEndNode->m_pdfFromNext; // same sampling as light path
             }
@@ -461,7 +461,7 @@ handlePathXx(
         oldPdfLNE = path->m_pdfLNE;
         path->m_pdfLNE = newLightNode.m_pdfFromPrev;
         newLightNode.m_pdfFromPrev =
-                config->lightConfig.pointSampler->evalPDF(nullptr, &newLightNode);
+                config->lightConfig.pointSampler->evalPDF(&GLOBAL_camera_mainCamera, nullptr, &newLightNode);
 
         PNAN(newLightNode.m_pdfFromPrev);
         PNAN(path->m_pdfLNE);
@@ -573,7 +573,7 @@ bpCombinePaths(
         // the pdf for it, in order to get correct weights.
         if ( config->baseConfig->sampleImportantLights && config->lightPath->next() ) {
             config->pdfLNE =
-                    config->eyeConfig.neSampler->evalPDF(lightPath->next(), lightPath);
+                    config->eyeConfig.neSampler->evalPDF(&GLOBAL_camera_mainCamera, lightPath->next(), lightPath);
         } else {
             config->pdfLNE = lightPath->m_pdfFromPrev;
         }

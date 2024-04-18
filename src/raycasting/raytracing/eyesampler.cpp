@@ -61,9 +61,13 @@ CEyeSampler::sample(
     return true;
 }
 
-double CEyeSampler::evalPDF(SimpleRaytracingPathNode */*thisNode*/,
-                            SimpleRaytracingPathNode */*newNode*/, BSDF_FLAGS /*flags*/,
-                            double * /*probabilityDensityFunction*/, double * /*probabilityDensityFunctionRR*/) {
+double
+CEyeSampler::evalPDF(
+    Camera * /*camera*/,
+    SimpleRaytracingPathNode */*thisNode*/,
+    SimpleRaytracingPathNode */*newNode*/, BSDF_FLAGS /*flags*/,
+    double * /*probabilityDensityFunction*/,
+    double * /*probabilityDensityFunctionRR*/) {
     return 1.0;
 }
 

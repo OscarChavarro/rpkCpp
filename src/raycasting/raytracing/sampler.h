@@ -13,6 +13,7 @@ path nodes and have to possible actions :
 #include "raycasting/common/pathnode.h"
 #include "scene/Background.h"
 #include "scene/VoxelGrid.h"
+#include "scene/Camera.h"
 
 class Sampler {
   protected:
@@ -45,6 +46,7 @@ public:
 
     virtual double
     evalPDF(
+        Camera *camera,
         SimpleRaytracingPathNode *thisNode,
         SimpleRaytracingPathNode *newNode,
         BSDF_FLAGS flags = BSDF_ALL_COMPONENTS,
@@ -62,7 +64,7 @@ The interface is very simple. I just wanted to be able
 to sample all light sources.
 */
 class CNextEventSampler : public Sampler {
-public:
+  public:
     // Setting units causes sampling of the activated unit
     // instead of over all units.
 
@@ -139,6 +141,7 @@ class CSurfaceSampler : public Sampler {
     // components can be obtained through probabilityDensityFunction and probabilityDensityFunctionRR params
     virtual double
     evalPDF(
+        Camera *camera,
         SimpleRaytracingPathNode *thisNode,
         SimpleRaytracingPathNode *newNode,
         BSDF_FLAGS flags,

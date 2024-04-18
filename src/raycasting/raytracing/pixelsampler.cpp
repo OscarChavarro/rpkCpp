@@ -72,9 +72,14 @@ void CPixelSampler::SetPixel(int nx, int ny, Camera *cam) {
 }
 
 double
-CPixelSampler::evalPDF(SimpleRaytracingPathNode *thisNode, SimpleRaytracingPathNode *newNode,
-                              BSDF_FLAGS /*flags*/, double * /*pdf*/,
-                              double * /*pdfRR*/) {
+CPixelSampler::evalPDF(
+    Camera *camera,
+    SimpleRaytracingPathNode *thisNode,
+    SimpleRaytracingPathNode *newNode,
+    BSDF_FLAGS /*flags*/,
+    double * /*pdf*/,
+    double * /*pdfRR*/)
+{
     double dist2;
     double dist;
     double cosA;

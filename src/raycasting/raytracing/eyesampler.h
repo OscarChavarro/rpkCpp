@@ -24,6 +24,7 @@ public:
 
     virtual double
     evalPDF(
+        Camera *camera,
         SimpleRaytracingPathNode *thisNode,
         SimpleRaytracingPathNode *newNode,
         BSDF_FLAGS flags = BSDF_ALL_COMPONENTS,

@@ -21,11 +21,12 @@ class CPixelSampler : public Sampler {
 
     virtual double
     evalPDF(
-            SimpleRaytracingPathNode *thisNode,
-            SimpleRaytracingPathNode *newNode,
-            BSDF_FLAGS flags = BSDF_ALL_COMPONENTS,
-            double *pdf = nullptr,
-            double *pdfRR = nullptr);
+        Camera *camera,
+        SimpleRaytracingPathNode *thisNode,
+        SimpleRaytracingPathNode *newNode,
+        BSDF_FLAGS flags = BSDF_ALL_COMPONENTS,
+        double *pdf = nullptr,
+        double *pdfRR = nullptr);
 
     // Set pixel : sets the current pixel. This pixel will be sampled
     void SetPixel(int nx, int ny, Camera *cam = nullptr);

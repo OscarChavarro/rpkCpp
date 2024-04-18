@@ -153,14 +153,14 @@ CSamplerConfig::tracePath(
 
 double
 pathNodeConnect(
-        SimpleRaytracingPathNode *nodeX,
-        SimpleRaytracingPathNode *nodeY,
-        CSamplerConfig *eyeConfig,
-        CSamplerConfig *lightConfig,
-        CONNECT_FLAGS flags,
-        BSDF_FLAGS bsdfFlagsE,
-        BSDF_FLAGS bsdfFlagsL,
-        Vector3D *pDirEl)
+    SimpleRaytracingPathNode *nodeX,
+    SimpleRaytracingPathNode *nodeY,
+    CSamplerConfig *eyeConfig,
+    CSamplerConfig *lightConfig,
+    CONNECT_FLAGS flags,
+    BSDF_FLAGS bsdfFlagsE,
+    BSDF_FLAGS bsdfFlagsL,
+    Vector3D *pDirEl)
 {
     SimpleRaytracingPathNode *nodeEP; // previous nodes
     SimpleRaytracingPathNode *nodeLP;
@@ -192,11 +192,10 @@ pathNodeConnect(
             if ( nodeEP == nullptr ) {
                 // nodeE is the eye -> use the pixel sampler !
                 // -- Which pixel?
-                pdf = eyeConfig->dirSampler->evalPDF(nodeX, nodeY);
+                pdf = eyeConfig->dirSampler->evalPDF(&GLOBAL_camera_mainCamera, nodeX, nodeY);
                 pdfRR = 1.0;
             } else {
-                eyeConfig->surfaceSampler->evalPDF(nodeX, nodeY, bsdfFlagsE, &pdf,
-                                                   &pdfRR);
+                eyeConfig->surfaceSampler->evalPDF(&GLOBAL_camera_mainCamera, nodeX, nodeY, bsdfFlagsE, &pdf, &pdfRR);
             }
         } else {
             pdf = 0.0;
@@ -235,11 +234,10 @@ pathNodeConnect(
 
             if ( nodeLP == nullptr ) {
                 // nodeE is the light point -> use the dir sampler!
-                pdf = lightConfig->dirSampler->evalPDF(nodeY, nodeX);
+                pdf = lightConfig->dirSampler->evalPDF(&GLOBAL_camera_mainCamera, nodeY, nodeX);
                 pdfRR = 1.0;
             } else {
-                lightConfig->surfaceSampler->evalPDF(nodeY, nodeX, bsdfFlagsL, &pdf,
-                                                     &pdfRR);
+                lightConfig->surfaceSampler->evalPDF(&GLOBAL_camera_mainCamera, nodeY, nodeX, bsdfFlagsL, &pdf, &pdfRR);
             }
         } else {
             pdf = 0.0;

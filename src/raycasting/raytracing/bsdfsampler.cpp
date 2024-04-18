@@ -104,6 +104,7 @@ CBsdfSampler::sample(
 
 double
 CBsdfSampler::evalPDF(
+    Camera *camera,
     SimpleRaytracingPathNode *thisNode,
     SimpleRaytracingPathNode *newNode,
     BSDF_FLAGS flags,

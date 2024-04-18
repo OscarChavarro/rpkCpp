@@ -66,11 +66,12 @@ ScreenSampler::sample(
 
 double
 ScreenSampler::evalPDF(
-        SimpleRaytracingPathNode *thisNode,
-        SimpleRaytracingPathNode *newNode,
-        BSDF_FLAGS /*flags*/,
-        double * /*probabilityDensityFunction*/,
-        double * /*probabilityDensityFunctionRR*/)
+    Camera *camera,
+    SimpleRaytracingPathNode *thisNode,
+    SimpleRaytracingPathNode *newNode,
+    BSDF_FLAGS /*flags*/,
+    double * /*probabilityDensityFunction*/,
+    double * /*probabilityDensityFunctionRR*/)
 {
     double dist2;
     double dist;
@@ -86,7 +87,6 @@ ScreenSampler::evalPDF(
     vectorScaleInverse((float)dist, outDir, outDir);
 
     // probabilityDensityFunction = 1 / A_screen transformed to area measure
-
     cosA = vectorDotProduct(thisNode->m_normal, outDir);
 
     // probabilityDensityFunction = 1/Apix * (r^2 / cos(dir, eyeNormal) * (cos(dir, patchNormal) / d^2)
@@ -94,8 +94,8 @@ ScreenSampler::evalPDF(
 
     // Three cosines : r^2 / cos = 1 / cos^3 since r is length
     // of viewing ray to the screen.
-    probabilityDensityFunction = 1.0 / (GLOBAL_camera_mainCamera.pixelHeight * (float)GLOBAL_camera_mainCamera.ySize * GLOBAL_camera_mainCamera.pixelWidth *
-                                        (float)GLOBAL_camera_mainCamera.xSize * cosA * cosA * cosA);
+    probabilityDensityFunction = 1.0 /
+        (camera->pixelHeight * (float)camera->ySize * camera->pixelWidth * (float)camera->xSize * cosA * cosA * cosA);
 
     cosB = -vectorDotProduct(newNode->m_normal, outDir);
     probabilityDensityFunction = probabilityDensityFunction * cosB / dist2;

@@ -68,6 +68,7 @@ LightDirSampler::sample(
 
 double
 LightDirSampler::evalPDF(
+    Camera *camera,
     SimpleRaytracingPathNode *thisNode,
     SimpleRaytracingPathNode *newNode,
     BSDF_FLAGS /*flags*/,

@@ -111,6 +111,7 @@ CSpecularSampler::sample(
 
 double
 CSpecularSampler::evalPDF(
+    Camera *camera,
     SimpleRaytracingPathNode *thisNode,
     SimpleRaytracingPathNode *newNode,
     BSDF_FLAGS flags,

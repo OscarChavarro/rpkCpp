@@ -27,6 +27,7 @@ public:
     // Use this for N.E.E. : connecting a light node with an eye node
     virtual double
     evalPDF(
+        Camera *camera,
         SimpleRaytracingPathNode *thisNode,
         SimpleRaytracingPathNode *newNode,
         BSDF_FLAGS flags,

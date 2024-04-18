@@ -337,7 +337,7 @@ stochasticRaytracerGetRadiance(
 
         if ( doWeight ) {
             cl = config->nextEventSamples *
-                 config->samplerConfig.neSampler->evalPDF(thisNode->previous(), thisNode);
+                 config->samplerConfig.neSampler->evalPDF(&GLOBAL_camera_mainCamera, thisNode->previous(), thisNode);
             cl = multipleImportanceSampling(cl);
             cr = usedScatterSamples * thisNode->m_pdfFromPrev;
             cr = multipleImportanceSampling(cr);
@@ -446,8 +446,7 @@ stochasticRaytracerGetRadiance(
 
             if ( doWeight ) {
                 cl = config->nextEventSamples *
-                     config->samplerConfig.neSampler->evalPDF(thisNode->previous(),
-                                                              thisNode);
+                     config->samplerConfig.neSampler->evalPDF(&GLOBAL_camera_mainCamera, thisNode->previous(), thisNode);
                 cl = multipleImportanceSampling(cl);
                 cr = usedScatterSamples * thisNode->m_pdfFromPrev;
                 cr = multipleImportanceSampling(cr);
@@ -458,9 +457,7 @@ stochasticRaytracerGetRadiance(
                 weight = 1;
             }
 
-            col = edfEval(thisEdf, &thisNode->m_hit,
-                          &(thisNode->m_inDirF),
-                          edfFlags, nullptr);
+            col = edfEval(thisEdf, &thisNode->m_hit, &(thisNode->m_inDirF), edfFlags, nullptr);
 
             result.addScaled(result, (float) weight, col);
         }

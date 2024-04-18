@@ -5,10 +5,11 @@ Samples a random point on the view screen and traces the viewing ray.
 #ifndef __SCREEN_SAMPLER__
 #define __SCREEN_SAMPLER__
 
+#include "scene/Camera.h"
 #include "raycasting/raytracing/sampler.h"
 
 class ScreenSampler : public Sampler {
-public:
+  public:
     bool
     sample(
         VoxelGrid *sceneVoxelGrid,
@@ -23,6 +24,7 @@ public:
 
     virtual double
     evalPDF(
+        Camera *camera,
         SimpleRaytracingPathNode *thisNode,
         SimpleRaytracingPathNode *newNode,
         BSDF_FLAGS flags = BSDF_ALL_COMPONENTS,
