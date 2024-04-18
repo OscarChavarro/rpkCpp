@@ -1,8 +1,6 @@
 #include "common/error.h"
 #include "scene/Camera.h"
 
-Camera GLOBAL_camera_mainCamera;
-
 Camera::Camera(): background() {
     eyePosition = Vector3D{};
     lookPosition = Vector3D{};

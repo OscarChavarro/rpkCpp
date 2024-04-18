@@ -64,10 +64,10 @@ CPixelSampler::sample(
 }
 
 void
-CPixelSampler::SetPixel(int nx, int ny, Camera *camera) {
+CPixelSampler::SetPixel(Camera *defaultCamera, int nx, int ny, Camera *camera) {
     if ( camera == nullptr ) {
         // Primary camera
-        camera = &GLOBAL_camera_mainCamera;
+        camera = defaultCamera;
     }
 
     m_px = -camera->pixelWidth * (double)camera->xSize / 2.0 + (double)nx * camera->pixelWidth;

@@ -682,7 +682,7 @@ bpCalcPixel(
     }
 
     config->eyeConfig.pointSampler->sample(camera, sceneVoxelGrid, sceneBackground, nullptr, nullptr, config->eyePath, 0, 0);
-    ((CPixelSampler *) config->eyeConfig.dirSampler)->SetPixel(nx, ny);
+    ((CPixelSampler *) config->eyeConfig.dirSampler)->SetPixel(camera, nx, ny);
 
     // Provide a node for the pixel sampling
     pixNode = config->eyePath->next();

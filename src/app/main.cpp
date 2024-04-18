@@ -46,6 +46,7 @@ static bool globalOneSidedSurfaces;
 static int globalConicSubDivisions;
 
 static Background *globalSceneBackground = nullptr;
+static Camera globalCamera;
 static java::ArrayList<Geometry *> *globalSceneGeometries = nullptr;
 static java::ArrayList<Geometry *> *globalSceneClusteredGeometries = nullptr;
 static Geometry *globalSceneClusteredWorldGeometry = nullptr;
@@ -183,7 +184,7 @@ mainInit() {
 
     mainRenderingDefaults();
     toneMapDefaults();
-    radianceDefaults(nullptr, &GLOBAL_camera_mainCamera, globalSceneClusteredWorldGeometry);
+    radianceDefaults(nullptr, &globalCamera, globalSceneClusteredWorldGeometry);
 
     #ifdef RAYTRACING_ENABLED
         mainRayTracingDefaults();
@@ -298,7 +299,7 @@ mainReadFile(char *filename, MgfContext *context) {
     }
 
     // Init compute method
-    setRadianceMethod(nullptr, &GLOBAL_camera_mainCamera, nullptr, globalSceneClusteredWorldGeometry);
+    setRadianceMethod(nullptr, &globalCamera, nullptr, globalSceneClusteredWorldGeometry);
 
     #ifdef RAYTRACING_ENABLED
         Raytracer *currentRaytracer = GLOBAL_raytracer_activeRaytracer;
@@ -432,7 +433,7 @@ mainReadFile(char *filename, MgfContext *context) {
     fprintf(stderr, "Initializing radiance method ... ");
     fflush(stderr);
 
-    setRadianceMethod(context->radianceMethod, &GLOBAL_camera_mainCamera, globalScenePatches, globalSceneClusteredWorldGeometry);
+    setRadianceMethod(context->radianceMethod, &globalCamera, globalScenePatches, globalSceneClusteredWorldGeometry);
 
     t = clock();
     fprintf(stderr, "%g secs.\n", (float) (t - last) / (float) CLOCKS_PER_SEC);
@@ -582,7 +583,7 @@ main(int argc, char *argv[]) {
     RadianceMethod *selectedRadianceMethod = nullptr;
 
     mainInit();
-    mainParseGlobalOptions(&argc, argv, &selectedRadianceMethod, &GLOBAL_camera_mainCamera);
+    mainParseGlobalOptions(&argc, argv, &selectedRadianceMethod, &globalCamera);
 
     MgfContext mgfContext;
     mgfContext.radianceMethod = selectedRadianceMethod;
@@ -594,7 +595,7 @@ main(int argc, char *argv[]) {
     mainBuildModel(&argc, argv, &mgfContext);
 
     mainExecuteRendering(
-        &GLOBAL_camera_mainCamera,
+        &globalCamera,
         globalImageOutputWidth,
         globalImageOutputHeight,
         globalSceneBackground,

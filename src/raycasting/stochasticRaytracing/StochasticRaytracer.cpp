@@ -508,7 +508,7 @@ calcPixel(
 
     // Sample eye node
     config->samplerConfig.pointSampler->sample(camera, sceneVoxelGrid, sceneBackground, nullptr, nullptr, &eyeNode, 0, 0);
-    ((CPixelSampler *) config->samplerConfig.dirSampler)->SetPixel(nx, ny);
+    ((CPixelSampler *) config->samplerConfig.dirSampler)->SetPixel(camera, nx, ny);
 
     eyeNode.attach(&pixelNode);
 

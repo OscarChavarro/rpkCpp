@@ -30,7 +30,7 @@ class CPixelSampler : public Sampler {
         double *pdfRR = nullptr);
 
     // Set pixel : sets the current pixel. This pixel will be sampled
-    void SetPixel(int nx, int ny, Camera *camera = nullptr);
+    void SetPixel(Camera *defaultCamera, int nx, int ny, Camera *camera = nullptr);
 
 protected:
     double m_px, m_py;

@@ -49,6 +49,4 @@ class Camera {
     void setFieldOfView(float fieldOfView);
 };
 
-extern Camera GLOBAL_camera_mainCamera;
-
 #endif
