@@ -3,7 +3,7 @@
 
 #include "common/linealAlgebra/Vector3D.h"
 #include "common/ColorRgb.h"
-#include "common/numericalAnalysis/cubature.h"
+#include "common/numericalAnalysis/CubatureRule.h"
 #include "SGL/sgl.h"
 #include "GALERKIN/GalerkinElement.h"
 
@@ -16,21 +16,6 @@ enum GalerkinIterationMethod {
 enum GalerkinShaftCullMode {
     ALWAYS_DO_SHAFT_CULLING,
     DO_SHAFT_CULLING_FOR_REFINEMENT
-};
-
-enum GalerkinCubatureDegree {
-    DEGREE_1,
-    DEGREE_2,
-    DEGREE_3,
-    DEGREE_4,
-    DEGREE_5,
-    DEGREE_6,
-    DEGREE_7,
-    DEGREE_8,
-    DEGREE_9,
-    DEGREE_3_PROD,
-    DEGREE_5_PROD,
-    DEGREE_7_PROD
 };
 
 enum GalerkinErrorNorm {
@@ -70,13 +55,13 @@ class GalerkinState {
     GalerkinShaftCullMode shaftCullMode; // When to do shaft culling
 
     // Cubature rules for computing form factors
-    GalerkinCubatureDegree receiverDegree;
-    GalerkinCubatureDegree sourceDegree;
-    CUBARULE *rcv3rule;
-    CUBARULE *rcv4rule;
-    CUBARULE *src3rule;
-    CUBARULE *src4rule;
-    CUBARULE *clusterRule;
+    CubatureDegree receiverDegree;
+    CubatureDegree sourceDegree;
+    CubatureRule *rcv3rule;
+    CubatureRule *rcv4rule;
+    CubatureRule *src3rule;
+    CubatureRule *src4rule;
+    CubatureRule *clusterRule;
 
     // Global variables concerning clustering
     GalerkinElement *topCluster; // Top level cluster containing the whole scene

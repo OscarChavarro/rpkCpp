@@ -1,7 +1,7 @@
 #include <cstring>
 
 #include "common/error.h"
-#include "common/numericalAnalysis/cubature.h"
+#include "common/numericalAnalysis/CubatureRule.h"
 #include "raycasting/stochasticRaytracing/StochasticRadiosityElement.h"
 #include "raycasting/stochasticRaytracing/basismcrad.h"
 
@@ -84,7 +84,7 @@ computeFilterCoefficients(
     GalerkinBasis *child_basis,
     int child_size,
     Matrix2x2 *upxfm,
-    CUBARULE *cr,
+    CubatureRule *cr,
     FILTER *filter)
 {
     for ( int a = 0; a < parent_size; a++ ) {
@@ -113,7 +113,7 @@ static void
 basisGalerkinComputeRegularFilterCoefficients(
     GalerkinBasis *basis,
     Matrix2x2 *upxfm,
-    CUBARULE *cr)
+    CubatureRule *cr)
 {
     for ( int s = 0; s < 4; s++ ) {
         computeFilterCoefficients(

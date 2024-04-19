@@ -8,7 +8,8 @@ Philippe.Bekaert@cs.kuleuven.ac.be
 September, 5 1995
 */
 
-#include "common/numericalAnalysis/cubature.h"
+#include "common/error.h"
+#include "common/numericalAnalysis/CubatureRule.h"
 
 /**
 quadrilaterals: [-1, 1] ^ 2
@@ -17,7 +18,7 @@ quadrilaterals: [-1, 1] ^ 2
 /**
 Degree 1, 1 point
 */
-CUBARULE GLOBAL_crq1 = {
+static CubatureRule globalCrq1 = {
     "quads degree 1, 1 point",
     1,
     1,
@@ -41,7 +42,7 @@ Degree 2, 3 positions Stroud '71
 // sin(2*M_PI/3)
 #define s 0.86602540378443864676
 
-CUBARULE GLOBAL_crq2 = {
+static CubatureRule globalCrq2 = {
     "quads degree 2, 3 positions",
     2,
     3,
@@ -61,7 +62,7 @@ Degree 3, 4 positions, Davis & Rabinowitz, Methods of Numerical Integration,
 */
 // sqrt(2/3)
 #define u 0.81649658092772603272
-CUBARULE GLOBAL_crq3 = {
+static CubatureRule globalCrq3 = {
     "quads degree 3, 4 positions",
     3,
     4,
@@ -75,7 +76,7 @@ CUBARULE GLOBAL_crq3 = {
 // Degree 3, 4 positions, product Gauss-Legendre formula
 // sqrt(1/3)
 #define u 0.57735026918962576450
-CUBARULE GLOBAL_crq3pg = {
+static CubatureRule globalCrq3Pg = {
     "quads degree 3, 4 positions, product Gauss formula",
     3, // Degree
     4, // Positions
@@ -95,7 +96,7 @@ because the abscissae seem to be nicer located.
 You'll find the same rule in: Schmid, "On Cubature Formulae with a Minimal
 Number of Knots", Numer. Math. Vol 31 (1978) p281
 */
-CUBARULE GLOBAL_crq4 = {
+static CubatureRule globalCrq4 = {
     "quads degree 4, 6 positions",
     4, // Degree
     6, // Positions
@@ -118,7 +119,7 @@ CUBARULE GLOBAL_crq4 = {
 
 // sqrt(3/5)
 #define t 0.77459666924148340428
-CUBARULE GLOBAL_crq5 = {
+static CubatureRule globalCrq5 = {
     "quads degree 5, 7 positions, Radon's rule",
     5, // Degree
     7, // Positions
@@ -140,7 +141,7 @@ CUBARULE GLOBAL_crq5 = {
 #define w0 (8.0 / 9.0)
 #define x1 0.7745966692414834
 #define w1 (5.0 / 9.0)
-CUBARULE GLOBAL_crq5pg = {
+static CubatureRule globalCrq5Pg = {
     "quads degree 5, 9 positions product Gauss rule",
     5,
     9,
@@ -160,7 +161,7 @@ from: Wissmann & Becker (cfr supra)
 They again give two formulae of this type and you'll also find one
 in Schmid, but I chose this one because it has the nicest weights
 */
-CUBARULE GLOBAL_crq6 = {
+static CubatureRule globalCrq6 = {
     "quads degree 6, 10 positions",
     6, // Degree
     10, // Positions
@@ -210,7 +211,7 @@ less symmetry.
 
 // (178981.0 - 2769.0 * sqrt(583.0)) / 1888920.0 * 4.0
 #define w3 0.23743177469063023177
-CUBARULE GLOBAL_crq7 = {
+static CubatureRule globalCrq7 = {
     "quads degree 7, 12 positions",
     7 /* degree */, 12 /* positions */,
     {r, -r, 0.0, 0.0, s, s, -s, -s, t, t, -t, -t},
@@ -230,7 +231,7 @@ CUBARULE GLOBAL_crq7 = {
 #define x2 0.33998104358485626480
 #define w1 0.34785484513745385737
 #define w2 0.65214515486254614263
-CUBARULE GLOBAL_crq7pg = {
+static CubatureRule globalCrq7Pg = {
     "quads degree 7, 16 positions product Gauss rule",
     7,
     16,
@@ -256,7 +257,7 @@ minial number of nodes has nodes outside the unit square. That's not a
 desirable situation for us (see Cools & Rabinowitz ...).
 Btw, the formula of degree 9 has only one point more than this one.
 */
-CUBARULE GLOBAL_crq8 = {
+CubatureRule GLOBAL_crq8 = {
     "quads degree 8, 16 positions",
     8,
     16,
@@ -294,7 +295,7 @@ Degree 9, 17 positions, Moeller, "Kubaturformeln mit minimaler Knotenzahl, Numer
 #define w2 0.11209960212959648528
 #define w3 0.39828243926207009528
 #define w4 0.26905133763978080301
-CUBARULE GLOBAL_crq9 = {
+static CubatureRule globalCrq9 = {
     "quads degree 9, 17 positions",
     9,
     17,
@@ -340,7 +341,7 @@ Weights sum to 1. instead of 0.5, which is the area of the triangle
 */
 
 // Degree 1, 1 point
-CUBARULE GLOBAL_crt1 = {
+static CubatureRule globalCrt1 = {
     "triangles degree 1, 1 positions",
     1,
     1,
@@ -351,7 +352,7 @@ CUBARULE GLOBAL_crt1 = {
 };
 
 // Degree 2, 3 positions, Stroud '71 p 307
-CUBARULE GLOBAL_crt2 = {
+static CubatureRule globalCrt2 = {
     "triangles degree 2, 3 positions",
     2,
     3,
@@ -362,7 +363,7 @@ CUBARULE GLOBAL_crt2 = {
 };
 
 // Degree 3, 4 positions, Stroud '71 p 308
-CUBARULE GLOBAL_crt3 = {
+static CubatureRule globalCrt3 = {
     "triangles degree 3, 4 positions",
     3,
     4,
@@ -385,7 +386,7 @@ Triangle", J. Inst. Maths. Applics (1975) 15, 19-32
 #define a2 1.081030181680702e-1
 #define b2 4.459484909159649e-1
 #define c2 b2
-CUBARULE GLOBAL_crt4 = {
+static CubatureRule globalCrt4 = {
     "triangles degree 4, 6 positions",
     4, 6,
     {a1, b1, c1, a2, b2, c2},
@@ -411,7 +412,7 @@ CUBARULE GLOBAL_crt4 = {
 #define A 0.225
 #define B 0.1259391805448271
 #define C 0.1323941527885062
-CUBARULE GLOBAL_crt5 = {
+static CubatureRule globalCrt5 = {
     "triangles degree 5, 7 positions",
     5,
     7,
@@ -449,7 +450,7 @@ Square and the triangle", Computing, 40, 229-240 (1988)
 #define a4 0.5158423343536001
 #define b4 0.2777161669764050
 #define c4 0.2064414986699949
-CUBARULE GLOBAL_crt7 = {
+static CubatureRule globalCrt7 = {
     "triangles degree 7, 12 positions",
     7, 12,
     {a1, b1, c1, a2, b2, c2,
@@ -499,7 +500,7 @@ CUBARULE GLOBAL_crt7 = {
 #define a4 8.394777409957211e-3
 #define b4 7.284923929554041e-1
 #define c4 2.631128296346387e-1
-CUBARULE GLOBAL_crt8 = {
+CubatureRule GLOBAL_crt8 = {
     "triangles degree 8, 16 positions",
     8,
     16,
@@ -574,7 +575,7 @@ Lyness & Jespersen
 #define a5 3.683841205473626e-2
 #define b5 7.411985987844980e-1
 #define c5 2.219629891607657e-1
-CUBARULE GLOBAL_crt9 = {
+static CubatureRule globalCrt9 = {
     "triangles degree 9, 19 positions",
     9, 19,
     {a0,
@@ -634,7 +635,7 @@ Boxes: [-1, 1] ^ 3
 // Degree 1, 9 positions
 #define u 1.0
 #define w (8.0 / 9.0)
-CUBARULE GLOBAL_crv1 = {
+CubatureRule GLOBAL_crv1 = {
     "boxes degree 1, 9 positions (the corners + center)",
     1, // Degree
     9, // Positions
@@ -649,7 +650,7 @@ CUBARULE GLOBAL_crv1 = {
 // Degree 3, 8 positions, product Gauss-Legendre formula
 // sqrt(1.0 / 3.0)
 #define u 0.57735026918962576450
-CUBARULE GLOBAL_crv3pg = {
+static CubatureRule globalCrv3Pg = {
     "boxes degree 3, 8 positions, product Gauss formula",
     3 /* degree */, 8 /* positions */,
     {u, u, u, u, -u, -u, -u, -u},
@@ -660,22 +661,22 @@ CUBARULE GLOBAL_crv3pg = {
 #undef u
 
 // quadrule[i-1] is a rule of degree = i (i=1..9) over [-1,1]^2
-static CUBARULE *globalQuadRule[9] = {&GLOBAL_crq1, &GLOBAL_crq2, &GLOBAL_crq3, &GLOBAL_crq4, &GLOBAL_crq5, &GLOBAL_crq6, &GLOBAL_crq7, &GLOBAL_crq8, &GLOBAL_crq9};
+static CubatureRule *globalQuadRule[9] = {&globalCrq1, &globalCrq2, &globalCrq3, &globalCrq4, &globalCrq5, &globalCrq6, &globalCrq7, &GLOBAL_crq8, &globalCrq9};
 
 // quadprodrule[i-1] is a product rule of degree 2i+1 over [-1,1]^2
-static CUBARULE *globalQuadProductRule[3] = {&GLOBAL_crq3pg, &GLOBAL_crq5pg, &GLOBAL_crq7pg};
+static CubatureRule *globalQuadProductRule[3] = {&globalCrq3Pg, &globalCrq5Pg, &globalCrq7Pg};
 
 // boxesrule[i-1] is a degree i rule over [-1,1] ^ 3
-static CUBARULE *globalBoxesRule[1] = {&GLOBAL_crv1};
+static CubatureRule *globalBoxesRule[1] = {&GLOBAL_crv1};
 
 // boxesprodrule[i-1] is a product rule of degree 2i+1 over [-1,1]^3
-static CUBARULE *globalBoxesProductRule[1] = {&GLOBAL_crv3pg};
+static CubatureRule *globalBoxesProductRule[1] = {&globalCrv3Pg};
 
 /**
 This routine transforms a rule over [-1,1]^2 to the unit square [0,1]^2
 */
 static void
-cubatureTransformQuadRule(CUBARULE *rule) {
+cubatureTransformQuadRule(CubatureRule *rule) {
     for ( int k = 0; k < rule->numberOfNodes; k++ ) {
         rule->u[k] = (rule->u[k] + 1.0) / 2.0;
         rule->v[k] = (rule->v[k] + 1.0) / 2.0;
@@ -687,7 +688,7 @@ cubatureTransformQuadRule(CUBARULE *rule) {
 This routine transforms a rule over [-1,1]^3 to the unit cube [0,1]^3
 */
 static void
-cubatureTransformCubeRule(CUBARULE *rule) {
+cubatureTransformCubeRule(CubatureRule *rule) {
     for ( int k = 0; k < rule->numberOfNodes; k++ ) {
         rule->u[k] = (rule->u[k] + 1.0) / 2.0;
         rule->v[k] = (rule->v[k] + 1.0) / 2.0;
@@ -716,5 +717,64 @@ fixCubatureRules() {
     }
     for ( i = 0; i < 1; i++ ) {
         cubatureTransformCubeRule(globalBoxesProductRule[i]);
+    }
+}
+
+/**
+Installs cubature rules for triangles and quadrilaterals of the specified degree
+*/
+void
+setCubatureRules(CubatureRule **triRule, CubatureRule **quadRule, CubatureDegree degree) {
+    switch ( degree ) {
+        case DEGREE_1:
+            *triRule = &globalCrt1;
+            *quadRule = &globalCrq1;
+            break;
+        case DEGREE_2:
+            *triRule = &globalCrt2;
+            *quadRule = &globalCrq2;
+            break;
+        case DEGREE_3:
+            *triRule = &globalCrt3;
+            *quadRule = &globalCrq3;
+            break;
+        case DEGREE_4:
+            *triRule = &globalCrt4;
+            *quadRule = &globalCrq4;
+            break;
+        case DEGREE_5:
+            *triRule = &globalCrt5;
+            *quadRule = &globalCrq5;
+            break;
+        case DEGREE_6:
+            *triRule = &globalCrt7;
+            *quadRule = &globalCrq6;
+            break;
+        case DEGREE_7:
+            *triRule = &globalCrt7;
+            *quadRule = &globalCrq7;
+            break;
+        case DEGREE_8:
+            *triRule = &GLOBAL_crt8;
+            *quadRule = &GLOBAL_crq8;
+            break;
+        case DEGREE_9:
+            *triRule = &globalCrt9;
+            *quadRule = &globalCrq9;
+            break;
+        case DEGREE_3_PROD:
+            *triRule = &globalCrt5;
+            *quadRule = &globalCrq3Pg;
+            break;
+        case DEGREE_5_PROD:
+            *triRule = &globalCrt7;
+            *quadRule = &globalCrq5Pg;
+            break;
+        case DEGREE_7_PROD:
+            *triRule = &globalCrt9;
+            *quadRule = &globalCrq7Pg;
+            break;
+        default:
+            logFatal(2, "setCubatureRules", "Invalid degree %d", degree);
     }
 }

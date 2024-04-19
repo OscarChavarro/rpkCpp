@@ -35,7 +35,7 @@ relevant for surface elements
 static void
 determineNodes(
     GalerkinElement *element,
-    CUBARULE **cr,
+    CubatureRule **cr,
     Vector3D x[CUBAMAXNODES],
     GalerkinRole role,
     GalerkinState *galerkinState)
@@ -193,8 +193,8 @@ Workshop, Porto, Portugal, June 1996, p 158.
 static void
 doHigherOrderAreaToAreaFormFactor(
     Interaction *link,
-    CUBARULE *crrcv,
-    CUBARULE *crsrc,
+    CubatureRule *crrcv,
+    CubatureRule *crsrc,
     double Gxy[CUBAMAXNODES][CUBAMAXNODES],
     GalerkinState *galerkinState)
 {
@@ -340,8 +340,8 @@ element, which makes things slightly simpler
 static void
 doConstantAreaToAreaFormFactor(
     Interaction *link,
-    CUBARULE *crRcv,
-    CUBARULE *crSrc,
+    CubatureRule *crRcv,
+    CubatureRule *crSrc,
     double Gxy[CUBAMAXNODES][CUBAMAXNODES])
 {
     GalerkinElement *rcv = link->receiverElement;
@@ -431,8 +431,8 @@ areaToAreaFormFactor(
     // Very often, the source or receiver element is the same as the one in
     // the previous call of the function. We cache cubature rules and nodes
     // in order to prevent re-computation
-    static CUBARULE *crrcv = nullptr; // Cubature rules to be used over the
-    static CUBARULE *crsrc = nullptr; // Receiving patch and source patch
+    static CubatureRule *crrcv = nullptr; // Cubature rules to be used over the
+    static CubatureRule *crsrc = nullptr; // Receiving patch and source patch
     static Vector3D x[CUBAMAXNODES];
     static Vector3D y[CUBAMAXNODES];
     static double Gxy[CUBAMAXNODES][CUBAMAXNODES];

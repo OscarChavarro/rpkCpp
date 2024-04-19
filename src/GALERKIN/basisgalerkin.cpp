@@ -170,7 +170,7 @@ basisGalerkinComputeFilterCoefficients(
     GalerkinBasis *child_basis,
     int child_size,
     Matrix2x2 *upTransform,
-    CUBARULE *cr,
+    CubatureRule *cr,
     double filter[MAX_BASIS_SIZE][MAX_BASIS_SIZE])
 {
     int alpha;
@@ -204,7 +204,7 @@ static void
 basisGalerkinComputeRegularFilterCoefficients(
     GalerkinBasis *basis,
     Matrix2x2 upTransform[],
-    CUBARULE *cubaRule)
+    CubatureRule *cubaRule)
 {
     for ( int sigma = 0; sigma < 4; sigma++ ) {
         basisGalerkinComputeFilterCoefficients(

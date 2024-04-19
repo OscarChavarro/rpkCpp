@@ -1,4 +1,3 @@
-#include "common/error.h"
 #include "GALERKIN/GalerkinState.h"
 
 #define DEFAULT_GAL_HIERARCHICAL true
@@ -19,65 +18,6 @@
 #define DEFAULT_GAL_MULTI_RESOLUTION_VISIBILITY false
 #define DEFAULT_GAL_CLUSTERING_STRATEGY ISOTROPIC
 #define DEFAULT_GAL_SCRATCH_FB_SIZE 200
-
-/**
-Installs cubature rules for triangles and quadrilaterals of the specified degree
-*/
-static void
-setCubatureRules(CUBARULE **triRule, CUBARULE **quadRule, GalerkinCubatureDegree degree) {
-    switch ( degree ) {
-        case DEGREE_1:
-            *triRule = &GLOBAL_crt1;
-            *quadRule = &GLOBAL_crq1;
-            break;
-        case DEGREE_2:
-            *triRule = &GLOBAL_crt2;
-            *quadRule = &GLOBAL_crq2;
-            break;
-        case DEGREE_3:
-            *triRule = &GLOBAL_crt3;
-            *quadRule = &GLOBAL_crq3;
-            break;
-        case DEGREE_4:
-            *triRule = &GLOBAL_crt4;
-            *quadRule = &GLOBAL_crq4;
-            break;
-        case DEGREE_5:
-            *triRule = &GLOBAL_crt5;
-            *quadRule = &GLOBAL_crq5;
-            break;
-        case DEGREE_6:
-            *triRule = &GLOBAL_crt7;
-            *quadRule = &GLOBAL_crq6;
-            break;
-        case DEGREE_7:
-            *triRule = &GLOBAL_crt7;
-            *quadRule = &GLOBAL_crq7;
-            break;
-        case DEGREE_8:
-            *triRule = &GLOBAL_crt8;
-            *quadRule = &GLOBAL_crq8;
-            break;
-        case DEGREE_9:
-            *triRule = &GLOBAL_crt9;
-            *quadRule = &GLOBAL_crq9;
-            break;
-        case DEGREE_3_PROD:
-            *triRule = &GLOBAL_crt5;
-            *quadRule = &GLOBAL_crq3pg;
-            break;
-        case DEGREE_5_PROD:
-            *triRule = &GLOBAL_crt7;
-            *quadRule = &GLOBAL_crq5pg;
-            break;
-        case DEGREE_7_PROD:
-            *triRule = &GLOBAL_crt9;
-            *quadRule = &GLOBAL_crq7pg;
-            break;
-        default:
-            logFatal(2, "setCubatureRules", "Invalid degree %d", degree);
-    }
-}
 
 GalerkinState::GalerkinState():
         iterationNumber(),
