@@ -3,7 +3,6 @@
 
 #include "java/util/ArrayList.h"
 #include "scene/RadianceMethod.h"
-#include "scene/Scene.h"
 
 class GlutDebugState {
   public:
@@ -20,7 +19,14 @@ extern void
 executeGlutGui(
     int argc,
     char *argv[],
-    Scene *scene,
-    RadianceMethod *radianceMethod);
+    Camera *camera,
+    java::ArrayList<Patch *> *scenePatches,
+    java::ArrayList<Patch *> *lightPatches,
+    java::ArrayList<Geometry *> *sceneGeometries,
+    java::ArrayList<Geometry *> *sceneClusteredGeometries,
+    Background *sceneBackground,
+    Geometry *clusteredWorldGeom,
+    RadianceMethod *radianceMethod,
+    VoxelGrid *voxelGrid);
 
 #endif
