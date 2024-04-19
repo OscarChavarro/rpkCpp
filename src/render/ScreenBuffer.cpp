@@ -7,11 +7,6 @@
 #include "IMAGE/tonemap/tonemapping.h"
 #include "render/ScreenBuffer.h"
 
-ColorRgb GLOBAL_material_black = {0.0, 0.0, 0.0};
-ColorRgb GLOBAL_material_yellow = {1.0, 1.0, 0.0};
-ColorRgb GLOBAL_material_white = {1.0, 1.0, 1.0};
-ColorRgb GLOBAL_material_green = {0.0, 1.0, 0.0};
-
 /**
 Constructor : make an screen buffer from a camera definition
 */
@@ -69,9 +64,10 @@ ScreenBuffer::init(Camera *inCamera, Camera *defaultCamera) {
     }
 
     // Clear
+    ColorRgb black = {0.0, 0.0, 0.0};
     for ( int i = 0; i < camera.xSize * camera.ySize; i++ ) {
         m_Radiance[i].setMonochrome(0.0);
-        m_RGB[i] = GLOBAL_material_black;
+        m_RGB[i] = black;
     }
 
     m_Factor = 1.0;

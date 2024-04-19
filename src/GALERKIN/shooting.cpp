@@ -238,7 +238,8 @@ propagateRadiance(
         return true;
     }
 
-    openGlRenderSetColor(&GLOBAL_material_yellow);
+    ColorRgb yellow = {1.0, 1.0, 0.0};
+    openGlRenderSetColor(&yellow);
     openGlRenderPatchOutline(shootingPatch);
 
     doPropagate(
@@ -310,7 +311,9 @@ propagatePotential(
 
     shootingPatch = choosePotentialShootingPatch(scenePatches);
     if ( shootingPatch ) {
-        openGlRenderSetColor(&GLOBAL_material_white);
+        ColorRgb white = {1.0, 1.0, 1.0};
+
+        openGlRenderSetColor(&white);
         openGlRenderPatchOutline(shootingPatch);
         doPropagate(
             camera,

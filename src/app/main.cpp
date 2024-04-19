@@ -83,7 +83,12 @@ mainInit(Scene *scene) {
 Processes command line arguments
 */
 static void
-mainParseGlobalOptions(int *argc, char **argv, RadianceMethod **context, Camera *camera) {
+mainParseGlobalOptions(
+    int *argc,
+    char **argv,
+    RadianceMethod **context,
+    Camera *camera)
+{
     renderParseOptions(argc, argv);
     parseToneMapOptions(argc, argv);
     parseCameraOptions(argc, argv, camera, globalImageOutputWidth, globalImageOutputHeight);
@@ -153,14 +158,14 @@ mainExecuteRendering(
 {
     // Create the window in which to render (canvas window)
     mainCreateOffscreenCanvasWindow(
-            outputImageWidth,
-            outputImageHeight,
-            camera,
-            scenePatches,
-            sceneGeometries,
-            sceneClusteredGeometries,
-            sceneClusteredWorldGeometry,
-            radianceMethod);
+        outputImageWidth,
+        outputImageHeight,
+        camera,
+        scenePatches,
+        sceneGeometries,
+        sceneClusteredGeometries,
+        sceneClusteredWorldGeometry,
+        radianceMethod);
 
     #ifdef RAYTRACING_ENABLED
         int (*f)() = nullptr;
@@ -198,33 +203,34 @@ mainFreeMemory(MgfContext *context) {
 
 int
 main(int argc, char *argv[]) {
-    RadianceMethod *selectedRadianceMethod = nullptr;
     Scene scene;
-
     mainInit(&scene);
+
+    RadianceMethod *selectedRadianceMethod = nullptr;
     mainParseGlobalOptions(&argc, argv, &selectedRadianceMethod, scene.camera);
 
+    Material defaultMaterial;
     MgfContext mgfContext;
     mgfContext.radianceMethod = selectedRadianceMethod;
     mgfContext.singleSided = globalOneSidedSurfaces;
     mgfContext.numberOfQuarterCircleDivisions = globalConicSubDivisions;
     mgfContext.monochrome = DEFAULT_MONOCHROME;
-    mgfContext.currentMaterial = &GLOBAL_material_defaultMaterial;
+    mgfContext.currentMaterial = &defaultMaterial;
 
     sceneBuilderCreateModel(&argc, argv, &mgfContext, &scene);
 
     mainExecuteRendering(
-            scene.camera,
-            globalImageOutputWidth,
-            globalImageOutputHeight,
-            scene.background,
-            scene.geometryList,
-            scene.clusteredGeometryList,
-            scene.patchList,
-            scene.lightSourcePatchList,
-            scene.clusteredRootGeometry,
-            scene.voxelGrid,
-            selectedRadianceMethod);
+        scene.camera,
+        globalImageOutputWidth,
+        globalImageOutputHeight,
+        scene.background,
+        scene.geometryList,
+        scene.clusteredGeometryList,
+        scene.patchList,
+        scene.lightSourcePatchList,
+        scene.clusteredRootGeometry,
+        scene.voxelGrid,
+        selectedRadianceMethod);
 
     //executeGlutGui(
     //    argc,

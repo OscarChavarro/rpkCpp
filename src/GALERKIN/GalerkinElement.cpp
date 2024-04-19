@@ -634,12 +634,16 @@ GalerkinElement::draw(int mode, Camera *camera) {
     if ( mode & OUTLINE ) {
         openGlRenderSetColor(&GLOBAL_render_renderOptions.outline_color);
         if ( numberOfVertices == 3 ) {
-            openGlRenderSetColor(&GLOBAL_material_yellow);
+            ColorRgb yellow = {1.0, 1.0, 0.0};
+
+            openGlRenderSetColor(&yellow);
             openGlRenderLine(&p[0], &p[1]);
             openGlRenderLine(&p[1], &p[2]);
             openGlRenderLine(&p[2], &p[0]);
         } else {
-            openGlRenderSetColor(&GLOBAL_material_green);
+            ColorRgb green = {0.0, 1.0, 0.0};
+
+            openGlRenderSetColor(&green);
             openGlRenderLine(&p[0], &p[1]);
             openGlRenderLine(&p[1], &p[2]);
             openGlRenderLine(&p[2], &p[3]);

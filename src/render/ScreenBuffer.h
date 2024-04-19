@@ -71,11 +71,6 @@ class ScreenBuffer {
     void syncLine(int lineNumber);
 };
 
-extern ColorRgb GLOBAL_material_black;
-extern ColorRgb GLOBAL_material_white;
-extern ColorRgb GLOBAL_material_yellow;
-extern ColorRgb GLOBAL_material_green;
-
 extern float computeFluxToRadFactor(Camera *camera, int pixX, int pixY);
 
 #endif

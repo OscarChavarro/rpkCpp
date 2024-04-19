@@ -18,8 +18,6 @@ class Material {
     virtual ~Material();
 };
 
-extern Material GLOBAL_material_defaultMaterial;
-
 extern Material *
 materialCreate(
     char *inName,

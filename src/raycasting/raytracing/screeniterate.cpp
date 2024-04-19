@@ -141,8 +141,10 @@ screenIterateProgressive(
     height = camera->ySize;
     rgb = new ColorRgb[width * height]; // We need a full screen!
 
+    ColorRgb white = {1.0, 1.0, 1.0};
+
     for ( int i = 0; i < width * height; i++ ) {
-        rgb[i] = GLOBAL_material_black;
+        rgb[i] = white;
     }
 
     stepSize = 64;

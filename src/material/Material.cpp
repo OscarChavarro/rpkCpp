@@ -1,10 +1,7 @@
 #include <cstring>
-#include <cstdlib>
 
 #include "material/Material.h"
 #include "material/bsdf.h"
-
-Material GLOBAL_material_defaultMaterial;
 
 Material::Material(): name(), edf(), bsdf(), sided(0) {
     name = new char[10];
