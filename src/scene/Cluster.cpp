@@ -14,7 +14,7 @@ Reference:
 
 #include "java/util/ArrayList.txx"
 #include "skin/Compound.h"
-#include "app/Cluster.h"
+#include "scene/Cluster.h"
 
 // No clusters are created with less than this number of patches
 #define MINIMUM_NUMBER_OF_PATCHES_PER_CLUSTER 3

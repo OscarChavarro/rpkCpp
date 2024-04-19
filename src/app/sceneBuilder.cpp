@@ -6,7 +6,7 @@
 #include "io/mgf/readmgf.h"
 #include "app/sceneBuilder.h"
 #include "material/statistics.h"
-#include "app/Cluster.h"
+#include "scene/Cluster.h"
 #include "IMAGE/tonemap/tonemapping.h"
 #include "render/renderhook.h"
 

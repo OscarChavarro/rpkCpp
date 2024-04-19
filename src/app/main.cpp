@@ -8,7 +8,7 @@
 #include "render/ScreenBuffer.h"
 //#include "render/glutDebugTools.h"
 #include "GALERKIN/GalerkinRadianceMethod.h"
-#include "app/Cluster.h"
+#include "scene/Cluster.h"
 #include "app/radiance.h"
 #include "app/commandLine.h"
 #include "app/sceneBuilder.h"

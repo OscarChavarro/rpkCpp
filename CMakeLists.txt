@@ -61,11 +61,12 @@ set(MAIN_SRC
     src/SGL/poly_scan_z.cpp
     src/SGL/sgl.cpp
     src/SGL/poly_scan_flat.cpp
-    src/scene/VoxelGrid.cpp
     src/scene/Background.cpp
-    src/scene/VoxelData.cpp
     src/scene/Plane.cpp
     src/scene/Camera.cpp
+    src/scene/Cluster.cpp
+    src/scene/VoxelData.cpp
+    src/scene/VoxelGrid.cpp
     src/scene/RadianceMethod.cpp
     src/scene/Scene.cpp
     src/IMAGE/pic.cpp
@@ -174,7 +175,6 @@ set(MAIN_SRC
     src/raycasting/stochasticRaytracing/rtstochasticphotonmap.cpp
     src/raycasting/stochasticRaytracing/hierarchyRefine.cpp
     src/raycasting/stochasticRaytracing/basisquadmcrad.cpp
-    src/app/Cluster.cpp
     src/app/radiance.cpp
     src/app/raytrace.cpp
     src/app/sceneBuilder.cpp
