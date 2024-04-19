@@ -134,7 +134,7 @@ estimateSceneAdaptation(ColorRgb (*patch_radiance)(Patch *), java::ArrayList<Pat
             break;
         }
         default:
-            logError("mainComputeSomeSceneStats", "unknown static adaptation method %d", GLOBAL_toneMap_options.staticAdaptationMethod);
+            logError("sceneBuilderComputeStats", "unknown static adaptation method %d", GLOBAL_toneMap_options.staticAdaptationMethod);
     }
 }
 

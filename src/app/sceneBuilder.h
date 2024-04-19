@@ -5,11 +5,11 @@
 #include "scene/Scene.h"
 
 extern void
-mainBuildModel(
-        const int *argc,
-        char *const *argv,
-        MgfContext *context,
-        Scene *scene,
-        char **currentWorkingDirectory);
+sceneBuilderCreateModel(
+    const int *argc,
+    char *const *argv,
+    MgfContext *context,
+    Scene *scene,
+    char **currentWorkingDirectory);
 
 #endif

@@ -23,26 +23,10 @@
     #include "app/raytrace.h"
 #endif
 
-#define DEFAULT_MONOCHROME false
-#define DEFAULT_DISPLAY_LISTS false
-#define DEFAULT_SMOOTH_SHADING true
-#define DEFAULT_BACKFACE_CULLING true
-#define DEFAULT_OUTLINE_DRAWING false
-#define DEFAULT_BOUNDING_BOX_DRAWING false
-#define DEFAULT_CLUSTER_DRAWING false
-#define DEFAULT_OUTLINE_COLOR {0.5, 0.0, 0.0}
-#define DEFAULT_BOUNDING_BOX_COLOR {0.5, 0.0, 1.0}
-#define DEFAULT_CLUSTER_COLOR {1.0, 0.5, 0.0}
-
 static char *globalCurrentDirectory;
-static int globalImageOutputWidth = 1920;
-static int globalImageOutputHeight = 1080;
-static bool globalOneSidedSurfaces;
-static int globalConicSubDivisions;
-static Scene globalScene;
 
 static void
-mainPatchAccumulateStats(Patch *patch) {
+sceneBuilderPatchAccumulateStats(Patch *patch) {
     ColorRgb E = patch->averageEmittance(ALL_COMPONENTS);
     ColorRgb R = patch->averageNormalAlbedo(BSDF_ALL_COMPONENTS);
     ColorRgb power;
@@ -57,7 +41,7 @@ mainPatchAccumulateStats(Patch *patch) {
 }
 
 static void
-mainComputeSomeSceneStats(Scene *scene) {
+sceneBuilderComputeStats(Scene *scene) {
     Vector3D zero;
     ColorRgb one;
     ColorRgb averageAbsorption;
@@ -75,7 +59,7 @@ mainComputeSomeSceneStats(Scene *scene) {
 
     // Accumulate
     for ( int i = 0; i < scene->patchList->size(); i++ ) {
-        mainPatchAccumulateStats(scene->patchList->get(i));
+        sceneBuilderPatchAccumulateStats(scene->patchList->get(i));
     }
 
     // Averages
@@ -104,7 +88,7 @@ mainComputeSomeSceneStats(Scene *scene) {
 Adds the background to the global light source patch list
 */
 static void
-mainAddBackgroundToLightSourceList(Scene *scene) {
+sceneBuilderAddBackgroundToLightSourceList(Scene *scene) {
     if ( scene->background != nullptr && scene->background->bkgPatch != nullptr ) {
         scene->lightSourcePatchList->add(scene->background->bkgPatch);
         GLOBAL_statistics.numberOfLightSources++;
@@ -116,7 +100,7 @@ Adds the patch to the global light source patch list if the patch is on
 a light source (i.e. when the surfaces material has a non-null edf)
 */
 static void
-mainAddPatchToLightSourceListIfLightSource(java::ArrayList<Patch *> *lights, Patch *patch) {
+sceneBuilderAddPatchToLightSourceListIfLightSource(java::ArrayList<Patch *> *lights, Patch *patch) {
     if ( patch != nullptr
          && patch->material != nullptr
          && patch->material->edf != nullptr ) {
@@ -129,60 +113,16 @@ mainAddPatchToLightSourceListIfLightSource(java::ArrayList<Patch *> *lights, Pat
 Build the global light source patch list
 */
 static void
-mainBuildLightSourcePatchList(Scene *scene) {
+sceneBuilderFillLightSourcePatchList(Scene *scene) {
     java::ArrayList<Patch *> *lights = new java::ArrayList<Patch *>();
     GLOBAL_statistics.numberOfLightSources = 0;
 
     for ( int i = 0; i < scene->patchList->size(); i++ ) {
-        mainAddPatchToLightSourceListIfLightSource(lights, scene->patchList->get(i));
+        sceneBuilderAddPatchToLightSourceListIfLightSource(lights, scene->patchList->get(i));
     }
 
-    mainAddBackgroundToLightSourceList(scene);
+    sceneBuilderAddBackgroundToLightSourceList(scene);
     scene->lightSourcePatchList = lights;
-}
-
-static void
-mainRenderingDefaults() {
-    ColorRgb outlineColor = DEFAULT_OUTLINE_COLOR;
-    ColorRgb boundingBoxColor = DEFAULT_BOUNDING_BOX_COLOR;
-    ColorRgb clusterColor = DEFAULT_CLUSTER_COLOR;
-
-    renderUseDisplayLists(DEFAULT_DISPLAY_LISTS);
-    renderSetSmoothShading(DEFAULT_SMOOTH_SHADING);
-    renderSetBackfaceCulling(DEFAULT_BACKFACE_CULLING);
-    renderSetOutlineDrawing(DEFAULT_OUTLINE_DRAWING);
-    renderSetBoundingBoxDrawing(DEFAULT_BOUNDING_BOX_DRAWING);
-    renderSetClusterDrawing(DEFAULT_CLUSTER_DRAWING);
-    renderSetOutlineColor(&outlineColor);
-    renderSetBoundingBoxColor(&boundingBoxColor);
-    renderSetClusterColor(&clusterColor);
-    renderUseFrustumCulling(true);
-    renderSetNoShading(false);
-
-    GLOBAL_render_renderOptions.lineWidth = 1.0;
-    GLOBAL_render_renderOptions.renderRayTracedImage = false;
-}
-
-/**
-Global initializations
-*/
-static void
-mainInit(Scene *scene) {
-    // Transforms the cubature rules for quadrilaterals to be over the domain [0,1]^2 instead of [-1,1]^2
-    fixCubatureRules();
-
-    mainRenderingDefaults();
-    toneMapDefaults();
-    radianceDefaults(nullptr, scene->camera, scene->clusteredRootGeometry);
-
-    #ifdef RAYTRACING_ENABLED
-        mainRayTracingDefaults();
-    #endif
-
-    // Default vertex compare flags: both location and normal is relevant. Two
-    // vertices without normal, but at the same location, are to be considered
-    // different
-    Vertex::setCompareFlags(VERTEX_COMPARE_LOCATION | VERTEX_COMPARE_NORMAL);
 }
 
 /**
@@ -194,7 +134,7 @@ This hierarchy is often much more efficient for tracing rays and clustering radi
 than the given hierarchy of bounding boxes. A pointer to the toplevel "cluster" is returned
 */
 static Geometry *
-mainCreateClusterHierarchy(java::ArrayList<Patch *> *patches) {
+sceneBuilderCreateClusterHierarchy(java::ArrayList<Patch *> *patches) {
     Cluster *rootCluster;
     Geometry *rootGeometry;
 
@@ -212,35 +152,17 @@ mainCreateClusterHierarchy(java::ArrayList<Patch *> *patches) {
 }
 
 /**
-Processes command line arguments
-*/
-static void
-mainParseGlobalOptions(int *argc, char **argv, RadianceMethod **context, Camera *camera) {
-    renderParseOptions(argc, argv);
-    parseToneMapOptions(argc, argv);
-    parseCameraOptions(argc, argv, camera, globalImageOutputWidth, globalImageOutputHeight);
-    parseRadianceOptions(argc, argv, context);
-
-    #ifdef RAYTRACING_ENABLED
-        mainParseRayTracingOptions(argc, argv);
-    #endif
-
-    parseBatchOptions(argc, argv);
-    parseGeneralProgramOptions(argc, argv, &globalOneSidedSurfaces, &globalConicSubDivisions);
-}
-
-/**
 Builds a linear list of patches making up all the geometries in the list, whether
 they are primitive or not
 */
 static void
-buildPatchList(java::ArrayList<Geometry *> *geometryList, java::ArrayList<Patch *> *patchList) {
+sceneBuilderPatchList(java::ArrayList<Geometry *> *geometryList, java::ArrayList<Patch *> *patchList) {
     for ( int i = 0; i < geometryList->size(); i++ ) {
         Geometry *geometry = geometryList->get(i);
         if ( geometry->isCompound() ) {
             // Recursive case
             Compound *compound = (Compound *)geometry->compoundData;
-            buildPatchList(compound->children, patchList);
+            sceneBuilderPatchList(compound->children, patchList);
         } else {
             // Trivial case
             java::ArrayList<Patch *> *patchesFromNonCompounds = geomPatchArrayListReference(geometry);
@@ -261,7 +183,7 @@ Returns true if successful. There's nothing GUI specific in this function.
 When a file cannot be read, the current scene is restored
 */
 static bool
-mainReadFile(char *filename, MgfContext *context, Scene *scene) {
+sceneBuilderReadFile(char *filename, MgfContext *context, Scene *scene) {
     // Check whether the file can be opened if not reading from stdin
     if ( filename[0] != '#' ) {
         FILE *input = fopen(filename, "r");
@@ -337,7 +259,7 @@ mainReadFile(char *filename, MgfContext *context, Scene *scene) {
     fflush(stderr);
 
     scene->patchList = new java::ArrayList<Patch *>();
-    buildPatchList(scene->geometryList, scene->patchList);
+    sceneBuilderPatchList(scene->geometryList, scene->patchList);
 
     t = clock();
     fprintf(stderr, "%g secs.\n", (float) (t - last) / (float) CLOCKS_PER_SEC);
@@ -347,7 +269,7 @@ mainReadFile(char *filename, MgfContext *context, Scene *scene) {
     fprintf(stderr, "Building light source patch list ... ");
     fflush(stderr);
 
-    mainBuildLightSourcePatchList(scene);
+    sceneBuilderFillLightSourcePatchList(scene);
 
     t = clock();
     fprintf(stderr, "%g secs.\n", (float) (t - last) / (float) CLOCKS_PER_SEC);
@@ -357,7 +279,7 @@ mainReadFile(char *filename, MgfContext *context, Scene *scene) {
     fprintf(stderr, "Building cluster hierarchy ... ");
     fflush(stderr);
 
-    scene->clusteredRootGeometry = mainCreateClusterHierarchy(scene->patchList);
+    scene->clusteredRootGeometry = sceneBuilderCreateClusterHierarchy(scene->patchList);
 
     if ( scene->clusteredRootGeometry->className == GeometryClassId::COMPOUND ) {
         if ( scene->clusteredRootGeometry->compoundData == nullptr ) {
@@ -384,7 +306,7 @@ mainReadFile(char *filename, MgfContext *context, Scene *scene) {
     fflush(stderr);
 
     GLOBAL_statistics.numberOfPatches = GLOBAL_statistics.numberOfElements;
-    mainComputeSomeSceneStats(scene);
+    sceneBuilderComputeStats(scene);
     GLOBAL_statistics.referenceLuminance = 5.42 * ((1.0 - GLOBAL_statistics.averageReflectivity.gray()) *
         GLOBAL_statistics.estimatedAverageRadiance.luminance());
 
@@ -447,20 +369,98 @@ mainReadFile(char *filename, MgfContext *context, Scene *scene) {
     return true;
 }
 
-static void
-mainBuildModel(const int *argc, char *const *argv, MgfContext *context, Scene *scene) {
+void
+sceneBuilderCreateModel(const int *argc, char *const *argv, MgfContext *context, Scene *scene) {
     // All options should have disappeared from argv now
     if ( *argc > 1 ) {
         if ( *argv[1] == '-' ) {
             logError(nullptr, "Unrecognized option '%s'", argv[1]);
-        } else if ( !mainReadFile(argv[1], context, scene) ) {
+        } else if ( !sceneBuilderReadFile(argv[1], context, scene) ) {
             exit(1);
         }
     }
 }
 
+#define DEFAULT_MONOCHROME false
+#define DEFAULT_DISPLAY_LISTS false
+#define DEFAULT_SMOOTH_SHADING true
+#define DEFAULT_BACKFACE_CULLING true
+#define DEFAULT_OUTLINE_DRAWING false
+#define DEFAULT_BOUNDING_BOX_DRAWING false
+#define DEFAULT_CLUSTER_DRAWING false
+#define DEFAULT_OUTLINE_COLOR {0.5, 0.0, 0.0}
+#define DEFAULT_BOUNDING_BOX_COLOR {0.5, 0.0, 1.0}
+#define DEFAULT_CLUSTER_COLOR {1.0, 0.5, 0.0}
+
+static int globalImageOutputWidth = 1920;
+static int globalImageOutputHeight = 1080;
+static bool globalOneSidedSurfaces;
+static int globalConicSubDivisions;
+
 static void
-createOffscreenCanvasWindow(
+mainRenderingDefaults() {
+    ColorRgb outlineColor = DEFAULT_OUTLINE_COLOR;
+    ColorRgb boundingBoxColor = DEFAULT_BOUNDING_BOX_COLOR;
+    ColorRgb clusterColor = DEFAULT_CLUSTER_COLOR;
+
+    renderUseDisplayLists(DEFAULT_DISPLAY_LISTS);
+    renderSetSmoothShading(DEFAULT_SMOOTH_SHADING);
+    renderSetBackfaceCulling(DEFAULT_BACKFACE_CULLING);
+    renderSetOutlineDrawing(DEFAULT_OUTLINE_DRAWING);
+    renderSetBoundingBoxDrawing(DEFAULT_BOUNDING_BOX_DRAWING);
+    renderSetClusterDrawing(DEFAULT_CLUSTER_DRAWING);
+    renderSetOutlineColor(&outlineColor);
+    renderSetBoundingBoxColor(&boundingBoxColor);
+    renderSetClusterColor(&clusterColor);
+    renderUseFrustumCulling(true);
+    renderSetNoShading(false);
+
+    GLOBAL_render_renderOptions.lineWidth = 1.0;
+    GLOBAL_render_renderOptions.renderRayTracedImage = false;
+}
+
+/**
+Global initializations
+*/
+static void
+mainInit(Scene *scene) {
+    // Transforms the cubature rules for quadrilaterals to be over the domain [0,1]^2 instead of [-1,1]^2
+    fixCubatureRules();
+
+    mainRenderingDefaults();
+    toneMapDefaults();
+    radianceDefaults(nullptr, scene->camera, scene->clusteredRootGeometry);
+
+#ifdef RAYTRACING_ENABLED
+    mainRayTracingDefaults();
+#endif
+
+    // Default vertex compare flags: both location and normal is relevant. Two
+    // vertices without normal, but at the same location, are to be considered
+    // different
+    Vertex::setCompareFlags(VERTEX_COMPARE_LOCATION | VERTEX_COMPARE_NORMAL);
+}
+
+/**
+Processes command line arguments
+*/
+static void
+mainParseGlobalOptions(int *argc, char **argv, RadianceMethod **context, Camera *camera) {
+    renderParseOptions(argc, argv);
+    parseToneMapOptions(argc, argv);
+    parseCameraOptions(argc, argv, camera, globalImageOutputWidth, globalImageOutputHeight);
+    parseRadianceOptions(argc, argv, context);
+
+#ifdef RAYTRACING_ENABLED
+    mainParseRayTracingOptions(argc, argv);
+#endif
+
+    parseBatchOptions(argc, argv);
+    parseGeneralProgramOptions(argc, argv, &globalOneSidedSurfaces, &globalConicSubDivisions);
+}
+
+static void
+mainCreateOffscreenCanvasWindow(
     int width,
     int height,
     Camera *camera,
@@ -514,15 +514,15 @@ mainExecuteRendering(
     RadianceMethod *radianceMethod)
 {
     // Create the window in which to render (canvas window)
-    createOffscreenCanvasWindow(
-        outputImageWidth,
-        outputImageHeight,
-        camera,
-        scenePatches,
-        sceneGeometries,
-        sceneClusteredGeometries,
-        sceneClusteredWorldGeometry,
-        radianceMethod);
+    mainCreateOffscreenCanvasWindow(
+            outputImageWidth,
+            outputImageHeight,
+            camera,
+            scenePatches,
+            sceneGeometries,
+            sceneClusteredGeometries,
+            sceneClusteredWorldGeometry,
+            radianceMethod);
 
     #ifdef RAYTRACING_ENABLED
         int (*f)() = nullptr;
@@ -561,8 +561,10 @@ mainFreeMemory(MgfContext *context) {
 int
 main(int argc, char *argv[]) {
     RadianceMethod *selectedRadianceMethod = nullptr;
-    mainInit(&globalScene);
-    mainParseGlobalOptions(&argc, argv, &selectedRadianceMethod, globalScene.camera);
+    Scene scene;
+
+    mainInit(&scene);
+    mainParseGlobalOptions(&argc, argv, &selectedRadianceMethod, scene.camera);
 
     MgfContext mgfContext;
     mgfContext.radianceMethod = selectedRadianceMethod;
@@ -571,33 +573,33 @@ main(int argc, char *argv[]) {
     mgfContext.monochrome = DEFAULT_MONOCHROME;
     mgfContext.currentMaterial = &GLOBAL_material_defaultMaterial;
 
-    mainBuildModel(&argc, argv, &mgfContext, &globalScene);
+    sceneBuilderCreateModel(&argc, argv, &mgfContext, &scene);
 
     mainExecuteRendering(
-        globalScene.camera,
-        globalImageOutputWidth,
-        globalImageOutputHeight,
-        globalScene.background,
-        globalScene.geometryList,
-        globalScene.clusteredGeometryList,
-        globalScene.patchList,
-        globalScene.lightSourcePatchList,
-        globalScene.clusteredRootGeometry,
-        globalScene.voxelGrid,
-        selectedRadianceMethod);
+            scene.camera,
+            globalImageOutputWidth,
+            globalImageOutputHeight,
+            scene.background,
+            scene.geometryList,
+            scene.clusteredGeometryList,
+            scene.patchList,
+            scene.lightSourcePatchList,
+            scene.clusteredRootGeometry,
+            scene.voxelGrid,
+            selectedRadianceMethod);
 
     //executeGlutGui(
-    //    argc,
-    //    argv,
-    //    globalScene.camera,
-    //    globalScene.patchList,
-    //    globalScene.lightSourcePatchList,
-    //    globalScene.geometryList,
-    //    globalScene.clusteredRootGeometry,
-    //    globalScene.background,
-    //    globalScene.clusteredRootGeometry,
-    //    mgfContext.radianceMethod,
-    //    globalSceneWorldVoxelGrid);
+    //        argc,
+    //        argv,
+    //        scene.camera,
+    //        scene.patchList,
+    //        scene.lightSourcePatchList,
+    //        scene.geometryList,
+    //        scene.clusteredRootGeometry,
+    //        scene.background,
+    //        scene.clusteredRootGeometry,
+    //        mgfContext.radianceMethod,
+    //        scene.voxelGrid);
 
     mainFreeMemory(&mgfContext);
 
