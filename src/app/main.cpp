@@ -57,7 +57,7 @@ mainPatchAccumulateStats(Patch *patch) {
 }
 
 static void
-mainComputeSomeSceneStats(java::ArrayList<Patch *> *scenePatches) {
+mainComputeSomeSceneStats(Scene *scene) {
     Vector3D zero;
     ColorRgb one;
     ColorRgb averageAbsorption;
@@ -74,8 +74,8 @@ mainComputeSomeSceneStats(java::ArrayList<Patch *> *scenePatches) {
     GLOBAL_statistics.totalArea = 0.0;
 
     // Accumulate
-    for ( int i = 0; i < scenePatches->size(); i++ ) {
-        mainPatchAccumulateStats(scenePatches->get(i));
+    for ( int i = 0; i < scene->patchList->size(); i++ ) {
+        mainPatchAccumulateStats(scene->patchList->get(i));
     }
 
     // Averages
@@ -88,7 +88,7 @@ mainComputeSomeSceneStats(java::ArrayList<Patch *> *scenePatches) {
         GLOBAL_statistics.totalEmittedPower);
 
     // Include background radiation
-    BP = backgroundPower(globalScene.background, &zero);
+    BP = backgroundPower(scene->background, &zero);
     BP.scale(1.0 / (4.0 * (double) M_PI));
     GLOBAL_statistics.totalEmittedPower.add(GLOBAL_statistics.totalEmittedPower, BP);
     GLOBAL_statistics.estimatedAverageRadiance.add(GLOBAL_statistics.estimatedAverageRadiance, BP);
@@ -104,9 +104,9 @@ mainComputeSomeSceneStats(java::ArrayList<Patch *> *scenePatches) {
 Adds the background to the global light source patch list
 */
 static void
-mainAddBackgroundToLightSourceList(java::ArrayList<Patch *> *lights) {
-    if ( globalScene.background != nullptr && globalScene.background->bkgPatch != nullptr ) {
-        lights->add(globalScene.background->bkgPatch);
+mainAddBackgroundToLightSourceList(Scene *scene) {
+    if ( scene->background != nullptr && scene->background->bkgPatch != nullptr ) {
+        scene->lightSourcePatchList->add(scene->background->bkgPatch);
         GLOBAL_statistics.numberOfLightSources++;
     }
 }
@@ -128,17 +128,17 @@ mainAddPatchToLightSourceListIfLightSource(java::ArrayList<Patch *> *lights, Pat
 /**
 Build the global light source patch list
 */
-static java::ArrayList<Patch *> *
-mainBuildLightSourcePatchList(java::ArrayList<Patch *> *scenePatches) {
+static void
+mainBuildLightSourcePatchList(Scene *scene) {
     java::ArrayList<Patch *> *lights = new java::ArrayList<Patch *>();
     GLOBAL_statistics.numberOfLightSources = 0;
 
-    for ( int i = 0; i < scenePatches->size(); i++ ) {
-        mainAddPatchToLightSourceListIfLightSource(lights, scenePatches->get(i));
+    for ( int i = 0; i < scene->patchList->size(); i++ ) {
+        mainAddPatchToLightSourceListIfLightSource(lights, scene->patchList->get(i));
     }
 
-    mainAddBackgroundToLightSourceList(lights);
-    return lights;
+    mainAddBackgroundToLightSourceList(scene);
+    scene->lightSourcePatchList = lights;
 }
 
 static void
@@ -167,13 +167,13 @@ mainRenderingDefaults() {
 Global initializations
 */
 static void
-mainInit(Camera *camera) {
+mainInit(Scene *scene) {
     // Transforms the cubature rules for quadrilaterals to be over the domain [0,1]^2 instead of [-1,1]^2
     fixCubatureRules();
 
     mainRenderingDefaults();
     toneMapDefaults();
-    radianceDefaults(nullptr, camera, globalScene.clusteredRootGeometry);
+    radianceDefaults(nullptr, scene->camera, scene->clusteredRootGeometry);
 
     #ifdef RAYTRACING_ENABLED
         mainRayTracingDefaults();
@@ -261,7 +261,7 @@ Returns true if successful. There's nothing GUI specific in this function.
 When a file cannot be read, the current scene is restored
 */
 static bool
-mainReadFile(char *filename, MgfContext *context, Camera *camera) {
+mainReadFile(char *filename, MgfContext *context, Scene *scene) {
     // Check whether the file can be opened if not reading from stdin
     if ( filename[0] != '#' ) {
         FILE *input = fopen(filename, "r");
@@ -288,7 +288,7 @@ mainReadFile(char *filename, MgfContext *context, Camera *camera) {
     }
 
     // Init compute method
-    setRadianceMethod(nullptr, camera, nullptr, globalScene.clusteredRootGeometry);
+    setRadianceMethod(nullptr, scene->camera, nullptr, scene->clusteredRootGeometry);
 
     #ifdef RAYTRACING_ENABLED
         Raytracer *currentRaytracer = GLOBAL_raytracer_activeRaytracer;
@@ -296,11 +296,11 @@ mainReadFile(char *filename, MgfContext *context, Camera *camera) {
     #endif
 
     // Prepare if errors occur when reading the new scene will abort
-    globalScene.geometryList = nullptr;
+    scene->geometryList = nullptr;
 
     Patch::setNextId(1);
-    globalScene.clusteredGeometryList = new java::ArrayList<Geometry *>();
-    globalScene.background = nullptr;
+    scene->clusteredGeometryList = new java::ArrayList<Geometry *>();
+    scene->background = nullptr;
 
     // Read the mgf file. The result is a new GLOBAL_scene_world and GLOBAL_scene_materials if everything goes well
     char *extension;
@@ -316,7 +316,7 @@ mainReadFile(char *filename, MgfContext *context, Camera *camera) {
 
     if ( strncmp(extension, "mgf", 3) == 0 ) {
         readMgf(filename, context);
-        globalScene.geometryList = context->geometries;
+        scene->geometryList = context->geometries;
     }
 
     clock_t t = clock();
@@ -326,7 +326,7 @@ mainReadFile(char *filename, MgfContext *context, Camera *camera) {
     delete[] globalCurrentDirectory;
 
     // Check for errors
-    if ( globalScene.geometryList == nullptr || globalScene.geometryList->size() == 0 ) {
+    if ( scene->geometryList == nullptr || scene->geometryList->size() == 0 ) {
         return false; // Not successful
     }
 
@@ -336,8 +336,8 @@ mainReadFile(char *filename, MgfContext *context, Camera *camera) {
     fprintf(stderr, "Building patch list ... ");
     fflush(stderr);
 
-    globalScene.patchList = new java::ArrayList<Patch *>();
-    buildPatchList(globalScene.geometryList, globalScene.patchList);
+    scene->patchList = new java::ArrayList<Patch *>();
+    buildPatchList(scene->geometryList, scene->patchList);
 
     t = clock();
     fprintf(stderr, "%g secs.\n", (float) (t - last) / (float) CLOCKS_PER_SEC);
@@ -347,7 +347,7 @@ mainReadFile(char *filename, MgfContext *context, Camera *camera) {
     fprintf(stderr, "Building light source patch list ... ");
     fflush(stderr);
 
-    globalScene.lightSourcePatchList = mainBuildLightSourcePatchList(globalScene.patchList);
+    mainBuildLightSourcePatchList(scene);
 
     t = clock();
     fprintf(stderr, "%g secs.\n", (float) (t - last) / (float) CLOCKS_PER_SEC);
@@ -357,10 +357,10 @@ mainReadFile(char *filename, MgfContext *context, Camera *camera) {
     fprintf(stderr, "Building cluster hierarchy ... ");
     fflush(stderr);
 
-    globalScene.clusteredRootGeometry = mainCreateClusterHierarchy(globalScene.patchList);
+    scene->clusteredRootGeometry = mainCreateClusterHierarchy(scene->patchList);
 
-    if ( globalScene.clusteredRootGeometry->className == GeometryClassId::COMPOUND ) {
-        if ( globalScene.clusteredRootGeometry->compoundData == nullptr ) {
+    if ( scene->clusteredRootGeometry->className == GeometryClassId::COMPOUND ) {
+        if ( scene->clusteredRootGeometry->compoundData == nullptr ) {
             fprintf(stderr, "Unexpected case: review code - generic case not supported anymore.\n");
             exit(2);
         }
@@ -373,7 +373,7 @@ mainReadFile(char *filename, MgfContext *context, Camera *camera) {
     last = t;
 
     // Create the scene level voxel grid
-    globalScene.voxelGrid = new VoxelGrid(globalScene.clusteredRootGeometry);
+    scene->voxelGrid = new VoxelGrid(scene->clusteredRootGeometry);
 
     t = clock();
     fprintf(stderr, "Voxel grid creation took %g secs.\n", (float) (t - last) / (float) CLOCKS_PER_SEC);
@@ -384,7 +384,7 @@ mainReadFile(char *filename, MgfContext *context, Camera *camera) {
     fflush(stderr);
 
     GLOBAL_statistics.numberOfPatches = GLOBAL_statistics.numberOfElements;
-    mainComputeSomeSceneStats(globalScene.patchList);
+    mainComputeSomeSceneStats(scene);
     GLOBAL_statistics.referenceLuminance = 5.42 * ((1.0 - GLOBAL_statistics.averageReflectivity.gray()) *
         GLOBAL_statistics.estimatedAverageRadiance.luminance());
 
@@ -396,7 +396,7 @@ mainReadFile(char *filename, MgfContext *context, Camera *camera) {
     fprintf(stderr, "Initializing tone mapping ... ");
     fflush(stderr);
 
-    initToneMapping(globalScene.patchList);
+    initToneMapping(scene->patchList);
 
     t = clock();
     fprintf(stderr, "%g secs.\n", (float) (t - last) / (float) CLOCKS_PER_SEC);
@@ -422,7 +422,7 @@ mainReadFile(char *filename, MgfContext *context, Camera *camera) {
     fprintf(stderr, "Initializing radiance method ... ");
     fflush(stderr);
 
-    setRadianceMethod(context->radianceMethod, camera, globalScene.patchList, globalScene.clusteredRootGeometry);
+    setRadianceMethod(context->radianceMethod, scene->camera, scene->patchList, scene->clusteredRootGeometry);
 
     t = clock();
     fprintf(stderr, "%g secs.\n", (float) (t - last) / (float) CLOCKS_PER_SEC);
@@ -432,7 +432,7 @@ mainReadFile(char *filename, MgfContext *context, Camera *camera) {
         if ( currentRaytracer != nullptr ) {
             fprintf(stderr, "Initializing raytracing method ... \n");
 
-            mainSetRayTracingMethod(currentRaytracer, globalScene.lightSourcePatchList);
+            mainSetRayTracingMethod(currentRaytracer, scene->lightSourcePatchList);
 
             t = clock();
             fprintf(stderr, "%g secs.\n", (float) (t - last) / (float) CLOCKS_PER_SEC);
@@ -448,12 +448,12 @@ mainReadFile(char *filename, MgfContext *context, Camera *camera) {
 }
 
 static void
-mainBuildModel(const int *argc, char *const *argv, MgfContext *context, Camera *camera) {
+mainBuildModel(const int *argc, char *const *argv, MgfContext *context, Scene *scene) {
     // All options should have disappeared from argv now
     if ( *argc > 1 ) {
         if ( *argv[1] == '-' ) {
             logError(nullptr, "Unrecognized option '%s'", argv[1]);
-        } else if ( !mainReadFile(argv[1], context, camera) ) {
+        } else if ( !mainReadFile(argv[1], context, scene) ) {
             exit(1);
         }
     }
@@ -561,7 +561,7 @@ mainFreeMemory(MgfContext *context) {
 int
 main(int argc, char *argv[]) {
     RadianceMethod *selectedRadianceMethod = nullptr;
-    mainInit(globalScene.camera);
+    mainInit(&globalScene);
     mainParseGlobalOptions(&argc, argv, &selectedRadianceMethod, globalScene.camera);
 
     MgfContext mgfContext;
@@ -571,7 +571,7 @@ main(int argc, char *argv[]) {
     mgfContext.monochrome = DEFAULT_MONOCHROME;
     mgfContext.currentMaterial = &GLOBAL_material_defaultMaterial;
 
-    mainBuildModel(&argc, argv, &mgfContext, globalScene.camera);
+    mainBuildModel(&argc, argv, &mgfContext, &globalScene);
 
     mainExecuteRendering(
         globalScene.camera,
