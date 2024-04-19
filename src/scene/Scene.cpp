@@ -26,4 +26,7 @@ Scene::~Scene() {
     if ( background != nullptr ) {
         delete background;
     }
+    if ( camera != nullptr ) {
+        delete camera;
+    }
 }

@@ -16,7 +16,7 @@
 #include "app/sceneBuilder.h"
 
 #ifdef RAYTRACING_ENABLED
-#include "app/raytrace.h"
+    #include "app/raytrace.h"
 #endif
 
 static void
