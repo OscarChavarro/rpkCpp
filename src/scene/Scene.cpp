@@ -23,4 +23,7 @@ Scene::~Scene() {
         delete voxelGrid;
         voxelGrid = nullptr;
     }
+    if ( background != nullptr ) {
+        delete background;
+    }
 }
