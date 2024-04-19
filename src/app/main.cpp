@@ -15,15 +15,14 @@
 //#include "render/glutDebugTools.h"
 #include "GALERKIN/GalerkinRadianceMethod.h"
 #include "scene/Cluster.h"
-#include "app/radiance.h"
 #include "app/commandLine.h"
+#include "app/sceneBuilder.h"
+#include "app/radiance.h"
 #include "app/batch.h"
 
 #ifdef RAYTRACING_ENABLED
     #include "app/raytrace.h"
 #endif
-
-static char *globalCurrentDirectory;
 
 static void
 sceneBuilderPatchAccumulateStats(Patch *patch) {
@@ -200,13 +199,13 @@ sceneBuilderReadFile(char *filename, MgfContext *context, Scene *scene) {
     // Get current directory from the filename
     unsigned long n = strlen(filename) + 1;
 
-    globalCurrentDirectory = new char[n];
-    snprintf(globalCurrentDirectory, n, "%s", filename);
-    char *slash = strrchr(globalCurrentDirectory, '/');
+    char *currentDirectory = new char[n];
+    snprintf(currentDirectory, n, "%s", filename);
+    char *slash = strrchr(currentDirectory, '/');
     if ( slash != nullptr ) {
         *slash = '\0';
     } else {
-        *globalCurrentDirectory = '\0';
+        *currentDirectory = '\0';
     }
 
     // Init compute method
@@ -245,7 +244,7 @@ sceneBuilderReadFile(char *filename, MgfContext *context, Scene *scene) {
     fprintf(stderr, "Reading took %g secs.\n", (float) (t - last) / (float) CLOCKS_PER_SEC);
     last = t;
 
-    delete[] globalCurrentDirectory;
+    delete[] currentDirectory;
 
     // Check for errors
     if ( scene->geometryList == nullptr || scene->geometryList->size() == 0 ) {
@@ -370,7 +369,12 @@ sceneBuilderReadFile(char *filename, MgfContext *context, Scene *scene) {
 }
 
 void
-sceneBuilderCreateModel(const int *argc, char *const *argv, MgfContext *context, Scene *scene) {
+sceneBuilderCreateModel(
+    const int *argc,
+    char *const *argv,
+    MgfContext *context,
+    Scene *scene)
+{
     // All options should have disappeared from argv now
     if ( *argc > 1 ) {
         if ( *argv[1] == '-' ) {
@@ -589,17 +593,17 @@ main(int argc, char *argv[]) {
             selectedRadianceMethod);
 
     //executeGlutGui(
-    //        argc,
-    //        argv,
-    //        scene.camera,
-    //        scene.patchList,
-    //        scene.lightSourcePatchList,
-    //        scene.geometryList,
-    //        scene.clusteredRootGeometry,
-    //        scene.background,
-    //        scene.clusteredRootGeometry,
-    //        mgfContext.radianceMethod,
-    //        scene.voxelGrid);
+    //    argc,
+    //    argv,
+    //    scene.camera,
+    //    scene.patchList,
+    //    scene.lightSourcePatchList,
+    //    scene.geometryList,
+    //    scene.clusteredRootGeometry,
+    //    scene.background,
+    //    scene.clusteredRootGeometry,
+    //    mgfContext.radianceMethod,
+    //    scene.voxelGrid);
 
     mainFreeMemory(&mgfContext);
 

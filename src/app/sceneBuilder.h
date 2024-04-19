@@ -9,7 +9,6 @@ sceneBuilderCreateModel(
     const int *argc,
     char *const *argv,
     MgfContext *context,
-    Scene *scene,
-    char **currentWorkingDirectory);
+    Scene *scene);
 
 #endif
