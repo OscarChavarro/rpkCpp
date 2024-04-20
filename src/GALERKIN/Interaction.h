@@ -23,8 +23,6 @@ class Interaction {
     unsigned char numberOfReceiverCubaturePositions;
     unsigned char visibility; // 255 for full visibility, 0 for full occlusion
 
-    bool isDuplicate;
-
     Interaction();
     explicit Interaction(
         GalerkinElement *inReceiverElement,
