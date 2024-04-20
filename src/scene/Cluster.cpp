@@ -42,7 +42,6 @@ Cluster::Cluster(java::ArrayList<Patch *> *inPatches) {
         (boundingBox.coordinates[MIN_X] + boundingBox.coordinates[MAX_X]) * 0.5f,
         (boundingBox.coordinates[MIN_Y] + boundingBox.coordinates[MAX_Y]) * 0.5f,
         (boundingBox.coordinates[MIN_Z] + boundingBox.coordinates[MAX_Z]) * 0.5f);
-
 }
 
 Cluster::~Cluster() {
@@ -82,7 +81,7 @@ Cluster::clusterAddPatch(Patch *patch) {
     BoundingBox patchBoundingBox{};
 
     if ( patch != nullptr ) {
-        patches->add(0, patch);
+        patches->add(patch);
         if ( patch->boundingBox != nullptr ) {
             patchBoundingBox = *patch->boundingBox;
         } else {
@@ -130,9 +129,9 @@ Cluster::clusterMovePatch(int parentIndex) {
     Vector3D midPatch;
 
     midPatch.set(
-              (patchBoundingBox->coordinates[MIN_X] + patchBoundingBox->coordinates[MAX_X]) / 2.0f,
-              (patchBoundingBox->coordinates[MIN_Y] + patchBoundingBox->coordinates[MAX_Y]) / 2.0f,
-              (patchBoundingBox->coordinates[MIN_Z] + patchBoundingBox->coordinates[MAX_Z]) / 2.0f);
+        (patchBoundingBox->coordinates[MIN_X] + patchBoundingBox->coordinates[MAX_X]) / 2.0f,
+        (patchBoundingBox->coordinates[MIN_Y] + patchBoundingBox->coordinates[MAX_Y]) / 2.0f,
+        (patchBoundingBox->coordinates[MIN_Z] + patchBoundingBox->coordinates[MAX_Z]) / 2.0f);
     // Note: comparator values assumed: X_GREATER, Y_GREATER and Z_GREATER, combined will give
     // an integer number from 0 to 7, or 8 if all are equal
     int selectedChildClusterIndex = vectorCompareByDimensions(&boundingBoxCentroid, &midPatch, EPSILON);
@@ -167,27 +166,25 @@ for each sub-cluster
 */
 void
 Cluster::splitCluster() {
-    int i;
-
     // Don't split the cluster if it contains too few patches
     if ( patches != nullptr && patches->size() <= MINIMUM_NUMBER_OF_PATCHES_PER_CLUSTER ) {
         return;
     }
 
     // Create eight sub-clusters for the cluster with initialized bounding box
-    for ( i = 0; i < 8; i++ ) {
+    for ( int i = 0; i < 8; i++ ) {
         children[i] = new Cluster();
     }
 
     // Check and possibly move each of the patches in the cluster to a sub-cluster
-    for ( i = 0; patches != nullptr && i < patches->size(); i++ ) {
+    for ( int i = 0; patches != nullptr && i < patches->size(); i++ ) {
         if ( clusterMovePatch(i) ) {
             i--;
         }
     }
 
     // Dispose of sub-clusters containing no patches, call splitCluster recursively for not empty sub-clusters
-    for ( i = 0; i < 8; i++ ) {
+    for ( int i = 0; i < 8; i++ ) {
         if ( children[i]->patches->size() == 0 ) {
             delete children[i];
             children[i] = nullptr;
@@ -207,18 +204,22 @@ Cluster::splitCluster() {
 Converts a cluster GLOBAL_stochasticRaytracing_hierarchy to a "normal" Geometry.
 The "normal" routines for raytracing can be used to trace a ray through the cluster
 GLOBAL_stochasticRaytracing_hierarchy and shaft culling and such can be done on clusters
-without extra code and such ... This routine is destructive:
-the Cluster GLOBAL_stochasticRaytracing_hierarchy is disposed of (the patch lists of the clusters
-are copied to the geometries)
+without extra code and such
 */
 Geometry *
 Cluster::convertClusterToGeometry() {
-    Geometry *patchesGeometry = nullptr;
+    Geometry *parentPatchesGeometry = nullptr;
     if ( patches != nullptr ) {
-        patchesGeometry = geomCreatePatchSet(patches);
+        parentPatchesGeometry = geomCreatePatchSet(patches);
     }
 
-    java::ArrayList<Geometry *> *geometryList = new java::ArrayList<Geometry *>();
+    java::ArrayList<Geometry *> *patchesGeometryList = new java::ArrayList<Geometry *>();
+
+    // The patches in the cluster are the first to be tested for intersection with
+    if ( parentPatchesGeometry != nullptr ) {
+        patchesGeometryList->add(parentPatchesGeometry);
+    }
+
     for ( int i = 0; i < 8; i++ ) {
         Geometry *child = nullptr;
         if ( children[i] != nullptr ) {
@@ -226,15 +227,12 @@ Cluster::convertClusterToGeometry() {
         }
 
         if ( child != nullptr ) {
-            geometryList->add(0, child);
+            patchesGeometryList->add(child);
         }
     }
 
-    // The patches in the cluster are the first to be tested for intersection with
-    if ( patchesGeometry != nullptr ) {
-        geometryList->add(0, patchesGeometry);
-    }
-
-    Compound *newCompound = new Compound(geometryList);
-    return new Geometry(nullptr, newCompound, GeometryClassId::COMPOUND);
+    Compound *newCompound = new Compound(patchesGeometryList);
+    Geometry *newGeometry = new Geometry(nullptr, newCompound, GeometryClassId::COMPOUND);
+    newGeometry->isDuplicate = true;
+    return newGeometry;
 }

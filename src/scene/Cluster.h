@@ -5,7 +5,7 @@
 #include "skin/Geometry.h"
 
 class Cluster {
-private:
+  private:
     java::ArrayList<Patch *> *patches;
     Cluster *children[8]{}; // Clusters form an octree
     BoundingBox boundingBox{}; // Bounding box for the cluster
@@ -16,11 +16,12 @@ private:
     bool clusterMovePatch(int parentIndex);
     void clusterAddPatch(Patch *patch);
 
-public:
-    virtual ~Cluster();
+  public:
     explicit Cluster(java::ArrayList<Patch *> *inPatches);
+    virtual ~Cluster();
+
     void splitCluster();
-    Geometry * convertClusterToGeometry();
+    Geometry *convertClusterToGeometry();
 };
 
 #endif

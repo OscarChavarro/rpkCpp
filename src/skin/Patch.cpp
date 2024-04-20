@@ -665,7 +665,7 @@ Patch::getBoundingBox(BoundingBox *bounds) {
 
 void
 Patch::computeBoundingBox() {
-    if ( !boundingBox ) {
+    if ( boundingBox == nullptr ) {
         boundingBox = new BoundingBox();
         for ( int i = 0; i < numberOfVertices; i++ ) {
             boundingBox->enlargeToIncludePoint(vertex[i]->point);
