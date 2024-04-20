@@ -80,7 +80,8 @@ Geometry::~Geometry() {
 Geometry *
 geomCreatePatchSet(java::ArrayList<Patch *> *geometryList) {
     if ( geometryList != nullptr && geometryList->size() > 0 ) {
-        return new Geometry(new PatchSet(geometryList), nullptr, GeometryClassId::PATCH_SET);
+        PatchSet *patchSet = new PatchSet(geometryList);
+        return new Geometry(patchSet, nullptr, GeometryClassId::PATCH_SET);
     }
 
     return nullptr;

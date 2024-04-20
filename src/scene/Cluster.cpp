@@ -236,6 +236,7 @@ Cluster::convertClusterToGeometry() {
     Geometry *parentPatchesGeometry = nullptr;
     if ( patches != nullptr ) {
         parentPatchesGeometry = geomCreatePatchSet(patches);
+        addToDeletionCache(parentPatchesGeometry);
     }
 
     java::ArrayList<Geometry *> *patchesGeometryList = new java::ArrayList<Geometry *>();

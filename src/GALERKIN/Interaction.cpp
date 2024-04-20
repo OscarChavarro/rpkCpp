@@ -47,8 +47,8 @@ Interaction::Interaction():
 Interaction::Interaction(
     GalerkinElement *inReceiverElement,
     GalerkinElement *inSourceElement,
-    const float *K,
-    const float *deltaK,
+    const float *inK,
+    const float *inDeltaK,
     unsigned char inNumberOfBasisFunctionsOnReceiver,
     unsigned char inNumberOfBasisFunctionsOnSource,
     unsigned char inNumberOfReceiverCubaturePositions,
@@ -63,19 +63,19 @@ Interaction::Interaction(
 
     if ( inNumberOfBasisFunctionsOnReceiver == 1 && inNumberOfBasisFunctionsOnSource == 1 ) {
         this->K = new float[1];
-        *this->K = *K;
+        *K = *inK;
     } else {
         this->K = new float[inNumberOfBasisFunctionsOnReceiver * inNumberOfBasisFunctionsOnSource];
         for ( int i = 0; i < inNumberOfBasisFunctionsOnReceiver * inNumberOfBasisFunctionsOnSource; i++ ) {
-            this->K[i] = K[i];
+            K[i] = inK[i];
         }
     }
 
     if ( inNumberOfReceiverCubaturePositions > 1 ) {
         logFatal(2, "interactionCreate", "Not yet implemented for higher order approximations");
     }
-    this->deltaK = new float[1];
-    *(this->deltaK) = *deltaK;
+    deltaK = new float[1];
+    *(deltaK) = *inDeltaK;
 
     totalInteractions++;
     if ( inReceiverElement->isCluster() ) {
@@ -96,9 +96,11 @@ Interaction::Interaction(
 Interaction::~Interaction() {
     if ( K != nullptr ) {
         delete[] K;
+        K = nullptr;
     }
     if ( deltaK != nullptr ) {
         delete[] deltaK;
+        deltaK = nullptr;
     }
 }
 

@@ -27,8 +27,8 @@ class Interaction {
     explicit Interaction(
         GalerkinElement *inReceiverElement,
         GalerkinElement *inSourceElement,
-        const float *K,
-        const float *deltaK,
+        const float *inK,
+        const float *inDeltaK,
         unsigned char inNumberOfBasisFunctionsOnReceiver,
         unsigned char inNumberOfBasisFunctionsOnSource,
         unsigned char inNumberOfReceiverCubaturePositions,

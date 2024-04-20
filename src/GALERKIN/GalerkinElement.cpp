@@ -109,7 +109,6 @@ GalerkinElement::GalerkinElement(GalerkinState *inGalerkinState):
 {
     className = ElementTypes::ELEMENT_GALERKIN;
 
-    irregularSubElements = new java::ArrayList<Element *>();
     interactions = new java::ArrayList<Interaction *>();
     galerkinState = inGalerkinState;
 
