@@ -189,13 +189,6 @@ GalerkinElement::~GalerkinElement() {
         delete[] regularSubElements;
     }
 
-    if ( irregularSubElements != nullptr ) {
-        for ( int i = 0; i < irregularSubElements->size(); i++ ) {
-            delete irregularSubElements->get(i);
-        }
-        delete irregularSubElements;
-    }
-
     if ( radiance ) {
         delete[] radiance;
     }

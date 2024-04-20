@@ -49,7 +49,7 @@ class GalerkinElement : public Element {
     explicit GalerkinElement(Patch *patch, GalerkinState *inGalerkinState);
     explicit GalerkinElement(Geometry *parameterGeometry, GalerkinState *inGalerkinState);
 
-    ~GalerkinElement();
+    virtual ~GalerkinElement();
 
     void regularSubDivide(Camera *camera);
     GalerkinElement *regularLeafAtPoint(double *u, double *v);

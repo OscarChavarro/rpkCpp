@@ -42,5 +42,6 @@ extern void iterateOverSurfaceElementsInCluster(GalerkinElement *galerkinElement
 extern double receiverClusterArea(Interaction *link, GalerkinState *galerkinState);
 extern void clusterGatherRadiance(Interaction *link, ColorRgb *srcRad, GalerkinState *galerkinState);
 extern ColorRgb maxClusterRadiance(GalerkinElement *cluster, GalerkinState *galerkinState);
+extern void freeClusterGalerkinElements();
 
 #endif

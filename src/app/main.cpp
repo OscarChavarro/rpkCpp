@@ -9,6 +9,7 @@
 #include "render/ScreenBuffer.h"
 //#include "render/glutDebugTools.h"
 #include "GALERKIN/GalerkinRadianceMethod.h"
+#include "GALERKIN/clustergalerkincpp.h"
 #include "scene/Cluster.h"
 #include "app/commandLine.h"
 #include "app/sceneBuilder.h"
@@ -200,6 +201,7 @@ mainFreeMemory(MgfContext *context) {
     mgfFreeMemory(context);
     galerkinFreeMemory();
     Cluster::deleteCachedGeometries();
+    freeClusterGalerkinElements();
 }
 
 int

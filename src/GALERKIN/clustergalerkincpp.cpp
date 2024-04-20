@@ -16,11 +16,29 @@ static Vector3D globalSamplePoint;
 static double globalProjectedArea;
 static ColorRgb *globalPSourceRad;
 static Interaction *globalTheLink;
+static java::ArrayList<GalerkinElement *> *irregularElementsToDelete = nullptr;
+static java::ArrayList<GalerkinElement *> *hierarchyElements = nullptr;
 
 // Area corresponding to one pixel in the scratch frame buffer
 static double globalPixelArea;
 
 static GalerkinElement *galerkinDoCreateClusterHierarchy(Geometry *parentGeometry, GalerkinState *galerkinState);
+
+static void
+addElementToIrregularChildrenDeletionCache(GalerkinElement *element) {
+    if ( irregularElementsToDelete == nullptr ) {
+        irregularElementsToDelete = new java::ArrayList<GalerkinElement *>();
+    }
+    irregularElementsToDelete->add(element);
+}
+
+static void
+addElementToHierarchiesDeletionCache(GalerkinElement *element) {
+    if ( hierarchyElements == nullptr ) {
+        hierarchyElements = new java::ArrayList<GalerkinElement *>();
+    }
+    hierarchyElements->add(element);
+}
 
 /**
 Creates a cluster hierarchy for the Geometry and adds it to the sub-cluster list of the
@@ -32,8 +50,9 @@ geomAddClusterChild(Geometry *geom, GalerkinElement *parentCluster, GalerkinStat
 
     if ( parentCluster->irregularSubElements == nullptr ) {
         parentCluster->irregularSubElements = new java::ArrayList<Element *>();
+        addElementToIrregularChildrenDeletionCache(parentCluster);
     }
-    parentCluster->irregularSubElements->add(0, cluster);
+    parentCluster->irregularSubElements->add(cluster);
     cluster->parent = parentCluster;
 }
 
@@ -47,8 +66,9 @@ patchAddClusterChild(Patch *patch, GalerkinElement *cluster) {
 
     if ( cluster->irregularSubElements == nullptr ) {
         cluster->irregularSubElements = new java::ArrayList<Element *>();
+        addElementToIrregularChildrenDeletionCache(cluster);
     }
-    cluster->irregularSubElements->add(0, surfaceElement);
+    cluster->irregularSubElements->add(surfaceElement);
     surfaceElement->parent = cluster;
 }
 
@@ -109,6 +129,8 @@ galerkinDoCreateClusterHierarchy(Geometry *parentGeometry, GalerkinState *galerk
 
     // Create a cluster for the parentGeometry
     GalerkinElement *cluster = new GalerkinElement(parentGeometry, galerkinState);
+    addElementToHierarchiesDeletionCache(cluster);
+
     parentGeometry->radianceData = cluster;
 
     // Recursively creates list of sub-clusters
@@ -496,4 +518,26 @@ maxClusterRadiance(GalerkinElement *cluster, GalerkinState *galerkinState) {
     globalSourceRadiance.clear();
     iterateOverSurfaceElementsInCluster(cluster, determineMaxRadiance, galerkinState);
     return globalSourceRadiance;
+}
+
+void
+freeClusterGalerkinElements() {
+    if ( irregularElementsToDelete != nullptr ) {
+        for ( int i = 0; i < irregularElementsToDelete->size(); i++ ) {
+            GalerkinElement *element = irregularElementsToDelete->get(i);
+            delete element->irregularSubElements;
+        }
+
+        delete irregularElementsToDelete;
+        irregularElementsToDelete = nullptr;
+    }
+
+    if ( hierarchyElements != nullptr ) {
+        for ( int i = 0; i < hierarchyElements->size(); i++ ) {
+            GalerkinElement *element = hierarchyElements->get(i);
+            delete element;
+        }
+        delete hierarchyElements;
+        hierarchyElements = nullptr;
+    }
 }

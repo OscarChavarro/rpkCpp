@@ -452,6 +452,7 @@ GalerkinRadianceMethod::terminate(java::ArrayList<Patch *> *scenePatches) {
     scratchTerminate(&galerkinState);
     if ( galerkinState.topCluster != nullptr ) {
         galerkinDestroyClusterHierarchy(galerkinState.topCluster);
+        delete galerkinState.topCluster;
         galerkinState.topCluster = nullptr;
     }
 }
