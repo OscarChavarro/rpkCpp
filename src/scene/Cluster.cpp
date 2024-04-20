@@ -19,6 +19,8 @@ Reference:
 // No clusters are created with less than this number of patches
 #define MINIMUM_NUMBER_OF_PATCHES_PER_CLUSTER 3
 
+java::ArrayList<Geometry *> *Cluster::clusterNodeGeometriesToDelete = nullptr;
+
 /**
 Creates an empty cluster with initialized bounding box
 */
@@ -55,6 +57,29 @@ Cluster::~Cluster() {
 
     delete patches; // Containing just reference to patches owned by external objects
     patches = nullptr;
+}
+
+void
+Cluster::addToDeletionCache(Geometry *geometry) {
+    if ( clusterNodeGeometriesToDelete == nullptr ) {
+        clusterNodeGeometriesToDelete = new java::ArrayList<Geometry *>();
+    }
+    clusterNodeGeometriesToDelete->add(geometry);
+}
+
+void
+Cluster::deleteCachedGeometries() {
+    if ( clusterNodeGeometriesToDelete == nullptr ) {
+        return;
+    }
+    for ( int i = 0; i < clusterNodeGeometriesToDelete->size(); i++ ) {
+        Geometry *geometry = clusterNodeGeometriesToDelete->get(i);
+        geometry->isDuplicate = false;
+        geometry->radianceData = nullptr; // This was duplicated
+        delete clusterNodeGeometriesToDelete->get(i);
+    }
+    delete clusterNodeGeometriesToDelete;
+    clusterNodeGeometriesToDelete = nullptr;
 }
 
 void
@@ -234,5 +259,6 @@ Cluster::convertClusterToGeometry() {
     Compound *newCompound = new Compound(patchesGeometryList);
     Geometry *newGeometry = new Geometry(nullptr, newCompound, GeometryClassId::COMPOUND);
     newGeometry->isDuplicate = true;
+    addToDeletionCache(newGeometry);
     return newGeometry;
 }

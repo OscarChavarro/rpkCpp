@@ -199,6 +199,7 @@ mainFreeMemory(MgfContext *context) {
     deleteOptionsMemory();
     mgfFreeMemory(context);
     galerkinFreeMemory();
+    Cluster::deleteCachedGeometries();
 }
 
 int

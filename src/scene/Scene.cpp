@@ -23,7 +23,7 @@ Scene::~Scene() {
         clusteredGeometryList = nullptr;
     }
     if ( clusteredRootGeometry != nullptr ) {
-        delete clusteredRootGeometry;
+        //delete clusteredRootGeometry;
         clusteredRootGeometry = nullptr;
     }
     if ( patchList != nullptr ) {
