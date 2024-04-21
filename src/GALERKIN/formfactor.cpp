@@ -311,6 +311,9 @@ doHigherOrderAreaToAreaFormFactor(
         }
     }
 
+    if ( link->deltaK != nullptr ) {
+        delete[] link->deltaK;
+    }
     link->deltaK = new float[1];
     if ( srcRad[0].isBlack() ) {
         // No source radiance: use constant radiance error approximation
@@ -571,6 +574,9 @@ areaToAreaFormFactor(
     galerkinState->formFactorLastSrc = src;
 
     if ( galerkinState->clusteringStrategy == ISOTROPIC && (rcv->isCluster() || src->isCluster()) ) {
+        if ( link-> deltaK != nullptr ) {
+            delete[] link->deltaK;
+        }
         link->deltaK = new float[1];
         link->deltaK[0] = (float)(maxkval * src->area);
     }
