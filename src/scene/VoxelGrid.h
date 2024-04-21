@@ -7,6 +7,7 @@
 
 class VoxelGrid {
   private:
+    static java::ArrayList<VoxelGrid *> *subGridsToDelete;
     short xSize;
     short ySize;
     short zSize;
@@ -14,6 +15,8 @@ class VoxelGrid {
     java::ArrayList<VoxelData *> **volumeListsOfItems; // 3D array of item lists
     void **gridItemPool;
     BoundingBox boundingBox;
+
+    static void addToSubGridsDeletionCache(VoxelGrid *voxelGrid);
 
     inline float
     voxel2x(const float px) {
@@ -109,6 +112,8 @@ public:
             float *maximumDistance,
             int hitFlags,
             RayHit *hitStore);
+
+    static void freeSubGrids();
 };
 
 #endif

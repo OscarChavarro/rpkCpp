@@ -10,6 +10,8 @@ optimisations/enhancements from ray shade 4.0.6 by Graig Kolb, Stanford U
 #include "common/mymath.h"
 #include "scene/VoxelGrid.h"
 
+java::ArrayList<VoxelGrid *> * VoxelGrid::subGridsToDelete = nullptr;
+
 /**
 Constructs a recursive grid structure containing the whole geometry
 */
@@ -40,6 +42,22 @@ VoxelGrid::VoxelGrid(Geometry *geometry) : boundingBox{} {
 VoxelGrid::~VoxelGrid() {
     destroyGridRecursive();
     delete gridItemPool;
+}
+
+void
+VoxelGrid::addToSubGridsDeletionCache(VoxelGrid *voxelGrid) {
+    if ( subGridsToDelete == nullptr ) {
+        subGridsToDelete = new java::ArrayList<VoxelGrid *>();
+    }
+    subGridsToDelete->add(voxelGrid);
+}
+
+void
+VoxelGrid::freeSubGrids() {
+    if ( subGridsToDelete != nullptr ) {
+        delete subGridsToDelete;
+        subGridsToDelete = nullptr;
+    }
 }
 
 int
@@ -153,8 +171,9 @@ VoxelGrid::putSubGeometryInsideVoxelGrid(Geometry *geometry) {
         if ( geometry->itemCount < 10 ) {
             putItemInsideVoxelGrid(new VoxelData(geometry, GEOM_MASK), &geometry->boundingBox);
         } else {
-            VoxelGrid *subgrid = new VoxelGrid(geometry);
-            putItemInsideVoxelGrid(new VoxelData(subgrid, GRID_MASK), &subgrid->boundingBox);
+            VoxelGrid *subGrid = new VoxelGrid(geometry);
+            putItemInsideVoxelGrid(new VoxelData(subGrid, GRID_MASK), &subGrid->boundingBox);
+            addToSubGridsDeletionCache(subGrid);
         }
     } else {
         if ( geometry->isCompound() ) {
