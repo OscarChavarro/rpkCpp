@@ -76,7 +76,9 @@ Cluster::deleteCachedGeometries() {
         Geometry *geometry = clusterNodeGeometriesToDelete->get(i);
         geometry->isDuplicate = false;
         geometry->radianceData = nullptr; // This was duplicated
-        delete clusterNodeGeometriesToDelete->get(i);
+        if ( geometry != nullptr ) {
+            delete geometry;
+        }
     }
     delete clusterNodeGeometriesToDelete;
     clusterNodeGeometriesToDelete = nullptr;
@@ -236,7 +238,7 @@ Cluster::convertClusterToGeometry() {
     Geometry *parentPatchesGeometry = nullptr;
     if ( patches != nullptr ) {
         parentPatchesGeometry = geomCreatePatchSet(patches);
-        addToDeletionCache(parentPatchesGeometry);
+        //addToDeletionCache(parentPatchesGeometry);
     }
 
     java::ArrayList<Geometry *> *patchesGeometryList = new java::ArrayList<Geometry *>();

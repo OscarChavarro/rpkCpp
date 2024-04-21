@@ -199,17 +199,17 @@ Creates an initial link between the given element and the top cluster
 */
 void
 createInitialLinkWithTopCluster(GalerkinElement *element, GalerkinRole role, GalerkinState *galerkinState) {
-    GalerkinElement *rcv = nullptr;
-    GalerkinElement *src = nullptr;
+    GalerkinElement *receiverElement = nullptr;
+    GalerkinElement *sourceElement = nullptr;
 
     switch ( role ) {
         case RECEIVER:
-            rcv = element;
-            src = galerkinState->topCluster;
+            receiverElement = element;
+            sourceElement = galerkinState->topCluster;
             break;
         case SOURCE:
-            src = element;
-            rcv = galerkinState->topCluster;
+            sourceElement = element;
+            receiverElement = galerkinState->topCluster;
             break;
         default:
             logFatal(-1, "createInitialLinkWithTopCluster", "Invalid role");
@@ -219,13 +219,13 @@ createInitialLinkWithTopCluster(GalerkinElement *element, GalerkinRole role, Gal
     float *K = nullptr;
     float *deltaK = nullptr;
 
-    if ( rcv != nullptr && src != nullptr ) {
-        if ( rcv->basisSize * src->basisSize == 1 ) {
+    if ( receiverElement != nullptr && sourceElement != nullptr ) {
+        if ( receiverElement->basisSize * sourceElement->basisSize == 1 ) {
             K = new float[1];
             K[0] = 0.0;
         } else {
             K = new float[MAX_BASIS_SIZE * MAX_BASIS_SIZE];
-            for ( int i = 0; i < rcv->basisSize * src->basisSize; i++ ) {
+            for ( int i = 0; i < receiverElement->basisSize * sourceElement->basisSize; i++ ) {
                 K[i] = 0.0;
             }
         }
@@ -234,21 +234,35 @@ createInitialLinkWithTopCluster(GalerkinElement *element, GalerkinRole role, Gal
     }
 
     Interaction *newLink = new Interaction(
-        rcv,
-        src,
-        K,
-        deltaK,
-        rcv->basisSize,
-        src->basisSize,
-        1,
-        128
+            receiverElement,
+            sourceElement,
+            K,
+            deltaK,
+            receiverElement->basisSize,
+            sourceElement->basisSize,
+            1,
+            128
     );
+
+    if ( K != nullptr ) {
+        delete K;
+    }
+    if ( deltaK != nullptr ) {
+        delete deltaK;
+    }
 
     // Store interactions with the source patch for the progressive radiosity method
     // and with the receiving patch for gathering methods
-    if ( galerkinState->galerkinIterationMethod == SOUTH_WELL ) {
-        src->interactions->add(newLink);
-    } else {
-        rcv->interactions->add(newLink);
+    bool used = false;
+    if ( galerkinState->galerkinIterationMethod == SOUTH_WELL && sourceElement != nullptr ) {
+        sourceElement->interactions->add(newLink);
+        used = true;
+    } else if ( receiverElement != nullptr ) {
+        receiverElement->interactions->add(newLink);
+        used = true;
+    }
+
+    if ( !used ) {
+        delete newLink;
     }
 }

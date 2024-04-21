@@ -10,6 +10,7 @@ Hierarchical refinement
 #include "GALERKIN/formfactor.h"
 #include "GALERKIN/Shaft.h"
 #include "GALERKIN/clustergalerkincpp.h"
+#include "GALERKIN/Interaction.h"
 #include "GALERKIN/hierefine.h"
 
 /**
