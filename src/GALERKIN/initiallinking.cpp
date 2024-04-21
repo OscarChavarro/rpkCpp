@@ -245,10 +245,10 @@ createInitialLinkWithTopCluster(GalerkinElement *element, GalerkinRole role, Gal
     );
 
     if ( K != nullptr ) {
-        delete K;
+        delete[] K;
     }
     if ( deltaK != nullptr ) {
-        delete deltaK;
+        delete[] deltaK;
     }
 
     // Store interactions with the source patch for the progressive radiosity method
