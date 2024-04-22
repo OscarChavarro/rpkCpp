@@ -41,7 +41,6 @@ GalerkinState::GalerkinState():
         src4rule(),
         clusterRule(),
         topCluster(),
-        topGeometry(),
         errorNorm(),
         relMinElemArea(),
         relLinkErrorThreshold (),

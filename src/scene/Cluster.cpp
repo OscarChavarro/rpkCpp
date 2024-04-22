@@ -9,7 +9,7 @@ is often more efficient for tracing rays and for use in a clustering radiosity m
 
 Reference:
 - Per Christensen, PhD Thesis "Hierarchical Techniques for Glossy Global Illumination",
-  Univ. of Washington, 1995, p116-117
+  Univ. of Washington, 1995, p116-117 - section 6.7 "Creation of Clusters"
 */
 
 #include "java/util/ArrayList.txx"
@@ -74,9 +74,9 @@ Cluster::deleteCachedGeometries() {
     }
     for ( int i = 0; i < clusterNodeGeometriesToDelete->size(); i++ ) {
         Geometry *geometry = clusterNodeGeometriesToDelete->get(i);
-        geometry->isDuplicate = false;
-        geometry->radianceData = nullptr; // This was duplicated
         if ( geometry != nullptr ) {
+            geometry->isDuplicate = false;
+            geometry->radianceData = nullptr; // This was duplicated
             delete geometry;
         }
     }
@@ -238,7 +238,7 @@ Cluster::convertClusterToGeometry() {
     Geometry *parentPatchesGeometry = nullptr;
     if ( patches != nullptr ) {
         parentPatchesGeometry = geomCreatePatchSet(patches);
-        //addToDeletionCache(parentPatchesGeometry);
+        addToDeletionCache(parentPatchesGeometry);
     }
 
     java::ArrayList<Geometry *> *patchesGeometryList = new java::ArrayList<Geometry *>();
@@ -261,7 +261,6 @@ Cluster::convertClusterToGeometry() {
 
     Compound *newCompound = new Compound(patchesGeometryList);
     Geometry *newGeometry = new Geometry(nullptr, newCompound, GeometryClassId::COMPOUND);
-    newGeometry->isDuplicate = true;
     addToDeletionCache(newGeometry);
     return newGeometry;
 }

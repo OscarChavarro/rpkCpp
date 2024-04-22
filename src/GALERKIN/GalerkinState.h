@@ -65,7 +65,6 @@ class GalerkinState {
 
     // Global variables concerning clustering
     GalerkinElement *topCluster; // Top level cluster containing the whole scene
-    Geometry *topGeometry; // A single COMPOUND Geometry containing the whole scene
 
     // Parameters that control accuracy
     GalerkinErrorNorm errorNorm; // Control radiance or power error?
