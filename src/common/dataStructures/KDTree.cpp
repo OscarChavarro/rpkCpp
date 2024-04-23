@@ -408,7 +408,7 @@ KDTree::queryRec(const KDTreeNode *node) {
         }
     }
 
-    // Reuse dist
+    // Reuse distance
     dist = ((float *) node->m_data)[discriminator] - GLOBAL_qDatS.point[discriminator];
 
     if ( dist >= 0.0 ) {
@@ -447,7 +447,7 @@ KDTree::BQuery_rec(int index) {
 
     // Recursive call to the child nodes
 
-    // Test discr (reuse dist)
+    // Test discr (reuse distance)
     if ( index < m_firstLeaf ) {
         dist = ((float *) node.m_data)[discr] - GLOBAL_qDatS.point[discr];
 

@@ -6,6 +6,7 @@
 #include "java/util/ArrayList.h"
 #include "skin/Patch.h"
 #include "scene/Camera.h"
+#include "scene/Scene.h"
 
 class Background;
 class VoxelGrid;
@@ -37,15 +38,7 @@ class RadianceMethod {
     // of computations after which the scene is to be redrawn. Returns TRUE when
     // done
     virtual int
-    doStep(
-        Camera *camera,
-        Background *sceneBackground,
-        java::ArrayList<Patch *> *scenePatches,
-        java::ArrayList<Geometry *> *sceneGeometries,
-        java::ArrayList<Geometry *> *sceneClusteredGeometries,
-        java::ArrayList<Patch *> *lightPatches,
-        Geometry *clusteredWorldGeometry,
-        VoxelGrid *sceneWorldVoxelGrid) = 0;
+    doStep(Scene *scene) = 0;
 
     // Terminates radiance computations on the current scene
     virtual void terminate(java::ArrayList<Patch *> *scenePatches) = 0;

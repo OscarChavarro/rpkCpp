@@ -100,15 +100,7 @@ keypressCallback(unsigned char keyChar, int /*x*/, int /*y*/) {
             }
             break;
         case ' ':
-            globalRadianceMethod->doStep(
-                globalScene->camera,
-                globalScene->background,
-                globalScene->patchList,
-                globalScene->geometryList,
-                globalScene->clusteredGeometryList,
-                globalScene->lightSourcePatchList,
-                globalScene->clusteredRootGeometry,
-                globalScene->voxelGrid);
+            globalRadianceMethod->doStep(globalScene);
             break;
         case 'p':
             printDataStructures();
@@ -152,14 +144,7 @@ drawCallback() {
 
     glViewport(0, 0, globalWidth, globalHeight);
     glPolygonMode(GL_FRONT_AND_BACK, GL_LINES);
-    openGlRenderScene(
-        globalScene->camera,
-        globalScene->patchList,
-        globalScene->clusteredGeometryList,
-        globalScene->geometryList,
-        globalScene->clusteredRootGeometry,
-        nullptr,
-        globalRadianceMethod);
+    openGlRenderScene(globalScene, nullptr, globalRadianceMethod);
     glutSwapBuffers();
 }
 

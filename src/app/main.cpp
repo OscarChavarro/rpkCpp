@@ -4,7 +4,7 @@
 #include "io/mgf/readmgf.h"
 #include "render/render.h"
 #include "render/opengl.h"
-#include "render/glutDebugTools.h"
+//#include "render/glutDebugTools.h"
 #include "GALERKIN/GalerkinRadianceMethod.h"
 #include "GALERKIN/clustergalerkincpp.h"
 #include "scene/Cluster.h"
@@ -98,24 +98,20 @@ static void
 mainCreateOffscreenCanvasWindow(
     int width,
     int height,
-    Camera *camera,
-    java::ArrayList<Patch *> *scenePatches,
-    java::ArrayList<Geometry *> *sceneGeometries,
-    java::ArrayList<Geometry *> *sceneClusteredGeometries,
-    Geometry *clusteredWorldGeometry,
+    Scene *scene,
     RadianceMethod *context)
 {
-    openGlMesaRenderCreateOffscreenWindow(camera, width, height);
+    openGlMesaRenderCreateOffscreenWindow(scene->camera, width, height);
 
     // Set correct width and height for the camera
-    camera->set(
-            &camera->eyePosition,
-            &camera->lookPosition,
-            &camera->upDirection,
-            camera->fieldOfVision,
-            width,
-            height,
-            &camera->background);
+    scene->camera->set(
+        &scene->camera->eyePosition,
+        &scene->camera->lookPosition,
+        &scene->camera->upDirection,
+        scene->camera->fieldOfVision,
+        width,
+        height,
+        &scene->camera->background);
 
     #ifdef RAYTRACING_ENABLED
         // Render the scene (no expose events on the external canvas window!)
@@ -124,11 +120,7 @@ mainCreateOffscreenCanvasWindow(
             f = GLOBAL_raytracer_activeRaytracer->Redisplay;
         }
         openGlRenderScene(
-            camera,
-            scenePatches,
-            sceneGeometries,
-            sceneClusteredGeometries,
-            clusteredWorldGeometry,
+            scene,
             f,
             context);
     #endif
@@ -137,41 +129,17 @@ mainCreateOffscreenCanvasWindow(
 static void
 mainExecuteRendering(int outputImageWidth, int outputImageHeight, Scene *scene, RadianceMethod *radianceMethod) {
     // Create the window in which to render (canvas window)
-    mainCreateOffscreenCanvasWindow(
-        outputImageWidth,
-        outputImageHeight,
-        scene->camera,
-        scene->patchList,
-        scene->geometryList,
-        scene->clusteredGeometryList,
-        scene->clusteredRootGeometry,
-        radianceMethod);
+    mainCreateOffscreenCanvasWindow(outputImageWidth, outputImageHeight, scene, radianceMethod);
 
     #ifdef RAYTRACING_ENABLED
         int (*f)() = nullptr;
         if ( GLOBAL_raytracer_activeRaytracer != nullptr ) {
             f = GLOBAL_raytracer_activeRaytracer->Redisplay;
         }
-        openGlRenderScene(
-            scene->camera,
-            scene->patchList,
-            scene->clusteredGeometryList,
-            scene->geometryList,
-            scene->clusteredRootGeometry,
-            f,
-            radianceMethod);
+        openGlRenderScene(scene, f, radianceMethod);
     #endif
 
-    batch(
-        scene->camera,
-        scene->background,
-        scene->patchList,
-        scene->lightSourcePatchList,
-        scene->geometryList,
-        scene->clusteredGeometryList,
-        scene->clusteredRootGeometry,
-        scene->voxelGrid,
-        radianceMethod);
+    batchExecuteRadianceSimulation(scene, radianceMethod);
 }
 
 static void
@@ -204,7 +172,7 @@ main(int argc, char *argv[]) {
 
     mainExecuteRendering(globalImageOutputWidth, globalImageOutputHeight, &scene, selectedRadianceMethod);
 
-    executeGlutGui(argc, argv, &scene, mgfContext.radianceMethod);
+    //executeGlutGui(argc, argv, &scene, mgfContext.radianceMethod);
 
     mainFreeMemory(&mgfContext);
 

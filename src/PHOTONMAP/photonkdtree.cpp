@@ -43,7 +43,7 @@ CPhotonkdtree::NormalBQuery_rec(const int index) {
 
     // Recursive call to the child nodes
 
-    // Test discr (reuse dist)
+    // Test discr (reuse distance)
 
     if ( index < m_firstLeaf ) {
         dist = ((float *) node.m_data)[discr] - (qdat_s.point)[discr];

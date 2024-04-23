@@ -794,7 +794,7 @@ Adds all objects from world that overlap or lay inside the shaft to
 candidateList
 
 During shaft culling getPatchList geometries are created - they (and only they)
-need to be destroyed when destroying a geom candidate list created by
+need to be destroyed when destroying a geometry candidate list created by
 doCulling - for other kinds of geoms, only a pointer is copied
 */
 void

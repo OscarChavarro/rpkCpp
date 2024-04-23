@@ -449,38 +449,29 @@ RandomWalkRadianceMethod::terminate(java::ArrayList<Patch *> *scenePatches) {
 }
 
 int
-RandomWalkRadianceMethod::doStep(
-    Camera *camera,
-    Background *sceneBackground,
-    java::ArrayList<Patch *> *scenePatches,
-    java::ArrayList<Geometry *> *sceneGeometries,
-    java::ArrayList<Geometry *> *sceneClusteredGeometries,
-    java::ArrayList<Patch *> *lightPatches,
-    Geometry *clusteredWorldGeometry,
-    VoxelGrid *sceneWorldVoxelGrid)
-{
-    monteCarloRadiosityPreStep(camera, scenePatches, sceneGeometries, clusteredWorldGeometry);
+RandomWalkRadianceMethod::doStep(Scene *scene) {
+    monteCarloRadiosityPreStep(scene->camera, scene->patchList, scene->geometryList, scene->clusteredRootGeometry);
 
     if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.currentIteration == 1 ) {
         if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.indirectOnly ) {
-            randomWalkRadiosityDoFirstShot(sceneWorldVoxelGrid, scenePatches);
+            randomWalkRadiosityDoFirstShot(scene->voxelGrid, scene->patchList);
         }
     }
 
     switch ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.randomWalkEstimatorType ) {
         case RW_SHOOTING:
-            randomWalkRadiosityDoShootingIteration(sceneWorldVoxelGrid, scenePatches);
+            randomWalkRadiosityDoShootingIteration(scene->voxelGrid, scene->patchList);
             break;
         case RW_GATHERING:
-            randomWalkRadiosityDoGatheringIteration(sceneWorldVoxelGrid, scenePatches);
+            randomWalkRadiosityDoGatheringIteration(scene->voxelGrid, scene->patchList);
             break;
         default:
             logFatal(-1, "randomWalkRadiosityDoStep", "Unknown random walk estimator type %d",
                      GLOBAL_stochasticRaytracing_monteCarloRadiosityState.randomWalkEstimatorType);
     }
 
-    for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
-        monteCarloRadiosityPatchComputeNewColor(scenePatches->get(i));
+    for ( int i = 0; scene->patchList != nullptr && i < scene->patchList->size(); i++ ) {
+        monteCarloRadiosityPatchComputeNewColor(scene->patchList->get(i));
     }
 
     return false; // Never converged

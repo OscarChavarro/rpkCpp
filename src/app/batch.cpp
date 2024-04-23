@@ -104,16 +104,14 @@ batchProcessFile(
     const char *fileName,
     const char *openMode,
     void (*processFileCallback)(const char *fileName, FILE *fp, int isPipe, Camera *, java::ArrayList<Patch *> *scenePatches, Geometry *clusteredWorldGeometry, RadianceMethod *context),
-    Camera *camera,
-    java::ArrayList<Patch *> *scenePatches,
-    Geometry *clusteredWorldGeometry,
+    Scene *scene,
     RadianceMethod *context)
 {
     int isPipe;
     FILE *fp = openFileCompressWrapper(fileName, openMode, &isPipe);
 
     // Call the user supplied procedure to process the file
-    processFileCallback(fileName, fp, isPipe, camera, scenePatches, clusteredWorldGeometry, context);
+    processFileCallback(fileName, fp, isPipe, scene->camera, scene->patchList, scene->clusteredRootGeometry, context);
 
     closeFile(fp, isPipe);
 }
@@ -189,21 +187,11 @@ batchParseOptions(int *argc, char **argv) {
 }
 
 void
-batch(
-    Camera *camera,
-    Background *sceneBackground,
-    java::ArrayList<Patch *> *scenePatches,
-    java::ArrayList<Patch *> *lightPatches,
-    java::ArrayList<Geometry *> *sceneGeometries,
-    java::ArrayList<Geometry *> *sceneClusteredGeometries,
-    Geometry *clusteredWorldGeometry,
-    VoxelGrid *voxelGrid,
-    RadianceMethod *radianceMethod)
-{
+batchExecuteRadianceSimulation(Scene *scene, RadianceMethod *radianceMethod) {
     clock_t start_time, wasted_start;
     float wasted_secs;
 
-    if ( sceneGeometries == nullptr || sceneGeometries->size() == 0 ) {
+    if ( scene->geometryList == nullptr || scene->geometryList->size() == 0 ) {
         printf("Empty world??\n");
         return;
     }
@@ -232,15 +220,7 @@ batch(
                 fflush(stderr);
                 exit(1);
             }
-            done = radianceMethod->doStep(
-                camera,
-                sceneBackground,
-                scenePatches,
-                sceneGeometries,
-                sceneClusteredGeometries,
-                lightPatches,
-                clusteredWorldGeometry,
-                voxelGrid);
+            done = radianceMethod->doStep(scene);
             canvasPullMode();
 
             fflush(stdout);
@@ -256,14 +236,7 @@ batch(
                     f = GLOBAL_raytracer_activeRaytracer->Redisplay;
                 }
             #endif
-            openGlRenderScene(
-                    camera,
-                    scenePatches,
-                    sceneClusteredGeometries,
-                    sceneGeometries,
-                    clusteredWorldGeometry,
-                    f,
-                    radianceMethod);
+            openGlRenderScene(scene, f, radianceMethod);
 
             fflush(stdout);
             fflush(stderr);
@@ -278,9 +251,7 @@ batch(
                         fileName,
                         "w",
                         batchSaveRadianceImage,
-                        camera,
-                        scenePatches,
-                        clusteredWorldGeometry,
+                        scene,
                         radianceMethod);
                 delete[] fileName;
             }
@@ -290,13 +261,11 @@ batch(
                 char *fileName = new char[n];
                 snprintf(fileName, n, globalRadianceModelFileNameFormat, it);
                 batchProcessFile(
-                        fileName,
-                        "w",
-                        batchSaveRadianceModel,
-                        camera,
-                        scenePatches,
-                        clusteredWorldGeometry,
-                        radianceMethod);
+                    fileName,
+                    "w",
+                    batchSaveRadianceModel,
+                    scene,
+                    radianceMethod);
                 delete[] fileName;
             }
 
@@ -325,16 +294,16 @@ batch(
 
             start_time = clock();
             batchRayTrace(
-                    nullptr,
-                    nullptr,
-                    false,
-                    camera,
-                    sceneBackground,
-                    voxelGrid,
-                    scenePatches,
-                    lightPatches,
-                    clusteredWorldGeometry,
-                    radianceMethod);
+                nullptr,
+                nullptr,
+                false,
+                scene->camera,
+                scene->background,
+                scene->voxelGrid,
+                scene->patchList,
+                scene->lightSourcePatchList,
+                scene->clusteredRootGeometry,
+                radianceMethod);
 
             if ( globalTimings ) {
                 fprintf(stdout, "Raytracing total time %g secs.\n",
@@ -342,13 +311,11 @@ batch(
             }
 
             batchProcessFile(
-                    globalRaytracingImageFileName,
-                    "w",
-                    batchSaveRaytracingImage,
-                    camera,
-                    scenePatches,
-                    clusteredWorldGeometry,
-                    radianceMethod);
+                globalRaytracingImageFileName,
+                "w",
+                batchSaveRaytracingImage,
+                scene,
+                radianceMethod);
         } else {
             printf("(No pixel-based radiance computations are being done)\n");
         }

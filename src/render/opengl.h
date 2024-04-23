@@ -4,6 +4,7 @@
 #include "skin/Patch.h"
 #include "scene/RadianceMethod.h"
 #include "scene/Camera.h"
+#include "scene/Scene.h"
 
 extern void openGlRenderSetLineWidth(float width);
 extern void openGlRenderLine(Vector3D *x, Vector3D *y);
@@ -17,11 +18,7 @@ openGlRenderWorldOctree(
 
 extern void
 openGlRenderScene(
-    Camera *camera,
-    java::ArrayList<Patch *> *scenePatches,
-    java::ArrayList<Geometry *> *clusteredGeometryList,
-    java::ArrayList<Geometry *> *sceneGeometries,
-    Geometry *clusteredWorldGeometry,
+    Scene *scene,
     int (*reDisplayCallback)(),
     RadianceMethod *context);
 

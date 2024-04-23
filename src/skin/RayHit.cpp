@@ -23,8 +23,8 @@ RayHit::RayHit():
 
 /**
 Checks whether or not the hit record is properly initialised, that
-means that at least 'patch' or 'geom' plus 'point', 'geometricNormal', 'material'
-and 'dist' are initialised. Returns TRUE if the structure is properly
+means that at least 'patch' or 'geometry' plus 'point', 'geometricNormal', 'material'
+and 'distance' are initialised. Returns TRUE if the structure is properly
 initialised and FALSE if not
 */
 bool
@@ -37,7 +37,7 @@ RayHit::hitInitialised() const {
 }
 
 /**
-Initialises a hit record. Either patch or geom shall be non-null. Returns
+Initialises a hit record. Either patch or geometry shall be non-null. Returns
 TRUE if the structure is properly initialised and FALSE if not.
 This routine can be used in order to construct BSDF queries at other positions
 than hit positions returned by ray intersection routines

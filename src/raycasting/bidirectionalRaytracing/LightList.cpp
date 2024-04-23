@@ -198,7 +198,7 @@ LightList::computeOneLightImportanceReal(Patch *light,
 
         // Check normals
 
-        // Cosines have an addition dist length in them
+        // Cosines have an addition distance length in them
 
         cosRayLight = -vectorDotProduct(dir, light_normal);
         cosRayPatch = vectorDotProduct(dir, *normal);

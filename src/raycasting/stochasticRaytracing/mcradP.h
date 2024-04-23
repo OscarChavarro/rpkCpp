@@ -4,6 +4,7 @@
 #include <ctime>
 
 #include "java/util/ArrayList.h"
+#include "scene/Scene.h"
 #include "raycasting/stochasticRaytracing/sample4d.h"
 #include "raycasting/stochasticRaytracing/StochasticRadiosityElement.h"
 #include "raycasting/stochasticRaytracing/coefficientsmcrad.h"
@@ -193,16 +194,6 @@ extern void monteCarloRadiosityTerminate(java::ArrayList<Patch *> *scenePatches)
 extern ColorRgb monteCarloRadiosityGetRadiance(Patch *patch, double u, double v, Vector3D dir);
 extern void stochasticRelaxationRadiosityParseOptions(int *argc, char **argv);
 extern void randomWalkRadiosityParseOptions(int *argc, char **argv);
-
-extern void
-doNonDiffuseFirstShot(
-    Camera *camera,
-    VoxelGrid *sceneWorldVoxelGrid,
-    java::ArrayList<Patch *> *scenePatches,
-    java::ArrayList<Geometry *> *sceneGeometries,
-    java::ArrayList<Geometry *> *sceneClusteredGeometries,
-    java::ArrayList<Patch *> *lightPatches,
-    Geometry *clusteredWorldGeometry,
-    RadianceMethod *context);
+extern void doNonDiffuseFirstShot(Scene *scene, RadianceMethod *context);
 
 #endif

@@ -170,32 +170,19 @@ summarize(java::ArrayList<Patch *> *scenePatches) {
 Initial shooting pass handling non-diffuse light sources
 */
 void
-doNonDiffuseFirstShot(
-    Camera *camera,
-    VoxelGrid *sceneWorldVoxelGrid,
-    java::ArrayList<Patch *> *scenePatches,
-    java::ArrayList<Geometry *> *sceneGeometries,
-    java::ArrayList<Geometry *> *sceneClusteredGeometries,
-    java::ArrayList<Patch *> *lightPatches,
-    Geometry *clusteredWorldGeometry,
-    RadianceMethod *context)
-{
-    makeLightSourceTable(scenePatches, lightPatches);
+doNonDiffuseFirstShot(Scene *scene, RadianceMethod *context) {
+    makeLightSourceTable(scene->patchList, scene->lightSourcePatchList);
     sampleLightSources(
-        sceneWorldVoxelGrid,
+        scene->voxelGrid,
         GLOBAL_stochasticRaytracing_monteCarloRadiosityState.initialLightSourceSamples * globalNumberOfLights);
-    summarize(scenePatches);
+    summarize(scene->patchList);
 
     int (*f)() = nullptr;
     if ( GLOBAL_raytracer_activeRaytracer != nullptr ) {
         f = GLOBAL_raytracer_activeRaytracer->Redisplay;
     }
     openGlRenderScene(
-        camera,
-        scenePatches,
-        sceneGeometries,
-        sceneClusteredGeometries,
-        clusteredWorldGeometry,
+        scene,
         f,
         context);
 }

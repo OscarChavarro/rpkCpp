@@ -6,6 +6,7 @@
 #include "GALERKIN/GalerkinState.h"
 #include "scene/Background.h"
 #include "scene/VoxelGrid.h"
+#include "scene/Scene.h"
 
 class GalerkinRadianceMethod : public RadianceMethod {
   private:
@@ -45,18 +46,7 @@ class GalerkinRadianceMethod : public RadianceMethod {
     const char *getRadianceMethodName() const;
     void parseOptions(int *argc, char **argv);
     void initialize(Camera *defaultCamera, const java::ArrayList<Patch *> *scenePatches, Geometry *clusteredWorldGeometry);
-
-    int
-    doStep(
-        Camera *camera,
-        Background *sceneBackground,
-        java::ArrayList<Patch *> *scenePatches,
-        java::ArrayList<Geometry *> *sceneGeometries,
-        java::ArrayList<Geometry *> *sceneClusteredGeometries,
-        java::ArrayList<Patch *> *lightPatches,
-        Geometry *clusteredWorldGeometry,
-        VoxelGrid *sceneWorldVoxelGrid);
-
+    int doStep(Scene *scene);
     void terminate(java::ArrayList<Patch *> *scenePatches);
     ColorRgb getRadiance(Camera *camera, Patch *patch, double u, double v, Vector3D dir);
     Element *createPatchData(Patch *patch);

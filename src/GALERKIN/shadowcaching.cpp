@@ -52,7 +52,7 @@ addToShadowCache(Patch *patch) {
 Tests whether the ray intersects the discretization of a geometry in the list
 'world'. Returns nullptr if the ray hits no geometries. Returns an arbitrary hit
 patch if the ray does intersect one or more geometries. Intersections
-further away than dist are ignored.
+further away than distance are ignored.
 */
 RayHit *
 shadowTestDiscretization(

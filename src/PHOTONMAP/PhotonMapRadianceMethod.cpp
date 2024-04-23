@@ -580,19 +580,10 @@ colors are used for hardware rendering if the default hardware rendering
 method is not updated in this file
 */
 int
-PhotonMapRadianceMethod::doStep(
-    Camera *camera,
-    Background *sceneBackground,
-    java::ArrayList<Patch *> *scenePatches,
-    java::ArrayList<Geometry *> *sceneGeometries,
-    java::ArrayList<Geometry *> *sceneClusteredGeometries,
-    java::ArrayList<Patch *> *lightPatches,
-    Geometry *clusteredWorldGeometry,
-    VoxelGrid *sceneWorldVoxelGrid)
-{
+PhotonMapRadianceMethod::doStep(Scene *scene) {
     GLOBAL_photonMap_state.lastClock = clock();
 
-    photonMapBRRealIteration(camera, sceneWorldVoxelGrid, sceneBackground, this);
+    photonMapBRRealIteration(scene->camera, scene->voxelGrid, scene->background, this);
     photonMapRadiosityUpdateCpuSecs();
 
     GLOBAL_photonMap_state.runStopNumber++;

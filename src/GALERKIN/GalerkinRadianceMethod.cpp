@@ -383,18 +383,7 @@ GalerkinRadianceMethod::initialize(
 }
 
 int
-GalerkinRadianceMethod::doStep(
-    Camera *camera,
-    Background *sceneBackground,
-    java::ArrayList<Patch *> *scenePatches,
-    java::ArrayList<Geometry *> *sceneGeometries,
-    java::ArrayList<Geometry *> *sceneClusteredGeometries,
-    java::ArrayList<Patch *> *lightPatches,
-    Geometry *clusteredWorldGeometry,
-    VoxelGrid *sceneWorldVoxelGrid)
-{
-    int done = false;
-
+GalerkinRadianceMethod::doStep(Scene *scene) {
     if ( galerkinState.iterationNumber < 0 ) {
         logError("doGalerkinOneStep", "method not initialized");
         return true; // Done, don't continue!
@@ -404,37 +393,39 @@ GalerkinRadianceMethod::doStep(
     galerkinState.lastClock = clock();
 
     // And now the real work
+    int done = false;
+
     switch ( galerkinState.galerkinIterationMethod ) {
         case JACOBI:
         case GAUSS_SEIDEL:
             if ( galerkinState.clustered ) {
                 done = doClusteredGatheringIteration(
-                    camera,
-                    sceneWorldVoxelGrid,
-                    scenePatches,
-                    sceneGeometries,
-                    sceneClusteredGeometries,
-                    clusteredWorldGeometry,
+                    scene->camera,
+                    scene->voxelGrid,
+                    scene->patchList,
+                    scene->geometryList,
+                    scene->clusteredGeometryList,
+                    scene->clusteredRootGeometry,
                     &galerkinState);
             } else {
                 done = galerkinRadiosityDoGatheringIteration(
-                    camera,
-                    sceneWorldVoxelGrid,
-                    scenePatches,
-                    sceneGeometries,
-                    sceneClusteredGeometries,
-                    clusteredWorldGeometry,
+                    scene->camera,
+                    scene->voxelGrid,
+                    scene->patchList,
+                    scene->geometryList,
+                    scene->clusteredGeometryList,
+                    scene->clusteredRootGeometry,
                     &galerkinState);
             }
             break;
         case SOUTH_WELL:
             done = doShootingStep(
-                camera,
-                sceneWorldVoxelGrid,
-                scenePatches,
-                sceneGeometries,
-                sceneClusteredGeometries,
-                clusteredWorldGeometry,
+                scene->camera,
+                scene->voxelGrid,
+                scene->patchList,
+                scene->geometryList,
+                scene->clusteredGeometryList,
+                scene->clusteredRootGeometry,
                 &galerkinState);
             break;
         default:

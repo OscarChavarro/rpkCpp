@@ -136,7 +136,7 @@ IN : 2 nodes are needed. nodeE and nodeL are going to be connected
 
      Flags determine what needs to be computed. See the flag definitions
 
-OUT : geom factor is returned (not filled in cause it would overwrite
+OUT : geometry factor is returned (not filled in cause it would overwrite
       other geometries !)
 */
 typedef int CONNECT_FLAGS;

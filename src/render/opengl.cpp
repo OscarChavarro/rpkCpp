@@ -15,9 +15,9 @@
 #include "render/glutDebugTools.h"
 
 class OctreeChild {
-public:
-    Geometry *geom;
-    float dist;
+  public:
+    Geometry *geometry;
+    float distance;
 };
 
 static int globalDisplayListId = -1;
@@ -336,7 +336,7 @@ openGlRenderOctreeNonLeaf(
                 delete children;
                 return;
             }
-            octree_children[i++].geom = child;
+            octree_children[i++].geometry = child;
         } else {
             // Render the patches associated with the octree node right away
             openGlRenderOctreeLeaf(camera, child, render_patch);
@@ -346,13 +346,13 @@ openGlRenderOctreeNonLeaf(
 
     // cull the non-leaf octree children geoms
     for ( i = 0; i < n; i++ ) {
-        if ( openGlViewCullBounds(camera, &octree_children[i].geom->boundingBox) ) {
-            octree_children[i].geom = nullptr; // culled
-            octree_children[i].dist = HUGE;
+        if ( openGlViewCullBounds(camera, &octree_children[i].geometry->boundingBox) ) {
+            octree_children[i].geometry = nullptr; // culled
+            octree_children[i].distance = HUGE;
         } else {
             // Not culled, compute distance from eye to midpoint of child
-            octree_children[i].dist = openGlBoundsDistance2(
-                camera->eyePosition, octree_children[i].geom->boundingBox.coordinates);
+            octree_children[i].distance = openGlBoundsDistance2(
+                camera->eyePosition, octree_children[i].geometry->boundingBox.coordinates);
         }
     }
 
@@ -362,21 +362,21 @@ openGlRenderOctreeNonLeaf(
         // Find the closest remaining child
         int closest = 0;
         for ( i = 1; i < n; i++ ) {
-            if ( octree_children[i].dist < octree_children[closest].dist ) {
+            if ( octree_children[i].distance < octree_children[closest].distance ) {
                 closest = i;
             }
         }
 
-        if ( !octree_children[closest].geom ) {
+        if ( !octree_children[closest].geometry ) {
             break;
         }
 
         // render it
-        openGlRenderOctreeNonLeaf(camera, octree_children[closest].geom, render_patch);
+        openGlRenderOctreeNonLeaf(camera, octree_children[closest].geometry, render_patch);
 
         // remove it from the list
-        octree_children[closest].geom = nullptr;
-        octree_children[closest].dist = HUGE;
+        octree_children[closest].geometry = nullptr;
+        octree_children[closest].distance = HUGE;
         remaining--;
     }
     delete children;
@@ -448,42 +448,30 @@ openGlRenderNewDisplayList(Geometry *clusteredWorldGeometry) {
 }
 
 static void
-openGlReallyRender(
-    Camera *camera,
-    java::ArrayList<Patch *> *scenePatches,
-    Geometry *clusteredWorldGeometry,
-    RadianceMethod *context)
-{
+openGlReallyRender(Scene *scene, RadianceMethod *context) {
     glPushMatrix();
     glRotated(GLOBAL_render_glutDebugState.angle, 0, 0, 1);
     if ( context != nullptr ) {
-        context->renderScene(camera, scenePatches, clusteredWorldGeometry);
+        context->renderScene(scene->camera, scene->patchList, scene->clusteredRootGeometry);
     } else if ( GLOBAL_render_renderOptions.frustumCulling ) {
-        openGlRenderWorldOctree(camera, openGlRenderPatch, clusteredWorldGeometry);
+        openGlRenderWorldOctree(scene->camera, openGlRenderPatch, scene->clusteredRootGeometry);
     } else {
-        for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
-            openGlRenderPatch(scenePatches->get(i), camera);
+        for ( int i = 0; scene->patchList != nullptr && i < scene->patchList->size(); i++ ) {
+            openGlRenderPatch(scene->patchList->get(i), scene->camera);
         }
     }
     glPopMatrix();
 }
 
 static void
-openGlRenderRadiance(
-    Camera *camera,
-    java::ArrayList<Patch *> *scenePatches,
-    java::ArrayList<Geometry *> *clusteredGeometryList,
-    java::ArrayList<Geometry *> *sceneGeometries,
-    Geometry *clusteredWorldGeometry,
-    RadianceMethod *context)
-{
+openGlRenderRadiance(Scene *scene, RadianceMethod *context) {
     if ( GLOBAL_render_renderOptions.smoothShading ) {
         glShadeModel(GL_SMOOTH);
     } else {
         glShadeModel(GL_FLAT);
     }
 
-    openGlRenderSetCamera(camera, sceneGeometries);
+    openGlRenderSetCamera(scene->camera, scene->geometryList);
 
     if ( GLOBAL_render_renderOptions.backfaceCulling ) {
         glEnable(GL_CULL_FACE);
@@ -496,22 +484,22 @@ openGlRenderRadiance(
             globalDisplayListId = 1;
             glNewList(globalDisplayListId, GL_COMPILE_AND_EXECUTE);
             // Render the scene
-            openGlReallyRender(camera, scenePatches, clusteredWorldGeometry, context);
+            openGlReallyRender(scene, context);
             glEndList();
         } else {
             glCallList(1);
         }
     } else {
         // Just render the scene
-        openGlReallyRender(camera, scenePatches, clusteredWorldGeometry, context);
+        openGlReallyRender(scene, context);
     }
 
     if ( GLOBAL_render_renderOptions.drawBoundingBoxes ) {
-        renderBoundingBoxHierarchy(camera, sceneGeometries);
+        renderBoundingBoxHierarchy(scene->camera, scene->geometryList);
     }
 
     if ( GLOBAL_render_renderOptions.drawClusters ) {
-        renderClusterHierarchy(camera, clusteredGeometryList);
+        renderClusterHierarchy(scene->camera, scene->clusteredGeometryList);
     }
 }
 
@@ -520,11 +508,7 @@ Renders the whole scene
 */
 void
 openGlRenderScene(
-    Camera *camera,
-    java::ArrayList<Patch *> *scenePatches,
-    java::ArrayList<Geometry *> *clusteredGeometryList,
-    java::ArrayList<Geometry *> *sceneGeometries,
-    Geometry *clusteredWorldGeometry,
+    Scene *scene,
     int (*reDisplayCallback)(),
     RadianceMethod *context)
 {
@@ -532,12 +516,12 @@ openGlRenderScene(
 
     canvasPushMode();
 
-    if ( camera->changed ) {
+    if ( scene->camera->changed ) {
         GLOBAL_render_renderOptions.renderRayTracedImage = false;
     }
 
     if ( !GLOBAL_render_renderOptions.renderRayTracedImage || !openGlRenderRayTraced(reDisplayCallback) ) {
-        openGlRenderRadiance(camera, scenePatches, clusteredGeometryList, sceneGeometries, clusteredWorldGeometry, context);
+        openGlRenderRadiance(scene, context);
     }
 
     // Call installed render hooks, that want to render something in the scene
