@@ -4,7 +4,7 @@
 #include "java/util/ArrayList.h"
 #include "skin/Patch.h"
 
-extern void parseBatchOptions(int *argc, char **argv);
+extern void batchParseOptions(int *argc, char **argv);
 
 extern void
 batch(

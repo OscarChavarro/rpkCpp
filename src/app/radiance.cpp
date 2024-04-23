@@ -100,7 +100,7 @@ Parses (and consumes) command line options for radiance
 computation
 */
 void
-parseRadianceOptions(int *argc, char **argv, RadianceMethod **newRadianceMethod) {
+radianceParseOptions(int *argc, char **argv, RadianceMethod **newRadianceMethod) {
     selectRadianceMethod(argc, argv, newRadianceMethod);
     parseGeneralOptions(globalRadianceOptions, argc, argv);
     if ( *newRadianceMethod != nullptr ) {

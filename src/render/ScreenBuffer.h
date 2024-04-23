@@ -34,7 +34,7 @@ class ScreenBuffer {
     void init(Camera *inCamera, Camera *defaultCamera);
 
   public:
-    explicit ScreenBuffer(Camera *camera, Camera *defaultCamera); // Also calls mainInit()
+    explicit ScreenBuffer(Camera *camera, Camera *defaultCamera); // Also calls mainInitApplication()
     ~ScreenBuffer();
     void setRgbImage(bool isRGB);
     bool isRgbImage() const;

@@ -116,7 +116,7 @@ PhotonMapRadianceMethod::initialize(
     }
     GLOBAL_photonMap_config.screen = new ScreenBuffer(nullptr, defaultCamera);
 
-    // mainInit samplers
+    // mainInitApplication samplers
 
     GLOBAL_photonMap_config.lightConfig.releaseVars();
     GLOBAL_photonMap_config.eyeConfig.releaseVars();
@@ -149,7 +149,7 @@ PhotonMapRadianceMethod::initialize(
 
     GLOBAL_raytracer_rayCount = 0;
 
-    // mainInit the photon map
+    // mainInitApplication the photon map
 
     if ( GLOBAL_photonMap_config.globalMap ) {
         delete GLOBAL_photonMap_config.globalMap;
@@ -601,7 +601,7 @@ PhotonMapRadianceMethod::doStep(
 }
 
 /**
-Undoes the effect of mainInit() and all side-effects of Step()
+Undoes the effect of mainInitApplication() and all side-effects of Step()
 */
 void
 PhotonMapRadianceMethod::terminate(java::ArrayList<Patch *> *scenePatches) {

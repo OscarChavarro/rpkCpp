@@ -34,7 +34,7 @@ static CommandLineOptionDescription globalOptions[] = {
 };
 
 void
-parseGeneralProgramOptions(int *argc, char **argv, bool *oneSidedSurfaces, int *conicSubDivisions) {
+commandLineGeneralProgramParseOptions(int *argc, char **argv, bool *oneSidedSurfaces, int *conicSubDivisions) {
     globalFileOptionsForceOneSidedSurfaces = DEFAULT_FORCE_ONE_SIDED;
     globalNumberOfQuarterCircleDivisions = DEFAULT_NUMBER_OF_QUARTIC_DIVISIONS;
     parseGeneralOptions(globalOptions, argc, argv); // Order is important, this should be called last
@@ -107,7 +107,7 @@ cameraDefaults(Camera *camera, int imageWidth, int imageHeight) {
 }
 
 void
-parseCameraOptions(int *argc, char **argv, Camera *camera, int imageWidth, int imageHeight) {
+cameraParseOptions(int *argc, char **argv, Camera *camera, int imageWidth, int imageHeight) {
     cameraDefaults(&globalCamera, imageWidth, imageHeight);
     parseGeneralOptions(globalCameraOptions, argc, argv);
     *camera = globalCamera;

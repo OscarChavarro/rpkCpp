@@ -88,7 +88,7 @@ LDSpar::init(SparConfig *sparConfig, RadianceMethod *context) {
     }
 
     if ( context == nullptr ) {
-        logError("CLDSpar::mainInit", "Galerkin Radiance method not active !");
+        logError("CLDSpar::mainInitApplication", "Galerkin Radiance method not active !");
     }
 
     // Overlap group

@@ -496,7 +496,7 @@ monteCarloRadiosityPreStep(
 }
 
 /**
-Undoes the effect of mainInit() and all side-effects of Step()
+Undoes the effect of mainInitApplication() and all side-effects of Step()
 */
 void
 monteCarloRadiosityTerminate(java::ArrayList<Patch *> *scenePatches) {

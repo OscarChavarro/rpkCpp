@@ -698,8 +698,10 @@ cubatureTransformCubeRule(CubatureRule *rule) {
 }
 
 /**
+Transforms the cubature rules for quadrilaterals to be over the domain [0, 1] ^ 2 instead of [-1, 1] ^ 2
+
 This routine should be called during initialization of the program: it
-transforms the rules over [-1,1]^2 to rules over the unit square [0,1]^2,
+transforms the rules over [-1, 1] ^ 2 to rules over the unit square [0, 1] ^ 2,
 which we use to map to patches
 */
 void

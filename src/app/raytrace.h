@@ -9,7 +9,7 @@
 
 #ifdef RAYTRACING_ENABLED
     extern void mainRayTracingDefaults();
-    extern void mainParseRayTracingOptions(int *argc, char **argv);
+    extern void rayTracingParseOptions(int *argc, char **argv);
     extern void mainSetRayTracingMethod(Raytracer *newMethod, java::ArrayList<Patch *> *lightSourcePatches);
     extern void batchSaveRaytracingImage(const char *fileName, FILE *fp, int isPipe, Camera *, java::ArrayList<Patch *> *scenePatches, Geometry *clusteredWorldGeometry, RadianceMethod *context);
 

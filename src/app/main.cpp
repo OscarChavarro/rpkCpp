@@ -1,13 +1,10 @@
-#include "java/util/ArrayList.txx"
 #include "common/options.h"
-#include "material/statistics.h"
 #include "IMAGE/tonemap/tonemapping.h"
 #include "scene/Scene.h"
 #include "io/mgf/readmgf.h"
 #include "render/render.h"
 #include "render/opengl.h"
-#include "render/ScreenBuffer.h"
-//#include "render/glutDebugTools.h"
+#include "render/glutDebugTools.h"
 #include "GALERKIN/GalerkinRadianceMethod.h"
 #include "GALERKIN/clustergalerkincpp.h"
 #include "scene/Cluster.h"
@@ -38,16 +35,17 @@ static int globalConicSubDivisions;
 
 static void
 mainRenderingDefaults() {
-    ColorRgb outlineColor = DEFAULT_OUTLINE_COLOR;
-    ColorRgb boundingBoxColor = DEFAULT_BOUNDING_BOX_COLOR;
-    ColorRgb clusterColor = DEFAULT_CLUSTER_COLOR;
-
     renderUseDisplayLists(DEFAULT_DISPLAY_LISTS);
     renderSetSmoothShading(DEFAULT_SMOOTH_SHADING);
     renderSetBackfaceCulling(DEFAULT_BACKFACE_CULLING);
     renderSetOutlineDrawing(DEFAULT_OUTLINE_DRAWING);
     renderSetBoundingBoxDrawing(DEFAULT_BOUNDING_BOX_DRAWING);
     renderSetClusterDrawing(DEFAULT_CLUSTER_DRAWING);
+
+    ColorRgb outlineColor = DEFAULT_OUTLINE_COLOR;
+    ColorRgb boundingBoxColor = DEFAULT_BOUNDING_BOX_COLOR;
+    ColorRgb clusterColor = DEFAULT_CLUSTER_COLOR;
+
     renderSetOutlineColor(&outlineColor);
     renderSetBoundingBoxColor(&boundingBoxColor);
     renderSetClusterColor(&clusterColor);
@@ -62,10 +60,8 @@ mainRenderingDefaults() {
 Global initializations
 */
 static void
-mainInit(Scene *scene) {
-    // Transforms the cubature rules for quadrilaterals to be over the domain [0,1]^2 instead of [-1,1]^2
+mainInitApplication(Scene *scene) {
     fixCubatureRules();
-
     mainRenderingDefaults();
     toneMapDefaults();
     radianceDefaults(nullptr, scene->camera, scene->clusteredRootGeometry);
@@ -84,23 +80,18 @@ mainInit(Scene *scene) {
 Processes command line arguments
 */
 static void
-mainParseGlobalOptions(
-    int *argc,
-    char **argv,
-    RadianceMethod **context,
-    Camera *camera)
-{
+mainParseOptions(int *argc, char **argv, RadianceMethod **context, Camera *camera) {
     renderParseOptions(argc, argv);
-    parseToneMapOptions(argc, argv);
-    parseCameraOptions(argc, argv, camera, globalImageOutputWidth, globalImageOutputHeight);
-    parseRadianceOptions(argc, argv, context);
+    toneMapParseOptions(argc, argv);
+    cameraParseOptions(argc, argv, camera, globalImageOutputWidth, globalImageOutputHeight);
+    radianceParseOptions(argc, argv, context);
 
 #ifdef RAYTRACING_ENABLED
-    mainParseRayTracingOptions(argc, argv);
+    rayTracingParseOptions(argc, argv);
 #endif
 
-    parseBatchOptions(argc, argv);
-    parseGeneralProgramOptions(argc, argv, &globalOneSidedSurfaces, &globalConicSubDivisions);
+    batchParseOptions(argc, argv);
+    commandLineGeneralProgramParseOptions(argc, argv, &globalOneSidedSurfaces, &globalConicSubDivisions);
 }
 
 static void
@@ -144,28 +135,16 @@ mainCreateOffscreenCanvasWindow(
 }
 
 static void
-mainExecuteRendering(
-    Camera *camera,
-    int outputImageWidth,
-    int outputImageHeight,
-    Background *background,
-    java::ArrayList<Geometry *> *sceneGeometries,
-    java::ArrayList<Geometry *> *sceneClusteredGeometries,
-    java::ArrayList<Patch *> *scenePatches,
-    java::ArrayList<Patch *> *sceneLightPatches,
-    Geometry *sceneClusteredWorldGeometry,
-    VoxelGrid *sceneVoxelGrid,
-    RadianceMethod *radianceMethod)
-{
+mainExecuteRendering(int outputImageWidth, int outputImageHeight, Scene *scene, RadianceMethod *radianceMethod) {
     // Create the window in which to render (canvas window)
     mainCreateOffscreenCanvasWindow(
         outputImageWidth,
         outputImageHeight,
-        camera,
-        scenePatches,
-        sceneGeometries,
-        sceneClusteredGeometries,
-        sceneClusteredWorldGeometry,
+        scene->camera,
+        scene->patchList,
+        scene->geometryList,
+        scene->clusteredGeometryList,
+        scene->clusteredRootGeometry,
         radianceMethod);
 
     #ifdef RAYTRACING_ENABLED
@@ -174,24 +153,24 @@ mainExecuteRendering(
             f = GLOBAL_raytracer_activeRaytracer->Redisplay;
         }
         openGlRenderScene(
-            camera,
-            scenePatches,
-            sceneClusteredGeometries,
-            sceneGeometries,
-            sceneClusteredWorldGeometry,
+            scene->camera,
+            scene->patchList,
+            scene->clusteredGeometryList,
+            scene->geometryList,
+            scene->clusteredRootGeometry,
             f,
             radianceMethod);
     #endif
 
     batch(
-        camera,
-        background,
-        scenePatches,
-        sceneLightPatches,
-        sceneGeometries,
-        sceneClusteredGeometries,
-        sceneClusteredWorldGeometry,
-        sceneVoxelGrid,
+        scene->camera,
+        scene->background,
+        scene->patchList,
+        scene->lightSourcePatchList,
+        scene->geometryList,
+        scene->clusteredGeometryList,
+        scene->clusteredRootGeometry,
+        scene->voxelGrid,
         radianceMethod);
 }
 
@@ -208,10 +187,10 @@ mainFreeMemory(MgfContext *context) {
 int
 main(int argc, char *argv[]) {
     Scene scene;
-    mainInit(&scene);
+    mainInitApplication(&scene);
 
     RadianceMethod *selectedRadianceMethod = nullptr;
-    mainParseGlobalOptions(&argc, argv, &selectedRadianceMethod, scene.camera);
+    mainParseOptions(&argc, argv, &selectedRadianceMethod, scene.camera);
 
     Material defaultMaterial;
     MgfContext mgfContext;
@@ -223,31 +202,9 @@ main(int argc, char *argv[]) {
 
     sceneBuilderCreateModel(&argc, argv, &mgfContext, &scene);
 
-    mainExecuteRendering(
-        scene.camera,
-        globalImageOutputWidth,
-        globalImageOutputHeight,
-        scene.background,
-        scene.geometryList,
-        scene.clusteredGeometryList,
-        scene.patchList,
-        scene.lightSourcePatchList,
-        scene.clusteredRootGeometry,
-        scene.voxelGrid,
-        selectedRadianceMethod);
+    mainExecuteRendering(globalImageOutputWidth, globalImageOutputHeight, &scene, selectedRadianceMethod);
 
-    //executeGlutGui(
-    //    argc,
-    //    argv,
-    //    scene.camera,
-    //    scene.patchList,
-    //    scene.lightSourcePatchList,
-    //    scene.geometryList,
-    //    scene.clusteredRootGeometry,
-    //    scene.background,
-    //    scene.clusteredRootGeometry,
-    //    mgfContext.radianceMethod,
-    //    scene.voxelGrid);
+    executeGlutGui(argc, argv, &scene, mgfContext.radianceMethod);
 
     mainFreeMemory(&mgfContext);
 

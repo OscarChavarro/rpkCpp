@@ -10,6 +10,8 @@ optimisations/enhancements from ray shade 4.0.6 by Graig Kolb, Stanford U
 #include "common/mymath.h"
 #include "scene/VoxelGrid.h"
 
+#define MINIMUM_ELEMENT_COUNT_PER_CELL 10
+
 java::ArrayList<VoxelGrid *> * VoxelGrid::subGridsToDelete = nullptr;
 java::ArrayList<VoxelData *> * VoxelGrid::voxelCellsToDelete = nullptr;
 
@@ -105,16 +107,6 @@ VoxelGrid::isSmall(const float *boundsArr) const {
 
 void
 VoxelGrid::putItemInsideVoxelGrid(VoxelData *item, const BoundingBox *itemBounds) {
-    short minA;
-    short minB;
-    short minC;
-    short maxA;
-    short maxB;
-    short maxC;
-    short a;
-    short b;
-    short c;
-
     // Enlarge the boundaries by a small amount in all directions
     BoundingBox boundaries;
     float xExtent = (boundingBox.coordinates[MAX_X] - boundingBox.coordinates[MIN_X]) * 1e-4f;
@@ -128,14 +120,15 @@ VoxelGrid::putItemInsideVoxelGrid(VoxelData *item, const BoundingBox *itemBounds
     boundaries.coordinates[MIN_Z] -= zExtent;
     boundaries.coordinates[MAX_Z] += zExtent;
 
-    minA = x2voxel(boundaries.coordinates[MIN_X]);
+    short minA = x2voxel(boundaries.coordinates[MIN_X]);
     if ( minA >= xSize ) {
         minA = (short)(xSize - 1);
     }
     if ( minA < 0 ) {
         minA = 0;
     }
-    maxA = x2voxel(boundaries.coordinates[MAX_X]);
+
+    short maxA = x2voxel(boundaries.coordinates[MAX_X]);
     if ( maxA >= xSize ) {
         maxA = (short)(xSize - 1);
     }
@@ -143,14 +136,15 @@ VoxelGrid::putItemInsideVoxelGrid(VoxelData *item, const BoundingBox *itemBounds
         maxA = 0;
     }
 
-    minB = y2voxel(boundaries.coordinates[MIN_Y]);
+    short minB = y2voxel(boundaries.coordinates[MIN_Y]);
     if ( minB >= ySize ) {
         minB = (short)(ySize - 1);
     }
     if ( minB < 0 ) {
         minB = 0;
     }
-    maxB = y2voxel(boundaries.coordinates[MAX_Y]);
+
+    short maxB = y2voxel(boundaries.coordinates[MAX_Y]);
     if ( maxB >= ySize ) {
         maxB = (short)(ySize - 1);
     }
@@ -158,14 +152,15 @@ VoxelGrid::putItemInsideVoxelGrid(VoxelData *item, const BoundingBox *itemBounds
         maxB = 0;
     }
 
-    minC = z2voxel(boundaries.coordinates[MIN_Z]);
+    short minC = z2voxel(boundaries.coordinates[MIN_Z]);
     if ( minC >= zSize ) {
         minC = (short)(zSize - 1);
     }
     if ( minC < 0 ) {
         minC = 0;
     }
-    maxC = z2voxel(boundaries.coordinates[MAX_Z]);
+
+    short maxC = z2voxel(boundaries.coordinates[MAX_Z]);
     if ( maxC >= zSize ) {
         maxC = (short)(zSize - 1);
     }
@@ -174,9 +169,9 @@ VoxelGrid::putItemInsideVoxelGrid(VoxelData *item, const BoundingBox *itemBounds
     }
 
     // Insert the current item in to all voxels that intersects with bounding box
-    for ( a = minA; a <= maxA; a++ ) {
-        for ( b = minB; b <= maxB; b++ ) {
-            for ( c = minC; c <= maxC; c++ ) {
+    for ( short a = minA; a <= maxA; a++ ) {
+        for ( short b = minB; b <= maxB; b++ ) {
+            for ( short c = minC; c <= maxC; c++ ) {
                 java::ArrayList<VoxelData *> **voxelList = &volumeListsOfItems[cellIndexAddress(a, b, c)];
                 if ( (*voxelList) == nullptr ) {
                     (*voxelList) = new java::ArrayList<VoxelData *>(1);
@@ -197,7 +192,8 @@ VoxelGrid::putPatchInsideVoxelGrid(Patch *patch) {
     } else {
         patch->getBoundingBox(&localBounds);
     }
-    VoxelData *voxelData = new VoxelData(patch, PATCH_MASK);
+
+    VoxelData *voxelData = new VoxelData(patch, VOXEL_DATA_PATCH_MASK);
     putItemInsideVoxelGrid(voxelData, &localBounds);
     addToCellsDeletionCache(voxelData);
 }
@@ -205,24 +201,23 @@ VoxelGrid::putPatchInsideVoxelGrid(Patch *patch) {
 void
 VoxelGrid::putSubGeometryInsideVoxelGrid(Geometry *geometry) {
     if ( isSmall(geometry->boundingBox.coordinates) ) {
-        if ( geometry->itemCount < 10 ) {
-            VoxelData *voxelData = new VoxelData(geometry, GEOM_MASK);
+        if ( geometry->itemCount < MINIMUM_ELEMENT_COUNT_PER_CELL ) {
+            VoxelData *voxelData = new VoxelData(geometry, VOXEL_DATA_GEOMETRY_MASK);
             putItemInsideVoxelGrid(voxelData, &geometry->boundingBox);
             addToCellsDeletionCache(voxelData);
         } else {
             VoxelGrid *subGrid = new VoxelGrid(geometry);
-            VoxelData *voxelData = new VoxelData(subGrid, GRID_MASK);
+            VoxelData *voxelData = new VoxelData(subGrid, VOXEL_DATA_GRID_MASK);
             putItemInsideVoxelGrid(voxelData, &subGrid->boundingBox);
             addToSubGridsDeletionCache(subGrid);
             addToCellsDeletionCache(voxelData);
         }
     } else {
         if ( geometry->isCompound() ) {
-            java::ArrayList<Geometry *> *geometryList = geomPrimListCopy(geometry);
+            java::ArrayList<Geometry *> *geometryList = geometry->compoundData->children;
             for ( int i = 0; geometryList != nullptr && i < geometryList->size(); i++ ) {
                 putSubGeometryInsideVoxelGrid(geometryList->get(i));
             }
-            delete geometryList;
         } else {
             java::ArrayList<Patch *> *patches = geomPatchArrayListReference(geometry);
             for ( int i = 0; patches != nullptr && i < patches->size(); i++) {
@@ -234,7 +229,6 @@ VoxelGrid::putSubGeometryInsideVoxelGrid(Geometry *geometry) {
 
 void
 VoxelGrid::putGeometryInsideVoxelGrid(Geometry *geometry, const short na, const short nb, const short nc) {
-    int i;
     float xExtension;
     float yExtension;
     float zExtension;
@@ -264,7 +258,7 @@ VoxelGrid::putGeometryInsideVoxelGrid(Geometry *geometry, const short na, const 
     voxelSize.z = (boundingBox.coordinates[MAX_Z] - boundingBox.coordinates[MIN_Z]) / (float) nc;
     volumeListsOfItems = new java::ArrayList<VoxelData *> *[na * nb * nc]();
     gridItemPool = nullptr;
-    for ( i = 0; i < na * nb * nc; i++ ) {
+    for ( int i = 0; i < na * nb * nc; i++ ) {
         volumeListsOfItems[i] = nullptr;
     }
     putSubGeometryInsideVoxelGrid(geometry);
@@ -274,7 +268,7 @@ int
 VoxelGrid::randomRayId() {
     static int count = 0; // TODO warning: this makes this class non re-entrant
     count++;
-    return (count & RAY_COUNT_MASK);
+    return (count & VOXEL_DATA_RAY_COUNT_MASK);
 }
 
 /**

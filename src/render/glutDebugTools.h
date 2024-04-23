@@ -3,6 +3,7 @@
 
 #include "java/util/ArrayList.h"
 #include "scene/RadianceMethod.h"
+#include "scene/Scene.h"
 
 class GlutDebugState {
   public:
@@ -16,17 +17,6 @@ class GlutDebugState {
 extern GlutDebugState GLOBAL_render_glutDebugState;
 
 extern void
-executeGlutGui(
-    int argc,
-    char *argv[],
-    Camera *camera,
-    java::ArrayList<Patch *> *scenePatches,
-    java::ArrayList<Patch *> *lightPatches,
-    java::ArrayList<Geometry *> *sceneGeometries,
-    java::ArrayList<Geometry *> *sceneClusteredGeometries,
-    Background *sceneBackground,
-    Geometry *clusteredWorldGeom,
-    RadianceMethod *radianceMethod,
-    VoxelGrid *voxelGrid);
+executeGlutGui(int argc, char *argv[], Scene *scene, RadianceMethod *radianceMethod);
 
 #endif

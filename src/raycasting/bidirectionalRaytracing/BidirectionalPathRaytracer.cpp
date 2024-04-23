@@ -849,7 +849,7 @@ doBptDensityEstimation(
 {
     char *fileName = new char[STRINGS_SIZE];
 
-    // mainInit the screens, one reference one destination
+    // mainInitApplication the screens, one reference one destination
     config->ref = new ScreenBuffer(nullptr, camera);
     config->dest = new ScreenBuffer(nullptr, camera);
 
@@ -1183,7 +1183,7 @@ biDirPathSaveImage(ImageOutputHandle *ip) {
 
 static void
 biDirPathInit(java::ArrayList<Patch *> *lightPatches) {
-    // mainInit the light list
+    // mainInitApplication the light list
     if ( GLOBAL_lightList ) {
         delete GLOBAL_lightList;
     }

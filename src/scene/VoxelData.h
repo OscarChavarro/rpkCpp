@@ -1,10 +1,10 @@
 #ifndef __VOXEL_DATA__
 #define __VOXEL_DATA__
 
-#define PATCH_MASK 0x10000000
-#define GEOM_MASK  0x20000000
-#define GRID_MASK  0x40000000
-#define RAY_COUNT_MASK 0x0fffffff
+#define VOXEL_DATA_PATCH_MASK 0x10000000
+#define VOXEL_DATA_GEOMETRY_MASK 0x20000000
+#define VOXEL_DATA_GRID_MASK 0x40000000
+#define VOXEL_DATA_RAY_COUNT_MASK 0x0fffffff
 
 class VoxelGrid;
 class Geometry;
@@ -25,27 +25,27 @@ class VoxelData {
 
     inline void
     updateRayId(const unsigned int id) {
-        flags = (flags & ~RAY_COUNT_MASK) | (id & RAY_COUNT_MASK);
+        flags = (flags & ~VOXEL_DATA_RAY_COUNT_MASK) | (id & VOXEL_DATA_RAY_COUNT_MASK);
     }
 
     inline unsigned int
     lastRayId() const {
-        return flags & RAY_COUNT_MASK;
+        return flags & VOXEL_DATA_RAY_COUNT_MASK;
     }
 
     inline bool
     isPatch() const {
-        return flags & PATCH_MASK;
+        return flags & VOXEL_DATA_PATCH_MASK;
     }
 
     inline bool
     isGeom() const {
-        return flags & GEOM_MASK;
+        return flags & VOXEL_DATA_GEOMETRY_MASK;
     }
 
     inline bool
     isGrid() const {
-        return flags & GRID_MASK;
+        return flags & VOXEL_DATA_GRID_MASK;
     }
 
   public:

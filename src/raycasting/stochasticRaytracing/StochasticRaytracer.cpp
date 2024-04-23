@@ -635,7 +635,7 @@ RTStochastic_SaveImage(ImageOutputHandle *ip) {
 
 static void
 stochasticRayTracerInit(java::ArrayList<Patch *> *lightPatches) {
-    // mainInit the light list
+    // mainInitApplication the light list
     if ( GLOBAL_lightList ) {
         delete GLOBAL_lightList;
     }

@@ -184,7 +184,7 @@ batchSaveRadianceModel(
 }
 
 void
-parseBatchOptions(int *argc, char **argv) {
+batchParseOptions(int *argc, char **argv) {
     parseGeneralOptions(batchOptions, argc, argv);
 }
 
