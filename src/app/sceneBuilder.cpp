@@ -365,10 +365,10 @@ sceneBuilderReadFile(char *filename, MgfContext *context, Scene *scene) {
 
 void
 sceneBuilderCreateModel(
-        const int *argc,
-        char *const *argv,
-        MgfContext *context,
-        Scene *scene)
+    const int *argc,
+    char *const *argv,
+    MgfContext *context,
+    Scene *scene)
 {
     // All options should have disappeared from argv now
     if ( *argc > 1 ) {

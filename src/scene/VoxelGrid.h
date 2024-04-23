@@ -8,6 +8,8 @@
 class VoxelGrid {
   private:
     static java::ArrayList<VoxelGrid *> *subGridsToDelete;
+    static java::ArrayList<VoxelData *> *voxelCellsToDelete;
+
     short xSize;
     short ySize;
     short zSize;
@@ -17,6 +19,7 @@ class VoxelGrid {
     BoundingBox boundingBox;
 
     static void addToSubGridsDeletionCache(VoxelGrid *voxelGrid);
+    static void addToCellsDeletionCache(VoxelData *cell);
 
     inline float
     voxel2x(const float px) {
@@ -59,8 +62,6 @@ class VoxelGrid {
 
     void putSubGeometryInsideVoxelGrid(Geometry *geometry);
 
-    void destroyGridRecursive() const;
-
     void
     gridTraceSetup(
         Ray *ray,
@@ -99,21 +100,19 @@ class VoxelGrid {
 
     static int randomRayId();
 
-    static void freeFirstItem(java::ArrayList<VoxelData *> *deletedItems, VoxelData *item);
-
 public:
     explicit VoxelGrid(Geometry *geometry);
     virtual ~VoxelGrid();
 
     RayHit *
     gridIntersect(
-            Ray *ray,
-            float minimumDistance,
-            float *maximumDistance,
-            int hitFlags,
-            RayHit *hitStore);
+        Ray *ray,
+        float minimumDistance,
+        float *maximumDistance,
+        int hitFlags,
+        RayHit *hitStore);
 
-    static void freeSubGrids();
+    static void freeVoxelGridElements();
 };
 
 #endif

@@ -20,3 +20,6 @@ VoxelData::VoxelData(VoxelGrid *data, unsigned flags) {
     this->voxelGrid = data;
     this->flags = flags;
 }
+
+VoxelData::~VoxelData() {
+}

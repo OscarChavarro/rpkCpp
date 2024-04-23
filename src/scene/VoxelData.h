@@ -21,6 +21,7 @@ class VoxelData {
     VoxelData(VoxelGrid *data, unsigned flags);
     VoxelData(Patch *data, unsigned flags);
     VoxelData(Geometry *data, unsigned flags);
+    virtual ~VoxelData();
 
     inline void
     updateRayId(const unsigned int id) {

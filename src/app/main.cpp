@@ -202,7 +202,7 @@ mainFreeMemory(MgfContext *context) {
     galerkinFreeMemory();
     Cluster::deleteCachedGeometries();
     freeClusterGalerkinElements();
-    VoxelGrid::freeSubGrids();
+    VoxelGrid::freeVoxelGridElements();
 }
 
 int

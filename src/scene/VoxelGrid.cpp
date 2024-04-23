@@ -11,11 +11,14 @@ optimisations/enhancements from ray shade 4.0.6 by Graig Kolb, Stanford U
 #include "scene/VoxelGrid.h"
 
 java::ArrayList<VoxelGrid *> * VoxelGrid::subGridsToDelete = nullptr;
+java::ArrayList<VoxelData *> * VoxelGrid::voxelCellsToDelete = nullptr;
 
 /**
 Constructs a recursive grid structure containing the whole geometry
 */
-VoxelGrid::VoxelGrid(Geometry *geometry) : boundingBox{} {
+VoxelGrid::VoxelGrid(Geometry *geometry):
+    boundingBox()
+{
     xSize = 0.0f;
     ySize = 0.0f;
     zSize = 0.0f;
@@ -40,8 +43,21 @@ VoxelGrid::VoxelGrid(Geometry *geometry) : boundingBox{} {
 }
 
 VoxelGrid::~VoxelGrid() {
-    destroyGridRecursive();
+    for ( int i = 0; i < xSize * ySize * zSize; i++ ) {
+        if ( volumeListsOfItems[i] != nullptr ) {
+            delete volumeListsOfItems[i];
+        }
+    }
+    delete[] volumeListsOfItems;
     delete gridItemPool;
+}
+
+void
+VoxelGrid::addToCellsDeletionCache(VoxelData *cell) {
+    if ( voxelCellsToDelete == nullptr ) {
+        voxelCellsToDelete = new java::ArrayList<VoxelData *>();
+    }
+    voxelCellsToDelete->add(cell);
 }
 
 void
@@ -53,8 +69,28 @@ VoxelGrid::addToSubGridsDeletionCache(VoxelGrid *voxelGrid) {
 }
 
 void
-VoxelGrid::freeSubGrids() {
+VoxelGrid::freeVoxelGridElements() {
+    if ( voxelCellsToDelete != nullptr ) {
+        for ( int i = 0; i < voxelCellsToDelete->size(); i++ ) {
+            VoxelData *cell = voxelCellsToDelete->get(i);
+            if ( cell != nullptr ) {
+                delete cell;
+            }
+        }
+    }
+    delete voxelCellsToDelete;
+
     if ( subGridsToDelete != nullptr ) {
+        for ( int i = 0; i < subGridsToDelete->size(); i++ ) {
+            VoxelGrid *subGrid = subGridsToDelete->get(i);
+            delete subGrid->gridItemPool;
+            subGrid->gridItemPool = nullptr;
+            for ( int j = 0; j < subGrid->xSize * subGrid->ySize * subGrid->zSize; j++ ) {
+                delete subGrid->volumeListsOfItems[j];
+            }
+            delete[] subGrid->volumeListsOfItems;
+            subGrid->volumeListsOfItems = nullptr;
+        }
         delete subGridsToDelete;
         subGridsToDelete = nullptr;
     }
@@ -163,17 +199,22 @@ VoxelGrid::putPatchInsideVoxelGrid(Patch *patch) {
     }
     VoxelData *voxelData = new VoxelData(patch, PATCH_MASK);
     putItemInsideVoxelGrid(voxelData, &localBounds);
+    addToCellsDeletionCache(voxelData);
 }
 
 void
 VoxelGrid::putSubGeometryInsideVoxelGrid(Geometry *geometry) {
     if ( isSmall(geometry->boundingBox.coordinates) ) {
         if ( geometry->itemCount < 10 ) {
-            putItemInsideVoxelGrid(new VoxelData(geometry, GEOM_MASK), &geometry->boundingBox);
+            VoxelData *voxelData = new VoxelData(geometry, GEOM_MASK);
+            putItemInsideVoxelGrid(voxelData, &geometry->boundingBox);
+            addToCellsDeletionCache(voxelData);
         } else {
             VoxelGrid *subGrid = new VoxelGrid(geometry);
-            putItemInsideVoxelGrid(new VoxelData(subGrid, GRID_MASK), &subGrid->boundingBox);
+            VoxelData *voxelData = new VoxelData(subGrid, GRID_MASK);
+            putItemInsideVoxelGrid(voxelData, &subGrid->boundingBox);
             addToSubGridsDeletionCache(subGrid);
+            addToCellsDeletionCache(voxelData);
         }
     } else {
         if ( geometry->isCompound() ) {
@@ -227,54 +268,6 @@ VoxelGrid::putGeometryInsideVoxelGrid(Geometry *geometry, const short na, const 
         volumeListsOfItems[i] = nullptr;
     }
     putSubGeometryInsideVoxelGrid(geometry);
-}
-
-/**
-On the voxel grid, a single patch usually has several pixels where it can be visible. Same
-reference to voxel data is shared on several pixels. This frees memory for the first instance
-detected.
-*/
-void
-VoxelGrid::freeFirstItem(java::ArrayList<VoxelData *> *deletedItems, VoxelData *item) {
-    // TODO: Should use a Set or HashMap for better efficiency
-    bool alreadyDeleted = false;
-    for ( int i = 0; i < deletedItems->size(); i++ ) {
-        if ( deletedItems->get(i) == item ) {
-            alreadyDeleted = true;
-            break;
-        }
-    }
-
-    if ( !alreadyDeleted ) {
-        deletedItems->add(item);
-        delete item;
-    }
-}
-
-void
-VoxelGrid::destroyGridRecursive() const {
-    for ( int i = 0; i < xSize * ySize * zSize; i++ ) {
-        java::ArrayList<VoxelData *> *list = volumeListsOfItems[i];
-        for ( long int j = 0; list != nullptr && j < list->size(); j++ ) {
-            VoxelData *item = list->get(j);
-            if ( item->isGrid() && item->voxelGrid != nullptr ) {
-                item->voxelGrid->destroyGridRecursive();
-                item->voxelGrid = nullptr;
-            }
-        }
-    }
-
-    java::ArrayList<VoxelData *> *deletedItems = new java::ArrayList<VoxelData *>();
-    for ( int i = 0; i < xSize * ySize * zSize; i++ ) {
-        java::ArrayList<VoxelData *> *list = volumeListsOfItems[i];
-        for ( long int j = 0; list != nullptr && j < list->size(); j++ ) {
-            freeFirstItem(deletedItems, list->get(j));
-        }
-        delete list;
-    }
-
-    delete deletedItems;
-    delete[] volumeListsOfItems;
 }
 
 int
@@ -439,13 +432,13 @@ as usual. If there is no intersection, maximumDistance remains unmodified
 */
 RayHit *
 VoxelGrid::voxelIntersect(
-        java::ArrayList<VoxelData *> *items,
-        Ray *ray,
-        const unsigned int counter,
-        const float minimumDistance,
-        float *maximumDistance,
-        const int hitFlags,
-        RayHit *hitStore)
+    java::ArrayList<VoxelData *> *items,
+    Ray *ray,
+    const unsigned int counter,
+    const float minimumDistance,
+    float *maximumDistance,
+    const int hitFlags,
+    RayHit *hitStore)
 {
     RayHit *hit = nullptr;
 
@@ -477,11 +470,11 @@ Traces a ray through a voxel grid. Returns nearest intersection or nullptr
 */
 RayHit *
 VoxelGrid::gridIntersect(
-        Ray *ray,
-        float minimumDistance,
-        float *maximumDistance,
-        int hitFlags,
-        RayHit *hitStore)
+    Ray *ray,
+    float minimumDistance,
+    float *maximumDistance,
+    int hitFlags,
+    RayHit *hitStore)
 {
     Vector3D tNext;
     Vector3D tDelta;
