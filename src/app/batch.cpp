@@ -52,7 +52,8 @@ openGlSaveScreen(
     FILE *fp,
     int isPipe,
     Scene *scene,
-    RadianceMethod *context)
+    RadianceMethod *context,
+    RenderOptions *renderOptions)
 {
     ImageOutputHandle *img;
     long j;
@@ -62,7 +63,7 @@ openGlSaveScreen(
     unsigned char *buf;
 
     // RayCast() saves the current picture in display-mapped (!) real values
-    if ( GLOBAL_render_renderOptions.trace ) {
+    if ( renderOptions->trace ) {
         rayCast(fileName, fp, isPipe, scene, context);
         return;
     }
@@ -102,15 +103,16 @@ static void
 batchProcessFile(
     const char *fileName,
     const char *openMode,
-    void (*processFileCallback)(const char *fileName, FILE *fp, int isPipe, Scene *scene, RadianceMethod *context),
+    void (*processFileCallback)(const char *fileName, FILE *fp, int isPipe, Scene *scene, RadianceMethod *context, RenderOptions *renderOptions),
     Scene *scene,
-    RadianceMethod *context)
+    RadianceMethod *context,
+    RenderOptions *renderOptions)
 {
     int isPipe;
     FILE *fp = openFileCompressWrapper(fileName, openMode, &isPipe);
 
     // Call the user supplied procedure to process the file
-    processFileCallback(fileName, fp, isPipe, scene, context);
+    processFileCallback(fileName, fp, isPipe, scene, context, renderOptions);
 
     closeFile(fp, isPipe);
 }
@@ -121,7 +123,8 @@ batchSaveRadianceImage(
     FILE *fp,
     int isPipe,
     Scene *scene,
-    RadianceMethod *context)
+    RadianceMethod *context,
+    RenderOptions *renderOptions)
 {
     clock_t t;
     char *extension;
@@ -142,7 +145,7 @@ batchSaveRadianceImage(
 
     t = clock();
 
-    openGlSaveScreen((char *)fileName, fp, isPipe, scene, context);
+    openGlSaveScreen((char *)fileName, fp, isPipe, scene, context, renderOptions);
 
     fprintf(stdout, "%g secs.\n", (float) (clock() - t) / (float) CLOCKS_PER_SEC);
     canvasPullMode();
@@ -154,7 +157,8 @@ batchSaveRadianceModel(
     FILE *fp,
     int /*isPipe*/,
     Scene *scene,
-    RadianceMethod *context)
+    RadianceMethod *context,
+    RenderOptions *renderOptions)
 {
     clock_t t;
 
@@ -184,7 +188,8 @@ batchParseOptions(int *argc, char **argv) {
 
 void
 batchExecuteRadianceSimulation(Scene *scene, RadianceMethod *radianceMethod, RenderOptions *renderOptions) {
-    clock_t start_time, wasted_start;
+    clock_t start_time;
+    clock_t wasted_start;
     float wasted_secs;
 
     if ( scene->geometryList == nullptr || scene->geometryList->size() == 0 ) {
@@ -244,11 +249,12 @@ batchExecuteRadianceSimulation(Scene *scene, RadianceMethod *radianceMethod, Ren
                 char *fileName = new char[n];
                 snprintf(fileName, n, globalRadianceImageFileNameFormat, it);
                 batchProcessFile(
-                        fileName,
-                        "w",
-                        batchSaveRadianceImage,
-                        scene,
-                        radianceMethod);
+                    fileName,
+                    "w",
+                    batchSaveRadianceImage,
+                    scene,
+                    radianceMethod,
+                    renderOptions);
                 delete[] fileName;
             }
 
@@ -261,7 +267,8 @@ batchExecuteRadianceSimulation(Scene *scene, RadianceMethod *radianceMethod, Ren
                     "w",
                     batchSaveRadianceModel,
                     scene,
-                    radianceMethod);
+                    radianceMethod,
+                    renderOptions);
                 delete[] fileName;
             }
 
@@ -294,7 +301,8 @@ batchExecuteRadianceSimulation(Scene *scene, RadianceMethod *radianceMethod, Ren
                 nullptr,
                 false,
                 scene,
-                radianceMethod);
+                radianceMethod,
+                renderOptions);
 
             if ( globalTimings ) {
                 fprintf(stdout, "Raytracing total time %g secs.\n",
@@ -306,7 +314,8 @@ batchExecuteRadianceSimulation(Scene *scene, RadianceMethod *radianceMethod, Ren
                 "w",
                 batchSaveRaytracingImage,
                 scene,
-                radianceMethod);
+                radianceMethod,
+                renderOptions);
         } else {
             printf("(No pixel-based radiance computations are being done)\n");
         }

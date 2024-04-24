@@ -171,7 +171,7 @@ executeGlutGui(
         exit(1);
     }
 
-    GLOBAL_render_renderOptions.frustumCulling = false;
+    renderOptions->frustumCulling = false;
 
     glutReshapeFunc(resizeCallback);
     glutKeyboardFunc(keypressCallback);

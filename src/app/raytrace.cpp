@@ -117,7 +117,9 @@ batchSaveRaytracingImage(
     FILE *fp,
     int isPipe,
     Scene *scene,
-    RadianceMethod * /*context*/) {
+    RadianceMethod * /*context*/,
+    RenderOptions * /*renderOptions*/)
+{
     clock_t t;
 
     if ( fp == nullptr ) {
@@ -154,9 +156,10 @@ batchRayTrace(
     FILE *fp,
     int isPipe,
     Scene *scene,
-    RadianceMethod *context)
+    RadianceMethod *context,
+    RenderOptions *renderOptions)
 {
-    GLOBAL_render_renderOptions.renderRayTracedImage = true;
+    renderOptions->renderRayTracedImage = true;
     scene->camera->changed = false;
 
     canvasPushMode();

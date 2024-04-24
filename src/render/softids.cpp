@@ -37,7 +37,7 @@ static void
 softRenderPatch(Patch *patch, Camera *camera, RenderOptions *renderOptions) {
     Vector3D vertices[4];
 
-    if ( GLOBAL_render_renderOptions.backfaceCulling &&
+    if ( renderOptions->backfaceCulling &&
          vectorDotProduct(patch->normal, camera->eyePosition) + patch->planeConstant < EPSILON ) {
         return;
     }
@@ -75,7 +75,7 @@ softRenderPatches(Scene *scene, RenderOptions *renderOptions) {
 Software ID rendering
 */
 unsigned long *
-softRenderIds(long *x, long *y, Scene *scene) {
+softRenderIds(long *x, long *y, Scene *scene, RenderOptions *renderOptions) {
     SGL_CONTEXT *currentSglContext;
     SGL_CONTEXT *oldSglContext;
     unsigned long *ids;
@@ -86,7 +86,7 @@ softRenderIds(long *x, long *y, Scene *scene) {
 
     oldSglContext = GLOBAL_sgl_currentContext;
     currentSglContext = setupSoftFrameBuffer(scene->camera);
-    softRenderPatches(scene, &GLOBAL_render_renderOptions);
+    softRenderPatches(scene, renderOptions);
 
     *x = currentSglContext->width;
     *y = currentSglContext->height;

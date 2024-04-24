@@ -599,6 +599,6 @@ the patches visible through each pixel or 0 if the background is visible through
 the pixel. x is normally the width and y the height of the canvas window
 */
 unsigned long *
-sglRenderIds(long *x, long *y, Scene *scene) {
-    return softRenderIds(x, y, scene);
+sglRenderIds(long *x, long *y, Scene *scene, RenderOptions *renderOptions) {
+    return softRenderIds(x, y, scene, renderOptions);
 }

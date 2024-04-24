@@ -12,7 +12,7 @@
     extern void mainRayTracingDefaults();
     extern void rayTracingParseOptions(int *argc, char **argv);
     extern void mainSetRayTracingMethod(Raytracer *newMethod, java::ArrayList<Patch *> *lightSourcePatches);
-    extern void batchSaveRaytracingImage(const char *fileName, FILE *fp, int isPipe, Scene *scene, RadianceMethod *context);
+    extern void batchSaveRaytracingImage(const char *fileName, FILE *fp, int isPipe, Scene *scene, RadianceMethod *context, RenderOptions *renderOptions);
 
     extern void
     batchRayTrace(
@@ -20,7 +20,8 @@
         FILE *fp,
         int isPipe,
         Scene *scene,
-        RadianceMethod *context);
+        RadianceMethod *context,
+        RenderOptions *renderOptions);
 
 #endif
 
