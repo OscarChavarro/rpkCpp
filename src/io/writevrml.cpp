@@ -139,7 +139,7 @@ writeVrmlHeader(Camera *camera, FILE *fp, RenderOptions *renderOptions) {
     fprintf(fp, "Transform {\n  rotation %g %g %g %g\n  children [\n    Shape {\n      geometry IndexedFaceSet {\n",
             modelRotationAxis.x, modelRotationAxis.y, modelRotationAxis.z, modelRotationAngle);
 
-    fprintf(fp, "\tsolid %s\n", GLOBAL_render_renderOptions.backfaceCulling ? "TRUE" : "FALSE");
+    fprintf(fp, "\tsolid %s\n", renderOptions->backfaceCulling ? "TRUE" : "FALSE");
 }
 
 void
@@ -239,9 +239,9 @@ writeVRMLFaceColors(FILE *fp, java::ArrayList<Patch *> *scenePatches) {
 }
 
 static void
-writeVRMLColors(FILE *fp, java::ArrayList<Patch *> *scenePatches) {
-    fprintf(fp, "\tcolorPerVertex %s\n", GLOBAL_render_renderOptions.smoothShading ? "TRUE" : "FALSE");
-    if ( GLOBAL_render_renderOptions.smoothShading ) {
+writeVRMLColors(FILE *fp, java::ArrayList<Patch *> *scenePatches, RenderOptions *renderOptions) {
+    fprintf(fp, "\tcolorPerVertex %s\n", renderOptions->smoothShading ? "TRUE" : "FALSE");
+    if ( renderOptions->smoothShading ) {
         writeVRMLVertexColors(fp, scenePatches);
     } else {
         writeVRMLFaceColors(fp, scenePatches);
@@ -280,7 +280,7 @@ writeVRML(Camera *camera, FILE *fp, java::ArrayList<Patch *> *scenePatches, Rend
     writeVrmlHeader(camera, fp, renderOptions);
 
     writeVRMLCoords(fp, scenePatches);
-    writeVRMLColors(fp, scenePatches);
+    writeVRMLColors(fp, scenePatches, renderOptions);
     writeVRMLCoordIndices(fp, scenePatches);
 
     writeVRMLTrailer(fp);

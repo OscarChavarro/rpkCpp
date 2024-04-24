@@ -342,7 +342,7 @@ GalerkinElement::regularSubDivide(Camera *camera, RenderOptions *renderOptions) 
         subElement[i]->Ed = Ed;
 
         openGlRenderSetColor(&renderOptions->outlineColor);
-        subElement[i]->drawOutline(camera);
+        subElement[i]->drawOutline(camera, renderOptions);
     }
 
     regularSubElements = (Element **)subElement;
@@ -562,7 +562,7 @@ GalerkinElement::initPolygon(Polygon *polygon) {
 }
 
 void
-GalerkinElement::draw(int mode, Camera *camera) {
+GalerkinElement::draw(int mode, Camera *camera, RenderOptions *renderOptions) {
     Vector3D p[4];
     int numberOfVertices;
 
@@ -624,7 +624,7 @@ GalerkinElement::draw(int mode, Camera *camera) {
 
     // Modifies the positions, that's why it comes last
     if ( mode & OUTLINE ) {
-        openGlRenderSetColor(&GLOBAL_render_renderOptions.outlineColor);
+        openGlRenderSetColor(&renderOptions->outlineColor);
         if ( numberOfVertices == 3 ) {
             ColorRgb yellow = {1.0, 1.0, 0.0};
 
@@ -676,15 +676,15 @@ GalerkinElement::draw(int mode, Camera *camera) {
 Draws element outline in the current outline color
 */
 void
-GalerkinElement::drawOutline(Camera *camera) {
-    draw(OUTLINE, camera);
+GalerkinElement::drawOutline(Camera *camera, RenderOptions *renderOptions) {
+    draw(OUTLINE, camera, renderOptions);
 }
 
 /**
 Renders a surface element flat shaded based on its radiance
 */
 void
-GalerkinElement::render(Camera *camera) {
+GalerkinElement::render(Camera *camera, RenderOptions *renderOptions) {
     int renderCode = 0;
 
     if ( GLOBAL_render_renderOptions.drawOutlines ) {
@@ -697,5 +697,5 @@ GalerkinElement::render(Camera *camera) {
         renderCode |= FLAT;
     }
 
-    draw(renderCode, camera);
+    draw(renderCode, camera, renderOptions);
 }
