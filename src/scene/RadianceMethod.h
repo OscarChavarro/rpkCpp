@@ -43,7 +43,7 @@ class RadianceMethod {
 
     // Returns the radiance being emitted from the specified patch, at
     // the point with given (u,v) parameters and into the given direction
-    virtual ColorRgb getRadiance(Camera *camera, Patch *patch, double u, double v, Vector3D dir) = 0;
+    virtual ColorRgb getRadiance(Camera *camera, Patch *patch, double u, double v, Vector3D dir, RenderOptions *renderOptions) = 0;
 
     // Allocates memory for the radiance data for the given patch. Fills in the pointer in patch->radianceData
     virtual Element *createPatchData(Patch *patch) = 0;

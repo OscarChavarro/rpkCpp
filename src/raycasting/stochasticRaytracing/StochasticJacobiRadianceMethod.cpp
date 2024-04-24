@@ -40,8 +40,8 @@ StochasticJacobiRadianceMethod::terminate(java::ArrayList<Patch *> *scenePatches
 }
 
 ColorRgb
-StochasticJacobiRadianceMethod::getRadiance(Camera *camera, Patch *patch, double u, double v, Vector3D dir) {
-    return monteCarloRadiosityGetRadiance(patch, u, v, dir);
+StochasticJacobiRadianceMethod::getRadiance(Camera *camera, Patch *patch, double u, double v, Vector3D dir, RenderOptions *renderOptions) {
+    return monteCarloRadiosityGetRadiance(patch, u, v, dir, renderOptions);
 }
 
 Element *
@@ -487,7 +487,7 @@ StochasticJacobiRadianceMethod::renderScene(Scene *scene) {
 
 int
 StochasticJacobiRadianceMethod::doStep(Scene *scene, RenderOptions *renderOptions) {
-    monteCarloRadiosityPreStep(scene);
+    monteCarloRadiosityPreStep(scene, renderOptions);
 
     // Do some real work now
     if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.currentIteration == 1 ) {

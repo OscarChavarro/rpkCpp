@@ -27,8 +27,8 @@ RandomWalkRadianceMethod::parseOptions(int *argc, char **argv) {
 }
 
 ColorRgb
-RandomWalkRadianceMethod::getRadiance(Camera *camera, Patch *patch, double u, double v, Vector3D dir) {
-    return monteCarloRadiosityGetRadiance(patch, u, v, dir);
+RandomWalkRadianceMethod::getRadiance(Camera *camera, Patch *patch, double u, double v, Vector3D dir, RenderOptions *renderOptions) {
+    return monteCarloRadiosityGetRadiance(patch, u, v, dir, renderOptions);
 }
 
 Element *
@@ -446,7 +446,7 @@ RandomWalkRadianceMethod::terminate(java::ArrayList<Patch *> *scenePatches) {
 
 int
 RandomWalkRadianceMethod::doStep(Scene *scene, RenderOptions *renderOptions) {
-    monteCarloRadiosityPreStep(scene);
+    monteCarloRadiosityPreStep(scene, renderOptions);
 
     if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.currentIteration == 1 ) {
         if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.indirectOnly ) {

@@ -22,7 +22,8 @@ stochasticRaytracerGetRadiance(
     StochasticRaytracingConfiguration *config,
     StorageReadout readout,
     int usedScatterSamples,
-    RadianceMethod *context);
+    RadianceMethod *context,
+    RenderOptions *renderOptions);
 
 static ColorRgb
 stochasticRaytracerGetScatteredRadiance(
@@ -32,7 +33,8 @@ stochasticRaytracerGetScatteredRadiance(
     SimpleRaytracingPathNode *thisNode,
     StochasticRaytracingConfiguration *config,
     StorageReadout readout,
-    RadianceMethod *context)
+    RadianceMethod *context,
+    RenderOptions *renderOptions)
 {
     int siCurrent; // What scatter block are we handling
     CScatterInfo *si;
@@ -120,9 +122,9 @@ stochasticRaytracerGetScatteredRadiance(
                     // Get the incoming radiance
                     if ( siCurrent == -1 ) {
                         // Storage bounce
-                        radiance = stochasticRaytracerGetRadiance(camera, sceneVoxelGrid, sceneBackground, &newNode, config, READ_NOW, nrSamples, context);
+                        radiance = stochasticRaytracerGetRadiance(camera, sceneVoxelGrid, sceneBackground, &newNode, config, READ_NOW, nrSamples, context, renderOptions);
                     } else {
-                        radiance = stochasticRaytracerGetRadiance(camera, sceneVoxelGrid, sceneBackground, &newNode, config, readout, nrSamples, context);
+                        radiance = stochasticRaytracerGetRadiance(camera, sceneVoxelGrid, sceneBackground, &newNode, config, readout, nrSamples, context, renderOptions);
                     }
 
                     // Frame coherent & correlated sampling
@@ -316,7 +318,8 @@ stochasticRaytracerGetRadiance(
     StochasticRaytracingConfiguration *config,
     StorageReadout readout,
     int usedScatterSamples,
-    RadianceMethod *context)
+    RadianceMethod *context,
+    RenderOptions *renderOptions)
 {
     ColorRgb result;
     ColorRgb radiance;
@@ -390,7 +393,7 @@ stochasticRaytracerGetRadiance(
                 thisNode->m_hit.patch->uv(&thisNode->m_hit.point, &u, &v);
 
                 radiance = context->getRadiance(
-                    camera, thisNode->m_hit.patch, u, v, thisNode->m_inDirF);
+                    camera, thisNode->m_hit.patch, u, v, thisNode->m_inDirF, renderOptions);
 
                 // This includes Le diffuse, subtract first and handle total emitted later (possibly weighted)
                 // -- Interface mechanism needed to determine what a
@@ -417,7 +420,8 @@ stochasticRaytracerGetRadiance(
         result.add(result, radiance);
 
         // Scattered light
-        radiance = stochasticRaytracerGetScatteredRadiance(camera, sceneVoxelGrid, sceneBackground, thisNode, config, readout, context);
+        radiance = stochasticRaytracerGetScatteredRadiance(
+            camera, sceneVoxelGrid, sceneBackground, thisNode, config, readout, context, renderOptions);
         result.add(result, radiance);
 
         // Emitted Light
@@ -481,7 +485,8 @@ calcPixel(
     int nx,
     int ny,
     StochasticRaytracingConfiguration *config,
-    RadianceMethod *context)
+    RadianceMethod *context,
+    RenderOptions *renderOptions)
 {
     int i;
     SimpleRaytracingPathNode eyeNode;
@@ -526,7 +531,7 @@ calcPixel(
             }
 
             col = stochasticRaytracerGetRadiance(camera, sceneVoxelGrid, sceneBackground, &pixelNode, config, config->initialReadout,
-                                                 config->samplesPerPixel, context);
+                                                 config->samplesPerPixel, context, renderOptions);
 
             // Frame coherent & correlated sampling
             if ( GLOBAL_raytracing_state.doFrameCoherent || GLOBAL_raytracing_state.doCorrelatedSampling ) {
