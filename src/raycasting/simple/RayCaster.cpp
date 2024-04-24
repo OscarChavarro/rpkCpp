@@ -65,8 +65,7 @@ RayCaster::getRadianceAtPixel(
     int x,
     int y,
     Patch *patch,
-    RadianceMethod *context,
-    RenderOptions *renderOptions)
+    RadianceMethod *context)
 {
     ColorRgb rad{};
     rad.clear();
@@ -96,7 +95,7 @@ RayCaster::getRadianceAtPixel(
 
         // Reverse ray direction and get radiance emitted at hit point towards the eye
         Vector3D dir(-ray.dir.x, -ray.dir.y, -ray.dir.z);
-        rad = context->getRadiance(camera, patch, u, v, dir, renderOptions);
+        rad = context->getRadiance(camera, patch, u, v, dir);
     }
     return rad;
 }
@@ -121,7 +120,7 @@ RayCaster::render(Scene *scene, RadianceMethod *context, RenderOptions *renderOp
         for ( int x = 0; x < width; x++ ) {
             Patch *patch = idRenderer->getPatchAtPixel(x, y);
             if ( patch != nullptr ) {
-                ColorRgb rad = getRadianceAtPixel(scene->camera, x, y, patch, context, renderOptions);
+                ColorRgb rad = getRadianceAtPixel(scene->camera, x, y, patch, context);
                 screenBuffer->add(x, y, rad);
             }
         }

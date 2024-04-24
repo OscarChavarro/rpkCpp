@@ -317,10 +317,10 @@ monteCarloRadiosityReInitImportance(Element *element) {
 }
 
 void
-monteCarloRadiosityUpdateViewImportance(Scene *scene, RenderOptions *renderOptions) {
+monteCarloRadiosityUpdateViewImportance(Scene *scene) {
     fprintf(stderr, "Updating direct visibility ... \n");
 
-    updateDirectVisibility(scene, renderOptions);
+    updateDirectVisibility(scene, &GLOBAL_render_renderOptions);
 
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.sourceYmp = 0.0;
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotYmp = 0.0;
@@ -409,7 +409,7 @@ monteCarloRadiosityDetermineInitialNrRays(
 Really initialises: before the first iteration step
 */
 void
-monteCarloRadiosityReInit(Scene *scene, RenderOptions *renderOptions) {
+monteCarloRadiosityReInit(Scene *scene) {
     if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.inited ) {
         return;
     }
@@ -460,18 +460,18 @@ monteCarloRadiosityReInit(Scene *scene, RenderOptions *renderOptions) {
     elementHierarchyInit(scene->clusteredRootGeometry);
 
     if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceDriven ) {
-        monteCarloRadiosityUpdateViewImportance(scene, renderOptions);
+        monteCarloRadiosityUpdateViewImportance(scene);
         GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceUpdatedFromScratch = true;
     }
 }
 
 void
-monteCarloRadiosityPreStep(Scene *scene, RenderOptions *renderOptions) {
+monteCarloRadiosityPreStep(Scene *scene) {
     if ( !GLOBAL_stochasticRaytracing_monteCarloRadiosityState.inited ) {
-        monteCarloRadiosityReInit(scene, renderOptions);
+        monteCarloRadiosityReInit(scene);
     }
     if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceDriven && scene->camera->changed ) {
-        monteCarloRadiosityUpdateViewImportance(scene, renderOptions);
+        monteCarloRadiosityUpdateViewImportance(scene);
     }
 
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.lastClock = clock();
@@ -556,11 +556,11 @@ Returns the radiance emitted from the patch at the point with parameters
 (u,v) into the direction 'dir'
 */
 ColorRgb
-monteCarloRadiosityGetRadiance(Patch *patch, double u, double v, Vector3D /*dir*/, RenderOptions *renderOptions) {
+monteCarloRadiosityGetRadiance(Patch *patch, double u, double v, Vector3D /*dir*/) {
     ColorRgb TrueRdAtPoint = monteCarloRadiosityDiffuseReflectanceAtPoint(patch, u, v);
     StochasticRadiosityElement *leaf = stochasticRadiosityElementRegularLeafElementAtPoint(
             topLevelGalerkinElement(patch), &u, &v);
-    ColorRgb UsedRdAtPoint = renderOptions->smoothShading ? monteCarloRadiosityInterpolatedReflectanceAtPoint(leaf, u, v) : leaf->Rd;
+    ColorRgb UsedRdAtPoint = GLOBAL_render_renderOptions.smoothShading ? monteCarloRadiosityInterpolatedReflectanceAtPoint(leaf, u, v) : leaf->Rd;
     ColorRgb radianceAtPoint = stochasticRadiosityElementDisplayRadianceAtPoint(leaf, u, v);
     ColorRgb sourceRad;
     sourceRad.clear();
