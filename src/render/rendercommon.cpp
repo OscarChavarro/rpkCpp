@@ -51,17 +51,17 @@ renderUseFrustumCulling(char truefalse) {
 
 void
 renderSetOutlineColor(ColorRgb *outline_color) {
-    GLOBAL_render_renderOptions.outline_color = *outline_color;
+    GLOBAL_render_renderOptions.outlineColor = *outline_color;
 }
 
 void
 renderSetBoundingBoxColor(ColorRgb *outline_color) {
-    GLOBAL_render_renderOptions.bounding_box_color = *outline_color;
+    GLOBAL_render_renderOptions.boundingBoxColor = *outline_color;
 }
 
 void
 renderSetClusterColor(ColorRgb *cluster_color) {
-    GLOBAL_render_renderOptions.cluster_color = *cluster_color;
+    GLOBAL_render_renderOptions.clusterColor = *cluster_color;
 }
 
 static void
@@ -101,7 +101,7 @@ static CommandLineOptionDescription renderingOptions[] = {
      "-no-culling\t\t: don't use backface culling"},
     {"-outlines", 5, TYPELESS, nullptr, outlinesOption,
      "-outlines\t\t: draw polygon outlines"},
-    {"-outline-color", 10, TRGB, &GLOBAL_render_renderOptions.outline_color, DEFAULT_ACTION,
+    {"-outline-color", 10, TRGB, &GLOBAL_render_renderOptions.outlineColor, DEFAULT_ACTION,
      "-outline-color <rgb> \t: color for polygon outlines"},
     {nullptr, 0, nullptr, nullptr, nullptr, nullptr}
 };
@@ -221,7 +221,7 @@ Renders the bounding boxes of all objects in the scene
 */
 void
 renderBoundingBoxHierarchy(Camera *camera, java::ArrayList<Geometry *> *sceneGeometries) {
-    openGlRenderSetColor(&GLOBAL_render_renderOptions.bounding_box_color);
+    openGlRenderSetColor(&GLOBAL_render_renderOptions.boundingBoxColor);
     for ( int i = 0; sceneGeometries != nullptr && i < sceneGeometries->size(); i++ ) {
         renderGeomBounds(camera, sceneGeometries->get(i));
     }
@@ -232,7 +232,7 @@ Renders the cluster hierarchy bounding boxes
 */
 void
 renderClusterHierarchy(Camera *camera, java::ArrayList<Geometry *> *clusteredGeometryList) {
-    openGlRenderSetColor(&GLOBAL_render_renderOptions.cluster_color);
+    openGlRenderSetColor(&GLOBAL_render_renderOptions.clusterColor);
     for ( int i = 0; clusteredGeometryList != nullptr && i < clusteredGeometryList->size(); i++ ) {
         renderGeomBounds(camera, clusteredGeometryList->get(i));
     }

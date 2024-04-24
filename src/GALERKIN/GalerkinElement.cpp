@@ -341,7 +341,7 @@ GalerkinElement::regularSubDivide(Camera *camera) {
         subElement[i]->Rd = Rd;
         subElement[i]->Ed = Ed;
 
-        openGlRenderSetColor(&GLOBAL_render_renderOptions.outline_color);
+        openGlRenderSetColor(&GLOBAL_render_renderOptions.outlineColor);
         subElement[i]->drawOutline(camera);
     }
 
@@ -624,7 +624,7 @@ GalerkinElement::draw(int mode, Camera *camera) {
 
     // Modifies the positions, that's why it comes last
     if ( mode & OUTLINE ) {
-        openGlRenderSetColor(&GLOBAL_render_renderOptions.outline_color);
+        openGlRenderSetColor(&GLOBAL_render_renderOptions.outlineColor);
         if ( numberOfVertices == 3 ) {
             ColorRgb yellow = {1.0, 1.0, 0.0};
 

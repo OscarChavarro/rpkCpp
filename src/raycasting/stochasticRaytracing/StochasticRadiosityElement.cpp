@@ -760,7 +760,7 @@ monteCarloRadiosityRegularSubdivideTriangle(StochasticRadiosityElement *element)
     monteCarloRadiosityCreateSurfaceSubElement(element, 2, m2, m1, v2, nullptr);
     monteCarloRadiosityCreateSurfaceSubElement(element, 3, m1, m2, m0, nullptr);
 
-    openGlRenderSetColor(&GLOBAL_render_renderOptions.outline_color);
+    openGlRenderSetColor(&GLOBAL_render_renderOptions.outlineColor);
     openGlRenderLine(v0->point, v1->point);
     openGlRenderLine(v1->point, v2->point);
     openGlRenderLine(v2->point, v0->point);
@@ -788,7 +788,7 @@ monteCarloRadiosityRegularSubdivideQuad(StochasticRadiosityElement *element) {
     monteCarloRadiosityCreateSurfaceSubElement(element, 2, m3, mm, m2, v3);
     monteCarloRadiosityCreateSurfaceSubElement(element, 3, mm, m1, v2, m2);
 
-    openGlRenderSetColor(&GLOBAL_render_renderOptions.outline_color);
+    openGlRenderSetColor(&GLOBAL_render_renderOptions.outlineColor);
     openGlRenderLine(v0->point, v1->point);
     openGlRenderLine(v1->point, v2->point);
     openGlRenderLine(v2->point, v3->point);

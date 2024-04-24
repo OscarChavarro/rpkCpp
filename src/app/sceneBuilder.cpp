@@ -10,9 +10,9 @@
 #include "io/mgf/readmgf.h"
 #include "render/render.h"
 #include "render/renderhook.h"
-#include "render/opengl.h"
 #include "render/ScreenBuffer.h"
 #include "scene/Cluster.h"
+#include "app/radiance.h"
 #include "app/sceneBuilder.h"
 
 #ifdef RAYTRACING_ENABLED

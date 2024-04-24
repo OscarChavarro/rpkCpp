@@ -65,6 +65,4 @@ class RadianceMethod {
     virtual void writeVRML(Camera *camera, FILE *fp) = 0;
 };
 
-extern void setRadianceMethod(RadianceMethod *newMethod, Scene *scene);
-
 #endif

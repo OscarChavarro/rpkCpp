@@ -164,7 +164,7 @@ renderTriangle(Vertex *v1, Vertex *v2, Vertex *v3) {
     openGlRenderPolygonGouraud(3, vert, col);
 
     if ( GLOBAL_render_renderOptions.drawOutlines ) {
-        openGlRenderSetColor(&GLOBAL_render_renderOptions.outline_color);
+        openGlRenderSetColor(&GLOBAL_render_renderOptions.outlineColor);
         openGlRenderLine(&vert[0], &vert[1]);
         openGlRenderLine(&vert[1], &vert[2]);
         openGlRenderLine(&vert[2], &vert[0]);
@@ -187,7 +187,7 @@ renderQuadrilateral(Vertex *v1, Vertex *v2, Vertex *v3, Vertex *v4) {
     openGlRenderPolygonGouraud(4, vert, col);
 
     if ( GLOBAL_render_renderOptions.drawOutlines ) {
-        openGlRenderSetColor(&GLOBAL_render_renderOptions.outline_color);
+        openGlRenderSetColor(&GLOBAL_render_renderOptions.outlineColor);
         openGlRenderLine(&vert[0], &vert[1]);
         openGlRenderLine(&vert[1], &vert[2]);
         openGlRenderLine(&vert[2], &vert[3]);
@@ -343,7 +343,7 @@ static void
 stochasticRadiosityElementRenderOutline(StochasticRadiosityElement *elem) {
     Vector3D vertices[4];
 
-    openGlRenderSetColor(&GLOBAL_render_renderOptions.outline_color);
+    openGlRenderSetColor(&GLOBAL_render_renderOptions.outlineColor);
     openGlRenderLine(&vertices[0], &vertices[1]);
     openGlRenderLine(&vertices[1], &vertices[2]);
     if ( elem->numberOfVertices == 3 ) {

@@ -247,7 +247,7 @@ openGlRenderPatch(Patch *patch, Camera *camera) {
     if ( GLOBAL_render_renderOptions.drawOutlines &&
          (vectorDotProduct(patch->normal, camera->eyePosition) + patch->planeConstant > EPSILON
           || GLOBAL_render_renderOptions.useDisplayLists) ) {
-        openGlRenderSetColor(&GLOBAL_render_renderOptions.outline_color);
+        openGlRenderSetColor(&GLOBAL_render_renderOptions.outlineColor);
         openGlRenderPatchOutline(patch);
     }
 }

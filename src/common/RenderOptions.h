@@ -11,10 +11,10 @@ If this is undefined, the raytracing code can be trimmed as follows:
 #define RAYTRACING_ENABLED true
 
 class RenderOptions {
-public:
-    ColorRgb outline_color; // Color in which to draw outlines
-    ColorRgb bounding_box_color; // Color in which to draw bounding boxes
-    ColorRgb cluster_color; // Color in which to show cluster bounding boxes
+  public:
+    ColorRgb outlineColor; // Color in which to draw outlines
+    ColorRgb boundingBoxColor; // Color in which to draw bounding boxes
+    ColorRgb clusterColor; // Color in which to show cluster bounding boxes
     float lineWidth;
     char drawOutlines; // True for drawing facet outlines
     char noShading; // False for using any kind of shading
@@ -26,6 +26,8 @@ public:
     char frustumCulling; // Frustum culling accelerates rendering of large scenes.
     char renderRayTracedImage; // For freezing ray-traced image on the screen when appropriate
     char trace; // High-dynamic range ray-traced tiff
+
+    RenderOptions();
 };
 
 extern RenderOptions GLOBAL_render_renderOptions;
