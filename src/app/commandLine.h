@@ -2,6 +2,14 @@
 #define __COMMAND_LINE_OPTIONS__
 
 extern void cameraParseOptions(int *argc, char **argv, Camera *camera, int imageWidth, int imageHeight);
-extern void commandLineGeneralProgramParseOptions(int *argc, char **argv, bool *oneSidedSurfaces, int *conicSubDivisions);
+
+extern void
+commandLineGeneralProgramParseOptions(
+    int *argc,
+    char **argv,
+    bool *oneSidedSurfaces,
+    int *conicSubDivisions,
+    int *imageOutputWidth,
+    int *imageOutputHeight);
 
 #endif

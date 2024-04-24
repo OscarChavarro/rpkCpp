@@ -82,12 +82,13 @@ mainParseOptions(
     Camera *camera,
     bool *oneSidedSurfaces,
     int *conicSubdivisions,
-    int imageOutputWidth,
-    int imageOutputHeight)
+    int *outputImageWidth,
+    int *outputImageHeight)
 {
+    commandLineGeneralProgramParseOptions(argc, argv, oneSidedSurfaces, conicSubdivisions, outputImageWidth, outputImageHeight);
     renderParseOptions(argc, argv);
     toneMapParseOptions(argc, argv);
-    cameraParseOptions(argc, argv, camera, imageOutputWidth, imageOutputHeight);
+    cameraParseOptions(argc, argv, camera, *outputImageWidth, *outputImageHeight);
     radianceParseOptions(argc, argv, context);
 
 #ifdef RAYTRACING_ENABLED
@@ -95,26 +96,25 @@ mainParseOptions(
 #endif
 
     batchParseOptions(argc, argv);
-    commandLineGeneralProgramParseOptions(argc, argv, oneSidedSurfaces, conicSubdivisions);
 }
 
 static void
 mainCreateOffscreenCanvasWindow(
-    int width,
-    int height,
+    int outputImageWidth,
+    int outputImageHeight,
     Scene *scene,
     RadianceMethod *context)
 {
-    openGlMesaRenderCreateOffscreenWindow(scene->camera, width, height);
+    openGlMesaRenderCreateOffscreenWindow(scene->camera, outputImageWidth, outputImageHeight);
 
-    // Set correct width and height for the camera
+    // Set correct outputImageWidth and outputImageHeight for the camera
     scene->camera->set(
         &scene->camera->eyePosition,
         &scene->camera->lookPosition,
         &scene->camera->upDirection,
         scene->camera->fieldOfVision,
-        width,
-        height,
+        outputImageWidth,
+        outputImageHeight,
         &scene->camera->background);
 
     #ifdef RAYTRACING_ENABLED
@@ -164,8 +164,8 @@ main(int argc, char *argv[]) {
     Scene scene;
     mainInitApplication(&scene);
 
-    int imageOutputWidth = 1920;
-    int imageOutputHeight = 1080;
+    int imageOutputWidth;
+    int imageOutputHeight;
     MgfContext mgfContext;
     RadianceMethod *selectedRadianceMethod = nullptr;
     mainParseOptions(
@@ -175,8 +175,8 @@ main(int argc, char *argv[]) {
         scene.camera,
         &mgfContext.singleSided,
         &mgfContext.numberOfQuarterCircleDivisions,
-        imageOutputWidth,
-        imageOutputHeight);
+        &imageOutputWidth,
+        &imageOutputHeight);
 
     Material defaultMaterial;
     mgfContext.radianceMethod = selectedRadianceMethod;

@@ -9,6 +9,8 @@ static int globalNumberOfQuarterCircleDivisions = DEFAULT_NUMBER_OF_QUARTIC_DIVI
 static int globalFileOptionsForceOneSidedSurfaces = 0;
 static int globalYes = 1;
 static int globalNo = 0;
+static int globalOutputImageWidth = 1920;
+static int globalOutputImageHeight = 1080;
 static Camera globalCamera;
 
 static void
@@ -21,6 +23,16 @@ mainMonochromeOption(void *value) {
     globalNumberOfQuarterCircleDivisions = *(int *)value;
 }
 
+static void
+commandLineImageWidthOption(void *value) {
+    globalOutputImageWidth = *(int *)value;
+}
+
+static void
+commandLineImageHeightOption(void *value) {
+    globalOutputImageHeight = *(int *)value;
+}
+
 static CommandLineOptionDescription globalOptions[] = {
     {"-nqcdivs", 3, &GLOBAL_options_intType, &globalNumberOfQuarterCircleDivisions, DEFAULT_ACTION,
      "-nqcdivs <integer>\t: number of quarter circle divisions"},
@@ -30,11 +42,22 @@ static CommandLineOptionDescription globalOptions[] = {
      "-dont-force-onesided\t: allow two-sided surfaces"},
     {"-monochromatic", 5, TYPELESS, &globalYes, mainMonochromeOption,
      "-monochromatic \t\t: convert colors to shades of grey"},
+    {"-width", 5, &GLOBAL_options_intType, &globalOutputImageWidth, commandLineImageWidthOption,
+            "-width \t\t: image output width in pixels"},
+    {"-height", 6, &GLOBAL_options_intType, &globalOutputImageHeight, commandLineImageHeightOption,
+            "-width \t\t: image output width in pixels"},
     {nullptr, 0, TYPELESS, nullptr, DEFAULT_ACTION, nullptr}
 };
 
 void
-commandLineGeneralProgramParseOptions(int *argc, char **argv, bool *oneSidedSurfaces, int *conicSubDivisions) {
+commandLineGeneralProgramParseOptions(
+    int *argc,
+    char **argv,
+    bool *oneSidedSurfaces,
+    int *conicSubDivisions,
+    int *imageOutputWidth,
+    int *imageOutputHeight)
+{
     globalFileOptionsForceOneSidedSurfaces = DEFAULT_FORCE_ONE_SIDED;
     globalNumberOfQuarterCircleDivisions = DEFAULT_NUMBER_OF_QUARTIC_DIVISIONS;
     parseGeneralOptions(globalOptions, argc, argv); // Order is important, this should be called last
@@ -45,6 +68,8 @@ commandLineGeneralProgramParseOptions(int *argc, char **argv, bool *oneSidedSurf
         *oneSidedSurfaces = false;
     }
     *conicSubDivisions = globalNumberOfQuarterCircleDivisions;
+    *imageOutputWidth = globalOutputImageWidth;
+    *imageOutputHeight = globalOutputImageHeight;
 }
 
 static void

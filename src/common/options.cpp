@@ -99,8 +99,8 @@ optionsPrintInt(FILE *fp, const int *n, void * /*data*/) {
 }
 
 CommandLineOptions GLOBAL_options_intType = {
-    (int (*)(void *, void *)) optionsGetInt,
-    (void (*)(FILE *, void *, void *)) optionsPrintInt,
+    (int (*)(void *, void *))optionsGetInt,
+    (void (*)(FILE *, void *, void *))optionsPrintInt,
     (void *) &globalDummyInt,
     nullptr
 };
